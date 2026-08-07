@@ -78,6 +78,8 @@ Wymagania: Node.js 20+, PostgreSQL 15+.
 |---|---|
 | [docs/STATE.md](docs/STATE.md) | stan projektu na dziś — dla nietechnicznych i technicznych |
 | [docs/DZIENNIK.md](docs/DZIENNIK.md) | historia sesji i otwarte ryzyka |
+| [docs/LEKCJE.md](docs/LEKCJE.md) | zasady wynikłe z korekt — czego agent już się tu nauczył |
+| [docs/DECYZJE.md](docs/DECYZJE.md) | rozstrzygnięcia zamrożone: co i dlaczego jest ustalone |
 | [docs/USTAWIENIA.md](docs/USTAWIENIA.md) | ustalenia i preferencje projektu |
 | [docs/KOMENDY.md](docs/KOMENDY.md) | komendy i frazy RelAI dostępne w tym projekcie |
 | [CLAUDE.md](CLAUDE.md) | reguły pracy agenta |

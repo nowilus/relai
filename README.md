@@ -5,9 +5,10 @@
 Plugin do Claude Code, który zamienia rozmowę z agentem w prowadzony projekt: ustalenia, decyzje,
 stan prac i historia zostają w plikach, a nie w kontekście sesji, który za chwilę zniknie.
 
-> Wersja 0.1.0 — fundament. Działa inicjalizacja projektu i wykrywanie struktury. Planowanie,
-> prompty etapowe, hooki, komendy operacyjne i adopcja istniejących projektów dochodzą w kolejnych
-> wersjach. Aktualny zakres: [docs/plany/BUDOWA_RELAI/STATUS.md](docs/plany/BUDOWA_RELAI/STATUS.md).
+> Wersja 0.2.0 — rdzeń dokumentacyjny. Działa inicjalizacja projektu, wykrywanie struktury, rytuały
+> sesji, rejestry lekcji i decyzji oraz trzy frazy rytualne. Planowanie, prompty etapowe, hooki,
+> komendy operacyjne i adopcja istniejących projektów dochodzą w kolejnych wersjach. Aktualny
+> zakres: [docs/plany/BUDOWA_RELAI/STATUS.md](docs/plany/BUDOWA_RELAI/STATUS.md).
 
 ## Instalacja
 
@@ -22,14 +23,27 @@ stan prac i historia zostają w plikach, a nie w kontekście sesji, który za ch
 Po instalacji otwórz Claude Code w folderze projektu i napisz cokolwiek — RelAI zapyta o zgodę na
 utworzenie struktury.
 
-## Co robi wersja 0.1.0
+## Co robi wersja 0.2.0
 
 | Sytuacja | Zachowanie |
 |---|---|
-| Pusty folder | zgoda → dokładnie trzy pytania (język, git, profil) → `CLAUDE.md`, `README.md`, `docs/{STATE,DZIENNIK,USTAWIENIA,KOMENDY}.md` w języku projektu |
+| Pusty folder | zgoda → dokładnie trzy pytania (język, git, profil) → `CLAUDE.md`, `README.md`, `docs/{STATE,DZIENNIK,LEKCJE,DECYZJE,USTAWIENIA,KOMENDY}.md` w języku projektu |
 | Folder z zawartością | propozycja **niedestrukcyjnego** dołączenia brakujących plików; nic istniejącego nie jest ruszane |
 | Odmowa | tryb gościa + marker `.claude/relai.json`; RelAI nie pyta ponownie w tym folderze |
-| Folder, który już jest projektem RelAI | rozpoznanie po markerze `Wersja RelAI:` w `docs/USTAWIENIA.md`; zero powtórnej inicjalizacji |
+| Folder, który już jest projektem RelAI | rozpoznanie po markerze `Wersja RelAI:` w `docs/USTAWIENIA.md` → rytuał startu sesji i akapit „gdzie jesteśmy" |
+
+Rytuały, które od tej wersji działają bez proszenia:
+
+- **Definicja ukończenia** — zmiana funkcjonalna oznacza aktualizację `STATE.md` i wpis
+  w `DZIENNIK.md` w tej samej turze. Zadanie z działającym kodem i nieaktualnym STATE jest w toku.
+- **Lekcje** — każda korekta użytkownika zostaje zapisana jako `L-NNNN` bez pytania; przy
+  powtórzeniu tej samej uwagi RelAI proponuje wpisać zasadę na stałe do `CLAUDE.md`.
+- **Decyzje** — temat rozstrzygany drugi raz tak samo daje propozycję zamrożenia jako `D-NN`;
+  frazy w rodzaju „nie rób tego więcej" trafiają do rejestru od razu.
+- **Frazy** — „kończymy na dziś" / „wrapping up", „kontynuujemy pracę" / „let's continue",
+  „sprawdź status" / „status check".
+- **Ustawienia globalne** — `~/.claude/relai/USTAWIENIA.md` dziedziczone przez nowe projekty; wpis
+  projektowy ma pierwszeństwo.
 
 Pełna adopcja istniejącego projektu — z backupem, analizą kodu i historii, raportem zmian
 i przetestowaną ścieżką cofnięcia — celowo **nie** jest częścią tej wersji. Namiastka adopcji byłaby
@@ -43,7 +57,7 @@ relai/
 │   ├── plugin.json          # manifest pluginu
 │   └── marketplace.json     # własny marketplace (instalacja z tego samego repo)
 ├── skills/
-│   └── relai-core/          # inicjalizacja, wykrywanie struktury, tryb gościa
+│   └── relai-core/          # inicjalizacja, wykrywanie struktury, rytuały sesji, rejestry
 ├── templates/               # SPECYFIKACJE dokumentów dla LLM (nie pliki do kopiowania)
 └── docs/                    # dokumentacja budowy samego RelAI (dogfooding)
 ```

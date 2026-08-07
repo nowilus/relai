@@ -21,8 +21,40 @@ coś zmienić.
 
 ## Warstwy ustawień (D-23)
 
-Globalne preferencje użytkownika (`~/.claude/relai/`) są dziedziczone przez nowe projekty; wpis
-w `docs/USTAWIENIA.md` **nadpisuje** wartość globalną. Wpis lokalny wygrywa zawsze.
+Globalne preferencje użytkownika (`~/.claude/relai/USTAWIENIA.md`, w projekcie angielskim
+`~/.claude/relai/SETTINGS.md`) są dziedziczone przez nowe projekty; wpis w `docs/USTAWIENIA.md`
+**nadpisuje** wartość globalną. Wpis lokalny wygrywa zawsze.
+
+**Plik globalny** ma **identyczną strukturę** jak projektowy, z trzema różnicami:
+
+1. Nagłówek brzmi `# USTAWIENIA — preferencje globalne` (bez nazwy projektu).
+2. **Nie zawiera linii `Wersja RelAI:`** — marker wersji jest cechą projektu, nie użytkownika.
+   Umieszczenie go tam sprawiłoby, że katalog domowy zostałby uznany za projekt RelAI.
+3. Trafiają do niego wyłącznie preferencje **ponadprojektowe**: język pracy, format planów, model
+   wykonawczy etapów, lokalizacja backupów, kierunek designu. Rzeczy z natury projektowe (git
+   remote, profil projektu, podejście do testów w tym repo) zostają w pliku projektowym.
+
+**Kiedy powstaje:** przy pierwszej inicjalizacji projektu RelAI na danej maszynie, zaraz po paczce
+trzech pytań — z ponadprojektowego podzbioru odpowiedzi. Nie zadajesz z tego powodu dodatkowego
+pytania (limit trzech jest twardy, D-80); informujesz jednym zdaniem w podsumowaniu.
+
+**Kolejność odczytu przed każdym pytaniem o preferencję:** `docs/USTAWIENIA.md` → plik globalny →
+dopiero wtedy pytanie. Znalazłeś odpowiedź — nie pytasz; wspominasz pół zdaniem, skąd ją masz.
+
+### Przykład pliku globalnego
+
+```markdown
+# USTAWIENIA — preferencje globalne
+
+Preferencje użytkownika dziedziczone przez nowe projekty RelAI. Wpis w `docs/USTAWIENIA.md`
+projektu nadpisuje wartość stąd.
+
+| Data | Czego dotyczy | Decyzja |
+|---|---|---|
+| 2026-08-07 | Język pracy | Polski — dokumentacja PL, kod EN, commity conventional EN |
+| 2026-08-12 | Format planów | Interaktywny HTML dla planów głównych, Markdown dla promptów etapowych |
+| 2026-08-20 | Lokalizacja backupów | `D:\Backupy\Projekty` |
+```
 
 ## Struktura pliku
 
@@ -74,7 +106,7 @@ etapów, lokalizacja backupów, zgody na wyjątki od reguł domyślnych, wybrany
 ```markdown
 # USTAWIENIA — Parkly
 
-Wersja RelAI: 0.1.0 · zainicjowano: 2026-08-07
+Wersja RelAI: 0.2.0 · zainicjowano: 2026-08-07
 
 Rejestr wyborów użytkownika dla tego projektu. Każdy wpis: data, czego dotyczył, decyzja.
 Odpowiedź raz udzielona nie wraca jako pytanie.

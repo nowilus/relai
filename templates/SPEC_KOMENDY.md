@@ -45,49 +45,69 @@ projektu jest w `docs/USTAWIENIA.md`.
 Plik jest **regenerowany**, nie edytowany ręcznie. Wyjątkiem są wiersze oznaczone jako lokalne —
 te przeżywają regenerację (D-62: lokalne nadpisania mają pierwszeństwo).
 
-## Zakres wersji 0.1.0 (E1) — co realnie działa
+## Zakres wersji 0.2.0 (E2) — co realnie działa
 
-W tej wersji plugin nie ma jeszcze **żadnej komendy `/relai-*`** ani fraz rytualnych. Działa:
+Komend `/relai-*` w tej wersji **nadal nie ma** — dochodzą w kolejnych. Działa:
 
-- inicjalizacja struktury projektu (zgoda → trzy pytania → dokumenty),
+- inicjalizacja struktury projektu (zgoda → trzy pytania → osiem dokumentów),
 - rozpoznanie folderu, który już jest projektem RelAI,
 - tryb gościa po odmowie (bez ponownego pytania),
 - niedestrukcyjne dołączenie struktury do folderu z zawartością,
+- rytuał startu sesji (ustalona kolejność czytania + akapit „gdzie jesteśmy"),
+- definicja ukończenia: `STATE.md` i wpis w `DZIENNIK.md` w tej samej turze co zmiana, bez proszenia,
+- rejestr lekcji: wpis po każdej korekcie bez pytania, propozycja graduacji przy powtórzeniu,
+- rejestr decyzji: propozycja zamrożenia powracającego tematu, przechwytywanie fraz zamykających,
+- dziedziczenie preferencji globalnych między projektami,
+- trzy frazy rytualne (poniżej) w wariancie polskim i angielskim,
 - naturalne prośby: „dodaj RelAI", „dołącz strukturę RelAI".
 
-Wygenerowany `KOMENDY.md` w wersji 0.1.0 **nie zawiera tabeli komend** — zawiera sekcję „Na tym
-etapie komend nie ma" z powyższą listą i informacją, że kolejne wersje je dołożą.
+Wygenerowany `KOMENDY.md` w wersji 0.2.0 **nadal nie zawiera tabeli komend** — zawiera sekcję
+„Komend jeszcze nie ma" oraz **tabelę fraz naturalnych** z trzema pozycjami:
+
+| Fraza (PL / EN) | Co się stanie |
+|---|---|
+| „kończymy na dziś" / „wrapping up" | rytuał zamknięcia: sync dokumentów, wpis w dzienniku, aktualizacja ryzyk, propozycja commita, podsumowanie |
+| „kontynuujemy pracę" / „let's continue" | odtworzenie kontekstu z dokumentów + akapit „gdzie jesteśmy" + propozycja najbliższego kroku |
+| „sprawdź status" / „status check" | raport: stan, plany i etapy, otwarte ryzyka, zaległości dokumentacyjne |
 
 ## Zakazy
 
 - Nie wpisujesz `/relai-stage`, `/relai-backup`, `/relai-audit`, `/relai-handover`, `/relai-adopt`,
-  `/relai-update`, `/relai-tour`, `/relai-changelog`, `/relai-help` ani fraz „kończymy na dziś",
-  „kontynuujemy pracę", „sprawdź status`, dopóki nie działają w zainstalowanej wersji.
+  `/relai-update`, `/relai-tour`, `/relai-changelog`, `/relai-help`, dopóki nie działają
+  w zainstalowanej wersji.
+- Nie dopisujesz fraz spoza listy działających w danej wersji.
 - Nie opisujesz mechaniki wewnętrznej (skille, hooki) — użytkownika interesuje efekt.
 
-## Przykład dla wersji 0.1.0 (projekt polski)
+## Przykład dla wersji 0.2.0 (projekt polski)
 
 ```markdown
 # KOMENDY — Parkly
 
-RelAI 0.1.0
+RelAI 0.2.0
 
 Nic z tej listy nie jest obowiązkowe. RelAI działa w zwykłej rozmowie — piszesz normalnie,
 a struktura projektu nadąża. Komendy są skrótem do rzadszych operacji.
 
-## Na tym etapie komend nie ma
+## Komend jeszcze nie ma
 
-Wersja 0.1.0 to fundament. Działa w niej:
+Wersja 0.2.0 to rdzeń dokumentacyjny. Komendy `/relai-*` dochodzą w kolejnych wersjach.
+
+## Frazy, które działają
 
 | Powiesz | Co się stanie |
 |---|---|
+| „kończymy na dziś" / „wrapping up" | RelAI domyka dokumenty, zapisuje wpis w dzienniku, aktualizuje ryzyka, proponuje commit i podsumowuje sesję |
+| „kontynuujemy pracę" / „let's continue" | RelAI odtwarza kontekst z dokumentów, mówi, gdzie jesteśmy, i proponuje najbliższy krok |
+| „sprawdź status" / „status check" | krótki raport: stan projektu, plany i etapy, otwarte ryzyka, zaległości w dokumentach |
 | „dodaj RelAI" / „dołącz strukturę RelAI" | RelAI dołoży brakujące dokumenty, nie ruszając niczego, co już jest |
-
-Poza tym RelAI sam rozpoznaje, czy folder jest już projektem RelAI, i nie pyta o inicjalizację
-drugi raz — także wtedy, gdy raz odmówiłeś.
 
 ## Czego RelAI pilnuje bez proszenia
 
+- Po każdej zmianie funkcjonalnej aktualizuje `STATE.md` i dopisuje wpis do `DZIENNIK.md` — w tej
+  samej turze, bez przypominania.
+- Po każdej Twojej korekcie zapisuje lekcję w `LEKCJE.md`; gdy ta sama uwaga wraca, proponuje wpisać
+  ją na stałe do reguł projektu.
+- Gdy ten sam temat rozstrzygasz drugi raz tak samo, proponuje zamrozić to jako decyzję.
 - Nie nadpisuje i nie kasuje plików, których sam nie utworzył.
 - Nie zapisuje kluczy ani haseł w plikach trafiających do repozytorium.
 - Nie zakłada repozytorium gita wewnątrz innego repozytorium.

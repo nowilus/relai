@@ -14,11 +14,18 @@ zasobów pluginu.
 | [SPEC_README.md](SPEC_README.md) | `README.md` | wizytówka + mapa dokumentacji |
 | [SPEC_STATE.md](SPEC_STATE.md) | `docs/STATE.md` | dwuwarstwowy, **nadpisywany** |
 | [SPEC_DZIENNIK.md](SPEC_DZIENNIK.md) | `docs/DZIENNIK.md` | append na końcu + stała sekcja ryzyk |
-| [SPEC_USTAWIENIA.md](SPEC_USTAWIENIA.md) | `docs/USTAWIENIA.md` | append; nosi marker `Wersja RelAI:` |
+| [SPEC_LEKCJE.md](SPEC_LEKCJE.md) | `docs/LEKCJE.md` | append bez pytania; destylat „Zasady aktywne"; graduacja i kompresja |
+| [SPEC_DECYZJE.md](SPEC_DECYZJE.md) | `docs/DECYZJE.md` | append; zamrożone — „nie proponuj ponownie" |
+| [SPEC_USTAWIENIA.md](SPEC_USTAWIENIA.md) | `docs/USTAWIENIA.md` | append; nosi marker `Wersja RelAI:`; warstwa globalna |
 | [SPEC_KOMENDY.md](SPEC_KOMENDY.md) | `docs/KOMENDY.md` | regenerowany ze stanu faktycznego pluginu |
 
-Specyfikacje `LEKCJE`, `DECYZJE`, `ARCHITEKTURA`, `DESIGN` oraz szablon HTML planów dochodzą
-w kolejnych wersjach pluginu.
+Osiem dokumentów powyżej (`CLAUDE.md`, `README.md` + sześć plików w `docs/`) to komplet generowany
+przy inicjalizacji projektu od wersji 0.2.0. Specyfikacje `ARCHITEKTURA`, `DESIGN` oraz szablon HTML
+planów dochodzą w kolejnych wersjach pluginu.
+
+Trzy rejestry mają rozłączne role i nie wolno ich mieszać (D-15): `LEKCJE` — korekty zachowania
+agenta; `DECYZJE` — rozstrzygnięcia w projekcie, których się nie otwiera ponownie; `USTAWIENIA` —
+odpowiedzi na pytania o preferencje.
 
 ## Zasady wspólne dla wszystkich generacji
 

@@ -25,8 +25,10 @@ i `DZIENNIK.md`.
 1. **Nagłówek** — nazwa projektu + jedno zdanie: co to jest i dla kogo.
 2. **Rytuał startu sesji** — numerowana lista plików do przeczytania, w kolejności, z jednozdaniowym
    uzasadnieniem każdego. Domyślnie: ten plik → `docs/STATE.md` → `docs/DZIENNIK.md` (sekcja ryzyk +
-   ostatni wpis) → `docs/USTAWIENIA.md` → aktywny plan. Zakończ instrukcją „czytaj w tej kolejności,
-   nie skanuj repo pełnotekstowo".
+   ostatni wpis) → `docs/LEKCJE.md` (**wyłącznie** sekcja „Zasady aktywne" — D-15) →
+   `docs/USTAWIENIA.md` → aktywny plan. Zakończ instrukcją „czytaj w tej kolejności, nie skanuj repo
+   pełnotekstowo". `docs/DECYZJE.md` **nie jest** czytany na starcie — sięgasz po niego, gdy temat
+   tego wymaga; w regułach procesu zostaje sama zasada „decyzji stamtąd się nie proponuje ponownie".
 3. **Stan prac** — tabela `Co | Status | Gdzie` z maksymalnie pięcioma wierszami najwyższego
    poziomu. Szczegóły są w `STATE.md`; tu tylko drogowskazy.
 4. **Aktywny plan** — dokładnie jedna linia z linkiem do `docs/plany/<TEMAT>/STATUS.md` albo
@@ -81,7 +83,8 @@ Czytaj w tej kolejności, nie skanuj repo pełnotekstowo:
 1. Ten plik.
 2. [docs/STATE.md](docs/STATE.md) — stan na dziś.
 3. [docs/DZIENNIK.md](docs/DZIENNIK.md) — „Stan otwartych ryzyk" + ostatni wpis.
-4. [docs/USTAWIENIA.md](docs/USTAWIENIA.md) — preferencje projektu.
+4. [docs/LEKCJE.md](docs/LEKCJE.md) — wyłącznie sekcja „Zasady aktywne".
+5. [docs/USTAWIENIA.md](docs/USTAWIENIA.md) — preferencje projektu.
 
 ## Stan prac
 
