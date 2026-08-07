@@ -5,7 +5,7 @@
 | # | Ryzyko | Poziom | Status | Mitygacja |
 |---|---|---|---|---|
 | R1 | Scope creep jak w vibe-forge (GUI, enterprise-szablony) | Wysoki | OTWARTE | D-80: twarda lista „poza v1"; każdy pomysł spoza listy → DZIENNIK „świadomie odłożone" |
-| R2 | Auto-wyzwalanie skilli bywa zawodne (agent nie zastosuje zasad bez komendy) | Wysoki | OTWARTE | Podwójna warstwa: opisy skilli + reguły w projektowym CLAUDE.md zawsze w kontekście; testy fraz w pilotażu. **2026-08-07 (E1):** `relai-core` zainstalowany i widoczny w inwentarzu pluginu, ale samo auto-wyzwolenie w świeżej sesji NIEZWERYFIKOWANE — pierwszy realny test na starcie E2 |
+| R2 | Auto-wyzwalanie skilli bywa zawodne (agent nie zastosuje zasad bez komendy) | Wysoki | OTWARTE | Podwójna warstwa: opisy skilli + reguły w projektowym CLAUDE.md zawsze w kontekście; testy fraz w pilotażu. **2026-08-07 (E1):** `relai-core` zainstalowany i widoczny w inwentarzu pluginu, ale samo auto-wyzwolenie w świeżej sesji NIEZWERYFIKOWANE. **2026-08-07 (E2):** test NIEWYKONANY — plugin odinstalowany na czas budowy na polecenie użytkownika (L-0004), więc skill nie miał prawa się wyzwolić; pomiar przeniesiony do pilotażu E10, po docelowej instalacji. Ryzyko pozostaje OTWARTE i niezmierzone przez dwa etapy (L-0005) |
 | R3 | Adopcja uszkodzi żywy projekt użytkownika | Wysoki | OTWARTE | D-70: backup+raport+recovery obowiązkowe; scenariusz akceptacyjny z pełnym testem recovery |
 | R4 | Hooki Node na Windows (ścieżki ze spacjami, kodowanie PL) | Średni | OTWARTE | Test na ścieżce ze spacją i polskimi znakami w E5; brak zależności poza Node wbudowanym w Claude Code |
 | R5 | Dokumenty puchną i zjadają kontekst | Średni | OTWARTE | D-14/D-15: rotacja DZIENNIKA, kompresja LEKCJI, destylaty czytane na starcie |
@@ -87,5 +87,40 @@ Autor: RelAI (Opus) + Lukasz
 - Pełna adopcja zastanego projektu — E9; skill mówi o tym wprost użytkownikowi zamiast improwizować namiastkę.
 
 **Do zrobienia przez człowieka:**
-- Uruchomić E2: świeża sesja Claude Code w folderze `RelAI`, model **Opus**, polecenie: „Wykonaj docs/plany/BUDOWA_RELAI/PROMPT_ETAP_2.md".
-- Zdecydować, czy plugin ma zostać zainstalowany na stałe (jest zainstalowany w scope `user` po teście) — jeśli nie, `claude plugin uninstall relai`.
+- Uruchomić E2: świeża sesja Claude Code w folderze `RelAI`, model **Opus**, polecenie: „Wykonaj docs/plany/BUDOWA_RELAI/PROMPT_ETAP_2.md". *(zrobione 2026-08-07 — patrz kolejny wpis)*
+- Zdecydować, czy plugin ma zostać zainstalowany na stałe (jest zainstalowany w scope `user` po teście) — jeśli nie, `claude plugin uninstall relai`. *(rozstrzygnięte 2026-08-07: odinstalowany, instalacja docelowa na koniec budowy — USTAWIENIA + LEKCJE L-0004)*
+
+### 2026-08-07 — E2: rdzeń dokumentacyjny RelAI 0.2.0
+
+Autor: RelAI (Opus) + Lukasz
+
+**Zrobione:**
+- **`templates/SPEC_LEKCJE.md`** — dokument `docs/LEKCJE.md`: format `L-NNNN` (trigger / przyczyna / zasada / źródło + status), zapis **bez pytania** po korekcie, sekcja „Zasady aktywne" jako jedyny destylat czytany na starcie sesji (limit 15 pozycji, SZACUNEK), **graduacja** przy drugiej korekcie w tej samej sprawie (próg 2, SZACUNEK; zatwierdza człowiek), **kompresja** przy >25 aktywnych wpisach / 30 KB / kwartale (SZACUNEK), przykład z czterema wpisami i wypełnionym destylatem.
+- **`templates/SPEC_DECYZJE.md`** — dokument `docs/DECYZJE.md`: format `D-NN` z datą i obowiązkowym powodem, grupy tematyczne zakładane dopiero z pierwszą decyzją, procedura wykrywania powracającego tematu (drugi raz w osobnych sesjach albo trzeci nawrót w jednej — SZACUNEK) i propozycji zamrożenia zatwierdzanej przez człowieka, automatyczne przechwytywanie fraz („nie rób tego więcej", „ustalmy raz na zawsze"), zmiana decyzji wyłącznie nowym datowanym wpisem + sekcja „Decyzje zmienione", przykład.
+- **Skill `relai-core` rozszerzony o rytuały:** rytuał startu sesji (kolejność CLAUDE → STATE → DZIENNIK: ryzyka i ostatni wpis → LEKCJE: tylko „Zasady aktywne" → USTAWIENIA → aktywny plan, zakaz skanowania repo, akapit „gdzie jesteśmy"); definicja ukończenia jako zachowanie (STATE + wpis w tej samej turze, bez pytania, z jawną listą tego, czego nie dotyczy); reakcja na korektę (lekcja bez pytania → destylat → sprawdzenie powtórzenia → propozycja graduacji → propozycja zamrożenia decyzji); zamknięcie sesji (sync docs → wpis → ryzyka → propozycja commita → podsumowanie).
+- **Trzy frazy naturalne** PL/EN opisane jako sekwencje kroków, nie intencje: „kończymy na dziś"/„wrapping up", „kontynuujemy pracę"/„let's continue", „sprawdź status"/„status check". Dopisane do `SPEC_KOMENDY.md` (zakres 0.2.0) i do przykładowego `KOMENDY.md`.
+- **Warstwa ustawień globalnych (D-23):** `~/.claude/relai/USTAWIENIA.md` — struktura identyczna jak projektowa, **bez** linii `Wersja RelAI:` (żeby katalog domowy nie został uznany za projekt), tylko preferencje ponadprojektowe, tworzony przy pierwszej inicjalizacji bez zadawania czwartego pytania, dziedziczenie jako opcja „(Rekomendowane)", pierwszeństwo wpisu projektowego. Opisane w skillu i w `SPEC_USTAWIENIA.md`.
+- **Inicjalizacja generuje osiem dokumentów** (doszły `LEKCJE.md` i `DECYZJE.md`, puste ale kompletne strukturalnie). Zaktualizowane: tabela w skillu, `templates/README.md`, mapa dokumentacji w `SPEC_README.md`, rytuał startu w `SPEC_CLAUDE_MD.md`, przykład w `SPEC_KOMENDY.md`.
+- **Wersja 0.2.0** w `plugin.json`, `marketplace.json`, README pluginu i `SPEC_KOMENDY.md`; marker w `docs/USTAWIENIA.md` tego repo podbity do 0.2.0.
+- **Dogfooding:** założone `docs/LEKCJE.md` repo wg świeżej specyfikacji — pięć wpisów (L-0001…L-0003 z przeglądu E1, L-0004 z korekty użytkownika o odinstalowaniu pluginu, L-0005 z przeglądu E2 o weryfikacji planowanej tam, gdzie niewykonalna) i wypełnione „Zasady aktywne". Rytuał startu w `CLAUDE.md` repo rozszerzony o LEKCJE.
+
+**Zweryfikowane — jak dokładnie:**
+- `claude plugin validate .claude-plugin/plugin.json` → „Validation passed with warnings", jedno znane ostrzeżenie o root `CLAUDE.md` (świadome, L-0003); `marketplace.json --strict` → „Validation passed". Wersja `0.2.0` spójna w obu manifestach i w README.
+- **Ścieżka ze spacją i polskim znakiem:** cały test w `C:\Users\Lukasz\Desktop\Próba RelAI E2\pusty` (projekt „Notatnik", profil app, git lokalny) — bez błędów kodowania i ścieżek.
+- **Inicjalizacja:** wygenerowany komplet **ośmiu** dokumentów prosto ze specyfikacji, po polsku; `docs/USTAWIENIA.md` z markerem `Wersja RelAI: 0.2.0`; `docs/LEKCJE.md` z sekcją „Zasady aktywne"; commit `chore: initialize RelAI project structure` objął dokładnie 8 plików. Plik globalny `~/.claude/relai/USTAWIENIA.md` utworzony z jednym wpisem ponadprojektowym.
+- **Zmiana kodu:** `src/index.js` (`add`/`list`), uruchomione realnie — `add "pierwsza notatka"`, `add "druga notatka"`, `list` → wypisało obie w kolejności dodania. W tej samej turze nadpisany `STATE.md` i dopisany wpis do `DZIENNIK.md` — **bez proszenia**, zgodnie z definicją ukończenia.
+- **Korekta i graduacja:** pierwsza korekta → wpis `L-0001` bez pytania; powtórzenie tej samej korekty → wpis `L-0002` z adnotacją „powtórzenie L-0001", propozycja graduacji i po zgodzie reguła w `CLAUDE.md` projektu testowego; destylat „Zasady aktywne" zaktualizowany z odsyłaczami do obu lekcji.
+- **Frazy:** „kontynuujemy pracę" — odtworzony kontekst dokładnie z pięciu źródeł w zadanej kolejności (sekcje, nie całe pliki); „kończymy na dziś" — sync dokumentów, wpis zamykający, przegląd ryzyk, commit `feat: add and list notes from the command line`. Obie frazy widnieją w wygenerowanym `KOMENDY.md`.
+- **Struktura dziennika:** `grep` po nagłówkach — „Stan otwartych ryzyk" na górze pliku, trzy wpisy w sekcji „Wpisy" w kolejności dopisywania, najnowszy na końcu.
+- Foldery testowe usunięte (`Próba RelAI E2` nie istnieje); usunięty także testowy `~/.claude/relai/`, żeby maszyna została w stanie sprzed testu.
+- **Nie sprawdzono:** auto-wyzwalania skilla w świeżej sesji (plugin odinstalowany — R2, L-0004/L-0005); zachowania rytuałów, gdy prowadzi je model inny niż Opus; kompresji lekcji i rotacji dziennika w praktyce (progi to SZACUNEK, nie było na czym ich uruchomić).
+
+**Świadomie odłożone:**
+- Komendy `/relai-*` — E4/E7; `KOMENDY.md` 0.2.0 nadal mówi wprost, że komend nie ma.
+- Hooki (w tym `session-context` i `doc-sync-reminder`, druga siatka dla definicji ukończenia) — E5.
+- Specyfikacje `ARCHITEKTURA`, `DESIGN` — E8; szablon HTML planów — E6.
+- Przepisanie `docs/DECYZJE.md` tego repo do formatu nowej specyfikacji — rejestr został nietknięty (patrz „Do zrobienia przez człowieka").
+
+**Do zrobienia przez człowieka:**
+- Zgodność `docs/DECYZJE.md` tego repo ze świeżą `SPEC_DECYZJE.md`: **rejestr jest zgodny co do zasady i grup tematycznych**, różni się trzema rzeczami — (1) wpisy nie mają dat indywidualnych, tylko zbiorczą informację w nagłówku („wywiad 2026-08-07"), (2) część wpisów nie ma jawnego powodu, (3) zmiana D-38 jest odnotowana w treści wpisu zamiast w sekcji „Decyzje zmienione". Decyzja, czy migrować rejestr do nowego formatu (~90 wpisów), czy zostawić jako historyczny — należy do Łukasza.
+- Uruchomić E3: świeża sesja Claude Code w folderze `RelAI`, model **Opus**, polecenie: „Wykonaj docs/plany/BUDOWA_RELAI/PROMPT_ETAP_3.md".

@@ -7,9 +7,10 @@ Ten folder to repo pluginu **RelAI** („Twój projekt pamięta wszystko") — f
 Czytaj w kolejności, nie skanuj pełnotekstowo repo:
 1. Ten plik.
 2. [docs/DZIENNIK.md](docs/DZIENNIK.md) — sekcja „Stan otwartych ryzyk" + ostatni wpis.
-3. [docs/DECYZJE.md](docs/DECYZJE.md) — decyzje zamrożone: **nie proponuj ich ponownie**.
-4. [docs/USTAWIENIA.md](docs/USTAWIENIA.md) — preferencje projektu.
-5. Aktywny plan: [docs/plany/BUDOWA_RELAI/STATUS.md](docs/plany/BUDOWA_RELAI/STATUS.md).
+3. [docs/LEKCJE.md](docs/LEKCJE.md) — wyłącznie sekcja „Zasady aktywne".
+4. [docs/DECYZJE.md](docs/DECYZJE.md) — decyzje zamrożone: **nie proponuj ich ponownie**.
+5. [docs/USTAWIENIA.md](docs/USTAWIENIA.md) — preferencje projektu.
+6. Aktywny plan: [docs/plany/BUDOWA_RELAI/STATUS.md](docs/plany/BUDOWA_RELAI/STATUS.md).
 
 ## Stan prac
 
@@ -19,7 +20,8 @@ Czytaj w kolejności, nie skanuj pełnotekstowo repo:
 | Wywiad architektoniczny (~90 decyzji) | ZAKOŃCZONY | docs/DECYZJE.md |
 | Master plan budowy | **ZAAKCEPTOWANY 2026-08-07** (Aneks A) | docs/plany/BUDOWA_RELAI/PLAN.html |
 | E1 — fundament pluginu (wersja 0.1.0) | **ZREALIZOWANY 2026-08-07** | `.claude-plugin/`, `skills/relai-core/`, `templates/` |
-| Implementacja (E2–E10) | E2 GOTOWY DO STARTU | docs/plany/BUDOWA_RELAI/PROMPT_ETAP_2.md |
+| E2 — rdzeń dokumentacyjny (wersja 0.2.0) | **ZREALIZOWANY 2026-08-07** | `skills/relai-core/SKILL.md`, `templates/SPEC_{LEKCJE,DECYZJE}.md` |
+| Implementacja (E3–E10) | E3 GOTOWY DO STARTU | docs/plany/BUDOWA_RELAI/PROMPT_ETAP_3.md |
 
 ## Reguły procesu
 
