@@ -111,8 +111,9 @@ Po zgodzie, w tej kolejności:
 2. Wykonujesz prompt etapowy **dosłownie**: czytasz to, co każe przeczytać, w podanej kolejności;
    respektujesz sekcję „Decyzje już podjęte"; realizujesz zakres; przechodzisz sekcję Weryfikacja
    punkt po punkcie i **piszesz wynik każdego** — także wtedy, gdy punkt nie przeszedł.
-3. Zamykasz etap rytuałem „Na koniec" opisanym w prompcie i w skillu `relai-planning`
-   (sekcja „Rytuał »Na koniec« etapu"). Rytuał zawiera **wygenerowanie `PROMPT_ETAP_N+1.md`** —
+3. Zamykasz etap rytuałem „Na koniec". **Zanim go zaczniesz, wczytaj skill `relai-planning`**
+   (narzędzie Skill) — komenda wywołana wprost nie ładuje go sama, a pełna treść rytuału i sekwencji
+   zamknięcia planu mieszka tam, nie tutaj. Rytuał zawiera **wygenerowanie `PROMPT_ETAP_N+1.md`** —
    etap bez niego nie jest ukończony (D-34).
 
 Zakres promptu jest granicą. Rzecz potrzebna, ale spoza zakresu → do wpisu w dzienniku jako
@@ -121,7 +122,8 @@ Zakres promptu jest granicą. Rzecz potrzebna, ale spoza zakresu → do wpisu w 
 ## Krok 6 — ostatni etap planu
 
 Zamykany etap był ostatnim (w tabeli nie ma już etapów `OCZEKUJE` ani `W TOKU`) → zamiast generacji
-`PROMPT_ETAP_N+1` uruchom **sekwencję zamknięcia planu** z `relai-planning`, sekcja „Zamknięcie
+`PROMPT_ETAP_N+1` uruchom **sekwencję zamknięcia planu** z **wczytanego** skilla `relai-planning`
+(bez niego pominiesz kroki, których ta komenda nie powtarza), sekcja „Zamknięcie
 planu (D-36)": `STATE.md` → wpis zamykający „dowiezione vs plan" → status planu `ZREALIZOWANY` →
 przegląd ryzyk → przeniesienie folderu planu do `docs/archiwum/plany/` → linia „Aktywny plan"
 w `CLAUDE.md` → podsumowanie. Sekwencji nie odtwarzasz z pamięci i nie skracasz — wykonujesz
