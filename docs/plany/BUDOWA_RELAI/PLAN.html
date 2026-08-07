@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RelAI — Master plan budowy</title>
+<style>
+  :root{
+    --bg:#fafaf8; --surface:#ffffff; --surface2:#f2f3f1; --text:#1a1d21; --muted:#5c6570;
+    --accent:#0e7a6f; --accent-soft:#e3f1ef; --border:#e3e5e8; --border2:#d4d7da;
+    --ok:#2e7d32; --ok-soft:#e8f3e9; --warn:#b26a00; --warn-soft:#f8efe0; --bad:#b3352b; --bad-soft:#f8e7e5;
+    --fact:#274c77; --fact-soft:#e6edf5; --est:#7a5c00; --est-soft:#f6f0dc;
+    --mono:ui-monospace,'Cascadia Code',Consolas,monospace;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --bg:#14171a; --surface:#1c2024; --surface2:#22272c; --text:#e6e8ea; --muted:#9aa3ac;
+      --accent:#3db5a6; --accent-soft:#173330; --border:#2a2f35; --border2:#394047;
+      --ok:#7fc98a; --ok-soft:#1d2b1f; --warn:#e0a94f; --warn-soft:#2e2717; --bad:#e08078; --bad-soft:#2e1b19;
+      --fact:#8fb3d9; --fact-soft:#1b2531; --est:#d9c377; --est-soft:#2b2617;
+    }
+  }
+  html[data-theme="light"]{
+    --bg:#fafaf8; --surface:#ffffff; --surface2:#f2f3f1; --text:#1a1d21; --muted:#5c6570;
+    --accent:#0e7a6f; --accent-soft:#e3f1ef; --border:#e3e5e8; --border2:#d4d7da;
+    --ok:#2e7d32; --ok-soft:#e8f3e9; --warn:#b26a00; --warn-soft:#f8efe0; --bad:#b3352b; --bad-soft:#f8e7e5;
+    --fact:#274c77; --fact-soft:#e6edf5; --est:#7a5c00; --est-soft:#f6f0dc;
+  }
+  html[data-theme="dark"]{
+    --bg:#14171a; --surface:#1c2024; --surface2:#22272c; --text:#e6e8ea; --muted:#9aa3ac;
+    --accent:#3db5a6; --accent-soft:#173330; --border:#2a2f35; --border2:#394047;
+    --ok:#7fc98a; --ok-soft:#1d2b1f; --warn:#e0a94f; --warn-soft:#2e2717; --bad:#e08078; --bad-soft:#2e1b19;
+    --fact:#8fb3d9; --fact-soft:#1b2531; --est:#d9c377; --est-soft:#2b2617;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--text);font:16px/1.65 system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;}
+  .wrap{max-width:980px;margin:0 auto;padding:0 20px 80px}
+  header.top{border-bottom:2px solid var(--accent);padding:36px 0 24px;margin-bottom:8px}
+  h1{font-size:2rem;margin:0 0 4px;letter-spacing:-.02em}
+  .tagline{color:var(--muted);font-size:1.05rem;margin:0 0 16px}
+  h2{font-size:1.35rem;margin:0;letter-spacing:-.01em}
+  h3{font-size:1.05rem;margin:20px 0 8px}
+  p{margin:10px 0}
+  a{color:var(--accent)}
+  .meta{display:flex;flex-wrap:wrap;gap:10px;font-size:.85rem}
+  .meta span{background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:3px 10px}
+  .meta .status{background:var(--warn-soft);border-color:var(--warn);color:var(--warn);font-weight:600}
+  .themebtn{float:right;margin-top:6px;background:var(--surface);border:1px solid var(--border2);color:var(--text);border-radius:6px;padding:5px 12px;cursor:pointer;font-size:.85rem}
+  nav.toc{display:flex;flex-wrap:wrap;gap:6px;margin:18px 0 26px}
+  nav.toc a{text-decoration:none;font-size:.85rem;border:1px solid var(--border);border-radius:20px;padding:4px 12px;color:var(--text);background:var(--surface)}
+  nav.toc a:hover{border-color:var(--accent);color:var(--accent)}
+  section{margin:14px 0}
+  details.sec{background:var(--surface);border:1px solid var(--border);border-radius:10px;margin:14px 0;overflow:hidden}
+  details.sec>summary{cursor:pointer;padding:16px 20px;list-style:none;display:flex;align-items:center;gap:12px;user-select:none}
+  details.sec>summary::-webkit-details-marker{display:none}
+  details.sec>summary::before{content:"+";font-family:var(--mono);font-size:1.1rem;color:var(--accent);width:20px;text-align:center;flex-shrink:0}
+  details.sec[open]>summary::before{content:"–"}
+  details.sec>summary .num{font-family:var(--mono);color:var(--muted);font-size:.85rem}
+  details.sec .body{padding:0 20px 20px 52px;border-top:1px solid var(--border)}
+  @media (max-width:640px){details.sec .body{padding-left:20px}}
+  table{border-collapse:collapse;width:100%;font-size:.9rem;margin:12px 0}
+  th{text-align:left;border-bottom:2px solid var(--border2);padding:8px 10px;font-size:.82rem;text-transform:uppercase;letter-spacing:.04em;color:var(--muted)}
+  td{border-bottom:1px solid var(--border);padding:8px 10px;vertical-align:top}
+  .chip{display:inline-block;font-size:.72rem;font-weight:700;letter-spacing:.05em;border-radius:4px;padding:1px 7px;vertical-align:middle}
+  .chip.fact{background:var(--fact-soft);color:var(--fact)}
+  .chip.est{background:var(--est-soft);color:var(--est)}
+  .chip.ok{background:var(--ok-soft);color:var(--ok)}
+  .chip.warn{background:var(--warn-soft);color:var(--warn)}
+  .chip.bad{background:var(--bad-soft);color:var(--bad)}
+  .chip.neutral{background:var(--surface2);color:var(--muted);border:1px solid var(--border)}
+  .card{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:14px 16px;margin:10px 0}
+  .variant{border-left:4px solid var(--border2);padding:10px 16px;margin:12px 0;background:var(--surface2);border-radius:0 8px 8px 0}
+  .variant.chosen{border-left-color:var(--ok)}
+  .variant.rejected{border-left-color:var(--bad)}
+  .variant h4{margin:0 0 6px;font-size:.98rem}
+  .variant .why{color:var(--muted);font-size:.88rem}
+  ul{margin:8px 0;padding-left:22px}
+  li{margin:4px 0}
+  code{font-family:var(--mono);font-size:.85em;background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:1px 5px}
+  pre{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:14px;overflow-x:auto;font-family:var(--mono);font-size:.82rem;line-height:1.5}
+  .stage{border:1px solid var(--border);border-radius:10px;margin:12px 0;background:var(--surface)}
+  .stage .head{display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid var(--border)}
+  .stage .head input[type=checkbox]{width:17px;height:17px;accent-color:var(--accent);flex-shrink:0}
+  .stage .head .id{font-family:var(--mono);font-weight:700;color:var(--accent);flex-shrink:0}
+  .stage .head .name{font-weight:600;flex:1}
+  .stage .body{padding:12px 16px;font-size:.92rem}
+  .stage.done .head .name{text-decoration:line-through;color:var(--muted)}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  @media (max-width:720px){.grid2{grid-template-columns:1fr}}
+  .diagram{width:100%;overflow-x:auto;margin:14px 0}
+  .diagram svg{min-width:640px;width:100%;height:auto;display:block}
+  .svg-box{fill:var(--surface);stroke:var(--border2);stroke-width:1.2;rx:8}
+  .svg-box-accent{fill:var(--accent-soft);stroke:var(--accent);stroke-width:1.4}
+  .svg-txt{fill:var(--text);font:600 13px system-ui,sans-serif}
+  .svg-sub{fill:var(--muted);font:11.5px system-ui,sans-serif}
+  .svg-arrow{stroke:var(--muted);stroke-width:1.6;fill:none;marker-end:url(#arr)}
+  .footer-note{color:var(--muted);font-size:.82rem;border-top:1px solid var(--border);margin-top:44px;padding-top:14px}
+  .progress{font-size:.85rem;color:var(--muted);margin:6px 0 0}
+  .progress b{color:var(--accent)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="top">
+  <button class="themebtn" onclick="toggleTheme()">Tryb jasny / ciemny</button>
+  <h1>RelAI — Master plan budowy</h1>
+  <p class="tagline">„Twój projekt pamięta wszystko" — framework dokumentacyjno-procesowy jako plugin Claude Code</p>
+  <div class="meta">
+    <span>Wersja planu: 1.0</span>
+    <span>Data: 2026-08-07</span>
+    <span>Architekt: Fable • Wykonawca etapów budowy: Opus (decyzja przy akceptacji)</span>
+    <span class="status" style="background:var(--ok-soft);border-color:var(--ok);color:var(--ok)">STATUS: ZAAKCEPTOWANY 2026-08-07 (z poprawkami — Aneks A)</span>
+  </div>
+  <p style="font-size:.85rem;color:var(--muted);margin-top:12px">
+    Legenda liczb: <span class="chip fact">FAKT</span> — zmierzone / ustalone w wywiadzie •
+    <span class="chip est">SZACUNEK</span> — ocena ekspercka, do weryfikacji w praktyce.
+    Po akceptacji plan jest zamrożony; zmiany wyłącznie datowanymi aneksami (sekcja 13).
+  </p>
+</header>
+
+<nav class="toc">
+  <a href="#s1">1 Streszczenie</a><a href="#s2">2 Wizja</a><a href="#s3">3 Jak działa</a>
+  <a href="#s4">4 Warianty</a><a href="#s5">5 Architektura pluginu</a><a href="#s6">6 Struktura projektu</a>
+  <a href="#s7">7 Decyzje</a><a href="#s8">8 Etapy</a><a href="#s9">9 Ryzyka</a>
+  <a href="#s10">10 Brzegowe</a><a href="#s11">11 Poza v1</a><a href="#s12">12 Dla człowieka</a><a href="#s13">13 Dopiski</a>
+</nav>
+
+<details class="sec" id="s1" open>
+<summary><span class="num">1</span><h2>Streszczenie</h2></summary>
+<div class="body">
+<p><strong>RelAI</strong> to plugin Claude Code, który sprawia, że każdy projekt — aplikacja, agent głosowy, flow N8N czy zestaw promptów — dokumentuje się sam, na bieżąco, według jednego sprawdzonego stylu. Użytkownik instaluje plugin dwiema komendami i pisze pierwszy prompt; RelAI zakłada strukturę, prowadzi dziennik, pilnuje planów, backupów i sekretów, a projekt w każdej chwili jest gotowy do przekazania innej osobie.</p>
+<p>Plan powstał na bazie analizy <span class="chip fact">FAKT</span> kilkunastu projektów z 5 miesięcy pracy (4 ery ewolucji stylu) oraz wywiadu architektonicznego: <span class="chip fact">FAKT</span> 24 rundy pytań, ~90 zamrożonych decyzji (rejestr: <a href="../../DECYZJE.md">DECYZJE.md</a>, D-01…D-84).</p>
+<p>Budowa: <span class="chip fact">FAKT</span> 10 etapów, MVP-first (po E2 rdzeń jest używalny). Łączny nakład: <span class="chip est">SZACUNEK</span> 16–24 sesje robocze modelu wykonawczego, przy Twoim tempie ok. 2–4 tygodnie kalendarzowe.</p>
+</div>
+</details>
+
+<details class="sec" id="s2" open>
+<summary><span class="num">2</span><h2>Wizja i cele</h2></summary>
+<div class="body">
+<p>Zasada naczelna: <strong>zero konfiguracji, zero pamiętania składni, zero martwych dokumentów</strong>. RelAI pyta o preferencję raz, w naturalnym momencie, zapisuje ją i respektuje na zawsze.</p>
+<ul>
+  <li><strong>Powtarzalność</strong> — każdy nowy projekt zaczyna się identycznie: ta sama struktura, te same rytuały, ten sam standard dokumentów.</li>
+  <li><strong>Aktualność</strong> — STATE opisuje stan aplikacji „na dziś" (aktualizacja to część definicji ukończenia zadania, nie osobny obowiązek). Na pytanie szefa „co robi ta funkcja?" odpowiada dokument, nie pamięć developera.</li>
+  <li><strong>Przekazywalność</strong> — komenda przekazania + wycieczka dla nowej osoby; urlop przestaje być ryzykiem projektu.</li>
+  <li><strong>Uniwersalność</strong> — jeden rdzeń + profile: aplikacje (web/mobile/backend), agenci głosowi ElevenLabs, flow N8N, projekty czysto promptowe.</li>
+  <li><strong>Bezpieczeństwo</strong> — sekrety blokowane przed zapisem do repo, backupy z automatu je wykluczają, konfiguracje produkcyjne agentów snapshotowane przed każdą zmianą.</li>
+</ul>
+<p>Odbiorcy: najpierw Ty (idealnie skrojony pod Twój styl), potem współpracownicy w firmie (instalacja bez konfiguracji), docelowo publiczny open-source.</p>
+</div>
+</details>
+
+<details class="sec" id="s3" open>
+<summary><span class="num">3</span><h2>Jak to działa — dwa kluczowe przepływy</h2></summary>
+<div class="body">
+<h3>3.1 Życie projektu użytkownika</h3>
+<div class="diagram">
+<svg viewBox="0 0 960 190" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Przepływ życia projektu">
+  <defs><marker id="arr" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0,0 L8,4.5 L0,9 z" fill="var(--muted)"/></marker></defs>
+  <rect class="svg-box" x="8" y="52" width="140" height="66" rx="8"/>
+  <text class="svg-txt" x="78" y="80" text-anchor="middle">Pierwszy prompt</text>
+  <text class="svg-sub" x="78" y="98" text-anchor="middle">w dowolnym folderze</text>
+  <path class="svg-arrow" d="M148 85 H186"/>
+  <rect class="svg-box svg-box-accent" x="188" y="42" width="168" height="86" rx="8"/>
+  <text class="svg-txt" x="272" y="68" text-anchor="middle">Zgoda + 3 pytania</text>
+  <text class="svg-sub" x="272" y="86" text-anchor="middle">język • git • profil</text>
+  <text class="svg-sub" x="272" y="102" text-anchor="middle">(odmowa → tryb gościa)</text>
+  <path class="svg-arrow" d="M356 85 H394"/>
+  <rect class="svg-box" x="396" y="42" width="160" height="86" rx="8"/>
+  <text class="svg-txt" x="476" y="68" text-anchor="middle">Struktura + docs</text>
+  <text class="svg-sub" x="476" y="86" text-anchor="middle">CLAUDE.md, STATE,</text>
+  <text class="svg-sub" x="476" y="102" text-anchor="middle">DZIENNIK, KOMENDY…</text>
+  <path class="svg-arrow" d="M556 85 H594"/>
+  <rect class="svg-box" x="596" y="42" width="168" height="86" rx="8"/>
+  <text class="svg-txt" x="680" y="68" text-anchor="middle">Normalna praca</text>
+  <text class="svg-sub" x="680" y="86" text-anchor="middle">docs żyją z każdą zmianą,</text>
+  <text class="svg-sub" x="680" y="102" text-anchor="middle">preferencje pytane raz</text>
+  <path class="svg-arrow" d="M764 85 H802"/>
+  <rect class="svg-box" x="804" y="52" width="148" height="66" rx="8"/>
+  <text class="svg-txt" x="878" y="80" text-anchor="middle">Przekazanie</text>
+  <text class="svg-sub" x="878" y="98" text-anchor="middle">handover + tour</text>
+</svg>
+</div>
+
+<h3>3.2 Cykl planowania i wykonania</h3>
+<div class="diagram">
+<svg viewBox="0 0 960 250" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Cykl planu i etapów">
+  <rect class="svg-box" x="8" y="30" width="170" height="72" rx="8"/>
+  <text class="svg-txt" x="93" y="58" text-anchor="middle">„Przygotuj plan…"</text>
+  <text class="svg-sub" x="93" y="76" text-anchor="middle">zwykły prompt, bez komend</text>
+  <path class="svg-arrow" d="M178 66 H216"/>
+  <rect class="svg-box" x="218" y="30" width="180" height="72" rx="8"/>
+  <text class="svg-txt" x="308" y="52" text-anchor="middle">Pytanie o rodzaj</text>
+  <text class="svg-sub" x="308" y="70" text-anchor="middle">PLAN / MINIPLAN, HTML / MD,</text>
+  <text class="svg-sub" x="308" y="86" text-anchor="middle">model wykonawczy (pomijane, gdy utrwalone)</text>
+  <path class="svg-arrow" d="M398 66 H436"/>
+  <rect class="svg-box svg-box-accent" x="438" y="30" width="180" height="72" rx="8"/>
+  <text class="svg-txt" x="528" y="52" text-anchor="middle">PLAN → akceptacja</text>
+  <text class="svg-sub" x="528" y="70" text-anchor="middle">zamrożenie + PROMPT_ETAP_1</text>
+  <text class="svg-sub" x="528" y="86" text-anchor="middle">docs/plany/&lt;TEMAT&gt;/</text>
+  <path class="svg-arrow" d="M618 66 H656"/>
+  <rect class="svg-box" x="658" y="30" width="180" height="72" rx="8"/>
+  <text class="svg-txt" x="748" y="52" text-anchor="middle">Świeża sesja</text>
+  <text class="svg-sub" x="748" y="70" text-anchor="middle">/relai-stage → potwierdzenie</text>
+  <text class="svg-sub" x="748" y="86" text-anchor="middle">wykonawca: model wybrany przy planie</text>
+  <path class="svg-arrow" d="M748 102 V138"/>
+  <rect class="svg-box" x="658" y="140" width="180" height="88" rx="8"/>
+  <text class="svg-txt" x="748" y="163" text-anchor="middle">Rytuał „Na koniec"</text>
+  <text class="svg-sub" x="748" y="181" text-anchor="middle">STATUS + DZIENNIK</text>
+  <text class="svg-sub" x="748" y="197" text-anchor="middle">+ generacja PROMPT_ETAP_N+1</text>
+  <text class="svg-sub" x="748" y="213" text-anchor="middle">(siatka: hook + start sesji)</text>
+  <path class="svg-arrow" d="M658 184 H460 Q440 184 440 164 V110"/>
+  <text class="svg-sub" x="540" y="176" text-anchor="middle">kolejny etap — aż do końca planu</text>
+  <path class="svg-arrow" d="M838 66 H900 Q916 66 916 84 V150"/>
+  <rect class="svg-box" x="852" y="152" width="100" height="60" rx="8"/>
+  <text class="svg-txt" x="902" y="177" text-anchor="middle">Zamknięcie</text>
+  <text class="svg-sub" x="902" y="195" text-anchor="middle">auto-rytuał</text>
+</svg>
+</div>
+<p style="font-size:.88rem;color:var(--muted)">Odchylenia od planu: datowane aneksy; odchylenie fundamentalne → status CZĘŚCIOWO + nowy plan z linkiem (D-33).</p>
+</div>
+</details>
+
+<details class="sec" id="s4">
+<summary><span class="num">4</span><h2>Warianty architektoniczne — rozważone i rozstrzygnięte</h2></summary>
+<div class="body">
+
+<h3>4.1 Forma dystrybucji</h3>
+<div class="variant chosen"><h4>Plugin Claude Code <span class="chip ok">WYBRANY</span></h4>
+<p class="why">Instalacja 2 komendy, zero kopiowania repo i odpinania gita, aktualizacje docierają globalnie do wszystkich użytkowników, a pliki projektów pozostają nietknięte. Rozwiązuje główny grzech vibe-forge (zamrożone snapshoty bez ścieżki aktualizacji).</p></div>
+<div class="variant rejected"><h4>Repo-szablon do kopiowania <span class="chip bad">ODRZUCONY</span></h4>
+<p class="why">Powód: tarcie przy starcie (klon → odpinanie gita → własne repo), brak dystrybucji aktualizacji — dokładnie ten model zabił vibe-forge. README szablonu myli się z README projektu użytkownika.</p></div>
+<div class="variant rejected"><h4>Hybryda plugin + repo-startowe <span class="chip bad">ODRZUCONY</span></h4>
+<p class="why">Powód: dwa artefakty do utrzymania w zgodzie od pierwszego dnia; wartość dodana minimalna, skoro plugin sam zakłada strukturę.</p></div>
+
+<h3>4.2 Generacja dokumentów projektowych</h3>
+<div class="variant chosen"><h4>Szablony jako specyfikacje dla LLM <span class="chip ok">WYBRANY</span></h4>
+<p class="why">Szablon opisuje strukturę, zasady i przykłady — dokument generuje LLM w języku projektu. Jeden kanoniczny zestaw obsługuje PL/EN/dowolny język już w v1, bez pracy tłumaczeniowej. Naturalnie dopasowuje treść do kontekstu projektu.</p></div>
+<div class="variant rejected"><h4>Statyczne pliki kopiowane per język <span class="chip bad">ODRZUCONY</span></h4>
+<p class="why">Powód: każda zmiana szablonu × liczba języków; nowe języki niemożliwe bez wydania pluginu; treść szablonowa zamiast dopasowanej (syndrom ~120 placeholderów vibe-forge bez silnika substytucji).</p></div>
+
+<h3>4.3 Technologia hooków</h3>
+<div class="variant chosen"><h4>Node.js — jeden plik na hook <span class="chip ok">WYBRANY</span></h4>
+<p class="why">Cross-platform bez dublowania (koniec z parami .ps1+.sh z ryzykiem rozjazdu logiki), Node jest zawsze dostępny w środowisku Claude Code, wzorzec sprawdzony w istniejących pluginach.</p></div>
+<div class="variant rejected"><h4>Pary .ps1 + .sh <span class="chip bad">ODRZUCONY</span></h4>
+<p class="why">Powód: każda poprawka robiona dwa razy; historia Twoich projektów pokazuje rozjazdy między wersjami platformowymi.</p></div>
+<div class="variant rejected"><h4>PowerShell Core <span class="chip bad">ODRZUCONY</span></h4>
+<p class="why">Powód: wymaga instalacji pwsh na macOS/Linux — nieakceptowalne przy ambicji publicznej dystrybucji.</p></div>
+
+<h3>4.4 Egzekwowanie zasad w codziennej pracy</h3>
+<div class="variant chosen"><h4>Warstwa potrójna: CLAUDE.md projektu + skille auto-wyzwalane + hooki <span class="chip ok">WYBRANY</span></h4>
+<p class="why">„Przygotuj plan" w zwykłym prompcie wystarcza — reguły siedzą w kontekście (CLAUDE.md), skille dołączają wiedzę proceduralną, hooki pilnują twardych granic. Komendy tylko dla operacji rzadkich. Realizuje wymóg „zero pamiętania składni".</p></div>
+<div class="variant rejected"><h4>Wszystko przez jawne komendy <span class="chip bad">ODRZUCONY</span></h4>
+<p class="why">Powód: obowiązek pamiętania wywołań przy każdej wiadomości — wprost odrzucony w wywiadzie.</p></div>
+</div>
+</details>
+
+<details class="sec" id="s5">
+<summary><span class="num">5</span><h2>Architektura pluginu</h2></summary>
+<div class="body">
+<h3>5.1 Repo pluginu</h3>
+<pre>relai/
+├── .claude-plugin/
+│   ├── plugin.json            # manifest (nazwa, wersja semver, opis)
+│   └── marketplace.json       # własny marketplace — instalacja z tego samego repo
+├── skills/                    # wiedza proceduralna, auto-wyzwalana opisami
+│   ├── relai-core/            #   inicjalizacja, rytuały sesji, definicja ukończenia
+│   ├── relai-planning/        #   plany (PLAN/MINIPLAN), STATUS, aneksy, zamykanie
+│   ├── relai-stages/          #   prompty etapowe, lazy-generacja, rytuał „Na koniec"
+│   ├── relai-profiles/        #   app / agent-voice / flow-N8N / prompty
+│   ├── relai-adoption/        #   adopcja: backup → analiza → migracja → raport → recovery
+│   └── relai-handover/        #   przekazanie + tour nowej osoby
+├── commands/                  # relai-stage, relai-backup, relai-audit, relai-handover,
+│                              # relai-adopt, relai-update, relai-tour, relai-changelog
+├── hooks/                     # Node.js — patrz 5.2
+├── templates/                 # SPECYFIKACJE dokumentów (D-60) + szablon HTML + KOMENDY
+└── README.md                  # opis frameworka (własność pluginu, nie projektów)</pre>
+
+<h3>5.2 Hooki <span class="chip fact">FAKT — 8 szt.</span></h3>
+<table>
+<tr><th>Hook</th><th>Zdarzenie</th><th>Tryb</th><th>Rola</th></tr>
+<tr><td><code>secret-scanner</code></td><td>PreToolUse (Write/Edit)</td><td><span class="chip bad">BLOKUJE</span></td><td>klucze/tokeny/hasła nie wchodzą do plików śledzonych</td></tr>
+<tr><td><code>config-protection</code></td><td>PreToolUse (Write/Edit)</td><td><span class="chip bad">BLOKUJE</span></td><td>sekcja niemutowalna CLAUDE.md, USTAWIENIA bez zgody</td></tr>
+<tr><td><code>quality-gate</code></td><td>PostToolUse</td><td><span class="chip warn">OSTRZEGA</span></td><td>tsc/lint wg profilu app</td></tr>
+<tr><td><code>console-log-warn</code></td><td>PostToolUse</td><td><span class="chip warn">OSTRZEGA</span></td><td>debug w kodzie produkcyjnym</td></tr>
+<tr><td><code>design-quality-check</code></td><td>PostToolUse</td><td><span class="chip warn">OSTRZEGA</span></td><td>spójność z DESIGN.md (gdy istnieje)</td></tr>
+<tr><td><code>doc-sync-reminder</code></td><td>PostToolUse / Stop</td><td><span class="chip warn">OSTRZEGA</span></td><td>zmiana kodu bez zmiany docs → przypomnienie</td></tr>
+<tr><td><code>auto-format</code></td><td>Stop</td><td><span class="chip neutral">CICHY</span></td><td>formatowanie wg profilu</td></tr>
+<tr><td><code>session-context</code></td><td>SessionStart</td><td><span class="chip neutral">CICHY</span></td><td>wstrzyknięcie daty (przeciw halucynacjom dat), kontrola wersji projektu vs plugin, siatka brakujących promptów etapowych</td></tr>
+</table>
+
+<h3>5.3 Komendy i frazy (wszystkie opisane w generowanym <code>KOMENDY.md</code>)</h3>
+<table>
+<tr><th>Wywołanie</th><th>Działanie</th></tr>
+<tr><td><code>/relai-stage [temat] [n]</code></td><td>wykonanie etapu: auto-wykrycie aktywnego planu, potwierdzenie, praca wg promptu</td></tr>
+<tr><td><code>/relai-backup</code></td><td>ZIP do centralnego folderu (lokalizacja pytana raz), bez sekretów, wpis w DZIENNIKU</td></tr>
+<tr><td><code>/relai-audit</code></td><td>porządki + zdrowie: przestarzałe pliki, świeżość docs, spójność STATE↔kod, ryzyka</td></tr>
+<tr><td><code>/relai-handover</code></td><td>pakiet przekazania (HTML): STATE + destylat DZIENNIKA + ryzyka + „od czego zacząć"</td></tr>
+<tr><td><code>/relai-tour</code></td><td>wycieczka po projekcie dla nowej osoby (proponowana też automatycznie)</td></tr>
+<tr><td><code>/relai-adopt</code></td><td>adopcja istniejącego projektu — wyłącznie na jawne żądanie (D-70)</td></tr>
+<tr><td><code>/relai-update</code></td><td>aktualizacja plików projektu po nowej wersji pluginu (diff, zgoda, poszanowanie nadpisań)</td></tr>
+<tr><td><code>/relai-changelog</code></td><td>changelog destylowany z DZIENNIKA na żądanie</td></tr>
+<tr><td><code>/relai-help</code></td><td>listuje wszystkie komendy i frazy z opisami (źródło: KOMENDY.md) — bez szukania w plikach <em>(Aneks A)</em></td></tr>
+<tr><td>„kończymy na dziś"</td><td>rytuał zamknięcia sesji (sync docs, wpis, podsumowanie)</td></tr>
+<tr><td>„kontynuujemy pracę"</td><td>wczytanie stanu + ostatni wpis + aktywny plan</td></tr>
+<tr><td>„sprawdź status"</td><td>raport: plany, etapy, ryzyka, zaległości</td></tr>
+</table>
+
+<h3>5.4 Warstwy ustawień</h3>
+<p><code>~/.claude/relai/USTAWIENIA.md</code> (globalne preferencje użytkownika, dziedziczone) → <code>docs/USTAWIENIA.md</code> (projekt, nadpisuje). Każdy wpis: data + pytanie + decyzja. Raz udzielona odpowiedź nie wraca.</p>
+</div>
+</details>
+
+<details class="sec" id="s6">
+<summary><span class="num">6</span><h2>Struktura projektu użytkownika</h2></summary>
+<div class="body">
+<pre>projekt/                         # = jedno repo GitHub; podprojekty zakazane (D-53)
+├── CLAUDE.md                    # krótki router: rytuał startu, stan, reguły procesu,
+│                                #   sekcja niemutowalna (Karpathy), dobór modeli
+├── README.md                    # wizytówka projektu: co to, jak uruchomić, mapa docs
+├── docs/
+│   ├── STATE.md                 # stan NA DZIŚ, dwuwarstwowy, NADPISYWANY
+│   ├── DZIENNIK.md              # pamięć sesji + „Stan otwartych ryzyk"; rotacja
+│   ├── LEKCJE.md                # L-NNNN + „Zasady aktywne" (destylat); graduacja
+│   ├── DECYZJE.md               # D-NN „nie proponuj ponownie"
+│   ├── USTAWIENIA.md            # rejestr preferencji (data + pytanie + decyzja)
+│   ├── KOMENDY.md               # aktualna ściąga komend i fraz (wersjonowana z pluginem)
+│   ├── ARCHITEKTURA.md          # (profil app, przy pierwszym kodzie)
+│   ├── DESIGN.md                # (profil app, przy pierwszym UI)
+│   ├── plany/&lt;TEMAT&gt;/           # PLAN.{html,md} + STATUS.md + PROMPT_ETAP_N.md
+│   ├── fixy/&lt;TEMAT&gt;/            # duże naprawy (triada); drobne → DZIENNIK
+│   ├── srodowiska/              # (przy pierwszym deployu) plik per środowisko
+│   ├── snapshoty/&lt;data&gt;/        # (profil agent/flow) configi przed zmianą produkcyjną
+│   ├── archiwum/                # dokumenty NIEAKTUALNE z adnotacją + rotacje dziennika
+│   └── zasoby/                  # obrazy, PDF-y, materiały źródłowe</pre>
+<table>
+<tr><th>Dokument</th><th>Odbiorca</th><th>Polityka aktualizacji</th></tr>
+<tr><td>STATE</td><td>PM / szef / nowa osoba</td><td>nadpisywany przy każdej zmianie funkcjonalnej (część definicji ukończenia)</td></tr>
+<tr><td>DZIENNIK</td><td>agent + zespół</td><td>append; szablon wpisu wymuszony; rotacja &gt;50 KB / kwartał <span class="chip est">SZACUNEK — próg do strojenia</span></td></tr>
+<tr><td>LEKCJE / DECYZJE</td><td>agent</td><td>append + graduacja / kompresja; start sesji czyta destylat</td></tr>
+<tr><td>KOMENDY</td><td>użytkownik</td><td>generowany; odświeżany przy /relai-update</td></tr>
+<tr><td>README</td><td>świat zewnętrzny</td><td>przy zmianach wpływających na opis lub uruchomienie</td></tr>
+</table>
+</div>
+</details>
+
+<details class="sec" id="s7">
+<summary><span class="num">7</span><h2>Rejestr decyzji (skrót)</h2></summary>
+<div class="body">
+<p>Pełny rejestr: <a href="../../DECYZJE.md">DECYZJE.md</a> — <span class="chip fact">FAKT</span> 45 wpisów D-01…D-84 w 8 grupach. Najważniejsze kotwice:</p>
+<ul>
+<li><strong>Tożsamość:</strong> RelAI, plugin samowystarczalny, komendy EN, repo prywatne → publiczne (D-01…D-06).</li>
+<li><strong>Dokumenty:</strong> triada + STATE + USTAWIENIA + KOMENDY; CAPS_SNAKE PL bez dat; wszystko w docs/ (D-10…D-19).</li>
+<li><strong>Interakcja:</strong> zgoda + 3 pytania na starcie; „zapytaj raz, zapisz, respektuj"; tryb gościa przy odmowie (D-20…D-27).</li>
+<li><strong>Plany:</strong> folder-per-plan; PLAN/MINIPLAN; zamrożenie + aneksy; prompty etapowe lazy z rytuałem „Na koniec" (D-30…D-38).</li>
+<li><strong>Bezpieczeństwo:</strong> blokada sekretów, backup bez sekretów, docs aktualne = definicja ukończenia (D-40…D-45).</li>
+<li><strong>Profile:</strong> app / agent-voice / flow / prompty; snapshoty obowiązkowe dla configów produkcyjnych (D-50…D-53).</li>
+<li><strong>Szablony:</strong> specyfikacje dla LLM; konkurs designu 5 propozycji; lokalne nadpisania (D-60…D-63).</li>
+<li><strong>Adopcja/aktualizacje:</strong> tylko na żądanie, backup+raport+recovery; /relai-update z diffem (D-70…D-72).</li>
+</ul>
+</div>
+</details>
+
+<details class="sec" id="s8" open>
+<summary><span class="num">8</span><h2>Etapy budowy (E1–E10)</h2></summary>
+<div class="body">
+<p>Kolejność MVP-first (D-81): po E2 możesz prowadzić nowy projekt na RelAI. Checkboxy zapamiętują postęp lokalnie w tej przeglądarce. Czasy: <span class="chip est">SZACUNEK</span> w sesjach roboczych modelu wykonawczego. Prompty etapowe: <code>PROMPT_ETAP_1</code> przy akceptacji planu, kolejne lazy (D-34).</p>
+<p class="progress">Postęp: <b id="prog">0 / 10</b> etapów odhaczonych</p>
+
+<div class="stage"><div class="head"><input type="checkbox" data-stage="e1"><span class="id">E1</span><span class="name">Fundament repo pluginu + inicjalizacja projektu</span><span class="chip est">1–2 sesje</span></div>
+<div class="body">Repo git + struktura pluginu (manifest, marketplace.json) + skill <code>relai-core</code> w wersji minimalnej: wykrycie folderu bez struktury → zgoda → paczka 3 pytań → wygenerowanie CLAUDE.md, README, docs/ (STATE, DZIENNIK, USTAWIENIA, KOMENDY) ze specyfikacji. Tryb gościa z markerem odmowy. <strong>Efekt widoczny:</strong> instalujesz plugin, piszesz prompt w pustym folderze — struktura powstaje na Twoich oczach. <strong>Weryfikacja:</strong> init na czystym folderze (ścieżka ze spacją i polskimi znakami) + odmowa → tryb gościa.</div></div>
+
+<div class="stage"><div class="head"><input type="checkbox" data-stage="e2"><span class="id">E2</span><span class="name">Rdzeń dokumentacyjny — specyfikacje i rytuały</span><span class="chip est">2–3 sesje</span></div>
+<div class="body">Pełne specyfikacje dokumentów (STATE dwuwarstwowy, wpis DZIENNIKA wg szablonu + ryzyka, LEKCJE z graduacją i kompresją, DECYZJE z proponowaniem zamrożeń, rotacja dziennika). Rytuały: start sesji (kolejność czytania, destylaty), definicja ukończenia (docs w tej samej turze), frazy naturalne („kończymy na dziś", „kontynuujemy", „sprawdź status"). <strong>Efekt widoczny:</strong> pierwszy realny mini-projekt prowadzi się sam — dokumenty żyją bez przypominania. <strong>Weryfikacja:</strong> sesja testowa ze zmianą kodu → STATE/DZIENNIK zaktualizowane bez prośby.</div></div>
+
+<div class="stage"><div class="head"><input type="checkbox" data-stage="e3"><span class="id">E3</span><span class="name">Planowanie — PLAN / MINIPLAN, folder-per-plan</span><span class="chip est">1–2 sesje</span></div>
+<div class="body">Skill <code>relai-planning</code>: wykrycie intencji planowania z naturalnego prompta, pytanie o rodzaj, format i model wykonawczy etapów (swobodny opis użytkownika, z utrwalaniem preferencji — Aneks A), struktura pełnego PLAN-u (warianty z powodami odrzucenia, ryzyka, etapy z wczesnym efektem, brzegowe, lista dla człowieka), MINIPLAN w DZIENNIKU, STATUS.md, zamrożenie po akceptacji + aneksy datowane. Plany w MD (szablon HTML dochodzi w E6). <strong>Efekt widoczny:</strong> „przygotuj plan X" daje plan w Twojej strukturze bez żadnej komendy.</div></div>
+
+<div class="stage"><div class="head"><input type="checkbox" data-stage="e4"><span class="id">E4</span><span class="name">Prompty etapowe + /relai-stage + lazy-generacja</span><span class="chip est">1–2 sesje</span></div>
+<div class="body">Format PROMPT_ETAP_N (co przeczytać / decyzje podjęte / zakres / weryfikacja / „Na koniec" z generacją N+1), komenda <code>/relai-stage</code> (auto-wykrycie, potwierdzenie, wariant jawny), rekomendacja subagenta dla małych etapów, automatyczny rytuał zamknięcia planu. <strong>Efekt widoczny:</strong> pełny cykl plan → etapy w świeżych sesjach → zamknięcie — bez pamiętania o czymkolwiek. <strong>Weryfikacja:</strong> przerwanie sesji w połowie rytuału → siatka dogenerowuje prompt na starcie kolejnej.</div></div>
+
+<div class="stage"><div class="head"><input type="checkbox" data-stage="e5"><span class="id">E5</span><span class="name">Hooki Node.js (8)</span><span class="chip est">1–2 sesje</span></div>
+<div class="body">Wszystkie hooki z tabeli 5.2, z twardością wg D-41 (blokują tylko secret-scanner i config-protection). <strong>Efekt widoczny:</strong> próba zapisu klucza API do śledzonego pliku zostaje zablokowana z czytelnym komunikatem. <strong>Weryfikacja:</strong> testy na Windows (ścieżki ze spacjami, polskie znaki) i podstawione sekrety różnych formatów (sk-, ghp-, AKIA…, JWT).</div></div>
+
+<div class="stage"><div class="head"><input type="checkbox" data-stage="e6"><span class="id">E6</span><span class="name">Konkurs designu + szablon HTML + nadpisania lokalne</span><span class="chip est">2 sesje + Twoja sesja wyboru</span></div>
+<div class="body">5 skrajnie różnych propozycji na pełnych testowych HTML-ach (sekcje, tabele, ikony, diagram SVG, wykres, symulator) — wszystkie wolne od zakazanych elementów (D-61) i zgodne z najlepszymi praktykami UI/UX na 08/2026. Wybierasz 1–2 → iteracja → finalny szablon z design tokens i komponentami. Mechanizm lokalnego nadpisania (pytanie przy pierwszym użyciu, D-62). <strong>Efekt widoczny:</strong> plany generują się w brandzie RelAI, który sam wybrałeś.</div></div>
+
+<div class="stage"><div class="head"><input type="checkbox" data-stage="e7"><span class="id">E7</span><span class="name">Komendy operacyjne</span><span class="chip est">2 sesje</span></div>
+<div class="body"><code>/relai-backup</code> (centralny folder, wykluczenia, wpis), <code>/relai-audit</code> (porządki + zdrowie, raport z propozycjami), <code>/relai-changelog</code> (destylacja DZIENNIKA), <code>/relai-handover</code> (pakiet HTML), <code>/relai-tour</code> + automatyczna propozycja tour dla nieznanego autora, <code>/relai-help</code> (lista komend i fraz z opisami, generowana z KOMENDY.md — Aneks A). <strong>Efekt widoczny:</strong> komplet rytuałów operacyjnych działa.</div></div>
+
+<div class="stage"><div class="head"><input type="checkbox" data-stage="e8"><span class="id">E8</span><span class="name">Profile projektów</span><span class="chip est">2–3 sesje</span></div>
+<div class="body">Detekcja profilu + reguły warunkowe: app (ARCHITEKTURA przy pierwszym kodzie, DESIGN przy pierwszym UI, srodowiska/ przy deployu, pytanie o TDD z rekomendacją), agent-voice/flow (snapshoty obowiązkowe, konwencje KB: numeracja nietykalna, split PL/EN, skrypty migracyjne z asercjami), prompty (rejestr wersji artefaktów). <strong>Efekt widoczny:</strong> projekt ElevenLabs dostaje inne, właściwe rytuały niż appka webowa.</div></div>
+
+<div class="stage"><div class="head"><input type="checkbox" data-stage="e9"><span class="id">E9</span><span class="name">Adopcja + aktualizacja projektu</span><span class="chip est">2–3 sesje</span></div>
+<div class="body"><code>/relai-adopt</code> wg D-70: pełny backup → analiza (kod, stare dokumenty, git log) → wygenerowanie struktury z zastanego stanu → raport zmian (co, skąd, dokąd) → przetestowana ścieżka recovery; scalanie istniejącego CLAUDE.md z zachowaniem (D-71). <code>/relai-update</code>: diff wersji, zgoda, poszanowanie nadpisań. <strong>Efekt widoczny:</strong> istniejący projekt przechodzi na RelAI bez utraty czegokolwiek — i da się to w 100% cofnąć.</div></div>
+
+<div class="stage"><div class="head"><input type="checkbox" data-stage="e10"><span class="id">E10</span><span class="name">Pilotaż i scenariusze akceptacyjne</span><span class="chip est">2–4 sesje</span></div>
+<div class="body">Nowy mały projekt od zera, potem adopcja JiraManagera. Cztery obowiązkowe scenariusze (D-83): pełny cykl nowego projektu; przekazanie + tour (świeża sesja odpowiada o projekt wyłącznie z dokumentów); backup + restore z testem wykluczenia sekretów; adopcja z pełnym recovery. Poprawki z pilotażu → LEKCJE → wydanie v1.0. <strong>Efekt widoczny:</strong> RelAI uznany za gotowy na Twoich realnych projektach.</div></div>
+
+<p><strong>Suma:</strong> <span class="chip est">SZACUNEK</span> 16–24 sesje robocze; kamień milowy „używalny rdzeń" po E2 (<span class="chip est">SZACUNEK</span> 3–5 sesji od startu).</p>
+</div>
+</details>
+
+<details class="sec" id="s9" open>
+<summary><span class="num">9</span><h2>Ryzyka i mitygacje</h2></summary>
+<div class="body">
+<table>
+<tr><th>#</th><th>Ryzyko</th><th>Poziom</th><th>Mitygacja</th></tr>
+<tr><td>R1</td><td>Scope creep — powtórka losu vibe-forge (GUI, funkcje-ozdobniki)</td><td><span class="chip bad">WYSOKI</span></td><td>Sekcja 11 jako twarda lista zakazów; każdy pomysł spoza v1 → DZIENNIK „świadomie odłożone"; dogfooding wymusza szczerość</td></tr>
+<tr><td>R2</td><td>Auto-wyzwalanie zasad zawodzi — agent nie zastosuje frameworka bez komendy</td><td><span class="chip bad">WYSOKI</span></td><td>Potrójna warstwa (CLAUDE.md w kontekście + opisy skilli + hooki); testy fraz wyzwalających w E10; KOMENDY.md jako jawna ściąga</td></tr>
+<tr><td>R3</td><td>Adopcja uszkadza żywy projekt użytkownika</td><td><span class="chip bad">WYSOKI</span></td><td>D-70: backup przed, raport po, recovery obowiązkowo przetestowane w scenariuszu akceptacyjnym; adopcja nigdy automatyczna</td></tr>
+<tr><td>R4</td><td>Hooki Node na Windows: ścieżki ze spacjami, polskie znaki, kodowanie konsoli</td><td><span class="chip warn">ŚREDNI</span></td><td>Testy E5 na ścieżkach „Work in Group"-podobnych; zero zależności npm; nazwy plików .bat/skryptów bez polskich znaków</td></tr>
+<tr><td>R5</td><td>Dokumenty puchną i zjadają kontekst sesji (LEKCJE 284 KB w WiG)</td><td><span class="chip warn">ŚREDNI</span></td><td>Rotacja DZIENNIKA, kompresja LEKCJI do „Zasad aktywnych", start sesji czyta wyłącznie destylaty; /relai-audit pilnuje progów</td></tr>
+<tr><td>R6</td><td>Aktualizacja pluginu psuje lokalne nadpisania użytkowników</td><td><span class="chip warn">ŚREDNI</span></td><td>D-72: diff + jawna zgoda + bezwzględne pierwszeństwo lokalnych nadpisań; test w pilotażu</td></tr>
+<tr><td>R7</td><td>Model wykonawczy obniża jakość implementacji etapów</td><td><span class="chip warn">ŚREDNI</span></td><td>Prompty etapowe z twardą sekcją Weryfikacja; przegląd architekta (Fable) po E2, E5, E9; LEKCJE budowy zasilają kolejne prompty</td></tr>
+<tr><td>R8</td><td>Współpracownicy nie przyjmą frameworka (za dużo rygoru)</td><td><span class="chip warn">ŚREDNI</span></td><td>Filozofia „sugeruj, nie wymuszaj" (D-25); pytania raz + defaulty; tryb gościa; feedback nieformalny zbierany w LEKCJE frameworka</td></tr>
+<tr><td>R9</td><td>Rozjazd KOMENDY.md z realnym zachowaniem pluginu po wydaniach</td><td><span class="chip ok">NISKI</span></td><td>KOMENDY.md generowany z wersją pluginu; /relai-update odświeża; kontrola spójności w /relai-audit</td></tr>
+</table>
+</div>
+</details>
+
+<details class="sec" id="s10">
+<summary><span class="num">10</span><h2>Przypadki brzegowe — rozstrzygnięte</h2></summary>
+<div class="body">
+<ul>
+<li><strong>Folder z istniejącą zawartością przy pierwszym prompcie</strong> → nie inicjalizujemy; propozycja adopcji (pełen rygor D-70) albo tryb gościa.</li>
+<li><strong>Odmowa inicjalizacji</strong> → tryb gościa + marker; nie pytamy ponownie; dołączenie komendą w każdej chwili (D-21).</li>
+<li><strong>Więcej niż jeden aktywny plan</strong> → /relai-stage pyta, który; nigdy nie zgaduje (D-35).</li>
+<li><strong>Sesja przerwana w połowie rytuału „Na koniec"</strong> → session-context wykrywa lukę (etap zamknięty, brak promptu N+1) i dogenerowuje na starcie (D-34).</li>
+<li><strong>Projekt bez gita</strong> → dozwolony z ostrzeżeniem; zakaz zagnieżdżonych repo bezwzględny (D-53); backupy i snapshoty przejmują rolę siatki.</li>
+<li><strong>Projekt w języku innym niż PL/EN</strong> → generacja LLM ze specyfikacji obsługuje dowolny język (D-60); nazwy plików podążają za językiem.</li>
+<li><strong>Istniejący CLAUDE.md przy adopcji</strong> → scalanie z zachowaniem: backup + sekcja „Zasady odziedziczone" + konflikty rozstrzygane pytaniami (D-71).</li>
+<li><strong>Użytkownik ma ECC / superpowers / caveman</strong> → RelAI współistnieje, niczego nie dubluje ani nie wymaga (D-04).</li>
+<li><strong>Nieznany autor otwiera projekt</strong> → propozycja tour; odmowa szanowana (D-27).</li>
+<li><strong>Zmiana produkcyjna configu agenta bez snapshotu</strong> → profil agent/flow traktuje snapshot jako bramkę: najpierw snapshot, potem zmiana (D-52).</li>
+<li><strong>Duże pliki binarne</strong> (screenshoty QA, PDF-y) → wyłącznie <code>docs/zasoby/</code>; root i docs/ główne wolne od binariów.</li>
+<li><strong>Dokument przestaje być aktualny</strong> → natychmiastowa adnotacja „NIEAKTUALNE (zastąpione przez, kiedy, powód)" + przeniesienie do archiwum (D-18); nigdy ciche kasowanie.</li>
+</ul>
+</div>
+</details>
+
+<details class="sec" id="s11" open>
+<summary><span class="num">11</span><h2>Czego świadomie NIE budujemy w v1</h2></summary>
+<div class="body">
+<p>Lista-bezpiecznik przeciw losowi vibe-forge. Pozycje wracają najwcześniej w v2, po dojrzeniu rdzenia:</p>
+<ul>
+<li><strong>Jakiekolwiek GUI / dashboard</strong> — główny podejrzany o śmierć vibe-forge; RelAI żyje wyłącznie w Claude Code i plikach.</li>
+<li><strong>Telemetria kosztów/tokenów</strong> — brak wiarygodnych danych z poziomu pluginu.</li>
+<li><strong>Pełne tłumaczenie EN zasobów pluginu</strong> — projekty EN działają przez generację LLM; tłumaczenie opisów/README przy upublicznieniu.</li>
+<li><strong>Wsparcie Cursor / Codex / innych narzędzi</strong> — v1 tylko Claude Code (prompty etapowe jako czysty MD pozostają przenośne „przy okazji").</li>
+<li><strong>Infrastruktura feedbacku</strong> (issues, formularze) — feedback nieformalny (D-06).</li>
+<li><strong>Wywiady wielopytaniowe</strong> — nigdy więcej 35–60 pytań; maksimum to paczka startowa (3) i pojedyncze pytania w naturalnych momentach.</li>
+</ul>
+</div>
+</details>
+
+<details class="sec" id="s12" open>
+<summary><span class="num">12</span><h2>Do rozstrzygnięcia przez człowieka</h2></summary>
+<div class="body">
+<ul>
+<li><span class="chip ok">ZAŁATWIONE</span> <strong>Akceptacja planu</strong> — 2026-08-07, z poprawkami (Aneks A).</li>
+<li><span class="chip ok">ZAŁATWIONE</span> <strong>Repo GitHub</strong> — <code>github.com/nowilus/relai</code> założone 2026-08-07; do zrobienia pozostaje nadanie dostępów współpracownikom.</li>
+<li><span class="chip ok">ZAŁATWIONE</span> <strong>Przemianowanie folderu</strong> <code>VibeFramework</code> → <code>RelAI</code> — wykonane 2026-08-07.</li>
+<li><span class="chip ok">ZAŁATWIONE</span> <strong>Klucze z analizy</strong> — świadoma decyzja Łukasza (2026-08-07): bez rotacji; backup <code>.claude.zip</code> jest wyłącznie lokalny, nigdzie nie pushowany.</li>
+<li><strong>Licencja przy przyszłym upublicznieniu</strong> (MIT / Apache-2.0 / komercyjna) — decyzja biznesowa, niepotrzebna przed v1.</li>
+<li><strong>Moment adopcji JiraManagera</strong> — po zaliczeniu scenariuszy na projekcie testowym; wymaga Twojej jawnej zgody.</li>
+</ul>
+</div>
+</details>
+
+<details class="sec" id="s13">
+<summary><span class="num">13</span><h2>Dopiski i aneksy</h2></summary>
+<div class="body">
+<p style="color:var(--muted)">Po akceptacji sekcje 1–12 są zamrożone. Zmiany wyłącznie tutaj, jako datowane aneksy. Odchylenie fundamentalne → nowy plan z linkiem do tego dokumentu.</p>
+<div class="card"><strong>Aneks A (2026-08-07) — poprawki wniesione przy akceptacji planu:</strong>
+<ul>
+<li><strong>Nowa komenda <code>/relai-help</code></strong> — listuje wszystkie dostępne komendy i frazy z opisami (źródło prawdy: KOMENDY.md); użytkownik nie szuka niczego w plikach. Realizacja w E7; dopisana do tabeli 5.3.</li>
+<li><strong>Pytanie o model wykonawczy przy każdym planie</strong> — przed powstaniem planu RelAI pyta, jakim modelem Claude mają być realizowane etapy; odpowiedź swobodna (np. „złożone etapy Opus, drobne Haiku"), nic nie jest narzucane pod spodem. Preferencja utrwalana globalnie lub per projekt jak każda inna (D-23). Zapis modelu trafia do STATUS planu i do treści promptów etapowych. Zmienia D-38 z reguły twardej na rekomendację-default.</li>
+<li><strong>Wykonawca budowy RelAI: Opus</strong> — decyzja Łukasza (maksymalna jakość dla produktu flagowego). Prompty etapowe E2+ pisze Opus w rytuale „Na koniec" (D-34); PROMPT_ETAP_1 wygenerował architekt (Fable).</li>
+<li><strong>Przegląd architekta po poprawkach</strong> — wykryte i domknięte luki: (1) hooki pluginu działają globalnie, więc każdy hook zaczyna się od cichego sprawdzenia markera struktury RelAI — poza projektami RelAI kończy się bez efektu (dopisane do zakresu E1/E5); (2) projekt zapisuje wersję RelAI w USTAWIENIA przy inicjalizacji i aktualizacji — bez tego /relai-update nie ma punktu odniesienia (E1); (3) opisy skilli muszą zawierać polskie frazy wyzwalające, nie tylko angielskie opisy (E2); (4) wpisy DZIENNIKA zawsze dopisywane na końcu sekcji „Wpisy" z autorem w nagłówku — minimalizuje konflikty git przy pracy zespołowej (E2).</li>
+<li><strong>Rozstrzygnięcia z sekcji 12</strong> — repo założone, folder przemianowany, klucze bez rotacji (świadoma decyzja, backup wyłącznie lokalny).</li>
+</ul></div>
+</div>
+</details>
+
+<p class="footer-note">RelAI — master plan budowy • wygenerowano 2026-08-07 przez RelAI (Fable) na podstawie analizy projektów i wywiadu z Łukaszem • dokument samowystarczalny (bez zasobów zewnętrznych) • postęp checkboxów zapisywany lokalnie w przeglądarce</p>
+</div>
+
+<script>
+(function(){
+  var KEY='relai-master-plan-v1';
+  var saved={};
+  try{saved=JSON.parse(localStorage.getItem(KEY)||'{}')}catch(e){}
+  var boxes=document.querySelectorAll('input[data-stage]');
+  function refresh(){
+    var done=0;
+    boxes.forEach(function(b){
+      b.closest('.stage').classList.toggle('done',b.checked);
+      if(b.checked)done++;
+    });
+    document.getElementById('prog').textContent=done+' / '+boxes.length;
+  }
+  boxes.forEach(function(b){
+    if(saved[b.dataset.stage])b.checked=true;
+    b.addEventListener('change',function(){
+      saved[b.dataset.stage]=b.checked;
+      try{localStorage.setItem(KEY,JSON.stringify(saved))}catch(e){}
+      refresh();
+    });
+  });
+  refresh();
+})();
+function toggleTheme(){
+  var r=document.documentElement;
+  var cur=r.getAttribute('data-theme');
+  var dark=window.matchMedia('(prefers-color-scheme: dark)').matches;
+  var now=cur?(cur==='dark'?'light':'dark'):(dark?'light':'dark');
+  r.setAttribute('data-theme',now);
+  try{localStorage.setItem('relai-theme',now)}catch(e){}
+}
+(function(){
+  try{var t=localStorage.getItem('relai-theme');if(t)document.documentElement.setAttribute('data-theme',t)}catch(e){}
+})();
+</script>
+</body>
+</html>

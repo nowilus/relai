@@ -1,0 +1,36 @@
+# RelAI — budowa pluginu (projekt dogfoodingowy)
+
+Ten folder to repo pluginu **RelAI** („Twój projekt pamięta wszystko") — frameworka dokumentacyjno-procesowego dla Claude Code. Projekt prowadzi się według zasad, które sam buduje. Trzymaj ten plik krótkim — szczegóły są w `docs/`.
+
+## Rytuał startu sesji
+
+Czytaj w kolejności, nie skanuj pełnotekstowo repo:
+1. Ten plik.
+2. [docs/DZIENNIK.md](docs/DZIENNIK.md) — sekcja „Stan otwartych ryzyk" + ostatni wpis.
+3. [docs/DECYZJE.md](docs/DECYZJE.md) — decyzje zamrożone: **nie proponuj ich ponownie**.
+4. [docs/USTAWIENIA.md](docs/USTAWIENIA.md) — preferencje projektu.
+5. Aktywny plan: [docs/plany/BUDOWA_RELAI/STATUS.md](docs/plany/BUDOWA_RELAI/STATUS.md).
+
+## Stan prac
+
+| Co | Status | Gdzie |
+|---|---|---|
+| Analiza projektów historycznych | ZAKOŃCZONA | DZIENNIK, wpis 2026-08-07 |
+| Wywiad architektoniczny (~90 decyzji) | ZAKOŃCZONY | docs/DECYZJE.md |
+| Master plan budowy | **ZAAKCEPTOWANY 2026-08-07** (Aneks A) | docs/plany/BUDOWA_RELAI/PLAN.html |
+| Implementacja (E1–E10) | E1 GOTOWY DO STARTU | docs/plany/BUDOWA_RELAI/PROMPT_ETAP_1.md |
+
+## Reguły procesu
+
+- Plan zamrożony po akceptacji; zmiany wyłącznie datowanymi aneksami. Odchylenie fundamentalne → propozycja nowego planu z linkiem do starego.
+- Wykonanie etapów: świeże sesje **Opus** (D-85) wg `PROMPT_ETAP_N.md`. Architektura i plany: model najsilniejszy (Fable). Na starcie etapu sprawdź model sesji — jeśli inny niż Opus, przerwij i poproś o zmianę.
+- Każdy etap kończy się rytuałem „Na koniec": aktualizacja STATUS → wpis do DZIENNIKA → wygenerowanie promptu następnego etapu. Zadanie bez tego rytuału NIE jest ukończone.
+- Dokumentacja po polsku, kod i identyfikatory po angielsku, commity conventional po angielsku.
+- Sekrety nigdy w plikach śledzonych; klucze wyłącznie w `.env` (gitignored).
+
+## Implementation guidelines (sekcja niemutowalna)
+
+- **Think before coding**: nie zakładaj — sprawdź; niejasność → pytanie, nie domysł.
+- **Simplicity first**: najprostsze działające rozwiązanie; zero spekulacyjnej generyczności (YAGNI).
+- **Surgical changes**: zmieniaj minimum konieczne; nie refaktoryzuj przy okazji.
+- **Goal-driven**: każda zmiana mapuje się na cel etapu; poza zakresem → do DZIENNIKA jako „świadomie odłożone".
