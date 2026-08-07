@@ -307,7 +307,12 @@ w tej kolejności:
    nowe (jeśli praca je ujawniła) dopisz.
 5. **Archiwum** — przenieś `docs/plany/<TEMAT>/` do `docs/archiwum/plany/<TEMAT>/`. Zawartość bez
    zmian; przeniesienie, nie kasowanie.
-6. **`CLAUDE.md`** — linia aktywnego planu: nowy aktywny plan albo jawne „Aktywny plan: brak".
+6. **`CLAUDE.md`** — linia aktywnego planu. **Nie ma prawa wskazywać zamkniętego planu ani przez
+   chwilę** — po przeniesieniu folderu byłby to link donikąd, a jednocześnie sygnał „tu trwa praca".
+   Rozstrzygasz tak: jest dokładnie jeden inny plan niezamknięty → wpisujesz go bez pytania; jest
+   ich więcej → wpisujesz `Aktywny plan: brak` i **pytasz jednym zdaniem**, który ma być następny;
+   nie ma żadnego → `Aktywny plan: brak`. Wybór następcy może być pytaniem; zostawienie linii
+   wskazującej na archiwum — nigdy.
 7. **Podsumowanie** — 3–5 zdań dla użytkownika: co dowieziono, czego nie i dlaczego, co czeka na
    człowieka.
 
