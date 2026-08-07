@@ -1,18 +1,19 @@
 ---
 name: relai-core
 description: >
-  RelAI project structure, session rituals and project memory. Use at the very beginning of work in
-  a folder to check whether it is a RelAI project; run the session start ritual when it is, and set
-  the structure up when it is not (consent, then exactly three questions, then generation of
-  CLAUDE.md, README.md and docs/ with STATE, DZIENNIK, LEKCJE, DECYZJE, USTAWIENIA, KOMENDY).
-  Also: keep STATE and the journal current in the same turn as any functional change, record a
-  lesson after every user correction, propose freezing a recurring decision, handle guest mode and
-  non-destructive attach.
-  Use when the user says "zacznijmy projekt", "nowy projekt", "zainicjuj projekt", "dodaj RelAI",
-  "dołącz RelAI", "co to za projekt", "kończymy na dziś", "kontynuujemy pracę", "sprawdź status",
-  "jak stoimy", "start project", "init project", "set up RelAI", "wrapping up", "let's continue",
-  "status check" — or on the first prompt in a folder whose RelAI structure has not been checked
-  yet in this session.
+  MUST BE USED on the first prompt of a session in any folder, before answering anything else — to
+  check whether the folder is a RelAI project (docs/USTAWIENIA.md contains "Wersja RelAI" / "RelAI
+  version"), run the session start ritual when it is, and offer to set the structure up when it is
+  not. Skipping this check means working without the project's memory, rules and open risks.
+  Trigger phrases (Polish): "zacznijmy projekt", "nowy projekt", "zaczynam projekt", "zainicjuj
+  projekt", "dodaj RelAI", "dołącz RelAI", "co to za projekt", "kończymy na dziś", "kontynuujemy
+  pracę", "sprawdź status", "jak stoimy". English: "start project", "new project", "init project",
+  "set up RelAI", "wrapping up", "let's continue", "status check".
+  Covers: initialization (consent, then exactly three questions, then generation of CLAUDE.md,
+  README.md and docs/ with STATE, DZIENNIK, LEKCJE, DECYZJE, USTAWIENIA, KOMENDY), guest mode,
+  non-destructive attach, keeping STATE and the journal current in the same turn as any functional
+  change, recording a lesson after every user correction, and proposing to freeze a recurring
+  decision. Planning is a separate skill (relai-planning).
 ---
 
 # relai-core — struktura projektu, pamięć i rytuały sesji

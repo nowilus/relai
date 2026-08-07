@@ -1,16 +1,19 @@
 ---
 name: relai-planning
 description: >
-  RelAI planning: turning a request for a plan into a frozen, staged plan document inside the
-  project structure. Use when the user asks for a plan, a concept, an approach, a refactor, a
-  migration or a breakdown into stages — before writing any code. Decides between a full PLAN
-  (docs/plany/<TOPIC>/PLAN.md + STATUS.md) and a MINIPLAN (single entry in the journal), asks once
-  about kind, format and the model that will execute the stages, freezes the plan after acceptance
-  and changes it only through dated annexes, and closes the plan when the last stage is done.
-  Use when the user says "przygotuj plan", "zaplanuj", "rozpisz to na etapy", "zrób plan wdrożenia",
-  "plan projektu", "jak to ugryźć", "od czego zacząć", "zaplanujmy przebudowę", "make a plan",
-  "plan this out", "break this into stages" — and whenever a request would otherwise start a piece
-  of work spanning more than one session.
+  MUST BE USED whenever the user asks for any plan, concept, approach, staging or breakdown of work
+  in a project that has RelAI structure (docs/USTAWIENIA.md contains "Wersja RelAI" / "RelAI
+  version") — invoke this skill BEFORE writing the plan, because RelAI plans have a required file
+  layout that differs from a plain Markdown answer.
+  Trigger phrases (Polish): "przygotuj plan", "zaplanuj", "zaplanujmy", "rozpisz to na etapy",
+  "zrób plan", "plan wdrożenia", "plan projektu", "rozpisz plan", "jak to ugryźć", "od czego
+  zacząć", "w jakiej kolejności". English: "make a plan", "plan this out", "break this into
+  stages", "what's the approach". Also for a refactor, migration or rewrite request that spans more
+  than one session, even when the word "plan" is absent.
+  The skill decides between a full PLAN (docs/plany/<TOPIC>/PLAN.md + STATUS.md, one active-plan
+  line in CLAUDE.md) and a MINIPLAN (a single journal entry), asks once about kind, format and the
+  model executing the stages, freezes the plan after acceptance so changes go in as dated annexes,
+  and closes the plan when the last stage is done.
 ---
 
 # relai-planning — plany, etapy i ich zamrażanie
