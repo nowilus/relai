@@ -69,3 +69,11 @@ Plan: [PLAN.html](PLAN.html) • Utworzony: 2026-08-07 • Status planu: **ZAAKC
   tło pośrednie `#f2e9d8`, ruch ścięty do niosącego informację, **animowana kropka na diagramie
   usunięta** (dowód negatywny: `animateMotion` = 0). Wynik zapisany w `USTAWIENIA.md`.
   Czeka na akceptację kierunku przed zamrożeniem w `templates/HTML_PLAN/`.
+- 2026-08-08 — **kierunek ZAAKCEPTOWANY, szablon zamrożony**. Powstały `templates/HTML_PLAN/`
+  (szkielet z design tokens, komponenty, builder fontów `zbuduj.js`, sześć plików WOFF2)
+  i `templates/SPEC_PLAN_HTML.md`; `provisionTemplates` w `session-context.js` kopiuje teraz
+  **całe drzewo** `templates/` (22 pliki, fonty bajt w bajt). Test dymny: plan złożony
+  z szablonu liczy identycznie jak wzorzec. Dwa defekty poprawione — brakujące pole symulatora
+  wywracało cały symulator; dosłowny znacznik w komponencie wjeżdżał do wyniku (złapane przez
+  builder). Poprawiony pasek górny: pozycje sekcji na Kalamie. **Zostaje do E6:** nadpisania
+  lokalne D-62, honorowanie preferencji „HTML" w `relai-planning`, wersja 0.6.0.

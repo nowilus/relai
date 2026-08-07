@@ -1,0 +1,311 @@
+<!-- =============================================================================
+     KOMPONENTY szablonu HTML planów RelAI — kierunek „Warsztat"
+     Ten plik NIE jest stroną do otwierania. To zestaw gotowych fragmentów
+     do wklejenia w miejsca {{SEKCJA_N}} w szablon.html.
+     Klasy CSS są już zdefiniowane w szablonie — nie dopisuj własnych.
+     ============================================================================= -->
+
+
+<!-- ——— 1. KARTECZKA NA MARGINESIE ————————————————————————————————————————
+     Krótka uwaga na boku tekstu: skąd liczby, jaka zasada, na co uważać.
+     Wstaw JAKO PIERWSZY element sekcji, przed akapitami — opływa tekst z prawej.
+     Wariant „zielona" dla zasad i wniosków, domyślny (żółty) dla danych i ostrzeżeń.
+     Maksymalnie jedna na sekcję. Na wąskim ekranie sama przestaje opływać.        -->
+
+<aside class="karteczka">
+  <b>skąd te liczby</b>
+  <p>40 klientów — policzone w bazie 12 sierpnia.</p>
+  <p>6 godzin miesięcznie — z rozmowy z księgowością, więc szacunek.</p>
+</aside>
+
+<aside class="karteczka zielona">
+  <b>zasada</b>
+  <p>Cel bez kryterium to życzenie. Każdy punkt ma zapisane, po czym poznamy, że jest zrobiony.</p>
+</aside>
+
+
+<!-- ——— 2. ETYKIETA LICZBY (D-63) ————————————————————————————————————————
+     Każda liczba merytoryczna dostaje etykietę. Bez wyjątków.                    -->
+
+Przy 40 klientach <span class="et et-f">FAKT</span> zajmuje to około 6 godzin
+miesięcznie <span class="et et-s">SZACUNEK</span>.
+
+
+<!-- ——— 3. LISTA CELÓW I NIE-CELÓW ——————————————————————————————————————
+     Cel: ptaszek szałwiowy + kryterium odbioru pisane odręcznie pod spodem.
+     Nie-cel: krzyżyk szary, bez kryterium.                                        -->
+
+<h3>Co ma się udać</h3>
+<ul class="hak">
+  <li><svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><path d="M3 11l4.5 4.5L17 4.5" fill="none" stroke="#5f8a68" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    Rezerwacja opłacana kartą w tym samym kroku, w którym powstaje.<span class="kryt">poznamy po tym: rezerwacja bez płatności nie przechodzi w „potwierdzona"</span></li>
+</ul>
+
+<h3>Czego świadomie nie robimy</h3>
+<ul class="hak nie">
+  <li><svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><path d="M5 5l10 10M15 5L5 15" fill="none" stroke="#8f8574" stroke-width="2.6" stroke-linecap="round"/></svg>
+    Zwroty i korekty faktur — proces zostaje ręczny w tej wersji.</li>
+</ul>
+
+
+<!-- ——— 4. TABELA ————————————————————————————————————————————————————
+     Zawsze w .przewin, inaczej rozepchnie stronę na wąskim ekranie.
+     Pierwsza kolumna z klasą .id, gdy niesie identyfikator (E1, R2, nazwę modułu). -->
+
+<div class="przewin">
+  <table>
+    <thead><tr><th style="width:3.2rem">Etap</th><th style="width:12rem">Nazwa</th><th>Zakres</th><th style="width:7.5rem">Szacunek</th><th style="width:15rem">Efekt widoczny</th></tr></thead>
+    <tbody>
+      <tr>
+        <td class="id">E1</td>
+        <td>Model płatności i statusy</td>
+        <td>Tabela <code>Payment</code>, status „oczekuje na płatność", wygasanie po 15 min</td>
+        <td>1–2 sesje <span class="et et-s">SZAC.</span></td>
+        <td>Rezerwacja bez płatności sama znika z systemu</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+
+<!-- ——— 5. NAKLEJKI STATUSU ——————————————————————————————————————————
+     n-tak: wybrany / zrobiony      n-nie: odrzucony / poza zakresem
+     n-w:  ryzyko wysokie, termin blokujący
+     n-s:  ryzyko średnie, termin nieblokujący                                     -->
+
+<span class="naklejka n-tak">wybrany</span>
+<span class="naklejka n-nie">odrzucony</span>
+<span class="naklejka n-w">wysoki</span>
+<span class="naklejka n-s">średni</span>
+
+
+<!-- ——— 6. KARTA WARIANTU Z WERDYKTEM (sekcja 4) ————————————————————————
+     Jeden blok na wariant. Wybrany wariant ma klasę „otw" i aria-expanded="true",
+     odrzucone są zwinięte. Każdy odrzucony MUSI mieć zdanie „Dlaczego nie:".
+     Identyfikatory aria-controls muszą być unikalne w całym dokumencie.           -->
+
+<div class="notka otw">
+  <button type="button" aria-expanded="true" aria-controls="w1">
+    <svg class="spinacz" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    <span class="tyt">A. Stripe Checkout</span><span class="prawo"><span class="naklejka n-tak">wybrany</span></span>
+  </button>
+  <div class="rulon" id="w1"><div><div class="tresc">
+    <p>Przekierowanie na hostowaną stronę Stripe, powrót z webhookiem.</p>
+    <div class="zaza">
+      <div><h4>za tym</h4><ul><li>Najmniej kodu</li><li>Zgodność PCI po stronie Stripe</li></ul></div>
+      <div><h4>przeciw</h4><ul><li>Użytkownik opuszcza naszą domenę</li></ul></div>
+    </div>
+    <p><b>Dlaczego ten:</b> najniższe ryzyko przy danych kartowych, wdrożenie krótsze o ~2 sesje <span class="et et-s">SZACUNEK</span>.</p>
+  </div></div></div>
+</div>
+
+
+<!-- ——— 7. PRZYPADEK BRZEGOWY (sekcja 8) ————————————————————————————————
+     Ten sam komponent co wariant, bez naklejki. Treść kończy się DECYZJĄ,
+     nie pytaniem — pytanie bez odpowiedzi należy do sekcji 9.                     -->
+
+<div class="notka">
+  <button type="button" aria-expanded="false" aria-controls="b2">
+    <svg class="spinacz" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    <span class="tyt">Stripe niedostępny</span>
+  </button>
+  <div class="rulon" id="b2"><div><div class="tresc">
+    <p>Rezerwacja nie powstaje, komunikat „płatności chwilowo niedostępne"; bez trybu „zapłacę później".</p>
+  </div></div></div>
+</div>
+
+
+<!-- ——— 8. DIAGRAM PRZEPŁYWU (sekcja 5) ——————————————————————————————
+     Kroki jako zaokrąglone kartki z lekkim obrotem, strzałki lekko falowane.
+     ZAKAZ: animowana kropka wędrująca po ścieżce (usunięta na polecenie Łukasza
+     2026-08-08 — nie niosła treści). Ścieżkę główną od wyjątkowej odróżnia
+     linia ciągła kontra przerywana, co działa też na wydruku.
+     Kolory: kartka #fffdf7 / obrys #d8c6a4 (krok zwykły), #fdf1e8 / #e6bfa4
+     (krok kluczowy), #eef5ea / #c4d9bd (stan końcowy dobry),
+     #fbeae2 / #eec0ab (stan końcowy zły). Strzałki #c9a06f, wyjątek #c4643c.    -->
+
+<figure class="ramka">
+  <svg viewBox="0 0 900 300" role="img" aria-label="OPISZ TU SŁOWAMI CAŁY PRZEPŁYW — czytnik ekranu nie zobaczy kształtów">
+    <defs>
+      <marker id="bs" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 1 L9 5 L0 9" fill="none" stroke="#c9a06f" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></marker>
+      <marker id="br" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 1 L9 5 L0 9" fill="none" stroke="#c4643c" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></marker>
+    </defs>
+    <rect x="16" y="58" width="184" height="76" rx="16" fill="#fffdf7" stroke="#d8c6a4" transform="rotate(-1 108 96)"/>
+    <path d="M204 96 C218 88 226 104 240 96" fill="none" stroke="#c9a06f" stroke-width="2.2" stroke-linecap="round" marker-end="url(#bs)"/>
+    <path d="M100 136 C96 176 150 214 240 226" fill="none" stroke="#c4643c" stroke-width="2.2" stroke-dasharray="8 6" stroke-linecap="round" marker-end="url(#br)"/>
+    <text x="32" y="92" font-family="Kalam, cursive" font-weight="700" font-size="18" fill="#312c25">Rezerwacja czeka</text>
+    <text x="32" y="114" font-family="Hanken Grotesk, sans-serif" font-size="12" fill="#7c7263">status oczekuje, 15 min</text>
+    <text x="24" y="46" font-family="Kalam, cursive" font-weight="700" font-size="20" fill="#c4643c">1</text>
+  </svg>
+  <figcaption>ciągła linia to ścieżka główna, przerywana — wyjątek</figcaption>
+</figure>
+
+
+<!-- ——— 9. WYKRES SŁUPKOWY (np. pracochłonność etapów) ————————————————
+     Pełny słupek = dolna granica szacunku, jasny = zapas do górnej.
+     Zawsze podpisz obie granice, inaczej czytelnik weźmie szacunek za obietnicę. -->
+
+<figure>
+  <svg viewBox="0 0 700 176" role="img" aria-label="Pracochłonność etapów w sesjach: E1 od 1 do 2, E2 od 2 do 3">
+    <text x="6" y="32" font-family="Kalam, cursive" font-weight="700" font-size="19" fill="#61594c">E1</text>
+    <g stroke="#e0d3ba" stroke-dasharray="4 6"><line x1="256" y1="8" x2="256" y2="168"/><line x1="464" y1="8" x2="464" y2="168"/></g>
+    <rect x="46" y="14" width="210" height="24" rx="12" fill="#c4643c"/>
+    <rect x="256" y="14" width="208" height="24" rx="12" fill="#f0cdb9"/>
+    <text x="58" y="31" font-family="Hanken Grotesk, sans-serif" font-size="11" font-weight="600" fill="#fff">1 sesja</text>
+    <text x="266" y="32" font-family="Kalam, cursive" font-size="17" fill="#a2734f">+1 gdyby poszło oporniej</text>
+  </svg>
+  <figcaption>ciemny pasek to dolna granica szacunku, jasny — zapas do górnej</figcaption>
+</figure>
+
+
+<!-- ——— 10. SYMULATOR ————————————————————————————————————————————————
+     Wstawiaj TYLKO gdy plan zawiera wyliczenia (koszt, zwrot, przepustowość).
+     Plan bez liczb ma ten blok pominąć w całości — skrypt szablonu wtedy śpi.
+
+     Konwencja identyfikatorów:
+       wejście liczbowe   id="s-<klucz>"
+       suwak sprzężony    id="s-<klucz>-s"   (opcjonalny, aria-hidden, tabindex=-1)
+       wynik              id="s-<nazwa>"
+     Klucze wypisujesz w {{KLUCZE_SYMULATORA}}, model liczenia w {{FUNKCJA_LICZ}},
+     przypisanie wyników do pól w {{FUNKCJA_ODSWIEZ}}.
+
+     OBOWIĄZKOWO: zdanie pod symulatorem z wzorem i z tym, czego model NIE liczy.
+     Symulator, który udaje pewność, jest gorszy od jego braku.                   -->
+
+<div class="sym">
+  <span class="tasma lw" aria-hidden="true"></span>
+  <h3>Symulator: kiedy to się zwróci</h3>
+  <p style="margin:0; color:var(--txt-2)">Wszystko poniżej to <span class="et et-s">SZACUNEK</span>. Pokręć suwakami i zobacz, przy jakich liczbach wdrożenie wychodzi na plus.</p>
+
+  <!-- Każdy klucz wypisany w znaczniku KLUCZE_SYMULATORA musi mieć tu swoje pole.
+       Klucz bez pola liczy się jako zero i trafia jako ostrzeżenie do konsoli —
+       symulator nie przestaje działać, ale wynik jest wtedy nieprawdziwy. -->
+  <div class="pola">
+    <div class="pole">
+      <label for="s-rez">Rezerwacje miesięcznie</label>
+      <div class="rzad">
+        <input type="range" id="s-rez-s" min="0" max="1200" step="10" value="320" tabindex="-1" aria-hidden="true">
+        <input type="number" id="s-rez" value="320" min="0" step="10">
+      </div>
+    </div>
+    <div class="pole">
+      <label for="s-val">Średnia wartość (zł)</label>
+      <div class="rzad">
+        <input type="range" id="s-val-s" min="0" max="400" step="5" value="85" tabindex="-1" aria-hidden="true">
+        <input type="number" id="s-val" value="85" min="0" step="5">
+      </div>
+    </div>
+    <div class="pole">
+      <label for="s-godz">Ręczne fakturowanie (h/mies.)</label>
+      <div class="rzad">
+        <input type="range" id="s-godz-s" min="0" max="40" step="0.5" value="6" tabindex="-1" aria-hidden="true">
+        <input type="number" id="s-godz" value="6" min="0" step="0.5">
+      </div>
+    </div>
+    <div class="pole">
+      <label for="s-stawka">Koszt godziny (zł)</label>
+      <div class="rzad">
+        <input type="range" id="s-stawka-s" min="0" max="400" step="10" value="120" tabindex="-1" aria-hidden="true">
+        <input type="number" id="s-stawka" value="120" min="0" step="10">
+      </div>
+    </div>
+    <div class="pole">
+      <label for="s-proc">Prowizja (%)</label>
+      <div class="rzad">
+        <input type="range" id="s-proc-s" min="0" max="5" step="0.1" value="1.5" tabindex="-1" aria-hidden="true">
+        <input type="number" id="s-proc" value="1.5" min="0" step="0.1">
+      </div>
+    </div>
+    <div class="pole">
+      <label for="s-fix">Opłata stała (zł)</label>
+      <div class="rzad">
+        <input type="range" id="s-fix-s" min="0" max="5" step="0.1" value="1" tabindex="-1" aria-hidden="true">
+        <input type="number" id="s-fix" value="1" min="0" step="0.1">
+      </div>
+    </div>
+    <div class="pole">
+      <label for="s-strat">Tracone rezerwacje (%)</label>
+      <div class="rzad">
+        <input type="range" id="s-strat-s" min="0" max="30" step="1" value="6" tabindex="-1" aria-hidden="true">
+        <input type="number" id="s-strat" value="6" min="0" max="100" step="1">
+      </div>
+    </div>
+    <div class="pole">
+      <label for="s-marza">Marża (%)</label>
+      <div class="rzad">
+        <input type="range" id="s-marza-s" min="0" max="100" step="1" value="35" tabindex="-1" aria-hidden="true">
+        <input type="number" id="s-marza" value="35" min="0" max="100" step="1">
+      </div>
+    </div>
+    <div class="pole">
+      <label for="s-wdr">Koszt wdrożenia (zł)</label>
+      <div class="rzad">
+        <input type="range" id="s-wdr-s" min="0" max="30000" step="250" value="6750" tabindex="-1" aria-hidden="true">
+        <input type="number" id="s-wdr" value="6750" min="0" step="250">
+      </div>
+    </div>
+  </div>
+
+  <div class="wyniki">
+    <div class="wyn"><div class="n">Obrót / mies.</div><div class="w" id="s-o">—</div></div>
+    <div class="wyn zly"><div class="n">Prowizja</div><div class="w" id="s-pr">—</div></div>
+    <div class="wyn dobry"><div class="n">Oszczędność pracy</div><div class="w" id="s-op">—</div></div>
+    <div class="wyn dobry"><div class="n">Odzyskane rezerwacje</div><div class="w" id="s-od">—</div></div>
+    <div class="wyn" id="s-bilansBox"><div class="n">Bilans / mies.</div><div class="w" id="s-b">—</div></div>
+    <div class="wyn"><div class="n">Zwrot wdrożenia</div><div class="w" id="s-zw">—</div><div class="d" id="s-prog">—</div></div>
+  </div>
+
+  <figure style="margin:0">
+    <svg id="s-wyk" viewBox="0 0 700 220" role="img" aria-label="Skumulowany bilans przez 24 miesiące, przeliczany na żywo z pól symulatora">
+      <g id="s-siatka"></g>
+      <path id="s-obszar" fill="rgba(95,138,104,.15)" stroke="none"/>
+      <line id="s-os" x1="46" y1="110" x2="682" y2="110" stroke="#d5c6a8"/>
+      <path id="s-linia" fill="none" stroke="#5f8a68" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+      <circle id="s-punkt" r="6.5" fill="#d9a134" stroke="#fffdf7" stroke-width="2.5" opacity="0"/>
+      <text id="s-opis" x="0" y="0" font-family="Kalam, cursive" font-weight="700" font-size="17" fill="#a5761f"></text>
+      <g id="s-eti" font-family="Hanken Grotesk, sans-serif" font-size="10" fill="#8f8574"></g>
+    </svg>
+    <figcaption>skumulowany bilans przez 24 miesiące — kropka to moment zwrotu</figcaption>
+  </figure>
+
+  <p class="nota">Wzór: bilans = godziny × stawka + obrót × udział traconych × marża − (obrót × prowizja% + rezerwacje × opłata stała).
+  Model pomija koszt utrzymania integracji i zwroty.</p>
+</div>
+
+
+<!-- ——— 11. WSTAWKI DO SZABLONU: {{FUNKCJA_LICZ}} i {{FUNKCJA_ODSWIEZ}} ————
+     Poniższe dwa bloki wklejasz w szablon.html dosłownie w miejsce znaczników.
+     licz() musi zwracać co najmniej { bilans, wdr, zwrot } jeśli używasz wykresu
+     skumulowanego; poza tym pola dowolne.                                         -->
+
+<script type="text/plain" data-wstawka="FUNKCJA_LICZ">
+function(){
+  var obrot = v('rez')*v('val');
+  var prowizja = obrot*v('proc')/100 + v('rez')*v('fix');
+  var oszcz = v('godz')*v('stawka');
+  var odzysk = obrot*(v('strat')/100)*(v('marza')/100);
+  var bilans = oszcz + odzysk - prowizja;
+  var wdr = v('wdr');
+  return {obrot:obrot, prowizja:prowizja, oszcz:oszcz, odzysk:odzysk, bilans:bilans, wdr:wdr,
+          zwrot: bilans > 0 ? wdr/bilans : Infinity,
+          prog: v('stawka') > 0 ? Math.max(0,(prowizja-odzysk)/v('stawka')) : 0};
+}
+</script>
+
+<script type="text/plain" data-wstawka="FUNKCJA_ODSWIEZ">
+function(){
+  var r = licz();
+  ustaw('s-o', Math.round(r.obrot), '', ' zł');
+  ustaw('s-pr', Math.round(r.prowizja), '−', ' zł');
+  ustaw('s-op', Math.round(r.oszcz), '+', ' zł');
+  ustaw('s-od', Math.round(r.odzysk), '+', ' zł');
+  ustaw('s-b', Math.round(r.bilans), r.bilans >= 0 ? '+' : '−', ' zł');
+  var box = document.getElementById('s-bilansBox');
+  if (box) box.className = 'wyn ' + (r.bilans >= 0 ? 'dobry' : 'zly');
+  var zw = document.getElementById('s-zw');
+  if (zw) zw.textContent = isFinite(r.zwrot) ? f1.format(r.zwrot)+' mies.' : 'nie zwraca się';
+  var prog = document.getElementById('s-prog');
+  if (prog) prog.textContent = 'próg: '+f1.format(r.prog)+' h ręcznej pracy';
+  rysuj(r);
+}
+</script>

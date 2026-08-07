@@ -709,3 +709,87 @@ i propozycja 3 „Tablica warsztatowa"**, z przewagą Tablicy jako bazy. Reszta 
 **Do zrobienia przez człowieka:**
 - Obejrzeć blend i powiedzieć, czy to jest już ten kierunek, czy potrzeba kolejnej iteracji.
   Dopiero po akceptacji ma sens zamrażanie go w `templates/HTML_PLAN/`.
+  *(zaakceptowany 2026-08-08 — patrz kolejny wpis)*
+
+### 2026-08-08 — E6: kierunek zaakceptowany, szablon `templates/HTML_PLAN/` zamrożony
+
+Autor: RelAI (Opus) + Lukasz
+
+**Akceptacja:** „tak, to jest ten kierunek — zamroź go w templates/HTML_PLAN/". Jedna poprawka
+wizualna do naniesienia: pozycje sekcji w pasku górnym szły groteskiem, gdy reszta strony jest
+pisana Kalamem.
+
+**Zrobione:**
+- **Poprawka paska górnego** w `blend.html` i w szablonie: pozycje nawigacji, nazwa i dopisek
+  „· plan" przeszły na Kalam (1,06 rem, aktywna pozycja pogrubiona). Pasek przestał odstawać
+  od reszty dokumentu.
+- **`templates/HTML_PLAN/szablon.html`** — szkielet planu: **design tokens w `:root`** (tło,
+  płaszczyzny, tekst, kreski, trzy barwy sygnalne, promienie, cienie, trzy kroje), komponenty
+  w CSS opisane nagłówkami, pasek, szyld, dziesięć pustych sekcji z pinezkami cyklującymi przez
+  trzy barwy, stopka i skrypt. Znaczniki `{{…}}` w miejscach treści.
+- **`templates/HTML_PLAN/komponenty.html`** — jedenaście gotowych fragmentów do wklejenia:
+  karteczka na marginesie (dwa warianty), etykiety FAKT/SZACUNEK, listy celów i nie-celów, tabela,
+  naklejki statusu, karta wariantu z werdyktem, przypadek brzegowy, diagram przepływu, wykres
+  słupkowy, symulator z kompletem dziewięciu pól oraz dwie wstawki JavaScript (`licz`, `odswiez`).
+- **`templates/HTML_PLAN/zbuduj.js`** — builder w Node bez zależności: podmienia `/*{{FONTY}}*/`
+  na sześć reguł `@font-face` z `data:` URI i **wypisuje niewypełnione znaczniki, kończąc kodem
+  1**. Powód istnienia: ~145 KB base64 to nie jest coś, co model przepisze z pliku do pliku —
+  to musi zrobić proces.
+- **`templates/HTML_PLAN/fonty/`** — sześć podzbiorów WOFF2 (Kalam 400/700, Hanken Grotesk,
+  latin + latin-ext), licencje w `docs/zasoby/fonts/LICENCJE.md`.
+- **`templates/SPEC_PLAN_HTML.md`** — jak wygenerować plan HTML: sześciokrokowa procedura, tabela
+  tokenów z przeznaczeniem każdego, sześć zakazów (w tym **jawny zakaz kropki wędrującej po
+  diagramie**), pięć wymagań dostępności, waga pliku jako świadomy koszt, odesłanie do
+  kompletnego przykładu. Rozgraniczenie wobec `SPEC_PLAN.md`: przy sporze o treść rozstrzyga
+  `SPEC_PLAN.md`, ta specyfikacja opisuje wyłącznie nośnik.
+- **`templates/README.md`** — dopisany wiersz `SPEC_PLAN_HTML` i sekcja tłumacząca, dlaczego
+  `HTML_PLAN/` jest **jedynym miejscem z plikami do skopiowania**, a nie ze specyfikacją, i czemu
+  nie łamie to D-60 (kopiowany jest nośnik, treść nadal powstaje przez generację).
+- **`hooks/session-context.js`** — `provisionTemplates` przepisany na **rekurencyjne kopiowanie
+  drzewa** z zachowaniem podkatalogów; lista rozszerzeń rozszerzona z samego `.md` na
+  `.md/.html/.js/.css/.woff2`. Bez tego szablon nie dotarłby do żadnej sesji (L-0012).
+
+**Zweryfikowane — jak dokładnie:**
+- **Test dymny całego toru** (skrypt składający plan z szablonu i komponentów, potem builder):
+  dziesięć sekcji na wyjściu, sześć reguł `@font-face`, zero niewypełnionych znaczników, plik
+  197 KB. W przeglądarce: **Kalam i Hanken Grotesk `loaded`**, symulator liczy — 320 → 640
+  rezerwacji daje 54 400 zł obrotu, +406 zł bilansu i 16,6 mies. zwrotu, powrót do 320 przywraca
+  +563 zł i 12 mies., wyzerowanie godzin daje −157 zł i „nie zwraca się"; wykres narysowany,
+  zwijanie `true → false`, dwie karteczki na marginesie, zero poziomego przewijania.
+  **Liczby zgadzają się co do złotówki z blendem** — czyli szablon odtwarza wzorzec, a nie
+  własną wersję.
+- **Defekt znaleziony i poprawiony w trakcie:** klucz symulatora bez odpowiadającego pola
+  wywracał **cały** symulator (`v()` czytało `null.value`), a padał cicho — sekcje dalej się
+  zwijały, więc na oko wyglądało to na sprawny dokument. Po poprawce brakujące wejście liczy się
+  jako zero i trafia jako ostrzeżenie do konsoli, a reszta liczy dalej. Przy okazji przykład
+  symulatora w komponentach rozrósł się z jednego pola do kompletu dziewięciu — na jednym polu
+  test nie sprawdzał realnego liczenia.
+- **Drugi defekt, złapany przez builder:** komentarz w komponencie zawierał dosłowny
+  `{{KLUCZE_SYMULATORA}}`, który wjeżdżał do gotowego pliku jako niewypełniony znacznik. Builder
+  to zgłosił i zwrócił kod 1 — czyli kontrola robi dokładnie to, po co powstała.
+- **Provisioning zmierzony osobno** (payload `SessionStart` budowany w Node — L-0017), ścieżka
+  `Proba RelAI E6 szablon\projekt testowy` ze spacją: **22 pliki skopiowane** (13 `.md`,
+  2 `.html`, 1 `.js`, 6 `.woff2`), komplet plików kluczowych obecny, **font identyczny bajt
+  w bajt** po kopiowaniu, hook zgłosił lokalną kopię w treści wstrzykniętej sesji. Folder testowy
+  usunięty.
+- `claude plugin validate` → „Validation passed with warnings", jedno znane ostrzeżenie
+  o root `CLAUDE.md` (L-0003).
+- **Nie sprawdzono:** wygenerowania planu HTML przez **świeżą sesję** z zainstalowanego pluginu —
+  to wymaga wcześniejszego domknięcia reszty E6 (honorowanie preferencji formatu w skillu,
+  wersja 0.6.0) i sekwencji push → `marketplace update` → reinstalacja (L-0004). Do zrobienia
+  razem z zamknięciem etapu.
+
+**Świadomie odłożone:**
+- **Mechanizm nadpisania lokalnego (D-62)** — `SPEC_PLAN_HTML.md` odsyła do skilla
+  `relai-planning`, ale sam skill jeszcze tego nie opisuje. Odłożone razem z punktem niżej, żeby
+  obie zmiany w skillu weszły jedną ręką.
+- **Honorowanie preferencji „HTML"** w `relai-planning` i usunięcie z obu skilli oraz
+  `SPEC_KOMENDY.md` zdań „szablon HTML dochodzi w wersji następnej" — teraz już dochodzi.
+- **Wersja 0.6.0** w manifestach, README pluginu, `SPEC_KOMENDY`, `SPEC_USTAWIENIA`, obu skillach
+  i markerze `docs/USTAWIENIA.md`, z `grep` po `0.5.0` (L-0008).
+- Podzbiór fontów ograniczony do użytych znaków — pytanie do człowieka z wpisu o rundzie 2
+  nadal otwarte.
+
+**Do zrobienia przez człowieka:**
+- Zdecydować, czy resztę E6 (nadpisania lokalne D-62, honorowanie preferencji formatu, wersja
+  0.6.0) domyka ta sama sesja, czy osobna — wtedy trzeba ją odpalić z aktualnym stanem.

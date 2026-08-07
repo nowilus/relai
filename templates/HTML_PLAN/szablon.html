@@ -1,0 +1,456 @@
+<!doctype html>
+<html lang="{{JEZYK}}">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PLAN — {{TYTUL}}</title>
+<style>
+/*{{FONTY}}*/
+
+/* ——————————————————————————————————————————————————————————————
+   DESIGN TOKENS — kierunek „Warsztat" (RelAI, wybrany 2026-08-08)
+   Zmieniasz wygląd? Zmieniaj tutaj, nie w regułach niżej.
+   —————————————————————————————————————————————————————————————— */
+:root{
+  /* płaszczyzny */
+  --tlo:#f2e9d8;          /* tło strony — środek między korkiem a kremem */
+  --kartka:#fffdf7;       /* karta sekcji, tabela, pole */
+  --kartka-2:#f8f1e2;     /* nagłówek tabeli, tło przycisku pod kursorem */
+  /* tekst */
+  --txt:#312c25;
+  --txt-2:#61594c;
+  --txt-3:#8f8574;
+  /* kreski */
+  --linia:#e0d3ba;
+  --linia-2:#cdbc9c;
+  /* barwy sygnalne */
+  --glina:#c4643c;        /* akcent główny: nawigacja, numery, wykresy */
+  --glina-2:#a8502e;      /* akcent główny, wariant ciemniejszy (tekst) */
+  --musztarda:#d9a134;    /* podkreślenia, punkt zwrotu, druga pinezka */
+  --szalwia:#5f8a68;      /* wartości dodatnie, kryteria, trzecia pinezka */
+  /* promienie */
+  --r-s:10px; --r-m:14px; --r-l:20px; --r-xl:28px;
+  /* cienie */
+  --cien-s:0 1px 2px rgba(90,72,44,.07), 0 4px 10px rgba(90,72,44,.06);
+  --cien:0 2px 3px rgba(90,72,44,.09), 0 10px 24px rgba(90,72,44,.1);
+  /* kroje */
+  --pis:'Kalam','Segoe Script','Comic Sans MS',cursive;   /* nagłówki, pasek, akcenty */
+  --ui:'Hanken Grotesk',-apple-system,'Segoe UI',Roboto,sans-serif;  /* treść */
+  --mono:'SFMono-Regular',Consolas,'Liberation Mono',monospace;      /* liczby, kod */
+}
+
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%; scroll-behavior:smooth}
+body{
+  margin:0; color:var(--txt); font-family:var(--ui); font-size:15.5px; line-height:1.62;
+  background-color:var(--tlo);
+  background-image:
+    radial-gradient(circle at 22% 24%, rgba(255,255,255,.34) 0 1.4px, transparent 2px),
+    radial-gradient(circle at 68% 62%, rgba(150,125,85,.14) 0 1.4px, transparent 2px),
+    radial-gradient(1100px 620px at 50% -12%, rgba(255,252,243,.9), rgba(255,252,243,0) 70%),
+    radial-gradient(820px 520px at 98% 18%, rgba(252,242,224,.75), rgba(252,242,224,0) 66%);
+  background-size:28px 28px, 36px 36px, auto, auto;
+  background-attachment:scroll, scroll, fixed, fixed;
+}
+a{color:var(--glina); text-underline-offset:3px}
+:focus-visible{outline:2.5px solid var(--glina); outline-offset:3px; border-radius:6px}
+code{font-family:var(--mono); font-size:.85em; background:var(--kartka-2); border:1px solid var(--linia); border-radius:5px; padding:.05em .35em; color:#7a5f34}
+
+.tablica{max-width:70rem; margin:0 auto; padding:0 1.1rem 5rem}
+
+/* ——— KOMPONENT: pasek górny ——— */
+.pasek{
+  position:sticky; top:.7rem; z-index:40; margin-top:.7rem;
+  display:flex; gap:.5rem; align-items:center; flex-wrap:wrap;
+  padding:.5rem .65rem; border-radius:999px; border:1px solid rgba(224,211,186,.95);
+  background:rgba(252,247,238,.78); backdrop-filter:blur(12px) saturate(1.25);
+  -webkit-backdrop-filter:blur(12px) saturate(1.25); box-shadow:var(--cien-s);
+}
+.pasek .znak{display:flex; align-items:center; gap:.45rem; padding:0 .45rem 0 .25rem}
+.pasek .znak b{font-family:var(--pis); font-weight:700; font-size:1.2rem}
+.pasek .znak span{font-family:var(--pis); font-size:1.05rem; color:var(--txt-3)}
+.pasek nav{display:flex; gap:.12rem; overflow-x:auto; flex:1; scrollbar-width:thin; padding:.1rem}
+.pasek nav a{
+  flex:none; text-decoration:none; color:var(--txt-2); padding:.22rem .62rem .3rem;
+  font-family:var(--pis); font-size:1.06rem; line-height:1.25;
+  border-radius:999px; transition:background .18s ease, color .18s ease;
+}
+.pasek nav a:hover{background:var(--kartka-2); color:var(--txt)}
+.pasek nav a.tu{background:var(--glina); color:#fff; font-weight:700}
+.pasek .stan{flex:none; font-family:var(--pis); font-size:1.15rem; color:var(--glina); padding:0 .55rem; transform:rotate(-3deg)}
+@media (max-width:700px){.pasek .znak span{display:none}}
+
+/* ——— KOMPONENT: szyld ——— */
+header.szyld{
+  position:relative; margin:2.2rem 0 1.5rem; padding:2rem 1.6rem 1.7rem; background:var(--kartka);
+  border:1px solid var(--linia); border-radius:var(--r-xl); box-shadow:var(--cien);
+}
+header.szyld::after{content:""; position:absolute; inset:.45rem; border:2px dashed rgba(196,100,60,.2); border-radius:22px; pointer-events:none}
+.tasma{
+  position:absolute; top:-.7rem; width:5.4rem; height:1.45rem; background:rgba(255,238,206,.72);
+  border:1px solid rgba(210,182,126,.5); box-shadow:0 1px 3px rgba(90,72,44,.1); border-radius:2px;
+}
+.tasma.lw{left:1.6rem; transform:rotate(-2.5deg)}
+.tasma.pr{right:1.6rem; transform:rotate(2deg)}
+.nadpis{font-family:var(--pis); font-size:1.3rem; color:var(--glina); margin:0 0 .3rem}
+h1{font-family:var(--pis); font-weight:700; font-size:clamp(2.15rem,6.2vw,3.6rem); line-height:1.07; margin:0 0 .5rem}
+.podkreslenie{display:block; width:min(22rem,70%); margin:-.1rem 0 1rem; color:var(--musztarda)}
+.podtytul{font-size:1.1rem; color:var(--txt-2); max-width:46ch; margin:0 0 1.3rem}
+.metki{display:flex; flex-wrap:wrap; gap:.5rem}
+.metka{display:inline-flex; align-items:center; gap:.4rem; padding:.34rem .8rem; border-radius:999px; background:var(--kartka-2); border:1px solid var(--linia); font-size:.85rem; color:var(--txt-2)}
+.metka b{color:var(--txt); font-weight:700}
+.metka.akc{background:#fdf0e8; border-color:#eec4ad; color:var(--glina-2)}
+.metka i{width:.5rem; height:.5rem; border-radius:50%; background:currentColor; flex:none}
+
+/* ——— KOMPONENT: sekcja (kartka na pinezce) ——— */
+section{
+  position:relative; margin:1.7rem 0; padding:1.8rem 1.5rem 1.6rem; background:var(--kartka);
+  border:1px solid var(--linia); border-radius:var(--r-xl); box-shadow:var(--cien); scroll-margin-top:5rem;
+}
+section:nth-of-type(odd){transform:rotate(.3deg)}
+section:nth-of-type(even){transform:rotate(-.3deg)}
+@media (max-width:640px){section{padding:1.6rem 1rem 1.2rem; transform:none!important}}
+.pinezka{position:absolute; top:-.6rem; left:50%; margin-left:-.7rem; width:1.4rem; height:1.4rem}
+.tyt-sek{display:flex; align-items:baseline; gap:.7rem; flex-wrap:wrap; margin-bottom:.9rem}
+.tyt-sek .nr{font-family:var(--pis); font-weight:700; font-size:1.9rem; color:var(--glina); line-height:1}
+h2{font-family:var(--pis); font-weight:700; font-size:1.6rem; margin:0; line-height:1.12}
+.tyt-sek .szept{font-size:.82rem; color:var(--txt-3); margin-left:auto}
+h3{font-family:var(--pis); font-weight:700; font-size:1.2rem; margin:1.4rem 0 .5rem; color:var(--txt-2)}
+p{margin:0 0 .85rem; max-width:72ch}
+.lead{font-size:1.06rem}
+ul,ol{margin:0 0 .9rem; padding-left:1.3rem}
+li{margin:.32rem 0}
+ul.hak{list-style:none; padding:0}
+ul.hak li{position:relative; padding-left:2.1rem; margin:.7rem 0}
+ul.hak li svg{position:absolute; left:0; top:.1em}
+.kryt{display:block; font-family:var(--pis); font-size:1.05rem; color:var(--szalwia)}
+ul.hak.nie .kryt{color:var(--txt-3)}
+
+/* ——— KOMPONENT: karteczka na marginesie ——— */
+.karteczka{
+  float:right; width:15rem; margin:.1rem -.4rem 1rem 1.4rem; padding:.9rem 1rem 1rem;
+  background:#fff6dd; border:1px solid #ecd9ab; border-radius:var(--r-m); box-shadow:var(--cien);
+  transform:rotate(1.4deg); font-family:var(--pis); font-size:1.16rem; line-height:1.35; color:#6a5636;
+}
+.karteczka.zielona{background:#eef5ea; border-color:#cfe0c8; color:#415b3f; transform:rotate(-1.5deg)}
+.karteczka b{display:block; font-family:var(--ui); font-size:.68rem; letter-spacing:.13em; text-transform:uppercase; color:var(--txt-3); margin-bottom:.35rem; font-weight:700}
+.karteczka p{margin:0 0 .4rem; max-width:none}
+.karteczka p:last-child{margin-bottom:0}
+@media (max-width:820px){
+  .karteczka{float:none; width:auto; margin:.5rem 0 1.1rem; transform:none}
+  .karteczka.zielona{transform:none}
+}
+
+/* ——— KOMPONENT: etykieta liczby (D-63) ——— */
+.et{font-family:var(--mono); font-size:.6rem; letter-spacing:.07em; padding:.14rem .42rem; border-radius:5px; white-space:nowrap}
+.et-f{background:#e9f0e4; color:#4b6b3f}
+.et-s{background:#fbeeda; color:#8a6416}
+
+/* ——— KOMPONENT: tabela ——— */
+.przewin{overflow-x:auto; margin:0 0 .9rem; border:1px solid var(--linia); border-radius:var(--r-m); background:var(--kartka)}
+table{border-collapse:separate; border-spacing:0; width:100%; min-width:36rem; font-size:.87rem}
+th,td{text-align:left; vertical-align:top; padding:.62rem .78rem; border-bottom:1px dashed var(--linia)}
+thead th{background:var(--kartka-2); font-family:var(--pis); font-weight:700; font-size:.95rem; color:var(--txt-2); border-bottom:2px solid var(--linia-2)}
+tbody tr:last-child td{border-bottom:0}
+tbody tr:hover td{background:#fdf8ee}
+td.id{font-family:var(--pis); font-weight:700; font-size:1.15rem; color:var(--glina); white-space:nowrap}
+.naklejka{display:inline-block; padding:.16rem .6rem; border-radius:999px; font-size:.74rem; font-weight:700; white-space:nowrap}
+.n-tak{background:#e9f0e4; color:#456338}
+.n-nie{background:#efe9de; color:#7c7263}
+.n-w{background:#fbe6dd; color:#a4472a}
+.n-s{background:#fbeeda; color:#8a6416}
+
+/* ——— KOMPONENT: blok zwijalny (wariant, przypadek brzegowy) ——— */
+.notka{position:relative; background:#fffcf4; border:1px solid var(--linia); border-radius:var(--r-m); margin:0 0 .65rem; transition:border-color .25s ease}
+.notka.otw{border-color:#e3c3a6}
+.notka > button{
+  width:100%; display:flex; align-items:center; gap:.8rem; text-align:left; cursor:pointer;
+  background:transparent; border:0; padding:.8rem .95rem; font:inherit; color:inherit;
+  border-radius:var(--r-m); transition:background .18s ease;
+}
+.notka > button:hover{background:var(--kartka-2)}
+.spinacz{flex:none; width:1.45rem; height:1.45rem; color:var(--glina); transition:transform .32s cubic-bezier(.4,0,.2,1)}
+.notka.otw .spinacz{transform:rotate(90deg)}
+.notka .tyt{font-family:var(--pis); font-weight:700; font-size:1.15rem}
+.notka .prawo{margin-left:auto}
+.rulon{display:grid; grid-template-rows:0fr; transition:grid-template-rows .34s cubic-bezier(.4,0,.2,1)}
+.notka.otw .rulon{grid-template-rows:1fr}
+.rulon > div{overflow:hidden}
+.rulon .tresc{padding:.2rem 1rem 1rem 3.25rem}
+@media (max-width:600px){.rulon .tresc{padding-left:1rem}}
+.zaza{display:grid; grid-template-columns:repeat(auto-fit,minmax(12.5rem,1fr)); gap:.5rem 1.5rem; margin:.5rem 0 .8rem}
+.zaza h4{margin:0 0 .25rem; font-family:var(--pis); font-weight:700; font-size:1rem; color:var(--txt-3)}
+.zaza ul{margin:0; padding-left:1.1rem; font-size:.88rem}
+
+/* ——— KOMPONENT: figura (diagram, wykres) ——— */
+figure{margin:1rem 0; padding:0}
+figure svg{display:block; width:100%; height:auto}
+figcaption{font-family:var(--pis); font-size:1.08rem; color:var(--txt-3); margin-top:.4rem; text-align:center}
+.ramka{background:var(--kartka); border:1px solid var(--linia); border-radius:var(--r-l); padding:.9rem .7rem}
+
+/* ——— KOMPONENT: symulator ——— */
+.sym{position:relative; background:linear-gradient(160deg,#fffaef 0%,#faf1de 100%); border:1px solid #e8d5b4; border-radius:var(--r-l); padding:1.6rem 1.1rem 1.2rem; box-shadow:var(--cien-s)}
+.sym h3{margin-top:0}
+.pola{display:grid; grid-template-columns:repeat(auto-fit,minmax(13rem,1fr)); gap:.7rem 1.2rem; margin:.9rem 0 1.1rem}
+.pole label{display:block; font-size:.78rem; color:var(--txt-2); margin-bottom:.25rem}
+.pole .rzad{display:flex; gap:.5rem; align-items:center}
+.pole input[type=range]{flex:1; min-width:0; accent-color:var(--glina)}
+.pole input[type=number]{
+  width:5.4rem; font-family:var(--mono); font-size:.85rem; padding:.3rem .45rem; text-align:right;
+  border-radius:9px; border:1px solid var(--linia-2); background:var(--kartka); color:var(--txt);
+  transition:border-color .18s ease, box-shadow .18s ease;
+}
+.pole input[type=number]:focus{border-color:var(--glina); box-shadow:0 0 0 3px rgba(196,100,60,.13)}
+.wyniki{display:grid; grid-template-columns:repeat(auto-fit,minmax(9.5rem,1fr)); gap:.65rem; margin-bottom:.9rem}
+.wyn{background:var(--kartka); border:1px solid var(--linia); border-radius:var(--r-m); padding:.65rem .75rem}
+.wyn .n{font-size:.68rem; letter-spacing:.06em; text-transform:uppercase; color:var(--txt-3); font-family:var(--mono)}
+.wyn .w{font-family:var(--pis); font-weight:700; font-size:1.5rem; margin-top:.05rem; font-variant-numeric:tabular-nums}
+.wyn.dobry .w{color:var(--szalwia)}
+.wyn.zly .w{color:var(--glina-2)}
+.wyn .d{font-size:.74rem; color:var(--txt-3)}
+.nota{font-size:.8rem; color:var(--txt-3); line-height:1.55; margin:.7rem 0 0}
+
+footer{
+  position:relative; margin-top:2rem; padding:1.4rem 1.3rem 1.1rem; background:var(--kartka);
+  border:1px solid var(--linia); border-radius:var(--r-l); box-shadow:var(--cien-s);
+  display:flex; flex-wrap:wrap; gap:.4rem 1.2rem; align-items:center; font-size:.84rem; color:var(--txt-3);
+}
+footer .pis{font-family:var(--pis); font-size:1.2rem; color:var(--glina); margin-left:auto}
+
+@media (prefers-reduced-motion: reduce){
+  *{transition-duration:.01ms!important; animation-duration:.01ms!important}
+  html{scroll-behavior:auto}
+}
+</style>
+</head>
+<body>
+<div class="tablica">
+
+<div class="pasek">
+  <span class="znak">
+    <svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 19V6a2 2 0 0 1 2-2h9l3 3v12a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2Z" fill="none" stroke="#c4643c" stroke-width="1.8" stroke-linejoin="round"/><path d="M8.5 12.5h7M8.5 16h4.5" stroke="#c4643c" stroke-width="1.8" stroke-linecap="round"/></svg>
+    <b>RelAI</b><span> · plan</span>
+  </span>
+  <nav aria-label="Sekcje planu">
+    <a href="#s1">Streszczenie</a><a href="#s2">Cele</a><a href="#s3">Stan</a><a href="#s4">Warianty</a>
+    <a href="#s5">Jak działa</a><a href="#s6">Etapy</a><a href="#s7">Ryzyka</a><a href="#s8">Brzegowe</a>
+    <a href="#s9">Decyzje</a><a href="#s10">Aneksy</a>
+  </nav>
+  <span class="stan">{{STATUS}}</span>
+</div>
+
+<header class="szyld">
+  <span class="tasma lw" aria-hidden="true"></span><span class="tasma pr" aria-hidden="true"></span>
+  <p class="nadpis">plan wdrożenia · {{DATA}}</p>
+  <h1>{{TYTUL}}</h1>
+  <svg class="podkreslenie" viewBox="0 0 400 14" preserveAspectRatio="none" aria-hidden="true">
+    <path d="M3 9C60 3 120 12 180 6 240 1 300 11 397 5" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round"/>
+  </svg>
+  <p class="podtytul">{{PODTYTUL}}</p>
+  <div class="metki">
+    <span class="metka akc"><i></i>status: <b>{{STATUS}}</b></span>
+    <span class="metka">etapów: <b>{{LICZBA_ETAPOW}}</b></span>
+    <span class="metka">pracochłonność: <b>{{PRACOCHLONNOSC}}</b> <span class="et et-s">SZACUNEK</span></span>
+    <span class="metka">model etapów: <b>{{MODEL_WYKONAWCZY}}</b></span>
+  </div>
+</header>
+
+<!-- Sekcje 1–10 w stałej kolejności ze SPEC_PLAN.md. Pinezki cyklują przez trzy
+     barwy palety: glina (#c4643c), musztarda (#d9a134), szałwia (#5f8a68).
+     Wzorce wypełnienia każdej sekcji — patrz komponenty.html. -->
+
+<section id="s1">
+  <svg class="pinezka" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="9" r="7" fill="#c4643c"/><circle cx="9.5" cy="6.5" r="2.2" fill="rgba(255,255,255,.5)"/><path d="M12 16v6" stroke="#8f4526" stroke-width="2" stroke-linecap="round"/></svg>
+  <div class="tyt-sek"><span class="nr">1</span><h2>Streszczenie</h2><span class="szept">{{SZEPT_1}}</span></div>
+  {{SEKCJA_1}}
+</section>
+
+<section id="s2">
+  <svg class="pinezka" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="9" r="7" fill="#d9a134"/><circle cx="9.5" cy="6.5" r="2.2" fill="rgba(255,255,255,.5)"/><path d="M12 16v6" stroke="#a5761f" stroke-width="2" stroke-linecap="round"/></svg>
+  <div class="tyt-sek"><span class="nr">2</span><h2>Cele i nie-cele</h2><span class="szept">{{SZEPT_2}}</span></div>
+  {{SEKCJA_2}}
+</section>
+
+<section id="s3">
+  <svg class="pinezka" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="9" r="7" fill="#5f8a68"/><circle cx="9.5" cy="6.5" r="2.2" fill="rgba(255,255,255,.5)"/><path d="M12 16v6" stroke="#456338" stroke-width="2" stroke-linecap="round"/></svg>
+  <div class="tyt-sek"><span class="nr">3</span><h2>Stan wyjściowy</h2><span class="szept">{{SZEPT_3}}</span></div>
+  {{SEKCJA_3}}
+</section>
+
+<section id="s4">
+  <svg class="pinezka" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="9" r="7" fill="#c4643c"/><circle cx="9.5" cy="6.5" r="2.2" fill="rgba(255,255,255,.5)"/><path d="M12 16v6" stroke="#8f4526" stroke-width="2" stroke-linecap="round"/></svg>
+  <div class="tyt-sek"><span class="nr">4</span><h2>Warianty</h2><span class="szept">{{SZEPT_4}}</span></div>
+  {{SEKCJA_4}}
+</section>
+
+<section id="s5">
+  <svg class="pinezka" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="9" r="7" fill="#d9a134"/><circle cx="9.5" cy="6.5" r="2.2" fill="rgba(255,255,255,.5)"/><path d="M12 16v6" stroke="#a5761f" stroke-width="2" stroke-linecap="round"/></svg>
+  <div class="tyt-sek"><span class="nr">5</span><h2>Rozwiązanie — jak to działa</h2><span class="szept">{{SZEPT_5}}</span></div>
+  {{SEKCJA_5}}
+</section>
+
+<section id="s6">
+  <svg class="pinezka" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="9" r="7" fill="#5f8a68"/><circle cx="9.5" cy="6.5" r="2.2" fill="rgba(255,255,255,.5)"/><path d="M12 16v6" stroke="#456338" stroke-width="2" stroke-linecap="round"/></svg>
+  <div class="tyt-sek"><span class="nr">6</span><h2>Etapy</h2><span class="szept">{{SZEPT_6}}</span></div>
+  {{SEKCJA_6}}
+</section>
+
+<section id="s7">
+  <svg class="pinezka" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="9" r="7" fill="#c4643c"/><circle cx="9.5" cy="6.5" r="2.2" fill="rgba(255,255,255,.5)"/><path d="M12 16v6" stroke="#8f4526" stroke-width="2" stroke-linecap="round"/></svg>
+  <div class="tyt-sek"><span class="nr">7</span><h2>Ryzyka</h2><span class="szept">{{SZEPT_7}}</span></div>
+  {{SEKCJA_7}}
+</section>
+
+<section id="s8">
+  <svg class="pinezka" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="9" r="7" fill="#d9a134"/><circle cx="9.5" cy="6.5" r="2.2" fill="rgba(255,255,255,.5)"/><path d="M12 16v6" stroke="#a5761f" stroke-width="2" stroke-linecap="round"/></svg>
+  <div class="tyt-sek"><span class="nr">8</span><h2>Przypadki brzegowe</h2><span class="szept">{{SZEPT_8}}</span></div>
+  {{SEKCJA_8}}
+</section>
+
+<section id="s9">
+  <svg class="pinezka" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="9" r="7" fill="#c4643c"/><circle cx="9.5" cy="6.5" r="2.2" fill="rgba(255,255,255,.5)"/><path d="M12 16v6" stroke="#8f4526" stroke-width="2" stroke-linecap="round"/></svg>
+  <div class="tyt-sek"><span class="nr">9</span><h2>Do rozstrzygnięcia przez człowieka</h2><span class="szept">{{SZEPT_9}}</span></div>
+  {{SEKCJA_9}}
+</section>
+
+<section id="s10">
+  <svg class="pinezka" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="9" r="7" fill="#5f8a68"/><circle cx="9.5" cy="6.5" r="2.2" fill="rgba(255,255,255,.5)"/><path d="M12 16v6" stroke="#456338" stroke-width="2" stroke-linecap="round"/></svg>
+  <div class="tyt-sek"><span class="nr">10</span><h2>Aneksy</h2><span class="szept">{{SZEPT_10}}</span></div>
+  {{SEKCJA_10}}
+</section>
+
+<footer>
+  <span class="tasma lw" aria-hidden="true"></span>
+  <span>{{PODPIS}}</span>
+  <span class="pis">{{TEMAT_PLANU}}</span>
+</footer>
+
+</div>
+
+<script>
+(function(){
+  var redukcja = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* zwijanie bloków */
+  document.querySelectorAll('.notka > button').forEach(function(b){
+    b.addEventListener('click', function(){
+      var o = b.getAttribute('aria-expanded') === 'true';
+      b.setAttribute('aria-expanded', o ? 'false' : 'true');
+      b.parentElement.classList.toggle('otw', !o);
+    });
+  });
+
+  /* podświetlenie aktywnej sekcji w pasku */
+  var linki = Array.prototype.slice.call(document.querySelectorAll('.pasek nav a'));
+  var sekcje = linki.map(function(a){ return document.querySelector(a.getAttribute('href')); });
+  if ('IntersectionObserver' in window){
+    var io = new IntersectionObserver(function(w){
+      w.forEach(function(x){
+        if (!x.isIntersecting) return;
+        var i = sekcje.indexOf(x.target); if (i < 0) return;
+        linki.forEach(function(a){ a.classList.remove('tu'); });
+        linki[i].classList.add('tu');
+      });
+    }, {rootMargin:'-12% 0px -72% 0px'});
+    sekcje.forEach(function(s){ if (s) io.observe(s); });
+  }
+
+  /* ——— SYMULATOR ———
+     Uruchamia się tylko wtedy, gdy w dokumencie jest blok symulatora.
+     Plan bez wyliczeń po prostu nie ma tych elementów i ta część śpi.
+     Pola: id="s-<klucz>" (liczba) oraz id="s-<klucz>-s" (suwak, opcjonalny).
+     Wyniki: id="s-<nazwa>". Model liczenia podmieniasz w funkcji licz(). */
+  var KLUCZE_DEKLAROWANE = {{KLUCZE_SYMULATORA}};
+  var num = {}, sld = {};
+  KLUCZE_DEKLAROWANE.forEach(function(k){ num[k] = document.getElementById('s-'+k); sld[k] = document.getElementById('s-'+k+'-s'); });
+  var KLUCZE = KLUCZE_DEKLAROWANE.filter(function(k){ return num[k]; });
+  var brakujace = KLUCZE_DEKLAROWANE.filter(function(k){ return !num[k]; });
+  if (brakujace.length && window.console){
+    // Klucz bez pola to literowka w dokumencie, nie powod, zeby caly symulator
+    // przestal liczyc. Brakujace wejscia licza sie jako zero i sa zglaszane.
+    console.warn('Symulator: brak pol dla kluczy: ' + brakujace.join(', ') + ' — licze je jako 0.');
+  }
+  if (KLUCZE.length){
+    var f0 = new Intl.NumberFormat('{{LOCALE}}',{maximumFractionDigits:0});
+    var f1 = new Intl.NumberFormat('{{LOCALE}}',{maximumFractionDigits:1});
+    var v = function(k){ var el = num[k]; if (!el) return 0; var n = parseFloat(el.value); return isFinite(n) ? n : 0; };
+
+    var licz = {{FUNKCJA_LICZ}};
+
+    var stany = {};
+    function ustaw(id, wartosc, przed, po){
+      var el = document.getElementById(id);
+      if (!el) return;
+      var od = stany[id] === undefined ? wartosc : stany[id];
+      stany[id] = wartosc;
+      var koniec = function(){ el.textContent = przed + f0.format(Math.abs(wartosc)) + po; };
+      if (redukcja || document.hidden || od === wartosc){ koniec(); return; }
+      var s = performance.now(), t = 300;
+      (function krok(teraz){
+        var p = Math.min(1,(teraz-s)/t), e = 1-Math.pow(1-p,3);
+        el.textContent = przed + f0.format(Math.abs(od + (wartosc-od)*e)) + po;
+        if (p < 1) requestAnimationFrame(krok);
+      })(s);
+      // w karcie w tle requestAnimationFrame nie chodzi — wynik i tak ma byc poprawny
+      setTimeout(function(){ if (stany[id] === wartosc) koniec(); }, t + 60);
+    }
+
+    /* wykres skumulowany: wymaga elementów s-linia, s-obszar, s-os, s-siatka, s-eti, s-punkt, s-opis */
+    function rysuj(r){
+      var svg = document.getElementById('s-linia');
+      if (!svg) return;
+      var L = 46, R = 682, M = {{MIESIECY_WYKRESU}}, gora = 22, dol = 184;
+      var pkt = [], min = 0, max = 0;
+      for (var m = 0; m <= M; m++){ var y = r.bilans*m - r.wdr; pkt.push(y); if (y<min) min=y; if (y>max) max=y; }
+      var zakres = Math.max(max-min,1);
+      function sy(w){ return dol - ((w-min)/zakres)*(dol-gora); }
+      function sx(m){ return L + (m/M)*(R-L); }
+      var d = 'M'+sx(0).toFixed(1)+','+sy(pkt[0]).toFixed(1);
+      for (var i = 1; i <= M; i++){
+        var x0=sx(i-1), y0=sy(pkt[i-1]), x1=sx(i), y1=sy(pkt[i]), cx=(x0+x1)/2;
+        d += ' C'+cx.toFixed(1)+','+y0.toFixed(1)+' '+cx.toFixed(1)+','+y1.toFixed(1)+' '+x1.toFixed(1)+','+y1.toFixed(1);
+      }
+      svg.setAttribute('d', d);
+      var yz = sy(0);
+      var obszar = document.getElementById('s-obszar');
+      if (obszar) obszar.setAttribute('d', d+' L'+sx(M).toFixed(1)+','+yz.toFixed(1)+' L'+sx(0).toFixed(1)+','+yz.toFixed(1)+' Z');
+      var os = document.getElementById('s-os');
+      if (os){ os.setAttribute('y1', yz.toFixed(1)); os.setAttribute('y2', yz.toFixed(1)); }
+
+      var g = document.getElementById('s-siatka'), e = document.getElementById('s-eti');
+      if (g && e){
+        g.textContent = ''; e.textContent = '';
+        {{ZNACZNIKI_OSI}}.forEach(function(m){
+          var x = sx(m);
+          var ln = document.createElementNS('http://www.w3.org/2000/svg','line');
+          ln.setAttribute('x1',x); ln.setAttribute('x2',x); ln.setAttribute('y1',gora-10); ln.setAttribute('y2',dol);
+          ln.setAttribute('stroke','#e4d8c0'); ln.setAttribute('stroke-dasharray','3 6'); g.appendChild(ln);
+          var t = document.createElementNS('http://www.w3.org/2000/svg','text');
+          t.setAttribute('x',x); t.setAttribute('y',dol+18); t.setAttribute('text-anchor','middle');
+          t.appendChild(document.createTextNode(m+' {{JEDNOSTKA_OSI}}')); e.appendChild(t);
+        });
+      }
+
+      var kropka = document.getElementById('s-punkt'), opis = document.getElementById('s-opis');
+      if (kropka && opis){
+        if (isFinite(r.zwrot) && r.zwrot <= M){
+          var x = sx(r.zwrot);
+          kropka.setAttribute('cx', x.toFixed(1)); kropka.setAttribute('cy', yz.toFixed(1)); kropka.setAttribute('opacity','1');
+          opis.setAttribute('x', Math.min(x+10, R-140).toFixed(1)); opis.setAttribute('y', (yz-13).toFixed(1));
+          opis.textContent = '{{OPIS_PUNKTU}}' + f1.format(r.zwrot) + ' {{JEDNOSTKA_OSI}}';
+        } else { kropka.setAttribute('opacity','0'); opis.textContent = ''; }
+      }
+    }
+
+    var odswiez = {{FUNKCJA_ODSWIEZ}};
+
+    KLUCZE.forEach(function(k){
+      num[k].addEventListener('input', function(){ if (sld[k]) sld[k].value = num[k].value; odswiez(); });
+      if (sld[k]) sld[k].addEventListener('input', function(){ num[k].value = sld[k].value; odswiez(); });
+    });
+    odswiez();
+  }
+})();
+</script>
+</body>
+</html>

@@ -86,8 +86,30 @@ function projectVersion(markerFile) {
   }
 }
 
-// Kopiuje specyfikacje z katalogu pluginu do <cwd>/.claude/relai/templates/.
-// Zwraca liczbe skopiowanych plikow (0 = nic nie skopiowano / awaria — cisza).
+// Rozszerzenia kopiowane do projektu. Poza specyfikacjami (.md) doszedl szablon
+// HTML planow: szkielet i komponenty (.html), builder fontow (.js) i same fonty
+// (.woff2). Bez nich sesja nie ma z czego wygenerowac planu HTML (L-0012).
+const KOPIOWANE = /\.(md|html|js|css|woff2)$/i;
+
+// Kopiuje drzewo templates/ z katalogu pluginu do <cwd>/.claude/relai/templates/,
+// zachowujac podkatalogi. Zwraca liczbe skopiowanych plikow (0 = awaria — cisza).
+function copyTree(src, dest) {
+  let n = 0;
+  let wpisy;
+  try { wpisy = fs.readdirSync(src, { withFileTypes: true }); } catch (_) { return 0; }
+  for (const wpis of wpisy) {
+    const zrodlo = path.join(src, wpis.name);
+    const cel = path.join(dest, wpis.name);
+    if (wpis.isDirectory()) {
+      try { fs.mkdirSync(cel, { recursive: true }); } catch (_) { continue; }
+      n += copyTree(zrodlo, cel);
+    } else if (KOPIOWANE.test(wpis.name)) {
+      try { fs.copyFileSync(zrodlo, cel); n++; } catch (_) { /* cisza */ }
+    }
+  }
+  return n;
+}
+
 function provisionTemplates(cwd) {
   try {
     const src = path.join(PLUGIN_ROOT, 'templates');
@@ -97,12 +119,7 @@ function provisionTemplates(cwd) {
     fs.mkdirSync(dest, { recursive: true });
     // .gitignore z "*" — lokalna kopia to cache pluginu, nie zawartosc repo
     try { fs.writeFileSync(path.join(destRoot, '.gitignore'), '*\n'); } catch (_) { /* cisza */ }
-    let n = 0;
-    for (const f of fs.readdirSync(src)) {
-      if (!/\.md$/i.test(f)) continue;
-      try { fs.copyFileSync(path.join(src, f), path.join(dest, f)); n++; } catch (_) { /* cisza */ }
-    }
-    return n;
+    return copyTree(src, dest);
   } catch (_) {
     return 0;
   }
