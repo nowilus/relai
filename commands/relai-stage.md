@@ -23,7 +23,7 @@ nie ma planu do wykonania, i zakończ. Niczego nie inicjalizuj — od tego jest 
 | Sytuacja | Co robisz |
 |---|---|
 | Argument zawiera `<TEMAT>` (np. `PLATNOSCI E2`) | bierzesz ten plan; nie ma takiego folderu → mów o tym i wypisz plany, które są |
-| Brak argumentu, `CLAUDE.md` ma linię „Aktywny plan" | bierzesz plan z tej linii |
+| Brak argumentu, `CLAUDE.md` ma linię „Aktywny plan" | bierzesz plan z tej linii — **chyba że** `docs/STATE.md` albo ostatni wpis dziennika wskazują inny plan; wtedy linia jest podejrzana o nieaktualność i pytasz, pokazując rozjazd |
 | Brak argumentu, brak linii aktywnego planu, w `docs/plany/` jest **dokładnie jeden** plan niezamknięty | bierzesz go i mówisz jednym zdaniem, skąd go masz |
 | Planów niezamkniętych jest **więcej niż jeden** | **jedno** pytanie (AskUserQuestion), który; nigdy nie zgadujesz (D-35) |
 | `docs/plany/` nie istnieje albo nie ma planów | jedno zdanie: nie ma czego uruchomić, plan powstaje z prośby „przygotuj plan…" |
