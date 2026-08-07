@@ -5,10 +5,12 @@
 Plugin do Claude Code, który zamienia rozmowę z agentem w prowadzony projekt: ustalenia, decyzje,
 stan prac i historia zostają w plikach, a nie w kontekście sesji, który za chwilę zniknie.
 
-> Wersja 0.3.1 — rdzeń dokumentacyjny i planowanie. Działa inicjalizacja projektu, wykrywanie
-> struktury, rytuały sesji, rejestry lekcji i decyzji, trzy frazy rytualne oraz plany (PLAN
-> z etapami / miniplan w dzienniku, zamrożenie i aneksy). Prompty etapowe, hooki, komendy
-> operacyjne, szablon HTML planów i adopcja istniejących projektów dochodzą w kolejnych wersjach.
+> Wersja 0.4.0 — rdzeń dokumentacyjny, planowanie i wykonywanie etapów. Działa inicjalizacja
+> projektu, wykrywanie struktury, rytuały sesji, rejestry lekcji i decyzji, cztery frazy rytualne,
+> plany (PLAN z etapami / miniplan w dzienniku, zamrożenie i aneksy) oraz pełny cykl etapów:
+> samowystarczalne prompty `PROMPT_ETAP_N`, komenda `/relai-stage` i automatyczne zamknięcie planu.
+> Hooki, pozostałe komendy operacyjne, szablon HTML planów i adopcja istniejących projektów
+> dochodzą w kolejnych wersjach.
 > Aktualny zakres: [docs/plany/BUDOWA_RELAI/STATUS.md](docs/plany/BUDOWA_RELAI/STATUS.md).
 
 ## Instalacja
@@ -24,7 +26,7 @@ stan prac i historia zostają w plikach, a nie w kontekście sesji, który za ch
 Po instalacji otwórz Claude Code w folderze projektu i napisz cokolwiek — RelAI zapyta o zgodę na
 utworzenie struktury.
 
-## Co robi wersja 0.3.1
+## Co robi wersja 0.4.0
 
 | Sytuacja | Zachowanie |
 |---|---|
@@ -45,12 +47,18 @@ Rytuały, które od tej wersji działają bez proszenia:
   „sprawdź status" / „status check".
 - **Ustawienia globalne** — `~/.claude/relai/USTAWIENIA.md` dziedziczone przez nowe projekty; wpis
   projektowy ma pierwszeństwo.
-- **Plany (nowe w 0.3.1)** — „przygotuj plan…" w zwykłej rozmowie tworzy `docs/plany/<TEMAT>/PLAN.md`
+- **Plany (od 0.3.1)** — „przygotuj plan…" w zwykłej rozmowie tworzy `docs/plany/<TEMAT>/PLAN.md`
   (warianty z powodami odrzucenia, ryzyka, etapy z widocznym efektem, przypadki brzegowe) razem
   ze `STATUS.md` i linią „Aktywny plan" w `CLAUDE.md`. Drobne zadanie dostaje miniplan w dzienniku.
   O rodzaj, format i model wykonawczy etapów RelAI pyta **raz** — potem bierze odpowiedź z ustawień.
   Po akceptacji plan jest zamrożony: zmiany wchodzą jako datowane aneksy, nie jako przepisanie
   sekcji. Plany powstają w Markdown — interaktywny szablon HTML dochodzi w kolejnej wersji.
+- **Etapy (nowe w 0.4.0)** — akceptacja planu tworzy `PROMPT_ETAP_1.md`: samowystarczalny prompt
+  dla świeżej sesji (co przeczytać, decyzje, których nie otwierać, realny stan repo, zakres,
+  weryfikacja, rytuał zamknięcia). Komenda **`/relai-stage`** znajduje aktywny plan i następny etap,
+  pokazuje potwierdzenie i **czeka** — nigdy nie startuje sama. Zamknięcie etapu generuje prompt
+  etapu następnego; przerwana sesja zostawia etap w statusie `W TOKU`, a brakujący prompt jest
+  wyłapywany na starcie kolejnej sesji. Po ostatnim etapie plan zamyka się sam i trafia do archiwum.
 
 Pełna adopcja istniejącego projektu — z backupem, analizą kodu i historii, raportem zmian
 i przetestowaną ścieżką cofnięcia — celowo **nie** jest częścią tej wersji. Namiastka adopcji byłaby
@@ -65,7 +73,9 @@ relai/
 │   └── marketplace.json     # własny marketplace (instalacja z tego samego repo)
 ├── skills/
 │   ├── relai-core/          # inicjalizacja, wykrywanie struktury, rytuały sesji, rejestry
-│   └── relai-planning/      # plany i miniplany, STATUS, zamrożenie i aneksy, zamknięcie planu
+│   └── relai-planning/      # plany i miniplany, STATUS, prompty etapowe, zamknięcie planu
+├── commands/
+│   └── relai-stage.md       # /relai-stage — uruchomienie etapu planu
 ├── templates/               # SPECYFIKACJE dokumentów dla LLM (nie pliki do kopiowania)
 └── docs/                    # dokumentacja budowy samego RelAI (dogfooding)
 ```

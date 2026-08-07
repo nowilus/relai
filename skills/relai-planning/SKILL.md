@@ -10,18 +10,23 @@ description: >
   zacząć", "w jakiej kolejności". English: "make a plan", "plan this out", "break this into
   stages", "what's the approach". Also for a refactor, migration or rewrite request that spans more
   than one session, even when the word "plan" is absent.
+  ALSO USE when a stage of an existing plan is being started or closed. Trigger phrases (Polish):
+  "wykonaj etap", "zrób etap", "uruchom etap", "następny etap", "kolejny etap", "zamknij etap",
+  "kończymy etap". English: "run the stage", "next stage", "close the stage".
   The skill decides between a full PLAN (docs/plany/<TOPIC>/PLAN.md + STATUS.md, one active-plan
   line in CLAUDE.md) and a MINIPLAN (a single journal entry), asks once about kind, format and the
   model executing the stages, freezes the plan after acceptance so changes go in as dated annexes,
+  generates the self-contained stage prompts PROMPT_ETAP_N.md lazily, runs the end-of-stage ritual,
   and closes the plan when the last stage is done.
 ---
 
 # relai-planning — plany, etapy i ich zamrażanie
 
-Wersja E3 (RelAI 0.3.1). Zakres tej wersji: **wykrycie intencji planowania + rozróżnienie
+Wersja E4 (RelAI 0.4.0). Zakres tej wersji: **wykrycie intencji planowania + rozróżnienie
 PLAN/MINIPLAN + pytanie startowe + generacja planu w Markdown + `STATUS.md` + zamrożenie z aneksami
-+ zamknięcie planu**. Komenda `/relai-stage`, format `PROMPT_ETAP_N` i lazy-generacja promptów
-dochodzą w wersji następnej; szablon HTML planów jeszcze później. Nie udawaj, że już działają.
++ prompty etapowe `PROMPT_ETAP_N` z lazy-generacją + rytuał „Na koniec" etapu + zamknięcie planu**.
+Etap uruchamia komenda `/relai-stage`. Szablon HTML planów dochodzi w wersji następnej — nie udawaj,
+że już działa.
 
 Ten skill zakłada strukturę RelAI w folderze (marker `Wersja RelAI:` w `docs/USTAWIENIA.md`).
 Nie ma struktury → to zadanie dla `relai-core`, nie dla tego skilla: najpierw inicjalizacja albo
@@ -150,9 +155,8 @@ Zasady tego pytania:
 7. **Powiedz użytkownikowi, co dalej:** plan czeka na akceptację; do czasu akceptacji jest edytowalny
    normalnie, po akceptacji już nie.
 
-Czego **nie** robisz na tym etapie: nie zaczynasz implementacji, nie tworzysz `PROMPT_ETAP_1.md`
-(prompty etapowe to następna wersja — powiedz to wprost, jeśli użytkownik na nie liczy), nie
-commitujesz bez zgody.
+Czego **nie** robisz na tym etapie: nie zaczynasz implementacji, **nie generujesz jeszcze
+`PROMPT_ETAP_1.md`** (powstaje dopiero przy akceptacji planu — D-34), nie commitujesz bez zgody.
 
 ---
 
@@ -181,10 +185,13 @@ Plan po akceptacji jest **ZAMROŻONY**. Akceptacją jest jednoznaczna zgoda uży
 
 W momencie akceptacji:
 
-1. `STATUS.md`: status planu → `ZAAKCEPTOWANY <data>`.
-2. Wpis w `DZIENNIK.md`: plan zaakceptowany, z czym (jeśli akceptacja przyszła z poprawkami — te
+1. `STATUS.md`: status planu → `ZAAKCEPTOWANY <data>`, pierwszy etap → `GOTOWY DO STARTU`.
+2. **Wygeneruj `PROMPT_ETAP_1.md`** wg `${CLAUDE_PLUGIN_ROOT}/templates/SPEC_PROMPT_ETAPU.md`
+   i wstaw link do kolumny `Prompt` przy E1 (D-34). Kolejnych promptów **nie** generujesz.
+3. Wpis w `DZIENNIK.md`: plan zaakceptowany, z czym (jeśli akceptacja przyszła z poprawkami — te
    poprawki są **Aneksem A**, patrz niżej).
-3. Od tej chwili sekcje merytoryczne `PLAN.md` są nietykalne.
+4. Od tej chwili sekcje merytoryczne `PLAN.md` są nietykalne.
+5. Powiedz jednym zdaniem, jak ruszyć: świeża sesja i `/relai-stage`.
 
 ### Aneksy
 
@@ -216,6 +223,49 @@ Wtedy:
 5. `CLAUDE.md`: linia aktywnego planu wskazuje nowy plan.
 
 ---
+
+## Prompty etapowe (D-34)
+
+Etap wykonuje się w **świeżej sesji**, która nie zna poprzedniej. Całą jej pamięcią jest
+`PROMPT_ETAP_N.md` w folderze planu — dokument samowystarczalny, którego format opisuje
+`${CLAUDE_PLUGIN_ROOT}/templates/SPEC_PROMPT_ETAPU.md`. Etap uruchamia komenda `/relai-stage`.
+
+Generacja jest **lazy** — dokładnie trzy momenty, nigdy na zapas:
+
+| Moment | Co powstaje |
+|---|---|
+| Akceptacja planu | `PROMPT_ETAP_1.md` |
+| Rytuał „Na koniec" etapu N | `PROMPT_ETAP_N+1.md` |
+| Start sesji, gdy etap `GOTOWY DO STARTU` nie ma promptu | brakujący prompt — siatka bezpieczeństwa w `relai-core` |
+
+Powód: prompt opisuje **realny stan repozytorium** w chwili startu etapu. Prompt napisany dwa etapy
+wcześniej opisywałby stan zmyślony.
+
+## Rytuał „Na koniec" etapu
+
+Wykonujesz go **sam, w tej samej turze**, w której etap został skończony — tak jak definicja
+ukończenia z `relai-core`, tylko dla etapu planu. Kolejność jest wiążąca:
+
+1. **`STATUS.md`** — etap N → `ZREALIZOWANY <data>`; etap N+1 → `GOTOWY DO STARTU`; linia
+   w dzienniku wdrożenia (jedna, zwięzła); kolumna `Prompt` przy N+1 dostaje link zaraz po
+   punkcie 3.
+2. **`docs/DZIENNIK.md`** — wpis wg `SPEC_DZIENNIK.md` na końcu sekcji „Wpisy": Zrobione /
+   Zweryfikowane — jak dokładnie / Świadomie odłożone / Do zrobienia przez człowieka. Przejrzyj
+   tabelę „Stan otwartych ryzyk". Lekcje z etapu → `docs/LEKCJE.md` + odświeżony destylat „Zasady
+   aktywne".
+3. **`docs/STATE.md`** i pozostałe dokumenty projektu, których dotknął etap (`README.md` tylko przy
+   zmianie sposobu uruchomienia).
+4. **Wygeneruj `PROMPT_ETAP_N+1.md`** ze specyfikacji promptu etapowego — z sekcji `PLAN.md`
+   opisującej etap N+1, z **realnego stanu repo po tym etapie** i z lekcji, które w tym etapie
+   powstały. To jest punkt, który najłatwiej pominąć i który przesądza o ciągłości pracy:
+   **etap bez wygenerowanego następnego promptu NIE jest ukończony** (D-34).
+5. **Commit** — propozycja, conventional message. Jedyny punkt tego rytuału, o który pytasz.
+
+Zamykany etap był **ostatnim** w planie → punkt 4 zastępujesz sekwencją „Zamknięcie planu" niżej.
+
+Sesja przerwana w połowie rytuału zostawia etap w statusie `W TOKU`. Kolejne `/relai-stage` ma
+wtedy dokończyć, nie zaczynać od zera — a siatka z `relai-core` wyłapie brakujący prompt na starcie
+następnej sesji.
 
 ## Zamknięcie planu (D-36)
 
@@ -259,6 +309,8 @@ Nie dopisujesz drugiej linii aktywnego planu i nie robisz z niej listy.
 - **Nie edytujesz zamrożonego planu** — wyłącznie aneksy.
 - **Nie tworzysz planu dla tematu spoza projektu** ani dla zadania, które trwa dziesięć minut.
 - **Nie zadajesz drugiego pytania** o format i model, gdy odpowiedź jest już w `USTAWIENIA.md`.
-- **Nie obiecujesz** promptów etapowych, `/relai-stage` ani szablonu HTML — w tej wersji ich nie ma.
+- **Nie generujesz promptów etapowych na zapas** — wyłącznie w trzech momentach z sekcji „Prompty
+  etapowe"; prompt etapu już zrealizowanego zostaje bez zmian.
+- **Nie obiecujesz** szablonu HTML planów — w tej wersji go nie ma.
 - **Nie kasujesz** planu ani jego folderu; plan nieaktualny idzie do archiwum z adnotacją (D-18).
 - **Nie wpisujesz do planu liczb bez etykiety** FAKT albo SZACUNEK (D-63).

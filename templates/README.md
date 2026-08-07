@@ -22,13 +22,14 @@ zasobów pluginu.
 Osiem dokumentów powyżej (`CLAUDE.md`, `README.md` + sześć plików w `docs/`) to komplet generowany
 przy inicjalizacji projektu od wersji 0.2.0.
 
-Dwie kolejne specyfikacje opisują dokumenty, które **nie** powstają przy inicjalizacji — pojawiają
+Trzy kolejne specyfikacje opisują dokumenty, które **nie** powstają przy inicjalizacji — pojawiają
 się dopiero z pierwszym planem (D-11: podfolderów nie tworzy się na zapas):
 
 | Specyfikacja | Generuje | Polityka |
 |---|---|---|
 | [SPEC_PLAN.md](SPEC_PLAN.md) | `docs/plany/<TEMAT>/PLAN.md` | zamrożony po akceptacji; zmiany wyłącznie datowanymi aneksami |
 | [SPEC_STATUS.md](SPEC_STATUS.md) | `docs/plany/<TEMAT>/STATUS.md` | jedyne miejsce z postępem etapów; dziennik wdrożenia append na końcu |
+| [SPEC_PROMPT_ETAPU.md](SPEC_PROMPT_ETAPU.md) | `docs/plany/<TEMAT>/PROMPT_ETAP_N.md` | generacja lazy (N=1 przy akceptacji, N+1 w rytuale „Na koniec"); prompt etapu zrealizowanego nie jest edytowany |
 
 MINIPLAN (D-31) nie ma własnej specyfikacji — jest wpisem w dzienniku i opisuje go
 [SPEC_DZIENNIK.md](SPEC_DZIENNIK.md), sekcja „Wpis typu MINIPLAN".

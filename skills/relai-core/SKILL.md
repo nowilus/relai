@@ -18,15 +18,16 @@ description: >
 
 # relai-core — struktura projektu, pamięć i rytuały sesji
 
-Wersja E3 (RelAI 0.3.1). Zakres tego skilla: **rozpoznanie stanu folderu + inicjalizacja + tryb
-gościa + niedestrukcyjne dołączenie + rytuały sesji + rejestry LEKCJE/DECYZJE + trzy frazy
-naturalne + warstwa ustawień globalnych**. Prompty etapowe, komendy `/relai-*`, hooki i pełna
+Wersja E4 (RelAI 0.4.0). Zakres tego skilla: **rozpoznanie stanu folderu + inicjalizacja + tryb
+gościa + niedestrukcyjne dołączenie + rytuały sesji + siatka brakujących promptów etapowych +
+rejestry LEKCJE/DECYZJE + trzy frazy naturalne + warstwa ustawień globalnych**. Hooki i pełna
 adopcja zastanego projektu przychodzą w kolejnych wersjach — nie udawaj, że już działają.
 
 **Planowanie należy do skilla `relai-planning`** (od 0.3.0): wykrycie prośby o plan, rozróżnienie
-PLAN/MINIPLAN, generacja `docs/plany/<TEMAT>/`, zamrożenie i zamknięcie planu. Tutaj planów nie
-opisujesz i nie tworzysz — tutaj plan pojawia się wyłącznie jako pozycja czytana w rytuale startu
-i jako linia „Aktywny plan" w `CLAUDE.md`.
+PLAN/MINIPLAN, generacja `docs/plany/<TEMAT>/`, prompty etapowe `PROMPT_ETAP_N`, rytuał „Na koniec"
+etapu, zamrożenie i zamknięcie planu. Etap uruchamia komenda `/relai-stage` (od 0.4.0). Tutaj planów
+nie opisujesz i nie tworzysz — tutaj plan pojawia się jako pozycja czytana w rytuale startu, jako
+linia „Aktywny plan" w `CLAUDE.md` i jako siatka wyłapująca brakujący prompt etapowy.
 
 `${CLAUDE_PLUGIN_ROOT}` wskazuje katalog pluginu. Specyfikacje dokumentów leżą w
 `${CLAUDE_PLUGIN_ROOT}/templates/`.
@@ -81,6 +82,29 @@ Zamiast tego wykonaj **rytuał startu** — raz na sesję, przed pierwszą meryt
 **Zakaz pełnotekstowego skanowania repo na starcie.** Nie czytasz `docs/DECYZJE.md` w całości ani
 starych wpisów dziennika — sięgasz po nie, gdy temat konkretnie tego wymaga. Pliku, którego nie ma
 (np. `LEKCJE.md` w projekcie sprzed 0.2.0), po prostu nie czytasz; nie zgłaszaj tego jako błędu.
+
+### Siatka bezpieczeństwa: brakujący prompt etapowy (D-34)
+
+Ostatni krok czytania, wykonywany **tylko wtedy**, gdy `CLAUDE.md` wskazuje aktywny plan. Sprawdź
+w jego `STATUS.md`: czy etap ze statusem `GOTOWY DO STARTU` ma w kolumnie `Prompt` link do
+istniejącego pliku.
+
+- **Ma** → nic nie robisz i nic nie komentujesz.
+- **Nie ma** (kolumna pusta, `—`, albo link prowadzi do nieistniejącego pliku) → to ślad po sesji
+  przerwanej w połowie rytuału „Na koniec". Powiedz o tym **jednym zdaniem** i zaproponuj
+  wygenerowanie promptu. **Po zgodzie** generuje go skill `relai-planning`
+  (`${CLAUDE_PLUGIN_ROOT}/templates/SPEC_PROMPT_ETAPU.md`) i uzupełnia kolumnę `Prompt`.
+
+Zasady siatki:
+
+- Bez zgody **nie generujesz** — to jest zauważenie luki, nie automatyczna naprawa.
+- Zauważenie idzie **przed** akapitem „gdzie jesteśmy", żeby użytkownik zobaczył je od razu.
+- Odmowa zamyka temat na tę sesję; nie wracasz do niej przy kolejnych promptach.
+- Brak aktywnego planu, plan `DO AKCEPTACJI`, brak etapu `GOTOWY DO STARTU` → siatka milczy.
+
+W tej wersji siatka jest **wyłącznie krokiem rytuału startu**: działa, gdy ten skill się wykona.
+Druga warstwa — hook `SessionStart` wymuszający sprawdzenie niezależnie od skilla — dochodzi
+w kolejnej wersji pluginu. Nie zapowiadaj jej użytkownikowi.
 
 ### Podsumowanie dla użytkownika
 
@@ -293,7 +317,7 @@ Zasady generacji:
   Dla projektu angielskiego: `docs/STATE.md`, `docs/JOURNAL.md`, `docs/LESSONS.md`,
   `docs/DECISIONS.md`, `docs/SETTINGS.md`, `docs/COMMANDS.md`. Konwencja stała: CAPS_SNAKE, bez dat
   i numerów wersji w nazwie.
-- `docs/USTAWIENIA.md` **musi** zawierać linię `Wersja RelAI: 0.3.1` — to marker, po którym RelAI
+- `docs/USTAWIENIA.md` **musi** zawierać linię `Wersja RelAI: 0.4.0` — to marker, po którym RelAI
   rozpoznaje projekt i po którym przyszły `/relai-update` policzy różnicę wersji.
 - `docs/LEKCJE.md` i `docs/DECYZJE.md` powstają **puste, ale kompletne strukturalnie**: nagłówek,
   zdanie o roli, sekcja „Zasady aktywne" (LEKCJE) z informacją, że jest jeszcze pusta, i pusta

@@ -29,9 +29,9 @@ projektu jest w `docs/USTAWIENIA.md`.
    a komendy są skrótem dla rzadszych operacji (D-22).
 3. **Komendy** — tabela `Komenda | Co robi | Kiedy użyć`. Tylko działające.
 4. **Frazy naturalne** — tabela `Powiesz | Co się stanie`. Frazy w języku projektu. Tylko działające.
-5. **Czego RelAI pilnuje bez proszenia** — 3–6 punktów o zachowaniach automatycznych działających
-   w tej wersji (np. aktualizacja dokumentów w ramach ukończenia zadania). Punkt o zachowaniu,
-   którego jeszcze nie ma, nie istnieje.
+5. **Czego RelAI pilnuje bez proszenia** — punkty o zachowaniach automatycznych działających w tej
+   wersji (np. aktualizacja dokumentów w ramach ukończenia zadania). Lista rośnie z wersjami;
+   typowo 5–10 pozycji. Punkt o zachowaniu, którego jeszcze nie ma, nie istnieje.
 6. **Stopka** — jedno zdanie o rosnącej liście + odsyłacz do `docs/USTAWIENIA.md` po numer wersji.
 
 ## Polityka aktualizacji
@@ -45,9 +45,10 @@ projektu jest w `docs/USTAWIENIA.md`.
 Plik jest **regenerowany**, nie edytowany ręcznie. Wyjątkiem są wiersze oznaczone jako lokalne —
 te przeżywają regenerację (D-62: lokalne nadpisania mają pierwszeństwo).
 
-## Zakres wersji 0.3.1 (E3) — co realnie działa
+## Zakres wersji 0.4.0 (E4) — co realnie działa
 
-Komend `/relai-*` w tej wersji **nadal nie ma** — dochodzą w kolejnych. Działa:
+W tej wersji pojawia się **pierwsza działająca komenda** — `/relai-stage`. Od teraz wygenerowany
+`KOMENDY.md` ma tabelę komend; sekcja „Komend jeszcze nie ma" znika. Działa:
 
 - inicjalizacja struktury projektu (zgoda → trzy pytania → osiem dokumentów),
 - rozpoznanie folderu, który już jest projektem RelAI,
@@ -60,16 +61,24 @@ Komend `/relai-*` w tej wersji **nadal nie ma** — dochodzą w kolejnych. Dzia�
 - dziedziczenie preferencji globalnych między projektami,
 - trzy frazy rytualne (poniżej) w wariancie polskim i angielskim,
 - naturalne prośby: „dodaj RelAI", „dołącz strukturę RelAI",
-- **planowanie (nowe w 0.3.1):** prośba o plan w zwykłej rozmowie → `docs/plany/<TEMAT>/PLAN.md`
+- **planowanie (od 0.3.1):** prośba o plan w zwykłej rozmowie → `docs/plany/<TEMAT>/PLAN.md`
   + `STATUS.md` + linia „Aktywny plan" w `CLAUDE.md`; drobne zadanie → miniplan w dzienniku;
   jedno pytanie o rodzaj, format i model wykonawczy etapów (potem brane z ustawień); zamrożenie
-  planu po akceptacji i zmiany wyłącznie datowanymi aneksami; zamknięcie planu z archiwizacją.
+  planu po akceptacji i zmiany wyłącznie datowanymi aneksami; zamknięcie planu z archiwizacją,
+- **etapy (nowe w 0.4.0):** akceptacja planu tworzy `PROMPT_ETAP_1.md`; komenda `/relai-stage`
+  wykrywa plan i następny etap, pokazuje potwierdzenie i czeka; zamknięcie etapu aktualizuje
+  `STATUS.md`, dopisuje wpis do dziennika i **generuje prompt następnego etapu**; brakujący prompt
+  jest wyłapywany na starcie sesji; po ostatnim etapie plan zamyka się sam.
 
-Czego w 0.3.1 **nie** ma po stronie planowania: promptów etapowych `PROMPT_ETAP_N`, komendy
-`/relai-stage` i interaktywnego szablonu HTML planów — plany powstają w Markdown.
+Czego w 0.4.0 **nie** ma: pozostałych komend `/relai-*`, hooków i interaktywnego szablonu HTML
+planów — plany powstają w Markdown.
 
-Wygenerowany `KOMENDY.md` w wersji 0.3.1 **nadal nie zawiera tabeli komend** — zawiera sekcję
-„Komend jeszcze nie ma" oraz **tabelę fraz naturalnych**:
+Wygenerowany `KOMENDY.md` w wersji 0.4.0 zawiera **tabelę komend z jedną pozycją** oraz tabelę
+fraz naturalnych:
+
+| Komenda | Co robi |
+|---|---|
+| `/relai-stage [TEMAT] [EN]` | uruchamia etap planu: wykrywa aktywny plan i następny etap, pokazuje potwierdzenie i czeka na zgodę; bez argumentów bierze etap `GOTOWY DO STARTU` |
 
 | Fraza (PL / EN) | Co się stanie |
 |---|---|
@@ -80,25 +89,28 @@ Wygenerowany `KOMENDY.md` w wersji 0.3.1 **nadal nie zawiera tabeli komend** —
 
 ## Zakazy
 
-- Nie wpisujesz `/relai-stage`, `/relai-backup`, `/relai-audit`, `/relai-handover`, `/relai-adopt`,
+- Nie wpisujesz `/relai-backup`, `/relai-audit`, `/relai-handover`, `/relai-adopt`,
   `/relai-update`, `/relai-tour`, `/relai-changelog`, `/relai-help`, dopóki nie działają
   w zainstalowanej wersji.
 - Nie dopisujesz fraz spoza listy działających w danej wersji.
 - Nie opisujesz mechaniki wewnętrznej (skille, hooki) — użytkownika interesuje efekt.
 
-## Przykład dla wersji 0.3.1 (projekt polski)
+## Przykład dla wersji 0.4.0 (projekt polski)
 
 ```markdown
 # KOMENDY — Parkly
 
-RelAI 0.3.1
+RelAI 0.4.0
 
 Nic z tej listy nie jest obowiązkowe. RelAI działa w zwykłej rozmowie — piszesz normalnie,
 a struktura projektu nadąża. Komendy są skrótem do rzadszych operacji.
 
-## Komend jeszcze nie ma
+## Komendy
 
-Wersja 0.3.1 to rdzeń dokumentacyjny i planowanie. Komendy `/relai-*` dochodzą w kolejnych wersjach.
+| Komenda | Co robi | Kiedy użyć |
+|---|---|---|
+| `/relai-stage` | znajduje aktywny plan i pierwszy etap gotowy do startu, pokazuje, co się wydarzy, i czeka na Twoje „zaczynamy" | na początku świeżej sesji, w której chcesz zrobić kolejny etap planu |
+| `/relai-stage E5` · `/relai-stage PLATNOSCI E2` | to samo, ale dla wskazanego etapu (i planu) | gdy chcesz wrócić do etapu innego niż następny w kolejce |
 
 ## Frazy, które działają
 
@@ -120,6 +132,12 @@ Wersja 0.3.1 to rdzeń dokumentacyjny i planowanie. Komendy `/relai-*` dochodzą
 - O format planów i model wykonawczy etapów pyta raz — potem bierze odpowiedź z ustawień.
 - Zaakceptowanego planu nie przepisuje: zmiana wchodzi jako datowany aneks, żeby było widać, co
   uzgodniliście pierwotnie.
+- Po zaakceptowaniu planu przygotowuje prompt pierwszego etapu, a po zamknięciu każdego etapu —
+  prompt następnego. Kolejną sesję zaczynasz od `/relai-stage`, nie od tłumaczenia, co dalej.
+- Gdy poprzednia sesja urwała się w połowie zamykania etapu, mówi o tym na starcie następnej
+  i proponuje uzupełnić brakujący prompt.
+- Po ostatnim etapie zamyka plan sam: aktualizuje stan, pisze wpis „co dowieziono vs plan"
+  i przenosi plan do archiwum.
 - Nie nadpisuje i nie kasuje plików, których sam nie utworzył.
 - Nie zapisuje kluczy ani haseł w plikach trafiających do repozytorium.
 - Nie zakłada repozytorium gita wewnątrz innego repozytorium.

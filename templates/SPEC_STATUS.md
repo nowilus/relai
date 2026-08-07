@@ -56,17 +56,29 @@ następnego, plan wygląda na skończony, choć nie jest.
 
 ## Kolumna `Prompt`
 
-Docelowo zawiera link do `PROMPT_ETAP_N.md` — samowystarczalnego promptu etapowego (D-34). Format
-promptów etapowych i ich generacja dochodzą w **kolejnej wersji** pluginu, więc dopóki nie działają,
-w tej kolumnie wpisujesz `—`, a etap uruchamiasz zwykłym poleceniem w świeżej sesji. Nie wstawiaj
-linku do pliku, którego nie ma.
+Zawiera **link do `PROMPT_ETAP_N.md`** — samowystarczalnego promptu etapowego, wg
+`SPEC_PROMPT_ETAPU.md` (D-34). Link pojawia się w chwili, w której prompt realnie powstaje, bo
+generacja jest lazy:
+
+| Etap | Zawartość kolumny |
+|---|---|
+| Etap z gotowym promptem (`GOTOWY DO STARTU`, `W TOKU`, `ZREALIZOWANY`) | link `[PROMPT_ETAP_N.md](PROMPT_ETAP_N.md)` |
+| Etap `OCZEKUJE` — prompt jeszcze nie istnieje | `—` |
+
+**Nie wstawiasz linku do pliku, którego nie ma.** Link do nieistniejącego promptu jest gorszy niż
+`—`: siatka bezpieczeństwa z `relai-core` rozpoznaje po nim lukę i zaproponuje dogenerowanie, więc
+fałszywy link wyłącza jedyny mechanizm, który tę lukę wyłapuje.
+
+Odwrotnie też: etap `GOTOWY DO STARTU` z `—` w tej kolumnie to sygnał, że rytuał „Na koniec"
+poprzedniego etapu został przerwany.
 
 ## Polityka aktualizacji
 
 | Kiedy | Co się zmienia |
 |---|---|
-| Plan zaakceptowany | status planu + linia w dzienniku wdrożenia + pierwszy etap → `GOTOWY DO STARTU` |
-| Etap zamknięty | status etapu → `ZREALIZOWANY <data>`, następny → `GOTOWY DO STARTU`, linia w dzienniku wdrożenia |
+| Plan zaakceptowany | status planu + linia w dzienniku wdrożenia + pierwszy etap → `GOTOWY DO STARTU` + link do `PROMPT_ETAP_1.md` |
+| Etap rozpoczęty (`/relai-stage` po potwierdzeniu) | status etapu → `W TOKU` + linia w dzienniku wdrożenia |
+| Etap zamknięty | status etapu → `ZREALIZOWANY <data>`, następny → `GOTOWY DO STARTU` **z linkiem do świeżo wygenerowanego promptu**, linia w dzienniku wdrożenia |
 | Sesja etapu przerwana | status etapu → `W TOKU` + linia w dzienniku wdrożenia mówiąca, co zostało |
 | Aneks do planu | linia w dzienniku wdrożenia z numerem aneksu; **treść aneksu jest w `PLAN.md`**, nie tutaj |
 | Plan zamknięty | status planu → `ZREALIZOWANY <data>`, plik razem z folderem idzie do `docs/archiwum/plany/` |
@@ -95,8 +107,8 @@ Plan: [PLAN.md](PLAN.md) · Utworzony: 2026-08-12 · Status planu: **ZAAKCEPTOWA
 
 | Etap | Nazwa | Status | Prompt | Uwagi |
 |---|---|---|---|---|
-| E1 | Model płatności i statusy | **ZREALIZOWANY 2026-08-14** | — | wygasanie 15 min; test współbieżności przeszedł |
-| E2 | Stripe Checkout + webhook | **GOTOWY DO STARTU** | — | wymaga kluczy Stripe (sekcja 9 planu) |
+| E1 | Model płatności i statusy | **ZREALIZOWANY 2026-08-14** | [PROMPT_ETAP_1.md](PROMPT_ETAP_1.md) | wygasanie 15 min; test współbieżności przeszedł |
+| E2 | Stripe Checkout + webhook | **GOTOWY DO STARTU** | [PROMPT_ETAP_2.md](PROMPT_ETAP_2.md) | wymaga kluczy Stripe (sekcja 9 planu) |
 | E3 | Faktury PDF i wysyłka | OCZEKUJE | — | zakres zależny od decyzji o księgowości |
 | E4 | Panel płatności dla administratora | OCZEKUJE | — | |
 
@@ -104,8 +116,10 @@ Plan: [PLAN.md](PLAN.md) · Utworzony: 2026-08-12 · Status planu: **ZAAKCEPTOWA
 
 - 2026-08-12 — plan utworzony, przekazany do akceptacji.
 - 2026-08-13 — plan ZAAKCEPTOWANY z poprawkami (Aneks A: rezygnacja z BLIK-a w v1, kopia faktury
-  do księgowości).
+  do księgowości). Wygenerowano PROMPT_ETAP_1.
+- 2026-08-14 — E1 rozpoczęty.
 - 2026-08-14 — **E1 ZREALIZOWANY**. Tabela `Payment`, status `oczekuje na płatność`, wygasanie po
-  15 minutach. Szczegóły i weryfikacja: wpis w `docs/DZIENNIK.md` z 2026-08-14.
+  15 minutach. Szczegóły i weryfikacja: wpis w `docs/DZIENNIK.md` z 2026-08-14. Wygenerowano
+  PROMPT_ETAP_2.
 - 2026-08-14 — E2 ustawiony jako GOTOWY DO STARTU; blokada: klucze Stripe po stronie człowieka.
 ```
