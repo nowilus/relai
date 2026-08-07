@@ -22,11 +22,16 @@ description: >
 
 # relai-planning — plany, etapy i ich zamrażanie
 
-Wersja E4 (RelAI 0.4.0). Zakres tej wersji: **wykrycie intencji planowania + rozróżnienie
+Wersja E5 (RelAI 0.5.0). Zakres tej wersji: **wykrycie intencji planowania + rozróżnienie
 PLAN/MINIPLAN + pytanie startowe + generacja planu w Markdown + `STATUS.md` + zamrożenie z aneksami
 + prompty etapowe `PROMPT_ETAP_N` z lazy-generacją + rytuał „Na koniec" etapu + zamknięcie planu**.
 Etap uruchamia komenda `/relai-stage`. Szablon HTML planów dochodzi w wersji następnej — nie udawaj,
 że już działa.
+
+Specyfikacje (`SPEC_PLAN`, `SPEC_STATUS`, `SPEC_PROMPT_ETAPU`, `SPEC_DZIENNIK`) czytaj z lokalnej
+kopii **`.claude/relai/templates/`** — utrzymuje ją hook `session-context`; katalog pluginu jest
+dla sesji niedostępny (L-0012). Brak kopii → powiedz o tym i poproś o `--add-dir` na katalog
+pluginu, zamiast generować z pamięci.
 
 Ten skill zakłada strukturę RelAI w folderze (marker `Wersja RelAI:` w `docs/USTAWIENIA.md`).
 Nie ma struktury → to zadanie dla `relai-core`, nie dla tego skilla: najpierw inicjalizacja albo
@@ -144,8 +149,8 @@ Zasady tego pytania:
    (D-12): `PLATNOSCI`, `MIGRACJA_BAZY`, `LOGOWANIE_OAUTH`. Temat nazywa obszar, nie czynność.
 2. **Utwórz folder** `docs/plany/<TEMAT>/`. Folderu `docs/plany/` nie tworzysz na zapas — powstaje
    razem z pierwszym planem (D-11).
-3. **Wygeneruj `PLAN.md`** wg `${CLAUDE_PLUGIN_ROOT}/templates/SPEC_PLAN.md`.
-4. **Wygeneruj `STATUS.md`** wg `${CLAUDE_PLUGIN_ROOT}/templates/SPEC_STATUS.md` — ze statusem planu
+3. **Wygeneruj `PLAN.md`** wg `.claude/relai/templates/SPEC_PLAN.md`.
+4. **Wygeneruj `STATUS.md`** wg `.claude/relai/templates/SPEC_STATUS.md` — ze statusem planu
    `DO AKCEPTACJI` i modelem wykonawczym z Kroku 3.
 5. **Dopisz linię aktywnego planu do `CLAUDE.md`** — dokładnie jedna linia z linkiem do `STATUS.md`
    planu (D-30). Jest już inna linia aktywnego planu → patrz „Więcej niż jeden plan" niżej.
@@ -163,7 +168,7 @@ Czego **nie** robisz na tym etapie: nie zaczynasz implementacji, **nie generujes
 ## Krok 5 — MINIPLAN
 
 Miniplan **nie ma własnego pliku** (D-31). Jest wpisem w `docs/DZIENNIK.md`, w formacie opisanym
-w `${CLAUDE_PLUGIN_ROOT}/templates/SPEC_DZIENNIK.md`, sekcja „Wpis typu MINIPLAN":
+w `.claude/relai/templates/SPEC_DZIENNIK.md`, sekcja „Wpis typu MINIPLAN":
 
 - **Cel** — jedno zdanie: po czym poznamy, że zrobione.
 - **Kroki** — 2–5 pozycji, w kolejności wykonania.
@@ -186,7 +191,7 @@ Plan po akceptacji jest **ZAMROŻONY**. Akceptacją jest jednoznaczna zgoda uży
 W momencie akceptacji:
 
 1. `STATUS.md`: status planu → `ZAAKCEPTOWANY <data>`, pierwszy etap → `GOTOWY DO STARTU`.
-2. **Wygeneruj `PROMPT_ETAP_1.md`** wg `${CLAUDE_PLUGIN_ROOT}/templates/SPEC_PROMPT_ETAPU.md`
+2. **Wygeneruj `PROMPT_ETAP_1.md`** wg `.claude/relai/templates/SPEC_PROMPT_ETAPU.md`
    i wstaw link do kolumny `Prompt` przy E1 (D-34). Kolejnych promptów **nie** generujesz.
 3. Wpis w `DZIENNIK.md`: plan zaakceptowany, z czym (jeśli akceptacja przyszła z poprawkami — te
    poprawki są **Aneksem A**, patrz niżej).
@@ -228,7 +233,7 @@ Wtedy:
 
 Etap wykonuje się w **świeżej sesji**, która nie zna poprzedniej. Całą jej pamięcią jest
 `PROMPT_ETAP_N.md` w folderze planu — dokument samowystarczalny, którego format opisuje
-`${CLAUDE_PLUGIN_ROOT}/templates/SPEC_PROMPT_ETAPU.md`. Etap uruchamia komenda `/relai-stage`.
+`.claude/relai/templates/SPEC_PROMPT_ETAPU.md`. Etap uruchamia komenda `/relai-stage`.
 
 Generacja jest **lazy** — dokładnie trzy momenty, nigdy na zapas:
 
@@ -243,7 +248,7 @@ wcześniej opisywałby stan zmyślony.
 
 ### Zanim wygenerujesz prompt — przeczytaj specyfikację
 
-**Otwórz `${CLAUDE_PLUGIN_ROOT}/templates/SPEC_PROMPT_ETAPU.md` i wygeneruj wg niej.** Prompt pisany
+**Otwórz `.claude/relai/templates/SPEC_PROMPT_ETAPU.md` i wygeneruj wg niej.** Prompt pisany
 „z sensu", bez otwarcia specyfikacji, wychodzi merytorycznie poprawny i **strukturalnie inny** —
 a układ jest tu funkcją, nie ozdobą: świeża sesja szuka konkretnych sekcji w konkretnej kolejności.
 

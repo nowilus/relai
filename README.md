@@ -5,12 +5,14 @@
 Plugin do Claude Code, który zamienia rozmowę z agentem w prowadzony projekt: ustalenia, decyzje,
 stan prac i historia zostają w plikach, a nie w kontekście sesji, który za chwilę zniknie.
 
-> Wersja 0.4.0 — rdzeń dokumentacyjny, planowanie i wykonywanie etapów. Działa inicjalizacja
-> projektu, wykrywanie struktury, rytuały sesji, rejestry lekcji i decyzji, cztery frazy rytualne,
-> plany (PLAN z etapami / miniplan w dzienniku, zamrożenie i aneksy) oraz pełny cykl etapów:
-> samowystarczalne prompty `PROMPT_ETAP_N`, komenda `/relai-stage` i automatyczne zamknięcie planu.
-> Hooki, pozostałe komendy operacyjne, szablon HTML planów i adopcja istniejących projektów
-> dochodzą w kolejnych wersjach.
+> Wersja 0.5.0 — rdzeń dokumentacyjny, planowanie, wykonywanie etapów i osiem hooków. Działa
+> inicjalizacja projektu, wykrywanie struktury, rytuały sesji, rejestry lekcji i decyzji, cztery
+> frazy rytualne, plany (PLAN z etapami / miniplan w dzienniku, zamrożenie i aneksy), pełny cykl
+> etapów (prompty `PROMPT_ETAP_N`, komenda `/relai-stage`, automatyczne zamknięcie planu) oraz
+> hooki: blokada sekretów, ochrona konfiguracji, przypomnienia o synchronizacji dokumentów
+> i `session-context` wymuszający rytuał startu niezależnie od skilli.
+> Pozostałe komendy operacyjne, szablon HTML planów i adopcja istniejących projektów dochodzą
+> w kolejnych wersjach.
 > Aktualny zakres: [docs/plany/BUDOWA_RELAI/STATUS.md](docs/plany/BUDOWA_RELAI/STATUS.md).
 
 ## Instalacja
@@ -26,7 +28,7 @@ stan prac i historia zostają w plikach, a nie w kontekście sesji, który za ch
 Po instalacji otwórz Claude Code w folderze projektu i napisz cokolwiek — RelAI zapyta o zgodę na
 utworzenie struktury.
 
-## Co robi wersja 0.4.0
+## Co robi wersja 0.5.0
 
 | Sytuacja | Zachowanie |
 |---|---|
@@ -59,6 +61,19 @@ Rytuały, które od tej wersji działają bez proszenia:
   pokazuje potwierdzenie i **czeka** — nigdy nie startuje sama. Zamknięcie etapu generuje prompt
   etapu następnego; przerwana sesja zostawia etap w statusie `W TOKU`, a brakujący prompt jest
   wyłapywany na starcie kolejnej sesji. Po ostatnim etapie plan zamyka się sam i trafia do archiwum.
+- **Hooki (nowe w 0.5.0)** — osiem hooków Node.js, bez żadnych zależności npm, wszystkie zgodne
+  z konwencją hook-guard (niżej). Blokują wyłącznie `secret-scanner` (sekret w pliku śledzonym —
+  klucze `sk-…`, `ghp…`, `AKIA…`, JWT, klucze PEM, przypisania `PASSWORD=`/`SECRET=`; plik objęty
+  `.gitignore` przechodzi) i `config-protection` (sekcja niemutowalna `CLAUDE.md` oraz
+  `docs/USTAWIENIA.md` — zmiana wymaga jawnego zatwierdzenia przez człowieka). Cztery hooki
+  ostrzegają, nigdy nie blokując: `quality-gate` (tsc/eslint, gdy projekt je ma),
+  `console-log-warn`, `design-quality-check` (gdy istnieje `docs/DESIGN.md`), `doc-sync-reminder`
+  (zmiana kodu bez `STATE`/`DZIENNIK` — druga siatka definicji ukończenia). Dwa działają cicho:
+  `auto-format` (gdy projekt ma Prettiera) i `session-context` — wstrzykuje datę dnia, kontrolę
+  wersji projekt↔plugin, wymuszenie rytuału startu i siatkę brakujących promptów etapowych
+  niezależnie od tego, czy skill się wyzwolił, oraz kopiuje specyfikacje dokumentów do
+  `.claude/relai/templates/` w projekcie i dostarcza ustawienia globalne `~/.claude/relai/`
+  (rozwiązanie dostępu do zasobów spoza katalogu roboczego).
 
 Pełna adopcja istniejącego projektu — z backupem, analizą kodu i historii, raportem zmian
 i przetestowaną ścieżką cofnięcia — celowo **nie** jest częścią tej wersji. Namiastka adopcji byłaby
@@ -76,6 +91,9 @@ relai/
 │   └── relai-planning/      # plany i miniplany, STATUS, prompty etapowe, zamknięcie planu
 ├── commands/
 │   └── relai-stage.md       # /relai-stage — uruchomienie etapu planu
+├── hooks/
+│   ├── hooks.json           # rejestracja ośmiu hooków (zdarzenia i matchery)
+│   └── *.js                 # osiem hooków Node.js, zero zależności npm
 ├── templates/               # SPECYFIKACJE dokumentów dla LLM (nie pliki do kopiowania)
 └── docs/                    # dokumentacja budowy samego RelAI (dogfooding)
 ```
@@ -111,8 +129,12 @@ Szczegóły konwencji:
 6. **Twardość osobno.** To, czy hook blokuje, czy tylko ostrzega, jest jego osobną cechą; guard nie
    ma z tym związku i obowiązuje jednakowo hooki blokujące i ostrzegające.
 
-Konwencja obowiązuje od tej wersji, mimo że hooków jeszcze nie ma — po to, by pierwszy hook powstał
-już zgodny z nią, a nie doprowadzony do zgodności później.
+Od wersji 0.5.0 konwencja jest zaimplementowana we wszystkich ośmiu hookach. Jedno doprecyzowanie
+wynikłe z praktyki: dla zdarzenia wywołania **skilla RelAI** (`relai-core`/`relai-planning`)
+warunkiem guarda jest samo to wywołanie — użytkownik świadomie użył pluginu, więc hook
+`session-context` może dostarczyć specyfikacje i ustawienia globalne także w folderze, który
+dopiero staje się projektem RelAI (inicjalizacja). W sesjach, które skilli RelAI nie wywołują,
+milczy jak każdy inny; tryb gościa pozostaje bezwzględnym „nie".
 
 ## Zasady, na których stoi RelAI
 

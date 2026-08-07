@@ -45,10 +45,11 @@ projektu jest w `docs/USTAWIENIA.md`.
 Plik jest **regenerowany**, nie edytowany ręcznie. Wyjątkiem są wiersze oznaczone jako lokalne —
 te przeżywają regenerację (D-62: lokalne nadpisania mają pierwszeństwo).
 
-## Zakres wersji 0.4.0 (E4) — co realnie działa
+## Zakres wersji 0.5.0 (E5) — co realnie działa
 
-W tej wersji pojawia się **pierwsza działająca komenda** — `/relai-stage`. Od teraz wygenerowany
-`KOMENDY.md` ma tabelę komend; sekcja „Komend jeszcze nie ma" znika. Działa:
+Od 0.4.0 działa **pierwsza komenda** — `/relai-stage` — i wygenerowany `KOMENDY.md` ma tabelę
+komend. W 0.5.0 dochodzi **osiem hooków**: sekcja „Czego RelAI pilnuje bez proszenia" rośnie
+o zachowania hooków (lista niżej). Działa:
 
 - inicjalizacja struktury projektu (zgoda → trzy pytania → osiem dokumentów),
 - rozpoznanie folderu, który już jest projektem RelAI,
@@ -65,15 +66,24 @@ W tej wersji pojawia się **pierwsza działająca komenda** — `/relai-stage`. 
   + `STATUS.md` + linia „Aktywny plan" w `CLAUDE.md`; drobne zadanie → miniplan w dzienniku;
   jedno pytanie o rodzaj, format i model wykonawczy etapów (potem brane z ustawień); zamrożenie
   planu po akceptacji i zmiany wyłącznie datowanymi aneksami; zamknięcie planu z archiwizacją,
-- **etapy (nowe w 0.4.0):** akceptacja planu tworzy `PROMPT_ETAP_1.md`; komenda `/relai-stage`
+- **etapy (od 0.4.0):** akceptacja planu tworzy `PROMPT_ETAP_1.md`; komenda `/relai-stage`
   wykrywa plan i następny etap, pokazuje potwierdzenie i czeka; zamknięcie etapu aktualizuje
   `STATUS.md`, dopisuje wpis do dziennika i **generuje prompt następnego etapu**; brakujący prompt
-  jest wyłapywany na starcie sesji; po ostatnim etapie plan zamyka się sam.
+  jest wyłapywany na starcie sesji; po ostatnim etapie plan zamyka się sam,
+- **hooki (nowe w 0.5.0), do sekcji „Czego RelAI pilnuje bez proszenia":** blokada zapisu sekretu
+  (klucz API, token, JWT, klucz prywatny, `PASSWORD=`/`SECRET=` z wartością) do pliku śledzonego —
+  sekret może trafić wyłącznie do `.env` objętego `.gitignore`; zmiana sekcji niemutowalnej
+  `CLAUDE.md` albo `USTAWIENIA.md` wymaga jawnego zatwierdzenia; przypomnienie, gdy zmiana kodu
+  zostaje bez aktualizacji `STATE`/`DZIENNIK`; ostrzeżenie o `console.log`/`debugger` w kodzie
+  produkcyjnym; ostrzeżenie tsc/eslint, gdy projekt ma te narzędzia; przypomnienie o spójności
+  z `DESIGN.md`, gdy plik istnieje; ciche formatowanie Prettierem, gdy projekt go ma; na starcie
+  sesji: data dnia, kontrola wersji projekt↔plugin, wymuszenie rytuału startu i siatka brakujących
+  promptów etapowych — nawet bez wyzwolenia skilla.
 
-Czego w 0.4.0 **nie** ma: pozostałych komend `/relai-*`, hooków i interaktywnego szablonu HTML
-planów — plany powstają w Markdown.
+Czego w 0.5.0 **nie** ma: pozostałych komend `/relai-*` i interaktywnego szablonu HTML planów —
+plany powstają w Markdown.
 
-Wygenerowany `KOMENDY.md` w wersji 0.4.0 zawiera **tabelę komend z jedną pozycją** oraz tabelę
+Wygenerowany `KOMENDY.md` w wersji 0.5.0 zawiera **tabelę komend z jedną pozycją** oraz tabelę
 fraz naturalnych:
 
 | Komenda | Co robi |
@@ -95,12 +105,12 @@ fraz naturalnych:
 - Nie dopisujesz fraz spoza listy działających w danej wersji.
 - Nie opisujesz mechaniki wewnętrznej (skille, hooki) — użytkownika interesuje efekt.
 
-## Przykład dla wersji 0.4.0 (projekt polski)
+## Przykład dla wersji 0.5.0 (projekt polski)
 
 ```markdown
 # KOMENDY — Parkly
 
-RelAI 0.4.0
+RelAI 0.5.0
 
 Nic z tej listy nie jest obowiązkowe. RelAI działa w zwykłej rozmowie — piszesz normalnie,
 a struktura projektu nadąża. Komendy są skrótem do rzadszych operacji.
@@ -139,7 +149,15 @@ a struktura projektu nadąża. Komendy są skrótem do rzadszych operacji.
 - Po ostatnim etapie zamyka plan sam: aktualizuje stan, pisze wpis „co dowieziono vs plan"
   i przenosi plan do archiwum.
 - Nie nadpisuje i nie kasuje plików, których sam nie utworzył.
-- Nie zapisuje kluczy ani haseł w plikach trafiających do repozytorium.
+- **Blokuje** zapis klucza, tokenu albo hasła do pliku trafiającego do repozytorium — sekret może
+  wylądować wyłącznie w `.env`, którego git nie śledzi.
+- Zmiana zamrożonych reguł projektu (`CLAUDE.md` — sekcja niemutowalna, `USTAWIENIA.md`) wymaga
+  Twojego zatwierdzenia — RelAI zapyta, zanim cokolwiek zmieni.
+- Przypomina, gdy zmiana kodu została bez wpisu w dzienniku i aktualizacji stanu.
+- Ostrzega przed `console.log` zostawionym w kodzie produkcyjnym; gdy projekt ma TypeScript albo
+  ESLint — pokazuje ich błędy zaraz po edycji pliku.
+- Na starcie każdej sesji sam podaje dzisiejszą datę, sprawdza wersję projektu i przypomina
+  o niedokończonym etapie planu — nawet jeśli nic nie napiszesz.
 - Nie zakłada repozytorium gita wewnątrz innego repozytorium.
 
 Lista rośnie z kolejnymi wersjami RelAI. Numer wersji tego projektu znajdziesz
