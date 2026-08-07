@@ -5,7 +5,7 @@
 | # | Ryzyko | Poziom | Status | Mitygacja |
 |---|---|---|---|---|
 | R1 | Scope creep jak w vibe-forge (GUI, enterprise-szablony) | Wysoki | OTWARTE | D-80: twarda lista „poza v1"; każdy pomysł spoza listy → DZIENNIK „świadomie odłożone" |
-| R2 | Auto-wyzwalanie skilli bywa zawodne (agent nie zastosuje zasad bez komendy) | Wysoki | OTWARTE | Podwójna warstwa: opisy skilli + reguły w projektowym CLAUDE.md zawsze w kontekście; testy fraz w pilotażu. **2026-08-07 (E1):** `relai-core` zainstalowany i widoczny w inwentarzu pluginu, ale samo auto-wyzwolenie w świeżej sesji NIEZWERYFIKOWANE. **2026-08-07 (E2):** test NIEWYKONANY — plugin odinstalowany na czas budowy na polecenie użytkownika (L-0004), więc skill nie miał prawa się wyzwolić; pomiar przeniesiony do pilotażu E10, po docelowej instalacji. Ryzyko pozostaje OTWARTE i niezmierzone przez dwa etapy (L-0005). **2026-08-07 (E3):** nadal niezmierzone — doszedł drugi skill (`relai-planning`) wyzwalany frazą, więc zakres ryzyka wzrósł. Warunek pomiaru (plugin zainstalowany z aktualnej wersji, świeża sesja, prompt bez komendy — osobno dla `relai-core` i `relai-planning`) zapisany w wierszu E10 tabeli etapów `STATUS.md`, żeby trafił do promptu E10 przy jego generacji (L-0005) |
+| R2 | Auto-wyzwalanie skilli bywa zawodne (agent nie zastosuje zasad bez komendy) | Średni (obniżony z wysokiego 2026-08-07 po pomiarze) | **ZMIERZONE 2026-08-07, OTWARTE** | Podwójna warstwa: opisy skilli + reguły w projektowym CLAUDE.md zawsze w kontekście; testy fraz w pilotażu. **2026-08-07 (E1):** `relai-core` zainstalowany i widoczny w inwentarzu pluginu, ale samo auto-wyzwolenie w świeżej sesji NIEZWERYFIKOWANE. **2026-08-07 (E2):** test NIEWYKONANY — plugin odinstalowany na czas budowy na polecenie użytkownika (L-0004), więc skill nie miał prawa się wyzwolić; pomiar przeniesiony do pilotażu E10, po docelowej instalacji. Ryzyko pozostaje OTWARTE i niezmierzone przez dwa etapy (L-0005). **2026-08-07 (E3):** nadal niezmierzone — doszedł drugi skill (`relai-planning`) wyzwalany frazą, więc zakres ryzyka wzrósł. **2026-08-07 (pomiar, na wniosek użytkownika):** plugin zainstalowany, sześć świeżych sesji `claude -p`. Wersja 0.3.0: 1/4 trafień — brak wyzwolenia na prompcie naturalnym i na „przygotuj plan…", z realnym rozjazdem konwencji. Po poprawce opisów (0.3.1): 2/2 trafienia. Ryzyko zostaje otwarte: próba mała, `-p` blokuje `AskUserQuestion`, a wynik zależy od inwentarza skilli na maszynie. Kontrola ponowna w E10 (wiersz E10 w `STATUS.md`) |
 | R3 | Adopcja uszkodzi żywy projekt użytkownika | Wysoki | OTWARTE | D-70: backup+raport+recovery obowiązkowe; scenariusz akceptacyjny z pełnym testem recovery |
 | R4 | Hooki Node na Windows (ścieżki ze spacjami, kodowanie PL) | Średni | OTWARTE | Test na ścieżce ze spacją i polskimi znakami w E5; brak zależności poza Node wbudowanym w Claude Code |
 | R5 | Dokumenty puchną i zjadają kontekst | Średni | OTWARTE | D-14/D-15: rotacja DZIENNIKA, kompresja LEKCJI, destylaty czytane na starcie |
@@ -223,3 +223,55 @@ Autor: RelAI (Opus) + Lukasz
   docs/plany/BUDOWA_RELAI/PROMPT_ETAP_4.md".
 - Rozstrzygnąć, czy sekcja „Weryfikacja" ma wejść do wzorca etapu w `SPEC_PLAN.md` (dogfooding
   pokazał, że plan budowy ją ma i że jest przydatna).
+
+### 2026-08-07 — Pomiar ryzyka R2 na zainstalowanym pluginie (0.3.0 → 0.3.1)
+
+Autor: RelAI (Opus) + Lukasz
+
+**Zrobione:**
+- Na polecenie użytkownika **plugin zainstalowany** (`claude plugin install relai@relai`, scope
+  `user`, dwa skille, ~714 tok always-on). Odwraca to L-0004 — lekcja oznaczona jako ZMIENIONA
+  z powodem, zasada aktywna nr 4 przepisana.
+- **Sześć pomiarów** w świeżych sesjach `claude -p … --output-format stream-json`, każdy w folderze
+  ze spacją i polskim znakiem. Kryterium twarde: liczba wywołań narzędzia `Skill` w transkrypcie,
+  nie „wrażenie z odpowiedzi".
+- **Poprawka opisów obu skilli:** `MUST BE USED` na początku, marker rozpoznawczy projektu, płaska
+  lista dosłownych fraz wyzwalających (najpierw polskich). Wersja podbita do **0.3.1**, wypchnięta,
+  marketplace odświeżony, plugin przeinstalowany — dopiero wtedy powtórzony pomiar.
+
+**Zweryfikowane — jak dokładnie:**
+- **Wersja 0.3.0 — 1 trafienie na 4:**
+  - „Zaczynam nowy projekt — narzędzie do pilnowania terminów…" w pustym folderze → `Skill` **0
+    wywołań**, folder pusty, sesja poszła w wywiad z globalnych reguł maszyny.
+  - „przygotuj plan dodania logowania" w projekcie z markerem → `Skill` **0 wywołań**; sesja
+    przeczytała rytuał z projektowego `CLAUDE.md`, ale planu nie utworzyła.
+  - „zainicjuj projekt, dodaj RelAI" → **`relai:relai-core` wywołany**, procedura odtworzona
+    wiernie (rozpoznanie stanu, trzy pytania z rekomendacjami).
+  - „zrób plan wdrożenia logowania — plan projektu, rozpisz to na etapy" → `Skill` **0 wywołań**,
+    a mimo to powstał plan **łamiący trzy konwencje naraz**: `docs/plany/2026-08-07-logowanie.md`
+    (data w nazwie — D-12), brak `STATUS.md` (D-30), wpis dziennika dopisany **na górze** zamiast
+    na końcu (Aneks A pkt 4.4). To jest materialny dowód na R2: sam projektowy `CLAUDE.md` nie
+    wystarcza.
+- **Wersja 0.3.1 po poprawce — 2 trafienia na 2:**
+  - „przygotuj plan dodania logowania" → **`relai-core` + `relai-planning`**; sesja wykonała rytuał
+    startu, napisała akapit „gdzie jesteśmy", rozstrzygnęła próg na PLAN i **wzięła format oraz
+    model z `USTAWIENIA.md` bez pytania** — dokładnie zachowanie z L-0006.
+  - prompt naturalny w pustym folderze → **`relai-core`**.
+- **Efekt uboczny pomiaru — defekt warstwy globalnej:** sesja wykonująca `relai-core` napisała
+  wprost, że `~/.claude/relai/USTAWIENIA.md` jest **poza katalogiem roboczym i dostęp jest
+  zablokowany**, więc dziedziczenia nie sprawdzi. D-23 w obecnej formie nie działa — zapisane jako
+  L-0010, rozwiązanie systemowe do E5.
+- **Nie sprawdzono:** pełnego cyklu end-to-end — w trybie `-p` `AskUserQuestion` jest niedostępne,
+  więc obie udane sesje zatrzymały się na pytaniu startowym i **nie wygenerowały plików planu**;
+  zachowania w sesji interaktywnej; powtarzalności (jeden przebieg na wariant, bez próby
+  statystycznej); wpływu innych skilli na maszynie (inwentarz ~200 pozycji jest częścią wyniku).
+
+**Świadomie odłożone:**
+- Druga warstwa egzekwowania (hook `session-context` wymuszający rytuał niezależnie od tego, czy
+  skill wystrzelił) — E5. To jest właściwa mitygacja R2, nie kolejne przeredagowanie opisu.
+- Rozwiązanie dostępu do warstwy globalnej — E5 razem z hookami.
+- Powtórzenie pomiaru w sesji interaktywnej i na innym profilu maszyny — E10.
+
+**Do zrobienia przez człowieka:**
+- Decyzja, czy plugin ma zostać zainstalowany na stałe w trakcie dalszej budowy (teraz jest, scope
+  `user`, wersja 0.3.1) — wpisane do `USTAWIENIA.md` jako stan bieżący.

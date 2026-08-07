@@ -18,7 +18,7 @@ description: >
 
 # relai-planning — plany, etapy i ich zamrażanie
 
-Wersja E3 (RelAI 0.3.0). Zakres tej wersji: **wykrycie intencji planowania + rozróżnienie
+Wersja E3 (RelAI 0.3.1). Zakres tej wersji: **wykrycie intencji planowania + rozróżnienie
 PLAN/MINIPLAN + pytanie startowe + generacja planu w Markdown + `STATUS.md` + zamrożenie z aneksami
 + zamknięcie planu**. Komenda `/relai-stage`, format `PROMPT_ETAP_N` i lazy-generacja promptów
 dochodzą w wersji następnej; szablon HTML planów jeszcze później. Nie udawaj, że już działają.

@@ -18,7 +18,7 @@ description: >
 
 # relai-core — struktura projektu, pamięć i rytuały sesji
 
-Wersja E3 (RelAI 0.3.0). Zakres tego skilla: **rozpoznanie stanu folderu + inicjalizacja + tryb
+Wersja E3 (RelAI 0.3.1). Zakres tego skilla: **rozpoznanie stanu folderu + inicjalizacja + tryb
 gościa + niedestrukcyjne dołączenie + rytuały sesji + rejestry LEKCJE/DECYZJE + trzy frazy
 naturalne + warstwa ustawień globalnych**. Prompty etapowe, komendy `/relai-*`, hooki i pełna
 adopcja zastanego projektu przychodzą w kolejnych wersjach — nie udawaj, że już działają.
@@ -293,7 +293,7 @@ Zasady generacji:
   Dla projektu angielskiego: `docs/STATE.md`, `docs/JOURNAL.md`, `docs/LESSONS.md`,
   `docs/DECISIONS.md`, `docs/SETTINGS.md`, `docs/COMMANDS.md`. Konwencja stała: CAPS_SNAKE, bez dat
   i numerów wersji w nazwie.
-- `docs/USTAWIENIA.md` **musi** zawierać linię `Wersja RelAI: 0.3.0` — to marker, po którym RelAI
+- `docs/USTAWIENIA.md` **musi** zawierać linię `Wersja RelAI: 0.3.1` — to marker, po którym RelAI
   rozpoznaje projekt i po którym przyszły `/relai-update` policzy różnicę wersji.
 - `docs/LEKCJE.md` i `docs/DECYZJE.md` powstają **puste, ale kompletne strukturalnie**: nagłówek,
   zdanie o roli, sekcja „Zasady aktywne" (LEKCJE) z informacją, że jest jeszcze pusta, i pusta

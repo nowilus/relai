@@ -10,9 +10,10 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
    `KOMENDY.md` dopiero w wersji, w której realnie działa. (L-0002)
 3. Ostrzeżenie `claude plugin validate` o root `CLAUDE.md` jest świadomym skutkiem dogfoodingu —
    nie „naprawiaj" go przenoszeniem pliku. (L-0003)
-4. Plugin RelAI pozostaje odinstalowany przez cały czas budowy; instalacja docelowa dopiero po
-   ostatnim etapie. Testy zachowań skilla wykonuj ręcznie i pisz wprost, że mechanizm
-   auto-wyzwalania nie był mierzony. (L-0004)
+4. Plugin RelAI jest zainstalowany (scope `user`) od 0.3.1. Zachowania skilli mierzysz **realnie** —
+   świeżą sesją `claude -p … --output-format stream-json` i liczbą wywołań narzędzia `Skill` —
+   a nie odtwarzaniem procedury ręcznie. Po zmianie skilla: push → `marketplace update` →
+   reinstalacja, inaczej mierzysz starą wersję. (L-0004, zmienione 2026-08-07)
 5. Zanim opiszesz zachowanie agenta w skillu, sprawdź, czy da się je zweryfikować z wnętrza sesji
    wykonującej etap; jeśli nie — zaplanuj weryfikację tam, gdzie jest możliwa, zamiast deklarować
    ją jako wykonaną. (L-0005)
@@ -23,6 +24,12 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
    chroniony fragment ma nadal pierwotne brzmienie, nie tylko że nowy wpis powstał. (L-0007)
 8. Po podbiciu wersji pluginu przepuść repo `grep`-em po starym numerze i rozstrzygnij **każde**
    trafienie: historyczne zostaje, aktualne się zmienia. (L-0008)
+9. Opis skilla zaczynaj od `MUST BE USED`, markera rozpoznawczego projektu i **płaskiej listy
+   dosłownych fraz** wyzwalających. Opis narracyjny nie wygrywa konkurencji z dwustoma innymi
+   skillami — zmierzone: przed poprawką 1/4 trafień, po poprawce 2/2. (L-0009)
+10. Skill nie może zakładać dostępu do plików spoza katalogu roboczego. Warstwa globalna
+    `~/.claude/relai/` jest niewidoczna dla sesji uruchomionej w projekcie — przewiduj brak dostępu
+    i mów o tym wprost zamiast milcząco pomijać dziedziczenie. (L-0010)
 
 ## Lekcje
 
@@ -53,7 +60,13 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
   uciszyć.
 - **Źródło:** przegląd zamykający etap E1 (nie korekta użytkownika).
 
-### L-0004 — Plugin odinstalowany na czas budowy · 2026-08-07 · AKTYWNA
+### L-0004 — Plugin odinstalowany na czas budowy · 2026-08-07 · ZMIENIONA 2026-08-07
+
+> **ZMIENIONE 2026-08-07** — użytkownik odwrócił decyzję („może jednak doinstaluj ten plugin
+> i zrealizuj testy R2"). Plugin jest zainstalowany od wersji 0.3.1; testy zachowań wykonuje się
+> realnie, świeżymi sesjami. Powód zmiany: dwa etapy bez pomiaru ryzyka R2 kosztowały więcej niż
+> ryzyko pracy z zainstalowaną wersją w trakcie budowy. Aktualna treść zasady — punkt 4 w „Zasadach
+> aktywnych"; poniższy zapis zostaje jako historia (D-18).
 
 - **Trigger:** po testach instalacji w E1 plugin został na maszynie w scope `user`; użytkownik
   polecił go odinstalować.
@@ -105,3 +118,28 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
 - **Zasada:** po podbiciu wersji uruchamiasz `grep` po starym numerze w całym repo i rozstrzygasz
   każde trafienie osobno — historyczne zostaje (i wiesz dlaczego), aktualne się zmienia.
 - **Źródło:** przegląd zamykający etap E3 (nie korekta użytkownika).
+
+### L-0009 — Opis skilla przegrywa konkurencję · 2026-08-07 · AKTYWNA
+
+- **Trigger:** pierwszy realny pomiar R2 na zainstalowanym pluginie 0.3.0: `relai-planning` **nie
+  wystrzelił** na prompcie „przygotuj plan dodania logowania", mimo że dokładnie ta fraza była
+  w jego opisie; sesja napisała plan po swojemu, łamiąc trzy konwencje naraz.
+- **Przyczyna:** opis był narracyjny („RelAI planning: turning a request for a plan into…"), a fraza
+  wyzwalająca schowana w trzecim zdaniu. Na maszynie z ~200 skillami przegrywa z opisami mocniej
+  zaadresowanymi.
+- **Zasada:** opis skilla zaczyna się od `MUST BE USED`, potem marker rozpoznawczy projektu, potem
+  **płaska lista dosłownych fraz** — najpierw polskich. Zmiana opisu wymaga ponownego pomiaru,
+  nie deklaracji.
+- **Źródło:** pomiar R2 na wniosek użytkownika, etap E3 (2026-08-07). Wynik po poprawce: 2/2.
+
+### L-0010 — Skill sięgający poza katalog roboczy · 2026-08-07 · AKTYWNA
+
+- **Trigger:** w teście R2 sesja wykonująca `relai-core` napisała: „Global settings
+  `~/.claude/relai/USTAWIENIA.md` — dostęp zablokowany (poza working directory), więc dziedziczenia
+  nie sprawdzę".
+- **Przyczyna:** warstwa globalna (D-23) została zaprojektowana bez sprawdzenia, czy sesja w ogóle
+  ma prawo czytać pliki spoza katalogu projektu. Domyślnie nie ma.
+- **Zasada:** procedura skilla przewiduje brak dostępu do zasobów spoza katalogu roboczego: mówi
+  o tym jednym zdaniem i działa dalej na wartościach projektowych. Mechanizm dziedziczenia wymaga
+  rozwiązania systemowego (hook albo jawna zgoda na katalog) — do rozstrzygnięcia w E5.
+- **Źródło:** pomiar R2, etap E3 (2026-08-07).

@@ -5,7 +5,7 @@
 Plugin do Claude Code, który zamienia rozmowę z agentem w prowadzony projekt: ustalenia, decyzje,
 stan prac i historia zostają w plikach, a nie w kontekście sesji, który za chwilę zniknie.
 
-> Wersja 0.3.0 — rdzeń dokumentacyjny i planowanie. Działa inicjalizacja projektu, wykrywanie
+> Wersja 0.3.1 — rdzeń dokumentacyjny i planowanie. Działa inicjalizacja projektu, wykrywanie
 > struktury, rytuały sesji, rejestry lekcji i decyzji, trzy frazy rytualne oraz plany (PLAN
 > z etapami / miniplan w dzienniku, zamrożenie i aneksy). Prompty etapowe, hooki, komendy
 > operacyjne, szablon HTML planów i adopcja istniejących projektów dochodzą w kolejnych wersjach.
@@ -24,7 +24,7 @@ stan prac i historia zostają w plikach, a nie w kontekście sesji, który za ch
 Po instalacji otwórz Claude Code w folderze projektu i napisz cokolwiek — RelAI zapyta o zgodę na
 utworzenie struktury.
 
-## Co robi wersja 0.3.0
+## Co robi wersja 0.3.1
 
 | Sytuacja | Zachowanie |
 |---|---|
@@ -45,7 +45,7 @@ Rytuały, które od tej wersji działają bez proszenia:
   „sprawdź status" / „status check".
 - **Ustawienia globalne** — `~/.claude/relai/USTAWIENIA.md` dziedziczone przez nowe projekty; wpis
   projektowy ma pierwszeństwo.
-- **Plany (nowe w 0.3.0)** — „przygotuj plan…" w zwykłej rozmowie tworzy `docs/plany/<TEMAT>/PLAN.md`
+- **Plany (nowe w 0.3.1)** — „przygotuj plan…" w zwykłej rozmowie tworzy `docs/plany/<TEMAT>/PLAN.md`
   (warianty z powodami odrzucenia, ryzyka, etapy z widocznym efektem, przypadki brzegowe) razem
   ze `STATUS.md` i linią „Aktywny plan" w `CLAUDE.md`. Drobne zadanie dostaje miniplan w dzienniku.
   O rodzaj, format i model wykonawczy etapów RelAI pyta **raz** — potem bierze odpowiedź z ustawień.

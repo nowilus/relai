@@ -45,7 +45,7 @@ projektu jest w `docs/USTAWIENIA.md`.
 Plik jest **regenerowany**, nie edytowany ręcznie. Wyjątkiem są wiersze oznaczone jako lokalne —
 te przeżywają regenerację (D-62: lokalne nadpisania mają pierwszeństwo).
 
-## Zakres wersji 0.3.0 (E3) — co realnie działa
+## Zakres wersji 0.3.1 (E3) — co realnie działa
 
 Komend `/relai-*` w tej wersji **nadal nie ma** — dochodzą w kolejnych. Działa:
 
@@ -60,15 +60,15 @@ Komend `/relai-*` w tej wersji **nadal nie ma** — dochodzą w kolejnych. Dzia�
 - dziedziczenie preferencji globalnych między projektami,
 - trzy frazy rytualne (poniżej) w wariancie polskim i angielskim,
 - naturalne prośby: „dodaj RelAI", „dołącz strukturę RelAI",
-- **planowanie (nowe w 0.3.0):** prośba o plan w zwykłej rozmowie → `docs/plany/<TEMAT>/PLAN.md`
+- **planowanie (nowe w 0.3.1):** prośba o plan w zwykłej rozmowie → `docs/plany/<TEMAT>/PLAN.md`
   + `STATUS.md` + linia „Aktywny plan" w `CLAUDE.md`; drobne zadanie → miniplan w dzienniku;
   jedno pytanie o rodzaj, format i model wykonawczy etapów (potem brane z ustawień); zamrożenie
   planu po akceptacji i zmiany wyłącznie datowanymi aneksami; zamknięcie planu z archiwizacją.
 
-Czego w 0.3.0 **nie** ma po stronie planowania: promptów etapowych `PROMPT_ETAP_N`, komendy
+Czego w 0.3.1 **nie** ma po stronie planowania: promptów etapowych `PROMPT_ETAP_N`, komendy
 `/relai-stage` i interaktywnego szablonu HTML planów — plany powstają w Markdown.
 
-Wygenerowany `KOMENDY.md` w wersji 0.3.0 **nadal nie zawiera tabeli komend** — zawiera sekcję
+Wygenerowany `KOMENDY.md` w wersji 0.3.1 **nadal nie zawiera tabeli komend** — zawiera sekcję
 „Komend jeszcze nie ma" oraz **tabelę fraz naturalnych**:
 
 | Fraza (PL / EN) | Co się stanie |
@@ -86,19 +86,19 @@ Wygenerowany `KOMENDY.md` w wersji 0.3.0 **nadal nie zawiera tabeli komend** —
 - Nie dopisujesz fraz spoza listy działających w danej wersji.
 - Nie opisujesz mechaniki wewnętrznej (skille, hooki) — użytkownika interesuje efekt.
 
-## Przykład dla wersji 0.3.0 (projekt polski)
+## Przykład dla wersji 0.3.1 (projekt polski)
 
 ```markdown
 # KOMENDY — Parkly
 
-RelAI 0.3.0
+RelAI 0.3.1
 
 Nic z tej listy nie jest obowiązkowe. RelAI działa w zwykłej rozmowie — piszesz normalnie,
 a struktura projektu nadąża. Komendy są skrótem do rzadszych operacji.
 
 ## Komend jeszcze nie ma
 
-Wersja 0.3.0 to rdzeń dokumentacyjny i planowanie. Komendy `/relai-*` dochodzą w kolejnych wersjach.
+Wersja 0.3.1 to rdzeń dokumentacyjny i planowanie. Komendy `/relai-*` dochodzą w kolejnych wersjach.
 
 ## Frazy, które działają
 
