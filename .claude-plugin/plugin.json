@@ -1,0 +1,22 @@
+{
+  "name": "relai",
+  "version": "0.1.0",
+  "description": "Your project remembers everything — documentation-first process framework for Claude Code",
+  "author": {
+    "name": "nowilus",
+    "url": "https://github.com/nowilus"
+  },
+  "homepage": "https://github.com/nowilus/relai",
+  "repository": "https://github.com/nowilus/relai",
+  "keywords": [
+    "documentation",
+    "process",
+    "project-memory",
+    "planning",
+    "workflow",
+    "onboarding"
+  ],
+  "skills": [
+    "./skills/"
+  ]
+}

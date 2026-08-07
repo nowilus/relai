@@ -1,0 +1,29 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "relai",
+  "owner": {
+    "name": "nowilus",
+    "url": "https://github.com/nowilus"
+  },
+  "metadata": {
+    "description": "RelAI — your project remembers everything. Documentation-first process framework for Claude Code."
+  },
+  "plugins": [
+    {
+      "name": "relai",
+      "source": "./",
+      "version": "0.1.0",
+      "description": "Your project remembers everything — documentation-first process framework for Claude Code",
+      "category": "productivity",
+      "homepage": "https://github.com/nowilus/relai",
+      "repository": "https://github.com/nowilus/relai",
+      "keywords": [
+        "documentation",
+        "process",
+        "project-memory",
+        "planning",
+        "workflow"
+      ]
+    }
+  ]
+}

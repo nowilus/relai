@@ -1,0 +1,16 @@
+# Sekrety — nigdy w repo (D-42)
+.env
+.env.*
+!.env.example
+*.key
+*.pem
+klucze.txt
+client_secret*.json
+
+# Runtime / systemowe
+node_modules/
+.DS_Store
+Thumbs.db
+
+# Lokalne backupy i archiwa robocze
+*.zip
