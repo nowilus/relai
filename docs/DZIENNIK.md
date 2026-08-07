@@ -5,7 +5,7 @@
 | # | Ryzyko | Poziom | Status | Mitygacja |
 |---|---|---|---|---|
 | R1 | Scope creep jak w vibe-forge (GUI, enterprise-szablony) | Wysoki | OTWARTE | D-80: twarda lista „poza v1"; każdy pomysł spoza listy → DZIENNIK „świadomie odłożone" |
-| R2 | Auto-wyzwalanie skilli bywa zawodne (agent nie zastosuje zasad bez komendy) | Wysoki | OTWARTE | Podwójna warstwa: opisy skilli + reguły w projektowym CLAUDE.md zawsze w kontekście; testy fraz w pilotażu. **2026-08-07 (E1):** `relai-core` zainstalowany i widoczny w inwentarzu pluginu, ale samo auto-wyzwolenie w świeżej sesji NIEZWERYFIKOWANE. **2026-08-07 (E2):** test NIEWYKONANY — plugin odinstalowany na czas budowy na polecenie użytkownika (L-0004), więc skill nie miał prawa się wyzwolić; pomiar przeniesiony do pilotażu E10, po docelowej instalacji. Ryzyko pozostaje OTWARTE i niezmierzone przez dwa etapy (L-0005) |
+| R2 | Auto-wyzwalanie skilli bywa zawodne (agent nie zastosuje zasad bez komendy) | Wysoki | OTWARTE | Podwójna warstwa: opisy skilli + reguły w projektowym CLAUDE.md zawsze w kontekście; testy fraz w pilotażu. **2026-08-07 (E1):** `relai-core` zainstalowany i widoczny w inwentarzu pluginu, ale samo auto-wyzwolenie w świeżej sesji NIEZWERYFIKOWANE. **2026-08-07 (E2):** test NIEWYKONANY — plugin odinstalowany na czas budowy na polecenie użytkownika (L-0004), więc skill nie miał prawa się wyzwolić; pomiar przeniesiony do pilotażu E10, po docelowej instalacji. Ryzyko pozostaje OTWARTE i niezmierzone przez dwa etapy (L-0005). **2026-08-07 (E3):** nadal niezmierzone — doszedł drugi skill (`relai-planning`) wyzwalany frazą, więc zakres ryzyka wzrósł. Warunek pomiaru (plugin zainstalowany z aktualnej wersji, świeża sesja, prompt bez komendy — osobno dla `relai-core` i `relai-planning`) zapisany w wierszu E10 tabeli etapów `STATUS.md`, żeby trafił do promptu E10 przy jego generacji (L-0005) |
 | R3 | Adopcja uszkodzi żywy projekt użytkownika | Wysoki | OTWARTE | D-70: backup+raport+recovery obowiązkowe; scenariusz akceptacyjny z pełnym testem recovery |
 | R4 | Hooki Node na Windows (ścieżki ze spacjami, kodowanie PL) | Średni | OTWARTE | Test na ścieżce ze spacją i polskimi znakami w E5; brak zależności poza Node wbudowanym w Claude Code |
 | R5 | Dokumenty puchną i zjadają kontekst | Średni | OTWARTE | D-14/D-15: rotacja DZIENNIKA, kompresja LEKCJI, destylaty czytane na starcie |
@@ -123,4 +123,103 @@ Autor: RelAI (Opus) + Lukasz
 
 **Do zrobienia przez człowieka:**
 - Zgodność `docs/DECYZJE.md` tego repo ze świeżą `SPEC_DECYZJE.md`: **rejestr jest zgodny co do zasady i grup tematycznych**, różni się trzema rzeczami — (1) wpisy nie mają dat indywidualnych, tylko zbiorczą informację w nagłówku („wywiad 2026-08-07"), (2) część wpisów nie ma jawnego powodu, (3) zmiana D-38 jest odnotowana w treści wpisu zamiast w sekcji „Decyzje zmienione". Decyzja, czy migrować rejestr do nowego formatu (~90 wpisów), czy zostawić jako historyczny — należy do Łukasza.
-- Uruchomić E3: świeża sesja Claude Code w folderze `RelAI`, model **Opus**, polecenie: „Wykonaj docs/plany/BUDOWA_RELAI/PROMPT_ETAP_3.md".
+- Uruchomić E3: świeża sesja Claude Code w folderze `RelAI`, model **Opus**, polecenie: „Wykonaj docs/plany/BUDOWA_RELAI/PROMPT_ETAP_3.md". *(zrobione 2026-08-07 — patrz kolejny wpis)*
+
+### 2026-08-07 — E3: planowanie RelAI 0.3.0
+
+Autor: RelAI (Opus) + Lukasz
+
+**Zrobione:**
+- **Skill `relai-planning`** ([SKILL.md](../skills/relai-planning/SKILL.md)): opis EN z polskimi
+  frazami wyzwalającymi; **wykrycie intencji planowania** z jawnymi kryteriami po obu stronach
+  (sygnały „to jest plan" i cztery klasy fałszywych wyzwoleń, z „zaplanuj mi spotkanie" wprost);
+  kryterium rozstrzygające przy wątpliwości — „czy odpowiedzią ma być dokument, czy zmiana w repo";
+  **próg PLAN/MINIPLAN** podany liczbowo i oznaczony jako SZACUNEK (≥2 sesje, ≥3 etapy, >5 plików,
+  ≥2 realne warianty, obszar wrażliwy); **jedno pytanie startowe** (rodzaj / format / model
+  wykonawczy) w jednym wywołaniu AskUserQuestion, poprzedzone odczytem `USTAWIENIA.md` i warstwy
+  globalnej, z zapisem preferencji natychmiast po odpowiedzi; **zamrożenie po akceptacji**
+  z aneksami A, B, C… i jawnym rozgraniczeniem aneks vs odchylenie fundamentalne (status CZĘŚCIOWO
+  + nowy plan z linkiem); **zamknięcie planu** jako siedmiokrokowa sekwencja (D-36); zasada jednej
+  linii aktywnego planu przy wielu planach; siedem twardych zakazów.
+- **`templates/SPEC_PLAN.md`** — dziesięć sekcji w stałej kolejności (streszczenie, cele i nie-cele,
+  stan wyjściowy, warianty z jawnym werdyktem i powodem odrzucenia, rozwiązanie, etapy z szacunkiem
+  i efektem widocznym, ryzyka z poziomem i mitygacją, przypadki brzegowe rozstrzygnięte, lista dla
+  człowieka, aneksy), obowiązkowe etykiety FAKT/SZACUNEK, kompletny przykład planu płatności.
+- **`templates/SPEC_STATUS.md`** — linia metryczna z linkiem do planu, statusem i **modelem
+  wykonawczym zapisanym dosłownie tak, jak odpowiedział użytkownik**; pięć statusów planu i pięć
+  statusów etapu; reguła „dokładnie jeden etap GOTOWY DO STARTU"; kolumna `Prompt` z jawnym `—`
+  dopóki prompty etapowe nie działają (L-0002); dziennik wdrożenia append-only; przykład.
+- **MINIPLAN jako sekcja `SPEC_DZIENNIK.md`**, nie osobna specyfikacja. Uzasadnienie: dokument,
+  w którym miniplan mieszka, to dziennik, a jego strukturę opisuje jedna specyfikacja — dziewiąty
+  plik `SPEC_MINIPLAN.md` opisywałby wariant wpisu w oderwaniu od dokumentu i rozjeżdżałby się z nim
+  przy każdej zmianie. Sekcja podaje trzy pola (cel / kroki / weryfikacja), dopisek `— MINIPLAN`
+  w nagłówku, zasadę „jedyny wpis pisany przed pracą" i przykład.
+- **Spójność z `relai-core`:** skill rdzeniowy dostał jawny podział ról („planowanie należy do
+  `relai-planning`") i wersję 0.3.0 w markerze generowanych `USTAWIENIA.md`. `SPEC_CLAUDE_MD.md`:
+  linia aktywnego planu doprecyzowana — dokładnie jedna, format `Aktywny plan: [<TEMAT>](…/STATUS.md)`,
+  link do STATUS a nie do PLAN, `Aktywny plan: brak` zamiast usuwania linii.
+- **`SPEC_KOMENDY.md` 0.3.0:** dopisane realne zachowania planistyczne i czwarta fraza naturalna
+  („przygotuj plan…"), z jawnym wyliczeniem, czego w tej wersji nie ma (prompty etapowe,
+  `/relai-stage`, szablon HTML). Przykład wygenerowanego `KOMENDY.md` podbity do 0.3.0.
+- **Wersja 0.3.0** w `plugin.json`, `marketplace.json`, README pluginu, `SPEC_KOMENDY.md`,
+  `SPEC_USTAWIENIA.md` i w markerze `docs/USTAWIENIA.md` tego repo.
+
+**Zweryfikowane — jak dokładnie:**
+- `claude plugin validate .claude-plugin/plugin.json` → „Validation passed with warnings", jedno
+  znane ostrzeżenie o root `CLAUDE.md` (świadome, L-0003); `marketplace.json --strict` → „Validation
+  passed". `grep` po `0.2.0` w repo: cztery trafienia, wszystkie historyczne i celowe (wpis o E2
+  w `CLAUDE.md`, zdanie o projektach sprzed 0.2.0 w skillu, zdanie o komplecie ośmiu dokumentów
+  od 0.2.0 w `templates/README.md`).
+- **Ścieżka ze spacją i polskim znakiem:** cały cykl w `C:\Users\Lukasz\Desktop\Próba RelAI E3\sklepik`
+  (projekt „Sklepik", profil app) — bez błędów kodowania i ścieżek.
+- **Test planu z naturalnego prompta:** „przygotuj plan dodania logowania" bez żadnej komendy →
+  powstały `docs/plany/LOGOWANIE/PLAN.md` (trzy warianty z powodami odrzucenia, trzy etapy,
+  cztery ryzyka, pięć przypadków brzegowych, dwie decyzje dla człowieka) i `STATUS.md`;
+  `CLAUDE.md` dostał linię `Aktywny plan: [LOGOWANIE](…)` i ma 48 linii (limit 60); przed generacją
+  padło **jedno** pytanie o rodzaj/format/model — jego treść zapisana jako dowód testowy.
+- **Test negatywny:** „zaplanuj mi spotkanie na jutro" → żadnego pliku; `grep -ril "spotkani"` po
+  projekcie testowym nie zwrócił nic.
+- **Test MINIPLAN-u:** „dodaj numer wersji do stopki" → wpis `— MINIPLAN` w dzienniku z celem,
+  trzema krokami i weryfikacją; w `docs/plany/` **nie** powstał żaden folder.
+- **Test utrwalonej preferencji:** druga prośba o plan („powiadomienia mailowe") → **zero pytań**;
+  format i model wzięte z `USTAWIENIA.md`, co odnotowano w dzienniku wdrożenia planu.
+- **Test zamrożenia:** po akceptacji planu LOGOWANIE prośba „dorzućmy wylogowanie ze wszystkich
+  urządzeń" → **Aneks A z datą** w sekcji 10. Dowód, że sekcje merytoryczne są nietknięte: wiersz E3
+  w sekcji 6 nadal mówi „SZACUNEK 1 sesja", a przypadek brzegowy o dwóch urządzeniach ma dokładnie
+  pierwotne brzmienie; nowy szacunek 1–2 sesji żyje wyłącznie w treści aneksu.
+- **Dogfooding (D-82) — `PLAN.html` vs `SPEC_PLAN.md`:** plan budowy powstał przed specyfikacją
+  i różni się od niej czterema rzeczami. (1) Ma **13 sekcji zamiast 10** — dochodzą „Architektura
+  pluginu", „Struktura projektu użytkownika" i „Rejestr decyzji (skrót)", właściwe dla planu
+  budującego narzędzie, nie dla planu funkcji. (2) **Nie ma osobnej sekcji „Stan wyjściowy"** — jej
+  rolę pełni kontekst w streszczeniu, a nie-cele mieszkają w osobnej sekcji 11 („Czego świadomie NIE
+  budujemy w v1") zamiast razem z celami. (3) **Warianty są kartami, nie tabelą**, ale każdy odrzucony
+  ma jawny powód poprzedzony słowem „Powód:" — wymóg specyfikacji jest spełniony w innej formie.
+  (4) Etapy mają dodatkowo **sekcję „Weryfikacja"**, której specyfikacja nie wymaga — to element
+  lepszy od wzorca; kandydat do dopisania do `SPEC_PLAN.md`, świadomie nie dopisany teraz, żeby nie
+  rozszerzać zakresu etapu. Zamrożonego planu **nie przepisywano** (D-33).
+- **Dogfooding — `STATUS.md` planu budowy vs `SPEC_STATUS.md`:** zgodny w całości (linia metryczna
+  z linkiem, datą, statusem i modelem wykonawczym; tabela `Etap | Nazwa | Status | Prompt | Uwagi`;
+  dziennik wdrożenia append na końcu). Jedyna różnica: kolumna `Prompt` zawiera realne linki do
+  `PROMPT_ETAP_N.md`, bo w tym planie prompty etapowe pisane są ręcznie od E1 — specyfikacja
+  przewiduje `—` do czasu, aż zadziała ich automatyczna generacja.
+- Foldery testowe usunięte (`Próba RelAI E3` nie istnieje); usunięty także testowy
+  `~/.claude/relai/` — maszyna została w stanie sprzed testu (L-0004).
+- **Nie sprawdzono:** czy skill `relai-planning` sam się wyzwoli na prompcie „przygotuj plan…"
+  w świeżej sesji — plugin jest odinstalowany, procedura odtworzona ręcznie (R2, L-0004);
+  realnej interakcji `AskUserQuestion` — treść i liczba pytań zweryfikowane na zapisie, ale
+  odpowiedzi nie udzielił człowiek; zachowania przy planie prowadzonym przez model inny niż Opus.
+
+**Świadomie odłożone:**
+- Prompty etapowe `PROMPT_ETAP_N`, komenda `/relai-stage`, lazy-generacja i siatka dogenerowująca
+  — E4; kolumna `Prompt` w `STATUS.md` do tego czasu trzyma `—`.
+- Interaktywny szablon HTML planów — E6; plany powstają w Markdown, a preferencja „HTML" jest
+  zapisywana i honorowana dopiero wtedy.
+- Sekcja „Weryfikacja" w etapach `SPEC_PLAN.md` (patrz dogfooding) — poza zakresem E3.
+- Migracja `docs/DECYZJE.md` tego repo do formatu `SPEC_DECYZJE.md` — nadal czeka na decyzję
+  Łukasza (wpis z E2).
+
+**Do zrobienia przez człowieka:**
+- Uruchomić E4: świeża sesja Claude Code w folderze `RelAI`, model **Opus**, polecenie: „Wykonaj
+  docs/plany/BUDOWA_RELAI/PROMPT_ETAP_4.md".
+- Rozstrzygnąć, czy sekcja „Weryfikacja" ma wejść do wzorca etapu w `SPEC_PLAN.md` (dogfooding
+  pokazał, że plan budowy ją ma i że jest przydatna).

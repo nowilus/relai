@@ -16,6 +16,13 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
 5. Zanim opiszesz zachowanie agenta w skillu, sprawdź, czy da się je zweryfikować z wnętrza sesji
    wykonującej etap; jeśli nie — zaplanuj weryfikację tam, gdzie jest możliwa, zamiast deklarować
    ją jako wykonaną. (L-0005)
+6. „Pytanie przy każdym planie" znaczy „pytanie raz na projekt": zanim zapytasz, sprawdź
+   `USTAWIENIA.md` i warstwę globalną, a gdy próg rozstrzyga jednoznacznie — nie pytaj wcale,
+   tylko powiedz, co przyjąłeś. (L-0006)
+7. Test zamrożenia (i każdy inny test „czegoś nie wolno") wymaga dowodu negatywnego: pokaż, że
+   chroniony fragment ma nadal pierwotne brzmienie, nie tylko że nowy wpis powstał. (L-0007)
+8. Po podbiciu wersji pluginu przepuść repo `grep`-em po starym numerze i rozstrzygnij **każde**
+   trafienie: historyczne zostaje, aktualne się zmienia. (L-0008)
 
 ## Lekcje
 
@@ -66,3 +73,35 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
   który musi być spełniony, żeby dała się wykonać; jeśli warunku nie da się zapewnić, przenieś
   weryfikację tam, gdzie się da.
 - **Źródło:** przegląd zamykający etap E2 (nie korekta użytkownika).
+
+### L-0006 — „Przy każdym planie" wzięte dosłownie · 2026-08-07 · AKTYWNA
+
+- **Trigger:** pierwsza wersja skilla `relai-planning` zadawała pytanie o rodzaj planu zawsze,
+  także wtedy, gdy próg PLAN/MINIPLAN rozstrzygał sprawę jednoznacznie, a format i model były już
+  w `USTAWIENIA.md`.
+- **Przyczyna:** decyzja D-39 mówi „przed powstaniem każdego planu RelAI pyta" — zapis odczytany
+  dosłownie, bez zestawienia z D-22 („zapytaj RAZ, zapisz, respektuj").
+- **Zasada:** pytanie startowe planu pada raz na projekt, nie raz na plan. Przed pytaniem czytasz
+  `USTAWIENIA.md` i warstwę globalną; gdy nie zostaje nic do zapytania, generujesz plan i mówisz
+  jednym zdaniem, co przyjąłeś i skąd.
+- **Źródło:** przegląd przy teście utrwalonej preferencji, etap E3 (nie korekta użytkownika).
+
+### L-0007 — Test zakazu bez dowodu negatywnego · 2026-08-07 · AKTYWNA
+
+- **Trigger:** test zamrożenia planu początkowo sprawdzał tylko, czy powstał aneks — a to nie
+  dowodzi, że sekcje planu pozostały nietknięte.
+- **Przyczyna:** mylenie „nowy artefakt istnieje" z „stary artefakt się nie zmienił". Pierwsze jest
+  łatwe do sprawdzenia i dlatego kuszące.
+- **Zasada:** test zachowania typu „tego nie wolno ruszać" musi pokazać pierwotne brzmienie
+  chronionego fragmentu po operacji, obok dowodu, że zmiana wylądowała tam, gdzie miała.
+- **Źródło:** przegląd zamykający etap E3 (nie korekta użytkownika).
+
+### L-0008 — Numer wersji żyjący w sześciu miejscach · 2026-08-07 · AKTYWNA
+
+- **Trigger:** podbicie 0.2.0 → 0.3.0 objęło manifesty, README i `SPEC_KOMENDY.md`, ale numer
+  w przykładzie wewnątrz `SPEC_USTAWIENIA.md` został stary — wyłapany dopiero `grep`-em.
+- **Przyczyna:** wersja występuje też w przykładach i w zdaniach historycznych, więc lista „miejsc
+  do zmiany" prowadzona z pamięci zawsze będzie niepełna.
+- **Zasada:** po podbiciu wersji uruchamiasz `grep` po starym numerze w całym repo i rozstrzygasz
+  każde trafienie osobno — historyczne zostaje (i wiesz dlaczego), aktualne się zmienia.
+- **Źródło:** przegląd zamykający etap E3 (nie korekta użytkownika).

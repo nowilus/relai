@@ -21,7 +21,8 @@ Czytaj w kolejności, nie skanuj pełnotekstowo repo:
 | Master plan budowy | **ZAAKCEPTOWANY 2026-08-07** (Aneks A) | docs/plany/BUDOWA_RELAI/PLAN.html |
 | E1 — fundament pluginu (wersja 0.1.0) | **ZREALIZOWANY 2026-08-07** | `.claude-plugin/`, `skills/relai-core/`, `templates/` |
 | E2 — rdzeń dokumentacyjny (wersja 0.2.0) | **ZREALIZOWANY 2026-08-07** | `skills/relai-core/SKILL.md`, `templates/SPEC_{LEKCJE,DECYZJE}.md` |
-| Implementacja (E3–E10) | E3 GOTOWY DO STARTU | docs/plany/BUDOWA_RELAI/PROMPT_ETAP_3.md |
+| E3 — planowanie (wersja 0.3.0) | **ZREALIZOWANY 2026-08-07** | `skills/relai-planning/SKILL.md`, `templates/SPEC_{PLAN,STATUS}.md` |
+| Implementacja (E4–E10) | E4 GOTOWY DO STARTU | docs/plany/BUDOWA_RELAI/PROMPT_ETAP_4.md |
 
 ## Reguły procesu
 

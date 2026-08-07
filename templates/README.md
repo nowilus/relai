@@ -20,8 +20,21 @@ zasobów pluginu.
 | [SPEC_KOMENDY.md](SPEC_KOMENDY.md) | `docs/KOMENDY.md` | regenerowany ze stanu faktycznego pluginu |
 
 Osiem dokumentów powyżej (`CLAUDE.md`, `README.md` + sześć plików w `docs/`) to komplet generowany
-przy inicjalizacji projektu od wersji 0.2.0. Specyfikacje `ARCHITEKTURA`, `DESIGN` oraz szablon HTML
-planów dochodzą w kolejnych wersjach pluginu.
+przy inicjalizacji projektu od wersji 0.2.0.
+
+Dwie kolejne specyfikacje opisują dokumenty, które **nie** powstają przy inicjalizacji — pojawiają
+się dopiero z pierwszym planem (D-11: podfolderów nie tworzy się na zapas):
+
+| Specyfikacja | Generuje | Polityka |
+|---|---|---|
+| [SPEC_PLAN.md](SPEC_PLAN.md) | `docs/plany/<TEMAT>/PLAN.md` | zamrożony po akceptacji; zmiany wyłącznie datowanymi aneksami |
+| [SPEC_STATUS.md](SPEC_STATUS.md) | `docs/plany/<TEMAT>/STATUS.md` | jedyne miejsce z postępem etapów; dziennik wdrożenia append na końcu |
+
+MINIPLAN (D-31) nie ma własnej specyfikacji — jest wpisem w dzienniku i opisuje go
+[SPEC_DZIENNIK.md](SPEC_DZIENNIK.md), sekcja „Wpis typu MINIPLAN".
+
+Specyfikacje `ARCHITEKTURA`, `DESIGN` oraz szablon HTML planów dochodzą w kolejnych wersjach
+pluginu.
 
 Trzy rejestry mają rozłączne role i nie wolno ich mieszać (D-15): `LEKCJE` — korekty zachowania
 agenta; `DECYZJE` — rozstrzygnięcia w projekcie, których się nie otwiera ponownie; `USTAWIENIA` —

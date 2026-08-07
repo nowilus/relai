@@ -31,8 +31,11 @@ i `DZIENNIK.md`.
    tego wymaga; w regułach procesu zostaje sama zasada „decyzji stamtąd się nie proponuje ponownie".
 3. **Stan prac** — tabela `Co | Status | Gdzie` z maksymalnie pięcioma wierszami najwyższego
    poziomu. Szczegóły są w `STATE.md`; tu tylko drogowskazy.
-4. **Aktywny plan** — dokładnie jedna linia z linkiem do `docs/plany/<TEMAT>/STATUS.md` albo
-   informacja, że aktywnego planu nie ma (D-30).
+4. **Aktywny plan** — dokładnie **jedna** linia w formacie `Aktywny plan: [<TEMAT>](docs/plany/<TEMAT>/STATUS.md)`,
+   umieszczona zaraz pod tabelą „Stan prac" (D-30). Link prowadzi do `STATUS.md`, nie do `PLAN.md` —
+   status jest tym, co się zmienia. Planów może być kilka, ale aktywny wskazujesz jeden; pozostałe
+   są widoczne w `STATE.md`. Brak planu → linia `Aktywny plan: brak`. Linia nie znika nigdy — jej
+   brak jest nieodróżnialny od zapomnienia o aktualizacji.
 5. **Reguły procesu** — 4–8 punktów, wyłącznie takie, których złamanie realnie boli. Domyślny
    zestaw: język dokumentacji / kodu / commitów (z ustawień projektu); zakaz sekretów w plikach
    śledzonych; definicja ukończenia (punkt 6); zasada „decyzje zamrożone się nie wracają"; sposób

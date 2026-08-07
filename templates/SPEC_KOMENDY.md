@@ -45,7 +45,7 @@ projektu jest w `docs/USTAWIENIA.md`.
 Plik jest **regenerowany**, nie edytowany ręcznie. Wyjątkiem są wiersze oznaczone jako lokalne —
 te przeżywają regenerację (D-62: lokalne nadpisania mają pierwszeństwo).
 
-## Zakres wersji 0.2.0 (E2) — co realnie działa
+## Zakres wersji 0.3.0 (E3) — co realnie działa
 
 Komend `/relai-*` w tej wersji **nadal nie ma** — dochodzą w kolejnych. Działa:
 
@@ -59,16 +59,24 @@ Komend `/relai-*` w tej wersji **nadal nie ma** — dochodzą w kolejnych. Dzia�
 - rejestr decyzji: propozycja zamrożenia powracającego tematu, przechwytywanie fraz zamykających,
 - dziedziczenie preferencji globalnych między projektami,
 - trzy frazy rytualne (poniżej) w wariancie polskim i angielskim,
-- naturalne prośby: „dodaj RelAI", „dołącz strukturę RelAI".
+- naturalne prośby: „dodaj RelAI", „dołącz strukturę RelAI",
+- **planowanie (nowe w 0.3.0):** prośba o plan w zwykłej rozmowie → `docs/plany/<TEMAT>/PLAN.md`
+  + `STATUS.md` + linia „Aktywny plan" w `CLAUDE.md`; drobne zadanie → miniplan w dzienniku;
+  jedno pytanie o rodzaj, format i model wykonawczy etapów (potem brane z ustawień); zamrożenie
+  planu po akceptacji i zmiany wyłącznie datowanymi aneksami; zamknięcie planu z archiwizacją.
 
-Wygenerowany `KOMENDY.md` w wersji 0.2.0 **nadal nie zawiera tabeli komend** — zawiera sekcję
-„Komend jeszcze nie ma" oraz **tabelę fraz naturalnych** z trzema pozycjami:
+Czego w 0.3.0 **nie** ma po stronie planowania: promptów etapowych `PROMPT_ETAP_N`, komendy
+`/relai-stage` i interaktywnego szablonu HTML planów — plany powstają w Markdown.
+
+Wygenerowany `KOMENDY.md` w wersji 0.3.0 **nadal nie zawiera tabeli komend** — zawiera sekcję
+„Komend jeszcze nie ma" oraz **tabelę fraz naturalnych**:
 
 | Fraza (PL / EN) | Co się stanie |
 |---|---|
 | „kończymy na dziś" / „wrapping up" | rytuał zamknięcia: sync dokumentów, wpis w dzienniku, aktualizacja ryzyk, propozycja commita, podsumowanie |
 | „kontynuujemy pracę" / „let's continue" | odtworzenie kontekstu z dokumentów + akapit „gdzie jesteśmy" + propozycja najbliższego kroku |
 | „sprawdź status" / „status check" | raport: stan, plany i etapy, otwarte ryzyka, zaległości dokumentacyjne |
+| „przygotuj plan …" / „zaplanuj …" / „rozpisz to na etapy" / „make a plan" | plan w strukturze projektu: pełny PLAN z etapami albo miniplan w dzienniku — po jednym pytaniu o rodzaj, format i model |
 
 ## Zakazy
 
@@ -78,19 +86,19 @@ Wygenerowany `KOMENDY.md` w wersji 0.2.0 **nadal nie zawiera tabeli komend** —
 - Nie dopisujesz fraz spoza listy działających w danej wersji.
 - Nie opisujesz mechaniki wewnętrznej (skille, hooki) — użytkownika interesuje efekt.
 
-## Przykład dla wersji 0.2.0 (projekt polski)
+## Przykład dla wersji 0.3.0 (projekt polski)
 
 ```markdown
 # KOMENDY — Parkly
 
-RelAI 0.2.0
+RelAI 0.3.0
 
 Nic z tej listy nie jest obowiązkowe. RelAI działa w zwykłej rozmowie — piszesz normalnie,
 a struktura projektu nadąża. Komendy są skrótem do rzadszych operacji.
 
 ## Komend jeszcze nie ma
 
-Wersja 0.2.0 to rdzeń dokumentacyjny. Komendy `/relai-*` dochodzą w kolejnych wersjach.
+Wersja 0.3.0 to rdzeń dokumentacyjny i planowanie. Komendy `/relai-*` dochodzą w kolejnych wersjach.
 
 ## Frazy, które działają
 
@@ -99,6 +107,7 @@ Wersja 0.2.0 to rdzeń dokumentacyjny. Komendy `/relai-*` dochodzą w kolejnych 
 | „kończymy na dziś" / „wrapping up" | RelAI domyka dokumenty, zapisuje wpis w dzienniku, aktualizuje ryzyka, proponuje commit i podsumowuje sesję |
 | „kontynuujemy pracę" / „let's continue" | RelAI odtwarza kontekst z dokumentów, mówi, gdzie jesteśmy, i proponuje najbliższy krok |
 | „sprawdź status" / „status check" | krótki raport: stan projektu, plany i etapy, otwarte ryzyka, zaległości w dokumentach |
+| „przygotuj plan…" / „zaplanuj…" / „rozpisz to na etapy" | powstaje plan w `docs/plany/` z wariantami, ryzykami i etapami — albo krótki miniplan w dzienniku, jeśli zadanie jest drobne |
 | „dodaj RelAI" / „dołącz strukturę RelAI" | RelAI dołoży brakujące dokumenty, nie ruszając niczego, co już jest |
 
 ## Czego RelAI pilnuje bez proszenia
@@ -108,6 +117,9 @@ Wersja 0.2.0 to rdzeń dokumentacyjny. Komendy `/relai-*` dochodzą w kolejnych 
 - Po każdej Twojej korekcie zapisuje lekcję w `LEKCJE.md`; gdy ta sama uwaga wraca, proponuje wpisać
   ją na stałe do reguł projektu.
 - Gdy ten sam temat rozstrzygasz drugi raz tak samo, proponuje zamrozić to jako decyzję.
+- O format planów i model wykonawczy etapów pyta raz — potem bierze odpowiedź z ustawień.
+- Zaakceptowanego planu nie przepisuje: zmiana wchodzi jako datowany aneks, żeby było widać, co
+  uzgodniliście pierwotnie.
 - Nie nadpisuje i nie kasuje plików, których sam nie utworzył.
 - Nie zapisuje kluczy ani haseł w plikach trafiających do repozytorium.
 - Nie zakłada repozytorium gita wewnątrz innego repozytorium.

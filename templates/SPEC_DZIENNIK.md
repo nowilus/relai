@@ -49,6 +49,43 @@ informacja.
 **Linia autora:** `Autor: RelAI (<model>) + <użytkownik z git config>`. Podpis jest neutralny —
 bez persony i bez osobowości (D-63). Gdy git nie jest skonfigurowany, sam `RelAI (<model>)`.
 
+## Wpis typu MINIPLAN (D-31)
+
+Drobne zadanie, które warto rozpisać, ale które nie zasługuje na pełny plan, dostaje **miniplan** —
+i miniplan mieszka **tutaj**, jako wpis w dzienniku. Nie ma pliku `MINIPLAN.md`, nie ma folderu
+w `docs/plany/`, nie ma wpisu w `CLAUDE.md`. Kryteria wyboru PLAN vs MINIPLAN są w skillu
+`relai-planning`.
+
+Miniplan to jedyny wpis dziennika pisany **przed** pracą, nie po niej. Ma trzy sekcje zamiast
+czterech standardowych:
+
+- **Cel** — jedno zdanie: po czym poznamy, że zrobione.
+- **Kroki** — 2–5 pozycji w kolejności wykonania.
+- **Weryfikacja** — czym konkretnie sprawdzisz, że działa (nie „przetestuję").
+
+Nagłówek dostaje dopisek `— MINIPLAN`, żeby był rozpoznawalny przy przeglądaniu. Po wykonaniu pracy
+**nie edytujesz** miniplanu — dopisujesz osobny, zwykły wpis wynikowy (dziennik jest append-only).
+Zadanie, które w trakcie przerosło swój miniplan, kończy się wpisem mówiącym o tym wprost i
+propozycją pełnego planu.
+
+**Przykład wpisu typu MINIPLAN:**
+
+```markdown
+### 2026-08-09 — Eksport listy rezerwacji do CSV — MINIPLAN
+
+Autor: RelAI (Opus) + Łukasz
+
+**Cel:** administrator pobiera z panelu plik CSV z rezerwacjami z wybranego miesiąca.
+
+**Kroki:**
+1. Endpoint `GET /api/rezerwacje/eksport?miesiac=RRRR-MM` zwracający CSV.
+2. Przycisk „Eksportuj CSV" na liście rezerwacji, z wyborem miesiąca.
+3. Nagłówki kolumn po polsku, separator `;` (Excel PL).
+
+**Weryfikacja:** pobranie pliku za lipiec i otwarcie w Excelu — polskie znaki poprawne, liczba
+wierszy zgodna z licznikiem na liście.
+```
+
 ## Rotacja (D-14)
 
 Gdy plik przekracza **50 KB** albo kończy się kwartał (co nastąpi wcześniej):
