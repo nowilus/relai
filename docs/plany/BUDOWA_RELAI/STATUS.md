@@ -11,7 +11,7 @@ Plan: [PLAN.html](PLAN.html) • Utworzony: 2026-08-07 • Status planu: **ZAAKC
 | E3 | Planowanie (PLAN/MINIPLAN, folder-per-plan, STATUS) | OCZEKUJE | — | |
 | E4 | Prompty etapowe + /relai-stage + lazy-gen | OCZEKUJE | — | |
 | E5 | Hooki Node.js (8 szt.) | OCZEKUJE | — | |
-| E6 | Konkurs designu + szablon HTML + nadpisania lokalne | OCZEKUJE | — | wymaga sesji wyboru z Łukaszem |
+| E6 | Konkurs designu + szablon HTML + nadpisania lokalne | OCZEKUJE | — | propozycje: Opus; sesja wyboru i iteracja: Fable (D-85) |
 | E7 | Komendy operacyjne (backup, audit, changelog, handover, tour) | OCZEKUJE | — | |
 | E8 | Profile (app / agent-voice / flow / prompty) | OCZEKUJE | — | |
 | E9 | Adopcja (/relai-adopt) + /relai-update | OCZEKUJE | — | obszar szczególnej staranności (D-70) |

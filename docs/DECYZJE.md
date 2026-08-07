@@ -47,7 +47,7 @@ Zasada: decyzji z tego rejestru **nie proponuje się ponownie**. Zmiana wymaga j
 - **D-36** Zamknięcie planu automatyczne: aktualizacja STATE, wpis zamykający (dowiezione vs plan), status ZREALIZOWANY, przeniesienie do archiwum, aktualizacja ryzyk.
 - **D-37** Fixy: drobne = wpis w DZIENNIKU; duże = pełna triada w `docs/fixy/<TEMAT>/`.
 - **D-38** *(zmienione Aneksem A)* Dobór modelu w CLAUDE.md projektu jako REKOMENDACJA-default (analiza/plany → najsilniejszy; wykonanie → tańszy; mechaniczne → najtańszy) — nie twarda reguła.
-- **D-39** *(Aneks A, 2026-08-07)* Przed powstaniem każdego planu RelAI pyta użytkownika, jakim modelem Claude mają być realizowane etapy; odpowiedź swobodna (może różnicować per etap), nic nie jest narzucane pod spodem. Preferencja utrwalana globalnie/projektowo (D-23). Wybrany model zapisany w STATUS planu i w treści promptów etapowych.
+- **D-39** *(Aneks A, 2026-08-07)* Przed powstaniem każdego planu RelAI pyta użytkownika, jakim modelem Claude mają być realizowane etapy; odpowiedź swobodna (może różnicować per etap), nic nie jest narzucane pod spodem. Pytanie zawiera REKOMENDACJĘ RelAI z uzasadnieniem (np. „złożone etapy: Opus, mechaniczne: Haiku") jako opcję domyślną. Preferencja utrwalana globalnie/projektowo (D-23). Wybrany model zapisany w STATUS planu i w treści promptów etapowych.
 
 ## Hooki, bezpieczeństwo, backup
 
@@ -85,4 +85,4 @@ Zasada: decyzji z tego rejestru **nie proponuje się ponownie**. Zmiana wymaga j
 - **D-82** Pełny dogfooding: repo RelAI prowadzi się wg własnych zasad od pierwszego dnia.
 - **D-83** Pilotaż: nowy mały projekt → adopcja JiraManagera. 4 obowiązkowe scenariusze akceptacyjne: pełny cykl nowego projektu; przekazanie+tour; backup+restore (z testem wykluczenia sekretów); adopcja z przetestowanym recovery.
 - **D-84** Budowa: architektura/plany — Fable; wykonanie etapów — w świeżych sesjach wg promptów etapowych.
-- **D-85** *(Aneks A, 2026-08-07)* Wykonawcą wszystkich etapów budowy RelAI jest **Opus** — maksymalna jakość dla produktu flagowego. Prompty etapowe E2+ pisze Opus w rytuale „Na koniec"; PROMPT_ETAP_1 — architekt.
+- **D-85** *(Aneks A, 2026-08-07)* Wykonawcą wszystkich etapów budowy RelAI jest **Opus** — maksymalna jakość dla produktu flagowego. Prompty etapowe E2+ pisze Opus w rytuale „Na koniec"; PROMPT_ETAP_1 — architekt. Wyjątek E6: propozycje designu generuje Opus, sesję wyboru i iterację finalnego szablonu prowadzi Fable (architekt).
