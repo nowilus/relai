@@ -22,7 +22,8 @@ Czytaj w kolejności, nie skanuj pełnotekstowo repo:
 | E1 — fundament pluginu (wersja 0.1.0) | **ZREALIZOWANY 2026-08-07** | `.claude-plugin/`, `skills/relai-core/`, `templates/` |
 | E2 — rdzeń dokumentacyjny (wersja 0.2.0) | **ZREALIZOWANY 2026-08-07** | `skills/relai-core/SKILL.md`, `templates/SPEC_{LEKCJE,DECYZJE}.md` |
 | E3 — planowanie (wersja 0.3.0) | **ZREALIZOWANY 2026-08-07** | `skills/relai-planning/SKILL.md`, `templates/SPEC_{PLAN,STATUS}.md` |
-| Implementacja (E4–E10) | E4 GOTOWY DO STARTU | docs/plany/BUDOWA_RELAI/PROMPT_ETAP_4.md |
+| E4 — prompty etapowe i `/relai-stage` (wersja 0.4.0) | **ZREALIZOWANY 2026-08-07** | `commands/relai-stage.md`, `templates/SPEC_PROMPT_ETAPU.md` |
+| Implementacja (E5–E10) | E5 GOTOWY DO STARTU | docs/plany/BUDOWA_RELAI/PROMPT_ETAP_5.md |
 
 ## Reguły procesu
 

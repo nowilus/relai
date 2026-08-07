@@ -11,6 +11,7 @@
 | R5 | Dokumenty puchną i zjadają kontekst | Średni | OTWARTE | D-14/D-15: rotacja DZIENNIKA, kompresja LEKCJI, destylaty czytane na starcie |
 | R6 | Aktualizacja pluginu nadpisze lokalne nadpisania użytkowników | Średni | OTWARTE | D-72: diff + zgoda + pierwszeństwo lokalnych nadpisań; test w pilotażu |
 | R7 | Model wykonawczy (Sonnet/Opus) obniży jakość implementacji etapów | Średni | OTWARTE | Prompty etapowe z sekcją Weryfikacja + przegląd Fable po kluczowych etapach |
+| R8 | Sesja nie ma dostępu do katalogu pluginu — `templates/` ze specyfikacjami jest nieczytelny bez `--add-dir`, więc inicjalizacja projektu (D-60) zatrzymuje się na braku źródła | **Wysoki** | OTWARTE (nowe 2026-08-07, E4) | Doraźnie: rzeczy krytyczne wypisane w treści skilli (L-0011, L-0012) — zmierzone, działa dla promptów etapowych i `STATUS.md`. Systemowo: E5 razem z hookami i z rozwiązaniem tego samego problemu dla warstwy globalnej (L-0010). Do rozstrzygnięcia w E5, czy specyfikacje zostają plikami, czy przenoszą się do treści skilli |
 
 ## Wpisy
 
@@ -277,3 +278,126 @@ Autor: RelAI (Opus) + Lukasz
   `user`, wersja 0.3.1) — wpisane do `USTAWIENIA.md` jako stan bieżący. *(rozstrzygnięte 2026-08-07:
   „tak, niech zostanie zainstalowany" — plugin zostaje; poprzednie ustawienie przeniesione do sekcji
   „Ustawienia wycofane")*
+
+### 2026-08-07 — E4: prompty etapowe, `/relai-stage`, lazy-generacja — RelAI 0.4.0
+
+Autor: RelAI (Opus) + Lukasz
+
+**Zrobione:**
+- **`templates/SPEC_PROMPT_ETAPU.md`** — format `PROMPT_ETAP_N.md` jako specyfikacja: dziewięć
+  elementów w stałej kolejności (nagłówek, linia metryczna z „E N z M" i wykonawcą ze `STATUS.md`,
+  blok „Kontrola modelu", tabela „Co przeczytać na start", „Decyzje już podjęte — nie otwieraj",
+  „Stan wyjściowy" z drzewkiem plików i przepisanymi zasadami aktywnymi, zakres, **obowiązkowa
+  zawsze** Weryfikacja — D-25, rytuał „Na koniec"), trzy momenty generacji lazy, zakazy, kompletny
+  przykład (L-0001). Wzorzec wzięty z istniejących `PROMPT_ETAP_1…4`, nie wymyślony od nowa.
+- **`commands/relai-stage.md`** — pierwsza działająca komenda i pierwszy plik w nowym folderze
+  `commands/` pluginu. Sześć kroków: guard markera → wybór planu (argument / linia aktywnego planu /
+  jedyny niezamknięty / pytanie przy wielu) → wybór etapu z rozstrzygnięciem dla każdego z pięciu
+  statusów → dogenerowanie brakującego promptu → **karta potwierdzenia i zatrzymanie** →
+  wykonanie → sekwencja zamknięcia planu po ostatnim etapie. Kryteria rekomendacji subagenta podane
+  liczbowo i oznaczone jako SZACUNEK (≤3 pliki, ≤5 punktów weryfikacji, zero decyzji projektowych,
+  ≤0,5 sesji, poza sekretami i migracjami); rekomendacja jest zdaniem w karcie, nigdy odpaleniem.
+- **Rytuał „Na koniec" etapu** dopisany do `relai-planning` (nie do specyfikacji promptu —
+  uzasadnienie niżej): `STATUS.md` → dziennik + lekcje + ryzyka → dokumenty projektu →
+  **generacja `PROMPT_ETAP_N+1`** → commit. `PROMPT_ETAP_1` powstaje przy akceptacji planu.
+- **Siatka dogenerowująca** w `relai-core` jako ostatni krok rytuału startu sesji: etap
+  `GOTOWY DO STARTU` bez promptu → zauważenie **przed** akapitem „gdzie jesteśmy" i propozycja;
+  bez zgody nic nie powstaje. Hook `session-context` jawnie zapowiedziany jako E5, nie obiecany.
+- **`SPEC_STATUS.md`** — kolumna `Prompt` przestała być `—`: zawiera link, gdy prompt istnieje,
+  a `—` przy etapach `OCZEKUJE`; dopisana reguła, że fałszywy link wyłącza siatkę, oraz wiersz
+  polityki dla etapu rozpoczętego (`W TOKU`). **`SPEC_KOMENDY.md`** — zakres 0.4.0 z pierwszą
+  tabelą komend; sekcja „Komend jeszcze nie ma" zniknęła (L-0002).
+- **Wersja 0.4.0** w obu manifestach (+ pole `commands`), README pluginu, `SPEC_KOMENDY.md`,
+  `SPEC_USTAWIENIA.md`, obu skillach i markerze `docs/USTAWIENIA.md` tego repo.
+
+**Zweryfikowane — jak dokładnie:**
+- `claude plugin validate .claude-plugin/plugin.json` → „Validation passed with warnings", jedno
+  znane ostrzeżenie o root `CLAUDE.md` (L-0003); `marketplace.json --strict` → „Validation passed".
+  `claude plugin details relai@relai` po instalacji → wersja **0.4.0**, inwentarz: `relai-core`,
+  `relai-planning`, **`relai-stage`**. `grep` po `0.3.0`/`0.3.1`: trzy trafienia poza `docs/`,
+  wszystkie historyczne („od 0.3.0", „od 0.3.1") — zostają (L-0008).
+- **Metoda:** jedenaście świeżych sesji `claude -p … --output-format stream-json`, wszystkie
+  w `C:\Users\Lukasz\Desktop\Próba RelAI E4(b)\…` — ścieżka ze spacją i polskim znakiem. Po każdej
+  poprawce skilla: push → `marketplace update` → reinstalacja (L-0004).
+- **Plan i akceptacja:** „przygotuj plan dodania logowania uzytkownikow" bez komendy → `relai-core`
+  + `relai-planning`, powstały `PLAN.md` i `STATUS.md`, **zero pytań** (format i model z ustawień —
+  L-0006), `PROMPT_ETAP_1.md` **nie** powstał. Akceptacja → `ZAAKCEPTOWANY`, Aneks A, E1
+  `GOTOWY DO STARTU`, `PROMPT_ETAP_1.md` wygenerowany, link w kolumnie `Prompt`.
+- **Potwierdzenie i dowód negatywny (L-0007):** `/relai-stage` bez argumentów → karta z planem,
+  „E1 z E5", modelem (z porównaniem do modelu sesji), streszczeniem zakresu, liczbą punktów
+  weryfikacji i oceną kryteriów subagenta („nie rekomenduję — ~12 plików"), zakończona pytaniem.
+  Suma kontrolna wszystkich plików projektu przed i po: **zmienił się dokładnie jeden** —
+  `STATUS.md` (link do dogenerowanego promptu, zapowiedziany osobnym zdaniem). Status etapu
+  **pozostał `GOTOWY DO STARTU`**, nie `W TOKU`.
+- **Siatka:** po usunięciu `PROMPT_ETAP_1.md` neutralny prompt „kontynuujemy prace" → sesja
+  otworzyła odpowiedź zdaniem „Luka: etap E1 ma status GOTOWY DO STARTU, ale PROMPT_ETAP_1.md nie
+  istnieje… Wygenerować go teraz?" i **nic nie zapisała** (zero `Write`/`Edit`, sumy kontrolne bez
+  zmian).
+- **Etap przerwany:** etap w `W TOKU` → `/relai-stage` wypisał, co zostało (ostatnia linia dziennika
+  wdrożenia, ostatni wpis dziennika, tabela pięciu punktów weryfikacji **przeliczonych na nowo
+  z repo**, nie z pamięci), zapytał „dokończyć czy zacząć od nowa" i nie tknął żadnego pliku.
+- **Lazy-generacja:** zamknięcie etapu E1 planu testowego → `STATUS.md`: E1 `ZREALIZOWANY`,
+  E2 `GOTOWY DO STARTU` z linkiem, dwie linie w dzienniku wdrożenia; powstał `PROMPT_ETAP_2.md`;
+  wpis w dzienniku i nowa lekcja w `LEKCJE.md` projektu testowego.
+- **Zamknięcie planu (D-36):** ostatni etap → status planu `ZREALIZOWANY`, folder planu
+  **przeniesiony** do `docs/archiwum/plany/`, `STATE.md` nadpisany, wpis „dowiezione vs plan",
+  `Aktywny plan: brak` w `CLAUDE.md`, **brak** zbędnego `PROMPT_ETAP_N+1`. Osiągnięte dopiero
+  za czwartym podejściem — trzy pierwsze ujawniły defekty opisane niżej.
+- **Etap nie zamyka się na niepełnej weryfikacji:** dwie sesje zatrzymały się przy punktach
+  wymagających `node` (sandbox odmówił) i zostawiły etap w `W TOKU` z gotową komendą dla człowieka,
+  zamiast podmienić dowód uruchomieniowy na statyczny. To zachowanie **nie było wymuszone
+  promptem** — wynika z zakazu w komendzie.
+- **Inicjalizacja na 0.4.0:** świeży pusty folder → osiem dokumentów, marker `Wersja RelAI: 0.4.0`,
+  `KOMENDY.md` z tabelą komend zawierającą `/relai-stage`. **Wymagało `--add-dir` na katalog
+  pluginu** — patrz R8.
+- **Pięć defektów znalezionych i poprawionych w trakcie etapu** (każdy zmierzony ponownie po
+  poprawce): (1) generowany prompt miał własny układ zamiast układu ze specyfikacji → dziewięć
+  sekcji wypisanych w skillu, po poprawce układ zgodny (L-0011); (2) komenda kazała uzupełnić
+  `STATUS.md` w kroku 3 i zakazywała tego w kroku 4 → jawny, nazwany wyjątek; (3) zamknięcie planu
+  zostawiało linię aktywnego planu wskazującą na archiwum → warunek końcowy stanu zamiast
+  preferencji (L-0013); (4) komenda wywołana wprost nie ładowała `relai-planning`, a bez niego
+  sekwencja D-36 wychodziła niepełna → jawne polecenie wczytania skilla (L-0015); (5) reguła
+  „bierz plan z linii aktywnego planu" zawodziła, gdy linia była nieaktualna → rozjazd z `STATE.md`
+  i dziennikiem traktowany jako niejednoznaczność.
+- **Dogfooding (D-82) — `PROMPT_ETAP_1…4` vs świeża `SPEC_PROMPT_ETAPU.md`:** prompty **E2, E3
+  i E4 są zgodne w dziewięciu elementach na dziewięć** — specyfikacja opisuje wzorzec, który
+  realnie działał, a nie nowy pomysł. Różnice: (a) **E1** ma w linii metrycznej „architekt: Fable"
+  zamiast „autor: <model>, w rytuale »Na koniec«" i nie zawiera przepisanych zasad aktywnych ani
+  drzewka plików — bo w chwili jego powstania nie istniało ani repo, ani `LEKCJE.md`; specyfikacja
+  tego przypadku (pierwszy prompt w pustym projekcie) **nie opisuje**. (b) **E2** ma dodatkową
+  sekcję **przed** „Co przeczytać na start" — „Zanim zrobisz cokolwiek innego: test ryzyka R2";
+  to element lepszy od wzorca (etap, który musi coś zmierzyć, zanim zacznie czytać), **świadomie
+  nie dopisany** do specyfikacji, żeby nie rozszerzać zakresu etapu. Istniejących promptów nie
+  przepisywano.
+- **Nie sprawdzono:** zachowania `/relai-stage` w sesji **interaktywnej** — wszystkie pomiary
+  w trybie `-p`, w którym `AskUserQuestion` jest niedostępne, więc wariant „więcej niż jeden plan →
+  pytanie" wykonał się jako pytanie w tekście, nie jako realne narzędzie; powtarzalności (jeden
+  przebieg na wariant); rekomendacji subagenta w wariancie pozytywnym (żaden etap testowy nie
+  spełnił wszystkich pięciu kryteriów naraz — progi pozostają SZACUNKIEM niezweryfikowanym
+  empirycznie); zachowania przy planie prowadzonym przez model inny niż Opus.
+
+**Świadomie odłożone:**
+- **Osobny skill `relai-stages`** przewidziany w sekcji 5.1 planu — **nie powstał**. Treść, która
+  miała tam trafić (prompty etapowe, lazy-generacja, rytuał „Na koniec"), to trzy sekcje ściśle
+  zależne od `STATUS.md` i zamknięcia planu, czyli od rzeczy, które już mieszkają
+  w `relai-planning`. Trzeci skill oznaczałby trzeci opis do wygrania w konkurencji wyzwalania
+  (R2, L-0009) i stałe ryzyko rozjazdu z `relai-planning`. Sekcja 5.1 planu jest szkicem struktury
+  repo, nie zakresem etapu — decyzja zapisana tutaj zamiast jako aneks. **Do potwierdzenia przez
+  człowieka**, jeśli uzna to za odejście od planu.
+- Hook `session-context` jako druga warstwa siatki — E5; w 0.4.0 siatka działa wyłącznie wtedy,
+  gdy `relai-core` się wyzwoli.
+- Systemowe rozwiązanie dostępu do `templates/` i do warstwy globalnej — E5 (R8, L-0010, L-0012).
+- Dopisanie do `SPEC_PROMPT_ETAPU.md` wzorca „sekcja przed czytaniem" (z E2) i wariantu pierwszego
+  promptu w pustym projekcie (z E1) — poza zakresem E4.
+- Sekcja „Weryfikacja" w etapach `SPEC_PLAN.md` — nadal czeka na decyzję z wpisu o E3.
+- Migracja `docs/DECYZJE.md` tego repo do formatu `SPEC_DECYZJE.md` — nadal czeka.
+
+**Do zrobienia przez człowieka:**
+- **Potwierdzić rezygnację z osobnego skilla `relai-stages`** (sekcja 5.1 planu) — albo polecić
+  jego wydzielenie jako aneks do planu.
+- **Rozstrzygnąć kierunek dla R8** przed E5: czy specyfikacje zostają plikami w `templates/`
+  (wtedy potrzebny mechanizm dostępu — hook, `--add-dir` w instrukcji instalacji albo kopiowanie
+  do projektu przy inicjalizacji), czy treść krytyczna przenosi się do skilli, a `templates/`
+  zostaje materiałem referencyjnym. To dotyka D-60, więc decyzja należy do człowieka.
+- Uruchomić E5: świeża sesja Claude Code w folderze `RelAI`, model **Opus**, polecenie: „Wykonaj
+  docs/plany/BUDOWA_RELAI/PROMPT_ETAP_5.md".

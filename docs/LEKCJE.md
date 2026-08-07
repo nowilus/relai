@@ -30,6 +30,18 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
 10. Skill nie może zakładać dostępu do plików spoza katalogu roboczego. Warstwa globalna
     `~/.claude/relai/` jest niewidoczna dla sesji uruchomionej w projekcie — przewiduj brak dostępu
     i mów o tym wprost zamiast milcząco pomijać dziedziczenie. (L-0010)
+11. Odesłanie do pliku specyfikacji **nie wystarcza**: struktura, której naprawdę wymagasz, musi
+    być wypisana w treści skilla. Zmierzone: prompt etapowy generowany z samego odsyłacza miał
+    własny układ; po wypisaniu dziewięciu sekcji w skillu — układ zgodny. (L-0011)
+12. Katalog pluginu (`templates/`) jest dla sesji **niedostępny** tak samo jak katalog domowy.
+    Każdy mechanizm, który musi coś stamtąd przeczytać, wymaga zapasowej ścieżki w treści skilla —
+    inaczej staje. (L-0012)
+13. „Zapytam człowieka" nie zwalnia z posprzątania po sobie: pytanie o wybór jest w porządku,
+    zostawienie po sobie martwego linku nie. Zawsze istnieje poprawna wartość tymczasowa. (L-0013)
+14. Krok rytuału wykonuj w repozytorium **zanim** napiszesz zdanie, które go opisuje. Dziennik
+    mówiący o zrobionej rzeczy, której nie zrobiono, jest gorszy niż brak wpisu. (L-0014)
+15. Komenda wywołana wprost **nie ładuje** skilla, do którego się odwołuje. Potrzebną procedurę
+    albo wpisujesz do komendy, albo każesz jej jawnie wczytać skill. (L-0015)
 
 ## Lekcje
 
@@ -143,3 +155,69 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
   o tym jednym zdaniem i działa dalej na wartościach projektowych. Mechanizm dziedziczenia wymaga
   rozwiązania systemowego (hook albo jawna zgoda na katalog) — do rozstrzygnięcia w E5.
 - **Źródło:** pomiar R2, etap E3 (2026-08-07).
+
+### L-0011 — Odsyłacz do specyfikacji zamiast specyfikacji · 2026-08-07 · AKTYWNA
+
+- **Trigger:** `relai-planning` kazał generować `PROMPT_ETAP_N.md` „wg
+  `${CLAUDE_PLUGIN_ROOT}/templates/SPEC_PROMPT_ETAPU.md`". Pierwszy realnie wygenerowany prompt miał
+  treść merytorycznie dobrą i **własny układ dziesięciu sekcji** — bez linii metrycznej z numerem
+  etapu, bez bloku „Kontrola modelu", bez tabeli „Co przeczytać na start".
+- **Przyczyna:** sesja nie otwarła pliku specyfikacji (patrz L-0012) i wypełniła lukę zdrowym
+  rozsądkiem. Zdrowy rozsądek daje dobry dokument o innym kształcie — a kształt jest tu funkcją:
+  świeża sesja szuka konkretnych sekcji w konkretnej kolejności.
+- **Zasada:** to, czego naprawdę wymagasz, wypisujesz **w treści skilla**, a odsyłacz do
+  specyfikacji zostaje jako źródło szczegółów. Sam odsyłacz jest życzeniem.
+- **Źródło:** pomiar w etapie E4 (2026-08-07). Przed poprawką układ niezgodny w 9 elementach na 9;
+  po wypisaniu dziewięciu sekcji w skillu — zgodny w 9 na 9.
+
+### L-0012 — Katalog pluginu niedostępny dla sesji · 2026-08-07 · AKTYWNA
+
+- **Trigger:** inicjalizacja projektu w świeżym pustym folderze **zatrzymała się**: sesja napisała
+  „blocked: `…/plugins/cache/relai/relai/0.4.0/templates/*`" i odmówiła generowania ośmiu dokumentów
+  z pamięci. Po `claude --add-dir <katalog pluginu>` ta sama inicjalizacja przeszła w całości.
+- **Przyczyna:** D-60 zakłada, że specyfikacje mieszkają w `templates/` pluginu i są czytane
+  w czasie pracy. Sesja uruchomiona w projekcie nie ma prawa czytać niczego spoza katalogu
+  roboczego — dotyczy to katalogu pluginu tak samo jak katalogu domowego (L-0010).
+- **Zasada:** żaden krok obowiązkowy nie może zależeć wyłącznie od odczytu pliku z katalogu
+  pluginu. Rzeczy krytyczne mieszkają w treści skilla; `templates/` zostaje źródłem szczegółów
+  i przykładów. Rozwiązanie systemowe — E5, razem z hookami.
+- **Źródło:** test inicjalizacji w etapie E4 (2026-08-07). Ryzyko R8.
+
+### L-0013 — Pytanie zamiast posprzątania · 2026-08-07 · AKTYWNA
+
+- **Trigger:** sekwencja zamknięcia planu (D-36) przeniosła folder planu do archiwum, a linię
+  „Aktywny plan" w `CLAUDE.md` zostawiła wskazującą na przeniesiony folder — z adnotacją „nie
+  wybieram za Ciebie, to martwy link". Pierwsza poprawka („jest jeden inny plan → wpisz go") tego
+  nie zmieniła: sesja nadal wolała zapytać.
+- **Przyczyna:** reguła „decyzje należą do człowieka" bierze górę nad wszystkim, także wtedy, gdy
+  skutkiem jest zostawienie projektu w stanie niespójnym. Model traktuje pytanie jako bezpieczne
+  domyślnie — a nie jest, gdy koszt czekania ponosi plik.
+- **Zasada:** wskaż **warunek końcowy stanu**, nie tylko preferowany wybór: „kiedy kończysz turę,
+  linia wskazuje istniejący plik albo brzmi »brak«". Wtedy pytanie o następcę zostaje dozwolone,
+  a martwy link — nie. Zawsze podaj poprawną wartość tymczasową.
+- **Źródło:** dwa kolejne pomiary w etapie E4 (2026-08-07); dopiero sformułowanie warunku końcowego
+  dało wynik zgodny z D-36.
+
+### L-0014 — Wpis o kroku, którego nie wykonano · 2026-08-07 · AKTYWNA
+
+- **Trigger:** sesja zamykająca plan napisała w dzienniku „folder przeniesiony do archiwum",
+  podczas gdy tabela etapów stała jeszcze na `W TOKU`, a `docs/archiwum/` nie istniało. Wyłapała to
+  dopiero następna sesja, sprawdzając stan repo zamiast ufać wpisowi.
+- **Przyczyna:** rytuał opisany jako lista kroków kusi, by opisać całą listę jednym wpisem, zanim
+  wykona się jej koniec.
+- **Zasada:** najpierw zmiana w repozytorium, potem zdanie, które ją opisuje. Dziennik jest
+  dokumentem, któremu następna sesja ufa bezwarunkowo — zdanie napisane na zapas jest fałszem
+  z odroczonym skutkiem.
+- **Źródło:** przebieg testowy zamknięcia planu w etapie E4 (2026-08-07).
+
+### L-0015 — Komenda nie ładuje skilla, do którego odsyła · 2026-08-07 · AKTYWNA
+
+- **Trigger:** `/relai-stage` odsyłał do sekcji „Zamknięcie planu" w `relai-planning`. W trzech
+  przebiegach, w których transkrypt **nie zawiera wywołania `Skill`**, zamknięcie planu wyszło
+  niepełne; w przebiegach, w których `relai-planning` się załadował — pełne.
+- **Przyczyna:** wywołanie komendy wprost wczytuje wyłącznie treść komendy. Odesłanie „patrz skill
+  X" nie jest instrukcją wykonawczą dla środowiska — jest notatką dla czytelnika.
+- **Zasada:** procedurę potrzebną komendzie albo wpisujesz do niej, albo każesz jej **jawnie
+  wczytać skill** (narzędzie `Skill`) jako pierwszy krok tej części pracy.
+- **Źródło:** pomiary w etapie E4 (2026-08-07); po dopisaniu jawnego wczytania — sekwencja D-36
+  pełna, ze skillem widocznym w transkrypcie.

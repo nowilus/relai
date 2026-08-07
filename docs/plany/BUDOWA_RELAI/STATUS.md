@@ -9,8 +9,8 @@ Plan: [PLAN.html](PLAN.html) • Utworzony: 2026-08-07 • Status planu: **ZAAKC
 | E1 | Fundament repo pluginu + inicjalizacja projektu | **ZREALIZOWANY 2026-08-07** | [PROMPT_ETAP_1.md](PROMPT_ETAP_1.md) | plugin 0.1.0: manifest + marketplace + skill `relai-core` + 6 specyfikacji |
 | E2 | Rdzeń dokumentacyjny (specyfikacje dokumentów + rytuały) | **ZREALIZOWANY 2026-08-07** | [PROMPT_ETAP_2.md](PROMPT_ETAP_2.md) | plugin 0.2.0: SPEC_LEKCJE + SPEC_DECYZJE, rytuały sesji, 3 frazy, ustawienia globalne |
 | E3 | Planowanie (PLAN/MINIPLAN, folder-per-plan, STATUS) | **ZREALIZOWANY 2026-08-07** | [PROMPT_ETAP_3.md](PROMPT_ETAP_3.md) | plugin 0.3.0: skill `relai-planning`, SPEC_PLAN + SPEC_STATUS, MINIPLAN w SPEC_DZIENNIK |
-| E4 | Prompty etapowe + /relai-stage + lazy-gen | **GOTOWY DO STARTU** | [PROMPT_ETAP_4.md](PROMPT_ETAP_4.md) | świeża sesja na Opusie |
-| E5 | Hooki Node.js (8 szt.) | OCZEKUJE | — | **Dwa zadania dopisane po pomiarze R2 (2026-08-07):** (1) `session-context` ma wymuszać rytuał startu niezależnie od tego, czy skill się wyzwolił — to właściwa mitygacja R2, nie kolejna zmiana opisu; (2) rozwiązać dostęp do warstwy globalnej `~/.claude/relai/` (L-0010) — sesja w projekcie nie ma prawa czytać plików spoza katalogu roboczego |
+| E4 | Prompty etapowe + /relai-stage + lazy-gen | **ZREALIZOWANY 2026-08-07** | [PROMPT_ETAP_4.md](PROMPT_ETAP_4.md) | plugin 0.4.0: `SPEC_PROMPT_ETAPU`, komenda `/relai-stage`, rytuał „Na koniec" z lazy-generacją, siatka w `relai-core` |
+| E5 | Hooki Node.js (8 szt.) | **GOTOWY DO STARTU** | [PROMPT_ETAP_5.md](PROMPT_ETAP_5.md) | **Trzy zadania dopisane po pomiarach:** (1) `session-context` ma wymuszać rytuał startu niezależnie od tego, czy skill się wyzwolił — właściwa mitygacja R2 (2026-08-07, pomiar R2); (2) rozwiązać dostęp do warstwy globalnej `~/.claude/relai/` (L-0010); (3) **nowe (2026-08-07, E4):** rozwiązać dostęp sesji do `templates/` w katalogu pluginu — bez `--add-dir` inicjalizacja projektu nie ma z czego generować (R8, L-0012) |
 | E6 | Konkurs designu + szablon HTML + nadpisania lokalne | OCZEKUJE | — | propozycje: Opus; sesja wyboru i iteracja: Fable (D-85) |
 | E7 | Komendy operacyjne (backup, audit, changelog, handover, tour) | OCZEKUJE | — | |
 | E8 | Profile (app / agent-voice / flow / prompty) | OCZEKUJE | — | |
@@ -33,3 +33,11 @@ Plan: [PLAN.html](PLAN.html) • Utworzony: 2026-08-07 • Status planu: **ZAAKC
   0.3.0 → 1/4 wyzwoleń skilla; po poprawce opisów (**0.3.1**) → 2/2. Ryzyko R2 obniżone do
   średniego, nadal otwarte. Ujawniony defekt warstwy globalnej (dostęp poza katalogiem roboczym) —
   L-0010, do rozwiązania w E5.
+- 2026-08-07 — **E4 ZREALIZOWANY** (Opus). Plugin RelAI 0.4.0: `templates/SPEC_PROMPT_ETAPU.md`,
+  pierwsza działająca komenda `commands/relai-stage.md`, rytuał „Na koniec" etapu z lazy-generacją
+  promptu N+1 w `relai-planning`, siatka dogenerowująca w `relai-core`, kolumna `Prompt`
+  w `SPEC_STATUS` z realnym linkiem, `SPEC_KOMENDY` z tabelą komend. Jedenaście świeżych sesji
+  pomiarowych na ścieżce ze spacją i polskim znakiem; pięć defektów znalezionych i poprawionych
+  w trakcie (układ promptu, sprzeczność zakazu zapisu, martwy link po zamknięciu planu, brak
+  wczytania skilla przez komendę, nieaktualna linia aktywnego planu). Nowe ryzyko **R8**: sesja
+  nie ma dostępu do `templates/` pluginu. Wygenerowano PROMPT_ETAP_5.
