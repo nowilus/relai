@@ -564,3 +564,88 @@ provisioningu, wersja 0.6.0) należy do **Fable** i nie została rozpoczęta. Et
 - Rozstrzygnąć, czy wybrany kierunek ma trafić także do **warstwy globalnej**
   `~/.claude/relai/USTAWIENIA.md` (kierunek designu jest preferencją ponadprojektową, D-23),
   czy zostać wyłącznie w tym projekcie.
+
+### 2026-08-08 — E6 faza 1, runda 2: konkurs powtórzony po odrzuceniu wszystkich propozycji
+
+Autor: RelAI (Opus) + Lukasz
+
+**Korekta użytkownika, od której zaczyna się ten wpis:** żadna z pięciu propozycji rundy 1 nie
+spodobała się. Cytat rozstrzygający: „może zbyt rygorystycznie podszedłem do stwierdzenia no
+ai-slop". Kierunki 2–5 odrzucone **na stałe**, kierunek 1 (Redakcja) zachowany jako baza do
+przebudowy.
+
+**Zrobione:**
+- **Lekcja L-0019** — lista zakazów to filtr końcowy, nie brief. Runda 1 przeszła całą kontrolę
+  mechaniczną i nie trafiła w gust, bo optymalizowała pod zakazy zamiast pod cechy pożądane.
+  Zasada aktywna nr 19: przy zadaniu wizualnym najpierw zbierz cechy pozytywne, a serię wariantów
+  poprzedź jednym wariantem kalibrującym.
+- **Zmiana decyzji D-61 → D-61a** (sekcja „Decyzje zmienione" w `DECYZJE.md`, założona teraz):
+  zaokrąglenia, **lekki** glassmorphism, animacja służebna, typografia ozdobna i dekoracyjne SVG
+  są **dozwolone**; zostają zakazy fioletu i glow, przesytu emoji, generycznych fraz i stocków.
+  **D-61b**: cztery odrzucone kierunki nie wracają jako warianty ani inspiracje.
+- **Wywiad przed pracą** (trzy pytania, `AskUserQuestion`): fonty osadzone w base64; baza
+  mieszana — trzy jasne, dwie ciemne; ruch „wyraźny, ale służebny". Odpowiedzi zapisane
+  w `USTAWIENIA.md` razem z opisem gustu.
+- **Fonty** (`docs/zasoby/fonts/` + `LICENCJE.md`): Fraunces, Instrument Sans, Hanken Grotesk
+  i JetBrains Mono znalezione lokalnie w pakietach `@fontsource*` innych projektów; **Caveat
+  i Kalam pobrane z fonts.gstatic.com za wyraźną zgodą użytkownika** (obie na SIL OFL, więc wolno
+  je osadzać i rozsyłać). Kroje systemowe Microsoftu **świadomie nieosadzone** — licencja tego
+  zabrania; mogą wystąpić tylko jako nazwa w `font-family`.
+- **Runda 1 przeniesiona** do `docs/zasoby/design-konkurs/runda-1/` (`git mv`, historia zachowana).
+  README konkursu przepisany: brief rundy 2 z cechami pożądanymi, zakazy które zostały, opis
+  porażki rundy 1.
+- **Pięć nowych propozycji** w `runda-2/`, każda z innym mechanizmem zwijania sekcji:
+  1. **Zeszyt** (jasna) — przebudowana Redakcja: Fraunces z osią WONK i Caveat, karteczki
+     na marginesie z lekkim obrotem, ręcznie rysowane podkreślenia i strzałki w SVG, uchwyt
+     zwijania obracany o 135°.
+  2. **Studio nocne** (ciemna) — szklane panele na rozmytych plamach mięty i bursztynu,
+     Fraunces w kursywie, przełącznik pigułkowy jako mechanizm zwijania.
+  3. **Tablica warsztatowa** (jasna) — kartki przypięte pinezkami, taśma klejąca, Kalam
+     jako krój prowadzący, sekcje lekko obrócone, treść rozwija się z perspektywą `rotateX`.
+  4. **Mapa podróży** (jasna) — kręta ścieżka SVG w lewym marginesie **rysowana wraz
+     z przewijaniem**, sekcje jako przystanki z numerowanymi kołami, treść wyrasta jak dymek.
+  5. **Przepis** (ciemna) — ciepły węgiel z miedzią i oliwką, Kalam w nagłówkach, składniki
+     odhaczane checkboxem, który wypełnia się przy rozwijaniu.
+- Wszystkie pięć: animowany punkt świetlny na diagramie przepływu (`animateMotion`), płynne
+  liczniki, aktywna sekcja podświetlana w pasku (`IntersectionObserver`), ten sam symulator
+  na dziewięciu wejściach.
+
+**Zweryfikowane — jak dokładnie:**
+- **Kontrola mechaniczna 5/5 PASS** (17 testów na plik): zero `http(s)` w `src`/`href`/`url()`;
+  4–6 fontów osadzonych jako `data:font/woff2;base64` i **zero niepodmienionych znaczników**;
+  **dowód negatywny na fiolet** — 12–48 barw heksadecymalnych na plik przeliczonych na HSL, zero
+  w zakresie 250–330° przy nasyceniu >25%; **emoji 0 przy progu 0**; komplet sekcji `s1…s10`;
+  6–29 elementów `<svg>`; 9 pól symulatora; etykiety FAKT/SZACUNEK; 8 bloków zwijalnych
+  na `aria-expanded`; `prefers-reduced-motion` w każdym pliku. Dodatkowo test **cech wymaganych**
+  briefem: glassmorphism 2–6 reguł, 18–23 zaokrąglenia, 12–15 elementów ruchu na plik.
+- **Na żywo w przeglądarce, wszystkie pięć:** `document.fonts.ready` potwierdza status `loaded`
+  dla obu rodzin w każdym pliku (Fraunces+Caveat, Fraunces+JetBrains, Kalam+Hanken,
+  Instrument+Caveat, Kalam+JetBrains). Symulator: 320 → 640 rezerwacji zmienia obrót na 54 400 zł,
+  bilans na +406 zł i zwrot na 16,6 mies.; powrót do 320 przywraca +563 zł. Wyzerowanie godzin
+  ręcznej pracy daje −157 zł i „nie zwraca się" zamiast dzielenia przez zero. Zwijanie:
+  `aria-expanded` przechodzi `true → false`. W propozycji 4 ścieżka SVG ma policzoną długość
+  1008 i realny `strokeDashoffset` zależny od przewinięcia.
+- **Defekt znaleziony i poprawiony w trakcie:** animowane liczniki oparte na
+  `requestAnimationFrame` **zatrzymywały się w połowie w karcie w tle** — wynik zostawał
+  nieaktualny, mimo że model policzył poprawnie. Poprawka we wszystkich pięciu plikach: skrót
+  przy `document.hidden` plus zabezpieczenie `setTimeout`, które i tak dopisuje wartość końcową.
+  Zmierzone ponownie po poprawce — wszystkie liczniki dochodzą do właściwej wartości.
+- **Responsywność:** wszystkie pięć przy 360 px — `scrollWidth` równy `clientWidth`, zero
+  poziomego przewijania strony.
+- **Waga plików:** 172–278 KB (fonty base64 to 60–75% tej wagi). Świadomy koszt osadzenia —
+  patrz „Świadomie odłożone".
+- **Nie sprawdzono:** wyglądu w innych silnikach niż ten w podglądzie i na realnym urządzeniu
+  mobilnym; wydruku; kontrastu zmierzonego narzędziem; odbioru przez człowieka — to jest faza 2.
+
+**Świadomie odłożone:**
+- **Podzbiór fontów tylko do użytych znaków** — brak narzędzia do subsettingu w tej sesji; pliki
+  ważą 172–278 KB zamiast możliwych ~80–120 KB. Do rozważenia przy finalnym szablonie, gdy będzie
+  wiadomo, który krój zostaje (ryzyko R5).
+- Cała faza 2: wybór 1–2 kierunków, iteracja, `templates/HTML_PLAN/`, `SPEC_PLAN_HTML.md`,
+  nadpisania lokalne (D-62), rozszerzenie provisioningu o pliki inne niż `*.md`, wersja 0.6.0.
+
+**Do zrobienia przez człowieka:**
+- **Obejrzeć pięć propozycji z `runda-2/` i wskazać 1–2 kierunki** do iteracji wraz z uwagami.
+  Bez tego etap E6 stoi.
+- Rozstrzygnąć, czy waga pliku rzędu 200–280 KB jest akceptowalna dla planu wysyłanego klientowi,
+  czy finalny szablon ma mieć okrojony podzbiór znaków.

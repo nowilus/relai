@@ -24,7 +24,7 @@ Czytaj w kolejności, nie skanuj pełnotekstowo repo:
 | E3 — planowanie (wersja 0.3.0) | **ZREALIZOWANY 2026-08-07** | `skills/relai-planning/SKILL.md`, `templates/SPEC_{PLAN,STATUS}.md` |
 | E4 — prompty etapowe i `/relai-stage` (wersja 0.4.0) | **ZREALIZOWANY 2026-08-07** | `commands/relai-stage.md`, `templates/SPEC_PROMPT_ETAPU.md` |
 | E5 — osiem hooków Node.js, zamknięcie R8 (wersja 0.5.0) | **ZREALIZOWANY 2026-08-07** | `hooks/`, `hooks/hooks.json` |
-| E6 — konkurs designu, szablon HTML, nadpisania lokalne | **W TOKU** — faza 1 (pięć propozycji, Opus) zrobiona 2026-08-07; faza 2 (wybór + finał) czeka na **Fable** | `docs/zasoby/design-konkurs/`, PROMPT_ETAP_6.md |
+| E6 — konkurs designu, szablon HTML, nadpisania lokalne | **W TOKU** — runda 1 odrzucona w całości (D-61b), runda 2 (pięć propozycji wg złagodzonego D-61a) gotowa 2026-08-08; wybór 1–2 i finał czekają na **Fable** | `docs/zasoby/design-konkurs/runda-2/`, PROMPT_ETAP_6.md |
 | Implementacja (E7–E10) | OCZEKUJE | docs/plany/BUDOWA_RELAI/STATUS.md |
 
 ## Reguły procesu

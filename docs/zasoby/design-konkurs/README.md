@@ -1,59 +1,79 @@
-# Konkurs designu szablonu HTML planów (E6, D-61)
+# Konkurs designu szablonu HTML planów (E6, D-61a)
 
-Zapisane **przed** generacją propozycji — ten plik jest punktem odniesienia dla weryfikacji etapu.
+Dwie rundy. Runda 1 przepadła w całości — jej wynik i powód porażki są tu zapisane, żeby nikt nie
+powtórzył tej drogi.
 
-## Treść testowa
+| Runda | Katalog | Wynik |
+|---|---|---|
+| 1 | [`runda-1/`](runda-1/) | **odrzucona w całości** 2026-08-07. Kierunki 2–5 (Terminal, Panel operacyjny, Rysunek techniczny, Plakat) odrzucone **na stałe** (D-61b). Kierunek 1 (Redakcja) zachowany jako baza. |
+| 2 | [`runda-2/`](runda-2/) | pięć nowych propozycji, czeka na wybór 1–2 |
 
-Wszystkie pięć propozycji renderuje **ten sam** plan: „Płatności online w Parkly" — kompletny
-przykład z `templates/SPEC_PLAN.md` (10 sekcji, 3 warianty, 4 etapy, 4 ryzyka, 5 przypadków
-brzegowych, 3 decyzje dla człowieka). Różni je wyłącznie warstwa wizualna i interakcyjna, nigdy
-treść — inaczej porównanie byłoby porównaniem tekstów, nie designów.
+## Czego nauczyła runda 1
 
-## Wymagania wspólne (każda propozycja)
+Wszystkie pięć propozycji przeszło komplet zakazów D-61 — zero fioletu, zero cieni, zero
+glassmorphismu, zero emoji, ostre rogi, brak animacji — i **żadna się nie spodobała**. Lista
+zakazów opisuje, czego unikać, i nie niesie żadnej informacji o tym, co ma cieszyć oko.
+Zapisane jako lekcja L-0019; skutkiem jest zmiana decyzji D-61 → **D-61a**.
+
+## Treść testowa (obie rundy)
+
+Wszystkie propozycje renderują **ten sam** plan: „Płatności online w Parkly" — kompletny przykład
+z `templates/SPEC_PLAN.md` (10 sekcji, 3 warianty, 4 etapy, 4 ryzyka, 5 przypadków brzegowych,
+3 decyzje dla człowieka). Różni je wyłącznie warstwa wizualna i interakcyjna — inaczej porównanie
+byłoby porównaniem tekstów, nie designów.
+
+## Brief rundy 2 (D-61a) — cechy pożądane
+
+Zapisane **przed** generacją, na podstawie uwag Łukasza po rundzie 1.
+
+| Cecha | Czego oczekujemy |
+|---|---|
+| Kształt | zaokrąglenia zamiast ostrych rogów; miękkie cienie dozwolone |
+| Szkło | **lekki** glassmorphism (`backdrop-filter`) w nieprzytłaczającej dawce |
+| Typografia | krój ozdobny — odręczny, kursywa albo monospace z charakterem; nie sam neutralny grotesk |
+| Ruch | animacja **służebna**: przepływ na diagramie, płynne rozwijanie, reakcja na najechanie, przeliczany licznik; nic nie rusza się w pętli bez powodu |
+| Tło | dekoracyjne SVG i miękkie plamy koloru |
+| Kolor | „luźniejsza" paleta, świadomie odsunięta od barw AGRO_HOME |
+| Zwijanie | każda propozycja ma **inny mechanizm** pokazywania i chowania sekcji |
+| Baza | trzy jasne, dwie ciemne — żeby wybór był świadomy |
+
+## Wymagania techniczne (obie rundy)
 
 | Wymóg | Kryterium sprawdzalne |
 |---|---|
-| Samowystarczalność | zero `http://` i `https://` w `src=`/`href=` poza kotwicami `#`; plik otwiera się z dysku bez internetu |
+| Samowystarczalność | zero `http://`/`https://` w `src=`, `href=` i `url()`; fonty jako `data:font/woff2;base64` |
 | Kompletna struktura | wszystkie 10 sekcji `SPEC_PLAN.md` w obowiązkowej kolejności |
-| Rozwijane sekcje | co najmniej trzy bloki zwijalne, działające bez myszy (klawiatura) |
+| Rozwijane sekcje | co najmniej pięć bloków na `<button aria-expanded>`, działających z klawiatury |
 | Diagram przepływu | inline SVG, sześć kroków z sekcji 5 |
 | Wykres | inline SVG; co najmniej jeden przeliczany na żywo z symulatora |
-| Działający symulator | zmiana dowolnego wejścia zmienia wynik natychmiast, bez przeładowania |
+| Działający symulator | dziewięć wejść; zmiana dowolnego zmienia wynik natychmiast |
 | Etykiety liczb | każda liczba merytoryczna z `FAKT` albo `SZACUNEK` (D-63) |
-| Responsywność | czytelne od 360 px do 1600 px; tabele nie rozpychają strony |
+| Responsywność | od 360 px do 1600 px bez poziomego przewijania strony |
+| Ruch wyłączalny | `@media (prefers-reduced-motion: reduce)` w każdym pliku |
 | Podpis | neutralny (RelAI + model + autor), bez persony (D-63) |
 
-## Zakazy twarde (D-61) — propozycja łamiąca odpada przed pokazaniem
+## Zakazy, które zostają po zmianie D-61a
 
-1. **Fioletowe gradienty i glow** — brak `linear-gradient`/`radial-gradient` oraz `box-shadow`
-   /`text-shadow` w barwach fioletu i fuksji (odcienie ~250–330° HSL o wysokim nasyceniu).
-2. **Glassmorphism** — brak `backdrop-filter` w jakiejkolwiek postaci.
-3. **Przeanimowanie** — animacje wyłącznie funkcjonalne (zmiana stanu, rozwinięcie, przeliczenie),
-   żadnej animacji dekoracyjnej w pętli; każda propozycja respektuje
-   `@media (prefers-reduced-motion: reduce)`.
-4. **Przesyt emoji** — **próg: 0 emoji** w treści renderowanej. Ikonografia wyłącznie jako inline
-   SVG albo znaki typograficzne (§, ×, →, ↳). Próg zerowy zamiast „umiarkowanego", bo jest
-   sprawdzalny mechanicznie i nie wymaga oceny, co jest jeszcze umiarem.
-5. **Generyczne frazy i stocki** — brak zdań typu „nowoczesne rozwiązanie", „przenieś swój biznes
-   na wyższy poziom"; zero grafik zastępczych i zero zdjęć.
+1. **Fioletowe gradienty i glow** — żaden kolor w pliku nie może mieć odcienia 250–330° HSL przy
+   nasyceniu powyżej 25%. Sprawdzane mechanicznie na wszystkich barwach heksadecymalnych.
+2. **Przesyt emoji** — próg **0**. Ikonografia wyłącznie jako inline SVG albo znaki typograficzne.
+3. **Generyczne frazy i stocki** — zero „nowoczesnych rozwiązań", zero grafik zastępczych.
 
-## Pięć kierunków (mają być skrajnie różne, nie wariacjami jednej palety)
+Zniesione względem D-61: zakaz zaokrągleń, glassmorphismu i animacji.
 
-| # | Kierunek | Skąd czerpie | Czym różni się od pozostałych |
-|---|---|---|---|
-| 1 | **Redakcja** | typografia książkowa, akt prawny, marginalia | jedna kolumna, szeryfy, brak kart i cieni, decyzje na marginesie |
-| 2 | **Terminal** | interfejs tekstowy, monospace, ramki znakowe | ciemne tło, siatka znaków, nawigacja klawiaturą, zero krzywizn |
-| 3 | **Panel operacyjny** | konsola administracyjna, gęste tabele | boczna nawigacja, kafle metryk, największa gęstość informacji |
-| 4 | **Rysunek techniczny** | dokumentacja konstrukcyjna, kalka, wymiarowanie | siatka milimetrowa, linie wymiarowe, opisy wyniesione na wynoski |
-| 5 | **Plakat** | szwajcarska typografia użytkowa, brutalizm | skrajna skala typografii, gruby kontur, asymetryczna siatka, jeden kolor sygnalny |
+## Fonty
 
-## Weryfikacja po generacji
+Osadzone w base64, licencje w [`../fonts/LICENCJE.md`](../fonts/LICENCJE.md). Kroje systemowe
+Microsoftu (Comic Sans MS, Segoe Script) mogą wystąpić tylko jako nazwa w `font-family` —
+osadzenie ich w rozsyłanym pliku łamie licencję.
 
-Skrypt kontrolny sprawdza mechanicznie: zewnętrzne zasoby, `backdrop-filter`, gradienty i cienie
-w barwach fioletu, liczbę emoji, obecność `<svg>`, obecność pól symulatora i etykiet FAKT/SZACUNEK.
-Symulator sprawdzany dodatkowo ręcznie w przeglądarce — obliczenie ma się zmieniać po zmianie
-wejścia.
+## Weryfikacja
+
+Skrypt kontrolny sprawdza mechanicznie: zasoby zewnętrzne, osadzenie fontów i brak niepodmienionych
+znaczników, barwy fioletowe, liczbę emoji, komplet sekcji, liczbę SVG, pola symulatora, etykiety,
+bloki zwijalne, `prefers-reduced-motion` oraz obecność cech wymaganych briefem (zaokrąglenia,
+glassmorphism, ruch). Symulatory i mechanizmy zwijania sprawdzane dodatkowo na żywo w przeglądarce.
 
 ---
 
-RelAI (Opus) + Lukasz · 2026-08-07
+RelAI (Opus) + Lukasz · runda 1: 2026-08-07 · runda 2: 2026-08-08

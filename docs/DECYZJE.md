@@ -68,7 +68,9 @@ Zasada: decyzji z tego rejestru **nie proponuje się ponownie**. Zmiana wymaga j
 ## Szablony i generacja
 
 - **D-60** Szablony dokumentów = **specyfikacje dla LLM** (struktura, zasady, przykłady) — dokumenty generowane w języku projektu. Dzięki temu projekt EN działa w v1 bez tłumaczenia zasobów; pełne EN pluginu (opisy komend, README) poza v1.
-- **D-61** Szablon HTML planów: nowy design od zera. Wybór przez **konkurs**: 5 skrajnie różnych propozycji na pełnych testowych HTML-ach (sekcje, tabele, ikony, diagram SVG, wykres, symulator) → wybór 1-2 → iteracja → finał. Zakazy twarde: fioletowe gradienty/glow, przesyt emoji, glassmorphism/przeanimowanie, generyczne frazy i stocki.
+- **D-61** *(ZMIENIONA 2026-08-07 — patrz D-61a i sekcja „Decyzje zmienione")* Szablon HTML planów: nowy design od zera. Wybór przez **konkurs**: 5 skrajnie różnych propozycji na pełnych testowych HTML-ach (sekcje, tabele, ikony, diagram SVG, wykres, symulator) → wybór 1-2 → iteracja → finał. Zakazy twarde: fioletowe gradienty/glow, przesyt emoji, glassmorphism/przeanimowanie, generyczne frazy i stocki.
+- **D-61a** *(2026-08-07, zastępuje listę zakazów z D-61)* Tryb konkursu bez zmian (5 propozycji → wybór 1–2 → iteracja → finał). **Zakazy złagodzone po pierwszej rundzie konkursu:** zaokrąglenia i glassmorphism są **dozwolone w lekkiej, nieprzytłaczającej formie**; animacja jest **pożądana**, o ile służy treści (przepływ, rozwijanie, przeliczanie) i respektuje `prefers-reduced-motion`; typografia ozdobna (odręczna, kursywa, monospace o charakterze) jest **pożądana**; kolorystyka ma być „luźniejsza", świadomie odsunięta od palety AGRO_HOME; dekoracyjne SVG w tle dozwolone. **Zakazy, które zostają:** fioletowe gradienty i glow, przesyt emoji, generyczne frazy i stocki. **Powód:** pierwsza runda konkursu spełniła wszystkie zakazy D-61 i nie spodobała się w żadnej z pięciu propozycji — lista zakazów okazała się filtrem, nie briefem (L-0019).
+- **D-61b** *(2026-08-07)* Kierunki 2–5 z pierwszej rundy konkursu (Terminal, Panel operacyjny, Rysunek techniczny, Plakat) są **odrzucone na stałe** — nie wracają jako warianty ani inspiracje. Kierunek 1 (Redakcja) zostaje jako baza do przebudowy. **Powód:** jawne rozstrzygnięcie użytkownika po obejrzeniu propozycji.
 - **D-62** Przy pierwszym wygenerowaniu z szablonu — pytanie o chęć zmiany stylu; zmiana → lokalne nadpisanie szablonu i komponentów w projekcie; lokalne ma zawsze pierwszeństwo przed wersją z pluginu.
 - **D-63** Wpisy/dokumenty podpisywane neutralnie (RelAI + model + autor), bez persony z osobowością. Etykiety FAKT/SZACUNEK przy liczbach w planach.
 
@@ -86,3 +88,9 @@ Zasada: decyzji z tego rejestru **nie proponuje się ponownie**. Zmiana wymaga j
 - **D-83** Pilotaż: nowy mały projekt → adopcja JiraManagera. 4 obowiązkowe scenariusze akceptacyjne: pełny cykl nowego projektu; przekazanie+tour; backup+restore (z testem wykluczenia sekretów); adopcja z przetestowanym recovery.
 - **D-84** Budowa: architektura/plany — Fable; wykonanie etapów — w świeżych sesjach wg promptów etapowych.
 - **D-85** *(Aneks A, 2026-08-07)* Wykonawcą wszystkich etapów budowy RelAI jest **Opus** — maksymalna jakość dla produktu flagowego. Prompty etapowe E2+ pisze Opus w rytuale „Na koniec"; PROMPT_ETAP_1 — architekt. Wyjątek E6: propozycje designu generuje Opus, sesję wyboru i iterację finalnego szablonu prowadzi Fable (architekt).
+
+## Decyzje zmienione
+
+| Decyzja | Data zmiany | Co się zmieniło | Powód |
+|---|---|---|---|
+| **D-61** → **D-61a** | 2026-08-07 | Lista zakazów designu złagodzona: zaokrąglenia, lekki glassmorphism, animacja służebna, typografia ozdobna i dekoracyjne SVG **dozwolone**; zostają zakazy fioletu/glow, przesytu emoji, generycznych fraz i stocków. Tryb konkursu bez zmian. | Pierwsza runda konkursu (E6 faza 1) spełniła komplet zakazów D-61 i nie spodobała się w żadnej z pięciu propozycji. Lista zakazów okazała się filtrem końcowym, nie briefem (L-0019). |

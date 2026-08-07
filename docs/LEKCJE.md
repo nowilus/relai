@@ -49,6 +49,8 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
     SessionStart. Payloady testowe hooków buduj Nodem, nie echem w shellu. (L-0017)
 18. Kryterium weryfikacji formułuj na stanie, który kontrolujesz, nie na przewidywanym formacie
     wyjścia cudzego narzędzia. (L-0018)
+19. Lista zakazów to filtr końcowy, nie brief. Przy zadaniu wizualnym zbierz najpierw cechy
+    **pozytywne** i pokaż **jeden** wariant do kalibracji smaku, zanim wyprodukujesz pięć. (L-0019)
 
 ## Lekcje
 
@@ -263,3 +265,19 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
   zachowanie ośmiu hooków), a wynik cudzego narzędzia traktuj jako sygnał pomocniczy do
   zinterpretowania, nie jako kryterium dosłowne.
 - **Źródło:** przegląd zamykający etap E5 (2026-08-07), nie korekta użytkownika.
+
+### L-0019 — Lista zakazów wzięta za definicję dobrego designu · 2026-08-07 · AKTYWNA
+
+- **Trigger:** pięć propozycji designu z E6 fazy 1 przeszło całą kontrolę mechaniczną (zero
+  fioletu, zero cieni, zero emoji, zero glassmorphismu) i **żadna nie spodobała się użytkownikowi**:
+  „nie zrobił efektu wow", „za ostre", „zbyt rygorystycznie podszedłem do stwierdzenia no ai-slop".
+- **Przyczyna:** D-61 wylicza, czego **nie wolno**. Potraktowałem tę listę jako komplet wymagań
+  i optymalizowałem pod nią — zero cieni, ostre rogi, brak animacji, surowa typografia. Spełnienie
+  wszystkich zakazów daje dokument poprawny i martwy, bo zakaz nie niesie żadnej informacji o tym,
+  co ma **przyciągać**.
+- **Zasada:** lista zakazów jest filtrem końcowym, nie briefem. Zanim wygenerujesz N wariantów
+  pod jeden brief, zbierz od człowieka **cechy pozytywne** (co ma cieszyć oko, jaki nastrój, jakie
+  skojarzenie) — a przy zadaniu wizualnym pokaż **jeden** wariant do kalibracji smaku, zanim
+  wyprodukujesz pięć. Pięć chybionych propozycji kosztuje pięć razy tyle, co jedna.
+- **Źródło:** korekta użytkownika 2026-08-07 po prezentacji fazy 1 etapu E6; skutkowała zmianą
+  decyzji D-61 (patrz `DECYZJE.md`, sekcja „Decyzje zmienione").

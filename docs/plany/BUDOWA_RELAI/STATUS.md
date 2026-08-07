@@ -11,7 +11,7 @@ Plan: [PLAN.html](PLAN.html) • Utworzony: 2026-08-07 • Status planu: **ZAAKC
 | E3 | Planowanie (PLAN/MINIPLAN, folder-per-plan, STATUS) | **ZREALIZOWANY 2026-08-07** | [PROMPT_ETAP_3.md](PROMPT_ETAP_3.md) | plugin 0.3.0: skill `relai-planning`, SPEC_PLAN + SPEC_STATUS, MINIPLAN w SPEC_DZIENNIK |
 | E4 | Prompty etapowe + /relai-stage + lazy-gen | **ZREALIZOWANY 2026-08-07** | [PROMPT_ETAP_4.md](PROMPT_ETAP_4.md) | plugin 0.4.0: `SPEC_PROMPT_ETAPU`, komenda `/relai-stage`, rytuał „Na koniec" z lazy-generacją, siatka w `relai-core` |
 | E5 | Hooki Node.js (8 szt.) | **ZREALIZOWANY 2026-08-07** | [PROMPT_ETAP_5.md](PROMPT_ETAP_5.md) | plugin 0.5.0: 8 hooków + rejestracja; `session-context` mityguje R2 (2/2 bez wywołania `Skill`) i zamyka R8 (kopiowanie specyfikacji do `.claude/relai/templates/`, ustawienia globalne przez hook); wykonany przez **Fable** na jawne polecenie użytkownika (odstępstwo od D-85 odnotowane w dzienniku) |
-| E6 | Konkurs designu + szablon HTML + nadpisania lokalne | **W TOKU** (faza 1 z 2 zrealizowana 2026-08-07) | [PROMPT_ETAP_6.md](PROMPT_ETAP_6.md) | faza 1 (pięć propozycji, Opus) — GOTOWE, `docs/zasoby/design-konkurs/`; faza 2 (sesja wyboru, iteracja finału, szablon `templates/HTML_PLAN/`, nadpisania lokalne, provisioning, wersja 0.6.0) — czeka na sesję **Fable** z użytkownikiem (D-85) |
+| E6 | Konkurs designu + szablon HTML + nadpisania lokalne | **W TOKU** (faza 1, runda 2 zrealizowana 2026-08-08) | [PROMPT_ETAP_6.md](PROMPT_ETAP_6.md) | runda 1 odrzucona w całości przez użytkownika (D-61b), przeniesiona do `docs/zasoby/design-konkurs/runda-1/`; runda 2 wg złagodzonego briefu D-61a — pięć propozycji w `runda-2/`, czeka na wybór 1–2. Faza 2 (iteracja finału, `templates/HTML_PLAN/`, nadpisania lokalne, provisioning, wersja 0.6.0) — sesja **Fable** z użytkownikiem (D-85) |
 | E7 | Komendy operacyjne (backup, audit, changelog, handover, tour) | OCZEKUJE | — | |
 | E8 | Profile (app / agent-voice / flow / prompty) | OCZEKUJE | — | |
 | E9 | Adopcja (/relai-adopt) + /relai-update | OCZEKUJE | — | obszar szczególnej staranności (D-70) |
@@ -56,3 +56,10 @@ Plan: [PLAN.html](PLAN.html) • Utworzony: 2026-08-07 • Status planu: **ZAAKC
   `docs/zasoby/design-konkurs/README.md`. Kontrola mechaniczna 5/5 PASS, symulatory sprawdzone
   na żywo w przeglądarce. Faza 2 (wybór, iteracja, finalny szablon, nadpisania lokalne,
   provisioning, wersja 0.6.0) wymaga sesji **Fable** z użytkownikiem.
+- 2026-08-08 — **runda 1 konkursu ODRZUCONA w całości** przez użytkownika; cztery kierunki
+  (Terminal, Panel operacyjny, Rysunek techniczny, Plakat) odrzucone na stałe (D-61b). Zakazy
+  D-61 złagodzone do **D-61a** (zaokrąglenia, lekki glassmorphism, animacja służebna, typografia
+  ozdobna dozwolone), lekcja L-0019. **Runda 2 (Opus)**: pięć nowych propozycji w
+  `docs/zasoby/design-konkurs/runda-2/` — Zeszyt, Studio nocne, Tablica warsztatowa, Mapa podróży,
+  Przepis; fonty OFL osadzone w base64, kontrola mechaniczna 5/5 PASS, zachowania sprawdzone
+  na żywo. Poprawiony defekt: animowane liczniki nie kończyły się w karcie w tle.
