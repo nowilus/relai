@@ -7,6 +7,66 @@ Plan: BUDOWA_RELAI • Etap: **E6 z E10** • Wygenerowano: 2026-08-07 (autor: F
 > o przełączenie. **Sesję wyboru z użytkownikiem i iterację finalnego szablonu prowadzi Fable** —
 > jeśli ta faza trafiła na inny model, zatrzymaj się i poproś o przełączenie. Na starcie powiedz,
 > którą fazę wykonujesz i czy model sesji się zgadza.
+>
+> **Aktualizacja 2026-08-08:** obie fazy designowe są **zamknięte** — konkurs rozstrzygnięty,
+> kierunek zaakceptowany, szablon zamrożony. To, co zostało, to trzy zmiany w skillach
+> i manifestach, bez ani jednej decyzji wizualnej. Wykonawcą reszty jest **Opus** (D-85);
+> Fable nie jest już potrzebny.
+
+## STAN NA 2026-08-08 — przeczytaj to przed sekcją „Zakres etapu"
+
+Etap jest **w toku**, nie na starcie. Trzy sesje już się odbyły; poniższa lista jest wiążąca —
+rzeczy oznaczonych ZROBIONE **nie powtarzaj**.
+
+| Punkt zakresu | Stan |
+|---|---|
+| 1. Pięć propozycji designu | **ZROBIONE** — dwie rundy. Runda 1 odrzucona w całości przez użytkownika, leży w `docs/zasoby/design-konkurs/runda-1/`. Runda 2 (`runda-2/`) wg złagodzonego briefu. |
+| 2. Sesja wyboru | **ZROBIONE** — wybrane propozycje 1 „Zeszyt" i 3 „Tablica warsztatowa", zblendowane w `runda-3/blend.html`, kierunek **zaakceptowany**. Wynik w `USTAWIENIA.md`. |
+| 3. Finalny szablon + `SPEC_PLAN_HTML.md` | **ZROBIONE** — `templates/HTML_PLAN/` (szablon, komponenty, `zbuduj.js`, sześć WOFF2), `templates/SPEC_PLAN_HTML.md`, `templates/README.md` zaktualizowany. |
+| 4. Nadpisania lokalne (D-62) w `relai-planning` | **DO ZROBIENIA** |
+| 5. Provisioning plików innych niż `*.md` | **ZROBIONE** — `provisionTemplates` kopiuje całe drzewo (`.md/.html/.js/.css/.woff2`), zmierzone: 22 pliki, fonty bajt w bajt. |
+| 6. Honorowanie preferencji „HTML" w `relai-planning` + usunięcie zdań „szablon dochodzi w wersji następnej" | **DO ZROBIENIA** |
+| 7. Wersja 0.6.0 w manifestach, README, `SPEC_KOMENDY`, `SPEC_USTAWIENIA`, obu skillach, markerze `docs/USTAWIENIA.md` | **DO ZROBIENIA** |
+| 8. Git: commity + push, potem `marketplace update` i reinstalacja | częściowo — cztery commity wypchnięte; **sekwencja L-0004 przed pomiarami: DO ZROBIENIA** |
+
+**Decyzje podjęte w tych sesjach, których nie otwieraj ponownie:**
+- **D-61a** (zmiana D-61): zaokrąglenia, **lekki glassmorphism**, animacja służebna, typografia
+  ozdobna i dekoracyjne SVG są **dozwolone**. Zostają zakazy: fiolet i glow, przesyt emoji
+  (próg 0), generyczne frazy i stocki.
+- **D-61b**: kierunki Terminal, Panel operacyjny, Rysunek techniczny i Plakat są odrzucone
+  **na stałe** — nie wracają jako warianty ani inspiracje.
+- **Zakaz animowanej kropki wędrującej po diagramie przepływu** — ruch bez treści, usunięty
+  na polecenie użytkownika; zapisany w `SPEC_PLAN_HTML.md`.
+- Kierunek wizualny „Warsztat" i jego tokeny — zamrożone w `templates/HTML_PLAN/szablon.html`.
+- **L-0019**: lista zakazów to filtr końcowy, nie brief. Przy zadaniu wizualnym zbierz najpierw
+  cechy pozytywne i pokaż **jeden** wariant do kalibracji, zanim wyprodukujesz serię.
+
+**Co zostało do zrobienia — pełny opis:**
+
+1. **Nadpisanie lokalne (D-62)** w `skills/relai-planning/SKILL.md`: przy **pierwszym**
+   wygenerowaniu planu HTML w projekcie pada pytanie o zmianę stylu (raz na projekt — L-0006,
+   najpierw sprawdź `USTAWIENIA.md`). Zmiana → kopia `HTML_PLAN/` do
+   `.claude/relai/local-templates/HTML_PLAN/` z **pierwszeństwem** przed wersją z pluginu,
+   plus wpis do `docs/USTAWIENIA.md` projektu. Uwaga: `.claude/relai/` ma `.gitignore` z `*`,
+   a nadpisanie lokalne **ma przetrwać** aktualizację pluginu (R6) — rozstrzygnij, czy to
+   właściwa lokalizacja, i uzasadnij wybór w dzienniku. `SPEC_PLAN_HTML.md` już odsyła do tego
+   mechanizmu, więc bez niego specyfikacja obiecuje coś, czego nie ma (L-0002).
+2. **Honorowanie preferencji formatu**: preferencja „HTML" z `USTAWIENIA.md` → plan główny
+   powstaje wg `SPEC_PLAN_HTML.md`. Markdown zostaje dla MINIPLAN-ów, `STATUS.md` i promptów
+   etapowych (D-32). Usuń zdania „szablon HTML dochodzi w wersji następnej" z obu skilli
+   i `SPEC_KOMENDY.md` — `grep -ri "szablon HTML"` i rozstrzygnij każde trafienie.
+3. **Wersja 0.6.0** w obu manifestach, README pluginu, `SPEC_KOMENDY.md` (zakres 0.6.0 z planami
+   HTML i nadpisaniami), `SPEC_USTAWIENIA.md`, obu skillach i markerze `docs/USTAWIENIA.md`
+   tego repo; po podbiciu `grep` po `0.5.0` i rozstrzygnięcie **każdego** trafienia (L-0008).
+4. **Pomiar end-to-end**, dopiero po sekwencji push → `claude plugin marketplace update relai` →
+   reinstalacja (L-0004): świeża sesja w projekcie testowym na ścieżce ze spacją i polskim
+   znakiem, preferencja „HTML" → powstaje `PLAN.html` z lokalnej kopii `.claude/relai/templates/`,
+   **bez** `--add-dir`; drugi projekt testowy z preferencją „Markdown" → nadal `PLAN.md`;
+   prompty etapowe i `STATUS.md` w obu przypadkach w Markdown.
+
+**Narzędzia, które już istnieją i warto ich użyć zamiast pisać od nowa:**
+`templates/HTML_PLAN/zbuduj.js` osadza fonty i zgłasza niewypełnione znaczniki kodem wyjścia 1.
+Kompletny wzorzec wizualny: `docs/zasoby/design-konkurs/runda-3/blend.html`.
 
 ## Co przeczytać na start (w tej kolejności, nic więcej)
 
@@ -122,6 +182,16 @@ w Markdown); provisioning kopiuje tylko `*.md`, więc pliki szablonu HTML nie do
    push → `marketplace update` → reinstalacja przed pomiarami (L-0004).
 
 ## Weryfikacja (wszystkie punkty muszą przejść)
+
+> **Stan na 2026-08-08:** punkty 1, 2, 3 i 6 **zaliczone** — dowody w dzienniku (wpisy z 2026-08-07
+> i 2026-08-08). Do wykonania zostały punkty 4, 5 i 7, wszystkie zależne od domknięcia zakresu.
+> Dochodzą dwa punkty nowe, wynikające z tego, co powstało po drodze:
+>
+> - [ ] Plan HTML wygenerowany **z szablonu przez świeżą sesję** (nie ręcznie): `zbuduj.js` kończy
+>       się kodem 0, w pliku zero znaczników `{{…}}`, symulator liczy po zmianie wejścia.
+> - [ ] **Nadpisanie lokalne przeżywa aktualizację pluginu** (R6): po `marketplace update`
+>       i reinstalacji lokalna kopia szablonu jest nietknięta i nadal ma pierwszeństwo — dowód
+>       przez sumę kontrolną przed i po (L-0007).
 
 - [ ] Pięć plików `propozycja-N.html` otwiera się z dysku bez internetu (zero żądań zewnętrznych —
       sprawdź brak `http://`/`https://` w `src=`/`href=` poza kotwicami) i każdy zawiera: 10 sekcji
