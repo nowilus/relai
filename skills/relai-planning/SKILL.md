@@ -307,16 +307,27 @@ w tej kolejności:
    nowe (jeśli praca je ujawniła) dopisz.
 5. **Archiwum** — przenieś `docs/plany/<TEMAT>/` do `docs/archiwum/plany/<TEMAT>/`. Zawartość bez
    zmian; przeniesienie, nie kasowanie.
-6. **`CLAUDE.md`** — linia aktywnego planu. **Nie ma prawa wskazywać zamkniętego planu ani przez
-   chwilę** — po przeniesieniu folderu byłby to link donikąd, a jednocześnie sygnał „tu trwa praca".
-   Rozstrzygasz tak: jest dokładnie jeden inny plan niezamknięty → wpisujesz go bez pytania; jest
-   ich więcej → wpisujesz `Aktywny plan: brak` i **pytasz jednym zdaniem**, który ma być następny;
-   nie ma żadnego → `Aktywny plan: brak`. Wybór następcy może być pytaniem; zostawienie linii
-   wskazującej na archiwum — nigdy.
+6. **`CLAUDE.md`** — linia aktywnego planu. **Warunek twardy: kiedy kończysz turę, linia wskazuje
+   istniejący plik albo brzmi `Aktywny plan: brak`.** Link do przeniesionego folderu jest błędem —
+   prowadzi donikąd, a jednocześnie mówi „tu trwa praca". Rozstrzygasz tak:
+
+   - jest dokładnie jeden inny plan niezamknięty → wpisujesz go, bez pytania;
+   - jest ich więcej albo nie masz pewności → wpisujesz `Aktywny plan: brak`, **a potem** pytasz
+     jednym zdaniem, który ma być następny;
+   - nie ma żadnego → `Aktywny plan: brak`.
+
+   Pytanie o następcę jest dozwolone. Pytanie **zamiast** poprawienia linii — nie: to zostawia
+   projekt z martwym linkiem i przerzuca sprzątanie po sobie na człowieka. `brak` jest zawsze
+   poprawną wartością tymczasową; martwy link nie jest poprawny nigdy.
 7. **Podsumowanie** — 3–5 zdań dla użytkownika: co dowieziono, czego nie i dlaczego, co czeka na
    człowieka.
 
 Punkty 1–6 nie są przedmiotem pytania. Pytaniem może być wyłącznie commit.
+
+**Kolejność: najpierw zmiana w repozytorium, potem zdanie, które ją opisuje.** Wpis dziennika
+mówiący „folder przeniesiony do archiwum", napisany zanim folder został przeniesiony, jest fałszem
+w dokumencie, któremu następna sesja zaufa bezwarunkowo. Dotyczy to każdego kroku tego rytuału
+i rytuału „Na koniec" etapu.
 
 ---
 
