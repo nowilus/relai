@@ -63,3 +63,9 @@ Plan: [PLAN.html](PLAN.html) • Utworzony: 2026-08-07 • Status planu: **ZAAKC
   `docs/zasoby/design-konkurs/runda-2/` — Zeszyt, Studio nocne, Tablica warsztatowa, Mapa podróży,
   Przepis; fonty OFL osadzone w base64, kontrola mechaniczna 5/5 PASS, zachowania sprawdzone
   na żywo. Poprawiony defekt: animowane liczniki nie kończyły się w karcie w tle.
+- 2026-08-08 — **kierunek designu WYBRANY**: „Tablica warsztatowa" jako baza + pasek górny,
+  karteczki na marginesie i paleta terakotowa z „Zeszytu". Powstał blend
+  `docs/zasoby/design-konkurs/runda-3/blend.html`: błękit zastąpiony terakotą w całym dokumencie,
+  tło pośrednie `#f2e9d8`, ruch ścięty do niosącego informację, **animowana kropka na diagramie
+  usunięta** (dowód negatywny: `animateMotion` = 0). Wynik zapisany w `USTAWIENIA.md`.
+  Czeka na akceptację kierunku przed zamrożeniem w `templates/HTML_PLAN/`.

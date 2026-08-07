@@ -649,3 +649,63 @@ przebudowy.
   Bez tego etap E6 stoi.
 - Rozstrzygnąć, czy waga pliku rzędu 200–280 KB jest akceptowalna dla planu wysyłanego klientowi,
   czy finalny szablon ma mieć okrojony podzbiór znaków.
+
+### 2026-08-08 — E6: wybór kierunku designu i blend „Warsztat" (runda 3)
+
+Autor: RelAI (Opus) + Lukasz
+
+**Wybór użytkownika po obejrzeniu rundy 2:** do drugiej tury przechodzą **propozycja 1 „Zeszyt"
+i propozycja 3 „Tablica warsztatowa"**, z przewagą Tablicy jako bazy. Reszta rundy 2 odpada.
+
+**Zrobione — blend `docs/zasoby/design-konkurs/runda-3/blend.html`:**
+- **Baza: Tablica warsztatowa** — kartki sekcji przypięte pinezkami, taśma klejąca, Kalam jako
+  krój prowadzący, lekki obrót sekcji, spinacz jako mechanizm zwijania.
+- **Z Zeszytu przeniesione trzy rzeczy wskazane wprost:** (1) **pasek górny** — pigułka na szkle
+  z odręcznym „do akceptacji!" pod kątem i ikoną notatnika; (2) **karteczki na marginesie**
+  w sekcjach 1 i 2 (dodatkowo w 9, bo tam też pilnują czytelnika przed tabelą decyzji);
+  (3) **paleta terakotowa** — glina `#c4643c`, musztarda `#d9a134`, szałwia `#5f8a68`.
+- **Błękit wycięty z całego dokumentu:** paski wykresu etapów, aktywna pozycja w nawigacji,
+  numery sekcji, pinezki, akcenty diagramu i suwaki symulatora są teraz terakotowe albo
+  szałwiowe. Pinezki cyklują przez trzy barwy palety zamiast jednej.
+- **Tło pośrednie `#f2e9d8`** — korek Tablicy `#e8dcc6` był za ciemny, krem Zeszytu `#fbf6ec`
+  za jasny; delikatna faktura kropkowa i dwie miękkie poświaty zostały, ale przygaszone.
+- **Ruch ścięty zgodnie z poleceniem:** usunięte podnoszenie kart, kafli i metek na najechanie,
+  obracanie karteczek, skalowanie wyników symulatora i prostowanie sekcji pod kursorem. Zostaje
+  wyłącznie to, co niesie informację: rozwijanie sekcji, obrót spinacza, zmiana tła przycisku,
+  obwódka pola przy fokusie i licznik przeliczający wynik (skrócony z 370 do 300 ms).
+- **Animowana kropka na diagramie przepływu usunięta** — nie niosła treści, a przyciągała wzrok
+  bez powodu. Ścieżkę udanej płatności odróżnia teraz linia ciągła od przerywanej ścieżki
+  wygaśnięcia, co jest czytelne także na wydruku i w zrzucie ekranu.
+- **Wynik zapisany w `USTAWIENIA.md`** jako kierunek designu projektu (wymóg sekcji „Weryfikacja"
+  w `PROMPT_ETAP_6.md`).
+
+**Zweryfikowane — jak dokładnie:**
+- **Kontrola mechaniczna PASS** (18 testów): zero zasobów sieciowych, 6 fontów osadzonych
+  i zero niepodmienionych znaczników, **zero fioletu wśród 50 barw** przeliczonych na HSL,
+  **emoji 0**, komplet sekcji `s1…s10`, 30 elementów `<svg>`, 9 pól symulatora, etykiety
+  FAKT/SZACUNEK, 8 bloków zwijalnych, `prefers-reduced-motion`, glassmorphism i zaokrąglenia
+  nadal obecne. **Nowy test negatywny:** `animateMotion` = 0, czyli kropka faktycznie zniknęła.
+- **Na żywo w przeglądarce:** fonty Kalam i Hanken Grotesk `loaded`; symulator 320 → 640
+  rezerwacji daje 54 400 zł obrotu, +406 zł bilansu i 16,6 mies. zwrotu, powrót do 320 przywraca
+  +563 zł; wyzerowanie godzin ręcznej pracy daje −157 zł i „nie zwraca się"; zwijanie przechodzi
+  `true → false`; trzy karteczki na marginesie obecne; tło `rgb(242, 233, 216)` mieści się między
+  korkiem a kremem; pasek górny półprzezroczysty `rgba(252, 247, 238, .78)`.
+- **Responsywność 360 px:** zero poziomego przewijania, karteczki tracą opływanie
+  (`float: none`), sekcje tracą obrót — czyli oba efekty dekoracyjne wyłączają się na wąskim
+  ekranie zamiast rozpychać układ.
+- **Próg kontrolny zmieniony świadomie:** test „liczba elementów ruchu" wymagał ≥10 (brief
+  rundy 2); po poleceniu ograniczenia animacji obniżony do ≥6, z powodem zapisanym w skrypcie.
+  Blend ma 9 — mniej niż runda 2, więcej niż zero.
+- **Nie sprawdzono:** wydruku; kontrastu zmierzonego narzędziem; wyglądu w innych silnikach
+  i na realnym urządzeniu mobilnym.
+
+**Świadomie odłożone:**
+- Podzbiór fontów tylko do użytych znaków — plik waży 210 KB, z czego ~145 KB to Kalam i Hanken
+  w base64. Decyzja przy finalnym szablonie (ryzyko R5, pytanie do człowieka z poprzedniego wpisu
+  nadal otwarte).
+- Cała reszta zakresu E6: `templates/HTML_PLAN/` z design tokens, `SPEC_PLAN_HTML.md`, nadpisania
+  lokalne (D-62), rozszerzenie provisioningu, wersja 0.6.0.
+
+**Do zrobienia przez człowieka:**
+- Obejrzeć blend i powiedzieć, czy to jest już ten kierunek, czy potrzeba kolejnej iteracji.
+  Dopiero po akceptacji ma sens zamrażanie go w `templates/HTML_PLAN/`.

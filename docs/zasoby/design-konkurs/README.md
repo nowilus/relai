@@ -6,7 +6,21 @@ powtórzył tej drogi.
 | Runda | Katalog | Wynik |
 |---|---|---|
 | 1 | [`runda-1/`](runda-1/) | **odrzucona w całości** 2026-08-07. Kierunki 2–5 (Terminal, Panel operacyjny, Rysunek techniczny, Plakat) odrzucone **na stałe** (D-61b). Kierunek 1 (Redakcja) zachowany jako baza. |
-| 2 | [`runda-2/`](runda-2/) | pięć nowych propozycji, czeka na wybór 1–2 |
+| 2 | [`runda-2/`](runda-2/) | pięć nowych propozycji; **wybrane 1 „Zeszyt" i 3 „Tablica warsztatowa"**, pozostałe trzy odpadły |
+| 3 | [`runda-3/blend.html`](runda-3/blend.html) | **blend „Warsztat"** — baza Tablica + pasek górny, karteczki i paleta terakotowa z Zeszytu; czeka na akceptację kierunku |
+
+## Runda 3 — co dokładnie zostało zblendowane
+
+| Element | Skąd | Uwaga |
+|---|---|---|
+| Kartki sekcji na pinezkach, taśma, lekki obrót | Tablica | pinezki cyklują przez trzy barwy palety zamiast jednej |
+| Kalam jako krój prowadzący, Hanken Grotesk w treści | Tablica | bez zmian |
+| Spinacz jako mechanizm zwijania | Tablica | bez zmian |
+| Pasek górny — pigułka na szkle, odręczny stan pod kątem | **Zeszyt** | wskazany wprost przez Łukasza |
+| Karteczki na marginesie (sekcje 1, 2, 9) | **Zeszyt** | wskazane wprost |
+| Paleta terakotowa: glina `#c4643c`, musztarda `#d9a134`, szałwia `#5f8a68` | **Zeszyt** | zastępuje błękit w przyciskach, wykresach, numerach i akcentach |
+| Tło `#f2e9d8` | pośrednie | korek Tablicy za ciemny, krem Zeszytu za jasny |
+| Ruch | ścięty | zostaje tylko to, co niesie informację; **animowana kropka na diagramie usunięta** |
 
 ## Czego nauczyła runda 1
 
