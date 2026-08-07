@@ -274,4 +274,6 @@ Autor: RelAI (Opus) + Lukasz
 
 **Do zrobienia przez człowieka:**
 - Decyzja, czy plugin ma zostać zainstalowany na stałe w trakcie dalszej budowy (teraz jest, scope
-  `user`, wersja 0.3.1) — wpisane do `USTAWIENIA.md` jako stan bieżący.
+  `user`, wersja 0.3.1) — wpisane do `USTAWIENIA.md` jako stan bieżący. *(rozstrzygnięte 2026-08-07:
+  „tak, niech zostanie zainstalowany" — plugin zostaje; poprzednie ustawienie przeniesione do sekcji
+  „Ustawienia wycofane")*
