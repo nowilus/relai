@@ -77,10 +77,12 @@ Pokaż użytkownikowi kartę potwierdzenia i **zatrzymaj się**:
 - **Rekomendacja subagenta** — jedno zdanie, tylko gdy kryteria z sekcji niżej są spełnione.
 - **Pytanie** — „Zaczynamy?"
 
-**Twardy zakaz:** przed odpowiedzią użytkownika nie tworzysz i nie modyfikujesz **żadnego** pliku —
-w tym `STATUS.md`. Jedynym wyjątkiem jest prompt dogenerowany w Kroku 3, bo bez niego nie ma czego
-potwierdzać, i on jest zapowiedziany osobnym zdaniem. Milczenie nie jest zgodą. „Uruchom etap"
-w prompcie użytkownika nie jest zgodą na start — kartę pokazujesz mimo to.
+**Twardy zakaz:** przed odpowiedzią użytkownika nie tworzysz i nie modyfikujesz żadnego pliku poza
+**jednym wyjątkiem**: uzupełnieniem luki z Kroku 3, czyli dogenerowanym `PROMPT_ETAP_N.md` wraz
+z linkiem do niego w kolumnie `Prompt`. Bez tego nie ma czego potwierdzać, i jest to zapowiedziane
+osobnym zdaniem. **Statusu etapu nie zmieniasz** — `W TOKU` ustawiasz dopiero po zgodzie (Krok 5).
+Milczenie nie jest zgodą. „Uruchom etap" w prompcie użytkownika nie jest zgodą na start — kartę
+pokazujesz mimo to.
 
 ### Rekomendacja subagenta (D-35) — kiedy ją dopisujesz
 
