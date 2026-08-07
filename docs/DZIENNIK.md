@@ -486,4 +486,81 @@ pięć poprawek E4 w osobnych commitach, dokumenty i specyfikacje wzajemnie zgod
   do `USTAWIENIA.md` (obecne zachowanie — bezpieczne, ale dokłada jedno kliknięcie), czy pytać
   wyłącznie przy zmianie istniejących wierszy i markera wersji.
 - Uruchomić E6 wg `PROMPT_ETAP_6.md`: generacja pięciu propozycji — świeża sesja **Opus**;
-  sesja wyboru i iteracja finału — **Fable** (D-85).
+  sesja wyboru i iteracja finału — **Fable** (D-85). *(faza 1 zrobiona 2026-08-07 — patrz kolejny wpis)*
+
+### 2026-08-07 — E6 faza 1: pięć propozycji designu szablonu HTML planów
+
+Autor: RelAI (Opus) + Lukasz
+
+Etap E6 ma dwie fazy o różnych modelach (blok „Kontrola modelu" w `PROMPT_ETAP_6.md`). Ta sesja
+wykonała **wyłącznie fazę 1** — generację pięciu propozycji. Faza 2 (sesja wyboru z użytkownikiem,
+iteracja finału, `templates/HTML_PLAN/`, `SPEC_PLAN_HTML.md`, nadpisania lokalne D-62, rozszerzenie
+provisioningu, wersja 0.6.0) należy do **Fable** i nie została rozpoczęta. Etap pozostaje `W TOKU`.
+
+**Zrobione:**
+- **`docs/zasoby/design-konkurs/README.md`** — zasady konkursu zapisane **przed** generacją, żeby
+  weryfikacja miała punkt odniesienia, a nie ocenę po fakcie (L-0007). Zawiera: wspólną treść
+  testową, dziewięć wymagań sprawdzalnych, pięć zakazów D-61 z kryterium mechanicznym dla każdego
+  i tabelę pięciu kierunków. **Próg emoji ustalony na 0** — zamiast „umiarkowanego" progu, który
+  wymaga oceny, co jest jeszcze umiarem. Folder `docs/zasoby/` powstał właśnie teraz (D-11).
+- **Pięć propozycji** `propozycja-1…5.html`, każda jako pełny testowy plan płatności z przykładu
+  `SPEC_PLAN.md` — te same 10 sekcji, ta sama treść, ta sama arytmetyka symulatora; różni je
+  wyłącznie warstwa wizualna i interakcyjna:
+  1. **Redakcja** — typografia książkowa, jedna kolumna z marginalią przyklejoną do sekcji,
+     szeryfy, inicjał, zero kart i cieni, akcent rdzawy.
+  2. **Terminal** — ciemny monospace, ramki znakowe, nagłówki sekcji jako wiersz konsoli,
+     nawigacja klawiszami 1–9 i 0, wykresy w konwencji tekstowej.
+  3. **Panel operacyjny** — przyklejona nawigacja boczna z podświetlaniem aktywnej sekcji
+     (IntersectionObserver), sześć kafli metryk, akordeony na `aria-expanded`, suwaki sprzężone
+     z polami liczbowymi, największa gęstość informacji.
+  4. **Rysunek techniczny** — siatka milimetrowa w tle, tabelka rysunkowa zamiast nagłówka,
+     pozycje zamiast numerów sekcji, linie wymiarowe z grotami jako wykres pracochłonności,
+     kamień milowy pokazany jako wymiar na diagramie.
+  5. **Plakat** — skala typograficzna do 6,2 rem, gruby kontur, asymetryczna siatka
+     (numer sekcji w osobnej kolumnie), jeden kolor sygnalny i żółty jako zapas szacunku.
+- **Symulator** (ten sam model we wszystkich pięciu, różne UI): dziewięć wejść — rezerwacje,
+  średnia wartość, godziny ręcznego fakturowania, koszt godziny, prowizja %, opłata stała,
+  udział traconych rezerwacji, marża, koszt wdrożenia. Wyjścia: obrót, prowizja, oszczędność
+  pracy, odzysk, bilans miesięczny, zwrot wdrożenia, **próg opłacalności** (ile godzin ręcznej
+  pracy musi być, żeby wyszło na zero) oraz przeliczany na żywo wykres skumulowanego bilansu
+  przez 24 miesiące z zaznaczonym punktem zwrotu.
+
+**Zweryfikowane — jak dokładnie:**
+- **Kontrola mechaniczna** (skrypt Node, jedenaście testów na plik, 5/5 PASS): zero `http(s)://`
+  w `src=`/`href=`; brak `backdrop-filter`; **dowód negatywny na fiolet (L-0007)** — wszystkie
+  kolory heksadecymalne każdego pliku (10–17 na plik) przeliczone na HSL i sprawdzone, czy
+  któryś nie wpada w zakres 250–330° przy nasyceniu >25%: zero trafień; `box-shadow`/`text-shadow`
+  policzone — **0 we wszystkich pięciu plikach**, więc glow nie ma prawa wystąpić; emoji liczone
+  przez `\p{Extended_Pictographic}` — **0 przy progu 0**; obecne sekcje `s1…s10`; ≥3 elementy
+  `<svg>`; 9 pól liczbowych symulatora i nasłuch `input`; etykiety FAKT/SZACUNEK; ≥3 bloki
+  zwijalne; `prefers-reduced-motion` w każdym pliku.
+- **Symulatory na żywo w przeglądarce** (wszystkie pięć, plik otwarty z dysku): przy wartościach
+  domyślnych bilans +563 zł/mies. i zwrot 12 mies.; po zmianie rezerwacji 320 → 640 wynik zmienia
+  się na 54 400 zł obrotu, +406 zł bilansu i 16,6 mies. zwrotu, a wykres przelicza 25 punktów.
+  **Przypadek skrajny:** zerowanie godzin ręcznego fakturowania daje bilans −157 zł i komunikat
+  o braku zwrotu zamiast dzielenia przez zero. W propozycji 3 sprawdzono dodatkowo synchronizację
+  suwaka z polem liczbowym i przełączanie akordeonu (`aria-expanded` true → false).
+- **Responsywność:** wszystkie pięć plików przy szerokości 360 px — `scrollWidth` równy
+  `clientWidth`, czyli **zero poziomego przewijania strony**; szerokie tabele przewijają się
+  we własnym kontenerze.
+- **Nie sprawdzono:** wyglądu na realnym urządzeniu mobilnym i w innych silnikach niż ten
+  w podglądzie; wydruku; kontrastu zmierzonego narzędziem (dobierany ręcznie); odbioru propozycji
+  przez człowieka — to jest właśnie faza 2.
+
+**Świadomie odłożone (całość należy do fazy 2, model Fable):**
+- Prezentacja propozycji i wybór 1–2 (AskUserQuestion), iteracja wg uwag, finalny szablon
+  `templates/HTML_PLAN/` z design tokens i `templates/SPEC_PLAN_HTML.md`.
+- Mechanizm nadpisania lokalnego (D-62) w `relai-planning`, honorowanie preferencji „HTML"
+  z `USTAWIENIA.md`, usunięcie zdań „szablon HTML dochodzi w wersji następnej".
+- Rozszerzenie `provisionTemplates` w `hooks/session-context.js` o pliki inne niż `*.md` —
+  świadomie **nie** zrobione teraz: bez finalnego szablonu nie ma czego kopiować, a podbicie
+  wersji pluginu przed dowiezieniem funkcji obiecywałoby coś, czego nie ma (L-0002).
+- Wersja 0.6.0 w manifestach i dokumentach — razem z fazą 2, z `grep` po `0.5.0` (L-0008).
+
+**Do zrobienia przez człowieka:**
+- **Wybrać 1–2 propozycje** w sesji **Fable** (D-85): otworzyć pięć plików z
+  `docs/zasoby/design-konkurs/` i powiedzieć, które kierunki wchodzą do iteracji oraz co w nich
+  zmienić. Bez tego etap E6 stoi.
+- Rozstrzygnąć, czy wybrany kierunek ma trafić także do **warstwy globalnej**
+  `~/.claude/relai/USTAWIENIA.md` (kierunek designu jest preferencją ponadprojektową, D-23),
+  czy zostać wyłącznie w tym projekcie.

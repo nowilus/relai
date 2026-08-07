@@ -11,7 +11,7 @@ Plan: [PLAN.html](PLAN.html) • Utworzony: 2026-08-07 • Status planu: **ZAAKC
 | E3 | Planowanie (PLAN/MINIPLAN, folder-per-plan, STATUS) | **ZREALIZOWANY 2026-08-07** | [PROMPT_ETAP_3.md](PROMPT_ETAP_3.md) | plugin 0.3.0: skill `relai-planning`, SPEC_PLAN + SPEC_STATUS, MINIPLAN w SPEC_DZIENNIK |
 | E4 | Prompty etapowe + /relai-stage + lazy-gen | **ZREALIZOWANY 2026-08-07** | [PROMPT_ETAP_4.md](PROMPT_ETAP_4.md) | plugin 0.4.0: `SPEC_PROMPT_ETAPU`, komenda `/relai-stage`, rytuał „Na koniec" z lazy-generacją, siatka w `relai-core` |
 | E5 | Hooki Node.js (8 szt.) | **ZREALIZOWANY 2026-08-07** | [PROMPT_ETAP_5.md](PROMPT_ETAP_5.md) | plugin 0.5.0: 8 hooków + rejestracja; `session-context` mityguje R2 (2/2 bez wywołania `Skill`) i zamyka R8 (kopiowanie specyfikacji do `.claude/relai/templates/`, ustawienia globalne przez hook); wykonany przez **Fable** na jawne polecenie użytkownika (odstępstwo od D-85 odnotowane w dzienniku) |
-| E6 | Konkurs designu + szablon HTML + nadpisania lokalne | **GOTOWY DO STARTU** | [PROMPT_ETAP_6.md](PROMPT_ETAP_6.md) | propozycje: Opus; sesja wyboru i iteracja: Fable (D-85) |
+| E6 | Konkurs designu + szablon HTML + nadpisania lokalne | **W TOKU** (faza 1 z 2 zrealizowana 2026-08-07) | [PROMPT_ETAP_6.md](PROMPT_ETAP_6.md) | faza 1 (pięć propozycji, Opus) — GOTOWE, `docs/zasoby/design-konkurs/`; faza 2 (sesja wyboru, iteracja finału, szablon `templates/HTML_PLAN/`, nadpisania lokalne, provisioning, wersja 0.6.0) — czeka na sesję **Fable** z użytkownikiem (D-85) |
 | E7 | Komendy operacyjne (backup, audit, changelog, handover, tour) | OCZEKUJE | — | |
 | E8 | Profile (app / agent-voice / flow / prompty) | OCZEKUJE | — | |
 | E9 | Adopcja (/relai-adopt) + /relai-update | OCZEKUJE | — | obszar szczególnej staranności (D-70) |
@@ -49,3 +49,10 @@ Plan: [PLAN.html](PLAN.html) • Utworzony: 2026-08-07 • Status planu: **ZAAKC
   wymusza rytuał startu bez wyzwolenia skilla (2/2) i zamyka R8: inicjalizacja bez `--add-dir`
   dała komplet ośmiu dokumentów ze specyfikacji czytanych z `.claude/relai/templates/`.
   R4 zamknięte, R2 obniżone do niskiego. Wygenerowano PROMPT_ETAP_6.
+- 2026-08-07 — **E6 faza 1 ZREALIZOWANA** (Opus). Pięć propozycji designu w
+  `docs/zasoby/design-konkurs/propozycja-1…5.html` (Redakcja / Terminal / Panel operacyjny /
+  Rysunek techniczny / Plakat) na tej samej treści testowej — pełny plan płatności z przykładu
+  `SPEC_PLAN.md`. Zasady konkursu i próg emoji (0) zapisane **przed** generacją w
+  `docs/zasoby/design-konkurs/README.md`. Kontrola mechaniczna 5/5 PASS, symulatory sprawdzone
+  na żywo w przeglądarce. Faza 2 (wybór, iteracja, finalny szablon, nadpisania lokalne,
+  provisioning, wersja 0.6.0) wymaga sesji **Fable** z użytkownikiem.

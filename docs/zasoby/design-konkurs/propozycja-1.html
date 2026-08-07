@@ -1,0 +1,619 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PLAN — Płatności online w Parkly · propozycja 1 (Redakcja)</title>
+<style>
+  :root{
+    --pap:#f7f4ee;
+    --pap-2:#efeade;
+    --ink:#1c1a17;
+    --ink-2:#4a453d;
+    --ink-3:#7b7365;
+    --rule:#d7cfc0;
+    --rule-2:#bdb3a0;
+    --akcent:#8c2f22;
+    --akcent-2:#2f5d4a;
+    --mono:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace;
+    --serif:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,"Times New Roman",serif;
+    --miara:34rem;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    margin:0; background:var(--pap); color:var(--ink);
+    font-family:var(--serif); font-size:17px; line-height:1.62;
+    font-kerning:normal; font-variant-numeric:oldstyle-nums proportional-nums;
+  }
+  .strona{max-width:62rem; margin:0 auto; padding:0 1.5rem 6rem}
+
+  /* ——— winieta ——— */
+  header.winieta{border-bottom:2px solid var(--ink); padding:3.5rem 0 1.1rem; margin-bottom:2.4rem}
+  .nadtytul{
+    font-family:var(--mono); font-size:.68rem; letter-spacing:.22em; text-transform:uppercase;
+    color:var(--ink-3); margin:0 0 1.1rem;
+  }
+  h1{
+    font-size:clamp(2.1rem,6vw,3.4rem); line-height:1.06; margin:0 0 .9rem;
+    font-weight:600; letter-spacing:-.015em;
+  }
+  h1 small{display:block; font-size:.36em; font-weight:400; color:var(--ink-2); letter-spacing:0; margin-top:.7rem; font-style:italic}
+  .metryka{
+    display:flex; flex-wrap:wrap; gap:.35rem 1.6rem; margin:1.4rem 0 0; padding:0; list-style:none;
+    font-family:var(--mono); font-size:.72rem; letter-spacing:.04em; color:var(--ink-2);
+  }
+  .metryka b{font-weight:600; color:var(--ink)}
+  .metryka a{color:var(--akcent); text-underline-offset:3px}
+
+  /* ——— spis treści ——— */
+  nav.spis{
+    border-bottom:1px solid var(--rule); padding-bottom:1.6rem; margin-bottom:2.6rem;
+    columns:2; column-gap:2.5rem;
+  }
+  nav.spis ol{list-style:none; margin:0; padding:0; counter-reset:s}
+  nav.spis li{counter-increment:s; break-inside:avoid; margin:.15rem 0}
+  nav.spis a{
+    display:flex; gap:.7rem; align-items:baseline; text-decoration:none; color:var(--ink-2);
+    font-size:.92rem; padding:.12rem 0;
+  }
+  nav.spis a::before{
+    content:counter(s,decimal-leading-zero); font-family:var(--mono); font-size:.66rem;
+    color:var(--ink-3); letter-spacing:.06em;
+  }
+  nav.spis a:hover,nav.spis a:focus-visible{color:var(--akcent); text-decoration:underline; text-underline-offset:3px}
+  @media (max-width:640px){nav.spis{columns:1}}
+
+  /* ——— sekcje z marginalią ——— */
+  section{
+    display:grid; grid-template-columns:minmax(0,var(--miara)) minmax(0,15rem);
+    gap:0 2.6rem; margin:0 0 3.4rem; align-items:start;
+  }
+  section > *{grid-column:1}
+  aside.margines{
+    grid-column:2; grid-row:span 30; position:sticky; top:1.5rem;
+    font-family:var(--mono); font-size:.7rem; line-height:1.6; color:var(--ink-3);
+    border-left:1px solid var(--rule); padding-left:1rem;
+  }
+  aside.margines b{display:block; color:var(--ink); font-weight:600; letter-spacing:.05em; text-transform:uppercase; font-size:.62rem; margin-bottom:.4rem}
+  aside.margines p{margin:0 0 .8rem}
+  @media (max-width:900px){
+    section{grid-template-columns:minmax(0,1fr)}
+    aside.margines{grid-column:1; grid-row:auto; position:static; border-left:3px solid var(--rule-2); margin:.4rem 0 1.4rem}
+  }
+  h2{
+    font-size:1.42rem; font-weight:600; letter-spacing:-.01em; margin:0 0 1rem;
+    padding-bottom:.45rem; border-bottom:1px solid var(--rule); display:flex; gap:.75rem; align-items:baseline;
+  }
+  h2 .nr{font-family:var(--mono); font-size:.7rem; color:var(--akcent); letter-spacing:.12em; padding-top:.2em}
+  h3{font-size:1rem; font-weight:600; margin:1.8rem 0 .6rem; letter-spacing:.01em}
+  p{margin:0 0 1rem; max-width:var(--miara)}
+  .lead{font-size:1.12rem; line-height:1.58}
+  .lead::first-letter{
+    float:left; font-size:3.3em; line-height:.82; padding:.06em .1em 0 0; color:var(--akcent); font-weight:600;
+  }
+  ul,ol{margin:0 0 1rem; padding-left:1.3rem}
+  li{margin:.3rem 0}
+  ul.cele{list-style:none; padding:0; counter-reset:c}
+  ul.cele li{counter-increment:c; padding-left:2.3rem; position:relative; margin:.7rem 0}
+  ul.cele li::before{
+    content:"C" counter(c); position:absolute; left:0; top:.15em; font-family:var(--mono);
+    font-size:.66rem; letter-spacing:.06em; color:var(--akcent); border:1px solid var(--rule-2);
+    padding:.1rem .3rem;
+  }
+  ul.niecele{list-style:none; padding:0}
+  ul.niecele li{padding-left:2.3rem; position:relative}
+  ul.niecele li::before{content:"—"; position:absolute; left:.7rem; color:var(--ink-3)}
+
+  /* ——— etykiety liczb ——— */
+  .et{
+    font-family:var(--mono); font-size:.6rem; letter-spacing:.1em; text-transform:uppercase;
+    padding:.1rem .3rem; border:1px solid currentColor; white-space:nowrap; vertical-align:.12em;
+  }
+  .et-f{color:var(--akcent-2)}
+  .et-s{color:var(--ink-3)}
+
+  /* ——— tabele ——— */
+  .przewin{overflow-x:auto; margin:0 0 1.2rem; border-bottom:1px solid var(--rule)}
+  table{border-collapse:collapse; width:100%; min-width:34rem; font-size:.88rem}
+  caption{
+    text-align:left; font-family:var(--mono); font-size:.66rem; letter-spacing:.14em;
+    text-transform:uppercase; color:var(--ink-3); padding:0 0 .6rem;
+  }
+  th,td{text-align:left; vertical-align:top; padding:.62rem .8rem .62rem 0; border-top:1px solid var(--rule)}
+  thead th{
+    border-top:2px solid var(--ink); border-bottom:1px solid var(--ink); font-family:var(--mono);
+    font-size:.64rem; letter-spacing:.1em; text-transform:uppercase; font-weight:600; color:var(--ink-2);
+  }
+  tbody tr:hover{background:var(--pap-2)}
+  .werdykt{font-family:var(--mono); font-size:.64rem; letter-spacing:.08em; font-weight:600}
+  .w-tak{color:var(--akcent-2)}
+  .w-nie{color:var(--akcent)}
+  .poziom{font-family:var(--mono); font-size:.66rem; letter-spacing:.06em}
+  .p-w{color:var(--akcent); font-weight:600}
+  .p-s{color:#9a6b1f}
+  .p-n{color:var(--ink-3)}
+
+  /* ——— zwijane ——— */
+  details{border-top:1px solid var(--rule); padding:.2rem 0}
+  details:last-of-type{border-bottom:1px solid var(--rule)}
+  summary{
+    cursor:pointer; list-style:none; padding:.75rem 2rem .75rem 0; position:relative;
+    font-weight:600; font-size:1rem;
+  }
+  summary::-webkit-details-marker{display:none}
+  summary::after{
+    content:"+"; position:absolute; right:.2rem; top:.62rem; font-family:var(--mono);
+    font-size:1.1rem; color:var(--akcent); line-height:1;
+  }
+  details[open] summary::after{content:"–"}
+  summary:focus-visible{outline:2px solid var(--akcent); outline-offset:2px}
+  summary .pod{display:block; font-weight:400; font-size:.82rem; color:var(--ink-3); font-family:var(--mono); letter-spacing:.02em; margin-top:.2rem}
+  details .tresc{padding:0 0 1.1rem}
+
+  /* ——— diagram ——— */
+  figure{margin:1.6rem 0; padding:0}
+  figcaption{font-family:var(--mono); font-size:.66rem; letter-spacing:.1em; text-transform:uppercase; color:var(--ink-3); margin-top:.7rem}
+  svg{display:block; width:100%; height:auto}
+  .diagram{border-top:1px solid var(--rule); border-bottom:1px solid var(--rule); padding:1.4rem 0}
+
+  /* ——— symulator ——— */
+  .symulator{border:1px solid var(--rule-2); padding:1.4rem; background:var(--pap-2)}
+  .symulator h3{margin-top:0}
+  .pola{display:grid; grid-template-columns:repeat(auto-fit,minmax(11rem,1fr)); gap:.9rem 1.4rem; margin:1.1rem 0 1.4rem}
+  .pole label{display:block; font-family:var(--mono); font-size:.64rem; letter-spacing:.06em; text-transform:uppercase; color:var(--ink-2); margin-bottom:.3rem}
+  .pole input{
+    width:100%; font-family:var(--mono); font-size:.95rem; padding:.4rem .5rem; color:var(--ink);
+    background:var(--pap); border:1px solid var(--rule-2); border-radius:0;
+  }
+  .pole input:focus-visible{outline:2px solid var(--akcent); outline-offset:1px}
+  .wyniki{display:grid; grid-template-columns:repeat(auto-fit,minmax(9rem,1fr)); gap:1rem 1.4rem; border-top:1px solid var(--rule-2); padding-top:1.1rem}
+  .wynik dt{font-family:var(--mono); font-size:.62rem; letter-spacing:.08em; text-transform:uppercase; color:var(--ink-3)}
+  .wynik dd{margin:.2rem 0 0; font-size:1.3rem; font-weight:600; font-variant-numeric:tabular-nums lining-nums}
+  .wynik dd .jedn{font-size:.6em; font-weight:400; color:var(--ink-2)}
+  .wynik.plus dd{color:var(--akcent-2)}
+  .wynik.minus dd{color:var(--akcent)}
+  .nota{font-family:var(--mono); font-size:.68rem; color:var(--ink-3); line-height:1.55; margin:1rem 0 0}
+
+  footer{border-top:2px solid var(--ink); margin-top:4rem; padding-top:1.1rem; font-family:var(--mono); font-size:.7rem; color:var(--ink-3); letter-spacing:.04em}
+  .doGory{color:var(--akcent); text-decoration:none; float:right}
+  .doGory:hover{text-decoration:underline}
+  @media (prefers-reduced-motion: reduce){*{transition:none!important; animation:none!important}}
+</style>
+</head>
+<body>
+<div class="strona">
+
+<header class="winieta">
+  <p class="nadtytul">RelAI · plan wdrożenia · dokument decyzyjny</p>
+  <h1>Płatności online w Parkly<small>Karta przy rezerwacji, faktura bez udziału człowieka</small></h1>
+  <ul class="metryka">
+    <li>Utworzony: <b>2026-08-12</b></li>
+    <li>Status planu: <b>DO AKCEPTACJI</b></li>
+    <li>Model wykonawczy: <b>Opus / Haiku</b></li>
+    <li>Wdrożenie: <a href="#s6">STATUS.md</a></li>
+  </ul>
+</header>
+
+<nav class="spis" aria-label="Spis sekcji">
+  <ol>
+    <li><a href="#s1">Streszczenie</a></li>
+    <li><a href="#s2">Cele i nie-cele</a></li>
+    <li><a href="#s3">Stan wyjściowy</a></li>
+    <li><a href="#s4">Warianty</a></li>
+    <li><a href="#s5">Rozwiązanie — jak to działa</a></li>
+    <li><a href="#s6">Etapy</a></li>
+    <li><a href="#s7">Ryzyka</a></li>
+    <li><a href="#s8">Przypadki brzegowe</a></li>
+    <li><a href="#s9">Do rozstrzygnięcia przez człowieka</a></li>
+    <li><a href="#s10">Aneksy</a></li>
+  </ol>
+</nav>
+
+<section id="s1">
+  <h2><span class="nr">§ 01</span> Streszczenie</h2>
+  <aside class="margines">
+    <b>Po co ta sekcja</b>
+    <p>Czytana samodzielnie ma wystarczyć do decyzji „czytam dalej czy nie".</p>
+    <b>Liczby</b>
+    <p>40 klientów — <span class="et et-f">FAKT</span> (stan na 2026-08-12).<br>6 h miesięcznie — <span class="et et-s">SZACUNEK</span>.</p>
+  </aside>
+  <p class="lead">Firmy korzystające z Parkly rezerwują miejsca parkingowe, ale rozliczają się fakturami
+  wystawianymi ręcznie raz w miesiącu. Przy 40 klientach <span class="et et-f">FAKT</span> zajmuje to
+  około 6 godzin miesięcznie <span class="et et-s">SZACUNEK</span> i generuje pomyłki.</p>
+  <p>Plan wprowadza płatności kartą przy rezerwacji przez Stripe oraz automatyczną fakturę po
+  opłaceniu. Dla użytkownika zmienia się jedno: rezerwacja kończy się zapłatą, a faktura przychodzi
+  mailem. Koszt wdrożenia: 4 etapy, 6–9 sesji roboczych <span class="et et-s">SZACUNEK</span>.</p>
+</section>
+
+<section id="s2">
+  <h2><span class="nr">§ 02</span> Cele i nie-cele</h2>
+  <aside class="margines">
+    <b>Zasada</b>
+    <p>Każdy cel ma zapisane, po czym poznamy, że został osiągnięty. Cel bez kryterium jest życzeniem.</p>
+    <b>Nie-cele</b>
+    <p>Bezpiecznik przeciw rozrostowi zakresu — lista jest wiążąca tak samo jak lista celów.</p>
+  </aside>
+  <h3>Cele</h3>
+  <ul class="cele">
+    <li>Rezerwacja opłacana kartą w tym samym kroku, w którym powstaje. <em>Sprawdzalne:</em> rezerwacja bez płatności nie może przejść do statusu „potwierdzona".</li>
+    <li>Faktura generowana automatycznie po zaksięgowaniu płatności i wysyłana mailem. <em>Sprawdzalne:</em> opłacona rezerwacja ma PDF w ciągu 5 minut.</li>
+    <li>Ręczne fakturowanie znika z procesu miesięcznego. <em>Sprawdzalne:</em> raport miesięczny nie zawiera pozycji „do wystawienia ręcznie".</li>
+    <li>Pełna historia płatności widoczna dla administratora firmy.</li>
+  </ul>
+  <h3>Nie-cele</h3>
+  <ul class="niecele">
+    <li>Zwroty i korekty faktur — proces zostaje ręczny w tej wersji.</li>
+    <li>Płatności cykliczne i abonamenty.</li>
+    <li>Inne metody płatności niż karta (BLIK, przelew) — do rozważenia po wdrożeniu.</li>
+  </ul>
+</section>
+
+<section id="s3">
+  <h2><span class="nr">§ 03</span> Stan wyjściowy</h2>
+  <aside class="margines">
+    <b>Reguła</b>
+    <p>Fakty z repozytorium, nie wrażenia. Każde zdanie tej sekcji da się sprawdzić w kodzie albo w bazie.</p>
+  </aside>
+  <ul>
+    <li>Rezerwacje działają i mają statusy <code>nowa / potwierdzona / anulowana</code> <span class="et et-f">FAKT</span>.</li>
+    <li>Nie ma żadnej integracji płatniczej ani modelu <code>Payment</code> w bazie <span class="et et-f">FAKT</span>.</li>
+    <li>Faktury powstają w arkuszu prowadzonym przez księgowość, poza systemem <span class="et et-f">FAKT</span>.</li>
+    <li>Aplikacja: Next.js + PostgreSQL, wdrożenie na Vercel; mail przez SMTP <span class="et et-f">FAKT</span>.</li>
+  </ul>
+</section>
+
+<section id="s4">
+  <h2><span class="nr">§ 04</span> Warianty</h2>
+  <aside class="margines">
+    <b>Wymóg</b>
+    <p>Wariant odrzucony bez podanego powodu jest ozdobnikiem. Każde odrzucenie ma tu jawny powód.</p>
+    <b>Werdykt</b>
+    <p>Dokładnie jeden wariant wybrany.</p>
+  </aside>
+  <details open>
+    <summary>A. Stripe Checkout <span class="pod">werdykt: wybrany — najniższe ryzyko przy danych kartowych</span></summary>
+    <div class="tresc">
+      <p>Przekierowanie na hostowaną stronę Stripe, powrót z webhookiem.</p>
+      <p><b>Plusy:</b> najmniej kodu; zgodność PCI po stronie Stripe; gotowe 3D Secure.<br>
+      <b>Minusy:</b> użytkownik opuszcza naszą domenę; ograniczona kontrola nad wyglądem.</p>
+      <p><span class="werdykt w-tak">WYBRANY</span> — najniższe ryzyko przy danych kartowych, wdrożenie o ~2 sesje krótsze <span class="et et-s">SZACUNEK</span>.</p>
+    </div>
+  </details>
+  <details>
+    <summary>B. Stripe Elements <span class="pod">werdykt: odrzucony — poszerza zakres zgodności PCI</span></summary>
+    <div class="tresc">
+      <p>Formularz karty osadzony w naszej aplikacji.</p>
+      <p><b>Plusy:</b> pełna kontrola nad UI; użytkownik zostaje u nas.<br>
+      <b>Minusy:</b> więcej kodu po naszej stronie; szerszy zakres odpowiedzialności PCI SAQ A-EP.</p>
+      <p><span class="werdykt w-nie">ODRZUCONY</span> — wygląd nie jest wart poszerzenia zakresu zgodności PCI przy pierwszym wdrożeniu.</p>
+    </div>
+  </details>
+  <details>
+    <summary>C. Przelewy24 / Tpay <span class="pod">werdykt: odrzucony — brak BLIK-a akceptowalny w v1</span></summary>
+    <div class="tresc">
+      <p>Lokalny operator z BLIK-iem.</p>
+      <p><b>Plusy:</b> BLIK popularny w PL; niższa prowizja przy niskich kwotach.<br>
+      <b>Minusy:</b> słabsza dokumentacja i biblioteki; brak gotowego wsparcia w naszym stacku.</p>
+      <p><span class="werdykt w-nie">ODRZUCONY</span> — brak BLIK-a jest akceptowalny w v1, bo klienci to firmy płacące kartą służbową.</p>
+    </div>
+  </details>
+</section>
+
+<section id="s5">
+  <h2><span class="nr">§ 05</span> Rozwiązanie — jak to działa</h2>
+  <aside class="margines">
+    <b>Punkty styku</b>
+    <p>Moduł rezerwacji — nowy status.<br>Moduł mailowy — nowy szablon.<br>Panel administratora — zakładka „Płatności".</p>
+    <b>Uwaga</b>
+    <p>Plan opisuje zamiar, nie implementację. W tej sekcji nie ma kodu.</p>
+  </aside>
+  <figure class="diagram">
+    <svg viewBox="0 0 900 250" role="img" aria-label="Przepływ płatności w sześciu krokach: rezerwacja oczekuje na płatność, sesja Stripe Checkout, webhook, potwierdzenie i zapis płatności, faktura mailem, wygaśnięcie po 15 minutach">
+      <defs>
+        <marker id="p1-strz" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+          <path d="M0 0 L10 5 L0 10 z" fill="#1c1a17"/>
+        </marker>
+      </defs>
+      <g font-family="Georgia, serif" font-size="13" fill="#1c1a17">
+        <g stroke="#1c1a17" stroke-width="1" fill="none">
+          <rect x="8"   y="60" width="128" height="62"/>
+          <rect x="184" y="60" width="128" height="62"/>
+          <rect x="360" y="60" width="128" height="62"/>
+          <rect x="536" y="60" width="128" height="62"/>
+          <rect x="712" y="60" width="128" height="62"/>
+        </g>
+        <g stroke="#1c1a17" stroke-width="1" marker-end="url(#p1-strz)">
+          <line x1="140" y1="91" x2="178" y2="91"/>
+          <line x1="316" y1="91" x2="354" y2="91"/>
+          <line x1="492" y1="91" x2="530" y2="91"/>
+          <line x1="668" y1="91" x2="706" y2="91"/>
+        </g>
+        <g font-family="Consolas, monospace" font-size="10" fill="#8c2f22" letter-spacing="1.5">
+          <text x="20" y="52">KROK 1</text><text x="196" y="52">KROK 2</text><text x="372" y="52">KROK 3</text>
+          <text x="548" y="52">KROK 4</text><text x="724" y="52">KROK 5</text>
+        </g>
+        <text x="20" y="85">Rezerwacja:</text><text x="20" y="103">oczekuje na płatność</text>
+        <text x="196" y="85">Sesja Stripe</text><text x="196" y="103">Checkout</text>
+        <text x="372" y="85">Webhook</text><text x="372" y="103">session.completed</text>
+        <text x="548" y="85">Status: potwierdzona</text><text x="548" y="103">zapis Payment</text>
+        <text x="724" y="85">Faktura PDF</text><text x="724" y="103">mailem</text>
+
+        <path d="M72 122 L72 176 L448 176" stroke="#8c2f22" stroke-width="1" fill="none" stroke-dasharray="5 4" marker-end="url(#p1-strz)"/>
+        <text x="86" y="196" font-family="Consolas, monospace" font-size="10" fill="#8c2f22" letter-spacing="1.5">KROK 6 — BRAK POTWIERDZENIA W 15 MIN</text>
+        <text x="86" y="214">Rezerwacja wygasa, miejsce wraca do puli</text>
+      </g>
+    </svg>
+    <figcaption>Rysunek 1. Przepływ płatności — sześć kroków, w tym ścieżka wygaśnięcia</figcaption>
+  </figure>
+  <ol>
+    <li>Użytkownik wybiera miejsce i termin; rezerwacja powstaje ze statusem <code>oczekuje na płatność</code> i czasem ważności 15 minut.</li>
+    <li>Aplikacja tworzy sesję Stripe Checkout i przekierowuje użytkownika.</li>
+    <li>Stripe potwierdza płatność webhookiem <code>checkout.session.completed</code>.</li>
+    <li>Webhook przestawia rezerwację na <code>potwierdzona</code>, zapisuje <code>Payment</code> i uruchamia generowanie faktury.</li>
+    <li>Faktura (PDF) trafia mailem do zamawiającego i do kopii księgowości.</li>
+    <li>Brak potwierdzenia w 15 minut — rezerwacja wygasa, miejsce wraca do puli.</li>
+  </ol>
+</section>
+
+<section id="s6">
+  <h2><span class="nr">§ 06</span> Etapy</h2>
+  <aside class="margines">
+    <b>MVP-first</b>
+    <p>Pierwszy etap ma dać efekt widoczny dla użytkownika, nie fundament, z którego nic jeszcze nie wynika.</p>
+    <b>Kamień milowy</b>
+    <p>„Można zapłacić" po E2 — 3–5 sesji <span class="et et-s">SZACUNEK</span>.</p>
+  </aside>
+  <div class="przewin">
+    <table>
+      <caption>Tabela 1. Etapy wdrożenia</caption>
+      <thead><tr><th>Etap</th><th>Nazwa</th><th>Zakres</th><th>Szacunek</th><th>Efekt widoczny</th></tr></thead>
+      <tbody>
+        <tr><td>E1</td><td>Model płatności i statusy</td><td>Tabela <code>Payment</code>, status „oczekuje na płatność", wygasanie po 15 min</td><td>1–2 sesje <span class="et et-s">SZACUNEK</span></td><td>Rezerwacja bez płatności sama znika z systemu — miejsce nie blokuje się na zawsze</td></tr>
+        <tr><td>E2</td><td>Stripe Checkout + webhook</td><td>Sesja płatności, obsługa webhooka, przejście statusów</td><td>2–3 sesje <span class="et et-s">SZACUNEK</span></td><td>Można realnie zapłacić kartą i dostać potwierdzoną rezerwację</td></tr>
+        <tr><td>E3</td><td>Faktury PDF i wysyłka</td><td>Generowanie PDF, szablon maila, kopia do księgowości</td><td>2 sesje <span class="et et-s">SZACUNEK</span></td><td>Faktura przychodzi mailem bez udziału człowieka</td></tr>
+        <tr><td>E4</td><td>Panel płatności dla administratora</td><td>Lista płatności, filtry, eksport CSV</td><td>1–2 sesje <span class="et et-s">SZACUNEK</span></td><td>Administrator widzi wszystkie płatności bez pytania księgowości</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>Suma: 6–9 sesji roboczych <span class="et et-s">SZACUNEK</span>. Kamień milowy „można zapłacić" po E2.</p>
+
+  <figure>
+    <svg viewBox="0 0 700 190" role="img" aria-label="Wykres słupkowy pracochłonności etapów: E1 od 1 do 2 sesji, E2 od 2 do 3, E3 2, E4 od 1 do 2">
+      <g font-family="Consolas, monospace" font-size="10" fill="#7b7365">
+        <line x1="52" y1="150" x2="680" y2="150" stroke="#bdb3a0"/>
+        <line x1="52" y1="20"  x2="52"  y2="150" stroke="#bdb3a0"/>
+        <text x="20" y="154">0</text><text x="20" y="111">1</text><text x="20" y="68">2</text><text x="20" y="25">3</text>
+        <g stroke="#d7cfc0" stroke-dasharray="2 4">
+          <line x1="52" y1="107" x2="680" y2="107"/><line x1="52" y1="64" x2="680" y2="64"/><line x1="52" y1="21" x2="680" y2="21"/>
+        </g>
+      </g>
+      <g>
+        <rect x="90"  y="107" width="90" height="43" fill="#8c2f22" opacity=".85"/>
+        <rect x="90"  y="64"  width="90" height="43" fill="#8c2f22" opacity=".3"/>
+        <rect x="240" y="64"  width="90" height="86" fill="#8c2f22" opacity=".85"/>
+        <rect x="240" y="21"  width="90" height="43" fill="#8c2f22" opacity=".3"/>
+        <rect x="390" y="64"  width="90" height="86" fill="#8c2f22" opacity=".85"/>
+        <rect x="540" y="107" width="90" height="43" fill="#8c2f22" opacity=".85"/>
+        <rect x="540" y="64"  width="90" height="43" fill="#8c2f22" opacity=".3"/>
+      </g>
+      <g font-family="Georgia, serif" font-size="12" fill="#1c1a17" text-anchor="middle">
+        <text x="135" y="168">E1</text><text x="285" y="168">E2</text><text x="435" y="168">E3</text><text x="585" y="168">E4</text>
+      </g>
+      <g font-family="Consolas, monospace" font-size="9" fill="#7b7365" text-anchor="middle">
+        <text x="135" y="183">1–2</text><text x="285" y="183">2–3</text><text x="435" y="183">2</text><text x="585" y="183">1–2</text>
+      </g>
+    </svg>
+    <figcaption>Rysunek 2. Pracochłonność etapów w sesjach — pełne wypełnienie: dolna granica, jasne: górna <span class="et et-s">SZACUNEK</span></figcaption>
+  </figure>
+
+  <div class="symulator">
+    <h3>Symulator kosztu i zwrotu</h3>
+    <p style="margin-bottom:0">Wszystkie liczby poniżej są <span class="et et-s">szacunkiem</span> — zmień wejścia, żeby zobaczyć, przy jakich wolumenach wdrożenie się zwraca.</p>
+    <div class="pola">
+      <div class="pole"><label for="p1-rez">Rezerwacje / miesiąc</label><input id="p1-rez" type="number" value="320" min="0" step="10"></div>
+      <div class="pole"><label for="p1-val">Średnia wartość (zł)</label><input id="p1-val" type="number" value="85" min="0" step="5"></div>
+      <div class="pole"><label for="p1-godz">Ręczne fakturowanie (h/mies.)</label><input id="p1-godz" type="number" value="6" min="0" step="0.5"></div>
+      <div class="pole"><label for="p1-stawka">Koszt godziny księgowości (zł)</label><input id="p1-stawka" type="number" value="120" min="0" step="10"></div>
+      <div class="pole"><label for="p1-proc">Prowizja Stripe (%)</label><input id="p1-proc" type="number" value="1.5" min="0" step="0.1"></div>
+      <div class="pole"><label for="p1-fix">Opłata stała / transakcję (zł)</label><input id="p1-fix" type="number" value="1" min="0" step="0.1"></div>
+      <div class="pole"><label for="p1-strat">Rezerwacje tracone przez blokady (%)</label><input id="p1-strat" type="number" value="6" min="0" max="100" step="1"></div>
+      <div class="pole"><label for="p1-marza">Marża na rezerwacji (%)</label><input id="p1-marza" type="number" value="35" min="0" max="100" step="1"></div>
+      <div class="pole"><label for="p1-wdr">Koszt wdrożenia (zł)</label><input id="p1-wdr" type="number" value="6750" min="0" step="250"></div>
+    </div>
+    <dl class="wyniki">
+      <div class="wynik"><dt>Obrót miesięczny</dt><dd id="p1-o">—<span class="jedn"> zł</span></dd></div>
+      <div class="wynik minus"><dt>Prowizja operatora</dt><dd id="p1-pr">—<span class="jedn"> zł</span></dd></div>
+      <div class="wynik plus"><dt>Oszczędność pracy</dt><dd id="p1-op">—<span class="jedn"> zł</span></dd></div>
+      <div class="wynik plus"><dt>Odzyskane rezerwacje</dt><dd id="p1-od">—<span class="jedn"> zł</span></dd></div>
+      <div class="wynik" id="p1-bilansBox"><dt>Bilans miesięczny</dt><dd id="p1-b">—<span class="jedn"> zł</span></dd></div>
+      <div class="wynik"><dt>Zwrot wdrożenia</dt><dd id="p1-zw">—</dd></div>
+      <div class="wynik"><dt>Próg opłacalności</dt><dd id="p1-prog">—<span class="jedn"> h/mies.</span></dd></div>
+    </dl>
+    <figure style="margin:1.6rem 0 0">
+      <svg id="p1-wykres" viewBox="0 0 700 220" role="img" aria-label="Wykres skumulowanego bilansu w kolejnych 24 miesiącach, przeliczany na żywo z pól symulatora">
+        <g id="p1-siatka"></g>
+        <line id="p1-os" x1="52" y1="110" x2="680" y2="110" stroke="#bdb3a0"/>
+        <polyline id="p1-linia" fill="none" stroke="#2f5d4a" stroke-width="2"/>
+        <line id="p1-prog-linia" stroke="#8c2f22" stroke-width="1" stroke-dasharray="4 4" x1="0" y1="0" x2="0" y2="0"/>
+        <text id="p1-prog-opis" x="0" y="0" font-family="Consolas, monospace" font-size="10" fill="#8c2f22"></text>
+        <g id="p1-etykiety" font-family="Consolas, monospace" font-size="9" fill="#7b7365"></g>
+      </svg>
+      <figcaption>Rysunek 3. Skumulowany bilans przez 24 miesiące — punkt przecięcia z osią to moment zwrotu <span class="et et-s">SZACUNEK</span></figcaption>
+    </figure>
+    <p class="nota">Wzór: bilans = (godziny × stawka) + (obrót × udział traconych × marża) − (obrót × prowizja% + rezerwacje × opłata stała).
+    Model pomija koszty utrzymania integracji i ewentualne zwroty.</p>
+  </div>
+</section>
+
+<section id="s7">
+  <h2><span class="nr">§ 07</span> Ryzyka</h2>
+  <aside class="margines">
+    <b>Mitygacja</b>
+    <p>„Test X w etapie E3" — konkret. „Uważać" nie jest mitygacją.</p>
+    <b>Przeniesienie</b>
+    <p>Ryzyka do stałego monitorowania trafiają także do tabeli ryzyk w dzienniku projektu.</p>
+  </aside>
+  <div class="przewin">
+    <table>
+      <caption>Tabela 2. Ryzyka i mitygacje</caption>
+      <thead><tr><th>#</th><th>Ryzyko</th><th>Poziom</th><th>Mitygacja</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td>Webhook nie dotrze albo dotrze dwa razy — rezerwacja nieopłacona lub podwójna płatność</td><td><span class="poziom p-w">WYSOKI</span></td><td>Idempotencja po <code>event.id</code>; test w E2 na powtórzonym webhooku; ręczna procedura pogodzenia w panelu (E4)</td></tr>
+        <tr><td>2</td><td>Zgodność PCI i przechowywanie danych kartowych</td><td><span class="poziom p-w">WYSOKI</span></td><td>Wariant A: dane kartowe nigdy nie trafiają na nasz serwer; w E2 test, że w logach nie ma numeru karty</td></tr>
+        <tr><td>3</td><td>Faktura z błędnym NIP-em trafi do klienta</td><td><span class="poziom p-s">ŚREDNI</span></td><td>Walidacja NIP przy rezerwacji; pierwsze 20 faktur do akceptacji księgowości przed wysyłką</td></tr>
+        <tr><td>4</td><td>Wygasanie rezerwacji zwolni miejsce już zajęte przez kogoś innego</td><td><span class="poziom p-s">ŚREDNI</span></td><td>Blokada miejsca do czasu wygaśnięcia; test współbieżności w E1</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section id="s8">
+  <h2><span class="nr">§ 08</span> Przypadki brzegowe — rozstrzygnięte</h2>
+  <aside class="margines">
+    <b>Reguła</b>
+    <p>Każdy wiersz kończy się decyzją, nie pytaniem. Pytanie bez odpowiedzi należy do sekcji 9.</p>
+  </aside>
+  <details open>
+    <summary>Użytkownik zamyka przeglądarkę w trakcie płatności</summary>
+    <div class="tresc"><p>Rezerwacja czeka 15 minut, potem wygasa. Webhook przychodzący po wygaśnięciu tworzy płatność ze statusem <code>do zwrotu</code> i alert dla administratora.</p></div>
+  </details>
+  <details>
+    <summary>Płatność częściowo udana (Stripe: <code>requires_action</code>)</summary>
+    <div class="tresc"><p>Rezerwacja zostaje w stanie „oczekuje na płatność" do końca 15 minut; brak osobnego statusu.</p></div>
+  </details>
+  <details>
+    <summary>Firma chce fakturę zbiorczą na koniec miesiąca</summary>
+    <div class="tresc"><p>Poza zakresem v1 — pozostaje przy fakturze per rezerwacja; wpisane jako nie-cel.</p></div>
+  </details>
+  <details>
+    <summary>Stripe niedostępny</summary>
+    <div class="tresc"><p>Rezerwacja nie powstaje, komunikat „płatności chwilowo niedostępne"; brak trybu awaryjnego „zapłacę później".</p></div>
+  </details>
+  <details>
+    <summary>Kwota 0 zł (miejsce bezpłatne dla zarządu)</summary>
+    <div class="tresc"><p>Pomijamy Stripe, rezerwacja od razu „potwierdzona", faktura nie powstaje.</p></div>
+  </details>
+</section>
+
+<section id="s9">
+  <h2><span class="nr">§ 09</span> Do rozstrzygnięcia przez człowieka</h2>
+  <aside class="margines">
+    <b>Zakres</b>
+    <p>Wyłącznie decyzje, których agent nie ma prawa podjąć: biznesowe, kosztowe, prawne, dostępowe.</p>
+  </aside>
+  <div class="przewin">
+    <table>
+      <caption>Tabela 3. Decyzje człowieka</caption>
+      <thead><tr><th>Sprawa</th><th>Konsekwencja</th><th>Termin</th></tr></thead>
+      <tbody>
+        <tr><td>Konto Stripe: firmowe czy nowe dedykowane</td><td>Blokuje E2 — bez kluczy nie ma integracji</td><td>przed startem E2</td></tr>
+        <tr><td>Czy faktury wystawia nasz system, czy zewnętrzna księgowość przez API</td><td>Zmienia zakres E3 o ~1 sesję <span class="et et-s">SZACUNEK</span></td><td>przed startem E3</td></tr>
+        <tr><td>Prowizja: doliczana klientowi czy wliczona w cenę</td><td>Decyzja cenowa, wpływa na komunikat w koszyku</td><td>przed startem E2</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section id="s10">
+  <h2><span class="nr">§ 10</span> Aneksy</h2>
+  <aside class="margines">
+    <b>Zamrożenie</b>
+    <p>Po akceptacji sekcje 1–9 są nietykalne. Nawet poprawka literówki merytorycznej jest aneksem.</p>
+  </aside>
+  <p>Po akceptacji sekcje 1–9 są zamrożone. Zmiany wyłącznie tutaj, jako datowane aneksy.
+  Odchylenie fundamentalne — zmiana celu albo wybranego wariantu — oznacza status
+  CZĘŚCIOWO ZREALIZOWANY i nowy plan z linkiem do tego dokumentu.</p>
+  <p style="color:var(--ink-3)">Aneksów brak.</p>
+</section>
+
+<footer>
+  <a class="doGory" href="#">wróć na górę</a>
+  RelAI (Opus) + Łukasz · 2026-08-12 · propozycja designu 1 z 5 — „Redakcja"
+</footer>
+
+</div>
+<script>
+(function(){
+  var ids=['rez','val','godz','stawka','proc','fix','strat','marza','wdr'];
+  var el={}; ids.forEach(function(k){el[k]=document.getElementById('p1-'+k);});
+  var fmt=new Intl.NumberFormat('pl-PL',{maximumFractionDigits:0});
+  var fmt1=new Intl.NumberFormat('pl-PL',{maximumFractionDigits:1});
+  function v(k){var n=parseFloat(el[k].value); return isFinite(n)?n:0;}
+
+  function licz(){
+    var obrot=v('rez')*v('val');
+    var prowizja=obrot*v('proc')/100 + v('rez')*v('fix');
+    var oszcz=v('godz')*v('stawka');
+    var odzysk=obrot*(v('strat')/100)*(v('marza')/100);
+    var bilans=oszcz+odzysk-prowizja;
+    var wdr=v('wdr');
+    var zwrot=bilans>0?wdr/bilans:Infinity;
+    var prog=v('stawka')>0?Math.max(0,(prowizja-odzysk)/v('stawka')):0;
+    return {obrot:obrot,prowizja:prowizja,oszcz:oszcz,odzysk:odzysk,bilans:bilans,wdr:wdr,zwrot:zwrot,prog:prog};
+  }
+
+  function tekst(id,s){document.getElementById(id).firstChild.nodeValue=s;}
+
+  function rysuj(r){
+    var W=700,H=220,L=52,R=680,SR=110,M=24;
+    var pkt=[],min=0,max=0;
+    for(var m=0;m<=M;m++){var y=r.bilans*m-r.wdr; pkt.push(y); if(y<min)min=y; if(y>max)max=y;}
+    var zakres=Math.max(max-min,1);
+    var gora=18,dol=196;
+    function sy(val){return dol-((val-min)/zakres)*(dol-gora);}
+    function sx(m){return L+(m/M)*(R-L);}
+    var d=[];
+    for(var i=0;i<=M;i++){d.push(sx(i).toFixed(1)+','+sy(pkt[i]).toFixed(1));}
+    document.getElementById('p1-linia').setAttribute('points',d.join(' '));
+    var y0=sy(0);
+    var os=document.getElementById('p1-os');
+    os.setAttribute('y1',y0.toFixed(1)); os.setAttribute('y2',y0.toFixed(1));
+
+    var siatka=document.getElementById('p1-siatka'); siatka.textContent='';
+    var eti=document.getElementById('p1-etykiety'); eti.textContent='';
+    [0,6,12,18,24].forEach(function(m){
+      var x=sx(m);
+      var ln=document.createElementNS('http://www.w3.org/2000/svg','line');
+      ln.setAttribute('x1',x); ln.setAttribute('x2',x); ln.setAttribute('y1',gora-6); ln.setAttribute('y2',dol);
+      ln.setAttribute('stroke','#d7cfc0'); ln.setAttribute('stroke-dasharray','2 4');
+      siatka.appendChild(ln);
+      var t=document.createElementNS('http://www.w3.org/2000/svg','text');
+      t.setAttribute('x',x); t.setAttribute('y',dol+16); t.setAttribute('text-anchor','middle');
+      t.appendChild(document.createTextNode(m+' mies.'));
+      eti.appendChild(t);
+    });
+
+    var lp=document.getElementById('p1-prog-linia'), lo=document.getElementById('p1-prog-opis');
+    if(isFinite(r.zwrot)&&r.zwrot<=M){
+      var x=sx(r.zwrot);
+      lp.setAttribute('x1',x); lp.setAttribute('x2',x); lp.setAttribute('y1',gora-6); lp.setAttribute('y2',dol);
+      lo.setAttribute('x',Math.min(x+6,R-140)); lo.setAttribute('y',gora+4);
+      lo.textContent='zwrot: '+fmt1.format(r.zwrot)+' mies.';
+    }else{
+      lp.setAttribute('x1',0); lp.setAttribute('x2',0); lp.setAttribute('y1',0); lp.setAttribute('y2',0);
+      lo.textContent='';
+    }
+  }
+
+  function odswiez(){
+    var r=licz();
+    tekst('p1-o',fmt.format(r.obrot));
+    tekst('p1-pr',fmt.format(r.prowizja));
+    tekst('p1-op',fmt.format(r.oszcz));
+    tekst('p1-od',fmt.format(r.odzysk));
+    tekst('p1-b',(r.bilans>0?'+':'')+fmt.format(r.bilans));
+    var box=document.getElementById('p1-bilansBox');
+    box.className='wynik '+(r.bilans>=0?'plus':'minus');
+    var zw=document.getElementById('p1-zw');
+    zw.textContent=isFinite(r.zwrot)?fmt1.format(r.zwrot)+' mies.':'nie zwraca się';
+    tekst('p1-prog',fmt1.format(r.prog));
+    rysuj(r);
+  }
+
+  ids.forEach(function(k){el[k].addEventListener('input',odswiez);});
+  odswiez();
+})();
+</script>
+</body>
+</html>
