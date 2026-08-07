@@ -18,7 +18,8 @@ Czytaj w kolejności, nie skanuj pełnotekstowo repo:
 | Analiza projektów historycznych | ZAKOŃCZONA | DZIENNIK, wpis 2026-08-07 |
 | Wywiad architektoniczny (~90 decyzji) | ZAKOŃCZONY | docs/DECYZJE.md |
 | Master plan budowy | **ZAAKCEPTOWANY 2026-08-07** (Aneks A) | docs/plany/BUDOWA_RELAI/PLAN.html |
-| Implementacja (E1–E10) | E1 GOTOWY DO STARTU | docs/plany/BUDOWA_RELAI/PROMPT_ETAP_1.md |
+| E1 — fundament pluginu (wersja 0.1.0) | **ZREALIZOWANY 2026-08-07** | `.claude-plugin/`, `skills/relai-core/`, `templates/` |
+| Implementacja (E2–E10) | E2 GOTOWY DO STARTU | docs/plany/BUDOWA_RELAI/PROMPT_ETAP_2.md |
 
 ## Reguły procesu
 
