@@ -42,6 +42,13 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
     mówiący o zrobionej rzeczy, której nie zrobiono, jest gorszy niż brak wpisu. (L-0014)
 15. Komenda wywołana wprost **nie ładuje** skilla, do którego się odwołuje. Potrzebną procedurę
     albo wpisujesz do komendy, albo każesz jej jawnie wczytać skill. (L-0015)
+16. Komunikaty hooków są **celowo ASCII** — bez polskich diakrytyków na stdout/stderr hooka;
+    diakrytyki w treści plików tak, w wyjściu procesów hooków nie. (L-0016)
+17. Działanie hooka dowodzisz **efektem** (plik istnieje/nie istnieje, suma kontrolna, treść
+    odpowiedzi modelu), nie zdarzeniem w transkrypcie — `stream-json` loguje tylko hooki
+    SessionStart. Payloady testowe hooków buduj Nodem, nie echem w shellu. (L-0017)
+18. Kryterium weryfikacji formułuj na stanie, który kontrolujesz, nie na przewidywanym formacie
+    wyjścia cudzego narzędzia. (L-0018)
 
 ## Lekcje
 
@@ -221,3 +228,38 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
   wczytać skill** (narzędzie `Skill`) jako pierwszy krok tej części pracy.
 - **Źródło:** pomiary w etapie E4 (2026-08-07); po dopisaniu jawnego wczytania — sekwencja D-36
   pełna, ze skillem widocznym w transkrypcie.
+
+### L-0016 — Polskie znaki w wyjściu hooka na Windows · 2026-08-07 · AKTYWNA
+
+- **Trigger:** punkt weryfikacji E5 kazał rozstrzygnąć, czy komunikaty hooków niosą polskie znaki,
+  czy są świadomie ASCII; równolegle test hooka przez `echo` w bashu przekłamał „ó" w ścieżce
+  i guard po cichu odmówił działania.
+- **Przyczyna:** wyjście procesu hooka przechodzi przez warstwy konsoli Windows o niejednolitym
+  kodowaniu; treść plików czytana narzędziami Claude Code jest od tego wolna.
+- **Zasada:** komunikaty hooków (stdout/stderr, JSON `permissionDecisionReason`,
+  `additionalContext`, `systemMessage`) piszemy bez polskich diakrytyków; dokumenty i skille —
+  normalną polszczyzną.
+- **Źródło:** rozstrzygnięcie punktu weryfikacji etapu E5 (2026-08-07), nie korekta użytkownika.
+
+### L-0017 — Dowód działania hooka to efekt, nie zdarzenie w transkrypcie · 2026-08-07 · AKTYWNA
+
+- **Trigger:** żywy test `console-log-warn` wyglądał na FAIL: `grep` po transkrypcie
+  `stream-json` nie znalazł ostrzeżenia, a bezpośredni test przez `echo` milczał. Hook działał —
+  transkrypt loguje wyłącznie hooki SessionStart, a `echo` w bashu przekłamał „ó" w `cwd`.
+- **Przyczyna:** dwa niezależne artefakty pomiaru: format transkryptu nie itemizuje zdarzeń
+  PreToolUse/PostToolUse/Stop; shell na Windows psuje diakrytyki w payloadzie.
+- **Zasada:** zachowanie hooka mierzysz efektem na dysku (obecność/suma kontrolna pliku) i treścią
+  odpowiedzi modelu; payload testowy budujesz w Node (plik skryptu), nigdy `echo`/heredoc
+  z polskimi znakami.
+- **Źródło:** debugowanie fałszywego FAIL-a w etapie E5 (2026-08-07).
+
+### L-0018 — Kryterium weryfikacji przewidujące cudzy format · 2026-08-07 · AKTYWNA
+
+- **Trigger:** PROMPT_ETAP_5 wymagał, by `claude plugin details` pokazało „Hooks (8)"; realne CLI
+  liczy typy zdarzeń i pokazuje „Hooks (4)" przy ośmiu zarejestrowanych plikach.
+- **Przyczyna:** punkt weryfikacji zapisany jako przewidywanie formatu wyjścia narzędzia, którego
+  nie kontrolujemy; przewidywanie się zestarzało, zanim zostało użyte.
+- **Zasada:** punkt weryfikacji opieraj na stanie, który kontrolujesz (zawartość `hooks.json`,
+  zachowanie ośmiu hooków), a wynik cudzego narzędzia traktuj jako sygnał pomocniczy do
+  zinterpretowania, nie jako kryterium dosłowne.
+- **Źródło:** przegląd zamykający etap E5 (2026-08-07), nie korekta użytkownika.

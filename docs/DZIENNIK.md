@@ -5,13 +5,13 @@
 | # | Ryzyko | Poziom | Status | Mitygacja |
 |---|---|---|---|---|
 | R1 | Scope creep jak w vibe-forge (GUI, enterprise-szablony) | Wysoki | OTWARTE | D-80: twarda lista „poza v1"; każdy pomysł spoza listy → DZIENNIK „świadomie odłożone" |
-| R2 | Auto-wyzwalanie skilli bywa zawodne (agent nie zastosuje zasad bez komendy) | Średni (obniżony z wysokiego 2026-08-07 po pomiarze) | **ZMIERZONE 2026-08-07, OTWARTE** | Podwójna warstwa: opisy skilli + reguły w projektowym CLAUDE.md zawsze w kontekście; testy fraz w pilotażu. **2026-08-07 (E1):** `relai-core` zainstalowany i widoczny w inwentarzu pluginu, ale samo auto-wyzwolenie w świeżej sesji NIEZWERYFIKOWANE. **2026-08-07 (E2):** test NIEWYKONANY — plugin odinstalowany na czas budowy na polecenie użytkownika (L-0004), więc skill nie miał prawa się wyzwolić; pomiar przeniesiony do pilotażu E10, po docelowej instalacji. Ryzyko pozostaje OTWARTE i niezmierzone przez dwa etapy (L-0005). **2026-08-07 (E3):** nadal niezmierzone — doszedł drugi skill (`relai-planning`) wyzwalany frazą, więc zakres ryzyka wzrósł. **2026-08-07 (pomiar, na wniosek użytkownika):** plugin zainstalowany, sześć świeżych sesji `claude -p`. Wersja 0.3.0: 1/4 trafień — brak wyzwolenia na prompcie naturalnym i na „przygotuj plan…", z realnym rozjazdem konwencji. Po poprawce opisów (0.3.1): 2/2 trafienia. Ryzyko zostaje otwarte: próba mała, `-p` blokuje `AskUserQuestion`, a wynik zależy od inwentarza skilli na maszynie. Kontrola ponowna w E10 (wiersz E10 w `STATUS.md`) |
+| R2 | Auto-wyzwalanie skilli bywa zawodne (agent nie zastosuje zasad bez komendy) | **Niski** (2026-08-07 po E5; wcześniej średni) | **ZMIERZONE 2026-08-07, OTWARTE** | Podwójna warstwa: opisy skilli + reguły w projektowym CLAUDE.md zawsze w kontekście; testy fraz w pilotażu. **2026-08-07 (E1):** `relai-core` zainstalowany i widoczny w inwentarzu pluginu, ale samo auto-wyzwolenie w świeżej sesji NIEZWERYFIKOWANE. **2026-08-07 (E2):** test NIEWYKONANY — plugin odinstalowany na czas budowy na polecenie użytkownika (L-0004), więc skill nie miał prawa się wyzwolić; pomiar przeniesiony do pilotażu E10, po docelowej instalacji. Ryzyko pozostaje OTWARTE i niezmierzone przez dwa etapy (L-0005). **2026-08-07 (E3):** nadal niezmierzone — doszedł drugi skill (`relai-planning`) wyzwalany frazą, więc zakres ryzyka wzrósł. **2026-08-07 (pomiar, na wniosek użytkownika):** plugin zainstalowany, sześć świeżych sesji `claude -p`. Wersja 0.3.0: 1/4 trafień — brak wyzwolenia na prompcie naturalnym i na „przygotuj plan…", z realnym rozjazdem konwencji. Po poprawce opisów (0.3.1): 2/2 trafienia. Ryzyko zostaje otwarte: próba mała, `-p` blokuje `AskUserQuestion`, a wynik zależy od inwentarza skilli na maszynie. Kontrola ponowna w E10 (wiersz E10 w `STATUS.md`). **2026-08-07 (E5):** hook `session-context` (SessionStart) wstrzykuje rytuał startu, datę dnia i siatkę promptów niezależnie od skilli — zmierzone 2/2 na neutralnym prompcie przy **zerze** wywołań `Skill`. Poziom obniżony do niskiego; do potwierdzenia w sesji interaktywnej w E10 |
 | R3 | Adopcja uszkodzi żywy projekt użytkownika | Wysoki | OTWARTE | D-70: backup+raport+recovery obowiązkowe; scenariusz akceptacyjny z pełnym testem recovery |
-| R4 | Hooki Node na Windows (ścieżki ze spacjami, kodowanie PL) | Średni | OTWARTE | Test na ścieżce ze spacją i polskimi znakami w E5; brak zależności poza Node wbudowanym w Claude Code |
+| R4 | Hooki Node na Windows (ścieżki ze spacjami, kodowanie PL) | Średni | **ZAMKNIĘTE 2026-08-07 (E5)** | Osiem hooków przetestowane na ścieżce `Próba RelAI E5` (spacja + „ó"): 39/39 testów jednostkowych i siedem sesji integracyjnych bez błędów kodowania i ścieżek. Komunikaty hooków świadomie ASCII (L-0016); zero zależności npm |
 | R5 | Dokumenty puchną i zjadają kontekst | Średni | OTWARTE | D-14/D-15: rotacja DZIENNIKA, kompresja LEKCJI, destylaty czytane na starcie |
 | R6 | Aktualizacja pluginu nadpisze lokalne nadpisania użytkowników | Średni | OTWARTE | D-72: diff + zgoda + pierwszeństwo lokalnych nadpisań; test w pilotażu |
 | R7 | Model wykonawczy (Sonnet/Opus) obniży jakość implementacji etapów | Średni | OTWARTE | Prompty etapowe z sekcją Weryfikacja + przegląd Fable po kluczowych etapach |
-| R8 | Sesja nie ma dostępu do katalogu pluginu — `templates/` ze specyfikacjami jest nieczytelny bez `--add-dir`, więc inicjalizacja projektu (D-60) zatrzymuje się na braku źródła | **Wysoki** | OTWARTE (nowe 2026-08-07, E4) | Doraźnie: rzeczy krytyczne wypisane w treści skilli (L-0011, L-0012) — zmierzone, działa dla promptów etapowych i `STATUS.md`. Systemowo: E5 razem z hookami i z rozwiązaniem tego samego problemu dla warstwy globalnej (L-0010). Do rozstrzygnięcia w E5, czy specyfikacje zostają plikami, czy przenoszą się do treści skilli |
+| R8 | Sesja nie ma dostępu do katalogu pluginu — `templates/` ze specyfikacjami jest nieczytelny bez `--add-dir`, więc inicjalizacja projektu (D-60) zatrzymuje się na braku źródła | Wysoki | **ZAMKNIĘTE 2026-08-07 (E5)** | Rozwiązanie: proces hooka ma pełny dostęp do dysku, więc `session-context` kopiuje `templates/*.md` do `.claude/relai/templates/` projektu (SessionStart w projektach RelAI; PostToolUse na wywołaniu skilla RelAI — pokrywa inicjalizację w świeżym folderze) i wstrzykuje ustawienia globalne `~/.claude/relai/` (domyka też L-0010). Zmierzone: inicjalizacja **bez** `--add-dir` dała komplet ośmiu dokumentów, specyfikacje czytane z lokalnej kopii (8/8 plików). D-60 nietknięte — specyfikacje pozostają plikami. Ryzyko szczątkowe: provisioning przy inicjalizacji wymaga wyzwolenia skilla (R2); fallback `--add-dir` opisany w skillach |
 
 ## Wpisy
 
@@ -401,3 +401,89 @@ Autor: RelAI (Opus) + Lukasz
   zostaje materiałem referencyjnym. To dotyka D-60, więc decyzja należy do człowieka.
 - Uruchomić E5: świeża sesja Claude Code w folderze `RelAI`, model **Opus**, polecenie: „Wykonaj
   docs/plany/BUDOWA_RELAI/PROMPT_ETAP_5.md".
+
+### 2026-08-07 — E5: osiem hooków Node.js, zamknięcie R8 — RelAI 0.5.0
+
+Autor: RelAI (Fable) + Lukasz
+
+**Odstępstwo od D-85, jawnie zlecone:** etap wykonał Fable na wyraźne polecenie użytkownika
+(„Zweryfikuj dotychczasową pracę słabszego modelu OPUS […] a następnie wykonaj PROMPT_ETAP_5"),
+poprzedzone przeglądem E4. Wynik przeglądu: **zero defektów do poprawy** — wersje 0.4.0 spójne,
+pięć poprawek E4 w osobnych commitach, dokumenty i specyfikacje wzajemnie zgodne.
+
+**Zrobione:**
+- **`hooks/` — osiem hooków Node.js** (jeden plik na hook, zero zależności npm, nazwy ASCII),
+  wszystkie z guardem wg konwencji z README: `secret-scanner` i `config-protection` (PreToolUse,
+  BLOKUJĄ), `quality-gate`, `console-log-warn`, `design-quality-check` (PostToolUse, OSTRZEGAJĄ),
+  `doc-sync-reminder` (Stop, OSTRZEGA), `auto-format` (Stop, CICHY), `session-context`
+  (SessionStart + PostToolUse na narzędziu `Skill`, CICHY). Rejestracja w `hooks/hooks.json`,
+  wpiętym w `plugin.json` polem `hooks` — walidator przyjmuje tę formę.
+- **`config-protection` blokuje przez `permissionDecision: "ask"`** — zgodę wyraża człowiek
+  w oknie uprawnień (jawna wypowiedź w tej sesji); w trybie headless „ask" działa jak odmowa.
+  `secret-scanner` używa twardego `deny` (poluzowanie tylko decyzją per projekt, D-42).
+- **Mitygacja R2:** `session-context` na SessionStart wstrzykuje datę dnia, kontrolę wersji
+  projekt↔plugin, wymuszenie rytuału startu i siatkę brakujących promptów (D-34).
+- **Zamknięcie R8 i L-0010:** proces hooka ma pełny dostęp do dysku — `session-context` kopiuje
+  specyfikacje do `.claude/relai/templates/` projektu (z `.gitignore` „*", git ich nie widzi)
+  i wstrzykuje treść `~/.claude/relai/USTAWIENIA.md`. Dla inicjalizacji w świeżym folderze ten sam
+  hook reaguje na PostToolUse wywołania skilla RelAI — doprecyzowanie konwencji hook-guard opisane
+  w README (wywołanie skilla RelAI jest świadomym użyciem pluginu; tryb gościa pozostaje „nie").
+  Wzorzec „jeden hook, dwa zdarzenia" ma precedens w tabeli 5.2 planu (doc-sync-reminder).
+  Skille i `/relai-stage` czytają odtąd specyfikacje z lokalnej kopii; fallback `--add-dir` opisany.
+- **Wersja 0.5.0** w manifestach, README, `SPEC_KOMENDY` (zakres 0.5.0 z zachowaniami hooków),
+  `SPEC_USTAWIENIA`, obu skillach i markerze `docs/USTAWIENIA.md`; `grep` po `0.4.0` — trafienia
+  wyłącznie historyczne.
+
+**Zweryfikowane — jak dokładnie:**
+- **Sondy R8 (3 świeże sesje):** odczyt `templates/`, katalogu skilla i katalogu skilla po jawnym
+  wywołaniu `Skill` — wszystkie „ODCZYT ZABLOKOWANY"; to rozstrzygnęło wybór wariantu (hook,
+  nie przenosiny plików).
+- **39/39 testów jednostkowych** (runner Node, payloady budowane w Node — L-0017) na ścieżce
+  ze spacją i polskim znakiem: guard negatywny i tryb gościa (cisza, kod 0), cztery formaty
+  sekretów + przypisanie `PASSWORD=` (deny bez cytowania wartości), `.env` i placeholdery
+  przechodzą, sekcja niemutowalna (ask) vs edycja poza nią (cisza), siatka promptów, rozjazd
+  wersji, kopiowanie specyfikacji, ustawienia globalne (podstawiony `USERPROFILE`), warunkowa
+  cisza quality-gate/design-check/auto-format, awarie guarda (zepsuty `relai.json`, nieistniejący
+  `cwd`, śmieci na stdin) — wszystko kod 0.
+- **Siedem sesji integracyjnych `claude -p`** (`--permission-mode acceptEdits`, bo domyślne
+  uprawnienia headless blokują Write zanim hook cokolwiek zobaczy): (1) folder bez markera —
+  zapis pliku z `sk-…` i JWT przeszedł, w transkrypcie zero komunikatów RelAI (trafienia „RelAI"
+  to wyłącznie ścieżka folderu); (2) tryb gościa — jak wyżej; (3) cztery sekrety do plików
+  śledzonych → cztery blokady, **pliki nie istnieją** (dowód na dysku), `.env` przeszedł,
+  komunikaty nie cytują wartości; (4) edycja sekcji niemutowalnej → blokada, suma kontrolna
+  `CLAUDE.md` **identyczna** przed i po (L-0007), niezwiązany zapis w tej samej sesji przeszedł;
+  (5–6) **pomiar R2:** neutralny prompt bez fraz wyzwalających, 2/2 przebiegi — data dnia, nakaz
+  rytuału i luka promptu E2 w kontekście przy **zerze** wywołań `Skill`; (7) **inicjalizacja bez
+  `--add-dir`** w pustym folderze → komplet ośmiu dokumentów, marker 0.5.0, specyfikacje czytane
+  z `.claude/relai/templates/` (8/8 plików w transkrypcie). Dodatkowo: `console-log-warn` na żywo —
+  plik powstał mimo ostrzeżenia, a model powtórzył treść ostrzeżenia w odpowiedzi (D-41).
+- `claude plugin validate` — „passed with warnings" (znane L-0003); `details` po reinstalacji:
+  wersja 0.5.0, hooki zarejestrowane dla 4 zdarzeń — **CLI liczy typy zdarzeń, nie pliki**,
+  stąd „Hooks (4)" przy ośmiu plikach (L-0018); inwentarz skilli bez zmian.
+- **Nie sprawdzono:** zachowania `ask` w sesji interaktywnej (wszystkie pomiary w `-p`, gdzie
+  „ask" degeneruje do odmowy) — do potwierdzenia w E10; `quality-gate`/`auto-format` na realnym
+  projekcie TS z zainstalowanym tsc/prettierem (warunkowa cisza zmierzona, ścieżka pozytywna
+  tylko jednostkowo przez brak takiego projektu w teście); powtarzalności statystycznej pomiaru
+  R2 (dwa przebiegi).
+
+**Świadomie odłożone:**
+- Pozytywny test `quality-gate`/`auto-format` na projekcie z realnym tsc/eslint/prettierem — E10
+  (pilotaż na projekcie `app`); warunek wykonalności: projekt testowy z zainstalowanymi
+  narzędziami (L-0005).
+- Rozszerzenie provisioning o pliki inne niż `*.md` (szablon HTML) — E6, wpisane do PROMPT_ETAP_6.
+- Plik globalny `~/.claude/relai/USTAWIENIA.md` **celowo nie został utworzony** — powstanie
+  naturalnie przy pierwszej realnej inicjalizacji projektu; hook już go czyta, gdy istnieje
+  (zmierzone na podstawionym `USERPROFILE`).
+- Wiersz USTAWIENIA o instalacji pluginu nadal wspomina 0.3.1 — zapis historyczny decyzji
+  (append-only), stan bieżący: 0.5.0.
+
+**Do zrobienia przez człowieka:**
+- **Potwierdzić doprecyzowanie konwencji hook-guard** (README, sekcja hook-guard): dla zdarzenia
+  wywołania skilla RelAI guardem jest samo to wywołanie — bez tego inicjalizacja w świeżym
+  folderze nie dostaje specyfikacji. Jeśli wolisz sztywną interpretację „cisza wszędzie poza
+  projektem RelAI", R8 wraca do stanu otwartego z mitygacją `--add-dir`.
+- Zdecydować, czy `config-protection` ma pytać („ask") także przy dopisywaniu wierszy preferencji
+  do `USTAWIENIA.md` (obecne zachowanie — bezpieczne, ale dokłada jedno kliknięcie), czy pytać
+  wyłącznie przy zmianie istniejących wierszy i markera wersji.
+- Uruchomić E6 wg `PROMPT_ETAP_6.md`: generacja pięciu propozycji — świeża sesja **Opus**;
+  sesja wyboru i iteracja finału — **Fable** (D-85).

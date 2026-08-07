@@ -23,7 +23,8 @@ Czytaj w kolejności, nie skanuj pełnotekstowo repo:
 | E2 — rdzeń dokumentacyjny (wersja 0.2.0) | **ZREALIZOWANY 2026-08-07** | `skills/relai-core/SKILL.md`, `templates/SPEC_{LEKCJE,DECYZJE}.md` |
 | E3 — planowanie (wersja 0.3.0) | **ZREALIZOWANY 2026-08-07** | `skills/relai-planning/SKILL.md`, `templates/SPEC_{PLAN,STATUS}.md` |
 | E4 — prompty etapowe i `/relai-stage` (wersja 0.4.0) | **ZREALIZOWANY 2026-08-07** | `commands/relai-stage.md`, `templates/SPEC_PROMPT_ETAPU.md` |
-| Implementacja (E5–E10) | E5 GOTOWY DO STARTU | docs/plany/BUDOWA_RELAI/PROMPT_ETAP_5.md |
+| E5 — osiem hooków Node.js, zamknięcie R8 (wersja 0.5.0) | **ZREALIZOWANY 2026-08-07** | `hooks/`, `hooks/hooks.json` |
+| Implementacja (E6–E10) | E6 GOTOWY DO STARTU | docs/plany/BUDOWA_RELAI/PROMPT_ETAP_6.md |
 
 ## Reguły procesu
 

@@ -10,8 +10,8 @@ Plan: [PLAN.html](PLAN.html) • Utworzony: 2026-08-07 • Status planu: **ZAAKC
 | E2 | Rdzeń dokumentacyjny (specyfikacje dokumentów + rytuały) | **ZREALIZOWANY 2026-08-07** | [PROMPT_ETAP_2.md](PROMPT_ETAP_2.md) | plugin 0.2.0: SPEC_LEKCJE + SPEC_DECYZJE, rytuały sesji, 3 frazy, ustawienia globalne |
 | E3 | Planowanie (PLAN/MINIPLAN, folder-per-plan, STATUS) | **ZREALIZOWANY 2026-08-07** | [PROMPT_ETAP_3.md](PROMPT_ETAP_3.md) | plugin 0.3.0: skill `relai-planning`, SPEC_PLAN + SPEC_STATUS, MINIPLAN w SPEC_DZIENNIK |
 | E4 | Prompty etapowe + /relai-stage + lazy-gen | **ZREALIZOWANY 2026-08-07** | [PROMPT_ETAP_4.md](PROMPT_ETAP_4.md) | plugin 0.4.0: `SPEC_PROMPT_ETAPU`, komenda `/relai-stage`, rytuał „Na koniec" z lazy-generacją, siatka w `relai-core` |
-| E5 | Hooki Node.js (8 szt.) | **GOTOWY DO STARTU** | [PROMPT_ETAP_5.md](PROMPT_ETAP_5.md) | **Trzy zadania dopisane po pomiarach:** (1) `session-context` ma wymuszać rytuał startu niezależnie od tego, czy skill się wyzwolił — właściwa mitygacja R2 (2026-08-07, pomiar R2); (2) rozwiązać dostęp do warstwy globalnej `~/.claude/relai/` (L-0010); (3) **nowe (2026-08-07, E4):** rozwiązać dostęp sesji do `templates/` w katalogu pluginu — bez `--add-dir` inicjalizacja projektu nie ma z czego generować (R8, L-0012) |
-| E6 | Konkurs designu + szablon HTML + nadpisania lokalne | OCZEKUJE | — | propozycje: Opus; sesja wyboru i iteracja: Fable (D-85) |
+| E5 | Hooki Node.js (8 szt.) | **ZREALIZOWANY 2026-08-07** | [PROMPT_ETAP_5.md](PROMPT_ETAP_5.md) | plugin 0.5.0: 8 hooków + rejestracja; `session-context` mityguje R2 (2/2 bez wywołania `Skill`) i zamyka R8 (kopiowanie specyfikacji do `.claude/relai/templates/`, ustawienia globalne przez hook); wykonany przez **Fable** na jawne polecenie użytkownika (odstępstwo od D-85 odnotowane w dzienniku) |
+| E6 | Konkurs designu + szablon HTML + nadpisania lokalne | **GOTOWY DO STARTU** | [PROMPT_ETAP_6.md](PROMPT_ETAP_6.md) | propozycje: Opus; sesja wyboru i iteracja: Fable (D-85) |
 | E7 | Komendy operacyjne (backup, audit, changelog, handover, tour) | OCZEKUJE | — | |
 | E8 | Profile (app / agent-voice / flow / prompty) | OCZEKUJE | — | |
 | E9 | Adopcja (/relai-adopt) + /relai-update | OCZEKUJE | — | obszar szczególnej staranności (D-70) |
@@ -41,3 +41,11 @@ Plan: [PLAN.html](PLAN.html) • Utworzony: 2026-08-07 • Status planu: **ZAAKC
   w trakcie (układ promptu, sprzeczność zakazu zapisu, martwy link po zamknięciu planu, brak
   wczytania skilla przez komendę, nieaktualna linia aktywnego planu). Nowe ryzyko **R8**: sesja
   nie ma dostępu do `templates/` pluginu. Wygenerowano PROMPT_ETAP_5.
+- 2026-08-07 — weryfikacja E4 przez Fable (na polecenie użytkownika): zero defektów do poprawy.
+- 2026-08-07 — **E5 ZREALIZOWANY** (Fable, jawne polecenie użytkownika — odstępstwo od D-85).
+  Plugin 0.5.0: osiem hooków Node.js (`hooks/` + `hooks.json`), 39/39 testów jednostkowych,
+  siedem sesji integracyjnych. `secret-scanner` blokuje 4 formaty (dowód: pliki nie powstały),
+  `config-protection` chroni sekcję niemutowalną (suma kontrolna identyczna), `session-context`
+  wymusza rytuał startu bez wyzwolenia skilla (2/2) i zamyka R8: inicjalizacja bez `--add-dir`
+  dała komplet ośmiu dokumentów ze specyfikacji czytanych z `.claude/relai/templates/`.
+  R4 zamknięte, R2 obniżone do niskiego. Wygenerowano PROMPT_ETAP_6.
