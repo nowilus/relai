@@ -56,7 +56,9 @@ Kolumna `Prompt` w `STATUS.md` wskazuje `PROMPT_ETAP_N.md`.
 
 - **Plik jest** → czytasz go w całości.
 - **Pliku nie ma** (albo kolumna jest pusta) → **dogenerowujesz go** wg
-  `${CLAUDE_PLUGIN_ROOT}/templates/SPEC_PROMPT_ETAPU.md`: z sekcji `PLAN.md` opisującej ten etap,
+  `${CLAUDE_PLUGIN_ROOT}/templates/SPEC_PROMPT_ETAPU.md` — **specyfikację otwierasz i czytasz**,
+  nie generujesz z pamięci; układ dziewięciu sekcji jest wiążący. Materiał: z sekcji `PLAN.md`
+  opisującej ten etap,
   z **realnego stanu repozytorium** (sprawdzasz, nie zakładasz) i z sekcji „Zasady aktywne"
   rejestru lekcji. Powiedz jednym zdaniem, że promptu brakowało i został wygenerowany. Uzupełnij
   kolumnę `Prompt` w `STATUS.md` linkiem. **Dopiero teraz** przechodzisz do potwierdzenia.

@@ -241,6 +241,33 @@ Generacja jest **lazy** — dokładnie trzy momenty, nigdy na zapas:
 Powód: prompt opisuje **realny stan repozytorium** w chwili startu etapu. Prompt napisany dwa etapy
 wcześniej opisywałby stan zmyślony.
 
+### Zanim wygenerujesz prompt — przeczytaj specyfikację
+
+**Otwórz `${CLAUDE_PLUGIN_ROOT}/templates/SPEC_PROMPT_ETAPU.md` i wygeneruj wg niej.** Prompt pisany
+„z sensu", bez otwarcia specyfikacji, wychodzi merytorycznie poprawny i **strukturalnie inny** —
+a układ jest tu funkcją, nie ozdobą: świeża sesja szuka konkretnych sekcji w konkretnej kolejności.
+
+Układ jest **stały, dziewięć elementów, w tej kolejności** (szczegóły każdego — w specyfikacji):
+
+1. Nagłówek `# PROMPT_ETAP_N — <tytuł etapu>`.
+2. Linia metryczna: `Plan: <TEMAT> • Etap: **EN z EM** • Wygenerowano: <data> (autor: <model>) •
+   Wykonawca: **<model ze STATUS.md>**`.
+3. **Kontrola modelu** — blockquote „wykonuj wyłącznie na modelu X; inny model → zatrzymaj się".
+4. **Co przeczytać na start** — tabela `Plik | Po co`, z dopiskiem „w tej kolejności, nic więcej".
+5. **Decyzje już podjęte — NIE otwieraj ich ponownie** — lista z numerami `D-NN` / źródłami;
+   ostatni punkt wyznacza granicę zakresu wobec etapów następnych.
+6. **Stan wyjściowy** — realny stan repo: drzewko plików, akapit „Czego jeszcze NIE ma",
+   przepisane w całości „Zasady aktywne" z rejestru lekcji.
+7. **Zakres etapu** — numerowana lista, każdy punkt ze ścieżką pliku.
+8. **Weryfikacja** — checkboxy, nagłówek „wszystkie punkty muszą przejść". Sekcja obowiązkowa
+   zawsze (D-25).
+9. **Na koniec** — `STATUS.md` → dziennik (+ lekcje, + ryzyka) → dokumenty → **generacja
+   `PROMPT_ETAP_N+1`** → commit, z adnotacją „bez tego rytuału etap NIE jest ukończony".
+
+Ta sama zasada dotyczy `STATUS.md`: generujesz go i aktualizujesz wg `SPEC_STATUS.md`, a nie wg
+własnego układu tabeli. Kolumny są dokładnie `Etap | Nazwa | Status | Prompt | Uwagi`, a linia
+metryczna jest **jedną** linią z elementami rozdzielonymi `·`.
+
 ## Rytuał „Na koniec" etapu
 
 Wykonujesz go **sam, w tej samej turze**, w której etap został skończony — tak jak definicja
