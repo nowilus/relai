@@ -11,8 +11,8 @@ Plan: [PLAN.html](PLAN.html) • Utworzony: 2026-08-07 • Status planu: **ZAAKC
 | E3 | Planowanie (PLAN/MINIPLAN, folder-per-plan, STATUS) | **ZREALIZOWANY 2026-08-07** | [PROMPT_ETAP_3.md](PROMPT_ETAP_3.md) | plugin 0.3.0: skill `relai-planning`, SPEC_PLAN + SPEC_STATUS, MINIPLAN w SPEC_DZIENNIK |
 | E4 | Prompty etapowe + /relai-stage + lazy-gen | **ZREALIZOWANY 2026-08-07** | [PROMPT_ETAP_4.md](PROMPT_ETAP_4.md) | plugin 0.4.0: `SPEC_PROMPT_ETAPU`, komenda `/relai-stage`, rytuał „Na koniec" z lazy-generacją, siatka w `relai-core` |
 | E5 | Hooki Node.js (8 szt.) | **ZREALIZOWANY 2026-08-07** | [PROMPT_ETAP_5.md](PROMPT_ETAP_5.md) | plugin 0.5.0: 8 hooków + rejestracja; `session-context` mityguje R2 (2/2 bez wywołania `Skill`) i zamyka R8 (kopiowanie specyfikacji do `.claude/relai/templates/`, ustawienia globalne przez hook); wykonany przez **Fable** na jawne polecenie użytkownika (odstępstwo od D-85 odnotowane w dzienniku) |
-| E6 | Konkurs designu + szablon HTML + nadpisania lokalne | **W TOKU** (faza 1, runda 2 zrealizowana 2026-08-08) | [PROMPT_ETAP_6.md](PROMPT_ETAP_6.md) | runda 1 odrzucona w całości przez użytkownika (D-61b), przeniesiona do `docs/zasoby/design-konkurs/runda-1/`; runda 2 wg złagodzonego briefu D-61a — pięć propozycji w `runda-2/`, czeka na wybór 1–2. Faza 2 (iteracja finału, `templates/HTML_PLAN/`, nadpisania lokalne, provisioning, wersja 0.6.0) — sesja **Fable** z użytkownikiem (D-85) |
-| E7 | Komendy operacyjne (backup, audit, changelog, handover, tour) | OCZEKUJE | — | |
+| E6 | Konkurs designu + szablon HTML + nadpisania lokalne | **ZREALIZOWANY 2026-08-08** | [PROMPT_ETAP_6.md](PROMPT_ETAP_6.md) | plugin 0.6.0: dwie rundy konkursu (runda 1 odrzucona w całości — D-61b), kierunek „Warsztat" zamrożony w `templates/HTML_PLAN/` + `SPEC_PLAN_HTML.md`; `relai-planning` honoruje preferencję „HTML" i opisuje nadpisanie lokalne D-62 w `docs/zasoby/HTML_PLAN/`; provisioning kopiuje całe drzewo `templates/` |
+| E7 | Komendy operacyjne (backup, audit, changelog, handover, tour) | **GOTOWY DO STARTU** | [PROMPT_ETAP_7.md](PROMPT_ETAP_7.md) | sześć komend + `/relai-help`; wersja 0.7.0 |
 | E8 | Profile (app / agent-voice / flow / prompty) | OCZEKUJE | — | |
 | E9 | Adopcja (/relai-adopt) + /relai-update | OCZEKUJE | — | obszar szczególnej staranności (D-70) |
 | E10 | Pilotaż + scenariusze akceptacyjne | OCZEKUJE | — | nowy projekt + adopcja JiraManager. **Kontrola R2 (pierwszy pomiar wykonany 2026-08-07, 2/2 po 0.3.1):** powtórzyć w **sesji interaktywnej** (tryb `-p` blokuje `AskUserQuestion`, więc pełny cykl plan → pliki nie był mierzony) i sprawdzić powtarzalność na kilku przebiegach, osobno dla `relai-core` i `relai-planning` |
@@ -77,3 +77,12 @@ Plan: [PLAN.html](PLAN.html) • Utworzony: 2026-08-07 • Status planu: **ZAAKC
   wywracało cały symulator; dosłowny znacznik w komponencie wjeżdżał do wyniku (złapane przez
   builder). Poprawiony pasek górny: pozycje sekcji na Kalamie. **Zostaje do E6:** nadpisania
   lokalne D-62, honorowanie preferencji „HTML" w `relai-planning`, wersja 0.6.0.
+- 2026-08-08 — **E6 ZREALIZOWANY** (Opus). Plugin 0.6.0: `relai-planning` honoruje preferencję
+  „HTML" (procedura sześciu kroków wypisana w treści skilla) i opisuje nadpisanie lokalne D-62
+  w `docs/zasoby/HTML_PLAN/` — lokalizacja wybrana zamiast `.claude/relai/`, bo cache jest
+  nadpisywany przez hook i wykluczony z repo. Pomiary na ścieżce ze spacją i „ó", bez `--add-dir`:
+  preferencja „HTML" → `PLAN.html` 237 KB (zero znaczników, zero żądań sieciowych, 6 `@font-face`,
+  10 sekcji, symulator przelicza na żywo), preferencja „Markdown" → `PLAN.md`; `STATUS.md`
+  w Markdown w obu. Nadpisanie lokalne wygrywa z wersją z pluginu i przeżywa `plugin update`
+  (sumy kontrolne bez zmian, cache nadpisany). Lekcja L-0020: `plugin install` na zainstalowanym
+  pluginie to no-op — pierwszy przebieg pomiarowy poszedł na 0.5.0. Wygenerowano PROMPT_ETAP_7.

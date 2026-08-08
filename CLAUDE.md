@@ -24,7 +24,7 @@ Czytaj w kolejności, nie skanuj pełnotekstowo repo:
 | E3 — planowanie (wersja 0.3.0) | **ZREALIZOWANY 2026-08-07** | `skills/relai-planning/SKILL.md`, `templates/SPEC_{PLAN,STATUS}.md` |
 | E4 — prompty etapowe i `/relai-stage` (wersja 0.4.0) | **ZREALIZOWANY 2026-08-07** | `commands/relai-stage.md`, `templates/SPEC_PROMPT_ETAPU.md` |
 | E5 — osiem hooków Node.js, zamknięcie R8 (wersja 0.5.0) | **ZREALIZOWANY 2026-08-07** | `hooks/`, `hooks/hooks.json` |
-| E6 — konkurs designu, szablon HTML, nadpisania lokalne | **W TOKU** — kierunek „Warsztat" zaakceptowany i zamrożony 2026-08-08 w `templates/HTML_PLAN/` + `SPEC_PLAN_HTML.md`; provisioning kopiuje całe drzewo. **Zostaje:** nadpisania lokalne D-62, honorowanie preferencji „HTML" w `relai-planning`, wersja 0.6.0 | `templates/HTML_PLAN/`, PROMPT_ETAP_6.md |
+| E6 — konkurs designu, szablon HTML, nadpisania lokalne (wersja 0.6.0) | **ZREALIZOWANY 2026-08-08** | `templates/HTML_PLAN/`, `templates/SPEC_PLAN_HTML.md`, `skills/relai-planning/SKILL.md` |
 | Implementacja (E7–E10) | OCZEKUJE | docs/plany/BUDOWA_RELAI/STATUS.md |
 
 ## Reguły procesu

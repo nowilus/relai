@@ -9,7 +9,7 @@
 | R3 | Adopcja uszkodzi żywy projekt użytkownika | Wysoki | OTWARTE | D-70: backup+raport+recovery obowiązkowe; scenariusz akceptacyjny z pełnym testem recovery |
 | R4 | Hooki Node na Windows (ścieżki ze spacjami, kodowanie PL) | Średni | **ZAMKNIĘTE 2026-08-07 (E5)** | Osiem hooków przetestowane na ścieżce `Próba RelAI E5` (spacja + „ó"): 39/39 testów jednostkowych i siedem sesji integracyjnych bez błędów kodowania i ścieżek. Komunikaty hooków świadomie ASCII (L-0016); zero zależności npm |
 | R5 | Dokumenty puchną i zjadają kontekst | Średni | OTWARTE | D-14/D-15: rotacja DZIENNIKA, kompresja LEKCJI, destylaty czytane na starcie |
-| R6 | Aktualizacja pluginu nadpisze lokalne nadpisania użytkowników | Średni | OTWARTE | D-72: diff + zgoda + pierwszeństwo lokalnych nadpisań; test w pilotażu |
+| R6 | Aktualizacja pluginu nadpisze lokalne nadpisania użytkowników | **Niski** (2026-08-08 po E6; wcześniej średni) | OTWARTE | D-72: diff + zgoda + pierwszeństwo lokalnych nadpisań; test w pilotażu. **2026-08-08 (E6):** nadpisanie lokalne umieszczone w `docs/zasoby/HTML_PLAN/` — poza cache'em `.claude/relai/`, którego dotyka hook i aktualizacja pluginu. Zmierzone: po `marketplace update` + `plugin update` + świeżej sesji dziewięć plików nadpisania ma identyczne sumy kontrolne, własny token na miejscu, token z pluginu nie wrócił; cache w tym samym czasie **został** nadpisany (dowód, że test nie jest pusty). Zostaje otwarte do E9: `/relai-update` musi pokazać diff i uszanować nadpisanie |
 | R7 | Model wykonawczy (Sonnet/Opus) obniży jakość implementacji etapów | Średni | OTWARTE | Prompty etapowe z sekcją Weryfikacja + przegląd Fable po kluczowych etapach |
 | R8 | Sesja nie ma dostępu do katalogu pluginu — `templates/` ze specyfikacjami jest nieczytelny bez `--add-dir`, więc inicjalizacja projektu (D-60) zatrzymuje się na braku źródła | Wysoki | **ZAMKNIĘTE 2026-08-07 (E5)** | Rozwiązanie: proces hooka ma pełny dostęp do dysku, więc `session-context` kopiuje `templates/*.md` do `.claude/relai/templates/` projektu (SessionStart w projektach RelAI; PostToolUse na wywołaniu skilla RelAI — pokrywa inicjalizację w świeżym folderze) i wstrzykuje ustawienia globalne `~/.claude/relai/` (domyka też L-0010). Zmierzone: inicjalizacja **bez** `--add-dir` dała komplet ośmiu dokumentów, specyfikacje czytane z lokalnej kopii (8/8 plików). D-60 nietknięte — specyfikacje pozostają plikami. Ryzyko szczątkowe: provisioning przy inicjalizacji wymaga wyzwolenia skilla (R2); fallback `--add-dir` opisany w skillach |
 
@@ -793,3 +793,87 @@ pisana Kalamem.
 **Do zrobienia przez człowieka:**
 - Zdecydować, czy resztę E6 (nadpisania lokalne D-62, honorowanie preferencji formatu, wersja
   0.6.0) domyka ta sama sesja, czy osobna — wtedy trzeba ją odpalić z aktualnym stanem.
+  *(domknięte 2026-08-08 w osobnej sesji — patrz wpis niżej)*
+
+### 2026-08-08 — E6 ZAMKNIĘTY: preferencja „HTML", nadpisania lokalne D-62, RelAI 0.6.0
+
+Autor: RelAI (Opus) + Lukasz
+
+**Zrobione:**
+- **`skills/relai-planning/SKILL.md` honoruje preferencję formatu.** Krok 4 rozgałęzia się na
+  `PLAN.md` (wg `SPEC_PLAN`) i `PLAN.html` (wg `SPEC_PLAN_HTML`); doszła sekcja „Plan główny w HTML"
+  z **wypisaną w treści skilla** sześciokrokową procedurą i kolejnością szukania szablonu (L-0011).
+  Pytanie o format w Kroku 3 rekomenduje teraz HTML zamiast zdania „jedyny działający w tej wersji".
+  `STATUS.md`, prompty etapowe i MINIPLAN-y zostają w Markdown (D-32).
+- **Nadpisanie lokalne (D-62)** opisane w tym samym skillu: pytanie **raz na projekt**, po pokazaniu
+  pierwszego planu HTML; zgoda kopiuje całe drzewo `HTML_PLAN/` razem z `fonty/`, wygląd zmienia się
+  wyłącznie przez tokeny w `:root`, wynik — także odmowa — ląduje wierszem „Szablon planu HTML"
+  w `docs/USTAWIENIA.md`.
+- **Rozstrzygnięcie lokalizacji nadpisania: `docs/zasoby/HTML_PLAN/`, nie `.claude/relai/`.**
+  Prompt etapu proponował `.claude/relai/local-templates/`. Obie lokalizacje przeżywają aktualizację
+  pluginu (hook pisze wyłącznie do `templates/`), więc R6 nie rozstrzyga wyboru. Rozstrzyga to, co
+  dzieje się **poza** aktualizacją: `.claude/relai/` jest cache'em nadpisywanym przy każdym starcie
+  sesji i objętym `.gitignore` z `*`, więc własny styl zniknąłby przy klonowaniu repo, na drugiej
+  maszynie i u współpracownika. Świadoma decyzja projektu należy do repozytorium (D-11, D-24), nie
+  do cache'u. Uzasadnienie wpisane do skilla, żeby następna sesja nie „poprawiła" tej lokalizacji.
+- **Usunięte obietnice** „szablon HTML dochodzi w wersji następnej”: `SPEC_PLAN.md` (rozgraniczenie
+  treść/nośnik), `SPEC_KOMENDY.md`, README pluginu, oba skille. `grep -i "szablon HTML"` przejrzany
+  w całości — zostały wyłącznie wystąpienia historyczne i te opisujące działający mechanizm (L-0002).
+- **Wersja 0.6.0** w obu manifestach, README pluginu, `SPEC_KOMENDY.md` (zakres 0.6.0 z planem HTML
+  i nadpisaniem lokalnym + dwa wiersze w przykładzie dla użytkownika), `SPEC_USTAWIENIA.md`
+  (marker, wiersz „Szablon planu HTML”, uwaga o projektowym charakterze tej preferencji), obu
+  skillach i markerze `docs/USTAWIENIA.md` tego repo.
+- **`templates/README.md`** — akapit o nadpisaniu lokalnym i o tym, czemu nie mieszka w cache'u.
+- **`PROMPT_ETAP_7.md`** wygenerowany wg `SPEC_PROMPT_ETAPU` (dziewięć elementów).
+
+**Zweryfikowane — jak dokładnie:**
+- **Wersja realnie zainstalowana:** `~/.claude/plugins/installed_plugins.json` →
+  `relai@relai 0.6.0`, `installPath …/cache/relai/relai/0.6.0`, `gitCommitSha 79e489d`.
+- **Projekt testowy „HTML"** (ścieżka `Próba RelAI E6 domknięcie\projekt HTML` — spacja i „ó"),
+  preferencja „HTML", świeża sesja `claude -p` **bez `--add-dir`**: powstał `PLAN.html` 237 KB.
+  Kontrola mechaniczna: **zero** niewypełnionych znaczników `{{…}}`, **zero** `http(s)://`
+  w `src`/`href`/`url()`, sześć reguł `@font-face`, dziesięć sekcji o tytułach z `SPEC_PLAN`
+  (Streszczenie … Aneksy), 13 elementów z `aria-expanded`, 37 `<svg>`, **zero** emoji, **zero**
+  `animateMotion` (dowód negatywny do zakazu kropki), 12 etykiet FAKT/SZACUNEK. Obok — `STATUS.md`
+  w Markdown i jedna linia aktywnego planu w `CLAUDE.md`.
+- **Zachowanie na żywo** (plik podany przez lokalny serwer HTTP, bo panel podglądu renderuje
+  `file://` jako statyczny zrzut): `Kalam:loaded`, `Hanken Grotesk:loaded`; symulator ma 11 pól,
+  zmiana liczby transakcji 12 000 → 24 000 przestawia bilans **+7 104 zł → +14 208 zł** i zwrot
+  **6,8 → 3,4 mies.**, powrót do 12 000 przywraca wartości wyjściowe; przycisk sekcji przechodzi
+  `true → false → true`; pięć tabel, wszystkie wewnątrz `.przewin`.
+- **Projekt testowy „Markdown"** (ta sama ścieżka bazowa): świeża sesja dała `PLAN.md` + `STATUS.md`.
+  Preferencja formatu rozstrzyga, nie przypadek.
+- **Pierwszeństwo nadpisania lokalnego:** w projekcie „HTML" założono `docs/zasoby/HTML_PLAN/`
+  z podmienionym tokenem `--glina:#1f6f6b`. Drugi plan wygenerowany w tym samym projekcie przez
+  świeżą sesję zawiera **token nadpisania** i **nie zawiera** tokenu z pluginu `#c4643c`.
+- **Przeżycie aktualizacji (R6):** po `marketplace update` + `plugin update` + świeżej sesji
+  dziewięć plików nadpisania ma **identyczne sumy kontrolne**, własny token na miejscu, token
+  z pluginu nie wrócił; w tym samym czasie cache `.claude/relai/templates/HTML_PLAN/szablon.html`
+  **ma** token z pluginu i różni się sumą — czyli hook działał, a nadpisania nie dotknął.
+- `claude plugin validate .claude-plugin/plugin.json` → „Validation passed with warnings", jedno
+  znane ostrzeżenie o root `CLAUDE.md` (L-0003). `grep` po `0.5.0` rozstrzygnięty: wszystkie
+  pozostałe trafienia są historyczne (wpisy o E5, prompty etapów 5–6, zdania „nowe w 0.5.0").
+- **Defekt procesu złapany w trakcie:** pierwszy przebieg pomiarowy poszedł na **0.5.0** mimo
+  `marketplace update` + `plugin install` („already installed") i mimo `plugin details` pokazującego
+  0.6.0 — sesja wygenerowała `PLAN.md` i napisała wprost „plugin 0.5.0 nie ma szablonu HTML".
+  Podmianę wykonał dopiero `claude plugin update relai@relai`. Stąd **L-0020** i poprawiona
+  sekwencja w zasadzie 4.
+- Foldery testowe usunięte po pomiarach.
+
+**Świadomie odłożone:**
+- **Pełny przebieg D-62 od strony rozmowy** (pytanie → zgoda → kopia → wiersz w `USTAWIENIA.md`)
+  niezmierzony: `AskUserQuestion` nie działa w trybie `-p`, a sesja testowa sama to odnotowała
+  („pytanie o nadpisanie pada po obejrzeniu pierwszego planu"). Zmierzono to, co da się zmierzyć
+  bez interakcji: pierwszeństwo kopii i jej przeżycie aktualizacji. Reszta — w sesji interaktywnej
+  w E10, razem z powtórnym pomiarem R2.
+- **Brak przewijania w poziomie** — panel podglądu raportuje `clientWidth = 0`, więc kryterium nie
+  da się na nim postawić (L-0018). Sprawdzone pośrednio: wszystkie tabele w `.przewin`. Do
+  potwierdzenia okiem przy pierwszym planie otwartym przez człowieka.
+- **Podzbiór fontów ograniczony do użytych znaków** (~145 KB base64, R5) — pytanie z rundy 2
+  nadal otwarte; plan waży 237 KB, co na razie nikomu nie przeszkadza.
+- `/relai-update` respektujący nadpisania lokalne — **E9** (D-72).
+
+**Do zrobienia przez człowieka:**
+- Przy pierwszym własnym planie HTML: sprawdzić, czy pytanie o zmianę stylu pada raz i czy plan
+  otwiera się bez przewijania w poziomie.
+- Decyzja o podzbiorze fontów (waga pliku kontra komplet znaków) — patrz R5.

@@ -54,6 +54,11 @@ Hook `session-context` kopiuje **całe drzewo** `templates/` do `.claude/relai/t
 w projekcie — razem z podkatalogiem i fontami. Rozszerzenia objęte kopiowaniem: `.md`, `.html`,
 `.js`, `.css`, `.woff2`.
 
+Projekt może mieć **własną wersję szablonu** (D-62): kopię `HTML_PLAN/` w `docs/zasoby/HTML_PLAN/`,
+która ma pierwszeństwo przed wersją z pluginu. Mieszka w repozytorium, a nie w cache'u
+`.claude/relai/`, bo hook nadpisuje ten cache przy każdym starcie sesji, a `.gitignore` z `*`
+trzymałby własny styl poza repo. Mechanizm opisuje skill `relai-planning`.
+
 Specyfikacje `ARCHITEKTURA` i `DESIGN` dochodzą w kolejnych wersjach pluginu.
 
 Trzy rejestry mają rozłączne role i nie wolno ich mieszać (D-15): `LEKCJE` — korekty zachowania

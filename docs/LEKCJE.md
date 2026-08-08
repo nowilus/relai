@@ -12,8 +12,9 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
    nie „naprawiaj" go przenoszeniem pliku. (L-0003)
 4. Plugin RelAI jest zainstalowany (scope `user`) od 0.3.1. Zachowania skilli mierzysz **realnie** —
    świeżą sesją `claude -p … --output-format stream-json` i liczbą wywołań narzędzia `Skill` —
-   a nie odtwarzaniem procedury ręcznie. Po zmianie skilla: push → `marketplace update` →
-   reinstalacja, inaczej mierzysz starą wersję. (L-0004, zmienione 2026-08-07)
+   a nie odtwarzaniem procedury ręcznie. Po zmianie skilla: push → `claude plugin marketplace update
+   relai` → **`claude plugin update relai@relai`**, inaczej mierzysz starą wersję. (L-0004, zmienione
+   2026-08-07; sekwencja doprecyzowana 2026-08-08 — L-0020)
 5. Zanim opiszesz zachowanie agenta w skillu, sprawdź, czy da się je zweryfikować z wnętrza sesji
    wykonującej etap; jeśli nie — zaplanuj weryfikację tam, gdzie jest możliwa, zamiast deklarować
    ją jako wykonaną. (L-0005)
@@ -51,6 +52,10 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
     wyjścia cudzego narzędzia. (L-0018)
 19. Lista zakazów to filtr końcowy, nie brief. Przy zadaniu wizualnym zbierz najpierw cechy
     **pozytywne** i pokaż **jeden** wariant do kalibracji smaku, zanim wyprodukujesz pięć. (L-0019)
+20. Zainstalowaną wersję pluginu potwierdzasz `~/.claude/plugins/installed_plugins.json` albo treścią
+    skilla w cache'u — **nie** `claude plugin details`, który pokazuje wersję z marketplace.
+    `claude plugin install` na zainstalowanym pluginie to no-op; podmienia go `plugin update`.
+    (L-0020)
 
 ## Lekcje
 
@@ -281,3 +286,19 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
   wyprodukujesz pięć. Pięć chybionych propozycji kosztuje pięć razy tyle, co jedna.
 - **Źródło:** korekta użytkownika 2026-08-07 po prezentacji fazy 1 etapu E6; skutkowała zmianą
   decyzji D-61 (patrz `DECYZJE.md`, sekcja „Decyzje zmienione").
+
+### L-0020 — „Zainstalowane" wzięte z niewłaściwego źródła · 2026-08-08 · AKTYWNA
+
+- **Trigger:** po pushu 0.6.0 sekwencja `marketplace update` + `plugin install` zameldowała
+  „Plugin already installed", a `claude plugin details` pokazał `relai 0.6.0`. Pierwszy pomiar E6
+  poszedł mimo to na skillu z 0.5.0: świeża sesja wygenerowała `PLAN.md` zamiast `PLAN.html`
+  i napisała wprost „plugin 0.5.0 nie ma szablonu HTML".
+- **Przyczyna:** dwa fałszywe dowody instalacji. `plugin install` na już zainstalowanym pluginie
+  kończy się bez zmian (nie aktualizuje), a `plugin details` czyta metadane **marketplace'u**,
+  nie wpisu instalacji — po `marketplace update` pokazuje nowy numer niezależnie od tego, co
+  faktycznie siedzi na dysku.
+- **Zasada:** po pushu obowiązuje `claude plugin marketplace update <mp>` → **`claude plugin update
+  <plugin>@<mp>`**. Wersję zainstalowaną potwierdzasz wpisem w
+  `~/.claude/plugins/installed_plugins.json` (`installPath` + `version`) albo nagłówkiem skilla
+  w `~/.claude/plugins/cache/…`. Zanim uznasz pomiar za ważny, sprawdź, którą wersję mierzyłeś.
+- **Źródło:** pomiar zamykający etap E6 (2026-08-08), nie korekta użytkownika.
