@@ -52,10 +52,11 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
     wyjścia cudzego narzędzia. (L-0018)
 19. Lista zakazów to filtr końcowy, nie brief. Przy zadaniu wizualnym zbierz najpierw cechy
     **pozytywne** i pokaż **jeden** wariant do kalibracji smaku, zanim wyprodukujesz pięć. (L-0019)
-20. Zainstalowaną wersję pluginu potwierdzasz `~/.claude/plugins/installed_plugins.json` albo treścią
-    skilla w cache'u — **nie** `claude plugin details`, który pokazuje wersję z marketplace.
-    `claude plugin install` na zainstalowanym pluginie to no-op; podmienia go `plugin update`.
-    (L-0020)
+20. Zainstalowaną wersję pluginu potwierdzasz `~/.claude/plugins/installed_plugins.json` (`version`
+    **i** `gitCommitSha`) albo treścią skilla w cache'u — **nie** `claude plugin details`, który
+    pokazuje wersję z marketplace. `plugin install` na zainstalowanym pluginie to no-op, a `plugin
+    update` porównuje **numer wersji**: poprawka bez podbicia wersji nie dotrze inaczej niż przez
+    `uninstall` + `install`. (L-0020)
 
 ## Lekcje
 
@@ -299,6 +300,11 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
   faktycznie siedzi na dysku.
 - **Zasada:** po pushu obowiązuje `claude plugin marketplace update <mp>` → **`claude plugin update
   <plugin>@<mp>`**. Wersję zainstalowaną potwierdzasz wpisem w
-  `~/.claude/plugins/installed_plugins.json` (`installPath` + `version`) albo nagłówkiem skilla
-  w `~/.claude/plugins/cache/…`. Zanim uznasz pomiar za ważny, sprawdź, którą wersję mierzyłeś.
+  `~/.claude/plugins/installed_plugins.json` (`installPath`, `version` **i `gitCommitSha`**) albo
+  nagłówkiem skilla w `~/.claude/plugins/cache/…`. Zanim uznasz pomiar za ważny, sprawdź, którą
+  wersję mierzyłeś.
+- **Dopisek z tej samej sesji:** `plugin update` porównuje **numer wersji**, nie commit. Poprawka
+  wypchnięta bez podbicia wersji zostawia cache na starym `gitCommitSha` („already at the latest
+  version") — dociera dopiero przez `plugin uninstall` + `plugin install` albo przez podbicie
+  wersji. Zmierzone: sha `79e489d` → po reinstalacji `22b1b1f`.
 - **Źródło:** pomiar zamykający etap E6 (2026-08-08), nie korekta użytkownika.

@@ -863,7 +863,12 @@ Autor: RelAI (Opus) + Lukasz
   `marketplace update` + `plugin install` („already installed") i mimo `plugin details` pokazującego
   0.6.0 — sesja wygenerowała `PLAN.md` i napisała wprost „plugin 0.5.0 nie ma szablonu HTML".
   Podmianę wykonał dopiero `claude plugin update relai@relai`. Stąd **L-0020** i poprawiona
-  sekwencja w zasadzie 4.
+  sekwencja w zasadzie 4. Drugi facet tego samego problemu wyszedł na końcu etapu: poprawka
+  wypchnięta **bez** podbicia wersji nie dociera wcale — `plugin update` porównuje numer wersji
+  i melduje „already at the latest version", zostawiając cache na starym commicie. Zadziałał
+  dopiero `uninstall` + `install`; stan końcowy potwierdzony:
+  `installed_plugins.json` → `0.6.0`, `gitCommitSha 22b1b1f`, a skill w cache'u zawiera zdanie
+  o `config-protection`.
 - Foldery testowe usunięte po pomiarach.
 
 **Świadomie odłożone:**
