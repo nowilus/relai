@@ -5,14 +5,15 @@
 Plugin do Claude Code, który zamienia rozmowę z agentem w prowadzony projekt: ustalenia, decyzje,
 stan prac i historia zostają w plikach, a nie w kontekście sesji, który za chwilę zniknie.
 
-> Wersja 0.6.0 — rdzeń dokumentacyjny, planowanie, wykonywanie etapów, osiem hooków i interaktywny
-> plan HTML. Działa inicjalizacja projektu, wykrywanie struktury, rytuały sesji, rejestry lekcji
-> i decyzji, cztery frazy rytualne, plany (PLAN z etapami / miniplan w dzienniku, zamrożenie
-> i aneksy) w Markdown **albo** w jednym samowystarczalnym pliku HTML z własnym szablonem projektu,
-> pełny cykl etapów (prompty `PROMPT_ETAP_N`, komenda `/relai-stage`, automatyczne zamknięcie planu)
-> oraz hooki: blokada sekretów, ochrona konfiguracji, przypomnienia o synchronizacji dokumentów
-> i `session-context` wymuszający rytuał startu niezależnie od skilli.
-> Pozostałe komendy operacyjne i adopcja istniejących projektów dochodzą w kolejnych wersjach.
+> Wersja 0.7.0 — rdzeń dokumentacyjny, planowanie, wykonywanie etapów, osiem hooków, interaktywny
+> plan HTML i **siedem komend**. Działa inicjalizacja projektu, wykrywanie struktury, rytuały sesji,
+> rejestry lekcji i decyzji, cztery frazy rytualne, plany (PLAN z etapami / miniplan w dzienniku,
+> zamrożenie i aneksy) w Markdown **albo** w jednym samowystarczalnym pliku HTML z własnym szablonem
+> projektu, pełny cykl etapów (prompty `PROMPT_ETAP_N`, komenda `/relai-stage`, automatyczne
+> zamknięcie planu), komendy operacyjne (backup, audyt, changelog, pakiet przekazania, wycieczka,
+> ściąga) oraz hooki: blokada sekretów, ochrona konfiguracji, przypomnienia o synchronizacji
+> dokumentów i `session-context` wymuszający rytuał startu niezależnie od skilli.
+> Profile projektów i adopcja istniejących projektów dochodzą w kolejnych wersjach.
 > Aktualny zakres: [docs/plany/BUDOWA_RELAI/STATUS.md](docs/plany/BUDOWA_RELAI/STATUS.md).
 
 ## Instalacja
@@ -28,7 +29,7 @@ stan prac i historia zostają w plikach, a nie w kontekście sesji, który za ch
 Po instalacji otwórz Claude Code w folderze projektu i napisz cokolwiek — RelAI zapyta o zgodę na
 utworzenie struktury.
 
-## Co robi wersja 0.6.0
+## Co robi wersja 0.7.0
 
 | Sytuacja | Zachowanie |
 |---|---|
@@ -68,6 +69,17 @@ Rytuały, które od tej wersji działają bez proszenia:
   pokazuje potwierdzenie i **czeka** — nigdy nie startuje sama. Zamknięcie etapu generuje prompt
   etapu następnego; przerwana sesja zostawia etap w statusie `W TOKU`, a brakujący prompt jest
   wyłapywany na starcie kolejnej sesji. Po ostatnim etapie plan zamyka się sam i trafia do archiwum.
+- **Komendy operacyjne (nowe w 0.7.0)** — sześć komend obok `/relai-stage`. **`/relai-backup`**
+  pakuje projekt do ZIP-a w centralnym folderze backupów (lokalizacja: pytanie raz, zapisywane
+  globalnie), z twardym wykluczeniem sekretów (D-42) i weryfikacją na gotowym archiwum — nie na
+  deklaracji. **`/relai-audit`** daje raport w dwóch częściach (porządki + zdrowie) zakończony listą
+  propozycji; sam niczego nie kasuje ani nie przenosi. **`/relai-changelog`** destyluje dziennik do
+  listy zmian — na ekran, do pliku dopiero na życzenie. **`/relai-handover`** składa pakiet
+  przekazania w jednym pliku HTML (ten sam szablon co plany, więc respektuje nadpisanie lokalne).
+  **`/relai-tour`** oprowadza po projekcie wyłącznie z jego dokumentów i niczego nie zapisuje;
+  gdy wszystkie wpisy dziennika podpisał kto inny niż bieżący użytkownik gita, wycieczka **proponuje
+  się sama** (D-27) — propozycja, nigdy automatyczne odpalenie. **`/relai-help`** pokazuje
+  `docs/KOMENDY.md` projektu i nie utrzymuje własnej listy niczego (D-07).
 - **Hooki (nowe w 0.5.0)** — osiem hooków Node.js, bez żadnych zależności npm, wszystkie zgodne
   z konwencją hook-guard (niżej). Blokują wyłącznie `secret-scanner` (sekret w pliku śledzonym —
   klucze `sk-…`, `ghp…`, `AKIA…`, JWT, klucze PEM, przypisania `PASSWORD=`/`SECRET=`; plik objęty
@@ -77,8 +89,9 @@ Rytuały, które od tej wersji działają bez proszenia:
   `console-log-warn`, `design-quality-check` (gdy istnieje `docs/DESIGN.md`), `doc-sync-reminder`
   (zmiana kodu bez `STATE`/`DZIENNIK` — druga siatka definicji ukończenia). Dwa działają cicho:
   `auto-format` (gdy projekt ma Prettiera) i `session-context` — wstrzykuje datę dnia, kontrolę
-  wersji projekt↔plugin, wymuszenie rytuału startu i siatkę brakujących promptów etapowych
-  niezależnie od tego, czy skill się wyzwolił, oraz kopiuje specyfikacje dokumentów do
+  wersji projekt↔plugin, wymuszenie rytuału startu, siatkę brakujących promptów etapowych
+  i (od 0.7.0) sygnał o nieznanym autorze dziennika — niezależnie od tego, czy skill się wyzwolił —
+  oraz kopiuje specyfikacje dokumentów do
   `.claude/relai/templates/` w projekcie i dostarcza ustawienia globalne `~/.claude/relai/`
   (rozwiązanie dostępu do zasobów spoza katalogu roboczego).
 
@@ -96,8 +109,8 @@ relai/
 ├── skills/
 │   ├── relai-core/          # inicjalizacja, wykrywanie struktury, rytuały sesji, rejestry
 │   └── relai-planning/      # plany i miniplany, STATUS, prompty etapowe, zamknięcie planu
-├── commands/
-│   └── relai-stage.md       # /relai-stage — uruchomienie etapu planu
+├── commands/                # siedem komend: stage, backup, audit, changelog,
+│   └── *.md                 #   handover, tour, help
 ├── hooks/
 │   ├── hooks.json           # rejestracja ośmiu hooków (zdarzenia i matchery)
 │   └── *.js                 # osiem hooków Node.js, zero zależności npm

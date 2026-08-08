@@ -25,7 +25,8 @@ Czytaj w kolejności, nie skanuj pełnotekstowo repo:
 | E4 — prompty etapowe i `/relai-stage` (wersja 0.4.0) | **ZREALIZOWANY 2026-08-07** | `commands/relai-stage.md`, `templates/SPEC_PROMPT_ETAPU.md` |
 | E5 — osiem hooków Node.js, zamknięcie R8 (wersja 0.5.0) | **ZREALIZOWANY 2026-08-07** | `hooks/`, `hooks/hooks.json` |
 | E6 — konkurs designu, szablon HTML, nadpisania lokalne (wersja 0.6.0) | **ZREALIZOWANY 2026-08-08** | `templates/HTML_PLAN/`, `templates/SPEC_PLAN_HTML.md`, `skills/relai-planning/SKILL.md` |
-| Implementacja (E7–E10) | OCZEKUJE | docs/plany/BUDOWA_RELAI/STATUS.md |
+| E7 — sześć komend operacyjnych, propozycja wycieczki (wersja 0.7.0) | **W TOKU** | `commands/`, `templates/SPEC_KOMENDY.md` |
+| Implementacja (E8–E10) | OCZEKUJE | docs/plany/BUDOWA_RELAI/STATUS.md |
 
 ## Reguły procesu
 

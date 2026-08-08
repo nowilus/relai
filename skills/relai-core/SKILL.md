@@ -18,7 +18,7 @@ description: >
 
 # relai-core — struktura projektu, pamięć i rytuały sesji
 
-Wersja E6 (RelAI 0.6.0). Zakres tego skilla: **rozpoznanie stanu folderu + inicjalizacja + tryb
+Wersja E7 (RelAI 0.7.0). Zakres tego skilla: **rozpoznanie stanu folderu + inicjalizacja + tryb
 gościa + niedestrukcyjne dołączenie + rytuały sesji + siatka brakujących promptów etapowych +
 rejestry LEKCJE/DECYZJE + trzy frazy naturalne + warstwa ustawień globalnych**. Od 0.5.0 działa
 też osiem hooków (sekrety, ochrona konfiguracji, przypomnienia, kontekst sesji) — pilnują twardych
@@ -30,6 +30,12 @@ PLAN/MINIPLAN, generacja `docs/plany/<TEMAT>/`, prompty etapowe `PROMPT_ETAP_N`,
 etapu, zamrożenie i zamknięcie planu. Etap uruchamia komenda `/relai-stage` (od 0.4.0). Tutaj planów
 nie opisujesz i nie tworzysz — tutaj plan pojawia się jako pozycja czytana w rytuale startu, jako
 linia „Aktywny plan" w `CLAUDE.md` i jako siatka wyłapująca brakujący prompt etapowy.
+
+**Operacje rzadkie mają własne komendy** (od 0.7.0): kopia zapasowa, przegląd porządków i zdrowia,
+lista zmian z dziennika, pakiet przekazania, wycieczka po projekcie i ściąga komend. Ich procedury
+mieszkają w plikach komend, nie tutaj — z tego skilla wychodzi wyłącznie **propozycja** wycieczki
+dla nieznanego autora (sekcja niżej). Listę tego, co realnie działa, użytkownik ma w wygenerowanym
+`docs/KOMENDY.md`.
 
 Specyfikacje dokumentów czytaj z **lokalnej kopii `.claude/relai/templates/`** w bieżącym
 folderze — utrzymuje ją hook `session-context` (katalog pluginu jest dla sesji niedostępny,
@@ -109,6 +115,26 @@ Zasady siatki:
 Od 0.5.0 siatka ma **dwie warstwy**: ten krok rytuału oraz hook `session-context` (SessionStart),
 który wstrzykuje lukę do kontekstu nawet wtedy, gdy skill się nie wyzwolił. Jeśli hook już zgłosił
 lukę w kontekście sesji, nie zgłaszaj jej drugi raz — przejdź od razu do propozycji dogenerowania.
+
+### Propozycja wycieczki po cudzym projekcie (D-27)
+
+Drugi krok kontrolny rytuału startu, wykonywany po przeczytaniu dziennika. Sprawdź, czy **którykolwiek**
+podpis pod wpisami (`Autor: RelAI (<model>) + <użytkownik>`) zawiera nazwę bieżącego użytkownika
+z `git config user.name`.
+
+- **Zawiera** albo dziennik nie ma jeszcze ani jednego podpisu → nic nie mówisz.
+- **Nie zawiera żadnego** → to cudzy projekt. Powiedz **jednym zdaniem**, że wpisy w dzienniku
+  podpisał kto inny, i zaproponuj wycieczkę: stan, mapa dokumentów, aktywne plany, ryzyka, od czego
+  zacząć. **Czekasz na zgodę** — po niej wykonujesz procedurę komendy `/relai-tour`.
+- Gita nie ma albo `user.name` nie jest ustawione → milczysz. Nie da się rozstrzygnąć, kto pracuje.
+
+Zasady jak przy siatce promptów etapowych: propozycja **nigdy** nie zamienia się w automatyczne
+odpalenie, odmowa zamyka temat na tę sesję, a propozycja idzie **przed** akapitem „gdzie jesteśmy".
+
+Od 0.7.0 sygnał ma **dwie warstwy**: ten krok rytuału oraz hook `session-context` (SessionStart),
+który to samo porównanie wykonuje niezależnie od tego, czy skill się wyzwolił (R2). Hook już zgłosił
+nieznanego autora w kontekście sesji → nie powtarzaj zgłoszenia, przejdź od razu do propozycji.
+Sygnał gaśnie sam, gdy nowa osoba dopisze pierwszy wpis do dziennika.
 
 ### Podsumowanie dla użytkownika
 
@@ -322,7 +348,7 @@ Zasady generacji:
   Dla projektu angielskiego: `docs/STATE.md`, `docs/JOURNAL.md`, `docs/LESSONS.md`,
   `docs/DECISIONS.md`, `docs/SETTINGS.md`, `docs/COMMANDS.md`. Konwencja stała: CAPS_SNAKE, bez dat
   i numerów wersji w nazwie.
-- `docs/USTAWIENIA.md` **musi** zawierać linię `Wersja RelAI: 0.6.0` — to marker, po którym RelAI
+- `docs/USTAWIENIA.md` **musi** zawierać linię `Wersja RelAI: 0.7.0` — to marker, po którym RelAI
   rozpoznaje projekt i po którym przyszły `/relai-update` policzy różnicę wersji.
 - `docs/LEKCJE.md` i `docs/DECYZJE.md` powstają **puste, ale kompletne strukturalnie**: nagłówek,
   zdanie o roli, sekcja „Zasady aktywne" (LEKCJE) z informacją, że jest jeszcze pusta, i pusta

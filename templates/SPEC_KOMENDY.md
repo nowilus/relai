@@ -45,12 +45,13 @@ projektu jest w `docs/USTAWIENIA.md`.
 Plik jest **regenerowany**, nie edytowany ręcznie. Wyjątkiem są wiersze oznaczone jako lokalne —
 te przeżywają regenerację (D-62: lokalne nadpisania mają pierwszeństwo).
 
-## Zakres wersji 0.6.0 (E6) — co realnie działa
+## Zakres wersji 0.7.0 (E7) — co realnie działa
 
 Od 0.4.0 działa **pierwsza komenda** — `/relai-stage` — i wygenerowany `KOMENDY.md` ma tabelę
 komend. W 0.5.0 doszło **osiem hooków**: sekcja „Czego RelAI pilnuje bez proszenia" urosła
-o zachowania hooków (lista niżej). W 0.6.0 dochodzi **interaktywny plan HTML** i **nadpisanie
-lokalne szablonu**. Działa:
+o zachowania hooków (lista niżej). W 0.6.0 doszedł **interaktywny plan HTML** i **nadpisanie
+lokalne szablonu**. W 0.7.0 dochodzi **sześć komend operacyjnych** — tabela komend rośnie z jednej
+pozycji do siedmiu. Działa:
 
 - inicjalizacja struktury projektu (zgoda → trzy pytania → osiem dokumentów),
 - rozpoznanie folderu, który już jest projektem RelAI,
@@ -85,16 +86,30 @@ lokalne szablonu**. Działa:
   zero połączeń z internetem; `STATUS.md`, prompty etapowe i miniplany zostają w Markdown,
 - **własny styl planów (nowe w 0.6.0):** przy pierwszym planie HTML pada pytanie o zmianę wyglądu;
   zgoda tworzy kopię szablonu w `docs/zasoby/HTML_PLAN/`, która **ma pierwszeństwo** przed wersją
-  z pluginu i przeżywa jego aktualizacje.
+  z pluginu i przeżywa jego aktualizacje,
+- **komendy operacyjne (nowe w 0.7.0):** kopia zapasowa projektu do archiwum ZIP w centralnym
+  folderze (pytanie o lokalizację raz, sekrety zawsze poza archiwum); przegląd porządków i zdrowia
+  kończący się listą propozycji do zatwierdzenia; lista zmian destylowana z dziennika; pakiet
+  przekazania projektu w jednym pliku HTML; wycieczka po projekcie z jego dokumentów; ściąga
+  komend i fraz,
+- **propozycja wycieczki (nowe w 0.7.0), do sekcji „Czego RelAI pilnuje bez proszenia":** gdy
+  wszystkie wpisy w dzienniku podpisał kto inny niż bieżący użytkownik gita, RelAI proponuje
+  wycieczkę po projekcie — propozycja, nigdy automatyczne odpalenie.
 
-Czego w 0.6.0 **nie** ma: pozostałych komend `/relai-*` — nie wpisujesz ich do `KOMENDY.md`.
+Czego w 0.7.0 **nie** ma: `/relai-adopt` i `/relai-update` — nie wpisujesz ich do `KOMENDY.md`.
 
-Wygenerowany `KOMENDY.md` w wersji 0.6.0 zawiera **tabelę komend z jedną pozycją** oraz tabelę
-fraz naturalnych:
+Wygenerowany `KOMENDY.md` w wersji 0.7.0 zawiera **tabelę komend z siedmioma pozycjami** oraz
+tabelę fraz naturalnych:
 
 | Komenda | Co robi |
 |---|---|
 | `/relai-stage [TEMAT] [EN]` | uruchamia etap planu: wykrywa aktywny plan i następny etap, pokazuje potwierdzenie i czeka na zgodę; bez argumentów bierze etap `GOTOWY DO STARTU` |
+| `/relai-backup [ŚCIEŻKA]` | pakuje projekt do archiwum ZIP w centralnym folderze backupów; sekrety i katalogi runtime zostają poza archiwum; kończy wpisem w dzienniku |
+| `/relai-audit [porzadki\|zdrowie]` | raport w dwóch częściach — porządki i zdrowie — zakończony listą propozycji; sam niczego nie zmienia |
+| `/relai-changelog [zakres]` | destyluje dziennik do listy zmian; wynik na ekran, plik dopiero na życzenie |
+| `/relai-handover [ŚCIEŻKA]` | składa pakiet przekazania projektu w jednym pliku HTML działającym bez internetu |
+| `/relai-tour [krotko]` | oprowadza po projekcie wyłącznie z jego dokumentów; niczego nie zapisuje |
+| `/relai-help [fraza]` | pokazuje ściągę projektu — treść pochodzi wyłącznie z `KOMENDY.md` |
 
 | Fraza (PL / EN) | Co się stanie |
 |---|---|
@@ -105,18 +120,16 @@ fraz naturalnych:
 
 ## Zakazy
 
-- Nie wpisujesz `/relai-backup`, `/relai-audit`, `/relai-handover`, `/relai-adopt`,
-  `/relai-update`, `/relai-tour`, `/relai-changelog`, `/relai-help`, dopóki nie działają
-  w zainstalowanej wersji.
+- Nie wpisujesz `/relai-adopt` ani `/relai-update`, dopóki nie działają w zainstalowanej wersji.
 - Nie dopisujesz fraz spoza listy działających w danej wersji.
 - Nie opisujesz mechaniki wewnętrznej (skille, hooki) — użytkownika interesuje efekt.
 
-## Przykład dla wersji 0.6.0 (projekt polski)
+## Przykład dla wersji 0.7.0 (projekt polski)
 
 ```markdown
 # KOMENDY — Parkly
 
-RelAI 0.6.0
+RelAI 0.7.0
 
 Nic z tej listy nie jest obowiązkowe. RelAI działa w zwykłej rozmowie — piszesz normalnie,
 a struktura projektu nadąża. Komendy są skrótem do rzadszych operacji.
@@ -127,6 +140,12 @@ a struktura projektu nadąża. Komendy są skrótem do rzadszych operacji.
 |---|---|---|
 | `/relai-stage` | znajduje aktywny plan i pierwszy etap gotowy do startu, pokazuje, co się wydarzy, i czeka na Twoje „zaczynamy" | na początku świeżej sesji, w której chcesz zrobić kolejny etap planu |
 | `/relai-stage E5` · `/relai-stage PLATNOSCI E2` | to samo, ale dla wskazanego etapu (i planu) | gdy chcesz wrócić do etapu innego niż następny w kolejce |
+| `/relai-backup` | pakuje cały projekt do jednego pliku ZIP w Twoim folderze backupów; hasła i klucze zostają poza archiwum | przed większą zmianą, przed aktualizacją, albo po prostu raz na jakiś czas |
+| `/relai-audit` | przegląda dokumenty i mówi, co się rozjechało: co jest nieaktualne, czego brakuje, co czeka od miesięcy — i proponuje, co z tym zrobić | gdy wracasz po przerwie albo przed przekazaniem projektu komuś |
+| `/relai-changelog` · `/relai-changelog od 2026-07-01` | zamienia dziennik w listę zmian po ludzku: co nowego, co poprawione | gdy ktoś pyta „co się zmieniło od ostatniego razu" |
+| `/relai-handover` | składa pakiet przekazania: jeden plik HTML ze stanem, mapą dokumentów, planami, ryzykami i pierwszymi krokami | gdy oddajesz projekt komuś innemu — na stałe albo na czas urlopu |
+| `/relai-tour` | oprowadza Cię po projekcie: co to jest, gdzie jesteśmy, czego nie ruszać, od czego zacząć | gdy otwierasz cudzy projekt albo wracasz do własnego po długiej przerwie |
+| `/relai-help` | pokazuje tę ściągę | gdy nie pamiętasz, co można wpisać |
 
 ## Frazy, które działają
 
@@ -167,6 +186,10 @@ a struktura projektu nadąża. Komendy są skrótem do rzadszych operacji.
   ESLint — pokazuje ich błędy zaraz po edycji pliku.
 - Na starcie każdej sesji sam podaje dzisiejszą datę, sprawdza wersję projektu i przypomina
   o niedokończonym etapie planu — nawet jeśli nic nie napiszesz.
+- Gdy otworzysz projekt, którego wszystkie wpisy w dzienniku podpisał kto inny, proponuje
+  oprowadzenie po nim — propozycję, nie oprowadzanie na siłę.
+- Z backupu wyrzuca hasła i klucze, zanim spakuje projekt — i sprawdza to na gotowym archiwum,
+  a nie na własnej obietnicy.
 - Nie zakłada repozytorium gita wewnątrz innego repozytorium.
 
 Lista rośnie z kolejnymi wersjami RelAI. Numer wersji tego projektu znajdziesz

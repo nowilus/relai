@@ -12,7 +12,7 @@ Plan: [PLAN.html](PLAN.html) • Utworzony: 2026-08-07 • Status planu: **ZAAKC
 | E4 | Prompty etapowe + /relai-stage + lazy-gen | **ZREALIZOWANY 2026-08-07** | [PROMPT_ETAP_4.md](PROMPT_ETAP_4.md) | plugin 0.4.0: `SPEC_PROMPT_ETAPU`, komenda `/relai-stage`, rytuał „Na koniec" z lazy-generacją, siatka w `relai-core` |
 | E5 | Hooki Node.js (8 szt.) | **ZREALIZOWANY 2026-08-07** | [PROMPT_ETAP_5.md](PROMPT_ETAP_5.md) | plugin 0.5.0: 8 hooków + rejestracja; `session-context` mityguje R2 (2/2 bez wywołania `Skill`) i zamyka R8 (kopiowanie specyfikacji do `.claude/relai/templates/`, ustawienia globalne przez hook); wykonany przez **Fable** na jawne polecenie użytkownika (odstępstwo od D-85 odnotowane w dzienniku) |
 | E6 | Konkurs designu + szablon HTML + nadpisania lokalne | **ZREALIZOWANY 2026-08-08** | [PROMPT_ETAP_6.md](PROMPT_ETAP_6.md) | plugin 0.6.0: dwie rundy konkursu (runda 1 odrzucona w całości — D-61b), kierunek „Warsztat" zamrożony w `templates/HTML_PLAN/` + `SPEC_PLAN_HTML.md`; `relai-planning` honoruje preferencję „HTML" i opisuje nadpisanie lokalne D-62 w `docs/zasoby/HTML_PLAN/`; provisioning kopiuje całe drzewo `templates/` |
-| E7 | Komendy operacyjne (backup, audit, changelog, handover, tour) | **GOTOWY DO STARTU** | [PROMPT_ETAP_7.md](PROMPT_ETAP_7.md) | sześć komend + `/relai-help`; wersja 0.7.0 |
+| E7 | Komendy operacyjne (backup, audit, changelog, handover, tour) | **W TOKU** | [PROMPT_ETAP_7.md](PROMPT_ETAP_7.md) | sześć komend + `/relai-help`; wersja 0.7.0 |
 | E8 | Profile (app / agent-voice / flow / prompty) | OCZEKUJE | — | |
 | E9 | Adopcja (/relai-adopt) + /relai-update | OCZEKUJE | — | obszar szczególnej staranności (D-70) |
 | E10 | Pilotaż + scenariusze akceptacyjne | OCZEKUJE | — | nowy projekt + adopcja JiraManager. **Kontrola R2 (pierwszy pomiar wykonany 2026-08-07, 2/2 po 0.3.1):** powtórzyć w **sesji interaktywnej** (tryb `-p` blokuje `AskUserQuestion`, więc pełny cykl plan → pliki nie był mierzony) i sprawdzić powtarzalność na kilku przebiegach, osobno dla `relai-core` i `relai-planning` |
@@ -86,3 +86,4 @@ Plan: [PLAN.html](PLAN.html) • Utworzony: 2026-08-07 • Status planu: **ZAAKC
   w Markdown w obu. Nadpisanie lokalne wygrywa z wersją z pluginu i przeżywa `plugin update`
   (sumy kontrolne bez zmian, cache nadpisany). Lekcja L-0020: `plugin install` na zainstalowanym
   pluginie to no-op — pierwszy przebieg pomiarowy poszedł na 0.5.0. Wygenerowano PROMPT_ETAP_7.
+- 2026-08-08 — E7 rozpoczęty (Opus).

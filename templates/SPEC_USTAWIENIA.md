@@ -107,7 +107,7 @@ etapów, lokalizacja backupów, zgody na wyjątki od reguł domyślnych, wybrany
 ```markdown
 # USTAWIENIA — Parkly
 
-Wersja RelAI: 0.6.0 · zainicjowano: 2026-08-07
+Wersja RelAI: 0.7.0 · zainicjowano: 2026-08-07
 
 Rejestr wyborów użytkownika dla tego projektu. Każdy wpis: data, czego dotyczył, decyzja.
 Odpowiedź raz udzielona nie wraca jako pytanie.

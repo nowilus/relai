@@ -168,6 +168,62 @@ function promptGap(cwd) {
   }
 }
 
+// D-27: czy projekt otworzyl ktos inny niz jego autor. Porownujemy user.name
+// z konfiguracji gita z podpisami wpisow dziennika ("Autor: RelAI (model) + X").
+// Zwraca null, gdy nie da sie rozstrzygnac — brak nazwy w gicie, brak dziennika,
+// dziennik bez ani jednego podpisu. Cisza jest tansza niz falszywa propozycja.
+function bezOgonkow(s) {
+  return String(s).normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[Łł]/g, 'l').toLowerCase().trim();
+}
+
+function gitUserName(cwd) {
+  const pliki = [
+    path.join(cwd, '.git', 'config'),
+    path.join(os.homedir(), '.gitconfig'),
+    path.join(os.homedir(), '.config', 'git', 'config'),
+  ];
+  for (const p of pliki) {
+    let txt = '';
+    try { txt = fs.readFileSync(p, 'utf8'); } catch (_) { continue; }
+    const sekcja = txt.match(/\[user\][^[]*/i);
+    if (!sekcja) continue;
+    const m = sekcja[0].match(/^\s*name\s*=\s*(.+)$/mi);
+    if (m && m[1].trim()) return m[1].trim();
+  }
+  return '';
+}
+
+function unknownAuthor(cwd) {
+  try {
+    const nazwa = gitUserName(cwd);
+    if (!nazwa) return null;
+
+    let dziennik = '';
+    for (const name of ['DZIENNIK.md', 'JOURNAL.md']) {
+      const p = path.join(cwd, 'docs', name);
+      try { dziennik = fs.readFileSync(p, 'utf8'); } catch (_) { continue; }
+      if (dziennik) break;
+    }
+    if (!dziennik) return null;
+
+    const podpisy = dziennik.match(/^\s*(?:\*\*)?(?:Autor|Author)(?:\*\*)?\s*:\s*(.+)$/gmi);
+    if (!podpisy || !podpisy.length) return null;
+
+    const ja = bezOgonkow(nazwa);
+    const czesci = ja.split(/\s+/).filter((c) => c.length >= 3);
+    for (const linia of podpisy) {
+      const l = bezOgonkow(linia);
+      if (l.indexOf(ja) !== -1) return null;
+      if (czesci.length && czesci.every((c) => l.indexOf(c) !== -1)) return null;
+    }
+
+    const ostatni = podpisy[podpisy.length - 1].replace(/^\s*(?:\*\*)?(?:Autor|Author)(?:\*\*)?\s*:\s*/i, '').trim();
+    return { ja: nazwa, ostatni: ostatni.slice(0, 120), wpisow: podpisy.length };
+  } catch (_) {
+    return null;
+  }
+}
+
 function onSessionStart(input) {
   const cwd = input.cwd || process.cwd();
   const markerFile = relaiMarkerFile(cwd);
@@ -195,6 +251,14 @@ function onSessionStart(input) {
     out.push('Siatka D-34: etap ' + gap.stage + ' w ' + gap.statusFile +
       ' ma status GOTOWY DO STARTU, ale jego prompt etapowy nie istnieje. Powiedz o tym uzytkownikowi ' +
       'jednym zdaniem PRZED akapitem "gdzie jestesmy" i zaproponuj dogenerowanie (generuje relai-planning po zgodzie).');
+  }
+
+  const obcy = unknownAuthor(cwd);
+  if (obcy) {
+    out.push('Nieznany autor (D-27): git user.name to "' + obcy.ja + '", a zaden z ' + obcy.wpisow +
+      ' podpisow w dzienniku go nie zawiera (ostatni: "' + obcy.ostatni + '"). To wyglada na cudzy projekt. ' +
+      'Zaproponuj wycieczke po projekcie jednym zdaniem i CZEKAJ na zgode — nie uruchamiaj jej sam. ' +
+      'Po zgodzie wykonaj procedure komendy /relai-tour. Odmowa zamyka temat na te sesje.');
   }
 
   const copied = provisionTemplates(cwd);
