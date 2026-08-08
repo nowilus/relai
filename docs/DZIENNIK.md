@@ -1119,3 +1119,10 @@ Autor: RelAI (Opus) + Lukasz
   przy pierwszym pliku źródłowym po zmianie wiersza wyżej.
 - Potwierdzić w sesji interaktywnej, że pytanie o testy i pytanie o kierunek wizualny padają jako
   `AskUserQuestion` z opcjami, a nie jako tekst (razem z pozostałymi pomiarami interaktywnymi E10).
+
+**Dopisek po rytuale zamknięcia:** commit `df8ee20` zmienił `SPEC_SRODOWISKA.md` i `SPEC_SNAPSHOT.md`
+bez podbicia wersji, więc `plugin update` zostawiłby cache na `ddc2894` (drugi facet L-0020).
+Zsynchronizowane przez `uninstall` + `install`; stan końcowy: `relai@relai 0.8.0`,
+`gitCommitSha df8ee20`, w cache'u dziewiętnaście specyfikacji i dziewięć hooków. Pomiary opisane
+wyżej wykonano na `ddc2894` i to jest wersja, której dotyczą ich wyniki — obie różnią się wyłącznie
+dwoma akapitami w specyfikacjach, dopisanymi na podstawie tych pomiarów.
