@@ -20,10 +20,17 @@ w Markdown (D-32) — HTML jest dla ludzi, Markdown dla agentów.
 | `HTML_PLAN/zbuduj.js` | osadza fonty w gotowym pliku (Node, zero zależności) |
 | `HTML_PLAN/fonty/` | sześć podzbiorów WOFF2 (Kalam 400/700, Hanken Grotesk) |
 
-W projekcie użytkownika czytasz to z **`.claude/relai/templates/HTML_PLAN/`** — lokalnej kopii,
-którą utrzymuje hook `session-context`. Katalog pluginu jest dla sesji niedostępny (L-0012).
-Jeśli lokalnej kopii nie ma, powiedz o tym wprost i poproś o uruchomienie sesji z `--add-dir`
-na katalog pluginu — nie improwizuj własnego szablonu.
+Kolejność jest wiążąca:
+
+1. **`docs/zasoby/HTML_PLAN/`** — nadpisanie lokalne projektu (D-62). Istnieje → używasz go
+   i nie zaglądasz dalej.
+2. **`.claude/relai/templates/HTML_PLAN/`** — kopia z pluginu, utrzymywana przez hook
+   `session-context`. Katalog samego pluginu jest dla sesji niedostępny (L-0012).
+3. Nie ma ani jednego → powiedz o tym wprost i poproś o uruchomienie sesji z `--add-dir`
+   na katalog pluginu — nie improwizuj własnego szablonu.
+
+Ścieżkę do buildera w kroku 5 procedury bierzesz **z tej samej lokalizacji**, z której wziąłeś
+szablon; `zbuduj.js` czyta fonty z sąsiedniego katalogu `fonty/`.
 
 ## Procedura generowania
 
@@ -88,9 +95,12 @@ pod konkretny plan.
 
 ## Nadpisanie lokalne
 
-Mechanizm zmiany szablonu na własny opisuje skill `relai-planning` (D-62). W skrócie: przy
-pierwszym wygenerowaniu planu HTML w projekcie pada pytanie o zmianę stylu; zmiana tworzy lokalną
-kopię szablonu, która **ma pierwszeństwo** przed wersją z pluginu.
+Pełny przebieg opisuje skill `relai-planning` (D-62). W skrócie: przy pierwszym wygenerowaniu planu
+HTML w projekcie pada — **raz na projekt** — pytanie o zmianę stylu. Zgoda kopiuje całe drzewo
+`HTML_PLAN/` (razem z `fonty/`) do **`docs/zasoby/HTML_PLAN/`**; ta kopia **ma pierwszeństwo** przed
+wersją z pluginu i przeżywa jego aktualizacje, bo hook pisze wyłącznie do `.claude/relai/templates/`.
+Wygląd zmieniasz **tylko przez tokeny w `:root`**. Odpowiedź — także odmowną — zapisujesz wierszem
+„Szablon planu HTML" w `docs/USTAWIENIA.md`, inaczej pytanie wróci (L-0006).
 
 ## Waga pliku
 

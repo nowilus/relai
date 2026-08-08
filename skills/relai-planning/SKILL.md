@@ -22,15 +22,16 @@ description: >
 
 # relai-planning — plany, etapy i ich zamrażanie
 
-Wersja E5 (RelAI 0.5.0). Zakres tej wersji: **wykrycie intencji planowania + rozróżnienie
-PLAN/MINIPLAN + pytanie startowe + generacja planu w Markdown + `STATUS.md` + zamrożenie z aneksami
-+ prompty etapowe `PROMPT_ETAP_N` z lazy-generacją + rytuał „Na koniec" etapu + zamknięcie planu**.
-Etap uruchamia komenda `/relai-stage`. Szablon HTML planów dochodzi w wersji następnej — nie udawaj,
-że już działa.
+Wersja E6 (RelAI 0.6.0). Zakres tej wersji: **wykrycie intencji planowania + rozróżnienie
+PLAN/MINIPLAN + pytanie startowe + generacja planu w Markdown albo w HTML + `STATUS.md` +
+zamrożenie z aneksami + prompty etapowe `PROMPT_ETAP_N` z lazy-generacją + rytuał „Na koniec" etapu
++ zamknięcie planu**. Etap uruchamia komenda `/relai-stage`. Od 0.6.0 działa interaktywny szablon
+HTML planów głównych (`HTML_PLAN/`) razem z nadpisaniem lokalnym (D-62).
 
-Specyfikacje (`SPEC_PLAN`, `SPEC_STATUS`, `SPEC_PROMPT_ETAPU`, `SPEC_DZIENNIK`) czytaj z lokalnej
-kopii **`.claude/relai/templates/`** — utrzymuje ją hook `session-context`; katalog pluginu jest
-dla sesji niedostępny (L-0012). Brak kopii → powiedz o tym i poproś o `--add-dir` na katalog
+Specyfikacje (`SPEC_PLAN`, `SPEC_PLAN_HTML`, `SPEC_STATUS`, `SPEC_PROMPT_ETAPU`, `SPEC_DZIENNIK`)
+czytaj z lokalnej kopii **`.claude/relai/templates/`** — utrzymuje ją hook `session-context`;
+katalog pluginu jest dla sesji niedostępny (L-0012). Tą samą drogą dociera szablon HTML
+(`.claude/relai/templates/HTML_PLAN/`). Brak kopii → powiedz o tym i poproś o `--add-dir` na katalog
 pluginu, zamiast generować z pamięci.
 
 Ten skill zakłada strukturę RelAI w folderze (marker `Wersja RelAI:` w `docs/USTAWIENIA.md`).
@@ -117,6 +118,8 @@ zadania i utrwaleniu **nie podlega**.
 
 Gdy zostało cokolwiek do zapytania — **dokładnie jedno wywołanie AskUserQuestion**, wszystkie
 brakujące pytania naraz. Nigdy dwa wywołania pod rząd, nigdy pytanie po wygenerowaniu planu.
+Jedyny wyjątek: pytanie o **nadpisanie lokalne szablonu HTML** (D-62) — pada raz na projekt, po
+pokazaniu pierwszego planu HTML, bo wcześniej użytkownik nie ma czego oceniać.
 
 Gdy nie zostało nic — bo próg rozstrzygnął rodzaj, a format i model są w ustawieniach — **nie
 pytasz w ogóle**. Piszesz jedno zdanie o tym, co przyjąłeś i skąd („pełny plan, Markdown, model
@@ -126,7 +129,7 @@ w tym samym projekcie: pytanie startowe pada raz na projekt, nie raz na plan.
 | # | Pytanie | Opcje (pierwsza z dopiskiem „(Rekomendowane)") |
 |---|---|---|
 | 1 | Rodzaj | pełny PLAN z etapami / MINIPLAN w dzienniku — rekomendacja wynika z progu z Kroku 2, podaj ją wprost z uzasadnieniem w jednym zdaniu |
-| 2 | Format | Markdown (Rekomendowane — jedyny działający w tej wersji) / HTML — zapiszę preferencję i użyję jej, gdy szablon HTML dojdzie w kolejnej wersji; teraz plan powstanie w Markdown |
+| 2 | Format planu głównego | interaktywny HTML (Rekomendowane — plan do czytania przez człowieka: zwijane sekcje, diagram, symulator; jeden samowystarczalny plik) / Markdown (lżejszy, czytelny w diffie) — cokolwiek padnie, `STATUS.md` i prompty etapowe zostają w Markdown (D-32) |
 | 3 | Model wykonawczy etapów | rekomendacja RelAI (Rekomendowane): złożone etapy — model najsilniejszy, mechaniczne — najtańszy / jeden model do wszystkiego / opis własny |
 
 Zasady tego pytania:
@@ -149,9 +152,14 @@ Zasady tego pytania:
    (D-12): `PLATNOSCI`, `MIGRACJA_BAZY`, `LOGOWANIE_OAUTH`. Temat nazywa obszar, nie czynność.
 2. **Utwórz folder** `docs/plany/<TEMAT>/`. Folderu `docs/plany/` nie tworzysz na zapas — powstaje
    razem z pierwszym planem (D-11).
-3. **Wygeneruj `PLAN.md`** wg `.claude/relai/templates/SPEC_PLAN.md`.
+3. **Wygeneruj plan główny w formacie z ustawień** (Krok 3, domyślnie HTML):
+   - **Markdown** → `PLAN.md` wg `.claude/relai/templates/SPEC_PLAN.md`;
+   - **HTML** → `PLAN.html` wg `.claude/relai/templates/SPEC_PLAN_HTML.md`, procedurą z sekcji
+     „Plan główny w HTML" niżej. Treść merytoryczna jest w obu przypadkach ta sama — dziesięć
+     sekcji z `SPEC_PLAN.md`. Format zmienia nośnik, nie zawartość.
 4. **Wygeneruj `STATUS.md`** wg `.claude/relai/templates/SPEC_STATUS.md` — ze statusem planu
-   `DO AKCEPTACJI` i modelem wykonawczym z Kroku 3.
+   `DO AKCEPTACJI` i modelem wykonawczym z Kroku 3. `STATUS.md` jest w Markdown **zawsze**,
+   niezależnie od formatu planu (D-32).
 5. **Dopisz linię aktywnego planu do `CLAUDE.md`** — dokładnie jedna linia z linkiem do `STATUS.md`
    planu (D-30). Jest już inna linia aktywnego planu → patrz „Więcej niż jeden plan" niżej.
 6. **Zaktualizuj `docs/STATE.md`** (pojawił się nowy obszar prac) i dopisz wpis do `docs/DZIENNIK.md`
@@ -162,6 +170,84 @@ Zasady tego pytania:
 
 Czego **nie** robisz na tym etapie: nie zaczynasz implementacji, **nie generujesz jeszcze
 `PROMPT_ETAP_1.md`** (powstaje dopiero przy akceptacji planu — D-34), nie commitujesz bez zgody.
+
+---
+
+## Plan główny w HTML (D-32)
+
+W HTML powstaje **wyłącznie plan główny**. `STATUS.md`, prompty etapowe i MINIPLAN-y zostają
+w Markdown — HTML jest dla ludzi, Markdown dla agentów.
+
+### Skąd bierzesz szablon — kolejność jest wiążąca
+
+1. **`docs/zasoby/HTML_PLAN/`** — lokalne nadpisanie projektu (D-62). Istnieje → używasz go
+   i nie zaglądasz dalej. **Lokalne ma zawsze pierwszeństwo.**
+2. **`.claude/relai/templates/HTML_PLAN/`** — kopia z pluginu, utrzymywana przez hook
+   `session-context`.
+3. Nie ma ani jednego → powiedz to wprost i poproś o uruchomienie sesji z `--add-dir` na katalog
+   pluginu. **Nie improwizujesz własnego HTML-a** — plan ma wyglądać tak samo w każdym projekcie.
+
+### Procedura — sześć kroków
+
+Pełny opis: `.claude/relai/templates/SPEC_PLAN_HTML.md`. Przebieg wypisany tutaj, bo odesłanie
+do pliku bywa pomijane (L-0011):
+
+1. **Skopiuj** `szablon.html` do `docs/plany/<TEMAT>/PLAN.html`.
+2. **Wypełnij znaczniki nagłówkowe:** `{{JEZYK}}`, `{{TYTUL}}`, `{{PODTYTUL}}`, `{{DATA}}`,
+   `{{STATUS}}`, `{{LICZBA_ETAPOW}}`, `{{PRACOCHLONNOSC}}`, `{{MODEL_WYKONAWCZY}}`, `{{PODPIS}}`,
+   `{{TEMAT_PLANU}}`.
+3. **Wypełnij `{{SEKCJA_1}}`…`{{SEKCJA_10}}`** treścią wg `SPEC_PLAN.md`, składając ją z gotowych
+   fragmentów z `komponenty.html`. `{{SZEPT_N}}` to półzdanie na marginesie nagłówka sekcji.
+4. **Symulator** — tylko gdy plan zawiera wyliczenia. Gdy ich nie ma, znaczniki symulatora
+   i tak wypełniasz wartościami pustymi (`[]`, `function(){}`, `24`, `[0]`, `''`); plik
+   z niewypełnionym znacznikiem jest zepsuty.
+5. **Uruchom builder:** `node <katalog szablonu>/zbuduj.js docs/plany/<TEMAT>/PLAN.html`. Osadza
+   fonty i **wypisuje niewypełnione znaczniki, kończąc kodem 1** — to błąd, nie ostrzeżenie.
+6. **Otwórz plik i sprawdź**, że symulator liczy, sekcje się zwijają i strona nie przewija się
+   w poziomie. Bez tego kroku plan nie jest gotowy.
+
+Zakazy nośnika (pełna lista w `SPEC_PLAN_HTML.md`): zero żądań sieciowych, zero fioletu i poświaty,
+zero emoji, zero animacji ozdobnych — w szczególności **żadnej kropki wędrującej po diagramie**.
+Obsługa `prefers-reduced-motion` jest w szablonie; nie usuwasz jej.
+
+---
+
+## Nadpisanie lokalne szablonu (D-62)
+
+Projekt może mieć **własną wersję szablonu HTML**, która wygrywa z wersją z pluginu.
+
+**Pytanie pada raz na projekt**, po pokazaniu **pierwszego** wygenerowanego planu HTML — wtedy,
+gdy użytkownik ma plik przed oczami i wie, o czym decyduje. Zanim zapytasz, sprawdź w
+`docs/USTAWIENIA.md` wiersz „Szablon planu HTML" i warstwę globalną; jest odpowiedź → **nie
+pytasz** (L-0006). To pytanie **nie należy** do jednego wywołania z Kroku 3 i nie łamie zakazu
+pytania po wygenerowaniu planu: tamten zakaz dotyczy pytań o rodzaj, format i model, bez których
+planu nie da się napisać.
+
+Odpowiedź „zostawiam domyślny" też zapisujesz — inaczej pytanie wróci przy następnym planie.
+
+Zmiana stylu — kolejno:
+
+1. **Skopiuj całe drzewo** `.claude/relai/templates/HTML_PLAN/` do `docs/zasoby/HTML_PLAN/`
+   (szablon, komponenty, `zbuduj.js` i katalog `fonty/` — bez fontów builder nie ma czego osadzić).
+2. **Zmień wygląd wyłącznie przez tokeny w `:root`** w `docs/zasoby/HTML_PLAN/szablon.html` —
+   kolory, promienie, kroje. Nie dopisujesz reguł CSS pod konkretny plan; przy następnej zmianie
+   szablonu nikt nie odgadnie, co było celowe.
+3. **Dopisz wiersz do `docs/USTAWIENIA.md`** z dzisiejszą datą: czego dotyczy („Szablon planu
+   HTML"), decyzja („nadpisanie lokalne w `docs/zasoby/HTML_PLAN/`, ma pierwszeństwo przed wersją
+   z pluginu") — plus jednym półzdaniem, co zmieniono.
+4. **Przegeneruj plan** z lokalnej kopii, żeby użytkownik zobaczył efekt w tej samej turze.
+
+Od tej chwili **każdy** plan HTML w tym projekcie powstaje z `docs/zasoby/HTML_PLAN/`, także po
+aktualizacji pluginu.
+
+### Dlaczego `docs/zasoby/`, a nie `.claude/relai/`
+
+`.claude/relai/` jest **cache'em pluginu**: hook `session-context` nadpisuje tam pliki przy każdym
+starcie sesji, a `.gitignore` z `*` trzyma cały katalog poza repozytorium. Nadpisanie schowane
+w cache'u przeżyłoby aktualizację pluginu (hook pisze tylko do `templates/`), ale zniknęłoby przy
+klonowaniu repo, na drugiej maszynie i u współpracownika — a to jest świadoma decyzja projektu,
+nie plik tymczasowy. `docs/zasoby/` jest w repo (D-11, D-24), wchodzi do backupu i jest widoczne
+w diffie. Dlatego nadpisanie mieszka tam (mitygacja R6).
 
 ---
 
@@ -359,6 +445,10 @@ Nie dopisujesz drugiej linii aktywnego planu i nie robisz z niej listy.
 - **Nie zadajesz drugiego pytania** o format i model, gdy odpowiedź jest już w `USTAWIENIA.md`.
 - **Nie generujesz promptów etapowych na zapas** — wyłącznie w trzech momentach z sekcji „Prompty
   etapowe"; prompt etapu już zrealizowanego zostaje bez zmian.
-- **Nie obiecujesz** szablonu HTML planów — w tej wersji go nie ma.
+- **Nie improwizujesz szablonu HTML z pamięci.** Brak `HTML_PLAN/` w obu lokalizacjach → mówisz
+  o tym i prosisz o `--add-dir`; własnoręcznie napisany HTML nie jest planem RelAI.
+- **Nie edytujesz szablonu w `.claude/relai/templates/`** — to cache nadpisywany przez hook przy
+  starcie sesji. Zmiana wyglądu idzie wyłącznie przez nadpisanie lokalne w `docs/zasoby/HTML_PLAN/`.
+- **Nie generujesz w HTML** `STATUS.md`, promptów etapowych ani MINIPLAN-ów (D-32).
 - **Nie kasujesz** planu ani jego folderu; plan nieaktualny idzie do archiwum z adnotacją (D-18).
 - **Nie wpisujesz do planu liczb bez etykiety** FAKT albo SZACUNEK (D-63).

@@ -5,14 +5,14 @@
 Plugin do Claude Code, który zamienia rozmowę z agentem w prowadzony projekt: ustalenia, decyzje,
 stan prac i historia zostają w plikach, a nie w kontekście sesji, który za chwilę zniknie.
 
-> Wersja 0.5.0 — rdzeń dokumentacyjny, planowanie, wykonywanie etapów i osiem hooków. Działa
-> inicjalizacja projektu, wykrywanie struktury, rytuały sesji, rejestry lekcji i decyzji, cztery
-> frazy rytualne, plany (PLAN z etapami / miniplan w dzienniku, zamrożenie i aneksy), pełny cykl
-> etapów (prompty `PROMPT_ETAP_N`, komenda `/relai-stage`, automatyczne zamknięcie planu) oraz
-> hooki: blokada sekretów, ochrona konfiguracji, przypomnienia o synchronizacji dokumentów
+> Wersja 0.6.0 — rdzeń dokumentacyjny, planowanie, wykonywanie etapów, osiem hooków i interaktywny
+> plan HTML. Działa inicjalizacja projektu, wykrywanie struktury, rytuały sesji, rejestry lekcji
+> i decyzji, cztery frazy rytualne, plany (PLAN z etapami / miniplan w dzienniku, zamrożenie
+> i aneksy) w Markdown **albo** w jednym samowystarczalnym pliku HTML z własnym szablonem projektu,
+> pełny cykl etapów (prompty `PROMPT_ETAP_N`, komenda `/relai-stage`, automatyczne zamknięcie planu)
+> oraz hooki: blokada sekretów, ochrona konfiguracji, przypomnienia o synchronizacji dokumentów
 > i `session-context` wymuszający rytuał startu niezależnie od skilli.
-> Pozostałe komendy operacyjne, szablon HTML planów i adopcja istniejących projektów dochodzą
-> w kolejnych wersjach.
+> Pozostałe komendy operacyjne i adopcja istniejących projektów dochodzą w kolejnych wersjach.
 > Aktualny zakres: [docs/plany/BUDOWA_RELAI/STATUS.md](docs/plany/BUDOWA_RELAI/STATUS.md).
 
 ## Instalacja
@@ -28,7 +28,7 @@ stan prac i historia zostają w plikach, a nie w kontekście sesji, który za ch
 Po instalacji otwórz Claude Code w folderze projektu i napisz cokolwiek — RelAI zapyta o zgodę na
 utworzenie struktury.
 
-## Co robi wersja 0.5.0
+## Co robi wersja 0.6.0
 
 | Sytuacja | Zachowanie |
 |---|---|
@@ -54,7 +54,14 @@ Rytuały, które od tej wersji działają bez proszenia:
   ze `STATUS.md` i linią „Aktywny plan" w `CLAUDE.md`. Drobne zadanie dostaje miniplan w dzienniku.
   O rodzaj, format i model wykonawczy etapów RelAI pyta **raz** — potem bierze odpowiedź z ustawień.
   Po akceptacji plan jest zamrożony: zmiany wchodzą jako datowane aneksy, nie jako przepisanie
-  sekcji. Plany powstają w Markdown — interaktywny szablon HTML dochodzi w kolejnej wersji.
+  sekcji.
+- **Plan HTML (nowy w 0.6.0)** — preferencja formatu „HTML" daje `PLAN.html`: jeden plik do
+  otwarcia dwuklikiem i wysłania dalej, ze zwijanymi sekcjami, diagramem przepływu, wykresem
+  i działającym symulatorem wyliczeń. **Zero połączeń z internetem** — fonty i grafiki są osadzone,
+  więc plan wygląda tak samo u każdego odbiorcy i działa offline. Przy pierwszym planie HTML RelAI
+  pyta raz o zmianę stylu; zgoda tworzy kopię szablonu w `docs/zasoby/HTML_PLAN/`, która ma
+  pierwszeństwo przed wersją z pluginu i przeżywa jego aktualizacje. `STATUS.md`, prompty etapowe
+  i miniplany zostają w Markdown — HTML jest dla ludzi, Markdown dla agentów.
 - **Etapy (nowe w 0.4.0)** — akceptacja planu tworzy `PROMPT_ETAP_1.md`: samowystarczalny prompt
   dla świeżej sesji (co przeczytać, decyzje, których nie otwierać, realny stan repo, zakres,
   weryfikacja, rytuał zamknięcia). Komenda **`/relai-stage`** znajduje aktywny plan i następny etap,
@@ -95,6 +102,7 @@ relai/
 │   ├── hooks.json           # rejestracja ośmiu hooków (zdarzenia i matchery)
 │   └── *.js                 # osiem hooków Node.js, zero zależności npm
 ├── templates/               # SPECYFIKACJE dokumentów dla LLM (nie pliki do kopiowania)
+│   └── HTML_PLAN/           # jedyny wyjątek: realny szablon planu HTML + fonty WOFF2
 └── docs/                    # dokumentacja budowy samego RelAI (dogfooding)
 ```
 

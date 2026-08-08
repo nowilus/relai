@@ -45,11 +45,12 @@ projektu jest w `docs/USTAWIENIA.md`.
 Plik jest **regenerowany**, nie edytowany ręcznie. Wyjątkiem są wiersze oznaczone jako lokalne —
 te przeżywają regenerację (D-62: lokalne nadpisania mają pierwszeństwo).
 
-## Zakres wersji 0.5.0 (E5) — co realnie działa
+## Zakres wersji 0.6.0 (E6) — co realnie działa
 
 Od 0.4.0 działa **pierwsza komenda** — `/relai-stage` — i wygenerowany `KOMENDY.md` ma tabelę
-komend. W 0.5.0 dochodzi **osiem hooków**: sekcja „Czego RelAI pilnuje bez proszenia" rośnie
-o zachowania hooków (lista niżej). Działa:
+komend. W 0.5.0 doszło **osiem hooków**: sekcja „Czego RelAI pilnuje bez proszenia" urosła
+o zachowania hooków (lista niżej). W 0.6.0 dochodzi **interaktywny plan HTML** i **nadpisanie
+lokalne szablonu**. Działa:
 
 - inicjalizacja struktury projektu (zgoda → trzy pytania → osiem dokumentów),
 - rozpoznanie folderu, który już jest projektem RelAI,
@@ -78,12 +79,17 @@ o zachowania hooków (lista niżej). Działa:
   produkcyjnym; ostrzeżenie tsc/eslint, gdy projekt ma te narzędzia; przypomnienie o spójności
   z `DESIGN.md`, gdy plik istnieje; ciche formatowanie Prettierem, gdy projekt go ma; na starcie
   sesji: data dnia, kontrola wersji projekt↔plugin, wymuszenie rytuału startu i siatka brakujących
-  promptów etapowych — nawet bez wyzwolenia skilla.
+  promptów etapowych — nawet bez wyzwolenia skilla,
+- **plan główny w HTML (nowe w 0.6.0):** gdy preferencja formatu mówi „HTML", plan powstaje jako
+  jeden samowystarczalny plik `PLAN.html` — zwijane sekcje, diagram, wykres, symulator wyliczeń,
+  zero połączeń z internetem; `STATUS.md`, prompty etapowe i miniplany zostają w Markdown,
+- **własny styl planów (nowe w 0.6.0):** przy pierwszym planie HTML pada pytanie o zmianę wyglądu;
+  zgoda tworzy kopię szablonu w `docs/zasoby/HTML_PLAN/`, która **ma pierwszeństwo** przed wersją
+  z pluginu i przeżywa jego aktualizacje.
 
-Czego w 0.5.0 **nie** ma: pozostałych komend `/relai-*` i interaktywnego szablonu HTML planów —
-plany powstają w Markdown.
+Czego w 0.6.0 **nie** ma: pozostałych komend `/relai-*` — nie wpisujesz ich do `KOMENDY.md`.
 
-Wygenerowany `KOMENDY.md` w wersji 0.5.0 zawiera **tabelę komend z jedną pozycją** oraz tabelę
+Wygenerowany `KOMENDY.md` w wersji 0.6.0 zawiera **tabelę komend z jedną pozycją** oraz tabelę
 fraz naturalnych:
 
 | Komenda | Co robi |
@@ -105,12 +111,12 @@ fraz naturalnych:
 - Nie dopisujesz fraz spoza listy działających w danej wersji.
 - Nie opisujesz mechaniki wewnętrznej (skille, hooki) — użytkownika interesuje efekt.
 
-## Przykład dla wersji 0.5.0 (projekt polski)
+## Przykład dla wersji 0.6.0 (projekt polski)
 
 ```markdown
 # KOMENDY — Parkly
 
-RelAI 0.5.0
+RelAI 0.6.0
 
 Nic z tej listy nie jest obowiązkowe. RelAI działa w zwykłej rozmowie — piszesz normalnie,
 a struktura projektu nadąża. Komendy są skrótem do rzadszych operacji.
@@ -140,6 +146,9 @@ a struktura projektu nadąża. Komendy są skrótem do rzadszych operacji.
   ją na stałe do reguł projektu.
 - Gdy ten sam temat rozstrzygasz drugi raz tak samo, proponuje zamrozić to jako decyzję.
 - O format planów i model wykonawczy etapów pyta raz — potem bierze odpowiedź z ustawień.
+- Plan główny składa w jednym pliku HTML, który otwierasz dwuklikiem i wysyłasz dalej — działa bez
+  internetu. Przy pierwszym takim planie pyta raz, czy chcesz inny styl; Twoja wersja szablonu
+  zostaje w projekcie i wygrywa z domyślną także po aktualizacji RelAI.
 - Zaakceptowanego planu nie przepisuje: zmiana wchodzi jako datowany aneks, żeby było widać, co
   uzgodniliście pierwotnie.
 - Po zaakceptowaniu planu przygotowuje prompt pierwszego etapu, a po zamknięciu każdego etapu —

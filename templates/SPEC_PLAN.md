@@ -3,9 +3,11 @@
 Specyfikacja dla LLM (D-60). Nie kopiuj tego pliku. Wygeneruj `PLAN.md` **w języku projektu**
 (nazwa pliku stała: `PLAN.md`, folder `<TEMAT>` w języku projektu — CAPS_SNAKE, bez dat i wersji).
 
-W tej wersji RelAI plany powstają w **Markdown**. Interaktywny szablon HTML (D-32) dochodzi
-w kolejnej wersji pluginu — do tego czasu preferencję „HTML" zapisujesz w `USTAWIENIA.md`, ale plan
-generujesz w Markdown i mówisz o tym wprost.
+Ta specyfikacja opisuje **treść planu** — dziesięć sekcji w stałej kolejności. Nośnik wybiera
+preferencja formatu z `USTAWIENIA.md`: „Markdown" → `PLAN.md` wg tego pliku; „HTML" → `PLAN.html`
+wg [`SPEC_PLAN_HTML.md`](SPEC_PLAN_HTML.md), z **tą samą** strukturą treści (D-32). Gdy obie
+specyfikacje mówią co innego o treści, rozstrzyga ta. `STATUS.md`, prompty etapowe i MINIPLAN-y
+powstają w Markdown zawsze.
 
 ## Rola
 

@@ -32,7 +32,8 @@ Globalne preferencje użytkownika (`~/.claude/relai/USTAWIENIA.md`, w projekcie 
    Umieszczenie go tam sprawiłoby, że katalog domowy zostałby uznany za projekt RelAI.
 3. Trafiają do niego wyłącznie preferencje **ponadprojektowe**: język pracy, format planów, model
    wykonawczy etapów, lokalizacja backupów, kierunek designu. Rzeczy z natury projektowe (git
-   remote, profil projektu, podejście do testów w tym repo) zostają w pliku projektowym.
+   remote, profil projektu, podejście do testów w tym repo, **nadpisanie lokalne szablonu planu
+   HTML** — wskazuje ścieżkę wewnątrz repozytorium) zostają w pliku projektowym.
 
 **Kiedy powstaje:** przy pierwszej inicjalizacji projektu RelAI na danej maszynie, zaraz po paczce
 trzech pytań — z ponadprojektowego podzbioru odpowiedzi. Nie zadajesz z tego powodu dodatkowego
@@ -106,7 +107,7 @@ etapów, lokalizacja backupów, zgody na wyjątki od reguł domyślnych, wybrany
 ```markdown
 # USTAWIENIA — Parkly
 
-Wersja RelAI: 0.5.0 · zainicjowano: 2026-08-07
+Wersja RelAI: 0.6.0 · zainicjowano: 2026-08-07
 
 Rejestr wyborów użytkownika dla tego projektu. Każdy wpis: data, czego dotyczył, decyzja.
 Odpowiedź raz udzielona nie wraca jako pytanie.
@@ -117,5 +118,7 @@ Odpowiedź raz udzielona nie wraca jako pytanie.
 | 2026-08-07 | Git | Repo lokalne + zdalne na GitHub (prywatne) |
 | 2026-08-07 | Profil projektu | app (Next.js + PostgreSQL) |
 | 2026-08-12 | Testy | Testy krytycznych ścieżek, bez pełnego TDD — decyzja przy pierwszym kodzie |
+| 2026-08-14 | Format planów | Interaktywny HTML dla planów głównych; `STATUS.md` i prompty etapowe w Markdown |
+| 2026-08-14 | Szablon planu HTML | Nadpisanie lokalne w `docs/zasoby/HTML_PLAN/` — ma pierwszeństwo przed wersją z pluginu; zmieniona paleta i krój nagłówków |
 | 2026-08-20 | Lokalizacja backupów | `D:\Backupy\Projekty` |
 ```
