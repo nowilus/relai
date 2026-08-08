@@ -975,6 +975,12 @@ Autor: RelAI (Opus) + Lukasz
 - **`grep` po `0.6.0` rozstrzygnięty:** pozostałe trafienia są historyczne — wiersz E6 w `CLAUDE.md`
   i `STATUS.md`, trigger L-0020, zdania „nowe w 0.6.0" w README i `SPEC_KOMENDY`, przykład wyjścia
   w `relai-changelog.md`.
+- **Po rytuale zamknięcia** commit `bf935bb` zmienił `commands/relai-backup.md` i `SPEC_KOMENDY.md`
+  bez podbicia wersji, więc `plugin update` zameldował „already at the latest version (0.7.0)"
+  i zostawił cache na `68c1e03` — dokładnie drugi facet L-0020. Zsynchronizowane przez `uninstall`
+  + `install`; stan końcowy: `gitCommitSha bf935bb`, a w cache'u są zdania o `--add-dir`
+  i o przedrostku `/relai:relai-…`. Pomiary komend wykonano na `68c1e03` i to jest wersja, której
+  dotyczą wyniki wyżej.
 - **Nie sprawdzono:** pełnej ścieżki pytania o lokalizację backupu (`AskUserQuestion` nie działa
   w trybie `-p` — lokalizację podawałem argumentem), regeneracji `KOMENDY.md` przez `/relai-help`
   po zgodzie, oraz zachowania komend na macOS i Linuksie (rozstrzygnięcia dla tych systemów są
