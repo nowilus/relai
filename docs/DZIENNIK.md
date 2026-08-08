@@ -846,6 +846,12 @@ Autor: RelAI (Opus) + Lukasz
 - **Pierwszeństwo nadpisania lokalnego:** w projekcie „HTML" założono `docs/zasoby/HTML_PLAN/`
   z podmienionym tokenem `--glina:#1f6f6b`. Drugi plan wygenerowany w tym samym projekcie przez
   świeżą sesję zawiera **token nadpisania** i **nie zawiera** tokenu z pluginu `#c4643c`.
+- **Kolizja znaleziona przy okazji:** sesja generująca drugi plan chciała dopisać wiersz „Szablon
+  planu HTML" do `docs/USTAWIENIA.md` i **hook `config-protection` ją zablokował** (plik jest
+  chroniony, zmiana wymaga potwierdzenia człowieka). W sesji nieinteraktywnej potwierdzenia nie ma,
+  więc wiersz nie powstał, a sesja o tym powiedziała. Krok 3 procedury D-62 w skillu dostał zdanie
+  o tej blokadzie: potwierdzenie jest oczekiwane, ale zapisu nie wolno odpuścić po cichu — bez
+  wiersza pytanie o styl wraca przy każdym planie (L-0006).
 - **Przeżycie aktualizacji (R6):** po `marketplace update` + `plugin update` + świeżej sesji
   dziewięć plików nadpisania ma **identyczne sumy kontrolne**, własny token na miejscu, token
   z pluginu nie wrócił; w tym samym czasie cache `.claude/relai/templates/HTML_PLAN/szablon.html`

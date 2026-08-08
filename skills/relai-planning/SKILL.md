@@ -234,7 +234,11 @@ Zmiana stylu — kolejno:
    szablonu nikt nie odgadnie, co było celowe.
 3. **Dopisz wiersz do `docs/USTAWIENIA.md`** z dzisiejszą datą: czego dotyczy („Szablon planu
    HTML"), decyzja („nadpisanie lokalne w `docs/zasoby/HTML_PLAN/`, ma pierwszeństwo przed wersją
-   z pluginu") — plus jednym półzdaniem, co zmieniono.
+   z pluginu") — plus jednym półzdaniem, co zmieniono. **Ten zapis przechodzi przez hook
+   `config-protection`**, który zażąda potwierdzenia — to jest w porządku, bo użytkownik przed
+   chwilą zgodził się na zmianę stylu. Zapisu **nie odpuszczasz po cichu**: bez wiersza pytanie
+   wróci przy następnym planie (L-0006). Blokada bez możliwości potwierdzenia (np. sesja
+   nieinteraktywna) → powiedz wprost, że wiersz czeka na dopisanie, i pokaż jego treść.
 4. **Przegeneruj plan** z lokalnej kopii, żeby użytkownik zobaczył efekt w tej samej turze.
 
 Od tej chwili **każdy** plan HTML w tym projekcie powstaje z `docs/zasoby/HTML_PLAN/`, także po
