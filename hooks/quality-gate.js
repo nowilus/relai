@@ -1,8 +1,10 @@
 #!/usr/bin/env node
 'use strict';
 // RelAI hook: quality-gate — PostToolUse (Write/Edit), OSTRZEGA (D-41).
-// Warunkowy do czasu profili (E8): dziala tylko, gdy projekt ma tsconfig.json
-// i lokalnie zainstalowany TypeScript (lub ESLint z konfiguracja). Brak narzedzi = cisza.
+// Warunkiem jest obecnosc narzedzi, nie profil projektu: dziala tylko, gdy projekt ma
+// tsconfig.json i lokalnie zainstalowany TypeScript (lub ESLint z konfiguracja). Brak
+// narzedzi = cisza. Profil sprawdzaja profile-rules i config-protection — tu bylby
+// warunkiem slabszym niz sama obecnosc tsc/eslint.
 // Nigdy nie blokuje: narzedzie juz sie wykonalo; hook dostarcza ostrzezenie do kontekstu.
 // Konwencja hook-guard: poza projektem RelAI wyjscie kodem 0 bez efektu.
 

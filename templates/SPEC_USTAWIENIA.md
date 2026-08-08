@@ -78,6 +78,19 @@ Zawsze te trzy, z odpowiedzi na paczkę startową (D-20), plus wersja RelAI w li
 | Git | pytanie 2 |
 | Profil projektu | pytanie 3 |
 
+Wiersz **`Profil projektu`** jest czytany maszynowo — hooki `profile-rules` i `config-protection`
+biorą z niego reguły warunkowe (D-50). Kolumna `Decyzja` musi **zaczynać się** od jednej z czterech
+wartości, napisanej dosłownie: `app`, `agent-voice`, `flow`, `prompty`. Opis w nawiasie za nią jest
+dozwolony i pomijany (`app (Next.js + PostgreSQL)` jest poprawne). Nazwy profilu **nie tłumaczysz**
+na język projektu.
+
+Wartość nierozpoznana wycisza reguły profilu — hooki milczą, zamiast zgadywać. Nazwa profilu
+wspomniana w prozie środka komórki nie jest wyborem profilu i celowo nie działa.
+
+Wiersz **`Podejście do testów`** powstaje dopiero przy pierwszym kodzie w profilu `app` (D-25) —
+nie przy inicjalizacji. Jego obecność wycisza pytanie o testy, więc nazwy tego wiersza też nie
+zmieniasz dowolnie.
+
 ## Polityka aktualizacji
 
 - **Append.** Nowa preferencja to nowy wiersz z datą, nie edycja starego.
@@ -107,7 +120,7 @@ etapów, lokalizacja backupów, zgody na wyjątki od reguł domyślnych, wybrany
 ```markdown
 # USTAWIENIA — Parkly
 
-Wersja RelAI: 0.7.0 · zainicjowano: 2026-08-07
+Wersja RelAI: 0.8.0 · zainicjowano: 2026-08-07
 
 Rejestr wyborów użytkownika dla tego projektu. Każdy wpis: data, czego dotyczył, decyzja.
 Odpowiedź raz udzielona nie wraca jako pytanie.
@@ -117,7 +130,7 @@ Odpowiedź raz udzielona nie wraca jako pytanie.
 | 2026-08-07 | Język projektu | Polski — dokumentacja PL, kod i identyfikatory EN, commity conventional EN |
 | 2026-08-07 | Git | Repo lokalne + zdalne na GitHub (prywatne) |
 | 2026-08-07 | Profil projektu | app (Next.js + PostgreSQL) |
-| 2026-08-12 | Testy | Testy krytycznych ścieżek, bez pełnego TDD — decyzja przy pierwszym kodzie |
+| 2026-08-12 | Podejście do testów | Testy krytycznych ścieżek, bez pełnego TDD — pytanie padło przy pierwszym kodzie |
 | 2026-08-14 | Format planów | Interaktywny HTML dla planów głównych; `STATUS.md` i prompty etapowe w Markdown |
 | 2026-08-14 | Szablon planu HTML | Nadpisanie lokalne w `docs/zasoby/HTML_PLAN/` — ma pierwszeństwo przed wersją z pluginu; zmieniona paleta i krój nagłówków |
 | 2026-08-20 | Lokalizacja backupów | `D:\Backupy\Projekty` |

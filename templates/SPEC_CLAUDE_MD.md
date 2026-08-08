@@ -41,14 +41,39 @@ i `DZIENNIK.md`.
    śledzonych; definicja ukończenia (punkt 6); zasada „decyzje zamrożone się nie wracają"; sposób
    wykonania etapów planu. Zasady, które wynikły z konkretnej korekty użytkownika, trafiają tu
    dopiero po powtórzeniu — inaczej rosną bez kontroli.
-6. **Definicja ukończenia** — jedno zdanie i konsekwencja: zadanie jest ukończone, gdy kod działa
+6. **Reguły profilu** — sekcja o stałym tytule `## Reguły profilu (<nazwa>)`, umieszczona zaraz po
+   „Regułach procesu". Patrz niżej.
+7. **Definicja ukończenia** — jedno zdanie i konsekwencja: zadanie jest ukończone, gdy kod działa
    **i** dokumenty (`STATE.md`, wpis w `DZIENNIK.md`) są zaktualizowane w tej samej turze. Bez tego
    zadanie jest w toku, niezależnie od stanu kodu (D-44).
-7. **Dobór modeli — rekomendacja** — jawnie oznaczona jako rekomendacja, nie reguła (D-38): analiza,
+8. **Dobór modeli — rekomendacja** — jawnie oznaczona jako rekomendacja, nie reguła (D-38): analiza,
    architektura i plany → model najsilniejszy; wykonanie etapów → model wyważony; zadania
    mechaniczne → model najtańszy. Dopisz jedno zdanie: użytkownik może to nadpisać przy każdym
    planie, a wybór trafia do `STATUS.md` planu (D-39).
-8. **Sekcja niemutowalna** — patrz niżej.
+9. **Sekcja niemutowalna** — patrz niżej.
+
+## Sekcja „Reguły profilu"
+
+Powstaje **przy inicjalizacji**, razem z resztą pliku — mimo że dokumenty warunkowe profilu
+powstają dopiero przy zdarzeniu (D-10). To nie jest sprzeczność: sekcja niesie **regułę**, a nie
+dokument. Bez niej reguła profilu istnieje wyłącznie w skillu i w hooku, a skill wyzwala się
+zawodnie (R2).
+
+Zasady:
+
+- **Tytuł stały:** `## Reguły profilu (<nazwa>)`, gdzie `<nazwa>` to jedna z czterech wartości:
+  `app`, `agent-voice`, `flow`, `prompty` (D-50). Tytuł tłumaczysz na język projektu, nazwę profilu
+  — nie.
+- **Miejsce stałe:** zaraz po „Regułach procesu", przed „Definicją ukończenia".
+- **3–6 punktów, tryb rozkazujący.** Punkt mówi, co ma się stać i kiedy — nie tłumaczy filozofii
+  profilu i nie powtarza reguł procesu.
+- **Bez odsyłaczy do plików spoza projektu.** Katalog pluginu jest dla sesji niedostępny (L-0012),
+  więc reguła ma być czytelna sama z siebie.
+- **Limit 60 linii całego pliku obowiązuje dalej.** Sekcja profilu nie jest wyjątkiem — jeśli plik
+  przekracza limit, skracasz punkty.
+
+Gotowe brzmienie wszystkich czterech sekcji: `SPEC_PROFILE.md`, sekcja „Przykład". Profil zmieniony
+przez człowieka → podmieniasz całą sekcję i dopisujesz wiersz w `USTAWIENIA.md`.
 
 ## Sekcja niemutowalna
 
@@ -71,6 +96,7 @@ Tej sekcji nie edytuje się w ramach zwykłej pracy. Zmiana wymaga jawnej prośb
 | Start / zamknięcie planu | linia „Aktywny plan" |
 | Reguła powtórzyła się drugi raz jako korekta użytkownika | dopisek w „Regułach procesu" (graduacja) |
 | Zmiana ustawienia językowego / procesowego | odpowiedni punkt reguł, równolegle z `USTAWIENIA.md` |
+| Zmiana profilu projektu (tylko na prośbę człowieka) | cała sekcja „Reguły profilu", równolegle z `USTAWIENIA.md` |
 | Cokolwiek innego | **nie tutaj** — do `STATE.md`, `DZIENNIK.md` albo dokumentu tematycznego |
 
 Sekcja niemutowalna: nigdy bez jawnej prośby.
@@ -104,6 +130,15 @@ Aktywny plan: [PLATNOSCI](docs/plany/PLATNOSCI/STATUS.md)
 - Sekrety wyłącznie w `.env` (gitignored) — nigdy w plikach śledzonych.
 - Zadanie jest ukończone dopiero z aktualnym STATE i wpisem w DZIENNIKU (ta sama tura).
 - Decyzji z `docs/DECYZJE.md` nie proponuje się ponownie.
+
+## Reguły profilu (app)
+
+- Pierwszy plik źródłowy → w tej samej turze powstaje `docs/ARCHITEKTURA.md` i pada jedno pytanie
+  o podejście do testów; odpowiedź do `docs/USTAWIENIA.md`.
+- Pierwszy plik interfejsu → jedno pytanie o kierunek wizualny i `docs/DESIGN.md`.
+- Pierwsze wdrożenie środowiska → `docs/srodowiska/<NAZWA>.md` z adresem, wskazaniem dostępów,
+  procedurą wdrożenia i procedurą cofnięcia.
+- W `docs/srodowiska/` są nazwy zmiennych i miejsce przechowywania sekretu — nigdy wartości.
 
 ## Dobór modeli (rekomendacja, nie reguła)
 

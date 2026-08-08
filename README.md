@@ -5,15 +5,16 @@
 Plugin do Claude Code, który zamienia rozmowę z agentem w prowadzony projekt: ustalenia, decyzje,
 stan prac i historia zostają w plikach, a nie w kontekście sesji, który za chwilę zniknie.
 
-> Wersja 0.7.0 — rdzeń dokumentacyjny, planowanie, wykonywanie etapów, osiem hooków, interaktywny
-> plan HTML i **siedem komend**. Działa inicjalizacja projektu, wykrywanie struktury, rytuały sesji,
-> rejestry lekcji i decyzji, cztery frazy rytualne, plany (PLAN z etapami / miniplan w dzienniku,
-> zamrożenie i aneksy) w Markdown **albo** w jednym samowystarczalnym pliku HTML z własnym szablonem
-> projektu, pełny cykl etapów (prompty `PROMPT_ETAP_N`, komenda `/relai-stage`, automatyczne
-> zamknięcie planu), komendy operacyjne (backup, audyt, changelog, pakiet przekazania, wycieczka,
-> ściąga) oraz hooki: blokada sekretów, ochrona konfiguracji, przypomnienia o synchronizacji
+> Wersja 0.8.0 — rdzeń dokumentacyjny, planowanie, wykonywanie etapów, dziewięć hooków, interaktywny
+> plan HTML, **siedem komend** i **cztery profile projektów**. Działa inicjalizacja projektu,
+> wykrywanie struktury, rytuały sesji, rejestry lekcji i decyzji, cztery frazy rytualne, plany
+> (PLAN z etapami / miniplan w dzienniku, zamrożenie i aneksy) w Markdown **albo** w jednym
+> samowystarczalnym pliku HTML z własnym szablonem projektu, pełny cykl etapów (prompty
+> `PROMPT_ETAP_N`, komenda `/relai-stage`, automatyczne zamknięcie planu), komendy operacyjne
+> (backup, audyt, changelog, pakiet przekazania, wycieczka, ściąga), reguły warunkowe zależne od
+> profilu oraz hooki: blokada sekretów, ochrona konfiguracji, przypomnienia o synchronizacji
 > dokumentów i `session-context` wymuszający rytuał startu niezależnie od skilli.
-> Profile projektów i adopcja istniejących projektów dochodzą w kolejnych wersjach.
+> Adopcja istniejących projektów dochodzi w kolejnej wersji.
 > Aktualny zakres: [docs/plany/BUDOWA_RELAI/STATUS.md](docs/plany/BUDOWA_RELAI/STATUS.md).
 
 ## Instalacja
@@ -29,7 +30,7 @@ stan prac i historia zostają w plikach, a nie w kontekście sesji, który za ch
 Po instalacji otwórz Claude Code w folderze projektu i napisz cokolwiek — RelAI zapyta o zgodę na
 utworzenie struktury.
 
-## Co robi wersja 0.7.0
+## Co robi wersja 0.8.0
 
 | Sytuacja | Zachowanie |
 |---|---|
@@ -80,20 +81,33 @@ Rytuały, które od tej wersji działają bez proszenia:
   gdy wszystkie wpisy dziennika podpisał kto inny niż bieżący użytkownik gita, wycieczka **proponuje
   się sama** (D-27) — propozycja, nigdy automatyczne odpalenie. **`/relai-help`** pokazuje
   `docs/KOMENDY.md` projektu i nie utrzymuje własnej listy niczego (D-07).
-- **Hooki (nowe w 0.5.0)** — osiem hooków Node.js, bez żadnych zależności npm, wszystkie zgodne
+- **Hooki (nowe w 0.5.0)** — dziewięć hooków Node.js, bez żadnych zależności npm, wszystkie zgodne
   z konwencją hook-guard (niżej). Blokują wyłącznie `secret-scanner` (sekret w pliku śledzonym —
   klucze `sk-…`, `ghp…`, `AKIA…`, JWT, klucze PEM, przypisania `PASSWORD=`/`SECRET=`; plik objęty
-  `.gitignore` przechodzi) i `config-protection` (sekcja niemutowalna `CLAUDE.md` oraz
-  `docs/USTAWIENIA.md` — zmiana wymaga jawnego zatwierdzenia przez człowieka). Cztery hooki
-  ostrzegają, nigdy nie blokując: `quality-gate` (tsc/eslint, gdy projekt je ma),
-  `console-log-warn`, `design-quality-check` (gdy istnieje `docs/DESIGN.md`), `doc-sync-reminder`
-  (zmiana kodu bez `STATE`/`DZIENNIK` — druga siatka definicji ukończenia). Dwa działają cicho:
-  `auto-format` (gdy projekt ma Prettiera) i `session-context` — wstrzykuje datę dnia, kontrolę
-  wersji projekt↔plugin, wymuszenie rytuału startu, siatkę brakujących promptów etapowych
-  i (od 0.7.0) sygnał o nieznanym autorze dziennika — niezależnie od tego, czy skill się wyzwolił —
-  oraz kopiuje specyfikacje dokumentów do
+  `.gitignore` przechodzi) i `config-protection` (sekcja niemutowalna `CLAUDE.md`,
+  `docs/USTAWIENIA.md` oraz — od 0.8.0 — produkcyjna konfiguracja projektów `agent-voice`/`flow`
+  bez snapshotu; zmiana wymaga jawnego zatwierdzenia przez człowieka). Pięć hooków ostrzega, nigdy
+  nie blokując: `quality-gate` (tsc/eslint, gdy projekt je ma), `console-log-warn`,
+  `design-quality-check` (gdy istnieje `docs/DESIGN.md`), `doc-sync-reminder` (zmiana kodu bez
+  `STATE`/`DZIENNIK` — druga siatka definicji ukończenia) i `profile-rules` (od 0.8.0 — zdarzenie,
+  przy którym profil dokłada dokument warunkowy). Dwa działają cicho: `auto-format` (gdy projekt ma
+  Prettiera) i `session-context` — wstrzykuje datę dnia, kontrolę wersji projekt↔plugin, wymuszenie
+  rytuału startu, siatkę brakujących promptów etapowych i (od 0.7.0) sygnał o nieznanym autorze
+  dziennika — niezależnie od tego, czy skill się wyzwolił — oraz kopiuje specyfikacje dokumentów do
   `.claude/relai/templates/` w projekcie i dostarcza ustawienia globalne `~/.claude/relai/`
   (rozwiązanie dostępu do zasobów spoza katalogu roboczego).
+- **Profile projektów (nowe w 0.8.0)** — trzecie pytanie startowe przestaje być samym wpisem
+  w ustawieniach. Cztery profile, każdy z własnymi regułami warunkowymi. **`app`:** pierwszy plik
+  źródłowy tworzy `docs/ARCHITEKTURA.md` i wywołuje jedno pytanie o podejście do testów; pierwszy
+  plik interfejsu — jedno pytanie o kierunek wizualny i `docs/DESIGN.md`; pierwsza konfiguracja
+  wdrożeniowa — `docs/srodowiska/<NAZWA>.md` z procedurą wdrożenia **i procedurą cofnięcia**, gdzie
+  są nazwy zmiennych i miejsce przechowywania sekretu, nigdy wartości. **`agent-voice` i `flow`:**
+  zmiana produkcyjnej konfiguracji bez kopii stanu sprzed zmiany zostaje **zatrzymana** — snapshot
+  do `docs/snapshoty/<data>/` jest bramką, a zmianę wykonuje skrypt migracyjny z asercjami, nie
+  ręczna edycja JSON-a. **`prompty`:** rejestr wersji artefaktów `docs/ARTEFAKTY.md`. Żaden z tych
+  dokumentów nie powstaje na zapas przy inicjalizacji — wyłącznie przy zdarzeniu. Reguła każdego
+  profilu żyje w trzech warstwach: sekcja w `CLAUDE.md` projektu (zawsze w kontekście), hook
+  (wykrywa zdarzenie) i skill (niesie procedurę).
 
 Pełna adopcja istniejącego projektu — z backupem, analizą kodu i historii, raportem zmian
 i przetestowaną ścieżką cofnięcia — celowo **nie** jest częścią tej wersji. Namiastka adopcji byłaby
@@ -112,8 +126,8 @@ relai/
 ├── commands/                # siedem komend: stage, backup, audit, changelog,
 │   └── *.md                 #   handover, tour, help
 ├── hooks/
-│   ├── hooks.json           # rejestracja ośmiu hooków (zdarzenia i matchery)
-│   └── *.js                 # osiem hooków Node.js, zero zależności npm
+│   ├── hooks.json           # rejestracja dziewięciu hooków (zdarzenia i matchery)
+│   └── *.js                 # dziewięć hooków Node.js, zero zależności npm
 ├── templates/               # SPECYFIKACJE dokumentów dla LLM (nie pliki do kopiowania)
 │   └── HTML_PLAN/           # jedyny wyjątek: realny szablon planu HTML + fonty WOFF2
 └── docs/                    # dokumentacja budowy samego RelAI (dogfooding)
@@ -150,7 +164,9 @@ Szczegóły konwencji:
 6. **Twardość osobno.** To, czy hook blokuje, czy tylko ostrzega, jest jego osobną cechą; guard nie
    ma z tym związku i obowiązuje jednakowo hooki blokujące i ostrzegające.
 
-Od wersji 0.5.0 konwencja jest zaimplementowana we wszystkich ośmiu hookach. Jedno doprecyzowanie
+Od wersji 0.5.0 konwencja jest zaimplementowana we wszystkich hookach — od 0.8.0 jest ich dziewięć.
+Hooki reguł profilu mają **drugi warunek** obok guarda: czytają profil z wiersza „Profil projektu"
+w pliku ustawień i milczą, gdy reguła nie dotyczy tego profilu. Jedno doprecyzowanie
 wynikłe z praktyki: dla zdarzenia wywołania **skilla RelAI** (`relai-core`/`relai-planning`)
 warunkiem guarda jest samo to wywołanie — użytkownik świadomie użył pluginu, więc hook
 `session-context` może dostarczyć specyfikacje i ustawienia globalne także w folderze, który

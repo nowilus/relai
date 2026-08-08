@@ -50,13 +50,14 @@ projektu jest w `docs/USTAWIENIA.md`.
 Plik jest **regenerowany**, nie edytowany ręcznie. Wyjątkiem są wiersze oznaczone jako lokalne —
 te przeżywają regenerację (D-62: lokalne nadpisania mają pierwszeństwo).
 
-## Zakres wersji 0.7.0 (E7) — co realnie działa
+## Zakres wersji 0.8.0 (E8) — co realnie działa
 
 Od 0.4.0 działa **pierwsza komenda** — `/relai-stage` — i wygenerowany `KOMENDY.md` ma tabelę
 komend. W 0.5.0 doszło **osiem hooków**: sekcja „Czego RelAI pilnuje bez proszenia" urosła
 o zachowania hooków (lista niżej). W 0.6.0 doszedł **interaktywny plan HTML** i **nadpisanie
-lokalne szablonu**. W 0.7.0 dochodzi **sześć komend operacyjnych** — tabela komend rośnie z jednej
-pozycji do siedmiu. Działa:
+lokalne szablonu**. W 0.7.0 doszło **sześć komend operacyjnych** — tabela komend urosła z jednej
+pozycji do siedmiu. W 0.8.0 **profil projektu zaczyna cokolwiek robić**: nowych komend nie ma,
+rośnie wyłącznie sekcja o zachowaniach automatycznych. Działa:
 
 - inicjalizacja struktury projektu (zgoda → trzy pytania → osiem dokumentów),
 - rozpoznanie folderu, który już jest projektem RelAI,
@@ -99,12 +100,23 @@ pozycji do siedmiu. Działa:
   komend i fraz,
 - **propozycja wycieczki (nowe w 0.7.0), do sekcji „Czego RelAI pilnuje bez proszenia":** gdy
   wszystkie wpisy w dzienniku podpisał kto inny niż bieżący użytkownik gita, RelAI proponuje
-  wycieczkę po projekcie — propozycja, nigdy automatyczne odpalenie.
+  wycieczkę po projekcie — propozycja, nigdy automatyczne odpalenie,
+- **reguły profilu (nowe w 0.8.0), do sekcji „Czego RelAI pilnuje bez proszenia":** dokumenty
+  dopasowane do typu projektu powstają **przy zdarzeniu**, nie przy zakładaniu projektu. Wpisujesz
+  **wyłącznie punkty profilu tego projektu** — projekt `app` nie czyta o snapshotach, a projekt
+  `flow` o dokumencie architektury:
+  - profil `app`: pierwszy kod → opis architektury i jedno pytanie o testy; pierwszy ekran →
+    jedno pytanie o kierunek wizualny i dokument wyglądu; pierwsze wdrożenie → opis środowiska
+    z procedurą wdrożenia i cofnięcia, z nazwami zmiennych zamiast wartości,
+  - profile `agent-voice` i `flow`: zmiana produkcyjnej konfiguracji bez kopii stanu sprzed
+    zmiany zostaje **zatrzymana** — RelAI mówi, jaką kopię zrobić, i czeka,
+  - profil `prompty`: rejestr wersji artefaktów; nowy albo niezarejestrowany artefakt →
+    przypomnienie o wpisie „co się zmieniło" i „po co".
 
-Czego w 0.7.0 **nie** ma: `/relai-adopt` i `/relai-update` — nie wpisujesz ich do `KOMENDY.md`.
+Czego w 0.8.0 **nie** ma: `/relai-adopt` i `/relai-update` — nie wpisujesz ich do `KOMENDY.md`.
 
-Wygenerowany `KOMENDY.md` w wersji 0.7.0 zawiera **tabelę komend z siedmioma pozycjami** oraz
-tabelę fraz naturalnych:
+Wygenerowany `KOMENDY.md` w wersji 0.8.0 zawiera **tabelę komend z siedmioma pozycjami** (bez zmian
+wobec 0.7.0) oraz tabelę fraz naturalnych:
 
 | Komenda | Co robi |
 |---|---|
@@ -128,13 +140,14 @@ tabelę fraz naturalnych:
 - Nie wpisujesz `/relai-adopt` ani `/relai-update`, dopóki nie działają w zainstalowanej wersji.
 - Nie dopisujesz fraz spoza listy działających w danej wersji.
 - Nie opisujesz mechaniki wewnętrznej (skille, hooki) — użytkownika interesuje efekt.
+- Nie wpisujesz punktów profilu, którego ten projekt nie ma.
 
-## Przykład dla wersji 0.7.0 (projekt polski)
+## Przykład dla wersji 0.8.0 (projekt polski, profil `app`)
 
 ```markdown
 # KOMENDY — Parkly
 
-RelAI 0.7.0
+RelAI 0.8.0
 
 Nic z tej listy nie jest obowiązkowe. RelAI działa w zwykłej rozmowie — piszesz normalnie,
 a struktura projektu nadąża. Komendy są skrótem do rzadszych operacji.
@@ -196,6 +209,12 @@ z podpowiedzi; skrócona forma działa tam, gdzie podpowiadacz ją rozwinie.
   o niedokończonym etapie planu — nawet jeśli nic nie napiszesz.
 - Gdy otworzysz projekt, którego wszystkie wpisy w dzienniku podpisał kto inny, proponuje
   oprowadzenie po nim — propozycję, nie oprowadzanie na siłę.
+- Dokumenty dopasowane do typu projektu zakłada **wtedy, gdy są potrzebne**, a nie przy zakładaniu
+  projektu: przy pierwszym kodzie opis architektury i jedno pytanie o testy, przy pierwszym ekranie
+  jedno pytanie o kierunek wizualny i dokument wyglądu, przy pierwszym wdrożeniu opis środowiska
+  z procedurą wdrożenia i cofnięcia.
+- W opisie środowiska trzyma **nazwy** zmiennych i miejsce przechowywania haseł — nigdy samych
+  haseł.
 - Z backupu wyrzuca hasła i klucze, zanim spakuje projekt — i sprawdza to na gotowym archiwum,
   a nie na własnej obietnicy.
 - Nie zakłada repozytorium gita wewnątrz innego repozytorium.

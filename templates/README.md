@@ -35,6 +35,17 @@ się dopiero z pierwszym planem (D-11: podfolderów nie tworzy się na zapas):
 MINIPLAN (D-31) nie ma własnej specyfikacji — jest wpisem w dzienniku i opisuje go
 [SPEC_DZIENNIK.md](SPEC_DZIENNIK.md), sekcja „Wpis typu MINIPLAN".
 
+Pięć kolejnych specyfikacji opisuje **profile projektów** (D-50…D-53) i dokumenty warunkowe, które
+profil dokłada. Żaden z nich nie powstaje przy inicjalizacji — wszystkie przy zdarzeniu (D-10):
+
+| Specyfikacja | Generuje | Zdarzenie wyzwalające |
+|---|---|---|
+| [SPEC_PROFILE.md](SPEC_PROFILE.md) | sekcję „Reguły profilu" w `CLAUDE.md` + `docs/ARTEFAKTY.md` | źródło prawdy o czterech profilach; rejestr artefaktów — pierwszy artefakt (profil `prompty`) |
+| [SPEC_ARCHITEKTURA.md](SPEC_ARCHITEKTURA.md) | `docs/ARCHITEKTURA.md` | pierwszy plik źródłowy (profil `app`) |
+| [SPEC_DESIGN.md](SPEC_DESIGN.md) | `docs/DESIGN.md` | pierwszy plik interfejsu (profil `app`) |
+| [SPEC_SRODOWISKA.md](SPEC_SRODOWISKA.md) | `docs/srodowiska/<NAZWA>.md` | pierwsze wdrożenie środowiska (profil `app`) |
+| [SPEC_SNAPSHOT.md](SPEC_SNAPSHOT.md) | `docs/snapshoty/<data>/` | **przed** zmianą konfiguracji produkcyjnej (profile `agent-voice`, `flow`) |
+
 ## Wyjątek od reguły „specyfikacja, nie szablon": `HTML_PLAN/`
 
 Podkatalog [`HTML_PLAN/`](HTML_PLAN/) jest **jedynym miejscem w tym folderze z realnymi plikami
@@ -58,8 +69,6 @@ Projekt może mieć **własną wersję szablonu** (D-62): kopię `HTML_PLAN/` w 
 która ma pierwszeństwo przed wersją z pluginu. Mieszka w repozytorium, a nie w cache'u
 `.claude/relai/`, bo hook nadpisuje ten cache przy każdym starcie sesji, a `.gitignore` z `*`
 trzymałby własny styl poza repo. Mechanizm opisuje skill `relai-planning`.
-
-Specyfikacje `ARCHITEKTURA` i `DESIGN` dochodzą w kolejnych wersjach pluginu.
 
 Trzy rejestry mają rozłączne role i nie wolno ich mieszać (D-15): `LEKCJE` — korekty zachowania
 agenta; `DECYZJE` — rozstrzygnięcia w projekcie, których się nie otwiera ponownie; `USTAWIENIA` —

@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 'use strict';
 // RelAI hook: design-quality-check — PostToolUse (Write/Edit), OSTRZEGA (D-41).
-// Warunkowy do czasu profili (E8): gdy docs/DESIGN.md nie istnieje — cisza.
+// Warunkiem jest istnienie docs/DESIGN.md — brak pliku znaczy cisza. Sam dokument powstaje
+// przy pierwszym UI w profilu app (D-51); zglasza to hook profile-rules.
 // Gdy istnieje, a edytowany plik dotyczy warstwy wizualnej, przypomina o spojnosci
 // z DESIGN.md i wstrzykuje jego naglowki sekcji do kontekstu.
 // Konwencja hook-guard: poza projektem RelAI wyjscie kodem 0 bez efektu.
