@@ -4,8 +4,8 @@
 
 | # | Ryzyko | Poziom | Status | Mitygacja |
 |---|---|---|---|---|
-| R1 | Scope creep jak w vibe-forge (GUI, enterprise-szablony) | Wysoki | OTWARTE | D-80: twarda lista „poza v1"; każdy pomysł spoza listy → DZIENNIK „świadomie odłożone" |
-| R2 | Auto-wyzwalanie skilli bywa zawodne (agent nie zastosuje zasad bez komendy) | **Niski** (2026-08-07 po E5; wcześniej średni) | **ZMIERZONE 2026-08-07, OTWARTE** | Podwójna warstwa: opisy skilli + reguły w projektowym CLAUDE.md zawsze w kontekście; testy fraz w pilotażu. **2026-08-07 (E1):** `relai-core` zainstalowany i widoczny w inwentarzu pluginu, ale samo auto-wyzwolenie w świeżej sesji NIEZWERYFIKOWANE. **2026-08-07 (E2):** test NIEWYKONANY — plugin odinstalowany na czas budowy na polecenie użytkownika (L-0004), więc skill nie miał prawa się wyzwolić; pomiar przeniesiony do pilotażu E10, po docelowej instalacji. Ryzyko pozostaje OTWARTE i niezmierzone przez dwa etapy (L-0005). **2026-08-07 (E3):** nadal niezmierzone — doszedł drugi skill (`relai-planning`) wyzwalany frazą, więc zakres ryzyka wzrósł. **2026-08-07 (pomiar, na wniosek użytkownika):** plugin zainstalowany, sześć świeżych sesji `claude -p`. Wersja 0.3.0: 1/4 trafień — brak wyzwolenia na prompcie naturalnym i na „przygotuj plan…", z realnym rozjazdem konwencji. Po poprawce opisów (0.3.1): 2/2 trafienia. Ryzyko zostaje otwarte: próba mała, `-p` blokuje `AskUserQuestion`, a wynik zależy od inwentarza skilli na maszynie. Kontrola ponowna w E10 (wiersz E10 w `STATUS.md`). **2026-08-07 (E5):** hook `session-context` (SessionStart) wstrzykuje rytuał startu, datę dnia i siatkę promptów niezależnie od skilli — zmierzone 2/2 na neutralnym prompcie przy **zerze** wywołań `Skill`. Poziom obniżony do niskiego; do potwierdzenia w sesji interaktywnej w E10 |
+| R1 | Scope creep jak w vibe-forge (GUI, enterprise-szablony) | Wysoki | OTWARTE | D-80: twarda lista „poza v1"; każdy pomysł spoza listy → DZIENNIK „świadomie odłożone". **2026-08-08 (E8):** etap o profilach był naturalnym miejscem rozrostu i nie urósł — lista czterech profili została zamknięta, żadna nowa komenda nie doszła, `quality-gate` i `auto-format` **nie** dostały warunku profilowego (obecność `tsc`/Prettiera jest warunkiem mocniejszym niż wpis w ustawieniach), a profil `prompty` skończył się na jednym rejestrze, tak jak mówi PLAN. Zapis „profile dokładają najwyżej jedno pytanie na zdarzenie" jest twardą granicą wpisaną do `SPEC_PROFILE.md` |
+| R2 | Auto-wyzwalanie skilli bywa zawodne (agent nie zastosuje zasad bez komendy) | **Niski** (2026-08-07 po E5; wcześniej średni) | **ZMIERZONE 2026-08-07, OTWARTE** | Podwójna warstwa: opisy skilli + reguły w projektowym CLAUDE.md zawsze w kontekście; testy fraz w pilotażu. **2026-08-07 (E1):** `relai-core` zainstalowany i widoczny w inwentarzu pluginu, ale samo auto-wyzwolenie w świeżej sesji NIEZWERYFIKOWANE. **2026-08-07 (E2):** test NIEWYKONANY — plugin odinstalowany na czas budowy na polecenie użytkownika (L-0004), więc skill nie miał prawa się wyzwolić; pomiar przeniesiony do pilotażu E10, po docelowej instalacji. Ryzyko pozostaje OTWARTE i niezmierzone przez dwa etapy (L-0005). **2026-08-07 (E3):** nadal niezmierzone — doszedł drugi skill (`relai-planning`) wyzwalany frazą, więc zakres ryzyka wzrósł. **2026-08-07 (pomiar, na wniosek użytkownika):** plugin zainstalowany, sześć świeżych sesji `claude -p`. Wersja 0.3.0: 1/4 trafień — brak wyzwolenia na prompcie naturalnym i na „przygotuj plan…", z realnym rozjazdem konwencji. Po poprawce opisów (0.3.1): 2/2 trafienia. Ryzyko zostaje otwarte: próba mała, `-p` blokuje `AskUserQuestion`, a wynik zależy od inwentarza skilli na maszynie. Kontrola ponowna w E10 (wiersz E10 w `STATUS.md`). **2026-08-07 (E5):** hook `session-context` (SessionStart) wstrzykuje rytuał startu, datę dnia i siatkę promptów niezależnie od skilli — zmierzone 2/2 na neutralnym prompcie przy **zerze** wywołań `Skill`. Poziom obniżony do niskiego; do potwierdzenia w sesji interaktywnej w E10. **2026-08-08 (E8):** reguły warunkowe profilu zaprojektowane tak, żeby skill **nie był** warstwą nośną — regułę niesie sekcja w `CLAUDE.md` projektu (w kontekście każdej sesji bez wyzwalania), zdarzenie wykrywa hook, skill dokłada procedurę. Zmierzone: bramka snapshotu zatrzymała zapis w projekcie `flow` z **usuniętą** sekcją reguł w `CLAUDE.md` (sesja napisała wprost „bramka snapshotu i tak zablokowała zapis"), a kopia w `docs/snapshoty/` ma sumę kontrolną stanu sprzed zmiany |
 | R3 | Adopcja uszkodzi żywy projekt użytkownika | Wysoki | OTWARTE | D-70: backup+raport+recovery obowiązkowe; scenariusz akceptacyjny z pełnym testem recovery. **2026-08-08 (E7):** powstał pierwszy filar — `/relai-backup` pakuje projekt do prawdziwego ZIP-a (bsdtar, nagłówek `PK`), z twardym wykluczeniem sekretów i **weryfikacją listy wpisów archiwum** przed zgłoszeniem sukcesu; zmierzone: 22 wpisy, zero trafień na `.env`/`node_modules`. Brakuje drugiego filaru — **odtworzenia**: rozpakowanie i test „projekt wstaje" nie są jeszcze niczym opisane ani zmierzone. Do domknięcia w E9 (`/relai-adopt` z przetestowaną ścieżką recovery) i w scenariuszu akceptacyjnym E10 |
 | R4 | Hooki Node na Windows (ścieżki ze spacjami, kodowanie PL) | Średni | **ZAMKNIĘTE 2026-08-07 (E5)** | Osiem hooków przetestowane na ścieżce `Próba RelAI E5` (spacja + „ó"): 39/39 testów jednostkowych i siedem sesji integracyjnych bez błędów kodowania i ścieżek. Komunikaty hooków świadomie ASCII (L-0016); zero zależności npm |
 | R5 | Dokumenty puchną i zjadają kontekst | Średni | OTWARTE | D-14/D-15: rotacja DZIENNIKA, kompresja LEKCJI, destylaty czytane na starcie. **2026-08-08 (E7):** doszły dwa narzędzia po stronie użytkownika — `/relai-audit` wykrywa dziennik ponad progiem 50 KB i lekcje bez destylatu (zmierzone na projekcie testowym: podał rozmiar dziennika i wskazał destylat bez lekcji źródłowej), a `/relai-changelog` daje historię bez trzymania jej w kontekście. Sam pakiet `/relai-handover` waży 201 KB przez osadzone fonty — to plik dla człowieka, nie dla kontekstu sesji, ale pytanie o podzbiór fontów z E6 zostaje otwarte |
@@ -1006,3 +1006,116 @@ Autor: RelAI (Opus) + Lukasz
   `~/.claude/relai/USTAWIENIA.md`).
 - Decyzja o podzbiorze fontów wraca — pakiet przekazania waży 201 KB z tego samego powodu co plan
   (R5).
+
+
+### 2026-08-08 — E8: profile projektów, reguły warunkowe, RelAI 0.8.0
+
+Autor: RelAI (Opus) + Lukasz
+
+**Zrobione:**
+- **Rozstrzygnięcie nośnika reguł warunkowych — trzy warstwy o rozłącznych rolach.** Prompt dawał
+  trzy drogi (skill / hook / obie). Wybrana została trzecia, ale w postaci, której prompt nie
+  zakładał: warstwą **niosącą regułę** jest sekcja `## Reguły profilu (<nazwa>)` w `CLAUDE.md`
+  projektu, bo ten plik siedzi w kontekście każdej sesji i nie wymaga wyzwolenia czegokolwiek —
+  jest odporny na R2 w sposób, w jaki hook nie jest (hook nie potrafi napisać dokumentu, tylko
+  zgłosić zdarzenie). Hook **wykrywa zdarzenie**, skill **niesie procedurę**. Trzy warstwy, trzy
+  różne zadania, zero dublowania.
+- **Bramka snapshotu w `config-protection`, nie w nowym hooku.** D-52 wymaga **zatrzymania**
+  zmiany, a D-41 mówi, że blokują wyłącznie `secret-scanner` i `config-protection`. Zamiast
+  łamać D-41 dziewiątym hookiem blokującym, bramka doszła do hooka, który już blokuje i którego
+  nazwa ją obejmuje. Porównanie idzie po **sumie kontrolnej treści**, nie po nazwie pliku:
+  bramka nie zależy od konwencji nazewniczej, a konwencja zostaje wymogiem dokumentacyjnym.
+- **`templates/SPEC_PROFILE.md`** — źródło prawdy o czterech profilach: sygnały detekcji z regułą
+  „wygrywa najbardziej specyficzny", tabela zdarzeń, tabela pytań towarzyszących z jawną granicą
+  („limit trzech pytań startowych jest twardy, pytania profilu padają przy zdarzeniu"), konwencje
+  bazy wiedzy, rejestr wersji artefaktów profilu `prompty`, procedura zmiany profilu i cztery
+  gotowe sekcje „Reguły profilu" do wklejenia (L-0001).
+- **Trzy specyfikacje profilu `app`:** `SPEC_ARCHITEKTURA.md` (opisuje to, co powstało, nie
+  architekturę docelową; tabela „co jest zmianą architektury, a co nie"), `SPEC_DESIGN.md` (jedno
+  pytanie o cechy **pozytywne** — L-0019; sekcja „Stany" obowiązkowa), `SPEC_SRODOWISKA.md` (jeden
+  plik na środowisko, procedura cofnięcia o tej samej wadze co wdrożenie, tabela „wolno / nie wolno"
+  dla D-42).
+- **`templates/SPEC_SNAPSHOT.md`** — definicja „konfiguracji produkcyjnej" wraz z listą wyłączeń,
+  nazewnictwo z sufiksem stanu (`przed-…` / `po-…` / `dziala-…`), `OPIS.md` w katalogu dziennym,
+  obowiązkowe asercje przed zmianą i po niej, retencja przez archiwizację (D-18).
+- **`hooks/profile-rules.js`** — nowy hook ostrzegający (PostToolUse): pierwszy kod, pierwszy
+  interfejs, pierwsza konfiguracja wdrożeniowa, pierwszy artefakt. Milknie, gdy dokument już
+  istnieje — dokument warunkowy nie powstaje na zapas (D-10).
+- **`skills/relai-core/SKILL.md`** — sekcja „Reguły warunkowe profilu" z wypisaną strukturą
+  (L-0011), **`templates/SPEC_CLAUDE_MD.md`** — miejsce i zasady sekcji profilu,
+  **`SPEC_USTAWIENIA.md`** — wiersz „Profil projektu" jako wartość czytana maszynowo,
+  **`SPEC_KOMENDY.md`** — zakres 0.8.0 z zakazem wpisywania punktów cudzego profilu,
+  **`templates/README.md`** — pięć nowych specyfikacji w indeksie.
+- **Wersja 0.8.0** w obu manifestach, README pluginu, obu skillach, `SPEC_KOMENDY.md`,
+  `SPEC_USTAWIENIA.md` i markerze `docs/USTAWIENIA.md` tego repo.
+
+**Zweryfikowane — jak dokładnie:**
+- **Wersja realnie zainstalowana:** `~/.claude/plugins/installed_plugins.json` →
+  `relai@relai 0.8.0`, `installPath …/cache/relai/relai/0.8.0`, `gitCommitSha ddc2894`.
+  `claude plugin validate` → „Validation passed with warnings", jedno znane ostrzeżenie (L-0003).
+- **30/30 testów jednostkowych** obu hooków, payloady budowane Nodem (L-0017), projekty testowe na
+  ścieżce `Próba RelAI E8` (spacja + „ó"). Pokryte m.in.: cisza po powstaniu dokumentu, brak
+  pytania o testy przy zapisanej odpowiedzi (L-0006), `next.config.js` nieuznawany za pierwszy kod,
+  guard poza projektem RelAI i w trybie gościa, komunikaty bez diakrytyków (L-0016).
+- **Cztery świeże sesje inicjalizacyjne, po jednej na profil** (`app`, `agent-voice`, `flow`,
+  `prompty`), prompt „zgadzam się" bez odpowiedzi: każda zadała **dokładnie trzy** pytania (język,
+  git, profil) i **nie utworzyła ani jednego pliku** — limit D-20/D-80 nietknięty, dowód z treści
+  odpowiedzi. Opcje profilu w pytaniu opisują już realne skutki („snapshot obowiązkowy",
+  „ARCHITEKTURA przy pierwszym pliku źródłowym").
+- **Cztery świeże sesje generujące:** każdy projekt dostał **sześć** dokumentów w `docs/`
+  (`STATE`, `DZIENNIK`, `LEKCJE`, `DECYZJE`, `USTAWIENIA`, `KOMENDY`) — **zero** dokumentów
+  warunkowych na zapas, w każdym z czterech profili. `CLAUDE.md` każdego projektu ma sekcję
+  „Reguły profilu" swojego profilu i żadnego cudzego; `KOMENDY.md` projektu `app` ma zero wzmianek
+  o snapshotach i `ARTEFAKTY`, a `KOMENDY.md` projektu `flow` zero wzmianek o `ARCHITEKTURA`
+  i `DESIGN`.
+- **Zdarzenie wyzwala dokument — dowód z obu stron (L-0007):** przed sesją z pierwszym plikiem
+  źródłowym `docs/ARCHITEKTURA.md` **nie istniał** (`docs/` = sześć plików), po niej istnieje
+  (`docs/` = siedem plików, `src/rezerwacje.ts` na miejscu). W tej samej odpowiedzi padło pytanie
+  o podejście do testów z rekomendacją i uzasadnieniem wziętym z charakteru modułu (D-25).
+- **Dowód negatywny do D-51:** po **trzech** sesjach roboczych z kodem, bez UI i bez wdrożenia,
+  `docs/DESIGN.md` nie istnieje i katalog `docs/srodowiska/` nie istnieje. Sprawdzone listą plików
+  na dysku, nie deklaracją skilla.
+- **Dowód negatywny do D-42:** `.env` projektu testowego miał ciąg połączenia z hasłem oraz klucz
+  API nadawcy maili. Wygenerowany `docs/srodowiska/TEST.md` zawiera **nazwy** obu zmiennych, opis
+  po co są i wskazanie miejsca przechowywania; `grep` po obu wartościach w całym `docs/` → **zero
+  trafień**.
+- **Bramka snapshotu, dowód na warstwie hooka (nie skilla):** projekt `flow` skopiowany, sekcja
+  „Reguły profilu" **usunięta** z jego `CLAUDE.md`, katalog `docs/snapshoty/` skasowany — czyli
+  symulacja sytuacji, w której reguła nie dotarła do kontekstu. Świeża sesja z poleceniem „zmień
+  od razu, edycją pliku" napisała wprost: „bramka snapshotu i tak zablokowała zapis". Efekt na
+  dysku: `docs/snapshoty/2026-08-08/main__przed-zmiana-nazwy-wezla-start.json` o sumie
+  `198a1558d1441a97dd65fe77a907e8e84325233d765f0710418bff10a653cace` = suma pliku sprzed zmiany,
+  bajt w bajt. Druga zmiana tego samego pliku zamknęła bramkę ponownie i wymusiła drugi snapshot
+  (zachowanie zamierzone, dopisane do specyfikacji).
+- **`grep` po `0.7.0` rozstrzygnięty:** pozostałe trafienia są historyczne — wiersze E7 w `CLAUDE.md`
+  i `STATUS.md`, wpisy dziennika, `PROMPT_ETAP_7`, zdania „nowe w 0.7.0" w README, skillu
+  i `SPEC_KOMENDY`.
+- **Nie sprawdzono:** zachowania reguł profilu w sesji **interaktywnej** (`AskUserQuestion` nie
+  działa w trybie `-p`, więc pytania o testy i o kierunek wizualny padły jako tekst, nie jako
+  właściwe pytanie z opcjami); profilu `prompty` w pracy ciągłej (rejestr artefaktów sprawdzony
+  jednostkowo i przy inicjalizacji, nie w sesji roboczej); zachowania na macOS i Linuksie.
+
+**Świadomie odłożone:**
+- **`quality-gate` i `auto-format` bez warunku profilowego.** PLAN wymienia je jako „wg profilu",
+  ale obecność `tsconfig.json` + lokalnego `tsc` (albo Prettiera) jest warunkiem **mocniejszym** niż
+  wpis w ustawieniach: projekt `prompty` z przypadkowym `tsconfig.json` i tak nie ma czego
+  sprawdzać, a projekt `app` bez narzędzi nie zyskuje na dodatkowym warunku. Zamiast reguły doszły
+  poprawione komentarze w obu plikach, żeby nie obiecywały nieistniejącego mechanizmu.
+- **Profil tego repo.** Wiersz „Profil projektu" w `docs/USTAWIENIA.md` brzmi „Narzędzie/plugin
+  (odpowiednik profilu »prompty/artefakty«…)" — opis sprzed istnienia profili. Po poprawce
+  z L-0025 hooki czytają wartość z kotwicy, więc ten wiersz nie włącza żadnych reguł i nic się nie
+  psuje; wybór jednej z czterech wartości należy do człowieka (niżej).
+- **Sekcja „Reguły profilu" w `CLAUDE.md` tego repo** — nie dopisana z tego samego powodu:
+  reguł do `CLAUDE.md` nie dopisuje się bez zgody człowieka (zakaz `relai-core`).
+- **Migracja projektów sprzed 0.8.0** — projekt zainicjowany na 0.7.0 nie ma sekcji reguł profilu
+  i nie dostanie jej sam. To jest zadanie `/relai-update` (D-72, E9).
+
+**Do zrobienia przez człowieka:**
+- Wskazać profil tego repo jedną z czterech wartości (`app` / `agent-voice` / `flow` / `prompty`),
+  żeby dogfooding obejmował też reguły warunkowe. Rekomendacja: **`app`** — repo ma hooki w Node,
+  manifesty i komendy, a specyfikacje są jego treścią, nie artefaktami wersjonowanymi osobno.
+  Po decyzji: wiersz w `USTAWIENIA.md` (stary do „Ustawień wycofanych") + sekcja w `CLAUDE.md`.
+- Zdecydować, czy `docs/ARCHITEKTURA.md` ma powstać dla tego repo — reguła profilu `app` zażąda go
+  przy pierwszym pliku źródłowym po zmianie wiersza wyżej.
+- Potwierdzić w sesji interaktywnej, że pytanie o testy i pytanie o kierunek wizualny padają jako
+  `AskUserQuestion` z opcjami, a nie jako tekst (razem z pozostałymi pomiarami interaktywnymi E10).

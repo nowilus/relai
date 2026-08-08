@@ -94,6 +94,12 @@ sprzed zmiany. Bez tego po miesiącu snapshot jest tylko plikiem z dziwną nazw�
 Powrót do stanu sprzed zmiany to skopiowanie pliku z sufiksem `przed-…` na miejsce oryginału —
 i nic więcej. Jeśli powrót wymaga czegokolwiek poza tym, opisz to w `OPIS.md`.
 
+**Druga zmiana tego samego pliku wymaga drugiego snapshotu** — i tak ma być. Po pierwszej zmianie
+kopia `przed-…` przestaje odpowiadać treści pliku, więc bramka zamyka się ponownie. Konsekwencja
+jest zamierzona: każda zmiana produkcyjna ma swój punkt powrotu, a nie tylko pierwsza z serii.
+Praktyczny wniosek — zmianę wykonuje **jeden** przebieg skryptu migracyjnego, a nie seria drobnych
+edycji; seria zostawia w katalogu dziennym stany pośrednie, które nikomu nie służą.
+
 ## Zmiana skryptem migracyjnym, nie ręczną edycją
 
 Konfigurację zmieniasz **skryptem, który wczytuje plik, sprawdza założenia, zmienia i zapisuje** —

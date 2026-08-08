@@ -13,8 +13,8 @@ Plan: [PLAN.html](PLAN.html) • Utworzony: 2026-08-07 • Status planu: **ZAAKC
 | E5 | Hooki Node.js (8 szt.) | **ZREALIZOWANY 2026-08-07** | [PROMPT_ETAP_5.md](PROMPT_ETAP_5.md) | plugin 0.5.0: 8 hooków + rejestracja; `session-context` mityguje R2 (2/2 bez wywołania `Skill`) i zamyka R8 (kopiowanie specyfikacji do `.claude/relai/templates/`, ustawienia globalne przez hook); wykonany przez **Fable** na jawne polecenie użytkownika (odstępstwo od D-85 odnotowane w dzienniku) |
 | E6 | Konkurs designu + szablon HTML + nadpisania lokalne | **ZREALIZOWANY 2026-08-08** | [PROMPT_ETAP_6.md](PROMPT_ETAP_6.md) | plugin 0.6.0: dwie rundy konkursu (runda 1 odrzucona w całości — D-61b), kierunek „Warsztat" zamrożony w `templates/HTML_PLAN/` + `SPEC_PLAN_HTML.md`; `relai-planning` honoruje preferencję „HTML" i opisuje nadpisanie lokalne D-62 w `docs/zasoby/HTML_PLAN/`; provisioning kopiuje całe drzewo `templates/` |
 | E7 | Komendy operacyjne (backup, audit, changelog, handover, tour) | **ZREALIZOWANY 2026-08-08** | [PROMPT_ETAP_7.md](PROMPT_ETAP_7.md) | plugin 0.7.0: sześć komend + `/relai-help`; sygnał „nieznany autor" w hooku `session-context` (D-27) z reakcją opisaną w `relai-core`; dowody negatywne D-42, D-45 i D-07 przeszły; L-0021…L-0023 |
-| E8 | Profile (app / agent-voice / flow / prompty) | **GOTOWY DO STARTU** | [PROMPT_ETAP_8.md](PROMPT_ETAP_8.md) | D-50…D-53; wersja 0.8.0 |
-| E9 | Adopcja (/relai-adopt) + /relai-update | OCZEKUJE | — | obszar szczególnej staranności (D-70) |
+| E8 | Profile (app / agent-voice / flow / prompty) | **ZREALIZOWANY 2026-08-08** | [PROMPT_ETAP_8.md](PROMPT_ETAP_8.md) | plugin 0.8.0: pięć specyfikacji profili, hook `profile-rules`, bramka snapshotu w `config-protection`; reguła w trzech warstwach (CLAUDE.md / hook / skill); dowody negatywne D-51 i D-42 przeszły; L-0024…L-0027 |
+| E9 | Adopcja (/relai-adopt) + /relai-update | **GOTOWY DO STARTU** | [PROMPT_ETAP_9.md](PROMPT_ETAP_9.md) | obszar szczególnej staranności (D-70) |
 | E10 | Pilotaż + scenariusze akceptacyjne | OCZEKUJE | — | nowy projekt + adopcja JiraManager. **Kontrola R2 (pierwszy pomiar wykonany 2026-08-07, 2/2 po 0.3.1):** powtórzyć w **sesji interaktywnej** (tryb `-p` blokuje `AskUserQuestion`, więc pełny cykl plan → pliki nie był mierzony) i sprawdzić powtarzalność na kilku przebiegach, osobno dla `relai-core` i `relai-planning` |
 
 ## Dziennik wdrożenia
@@ -98,3 +98,18 @@ Plan: [PLAN.html](PLAN.html) • Utworzony: 2026-08-07 • Status planu: **ZAAKC
   neutralnym prompcie). Trzy lekcje: `tar` w Git Bash nie robi ZIP-a (L-0021), komendy pluginu
   wywołuje się pełną nazwą `/relai:relai-…` (L-0022), krok poza katalog roboczy potrzebuje
   zapisanego wyjścia awaryjnego (L-0023). Wygenerowano PROMPT_ETAP_8.
+- 2026-08-08 — **E8 ZREALIZOWANY** (Opus). Plugin 0.8.0: profil przestał być martwym wpisem.
+  Nośnik reguł warunkowych rozstrzygnięty na **trzy warstwy** o rozłącznych rolach — sekcja
+  „Reguły profilu" w `CLAUDE.md` projektu **niesie regułę** (jest w kontekście każdej sesji bez
+  wyzwalania czegokolwiek), hook **wykrywa zdarzenie**, skill **niesie procedurę**. Pięć
+  specyfikacji (`SPEC_PROFILE`, `SPEC_ARCHITEKTURA`, `SPEC_DESIGN`, `SPEC_SRODOWISKA`,
+  `SPEC_SNAPSHOT`), nowy hook ostrzegający `profile-rules` i bramka snapshotu dopisana do
+  `config-protection` — bo blokuje, a D-41 pozwala blokować tylko jemu. Pomiary: 30/30 testów
+  jednostkowych, cztery świeże sesje inicjalizacyjne (po jednej na profil) zadały **dokładnie trzy**
+  pytania i dały **sześć** dokumentów rdzenia bez ani jednego dokumentu warunkowego, sześć sesji
+  roboczych. Dowody z obu stron: `ARCHITEKTURA.md` nie istniał przed sesją z pierwszym kodem
+  i istniał po niej; po trzech sesjach bez UI i bez deployu **nie ma** `DESIGN.md` ani
+  `docs/srodowiska/`; `grep` po wartościach z `.env` w wygenerowanym opisie środowiska — zero
+  trafień; bramka snapshotu zatrzymała zapis także w projekcie z **usuniętą** sekcją reguł
+  w `CLAUDE.md` (kopia o sumie `198a1558…` = stan sprzed zmiany). Cztery lekcje: L-0024…L-0027.
+  Wygenerowano PROMPT_ETAP_9.

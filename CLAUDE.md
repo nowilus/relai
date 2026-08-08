@@ -26,7 +26,8 @@ Czytaj w kolejności, nie skanuj pełnotekstowo repo:
 | E5 — osiem hooków Node.js, zamknięcie R8 (wersja 0.5.0) | **ZREALIZOWANY 2026-08-07** | `hooks/`, `hooks/hooks.json` |
 | E6 — konkurs designu, szablon HTML, nadpisania lokalne (wersja 0.6.0) | **ZREALIZOWANY 2026-08-08** | `templates/HTML_PLAN/`, `templates/SPEC_PLAN_HTML.md`, `skills/relai-planning/SKILL.md` |
 | E7 — sześć komend operacyjnych, propozycja wycieczki (wersja 0.7.0) | **ZREALIZOWANY 2026-08-08** | `commands/`, `hooks/session-context.js`, `templates/SPEC_KOMENDY.md` |
-| Implementacja (E8–E10) | OCZEKUJE | docs/plany/BUDOWA_RELAI/STATUS.md |
+| E8 — profile projektów i reguły warunkowe (wersja 0.8.0) | **ZREALIZOWANY 2026-08-08** | `templates/SPEC_{PROFILE,ARCHITEKTURA,DESIGN,SRODOWISKA,SNAPSHOT}.md`, `hooks/profile-rules.js`, `hooks/config-protection.js` |
+| Implementacja (E9–E10) | OCZEKUJE | docs/plany/BUDOWA_RELAI/STATUS.md |
 
 ## Reguły procesu
 

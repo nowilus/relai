@@ -75,6 +75,13 @@ szczegóły.
 Sekcji 6 i 7 nie wolno pominąć ani zredukować do odsyłacza. Reszta może zniknąć, jeśli nie ma
 treści.
 
+**Gdy nie znasz faktów, pytasz — nie zgadujesz.** Zdarzenie wyzwala dokument, ale nie dostarcza
+wiedzy: czym postawiono środowisko, z jakiego kodu i do czego się cofa. Zgadnięta procedura
+cofnięcia jest gorsza niż jej brak, bo ktoś jej użyje. Zadaj **jedno** pytanie o brakujące fakty
+(zwykle są trzy: czym wdrożono, z jakiego kodu, jak wygląda powrót) i dopisz dokument, gdy dostaniesz
+odpowiedź. Wolno zapisać dokument z jawnymi znacznikami `<DO UZUPEŁNIENIA: …>` w miejscach, których
+nie da się ustalić — pusty nagłówek udaje wiedzę, znacznik mówi wprost, czego brakuje.
+
 ## Zakazy
 
 - Zero wartości sekretów, tokenów, haseł i ciągów połączenia (D-42) — bez wyjątków dla „środowiska

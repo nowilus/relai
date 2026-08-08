@@ -64,6 +64,19 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
     w przestrzeni nazw: `/relai:relai-<nazwa>`; forma skrócona nie istnieje w trybie `-p`. (L-0022)
 23. Krok sięgający poza katalog roboczy ma mieć w procedurze zapisane wyjście po odmowie dostępu
     (komunikat + `--add-dir`); nigdy „po cichu bliżej". (L-0023)
+24. Sesja pomiarowa `claude -p` ma dwa warunki wykonalności, o których nie mówi żaden błąd: prompt
+    z polskimi znakami przekazujesz **przez stdin** (argument obcina go w powłoce Windows), a zapis
+    plików wymaga `--permission-mode acceptEdits`. Bez nich przebieg wygląda na udany i mierzy coś
+    innego. (L-0024)
+25. Wartość czytana z dokumentu **maszynowo** dopasowuje się do kotwicy (początek komórki), nie
+    „gdziekolwiek w linii" — inaczej trafia w prozę. Wartość nierozpoznana znaczy **cisza**, nigdy
+    zgadywanie. (L-0025)
+26. Zdarzenie wyzwala dokument, ale nie dostarcza faktów. Specyfikacja dokumentu, którego wartość
+    polega na wykonalności, ma zapisaną ścieżkę „pytam zamiast zmyślać" wraz z formą zapisu luki
+    (`<DO UZUPEŁNIENIA: …>`). (L-0026)
+27. Plików z polskimi znakami **nie** przepuszczasz przez PowerShell 5.1: `Get-Content -Raw` czyta
+    UTF-8 jako ANSI i psuje treść, mimo `-Encoding utf8` przy zapisie. Dokumenty dopisujesz
+    narzędziem Write/Edit albo Nodem. (L-0027)
 
 ## Lekcje
 
@@ -357,3 +370,68 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
   po odmowie** — jak brzmi komunikat dla użytkownika i jakie są dwa wyjścia (zgoda w sesji albo
   `--add-dir`). Nigdy „po cichu bliżej": backup w środku projektu nie chroni przed niczym.
 - **Źródło:** pomiary etapu E7 (2026-08-08).
+
+### L-0024 — Sesja pomiarowa, która mierzy co innego · 2026-08-08 · AKTYWNA
+
+- **Trigger:** pierwszy przebieg fazy 1 pomiarów E8 — cztery świeże sesje `claude -p` z promptem
+  „Chcę tutaj założyć projekt RelAI…" przekazanym **argumentem**. Wszystkie cztery odpowiedziały
+  sensownie i wszystkie zobaczyły prompt urwany na słowie „Chcę": powłoka Windows przekłamała
+  polskie znaki i obcięła resztę. Drugi przebieg, faza 2 — sesje odmówiły zapisu („zgoda na `Write`
+  nie została udzielona"), bo tryb `-p` domyślnie nie ma prawa pisać.
+- **Przyczyna:** dwie niezależne bariery, z których żadna nie zgłasza się jako błąd. Obcięty prompt
+  daje **wiarygodną** odpowiedź na inne pytanie; brak uprawnień daje wiarygodne wyjaśnienie zamiast
+  wyniku. Oba przebiegi wyglądały na udane.
+- **Zasada:** prompt sesji pomiarowej przekazujesz **przez stdin** (`spawn('claude', ['-p'])` +
+  `stdin.write(prompt)`), a zapis włączasz `--permission-mode acceptEdits`. To jest L-0017
+  („payload buduj Nodem, nie echem") rozszerzone z payloadów hooków na prompty sesji. Zanim uznasz
+  pomiar za ważny, sprawdź w wyjściu, czy sesja zobaczyła cały prompt.
+- **Źródło:** pomiary etapu E8 (2026-08-08).
+
+### L-0025 — Dopasowanie „gdziekolwiek w linii" trafia w prozę · 2026-08-08 · AKTYWNA
+
+- **Trigger:** pierwsza wersja `profile-rules` czytała profil wyrażeniem
+  `\b(agent-voice|flow|prompty|app)\b` z **całej linii** wiersza „Profil projektu". W tym repo ten
+  wiersz brzmi „Narzędzie/plugin (odpowiednik profilu »prompty/artefakty« — kod TS/JS…)" — hook
+  zobaczyłby profil `prompty` i zaczął dopominać się rejestru artefaktów przy każdej specyfikacji
+  i każdym pliku komendy.
+- **Przyczyna:** dokument jest pisany dla człowieka, więc nazwa wartości pada w nim także w zdaniu
+  wyjaśniającym. Wyrażenie bez kotwicy nie odróżnia wyboru od wzmianki.
+- **Zasada:** wartość czytana maszynowo dopasowuje się do **kotwicy** — początku komórki, którą
+  specyfikacja wskazuje jako nośnik wartości; specyfikacja mówi to wprost, żeby autor dokumentu
+  wiedział, gdzie ma pisać. Wartość nierozpoznana daje **ciszę**, nie wartość domyślną: mechanizm,
+  który blokuje, myli się drożej niż milczy.
+- **Źródło:** przegląd własny w trakcie etapu E8 (2026-08-08), przed pierwszym pomiarem. Wyłapane
+  przez dogfooding — regułę pisaną dla cudzych projektów sprawdziłem na własnym.
+
+### L-0026 — Zdarzenie wyzwala dokument, ale nie dostarcza faktów · 2026-08-08 · AKTYWNA
+
+- **Trigger:** sesja z pierwszym wdrożeniem (profil `app`) rozpoznała regułę, napisała wprost
+  „profil `app` wymaga `docs/srodowiska/TEST.md` przy pierwszym wdrożeniu" — i dokumentu **nie
+  utworzyła**, bo nie wiedziała, czym wdrożono, z jakiego kodu i do czego się cofa. Poprosiła
+  o trzy fakty. Dokument powstał w kolejnej sesji, po odpowiedzi.
+- **Przyczyna:** specyfikacja stawiała twardy wymóg („procedura cofnięcia obowiązkowa, zdanie
+  »przywróć poprzednią wersję« nie jest procedurą") i nie mówiła, co zrobić, gdy faktów brak.
+  Zostały dwa wyjścia, oba złe: zmyślić procedurę, której ktoś użyje pod presją, albo pominąć
+  dokument po cichu. Sesja wybrała trzecie, słusznie — ale z własnego rozsądku, nie z instrukcji.
+- **Zasada:** specyfikacja dokumentu, którego wartość polega na **wykonalności**, ma zapisaną
+  ścieżkę „pytam zamiast zmyślać": jedno pytanie o brakujące fakty i jawny znacznik luki
+  (`<DO UZUPEŁNIENIA: …>`) w miejscach, których nie da się ustalić. Pusty nagłówek udaje wiedzę,
+  znacznik mówi, czego brakuje. To jest L-0013 („zawsze istnieje poprawna wartość tymczasowa")
+  zastosowane do dokumentu zamiast do linku.
+- **Źródło:** pomiary etapu E8 (2026-08-08); po dopisaniu ścieżki do `SPEC_SRODOWISKA.md`
+  zachowanie przestało zależeć od rozsądku sesji.
+
+### L-0027 — PowerShell 5.1 zjada polskie znaki po drodze · 2026-08-08 · AKTYWNA
+
+- **Trigger:** wpis E8 do `docs/DZIENNIK.md` dopisany sekwencją `Get-Content -Raw` +
+  `Add-Content -Encoding utf8`. Nagłówek wylądował w pliku jako „### 2026-08-08 Ă˘â‚¬â€ť E8: profile
+  projektÄ‚Ĺ‚w…" — cała treść przekłamana, mimo poprawnego kodowania **zapisu**.
+- **Przyczyna:** przekłamanie nastąpiło przy **odczycie**: `Get-Content` w PowerShell 5.1 bez
+  jawnego `-Encoding UTF8` interpretuje plik jako ANSI (strona kodowa systemu). Zapis był
+  poprawny — zapisywał już zepsute znaki. Heredoc w Bashu odpadł wcześniej na parserze, więc
+  PowerShell wyglądał na naturalne obejście.
+- **Zasada:** dokumentów projektu z polskimi znakami nie przepuszczasz przez PowerShell 5.1.
+  Dopisujesz narzędziem Write/Edit albo Nodem (`fs.readFileSync(p, utf8)`). To ta sama rodzina co
+  L-0016 i L-0017: każda warstwa konsoli Windows jest podejrzana, dopóki nie sprawdzisz efektu na
+  dysku — sprawdzeniem jest odczyt pliku po zapisie, nie kod wyjścia polecenia.
+- **Źródło:** rytuał zamknięcia etapu E8 (2026-08-08); wpis odtworzony Nodem po obcięciu pliku.
