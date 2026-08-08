@@ -57,6 +57,13 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
     pokazuje wersję z marketplace. `plugin install` na zainstalowanym pluginie to no-op, a `plugin
     update` porównuje **numer wersji**: poprawka bez podbicia wersji nie dotrze inaczej niż przez
     `uninstall` + `install`. (L-0020)
+21. Narzędzie systemowe rozstrzygające o **formacie** artefaktu wywołuj pełną ścieżką i sprawdzaj
+    wynik (nagłówek pliku, lista wpisów), nie kod wyjścia — `tar` w Git Bash to GNU tar i po cichu
+    zapisze archiwum tar pod nazwą `.zip`. (L-0021)
+22. W dokumencie użytkownika podajesz **zmierzoną** formę wywołania. Komendy pluginu żyją
+    w przestrzeni nazw: `/relai:relai-<nazwa>`; forma skrócona nie istnieje w trybie `-p`. (L-0022)
+23. Krok sięgający poza katalog roboczy ma mieć w procedurze zapisane wyjście po odmowie dostępu
+    (komunikat + `--add-dir`); nigdy „po cichu bliżej". (L-0023)
 
 ## Lekcje
 
@@ -308,3 +315,45 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
   version") — dociera dopiero przez `plugin uninstall` + `plugin install` albo przez podbicie
   wersji. Zmierzone: sha `79e489d` → po reinstalacji `22b1b1f`.
 - **Źródło:** pomiar zamykający etap E6 (2026-08-08), nie korekta użytkownika.
+
+### L-0021 — `tar` na PATH nie jest tym `tar`, o którym myślisz · 2026-08-08 · AKTYWNA
+
+- **Trigger:** rozstrzygając, czym `/relai-backup` ma pakować ZIP na Windows, uruchomiłem
+  `tar -a -c -f test.zip …` w powłoce Git Bash. Polecenie **przeszło bez błędu i bez ostrzeżenia**,
+  plik powstał, `tar -tf` wypisał jego zawartość. Dopiero kontrola pierwszych bajtów pokazała, że
+  to archiwum **tar** z rozszerzeniem `.zip` — Eksplorator Windows i `Expand-Archive` by go nie
+  otworzyły.
+- **Przyczyna:** `tar` na `PATH` w Git Bash to GNU tar 1.35, który ZIP-a nie umie i po cichu ignoruje
+  intencję `-a`. Systemowy `C:\Windows\System32\tar.exe` to bsdtar 3.8.4 (libarchive) i ten sam
+  zapis daje prawdziwy ZIP. Nazwa polecenia nie mówi nic o implementacji.
+- **Zasada:** narzędzie systemowe, od którego zależy **format** artefaktu, wywołuj pełną ścieżką
+  i weryfikuj **wynik**, nie kod wyjścia: nagłówek pliku, lista wpisów, otwarcie natywnym
+  narzędziem docelowej platformy. „Polecenie się udało" nie znaczy „powstało to, co miało powstać".
+- **Źródło:** rozstrzygnięcie punktu 1 zakresu etapu E7 (2026-08-08).
+
+### L-0022 — Komenda pluginu nazywa się inaczej, niż ją nazwałeś · 2026-08-08 · AKTYWNA
+
+- **Trigger:** pierwszy pomiar E7 — `claude -p "/relai-backup <ścieżka>"` odpowiedział
+  `Unknown command: /relai-backup`. To samo dla `/relai-stage`, czyli dla komendy działającej
+  od E4. Zadziałała dopiero forma pełna: `/relai:relai-backup`, `/relai:relai-stage`.
+- **Przyczyna:** Claude Code rejestruje komendy pluginu w przestrzeni nazw pluginu —
+  `/<plugin>:<plik-komendy>`. Nazwa skrócona bywa rozwijana przez podpowiadacz w sesji
+  interaktywnej, ale w trybie `-p` nie istnieje. Przez trzy etapy `docs/KOMENDY.md` obiecywał
+  użytkownikowi formę, której nie zmierzono ani razu.
+- **Zasada:** w dokumencie użytkownika podajesz **tę formę wywołania, którą zmierzyłeś**. Zanim
+  wpiszesz komendę do ściągi, uruchom ją dosłownie tak, jak jest tam zapisana. To jest L-0002
+  zastosowane do składni, nie do zakresu funkcji.
+- **Źródło:** pomiary etapu E7 (2026-08-08).
+
+### L-0023 — Krok, który sięga poza katalog roboczy, musi mieć zapisane wyjście awaryjne · 2026-08-08 · AKTYWNA
+
+- **Trigger:** `/relai-backup` z folderem docelowym poza projektem zakończył się w świeżej sesji
+  odmową zapisu. Sesja zachowała się dobrze (powiedziała wprost, że to blokada uprawnień, i nie
+  podmieniła lokalizacji), ale wiedziała to **z własnego rozsądku**, nie z treści komendy — w pliku
+  komendy tej sytuacji nie było.
+- **Przyczyna:** ta sama luka co przy katalogu pluginu (L-0012) i warstwie globalnej (L-0010):
+  mechanizm sięgający poza katalog roboczy zakłada dostęp, którego sesja domyślnie nie ma.
+- **Zasada:** przy każdym kroku wychodzącym poza katalog roboczy wpisz do procedury, **co zrobić
+  po odmowie** — jak brzmi komunikat dla użytkownika i jakie są dwa wyjścia (zgoda w sesji albo
+  `--add-dir`). Nigdy „po cichu bliżej": backup w środku projektu nie chroni przed niczym.
+- **Źródło:** pomiary etapu E7 (2026-08-08).

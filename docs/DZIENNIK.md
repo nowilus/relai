@@ -6,9 +6,9 @@
 |---|---|---|---|---|
 | R1 | Scope creep jak w vibe-forge (GUI, enterprise-szablony) | Wysoki | OTWARTE | D-80: twarda lista „poza v1"; każdy pomysł spoza listy → DZIENNIK „świadomie odłożone" |
 | R2 | Auto-wyzwalanie skilli bywa zawodne (agent nie zastosuje zasad bez komendy) | **Niski** (2026-08-07 po E5; wcześniej średni) | **ZMIERZONE 2026-08-07, OTWARTE** | Podwójna warstwa: opisy skilli + reguły w projektowym CLAUDE.md zawsze w kontekście; testy fraz w pilotażu. **2026-08-07 (E1):** `relai-core` zainstalowany i widoczny w inwentarzu pluginu, ale samo auto-wyzwolenie w świeżej sesji NIEZWERYFIKOWANE. **2026-08-07 (E2):** test NIEWYKONANY — plugin odinstalowany na czas budowy na polecenie użytkownika (L-0004), więc skill nie miał prawa się wyzwolić; pomiar przeniesiony do pilotażu E10, po docelowej instalacji. Ryzyko pozostaje OTWARTE i niezmierzone przez dwa etapy (L-0005). **2026-08-07 (E3):** nadal niezmierzone — doszedł drugi skill (`relai-planning`) wyzwalany frazą, więc zakres ryzyka wzrósł. **2026-08-07 (pomiar, na wniosek użytkownika):** plugin zainstalowany, sześć świeżych sesji `claude -p`. Wersja 0.3.0: 1/4 trafień — brak wyzwolenia na prompcie naturalnym i na „przygotuj plan…", z realnym rozjazdem konwencji. Po poprawce opisów (0.3.1): 2/2 trafienia. Ryzyko zostaje otwarte: próba mała, `-p` blokuje `AskUserQuestion`, a wynik zależy od inwentarza skilli na maszynie. Kontrola ponowna w E10 (wiersz E10 w `STATUS.md`). **2026-08-07 (E5):** hook `session-context` (SessionStart) wstrzykuje rytuał startu, datę dnia i siatkę promptów niezależnie od skilli — zmierzone 2/2 na neutralnym prompcie przy **zerze** wywołań `Skill`. Poziom obniżony do niskiego; do potwierdzenia w sesji interaktywnej w E10 |
-| R3 | Adopcja uszkodzi żywy projekt użytkownika | Wysoki | OTWARTE | D-70: backup+raport+recovery obowiązkowe; scenariusz akceptacyjny z pełnym testem recovery |
+| R3 | Adopcja uszkodzi żywy projekt użytkownika | Wysoki | OTWARTE | D-70: backup+raport+recovery obowiązkowe; scenariusz akceptacyjny z pełnym testem recovery. **2026-08-08 (E7):** powstał pierwszy filar — `/relai-backup` pakuje projekt do prawdziwego ZIP-a (bsdtar, nagłówek `PK`), z twardym wykluczeniem sekretów i **weryfikacją listy wpisów archiwum** przed zgłoszeniem sukcesu; zmierzone: 22 wpisy, zero trafień na `.env`/`node_modules`. Brakuje drugiego filaru — **odtworzenia**: rozpakowanie i test „projekt wstaje" nie są jeszcze niczym opisane ani zmierzone. Do domknięcia w E9 (`/relai-adopt` z przetestowaną ścieżką recovery) i w scenariuszu akceptacyjnym E10 |
 | R4 | Hooki Node na Windows (ścieżki ze spacjami, kodowanie PL) | Średni | **ZAMKNIĘTE 2026-08-07 (E5)** | Osiem hooków przetestowane na ścieżce `Próba RelAI E5` (spacja + „ó"): 39/39 testów jednostkowych i siedem sesji integracyjnych bez błędów kodowania i ścieżek. Komunikaty hooków świadomie ASCII (L-0016); zero zależności npm |
-| R5 | Dokumenty puchną i zjadają kontekst | Średni | OTWARTE | D-14/D-15: rotacja DZIENNIKA, kompresja LEKCJI, destylaty czytane na starcie |
+| R5 | Dokumenty puchną i zjadają kontekst | Średni | OTWARTE | D-14/D-15: rotacja DZIENNIKA, kompresja LEKCJI, destylaty czytane na starcie. **2026-08-08 (E7):** doszły dwa narzędzia po stronie użytkownika — `/relai-audit` wykrywa dziennik ponad progiem 50 KB i lekcje bez destylatu (zmierzone na projekcie testowym: podał rozmiar dziennika i wskazał destylat bez lekcji źródłowej), a `/relai-changelog` daje historię bez trzymania jej w kontekście. Sam pakiet `/relai-handover` waży 201 KB przez osadzone fonty — to plik dla człowieka, nie dla kontekstu sesji, ale pytanie o podzbiór fontów z E6 zostaje otwarte |
 | R6 | Aktualizacja pluginu nadpisze lokalne nadpisania użytkowników | **Niski** (2026-08-08 po E6; wcześniej średni) | OTWARTE | D-72: diff + zgoda + pierwszeństwo lokalnych nadpisań; test w pilotażu. **2026-08-08 (E6):** nadpisanie lokalne umieszczone w `docs/zasoby/HTML_PLAN/` — poza cache'em `.claude/relai/`, którego dotyka hook i aktualizacja pluginu. Zmierzone: po `marketplace update` + `plugin update` + świeżej sesji dziewięć plików nadpisania ma identyczne sumy kontrolne, własny token na miejscu, token z pluginu nie wrócił; cache w tym samym czasie **został** nadpisany (dowód, że test nie jest pusty). Zostaje otwarte do E9: `/relai-update` musi pokazać diff i uszanować nadpisanie |
 | R7 | Model wykonawczy (Sonnet/Opus) obniży jakość implementacji etapów | Średni | OTWARTE | Prompty etapowe z sekcją Weryfikacja + przegląd Fable po kluczowych etapach |
 | R8 | Sesja nie ma dostępu do katalogu pluginu — `templates/` ze specyfikacjami jest nieczytelny bez `--add-dir`, więc inicjalizacja projektu (D-60) zatrzymuje się na braku źródła | Wysoki | **ZAMKNIĘTE 2026-08-07 (E5)** | Rozwiązanie: proces hooka ma pełny dostęp do dysku, więc `session-context` kopiuje `templates/*.md` do `.claude/relai/templates/` projektu (SessionStart w projektach RelAI; PostToolUse na wywołaniu skilla RelAI — pokrywa inicjalizację w świeżym folderze) i wstrzykuje ustawienia globalne `~/.claude/relai/` (domyka też L-0010). Zmierzone: inicjalizacja **bez** `--add-dir` dała komplet ośmiu dokumentów, specyfikacje czytane z lokalnej kopii (8/8 plików). D-60 nietknięte — specyfikacje pozostają plikami. Ryzyko szczątkowe: provisioning przy inicjalizacji wymaga wyzwolenia skilla (R2); fallback `--add-dir` opisany w skillach |
@@ -888,3 +888,115 @@ Autor: RelAI (Opus) + Lukasz
 - Przy pierwszym własnym planie HTML: sprawdzić, czy pytanie o zmianę stylu pada raz i czy plan
   otwiera się bez przewijania w poziomie.
 - Decyzja o podzbiorze fontów (waga pliku kontra komplet znaków) — patrz R5.
+
+### 2026-08-08 — E7: sześć komend operacyjnych, sygnał wycieczki, RelAI 0.7.0
+
+Autor: RelAI (Opus) + Lukasz
+
+**Zrobione:**
+- **Sześć plików komend** w `commands/`, wszystkie wg wzorca `relai-stage.md` (front matter,
+  Krok 0 z markerem, procedura wypisana w treści — komenda nie ładuje skilla, L-0015):
+  - **`relai-backup.md`** (D-43): lokalizacja szukana w kolejności argument → `USTAWIENIA.md`
+    → warstwa globalna → dopiero pytanie (L-0006), odpowiedź zapisywana **globalnie**; nazwa
+    `NAZWA_RRRR-MM-DD_GGMM.zip`; trzy grupy wykluczeń (sekrety twarde z D-42, runtime, śmieci
+    systemowe) przy świadomym **zachowaniu `.git`**; pakowanie rozstrzygnięte per system;
+    obowiązkowa weryfikacja archiwum przed wpisem w dzienniku.
+  - **`relai-audit.md`** (D-45): dwie części raportu (porządki / zdrowie), sekret w pliku śledzonym
+    jako jedyna pozycja krytyczna raportowana na górze i **bez cytowania wartości**, wynik zawsze
+    kończy się numerowaną listą propozycji i pytaniem; zmiany dopiero po wskazaniu numerów.
+  - **`relai-changelog.md`** (D-17): zakres jako argument (`od <data>`, `od <wersja>`,
+    `ostatnie N`), cztery reguły destylacji, pomijanie wpisów MINIPLAN, wynik na ekran; plik
+    `docs/CHANGELOG.md` wyłącznie na wyraźną prośbę i bez nadpisywania istniejącego.
+  - **`relai-handover.md`**: pakiet HTML składany **z `templates/HTML_PLAN/`** (kolejność szukania
+    szablonu: nadpisanie lokalne → cache → komunikat i `--add-dir`), sześć sekcji zamiast dziesięciu
+    planowych, bloki `s7`–`s10` usuwane w całości, znaczniki symulatora wypełniane wartościami
+    pustymi, builder fontów na końcu.
+  - **`relai-tour.md`** (D-27): oprowadzanie **wyłącznie z dokumentów**, ośmiopunktowy układ
+    zakończony sekcją „Czego dokumenty nie mówią", zero zapisów na dysk.
+  - **`relai-help.md`** (D-07): prezentuje `docs/KOMENDY.md`, filtruje po argumencie, porównuje
+    wersję ściągi z markerem projektu; brak pliku → propozycja wygenerowania ze `SPEC_KOMENDY.md`
+    i czekanie na zgodę. **Zero własnej listy komend** — plik nie wymienia ani jednej innej komendy.
+- **Sygnał „nieznany autor" w hooku `session-context`** (nowa funkcja `unknownAuthor`): porównuje
+  `user.name` z `.git/config`, a w razie braku z `~/.gitconfig` i `~/.config/git/config`,
+  z podpisami `Autor:`/`Author:` w dzienniku; brak trafienia → wstrzyknięcie zdania o cudzym
+  projekcie z poleceniem **zaproponowania** wycieczki i czekania na zgodę. Porównanie odporne na
+  diakrytyki (NFD + `ł`).
+- **`skills/relai-core/SKILL.md`**: nowa sekcja „Propozycja wycieczki po cudzym projekcie" jako
+  druga warstwa sygnału (wzorzec siatki D-34) + zdanie o tym, że operacje rzadkie mają własne
+  komendy, a ich procedury nie mieszkają w skillu.
+- **`templates/SPEC_KOMENDY.md`**: sekcja „Zakres wersji 0.7.0", tabela komend z **siedmioma**
+  pozycjami, dwa nowe punkty w „Czego RelAI pilnuje bez proszenia", przykład wygenerowanego
+  `KOMENDY.md` przepisany na 0.7.0 (L-0001), zakaz zawężony do `/relai-adopt` i `/relai-update`.
+- **Wersja 0.7.0** w obu manifestach, README pluginu (nowy akapit o komendach operacyjnych),
+  `SPEC_KOMENDY.md`, `SPEC_USTAWIENIA.md`, obu skillach i markerze `docs/USTAWIENIA.md` repo.
+
+**Zweryfikowane — jak dokładnie:**
+- **Wersja realnie zainstalowana:** `~/.claude/plugins/installed_plugins.json` →
+  `relai@relai 0.7.0`, `installPath …/cache/relai/relai/0.7.0`, `gitCommitSha 68c1e03`.
+  `claude plugin validate` → „Validation passed with warnings", jedno znane ostrzeżenie o root
+  `CLAUDE.md` (L-0003).
+- **Sześć świeżych sesji `claude -p`** w projektach testowych na ścieżce `Próba RelAI E7`
+  (spacja + „ó"), każda komenda osobno. Wyniki:
+  - `/relai-backup` → `projekt_wlasny_2026-08-08_2201.zip`, 7 612 B. Kontrola **moja, nie sesji**:
+    nagłówek `50 4B 03 04`, 22 wpisy, struktura z katalogiem projektu w korzeniu.
+  - `/relai-audit` → raport z siedmioma znaleziskami zdrowia i siedmioma propozycjami
+    (m.in. wykryty rozjazd `PLAN.md` E1–E3 vs `STATUS.md` E1–E2, cytowane ryzyko R3 nieistniejące
+    w tabeli, destylat lekcji bez lekcji źródłowej).
+  - `/relai-changelog` → lista zmian z czterech wpisów, zakres dat podany pod listą, poprawka
+    kalendarza świadomie scalona z wadą; **pliku nie utworzył** (`Test-Path docs/CHANGELOG.md`
+    → `False`), skończył pytaniem o zapis.
+  - `/relai-handover` → `docs/zasoby/PRZEKAZANIE_2026-08-08.html`, 201 KB.
+  - `/relai-tour` → pełne oprowadzenie z ośmioma sekcjami; suma kontrolna `docs/` identyczna
+    przed i po.
+  - `/relai-help` → treść `docs/KOMENDY.md` wypisana w całości, bez ani jednej dopisanej pozycji.
+- **Dowód negatywny do D-42:** projekt testowy miał `.env` z `SECRET_TOKEN=abcdef1234567890`.
+  Lista wpisów archiwum odczytana przez `System.IO.Compression.ZipFile` — `grep` po
+  `\.env|node_modules|\.pem$|\.key$` daje **zero trafień**. Sprawdzone na archiwum, nie na
+  deklaracji komendy.
+- **Dowód negatywny do D-45:** SHA-256 po posortowanej liście haszy plików `docs/` przed
+  `/relai-audit` i po nim: `75df26b5…79d3a6` = `75df26b5…79d3a6`. Audyt nie ruszył ani jednego pliku.
+- **Dowód negatywny do D-07:** `grep` po nazwach wszystkich komend w `commands/relai-help.md` →
+  **zero trafień**. Help nie zna nazwy żadnej komendy poza własną.
+- **Propozycja wycieczki, dwa przebiegi na neutralnym prompcie** („Ile plików jest w katalogu
+  docs?"): projekt z dziennikiem podpisanym „+ Anna Kowalska" → odpowiedź kończy się zdaniem
+  „Projekt wygląda na cudzy… Chcesz wycieczkę?"; projekt podpisany „+ Lukasz" → odpowiedź bez ani
+  jednego zdania o wycieczce. Dowód z treści odpowiedzi, nie ze zdarzenia w transkrypcie (L-0017).
+- **Sześć testów jednostkowych funkcji `unknownAuthor`** (payloady budowane Nodem): cudzy projekt →
+  sygnał, własny → cisza, własny z „Łukasz" vs „Lukasz" w dzienniku → cisza, brak tożsamości gita
+  (pusty `HOME`) → cisza, tożsamość tylko globalna → sygnał, dziennik bez podpisów → cisza.
+  6/6 PASS.
+- **Pakiet HTML sprawdzony na żywo** (serwer lokalny, bo panel podglądu renderuje `file://` jako
+  zrzut): tytuł `PRZEKAZANIE — Parkly`, sześć sekcji = sześć pozycji w nawigacji, fonty
+  `Kalam:loaded` i `Hanken Grotesk:loaded`, przycisk sekcji `false → true → false`,
+  `scrollWidth <= clientWidth` przy `clientWidth 1265` (brak przewijania w poziomie — kryterium,
+  którego w E6 nie dało się postawić), **zero** żądań sieciowych poza serwerem lokalnym. Kontrola
+  statyczna: zero `{{`, zero `http(s)://` w `src`/`href`/`url()`, sześć `@font-face` z `data:`,
+  zero emoji, **zero** wystąpień wartości sekretu.
+- **`grep` po `0.6.0` rozstrzygnięty:** pozostałe trafienia są historyczne — wiersz E6 w `CLAUDE.md`
+  i `STATUS.md`, trigger L-0020, zdania „nowe w 0.6.0" w README i `SPEC_KOMENDY`, przykład wyjścia
+  w `relai-changelog.md`.
+- **Nie sprawdzono:** pełnej ścieżki pytania o lokalizację backupu (`AskUserQuestion` nie działa
+  w trybie `-p` — lokalizację podawałem argumentem), regeneracji `KOMENDY.md` przez `/relai-help`
+  po zgodzie, oraz zachowania komend na macOS i Linuksie (rozstrzygnięcia dla tych systemów są
+  wpisane w komendę, ale zmierzone tylko na Windows).
+
+**Świadomie odłożone:**
+- **Skrócona forma wywołania komend.** Zmierzone: `/relai-backup` i `/relai-stage` w trybie `-p`
+  kończą się `Unknown command`; działa wyłącznie `/relai:relai-…` (L-0022). Do `SPEC_KOMENDY`
+  wszedł wymóg zdania o przedrostku pod tabelą. Czy skrócona forma działa w sesji **interaktywnej**
+  — niezmierzone; do sprawdzenia razem z pozostałymi pomiarami interaktywnymi w E10.
+- **Odtworzenie z backupu** (rozpakowanie + „projekt wstaje") — należy do D-70/D-83, czyli do E9
+  i E10. `/relai-backup` mówi wprost, że archiwum nie zawiera sekretów, więc recovery wymaga ręki
+  człowieka.
+- **Rotacja dziennika** wykrywana przez `/relai-audit`, ale samo przeniesienie starszych wpisów
+  do archiwum nadal wykonuje człowiek po zatwierdzeniu propozycji — świadomie, D-45.
+- Profile projektów (E8), `/relai-adopt` i `/relai-update` (E9) — poza zakresem etapu.
+
+**Do zrobienia przez człowieka:**
+- Potwierdzić w sesji interaktywnej, czy podpowiadacz rozwija skróconą formę `/relai-backup`.
+  Jeśli nie — zdanie o przedrostku w `KOMENDY.md` przestaje być przypisem i staje się główną
+  formą w kolumnie „Komenda".
+- Wskazać docelową lokalizację centralnego folderu backupów dla tej maszyny (wpis trafi do
+  `~/.claude/relai/USTAWIENIA.md`).
+- Decyzja o podzbiorze fontów wraca — pakiet przekazania waży 201 KB z tego samego powodu co plan
+  (R5).

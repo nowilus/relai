@@ -27,7 +27,12 @@ projektu jest w `docs/USTAWIENIA.md`.
 1. **Nagłówek** — `# KOMENDY — <nazwa projektu>` + linia `RelAI <wersja>`.
 2. **Zdanie wstępne** — że nic z tej listy nie jest obowiązkowe: RelAI działa w zwykłej rozmowie,
    a komendy są skrótem dla rzadszych operacji (D-22).
-3. **Komendy** — tabela `Komenda | Co robi | Kiedy użyć`. Tylko działające.
+3. **Komendy** — tabela `Komenda | Co robi | Kiedy użyć`. Tylko działające. Pod tabelą **jedno
+   zdanie o przedrostku**: Claude Code rejestruje komendy pluginu pod pełną nazwą
+   `/relai:relai-<nazwa>`, a sama nazwa (`/relai-backup`) działa tam, gdzie podpowiadacz ją
+   rozwinie. Zmierzone: w sesji nieinteraktywnej (`claude -p`) forma skrócona kończy się
+   komunikatem `Unknown command`. Zdanie ma być jedno i ma stać pod tabelą, żeby nie zaśmiecać
+   kolumny „Komenda" dwiema wersjami każdej pozycji.
 4. **Frazy naturalne** — tabela `Powiesz | Co się stanie`. Frazy w języku projektu. Tylko działające.
 5. **Czego RelAI pilnuje bez proszenia** — punkty o zachowaniach automatycznych działających w tej
    wersji (np. aktualizacja dokumentów w ramach ukończenia zadania). Lista rośnie z wersjami;
@@ -146,6 +151,9 @@ a struktura projektu nadąża. Komendy są skrótem do rzadszych operacji.
 | `/relai-handover` | składa pakiet przekazania: jeden plik HTML ze stanem, mapą dokumentów, planami, ryzykami i pierwszymi krokami | gdy oddajesz projekt komuś innemu — na stałe albo na czas urlopu |
 | `/relai-tour` | oprowadza Cię po projekcie: co to jest, gdzie jesteśmy, czego nie ruszać, od czego zacząć | gdy otwierasz cudzy projekt albo wracasz do własnego po długiej przerwie |
 | `/relai-help` | pokazuje tę ściągę | gdy nie pamiętasz, co można wpisać |
+
+Pełna nazwa każdej z nich to `/relai:relai-…` (np. `/relai:relai-backup`) — wpisz `/relai` i wybierz
+z podpowiedzi; skrócona forma działa tam, gdzie podpowiadacz ją rozwinie.
 
 ## Frazy, które działają
 

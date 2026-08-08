@@ -50,6 +50,12 @@ i pytasz o inną ścieżkę. Nie robisz backupu „gdzieś obok".
 **Zakaz:** centralny folder backupów **nie może** leżeć wewnątrz katalogu projektu — archiwum
 pakowałoby samo siebie. Wykryjesz taką ścieżkę → powiedz to wprost i poproś o inną.
 
+**Zapis poza katalogiem roboczym.** Folder backupów z definicji leży poza projektem, a sesja ma
+dostęp do katalogu roboczego i tego, na co użytkownik się zgodził. Odmowa zapisu **nie jest błędem
+projektu** — powiedz wprost, że sesja nie ma dostępu do wskazanego folderu, i podaj dwa wyjścia:
+zgoda na zapis w tej sesji albo uruchomienie jej z `--add-dir "<folder backupów>"`. Nie podmieniaj
+po cichu lokalizacji na katalog projektu — backup w środku projektu nie chroni przed niczym.
+
 ## Krok 2 — nazwa archiwum (D-43)
 
 `NAZWA_RRRR-MM-DD_GGMM.zip`, gdzie:
