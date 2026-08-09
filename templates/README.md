@@ -35,6 +35,13 @@ się dopiero z pierwszym planem (D-11: podfolderów nie tworzy się na zapas):
 MINIPLAN (D-31) nie ma własnej specyfikacji — jest wpisem w dzienniku i opisuje go
 [SPEC_DZIENNIK.md](SPEC_DZIENNIK.md), sekcja „Wpis typu MINIPLAN".
 
+Jedna specyfikacja opisuje dokument jednorazowy, który powstaje wyłącznie przy adopcji zastanego
+projektu komendą `/relai-adopt` (D-70, D-71):
+
+| Specyfikacja | Generuje | Polityka |
+|---|---|---|
+| [SPEC_RAPORT_ADOPCJI.md](SPEC_RAPORT_ADOPCJI.md) | `docs/RAPORT_ADOPCJI.md` | pisany raz przy adopcji; nośnik procedury pełnego cofnięcia — jedyny artefakt, który przeżywa sesję adopcji |
+
 Pięć kolejnych specyfikacji opisuje **profile projektów** (D-50…D-53) i dokumenty warunkowe, które
 profil dokłada. Żaden z nich nie powstaje przy inicjalizacji — wszystkie przy zdarzeniu (D-10):
 

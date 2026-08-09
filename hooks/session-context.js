@@ -237,7 +237,7 @@ function onSessionStart(input) {
   const gv = pluginVersion();
   if (pv && gv && pv !== gv) {
     out.push('Wersja RelAI projektu (' + pv + ') rozni sie od wersji pluginu (' + gv +
-      '). Zglos to uzytkownikowi jednym zdaniem; migracja to zadanie przyszlej komendy /relai-update — nie proponuj jej recznie.');
+      '). Zglos to uzytkownikowi jednym zdaniem i wskaz komende /relai-update — pokaze roznice i zaktualizuje projekt za zgoda, szanujac lokalne nadpisania. Nie migruj projektu recznie.');
   }
 
   out.push('Ten folder to projekt RelAI. Zanim odpowiesz merytorycznie, wykonaj rytual startu sesji: ' +

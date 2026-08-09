@@ -50,14 +50,15 @@ projektu jest w `docs/USTAWIENIA.md`.
 Plik jest **regenerowany**, nie edytowany ręcznie. Wyjątkiem są wiersze oznaczone jako lokalne —
 te przeżywają regenerację (D-62: lokalne nadpisania mają pierwszeństwo).
 
-## Zakres wersji 0.8.0 (E8) — co realnie działa
+## Zakres wersji 0.9.0 (E9) — co realnie działa
 
 Od 0.4.0 działa **pierwsza komenda** — `/relai-stage` — i wygenerowany `KOMENDY.md` ma tabelę
 komend. W 0.5.0 doszło **osiem hooków**: sekcja „Czego RelAI pilnuje bez proszenia" urosła
 o zachowania hooków (lista niżej). W 0.6.0 doszedł **interaktywny plan HTML** i **nadpisanie
 lokalne szablonu**. W 0.7.0 doszło **sześć komend operacyjnych** — tabela komend urosła z jednej
-pozycji do siedmiu. W 0.8.0 **profil projektu zaczyna cokolwiek robić**: nowych komend nie ma,
-rośnie wyłącznie sekcja o zachowaniach automatycznych. Działa:
+pozycji do siedmiu. W 0.8.0 **profil projektu zaczyna cokolwiek robić**: rośnie sekcja
+o zachowaniach automatycznych. W 0.9.0 dochodzą **adopcja i aktualizacja** — tabela komend rośnie
+z siedmiu do dziewięciu pozycji. Działa:
 
 - inicjalizacja struktury projektu (zgoda → trzy pytania → osiem dokumentów),
 - rozpoznanie folderu, który już jest projektem RelAI,
@@ -111,12 +112,19 @@ rośnie wyłącznie sekcja o zachowaniach automatycznych. Działa:
   - profile `agent-voice` i `flow`: zmiana produkcyjnej konfiguracji bez kopii stanu sprzed
     zmiany zostaje **zatrzymana** — RelAI mówi, jaką kopię zrobić, i czeka,
   - profil `prompty`: rejestr wersji artefaktów; nowy albo niezarejestrowany artefakt →
-    przypomnienie o wpisie „co się zmieniło" i „po co".
+    przypomnienie o wpisie „co się zmieniło" i „po co",
+- **adopcja i aktualizacja (nowe w 0.9.0):** `/relai-adopt` przenosi istniejący projekt na
+  strukturę RelAI — backup jako bramka, analiza kodu i historii, struktura z zastanego stanu,
+  scalenie istniejącego `CLAUDE.md` z zachowaniem reguł, raport zmian z procedurą pełnego
+  cofnięcia; działa wyłącznie na jawne wywołanie. `/relai-update` porównuje wersję projektu
+  z wersją pluginu, pokazuje różnice, aktualizuje strukturę za zgodą i nie rusza nadpisań
+  lokalnych,
+- **sygnał wersji (zmienione w 0.9.0), do sekcji „Czego RelAI pilnuje bez proszenia":** gdy
+  wersja projektu różni się od wersji pluginu, RelAI mówi o tym na starcie sesji i wskazuje
+  `/relai-update` — nie migruje projektu na własną rękę.
 
-Czego w 0.8.0 **nie** ma: `/relai-adopt` i `/relai-update` — nie wpisujesz ich do `KOMENDY.md`.
-
-Wygenerowany `KOMENDY.md` w wersji 0.8.0 zawiera **tabelę komend z siedmioma pozycjami** (bez zmian
-wobec 0.7.0) oraz tabelę fraz naturalnych:
+Wygenerowany `KOMENDY.md` w wersji 0.9.0 zawiera **tabelę komend z dziewięcioma pozycjami**
+oraz tabelę fraz naturalnych:
 
 | Komenda | Co robi |
 |---|---|
@@ -127,6 +135,8 @@ wobec 0.7.0) oraz tabelę fraz naturalnych:
 | `/relai-handover [ŚCIEŻKA]` | składa pakiet przekazania projektu w jednym pliku HTML działającym bez internetu |
 | `/relai-tour [krotko]` | oprowadza po projekcie wyłącznie z jego dokumentów; niczego nie zapisuje |
 | `/relai-help [fraza]` | pokazuje ściągę projektu — treść pochodzi wyłącznie z `KOMENDY.md` |
+| `/relai-adopt [ŚCIEŻKA_BACKUPU]` | adoptuje zastany projekt: backup-bramka, analiza, struktura z zastanego stanu, scalenie `CLAUDE.md`, raport z procedurą pełnego cofnięcia; wyłącznie na jawne wywołanie |
+| `/relai-update` | aktualizuje projekt do wersji zainstalowanego pluginu: różnice, zgoda, poszanowanie nadpisań lokalnych, wpis w dzienniku |
 
 | Fraza (PL / EN) | Co się stanie |
 |---|---|
@@ -137,17 +147,16 @@ wobec 0.7.0) oraz tabelę fraz naturalnych:
 
 ## Zakazy
 
-- Nie wpisujesz `/relai-adopt` ani `/relai-update`, dopóki nie działają w zainstalowanej wersji.
 - Nie dopisujesz fraz spoza listy działających w danej wersji.
 - Nie opisujesz mechaniki wewnętrznej (skille, hooki) — użytkownika interesuje efekt.
 - Nie wpisujesz punktów profilu, którego ten projekt nie ma.
 
-## Przykład dla wersji 0.8.0 (projekt polski, profil `app`)
+## Przykład dla wersji 0.9.0 (projekt polski, profil `app`)
 
 ```markdown
 # KOMENDY — Parkly
 
-RelAI 0.8.0
+RelAI 0.9.0
 
 Nic z tej listy nie jest obowiązkowe. RelAI działa w zwykłej rozmowie — piszesz normalnie,
 a struktura projektu nadąża. Komendy są skrótem do rzadszych operacji.
@@ -164,6 +173,8 @@ a struktura projektu nadąża. Komendy są skrótem do rzadszych operacji.
 | `/relai-handover` | składa pakiet przekazania: jeden plik HTML ze stanem, mapą dokumentów, planami, ryzykami i pierwszymi krokami | gdy oddajesz projekt komuś innemu — na stałe albo na czas urlopu |
 | `/relai-tour` | oprowadza Cię po projekcie: co to jest, gdzie jesteśmy, czego nie ruszać, od czego zacząć | gdy otwierasz cudzy projekt albo wracasz do własnego po długiej przerwie |
 | `/relai-help` | pokazuje tę ściągę | gdy nie pamiętasz, co można wpisać |
+| `/relai-adopt` | przenosi istniejący projekt na RelAI: najpierw pełny backup, potem analiza i dokumenty wygenerowane z tego, co w projekcie naprawdę jest; kończy raportem z instrukcją pełnego cofnięcia | w folderze innego projektu, który chcesz objąć RelAI — ten projekt już jest objęty |
+| `/relai-update` | podnosi ten projekt do wersji zainstalowanego RelAI: pokazuje, co się zmieni, czeka na Twoje „tak" i nie rusza niczego, co sam zmieniłeś | gdy RelAI mówi na starcie sesji, że projekt jest starszy niż plugin |
 
 Pełna nazwa każdej z nich to `/relai:relai-…` (np. `/relai:relai-backup`) — wpisz `/relai` i wybierz
 z podpowiedzi; skrócona forma działa tam, gdzie podpowiadacz ją rozwinie.
@@ -206,7 +217,8 @@ z podpowiedzi; skrócona forma działa tam, gdzie podpowiadacz ją rozwinie.
 - Ostrzega przed `console.log` zostawionym w kodzie produkcyjnym; gdy projekt ma TypeScript albo
   ESLint — pokazuje ich błędy zaraz po edycji pliku.
 - Na starcie każdej sesji sam podaje dzisiejszą datę, sprawdza wersję projektu i przypomina
-  o niedokończonym etapie planu — nawet jeśli nic nie napiszesz.
+  o niedokończonym etapie planu — nawet jeśli nic nie napiszesz. Gdy projekt jest starszy niż
+  plugin, wskazuje `/relai-update` zamiast przerabiać cokolwiek na własną rękę.
 - Gdy otworzysz projekt, którego wszystkie wpisy w dzienniku podpisał kto inny, proponuje
   oprowadzenie po nim — propozycję, nie oprowadzanie na siłę.
 - Dokumenty dopasowane do typu projektu zakłada **wtedy, gdy są potrzebne**, a nie przy zakładaniu

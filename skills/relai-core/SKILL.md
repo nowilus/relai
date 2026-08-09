@@ -6,12 +6,14 @@ description: >
   version"), run the session start ritual when it is, and offer to set the structure up when it is
   not. Skipping this check means working without the project's memory, rules and open risks.
   Trigger phrases (Polish): "zacznijmy projekt", "nowy projekt", "zaczynam projekt", "zainicjuj
-  projekt", "dodaj RelAI", "dołącz RelAI", "co to za projekt", "kończymy na dziś", "kontynuujemy
-  pracę", "sprawdź status", "jak stoimy". English: "start project", "new project", "init project",
-  "set up RelAI", "wrapping up", "let's continue", "status check".
+  projekt", "dodaj RelAI", "dołącz RelAI", "zaadoptuj projekt", "co to za projekt", "kończymy na
+  dziś", "kontynuujemy pracę", "sprawdź status", "jak stoimy". English: "start project", "new
+  project", "init project", "set up RelAI", "adopt this project", "wrapping up", "let's continue",
+  "status check".
   Covers: initialization (consent, then exactly three questions, then generation of CLAUDE.md,
   README.md and docs/ with STATE, DZIENNIK, LEKCJE, DECYZJE, USTAWIENIA, KOMENDY), guest mode,
-  non-destructive attach, keeping STATE and the journal current in the same turn as any functional
+  non-destructive attach, full adoption of an existing project (explicit /relai-adopt only, D-70),
+  keeping STATE and the journal current in the same turn as any functional
   change, recording a lesson after every user correction, proposing to freeze a recurring decision,
   and the conditional rules of the project profile (app / agent-voice / flow / prompty): the
   document that appears at the first code, the first UI, the first deploy, the first artifact, and
@@ -21,12 +23,13 @@ description: >
 
 # relai-core — struktura projektu, pamięć i rytuały sesji
 
-Wersja E8 (RelAI 0.8.0). Zakres tego skilla: **rozpoznanie stanu folderu + inicjalizacja + tryb
+Wersja E9 (RelAI 0.9.0). Zakres tego skilla: **rozpoznanie stanu folderu + inicjalizacja + tryb
 gościa + niedestrukcyjne dołączenie + rytuały sesji + siatka brakujących promptów etapowych +
 rejestry LEKCJE/DECYZJE + trzy frazy naturalne + warstwa ustawień globalnych + reguły warunkowe
 profilu projektu**. Od 0.5.0 działa też zestaw hooków (sekrety, ochrona konfiguracji, przypomnienia,
 kontekst sesji, a od 0.8.0 reguły profilu) — pilnują twardych granic niezależnie od tego skilla.
-Pełna adopcja zastanego projektu przychodzi w kolejnych wersjach — nie udawaj, że już działa.
+Od 0.9.0 działa **pełna adopcja zastanego projektu** — wyłącznie na jawne wywołanie `/relai-adopt`
+(D-70); jej procedura mieszka w pliku komendy, nie tutaj.
 
 **Planowanie należy do skilla `relai-planning`** (od 0.3.0): wykrycie prośby o plan, rozróżnienie
 PLAN/MINIPLAN, generacja `docs/plany/<TEMAT>/`, prompty etapowe `PROMPT_ETAP_N`, rytuał „Na koniec"
@@ -35,10 +38,11 @@ nie opisujesz i nie tworzysz — tutaj plan pojawia się jako pozycja czytana w 
 linia „Aktywny plan" w `CLAUDE.md` i jako siatka wyłapująca brakujący prompt etapowy.
 
 **Operacje rzadkie mają własne komendy** (od 0.7.0): kopia zapasowa, przegląd porządków i zdrowia,
-lista zmian z dziennika, pakiet przekazania, wycieczka po projekcie i ściąga komend. Ich procedury
-mieszkają w plikach komend, nie tutaj — z tego skilla wychodzi wyłącznie **propozycja** wycieczki
-dla nieznanego autora (sekcja niżej). Listę tego, co realnie działa, użytkownik ma w wygenerowanym
-`docs/KOMENDY.md`.
+lista zmian z dziennika, pakiet przekazania, wycieczka po projekcie i ściąga komend; od 0.9.0
+także adopcja zastanego projektu (`/relai-adopt`) i aktualizacja projektu do wersji pluginu
+(`/relai-update`). Ich procedury mieszkają w plikach komend, nie tutaj — z tego skilla wychodzi
+wyłącznie **propozycja** wycieczki dla nieznanego autora (sekcja niżej). Listę tego, co realnie
+działa, użytkownik ma w wygenerowanym `docs/KOMENDY.md`.
 
 Specyfikacje dokumentów czytaj z **lokalnej kopii `.claude/relai/templates/`** w bieżącym
 folderze — utrzymuje ją hook `session-context` (katalog pluginu jest dla sesji niedostępny,
@@ -442,7 +446,7 @@ Zasady generacji:
   Dla projektu angielskiego: `docs/STATE.md`, `docs/JOURNAL.md`, `docs/LESSONS.md`,
   `docs/DECISIONS.md`, `docs/SETTINGS.md`, `docs/COMMANDS.md`. Konwencja stała: CAPS_SNAKE, bez dat
   i numerów wersji w nazwie.
-- `docs/USTAWIENIA.md` **musi** zawierać linię `Wersja RelAI: 0.8.0` — to marker, po którym RelAI
+- `docs/USTAWIENIA.md` **musi** zawierać linię `Wersja RelAI: 0.9.0` — to marker, po którym RelAI
   rozpoznaje projekt i po którym przyszły `/relai-update` policzy różnicę wersji.
 - `CLAUDE.md` **musi** zawierać sekcję `## Reguły profilu (<wybrany profil>)` zaraz po „Regułach
   procesu" — 3–6 punktów wg `SPEC_PROFILE.md`. To jedyna warstwa reguł profilu działająca bez
@@ -469,23 +473,23 @@ Bez ozdobników i bez listy komend, których jeszcze nie ma.
 
 ---
 
-## Stan Z ZAWARTOŚCIĄ — propozycja niedestrukcyjna
+## Stan Z ZAWARTOŚCIĄ — cztery drogi, wybiera użytkownik
 
 Folder ma już swoje życie. **Niczego istniejącego nie ruszasz** — ani jednego pliku, ani jednej linii.
 
-Przedstaw dokładnie trzy możliwości i zapytaj (AskUserQuestion, jedno pytanie):
+Przedstaw dokładnie cztery możliwości i zapytaj (AskUserQuestion, jedno pytanie):
 
-1. **Dołączenie niedestrukcyjne (Rekomendowane)** — dokładasz wyłącznie brakujące pliki RelAI.
-   Istniejące pliki o tych samych nazwach zostają nietknięte: nie nadpisujesz, nie scalasz, nie
-   dopisujesz. Zamiast tego wymieniasz je w podsumowaniu jako pominięte i mówisz, co RelAI by tam
-   trzymał. Jeśli istnieje `CLAUDE.md` — zostaje bez zmian; scalanie reguł jest częścią adopcji.
-2. **Tryb gościa** — marker `.claude/relai.json` = `{"mode":"guest"}`, koniec tematu.
-3. **Poczekać na adopcję** — użytkownik nie robi teraz nic.
-
-Przy każdej rozmowie o tym stanie powiedz wprost, w jednym zdaniu: **pełna adopcja zastanego
-projektu — z backupem, analizą kodu i historii, raportem zmian i przetestowaną ścieżką cofnięcia —
-jeszcze nie istnieje; przyjdzie w kolejnej wersji pluginu jako `/relai-adopt`** (D-70). Nie
-improwizuj namiastki adopcji.
+1. **Pełna adopcja (Rekomendowane)** — `/relai-adopt`: backup jako bramka, analiza kodu
+   i historii, struktura wygenerowana z zastanego stanu, scalenie istniejącego `CLAUDE.md`
+   z zachowaniem reguł, raport zmian z przetestowaną ścieżką pełnego cofnięcia. Po wyborze tej
+   opcji wykonujesz procedurę komendy `/relai-adopt` (jej krok 0 masz już za sobą) — świadomy
+   wybór użytkownika jest jawnym wywołaniem w rozumieniu D-70.
+2. **Dołączenie niedestrukcyjne** — dokładasz wyłącznie brakujące pliki RelAI. Istniejące pliki
+   o tych samych nazwach zostają nietknięte: nie nadpisujesz, nie scalasz, nie dopisujesz —
+   wymieniasz je w podsumowaniu jako pominięte i mówisz, co RelAI by tam trzymał. Istniejący
+   `CLAUDE.md` zostaje bez zmian; scalanie reguł to domena adopcji.
+3. **Tryb gościa** — marker `.claude/relai.json` = `{"mode":"guest"}`, koniec tematu.
+4. **Nic teraz** — użytkownik decyduje później; nie wracasz do tematu w tej sesji.
 
 Po dołączeniu niedestrukcyjnym obowiązuje ta sama generacja co w stanie PUSTY (paczka trzech pytań
 włącznie), z jedną różnicą: pliki już obecne w folderze są pomijane.

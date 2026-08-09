@@ -5,16 +5,17 @@
 Plugin do Claude Code, który zamienia rozmowę z agentem w prowadzony projekt: ustalenia, decyzje,
 stan prac i historia zostają w plikach, a nie w kontekście sesji, który za chwilę zniknie.
 
-> Wersja 0.8.0 — rdzeń dokumentacyjny, planowanie, wykonywanie etapów, dziewięć hooków, interaktywny
-> plan HTML, **siedem komend** i **cztery profile projektów**. Działa inicjalizacja projektu,
+> Wersja 0.9.0 — rdzeń dokumentacyjny, planowanie, wykonywanie etapów, dziewięć hooków, interaktywny
+> plan HTML, **dziewięć komend** i **cztery profile projektów**. Działa inicjalizacja projektu,
 > wykrywanie struktury, rytuały sesji, rejestry lekcji i decyzji, cztery frazy rytualne, plany
 > (PLAN z etapami / miniplan w dzienniku, zamrożenie i aneksy) w Markdown **albo** w jednym
 > samowystarczalnym pliku HTML z własnym szablonem projektu, pełny cykl etapów (prompty
 > `PROMPT_ETAP_N`, komenda `/relai-stage`, automatyczne zamknięcie planu), komendy operacyjne
 > (backup, audyt, changelog, pakiet przekazania, wycieczka, ściąga), reguły warunkowe zależne od
-> profilu oraz hooki: blokada sekretów, ochrona konfiguracji, przypomnienia o synchronizacji
-> dokumentów i `session-context` wymuszający rytuał startu niezależnie od skilli.
-> Adopcja istniejących projektów dochodzi w kolejnej wersji.
+> profilu, **adopcja istniejących projektów** (`/relai-adopt` — backup-bramka, raport, pełne
+> cofnięcie) z **aktualizacją projektu do wersji pluginu** (`/relai-update`) oraz hooki: blokada
+> sekretów, ochrona konfiguracji, przypomnienia o synchronizacji dokumentów i `session-context`
+> wymuszający rytuał startu niezależnie od skilli.
 > Aktualny zakres: [docs/plany/BUDOWA_RELAI/STATUS.md](docs/plany/BUDOWA_RELAI/STATUS.md).
 
 ## Instalacja
@@ -30,7 +31,7 @@ stan prac i historia zostają w plikach, a nie w kontekście sesji, który za ch
 Po instalacji otwórz Claude Code w folderze projektu i napisz cokolwiek — RelAI zapyta o zgodę na
 utworzenie struktury.
 
-## Co robi wersja 0.8.0
+## Co robi wersja 0.9.0
 
 | Sytuacja | Zachowanie |
 |---|---|
@@ -108,10 +109,17 @@ Rytuały, które od tej wersji działają bez proszenia:
   dokumentów nie powstaje na zapas przy inicjalizacji — wyłącznie przy zdarzeniu. Reguła każdego
   profilu żyje w trzech warstwach: sekcja w `CLAUDE.md` projektu (zawsze w kontekście), hook
   (wykrywa zdarzenie) i skill (niesie procedurę).
-
-Pełna adopcja istniejącego projektu — z backupem, analizą kodu i historii, raportem zmian
-i przetestowaną ścieżką cofnięcia — celowo **nie** jest częścią tej wersji. Namiastka adopcji byłaby
-gorsza niż jej brak.
+- **Adopcja i aktualizacja (nowe w 0.9.0)** — **`/relai-adopt`** przenosi istniejący, żywy projekt
+  na strukturę RelAI sekwencją bez luk (D-70): pełny backup jako **bramka** (nieudany przerywa
+  wszystko), analiza kodu, dokumentów i `git log`, plan zmian z czekaniem na zgodę, struktura
+  wygenerowana **z zastanego stanu** (STATE opisuje projekt, który istnieje; dziennik dostaje wpis
+  zerowy z historią), scalenie istniejącego `CLAUDE.md` z zachowaniem reguł w niezmienionym
+  brzmieniu (D-71, konflikty rozstrzyga pytanie), raport zmian z **procedurą pełnego cofnięcia**
+  opartą wyłącznie o archiwum — bez pluginu i bez Claude. Kod projektu pozostaje nietknięty co do
+  bajta; komenda działa wyłącznie na jawne wywołanie. **`/relai-update`** porównuje wersję projektu
+  z wersją pluginu, pokazuje różnice jako listę działań, aktualizuje strukturę za zgodą, **nie
+  rusza nadpisań lokalnych** (`docs/zasoby/HTML_PLAN/`, wiersze „lokalne") i kończy wpisem
+  w dzienniku; projekt sprzed 0.8.0 dostaje m.in. sekcję „Reguły profilu" w `CLAUDE.md`.
 
 ## Struktura repo
 
@@ -123,8 +131,8 @@ relai/
 ├── skills/
 │   ├── relai-core/          # inicjalizacja, wykrywanie struktury, rytuały sesji, rejestry
 │   └── relai-planning/      # plany i miniplany, STATUS, prompty etapowe, zamknięcie planu
-├── commands/                # siedem komend: stage, backup, audit, changelog,
-│   └── *.md                 #   handover, tour, help
+├── commands/                # dziewięć komend: stage, backup, audit, changelog,
+│   └── *.md                 #   handover, tour, help, adopt, update
 ├── hooks/
 │   ├── hooks.json           # rejestracja dziewięciu hooków (zdarzenia i matchery)
 │   └── *.js                 # dziewięć hooków Node.js, zero zależności npm
