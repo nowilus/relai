@@ -54,6 +54,10 @@ w starszym projekcie odnotowujesz jednym zdaniem w sekcji „Czego dokumenty nie
 6. **Czego tu nie wolno** — zamrożone decyzje i zasady aktywne, które najczęściej ktoś nowy
    narusza (np. „plan po akceptacji jest zamrożony", „sekrety wyłącznie w `.env`").
 7. **Od czego zacząć** — 3–5 ponumerowanych kroków, pierwszy wykonalny w pierwszej godzinie.
+   Komendy wymieniasz **wyłącznie te, które są w `docs/KOMENDY.md` tego projektu**, w zapisanej tam
+   formie. Nie ma tam nazwy, której chcesz użyć → opisz krok słowami („poproś o plan"), zamiast
+   wymyślać komendę; nazwa brzmiąca sensownie, ale nieistniejąca, kosztuje nowego człowieka
+   pierwszy błąd (L-0002, L-0022).
 8. **Czego dokumenty nie mówią** — jawna lista luk: brakujące pliki, `STATE.md` starszy niż
    ostatni wpis, ryzyka bez ruchu od miesięcy. To jest uczciwsze niż zgadywanie i chroni nowego
    przed zaufaniem nieaktualnym zdaniom.
