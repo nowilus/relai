@@ -50,6 +50,7 @@ tą samą procedurą. Sprawdzasz kolejno:
 | nadpisania lokalne (R6) | **nietykalne** — cokolwiek znajdziesz, omijasz | `docs/zasoby/HTML_PLAN/` istnieje? wiersz „Szablon planu HTML" w `USTAWIENIA.md`? wiersze „lokalne" w `KOMENDY.md`? |
 | `docs/USTAWIENIA.md` | wiersz `Profil projektu` z wartością maszynową na **początku** komórki: `app`, `agent-voice`, `flow` albo `prompty` | czytasz komórkę; wartość nierozpoznana → propozycja doprecyzowania (nowy wiersz, stary do „Ustawień wycofanych") — **pytasz o profil, nie zgadujesz** (L-0026) |
 | `CLAUDE.md` | sekcja `## Reguły profilu (<profil>)` zaraz po „Regułach procesu" | sekcji brak, a profil rozpoznany → do dodania wg `SPEC_PROFILE.md`; profil nierozpoznany → najpierw poprzedni wiersz |
+| `CLAUDE.md` | linia fraz sesji pod listą rytuału startu | linii brak → do dodania wg `SPEC_CLAUDE_MD.md` (sekcja „Linia fraz sesji"); nie ruszasz przy tym niczego innego w pliku |
 | `docs/KOMENDY.md` | nagłówek `RelAI 0.9.0`, tabela dziewięciu komend (w tym `/relai-adopt`, `/relai-update`), aktualna sekcja zachowań automatycznych | plik regenerowany wg `SPEC_KOMENDY.md`; wiersze oznaczone „lokalne" **przeżywają** regenerację |
 | marker wersji | `Wersja RelAI: 0.9.0` | zmiana **na końcu**, po wykonaniu zatwierdzonych zmian |
 

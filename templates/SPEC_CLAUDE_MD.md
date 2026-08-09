@@ -29,6 +29,7 @@ i `DZIENNIK.md`.
    `docs/USTAWIENIA.md` → aktywny plan. Zakończ instrukcją „czytaj w tej kolejności, nie skanuj repo
    pełnotekstowo". `docs/DECYZJE.md` **nie jest** czytany na starcie — sięgasz po niego, gdy temat
    tego wymaga; w regułach procesu zostaje sama zasada „decyzji stamtąd się nie proponuje ponownie".
+   Listę zamyka **jedna linia z trzema frazami sesji** (D-05) — patrz sekcja „Linia fraz sesji".
 3. **Stan prac** — tabela `Co | Status | Gdzie` z maksymalnie pięcioma wierszami najwyższego
    poziomu. Szczegóły są w `STATE.md`; tu tylko drogowskazy.
 4. **Aktywny plan** — dokładnie **jedna** linia w formacie `Aktywny plan: [<TEMAT>](docs/plany/<TEMAT>/STATUS.md)`,
@@ -51,6 +52,27 @@ i `DZIENNIK.md`.
    mechaniczne → model najtańszy. Dopisz jedno zdanie: użytkownik może to nadpisać przy każdym
    planie, a wybór trafia do `STATUS.md` planu (D-39).
 9. **Sekcja niemutowalna** — patrz niżej.
+
+## Linia fraz sesji
+
+Jedna linia zaraz pod listą rytuału startu. Powód jest ten sam co przy regułach profilu: trzy
+frazy naturalne (D-05) opisane wyłącznie w skillu działają tylko wtedy, gdy skill się wyzwoli —
+a wyzwala się zawodnie (R2). `CLAUDE.md` jest w kontekście zawsze, więc to on ma **nieść regułę**;
+skill dokłada pełną procedurę, gdy się załaduje.
+
+Brzmienie (przetłumacz na język projektu, sensu nie zmieniaj):
+
+> **Frazy sesji:** „kontynuujemy pracę" → rytuał startu, akapit „gdzie jesteśmy" **i jedno zdanie
+> z propozycją najbliższego kroku**; „sprawdź status" → stan, plany, ryzyka, zaległości
+> dokumentacyjne; „kończymy na dziś" → sync dokumentów, wpis do dziennika, przegląd ryzyk,
+> propozycja commita.
+
+Trzeci człon pierwszej frazy jest tym, co najczęściej wypada — zmierzone w pilotażu E10: sesja bez
+wyzwolonego skilla napisała akapit „gdzie jesteśmy" i zakończyła pytaniem „Co dalej?" zamiast
+propozycją. Dlatego w linii ma stać wyróżniony.
+
+Linia liczy się do limitu 60 wierszy. Jeśli plik go przekracza, skracasz „Stan prac" albo „Reguły
+procesu" — nie tę linię i nie sekcję profilu.
 
 ## Sekcja „Reguły profilu"
 
@@ -114,6 +136,10 @@ Czytaj w tej kolejności, nie skanuj repo pełnotekstowo:
 3. [docs/DZIENNIK.md](docs/DZIENNIK.md) — „Stan otwartych ryzyk" + ostatni wpis.
 4. [docs/LEKCJE.md](docs/LEKCJE.md) — wyłącznie sekcja „Zasady aktywne".
 5. [docs/USTAWIENIA.md](docs/USTAWIENIA.md) — preferencje projektu.
+
+**Frazy sesji:** „kontynuujemy pracę" → rytuał, akapit „gdzie jesteśmy" **i zdanie z propozycją
+najbliższego kroku**; „sprawdź status" → stan, plany, ryzyka, zaległości; „kończymy na dziś" →
+sync dokumentów, wpis do dziennika, ryzyka, propozycja commita.
 
 ## Stan prac
 

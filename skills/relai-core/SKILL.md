@@ -451,6 +451,9 @@ Zasady generacji:
 - `CLAUDE.md` **musi** zawierać sekcję `## Reguły profilu (<wybrany profil>)` zaraz po „Regułach
   procesu" — 3–6 punktów wg `SPEC_PROFILE.md`. To jedyna warstwa reguł profilu działająca bez
   wyzwolenia skilla i bez zdarzenia, więc jej brak wycisza cały profil.
+- `CLAUDE.md` **musi** zawierać **linię fraz sesji** zaraz pod listą rytuału startu, wg
+  `SPEC_CLAUDE_MD.md` (sekcja „Linia fraz sesji"). Z tego samego powodu co wyżej: bez niej trzy
+  frazy naturalne działają tylko wtedy, gdy skill się wyzwoli — a to jest zawodne (R2).
 - **Żadnego dokumentu warunkowego przy inicjalizacji.** `ARCHITEKTURA.md`, `DESIGN.md`,
   `docs/srodowiska/`, `docs/snapshoty/` i `ARTEFAKTY.md` powstają przy zdarzeniu (D-10) — także
   wtedy, gdy profil jest już znany.

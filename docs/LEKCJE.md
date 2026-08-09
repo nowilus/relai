@@ -83,6 +83,10 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
 29. Komponent opcjonalny musi dać się **pominąć bez śladu**: żadnych pustych wypełniaczy ani
     martwego kodu. Jeśli pominięcie wymaga pracy, element jest rusztowaniem, nie komponentem —
     przenieś go do repertuaru i pozwól narzędziu sprzątnąć po nim znacznik. (L-0029)
+30. Zachowanie, które ma działać **zawsze**, mieszka w `CLAUDE.md` projektu — nie w skillu i nie
+    w ściądze dla człowieka. Skill wyzwala się zawodnie (R2), a `KOMENDY.md` nikt nie czyta na
+    starcie. Regułę niesie warstwa obecna w kontekście każdej sesji; skill dokłada procedurę.
+    (L-0030)
 
 ## Lekcje
 
@@ -476,3 +480,21 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
 - **Źródło:** korekta użytkownika w pilotażu E10 (2026-08-09). Po poprawce: plan bez wyliczeń waży
   182 KB i nie zawiera ani jednej linii kodu symulatora (`grep` po `KLUCZE_DEKLAROWANE`, `rysuj`,
   `odswiez` → 0 trafień), plan z wyliczeniami — 193 KB, dziewięć suwaków, symulator liczy.
+
+### L-0030 — Fraza rytualna bez warstwy nośnej · 2026-08-09 · AKTYWNA
+
+- **Trigger:** pomiar R2 w pilotażu E10 — prompt „Kontynuujemy pracę." w projekcie RelAI. Sesja
+  **nie wywołała** żadnego skilla (`Skill`: 0 wywołań), przeczytała cztery dokumenty i napisała
+  akapit „gdzie jesteśmy" — po czym zakończyła pytaniem „Co dalej?" zamiast trzecim krokiem frazy:
+  jednym zdaniem z propozycją najbliższego kroku.
+- **Przyczyna:** akapit „gdzie jesteśmy" przyszedł z hooka `session-context`, który niesie rytuał
+  startu. Trzech fraz naturalnych (D-05) hook nie zna, `CLAUDE.md` projektu ich nie wymieniał,
+  a `docs/KOMENDY.md` jest ściągą dla człowieka i nikt nie czyta go na starcie. Cała fraza wisiała
+  więc na skillu — czyli na jedynej warstwie, o której od E3 wiemy, że bywa pomijana.
+- **Zasada:** zachowanie, które ma działać **zawsze**, musi mieć warstwę działającą zawsze. W RelAI
+  jest nią `CLAUDE.md` projektu (kontekst każdej sesji) albo hook; skill jest warstwą procedury,
+  nie warstwą nośną. Przed opisaniem czegokolwiek wyłącznie w skillu zadaj pytanie: „co się stanie,
+  gdy skill się nie wyzwoli?". Jeśli odpowiedź brzmi „nie zadziała" — reguła jest w złym miejscu.
+  To jest wniosek z E8 (reguły profilu) zastosowany do fraz rytualnych.
+- **Źródło:** pomiar R2 w pilotażu E10 (2026-08-09). Po poprawce `CLAUDE.md` niesie jedną linię
+  z trzema frazami, z wyróżnionym trzecim członem pierwszej z nich.
