@@ -1222,3 +1222,10 @@ najwyższego ryzyka (R3) dostał najsilniejszy model.
 - Uruchomić E10: świeża sesja **Opus**, polecenie „Wykonaj docs/plany/BUDOWA_RELAI/PROMPT_ETAP_10.md".
   Etap wymaga Twojego udziału w sesjach interaktywnych (scenariusze D-83, pomiary AskUserQuestion)
   i wskazania folderu JiraManagera przed adopcją.
+
+**Dopisek po rytuale zamknięcia:** commit domykający `2124ebb` zmienił m.in. `commands/relai-backup.md`
+(poprawka kryterium rozmiaru) bez podbicia wersji, więc `plugin update` zostawiłby cache na `720f52f`
+(drugi facet L-0020). Zsynchronizowane przez `uninstall` + `install`; stan końcowy: `relai@relai 0.9.0`,
+`gitCommitSha 2124ebb`, w cache dziewięć komend i osiemnaście specyfikacji. Pomiary opisane wyżej
+wykonano na `720f52f`; obie wersje różnią się wyłącznie poprawką kryterium weryfikacji backupu
+i dokumentami zamknięcia etapu.
