@@ -240,26 +240,34 @@ function onSessionStart(input) {
       '). Zglos to uzytkownikowi jednym zdaniem i wskaz komende /relai-update — pokaze roznice i zaktualizuje projekt za zgoda, szanujac lokalne nadpisania. Nie migruj projektu recznie.');
   }
 
+  // Sygnaly wymagajace dzialania ida PRZED instrukcja rytualu. Zmierzone w E10:
+  // sygnal umieszczony po niej byl przez slabsze modele czytany jako tlo — sesja
+  // wykonywala rytual, a propozycji nie skladala wcale albo skladala inna.
+  const gap = promptGap(cwd);
+  if (gap) {
+    out.push('ZADANIE PIERWSZE (siatka D-34). Etap ' + gap.stage + ' w ' + gap.statusFile +
+      ' ma status GOTOWY DO STARTU, ale jego prompt etapowy nie istnieje. Pierwsze zdanie Twojej ' +
+      'odpowiedzi — jeszcze PRZED akapitem "gdzie jestesmy" — mowi o tej luce i proponuje ' +
+      'dogenerowanie promptu. Nie generuj go bez zgody (po zgodzie robi to relai-planning).');
+  }
+
+  const obcy = unknownAuthor(cwd);
+  if (obcy) {
+    out.push('ZADANIE PIERWSZE (nieznany autor, D-27). git user.name to "' + obcy.ja + '", a zaden z ' +
+      obcy.wpisow + ' podpisow w dzienniku go nie zawiera (ostatni: "' + obcy.ostatni + '") — to cudzy ' +
+      'projekt. Pierwsze zdanie Twojej odpowiedzi — jeszcze PRZED akapitem "gdzie jestesmy" i przed ' +
+      'odpowiedzia na pytanie uzytkownika — mowi, ze wpisy podpisal kto inny, i proponuje wycieczke ' +
+      'po projekcie (stan, mapa dokumentow, plany, ryzyka, od czego zaczac). Potem CZEKASZ na zgode: ' +
+      'wycieczki nie uruchamiasz sam i nie zastepujesz jej wlasnym pomyslem (przegladem kodu, ' +
+      'analiza struktury). Po zgodzie wykonujesz procedure komendy /relai-tour. Odmowa zamyka temat ' +
+      'na te sesje.');
+  }
+
   out.push('Ten folder to projekt RelAI. Zanim odpowiesz merytorycznie, wykonaj rytual startu sesji: ' +
     'przeczytaj CLAUDE.md, docs/STATE.md (jesli istnieje), docs/DZIENNIK.md (sekcja ryzyk + ostatni wpis), ' +
     'docs/LEKCJE.md (tylko "Zasady aktywne"), docs/USTAWIENIA.md oraz STATUS.md aktywnego planu; ' +
     'potem napisz akapit "gdzie jestesmy". Jesli dostepny jest skill relai-core, wywolaj go — ' +
     'ta instrukcja obowiazuje takze wtedy, gdy skill sie nie wyzwolil.');
-
-  const gap = promptGap(cwd);
-  if (gap) {
-    out.push('Siatka D-34: etap ' + gap.stage + ' w ' + gap.statusFile +
-      ' ma status GOTOWY DO STARTU, ale jego prompt etapowy nie istnieje. Powiedz o tym uzytkownikowi ' +
-      'jednym zdaniem PRZED akapitem "gdzie jestesmy" i zaproponuj dogenerowanie (generuje relai-planning po zgodzie).');
-  }
-
-  const obcy = unknownAuthor(cwd);
-  if (obcy) {
-    out.push('Nieznany autor (D-27): git user.name to "' + obcy.ja + '", a zaden z ' + obcy.wpisow +
-      ' podpisow w dzienniku go nie zawiera (ostatni: "' + obcy.ostatni + '"). To wyglada na cudzy projekt. ' +
-      'Zaproponuj wycieczke po projekcie jednym zdaniem i CZEKAJ na zgode — nie uruchamiaj jej sam. ' +
-      'Po zgodzie wykonaj procedure komendy /relai-tour. Odmowa zamyka temat na te sesje.');
-  }
 
   const copied = provisionTemplates(cwd);
   if (copied > 0) {
