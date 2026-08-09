@@ -27,7 +27,8 @@ Czytaj w kolejności, nie skanuj pełnotekstowo repo:
 | E6 — konkurs designu, szablon HTML, nadpisania lokalne (wersja 0.6.0) | **ZREALIZOWANY 2026-08-08** | `templates/HTML_PLAN/`, `templates/SPEC_PLAN_HTML.md`, `skills/relai-planning/SKILL.md` |
 | E7 — sześć komend operacyjnych, propozycja wycieczki (wersja 0.7.0) | **ZREALIZOWANY 2026-08-08** | `commands/`, `hooks/session-context.js`, `templates/SPEC_KOMENDY.md` |
 | E8 — profile projektów i reguły warunkowe (wersja 0.8.0) | **ZREALIZOWANY 2026-08-08** | `templates/SPEC_{PROFILE,ARCHITEKTURA,DESIGN,SRODOWISKA,SNAPSHOT}.md`, `hooks/profile-rules.js`, `hooks/config-protection.js` |
-| Implementacja (E9–E10) | OCZEKUJE | docs/plany/BUDOWA_RELAI/STATUS.md |
+| E9 — adopcja i aktualizacja projektu (wersja 0.9.0) | **ZREALIZOWANY 2026-08-09** | `commands/relai-{adopt,update}.md`, `templates/SPEC_RAPORT_ADOPCJI.md` |
+| Pilotaż (E10) | OCZEKUJE | docs/plany/BUDOWA_RELAI/STATUS.md |
 
 ## Reguły procesu
 

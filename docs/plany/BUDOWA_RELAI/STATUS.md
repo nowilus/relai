@@ -14,8 +14,8 @@ Plan: [PLAN.html](PLAN.html) • Utworzony: 2026-08-07 • Status planu: **ZAAKC
 | E6 | Konkurs designu + szablon HTML + nadpisania lokalne | **ZREALIZOWANY 2026-08-08** | [PROMPT_ETAP_6.md](PROMPT_ETAP_6.md) | plugin 0.6.0: dwie rundy konkursu (runda 1 odrzucona w całości — D-61b), kierunek „Warsztat" zamrożony w `templates/HTML_PLAN/` + `SPEC_PLAN_HTML.md`; `relai-planning` honoruje preferencję „HTML" i opisuje nadpisanie lokalne D-62 w `docs/zasoby/HTML_PLAN/`; provisioning kopiuje całe drzewo `templates/` |
 | E7 | Komendy operacyjne (backup, audit, changelog, handover, tour) | **ZREALIZOWANY 2026-08-08** | [PROMPT_ETAP_7.md](PROMPT_ETAP_7.md) | plugin 0.7.0: sześć komend + `/relai-help`; sygnał „nieznany autor" w hooku `session-context` (D-27) z reakcją opisaną w `relai-core`; dowody negatywne D-42, D-45 i D-07 przeszły; L-0021…L-0023 |
 | E8 | Profile (app / agent-voice / flow / prompty) | **ZREALIZOWANY 2026-08-08** | [PROMPT_ETAP_8.md](PROMPT_ETAP_8.md) | plugin 0.8.0: pięć specyfikacji profili, hook `profile-rules`, bramka snapshotu w `config-protection`; reguła w trzech warstwach (CLAUDE.md / hook / skill); dowody negatywne D-51 i D-42 przeszły; L-0024…L-0027 |
-| E9 | Adopcja (/relai-adopt) + /relai-update | **GOTOWY DO STARTU** | [PROMPT_ETAP_9.md](PROMPT_ETAP_9.md) | obszar szczególnej staranności (D-70) |
-| E10 | Pilotaż + scenariusze akceptacyjne | OCZEKUJE | — | nowy projekt + adopcja JiraManager. **Kontrola R2 (pierwszy pomiar wykonany 2026-08-07, 2/2 po 0.3.1):** powtórzyć w **sesji interaktywnej** (tryb `-p` blokuje `AskUserQuestion`, więc pełny cykl plan → pliki nie był mierzony) i sprawdzić powtarzalność na kilku przebiegach, osobno dla `relai-core` i `relai-planning` |
+| E9 | Adopcja (/relai-adopt) + /relai-update | **ZREALIZOWANY 2026-08-09** | [PROMPT_ETAP_9.md](PROMPT_ETAP_9.md) | plugin 0.9.0: `/relai-adopt` (backup-bramka, scalanie CLAUDE.md D-71, raport z recovery) + `/relai-update` (diff, zgoda, nadpisania lokalne — R6 domknięte); recovery przetestowane sumą drzewa bajt w bajt; wykonany przez **Fable** na jawne polecenie użytkownika (odstępstwo od D-85 w dzienniku) |
+| E10 | Pilotaż + scenariusze akceptacyjne | **GOTOWY DO STARTU** | [PROMPT_ETAP_10.md](PROMPT_ETAP_10.md) | nowy projekt + adopcja JiraManager. **Kontrola R2 (pierwszy pomiar wykonany 2026-08-07, 2/2 po 0.3.1):** powtórzyć w **sesji interaktywnej** (tryb `-p` blokuje `AskUserQuestion`, więc pełny cykl plan → pliki nie był mierzony) i sprawdzić powtarzalność na kilku przebiegach, osobno dla `relai-core` i `relai-planning`; tamże pomiary interaktywne przeniesione z E9 (lista w prompcie etapu) |
 
 ## Dziennik wdrożenia
 
@@ -113,3 +113,10 @@ Plan: [PLAN.html](PLAN.html) • Utworzony: 2026-08-07 • Status planu: **ZAAKC
   trafień; bramka snapshotu zatrzymała zapis także w projekcie z **usuniętą** sekcją reguł
   w `CLAUDE.md` (kopia o sumie `198a1558…` = stan sprzed zmiany). Cztery lekcje: L-0024…L-0027.
   Wygenerowano PROMPT_ETAP_9.
+- 2026-08-09 — **E9 ZREALIZOWANY** (Fable, jawne polecenie użytkownika — odstępstwo od D-85).
+  Plugin 0.9.0: `/relai-adopt` i `/relai-update`, `SPEC_RAPORT_ADOPCJI.md`, recovery jako sekcja
+  raportu (decyzja etapu), scalanie `CLAUDE.md` verbatim, skill `relai-core` z czterema drogami
+  stanu „Z ZAWARTOŚCIĄ", hook `session-context` wskazuje `/relai-update`. Sześć sesji pomiarowych
+  na ścieżce ze spacją i „ó": bramka backupu (2 dowody), adopcja pełna (kod bajt w bajt, D-70,
+  D-71, D-42), recovery (suma drzewa identyczna), update bez zgody / ze zgodą (nadpisania lokalne
+  3/3). R6 zamknięte, R3 obniżone do średniego. Wygenerowano PROMPT_ETAP_10.

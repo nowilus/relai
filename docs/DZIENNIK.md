@@ -6,10 +6,10 @@
 |---|---|---|---|---|
 | R1 | Scope creep jak w vibe-forge (GUI, enterprise-szablony) | Wysoki | OTWARTE | D-80: twarda lista „poza v1"; każdy pomysł spoza listy → DZIENNIK „świadomie odłożone". **2026-08-08 (E8):** etap o profilach był naturalnym miejscem rozrostu i nie urósł — lista czterech profili została zamknięta, żadna nowa komenda nie doszła, `quality-gate` i `auto-format` **nie** dostały warunku profilowego (obecność `tsc`/Prettiera jest warunkiem mocniejszym niż wpis w ustawieniach), a profil `prompty` skończył się na jednym rejestrze, tak jak mówi PLAN. Zapis „profile dokładają najwyżej jedno pytanie na zdarzenie" jest twardą granicą wpisaną do `SPEC_PROFILE.md` |
 | R2 | Auto-wyzwalanie skilli bywa zawodne (agent nie zastosuje zasad bez komendy) | **Niski** (2026-08-07 po E5; wcześniej średni) | **ZMIERZONE 2026-08-07, OTWARTE** | Podwójna warstwa: opisy skilli + reguły w projektowym CLAUDE.md zawsze w kontekście; testy fraz w pilotażu. **2026-08-07 (E1):** `relai-core` zainstalowany i widoczny w inwentarzu pluginu, ale samo auto-wyzwolenie w świeżej sesji NIEZWERYFIKOWANE. **2026-08-07 (E2):** test NIEWYKONANY — plugin odinstalowany na czas budowy na polecenie użytkownika (L-0004), więc skill nie miał prawa się wyzwolić; pomiar przeniesiony do pilotażu E10, po docelowej instalacji. Ryzyko pozostaje OTWARTE i niezmierzone przez dwa etapy (L-0005). **2026-08-07 (E3):** nadal niezmierzone — doszedł drugi skill (`relai-planning`) wyzwalany frazą, więc zakres ryzyka wzrósł. **2026-08-07 (pomiar, na wniosek użytkownika):** plugin zainstalowany, sześć świeżych sesji `claude -p`. Wersja 0.3.0: 1/4 trafień — brak wyzwolenia na prompcie naturalnym i na „przygotuj plan…", z realnym rozjazdem konwencji. Po poprawce opisów (0.3.1): 2/2 trafienia. Ryzyko zostaje otwarte: próba mała, `-p` blokuje `AskUserQuestion`, a wynik zależy od inwentarza skilli na maszynie. Kontrola ponowna w E10 (wiersz E10 w `STATUS.md`). **2026-08-07 (E5):** hook `session-context` (SessionStart) wstrzykuje rytuał startu, datę dnia i siatkę promptów niezależnie od skilli — zmierzone 2/2 na neutralnym prompcie przy **zerze** wywołań `Skill`. Poziom obniżony do niskiego; do potwierdzenia w sesji interaktywnej w E10. **2026-08-08 (E8):** reguły warunkowe profilu zaprojektowane tak, żeby skill **nie był** warstwą nośną — regułę niesie sekcja w `CLAUDE.md` projektu (w kontekście każdej sesji bez wyzwalania), zdarzenie wykrywa hook, skill dokłada procedurę. Zmierzone: bramka snapshotu zatrzymała zapis w projekcie `flow` z **usuniętą** sekcją reguł w `CLAUDE.md` (sesja napisała wprost „bramka snapshotu i tak zablokowała zapis"), a kopia w `docs/snapshoty/` ma sumę kontrolną stanu sprzed zmiany |
-| R3 | Adopcja uszkodzi żywy projekt użytkownika | Wysoki | OTWARTE | D-70: backup+raport+recovery obowiązkowe; scenariusz akceptacyjny z pełnym testem recovery. **2026-08-08 (E7):** powstał pierwszy filar — `/relai-backup` pakuje projekt do prawdziwego ZIP-a (bsdtar, nagłówek `PK`), z twardym wykluczeniem sekretów i **weryfikacją listy wpisów archiwum** przed zgłoszeniem sukcesu; zmierzone: 22 wpisy, zero trafień na `.env`/`node_modules`. Brakuje drugiego filaru — **odtworzenia**: rozpakowanie i test „projekt wstaje" nie są jeszcze niczym opisane ani zmierzone. Do domknięcia w E9 (`/relai-adopt` z przetestowaną ścieżką recovery) i w scenariuszu akceptacyjnym E10 |
+| R3 | Adopcja uszkodzi żywy projekt użytkownika | **Średni** (2026-08-09 po E9; wcześniej wysoki) | OTWARTE | D-70: backup+raport+recovery obowiązkowe; scenariusz akceptacyjny z pełnym testem recovery. **2026-08-08 (E7):** powstał pierwszy filar — `/relai-backup` pakuje projekt do prawdziwego ZIP-a (bsdtar, nagłówek `PK`), z twardym wykluczeniem sekretów i **weryfikacją listy wpisów archiwum** przed zgłoszeniem sukcesu; zmierzone: 22 wpisy, zero trafień na `.env`/`node_modules`. Brakuje drugiego filaru — **odtworzenia**: rozpakowanie i test „projekt wstaje" nie są jeszcze niczym opisane ani zmierzone. Do domknięcia w E9 (`/relai-adopt` z przetestowaną ścieżką recovery) i w scenariuszu akceptacyjnym E10. **2026-08-09 (E9):** drugi filar dowieziony — `/relai-adopt` z backupem-bramką (dwa dowody negatywne: niemożliwa lokalizacja i brak narzędzia pakującego → zero plików struktury) i **recovery przetestowanym naprawdę**: pełne cofnięcie wg sekcji raportu adopcji dało sumę drzewa plików bajt w bajt identyczną ze stanem sprzed (10/10 plików, agregat `1200960f…`). Poziom obniżony do średniego; zamknięcie po scenariuszu akceptacyjnym E10 na żywym JiraManagerze |
 | R4 | Hooki Node na Windows (ścieżki ze spacjami, kodowanie PL) | Średni | **ZAMKNIĘTE 2026-08-07 (E5)** | Osiem hooków przetestowane na ścieżce `Próba RelAI E5` (spacja + „ó"): 39/39 testów jednostkowych i siedem sesji integracyjnych bez błędów kodowania i ścieżek. Komunikaty hooków świadomie ASCII (L-0016); zero zależności npm |
 | R5 | Dokumenty puchną i zjadają kontekst | Średni | OTWARTE | D-14/D-15: rotacja DZIENNIKA, kompresja LEKCJI, destylaty czytane na starcie. **2026-08-08 (E7):** doszły dwa narzędzia po stronie użytkownika — `/relai-audit` wykrywa dziennik ponad progiem 50 KB i lekcje bez destylatu (zmierzone na projekcie testowym: podał rozmiar dziennika i wskazał destylat bez lekcji źródłowej), a `/relai-changelog` daje historię bez trzymania jej w kontekście. Sam pakiet `/relai-handover` waży 201 KB przez osadzone fonty — to plik dla człowieka, nie dla kontekstu sesji, ale pytanie o podzbiór fontów z E6 zostaje otwarte |
-| R6 | Aktualizacja pluginu nadpisze lokalne nadpisania użytkowników | **Niski** (2026-08-08 po E6; wcześniej średni) | OTWARTE | D-72: diff + zgoda + pierwszeństwo lokalnych nadpisań; test w pilotażu. **2026-08-08 (E6):** nadpisanie lokalne umieszczone w `docs/zasoby/HTML_PLAN/` — poza cache'em `.claude/relai/`, którego dotyka hook i aktualizacja pluginu. Zmierzone: po `marketplace update` + `plugin update` + świeżej sesji dziewięć plików nadpisania ma identyczne sumy kontrolne, własny token na miejscu, token z pluginu nie wrócił; cache w tym samym czasie **został** nadpisany (dowód, że test nie jest pusty). Zostaje otwarte do E9: `/relai-update` musi pokazać diff i uszanować nadpisanie |
+| R6 | Aktualizacja pluginu nadpisze lokalne nadpisania użytkowników | Niski | **ZAMKNIĘTE 2026-08-09 (E9)** | D-72: diff + zgoda + pierwszeństwo lokalnych nadpisań; test w pilotażu. **2026-08-08 (E6):** nadpisanie lokalne umieszczone w `docs/zasoby/HTML_PLAN/` — poza cache'em `.claude/relai/`, którego dotyka hook i aktualizacja pluginu. Zmierzone: po `marketplace update` + `plugin update` + świeżej sesji dziewięć plików nadpisania ma identyczne sumy kontrolne, własny token na miejscu, token z pluginu nie wrócił; cache w tym samym czasie **został** nadpisany (dowód, że test nie jest pusty). Zostaje otwarte do E9: `/relai-update` musi pokazać diff i uszanować nadpisanie. **2026-08-09 (E9):** `/relai-update` działa i szanuje nadpisania — zmierzone na projekcie 0.7.0: trzy pliki `docs/zasoby/HTML_PLAN/` z sumami identycznymi po aktualizacji, wiersz „Szablon planu HTML" nietknięty, wiersz lokalny `KOMENDY.md` przepisany dosłownie do zregenerowanej tabeli; diff pokazany przed zapisem, odmowa zostawia projekt nietknięty (10/10 sum). Ryzyko zamknięte |
 | R7 | Model wykonawczy (Sonnet/Opus) obniży jakość implementacji etapów | Średni | OTWARTE | Prompty etapowe z sekcją Weryfikacja + przegląd Fable po kluczowych etapach |
 | R8 | Sesja nie ma dostępu do katalogu pluginu — `templates/` ze specyfikacjami jest nieczytelny bez `--add-dir`, więc inicjalizacja projektu (D-60) zatrzymuje się na braku źródła | Wysoki | **ZAMKNIĘTE 2026-08-07 (E5)** | Rozwiązanie: proces hooka ma pełny dostęp do dysku, więc `session-context` kopiuje `templates/*.md` do `.claude/relai/templates/` projektu (SessionStart w projektach RelAI; PostToolUse na wywołaniu skilla RelAI — pokrywa inicjalizację w świeżym folderze) i wstrzykuje ustawienia globalne `~/.claude/relai/` (domyka też L-0010). Zmierzone: inicjalizacja **bez** `--add-dir` dała komplet ośmiu dokumentów, specyfikacje czytane z lokalnej kopii (8/8 plików). D-60 nietknięte — specyfikacje pozostają plikami. Ryzyko szczątkowe: provisioning przy inicjalizacji wymaga wyzwolenia skilla (R2); fallback `--add-dir` opisany w skillach |
 
@@ -1126,3 +1126,99 @@ Zsynchronizowane przez `uninstall` + `install`; stan końcowy: `relai@relai 0.8.
 `gitCommitSha df8ee20`, w cache'u dziewiętnaście specyfikacji i dziewięć hooków. Pomiary opisane
 wyżej wykonano na `ddc2894` i to jest wersja, której dotyczą ich wyniki — obie różnią się wyłącznie
 dwoma akapitami w specyfikacjach, dopisanymi na podstawie tych pomiarów.
+
+### 2026-08-09 — E9: adopcja i aktualizacja, RelAI 0.9.0
+
+Autor: RelAI (Fable) + Lukasz
+
+Etap wykonany przez **Fable** na jawne polecenie użytkownika (odstępstwo od D-85, jak przy E5):
+kontrola modelu z promptu etapu zatrzymała sesję, użytkownik wybrał „Wykonaj Fablem" — etap
+najwyższego ryzyka (R3) dostał najsilniejszy model.
+
+**Zrobione:**
+- **Decyzja etapu — kształt recovery:** sekcja procedury w raporcie adopcji. Odrzucone: osobna
+  komenda cofająca (poza granicą zakresu — E9 dokłada dokładnie dwie komendy — i wymagałaby
+  zaufania do narzędzia, które właśnie mogło zawieść) oraz skrypt generowany przy adopcji (świeży,
+  nietestowany kod za każdym razem). Procedura opiera się wyłącznie o rozpakowanie zweryfikowanego
+  ZIP-a: jest identyczna dla każdej adopcji, przetestowana raz i wykonalna ręcznie — bez pluginu,
+  bez Claude, bez Node — czyli dokładnie w warunkach z kryterium D-70 („człowiek ma tylko archiwum
+  i raport").
+- **`templates/SPEC_RAPORT_ADOPCJI.md`** — specyfikacja jedynego artefaktu przeżywającego sesję
+  adopcji: backup, co powstało / przeniesiono / scalono / nie ruszono, sekrety jako wskazania,
+  sekcja „Pełne cofnięcie", kompletny przykład (L-0001).
+- **`commands/relai-adopt.md`** (D-70) — sekwencja bez luk: krok 0 (marker / gość / pusty folder),
+  backup przez procedurę `/relai-backup` jako **bramka** (pominięte jej kroki 0 i 6 z jawnym
+  powodem), analiza (kod, dokumenty, git log, profil, sekrety bez wartości), plan zmian + zgoda
+  jako druga bramka, jawne wczytanie skilla `relai-core` dla provisioningu specyfikacji (L-0015,
+  R8), generacja z zastanego stanu (STATE opisuje istniejący projekt, dziennik dostaje wpis
+  zerowy z historią gita), scalanie `CLAUDE.md` (D-71) w tym samym pliku komendy, raport, commit
+  za zgodą.
+- **`commands/relai-update.md`** (D-72) — komenda samowersjonowana („pochodzi z RelAI 0.9.0");
+  inwentaryzacja względem **stanu docelowego** zamiast historii wersja-po-wersji (projekt 0.5.0
+  i 0.8.0 aktualizują się tą samą procedurą); nadpisania lokalne wykrywane najpierw i nietykalne;
+  diff jako lista działań + zgoda (także częściowa); marker podbijany **na końcu**, żeby przerwana
+  sesja zostawiała stan do dokończenia.
+- **`skills/relai-core/SKILL.md`** — stan „Z ZAWARTOŚCIĄ" ma cztery drogi (adopcja rekomendowana,
+  dołączenie niedestrukcyjne, gość, nic); zdanie „adopcji jeszcze nie ma" zniknęło; frazy
+  wyzwalające uzupełnione o „zaadoptuj projekt" / „adopt this project".
+- **`hooks/session-context.js`** — komunikat o różnicy wersji wskazuje działające `/relai-update`.
+- **`templates/SPEC_KOMENDY.md`** — zakres 0.9.0, tabela komend 7 → 9, zakaz wpisywania
+  `/relai-adopt`/`/relai-update` usunięty (nie ma czego zakazywać); `templates/README.md` — wiersz
+  o nowej specyfikacji.
+- **Poprawka defektu E7 ujawnionego pomiarem:** kryterium rozmiaru w kroku 5 `/relai-backup`
+  („mniej niż rozmiar projektu") było fałszywie negatywne dla małych projektów z `.git` — narzut
+  nagłówków ZIP przewyższył źródło (35 708 B wobec 32 714 B). Kryterium przepisane na stan
+  kontrolowany (L-0018): rozstrzyga lista wpisów, rozmiar tylko > 0.
+- Wersja **0.9.0** w obu manifestach, README, obu skillach, `SPEC_USTAWIENIA`, markerze repo;
+  `grep` po `0.8.0` rozstrzygnięty (historyczne zostają). Publikacja: push → `marketplace update`
+  → `plugin update`; `installed_plugins.json`: 0.9.0, sha `720f52f` (L-0020).
+
+**Zweryfikowane — jak dokładnie:**
+- Sześć świeżych sesji `claude -p` (prompt przez stdin, `--permission-mode acceptEdits`, komendy
+  pełną nazwą) na projektach testowych zbudowanych skryptem, na ścieżce ze spacją i „ó"
+  (`Desktop\Próba RelAI E9\Magazyn` — kod + git + własny CLAUDE.md + sekret w kodzie;
+  `…\Kronika` — projekt RelAI 0.7.0 z nadpisaniem lokalnym szablonu).
+- **Bramka backupu, dwa dowody negatywne:** lokalizacja na nieistniejącym dysku `Q:` → adopcja
+  przerwana; sesja bez zgody na narzędzie pakujące → adopcja odmówiła pójścia dalej mimo zgody
+  użytkownika na wszystko inne. W obu przypadkach sumy kontrolne projektu 10/10 identyczne
+  (agregat `1200960f…`), zero plików struktury.
+- **Adopcja pełna (zgoda z góry w prompcie):** commit adopcyjny `d74012a`; 7/7 plików kodu
+  z sumami identycznymi; **D-70:** żaden z 10 zastanych plików nie zniknął — kolizje
+  (`docs/STATE.md`, `CLAUDE.md`) w `docs/archiwum/` z adnotacjami; **D-71:** 4/4 zastane reguły
+  dosłownie w sekcji „Zasady projektu (odziedziczone)", kopia oryginału kompletna, konflikt reguł
+  zgłoszony pytaniem (zmierzone w osobnej sesji bez zgody z góry: zatrzymała się na czterech
+  pytaniach, w tym o konflikt „commituj natychmiast"); **D-42:** wartość sekretu nieobecna
+  w raporcie i dzienniku (grep po złożonej wartości: 0 trafień), archiwum ZIP bez `.env`
+  (89 wpisów, 0 trafień na wzorce sekretów, nagłówek `504b0304`).
+- **Recovery naprawdę (najważniejszy punkt etapu):** pełne cofnięcie wg sekcji „Pełne cofnięcie"
+  raportu — przeniesienie folderu, `tar.exe -xf`, odtworzenie `.env` — dało agregat sum drzewa
+  (bez `.git`) **identyczny bajt w bajt** ze stanem sprzed adopcji: `1200960f0134afc3…`, 10/10
+  plików, zero różnic; `git log` kopii pokazuje HEAD sprzed adopcji (`7bd6db0`), bez commita
+  adopcyjnego.
+- **`/relai-update` na 0.7.0:** bez zgody → 10/10 sum identycznych (jedyne nowe pliki to cache
+  `.claude/relai/` dokładany hookiem provisioningu, poza repo); ze zgodą → sekcja „Reguły profilu
+  (app)" wstawiona, sekcja niemutowalna verbatim, `KOMENDY.md` zregenerowane do 0.9.0 z dziewięcioma
+  komendami i **dosłownie przepisanym wierszem lokalnym**, nadpisanie `docs/zasoby/HTML_PLAN/`
+  3/3 sum identycznych, wpis w dzienniku projektu. Marker: w sesji headless `config-protection`
+  zablokował zapis zgodnie z projektem — sesja wypisała diff jednej linii i zostawiła stan do
+  dokończenia; dokończono w sesji nadzorowanej (marker 0.9.0), pełne potwierdzenie interaktywne
+  → E10.
+- `claude plugin validate` — przechodzi ze znanym ostrzeżeniem L-0003.
+- Foldery testowe usunięte (`Próba RelAI E9` nie istnieje).
+
+**Świadomie odłożone:**
+- Pomiary wymagające sesji interaktywnej — pełna lista przeniesiona wprost do `PROMPT_ETAP_10.md`
+  (L-0005): AskUserQuestion (inicjalizacja, plan, profil, cztery drogi stanu „Z ZAWARTOŚCIĄ"),
+  skrócona forma komend, potwierdzenia `config-protection` na żywo (w tym marker przy
+  `/relai-update`), adopcja z pytaniami w trakcie zamiast zgody z góry, propozycja wycieczki,
+  kontrola R2.
+- Adopcja żywego projektu (JiraManager) — scenariusz akceptacyjny E10 (D-83); w E9 wyłącznie
+  projekty testowe, zgodnie z granicą zakresu promptu.
+- Ochrona `config-protection` nie obejmuje zapisów wykonywanych poza narzędziami Write/Edit
+  (np. skryptem Node) — świadome ograniczenie warstwy hooków (PreToolUse widzi narzędzia, nie
+  procesy); bez zmiany, do ewentualnej dyskusji po v1.
+
+**Do zrobienia przez człowieka:**
+- Uruchomić E10: świeża sesja **Opus**, polecenie „Wykonaj docs/plany/BUDOWA_RELAI/PROMPT_ETAP_10.md".
+  Etap wymaga Twojego udziału w sesjach interaktywnych (scenariusze D-83, pomiary AskUserQuestion)
+  i wskazania folderu JiraManagera przed adopcją.

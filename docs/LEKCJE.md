@@ -77,6 +77,9 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
 27. Plików z polskimi znakami **nie** przepuszczasz przez PowerShell 5.1: `Get-Content -Raw` czyta
     UTF-8 jako ANSI i psuje treść, mimo `-Encoding utf8` przy zapisie. Dokumenty dopisujesz
     narzędziem Write/Edit albo Nodem. (L-0027)
+28. Sesja pomiarowa używająca narzędzi systemowych (tar, git) potrzebuje `--allowedTools "Bash"`
+    obok `--permission-mode acceptEdits` — inaczej mierzysz uprawnienia harnessu, nie zachowanie
+    komendy. (L-0028)
 
 ## Lekcje
 
@@ -435,3 +438,19 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
   L-0016 i L-0017: każda warstwa konsoli Windows jest podejrzana, dopóki nie sprawdzisz efektu na
   dysku — sprawdzeniem jest odczyt pliku po zapisie, nie kod wyjścia polecenia.
 - **Źródło:** rytuał zamknięcia etapu E8 (2026-08-08); wpis odtworzony Nodem po obcięciu pliku.
+
+### L-0028 — acceptEdits nie obejmuje poleceń Bash · 2026-08-09 · AKTYWNA
+
+- **Trigger:** sesja pomiarowa `/relai-adopt` w trybie `-p` z `--permission-mode acceptEdits`
+  zatrzymała się na bramce backupu nie dlatego, że bramka zadziałała merytorycznie, tylko dlatego,
+  że sesja nie miała zgody na uruchomienie `tar.exe` — żaden błąd tego nie zapowiedział.
+- **Przyczyna:** `acceptEdits` auto-akceptuje wyłącznie edycje plików. Każde polecenie systemowe
+  (Bash/PowerShell) wymaga osobnej zgody, której w trybie `-p` nie ma kto wyrazić — sesja
+  raportuje wtedy brak dostępu do narzędzia, a pomiar wygląda na test bramki, choć mierzy
+  uprawnienia harnessu.
+- **Zasada:** sesja pomiarowa, której scenariusz wymaga narzędzia systemowego (pakowanie,
+  git, node), dostaje jawnie `--allowedTools "Bash"` obok `--permission-mode acceptEdits`.
+  Przed interpretacją wyniku sprawdź, czy zatrzymanie wynikło z logiki komendy, czy z braku
+  uprawnień — to rozszerzenie L-0024 o trzeci warunek wykonalności.
+- **Źródło:** pomiary etapu E9 (2026-08-09); po dodaniu flagi ta sama sesja przeszła całą
+  sekwencję adopcji.

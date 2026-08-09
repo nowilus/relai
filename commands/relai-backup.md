@@ -134,7 +134,10 @@ Backup niezweryfikowany to nie backup. Sprawdź **na powstałym pliku**, nie na 
    `[System.IO.Compression.ZipFile]::OpenRead(...)` i `.Entries`.
 3. **Dowód negatywny do D-42** — w liście wpisów **nie ma** `.env` ani żadnego innego wzorca
    z grupy „Sekrety". Sprawdzasz listą, nie pamięcią o tym, że dodałeś `--exclude`.
-4. **Rozmiar** — archiwum ma więcej niż 0 bajtów i mniej niż rozmiar projektu bez wykluczeń.
+4. **Rozmiar** — archiwum ma więcej niż 0 bajtów. Porównanie z rozmiarem projektu jest tylko
+   sygnałem orientacyjnym, nie progiem: przy małych projektach narzut nagłówków ZIP (zwłaszcza
+   na wielu drobnych plikach `.git`) potrafi przewyższyć rozmiar źródła — rozstrzyga lista
+   wpisów z punktu 2, nie liczba bajtów (L-0018).
 
 Którykolwiek punkt nie przechodzi → **usuwasz wadliwe archiwum**, mówisz, co poszło nie tak,
 i nie zapisujesz wpisu w dzienniku. Backup, który „prawie się udał", jest gorszy niż jego brak.
