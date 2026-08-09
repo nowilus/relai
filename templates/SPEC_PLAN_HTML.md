@@ -11,12 +11,27 @@ złożyć plik. Gdy obie mówią co innego o treści, rozstrzyga `SPEC_PLAN.md`.
 W HTML powstaje **wyłącznie plan główny**. `STATUS.md`, prompty etapowe i MINIPLAN-y zostają
 w Markdown (D-32) — HTML jest dla ludzi, Markdown dla agentów.
 
+## Szablon jest repertuarem, nie rusztowaniem
+
+Stałe jest dwoje: **dziesięć sekcji merytorycznych** (`SPEC_PLAN.md` — plan bez wariantów, ryzyk
+czy etapów przestaje być planem) i **wygląd** każdego elementu, żeby wszystkie plany w projekcie
+czytało się tak samo. Wszystko poza tym jest do wyboru.
+
+Komponenty z `komponenty.html` — karteczka na marginesie, diagram przepływu, wykres słupkowy,
+symulator ze skryptem — wstawiasz **tylko wtedy, gdy niosą treść tego planu**. Plan bez wyliczeń
+nie ma symulatora; plan o jednym przepływie nie potrzebuje diagramu; sekcja bez zaskoczeń nie
+potrzebuje karteczki. Każdy plan składasz osobno pod jego własne potrzeby — pusty komponent
+wstawiony „bo szablon go ma" zabiera uwagę i niczego nie mówi.
+
+Sekcja, w której naprawdę nie ma treści (typowo 9 — decyzje dla człowieka), dostaje jedno zdanie
+albo `—`; nie usuwasz jej i nie wypełniasz watą.
+
 ## Skąd wziąć szablon
 
 | Plik | Co zawiera |
 |---|---|
 | `HTML_PLAN/szablon.html` | szkielet: design tokens, wszystkie komponenty w CSS, pasek, szyld, dziesięć pustych sekcji, skrypt |
-| `HTML_PLAN/komponenty.html` | gotowe fragmenty do wklejenia: karteczka, listy celów, tabela, karta wariantu, diagram, wykres, symulator |
+| `HTML_PLAN/komponenty.html` | gotowe fragmenty do wklejenia: karteczka, listy celów, tabela, karta wariantu, diagram, wykres, symulator, skrypt symulatora |
 | `HTML_PLAN/zbuduj.js` | osadza fonty w gotowym pliku (Node, zero zależności) |
 | `HTML_PLAN/fonty/` | sześć podzbiorów WOFF2 (Kalam 400/700, Hanken Grotesk) |
 
@@ -39,17 +54,22 @@ szablon; `zbuduj.js` czyta fonty z sąsiedniego katalogu `fonty/`.
    `{{STATUS}}`, `{{LICZBA_ETAPOW}}`, `{{PRACOCHLONNOSC}}`, `{{MODEL_WYKONAWCZY}}`, `{{PODPIS}}`,
    `{{TEMAT_PLANU}}`.
 3. **Wypełnij `{{SEKCJA_1}}`…`{{SEKCJA_10}}`** treścią wg `SPEC_PLAN.md`, składając ją z komponentów
-   z `komponenty.html`. `{{SZEPT_N}}` to półzdanie na prawym marginesie nagłówka sekcji — ma
-   mówić, po co ta sekcja jest („gdyby ktoś czytał tylko jedno", „2 wysokie, 2 średnie").
-4. **Symulator** — tylko gdy plan zawiera wyliczenia. Jeśli tak: wklej komponent, wypisz klucze
-   w `{{KLUCZE_SYMULATORA}}`, wstaw `{{FUNKCJA_LICZ}}` i `{{FUNKCJA_ODSWIEZ}}`, ustaw
-   `{{MIESIECY_WYKRESU}}`, `{{ZNACZNIKI_OSI}}`, `{{JEDNOSTKA_OSI}}`, `{{OPIS_PUNKTU}}`, `{{LOCALE}}`.
-   Jeśli nie: **i tak wypełnij te znaczniki** wartościami pustymi (`[]`, `function(){}`, `24`,
-   `[0]`, `''`) — plik z niewypełnionym znacznikiem jest zepsuty, a skrypt sam się wyłączy, gdy
-   nie znajdzie pól.
+   z `komponenty.html` — bierzesz te, które ten plan potrzebuje, resztę pomijasz. `{{SZEPT_N}}`
+   to półzdanie na prawym marginesie nagłówka sekcji — ma mówić, po co ta sekcja jest („gdyby ktoś
+   czytał tylko jedno", „2 wysokie, 2 średnie").
+4. **Symulator** — tylko gdy plan zawiera wyliczenia, którymi da się pokręcić.
+   - **Ma wyliczenia:** wklej komponent 10 (karta z polami) oraz komponent 12 (skrypt) w miejsce
+     `/*{{SKRYPT_SYMULATORA}}*/`, po czym wypełnij `{{KLUCZE_SYMULATORA}}`, `{{LOCALE}}`,
+     `{{FUNKCJA_LICZ}}`, `{{FUNKCJA_ODSWIEZ}}` — a przy wykresie skumulowanym również
+     `{{MIESIECY_WYKRESU}}`, `{{ZNACZNIKI_OSI}}`, `{{JEDNOSTKA_OSI}}`, `{{OPIS_PUNKTU}}`.
+   - **Nie ma:** nie wklejasz nic i **nie wypełniasz żadnego z tych znaczników** — one istnieją
+     wyłącznie wewnątrz komponentu 12, więc w Twoim pliku ich po prostu nie ma. Znacznik
+     `/*{{SKRYPT_SYMULATORA}}*/` zostaw nietknięty: builder usunie go po cichu i napisze „Plan bez
+     symulatora". Żadnych wartości pustych, żadnego martwego kodu.
 5. **Uruchom builder:** `node .claude/relai/templates/HTML_PLAN/zbuduj.js docs/plany/<TEMAT>/PLAN.html`.
-   Podmienia `/*{{FONTY}}*/` na reguły `@font-face` z `data:` URI i **wypisuje listę znaczników,
-   które zostały niewypełnione** — traktuj to jako błąd, nie ostrzeżenie.
+   Podmienia `/*{{FONTY}}*/` na reguły `@font-face` z `data:` URI, usuwa nietknięty
+   `/*{{SKRYPT_SYMULATORA}}*/` i **wypisuje listę pozostałych niewypełnionych znaczników** —
+   tę listę traktuj jako błąd, nie ostrzeżenie.
 6. **Otwórz plik i sprawdź**, że symulator liczy, sekcje się zwijają, a strona nie przewija się
    w poziomie. Bez tego kroku plan nie jest gotowy.
 

@@ -66,10 +66,20 @@ function main(){
   }
 
   txt = txt.replace('/*{{FONTY}}*/', reguly.join('\n'));
+
+  // Symulator jest komponentem opcjonalnym: plan bez wyliczeń zostawia znacznik
+  // nietknięty, a to znaczy „tego bloku tu nie ma". Usuwamy go po cichu, żeby
+  // w gotowym pliku nie została ani linia martwego kodu, ani fałszywy błąd.
+  const bezSymulatora = txt.indexOf('/*{{SKRYPT_SYMULATORA}}*/') !== -1;
+  if (bezSymulatora) txt = txt.replace(/[ \t]*\/\*\{\{SKRYPT_SYMULATORA\}\}\*\/[ \t]*\r?\n?/, '');
+
   fs.writeFileSync(plik, txt);
 
   const kb = (Buffer.byteLength(txt) / 1024).toFixed(0);
   process.stdout.write('Osadzono ' + reguly.length + ' regul @font-face. Plik ma ' + kb + ' KB.\n');
+  if (bezSymulatora){
+    process.stdout.write('Plan bez symulatora — znacznik skryptu usuniety.\n');
+  }
 
   const zostale = txt.match(/\{\{[A-Z_0-9]+\}\}/g);
   if (zostale){

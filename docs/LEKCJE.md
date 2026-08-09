@@ -80,6 +80,9 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
 28. Sesja pomiarowa używająca narzędzi systemowych (tar, git) potrzebuje `--allowedTools "Bash"`
     obok `--permission-mode acceptEdits` — inaczej mierzysz uprawnienia harnessu, nie zachowanie
     komendy. (L-0028)
+29. Komponent opcjonalny musi dać się **pominąć bez śladu**: żadnych pustych wypełniaczy ani
+    martwego kodu. Jeśli pominięcie wymaga pracy, element jest rusztowaniem, nie komponentem —
+    przenieś go do repertuaru i pozwól narzędziu sprzątnąć po nim znacznik. (L-0029)
 
 ## Lekcje
 
@@ -454,3 +457,22 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
   uprawnień — to rozszerzenie L-0024 o trzeci warunek wykonalności.
 - **Źródło:** pomiary etapu E9 (2026-08-09); po dodaniu flagi ta sama sesja przeszła całą
   sekwencję adopcji.
+
+### L-0029 — Szablon, którego elementu nie da się nie użyć · 2026-08-09 · AKTYWNA
+
+- **Trigger:** pilotaż E10 — pierwszy plan użytkownika w projekcie „Paragony". Uwaga po obejrzeniu
+  wyniku: „nie w każdym planie będzie potrzeba pokazywania sekcji z suwaczkami; szablon ma
+  definiować pełen zakres, z czego plan może korzystać, a każdy plan powinien być indywidualnie
+  sklejany na swoje potrzeby".
+- **Przyczyna:** karta symulatora leżała w `komponenty.html` (czyli była opcjonalna), ale jego
+  **skrypt** siedział na stałe w szkielecie `szablon.html`. Specyfikacja rozwiązywała to najgorszym
+  z możliwych sposobów: „gdy planu nie dotyczą wyliczenia, i tak wypełnij znaczniki wartościami
+  pustymi". Element, którego nie da się pominąć, przestaje być komponentem i staje się rusztowaniem
+  — a rusztowanie zachęca, żeby je czymś wypełnić.
+- **Zasada:** komponent opcjonalny musi dać się **pominąć bez śladu** — bez pustych wypełniaczy,
+  bez martwego kodu, bez „wypełnij zerami". Jeśli pominięcie wymaga pracy, komponent jest w złym
+  miejscu: przenieś go do repertuaru, a w szkielecie zostaw znacznik, który narzędzie sprząta samo.
+  Sprawdzian: czy da się wygenerować poprawny artefakt **nie dotykając** tego elementu.
+- **Źródło:** korekta użytkownika w pilotażu E10 (2026-08-09). Po poprawce: plan bez wyliczeń waży
+  182 KB i nie zawiera ani jednej linii kodu symulatora (`grep` po `KLUCZE_DEKLAROWANE`, `rysuj`,
+  `odswiez` → 0 trafień), plan z wyliczeniami — 193 KB, dziewięć suwaków, symulator liczy.

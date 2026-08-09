@@ -64,8 +64,8 @@ w języku projektu, kopiowany jest wyłącznie nośnik.
 | Plik | Rola |
 |---|---|
 | `HTML_PLAN/szablon.html` | szkielet: design tokens w `:root`, komponenty w CSS, pasek, szyld, dziesięć pustych sekcji, skrypt |
-| `HTML_PLAN/komponenty.html` | gotowe fragmenty: karteczka, listy celów, tabela, karta wariantu, diagram, wykres, symulator |
-| `HTML_PLAN/zbuduj.js` | osadza fonty w gotowym pliku i zgłasza niewypełnione znaczniki (Node, zero zależności) |
+| `HTML_PLAN/komponenty.html` | repertuar do wyboru: karteczka, listy celów, tabela, karta wariantu, diagram, wykres, symulator wraz z jego skryptem — bierzesz tylko to, czego dany plan potrzebuje |
+| `HTML_PLAN/zbuduj.js` | osadza fonty, usuwa znacznik nieużytego symulatora i zgłasza pozostałe niewypełnione znaczniki (Node, zero zależności) |
 | `HTML_PLAN/fonty/*.woff2` | Kalam 400/700 i Hanken Grotesk, podzbiory latin + latin-ext (SIL OFL) |
 
 Hook `session-context` kopiuje **całe drzewo** `templates/` do `.claude/relai/templates/`

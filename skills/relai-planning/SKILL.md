@@ -197,12 +197,15 @@ do pliku bywa pomijane (L-0011):
    `{{STATUS}}`, `{{LICZBA_ETAPOW}}`, `{{PRACOCHLONNOSC}}`, `{{MODEL_WYKONAWCZY}}`, `{{PODPIS}}`,
    `{{TEMAT_PLANU}}`.
 3. **Wypełnij `{{SEKCJA_1}}`…`{{SEKCJA_10}}`** treścią wg `SPEC_PLAN.md`, składając ją z gotowych
-   fragmentów z `komponenty.html`. `{{SZEPT_N}}` to półzdanie na marginesie nagłówka sekcji.
-4. **Symulator** — tylko gdy plan zawiera wyliczenia. Gdy ich nie ma, znaczniki symulatora
-   i tak wypełniasz wartościami pustymi (`[]`, `function(){}`, `24`, `[0]`, `''`); plik
-   z niewypełnionym znacznikiem jest zepsuty.
+   fragmentów z `komponenty.html` — **bierzesz tylko te, które ten plan potrzebuje**.
+   `{{SZEPT_N}}` to półzdanie na marginesie nagłówka sekcji.
+4. **Symulator** — tylko gdy plan zawiera wyliczenia. Ma je: wklejasz komponent 10 (karta pól)
+   i komponent 12 (skrypt) w miejsce `/*{{SKRYPT_SYMULATORA}}*/`, po czym wypełniasz znaczniki,
+   które razem z nimi przyszły. Nie ma: **nie wklejasz nic i nie wypełniasz niczego** — znacznik
+   zostawiasz nietknięty, builder usunie go po cichu. Żadnych wartości pustych.
 5. **Uruchom builder:** `node <katalog szablonu>/zbuduj.js docs/plany/<TEMAT>/PLAN.html`. Osadza
-   fonty i **wypisuje niewypełnione znaczniki, kończąc kodem 1** — to błąd, nie ostrzeżenie.
+   fonty, sprząta znacznik symulatora i **wypisuje pozostałe niewypełnione znaczniki, kończąc
+   kodem 1** — to błąd, nie ostrzeżenie.
 6. **Otwórz plik i sprawdź**, że symulator liczy, sekcje się zwijają i strona nie przewija się
    w poziomie. Bez tego kroku plan nie jest gotowy.
 
