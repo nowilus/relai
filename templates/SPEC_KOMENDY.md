@@ -50,7 +50,7 @@ projektu jest w `docs/USTAWIENIA.md`.
 Plik jest **regenerowany**, nie edytowany ręcznie. Wyjątkiem są wiersze oznaczone jako lokalne —
 te przeżywają regenerację (D-62: lokalne nadpisania mają pierwszeństwo).
 
-## Zakres wersji 0.9.0 (E9) — co realnie działa
+## Zakres wersji 1.0.0 — co realnie działa
 
 Od 0.4.0 działa **pierwsza komenda** — `/relai-stage` — i wygenerowany `KOMENDY.md` ma tabelę
 komend. W 0.5.0 doszło **osiem hooków**: sekcja „Czego RelAI pilnuje bez proszenia" urosła
@@ -123,7 +123,7 @@ z siedmiu do dziewięciu pozycji. Działa:
   wersja projektu różni się od wersji pluginu, RelAI mówi o tym na starcie sesji i wskazuje
   `/relai-update` — nie migruje projektu na własną rękę.
 
-Wygenerowany `KOMENDY.md` w wersji 0.9.0 zawiera **tabelę komend z dziewięcioma pozycjami**
+Wygenerowany `KOMENDY.md` w wersji 1.0.0 zawiera **tabelę komend z dziewięcioma pozycjami**
 oraz tabelę fraz naturalnych:
 
 | Komenda | Co robi |
@@ -151,12 +151,12 @@ oraz tabelę fraz naturalnych:
 - Nie opisujesz mechaniki wewnętrznej (skille, hooki) — użytkownika interesuje efekt.
 - Nie wpisujesz punktów profilu, którego ten projekt nie ma.
 
-## Przykład dla wersji 0.9.0 (projekt polski, profil `app`)
+## Przykład dla wersji 1.0.0 (projekt polski, profil `app`)
 
 ```markdown
 # KOMENDY — Parkly
 
-RelAI 0.9.0
+RelAI 1.0.0
 
 Nic z tej listy nie jest obowiązkowe. RelAI działa w zwykłej rozmowie — piszesz normalnie,
 a struktura projektu nadąża. Komendy są skrótem do rzadszych operacji.

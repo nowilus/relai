@@ -5,7 +5,7 @@ argument-hint: ""
 
 # /relai-update — aktualizacja projektu do wersji pluginu
 
-**Ta komenda pochodzi z RelAI 0.9.0** — ta liczba to wersja docelowa aktualizacji. Komenda jest
+**Ta komenda pochodzi z RelAI 1.0.0** — ta liczba to wersja docelowa aktualizacji. Komenda jest
 częścią pluginu, więc jej treść zawsze odpowiada wersji zainstalowanej; przy każdym wydaniu
 pluginu liczba w tym zdaniu jest podbijana.
 
@@ -45,14 +45,14 @@ Nie odtwarzasz historii wersja-po-wersji — porównujesz **stan projektu** z **
 wersji, z której pochodzi ta komenda. Dzięki temu projekt 0.5.0 i projekt 0.8.0 aktualizują się
 tą samą procedurą. Sprawdzasz kolejno:
 
-| Obszar | Stan docelowy 0.9.0 | Jak sprawdzasz |
+| Obszar | Stan docelowy 1.0.0 | Jak sprawdzasz |
 |---|---|---|
 | nadpisania lokalne (R6) | **nietykalne** — cokolwiek znajdziesz, omijasz | `docs/zasoby/HTML_PLAN/` istnieje? wiersz „Szablon planu HTML" w `USTAWIENIA.md`? wiersze „lokalne" w `KOMENDY.md`? |
 | `docs/USTAWIENIA.md` | wiersz `Profil projektu` z wartością maszynową na **początku** komórki: `app`, `agent-voice`, `flow` albo `prompty` | czytasz komórkę; wartość nierozpoznana → propozycja doprecyzowania (nowy wiersz, stary do „Ustawień wycofanych") — **pytasz o profil, nie zgadujesz** (L-0026) |
 | `CLAUDE.md` | sekcja `## Reguły profilu (<profil>)` zaraz po „Regułach procesu" | sekcji brak, a profil rozpoznany → do dodania wg `SPEC_PROFILE.md`; profil nierozpoznany → najpierw poprzedni wiersz |
 | `CLAUDE.md` | linia fraz sesji pod listą rytuału startu | linii brak → do dodania wg `SPEC_CLAUDE_MD.md` (sekcja „Linia fraz sesji"); nie ruszasz przy tym niczego innego w pliku |
-| `docs/KOMENDY.md` | nagłówek `RelAI 0.9.0`, tabela dziewięciu komend (w tym `/relai-adopt`, `/relai-update`), aktualna sekcja zachowań automatycznych | plik regenerowany wg `SPEC_KOMENDY.md`; wiersze oznaczone „lokalne" **przeżywają** regenerację |
-| marker wersji | `Wersja RelAI: 0.9.0` | zmiana **na końcu**, po wykonaniu zatwierdzonych zmian |
+| `docs/KOMENDY.md` | nagłówek `RelAI 1.0.0`, tabela dziewięciu komend (w tym `/relai-adopt`, `/relai-update`), aktualna sekcja zachowań automatycznych | plik regenerowany wg `SPEC_KOMENDY.md`; wiersze oznaczone „lokalne" **przeżywają** regenerację |
+| marker wersji | `Wersja RelAI: 1.0.0` | zmiana **na końcu**, po wykonaniu zatwierdzonych zmian |
 
 Specyfikacje (`SPEC_PROFILE.md`, `SPEC_KOMENDY.md`) czytasz z lokalnej kopii
 `.claude/relai/templates/` — w projekcie RelAI dostarcza ją hook przy starcie sesji. Kopii nie
@@ -94,7 +94,7 @@ kolejne wywołanie tej komendy dokończyło pracę.
 
 1. Wpis na końcu sekcji „Wpisy" `docs/DZIENNIK.md` wg `SPEC_DZIENNIK.md` (D-72): wersja
    z → na, lista wykonanych zmian, lista pominiętych nadpisań lokalnych, co odrzucono.
-2. Propozycja commita: `chore: update RelAI project to 0.9.0`. Commit wyłącznie za zgodą.
+2. Propozycja commita: `chore: update RelAI project to 1.0.0`. Commit wyłącznie za zgodą.
 3. Podsumowanie 2–4 zdania: co się zmieniło, czego nie ruszono i dlaczego, czy coś czeka na
    człowieka.
 

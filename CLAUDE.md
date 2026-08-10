@@ -10,7 +10,7 @@ Czytaj w kolejności, nie skanuj pełnotekstowo repo:
 3. [docs/LEKCJE.md](docs/LEKCJE.md) — wyłącznie sekcja „Zasady aktywne".
 4. [docs/DECYZJE.md](docs/DECYZJE.md) — decyzje zamrożone: **nie proponuj ich ponownie**.
 5. [docs/USTAWIENIA.md](docs/USTAWIENIA.md) — preferencje projektu.
-6. Aktywny plan: [docs/plany/BUDOWA_RELAI/STATUS.md](docs/plany/BUDOWA_RELAI/STATUS.md).
+6. Aktywny plan — linia niżej w sekcji „Stan prac"; obecnie: brak.
 
 ## Stan prac
 
@@ -18,7 +18,7 @@ Czytaj w kolejności, nie skanuj pełnotekstowo repo:
 |---|---|---|
 | Analiza projektów historycznych | ZAKOŃCZONA | DZIENNIK, wpis 2026-08-07 |
 | Wywiad architektoniczny (~90 decyzji) | ZAKOŃCZONY | docs/DECYZJE.md |
-| Master plan budowy | **ZAAKCEPTOWANY 2026-08-07** (Aneks A) | docs/plany/BUDOWA_RELAI/PLAN.html |
+| Master plan budowy | **ZREALIZOWANY 2026-08-10** (Aneks A) | docs/archiwum/plany/BUDOWA_RELAI/PLAN.html |
 | E1 — fundament pluginu (wersja 0.1.0) | **ZREALIZOWANY 2026-08-07** | `.claude-plugin/`, `skills/relai-core/`, `templates/` |
 | E2 — rdzeń dokumentacyjny (wersja 0.2.0) | **ZREALIZOWANY 2026-08-07** | `skills/relai-core/SKILL.md`, `templates/SPEC_{LEKCJE,DECYZJE}.md` |
 | E3 — planowanie (wersja 0.3.0) | **ZREALIZOWANY 2026-08-07** | `skills/relai-planning/SKILL.md`, `templates/SPEC_{PLAN,STATUS}.md` |
@@ -28,7 +28,10 @@ Czytaj w kolejności, nie skanuj pełnotekstowo repo:
 | E7 — sześć komend operacyjnych, propozycja wycieczki (wersja 0.7.0) | **ZREALIZOWANY 2026-08-08** | `commands/`, `hooks/session-context.js`, `templates/SPEC_KOMENDY.md` |
 | E8 — profile projektów i reguły warunkowe (wersja 0.8.0) | **ZREALIZOWANY 2026-08-08** | `templates/SPEC_{PROFILE,ARCHITEKTURA,DESIGN,SRODOWISKA,SNAPSHOT}.md`, `hooks/profile-rules.js`, `hooks/config-protection.js` |
 | E9 — adopcja i aktualizacja projektu (wersja 0.9.0) | **ZREALIZOWANY 2026-08-09** | `commands/relai-{adopt,update}.md`, `templates/SPEC_RAPORT_ADOPCJI.md` |
-| Pilotaż (E10) | OCZEKUJE | docs/plany/BUDOWA_RELAI/STATUS.md |
+| E10 — pilotaż, cztery scenariusze akceptacyjne, **wydanie 1.0.0** | **ZREALIZOWANY 2026-08-10** | docs/archiwum/plany/BUDOWA_RELAI/, DZIENNIK wpis 2026-08-10 |
+| **Plan BUDOWA_RELAI** | **ZAMKNIĘTY 2026-08-10** — wszystkie 10 etapów dowiezione | docs/archiwum/plany/BUDOWA_RELAI/STATUS.md |
+
+Aktywny plan: brak
 
 ## Reguły procesu
 

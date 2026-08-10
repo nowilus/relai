@@ -5,7 +5,7 @@
 Plugin do Claude Code, który zamienia rozmowę z agentem w prowadzony projekt: ustalenia, decyzje,
 stan prac i historia zostają w plikach, a nie w kontekście sesji, który za chwilę zniknie.
 
-> Wersja 0.9.0 — rdzeń dokumentacyjny, planowanie, wykonywanie etapów, dziewięć hooków, interaktywny
+> Wersja 1.0.0 — rdzeń dokumentacyjny, planowanie, wykonywanie etapów, dziewięć hooków, interaktywny
 > plan HTML, **dziewięć komend** i **cztery profile projektów**. Działa inicjalizacja projektu,
 > wykrywanie struktury, rytuały sesji, rejestry lekcji i decyzji, cztery frazy rytualne, plany
 > (PLAN z etapami / miniplan w dzienniku, zamrożenie i aneksy) w Markdown **albo** w jednym
@@ -16,7 +16,11 @@ stan prac i historia zostają w plikach, a nie w kontekście sesji, który za ch
 > cofnięcie) z **aktualizacją projektu do wersji pluginu** (`/relai-update`) oraz hooki: blokada
 > sekretów, ochrona konfiguracji, przypomnienia o synchronizacji dokumentów i `session-context`
 > wymuszający rytuał startu niezależnie od skilli.
-> Aktualny zakres: [docs/plany/BUDOWA_RELAI/STATUS.md](docs/plany/BUDOWA_RELAI/STATUS.md).
+>
+> Wersja 1.0.0 zamyka pilotaż: cztery scenariusze akceptacyjne przeszły na realnych projektach —
+> pełny cykl nowego projektu, przekazanie z wycieczką, kopia zapasowa z odtworzeniem oraz adopcja
+> żywego projektu (194 pliki, zero utraconych, sekret poza archiwum) z odtworzeniem stanu sprzed
+> adopcji bajt w bajt.
 
 ## Instalacja
 
@@ -31,7 +35,7 @@ stan prac i historia zostają w plikach, a nie w kontekście sesji, który za ch
 Po instalacji otwórz Claude Code w folderze projektu i napisz cokolwiek — RelAI zapyta o zgodę na
 utworzenie struktury.
 
-## Co robi wersja 0.9.0
+## Co robi wersja 1.0.0
 
 | Sytuacja | Zachowanie |
 |---|---|

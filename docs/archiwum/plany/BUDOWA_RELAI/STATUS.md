@@ -1,6 +1,6 @@
 # STATUS — plan BUDOWA_RELAI
 
-Plan: [PLAN.html](PLAN.html) • Utworzony: 2026-08-07 • Status planu: **ZAAKCEPTOWANY 2026-08-07 (Aneks A)** • Model wykonawczy: **Opus** (D-85)
+Plan: [PLAN.html](PLAN.html) • Utworzony: 2026-08-07 • Status planu: **ZREALIZOWANY 2026-08-10** • Model wykonawczy: **Opus** (D-85)
 
 ## Tabela etapów
 
@@ -15,7 +15,7 @@ Plan: [PLAN.html](PLAN.html) • Utworzony: 2026-08-07 • Status planu: **ZAAKC
 | E7 | Komendy operacyjne (backup, audit, changelog, handover, tour) | **ZREALIZOWANY 2026-08-08** | [PROMPT_ETAP_7.md](PROMPT_ETAP_7.md) | plugin 0.7.0: sześć komend + `/relai-help`; sygnał „nieznany autor" w hooku `session-context` (D-27) z reakcją opisaną w `relai-core`; dowody negatywne D-42, D-45 i D-07 przeszły; L-0021…L-0023 |
 | E8 | Profile (app / agent-voice / flow / prompty) | **ZREALIZOWANY 2026-08-08** | [PROMPT_ETAP_8.md](PROMPT_ETAP_8.md) | plugin 0.8.0: pięć specyfikacji profili, hook `profile-rules`, bramka snapshotu w `config-protection`; reguła w trzech warstwach (CLAUDE.md / hook / skill); dowody negatywne D-51 i D-42 przeszły; L-0024…L-0027 |
 | E9 | Adopcja (/relai-adopt) + /relai-update | **ZREALIZOWANY 2026-08-09** | [PROMPT_ETAP_9.md](PROMPT_ETAP_9.md) | plugin 0.9.0: `/relai-adopt` (backup-bramka, scalanie CLAUDE.md D-71, raport z recovery) + `/relai-update` (diff, zgoda, nadpisania lokalne — R6 domknięte); recovery przetestowane sumą drzewa bajt w bajt; wykonany przez **Fable** na jawne polecenie użytkownika (odstępstwo od D-85 w dzienniku) |
-| E10 | Pilotaż + scenariusze akceptacyjne | **GOTOWY DO STARTU** | [PROMPT_ETAP_10.md](PROMPT_ETAP_10.md) | nowy projekt + adopcja JiraManager. **Kontrola R2 (pierwszy pomiar wykonany 2026-08-07, 2/2 po 0.3.1):** powtórzyć w **sesji interaktywnej** (tryb `-p` blokuje `AskUserQuestion`, więc pełny cykl plan → pliki nie był mierzony) i sprawdzić powtarzalność na kilku przebiegach, osobno dla `relai-core` i `relai-planning`; tamże pomiary interaktywne przeniesione z E9 (lista w prompcie etapu) |
+| E10 | Pilotaż + scenariusze akceptacyjne | **ZREALIZOWANY 2026-08-10** | [PROMPT_ETAP_10.md](PROMPT_ETAP_10.md) | wersja 1.0.0: cztery scenariusze D-83 przeszły na realnych projektach (Paragony od zera, adopcja JiraManagera). R2 zmierzone per model — na Opusie skill wyzwala się i procedura wykonuje się w całości, na Sonnecie/Haiku niesie ją hook. Trzy defekty znalezione i poprawione: symulator jako komponent obowiązkowy, frazy sesji bez warstwy nośnej, sygnały hooka za instrukcją rytuału |
 
 ## Dziennik wdrożenia
 
@@ -120,3 +120,11 @@ Plan: [PLAN.html](PLAN.html) • Utworzony: 2026-08-07 • Status planu: **ZAAKC
   na ścieżce ze spacją i „ó": bramka backupu (2 dowody), adopcja pełna (kod bajt w bajt, D-70,
   D-71, D-42), recovery (suma drzewa identyczna), update bez zgody / ze zgodą (nadpisania lokalne
   3/3). R6 zamknięte, R3 obniżone do średniego. Wygenerowano PROMPT_ETAP_10.
+- 2026-08-10 — **E10 ZREALIZOWANY** (Fable, jawne polecenie użytkownika — odstępstwo od D-85).
+  Pilotaż na dwóch realnych projektach, siedemnaście sesji interaktywnych prowadzonych przez
+  użytkownika. Cztery scenariusze D-83: nowy projekt „Paragony" od inicjalizacji po zamknięcie
+  planu (4 etapy, plan HTML, `docs/archiwum/plany/`, `Aktywny plan: brak`); przekazanie (pakiet
+  194 KB offline) i wycieczka po cudzym podpisie; backup z odtworzeniem (157/157 plików);
+  adopcja JiraManagera (194 pliki, zero utraconych, `config.json` z tokenem poza archiwum,
+  6/8 sekcji scalonych bajt w bajt) z recovery na kopii (192/192, `git log -1` = `b52c013`).
+  Trzy defekty poprawione i zmierzone ponownie. Plan zamknięty, wersja **1.0.0**.
