@@ -1335,3 +1335,33 @@ tryb `-p` nie obsługuje `AskUserQuestion` ani potwierdzeń hooków (L-0005, L-0
 - JiraManager jest **zaadoptowany**: ma strukturę RelAI, raport adopcji i backup. Zmiany nie są
   zacommitowane — commit należy do właściciela projektu.
 - Rozstrzygnąć, czy guard hooków ma rozpoznawać pliki po ścieżce (pozycja ze „świadomie odłożone").
+
+### 2026-08-10 — Domknięcie pilotażu: `/relai-update` na projekcie pilotażowym
+
+Autor: RelAI (Fable) + Lukasz
+
+**Zrobione:**
+- Ostatni pomiar odłożony z listy „przeniesione z trybu `-p`": `/relai-update` wykonany na żywo
+  w projekcie „Paragony" (0.9.0 → 1.0.0), w sesji interaktywnej prowadzonej przez użytkownika.
+- Usunięte foldery testowe po pomiarze R2 (`Desktop\Próba E10`). Archiwa backupów zostają —
+  kopia JiraManagera sprzed adopcji jest jedyną drogą jej cofnięcia.
+
+**Zweryfikowane — jak dokładnie:**
+- Marker: `Wersja RelAI: 1.0.0`, data inicjalizacji `2026-08-09` **zachowana**.
+- `docs/KOMENDY.md` zregenerowany — nagłówek `RelAI 1.0.0`.
+- **Dowód negatywny zakresu:** commit `108e49c` objął dokładnie trzy pliki
+  (`USTAWIENIA.md`, `KOMENDY.md`, `DZIENNIK.md`). `CLAUDE.md` **nie został tknięty** — mimo
+  że komenda ma w inwentaryzacji wiersz o linii fraz sesji. Rozpoznała ją jako **obecną** i nie
+  dołożyła drugiej: `grep` po „Frazy sesji" zwraca **1** wystąpienie, nie 2.
+- Wpis w dzienniku projektu zawiera osobną sekcję „Pominięte jako nadpisania lokalne" z jawnym
+  powodem przy każdej pozycji — czyli zachowanie z D-72 działa także wtedy, gdy nadpisań nie ma.
+- Kolejność zgodna z procedurą: zmiany plików, marker wersji na końcu.
+
+**Świadomie odłożone:**
+- Aktualizacja JiraManagera do 1.0.0 — projekt jest po adopcji i zmiany nie są zacommitowane;
+  decyzja i moment należą do właściciela.
+
+**Do zrobienia przez człowieka:**
+- Zdecydować o dalszym losie projektu pilotażowego `Desktop\Paragony`.
+- Zacommitować zmiany adopcyjne w JiraManagerze (struktura RelAI + raport adopcji czekają
+  w drzewie roboczym).
