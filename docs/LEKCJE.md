@@ -87,6 +87,9 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
     w ściądze dla człowieka. Skill wyzwala się zawodnie (R2), a `KOMENDY.md` nikt nie czyta na
     starcie. Regułę niesie warstwa obecna w kontekście każdej sesji; skill dokłada procedurę.
     (L-0030)
+31. `claude plugin update` **nie działa od razu**: do restartu aplikacji sesje ładują stary cache,
+    choć `installed_plugins.json` pokazuje już nową wersję. Mechanizm kontrolny tego nie wykryje,
+    bo sam jest starą wersją. Po wydaniu: restart aplikacji, potem pomiar. (L-0031)
 
 ## Lekcje
 
@@ -498,3 +501,24 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
   To jest wniosek z E8 (reguły profilu) zastosowany do fraz rytualnych.
 - **Źródło:** pomiar R2 w pilotażu E10 (2026-08-09). Po poprawce `CLAUDE.md` niesie jedną linię
   z trzema frazami, z wyróżnionym trzecim członem pierwszej z nich.
+
+### L-0031 — Aktualizacja pluginu działa dopiero po restarcie aplikacji · 2026-08-10 · AKTYWNA
+
+- **Trigger:** zaraz po wydaniu 1.0.0 sesja wykonała `/relai:relai-update` w zaadoptowanym
+  JiraManagerze i orzekła: „wersja projektu 0.9.0, wersja docelowa 0.9.0, brak zmian" — mimo że
+  `claude plugin update` zameldował „updated from 0.9.0 to 1.0.0", a `installed_plugins.json`
+  pokazywał `1.0.0` z aktualnym `gitCommitSha`.
+- **Przyczyna:** `plugin update` podmienia wpis instalacji i pobiera nowy katalog cache, ale
+  **działająca aplikacja nadal ładuje stary** — komunikat „Restart to apply changes" jest
+  dosłowny. W transkrypcie tamtej sesji jedyna ścieżka pluginu to `cache\…\relai\0.9.0`. Gorzej:
+  mechanizm, który miał to wyłapać (porównanie wersji projektu z wersją pluginu w kroku 1
+  `/relai-update`), **sam pochodził ze starej wersji** — hook 0.9.0 porównał 0.9.0 z 0.9.0,
+  zobaczył zgodność i zamilkł. Kontrola wbudowana w wersję X nie wykryje, że działa wersja X
+  zamiast Y.
+- **Zasada:** po `claude plugin update` **zrestartuj aplikację**, zanim cokolwiek zmierzysz albo
+  uruchomisz na nowej wersji. Weryfikacja, którą wersję naprawdę wykonuje sesja: ścieżka cache
+  w transkrypcie albo treść pliku, który się zmienił — nie `installed_plugins.json` i nie
+  komunikat CLI. To jest L-0020 rozszerzone o warstwę czwartą: `plugin details` kłamie o wersji
+  z marketplace, `plugin install` na zainstalowanym jest no-opem, `plugin update` porównuje numer
+  wersji, a **cache w pamięci aplikacji przeżywa je wszystkie do restartu**.
+- **Źródło:** domknięcie pilotażu E10 (2026-08-10), po wydaniu 1.0.0.

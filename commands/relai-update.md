@@ -34,7 +34,12 @@ ten folder nie jest projektem RelAI; nowy projekt zakłada inicjalizacja, istnie
 
 Rozstrzygnięcie:
 
-- **równe** → „Projekt jest aktualny (X)." — koniec, bez wpisu w dzienniku;
+- **równe** → „Projekt jest aktualny (X)." — koniec, bez wpisu w dzienniku. Dopisz **jedno zdanie**
+  na wypadek, gdy użytkownik właśnie zaktualizował plugin i spodziewa się różnicy: aktualizacja
+  pluginu wchodzi w życie **dopiero po restarcie aplikacji**, więc sesja uruchomiona wcześniej
+  wykonuje starą wersję tej komendy i widzi starą wersję docelową (L-0031). Nie potrafisz tego
+  sprawdzić od środka — wersja, którą widzisz, jest tą, którą wykonujesz — więc po prostu o tym
+  powiedz i zaproponuj restart plus ponowne wywołanie;
 - **projekt nowszy niż plugin** → nie cofasz projektu; powiedz wprost, że to plugin wymaga
   aktualizacji (`claude plugin update relai@relai`), i zakończ;
 - **projekt starszy** → kroki 2–5.
