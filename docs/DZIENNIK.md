@@ -1365,3 +1365,90 @@ Autor: RelAI (Fable) + Lukasz
 - Zdecydować o dalszym losie projektu pilotażowego `Desktop\Paragony`.
 - Zacommitować zmiany adopcyjne w JiraManagerze (struktura RelAI + raport adopcji czekają
   w drzewie roboczym).
+
+### 2026-08-10 — Audyt gotowości 1.0.0, wizytówka GitHubowa i domknięcie dogfoodingu
+
+Autor: RelAI (Opus) + Lukasz
+
+**Zrobione:**
+
+- **Audyt przed przepinaniem kolejnych projektów** — na żądanie użytkownika, mierzony na żywo, nie
+  odczytany z dziennika. Wynik i pięć znalezionych pułapek: niżej.
+- **README przepisany na wizytówkę GitHubową**: narracja problem → mechanizm zamiast wyliczanki
+  funkcji, zwinięta sekcja English z instalacją, tabela komend z ikonami, tabela „czego RelAI
+  pilnuje bez proszenia", anonimizowane liczby z pilotażu (projekt A / projekt B zamiast nazw),
+  jawna sekcja ograniczeń („co warto wiedzieć przed użyciem"), kontakt zwrotny, licencja.
+  Szczegóły techniczne — struktura repo, konwencja hook-guard, profile — zwinięte w `<details>`,
+  żeby pierwszy ekran czytała osoba nietechniczna.
+- **Identyfikacja wizualna** w `docs/zasoby/branding/` w kierunku „Warsztat" zamrożonym w E6:
+  banner nagłówkowy, logo kwadratowe, diagram „jak to działa" (pętla czterech kroków + pasek
+  zachowań automatycznych) i dziewięć ikon komend. Skrypt `zbuduj.js` osadza podzbiory Kalam 700
+  i Hanken Grotesk w plikach SVG — GitHub renderuje SVG jako obraz, więc font z zewnątrz by się
+  nie wczytał. Ikony są bez tekstu, więc bez fontów: 4998 bajtów na dziewięć plików.
+- **`LICENSE` — MIT**, decyzja użytkownika w tej sesji. Sekcja licencji w README przestała odsyłać
+  do przyszłości.
+- **Domknięcie dogfoodingu:** repo dostało brakujące `docs/STATE.md` i `docs/KOMENDY.md`
+  wygenerowane wg specyfikacji (projekt powstał w 0.1.0, zanim te dokumenty istniały). Rytuał
+  startu w `CLAUDE.md` uzupełniony o STATE jako pozycję drugą.
+
+**Zweryfikowane — jak dokładnie:**
+
+- **Składnia:** `node --check` na dziewięciu hookach i `templates/HTML_PLAN/zbuduj.js` — 10/10 OK.
+- **Konwencja hook-guard, dowód negatywny:** wszystkie dziewięć hooków uruchomione z payloadem
+  wskazującym folder bez markera RelAI — 9/9 kończy z kodem 0 i **pustym** `stdout`. To jest
+  gwarancja dla cudzych projektów użytkownika.
+- **`secret-scanner`:** klucz w formacie `sk-…` w pliku śledzonym → `permissionDecision: deny`;
+  ten sam zapis do `.env` w projekcie z `.gitignore` → cisza. Hook zadziałał też **na żywo w tej
+  sesji**: zablokował zapis pliku testowego zawierającego atrapę klucza (dowód, że jest aktywny,
+  a nie tylko poprawny składniowo).
+- **`config-protection`, cztery bramki:** edycja `docs/USTAWIENIA.md` → `ask`; edycja sekcji
+  niemutowalnej `CLAUDE.md` → `ask`; edycja tego samego pliku **poza** sekcją → cisza; profil
+  `flow`, zmiana `workflow.json` bez snapshotu → `ask`, a po położeniu kopii o identycznej treści
+  w `docs/snapshoty/` → cisza. Bramka porównuje po treści, nie po nazwie pliku.
+- **`session-context`:** w projekcie testowym skopiował komplet specyfikacji (20 pozycji) i wstrzyknął
+  datę dnia oraz instrukcję rytuału; poza projektem RelAI — zero bajtów.
+- **Manifest:** `claude plugin validate` → „Validation passed". Numer 1.0.0 spójny w
+  `plugin.json`, `marketplace.json`, obu skillach i komendzie `/relai-update`.
+- **`grep` po starych wersjach (L-0008):** wszystkie trafienia `0.8.0`/`0.9.0` są historyczne
+  („nowe w 0.8.0", wiersze etapów) — żadne nie opisuje wersji bieżącej.
+- **Sekrety w plikach śledzonych:** skan całego indeksu gita — jedyne trafienie to atrapa
+  `SECRET_TOKEN` opisana w tym dzienniku jako dowód negatywny D-42. `.gitignore` pokrywa `.env`,
+  `*.key`, `*.pem`, `client_secret*.json`.
+- **Grafika:** banner sprawdzony w trybie `<img src="data:…">` (tak renderuje go GitHub) na motywie
+  jasnym i ciemnym — osadzony Kalam wczytuje się w obu. Wszystkie ścieżki obrazów z README
+  istnieją; katalog identyfikacji waży 405 KB.
+
+**Pięć pułapek znalezionych w audycie:**
+
+1. **Zainstalowany plugin jest dwa commity za repo** — cache stoi na `4b484b6`, HEAD na `c260bad`.
+   Wersja z cache nie ma ostrzeżenia o restarcie w `/relai-update` (L-0031). To dokładnie ten
+   defekt, który użytkownik zobaczył wczoraj na JiraManagerze.
+2. **R2 — zależność od modelu**, potwierdzona jako trwała własność, nie usterka.
+3. **Guard rozpoznaje projekt po katalogu roboczym sesji, nie po ścieżce pliku** — świadomie
+   odłożone przed 1.0.0, nadal aktualne; objawia się w obie strony (cudzy `CLAUDE.md` bez
+   ostrzeżenia, plik spoza projektu blokowany przez skaner).
+4. **R5 — dokumenty rosną**, bez mechanizmu rotacji; `/relai-audit` wykrywa, nie naprawia.
+5. **Repozytorium jest prywatne i bez opisu na GitHubie** — instalacja u kogokolwiek innego dziś
+   nie zadziała.
+
+**Świadomie odłożone:**
+
+- **Badge'y `shields.io`** — wymagałyby pobierania obrazów z zewnętrznego serwisu przy każdym
+  otwarciu README. Wersja, licencja i wymagania podane tekstem pod bannerem.
+- **Eksport PNG** logo i ikon — SVG wystarcza GitHubowi; raster dopiero wtedy, gdy pojawi się
+  miejsce, które go wymaga (np. awatar organizacji).
+- **Wiersz „Profil projektu" w `docs/USTAWIENIA.md` tego repo nie jest żadną z czterech wartości
+  listy zamkniętej** („Narzędzie/plugin (odpowiednik profilu…)"), więc bramka profilu
+  w `config-protection` dla tego repo nie działa. Nie ruszane — zmiana profilu jest decyzją
+  człowieka, nie porządkiem przy okazji README.
+
+**Do zrobienia przez człowieka:**
+
+- **Zaktualizować zainstalowany plugin przed przepinaniem kolejnych projektów:**
+  `claude plugin marketplace update relai` → `claude plugin update relai@relai` → **restart
+  aplikacji**.
+- Zdecydować o upublicznieniu repozytorium i dopisać opis na GitHubie — bez tego README nie ma
+  do kogo trafić.
+- Potwierdzić brzmienie nazwiska w `LICENSE` („Łukasz Nowakowski", rok 2026).
+- Nadal otwarte z poprzedniego wpisu: los projektu pilotażowego `Desktop\Paragony`, commit zmian
+  adopcyjnych w JiraManagerze, decyzja o guardzie rozpoznającym pliki po ścieżce.

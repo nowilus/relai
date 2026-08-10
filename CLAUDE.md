@@ -6,11 +6,12 @@ Ten folder to repo pluginu **RelAI** („Twój projekt pamięta wszystko") — f
 
 Czytaj w kolejności, nie skanuj pełnotekstowo repo:
 1. Ten plik.
-2. [docs/DZIENNIK.md](docs/DZIENNIK.md) — sekcja „Stan otwartych ryzyk" + ostatni wpis.
-3. [docs/LEKCJE.md](docs/LEKCJE.md) — wyłącznie sekcja „Zasady aktywne".
-4. [docs/DECYZJE.md](docs/DECYZJE.md) — decyzje zamrożone: **nie proponuj ich ponownie**.
-5. [docs/USTAWIENIA.md](docs/USTAWIENIA.md) — preferencje projektu.
-6. Aktywny plan — linia niżej w sekcji „Stan prac"; obecnie: brak.
+2. [docs/STATE.md](docs/STATE.md) — stan na dziś, cały plik; jest krótki.
+3. [docs/DZIENNIK.md](docs/DZIENNIK.md) — sekcja „Stan otwartych ryzyk" + ostatni wpis.
+4. [docs/LEKCJE.md](docs/LEKCJE.md) — wyłącznie sekcja „Zasady aktywne".
+5. [docs/DECYZJE.md](docs/DECYZJE.md) — decyzje zamrożone: **nie proponuj ich ponownie**.
+6. [docs/USTAWIENIA.md](docs/USTAWIENIA.md) — preferencje projektu.
+7. Aktywny plan — linia niżej w sekcji „Stan prac"; obecnie: brak.
 
 ## Stan prac
 

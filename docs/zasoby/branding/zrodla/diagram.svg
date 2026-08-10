@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 620" width="1200" height="620"
+     role="img" aria-labelledby="tytul opis">
+  <title id="tytul">Jak działa RelAI — pętla pamięci projektu</title>
+  <desc id="opis">Cztery kroki: rozmawiasz, RelAI zapisuje, pliki leżą w repozytorium, nowa sesja czyta je na starcie. Pętla wraca do początku. Pod spodem trzy rzeczy, których pilnują hooki.</desc>
+
+  <defs>
+    <style>/*{{FONTY}}*/
+      .pis { font-family: 'Kalam', 'Segoe Script', 'Bradley Hand', cursive; }
+      .ui  { font-family: 'Hanken Grotesk', 'Segoe UI', system-ui, -apple-system, sans-serif; }
+    </style>
+    <pattern id="kropki" width="26" height="26" patternUnits="userSpaceOnUse">
+      <circle cx="2" cy="2" r="1.3" fill="#d5c3a4" opacity=".5"/>
+    </pattern>
+    <filter id="cien-s" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="4" stdDeviation="6" flood-color="#5a482c" flood-opacity=".14"/>
+    </filter>
+    <marker id="grot" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1 L 9 5 L 0 9 z" fill="#c4643c"/>
+    </marker>
+  </defs>
+
+  <rect width="1200" height="620" rx="28" fill="#f2e9d8"/>
+  <rect width="1200" height="620" rx="28" fill="url(#kropki)"/>
+  <circle cx="1160" cy="24" r="130" fill="#c4643c" opacity=".05"/>
+  <circle cx="40" cy="600" r="100" fill="#5f8a68" opacity=".06"/>
+
+  <text class="pis" x="60" y="76" font-size="38" font-weight="700" fill="#312c25">Jak to działa</text>
+  <text class="ui" x="60" y="108" font-size="19" fill="#6b6055">Pamięć projektu nie mieszka w kontekście sesji, tylko w plikach obok kodu.</text>
+
+  <!-- strzałki między krokami -->
+  <g fill="none" stroke="#c4643c" stroke-width="3" stroke-linecap="round" marker-end="url(#grot)" opacity=".75">
+    <path d="M 322 250 L 358 250"/>
+    <path d="M 602 250 L 638 250"/>
+    <path d="M 882 250 L 918 250"/>
+  </g>
+
+  <!-- krok 1 -->
+  <g transform="rotate(-1.2 186 250)">
+    <rect x="60" y="150" width="252" height="200" rx="20" fill="#fffdf7" stroke="#e6d8bd" stroke-width="1.5" filter="url(#cien-s)"/>
+    <circle cx="86" cy="176" r="8" fill="#c4643c"/>
+    <text class="ui" x="104" y="182" font-size="13" font-weight="700" letter-spacing="2.4" fill="#c4643c">KROK 1</text>
+    <text class="pis" x="86" y="234" font-size="34" font-weight="700" fill="#312c25">Rozmawiasz</text>
+    <text class="ui" x="86" y="270" font-size="17" fill="#6b6055">Zwykłym językiem.</text>
+    <text class="ui" x="86" y="294" font-size="17" fill="#6b6055">Bez komend, bez składni,</text>
+    <text class="ui" x="86" y="318" font-size="17" fill="#6b6055">bez uczenia się narzędzia.</text>
+  </g>
+
+  <!-- krok 2 -->
+  <g transform="rotate(1 466 250)">
+    <rect x="340" y="150" width="252" height="200" rx="20" fill="#fffdf7" stroke="#e6d8bd" stroke-width="1.5" filter="url(#cien-s)"/>
+    <circle cx="366" cy="176" r="8" fill="#d9a134"/>
+    <text class="ui" x="384" y="182" font-size="13" font-weight="700" letter-spacing="2.4" fill="#c4643c">KROK 2</text>
+    <text class="pis" x="366" y="234" font-size="34" font-weight="700" fill="#312c25">RelAI zapisuje</text>
+    <text class="ui" x="366" y="270" font-size="17" fill="#6b6055">Stan, decyzje, lekcje —</text>
+    <text class="ui" x="366" y="294" font-size="17" fill="#6b6055">w tej samej turze, w której</text>
+    <text class="ui" x="366" y="318" font-size="17" fill="#6b6055">coś się zmieniło.</text>
+  </g>
+
+  <!-- krok 3 -->
+  <g transform="rotate(-0.8 746 250)">
+    <rect x="620" y="150" width="252" height="200" rx="20" fill="#fffdf7" stroke="#e6d8bd" stroke-width="1.5" filter="url(#cien-s)"/>
+    <circle cx="646" cy="176" r="8" fill="#5f8a68"/>
+    <text class="ui" x="664" y="182" font-size="13" font-weight="700" letter-spacing="2.4" fill="#c4643c">KROK 3</text>
+    <text class="pis" x="646" y="234" font-size="34" font-weight="700" fill="#312c25">Pliki zostają</text>
+    <text class="ui" x="646" y="270" font-size="17" fill="#6b6055">Zwykły Markdown w docs/,</text>
+    <text class="ui" x="646" y="294" font-size="17" fill="#6b6055">w gicie, obok kodu.</text>
+    <text class="ui" x="646" y="318" font-size="17" fill="#6b6055">Czytelny też bez agenta.</text>
+  </g>
+
+  <!-- krok 4 -->
+  <g transform="rotate(1.4 1026 250)">
+    <rect x="900" y="150" width="252" height="200" rx="20" fill="#fffdf7" stroke="#e6d8bd" stroke-width="1.5" filter="url(#cien-s)"/>
+    <circle cx="926" cy="176" r="8" fill="#c4643c"/>
+    <text class="ui" x="944" y="182" font-size="13" font-weight="700" letter-spacing="2.4" fill="#c4643c">KROK 4</text>
+    <text class="pis" x="926" y="234" font-size="34" font-weight="700" fill="#312c25">Sesja czyta</text>
+    <text class="ui" x="926" y="270" font-size="17" fill="#6b6055">Nowa sesja zaczyna od</text>
+    <text class="ui" x="926" y="294" font-size="17" fill="#6b6055">rytuału startu i mówi,</text>
+    <text class="ui" x="926" y="318" font-size="17" fill="#6b6055">gdzie jesteśmy.</text>
+  </g>
+
+  <!-- pętla powrotna -->
+  <path d="M 1026 366 C 1026 430 900 428 606 428 C 312 428 186 430 186 366"
+        fill="none" stroke="#c4643c" stroke-width="3" stroke-linecap="round"
+        stroke-dasharray="10 9" marker-end="url(#grot)" opacity=".7"/>
+  <text class="pis" x="606" y="420" font-size="24" text-anchor="middle" fill="#c4643c">i następnym razem agent już wie</text>
+
+  <!-- pasek: co pilnuje się samo -->
+  <g transform="translate(0 66)">
+    <text class="ui" x="60" y="410" font-size="13" font-weight="700" letter-spacing="2.4" fill="#8a7a63">W TLE, BEZ PROSZENIA</text>
+
+    <g transform="rotate(-0.7 245 462)">
+      <rect x="60" y="426" width="342" height="72" rx="16" fill="#fbf4e6" stroke="#e6d8bd" stroke-width="1.5"/>
+      <circle cx="90" cy="462" r="9" fill="#c4643c"/>
+      <text class="ui" x="114" y="456" font-size="17" font-weight="600" fill="#312c25">Sekret nie wejdzie do repo</text>
+      <text class="ui" x="114" y="479" font-size="15" fill="#6b6055">klucz w pliku śledzonym jest blokowany</text>
+    </g>
+
+    <g transform="rotate(0.6 600 462)">
+      <rect x="429" y="426" width="342" height="72" rx="16" fill="#fbf4e6" stroke="#e6d8bd" stroke-width="1.5"/>
+      <circle cx="459" cy="462" r="9" fill="#d9a134"/>
+      <text class="ui" x="483" y="456" font-size="17" font-weight="600" fill="#312c25">Konfiguracja nie zmieni się cicho</text>
+      <text class="ui" x="483" y="479" font-size="15" fill="#6b6055">reguły i ustawienia pytają o zgodę</text>
+    </g>
+
+    <g transform="rotate(-0.5 955 462)">
+      <rect x="798" y="426" width="342" height="72" rx="16" fill="#fbf4e6" stroke="#e6d8bd" stroke-width="1.5"/>
+      <circle cx="828" cy="462" r="9" fill="#5f8a68"/>
+      <text class="ui" x="852" y="456" font-size="17" font-weight="600" fill="#312c25">Zmiana bez wpisu = przypomnienie</text>
+      <text class="ui" x="852" y="479" font-size="15" fill="#6b6055">dokumenty nie zostają w tyle za kodem</text>
+    </g>
+  </g>
+</svg>

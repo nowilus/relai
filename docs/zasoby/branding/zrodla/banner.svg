@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 400" width="1200" height="400"
+     role="img" aria-labelledby="tytul opis">
+  <title id="tytul">RelAI — Twój projekt pamięta wszystko</title>
+  <desc id="opis">Kartka na pinezce z napisem RelAI, obok trzy mniejsze kartki: DZIENNIK, DECYZJE, LEKCJE.</desc>
+
+  <defs>
+    <style>/*{{FONTY}}*/
+      .pis { font-family: 'Kalam', 'Segoe Script', 'Bradley Hand', cursive; }
+      .ui  { font-family: 'Hanken Grotesk', 'Segoe UI', system-ui, -apple-system, sans-serif; }
+    </style>
+
+    <pattern id="kropki" width="26" height="26" patternUnits="userSpaceOnUse">
+      <circle cx="2" cy="2" r="1.3" fill="#d5c3a4" opacity=".55"/>
+    </pattern>
+
+    <filter id="cien" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="6" stdDeviation="9" flood-color="#5a482c" flood-opacity=".16"/>
+    </filter>
+    <filter id="cien-s" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="3" stdDeviation="5" flood-color="#5a482c" flood-opacity=".13"/>
+    </filter>
+  </defs>
+
+  <!-- tło warsztatowe -->
+  <rect width="1200" height="400" rx="28" fill="#f2e9d8"/>
+  <rect width="1200" height="400" rx="28" fill="url(#kropki)"/>
+  <circle cx="1150" cy="30" r="150" fill="#c4643c" opacity=".055"/>
+  <circle cx="30" cy="384" r="118" fill="#5f8a68" opacity=".07"/>
+  <circle cx="700" cy="30" r="60" fill="#d9a134" opacity=".05"/>
+
+  <!-- połączenia: jedna kartka główna karmi trzy rejestry -->
+  <g fill="none" stroke="#d3bf9c" stroke-width="3" stroke-linecap="round">
+    <path d="M 668 200 C 706 200 704 108 740 108"/>
+    <path d="M 668 207 C 700 207 708 210 740 210"/>
+    <path d="M 668 214 C 706 214 704 306 740 306"/>
+  </g>
+
+  <!-- kartka główna -->
+  <g transform="rotate(-1.1 362 207)">
+    <rect x="64" y="96" width="596" height="222" rx="20" fill="#fffdf7" stroke="#e6d8bd" stroke-width="1.5" filter="url(#cien)"/>
+
+    <text class="ui" x="104" y="150" font-size="15" font-weight="600" letter-spacing="4.2" fill="#c4643c">PLUGIN DO CLAUDE CODE</text>
+
+    <text class="pis" x="100" y="252" font-size="104" font-weight="700" fill="#312c25">Rel<tspan fill="#c4643c">AI</tspan></text>
+
+    <path d="M 106 268 C 190 261 300 261 384 267" fill="none" stroke="#d9a134" stroke-width="5" stroke-linecap="round" opacity=".55"/>
+
+    <text class="ui" x="104" y="300" font-size="25" font-weight="500" fill="#6b6055">Twój projekt pamięta wszystko.</text>
+
+    <!-- pinezka -->
+    <g filter="url(#cien-s)">
+      <circle cx="362" cy="100" r="13" fill="#c4643c"/>
+      <circle cx="358" cy="96" r="4.5" fill="#e79a78" opacity=".85"/>
+    </g>
+  </g>
+
+  <!-- taśma malarska -->
+  <g transform="rotate(-9 136 94)" opacity=".34">
+    <rect x="70" y="76" width="134" height="36" rx="3" fill="#d9a134"/>
+    <rect x="70" y="76" width="134" height="36" rx="3" fill="none" stroke="#b98a2c" stroke-width="1"/>
+  </g>
+
+  <!-- trzy rejestry -->
+  <g transform="rotate(2.2 922 108)">
+    <rect x="744" y="64" width="356" height="88" rx="16" fill="#fffdf7" stroke="#e6d8bd" stroke-width="1.5" filter="url(#cien-s)"/>
+    <circle cx="772" cy="82" r="8" fill="#c4643c"/>
+    <text class="pis" x="796" y="106" font-size="30" font-weight="700" fill="#312c25">DZIENNIK</text>
+    <text class="ui" x="797" y="132" font-size="16.5" fill="#6b6055">wpis w tej samej turze, co zmiana</text>
+  </g>
+
+  <g transform="rotate(-1.6 922 210)">
+    <rect x="744" y="166" width="356" height="88" rx="16" fill="#fffdf7" stroke="#e6d8bd" stroke-width="1.5" filter="url(#cien-s)"/>
+    <circle cx="772" cy="184" r="8" fill="#d9a134"/>
+    <text class="pis" x="796" y="208" font-size="30" font-weight="700" fill="#312c25">DECYZJE</text>
+    <text class="ui" x="797" y="234" font-size="16.5" fill="#6b6055">raz zamrożone — nie wracają jako pytanie</text>
+  </g>
+
+  <g transform="rotate(2.8 922 312)">
+    <rect x="744" y="268" width="356" height="88" rx="16" fill="#fffdf7" stroke="#e6d8bd" stroke-width="1.5" filter="url(#cien-s)"/>
+    <circle cx="772" cy="286" r="8" fill="#5f8a68"/>
+    <text class="pis" x="796" y="310" font-size="30" font-weight="700" fill="#312c25">LEKCJE</text>
+    <text class="ui" x="797" y="336" font-size="16.5" fill="#6b6055">korekta zapisana bez proszenia</text>
+  </g>
+</svg>

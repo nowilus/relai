@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48" role="img" aria-label="Kopia zapasowa">
+  <title>Kopia zapasowa</title>
+  <g fill="none" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="6" y="16" width="36" height="24" rx="5" stroke="#312c25"/>
+    <path d="M6 24h36" stroke="#312c25"/>
+    <path d="M20 31h8" stroke="#312c25" opacity=".55"/>
+    <path d="M24 6v11" stroke="#c4643c"/>
+    <path d="M19 12l5 5 5-5" stroke="#c4643c"/>
+  </g>
+</svg>

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48" role="img" aria-label="Adopcja projektu">
+  <title>Adopcja projektu</title>
+  <g fill="none" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="5" y="9" width="18" height="24" rx="4" stroke="#312c25"/>
+    <path d="M10 17h8M10 23h5" stroke="#312c25" opacity=".55"/>
+    <rect x="27" y="14" width="16" height="26" rx="5" stroke="#c4643c" stroke-dasharray="4 4"/>
+    <path d="M20 39h5" stroke="#c4643c" opacity="0"/>
+    <path d="M23 27h9" stroke="#c4643c"/>
+    <path d="M28 23l4.5 4-4.5 4" stroke="#c4643c"/>
+  </g>
+</svg>
