@@ -110,6 +110,14 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
 37. Scenariusz „konfiguracji nie ma" mierzysz z **podstawionym katalogiem domowym** (`HOME`,
     `USERPROFILE` w env procesu potomnego) — inaczej mierzysz swoją maszynę, nie przypadek
     brzegowy. (L-0037)
+38. Przeniesienie katalogu, na który wskazuje manifest cudzego narzędzia, sprawdzasz **na kopii**
+    walidatorem tego manifestu — dwa przebiegi, z dowodem negatywnym — zanim ruszysz
+    oryginał. (L-0038)
+39. Drzewo dowolnego commita materializujesz `git worktree add --detach`, nie
+    `git archive | tar` — tar na Windows czyta literę dysku jako nazwę hosta. (L-0039)
+40. „Zachowanie nie zmieniło się" dowodzisz, uruchamiając **obie wersje na tym samym wejściu
+    w jednym przebiegu**; różnice zamierzone normalizujesz jawnie w kodzie instrumentu, nie
+    w głowie. (L-0040)
 
 ## Lekcje
 
@@ -628,3 +636,45 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
   (`HOME` i `USERPROFILE` w środowisku procesu potomnego). Bez podstawienia oblany test jest
   fałszywie negatywny, a zielony — fałszywie pozytywny na maszynie bez tej konfiguracji.
 - **Źródło:** E3 planu ROZWOJ_PO_WYDANIU (2026-08-12), instrument `podpis.js`.
+
+### L-0038 — Przeniesienie katalogu, na który wskazuje cudzy manifest, sprawdzasz na kopii · 2026-08-12 · AKTYWNA
+
+- **Trigger:** przed przeniesieniem `skills/`, `commands/` i `hooks/` do `adapters/claude-code/`
+  nie było wiadomo, czy `plugin.json` w ogóle dopuszcza inny układ niż domyślny — a błąd oznaczałby
+  martwy plugin na maszynie użytkownika, wykrywalny dopiero po restarcie aplikacji (L-0031).
+- **Przyczyna:** manifest narzędzia jest kontraktem cudzego runtime'u. Wiedza „chyba wspiera
+  ścieżki" nie jest dowodem, a jedyny naturalny moment na sprawdzenie mija w chwili, gdy oryginał
+  jest już ruszony.
+- **Zasada:** zbuduj kopię docelowego układu poza repozytorium i puść na niej walidator manifestu.
+  Potrzebne są **dwa** przebiegi: układ poprawny → „Validation passed", układ z celowo zepsutą
+  ścieżką → błąd (dowód negatywny, L-0007). Dopiero potem ruszasz oryginał.
+- **Źródło:** E4 planu ROZWOJ_PO_WYDANIU (2026-08-12), `claude plugin validate` na kopii
+  w katalogu tymczasowym; komunikat walidatora („The runtime loader will report this as a load
+  failure") był jednocześnie dowodem, że runtime czyta te ścieżki.
+
+### L-0039 — Kopię drzewa z gita na Windows robisz `git worktree`, nie `git archive | tar` · 2026-08-12 · AKTYWNA
+
+- **Trigger:** instrument porównujący zachowanie hooków przed i po przeniesieniu wysypał się na
+  `tar: Cannot connect to C: resolve failed`.
+- **Przyczyna:** GNU tar czyta ścieżkę `C:\...` jako `host:ścieżka`, czyli adres archiwum zdalnego.
+  Litera dysku wygląda dla niego jak nazwa hosta.
+- **Zasada:** drzewo dowolnego commita materializujesz `git worktree add --detach <katalog> <ref>`
+  i usuwasz `git worktree remove --force`. Działa niezależnie od systemu, nie wymaga pośredniego
+  archiwum i zostawia po sobie czysty stan. Rurociąg `git archive | tar` zostaw dla Uniksa.
+- **Źródło:** E4 planu ROZWOJ_PO_WYDANIU (2026-08-12), instrument `porownanie.js`.
+
+### L-0040 — „Nic się nie zmieniło" dowodzisz dwoma drzewami naraz, nie pamięcią · 2026-08-12 · AKTYWNA
+
+- **Trigger:** po przeniesieniu dziesięciu hooków do nowego katalogu trzeba było wykazać, że każdy
+  zachowuje się identycznie. Oglądanie wyjścia oczami nie skaluje się do osiemnastu scenariuszy
+  i nie wyłapuje różnicy w jednym znaku.
+- **Przyczyna:** porównanie „z pamięci, jak było wcześniej" jest porównaniem z wyobrażeniem.
+  Jedyny wiarygodny punkt odniesienia to poprzednia wersja **uruchomiona teraz**, na tym samym
+  wejściu.
+- **Zasada:** ten sam payload podajesz obu drzewom w jednym przebiegu instrumentu i porównujesz
+  kod wyjścia razem z wyjściem. **Różnice zamierzone normalizujesz jawnie w kodzie instrumentu**
+  (numer wersji, ścieżka drzewa, świadoma zmiana znaku w komunikacie) — z komentarzem, co i
+  dlaczego. Normalizacja opisana w kodzie zostaje dowodem; normalizacja zrobiona w głowie znika.
+- **Źródło:** E4 planu ROZWOJ_PO_WYDANIU (2026-08-12), instrument `porownanie.js` — 18/18
+  scenariuszy zgodnych, jedyna różnica (wielokropek `…` → `...` przy przenoszeniu etykiet do
+  rdzenia, L-0016) wyszła na jaw właśnie dlatego, że porównanie było mechaniczne.

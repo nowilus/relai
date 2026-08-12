@@ -4,10 +4,24 @@
 // Blokuje zapis sekretu do pliku sledzonego przez git; pliki objete .gitignore przechodza.
 // Konwencja hook-guard (README, sekcja "Konwencja: hook-guard"): poza projektem RelAI
 // hook konczy sie kodem 0 bez zadnego efektu; awaria guarda = wyjscie bez efektu.
+//
+// Od 1.4.0 ten plik jest CIENKA WARSTWA adaptera: sama regula "czy to sekret" mieszka
+// w rdzeniu (core/guardrails/secret-scan.js) i nie wie nic o hookach. Tutaj zostaje
+// wylacznie to, co jest wlasciwoscia Claude Code: guard projektu, wyluskanie tresci
+// z tool_input i tlumaczenie werdyktu na permissionDecision.
 
 const fs = require('fs');
 const path = require('path');
 const { spawnSync } = require('child_process');
+
+// Rdzen lezy trzy poziomy wyzej (adapters/claude-code/hooks -> korzen). Awaria require
+// jest traktowana jak awaria guarda: hook milknie zamiast wysypac sie na stderr.
+let scanText;
+try {
+  ({ scanText } = require(path.resolve(__dirname, '..', '..', '..', 'core', 'guardrails', 'secret-scan.js')));
+} catch (_) {
+  process.exit(0);
+}
 
 function isGuest(cwd) {
   try {
@@ -60,28 +74,6 @@ function isGitIgnored(cwd, filePath) {
   }
 }
 
-const PATTERNS = [
-  { label: 'klucz API w formacie sk-…', re: /\bsk-[A-Za-z0-9_-]{16,}\b/ },
-  { label: 'token GitHub (ghp…)', re: /\bghp[_-][A-Za-z0-9]{20,}\b/ },
-  { label: 'klucz AWS (AKIA…)', re: /\bAKIA[0-9A-Z]{16}\b/ },
-  { label: 'token JWT (eyJ…, trzy segmenty)', re: /\beyJ[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\b/ },
-  { label: 'klucz prywatny PEM', re: /-----BEGIN [A-Z ]*PRIVATE KEY-----/ },
-];
-
-const ASSIGN_RE = /\b(PASSWORD|PASSWD|SECRET|TOKEN|API[_-]?KEY|ACCESS[_-]?KEY)\b\s*[:=]\s*["']?([^\s"',;]{8,})/i;
-const PLACEHOLDER_RE = /^(\$|%|<|\{|\*|x{3,}$|your[_-]?|change[_-]?me|placeholder|example|dummy|sample|test[_-]?|todo|tbd|none$|null$|undefined$|\.\.\.|process\.env)/i;
-
-function scan(payload) {
-  for (const p of PATTERNS) {
-    if (p.re.test(payload)) return p.label;
-  }
-  const m = payload.match(ASSIGN_RE);
-  if (m && !PLACEHOLDER_RE.test(m[2])) {
-    return 'przypisanie ' + m[1].toUpperCase() + '= z niepusta wartoscia';
-  }
-  return null;
-}
-
 function main(input) {
   const cwd = input.cwd || process.cwd();
   if (!relaiMarkerFile(cwd)) return process.exit(0);
@@ -100,7 +92,7 @@ function main(input) {
 
   if (isGitIgnored(cwd, filePath)) return process.exit(0);
 
-  const finding = scan(payload);
+  const finding = scanText(payload);
   if (!finding) return process.exit(0);
 
   const rel = path.relative(cwd, filePath) || filePath;

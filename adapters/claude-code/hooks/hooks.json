@@ -1,0 +1,46 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "^(Write|Edit|MultiEdit|NotebookEdit)$",
+        "hooks": [
+          { "type": "command", "command": "node \"${CLAUDE_PLUGIN_ROOT}/adapters/claude-code/hooks/secret-scanner.js\"" },
+          { "type": "command", "command": "node \"${CLAUDE_PLUGIN_ROOT}/adapters/claude-code/hooks/config-protection.js\"" }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "^(Write|Edit|MultiEdit)$",
+        "hooks": [
+          { "type": "command", "command": "node \"${CLAUDE_PLUGIN_ROOT}/adapters/claude-code/hooks/quality-gate.js\"" },
+          { "type": "command", "command": "node \"${CLAUDE_PLUGIN_ROOT}/adapters/claude-code/hooks/console-log-warn.js\"" },
+          { "type": "command", "command": "node \"${CLAUDE_PLUGIN_ROOT}/adapters/claude-code/hooks/design-quality-check.js\"" },
+          { "type": "command", "command": "node \"${CLAUDE_PLUGIN_ROOT}/adapters/claude-code/hooks/profile-rules.js\"" },
+          { "type": "command", "command": "node \"${CLAUDE_PLUGIN_ROOT}/adapters/claude-code/hooks/journal-signature.js\"" }
+        ]
+      },
+      {
+        "matcher": "^Skill$",
+        "hooks": [
+          { "type": "command", "command": "node \"${CLAUDE_PLUGIN_ROOT}/adapters/claude-code/hooks/session-context.js\"" }
+        ]
+      }
+    ],
+    "SessionStart": [
+      {
+        "hooks": [
+          { "type": "command", "command": "node \"${CLAUDE_PLUGIN_ROOT}/adapters/claude-code/hooks/session-context.js\"" }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          { "type": "command", "command": "node \"${CLAUDE_PLUGIN_ROOT}/adapters/claude-code/hooks/doc-sync-reminder.js\"" },
+          { "type": "command", "command": "node \"${CLAUDE_PLUGIN_ROOT}/adapters/claude-code/hooks/auto-format.js\"" }
+        ]
+      }
+    ]
+  }
+}

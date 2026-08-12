@@ -26,7 +26,7 @@ description: >
 
 # relai-planning — plany, etapy i ich zamrażanie
 
-Wersja 1.3.0 (E3 planu ROZWOJ_PO_WYDANIU — poprawki z retrospektywy). Zakres tej wersji: **wykrycie intencji planowania + rozróżnienie
+Wersja 1.4.0 (E4 planu ROZWOJ_PO_WYDANIU — rdzeń przenośny). Zakres tej wersji: **wykrycie intencji planowania + rozróżnienie
 PLAN/MINIPLAN + pytanie startowe + generacja planu w Markdown albo w HTML + `STATUS.md` +
 zamrożenie z aneksami + prompty etapowe `PROMPT_ETAP_N` z lazy-generacją + rytuał „Na koniec" etapu
 + sygnał odchylenia i odnogi planu + **bramki manualne** + zamknięcie planu**. Etap uruchamia komenda `/relai-stage`,
@@ -257,7 +257,7 @@ aktualizacji pluginu.
 
 `.claude/relai/` jest **cache'em pluginu**: hook `session-context` nadpisuje tam pliki przy każdym
 starcie sesji, a `.gitignore` z `*` trzyma cały katalog poza repozytorium. Nadpisanie schowane
-w cache'u przeżyłoby aktualizację pluginu (hook pisze tylko do `templates/`), ale zniknęłoby przy
+w cache'u przeżyłoby aktualizację pluginu (hook pisze tylko do `.claude/relai/templates/`), ale zniknęłoby przy
 klonowaniu repo, na drugiej maszynie i u współpracownika — a to jest świadoma decyzja projektu,
 nie plik tymczasowy. `docs/zasoby/` jest w repo (D-11, D-24), wchodzi do backupu i jest widoczne
 w diffie. Dlatego nadpisanie mieszka tam (mitygacja R6).

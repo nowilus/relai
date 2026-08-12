@@ -11,8 +11,8 @@
 | R5 | Dokumenty puchną i zjadają kontekst | Średni | **OTWARTE — do obserwacji po 1.0.0** | D-14/D-15: rotacja DZIENNIKA, kompresja LEKCJI, destylaty czytane na starcie. **2026-08-08 (E7):** doszły dwa narzędzia po stronie użytkownika — `/relai-audit` wykrywa dziennik ponad progiem 50 KB i lekcje bez destylatu (zmierzone na projekcie testowym: podał rozmiar dziennika i wskazał destylat bez lekcji źródłowej), a `/relai-changelog` daje historię bez trzymania jej w kontekście. Sam pakiet `/relai-handover` waży 201 KB przez osadzone fonty — to plik dla człowieka, nie dla kontekstu sesji, ale pytanie o podzbiór fontów z E6 zostaje otwarte **2026-08-10 (E10):** pilotaż dał pierwsze liczby z realnej pracy. Projekt „Paragony" po czterech etapach: dziennik 382 linie, `CLAUDE.md` 65 linii — mieści się. JiraManager po adopcji: dziennik 124 KB (historia sprzed RelAI), `CLAUDE.md` **434 linie** przy limicie 60, bo limit świadomie ustąpił wierności cudzych reguł (D-71). To jest realny przypadek, w którym mechanizm rotacji i kompresji będzie potrzebny, a `/relai-audit` go wykryje. Ryzyko zostaje otwarte z konkretnym adresem: pierwszy projekt po adopcji, nie hipoteza. **2026-08-12 (E2):** mechanizm powstał — automatyczna rotacja dwufazowa w rytuale zamknięcia sesji, progi i wyłącznik w `USTAWIENIA.md`, archiwum bajt w bajt z linią-odsyłaczem. Zmierzone na projektach testowych: dziennik 317 KB → 132 KB przy sumie przeniesionej treści identycznej z oryginałem, sekcje „Stan otwartych ryzyk" i „Zasady aktywne" nietknięte, przerwanie po fazie 1 zostawia żywy plik z tą samą sumą. Progi skalibrowane na **zmierzonych** dziennikach (JiraManager 348 KB, PolyFlow 223 KB) — próg lekcji zmieniony z martwych „60 lekcji" na „40 wpisów albo 50 KB" (L-0034). Poziom **na razie bez zmiany**: mechanizmu nie zmierzono w świeżej sesji (odnoga `POMIAR_ODNOG`, scenariusze E i F), a dwa projekty z realnym problemem dostaną go dopiero przez `/relai-update`. Zamknięcie po pierwszej rotacji na żywym projekcie. **2026-08-12 (E3):** zaadresowane **źródło** rozrostu, nie tylko skutek — decyzje podejmowane po adopcji idą od 1.3.0 do `DECYZJE.md`, a nie do zastanej tabeli w `CLAUDE.md`, czyli do warstwy czytanej w każdej sesji (JiraManager: 8 takich decyzji i plik na 639 liniach). Poziom **bez zmiany**: reguła istnieje w specyfikacji i w procedurze adopcji, ale ani nie zmierzono jej w świeżej sesji (odnoga `POMIAR_ODNOG`, scenariusz H), ani nie dotarła do JiraManagera — wejdzie tam przez `/relai-update`, co jest otwartą bramką manualną planu. |
 | R6 | Aktualizacja pluginu nadpisze lokalne nadpisania użytkowników | Niski | **ZAMKNIĘTE 2026-08-09 (E9)** | D-72: diff + zgoda + pierwszeństwo lokalnych nadpisań; test w pilotażu. **2026-08-08 (E6):** nadpisanie lokalne umieszczone w `docs/zasoby/HTML_PLAN/` — poza cache'em `.claude/relai/`, którego dotyka hook i aktualizacja pluginu. Zmierzone: po `marketplace update` + `plugin update` + świeżej sesji dziewięć plików nadpisania ma identyczne sumy kontrolne, własny token na miejscu, token z pluginu nie wrócił; cache w tym samym czasie **został** nadpisany (dowód, że test nie jest pusty). Zostaje otwarte do E9: `/relai-update` musi pokazać diff i uszanować nadpisanie. **2026-08-09 (E9):** `/relai-update` działa i szanuje nadpisania — zmierzone na projekcie 0.7.0: trzy pliki `docs/zasoby/HTML_PLAN/` z sumami identycznymi po aktualizacji, wiersz „Szablon planu HTML" nietknięty, wiersz lokalny `KOMENDY.md` przepisany dosłownie do zregenerowanej tabeli; diff pokazany przed zapisem, odmowa zostawia projekt nietknięty (10/10 sum). Ryzyko zamknięte |
 | R7 | Model wykonawczy (Sonnet/Opus) obniży jakość implementacji etapów | Średni | **ZAMKNIĘTE 2026-08-10 (E10)** | Prompty etapowe z sekcją Weryfikacja + przegląd Fable po kluczowych etapach **2026-08-10 (E10):** zmierzone na realnej pracy, nie na deklaracji. Etapy E3 i E4 projektu pilotażowego prowadził **Haiku 4.5** zgodnie z zapisem w `STATUS.md` („mechaniczne — najtańszy") i dowiózł je w całości: 30 testów, rytuał „Na koniec" wykonany, prompt następnego etapu wygenerowany, zamknięcie planu (D-36) przeprowadzone bez błędu — plan w archiwum, `Aktywny plan: brak`, zero martwych linków. Jakość implementacji **nie ucierpiała**; różnica między modelami leży gdzie indziej — w tym, czy skill wyzwala się sam (R2), a nie w tym, czy etap zostanie dowieziony. Jedyny ślad słabszego modelu w dokumentach: dwa wpisy podpisane `RelAI (Haiku)` bez członu `+ <użytkownik>`. Prompt etapowy z sekcją „Weryfikacja" okazał się wystarczającą mitygacją. |
-| P1 | Adaptery Cursor/Codex nie egzekwują blokad harnessu — sekret albo zmiana konfiguracji przejdzie tam, gdzie w Claude Code stoi ściana (plan ROZWOJ_PO_WYDANIU) | Wysoki | **OTWARTE od 2026-08-12 (akceptacja planu)** | Git pre-commit ze skanem sekretów w E4 (działa niezależnie od narzędzia); jawna tabela gwarancji per narzędzie w E5/E7; scenariusz akceptacyjny E6 zawiera próbę zapisu sekretu |
-| P2 | Odpowiednik R2 w Cursor/Codex: bez auto-wyzwalania skilli proces zależy od dyscypliny modelu (plan ROZWOJ_PO_WYDANIU) | Wysoki | **OTWARTE od 2026-08-12 (akceptacja planu)** | Wzorzec L-0030 od początku: reguły niesie warstwa zawsze-w-kontekście (reguły Cursora / AGENTS.md), nie mechanizm wyzwalany; pomiar na scenariuszach w E6, nie na deklaracji |
+| P1 | Adaptery Cursor/Codex nie egzekwują blokad harnessu — sekret albo zmiana konfiguracji przejdzie tam, gdzie w Claude Code stoi ściana (plan ROZWOJ_PO_WYDANIU) | **Średni** (2026-08-12 po E4; wcześniej wysoki) | **OTWARTE** | Git pre-commit ze skanem sekretów w E4 (działa niezależnie od narzędzia); jawna tabela gwarancji per narzędzie w E5/E7; scenariusz akceptacyjny E6 zawiera próbę zapisu sekretu. **2026-08-12 (E4):** pierwsza mitygacja **dowieziona i zmierzona** — gitowy pre-commit blokuje commit z sekretem niezależnie od narzędzia (15/15, dowód negatywny na `git rev-parse HEAD` przed i po, oraz dowód, że test nie jest pusty: po deinstalacji ten sam commit przechodzi). Drugi powód obniżenia poziomu jest z rozpoznania, nie z kodu: `docs/PRZENOSNOSC.md` pokazuje, że **oba** narzędzia mają hooki potrafiące odmówić — Cursor `preToolUse` z `allow \| deny` i kodem wyjścia 2, Codex `PreToolUse` z `permissionDecision: deny` oraz `PermissionRequest`. Założenie planu „Codex bez blokad harnessu" jest nieaktualne. Ryzyko zostaje otwarte, bo rozpoznanie jest z dokumentacji, nie z próby: nie wiadomo, czy `preToolUse` Cursora niesie **treść** zapisu (bez niej nie ma czego skanować) ani które narzędzia Codeksa obejmuje „supported tool call". Zamknięcie po scenariuszu akceptacyjnym E6, który zawiera próbę zapisu sekretu |
+| P2 | Odpowiednik R2 w Cursor/Codex: bez auto-wyzwalania skilli proces zależy od dyscypliny modelu (plan ROZWOJ_PO_WYDANIU) | Wysoki | **OTWARTE od 2026-08-12 (akceptacja planu)** | Wzorzec L-0030 od początku: reguły niesie warstwa zawsze-w-kontekście (reguły Cursora / AGENTS.md), nie mechanizm wyzwalany; pomiar na scenariuszach w E6, nie na deklaracji. **2026-08-12 (E4):** poziom **bez zmiany**, ale warstwa nośna ma teraz adres i twarde ograniczenia. Cursor: `.cursor/rules/*.mdc` z `alwaysApply: true` („Apply to every chat session"), zalecenie producenta poniżej 500 linii na regułę. Codex: `AGENTS.md` czytany „before doing any work", limit `project_doc_max_bytes` = **32 KiB**, sklejanie od korzenia w dół. Obie liczby są twardsze niż nasze dzisiejsze `CLAUDE.md` w projekcie po adopcji (JiraManager: 639 linii) — reguła E3 o kierowaniu decyzji do `DECYZJE.md` dostaje drugie uzasadnienie. Jednocześnie skille Codeksa wyzwalają się po dopasowaniu `description` do zadania, czyli tym samym mechanizmem, który przy R2 okazał się zależny od modelu — dlatego procedura może mieszkać w skillu, ale reguła nie |
 | R8 | Sesja nie ma dostępu do katalogu pluginu — `templates/` ze specyfikacjami jest nieczytelny bez `--add-dir`, więc inicjalizacja projektu (D-60) zatrzymuje się na braku źródła | Wysoki | **ZAMKNIĘTE 2026-08-07 (E5)** | Rozwiązanie: proces hooka ma pełny dostęp do dysku, więc `session-context` kopiuje `templates/*.md` do `.claude/relai/templates/` projektu (SessionStart w projektach RelAI; PostToolUse na wywołaniu skilla RelAI — pokrywa inicjalizację w świeżym folderze) i wstrzykuje ustawienia globalne `~/.claude/relai/` (domyka też L-0010). Zmierzone: inicjalizacja **bez** `--add-dir` dała komplet ośmiu dokumentów, specyfikacje czytane z lokalnej kopii (8/8 plików). D-60 nietknięte — specyfikacje pozostają plikami. Ryzyko szczątkowe: provisioning przy inicjalizacji wymaga wyzwolenia skilla (R2); fallback `--add-dir` opisany w skillach |
 
 ## Wpisy
@@ -1847,4 +1847,121 @@ Autor: RelAI (Opus) + Lukasz
   pierwszym realnym adresatem reguły o decyzjach po adopcji (`CLAUDE.md` na 639 liniach).
   Bramka manualna planu.
 - Uruchomić E4 (`/relai-stage`, świeża sesja **Opus**) albo którąś z dwóch odnóg — kolejność
-  dowolna, odnogi nie blokują planu.
+  dowolna, odnogi nie blokują planu. *(rozstrzygnięte 2026-08-12 — uruchomiono E4)*
+
+### 2026-08-12 — E4: rdzeń przenośny, guardrails jako skrypty, pre-commit ze skanem sekretów, RelAI 1.4.0
+
+Autor: RelAI (Opus) + Lukasz
+
+**Zrobione:**
+
+- **`docs/PRZENOSNOSC.md`** — rozpoznanie stanu faktycznego Cursora i Codexa, każda pozycja z datą
+  sprawdzenia i linkiem do dokumentacji producenta; rzeczy niepotwierdzone oznaczone
+  `<DO UZUPEŁNIENIA: …>` (L-0026), zero zdań pisanych z pamięci modelu. Dokument jest wejściem do
+  E5 i E7. **Dwa ustalenia zmieniają obraz z planu:** Cursor ma `preToolUse` z werdyktem
+  `allow | deny` i hook `sessionStart`, a Codex ma `PreToolUse` z `permissionDecision: deny`,
+  `PermissionRequest` i `UserPromptSubmit` z blokadą — czyli założenie „Codex bez blokad harnessu"
+  (sekcja 5 planu) jest nieaktualne. Tabela gwarancji w E5/E7 będzie listą różnic, nie listą
+  braków. Dopisano też jawnie, czego nie zrobiono: rozpoznanie oparto na dokumentacji, nie na
+  eksperymencie na działającej instalacji.
+- **Wydzielenie rdzenia** — repozytorium ma jawną granicę. `core/` (specyfikacje, guardrails,
+  narzędzia, `MANIFEST.json`, własne `README.md`), `adapters/claude-code/` (skille, komendy,
+  hooki), `.claude-plugin/` zostaje w korzeniu, bo tego wymaga Claude Code, i wskazuje na adapter.
+  Przeniesienie wykonane `git mv` — historia plików zachowana, treść nietknięta.
+- **Skan sekretów jako czysty skrypt rdzenia** — `core/guardrails/secret-scan.js` zna wyłącznie
+  tekst na wejściu i werdykt na wyjściu; jest biblioteką i CLI naraz. Hook
+  `adapters/claude-code/hooks/secret-scanner.js` schudł do cienkiej warstwy: guard projektu,
+  wyłuskanie treści z `tool_input`, tłumaczenie werdyktu na `permissionDecision`. Awaria `require`
+  rdzenia traktowana jest jak awaria guarda — hook milknie zamiast wysypać się na stderr.
+- **Git pre-commit ze skanem sekretów** — `core/guardrails/pre-commit.js` skanuje **treść
+  z indeksu** (`git show :plik`), nie plik z dysku: commitowane jest to, co w indeksie.
+  `core/guardrails/install-precommit.js` instaluje i odinstalowuje go jednym poleceniem, kopiując
+  do `.git/hooks/` hook **i** kopię skanera — dzięki temu hook przeżyje aktualizację, przeniesienie
+  albo odinstalowanie pluginu. Brak Node.js w `PATH` → odmowa z jednym zdaniem wyjaśnienia, bez
+  cichej degradacji. Cudzy `pre-commit` nie jest nadpisywany.
+- **Walidator spójności rdzeń↔adaptery** — `core/tools/validate-adapters.js`: pliki z manifestu
+  rdzenia, ścieżki z `plugin.json`, wywołania z `hooks.json`, odwołania adaptera do rdzenia
+  i zgodność numeru wersji w trzech źródłach. Mitygacja P4 (dryf rdzenia i adapterów).
+- **`config-protection` świadomie NIE rozdzielony** — powód zapisany wprost w `core/README.md`:
+  sama reguła jest przenośna, ale jej egzekwowanie sprowadza się do werdyktu `ask` w protokole
+  hooków, czyli do własności narzędzia. Wyciągnięcie samego rozpoznawania „czy plik jest chroniony"
+  dałoby moduł bez drugiego konsumenta i rozbiło bramkę stojącą dziś w jednym miejscu. Wraca do
+  rozważenia w E5, gdy z próby będzie wiadomo, czy `preToolUse` Cursora potrafi odpowiedzieć
+  „zapytaj człowieka" przy zapisie pliku.
+- **Dokumenty użytkownika:** `README.md` — nowa sekcja o strukturze z granicą rdzeń/adapter plus
+  instalacja pre-commita po polsku; `core/README.md` — gdzie przebiega granica i co świadomie
+  zostało poza rdzeniem; `templates/SPEC_KOMENDY.md` — pre-commit jako pozycja **z warunkiem**
+  („piszesz tylko, gdy hook jest w tym projekcie zainstalowany"), nigdy jako zachowanie, które samo
+  się włączyło (L-0002); `docs/KOMENDY.md` — akapit „Do włączenia ręcznie";
+  `commands/relai-update.md` — stan docelowy 1.4.0 i jawne zdanie, że aktualizacja pre-commita
+  **nie instaluje**. Tabela komend nie urosła.
+- **Wersja 1.4.0** w obu manifestach, `core/MANIFEST.json`, obu skillach, `/relai-update`,
+  `SPEC_KOMENDY`, `SPEC_USTAWIENIA`, `SPEC_RAPORT_ADOPCJI`, README i markerze tego repo.
+
+**Zweryfikowane — jak dokładnie:**
+
+- **Dziesięć hooków po przeniesieniu — 18/18 scenariuszy zgodnych, 10/10 hooków pokrytych**
+  (instrument `porownanie.js`). Metoda: ten sam payload JSON na stdin realnego procesu (L-0017),
+  raz w drzewie sprzed etapu (`git worktree` na HEAD — układ z `hooks/` w korzeniu), raz w drzewie
+  po etapie; porównywany kod wyjścia razem z wyjściem. `secret-scanner` **blokuje**
+  (`permissionDecision: deny`), `config-protection` zwraca `ask` dla pliku ustawień i dla sekcji
+  niemutowalnej, siedem pozostałych zachowuje swoje wyjścia co do znaku. Jedyna różnica —
+  wielokropek `…` zamieniony na `...` przy przenoszeniu etykiet wzorców do rdzenia, zgodnie
+  z L-0016 — znormalizowana jawnie w instrumencie z komentarzem (→ L-0040).
+- **Zestawy z E3 przeszły bez zmiany wyniku:** `journal-signature` **9/9**, `session-context`
+  (rozjazd stanu) **15/15** — te same instrumenty co w E3, przestawione wyłącznie na nową ścieżkę
+  hooków.
+- **Specyfikacje przeniesione bajt w bajt — 30/30** plików `core/templates/`, sumy SHA-256 po
+  normalizacji do LF (L-0033) identyczne przed przeniesieniem i po nim. Sumy liczone **w chwili
+  przeniesienia**, przed późniejszym podbiciem wersji w trzech specyfikacjach — to jest zamierzona
+  zmiana treści, nie skutek przenoszenia.
+- **R8 nienaruszone po zmianie ścieżek:** `session-context` prowizjonuje `.claude/relai/templates/`
+  z `core/templates/` — 30 plików w źródle, 30 w projekcie testowym, `SPEC_ARCHIWUM.md`
+  i katalog `HTML_PLAN/` na miejscu.
+- **Skan poza hookiem — 5/5:** plik z testowym kluczem → `SEKRET` i kod wyjścia 1, plik czysty →
+  `BRAK` i kod 0, wartość sekretu **niezacytowana** w wyjściu. Zero ładowania czegokolwiek
+  z protokołu hooków.
+- **Pre-commit — 15/15** (repozytorium testowe poza tym repo). `git commit` z kluczem AWS w indeksie
+  → kod 1 i `git rev-parse HEAD` identyczny przed i po (dowód negatywny); ten sam commit po
+  usunięciu sekretu przechodzi; deinstalacja usuwa oba pliki, a po niej ten sam commit z sekretem
+  **przechodzi** — dowód, że test nie jest pusty; cudzy hook nietknięty; poza repozytorium gita
+  instalator odmawia kodem 2.
+- **Walidator — dowód pozytywny i negatywny:** układ spójny → kod 0; celowo zepsute odwołanie
+  adaptera do nieistniejącego pliku rdzenia → nazwane znalezisko i kod 1.
+- **Manifesty:** `claude plugin validate .claude-plugin/plugin.json` → „Validation passed with
+  warnings", jedyne ostrzeżenie to znane root `CLAUDE.md` (L-0003); `marketplace.json` → „Validation
+  passed" bez ostrzeżeń. Nowy układ katalogów sprawdzony **na kopii przed ruszeniem oryginału**,
+  z dowodem negatywnym (ścieżka nieistniejąca → „Path not found … The runtime loader will report
+  this as a load failure") → L-0038.
+- **Wersja:** `git grep -n "1\.3\.0"` po podbiciu — wszystkie pozostałe trafienia historyczne
+  („od 1.3.0", „nowe w 1.3.0", „przed 1.3.0", wpisy dziennika, zamrożony plan, prompty etapów 1–4).
+- **Czysto po testach:** wszystkie repozytoria i projekty testowe powstały w katalogu tymczasowym
+  systemu; `git status --short` pokazuje wyłącznie zamierzone zmiany i pięć nowych ścieżek rdzenia.
+
+**Świadomie odłożone:**
+
+- **Rozdzielenie `config-protection`** — decyzja opisana wyżej i w `core/README.md`, wraca w E5.
+- **Wydzielenie opisów procesu do osobnych plików rdzenia** — proces mieszka dziś
+  w specyfikacjach i w skillach adaptera. Przepisanie skilli na format, którego żaden adapter
+  jeszcze nie czyta, dałoby drugie źródło prawdy; rozstrzygnięcie zapada w E5, na realnym
+  adapterze.
+- **Instalacja pre-commita w tym repozytorium** — hook działa i jest zmierzony, ale instalacja to
+  jawna czynność człowieka; RelAI nie podkłada hooków gita sam.
+- **Eksperyment na działającej instalacji Cursora i Codexa** — `PRZENOSNOSC.md` opisuje
+  dokumentację producentów; potwierdzenie zachowań należy do E5 i E7, tak jak zachowania RelAI
+  mierzy się sesją, nie zapisem (L-0005).
+- Cokolwiek z zakresu adapterów Cursora i Codexa — ani jeden ich plik nie powstał w tym etapie.
+
+**Do zrobienia przez człowieka:**
+
+- **Push, `claude plugin marketplace update relai`, `claude plugin update relai@relai`, restart
+  aplikacji** — bez pełnej sekwencji 1.4.0 nie działa w żadnym projekcie poza tym repo (L-0031).
+  Ten etap zmienia **układ katalogów pluginu**, więc pierwsza sesja po restarcie jest zarazem
+  sprawdzianem, czy Claude Code znajduje skille i komendy pod nowymi ścieżkami — walidator manifestu
+  to potwierdza, ale realne wczytanie potwierdza dopiero aplikacja. Bramka manualna planu.
+- **`claude /login`** na konto z dostępnym limitem — warunek startu odnogi `POMIAR_ODNOG`
+  (L-0032). Bramka manualna planu.
+- **Decyzja, kiedy przepuścić JiraManagera i PolyFlow przez `/relai-update`.** Bramka manualna planu.
+- **Decyzja o instalacji pre-commita** — w tym repozytorium i w projektach roboczych:
+  `node core/guardrails/install-precommit.js <projekt>`. Bramka manualna planu.
+- Uruchomić E5 (`/relai-stage`, świeża sesja **Opus**) albo którąś z dwóch odnóg.

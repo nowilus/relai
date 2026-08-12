@@ -3,7 +3,7 @@
 </p>
 
 <p align="center">
-  <em>Wersja 1.3.0 &nbsp;·&nbsp; licencja MIT &nbsp;·&nbsp; wymaga Claude Code i Node.js 14+ &nbsp;·&nbsp; zero zależności npm</em>
+  <em>Wersja 1.4.0 &nbsp;·&nbsp; licencja MIT &nbsp;·&nbsp; wymaga Claude Code i Node.js 14+ &nbsp;·&nbsp; zero zależności npm</em>
 </p>
 
 **RelAI to plugin do Claude Code, który zamienia rozmowę z agentem w prowadzony projekt.**
@@ -263,26 +263,64 @@ Uczciwie, bez obiecywania więcej, niż jest.
 
 ### Struktura repo
 
+Od wersji 1.4.0 repozytorium ma jawną granicę między **rdzeniem** — tym, co jest prawdą o RelAI —
+a **adapterem** konkretnego narzędzia:
+
 ```
 relai/
-├── .claude-plugin/
-│   ├── plugin.json          # manifest pluginu
-│   └── marketplace.json     # własny marketplace (instalacja z tego samego repo)
-├── skills/
-│   ├── relai-core/          # inicjalizacja, rozpoznanie struktury, rytuały sesji, rejestry
-│   └── relai-planning/      # plany i miniplany, STATUS, prompty etapowe, odnogi, zamknięcie planu
-├── commands/                # dziesięć komend: stage, backup, audit, changelog,
-│   └── *.md                 #   handover, tour, help, adopt, update, branch
-├── hooks/
-│   ├── hooks.json           # rejestracja dziewięciu hooków (zdarzenia i matchery)
-│   └── *.js                 # dziesięć hooków Node.js, zero zależności npm
-├── templates/               # SPECYFIKACJE dokumentów dla modelu (nie pliki do kopiowania)
-│   └── HTML_PLAN/           # jedyny wyjątek: realny szablon planu HTML + fonty WOFF2
-└── docs/                    # dokumentacja budowy samego RelAI (dogfooding)
+├── core/                        # RDZEŃ — wspólny dla wszystkich narzędzi
+│   ├── MANIFEST.json            #   spis treści rdzenia i rejestr adapterów
+│   ├── README.md                #   gdzie przebiega granica, jak zainstalować pre-commit
+│   ├── templates/               #   SPECYFIKACJE dokumentów dla modelu (nie pliki do kopiowania)
+│   │   └── HTML_PLAN/           #     jedyny wyjątek: realny szablon planu HTML + fonty WOFF2
+│   ├── guardrails/
+│   │   ├── secret-scan.js       #   czysta logika "czy to sekret" — biblioteka i CLI
+│   │   ├── pre-commit.js        #   hook gita: commit z sekretem nie przechodzi
+│   │   └── install-precommit.js #   instalacja i cofnięcie jednym poleceniem
+│   └── tools/
+│       └── validate-adapters.js #   wykrywa rozjazd rdzenia i adapterów
+├── adapters/
+│   └── claude-code/             # ADAPTER Claude Code
+│       ├── skills/              #   relai-core (rytuały, rejestry), relai-planning (plany, etapy)
+│       ├── commands/            #   dziesięć komend: stage, branch, backup, audit, changelog,
+│       │                        #     handover, tour, help, adopt, update
+│       └── hooks/
+│           ├── hooks.json       #   rejestracja dziesięciu hooków (zdarzenia i matchery)
+│           └── *.js             #   dziesięć hooków Node.js, zero zależności npm
+├── .claude-plugin/              # manifest pluginu i własny marketplace — w korzeniu,
+│   ├── plugin.json              #   bo tego wymaga Claude Code; wskazuje na adapters/claude-code/
+│   └── marketplace.json
+└── docs/                        # dokumentacja budowy samego RelAI (dogfooding)
+    └── PRZENOSNOSC.md           #   co Cursor i Codex realnie dają — wejście do adapterów
 ```
 
-Katalog `templates/` zawiera **specyfikacje**, a nie gotowce: model generuje dokument w języku
+Katalog `core/templates/` zawiera **specyfikacje**, a nie gotowce: model generuje dokument w języku
 projektu i pod jego realia, zamiast kopiować szablon z placeholderami.
+
+Praktyczny test granicy: gdyby jutro powstał adapter Cursora, czy ten plik trafiłby do niego bez
+zmian? Tak → rdzeń. Nie → adapter.
+
+### Skan sekretów przy commicie (opcjonalny, poza harnessem)
+
+Hooki pluginu stoją przy zapisie pliku przez agenta Claude Code. Poza tym harnessem tej ściany nie
+ma. Dlatego rdzeń ma **gitowy pre-commit**, który blokuje commit z sekretem w indeksie — działa
+w Cursorze, w Codeksie, w zwykłym edytorze i w skrypcie CI, bo mieszka w repozytorium, a nie
+w narzędziu.
+
+Instalacja jest jawną czynnością człowieka — RelAI nie podkłada hooków gita sam:
+
+```bash
+node <RelAI>/core/guardrails/install-precommit.js <katalog-projektu>
+```
+
+Cofnięcie jednym poleceniem:
+
+```bash
+node <RelAI>/core/guardrails/install-precommit.js <katalog-projektu> --uninstall
+```
+
+Bez Node.js w `PATH` instalator odmawia i mówi o tym wprost — warstwa dokumentowo-procesowa działa
+dalej w całości, sam skan przy commicie nie. Cudzego hooka `pre-commit` instalator nie nadpisuje.
 
 ### Konwencja: hook-guard
 

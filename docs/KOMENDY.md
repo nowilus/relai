@@ -1,6 +1,6 @@
 # KOMENDY — RelAI
 
-RelAI 1.3.0
+RelAI 1.4.0
 
 Nic z tej listy nie jest obowiązkowe. RelAI działa w zwykłej rozmowie — piszesz normalnie,
 a struktura projektu nadąża. Komendy są skrótem do rzadszych operacji.
@@ -77,6 +77,12 @@ z podpowiedzi; skrócona forma działa tam, gdzie podpowiadacz ją rozwinie.
 - **Ostrzeżenia bez blokowania.** `console.log` w zapisanym pliku, wynik `tsc`/eslint (gdy projekt
   ma te narzędzia), odstępstwo od `docs/DESIGN.md` (gdy plik istnieje), zmiana kodu bez wpisu do
   dziennika — każde z nich daje sygnał, żadne nie zatrzymuje pracy.
+
+**Do włączenia ręcznie:** skan sekretów przy commicie. RelAI ma gitowy hook `pre-commit`, po
+którego zainstalowaniu `git commit` z kluczem albo hasłem w plikach z indeksu kończy się błędem
+i commit nie powstaje — także wtedy, gdy commituje człowiek albo inne narzędzie, bez udziału
+Claude. W tym projekcie **nie jest zainstalowany**; instalacja i cofnięcie to po jednym poleceniu
+opisanym w [core/README.md](../core/README.md).
 
 Lista rośnie z kolejnymi wersjami RelAI. Numer wersji tego projektu jest w
 [USTAWIENIA.md](USTAWIENIA.md).

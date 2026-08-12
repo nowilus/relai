@@ -10,8 +10,8 @@ Plan: [PLAN.html](PLAN.html) · Utworzony: 2026-08-12 · Status planu: **ZAAKCEP
 | E1 | Odnoga planu — `/relai-branch` (1.1.0) | **ZREALIZOWANY 2026-08-12** | [PROMPT_ETAP_1.md](PROMPT_ETAP_1.md) | 8/9 punktów weryfikacji; punkt 8 (pomiar świeżą sesją) → odnoga POMIAR_ODNOG |
 | E2 | Rotacja dokumentów (1.2.0) | **ZREALIZOWANY 2026-08-12** | [PROMPT_ETAP_2.md](PROMPT_ETAP_2.md) | 8/10 punktów weryfikacji; punkty 5 i 7 (zachowanie świeżej sesji) → odnoga POMIAR_ODNOG |
 | E3 | Poprawki z retrospektywy (1.3.0) | **ZREALIZOWANY 2026-08-12** | [PROMPT_ETAP_3.md](PROMPT_ETAP_3.md) | 5/8 punktów weryfikacji; punkty 3, 4 (część sesyjna) i 6 → odnoga POMIAR_ODNOG, scenariusze G–I |
-| E4 | Rdzeń przenośny (1.4.0) | **GOTOWY DO STARTU** | [PROMPT_ETAP_4.md](PROMPT_ETAP_4.md) | zaczyna się od rozpoznania mechanizmów Cursora/Codexa; pre-commit ze skanem sekretów |
-| E5 | Adapter Cursor (1.5.0) | OCZEKUJE | — | wymaga decyzji o języku warstwy zespołowej (sekcja 9 planu) |
+| E4 | Rdzeń przenośny (1.4.0) | **ZREALIZOWANY 2026-08-12** | [PROMPT_ETAP_4.md](PROMPT_ETAP_4.md) | 9/9 punktów weryfikacji; `config-protection` świadomie nierozdzielony — powód w `core/README.md` |
+| E5 | Adapter Cursor (1.5.0) | **GOTOWY DO STARTU** | [PROMPT_ETAP_5.md](PROMPT_ETAP_5.md) | język warstw rozstrzygnięty (Aneks A); wejście: `docs/PRZENOSNOSC.md` |
 | E6 | Pilotaż Cursora w firmie | OCZEKUJE | — | scenariusz akceptacyjny na realnym projekcie osoby z zespołu |
 | E7 | Adapter Codex (1.6.0) | OCZEKUJE | — | ten sam scenariusz akceptacyjny co E6 |
 | E8 | Wydanie 2.0.0 i dystrybucja | OCZEKUJE | — | upublicznienie repo — decyzja człowieka; bez niej dystrybucja wewnętrzna |
@@ -34,6 +34,9 @@ Plan: [PLAN.html](PLAN.html) · Utworzony: 2026-08-12 · Status planu: **ZAAKCEP
   (L-0032) · źródło: wpis dziennika 2026-08-12 (E1, powtórzone w E2) · **OTWARTA**
 - **Decyzja, kiedy przepuścić JiraManagera i PolyFlow przez `/relai-update`** · źródło: wpis
   dziennika 2026-08-12 (E2) · **OTWARTA**
+- **Instalacja gitowego pre-commita** — w tym repozytorium i w projektach roboczych; RelAI nie
+  podkłada hooków gita sam (`node core/guardrails/install-precommit.js <projekt>`) · źródło: wpis
+  dziennika 2026-08-12 (E4) · **OTWARTA**
 
 ## Dziennik wdrożenia
 
@@ -59,3 +62,9 @@ Plan: [PLAN.html](PLAN.html) · Utworzony: 2026-08-12 · Status planu: **ZAAKCEP
   z blokującym krokiem sekwencji zamknięcia planu. Punkty 3, 6 i sesyjna część punktu 4 weryfikacji
   → odnoga POMIAR_ODNOG (scenariusze G–I). Szczegóły: wpis w `docs/DZIENNIK.md` z 2026-08-12.
   Wygenerowano PROMPT_ETAP_4.
+- 2026-08-12 — E4 rozpoczęty.
+- 2026-08-12 — **E4 ZREALIZOWANY**, wersja 1.4.0. Rdzeń przenośny: `docs/PRZENOSNOSC.md`
+  (rozpoznanie Cursora i Codexa ze źródłami), układ `core/` + `adapters/claude-code/`, skan
+  sekretów jako czysty skrypt rdzenia, gitowy pre-commit z instalatorem i deinstalatorem, walidator
+  spójności rdzeń↔adaptery. Wszystkie 9 punktów weryfikacji przeszło. Szczegóły: wpis
+  w `docs/DZIENNIK.md` z 2026-08-12. Wygenerowano PROMPT_ETAP_5.

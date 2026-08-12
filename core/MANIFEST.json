@@ -1,0 +1,45 @@
+{
+  "name": "relai-core",
+  "version": "1.4.0",
+  "description": "Wspolny rdzen RelAI: specyfikacje dokumentow, opisy procesu i guardrails jako czyste skrypty Node. Adaptery narzedzi (Claude Code, Cursor, Codex) korzystaja z tych samych plikow.",
+  "templates": "./templates/",
+  "guardrails": [
+    {
+      "id": "secret-scan",
+      "file": "./guardrails/secret-scan.js",
+      "kind": "biblioteka+CLI",
+      "description": "Czysta logika wykrywania sekretu w tresci. Bez wiedzy o protokole hookow."
+    },
+    {
+      "id": "pre-commit",
+      "file": "./guardrails/pre-commit.js",
+      "kind": "hook gita",
+      "description": "Blokuje commit z sekretem w indeksie. Dziala niezaleznie od narzedzia."
+    },
+    {
+      "id": "install-precommit",
+      "file": "./guardrails/install-precommit.js",
+      "kind": "instalator",
+      "description": "Instaluje i odinstalowuje pre-commit w .git/hooks wskazanego repozytorium."
+    }
+  ],
+  "tools": [
+    {
+      "id": "validate-adapters",
+      "file": "./tools/validate-adapters.js",
+      "description": "Sprawdza spojnosc rdzenia z adapterami: istnienie plikow, zgodnosc wersji, martwe odwolania."
+    }
+  ],
+  "adapters": [
+    {
+      "id": "claude-code",
+      "root": "./../adapters/claude-code/",
+      "manifest": "./../.claude-plugin/plugin.json",
+      "entry": "./../adapters/claude-code/hooks/hooks.json",
+      "uses": [
+        "./templates/",
+        "./guardrails/secret-scan.js"
+      ]
+    }
+  ]
+}

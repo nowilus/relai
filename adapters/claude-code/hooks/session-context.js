@@ -8,7 +8,8 @@
 //    siatke brakujacych promptow etapowych (D-34), sygnal rozjazdu stanu
 //    (STATUS vs CLAUDE.md vs STATE.md — od 1.3.0), tresc ustawien globalnych
 //    (~/.claude/relai/ — D-23, L-0010) oraz kopiuje specyfikacje dokumentow
-//    do .claude/relai/templates/ w projekcie (R8, L-0012).
+//    do .claude/relai/templates/ w projekcie (R8, L-0012) — od 1.4.0 zrodlem jest
+//    core/templates/ rdzenia, nie katalog adaptera.
 // 2) PostToolUse na narzedziu Skill — gdy wywolany skill nalezy do RelAI
 //    (relai-core / relai-planning), kopiuje specyfikacje i podaje ustawienia
 //    globalne TAKZE w folderze, ktory nie jest jeszcze projektem RelAI —
@@ -25,7 +26,10 @@ const fs = require('fs');
 const os = require('os');
 const path = require('path');
 
-const PLUGIN_ROOT = path.resolve(__dirname, '..');
+// Od 1.4.0 hooki mieszkaja w adapters/claude-code/hooks/, a specyfikacje w core/templates/
+// (wydzielenie rdzenia, E4). PLUGIN_ROOT to korzen repozytorium/pluginu — trzy poziomy w gore.
+const PLUGIN_ROOT = path.resolve(__dirname, '..', '..', '..');
+const CORE_TEMPLATES = path.join(PLUGIN_ROOT, 'core', 'templates');
 
 function isGuest(cwd) {
   try {
@@ -113,7 +117,7 @@ function copyTree(src, dest) {
 
 function provisionTemplates(cwd) {
   try {
-    const src = path.join(PLUGIN_ROOT, 'templates');
+    const src = CORE_TEMPLATES;
     if (!fs.existsSync(src)) return 0;
     const destRoot = path.join(cwd, '.claude', 'relai');
     const dest = path.join(destRoot, 'templates');

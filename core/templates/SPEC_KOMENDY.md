@@ -50,7 +50,7 @@ projektu jest w `docs/USTAWIENIA.md`.
 Plik jest **regenerowany**, nie edytowany ręcznie. Wyjątkiem są wiersze oznaczone jako lokalne —
 te przeżywają regenerację (D-62: lokalne nadpisania mają pierwszeństwo).
 
-## Zakres wersji 1.3.0 — co realnie działa
+## Zakres wersji 1.4.0 — co realnie działa
 
 Od 0.4.0 działa **pierwsza komenda** — `/relai-stage` — i wygenerowany `KOMENDY.md` ma tabelę
 komend. W 0.5.0 doszło **osiem hooków**: sekcja „Czego RelAI pilnuje bez proszenia" urosła
@@ -63,7 +63,9 @@ z siedmiu do dziewięciu pozycji. W 1.1.0 dochodzą **odnogi planu**: dziesiąta
 **rotacja dokumentów** — kolejny punkt w sekcji o zachowaniach automatycznych; tabela komend nie
 rośnie, bo rotacja nie ma własnej komendy. W 1.3.0 dochodzą **cztery poprawki z retrospektywy** —
 same zachowania, żadnej nowej komendy: sygnał rozjazdu stanu, kontrola podpisu wpisu, bramki
-manualne przy zamykaniu planu i rejestr decyzji po adopcji. Działa:
+manualne przy zamykaniu planu i rejestr decyzji po adopcji. W 1.4.0 dochodzi **skan sekretów przy
+commicie** — guardrail spoza harnessu, **instalowany ręcznie**, więc opisany osobno jako
+możliwość, a nie jako zachowanie, które samo się włączyło; tabela komend znowu nie rośnie. Działa:
 
 - inicjalizacja struktury projektu (zgoda → trzy pytania → osiem dokumentów),
 - rozpoznanie folderu, który już jest projektem RelAI,
@@ -156,8 +158,16 @@ manualne przy zamykaniu planu i rejestr decyzji po adopcji. Działa:
   rozstrzygnięcia zapisują się w `DECYZJE.md`, a zastane reguły w `CLAUDE.md` zostają zapisem
   stanu sprzed adopcji. **Punkt piszesz wyłącznie w projekcie po adopcji** — w projekcie zakładanym
   od zera nie ma czego rozdzielać (L-0029),
+- **skan sekretów przy commicie (nowe w 1.4.0), do sekcji „Czego RelAI pilnuje bez proszenia" —
+  ale jako pozycja z warunkiem:** gdy w projekcie **zainstalowano** gitowy pre-commit RelAI,
+  `git commit` z kluczem albo hasłem w plikach z indeksu kończy się błędem i commit nie powstaje —
+  także wtedy, gdy commituje człowiek albo inne narzędzie, bez udziału Claude. Punkt piszesz
+  **wyłącznie wtedy, gdy hook jest w tym projekcie zainstalowany** (`.git/hooks/pre-commit`
+  pochodzący z RelAI); w pozostałych projektach zamiast tego dopisujesz **jedno zdanie
+  z możliwością** i poleceniem instalacji. Nigdy nie piszesz, że dzieje się to samo — instalacja
+  jest jawną czynnością człowieka (L-0002),
 
-Wygenerowany `KOMENDY.md` w wersji 1.3.0 zawiera **tabelę komend z dziesięcioma pozycjami**
+Wygenerowany `KOMENDY.md` w wersji 1.4.0 zawiera **tabelę komend z dziesięcioma pozycjami**
 oraz tabelę fraz naturalnych:
 
 | Komenda | Co robi |
@@ -186,12 +196,12 @@ oraz tabelę fraz naturalnych:
 - Nie opisujesz mechaniki wewnętrznej (skille, hooki) — użytkownika interesuje efekt.
 - Nie wpisujesz punktów profilu, którego ten projekt nie ma.
 
-## Przykład dla wersji 1.3.0 (projekt polski, profil `app`)
+## Przykład dla wersji 1.4.0 (projekt polski, profil `app`)
 
 ```markdown
 # KOMENDY — Parkly
 
-RelAI 1.3.0
+RelAI 1.4.0
 
 Nic z tej listy nie jest obowiązkowe. RelAI działa w zwykłej rozmowie — piszesz normalnie,
 a struktura projektu nadąża. Komendy są skrótem do rzadszych operacji.
