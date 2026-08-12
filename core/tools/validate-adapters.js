@@ -40,6 +40,7 @@ if (manifest) {
   const zRdzenia = (p) => path.relative(ROOT, path.resolve(CORE, p)).split(path.sep).join('/');
   const pliki = [manifest.templates]
     .concat((manifest.guardrails || []).map((g) => g.file))
+    .concat((manifest.process || []).map((p) => p.file))
     .concat((manifest.tools || []).map((t) => t.file))
     .filter(Boolean);
   for (const p of pliki) {
@@ -61,6 +62,43 @@ if (manifest) {
     }
     sprawdzone.push('adapter ' + a.id + ': ' + (a.uses || []).length + ' odwolan do rdzenia');
   }
+}
+
+// 2b) Odwolania w KODZIE adapterow do plikow rdzenia. MANIFEST mowi, czego adapter uzywa;
+// ten krok sprawdza, czy tego samego uzywa realny require. Wzorzec wychwytuje ksztalt
+// require(path.resolve(..., 'core', '<katalog>', '<plik>.js')) uzywany w obu adapterach.
+function plikiJs(katalog, zebrane) {
+  let wpisy = [];
+  try { wpisy = fs.readdirSync(katalog, { withFileTypes: true }); } catch (_) { return zebrane; }
+  for (const w of wpisy) {
+    const p = path.join(katalog, w.name);
+    if (w.isDirectory()) plikiJs(p, zebrane);
+    else if (/\.js$/i.test(w.name)) zebrane.push(p);
+  }
+  return zebrane;
+}
+
+if (manifest) {
+  const RE = /'core'\s*,\s*'([A-Za-z0-9_.-]+)'\s*,\s*'([A-Za-z0-9_.-]+\.js)'/g;
+  let odwolan = 0;
+  for (const a of (manifest.adapters || [])) {
+    const rootAbs = path.resolve(CORE, a.root || '.');
+    for (const plik of plikiJs(rootAbs, [])) {
+      let txt = '';
+      try { txt = fs.readFileSync(plik, 'utf8'); } catch (_) { continue; }
+      let m;
+      RE.lastIndex = 0;
+      while ((m = RE.exec(txt)) !== null) {
+        odwolan++;
+        const rel = 'core/' + m[1] + '/' + m[2];
+        if (!jest(rel)) {
+          bledy.push('adapter "' + a.id + '": ' + path.relative(ROOT, plik).split(path.sep).join('/') +
+            ' wola "' + rel + '", a tego pliku rdzenia nie ma');
+        }
+      }
+    }
+  }
+  sprawdzone.push('odwolania z kodu adapterow do rdzenia: ' + odwolan);
 }
 
 // 3) Manifest pluginu Claude Code: kazda zadeklarowana sciezka istnieje.

@@ -35,11 +35,12 @@ Czytaj w kolejności, nie skanuj pełnotekstowo repo:
 | ROZWOJ_PO_WYDANIU E2 — rotacja dokumentów (wersja 1.2.0) | **ZREALIZOWANY 2026-08-12** | `templates/SPEC_ARCHIWUM.md`, `skills/relai-core/SKILL.md`, `templates/SPEC_{USTAWIENIA,DZIENNIK,LEKCJE,STATE}.md` |
 | ROZWOJ_PO_WYDANIU E3 — poprawki z retrospektywy (wersja 1.3.0) | **ZREALIZOWANY 2026-08-12** | `hooks/journal-signature.js`, `hooks/session-context.js`, `templates/SPEC_{STATUS,DZIENNIK,DECYZJE,CLAUDE_MD}.md`, `skills/relai-{core,planning}/SKILL.md` |
 | ROZWOJ_PO_WYDANIU E4 — rdzeń przenośny (wersja 1.4.0) | **ZREALIZOWANY 2026-08-12** | `core/` (templates, guardrails, tools, MANIFEST), `adapters/claude-code/`, `docs/PRZENOSNOSC.md` |
+| ROZWOJ_PO_WYDANIU E5 — adapter Cursora (wersja 1.5.0) | **ZREALIZOWANY 2026-08-12** | `adapters/cursor/` (rules, hooks, install.js, README), `core/process/session-signals.js`, `docs/PRZENOSNOSC.md` |
 
 **Uwaga do wierszy sprzed 1.4.0:** ścieżki `hooks/`, `skills/`, `commands/` i `templates/` opisują
 stan z dnia etapu. Od E4 mieszkają odpowiednio w `adapters/claude-code/` i `core/templates/`.
 
-Aktywny plan: [ROZWOJ_PO_WYDANIU](docs/plany/ROZWOJ_PO_WYDANIU/STATUS.md) — E4 ZREALIZOWANY 2026-08-12 (wersja 1.4.0), E5 gotowy do startu; dwie odnogi OTWARTE, cztery bramki manualne
+Aktywny plan: [ROZWOJ_PO_WYDANIU](docs/plany/ROZWOJ_PO_WYDANIU/STATUS.md) — E5 ZREALIZOWANY 2026-08-12 (wersja 1.5.0), E6 gotowy do startu; dwie odnogi OTWARTE, pięć bramek manualnych
 
 ## Reguły procesu
 

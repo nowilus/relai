@@ -16,47 +16,21 @@ const { spawnSync } = require('child_process');
 
 // Rdzen lezy trzy poziomy wyzej (adapters/claude-code/hooks -> korzen). Awaria require
 // jest traktowana jak awaria guarda: hook milknie zamiast wysypac sie na stderr.
+// Od 1.5.0 z rdzenia pochodzi takze rozpoznanie projektu (marker + tryb goscia) —
+// ten sam kod czyta adapter Cursora, wiec nie ma gdzie sie rozjechac (P4).
 let scanText;
+let relaiMarkerFileCore;
 try {
   ({ scanText } = require(path.resolve(__dirname, '..', '..', '..', 'core', 'guardrails', 'secret-scan.js')));
+  ({ relaiMarkerFile: relaiMarkerFileCore } =
+    require(path.resolve(__dirname, '..', '..', '..', 'core', 'process', 'session-signals.js')));
 } catch (_) {
   process.exit(0);
 }
 
-function isGuest(cwd) {
-  try {
-    const p = path.join(cwd, '.claude', 'relai.json');
-    if (!fs.existsSync(p)) return false;
-    const j = JSON.parse(fs.readFileSync(p, 'utf8'));
-    return !!j && j.mode === 'guest';
-  } catch (_) {
-    return true; // nieczytelny marker = zachowaj sie jak poza projektem RelAI
-  }
-}
-
+// Marker trybu goscia w adapterze Claude Code to wylacznie .claude/relai.json.
 function relaiMarkerFile(cwd) {
-  try {
-    if (!cwd || isGuest(cwd)) return null;
-    const docsDir = path.join(cwd, 'docs');
-    let entries = [];
-    try { entries = fs.readdirSync(docsDir); } catch (_) { return null; }
-    const candidates = [];
-    for (const name of ['USTAWIENIA.md', 'SETTINGS.md']) {
-      if (entries.includes(name)) candidates.push(name);
-    }
-    for (const f of entries) {
-      if (/\.md$/i.test(f) && !candidates.includes(f)) candidates.push(f);
-      if (candidates.length >= 40) break;
-    }
-    for (const f of candidates) {
-      let head = '';
-      try { head = fs.readFileSync(path.join(docsDir, f), 'utf8').slice(0, 4000); } catch (_) { continue; }
-      if (/Wersja RelAI:|RelAI version:/i.test(head)) return path.join(docsDir, f);
-    }
-    return null;
-  } catch (_) {
-    return null;
-  }
+  return relaiMarkerFileCore(cwd, ['.claude/relai.json']);
 }
 
 function isGitIgnored(cwd, filePath) {

@@ -118,315 +118,21 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
 40. „Zachowanie nie zmieniło się" dowodzisz, uruchamiając **obie wersje na tym samym wejściu
     w jednym przebiegu**; różnice zamierzone normalizujesz jawnie w kodzie instrumentu, nie
     w głowie. (L-0040)
+41. Rozpoznanie cudzego narzędzia opieraj na **wydanym build'zie i próbie**, nie na samej
+    dokumentacji producenta — dokumentacja bywa niepełna, a kod produktu i realna sesja mówią
+    prawdę o dziś zainstalowanej wersji. Każdą pozycję oznaczaj źródłem. (L-0041)
+42. Payload hooka cudzego narzędzia parsujesz **po zdjęciu BOM** i nie zakładasz, że niesie te same
+    pola co znane Ci narzędzie — katalog roboczy może przyjść pod inną nazwą. (L-0042)
+43. Guardrail wołany przez interpreter znika razem z interpreterem — i narzędzie potrafi tego
+    **nie zgłosić**. Wołaj go przez opakowanie powłoki, które przy braku interpretera kończy się
+    kodem blokującym; „cisza" musi się zamienić w „blokada z komunikatem". (L-0043)
+44. Sesję pomiarową CLI cudzego narzędzia uruchamiaj z **powłoki natywnej dla systemu** — narzędzie
+    dziedziczy powłokę i potrafi budować transport payloadu w jej składni. (L-0044)
 
 ## Lekcje
-
-### L-0001 — Specyfikacja bez przykładu · 2026-08-07 · AKTYWNA
-
-- **Trigger:** pierwsze wersje `SPEC_*` w E1 opisywały strukturę dokumentu bez pokazania gotowego
-  wyniku.
-- **Przyczyna:** założenie, że opis sekcji wystarczy modelowi generującemu dokument.
-- **Zasada:** każda specyfikacja kończy się sekcją „Przykład" z kompletnym, realnym dokumentem
-  w języku projektu.
-- **Źródło:** przegląd zamykający etap E1 (nie korekta użytkownika).
-
-### L-0002 — Obietnica zamiast stanu faktycznego · 2026-08-07 · AKTYWNA
-
-- **Trigger:** pokusa, by w `KOMENDY.md` wypisać komendy `/relai-*` zaplanowane na kolejne etapy.
-- **Przyczyna:** ściąga wygląda kompletniej, gdy zawiera pełną listę docelową.
-- **Zasada:** dokument użytkownika opisuje wyłącznie to, co działa w zainstalowanej wersji; rzeczy
-  planowane nie istnieją w ściądze.
-- **Źródło:** przegląd zamykający etap E1 (nie korekta użytkownika).
-
-### L-0003 — „Naprawianie" świadomego ostrzeżenia · 2026-08-07 · AKTYWNA
-
-- **Trigger:** `claude plugin validate --strict` zgłasza, że `CLAUDE.md` w korzeniu pluginu nie jest
-  ładowany jako kontekst projektu.
-- **Przyczyna:** to repo jest jednocześnie pluginem i projektem RelAI (dogfooding, D-82) — walidator
-  nie zna tego przypadku.
-- **Zasada:** ostrzeżenie zostaje; nie przenoś `CLAUDE.md` i nie zmieniaj struktury repo, by je
-  uciszyć.
-- **Źródło:** przegląd zamykający etap E1 (nie korekta użytkownika).
-
-### L-0004 — Plugin odinstalowany na czas budowy · 2026-08-07 · ZMIENIONA 2026-08-07
-
-> **ZMIENIONE 2026-08-07** — użytkownik odwrócił decyzję („może jednak doinstaluj ten plugin
-> i zrealizuj testy R2"). Plugin jest zainstalowany od wersji 0.3.1; testy zachowań wykonuje się
-> realnie, świeżymi sesjami. Powód zmiany: dwa etapy bez pomiaru ryzyka R2 kosztowały więcej niż
-> ryzyko pracy z zainstalowaną wersją w trakcie budowy. Aktualna treść zasady — punkt 4 w „Zasadach
-> aktywnych"; poniższy zapis zostaje jako historia (D-18).
-
-- **Trigger:** po testach instalacji w E1 plugin został na maszynie w scope `user`; użytkownik
-  polecił go odinstalować.
-- **Przyczyna:** założenie, że zainstalowana wersja przyda się do testów w kolejnych etapach.
-  W praktyce nieaktualna wersja pluginu mogłaby wpływać na sesje budowy.
-- **Zasada:** przez cały czas budowy plugin pozostaje odinstalowany; testy zachowań wykonujesz,
-  odtwarzając procedurę skilla ręcznie, i piszesz wprost, czego przez to nie zmierzono.
-- **Źródło:** „odinstaluj, zainstalujemy sobie na sam koniec" (korekta użytkownika, 2026-08-07).
-
-### L-0005 — Weryfikacja zaplanowana tam, gdzie niewykonalna · 2026-08-07 · AKTYWNA
-
-- **Trigger:** E1 odłożył test auto-wyzwalania skilla „na start E2", a E2 nie mógł go wykonać,
-  bo plugin jest odinstalowany (L-0004). Ryzyko R2 przeszło dwa etapy bez pomiaru.
-- **Przyczyna:** przy planowaniu weryfikacji nie sprawdzono, czy warunki jej wykonania będą
-  spełnione w etapie, do którego ją przeniesiono.
-- **Zasada:** przenosząc weryfikację do późniejszego etapu, zapisz w prompcie tego etapu warunek,
-  który musi być spełniony, żeby dała się wykonać; jeśli warunku nie da się zapewnić, przenieś
-  weryfikację tam, gdzie się da.
-- **Źródło:** przegląd zamykający etap E2 (nie korekta użytkownika).
-
-### L-0006 — „Przy każdym planie" wzięte dosłownie · 2026-08-07 · AKTYWNA
-
-- **Trigger:** pierwsza wersja skilla `relai-planning` zadawała pytanie o rodzaj planu zawsze,
-  także wtedy, gdy próg PLAN/MINIPLAN rozstrzygał sprawę jednoznacznie, a format i model były już
-  w `USTAWIENIA.md`.
-- **Przyczyna:** decyzja D-39 mówi „przed powstaniem każdego planu RelAI pyta" — zapis odczytany
-  dosłownie, bez zestawienia z D-22 („zapytaj RAZ, zapisz, respektuj").
-- **Zasada:** pytanie startowe planu pada raz na projekt, nie raz na plan. Przed pytaniem czytasz
-  `USTAWIENIA.md` i warstwę globalną; gdy nie zostaje nic do zapytania, generujesz plan i mówisz
-  jednym zdaniem, co przyjąłeś i skąd.
-- **Źródło:** przegląd przy teście utrwalonej preferencji, etap E3 (nie korekta użytkownika).
-
-### L-0007 — Test zakazu bez dowodu negatywnego · 2026-08-07 · AKTYWNA
-
-- **Trigger:** test zamrożenia planu początkowo sprawdzał tylko, czy powstał aneks — a to nie
-  dowodzi, że sekcje planu pozostały nietknięte.
-- **Przyczyna:** mylenie „nowy artefakt istnieje" z „stary artefakt się nie zmienił". Pierwsze jest
-  łatwe do sprawdzenia i dlatego kuszące.
-- **Zasada:** test zachowania typu „tego nie wolno ruszać" musi pokazać pierwotne brzmienie
-  chronionego fragmentu po operacji, obok dowodu, że zmiana wylądowała tam, gdzie miała.
-- **Źródło:** przegląd zamykający etap E3 (nie korekta użytkownika).
-
-### L-0008 — Numer wersji żyjący w sześciu miejscach · 2026-08-07 · AKTYWNA
-
-- **Trigger:** podbicie 0.2.0 → 0.3.0 objęło manifesty, README i `SPEC_KOMENDY.md`, ale numer
-  w przykładzie wewnątrz `SPEC_USTAWIENIA.md` został stary — wyłapany dopiero `grep`-em.
-- **Przyczyna:** wersja występuje też w przykładach i w zdaniach historycznych, więc lista „miejsc
-  do zmiany" prowadzona z pamięci zawsze będzie niepełna.
-- **Zasada:** po podbiciu wersji uruchamiasz `grep` po starym numerze w całym repo i rozstrzygasz
-  każde trafienie osobno — historyczne zostaje (i wiesz dlaczego), aktualne się zmienia.
-- **Źródło:** przegląd zamykający etap E3 (nie korekta użytkownika).
-
-### L-0009 — Opis skilla przegrywa konkurencję · 2026-08-07 · AKTYWNA
-
-- **Trigger:** pierwszy realny pomiar R2 na zainstalowanym pluginie 0.3.0: `relai-planning` **nie
-  wystrzelił** na prompcie „przygotuj plan dodania logowania", mimo że dokładnie ta fraza była
-  w jego opisie; sesja napisała plan po swojemu, łamiąc trzy konwencje naraz.
-- **Przyczyna:** opis był narracyjny („RelAI planning: turning a request for a plan into…"), a fraza
-  wyzwalająca schowana w trzecim zdaniu. Na maszynie z ~200 skillami przegrywa z opisami mocniej
-  zaadresowanymi.
-- **Zasada:** opis skilla zaczyna się od `MUST BE USED`, potem marker rozpoznawczy projektu, potem
-  **płaska lista dosłownych fraz** — najpierw polskich. Zmiana opisu wymaga ponownego pomiaru,
-  nie deklaracji.
-- **Źródło:** pomiar R2 na wniosek użytkownika, etap E3 (2026-08-07). Wynik po poprawce: 2/2.
-
-### L-0010 — Skill sięgający poza katalog roboczy · 2026-08-07 · AKTYWNA
-
-- **Trigger:** w teście R2 sesja wykonująca `relai-core` napisała: „Global settings
-  `~/.claude/relai/USTAWIENIA.md` — dostęp zablokowany (poza working directory), więc dziedziczenia
-  nie sprawdzę".
-- **Przyczyna:** warstwa globalna (D-23) została zaprojektowana bez sprawdzenia, czy sesja w ogóle
-  ma prawo czytać pliki spoza katalogu projektu. Domyślnie nie ma.
-- **Zasada:** procedura skilla przewiduje brak dostępu do zasobów spoza katalogu roboczego: mówi
-  o tym jednym zdaniem i działa dalej na wartościach projektowych. Mechanizm dziedziczenia wymaga
-  rozwiązania systemowego (hook albo jawna zgoda na katalog) — do rozstrzygnięcia w E5.
-- **Źródło:** pomiar R2, etap E3 (2026-08-07).
-
-### L-0011 — Odsyłacz do specyfikacji zamiast specyfikacji · 2026-08-07 · AKTYWNA
-
-- **Trigger:** `relai-planning` kazał generować `PROMPT_ETAP_N.md` „wg
-  `${CLAUDE_PLUGIN_ROOT}/templates/SPEC_PROMPT_ETAPU.md`". Pierwszy realnie wygenerowany prompt miał
-  treść merytorycznie dobrą i **własny układ dziesięciu sekcji** — bez linii metrycznej z numerem
-  etapu, bez bloku „Kontrola modelu", bez tabeli „Co przeczytać na start".
-- **Przyczyna:** sesja nie otwarła pliku specyfikacji (patrz L-0012) i wypełniła lukę zdrowym
-  rozsądkiem. Zdrowy rozsądek daje dobry dokument o innym kształcie — a kształt jest tu funkcją:
-  świeża sesja szuka konkretnych sekcji w konkretnej kolejności.
-- **Zasada:** to, czego naprawdę wymagasz, wypisujesz **w treści skilla**, a odsyłacz do
-  specyfikacji zostaje jako źródło szczegółów. Sam odsyłacz jest życzeniem.
-- **Źródło:** pomiar w etapie E4 (2026-08-07). Przed poprawką układ niezgodny w 9 elementach na 9;
-  po wypisaniu dziewięciu sekcji w skillu — zgodny w 9 na 9.
-
-### L-0012 — Katalog pluginu niedostępny dla sesji · 2026-08-07 · AKTYWNA
-
-- **Trigger:** inicjalizacja projektu w świeżym pustym folderze **zatrzymała się**: sesja napisała
-  „blocked: `…/plugins/cache/relai/relai/0.4.0/templates/*`" i odmówiła generowania ośmiu dokumentów
-  z pamięci. Po `claude --add-dir <katalog pluginu>` ta sama inicjalizacja przeszła w całości.
-- **Przyczyna:** D-60 zakłada, że specyfikacje mieszkają w `templates/` pluginu i są czytane
-  w czasie pracy. Sesja uruchomiona w projekcie nie ma prawa czytać niczego spoza katalogu
-  roboczego — dotyczy to katalogu pluginu tak samo jak katalogu domowego (L-0010).
-- **Zasada:** żaden krok obowiązkowy nie może zależeć wyłącznie od odczytu pliku z katalogu
-  pluginu. Rzeczy krytyczne mieszkają w treści skilla; `templates/` zostaje źródłem szczegółów
-  i przykładów. Rozwiązanie systemowe — E5, razem z hookami.
-- **Źródło:** test inicjalizacji w etapie E4 (2026-08-07). Ryzyko R8.
-
-### L-0013 — Pytanie zamiast posprzątania · 2026-08-07 · AKTYWNA
-
-- **Trigger:** sekwencja zamknięcia planu (D-36) przeniosła folder planu do archiwum, a linię
-  „Aktywny plan" w `CLAUDE.md` zostawiła wskazującą na przeniesiony folder — z adnotacją „nie
-  wybieram za Ciebie, to martwy link". Pierwsza poprawka („jest jeden inny plan → wpisz go") tego
-  nie zmieniła: sesja nadal wolała zapytać.
-- **Przyczyna:** reguła „decyzje należą do człowieka" bierze górę nad wszystkim, także wtedy, gdy
-  skutkiem jest zostawienie projektu w stanie niespójnym. Model traktuje pytanie jako bezpieczne
-  domyślnie — a nie jest, gdy koszt czekania ponosi plik.
-- **Zasada:** wskaż **warunek końcowy stanu**, nie tylko preferowany wybór: „kiedy kończysz turę,
-  linia wskazuje istniejący plik albo brzmi »brak«". Wtedy pytanie o następcę zostaje dozwolone,
-  a martwy link — nie. Zawsze podaj poprawną wartość tymczasową.
-- **Źródło:** dwa kolejne pomiary w etapie E4 (2026-08-07); dopiero sformułowanie warunku końcowego
-  dało wynik zgodny z D-36.
-
-### L-0014 — Wpis o kroku, którego nie wykonano · 2026-08-07 · AKTYWNA
-
-- **Trigger:** sesja zamykająca plan napisała w dzienniku „folder przeniesiony do archiwum",
-  podczas gdy tabela etapów stała jeszcze na `W TOKU`, a `docs/archiwum/` nie istniało. Wyłapała to
-  dopiero następna sesja, sprawdzając stan repo zamiast ufać wpisowi.
-- **Przyczyna:** rytuał opisany jako lista kroków kusi, by opisać całą listę jednym wpisem, zanim
-  wykona się jej koniec.
-- **Zasada:** najpierw zmiana w repozytorium, potem zdanie, które ją opisuje. Dziennik jest
-  dokumentem, któremu następna sesja ufa bezwarunkowo — zdanie napisane na zapas jest fałszem
-  z odroczonym skutkiem.
-- **Źródło:** przebieg testowy zamknięcia planu w etapie E4 (2026-08-07).
-
-### L-0015 — Komenda nie ładuje skilla, do którego odsyła · 2026-08-07 · AKTYWNA
-
-- **Trigger:** `/relai-stage` odsyłał do sekcji „Zamknięcie planu" w `relai-planning`. W trzech
-  przebiegach, w których transkrypt **nie zawiera wywołania `Skill`**, zamknięcie planu wyszło
-  niepełne; w przebiegach, w których `relai-planning` się załadował — pełne.
-- **Przyczyna:** wywołanie komendy wprost wczytuje wyłącznie treść komendy. Odesłanie „patrz skill
-  X" nie jest instrukcją wykonawczą dla środowiska — jest notatką dla czytelnika.
-- **Zasada:** procedurę potrzebną komendzie albo wpisujesz do niej, albo każesz jej **jawnie
-  wczytać skill** (narzędzie `Skill`) jako pierwszy krok tej części pracy.
-- **Źródło:** pomiary w etapie E4 (2026-08-07); po dopisaniu jawnego wczytania — sekwencja D-36
-  pełna, ze skillem widocznym w transkrypcie.
-
-### L-0016 — Polskie znaki w wyjściu hooka na Windows · 2026-08-07 · AKTYWNA
-
-- **Trigger:** punkt weryfikacji E5 kazał rozstrzygnąć, czy komunikaty hooków niosą polskie znaki,
-  czy są świadomie ASCII; równolegle test hooka przez `echo` w bashu przekłamał „ó" w ścieżce
-  i guard po cichu odmówił działania.
-- **Przyczyna:** wyjście procesu hooka przechodzi przez warstwy konsoli Windows o niejednolitym
-  kodowaniu; treść plików czytana narzędziami Claude Code jest od tego wolna.
-- **Zasada:** komunikaty hooków (stdout/stderr, JSON `permissionDecisionReason`,
-  `additionalContext`, `systemMessage`) piszemy bez polskich diakrytyków; dokumenty i skille —
-  normalną polszczyzną.
-- **Źródło:** rozstrzygnięcie punktu weryfikacji etapu E5 (2026-08-07), nie korekta użytkownika.
-
-### L-0017 — Dowód działania hooka to efekt, nie zdarzenie w transkrypcie · 2026-08-07 · AKTYWNA
-
-- **Trigger:** żywy test `console-log-warn` wyglądał na FAIL: `grep` po transkrypcie
-  `stream-json` nie znalazł ostrzeżenia, a bezpośredni test przez `echo` milczał. Hook działał —
-  transkrypt loguje wyłącznie hooki SessionStart, a `echo` w bashu przekłamał „ó" w `cwd`.
-- **Przyczyna:** dwa niezależne artefakty pomiaru: format transkryptu nie itemizuje zdarzeń
-  PreToolUse/PostToolUse/Stop; shell na Windows psuje diakrytyki w payloadzie.
-- **Zasada:** zachowanie hooka mierzysz efektem na dysku (obecność/suma kontrolna pliku) i treścią
-  odpowiedzi modelu; payload testowy budujesz w Node (plik skryptu), nigdy `echo`/heredoc
-  z polskimi znakami.
-- **Źródło:** debugowanie fałszywego FAIL-a w etapie E5 (2026-08-07).
-
-### L-0018 — Kryterium weryfikacji przewidujące cudzy format · 2026-08-07 · AKTYWNA
-
-- **Trigger:** PROMPT_ETAP_5 wymagał, by `claude plugin details` pokazało „Hooks (8)"; realne CLI
-  liczy typy zdarzeń i pokazuje „Hooks (4)" przy ośmiu zarejestrowanych plikach.
-- **Przyczyna:** punkt weryfikacji zapisany jako przewidywanie formatu wyjścia narzędzia, którego
-  nie kontrolujemy; przewidywanie się zestarzało, zanim zostało użyte.
-- **Zasada:** punkt weryfikacji opieraj na stanie, który kontrolujesz (zawartość `hooks.json`,
-  zachowanie ośmiu hooków), a wynik cudzego narzędzia traktuj jako sygnał pomocniczy do
-  zinterpretowania, nie jako kryterium dosłowne.
-- **Źródło:** przegląd zamykający etap E5 (2026-08-07), nie korekta użytkownika.
-
-### L-0019 — Lista zakazów wzięta za definicję dobrego designu · 2026-08-07 · AKTYWNA
-
-- **Trigger:** pięć propozycji designu z E6 fazy 1 przeszło całą kontrolę mechaniczną (zero
-  fioletu, zero cieni, zero emoji, zero glassmorphismu) i **żadna nie spodobała się użytkownikowi**:
-  „nie zrobił efektu wow", „za ostre", „zbyt rygorystycznie podszedłem do stwierdzenia no ai-slop".
-- **Przyczyna:** D-61 wylicza, czego **nie wolno**. Potraktowałem tę listę jako komplet wymagań
-  i optymalizowałem pod nią — zero cieni, ostre rogi, brak animacji, surowa typografia. Spełnienie
-  wszystkich zakazów daje dokument poprawny i martwy, bo zakaz nie niesie żadnej informacji o tym,
-  co ma **przyciągać**.
-- **Zasada:** lista zakazów jest filtrem końcowym, nie briefem. Zanim wygenerujesz N wariantów
-  pod jeden brief, zbierz od człowieka **cechy pozytywne** (co ma cieszyć oko, jaki nastrój, jakie
-  skojarzenie) — a przy zadaniu wizualnym pokaż **jeden** wariant do kalibracji smaku, zanim
-  wyprodukujesz pięć. Pięć chybionych propozycji kosztuje pięć razy tyle, co jedna.
-- **Źródło:** korekta użytkownika 2026-08-07 po prezentacji fazy 1 etapu E6; skutkowała zmianą
-  decyzji D-61 (patrz `DECYZJE.md`, sekcja „Decyzje zmienione").
-
-### L-0020 — „Zainstalowane" wzięte z niewłaściwego źródła · 2026-08-08 · AKTYWNA
-
-- **Trigger:** po pushu 0.6.0 sekwencja `marketplace update` + `plugin install` zameldowała
-  „Plugin already installed", a `claude plugin details` pokazał `relai 0.6.0`. Pierwszy pomiar E6
-  poszedł mimo to na skillu z 0.5.0: świeża sesja wygenerowała `PLAN.md` zamiast `PLAN.html`
-  i napisała wprost „plugin 0.5.0 nie ma szablonu HTML".
-- **Przyczyna:** dwa fałszywe dowody instalacji. `plugin install` na już zainstalowanym pluginie
-  kończy się bez zmian (nie aktualizuje), a `plugin details` czyta metadane **marketplace'u**,
-  nie wpisu instalacji — po `marketplace update` pokazuje nowy numer niezależnie od tego, co
-  faktycznie siedzi na dysku.
-- **Zasada:** po pushu obowiązuje `claude plugin marketplace update <mp>` → **`claude plugin update
-  <plugin>@<mp>`**. Wersję zainstalowaną potwierdzasz wpisem w
-  `~/.claude/plugins/installed_plugins.json` (`installPath`, `version` **i `gitCommitSha`**) albo
-  nagłówkiem skilla w `~/.claude/plugins/cache/…`. Zanim uznasz pomiar za ważny, sprawdź, którą
-  wersję mierzyłeś.
-- **Dopisek z tej samej sesji:** `plugin update` porównuje **numer wersji**, nie commit. Poprawka
-  wypchnięta bez podbicia wersji zostawia cache na starym `gitCommitSha` („already at the latest
-  version") — dociera dopiero przez `plugin uninstall` + `plugin install` albo przez podbicie
-  wersji. Zmierzone: sha `79e489d` → po reinstalacji `22b1b1f`.
-- **Źródło:** pomiar zamykający etap E6 (2026-08-08), nie korekta użytkownika.
-
-### L-0021 — `tar` na PATH nie jest tym `tar`, o którym myślisz · 2026-08-08 · AKTYWNA
-
-- **Trigger:** rozstrzygając, czym `/relai-backup` ma pakować ZIP na Windows, uruchomiłem
-  `tar -a -c -f test.zip …` w powłoce Git Bash. Polecenie **przeszło bez błędu i bez ostrzeżenia**,
-  plik powstał, `tar -tf` wypisał jego zawartość. Dopiero kontrola pierwszych bajtów pokazała, że
-  to archiwum **tar** z rozszerzeniem `.zip` — Eksplorator Windows i `Expand-Archive` by go nie
-  otworzyły.
-- **Przyczyna:** `tar` na `PATH` w Git Bash to GNU tar 1.35, który ZIP-a nie umie i po cichu ignoruje
-  intencję `-a`. Systemowy `C:\Windows\System32\tar.exe` to bsdtar 3.8.4 (libarchive) i ten sam
-  zapis daje prawdziwy ZIP. Nazwa polecenia nie mówi nic o implementacji.
-- **Zasada:** narzędzie systemowe, od którego zależy **format** artefaktu, wywołuj pełną ścieżką
-  i weryfikuj **wynik**, nie kod wyjścia: nagłówek pliku, lista wpisów, otwarcie natywnym
-  narzędziem docelowej platformy. „Polecenie się udało" nie znaczy „powstało to, co miało powstać".
-- **Źródło:** rozstrzygnięcie punktu 1 zakresu etapu E7 (2026-08-08).
-
-### L-0022 — Komenda pluginu nazywa się inaczej, niż ją nazwałeś · 2026-08-08 · AKTYWNA
-
-- **Trigger:** pierwszy pomiar E7 — `claude -p "/relai-backup <ścieżka>"` odpowiedział
-  `Unknown command: /relai-backup`. To samo dla `/relai-stage`, czyli dla komendy działającej
-  od E4. Zadziałała dopiero forma pełna: `/relai:relai-backup`, `/relai:relai-stage`.
-- **Przyczyna:** Claude Code rejestruje komendy pluginu w przestrzeni nazw pluginu —
-  `/<plugin>:<plik-komendy>`. Nazwa skrócona bywa rozwijana przez podpowiadacz w sesji
-  interaktywnej, ale w trybie `-p` nie istnieje. Przez trzy etapy `docs/KOMENDY.md` obiecywał
-  użytkownikowi formę, której nie zmierzono ani razu.
-- **Zasada:** w dokumencie użytkownika podajesz **tę formę wywołania, którą zmierzyłeś**. Zanim
-  wpiszesz komendę do ściągi, uruchom ją dosłownie tak, jak jest tam zapisana. To jest L-0002
-  zastosowane do składni, nie do zakresu funkcji.
-- **Źródło:** pomiary etapu E7 (2026-08-08).
-
-### L-0023 — Krok, który sięga poza katalog roboczy, musi mieć zapisane wyjście awaryjne · 2026-08-08 · AKTYWNA
-
-- **Trigger:** `/relai-backup` z folderem docelowym poza projektem zakończył się w świeżej sesji
-  odmową zapisu. Sesja zachowała się dobrze (powiedziała wprost, że to blokada uprawnień, i nie
-  podmieniła lokalizacji), ale wiedziała to **z własnego rozsądku**, nie z treści komendy — w pliku
-  komendy tej sytuacji nie było.
-- **Przyczyna:** ta sama luka co przy katalogu pluginu (L-0012) i warstwie globalnej (L-0010):
-  mechanizm sięgający poza katalog roboczy zakłada dostęp, którego sesja domyślnie nie ma.
-- **Zasada:** przy każdym kroku wychodzącym poza katalog roboczy wpisz do procedury, **co zrobić
-  po odmowie** — jak brzmi komunikat dla użytkownika i jakie są dwa wyjścia (zgoda w sesji albo
-  `--add-dir`). Nigdy „po cichu bliżej": backup w środku projektu nie chroni przed niczym.
-- **Źródło:** pomiary etapu E7 (2026-08-08).
-
-### L-0024 — Sesja pomiarowa, która mierzy co innego · 2026-08-08 · AKTYWNA
-
-- **Trigger:** pierwszy przebieg fazy 1 pomiarów E8 — cztery świeże sesje `claude -p` z promptem
-  „Chcę tutaj założyć projekt RelAI…" przekazanym **argumentem**. Wszystkie cztery odpowiedziały
-  sensownie i wszystkie zobaczyły prompt urwany na słowie „Chcę": powłoka Windows przekłamała
-  polskie znaki i obcięła resztę. Drugi przebieg, faza 2 — sesje odmówiły zapisu („zgoda na `Write`
-  nie została udzielona"), bo tryb `-p` domyślnie nie ma prawa pisać.
-- **Przyczyna:** dwie niezależne bariery, z których żadna nie zgłasza się jako błąd. Obcięty prompt
-  daje **wiarygodną** odpowiedź na inne pytanie; brak uprawnień daje wiarygodne wyjaśnienie zamiast
-  wyniku. Oba przebiegi wyglądały na udane.
-- **Zasada:** prompt sesji pomiarowej przekazujesz **przez stdin** (`spawn('claude', ['-p'])` +
-  `stdin.write(prompt)`), a zapis włączasz `--permission-mode acceptEdits`. To jest L-0017
-  („payload buduj Nodem, nie echem") rozszerzone z payloadów hooków na prompty sesji. Zanim uznasz
-  pomiar za ważny, sprawdź w wyjściu, czy sesja zobaczyła cały prompt.
-- **Źródło:** pomiary etapu E8 (2026-08-08).
+> Lekcje L-0001 … L-0024 (24 lekcji) są w
+> [docs/archiwum/lekcje/LEKCJE_L-0001_L-0024.md](archiwum/lekcje/LEKCJE_L-0001_L-0024.md)
+> — przeniesione 2026-08-12, suma kontrolna `bd5f9050dc7e7278`.
 
 ### L-0025 — Dopasowanie „gdziekolwiek w linii" trafia w prozę · 2026-08-08 · AKTYWNA
 
@@ -678,3 +384,65 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
 - **Źródło:** E4 planu ROZWOJ_PO_WYDANIU (2026-08-12), instrument `porownanie.js` — 18/18
   scenariuszy zgodnych, jedyna różnica (wielokropek `…` → `...` przy przenoszeniu etykiet do
   rdzenia, L-0016) wyszła na jaw właśnie dlatego, że porównanie było mechaniczne.
+
+### L-0041 — Cudze narzędzie rozpoznajesz z jego build'u i z próby, nie z dokumentacji · 2026-08-12 · AKTYWNA
+
+- **Trigger:** `PRZENOSNOSC.md` po E4 miał pięć pozycji `<DO UZUPEŁNIENIA: …>`, bo dokumentacja
+  Cursora nie opisywała ścieżek komend, a dwie strony zwracały 404. Adapter miał stanąć na tych
+  właśnie mechanizmach.
+- **Przyczyna:** dokumentacja producenta opisuje to, co producent zdążył opisać; zainstalowany
+  build opisuje to, co realnie robi wydana wersja. Różnica między nimi jest dokładnie tym, na czym
+  wykłada się adapter pisany „na wiarę".
+- **Zasada:** zanim napiszesz adapter, przeczytaj **kod wydanego build'u** (walidatory, schematy,
+  ścieżki) i **zmierz zachowanie próbą** na działającej instalacji. Każdą pozycję rozpoznania
+  oznacz źródłem: `[dokumentacja]`, `[kod produktu]`, `[próba]`. Pozycja bez źródła jest domysłem
+  i wraca do listy niepewnych (L-0026).
+- **Źródło:** E5 planu ROZWOJ_PO_WYDANIU (2026-08-12). Z build'u Cursora 3.7.12 wyszły: ścieżki
+  komend i skilli, pełna lista 21 zdarzeń hooków, walidatory odpowiedzi `preToolUse` i
+  `sessionStart` oraz warstwa zgodności z Claude Code — żadnej z tych rzeczy nie było w otwartych
+  stronach dokumentacji.
+
+### L-0042 — Payload cudzego hooka: zdejmij BOM i nie zakładaj znanych pól · 2026-08-12 · AKTYWNA
+
+- **Trigger:** pierwsza próba adaptera Cursora nie logowała niczego. Payload przychodził
+  z bajtem BOM (w pomiarze **podwójnym**), więc `JSON.parse` wywracał się na pierwszym znaku,
+  a hook — zgodnie z konwencją hook-guard — milkł.
+- **Przyczyna:** transport payloadu jest własnością narzędzia. Cursor na Windows dokleja BOM,
+  a w payloadzie `preToolUse` **nie ma pola `cwd`** — katalog roboczy przychodzi jako
+  `workspace_roots[]`. Hook przepisany z adaptera Claude Code jeden do jednego działa „na sucho":
+  nie wysypuje się, tylko po cichu nic nie robi.
+- **Zasada:** stdin hooka parsuj po `stripBom`, a katalog roboczy ustalaj z listy kandydatów
+  (`cwd`, potem `workspace_roots[0]`, potem `process.cwd()`). Zanim uznasz hook za działający,
+  **przechwyć realny payload** i przeczytaj jego pola — nie zakładaj ich z drugiego narzędzia.
+- **Źródło:** E5 planu ROZWOJ_PO_WYDANIU (2026-08-12), instrument `hook-log.js` i cztery
+  przechwycone payloady (`sessionStart`, dwa `preToolUse`, `afterFileEdit`).
+
+### L-0043 — Guardrail przez interpreter znika po cichu; opakowanie zamienia ciszę w blokadę · 2026-08-12 · AKTYWNA
+
+- **Trigger:** pomiar scenariusza „zespół bez Node.js". Hook wskazany jako `node <plik>` przy braku
+  interpretera nie uruchomił się, Cursor **nie powiedział o tym ani słowa**, a zapis pliku
+  przeszedł. Guardrail zniknął bez śladu — użytkownik miał prawo myśleć, że nadal stoi.
+- **Przyczyna:** narzędzie rozróżnia dwie awarie hooka: „uruchomił się i zwrócił śmieci" (blokuje,
+  fail-closed) oraz „nie dało się uruchomić" (ignoruje). Druga jest cichą degradacją i nie da się
+  jej zagłuszyć z wnętrza skryptu, którego nikt nie odpalił.
+- **Zasada:** guardrail wołaj przez **opakowanie powłoki** (`.cmd` / `.sh`) — ono uruchomi się
+  zawsze, bo powłokę system ma. Brak interpretera → komunikat i kod blokujący. Rezygnacja
+  z guardraila musi być **jawną decyzją człowieka** (flaga instalatora), nie skutkiem ubocznym
+  środowiska.
+- **Źródło:** E5 planu ROZWOJ_PO_WYDANIU (2026-08-12): pomiar przed poprawką (zapis przeszedł
+  w ciszy) i po poprawce (kod 2 z komunikatem; w żywej sesji Cursora czysty zapis przeszedł,
+  zapis klucza został zablokowany).
+
+### L-0044 — Sesję pomiarową cudzego CLI uruchamiaj z powłoki natywnej dla systemu · 2026-08-12 · AKTYWNA
+
+- **Trigger:** ta sama sesja `cursor-agent -p` uruchomiona z gitowego basha kończyła się
+  komunikatem o zepsutych hookach i blokadą narzędzi zapisu; uruchomiona z PowerShella wykonała
+  zadanie i odpaliła wszystkie hooki.
+- **Przyczyna:** narzędzie dziedziczy powłokę procesu wywołującego, a payload podaje hookowi
+  transportem zbudowanym w składni tej powłoki (na Windows: here-string PowerShella). W obcej
+  powłoce transport jest błędem składni — i wygląda jak błąd naszego hooka.
+- **Zasada:** pomiar cudzego CLI prowadź z powłoki natywnej dla systemu (Windows: PowerShell).
+  Zanim uznasz własny skrypt za winnego, sprawdź, czy w ogóle został uruchomiony — najtaniej
+  logiem po stronie skryptu.
+- **Źródło:** E5 planu ROZWOJ_PO_WYDANIU (2026-08-12), cztery przebiegi próbne (dwa z basha, dwa
+  z PowerShella).

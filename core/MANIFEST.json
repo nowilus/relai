@@ -1,6 +1,6 @@
 {
   "name": "relai-core",
-  "version": "1.4.0",
+  "version": "1.5.0",
   "description": "Wspolny rdzen RelAI: specyfikacje dokumentow, opisy procesu i guardrails jako czyste skrypty Node. Adaptery narzedzi (Claude Code, Cursor, Codex) korzystaja z tych samych plikow.",
   "templates": "./templates/",
   "guardrails": [
@@ -23,6 +23,14 @@
       "description": "Instaluje i odinstalowuje pre-commit w .git/hooks wskazanego repozytorium."
     }
   ],
+  "process": [
+    {
+      "id": "session-signals",
+      "file": "./process/session-signals.js",
+      "kind": "biblioteka",
+      "description": "Rozpoznanie stanu projektu dla hooka startu sesji: marker, tryb goscia, wersja, luka promptu etapowego, rozjazd stanu, nieznany autor, ustawienia globalne, prowizjonowanie specyfikacji. Bez wiedzy o protokole hookow."
+    }
+  ],
   "tools": [
     {
       "id": "validate-adapters",
@@ -38,7 +46,19 @@
       "entry": "./../adapters/claude-code/hooks/hooks.json",
       "uses": [
         "./templates/",
-        "./guardrails/secret-scan.js"
+        "./guardrails/secret-scan.js",
+        "./process/session-signals.js"
+      ]
+    },
+    {
+      "id": "cursor",
+      "root": "./../adapters/cursor/",
+      "manifest": "./../adapters/cursor/README.md",
+      "entry": "./../adapters/cursor/install.js",
+      "uses": [
+        "./templates/",
+        "./guardrails/secret-scan.js",
+        "./process/session-signals.js"
       ]
     }
   ]

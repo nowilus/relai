@@ -14,7 +14,8 @@ istniała, zanim po drugiej stronie pojawi się drugi konsument.
 | `guardrails/secret-scan.js` | czysta logika „czy w tej treści jest sekret". Biblioteka i CLI naraz, bez wiedzy o protokole hooków |
 | `guardrails/pre-commit.js` | hook gita: zatrzymuje commit z sekretem w indeksie. Jedyna gwarancja RelAI działająca **niezależnie od narzędzia** |
 | `guardrails/install-precommit.js` | instaluje i odinstalowuje powyższy hook w `.git/hooks` wskazanego repozytorium |
-| `tools/validate-adapters.js` | sprawdza, czy adaptery nie odjechały od rdzenia: martwe odwołania, rozjazd numerów wersji |
+| `process/session-signals.js` | rozpoznania startu sesji: marker projektu, tryb gościa, wersja projektu, luka promptu etapowego (D-34), rozjazd stanu, nieznany autor (D-27), ustawienia globalne, prowizjonowanie specyfikacji. Fakty na wyjściu, zero wiedzy o protokole hooków |
+| `tools/validate-adapters.js` | sprawdza, czy adaptery nie odjechały od rdzenia: martwe odwołania (także te z **kodu** adapterów), rozjazd numerów wersji |
 | `MANIFEST.json` | spis treści rdzenia i rejestr adapterów; czyta go walidator |
 
 ## Gdzie przebiega granica
@@ -29,7 +30,9 @@ Praktyczny test: gdyby jutro powstał adapter Cursora, czy ten plik trafiłby do
 Tak → rdzeń. Nie → adapter.
 
 Dzisiejszy adapter Claude Code mieszka w `adapters/claude-code/` (skille, komendy, hooki), a jego
-manifest w `.claude-plugin/` — tam, gdzie wymaga tego Claude Code.
+manifest w `.claude-plugin/` — tam, gdzie wymaga tego Claude Code. Od 1.5.0 obok stoi
+`adapters/cursor/`: reguły `.mdc`, dwa hooki i instalator, który kopiuje do projektu komendy
+i skille **z adaptera Claude Code** — bo Cursor czyta ten sam format (zmierzone, `docs/PRZENOSNOSC.md`).
 
 ## Instalacja pre-commita
 
@@ -59,21 +62,29 @@ dopiąć wywołanie do istniejącego hooka.
 
 ## Czego tu świadomie nie ma
 
-**Logiki `config-protection`.** Rozdzielenie jej na rdzeń i warstwę hooka rozważono w E4 i
-odrzucono. Powód: sama reguła („plik ustawień i sekcja niemutowalna wymagają zgody; w profilach
-`agent-voice` i `flow` zmiana konfiguracji produkcyjnej wymaga wcześniejszego snapshotu") jest
-przenośna, ale jej **egzekwowanie** sprowadza się w całości do werdyktu `ask` w protokole hooków —
-a to jest własność narzędzia, nie rdzenia. Wyciągnięcie samego rozpoznawania „czy ten plik jest
-chroniony" dałoby moduł bez drugiego konsumenta (YAGNI) i rozbiłoby bramkę, która dziś stoi
-w jednym pliku i w jednym miejscu blokuje. Wraca do rozważenia w E5, gdy będzie wiadomo z próby,
-czy `preToolUse` Cursora potrafi odpowiedzieć „zapytaj człowieka" przy zapisie pliku
-(`docs/PRZENOSNOSC.md`, sekcja 1.3).
+**Logiki `config-protection`.** Rozdzielenie jej na rdzeń i warstwę hooka rozważono w E4
+i odrzucono, z zapowiedzią powrotu w E5. **E5 rozstrzygnął: zostaje w adapterze Claude Code.**
+Powód jest teraz zmierzony, nie przypuszczony: Cursor przyjmuje `permission: "ask"` w schemacie
+odpowiedzi `preToolUse`, ale producent pisze wprost, że dla tego zdarzenia werdykt nie jest
+egzekwowany (`docs/PRZENOSNOSC.md`, sekcja 1.3a). Drugiego konsumenta nadal więc nie ma — w Cursorze
+ochronę plików konfiguracyjnych niesie **reguła** `relai-guardrails.mdc`, nie hook. Wyciągnięcie
+samego rozpoznawania „czy ten plik jest chroniony" dałoby moduł bez odbiorcy (YAGNI) i rozbiłoby
+bramkę, która dziś stoi w jednym pliku.
 
-**Opisów procesu w osobnych plikach.** Proces mieszka dziś w specyfikacjach z `templates/`
-(to one mówią, jak wygląda dziennik, plan, status, rytuał) oraz w skillach adaptera. Przenoszenie
-skilli do rdzenia „na zapas" oznaczałoby przepisanie ich na format, którego żaden adapter jeszcze
-nie czyta — a dwie kopie procesu to dwa źródła prawdy. Rozstrzygnięcie zapada w E5, na realnym
-adapterze.
+**Opisów procesu w osobnych plikach rdzenia.** Rozstrzygnięte w E5 na realnym adapterze:
+**nie powstają**. Cursor czyta pliki komend (`.cursor/commands/*.md`) i skille
+(`.cursor/skills/<nazwa>/SKILL.md`) w tym samym formacie co Claude Code — zmierzone — więc adapter
+Cursora **kopiuje przy instalacji** pliki adaptera Claude Code zamiast czytać trzeci format.
+Jedno źródło w repozytorium, kopia w projekcie, zero przepisywania procesu na nowy format.
+
+Do rdzenia trafiło natomiast to, co oba adaptery robią **kodem**, a nie tekstem: rozpoznania
+startu sesji (`process/session-signals.js`). Kryterium jest to samo co zawsze — hook Cursora
+i hook Claude Code wołają dziś ten sam plik, więc nie ma gdzie się rozjechać.
+
+**Rozpięcia pozostałych ośmiu hooków Claude Code na rdzeń.** Każdy z nich ma własną, dwunastolinijkową
+kopię `isGuest`. Świadomie zostawione: te hooki nie mają bliźniaka w adapterze Cursora, więc
+dryf nie ma się z czym rozjechać, a przepięcie dziesięciu plików zamiast dwóch rozdęłoby diff etapu
+bez zysku. Wraca, gdy któryś z nich dostanie odpowiednik w drugim narzędziu.
 
 ## Walidacja przed wydaniem
 

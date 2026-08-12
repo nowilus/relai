@@ -1,6 +1,6 @@
 # KOMENDY — RelAI
 
-RelAI 1.4.0
+RelAI 1.5.0
 
 Nic z tej listy nie jest obowiązkowe. RelAI działa w zwykłej rozmowie — piszesz normalnie,
 a struktura projektu nadąża. Komendy są skrótem do rzadszych operacji.

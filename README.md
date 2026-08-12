@@ -3,10 +3,11 @@
 </p>
 
 <p align="center">
-  <em>Wersja 1.4.0 &nbsp;·&nbsp; licencja MIT &nbsp;·&nbsp; wymaga Claude Code i Node.js 14+ &nbsp;·&nbsp; zero zależności npm</em>
+  <em>Wersja 1.5.0 &nbsp;·&nbsp; licencja MIT &nbsp;·&nbsp; wymaga Claude Code albo Cursora, plus Node.js 14+ &nbsp;·&nbsp; zero zależności npm</em>
 </p>
 
-**RelAI to plugin do Claude Code, który zamienia rozmowę z agentem w prowadzony projekt.**
+**RelAI to plugin do Claude Code (od 1.5.0 także adapter Cursora), który zamienia rozmowę
+z agentem w prowadzony projekt.**
 Ustalenia, decyzje, stan prac i historia zostają w plikach obok kodu — a nie w kontekście sesji,
 który za chwilę zniknie.
 
@@ -257,7 +258,8 @@ Uczciwie, bez obiecywania więcej, niż jest.
 
 ### Wymagania
 
-- Claude Code (dowolny klient: terminal, aplikacja, IDE),
+- Claude Code (dowolny klient: terminal, aplikacja, IDE) **albo Cursor** — od 1.5.0 jest adapter
+  Cursora (`adapters/cursor/`, instalacja niżej),
 - Node.js 14+ w `PATH` — hooki są zwykłymi skryptami Node bez zależności npm,
 - git (opcjonalnie, ale bez niego znika siatka bezpieczeństwa historii zmian).
 
@@ -277,16 +279,23 @@ relai/
 │   │   ├── secret-scan.js       #   czysta logika "czy to sekret" — biblioteka i CLI
 │   │   ├── pre-commit.js        #   hook gita: commit z sekretem nie przechodzi
 │   │   └── install-precommit.js #   instalacja i cofnięcie jednym poleceniem
+│   ├── process/
+│   │   └── session-signals.js   #   rozpoznania startu sesji: marker, luka promptu, rozjazd stanu
 │   └── tools/
 │       └── validate-adapters.js #   wykrywa rozjazd rdzenia i adapterów
 ├── adapters/
-│   └── claude-code/             # ADAPTER Claude Code
-│       ├── skills/              #   relai-core (rytuały, rejestry), relai-planning (plany, etapy)
-│       ├── commands/            #   dziesięć komend: stage, branch, backup, audit, changelog,
-│       │                        #     handover, tour, help, adopt, update
-│       └── hooks/
-│           ├── hooks.json       #   rejestracja dziesięciu hooków (zdarzenia i matchery)
-│           └── *.js             #   dziesięć hooków Node.js, zero zależności npm
+│   ├── claude-code/             # ADAPTER Claude Code
+│   │   ├── skills/              #   relai-core (rytuały, rejestry), relai-planning (plany, etapy)
+│   │   ├── commands/            #   dziesięć komend: stage, branch, backup, audit, changelog,
+│   │   │                        #     handover, tour, help, adopt, update
+│   │   └── hooks/
+│   │       ├── hooks.json       #   rejestracja dziesięciu hooków (zdarzenia i matchery)
+│   │       └── *.js             #   dziesięć hooków Node.js, zero zależności npm
+│   └── cursor/                  # ADAPTER Cursor (od 1.5.0)
+│       ├── install.js           #   instalacja i cofnięcie jednym poleceniem
+│       ├── rules/               #   trzy reguły .mdc z alwaysApply: true — warstwa nośna
+│       ├── hooks/               #   sessionStart (kontekst) i preToolUse (skan sekretów)
+│       └── README.md            #   instrukcja instalacji i tabela różnic
 ├── .claude-plugin/              # manifest pluginu i własny marketplace — w korzeniu,
 │   ├── plugin.json              #   bo tego wymaga Claude Code; wskazuje na adapters/claude-code/
 │   └── marketplace.json
@@ -299,6 +308,33 @@ projektu i pod jego realia, zamiast kopiować szablon z placeholderami.
 
 Praktyczny test granicy: gdyby jutro powstał adapter Cursora, czy ten plik trafiłby do niego bez
 zmian? Tak → rdzeń. Nie → adapter.
+
+### RelAI w Cursorze (od 1.5.0)
+
+Ten sam proces i te same dokumenty działają w Cursorze. Instalacja jednym poleceniem z katalogu
+RelAI:
+
+```bash
+node <RelAI>/adapters/cursor/install.js <katalog-projektu>
+```
+
+Instalator kładzie w projekcie trzy reguły `.cursor/rules/relai-*.mdc` z `alwaysApply: true`
+(warstwa nośna procesu), dziesięć komend `/relai-*`, dwa skille, trzydzieści specyfikacji
+dokumentów w `.claude/relai/templates/` oraz dwa wpisy w `.cursor/hooks.json`: kontekst startu
+sesji i skan sekretów blokujący zapis. Cudze wpisy w `hooks.json` zostają nietknięte, a cofnięcie
+to `--uninstall`.
+
+Oba narzędzia czytają i piszą **te same** `docs/` — pracę można prowadzić naprzemiennie, a wersję
+struktury projektu podbija wyłącznie `/relai-update`. Szczegóły, w tym uczciwa lista różnic
+(czego w Cursorze nie ma i co zachowuje się inaczej), są w
+[adapters/cursor/README.md](adapters/cursor/README.md) i w
+[docs/PRZENOSNOSC.md](docs/PRZENOSNOSC.md), sekcja 3.
+
+Jedna rzecz jest ważna od pierwszego dnia. Zmierzone zachowanie Cursora: hook, którego polecenia
+nie da się uruchomić, jest **ignorowany bez słowa** — zapis przechodzi tak, jakby guardraila nie
+było. Dlatego skan sekretów wołany jest przez opakowanie powłoki, które przy braku Node.js kończy
+się kodem 2, czyli blokadą z komunikatem. W projekcie bez Node.js oznacza to, że agent nie zapisze
+żadnego pliku — świadoma rezygnacja z guardraila to `--bez-skanu` przy instalacji.
 
 ### Skan sekretów przy commicie (opcjonalny, poza harnessem)
 

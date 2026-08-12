@@ -1,0 +1,141 @@
+---
+description: RelAI core process — session start ritual, definition of done, session close. Always in context.
+alwaysApply: true
+---
+
+# RelAI — core process
+
+This project uses **RelAI**, a documentation-and-process framework: the project remembers
+decisions, state and lessons between sessions. Documents live in `docs/`. Project documents are
+written in the **project language** (see `docs/USTAWIENIA.md` / `docs/SETTINGS.md`) — usually
+Polish. This rule is written in English because you read it, not the user.
+
+**Marker:** the project is a RelAI project when `docs/USTAWIENIA.md` (or `docs/SETTINGS.md`)
+contains the line `Wersja RelAI:` / `RelAI version:`. No marker → these rules do not apply; work
+as a normal assistant and do not create any RelAI file.
+
+**Guest mode:** `.cursor/relai.json` or `.claude/relai.json` containing `{"mode":"guest"}` means the
+user already declined RelAI in this folder. Never propose it again, in any session.
+
+## 1. Session start ritual — before your first substantive answer
+
+Read, in this order, and nothing else:
+
+| # | File | What you take from it |
+|---|---|---|
+| 1 | `CLAUDE.md` or `AGENTS.md` | process rules, definition of done, the active-plan line |
+| 2 | `docs/STATE.md` | today's state — the whole file, it is short |
+| 3 | `docs/DZIENNIK.md` (`JOURNAL.md`) | **only** the "Stan otwartych ryzyk" section + the last entry |
+| 4 | `docs/LEKCJE.md` (`LESSONS.md`) | **only** the "Zasady aktywne" section |
+| 5 | `docs/USTAWIENIA.md` (`SETTINGS.md`) | preferences — before you ask the user about anything |
+| 6 | active plan `docs/plany/<TOPIC>/STATUS.md` | only if the file in row 1 points to one |
+
+Do **not** full-text scan the repository at session start. Do not read `docs/DECYZJE.md` whole —
+reach for it when the topic requires it. A file that does not exist is not an error.
+
+Then write **one paragraph** (3–5 sentences) "where we are": what works, what we are working on,
+what blocks, the nearest step. No lists, no tables. Then do what the user asked.
+
+If the `sessionStart` hook injected a `[RelAI session-context]` block, its signals are already
+raised — do not repeat them, act on them. If it reported a missing stage prompt, a state
+divergence or an unknown author, that signal goes into the **first sentence** of your reply,
+before the "where we are" paragraph, and you **wait** for the user's answer.
+
+## 2. Definition of done — behaviour, not a declaration (D-44)
+
+**A functional change means you update the documents in the same turn, without asking.**
+
+A functional change is: something started working, something stopped, a module appeared or
+disappeared, the way to run the project changed, a plan started or closed, a priority changed.
+
+In the same turn:
+
+1. `docs/STATE.md` — overwrite what changed (STATE has no history; do not append).
+2. `docs/DZIENNIK.md` — append an entry at the **end** of the "Wpisy" section, following
+   `SPEC_DZIENNIK.md`: Zrobione / Zweryfikowane — jak dokładnie / Świadomie odłożone /
+   Do zrobienia przez człowieka. Date from the session context, never from model memory.
+   Signature line: `Autor: RelAI (<model>) + <git config user.name>` — **both parts**.
+3. `README.md` — only if the way to run the project changed, an `.env` variable was added, or a
+   new document appeared in `docs/`.
+
+Never ask "should I update the documents?", never leave it "for the end of the session", never
+report a task as finished before it is done. Working code with a stale STATE is **in progress**.
+
+This does not apply to questions, analysis, reading code, experiments without writes, or typo
+fixes in a comment.
+
+## 3. Reaction to a user correction
+
+The user corrected *how* you work, not *what* to do:
+
+1. **Write the lesson without asking.** Entry `L-NNNN` at the end of the "Lekcje" section of
+   `docs/LEKCJE.md`, format per `SPEC_LEKCJE.md` (trigger / cause / rule / source). Confirm in one
+   line: "Zapisane jako L-0007." No apologies, no elaboration.
+2. Update "Zasady aktywne" if the lesson adds a rule that is not there yet.
+3. Repeat of an existing lesson → add it with a "powtórzenie L-XXXX" note and **propose** promoting
+   it to the always-in-context rules. You append there only after the human agrees.
+4. A recurring **substantive** decision (not behaviour) → propose freezing it as `D-NN` in
+   `docs/DECYZJE.md`. The human approves.
+5. Closing phrases ("nie rób tego więcej", "ustalmy raz na zawsze") are written **without asking**:
+   way of working → `LEKCJE.md`, project ruling → `DECYZJE.md`.
+
+## 4. Session close ritual
+
+Triggered by the user saying you are finishing ("kończymy na dziś", "wrapping up") or when you
+finish a larger chunk of work:
+
+1. **Sync documents** — `STATE.md`, `USTAWIENIA.md` (new preferences), `LEKCJE.md` / `DECYZJE.md`,
+   `README.md` if the way to run changed.
+2. **Document rotation** — before the journal entry. See `SPEC_ARCHIWUM.md`, read it from
+   `.claude/relai/templates/`. Condition: the `Rotacja dokumentów` row in `docs/USTAWIENIA.md`;
+   `wyłączona` / `off` at the start of the cell → stop this step silently. Below the threshold:
+   **silence**, no message, no directory created. Two phases: copy + checksum proof first, trim
+   only after the checksums match. Never touch "Stan otwartych ryzyk", "Zasady aktywne", the ten
+   newest entries, the twenty newest lessons, or any entry with an unresolved
+   "Do zrobienia przez człowieka".
+3. **Journal entry** — one entry for the session, all four sections. "Zweryfikowane — jak dokładnie"
+   must say what you checked and with what result; "nie weryfikowano" is acceptable content, a
+   missing section is not.
+4. **Risks** — update the "Stan otwartych ryzyk" table if anything opened, closed or changed level.
+5. **Commit** — if the project uses git and there are uncommitted changes, propose a conventional
+   commit. Never commit without consent.
+6. **Summary** — 3–5 sentences: done, verified, waiting for the human, where to start next time.
+
+## 5. Session phrases
+
+- "kontynuujemy pracę" / "let's continue" → run the start ritual again, write "where we are", add
+  one sentence proposing the nearest step and ask whether to start with it.
+- "sprawdź status" / "status check" → a short report: state, plans, open risks, documentation debt
+  (is `STATE.md` older than the last journal entry, are there uncommitted changes), then one
+  question about the nearest step. No work is performed.
+- "kończymy na dziś" / "wrapping up" → the close ritual above.
+
+Phrases that are not on this list you do not handle and do not announce.
+
+## 6. Specifications — where they live
+
+Document specifications (`SPEC_*.md`, twenty files plus the HTML plan template) are provisioned
+into `.claude/relai/templates/` in the project by the `sessionStart` hook and by the adapter
+installer. **Read them from there** and generate documents according to them — they are
+instructions for you, not files to copy. If that directory is missing, say so in one sentence and
+ask the user to run the adapter installer; do not generate documents from memory.
+
+## 7. What Cursor does not have — and what you do instead
+
+- **No structured question tool.** Where RelAI procedures say "ask with AskUserQuestion", you ask
+  in plain text: a numbered list of options, a recommendation marked "(Rekomendowane)" first, one
+  sentence of consequence per option — and then you **stop and wait**. Silence is not consent.
+- **No plugin manager.** The adapter is a set of files in the project; the update path is the
+  `/relai-update` command, not a package manager.
+- Anything a RelAI document promises for another tool and Cursor does not have is listed in
+  `docs/PRZENOSNOSC.md`, section 3 ("tabela gwarancji"). Never promise a behaviour this adapter
+  does not have.
+
+## 8. Hard limits
+
+- Never delete or overwrite anything RelAI did not create in this session.
+- Never ask more than three initialization questions.
+- Never write a secret into a tracked file — keys live only in `.env` covered by `.gitignore`.
+- Never create a git repository nested inside another git repository.
+- Never promise commands or rituals this version does not have. The list of what really works is in
+  `docs/KOMENDY.md`.

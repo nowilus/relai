@@ -11,8 +11,8 @@
 | R5 | Dokumenty puchną i zjadają kontekst | Średni | **OTWARTE — do obserwacji po 1.0.0** | D-14/D-15: rotacja DZIENNIKA, kompresja LEKCJI, destylaty czytane na starcie. **2026-08-08 (E7):** doszły dwa narzędzia po stronie użytkownika — `/relai-audit` wykrywa dziennik ponad progiem 50 KB i lekcje bez destylatu (zmierzone na projekcie testowym: podał rozmiar dziennika i wskazał destylat bez lekcji źródłowej), a `/relai-changelog` daje historię bez trzymania jej w kontekście. Sam pakiet `/relai-handover` waży 201 KB przez osadzone fonty — to plik dla człowieka, nie dla kontekstu sesji, ale pytanie o podzbiór fontów z E6 zostaje otwarte **2026-08-10 (E10):** pilotaż dał pierwsze liczby z realnej pracy. Projekt „Paragony" po czterech etapach: dziennik 382 linie, `CLAUDE.md` 65 linii — mieści się. JiraManager po adopcji: dziennik 124 KB (historia sprzed RelAI), `CLAUDE.md` **434 linie** przy limicie 60, bo limit świadomie ustąpił wierności cudzych reguł (D-71). To jest realny przypadek, w którym mechanizm rotacji i kompresji będzie potrzebny, a `/relai-audit` go wykryje. Ryzyko zostaje otwarte z konkretnym adresem: pierwszy projekt po adopcji, nie hipoteza. **2026-08-12 (E2):** mechanizm powstał — automatyczna rotacja dwufazowa w rytuale zamknięcia sesji, progi i wyłącznik w `USTAWIENIA.md`, archiwum bajt w bajt z linią-odsyłaczem. Zmierzone na projektach testowych: dziennik 317 KB → 132 KB przy sumie przeniesionej treści identycznej z oryginałem, sekcje „Stan otwartych ryzyk" i „Zasady aktywne" nietknięte, przerwanie po fazie 1 zostawia żywy plik z tą samą sumą. Progi skalibrowane na **zmierzonych** dziennikach (JiraManager 348 KB, PolyFlow 223 KB) — próg lekcji zmieniony z martwych „60 lekcji" na „40 wpisów albo 50 KB" (L-0034). Poziom **na razie bez zmiany**: mechanizmu nie zmierzono w świeżej sesji (odnoga `POMIAR_ODNOG`, scenariusze E i F), a dwa projekty z realnym problemem dostaną go dopiero przez `/relai-update`. Zamknięcie po pierwszej rotacji na żywym projekcie. **2026-08-12 (E3):** zaadresowane **źródło** rozrostu, nie tylko skutek — decyzje podejmowane po adopcji idą od 1.3.0 do `DECYZJE.md`, a nie do zastanej tabeli w `CLAUDE.md`, czyli do warstwy czytanej w każdej sesji (JiraManager: 8 takich decyzji i plik na 639 liniach). Poziom **bez zmiany**: reguła istnieje w specyfikacji i w procedurze adopcji, ale ani nie zmierzono jej w świeżej sesji (odnoga `POMIAR_ODNOG`, scenariusz H), ani nie dotarła do JiraManagera — wejdzie tam przez `/relai-update`, co jest otwartą bramką manualną planu. |
 | R6 | Aktualizacja pluginu nadpisze lokalne nadpisania użytkowników | Niski | **ZAMKNIĘTE 2026-08-09 (E9)** | D-72: diff + zgoda + pierwszeństwo lokalnych nadpisań; test w pilotażu. **2026-08-08 (E6):** nadpisanie lokalne umieszczone w `docs/zasoby/HTML_PLAN/` — poza cache'em `.claude/relai/`, którego dotyka hook i aktualizacja pluginu. Zmierzone: po `marketplace update` + `plugin update` + świeżej sesji dziewięć plików nadpisania ma identyczne sumy kontrolne, własny token na miejscu, token z pluginu nie wrócił; cache w tym samym czasie **został** nadpisany (dowód, że test nie jest pusty). Zostaje otwarte do E9: `/relai-update` musi pokazać diff i uszanować nadpisanie. **2026-08-09 (E9):** `/relai-update` działa i szanuje nadpisania — zmierzone na projekcie 0.7.0: trzy pliki `docs/zasoby/HTML_PLAN/` z sumami identycznymi po aktualizacji, wiersz „Szablon planu HTML" nietknięty, wiersz lokalny `KOMENDY.md` przepisany dosłownie do zregenerowanej tabeli; diff pokazany przed zapisem, odmowa zostawia projekt nietknięty (10/10 sum). Ryzyko zamknięte |
 | R7 | Model wykonawczy (Sonnet/Opus) obniży jakość implementacji etapów | Średni | **ZAMKNIĘTE 2026-08-10 (E10)** | Prompty etapowe z sekcją Weryfikacja + przegląd Fable po kluczowych etapach **2026-08-10 (E10):** zmierzone na realnej pracy, nie na deklaracji. Etapy E3 i E4 projektu pilotażowego prowadził **Haiku 4.5** zgodnie z zapisem w `STATUS.md` („mechaniczne — najtańszy") i dowiózł je w całości: 30 testów, rytuał „Na koniec" wykonany, prompt następnego etapu wygenerowany, zamknięcie planu (D-36) przeprowadzone bez błędu — plan w archiwum, `Aktywny plan: brak`, zero martwych linków. Jakość implementacji **nie ucierpiała**; różnica między modelami leży gdzie indziej — w tym, czy skill wyzwala się sam (R2), a nie w tym, czy etap zostanie dowieziony. Jedyny ślad słabszego modelu w dokumentach: dwa wpisy podpisane `RelAI (Haiku)` bez członu `+ <użytkownik>`. Prompt etapowy z sekcją „Weryfikacja" okazał się wystarczającą mitygacją. |
-| P1 | Adaptery Cursor/Codex nie egzekwują blokad harnessu — sekret albo zmiana konfiguracji przejdzie tam, gdzie w Claude Code stoi ściana (plan ROZWOJ_PO_WYDANIU) | **Średni** (2026-08-12 po E4; wcześniej wysoki) | **OTWARTE** | Git pre-commit ze skanem sekretów w E4 (działa niezależnie od narzędzia); jawna tabela gwarancji per narzędzie w E5/E7; scenariusz akceptacyjny E6 zawiera próbę zapisu sekretu. **2026-08-12 (E4):** pierwsza mitygacja **dowieziona i zmierzona** — gitowy pre-commit blokuje commit z sekretem niezależnie od narzędzia (15/15, dowód negatywny na `git rev-parse HEAD` przed i po, oraz dowód, że test nie jest pusty: po deinstalacji ten sam commit przechodzi). Drugi powód obniżenia poziomu jest z rozpoznania, nie z kodu: `docs/PRZENOSNOSC.md` pokazuje, że **oba** narzędzia mają hooki potrafiące odmówić — Cursor `preToolUse` z `allow \| deny` i kodem wyjścia 2, Codex `PreToolUse` z `permissionDecision: deny` oraz `PermissionRequest`. Założenie planu „Codex bez blokad harnessu" jest nieaktualne. Ryzyko zostaje otwarte, bo rozpoznanie jest z dokumentacji, nie z próby: nie wiadomo, czy `preToolUse` Cursora niesie **treść** zapisu (bez niej nie ma czego skanować) ani które narzędzia Codeksa obejmuje „supported tool call". Zamknięcie po scenariuszu akceptacyjnym E6, który zawiera próbę zapisu sekretu |
-| P2 | Odpowiednik R2 w Cursor/Codex: bez auto-wyzwalania skilli proces zależy od dyscypliny modelu (plan ROZWOJ_PO_WYDANIU) | Wysoki | **OTWARTE od 2026-08-12 (akceptacja planu)** | Wzorzec L-0030 od początku: reguły niesie warstwa zawsze-w-kontekście (reguły Cursora / AGENTS.md), nie mechanizm wyzwalany; pomiar na scenariuszach w E6, nie na deklaracji. **2026-08-12 (E4):** poziom **bez zmiany**, ale warstwa nośna ma teraz adres i twarde ograniczenia. Cursor: `.cursor/rules/*.mdc` z `alwaysApply: true` („Apply to every chat session"), zalecenie producenta poniżej 500 linii na regułę. Codex: `AGENTS.md` czytany „before doing any work", limit `project_doc_max_bytes` = **32 KiB**, sklejanie od korzenia w dół. Obie liczby są twardsze niż nasze dzisiejsze `CLAUDE.md` w projekcie po adopcji (JiraManager: 639 linii) — reguła E3 o kierowaniu decyzji do `DECYZJE.md` dostaje drugie uzasadnienie. Jednocześnie skille Codeksa wyzwalają się po dopasowaniu `description` do zadania, czyli tym samym mechanizmem, który przy R2 okazał się zależny od modelu — dlatego procedura może mieszkać w skillu, ale reguła nie |
+| P1 | Adaptery Cursor/Codex nie egzekwują blokad harnessu — sekret albo zmiana konfiguracji przejdzie tam, gdzie w Claude Code stoi ściana (plan ROZWOJ_PO_WYDANIU) | **Średni** (2026-08-12 po E4; wcześniej wysoki) | **OTWARTE** | Git pre-commit ze skanem sekretów w E4 (działa niezależnie od narzędzia); jawna tabela gwarancji per narzędzie w E5/E7; scenariusz akceptacyjny E6 zawiera próbę zapisu sekretu. **2026-08-12 (E4):** pierwsza mitygacja **dowieziona i zmierzona** — gitowy pre-commit blokuje commit z sekretem niezależnie od narzędzia (15/15, dowód negatywny na `git rev-parse HEAD` przed i po, oraz dowód, że test nie jest pusty: po deinstalacji ten sam commit przechodzi). Drugi powód obniżenia poziomu jest z rozpoznania, nie z kodu: `docs/PRZENOSNOSC.md` pokazuje, że **oba** narzędzia mają hooki potrafiące odmówić — Cursor `preToolUse` z `allow \| deny` i kodem wyjścia 2, Codex `PreToolUse` z `permissionDecision: deny` oraz `PermissionRequest`. Założenie planu „Codex bez blokad harnessu" jest nieaktualne. Ryzyko zostaje otwarte, bo rozpoznanie jest z dokumentacji, nie z próby: nie wiadomo, czy `preToolUse` Cursora niesie **treść** zapisu (bez niej nie ma czego skanować) ani które narzędzia Codeksa obejmuje „supported tool call". Zamknięcie po scenariuszu akceptacyjnym E6, który zawiera próbę zapisu sekretu. **2026-08-12 (E5) — połowa ryzyka zmierzona na żywym Cursorze:** `preToolUse` **niesie** treść zapisu (`tool_input.content`), a werdykt `permission: deny` realnie zatrzymał zapis klucza `AKIA…` przy przepuszczonej treści czystej (dowód negatywny). Wyszły natomiast dwie rzeczy, których plan nie przewidywał: (1) Cursor **nie ma egzekwowanego** odpowiednika `ask`, więc ochronę plików konfiguracyjnych niesie tam wyłącznie reguła, nie bramka — to jest dziś główny powód, dla którego poziom **zostaje średni**; (2) hook, którego nie da się uruchomić, jest ignorowany **bez słowa** — zaadresowane opakowaniem powłoki kończącym się kodem blokującym (L-0043). Zamknięcie nadal po E6 |
+| P2 | Odpowiednik R2 w Cursor/Codex: bez auto-wyzwalania skilli proces zależy od dyscypliny modelu (plan ROZWOJ_PO_WYDANIU) | **Średni** (2026-08-12 po E5; wcześniej wysoki) | **OTWARTE** | Wzorzec L-0030 od początku: reguły niesie warstwa zawsze-w-kontekście (reguły Cursora / AGENTS.md), nie mechanizm wyzwalany; pomiar na scenariuszach w E6, nie na deklaracji. **2026-08-12 (E4):** poziom **bez zmiany**, ale warstwa nośna ma teraz adres i twarde ograniczenia. Cursor: `.cursor/rules/*.mdc` z `alwaysApply: true` („Apply to every chat session"), zalecenie producenta poniżej 500 linii na regułę. Codex: `AGENTS.md` czytany „before doing any work", limit `project_doc_max_bytes` = **32 KiB**, sklejanie od korzenia w dół. Obie liczby są twardsze niż nasze dzisiejsze `CLAUDE.md` w projekcie po adopcji (JiraManager: 639 linii) — reguła E3 o kierowaniu decyzji do `DECYZJE.md` dostaje drugie uzasadnienie. Jednocześnie skille Codeksa wyzwalają się po dopasowaniu `description` do zadania, czyli tym samym mechanizmem, który przy R2 okazał się zależny od modelu — dlatego procedura może mieszkać w skillu, ale reguła nie. **2026-08-12 (E5) — zmierzone na Cursorze, poziom obniżony do średniego:** reguła `.mdc` z `alwaysApply: true` zadziałała w świeżej sesji CLI **bez żadnego wyzwalacza** (agent wykonał jej instrukcję na prompcie, który jej nie dotyczył), kontekst z hooka `sessionStart` realnie dotarł do modelu, a w próbie zapisu klucza model odmówił **sam**, powołując się na regułę — zanim zdążył zadziałać hook. Warstwa nośna z L-0030 ma więc w Cursorze potwierdzony adres. Ryzyko zostaje otwarte, bo pomiar objął jeden model (`auto` na koncie darmowym), wyłącznie CLI i pojedyncze zachowania, a nie pełny rytuał na żywym projekcie — to jest zakres pilotażu E6 |
 | R8 | Sesja nie ma dostępu do katalogu pluginu — `templates/` ze specyfikacjami jest nieczytelny bez `--add-dir`, więc inicjalizacja projektu (D-60) zatrzymuje się na braku źródła | Wysoki | **ZAMKNIĘTE 2026-08-07 (E5)** | Rozwiązanie: proces hooka ma pełny dostęp do dysku, więc `session-context` kopiuje `templates/*.md` do `.claude/relai/templates/` projektu (SessionStart w projektach RelAI; PostToolUse na wywołaniu skilla RelAI — pokrywa inicjalizację w świeżym folderze) i wstrzykuje ustawienia globalne `~/.claude/relai/` (domyka też L-0010). Zmierzone: inicjalizacja **bez** `--add-dir` dała komplet ośmiu dokumentów, specyfikacje czytane z lokalnej kopii (8/8 plików). D-60 nietknięte — specyfikacje pozostają plikami. Ryzyko szczątkowe: provisioning przy inicjalizacji wymaga wyzwolenia skilla (R2); fallback `--add-dir` opisany w skillach |
 
 ## Wpisy
@@ -1965,3 +1965,143 @@ Autor: RelAI (Opus) + Lukasz
 - **Decyzja o instalacji pre-commita** — w tym repozytorium i w projektach roboczych:
   `node core/guardrails/install-precommit.js <projekt>`. Bramka manualna planu.
 - Uruchomić E5 (`/relai-stage`, świeża sesja **Opus**) albo którąś z dwóch odnóg.
+
+### 2026-08-12 — E5: adapter Cursora — rozpoznanie próbą, reguły zawsze-w-kontekście, skan sekretów, RelAI 1.5.0
+
+Autor: RelAI (Opus) + Lukasz
+
+**Zrobione:**
+
+- **Rozpoznanie Cursora domknięte próbą, nie dokumentacją.** Sekcja 1 `docs/PRZENOSNOSC.md` nie ma
+  już ani jednej pozycji `<DO UZUPEŁNIENIA>`; każda ma źródło z jedną z trzech etykiet:
+  `[dokumentacja]`, `[kod produktu]` (odczyt z wydanego build'u Cursora 3.7.12) i `[próba]`
+  (realna sesja `cursor-agent` 2026.08.11). Rozstrzygnięte: ścieżki komend i skilli, treść payloadu
+  `preToolUse`, kształt odpowiedzi `sessionStart`, brak egzekwowanego `ask`, odczyt plików spoza
+  katalogu roboczego, brak odpowiednika `AskUserQuestion`. Wyszła też rzecz spoza listy pytań:
+  Cursor czyta **`.claude/commands/`, `.claude/skills/` i `.claude/settings.json`**, a `CLAUDE.md`
+  traktuje jak regułę za przełącznikiem `claudeMdEnabled` (domyślnie wyłączonym).
+- **`adapters/cursor/` — trzy reguły `alwaysApply: true`** (po angielsku, Aneks A): `relai-core`
+  (rytuał startu, definicja ukończenia, reakcja na korektę, zamknięcie sesji, frazy, brak
+  `AskUserQuestion`), `relai-planning` (plan vs miniplan, zamrożenie, etap, rytuał „Na koniec",
+  sygnał odchylenia, odnogi), `relai-guardrails` (sekrety, ochrona konfiguracji jako reguła,
+  profile, bramka snapshotu, rotacja). Podział na trzy pliki wynika z limitu 500 linii na regułę.
+- **Komendy i skille bez przepisywania.** Zmierzone, że Cursor czyta ten sam format, więc instalator
+  **kopiuje** dziesięć komend i dwa skille z adaptera Claude Code do `.cursor/`. Jedno źródło
+  w repozytorium, kopia w projekcie — zero trzeciego formatu. To domyka odłożone w E4 pytanie
+  o „opisy procesu w osobnych plikach rdzenia": nie powstają.
+- **Skan sekretów w protokole Cursora** — `adapters/cursor/hooks/secret-scanner.js`: guard projektu,
+  katalog roboczy z `workspace_roots`, wyłuskanie `tool_input.content`, werdykt
+  `{"permission":"deny"}`. Logika skanu wołana z rdzenia, nie przepisana.
+- **Opakowanie powłoki dla guardraila** (`secret-scanner.cmd` / `.sh`) — odpowiedź na zmierzoną
+  cichą degradację Cursora: bez interpretera opakowanie kończy się kodem 2, czyli blokadą zapisu
+  z komunikatem. Świadoma rezygnacja to `--bez-skanu` przy instalacji (L-0043).
+- **Kontekst startu sesji** — `adapters/cursor/hooks/session-context.js` w zdarzeniu `sessionStart`
+  z odpowiedzią `additional_context`: data dnia, rozjazd wersji, siatka promptu etapowego, rozjazd
+  stanu, nieznany autor, ustawienia globalne, prowizjonowanie specyfikacji do
+  `.claude/relai/templates/` (R8 rozwiązane tą samą ścieżką co w Claude Code).
+- **`core/process/session-signals.js`** — rozpoznania startu sesji wydzielone do rdzenia i wołane
+  przez **oba** adaptery. Bez tego kroku Cursor i Claude Code trzymałyby tę samą logikę w dwóch
+  miejscach (ryzyko P4). Dwa hooki adaptera Claude Code (`session-context`, `secret-scanner`)
+  przepięte na rdzeń bez zmiany choćby jednego komunikatu.
+- **Instalator `adapters/cursor/install.js`** — idempotentny, ze spisem `relai-install.json`,
+  scalaniem `hooks.json` bez ruszania cudzych wpisów, deinstalacją i flagą `--bez-skanu`.
+- **Walidator rozszerzony:** zna dwa adaptery, sprawdza pliki `process/` i — nowość — odwołania do
+  rdzenia w **kodzie** adapterów, nie tylko w manifeście.
+- **Dokumenty użytkownika:** `adapters/cursor/README.md` (PL — instalacja, co się dzieje, praca
+  naprzemienna, zespół bez Node.js), tabela gwarancji w `docs/PRZENOSNOSC.md` sekcja 3 (mechanizmy
+  + wszystkie dziesięć komend + praca naprzemienna), `README.md` (sekcja o Cursorze, struktura repo,
+  wymagania), `core/README.md` (granica, rozstrzygnięcie sprawy `config-protection`),
+  `SPEC_KOMENDY.md` (zakres 1.5.0 z warunkiem — punkt piszesz tylko w projekcie z adapterem).
+- **Wersja 1.5.0** w obu manifestach, `core/MANIFEST.json`, obu skillach, `/relai-update`,
+  `SPEC_KOMENDY`, `SPEC_USTAWIENIA`, `SPEC_RAPORT_ADOPCJI`, README i markerze tego repo.
+- **Rotacja rejestru lekcji** (rytuał zamknięcia sesji): 24 najstarsze lekcje `L-0001 … L-0024`
+  przeniesione do `docs/archiwum/lekcje/LEKCJE_L-0001_L-0024.md`, w żywym pliku została
+  linia-odsyłacz. Rozmiar: 57 116 B → 35 424 B, lekcji w żywym pliku: 44 → 20. Suma kontrolna
+  przeniesionej treści `bd5f9050dc7e7278` zgodna w obu fazach. Sekcja „Zasady aktywne" nietknięta
+  bajt w bajt.
+- **Rotacja dziennika NIE została wykonana**, mimo że plik przekracza próg (185 KB przy 150 KB).
+  Powód: zakres musi być ciągły od najstarszego wpisu, a najstarszy wpis ma w sekcji „Do zrobienia
+  przez człowieka" pozycje oznaczone dopiskiem „*(zrobione …)*", którego `SPEC_ARCHIWUM.md`
+  **nie wymienia** jako brzmienia rozstrzygnięcia — specyfikacja zna wyłącznie „*(rozstrzygnięte
+  …)*". Mechanizm zachował się poprawnie (nie ruszył wpisu, którego nie umie uznać za zamknięty),
+  ale rotacja dziennika będzie stała, dopóki lista akceptowanych brzmień nie zostanie uzupełniona
+  (L-0035). Decyzja należy do człowieka — pozycja niżej.
+
+**Zweryfikowane — jak dokładnie:**
+
+- **Adapter Claude Code niezmieniony — 80/80 zgodnych** (instrument `porownanie-hookow.js`, metoda
+  L-0040): dziesięć hooków po osiem scenariuszy, ten sam payload na stdin realnego procesu, raz
+  w drzewie sprzed etapu (`git worktree --detach ebafa7c`), raz w bieżącym. Jedyna zamierzona
+  różnica — numer wersji pluginu w komunikacie o rozjeździe — znormalizowana jawnie w instrumencie,
+  na fixturze z markerem 0.9.0, żeby komunikat padał w obu drzewach. **Dowód, że test nie jest
+  pusty:** podmiana jednego słowa w komunikacie `secret-scanner` dała 79/80 i nazwała różnicę.
+- **Skan sekretów w Cursorze blokuje — na żywej sesji.** `cursor-agent -p` w projekcie testowym:
+  polecenie zapisu pliku z testowym kluczem AWS skończyło się odmową z komunikatem RelAI,
+  a `Test-Path` potwierdził, że plik **nie powstał**. Ta sama próba z treścią
+  `process.env.AWS_ACCESS_KEY_ID` utworzyła plik i hook **nie odezwał się** (dowód negatywny).
+  Powtórzone po przejściu na opakowanie powłoki: czysty zapis przeszedł, zapis klucza zablokowany.
+- **Skan wołany z rdzenia, nie przepisany:** `git grep -nE "AKIA|BEGIN .*PRIVATE|ghp[_-]|eyJ"` po
+  `adapters/cursor/` — zero trafień.
+- **Poziom procesu, bez agenta:** hook Cursora uruchomiony realnym procesem z payloadem
+  `preToolUse` → `permission: deny` dla sekretu, puste wyjście dla treści czystej, puste wyjście
+  poza projektem RelAI (trzy scenariusze). Hook `sessionStart` → poprawny JSON
+  z `additional_context`.
+- **Opakowanie powłoki — 4 scenariusze:** z Node.js werdykty identyczne jak z samego hooka
+  (deny albo cisza); z `RELAI_NODE` wskazującym nieistniejący interpreter — kod **2** i komunikat
+  na stderr dla obu treści.
+- **Reguły i kontekst docierają do modelu:** reguła `.mdc` z `alwaysApply: true` wykonana
+  w świeżej sesji na prompcie, który jej nie dotyczył; token wstrzyknięty przez `sessionStart`
+  zacytowany przez agenta; odczyt pliku spoza katalogu roboczego udany (podał wartość `version`
+  z `core/MANIFEST.json`).
+- **Komendy i skille:** komenda testowa z `.cursor/commands/` i z `.claude/commands/` wywołana jako
+  `/nazwa` wykonała swoją treść; skill z `.cursor/skills/` i z `.claude/skills/` wywołany z nazwy
+  — również. Realna `/relai-help` w projekcie z zainstalowanym adapterem wykonała procedurę,
+  przeczytała `SPEC_KOMENDY.md` z `.claude/relai/templates/` i zatrzymała się na pytaniu do
+  człowieka.
+- **Instalacja na czystym katalogu:** 15 plików, 30 specyfikacji i dwa wpisy w `hooks.json`; cudzy
+  wpis `afterFileEdit` nietknięty. Deinstalacja usunęła dokładnie 15 plików, zostawiła cudzy hook,
+  `docs/` i cache. Ponowna instalacja nie zdublowała wpisów. Flaga `--bez-skanu`: zero wpisów
+  `preToolUse` i głośny komunikat.
+- **Walidator:** układ spójny → kod 0 przy **dwóch** adapterach (7 odwołań z kodu, 3 plus 3
+  z manifestu); celowo zepsute odwołanie adaptera Cursora do nieistniejącego pliku rdzenia → kod 1
+  z nazwanym znaleziskiem, po przywróceniu znowu 0 (dowód negatywny).
+- **Manifesty:** `claude plugin validate .claude-plugin/plugin.json` → „Validation passed with
+  warnings", jedyne ostrzeżenie to znane root `CLAUDE.md` (L-0003).
+- **Wersja:** `git grep -n "1\.4\.0"` po podbiciu — pozostałe trafienia są historyczne („od 1.4.0",
+  „nowość 1.4.0", wpisy dziennika, zamrożony plan, prompty etapów 1–4).
+- **Czysto po testach:** wszystkie projekty próbne i drzewo porównawcze powstały poza
+  repozytorium; `git status --short` pokazuje wyłącznie zamierzone zmiany oraz dwa nowe katalogi
+  (`adapters/cursor/`, `core/process/`).
+
+**Świadomie odłożone:**
+
+- **Rozdzielenie `config-protection` na rdzeń i adapter** — zamknięte odmownie, z powodem
+  zmierzonym: Cursor nie egzekwuje `ask`, więc drugiego konsumenta nadal nie ma. Zapisane
+  w `core/README.md`.
+- **Przepięcie pozostałych ośmiu hooków Claude Code na rdzeń** — każdy ma własną, dwunastolinijkową
+  kopię `isGuest`. Nie mają bliźniaka w Cursorze, więc dryf nie ma się z czym rozjechać; wraca,
+  gdy któryś dostanie odpowiednik w drugim narzędziu.
+- **Pomiar adaptera w aplikacji Cursora (GUI)** — cały pomiar tego etapu przeszedł przez CLI
+  `cursor-agent`. Zachowania GUI (w tym `beforeReadFile` i dostęp poza katalogiem roboczym)
+  potwierdzi pilotaż E6.
+- **Pełne przejście dziesięciu komend na żywym projekcie w Cursorze** — zmierzono ładowanie
+  i start procedur oraz jedną komendę w całości (`/relai-help`). Reszta to zakres E6.
+- Cokolwiek z zakresu adaptera Codeksa — ani jeden jego plik nie powstał (E7).
+
+**Do zrobienia przez człowieka:**
+
+- **Push, `claude plugin marketplace update relai`, `claude plugin update relai@relai`, restart
+  aplikacji** — bez pełnej sekwencji 1.5.0 nie działa w żadnym projekcie poza tym repo (L-0031).
+  Bramka manualna planu, nadal otwarta z E4.
+- **`claude /login`** na konto z dostępnym limitem — warunek startu odnogi `POMIAR_ODNOG` (L-0032).
+  Bramka manualna planu.
+- **Decyzja, kiedy przepuścić JiraManagera i PolyFlow przez `/relai-update`.** Bramka manualna planu.
+- **Decyzja o instalacji pre-commita** (`node core/guardrails/install-precommit.js <projekt>`).
+  Bramka manualna planu.
+- **Osoba z zespołu do pilotażu E6** — etap wymaga realnego projektu prowadzonego w Cursorze przez
+  kogoś spoza tego projektu. **Nowa bramka manualna.**
+- **Decyzja o dopiskach rozstrzygnięcia w `SPEC_ARCHIWUM.md`** — czy „*(zrobione …)*" i podobne
+  brzmienia mają być uznawane za rozstrzygnięcie na równi z „*(rozstrzygnięte …)*". Do czasu tej
+  decyzji rotacja dziennika w tym projekcie stoi, a plik rośnie. Zmiana dotyka specyfikacji
+  rdzenia, więc nie robię jej przy okazji zamykania sesji.
+- Uruchomić E6 (`/relai-stage`, świeża sesja **Opus**) albo którąś z dwóch odnóg.

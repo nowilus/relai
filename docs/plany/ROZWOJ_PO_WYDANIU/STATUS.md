@@ -11,8 +11,8 @@ Plan: [PLAN.html](PLAN.html) · Utworzony: 2026-08-12 · Status planu: **ZAAKCEP
 | E2 | Rotacja dokumentów (1.2.0) | **ZREALIZOWANY 2026-08-12** | [PROMPT_ETAP_2.md](PROMPT_ETAP_2.md) | 8/10 punktów weryfikacji; punkty 5 i 7 (zachowanie świeżej sesji) → odnoga POMIAR_ODNOG |
 | E3 | Poprawki z retrospektywy (1.3.0) | **ZREALIZOWANY 2026-08-12** | [PROMPT_ETAP_3.md](PROMPT_ETAP_3.md) | 5/8 punktów weryfikacji; punkty 3, 4 (część sesyjna) i 6 → odnoga POMIAR_ODNOG, scenariusze G–I |
 | E4 | Rdzeń przenośny (1.4.0) | **ZREALIZOWANY 2026-08-12** | [PROMPT_ETAP_4.md](PROMPT_ETAP_4.md) | 9/9 punktów weryfikacji; `config-protection` świadomie nierozdzielony — powód w `core/README.md` |
-| E5 | Adapter Cursor (1.5.0) | **GOTOWY DO STARTU** | [PROMPT_ETAP_5.md](PROMPT_ETAP_5.md) | język warstw rozstrzygnięty (Aneks A); wejście: `docs/PRZENOSNOSC.md` |
-| E6 | Pilotaż Cursora w firmie | OCZEKUJE | — | scenariusz akceptacyjny na realnym projekcie osoby z zespołu |
+| E5 | Adapter Cursor (1.5.0) | **ZREALIZOWANY 2026-08-12** | [PROMPT_ETAP_5.md](PROMPT_ETAP_5.md) | 10/10 punktów weryfikacji; rozpoznanie Cursora zmierzone na buildzie produktu i realnych sesjach agenta |
+| E6 | Pilotaż Cursora w firmie | **GOTOWY DO STARTU** | [PROMPT_ETAP_6.md](PROMPT_ETAP_6.md) | scenariusz akceptacyjny na realnym projekcie osoby z zespołu; start zależy od bramki manualnej (osoba z zespołu) |
 | E7 | Adapter Codex (1.6.0) | OCZEKUJE | — | ten sam scenariusz akceptacyjny co E6 |
 | E8 | Wydanie 2.0.0 i dystrybucja | OCZEKUJE | — | upublicznienie repo — decyzja człowieka; bez niej dystrybucja wewnętrzna |
 
@@ -34,6 +34,8 @@ Plan: [PLAN.html](PLAN.html) · Utworzony: 2026-08-12 · Status planu: **ZAAKCEP
   (L-0032) · źródło: wpis dziennika 2026-08-12 (E1, powtórzone w E2) · **OTWARTA**
 - **Decyzja, kiedy przepuścić JiraManagera i PolyFlow przez `/relai-update`** · źródło: wpis
   dziennika 2026-08-12 (E2) · **OTWARTA**
+- **Osoba z zespołu do pilotażu Cursora** — E6 wymaga realnego projektu prowadzonego w Cursorze
+  przez kogoś spoza tego projektu · źródło: wpis dziennika 2026-08-12 (E5) · **OTWARTA**
 - **Instalacja gitowego pre-commita** — w tym repozytorium i w projektach roboczych; RelAI nie
   podkłada hooków gita sam (`node core/guardrails/install-precommit.js <projekt>`) · źródło: wpis
   dziennika 2026-08-12 (E4) · **OTWARTA**
@@ -68,3 +70,11 @@ Plan: [PLAN.html](PLAN.html) · Utworzony: 2026-08-12 · Status planu: **ZAAKCEP
   sekretów jako czysty skrypt rdzenia, gitowy pre-commit z instalatorem i deinstalatorem, walidator
   spójności rdzeń↔adaptery. Wszystkie 9 punktów weryfikacji przeszło. Szczegóły: wpis
   w `docs/DZIENNIK.md` z 2026-08-12. Wygenerowano PROMPT_ETAP_5.
+- 2026-08-12 — E5 rozpoczęty.
+- 2026-08-12 — **E5 ZREALIZOWANY**, wersja 1.5.0. Adapter Cursora: rozpoznanie domknięte próbą
+  i odczytem buildu produktu (sekcja 1 `PRZENOSNOSC.md` bez pozycji `<DO UZUPEŁNIENIA>`), trzy
+  reguły `alwaysApply`, hook skanu sekretów z opakowaniem powłoki, hook kontekstu startu sesji,
+  instalator z deinstalacją, rozpoznania startu sesji wydzielone do `core/process/`, tabela
+  gwarancji z dziesięcioma komendami. Wszystkie 10 punktów weryfikacji przeszło; adapter Claude
+  Code niezmieniony (80/80). Szczegóły: wpis w `docs/DZIENNIK.md` z 2026-08-12. Wygenerowano
+  PROMPT_ETAP_6.

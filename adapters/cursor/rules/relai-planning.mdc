@@ -1,0 +1,91 @@
+---
+description: RelAI planning — plans, stages, the closing ritual, deviation signal, branches. Always in context.
+alwaysApply: true
+---
+
+# RelAI — plans and stages
+
+Applies whenever the user asks for a plan, an approach, a staging or a breakdown of work, and
+whenever a stage of an existing plan is started or closed.
+
+## 1. A plan is a separate document, never a chat answer
+
+Two forms, and you choose once, out loud:
+
+- **PLAN** — `docs/plany/<TOPIC>/PLAN.md` (or `PLAN.html` when the reader is non-technical) plus
+  `docs/plany/<TOPIC>/STATUS.md`, plus **one** "Aktywny plan" line in `CLAUDE.md` / `AGENTS.md`.
+  Use it for work spanning more than one session.
+- **MINIPLAN** — a single journal entry. Use it for work that fits in one session.
+
+Every PLAN contains: variants with pros and cons (the chosen one marked, the rejected ones with the
+explicit reason for rejection), risks with level and concrete mitigation, stages with an estimate
+and an order that produces a visible effect early, edge cases resolved explicitly, and a list of
+things a human must decide.
+
+Read `SPEC_PLAN.md` and `SPEC_STATUS.md` from `.claude/relai/templates/` before writing — do not
+reproduce the layout from memory.
+
+## 2. A frozen plan stays frozen (D-33)
+
+Once accepted, `PLAN.md` / `PLAN.html` changes **only** through dated appendices ("Aneks"). Never
+silently edit an accepted plan. A fundamental deviation is not an appendix: it is a proposal for a
+new plan, linking to the old one.
+
+`STATUS.md` is the living document: stage statuses, the implementation log, the "Odnogi" section,
+the "Bramki manualne" section.
+
+Stage statuses: `OCZEKUJE` → `GOTOWY DO STARTU` → `W TOKU` → `ZREALIZOWANY <date>`, plus
+`POMINIĘTY — <reason>`. Exactly one stage is `GOTOWY DO STARTU` at a time.
+
+## 3. Running a stage
+
+1. Confirm with the user **before** starting: plan, stage, executing model, what it covers in 2–4
+   sentences, how many verification points, then ask "Zaczynamy?" and **wait**. "Run the stage" in
+   the user's prompt is not consent to start; you still show the card. Silence is not consent.
+2. After consent: set the stage to `W TOKU` in `STATUS.md` and add a log line
+   (`- <date> — E<N> rozpoczęty`). An interrupted session then leaves a trace, not a riddle.
+3. Execute `PROMPT_ETAP_N.md` **literally**: read what it tells you to read, in the given order;
+   respect its "Decyzje już podjęte" section; do the scope; then walk the "Weryfikacja" section
+   point by point and **write the result of each one** — including the ones that did not pass.
+4. Never close a stage whose verification did not pass in full. A failing point goes into the
+   journal and to the human as a question.
+
+## 4. The closing ritual — a stage without it is not finished (D-34)
+
+1. `STATUS.md`: stage → `ZREALIZOWANY <date>`, next stage → `GOTOWY DO STARTU` with a link in the
+   `Prompt` column, a line in the implementation log, "Bramki manualne" refreshed from the entry's
+   "Do zrobienia przez człowieka".
+2. `docs/DZIENNIK.md`: the entry, all four sections, signed with both parts. Review the risk table.
+   Lessons from the stage → `docs/LEKCJE.md` plus refreshed "Zasady aktywne".
+3. `docs/STATE.md`: overwrite what changed.
+4. **Generate `PROMPT_ETAP_N+1.md`** per `SPEC_PROMPT_ETAPU.md` — nine sections, built from the plan
+   section for that stage, the **real state of the repository** (check, do not assume) and the
+   active lessons. A stage without the next prompt is not finished.
+5. Propose a commit; do not commit without consent.
+
+When the closed stage was the last one, run the plan-closing sequence instead of generating the
+next prompt (D-36): resolve open manual gates → resolve open branches → `STATE.md` → closing
+journal entry "dowiezione vs plan" → plan status `ZREALIZOWANY` → risk review → move the plan
+folder to `docs/archiwum/plany/` → update the "Aktywny plan" line → summary. The first two points
+are blocking: until they are resolved you do not write anywhere that the plan is done.
+
+## 5. Deviation signal — never "while we are at it"
+
+Something needed but **outside the scope of the current stage** appears. Stop and ask one
+structured question (in Cursor: plain text, numbered options, recommendation first, then wait):
+
+1. **Odnoga** (`/relai-branch`) — a side thread that deserves its own card and its own fresh-session
+   prompt, without touching the frozen plan.
+2. **Aneks** — the plan itself was wrong or incomplete; a dated appendix records the change.
+3. **Świadomie odłożone** — a line in the journal entry, and nothing more.
+
+Never do it "at the same time". The scope of the stage prompt is the boundary.
+
+## 6. Branches (odnogi)
+
+A branch lives in `docs/plany/<TOPIC>/odnogi/<NAME>/ODNOGA.md` per `SPEC_ODNOGA.md`, is listed in
+the "Odnogi" section of `STATUS.md` with the status `OTWARTA` / `ZAMKNIĘTA <date>`, and carries a
+**self-sufficient prompt** for a fresh session — it must work without this conversation.
+
+A branch never blocks the plan, but an open branch blocks **closing** it: at plan closing every
+`OTWARTA` branch gets an explicit question to the human.

@@ -50,7 +50,7 @@ projektu jest w `docs/USTAWIENIA.md`.
 Plik jest **regenerowany**, nie edytowany ręcznie. Wyjątkiem są wiersze oznaczone jako lokalne —
 te przeżywają regenerację (D-62: lokalne nadpisania mają pierwszeństwo).
 
-## Zakres wersji 1.4.0 — co realnie działa
+## Zakres wersji 1.5.0 — co realnie działa
 
 Od 0.4.0 działa **pierwsza komenda** — `/relai-stage` — i wygenerowany `KOMENDY.md` ma tabelę
 komend. W 0.5.0 doszło **osiem hooków**: sekcja „Czego RelAI pilnuje bez proszenia" urosła
@@ -65,7 +65,13 @@ rośnie, bo rotacja nie ma własnej komendy. W 1.3.0 dochodzą **cztery poprawki
 same zachowania, żadnej nowej komendy: sygnał rozjazdu stanu, kontrola podpisu wpisu, bramki
 manualne przy zamykaniu planu i rejestr decyzji po adopcji. W 1.4.0 dochodzi **skan sekretów przy
 commicie** — guardrail spoza harnessu, **instalowany ręcznie**, więc opisany osobno jako
-możliwość, a nie jako zachowanie, które samo się włączyło; tabela komend znowu nie rośnie. Działa:
+możliwość, a nie jako zachowanie, które samo się włączyło; tabela komend znowu nie rośnie.
+W 1.5.0 dochodzi **adapter Cursora**: te same dziesięć komend, te same dokumenty i ten sam proces
+w drugim narzędziu. Tabela komend nie rośnie i **nie zmienia się ani jeden wiersz o zachowaniach
+Claude Code**; w projekcie, w którym adapter Cursora został zainstalowany, dopisujesz jedno zdanie
+o pracy naprzemiennej (oba narzędzia czytają te same `docs/`, wersję struktury podbija wyłącznie
+`/relai-update`). Punkt piszesz **wyłącznie wtedy, gdy w projekcie jest `.cursor/relai-install.json`**
+— inaczej milczysz, tak jak przy pre-commicie (L-0002, L-0029). Działa:
 
 - inicjalizacja struktury projektu (zgoda → trzy pytania → osiem dokumentów),
 - rozpoznanie folderu, który już jest projektem RelAI,
@@ -167,7 +173,7 @@ możliwość, a nie jako zachowanie, które samo się włączyło; tabela komend
   z możliwością** i poleceniem instalacji. Nigdy nie piszesz, że dzieje się to samo — instalacja
   jest jawną czynnością człowieka (L-0002),
 
-Wygenerowany `KOMENDY.md` w wersji 1.4.0 zawiera **tabelę komend z dziesięcioma pozycjami**
+Wygenerowany `KOMENDY.md` w wersji 1.5.0 zawiera **tabelę komend z dziesięcioma pozycjami**
 oraz tabelę fraz naturalnych:
 
 | Komenda | Co robi |
@@ -196,12 +202,12 @@ oraz tabelę fraz naturalnych:
 - Nie opisujesz mechaniki wewnętrznej (skille, hooki) — użytkownika interesuje efekt.
 - Nie wpisujesz punktów profilu, którego ten projekt nie ma.
 
-## Przykład dla wersji 1.4.0 (projekt polski, profil `app`)
+## Przykład dla wersji 1.5.0 (projekt polski, profil `app`)
 
 ```markdown
 # KOMENDY — Parkly
 
-RelAI 1.4.0
+RelAI 1.5.0
 
 Nic z tej listy nie jest obowiązkowe. RelAI działa w zwykłej rozmowie — piszesz normalnie,
 a struktura projektu nadąża. Komendy są skrótem do rzadszych operacji.

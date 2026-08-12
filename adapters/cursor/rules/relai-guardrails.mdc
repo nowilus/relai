@@ -1,0 +1,82 @@
+---
+description: RelAI guardrails — secrets, protected configuration, snapshot gate, profile rules. Always in context.
+alwaysApply: true
+---
+
+# RelAI — guardrails
+
+Two of these rules are enforced by a hook (`.cursor/hooks.json`); the rest are carried by this rule
+alone. Where a hook is missing, the rule is the only thing standing there — treat it as binding,
+not advisory.
+
+## 1. Secrets (D-41, D-42) — enforced by hook + git pre-commit
+
+- API keys, passwords and tokens live **only** in `.env` covered by `.gitignore`. A tracked file may
+  contain at most the **name** of an environment variable.
+- Never quote the value of a detected secret — not in a message, not in a journal entry, not in a
+  commit message. The finding itself is enough to decide.
+- The `preToolUse` hook (`secret-scanner.js`) returns `permission: deny` for a write of a secret to
+  a tracked file. If the hook is absent (no Node.js), the rule still holds and you enforce it
+  yourself — refuse and explain, do not write.
+- The git pre-commit hook (`core/guardrails/pre-commit.js`) blocks such a commit independently of
+  the tool. It is installed per repository with
+  `node core/guardrails/install-precommit.js <project>` — a human action, never yours.
+- Loosening this rule requires a conscious decision frozen in `docs/DECYZJE.md`.
+
+## 2. Protected configuration — ask, never edit silently
+
+Cursor has no enforced "ask the human" verdict for a file write, so this rule is the guard:
+
+Before you modify any of these, stop and ask the user in plain text, quoting the exact change:
+
+- `CLAUDE.md` / `AGENTS.md` — process rules of the project, and any section marked as immutable
+  ("sekcja niemutowalna"),
+- `.cursor/rules/*.mdc` — these rules,
+- `docs/USTAWIENIA.md` / `docs/SETTINGS.md` — the settings register,
+- `docs/DECYZJE.md` — frozen decisions: you propose `D-NN`, the human freezes it,
+- an accepted `PLAN.md` / `PLAN.html` — frozen; only dated appendices.
+
+Adding a **new** entry that the process itself prescribes (a lesson `L-NNNN`, a journal entry, a
+STATE update) is not a configuration change and needs no question — see the definition of done.
+
+## 3. Project profile — conditional rules
+
+The profile is the `Profil projektu` row in `docs/USTAWIENIA.md`. Closed list: `app`,
+`agent-voice`, `flow`, `prompty`. The profile does not change the documentation core; it adds
+**conditional** documents that are created **at an event**, never in advance and never as an empty
+placeholder.
+
+| Profile | Event | What is created |
+|---|---|---|
+| `app` | first source file | `docs/ARCHITEKTURA.md` + one question about tests |
+| `app` | first interface file | `docs/DESIGN.md` + one question about direction |
+| `app` | first environment deployment | `docs/srodowiska/<NAME>.md` |
+| `agent-voice`, `flow` | **before** a production configuration change | `docs/snapshoty/<date>/` |
+| `prompty` | first artifact | `docs/ARTEFAKTY.md` |
+
+The event is recognised from the conversation too, not only from a file write: "wdrożyliśmy to na
+testowe" is a first deployment just as much as a `Dockerfile` appearing.
+
+## 4. Snapshot gate (`agent-voice`, `flow`) — copy first, change second
+
+The only rule that **stops** an operation rather than warning. Before changing a production
+configuration (workflow export, agent configuration, knowledge base):
+
+1. Copy the file as it is now into `docs/snapshoty/<YYYY-MM-DD>/` as
+   `<name>__przed-<what-changes>.<ext>` — **byte for byte**, no reformatting.
+2. Add `OPIS.md` in that directory: what changes, why, which file is the pre-change state.
+3. Only then change it — with a **migration script with assertions**, not by hand-editing JSON.
+   Assertions before (the element exists and looks as you assume) and after (the change landed,
+   nothing else moved, the result parses). A failed assertion aborts the script without writing.
+4. The journal entry says which snapshot is the pre-change state and what the assertions checked.
+
+Knowledge bases in the `agent-voice` profile have two extra rules: **section numbering is
+untouchable** (the number is a routing identifier — a withdrawn section is marked, its number
+stays) and **content in the conversation language, routing names and tags in English**.
+
+## 5. Documents never shrink silently
+
+Rotation moves the oldest history to `docs/archiwum/` byte for byte and leaves a pointer line.
+Nothing is ever summarised away, deleted, or rewritten "more concisely" in the archive. `STATE.md`
+is the one document rewritten rather than archived — and a fact that disappears from it and lives
+nowhere else goes into the journal entry first.

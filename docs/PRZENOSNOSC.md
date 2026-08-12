@@ -15,6 +15,14 @@ działającej instalacji — ani Cursor, ani Codex nie były uruchomione przy pi
 Zachowania oznaczone jako „deklaracja producenta" wymagają potwierdzenia próbą w E5/E7, tak samo
 jak zachowania RelAI mierzy się sesją, nie zapisem w specyfikacji (L-0005).
 
+> **Aktualizacja 2026-08-12 (E5).** Sekcja 1 (Cursor) została **przemierzona na działającej
+> instalacji**: Cursor 3.7.12 (build `b887a26c`, `product.json`) oraz CLI `cursor-agent`
+> 2026.08.11-e8db854, Windows 11, konto na planie darmowym (model `auto`). Źródła oznaczam trzema
+> etykietami: **[próba]** — zachowanie zmierzone realną sesją agenta; **[kod produktu]** — odczyt
+> z wydanego build'u Cursora (walidatory i schematy hooków, ścieżki reguł i komend);
+> **[dokumentacja]** — strona producenta. Sekcja 2 (Codex) pozostaje bez zmian, na dokumentacji —
+> jej próba należy do E7.
+
 ---
 
 ## 1. Cursor
@@ -39,19 +47,33 @@ wchodzi do każdej sesji bez wyzwalania czegokolwiek. Limit 500 linii jest tward
 dzisiejsze `CLAUDE.md` w projektach po adopcji (JiraManager: 639 linii) — reguła E3 o kierowaniu
 decyzji do `DECYZJE.md` zyskuje drugie uzasadnienie.
 
+**Potwierdzone próbą (2026-08-12).** Reguła `.mdc` z `alwaysApply: true` położona w
+`.cursor/rules/` zadziałała w świeżej sesji CLI bez żadnego wyzwalacza: agent wykonał jej
+instrukcję w pierwszej linii odpowiedzi, także wtedy, gdy prompt jej nie dotyczył. Adapter E5
+dzieli treść na **trzy** reguły (rdzeń, planowanie, guardraile) właśnie z powodu limitu 500 linii.
+
+**`CLAUDE.md` jako reguła — jest, ale za przełącznikiem.** Build traktuje `/CLAUDE.md`
+i `/CLAUDE.local.md` jak regułę zawsze-w-kontekście dopiero przy włączonym
+`thirdPartyExtensibilityEnabled` (domyślnie **true**) **i** ustawieniu `claudeMdEnabled`
+(domyślnie **false**) — **[kod produktu]**. Dlatego adapter nie liczy na `CLAUDE.md` i kładzie
+własne reguły `.mdc`; `AGENTS.md` jest czytany bez żadnego przełącznika.
+
 ### 1.2 Komendy — są, ale ich ścieżek nie potwierdza dokumentacja producenta
 
 | Co | Stan faktyczny | Źródło |
 |---|---|---|
 | Istnienie | dokumentacja Cursora wymienia „slash commands: Both user-level and workspace-level commands" jako materiał wejściowy migracji `/migrate-to-skills` | [cursor.com/docs/agent/chat/commands](https://cursor.com/docs/agent/chat/commands), 2026-08-12 |
 | Wywołanie | skille wywoływane notacją `/nazwa` | jw. |
-| Lokalizacja plików komend | `<DO UZUPEŁNIENIA: strona dokumentacji Cursora opisująca ścieżki komend — próby cursor.com/docs/agent/chat/commands i /docs/agent/skills nie zawierają ich, druga zwraca 404. Źródła społecznościowe wskazują `.cursor/commands/*.md` (projekt) i `~/.cursor/commands/*.md` (globalnie), nazwa pliku = nazwa komendy — do potwierdzenia w E5 eksperymentem na instalacji>` | — |
-| Kierunek rozwoju | producent przenosi komendy w stronę **skilli** (istnieje `/migrate-to-skills`) | jw. |
+| Lokalizacja plików komend | `.cursor/commands/*.md` w projekcie i `~/.cursor/commands/*.md` globalnie; **nazwa pliku = nazwa komendy** | **[próba] 2026-08-12** — plik `.cursor/commands/relai-probe.md` wywołany jako `/relai-probe` wykonał swoją treść; potwierdza to **[kod produktu]**: `getCommandTargetDirectory` zwraca `userHome/.cursor/commands`, a edytor podstawia placeholder dla plików `.cursor/commands/*.md` |
+| Komendy z `.claude/` | Cursor czyta **także** `.claude/commands/*.md` i wywołuje je tak samo | **[próba] 2026-08-12** (`/relai-cc-probe` z `.claude/commands/`) + **[kod produktu]** (`isClaudeCommand`, prefiks `/.claude/commands/`) |
+| Skille | `.cursor/skills/<nazwa>/SKILL.md`; rozpoznawane są też `.cursor/plugins/`, `.claude/skills/`, `.claude/plugins/`, `.codex/skills/`, `.agents/skills/` | **[próba] 2026-08-12** (skill wywołany z nazwy wykonał instrukcję, oba warianty: `.cursor/` i `.claude/`) + **[kod produktu]** (lista prefiksów ścieżek skilli) |
+| Kierunek rozwoju | producent przenosi komendy w stronę **skilli** (istnieje `/migrate-to-skills`) | **[dokumentacja]** |
 
-**Co to znaczy dla RelAI.** Dziesięć komend `/relai-*` ma w Cursorze odpowiednik, ale wybór między
-„komendą" a „skillem" powinien zapaść **po** eksperymencie w E5, nie teraz. Migracja producenta
-w stronę skilli sugeruje skille jako cel; sprawdzenia wymaga, czy skill Cursora daje się wywołać
-wprost, tak jak nasza komenda.
+**Co to znaczy dla RelAI.** Rozstrzygnięcie E5: adapter Cursora **nie pisze komend drugi raz**.
+Instalator kopiuje dziesięć plików komend i dwa skille z adaptera Claude Code do `.cursor/`
+w projekcie — jedno źródło w repozytorium, kopia w projekcie. Zmierzone: komenda `/relai-help`
+wykonała w Cursorze swoją procedurę, ze specyfikacjami czytanymi z `.claude/relai/templates/`,
+i zatrzymała się na pytaniu do człowieka.
 
 ### 1.3 Hooki — najmocniejsza część, z realną blokadą
 
@@ -65,19 +87,51 @@ wprost, tak jak nasza komenda.
 
 **Co to znaczy dla RelAI.** To zmienia ocenę ryzyka **P1**: Cursor **ma** twardą blokadę
 odpowiadającą naszemu `secret-scanner` (`preToolUse` + `deny`) i ma `sessionStart` odpowiadający
-`session-context`. Adapter Cursora może więc być bliższy pełnym gwarancjom, niż zakładał plan.
-Trzy rzeczy do sprawdzenia próbą w E5: czy `preToolUse` niesie treść zapisu (bez niej skan sekretu
-nie ma czego skanować), jak wygląda odpowiednik `permissionDecision: ask` przy zapisie pliku
-(potrzebny dla `config-protection`) i czy `sessionStart` potrafi wstrzyknąć kontekst do sesji,
-a nie tylko wykonać skrypt.
+`session-context`.
+
+### 1.3a Hooki — co zmierzono w E5 (2026-08-12)
+
+| Pytanie z E4 | Odpowiedź | Źródło |
+|---|---|---|
+| Czy `preToolUse` niesie **treść** zapisu? | **Tak.** Payload ma `tool_name: "Write"` i `tool_input: { file_path, content }` — czyli dokładnie to, co skanuje rdzeń. Nazwy narzędzi są te same co w Claude Code (`Read`, `Write`) | **[próba]** przechwycony payload; **[kod produktu]**: `PreToolUseRequestQuery` z polem `tool_input` typu Struct |
+| Czy blokada działa? | **Tak.** `{"permission":"deny","user_message":"…"}` zatrzymało zapis: plik z kluczem `AKIA…` nie powstał, a agent powtórzył powód. Ta sama próba bez sekretu przeszła bez słowa (dowód negatywny) | **[próba]** |
+| Czy `sessionStart` wstrzykuje kontekst? | **Tak.** `{"continue":true,"additional_context":"…"}` realnie dociera do modelu — agent zacytował token wstrzyknięty przez hook. Pola przyjmowane przez walidator: `env`, `additional_context`, `continue`, `user_message` | **[próba]** + **[kod produktu]** (`sessionStartResponse`) |
+| Czy jest odpowiednik `permissionDecision: ask` przy zapisie pliku? | **Schemat go przyjmuje** (`permission` ∈ `allow`/`deny`/`ask`), ale dokumentacja mówi wprost, że dla `preToolUse` `ask` **nie jest dziś egzekwowane**. Nie zmierzono go próbą — traktujemy jako **niedostępne** | **[kod produktu]** (`preToolUseResponse`) + **[dokumentacja]** |
+| Co się dzieje, gdy hook jest zepsuty? | **Dwa różne zachowania.** Hook, który się uruchomił i zwrócił nieprawidłową odpowiedź → narzędzie **zablokowane** z komunikatem (fail-closed). Hook, którego **nie da się uruchomić** (brak interpretera w `PATH`) → Cursor **milczy i przepuszcza zapis** | **[próba]** obie ścieżki |
+| Payload na stdin | Na Windows przychodzi **z BOM** (w pomiarze podwójnym) — `JSON.parse` bez zdjęcia BOM wysypuje się na pierwszym znaku. Pola `cwd` w payloadzie `preToolUse` **nie ma**; katalog roboczy jest w `workspace_roots[]` | **[próba]** |
+| Zdarzenia | Pełna lista w build'zie: 21 pozycji, m.in. `preToolUse`, `postToolUse`, `postToolUseFailure`, `workspaceOpen`. Blokować mogą: `beforeShellExecution`, `beforeMCPExecution`, `beforeReadFile`, `beforeTabFileRead`, `subagentStart`, `preToolUse` | **[kod produktu]** |
+| Zgodność z Claude Code | Build zawiera warstwę zgodności: mapowanie zdarzeń (`PreToolUse`→`preToolUse`, `UserPromptSubmit`→`beforeSubmitPrompt`, …), tłumaczenie `hookSpecificOutput.permissionDecision` na `permission` **za bramką eksperymentu** `enable_cc_nested_hook_output_normalization`, czytanie `.claude/settings.json` jako źródła hooków przez CLI, ustawianie `CLAUDE_PLUGIN_ROOT` | **[kod produktu]** |
+
+**Wniosek dla adaptera:** hooki Cursora piszemy w **natywnym kształcie** (`permission`,
+`additional_context`), a nie w kształcie Claude Code — zgodność istnieje, ale stoi za bramką
+eksperymentu, której użytkownik nie kontroluje. Dwie rzeczy, których nie da się obejść z naszej
+strony: brak egzekwowanego `ask` i cicha degradacja przy braku interpretera.
 
 ### 1.4 Dostęp do plików
 
 `beforeReadFile` z werdyktem `allow | deny` dowodzi, że odczyty plików przechodzą przez warstwę
 hooków ([cursor.com/docs/hooks](https://cursor.com/docs/hooks), 2026-08-12).
-`<DO UZUPEŁNIENIA: czy agent Cursora czyta pliki spoza katalogu roboczego — istotne dla L-0010
-i dla tego, czy adapter musi kopiować specyfikacje do projektu tak jak robi to hook
-session-context w Claude Code>`
+
+**Czy agent czyta pliki spoza katalogu roboczego — tak** (**[próba]** 2026-08-12): agent poproszony
+o odczyt `C:\Users\Lukasz\Desktop\RelAI\core\MANIFEST.json` z projektu leżącego w zupełnie innym
+miejscu podał poprawną wartość pola `version`. Pomiar wykonano w CLI (`cursor-agent -p`, workspace
+w katalogu tymczasowym); w aplikacji nie sprawdzano, a `--add-dir` istnieje jako jawny mechanizm
+dokładania korzeni.
+
+**Co z tego wynika dla R8.** Mimo że odczyt spoza katalogu roboczego działa, adapter i tak
+**kopiuje specyfikacje do projektu** (`.claude/relai/templates/`, hook `sessionStart` oraz
+instalator). Powód jest procesowy, nie techniczny: L-0010 mówi, że mechanizm nie może zakładać
+dostępu poza katalogiem roboczym, a komendy i skille współdzielone z adapterem Claude Code mówią
+o jednej ścieżce cache. Zmierzone: 30 plików w projekcie po instalacji, komenda `/relai-help`
+czytała specyfikację właśnie stamtąd.
+
+### 1.5 Ustrukturyzowane pytanie do człowieka
+
+Protokół narzędzi Cursora **zawiera** `ask_question` (pola `ask_question_params` /
+`ask_question_result` w definicjach protokołu agenta — **[kod produktu]**), ale sesja CLI zapytana
+wprost odpowiedziała, że nie ma osobnego narzędzia do zadawania pytań i pyta zwykłym tekstem
+(**[próba]** 2026-08-12). Dla adaptera znaczy to: **odpowiednika `AskUserQuestion` nie ma** —
+procedury pytają tekstem (ponumerowane opcje, rekomendacja pierwsza) i zatrzymują się.
 
 ---
 
@@ -135,17 +189,53 @@ adapter może w ogóle prowadzić dokumenty projektu bez pytania o zgodę przy k
 
 ---
 
-## 3. Co z tego wynika dla rdzenia
+## 3. Tabela gwarancji
 
-| Gwarancja RelAI | Claude Code | Cursor | Codex |
+Stan po **E5** (adapter Cursora, 1.5.0). Kolumna „Cursor" mówi jedno z trzech: **działa tak samo**,
+**działa inaczej** (z opisem różnicy), **nie ma** (z powodem). Kolumna „Codex" jest wciąż
+z dokumentacji — jej próba należy do E7.
+
+### 3.1 Mechanizmy
+
+| Gwarancja RelAI | Claude Code | Cursor (po E5) | Codex |
 |---|---|---|---|
-| Reguła zawsze w kontekście | `CLAUDE.md` projektu | `.cursor/rules/*.mdc` z `alwaysApply: true` | `AGENTS.md` (limit 32 KiB) |
-| Kontekst na starcie sesji | hook `SessionStart` | hook `sessionStart` (nie działa w agentach chmurowych) | hook `SessionStart` |
-| Twarda blokada zapisu sekretu | hook `PreToolUse` + `deny` | `preToolUse` + `deny` (do potwierdzenia: czy niesie treść zapisu) | `PreToolUse` + `permissionDecision: deny` (do potwierdzenia: które narzędzia) |
-| Blokada niezależna od narzędzia | — | — | — |
-| **git pre-commit ze skanem sekretów** | **działa (E4, 1.4.0)** | **działa** | **działa** |
-| Pytanie o zgodę przy zmianie konfiguracji | `permissionDecision: ask` | `beforeShellExecution` i `beforeMCPExecution` mają `ask`; `<DO UZUPEŁNIENIA: czy preToolUse też>` | `PermissionRequest` |
-| Ustrukturyzowane pytanie do człowieka | `AskUserQuestion` | `<DO UZUPEŁNIENIA: odpowiednik w Cursorze>` | `<DO UZUPEŁNIENIA: odpowiednik w Codeksie>` |
+| Reguła zawsze w kontekście | `CLAUDE.md` projektu | **działa tak samo** — `.cursor/rules/relai-*.mdc`, `alwaysApply: true` (zmierzone). Różnica: limit 500 linii na regułę, więc treść jest w trzech plikach | `AGENTS.md` (limit 32 KiB) |
+| Kontekst na starcie sesji | hook `SessionStart` | **działa tak samo** — `sessionStart` + `additional_context` (zmierzone). Różnica: nie działa w agentach chmurowych; brak pola `cwd` (katalog z `workspace_roots`) | hook `SessionStart` |
+| Twarda blokada zapisu sekretu | hook `PreToolUse` + `deny` | **działa tak samo** — `preToolUse` + `permission: deny`, payload niesie `tool_input.content` (zmierzone: zapis klucza zablokowany, czysta treść przeszła) | `PreToolUse` + `permissionDecision: deny` (do potwierdzenia: które narzędzia) |
+| Guardrail nie znika po cichu | brak interpretera = brak hooka, ale plugin jest instalowany razem z runtime'em | **działa inaczej.** Samo narzędzie **milczy i przepuszcza zapis**, gdy polecenia hooka nie da się uruchomić (zmierzone). Adapter obchodzi to opakowaniem powłoki: bez Node.js kończy się kodem 2, czyli blokadą **każdego** zapisu z komunikatem (zmierzone). Świadoma rezygnacja: instalacja z `--bez-skanu` | nie sprawdzone |
+| **git pre-commit ze skanem sekretów** | **działa (E4, 1.4.0)** | **działa tak samo** — mieszka w repozytorium, nie w narzędziu | **działa** |
+| Pytanie o zgodę przy zmianie konfiguracji | `permissionDecision: ask` (hook `config-protection`) | **nie ma** — `ask` jest w schemacie `preToolUse`, ale producent pisze, że nie jest egzekwowane. Ochronę niesie reguła, nie hook | `PermissionRequest` |
+| Ustrukturyzowane pytanie do człowieka | `AskUserQuestion` | **nie ma** — protokół ma `ask_question`, ale adapter go nie dostaje; procedury pytają tekstem i zatrzymują się | do sprawdzenia w E7 |
+| Specyfikacje dokumentów w sesji | hook kopiuje do `.claude/relai/templates/` | **działa tak samo** — ta sama ścieżka, hook `sessionStart` **i** instalator (30 plików, zmierzone) | do sprawdzenia w E7 |
+| Skille jako nośnik procedury | `Skill` (auto-wyzwalanie zależne od modelu, R2) | **działa tak samo** — `.cursor/skills/<nazwa>/SKILL.md`, wywołanie z nazwy (zmierzone) | `.agents/skills/`, `$nazwa` |
+| Reakcja na wywołanie skilla (dosypanie kontekstu) | hook `PostToolUse` na narzędziu `Skill` | **nie ma** — nie zmierzono zdarzenia niosącego nazwę wywołanego skilla; prowizjonowanie robi `sessionStart` i instalator, więc luka nie boli | nie sprawdzone |
+
+### 3.2 Dziesięć komend
+
+Instalator kopiuje **wszystkie dziesięć** plików komend do `.cursor/commands/`; wywołanie
+`/relai-<nazwa>` działa (zmierzone na `/relai-help` i na komendzie testowej). Poniżej to, co
+w treści procedury zachowuje się inaczej. **Zastrzeżenie wspólne:** zmierzono ładowanie i start
+procedur, nie pełne przejście każdej z nich na żywym projekcie — to jest zakres pilotażu E6.
+
+| Komenda | Cursor | Różnica / powód |
+|---|---|---|
+| `/relai-stage` | działa inaczej | karta potwierdzenia i wybór planu pytają zwykłym tekstem (brak `AskUserQuestion`); reszta procedury bez zmian |
+| `/relai-branch` | działa inaczej | jak wyżej — jedno pytanie o rodzaj odnogi tekstem |
+| `/relai-help` | działa tak samo | zmierzone: wykonała procedurę, przeczytała `SPEC_KOMENDY.md` z cache i zatrzymała się na pytaniu |
+| `/relai-tour` | działa tak samo | czyta dokumenty projektu, niczego nie zmienia |
+| `/relai-audit` | działa tak samo | raport + lista propozycji do zatwierdzenia |
+| `/relai-changelog` | działa tak samo | destylat dziennika na ekran |
+| `/relai-backup` | działa tak samo | wymaga narzędzia pakującego w `PATH` (jak w Claude Code); Cursor ma narzędzie powłoki |
+| `/relai-handover` | działa tak samo | generuje jeden plik HTML z osadzonymi fontami |
+| `/relai-adopt` | działa inaczej | backup-bramka i procedura bez zmian; pytania tekstem, a raport adopcji opisuje adapter Cursora zamiast pluginu |
+| `/relai-update` | działa inaczej | w Cursorze nie ma menedżera pluginów: wersję adaptera bierze z `core/MANIFEST.json` miejsca instalacji, a aktualizacja adaptera to ponowne uruchomienie `adapters/cursor/install.js`. Sam `/relai-update` aktualizuje **dokumenty projektu**, nie pliki adaptera |
+
+### 3.3 Praca naprzemienna
+
+Oba narzędzia czytają i piszą te same `docs/`. Wersję struktury projektu podbija wyłącznie
+`/relai-update` — samo otwarcie projektu w drugim narzędziu nie zmienia niczego. Ustawienia
+globalne mieszkają w `~/.claude/relai/` niezależnie od narzędzia, a tryb gościa zadeklarowany
+w jednym (`.cursor/relai.json` albo `.claude/relai.json`) obowiązuje w obu.
 
 Jeden wniosek jest już pewny i nie czeka na eksperyment: **pre-commit jest jedyną gwarancją, która
 w każdej z trzech kolumn wygląda tak samo**, bo mieszka w repozytorium, a nie w harnessie. Dlatego
