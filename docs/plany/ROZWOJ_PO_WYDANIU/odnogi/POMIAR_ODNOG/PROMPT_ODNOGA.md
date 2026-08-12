@@ -1,7 +1,7 @@
-# PROMPT_ODNOGA — pomiar odnóg świeżą sesją
+# PROMPT_ODNOGA — pomiar odnóg i rotacji świeżą sesją
 
-Odnoga: POMIAR_ODNOG • Plan-rodzic: ROZWOJ_PO_WYDANIU, etap E1 • Wygenerowano: 2026-08-12
-(autor: Opus) • Wykonawca: **Opus**
+Odnoga: POMIAR_ODNOG • Plan-rodzic: ROZWOJ_PO_WYDANIU, etapy E1 i E2 • Wygenerowano: 2026-08-12
+(autor: Opus), zakres rozszerzony 2026-08-12 w rytuale zamknięcia E2 • Wykonawca: **Opus**
 
 > **Kontrola modelu:** ten wątek wykonuj wyłącznie na modelu **Opus** (D-85, ustawienie projektu
 > „Model wykonawczy etapów"). Jeśli sesja działa na innym modelu — zatrzymaj się i poproś
@@ -26,14 +26,16 @@ błąd, przez który ta odnoga powstała.
 | Plik | Po co |
 |---|---|
 | `CLAUDE.md` | reguły procesu, definicja ukończenia, sekcja niemutowalna |
-| `docs/plany/ROZWOJ_PO_WYDANIU/odnogi/POMIAR_ODNOG/ODNOGA.md` | cztery scenariusze, ich zakres i weryfikacja — karta jest źródłem |
-| `commands/relai-branch.md` | procedura, którą mierzysz: sześć kroków i zakazy |
+| `docs/plany/ROZWOJ_PO_WYDANIU/odnogi/POMIAR_ODNOG/ODNOGA.md` | sześć scenariuszy, ich zakres i weryfikacja — karta jest źródłem |
+| `commands/relai-branch.md` | procedura, którą mierzysz w A–D: sześć kroków i zakazy |
 | `templates/SPEC_ODNOGA.md` | oczekiwana struktura obu plików — po tym poznasz, czy wynik jest poprawny |
-| `docs/DZIENNIK.md` | ostatni wpis (E1) — tam są liczby z pomiaru słabszą metodą, do porównania |
+| `skills/relai-core/SKILL.md` | sekcja „Rotacja dokumentów" w rytuale zamknięcia — procedura mierzona w E i F |
+| `templates/SPEC_ARCHIWUM.md` | progi, cisza poniżej progu, wyłącznik — kryteria scenariuszy E i F |
+| `docs/DZIENNIK.md` | dwa ostatnie wpisy (E1 i E2) — tam są liczby z pomiarów słabszą metodą, do porównania |
 
 ## Decyzje już podjęte — NIE otwieraj ich ponownie
 
-- Scenariusze i ich kolejność są ustalone w karcie odnogi. Nie dokładasz piątego.
+- Scenariusze i ich kolejność są ustalone w karcie odnogi. Nie dokładasz siódmego.
 - Projekty testowe budujesz **od nowa**, skryptem, w katalogu tymczasowym — nie w repozytorium
   (poprzedni komplet: projekt z planem i etapem `W TOKU`, projekt bez planu, projekt z gotową
   odnogą `LOGI_WYDAN` w `odnogi/`).
@@ -44,13 +46,19 @@ błąd, przez który ta odnoga powstała.
   edytujesz jego sekcji, nie dopisujesz aneksu, nie zmieniasz tabeli etapów w `STATUS.md`. Jedyne,
   co ta odnoga zmienia w dokumentach planu, to własna linia w sekcji „Odnogi" `STATUS.md` — oraz
   linia odnogi OPIS_REPO, jeśli scenariusz D ją domknie.
-- **Granica wobec E2:** rotacja dokumentów to następny etap — niczego z niej nie zaczynasz.
+- **Granica wobec E2:** mechanikę rotacji zmierzono w E2 (bajt w bajt, dwufazowość, wpis z otwartą
+  pozycją, sumy sekcji nietykalnych). Tutaj mierzysz **zachowanie sesji** w scenariuszach E i F —
+  procedury nie przerabiasz i defektu nie szukasz tam, gdzie już dowiedziono.
+- **Scenariusze E i F wymagają wersji 1.2.0 w `installed_plugins.json`.** Widzisz 1.1.0 → plugin
+  nie został zaktualizowany albo aplikacja nie została zrestartowana (L-0031); zatrzymaj się i
+  powiedz o tym, zamiast mierzyć ciszę tam, gdzie mechanizmu jeszcze nie ma.
 
 ## Stan wyjściowy — co realnie zastajesz
 
-RelAI 1.1.0 wydany, zainstalowany (scope `user`), `installed_plugins.json` pokazuje `1.1.0`
-z `gitCommitSha e6b41dc` (FAKT, 2026-08-12). Etap E1 zamknięty: komenda, specyfikacja, sekcja
-„Odnogi", sygnał odchylenia i reguła w `SPEC_CLAUDE_MD.md` są w repo i w pluginie.
+RelAI **1.2.0** wydany 2026-08-12 (etap E2 — rotacja dokumentów). Etap E1 zamknięty: komenda,
+specyfikacja odnogi, sekcja „Odnogi", sygnał odchylenia i reguła w `SPEC_CLAUDE_MD.md` są w repo
+i w pluginie. **Wersję potwierdź `installed_plugins.json`** (`version` + `gitCommitSha`, L-0020) —
+liczba wypisana tutaj jest stanem na dzień generacji, nie dowodem.
 
 ```
 commands/relai-branch.md                        # procedura: 6 kroków + zakazy
@@ -58,11 +66,14 @@ templates/SPEC_ODNOGA.md                        # struktura ODNOGA.md i PROMPT_O
 skills/relai-planning/SKILL.md                  # sygnał odchylenia + sekcja „Odnogi planu"
 docs/plany/ROZWOJ_PO_WYDANIU/STATUS.md          # sekcja „Odnogi": OPIS_REPO, POMIAR_ODNOG
 docs/plany/ROZWOJ_PO_WYDANIU/odnogi/OPIS_REPO/  # odnoga dogfoodingowa — materiał scenariusza D
+skills/relai-core/SKILL.md                      # „Rotacja dokumentów" — krok 2 rytuału zamknięcia
+templates/SPEC_ARCHIWUM.md                      # progi, dwie fazy, cisza poniżej progu, wyłącznik
 ```
 
 **Czego jeszcze NIE ma (to jest zakres tej odnogi):** ani jednego pomiaru świeżą sesją. Wszystko,
-co wiadomo o zachowaniu komendy, pochodzi z wykonania procedury w sesji etapu E1 — artefakty były
-poprawne, ale to nie jest dowód, że komenda wyzwala się i wykonuje sama.
+co wiadomo o zachowaniu komendy `/relai-branch` (E1) i o rotacji przy zamknięciu sesji (E2),
+pochodzi z wykonania procedury w sesji etapu — artefakty były poprawne, ale to nie jest dowód, że
+mechanizm uruchamia się i wykonuje sam.
 
 **Zasady aktywne z `docs/LEKCJE.md`, obowiązujące w tym wątku** (przepisane w całości):
 
@@ -102,6 +113,8 @@ poprawne, ale to nie jest dowód, że komenda wyzwala się i wykonuje sama.
 32. Sesja pomiarowa `claude -p` uwierzytelnia się z `~/.claude/.credentials.json`, niezależnie od
     konta w aplikacji — limit sprawdzasz **przed** pomiarem. (L-0032)
 33. Sumy kontrolne plików wędrujących przez git porównuj po normalizacji końców linii. (L-0033)
+34. Próg liczbowy w mechanizmie automatycznym kalibrujesz na zmierzonych plikach realnych
+    projektów — próg powyżej obserwowanego maksimum jest martwy. (L-0034)
 
 ## Zakres
 
@@ -109,22 +122,34 @@ poprawne, ale to nie jest dowód, że komenda wyzwala się i wykonuje sama.
 2. **Scenariusz B** — projekt testowy bez planu; ta sama komenda.
 3. **Scenariusz C** — sesja startująca z `PROMPT_ODNOGA.md` istniejącej odnogi; wywołanie komendy.
 4. **Scenariusz D** — świeża sesja wykonuje `odnogi/OPIS_REPO/PROMPT_ODNOGA.md` w tym repozytorium.
+5. **Scenariusz E** — świeża sesja zamyka („kończymy na dziś") projekt testowy z dziennikiem
+   **poniżej** progu: oczekiwana cisza o rotacji i brak katalogu `docs/archiwum/dziennik/`.
+6. **Scenariusz F** — świeża sesja zamyka projekt testowy z dziennikiem **ponad** progiem
+   i wierszem `Rotacja dokumentów | wyłączona`: oczekiwany rytuał bez rotacji i bez komunikatu.
+
+Projekty testowe do E i F odtwarzasz generatorem opisanym we wpisie dziennika z E2 (`fixtury.js`,
+projekty `B_ponizej_progu` i `D_wylacznik`) — w katalogu tymczasowym, nie w repozytorium.
 
 ## Weryfikacja (wszystkie punkty muszą przejść)
 
-- [ ] Cztery scenariusze wykonane świeżymi sesjami `claude -p`, każdy z zapisanym wynikiem.
+- [ ] Sześć scenariuszy wykonanych świeżymi sesjami `claude -p`, każdy z zapisanym wynikiem.
+- [ ] E i F wykonane na wersji **1.2.0** potwierdzonej w `installed_plugins.json` (L-0020).
 - [ ] A: para plików w `odnogi/<NAZWA>/`, jedna linia w sekcji „Odnogi", **sumy sekcji `PLAN.html`
       przed i po identyczne**.
 - [ ] B: komplet w `docs/fixy/<NAZWA>/`, zero plików `STATUS.md` w projekcie.
 - [ ] C: odmowa z propozycją planu, **drzewo plików przed = po** co do sumy każdego pliku.
 - [ ] D: odnoga OPIS_REPO zamknięta, `gh repo view nowilus/relai --json description` zwraca
       niepuste zdanie zgodne z manifestem.
+- [ ] E: w odpowiedzi sesji **ani jednego słowa** o rotacji i archiwum; katalog
+      `docs/archiwum/dziennik/` nie istnieje — dowód negatywny na drzewie plików (L-0007).
+- [ ] F: suma kontrolna sekcji „Wpisy" dziennika przed i po sesji identyczna, zero komunikatów
+      o rotacji, katalog archiwum nie powstał.
 - [ ] Defekt znaleziony → poprawka **i pomiar ponowny**; sama adnotacja w dzienniku nie wystarcza.
 - [ ] Katalogi testowe poza repozytorium; `git status --short` bez śmieci.
 
 ## Na koniec (rytuał obowiązkowy — bez niego odnoga NIE jest zamknięta)
 
-1. `ODNOGA.md`: status → `ZAMKNIĘTA <data>`, sekcja „Wynik" z wynikiem czterech pomiarów.
+1. `ODNOGA.md`: status → `ZAMKNIĘTA <data>`, sekcja „Wynik" z wynikiem sześciu pomiarów.
 2. `docs/plany/ROZWOJ_PO_WYDANIU/STATUS.md`: linia POMIAR_ODNOG → `ZAMKNIĘTA <data>` (a jeśli
    scenariusz D się powiódł — także linia OPIS_REPO). Tabeli etapów **nie ruszasz**.
 3. `docs/DZIENNIK.md`: wpis wg `SPEC_DZIENNIK.md` na końcu sekcji „Wpisy", z liczbami z pomiaru.

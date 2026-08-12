@@ -86,16 +86,33 @@ Autor: RelAI (Opus) + Łukasz
 wierszy zgodna z licznikiem na liście.
 ```
 
-## Rotacja (D-14)
+## Rotacja (D-14, mechanizm od 1.2.0)
 
-Gdy plik przekracza **50 KB** albo kończy się kwartał (co nastąpi wcześniej):
+Rotacja dzieje się **sama**, w rytuale zamknięcia sesji, gdy plik przekracza próg
+z `docs/USTAWIENIA.md` (domyślnie **150 KB**). Poniżej progu nie dzieje się nic i nie pada ani
+jedno słowo. Pełen mechanizm — dwie fazy, sumy kontrolne, nazwy plików, przypadki brzegowe —
+opisuje `SPEC_ARCHIWUM.md`; tutaj obowiązuje to, czego rotacja nie ma prawa naruszyć.
 
-1. Przenieś starsze wpisy do `docs/archiwum/DZIENNIK_<rok>_Q<kwartał>.md`.
-2. W bieżącym dzienniku zostaw jednoakapitowe streszczenie zarchiwizowanego okresu z linkiem do
-   pliku archiwum.
-3. Sekcja „Stan otwartych ryzyk" **nigdy** nie jest archiwizowana — zostaje w bieżącym pliku.
+**Co zostaje w żywym pliku zawsze:**
 
-Rotację proponujesz użytkownikowi, nie wykonujesz po cichu.
+- sekcja **„Stan otwartych ryzyk"** — nie jest wpisem i nigdy nie trafia do archiwum,
+- **dziesięć najnowszych wpisów** `SZACUNEK`,
+- **każdy wpis z nierozstrzygniętą pozycją w sekcji „Do zrobienia przez człowieka"**, niezależnie
+  od wieku. Najpierw rozstrzygnięcie, potem archiwum: pozycja czekająca na człowieka, która wyjdzie
+  z żywego dokumentu, przestaje istnieć dla kolejnej sesji. Rozstrzygnięcie poznajesz po adnotacji
+  „*(rozstrzygnięte RRRR-MM-DD — …)*" przy każdej pozycji; sekcja z treścią „—" jest pusta i wpisu
+  nie blokuje.
+
+**Co odchodzi:** ciągły zakres najstarszych wpisów, **w całości i bajt w bajt**. Wpisu nie dzielisz,
+nie streszczasz i nie skracasz — pierwszy wpis nietykalny kończy zakres.
+
+**Co zostaje po nich:** jedna **linia-odsyłacz** na początku sekcji „Wpisy", z zakresem dat, liczbą
+wpisów, linkiem do pliku archiwum i sumą kontrolną. Streszczenia okresu **nie piszesz** — dawna
+reguła „jednoakapitowe streszczenie" jest w 1.2.0 wycofana, bo streszczenie milczy o tym, czego nie
+zmieściło, a od pełnej treści jest archiwum (D-18).
+
+Format wpisu jest przy tym nienaruszalny: treść w archiwum ma te same cztery sekcje i tę samą linię
+autora co przed przeniesieniem.
 
 ## Zakazy
 

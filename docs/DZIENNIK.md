@@ -8,7 +8,7 @@
 | R2 | Auto-wyzwalanie skilli bywa zawodne (agent nie zastosuje zasad bez komendy) | **Niski przy Opusie, średni przy modelach słabszych** (2026-08-10 po E10) | **ZMIERZONE 2026-08-10, OTWARTE ŚWIADOMIE** | Podwójna warstwa: opisy skilli + reguły w projektowym CLAUDE.md zawsze w kontekście; testy fraz w pilotażu. **2026-08-07 (E1):** `relai-core` zainstalowany i widoczny w inwentarzu pluginu, ale samo auto-wyzwolenie w świeżej sesji NIEZWERYFIKOWANE. **2026-08-07 (E2):** test NIEWYKONANY — plugin odinstalowany na czas budowy na polecenie użytkownika (L-0004), więc skill nie miał prawa się wyzwolić; pomiar przeniesiony do pilotażu E10, po docelowej instalacji. Ryzyko pozostaje OTWARTE i niezmierzone przez dwa etapy (L-0005). **2026-08-07 (E3):** nadal niezmierzone — doszedł drugi skill (`relai-planning`) wyzwalany frazą, więc zakres ryzyka wzrósł. **2026-08-07 (pomiar, na wniosek użytkownika):** plugin zainstalowany, sześć świeżych sesji `claude -p`. Wersja 0.3.0: 1/4 trafień — brak wyzwolenia na prompcie naturalnym i na „przygotuj plan…", z realnym rozjazdem konwencji. Po poprawce opisów (0.3.1): 2/2 trafienia. Ryzyko zostaje otwarte: próba mała, `-p` blokuje `AskUserQuestion`, a wynik zależy od inwentarza skilli na maszynie. Kontrola ponowna w E10 (wiersz E10 w `STATUS.md`). **2026-08-07 (E5):** hook `session-context` (SessionStart) wstrzykuje rytuał startu, datę dnia i siatkę promptów niezależnie od skilli — zmierzone 2/2 na neutralnym prompcie przy **zerze** wywołań `Skill`. Poziom obniżony do niskiego; do potwierdzenia w sesji interaktywnej w E10. **2026-08-08 (E8):** reguły warunkowe profilu zaprojektowane tak, żeby skill **nie był** warstwą nośną — regułę niesie sekcja w `CLAUDE.md` projektu (w kontekście każdej sesji bez wyzwalania), zdarzenie wykrywa hook, skill dokłada procedurę. Zmierzone: bramka snapshotu zatrzymała zapis w projekcie `flow` z **usuniętą** sekcją reguł w `CLAUDE.md` (sesja napisała wprost „bramka snapshotu i tak zablokowała zapis"), a kopia w `docs/snapshoty/` ma sumę kontrolną stanu sprzed zmiany **2026-08-10 (E10) — pomiar interaktywny, siedemnaście sesji prowadzonych przez człowieka:** wynik zależy od modelu i to jest trwała własność, nie usterka do naprawienia. **Opus:** skill wyzwala się sam, procedura wykonuje się w całości (sygnał D-27 przed akapitem „gdzie jesteśmy", propozycja, zatrzymanie na zgodzie). **Sonnet 4.6 i Haiku 4.5:** ani jedno wywołanie `Skill` na promptach naturalnych; rytuał, datę i sygnały niesie hook `session-context`, więc projekt nie traci pamięci, ale procedura bywa niepełna. Inicjalizacja w pustym folderze wyzwoliła skill 3/3 niezależnie od modelu. Dwie poprawki z tego pomiaru: frazy sesji przeniesione do `CLAUDE.md` projektu (L-0030) i sygnały „ZADANIE PIERWSZE" przed instrukcją rytuału w hooku — po nich Sonnet zgłasza sygnał D-27 zawsze (przedtem: raz wcale, raz w środku akapitu z błędną propozycją). Ryzyko zostaje otwarte świadomie: warstwą nośną jest hook i `CLAUDE.md`, skill jest warstwą procedury. **2026-08-12 (E1):** doszła dziesiąta komenda (`/relai-branch`) i sygnał odchylenia, a regułę sygnału niesie `CLAUDE.md` projektu zgodnie z L-0030 — ale **zakres ryzyka wzrósł bez pomiaru**: limit konta na CLI (L-0032) uniemożliwił sesje pomiarowe, więc o zachowaniu nowej komendy w świeżej sesji nie wiadomo nic. Pomiar czterech scenariuszy czeka w odnodze `POMIAR_ODNOG` planu ROZWOJ_PO_WYDANIU. |
 | R3 | Adopcja uszkodzi żywy projekt użytkownika | **Niski** (2026-08-10 po E10; wcześniej średni) | **ZAMKNIĘTE 2026-08-10 (E10)** | D-70: backup+raport+recovery obowiązkowe; scenariusz akceptacyjny z pełnym testem recovery. **2026-08-08 (E7):** powstał pierwszy filar — `/relai-backup` pakuje projekt do prawdziwego ZIP-a (bsdtar, nagłówek `PK`), z twardym wykluczeniem sekretów i **weryfikacją listy wpisów archiwum** przed zgłoszeniem sukcesu; zmierzone: 22 wpisy, zero trafień na `.env`/`node_modules`. Brakuje drugiego filaru — **odtworzenia**: rozpakowanie i test „projekt wstaje" nie są jeszcze niczym opisane ani zmierzone. Do domknięcia w E9 (`/relai-adopt` z przetestowaną ścieżką recovery) i w scenariuszu akceptacyjnym E10. **2026-08-09 (E9):** drugi filar dowieziony — `/relai-adopt` z backupem-bramką (dwa dowody negatywne: niemożliwa lokalizacja i brak narzędzia pakującego → zero plików struktury) i **recovery przetestowanym naprawdę**: pełne cofnięcie wg sekcji raportu adopcji dało sumę drzewa plików bajt w bajt identyczną ze stanem sprzed (10/10 plików, agregat `1200960f…`). Poziom obniżony do średniego; zamknięcie po scenariuszu akceptacyjnym E10 na żywym JiraManagerze **2026-08-10 (E10) — scenariusz akceptacyjny na żywym projekcie (JiraManager: 22 commity, aplikacja PySide6, `CLAUDE.md` na 398 linii, sekrety pod niestandardową nazwą):** sumy kontrolne 194 plików przed i po adopcji — **zero plików zniknęło**, zmienione dokładnie dwa (`CLAUDE.md` przez scalanie, `DZIENNIK.md` przez wpis zerowy), kod bez zmian. `config.json` z tokenem Jiry i hasłem SMTP **poza archiwum** mimo nazwy spoza listy wzorców (D-42). Scalanie D-71: 6 z 8 zastanych sekcji bajt w bajt, kopia oryginału w `docs/archiwum/`. Recovery wykonane **na kopii**: 192/192 pliki bajt w bajt, `git log -1` = `b52c013` — hash z sekcji „Backup" raportu. Ryzyko zamknięte. |
 | R4 | Hooki Node na Windows (ścieżki ze spacjami, kodowanie PL) | Średni | **ZAMKNIĘTE 2026-08-07 (E5)** | Osiem hooków przetestowane na ścieżce `Próba RelAI E5` (spacja + „ó"): 39/39 testów jednostkowych i siedem sesji integracyjnych bez błędów kodowania i ścieżek. Komunikaty hooków świadomie ASCII (L-0016); zero zależności npm |
-| R5 | Dokumenty puchną i zjadają kontekst | Średni | **OTWARTE — do obserwacji po 1.0.0** | D-14/D-15: rotacja DZIENNIKA, kompresja LEKCJI, destylaty czytane na starcie. **2026-08-08 (E7):** doszły dwa narzędzia po stronie użytkownika — `/relai-audit` wykrywa dziennik ponad progiem 50 KB i lekcje bez destylatu (zmierzone na projekcie testowym: podał rozmiar dziennika i wskazał destylat bez lekcji źródłowej), a `/relai-changelog` daje historię bez trzymania jej w kontekście. Sam pakiet `/relai-handover` waży 201 KB przez osadzone fonty — to plik dla człowieka, nie dla kontekstu sesji, ale pytanie o podzbiór fontów z E6 zostaje otwarte **2026-08-10 (E10):** pilotaż dał pierwsze liczby z realnej pracy. Projekt „Paragony" po czterech etapach: dziennik 382 linie, `CLAUDE.md` 65 linii — mieści się. JiraManager po adopcji: dziennik 124 KB (historia sprzed RelAI), `CLAUDE.md` **434 linie** przy limicie 60, bo limit świadomie ustąpił wierności cudzych reguł (D-71). To jest realny przypadek, w którym mechanizm rotacji i kompresji będzie potrzebny, a `/relai-audit` go wykryje. Ryzyko zostaje otwarte z konkretnym adresem: pierwszy projekt po adopcji, nie hipoteza. |
+| R5 | Dokumenty puchną i zjadają kontekst | Średni | **OTWARTE — do obserwacji po 1.0.0** | D-14/D-15: rotacja DZIENNIKA, kompresja LEKCJI, destylaty czytane na starcie. **2026-08-08 (E7):** doszły dwa narzędzia po stronie użytkownika — `/relai-audit` wykrywa dziennik ponad progiem 50 KB i lekcje bez destylatu (zmierzone na projekcie testowym: podał rozmiar dziennika i wskazał destylat bez lekcji źródłowej), a `/relai-changelog` daje historię bez trzymania jej w kontekście. Sam pakiet `/relai-handover` waży 201 KB przez osadzone fonty — to plik dla człowieka, nie dla kontekstu sesji, ale pytanie o podzbiór fontów z E6 zostaje otwarte **2026-08-10 (E10):** pilotaż dał pierwsze liczby z realnej pracy. Projekt „Paragony" po czterech etapach: dziennik 382 linie, `CLAUDE.md` 65 linii — mieści się. JiraManager po adopcji: dziennik 124 KB (historia sprzed RelAI), `CLAUDE.md` **434 linie** przy limicie 60, bo limit świadomie ustąpił wierności cudzych reguł (D-71). To jest realny przypadek, w którym mechanizm rotacji i kompresji będzie potrzebny, a `/relai-audit` go wykryje. Ryzyko zostaje otwarte z konkretnym adresem: pierwszy projekt po adopcji, nie hipoteza. **2026-08-12 (E2):** mechanizm powstał — automatyczna rotacja dwufazowa w rytuale zamknięcia sesji, progi i wyłącznik w `USTAWIENIA.md`, archiwum bajt w bajt z linią-odsyłaczem. Zmierzone na projektach testowych: dziennik 317 KB → 132 KB przy sumie przeniesionej treści identycznej z oryginałem, sekcje „Stan otwartych ryzyk" i „Zasady aktywne" nietknięte, przerwanie po fazie 1 zostawia żywy plik z tą samą sumą. Progi skalibrowane na **zmierzonych** dziennikach (JiraManager 348 KB, PolyFlow 223 KB) — próg lekcji zmieniony z martwych „60 lekcji" na „40 wpisów albo 50 KB" (L-0034). Poziom **na razie bez zmiany**: mechanizmu nie zmierzono w świeżej sesji (odnoga `POMIAR_ODNOG`, scenariusze E i F), a dwa projekty z realnym problemem dostaną go dopiero przez `/relai-update`. Zamknięcie po pierwszej rotacji na żywym projekcie. |
 | R6 | Aktualizacja pluginu nadpisze lokalne nadpisania użytkowników | Niski | **ZAMKNIĘTE 2026-08-09 (E9)** | D-72: diff + zgoda + pierwszeństwo lokalnych nadpisań; test w pilotażu. **2026-08-08 (E6):** nadpisanie lokalne umieszczone w `docs/zasoby/HTML_PLAN/` — poza cache'em `.claude/relai/`, którego dotyka hook i aktualizacja pluginu. Zmierzone: po `marketplace update` + `plugin update` + świeżej sesji dziewięć plików nadpisania ma identyczne sumy kontrolne, własny token na miejscu, token z pluginu nie wrócił; cache w tym samym czasie **został** nadpisany (dowód, że test nie jest pusty). Zostaje otwarte do E9: `/relai-update` musi pokazać diff i uszanować nadpisanie. **2026-08-09 (E9):** `/relai-update` działa i szanuje nadpisania — zmierzone na projekcie 0.7.0: trzy pliki `docs/zasoby/HTML_PLAN/` z sumami identycznymi po aktualizacji, wiersz „Szablon planu HTML" nietknięty, wiersz lokalny `KOMENDY.md` przepisany dosłownie do zregenerowanej tabeli; diff pokazany przed zapisem, odmowa zostawia projekt nietknięty (10/10 sum). Ryzyko zamknięte |
 | R7 | Model wykonawczy (Sonnet/Opus) obniży jakość implementacji etapów | Średni | **ZAMKNIĘTE 2026-08-10 (E10)** | Prompty etapowe z sekcją Weryfikacja + przegląd Fable po kluczowych etapach **2026-08-10 (E10):** zmierzone na realnej pracy, nie na deklaracji. Etapy E3 i E4 projektu pilotażowego prowadził **Haiku 4.5** zgodnie z zapisem w `STATUS.md` („mechaniczne — najtańszy") i dowiózł je w całości: 30 testów, rytuał „Na koniec" wykonany, prompt następnego etapu wygenerowany, zamknięcie planu (D-36) przeprowadzone bez błędu — plan w archiwum, `Aktywny plan: brak`, zero martwych linków. Jakość implementacji **nie ucierpiała**; różnica między modelami leży gdzie indziej — w tym, czy skill wyzwala się sam (R2), a nie w tym, czy etap zostanie dowieziony. Jedyny ślad słabszego modelu w dokumentach: dwa wpisy podpisane `RelAI (Haiku)` bez członu `+ <użytkownik>`. Prompt etapowy z sekcją „Weryfikacja" okazał się wystarczającą mitygacją. |
 | P1 | Adaptery Cursor/Codex nie egzekwują blokad harnessu — sekret albo zmiana konfiguracji przejdzie tam, gdzie w Claude Code stoi ściana (plan ROZWOJ_PO_WYDANIU) | Wysoki | **OTWARTE od 2026-08-12 (akceptacja planu)** | Git pre-commit ze skanem sekretów w E4 (działa niezależnie od narzędzia); jawna tabela gwarancji per narzędzie w E5/E7; scenariusz akceptacyjny E6 zawiera próbę zapisu sekretu |
@@ -1630,3 +1630,104 @@ Autor: RelAI (Opus) + Lukasz
   `POMIAR_ODNOG`; bez tego pomiar padnie na tym samym błędzie.
 - Uruchomić dwie odnogi w świeżych sesjach Opus (`OPIS_REPO`, `POMIAR_ODNOG`) albo etap E2
   (`/relai-stage`) — kolejność dowolna, odnogi nie blokują planu.
+
+### 2026-08-12 — E2: rotacja dokumentów, kalibracja progów, RelAI 1.2.0
+
+Autor: RelAI (Opus) + Lukasz
+
+**Zrobione:**
+
+- **`templates/SPEC_ARCHIWUM.md`** (nowy, 20. specyfikacja) — archiwum dziennika i lekcji:
+  ścieżki `docs/archiwum/dziennik/DZIENNIK_<data-od>_<data-do>.md` i
+  `docs/archiwum/lekcje/LEKCJE_<numer-od>_<numer-do>.md`, nagłówek z zakresem i sumą kontrolną,
+  treść **bajt w bajt**, format linii-odsyłacza, definicja sumy (SHA-256/16 po normalizacji do LF),
+  reguły wyboru zakresu, przebieg dwufazowy, siedem przypadków brzegowych i dwa kompletne
+  przykłady (L-0001).
+- **Rotacja jako krok rytuału zamknięcia sesji** w `skills/relai-core/SKILL.md` — nowy punkt 2
+  (przed wpisem do dziennika, żeby wpis opisał rotację i wylądował w przyciętym pliku). Procedura
+  wypisana w treści skilla, nie odesłaniem (L-0011): warunek z `USTAWIENIA.md`, tabela progów,
+  cisza poniżej progu, lista nietykalnych, dwie fazy, ślad w dzienniku.
+- **`templates/SPEC_USTAWIENIA.md`** — wiersz `Rotacja dokumentów` z formatem czytanym maszynowo
+  (kotwica na początku komórki, człony po `·`), wyłącznikiem i progami; powstaje przy inicjalizacji
+  **bez dodatkowego pytania** (limit trzech pytań, D-80).
+- **`templates/SPEC_DZIENNIK.md`** i **`templates/SPEC_LEKCJE.md`** — sekcje rotacji: co zostaje
+  zawsze, co odchodzi, jak wygląda odsyłacz. W dzienniku **wycofana** dawna reguła
+  „jednoakapitowe streszczenie zarchiwizowanego okresu" (streszczenie milczy o tym, czego nie
+  zmieściło) oraz dawny próg 50 KB z kwartałem. W lekcjach rozdzielone dwie mylone operacje:
+  kompresja (destylat, za zgodą) i rotacja (pełne wpisy, sama).
+- **`templates/SPEC_STATE.md`** — próg zwięzłości 300 linii: STATE nie ma archiwum, jest pisany
+  zwięźlej, a fakt znikający stąd i nieobecny gdzie indziej idzie do wpisu dziennika (D-18).
+- **`commands/relai-update.md`** — wiersz stanu docelowego 1.2.0: projekt dostaje wiersz rotacji
+  w `USTAWIENIA.md` (Aneks A: zgoda jest), wiersz już obecny nie jest nadpisywany — także gdy stoi
+  w nim `wyłączona`.
+- **`templates/SPEC_KOMENDY.md`**, `docs/KOMENDY.md`, `README.md`, `templates/README.md` — rotacja
+  jako zachowanie automatyczne, opisane efektem; tabela komend bez zmian, bo rotacja nie ma
+  własnej komendy.
+- **Wersja 1.2.0** w obu manifestach, obu skillach, `/relai-update`, `SPEC_KOMENDY`,
+  `SPEC_USTAWIENIA`, `SPEC_RAPORT_ADOPCJI`, README i markerze tego repo.
+
+**Zweryfikowane — jak dokładnie:**
+
+- **Kalibracja progów — liczby zmierzone na dysku 2026-08-12** `FAKT`: JiraManager — dziennik
+  355 977 B (348 KB) / 27 wpisów, lekcje 33 270 B / 16 pozycji, STATE 431 linii; PolyFlow —
+  dziennik 228 303 B (223 KB) / 43 wpisy, lekcje 48 828 B / 29 pozycji, STATE 879 linii; RelAI —
+  dziennik 143 462 B / lekcje 42 405 B / 33 lekcje / STATE 88 linii. Rozstrzygnięcie: **dziennik
+  150 KB zostaje** (łapie oba realne projekty, nie odpala się na RelAI o włos poniżej), **STATE
+  300 linii zostaje** (oba realne projekty ponad, RelAI daleko poniżej), **próg lekcji zmieniony
+  z „60 lekcji" na „40 wpisów albo 50 KB, co nastąpi wcześniej"** — 60 lekcji nie osiągnął żaden
+  projekt, a PolyFlow przy 29 lekcjach ma już 49 KB, więc próg liczony wyłącznie w pozycjach byłby
+  martwy (→ L-0034).
+- **Rotacja przenosi bajt w bajt** — projekt testowy `A_ponad_progiem` (dziennik 317 KB, 24 wpisy,
+  45 lekcji): przeniesione 14 wpisów (2026-01-05 … 2026-01-18), suma przed `9d8d0434a64ec1b3`
+  = suma treści w archiwum `9d8d0434a64ec1b3`, a porównanie **znak po znaku** ciągów daje
+  `true`. Żywy dziennik 317 KB → 132 KB, zostało 10 wpisów **bez zmiany bajtowej**, linia-odsyłacz
+  wskazuje istniejący plik. Lekcje: przeniesione 25 (L-0001 … L-0025), zostało 20.
+- **Dowód dwufazowości (dowód negatywny, L-0007):** przebieg zatrzymany po fazie 1 — plik archiwum
+  powstał (14 wpisów), a suma żywego dziennika przed i po jest ta sama (`62883819af1a7bb3`), tak
+  samo `LEKCJE.md` (`e296eb0c61dd3a71`). W drzewie przybyło 5 pozycji (samo archiwum), **nie
+  zniknęła żadna**. Kolejny pełny przebieg nadpisał osieroconą kopię tą samą treścią i dopiero
+  wtedy przyciął żywy plik.
+- **Sekcje nietykalne:** suma „Stan otwartych ryzyk" przed i po rotacji `c0dc8135653c99c3`
+  = `c0dc8135653c99c3`; suma „Zasady aktywne" `2c42011a0e3a9099` = `2c42011a0e3a9099`.
+- **Wpis z otwartą pozycją „Do zrobienia przez człowieka" zostaje:** projekt `C_otwarta_pozycja`
+  (dziennik 317 KB, otwarta pozycja w **najstarszym** wpisie) — zakres pusty, **drzewo plików
+  przed = po**, komunikat jednym zdaniem o tym, że nie ma czego przenieść. Projekt
+  `A2_urwany_zakres` (otwarta pozycja w piątym wpisie) — przeniesione dokładnie 4 wpisy, piąty
+  został w żywym pliku bajt w bajt: ciągłość zakresu urywa się na pozycji nietykalnej.
+- **Cisza poniżej progu:** projekt `B_ponizej_progu` (dziennik 41 KB) — drzewo plików przed = po
+  (5 pozycji), katalog `docs/archiwum/dziennik/` **nie powstał**, zero komunikatów.
+- **Wyłącznik:** projekt `D_wylacznik` (dziennik 317 KB, `Rotacja dokumentów | wyłączona`) —
+  progi nie były nawet sprawdzane, drzewo przed = po, zero komunikatów.
+- **Manifest:** `claude plugin validate .claude-plugin/plugin.json` → „Validation passed with
+  warnings", jedyne ostrzeżenie to znane root `CLAUDE.md` (L-0003); marketplace bez ostrzeżeń.
+- **Wersja:** `git grep -n "1\.1\.0"` po podbiciu — wszystkie pozostałe trafienia historyczne
+  (wpisy dziennika, zamrożony `PLAN.html`, `PROMPT_ETAP_1`, wiersz E1 w `STATUS.md` i w `CLAUDE.md`,
+  narracja „nowe w 1.1.0" w `SPEC_KOMENDY`, prompty odnóg sprzed tego etapu).
+- **Metoda:** rotację wykonywał instrument w Node (`rotacja.js`) realizujący procedurę
+  ze `SPEC_ARCHIWUM.md` krok po kroku, na projektach testowych generowanych skryptem poza
+  repozytorium (`git status --short` bez śmieci).
+
+**Świadomie odłożone:**
+
+- **Punkty 5 i 7 weryfikacji zmierzone metodą słabszą.** „Cisza poniżej progu" i „wyłącznik
+  działa" mówią o zachowaniu **sesji zamykającej projekt**; zmierzono zachowanie **procedury**
+  (drzewo przed = po, zero komunikatów), nie świeżej sesji `claude -p`. Powód jest twardy:
+  zainstalowana wersja to 1.1.0, a rotacja wejdzie w życie dopiero po push → `plugin update` →
+  **restarcie aplikacji** (L-0031), więc pomiar z tej sesji mierzyłby wersję bez rotacji. Decyzja
+  użytkownika: **rozszerzyć odnogę `POMIAR_ODNOG`** o scenariusze E i F zamiast zakładać trzecią
+  odnogę — jedna sesja pomiarowa domknie punkty z E1 i E2. Karta i prompt odnogi zaktualizowane.
+- **Suma kontrolna liczona po normalizacji do LF także dla archiwum**, mimo że L-0033 zostawiała
+  dla plików „niewędrujących przez gita" sumę na bajtach. Powód: suma trafia do wpisu dziennika
+  i ma dać się odtworzyć po klonie na Windowsie. To doprecyzowanie L-0033, nie sprzeczność.
+- Rotacja w JiraManagerze i PolyFlow — wejdzie przez `/relai-update` po restarcie; tego etapu nie
+  dotyczy.
+- Kompresja lekcji (destylacja za zgodą) zostaje bez zmian — rotacja jej nie zastępuje.
+
+**Do zrobienia przez człowieka:**
+
+- **Push, `claude plugin marketplace update relai`, `claude plugin update relai@relai`, restart
+  aplikacji** — bez restartu sesje ładują cache 1.1.0 (L-0031).
+- **`claude /login`** na konto z dostępnym limitem — warunek startu odnogi `POMIAR_ODNOG`
+  (L-0032), teraz obejmującej także dwa scenariusze rotacji.
+- Decyzja, kiedy przepuścić JiraManagera i PolyFlow przez `/relai-update` — dzienniki 348 KB
+  i 223 KB czekają na pierwszą rotację.

@@ -1,13 +1,15 @@
-# ODNOGA — pomiar odnóg świeżą sesją (niedomknięty punkt weryfikacji E1)
+# ODNOGA — pomiar odnóg i rotacji świeżą sesją (niedomknięte punkty weryfikacji E1 i E2)
 
-Plan: [ROZWOJ_PO_WYDANIU](../../STATUS.md) · Etap-źródło: E1 — Odnoga planu · Utworzona: 2026-08-12 ·
-Status: **OTWARTA** · Wykonawca: Opus
+Plan: [ROZWOJ_PO_WYDANIU](../../STATUS.md) · Etap-źródło: E1 — Odnoga planu (zakres rozszerzony
+2026-08-12 o punkty 5 i 7 weryfikacji E2) · Utworzona: 2026-08-12 · Status: **OTWARTA** ·
+Wykonawca: Opus
 
 ## Cel
 
-Trzy scenariusze `/relai:relai-branch` i wykonanie `PROMPT_ODNOGA` są zmierzone **świeżymi sesjami**
-`claude -p` na zainstalowanej wersji 1.1.0 — czyli tak, jak wymaga L-0004 — a wynik każdego
-z czterech pomiarów jest zapisany w dzienniku.
+Trzy scenariusze `/relai:relai-branch`, wykonanie `PROMPT_ODNOGA` oraz dwa scenariusze rotacji
+dokumentów są zmierzone **świeżymi sesjami** `claude -p` na zainstalowanej wersji (1.2.0 po
+wydaniu E2) — czyli tak, jak wymaga L-0004 — a wynik każdego z sześciu pomiarów jest zapisany
+w dzienniku.
 
 ## Skąd się wzięła
 
@@ -34,18 +36,34 @@ planu; jest dokładnie tym, po co odnogi powstały.
 4. **Scenariusz D — samowystarczalność promptu.** Świeża sesja wykonuje
    `docs/plany/ROZWOJ_PO_WYDANIU/odnogi/OPIS_REPO/PROMPT_ODNOGA.md` i domyka odnogę OPIS_REPO bez
    pytań o rzeczy już rozstrzygnięte. Ta odnoga jest jednocześnie testem akceptacyjnym.
+5. **Scenariusz E — cisza poniżej progu** (punkt 5 weryfikacji E2, dopisany 2026-08-12). Świeża
+   sesja zamyka („kończymy na dziś") projekt testowy z dziennikiem **poniżej** progu. Oczekiwane:
+   ani jedno słowo o rotacji w odpowiedzi i brak katalogu `docs/archiwum/dziennik/` — dowód
+   negatywny na drzewie plików przed = po (z pominięciem plików, które rytuał zamknięcia zmienia
+   z innych powodów: `STATE.md`, `DZIENNIK.md`).
+6. **Scenariusz F — wyłącznik** (punkt 7 weryfikacji E2, dopisany 2026-08-12). Świeża sesja zamyka
+   projekt testowy z dziennikiem **ponad** progiem i wierszem `Rotacja dokumentów | wyłączona`
+   w `USTAWIENIA.md`. Oczekiwane: rytuał przebiega bez rotacji i bez komunikatu o niej; dziennik
+   zachowuje sumę kontrolną sekcji „Wpisy" sprzed sesji.
+
+Projekty testowe do scenariuszy E i F: generator `fixtury.js` opisany we wpisie dziennika z E2
+(2026-08-12) — projekty `B_ponizej_progu` i `D_wylacznik`. Foldery żyją poza repozytorium.
 
 ## Poza zakresem
 
 - Zmiany w treści komendy, specyfikacji i skilla — chyba że pomiar wykaże defekt; wtedy poprawka
   wchodzi tutaj razem z ponownym pomiarem.
-- Cokolwiek z zakresu E2 (rotacja dokumentów) i dalszych etapów.
+- Mechanika rotacji zmierzona już w E2 (bajt w bajt, dwufazowość, wpis z otwartą pozycją, sumy
+  sekcji nietykalnych) — tutaj mierzysz **zachowanie sesji**, nie procedurę.
+- Cokolwiek z zakresu dalszych etapów planu.
 - Przelogowanie CLI — to krok człowieka, opisany niżej.
 
 ## Weryfikacja
 
-- [ ] Cztery scenariusze wykonane **świeżymi sesjami** `claude -p` (stdin, `--permission-mode
+- [ ] Sześć scenariuszy wykonanych **świeżymi sesjami** `claude -p` (stdin, `--permission-mode
       acceptEdits`, `--allowedTools "Bash"` — L-0024, L-0028), każdy z zapisanym wynikiem.
+- [ ] Scenariusze E i F wykonane na wersji **1.2.0** potwierdzonej w `installed_plugins.json`
+      (L-0020) — na 1.1.0 rotacji nie ma, więc cisza nic nie dowodzi.
 - [ ] Scenariusz A: sumy kontrolne sekcji `PLAN.html` przed i po są identyczne.
 - [ ] Scenariusz C: drzewo plików przed = po, co do sumy każdego pliku.
 - [ ] Scenariusz D: odnoga OPIS_REPO zamknięta rytuałem, `gh repo view` zwraca niepusty opis.

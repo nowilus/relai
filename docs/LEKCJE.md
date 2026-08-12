@@ -98,6 +98,9 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
 33. Sumy kontrolne plików, które przeszły przez gita (klon, checkout, cache pluginu), porównuj
     **po normalizacji CRLF → LF** — inaczej dostajesz dowód fałszywie negatywny wyglądający jak
     defekt dystrybucji. (L-0033)
+34. Próg liczbowy w mechanizmie automatycznym kalibrujesz na **zmierzonych** plikach realnych
+    projektów, zanim go zapiszesz — próg powyżej maksimum, jakie te projekty osiągają, jest progiem
+    martwym i wygląda jak działający. (L-0034)
 
 ## Lekcje
 
@@ -561,3 +564,18 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
   negatywnym — i wygląda jak defekt dystrybucji, którym nie jest. Dla plików, które przez gita nie
   przechodzą (archiwum rotacji, kopie w tym samym drzewie), zostaje suma na bajtach.
 - **Źródło:** E1 planu ROZWOJ_PO_WYDANIU (2026-08-12).
+
+### L-0034 — Próg zapisany bez pomiaru bywa progiem martwym · 2026-08-12 · AKTYWNA
+
+- **Trigger:** próg rotacji rejestru lekcji miał brzmieć „ponad 60 lekcji". Pomiar trzech realnych
+  projektów pokazał maksimum **33** lekcje (RelAI) przy pliku 42 KB, a PolyFlow przy **29** lekcjach
+  ma już 49 KB. Próg 60 lekcji nie zadziałałby nigdy, a plik dawno przekroczyłby rozmiar, dla
+  którego rotacja powstała.
+- **Przyczyna:** próg wzięty z wyobrażenia o skali („kilkadziesiąt lekcji to dużo") zamiast
+  z rozkładu wartości w projektach, które naprawdę istnieją. Jednostka też była źle dobrana:
+  o koszt kontekstu decyduje rozmiar pliku, nie liczba pozycji.
+- **Zasada:** zanim zapiszesz próg liczbowy w mechanizmie automatycznym, zmierz tę wielkość
+  w realnych projektach i sprawdź, czy próg w ogóle bywa osiągany. Próg powyżej obserwowanego
+  maksimum jest martwy i — co gorsza — wygląda w dokumentacji jak zabezpieczenie, którego nie ma.
+  Gdy jednostka jest wątpliwa, użyj dwóch („40 wpisów albo 50 KB, co nastąpi wcześniej").
+- **Źródło:** przegląd zamykający etap E2 planu ROZWOJ_PO_WYDANIU (2026-08-12).

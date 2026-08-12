@@ -130,12 +130,45 @@ Procedura:
    aktywnych", z numerami źródłowymi w nawiasie.
 2. Zwinięte wpisy dostają status `ZWINIĘTA <data>` i przenosisz je do sekcji „Lekcje zwinięte" na
    końcu pliku — albo, gdy sekcja sama urośnie ponad 30 KB, do
-   `docs/archiwum/LEKCJE_<rok>_Q<kwartał>.md` z linkiem (D-18).
+   `docs/archiwum/lekcje/LEKCJE_<numer-od>_<numer-do>.md` z linkiem (D-18); nazewnictwo i nagłówek
+   pliku archiwum wg `SPEC_ARCHIWUM.md`.
 3. **Sekcja „Zasady aktywne" nigdy nie jest archiwizowana** — zostaje w bieżącym pliku.
 4. Nic nie jest kasowane. Numery nie są odzyskiwane.
 
 Kompresję **proponujesz**, nie wykonujesz po cichu: to jedyna operacja na tym pliku, która zmienia
 treść wstecz.
+
+## Rotacja — pełne lekcje do archiwum (od 1.2.0)
+
+Kompresja i rotacja to **dwie różne operacje** i nie wolno ich mylić:
+
+| Operacja | Co robi | Kto uruchamia |
+|---|---|---|
+| **Kompresja** (wyżej) | destyluje treść lekcji do zdania w „Zasadach aktywnych" — zmienia sens zapisu | propozycja, zgoda człowieka |
+| **Rotacja** (tutaj) | przenosi **pełne wpisy bajt w bajt** do `docs/archiwum/lekcje/` — nie zmienia ani znaku | sama, w rytuale zamknięcia sesji |
+
+Rotacja rusza, gdy plik przekracza próg z `docs/USTAWIENIA.md`: domyślnie **40 lekcji albo 50 KB**,
+co nastąpi wcześniej. Poniżej progu — cisza. Mechanizm (dwie fazy, sumy kontrolne, nazwy plików)
+opisuje `SPEC_ARCHIWUM.md`; tutaj obowiązuje to, czego rotacja nie ma prawa naruszyć.
+
+**Co zostaje zawsze:**
+
+- **cała sekcja „Zasady aktywne"** — destylat czytany na starcie sesji nigdy nie opuszcza żywego
+  pliku. Zasada z zarchiwizowanej lekcji **nadal obowiązuje**: żyje w destylacie, a numer w nawiasie
+  prowadzi do archiwum,
+- **dwadzieścia najnowszych lekcji** `SZACUNEK` — to zapas na sprawdzanie powtórzeń przy graduacji,
+- sekcja „Lekcje zwinięte", jeśli istnieje — ta ma własną drogę opisaną w „Kompresji" i rotacja jej
+  nie dotyka.
+
+**Co odchodzi:** ciągły zakres najstarszych wpisów `L-NNNN` z sekcji „Lekcje", w całości. Numery
+nie są odzyskiwane ani przenumerowywane — `L-0007` w archiwum jest tym samym `L-0007`, do którego
+odsyła destylat.
+
+**Co zostaje po nich:** jedna **linia-odsyłacz** na początku sekcji „Lekcje", z zakresem numerów,
+linkiem do pliku archiwum i sumą kontrolną.
+
+Skutek dla graduacji: sprawdzając, czy dana korekta już padła, zaczynasz od „Zasad aktywnych"
+(są kompletne) — i dopiero gdy trop prowadzi do numeru spoza żywego pliku, otwierasz archiwum.
 
 ## Jak ten plik jest czytany
 

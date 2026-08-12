@@ -26,7 +26,7 @@ description: >
 
 # relai-planning — plany, etapy i ich zamrażanie
 
-Wersja 1.1.0 (E1 planu ROZWOJ_PO_WYDANIU — odnogi). Zakres tej wersji: **wykrycie intencji planowania + rozróżnienie
+Wersja 1.2.0 (E2 planu ROZWOJ_PO_WYDANIU — rotacja dokumentów). Zakres tej wersji: **wykrycie intencji planowania + rozróżnienie
 PLAN/MINIPLAN + pytanie startowe + generacja planu w Markdown albo w HTML + `STATUS.md` +
 zamrożenie z aneksami + prompty etapowe `PROMPT_ETAP_N` z lazy-generacją + rytuał „Na koniec" etapu
 + **sygnał odchylenia i odnogi planu** + zamknięcie planu**. Etap uruchamia komenda `/relai-stage`,

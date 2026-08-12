@@ -43,6 +43,13 @@ projektu komendą `/relai-adopt` (D-70, D-71):
 |---|---|---|
 | [SPEC_RAPORT_ADOPCJI.md](SPEC_RAPORT_ADOPCJI.md) | `docs/RAPORT_ADOPCJI.md` | pisany raz przy adopcji; nośnik procedury pełnego cofnięcia — jedyny artefakt, który przeżywa sesję adopcji |
 
+Jedna specyfikacja opisuje pliki, które powstają **same**, w rytuale zamknięcia sesji, gdy żywe
+dokumenty przekroczą próg z `USTAWIENIA.md` (od 1.2.0):
+
+| Specyfikacja | Generuje | Polityka |
+|---|---|---|
+| [SPEC_ARCHIWUM.md](SPEC_ARCHIWUM.md) | `docs/archiwum/dziennik/DZIENNIK_<od>_<do>.md` + `docs/archiwum/lekcje/LEKCJE_<od>_<do>.md` | rotacja dwufazowa: kopia bajt w bajt i weryfikacja sum kontrolnych, dopiero potem przycięcie żywego pliku; poniżej progu cisza |
+
 Pięć kolejnych specyfikacji opisuje **profile projektów** (D-50…D-53) i dokumenty warunkowe, które
 profil dokłada. Żaden z nich nie powstaje przy inicjalizacji — wszystkie przy zdarzeniu (D-10):
 

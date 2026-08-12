@@ -50,7 +50,7 @@ projektu jest w `docs/USTAWIENIA.md`.
 Plik jest **regenerowany**, nie edytowany ręcznie. Wyjątkiem są wiersze oznaczone jako lokalne —
 te przeżywają regenerację (D-62: lokalne nadpisania mają pierwszeństwo).
 
-## Zakres wersji 1.1.0 — co realnie działa
+## Zakres wersji 1.2.0 — co realnie działa
 
 Od 0.4.0 działa **pierwsza komenda** — `/relai-stage` — i wygenerowany `KOMENDY.md` ma tabelę
 komend. W 0.5.0 doszło **osiem hooków**: sekcja „Czego RelAI pilnuje bez proszenia" urosła
@@ -59,7 +59,9 @@ lokalne szablonu**. W 0.7.0 doszło **sześć komend operacyjnych** — tabela k
 pozycji do siedmiu. W 0.8.0 **profil projektu zaczyna cokolwiek robić**: rośnie sekcja
 o zachowaniach automatycznych. W 0.9.0 dochodzą **adopcja i aktualizacja** — tabela komend rośnie
 z siedmiu do dziewięciu pozycji. W 1.1.0 dochodzą **odnogi planu**: dziesiąta komenda
-`/relai-branch` i sygnał odchylenia w sekcji o zachowaniach automatycznych. Działa:
+`/relai-branch` i sygnał odchylenia w sekcji o zachowaniach automatycznych. W 1.2.0 dochodzi
+**rotacja dokumentów** — kolejny punkt w sekcji o zachowaniach automatycznych; tabela komend nie
+rośnie, bo rotacja nie ma własnej komendy. Działa:
 
 - inicjalizacja struktury projektu (zgoda → trzy pytania → osiem dokumentów),
 - rozpoznanie folderu, który już jest projektem RelAI,
@@ -129,9 +131,16 @@ z siedmiu do dziewięciu pozycji. W 1.1.0 dochodzą **odnogi planu**: dziesiąta
 - **sygnał odchylenia (nowe w 1.1.0), do sekcji „Czego RelAI pilnuje bez proszenia":** gdy
   w trakcie etapu wypływa rzecz spoza jego zakresu, RelAI zatrzymuje się i pyta — odnoga, aneks do
   planu czy „świadomie odłożone" — zamiast robić ją przy okazji. Przy zamykaniu planu wylicza
-  odnogi, które zostały otwarte, i pyta o każdą.
+  odnogi, które zostały otwarte, i pyta o każdą,
+- **rotacja dokumentów (nowe w 1.2.0), do sekcji „Czego RelAI pilnuje bez proszenia":** przy
+  zamykaniu sesji najstarsza historia przenosi się z dziennika i rejestru lekcji do
+  `docs/archiwum/`, w całości i bez zmiany choćby znaku; w żywym pliku zostaje linia z linkiem do
+  archiwum. Dopóki dokumenty mieszczą się w progu, nie dzieje się nic i nie pada ani jedno słowo.
+  Wpis czekający na decyzję człowieka zostaje na miejscu niezależnie od wieku. Progi i wyłącznik są
+  w `USTAWIENIA.md`. Opisujesz **efekt** — dwufazowość, sumy kontrolne i nazwy plików to mechanika,
+  która do ściągi nie wchodzi.
 
-Wygenerowany `KOMENDY.md` w wersji 1.1.0 zawiera **tabelę komend z dziesięcioma pozycjami**
+Wygenerowany `KOMENDY.md` w wersji 1.2.0 zawiera **tabelę komend z dziesięcioma pozycjami**
 oraz tabelę fraz naturalnych:
 
 | Komenda | Co robi |
@@ -160,12 +169,12 @@ oraz tabelę fraz naturalnych:
 - Nie opisujesz mechaniki wewnętrznej (skille, hooki) — użytkownika interesuje efekt.
 - Nie wpisujesz punktów profilu, którego ten projekt nie ma.
 
-## Przykład dla wersji 1.1.0 (projekt polski, profil `app`)
+## Przykład dla wersji 1.2.0 (projekt polski, profil `app`)
 
 ```markdown
 # KOMENDY — Parkly
 
-RelAI 1.1.0
+RelAI 1.2.0
 
 Nic z tej listy nie jest obowiązkowe. RelAI działa w zwykłej rozmowie — piszesz normalnie,
 a struktura projektu nadąża. Komendy są skrótem do rzadszych operacji.
@@ -225,6 +234,10 @@ z podpowiedzi; skrócona forma działa tam, gdzie podpowiadacz ją rozwinie.
   wylądować wyłącznie w `.env`, którego git nie śledzi.
 - Zmiana zamrożonych reguł projektu (`CLAUDE.md` — sekcja niemutowalna, `USTAWIENIA.md`) wymaga
   Twojego zatwierdzenia — RelAI zapyta, zanim cokolwiek zmieni.
+- Gdy dziennik albo rejestr lekcji urośnie ponad próg, przy zamykaniu sesji przenosi najstarszą
+  historię do `docs/archiwum/` — w całości, bez skracania — i zostawia w żywym pliku linię z linkiem
+  do niej. Wpis czekający na Twoją decyzję zostaje na miejscu, choćby był najstarszy. Dopóki
+  dokumenty mieszczą się w progu, nie dzieje się nic; progi i wyłącznik masz w `USTAWIENIA.md`.
 - Przypomina, gdy zmiana kodu została bez wpisu w dzienniku i aktualizacji stanu.
 - Ostrzega przed `console.log` zostawionym w kodzie produkcyjnym; gdy projekt ma TypeScript albo
   ESLint — pokazuje ich błędy zaraz po edycji pliku.

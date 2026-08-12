@@ -28,6 +28,13 @@ ukończenia zadania (D-44), nie osobne zadanie „do zrobienia później".
 
 Datę aktualizacji bierzesz z kontekstu sesji, nigdy z pamięci modelu.
 
+**Próg zwięzłości (od 1.2.0).** Plik dłuższy niż próg z `docs/USTAWIENIA.md` (domyślnie **300
+linii**) przepisujesz w rytuale zamknięcia sesji **zwięźlej**, do jednego ekranu. Archiwum dla
+`STATE.md` nie istnieje — nie ma czego archiwizować, skoro plik z definicji nie ma historii. Jedyna
+twarda reguła: fakt, który przy skracaniu znika stąd, a nie stoi w żadnym innym dokumencie,
+**przepisujesz do wpisu dziennika tej sesji** — inaczej skrócenie byłoby kasowaniem (D-18).
+Mechanizm i progi: `SPEC_ARCHIWUM.md`.
+
 ## Struktura sekcji
 
 **Warstwa 1 — nietechniczna:**

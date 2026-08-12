@@ -85,7 +85,7 @@ RelAI), więc plik nigdy nie jest regenerowany.
 ```markdown
 # RAPORT ADOPCJI — Magazyn
 
-Adopcja: 2026-08-09 · RelAI 1.1.0 · Wykonawca: RelAI (Opus) + Lukasz
+Adopcja: 2026-08-09 · RelAI 1.2.0 · Wykonawca: RelAI (Opus) + Lukasz
 
 ## Backup
 
@@ -101,8 +101,8 @@ Adopcja: 2026-08-09 · RelAI 1.1.0 · Wykonawca: RelAI (Opus) + Lukasz
 | `docs/STATE.md` | wygenerowany z analizy kodu i README — opisuje działający moduł przyjęć |
 | `docs/DZIENNIK.md` | wpis zerowy streszcza historię gita: 214 commitów od 2026-03-11 |
 | `docs/LEKCJE.md`, `docs/DECYZJE.md` | puste strukturalnie — zapełnią się w pracy |
-| `docs/USTAWIENIA.md` | marker `Wersja RelAI: 1.1.0` + wykryte: język polski, profil `app` |
-| `docs/KOMENDY.md` | ściąga komend wersji 1.1.0 |
+| `docs/USTAWIENIA.md` | marker `Wersja RelAI: 1.2.0` + wykryte: język polski, profil `app` |
+| `docs/KOMENDY.md` | ściąga komend wersji 1.2.0 |
 
 ## Co przeniesiono do archiwum projektu
 

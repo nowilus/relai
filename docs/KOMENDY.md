@@ -1,6 +1,6 @@
 # KOMENDY — RelAI
 
-RelAI 1.1.0
+RelAI 1.2.0
 
 Nic z tej listy nie jest obowiązkowe. RelAI działa w zwykłej rozmowie — piszesz normalnie,
 a struktura projektu nadąża. Komendy są skrótem do rzadszych operacji.
@@ -40,6 +40,11 @@ z podpowiedzi; skrócona forma działa tam, gdzie podpowiadacz ją rozwinie.
   stanem jest w toku, nie skończone.
 - **Twoja korekta zostaje zapisana.** Każda uwaga o sposobie pracy trafia do `LEKCJE.md`. Gdy ta
   sama uwaga wraca drugi raz, RelAI proponuje wpisać ją na stałe do `CLAUDE.md`.
+- **Dokumenty nie puchną bez końca.** Gdy dziennik albo rejestr lekcji urośnie ponad próg, przy
+  zamykaniu sesji najstarsza historia przenosi się do `docs/archiwum/` — w całości, bez skracania —
+  a w żywym pliku zostaje linia z linkiem do niej. Wpis czekający na Twoją decyzję zostaje na
+  miejscu, choćby był najstarszy. Poniżej progu nie dzieje się nic; progi i wyłącznik masz
+  w `docs/USTAWIENIA.md`.
 - **Powracające rozstrzygnięcie idzie do zamrożenia.** Temat rozstrzygany drugi raz tak samo kończy
   się propozycją wpisu do `DECYZJE.md`. Zdania w rodzaju „nie rób tego więcej" zapisują się od razu.
 - **Sekret nie wejdzie do repozytorium.** Zapis klucza API, tokenu, JWT, klucza prywatnego albo

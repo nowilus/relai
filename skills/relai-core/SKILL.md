@@ -14,7 +14,9 @@ description: >
   README.md and docs/ with STATE, DZIENNIK, LEKCJE, DECYZJE, USTAWIENIA, KOMENDY), guest mode,
   non-destructive attach, full adoption of an existing project (explicit /relai-adopt only, D-70),
   keeping STATE and the journal current in the same turn as any functional
-  change, recording a lesson after every user correction, proposing to freeze a recurring decision,
+  change, automatic two-phase rotation of the journal and the lessons register into docs/archiwum/
+  during the session-closing ritual (thresholds and an off switch live in USTAWIENIA; silence below
+  the threshold), recording a lesson after every user correction, proposing to freeze a recurring decision,
   and the conditional rules of the project profile (app / agent-voice / flow / prompty): the
   document that appears at the first code, the first UI, the first deploy, the first artifact, and
   the snapshot that must precede any production config change. Planning is a separate skill
@@ -23,8 +25,9 @@ description: >
 
 # relai-core — struktura projektu, pamięć i rytuały sesji
 
-Wersja 1.1.0 (E1 planu ROZWOJ_PO_WYDANIU — odnogi). Zakres tego skilla: **rozpoznanie stanu folderu + inicjalizacja + tryb
-gościa + niedestrukcyjne dołączenie + rytuały sesji + siatka brakujących promptów etapowych +
+Wersja 1.2.0 (E2 planu ROZWOJ_PO_WYDANIU — rotacja dokumentów). Zakres tego skilla: **rozpoznanie stanu folderu + inicjalizacja + tryb
+gościa + niedestrukcyjne dołączenie + rytuały sesji + rotacja dokumentów przy zamknięciu sesji +
+siatka brakujących promptów etapowych +
 rejestry LEKCJE/DECYZJE + trzy frazy naturalne + warstwa ustawień globalnych + reguły warunkowe
 profilu projektu**. Od 0.5.0 działa też zestaw hooków (sekrety, ochrona konfiguracji, przypomnienia,
 kontekst sesji, a od 0.8.0 reguły profilu) — pilnują twardych granic niezależnie od tego skilla.
@@ -293,15 +296,62 @@ gdy sam kończysz większą porcję pracy. Kolejność:
 1. **Sync dokumentów** — przejrzyj, co się w tej sesji zmieniło, i domknij: `STATE.md`,
    `USTAWIENIA.md` (jeśli padły nowe preferencje), `LEKCJE.md` / `DECYZJE.md` (jeśli coś zostało
    niezapisane), `README.md` (jeśli zmienił się sposób uruchomienia).
-2. **Wpis do dziennika** — jeden wpis zbiorczy za sesję, na końcu sekcji „Wpisy". Sekcja
+2. **Rotacja dokumentów** (od 1.2.0) — sekcja niżej. Wykonujesz ją **przed** wpisem do dziennika,
+   żeby wpis tej sesji opisał rotację i wylądował już w przyciętym pliku.
+3. **Wpis do dziennika** — jeden wpis zbiorczy za sesję, na końcu sekcji „Wpisy". Sekcja
    „Zweryfikowane — jak dokładnie" musi mówić, czym i z jakim wynikiem sprawdzałeś; „nie
    weryfikowano" jest dopuszczalną treścią, brak sekcji nie jest.
-3. **Ryzyka** — zaktualizuj tabelę „Stan otwartych ryzyk", jeśli któreś zamknięto, otwarto albo
+4. **Ryzyka** — zaktualizuj tabelę „Stan otwartych ryzyk", jeśli któreś zamknięto, otwarto albo
    zmienił się jego poziom.
-4. **Commit** — jeśli projekt ma gita i są niezacommitowane zmiany, zaproponuj commit
+5. **Commit** — jeśli projekt ma gita i są niezacommitowane zmiany, zaproponuj commit
    z conventional message. Nie commituj bez zgody, poza commitem inicjalizacyjnym.
-5. **Podsumowanie** — 3–5 zdań: co zrobione, co zweryfikowane, co czeka na człowieka, od czego
+6. **Podsumowanie** — 3–5 zdań: co zrobione, co zweryfikowane, co czeka na człowieka, od czego
    zacząć następnym razem. Bez list zadań i bez obietnic terminów.
+
+### Rotacja dokumentów (krok 2 rytuału zamknięcia, od 1.2.0)
+
+Żywe dokumenty rosną, a każda sesja czyta je od nowa. Rotacja przenosi najstarszą historię do
+`docs/archiwum/`, **bajt w bajt**, i zostawia po niej linię-odsyłacz. Dzieje się sama i **nie
+pyta o zgodę** — bo niczego nie kasuje ani nie streszcza. Pełna specyfikacja:
+`SPEC_ARCHIWUM.md` (czytasz ją z `.claude/relai/templates/` **przed** rotacją, nie z pamięci);
+poniżej jest to, co obowiązuje zawsze.
+
+**Warunek — wiersz `Rotacja dokumentów` w `docs/USTAWIENIA.md`.** Kotwica na początku komórki
+`Decyzja`: `wyłączona` (EN `off`) → **kończysz ten krok natychmiast**, bez sprawdzania progów
+i bez słowa. Wartość nierozpoznana albo brak wiersza w projekcie z wersją 1.2.0 → traktujesz jak
+`wyłączona` i mówisz o tym jednym zdaniem. Progi domyślne, gdy wiersz ich nie podaje:
+
+| Dokument | Próg | Działanie po przekroczeniu |
+|---|---|---|
+| `docs/DZIENNIK.md` | 150 KB | najstarsze wpisy → `docs/archiwum/dziennik/DZIENNIK_<data-od>_<data-do>.md` |
+| `docs/LEKCJE.md` | 40 lekcji albo 50 KB | najstarsze pełne lekcje → `docs/archiwum/lekcje/LEKCJE_<numer-od>_<numer-do>.md` |
+| `docs/STATE.md` | 300 linii | **bez archiwum** — przepisujesz zwięźlej w kroku 1; fakt, który znika, a nie stoi nigdzie indziej, idzie do wpisu dziennika |
+
+**Poniżej progu: cisza.** Zero komunikatów, zero pytań, katalog `docs/archiwum/dziennik/` nie
+powstaje. Rotacja nie przypomina o swoim istnieniu.
+
+**Czego nie ruszasz nigdy:** sekcji „Stan otwartych ryzyk" w dzienniku, sekcji „Zasady aktywne"
+w lekcjach, dziesięciu najnowszych wpisów, dwudziestu najnowszych lekcji ani **żadnego wpisu
+z nierozstrzygniętą pozycją „Do zrobienia przez człowieka"** — niezależnie od jego wieku. Zakres
+jest ciągły: pierwsza pozycja nietykalna kończy zakres, nie przeskakujesz jej.
+
+**Przebieg jest dwufazowy** i kolejność jest tu całym zabezpieczeniem:
+
+1. **Faza 1 — kopia i dowód.** Wyznacz ciągły zakres najstarszych pozycji (tyle, żeby żywy plik
+   zszedł poniżej 60% progu). Policz sumę kontrolną tego fragmentu w żywym pliku. Zapisz plik
+   archiwum. Odczytaj go **z dysku**, policz sumę treści spod separatora i porównaj. Suma:
+   SHA-256 z treści znormalizowanej do LF (L-0033), pierwsze 16 znaków hex.
+2. **Sumy różne → STOP.** Żywy plik zostaje nietknięty, mówisz o tym jednym zdaniem. Niczego nie
+   naprawiasz po cichu.
+3. **Faza 2 — przycięcie**, dopiero po zgodności sum: usuń fragment z żywego pliku, wstaw
+   linię-odsyłacz na początku sekcji („Wpisy" / „Lekcje"), zapisz.
+4. **Ślad w dzienniku** — do wpisu tej sesji (krok 3 rytuału): co przeniesiono, dokąd, ile
+   pozycji, suma kontrolna, rozmiar przed i po.
+
+**Powyżej progu, ale nie ma czego przenieść** (same świeże wpisy albo najstarszy wpis ma otwartą
+pozycję „Do zrobienia przez człowieka") → nie rotujesz i **mówisz o tym jednym zdaniem** w
+podsumowaniu, z powodem. Cisza obowiązuje poniżej progu; powyżej progu milczenie ukryłoby zatkany
+mechanizm.
 
 ---
 
@@ -312,8 +362,9 @@ dosłowne brzmienie: „kończymy", „na dziś wystarczy", „that's it for tod
 
 ### „kończymy na dziś" / „wrapping up"
 
-Wykonaj **rytuał zamknięcia sesji** (sekcja wyżej), punkty 1–5, w tej kolejności. Nie pytaj, czy na
-pewno — użytkownik już powiedział. Jedyne pytanie, jakie może paść, to zgoda na commit.
+Wykonaj **rytuał zamknięcia sesji** (sekcja wyżej), punkty 1–6, w tej kolejności. Nie pytaj, czy na
+pewno — użytkownik już powiedział. Jedyne pytanie, jakie może paść, to zgoda na commit; rotacja
+dokumentów (punkt 2) o zgodę nie pyta i poniżej progu nie zostawia śladu.
 
 ### „kontynuujemy pracę" / „let's continue"
 
@@ -446,7 +497,7 @@ Zasady generacji:
   Dla projektu angielskiego: `docs/STATE.md`, `docs/JOURNAL.md`, `docs/LESSONS.md`,
   `docs/DECISIONS.md`, `docs/SETTINGS.md`, `docs/COMMANDS.md`. Konwencja stała: CAPS_SNAKE, bez dat
   i numerów wersji w nazwie.
-- `docs/USTAWIENIA.md` **musi** zawierać linię `Wersja RelAI: 1.1.0` — to marker, po którym RelAI
+- `docs/USTAWIENIA.md` **musi** zawierać linię `Wersja RelAI: 1.2.0` — to marker, po którym RelAI
   rozpoznaje projekt i po którym przyszły `/relai-update` policzy różnicę wersji.
 - `CLAUDE.md` **musi** zawierać sekcję `## Reguły profilu (<wybrany profil>)` zaraz po „Regułach
   procesu" — 3–6 punktów wg `SPEC_PROFILE.md`. To jedyna warstwa reguł profilu działająca bez
@@ -464,7 +515,10 @@ Zasady generacji:
 - `docs/LEKCJE.md` i `docs/DECYZJE.md` powstają **puste, ale kompletne strukturalnie**: nagłówek,
   zdanie o roli, sekcja „Zasady aktywne" (LEKCJE) z informacją, że jest jeszcze pusta, i pusta
   sekcja na wpisy. Pusty rejestr z gotową strukturą zapełnia się sam; brakujący plik nie.
-- Do tabeli ustawień wpisz trzy odpowiedzi z paczki startowej, każda z dzisiejszą datą.
+- Do tabeli ustawień wpisz trzy odpowiedzi z paczki startowej, każda z dzisiejszą datą, oraz
+  **czwarty wiersz `Rotacja dokumentów` z wartością `włączona`** — bez pytania o niego (limit trzech
+  pytań jest twardy, D-80). Wiersz jest wyłącznikiem: użytkownik, któremu rotacja przeszkadza,
+  wpisuje tam `wyłączona`.
 - Zapisz ponadprojektowe odpowiedzi do warstwy globalnej (sekcja „Warstwa ustawień globalnych").
 - Podfolderów `docs/plany/`, `docs/fixy/`, `docs/archiwum/`, `docs/zasoby/` **nie** twórz na zapas —
   powstają, gdy pojawia się pierwsza zawartość (D-11).

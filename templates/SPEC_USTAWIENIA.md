@@ -77,6 +77,7 @@ Zawsze te trzy, z odpowiedzi na paczkę startową (D-20), plus wersja RelAI w li
 | Język projektu | pytanie 1 (dokumentacja / kod / commity) |
 | Git | pytanie 2 |
 | Profil projektu | pytanie 3 |
+| Rotacja dokumentów | wartość domyślna `włączona` — **bez pytania**, limit trzech pytań jest twardy (D-80) |
 
 Wiersz **`Profil projektu`** jest czytany maszynowo — hooki `profile-rules` i `config-protection`
 biorą z niego reguły warunkowe (D-50). Kolumna `Decyzja` musi **zaczynać się** od jednej z czterech
@@ -91,6 +92,37 @@ Wiersz **`Podejście do testów`** powstaje dopiero przy pierwszym kodzie w prof
 nie przy inicjalizacji. Jego obecność wycisza pytanie o testy, więc nazwy tego wiersza też nie
 zmieniasz dowolnie.
 
+## Wiersz `Rotacja dokumentów` (od 1.2.0)
+
+Rotacja przenosi najstarszą historię z żywych dokumentów do `docs/archiwum/` w rytuale zamknięcia
+sesji (mechanizm: `SPEC_ARCHIWUM.md`). Ten wiersz jest jej **wyłącznikiem i miejscem na progi**;
+powstaje przy inicjalizacji projektu oraz przy `/relai-update` projektu z wcześniejszej wersji.
+
+Format komórki `Decyzja` jest sztywny, bo jest czytana maszynowo (L-0025) — kotwica na **początku**
+komórki, człony rozdzielone `·`:
+
+```
+włączona · dziennik 150 KB · lekcje 40 wpisów albo 50 KB · STATE 300 linii
+```
+
+| Człon | Dozwolone wartości | Znaczenie |
+|---|---|---|
+| przełącznik (**pierwszy, obowiązkowy**) | `włączona` / `wyłączona` (EN: `on` / `off`) | `wyłączona` → progów nawet nie sprawdzasz, rytuał zamknięcia przebiega bez rotacji i bez komunikatu |
+| `dziennik <liczba> KB` | liczba całkowita | próg rozmiaru `DZIENNIK.md` |
+| `lekcje <liczba> wpisów albo <liczba> KB` | dwie liczby całkowite | próg `LEKCJE.md` — zadziała ten, który padnie pierwszy |
+| `STATE <liczba> linii` | liczba całkowita | próg `STATE.md`; STATE nie jest archiwizowany, tylko pisany zwięźlej |
+
+Człon pominięty znaczy „wartość domyślna" — projekt, który niczego nie stroi, ma w komórce samo
+`włączona`. **Wartość przełącznika nierozpoznana → rotacja jest wyłączona** i mówisz o tym jednym
+zdaniem. To jedyne miejsce, gdzie nierozpoznana wartość nie kończy się ciszą (L-0025): rotacja
+zmienia treść dokumentów, więc niepewność rozstrzyga się na korzyść bezczynności, ale człowiek ma
+o tym wiedzieć.
+
+Progi domyślne — `SZACUNEK`, skalibrowane 2026-08-12 na zmierzonych projektach (JiraManager:
+dziennik 348 KB / 27 wpisów, lekcje 32 KB / 16 pozycji, STATE 431 linii; PolyFlow: dziennik 223 KB
+/ 43 wpisy, lekcje 48 KB / 29 pozycji, STATE 879 linii) — mieszkają w `SPEC_ARCHIWUM.md` i są
+jedynym źródłem prawdy o wartościach domyślnych.
+
 ## Polityka aktualizacji
 
 - **Append.** Nowa preferencja to nowy wiersz z datą, nie edycja starego.
@@ -103,7 +135,8 @@ zmieniasz dowolnie.
 ## Co tu trafia, a co nie
 
 **Trafia:** język, git, profil, sposób prowadzenia planów, podejście do testów, model wykonawczy
-etapów, lokalizacja backupów, zgody na wyjątki od reguł domyślnych, wybrany kierunek designu.
+etapów, lokalizacja backupów, rotacja dokumentów, zgody na wyjątki od reguł domyślnych, wybrany
+kierunek designu.
 
 **Nie trafia:** decyzje architektoniczne i produktowe („nie proponuj ponownie") — te idą do
 `docs/DECYZJE.md`; lekcje z korekt — do `docs/LEKCJE.md`; stan prac — do `STATE.md`.
@@ -120,7 +153,7 @@ etapów, lokalizacja backupów, zgody na wyjątki od reguł domyślnych, wybrany
 ```markdown
 # USTAWIENIA — Parkly
 
-Wersja RelAI: 1.1.0 · zainicjowano: 2026-08-07
+Wersja RelAI: 1.2.0 · zainicjowano: 2026-08-07
 
 Rejestr wyborów użytkownika dla tego projektu. Każdy wpis: data, czego dotyczył, decyzja.
 Odpowiedź raz udzielona nie wraca jako pytanie.
@@ -130,6 +163,7 @@ Odpowiedź raz udzielona nie wraca jako pytanie.
 | 2026-08-07 | Język projektu | Polski — dokumentacja PL, kod i identyfikatory EN, commity conventional EN |
 | 2026-08-07 | Git | Repo lokalne + zdalne na GitHub (prywatne) |
 | 2026-08-07 | Profil projektu | app (Next.js + PostgreSQL) |
+| 2026-08-07 | Rotacja dokumentów | włączona |
 | 2026-08-12 | Podejście do testów | Testy krytycznych ścieżek, bez pełnego TDD — pytanie padło przy pierwszym kodzie |
 | 2026-08-14 | Format planów | Interaktywny HTML dla planów głównych; `STATUS.md` i prompty etapowe w Markdown |
 | 2026-08-14 | Szablon planu HTML | Nadpisanie lokalne w `docs/zasoby/HTML_PLAN/` — ma pierwszeństwo przed wersją z pluginu; zmieniona paleta i krój nagłówków |

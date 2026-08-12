@@ -3,7 +3,7 @@
 </p>
 
 <p align="center">
-  <em>Wersja 1.1.0 &nbsp;·&nbsp; licencja MIT &nbsp;·&nbsp; wymaga Claude Code i Node.js 14+ &nbsp;·&nbsp; zero zależności npm</em>
+  <em>Wersja 1.2.0 &nbsp;·&nbsp; licencja MIT &nbsp;·&nbsp; wymaga Claude Code i Node.js 14+ &nbsp;·&nbsp; zero zależności npm</em>
 </p>
 
 **RelAI to plugin do Claude Code, który zamienia rozmowę z agentem w prowadzony projekt.**
@@ -60,6 +60,9 @@ pilnuje, żeby to, co ustalone, wylądowało w pliku.**
   bez pytania. Gdy uwaga wraca drugi raz, RelAI proponuje wpisać ją na stałe do reguł projektu.
 - **Pilnuje granic.** Klucz API nie wejdzie do repozytorium. Reguły projektu nie zmienią się po
   cichu. Konfiguracja produkcyjna nie zostanie nadpisana bez kopii sprzed zmiany.
+- **Nie pozwala dokumentom spuchnąć.** Gdy dziennik urośnie ponad próg, przy zamykaniu sesji
+  najstarsza historia sama przenosi się do archiwum — w całości, bez skracania — a w żywym pliku
+  zostaje linia z linkiem. Nic nie ginie, kontekst sesji odzyskuje miejsce.
 - **Działa w zwykłej rozmowie.** Komendy istnieją, ale są skrótem dla rzadszych operacji — nie
   warunkiem działania. Nie musisz uczyć się składni.
 
