@@ -1,6 +1,6 @@
 # STATE — RelAI
 
-Stan na: 2026-08-10
+Stan na: 2026-08-12
 
 ## Gdzie jesteśmy
 
@@ -28,19 +28,23 @@ osoby i zgłaszają, co im przeszkadza.
 
 ## Nad czym pracujemy teraz
 
-- Wizytówka projektu na GitHubie — README i identyfikacja wizualna, żeby dało się plugin komuś
-  pokazać i żeby ta osoba zrozumiała w minutę, po co jej to.
+- Plan **ROZWOJ_PO_WYDANIU** (8 etapów) — **ZAAKCEPTOWANY 2026-08-12** (Aneks A), E1 gotowy do
+  startu: odnoga planu z promptem świeżej sesji (`/relai-branch`), automatyczna rotacja
+  dokumentów, poprawki z retrospektywy dwóch realnych projektów, port na Cursora i Codexa
+  w architekturze „wspólny rdzeń + adaptery". Poprzedziła go zmierzona retrospektywa
+  (JiraManager, PolyFlow) i inwentarz przenośności.
 
 ## Co dalej
 
-- Zebranie pierwszego feedbacku od osób spoza projektu i zamiana go na poprawki.
-- Rotacja rozrastających się dokumentów — mechanizm, którego jeszcze nie ma, a pierwszy realny
-  przypadek już jest znany.
+- Świeża sesja Opus i `/relai-stage` — etap E1 (odnoga planu); potem E2–E3 (usprawnienia lokalne
+  przed portem — decyzja użytkownika z wywiadu 2026-08-12).
+- Zebranie pierwszego feedbacku od osób spoza projektu i zamiana go na poprawki — pilotaż
+  Cursora w firmie jest etapem E6 planu.
 
 ## Co blokuje
 
-- Repozytorium jest prywatne i nie ma opisu na GitHubie — dopóki tak zostanie, nikt spoza
-  właściciela nie zainstaluje pluginu. Decyzja o upublicznieniu należy do człowieka (Łukasz).
+- Nic twardego. Repozytorium jest już **publiczne** (zweryfikowane 2026-08-12); został pusty
+  opis repo na GitHubie — uzupełnienie zaplanowane w E8 planu ROZWOJ_PO_WYDANIU.
 
 ---
 
@@ -62,7 +66,7 @@ Claude Code • Node.js 14+ w `PATH` • git (opcjonalnie).
 
 ### Linki
 
-Repo: github.com/nowilus/relai (prywatne) • Plan budowy:
+Repo: github.com/nowilus/relai (publiczne od 2026-08-12) • Plan budowy:
 [docs/archiwum/plany/BUDOWA_RELAI/](archiwum/plany/BUDOWA_RELAI/PLAN.html) • Backupy:
 `C:\Users\Lukasz\Backupy\RelAI`
 

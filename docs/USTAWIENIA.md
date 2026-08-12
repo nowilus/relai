@@ -19,6 +19,7 @@ Rejestr wyborów użytkownika dla tego projektu. Każdy wpis: data, czego dotycz
 | 2026-08-07 | Baza kolorystyczna propozycji E6 | Mieszanka: część jasnych, część ciemnych — żeby wybór był świadomy, a nie między wariantami jednej jasności |
 | 2026-08-07 | Poziom animacji | **Wyraźny, ale służebny** — animowany przepływ, płynne rozwijanie, reakcje na najechanie, przeliczanie liczników; bez animacji dekoracyjnych w pętli |
 | 2026-08-07 | Instalacja pluginu w trakcie budowy | **Zainstalowany na stałe** (scope `user`, wersja 0.3.1) — potwierdzone przez Łukasza po pomiarze R2. Po każdej zmianie skilla obowiązuje sekwencja: push → `claude plugin marketplace update relai` → reinstalacja; bez niej mierzysz starą wersję ([LEKCJE.md](LEKCJE.md) L-0004) |
+| 2026-08-12 | Język warstw adapterów (port Cursor/Codex, plan ROZWOJ_PO_WYDANIU) | Warstwa czytana przez **model** (reguły Cursora, AGENTS.md) — **angielski**; warstwa czytana przez **człowieka** (instrukcje instalacji, README adapterów) — **polski**. Dokumenty projektów bez zmian — język projektu (Aneks A planu) |
 
 ## Ustawienia wycofane
 

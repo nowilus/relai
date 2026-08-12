@@ -11,7 +11,7 @@ Czytaj w kolejności, nie skanuj pełnotekstowo repo:
 4. [docs/LEKCJE.md](docs/LEKCJE.md) — wyłącznie sekcja „Zasady aktywne".
 5. [docs/DECYZJE.md](docs/DECYZJE.md) — decyzje zamrożone: **nie proponuj ich ponownie**.
 6. [docs/USTAWIENIA.md](docs/USTAWIENIA.md) — preferencje projektu.
-7. Aktywny plan — linia niżej w sekcji „Stan prac"; obecnie: brak.
+7. Aktywny plan — linia niżej w sekcji „Stan prac"; obecnie: ROZWOJ_PO_WYDANIU.
 
 ## Stan prac
 
@@ -32,7 +32,7 @@ Czytaj w kolejności, nie skanuj pełnotekstowo repo:
 | E10 — pilotaż, cztery scenariusze akceptacyjne, **wydanie 1.0.0** | **ZREALIZOWANY 2026-08-10** | docs/archiwum/plany/BUDOWA_RELAI/, DZIENNIK wpis 2026-08-10 |
 | **Plan BUDOWA_RELAI** | **ZAMKNIĘTY 2026-08-10** — wszystkie 10 etapów dowiezione | docs/archiwum/plany/BUDOWA_RELAI/STATUS.md |
 
-Aktywny plan: brak
+Aktywny plan: [ROZWOJ_PO_WYDANIU](docs/plany/ROZWOJ_PO_WYDANIU/STATUS.md) — ZAAKCEPTOWANY 2026-08-12, E1 gotowy do startu
 
 ## Reguły procesu
 

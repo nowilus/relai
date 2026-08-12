@@ -11,6 +11,8 @@
 | R5 | Dokumenty puchną i zjadają kontekst | Średni | **OTWARTE — do obserwacji po 1.0.0** | D-14/D-15: rotacja DZIENNIKA, kompresja LEKCJI, destylaty czytane na starcie. **2026-08-08 (E7):** doszły dwa narzędzia po stronie użytkownika — `/relai-audit` wykrywa dziennik ponad progiem 50 KB i lekcje bez destylatu (zmierzone na projekcie testowym: podał rozmiar dziennika i wskazał destylat bez lekcji źródłowej), a `/relai-changelog` daje historię bez trzymania jej w kontekście. Sam pakiet `/relai-handover` waży 201 KB przez osadzone fonty — to plik dla człowieka, nie dla kontekstu sesji, ale pytanie o podzbiór fontów z E6 zostaje otwarte **2026-08-10 (E10):** pilotaż dał pierwsze liczby z realnej pracy. Projekt „Paragony" po czterech etapach: dziennik 382 linie, `CLAUDE.md` 65 linii — mieści się. JiraManager po adopcji: dziennik 124 KB (historia sprzed RelAI), `CLAUDE.md` **434 linie** przy limicie 60, bo limit świadomie ustąpił wierności cudzych reguł (D-71). To jest realny przypadek, w którym mechanizm rotacji i kompresji będzie potrzebny, a `/relai-audit` go wykryje. Ryzyko zostaje otwarte z konkretnym adresem: pierwszy projekt po adopcji, nie hipoteza. |
 | R6 | Aktualizacja pluginu nadpisze lokalne nadpisania użytkowników | Niski | **ZAMKNIĘTE 2026-08-09 (E9)** | D-72: diff + zgoda + pierwszeństwo lokalnych nadpisań; test w pilotażu. **2026-08-08 (E6):** nadpisanie lokalne umieszczone w `docs/zasoby/HTML_PLAN/` — poza cache'em `.claude/relai/`, którego dotyka hook i aktualizacja pluginu. Zmierzone: po `marketplace update` + `plugin update` + świeżej sesji dziewięć plików nadpisania ma identyczne sumy kontrolne, własny token na miejscu, token z pluginu nie wrócił; cache w tym samym czasie **został** nadpisany (dowód, że test nie jest pusty). Zostaje otwarte do E9: `/relai-update` musi pokazać diff i uszanować nadpisanie. **2026-08-09 (E9):** `/relai-update` działa i szanuje nadpisania — zmierzone na projekcie 0.7.0: trzy pliki `docs/zasoby/HTML_PLAN/` z sumami identycznymi po aktualizacji, wiersz „Szablon planu HTML" nietknięty, wiersz lokalny `KOMENDY.md` przepisany dosłownie do zregenerowanej tabeli; diff pokazany przed zapisem, odmowa zostawia projekt nietknięty (10/10 sum). Ryzyko zamknięte |
 | R7 | Model wykonawczy (Sonnet/Opus) obniży jakość implementacji etapów | Średni | **ZAMKNIĘTE 2026-08-10 (E10)** | Prompty etapowe z sekcją Weryfikacja + przegląd Fable po kluczowych etapach **2026-08-10 (E10):** zmierzone na realnej pracy, nie na deklaracji. Etapy E3 i E4 projektu pilotażowego prowadził **Haiku 4.5** zgodnie z zapisem w `STATUS.md` („mechaniczne — najtańszy") i dowiózł je w całości: 30 testów, rytuał „Na koniec" wykonany, prompt następnego etapu wygenerowany, zamknięcie planu (D-36) przeprowadzone bez błędu — plan w archiwum, `Aktywny plan: brak`, zero martwych linków. Jakość implementacji **nie ucierpiała**; różnica między modelami leży gdzie indziej — w tym, czy skill wyzwala się sam (R2), a nie w tym, czy etap zostanie dowieziony. Jedyny ślad słabszego modelu w dokumentach: dwa wpisy podpisane `RelAI (Haiku)` bez członu `+ <użytkownik>`. Prompt etapowy z sekcją „Weryfikacja" okazał się wystarczającą mitygacją. |
+| P1 | Adaptery Cursor/Codex nie egzekwują blokad harnessu — sekret albo zmiana konfiguracji przejdzie tam, gdzie w Claude Code stoi ściana (plan ROZWOJ_PO_WYDANIU) | Wysoki | **OTWARTE od 2026-08-12 (akceptacja planu)** | Git pre-commit ze skanem sekretów w E4 (działa niezależnie od narzędzia); jawna tabela gwarancji per narzędzie w E5/E7; scenariusz akceptacyjny E6 zawiera próbę zapisu sekretu |
+| P2 | Odpowiednik R2 w Cursor/Codex: bez auto-wyzwalania skilli proces zależy od dyscypliny modelu (plan ROZWOJ_PO_WYDANIU) | Wysoki | **OTWARTE od 2026-08-12 (akceptacja planu)** | Wzorzec L-0030 od początku: reguły niesie warstwa zawsze-w-kontekście (reguły Cursora / AGENTS.md), nie mechanizm wyzwalany; pomiar na scenariuszach w E6, nie na deklaracji |
 | R8 | Sesja nie ma dostępu do katalogu pluginu — `templates/` ze specyfikacjami jest nieczytelny bez `--add-dir`, więc inicjalizacja projektu (D-60) zatrzymuje się na braku źródła | Wysoki | **ZAMKNIĘTE 2026-08-07 (E5)** | Rozwiązanie: proces hooka ma pełny dostęp do dysku, więc `session-context` kopiuje `templates/*.md` do `.claude/relai/templates/` projektu (SessionStart w projektach RelAI; PostToolUse na wywołaniu skilla RelAI — pokrywa inicjalizację w świeżym folderze) i wstrzykuje ustawienia globalne `~/.claude/relai/` (domyka też L-0010). Zmierzone: inicjalizacja **bez** `--add-dir` dała komplet ośmiu dokumentów, specyfikacje czytane z lokalnej kopii (8/8 plików). D-60 nietknięte — specyfikacje pozostają plikami. Ryzyko szczątkowe: provisioning przy inicjalizacji wymaga wyzwolenia skilla (R2); fallback `--add-dir` opisany w skillach |
 
 ## Wpisy
@@ -1452,3 +1454,94 @@ Autor: RelAI (Opus) + Lukasz
 - Potwierdzić brzmienie nazwiska w `LICENSE` („Łukasz Nowakowski", rok 2026).
 - Nadal otwarte z poprzedniego wpisu: los projektu pilotażowego `Desktop\Paragony`, commit zmian
   adopcyjnych w JiraManagerze, decyzja o guardzie rozpoznającym pliki po ścieżce.
+
+### 2026-08-12 — Retrospektywa dwóch projektów i plan ROZWOJ_PO_WYDANIU
+
+Autor: RelAI (Fable) + Lukasz
+
+**Zrobione:**
+
+- **Retrospektywa użycia RelAI na dwóch żywych projektach** (na prośbę użytkownika, zmierzona
+  na plikach, nie na wrażeniach). JiraManager: dziennik 318 KB (+194 KB w ~2,5 dnia po adopcji),
+  `CLAUDE.md` 639 linii — 8 nowych decyzji poszło do zastanej tabeli zamiast do pustego
+  `DECYZJE.md`; etap E3b zostawił 5 wpisów poprawek, po E10 były 4 wpisy poprawek poza etapem.
+  PolyFlow: dziennik 224 KB i STATE 72 KB po dwóch dniach; etap E2 planu EKRAN_USTAWIEN zamknięty
+  po 6 aneksach (4 łatały jeden problem); 20 lekcji jednego dnia; plany „ZREALIZOWANE" przy
+  kilkunastu otwartych bramkach manualnych. Działa dobrze: rytuały końca etapu, lekcje po
+  korekcie, backup/adopcja, rejestr ryzyk, aneksy jako jawna zmiana zakresu.
+- **Inwentarz przenośności pluginu** pod port na Cursora i Codexa: ~247 KB treści przenośnej
+  wprost, ~152 KB wymagającej odpowiednika u hosta, ~114 KB twardo związanej z Claude Code
+  (hooki z `permissionDecision`, skille z auto-wyzwalaniem, `AskUserQuestion`, marketplace).
+  Kluczowy wniosek: jedyne gwarancje blokujące egzekwuje dziś harness, nie tekst.
+- **Dwie rundy wywiadu** (AskUserQuestion, 8 pytań): zakres = wszystkie cztery wątki; usprawnienia
+  przed portem; architektura portu = wspólny rdzeń + adaptery; odnoga jako komenda
+  `/relai-branch`; rotacja automatyczna przy zamknięciu sesji (świadomie ponad rekomendację,
+  z warunkiem nieusuwalności treści); Cursor przed Codexem; dystrybucja przez repo publiczne;
+  konsultacje ustrukturyzowane przy odchyleniu od planu.
+- **Plan ROZWOJ_PO_WYDANIU** — `docs/plany/ROZWOJ_PO_WYDANIU/`: `PLAN.html` (szablon „Warsztat",
+  bez symulatora — plan nie ma wyliczeń do kręcenia) + `STATUS.md`, 8 etapów E1–E8
+  (odnoga → rotacja → poprawki retro → rdzeń przenośny → adapter Cursor → pilotaż w firmie →
+  adapter Codex → wydanie 2.0.0), 12–17 sesji (SZACUNEK). Linia aktywnego planu w `CLAUDE.md`
+  i `STATE.md` zaktualizowane w tej samej turze.
+
+**Zweryfikowane — jak dokładnie:**
+
+- Retrospektywy i inwentarz: trzy niezależne analizy na plikach projektów (rozmiary, liczba
+  wpisów/aneksów, `git log`/`git status`) — liczby w planie mają etykiety FAKT/SZACUNEK zgodnie
+  ze źródłem.
+- `PLAN.html`: builder `zbuduj.js` zakończony kodem 0 — 6 reguł @font-face osadzonych, plik
+  215 KB, znacznik symulatora usunięty; `grep` po `{{` w gotowym pliku: 0 trafień.
+- Decyzje zamrożone sprawdzone przed planem: D-80 wyłączała port tylko z zakresu v1 (nie na
+  zawsze); D-31/D-37 nie kolidują z odnogą — odnoga domyka ich lukę (brak promptu świeżej sesji).
+- **Nie weryfikowano:** renderu `PLAN.html` w przeglądarce (panel podglądu nieaktywny w tej
+  sesji) — do obejrzenia dwuklikiem przed akceptacją.
+
+**Świadomie odłożone:**
+
+- Generacja `PROMPT_ETAP_1.md` — powstanie przy akceptacji planu (D-34, lazy).
+- Wpisy P1/P2 do tabeli „Stan otwartych ryzyk" — wchodzą z chwilą akceptacji planu, nie przed.
+- Szczegóły API mechanizmów Cursora/Codexa — rozpoznanie stanu faktycznego jest pierwszym
+  krokiem E4, żeby prompty etapowe nie niosły przeterminowanej wiedzy.
+
+**Do zrobienia przez człowieka:**
+
+- **Przeczytać i zaakceptować (albo odesłać z uwagami) plan** — `docs/plany/ROZWOJ_PO_WYDANIU/PLAN.html`.
+- Cztery decyzje z sekcji 9 planu: upublicznienie repo (przed E8), język warstwy zespołowej
+  adapterów (przed E5), zgoda na auto-rotację w istniejących projektach (po E2), brzmienie
+  nazwiska w `LICENSE` (przed E8).
+
+### 2026-08-12 — Plan ROZWOJ_PO_WYDANIU ZAAKCEPTOWANY (Aneks A)
+
+Autor: RelAI (Fable) + Lukasz
+
+**Zrobione:**
+
+- Plan zaakceptowany przez użytkownika bez zmian w sekcjach 1–9; wszystkie cztery pozycje
+  sekcji 9 rozstrzygnięte przy akceptacji i zapisane jako **Aneks A** w `PLAN.html`:
+  repo już publiczne (opis repo — do E8), warstwa modelowa adapterów po angielsku / ludzka po
+  polsku, zgoda na auto-rotację w istniejących projektach przy `/relai-update`, LICENSE
+  potwierdzone („Łukasz Nowakowski", 2026).
+- `STATUS.md`: plan → ZAAKCEPTOWANY 2026-08-12 (Aneks A), E1 → GOTOWY DO STARTU.
+- Wygenerowano `PROMPT_ETAP_1.md` (odnoga planu, wykonawca Opus) wg specyfikacji promptu
+  etapowego — z realnego stanu repo i kompletu 31 zasad aktywnych.
+- Ryzyka P1 (brak blokad harnessu w adapterach) i P2 (proces bez auto-wyzwalania) dopisane do
+  tabeli „Stan otwartych ryzyk" — zgodnie z sekcją 7 planu.
+- `CLAUDE.md` (linia aktywnego planu), `docs/STATE.md` (blokada repo zdjęta, następny krok:
+  `/relai-stage`) i `docs/USTAWIENIA.md` (wiersz o języku warstw adapterów) zaktualizowane.
+
+**Zweryfikowane — jak dokładnie:**
+
+- Widoczność repo: `gh repo view nowilus/relai` → `"visibility":"PUBLIC"`, `"description":""`
+  — stąd „opis repo" jako zadanie E8, nie deklaracja.
+- Kolumna `Prompt` przy E1 wskazuje istniejący plik (siatka D-34 nie ma czego wyłapywać).
+- Render `PLAN.html` po dopisaniu Aneksu A sprawdzony w panelu podglądu.
+
+**Świadomie odłożone:**
+
+- `PROMPT_ETAP_2.md` — powstanie w rytuale „Na koniec" etapu E1 (D-34, lazy).
+- Opis repo na GitHubie — zaplanowany w E8; kandydat na pierwszą odnogę dogfoodingową w E1.
+
+**Do zrobienia przez człowieka:**
+
+- Uruchomić etap E1 w świeżej sesji **Opus**: `/relai-stage` (albo wkleić
+  `docs/plany/ROZWOJ_PO_WYDANIU/PROMPT_ETAP_1.md`).
