@@ -89,6 +89,26 @@ Brzmienie (przetłumacz na język projektu, sensu nie zmieniaj):
 Punkt wchodzi do `CLAUDE.md` **każdego** projektu, także takiego, który nie ma jeszcze żadnego
 planu — wtedy działa od pierwszego planu bez potrzeby dopisywania czegokolwiek później.
 
+## Reguła rejestru decyzji po adopcji
+
+Punkt w „Regułach procesu" — **wyłącznie w projekcie, który przeszedł przez `/relai-adopt`**,
+czyli w takim, który ma sekcję „Zasady projektu (odziedziczone)". Projekt zakładany od zera go nie
+dostaje: nie ma tam zastanej tabeli, do której cokolwiek mogłoby się dopisać, a punkt bez adresata
+zjada limit 60 linii (L-0029).
+
+Brzmienie (przetłumacz na język projektu, sensu nie zmieniaj):
+
+> Nowe rozstrzygnięcia zapisuj w `docs/DECYZJE.md` jako `D-NN` z datą i powodem. Sekcja „Zasady
+> projektu (odziedziczone)" jest zapisem stanu sprzed adopcji — czytasz ją, nie dopisujesz do niej.
+
+To samo zdanie stoi drugi raz **pod nagłówkiem sekcji odziedziczonej**, jako jedna linia. Dublowanie
+jest tu celowe: reguła w „Regułach procesu" mówi, co robić, a zdanie przy sekcji łapie moment,
+w którym ktoś już patrzy na zastaną tabelę i szuka miejsca na kolejny wiersz.
+
+Powód reguły jest zmierzony: JiraManager po adopcji ma `CLAUDE.md` na 639 linii, bo osiem decyzji
+podjętych po adopcji poszło do zastanej tabeli zamiast do pustego `DECYZJE.md` (retrospektywa
+2026-08-12, `FAKT`).
+
 ## Sekcja „Reguły profilu"
 
 Powstaje **przy inicjalizacji**, razem z resztą pliku — mimo że dokumenty warunkowe profilu

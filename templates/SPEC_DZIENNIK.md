@@ -46,8 +46,44 @@ informacja.
   (decyzje biznesowe, dostępy, zakupy, akceptacje). Pozycja rozstrzygnięta później zostaje w miejscu
   z dopiskiem w nawiasie: „*(rozstrzygnięte RRRR-MM-DD — …)*".
 
-**Linia autora:** `Autor: RelAI (<model>) + <użytkownik z git config>`. Podpis jest neutralny —
-bez persony i bez osobowości (D-63). Gdy git nie jest skonfigurowany, sam `RelAI (<model>)`.
+  **Forma dopiska jest czytana maszynowo** — po niej rotacja poznaje wpis, którego nie wolno
+  ruszyć (`SPEC_ARCHIWUM.md`), a zamknięcie planu poznaje otwartą bramkę (`SPEC_STATUS.md`,
+  sekcja „Bramki manualne"). Kanoniczne słowo to **rozstrzygnięte**; równoważnie rozpoznawane są
+  **zrobione** i **wykonane** — tak podpisywano pozycje przed 1.3.0 i te wpisy mają dalej liczyć
+  się jako zamknięte. Dopisek bez żadnego z tych słów znaczy **pozycja otwarta**: mechanizm nie
+  zgaduje intencji (L-0025). Piszesz nowy dopisek → pisz „rozstrzygnięte".
+
+  Pozycja niedotycząca już niczego (temat odpadł) też dostaje dopisek — „*(rozstrzygnięte
+  RRRR-MM-DD — nieaktualne, powód)*". Ciche pozostawienie jej otwartej blokuje rotację wpisu
+  i zamknięcie planu bez końca.
+
+## Linia autora — jeden format, bez wariantów (D-63)
+
+Druga linia wpisu, zawsze ta sama:
+
+```
+Autor: RelAI (<model>) + <użytkownik z git config user.name>
+```
+
+- `<model>` to nazwa modelu, który pisze wpis — `Opus`, `Sonnet`, `Haiku`, `Fable`. Bez numeru
+  wersji i bez identyfikatora API.
+- `<użytkownik>` to **dosłowna** wartość `git config user.name`. Nie skracasz jej, nie tłumaczysz
+  i nie zastępujesz nickiem ani „użytkownik".
+- Podpis jest neutralny: bez persony, bez osobowości, bez emotikonu.
+- **Git nieskonfigurowany** (brak `user.name` w konfiguracji lokalnej i globalnej) → i tylko wtedy
+  → sam `Autor: RelAI (<model>)`, bez znaku `+` i bez wypełniacza. Brak członu jest wtedy
+  informacją, a nie brakiem.
+
+**Człon użytkownika nie jest ozdobą.** Wpis podpisany samym modelem przy skonfigurowanym gicie
+gubi jedyny ślad tego, kto przy tej pracy był — a na nim opiera się sygnał „cudzy projekt" (D-27),
+który porównuje `user.name` z podpisami. Zmierzone w pilotażu 1.0.0: dwa wpisy podpisane
+`RelAI (Haiku)` bez członu użytkownika wystarczyły, żeby projekt zaczął wyglądać na cudzy.
+
+Dlatego od 1.3.0 podpis jest **sprawdzany maszynowo**: hook `journal-signature` czyta ostatni wpis
+po każdym zapisie dziennika i ostrzega, gdy przy skonfigurowanym gicie w linii autora nie ma członu
+`+ <użytkownik>`. Ostrzega — nigdy nie blokuje i nigdy nie poprawia wpisu za Ciebie; poprawka
+należy do tej samej tury co ostrzeżenie. Hook milczy, gdy podpis jest poprawny albo gdy gita nie
+ma (D-40).
 
 ## Wpis typu MINIPLAN (D-31)
 

@@ -1,6 +1,6 @@
 # KOMENDY — RelAI
 
-RelAI 1.2.0
+RelAI 1.3.0
 
 Nic z tej listy nie jest obowiązkowe. RelAI działa w zwykłej rozmowie — piszesz normalnie,
 a struktura projektu nadąża. Komendy są skrótem do rzadszych operacji.
@@ -58,6 +58,14 @@ z podpowiedzi; skrócona forma działa tam, gdzie podpowiadacz ją rozwinie.
 - **Wątek spoza etapu nie ginie i nie rozdyma etapu.** Gdy w trakcie pracy wypływa coś poza
   zakresem, RelAI zatrzymuje się i pyta: odnoga, aneks do planu czy „świadomie odłożone". Przy
   zamykaniu planu wylicza odnogi, które zostały otwarte.
+- **To, co czeka na Ciebie, jest widoczne.** Pozycje „Do zrobienia przez człowieka" — dostęp,
+  zakup, decyzja, akceptacja — trafiają z wpisów dziennika do sekcji „Bramki manualne" w `STATUS.md`
+  planu. Plan nie zamyka się, dopóki RelAI nie zapyta o każdą z nich.
+- **Rozjazd stanu jest zgłaszany.** Gdy status etapu, wskazanie aktywnego planu i opis stanu mówią
+  różne rzeczy, RelAI mówi o tym na starcie sesji jednym zdaniem i pyta, który zapis jest prawdziwy —
+  zamiast wybrać sobie jeden i pracować na nim.
+- **Wpis w dzienniku jest podpisany.** Model i Ty (z konfiguracji gita); brakujący człon
+  użytkownika zostaje wyłapany zaraz po zapisie, żeby po miesiącach było wiadomo, kto przy tym był.
 - **Brakujący prompt etapowy jest wyłapywany.** Sesja przerwana w połowie zamykania etapu zostawia
   lukę — RelAI mówi o niej na starcie i proponuje uzupełnienie. Nigdy nie robi tego sam.
 - **Cudzy projekt dostaje propozycję wycieczki.** Gdy wszystkie wpisy w dzienniku podpisał ktoś

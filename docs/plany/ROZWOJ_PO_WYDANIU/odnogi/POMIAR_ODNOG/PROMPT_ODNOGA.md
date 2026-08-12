@@ -49,7 +49,7 @@ błąd, przez który ta odnoga powstała.
 - **Granica wobec E2:** mechanikę rotacji zmierzono w E2 (bajt w bajt, dwufazowość, wpis z otwartą
   pozycją, sumy sekcji nietykalnych). Tutaj mierzysz **zachowanie sesji** w scenariuszach E i F —
   procedury nie przerabiasz i defektu nie szukasz tam, gdzie już dowiedziono.
-- **Scenariusze E i F wymagają wersji 1.2.0 w `installed_plugins.json`.** Widzisz 1.1.0 → plugin
+- **Scenariusze E i F wymagają wersji co najmniej 1.2.0 w `installed_plugins.json`.** Widzisz 1.1.0 → plugin
   nie został zaktualizowany albo aplikacja nie została zrestartowana (L-0031); zatrzymaj się i
   powiedz o tym, zamiast mierzyć ciszę tam, gdzie mechanizmu jeszcze nie ma.
 
@@ -126,14 +126,34 @@ mechanizm uruchamia się i wykonuje sam.
    **poniżej** progu: oczekiwana cisza o rotacji i brak katalogu `docs/archiwum/dziennik/`.
 6. **Scenariusz F** — świeża sesja zamyka projekt testowy z dziennikiem **ponad** progiem
    i wierszem `Rotacja dokumentów | wyłączona`: oczekiwany rytuał bez rotacji i bez komunikatu.
+7. **Scenariusz G** (punkt 4 weryfikacji E3) — świeża sesja startuje w projekcie z etapem `W TOKU`
+   w `STATUS.md` i linią `Aktywny plan: brak` w `CLAUDE.md`: oczekiwane **dokładnie jedno** zdanie
+   o rozjeździe przed akapitem „gdzie jesteśmy" (nie dwa: hook + rytuał startu) i pytanie, który
+   zapis jest prawdziwy. Ten sam pomiar na projekcie spójnym: zero wzmianek o rozjeździe.
+8. **Scenariusz H** (punkt 3 weryfikacji E3) — projekt po adopcji, z zastaną tabelą decyzji
+   w sekcji „Zasady projektu (odziedziczone)"; świeża sesja rozstrzyga nowy temat: oczekiwany
+   wpis `D-NN` w `DECYZJE.md` i **identyczna suma kontrolna** sekcji odziedziczonej przed i po.
+9. **Scenariusz I** (punkt 6 weryfikacji E3) — plan testowy z ostatnim etapem do zamknięcia
+   i dwiema nierozstrzygniętymi pozycjami „Do zrobienia przez człowieka": oczekiwane wyliczenie obu
+   i pytanie o każdą, bez statusu `ZREALIZOWANY` w `STATUS.md` przed odpowiedzią. Po dopisaniu
+   adnotacji „*(rozstrzygnięte …)*" ten sam plan zamyka się bez pytania o bramki.
 
 Projekty testowe do E i F odtwarzasz generatorem opisanym we wpisie dziennika z E2 (`fixtury.js`,
-projekty `B_ponizej_progu` i `D_wylacznik`) — w katalogu tymczasowym, nie w repozytorium.
+projekty `B_ponizej_progu` i `D_wylacznik`); do G–I — instrumentami `rozjazd.js` i `podpis.js`
+z E3, opisanymi we wpisie z 2026-08-12 o E3. Wszystko w katalogu tymczasowym, nie w repozytorium.
+
+**Granica wobec E3:** hook rozjazdu i hook podpisu zmierzono w E3 na realnych procesach (15/15
+i 9/9). Tutaj mierzysz **zachowanie sesji**: czy sygnał nie dubluje się z rytuałem startu, czy
+decyzja trafia do właściwego rejestru i czy bramka realnie zatrzymuje zamknięcie planu.
 
 ## Weryfikacja (wszystkie punkty muszą przejść)
 
-- [ ] Sześć scenariuszy wykonanych świeżymi sesjami `claude -p`, każdy z zapisanym wynikiem.
-- [ ] E i F wykonane na wersji **1.2.0** potwierdzonej w `installed_plugins.json` (L-0020).
+- [ ] Dziewięć scenariuszy wykonanych świeżymi sesjami `claude -p`, każdy z zapisanym wynikiem.
+- [ ] E i F wykonane na wersji **co najmniej 1.2.0** potwierdzonej w `installed_plugins.json`
+      (L-0020); G–I na wersji **co najmniej 1.3.0**, z tego samego powodu.
+- [ ] G: liczba zdań o rozjeździe w odpowiedzi = 1; projekt spójny → 0.
+- [ ] H: suma kontrolna sekcji „Zasady projektu (odziedziczone)" przed = po.
+- [ ] I: `STATUS.md` bez `ZREALIZOWANY` do czasu odpowiedzi o bramkach.
 - [ ] A: para plików w `odnogi/<NAZWA>/`, jedna linia w sekcji „Odnogi", **sumy sekcji `PLAN.html`
       przed i po identyczne**.
 - [ ] B: komplet w `docs/fixy/<NAZWA>/`, zero plików `STATUS.md` w projekcie.

@@ -126,11 +126,13 @@ skill `relai-planning`, sekcja „Sygnał odchylenia".
 Zamykany etap był ostatnim (w tabeli nie ma już etapów `OCZEKUJE` ani `W TOKU`) → zamiast generacji
 `PROMPT_ETAP_N+1` uruchom **sekwencję zamknięcia planu** z **wczytanego** skilla `relai-planning`
 (bez niego pominiesz kroki, których ta komenda nie powtarza), sekcja „Zamknięcie
-planu (D-36)": `STATE.md` → wpis zamykający „dowiezione vs plan" → status planu `ZREALIZOWANY` →
-przegląd ryzyk → **rozstrzygnięcie otwartych odnóg** → przeniesienie folderu planu do
-`docs/archiwum/plany/` → linia „Aktywny plan" w `CLAUDE.md` → podsumowanie. Sekwencji nie
-odtwarzasz z pamięci i nie skracasz — wykonujesz kroki 1–8 stamtąd. Pytaniem może być wyłącznie
-commit i — gdy plan ma odnogi `OTWARTA` — decyzja o każdej z nich.
+planu (D-36)": **rozstrzygnięcie otwartych bramek manualnych** → **rozstrzygnięcie otwartych
+odnóg** → `STATE.md` → wpis zamykający „dowiezione vs plan" → status planu `ZREALIZOWANY` →
+przegląd ryzyk → przeniesienie folderu planu do `docs/archiwum/plany/` → linia „Aktywny plan"
+w `CLAUDE.md` → podsumowanie. Sekwencji nie odtwarzasz z pamięci i nie skracasz — wykonujesz
+kroki 1–9 stamtąd. Dwa punkty blokujące idą pierwsze: dopóki bramki i odnogi nie są rozstrzygnięte,
+nie piszesz nigdzie, że plan jest zrealizowany. Pytaniem może być wyłącznie commit oraz te dwa
+punkty — pozycje „Do zrobienia przez człowieka" bez adnotacji o rozstrzygnięciu i odnogi `OTWARTA`.
 
 ---
 

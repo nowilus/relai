@@ -101,6 +101,15 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
 34. Próg liczbowy w mechanizmie automatycznym kalibrujesz na **zmierzonych** plikach realnych
     projektów, zanim go zapiszesz — próg powyżej maksimum, jakie te projekty osiągają, jest progiem
     martwym i wygląda jak działający. (L-0034)
+35. Dopisek czytany maszynowo („*(rozstrzygnięte …)*") dostaje w specyfikacji **zbiór akceptowanych
+    brzmień** — kanoniczne plus historyczne — zanim powstanie pierwszy mechanizm, który go czyta.
+    Inaczej mechanizm uzna zamknięte pozycje za otwarte. (L-0035)
+36. Sygnał, który ma paść **raz**, ma jednego właściciela: warstwę działającą bez wyzwalania (hook).
+    Druga warstwa dostaje instrukcję milczenia i własny detektor tylko na wypadek nieobecności
+    pierwszej. Cisza właściciela znaczy „sprawdzone i zgodne". (L-0036)
+37. Scenariusz „konfiguracji nie ma" mierzysz z **podstawionym katalogiem domowym** (`HOME`,
+    `USERPROFILE` w env procesu potomnego) — inaczej mierzysz swoją maszynę, nie przypadek
+    brzegowy. (L-0037)
 
 ## Lekcje
 
@@ -579,3 +588,43 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
   maksimum jest martwy i — co gorsza — wygląda w dokumentacji jak zabezpieczenie, którego nie ma.
   Gdy jednostka jest wątpliwa, użyj dwóch („40 wpisów albo 50 KB, co nastąpi wcześniej").
 - **Źródło:** przegląd zamykający etap E2 planu ROZWOJ_PO_WYDANIU (2026-08-12).
+
+### L-0035 — Dopisek czytany maszynowo z jednym dozwolonym brzmieniem · 2026-08-12 · AKTYWNA
+
+- **Trigger:** instrument wyławiający otwarte pozycje „Do zrobienia przez człowieka" zgłosił **48**
+  pozycji w dzienniku tego repo. Po obejrzeniu okazało się, że kilkanaście z nich jest zamkniętych
+  od dni — tylko podpisanych „*(zrobione …)*" zamiast „*(rozstrzygnięte …)*", bo tak je pisano,
+  zanim mechanizm powstał.
+- **Przyczyna:** specyfikacja podała **jedno** brzmienie dopiska i nikt go nie egzekwował, więc
+  historia ma kilka wariantów tego samego. Mechanizm zbudowany później na jednym z nich uznaje
+  resztę za pozycje otwarte — i albo blokuje bez powodu (zamknięcie planu), albo nie rusza wpisów,
+  które wolno było zarchiwizować.
+- **Zasada:** dopisek czytany maszynowo dostaje w specyfikacji **zbiór akceptowanych brzmień**
+  (kanoniczne plus historyczne), zanim powstanie pierwszy mechanizm, który go czyta. Nowe wpisy
+  piszesz brzmieniem kanonicznym; stare mają dalej działać bez przepisywania historii (D-18).
+- **Źródło:** E3 planu ROZWOJ_PO_WYDANIU (2026-08-12), budowa sekcji „Bramki manualne".
+
+### L-0036 — Sygnał bez właściciela pada dwa razy · 2026-08-12 · AKTYWNA
+
+- **Trigger:** zakres E3 mówił, że rozjazd stanu wykrywa skill, a hook „podaje surowe fakty do
+  porównania". Przy takim podziale obie warstwy mają komplet danych i obie mają powód, żeby coś
+  powiedzieć — a punkt weryfikacji wymagał **dokładnie jednego** sygnału.
+- **Przyczyna:** dwie warstwy z tym samym wejściem to dwa detektory, nie jeden detektor z dostawcą
+  danych. Wzorzec L-0030 mówi, gdzie reguła ma mieszkać, ale nie rozstrzyga, kto ją **wypowiada**.
+- **Zasada:** sygnał, który ma paść raz, dostaje **jednego właściciela** — tutaj hook, bo działa bez
+  wyzwalania i liczy deterministycznie. Druga warstwa dostaje w treści instrukcję milczenia („hook
+  zgłosił → nie powtarzaj") i własny detektor **wyłącznie** na wypadek nieobecności hooka. Cisza
+  właściciela znaczy „sprawdzone i zgodne", nie „nie sprawdzono".
+- **Źródło:** E3 planu ROZWOJ_PO_WYDANIU (2026-08-12).
+
+### L-0037 — Pomiar zachowania „brak konfiguracji" na maszynie, która ją ma · 2026-08-12 · AKTYWNA
+
+- **Trigger:** test „git nieskonfigurowany → podpis bez członu użytkownika jest poprawny" oblał.
+  Hook zachował się prawidłowo: projekt testowy nie miał `.git/config`, ale proces odczytał
+  `~/.gitconfig` maszyny i zobaczył `user.name = Lukasz`.
+- **Przyczyna:** mechanizm celowo sięga do warstwy globalnej, a projekt testowy nie izolował
+  środowiska — mierzyłem maszynę, nie przypadek brzegowy.
+- **Zasada:** scenariusz „konfiguracji nie ma" wykonujesz z **podstawionym katalogiem domowym**
+  (`HOME` i `USERPROFILE` w środowisku procesu potomnego). Bez podstawienia oblany test jest
+  fałszywie negatywny, a zielony — fałszywie pozytywny na maszynie bez tej konfiguracji.
+- **Źródło:** E3 planu ROZWOJ_PO_WYDANIU (2026-08-12), instrument `podpis.js`.

@@ -99,6 +99,42 @@ się sam: przed krokiem archiwizacji wypisujesz otwarte odnogi i pytasz o każd�
 przenieść do `docs/fixy/<NAZWA>/` jako wątek samodzielny. Bez decyzji człowieka plan zostaje
 otwarty; folder planu wędrujący do archiwum z żywym wątkiem w środku znaczy, że wątek przepadł.
 
+## Sekcja „Bramki manualne" (od 1.3.0)
+
+Bramka manualna to nierozstrzygnięta pozycja z sekcji **„Do zrobienia przez człowieka"** wpisu
+w `docs/DZIENNIK.md` — rzecz, której agent zrobić nie może: decyzja biznesowa, dostęp, zakup,
+akceptacja. Dziennik ją zapisuje, ale nikt jej stamtąd nie wyławia: plan potrafi wyglądać na
+skończony przy kilkunastu pozycjach czekających w historii (PolyFlow, retrospektywa 2026-08-12,
+`FAKT`).
+
+Miejsce: **po sekcji „Odnogi", przed dziennikiem wdrożenia**. Sekcja powstaje z pierwszą bramką —
+pustego nagłówka nie zakładasz (L-0029). Ostatnia bramka rozstrzygnięta → sekcja zostaje
+z pozycjami oznaczonymi jako rozstrzygnięte; nie kasujesz jej (D-18).
+
+Format linii:
+
+```
+- **<krótka treść>** · źródło: wpis dziennika RRRR-MM-DD (E<N>) · **OTWARTA**
+- **<krótka treść>** · źródło: wpis dziennika RRRR-MM-DD (E<N>) · ROZSTRZYGNIĘTA RRRR-MM-DD — <jak>
+```
+
+Zasady:
+
+- **Otwarta znaczy: bez dopiska o rozstrzygnięciu.** Rozpoznajesz go po słowie `rozstrzygnięte`,
+  `zrobione` albo `wykonane` z datą (`SPEC_DZIENNIK.md`, sekcja „Do zrobienia przez człowieka").
+  Brak któregokolwiek z nich → pozycja jest otwarta, także gdy z treści zdaje się wynikać, że temat
+  odpadł. Mechanizm nie zgaduje intencji (L-0025).
+- **Źródłem jest dziennik, nie ta sekcja.** Tutaj stoi skrót i odsyłacz; treść, kontekst i data
+  mieszkają we wpisie. Rozstrzygnięcie zapisujesz w **obu** miejscach: adnotacja
+  „*(rozstrzygnięte RRRR-MM-DD — …)*" przy pozycji we wpisie **i** zmiana statusu tutaj.
+- **Odświeżasz przy zamykaniu etapu**, w rytuale „Na koniec": wpis etapu właśnie powstał, więc
+  pozycje „Do zrobienia przez człowieka" z niego trafiają tu w tej samej turze.
+- **Bramka nie blokuje etapu.** Blokuje wyłącznie **zamknięcie planu**: sekwencja D-36 wylicza
+  pozycje `OTWARTA` i pyta o każdą, tak jak pyta o otwarte odnogi. Bez decyzji człowieka plan
+  zostaje otwarty.
+- Bramka to nie ryzyko i nie odnoga: ryzyko może się nie zdarzyć, odnoga to praca dla agenta,
+  a bramka czeka **konkretnie na człowieka**.
+
 ## Polityka aktualizacji
 
 | Kiedy | Co się zmienia |
@@ -110,6 +146,8 @@ otwarty; folder planu wędrujący do archiwum z żywym wątkiem w środku znaczy
 | Aneks do planu | linia w dzienniku wdrożenia z numerem aneksu; **treść aneksu jest w `PLAN.md`**, nie tutaj |
 | Odnoga utworzona (`/relai-branch`) | nowa linia w sekcji „Odnogi" ze statusem `OTWARTA`; sekcja powstaje, jeśli jej nie było. Tabela etapów i dziennik wdrożenia **bez zmian** |
 | Odnoga zamknięta | status w jej linii → `ZAMKNIĘTA <data>`; nic poza tym |
+| Wpis etapu ma pozycje „Do zrobienia przez człowieka" | linie w sekcji „Bramki manualne" ze statusem `OTWARTA`; sekcja powstaje, jeśli jej nie było |
+| Bramka rozstrzygnięta | status w jej linii → `ROZSTRZYGNIĘTA <data> — <jak>`, równolegle z adnotacją przy pozycji we wpisie dziennika |
 | Plan zamknięty | status planu → `ZREALIZOWANY <data>`, plik razem z folderem idzie do `docs/archiwum/plany/` — po rozstrzygnięciu otwartych odnóg |
 
 Dziennik wdrożenia jest **append-only** — dopisujesz na końcu, nie edytujesz starych linii. Wpis
@@ -146,6 +184,13 @@ Plan: [PLAN.md](PLAN.md) · Utworzony: 2026-08-12 · Status planu: **ZAAKCEPTOWA
 
 - **PONOWIONE_ZDARZENIA** — log przy powtórzonym zdarzeniu Stripe · źródło: E2 ·
   [karta](odnogi/PONOWIONE_ZDARZENIA/ODNOGA.md) · **OTWARTA**
+
+## Bramki manualne
+
+- **Klucze produkcyjne Stripe od właściciela konta** · źródło: wpis dziennika 2026-08-14 (E1) ·
+  **OTWARTA**
+- **Zgoda księgowości na format faktury** · źródło: wpis dziennika 2026-08-14 (E1) ·
+  ROZSTRZYGNIĘTA 2026-08-15 — format zaakceptowany bez zmian
 
 ## Dziennik wdrożenia
 

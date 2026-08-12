@@ -3,7 +3,7 @@
 </p>
 
 <p align="center">
-  <em>Wersja 1.2.0 &nbsp;·&nbsp; licencja MIT &nbsp;·&nbsp; wymaga Claude Code i Node.js 14+ &nbsp;·&nbsp; zero zależności npm</em>
+  <em>Wersja 1.3.0 &nbsp;·&nbsp; licencja MIT &nbsp;·&nbsp; wymaga Claude Code i Node.js 14+ &nbsp;·&nbsp; zero zależności npm</em>
 </p>
 
 **RelAI to plugin do Claude Code, który zamienia rozmowę z agentem w prowadzony projekt.**
@@ -275,7 +275,7 @@ relai/
 │   └── *.md                 #   handover, tour, help, adopt, update, branch
 ├── hooks/
 │   ├── hooks.json           # rejestracja dziewięciu hooków (zdarzenia i matchery)
-│   └── *.js                 # dziewięć hooków Node.js, zero zależności npm
+│   └── *.js                 # dziesięć hooków Node.js, zero zależności npm
 ├── templates/               # SPECYFIKACJE dokumentów dla modelu (nie pliki do kopiowania)
 │   └── HTML_PLAN/           # jedyny wyjątek: realny szablon planu HTML + fonty WOFF2
 └── docs/                    # dokumentacja budowy samego RelAI (dogfooding)

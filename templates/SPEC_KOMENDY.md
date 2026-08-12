@@ -50,7 +50,7 @@ projektu jest w `docs/USTAWIENIA.md`.
 Plik jest **regenerowany**, nie edytowany ręcznie. Wyjątkiem są wiersze oznaczone jako lokalne —
 te przeżywają regenerację (D-62: lokalne nadpisania mają pierwszeństwo).
 
-## Zakres wersji 1.2.0 — co realnie działa
+## Zakres wersji 1.3.0 — co realnie działa
 
 Od 0.4.0 działa **pierwsza komenda** — `/relai-stage` — i wygenerowany `KOMENDY.md` ma tabelę
 komend. W 0.5.0 doszło **osiem hooków**: sekcja „Czego RelAI pilnuje bez proszenia" urosła
@@ -61,7 +61,9 @@ o zachowaniach automatycznych. W 0.9.0 dochodzą **adopcja i aktualizacja** — 
 z siedmiu do dziewięciu pozycji. W 1.1.0 dochodzą **odnogi planu**: dziesiąta komenda
 `/relai-branch` i sygnał odchylenia w sekcji o zachowaniach automatycznych. W 1.2.0 dochodzi
 **rotacja dokumentów** — kolejny punkt w sekcji o zachowaniach automatycznych; tabela komend nie
-rośnie, bo rotacja nie ma własnej komendy. Działa:
+rośnie, bo rotacja nie ma własnej komendy. W 1.3.0 dochodzą **cztery poprawki z retrospektywy** —
+same zachowania, żadnej nowej komendy: sygnał rozjazdu stanu, kontrola podpisu wpisu, bramki
+manualne przy zamykaniu planu i rejestr decyzji po adopcji. Działa:
 
 - inicjalizacja struktury projektu (zgoda → trzy pytania → osiem dokumentów),
 - rozpoznanie folderu, który już jest projektem RelAI,
@@ -139,8 +141,23 @@ rośnie, bo rotacja nie ma własnej komendy. Działa:
   Wpis czekający na decyzję człowieka zostaje na miejscu niezależnie od wieku. Progi i wyłącznik są
   w `USTAWIENIA.md`. Opisujesz **efekt** — dwufazowość, sumy kontrolne i nazwy plików to mechanika,
   która do ściągi nie wchodzi.
+- **rozjazd stanu (nowe w 1.3.0), do sekcji „Czego RelAI pilnuje bez proszenia":** gdy dokumenty
+  mówią różne rzeczy o tym, który etap trwa — status etapu kontra wskazanie aktywnego planu kontra
+  opis stanu — RelAI mówi o tym na starcie sesji jednym zdaniem i pyta, który zapis jest prawdziwy.
+  Nie prostuje żadnego dokumentu sam,
+- **podpis wpisu (nowe w 1.3.0), do sekcji „Czego RelAI pilnuje bez proszenia":** wpis w dzienniku
+  jest podpisany modelem **i** użytkownikiem z konfiguracji gita; brakujący człon użytkownika
+  zostaje wyłapany zaraz po zapisie. Opisujesz efekt („wiadomo, kto przy tym był"), nie nazwę
+  hooka,
+- **bramki manualne (nowe w 1.3.0), do sekcji „Czego RelAI pilnuje bez proszenia":** rzeczy
+  czekające na człowieka, zapisane we wpisach dziennika, są widoczne w `STATUS.md` planu, a plan
+  nie zamyka się, dopóki RelAI nie zapyta o każdą z nich,
+- **rejestr decyzji po adopcji (nowe w 1.3.0):** w projekcie przeniesionym na RelAI nowe
+  rozstrzygnięcia zapisują się w `DECYZJE.md`, a zastane reguły w `CLAUDE.md` zostają zapisem
+  stanu sprzed adopcji. **Punkt piszesz wyłącznie w projekcie po adopcji** — w projekcie zakładanym
+  od zera nie ma czego rozdzielać (L-0029),
 
-Wygenerowany `KOMENDY.md` w wersji 1.2.0 zawiera **tabelę komend z dziesięcioma pozycjami**
+Wygenerowany `KOMENDY.md` w wersji 1.3.0 zawiera **tabelę komend z dziesięcioma pozycjami**
 oraz tabelę fraz naturalnych:
 
 | Komenda | Co robi |
@@ -169,12 +186,12 @@ oraz tabelę fraz naturalnych:
 - Nie opisujesz mechaniki wewnętrznej (skille, hooki) — użytkownika interesuje efekt.
 - Nie wpisujesz punktów profilu, którego ten projekt nie ma.
 
-## Przykład dla wersji 1.2.0 (projekt polski, profil `app`)
+## Przykład dla wersji 1.3.0 (projekt polski, profil `app`)
 
 ```markdown
 # KOMENDY — Parkly
 
-RelAI 1.2.0
+RelAI 1.3.0
 
 Nic z tej listy nie jest obowiązkowe. RelAI działa w zwykłej rozmowie — piszesz normalnie,
 a struktura projektu nadąża. Komendy są skrótem do rzadszych operacji.
@@ -228,7 +245,14 @@ z podpowiedzi; skrócona forma działa tam, gdzie podpowiadacz ją rozwinie.
 - Gdy w trakcie etapu wypływa coś spoza jego zakresu, zatrzymuje się i pyta: zrobić z tego odnogę,
   dopisać aneks do planu, czy odłożyć świadomie — zamiast robić to przy okazji i rozdymać etap.
 - Po ostatnim etapie zamyka plan sam: aktualizuje stan, pisze wpis „co dowieziono vs plan"
-  i przenosi plan do archiwum. Zostały otwarte odnogi — najpierw pyta, co z nimi.
+  i przenosi plan do archiwum. Zostały otwarte odnogi albo rzeczy czekające na Ciebie — najpierw
+  pyta o każdą z nich, zanim napisze gdziekolwiek, że plan jest skończony.
+- To, co czeka na Twoją decyzję — dostęp, zakup, akceptacja — nie zostaje pogrzebane w dzienniku:
+  jest widoczne w statusie planu, dopóki go nie rozstrzygniesz.
+- Gdy dokumenty rozjadą się co do tego, który etap trwa, mówi o tym na starcie sesji jednym zdaniem
+  i pyta, który zapis jest prawdziwy — zamiast wybrać sobie jeden i pracować na nim.
+- Każdy wpis w dzienniku podpisuje modelem i Tobą (z konfiguracji gita), żeby po miesiącach było
+  wiadomo, kto przy tym był.
 - Nie nadpisuje i nie kasuje plików, których sam nie utworzył.
 - **Blokuje** zapis klucza, tokenu albo hasła do pliku trafiającego do repozytorium — sekret może
   wylądować wyłącznie w `.env`, którego git nie śledzi.

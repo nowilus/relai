@@ -92,6 +92,28 @@ Po zapisie: jedna krótka linia potwierdzenia z numerem. Jeśli fraza jest nieje
 zakresu („nie rób tego więcej" — czego dokładnie?), **zapytaj o zakres jednym zdaniem**, ale nie
 o to, czy zapisać.
 
+## Projekt po adopcji (od 1.3.0)
+
+Projekt przeniesiony na RelAI komendą `/relai-adopt` ma w `CLAUDE.md` sekcję **„Zasady projektu
+(odziedziczone)"** — dosłowną kopię zastanych reguł, nierzadko z własną tabelą decyzji. Podział
+jest ostry:
+
+| Gdzie | Co tam jest |
+|---|---|
+| `CLAUDE.md`, sekcja „Zasady projektu (odziedziczone)" | rozstrzygnięcia sprzed adopcji — **zamrożone jako zapis stanu**, nie dopisuje się do nich |
+| `docs/DECYZJE.md` | **każde** rozstrzygnięcie podjęte po adopcji, w formacie `D-NN` |
+
+Zasady:
+
+- Rejestr startuje **pusty** i to jest poprawne. Zastanych decyzji nie przepisujesz — dwie kopie
+  tej samej reguły to dwa źródła prawdy, a drugie zawsze się rozjeżdża.
+- Pierwszy wpis `D-01` powstaje przy pierwszym rozstrzygnięciu po adopcji, także wtedy, gdy temat
+  pasuje do odziedziczonej tabeli. Pasowanie tematu **nie jest** powodem do dopisania go tam.
+- Wpis może odwoływać się do zastanej reguły („doprecyzowuje regułę o migracjach z sekcji
+  odziedziczonej") — odwołanie tak, przenoszenie treści nie.
+- `CLAUDE.md` jest w kontekście każdej sesji i płaci tokenami przy każdym prompcie; `DECYZJE.md`
+  czyta się wtedy, gdy temat tego wymaga. Dlatego rejestr rośnie tutaj, nie tam.
+
 ## Zmiana decyzji
 
 Decyzja zamrożona zmienia się **wyłącznie na jawną prośbę człowieka**. Procedura:

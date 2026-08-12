@@ -5,7 +5,8 @@
 //
 // 1) SessionStart — wlasciwa mitygacja ryzyka R2: w projekcie RelAI wstrzykuje
 //    date dnia, kontrole wersji projekt vs plugin, wymuszenie rytualu startu,
-//    siatke brakujacych promptow etapowych (D-34), tresc ustawien globalnych
+//    siatke brakujacych promptow etapowych (D-34), sygnal rozjazdu stanu
+//    (STATUS vs CLAUDE.md vs STATE.md — od 1.3.0), tresc ustawien globalnych
 //    (~/.claude/relai/ — D-23, L-0010) oraz kopiuje specyfikacje dokumentow
 //    do .claude/relai/templates/ w projekcie (R8, L-0012).
 // 2) PostToolUse na narzedziu Skill — gdy wywolany skill nalezy do RelAI
@@ -168,6 +169,87 @@ function promptGap(cwd) {
   }
 }
 
+// Rozjazd stanu (1.3.0): STATUS planu mowi "W TOKU", a CLAUDE.md albo STATE.md
+// mowia co innego. Retrospektywa 2026-08-12: etap zaczety w przerwanej sesji
+// zostawal "W TOKU" w STATUS, podczas gdy linia aktywnego planu i STATE opisywaly
+// stan sprzed niego — nastepna sesja czytala trzy dokumenty i wierzyla temu,
+// ktory przeczytala pierwszy.
+//
+// Fakty sa surowe i porownania deterministyczne (L-0025): kotwica statusu w komorce
+// tabeli, nazwa folderu planu w tresci STATE. Czego nie da sie rozstrzygnac
+// jednoznacznie, tego hook nie zglasza — cisza jest tansza niz falszywy sygnal.
+function czytaj(p) {
+  try { return fs.readFileSync(p, 'utf8'); } catch (_) { return ''; }
+}
+
+function planyZEtapemWToku(cwd) {
+  const wynik = [];
+  const root = path.join(cwd, 'docs', 'plany');
+  let wpisy = [];
+  try { wpisy = fs.readdirSync(root, { withFileTypes: true }); } catch (_) { return wynik; }
+  for (const w of wpisy) {
+    if (!w.isDirectory()) continue;
+    const statusPath = path.join(root, w.name, 'STATUS.md');
+    const txt = czytaj(statusPath);
+    if (!txt) continue;
+    for (const row of txt.split('\n')) {
+      if (!row.trim().startsWith('|')) continue;
+      const cells = row.split('|').map((c) => c.trim());
+      if (cells.length < 6) continue;
+      if (!/^\**\s*(W TOKU|IN PROGRESS)\b/i.test(cells[3])) continue;
+      wynik.push({ temat: w.name, etap: cells[1] || '?', statusFile: path.relative(cwd, statusPath).split(path.sep).join('/') });
+      break;
+    }
+  }
+  return wynik;
+}
+
+function liniaAktywnegoPlanu(cwd) {
+  const txt = czytaj(path.join(cwd, 'CLAUDE.md'));
+  if (!txt) return null;
+  const linia = txt.split('\n').find((l) => /Aktywny plan|Active plan/i.test(l));
+  if (!linia) return { brak: true, pusta: true, link: null };
+  if (/:\s*brak|:\s*none/i.test(linia)) return { brak: true, pusta: false, link: null };
+  const m = linia.match(/\]\(([^)]+)\)/);
+  return { brak: false, pusta: false, link: m ? m[1] : null };
+}
+
+function stateDrift(cwd) {
+  try {
+    const linia = liniaAktywnegoPlanu(cwd);
+    if (!linia) return null; // brak CLAUDE.md — nie ma czego porownywac
+    const fakty = [];
+
+    // Martwy link w linii aktywnego planu — mowi "tu trwa praca" i prowadzi donikad.
+    if (linia.link && !fs.existsSync(path.resolve(cwd, linia.link))) {
+      fakty.push('linia "Aktywny plan" w CLAUDE.md wskazuje ' + linia.link + ', a tego pliku nie ma');
+    }
+
+    const wToku = planyZEtapemWToku(cwd);
+    for (const p of wToku) {
+      if (linia.brak) {
+        fakty.push(p.statusFile + ' ma etap ' + p.etap + ' w statusie W TOKU, a CLAUDE.md mowi ' +
+          (linia.pusta ? 'o aktywnym planie nic' : '"Aktywny plan: brak"'));
+      } else if (linia.link) {
+        const wskazany = path.resolve(cwd, linia.link);
+        const wlasny = path.resolve(cwd, p.statusFile);
+        if (wskazany !== wlasny && fs.existsSync(wskazany)) {
+          fakty.push(p.statusFile + ' ma etap ' + p.etap + ' w statusie W TOKU, a linia "Aktywny plan" ' +
+            'wskazuje inny plan (' + linia.link + ')');
+        }
+      }
+      const state = czytaj(path.join(cwd, 'docs', 'STATE.md'));
+      if (state && state.indexOf(p.temat) === -1) {
+        fakty.push('docs/STATE.md nie wspomina planu ' + p.temat + ', ktorego etap ' + p.etap + ' jest W TOKU');
+      }
+    }
+
+    return fakty.length ? fakty : null;
+  } catch (_) {
+    return null;
+  }
+}
+
 // D-27: czy projekt otworzyl ktos inny niz jego autor. Porownujemy user.name
 // z konfiguracji gita z podpisami wpisow dziennika ("Autor: RelAI (model) + X").
 // Zwraca null, gdy nie da sie rozstrzygnac — brak nazwy w gicie, brak dziennika,
@@ -249,6 +331,15 @@ function onSessionStart(input) {
       ' ma status GOTOWY DO STARTU, ale jego prompt etapowy nie istnieje. Pierwsze zdanie Twojej ' +
       'odpowiedzi — jeszcze PRZED akapitem "gdzie jestesmy" — mowi o tej luce i proponuje ' +
       'dogenerowanie promptu. Nie generuj go bez zgody (po zgodzie robi to relai-planning).');
+  }
+
+  const rozjazd = stateDrift(cwd);
+  if (rozjazd) {
+    out.push('ZADANIE PIERWSZE (rozjazd stanu). Dokumenty tego projektu mowia rozne rzeczy: ' +
+      rozjazd.join('; ') + '. Zglos to uzytkownikowi JEDNYM zdaniem przed akapitem "gdzie jestesmy" ' +
+      'i zapytaj, ktory zapis jest prawdziwy — nie prostuj zadnego dokumentu na wlasna reke, bo nie ' +
+      'wiesz, czy etap trwa, czy sie urwal. To jedyne miejsce, w ktorym ten sygnal pada: nie powtarzaj ' +
+      'go z rytualu startu.');
   }
 
   const obcy = unknownAuthor(cwd);

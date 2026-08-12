@@ -12,7 +12,7 @@
     {
       "name": "relai",
       "source": "./",
-      "version": "1.2.0",
+      "version": "1.3.0",
       "description": "Your project remembers everything — documentation-first process framework for Claude Code",
       "category": "productivity",
       "homepage": "https://github.com/nowilus/relai",

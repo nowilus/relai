@@ -1,15 +1,15 @@
-# ODNOGA — pomiar odnóg i rotacji świeżą sesją (niedomknięte punkty weryfikacji E1 i E2)
+# ODNOGA — pomiar zachowań świeżą sesją (niedomknięte punkty weryfikacji E1, E2 i E3)
 
 Plan: [ROZWOJ_PO_WYDANIU](../../STATUS.md) · Etap-źródło: E1 — Odnoga planu (zakres rozszerzony
-2026-08-12 o punkty 5 i 7 weryfikacji E2) · Utworzona: 2026-08-12 · Status: **OTWARTA** ·
-Wykonawca: Opus
+2026-08-12 o punkty 5 i 7 weryfikacji E2, a następnie o punkty 3, 4 i 6 weryfikacji E3) ·
+Utworzona: 2026-08-12 · Status: **OTWARTA** · Wykonawca: Opus
 
 ## Cel
 
-Trzy scenariusze `/relai:relai-branch`, wykonanie `PROMPT_ODNOGA` oraz dwa scenariusze rotacji
-dokumentów są zmierzone **świeżymi sesjami** `claude -p` na zainstalowanej wersji (1.2.0 po
-wydaniu E2) — czyli tak, jak wymaga L-0004 — a wynik każdego z sześciu pomiarów jest zapisany
-w dzienniku.
+Trzy scenariusze `/relai:relai-branch`, wykonanie `PROMPT_ODNOGA`, dwa scenariusze rotacji
+dokumentów i trzy scenariusze poprawek z E3 są zmierzone **świeżymi sesjami** `claude -p` na
+zainstalowanej wersji (co najmniej 1.2.0 po wydaniu E2; scenariusze G–I wymagają 1.3.0) — czyli
+tak, jak wymaga L-0004 — a wynik każdego z dziewięciu pomiarów jest zapisany w dzienniku.
 
 ## Skąd się wzięła
 
@@ -46,8 +46,26 @@ planu; jest dokładnie tym, po co odnogi powstały.
    w `USTAWIENIA.md`. Oczekiwane: rytuał przebiega bez rotacji i bez komunikatu o niej; dziennik
    zachowuje sumę kontrolną sekcji „Wpisy" sprzed sesji.
 
+7. **Scenariusz G — jeden sygnał rozjazdu stanu** (punkt 4 weryfikacji E3, dopisany 2026-08-12).
+   Świeża sesja startuje w projekcie testowym z etapem `W TOKU` w `STATUS.md` i linią
+   `Aktywny plan: brak` w `CLAUDE.md`. Oczekiwane: **dokładnie jedno** zdanie o rozjeździe przed
+   akapitem „gdzie jesteśmy" — nie dwa (hook + rytuał startu) — i pytanie, który zapis jest
+   prawdziwy, zamiast prostowania dokumentów. Projekt spójny → w odpowiedzi ani słowa o rozjeździe
+   (dowód negatywny). Sam hook zmierzony w E3 (15/15); tutaj mierzysz, czy sesja go nie dubluje.
+8. **Scenariusz H — decyzja po adopcji** (punkt 3 weryfikacji E3, dopisany 2026-08-12). Projekt
+   testowy po `/relai:relai-adopt`, z zastaną tabelą decyzji w sekcji „Zasady projektu
+   (odziedziczone)". Świeża sesja rozstrzyga nowy temat. Oczekiwane: wpis `D-NN` w `DECYZJE.md`,
+   a suma kontrolna sekcji odziedziczonej **identyczna** przed i po (dowód negatywny, L-0007).
+9. **Scenariusz I — bramka manualna blokuje zamknięcie planu** (punkt 6 weryfikacji E3, dopisany
+   2026-08-12). Plan testowy z ostatnim etapem do zamknięcia i dwiema nierozstrzygniętymi
+   pozycjami „Do zrobienia przez człowieka" w dzienniku. Oczekiwane: sekwencja zamknięcia wypisuje
+   obie i pyta o każdą, a `STATUS.md` **nie** dostaje statusu `ZREALIZOWANY` przed odpowiedzią.
+   Po dopisaniu adnotacji „*(rozstrzygnięte …)*" ten sam plan zamyka się bez pytania o bramki.
+
 Projekty testowe do scenariuszy E i F: generator `fixtury.js` opisany we wpisie dziennika z E2
-(2026-08-12) — projekty `B_ponizej_progu` i `D_wylacznik`. Foldery żyją poza repozytorium.
+(2026-08-12) — projekty `B_ponizej_progu` i `D_wylacznik`. Do scenariuszy G–I: instrumenty
+`rozjazd.js` i `podpis.js` z E3 budują projekty o właściwej strukturze (opis we wpisie dziennika
+z 2026-08-12 o E3). Foldery żyją poza repozytorium.
 
 ## Poza zakresem
 
@@ -60,10 +78,15 @@ Projekty testowe do scenariuszy E i F: generator `fixtury.js` opisany we wpisie 
 
 ## Weryfikacja
 
-- [ ] Sześć scenariuszy wykonanych **świeżymi sesjami** `claude -p` (stdin, `--permission-mode
+- [ ] Dziewięć scenariuszy wykonanych **świeżymi sesjami** `claude -p` (stdin, `--permission-mode
       acceptEdits`, `--allowedTools "Bash"` — L-0024, L-0028), każdy z zapisanym wynikiem.
-- [ ] Scenariusze E i F wykonane na wersji **1.2.0** potwierdzonej w `installed_plugins.json`
-      (L-0020) — na 1.1.0 rotacji nie ma, więc cisza nic nie dowodzi.
+- [ ] Scenariusze E i F wykonane na wersji **co najmniej 1.2.0** potwierdzonej w `installed_plugins.json`
+      (L-0020) — na 1.1.0 rotacji nie ma, więc cisza nic nie dowodzi. Scenariusze G–I wymagają
+      **co najmniej 1.3.0** z tego samego powodu.
+- [ ] Scenariusz G: dokładnie jedno zdanie o rozjeździe w odpowiedzi (policzone w treści), projekt
+      spójny → zero wzmianek.
+- [ ] Scenariusz H: suma kontrolna sekcji „Zasady projektu (odziedziczone)" identyczna przed i po.
+- [ ] Scenariusz I: `STATUS.md` bez statusu `ZREALIZOWANY` do czasu odpowiedzi o bramkach.
 - [ ] Scenariusz A: sumy kontrolne sekcji `PLAN.html` przed i po są identyczne.
 - [ ] Scenariusz C: drzewo plików przed = po, co do sumy każdego pliku.
 - [ ] Scenariusz D: odnoga OPIS_REPO zamknięta rytuałem, `gh repo view` zwraca niepusty opis.

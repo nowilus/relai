@@ -26,10 +26,10 @@ description: >
 
 # relai-planning — plany, etapy i ich zamrażanie
 
-Wersja 1.2.0 (E2 planu ROZWOJ_PO_WYDANIU — rotacja dokumentów). Zakres tej wersji: **wykrycie intencji planowania + rozróżnienie
+Wersja 1.3.0 (E3 planu ROZWOJ_PO_WYDANIU — poprawki z retrospektywy). Zakres tej wersji: **wykrycie intencji planowania + rozróżnienie
 PLAN/MINIPLAN + pytanie startowe + generacja planu w Markdown albo w HTML + `STATUS.md` +
 zamrożenie z aneksami + prompty etapowe `PROMPT_ETAP_N` z lazy-generacją + rytuał „Na koniec" etapu
-+ **sygnał odchylenia i odnogi planu** + zamknięcie planu**. Etap uruchamia komenda `/relai-stage`,
++ sygnał odchylenia i odnogi planu + **bramki manualne** + zamknięcie planu**. Etap uruchamia komenda `/relai-stage`,
 odnogę — `/relai-branch`. Od 0.6.0 działa interaktywny szablon
 HTML planów głównych (`HTML_PLAN/`) razem z nadpisaniem lokalnym (D-62).
 
@@ -437,20 +437,26 @@ ukończenia z `relai-core`, tylko dla etapu planu. Kolejność jest wiążąca:
 
 1. **`STATUS.md`** — etap N → `ZREALIZOWANY <data>`; etap N+1 → `GOTOWY DO STARTU`; linia
    w dzienniku wdrożenia (jedna, zwięzła); kolumna `Prompt` przy N+1 dostaje link zaraz po
-   punkcie 3.
+   punkcie 5.
 2. **`docs/DZIENNIK.md`** — wpis wg `SPEC_DZIENNIK.md` na końcu sekcji „Wpisy": Zrobione /
-   Zweryfikowane — jak dokładnie / Świadomie odłożone / Do zrobienia przez człowieka. Przejrzyj
-   tabelę „Stan otwartych ryzyk". Lekcje z etapu → `docs/LEKCJE.md` + odświeżony destylat „Zasady
-   aktywne".
-3. **`docs/STATE.md`** i pozostałe dokumenty projektu, których dotknął etap (`README.md` tylko przy
+   Zweryfikowane — jak dokładnie / Świadomie odłożone / Do zrobienia przez człowieka. Podpis
+   w formacie `Autor: RelAI (<model>) + <git config user.name>` — bez członu użytkownika wpis nie
+   jest kompletny (D-63). Przejrzyj tabelę „Stan otwartych ryzyk". Lekcje z etapu →
+   `docs/LEKCJE.md` + odświeżony destylat „Zasady aktywne".
+3. **Bramki manualne w `STATUS.md`** — wpis, który właśnie powstał, ma sekcję „Do zrobienia przez
+   człowieka"; każda jej nierozstrzygnięta pozycja dostaje linię w sekcji „Bramki manualne"
+   `STATUS.md` ze statusem `OTWARTA` (`SPEC_STATUS.md`). Pozycja rozstrzygnięta w tym etapie →
+   status `ROZSTRZYGNIĘTA <data> — <jak>`, równolegle z adnotacją przy pozycji we wpisie. Sekcja
+   „Do zrobienia przez człowieka" z treścią „—" nie tworzy niczego i nie zostawia śladu.
+4. **`docs/STATE.md`** i pozostałe dokumenty projektu, których dotknął etap (`README.md` tylko przy
    zmianie sposobu uruchomienia).
-4. **Wygeneruj `PROMPT_ETAP_N+1.md`** ze specyfikacji promptu etapowego — z sekcji `PLAN.md`
+5. **Wygeneruj `PROMPT_ETAP_N+1.md`** ze specyfikacji promptu etapowego — z sekcji `PLAN.md`
    opisującej etap N+1, z **realnego stanu repo po tym etapie** i z lekcji, które w tym etapie
    powstały. To jest punkt, który najłatwiej pominąć i który przesądza o ciągłości pracy:
    **etap bez wygenerowanego następnego promptu NIE jest ukończony** (D-34).
-5. **Commit** — propozycja, conventional message. Jedyny punkt tego rytuału, o który pytasz.
+6. **Commit** — propozycja, conventional message. Jedyny punkt tego rytuału, o który pytasz.
 
-Zamykany etap był **ostatnim** w planie → punkt 4 zastępujesz sekwencją „Zamknięcie planu" niżej.
+Zamykany etap był **ostatnim** w planie → punkt 5 zastępujesz sekwencją „Zamknięcie planu" niżej.
 
 Sesja przerwana w połowie rytuału zostawia etap w statusie `W TOKU`. Kolejne `/relai-stage` ma
 wtedy dokończyć, nie zaczynać od zera — a siatka z `relai-core` wyłapie brakujący prompt na starcie
@@ -461,22 +467,39 @@ następnej sesji.
 Gdy ostatni etap dostaje status ZREALIZOWANY, zamknięcie wykonujesz **sam, w tej samej turze**,
 w tej kolejności:
 
-1. **`docs/STATE.md`** — nadpisz: obszar planu przechodzi z „w toku" do stanu faktycznego.
-2. **Wpis zamykający w `DZIENNIK.md`** — sekcja „Zrobione" mówi **dowiezione vs plan**: co miało
-   powstać, co powstało, co przepadło. Bez tego porównania wpis jest niepełny.
-3. **`STATUS.md`** — status planu → `ZREALIZOWANY <data>`, wszystkie etapy domknięte.
-4. **Ryzyka** — przejrzyj tabelę „Stan otwartych ryzyk": ryzyka związane z planem zamknij z datą,
-   nowe (jeśli praca je ujawniła) dopisz.
-5. **Otwarte odnogi** — zajrzyj do sekcji „Odnogi" w `STATUS.md`. Jest tam choć jedna linia
+**Dwa punkty blokujące idą pierwsze** (1 i 2). Dopiero po nich wolno napisać gdziekolwiek, że plan
+jest zrealizowany: zdanie „plan ZREALIZOWANY", postawione przed rozstrzygnięciem bramek i odnóg,
+jest fałszem w dokumencie, któremu następna sesja zaufa bezwarunkowo — a gdy człowiek odpowie
+inaczej, niż zakładałeś, zostaje po nim wpis do wycofania.
+
+1. **Otwarte bramki manualne** — zajrzyj do sekcji „Bramki manualne" w `STATUS.md` **i** przejrzyj
+   sekcje „Do zrobienia przez człowieka" we wpisach dziennika z okresu tego planu; pozycja bez
+   adnotacji „*(rozstrzygnięte …)*" jest otwarta, także wtedy, gdy nie ma jeszcze swojej linii
+   w `STATUS.md` (plan sprzed 1.3.0). Jest choć jedna → **wypisz je wszystkie i zapytaj o każdą**:
+   rozstrzygnięta teraz (wtedy zapisujesz jak — w obu miejscach) czy świadomie zostawiona otwarta
+   (wtedy przechodzi do `STATE.md`, sekcja „Co blokuje" albo „Co dalej", żeby nie zginęła razem
+   z folderem planu w archiwum). Bez decyzji człowieka **plan się nie zamyka**.
+
+   Powód: „plan ZREALIZOWANY" przy kilkunastu pozycjach czekających na człowieka to zdanie
+   nieprawdziwe, a po archiwizacji nikt już do nich nie zagląda (PolyFlow, retrospektywa
+   2026-08-12, `FAKT`). Brak sekcji i brak otwartych pozycji → punkt przechodzi bez pytania
+   i bez komentarza.
+2. **Otwarte odnogi** — zajrzyj do sekcji „Odnogi" w `STATUS.md`. Jest tam choć jedna linia
    `OTWARTA` → **wypisz je wszystkie i zapytaj o każdą**: zamknąć teraz czy przenieść do
    `docs/fixy/<NAZWA>/` jako wątek samodzielny. Przeniesienie = folder odnogi wędruje do
    `docs/fixy/`, a jej linia w `STATUS.md` dostaje status
    `PRZENIESIONA <data> → docs/fixy/<NAZWA>/`. Bez decyzji człowieka **plan się nie zamyka** —
    folder planu w archiwum z żywym wątkiem w środku znaczy, że wątek przepadł. Brak sekcji „Odnogi"
    albo same linie zamknięte → punkt przechodzi bez pytania i bez komentarza.
-6. **Archiwum** — przenieś `docs/plany/<TEMAT>/` do `docs/archiwum/plany/<TEMAT>/`. Zawartość bez
+3. **`docs/STATE.md`** — nadpisz: obszar planu przechodzi z „w toku" do stanu faktycznego.
+4. **Wpis zamykający w `DZIENNIK.md`** — sekcja „Zrobione" mówi **dowiezione vs plan**: co miało
+   powstać, co powstało, co przepadło. Bez tego porównania wpis jest niepełny.
+5. **`STATUS.md`** — status planu → `ZREALIZOWANY <data>`, wszystkie etapy domknięte.
+6. **Ryzyka** — przejrzyj tabelę „Stan otwartych ryzyk": ryzyka związane z planem zamknij z datą,
+   nowe (jeśli praca je ujawniła) dopisz.
+7. **Archiwum** — przenieś `docs/plany/<TEMAT>/` do `docs/archiwum/plany/<TEMAT>/`. Zawartość bez
    zmian; przeniesienie, nie kasowanie.
-7. **`CLAUDE.md`** — linia aktywnego planu. **Warunek twardy: kiedy kończysz turę, linia wskazuje
+8. **`CLAUDE.md`** — linia aktywnego planu. **Warunek twardy: kiedy kończysz turę, linia wskazuje
    istniejący plik albo brzmi `Aktywny plan: brak`.** Link do przeniesionego folderu jest błędem —
    prowadzi donikąd, a jednocześnie mówi „tu trwa praca". Rozstrzygasz tak:
 
@@ -488,11 +511,11 @@ w tej kolejności:
    Pytanie o następcę jest dozwolone. Pytanie **zamiast** poprawienia linii — nie: to zostawia
    projekt z martwym linkiem i przerzuca sprzątanie po sobie na człowieka. `brak` jest zawsze
    poprawną wartością tymczasową; martwy link nie jest poprawny nigdy.
-8. **Podsumowanie** — 3–5 zdań dla użytkownika: co dowieziono, czego nie i dlaczego, co czeka na
+9. **Podsumowanie** — 3–5 zdań dla użytkownika: co dowieziono, czego nie i dlaczego, co czeka na
    człowieka.
 
-Punkty 1–4 i 6–7 nie są przedmiotem pytania. Pytaniem może być wyłącznie commit i — gdy plan ma
-otwarte odnogi — punkt 5.
+Punkty 3–8 nie są przedmiotem pytania. Pytaniem może być wyłącznie commit oraz punkty 1 i 2 — gdy
+plan ma otwarte bramki manualne albo otwarte odnogi.
 
 **Kolejność: najpierw zmiana w repozytorium, potem zdanie, które ją opisuje.** Wpis dziennika
 mówiący „folder przeniesiony do archiwum", napisany zanim folder został przeniesiony, jest fałszem

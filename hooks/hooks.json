@@ -16,7 +16,8 @@
           { "type": "command", "command": "node \"${CLAUDE_PLUGIN_ROOT}/hooks/quality-gate.js\"" },
           { "type": "command", "command": "node \"${CLAUDE_PLUGIN_ROOT}/hooks/console-log-warn.js\"" },
           { "type": "command", "command": "node \"${CLAUDE_PLUGIN_ROOT}/hooks/design-quality-check.js\"" },
-          { "type": "command", "command": "node \"${CLAUDE_PLUGIN_ROOT}/hooks/profile-rules.js\"" }
+          { "type": "command", "command": "node \"${CLAUDE_PLUGIN_ROOT}/hooks/profile-rules.js\"" },
+          { "type": "command", "command": "node \"${CLAUDE_PLUGIN_ROOT}/hooks/journal-signature.js\"" }
         ]
       },
       {

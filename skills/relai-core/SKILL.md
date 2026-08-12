@@ -25,9 +25,9 @@ description: >
 
 # relai-core — struktura projektu, pamięć i rytuały sesji
 
-Wersja 1.2.0 (E2 planu ROZWOJ_PO_WYDANIU — rotacja dokumentów). Zakres tego skilla: **rozpoznanie stanu folderu + inicjalizacja + tryb
+Wersja 1.3.0 (E3 planu ROZWOJ_PO_WYDANIU — poprawki z retrospektywy). Zakres tego skilla: **rozpoznanie stanu folderu + inicjalizacja + tryb
 gościa + niedestrukcyjne dołączenie + rytuały sesji + rotacja dokumentów przy zamknięciu sesji +
-siatka brakujących promptów etapowych +
+siatka brakujących promptów etapowych + siatka rozjazdu stanu + rejestr decyzji po adopcji +
 rejestry LEKCJE/DECYZJE + trzy frazy naturalne + warstwa ustawień globalnych + reguły warunkowe
 profilu projektu**. Od 0.5.0 działa też zestaw hooków (sekrety, ochrona konfiguracji, przypomnienia,
 kontekst sesji, a od 0.8.0 reguły profilu) — pilnują twardych granic niezależnie od tego skilla.
@@ -125,6 +125,32 @@ Zasady siatki:
 Od 0.5.0 siatka ma **dwie warstwy**: ten krok rytuału oraz hook `session-context` (SessionStart),
 który wstrzykuje lukę do kontekstu nawet wtedy, gdy skill się nie wyzwolił. Jeśli hook już zgłosił
 lukę w kontekście sesji, nie zgłaszaj jej drugi raz — przejdź od razu do propozycji dogenerowania.
+
+### Siatka bezpieczeństwa: rozjazd stanu (od 1.3.0)
+
+Trzy dokumenty mówią o tym samym: `STATUS.md` planu (który etap trwa), linia „Aktywny plan"
+w `CLAUDE.md` (który plan jest aktywny) i `docs/STATE.md` („nad czym pracujemy teraz"). Sesja
+przerwana w połowie zostawia je rozjechane, a następna sesja wierzy temu, który przeczytała
+pierwszy.
+
+**Sygnał niesie hook `session-context`, nie ten skill.** Porównanie jest mechaniczne (statusy
+w tabeli, nazwa folderu planu w treści STATE), więc ma działać bez wyzwolenia czegokolwiek
+(L-0030, R2). Hook wypisuje surowe fakty w kontekście sesji i mówi, żeby zgłosić je **jednym
+zdaniem** przed akapitem „gdzie jesteśmy".
+
+Twoja rola w rytuale startu:
+
+- **Hook zgłosił rozjazd** → zgłaszasz go użytkownikowi jednym zdaniem i pytasz, który zapis jest
+  prawdziwy. **Nie powtarzasz sygnału drugi raz** i nie sprawdzasz porównania ponownie.
+- **Hook milczy** → milczysz też. Cisza hooka znaczy „dokumenty są zgodne", a nie „nie sprawdzono";
+  nie robisz z rytuału drugiego detektora, bo dwa detektory dają dwa komunikaty na jeden problem.
+- **Hooka nie było w kontekście sesji w ogóle** (żadnego bloku `[RelAI session-context]`) → dopiero
+  wtedy porównujesz sam: etap `W TOKU` w `STATUS.md` kontra linia „Aktywny plan" i kontra wzmianka
+  o tym planie w `STATE.md`.
+
+Czego **nie** robisz: nie prostujesz żadnego z trzech dokumentów samodzielnie. Rozjazd nie mówi,
+który zapis jest prawdą — etap mógł trwać albo urwać się w połowie, a wybór między tymi wersjami
+należy do człowieka. Po jego odpowiedzi aktualizujesz wszystkie trzy w tej samej turze (D-44).
 
 ### Propozycja wycieczki po cudzym projekcie (D-27)
 
@@ -269,6 +295,27 @@ sens, dostaje adnotację „NIEAKTUALNE" i idzie do `docs/archiwum/` (D-18).
 
 ---
 
+## Rejestry w projekcie po adopcji (D-15, od 1.3.0)
+
+Projekt, który przeszedł przez `/relai-adopt`, ma w `CLAUDE.md` sekcję **„Zasady projektu
+(odziedziczone)"** — dosłowną kopię zastanych reguł, często razem z ich własną tabelą decyzji.
+Ta sekcja jest **zapisem stanu sprzed adopcji**: czytasz ją i respektujesz, ale **nie dopisujesz
+do niej niczego nowego**.
+
+Każde rozstrzygnięcie podjęte **po** adopcji idzie tam, gdzie idzie w każdym innym projekcie
+RelAI: wpis `D-NN` w `docs/DECYZJE.md`, wg `SPEC_DECYZJE.md`. Dotyczy to także decyzji, która
+tematycznie pasuje do odziedziczonej tabeli — pasowanie tematu nie jest powodem, żeby rosła
+warstwa czytana w każdej sesji.
+
+Powód jest mierzalny: JiraManager po adopcji ma `CLAUDE.md` na 639 linii przy limicie 60, bo osiem
+decyzji podjętych po adopcji dopisało się do zastanej tabeli zamiast do pustego `DECYZJE.md`
+(retrospektywa 2026-08-12, `FAKT`). `CLAUDE.md` płaci tokenami przy każdym prompcie, `DECYZJE.md`
+czyta się wtedy, gdy temat tego wymaga.
+
+Wyjątek jest jeden i wymaga zgody człowieka: reguła, która ma działać **zawsze** (bo bez niej
+sesja zrobi szkodę), trafia do „Reguł procesu" `CLAUDE.md` — tak jak każda graduacja lekcji.
+Nie do sekcji odziedziczonej.
+
 ## Reakcja na korektę użytkownika
 
 Użytkownik poprawił sposób, w jaki coś zrobiłeś — nie treść zadania, tylko Twoje zachowanie.
@@ -318,7 +365,7 @@ poniżej jest to, co obowiązuje zawsze.
 
 **Warunek — wiersz `Rotacja dokumentów` w `docs/USTAWIENIA.md`.** Kotwica na początku komórki
 `Decyzja`: `wyłączona` (EN `off`) → **kończysz ten krok natychmiast**, bez sprawdzania progów
-i bez słowa. Wartość nierozpoznana albo brak wiersza w projekcie z wersją 1.2.0 → traktujesz jak
+i bez słowa. Wartość nierozpoznana albo brak wiersza w projekcie z wersją 1.2.0 lub nowszą → traktujesz jak
 `wyłączona` i mówisz o tym jednym zdaniem. Progi domyślne, gdy wiersz ich nie podaje:
 
 | Dokument | Próg | Działanie po przekroczeniu |
@@ -497,7 +544,7 @@ Zasady generacji:
   Dla projektu angielskiego: `docs/STATE.md`, `docs/JOURNAL.md`, `docs/LESSONS.md`,
   `docs/DECISIONS.md`, `docs/SETTINGS.md`, `docs/COMMANDS.md`. Konwencja stała: CAPS_SNAKE, bez dat
   i numerów wersji w nazwie.
-- `docs/USTAWIENIA.md` **musi** zawierać linię `Wersja RelAI: 1.2.0` — to marker, po którym RelAI
+- `docs/USTAWIENIA.md` **musi** zawierać linię `Wersja RelAI: 1.3.0` — to marker, po którym RelAI
   rozpoznaje projekt i po którym przyszły `/relai-update` policzy różnicę wersji.
 - `CLAUDE.md` **musi** zawierać sekcję `## Reguły profilu (<wybrany profil>)` zaraz po „Regułach
   procesu" — 3–6 punktów wg `SPEC_PROFILE.md`. To jedyna warstwa reguł profilu działająca bez

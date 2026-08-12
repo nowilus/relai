@@ -5,7 +5,7 @@ argument-hint: ""
 
 # /relai-update — aktualizacja projektu do wersji pluginu
 
-**Ta komenda pochodzi z RelAI 1.2.0** — ta liczba to wersja docelowa aktualizacji. Komenda jest
+**Ta komenda pochodzi z RelAI 1.3.0** — ta liczba to wersja docelowa aktualizacji. Komenda jest
 częścią pluginu, więc jej treść zawsze odpowiada wersji zainstalowanej; przy każdym wydaniu
 pluginu liczba w tym zdaniu jest podbijana.
 
@@ -50,7 +50,7 @@ Nie odtwarzasz historii wersja-po-wersji — porównujesz **stan projektu** z **
 wersji, z której pochodzi ta komenda. Dzięki temu projekt 0.5.0 i projekt 0.8.0 aktualizują się
 tą samą procedurą. Sprawdzasz kolejno:
 
-| Obszar | Stan docelowy 1.2.0 | Jak sprawdzasz |
+| Obszar | Stan docelowy 1.3.0 | Jak sprawdzasz |
 |---|---|---|
 | nadpisania lokalne (R6) | **nietykalne** — cokolwiek znajdziesz, omijasz | `docs/zasoby/HTML_PLAN/` istnieje? wiersz „Szablon planu HTML" w `USTAWIENIA.md`? wiersze „lokalne" w `KOMENDY.md`? |
 | `docs/USTAWIENIA.md` | wiersz `Profil projektu` z wartością maszynową na **początku** komórki: `app`, `agent-voice`, `flow` albo `prompty` | czytasz komórkę; wartość nierozpoznana → propozycja doprecyzowania (nowy wiersz, stary do „Ustawień wycofanych") — **pytasz o profil, nie zgadujesz** (L-0026) |
@@ -58,8 +58,9 @@ tą samą procedurą. Sprawdzasz kolejno:
 | `CLAUDE.md` | linia fraz sesji pod listą rytuału startu | linii brak → do dodania wg `SPEC_CLAUDE_MD.md` (sekcja „Linia fraz sesji"); nie ruszasz przy tym niczego innego w pliku |
 | `CLAUDE.md` | reguła sygnału odchylenia w „Regułach procesu" (odnoga / aneks / świadomie odłożone) | punktu brak → do dodania wg `SPEC_CLAUDE_MD.md` (sekcja „Reguła sygnału odchylenia"); nie ruszasz przy tym niczego innego w pliku |
 | `docs/USTAWIENIA.md` | wiersz `Rotacja dokumentów` z wartością `włączona` na **początku** komórki (Aneks A planu ROZWOJ_PO_WYDANIU: zgoda użytkownika na auto-rotację w istniejących projektach **jest**, nie pytasz o nią ponownie) | wiersz **już obecny — nie nadpisujesz**, także gdy stoi w nim `wyłączona`: to świadomy wybór projektu. Brak wiersza → dopisujesz go wg `SPEC_USTAWIENIA.md` z dzisiejszą datą |
-| `docs/KOMENDY.md` | nagłówek `RelAI 1.2.0`, tabela dziesięciu komend (w tym `/relai-adopt`, `/relai-update`, `/relai-branch`), aktualna sekcja zachowań automatycznych — z rotacją dokumentów | plik regenerowany wg `SPEC_KOMENDY.md`; wiersze oznaczone „lokalne" **przeżywają** regenerację |
-| marker wersji | `Wersja RelAI: 1.2.0` | zmiana **na końcu**, po wykonaniu zatwierdzonych zmian |
+| `CLAUDE.md` | reguła rejestru decyzji po adopcji — **wyłącznie** w projekcie, który ma sekcję „Zasady projektu (odziedziczone)" | sekcja odziedziczona jest, a punktu w „Regułach procesu" brak → do dodania wg `SPEC_CLAUDE_MD.md` (sekcja „Reguła rejestru decyzji po adopcji") plus jedno zdanie pod nagłówkiem sekcji odziedziczonej. Projekt bez tej sekcji → **nic nie dodajesz**, punkt bez adresata zjada limit 60 linii |
+| `docs/KOMENDY.md` | nagłówek `RelAI 1.3.0`, tabela dziesięciu komend (w tym `/relai-adopt`, `/relai-update`, `/relai-branch`), aktualna sekcja zachowań automatycznych — z rotacją dokumentów, sygnałem rozjazdu stanu, kontrolą podpisu i bramkami manualnymi | plik regenerowany wg `SPEC_KOMENDY.md`; wiersze oznaczone „lokalne" **przeżywają** regenerację |
+| marker wersji | `Wersja RelAI: 1.3.0` | zmiana **na końcu**, po wykonaniu zatwierdzonych zmian |
 
 Specyfikacje (`SPEC_PROFILE.md`, `SPEC_KOMENDY.md`) czytasz z lokalnej kopii
 `.claude/relai/templates/` — w projekcie RelAI dostarcza ją hook przy starcie sesji. Kopii nie
@@ -69,6 +70,13 @@ ze wspomnień** (D-60).
 
 Struktur, których stara wersja nie miała **i które nie są stanem docelowym rdzenia** (dokumenty
 warunkowe profilu, plany), nie dokładasz — powstają przy zdarzeniu (D-10), nie przy aktualizacji.
+
+Dotyczy to także **sekcji „Bramki manualne"** w `STATUS.md` planów (nowość 1.3.0): plan jest
+treścią merytoryczną, więc aktualizacja go nie dotyka. Sekcja powstanie sama przy najbliższym
+zamknięciu etapu, a przy zamykaniu planu sekwencja D-36 i tak przejrzy wpisy dziennika, więc
+pozycje sprzed aktualizacji nie przepadną. Powiedz o tym jednym zdaniem w podsumowaniu, gdy
+projekt ma niezamknięty plan — inaczej użytkownik zobaczy w ściądze zachowanie, którego nie widzi
+w swoim `STATUS.md`.
 
 ## Krok 3 — diff i zgoda
 
@@ -101,7 +109,7 @@ kolejne wywołanie tej komendy dokończyło pracę.
 
 1. Wpis na końcu sekcji „Wpisy" `docs/DZIENNIK.md` wg `SPEC_DZIENNIK.md` (D-72): wersja
    z → na, lista wykonanych zmian, lista pominiętych nadpisań lokalnych, co odrzucono.
-2. Propozycja commita: `chore: update RelAI project to 1.2.0`. Commit wyłącznie za zgodą.
+2. Propozycja commita: `chore: update RelAI project to 1.3.0`. Commit wyłącznie za zgodą.
 3. Podsumowanie 2–4 zdania: co się zmieniło, czego nie ruszono i dlaczego, czy coś czeka na
    człowieka.
 

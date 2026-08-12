@@ -33,8 +33,9 @@ Czytaj w kolejności, nie skanuj pełnotekstowo repo:
 | **Plan BUDOWA_RELAI** | **ZAMKNIĘTY 2026-08-10** — wszystkie 10 etapów dowiezione | docs/archiwum/plany/BUDOWA_RELAI/STATUS.md |
 | ROZWOJ_PO_WYDANIU E1 — odnogi planu (wersja 1.1.0) | **ZREALIZOWANY 2026-08-12** | `commands/relai-branch.md`, `templates/SPEC_ODNOGA.md`, `skills/relai-planning/SKILL.md` |
 | ROZWOJ_PO_WYDANIU E2 — rotacja dokumentów (wersja 1.2.0) | **ZREALIZOWANY 2026-08-12** | `templates/SPEC_ARCHIWUM.md`, `skills/relai-core/SKILL.md`, `templates/SPEC_{USTAWIENIA,DZIENNIK,LEKCJE,STATE}.md` |
+| ROZWOJ_PO_WYDANIU E3 — poprawki z retrospektywy (wersja 1.3.0) | **ZREALIZOWANY 2026-08-12** | `hooks/journal-signature.js`, `hooks/session-context.js`, `templates/SPEC_{STATUS,DZIENNIK,DECYZJE,CLAUDE_MD}.md`, `skills/relai-{core,planning}/SKILL.md` |
 
-Aktywny plan: [ROZWOJ_PO_WYDANIU](docs/plany/ROZWOJ_PO_WYDANIU/STATUS.md) — E2 ZREALIZOWANY 2026-08-12 (wersja 1.2.0), E3 gotowy do startu; dwie odnogi OTWARTE
+Aktywny plan: [ROZWOJ_PO_WYDANIU](docs/plany/ROZWOJ_PO_WYDANIU/STATUS.md) — E3 ZREALIZOWANY 2026-08-12 (wersja 1.3.0), E4 gotowy do startu; dwie odnogi OTWARTE, trzy bramki manualne
 
 ## Reguły procesu
 

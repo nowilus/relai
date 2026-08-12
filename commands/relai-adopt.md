@@ -135,7 +135,12 @@ Kolejność wykonania (najpierw zmiana, potem zdanie, które ją opisuje — L-0
    z `git log`; bez gita: co wynika z plików), oraz zapis samej adopcji: ścieżka i weryfikacja
    backupu, odsyłacz do raportu. Wykryte ślady sekretów → „Do zrobienia przez człowieka"
    (przenieść do `.env`), ze wskazaniem plik+linia, bez wartości.
-5. **`docs/LEKCJE.md`, `docs/DECYZJE.md`** — puste, ale kompletne strukturalnie.
+5. **`docs/LEKCJE.md`, `docs/DECYZJE.md`** — puste, ale kompletne strukturalnie. `DECYZJE.md`
+   dostaje pod zdaniem o zasadzie nadrzędnej jedno zdanie o adopcji: rejestr startuje pusty,
+   bo rozstrzygnięcia sprzed adopcji żyją w `CLAUDE.md` w sekcji „Zasady projektu
+   (odziedziczone)"; wszystko **po** adopcji zapisuje się tutaj (`SPEC_DECYZJE.md`, sekcja
+   „Projekt po adopcji"). Zastanych decyzji **nie przepisujesz** — kopiowanie cudzej tabeli do
+   nowego rejestru dawałoby dwa źródła prawdy zamiast jednego.
 6. **`docs/KOMENDY.md`** — wg `SPEC_KOMENDY.md`, ze stanu faktycznego zainstalowanej wersji.
 7. **`CLAUDE.md`** — scalanie (sekcja niżej) albo generacja wg `SPEC_CLAUDE_MD.md`, gdy go nie
    było. Sekcja `## Reguły profilu (<profil>)` wg `SPEC_PROFILE.md` — zawsze.
@@ -161,6 +166,15 @@ Istniejący `CLAUDE.md` **scalasz, nigdy nie nadpisujesz**:
 4. Limit 60 linii `CLAUDE.md` **ustępuje wierności** sekcji odziedziczonej: nie tniesz cudzych
    reguł, żeby zmieścić się w limicie. Przekroczenie odnotowujesz w raporcie; porządki może
    kiedyś zaproponować `/relai-audit` — nie Ty, nie dziś.
+5. **Sekcja odziedziczona jest zamknięta na nowe wpisy.** Zaraz pod jej nagłówkiem stawiasz jedno
+   zdanie: to zapis stanu sprzed adopcji, a rozstrzygnięcia podjęte po niej idą do
+   `docs/DECYZJE.md`. Tę samą regułę wpisujesz do „Reguł procesu" `CLAUDE.md` wg
+   `SPEC_CLAUDE_MD.md` (sekcja „Reguła rejestru decyzji po adopcji") — bez niej reguła istnieje
+   tylko w tym pliku komendy, którego następna sesja nie czyta (L-0030).
+
+   Powód: zastana tabela decyzji jest najwygodniejszym miejscem na dopisanie kolejnej pozycji
+   i dlatego rośnie. JiraManager po adopcji — osiem decyzji dopisanych do `CLAUDE.md` zamiast do
+   pustego `DECYZJE.md` i plik na 639 linii (retrospektywa 2026-08-12, `FAKT`).
 
 ## Krok 6 — raport adopcji
 
