@@ -5,7 +5,7 @@
 | # | Ryzyko | Poziom | Status | Mitygacja |
 |---|---|---|---|---|
 | R1 | Scope creep jak w vibe-forge (GUI, enterprise-szablony) | Wysoki | **ZAMKNIĘTE 2026-08-10 (E10)** | D-80: twarda lista „poza v1"; każdy pomysł spoza listy → DZIENNIK „świadomie odłożone". **2026-08-08 (E8):** etap o profilach był naturalnym miejscem rozrostu i nie urósł — lista czterech profili została zamknięta, żadna nowa komenda nie doszła, `quality-gate` i `auto-format` **nie** dostały warunku profilowego (obecność `tsc`/Prettiera jest warunkiem mocniejszym niż wpis w ustawieniach), a profil `prompty` skończył się na jednym rejestrze, tak jak mówi PLAN. Zapis „profile dokładają najwyżej jedno pytanie na zdarzenie" jest twardą granicą wpisaną do `SPEC_PROFILE.md` **2026-08-10 (E10):** wersja 1.0.0 wydana **bez ani jednej pozycji spoza D-80** — zero GUI, zero telemetrii, zero wsparcia dla innych narzędzi, dziewięć komend (tyle, ile zaplanowano w E7 i E9), cztery profile. Pilotaż ujawnił trzy defekty i wszystkie trzy naprawiono **w istniejących plikach**, bez dokładania nowego bytu: symulator przeniesiony między plikami szablonu, linia w `CLAUDE.md`, kolejność w hooku. Ryzyko zamknięte wraz z domknięciem zakresu v1; przy pracach po 1.0.0 wraca jako ryzyko nowego planu, nie tego. |
-| R2 | Auto-wyzwalanie skilli bywa zawodne (agent nie zastosuje zasad bez komendy) | **Niski przy Opusie, średni przy modelach słabszych** (2026-08-10 po E10) | **ZMIERZONE 2026-08-10, OTWARTE ŚWIADOMIE** | Podwójna warstwa: opisy skilli + reguły w projektowym CLAUDE.md zawsze w kontekście; testy fraz w pilotażu. **2026-08-07 (E1):** `relai-core` zainstalowany i widoczny w inwentarzu pluginu, ale samo auto-wyzwolenie w świeżej sesji NIEZWERYFIKOWANE. **2026-08-07 (E2):** test NIEWYKONANY — plugin odinstalowany na czas budowy na polecenie użytkownika (L-0004), więc skill nie miał prawa się wyzwolić; pomiar przeniesiony do pilotażu E10, po docelowej instalacji. Ryzyko pozostaje OTWARTE i niezmierzone przez dwa etapy (L-0005). **2026-08-07 (E3):** nadal niezmierzone — doszedł drugi skill (`relai-planning`) wyzwalany frazą, więc zakres ryzyka wzrósł. **2026-08-07 (pomiar, na wniosek użytkownika):** plugin zainstalowany, sześć świeżych sesji `claude -p`. Wersja 0.3.0: 1/4 trafień — brak wyzwolenia na prompcie naturalnym i na „przygotuj plan…", z realnym rozjazdem konwencji. Po poprawce opisów (0.3.1): 2/2 trafienia. Ryzyko zostaje otwarte: próba mała, `-p` blokuje `AskUserQuestion`, a wynik zależy od inwentarza skilli na maszynie. Kontrola ponowna w E10 (wiersz E10 w `STATUS.md`). **2026-08-07 (E5):** hook `session-context` (SessionStart) wstrzykuje rytuał startu, datę dnia i siatkę promptów niezależnie od skilli — zmierzone 2/2 na neutralnym prompcie przy **zerze** wywołań `Skill`. Poziom obniżony do niskiego; do potwierdzenia w sesji interaktywnej w E10. **2026-08-08 (E8):** reguły warunkowe profilu zaprojektowane tak, żeby skill **nie był** warstwą nośną — regułę niesie sekcja w `CLAUDE.md` projektu (w kontekście każdej sesji bez wyzwalania), zdarzenie wykrywa hook, skill dokłada procedurę. Zmierzone: bramka snapshotu zatrzymała zapis w projekcie `flow` z **usuniętą** sekcją reguł w `CLAUDE.md` (sesja napisała wprost „bramka snapshotu i tak zablokowała zapis"), a kopia w `docs/snapshoty/` ma sumę kontrolną stanu sprzed zmiany **2026-08-10 (E10) — pomiar interaktywny, siedemnaście sesji prowadzonych przez człowieka:** wynik zależy od modelu i to jest trwała własność, nie usterka do naprawienia. **Opus:** skill wyzwala się sam, procedura wykonuje się w całości (sygnał D-27 przed akapitem „gdzie jesteśmy", propozycja, zatrzymanie na zgodzie). **Sonnet 4.6 i Haiku 4.5:** ani jedno wywołanie `Skill` na promptach naturalnych; rytuał, datę i sygnały niesie hook `session-context`, więc projekt nie traci pamięci, ale procedura bywa niepełna. Inicjalizacja w pustym folderze wyzwoliła skill 3/3 niezależnie od modelu. Dwie poprawki z tego pomiaru: frazy sesji przeniesione do `CLAUDE.md` projektu (L-0030) i sygnały „ZADANIE PIERWSZE" przed instrukcją rytuału w hooku — po nich Sonnet zgłasza sygnał D-27 zawsze (przedtem: raz wcale, raz w środku akapitu z błędną propozycją). Ryzyko zostaje otwarte świadomie: warstwą nośną jest hook i `CLAUDE.md`, skill jest warstwą procedury. |
+| R2 | Auto-wyzwalanie skilli bywa zawodne (agent nie zastosuje zasad bez komendy) | **Niski przy Opusie, średni przy modelach słabszych** (2026-08-10 po E10) | **ZMIERZONE 2026-08-10, OTWARTE ŚWIADOMIE** | Podwójna warstwa: opisy skilli + reguły w projektowym CLAUDE.md zawsze w kontekście; testy fraz w pilotażu. **2026-08-07 (E1):** `relai-core` zainstalowany i widoczny w inwentarzu pluginu, ale samo auto-wyzwolenie w świeżej sesji NIEZWERYFIKOWANE. **2026-08-07 (E2):** test NIEWYKONANY — plugin odinstalowany na czas budowy na polecenie użytkownika (L-0004), więc skill nie miał prawa się wyzwolić; pomiar przeniesiony do pilotażu E10, po docelowej instalacji. Ryzyko pozostaje OTWARTE i niezmierzone przez dwa etapy (L-0005). **2026-08-07 (E3):** nadal niezmierzone — doszedł drugi skill (`relai-planning`) wyzwalany frazą, więc zakres ryzyka wzrósł. **2026-08-07 (pomiar, na wniosek użytkownika):** plugin zainstalowany, sześć świeżych sesji `claude -p`. Wersja 0.3.0: 1/4 trafień — brak wyzwolenia na prompcie naturalnym i na „przygotuj plan…", z realnym rozjazdem konwencji. Po poprawce opisów (0.3.1): 2/2 trafienia. Ryzyko zostaje otwarte: próba mała, `-p` blokuje `AskUserQuestion`, a wynik zależy od inwentarza skilli na maszynie. Kontrola ponowna w E10 (wiersz E10 w `STATUS.md`). **2026-08-07 (E5):** hook `session-context` (SessionStart) wstrzykuje rytuał startu, datę dnia i siatkę promptów niezależnie od skilli — zmierzone 2/2 na neutralnym prompcie przy **zerze** wywołań `Skill`. Poziom obniżony do niskiego; do potwierdzenia w sesji interaktywnej w E10. **2026-08-08 (E8):** reguły warunkowe profilu zaprojektowane tak, żeby skill **nie był** warstwą nośną — regułę niesie sekcja w `CLAUDE.md` projektu (w kontekście każdej sesji bez wyzwalania), zdarzenie wykrywa hook, skill dokłada procedurę. Zmierzone: bramka snapshotu zatrzymała zapis w projekcie `flow` z **usuniętą** sekcją reguł w `CLAUDE.md` (sesja napisała wprost „bramka snapshotu i tak zablokowała zapis"), a kopia w `docs/snapshoty/` ma sumę kontrolną stanu sprzed zmiany **2026-08-10 (E10) — pomiar interaktywny, siedemnaście sesji prowadzonych przez człowieka:** wynik zależy od modelu i to jest trwała własność, nie usterka do naprawienia. **Opus:** skill wyzwala się sam, procedura wykonuje się w całości (sygnał D-27 przed akapitem „gdzie jesteśmy", propozycja, zatrzymanie na zgodzie). **Sonnet 4.6 i Haiku 4.5:** ani jedno wywołanie `Skill` na promptach naturalnych; rytuał, datę i sygnały niesie hook `session-context`, więc projekt nie traci pamięci, ale procedura bywa niepełna. Inicjalizacja w pustym folderze wyzwoliła skill 3/3 niezależnie od modelu. Dwie poprawki z tego pomiaru: frazy sesji przeniesione do `CLAUDE.md` projektu (L-0030) i sygnały „ZADANIE PIERWSZE" przed instrukcją rytuału w hooku — po nich Sonnet zgłasza sygnał D-27 zawsze (przedtem: raz wcale, raz w środku akapitu z błędną propozycją). Ryzyko zostaje otwarte świadomie: warstwą nośną jest hook i `CLAUDE.md`, skill jest warstwą procedury. **2026-08-12 (E1):** doszła dziesiąta komenda (`/relai-branch`) i sygnał odchylenia, a regułę sygnału niesie `CLAUDE.md` projektu zgodnie z L-0030 — ale **zakres ryzyka wzrósł bez pomiaru**: limit konta na CLI (L-0032) uniemożliwił sesje pomiarowe, więc o zachowaniu nowej komendy w świeżej sesji nie wiadomo nic. Pomiar czterech scenariuszy czeka w odnodze `POMIAR_ODNOG` planu ROZWOJ_PO_WYDANIU. |
 | R3 | Adopcja uszkodzi żywy projekt użytkownika | **Niski** (2026-08-10 po E10; wcześniej średni) | **ZAMKNIĘTE 2026-08-10 (E10)** | D-70: backup+raport+recovery obowiązkowe; scenariusz akceptacyjny z pełnym testem recovery. **2026-08-08 (E7):** powstał pierwszy filar — `/relai-backup` pakuje projekt do prawdziwego ZIP-a (bsdtar, nagłówek `PK`), z twardym wykluczeniem sekretów i **weryfikacją listy wpisów archiwum** przed zgłoszeniem sukcesu; zmierzone: 22 wpisy, zero trafień na `.env`/`node_modules`. Brakuje drugiego filaru — **odtworzenia**: rozpakowanie i test „projekt wstaje" nie są jeszcze niczym opisane ani zmierzone. Do domknięcia w E9 (`/relai-adopt` z przetestowaną ścieżką recovery) i w scenariuszu akceptacyjnym E10. **2026-08-09 (E9):** drugi filar dowieziony — `/relai-adopt` z backupem-bramką (dwa dowody negatywne: niemożliwa lokalizacja i brak narzędzia pakującego → zero plików struktury) i **recovery przetestowanym naprawdę**: pełne cofnięcie wg sekcji raportu adopcji dało sumę drzewa plików bajt w bajt identyczną ze stanem sprzed (10/10 plików, agregat `1200960f…`). Poziom obniżony do średniego; zamknięcie po scenariuszu akceptacyjnym E10 na żywym JiraManagerze **2026-08-10 (E10) — scenariusz akceptacyjny na żywym projekcie (JiraManager: 22 commity, aplikacja PySide6, `CLAUDE.md` na 398 linii, sekrety pod niestandardową nazwą):** sumy kontrolne 194 plików przed i po adopcji — **zero plików zniknęło**, zmienione dokładnie dwa (`CLAUDE.md` przez scalanie, `DZIENNIK.md` przez wpis zerowy), kod bez zmian. `config.json` z tokenem Jiry i hasłem SMTP **poza archiwum** mimo nazwy spoza listy wzorców (D-42). Scalanie D-71: 6 z 8 zastanych sekcji bajt w bajt, kopia oryginału w `docs/archiwum/`. Recovery wykonane **na kopii**: 192/192 pliki bajt w bajt, `git log -1` = `b52c013` — hash z sekcji „Backup" raportu. Ryzyko zamknięte. |
 | R4 | Hooki Node na Windows (ścieżki ze spacjami, kodowanie PL) | Średni | **ZAMKNIĘTE 2026-08-07 (E5)** | Osiem hooków przetestowane na ścieżce `Próba RelAI E5` (spacja + „ó"): 39/39 testów jednostkowych i siedem sesji integracyjnych bez błędów kodowania i ścieżek. Komunikaty hooków świadomie ASCII (L-0016); zero zależności npm |
 | R5 | Dokumenty puchną i zjadają kontekst | Średni | **OTWARTE — do obserwacji po 1.0.0** | D-14/D-15: rotacja DZIENNIKA, kompresja LEKCJI, destylaty czytane na starcie. **2026-08-08 (E7):** doszły dwa narzędzia po stronie użytkownika — `/relai-audit` wykrywa dziennik ponad progiem 50 KB i lekcje bez destylatu (zmierzone na projekcie testowym: podał rozmiar dziennika i wskazał destylat bez lekcji źródłowej), a `/relai-changelog` daje historię bez trzymania jej w kontekście. Sam pakiet `/relai-handover` waży 201 KB przez osadzone fonty — to plik dla człowieka, nie dla kontekstu sesji, ale pytanie o podzbiór fontów z E6 zostaje otwarte **2026-08-10 (E10):** pilotaż dał pierwsze liczby z realnej pracy. Projekt „Paragony" po czterech etapach: dziennik 382 linie, `CLAUDE.md` 65 linii — mieści się. JiraManager po adopcji: dziennik 124 KB (historia sprzed RelAI), `CLAUDE.md` **434 linie** przy limicie 60, bo limit świadomie ustąpił wierności cudzych reguł (D-71). To jest realny przypadek, w którym mechanizm rotacji i kompresji będzie potrzebny, a `/relai-audit` go wykryje. Ryzyko zostaje otwarte z konkretnym adresem: pierwszy projekt po adopcji, nie hipoteza. |
@@ -1545,3 +1545,88 @@ Autor: RelAI (Fable) + Lukasz
 
 - Uruchomić etap E1 w świeżej sesji **Opus**: `/relai-stage` (albo wkleić
   `docs/plany/ROZWOJ_PO_WYDANIU/PROMPT_ETAP_1.md`).
+
+### 2026-08-12 — E1: odnogi planu, sygnał odchylenia, RelAI 1.1.0
+
+Autor: RelAI (Opus) + Lukasz
+
+**Zrobione:**
+
+- **`templates/SPEC_ODNOGA.md`** (nowy, 20. specyfikacja) — para plików odnogi: karta `ODNOGA.md`
+  w formacie miniplanu (cel / skąd się wzięła / zakres / poza zakresem / weryfikacja / wynik) oraz
+  `PROMPT_ODNOGA.md` — samowystarczalny prompt świeżej sesji o ośmiu sekcjach, odchudzony kuzyn
+  `SPEC_PROMPT_ETAPU`. Trzy statusy: `OTWARTA`, `ZAMKNIĘTA <data>`,
+  `PRZENIESIONA <data> → docs/fixy/`. Dwa kompletne przykłady (L-0001).
+- **`commands/relai-branch.md`** (nowa, dziesiąta komenda) — sześć kroków: marker RelAI → **zakaz
+  głębokości sprawdzany jako pierwszy** → nazwa i cel (jedno `AskUserQuestion`, tylko o brakujące)
+  → plan i etap-źródło → generacja pary wg specyfikacji czytanej z `.claude/relai/templates/`
+  (L-0012) → jedna linia w sekcji „Odnogi" → instrukcja świeżej sesji. Wariant bez planu:
+  `docs/fixy/<NAZWA>/` i cisza w `STATUS.md`.
+- **`templates/SPEC_STATUS.md`** — sekcja „Odnogi" po tabeli etapów: format linii, trzy statusy,
+  zasada „zamknięcie planu wylicza otwarte odnogi i pyta". Przykład rozszerzony; dopisane wprost, że
+  odnoga zostawia ślad **wyłącznie** w tej sekcji, a dziennik wdrożenia o niej milczy.
+- **`skills/relai-planning/SKILL.md`** — dwie nowe sekcje: **sygnał odchylenia** (warunek
+  wyzwolenia, tabela trzech opcji odnoga/aneks/odłożone, zasada „pytasz raz na wątek") i **„Odnogi
+  planu"** z sześcioma regułami wypisanymi w treści skilla (L-0011). Sekwencja zamknięcia planu
+  urosła z siedmiu kroków do ośmiu — doszło wyliczenie otwartych odnóg przed archiwizacją.
+- **`templates/SPEC_CLAUDE_MD.md` + `skills/relai-core/SKILL.md`** — reguła sygnału odchylenia
+  wchodzi do „Reguł procesu" **każdego** generowanego `CLAUDE.md`, także w projekcie bez planu.
+  Wzorzec L-0030: warstwa zawsze-w-kontekście niesie regułę, skill dokłada procedurę.
+- **`templates/SPEC_KOMENDY.md`**, `docs/KOMENDY.md`, `README.md` (wiersz + ikona `branch.svg`),
+  `commands/relai-stage.md` (Krok 5 kieruje do sygnału odchylenia zamiast do „świadomie odłożone").
+- **Wersja 1.1.0** w obu manifestach, obu skillach, `/relai-update`, README, `SPEC_KOMENDY`,
+  `SPEC_USTAWIENIA`, `SPEC_RAPORT_ADOPCJI`, `docs/KOMENDY.md` i markerze tego repo.
+- **Dogfooding:** dwie realne odnogi tego planu — `OPIS_REPO` (pusty opis repozytorium na GitHubie,
+  wątek zostawiony przez Aneks A do E8) i `POMIAR_ODNOG` (niedomknięty punkt 8 weryfikacji tego
+  etapu). Obie z kartą, promptem i linią w `STATUS.md`.
+
+**Zweryfikowane — jak dokładnie:**
+
+- **Manifest:** `claude plugin validate .claude-plugin/plugin.json` → „Validation passed with
+  warnings"; jedyne ostrzeżenie to znane root `CLAUDE.md` (L-0003). Walidacja marketplace: bez
+  ostrzeżeń.
+- **Wersja:** `git grep -n "1\.0\.0"` po podbiciu — wszystkie pozostałe trafienia historyczne
+  (wpisy dziennika, archiwum planu BUDOWA_RELAI, zamrożony `PLAN.html`, `PROMPT_ETAP_1`, wiersz E10
+  w `CLAUDE.md`, zdania o pilotażu w README). `docs/STATE.md` nadpisany w tym samym rytuale.
+- **Instalacja:** po `push` (commit `e6b41dc`) → `claude plugin marketplace update relai` →
+  `claude plugin update relai@relai` („updated from 1.0.0 to 1.1.0"). `installed_plugins.json`:
+  `"version": "1.1.0"`, `"gitCommitSha": "e6b41dcd1e47…"` — zgodny z wypchniętym commitem (L-0020).
+- **Projekt testowy z aktywnym planem:** powstały `odnogi/OPIS_KART/ODNOGA.md`
+  i `PROMPT_ODNOGA.md`; z dziewięciu plików projektu zmienił się **dokładnie jeden** — `STATUS.md`.
+- **Dowód zamrożenia (L-0007):** sumy kontrolne dziesięciu sekcji `PLAN.html` projektu testowego
+  przed i po utworzeniu odnogi identyczne (`s1 983c7b56…` … `s10 fb6002bb…`, cały plik
+  `a498acbb7d106e70`). Na realnym planie ROZWOJ_PO_WYDANIU mocniejszy dowód: po utworzeniu dwóch
+  odnóg `PLAN.html` **nie pojawia się w `git status`** (suma sekcji: `s1 497dc31e…`).
+- **Projekt bez planu:** komplet w `docs/fixy/LITEROWKI_W_MENU/`, w projekcie **zero** plików
+  `STATUS.md` (`find … -name STATUS.md | wc -l` → `0`), pozostałe sześć plików bez zmian.
+- **Dowód zakazu głębokości (L-0007):** wywołanie z sesji pracującej nad odnogą `LOGI_WYDAN`
+  zakończyło się odmową z propozycją pełnego planu; drzewo plików przed = po, 10/10 sum
+  kontrolnych identycznych — **żaden plik nie powstał**.
+- **Dystrybucja specyfikacji:** hook `session-context` rozprowadził `SPEC_ODNOGA.md` do
+  `.claude/relai/templates/` projektu testowego; kopia zgodna z repo bajt w bajt po normalizacji
+  końców linii (`b800d24712af7216`). Nowa specyfikacja dociera drogą z L-0012 bez żadnej zmiany
+  w hooku.
+
+**Świadomie odłożone:**
+
+- **Punkt 8 weryfikacji — samowystarczalność `PROMPT_ODNOGA` mierzona świeżą sesją — NIE ZOSTAŁ
+  WYKONANY.** Punkty 4, 6 i 7 zmierzono **słabszą metodą**: procedurą wykonaną z pliku
+  `commands/relai-branch.md` w sesji etapu, zamiast wywołaniem zarejestrowanej komendy w świeżej
+  sesji `claude -p`. Artefakty i dowody negatywne są realne, ale to nie jest dowód, że komenda
+  wyzwala się i wykonuje sama. Powód: `claude -p` zwracał „You've hit your session limit · resets
+  4:10pm" — CLI uwierzytelnia się z `~/.claude/.credentials.json` (konto `drb_claude@ibpm.pro`,
+  plik z 08:37), **niezależnie od konta przełączonego w aplikacji**; przelogowanie CLI jest krokiem
+  człowieka. Decyzja użytkownika: zamknąć etap i przenieść pomiar do **odnogi `POMIAR_ODNOG`**
+  z gotowym promptem czterech scenariuszy — zamiast trzymać etap w `W TOKU` albo zamykać go po
+  cichu. Pierwszy raz mechanizm z tego etapu obsłużył własną lukę.
+- Opis repozytorium na GitHubie — odnoga `OPIS_REPO`, nie zadanie tego etapu.
+- Ikona `branch.svg` powstała, ale nie przeszła przeglądu wizualnego — jest spójna stylistycznie
+  z dziewięcioma pozostałymi (szałwia #5f8a68, ten sam grid 48×48, ta sama grubość kreski).
+
+**Do zrobienia przez człowieka:**
+
+- **Restart aplikacji** — bez niego bieżące sesje ładują cache 1.0.0 (L-0031).
+- **`claude /login`** w terminalu na konto z dostępnym limitem — warunek startu odnogi
+  `POMIAR_ODNOG`; bez tego pomiar padnie na tym samym błędzie.
+- Uruchomić dwie odnogi w świeżych sesjach Opus (`OPIS_REPO`, `POMIAR_ODNOG`) albo etap E2
+  (`/relai-stage`) — kolejność dowolna, odnogi nie blokują planu.

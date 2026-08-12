@@ -7,14 +7,21 @@ Plan: [PLAN.html](PLAN.html) · Utworzony: 2026-08-12 · Status planu: **ZAAKCEP
 
 | Etap | Nazwa | Status | Prompt | Uwagi |
 |---|---|---|---|---|
-| E1 | Odnoga planu — `/relai-branch` (1.1.0) | **W TOKU** | [PROMPT_ETAP_1.md](PROMPT_ETAP_1.md) | zamyka zmierzony ból: E3b JiraManager, 6 aneksów E2 PolyFlow |
-| E2 | Rotacja dokumentów (1.2.0) | OCZEKUJE | — | auto przy zamknięciu sesji — decyzja użytkownika; dwufazowa, nic nie kasuje |
+| E1 | Odnoga planu — `/relai-branch` (1.1.0) | **ZREALIZOWANY 2026-08-12** | [PROMPT_ETAP_1.md](PROMPT_ETAP_1.md) | 8/9 punktów weryfikacji; punkt 8 (pomiar świeżą sesją) → odnoga POMIAR_ODNOG |
+| E2 | Rotacja dokumentów (1.2.0) | **GOTOWY DO STARTU** | [PROMPT_ETAP_2.md](PROMPT_ETAP_2.md) | auto przy zamknięciu sesji — decyzja użytkownika; dwufazowa, nic nie kasuje |
 | E3 | Poprawki z retrospektywy (1.3.0) | OCZEKUJE | — | decyzje po adopcji → DECYZJE.md; spójność STATE/STATUS; podpisy; bramki |
 | E4 | Rdzeń przenośny (1.4.0) | OCZEKUJE | — | zaczyna się od rozpoznania mechanizmów Cursora/Codexa; pre-commit ze skanem sekretów |
 | E5 | Adapter Cursor (1.5.0) | OCZEKUJE | — | wymaga decyzji o języku warstwy zespołowej (sekcja 9 planu) |
 | E6 | Pilotaż Cursora w firmie | OCZEKUJE | — | scenariusz akceptacyjny na realnym projekcie osoby z zespołu |
 | E7 | Adapter Codex (1.6.0) | OCZEKUJE | — | ten sam scenariusz akceptacyjny co E6 |
 | E8 | Wydanie 2.0.0 i dystrybucja | OCZEKUJE | — | upublicznienie repo — decyzja człowieka; bez niej dystrybucja wewnętrzna |
+
+## Odnogi
+
+- **OPIS_REPO** — opis i tematy repozytorium na GitHubie (dziś puste) · źródło: E1 ·
+  [karta](odnogi/OPIS_REPO/ODNOGA.md) · **OTWARTA**
+- **POMIAR_ODNOG** — cztery scenariusze odnóg zmierzone świeżą sesją (punkt 8 weryfikacji E1) ·
+  źródło: E1 · [karta](odnogi/POMIAR_ODNOG/ODNOGA.md) · **OTWARTA**
 
 ## Dziennik wdrożenia
 
@@ -24,3 +31,6 @@ Plan: [PLAN.html](PLAN.html) · Utworzony: 2026-08-12 · Status planu: **ZAAKCEP
   opis do E8; warstwa modelowa adapterów EN, ludzka PL; zgoda na auto-rotację w istniejących
   projektach; LICENSE potwierdzone). Wygenerowano PROMPT_ETAP_1.
 - 2026-08-12 — E1 rozpoczęty.
+- 2026-08-12 — **E1 ZREALIZOWANY**, wersja 1.1.0 wydana. Komenda `/relai-branch`, `SPEC_ODNOGA`,
+  sekcja „Odnogi", sygnał odchylenia. Punkt 8 weryfikacji niedomknięty → odnoga POMIAR_ODNOG.
+  Szczegóły: wpis w `docs/DZIENNIK.md` z 2026-08-12. Wygenerowano PROMPT_ETAP_2.

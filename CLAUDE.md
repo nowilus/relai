@@ -31,8 +31,9 @@ Czytaj w kolejności, nie skanuj pełnotekstowo repo:
 | E9 — adopcja i aktualizacja projektu (wersja 0.9.0) | **ZREALIZOWANY 2026-08-09** | `commands/relai-{adopt,update}.md`, `templates/SPEC_RAPORT_ADOPCJI.md` |
 | E10 — pilotaż, cztery scenariusze akceptacyjne, **wydanie 1.0.0** | **ZREALIZOWANY 2026-08-10** | docs/archiwum/plany/BUDOWA_RELAI/, DZIENNIK wpis 2026-08-10 |
 | **Plan BUDOWA_RELAI** | **ZAMKNIĘTY 2026-08-10** — wszystkie 10 etapów dowiezione | docs/archiwum/plany/BUDOWA_RELAI/STATUS.md |
+| ROZWOJ_PO_WYDANIU E1 — odnogi planu (wersja 1.1.0) | **ZREALIZOWANY 2026-08-12** | `commands/relai-branch.md`, `templates/SPEC_ODNOGA.md`, `skills/relai-planning/SKILL.md` |
 
-Aktywny plan: [ROZWOJ_PO_WYDANIU](docs/plany/ROZWOJ_PO_WYDANIU/STATUS.md) — ZAAKCEPTOWANY 2026-08-12, E1 gotowy do startu
+Aktywny plan: [ROZWOJ_PO_WYDANIU](docs/plany/ROZWOJ_PO_WYDANIU/STATUS.md) — E1 ZREALIZOWANY 2026-08-12 (wersja 1.1.0), E2 gotowy do startu; dwie odnogi OTWARTE
 
 ## Reguły procesu
 

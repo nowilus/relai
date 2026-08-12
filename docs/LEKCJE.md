@@ -90,6 +90,14 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
 31. `claude plugin update` **nie działa od razu**: do restartu aplikacji sesje ładują stary cache,
     choć `installed_plugins.json` pokazuje już nową wersję. Mechanizm kontrolny tego nie wykryje,
     bo sam jest starą wersją. Po wydaniu: restart aplikacji, potem pomiar. (L-0031)
+32. Sesja pomiarowa `claude -p` uwierzytelnia się z `~/.claude/.credentials.json` — **niezależnie
+    od konta zalogowanego w aplikacji**. Konto (`oauthAccount` w `~/.claude.json`) i limit
+    sprawdzasz **przed** pomiarem; wyczerpany limit jest powodem zatrzymania i prośby o
+    `claude /login`, nigdy powodem odtworzenia procedury ręcznie. Niedomknięty punkt weryfikacji
+    idzie do odnogi z gotowym promptem, nie do adnotacji „sprawdzone inaczej". (L-0032)
+33. Sumy kontrolne plików, które przeszły przez gita (klon, checkout, cache pluginu), porównuj
+    **po normalizacji CRLF → LF** — inaczej dostajesz dowód fałszywie negatywny wyglądający jak
+    defekt dystrybucji. (L-0033)
 
 ## Lekcje
 
@@ -522,3 +530,34 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
   z marketplace, `plugin install` na zainstalowanym jest no-opem, `plugin update` porównuje numer
   wersji, a **cache w pamięci aplikacji przeżywa je wszystkie do restartu**.
 - **Źródło:** domknięcie pilotażu E10 (2026-08-10), po wydaniu 1.0.0.
+
+### L-0032 — Sesja pomiarowa `claude -p` ma własne konto, niezależne od aplikacji · 2026-08-12 · AKTYWNA
+
+- **Trigger:** w etapie E1 pomiar czterech scenariuszy odnóg padł na „You've hit your session limit
+  · resets 4:10pm". Użytkownik zgłosił, że właśnie przełączył konto i limit ma dostępny — a mimo to
+  kolejna próba dała ten sam komunikat.
+- **Przyczyna:** podproces `claude -p` **nie dziedziczy sesji aplikacji**. Uwierzytelnia się
+  z `~/.claude/.credentials.json`; `oauthAccount.emailAddress` w `~/.claude.json` wskazywał konto
+  z wyczerpanym limitem, a plik poświadczeń pochodził z 08:37 tego dnia. Przełączenie konta
+  w aplikacji nie dotyka żadnego z tych plików, więc każda sesja pomiarowa startowała na starym
+  koncie.
+- **Zasada:** zanim uznasz pomiar za niewykonalny **albo** za wykonalny, sprawdź konto CLI:
+  odczytaj `oauthAccount.emailAddress` z `~/.claude.json` i wyślij jeden krótki prompt na próbę.
+  Wyczerpany limit jest powodem **zatrzymania i poproszenia o `claude /login`**, nigdy powodem
+  zastąpienia pomiaru odtworzeniem procedury ręcznie (L-0004). Niedomknięty punkt weryfikacji ma
+  własne miejsce: odnogę z gotowym promptem, nie adnotację „sprawdzone inaczej".
+- **Źródło:** E1 planu ROZWOJ_PO_WYDANIU (2026-08-12); skutek — odnoga `POMIAR_ODNOG`.
+
+### L-0033 — Sumy kontrolne porównuj po normalizacji końców linii · 2026-08-12 · AKTYWNA
+
+- **Trigger:** sprawdzenie, czy `SPEC_ODNOGA.md` rozprowadzona przez hook do
+  `.claude/relai/templates/` jest tożsama z plikiem w repo, dało dwie różne sumy (`b800d247…` vs
+  `2bee4884…`) mimo identycznej treści.
+- **Przyczyna:** katalog roboczy trzyma pliki z LF, a cache pluginu jest **świeżym klonem gita**,
+  który na Windowsie wypisuje CRLF (`git commit` ostrzega o tym przy każdym pliku). Różnica jest
+  w bajtach, nie w treści.
+- **Zasada:** dowód tożsamości pliku, który przeszedł przez gita (klon, checkout, kopia z cache),
+  liczysz **po normalizacji CRLF → LF**. Suma na surowych bajtach jest wtedy dowodem fałszywie
+  negatywnym — i wygląda jak defekt dystrybucji, którym nie jest. Dla plików, które przez gita nie
+  przechodzą (archiwum rotacji, kopie w tym samym drzewie), zostaje suma na bajtach.
+- **Źródło:** E1 planu ROZWOJ_PO_WYDANIU (2026-08-12).
