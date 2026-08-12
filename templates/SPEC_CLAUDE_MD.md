@@ -40,8 +40,8 @@ i `DZIENNIK.md`.
 5. **Reguły procesu** — 4–8 punktów, wyłącznie takie, których złamanie realnie boli. Domyślny
    zestaw: język dokumentacji / kodu / commitów (z ustawień projektu); zakaz sekretów w plikach
    śledzonych; definicja ukończenia (punkt 6); zasada „decyzje zamrożone się nie wracają"; sposób
-   wykonania etapów planu. Zasady, które wynikły z konkretnej korekty użytkownika, trafiają tu
-   dopiero po powtórzeniu — inaczej rosną bez kontroli.
+   wykonania etapów planu; **sygnał odchylenia** (niżej). Zasady, które wynikły z konkretnej
+   korekty użytkownika, trafiają tu dopiero po powtórzeniu — inaczej rosną bez kontroli.
 6. **Reguły profilu** — sekcja o stałym tytule `## Reguły profilu (<nazwa>)`, umieszczona zaraz po
    „Regułach procesu". Patrz niżej.
 7. **Definicja ukończenia** — jedno zdanie i konsekwencja: zadanie jest ukończone, gdy kod działa
@@ -73,6 +73,21 @@ propozycją. Dlatego w linii ma stać wyróżniony.
 
 Linia liczy się do limitu 60 wierszy. Jeśli plik go przekracza, skracasz „Stan prac" albo „Reguły
 procesu" — nie tę linię i nie sekcję profilu.
+
+## Reguła sygnału odchylenia
+
+Jeden punkt w „Regułach procesu", tryb rozkazujący. Powód jest ten sam co przy frazach sesji i
+regułach profilu: zachowanie ma działać **zawsze**, a skill wyzwala się zawodnie (R2, L-0030).
+`CLAUDE.md` jest w kontekście każdej sesji, więc to on niesie regułę; skill `relai-planning`
+dokłada procedurę i rozstrzygnięcia, gdy się załaduje.
+
+Brzmienie (przetłumacz na język projektu, sensu nie zmieniaj):
+
+> Wątek spoza zakresu etapu → zatrzymaj się i zapytaj: odnoga (`/relai-branch`), aneks do planu czy
+> „świadomie odłożone" do dziennika. Nigdy „przy okazji".
+
+Punkt wchodzi do `CLAUDE.md` **każdego** projektu, także takiego, który nie ma jeszcze żadnego
+planu — wtedy działa od pierwszego planu bez potrzeby dopisywania czegokolwiek później.
 
 ## Sekcja „Reguły profilu"
 
@@ -156,6 +171,8 @@ Aktywny plan: [PLATNOSCI](docs/plany/PLATNOSCI/STATUS.md)
 - Sekrety wyłącznie w `.env` (gitignored) — nigdy w plikach śledzonych.
 - Zadanie jest ukończone dopiero z aktualnym STATE i wpisem w DZIENNIKU (ta sama tura).
 - Decyzji z `docs/DECYZJE.md` nie proponuje się ponownie.
+- Wątek spoza zakresu etapu → zatrzymaj się i zapytaj: odnoga (`/relai-branch`), aneks do planu czy
+  „świadomie odłożone" do dziennika. Nigdy „przy okazji".
 
 ## Reguły profilu (app)
 

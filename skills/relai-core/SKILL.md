@@ -23,7 +23,7 @@ description: >
 
 # relai-core — struktura projektu, pamięć i rytuały sesji
 
-Wersja 1.0.0 (E10 — pilotaż zamknięty). Zakres tego skilla: **rozpoznanie stanu folderu + inicjalizacja + tryb
+Wersja 1.1.0 (E1 planu ROZWOJ_PO_WYDANIU — odnogi). Zakres tego skilla: **rozpoznanie stanu folderu + inicjalizacja + tryb
 gościa + niedestrukcyjne dołączenie + rytuały sesji + siatka brakujących promptów etapowych +
 rejestry LEKCJE/DECYZJE + trzy frazy naturalne + warstwa ustawień globalnych + reguły warunkowe
 profilu projektu**. Od 0.5.0 działa też zestaw hooków (sekrety, ochrona konfiguracji, przypomnienia,
@@ -446,7 +446,7 @@ Zasady generacji:
   Dla projektu angielskiego: `docs/STATE.md`, `docs/JOURNAL.md`, `docs/LESSONS.md`,
   `docs/DECISIONS.md`, `docs/SETTINGS.md`, `docs/COMMANDS.md`. Konwencja stała: CAPS_SNAKE, bez dat
   i numerów wersji w nazwie.
-- `docs/USTAWIENIA.md` **musi** zawierać linię `Wersja RelAI: 1.0.0` — to marker, po którym RelAI
+- `docs/USTAWIENIA.md` **musi** zawierać linię `Wersja RelAI: 1.1.0` — to marker, po którym RelAI
   rozpoznaje projekt i po którym przyszły `/relai-update` policzy różnicę wersji.
 - `CLAUDE.md` **musi** zawierać sekcję `## Reguły profilu (<wybrany profil>)` zaraz po „Regułach
   procesu" — 3–6 punktów wg `SPEC_PROFILE.md`. To jedyna warstwa reguł profilu działająca bez
@@ -454,6 +454,10 @@ Zasady generacji:
 - `CLAUDE.md` **musi** zawierać **linię fraz sesji** zaraz pod listą rytuału startu, wg
   `SPEC_CLAUDE_MD.md` (sekcja „Linia fraz sesji"). Z tego samego powodu co wyżej: bez niej trzy
   frazy naturalne działają tylko wtedy, gdy skill się wyzwoli — a to jest zawodne (R2).
+- `CLAUDE.md` **musi** zawierać w „Regułach procesu" **regułę sygnału odchylenia**, wg
+  `SPEC_CLAUDE_MD.md` (sekcja „Reguła sygnału odchylenia"): wątek spoza zakresu etapu → zatrzymaj
+  się i zapytaj — odnoga (`/relai-branch`), aneks do planu czy „świadomie odłożone" do dziennika;
+  nigdy „przy okazji". Punkt wchodzi także do projektu, który nie ma jeszcze żadnego planu.
 - **Żadnego dokumentu warunkowego przy inicjalizacji.** `ARCHITEKTURA.md`, `DESIGN.md`,
   `docs/srodowiska/`, `docs/snapshoty/` i `ARTEFAKTY.md` powstają przy zdarzeniu (D-10) — także
   wtedy, gdy profil jest już znany.

@@ -3,7 +3,7 @@
 </p>
 
 <p align="center">
-  <em>Wersja 1.0.0 &nbsp;·&nbsp; licencja MIT &nbsp;·&nbsp; wymaga Claude Code i Node.js 14+ &nbsp;·&nbsp; zero zależności npm</em>
+  <em>Wersja 1.1.0 &nbsp;·&nbsp; licencja MIT &nbsp;·&nbsp; wymaga Claude Code i Node.js 14+ &nbsp;·&nbsp; zero zależności npm</em>
 </p>
 
 **RelAI to plugin do Claude Code, który zamienia rozmowę z agentem w prowadzony projekt.**
@@ -150,6 +150,7 @@ Dziewięć skrótów dla operacji, które w rozmowie byłyby uciążliwe do opis
 | <img src="docs/zasoby/branding/ikony/help.svg" width="24"> | `/relai-help` | pokazuje ściągę projektu — komendy, frazy i zachowania automatyczne |
 | <img src="docs/zasoby/branding/ikony/adopt.svg" width="24"> | `/relai-adopt` | przenosi zastany projekt na strukturę RelAI z backupem-bramką i ścieżką cofnięcia |
 | <img src="docs/zasoby/branding/ikony/update.svg" width="24"> | `/relai-update` | dociąga projekt do wersji pluginu; pokazuje różnice, zmienia wyłącznie za zgodą |
+| <img src="docs/zasoby/branding/ikony/branch.svg" width="24"> | `/relai-branch` | odkłada boczny wątek jako odnogę: karta i gotowy prompt świeżej sesji, plan bez zmian |
 
 Claude Code rejestruje komendy pluginu pod pełną nazwą `/relai:relai-<nazwa>`. Skrócona forma
 (`/relai-backup`) działa tam, gdzie podpowiadacz ją rozwija.
@@ -266,9 +267,9 @@ relai/
 │   └── marketplace.json     # własny marketplace (instalacja z tego samego repo)
 ├── skills/
 │   ├── relai-core/          # inicjalizacja, rozpoznanie struktury, rytuały sesji, rejestry
-│   └── relai-planning/      # plany i miniplany, STATUS, prompty etapowe, zamknięcie planu
-├── commands/                # dziewięć komend: stage, backup, audit, changelog,
-│   └── *.md                 #   handover, tour, help, adopt, update
+│   └── relai-planning/      # plany i miniplany, STATUS, prompty etapowe, odnogi, zamknięcie planu
+├── commands/                # dziesięć komend: stage, backup, audit, changelog,
+│   └── *.md                 #   handover, tour, help, adopt, update, branch
 ├── hooks/
 │   ├── hooks.json           # rejestracja dziewięciu hooków (zdarzenia i matchery)
 │   └── *.js                 # dziewięć hooków Node.js, zero zależności npm

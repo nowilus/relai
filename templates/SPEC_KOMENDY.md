@@ -50,7 +50,7 @@ projektu jest w `docs/USTAWIENIA.md`.
 Plik jest **regenerowany**, nie edytowany ręcznie. Wyjątkiem są wiersze oznaczone jako lokalne —
 te przeżywają regenerację (D-62: lokalne nadpisania mają pierwszeństwo).
 
-## Zakres wersji 1.0.0 — co realnie działa
+## Zakres wersji 1.1.0 — co realnie działa
 
 Od 0.4.0 działa **pierwsza komenda** — `/relai-stage` — i wygenerowany `KOMENDY.md` ma tabelę
 komend. W 0.5.0 doszło **osiem hooków**: sekcja „Czego RelAI pilnuje bez proszenia" urosła
@@ -58,7 +58,8 @@ o zachowania hooków (lista niżej). W 0.6.0 doszedł **interaktywny plan HTML**
 lokalne szablonu**. W 0.7.0 doszło **sześć komend operacyjnych** — tabela komend urosła z jednej
 pozycji do siedmiu. W 0.8.0 **profil projektu zaczyna cokolwiek robić**: rośnie sekcja
 o zachowaniach automatycznych. W 0.9.0 dochodzą **adopcja i aktualizacja** — tabela komend rośnie
-z siedmiu do dziewięciu pozycji. Działa:
+z siedmiu do dziewięciu pozycji. W 1.1.0 dochodzą **odnogi planu**: dziesiąta komenda
+`/relai-branch` i sygnał odchylenia w sekcji o zachowaniach automatycznych. Działa:
 
 - inicjalizacja struktury projektu (zgoda → trzy pytania → osiem dokumentów),
 - rozpoznanie folderu, który już jest projektem RelAI,
@@ -121,9 +122,16 @@ z siedmiu do dziewięciu pozycji. Działa:
   lokalnych,
 - **sygnał wersji (zmienione w 0.9.0), do sekcji „Czego RelAI pilnuje bez proszenia":** gdy
   wersja projektu różni się od wersji pluginu, RelAI mówi o tym na starcie sesji i wskazuje
-  `/relai-update` — nie migruje projektu na własną rękę.
+  `/relai-update` — nie migruje projektu na własną rękę,
+- **odnogi planu (nowe w 1.1.0):** `/relai-branch` zakłada boczny wątek — kartę z celem, zakresem
+  i weryfikacją oraz gotowy prompt świeżej sesji — nie ruszając zamrożonego planu; bez aktywnego
+  planu ten sam wątek powstaje jako samodzielny w `docs/fixy/`,
+- **sygnał odchylenia (nowe w 1.1.0), do sekcji „Czego RelAI pilnuje bez proszenia":** gdy
+  w trakcie etapu wypływa rzecz spoza jego zakresu, RelAI zatrzymuje się i pyta — odnoga, aneks do
+  planu czy „świadomie odłożone" — zamiast robić ją przy okazji. Przy zamykaniu planu wylicza
+  odnogi, które zostały otwarte, i pyta o każdą.
 
-Wygenerowany `KOMENDY.md` w wersji 1.0.0 zawiera **tabelę komend z dziewięcioma pozycjami**
+Wygenerowany `KOMENDY.md` w wersji 1.1.0 zawiera **tabelę komend z dziesięcioma pozycjami**
 oraz tabelę fraz naturalnych:
 
 | Komenda | Co robi |
@@ -137,6 +145,7 @@ oraz tabelę fraz naturalnych:
 | `/relai-help [fraza]` | pokazuje ściągę projektu — treść pochodzi wyłącznie z `KOMENDY.md` |
 | `/relai-adopt [ŚCIEŻKA_BACKUPU]` | adoptuje zastany projekt: backup-bramka, analiza, struktura z zastanego stanu, scalenie `CLAUDE.md`, raport z procedurą pełnego cofnięcia; wyłącznie na jawne wywołanie |
 | `/relai-update` | aktualizuje projekt do wersji zainstalowanego pluginu: różnice, zgoda, poszanowanie nadpisań lokalnych, wpis w dzienniku |
+| `/relai-branch [NAZWA] [cel]` | zakłada odnogę: kartę wątku i samowystarczalny prompt świeżej sesji; jedna linia w sekcji „Odnogi" `STATUS.md`, zamrożony plan bez zmian; bez planu — wątek samodzielny w `docs/fixy/` |
 
 | Fraza (PL / EN) | Co się stanie |
 |---|---|
@@ -151,12 +160,12 @@ oraz tabelę fraz naturalnych:
 - Nie opisujesz mechaniki wewnętrznej (skille, hooki) — użytkownika interesuje efekt.
 - Nie wpisujesz punktów profilu, którego ten projekt nie ma.
 
-## Przykład dla wersji 1.0.0 (projekt polski, profil `app`)
+## Przykład dla wersji 1.1.0 (projekt polski, profil `app`)
 
 ```markdown
 # KOMENDY — Parkly
 
-RelAI 1.0.0
+RelAI 1.1.0
 
 Nic z tej listy nie jest obowiązkowe. RelAI działa w zwykłej rozmowie — piszesz normalnie,
 a struktura projektu nadąża. Komendy są skrótem do rzadszych operacji.
@@ -175,6 +184,7 @@ a struktura projektu nadąża. Komendy są skrótem do rzadszych operacji.
 | `/relai-help` | pokazuje tę ściągę | gdy nie pamiętasz, co można wpisać |
 | `/relai-adopt` | przenosi istniejący projekt na RelAI: najpierw pełny backup, potem analiza i dokumenty wygenerowane z tego, co w projekcie naprawdę jest; kończy raportem z instrukcją pełnego cofnięcia | w folderze innego projektu, który chcesz objąć RelAI — ten projekt już jest objęty |
 | `/relai-update` | podnosi ten projekt do wersji zainstalowanego RelAI: pokazuje, co się zmieni, czeka na Twoje „tak" i nie rusza niczego, co sam zmieniłeś | gdy RelAI mówi na starcie sesji, że projekt jest starszy niż plugin |
+| `/relai-branch` · `/relai-branch OPIS_REPO` | odkłada boczny wątek na bok: spisuje, o co chodzi i po czym poznać, że zrobione, i przygotowuje gotowy prompt do wklejenia w nowej sesji | gdy w trakcie etapu wypływa coś ważnego, ale nie na teraz — zamiast robić to przy okazji albo zapomnieć |
 
 Pełna nazwa każdej z nich to `/relai:relai-…` (np. `/relai:relai-backup`) — wpisz `/relai` i wybierz
 z podpowiedzi; skrócona forma działa tam, gdzie podpowiadacz ją rozwinie.
@@ -206,8 +216,10 @@ z podpowiedzi; skrócona forma działa tam, gdzie podpowiadacz ją rozwinie.
   prompt następnego. Kolejną sesję zaczynasz od `/relai-stage`, nie od tłumaczenia, co dalej.
 - Gdy poprzednia sesja urwała się w połowie zamykania etapu, mówi o tym na starcie następnej
   i proponuje uzupełnić brakujący prompt.
+- Gdy w trakcie etapu wypływa coś spoza jego zakresu, zatrzymuje się i pyta: zrobić z tego odnogę,
+  dopisać aneks do planu, czy odłożyć świadomie — zamiast robić to przy okazji i rozdymać etap.
 - Po ostatnim etapie zamyka plan sam: aktualizuje stan, pisze wpis „co dowieziono vs plan"
-  i przenosi plan do archiwum.
+  i przenosi plan do archiwum. Zostały otwarte odnogi — najpierw pyta, co z nimi.
 - Nie nadpisuje i nie kasuje plików, których sam nie utworzył.
 - **Blokuje** zapis klucza, tokenu albo hasła do pliku trafiającego do repozytorium — sekret może
   wylądować wyłącznie w `.env`, którego git nie śledzi.

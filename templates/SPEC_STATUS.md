@@ -26,7 +26,8 @@ Agent w kolejnej sesji (pierwszy) i człowiek sprawdzający „gdzie jesteśmy z
    - **model wykonawczy etapów** — dosłownie tak, jak odpowiedział użytkownik przy pytaniu
      startowym (D-39); „Opus" albo „złożone etapy: Opus, mechaniczne: Haiku" — nie normalizujesz.
 3. **Tabela etapów** — `Etap | Nazwa | Status | Prompt | Uwagi`.
-4. **Dziennik wdrożenia** — lista dopisywana **na końcu**, jedna linia na zdarzenie:
+4. **Odnogi** — sekcja opcjonalna, patrz niżej. Nie ma odnóg → nie ma sekcji.
+5. **Dziennik wdrożenia** — lista dopisywana **na końcu**, jedna linia na zdarzenie:
    `- RRRR-MM-DD — <co się stało>`. Bez edycji wstecz.
 
 ## Statusy
@@ -72,6 +73,32 @@ fałszywy link wyłącza jedyny mechanizm, który tę lukę wyłapuje.
 Odwrotnie też: etap `GOTOWY DO STARTU` z `—` w tej kolumnie to sygnał, że rytuał „Na koniec"
 poprzedniego etapu został przerwany.
 
+## Sekcja „Odnogi"
+
+Odnoga to boczny wątek, który urodził się w trakcie etapu i nie mieści się w jego zakresie
+(`SPEC_ODNOGA.md`). Mieszka we własnym folderze `odnogi/<NAZWA>/`; w `STATUS.md` zostawia **jedną
+linię** — tyle, żeby nie zginęła, i nie więcej, bo cel i zakres są w jej karcie.
+
+Miejsce: **zaraz po tabeli etapów, przed dziennikiem wdrożenia**. Sekcja powstaje razem z pierwszą
+odnogą — pustego nagłówka „Odnogi" nie zakładasz na zapas (L-0029).
+
+Format linii:
+
+```
+- **<NAZWA>** — <jedno zdanie, czego dotyczy> · źródło: E<N> · [karta](odnogi/<NAZWA>/ODNOGA.md) · **<STATUS>**
+```
+
+Statusy odnogi: `OTWARTA` · `ZAMKNIĘTA <data>` · `PRZENIESIONA <data> → docs/fixy/<NAZWA>/`.
+Linii odnogi **nie kasujesz** (D-18) — także wtedy, gdy wątek odpuszczono.
+
+Odnoga **nie jest etapem**: nie dostaje wiersza w tabeli etapów, nie ma numeru `EN`, nie wpływa na
+to, który etap jest `GOTOWY DO STARTU`.
+
+**Zamknięcie planu wylicza otwarte odnogi i pyta.** Plan z linią `OTWARTA` w tej sekcji nie zamyka
+się sam: przed krokiem archiwizacji wypisujesz otwarte odnogi i pytasz o każdą — zamknąć teraz czy
+przenieść do `docs/fixy/<NAZWA>/` jako wątek samodzielny. Bez decyzji człowieka plan zostaje
+otwarty; folder planu wędrujący do archiwum z żywym wątkiem w środku znaczy, że wątek przepadł.
+
 ## Polityka aktualizacji
 
 | Kiedy | Co się zmienia |
@@ -81,7 +108,9 @@ poprzedniego etapu został przerwany.
 | Etap zamknięty | status etapu → `ZREALIZOWANY <data>`, następny → `GOTOWY DO STARTU` **z linkiem do świeżo wygenerowanego promptu**, linia w dzienniku wdrożenia |
 | Sesja etapu przerwana | status etapu → `W TOKU` + linia w dzienniku wdrożenia mówiąca, co zostało |
 | Aneks do planu | linia w dzienniku wdrożenia z numerem aneksu; **treść aneksu jest w `PLAN.md`**, nie tutaj |
-| Plan zamknięty | status planu → `ZREALIZOWANY <data>`, plik razem z folderem idzie do `docs/archiwum/plany/` |
+| Odnoga utworzona (`/relai-branch`) | nowa linia w sekcji „Odnogi" ze statusem `OTWARTA`; sekcja powstaje, jeśli jej nie było. Tabela etapów i dziennik wdrożenia **bez zmian** |
+| Odnoga zamknięta | status w jej linii → `ZAMKNIĘTA <data>`; nic poza tym |
+| Plan zamknięty | status planu → `ZREALIZOWANY <data>`, plik razem z folderem idzie do `docs/archiwum/plany/` — po rozstrzygnięciu otwartych odnóg |
 
 Dziennik wdrożenia jest **append-only** — dopisujesz na końcu, nie edytujesz starych linii. Wpis
 w dzienniku wdrożenia jest krótki (jedna linia); szczegóły „co zrobiono i jak zweryfikowano" mieszkają
@@ -90,6 +119,7 @@ w `docs/DZIENNIK.md`, nie tutaj.
 ## Zakazy
 
 - Nie duplikujesz treści planu — żadnych zakresów etapów ani ryzyk; od tego jest `PLAN.md`.
+- Nie wpisujesz odnogi do tabeli etapów i nie kasujesz jej linii, gdy wątek odpuszczono.
 - Nie prowadzisz tu narracji z pracy — od tego jest `DZIENNIK.md`.
 - Nie kasujesz wierszy etapów; etap porzucony dostaje status `POMINIĘTY` z powodem (D-18).
 - Nie zostawiasz planu bez etapu `GOTOWY DO STARTU`, jeśli plan trwa.
@@ -112,6 +142,11 @@ Plan: [PLAN.md](PLAN.md) · Utworzony: 2026-08-12 · Status planu: **ZAAKCEPTOWA
 | E3 | Faktury PDF i wysyłka | OCZEKUJE | — | zakres zależny od decyzji o księgowości |
 | E4 | Panel płatności dla administratora | OCZEKUJE | — | |
 
+## Odnogi
+
+- **PONOWIONE_ZDARZENIA** — log przy powtórzonym zdarzeniu Stripe · źródło: E2 ·
+  [karta](odnogi/PONOWIONE_ZDARZENIA/ODNOGA.md) · **OTWARTA**
+
 ## Dziennik wdrożenia
 
 - 2026-08-12 — plan utworzony, przekazany do akceptacji.
@@ -123,3 +158,6 @@ Plan: [PLAN.md](PLAN.md) · Utworzony: 2026-08-12 · Status planu: **ZAAKCEPTOWA
   PROMPT_ETAP_2.
 - 2026-08-14 — E2 ustawiony jako GOTOWY DO STARTU; blokada: klucze Stripe po stronie człowieka.
 ```
+
+W przykładzie widać zasadę: odnoga zostawiła ślad **wyłącznie** w sekcji „Odnogi". Dziennik
+wdrożenia mówi o etapach planu i o niej milczy.

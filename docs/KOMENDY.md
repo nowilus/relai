@@ -1,6 +1,6 @@
 # KOMENDY — RelAI
 
-RelAI 1.0.0
+RelAI 1.1.0
 
 Nic z tej listy nie jest obowiązkowe. RelAI działa w zwykłej rozmowie — piszesz normalnie,
 a struktura projektu nadąża. Komendy są skrótem do rzadszych operacji.
@@ -19,6 +19,7 @@ a struktura projektu nadąża. Komendy są skrótem do rzadszych operacji.
 | `/relai-help` | pokazuje tę ściągę | gdy nie pamiętasz, co można wpisać |
 | `/relai-adopt` | przenosi istniejący projekt na RelAI: najpierw pełny backup, potem analiza i dokumenty wygenerowane z tego, co w projekcie naprawdę jest; kończy raportem z instrukcją pełnego cofnięcia | w folderze innego projektu, który chcesz objąć RelAI — ten projekt już jest objęty |
 | `/relai-update` | podnosi projekt do wersji zainstalowanego RelAI: pokazuje, co się zmieni, czeka na Twoje „tak" i nie rusza niczego, co sam zmieniłeś | gdy RelAI mówi na starcie sesji, że projekt jest starszy niż plugin |
+| `/relai-branch` · `/relai-branch OPIS_REPO` | odkłada boczny wątek na bok: spisuje, o co chodzi i po czym poznać, że zrobione, i przygotowuje gotowy prompt do wklejenia w nowej sesji | gdy w trakcie etapu wypływa coś ważnego, ale nie na teraz — zamiast robić to przy okazji albo zapomnieć |
 
 Pełna nazwa każdej z nich to `/relai:relai-…` (np. `/relai:relai-backup`) — wpisz `/relai` i wybierz
 z podpowiedzi; skrócona forma działa tam, gdzie podpowiadacz ją rozwinie.
@@ -49,6 +50,9 @@ z podpowiedzi; skrócona forma działa tam, gdzie podpowiadacz ją rozwinie.
 - **Start sesji ma stałą kolejność.** Data dnia, rytuał startu, kontrola wersji projekt↔plugin
   i sygnały wymagające reakcji trafiają do kontekstu niezależnie od tego, czy cokolwiek się
   „wyzwoliło".
+- **Wątek spoza etapu nie ginie i nie rozdyma etapu.** Gdy w trakcie pracy wypływa coś poza
+  zakresem, RelAI zatrzymuje się i pyta: odnoga, aneks do planu czy „świadomie odłożone". Przy
+  zamykaniu planu wylicza odnogi, które zostały otwarte.
 - **Brakujący prompt etapowy jest wyłapywany.** Sesja przerwana w połowie zamykania etapu zostawia
   lukę — RelAI mówi o niej na starcie i proponuje uzupełnienie. Nigdy nie robi tego sam.
 - **Cudzy projekt dostaje propozycję wycieczki.** Gdy wszystkie wpisy w dzienniku podpisał ktoś

@@ -31,6 +31,7 @@ się dopiero z pierwszym planem (D-11: podfolderów nie tworzy się na zapas):
 | [SPEC_STATUS.md](SPEC_STATUS.md) | `docs/plany/<TEMAT>/STATUS.md` | jedyne miejsce z postępem etapów; dziennik wdrożenia append na końcu |
 | [SPEC_PROMPT_ETAPU.md](SPEC_PROMPT_ETAPU.md) | `docs/plany/<TEMAT>/PROMPT_ETAP_N.md` | generacja lazy (N=1 przy akceptacji, N+1 w rytuale „Na koniec"); prompt etapu zrealizowanego nie jest edytowany |
 | [SPEC_PLAN_HTML.md](SPEC_PLAN_HTML.md) | `docs/plany/<TEMAT>/PLAN.html` | gdy preferencja formatu mówi „HTML"; treść wg `SPEC_PLAN.md`, składanie wg `HTML_PLAN/` |
+| [SPEC_ODNOGA.md](SPEC_ODNOGA.md) | `docs/plany/<TEMAT>/odnogi/<NAZWA>/ODNOGA.md` + `PROMPT_ODNOGA.md` | boczny wątek z etapu; para plików, jedna linia w `STATUS.md`, plan zamrożony nietknięty; bez planu — `docs/fixy/<NAZWA>/` |
 
 MINIPLAN (D-31) nie ma własnej specyfikacji — jest wpisem w dzienniku i opisuje go
 [SPEC_DZIENNIK.md](SPEC_DZIENNIK.md), sekcja „Wpis typu MINIPLAN".

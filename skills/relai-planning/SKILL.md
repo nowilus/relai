@@ -13,6 +13,10 @@ description: >
   ALSO USE when a stage of an existing plan is being started or closed. Trigger phrases (Polish):
   "wykonaj etap", "zrób etap", "uruchom etap", "następny etap", "kolejny etap", "zamknij etap",
   "kończymy etap". English: "run the stage", "next stage", "close the stage".
+  ALSO USE when a side thread appears during a stage and has to be parked instead of done now —
+  a branch of the plan. Trigger phrases (Polish): "odnoga", "zrób z tego odnogę", "boczny wątek",
+  "to nie na teraz", "zróbmy to osobno", "odłóż to na potem". English: "branch this off",
+  "park this", "side thread", "not now, later".
   The skill decides between a full PLAN (docs/plany/<TOPIC>/PLAN.md + STATUS.md, one active-plan
   line in CLAUDE.md) and a MINIPLAN (a single journal entry), asks once about kind, format and the
   model executing the stages, freezes the plan after acceptance so changes go in as dated annexes,
@@ -22,13 +26,15 @@ description: >
 
 # relai-planning — plany, etapy i ich zamrażanie
 
-Wersja 1.0.0 (E10 — pilotaż zamknięty). Zakres tej wersji: **wykrycie intencji planowania + rozróżnienie
+Wersja 1.1.0 (E1 planu ROZWOJ_PO_WYDANIU — odnogi). Zakres tej wersji: **wykrycie intencji planowania + rozróżnienie
 PLAN/MINIPLAN + pytanie startowe + generacja planu w Markdown albo w HTML + `STATUS.md` +
 zamrożenie z aneksami + prompty etapowe `PROMPT_ETAP_N` z lazy-generacją + rytuał „Na koniec" etapu
-+ zamknięcie planu**. Etap uruchamia komenda `/relai-stage`. Od 0.6.0 działa interaktywny szablon
++ **sygnał odchylenia i odnogi planu** + zamknięcie planu**. Etap uruchamia komenda `/relai-stage`,
+odnogę — `/relai-branch`. Od 0.6.0 działa interaktywny szablon
 HTML planów głównych (`HTML_PLAN/`) razem z nadpisaniem lokalnym (D-62).
 
-Specyfikacje (`SPEC_PLAN`, `SPEC_PLAN_HTML`, `SPEC_STATUS`, `SPEC_PROMPT_ETAPU`, `SPEC_DZIENNIK`)
+Specyfikacje (`SPEC_PLAN`, `SPEC_PLAN_HTML`, `SPEC_STATUS`, `SPEC_PROMPT_ETAPU`, `SPEC_ODNOGA`,
+`SPEC_DZIENNIK`)
 czytaj z lokalnej kopii **`.claude/relai/templates/`** — utrzymuje ją hook `session-context`;
 katalog pluginu jest dla sesji niedostępny (L-0012). Tą samą drogą dociera szablon HTML
 (`.claude/relai/templates/HTML_PLAN/`). Brak kopii → powiedz o tym i poproś o `--add-dir` na katalog
@@ -366,6 +372,64 @@ Ta sama zasada dotyczy `STATUS.md`: generujesz go i aktualizujesz wg `SPEC_STATU
 własnego układu tabeli. Kolumny są dokładnie `Etap | Nazwa | Status | Prompt | Uwagi`, a linia
 metryczna jest **jedną** linią z elementami rozdzielonymi `·`.
 
+## Sygnał odchylenia — wątek spoza zakresu etapu
+
+W trakcie etapu regularnie wypływa coś, czego w zakresie nie ma: usterka obok, brakujący log,
+pomysł, który akurat teraz wydaje się oczywisty. Domyślne zachowanie modelu — zrobić to od razu —
+jest tu najgorsze z możliwych: rozdyma etap, miesza dwie rzeczy w jednym wpisie i psuje pomiar
+tego, co etap miał dowieźć. Zmierzone (retrospektywa 2026-08-12): pięć wpisów poprawkowych w jednym
+etapie JiraManagera, sześć aneksów do jednego etapu PolyFlow.
+
+**Warunek wyzwolenia:** pracujesz nad etapem planu (albo nad odnogą) i pojawia się rzecz, która
+(a) nie mieści się w sekcji „Zakres etapu" promptu, i (b) nie jest jednolinijkowym drobiazgiem,
+który wykonasz szybciej, niż o nim napiszesz.
+
+**Co robisz:** zatrzymujesz się i zadajesz **jedno ustrukturyzowane pytanie** (AskUserQuestion),
+z trzema opcjami — w tej kolejności:
+
+| Opcja | Kiedy jest właściwa | Co się dzieje |
+|---|---|---|
+| **Odnoga** (Rekomendowane, gdy wątek ma własny zakres i weryfikację) | osobna robota, 2–5 punktów, da się wykonać w jednej świeżej sesji | `/relai-branch`: karta + `PROMPT_ODNOGA.md`, linia w sekcji „Odnogi" `STATUS.md` |
+| **Aneks do planu** | wątek zmienia **sam plan** — zakres etapu, cel, wybrany wariant | datowany aneks w `PLAN.md` / `PLAN.html`, po zatwierdzeniu treści |
+| **Świadomie odłożone** | rzecz warta zapamiętania, ale nie warta osobnego wątku | punkt „Świadomie odłożone" we wpisie dziennika zamykającym etap |
+
+Zasady tego pytania:
+
+- **Pytasz raz na wątek**, nie raz na myśl. Trzy wątki w jednym etapie to trzy pytania rozłożone
+  w czasie — ale nigdy dwa wywołania AskUserQuestion pod rząd.
+- **Rekomendację podajesz z powodem w jednym zdaniu** i przechodzisz dalej. Odpowiedź swobodna jest
+  nadrzędna.
+- Po odpowiedzi **wracasz do zakresu etapu**. Odnogi utworzonej nie wykonujesz teraz — o to w niej
+  właśnie chodzi.
+- Regułę „zatrzymaj się i zapytaj" niesie `CLAUDE.md` projektu (wzorzec L-0030 — warstwa zawsze
+  w kontekście); ten skill dokłada procedurę i rozstrzygnięcia. Nie licz na to, że sam się wyzwoli.
+
+---
+
+## Odnogi planu (`/relai-branch`)
+
+Odnoga to **boczny wątek z etapu, który dostaje własne miejsce zamiast rozdymać etap albo zginąć**.
+Pełną strukturę obu plików opisuje `.claude/relai/templates/SPEC_ODNOGA.md`; procedurę wykonuje
+komenda `/relai-branch`. Tutaj są zasady, które muszą być znane także bez tej komendy (L-0011):
+
+1. **Gdzie mieszka.** Jest plan → `docs/plany/<TEMAT>/odnogi/<NAZWA>/`. Nie ma żadnego planu
+   niezamkniętego → `docs/fixy/<NAZWA>/`, wątek samodzielny. `<NAZWA>` w CAPS_SNAKE, konwencja
+   `<TEMAT>` (D-12).
+2. **Zawsze para plików.** `ODNOGA.md` — karta w formacie miniplanu: cel, skąd się wzięła, zakres,
+   poza zakresem, weryfikacja, wynik. `PROMPT_ODNOGA.md` — samowystarczalny prompt świeżej sesji,
+   generowany tak jak prompty etapowe: **z realnego stanu repo** i z „Zasad aktywnych" przepisanych
+   w całości.
+3. **Ślad w planie to jedna linia.** Sekcja „Odnogi" w `STATUS.md`, zaraz po tabeli etapów:
+   nazwa, jedno zdanie, etap-źródło, link do karty, status `OTWARTA` / `ZAMKNIĘTA <data>` /
+   `PRZENIESIONA <data> → docs/fixy/<NAZWA>/`. Tabela etapów i dziennik wdrożenia zostają nietknięte.
+4. **Plan zamrożony zostaje zamrożony.** Odnoga nie jest aneksem: nie dotyka `PLAN.md` /
+   `PLAN.html` (D-33) i nie zmienia zakresu żadnego etapu. Wątek, który zmienia sam plan, to aneks.
+5. **Jedna głębokość.** Odnoga od odnogi jest zakazana — wątek z odnogi, który sam potrzebuje
+   odnogi, jest sygnałem pełnego planu. Mówisz to wprost i proponujesz plan; żaden plik nie powstaje.
+6. **Odnogę wykonuje świeża sesja** z gotowego promptu, na modelu z karty. Zamknięcie:
+   status w karcie → wpis w dzienniku → linia w `STATUS.md`. Odnogi **nie generują** promptu
+   następnej odnogi — łańcucha lazy-generacji tu nie ma.
+
 ## Rytuał „Na koniec" etapu
 
 Wykonujesz go **sam, w tej samej turze**, w której etap został skończony — tak jak definicja
@@ -403,9 +467,16 @@ w tej kolejności:
 3. **`STATUS.md`** — status planu → `ZREALIZOWANY <data>`, wszystkie etapy domknięte.
 4. **Ryzyka** — przejrzyj tabelę „Stan otwartych ryzyk": ryzyka związane z planem zamknij z datą,
    nowe (jeśli praca je ujawniła) dopisz.
-5. **Archiwum** — przenieś `docs/plany/<TEMAT>/` do `docs/archiwum/plany/<TEMAT>/`. Zawartość bez
+5. **Otwarte odnogi** — zajrzyj do sekcji „Odnogi" w `STATUS.md`. Jest tam choć jedna linia
+   `OTWARTA` → **wypisz je wszystkie i zapytaj o każdą**: zamknąć teraz czy przenieść do
+   `docs/fixy/<NAZWA>/` jako wątek samodzielny. Przeniesienie = folder odnogi wędruje do
+   `docs/fixy/`, a jej linia w `STATUS.md` dostaje status
+   `PRZENIESIONA <data> → docs/fixy/<NAZWA>/`. Bez decyzji człowieka **plan się nie zamyka** —
+   folder planu w archiwum z żywym wątkiem w środku znaczy, że wątek przepadł. Brak sekcji „Odnogi"
+   albo same linie zamknięte → punkt przechodzi bez pytania i bez komentarza.
+6. **Archiwum** — przenieś `docs/plany/<TEMAT>/` do `docs/archiwum/plany/<TEMAT>/`. Zawartość bez
    zmian; przeniesienie, nie kasowanie.
-6. **`CLAUDE.md`** — linia aktywnego planu. **Warunek twardy: kiedy kończysz turę, linia wskazuje
+7. **`CLAUDE.md`** — linia aktywnego planu. **Warunek twardy: kiedy kończysz turę, linia wskazuje
    istniejący plik albo brzmi `Aktywny plan: brak`.** Link do przeniesionego folderu jest błędem —
    prowadzi donikąd, a jednocześnie mówi „tu trwa praca". Rozstrzygasz tak:
 
@@ -417,10 +488,11 @@ w tej kolejności:
    Pytanie o następcę jest dozwolone. Pytanie **zamiast** poprawienia linii — nie: to zostawia
    projekt z martwym linkiem i przerzuca sprzątanie po sobie na człowieka. `brak` jest zawsze
    poprawną wartością tymczasową; martwy link nie jest poprawny nigdy.
-7. **Podsumowanie** — 3–5 zdań dla użytkownika: co dowieziono, czego nie i dlaczego, co czeka na
+8. **Podsumowanie** — 3–5 zdań dla użytkownika: co dowieziono, czego nie i dlaczego, co czeka na
    człowieka.
 
-Punkty 1–6 nie są przedmiotem pytania. Pytaniem może być wyłącznie commit.
+Punkty 1–4 i 6–7 nie są przedmiotem pytania. Pytaniem może być wyłącznie commit i — gdy plan ma
+otwarte odnogi — punkt 5.
 
 **Kolejność: najpierw zmiana w repozytorium, potem zdanie, które ją opisuje.** Wpis dziennika
 mówiący „folder przeniesiony do archiwum", napisany zanim folder został przeniesiony, jest fałszem
@@ -452,6 +524,10 @@ Nie dopisujesz drugiej linii aktywnego planu i nie robisz z niej listy.
 - **Nie zadajesz drugiego pytania** o format i model, gdy odpowiedź jest już w `USTAWIENIA.md`.
 - **Nie generujesz promptów etapowych na zapas** — wyłącznie w trzech momentach z sekcji „Prompty
   etapowe"; prompt etapu już zrealizowanego zostaje bez zmian.
+- **Nie robisz przy okazji rzeczy spoza zakresu etapu** — od tego jest sygnał odchylenia: odnoga,
+  aneks albo „świadomie odłożone".
+- **Nie tworzysz odnogi z wnętrza odnogi** i nie zamykasz planu z odnogą `OTWARTA` bez decyzji
+  człowieka.
 - **Nie improwizujesz szablonu HTML z pamięci.** Brak `HTML_PLAN/` w obu lokalizacjach → mówisz
   o tym i prosisz o `--add-dir`; własnoręcznie napisany HTML nie jest planem RelAI.
 - **Nie edytujesz szablonu w `.claude/relai/templates/`** — to cache nadpisywany przez hook przy

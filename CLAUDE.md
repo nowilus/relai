@@ -39,6 +39,8 @@ Aktywny plan: [ROZWOJ_PO_WYDANIU](docs/plany/ROZWOJ_PO_WYDANIU/STATUS.md) — ZA
 - Plan zamrożony po akceptacji; zmiany wyłącznie datowanymi aneksami. Odchylenie fundamentalne → propozycja nowego planu z linkiem do starego.
 - Wykonanie etapów: świeże sesje **Opus** (D-85) wg `PROMPT_ETAP_N.md`. Architektura i plany: model najsilniejszy (Fable). Na starcie etapu sprawdź model sesji — jeśli inny niż Opus, przerwij i poproś o zmianę.
 - Każdy etap kończy się rytuałem „Na koniec": aktualizacja STATUS → wpis do DZIENNIKA → wygenerowanie promptu następnego etapu. Zadanie bez tego rytuału NIE jest ukończone.
+- Wątek spoza zakresu etapu → zatrzymaj się i zapytaj: odnoga (`/relai-branch`), aneks do planu czy
+  „świadomie odłożone" do dziennika. Nigdy „przy okazji".
 - Dokumentacja po polsku, kod i identyfikatory po angielsku, commity conventional po angielsku.
 - Sekrety nigdy w plikach śledzonych; klucze wyłącznie w `.env` (gitignored).
 

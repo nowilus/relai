@@ -116,8 +116,10 @@ Po zgodzie, w tej kolejności:
    zamknięcia planu mieszka tam, nie tutaj. Rytuał zawiera **wygenerowanie `PROMPT_ETAP_N+1.md`** —
    etap bez niego nie jest ukończony (D-34).
 
-Zakres promptu jest granicą. Rzecz potrzebna, ale spoza zakresu → do wpisu w dzienniku jako
-„świadomie odłożone", nie do roboty przy okazji.
+Zakres promptu jest granicą. Rzecz potrzebna, ale spoza zakresu → **sygnał odchylenia**: zatrzymaj
+się i zadaj jedno ustrukturyzowane pytanie (AskUserQuestion) — odnoga (`/relai-branch`) / aneks do
+planu / świadomie odłożone do wpisu w dzienniku. Nigdy „przy okazji". Procedura i rozstrzygnięcia:
+skill `relai-planning`, sekcja „Sygnał odchylenia".
 
 ## Krok 6 — ostatni etap planu
 
@@ -125,9 +127,10 @@ Zamykany etap był ostatnim (w tabeli nie ma już etapów `OCZEKUJE` ani `W TOKU
 `PROMPT_ETAP_N+1` uruchom **sekwencję zamknięcia planu** z **wczytanego** skilla `relai-planning`
 (bez niego pominiesz kroki, których ta komenda nie powtarza), sekcja „Zamknięcie
 planu (D-36)": `STATE.md` → wpis zamykający „dowiezione vs plan" → status planu `ZREALIZOWANY` →
-przegląd ryzyk → przeniesienie folderu planu do `docs/archiwum/plany/` → linia „Aktywny plan"
-w `CLAUDE.md` → podsumowanie. Sekwencji nie odtwarzasz z pamięci i nie skracasz — wykonujesz
-kroki 1–7 stamtąd. Pytaniem może być wyłącznie commit.
+przegląd ryzyk → **rozstrzygnięcie otwartych odnóg** → przeniesienie folderu planu do
+`docs/archiwum/plany/` → linia „Aktywny plan" w `CLAUDE.md` → podsumowanie. Sekwencji nie
+odtwarzasz z pamięci i nie skracasz — wykonujesz kroki 1–8 stamtąd. Pytaniem może być wyłącznie
+commit i — gdy plan ma odnogi `OTWARTA` — decyzja o każdej z nich.
 
 ---
 
