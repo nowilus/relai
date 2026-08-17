@@ -2242,3 +2242,44 @@ Autor: RelAI (Opus 5) + Łukasz
 - **Decyzja o instalacji pre-commita.** Bramka manualna.
 - **Czy projekt testowy `ProbaCursorE6` zostaje** (materiał do E7 i do odnogi `POMIAR_ODNOG`), czy
   idzie do kasacji. Ma niezacommitowany dorobek E1 i dwie własne bramki (testy, kierunek wizualny).
+
+### 2026-08-17 — Zamknięcie sesji
+
+Autor: RelAI (Opus 5) + Łukasz
+
+**Zrobione:**
+
+- Etap E6 domknięty rytuałem: `STATUS.md` (E6 ZREALIZOWANY, E7 GOTOWY DO STARTU, bramka „osoba
+  z zespołu" rozstrzygnięta), wpis merytoryczny, `STATE.md`, `CLAUDE.md`, `PROMPT_ETAP_7.md`.
+- Commit `eabdbf6` (`fix: secret scanner no longer flags TypeScript type annotations`) i **push**
+  do `github.com/nowilus/relai`. Katalog roboczy czysty przed commitem i po nim.
+
+**Zweryfikowane — jak dokładnie:**
+
+- `git status --short` po pushu: pusto. `git log` pokazuje `eabdbf6` nad `af329e6` (1.5.0).
+- `claude plugin validate .claude-plugin/plugin.json` → „Validation passed" z jedynym znanym
+  ostrzeżeniem o root `CLAUDE.md` (L-0003). `node core/tools/validate-adapters.js` → kod 0,
+  wersja „1.5.1" spójna w trzech źródłach.
+- **Rotacja dokumentów: próg przekroczony, ale nie ma czego przenieść.** `DZIENNIK.md` ma 196 KB
+  przy progu 150 KB; zakres do archiwum musi być ciągły i zaczyna się od najstarszego wpisu, a ten
+  ma w „Do zrobienia przez człowieka" pozycję z adnotacją „*(zrobione 2026-08-07 …)*". Specyfikacja
+  `SPEC_ARCHIWUM.md` uznaje za rozstrzygnięcie wyłącznie brzmienie „*(rozstrzygnięte …)*", więc
+  wpis jest nietykalny i blokuje cały zakres. Mechanizm nie jest zepsuty — jest zatkany na
+  nierozstrzygniętej decyzji z 2026-08-12. `LEKCJE.md`: 40 KB i 47 zasad aktywnych — poniżej progu
+  wielkości, na granicy progu liczby lekcji. `STATE.md`: 161 linii przy progu 300.
+
+**Świadomie odłożone:**
+
+- **Rotacja dziennika** — do czasu decyzji o akceptowanych brzmieniach dopisku rozstrzygnięcia.
+  Plik rośnie dalej; przy tym tempie zatkanie zacznie kosztować kontekst każdej sesji.
+- Trzy odnogi (`OPIS_REPO`, `POMIAR_ODNOG`, `REKOMENDACJA_MODELU`) — każda z gotowym promptem.
+
+**Do zrobienia przez człowieka:**
+
+- **Rozstrzygnąć dopisek rozstrzygnięcia w `SPEC_ARCHIWUM.md`**: czy „*(zrobione …)*" i podobne
+  brzmienia liczą się na równi z „*(rozstrzygnięte …)*". Bez tego rotacja dziennika stoi. Zmiana
+  dotyka specyfikacji rdzenia, więc nie robię jej przy okazji zamykania sesji (powtórzenie
+  z 2026-08-12).
+- Pozostałe pozycje bez zmian wobec wpisu E6 z dzisiaj: decyzja `AGENTS.md` / `CLAUDE.md`,
+  sekwencja wydania 1.5.1, ponowna instalacja pre-commita tam, gdzie już jest, `claude /login`,
+  `/relai-update` dla JiraManagera i PolyFlow, los projektu testowego `ProbaCursorE6`.
