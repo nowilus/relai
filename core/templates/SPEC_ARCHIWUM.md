@@ -105,8 +105,31 @@ nieprzerwanym kawałkiem historii, a nie sitem.
 - sekcja **„Stan otwartych ryzyk"** (nigdy nie opuszcza żywego pliku — nie jest wpisem),
 - **dziesięć najnowszych wpisów** `SZACUNEK`,
 - **każdy wpis z nierozstrzygniętą pozycją w sekcji „Do zrobienia przez człowieka"** — niezależnie
-  od wieku. Rozstrzygnięcie poznajesz po adnotacji „*(rozstrzygnięte RRRR-MM-DD — …)*" przy
-  **każdej** pozycji tej sekcji; sekcja z treścią „—" jest pusta, więc wpis wolno przenieść.
+  od wieku. Sekcja z treścią „—" jest pusta, więc wpis wolno przenieść.
+
+### Jak poznać pozycję rozstrzygniętą (od 1.5.2)
+
+Pozycja jest rozstrzygnięta, gdy ma adnotację złożoną z **rdzenia z zamkniętej listy** i **daty
+`RRRR-MM-DD`**. Forma gramatyczna jest dowolna (rodzaj, liczba, przypadek) — liczy się rdzeń:
+
+| Rdzeń | Przykłady wystąpień |
+|---|---|
+| `rozstrzygni` | *(rozstrzygnięte 2026-08-12 — …)*, *(rozstrzygnięta 2026-08-12)* |
+| `zrobion` | *(zrobione 2026-08-07 — patrz kolejny wpis)* |
+| `zaakceptowan` | *(zaakceptowany 2026-08-08)* |
+| `domkni` | *(domknięte 2026-08-08 — …)* |
+| `wykonan` | *(wykonane 2026-09-01)* |
+| `anulowan` | *(anulowane 2026-09-01 — powód)* |
+
+**Nie są rozstrzygnięciem** — nawet z datą: `czeka`, `w toku`, `odłożone`, `zaplanowane`,
+`przypomnieć`, `do sprawdzenia`. Lista rdzeni jest **zamknięta**: dopisek spoza niej znaczy
+„pozycja otwarta", więc wpis zostaje w żywym pliku. Cisza jest bezpieczna — najgorszym skutkiem
+jest dziennik większy, niż musi być; najgorszym skutkiem fałszywego rozpoznania byłaby sprawa
+człowieka schowana w archiwum.
+
+Adnotacja bez daty nie liczy się jako rozstrzygnięcie — data jest tym, co odróżnia zamknięcie od
+komentarza. W projekcie anglojęzycznym rdzenie czytasz w języku projektu (`resolved`, `done`,
+`accepted`, `closed`, `cancelled`); zasada zamkniętej listy i wymóg daty są takie same.
 
 **Lekcje** — nietykalne są:
 

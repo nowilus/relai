@@ -160,4 +160,6 @@ akceptacyjne: 4/4 zdane + pilotaż Cursora (6 kroków, wariant zastępczy) • A
 na których zmierzono proces: 5 (Fable, Opus, Haiku, Composer/auto, Grok 4.6) • Otwarte odnogi: 3 •
 Otwarte bramki manualne: 4 • Otwarte ryzyka: 4 (zależność jakości od modelu, rozrost dokumentów,
 P1 zawężone po E6, P2 niskie dla Cursora i otwarte dla Codeksa) • Zamknięte ryzyka: 6 • Progi rotacji: dziennik 150 KB, lekcje
-40 wpisów albo 50 KB, STATE 300 linii • Archiwum: lekcje L-0001…L-0024 (rotacja 2026-08-12)
+40 wpisów albo 50 KB, STATE 300 linii • Archiwum: lekcje L-0001…L-0024 (rotacja 2026-08-12),
+dziennik 2026-08-07…2026-08-09 — 16 wpisów, 201 KB → 98 KB (rotacja 2026-08-17, suma kontrolna
+zgodna w obu fazach)
