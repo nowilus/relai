@@ -28,6 +28,10 @@ Plan: [PLAN.html](PLAN.html) · Utworzony: 2026-08-12 · Status planu: **ZAAKCEP
   (Cursor: Composer/Auto/Grok/GPT/Gemini; Codex: warianty GPT) zamiast bezprzydomkowych klas ·
   źródło: E6, pilotaż 2026-08-17 · [karta](odnogi/REKOMENDACJA_MODELU/ODNOGA.md) · **OTWARTA**
 
+- **GUARD_PO_SCIEZCE** — guardraile rozpoznaja projekt po sciezce edytowanego pliku, nie tylko
+  po katalogu sesji · zrodlo: E10 planu BUDOWA_RELAI, domkniete w E6 ·
+  [karta](odnogi/GUARD_PO_SCIEZCE/ODNOGA.md) · **OTWARTA**
+
 ## Bramki manualne
 
 - **Sekwencja wydania: push → `claude plugin marketplace update relai` → `claude plugin update

@@ -69,10 +69,11 @@ w której narzędzie dostają inne osoby i zgłaszają, co im przeszkadza. Pierw
   (build produktu + realne sesje agenta), sekcja Codexa nadal z dokumentacji — jej próba należy do
   E7. Tabela gwarancji mówi wprost, co w Cursorze działa tak samo, co inaczej i czego nie ma:
   nie ma egzekwowanego „zapytaj człowieka" przy zapisie pliku ani odpowiednika `AskUserQuestion`.
-- Trzy **odnogi OTWARTE**: `OPIS_REPO` (opis repozytorium na GitHubie), `POMIAR_ODNOG` (pomiar
-  świeżą sesją — niedomknięte punkty weryfikacji E1, E2 i E3, dziewięć scenariuszy) oraz
+- Cztery **odnogi OTWARTE**: `OPIS_REPO` (opis repozytorium na GitHubie), `POMIAR_ODNOG` (pomiar
+  świeżą sesją — niedomknięte punkty weryfikacji E1, E2 i E3, dziewięć scenariuszy),
   `REKOMENDACJA_MODELU` (rekomendacja modelu z realnej listy modeli narzędzia — wyszła z pilotażu
-  E6). Każda ma gotowy prompt; nie blokują planu.
+  E6) oraz `GUARD_PO_SCIEZCE` (guardraile rozpoznają projekt po ścieżce edytowanego pliku, nie
+  tylko po katalogu sesji). Każda ma gotowy prompt; nie blokują planu.
 - Cztery **bramki manualne** planu czekają na człowieka: sekwencja wydania (push → aktualizacja
   pluginu → restart), `claude /login` na konto z limitem, decyzja o `/relai-update` dla
   JiraManagera i PolyFlow oraz decyzja o instalacji pre-commita. Piąta — osoba z zespołu do
@@ -157,7 +158,7 @@ Repo: github.com/nowilus/relai (publiczne od 2026-08-12) • Plan budowy:
 
 Etapy planu budowy: 10/10 zamknięte • Etapy planu ROZWOJ_PO_WYDANIU: 6/8 zamknięte • Scenariusze
 akceptacyjne: 4/4 zdane + pilotaż Cursora (6 kroków, wariant zastępczy) • Adaptery: 2 • Modele,
-na których zmierzono proces: 5 (Fable, Opus, Haiku, Composer/auto, Grok 4.6) • Otwarte odnogi: 3 •
+na których zmierzono proces: 5 (Fable, Opus, Haiku, Composer/auto, Grok 4.6) • Otwarte odnogi: 4 •
 Otwarte bramki manualne: 4 • Otwarte ryzyka: 4 (zależność jakości od modelu, rozrost dokumentów,
 P1 zawężone po E6, P2 niskie dla Cursora i otwarte dla Codeksa) • Zamknięte ryzyka: 6 • Progi rotacji: dziennik 150 KB, lekcje
 40 wpisów albo 50 KB, STATE 300 linii • Archiwum: lekcje L-0001…L-0024 (rotacja 2026-08-12),

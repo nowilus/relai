@@ -121,11 +121,11 @@ tryb `-p` nie obsługuje `AskUserQuestion` ani potwierdzeń hooków (L-0005, L-0
 
 **Do zrobienia przez człowieka:**
 
-- Zdecydować o dalszym losie projektu pilotażowego `Desktop\Paragony` (zostaje jako narzędzie czy
+- Zdecydować o dalszym losie projektu pilotażowego `Desktop\Paragony` (zostaje jako narzędzie czy *(rozstrzygnięte 2026-08-17 — katalogu `DesktopParagony` nie ma na dysku; projekt pilotażowy nie jest kontynuowany, a kopie testowe wygasły razem z katalogami sesji)*
   idzie do usunięcia) oraz kopii testowych w katalogu tymczasowym sesji.
-- JiraManager jest **zaadoptowany**: ma strukturę RelAI, raport adopcji i backup. Zmiany nie są
+- JiraManager jest **zaadoptowany**: ma strukturę RelAI, raport adopcji i backup. Zmiany nie są *(rozstrzygnięte 2026-08-17 — struktura RelAI jest w historii repozytorium JiraManagera: 79 plików w `docs/`, w tym `RAPORT_ADOPCJI.md` i `USTAWIENIA.md`; tamtejsze niezacommitowane zmiany dotyczą wtyczki, nie adopcji)*
   zacommitowane — commit należy do właściciela projektu.
-- Rozstrzygnąć, czy guard hooków ma rozpoznawać pliki po ścieżce (pozycja ze „świadomie odłożone").
+- Rozstrzygnąć, czy guard hooków ma rozpoznawać pliki po ścieżce (pozycja ze „świadomie odłożone"). *(rozstrzygnięte 2026-08-17 — naprawiamy: rozpoznanie liczone także od katalogu edytowanego pliku; wykonanie w odnodze GUARD_PO_SCIEZCE)*
 
 ### 2026-08-10 — Domknięcie pilotażu: `/relai-update` na projekcie pilotażowym
 
@@ -153,8 +153,8 @@ Autor: RelAI (Fable) + Lukasz
   decyzja i moment należą do właściciela.
 
 **Do zrobienia przez człowieka:**
-- Zdecydować o dalszym losie projektu pilotażowego `Desktop\Paragony`.
-- Zacommitować zmiany adopcyjne w JiraManagerze (struktura RelAI + raport adopcji czekają
+- Zdecydować o dalszym losie projektu pilotażowego `Desktop\Paragony`. *(rozstrzygnięte 2026-08-17 — katalogu `DesktopParagony` nie ma na dysku; projekt pilotażowy nie jest kontynuowany, a kopie testowe wygasły razem z katalogami sesji)*
+- Zacommitować zmiany adopcyjne w JiraManagerze (struktura RelAI + raport adopcji czekają *(rozstrzygnięte 2026-08-17 — commit adopcyjny jest w historii JiraManagera, struktura RelAI śledzona)*
   w drzewie roboczym).
 
 ### 2026-08-10 — Audyt gotowości 1.0.0, wizytówka GitHubowa i domknięcie dogfoodingu
@@ -241,7 +241,7 @@ Autor: RelAI (Opus) + Lukasz
 - Zdecydować o upublicznieniu repozytorium i dopisać opis na GitHubie — bez tego README nie ma *(rozstrzygnięte 2026-08-12 — repo publiczne; pusty opis wydzielony do odnogi OPIS_REPO)*
   do kogo trafić.
 - Potwierdzić brzmienie nazwiska w `LICENSE` („Łukasz Nowakowski", rok 2026). *(rozstrzygnięte 2026-08-12 — Aneks A do planu ROZWOJ_PO_WYDANIU: LICENSE potwierdzone)*
-- Nadal otwarte z poprzedniego wpisu: los projektu pilotażowego `Desktop\Paragony`, commit zmian
+- Nadal otwarte z poprzedniego wpisu: los projektu pilotażowego `Desktop\Paragony`, commit zmian *(rozstrzygnięte 2026-08-17 — obie pozycje zamknięte: katalog Paragonów nie istnieje, adopcja JiraManagera jest zacommitowana)*
   adopcyjnych w JiraManagerze, decyzja o guardzie rozpoznającym pliki po ścieżce.
 
 ### 2026-08-12 — Retrospektywa dwóch projektów i plan ROZWOJ_PO_WYDANIU
@@ -1159,3 +1159,45 @@ Autor: RelAI (Opus 5) + Łukasz
 - Pozycje bez zmian: sekwencja wydania (teraz **1.5.2**), ponowna instalacja pre-commita tam, gdzie
   jest, `claude /login`, `/relai-update` dla JiraManagera i PolyFlow, los `ProbaCursorE6`,
   wdrożenie D-86 w E7.
+
+### 2026-08-17 — Zamknięcie trzech pozycji z E10, odnoga GUARD_PO_SCIEZCE
+
+Autor: RelAI (Opus 5) + Łukasz
+
+**Zrobione:**
+
+- **Trzy pozycje blokujące dalszą rotację rozstrzygnięte.** Dwie okazały się zamknięte faktami,
+  które nigdy nie trafiły do dziennika; trzecia była realną decyzją i została podjęta.
+- **Odnoga `GUARD_PO_SCIEZCE`** — karta, samowystarczalny prompt (z 47 zasadami aktywnymi) i linia
+  w sekcji „Odnogi" `STATUS.md`. Zakres: rozpoznanie projektu liczone także od katalogu edytowanego
+  pliku, poprawka w `core/process/session-signals.js` plus trzy hooki guardraili i `isGitIgnored()`
+  wołane z katalogu projektu docelowego.
+- Sześć adnotacji rozstrzygnięcia dopisanych do wpisów z 2026-08-10 i 2026-08-11 (pozycje wracały
+  w trzech kolejnych wpisach).
+
+**Zweryfikowane — jak dokładnie:**
+
+- **`Desktop\Paragony`** — katalogu nie ma na dysku (`ls` po Desktopie: tylko `JiraManager`).
+  Projekt pilotażowy nie jest kontynuowany, kopie testowe wygasły razem z katalogami sesji.
+- **Adopcja JiraManagera jest zacommitowana** — `git ls-files` w tamtym repozytorium zwraca
+  **79 plików** w `docs/`, w tym `RAPORT_ADOPCJI.md` i `USTAWIENIA.md`. Niezacommitowane zmiany,
+  które tam dziś są (`extension/`, `tests/`, `docs/plany/WTYCZKA_I_DOSTAWCY/STATUS.md`), dotyczą
+  bieżącej pracy nad wtyczką, nie adopcji — pozycja z 2026-08-10 opisywała stan sprzed commita.
+- **Rotacja nie została uruchomiona ponownie i tak ma być:** dziennik ma 102 KB przy progu 150 KB,
+  a poniżej progu specyfikacja nakazuje ciszę. Analiza kontrolna pokazuje, że po zdjęciu blokad
+  kolejny zakres wynosiłby dwa wpisy (11 KB) i urwałby się na wpisie z otwartą bramką wydania —
+  ścieżka jest przetarta, mechanizm ruszy sam przy najbliższym przekroczeniu progu.
+
+**Świadomie odłożone:**
+
+- **Wykonanie odnogi `GUARD_PO_SCIEZCE`** — zmiana dotyka rdzenia wołanego przez dziesięć hooków,
+  więc dostała własną kartę i prompt zamiast wejść „przy okazji" po zamknięciu etapu E6.
+
+**Do zrobienia przez człowieka:**
+
+- **Sekwencja wydania 1.5.2** (push → `claude plugin marketplace update relai` → `claude plugin
+  update relai@relai` → restart aplikacji, L-0031) — to jedyna pozycja, która blokuje jeszcze
+  jeden wpis przed rotacją, i jedyna, która sprawia, że dzisiejsze poprawki nie działają poza tym
+  repozytorium.
+- Pozostałe bez zmian: ponowna instalacja pre-commita tam, gdzie jest, `claude /login`,
+  `/relai-update` dla JiraManagera i PolyFlow, los `ProbaCursorE6`, wdrożenie D-86 w E7.
