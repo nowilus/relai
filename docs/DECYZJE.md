@@ -24,6 +24,7 @@ Zasada: decyzji z tego rejestru **nie proponuje się ponownie**. Zmiana wymaga j
 - **D-17** CHANGELOG: NIE jest osobno prowadzony — generowany na żądanie destylacją DZIENNIKA (`/relai-changelog`).
 - **D-18** Archiwizacja na bieżąco przez agenta: blockquote „NIEAKTUALNE — zastąpione przez X, dnia Y, powód Z" + przeniesienie do `docs/archiwum/`. Nigdy ciche kasowanie.
 - **D-19** Linkowanie: standardowe linki Markdown (kompatybilne z GitHub/Obsidian/IDE). Bez wikilinków.
+- **D-86** *(2026-08-17, po pilotażu E6)* **Projekt z adapterem obcego narzędzia (Cursor, Codex) ma `AGENTS.md` jako plik główny, a `CLAUDE.md` jest w nim wskaźnikiem** („czytaj `AGENTS.md`"). Projekt prowadzony wyłącznie w Claude Code zostaje przy `CLAUDE.md` jako pliku głównym — bez `AGENTS.md`. Rozstrzygnięcie kolizji: **obecność adaptera obcego narzędzia przesądza**, także gdy projekt jest równolegle prowadzony w Claude Code; nie decyduje to, w którym narzędziu trwa bieżąca sesja. Powód (zmierzony 2026-08-17): Cursor traktuje `/CLAUDE.md` jako regułę wyłącznie za przełącznikiem domyślnie wyłączonym, a `AGENTS.md` czyta bez żadnego przełącznika; Codex czyta `AGENTS.md` „before doing any work" i to jest tam jedyna warstwa zawsze-w-kontekście. Do 1.5.1 `CLAUDE.md` działał w Cursorze **na instrukcji reguły, nie na mechanizmie narzędzia**. Wdrożenie: etap E7. Konsekwencja przyjęta świadomie: powstają dwa warianty układu plików, a różnicę opisuje tabela gwarancji.
 
 ## Interakcja i konfiguracja
 
@@ -93,4 +94,5 @@ Zasada: decyzji z tego rejestru **nie proponuje się ponownie**. Zmiana wymaga j
 
 | Decyzja | Data zmiany | Co się zmieniło | Powód |
 |---|---|---|---|
+| **D-10**, **D-11** → uzupełnione przez **D-86** | 2026-08-17 | Rdzeń i root projektu bez zmian dla projektów czysto Claude Code. Projekt z adapterem Cursora albo Codeksa dostaje w korzeniu **`AGENTS.md` jako plik główny**, a `CLAUDE.md` zostaje w nim wskaźnikiem. | Pilotaż E6 pokazał, że `CLAUDE.md` w Cursorze jest czytany tylko dlatego, że reguła każe go przeczytać — natywnie oba obce narzędzia czytają `AGENTS.md`, a w Codeksie jest on jedyną warstwą zawsze-w-kontekście. |
 | **D-61** → **D-61a** | 2026-08-07 | Lista zakazów designu złagodzona: zaokrąglenia, lekki glassmorphism, animacja służebna, typografia ozdobna i dekoracyjne SVG **dozwolone**; zostają zakazy fioletu/glow, przesytu emoji, generycznych fraz i stocków. Tryb konkursu bez zmian. | Pierwsza runda konkursu (E6 faza 1) spełniła komplet zakazów D-61 i nie spodobała się w żadnej z pięciu propozycji. Lista zakazów okazała się filtrem końcowym, nie briefem (L-0019). |

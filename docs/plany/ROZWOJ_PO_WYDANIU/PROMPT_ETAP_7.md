@@ -8,14 +8,15 @@ projektu")
 > „Model wykonawczy etapów"). Jeśli sesja działa na innym modelu — zatrzymaj się i poproś
 > użytkownika o przełączenie, zanim cokolwiek zrobisz.
 
-> **Decyzja człowieka, którą sprawdzasz jako pierwszą rzecz.** Pilotaż E6 pokazał, że
-> `CLAUDE.md` w projekcie prowadzonym Cursorem jest czytany **tylko dlatego, że reguła każe go
-> przeczytać** — natywnie oba obce narzędzia czytają `AGENTS.md`. Dla Codeksa to nie jest niuans:
-> `AGENTS.md` **jest** tam jedyną warstwą zawsze-w-kontekście. Wpis dziennika z 2026-08-17
-> zostawił człowiekowi trzy wyjścia: (a) `AGENTS.md` plikiem głównym, `CLAUDE.md` wskaźnikiem,
-> (b) odwrotnie, (c) stan dzisiejszy jako świadoma różnica. **Jeśli decyzji nie ma w
-> `docs/DECYZJE.md` ani w dzienniku — zatrzymaj się i zapytaj, zanim napiszesz pierwszy plik
-> adaptera.** Kształt całego etapu zależy od odpowiedzi.
+> **Decyzja podjęta — D-86 (2026-08-17), nie otwieraj jej ponownie.** Projekt z adapterem obcego
+> narzędzia (Cursor, Codex) ma **`AGENTS.md` jako plik główny**, a `CLAUDE.md` jest w nim
+> **wskaźnikiem** („czytaj `AGENTS.md`"). Projekt prowadzony wyłącznie w Claude Code zostaje przy
+> `CLAUDE.md` i nie dostaje `AGENTS.md`. Kolizję rozstrzyga **obecność adaptera**, nie to,
+> w którym narzędziu trwa sesja. Konsekwencje dla tego etapu: instalator Codeksa zakłada
+> `AGENTS.md` i zamienia `CLAUDE.md` we wskaźnik (istniejącej treści **nie kasujesz** — przenosisz
+> ją, a wskaźnik dostaje link), deinstalator odwraca tę operację, a `SPEC_CLAUDE_MD.md` dostaje
+> sekcję opisującą oba warianty układu. To samo dotyczy adaptera Cursora — jego instalator
+> wykonuje odtąd tę samą zamianę, więc zmiana obejmuje `adapters/cursor/install.js`.
 
 ## Co przeczytać na start (w tej kolejności, nic więcej)
 

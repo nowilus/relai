@@ -76,16 +76,18 @@ w której narzędzie dostają inne osoby i zgłaszają, co im przeszkadza. Pierw
 - Cztery **bramki manualne** planu czekają na człowieka: sekwencja wydania (push → aktualizacja
   pluginu → restart), `claude /login` na konto z limitem, decyzja o `/relai-update` dla
   JiraManagera i PolyFlow oraz decyzja o instalacji pre-commita. Piąta — osoba z zespołu do
-  pilotażu — została rozstrzygnięta w E6 wariantem zastępczym. Doszła nowa rzecz do rozstrzygnięcia:
-  **`AGENTS.md` czy `CLAUDE.md`** jako plik główny projektu; Cursor i Codex czytają natywnie ten
-  pierwszy, a dzisiejszy `CLAUDE.md` działa tam wyłącznie dlatego, że reguła każe go przeczytać.
+  pilotażu — została rozstrzygnięta w E6 wariantem zastępczym.
+- **Plik główny projektu rozstrzygnięty (D-86, 2026-08-17):** projekt z adapterem Cursora albo
+  Codeksa dostaje **`AGENTS.md`** jako plik główny, a `CLAUDE.md` zostaje w nim wskaźnikiem;
+  projekt czysto Claude Code zostaje bez zmian. Wdrożenie należy do E7 i obejmuje także instalator
+  Cursora.
 
 ## Co dalej
 
 - Świeża sesja Opus i `/relai-stage` — etap E7 (adapter Codeksa): `AGENTS.md` jako warstwa nośna,
   hooki Codeksa, ten sam scenariusz akceptacyjny co w E6.
-- Rozstrzygnąć, czy plikiem głównym projektu zostaje `AGENTS.md`, czy `CLAUDE.md` — decyzja
-  wchodzi wprost do E7.
+- Wdrożyć D-86 w E7: `AGENTS.md` plikiem głównym w projektach z adapterem obcego narzędzia,
+  `CLAUDE.md` wskaźnikiem — razem z przepięciem instalatora Cursora.
 - Zainstalować pre-commit tam, gdzie ma pilnować: `node core/guardrails/install-precommit.js
   <projekt>`. Hook jest zmierzony, ale nikt go za człowieka nie podłoży.
 - Trzy odnogi do wykonania w świeżych sesjach, w dowolnej kolejności wobec etapów.

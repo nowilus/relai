@@ -2283,3 +2283,32 @@ Autor: RelAI (Opus 5) + Łukasz
 - Pozostałe pozycje bez zmian wobec wpisu E6 z dzisiaj: decyzja `AGENTS.md` / `CLAUDE.md`,
   sekwencja wydania 1.5.1, ponowna instalacja pre-commita tam, gdzie już jest, `claude /login`,
   `/relai-update` dla JiraManagera i PolyFlow, los projektu testowego `ProbaCursorE6`.
+
+### 2026-08-17 — Decyzja D-86: plik glowny projektu
+
+Autor: RelAI (Opus 5) + Lukasz
+
+**Zrobione:**
+
+- Zamrozona **D-86**: projekt z adapterem obcego narzedzia (Cursor, Codex) ma **AGENTS.md** jako
+  plik glowny, a CLAUDE.md zostaje w nim wskaznikiem; projekt prowadzony wylacznie w Claude Code
+  zostaje bez zmian. Kolizje rozstrzyga obecnosc adaptera, nie narzedzie biezacej sesji.
+- Tabela "Decyzje zmienione" w rejestrze: D-10 i D-11 uzupelnione przez D-86.
+- PROMPT_ETAP_7: blokujaca bramka zamieniona w rozstrzygniecie — E7 nie pyta o to ponownie
+  i dostaje wprost zakres wdrozenia (instalator Codeksa, instalator Cursora, SPEC_CLAUDE_MD).
+- STATE zaktualizowany: pozycja "do rozstrzygniecia" zamieniona na zapis decyzji.
+
+**Zweryfikowane — jak dokladnie:** decyzja zapisana w dwoch miejscach rejestru (wpis D-86 i wiersz
+tabeli zmian), a prompt etapu E7 nie zawiera juz zdania nakazujacego zatrzymanie sie na tym pytaniu.
+Wdrozenia nie ma i celowo nie bylo — nalezy do E7.
+
+**Swiadomie odlozone:**
+
+- **Wdrozenie D-86** w calosci: instalator Cursora nadal zaklada wylacznie CLAUDE.md, wiec projekty
+  z adapterem Cursora (w tym ProbaCursorE6) maja dzis uklad sprzed decyzji.
+
+**Do zrobienia przez czlowieka:**
+
+- Pozycje bez zmian wobec dwoch wczesniejszych wpisow z dzisiaj: dopisek rozstrzygniecia
+  w SPEC_ARCHIWUM (rotacja dziennika stoi), sekwencja wydania 1.5.1, ponowna instalacja
+  pre-commita, claude /login, /relai-update dla JiraManagera i PolyFlow, los ProbaCursorE6.
