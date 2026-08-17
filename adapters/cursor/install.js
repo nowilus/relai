@@ -192,7 +192,9 @@ function install(projekt, bezSkanu) {
   process.stdout.write('  + reguly zawsze-w-kontekscie: ' + pliki(path.join(ADAPTER, 'rules'), /\.mdc$/i).length + '\n');
   process.stdout.write('  + komendy /relai-*: ' + komendy.length + '\n');
   process.stdout.write('  + skille: ' + skille.length + '\n');
-  process.stdout.write('  + specyfikacje w .claude/relai/templates/: ' + templates + '\n');
+  // Licznik obejmuje pliki, nie same specyfikacje: 20 plikow SPEC_*.md + szablon planu HTML.
+  // Etykieta "specyfikacje: 30" wprowadzala w blad (pilotaz E6, 2026-08-17).
+  process.stdout.write('  + pliki specyfikacji i szablonow w .claude/relai/templates/: ' + templates + '\n');
   process.stdout.write('  + hooki w .cursor/hooks.json: ' +
     (hooki.zmienione ? Object.keys(wpisyRelAI(bezSkanu)).join(', ') : 'NIE ZAPISANE') + '\n');
   if (!hooki.zmienione) {

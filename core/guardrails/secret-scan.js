@@ -23,6 +23,14 @@ const PATTERNS = [
 const ASSIGN_RE = /\b(PASSWORD|PASSWD|SECRET|TOKEN|API[_-]?KEY|ACCESS[_-]?KEY)\b\s*[:=]\s*["']?([^\s"',;]{8,})/i;
 const PLACEHOLDER_RE = /^(\$|%|<|\{|\*|x{3,}$|your[_-]?|change[_-]?me|placeholder|example|dummy|sample|test[_-]?|todo|tbd|none$|null$|undefined$|\.\.\.|process\.env)/i;
 
+// Adnotacja typu, nie wartosc. Sygnatura funkcji haszujacej haslo — identyfikator, dwukropek,
+// typ, nawias zamykajacy i typ zwracany — wpada w ASSIGN_RE, bo klasa wartosci dopuszcza nawias
+// i dwukropek, wiec sam typ z domykajacym nawiasem ma osiem znakow. Granica \b na koncu tokenu
+// jest tu istotna: typ zakonczony nawiasem pasuje, ale "string1234" (mozliwe haslo) juz nie.
+// Zmierzone w pilotazu E6 (2026-08-17): bez tej reguly guardrail blokowal normalny kod
+// uwierzytelniania w TypeScripcie, a agent obchodzil blokade, przemianowujac parametr.
+const TYPE_TOKEN_RE = /^(string|number|boolean|bigint|symbol|object|any|unknown|never|void|Promise|Record|Array|Readonly|Partial|Buffer)\b/;
+
 // Werdykt: null = brak sekretu, string = etykieta znaleziska.
 // Wartosci NIGDY nie zwracamy i nie cytujemy — samo znalezisko wystarczy do decyzji,
 // a zacytowany sekret wedrowalby dalej w logach i transkrypcie (D-42).
@@ -33,7 +41,7 @@ function scanText(payload) {
     if (p.re.test(text)) return p.label;
   }
   const m = text.match(ASSIGN_RE);
-  if (m && !PLACEHOLDER_RE.test(m[2])) {
+  if (m && !PLACEHOLDER_RE.test(m[2]) && !TYPE_TOKEN_RE.test(m[2])) {
     return 'przypisanie ' + m[1].toUpperCase() + '= z niepusta wartoscia';
   }
   return null;

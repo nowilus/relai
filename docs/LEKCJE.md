@@ -128,6 +128,15 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
     kodem blokującym; „cisza" musi się zamienić w „blokada z komunikatem". (L-0043)
 44. Sesję pomiarową CLI cudzego narzędzia uruchamiaj z **powłoki natywnej dla systemu** — narzędzie
     dziedziczy powłokę i potrafi budować transport payloadu w jej składni. (L-0044)
+45. Blokada guardraila na treści, która sekretem nie jest, to **defekt guardraila** — wraca do
+    rdzenia jako poprawka z dowodem, nigdy jako obejście w kodzie użytkownika. Wzorzec wykrywający
+    sekret w przypisaniu musi odróżniać wartość od adnotacji typu. (L-0045)
+46. Próbki sekretów w testach i przykłady w komentarzach składaj z fragmentów **w czasie
+    wykonania** albo zakładaj pliki powłoką — guardrail blokuje także własny materiał
+    dowodowy. (L-0046)
+47. Zanim uznasz brak sygnału mechanizmu za defekt, przeczytaj jego **warunek milczenia** i powtórz
+    pomiar po jego spełnieniu; sondę formułuj tak, by odpowiedź dało się przypisać wyłącznie do
+    naszego wstrzyknięcia. (L-0047)
 
 ## Lekcje
 > Lekcje L-0001 … L-0024 (24 lekcji) są w
@@ -446,3 +455,45 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
   logiem po stronie skryptu.
 - **Źródło:** E5 planu ROZWOJ_PO_WYDANIU (2026-08-12), cztery przebiegi próbne (dwa z basha, dwa
   z PowerShella).
+
+### L-0045 — Gdy guardrail blokuje poprawny kod, podejrzanym jest guardrail, nie kod · 2026-08-17 · AKTYWNA
+
+- **Trigger:** w pilotażu E6 skaner sekretów zablokował zapis modułu haszującego hasło w projekcie
+  testowym. Agent nie zgłosił defektu — przemianował parametr funkcji, zapisał w rejestrze lekcji
+  projektu zasadę „nie nazywaj parametru tak jak wcześniej" i pojechał dalej. Błąd narzędzia stał
+  się regułą nazewniczą kodu.
+- **Przyczyna:** wzorzec przypisania dopuszczał w wartości nawias i dwukropek, więc adnotacja typu
+  z domykającym nawiasem miała wymaganą długość i wyglądała jak sekret. Zablokowany był normalny
+  kod uwierzytelniania w TypeScripcie — czyli dokładnie ten, przy którym guardrail ma pilnować
+  najmocniej.
+- **Zasada:** blokada na treści, która sekretem nie jest, jest defektem guardraila i wraca do
+  rdzenia jako poprawka z dowodem — nigdy jako obejście po stronie kodu użytkownika. Wzorzec
+  wykrywający sekret w przypisaniu musi odróżniać **wartość** od **adnotacji typu**.
+- **Źródło:** E6 planu ROZWOJ_PO_WYDANIU (2026-08-17). Poprawka: `core/guardrails/secret-scan.js`
+  (`TYPE_TOKEN_RE`); dowód: cztery fałszywe alarmy zgaszone, cztery realne sekrety nadal wykryte,
+  5/5 zgodnych werdyktów obu adapterów w jednym przebiegu.
+
+### L-0046 — Materiał testowy guardraila składasz w czasie wykonania · 2026-08-17 · AKTYWNA
+
+- **Trigger:** zapis instrumentu porównawczego z próbką klucza AWS został zablokowany przez ten sam
+  hook, który instrument testuje. Wcześniej ta sama blokada odbiła **komentarz do łatki**
+  naprawiającej skaner: przykład sygnatury w komentarzu wyglądał jak sekret.
+- **Przyczyna:** guardrail nie odróżnia treści testowej od produkcyjnej i nie ma po co odróżniać —
+  to jest jego zaleta. Kosztem jest to, że narzędzie blokuje własny materiał dowodowy.
+- **Zasada:** próbki sekretów w testach i przykłady w komentarzach składaj z fragmentów w czasie
+  wykonania albo zakładaj pliki powłoką; nigdy nie licz na to, że guardrail zrobi wyjątek dla
+  „swojego" pliku. To dotyczy także dokumentacji poprawki.
+- **Źródło:** E6 planu ROZWOJ_PO_WYDANIU (2026-08-17), trzy kolejne blokady tej samej sesji.
+
+### L-0047 — Cisza hooka bywa jego regułą, nie awarią · 2026-08-17 · AKTYWNA
+
+- **Trigger:** sonda „czy dostałeś kontekst startu sesji" w świeżo zainstalowanym projekcie nie
+  pokazała niczego z naszego hooka; model podał datę z własnego bloku narzędzia. Wyglądało to na
+  defekt adaptera w aplikacji.
+- **Przyczyna:** hook kontekstu kończy się po cichu, gdy w katalogu nie ma markera RelAI — a folder
+  w chwili sondy dopiero czekał na inicjalizację. Pomiar był postawiony przed warunkiem działania.
+- **Zasada:** zanim uznasz brak sygnału za defekt, przeczytaj **warunek milczenia** mechanizmu
+  i powtórz pomiar po jego spełnieniu. Sondę formułuj tak, żeby odpowiedź dało się przypisać
+  wyłącznie do naszego wstrzyknięcia (dosłowny cytat markera), a nie do wiedzy narzędzia.
+- **Źródło:** E6 planu ROZWOJ_PO_WYDANIU (2026-08-17); po inicjalizacji ten sam model zacytował
+  wstrzyknięty blok w całości, razem z ustawieniami globalnymi.

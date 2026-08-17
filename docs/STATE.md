@@ -1,6 +1,6 @@
 # STATE — RelAI
 
-Stan na: 2026-08-12
+Stan na: 2026-08-17
 
 ## Gdzie jesteśmy
 
@@ -10,7 +10,7 @@ projekt prowadzony od zera, przekazanie projektu innej osobie, kopia zapasowa z 
 przeniesienie żywego, istniejącego projektu na strukturę RelAI. Od 1.5.0 RelAI ma **drugie
 wyjście**: adapter Cursora — te same dokumenty i ten sam proces w drugim narzędziu, złożone
 z mechanizmów zmierzonych na działającej instalacji, nie założonych. Teraz zaczyna się faza,
-w której narzędzie dostają inne osoby i zgłaszają, co im przeszkadza.
+w której narzędzie dostają inne osoby i zgłaszają, co im przeszkadza. Pierwszy pilotaż (2026-08-17, wersja **1.5.1**) przeszedł w aplikacji Cursora — na modelu spoza Anthropic i z jedną realną naprawą rdzenia w wyniku.
 
 ## Co działa
 
@@ -52,6 +52,9 @@ w której narzędzie dostają inne osoby i zgłaszają, co im przeszkadza.
 - Brak Node.js nie usuwa guardraila po cichu: opakowanie powłoki zamienia „cisza i zapis przechodzi"
   na „blokada z komunikatem". Rezygnacja z guardraila jest jawną decyzją człowieka (`--bez-skanu`).
 - Oba narzędzia czytają i piszą te same `docs/` — praca naprzemienna nie wymaga migracji.
+- **Proces przeżywa zmianę dostawcy modelu.** W pilotażu cały etap — od karty potwierdzenia po rytuał zamknięcia i prompt następnego etapu — poprowadził Grok 4.6 w aplikacji Cursora, z reguł zawsze-w-kontekście, bez przypominania.
+- **Blokada zapisu sekretu ma dwie warstwy i obie działają w aplikacji:** reguła odmawia przy zwykłej prośbie, hook odbija zapis wtedy, gdy model mimo wszystko spróbuje.
+- Skaner sekretów nie blokuje już normalnego kodu uwierzytelniania: adnotacja typu przestała wyglądać jak wartość (1.5.1).
 - W folderze, który nie jest projektem RelAI, plugin jest całkowicie niewidoczny.
 
 ## Nad czym pracujemy teraz
@@ -59,32 +62,37 @@ w której narzędzie dostają inne osoby i zgłaszają, co im przeszkadza.
 - Plan **ROZWOJ_PO_WYDANIU** (8 etapów) — **ZAAKCEPTOWANY 2026-08-12** (Aneks A). Zamknięte:
   **E1** (1.1.0 — odnogi planu), **E2** (1.2.0 — rotacja dokumentów), **E3** (1.3.0 — poprawki
   z retrospektywy), **E4** (1.4.0 — rdzeń przenośny, guardrails jako skrypty, pre-commit,
-  walidator), **E5** (1.5.0 — adapter Cursora). **E6 gotowy do startu:** pilotaż Cursora w firmie
-  — scenariusz akceptacyjny na realnym projekcie osoby z zespołu.
+  walidator), **E5** (1.5.0 — adapter Cursora), **E6** (1.5.1 — pilotaż Cursora w wariancie
+  zastępczym: autor zamiast osoby z zespołu, aplikacja z interfejsem, modele Composer/auto
+  i Grok 4.6). **E7 gotowy do startu:** adapter Codeksa.
 - **`docs/PRZENOSNOSC.md`** trzyma rozpoznanie obu narzędzi. Sekcja Cursora jest od E5 **zmierzona**
   (build produktu + realne sesje agenta), sekcja Codexa nadal z dokumentacji — jej próba należy do
   E7. Tabela gwarancji mówi wprost, co w Cursorze działa tak samo, co inaczej i czego nie ma:
   nie ma egzekwowanego „zapytaj człowieka" przy zapisie pliku ani odpowiednika `AskUserQuestion`.
-- Dwie **odnogi OTWARTE**: `OPIS_REPO` (opis repozytorium na GitHubie) i `POMIAR_ODNOG` (pomiar
-  świeżą sesją — niedomknięte punkty weryfikacji E1, E2 i E3, dziewięć scenariuszy). Każda ma
-  gotowy prompt; nie blokują planu.
-- Pięć **bramek manualnych** planu czeka na człowieka: sekwencja wydania (push → aktualizacja
+- Trzy **odnogi OTWARTE**: `OPIS_REPO` (opis repozytorium na GitHubie), `POMIAR_ODNOG` (pomiar
+  świeżą sesją — niedomknięte punkty weryfikacji E1, E2 i E3, dziewięć scenariuszy) oraz
+  `REKOMENDACJA_MODELU` (rekomendacja modelu z realnej listy modeli narzędzia — wyszła z pilotażu
+  E6). Każda ma gotowy prompt; nie blokują planu.
+- Cztery **bramki manualne** planu czekają na człowieka: sekwencja wydania (push → aktualizacja
   pluginu → restart), `claude /login` na konto z limitem, decyzja o `/relai-update` dla
-  JiraManagera i PolyFlow, decyzja o instalacji pre-commita oraz — nowa po E5 — osoba z zespołu
-  do pilotażu Cursora. Widać je w `STATUS.md` planu.
+  JiraManagera i PolyFlow oraz decyzja o instalacji pre-commita. Piąta — osoba z zespołu do
+  pilotażu — została rozstrzygnięta w E6 wariantem zastępczym. Doszła nowa rzecz do rozstrzygnięcia:
+  **`AGENTS.md` czy `CLAUDE.md`** jako plik główny projektu; Cursor i Codex czytają natywnie ten
+  pierwszy, a dzisiejszy `CLAUDE.md` działa tam wyłącznie dlatego, że reguła każe go przeczytać.
 
 ## Co dalej
 
-- Świeża sesja Opus i `/relai-stage` — etap E6 (pilotaż Cursora w firmie): realny projekt
-  prowadzony w Cursorze przez osobę spoza tego projektu, z próbą zapisu sekretu i przejściem
-  komend na żywym materiale.
+- Świeża sesja Opus i `/relai-stage` — etap E7 (adapter Codeksa): `AGENTS.md` jako warstwa nośna,
+  hooki Codeksa, ten sam scenariusz akceptacyjny co w E6.
+- Rozstrzygnąć, czy plikiem głównym projektu zostaje `AGENTS.md`, czy `CLAUDE.md` — decyzja
+  wchodzi wprost do E7.
 - Zainstalować pre-commit tam, gdzie ma pilnować: `node core/guardrails/install-precommit.js
   <projekt>`. Hook jest zmierzony, ale nikt go za człowieka nie podłoży.
-- Dwie odnogi do wykonania w świeżych sesjach, w dowolnej kolejności wobec etapów.
+- Trzy odnogi do wykonania w świeżych sesjach, w dowolnej kolejności wobec etapów.
 - Przepuścić JiraManagera i PolyFlow przez `/relai-update` — ich dzienniki (348 KB i 223 KB)
   czekają na pierwszą rotację na żywym projekcie.
-- Zebranie pierwszego feedbacku od osób spoza projektu i zamiana go na poprawki — to jest sens
-  etapu E6; potrzebna jest osoba z zespołu, która poprowadzi swój projekt w Cursorze.
+- Zebranie feedbacku od osób **spoza projektu** — pilotaż E6 poprowadził autor, więc kryterium
+  „ktoś inny niż autor" nadal czeka; wraca przy zamknięciu planu.
 
 ## Co blokuje
 
@@ -99,9 +107,13 @@ w której narzędzie dostają inne osoby i zgłaszają, co im przeszkadza.
   i **restarcie** (L-0031).
 - Repozytorium jest **publiczne** (zweryfikowane 2026-08-12), ale ma pusty opis — odnoga
   `OPIS_REPO`.
-- **Adapter Cursora zmierzony wyłącznie przez CLI.** Wszystkie próby E5 przeszły przez
-  `cursor-agent -p`; zachowania aplikacji z interfejsem (w tym `beforeReadFile` i dostęp poza
-  katalogiem roboczym) potwierdzi dopiero pilotaż E6.
+- **Adapter Cursora zmierzony w aplikacji, ale nie w całości.** Pilotaż E6 (2026-08-17) potwierdził
+  reguły, hook kontekstu, obie warstwy blokady sekretu i pełne przejście `/relai-stage`.
+  Niezmierzone zostają: `beforeReadFile`, dostęp poza katalogiem roboczym oraz osiem pozostałych
+  komend w całej procedurze.
+- **Poprawka 1.5.1 nie działa nigdzie poza tym repozytorium** do czasu sekwencji wydania; projekty
+  z gitowym pre-commitem wymagają dodatkowo ponownej instalacji hooka (instalator kopiuje skaner
+  do `.git/hooks/`).
 
 ---
 
@@ -109,7 +121,7 @@ w której narzędzie dostają inne osoby i zgłaszają, co im przeszkadza.
 
 ### Wersja i instalacja
 
-Repozytorium: 1.5.0. Zainstalowany globalnie (scope `user`) pozostaje **1.1.0**
+Repozytorium: 1.5.1. Zainstalowany globalnie (scope `user`) pozostaje **1.1.0**
 (`gitCommitSha e6b41dc`) do czasu push → `plugin update` → **restartu aplikacji** (L-0031). Źródło:
 własny marketplace w tym samym repozytorium.
 
@@ -141,8 +153,9 @@ Repo: github.com/nowilus/relai (publiczne od 2026-08-12) • Plan budowy:
 
 ### Liczby
 
-Etapy planu budowy: 10/10 zamknięte • Etapy planu ROZWOJ_PO_WYDANIU: 5/8 zamknięte • Scenariusze
-akceptacyjne: 4/4 zdane • Adaptery: 2 • Otwarte odnogi: 2 • Otwarte bramki manualne: 5 • Otwarte
-ryzyka: 4 (zależność jakości od modelu, rozrost dokumentów, dwa ryzyka portu — oba obniżone do
-średniego, P1 po E4, P2 po E5) • Zamknięte ryzyka: 6 • Progi rotacji: dziennik 150 KB, lekcje
+Etapy planu budowy: 10/10 zamknięte • Etapy planu ROZWOJ_PO_WYDANIU: 6/8 zamknięte • Scenariusze
+akceptacyjne: 4/4 zdane + pilotaż Cursora (6 kroków, wariant zastępczy) • Adaptery: 2 • Modele,
+na których zmierzono proces: 5 (Fable, Opus, Haiku, Composer/auto, Grok 4.6) • Otwarte odnogi: 3 •
+Otwarte bramki manualne: 4 • Otwarte ryzyka: 4 (zależność jakości od modelu, rozrost dokumentów,
+P1 zawężone po E6, P2 niskie dla Cursora i otwarte dla Codeksa) • Zamknięte ryzyka: 6 • Progi rotacji: dziennik 150 KB, lekcje
 40 wpisów albo 50 KB, STATE 300 linii • Archiwum: lekcje L-0001…L-0024 (rotacja 2026-08-12)

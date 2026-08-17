@@ -199,14 +199,14 @@ z dokumentacji — jej próba należy do E7.
 
 | Gwarancja RelAI | Claude Code | Cursor (po E5) | Codex |
 |---|---|---|---|
-| Reguła zawsze w kontekście | `CLAUDE.md` projektu | **działa tak samo** — `.cursor/rules/relai-*.mdc`, `alwaysApply: true` (zmierzone). Różnica: limit 500 linii na regułę, więc treść jest w trzech plikach | `AGENTS.md` (limit 32 KiB) |
-| Kontekst na starcie sesji | hook `SessionStart` | **działa tak samo** — `sessionStart` + `additional_context` (zmierzone). Różnica: nie działa w agentach chmurowych; brak pola `cwd` (katalog z `workspace_roots`) | hook `SessionStart` |
-| Twarda blokada zapisu sekretu | hook `PreToolUse` + `deny` | **działa tak samo** — `preToolUse` + `permission: deny`, payload niesie `tool_input.content` (zmierzone: zapis klucza zablokowany, czysta treść przeszła) | `PreToolUse` + `permissionDecision: deny` (do potwierdzenia: które narzędzia) |
+| Reguła zawsze w kontekście | `CLAUDE.md` projektu | **działa tak samo** — `.cursor/rules/relai-*.mdc`, `alwaysApply: true` (zmierzone). Różnica: limit 500 linii na regułę, więc treść jest w trzech plikach. **Pilotaż 2026-08-17 (E6):** potwierdzone w aplikacji z interfejsem i na modelu spoza Anthropic (Grok 4.6) — rytuał startu, zakres etapu i rytuał zamknięcia wykonane bez przypominania | `AGENTS.md` (limit 32 KiB) |
+| Kontekst na starcie sesji | hook `SessionStart` | **działa tak samo** — `sessionStart` + `additional_context` (zmierzone). Różnica: nie działa w agentach chmurowych; brak pola `cwd` (katalog z `workspace_roots`). **Pilotaż 2026-08-17 (E6):** potwierdzone w aplikacji — model zacytował wstrzyknięty blok dosłownie, razem z ustawieniami globalnymi z `~/.claude/relai/`, czyli hook przenosi warstwę niedostępną dla sesji (L-0010). Hook milczy w folderze bez markera RelAI — to zachowanie zamierzone, nie awaria | hook `SessionStart` |
+| Twarda blokada zapisu sekretu | hook `PreToolUse` + `deny` | **działa tak samo** — `preToolUse` + `permission: deny`, payload niesie `tool_input.content` (zmierzone: zapis klucza zablokowany, czysta treść przeszła). **Pilotaż 2026-08-17 (E6):** potwierdzone w aplikacji na modelu spoza Anthropic — próba zapisu klucza AWS do pliku śledzonego odbita przez `permission: deny`, plik nie powstał (dowód negatywny). Kolejność warstw: reguła odmawia pierwsza, hook zatrzymuje wtedy, gdy model mimo wszystko spróbuje | `PreToolUse` + `permissionDecision: deny` (do potwierdzenia: które narzędzia) |
 | Guardrail nie znika po cichu | brak interpretera = brak hooka, ale plugin jest instalowany razem z runtime'em | **działa inaczej.** Samo narzędzie **milczy i przepuszcza zapis**, gdy polecenia hooka nie da się uruchomić (zmierzone). Adapter obchodzi to opakowaniem powłoki: bez Node.js kończy się kodem 2, czyli blokadą **każdego** zapisu z komunikatem (zmierzone). Świadoma rezygnacja: instalacja z `--bez-skanu` | nie sprawdzone |
 | **git pre-commit ze skanem sekretów** | **działa (E4, 1.4.0)** | **działa tak samo** — mieszka w repozytorium, nie w narzędziu | **działa** |
 | Pytanie o zgodę przy zmianie konfiguracji | `permissionDecision: ask` (hook `config-protection`) | **nie ma** — `ask` jest w schemacie `preToolUse`, ale producent pisze, że nie jest egzekwowane. Ochronę niesie reguła, nie hook | `PermissionRequest` |
 | Ustrukturyzowane pytanie do człowieka | `AskUserQuestion` | **nie ma** — protokół ma `ask_question`, ale adapter go nie dostaje; procedury pytają tekstem i zatrzymują się | do sprawdzenia w E7 |
-| Specyfikacje dokumentów w sesji | hook kopiuje do `.claude/relai/templates/` | **działa tak samo** — ta sama ścieżka, hook `sessionStart` **i** instalator (30 plików, zmierzone) | do sprawdzenia w E7 |
+| Specyfikacje dokumentów w sesji | hook kopiuje do `.claude/relai/templates/` | **działa tak samo** — ta sama ścieżka, hook `sessionStart` **i** instalator (**20 specyfikacji + szablon planu HTML = 30 plików**, zmierzone; liczba poprawiona po pilotażu 2026-08-17, wcześniej opisywana jako „30 specyfikacji") | do sprawdzenia w E7 |
 | Skille jako nośnik procedury | `Skill` (auto-wyzwalanie zależne od modelu, R2) | **działa tak samo** — `.cursor/skills/<nazwa>/SKILL.md`, wywołanie z nazwy (zmierzone) | `.agents/skills/`, `$nazwa` |
 | Reakcja na wywołanie skilla (dosypanie kontekstu) | hook `PostToolUse` na narzędziu `Skill` | **nie ma** — nie zmierzono zdarzenia niosącego nazwę wywołanego skilla; prowizjonowanie robi `sessionStart` i instalator, więc luka nie boli | nie sprawdzone |
 
@@ -214,12 +214,14 @@ z dokumentacji — jej próba należy do E7.
 
 Instalator kopiuje **wszystkie dziesięć** plików komend do `.cursor/commands/`; wywołanie
 `/relai-<nazwa>` działa (zmierzone na `/relai-help` i na komendzie testowej). Poniżej to, co
-w treści procedury zachowuje się inaczej. **Zastrzeżenie wspólne:** zmierzono ładowanie i start
-procedur, nie pełne przejście każdej z nich na żywym projekcie — to jest zakres pilotażu E6.
+w treści procedury zachowuje się inaczej. **Zastrzeżenie wspólne po pilotażu (2026-08-17, E6):**
+`/relai-stage` przeszła **całą** procedurę na żywym projekcie (karta → zgoda → wykonanie → rytuał
+zamknięcia → prompt następnego etapu); pozostałe komendy poza `/relai-help` nadal mają zmierzone
+wyłącznie ładowanie i start procedury.
 
 | Komenda | Cursor | Różnica / powód |
 |---|---|---|
-| `/relai-stage` | działa inaczej | karta potwierdzenia i wybór planu pytają zwykłym tekstem (brak `AskUserQuestion`); reszta procedury bez zmian |
+| `/relai-stage` | działa inaczej | karta potwierdzenia i wybór planu pytają zwykłym tekstem (brak `AskUserQuestion`); reszta procedury bez zmian. **Zmierzone w całości 2026-08-17:** karta zatrzymała sesję, zgłosiła rozjazd modelu jako pierwszą rzecz, a po zgodzie etap domknął się rytuałem — z `STATUS.md`, wpisem w dzienniku i wygenerowanym promptem następnego etapu. Kontrola modelu wskazuje klasę („najsilniejszy"), nie nazwę modelu dostępnego w narzędziu — odnoga `REKOMENDACJA_MODELU` |
 | `/relai-branch` | działa inaczej | jak wyżej — jedno pytanie o rodzaj odnogi tekstem |
 | `/relai-help` | działa tak samo | zmierzone: wykonała procedurę, przeczytała `SPEC_KOMENDY.md` z cache i zatrzymała się na pytaniu |
 | `/relai-tour` | działa tak samo | czyta dokumenty projektu, niczego nie zmienia |

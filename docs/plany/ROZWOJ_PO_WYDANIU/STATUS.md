@@ -12,8 +12,8 @@ Plan: [PLAN.html](PLAN.html) · Utworzony: 2026-08-12 · Status planu: **ZAAKCEP
 | E3 | Poprawki z retrospektywy (1.3.0) | **ZREALIZOWANY 2026-08-12** | [PROMPT_ETAP_3.md](PROMPT_ETAP_3.md) | 5/8 punktów weryfikacji; punkty 3, 4 (część sesyjna) i 6 → odnoga POMIAR_ODNOG, scenariusze G–I |
 | E4 | Rdzeń przenośny (1.4.0) | **ZREALIZOWANY 2026-08-12** | [PROMPT_ETAP_4.md](PROMPT_ETAP_4.md) | 9/9 punktów weryfikacji; `config-protection` świadomie nierozdzielony — powód w `core/README.md` |
 | E5 | Adapter Cursor (1.5.0) | **ZREALIZOWANY 2026-08-12** | [PROMPT_ETAP_5.md](PROMPT_ETAP_5.md) | 10/10 punktów weryfikacji; rozpoznanie Cursora zmierzone na buildzie produktu i realnych sesjach agenta |
-| E6 | Pilotaż Cursora w firmie | **GOTOWY DO STARTU** | [PROMPT_ETAP_6.md](PROMPT_ETAP_6.md) | scenariusz akceptacyjny na realnym projekcie osoby z zespołu; start zależy od bramki manualnej (osoba z zespołu) |
-| E7 | Adapter Codex (1.6.0) | OCZEKUJE | — | ten sam scenariusz akceptacyjny co E6 |
+| E6 | Pilotaż Cursora w firmie | **ZREALIZOWANY 2026-08-17** | [PROMPT_ETAP_6.md](PROMPT_ETAP_6.md) | pilotaż w wariancie zastępczym (autor, aplikacja Cursora, model Grok 4.6); 8/8 punktów weryfikacji, kryterium "ktoś inny niż autor" **niespełnione** — świadomie |
+| E7 | Adapter Codex (1.6.0) | **GOTOWY DO STARTU** | [PROMPT_ETAP_7.md](PROMPT_ETAP_7.md) | ten sam scenariusz akceptacyjny co E6; wejście: odnoga REKOMENDACJA_MODELU i decyzja AGENTS.md vs CLAUDE.md |
 | E8 | Wydanie 2.0.0 i dystrybucja | OCZEKUJE | — | upublicznienie repo — decyzja człowieka; bez niej dystrybucja wewnętrzna |
 
 ## Odnogi
@@ -24,6 +24,9 @@ Plan: [PLAN.html](PLAN.html) · Utworzony: 2026-08-12 · Status planu: **ZAAKCEP
   weryfikacji E1), dwa rotacyjne (punkty 5 i 7 weryfikacji E2) i trzy z poprawek E3 (punkty 3, 4
   i 6, dopisane 2026-08-12) · źródło: E1, zakres rozszerzony w E2 i E3 ·
   [karta](odnogi/POMIAR_ODNOG/ODNOGA.md) · **OTWARTA**
+- **REKOMENDACJA_MODELU** — rekomendacja modelu wykonawczego z realnej listy modeli narzędzia
+  (Cursor: Composer/Auto/Grok/GPT/Gemini; Codex: warianty GPT) zamiast bezprzydomkowych klas ·
+  źródło: E6, pilotaż 2026-08-17 · [karta](odnogi/REKOMENDACJA_MODELU/ODNOGA.md) · **OTWARTA**
 
 ## Bramki manualne
 
@@ -34,8 +37,7 @@ Plan: [PLAN.html](PLAN.html) · Utworzony: 2026-08-12 · Status planu: **ZAAKCEP
   (L-0032) · źródło: wpis dziennika 2026-08-12 (E1, powtórzone w E2) · **OTWARTA**
 - **Decyzja, kiedy przepuścić JiraManagera i PolyFlow przez `/relai-update`** · źródło: wpis
   dziennika 2026-08-12 (E2) · **OTWARTA**
-- **Osoba z zespołu do pilotażu Cursora** — E6 wymaga realnego projektu prowadzonego w Cursorze
-  przez kogoś spoza tego projektu · źródło: wpis dziennika 2026-08-12 (E5) · **OTWARTA**
+- **Osoba z zespołu do pilotażu Cursora** · źródło: wpis dziennika 2026-08-12 (E5) · *(rozstrzygnięte 2026-08-17: osoby nie było, pilotaż E6 poprowadził autor w wariancie zastępczym; kryterium akceptacyjne planu pozostaje niespełnione i wraca przy zamknięciu planu)*
 - **Instalacja gitowego pre-commita** — w tym repozytorium i w projektach roboczych; RelAI nie
   podkłada hooków gita sam (`node core/guardrails/install-precommit.js <projekt>`) · źródło: wpis
   dziennika 2026-08-12 (E4) · **OTWARTA**
@@ -78,3 +80,13 @@ Plan: [PLAN.html](PLAN.html) · Utworzony: 2026-08-12 · Status planu: **ZAAKCEP
   gwarancji z dziesięcioma komendami. Wszystkie 10 punktów weryfikacji przeszło; adapter Claude
   Code niezmieniony (80/80). Szczegóły: wpis w `docs/DZIENNIK.md` z 2026-08-12. Wygenerowano
   PROMPT_ETAP_6.
+- 2026-08-13 — E6 rozpoczęty. Bramka „osoba z zespołu do pilotażu" rozstrzygnięta wariantem
+  zastępczym: pilotaż prowadzi autor projektu w aplikacji Cursora. Kryterium akceptacyjne planu
+  („ktoś inny niż autor") **pozostaje niespełnione** — zapisane jawnie zgodnie z promptem etapu.
+- 2026-08-17 — **E6 ZREALIZOWANY**, wersja 1.5.1. Pilotaż Cursora w wariancie zastępczym (autor,
+  aplikacja z interfejsem, modele Composer/`auto` i Grok 4.6): sześć kroków scenariusza plus praca
+  naprzemienna, wszystkie 8 punktów weryfikacji przeszło. Poprawka rdzenia — fałszywy alarm skanera
+  sekretów na adnotacji typu (L-0045); trzy poprawki dokumentów; tabela gwarancji odświeżona
+  wynikiem pomiaru. P1 zawężone (część sekretowa Cursora zamknięta), P2 obniżone do niskiego dla
+  Cursora. Nowa odnoga REKOMENDACJA_MODELU. Szczegóły: wpis w `docs/DZIENNIK.md` z 2026-08-17.
+  Wygenerowano PROMPT_ETAP_7.

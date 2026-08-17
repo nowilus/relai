@@ -125,6 +125,10 @@ ask the user to run the adapter installer; do not generate documents from memory
 - **No structured question tool.** Where RelAI procedures say "ask with AskUserQuestion", you ask
   in plain text: a numbered list of options, a recommendation marked "(Rekomendowane)" first, one
   sentence of consequence per option — and then you **stop and wait**. Silence is not consent.
+  When you ask several questions at once, number the questions and the options with digits, and
+  state the answer format using those same digits (`1-1, 2-3`). Measured in the E6 pilot
+  (2026-08-17): options labelled with digits while the requested answer format used letters
+  (`1a, 2a`) — the reader has to guess the mapping.
 - **No plugin manager.** The adapter is a set of files in the project; the update path is the
   `/relai-update` command, not a package manager.
 - Anything a RelAI document promises for another tool and Cursor does not have is listed in
