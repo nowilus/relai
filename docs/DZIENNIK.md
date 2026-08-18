@@ -1237,3 +1237,52 @@ Autor: RelAI (Opus 5) + Łukasz
 
 - Pozostałe bez zmian: ponowna instalacja pre-commita tam, gdzie jest, `claude /login`,
   `/relai-update` dla JiraManagera i PolyFlow, los `ProbaCursorE6`, wdrożenie D-86 w E7.
+
+### 2026-08-18 — README: rozdzielona instalacja dla Claude Code i Cursora
+
+Autor: RelAI (Opus 5) + Łukasz
+
+**Zrobione:**
+
+- **Sekcja „Instalacja" rozbita na dwie ścieżki** z tabelą różnic na wejściu (co instalujesz,
+  zasięg instalacji, czy potrzebne repozytorium na dysku, jak się aktualizuje):
+  **A. Claude Code — plugin** (bez zmian merytorycznych) i **B. Cursor — adapter (bez Claude
+  Code)**.
+- Ścieżka Cursora opisana **od zera, krok po kroku**: sprawdzenie Node.js, klon repozytorium
+  w miejsce docelowe (z powodem: hooki wskazują ścieżkę bezwzględną), utworzenie folderu projektu,
+  uruchomienie instalatora, restart Cursora, pierwsze zdanie w czacie („zacznijmy projekt").
+  Dołożone: co robić przy kolejnym projekcie, jak aktualizować, jak odinstalować.
+- Podsekcja **„Cursor bez Node.js"** przeniesiona do instalacji razem z wariantem `--bez-skanu`
+  i zmienną `RELAI_NODE`.
+- Sekcja opisowa „RelAI w Cursorze" odchudzona z **duplikatu instrukcji** — zostaje w niej to, co
+  adapter daje i czym różni się od pluginu, plus link do właściwej sekcji instalacji.
+- „Wymagania": usunięte odesłanie „instalacja niżej" (instrukcja jest wyżej), dołożony link do
+  wariantu bez Node.js.
+
+**Zweryfikowane — jak dokładnie:**
+
+- Kontrakt instalatora sprawdzony w kodzie, nie z pamięci: `adapters/cursor/install.js:256` wymaga
+  **istniejącego katalogu** (`to nie jest katalog` przy braku) i sam go nie zakłada — stąd osobny
+  krok `mkdir` w instrukcji; flagi to `--bez-skanu` i `--uninstall` (linie 6–7, 45–46); git nie
+  jest wymagany do instalacji adaptera.
+- Adres repozytorium wzięty z `git remote -v`: `https://github.com/nowilus/relai.git` — nie
+  z pamięci modelu.
+- Polecenie instalatora występuje w README **czterokrotnie** i każde wystąpienie jest inne
+  (instalacja, deinstalacja, `--bez-skanu`, opis drzewa katalogów) — duplikat instrukcji zniknął.
+- Kotwica linku `#b-cursor--adapter-bez-claude-code` odpowiada nagłówkowi sekcji w konwencji
+  GitHuba (małe litery, spacje na łączniki, myślnik długi usunięty).
+
+**Świadomie odłożone:**
+
+- **Angielska wersja README** — repozytorium jest publiczne, a instrukcja instalacji jest po
+  polsku; to pierwsza rzecz, która zaboli kogoś spoza zespołu. Nie mieści się w dzisiejszej
+  zmianie i należy do E8 (dystrybucja).
+- Weryfikacja instrukcji **na kimś, kto jej nie pisał** — pilotaż E6 pokazał, że to jedyny sposób
+  wyłapania luk w instrukcji instalacji; kryterium „ktoś inny niż autor" nadal niespełnione.
+
+**Do zrobienia przez człowieka:**
+
+- Przeczytać ścieżkę B oczami kogoś, kto ma wyłącznie Cursora, i powiedzieć, w którym kroku
+  utknął — to jest tańsze niż czekanie na pierwszego użytkownika z zewnątrz.
+- Pozostałe bez zmian: ponowna instalacja pre-commita tam, gdzie jest, `claude /login`,
+  `/relai-update` dla JiraManagera i PolyFlow, los `ProbaCursorE6`, wdrożenie D-86 w E7.

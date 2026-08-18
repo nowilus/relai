@@ -73,7 +73,17 @@ pilnuje, żeby to, co ustalone, wylądowało w pliku.**
 
 ## Instalacja
 
-Trzy kroki, dwie minuty.
+RelAI działa w dwóch narzędziach i instaluje się w nich **inaczej**. Wybierz swoją ścieżkę —
+drugiego narzędzia nie potrzebujesz.
+
+| | Claude Code | Cursor |
+|---|---|---|
+| Co instalujesz | plugin z marketplace'u | adapter z repozytorium |
+| Zasięg instalacji | **raz na maszynę**, działa w każdym folderze | **raz na projekt**, pliki lądują w projekcie |
+| Potrzebne repozytorium RelAI na dysku | nie | **tak** — hooki wskazują jego ścieżkę |
+| Aktualizacja | `claude plugin update` + restart | `git pull` + ponowny instalator w projektach |
+
+### A. Claude Code — plugin
 
 **1.** Dodaj źródło pluginu:
 
@@ -96,6 +106,90 @@ wraca do tematu w tym folderze.
 
 > **Po każdej aktualizacji pluginu zrestartuj aplikację.** Sesja uruchomiona przed aktualizacją
 > nadal wykonuje starą wersję — to nie usterka, tylko sposób ładowania pluginów.
+
+### B. Cursor — adapter (bez Claude Code)
+
+Cursor nie ma marketplace'u pluginów, więc RelAI mieszka u Ciebie jako **zwykłe repozytorium**,
+a instalator kładzie w projekcie reguły, komendy, skille i hooki. Claude Code nie jest do niczego
+potrzebny.
+
+**1. Sprawdź Node.js** — hooki (skan sekretów, kontekst startu sesji) to skrypty Node bez żadnych
+zależności:
+
+```bash
+node -v
+```
+
+Wersja 14 lub nowsza wystarczy. Nie masz Node.js? Czytaj niżej „Cursor bez Node.js" — instalacja
+jest możliwa, ale z jawnie mniejszą ochroną.
+
+**2. Sklonuj repozytorium RelAI** w miejsce, z którego **nie będziesz go przenosić** — wpisy
+w `.cursor/hooks.json` wskazują ścieżkę bezwzględną, więc przeniesienie katalogu wymaga ponownej
+instalacji we wszystkich projektach:
+
+```bash
+git clone https://github.com/nowilus/relai.git C:/Narzedzia/relai
+```
+
+(macOS i Linux: `git clone https://github.com/nowilus/relai.git ~/narzedzia/relai`.)
+
+**3. Utwórz folder projektu**, jeśli jeszcze go nie masz — instalator wymaga **istniejącego**
+katalogu i sam go nie zakłada:
+
+```bash
+mkdir C:/Users/<Ty>/Desktop/MojProjekt
+```
+
+**4. Uruchom instalator**, wskazując folder projektu:
+
+```bash
+node C:/Narzedzia/relai/adapters/cursor/install.js C:/Users/<Ty>/Desktop/MojProjekt
+```
+
+Instalator wypisze, co położył: trzy reguły `.cursor/rules/relai-*.mdc`, dziesięć komend
+`/relai-*`, dwa skille, specyfikacje dokumentów w `.claude/relai/templates/` i dwa wpisy
+w `.cursor/hooks.json`. Cudze wpisy w `hooks.json` zostają nietknięte.
+
+**5. Otwórz folder w Cursorze i zrestartuj aplikację** — hooki wczytują się przy starcie, więc
+projekt otwarty przed instalacją nadal ich nie ma.
+
+**6. Nowy czat, jedno zdanie:**
+
+```text
+zacznijmy projekt
+```
+
+RelAI zapyta o zgodę, zada **dokładnie trzy** pytania (język, git, rodzaj projektu) i wygeneruje
+`CLAUDE.md`, `README.md` oraz `docs/` z sześcioma dokumentami. Od tego momentu piszesz normalnie —
+dokumenty aktualizują się w ramach pracy.
+
+**Kolejny projekt:** powtarzasz wyłącznie krok 4 ze ścieżką nowego folderu. Repozytorium RelAI
+klonujesz raz.
+
+**Aktualizacja:** `git pull` w katalogu RelAI, a potem ponowne uruchomienie instalatora w każdym
+projekcie, który ma adapter (instalacja jest idempotentna — nie mnoży wpisów).
+
+**Deinstalacja:** `node C:/Narzedzia/relai/adapters/cursor/install.js <projekt> --uninstall` —
+usuwa dokładnie to, co położył instalator. `docs/`, `CLAUDE.md` i cache specyfikacji zostają,
+bo dokumenty projektu należą do projektu.
+
+#### Cursor bez Node.js
+
+Warstwa dokumentowo-procesowa (reguły, komendy, skille, specyfikacje) to pliki tekstowe i działa
+w całości. Guardrail wymagający Node.js zachowuje się natomiast **twardo**: opakowanie powłoki,
+przez które wołany jest skan sekretów, przy braku interpretera kończy się kodem blokującym, więc
+agent nie zapisze żadnego pliku. To jest świadome — Cursor ignoruje niewykonalny hook **bez słowa**
+(zmierzone), a cicha degradacja guardraila jest gorsza niż jawna blokada.
+
+Świadoma rezygnacja z tego guardraila:
+
+```bash
+node C:/Narzedzia/relai/adapters/cursor/install.js <projekt> --bez-skanu
+```
+
+Wtedy wpis `preToolUse` w ogóle nie powstaje, a instalator mówi wprost, że twardej blokady nie ma.
+Zostaje reguła `relai-guardrails.mdc` — słabsza, bo zależy od dyscypliny modelu. Trzecia droga,
+gdy Node jest, ale nie ma go w `PATH` sesji: zmienna `RELAI_NODE` wskazująca interpreter.
 
 ## Pierwsze pięć minut
 
@@ -258,9 +352,10 @@ Uczciwie, bez obiecywania więcej, niż jest.
 
 ### Wymagania
 
-- Claude Code (dowolny klient: terminal, aplikacja, IDE) **albo Cursor** — od 1.5.0 jest adapter
-  Cursora (`adapters/cursor/`, instalacja niżej),
-- Node.js 14+ w `PATH` — hooki są zwykłymi skryptami Node bez zależności npm,
+- Claude Code (dowolny klient: terminal, aplikacja, IDE) **albo Cursor** — jedno z dwóch wystarczy;
+  dwie ścieżki instalacji opisuje sekcja [Instalacja](#instalacja),
+- Node.js 14+ w `PATH` — hooki są zwykłymi skryptami Node bez zależności npm; w Cursorze bez Node.js
+  czytaj [Cursor bez Node.js](#cursor-bez-nodejs),
 - git (opcjonalnie, ale bez niego znika siatka bezpieczeństwa historii zmian).
 
 ### Struktura repo
@@ -309,21 +404,15 @@ projektu i pod jego realia, zamiast kopiować szablon z placeholderami.
 Praktyczny test granicy: czy ten plik trafiłby bez zmian do adaptera innego narzędzia? Tak → rdzeń.
 Nie → adapter. Adapter Cursora przeszedł ten test w praktyce: konsumuje rdzeń, nie kopiuje go.
 
-### RelAI w Cursorze (od 1.5.0)
+### RelAI w Cursorze — jak to działa (od 1.5.0)
 
-Ten sam proces i te same dokumenty działają w Cursorze. Instalacja jednym poleceniem z katalogu
-RelAI:
+Instrukcja instalacji krok po kroku jest wyżej: [Instalacja → B. Cursor](#b-cursor--adapter-bez-claude-code).
+Tutaj rzecz o tym, **co ta instalacja daje** i czym adapter różni się od pluginu.
 
-```bash
-node <RelAI>/adapters/cursor/install.js <katalog-projektu>
-```
-
-Instalator kładzie w projekcie trzy reguły `.cursor/rules/relai-*.mdc` z `alwaysApply: true`
-(warstwa nośna procesu), dziesięć komend `/relai-*`, dwa skille, specyfikacje
-dokumentów w `.claude/relai/templates/` (dwadzieścia specyfikacji plus szablon planu HTML — razem
-trzydzieści plików) oraz dwa wpisy w `.cursor/hooks.json`: kontekst startu
-sesji i skan sekretów blokujący zapis. Cudze wpisy w `hooks.json` zostają nietknięte, a cofnięcie
-to `--uninstall`.
+Warstwą nośną procesu są trzy reguły `.cursor/rules/relai-*.mdc` z `alwaysApply: true` — wchodzą
+do każdej sesji czatu bez wyzwalania czegokolwiek. Skille niosą procedurę, komendy `/relai-*`
+wywołuje się z nazwy, a dwa wpisy w `.cursor/hooks.json` dokładają kontekst startu sesji i twardą
+blokadę zapisu sekretu.
 
 Oba narzędzia czytają i piszą **te same** `docs/` — pracę można prowadzić naprzemiennie, a wersję
 struktury projektu podbija wyłącznie `/relai-update`. Szczegóły, w tym uczciwa lista różnic
@@ -336,12 +425,6 @@ z interfejsem i na modelu spoza Anthropic cały etap planu — od karty potwierd
 zamknięcia i wygenerowanie promptu następnego etapu — poszedł z reguł zawsze-w-kontekście, bez
 przypominania. Próba zapisu klucza do pliku śledzonego została odbita przez hook (`permission:
 deny`), a praca naprzemienna Cursor ↔ Claude Code na jednym projekcie nie rozjechała dokumentów.
-
-Jedna rzecz jest ważna od pierwszego dnia. Zmierzone zachowanie Cursora: hook, którego polecenia
-nie da się uruchomić, jest **ignorowany bez słowa** — zapis przechodzi tak, jakby guardraila nie
-było. Dlatego skan sekretów wołany jest przez opakowanie powłoki, które przy braku Node.js kończy
-się kodem 2, czyli blokadą z komunikatem. W projekcie bez Node.js oznacza to, że agent nie zapisze
-żadnego pliku — świadoma rezygnacja z guardraila to `--bez-skanu` przy instalacji.
 
 ### Skan sekretów przy commicie (opcjonalny, poza harnessem)
 
