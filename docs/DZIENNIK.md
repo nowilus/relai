@@ -1214,6 +1214,7 @@ Autor: RelAI (Opus 5) + Łukasz
   („dwadzieścia specyfikacji plus szablon planu HTML — razem trzydzieści plików"), usunięte
   nieaktualne zdanie o adapterze Cursora jako hipotezie („gdyby jutro powstał"), dopisany akapit
   o wyniku pilotażu z 2026-08-17.
+- Commit `5e71863` z tą zmianą wypchnięty na GitHuba — nagłówek README pokazuje tam 1.5.2.
 
 **Zweryfikowane — jak dokładnie:**
 
@@ -1234,7 +1235,5 @@ Autor: RelAI (Opus 5) + Łukasz
 
 **Do zrobienia przez człowieka:**
 
-- Push tej zmiany README (propozycja commita niżej) — bez niego GitHub pokazuje wersję 1.5.0
-  w nagłówku.
 - Pozostałe bez zmian: ponowna instalacja pre-commita tam, gdzie jest, `claude /login`,
   `/relai-update` dla JiraManagera i PolyFlow, los `ProbaCursorE6`, wdrożenie D-86 w E7.
