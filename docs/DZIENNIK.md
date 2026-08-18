@@ -1201,3 +1201,40 @@ Autor: RelAI (Opus 5) + Łukasz
   repozytorium.
 - Pozostałe bez zmian: ponowna instalacja pre-commita tam, gdzie jest, `claude /login`,
   `/relai-update` dla JiraManagera i PolyFlow, los `ProbaCursorE6`, wdrożenie D-86 w E7.
+
+### 2026-08-18 — Potwierdzenie wydania 1.5.2 i odświeżenie README
+
+Autor: RelAI (Opus 5) + Łukasz
+
+**Zrobione:**
+
+- Sprawdzone wydanie 1.5.2 po sekwencji wykonanej przez człowieka (push → aktualizacja
+  marketplace'u → `plugin update` → restart aplikacji).
+- `README.md`: numer wersji w nagłówku podbity do **1.5.2**, poprawiona liczba specyfikacji
+  („dwadzieścia specyfikacji plus szablon planu HTML — razem trzydzieści plików"), usunięte
+  nieaktualne zdanie o adapterze Cursora jako hipotezie („gdyby jutro powstał"), dopisany akapit
+  o wyniku pilotażu z 2026-08-17.
+
+**Zweryfikowane — jak dokładnie:**
+
+- `~/.claude/plugins/installed_plugins.json`: `relai@relai` → `version 1.5.2`,
+  `gitCommitSha 0c54eae78b78fbfaf9001a731be5e23f7f28b8a8` (zgodny z ostatnim commitem repozytorium),
+  `installPath` na katalogu `1.5.2`, `lastUpdated 2026-08-17T15:58Z`.
+- **Wersja potwierdzona zachowaniem, nie wpisem** (L-0020): hook `secret-scanner` uruchomiony
+  **z cache'u pluginu 1.5.2** przepuścił sygnaturę funkcji haszującej hasło i zablokował realny
+  sekret w tym samym przebiegu. Poprawka `TYPE_TOKEN_RE` jest obecna w pliku rdzenia w cache'u.
+- README na GitHubie było **identyczne z lokalnym** przed zmianą (`git diff origin/main -- README.md`
+  pusty), więc rozjazd repozytorium ↔ GitHub nie występował; wzmianka o Cursorze była na miejscu
+  w pięciu sekcjach, nieaktualny był wyłącznie numer wersji i dwa zdania opisu.
+
+**Świadomie odłożone:**
+
+- Wzmianki „od 1.5.0" przy adapterze Cursora zostają — to daty historyczne wprowadzenia funkcji,
+  nie numer bieżącego wydania (L-0008).
+
+**Do zrobienia przez człowieka:**
+
+- Push tej zmiany README (propozycja commita niżej) — bez niego GitHub pokazuje wersję 1.5.0
+  w nagłówku.
+- Pozostałe bez zmian: ponowna instalacja pre-commita tam, gdzie jest, `claude /login`,
+  `/relai-update` dla JiraManagera i PolyFlow, los `ProbaCursorE6`, wdrożenie D-86 w E7.

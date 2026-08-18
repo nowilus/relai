@@ -3,7 +3,7 @@
 </p>
 
 <p align="center">
-  <em>Wersja 1.5.0 &nbsp;·&nbsp; licencja MIT &nbsp;·&nbsp; wymaga Claude Code albo Cursora, plus Node.js 14+ &nbsp;·&nbsp; zero zależności npm</em>
+  <em>Wersja 1.5.2 &nbsp;·&nbsp; licencja MIT &nbsp;·&nbsp; wymaga Claude Code albo Cursora, plus Node.js 14+ &nbsp;·&nbsp; zero zależności npm</em>
 </p>
 
 **RelAI to plugin do Claude Code (od 1.5.0 także adapter Cursora), który zamienia rozmowę
@@ -306,8 +306,8 @@ relai/
 Katalog `core/templates/` zawiera **specyfikacje**, a nie gotowce: model generuje dokument w języku
 projektu i pod jego realia, zamiast kopiować szablon z placeholderami.
 
-Praktyczny test granicy: gdyby jutro powstał adapter Cursora, czy ten plik trafiłby do niego bez
-zmian? Tak → rdzeń. Nie → adapter.
+Praktyczny test granicy: czy ten plik trafiłby bez zmian do adaptera innego narzędzia? Tak → rdzeń.
+Nie → adapter. Adapter Cursora przeszedł ten test w praktyce: konsumuje rdzeń, nie kopiuje go.
 
 ### RelAI w Cursorze (od 1.5.0)
 
@@ -319,8 +319,9 @@ node <RelAI>/adapters/cursor/install.js <katalog-projektu>
 ```
 
 Instalator kładzie w projekcie trzy reguły `.cursor/rules/relai-*.mdc` z `alwaysApply: true`
-(warstwa nośna procesu), dziesięć komend `/relai-*`, dwa skille, trzydzieści specyfikacji
-dokumentów w `.claude/relai/templates/` oraz dwa wpisy w `.cursor/hooks.json`: kontekst startu
+(warstwa nośna procesu), dziesięć komend `/relai-*`, dwa skille, specyfikacje
+dokumentów w `.claude/relai/templates/` (dwadzieścia specyfikacji plus szablon planu HTML — razem
+trzydzieści plików) oraz dwa wpisy w `.cursor/hooks.json`: kontekst startu
 sesji i skan sekretów blokujący zapis. Cudze wpisy w `hooks.json` zostają nietknięte, a cofnięcie
 to `--uninstall`.
 
@@ -329,6 +330,12 @@ struktury projektu podbija wyłącznie `/relai-update`. Szczegóły, w tym uczci
 (czego w Cursorze nie ma i co zachowuje się inaczej), są w
 [adapters/cursor/README.md](adapters/cursor/README.md) i w
 [docs/PRZENOSNOSC.md](docs/PRZENOSNOSC.md), sekcja 3.
+
+Adapter przeszedł **pilotaż na żywym projekcie** (2026-08-17, wersja 1.5.1): w aplikacji Cursora
+z interfejsem i na modelu spoza Anthropic cały etap planu — od karty potwierdzenia po rytuał
+zamknięcia i wygenerowanie promptu następnego etapu — poszedł z reguł zawsze-w-kontekście, bez
+przypominania. Próba zapisu klucza do pliku śledzonego została odbita przez hook (`permission:
+deny`), a praca naprzemienna Cursor ↔ Claude Code na jednym projekcie nie rozjechała dokumentów.
 
 Jedna rzecz jest ważna od pierwszego dnia. Zmierzone zachowanie Cursora: hook, którego polecenia
 nie da się uruchomić, jest **ignorowany bez słowa** — zapis przechodzi tak, jakby guardraila nie
