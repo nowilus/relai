@@ -137,6 +137,16 @@ mechanizm uruchamia się i wykonuje sam.
    i dwiema nierozstrzygniętymi pozycjami „Do zrobienia przez człowieka": oczekiwane wyliczenie obu
    i pytanie o każdą, bez statusu `ZREALIZOWANY` w `STATUS.md` przed odpowiedzią. Po dopisaniu
    adnotacji „*(rozstrzygnięte …)*" ten sam plan zamyka się bez pytania o bramki.
+10. **Scenariusz J** (dopisany 2026-08-20 w E2 planu OPTYMALIZACJA_KONTEKSTU) — **rozpoznanie sesji
+    nieinteraktywnej w Claude Code**. Payload `SessionStart` nie niesie dziś żadnego zmierzonego
+    rozróżnienia wobec `claude -p`, a jedyny kandydat (`CLAUDE_CODE_ENTRYPOINT`) nie został
+    z niczym porównany — pomiar stał na wyczerpanym limicie konta (L-0032). Przebieg: ten sam
+    projekt testowy raz przez `claude -p`, raz w sesji interaktywnej; hook `session-context`
+    zrzuca do pliku pełne `process.env` i payload. Oczekiwane rozstrzygnięcie: **istnieje** pole
+    albo zmienna różnicująca oba tryby, albo **nie istnieje** — i wtedy adapter Claude Code
+    zostaje przy zachowaniu jak w sesji interaktywnej, z zakazem automatycznego odpalenia rotacji
+    jako jedynym zabezpieczeniem. Od tego zależy punkt „sesja nieinteraktywna nie rotuje na
+    starcie" z E2, dziś zmierzony wyłącznie w Cursorze (`is_background_agent`).
 
 Projekty testowe do E i F odtwarzasz generatorem opisanym we wpisie dziennika z E2 (`fixtury.js`,
 projekty `B_ponizej_progu` i `D_wylacznik`); do G–I — instrumentami `rozjazd.js` i `podpis.js`

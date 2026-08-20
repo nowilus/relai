@@ -4,152 +4,96 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
 
 ## Zasady aktywne
 
-1. Każda specyfikacja dokumentu kończy się realnym, kompletnym przykładem — bez niego jest martwa.
-   (L-0001)
-2. Nie obiecuj w dokumentach użytkownika tego, co jeszcze nie działa; nowa fraza wchodzi do
-   `KOMENDY.md` dopiero w wersji, w której realnie działa. (L-0002)
-3. Ostrzeżenie `claude plugin validate` o root `CLAUDE.md` jest świadomym skutkiem dogfoodingu —
-   nie „naprawiaj" go przenoszeniem pliku. (L-0003)
-4. Plugin RelAI jest zainstalowany (scope `user`) od 0.3.1. Zachowania skilli mierzysz **realnie** —
-   świeżą sesją `claude -p … --output-format stream-json` i liczbą wywołań narzędzia `Skill` —
-   a nie odtwarzaniem procedury ręcznie. Po zmianie skilla: push → `claude plugin marketplace update
-   relai` → **`claude plugin update relai@relai`**, inaczej mierzysz starą wersję. (L-0004, zmienione
-   2026-08-07; sekwencja doprecyzowana 2026-08-08 — L-0020)
-5. Zanim opiszesz zachowanie agenta w skillu, sprawdź, czy da się je zweryfikować z wnętrza sesji
-   wykonującej etap; jeśli nie — zaplanuj weryfikację tam, gdzie jest możliwa, zamiast deklarować
-   ją jako wykonaną. (L-0005)
-6. „Pytanie przy każdym planie" znaczy „pytanie raz na projekt": zanim zapytasz, sprawdź
-   `USTAWIENIA.md` i warstwę globalną, a gdy próg rozstrzyga jednoznacznie — nie pytaj wcale,
-   tylko powiedz, co przyjąłeś. (L-0006)
-7. Test zamrożenia (i każdy inny test „czegoś nie wolno") wymaga dowodu negatywnego: pokaż, że
-   chroniony fragment ma nadal pierwotne brzmienie, nie tylko że nowy wpis powstał. (L-0007)
-8. Po podbiciu wersji pluginu przepuść repo `grep`-em po starym numerze i rozstrzygnij **każde**
-   trafienie: historyczne zostaje, aktualne się zmienia. (L-0008)
-9. Opis skilla zaczynaj od `MUST BE USED`, markera rozpoznawczego projektu i **płaskiej listy
-   dosłownych fraz** wyzwalających. Opis narracyjny nie wygrywa konkurencji z dwustoma innymi
-   skillami — zmierzone: przed poprawką 1/4 trafień, po poprawce 2/2. (L-0009)
-10. Skill nie może zakładać dostępu do plików spoza katalogu roboczego. Warstwa globalna
-    `~/.claude/relai/` jest niewidoczna dla sesji uruchomionej w projekcie — przewiduj brak dostępu
-    i mów o tym wprost zamiast milcząco pomijać dziedziczenie. (L-0010)
-11. Odesłanie do pliku specyfikacji **nie wystarcza**: struktura, której naprawdę wymagasz, musi
-    być wypisana w treści skilla. Zmierzone: prompt etapowy generowany z samego odsyłacza miał
-    własny układ; po wypisaniu dziewięciu sekcji w skillu — układ zgodny. (L-0011)
-12. Katalog pluginu (`templates/`) jest dla sesji **niedostępny** tak samo jak katalog domowy.
-    Każdy mechanizm, który musi coś stamtąd przeczytać, wymaga zapasowej ścieżki w treści skilla —
-    inaczej staje. (L-0012)
-13. „Zapytam człowieka" nie zwalnia z posprzątania po sobie: pytanie o wybór jest w porządku,
-    zostawienie po sobie martwego linku nie. Zawsze istnieje poprawna wartość tymczasowa. (L-0013)
-14. Krok rytuału wykonuj w repozytorium **zanim** napiszesz zdanie, które go opisuje. Dziennik
-    mówiący o zrobionej rzeczy, której nie zrobiono, jest gorszy niż brak wpisu. (L-0014)
-15. Komenda wywołana wprost **nie ładuje** skilla, do którego się odwołuje. Potrzebną procedurę
-    albo wpisujesz do komendy, albo każesz jej jawnie wczytać skill. (L-0015)
-16. Komunikaty hooków są **celowo ASCII** — bez polskich diakrytyków na stdout/stderr hooka;
-    diakrytyki w treści plików tak, w wyjściu procesów hooków nie. (L-0016)
-17. Działanie hooka dowodzisz **efektem** (plik istnieje/nie istnieje, suma kontrolna, treść
-    odpowiedzi modelu), nie zdarzeniem w transkrypcie — `stream-json` loguje tylko hooki
-    SessionStart. Payloady testowe hooków buduj Nodem, nie echem w shellu. (L-0017)
-18. Kryterium weryfikacji formułuj na stanie, który kontrolujesz, nie na przewidywanym formacie
-    wyjścia cudzego narzędzia. (L-0018)
-19. Lista zakazów to filtr końcowy, nie brief. Przy zadaniu wizualnym zbierz najpierw cechy
-    **pozytywne** i pokaż **jeden** wariant do kalibracji smaku, zanim wyprodukujesz pięć. (L-0019)
-20. Zainstalowaną wersję pluginu potwierdzasz `~/.claude/plugins/installed_plugins.json` (`version`
-    **i** `gitCommitSha`) albo treścią skilla w cache'u — **nie** `claude plugin details`, który
-    pokazuje wersję z marketplace. `plugin install` na zainstalowanym pluginie to no-op, a `plugin
-    update` porównuje **numer wersji**: poprawka bez podbicia wersji nie dotrze inaczej niż przez
-    `uninstall` + `install`. (L-0020)
-21. Narzędzie systemowe rozstrzygające o **formacie** artefaktu wywołuj pełną ścieżką i sprawdzaj
-    wynik (nagłówek pliku, lista wpisów), nie kod wyjścia — `tar` w Git Bash to GNU tar i po cichu
-    zapisze archiwum tar pod nazwą `.zip`. (L-0021)
-22. W dokumencie użytkownika podajesz **zmierzoną** formę wywołania. Komendy pluginu żyją
-    w przestrzeni nazw: `/relai:relai-<nazwa>`; forma skrócona nie istnieje w trybie `-p`. (L-0022)
-23. Krok sięgający poza katalog roboczy ma mieć w procedurze zapisane wyjście po odmowie dostępu
-    (komunikat + `--add-dir`); nigdy „po cichu bliżej". (L-0023)
-24. Sesja pomiarowa `claude -p` ma dwa warunki wykonalności, o których nie mówi żaden błąd: prompt
-    z polskimi znakami przekazujesz **przez stdin** (argument obcina go w powłoce Windows), a zapis
-    plików wymaga `--permission-mode acceptEdits`. Bez nich przebieg wygląda na udany i mierzy coś
-    innego. (L-0024)
-25. Wartość czytana z dokumentu **maszynowo** dopasowuje się do kotwicy (początek komórki), nie
-    „gdziekolwiek w linii" — inaczej trafia w prozę. Wartość nierozpoznana znaczy **cisza**, nigdy
-    zgadywanie. (L-0025)
-26. Zdarzenie wyzwala dokument, ale nie dostarcza faktów. Specyfikacja dokumentu, którego wartość
-    polega na wykonalności, ma zapisaną ścieżkę „pytam zamiast zmyślać" wraz z formą zapisu luki
-    (`<DO UZUPEŁNIENIA: …>`). (L-0026)
-27. Plików z polskimi znakami **nie** przepuszczasz przez PowerShell 5.1: `Get-Content -Raw` czyta
-    UTF-8 jako ANSI i psuje treść, mimo `-Encoding utf8` przy zapisie. Dokumenty dopisujesz
-    narzędziem Write/Edit albo Nodem. (L-0027)
-28. Sesja pomiarowa używająca narzędzi systemowych (tar, git) potrzebuje `--allowedTools "Bash"`
-    obok `--permission-mode acceptEdits` — inaczej mierzysz uprawnienia harnessu, nie zachowanie
-    komendy. (L-0028)
-29. Komponent opcjonalny musi dać się **pominąć bez śladu**: żadnych pustych wypełniaczy ani
-    martwego kodu. Jeśli pominięcie wymaga pracy, element jest rusztowaniem, nie komponentem —
-    przenieś go do repertuaru i pozwól narzędziu sprzątnąć po nim znacznik. (L-0029)
-30. Zachowanie, które ma działać **zawsze**, mieszka w `CLAUDE.md` projektu — nie w skillu i nie
-    w ściądze dla człowieka. Skill wyzwala się zawodnie (R2), a `KOMENDY.md` nikt nie czyta na
-    starcie. Regułę niesie warstwa obecna w kontekście każdej sesji; skill dokłada procedurę.
-    (L-0030)
-31. `claude plugin update` **nie działa od razu**: do restartu aplikacji sesje ładują stary cache,
-    choć `installed_plugins.json` pokazuje już nową wersję. Mechanizm kontrolny tego nie wykryje,
-    bo sam jest starą wersją. Po wydaniu: restart aplikacji, potem pomiar. (L-0031)
-32. Sesja pomiarowa `claude -p` uwierzytelnia się z `~/.claude/.credentials.json` — **niezależnie
-    od konta zalogowanego w aplikacji**. Konto (`oauthAccount` w `~/.claude.json`) i limit
-    sprawdzasz **przed** pomiarem; wyczerpany limit jest powodem zatrzymania i prośby o
-    `claude /login`, nigdy powodem odtworzenia procedury ręcznie. Niedomknięty punkt weryfikacji
-    idzie do odnogi z gotowym promptem, nie do adnotacji „sprawdzone inaczej". (L-0032)
-33. Sumy kontrolne plików, które przeszły przez gita (klon, checkout, cache pluginu), porównuj
-    **po normalizacji CRLF → LF** — inaczej dostajesz dowód fałszywie negatywny wyglądający jak
-    defekt dystrybucji. (L-0033)
-34. Próg liczbowy w mechanizmie automatycznym kalibrujesz na **zmierzonych** plikach realnych
-    projektów, zanim go zapiszesz — próg powyżej maksimum, jakie te projekty osiągają, jest progiem
-    martwym i wygląda jak działający. (L-0034)
-35. Dopisek czytany maszynowo („*(rozstrzygnięte …)*") dostaje w specyfikacji **zbiór akceptowanych
-    brzmień** — kanoniczne plus historyczne — zanim powstanie pierwszy mechanizm, który go czyta.
-    Inaczej mechanizm uzna zamknięte pozycje za otwarte. (L-0035)
-36. Sygnał, który ma paść **raz**, ma jednego właściciela: warstwę działającą bez wyzwalania (hook).
-    Druga warstwa dostaje instrukcję milczenia i własny detektor tylko na wypadek nieobecności
-    pierwszej. Cisza właściciela znaczy „sprawdzone i zgodne". (L-0036)
-37. Scenariusz „konfiguracji nie ma" mierzysz z **podstawionym katalogiem domowym** (`HOME`,
-    `USERPROFILE` w env procesu potomnego) — inaczej mierzysz swoją maszynę, nie przypadek
-    brzegowy. (L-0037)
-38. Przeniesienie katalogu, na który wskazuje manifest cudzego narzędzia, sprawdzasz **na kopii**
-    walidatorem tego manifestu — dwa przebiegi, z dowodem negatywnym — zanim ruszysz
-    oryginał. (L-0038)
-39. Drzewo dowolnego commita materializujesz `git worktree add --detach`, nie
-    `git archive | tar` — tar na Windows czyta literę dysku jako nazwę hosta. (L-0039)
-40. „Zachowanie nie zmieniło się" dowodzisz, uruchamiając **obie wersje na tym samym wejściu
-    w jednym przebiegu**; różnice zamierzone normalizujesz jawnie w kodzie instrumentu, nie
-    w głowie. (L-0040)
-41. Rozpoznanie cudzego narzędzia opieraj na **wydanym build'zie i próbie**, nie na samej
-    dokumentacji producenta — dokumentacja bywa niepełna, a kod produktu i realna sesja mówią
-    prawdę o dziś zainstalowanej wersji. Każdą pozycję oznaczaj źródłem. (L-0041)
-42. Payload hooka cudzego narzędzia parsujesz **po zdjęciu BOM** i nie zakładasz, że niesie te same
-    pola co znane Ci narzędzie — katalog roboczy może przyjść pod inną nazwą. (L-0042)
-43. Guardrail wołany przez interpreter znika razem z interpreterem — i narzędzie potrafi tego
-    **nie zgłosić**. Wołaj go przez opakowanie powłoki, które przy braku interpretera kończy się
-    kodem blokującym; „cisza" musi się zamienić w „blokada z komunikatem". (L-0043)
-44. Sesję pomiarową CLI cudzego narzędzia uruchamiaj z **powłoki natywnej dla systemu** — narzędzie
-    dziedziczy powłokę i potrafi budować transport payloadu w jej składni. (L-0044)
-45. Blokada guardraila na treści, która sekretem nie jest, to **defekt guardraila** — wraca do
-    rdzenia jako poprawka z dowodem, nigdy jako obejście w kodzie użytkownika. Wzorzec wykrywający
-    sekret w przypisaniu musi odróżniać wartość od adnotacji typu. (L-0045)
-46. Próbki sekretów w testach i przykłady w komentarzach składaj z fragmentów **w czasie
-    wykonania** albo zakładaj pliki powłoką — guardrail blokuje także własny materiał
-    dowodowy. (L-0046)
-47. Zanim uznasz brak sygnału mechanizmu za defekt, przeczytaj jego **warunek milczenia** i powtórz
-    pomiar po jego spełnieniu; sondę formułuj tak, by odpowiedź dało się przypisać wyłącznie do
-    naszego wstrzyknięcia. (L-0047)
-48. Gdy szukana fraza może paść w dokumencie więcej niż raz, wybieraj linię po **niesionej
-    wartości** (link, liczba), nie po kolejności wystąpienia — „pierwsze trafienie" trafia
-    w prozę i wycisza mechanizm bez śladu. (L-0048)
-49. Mechanizm z progiem ma **jeden** wyzwalacz — ten z decyzji. Wielkości pomocnicze wskazują
-    przyczynę wewnątrz komunikatu, nie wywołują go; inaczej cisza przestaje cokolwiek
-    znaczyć. (L-0049)
+1. **Specyfikacja dokumentu jest kompletna albo martwa:** kończy się realnym przykładem, wypisuje
+   wymaganą strukturę w treści (odesłanie nie wystarcza) i ma zapisaną ścieżkę „pytam zamiast
+   zmyślać" wraz z formą zapisu luki. (L-0001, L-0011, L-0026)
+2. **W dokumencie użytkownika stoi tylko to, co działa i co zmierzyłeś** — fraza wchodzi do
+   `KOMENDY.md` w wersji, w której realnie działa, a forma wywołania jest tą, którą uruchomiłeś
+   dosłownie. (L-0002, L-0022)
+3. **Test „czegoś nie wolno" wymaga dowodu negatywnego:** pokaż, że chroniony fragment ma nadal
+   pierwotne brzmienie, nie tylko że nowy wpis powstał. (L-0007)
+4. **Dowodzisz efektem, nie zdarzeniem:** stanem pliku, sumą kontrolną, treścią odpowiedzi.
+   Kryterium stawiasz na stanie, który kontrolujesz, i na źródle, które artefakt produkuje — nie na
+   cudzym strumieniu. Zmianę zachowania pokazujesz **obiema wersjami w jednym przebiegu**,
+   a instrument porównawczy implementuje wiernie każdą z nich. (L-0017, L-0018, L-0040, L-0051,
+   L-0052)
+5. **Instrument pomiarowy sam bywa źródłem fałszu:** wyrażenia regularne trzymaj w pliku, nie
+   w `node -e`; scenariusz „konfiguracji nie ma" mierz z podstawionym katalogiem domowym; dokładaj
+   przypadek, który **musi** trafić. Zero trafień przy niepustych zbiorach to defekt instrumentu,
+   dopóki nie udowodnisz inaczej — porównanie identyfikatora wygenerowanego z zastanym ma obok
+   siebie kontrolę „ile zastanych nie znalazło pary". Wyczerpany limit konta zatrzymuje pomiar
+   i idzie do odnogi, nie do adnotacji „sprawdzone inaczej". (L-0032, L-0037, L-0054, L-0055)
+6. **Próg jest liczbą, którą ktoś liczy:** kalibruj go na zmierzonych plikach realnych projektów,
+   zapisuj w jednostce mechanizmu kontrolnego wraz z komendą sprawdzającą i daj mu **jeden**
+   wyzwalacz — wielkości pomocnicze wskazują przyczynę wewnątrz komunikatu, nie wywołują go.
+   (L-0034, L-0049, L-0053)
+7. **Wartość czytana maszynowo ma kotwicę i zamkniętą listę brzmień:** dopasowanie od początku
+   komórki, wybór linii po niesionej wartości (nie po kolejności), wartość nierozpoznana znaczy
+   cisza. (L-0025, L-0035, L-0048)
+8. **Zachowanie, które ma działać zawsze, mieszka w warstwie obecnej w każdej sesji** —
+   `CLAUDE.md` projektu albo hook; skill dokłada procedurę i wyzwala się zawodnie, a komenda
+   wywołana wprost go nie ładuje. Sygnał, który ma paść raz, ma jednego właściciela; cisza
+   właściciela znaczy „sprawdzone i zgodne". (L-0015, L-0030, L-0036)
+9. **Skill nie zakłada dostępu do niczego poza katalogiem roboczym** — ani do katalogu pluginu, ani
+   do domowego. Opis zaczynaj od `MUST BE USED`, markera projektu i płaskiej listy fraz; każdy krok
+   sięgający dalej ma zapisane wyjście po odmowie dostępu. (L-0009, L-0010, L-0012, L-0023)
+10. **Wersję pluginu potwierdzasz plikiem instalacji, nie komunikatem CLI**, zachowania mierzysz
+    świeżą sesją, a po podbiciu numeru przepuszczasz repo `grep`-em po starym i rozstrzygasz każde
+    trafienie. (L-0004, L-0008, L-0020)
+11. **Sumy kontrolne porównuj po normalizacji CRLF → LF**, a przeniesienie katalogu wskazywanego
+    przez cudzy manifest sprawdzaj najpierw **na kopii**, walidatorem tego manifestu. (L-0033,
+    L-0038)
+12. **Guardrail zatrzymujący treść, która sekretem nie jest, to defekt rdzenia** — poprawka wraca
+    z dowodem, nigdy jako obejście. Wołaj go przez opakowanie powłoki, żeby brak interpretera
+    zamieniał się w blokadę, a nie w ciszę; próbki sekretów składaj w czasie wykonania. (L-0043,
+    L-0045, L-0046)
+13. **Cudze narzędzie poznajesz z wydanego builda i z próby**, nie z dokumentacji: payload parsuj
+    po zdjęciu BOM i bez założeń o nazwach pól, sesję CLI uruchamiaj z powłoki natywnej, a brak
+    sygnału konfrontuj najpierw z **warunkiem milczenia** mechanizmu. (L-0041, L-0042, L-0044,
+    L-0047)
+14. **Najpierw zmiana w repozytorium, potem zdanie, które ją opisuje.** Weryfikację planuj tam,
+    gdzie jest wykonalna; po pytaniu sprzątasz sam (martwy link nie jest poprawną wartością
+    tymczasową); przy wyprowadzaniu pozycji jednostką inwentarza jest **sprawa**, nie linia.
+    (L-0005, L-0013, L-0014, L-0050)
+15. **Pytasz raz na projekt, komponent opcjonalny znika bez śladu, komunikaty hooków są ASCII.**
+    Przy zadaniu wizualnym zbierasz najpierw cechy pozytywne i pokazujesz jeden wariant do
+    kalibracji. Ostrzeżenie `claude plugin validate` o root `CLAUDE.md` jest świadomym skutkiem
+    dogfoodingu — nie „naprawiaj" go. (L-0003, L-0006, L-0016, L-0019, L-0029)
+
+**Wyprowadzone 2026-08-20 do `docs/PULAPKI.md`:** sześć pozycji, które były pułapkami
+narzędziowymi, a nie zasadami pracy — `tar` na `PATH` (L-0021), sesja pomiarowa `claude -p`
+(L-0024), PowerShell 5.1 i UTF-8 (L-0027), `--allowedTools` przy `acceptEdits` (L-0028),
+restart aplikacji po `plugin update` (L-0031), `git worktree` zamiast `git archive | tar`
+(L-0039). Obowiązują dalej — czytasz je z rejestru pułapek, na żądanie.
 
 ## Lekcje
+
 > Lekcje L-0001 … L-0024 (24 lekcji) są w
 > [docs/archiwum/lekcje/LEKCJE_L-0001_L-0024.md](archiwum/lekcje/LEKCJE_L-0001_L-0024.md)
 > — przeniesione 2026-08-12, suma kontrolna `bd5f9050dc7e7278`.
 
-### L-0025 — Dopasowanie „gdziekolwiek w linii" trafia w prozę · 2026-08-08 · AKTYWNA
+### L-0055 — Kotwica nagłówka odtworzona „mniej więcej" wycisza cały mechanizm · 2026-08-20 · AKTYWNA
+
+- **Trigger:** instrument wyznaczający zakres rotacji dziennika policzył **dziesięć** wpisów do
+  archiwum zamiast dwóch — w tym wpisy niosące sprawy czekające na człowieka. Powód: generator
+  kotwic nagłówków nie odtwarzał reguły GitHuba. Dwa błędy po kolei: pauza `—` zamieniana na
+  myślnik zamiast usuwana, a potem dwie spacje scalane w jeden myślnik przez `\s+`. Każdy z osobna
+  dawał **zero trafień**, czyli „żaden wpis nie jest blokowany" — wynik wyglądający na poprawny.
+- **Przyczyna:** brak trafień jest nieodróżnialny od „nic nie blokuje". Mechanizm oparty na
+  porównaniu dwóch zbiorów milczy tak samo, gdy zbiory są rozłączne z powodu błędu, jak wtedy, gdy
+  naprawdę nie mają części wspólnej.
+- **Zasada:** mechanizm porównujący **wygenerowany** identyfikator z **zastanym** (kotwica, slug,
+  hash nazwy) ma obok siebie kontrolę „ile zastanych nie znalazło pary" i wypisuje ją **przed**
+  jakąkolwiek zmianą. Zero par przy niepustych zbiorach traktuj jako defekt instrumentu, dopóki nie
+  udowodnisz, że jest inaczej.
+- **Źródło:** pierwsza rotacja dziennika w tym repozytorium (2026-08-20), po zamknięciu E3.
+
+## Lekcje zwinięte
+
+Pełne wpisy lekcji, których zasady żyją w destylacie „Zasady aktywne" (kompresja 2026-08-20).
+Treść jest kopią bajt w bajt — zmieniony został wyłącznie status w linii nagłówka (D-18).
+
+### L-0025 — Dopasowanie „gdziekolwiek w linii" trafia w prozę · 2026-08-08 · ZWINIĘTA 2026-08-20
 
 - **Trigger:** pierwsza wersja `profile-rules` czytała profil wyrażeniem
   `\b(agent-voice|flow|prompty|app)\b` z **całej linii** wiersza „Profil projektu". W tym repo ten
@@ -165,7 +109,7 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
 - **Źródło:** przegląd własny w trakcie etapu E8 (2026-08-08), przed pierwszym pomiarem. Wyłapane
   przez dogfooding — regułę pisaną dla cudzych projektów sprawdziłem na własnym.
 
-### L-0026 — Zdarzenie wyzwala dokument, ale nie dostarcza faktów · 2026-08-08 · AKTYWNA
+### L-0026 — Zdarzenie wyzwala dokument, ale nie dostarcza faktów · 2026-08-08 · ZWINIĘTA 2026-08-20
 
 - **Trigger:** sesja z pierwszym wdrożeniem (profil `app`) rozpoznała regułę, napisała wprost
   „profil `app` wymaga `docs/srodowiska/TEST.md` przy pierwszym wdrożeniu" — i dokumentu **nie
@@ -183,7 +127,7 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
 - **Źródło:** pomiary etapu E8 (2026-08-08); po dopisaniu ścieżki do `SPEC_SRODOWISKA.md`
   zachowanie przestało zależeć od rozsądku sesji.
 
-### L-0027 — PowerShell 5.1 zjada polskie znaki po drodze · 2026-08-08 · AKTYWNA
+### L-0027 — PowerShell 5.1 zjada polskie znaki po drodze · 2026-08-08 · ZWINIĘTA 2026-08-20
 
 - **Trigger:** wpis E8 do `docs/DZIENNIK.md` dopisany sekwencją `Get-Content -Raw` +
   `Add-Content -Encoding utf8`. Nagłówek wylądował w pliku jako „### 2026-08-08 Ă˘â‚¬â€ť E8: profile
@@ -198,7 +142,9 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
   dysku — sprawdzeniem jest odczyt pliku po zapisie, nie kod wyjścia polecenia.
 - **Źródło:** rytuał zamknięcia etapu E8 (2026-08-08); wpis odtworzony Nodem po obcięciu pliku.
 
-### L-0028 — acceptEdits nie obejmuje poleceń Bash · 2026-08-09 · AKTYWNA
+  *(przeniesione 2026-08-20 → `docs/PULAPKI.md`, P-003 — fakt o narzędziu żyje tam, ta lekcja zostaje śladem historii)*
+
+### L-0028 — acceptEdits nie obejmuje poleceń Bash · 2026-08-09 · ZWINIĘTA 2026-08-20
 
 - **Trigger:** sesja pomiarowa `/relai-adopt` w trybie `-p` z `--permission-mode acceptEdits`
   zatrzymała się na bramce backupu nie dlatego, że bramka zadziałała merytorycznie, tylko dlatego,
@@ -214,7 +160,9 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
 - **Źródło:** pomiary etapu E9 (2026-08-09); po dodaniu flagi ta sama sesja przeszła całą
   sekwencję adopcji.
 
-### L-0029 — Szablon, którego elementu nie da się nie użyć · 2026-08-09 · AKTYWNA
+  *(przeniesione 2026-08-20 → `docs/PULAPKI.md`, P-004 — fakt o narzędziu żyje tam, ta lekcja zostaje śladem historii)*
+
+### L-0029 — Szablon, którego elementu nie da się nie użyć · 2026-08-09 · ZWINIĘTA 2026-08-20
 
 - **Trigger:** pilotaż E10 — pierwszy plan użytkownika w projekcie „Paragony". Uwaga po obejrzeniu
   wyniku: „nie w każdym planie będzie potrzeba pokazywania sekcji z suwaczkami; szablon ma
@@ -233,7 +181,7 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
   182 KB i nie zawiera ani jednej linii kodu symulatora (`grep` po `KLUCZE_DEKLAROWANE`, `rysuj`,
   `odswiez` → 0 trafień), plan z wyliczeniami — 193 KB, dziewięć suwaków, symulator liczy.
 
-### L-0030 — Fraza rytualna bez warstwy nośnej · 2026-08-09 · AKTYWNA
+### L-0030 — Fraza rytualna bez warstwy nośnej · 2026-08-09 · ZWINIĘTA 2026-08-20
 
 - **Trigger:** pomiar R2 w pilotażu E10 — prompt „Kontynuujemy pracę." w projekcie RelAI. Sesja
   **nie wywołała** żadnego skilla (`Skill`: 0 wywołań), przeczytała cztery dokumenty i napisała
@@ -251,7 +199,7 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
 - **Źródło:** pomiar R2 w pilotażu E10 (2026-08-09). Po poprawce `CLAUDE.md` niesie jedną linię
   z trzema frazami, z wyróżnionym trzecim członem pierwszej z nich.
 
-### L-0031 — Aktualizacja pluginu działa dopiero po restarcie aplikacji · 2026-08-10 · AKTYWNA
+### L-0031 — Aktualizacja pluginu działa dopiero po restarcie aplikacji · 2026-08-10 · ZWINIĘTA 2026-08-20
 
 - **Trigger:** zaraz po wydaniu 1.0.0 sesja wykonała `/relai:relai-update` w zaadoptowanym
   JiraManagerze i orzekła: „wersja projektu 0.9.0, wersja docelowa 0.9.0, brak zmian" — mimo że
@@ -272,7 +220,9 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
   wersji, a **cache w pamięci aplikacji przeżywa je wszystkie do restartu**.
 - **Źródło:** domknięcie pilotażu E10 (2026-08-10), po wydaniu 1.0.0.
 
-### L-0032 — Sesja pomiarowa `claude -p` ma własne konto, niezależne od aplikacji · 2026-08-12 · AKTYWNA
+  *(przeniesione 2026-08-20 → `docs/PULAPKI.md`, P-005 — fakt o narzędziu żyje tam, ta lekcja zostaje śladem historii)*
+
+### L-0032 — Sesja pomiarowa `claude -p` ma własne konto, niezależne od aplikacji · 2026-08-12 · ZWINIĘTA 2026-08-20
 
 - **Trigger:** w etapie E1 pomiar czterech scenariuszy odnóg padł na „You've hit your session limit
   · resets 4:10pm". Użytkownik zgłosił, że właśnie przełączył konto i limit ma dostępny — a mimo to
@@ -289,7 +239,7 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
   własne miejsce: odnogę z gotowym promptem, nie adnotację „sprawdzone inaczej".
 - **Źródło:** E1 planu ROZWOJ_PO_WYDANIU (2026-08-12); skutek — odnoga `POMIAR_ODNOG`.
 
-### L-0033 — Sumy kontrolne porównuj po normalizacji końców linii · 2026-08-12 · AKTYWNA
+### L-0033 — Sumy kontrolne porównuj po normalizacji końców linii · 2026-08-12 · ZWINIĘTA 2026-08-20
 
 - **Trigger:** sprawdzenie, czy `SPEC_ODNOGA.md` rozprowadzona przez hook do
   `.claude/relai/templates/` jest tożsama z plikiem w repo, dało dwie różne sumy (`b800d247…` vs
@@ -303,7 +253,7 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
   przechodzą (archiwum rotacji, kopie w tym samym drzewie), zostaje suma na bajtach.
 - **Źródło:** E1 planu ROZWOJ_PO_WYDANIU (2026-08-12).
 
-### L-0034 — Próg zapisany bez pomiaru bywa progiem martwym · 2026-08-12 · AKTYWNA
+### L-0034 — Próg zapisany bez pomiaru bywa progiem martwym · 2026-08-12 · ZWINIĘTA 2026-08-20
 
 - **Trigger:** próg rotacji rejestru lekcji miał brzmieć „ponad 60 lekcji". Pomiar trzech realnych
   projektów pokazał maksimum **33** lekcje (RelAI) przy pliku 42 KB, a PolyFlow przy **29** lekcjach
@@ -318,7 +268,7 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
   Gdy jednostka jest wątpliwa, użyj dwóch („40 wpisów albo 50 KB, co nastąpi wcześniej").
 - **Źródło:** przegląd zamykający etap E2 planu ROZWOJ_PO_WYDANIU (2026-08-12).
 
-### L-0035 — Dopisek czytany maszynowo z jednym dozwolonym brzmieniem · 2026-08-12 · AKTYWNA
+### L-0035 — Dopisek czytany maszynowo z jednym dozwolonym brzmieniem · 2026-08-12 · ZWINIĘTA 2026-08-20
 
 - **Trigger:** instrument wyławiający otwarte pozycje „Do zrobienia przez człowieka" zgłosił **48**
   pozycji w dzienniku tego repo. Po obejrzeniu okazało się, że kilkanaście z nich jest zamkniętych
@@ -333,7 +283,7 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
   piszesz brzmieniem kanonicznym; stare mają dalej działać bez przepisywania historii (D-18).
 - **Źródło:** E3 planu ROZWOJ_PO_WYDANIU (2026-08-12), budowa sekcji „Bramki manualne".
 
-### L-0036 — Sygnał bez właściciela pada dwa razy · 2026-08-12 · AKTYWNA
+### L-0036 — Sygnał bez właściciela pada dwa razy · 2026-08-12 · ZWINIĘTA 2026-08-20
 
 - **Trigger:** zakres E3 mówił, że rozjazd stanu wykrywa skill, a hook „podaje surowe fakty do
   porównania". Przy takim podziale obie warstwy mają komplet danych i obie mają powód, żeby coś
@@ -346,7 +296,7 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
   właściciela znaczy „sprawdzone i zgodne", nie „nie sprawdzono".
 - **Źródło:** E3 planu ROZWOJ_PO_WYDANIU (2026-08-12).
 
-### L-0037 — Pomiar zachowania „brak konfiguracji" na maszynie, która ją ma · 2026-08-12 · AKTYWNA
+### L-0037 — Pomiar zachowania „brak konfiguracji" na maszynie, która ją ma · 2026-08-12 · ZWINIĘTA 2026-08-20
 
 - **Trigger:** test „git nieskonfigurowany → podpis bez członu użytkownika jest poprawny" oblał.
   Hook zachował się prawidłowo: projekt testowy nie miał `.git/config`, ale proces odczytał
@@ -358,7 +308,7 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
   fałszywie negatywny, a zielony — fałszywie pozytywny na maszynie bez tej konfiguracji.
 - **Źródło:** E3 planu ROZWOJ_PO_WYDANIU (2026-08-12), instrument `podpis.js`.
 
-### L-0038 — Przeniesienie katalogu, na który wskazuje cudzy manifest, sprawdzasz na kopii · 2026-08-12 · AKTYWNA
+### L-0038 — Przeniesienie katalogu, na który wskazuje cudzy manifest, sprawdzasz na kopii · 2026-08-12 · ZWINIĘTA 2026-08-20
 
 - **Trigger:** przed przeniesieniem `skills/`, `commands/` i `hooks/` do `adapters/claude-code/`
   nie było wiadomo, czy `plugin.json` w ogóle dopuszcza inny układ niż domyślny — a błąd oznaczałby
@@ -373,7 +323,7 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
   w katalogu tymczasowym; komunikat walidatora („The runtime loader will report this as a load
   failure") był jednocześnie dowodem, że runtime czyta te ścieżki.
 
-### L-0039 — Kopię drzewa z gita na Windows robisz `git worktree`, nie `git archive | tar` · 2026-08-12 · AKTYWNA
+### L-0039 — Kopię drzewa z gita na Windows robisz `git worktree`, nie `git archive | tar` · 2026-08-12 · ZWINIĘTA 2026-08-20
 
 - **Trigger:** instrument porównujący zachowanie hooków przed i po przeniesieniu wysypał się na
   `tar: Cannot connect to C: resolve failed`.
@@ -384,7 +334,9 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
   archiwum i zostawia po sobie czysty stan. Rurociąg `git archive | tar` zostaw dla Uniksa.
 - **Źródło:** E4 planu ROZWOJ_PO_WYDANIU (2026-08-12), instrument `porownanie.js`.
 
-### L-0040 — „Nic się nie zmieniło" dowodzisz dwoma drzewami naraz, nie pamięcią · 2026-08-12 · AKTYWNA
+  *(przeniesione 2026-08-20 → `docs/PULAPKI.md`, P-006 — fakt o narzędziu żyje tam, ta lekcja zostaje śladem historii)*
+
+### L-0040 — „Nic się nie zmieniło" dowodzisz dwoma drzewami naraz, nie pamięcią · 2026-08-12 · ZWINIĘTA 2026-08-20
 
 - **Trigger:** po przeniesieniu dziesięciu hooków do nowego katalogu trzeba było wykazać, że każdy
   zachowuje się identycznie. Oglądanie wyjścia oczami nie skaluje się do osiemnastu scenariuszy
@@ -400,7 +352,7 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
   scenariuszy zgodnych, jedyna różnica (wielokropek `…` → `...` przy przenoszeniu etykiet do
   rdzenia, L-0016) wyszła na jaw właśnie dlatego, że porównanie było mechaniczne.
 
-### L-0041 — Cudze narzędzie rozpoznajesz z jego build'u i z próby, nie z dokumentacji · 2026-08-12 · AKTYWNA
+### L-0041 — Cudze narzędzie rozpoznajesz z jego build'u i z próby, nie z dokumentacji · 2026-08-12 · ZWINIĘTA 2026-08-20
 
 - **Trigger:** `PRZENOSNOSC.md` po E4 miał pięć pozycji `<DO UZUPEŁNIENIA: …>`, bo dokumentacja
   Cursora nie opisywała ścieżek komend, a dwie strony zwracały 404. Adapter miał stanąć na tych
@@ -417,7 +369,7 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
   `sessionStart` oraz warstwa zgodności z Claude Code — żadnej z tych rzeczy nie było w otwartych
   stronach dokumentacji.
 
-### L-0042 — Payload cudzego hooka: zdejmij BOM i nie zakładaj znanych pól · 2026-08-12 · AKTYWNA
+### L-0042 — Payload cudzego hooka: zdejmij BOM i nie zakładaj znanych pól · 2026-08-12 · ZWINIĘTA 2026-08-20
 
 - **Trigger:** pierwsza próba adaptera Cursora nie logowała niczego. Payload przychodził
   z bajtem BOM (w pomiarze **podwójnym**), więc `JSON.parse` wywracał się na pierwszym znaku,
@@ -432,7 +384,7 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
 - **Źródło:** E5 planu ROZWOJ_PO_WYDANIU (2026-08-12), instrument `hook-log.js` i cztery
   przechwycone payloady (`sessionStart`, dwa `preToolUse`, `afterFileEdit`).
 
-### L-0043 — Guardrail przez interpreter znika po cichu; opakowanie zamienia ciszę w blokadę · 2026-08-12 · AKTYWNA
+### L-0043 — Guardrail przez interpreter znika po cichu; opakowanie zamienia ciszę w blokadę · 2026-08-12 · ZWINIĘTA 2026-08-20
 
 - **Trigger:** pomiar scenariusza „zespół bez Node.js". Hook wskazany jako `node <plik>` przy braku
   interpretera nie uruchomił się, Cursor **nie powiedział o tym ani słowa**, a zapis pliku
@@ -448,7 +400,7 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
   w ciszy) i po poprawce (kod 2 z komunikatem; w żywej sesji Cursora czysty zapis przeszedł,
   zapis klucza został zablokowany).
 
-### L-0044 — Sesję pomiarową cudzego CLI uruchamiaj z powłoki natywnej dla systemu · 2026-08-12 · AKTYWNA
+### L-0044 — Sesję pomiarową cudzego CLI uruchamiaj z powłoki natywnej dla systemu · 2026-08-12 · ZWINIĘTA 2026-08-20
 
 - **Trigger:** ta sama sesja `cursor-agent -p` uruchomiona z gitowego basha kończyła się
   komunikatem o zepsutych hookach i blokadą narzędzi zapisu; uruchomiona z PowerShella wykonała
@@ -462,7 +414,7 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
 - **Źródło:** E5 planu ROZWOJ_PO_WYDANIU (2026-08-12), cztery przebiegi próbne (dwa z basha, dwa
   z PowerShella).
 
-### L-0045 — Gdy guardrail blokuje poprawny kod, podejrzanym jest guardrail, nie kod · 2026-08-17 · AKTYWNA
+### L-0045 — Gdy guardrail blokuje poprawny kod, podejrzanym jest guardrail, nie kod · 2026-08-17 · ZWINIĘTA 2026-08-20
 
 - **Trigger:** w pilotażu E6 skaner sekretów zablokował zapis modułu haszującego hasło w projekcie
   testowym. Agent nie zgłosił defektu — przemianował parametr funkcji, zapisał w rejestrze lekcji
@@ -479,7 +431,7 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
   (`TYPE_TOKEN_RE`); dowód: cztery fałszywe alarmy zgaszone, cztery realne sekrety nadal wykryte,
   5/5 zgodnych werdyktów obu adapterów w jednym przebiegu.
 
-### L-0046 — Materiał testowy guardraila składasz w czasie wykonania · 2026-08-17 · AKTYWNA
+### L-0046 — Materiał testowy guardraila składasz w czasie wykonania · 2026-08-17 · ZWINIĘTA 2026-08-20
 
 - **Trigger:** zapis instrumentu porównawczego z próbką klucza AWS został zablokowany przez ten sam
   hook, który instrument testuje. Wcześniej ta sama blokada odbiła **komentarz do łatki**
@@ -491,7 +443,7 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
   „swojego" pliku. To dotyczy także dokumentacji poprawki.
 - **Źródło:** E6 planu ROZWOJ_PO_WYDANIU (2026-08-17), trzy kolejne blokady tej samej sesji.
 
-### L-0047 — Cisza hooka bywa jego regułą, nie awarią · 2026-08-17 · AKTYWNA
+### L-0047 — Cisza hooka bywa jego regułą, nie awarią · 2026-08-17 · ZWINIĘTA 2026-08-20
 
 - **Trigger:** sonda „czy dostałeś kontekst startu sesji" w świeżo zainstalowanym projekcie nie
   pokazała niczego z naszego hooka; model podał datę z własnego bloku narzędzia. Wyglądało to na
@@ -504,7 +456,7 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
 - **Źródło:** E6 planu ROZWOJ_PO_WYDANIU (2026-08-17); po inicjalizacji ten sam model zacytował
   wstrzyknięty blok w całości, razem z ustawieniami globalnymi.
 
-### L-0048 — Fraza pada w dokumencie kilka razy; „pierwsze trafienie" trafia w prozę · 2026-08-20 · AKTYWNA
+### L-0048 — Fraza pada w dokumencie kilka razy; „pierwsze trafienie" trafia w prozę · 2026-08-20 · ZWINIĘTA 2026-08-20
 
 - **Trigger:** nowa miara warstwy startowej nie widziała `STATUS.md` aktywnego planu. Przyczyna
   leżała poza nią: `liniaAktywnegoPlanu` brała **pierwszą** linię z frazą „Aktywny plan", a w
@@ -520,7 +472,7 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
 - **Źródło:** E1 planu OPTYMALIZACJA_KONTEKSTU (2026-08-20); po poprawce oba sygnały odpalają na
   projektach testowych, z dowodem negatywnym na ciszę.
 
-### L-0049 — Mechanizm z progiem ma jeden wyzwalacz · 2026-08-20 · AKTYWNA
+### L-0049 — Mechanizm z progiem ma jeden wyzwalacz · 2026-08-20 · ZWINIĘTA 2026-08-20
 
 - **Trigger:** raport budżetu startowego odzywał się w projekcie, który **mieścił się** w budżecie —
   bo poza sumą sprawdzałem też progi cząstkowe pozycji.
@@ -531,3 +483,70 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
   poniżej progu odbiera ciszy znaczenie, a cisza jest tu funkcją, nie brakiem.
 - **Źródło:** E1 planu OPTYMALIZACJA_KONTEKSTU (2026-08-20), sekcja 5 planu (przepływ „suma wobec
   budżetu → poniżej: cisza").
+
+### L-0050 — Jednostką inwentarza jest sprawa, nie linia · 2026-08-20 · ZWINIĘTA 2026-08-20
+
+- **Trigger:** wyprowadzenie pozycji „Do zrobienia przez człowieka" z dziennika dało 41 otwartych
+  linii i 9 spraw. Punkt weryfikacji brzmiał „liczba przed i po musi być równa" — przy liczeniu
+  linii nie mógł przejść nigdy, bo dziewiąta część tych linii to odsyłacze „pozostałe bez zmian".
+- **Przyczyna:** dokument append-only powtarza tę samą sprawę w każdym kolejnym wpisie. Linia jest
+  jednostką **zapisu**, sprawa jednostką **stanu**; kryterium postawione na złej jednostce albo
+  nie przechodzi, albo przechodzi przez wpisanie do żywej sekcji dziewięciu kopii jednej sprawy.
+- **Zasada:** „nic nie ginie" formułuj na **sprawach**, z jawnym, zapisanym mapowaniem linia →
+  sprawa; niezależnie od tego trzymaj mechaniczny dowód „zero otwartych linii bez adnotacji".
+  Dwie miary o różnej naturze są mocniejsze niż jedna powtórzona dwa razy.
+- **Źródło:** E2 planu OPTYMALIZACJA_KONTEKSTU (2026-08-20), ryzyko 4 planu.
+
+### L-0051 — Limit formatu mierzysz na źródle, nie na strumieniu · 2026-08-20 · ZWINIĘTA 2026-08-20
+
+- **Trigger:** kontrola „raport ma najwyżej sześć linii" pokazała osiem, choć raport miał cztery.
+  Liczyłem linie `stdout` hooka, a hook dokleja za raportem resztę kontekstu startu — bez pustej
+  linii między nimi.
+- **Przyczyna:** kryterium postawione na strumieniu, w którym artefakt się znalazł, zamiast na
+  funkcji, która go produkuje. Wynik mierzył cudzy tekst i wyglądał na defekt produktu.
+- **Zasada:** limit formatu sprawdzaj tam, gdzie powstaje (tablica linii z funkcji), a strumienia
+  używaj do dowodu **obecności i nieobecności** fraz. Rozszerzenie L-0018: nie tylko „nie
+  przewiduj cudzego formatu", ale i „nie licz cudzych linii jako swoich".
+- **Źródło:** E2 planu OPTYMALIZACJA_KONTEKSTU (2026-08-20), punkt weryfikacji o sześciu liniach.
+
+### L-0052 — Test dwóch wersji reguły musi wiernie implementować obie · 2026-08-20 · ZWINIĘTA 2026-08-20
+
+- **Trigger:** instrument porównujący regułę blokady 1.5.2 i 1.6.0 uznawał adnotację
+  „*(wyprowadzone …)*" za rozstrzygnięcie **także** w wariancie 1.5.2 — a dla reguły 1.5.2 jest to
+  dopisek spoza zamkniętej listy, czyli pozycja otwarta. Porównanie pokazywało, że obie reguły
+  rotują, więc dowód na zmianę zachowania był pusty.
+- **Przyczyna:** wspólna funkcja pomocnicza napisana pod nową regułę i użyta dla obu. Stara reguła
+  dostała wiedzę, której w swoim czasie nie miała.
+- **Zasada:** w instrumencie porównawczym każda wersja reguły ma własną, wierną semantykę —
+  parametr, nie domysł. Inaczej test „przechodzi", pokazując brak różnicy dokładnie tam, gdzie
+  różnica jest całą istotą zmiany (L-0040: jeden przebieg, dwa stany — plus wierność obu reguł).
+- **Źródło:** E2 planu OPTYMALIZACJA_KONTEKSTU (2026-08-20), punkt weryfikacji „rotacja rusza tam,
+  gdzie dotąd stała".
+
+### L-0053 — Limit w jednostce, której nikt nie liczy, jest martwy · 2026-08-20 · ZWINIĘTA 2026-08-20
+
+- **Trigger:** `SPEC_CLAUDE_MD.md` od 0.2.0 mówił „maksimum 60 linii", a mierzony hook liczy
+  **bajty**. W projekcie po adopcji plik miał 1249 linii i nikt tego nie zauważył przez cztery
+  miesiące; w tym repozytorium 63 linie przy limicie 60 też nie wywołały ani jednego komunikatu.
+- **Przyczyna:** limit i mechanizm kontrolny mówiły dwoma różnymi językami. Linia nie mierzy kosztu
+  kontekstu (wiersz tabeli bywa cięższy od pięciu linii listy), a bajtów nie porównywał z limitem
+  nikt, bo limit ich nie znał.
+- **Zasada:** limit zapisuj w **tej samej jednostce**, w której liczy go mechanizm kontrolny, i wskaż
+  w specyfikacji komendę, która go sprawdza. Jednostka bez licznika to życzenie, nie limit.
+- **Źródło:** przegląd zamykający E3 planu OPTYMALIZACJA_KONTEKSTU (2026-08-20) — nie korekta
+  użytkownika.
+
+### L-0054 — Instrument z wyrażeniem regularnym zapisuj do pliku, nie podawaj przez `-e` · 2026-08-20 · ZWINIĘTA 2026-08-20
+
+- **Trigger:** dwa punkty weryfikacji tego etapu dały fałszywy negatyw, bo wzorce przekazane
+  w `node -e` przez powłokę straciły ukośniki odwrotne: raz przerwał je błąd składni, raz —
+  gorzej — instrument policzył „brak adnotacji" tam, gdzie adnotacje były w pliku.
+- **Przyczyna:** ukośnik odwrotny przechodzi przez dwie warstwy cytowania (powłoka, potem parser
+  JS), a liczba potrzebnych powtórzeń różni się między nimi. Błąd nie zgłasza się jako błąd —
+  wzorzec po prostu przestaje pasować.
+- **Zasada:** instrument weryfikacyjny zawierający wyrażenie regularne albo ukośnik odwrotny
+  zapisujesz do pliku `.js` i uruchamiasz jako plik. `node -e` zostaw dla jednolinijkowców bez
+  metaznaków. Do każdego takiego instrumentu dokładaj kontrolę „test nie jest pusty" — przypadek,
+  który **musi** trafić.
+- **Źródło:** przegląd zamykający E3 planu OPTYMALIZACJA_KONTEKSTU (2026-08-20) — nie korekta
+  użytkownika.

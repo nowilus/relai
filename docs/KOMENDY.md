@@ -49,6 +49,14 @@ z podpowiedzi; skrócona forma działa tam, gdzie podpowiadacz ją rozwinie.
   budżet. Gdy go przekroczą, RelAI mówi o tym pierwszym zdaniem sesji, wskazuje trzy najgrubsze
   pozycje i proponuje odchudzenie — niczego nie blokuje i niczego nie zmienia sam. Poniżej budżetu
   milczy. Budżet, progi i wyłącznik: wiersz „Budżet startu sesji" w `docs/USTAWIENIA.md`.
+- **Sprawy czekające na Ciebie mają stałe miejsce.** Decyzja, dostęp, zakup, akceptacja — wszystko,
+  czego RelAI nie zrobi za Ciebie — stoi w sekcji „Czeka na człowieka" na górze dziennika, jedna
+  linia na sprawę z linkiem do wpisu, w którym padła. Sesja czyta ją na starcie, więc sprawa sprzed
+  miesięcy przestaje ginąć; rozstrzygnięta znika z sekcji tego samego dnia.
+- **Pułapki mają własny dokument.** Rzecz, która raz zaskoczyła i zaskoczy znowu — nieoczywiste
+  zachowanie narzędzia, kolejność kroków, wymóg środowiska — trafia do `docs/PULAPKI.md`. Ten plik
+  czyta się **na żądanie**, a nie przy starcie sesji, więc nie kosztuje ani jednego tokena, dopóki
+  nic nie wybucha. Powstaje przy pierwszej pułapce; projekt bez pułapek go nie ma.
 - **Powracające rozstrzygnięcie idzie do zamrożenia.** Temat rozstrzygany drugi raz tak samo kończy
   się propozycją wpisu do `DECYZJE.md`. Zdania w rodzaju „nie rób tego więcej" zapisują się od razu.
 - **Sekret nie wejdzie do repozytorium.** Zapis klucza API, tokenu, JWT, klucza prywatnego albo

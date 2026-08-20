@@ -17,32 +17,13 @@ Czytaj w kolejności, nie skanuj pełnotekstowo repo:
 
 | Co | Status | Gdzie |
 |---|---|---|
-| Analiza projektów historycznych | ZAKOŃCZONA | DZIENNIK, wpis 2026-08-07 |
-| Wywiad architektoniczny (~90 decyzji) | ZAKOŃCZONY | docs/DECYZJE.md |
-| Master plan budowy | **ZREALIZOWANY 2026-08-10** (Aneks A) | docs/archiwum/plany/BUDOWA_RELAI/PLAN.html |
-| E1 — fundament pluginu (wersja 0.1.0) | **ZREALIZOWANY 2026-08-07** | `.claude-plugin/`, `skills/relai-core/`, `templates/` |
-| E2 — rdzeń dokumentacyjny (wersja 0.2.0) | **ZREALIZOWANY 2026-08-07** | `skills/relai-core/SKILL.md`, `templates/SPEC_{LEKCJE,DECYZJE}.md` |
-| E3 — planowanie (wersja 0.3.0) | **ZREALIZOWANY 2026-08-07** | `skills/relai-planning/SKILL.md`, `templates/SPEC_{PLAN,STATUS}.md` |
-| E4 — prompty etapowe i `/relai-stage` (wersja 0.4.0) | **ZREALIZOWANY 2026-08-07** | `commands/relai-stage.md`, `templates/SPEC_PROMPT_ETAPU.md` |
-| E5 — osiem hooków Node.js, zamknięcie R8 (wersja 0.5.0) | **ZREALIZOWANY 2026-08-07** | `hooks/`, `hooks/hooks.json` |
-| E6 — konkurs designu, szablon HTML, nadpisania lokalne (wersja 0.6.0) | **ZREALIZOWANY 2026-08-08** | `templates/HTML_PLAN/`, `templates/SPEC_PLAN_HTML.md`, `skills/relai-planning/SKILL.md` |
-| E7 — sześć komend operacyjnych, propozycja wycieczki (wersja 0.7.0) | **ZREALIZOWANY 2026-08-08** | `commands/`, `hooks/session-context.js`, `templates/SPEC_KOMENDY.md` |
-| E8 — profile projektów i reguły warunkowe (wersja 0.8.0) | **ZREALIZOWANY 2026-08-08** | `templates/SPEC_{PROFILE,ARCHITEKTURA,DESIGN,SRODOWISKA,SNAPSHOT}.md`, `hooks/profile-rules.js`, `hooks/config-protection.js` |
-| E9 — adopcja i aktualizacja projektu (wersja 0.9.0) | **ZREALIZOWANY 2026-08-09** | `commands/relai-{adopt,update}.md`, `templates/SPEC_RAPORT_ADOPCJI.md` |
-| E10 — pilotaż, cztery scenariusze akceptacyjne, **wydanie 1.0.0** | **ZREALIZOWANY 2026-08-10** | docs/archiwum/plany/BUDOWA_RELAI/, DZIENNIK wpis 2026-08-10 |
-| **Plan BUDOWA_RELAI** | **ZAMKNIĘTY 2026-08-10** — wszystkie 10 etapów dowiezione | docs/archiwum/plany/BUDOWA_RELAI/STATUS.md |
-| ROZWOJ_PO_WYDANIU E1 — odnogi planu (wersja 1.1.0) | **ZREALIZOWANY 2026-08-12** | `commands/relai-branch.md`, `templates/SPEC_ODNOGA.md`, `skills/relai-planning/SKILL.md` |
-| ROZWOJ_PO_WYDANIU E2 — rotacja dokumentów (wersja 1.2.0) | **ZREALIZOWANY 2026-08-12** | `templates/SPEC_ARCHIWUM.md`, `skills/relai-core/SKILL.md`, `templates/SPEC_{USTAWIENIA,DZIENNIK,LEKCJE,STATE}.md` |
-| ROZWOJ_PO_WYDANIU E3 — poprawki z retrospektywy (wersja 1.3.0) | **ZREALIZOWANY 2026-08-12** | `hooks/journal-signature.js`, `hooks/session-context.js`, `templates/SPEC_{STATUS,DZIENNIK,DECYZJE,CLAUDE_MD}.md`, `skills/relai-{core,planning}/SKILL.md` |
-| ROZWOJ_PO_WYDANIU E4 — rdzeń przenośny (wersja 1.4.0) | **ZREALIZOWANY 2026-08-12** | `core/` (templates, guardrails, tools, MANIFEST), `adapters/claude-code/`, `docs/PRZENOSNOSC.md` |
-| ROZWOJ_PO_WYDANIU E5 — adapter Cursora (wersja 1.5.0) | **ZREALIZOWANY 2026-08-12** | `adapters/cursor/` (rules, hooks, install.js, README), `core/process/session-signals.js`, `docs/PRZENOSNOSC.md` |
-| ROZWOJ_PO_WYDANIU E6 — pilotaż Cursora, poprawka skanera (wersja 1.5.1) | **ZREALIZOWANY 2026-08-17** | `core/guardrails/secret-scan.js`, `adapters/cursor/{README.md,install.js,rules/relai-core.mdc}`, `docs/PRZENOSNOSC.md` |
-| OPTYMALIZACJA_KONTEKSTU E1 — miara warstwy startowej i budżet 80 KB | **ZREALIZOWANY 2026-08-20** | `core/process/session-signals.js` (`startCost`, `startCostReport`), `core/templates/SPEC_USTAWIENIA.md`, oba `hooks/session-context.js` |
+| Plugin RelAI — wydany, dwa adaptery | DZIAŁA (1.5.2 w repo) | [docs/STATE.md](docs/STATE.md) |
+| Plan BUDOWA_RELAI — 10 etapów | ZAMKNIĘTY 2026-08-10 | [archiwum planu](docs/archiwum/plany/BUDOWA_RELAI/STATUS.md) |
+| Plan ROZWOJ_PO_WYDANIU — 8 etapów | 6/8; E7 WSTRZYMANY | [STATUS](docs/plany/ROZWOJ_PO_WYDANIU/STATUS.md) |
+| Plan OPTYMALIZACJA_KONTEKSTU — 5 etapów | 2/5 W TOKU | [STATUS](docs/plany/OPTYMALIZACJA_KONTEKSTU/STATUS.md) |
+| Odnogi i bramki manualne | 4 odnogi, 9 bramek — otwarte | [docs/STATE.md](docs/STATE.md) |
 
-**Uwaga do wierszy sprzed 1.4.0:** ścieżki `hooks/`, `skills/`, `commands/` i `templates/` opisują
-stan z dnia etapu. Od E4 mieszkają odpowiednio w `adapters/claude-code/` i `core/templates/`.
-
-Aktywny plan: [OPTYMALIZACJA_KONTEKSTU](docs/plany/OPTYMALIZACJA_KONTEKSTU/STATUS.md) — **E1 ZREALIZOWANY 2026-08-20**, E2 gotowy do startu (5 etapów, wydanie 1.6.0 po E4); plan [ROZWOJ_PO_WYDANIU](docs/plany/ROZWOJ_PO_WYDANIU/STATUS.md) ma E7 **wstrzymany** (brak dostępu do Codeksa)
+Aktywny plan: [OPTYMALIZACJA_KONTEKSTU](docs/plany/OPTYMALIZACJA_KONTEKSTU/STATUS.md)
 
 ## Reguły procesu
 
@@ -53,6 +34,7 @@ Aktywny plan: [OPTYMALIZACJA_KONTEKSTU](docs/plany/OPTYMALIZACJA_KONTEKSTU/STATU
   „świadomie odłożone" do dziennika. Nigdy „przy okazji".
 - Dokumentacja po polsku, kod i identyfikatory po angielsku, commity conventional po angielsku.
 - Sekrety nigdy w plikach śledzonych; klucze wyłącznie w `.env` (gitignored).
+- Nieoczywiste zachowanie narzędzia, kolejność kroków, wymóg środowiska → [docs/PULAPKI.md](docs/PULAPKI.md); zajrzyj tam, zanim uznasz, że coś jest zepsute.
 
 ## Implementation guidelines (sekcja niemutowalna)
 

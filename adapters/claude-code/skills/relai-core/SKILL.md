@@ -94,7 +94,7 @@ Zamiast tego wykonaj **rytuał startu** — raz na sesję, przed pierwszą meryt
 |---|---|---|
 | 1 | `CLAUDE.md` | reguły procesu, definicja ukończenia, wskazanie aktywnego planu |
 | 2 | `docs/STATE.md` | stan na dziś — cały plik, jest krótki |
-| 3 | `docs/DZIENNIK.md` | **wyłącznie** sekcja „Stan otwartych ryzyk" + ostatni wpis |
+| 3 | `docs/DZIENNIK.md` | **wyłącznie** sekcja „Stan otwartych ryzyk", sekcja „Czeka na człowieka" (od 1.6.0) i ostatni wpis |
 | 4 | `docs/LEKCJE.md` | **wyłącznie** sekcja „Zasady aktywne" (D-15) |
 | 5 | `docs/USTAWIENIA.md` | tabela preferencji — zanim o cokolwiek zapytasz |
 | 6 | aktywny plan (`docs/plany/<TEMAT>/STATUS.md`) | tylko jeśli `CLAUDE.md` go wskazuje |
@@ -151,6 +151,38 @@ Twoja rola w rytuale startu:
 Czego **nie** robisz: nie prostujesz żadnego z trzech dokumentów samodzielnie. Rozjazd nie mówi,
 który zapis jest prawdą — etap mógł trwać albo urwać się w połowie, a wybór między tymi wersjami
 należy do człowieka. Po jego odpowiedzi aktualizujesz wszystkie trzy w tej samej turze (D-44).
+
+### Rotacja na starcie sesji (od 1.6.0)
+
+Rotacja ma od 1.6.0 **drugie wejście**: start sesji. Powód jest arytmetyczny — przy zamknięciu
+sesji kontekst jest już wykupiony, a przy starcie rotacja jeszcze coś oszczędza.
+
+**Kiedy proponujesz** — gdy spełnione są **wszystkie trzy** warunki:
+
+1. hook `session-context` wypisał raport `[RelAI budzet startu]` z przekroczeniem budżetu,
+2. w raporcie jest zdanie zaczynające się od **„Zaproponuj rotacje"** (to jest sygnał, że wiersz
+   `Rotacja dokumentów` w `USTAWIENIA.md` jest włączony — nie sprawdzasz tego drugi raz),
+3. sesja jest **interaktywna**.
+
+Brak któregokolwiek warunku → nie proponujesz i nie komentujesz. Cisza hooka znaczy „mieści się
+w budżecie", a nie „nie sprawdzono" (L-0036).
+
+**Jak to robi się w praktyce:** zgłaszasz budżet jednym zdaniem przed akapitem „gdzie jesteśmy”
+i w tym samym zdaniu proponujesz rotację. **Po zgodzie** wykonujesz **dokładnie tę samą**
+procedurę, co w kroku 2 rytuału zamknięcia (sekcja „Rotacja dokumentów" niżej) — dwie fazy, suma
+kontrolna, linia-odsyłacz, ślad we wpisie dziennika tej sesji. Drugiego mechanizmu nie ma i nie
+piszesz go.
+
+**Sesja nieinteraktywna** (`claude -p`, agent w tle, hook w CI) → rotacji na starcie **nie
+uruchamiasz**: zmiana w repozytorium bez człowieka przy klawiaturze jest zakazana. Poznajesz ją po
+linii raportu „Sesja nieinteraktywna: to jest sam raport…". **W Claude Code tej linii dziś nie
+ma** — payload `SessionStart` nie niesie zmierzonego rozróżnienia wobec `claude -p` (L-0032), więc
+adapter zachowuje się jak w sesji interaktywnej. Wniosek praktyczny: propozycja padnie także
+w sesji nieinteraktywnej, ale **rotacja i tak nie ruszy bez zgody**, a zgody nie ma komu udzielić.
+Zakaz zamiany propozycji w automatyczne odpalenie jest tu jedynym zabezpieczeniem — nie łam go.
+
+Zasady jak przy pozostałych siatkach: propozycja **nigdy** nie zamienia się w automatyczne
+odpalenie, odmowa zamyka temat na tę sesję, a zgłoszenie idzie **przed** akapitem „gdzie jesteśmy".
 
 ### Propozycja wycieczki po cudzym projekcie (D-27)
 
@@ -335,6 +367,61 @@ Użytkownik poprawił sposób, w jaki coś zrobiłeś — nie treść zadania, t
 
 ---
 
+## Wyprowadzenie spraw czekających na człowieka (jednorazowo, od 1.6.0)
+
+Do 1.5.2 sprawy człowieka mieszkały w sekcjach „Do zrobienia przez człowieka" pojedynczych wpisów.
+Skutek był odwrotny do zamierzonego: sprawa sprzed czterech miesięcy była niewidoczna dla sesji,
+a jej wpis blokował rotację całego dziennika, bo zakres rotacji jest ciągły od najstarszej pozycji.
+Od 1.6.0 sprawy mają jeden dom — sekcję **„Czeka na człowieka"** na górze dziennika
+(`SPEC_DZIENNIK.md`).
+
+Projekt, który tej sekcji jeszcze nie ma, przechodzi **jednorazową** procedurę. Wykonujesz ją na
+prośbę użytkownika albo po jego zgodzie, gdy zauważysz brak sekcji w projekcie z wersją 1.6.0 lub
+nowszą. Nigdy „przy okazji" rotacji.
+
+**Krok 1 — inwentarz.** Przejrzyj **wszystkie** wpisy dziennika, także te już zarchiwizowane
+(`docs/archiwum/dziennik/`), i wypisz każdą **otwartą** pozycję sekcji „Do zrobienia przez
+człowieka". Otwarta znaczy: bez adnotacji rozstrzygnięcia z zamkniętej listy brzmień
+(`SPEC_ARCHIWUM.md`). Liczenie robisz **skryptem**, nie okiem — plik ma zwykle setki linii.
+
+**Krok 2 — deduplikacja do spraw.** Jednostką sekcji jest **sprawa**, nie linia. Ta sama sprawa
+powtórzona w ośmiu wpisach („pozostałe bez zmian: …") to jedna pozycja. Wypisz listę spraw
+z przypisaniem, które linie źródłowe do której sprawy należą — ta lista jest **materiałem
+dowodowym**, idzie do wpisu dziennika tej sesji.
+
+**Krok 3 — rozstrzygnięcia, które już zapadły.** Sprawa, której rozstrzygnięcie **jest faktem
+w repozytorium** (etap zamknięty, decyzja w `DECYZJE.md`, lekcja w rejestrze), nie jest otwarta:
+dostaje we wpisie adnotację `*(rozstrzygnięte RRRR-MM-DD — <dowód>)*` i **nie wchodzi** do sekcji.
+Zapisujesz przy każdej, **co** jest dowodem. Rozstrzygnięcia, które **nie** są faktem, tylko Twoim
+domysłem, nie robisz — pytasz człowieka (L-0025).
+
+**Krok 4 — sekcja.** Załóż „Czeka na człowieka" tuż pod „Stanem otwartych ryzyk" i wpisz sprawy
+otwarte w formacie ze specyfikacji: treść · data pierwszego wystąpienia · link do najstarszego
+wpisu źródłowego. **Pozycja bez daty** (wpis po adopcji, nagłówek bez daty) dostaje datę
+**wyprowadzenia** i jawny dopisek `(data pierwotna nieznana)` — nie zgadujesz jej i nie pomijasz
+pozycji.
+
+**Krok 5 — adnotacje w źródłach.** Każda linia źródłowa — także powtórzona i także ta w archiwum —
+dostaje w miejscu `*(wyprowadzone RRRR-MM-DD → sekcja „Czeka na człowieka")*`. Brzmienie jest
+zamknięte i czytane maszynowo (L-0035).
+
+**Krok 6 — liczenie przed i po, skryptem, na obu stanach pliku.** Trzy liczby do wpisu dziennika:
+
+| Miara | Przed | Po |
+|---|---|---|
+| otwarte linie źródłowe (bez adnotacji) | N | **0** |
+| sprawy otwarte (po deduplikacji) | M | **M** — tyle samo pozycji w sekcji |
+| sprawy rozstrzygnięte w tej turze | — | K, każda z dowodem |
+
+**Liczby muszą się zgadzać: `M` przed = `M` po, a `N` po = 0.** Rozjazd znaczy, że sprawa zginęła
+w przenosinach — wtedy **STOP** i pytanie do człowieka, nie „pewnie tak miało być".
+
+**Czego nie robisz:** nie kasujesz linii źródłowych (D-18), nie streszczasz treści pozycji, nie
+wpisujesz do sekcji rzeczy, które agent może zrobić sam, i nie rotujesz w tej samej turze —
+rotacja czyta wynik wyprowadzenia, więc idzie po nim, nie razem z nim.
+
+---
+
 ## Zamknięcie sesji
 
 Rytuał zamknięcia wykonujesz, gdy użytkownik powie, że kończycie (patrz „Frazy naturalne"), albo
@@ -342,7 +429,8 @@ gdy sam kończysz większą porcję pracy. Kolejność:
 
 1. **Sync dokumentów** — przejrzyj, co się w tej sesji zmieniło, i domknij: `STATE.md`,
    `USTAWIENIA.md` (jeśli padły nowe preferencje), `LEKCJE.md` / `DECYZJE.md` (jeśli coś zostało
-   niezapisane), `README.md` (jeśli zmienił się sposób uruchomienia).
+   niezapisane), `README.md` (jeśli zmienił się sposób uruchomienia). Tu też **policz pozycje
+   sekcji „Zasady aktywne"** — sekcja niżej.
 2. **Rotacja dokumentów** (od 1.2.0) — sekcja niżej. Wykonujesz ją **przed** wpisem do dziennika,
    żeby wpis tej sesji opisał rotację i wylądował już w przyciętym pliku.
 3. **Wpis do dziennika** — jeden wpis zbiorczy za sesję, na końcu sekcji „Wpisy". Sekcja
@@ -354,6 +442,27 @@ gdy sam kończysz większą porcję pracy. Kolejność:
    z conventional message. Nie commituj bez zgody, poza commitem inicjalizacyjnym.
 6. **Podsumowanie** — 3–5 zdań: co zrobione, co zweryfikowane, co czeka na człowieka, od czego
    zacząć następnym razem. Bez list zadań i bez obietnic terminów.
+
+### Limit „Zasad aktywnych" — jedyny adres egzekwowania (krok 1, od 1.6.0)
+
+Sekcja „Zasady aktywne" w `LEKCJE.md` ma twardy limit **15 pozycji** (`SPEC_LEKCJE.md`). Reguła
+istniała od 0.2.0 i była łamana wszędzie, bo **nikt jej nie mierzył**: 46 pozycji tutaj, 930 linii
+w projekcie po adopcji `FAKT` (2026-08-20). Ten krok jest jej **jedynym** adresem egzekwowania.
+
+W kroku 1 rytuału zamknięcia policz pozycje **komendą, nie okiem** — sekcja bywa długa:
+
+```
+node -e "const s=require('fs').readFileSync('docs/LEKCJE.md','utf8').split(/^## /m).find(x=>/^Zasady aktywne|^Active rules/.test(x));console.log((s.match(/^\d+\.\s/gm)||[]).length)"
+```
+
+Wynik **powyżej limitu** → **jedno** zdanie w podsumowaniu sesji: ile pozycji, jaki limit i co z tym
+zrobić (kompresja tematyczna albo graduacja do `CLAUDE.md` — obie za zgodą człowieka,
+`SPEC_LEKCJE.md`). Wynik **w limicie** → **cisza**, ani jednego znaku.
+
+**Drugiego adresu nie dokładasz** (L-0036, L-0049). W szczególności **nie** wchodzi to do raportu
+budżetu startu sesji: raport odzywa się wyłącznie przy przekroczeniu **sumy** warstwy startowej,
+więc projekt z 46 pozycjami mieszczący się w budżecie nie usłyszałby o limicie ani razu — a to jest
+dokładnie ten przypadek, dla którego ten krok powstał. Jeden problem, jeden komunikat.
 
 ### Rotacja dokumentów (krok 2 rytuału zamknięcia, od 1.2.0)
 
@@ -377,10 +486,17 @@ i bez słowa. Wartość nierozpoznana albo brak wiersza w projekcie z wersją 1.
 **Poniżej progu: cisza.** Zero komunikatów, zero pytań, katalog `docs/archiwum/dziennik/` nie
 powstaje. Rotacja nie przypomina o swoim istnieniu.
 
-**Czego nie ruszasz nigdy:** sekcji „Stan otwartych ryzyk" w dzienniku, sekcji „Zasady aktywne"
-w lekcjach, dziesięciu najnowszych wpisów, dwudziestu najnowszych lekcji ani **żadnego wpisu
-z nierozstrzygniętą pozycją „Do zrobienia przez człowieka"** — niezależnie od jego wieku. Zakres
-jest ciągły: pierwsza pozycja nietykalna kończy zakres, nie przeskakujesz jej.
+**Czego nie ruszasz nigdy:** sekcji „Stan otwartych ryzyk" i „Czeka na człowieka" w dzienniku,
+sekcji „Zasady aktywne" w lekcjach, dziesięciu najnowszych wpisów, dwudziestu najnowszych lekcji
+ani **żadnego wpisu, do którego prowadzi link z otwartej pozycji sekcji „Czeka na człowieka"** —
+niezależnie od jego wieku. Zakres jest ciągły: pierwsza pozycja nietykalna kończy zakres, nie
+przeskakujesz jej.
+
+**Blokada zmieniła adres w 1.6.0.** Wpis z pozycją opatrzoną adnotacją `*(wyprowadzone RRRR-MM-DD
+→ sekcja „Czeka na człowieka")*` **jest przenoszalny**, mimo że jego własna sekcja „Do zrobienia
+przez człowieka" wygląda na otwartą. Projekt, który nie ma jeszcze sekcji „Czeka na człowieka",
+działa po staremu — blokuje własna sekcja wpisu, dopóki nie przejdzie procedury wyprowadzenia
+(sekcja wyżej).
 
 **Przebieg jest dwufazowy** i kolejność jest tu całym zabezpieczeniem:
 
@@ -395,10 +511,15 @@ jest ciągły: pierwsza pozycja nietykalna kończy zakres, nie przeskakujesz jej
 4. **Ślad w dzienniku** — do wpisu tej sesji (krok 3 rytuału): co przeniesiono, dokąd, ile
    pozycji, suma kontrolna, rozmiar przed i po.
 
-**Powyżej progu, ale nie ma czego przenieść** (same świeże wpisy albo najstarszy wpis ma otwartą
-pozycję „Do zrobienia przez człowieka") → nie rotujesz i **mówisz o tym jednym zdaniem** w
-podsumowaniu, z powodem. Cisza obowiązuje poniżej progu; powyżej progu milczenie ukryłoby zatkany
+**Powyżej progu, ale nie ma czego przenieść** (same świeże wpisy albo najstarszy wpis jest
+linkowany z otwartej pozycji „Czeka na człowieka") → nie rotujesz i **mówisz o tym jednym zdaniem**
+w podsumowaniu, z powodem. To samo, gdy dziennik jest ponad progiem, ale ma **mniej niż dziesięć
+wpisów**: dziesięć najnowszych jest nietykalne niezależnie od rozmiaru, a problemem są wtedy długie
+wpisy, nie ich liczba. Cisza obowiązuje poniżej progu; powyżej progu milczenie ukryłoby zatkany
 mechanizm.
+
+**To jest krok 2 rytuału zamknięcia, czyli wejście pierwsze.** Wejście drugie — start sesji — jest
+w sekcji „Rotacja na starcie sesji (od 1.6.0)" wyżej i uruchamia **dokładnie tę samą** procedurę.
 
 ---
 

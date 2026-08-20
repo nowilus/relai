@@ -342,12 +342,21 @@ const CZLONY = {
 };
 
 const NAZWA_WIERSZA = /^(?:Bud[żz]et startu sesji|Session start budget)\b/i;
+// Drugi, NIEZALEZNY wylacznik (sekcja 8 planu): rotacja moze byc wylaczona przy
+// wlaczonym budzecie i odwrotnie. Czytamy go jako FAKT — decyzje o tym, co z nim
+// zrobic, podejmuje raport i procedura rotacji, nie ta funkcja.
+const NAZWA_ROTACJI = /^(?:Rotacja dokument[óo]w|Document rotation)\b/i;
 const WLACZONY = /^(?:w[łl][ąa]czony|w[łl][ąa]czona|on|enabled)\b/i;
 const WYLACZONY = /^(?:wy[łl][ąa]czony|wy[łl][ąa]czona|off|disabled)\b/i;
 
 // Naglowki sekcji — kotwica na POCZATKU linii naglowka (L-0025), nie "gdziekolwiek".
 const NAGLOWEK_RYZYK = [/^stan otwartych ryzyk\b/i, /^open risks\b/i];
 const NAGLOWEK_ZASAD = [/^zasady aktywne\b/i, /^active rules\b/i];
+// Sekcja "Czeka na czlowieka" (1.6.0) wchodzi do pozycji "ryzyka", bo rytual startu czyta ja
+// razem z ryzykami i ostatnim wpisem. NIE jest siodma pozycja budzetu — budzet ma szesc pozycji
+// z sekcji 5 planu i tego etap nie rusza. Brak sekcji (projekt sprzed 1.6.0) = zero bajtow,
+// nie awaria.
+const NAGLOWEK_CZEKA = [/^czeka na cz[łl]owieka\b/i, /^waiting on a human\b/i];
 
 function bajty(txt) {
   return Buffer.byteLength(String(txt), 'utf8');
@@ -430,6 +439,18 @@ function sciezkaStatusuPlanu(cwd) {
   return fs.existsSync(p) ? p : null;
 }
 
+// Przelacznik rotacji dokumentow jako FAKT: true / false / null.
+// null znaczy "nie wiadomo" — brak wiersza albo wartosc nierozpoznana. Skill traktuje
+// oba te przypadki jak wylaczona (SPEC_ARCHIWUM), wiec raport tez nie proponuje rotacji;
+// zgadywanie jest tu zakazane (L-0025).
+function przelacznikRotacji(txtUstawien) {
+  const komorka = komorkaDecyzji(txtUstawien, NAZWA_ROTACJI);
+  if (komorka === null) return null;
+  if (WLACZONY.test(komorka)) return true;
+  if (WYLACZONY.test(komorka)) return false;
+  return null;
+}
+
 // Zwraca:
 //   null                              — pomiaru nie ma (wylaczony, brak wiersza, brak
 //                                       ustawien, folder nie jest projektem RelAI)
@@ -485,8 +506,10 @@ function startCost(cwd, opcje) {
       if (ryzyka === null) {
         dodaj('ryzyka', dziennik, txt, 'plik-bez-sekcji');
       } else {
+        const czeka = wytnijSekcje(txt, NAGLOWEK_CZEKA);
         const wpis = ostatniWpis(txt);
-        dodaj('ryzyka', dziennik, ryzyka + (wpis ? '\n' + wpis : ''), 'sekcja');
+        dodaj('ryzyka', dziennik,
+          ryzyka + (czeka ? '\n' + czeka : '') + (wpis ? '\n' + wpis : ''), 'sekcja');
       }
     }
 
@@ -511,6 +534,7 @@ function startCost(cwd, opcje) {
 
     return {
       wlaczony: true,
+      rotacja: przelacznikRotacji(txtUstawien),
       budzet,
       progi,
       pozycje,
@@ -554,11 +578,26 @@ function startCostReport(miara, opcje) {
       miara.bezSekcji.join(', ') + ' — wartosc jest zawyzona z tego powodu.');
   }
   if (o.interaktywna === false) {
-    out.push('Sesja nieinteraktywna: to jest sam raport, bez propozycji odchudzenia.');
+    // Rotacja na starcie to zmiana w repozytorium; bez czlowieka przy klawiaturze nie rusza
+    // (SPEC_ARCHIWUM, wejscie 2). Raport zostaje, propozycja znika.
+    out.push('Sesja nieinteraktywna: to jest sam raport, bez propozycji odchudzenia ' +
+      'i bez rotacji na starcie.');
+    return out;
+  }
+
+  out.push('Zglos to uzytkownikowi JEDNYM zdaniem przed akapitem "gdzie jestesmy" i zaproponuj ' +
+    'odchudzenie warstwy startowej jako pierwszy krok. Wylacznik i progi: wiersz "Budzet startu ' +
+    'sesji" w docs/USTAWIENIA.md.');
+
+  // Dwa niezalezne wylaczniki (sekcja 8 planu): budzet moze liczyc przy wylaczonej rotacji.
+  // Fraza "Zaproponuj rotacje" pada WYLACZNIE przy rotacji wlaczonej — na niej stoi dowod
+  // negatywny z punktu weryfikacji E2.
+  if (miara.rotacja === true) {
+    out.push('Zaproponuj rotacje dziennika jako pierwszy krok odchudzania: procedura dwufazowa ' +
+      'z SPEC_ARCHIWUM.md, wejscie 2 (start sesji).');
   } else {
-    out.push('Zglos to uzytkownikowi JEDNYM zdaniem przed akapitem "gdzie jestesmy" i zaproponuj ' +
-      'odchudzenie warstwy startowej jako pierwszy krok. Wylacznik i progi: wiersz "Budzet startu ' +
-      'sesji" w docs/USTAWIENIA.md.');
+    out.push('Rotacja dokumentow jest wylaczona albo nieustawiona (wiersz "Rotacja dokumentow" ' +
+      'w docs/USTAWIENIA.md) — sam raport, bez rotowania.');
   }
   return out;
 }

@@ -207,7 +207,7 @@ Zasady tej sekcji:
 - **Bez odsyłaczy do specyfikacji z pluginu.** Katalog pluginu jest dla sesji niedostępny (L-0012),
   więc reguła musi być czytelna bez niego.
 - **Wyłącznie reguły tego profilu.** Sekcja nie jest miejscem na ogólne dobre praktyki.
-- **Limit 60 linii całego `CLAUDE.md` obowiązuje dalej.** Jeśli sekcja go przekracza, skracasz
+- **Limit 10 KB całego `CLAUDE.md` obowiązuje dalej.** Jeśli sekcja go przekracza, skracasz
   punkty, nie limit.
 
 ## Zmiana profilu

@@ -14,11 +14,70 @@ trzymać i gdzie mam zajrzeć po resztę"*. Wszystko, co da się przenieść do 
 Agent (Claude Code) — pierwszy i najważniejszy. Człowiek czyta go rzadko, głównie przy przejmowaniu
 projektu.
 
-## Twardy limit objętości
+## Twardy limit objętości: 10 KB (od 1.6.0)
 
-**Maksimum 60 linii.** Przekroczenie oznacza, że coś trzeba przenieść do `docs/`. Zero opisu
+**Maksimum 10 KB.** Przekroczenie oznacza, że coś trzeba przenieść do `docs/`. Zero opisu
 funkcjonalności, zero historii, zero list zrobionych rzeczy — te miejsca to `README.md`, `STATE.md`
 i `DZIENNIK.md`.
+
+**Jednostką jest rozmiar, nie liczba linii.** Do 1.5.2 limit brzmiał „maksimum 60 linii" i był
+martwy w każdym zmierzonym projekcie — jeden po adopcji miał 1249 linii `FAKT`. Powód porażki jest
+mechaniczny: linii nikt nie liczył, a kosztu kontekstu one i tak nie mierzą (jedna linia tabeli
+bywa cięższa od pięciu linii listy). Od 1.6.0 limitem jest **próg cząstkowy `CLAUDE` z wiersza
+`Budżet startu sesji`** w `docs/USTAWIENIA.md`, domyślnie **10 KB** — dokładnie ta sama liczba,
+którą przy każdym starcie sesji mierzy hook. Sprawdzasz komendą, nie okiem:
+
+```
+node -e "console.log((require('fs').statSync('CLAUDE.md').size/1024).toFixed(1)+' KB')"
+```
+
+**Wartość projektowa ma pierwszeństwo przed domyślną** — projekt z własnym progiem w
+`USTAWIENIA.md` pracuje na swojej liczbie, a `/relai-update` jej nie nadpisuje. Progi cząstkowe
+nie sumują się do budżetu 80 KB i nie mają się sumować: 10 KB to sufit tej pozycji, nie przydział.
+
+## Zakaz treści odtwarzalnej z repozytorium (od 1.6.0)
+
+Treści, którą da się odtworzyć, patrząc na repozytorium, w `CLAUDE.md` **nie ma** — znika **bez
+zastępnika**. Repozytorium jest swoją własną mapą, a każda linia tego pliku jest opłacana tokenami
+w **każdym** prompcie sesji, także wtedy, gdy nikt jej nie czyta. Zmierzone 2026-08-20: w projekcie
+po adopcji 512 linii mapy katalogów i 531 linii rejestru pułapek dawały 110 KB w pliku ładowanym do
+każdego prompta `FAKT`.
+
+**Podpada pod zakaz** (usuwasz, nie przenosisz):
+
+- mapa katalogów i drzewo plików projektu,
+- listy plików źródłowych, modułów, komponentów, endpointów, tabel bazy,
+- opisy „co jest w którym pliku" i „za co odpowiada ten katalog",
+- wyliczenia zależności i wersji bibliotek (są w pliku menedżera pakietów; wersje kluczowe —
+  w `STATE.md`, warstwa faktografii),
+- listy komend, skryptów i zadań dostępnych w projekcie (są w `package.json`, `Makefile`,
+  `docs/KOMENDY.md`).
+
+**Nie podpada** (zostaje, mimo że dotyczy repozytorium):
+
+- reguły procesu — nie da się ich odczytać z kodu,
+- **sekcja niemutowalna** — kanon pracy, nie opis projektu,
+- **linia aktywnego planu** — wskazuje jeden plik, a nie odtwarza jego treści,
+- **rytuał startu sesji** — to lista **czego** i **w jakiej kolejności** czytać, a nie opis, co tam
+  jest,
+- tabela „Stan prac" z maksymalnie pięcioma wierszami-drogowskazami: wiersz mówi „ten obszar, ten
+  status, tam po szczegóły", nigdy „oto co zrobiono".
+
+Granica jest jedna: **czy sesja odtworzy tę informację, patrząc na repozytorium?** Odtworzy →
+zdanie wypada. Nie odtworzy → zostaje.
+
+## Linia odsyłacza do `docs/PULAPKI.md` (element warunkowy, od 1.6.0)
+
+Rejestr pułapek — rzeczy, które zaskoczyły i zaskoczą znowu — ma **własny dokument** czytany na
+żądanie, nie przy starcie sesji: `docs/PULAPKI.md` (`SPEC_PULAPKI.md`). W `CLAUDE.md` zostaje
+**jedna linia** w „Regułach procesu":
+
+> Nieoczywiste zachowanie narzędzia, kolejność kroków, wymóg środowiska → `docs/PULAPKI.md`;
+> zajrzyj tam, zanim uznasz, że coś jest zepsute.
+
+**Linia jest warunkowa i pomijalna bez śladu** (L-0029): dokumentu nie ma → linii nie ma. Nie
+zakładasz go na zapas i nie zostawiasz pustego odsyłacza „na przyszłość" (D-11). Pierwsza pułapka
+zakłada dokument i **w tej samej turze** dokłada tę linię.
 
 ## Struktura sekcji (kolejność obowiązkowa)
 
@@ -71,7 +130,7 @@ Trzeci człon pierwszej frazy jest tym, co najczęściej wypada — zmierzone w 
 wyzwolonego skilla napisała akapit „gdzie jesteśmy" i zakończyła pytaniem „Co dalej?" zamiast
 propozycją. Dlatego w linii ma stać wyróżniony.
 
-Linia liczy się do limitu 60 wierszy. Jeśli plik go przekracza, skracasz „Stan prac" albo „Reguły
+Linia liczy się do limitu 10 KB. Jeśli plik go przekracza, skracasz „Stan prac" albo „Reguły
 procesu" — nie tę linię i nie sekcję profilu.
 
 ## Reguła sygnału odchylenia
@@ -94,7 +153,7 @@ planu — wtedy działa od pierwszego planu bez potrzeby dopisywania czegokolwie
 Punkt w „Regułach procesu" — **wyłącznie w projekcie, który przeszedł przez `/relai-adopt`**,
 czyli w takim, który ma sekcję „Zasady projektu (odziedziczone)". Projekt zakładany od zera go nie
 dostaje: nie ma tam zastanej tabeli, do której cokolwiek mogłoby się dopisać, a punkt bez adresata
-zjada limit 60 linii (L-0029).
+zjada budżet 10 KB (L-0029).
 
 Brzmienie (przetłumacz na język projektu, sensu nie zmieniaj):
 
@@ -126,7 +185,7 @@ Zasady:
   profilu i nie powtarza reguł procesu.
 - **Bez odsyłaczy do plików spoza projektu.** Katalog pluginu jest dla sesji niedostępny (L-0012),
   więc reguła ma być czytelna sama z siebie.
-- **Limit 60 linii całego pliku obowiązuje dalej.** Sekcja profilu nie jest wyjątkiem — jeśli plik
+- **Limit 10 KB całego pliku obowiązuje dalej.** Sekcja profilu nie jest wyjątkiem — jeśli plik
   przekracza limit, skracasz punkty.
 
 Gotowe brzmienie wszystkich czterech sekcji: `SPEC_PROFILE.md`, sekcja „Przykład". Profil zmieniony

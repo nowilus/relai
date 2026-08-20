@@ -25,11 +25,53 @@ Agent w kolejnej sesji (główny) oraz zespół.
 ## Struktura pliku
 
 1. **Nagłówek** — nazwa projektu.
-2. **Sekcja „Stan otwartych ryzyk"** — stała, zawsze na górze pliku, **nadpisywana** (jedyny
-   nadpisywany fragment dziennika). Tabela: `# | Ryzyko | Poziom | Status | Mitygacja`. Numeracja
+2. **Sekcja „Stan otwartych ryzyk"** — stała, zawsze na górze pliku, **nadpisywana** (jeden z dwóch
+   nadpisywanych fragmentów dziennika). Tabela: `# | Ryzyko | Poziom | Status | Mitygacja`. Numeracja
    `R1, R2, …` jest ciągła i nigdy nie jest używana ponownie — ryzyko zamknięte zostaje w tabeli ze
    statusem `ZAMKNIĘTE` i datą. Poziomy: wysoki / średni / niski.
-3. **Sekcja „Wpisy"** — chronologicznie, najstarszy u góry.
+3. **Sekcja „Czeka na człowieka"** (od 1.6.0) — stała, tuż pod ryzykami, **nadpisywana**. Sekcja
+   niżej.
+4. **Sekcja „Wpisy"** — chronologicznie, najstarszy u góry.
+
+## Sekcja „Czeka na człowieka" (od 1.6.0)
+
+Sprawy, których agent zrobić nie może — decyzja biznesowa, dostęp, zakup, akceptacja — mieszkają
+**tutaj**, a nie rozsypane po wpisach sprzed miesięcy. Powód jest mierzalny: warstwa czytana przy
+starcie sesji obejmuje ryzyka i ostatni wpis, więc sprawa zapisana w kwietniu przestawała istnieć
+dla sesji w sierpniu, a jej wpis blokował rotację dziennika bez końca (plan
+OPTYMALIZACJA_KONTEKSTU, mechanizm 2).
+
+**Format pozycji** — jedna linia, trzy człony rozdzielone `·`:
+
+```
+- **<treść sprawy>** · <RRRR-MM-DD> · [wpis źródłowy](#<kotwica-nagłówka-wpisu>)
+```
+
+- **treść** — sprawa, nie kontekst. Kontekst mieszka we wpisie, do którego prowadzi link.
+- **data** — dzień, w którym sprawa padła **po raz pierwszy**, nie dzień wyprowadzenia.
+- **link** — kotwica nagłówka wpisu źródłowego w tym samym pliku. Tekst linku nazywa wpis (data
+  plus skrót tytułu), więc pozycja zostaje odnajdywalna nawet wtedy, gdy kotwica przestanie
+  działać (L-0013). Sprawa powtórzona w kilku wpisach dostaje link do **najstarszego** — tam jest
+  kontekst; kolejne wystąpienia są tylko echem.
+
+**Zasady sekcji:**
+
+- **Sekcja jest nadpisywana i nigdy nie trafia do archiwum.** Tak jak „Stan otwartych ryzyk", nie
+  jest wpisem i rotacja jej nie dotyka (`SPEC_ARCHIWUM.md`).
+- **Trzyma wyłącznie sprawy otwarte.** Pozycja rozstrzygnięta **znika z sekcji w tej samej turze**,
+  a jej rozstrzygnięcie — data i treść decyzji — zapisuje wpis dziennika tej sesji oraz adnotacja
+  przy pozycji we wpisie źródłowym. Gdyby rozstrzygnięte pozycje zostawały, sekcja po pół roku
+  byłaby drugim dziennikiem czytanym przy każdym starcie.
+- **Jedna sprawa = jedna pozycja.** Ta sama sprawa powtórzona w ośmiu wpisach nie daje ośmiu
+  pozycji.
+- **Sekcja pusta ma jawne brzmienie „—" i nie znika z pliku** — brak treści jest informacją,
+  a znikający nagłówek zmusza kolejną sesję do zgadywania, czy sekcji nie ma, bo nic nie czeka,
+  czy dlatego, że projekt jest sprzed 1.6.0.
+- **Sekcja nie jest listą zadań agenta.** Rzecz, którą agent może zrobić sam, tu nie wchodzi —
+  od tego jest plan albo odnoga.
+
+**Skąd biorą się pozycje:** z sekcji „Do zrobienia przez człowieka" wpisów. Procedura zebrania
+zastanych pozycji przy przejściu projektu na 1.6.0 mieszka w skillu `relai-core`.
 
 ## Szablon wpisu (obowiązkowy, D-14)
 
@@ -56,6 +98,24 @@ informacja.
   Pozycja niedotycząca już niczego (temat odpadł) też dostaje dopisek — „*(rozstrzygnięte
   RRRR-MM-DD — nieaktualne, powód)*". Ciche pozostawienie jej otwartej blokuje rotację wpisu
   i zamknięcie planu bez końca.
+
+  **Wyprowadzenie do sekcji „Czeka na człowieka" (od 1.6.0).** Pozycja otwarta nie mieszka w
+  jednym miejscu wiecznie: przenosi się do sekcji „Czeka na człowieka" na górze pliku, gdzie widzi
+  ją każda sesja. We wpisie **zostaje** — z adnotacją o przeprowadzce, bo historia nie kłamie
+  o tym, co wtedy było otwarte (D-18):
+
+  ```
+  - Wybrać dostawcę płatności (R1). *(wyprowadzone 2026-08-20 → sekcja „Czeka na człowieka")*
+  ```
+
+  Brzmienie adnotacji jest **zamknięte i czytane maszynowo**: dosłownie `*(wyprowadzone
+  RRRR-MM-DD → sekcja „Czeka na człowieka")*` (w projekcie angielskim: `*(moved out RRRR-MM-DD →
+  section "Waiting on a human")*`). Nie parafrazujesz go i nie poszerzasz listy o warianty
+  (L-0035).
+
+  **Wpis z pozycją wyprowadzoną przestaje blokować rotację** — blokada liczy się odtąd wyłącznie
+  z sekcji „Czeka na człowieka" (`SPEC_ARCHIWUM.md`). To jest cały sens wyprowadzenia: sprawa
+  zyskuje widoczność, a wpis odzyskuje prawo do archiwum.
 
 ## Linia autora — jeden format, bez wariantów (D-63)
 
@@ -132,12 +192,13 @@ opisuje `SPEC_ARCHIWUM.md`; tutaj obowiązuje to, czego rotacja nie ma prawa nar
 **Co zostaje w żywym pliku zawsze:**
 
 - sekcja **„Stan otwartych ryzyk"** — nie jest wpisem i nigdy nie trafia do archiwum,
+- sekcja **„Czeka na człowieka"** — tak samo: nie jest wpisem, nie rotuje,
 - **dziesięć najnowszych wpisów** `SZACUNEK`,
-- **każdy wpis z nierozstrzygniętą pozycją w sekcji „Do zrobienia przez człowieka"**, niezależnie
-  od wieku. Najpierw rozstrzygnięcie, potem archiwum: pozycja czekająca na człowieka, która wyjdzie
-  z żywego dokumentu, przestaje istnieć dla kolejnej sesji. Rozstrzygnięcie poznajesz po adnotacji
-  „*(rozstrzygnięte RRRR-MM-DD — …)*" przy każdej pozycji; sekcja z treścią „—" jest pusta i wpisu
-  nie blokuje.
+- **każdy wpis, do którego prowadzi link z otwartej pozycji sekcji „Czeka na człowieka"** —
+  niezależnie od wieku. Najpierw rozstrzygnięcie albo wyprowadzenie, potem archiwum: sprawa
+  człowieka, która wyszłaby z żywego dokumentu bez śladu, przestaje istnieć dla kolejnej sesji.
+  Wpis, którego pozycje zostały wyprowadzone albo rozstrzygnięte, jest **przenoszalny** — jego
+  własna sekcja „Do zrobienia przez człowieka" niczego już nie blokuje.
 
 **Co odchodzi:** ciągły zakres najstarszych wpisów, **w całości i bajt w bajt**. Wpisu nie dzielisz,
 nie streszczasz i nie skracasz — pierwszy wpis nietykalny kończy zakres.
@@ -170,6 +231,13 @@ autora co przed przeniesieniem.
 | R1 | Dostawca płatności niewybrany — blokuje wdrożenie | wysoki | OTWARTE | decyzja Łukasza do 15.08; wariant awaryjny: faktury ręczne |
 | R2 | Brak testów listy oczekujących | średni | ZAMKNIĘTE 2026-08-05 | testy dopisane, pokrycie 71% |
 
+## Czeka na człowieka
+
+- **Wybrać dostawcę płatności — blokuje wdrożenie (R1)** · 2026-08-07 ·
+  [wpis 2026-08-07 — Lista oczekujących](#2026-08-07--lista-oczekujących-i-powiadomienia)
+- **Potwierdzić treść maila z działem komunikacji** · 2026-08-07 ·
+  [wpis 2026-08-07 — Lista oczekujących](#2026-08-07--lista-oczekujących-i-powiadomienia)
+
 ## Wpisy
 
 ### 2026-08-07 — Lista oczekujących i powiadomienia
@@ -192,6 +260,11 @@ Autor: RelAI (Opus) + Łukasz
 - Priorytety miejsc dla zarządu — czeka na decyzję biznesową.
 
 **Do zrobienia przez człowieka:**
-- Wybrać dostawcę płatności (R1).
-- Potwierdzić treść maila z działem komunikacji.
+- Wybrać dostawcę płatności (R1). *(wyprowadzone 2026-08-08 → sekcja „Czeka na człowieka")*
+- Potwierdzić treść maila z działem komunikacji. *(wyprowadzone 2026-08-08 → sekcja „Czeka na
+  człowieka")*
 ```
+
+Obie pozycje stoją teraz w dwóch miejscach i to jest zamierzone: w sekcji „Czeka na człowieka"
+jako **sprawa otwarta widoczna na starcie**, we wpisie jako **ślad historii** z adnotacją. Wpis od
+tej chwili rotacji nie blokuje.

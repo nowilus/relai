@@ -10,7 +10,7 @@ zasobów pluginu.
 
 | Specyfikacja | Generuje | Polityka |
 |---|---|---|
-| [SPEC_CLAUDE_MD.md](SPEC_CLAUDE_MD.md) | `CLAUDE.md` | router procesowy, maks. 60 linii, sekcja niemutowalna |
+| [SPEC_CLAUDE_MD.md](SPEC_CLAUDE_MD.md) | `CLAUDE.md` | router procesowy, maks. 10 KB, zakaz treści odtwarzalnej z repo, sekcja niemutowalna |
 | [SPEC_README.md](SPEC_README.md) | `README.md` | wizytówka + mapa dokumentacji |
 | [SPEC_STATE.md](SPEC_STATE.md) | `docs/STATE.md` | dwuwarstwowy, **nadpisywany** |
 | [SPEC_DZIENNIK.md](SPEC_DZIENNIK.md) | `docs/DZIENNIK.md` | append na końcu + stała sekcja ryzyk |
@@ -35,6 +35,13 @@ się dopiero z pierwszym planem (D-11: podfolderów nie tworzy się na zapas):
 
 MINIPLAN (D-31) nie ma własnej specyfikacji — jest wpisem w dzienniku i opisuje go
 [SPEC_DZIENNIK.md](SPEC_DZIENNIK.md), sekcja „Wpis typu MINIPLAN".
+
+Jedna specyfikacja opisuje dokument, który powstaje **przy pierwszym zdarzeniu, nigdy na zapas**
+(D-11, L-0029) i jest czytany **na żądanie**, więc nie wchodzi do warstwy startowej sesji:
+
+| Specyfikacja | Generuje | Polityka |
+|---|---|---|
+| [SPEC_PULAPKI.md](SPEC_PULAPKI.md) | `docs/PULAPKI.md` | warunkowy — powstaje przy pierwszej pułapce razem z jedną linią odsyłacza w `CLAUDE.md`; append, najnowsze u góry; poza budżetem startu sesji |
 
 Jedna specyfikacja opisuje dokument jednorazowy, który powstaje wyłącznie przy adopcji zastanego
 projektu komendą `/relai-adopt` (D-70, D-71):

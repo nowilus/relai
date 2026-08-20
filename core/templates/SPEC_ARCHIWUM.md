@@ -21,10 +21,39 @@ archiwum **nie jest czytane** — to jest cały sens jego istnienia.
 
 ## Kiedy powstaje
 
-Wyłącznie w **rytuale zamknięcia sesji** („kończymy na dziś"), gdy żywy dokument przekracza próg
+Rotacja ma **dwa wejścia** i oba uruchamiają **ten sam** mechanizm dwufazowy z sumą kontrolną —
+drugiego nie piszesz. Różnią się wyłącznie momentem i warunkiem wyzwolenia.
+
+**Wejście 1 — rytuał zamknięcia sesji** („kończymy na dziś"), gdy żywy dokument przekracza próg
 z `docs/USTAWIENIA.md`. Poniżej progu nie dzieje się nic i nie pada ani jedno słowo — katalog
 archiwum też wtedy nie powstaje. Rotacja nie jest osobną komendą i nie przypomina o swoim
 istnieniu.
+
+**Wejście 2 — start sesji** (od 1.6.0), gdy spełnione są **wszystkie trzy** warunki:
+
+1. pomiar warstwy startowej pokazał **przekroczenie budżetu** (wiersz `Budżet startu sesji`
+   w `docs/USTAWIENIA.md`, mechanizm z `SPEC_USTAWIENIA.md`),
+2. **rotacja jest włączona** (wiersz `Rotacja dokumentów` — to dwa niezależne wyłączniki i mają
+   pozostać niezależne),
+3. sesja jest **interaktywna**.
+
+Powód drugiego wejścia jest arytmetyczny: przy zamknięciu sesji kontekst jest już wykupiony,
+a przy starcie rotacja jeszcze coś oszczędza. Wejście pierwsze **zostaje bez zmian** — projekt
+poniżej budżetu albo z wyłączonym budżetem rotuje dokładnie tak jak dotąd.
+
+**Czym się nie różnią:** ani jednym krokiem przebiegu. Te same dwie fazy, ta sama suma kontrolna,
+ta sama linia-odsyłacz, ten sam ślad we wpisie dziennika tej sesji. **Dziesięć najnowszych wpisów
+zostaje nietykalne także tutaj** — start sesji nie jest trybem awaryjnym, w którym reguły są
+luźniejsze.
+
+**Sesja nieinteraktywna** (`claude -p`, hook w CI, agent w tle) → **wejście 2 nie rusza**. Zmiana
+w repozytorium bez człowieka przy klawiaturze jest zakazana; raport z pomiaru pada, propozycja
+rotacji nie. Rytuał zamknięcia zostaje w takim trybie jedynym wejściem rotacji.
+
+**Rotacja wyłączona, budżet włączony** → pomiar liczy i raportuje, ale **nie proponuje rotacji**;
+zamiast propozycji pada pół zdania, że wyłącznik jest w `USTAWIENIA.md`. **Budżet wyłączony,
+rotacja włączona** → pomiaru nie ma w ogóle, więc wejście 2 nie ma czym się wyzwolić, a wejście 1
+działa normalnie.
 
 Progi domyślne (`SZACUNEK` — skalibrowane 2026-08-12 na zmierzonych projektach, patrz
 `SPEC_USTAWIENIA.md`):
@@ -103,9 +132,30 @@ nieprzerwanym kawałkiem historii, a nie sitem.
 **Dziennik** — nietykalne są:
 
 - sekcja **„Stan otwartych ryzyk"** (nigdy nie opuszcza żywego pliku — nie jest wpisem),
+- sekcja **„Czeka na człowieka"** (od 1.6.0 — tak samo nie jest wpisem i nie rotuje),
 - **dziesięć najnowszych wpisów** `SZACUNEK`,
-- **każdy wpis z nierozstrzygniętą pozycją w sekcji „Do zrobienia przez człowieka"** — niezależnie
-  od wieku. Sekcja z treścią „—" jest pusta, więc wpis wolno przenieść.
+- **każdy wpis, do którego prowadzi link z otwartej pozycji sekcji „Czeka na człowieka"** —
+  niezależnie od wieku.
+
+### Blokada liczy się z sekcji „Czeka na człowieka" (od 1.6.0)
+
+Do 1.5.2 blokowała **własna** sekcja wpisu: wpis z nierozstrzygniętą pozycją „Do zrobienia przez
+człowieka" zostawał w żywym pliku na zawsze. Skutek był mierzalny i odwrotny do zamierzonego —
+w dwóch żywych projektach (JiraManager 1,00 MB, PolyFlow 571 KB) rotacja **nigdy nie ruszyła**,
+bo blokował ją **pierwszy** wpis dziennika, a zakres jest ciągły od najstarszej pozycji `FAKT`.
+
+Od 1.6.0 adres blokady jest jeden:
+
+- **Blokujące są wyłącznie wpisy, do których prowadzi link z pozycji sekcji „Czeka na człowieka"**
+  — i tylko dopóki ta pozycja jest w sekcji, czyli dopóki sprawa jest otwarta.
+- **Wpis z pozycją wyprowadzoną jest przenoszalny** — także wtedy, gdy jego własna sekcja „Do
+  zrobienia przez człowieka" wygląda na otwartą. Adnotacja `*(wyprowadzone RRRR-MM-DD → sekcja
+  „Czeka na człowieka")*` znaczy, że sprawa ma inny dom (`SPEC_DZIENNIK.md`).
+- **Wpis z pozycją rozstrzygniętą jest przenoszalny** — bez zmian wobec 1.5.2, patrz sekcja niżej.
+- Sekcja z treścią „—" jest pusta i niczego nie blokuje.
+
+Sprawa człowieka nie może zniknąć w archiwum — dlatego blokada nie znika, tylko **zmienia adres**
+na ten, który sesja czyta na starcie.
 
 ### Jak poznać pozycję rozstrzygniętą (od 1.5.2)
 
@@ -180,7 +230,10 @@ a nie porządkowaniem.
 |---|---|
 | Żywy plik poniżej progu | Nic się nie dzieje, zero komunikatów, katalog archiwum nie powstaje |
 | Rotacja wyłączona w `USTAWIENIA.md` | Progu nawet nie sprawdzasz; cisza |
-| Powyżej progu, ale **cały** zakres nietykalny (same świeże wpisy albo otwarte „Do zrobienia przez człowieka") | Nie rotujesz i **mówisz o tym jednym zdaniem** w podsumowaniu sesji, z powodem. Cisza jest zarezerwowana dla stanu poniżej progu — powyżej progu milczenie ukryłoby zatkany mechanizm |
+| Powyżej progu, ale **cały** zakres nietykalny (same świeże wpisy albo wpisy linkowane z otwartych pozycji „Czeka na człowieka") | Nie rotujesz i **mówisz o tym jednym zdaniem** w podsumowaniu sesji, z powodem. Cisza jest zarezerwowana dla stanu poniżej progu — powyżej progu milczenie ukryłoby zatkany mechanizm |
+| Dziennik ponad progiem, ale wpisów jest **mniej niż dziesięć** | Nie rotujesz — dziesięć najnowszych wpisów jest nietykalne niezależnie od rozmiaru pliku. **Mówisz o tym jednym zdaniem z powodem**: problemem są długie wpisy, a nie ich liczba, i rozwiązuje go zwięzłość, nie archiwum |
+| Sesja nieinteraktywna, budżet przekroczony | Wejście 2 (start sesji) nie rusza; raport pomiaru pada, propozycja rotacji nie. Wejście 1 (zamknięcie sesji) działa bez zmian |
+| Wpis ma otwartą pozycję „Do zrobienia przez człowieka", ale **bez** adnotacji o wyprowadzeniu, a sekcji „Czeka na człowieka" w pliku nie ma (projekt sprzed 1.6.0) | Blokuje jak dotąd — reguła 1.5.2 obowiązuje, dopóki projekt nie przejdzie procedury wyprowadzenia (skill `relai-core`). Nie rotujesz „na zapas" i nie zakładasz sekcji przy okazji rotacji |
 | Rotacja przerwana między fazą 1 a 2 | Oryginał nietknięty; osierocony plik archiwum **nadpisujesz** przy następnej rotacji tego samego zakresu. Nie tworzysz drugiego pliku o tej samej nazwie z sufiksem |
 | Plik archiwum o tej nazwie już istnieje, a zakres jest **inny** | Nazwa kolizyjna znaczy, że coś poszło nie tak z wyznaczeniem zakresu → **STOP**, żywy plik nietknięty, pytanie do człowieka |
 | Wpis dziennika bez daty w nagłówku (dokument sprzed RelAI, po adopcji) | Nie podlega rotacji — zakres nazwy pliku musi wynikać z dat, a nie ze zgadywania (L-0025) |
@@ -190,8 +243,10 @@ a nie porządkowaniem.
 
 - Nie streszczasz, nie skracasz i nie poprawiasz przenoszonej treści — kopia jest bajt w bajt.
 - Nie kasujesz niczego przed weryfikacją sum kontrolnych (faza 2 nie rusza bez fazy 1).
-- Nie archiwizujesz sekcji „Stan otwartych ryzyk" ani „Zasady aktywne".
-- Nie przenosisz wpisu z otwartą pozycją „Do zrobienia przez człowieka".
+- Nie archiwizujesz sekcji „Stan otwartych ryzyk", „Czeka na człowieka" ani „Zasady aktywne".
+- Nie przenosisz wpisu, do którego prowadzi link z **otwartej** pozycji sekcji „Czeka na człowieka".
+- Nie wyprowadzasz pozycji „przy okazji" rotacji — wyprowadzenie jest osobną, opisaną procedurą
+  z liczeniem przed i po (skill `relai-core`), a rotacja tylko czyta jej wynik.
 - Nie pytasz o zgodę na rotację i nie meldujesz jej poniżej progu — mechanizm ma być niewidoczny,
   dopóki nie zadziała.
 - Nie czytasz archiwum w rytuale startu sesji.

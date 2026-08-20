@@ -163,7 +163,7 @@ Istniejący `CLAUDE.md` **scalasz, nigdy nie nadpisujesz**:
    zapisujesz przy regule; sekcja odziedziczona nosi zwycięskie brzmienie z adnotacją
    o pierwszeństwie. Konflikt niezauważony w kroku 3, a wykryty teraz → wracasz z pytaniem,
    zanim zapiszesz plik.
-4. Limit 60 linii `CLAUDE.md` **ustępuje wierności** sekcji odziedziczonej: nie tniesz cudzych
+4. Limit 10 KB `CLAUDE.md` **ustępuje wierności** sekcji odziedziczonej: nie tniesz cudzych
    reguł, żeby zmieścić się w limicie. Przekroczenie odnotowujesz w raporcie; porządki może
    kiedyś zaproponować `/relai-audit` — nie Ty, nie dziś.
 5. **Sekcja odziedziczona jest zamknięta na nowe wpisy.** Zaraz pod jej nagłówkiem stawiasz jedno

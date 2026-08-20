@@ -25,7 +25,7 @@ Read, in this order, and nothing else:
 |---|---|---|
 | 1 | `CLAUDE.md` or `AGENTS.md` | process rules, definition of done, the active-plan line |
 | 2 | `docs/STATE.md` | today's state — the whole file, it is short |
-| 3 | `docs/DZIENNIK.md` (`JOURNAL.md`) | **only** the "Stan otwartych ryzyk" section + the last entry |
+| 3 | `docs/DZIENNIK.md` (`JOURNAL.md`) | **only** "Stan otwartych ryzyk", "Czeka na człowieka" and the last entry |
 | 4 | `docs/LEKCJE.md` (`LESSONS.md`) | **only** the "Zasady aktywne" section |
 | 5 | `docs/USTAWIENIA.md` (`SETTINGS.md`) | preferences — before you ask the user about anything |
 | 6 | active plan `docs/plany/<TOPIC>/STATUS.md` | only if the file in row 1 points to one |
@@ -40,6 +40,13 @@ If the `sessionStart` hook injected a `[RelAI session-context]` block, its signa
 raised — do not repeat them, act on them. If it reported a missing stage prompt, a state
 divergence or an unknown author, that signal goes into the **first sentence** of your reply,
 before the "where we are" paragraph, and you **wait** for the user's answer.
+
+"Czeka na człowieka" is the one place where the project keeps things only a human can settle —
+a decision, an access, a purchase, an approval — one line per matter, with a link to the source
+entry; it is never archived and it holds open matters only (`SPEC_DZIENNIK.md`). If the hook
+report starts a line with **"Zaproponuj rotacje"**, the start layer is over budget and rotation is
+enabled: offer document rotation as the first step in that same first sentence, run it only after
+the user agrees, and never in a background agent session.
 
 ## 2. Definition of done — behaviour, not a declaration (D-44)
 
@@ -85,14 +92,20 @@ Triggered by the user saying you are finishing ("kończymy na dziś", "wrapping 
 finish a larger chunk of work:
 
 1. **Sync documents** — `STATE.md`, `USTAWIENIA.md` (new preferences), `LEKCJE.md` / `DECYZJE.md`,
-   `README.md` if the way to run changed.
+   `README.md` if the way to run changed. Also **count the items of the "Zasady aktywne" section**
+   in `LEKCJE.md` with a command, not by eye — hard limit **15** (`SPEC_LEKCJE.md`). Over the limit:
+   **one** sentence in the session summary (count, limit, what to do — compression or graduation,
+   both need the human's consent). Within the limit: **silence**. This is the **only** enforcement
+   address of that limit; never add a second one, and never put it into the session start budget
+   report — that one only speaks when the whole start layer exceeds the budget.
 2. **Document rotation** — before the journal entry. See `SPEC_ARCHIWUM.md`, read it from
    `.claude/relai/templates/`. Condition: the `Rotacja dokumentów` row in `docs/USTAWIENIA.md`;
    `wyłączona` / `off` at the start of the cell → stop this step silently. Below the threshold:
    **silence**, no message, no directory created. Two phases: copy + checksum proof first, trim
-   only after the checksums match. Never touch "Stan otwartych ryzyk", "Zasady aktywne", the ten
-   newest entries, the twenty newest lessons, or any entry with an unresolved
-   "Do zrobienia przez człowieka".
+   only after the checksums match. Never touch "Stan otwartych ryzyk", "Czeka na człowieka",
+   "Zasady aktywne", the ten newest entries, the twenty newest lessons, or any entry linked from an
+   **open** item of "Czeka na człowieka". An entry whose item carries `*(wyprowadzone …)*` no longer
+   blocks; a project without that section still blocks the old way.
 3. **Journal entry** — one entry for the session, all four sections. "Zweryfikowane — jak dokładnie"
    must say what you checked and with what result; "nie weryfikowano" is acceptable content, a
    missing section is not.

@@ -4,140 +4,101 @@ Stan na: 2026-08-20
 
 ## Gdzie jesteśmy
 
-RelAI jest gotowy i wydany w wersji **1.5.0**. Plan budowy — dziesięć etapów — został zamknięty, a
-pilotaż na dwóch realnych projektach przeszedł wszystkie cztery scenariusze akceptacyjne: nowy
-projekt prowadzony od zera, przekazanie projektu innej osobie, kopia zapasowa z odtworzeniem oraz
-przeniesienie żywego, istniejącego projektu na strukturę RelAI. Od 1.5.0 RelAI ma **drugie
-wyjście**: adapter Cursora — te same dokumenty i ten sam proces w drugim narzędziu, złożone
-z mechanizmów zmierzonych na działającej instalacji, nie założonych. Teraz zaczyna się faza,
-w której narzędzie dostają inne osoby i zgłaszają, co im przeszkadza. Pierwszy pilotaż (2026-08-17, wersja **1.5.1**) przeszedł w aplikacji Cursora — na modelu spoza Anthropic i z jedną realną naprawą rdzenia w wyniku.
+RelAI jest wydany (1.5.1) i ma **dwa wyjścia**: Claude Code oraz Cursor — te same dokumenty i ten
+sam proces w dwóch narzędziach. Plan budowy zamknięty, cztery scenariusze akceptacyjne zdane,
+pilotaż Cursora przeszedł na modelu spoza Anthropic. Repozytorium pracuje na 1.5.2 i jest w środku
+planu **OPTYMALIZACJA_KONTEKSTU**: warstwa czytana przy starcie sesji dostaje mierzony budżet, żeby
+wielomiesięczny projekt nie dusił się własną pamięcią.
 
 ## Co działa
 
 - Nowy projekt dostaje komplet dokumentów po trzech pytaniach i zgodzie — bez uczenia się
-  jakiejkolwiek składni.
-- Istniejący projekt można przenieść na tę strukturę bez ryzyka: najpierw kopia zapasowa, potem
-  zmiany, a na końcu raport z opisaną drogą pełnego powrotu do stanu sprzed.
-- Ustalenia, decyzje i korekty użytkownika zapisują się w trakcie pracy, a nie „na koniec".
-- Nowa sesja zaczyna od przeczytania stanu i mówi, gdzie jesteśmy.
-- Plany powstają jako osobny dokument z wariantami i ryzykami; dla odbiorcy nietechnicznego —
-  jako jeden plik HTML do otwarcia dwuklikiem, działający bez internetu.
-- Dziesięć skrótów operacyjnych: etap planu, odnoga planu, kopia zapasowa, przegląd, lista zmian,
-  pakiet przekazania, wycieczka po projekcie, ściąga, adopcja, aktualizacja.
-- Boczny wątek z etapu ma gdzie zamieszkać: RelAI zatrzymuje się i pyta (odnoga / aneks / świadomie
-  odłożone), a odnoga dostaje kartę i gotowy prompt świeżej sesji — bez ruszania zamrożonego planu.
-- Dokumenty nie puchną bez końca: przy zamykaniu sesji najstarsza historia sama przenosi się do
-  archiwum — w całości, bez skracania — a w żywym pliku zostaje linia z linkiem. Wpis czekający na
-  decyzję człowieka zostaje na miejscu. Poniżej progu nic się nie dzieje i nie pada ani jedno słowo.
-- Trzy dokumenty mówiące o tym samym — status etapu, wskazanie aktywnego planu i opis stanu — nie
-  rozjeżdżają się po cichu: gdy przestają się zgadzać, sesja mówi o tym na starcie jednym zdaniem
-  i pyta, który zapis jest prawdziwy.
-- Rzeczy czekające na człowieka (dostęp, zakup, decyzja) wychodzą z dziennika do statusu planu, a
-  plan nie zamyka się, dopóki nie padnie pytanie o każdą z nich.
-- Wpis w dzienniku jest podpisany modelem i użytkownikiem; brakujący człon zostaje wyłapany zaraz
-  po zapisie.
-- W projekcie po adopcji nowe rozstrzygnięcia idą do rejestru decyzji, a zastane reguły zostają
-  zapisem stanu sprzed adopcji — reguły projektu przestają puchnąć.
-- Klucz API nie wejdzie do repozytorium, a reguły projektu nie zmienią się bez potwierdzenia.
-- Skan sekretów da się włączyć **poza Claude**: gitowy pre-commit zatrzymuje commit z kluczem albo
-  hasłem niezależnie od tego, kto commituje i z jakiego narzędzia. Instaluje się i cofa jednym
-  poleceniem; bez Node.js mówi o tym wprost, zamiast po cichu przepuścić.
-- Repozytorium ma jawną granicę: `core/` to wspólny rdzeń (specyfikacje, guardrails, rozpoznania
-  startu sesji, narzędzia), a `adapters/claude-code/` i `adapters/cursor/` to dwa wyjścia.
-  Walidator wykrywa, gdy adapter odjedzie od rdzenia — także po odwołaniach w kodzie.
-- **RelAI działa w Cursorze.** Jedno polecenie kładzie w projekcie trzy reguły zawsze-w-kontekście,
-  dziesięć komend `/relai-*`, dwa skille, specyfikacje dokumentów i dwa hooki. Zmierzone na żywej
-  sesji: reguła obowiązuje bez wyzwalania, kontekst startu dociera do modelu, zapis sekretu jest
-  zablokowany, a zapis czysty przechodzi bez słowa.
-- Brak Node.js nie usuwa guardraila po cichu: opakowanie powłoki zamienia „cisza i zapis przechodzi"
-  na „blokada z komunikatem". Rezygnacja z guardraila jest jawną decyzją człowieka (`--bez-skanu`).
-- Oba narzędzia czytają i piszą te same `docs/` — praca naprzemienna nie wymaga migracji.
-- **Proces przeżywa zmianę dostawcy modelu.** W pilotażu cały etap — od karty potwierdzenia po rytuał zamknięcia i prompt następnego etapu — poprowadził Grok 4.6 w aplikacji Cursora, z reguł zawsze-w-kontekście, bez przypominania.
-- **Blokada zapisu sekretu ma dwie warstwy i obie działają w aplikacji:** reguła odmawia przy zwykłej prośbie, hook odbija zapis wtedy, gdy model mimo wszystko spróbuje.
-- Skaner sekretów nie blokuje już normalnego kodu uwierzytelniania: adnotacja typu przestała wyglądać jak wartość (1.5.1).
-- **Koszt startu sesji jest liczony, a nie szacowany.** Hook mierzy sześć pozycji rytuału startu —
-  całe pliki tam, gdzie rytuał czyta cały plik, sekcje tam, gdzie czyta sekcję — i porównuje sumę
-  z budżetem 80 KB. Powyżej budżetu: najwyżej sześć linii z sumą, trzema najgrubszymi pozycjami
-  i propozycją odchudzenia. Poniżej: ani jednego znaku. Wyłącznik i progi w `USTAWIENIA.md`; brak
-  wiersza znaczy cisza, wartość nierozpoznana — jedno zdanie i wyłączenie. Oba adaptery wołają tę
-  samą funkcję rdzenia. Warstwa startowa tego repozytorium po E1: **około 65 KB / 80 KB** —
-  najgrubsza pozycja to sekcja ryzyk z ostatnim wpisem (26,6 KB przy progu 12 KB).
-- Siatka brakującego promptu etapowego i detektor rozjazdu stanu **realnie działają** — do 2026-08-20
-  milczały w tym repozytorium, bo szukały frazy „Aktywny plan", a trafiały w prozę bez linku.
+  jakiejkolwiek składni. Istniejący projekt przechodzi na tę strukturę przez adopcję: najpierw
+  kopia zapasowa, potem zmiany, na końcu raport z przetestowaną drogą pełnego powrotu.
+- Ustalenia, decyzje i korekty zapisują się w trakcie pracy, a nowa sesja zaczyna od przeczytania
+  stanu i mówi, gdzie jesteśmy.
+- Plany powstają jako osobny dokument z wariantami i ryzykami; dla odbiorcy nietechnicznego — jako
+  jeden plik HTML działający bez internetu. Boczny wątek z etapu ma gdzie zamieszkać: odnoga
+  dostaje kartę i gotowy prompt świeżej sesji, bez ruszania zamrożonego planu.
+- Dziesięć skrótów operacyjnych: etap planu, odnoga, kopia zapasowa, przegląd, lista zmian, pakiet
+  przekazania, wycieczka po projekcie, ściąga, adopcja, aktualizacja.
+- **Dokumenty nie puchną bez końca — zmierzone na tym repozytorium 2026-08-20.** Najstarsza historia
+  sama przenosi się do archiwum, bajt w bajt, a w żywym pliku zostaje linia z linkiem; poniżej progu
+  nie pada ani jedno słowo. Rotacja ma dwa wejścia: zamknięcie i start sesji. Pierwsza rotacja po
+  rozbrojeniu blokady przeniosła dwa wpisy (153,9 → 143,5 KB) i **zatrzymała się tam, gdzie
+  powinna** — na wpisie linkowanym z otwartej sprawy człowieka. Destylat lekcji skompresowany
+  z 48 pozycji do 15 przy zachowaniu wszystkich numerów źródłowych.
+- **Sprawy czekające na człowieka mają jeden adres** — sekcję „Czeka na człowieka" na górze
+  dziennika, czytaną przy każdym starcie. Wpis, którego pozycja się wyprowadziła, przestaje blokować
+  rotację; to był powód, dla którego rotacja nigdy nie ruszyła w JiraManagerze ani w PolyFlow.
+- **Koszt startu sesji jest liczony, a nie szacowany.** Hook mierzy sześć pozycji rytuału startu
+  i porównuje sumę z budżetem 80 KB. Powyżej budżetu: najwyżej sześć linii z sumą, trzema
+  najgrubszymi pozycjami i propozycją odchudzenia. Poniżej: ani jednego znaku. Oba adaptery wołają
+  tę samą funkcję rdzenia.
+- **`STATE.md` i `CLAUDE.md` mają twardy kształt** (1.6.0): trzy pozycje w „Nad czym pracujemy
+  teraz" z podmianą zamiast dopisywania, próg zwięzłości jako liczba sprawdzalna komendą, budżet
+  `CLAUDE.md` w KB i zakaz treści odtwarzalnej z repozytorium. Pułapki narzędziowe mają własny
+  dokument [PULAPKI.md](PULAPKI.md), czytany **na żądanie** — poza warstwą startową.
+- Trzy dokumenty mówiące o tym samym — status etapu, linia aktywnego planu i opis stanu — nie
+  rozjeżdżają się po cichu: sesja mówi o rozjeździe na starcie i pyta, który zapis jest prawdziwy.
+  Wpis dziennika jest podpisany modelem i użytkownikiem; brakujący człon zostaje wyłapany.
+- Klucz API nie wejdzie do repozytorium, a reguły projektu nie zmienią się bez potwierdzenia. Skan
+  sekretów działa **poza Claude**: gitowy pre-commit zatrzymuje commit z kluczem niezależnie od
+  narzędzia; bez Node.js mówi o tym wprost, zamiast po cichu przepuścić.
+- Repozytorium ma jawną granicę: `core/` to wspólny rdzeń, a `adapters/claude-code/`
+  i `adapters/cursor/` to dwa wyjścia. Walidator wykrywa, gdy adapter odjedzie od rdzenia.
+- **Proces przeżywa zmianę dostawcy modelu** — cały etap poprowadził Grok 4.6 w aplikacji Cursora,
+  z reguł zawsze-w-kontekście, bez przypominania. Oba narzędzia czytają i piszą te same `docs/`,
+  więc praca naprzemienna nie wymaga migracji.
 - W folderze, który nie jest projektem RelAI, plugin jest całkowicie niewidoczny.
 
 ## Nad czym pracujemy teraz
 
-- Plan **OPTYMALIZACJA_KONTEKSTU** (5 etapów) — **E1 ZREALIZOWANY 2026-08-20** (miara startu
-  i budżet), **E2 gotowy do startu** (rozbrojenie rotacji).
-  Powód: start sesji
-  w JiraManagerze kosztuje 386 KB dokumentów (≈120 tys. tokenów), bo rotacja nigdy nie ruszyła —
-  blokuje ją pierwszy wpis dziennika z otwartą pozycją dla człowieka — a trzy limity ze specyfikacji
-  nie są przez nikogo mierzone. Plan wprowadza budżet 80 KB na warstwę startową liczony hookiem,
-  rozbraja rotację sekcją „Czeka na człowieka" i przenosi JiraManagera oraz PolyFlow na nowy tryb.
-  Wydanie 1.6.0; materializuje ryzyko R5 i ma je zamknąć.
-- Plan **ROZWOJ_PO_WYDANIU** (8 etapów) — **ZAAKCEPTOWANY 2026-08-12** (Aneks A); **E7 wstrzymany
-  decyzją Łukasza z 2026-08-20**: konto Codeksa jest w planie darmowym i nie ma kto przeprowadzić
-  pilotażu. Zaplanowany numer wydania E7 (1.6.0) zostaje w dokumentach bez aneksu — kolizja nie
-  grozi, dopóki etap stoi. Formalne zamrożenie planu czeka na decyzję. Zamknięte:
-  **E1** (1.1.0 — odnogi planu), **E2** (1.2.0 — rotacja dokumentów), **E3** (1.3.0 — poprawki
-  z retrospektywy), **E4** (1.4.0 — rdzeń przenośny, guardrails jako skrypty, pre-commit,
-  walidator), **E5** (1.5.0 — adapter Cursora), **E6** (1.5.1 — pilotaż Cursora w wariancie
-  zastępczym: autor zamiast osoby z zespołu, aplikacja z interfejsem, modele Composer/auto
-  i Grok 4.6). **E7 gotowy do startu:** adapter Codeksa.
-- **`docs/PRZENOSNOSC.md`** trzyma rozpoznanie obu narzędzi. Sekcja Cursora jest od E5 **zmierzona**
-  (build produktu + realne sesje agenta), sekcja Codexa nadal z dokumentacji — jej próba należy do
-  E7. Tabela gwarancji mówi wprost, co w Cursorze działa tak samo, co inaczej i czego nie ma:
-  nie ma egzekwowanego „zapytaj człowieka" przy zapisie pliku ani odpowiednika `AskUserQuestion`.
-- Cztery **odnogi OTWARTE**: `OPIS_REPO` (opis repozytorium na GitHubie), `POMIAR_ODNOG` (pomiar
-  świeżą sesją — niedomknięte punkty weryfikacji E1, E2 i E3, dziewięć scenariuszy),
-  `REKOMENDACJA_MODELU` (rekomendacja modelu z realnej listy modeli narzędzia — wyszła z pilotażu
-  E6) oraz `GUARD_PO_SCIEZCE` (guardraile rozpoznają projekt po ścieżce edytowanego pliku, nie
-  tylko po katalogu sesji). Każda ma gotowy prompt; nie blokują planu.
-- Cztery **bramki manualne** planu czekają na człowieka: sekwencja wydania (push → aktualizacja
-  pluginu → restart), `claude /login` na konto z limitem, decyzja o `/relai-update` dla
-  JiraManagera i PolyFlow oraz decyzja o instalacji pre-commita. Piąta — osoba z zespołu do
-  pilotażu — została rozstrzygnięta w E6 wariantem zastępczym.
-- **Plik główny projektu rozstrzygnięty (D-86, 2026-08-17):** projekt z adapterem Cursora albo
-  Codeksa dostaje **`AGENTS.md`** jako plik główny, a `CLAUDE.md` zostaje w nim wskaźnikiem;
-  projekt czysto Claude Code zostaje bez zmian. Wdrożenie należy do E7 i obejmuje także instalator
-  Cursora.
+- **Plan [OPTYMALIZACJA_KONTEKSTU](plany/OPTYMALIZACJA_KONTEKSTU/STATUS.md) — 3 z 5 etapów
+  zamknięte** (E1 miara i budżet, E2 rozbrojenie rotacji, E3 kształt STATE i CLAUDE). Po co: start
+  sesji w JiraManagerze kosztuje 386 KB dokumentów (≈120 tys. tokenów), bo rotacja nigdy nie ruszyła,
+  a limity ze specyfikacji nie były przez nikogo mierzone. Zostają E4 (ryzyka, ustawienia, status
+  planu; po nim wydanie 1.6.0) i E5 (migracja JiraManagera i PolyFlow, zamknięcie ryzyka R5).
+- **Plan [ROZWOJ_PO_WYDANIU](plany/ROZWOJ_PO_WYDANIU/STATUS.md) — 6 z 8 etapów zamknięte, E7
+  wstrzymany.** Po co stoi: konto Codeksa jest w planie darmowym i nie ma kto przeprowadzić
+  pilotażu adaptera. Zaplanowany numer wydania E7 (1.6.0) zostaje w dokumentach bez aneksu — kolizja
+  nie grozi, dopóki etap stoi. Formalne zamrożenie planu czeka na decyzję człowieka.
 
 ## Co dalej
 
-- Świeża sesja Opus i `/relai-stage` — **E2** (rozbrojenie rotacji): sekcja „Czeka na człowieka"
-  w dzienniku, blokada liczona wyłącznie z niej, rotacja wyzwalana także na starcie.
-- Rozstrzygnąć, czy plan ROZWOJ_PO_WYDANIU zostaje **formalnie zamrożony** z niezamkniętym E7.
-- Po odmrożeniu E7 (adapter Codeksa): `AGENTS.md` jako warstwa nośna, hooki Codeksa, ten sam
-  scenariusz akceptacyjny co w E6, oraz wdrożenie D-86 razem z przepięciem instalatora Cursora.
+- Świeża sesja Opus i `/relai-stage` — **E4**: komórka „Mitygacja" jako stan bieżący plus odsyłacz,
+  `docs/archiwum/ryzyka/`, wiersz ustawień jako jedna decyzja, jedna linia na etap w `SPEC_STATUS`,
+  podbicie wersji do 1.6.0.
+- Sekwencja wydania 1.6.0 (push → `plugin marketplace update` → `plugin update` → **restart**), potem
+  E5: przepuścić JiraManagera i PolyFlow przez `/relai-update` i zmierzyć start przed i po.
+- Cztery odnogi w świeżych sesjach, w dowolnej kolejności wobec etapów: `OPIS_REPO` (pusty opis
+  repozytorium na GitHubie), `POMIAR_ODNOG` (niedomknięte punkty weryfikacji, dziewięć scenariuszy),
+  `REKOMENDACJA_MODELU`, `GUARD_PO_SCIEZCE`. Każda ma gotowy prompt; żadna nie blokuje planu.
+- Przejrzeć sekcję **„Czeka na człowieka"** w dzienniku — dziesięć spraw, w tym siedem rozstrzygnięć
+  wpisanych w E2 na podstawie faktów z repozytorium, do potwierdzenia.
 - Zainstalować pre-commit tam, gdzie ma pilnować: `node core/guardrails/install-precommit.js
   <projekt>`. Hook jest zmierzony, ale nikt go za człowieka nie podłoży.
-- Trzy odnogi do wykonania w świeżych sesjach, w dowolnej kolejności wobec etapów.
-- Przepuścić JiraManagera i PolyFlow przez `/relai-update` — ich dzienniki (348 KB i 223 KB)
-  czekają na pierwszą rotację na żywym projekcie.
-- Zebranie feedbacku od osób **spoza projektu** — pilotaż E6 poprowadził autor, więc kryterium
-  „ktoś inny niż autor" nadal czeka; wraca przy zamknięciu planu.
+- Po odmrożeniu E7: adapter Codeksa, `AGENTS.md` jako plik główny projektu z adapterem Cursora albo
+  Codeksa (D-86, 2026-08-17) wraz z przepięciem instalatora Cursora, ten sam scenariusz akceptacyjny
+  co w E6.
+- Feedback od osób **spoza projektu** — pilotaż E6 poprowadził autor, więc kryterium „ktoś inny niż
+  autor" nadal czeka; wraca przy zamknięciu planu.
 
 ## Co blokuje
 
 - **Pomiar zachowań w świeżej sesji** — CLI `claude -p` uwierzytelnia się z własnego pliku
-  poświadczeń, a konto tam zapisane ma wyczerpany limit (L-0032). Odblokowuje to `claude /login`
-  po stronie człowieka; do tego czasu odnoga `POMIAR_ODNOG` stoi. Scenariusze rotacji wymagają
-  dodatkowo restartu aplikacji po aktualizacji pluginu do co najmniej 1.2.0, a scenariusze
-  poprawek z E3 — do 1.3.0 (L-0031).
+  poświadczeń, a konto tam zapisane ma wyczerpany limit (L-0032). Odblokowuje to `claude /login`;
+  do tego czasu odnoga `POMIAR_ODNOG` stoi. Scenariusze rotacji wymagają dodatkowo restartu
+  aplikacji po aktualizacji pluginu (P-005).
 - **Nowy układ katalogów pluginu czeka na potwierdzenie w aplikacji.** Manifest wskazuje skille
-  i komendy pod `adapters/claude-code/`, walidator to akceptuje i mówi, że runtime czyta te same
-  ścieżki — ale realne wczytanie potwierdzi dopiero pierwsza sesja po push, aktualizacji pluginu
-  i **restarcie** (L-0031).
-- Repozytorium jest **publiczne** (zweryfikowane 2026-08-12), ale ma pusty opis — odnoga
-  `OPIS_REPO`.
-- **Adapter Cursora zmierzony w aplikacji, ale nie w całości.** Pilotaż E6 (2026-08-17) potwierdził
-  reguły, hook kontekstu, obie warstwy blokady sekretu i pełne przejście `/relai-stage`.
-  Niezmierzone zostają: `beforeReadFile`, dostęp poza katalogiem roboczym oraz osiem pozostałych
-  komend w całej procedurze.
-- **Poprawka 1.5.1 nie działa nigdzie poza tym repozytorium** do czasu sekwencji wydania; projekty
-  z gitowym pre-commitem wymagają dodatkowo ponownej instalacji hooka (instalator kopiuje skaner
-  do `.git/hooks/`).
+  i komendy pod `adapters/claude-code/`, walidator to akceptuje — ale realne wczytanie potwierdzi
+  dopiero pierwsza sesja po push, aktualizacji pluginu i **restarcie**.
+- **Adapter Cursora zmierzony w aplikacji, ale nie w całości.** Pilotaż potwierdził reguły, hook
+  kontekstu, obie warstwy blokady sekretu i pełne przejście `/relai-stage`. Niezmierzone: hook
+  `beforeReadFile`, dostęp poza katalogiem roboczym, osiem pozostałych komend.
+- **Poprawki 1.5.1 i 1.5.2 nie działają nigdzie poza tym repozytorium** do czasu sekwencji wydania;
+  projekty z gitowym pre-commitem wymagają dodatkowo ponownej instalacji hooka.
+- Repozytorium jest **publiczne**, ale ma pusty opis — odnoga `OPIS_REPO`.
 
 ---
 
@@ -145,24 +106,21 @@ w której narzędzie dostają inne osoby i zgłaszają, co im przeszkadza. Pierw
 
 ### Wersja i instalacja
 
-Repozytorium: 1.5.1. Zainstalowany globalnie (scope `user`) pozostaje **1.1.0**
-(`gitCommitSha e6b41dc`) do czasu push → `plugin update` → **restartu aplikacji** (L-0031). Źródło:
-własny marketplace w tym samym repozytorium.
+Repozytorium: **1.5.2**. Zainstalowany globalnie (scope `user`) pozostaje **1.1.0** do czasu push →
+`plugin update` → **restartu aplikacji** (P-005). Źródło: własny marketplace w tym samym
+repozytorium.
 
 ### Zawartość pluginu
 
-**Rdzeń** (`core/`): dwadzieścia specyfikacji dokumentów + szablon planu HTML z osadzonymi fontami
-• trzy skrypty guardraili (skan sekretów jako biblioteka i CLI, pre-commit, instalator) •
-rozpoznania startu sesji (`process/session-signals.js`, wołane przez oba adaptery) • walidator
-spójności • `MANIFEST.json`.
+**Rdzeń** (`core/`): specyfikacje dokumentów + szablon planu HTML z osadzonymi fontami • guardraile
+jako skrypty (skan sekretów, pre-commit, instalator) • rozpoznania startu sesji
+(`process/session-signals.js`, wołane przez oba adaptery) • walidator spójności • `MANIFEST.json`.
 
-**Adapter Claude Code** (`adapters/claude-code/`): dwa skille (`relai-core`, `relai-planning`) •
-dziesięć komend • **dziesięć** hooków Node.js bez zależności npm. Manifest i marketplace zostają
-w `.claude-plugin/` w korzeniu — tego wymaga Claude Code.
+**Adapter Claude Code**: dwa skille, dziesięć komend, dziesięć hooków Node.js bez zależności npm.
+Manifest i marketplace zostają w `.claude-plugin/` w korzeniu — tego wymaga Claude Code.
 
-**Adapter Cursor** (`adapters/cursor/`): trzy reguły `.mdc` z `alwaysApply: true` • dwa hooki
-(`sessionStart`, `preToolUse`) z opakowaniem powłoki dla guardraila • instalator z deinstalacją
-i flagą `--bez-skanu`. Komendy i skille nie są pisane drugi raz — instalator kopiuje je z adaptera
+**Adapter Cursor**: trzy reguły `.mdc` z `alwaysApply: true`, dwa hooki z opakowaniem powłoki dla
+guardraila, instalator z deinstalacją i flagą `--bez-skanu`. Komendy i skille kopiuje z adaptera
 Claude Code.
 
 ### Wymagania
@@ -171,19 +129,20 @@ Claude Code **albo Cursor** • Node.js 14+ w `PATH` • git (opcjonalnie).
 
 ### Linki
 
-Repo: github.com/nowilus/relai (publiczne od 2026-08-12) • Plan budowy:
+Repo: github.com/nowilus/relai (publiczne) • Plan budowy:
 [docs/archiwum/plany/BUDOWA_RELAI/](archiwum/plany/BUDOWA_RELAI/PLAN.html) • Backupy:
-`C:\Users\Lukasz\Backupy\RelAI`
+`C:\Users\Lukasz\Backupy\RelAI` • Rozpoznanie narzędzi: [PRZENOSNOSC.md](PRZENOSNOSC.md) •
+Pułapki: [PULAPKI.md](PULAPKI.md)
 
 ### Liczby
 
-Etapy planu budowy: 10/10 zamknięte • Etapy planu ROZWOJ_PO_WYDANIU: 6/8 zamknięte (E7 wstrzymany) •
-Etapy planu OPTYMALIZACJA_KONTEKSTU: 1/5 zamknięty • Warstwa startowa RelAI: ok. 65 KB / 80 KB •
-Scenariusze
-akceptacyjne: 4/4 zdane + pilotaż Cursora (6 kroków, wariant zastępczy) • Adaptery: 2 • Modele,
-na których zmierzono proces: 5 (Fable, Opus, Haiku, Composer/auto, Grok 4.6) • Otwarte odnogi: 4 •
-Otwarte bramki manualne: 4 • Otwarte ryzyka: 4 (zależność jakości od modelu, rozrost dokumentów,
-P1 zawężone po E6, P2 niskie dla Cursora i otwarte dla Codeksa) • Zamknięte ryzyka: 6 • Progi rotacji: dziennik 150 KB, lekcje
-40 wpisów albo 50 KB, STATE 300 linii • Archiwum: lekcje L-0001…L-0024 (rotacja 2026-08-12),
-dziennik 2026-08-07…2026-08-09 — 16 wpisów, 201 KB → 98 KB (rotacja 2026-08-17, suma kontrolna
-zgodna w obu fazach)
+Etapy: BUDOWA_RELAI 10/10 • ROZWOJ_PO_WYDANIU 6/8 (E7 wstrzymany) • OPTYMALIZACJA_KONTEKSTU 3/5 •
+Warstwa startowa RelAI: **55,3 KB / 80 KB** (`CLAUDE` 3,1 KB, `STATE` 9,8 KB, ryzyka 28,4 KB,
+zasady 5,0 KB) • Dziennik: 147,8 KB, lekcje 41,6 KB — oba pod progiem rotacji • Sprawy czekające
+na człowieka: 10 • Zasady aktywne: **15 przy limicie 15** •
+Scenariusze akceptacyjne: 4/4 zdane + pilotaż Cursora • Adaptery: 2 • Modele, na których zmierzono
+proces: 5 (Fable, Opus, Haiku, Composer/auto, Grok 4.6) • Otwarte odnogi: 4 • Otwarte bramki
+manualne: 9 (5 + 4 w dwóch planach) • Otwarte ryzyka: 4 • Zamknięte ryzyka: 6 • Progi rotacji: dziennik 150 KB, lekcje
+40 wpisów albo 50 KB, STATE 300 linii • Archiwum: lekcje L-0001…L-0024, dziennik 2026-08-07…
+2026-08-09 (16 wpisów) oraz 2026-08-10 (2 wpisy — **pierwsza rotacja po rozbrojeniu blokady**,
+2026-08-20)

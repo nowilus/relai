@@ -8,12 +8,44 @@
 | R2 | Auto-wyzwalanie skilli bywa zawodne (agent nie zastosuje zasad bez komendy) | **Niski przy Opusie, średni przy modelach słabszych** (2026-08-10 po E10) | **ZMIERZONE 2026-08-10, OTWARTE ŚWIADOMIE** | Podwójna warstwa: opisy skilli + reguły w projektowym CLAUDE.md zawsze w kontekście; testy fraz w pilotażu. **2026-08-07 (E1):** `relai-core` zainstalowany i widoczny w inwentarzu pluginu, ale samo auto-wyzwolenie w świeżej sesji NIEZWERYFIKOWANE. **2026-08-07 (E2):** test NIEWYKONANY — plugin odinstalowany na czas budowy na polecenie użytkownika (L-0004), więc skill nie miał prawa się wyzwolić; pomiar przeniesiony do pilotażu E10, po docelowej instalacji. Ryzyko pozostaje OTWARTE i niezmierzone przez dwa etapy (L-0005). **2026-08-07 (E3):** nadal niezmierzone — doszedł drugi skill (`relai-planning`) wyzwalany frazą, więc zakres ryzyka wzrósł. **2026-08-07 (pomiar, na wniosek użytkownika):** plugin zainstalowany, sześć świeżych sesji `claude -p`. Wersja 0.3.0: 1/4 trafień — brak wyzwolenia na prompcie naturalnym i na „przygotuj plan…", z realnym rozjazdem konwencji. Po poprawce opisów (0.3.1): 2/2 trafienia. Ryzyko zostaje otwarte: próba mała, `-p` blokuje `AskUserQuestion`, a wynik zależy od inwentarza skilli na maszynie. Kontrola ponowna w E10 (wiersz E10 w `STATUS.md`). **2026-08-07 (E5):** hook `session-context` (SessionStart) wstrzykuje rytuał startu, datę dnia i siatkę promptów niezależnie od skilli — zmierzone 2/2 na neutralnym prompcie przy **zerze** wywołań `Skill`. Poziom obniżony do niskiego; do potwierdzenia w sesji interaktywnej w E10. **2026-08-08 (E8):** reguły warunkowe profilu zaprojektowane tak, żeby skill **nie był** warstwą nośną — regułę niesie sekcja w `CLAUDE.md` projektu (w kontekście każdej sesji bez wyzwalania), zdarzenie wykrywa hook, skill dokłada procedurę. Zmierzone: bramka snapshotu zatrzymała zapis w projekcie `flow` z **usuniętą** sekcją reguł w `CLAUDE.md` (sesja napisała wprost „bramka snapshotu i tak zablokowała zapis"), a kopia w `docs/snapshoty/` ma sumę kontrolną stanu sprzed zmiany **2026-08-10 (E10) — pomiar interaktywny, siedemnaście sesji prowadzonych przez człowieka:** wynik zależy od modelu i to jest trwała własność, nie usterka do naprawienia. **Opus:** skill wyzwala się sam, procedura wykonuje się w całości (sygnał D-27 przed akapitem „gdzie jesteśmy", propozycja, zatrzymanie na zgodzie). **Sonnet 4.6 i Haiku 4.5:** ani jedno wywołanie `Skill` na promptach naturalnych; rytuał, datę i sygnały niesie hook `session-context`, więc projekt nie traci pamięci, ale procedura bywa niepełna. Inicjalizacja w pustym folderze wyzwoliła skill 3/3 niezależnie od modelu. Dwie poprawki z tego pomiaru: frazy sesji przeniesione do `CLAUDE.md` projektu (L-0030) i sygnały „ZADANIE PIERWSZE" przed instrukcją rytuału w hooku — po nich Sonnet zgłasza sygnał D-27 zawsze (przedtem: raz wcale, raz w środku akapitu z błędną propozycją). Ryzyko zostaje otwarte świadomie: warstwą nośną jest hook i `CLAUDE.md`, skill jest warstwą procedury. **2026-08-12 (E1):** doszła dziesiąta komenda (`/relai-branch`) i sygnał odchylenia, a regułę sygnału niesie `CLAUDE.md` projektu zgodnie z L-0030 — ale **zakres ryzyka wzrósł bez pomiaru**: limit konta na CLI (L-0032) uniemożliwił sesje pomiarowe, więc o zachowaniu nowej komendy w świeżej sesji nie wiadomo nic. Pomiar czterech scenariuszy czeka w odnodze `POMIAR_ODNOG` planu ROZWOJ_PO_WYDANIU. **2026-08-12 (E3):** dwa nowe zachowania (sygnał rozjazdu stanu, kontrola podpisu wpisu) świadomie **nie** oparto na skillu — niesie je hook, a skill dostał instrukcję milczenia zamiast własnego detektora (L-0036). To zmniejsza powierzchnię ryzyka: obie rzeczy działają przy każdym modelu. Zmierzone procesowo (15/15 i 9/9); to, czego hook nie rozstrzyga — czy sesja nie dubluje sygnału — czeka w odnodze `POMIAR_ODNOG` (scenariusz G). |
 | R3 | Adopcja uszkodzi żywy projekt użytkownika | **Niski** (2026-08-10 po E10; wcześniej średni) | **ZAMKNIĘTE 2026-08-10 (E10)** | D-70: backup+raport+recovery obowiązkowe; scenariusz akceptacyjny z pełnym testem recovery. **2026-08-08 (E7):** powstał pierwszy filar — `/relai-backup` pakuje projekt do prawdziwego ZIP-a (bsdtar, nagłówek `PK`), z twardym wykluczeniem sekretów i **weryfikacją listy wpisów archiwum** przed zgłoszeniem sukcesu; zmierzone: 22 wpisy, zero trafień na `.env`/`node_modules`. Brakuje drugiego filaru — **odtworzenia**: rozpakowanie i test „projekt wstaje" nie są jeszcze niczym opisane ani zmierzone. Do domknięcia w E9 (`/relai-adopt` z przetestowaną ścieżką recovery) i w scenariuszu akceptacyjnym E10. **2026-08-09 (E9):** drugi filar dowieziony — `/relai-adopt` z backupem-bramką (dwa dowody negatywne: niemożliwa lokalizacja i brak narzędzia pakującego → zero plików struktury) i **recovery przetestowanym naprawdę**: pełne cofnięcie wg sekcji raportu adopcji dało sumę drzewa plików bajt w bajt identyczną ze stanem sprzed (10/10 plików, agregat `1200960f…`). Poziom obniżony do średniego; zamknięcie po scenariuszu akceptacyjnym E10 na żywym JiraManagerze **2026-08-10 (E10) — scenariusz akceptacyjny na żywym projekcie (JiraManager: 22 commity, aplikacja PySide6, `CLAUDE.md` na 398 linii, sekrety pod niestandardową nazwą):** sumy kontrolne 194 plików przed i po adopcji — **zero plików zniknęło**, zmienione dokładnie dwa (`CLAUDE.md` przez scalanie, `DZIENNIK.md` przez wpis zerowy), kod bez zmian. `config.json` z tokenem Jiry i hasłem SMTP **poza archiwum** mimo nazwy spoza listy wzorców (D-42). Scalanie D-71: 6 z 8 zastanych sekcji bajt w bajt, kopia oryginału w `docs/archiwum/`. Recovery wykonane **na kopii**: 192/192 pliki bajt w bajt, `git log -1` = `b52c013` — hash z sekcji „Backup" raportu. Ryzyko zamknięte. |
 | R4 | Hooki Node na Windows (ścieżki ze spacjami, kodowanie PL) | Średni | **ZAMKNIĘTE 2026-08-07 (E5)** | Osiem hooków przetestowane na ścieżce `Próba RelAI E5` (spacja + „ó"): 39/39 testów jednostkowych i siedem sesji integracyjnych bez błędów kodowania i ścieżek. Komunikaty hooków świadomie ASCII (L-0016); zero zależności npm |
-| R5 | Dokumenty puchną i zjadają kontekst | Średni | **OTWARTE — do obserwacji po 1.0.0** | D-14/D-15: rotacja DZIENNIKA, kompresja LEKCJI, destylaty czytane na starcie. **2026-08-08 (E7):** doszły dwa narzędzia po stronie użytkownika — `/relai-audit` wykrywa dziennik ponad progiem 50 KB i lekcje bez destylatu (zmierzone na projekcie testowym: podał rozmiar dziennika i wskazał destylat bez lekcji źródłowej), a `/relai-changelog` daje historię bez trzymania jej w kontekście. Sam pakiet `/relai-handover` waży 201 KB przez osadzone fonty — to plik dla człowieka, nie dla kontekstu sesji, ale pytanie o podzbiór fontów z E6 zostaje otwarte **2026-08-10 (E10):** pilotaż dał pierwsze liczby z realnej pracy. Projekt „Paragony" po czterech etapach: dziennik 382 linie, `CLAUDE.md` 65 linii — mieści się. JiraManager po adopcji: dziennik 124 KB (historia sprzed RelAI), `CLAUDE.md` **434 linie** przy limicie 60, bo limit świadomie ustąpił wierności cudzych reguł (D-71). To jest realny przypadek, w którym mechanizm rotacji i kompresji będzie potrzebny, a `/relai-audit` go wykryje. Ryzyko zostaje otwarte z konkretnym adresem: pierwszy projekt po adopcji, nie hipoteza. **2026-08-12 (E2):** mechanizm powstał — automatyczna rotacja dwufazowa w rytuale zamknięcia sesji, progi i wyłącznik w `USTAWIENIA.md`, archiwum bajt w bajt z linią-odsyłaczem. Zmierzone na projektach testowych: dziennik 317 KB → 132 KB przy sumie przeniesionej treści identycznej z oryginałem, sekcje „Stan otwartych ryzyk" i „Zasady aktywne" nietknięte, przerwanie po fazie 1 zostawia żywy plik z tą samą sumą. Progi skalibrowane na **zmierzonych** dziennikach (JiraManager 348 KB, PolyFlow 223 KB) — próg lekcji zmieniony z martwych „60 lekcji" na „40 wpisów albo 50 KB" (L-0034). Poziom **na razie bez zmiany**: mechanizmu nie zmierzono w świeżej sesji (odnoga `POMIAR_ODNOG`, scenariusze E i F), a dwa projekty z realnym problemem dostaną go dopiero przez `/relai-update`. Zamknięcie po pierwszej rotacji na żywym projekcie. **2026-08-12 (E3):** zaadresowane **źródło** rozrostu, nie tylko skutek — decyzje podejmowane po adopcji idą od 1.3.0 do `DECYZJE.md`, a nie do zastanej tabeli w `CLAUDE.md`, czyli do warstwy czytanej w każdej sesji (JiraManager: 8 takich decyzji i plik na 639 liniach). Poziom **bez zmiany**: reguła istnieje w specyfikacji i w procedurze adopcji, ale ani nie zmierzono jej w świeżej sesji (odnoga `POMIAR_ODNOG`, scenariusz H), ani nie dotarła do JiraManagera — wejdzie tam przez `/relai-update`, co jest otwartą bramką manualną planu. **2026-08-20 — ryzyko zmierzone i zmaterializowane:** warstwa czytana przy starcie sesji to **386 KB w JiraManagerze (≈120 tys. tokenów)**, 155 KB w PolyFlow, 90 KB w RelAI. Rotacja w obu projektach **nigdy nie ruszyła**, bo blokuje ją pierwszy wpis dziennika z otwartą pozycją dla człowieka (dziennik 1,00 MB i 571 KB), a limity „Zasady aktywne" (15 pozycji), `CLAUDE.md` (60 linii) i `STATE.md` (300 linii) są przekroczone kilkunastokrotnie, bo nikt ich nie mierzy. Poziom **bez zmiany**; ryzyko dostało własny plan — `docs/plany/OPTYMALIZACJA_KONTEKSTU/` (budżet 80 KB liczony hookiem, rozbrojenie rotacji sekcją „Czeka na człowieka", migracja obu projektów). Zamknięcie po pomiarze przed i po na żywym projekcie w E5 tego planu. **2026-08-20 (E1 planu OPTYMALIZACJA_KONTEKSTU) — ryzyko przestało być niemierzone:** warstwa startowa ma odtąd liczbę liczoną przy każdym starcie sesji przez hook (`startCost` w rdzeniu, wołany przez oba adaptery) i budżet 80 KB z progami cząstkowymi w `USTAWIENIA.md`. Pierwszy pomiar tego repozytorium: **57,9 KB / 80 KB** — mieści się, więc raport milczy, ale dwie pozycje są ponad własnym progiem (`STATE.md` 12,4 KB przy 12 KB, ryzyka 20,9 KB przy 12 KB) i to jest dokładnie materiał dla E3 i E4. Poziom **bez zmiany**: mechanizm mierzy, ale jeszcze nic nie odchudził, a dwa projekty z realnym problemem czekają na E5. |
+| R5 | Dokumenty puchną i zjadają kontekst | Średni | **OTWARTE — do obserwacji po 1.0.0** | D-14/D-15: rotacja DZIENNIKA, kompresja LEKCJI, destylaty czytane na starcie. **2026-08-08 (E7):** doszły dwa narzędzia po stronie użytkownika — `/relai-audit` wykrywa dziennik ponad progiem 50 KB i lekcje bez destylatu (zmierzone na projekcie testowym: podał rozmiar dziennika i wskazał destylat bez lekcji źródłowej), a `/relai-changelog` daje historię bez trzymania jej w kontekście. Sam pakiet `/relai-handover` waży 201 KB przez osadzone fonty — to plik dla człowieka, nie dla kontekstu sesji, ale pytanie o podzbiór fontów z E6 zostaje otwarte **2026-08-10 (E10):** pilotaż dał pierwsze liczby z realnej pracy. Projekt „Paragony" po czterech etapach: dziennik 382 linie, `CLAUDE.md` 65 linii — mieści się. JiraManager po adopcji: dziennik 124 KB (historia sprzed RelAI), `CLAUDE.md` **434 linie** przy limicie 60, bo limit świadomie ustąpił wierności cudzych reguł (D-71). To jest realny przypadek, w którym mechanizm rotacji i kompresji będzie potrzebny, a `/relai-audit` go wykryje. Ryzyko zostaje otwarte z konkretnym adresem: pierwszy projekt po adopcji, nie hipoteza. **2026-08-12 (E2):** mechanizm powstał — automatyczna rotacja dwufazowa w rytuale zamknięcia sesji, progi i wyłącznik w `USTAWIENIA.md`, archiwum bajt w bajt z linią-odsyłaczem. Zmierzone na projektach testowych: dziennik 317 KB → 132 KB przy sumie przeniesionej treści identycznej z oryginałem, sekcje „Stan otwartych ryzyk" i „Zasady aktywne" nietknięte, przerwanie po fazie 1 zostawia żywy plik z tą samą sumą. Progi skalibrowane na **zmierzonych** dziennikach (JiraManager 348 KB, PolyFlow 223 KB) — próg lekcji zmieniony z martwych „60 lekcji" na „40 wpisów albo 50 KB" (L-0034). Poziom **na razie bez zmiany**: mechanizmu nie zmierzono w świeżej sesji (odnoga `POMIAR_ODNOG`, scenariusze E i F), a dwa projekty z realnym problemem dostaną go dopiero przez `/relai-update`. Zamknięcie po pierwszej rotacji na żywym projekcie. **2026-08-12 (E3):** zaadresowane **źródło** rozrostu, nie tylko skutek — decyzje podejmowane po adopcji idą od 1.3.0 do `DECYZJE.md`, a nie do zastanej tabeli w `CLAUDE.md`, czyli do warstwy czytanej w każdej sesji (JiraManager: 8 takich decyzji i plik na 639 liniach). Poziom **bez zmiany**: reguła istnieje w specyfikacji i w procedurze adopcji, ale ani nie zmierzono jej w świeżej sesji (odnoga `POMIAR_ODNOG`, scenariusz H), ani nie dotarła do JiraManagera — wejdzie tam przez `/relai-update`, co jest otwartą bramką manualną planu. **2026-08-20 — ryzyko zmierzone i zmaterializowane:** warstwa czytana przy starcie sesji to **386 KB w JiraManagerze (≈120 tys. tokenów)**, 155 KB w PolyFlow, 90 KB w RelAI. Rotacja w obu projektach **nigdy nie ruszyła**, bo blokuje ją pierwszy wpis dziennika z otwartą pozycją dla człowieka (dziennik 1,00 MB i 571 KB), a limity „Zasady aktywne" (15 pozycji), `CLAUDE.md` (60 linii) i `STATE.md` (300 linii) są przekroczone kilkunastokrotnie, bo nikt ich nie mierzy. Poziom **bez zmiany**; ryzyko dostało własny plan — `docs/plany/OPTYMALIZACJA_KONTEKSTU/` (budżet 80 KB liczony hookiem, rozbrojenie rotacji sekcją „Czeka na człowieka", migracja obu projektów). Zamknięcie po pomiarze przed i po na żywym projekcie w E5 tego planu. **2026-08-20 (E1 planu OPTYMALIZACJA_KONTEKSTU) — ryzyko przestało być niemierzone:** warstwa startowa ma odtąd liczbę liczoną przy każdym starcie sesji przez hook (`startCost` w rdzeniu, wołany przez oba adaptery) i budżet 80 KB z progami cząstkowymi w `USTAWIENIA.md`. Pierwszy pomiar tego repozytorium: **57,9 KB / 80 KB** — mieści się, więc raport milczy, ale dwie pozycje są ponad własnym progiem (`STATE.md` 12,4 KB przy 12 KB, ryzyka 20,9 KB przy 12 KB) i to jest dokładnie materiał dla E3 i E4. Poziom **bez zmiany**: mechanizm mierzy, ale jeszcze nic nie odchudził, a dwa projekty z realnym problemem czekają na E5. **2026-08-20 (E2 planu OPTYMALIZACJA_KONTEKSTU) — mechanizm rozbrojony:** blokada rotacji przestała mieszkać w pojedynczych wpisach i liczy się wyłącznie z nowej sekcji „Czeka na człowieka" na górze dziennika, a wpis z pozycją wyprowadzoną jest przenoszalny. Zmierzone na projekcie testowym w jednym przebiegu: ten sam dziennik (166 KB, 14 wpisów) daje zakres **0 wpisów** pod regułą 1.5.2 i **2 wpisy** pod regułą 1.6.0. Rotacja dostała drugie wejście — start sesji, gdy pomiar pokaże przekroczenie budżetu, rotacja jest włączona i sesja jest interaktywna. W tym repozytorium wyprowadzono **41 otwartych linii do 9 spraw**, zero pozycji zgubionych. Poziom **bez zmiany**: mechanizm działa, ale dwa projekty z realnym problemem (JiraManager, PolyFlow) dostaną go dopiero w E5 — i tam ryzyko się zamknie. **2026-08-20 (E3 planu OPTYMALIZACJA_KONTEKSTU) — pierwsze realne odchudzenie, w liczbach:** warstwa startowa tego repozytorium **73,4 KB → 63,8 KB** przy budżecie 80 KB, przy czym obie pozycje objęte etapem zeszły pod **własne** progi: `CLAUDE.md` 6,5 → **3,1 KB** (próg 10), `STATE.md` 14,5 → **9,3 KB** (próg 12). Zadziałało to, czego brakowało: limit wyrażony w jednostce, którą ktoś liczy (KB zamiast linii — L-0053), twardy sufit trzech pozycji w „Nad czym pracujemy teraz" z podmianą zamiast dopisywania, zakaz treści odtwarzalnej z repozytorium oraz wyprowadzenie rejestru pułapek do dokumentu czytanego **na żądanie** (`docs/PULAPKI.md`, sześć pozycji poza warstwą startową). Limit „Zasad aktywnych" — łamany kilkunastokrotnie, bo nikt go nie mierzył — dostał **jeden** adres egzekwowania w rytuale zamknięcia sesji. Poziom **bez zmiany**: największa pozycja (`ryzyka`, 32,1 KB przy progu 12 KB) należy do E4, a dwa żywe projekty czekają na E5; tam ryzyko się zamyka. |
 | R6 | Aktualizacja pluginu nadpisze lokalne nadpisania użytkowników | Niski | **ZAMKNIĘTE 2026-08-09 (E9)** | D-72: diff + zgoda + pierwszeństwo lokalnych nadpisań; test w pilotażu. **2026-08-08 (E6):** nadpisanie lokalne umieszczone w `docs/zasoby/HTML_PLAN/` — poza cache'em `.claude/relai/`, którego dotyka hook i aktualizacja pluginu. Zmierzone: po `marketplace update` + `plugin update` + świeżej sesji dziewięć plików nadpisania ma identyczne sumy kontrolne, własny token na miejscu, token z pluginu nie wrócił; cache w tym samym czasie **został** nadpisany (dowód, że test nie jest pusty). Zostaje otwarte do E9: `/relai-update` musi pokazać diff i uszanować nadpisanie. **2026-08-09 (E9):** `/relai-update` działa i szanuje nadpisania — zmierzone na projekcie 0.7.0: trzy pliki `docs/zasoby/HTML_PLAN/` z sumami identycznymi po aktualizacji, wiersz „Szablon planu HTML" nietknięty, wiersz lokalny `KOMENDY.md` przepisany dosłownie do zregenerowanej tabeli; diff pokazany przed zapisem, odmowa zostawia projekt nietknięty (10/10 sum). Ryzyko zamknięte |
 | R7 | Model wykonawczy (Sonnet/Opus) obniży jakość implementacji etapów | Średni | **ZAMKNIĘTE 2026-08-10 (E10)** | Prompty etapowe z sekcją Weryfikacja + przegląd Fable po kluczowych etapach **2026-08-10 (E10):** zmierzone na realnej pracy, nie na deklaracji. Etapy E3 i E4 projektu pilotażowego prowadził **Haiku 4.5** zgodnie z zapisem w `STATUS.md` („mechaniczne — najtańszy") i dowiózł je w całości: 30 testów, rytuał „Na koniec" wykonany, prompt następnego etapu wygenerowany, zamknięcie planu (D-36) przeprowadzone bez błędu — plan w archiwum, `Aktywny plan: brak`, zero martwych linków. Jakość implementacji **nie ucierpiała**; różnica między modelami leży gdzie indziej — w tym, czy skill wyzwala się sam (R2), a nie w tym, czy etap zostanie dowieziony. Jedyny ślad słabszego modelu w dokumentach: dwa wpisy podpisane `RelAI (Haiku)` bez członu `+ <użytkownik>`. Prompt etapowy z sekcją „Weryfikacja" okazał się wystarczającą mitygacją. |
 | P1 | Adaptery Cursor/Codex nie egzekwują blokad harnessu — sekret albo zmiana konfiguracji przejdzie tam, gdzie w Claude Code stoi ściana (plan ROZWOJ_PO_WYDANIU) | **Średni** (2026-08-12 po E4; wcześniej wysoki) | **OTWARTE** | Git pre-commit ze skanem sekretów w E4 (działa niezależnie od narzędzia); jawna tabela gwarancji per narzędzie w E5/E7; scenariusz akceptacyjny E6 zawiera próbę zapisu sekretu. **2026-08-12 (E4):** pierwsza mitygacja **dowieziona i zmierzona** — gitowy pre-commit blokuje commit z sekretem niezależnie od narzędzia (15/15, dowód negatywny na `git rev-parse HEAD` przed i po, oraz dowód, że test nie jest pusty: po deinstalacji ten sam commit przechodzi). Drugi powód obniżenia poziomu jest z rozpoznania, nie z kodu: `docs/PRZENOSNOSC.md` pokazuje, że **oba** narzędzia mają hooki potrafiące odmówić — Cursor `preToolUse` z `allow \| deny` i kodem wyjścia 2, Codex `PreToolUse` z `permissionDecision: deny` oraz `PermissionRequest`. Założenie planu „Codex bez blokad harnessu" jest nieaktualne. Ryzyko zostaje otwarte, bo rozpoznanie jest z dokumentacji, nie z próby: nie wiadomo, czy `preToolUse` Cursora niesie **treść** zapisu (bez niej nie ma czego skanować) ani które narzędzia Codeksa obejmuje „supported tool call". Zamknięcie po scenariuszu akceptacyjnym E6, który zawiera próbę zapisu sekretu. **2026-08-12 (E5) — połowa ryzyka zmierzona na żywym Cursorze:** `preToolUse` **niesie** treść zapisu (`tool_input.content`), a werdykt `permission: deny` realnie zatrzymał zapis klucza `AKIA…` przy przepuszczonej treści czystej (dowód negatywny). Wyszły natomiast dwie rzeczy, których plan nie przewidywał: (1) Cursor **nie ma egzekwowanego** odpowiednika `ask`, więc ochronę plików konfiguracyjnych niesie tam wyłącznie reguła, nie bramka — to jest dziś główny powód, dla którego poziom **zostaje średni**; (2) hook, którego nie da się uruchomić, jest ignorowany **bez słowa** — zaadresowane opakowaniem powłoki kończącym się kodem blokującym (L-0043). Zamknięcie nadal po E6. **2026-08-17 (E6) — część sekretowa Cursora zamknięta dowodem z aplikacji:** w pilotażu na aplikacji z interfejsem i modelu spoza Anthropic (Grok 4.6) obie warstwy zadziałały w ustalonej kolejności — reguła odmówiła pierwsza przy zwykłej prośbie, a przy prośbie jawnie proszącej o próbę mimo reguły zapis odbił hook `preToolUse` werdyktem `permission: deny`; plik nie powstał, w plikach śledzonych zero trafień (dowód negatywny). Ryzyko **zostaje otwarte**, ale z zawężonym powodem: (a) w Cursorze nadal nie ma egzekwowanego `ask`, więc pliki konfiguracyjne chroni sama reguła, (b) Codex pozostaje niezmierzony do E7. Poziom bez zmiany: **średni** |
 | P2 | Odpowiednik R2 w Cursor/Codex: bez auto-wyzwalania skilli proces zależy od dyscypliny modelu (plan ROZWOJ_PO_WYDANIU) | **Niski dla Cursora, średni dla Codeksa** (2026-08-17 po E6; wcześniej średni) | **OTWARTE (już tylko Codex)** | Wzorzec L-0030 od początku: reguły niesie warstwa zawsze-w-kontekście (reguły Cursora / AGENTS.md), nie mechanizm wyzwalany; pomiar na scenariuszach w E6, nie na deklaracji. **2026-08-12 (E4):** poziom **bez zmiany**, ale warstwa nośna ma teraz adres i twarde ograniczenia. Cursor: `.cursor/rules/*.mdc` z `alwaysApply: true` („Apply to every chat session"), zalecenie producenta poniżej 500 linii na regułę. Codex: `AGENTS.md` czytany „before doing any work", limit `project_doc_max_bytes` = **32 KiB**, sklejanie od korzenia w dół. Obie liczby są twardsze niż nasze dzisiejsze `CLAUDE.md` w projekcie po adopcji (JiraManager: 639 linii) — reguła E3 o kierowaniu decyzji do `DECYZJE.md` dostaje drugie uzasadnienie. Jednocześnie skille Codeksa wyzwalają się po dopasowaniu `description` do zadania, czyli tym samym mechanizmem, który przy R2 okazał się zależny od modelu — dlatego procedura może mieszkać w skillu, ale reguła nie. **2026-08-12 (E5) — zmierzone na Cursorze, poziom obniżony do średniego:** reguła `.mdc` z `alwaysApply: true` zadziałała w świeżej sesji CLI **bez żadnego wyzwalacza** (agent wykonał jej instrukcję na prompcie, który jej nie dotyczył), kontekst z hooka `sessionStart` realnie dotarł do modelu, a w próbie zapisu klucza model odmówił **sam**, powołując się na regułę — zanim zdążył zadziałać hook. Warstwa nośna z L-0030 ma więc w Cursorze potwierdzony adres. Ryzyko zostaje otwarte, bo pomiar objął jeden model (`auto` na koncie darmowym), wyłącznie CLI i pojedyncze zachowania, a nie pełny rytuał na żywym projekcie — to jest zakres pilotażu E6. **2026-08-17 (E6) — poziom obniżony do niskiego dla Cursora:** pilotaż przeszedł pełny cykl na trzech różnych modelach jednego narzędzia (Composer/`auto` — inicjalizacja i plan; **Grok 4.6** — cały etap E1; Opus 5 przez Claude Code — przegląd statusu). Model spoza Anthropic wykonał z reguł zawsze-w-kontekście: rytuał startu, kartę potwierdzenia etapu z kontrolą modelu, granicę zakresu (nie wszedł w E2 i E3), pytania warunkowe profilu `app`, zapis lekcji, rytuał zamknięcia z wygenerowaniem promptu następnego etapu i wpis dziennika z podpisem. Dyscyplina procesu **nie okazała się zależna od dostawcy modelu**. Ryzyko zostaje otwarte wyłącznie dla **Codeksa** (niezmierzony do E7) |
 | R8 | Sesja nie ma dostępu do katalogu pluginu — `templates/` ze specyfikacjami jest nieczytelny bez `--add-dir`, więc inicjalizacja projektu (D-60) zatrzymuje się na braku źródła | Wysoki | **ZAMKNIĘTE 2026-08-07 (E5)** | Rozwiązanie: proces hooka ma pełny dostęp do dysku, więc `session-context` kopiuje `templates/*.md` do `.claude/relai/templates/` projektu (SessionStart w projektach RelAI; PostToolUse na wywołaniu skilla RelAI — pokrywa inicjalizację w świeżym folderze) i wstrzykuje ustawienia globalne `~/.claude/relai/` (domyka też L-0010). Zmierzone: inicjalizacja **bez** `--add-dir` dała komplet ośmiu dokumentów, specyfikacje czytane z lokalnej kopii (8/8 plików). D-60 nietknięte — specyfikacje pozostają plikami. Ryzyko szczątkowe: provisioning przy inicjalizacji wymaga wyzwolenia skilla (R2); fallback `--add-dir` opisany w skillach |
+
+## Czeka na człowieka
+
+- **Sekwencja wydania 1.6.0: push → `plugin marketplace update` → `plugin update` → restart
+  aplikacji (L-0031)** · 2026-08-10 ·
+  [wpis 2026-08-10 — Audyt gotowości 1.0.0](#2026-08-10--audyt-gotowości-100-wizytówka-githubowa-i-domknięcie-dogfoodingu)
+- **`claude /login` na konto z dostępnym limitem — warunek startu odnogi `POMIAR_ODNOG`
+  (L-0032)** · 2026-08-12 ·
+  [wpis 2026-08-12 — E2: rotacja dokumentów](#2026-08-12--e2-rotacja-dokumentów-kalibracja-progów-relai-120)
+- **Okno na `/relai-update` dla JiraManagera i PolyFlow — oba projekty z zamkniętym etapem;
+  warunek startu E5** · 2026-08-12 ·
+  [wpis 2026-08-12 — E2: rotacja dokumentów](#2026-08-12--e2-rotacja-dokumentów-kalibracja-progów-relai-120)
+- **Decyzja o instalacji pre-commita: `node core/guardrails/install-precommit.js
+  <projekt>`** · 2026-08-12 ·
+  [wpis 2026-08-12 — E4: rdzeń przenośny](#2026-08-12--e4-rdzeń-przenośny-guardrails-jako-skrypty-pre-commit-ze-skanem-sekretów-relai-140)
+- **Feedback od osoby spoza projektu — kryterium „ktoś inny niż autor prowadzi projekt RelAI
+  w Cursorze" nadal niespełnione** · 2026-08-13 ·
+  [wpis 2026-08-13 — E6: uzgodnienie pilotażu Cursora](#2026-08-13--e6-uzgodnienie-pilotażu-cursora-przed-startem)
+- **Ponowna instalacja pre-commita tam, gdzie już stoi — poprawka 1.5.1 nie dotrze do
+  `.git/hooks/` sama** · 2026-08-17 ·
+  [wpis 2026-08-17 — E6: pilotaż Cursora](#2026-08-17--e6-pilotaż-cursora-wariant-zastępczy-wersja-151)
+- **Los projektu testowego `ProbaCursorE6` — zostaje jako materiał do E7 czy idzie do
+  kasacji** · 2026-08-17 ·
+  [wpis 2026-08-17 — E6: pilotaż Cursora](#2026-08-17--e6-pilotaż-cursora-wariant-zastępczy-wersja-151)
+- **Przeczytać ścieżkę B w `README.md` oczami kogoś, kto ma wyłącznie Cursora, i powiedzieć,
+  gdzie utknął** · 2026-08-18 ·
+  [wpis 2026-08-18 — README: rozdzielona instalacja](#2026-08-18--readme-rozdzielona-instalacja-dla-claude-code-i-cursora)
+- **Decyzja o formalnym zamrożeniu planu ROZWOJ_PO_WYDANIU z niezamkniętym E7** · 2026-08-20 ·
+  [wpis 2026-08-20 — E1: miara warstwy startowej](#2026-08-20--e1-miara-warstwy-startowej-budżet-80-kb-naprawa-martwej-siatki-d-34)
+- **Weryfikacja siedmiu rozstrzygnięć wpisanych w E2 — każde ma w adnotacji swój dowód; sprzeciw
+  cofa je jedną linią** · 2026-08-20 ·
+  [wpis 2026-08-20 — E2: rozbrojenie rotacji](#2026-08-20--e2-rozbrojenie-rotacji--sekcja-czeka-na-człowieka-i-drugie-wejście-na-starcie)
 
 ## Wpisy
 
@@ -21,141 +53,9 @@
 > [docs/archiwum/dziennik/DZIENNIK_2026-08-07_2026-08-09.md](archiwum/dziennik/DZIENNIK_2026-08-07_2026-08-09.md)
 > — przeniesione 2026-08-17, suma kontrolna `c17de1981ceedb1c`.
 
-### 2026-08-10 — E10: pilotaż, cztery scenariusze akceptacyjne, wydanie 1.0.0
-
-Autor: RelAI (Fable) + Lukasz
-
-**Zrobione — dowiezione vs plan (D-36):**
-
-Plan zakładał pilotaż na nowym projekcie i adopcję JiraManagera, cztery obowiązkowe scenariusze
-(D-83), kontrolę R2 w sesji interaktywnej, sześć pomiarów przeniesionych z trybu `-p` oraz wydanie
-1.0.0. **Dowiezione w całości.** Etap prowadzony inaczej niż poprzednie: sesje wykonywał człowiek
-interaktywnie (siedemnaście sesji), a ta sesja przygotowywała prompty i odbierała efekty z dysku —
-tryb `-p` nie obsługuje `AskUserQuestion` ani potwierdzeń hooków (L-0005, L-0024).
-
-- **Scenariusz 1 — pełny cykl nowego projektu.** `Desktop\Paragony` (CLI Node do rejestru
-  paragonów) od pustego folderu: inicjalizacja (zgoda → trzy pytania → osiem dokumentów), pierwszy
-  plan w HTML z szablonu „Warsztat", akceptacja, cztery etapy przez `/relai-stage`, zamknięcie
-  planu. Wszystko interaktywnie, każdy etap osobną świeżą sesją.
-- **Scenariusz 2 — przekazanie i wycieczka.** `/relai-handover` dał pakiet 194 KB otwierany
-  offline. Po podmianie `git config user.name` na cudzą nazwę sygnał D-27 zadziałał i wycieczka
-  ruszyła dopiero po zgodzie.
-- **Scenariusz 3 — kopia zapasowa i odtworzenie.** `/relai-backup` (798 KB, lokalizacja zapisana
-  do warstwy globalnej), potem odtworzenie na kopii i porównanie sum kontrolnych.
-- **Scenariusz 4 — adopcja JiraManagera.** Żywy projekt użytkownika: 22 commity, aplikacja PySide6,
-  `CLAUDE.md` na 398 linii, kolizja nazwy `docs/DZIENNIK.md`, sekrety w `config.json` pod
-  niestandardową nazwą. Pełna sekwencja z pytaniami na żywo; recovery przetestowane **na kopii**,
-  żywy projekt nietknięty.
-- **Trzy defekty znalezione przez pilotaż i poprawione**, każdy z ponownym pomiarem i osobnym
-  commitem — opis w „Zweryfikowane".
-- **Wersja 1.0.0** w obu manifestach, README, `SPEC_KOMENDY`, `SPEC_RAPORT_ADOPCJI`,
-  `SPEC_USTAWIENIA`, `relai-update`, obu skillach i markerze tego repo.
-
-**Zweryfikowane — jak dokładnie:**
-
-- **Inicjalizacja (scenariusz 1):** osiem dokumentów, marker `Wersja RelAI: 0.9.0`, commit
-  `chore: initialize RelAI project structure` objął dokładnie 8 plików, `CLAUDE.md` 61 linii
-  z sekcją „Reguły profilu (app)". Paczka trzech pytań padła jako **jedno** okno z opcjami; czwarte
-  pytanie nie padło. Warstwa globalna `~/.claude/relai/USTAWIENIA.md` utworzona z jednym wpisem.
-- **Plan HTML:** `PLAN.html` 238 KB, zero niewypełnionych znaczników, zero żądań sieciowych
-  (jedyne wystąpienia `http` to namespace SVG), sześć `@font-face`, dziesięć sekcji. Pytanie
-  o nadpisanie lokalne szablonu padło po pokazaniu planu i zostało zapisane w `USTAWIENIA.md`.
-- **Karta potwierdzenia `/relai-stage`:** sprawdzona w transkrypcie sesji — karta z planem, „E1
-  z E4", modelem i zakresem, po niej sesja **zatrzymała się** i ruszyła dopiero po „tak, zaczynamy".
-- **Zamknięcie planu (D-36):** plan w `docs/archiwum/plany/REJESTR_PARAGONOW/` z czterema
-  promptami, `PROMPT_ETAP_5.md` **nie** powstał, linia w `CLAUDE.md` brzmi `Aktywny plan: brak`
-  (nie martwy link), cztery commity etapowe w historii.
-- **Handover:** 194 116 B, zero zewnętrznych zasobów (`grep` po `src|href="http` pusty), sześć
-  wymaganych sekcji, zero niewypełnionych znaczników.
-- **Wycieczka (D-27):** przy `user.name` = „Marta Zielinska" hook wykrył, że żaden z 9 podpisów
-  nie zawiera tej nazwy. Po zgodzie powstała wycieczka na osiem sekcji, wyłącznie z dokumentów.
-  **Dowód negatywny:** `git status` po wycieczce pusty — komenda nie tknęła ani jednego pliku.
-  Po przywróceniu podpisu sygnał gaśnie sam (hook zwraca zero wystąpień).
-- **Backup + restore (scenariusz 3):** archiwum `Paragony_2026-08-10_0008.zip`, 268 wpisów, zero
-  trafień na wzorce sekretów. Odtworzenie na kopii: **157/157** plików, zero brakujących, zero
-  nadmiarowych; jedyna różnica to `docs/DZIENNIK.md` — odtworzony plik jest dokładnym **prefiksem**
-  oryginału (349 z 382 linii), a 33 linie różnicy to wpis dopisany **po** spakowaniu.
-- **Adopcja (scenariusz 4):** sumy kontrolne 194 plików przed i po. **Zero plików zniknęło**;
-  zmienione dokładnie dwa: `CLAUDE.md` (scalanie) i `docs/DZIENNIK.md` (wpis zerowy). Kod
-  (`app/`, `tests/`, `tools/`, skrypty) bez zmian. Archiwum 6 MB zamiast 508 MB —
-  `release/`, `dist/`, `build/` wykluczone. **D-42:** `config.json` z tokenem Jiry i hasłem
-  SMTP **nie ma** w archiwum, mimo niestandardowej nazwy; w kopii został `state.json` (cache
-  zgłoszeń Jiry, nie sekret) — słusznie, bo nie wygląda ani na sekret, ani na runtime.
-- **Scalanie `CLAUDE.md` (D-71):** 6 z 8 zastanych sekcji przeniesionych **bajt w bajt**
-  („Decyzje zamrożone", „Układ katalogów", „Komendy", „Konwencje", „Pułapki", „Zanim zaczniesz
-  kolejny etap"); „Stan prac" zastąpiona formatem RelAI, „Czym to jest" skrócona do nagłówka.
-  Kopia oryginału w `docs/archiwum/CLAUDE_PRZED_ADOPCJA.md`. Limit 60 linii świadomie ustąpił
-  wierności (434 linie), co raport odnotowuje.
-- **Recovery adopcji na kopii:** **192/192** pliki wspólne bajt w bajt, zero nieoczekiwanych braków,
-  zero różnic w treści; `git log -1` w odtworzonym pokazuje `b52c013` — hash z sekcji „Backup"
-  raportu. Jedyne braki to celowo wykluczony `config.json` i log.
-- **R2 — pomiar per model** (kryterium: wywołania narzędzia `Skill` w transkrypcie + zachowanie):
-  **Opus** — skill wyzwolony, procedura w całości (sygnał D-27 przed akapitem „gdzie jesteśmy",
-  propozycja, zatrzymanie na zgodzie). **Sonnet 4.6 i Haiku 4.5** — skill **nie** wyzwolony ani
-  razu; rytuał niesie hook `session-context`, więc akapit „gdzie jesteśmy" i sygnały działają,
-  ale procedura bywa niepełna. Inicjalizacja w pustym folderze: skill wyzwolony 3/3.
-- **Pomiary przeniesione z `-p`:** AskUserQuestion na żywo — działa (paczka trzech pytań, pytanie
-  o rodzaj/format/model, pytanie o testy przy pierwszym kodzie, pytanie o nadpisanie szablonu);
-  `config-protection` żąda potwierdzenia interaktywnie; adopcja z pytaniami w trakcie — przeszła;
-  propozycja wycieczki — patrz wyżej; skrócona forma komend — potwierdzona w sesji interaktywnej
-  (podpowiadacz rozwija `/relai-…` do pełnej nazwy z przestrzenią pluginu).
-- **Wydanie:** `claude plugin validate` — plugin „Validation passed with warnings" (jedno znane
-  ostrzeżenie o root `CLAUDE.md`, L-0003), marketplace `--strict` „Validation passed". Dziewięć
-  hooków przechodzi `node --check`. `grep` po `0.9.0` rozstrzygnięty: zmienione tam, gdzie
-  opisuje wersję bieżącą; historyczne („od 0.9.0 działa", „nowe w 0.9.0", wiersz E9) zostają.
-
-**Świadomie odłożone:**
-
-- **Guard hooków rozpoznaje chroniony plik po katalogu roboczym sesji, nie po ścieżce pliku** —
-  edycja `CLAUDE.md` cudzego projektu z sesji uruchomionej gdzie indziej przechodzi bez
-  ostrzeżenia `config-protection`. Wykryte przy pracy nad tym etapem, decyzja użytkownika:
-  nie ruszać przed 1.0.0, bo guard jest wspólny dla dziewięciu hooków, a scenariusz marginalny.
-- **Zatrzymanie na zgodzie przy słabszym modelu** — Sonnet po poprawce zawsze zgłasza sygnał D-27
-  i proponuje wycieczkę, ale przy dłuższym prompcie nie czeka, tylko dokłada akapit „gdzie
-  jesteśmy". Dalsze wzmacnianie instrukcji ma malejący zwrot.
-- **Podpis wpisu bez nazwy użytkownika** — dwa wpisy w dzienniku Paragonów (etapy prowadzone przez
-  Haiku) mają `Autor: RelAI (Haiku)` zamiast `RelAI (Haiku) + Lukasz`. Specyfikacja wymaga obu
-  członów; nie poprawiane w tym etapie.
-- **Podzbiór znaków w fontach** (ryzyko R5) — pakiet handover waży 194 KB głównie przez osadzone
-  fonty; pytanie otwarte od E6.
-
-**Do zrobienia przez człowieka:**
-
-- Zdecydować o dalszym losie projektu pilotażowego `Desktop\Paragony` (zostaje jako narzędzie czy *(rozstrzygnięte 2026-08-17 — katalogu `DesktopParagony` nie ma na dysku; projekt pilotażowy nie jest kontynuowany, a kopie testowe wygasły razem z katalogami sesji)*
-  idzie do usunięcia) oraz kopii testowych w katalogu tymczasowym sesji.
-- JiraManager jest **zaadoptowany**: ma strukturę RelAI, raport adopcji i backup. Zmiany nie są *(rozstrzygnięte 2026-08-17 — struktura RelAI jest w historii repozytorium JiraManagera: 79 plików w `docs/`, w tym `RAPORT_ADOPCJI.md` i `USTAWIENIA.md`; tamtejsze niezacommitowane zmiany dotyczą wtyczki, nie adopcji)*
-  zacommitowane — commit należy do właściciela projektu.
-- Rozstrzygnąć, czy guard hooków ma rozpoznawać pliki po ścieżce (pozycja ze „świadomie odłożone"). *(rozstrzygnięte 2026-08-17 — naprawiamy: rozpoznanie liczone także od katalogu edytowanego pliku; wykonanie w odnodze GUARD_PO_SCIEZCE)*
-
-### 2026-08-10 — Domknięcie pilotażu: `/relai-update` na projekcie pilotażowym
-
-Autor: RelAI (Fable) + Lukasz
-
-**Zrobione:**
-- Ostatni pomiar odłożony z listy „przeniesione z trybu `-p`": `/relai-update` wykonany na żywo
-  w projekcie „Paragony" (0.9.0 → 1.0.0), w sesji interaktywnej prowadzonej przez użytkownika.
-- Usunięte foldery testowe po pomiarze R2 (`Desktop\Próba E10`). Archiwa backupów zostają —
-  kopia JiraManagera sprzed adopcji jest jedyną drogą jej cofnięcia.
-
-**Zweryfikowane — jak dokładnie:**
-- Marker: `Wersja RelAI: 1.0.0`, data inicjalizacji `2026-08-09` **zachowana**.
-- `docs/KOMENDY.md` zregenerowany — nagłówek `RelAI 1.0.0`.
-- **Dowód negatywny zakresu:** commit `108e49c` objął dokładnie trzy pliki
-  (`USTAWIENIA.md`, `KOMENDY.md`, `DZIENNIK.md`). `CLAUDE.md` **nie został tknięty** — mimo
-  że komenda ma w inwentaryzacji wiersz o linii fraz sesji. Rozpoznała ją jako **obecną** i nie
-  dołożyła drugiej: `grep` po „Frazy sesji" zwraca **1** wystąpienie, nie 2.
-- Wpis w dzienniku projektu zawiera osobną sekcję „Pominięte jako nadpisania lokalne" z jawnym
-  powodem przy każdej pozycji — czyli zachowanie z D-72 działa także wtedy, gdy nadpisań nie ma.
-- Kolejność zgodna z procedurą: zmiany plików, marker wersji na końcu.
-
-**Świadomie odłożone:**
-- Aktualizacja JiraManagera do 1.0.0 — projekt jest po adopcji i zmiany nie są zacommitowane;
-  decyzja i moment należą do właściciela.
-
-**Do zrobienia przez człowieka:**
-- Zdecydować o dalszym losie projektu pilotażowego `Desktop\Paragony`. *(rozstrzygnięte 2026-08-17 — katalogu `DesktopParagony` nie ma na dysku; projekt pilotażowy nie jest kontynuowany, a kopie testowe wygasły razem z katalogami sesji)*
-- Zacommitować zmiany adopcyjne w JiraManagerze (struktura RelAI + raport adopcji czekają *(rozstrzygnięte 2026-08-17 — commit adopcyjny jest w historii JiraManagera, struktura RelAI śledzona)*
-  w drzewie roboczym).
+> Wpisy z okresu 2026-08-10 … 2026-08-10 (2 wpisy) są w
+> [docs/archiwum/dziennik/DZIENNIK_2026-08-10_2026-08-10.md](archiwum/dziennik/DZIENNIK_2026-08-10_2026-08-10.md)
+> — przeniesione 2026-08-20, suma kontrolna `b7307c8678b9d6b9`.
 
 ### 2026-08-10 — Audyt gotowości 1.0.0, wizytówka GitHubowa i domknięcie dogfoodingu
 
@@ -237,7 +137,7 @@ Autor: RelAI (Opus) + Lukasz
 
 - **Zaktualizować zainstalowany plugin przed przepinaniem kolejnych projektów:**
   `claude plugin marketplace update relai` → `claude plugin update relai@relai` → **restart
-  aplikacji**.
+  aplikacji**. *(wyprowadzone 2026-08-20 → sekcja „Czeka na człowieka")*
 - Zdecydować o upublicznieniu repozytorium i dopisać opis na GitHubie — bez tego README nie ma *(rozstrzygnięte 2026-08-12 — repo publiczne; pusty opis wydzielony do odnogi OPIS_REPO)*
   do kogo trafić.
 - Potwierdzić brzmienie nazwiska w `LICENSE` („Łukasz Nowakowski", rok 2026). *(rozstrzygnięte 2026-08-12 — Aneks A do planu ROZWOJ_PO_WYDANIU: LICENSE potwierdzone)*
@@ -521,11 +421,11 @@ Autor: RelAI (Opus) + Lukasz
 **Do zrobienia przez człowieka:**
 
 - **Push, `claude plugin marketplace update relai`, `claude plugin update relai@relai`, restart
-  aplikacji** — bez restartu sesje ładują cache 1.1.0 (L-0031).
+  aplikacji** — bez restartu sesje ładują cache 1.1.0 (L-0031). *(wyprowadzone 2026-08-20 → sekcja „Czeka na człowieka")*
 - **`claude /login`** na konto z dostępnym limitem — warunek startu odnogi `POMIAR_ODNOG`
-  (L-0032), teraz obejmującej także dwa scenariusze rotacji.
+  (L-0032), teraz obejmującej także dwa scenariusze rotacji. *(wyprowadzone 2026-08-20 → sekcja „Czeka na człowieka")*
 - Decyzja, kiedy przepuścić JiraManagera i PolyFlow przez `/relai-update` — dzienniki 348 KB
-  i 223 KB czekają na pierwszą rotację.
+  i 223 KB czekają na pierwszą rotację. *(wyprowadzone 2026-08-20 → sekcja „Czeka na człowieka")*
 
 ### 2026-08-12 — E3: poprawki z retrospektywy — decyzje po adopcji, rozjazd stanu, podpis, bramki, RelAI 1.3.0
 
@@ -629,12 +529,12 @@ Autor: RelAI (Opus) + Lukasz
 
 - **Push, `claude plugin marketplace update relai`, `claude plugin update relai@relai`, restart
   aplikacji** — bez pełnej sekwencji 1.3.0 nie działa w żadnym projekcie poza tym repo (L-0031).
-  Bramka manualna planu.
+  Bramka manualna planu. *(wyprowadzone 2026-08-20 → sekcja „Czeka na człowieka")*
 - **`claude /login`** na konto z dostępnym limitem — warunek startu odnogi `POMIAR_ODNOG`, która
-  domyka teraz punkty z E1, E2 **i** E3 (L-0032). Bramka manualna planu.
+  domyka teraz punkty z E1, E2 **i** E3 (L-0032). Bramka manualna planu. *(wyprowadzone 2026-08-20 → sekcja „Czeka na człowieka")*
 - Decyzja, kiedy przepuścić JiraManagera i PolyFlow przez `/relai-update` — JiraManager jest
   pierwszym realnym adresatem reguły o decyzjach po adopcji (`CLAUDE.md` na 639 liniach).
-  Bramka manualna planu.
+  Bramka manualna planu. *(wyprowadzone 2026-08-20 → sekcja „Czeka na człowieka")*
 - Uruchomić E4 (`/relai-stage`, świeża sesja **Opus**) albo którąś z dwóch odnóg — kolejność
   dowolna, odnogi nie blokują planu. *(rozstrzygnięte 2026-08-12 — uruchomiono E4)*
 
@@ -747,13 +647,13 @@ Autor: RelAI (Opus) + Lukasz
   aplikacji** — bez pełnej sekwencji 1.4.0 nie działa w żadnym projekcie poza tym repo (L-0031).
   Ten etap zmienia **układ katalogów pluginu**, więc pierwsza sesja po restarcie jest zarazem
   sprawdzianem, czy Claude Code znajduje skille i komendy pod nowymi ścieżkami — walidator manifestu
-  to potwierdza, ale realne wczytanie potwierdza dopiero aplikacja. Bramka manualna planu.
+  to potwierdza, ale realne wczytanie potwierdza dopiero aplikacja. Bramka manualna planu. *(wyprowadzone 2026-08-20 → sekcja „Czeka na człowieka")*
 - **`claude /login`** na konto z dostępnym limitem — warunek startu odnogi `POMIAR_ODNOG`
-  (L-0032). Bramka manualna planu.
-- **Decyzja, kiedy przepuścić JiraManagera i PolyFlow przez `/relai-update`.** Bramka manualna planu.
+  (L-0032). Bramka manualna planu. *(wyprowadzone 2026-08-20 → sekcja „Czeka na człowieka")*
+- **Decyzja, kiedy przepuścić JiraManagera i PolyFlow przez `/relai-update`.** Bramka manualna planu. *(wyprowadzone 2026-08-20 → sekcja „Czeka na człowieka")*
 - **Decyzja o instalacji pre-commita** — w tym repozytorium i w projektach roboczych:
-  `node core/guardrails/install-precommit.js <projekt>`. Bramka manualna planu.
-- Uruchomić E5 (`/relai-stage`, świeża sesja **Opus**) albo którąś z dwóch odnóg.
+  `node core/guardrails/install-precommit.js <projekt>`. Bramka manualna planu. *(wyprowadzone 2026-08-20 → sekcja „Czeka na człowieka")*
+- Uruchomić E5 (`/relai-stage`, świeża sesja **Opus**) albo którąś z dwóch odnóg. *(zrobione 2026-08-12 — E5 zrealizowany, adapter Cursora, RelAI 1.5.0)*
 
 ### 2026-08-12 — E5: adapter Cursora — rozpoznanie próbą, reguły zawsze-w-kontekście, skan sekretów, RelAI 1.5.0
 
@@ -881,19 +781,19 @@ Autor: RelAI (Opus) + Lukasz
 
 - **Push, `claude plugin marketplace update relai`, `claude plugin update relai@relai`, restart
   aplikacji** — bez pełnej sekwencji 1.5.0 nie działa w żadnym projekcie poza tym repo (L-0031).
-  Bramka manualna planu, nadal otwarta z E4.
+  Bramka manualna planu, nadal otwarta z E4. *(wyprowadzone 2026-08-20 → sekcja „Czeka na człowieka")*
 - **`claude /login`** na konto z dostępnym limitem — warunek startu odnogi `POMIAR_ODNOG` (L-0032).
-  Bramka manualna planu.
-- **Decyzja, kiedy przepuścić JiraManagera i PolyFlow przez `/relai-update`.** Bramka manualna planu.
+  Bramka manualna planu. *(wyprowadzone 2026-08-20 → sekcja „Czeka na człowieka")*
+- **Decyzja, kiedy przepuścić JiraManagera i PolyFlow przez `/relai-update`.** Bramka manualna planu. *(wyprowadzone 2026-08-20 → sekcja „Czeka na człowieka")*
 - **Decyzja o instalacji pre-commita** (`node core/guardrails/install-precommit.js <projekt>`).
-  Bramka manualna planu.
+  Bramka manualna planu. *(wyprowadzone 2026-08-20 → sekcja „Czeka na człowieka")*
 - **Osoba z zespołu do pilotażu E6** — etap wymaga realnego projektu prowadzonego w Cursorze przez
-  kogoś spoza tego projektu. **Nowa bramka manualna.**
+  kogoś spoza tego projektu. **Nowa bramka manualna.** *(rozstrzygnięte 2026-08-17 — wariant zastępczy: pilotaż poprowadził autor; kryterium „ktoś spoza projektu" wraca przy zamknięciu planu)*
 - **Decyzja o dopiskach rozstrzygnięcia w `SPEC_ARCHIWUM.md`** — czy „*(zrobione …)*" i podobne
   brzmienia mają być uznawane za rozstrzygnięcie na równi z „*(rozstrzygnięte …)*". Do czasu tej
   decyzji rotacja dziennika w tym projekcie stoi, a plik rośnie. Zmiana dotyka specyfikacji
-  rdzenia, więc nie robię jej przy okazji zamykania sesji.
-- Uruchomić E6 (`/relai-stage`, świeża sesja **Opus**) albo którąś z dwóch odnóg.
+  rdzenia, więc nie robię jej przy okazji zamykania sesji. *(rozstrzygnięte 2026-08-17 — zamknięta lista rdzeni w `SPEC_ARCHIWUM.md`, wersja 1.5.2, L-0035)*
+- Uruchomić E6 (`/relai-stage`, świeża sesja **Opus**) albo którąś z dwóch odnóg. *(zrobione 2026-08-17 — E6 zrealizowany, pilotaż Cursora, RelAI 1.5.1)*
 
 ### 2026-08-13 — E6: uzgodnienie pilotażu Cursora (przed startem)
 
@@ -928,10 +828,10 @@ rejestr tarć i rozstrzygnięcie P1/P2 trafią do wpisu zamykającego E6.
 - **Kryterium akceptacyjne planu dla E6 — „ktoś inny niż autor prowadzi projekt RelAI w Cursorze" —
   pozostaje NIESPEŁNIONE.** Ten pilotaż go nie zastępuje; obniżenie kryterium jest świadome
   i zapisane. Decyzja, czy plan zamyka E6 mimo to, czy czeka na osobę z zespołu, należy do człowieka
-  przy zamykaniu etapu.
+  przy zamykaniu etapu. *(wyprowadzone 2026-08-20 → sekcja „Czeka na człowieka")*
 - **Ryzyko P2 (zależność reguł zawsze-w-kontekście od modelu) nie zostanie ruszone** — pilotaż
   powtarza model `auto` z E5. Zamknięcie albo obniżenie P2 wymaga próby na modelu innym niż
-  mierzony.
+  mierzony. *(rozstrzygnięte 2026-08-17 — pilotaż przeszedł na Groku 4.6, P2 obniżone do niskiego dla Cursora)*
 
 ### 2026-08-17 — E6: pilotaż Cursora (wariant zastępczy), wersja 1.5.1
 
@@ -1017,20 +917,20 @@ Autor: RelAI (Opus 5) + Łukasz
 - **Rozstrzygnąć, czy plikiem głównym projektu ma zostać `AGENTS.md`** (natywny dla Cursora
   i Codeksa) z `CLAUDE.md` jako wskaźnikiem, odwrotnie, czy zostaje stan dzisiejszy jako świadoma
   różnica. Decyzja przesądza kształt E7; do czasu rozstrzygnięcia `CLAUDE.md` w projektach
-  Cursora działa na instrukcji, nie na mechanizmie.
+  Cursora działa na instrukcji, nie na mechanizmie. *(rozstrzygnięte 2026-08-17 — D-86: `AGENTS.md` plikiem głównym w projektach z adapterem Cursora/Codeksa; wdrożenie należy do E7)*
 - **Sekwencja wydania 1.5.1**: push → `claude plugin marketplace update relai` → `claude plugin
   update relai@relai` → **restart aplikacji** (L-0031); dla Cursora — ponowne uruchomienie
   `adapters/cursor/install.js` w projektach z adapterem. Bramka manualna planu, otwarta od E4.
   **Uwaga z tego etapu:** guardrail tej sesji pochodził z zainstalowanej wersji 1.1.0 i blokował
-  łatkę do samego siebie — do restartu obowiązuje stary skaner.
+  łatkę do samego siebie — do restartu obowiązuje stary skaner. *(wyprowadzone 2026-08-20 → sekcja „Czeka na człowieka")*
 - **Projekty z zainstalowanym gitowym pre-commitem wymagają ponownej instalacji** — instalator
-  kopiuje skaner do `.git/hooks/`, więc poprawka 1.5.1 nie dotrze tam sama.
+  kopiuje skaner do `.git/hooks/`, więc poprawka 1.5.1 nie dotrze tam sama. *(wyprowadzone 2026-08-20 → sekcja „Czeka na człowieka")*
 - **`claude /login`** na konto z dostępnym limitem — warunek startu odnogi `POMIAR_ODNOG`.
-  Bramka manualna planu.
-- **Decyzja, kiedy przepuścić JiraManagera i PolyFlow przez `/relai-update`.** Bramka manualna.
-- **Decyzja o instalacji pre-commita.** Bramka manualna.
+  Bramka manualna planu. *(wyprowadzone 2026-08-20 → sekcja „Czeka na człowieka")*
+- **Decyzja, kiedy przepuścić JiraManagera i PolyFlow przez `/relai-update`.** Bramka manualna. *(wyprowadzone 2026-08-20 → sekcja „Czeka na człowieka")*
+- **Decyzja o instalacji pre-commita.** Bramka manualna. *(wyprowadzone 2026-08-20 → sekcja „Czeka na człowieka")*
 - **Czy projekt testowy `ProbaCursorE6` zostaje** (materiał do E7 i do odnogi `POMIAR_ODNOG`), czy
-  idzie do kasacji. Ma niezacommitowany dorobek E1 i dwie własne bramki (testy, kierunek wizualny).
+  idzie do kasacji. Ma niezacommitowany dorobek E1 i dwie własne bramki (testy, kierunek wizualny). *(wyprowadzone 2026-08-20 → sekcja „Czeka na człowieka")*
 
 ### 2026-08-17 — Zamknięcie sesji
 
@@ -1071,7 +971,7 @@ Autor: RelAI (Opus 5) + Łukasz
   z 2026-08-12).
 - Pozostałe pozycje bez zmian wobec wpisu E6 z dzisiaj: decyzja `AGENTS.md` / `CLAUDE.md`,
   sekwencja wydania 1.5.1, ponowna instalacja pre-commita tam, gdzie już jest, `claude /login`,
-  `/relai-update` dla JiraManagera i PolyFlow, los projektu testowego `ProbaCursorE6`.
+  `/relai-update` dla JiraManagera i PolyFlow, los projektu testowego `ProbaCursorE6`. *(wyprowadzone 2026-08-20 → sekcja „Czeka na człowieka")*
 
 ### 2026-08-17 — Decyzja D-86: plik główny projektu
 
@@ -1100,7 +1000,7 @@ Wdrożenia nie ma i celowo nie było — należy do E7.
 
 - Pozycje bez zmian wobec dwóch wcześniejszych wpisów z dzisiaj: dopisek rozstrzygnięcia
   w `SPEC_ARCHIWUM.md` (rotacja dziennika stoi), sekwencja wydania 1.5.1, ponowna instalacja
-  pre-commita, `claude /login`, `/relai-update` dla JiraManagera i PolyFlow, los `ProbaCursorE6`.
+  pre-commita, `claude /login`, `/relai-update` dla JiraManagera i PolyFlow, los `ProbaCursorE6`. *(wyprowadzone 2026-08-20 → sekcja „Czeka na człowieka")*
 
 ### 2026-08-17 — Rotacja dziennika odblokowana, wersja 1.5.2
 
@@ -1158,7 +1058,7 @@ Autor: RelAI (Opus 5) + Łukasz
   przy najbliższym „kończymy na dziś".
 - Pozycje bez zmian: sekwencja wydania (teraz **1.5.2**), ponowna instalacja pre-commita tam, gdzie
   jest, `claude /login`, `/relai-update` dla JiraManagera i PolyFlow, los `ProbaCursorE6`,
-  wdrożenie D-86 w E7.
+  wdrożenie D-86 w E7. *(wyprowadzone 2026-08-20 → sekcja „Czeka na człowieka")*
 
 ### 2026-08-17 — Zamknięcie trzech pozycji z E10, odnoga GUARD_PO_SCIEZCE
 
@@ -1198,9 +1098,9 @@ Autor: RelAI (Opus 5) + Łukasz
 - **Sekwencja wydania 1.5.2** (push → `claude plugin marketplace update relai` → `claude plugin
   update relai@relai` → restart aplikacji, L-0031) — to jedyna pozycja, która blokuje jeszcze
   jeden wpis przed rotacją, i jedyna, która sprawia, że dzisiejsze poprawki nie działają poza tym
-  repozytorium.
+  repozytorium. *(wyprowadzone 2026-08-20 → sekcja „Czeka na człowieka")*
 - Pozostałe bez zmian: ponowna instalacja pre-commita tam, gdzie jest, `claude /login`,
-  `/relai-update` dla JiraManagera i PolyFlow, los `ProbaCursorE6`, wdrożenie D-86 w E7.
+  `/relai-update` dla JiraManagera i PolyFlow, los `ProbaCursorE6`, wdrożenie D-86 w E7. *(wyprowadzone 2026-08-20 → sekcja „Czeka na człowieka")*
 
 ### 2026-08-18 — Potwierdzenie wydania 1.5.2 i odświeżenie README
 
@@ -1236,7 +1136,7 @@ Autor: RelAI (Opus 5) + Łukasz
 **Do zrobienia przez człowieka:**
 
 - Pozostałe bez zmian: ponowna instalacja pre-commita tam, gdzie jest, `claude /login`,
-  `/relai-update` dla JiraManagera i PolyFlow, los `ProbaCursorE6`, wdrożenie D-86 w E7.
+  `/relai-update` dla JiraManagera i PolyFlow, los `ProbaCursorE6`, wdrożenie D-86 w E7. *(wyprowadzone 2026-08-20 → sekcja „Czeka na człowieka")*
 
 ### 2026-08-18 — README: rozdzielona instalacja dla Claude Code i Cursora
 
@@ -1283,9 +1183,9 @@ Autor: RelAI (Opus 5) + Łukasz
 **Do zrobienia przez człowieka:**
 
 - Przeczytać ścieżkę B oczami kogoś, kto ma wyłącznie Cursora, i powiedzieć, w którym kroku
-  utknął — to jest tańsze niż czekanie na pierwszego użytkownika z zewnątrz.
+  utknął — to jest tańsze niż czekanie na pierwszego użytkownika z zewnątrz. *(wyprowadzone 2026-08-20 → sekcja „Czeka na człowieka")*
 - Pozostałe bez zmian: ponowna instalacja pre-commita tam, gdzie jest, `claude /login`,
-  `/relai-update` dla JiraManagera i PolyFlow, los `ProbaCursorE6`, wdrożenie D-86 w E7.
+  `/relai-update` dla JiraManagera i PolyFlow, los `ProbaCursorE6`, wdrożenie D-86 w E7. *(wyprowadzone 2026-08-20 → sekcja „Czeka na człowieka")*
 
 ### 2026-08-20 — Pomiar warstwy startowej trzech projektów i plan OPTYMALIZACJA_KONTEKSTU
 
@@ -1343,9 +1243,9 @@ Autor: RelAI (Opus 5) + Łukasz
 - **Zaakceptować albo poprawić plan** — bez akceptacji nie powstaje `PROMPT_ETAP_1` i nic nie rusza.
   *(rozstrzygnięte 2026-08-20 — plan zaakceptowany bez poprawek)*
 - **Aneks do zamrożonego planu ROZWOJ_PO_WYDANIU**: numer wydania E7 z 1.6.0 na 1.7.0 — do
-  zatwierdzenia przed startem E1.
+  zatwierdzenia przed startem E1. *(rozstrzygnięte 2026-08-20 — aneksu nie piszemy, E7 wstrzymany; bramka planu OPTYMALIZACJA_KONTEKSTU)*
 - Pozostałe bez zmian: sekwencja wydania, ponowna instalacja pre-commita, `claude /login`, okno na
-  migrację JiraManagera i PolyFlow, wdrożenie D-86 w E7.
+  migrację JiraManagera i PolyFlow, wdrożenie D-86 w E7. *(wyprowadzone 2026-08-20 → sekcja „Czeka na człowieka")*
 
 ### 2026-08-20 — Plan OPTYMALIZACJA_KONTEKSTU zaakceptowany, E1 gotowy do startu
 
@@ -1384,7 +1284,7 @@ Autor: RelAI (Opus 5) + Łukasz
   2026-08-20 — aneksu nie piszemy, E7 wstrzymany: konto Codeksa w planie darmowym i brak osoby
   do pilotażu)*
 - Pozostałe bez zmian: sekwencja wydania po E4, ponowna instalacja pre-commita, `claude /login`,
-  okno na migrację JiraManagera i PolyFlow, wdrożenie D-86 w E7.
+  okno na migrację JiraManagera i PolyFlow, wdrożenie D-86 w E7. *(wyprowadzone 2026-08-20 → sekcja „Czeka na człowieka")*
 
 ### 2026-08-20 — E1: miara warstwy startowej, budżet 80 KB, naprawa martwej siatki D-34
 
@@ -1479,6 +1379,346 @@ Autor: RelAI (Opus 5) + Łukasz
 
 - **Decyzja o zamrożeniu planu ROZWOJ_PO_WYDANIU** — Łukasz przy starcie E1: „moglibyśmy
   ewentualnie to zamrozić". Zamrożenie formalne (status planu + linia w `STATE.md`) albo jego brak
-  zmienia to, co widzi start sesji.
+  zmienia to, co widzi start sesji. *(wyprowadzone 2026-08-20 → sekcja „Czeka na człowieka")*
 - Bez zmian: sekwencja wydania 1.6.0 po E4, ponowna instalacja pre-commita, `claude /login` na
-  konto z limitem, okno na migrację JiraManagera i PolyFlow, wdrożenie D-86 przy odmrożeniu E7.
+  konto z limitem, okno na migrację JiraManagera i PolyFlow, wdrożenie D-86 przy odmrożeniu E7. *(wyprowadzone 2026-08-20 → sekcja „Czeka na człowieka")*
+
+### 2026-08-20 — E2: rozbrojenie rotacji — sekcja „Czeka na człowieka" i drugie wejście na starcie
+
+Autor: RelAI (Opus 5) + Lukasz
+
+**Zrobione:**
+
+- **`core/templates/SPEC_DZIENNIK.md` — sekcja „Czeka na człowieka"**: format pozycji (treść · data
+  pierwszego wystąpienia · link do najstarszego wpisu źródłowego), nadpisywana, nigdy do archiwum,
+  wyłącznie sprawy otwarte, jedna sprawa = jedna pozycja, pusta ma jawne „—". Sekcja „Do zrobienia
+  przez człowieka" we wpisie dostała **zamknięte, czytane maszynowo** brzmienie adnotacji
+  `*(wyprowadzone RRRR-MM-DD → sekcja „Czeka na człowieka")*` wraz z regułą, że taki wpis rotacji
+  już nie blokuje. Kompletny przykład na końcu specyfikacji obejmuje obie sekcje (L-0001).
+- **`core/templates/SPEC_ARCHIWUM.md` — blokada zmieniła adres.** Nowa sekcja „Blokada liczy się
+  z sekcji «Czeka na człowieka»" mówi wprost, co blokuje (wpis linkowany z **otwartej** pozycji),
+  a co nie (wpis z pozycją wyprowadzoną albo rozstrzygniętą). Sekcja „Kiedy powstaje" opisuje
+  **dwa wejścia** rotacji — zamknięcie sesji bez zmian, start sesji przy trzech warunkach naraz
+  (przekroczony budżet · rotacja włączona · sesja interaktywna) — i mówi wprost, że różnią się
+  wyłącznie momentem. Cztery nowe przypadki brzegowe, w tym „mniej niż dziesięć wpisów" i projekt
+  sprzed 1.6.0.
+- **`core/process/session-signals.js`** — `startCost` czyta drugi, niezależny przełącznik (wiersz
+  `Rotacja dokumentów`) i zwraca go jako fakt `rotacja: true | false | null`. `startCostReport`
+  powyżej progu: rotacja włączona → linia zaczynająca się od **„Zaproponuj rotacje"**; wyłączona
+  albo nieustawiona → pół zdania o wyłączniku, bez propozycji; sesja nieinteraktywna → sam raport,
+  bez propozycji i bez rotacji. Sekcja „Czeka na człowieka" wchodzi do **istniejącej** pozycji
+  `ryzyka`, bo rytuał startu czyta ją razem z ryzykami — siódmej pozycji budżetu **nie ma**.
+- **`adapters/claude-code/skills/relai-core/SKILL.md`** — dwie nowe sekcje: „Rotacja na starcie
+  sesji" (trzy warunki, rozpoznanie po frazie z raportu hooka, zakaz w sesji nieinteraktywnej,
+  zakaz automatycznego odpalenia) oraz sześciokrokowa **procedura wyprowadzenia** zastanych pozycji
+  z liczeniem przed i po. Sekcja rotacji w rytuale zamknięcia dostała nowy adres blokady.
+- **`adapters/cursor/rules/relai-core.mdc`** — reguły Cursora **nie mówiły ani o rotacji na
+  starcie, ani o sekcji**; doszły dwa zdania po angielsku (ustawienie z 2026-08-12) plus
+  poprawiona reguła blokady w rytuale zamknięcia. Warstwa zawsze-w-kontekście jest tam jedynym
+  nośnikiem (L-0030).
+- **Dogfooding — `docs/DZIENNIK.md` tego repozytorium**: sekcja „Czeka na człowieka" z dziewięcioma
+  sprawami, każda z linkiem do najstarszego wpisu źródłowego. 34 linie źródłowe dostały adnotację
+  o wyprowadzeniu, 7 kolejnych — adnotację rozstrzygnięcia, bo ich rozstrzygnięcie **jest faktem
+  w repozytorium**: E5 zamknięty 2026-08-12, E6 i D-86 2026-08-17, zamknięta lista brzmień
+  w 1.5.2 (L-0035), P2 zmierzone na Groku 4.6, aneks numeru wydania odrzucony 2026-08-20.
+- **`docs/KOMENDY.md`** — jedna pozycja w „Czego RelAI pilnuje bez proszenia".
+
+**Zweryfikowane — jak dokładnie:**
+
+- **Rotacja rusza tam, gdzie dotąd stała.** Instrument `zakres.js` implementuje regułę blokady
+  w **obu** wersjach i liczy zakres dla obu stanów w jednym przebiegu (L-0040). Projekt testowy:
+  14 wpisów, 166 KB przy progu 150 KB. **PRZED** (reguła 1.5.2, brak sekcji): do przeniesienia
+  **0 wpisów** — „pierwsza pozycja nietykalna: Etap testowy 1". **PO** (reguła 1.6.0): **2 wpisy**,
+  zatrzymanie na wpisie 3. Kontrola izolująca przyczynę: ten sam materiał PO pod regułą 1.5.2 daje
+  **1 wpis** (blokuje wpis 2, bo adnotacja o wyprowadzeniu jest dla niej dopiskiem spoza listy) —
+  różnica bierze się z reguły, nie z materiału.
+- **Dowód negatywny na blokadę:** wpis 3 ma adnotację o wyprowadzeniu we własnej sekcji, a mimo to
+  **nie** został przeniesiony, bo prowadzi do niego link z otwartej pozycji sekcji. Wpis 1 —
+  najstarszy, wyprowadzony i rozstrzygnięty — **został** przeniesiony.
+- **Nic nie ginie, policzone skryptem na obu stanach pliku:** `inwentarz.js` na
+  `git show HEAD:docs/DZIENNIK.md` i na pliku po zmianie. Przed: 60 pozycji, w tym **41 otwartych**,
+  sekcja „Czeka na człowieka" BRAK. Po: 60 pozycji, **0 otwartych**, 34 z adnotacją o wyprowadzeniu,
+  26 rozstrzygniętych (19 zastanych + 7 nowych), sekcja: **9 pozycji**. Mapowanie linia → sprawa
+  jest jawne w `wyprowadz.js`. Archiwum dziennika sprawdzone osobno: **0 otwartych pozycji**.
+- **Wszystkie 9 kotwic sekcji wskazuje istniejące nagłówki wpisów** — porównanie zbioru kotwic
+  wyliczonych z nagłówków `###` ze zbiorem linków sekcji: 9 żywych, 0 martwych (L-0013).
+- **Suma kontrolna zgodna w obu fazach:** `f764d1f0373d71ab` przy liczeniu z żywego pliku i po
+  odczycie archiwum **z dysku** (SHA-256 po normalizacji CRLF → LF, L-0033). Żywy plik po
+  przycięciu plus archiwum składają się w oryginał **znak w znak** (167 203 = 167 203); rozmiar
+  166,1 → 142,3 KB.
+- **Rotacja wyłączona, budżet włączony:** raport jest (4 linie), **zero trafień** na frazę
+  „Zaproponuj rotacje" (dowód negatywny), pada „Rotacja dokumentow jest wylaczona albo
+  nieustawiona". Brak wiersza `Rotacja dokumentów` zachowuje się tak samo — bez zgadywania (L-0025).
+- **Budżet wyłączony, rotacja włączona:** w wyjściu hooka **zero trafień** na „budzet" i na
+  „rotacj", a pozostały kontekst startu (1823 B) bez zmian; kod wyjścia 0.
+- **Sesja nieinteraktywna zmierzona tam, gdzie sygnał istnieje** — Cursor,
+  `is_background_agent: true`: raport jest, propozycji rotacji **nie ma**, pada zdanie „Sesja
+  nieinteraktywna: to jest sam raport, bez propozycji odchudzenia i bez rotacji na starcie".
+  Kontrola, że test nie jest pusty: ta sama konfiguracja z `is_background_agent: false` daje
+  propozycję. **Dla Claude Code punkt pozostaje niewykonalny** — patrz „Świadomie odłożone".
+- **Dziennik ponad progiem, mniej niż dziesięć wpisów** (6 wpisów, 175 KB): rotacja nie rusza,
+  powód nazwany wprost („mniej niz 10 wpisow"), nie cisza.
+- **Pozycja rozstrzygnięta znika z sekcji:** pozycja z rdzeniem z zamkniętej listy i datą przestaje
+  blokować wpis; pozycja z dopiskiem **spoza** listy („w toku 2026-01-20") blokuje dalej — dowód
+  negatywny (L-0035).
+- **Sekcja doliczona do pomiaru:** para projektów testowych różniąca się wyłącznie obecnością
+  sekcji daje pozycję `ryzyka` 1362 B vs 1486 B (+124 B). Liczba pozycji budżetu bez zmian — brak
+  identyfikatora `czeka`. Projekt bez sekcji nie jest awarią.
+- **Przełącznik jako fakt:** `startCost().rotacja` daje `true` / `false` / `null` dla wiersza
+  włączonego, wyłączonego i nieobecnego.
+- `grep -nP "[ąćęłńóśźżĄĆĘŁŃÓŚŹŻ]"` na obu hookach: **bez trafień** (L-0016). Raport rdzenia
+  w trzech wariantach ma 5 / 4 / 3 linie — **poniżej limitu sześciu**, zero diakrytyków. Limit
+  liczony na tablicy zwracanej przez `startCostReport`, nie na `stdout` hooka (L-0051).
+- `node core/tools/validate-adapters.js` → kod **0**, „3 zrodel, wartosc 1.5.2". **Dowód negatywny
+  na wersję:** `core/MANIFEST.json`, `.claude-plugin/plugin.json` i marker `Wersja RelAI` nadal
+  **1.5.2** — podbicie należy do E4.
+- Katalogi i pliki testowe powstały poza repozytorium (`%TEMP%\relai-e2`) i zostały usunięte;
+  w repozytorium nie ma plików tymczasowych.
+
+**Świadomie odłożone:**
+
+- **Rozpoznanie sesji nieinteraktywnej w Claude Code — nadal niewykonalne.** Payload `SessionStart`
+  nie niesie zmierzonego rozróżnienia wobec `claude -p`, a jedyny kandydat
+  (`CLAUDE_CODE_ENTRYPOINT`) wymaga porównania dwóch przebiegów CLI — te stoją na wyczerpanym
+  limicie konta (L-0032). **Warunek wykonalności:** `claude /login` na konto z limitem, potem jeden
+  przebieg `claude -p` i jeden interaktywny na tym samym projekcie. Do tego czasu adapter Claude
+  Code zachowuje się jak w sesji interaktywnej, a jedynym zabezpieczeniem jest zakaz zamiany
+  propozycji w automatyczne odpalenie. Punkt dopisany do odnogi `POMIAR_ODNOG`.
+- **Rotacja tego dziennika.** Plik jest **poniżej progu** 150 KB, więc rotacja nie ma prawa ruszyć
+  i nie rusza. Pierwsza rotacja po rozbrojeniu blokady wydarzy się sama, gdy plik urośnie; dowód,
+  że rozbrojenie działa, dał projekt testowy, nie to repozytorium.
+- **Odchudzenie pozycji `ryzyka` i `STATE`** — obie są ponad własnymi progami. Należy do E3 i E4.
+- **Wyprowadzenie pozycji w JiraManagerze i PolyFlow** — procedura jest opisana, ale uruchamia ją
+  E5, po `/relai-update` do 1.6.0.
+
+**Do zrobienia przez człowieka:**
+
+- **Weryfikacja siedmiu rozstrzygnięć wpisanych w tej turze** — każde ma w adnotacji swój dowód
+  (zamknięty etap, decyzja, lekcja). Jeśli któreś nie odpowiada Twojej wiedzy, jedna linia to
+  cofa, a sprawa wraca do sekcji „Czeka na człowieka".
+  *(wyprowadzone 2026-08-20 → sekcja „Czeka na człowieka")*
+- Pozostałe sprawy mają teraz stały adres: sekcja **„Czeka na człowieka"** na górze tego pliku,
+  dziesięć pozycji otwartych. *(wyprowadzone 2026-08-20 → sekcja „Czeka na człowieka")*
+
+### 2026-08-20 — E3: twardy kształt STATE i CLAUDE, rejestr pułapek jako osobny dokument
+
+Autor: RelAI (Opus 5) + Lukasz
+
+**Zrobione:**
+
+- **`core/templates/SPEC_STATE.md` — twardy kształt sekcji „Nad czym pracujemy teraz".** Nowa sekcja
+  specyfikacji: najwyżej **trzy pozycje**, każda jednoakapitowa, zamknięty etap **podmienia** pozycję
+  zamiast dopisywać kolejną. Wypisana kolejność wypadania, gdy pozycji byłyby cztery (zamknięta →
+  „Co działa"; wstrzymana → „Co blokuje"; nierozpoczęta → „Co dalej"; cztery wątki naraz → zostają
+  trzy najważniejsze i pada o tym zdanie). Dwa nowe zakazy. Przykład na końcu przepisany pod nowy
+  kształt (L-0001).
+- **`SPEC_STATE.md` — próg zwięzłości przestał być oceną.** Wyzwalaczem zostaje liczba linii (300,
+  wiersz `Rotacja dokumentów`), a **celem** przepisania jest odtąd liczba: plik ma zejść poniżej
+  progu cząstkowego `STATE` z wiersza `Budżet startu sesji` (12 KB) — tego samego, który mierzy
+  hook. Dwie komendy sprawdzające wpisane wprost. Zdanie o pierwszeństwie wartości projektowej
+  i zdanie o jednym wyzwalaczu (L-0049).
+- **`core/templates/SPEC_CLAUDE_MD.md` — limit w KB zamiast linii.** „Maksimum 60 linii" zastąpione
+  progiem **10 KB** z jawnym powiązaniem z wierszem `Budżet startu sesji` i komendą sprawdzającą.
+  Powód zmiany jednostki opisany w specyfikacji, nie tylko w dzienniku.
+- **`SPEC_CLAUDE_MD.md` — zakaz treści odtwarzalnej z repozytorium.** Nowa sekcja z dwiema listami:
+  co podpada (mapa katalogów, listy plików i modułów, wyliczenia zależności, listy komend) i co
+  **nie** podpada (reguły procesu, sekcja niemutowalna, linia aktywnego planu, rytuał startu, tabela
+  „Stan prac" jako drogowskazy). Granica jednym pytaniem: czy sesja odtworzy to, patrząc na
+  repozytorium. Dołożona sekcja o **warunkowej** linii odsyłacza do `docs/PULAPKI.md`.
+- **Cztery miejsca z martwym limitem 60 linii doprowadzone do zgodności:** `core/templates/README.md`,
+  `SPEC_PROFILE.md`, `commands/relai-adopt.md`, `commands/relai-update.md`. Zostawienie ich
+  oznaczałoby dwa sprzeczne limity w jednym wydaniu.
+- **`core/templates/SPEC_PULAPKI.md` — nowa specyfikacja.** Rozstrzyga wprost: czym pułapka jest
+  (fakt o narzędziu, kolejności kroków, środowisku), czym nie jest (tabela granic wobec `LEKCJE`,
+  `DECYZJE`, `USTAWIENIA`, ryzyk i `ARCHITEKTURA`), kiedy dokument powstaje (przy pierwszej pułapce,
+  nigdy na zapas) i kto go czyta (sesja **na żądanie**, dlatego poza warstwą startową). Dwa testy
+  rozstrzygające granicę, format wpisu `P-NNN` (objaw / przyczyna / obejście / zasięg), statusy,
+  sekcja „Nieaktualne" zamiast kasowania, sześć zakazów, kompletny przykład.
+- **`docs/PULAPKI.md` w tym repozytorium — dogfooding.** Sześć pułapek narzędziowych wyprowadzonych
+  z „Zasad aktywnych": `tar` na `PATH` (P-001, L-0021), sesja pomiarowa `claude -p` (P-002, L-0024),
+  PowerShell 5.1 i UTF-8 (P-003, L-0027), `acceptEdits` bez `--allowedTools` (P-004, L-0028),
+  restart aplikacji po `plugin update` (P-005, L-0031), `git worktree` zamiast `git archive | tar`
+  (P-006, L-0039).
+- **`SPEC_LEKCJE.md` — procedura wyprowadzenia pułapki.** Test rozstrzygający („czy dałoby się tego
+  uniknąć, zachowując się inaczej?"), czterokrokowa procedura, zamknięte brzmienie adnotacji
+  `*(przeniesione RRRR-MM-DD → docs/PULAPKI.md, P-NNN — …)*` i reguła, że wpis, który zdążył trafić
+  do archiwum, **zostaje nietknięty** — bo archiwum jest kopią bajt w bajt i edycja zerwałaby jego
+  sumę kontrolną.
+- **Limit „Zasad aktywnych" dostał jeden adres egzekwowania** — krok 1 rytuału zamknięcia sesji,
+  z komendą liczącą pozycje. Opisany w `SPEC_LEKCJE.md`, w skillu `relai-core` i w regule Cursora,
+  z jawnym zakazem drugiego adresu. **Wybór uzasadniony:** raport budżetu startu odzywa się wyłącznie
+  przy przekroczeniu **sumy** warstwy startowej, a to repozytorium ma 48 pozycji przy limicie 15
+  i **mieści się w budżecie** — raport milczałby dokładnie tam, gdzie limit jest łamany.
+- **`CLAUDE.md` tego repozytorium przepisany:** tabela „Stan prac" z 22 wierszy historii etapów do
+  **pięciu wierszy-drogowskazów**, linia aktywnego planu bez ogona prozy, dołożona linia odsyłacza do
+  `docs/PULAPKI.md`. Sekcja niemutowalna nietknięta.
+- **`docs/STATE.md` przepisany pod nowy kształt:** „Nad czym pracujemy teraz" z siedmiu akapitów do
+  **dwóch pozycji**, „Co działa" i „Co dalej" zwięźlej, liczby zaktualizowane.
+- **`docs/KOMENDY.md`** — jedna pozycja w „Czego RelAI pilnuje bez proszenia" o rejestrze pułapek
+  czytanym na żądanie. Bez obiecywania czegokolwiek z E4–E5 (L-0002).
+
+**Zweryfikowane — jak dokładnie:**
+
+- **Pomiar przed i po w jednym przebiegu** (L-0040), oba stany liczone tą samą funkcją `startCost`;
+  stan „przed" to snapshot sześciu plików warstwy startowej zrobiony przed pierwszą zmianą
+  merytoryczną etapu. Suma **73,4 KB → 63,8 KB** przy budżecie 80 KB. Pozycje: `CLAUDE`
+  **6,5 → 3,1 KB** (próg 10 — **przeszedł**), `STATE` **14,5 → 9,3 KB** (próg 12 — **przeszedł**),
+  `ryzyka` 32,1 KB bez zmian (należy do E4), `zasady` 12,4 → 11,3 KB, `ustawienia` 4,1 KB, `status`
+  3,8 KB. Raport nadal milczy, bo suma jest pod budżetem.
+  **Po dopisaniu tego wpisu** (12,2 KB, wchodzi do pozycji `ryzyka` jako „ostatni wpis") warstwa
+  waży **69,6 KB / 80 KB** — nadal pod budżetem, raport nadal milczy. Liczba 63,8 KB opisuje stan
+  po zmianach merytorycznych, a przed rytuałem zamknięcia; obie są prawdziwe i obie są tu wypisane,
+  żeby następny pomiar nie wyglądał na regres.
+- **Nic nie zginęło przy skracaniu `STATE.md`.** Diff usuniętych akapitów przejrzany pozycja po
+  pozycji; lista niżej. Każdy fakt, który wypadł, ma dom w innym dokumencie — sprawdzone grepem, nie
+  z pamięci. Jedyny konkret budzący wątpliwość, `gitCommitSha e6b41dc`, stoi we wpisie dziennika
+  z 2026-08-12 (linie 414–416).
+- **`CLAUDE.md` bez treści odtwarzalnej — dowód negatywny:** `grep -E` po wzorcach ze specyfikacji
+  (drzewa katalogów, ścieżki `core/…`, `adapters/…`, wyliczenia trzech plików `.md` w jednej komórce,
+  listy plików `.js`/`.json`) — **zero trafień**. **Sekcja niemutowalna:** `diff` fragmentu od
+  nagłówka „Implementation guidelines" do końca pliku wobec `git show HEAD:CLAUDE.md` — **identyczna
+  co do znaku** (L-0007).
+- **„Nad czym pracujemy teraz" ma dwie pozycje** — policzone skryptem na pliku, sufit trzy.
+- **`docs/PULAPKI.md` nie wchodzi do warstwy startowej — dowód negatywny:** `startCost` po założeniu
+  pliku ma nadal **sześć** pozycji, żadna nie wskazuje tego pliku (wypisane ścieżki wszystkich
+  sześciu). Dodatkowo `grep` po `core/process/`, `core/guardrails/`, `core/tools/` i obu hookach
+  `session-context` — **zero** odwołań do `PULAPKI`.
+- **Komponent warunkowy da się pominąć bez śladu** (L-0029). Dwa bliźniacze projekty testowe poza
+  repozytorium, różniące się **wyłącznie** obecnością `docs/PULAPKI.md`; hook `session-context`
+  uruchomiony na obu payloadem podstawionym Nodem (L-0017). Kontekst startu: **1842 B w obu
+  przypadkach, identyczny bajt w bajt** po normalizacji ścieżki projektu. Słowo „PULAPKI" w kontekście
+  startu: **zero trafień**. `CLAUDE.md` projektu bez pułapek: **bez linii odsyłacza**. Kontrola, że
+  test nie jest pusty: kontekst ma 1842 B, nie zero.
+- **Przeniesione pułapki zostawiły ślad — dowód negatywny na każdą z sześciu.** Instrument sprawdził
+  jednocześnie cztery rzeczy per pozycja: zniknęła z listy „Zasad aktywnych", jest w linii zbiorczej,
+  jest w `docs/PULAPKI.md`, a wpis źródłowy ma adnotację o przeniesieniu. Cztery wpisy żywe (L-0027,
+  L-0028, L-0031, L-0039) mają adnotację w treści; dwa (L-0021, L-0024) mieszkają w archiwum bajt
+  w bajt i ich śladem jest **wyłącznie** linia zbiorcza — archiwum celowo nietknięte. Kontrola, że
+  test nie jest pusty: nieprzeniesiona L-0030 nadal jest na liście.
+- **Limit „Zasad aktywnych" ma dokładnie jeden adres — dowód negatywny:** egzekwowanie znalezione
+  wyłącznie w warstwie rytuału zamknięcia (skill Claude Code, reguła Cursora — jedna sesja używa
+  jednej z nich), **zero** w rdzeniu i w obu hookach. Raport budżetu startu nie wspomina limitu
+  pozycji ani słowem (L-0036, L-0049).
+- **`SPEC_PULAPKI.md` wymieniona tam, gdzie wymieniane są pozostałe specyfikacje** —
+  `core/templates/README.md`, własna tabela dokumentów warunkowych czytanych na żądanie.
+  **Sprawdzone, nie założone:** `core/MANIFEST.json` **nie wylicza** specyfikacji pojedynczo — pole
+  `templates` wskazuje katalog `./templates/`, więc nie ma tam czego dopisywać.
+- `node core/tools/validate-adapters.js` → kod **0**, „3 zrodel, wartosc 1.5.2".
+- **Wersja nie została podbita — dowód negatywny:** `core/MANIFEST.json` 1.5.2,
+  `.claude-plugin/plugin.json` 1.5.2, marker `Wersja RelAI: 1.5.2`.
+- **Diakrytyki w komunikatach hooków** (L-0016): oba pliki `session-context.js` — **zero** linii
+  z polskimi znakami. Sześć trafień w `core/process/session-signals.js` to wzorce **czytające**
+  polskie nagłówki dokumentów, nie literały komunikatów; w tym etapie nie powstał ani jeden nowy
+  komunikat hooka.
+- Katalogi i pliki testowe powstały poza repozytorium (`%TEMP%\relai-e3`) i zostały usunięte.
+
+**Lista akapitów usuniętych ze `STATE.md` i ich domy** — dowód do punktu „nic nie zginęło":
+
+| Co wypadło | Gdzie stoi dalej |
+|---|---|
+| Rozwinięcie czterech scenariuszy akceptacyjnych | wpis dziennika 2026-08-10 (E10) |
+| „Nowe rozstrzygnięcia po adopcji idą do `DECYZJE.md`" | `SPEC_CLAUDE_MD.md`, sekcja „Reguła rejestru decyzji po adopcji" |
+| „Sprawy człowieka wychodzą do statusu planu, plan nie zamyka się bez pytania" | `SPEC_STATUS.md`, „Bramki manualne"; skill `relai-planning` |
+| Naprawa `liniaAktywnegoPlanu` — siatka D-34 i detektor rozjazdu milczały | wpis dziennika 2026-08-20 (E1), L-0048 |
+| Poprawka skanera 1.5.1 i dwie warstwy blokady sekretu | wpis 2026-08-17 (E6), ryzyko P1, L-0045 |
+| „Brak Node.js nie usuwa guardraila po cichu", flaga `--bez-skanu` | L-0043, `adapters/cursor/README.md` |
+| `gitCommitSha e6b41dc` zainstalowanej wersji | wpis dziennika 2026-08-12, linie 414–416 |
+| Rozmiary dzienników JiraManagera i PolyFlow (348 / 223 KB) | ryzyko R5; `PLAN.html` planu, sekcja 3 |
+| „Repozytorium publiczne — zweryfikowane 2026-08-12" (data weryfikacji) | wpis dziennika 2026-08-12 |
+| Wymagane wersje pluginu dla scenariuszy rotacji (1.2.0 / 1.3.0) | `odnogi/POMIAR_ODNOG/PROMPT_ODNOGA.md` |
+| Rozwinięcie nazw czterech otwartych ryzyk | tabela „Stan otwartych ryzyk" wyżej w tym pliku |
+| „Dwadzieścia specyfikacji", układ katalogów rdzenia i adapterów | odtwarzalne z repozytorium — nowa reguła `SPEC_CLAUDE_MD.md` |
+
+Przy okazji poprawiona liczba **błędna przed tym etapem**: otwartych bramek manualnych jest
+**dziewięć** (5 w planie OPTYMALIZACJA_KONTEKSTU, 4 w ROZWOJ_PO_WYDANIU), a nie cztery — `STATE.md`
+liczył tylko jeden plan.
+
+**Świadomie odłożone:**
+
+- **Przepisanie 48 zasad aktywnych do limitu 15.** Zakres etapu obejmował **adres egzekwowania**, nie
+  samą kompresję — a kompresja i graduacja zmieniają treść wstecz i wymagają zgody człowieka
+  (`SPEC_LEKCJE.md`). Od tej tury limit ma miejsce, w którym się o nim mówi; pierwsze zdanie pada
+  w podsumowaniu tej sesji.
+- **Pozycja `ryzyka` (32,1 KB przy progu 12 KB)** — najgrubsza w warstwie startowej, należy do E4.
+- **Brakująca linia fraz sesji w `CLAUDE.md` tego repozytorium.** `SPEC_CLAUDE_MD.md` wymaga jej od
+  1.0.0 (D-05), a tego pliku nigdy nie dotknęła. Wykryte przy przepisywaniu, **nie naprawione** —
+  poza zakresem etapu, który dotyczy objętości i treści odtwarzalnej. Do rozstrzygnięcia w E4 albo
+  jako drobna poprawka: jedna linia, około 200 B.
+- **Rotacja tego dziennika — próg przekroczony właśnie tym wpisem.** Po dopisaniu plik ma **151,9 KB**
+  przy progu 150 KB, więc rotacja **należy się** i uruchamia ją krok 2 rytuału zamknięcia sesji, nie
+  rytuał „Na koniec" etapu. To będzie **pierwsza rotacja po rozbrojeniu blokady z E2** i pierwszy
+  raz, gdy mechanizm zadziała na tym repozytorium, a nie na projekcie testowym — dlatego wykonuje się
+  ją świadomie, przy człowieku, a nie mimochodem na końcu etapu.
+
+**Do zrobienia przez człowieka:**
+
+- **Zgoda na odchudzenie sekcji „Zasady aktywne" — 48 pozycji przy limicie 15.** Kompresja tematyczna
+  albo graduacja do `CLAUDE.md`; obie zmieniają treść wstecz, więc bez zgody nic się nie dzieje.
+  *(rozstrzygnięte 2026-08-20 — zgoda Łukasza w tej samej sesji; kompresja wykonana: 48 pozycji
+  w 15 grup, 30 wpisów ze statusem ZWINIĘTA, patrz kolejny wpis)*
+
+### 2026-08-20 — Pierwsza rotacja dziennika po rozbrojeniu blokady i kompresja „Zasad aktywnych"
+
+Autor: RelAI (Opus 5) + Lukasz
+
+**Zrobione:**
+
+- **Rotacja dziennika — pierwsza w tym repozytorium po rozbrojeniu blokady z E2.** Do archiwum
+  poszły dwa najstarsze wpisy z 2026-08-10 (`docs/archiwum/dziennik/DZIENNIK_2026-08-10_2026-08-10.md`),
+  a w żywym pliku została druga linia-odsyłacz, pod tą z 2026-08-17. Rozmiar **153,9 → 143,5 KB**
+  przy progu 150 KB.
+- **Zakres skończył się na trzecim wpisie i to jest zachowanie poprawne**, nie usterka: do wpisu
+  „Audyt gotowości 1.0.0" prowadzi link z **otwartej** pozycji sekcji „Czeka na człowieka"
+  (sekwencja wydania), a zakres rotacji jest ciągły od najstarszego. Dalej blokują kolejne wpisy
+  linkowane z otwartych spraw. Rotacja przenosi tyle, ile wolno, i tyle przeniosła.
+- **Kompresja sekcji „Zasady aktywne" — 48 pozycji w 15 grup tematycznych** (`SPEC_LEKCJE.md`,
+  sekcja „Kompresja"), za zgodą Łukasza. Trzydzieści pełnych wpisów `L-NNNN` dostało status
+  `ZWINIĘTA 2026-08-20` i przeniosło się do nowej sekcji **„Lekcje zwinięte"** na końcu pliku.
+  Nic nie zostało skasowane, żaden numer nie został odzyskany.
+- **Warstwa startowa: 69,6 → 63,3 KB** przy budżecie 80 KB. Pozycja `zasady` **11,8 → 4,8 KB**
+  (próg 30 KB), czyli sekcja czytana przy każdym starcie sesji schudła o 60%.
+
+**Zweryfikowane — jak dokładnie:**
+
+- **Rotacja, faza 1:** suma kontrolna fragmentu w żywym pliku `b7307c8678b9d6b9`; ta sama suma
+  policzona z treści **odczytanej z dysku** spod separatora `---` w pliku archiwum. Zgodne, więc
+  faza 2 ruszyła. SHA-256, pierwsze 16 znaków, po normalizacji CRLF → LF (L-0033).
+- **Żywy plik plus archiwum składają się w oryginał znak w znak.** Rekonstrukcja: żywy dziennik
+  z linią-odsyłaczem podmienioną z powrotem na treść archiwum daje sumę `c50e554ef8861202` —
+  identyczną z sumą pliku sprzed rotacji, przy 151 185 znakach. Kontrola, że instrument nie kłamie:
+  zmiana **jednej litery** w rekonstrukcji daje inną sumę.
+- **Blokada rotacji policzona z sekcji „Czeka na człowieka", nie z pojedynczych wpisów** (reguła
+  1.6.0): 9 kotwic z otwartych pozycji, wszystkie trafiają w istniejące nagłówki wpisów — **zero
+  martwych linków** (L-0013). Osiem wpisów oznaczonych jako nietykalne przez link, dziesięć jako
+  najnowsze.
+- **Kompresja nie zgubiła ani jednej zasady — dowód automatyczny:** instrument porównał zbiór
+  numerów `L-NNNN` w starym destylacie (54 numery, wliczając sześć wyprowadzonych do
+  `docs/PULAPKI.md`) ze zbiorem w nowym. **Zero zgubionych.** Pierwszy przebieg **zatrzymał się
+  z błędem**, bo nowy destylat nie zawierał jeszcze linii zbiorczej o pułapkach — kontrola
+  zadziałała, zanim cokolwiek zostało zapisane.
+- **Treść zwiniętych wpisów jest nietknięta:** suma ciał wszystkich trzydziestu wpisów (bez linii
+  nagłówkowych, bo w nich zmienia się status) przed i po przeniesieniu — `fff49c86c8df5741`
+  w obu przypadkach.
+- **Pomiar po obu operacjach:** warstwa startowa 63,3 KB / 80 KB, `zasady` 4,8 KB, `raport hooka`
+  zwraca pustą tablicę (milczy). Sekcja „Zasady aktywne" ma **15 pozycji przy limicie 15** —
+  pierwszy raz od 0.2.0. Dziennik 143,5 KB (próg 150), rejestr lekcji 40,1 KB / 30 wpisów
+  (progi 50 KB / 40 wpisów) — oba pod progiem, więc kolejna rotacja nie rusza.
+- **Instrument rotacji dwa razy podał nieprawdę, zanim podał prawdę** — obie pomyłki w generatorze
+  kotwic nagłówków: zamiana pauzy `—` na myślnik zamiast usunięcia, a potem scalanie dwóch spacji
+  w jeden myślnik. Każda z osobna dawała **zero trafień** w kotwice sekcji „Czeka na człowieka",
+  czyli **wyciszała całą blokadę** i proponowała do archiwum dziesięć wpisów zamiast dwóch —
+  w tym wpisy ze sprawami czekającymi na człowieka. Wyłapała to kontrola „kotwice bez wpisu",
+  wypisana zanim cokolwiek zostało zapisane. Stąd L-0055.
+
+**Świadomie odłożone:**
+
+- **Pozycja `ryzyka` (36,8 KB przy progu 12 KB)** — największa w warstwie startowej, należy do E4.
+  Rotacja jej nie dotyczy: sekcja „Stan otwartych ryzyk" nie jest wpisem i nigdy nie trafia do
+  archiwum. Zejście z tej liczby to zadanie E4 (komórka „Mitygacja" jako stan bieżący,
+  `docs/archiwum/ryzyka/`).
+- **Kolejna rotacja dziennika** — ruszy sama, gdy plik wróci ponad 150 KB. Zakres będzie wtedy
+  zależał od tego, ile spraw z sekcji „Czeka na człowieka" zostanie rozstrzygniętych.
+
+**Do zrobienia przez człowieka:**
+
+- —

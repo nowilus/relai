@@ -49,7 +49,17 @@ zapamiętana.
 
 Sekcja „Zasady aktywne" ma **twardy limit: 15 pozycji**
 `SZACUNEK — próg do strojenia`. Przekroczenie znaczy, że część zasad powinna zostać zgraduowana do
-`CLAUDE.md` albo połączona.
+`CLAUDE.md`, połączona albo — jeśli okaże się pułapką narzędziową, a nie zasadą pracy — wyprowadzona
+do `docs/PULAPKI.md` (sekcja niżej).
+
+**Adres egzekwowania — jeden, od 1.6.0.** Do 1.5.2 limit był regułą bez miejsca, w którym ktokolwiek
+by go sprawdził, i dlatego był łamany kilkunastokrotnie `FAKT` (2026-08-20: 930 linii w projekcie po
+adopcji). Od 1.6.0 pozycje liczy się **w kroku 1 rytuału zamknięcia sesji** — komendą, nie okiem.
+Powyżej limitu pada **jedno** zdanie w podsumowaniu sesji; w limicie — cisza.
+
+Drugiego adresu **nie dokładasz** (L-0036, L-0049). W szczególności limit **nie** wchodzi do raportu
+budżetu startu sesji: ten odzywa się wyłącznie przy przekroczeniu **sumy** warstwy startowej, więc
+projekt z pięćdziesięcioma pozycjami mieszczący się w budżecie nie usłyszałby o limicie ani razu.
 
 ## Format wpisu (obowiązkowy)
 
@@ -95,6 +105,33 @@ powstają.
 - podaje nową informację merytoryczną (to wiedza o projekcie, nie lekcja),
 - rozstrzyga wybór produktowy → to `DECYZJE.md`,
 - odpowiada na Twoje pytanie o preferencję → to `USTAWIENIA.md`.
+
+## Wyprowadzenie pułapki do `docs/PULAPKI.md` (od 1.6.0)
+
+Część wpisów tego rejestru to nie korekty zachowania, tylko **fakty o świecie**: narzędzie zachowuje
+się nieoczywiście, kolejność kroków ma znaczenie, środowisko czegoś wymaga i o tym nie mówi. Takie
+pozycje należą do rejestru pułapek (`SPEC_PULAPKI.md`) — czytanego **na żądanie**, a nie przy
+starcie sesji, gdzie „Zasady aktywne" kosztują tokeny w każdym prompcie.
+
+Test rozstrzygający: **czy dałoby się tego uniknąć, zachowując się inaczej?** Tak → zostaje lekcją.
+Nie, bo świat po prostu tak działa → jest pułapką.
+
+Procedura (nigdy ciche kasowanie, D-18):
+
+1. Wpis powstaje w `docs/PULAPKI.md` w formacie `P-NNN` — z objawem, przyczyną, obejściem
+   i zasięgiem. Pole „Zasięg" niesie odsyłacz do numeru lekcji źródłowej.
+2. Pozycja **znika z „Zasad aktywnych"**, a na końcu sekcji zostaje **jedna linia zbiorcza**
+   z datą, listą wyprowadzonych numerów i zdaniem, że zasady obowiązują dalej — tyle że czyta się
+   je z rejestru pułapek.
+3. Wpis źródłowy `L-NNNN` w sekcji „Lekcje" dostaje adnotację o przeprowadzce, brzmienie zamknięte:
+   `*(przeniesione RRRR-MM-DD → docs/PULAPKI.md, P-NNN — …)*`.
+4. Wpis, który zdążył trafić do `docs/archiwum/lekcje/`, **zostaje nietknięty** — archiwum jest
+   kopią bajt w bajt i edycja zerwałaby jego sumę kontrolną (`SPEC_ARCHIWUM.md`). Ślad po nim niesie
+   wyłącznie linia zbiorcza z punktu 2.
+
+Sprawa bywa jednym i drugim: narzędzie zachowuje się nieoczywiście (**pułapka**), a Ty wyciągnąłeś
+z tego regułę pracy (**lekcja**). Wtedy istnieją oba wpisy i wskazują na siebie — pułapka niesie
+fakt, lekcja niesie zasadę. Treści nie dublujesz.
 
 ## Graduacja — z lekcji do reguły w `CLAUDE.md`
 
