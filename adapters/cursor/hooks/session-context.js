@@ -99,6 +99,14 @@ function onSessionStart(input) {
       'Odmowa zamyka temat na te sesje.');
   }
 
+  // Budzet warstwy startowej (1.6.0) — ta sama funkcja rdzenia i ten sam raport co
+  // w adapterze Claude Code. Cursor niesie w payloadzie `is_background_agent`, wiec
+  // tutaj rozroznienie sesji nieinteraktywnej jest zmierzone, a nie zgadniete (E5).
+  const miara = core.startCost(cwd, { markeryGoscia: MARKERY_GOSCIA });
+  for (const linia of core.startCostReport(miara, { interaktywna: input.is_background_agent !== true })) {
+    out.push(linia);
+  }
+
   out.push('Ten folder to projekt RelAI. Zanim odpowiesz merytorycznie, wykonaj rytual startu sesji: ' +
     'przeczytaj CLAUDE.md (albo AGENTS.md), docs/STATE.md (jesli istnieje), docs/DZIENNIK.md ' +
     '(sekcja ryzyk + ostatni wpis), docs/LEKCJE.md (tylko "Zasady aktywne"), docs/USTAWIENIA.md oraz ' +

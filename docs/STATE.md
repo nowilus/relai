@@ -1,6 +1,6 @@
 # STATE — RelAI
 
-Stan na: 2026-08-17
+Stan na: 2026-08-20
 
 ## Gdzie jesteśmy
 
@@ -55,11 +55,31 @@ w której narzędzie dostają inne osoby i zgłaszają, co im przeszkadza. Pierw
 - **Proces przeżywa zmianę dostawcy modelu.** W pilotażu cały etap — od karty potwierdzenia po rytuał zamknięcia i prompt następnego etapu — poprowadził Grok 4.6 w aplikacji Cursora, z reguł zawsze-w-kontekście, bez przypominania.
 - **Blokada zapisu sekretu ma dwie warstwy i obie działają w aplikacji:** reguła odmawia przy zwykłej prośbie, hook odbija zapis wtedy, gdy model mimo wszystko spróbuje.
 - Skaner sekretów nie blokuje już normalnego kodu uwierzytelniania: adnotacja typu przestała wyglądać jak wartość (1.5.1).
+- **Koszt startu sesji jest liczony, a nie szacowany.** Hook mierzy sześć pozycji rytuału startu —
+  całe pliki tam, gdzie rytuał czyta cały plik, sekcje tam, gdzie czyta sekcję — i porównuje sumę
+  z budżetem 80 KB. Powyżej budżetu: najwyżej sześć linii z sumą, trzema najgrubszymi pozycjami
+  i propozycją odchudzenia. Poniżej: ani jednego znaku. Wyłącznik i progi w `USTAWIENIA.md`; brak
+  wiersza znaczy cisza, wartość nierozpoznana — jedno zdanie i wyłączenie. Oba adaptery wołają tę
+  samą funkcję rdzenia. Warstwa startowa tego repozytorium po E1: **około 65 KB / 80 KB** —
+  najgrubsza pozycja to sekcja ryzyk z ostatnim wpisem (26,6 KB przy progu 12 KB).
+- Siatka brakującego promptu etapowego i detektor rozjazdu stanu **realnie działają** — do 2026-08-20
+  milczały w tym repozytorium, bo szukały frazy „Aktywny plan", a trafiały w prozę bez linku.
 - W folderze, który nie jest projektem RelAI, plugin jest całkowicie niewidoczny.
 
 ## Nad czym pracujemy teraz
 
-- Plan **ROZWOJ_PO_WYDANIU** (8 etapów) — **ZAAKCEPTOWANY 2026-08-12** (Aneks A). Zamknięte:
+- Plan **OPTYMALIZACJA_KONTEKSTU** (5 etapów) — **E1 ZREALIZOWANY 2026-08-20** (miara startu
+  i budżet), **E2 gotowy do startu** (rozbrojenie rotacji).
+  Powód: start sesji
+  w JiraManagerze kosztuje 386 KB dokumentów (≈120 tys. tokenów), bo rotacja nigdy nie ruszyła —
+  blokuje ją pierwszy wpis dziennika z otwartą pozycją dla człowieka — a trzy limity ze specyfikacji
+  nie są przez nikogo mierzone. Plan wprowadza budżet 80 KB na warstwę startową liczony hookiem,
+  rozbraja rotację sekcją „Czeka na człowieka" i przenosi JiraManagera oraz PolyFlow na nowy tryb.
+  Wydanie 1.6.0; materializuje ryzyko R5 i ma je zamknąć.
+- Plan **ROZWOJ_PO_WYDANIU** (8 etapów) — **ZAAKCEPTOWANY 2026-08-12** (Aneks A); **E7 wstrzymany
+  decyzją Łukasza z 2026-08-20**: konto Codeksa jest w planie darmowym i nie ma kto przeprowadzić
+  pilotażu. Zaplanowany numer wydania E7 (1.6.0) zostaje w dokumentach bez aneksu — kolizja nie
+  grozi, dopóki etap stoi. Formalne zamrożenie planu czeka na decyzję. Zamknięte:
   **E1** (1.1.0 — odnogi planu), **E2** (1.2.0 — rotacja dokumentów), **E3** (1.3.0 — poprawki
   z retrospektywy), **E4** (1.4.0 — rdzeń przenośny, guardrails jako skrypty, pre-commit,
   walidator), **E5** (1.5.0 — adapter Cursora), **E6** (1.5.1 — pilotaż Cursora w wariancie
@@ -85,10 +105,11 @@ w której narzędzie dostają inne osoby i zgłaszają, co im przeszkadza. Pierw
 
 ## Co dalej
 
-- Świeża sesja Opus i `/relai-stage` — etap E7 (adapter Codeksa): `AGENTS.md` jako warstwa nośna,
-  hooki Codeksa, ten sam scenariusz akceptacyjny co w E6.
-- Wdrożyć D-86 w E7: `AGENTS.md` plikiem głównym w projektach z adapterem obcego narzędzia,
-  `CLAUDE.md` wskaźnikiem — razem z przepięciem instalatora Cursora.
+- Świeża sesja Opus i `/relai-stage` — **E2** (rozbrojenie rotacji): sekcja „Czeka na człowieka"
+  w dzienniku, blokada liczona wyłącznie z niej, rotacja wyzwalana także na starcie.
+- Rozstrzygnąć, czy plan ROZWOJ_PO_WYDANIU zostaje **formalnie zamrożony** z niezamkniętym E7.
+- Po odmrożeniu E7 (adapter Codeksa): `AGENTS.md` jako warstwa nośna, hooki Codeksa, ten sam
+  scenariusz akceptacyjny co w E6, oraz wdrożenie D-86 razem z przepięciem instalatora Cursora.
 - Zainstalować pre-commit tam, gdzie ma pilnować: `node core/guardrails/install-precommit.js
   <projekt>`. Hook jest zmierzony, ale nikt go za człowieka nie podłoży.
 - Trzy odnogi do wykonania w świeżych sesjach, w dowolnej kolejności wobec etapów.
@@ -156,7 +177,9 @@ Repo: github.com/nowilus/relai (publiczne od 2026-08-12) • Plan budowy:
 
 ### Liczby
 
-Etapy planu budowy: 10/10 zamknięte • Etapy planu ROZWOJ_PO_WYDANIU: 6/8 zamknięte • Scenariusze
+Etapy planu budowy: 10/10 zamknięte • Etapy planu ROZWOJ_PO_WYDANIU: 6/8 zamknięte (E7 wstrzymany) •
+Etapy planu OPTYMALIZACJA_KONTEKSTU: 1/5 zamknięty • Warstwa startowa RelAI: ok. 65 KB / 80 KB •
+Scenariusze
 akceptacyjne: 4/4 zdane + pilotaż Cursora (6 kroków, wariant zastępczy) • Adaptery: 2 • Modele,
 na których zmierzono proces: 5 (Fable, Opus, Haiku, Composer/auto, Grok 4.6) • Otwarte odnogi: 4 •
 Otwarte bramki manualne: 4 • Otwarte ryzyka: 4 (zależność jakości od modelu, rozrost dokumentów,

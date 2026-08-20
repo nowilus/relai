@@ -45,6 +45,10 @@ z podpowiedzi; skrócona forma działa tam, gdzie podpowiadacz ją rozwinie.
   a w żywym pliku zostaje linia z linkiem do niej. Wpis czekający na Twoją decyzję zostaje na
   miejscu, choćby był najstarszy. Poniżej progu nie dzieje się nic; progi i wyłącznik masz
   w `docs/USTAWIENIA.md`.
+- **Koszt startu sesji jest widoczny, zanim urośnie.** Dokumenty czytane na starcie mają wspólny
+  budżet. Gdy go przekroczą, RelAI mówi o tym pierwszym zdaniem sesji, wskazuje trzy najgrubsze
+  pozycje i proponuje odchudzenie — niczego nie blokuje i niczego nie zmienia sam. Poniżej budżetu
+  milczy. Budżet, progi i wyłącznik: wiersz „Budżet startu sesji" w `docs/USTAWIENIA.md`.
 - **Powracające rozstrzygnięcie idzie do zamrożenia.** Temat rozstrzygany drugi raz tak samo kończy
   się propozycją wpisu do `DECYZJE.md`. Zdania w rodzaju „nie rób tego więcej" zapisują się od razu.
 - **Sekret nie wejdzie do repozytorium.** Zapis klucza API, tokenu, JWT, klucza prywatnego albo

@@ -137,6 +137,12 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
 47. Zanim uznasz brak sygnału mechanizmu za defekt, przeczytaj jego **warunek milczenia** i powtórz
     pomiar po jego spełnieniu; sondę formułuj tak, by odpowiedź dało się przypisać wyłącznie do
     naszego wstrzyknięcia. (L-0047)
+48. Gdy szukana fraza może paść w dokumencie więcej niż raz, wybieraj linię po **niesionej
+    wartości** (link, liczba), nie po kolejności wystąpienia — „pierwsze trafienie" trafia
+    w prozę i wycisza mechanizm bez śladu. (L-0048)
+49. Mechanizm z progiem ma **jeden** wyzwalacz — ten z decyzji. Wielkości pomocnicze wskazują
+    przyczynę wewnątrz komunikatu, nie wywołują go; inaczej cisza przestaje cokolwiek
+    znaczyć. (L-0049)
 
 ## Lekcje
 > Lekcje L-0001 … L-0024 (24 lekcji) są w
@@ -497,3 +503,31 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
   wyłącznie do naszego wstrzyknięcia (dosłowny cytat markera), a nie do wiedzy narzędzia.
 - **Źródło:** E6 planu ROZWOJ_PO_WYDANIU (2026-08-17); po inicjalizacji ten sam model zacytował
   wstrzyknięty blok w całości, razem z ustawieniami globalnymi.
+
+### L-0048 — Fraza pada w dokumencie kilka razy; „pierwsze trafienie" trafia w prozę · 2026-08-20 · AKTYWNA
+
+- **Trigger:** nowa miara warstwy startowej nie widziała `STATUS.md` aktywnego planu. Przyczyna
+  leżała poza nią: `liniaAktywnegoPlanu` brała **pierwszą** linię z frazą „Aktywny plan", a w
+  `CLAUDE.md` tego projektu fraza pada najpierw w prozie rytuału startu — bez linku.
+- **Przyczyna:** funkcja szukała frazy, a potrzebowała **wartości** (linku do `STATUS.md`). Dopóki
+  obie rzeczy stały w tej samej linii, różnica była niewidoczna.
+- **Skutek:** siatka D-34 i detektor rozjazdu stanu milczały w tym repozytorium **od 1.3.0** — nie
+  dlatego, że było zgodnie, tylko dlatego, że nie miały czego porównać. Cisza wyglądała identycznie
+  jak zgodność.
+- **Zasada:** gdy szukana fraza może paść w dokumencie więcej niż raz, wybieraj linię po **niesionej
+  wartości** (link, liczba, wzorzec), nie po kolejności wystąpienia. Pierwsze trafienie jest
+  poprawne wyłącznie wtedy, gdy dokument gwarantuje jedno.
+- **Źródło:** E1 planu OPTYMALIZACJA_KONTEKSTU (2026-08-20); po poprawce oba sygnały odpalają na
+  projektach testowych, z dowodem negatywnym na ciszę.
+
+### L-0049 — Mechanizm z progiem ma jeden wyzwalacz · 2026-08-20 · AKTYWNA
+
+- **Trigger:** raport budżetu startowego odzywał się w projekcie, który **mieścił się** w budżecie —
+  bo poza sumą sprawdzałem też progi cząstkowe pozycji.
+- **Przyczyna:** policzone zostały dwie wielkości, więc obie trafiły do warunku. Decyzja mówiła
+  wyłącznie o jednej.
+- **Zasada:** wyzwalaczem jest ta wielkość, o której mówi decyzja. Wielkości pomocnicze służą do
+  wskazania **przyczyny wewnątrz komunikatu**, nie do jego wywołania — mechanizm odzywający się
+  poniżej progu odbiera ciszy znaczenie, a cisza jest tu funkcją, nie brakiem.
+- **Źródło:** E1 planu OPTYMALIZACJA_KONTEKSTU (2026-08-20), sekcja 5 planu (przepływ „suma wobec
+  budżetu → poniżej: cisza").

@@ -4,8 +4,13 @@
 //
 // Ten plik nalezy do RDZENIA: nie wie nic o protokole hookow zadnego narzedzia, nie czyta
 // stdin, nie zna pojecia "permissionDecision" ani "additional_context". Zna wylacznie
-// katalog projektu na wejsciu i FAKTY na wyjsciu. Formatowanie komunikatu i protokol
-// naleza do adaptera.
+// katalog projektu na wejsciu i FAKTY na wyjsciu. Protokol nalezy do adaptera.
+//
+// Wyjatek od reguly "formatowanie u adaptera": raport budzetu startowego
+// (startCostReport, 1.6.0). Plan OPTYMALIZACJA_KONTEKSTU wymaga, zeby oba adaptery
+// dawaly TEN SAM raport i zeby miescil sie w szesciu liniach — jedno brzmienie w dwoch
+// plikach rozjechaloby sie przy pierwszej poprawce (ryzyko P4). Adapter decyduje
+// wylacznie o tym, czy i jak te linie wstrzyknac.
 //
 // Powstal w E5 (1.5.0), gdy drugi adapter (Cursor) potrzebowal tych samych rozpoznan:
 // marker projektu, tryb goscia, wersja projektu, luka promptu etapowego (D-34), rozjazd
@@ -149,12 +154,10 @@ function globalSettingsText(katalogRel) {
 // --- siatka D-34: brakujacy prompt etapowy ----------------------------------
 function promptGap(cwd) {
   try {
-    const claudeMd = fs.readFileSync(path.join(cwd, 'CLAUDE.md'), 'utf8');
-    const line = claudeMd.split('\n').find((l) => /Aktywny plan|Active plan/i.test(l));
-    if (!line || /:\s*brak|:\s*none/i.test(line)) return null;
-    const link = line.match(/\]\(([^)]+)\)/);
-    if (!link) return null;
-    const statusPath = path.resolve(cwd, link[1]);
+    // Jedno zrodlo prawdy o tym, ktora linia CLAUDE.md wskazuje aktywny plan.
+    const linia = liniaAktywnegoPlanu(cwd);
+    if (!linia || linia.brak || !linia.link) return null;
+    const statusPath = path.resolve(cwd, linia.link);
     if (!fs.existsSync(statusPath)) return null;
     const statusDir = path.dirname(statusPath);
     const rows = fs.readFileSync(statusPath, 'utf8').split('\n').filter((l) => l.trim().startsWith('|'));
@@ -200,13 +203,22 @@ function planyZEtapemWToku(cwd) {
   return wynik;
 }
 
+// Fraza "Aktywny plan" pada w CLAUDE.md wiecej niz raz: najpierw w prozie rytualu
+// startu (bez linku), dopiero nizej w linii wskazujacej plan. Branie PIERWSZEGO
+// trafienia wyciszalo siatke D-34 i detektor rozjazdu w calym repozytorium — sygnal
+// milczal nie dlatego, ze bylo zgodnie, tylko dlatego, ze nie mial czego porownac
+// (poprawka 1.6.0, L-0047). Wygrywa linia, ktora NIESIE link do STATUS.md.
 function liniaAktywnegoPlanu(cwd) {
   const txt = czytaj(path.join(cwd, 'CLAUDE.md'));
   if (!txt) return null;
-  const linia = txt.split('\n').find((l) => /Aktywny plan|Active plan/i.test(l));
-  if (!linia) return { brak: true, pusta: true, link: null };
-  if (/:\s*brak|:\s*none/i.test(linia)) return { brak: true, pusta: false, link: null };
-  const m = linia.match(/\]\(([^)]+)\)/);
+  const linie = txt.split('\n').filter((l) => /Aktywny plan|Active plan/i.test(l));
+  if (!linie.length) return { brak: true, pusta: true, link: null };
+  const zLinkiem = linie.find((l) => /\]\([^)]+STATUS\.md\)/i.test(l));
+  if (!zLinkiem) {
+    if (linie.some((l) => /:\s*brak|:\s*none/i.test(l))) return { brak: true, pusta: false, link: null };
+    return { brak: false, pusta: false, link: null };
+  }
+  const m = zLinkiem.match(/\]\(([^)]+)\)/);
   return { brak: false, pusta: false, link: m ? m[1] : null };
 }
 
@@ -298,6 +310,259 @@ function unknownAuthor(cwd) {
   }
 }
 
+// --- miara warstwy startowej (1.6.0, plan OPTYMALIZACJA_KONTEKSTU E1) --------
+// Rytual startu sesji czyta szesc pozycji. Ta funkcja liczy, ile one waza, i
+// porownuje z budzetem z wiersza "Budzet startu sesji" w USTAWIENIA.md.
+// Mierzy to, co rytual naprawde czyta: caly plik tam, gdzie czytany jest caly
+// plik, i sekcje tam, gdzie czytana jest sekcja.
+
+const KB = 1024;
+
+// Progi domyslne w KB. Jedyne zrodlo prawdy o tych wartosciach to
+// core/templates/SPEC_USTAWIENIA.md — tutaj stoi ich kopia wykonawcza.
+const PROGI_DOMYSLNE = {
+  start: 80,
+  CLAUDE: 10,
+  STATE: 12,
+  ryzyka: 12,
+  zasady: 30,
+  ustawienia: 6,
+  status: 10,
+};
+
+// Nazwy czlonow komorki, per pozycja: polska i angielska.
+const CZLONY = {
+  start: ['start'],
+  CLAUDE: ['claude'],
+  STATE: ['state'],
+  ryzyka: ['ryzyka', 'risks'],
+  zasady: ['zasady', 'rules'],
+  ustawienia: ['ustawienia', 'settings'],
+  status: ['status'],
+};
+
+const NAZWA_WIERSZA = /^(?:Bud[żz]et startu sesji|Session start budget)\b/i;
+const WLACZONY = /^(?:w[łl][ąa]czony|w[łl][ąa]czona|on|enabled)\b/i;
+const WYLACZONY = /^(?:wy[łl][ąa]czony|wy[łl][ąa]czona|off|disabled)\b/i;
+
+// Naglowki sekcji — kotwica na POCZATKU linii naglowka (L-0025), nie "gdziekolwiek".
+const NAGLOWEK_RYZYK = [/^stan otwartych ryzyk\b/i, /^open risks\b/i];
+const NAGLOWEK_ZASAD = [/^zasady aktywne\b/i, /^active rules\b/i];
+
+function bajty(txt) {
+  return Buffer.byteLength(String(txt), 'utf8');
+}
+
+// Pierwszy istniejacy plik z listy nazw w katalogu — nazwa dokumentu podaza za
+// jezykiem projektu (DZIENNIK.md / JOURNAL.md).
+function pierwszyIstniejacy(dir, nazwy) {
+  for (const n of nazwy) {
+    const p = path.join(dir, n);
+    if (fs.existsSync(p)) return p;
+  }
+  return null;
+}
+
+function wytnijSekcje(txt, wzorce) {
+  const linie = String(txt).split('\n');
+  let start = -1;
+  let poziom = 0;
+  for (let i = 0; i < linie.length; i++) {
+    const m = linie[i].match(/^(#{1,6})\s+(.*)$/);
+    if (!m) continue;
+    const tytul = m[2].replace(/[„”"'*`]/g, '').trim();
+    if (wzorce.some((w) => w.test(tytul))) { start = i; poziom = m[1].length; break; }
+  }
+  if (start === -1) return null;
+  let koniec = linie.length;
+  for (let i = start + 1; i < linie.length; i++) {
+    const m = linie[i].match(/^(#{1,6})\s+/);
+    if (m && m[1].length <= poziom) { koniec = i; break; }
+  }
+  return linie.slice(start, koniec).join('\n');
+}
+
+// Ostatni wpis dziennika: ostatni naglowek trzeciego poziomu do konca pliku.
+function ostatniWpis(txt) {
+  const linie = String(txt).split('\n');
+  let start = -1;
+  for (let i = 0; i < linie.length; i++) {
+    if (/^###\s+/.test(linie[i])) start = i;
+  }
+  if (start === -1) return null;
+  return linie.slice(start).join('\n');
+}
+
+// Komorka "Decyzja" wiersza o podanej nazwie. Nazwa dopasowywana od POCZATKU
+// komorki "Czego dotyczy" — proza wspominajaca budzet w srodku komorki nie liczy sie.
+function komorkaDecyzji(txt, nazwaWiersza) {
+  for (const linia of String(txt).split('\n')) {
+    if (!linia.trim().startsWith('|')) continue;
+    const cells = linia.split('|').map((c) => c.trim());
+    if (cells.length < 5) continue;
+    const czego = cells[2].replace(/\*\*/g, '').trim();
+    if (!nazwaWiersza.test(czego)) continue;
+    return cells[3].replace(/\*\*/g, '').trim();
+  }
+  return null;
+}
+
+function progiZKomorki(komorka) {
+  const progi = Object.assign({}, PROGI_DOMYSLNE);
+  const czlony = String(komorka).split('·').map((c) => c.trim()).filter(Boolean);
+  for (const czlon of czlony.slice(1)) {
+    for (const id of Object.keys(CZLONY)) {
+      for (const nazwa of CZLONY[id]) {
+        const m = czlon.match(new RegExp('^' + nazwa + '\\s+(\\d+)\\s*KB\\b', 'i'));
+        if (m) progi[id] = parseInt(m[1], 10);
+      }
+    }
+  }
+  return progi;
+}
+
+// Sciezka do STATUS.md aktywnego planu — z tego samego zrodla co siatka D-34.
+// Brak planu = pozycja nie wchodzi do sumy, a nie zero.
+function sciezkaStatusuPlanu(cwd) {
+  const linia = liniaAktywnegoPlanu(cwd);
+  if (!linia || !linia.link) return null;
+  const p = path.resolve(cwd, linia.link);
+  return fs.existsSync(p) ? p : null;
+}
+
+// Zwraca:
+//   null                              — pomiaru nie ma (wylaczony, brak wiersza, brak
+//                                       ustawien, folder nie jest projektem RelAI)
+//   { nierozpoznany: true, wartosc }  — wartosc przelacznika nierozpoznana: liczenia nie ma,
+//                                       ale adapter mowi o tym jednym zdaniem (L-0025)
+//   { wlaczony: true, ... }           — pomiar
+function startCost(cwd, opcje) {
+  try {
+    const o = opcje || {};
+    if (!cwd) return null;
+    const markerFile = relaiMarkerFile(cwd, o.markeryGoscia);
+    if (!markerFile) return null;
+
+    const docsDir = path.join(cwd, 'docs');
+    const plikUstawien = pierwszyIstniejacy(docsDir, ['USTAWIENIA.md', 'SETTINGS.md']);
+    if (!plikUstawien) return null;
+
+    const txtUstawien = czytaj(plikUstawien);
+    const komorka = komorkaDecyzji(txtUstawien, NAZWA_WIERSZA);
+    if (!komorka) return null; // projekt sprzed 1.6.0 — cisza, nie domysl
+    if (WYLACZONY.test(komorka)) return null;
+    if (!WLACZONY.test(komorka)) {
+      return { nierozpoznany: true, wartosc: komorka.split('·')[0].trim().slice(0, 60) };
+    }
+
+    const progi = progiZKomorki(komorka);
+    const pozycje = [];
+
+    const dodaj = (id, plik, tresc, sposob) => {
+      if (plik === null || tresc === null) return;
+      pozycje.push({
+        id,
+        sciezka: path.relative(cwd, plik).split(path.sep).join('/'),
+        bajty: bajty(tresc),
+        prog: progi[id] * KB,
+        sposob,
+      });
+    };
+
+    // 1. CLAUDE.md — caly plik
+    const claudeMd = pierwszyIstniejacy(cwd, ['CLAUDE.md']);
+    if (claudeMd) dodaj('CLAUDE', claudeMd, czytaj(claudeMd), 'plik');
+
+    // 2. STATE.md — caly plik
+    const state = pierwszyIstniejacy(docsDir, ['STATE.md']);
+    if (state) dodaj('STATE', state, czytaj(state), 'plik');
+
+    // 3. dziennik — sekcja ryzyk PLUS ostatni wpis
+    const dziennik = pierwszyIstniejacy(docsDir, ['DZIENNIK.md', 'JOURNAL.md']);
+    if (dziennik) {
+      const txt = czytaj(dziennik);
+      const ryzyka = wytnijSekcje(txt, NAGLOWEK_RYZYK);
+      if (ryzyka === null) {
+        dodaj('ryzyka', dziennik, txt, 'plik-bez-sekcji');
+      } else {
+        const wpis = ostatniWpis(txt);
+        dodaj('ryzyka', dziennik, ryzyka + (wpis ? '\n' + wpis : ''), 'sekcja');
+      }
+    }
+
+    // 4. lekcje — sekcja "Zasady aktywne"
+    const lekcje = pierwszyIstniejacy(docsDir, ['LEKCJE.md', 'LESSONS.md']);
+    if (lekcje) {
+      const txt = czytaj(lekcje);
+      const zasady = wytnijSekcje(txt, NAGLOWEK_ZASAD);
+      if (zasady === null) dodaj('zasady', lekcje, txt, 'plik-bez-sekcji');
+      else dodaj('zasady', lekcje, zasady, 'sekcja');
+    }
+
+    // 5. ustawienia — caly plik
+    dodaj('ustawienia', plikUstawien, txtUstawien, 'plik');
+
+    // 6. STATUS.md aktywnego planu — caly plik; brak planu = brak pozycji, nie zero
+    const statusPath = sciezkaStatusuPlanu(cwd);
+    if (statusPath) dodaj('status', statusPath, czytaj(statusPath), 'plik');
+
+    const suma = pozycje.reduce((s, p) => s + p.bajty, 0);
+    const budzet = progi.start * KB;
+
+    return {
+      wlaczony: true,
+      budzet,
+      progi,
+      pozycje,
+      suma,
+      przekroczonaSuma: suma > budzet,
+      ponadProgiem: pozycje.filter((p) => p.bajty > p.prog).map((p) => p.id),
+      bezSekcji: pozycje.filter((p) => p.sposob === 'plik-bez-sekcji').map((p) => p.id),
+    };
+  } catch (_) {
+    return null;
+  }
+}
+
+// Raport dla kontekstu startu — ASCII (L-0016), najwyzej szesc linii, wylacznie
+// powyzej progu. Zwraca [] , gdy nie ma o czym mowic: cisza jest zachowaniem
+// domyslnym, tak jak przy rotacji.
+function startCostReport(miara, opcje) {
+  if (!miara) return [];
+  if (miara.nierozpoznany) {
+    return ['[RelAI budzet startu] Wartosc przelacznika w wierszu "Budzet startu sesji" (' +
+      miara.wartosc + ') jest nierozpoznana, wiec pomiar warstwy startowej jest wylaczony. ' +
+      'Dozwolone wartosci: wlaczony / wylaczony.'];
+  }
+  // Wyzwalaczem jest SUMA wobec budzetu, nie prog czastkowy (sekcja 5 planu: "suma wobec
+  // budzetu -> ponizej: cisza"). Progi czastkowe sluza do wskazania winowajcy WEWNATRZ
+  // raportu, nie do jego wywolania — inaczej projekt zmieszczony w budzecie gadalby o tym,
+  // ze jedna pozycja jest grubsza od swojego progu, i cisza przestalaby cokolwiek znaczyc.
+  if (!miara.przekroczonaSuma) return [];
+
+  const o = opcje || {};
+  const kb = (n) => (n / KB).toFixed(1).replace(/\.0$/, '') + ' KB';
+  const najgrubsze = miara.pozycje.slice().sort((a, b) => b.bajty - a.bajty).slice(0, 3)
+    .map((p) => p.id + ' ' + kb(p.bajty) + ' (prog ' + kb(p.prog) + ')').join(', ');
+
+  const out = [];
+  out.push('[RelAI budzet startu] Warstwa czytana przy starcie sesji wazy ' + kb(miara.suma) +
+    ' przy budzecie ' + kb(miara.budzet) + '.');
+  out.push('Najgrubsze pozycje: ' + najgrubsze + '.');
+  if (miara.bezSekcji.length) {
+    out.push('Zmierzone jako caly plik, bo nie znaleziono szukanej sekcji: ' +
+      miara.bezSekcji.join(', ') + ' — wartosc jest zawyzona z tego powodu.');
+  }
+  if (o.interaktywna === false) {
+    out.push('Sesja nieinteraktywna: to jest sam raport, bez propozycji odchudzenia.');
+  } else {
+    out.push('Zglos to uzytkownikowi JEDNYM zdaniem przed akapitem "gdzie jestesmy" i zaproponuj ' +
+      'odchudzenie warstwy startowej jako pierwszy krok. Wylacznik i progi: wiersz "Budzet startu ' +
+      'sesji" w docs/USTAWIENIA.md.');
+  }
+  return out;
+}
+
 module.exports = {
   isGuest,
   relaiMarkerFile,
@@ -308,4 +573,6 @@ module.exports = {
   promptGap,
   stateDrift,
   unknownAuthor,
+  startCost,
+  startCostReport,
 };

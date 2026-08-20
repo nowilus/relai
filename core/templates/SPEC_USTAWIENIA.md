@@ -78,6 +78,7 @@ Zawsze te trzy, z odpowiedzi na paczkę startową (D-20), plus wersja RelAI w li
 | Git | pytanie 2 |
 | Profil projektu | pytanie 3 |
 | Rotacja dokumentów | wartość domyślna `włączona` — **bez pytania**, limit trzech pytań jest twardy (D-80) |
+| Budżet startu sesji | wartość domyślna `włączony` — **bez pytania**, tak samo jak rotacja (od 1.6.0) |
 
 Wiersz **`Profil projektu`** jest czytany maszynowo — hooki `profile-rules` i `config-protection`
 biorą z niego reguły warunkowe (D-50). Kolumna `Decyzja` musi **zaczynać się** od jednej z czterech
@@ -123,6 +124,63 @@ dziennik 348 KB / 27 wpisów, lekcje 32 KB / 16 pozycji, STATE 431 linii; PolyFl
 / 43 wpisy, lekcje 48 KB / 29 pozycji, STATE 879 linii) — mieszkają w `SPEC_ARCHIWUM.md` i są
 jedynym źródłem prawdy o wartościach domyślnych.
 
+## Wiersz `Budżet startu sesji` (od 1.6.0)
+
+Rytuał startu sesji czyta sześć pozycji: `CLAUDE.md`, `docs/STATE.md`, sekcję „Stan otwartych
+ryzyk" **plus ostatni wpis** dziennika, sekcję „Zasady aktywne" rejestru lekcji, ten plik oraz
+`STATUS.md` aktywnego planu. Ten wiersz mówi, ile ta szóstka **wolno**, żeby ważyła, i jest
+**wyłącznikiem** pomiaru. Powstaje przy inicjalizacji projektu oraz przy `/relai-update` projektu
+z wcześniejszej wersji.
+
+Pomiar wykonuje hook startu sesji, nie skill — ma działać przy każdym modelu i bez wyzwalania
+czegokolwiek (L-0030). **Poniżej budżetu w kontekście startu nie pojawia się ani jeden znak.**
+Raport powstaje wyłącznie powyżej progu i ma najwyżej sześć linii. Pomiar niczego nie blokuje
+i niczego nie zmienia w plikach — mówi i proponuje.
+
+Format komórki `Decyzja` jest sztywny, bo jest czytana maszynowo (L-0025) — kotwica na **początku**
+komórki, człony rozdzielone `·`:
+
+```
+włączony · start 80 KB · CLAUDE 10 KB · STATE 12 KB · ryzyka 12 KB · zasady 30 KB · ustawienia 6 KB · status 10 KB
+```
+
+| Człon | Dozwolone wartości | Znaczenie |
+|---|---|---|
+| przełącznik (**pierwszy, obowiązkowy**) | `włączony` / `wyłączony` (EN: `on` / `off`) | `wyłączony` → nie liczysz nic i nie mówisz nic |
+| `start <liczba> KB` | liczba całkowita | budżet całej warstwy startowej — **domyślnie 80** |
+| `CLAUDE <liczba> KB` | liczba całkowita | próg cząstkowy `CLAUDE.md` — **domyślnie 10** |
+| `STATE <liczba> KB` | liczba całkowita | próg cząstkowy `docs/STATE.md` — **domyślnie 12** |
+| `ryzyka <liczba> KB` (EN: `risks`) | liczba całkowita | próg sekcji ryzyk wraz z ostatnim wpisem — **domyślnie 12** |
+| `zasady <liczba> KB` (EN: `rules`) | liczba całkowita | próg sekcji „Zasady aktywne" — **domyślnie 30** |
+| `ustawienia <liczba> KB` (EN: `settings`) | liczba całkowita | próg tego pliku — **domyślnie 6** |
+| `status <liczba> KB` | liczba całkowita | próg `STATUS.md` aktywnego planu — **domyślnie 10** |
+
+To jest **jedyne źródło prawdy o domyślnym budżecie** — inne specyfikacje nie powtarzają tych
+liczb. Człon pominięty znaczy „wartość domyślna": projekt, który niczego nie stroi, ma w komórce
+samo `włączony`. Progi cząstkowe **nie sumują się do budżetu** i nie mają się sumować — 80 KB jest
+sufitem całości, a progi cząstkowe wskazują winowajcę. Raport wyzwala **wyłącznie** przekroczenie
+sumy: pozycja grubsza od swojego progu w projekcie mieszczącym się w budżecie nie odzywa się
+w ogóle, bo inaczej cisza przestałaby cokolwiek znaczyć.
+
+**Wartość przełącznika nierozpoznana → pomiar jest wyłączony** i pada o tym jedno zdanie. To ten
+sam wyjątek co przy rotacji (L-0025): niepewność rozstrzyga się na korzyść bezczynności, ale
+człowiek ma o tym wiedzieć.
+
+**Brak wiersza w tabeli → cisza.** Projekt sprzed 1.6.0 nie zaczyna nagle mierzyć sam z siebie;
+wiersz wnosi tam `/relai-update`. Milczenie jest tu bezpieczne, bo pomiar niczego nie pilnuje —
+najgorszym skutkiem jest projekt, który nie wie, ile kosztuje jego start.
+
+**Budżet i rotacja to dwa niezależne wyłączniki** i mają takie zostać. Rotacja wyłączona nie
+wycisza pomiaru; budżet wyłączony nie wycisza rotacji.
+
+Pozycji, której w projekcie nie ma (najczęściej `STATUS.md`, gdy nie ma aktywnego planu), **nie
+liczy się jako zero** — wypada z sumy, a budżet zostaje bez zmian. Zwolnione KB są zapasem, nie
+premią do rozdania między pozostałe progi.
+
+Gdy dokument nie ma szukanego nagłówka (projekt po adopcji, nietypowa struktura), mierzony jest
+**cały plik**, a raport mówi o tym wprost i nazywa pozycję. Wartość zawyżona z jawnym powodem jest
+bezpieczna; wartość zgadnięta nie jest.
+
 ## Polityka aktualizacji
 
 - **Append.** Nowa preferencja to nowy wiersz z datą, nie edycja starego.
@@ -135,8 +193,8 @@ jedynym źródłem prawdy o wartościach domyślnych.
 ## Co tu trafia, a co nie
 
 **Trafia:** język, git, profil, sposób prowadzenia planów, podejście do testów, model wykonawczy
-etapów, lokalizacja backupów, rotacja dokumentów, zgody na wyjątki od reguł domyślnych, wybrany
-kierunek designu.
+etapów, lokalizacja backupów, rotacja dokumentów, budżet startu sesji, zgody na wyjątki od reguł
+domyślnych, wybrany kierunek designu.
 
 **Nie trafia:** decyzje architektoniczne i produktowe („nie proponuj ponownie") — te idą do
 `docs/DECYZJE.md`; lekcje z korekt — do `docs/LEKCJE.md`; stan prac — do `STATE.md`.
@@ -164,6 +222,7 @@ Odpowiedź raz udzielona nie wraca jako pytanie.
 | 2026-08-07 | Git | Repo lokalne + zdalne na GitHub (prywatne) |
 | 2026-08-07 | Profil projektu | app (Next.js + PostgreSQL) |
 | 2026-08-07 | Rotacja dokumentów | włączona |
+| 2026-08-07 | Budżet startu sesji | włączony |
 | 2026-08-12 | Podejście do testów | Testy krytycznych ścieżek, bez pełnego TDD — pytanie padło przy pierwszym kodzie |
 | 2026-08-14 | Format planów | Interaktywny HTML dla planów głównych; `STATUS.md` i prompty etapowe w Markdown |
 | 2026-08-14 | Szablon planu HTML | Nadpisanie lokalne w `docs/zasoby/HTML_PLAN/` — ma pierwszeństwo przed wersją z pluginu; zmieniona paleta i krój nagłówków |

@@ -28,7 +28,7 @@
       "id": "session-signals",
       "file": "./process/session-signals.js",
       "kind": "biblioteka",
-      "description": "Rozpoznanie stanu projektu dla hooka startu sesji: marker, tryb goscia, wersja, luka promptu etapowego, rozjazd stanu, nieznany autor, ustawienia globalne, prowizjonowanie specyfikacji. Bez wiedzy o protokole hookow."
+      "description": "Rozpoznanie stanu projektu dla hooka startu sesji: marker, tryb goscia, wersja, luka promptu etapowego, rozjazd stanu, nieznany autor, ustawienia globalne, prowizjonowanie specyfikacji, miara warstwy startowej wobec budzetu. Bez wiedzy o protokole hookow."
     }
   ],
   "tools": [

@@ -11,7 +11,7 @@ Czytaj w kolejności, nie skanuj pełnotekstowo repo:
 4. [docs/LEKCJE.md](docs/LEKCJE.md) — wyłącznie sekcja „Zasady aktywne".
 5. [docs/DECYZJE.md](docs/DECYZJE.md) — decyzje zamrożone: **nie proponuj ich ponownie**.
 6. [docs/USTAWIENIA.md](docs/USTAWIENIA.md) — preferencje projektu.
-7. Aktywny plan — linia niżej w sekcji „Stan prac"; obecnie: ROZWOJ_PO_WYDANIU.
+7. Aktywny plan — linia niżej w sekcji „Stan prac"; obecnie: OPTYMALIZACJA_KONTEKSTU.
 
 ## Stan prac
 
@@ -37,11 +37,12 @@ Czytaj w kolejności, nie skanuj pełnotekstowo repo:
 | ROZWOJ_PO_WYDANIU E4 — rdzeń przenośny (wersja 1.4.0) | **ZREALIZOWANY 2026-08-12** | `core/` (templates, guardrails, tools, MANIFEST), `adapters/claude-code/`, `docs/PRZENOSNOSC.md` |
 | ROZWOJ_PO_WYDANIU E5 — adapter Cursora (wersja 1.5.0) | **ZREALIZOWANY 2026-08-12** | `adapters/cursor/` (rules, hooks, install.js, README), `core/process/session-signals.js`, `docs/PRZENOSNOSC.md` |
 | ROZWOJ_PO_WYDANIU E6 — pilotaż Cursora, poprawka skanera (wersja 1.5.1) | **ZREALIZOWANY 2026-08-17** | `core/guardrails/secret-scan.js`, `adapters/cursor/{README.md,install.js,rules/relai-core.mdc}`, `docs/PRZENOSNOSC.md` |
+| OPTYMALIZACJA_KONTEKSTU E1 — miara warstwy startowej i budżet 80 KB | **ZREALIZOWANY 2026-08-20** | `core/process/session-signals.js` (`startCost`, `startCostReport`), `core/templates/SPEC_USTAWIENIA.md`, oba `hooks/session-context.js` |
 
 **Uwaga do wierszy sprzed 1.4.0:** ścieżki `hooks/`, `skills/`, `commands/` i `templates/` opisują
 stan z dnia etapu. Od E4 mieszkają odpowiednio w `adapters/claude-code/` i `core/templates/`.
 
-Aktywny plan: [ROZWOJ_PO_WYDANIU](docs/plany/ROZWOJ_PO_WYDANIU/STATUS.md) — E6 ZREALIZOWANY 2026-08-17 (wersja 1.5.1), E7 gotowy do startu; trzy odnogi OTWARTE, cztery bramki manualne
+Aktywny plan: [OPTYMALIZACJA_KONTEKSTU](docs/plany/OPTYMALIZACJA_KONTEKSTU/STATUS.md) — **E1 ZREALIZOWANY 2026-08-20**, E2 gotowy do startu (5 etapów, wydanie 1.6.0 po E4); plan [ROZWOJ_PO_WYDANIU](docs/plany/ROZWOJ_PO_WYDANIU/STATUS.md) ma E7 **wstrzymany** (brak dostępu do Codeksa)
 
 ## Reguły procesu
 

@@ -109,6 +109,15 @@ function onSessionStart(input) {
       'na te sesje.');
   }
 
+  // Budzet warstwy startowej (1.6.0). Ponizej progu funkcja zwraca pusta liste i w
+  // kontekscie startu nie pojawia sie ani jeden znak — cisza jest zachowaniem domyslnym.
+  // Claude Code nie daje w payloadzie SessionStart zadnego zmierzonego rozroznienia
+  // sesji interaktywnej od `claude -p`, wiec opcji `interaktywna` tu nie podajemy:
+  // zgadywanie byloby gorsze niz zdanie propozycji wypisane do sesji bez czlowieka.
+  for (const linia of core.startCostReport(core.startCost(cwd, { markeryGoscia: MARKERY_GOSCIA }))) {
+    out.push(linia);
+  }
+
   out.push('Ten folder to projekt RelAI. Zanim odpowiesz merytorycznie, wykonaj rytual startu sesji: ' +
     'przeczytaj CLAUDE.md, docs/STATE.md (jesli istnieje), docs/DZIENNIK.md (sekcja ryzyk + ostatni wpis), ' +
     'docs/LEKCJE.md (tylko "Zasady aktywne"), docs/USTAWIENIA.md oraz STATUS.md aktywnego planu; ' +
