@@ -13,11 +13,16 @@ Czytaj w kolejności, nie skanuj pełnotekstowo repo:
 6. [docs/USTAWIENIA.md](docs/USTAWIENIA.md) — preferencje projektu.
 7. Aktywny plan — linia niżej w sekcji „Stan prac"; obecnie: **brak**.
 
+**Frazy sesji:** „kontynuujemy pracę" → rytuał startu, akapit „gdzie jesteśmy" **i jedno zdanie
+z propozycją najbliższego kroku**; „sprawdź status" → stan, plany, ryzyka, zaległości
+dokumentacyjne; „kończymy na dziś" → sync dokumentów, wpis do dziennika, przegląd ryzyk,
+propozycja commita. Pełna ściąga: [docs/KOMENDY.md](docs/KOMENDY.md).
+
 ## Stan prac
 
 | Co | Status | Gdzie |
 |---|---|---|
-| Plugin RelAI — wydany, dwa adaptery | DZIAŁA (1.6.0 w repo) | [docs/STATE.md](docs/STATE.md) |
+| Plugin RelAI — wydany, dwa adaptery | DZIAŁA (1.6.1 w repo) | [docs/STATE.md](docs/STATE.md) |
 | Plan BUDOWA_RELAI — 10 etapów | ZAMKNIĘTY 2026-08-10 | [archiwum planu](docs/archiwum/plany/BUDOWA_RELAI/STATUS.md) |
 | Plan ROZWOJ_PO_WYDANIU — 8 etapów | 6/8; **ZAMROŻONY 2026-08-21** (E7 czeka na dostęp do Codeksa) | [STATUS](docs/plany/ROZWOJ_PO_WYDANIU/STATUS.md) |
 | Plan OPTYMALIZACJA_KONTEKSTU — 5 etapów | ZREALIZOWANY 2026-08-21 | [archiwum planu](docs/archiwum/plany/OPTYMALIZACJA_KONTEKSTU/STATUS.md) |
@@ -35,6 +40,14 @@ Aktywny plan: brak
 - Dokumentacja po polsku, kod i identyfikatory po angielsku, commity conventional po angielsku.
 - Sekrety nigdy w plikach śledzonych; klucze wyłącznie w `.env` (gitignored).
 - Nieoczywiste zachowanie narzędzia, kolejność kroków, wymóg środowiska → [docs/PULAPKI.md](docs/PULAPKI.md); zajrzyj tam, zanim uznasz, że coś jest zepsute.
+
+## Reguły profilu (prompty)
+
+- Pierwszy artefakt (prompt, instrukcja, szablon) → powstaje rejestr `docs/ARTEFAKTY.md`.
+- Każda zmiana artefaktu podbija jego wersję w rejestrze: co się zmieniło i po co.
+- Poprzednia wersja zostaje: w historii gita albo jako datowana kopia w
+  `docs/archiwum/artefakty/`. Nigdy ciche nadpisanie.
+- Rejestr odpowiada na pytanie „po co", dziennik na pytanie „co się działo" — nie mieszasz ich.
 
 ## Implementation guidelines (sekcja niemutowalna)
 

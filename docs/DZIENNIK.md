@@ -1779,3 +1779,49 @@ kompletny i zmierzony, ale problem, dla którego powstał, jest rozwiązany w je
 - **Sekwencja wydania 1.6.1** — push → `plugin marketplace update` → `plugin update` → restart
   (P-005). Bez niej cache pluginu niesie `/relai-update` z wersją docelową 1.5.0.
 - **Decyzja o oknie migracji JiraManagera** — dopóki jej nie ma, R5 zostaje otwarte.
+
+### 2026-08-21 — Projekt RelAI zaktualizowany do 1.6.1, profil wreszcie czytany maszynowo
+
+Autor: RelAI (Opus 5) + Lukasz
+
+**Zrobione:**
+
+- `/relai-update` po restarcie aplikacji: struktura projektu **1.6.0 → 1.6.1**. Dogfooding —
+  komenda poprawiona kilka godzin wcześniej w E5 przeszła tu pierwszy raz w wersji wydanej.
+- **Wiersz `Profil projektu` doprowadzony do wartości czytanej maszynowo.** Od inicjalizacji
+  (2026-08-07) stało w nim `Narzędzie/plugin (odpowiednik profilu „prompty/artefakty"…)` — opis,
+  a nie wartość z zamkniętej listy. Kotwica maszynowa go nie czytała, więc **reguły profilu były
+  w tym projekcie wyciszone przez cały czas jego budowy**. Nowa wartość: `prompty`, wybór Łukasza;
+  stary wiersz zszedł do „Ustawień wycofanych" z powodem (D-18).
+- `CLAUDE.md` dostał **linię fraz sesji** pod listą rytuału startu oraz sekcję
+  **„Reguły profilu (prompty)"** wg `SPEC_PROFILE.md`. Obie warstwy działają bez wyzwalania skilla
+  (R2, L-0030) — dotąd trzy frazy naturalne trzymały się w tym projekcie wyłącznie na skillu.
+- `docs/KOMENDY.md`: nagłówek `RelAI 1.5.0` → `RelAI 1.6.1`.
+- Marker `Wersja RelAI` podbity **na końcu**, po wykonaniu zmian.
+
+**Zweryfikowane — jak dokładnie:**
+
+- **Kotwica maszynowa trafia:** komórka `Profil projektu` zaczyna się od `prompty`, wzorzec
+  `^(app|agent-voice|flow|prompty)\b` dopasowuje. Przed zmianą nie dopasowywał — to jest cała
+  różnica między regułą działającą a wyciszoną.
+- `CLAUDE.md` **3,8 KB** przy progu 10 KB po dołożeniu dwóch sekcji; warstwa startowa
+  **34,7 KB / 80 KB**, żadna pozycja ponad własnym progiem.
+- **Korekta wcześniejszego ustalenia z tej samej sesji:** przy inwentaryzacji zgłosiłem brak opisu
+  rotacji w `KOMENDY.md`. Był błędny — rotacja jest tam opisana (efektem, nie nazwą mechanizmu,
+  zgodnie z zakazem opisywania mechaniki w `SPEC_KOMENDY.md`). Mój instrument szukał słowa
+  „rotacja"; dokument użytkownika celowo go nie używa. Do `KOMENDY.md` weszła wyłącznie zmiana
+  numeru wersji.
+- **Nadpisań lokalnych nie ma i nic ich nie dotknęło:** `docs/zasoby/HTML_PLAN/` nie istnieje,
+  w `KOMENDY.md` zero wierszy oznaczonych jako lokalne. Wiersze `Rotacja dokumentów`
+  i `Budżet startu sesji` — oba z własnymi progami projektu — zostały nietknięte (R6).
+
+**Świadomie odłożone:**
+
+- **Dokumentu `docs/ARTEFAKTY.md` nie zakładam.** Profil `prompty` tworzy go przy **pierwszym
+  artefakcie**, a nie przy zmianie wiersza w ustawieniach — warunkowe znaczy warunkowe (D-10).
+  W praktyce ten projekt ma artefakty od dawna (31 specyfikacji, dziesięć komend, dwa skille), więc
+  rejestr jest kandydatem na osobny wątek, nie na skutek uboczny aktualizacji.
+
+**Do zrobienia przez człowieka:**
+
+- —

@@ -73,9 +73,6 @@ ROZWOJ_PO_WYDANIU jest **zamrożony** — E7 czeka na dostęp do Codeksa.
 
 ## Nad czym pracujemy teraz
 
-- **Wydanie 1.6.1.** Po co: repozytorium ma poprawioną `/relai-update`, a cache pluginu nadal
-  starą — tę, która deklaruje wersję docelową 1.5.0 i cofnęłaby wersję migrowanego projektu.
-  Do wykonania: push, `plugin marketplace update`, `plugin update`, **restart aplikacji** (P-005).
 - **Migracja JiraManagera.** Po co: to ostatni projekt, w którym start sesji kosztuje 386 KB
   dokumentów, a rotacja nigdy nie ruszyła. Czeka na okno — właściciel rozwija go na bieżąco, więc
   migracja wchodzi dopiero wtedy, gdy żaden etap tam nie trwa. Dopóki nie wejdzie, **ryzyko R5
@@ -110,8 +107,6 @@ ROZWOJ_PO_WYDANIU jest **zamrożony** — E7 czeka na dostęp do Codeksa.
 - **Adapter Cursora zmierzony w aplikacji, ale nie w całości.** Pilotaż potwierdził reguły, hook
   kontekstu, obie warstwy blokady sekretu i pełne przejście `/relai-stage`. Niezmierzone: hook
   `beforeReadFile`, dostęp poza katalogiem roboczym, osiem pozostałych komend.
-- **Wersja 1.6.1 czeka na wydanie** (P-005) — repozytorium ma poprawioną `/relai-update`, cache
-  pluginu nadal starą. Do restartu aplikacji komenda deklaruje wersję docelową 1.5.0.
 - **Rotacja w PolyFlow ruszyła, ale zaraz stanęła** — 5 wpisów z 97, bo link otwartej sprawy
   prowadzi do najstarszego wpisu, a wpis linkowany jest nietykalny. Przyczyna jest w regule RelAI,
   nie w tamtym projekcie; czeka w odnodze `BLOKADA_ROTACJI`.
@@ -123,9 +118,10 @@ ROZWOJ_PO_WYDANIU jest **zamrożony** — E7 czeka na dostęp do Codeksa.
 
 ### Wersja i instalacja
 
-Repozytorium: **1.6.1**, niewypchnięte. Zainstalowany globalnie (scope `user`): **1.6.0** —
-`installed_plugins.json` wskazuje katalog `1.6.0` i commit `9ac3d78`. **1.6.1 zacznie działać
-dopiero po sekwencji wydania i restarcie aplikacji** (P-005). Źródło: własny marketplace w tym samym repozytorium.
+Repozytorium: **1.6.1**, wypchnięte (`ea33e1c`). Zainstalowany globalnie (scope `user`): **1.6.1**,
+działa w aplikacji — potwierdzone po restarcie 2026-08-21: hook startu zgłosił rozjazd wersji
+projektu (1.6.0) wobec pluginu (1.6.1), a `/relai-update` wykonana z cache'u pluginu podniosła
+strukturę tego projektu do 1.6.1. Źródło: własny marketplace w tym samym repozytorium.
 
 ### Zawartość pluginu
 

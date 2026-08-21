@@ -1,6 +1,6 @@
 # USTAWIENIA — projekt: budowa RelAI
 
-Wersja RelAI: 1.6.0 · zainicjowano: 2026-08-07
+Wersja RelAI: 1.6.1 · zainicjowano: 2026-08-07
 
 Rejestr wyborów użytkownika dla tego projektu. Każdy wpis: data, czego dotyczył, decyzja.
 
@@ -12,7 +12,7 @@ Rejestr wyborów użytkownika dla tego projektu. Każdy wpis: data, czego dotycz
 | 2026-08-07 | Model wykonawczy etapów budowy | **Opus** (D-85) |
 | 2026-08-07 | Git | Repo lokalne + zdalne: `github.com/nowilus/relai` |
 | 2026-08-07 | Docs w repo | Wszystko commitowane, bez sekretów i plików runtime |
-| 2026-08-07 | Profil projektu | Narzędzie/plugin (odpowiednik profilu „prompty/artefakty" — kod TS/JS + specyfikacje) |
+| 2026-08-21 | Profil projektu | prompty — produktem są specyfikacje, prompty i szablony; kod (hooki, walidator, guardraile) jest ich nośnikiem |
 | 2026-08-07 | Gust designowy (konkurs E6) | Cztery kierunki z rundy 1 odrzucone **na stałe**, „Redakcja" zachowana jako baza — oczekiwania i lista zakazów: D-61a i D-61b |
 | 2026-08-08 | **Kierunek designu (wynik konkursu E6)** | Blend „Warsztat" — wzorzec w `docs/zasoby/design-konkurs/runda-3/blend.html`; skład palety i ograniczenia ruchu opisuje wpis dziennika 2026-08-08 (E6) |
 | 2026-08-07 | Fonty w plikach HTML | Osadzone w base64, zero CDN |
@@ -28,3 +28,4 @@ Rejestr wyborów użytkownika dla tego projektu. Każdy wpis: data, czego dotycz
 | Data | Czego dotyczy | Decyzja | Zastąpione |
 |---|---|---|---|
 | 2026-08-07 | Instalacja pluginu w trakcie budowy | Odinstalowany do końca budowy; instalacja docelowa po ostatnim etapie | zastąpione decyzją z 2026-08-07 (plugin zainstalowany na stałe), powód: dwa etapy przeszły bez pomiaru ryzyka R2, a pomiar wymaga zainstalowanego pluginu |
+| 2026-08-07 | Profil projektu | Narzędzie/plugin (odpowiednik profilu „prompty/artefakty" — kod TS/JS + specyfikacje) | zastąpione 2026-08-21 wartością `prompty` przy `/relai-update` do 1.6.1, powód: wartość opisowa nie przechodzi kotwicy maszynowej, więc reguły profilu były w tym projekcie wyciszone od początku |
