@@ -48,6 +48,9 @@ tutaj z 90 KB do 39 KB. Został ostatni etap — przeniesienie tego na dwa żywe
 - **Pomiar startu działa też na repozytorium sklonowanym na Windowsie.** Wzorzec szukający sekcji
   nie trafiał przy końcach linii CRLF i po cichu mierzył całe pliki — na kopii tego repozytorium
   dawało to 213,8 KB zamiast 55,7 KB. Naprawione i sprawdzone na obu wariantach końca linii.
+- **Wersja 1.6.0 jest wydana i działa w aplikacji** — potwierdzone po restarcie 2026-08-21: plugin
+  wczytany z nowego układu katalogów (`adapters/claude-code/`), kopia specyfikacji w projekcie
+  odświeżona automatycznie przez hook startu, raport budżetu milczy przy 35,7 KB / 80 KB.
 - Trzy dokumenty mówiące o tym samym — status etapu, linia aktywnego planu i opis stanu — nie
   rozjeżdżają się po cichu: sesja mówi o rozjeździe na starcie i pyta, który zapis jest prawdziwy.
   Wpis dziennika jest podpisany modelem i użytkownikiem; brakujący człon zostaje wyłapany.
@@ -75,11 +78,10 @@ tutaj z 90 KB do 39 KB. Został ostatni etap — przeniesienie tego na dwa żywe
 
 ## Co dalej
 
-- **Restart aplikacji** — trzy pierwsze kroki sekwencji wydania 1.6.0 wykonane 2026-08-21 (push,
-  `marketplace update`, `plugin update`); do restartu sesje pracują na starym kodzie pluginu.
-- Świeża sesja Opus i `/relai-stage` — **E5**: backup jako bramka, jeden projekt na sesję,
-  `/relai-update` do 1.6.0, pomiar startu przed i po, raport z drogą pełnego powrotu. Po nim
-  zamknięcie planu.
+- Świeża sesja Opus i `/relai-stage` — **E5**, ostatni etap planu: backup jako bramka, jeden projekt
+  na sesję, `/relai-update` do 1.6.0, pomiar startu przed i po, raport z drogą pełnego powrotu.
+  Warunek startu spełniony — 1.6.0 jest wydane i działa. Zaczynasz od **PolyFlow**: JiraManager ma
+  etap E16-1 w toku, więc jego migracja czeka. Po E5 zamknięcie planu.
 - Cztery odnogi w świeżych sesjach, w dowolnej kolejności wobec etapów: `OPIS_REPO` (pusty opis
   repozytorium na GitHubie), `POMIAR_ODNOG` (niedomknięte punkty weryfikacji, dziewięć scenariuszy),
   `REKOMENDACJA_MODELU`, `GUARD_PO_SCIEZCE`. Każda ma gotowy prompt; żadna nie blokuje planu.
@@ -99,9 +101,6 @@ tutaj z 90 KB do 39 KB. Został ostatni etap — przeniesienie tego na dwa żywe
   poświadczeń, a konto tam zapisane ma wyczerpany limit (L-0032). Odblokowuje to `claude /login`;
   do tego czasu odnoga `POMIAR_ODNOG` stoi. Scenariusze rotacji wymagają dodatkowo restartu
   aplikacji po aktualizacji pluginu (P-005).
-- **Nowy układ katalogów pluginu czeka na potwierdzenie w aplikacji.** Manifest wskazuje skille
-  i komendy pod `adapters/claude-code/`, walidator to akceptuje — ale realne wczytanie potwierdzi
-  dopiero pierwsza sesja po push, aktualizacji pluginu i **restarcie**.
 - **Adapter Cursora zmierzony w aplikacji, ale nie w całości.** Pilotaż potwierdził reguły, hook
   kontekstu, obie warstwy blokady sekretu i pełne przejście `/relai-stage`. Niezmierzone: hook
   `beforeReadFile`, dostęp poza katalogiem roboczym, osiem pozostałych komend.

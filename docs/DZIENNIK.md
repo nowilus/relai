@@ -15,9 +15,6 @@
 
 ## Czeka na człowieka
 
-- **Restart aplikacji po aktualizacji pluginu do 1.6.0 (P-005)** — push, `marketplace update`
-  i `plugin update` wykonane 2026-08-21; do restartu sesje pracują na starym kodzie · 2026-08-10 ·
-  [wpis 2026-08-10 — Audyt gotowości 1.0.0](#2026-08-10--audyt-gotowości-100-wizytówka-githubowa-i-domknięcie-dogfoodingu)
 - **`claude /login` na konto z dostępnym limitem — warunek startu odnogi `POMIAR_ODNOG`
   (L-0032)** · 2026-08-12 ·
   [wpis 2026-08-12 — E2: rotacja dokumentów](#2026-08-12--e2-rotacja-dokumentów-kalibracja-progów-relai-120)
@@ -1830,7 +1827,8 @@ Autor: RelAI (Opus) + Lukasz
 **Do zrobienia przez człowieka:**
 
 - Sekwencja wydania 1.6.0 — bez niej poprawki tego etapu, łącznie z naprawą CRLF, nie działają
-  w żadnym innym projekcie. *(wyprowadzone 2026-08-21 → sekcja „Czeka na człowieka")*
+  w żadnym innym projekcie. *(rozstrzygnięte 2026-08-21 — sekwencja wykonana w całości, restart
+  potwierdzony pomiarem: cache pluginu 1.6.0, kopia specyfikacji odświeżona, raport budżetu milczy)*
 
 ### 2026-08-21 — Wydanie 1.6.0: push i aktualizacja pluginu, zostaje restart
 
@@ -1873,4 +1871,45 @@ Autor: RelAI (Opus) + Lukasz
 - **Restart aplikacji**, a po nim jedno spojrzenie na start sesji: czy hook budżetu milczy (powinien
   — 41,4 KB przy budżecie 80 KB) i czy komendy oraz skille wczytują się z nowego układu katalogów.
   Dopiero to zamyka bramkę wydania i odblokowuje E5.
-  *(wyprowadzone 2026-08-21 → sekcja „Czeka na człowieka")*
+  *(rozstrzygnięte 2026-08-21 — restart wykonany, oba warunki sprawdzone; patrz wpis „Restart
+  potwierdzony")*
+
+### 2026-08-21 — Restart potwierdzony: 1.6.0 działa, bramka wydania zamknięta
+
+Autor: RelAI (Opus) + Lukasz
+
+**Zrobione:**
+
+- Zamknięta bramka manualna „Sekwencja wydania 1.6.0" w `STATUS.md` planu — czwarty krok (restart)
+  wykonany przez człowieka, całość potwierdzona pomiarem.
+- Pozycja o restarcie usunięta z sekcji „Czeka na człowieka"; adnotacje o rozstrzygnięciu dopisane
+  przy obu pozycjach źródłowych we wpisach z tego dnia.
+- `docs/STATE.md`: wersja zainstalowana i wydanie przeniesione z „co blokuje" do „co działa";
+  E5 opisany jako odblokowany, z kolejnością projektów.
+
+**Zweryfikowane — jak dokładnie:**
+
+- **Kopia specyfikacji w projekcie odświeżona przez hook nowej wersji** — 22 pliki `.md`
+  w `.claude/relai/templates/` mają sumy kontrolne **zgodne co do bajta** z `core/templates/`
+  (normalizacja CRLF → LF). To jest dowód mocny, bo na starcie pracy nad E4 sześć z dziewięciu
+  sprawdzanych plików **różniło się** — cache pochodził wtedy z wersji 1.1.0. Hook startu tej sesji
+  zameldował 31 plików zamiast wcześniejszych 30.
+- **Nowy układ katalogów wczytany** — `…\.claude\plugins\cache\relai\relai\1.6.0` zawiera
+  `adapters/claude-code/skills` (2), `commands` (10), `hooks` (11) i `core/templates` (23);
+  `core/MANIFEST.json` w cache'u ma `version 1.6.0`. To domyka pozycję, która od 2026-08-17 czekała
+  w „Co blokuje" jako „realne wczytanie potwierdzi dopiero pierwsza sesja po restarcie".
+- **Raport budżetu milczy, zgodnie z regułą** — `startCostReport` zwraca pustą tablicę przy warstwie
+  **35,7 KB / 80 KB** i **zerowej** liczbie pozycji ponad własnym progiem. Pozycja `ryzyka` zeszła
+  z 14,1 KB do **8,7 KB**, dokładnie tak, jak zapowiedziano we wpisie E4: przestała nią być treść
+  grubego wpisu zamykającego etap.
+- **Nie sprawdzono:** zachowania hooka i rotacji w sesji nieinteraktywnej po tej aktualizacji —
+  wymaga `claude -p`, a to czeka na `claude /login` (L-0032, odnoga `POMIAR_ODNOG`).
+
+**Świadomie odłożone:**
+
+- Kasowanie siedemnastu starych katalogów w cache'u pluginu (`0.1.0` … `1.5.2`). Zajmują miejsce,
+  ale niczego nie psują, a kasowanie cudzego cache'u nie jest pracą tego projektu.
+
+**Do zrobienia przez człowieka:**
+
+- —
