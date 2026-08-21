@@ -75,8 +75,8 @@ tutaj z 90 KB do 39 KB. Został ostatni etap — przeniesienie tego na dwa żywe
 
 ## Co dalej
 
-- Sekwencja wydania 1.6.0 (push → `plugin marketplace update` → `plugin update` → **restart**) —
-  **warunek startu E5**, bo migracja przechodzi właśnie przez tę wersję.
+- **Restart aplikacji** — trzy pierwsze kroki sekwencji wydania 1.6.0 wykonane 2026-08-21 (push,
+  `marketplace update`, `plugin update`); do restartu sesje pracują na starym kodzie pluginu.
 - Świeża sesja Opus i `/relai-stage` — **E5**: backup jako bramka, jeden projekt na sesję,
   `/relai-update` do 1.6.0, pomiar startu przed i po, raport z drogą pełnego powrotu. Po nim
   zamknięcie planu.
@@ -105,9 +105,9 @@ tutaj z 90 KB do 39 KB. Został ostatni etap — przeniesienie tego na dwa żywe
 - **Adapter Cursora zmierzony w aplikacji, ale nie w całości.** Pilotaż potwierdził reguły, hook
   kontekstu, obie warstwy blokady sekretu i pełne przejście `/relai-stage`. Niezmierzone: hook
   `beforeReadFile`, dostęp poza katalogiem roboczym, osiem pozostałych komend.
-- **Poprawki 1.5.1–1.6.0 nie działają nigdzie poza tym repozytorium** do czasu sekwencji wydania —
-  łącznie z naprawą pomiaru przy końcach linii CRLF, która dotyczy każdego projektu sklonowanego
-  na Windowsie. Projekty z gitowym pre-commitem wymagają dodatkowo ponownej instalacji hooka.
+- **Wersja 1.6.0 jest zainstalowana, ale nie działa do restartu aplikacji** (P-005) — dotyczy też
+  naprawy pomiaru przy końcach linii CRLF, istotnej dla każdego projektu sklonowanego na Windowsie.
+  Projekty z gitowym pre-commitem wymagają dodatkowo ponownej instalacji hooka.
 - Repozytorium jest **publiczne**, ale ma pusty opis — odnoga `OPIS_REPO`.
 
 ---
@@ -116,9 +116,9 @@ tutaj z 90 KB do 39 KB. Został ostatni etap — przeniesienie tego na dwa żywe
 
 ### Wersja i instalacja
 
-Repozytorium: **1.6.0**. Zainstalowany globalnie (scope `user`) pozostaje **1.1.0** do czasu push →
-`plugin update` → **restartu aplikacji** (P-005). Źródło: własny marketplace w tym samym
-repozytorium.
+Repozytorium: **1.6.0**, wypchnięte (`9ac3d78`). Zainstalowany globalnie (scope `user`): **1.6.0** —
+`installed_plugins.json` wskazuje katalog `1.6.0` i ten sam commit. **Nowa wersja zacznie działać
+dopiero po restarcie aplikacji** (P-005). Źródło: własny marketplace w tym samym repozytorium.
 
 ### Zawartość pluginu
 

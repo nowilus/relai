@@ -29,8 +29,10 @@ Model wykonawczy etapów: Opus (z ustawień projektu; architektura i plany: Fabl
   JiraManager ma etap **E16-1 planu PANEL_WTYCZKI w statusie `W TOKU`**, więc jego migracja czeka
   na zamknięcie tamtego etapu (sekcja 8 planu)
 - **Sekwencja wydania 1.6.0: push → `plugin marketplace update` → `plugin update` → restart** ·
-  źródło: sekcja 9 planu · **OTWARTA — od 2026-08-21 jest warunkiem startu E5:** migracja przechodzi
-  przez `/relai-update` właśnie na tę wersję, a wersja 1.6.0 niesie też naprawę pomiaru przy CRLF
+  źródło: sekcja 9 planu · **OTWARTA — trzy z czterech kroków wykonane 2026-08-21:** push (`9ac3d78`),
+  `marketplace update` i `plugin update` przeszły; `installed_plugins.json` pokazuje wersję **1.6.0**
+  i ten sam commit. Zostaje **restart aplikacji** (P-005) i potwierdzenie w pierwszej sesji po nim —
+  dopiero wtedy bramka się zamyka, bo to ona jest warunkiem startu E5
 - **Decyzja o progu 30 KB na sekcję „Zasady aktywne" po pomiarze z E5** · źródło: sekcja 9 planu ·
   **OTWARTA**
 - **Weryfikacja siedmiu rozstrzygnięć wpisanych w E2 do zastanych pozycji dziennika** (każde

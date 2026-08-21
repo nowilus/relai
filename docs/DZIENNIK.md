@@ -15,8 +15,8 @@
 
 ## Czeka na człowieka
 
-- **Sekwencja wydania 1.6.0: push → `plugin marketplace update` → `plugin update` → restart
-  aplikacji (L-0031)** · 2026-08-10 ·
+- **Restart aplikacji po aktualizacji pluginu do 1.6.0 (P-005)** — push, `marketplace update`
+  i `plugin update` wykonane 2026-08-21; do restartu sesje pracują na starym kodzie · 2026-08-10 ·
   [wpis 2026-08-10 — Audyt gotowości 1.0.0](#2026-08-10--audyt-gotowości-100-wizytówka-githubowa-i-domknięcie-dogfoodingu)
 - **`claude /login` na konto z dostępnym limitem — warunek startu odnogi `POMIAR_ODNOG`
   (L-0032)** · 2026-08-12 ·
@@ -1831,3 +1831,46 @@ Autor: RelAI (Opus) + Lukasz
 
 - Sekwencja wydania 1.6.0 — bez niej poprawki tego etapu, łącznie z naprawą CRLF, nie działają
   w żadnym innym projekcie. *(wyprowadzone 2026-08-21 → sekcja „Czeka na człowieka")*
+
+### 2026-08-21 — Wydanie 1.6.0: push i aktualizacja pluginu, zostaje restart
+
+Autor: RelAI (Opus) + Lukasz
+
+**Zrobione:**
+
+- Commit `9ac3d78` z całością E4 (21 plików) wypchnięty na `main`.
+- `claude plugin marketplace update relai` — cache marketplace odświeżony.
+- `claude plugin update relai@relai` — plugin podniesiony z 1.5.2 do 1.6.0 w scope `user`.
+
+**Zweryfikowane — jak dokładnie:**
+
+- **Wersja potwierdzona plikiem instalacji, nie komunikatem CLI** (zasada 10):
+  `~/.claude/plugins/installed_plugins.json` → `plugins."relai@relai"` ma `version 1.6.0`,
+  `installPath` na katalogu `…\cache\relai\relai\1.6.0`, `gitCommitSha 9ac3d78` — ten sam commit,
+  który przed chwilą poszedł na zdalne. `lastUpdated 2026-08-21T06:58:39Z`.
+- **Pierwsza próba aktualizacji nie przeszła:** `claude plugin update relai` zwróciło
+  `Plugin "relai" not found`. Nazwą rozpoznawaną jest **`relai@relai`** (nazwa pluginu plus
+  marketplace), widoczna w `claude plugin list`. Sama nazwa pluginu nie wystarcza, mimo że
+  `plugin marketplace update relai` przyjmuje ją bez zastrzeżeń.
+- **Zastana wersja była inna, niż mówiły dokumenty.** `claude plugin list` pokazał 1.5.2, podczas
+  gdy `docs/STATE.md` twierdził, że globalnie stoi 1.1.0. Liczba w STATE była nieaktualna od
+  wydania 1.5.2 (2026-08-17, sekwencja wykonana przez człowieka i odnotowana we wpisie z 2026-08-18,
+  ale bez poprawienia STATE). Poprawione.
+- **Ostrzeżenia gita przy commicie potwierdziły defekt naprawiony w E4:** 21 razy „LF will be
+  replaced by CRLF the next time Git touches it". To repozytorium ma `core.autocrlf` włączone, więc
+  każdy jego checkout niesie CRLF — a pomiar warstwy startowej do wczoraj takiego pliku nie umiał
+  policzyć i po cichu mierzył całość.
+- **Nie sprawdzono:** czy aplikacja realnie wczytuje 1.6.0 — wymaga restartu (P-005). Do tego czasu
+  ta sesja pracuje na kodzie 1.5.2, łącznie z hookiem mierzącym start.
+
+**Świadomie odłożone:**
+
+- Weryfikacja wczytania nowego układu katalogów pluginu w aplikacji — wraca w pierwszej sesji po
+  restarcie, razem z potwierdzeniem bramki wydania.
+
+**Do zrobienia przez człowieka:**
+
+- **Restart aplikacji**, a po nim jedno spojrzenie na start sesji: czy hook budżetu milczy (powinien
+  — 41,4 KB przy budżecie 80 KB) i czy komendy oraz skille wczytują się z nowego układu katalogów.
+  Dopiero to zamyka bramkę wydania i odblokowuje E5.
+  *(wyprowadzone 2026-08-21 → sekcja „Czeka na człowieka")*
