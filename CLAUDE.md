@@ -11,7 +11,7 @@ Czytaj w kolejności, nie skanuj pełnotekstowo repo:
 4. [docs/LEKCJE.md](docs/LEKCJE.md) — wyłącznie sekcja „Zasady aktywne".
 5. [docs/DECYZJE.md](docs/DECYZJE.md) — decyzje zamrożone: **nie proponuj ich ponownie**.
 6. [docs/USTAWIENIA.md](docs/USTAWIENIA.md) — preferencje projektu.
-7. Aktywny plan — linia niżej w sekcji „Stan prac"; obecnie: OPTYMALIZACJA_KONTEKSTU.
+7. Aktywny plan — linia niżej w sekcji „Stan prac"; obecnie: **brak**.
 
 ## Stan prac
 
@@ -19,11 +19,11 @@ Czytaj w kolejności, nie skanuj pełnotekstowo repo:
 |---|---|---|
 | Plugin RelAI — wydany, dwa adaptery | DZIAŁA (1.6.0 w repo) | [docs/STATE.md](docs/STATE.md) |
 | Plan BUDOWA_RELAI — 10 etapów | ZAMKNIĘTY 2026-08-10 | [archiwum planu](docs/archiwum/plany/BUDOWA_RELAI/STATUS.md) |
-| Plan ROZWOJ_PO_WYDANIU — 8 etapów | 6/8; E7 WSTRZYMANY | [STATUS](docs/plany/ROZWOJ_PO_WYDANIU/STATUS.md) |
-| Plan OPTYMALIZACJA_KONTEKSTU — 5 etapów | 2/5 W TOKU | [STATUS](docs/plany/OPTYMALIZACJA_KONTEKSTU/STATUS.md) |
-| Odnogi i bramki manualne | 4 odnogi, 9 bramek — otwarte | [docs/STATE.md](docs/STATE.md) |
+| Plan ROZWOJ_PO_WYDANIU — 8 etapów | 6/8; **ZAMROŻONY 2026-08-21** (E7 czeka na dostęp do Codeksa) | [STATUS](docs/plany/ROZWOJ_PO_WYDANIU/STATUS.md) |
+| Plan OPTYMALIZACJA_KONTEKSTU — 5 etapów | ZREALIZOWANY 2026-08-21 | [archiwum planu](docs/archiwum/plany/OPTYMALIZACJA_KONTEKSTU/STATUS.md) |
+| Odnogi i wątki samodzielne | 5 otwartych | [docs/STATE.md](docs/STATE.md) |
 
-Aktywny plan: [OPTYMALIZACJA_KONTEKSTU](docs/plany/OPTYMALIZACJA_KONTEKSTU/STATUS.md)
+Aktywny plan: brak
 
 ## Reguły procesu
 

@@ -30,7 +30,9 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
 6. **Próg jest liczbą, którą ktoś liczy:** kalibruj go na zmierzonych plikach realnych projektów,
    zapisuj w jednostce mechanizmu kontrolnego wraz z komendą sprawdzającą i daj mu **jeden**
    wyzwalacz — wielkości pomocnicze wskazują przyczynę wewnątrz komunikatu, nie wywołują go.
-   (L-0034, L-0049, L-0053)
+   **Blokadę przeniesioną pod nowy adres mierzysz tak samo:** licz na realnym pliku, ile pozycji
+   przechodzi po zmianie — reguła wskazująca „najstarszy element" w mechanizmie idącym od
+   najstarszego zatyka go z definicji. (L-0034, L-0049, L-0053, L-0060)
 7. **Wartość czytana maszynowo ma kotwicę i zamkniętą listę brzmień:** dopasowanie od początku
    komórki, wybór linii po niesionej wartości (nie po kolejności), wartość nierozpoznana znaczy
    cisza. (L-0025, L-0035, L-0048)
@@ -43,13 +45,17 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
    sięgający dalej ma zapisane wyjście po odmowie dostępu. (L-0009, L-0010, L-0012, L-0023)
 10. **Wersję pluginu potwierdzasz plikiem instalacji, nie komunikatem CLI**, zachowania mierzysz
     świeżą sesją, a po podbiciu numeru przepuszczasz repo `grep`-em po starym i rozstrzygasz każde
-    trafienie. (L-0004, L-0008, L-0020)
+    trafienie — **także w treści komend, skilli i specyfikacji**, dzieląc je na wzmianki
+    historyczne i deklaracje stanu docelowego. Kontrola patrząca tylko na manifesty tej różnicy nie
+    widzi. (L-0004, L-0008, L-0020, L-0061)
 11. **Końce linii są wariantem, nie szczegółem.** Sumy kontrolne porównuj po normalizacji
     CRLF → LF; w regexie nad pojedynczą linią nie zakotwiczaj końca, bo kropka nie obejmuje `\r`
     i wzorzec przestaje trafiać na repozytorium z `core.autocrlf=true`; mechanizm czytający
     strukturę pliku sprawdzaj na **obu** wariantach w jednym przebiegu. Przeniesienie katalogu
     wskazywanego przez cudzy manifest sprawdzaj najpierw **na kopii**, walidatorem tego manifestu.
-    (L-0033, L-0038, L-0057)
+    **Kolejność wpisów w dokumencie jest takim samym wariantem** — kierunek ustalaj z danych (daty
+    w nagłówkach), nie z nawyku wziętego z projektu, w którym mechanizm powstał. (L-0033, L-0038,
+    L-0057, L-0062)
 12. **Guardrail zatrzymujący treść, która sekretem nie jest, to defekt rdzenia** — poprawka wraca
     z dowodem, nigdy jako obejście. Wołaj go przez opakowanie powłoki, żeby brak interpretera
     zamieniał się w blokadę, a nie w ciszę; próbki sekretów składaj w czasie wykonania. (L-0043,
@@ -154,6 +160,49 @@ restart aplikacji po `plugin update` (L-0031), `git worktree` zamiast `git archi
   tam stanąć — z tej samej powłoki, którą zobaczy czytelnik. Znak, który powłoka interpretuje,
   zapisuj tak, by nie musiała: `[\x5c]` zamiast backslasha, klasa znaków zamiast escapowania.
 - **Źródło:** E4 planu OPTYMALIZACJA_KONTEKSTU (2026-08-21); rozwinięcie L-0002.
+
+### L-0060 — Blokada przeniesiona na nowy adres nadal siada w najgorszym miejscu · 2026-08-21 · AKTYWNA
+
+- **Trigger:** mechanizm z E2 miał odblokować rotację w PolyFlow. Po wyprowadzeniu 109 otwartych
+  linii do sekcji „Czeka na człowieka" zakres rotacji wyszedł **zerowy** — a po zamknięciu dwóch
+  spraw decyzją właściciela: **5 wpisów z 97**. Dziennik został na 552 KB przy progu 150 KB.
+- **Przyczyna:** dwie reguły z różnych specyfikacji złożyły się w pułapkę. `SPEC_DZIENNIK.md` każe
+  linkować pozycję do **najstarszego** wpisu źródłowego, a `SPEC_ARCHIWUM.md` czyni wpis linkowany
+  nietykalnym; zakres rotacji jest ciągły od najstarszej pozycji. Każda sprawa sięgająca początku
+  projektu zatrzymuje więc rotację całego dziennika — czyli dokładnie tam, gdzie kosztuje najwięcej.
+  Żadna z reguł osobno nie jest błędna i żadna nie została zmierzona w parze.
+- **Zasada:** przenosząc blokadę pod nowy adres, policz na realnym pliku, **ile pozycji przechodzi
+  po zmianie** — bo blokada zmienia adres, a nie zasięg. Reguła wskazująca „najstarszy element"
+  w mechanizmie, który zaczyna od najstarszego, jest kandydatem na zatkanie z definicji.
+- **Źródło:** E5 planu OPTYMALIZACJA_KONTEKSTU (2026-08-21), migracja PolyFlow; odnoga
+  BLOKADA_ROTACJI.
+
+### L-0061 — Podbicie wersji objęło manifesty, ominęło treść komendy · 2026-08-21 · AKTYWNA
+
+- **Trigger:** `/relai-update` w **wydanej** wersji 1.6.0 deklarowała wersję docelową **1.5.0**
+  w czterech miejscach, w tym w wierszu „marker wersji". Uruchomiona dosłownie na PolyFlow
+  (marker 1.5.2) **cofnęłaby** jego wersję. Ten sam ślad siedział w nagłówkach obu skilli
+  i w `SPEC_KOMENDY.md`, z której generowany jest nagłówek `KOMENDY.md` w cudzym projekcie.
+- **Przyczyna:** walidator spójności porównuje numery wersji w **trzech plikach manifestów**
+  (`core/MANIFEST.json`, `plugin.json`, `marketplace.json`) i milczy o treści komend, skilli
+  i specyfikacji. Grep po starym numerze po podbiciu (zasada 10) nie został wykonany.
+- **Zasada:** numer wersji w **treści** komendy albo specyfikacji jest wartością wykonawczą, nie
+  ozdobą — po podbiciu przepuść repo grepem po starym numerze i **rozstrzygnij każde trafienie**,
+  dzieląc je na wzmianki historyczne („od 1.5.0…") i deklaracje stanu docelowego. Kontrola, która
+  patrzy tylko na manifesty, nie widzi tej różnicy.
+- **Źródło:** E5 planu OPTYMALIZACJA_KONTEKSTU (2026-08-21); rozwinięcie L-0004, L-0008, L-0020.
+
+### L-0062 — Mechanizm czytał strukturę cudzego dokumentu z własnym nawykiem · 2026-08-21 · AKTYWNA
+
+- **Trigger:** po rotacji dziennika PolyFlow pozycja `ryzyka` **urosła** o 3,0 KB. Powód: funkcja
+  `ostatniWpis` bierze ostatni nagłówek `###` w pliku, a PolyFlow dopisuje wpisy **na górze** —
+  mierzony był więc wpis najstarszy, i to on się zmienił po rotacji.
+- **Przyczyna:** kolejność wpisów jest własnością projektu, a rdzeń miał ją zaszytą jako
+  założenie („najnowszy jest ostatni"), wzięte z jednego projektu — tego, w którym powstał.
+- **Zasada:** mechanizm czytający strukturę dokumentu ustala kierunek **z danych** (daty
+  w nagłówkach), a nie z nawyku autora. Zanim uznasz układ za oczywisty, sprawdź go na drugim
+  projekcie — pierwszy zawsze potwierdza własne założenia.
+- **Źródło:** E5 planu OPTYMALIZACJA_KONTEKSTU (2026-08-21); pokrewne L-0033, L-0038, L-0057.
 
 ## Lekcje zwinięte
 

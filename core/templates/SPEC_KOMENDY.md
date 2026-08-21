@@ -50,7 +50,7 @@ projektu jest w `docs/USTAWIENIA.md`.
 Plik jest **regenerowany**, nie edytowany ręcznie. Wyjątkiem są wiersze oznaczone jako lokalne —
 te przeżywają regenerację (D-62: lokalne nadpisania mają pierwszeństwo).
 
-## Zakres wersji 1.5.0 — co realnie działa
+## Zakres wersji 1.6.1 — co realnie działa
 
 Od 0.4.0 działa **pierwsza komenda** — `/relai-stage` — i wygenerowany `KOMENDY.md` ma tabelę
 komend. W 0.5.0 doszło **osiem hooków**: sekcja „Czego RelAI pilnuje bez proszenia" urosła
@@ -71,7 +71,10 @@ w drugim narzędziu. Tabela komend nie rośnie i **nie zmienia się ani jeden wi
 Claude Code**; w projekcie, w którym adapter Cursora został zainstalowany, dopisujesz jedno zdanie
 o pracy naprzemiennej (oba narzędzia czytają te same `docs/`, wersję struktury podbija wyłącznie
 `/relai-update`). Punkt piszesz **wyłącznie wtedy, gdy w projekcie jest `.cursor/relai-install.json`**
-— inaczej milczysz, tak jak przy pre-commicie (L-0002, L-0029). Działa:
+— inaczej milczysz, tak jak przy pre-commicie (L-0002, L-0029). W 1.6.0 dochodzi **budżet startu
+sesji**: kolejny punkt w sekcji o zachowaniach automatycznych — start sesji jest mierzony i odzywa
+się wyłącznie ponad budżetem, a rotacja dostaje drugie wejście właśnie tam. Tabela komend nie
+rośnie. Działa:
 
 - inicjalizacja struktury projektu (zgoda → trzy pytania → osiem dokumentów),
 - rozpoznanie folderu, który już jest projektem RelAI,
@@ -173,7 +176,7 @@ o pracy naprzemiennej (oba narzędzia czytają te same `docs/`, wersję struktur
   z możliwością** i poleceniem instalacji. Nigdy nie piszesz, że dzieje się to samo — instalacja
   jest jawną czynnością człowieka (L-0002),
 
-Wygenerowany `KOMENDY.md` w wersji 1.5.0 zawiera **tabelę komend z dziesięcioma pozycjami**
+Wygenerowany `KOMENDY.md` w wersji 1.6.1 zawiera **tabelę komend z dziesięcioma pozycjami**
 oraz tabelę fraz naturalnych:
 
 | Komenda | Co robi |
@@ -202,12 +205,12 @@ oraz tabelę fraz naturalnych:
 - Nie opisujesz mechaniki wewnętrznej (skille, hooki) — użytkownika interesuje efekt.
 - Nie wpisujesz punktów profilu, którego ten projekt nie ma.
 
-## Przykład dla wersji 1.5.0 (projekt polski, profil `app`)
+## Przykład dla wersji 1.6.1 (projekt polski, profil `app`)
 
 ```markdown
 # KOMENDY — Parkly
 
-RelAI 1.5.0
+RelAI 1.6.1
 
 Nic z tej listy nie jest obowiązkowe. RelAI działa w zwykłej rozmowie — piszesz normalnie,
 a struktura projektu nadąża. Komendy są skrótem do rzadszych operacji.

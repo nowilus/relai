@@ -5,7 +5,7 @@
 | # | Ryzyko | Poziom | Status | Mitygacja |
 |---|---|---|---|---|
 | R2 | Auto-wyzwalanie skilli bywa zawodne (agent nie zastosuje zasad bez komendy) | **Niski przy Opusie, średni przy modelach słabszych** (2026-08-10 po E10) | **ZMIERZONE 2026-08-10, OTWARTE ŚWIADOMIE** | Warstwą nośną są hook `session-context` i `CLAUDE.md` projektu — działają przy każdym modelu, bez wyzwalania; skill dokłada wyłącznie procedurę (L-0030). Opus wyzwala skill sam i wykonuje procedurę w całości; Sonnet 4.6 i Haiku 4.5 nie wołają `Skill` ani razu, więc projekt nie traci pamięci, ale procedura bywa niepełna. Otwarte świadomie: to trwała własność modeli, nie usterka do naprawienia. Zakres ryzyka rósł od 1.1.0 bez pomiaru — dziesiąta komenda, sygnał odchylenia, rozjazd stanu i kontrola podpisu nie były mierzone w świeżej sesji, bo limit konta zatrzymał CLI (L-0032); czeka to w odnodze `POMIAR_ODNOG`. Zmierzone: 2026-08-07 (E5), 2026-08-10 (E10), 2026-08-12 (E1), 2026-08-12 (E3) |
-| R5 | Dokumenty puchną i zjadają kontekst | Średni | **OTWARTE — do obserwacji po 1.0.0** | Mechanizm jest kompletny i mierzony: budżet startu liczony hookiem przy każdej sesji, rotacja dziennika i lekcji z blokadą liczoną z sekcji „Czeka na człowieka", twardy kształt `STATE.md` i `CLAUDE.md`, rejestr pułapek poza warstwą startową, ryzyka zamknięte schodzące do archiwum. Warstwa startowa tego repozytorium: 90 KB przed planem, 55,3 KB po E3 przy budżecie 80 KB. Otwarte, bo dwa żywe projekty z realnym problemem (JiraManager 386 KB startu, PolyFlow 155 KB) nie mają z tego jeszcze nic — dostaną to przez `/relai-update` w E5 planu OPTYMALIZACJA_KONTEKSTU i tam ryzyko się zamknie. Zmierzone: 2026-08-12 (E2), 2026-08-20 (pomiar trzech projektów), 2026-08-20 (E1, E2, E3), 2026-08-21 (E4) |
+| R5 | Dokumenty puchną i zjadają kontekst | Średni | **OTWARTE — do obserwacji po 1.0.0** | Mechanizm jest kompletny i mierzony: budżet startu, rotacja z blokadą liczoną z sekcji „Czeka na człowieka", twardy kształt `STATE.md` i `CLAUDE.md`, ryzyka zamknięte schodzące do archiwum. Warstwa startowa tego repozytorium: 90 KB przed planem, 39,4 KB po E4. **PolyFlow przeszedł na 1.6.1 w E5: 155,7 → 136,4 KB (−12,4%)** — mniej, niż zakładał plan: rotacja przeniosła 5 wpisów z 97 (odnoga BLOKADA_ROTACJI), a zasady i ustawienia czekają tam na decyzje właściciela. Otwarte, bo **JiraManager (386 KB startu) nie został tknięty** — właściciel wyłączył go z zakresu jako projekt w ciągłym rozwoju, a jeden zmigrowany projekt nie jest dowodem. Zmierzone: 2026-08-12 (E2), 2026-08-20 (pomiar trzech projektów), 2026-08-20 (E1, E2, E3), 2026-08-21 (E4), 2026-08-21 (E5) |
 | P1 | Adaptery Cursor/Codex nie egzekwują blokad harnessu — sekret albo zmiana konfiguracji przejdzie tam, gdzie w Claude Code stoi ściana (plan ROZWOJ_PO_WYDANIU) | **Średni** (2026-08-12 po E4; wcześniej wysoki) | **OTWARTE** | Część sekretowa jest zamknięta dowodem z aplikacji: w Cursorze zadziałały obie warstwy — reguła odmówiła pierwsza, a przy prośbie o próbę mimo reguły zapis klucza odbił hook `preToolUse` werdyktem `permission: deny`; niezależnie od narzędzia commit z sekretem zatrzymuje gitowy pre-commit. Otwarte z dwóch powodów: Cursor nie ma egzekwowanego `ask`, więc pliki konfiguracyjne chroni tam sama reguła zamiast bramki, a Codex pozostaje niezmierzony do odmrożenia E7 planu ROZWOJ_PO_WYDANIU. Zmierzone: 2026-08-12 (E4), 2026-08-12 (E5), 2026-08-17 (E6) |
 | P2 | Odpowiednik R2 w Cursor/Codex: bez auto-wyzwalania skilli proces zależy od dyscypliny modelu (plan ROZWOJ_PO_WYDANIU) | **Niski dla Cursora, średni dla Codeksa** (2026-08-17 po E6; wcześniej średni) | **OTWARTE (już tylko Codex)** | Reguła zawsze-w-kontekście działa w Cursorze bez żadnego wyzwalacza: pilotaż przeszedł pełny cykl na trzech modelach, a cały etap poprowadził model spoza Anthropic (Grok 4.6) — rytuał startu, karta etapu z kontrolą modelu, granica zakresu, rytuał zamknięcia z promptem następnego etapu. Dyscyplina procesu nie zależy od dostawcy modelu. Otwarte już tylko dla Codeksa: warstwą nośną ma tam być `AGENTS.md` z twardym limitem 32 KiB, a skille wyzwalają się dopasowaniem opisu — tym samym mechanizmem, który przy R2 okazał się zależny od modelu. Zmierzone: 2026-08-12 (E4), 2026-08-12 (E5), 2026-08-17 (E6) |
 
@@ -52,274 +52,9 @@
 > [docs/archiwum/dziennik/DZIENNIK_2026-08-10_2026-08-10.md](archiwum/dziennik/DZIENNIK_2026-08-10_2026-08-10.md)
 > — przeniesione 2026-08-20, suma kontrolna `b7307c8678b9d6b9`.
 
-### 2026-08-10 — Audyt gotowości 1.0.0, wizytówka GitHubowa i domknięcie dogfoodingu
-
-Autor: RelAI (Opus) + Lukasz
-
-**Zrobione:**
-
-- **Audyt przed przepinaniem kolejnych projektów** — na żądanie użytkownika, mierzony na żywo, nie
-  odczytany z dziennika. Wynik i pięć znalezionych pułapek: niżej.
-- **README przepisany na wizytówkę GitHubową**: narracja problem → mechanizm zamiast wyliczanki
-  funkcji, zwinięta sekcja English z instalacją, tabela komend z ikonami, tabela „czego RelAI
-  pilnuje bez proszenia", anonimizowane liczby z pilotażu (projekt A / projekt B zamiast nazw),
-  jawna sekcja ograniczeń („co warto wiedzieć przed użyciem"), kontakt zwrotny, licencja.
-  Szczegóły techniczne — struktura repo, konwencja hook-guard, profile — zwinięte w `<details>`,
-  żeby pierwszy ekran czytała osoba nietechniczna.
-- **Identyfikacja wizualna** w `docs/zasoby/branding/` w kierunku „Warsztat" zamrożonym w E6:
-  banner nagłówkowy, logo kwadratowe, diagram „jak to działa" (pętla czterech kroków + pasek
-  zachowań automatycznych) i dziewięć ikon komend. Skrypt `zbuduj.js` osadza podzbiory Kalam 700
-  i Hanken Grotesk w plikach SVG — GitHub renderuje SVG jako obraz, więc font z zewnątrz by się
-  nie wczytał. Ikony są bez tekstu, więc bez fontów: 4998 bajtów na dziewięć plików.
-- **`LICENSE` — MIT**, decyzja użytkownika w tej sesji. Sekcja licencji w README przestała odsyłać
-  do przyszłości.
-- **Domknięcie dogfoodingu:** repo dostało brakujące `docs/STATE.md` i `docs/KOMENDY.md`
-  wygenerowane wg specyfikacji (projekt powstał w 0.1.0, zanim te dokumenty istniały). Rytuał
-  startu w `CLAUDE.md` uzupełniony o STATE jako pozycję drugą.
-
-**Zweryfikowane — jak dokładnie:**
-
-- **Składnia:** `node --check` na dziewięciu hookach i `templates/HTML_PLAN/zbuduj.js` — 10/10 OK.
-- **Konwencja hook-guard, dowód negatywny:** wszystkie dziewięć hooków uruchomione z payloadem
-  wskazującym folder bez markera RelAI — 9/9 kończy z kodem 0 i **pustym** `stdout`. To jest
-  gwarancja dla cudzych projektów użytkownika.
-- **`secret-scanner`:** klucz w formacie `sk-…` w pliku śledzonym → `permissionDecision: deny`;
-  ten sam zapis do `.env` w projekcie z `.gitignore` → cisza. Hook zadziałał też **na żywo w tej
-  sesji**: zablokował zapis pliku testowego zawierającego atrapę klucza (dowód, że jest aktywny,
-  a nie tylko poprawny składniowo).
-- **`config-protection`, cztery bramki:** edycja `docs/USTAWIENIA.md` → `ask`; edycja sekcji
-  niemutowalnej `CLAUDE.md` → `ask`; edycja tego samego pliku **poza** sekcją → cisza; profil
-  `flow`, zmiana `workflow.json` bez snapshotu → `ask`, a po położeniu kopii o identycznej treści
-  w `docs/snapshoty/` → cisza. Bramka porównuje po treści, nie po nazwie pliku.
-- **`session-context`:** w projekcie testowym skopiował komplet specyfikacji (20 pozycji) i wstrzyknął
-  datę dnia oraz instrukcję rytuału; poza projektem RelAI — zero bajtów.
-- **Manifest:** `claude plugin validate` → „Validation passed". Numer 1.0.0 spójny w
-  `plugin.json`, `marketplace.json`, obu skillach i komendzie `/relai-update`.
-- **`grep` po starych wersjach (L-0008):** wszystkie trafienia `0.8.0`/`0.9.0` są historyczne
-  („nowe w 0.8.0", wiersze etapów) — żadne nie opisuje wersji bieżącej.
-- **Sekrety w plikach śledzonych:** skan całego indeksu gita — jedyne trafienie to atrapa
-  `SECRET_TOKEN` opisana w tym dzienniku jako dowód negatywny D-42. `.gitignore` pokrywa `.env`,
-  `*.key`, `*.pem`, `client_secret*.json`.
-- **Grafika:** banner sprawdzony w trybie `<img src="data:…">` (tak renderuje go GitHub) na motywie
-  jasnym i ciemnym — osadzony Kalam wczytuje się w obu. Wszystkie ścieżki obrazów z README
-  istnieją; katalog identyfikacji waży 405 KB.
-
-**Pięć pułapek znalezionych w audycie:**
-
-1. **Zainstalowany plugin jest dwa commity za repo** — cache stoi na `4b484b6`, HEAD na `c260bad`.
-   Wersja z cache nie ma ostrzeżenia o restarcie w `/relai-update` (L-0031). To dokładnie ten
-   defekt, który użytkownik zobaczył wczoraj na JiraManagerze.
-2. **R2 — zależność od modelu**, potwierdzona jako trwała własność, nie usterka.
-3. **Guard rozpoznaje projekt po katalogu roboczym sesji, nie po ścieżce pliku** — świadomie
-   odłożone przed 1.0.0, nadal aktualne; objawia się w obie strony (cudzy `CLAUDE.md` bez
-   ostrzeżenia, plik spoza projektu blokowany przez skaner).
-4. **R5 — dokumenty rosną**, bez mechanizmu rotacji; `/relai-audit` wykrywa, nie naprawia.
-5. **Repozytorium jest prywatne i bez opisu na GitHubie** — instalacja u kogokolwiek innego dziś
-   nie zadziała.
-
-**Świadomie odłożone:**
-
-- **Badge'y `shields.io`** — wymagałyby pobierania obrazów z zewnętrznego serwisu przy każdym
-  otwarciu README. Wersja, licencja i wymagania podane tekstem pod bannerem.
-- **Eksport PNG** logo i ikon — SVG wystarcza GitHubowi; raster dopiero wtedy, gdy pojawi się
-  miejsce, które go wymaga (np. awatar organizacji).
-- **Wiersz „Profil projektu" w `docs/USTAWIENIA.md` tego repo nie jest żadną z czterech wartości
-  listy zamkniętej** („Narzędzie/plugin (odpowiednik profilu…)"), więc bramka profilu
-  w `config-protection` dla tego repo nie działa. Nie ruszane — zmiana profilu jest decyzją
-  człowieka, nie porządkiem przy okazji README.
-
-**Do zrobienia przez człowieka:**
-
-- **Zaktualizować zainstalowany plugin przed przepinaniem kolejnych projektów:**
-  `claude plugin marketplace update relai` → `claude plugin update relai@relai` → **restart
-  aplikacji**. *(wyprowadzone 2026-08-20 → sekcja „Czeka na człowieka")*
-- Zdecydować o upublicznieniu repozytorium i dopisać opis na GitHubie — bez tego README nie ma *(rozstrzygnięte 2026-08-12 — repo publiczne; pusty opis wydzielony do odnogi OPIS_REPO)*
-  do kogo trafić.
-- Potwierdzić brzmienie nazwiska w `LICENSE` („Łukasz Nowakowski", rok 2026). *(rozstrzygnięte 2026-08-12 — Aneks A do planu ROZWOJ_PO_WYDANIU: LICENSE potwierdzone)*
-- Nadal otwarte z poprzedniego wpisu: los projektu pilotażowego `Desktop\Paragony`, commit zmian *(rozstrzygnięte 2026-08-17 — obie pozycje zamknięte: katalog Paragonów nie istnieje, adopcja JiraManagera jest zacommitowana)*
-  adopcyjnych w JiraManagerze, decyzja o guardzie rozpoznającym pliki po ścieżce.
-
-### 2026-08-12 — Retrospektywa dwóch projektów i plan ROZWOJ_PO_WYDANIU
-
-Autor: RelAI (Fable) + Lukasz
-
-**Zrobione:**
-
-- **Retrospektywa użycia RelAI na dwóch żywych projektach** (na prośbę użytkownika, zmierzona
-  na plikach, nie na wrażeniach). JiraManager: dziennik 318 KB (+194 KB w ~2,5 dnia po adopcji),
-  `CLAUDE.md` 639 linii — 8 nowych decyzji poszło do zastanej tabeli zamiast do pustego
-  `DECYZJE.md`; etap E3b zostawił 5 wpisów poprawek, po E10 były 4 wpisy poprawek poza etapem.
-  PolyFlow: dziennik 224 KB i STATE 72 KB po dwóch dniach; etap E2 planu EKRAN_USTAWIEN zamknięty
-  po 6 aneksach (4 łatały jeden problem); 20 lekcji jednego dnia; plany „ZREALIZOWANE" przy
-  kilkunastu otwartych bramkach manualnych. Działa dobrze: rytuały końca etapu, lekcje po
-  korekcie, backup/adopcja, rejestr ryzyk, aneksy jako jawna zmiana zakresu.
-- **Inwentarz przenośności pluginu** pod port na Cursora i Codexa: ~247 KB treści przenośnej
-  wprost, ~152 KB wymagającej odpowiednika u hosta, ~114 KB twardo związanej z Claude Code
-  (hooki z `permissionDecision`, skille z auto-wyzwalaniem, `AskUserQuestion`, marketplace).
-  Kluczowy wniosek: jedyne gwarancje blokujące egzekwuje dziś harness, nie tekst.
-- **Dwie rundy wywiadu** (AskUserQuestion, 8 pytań): zakres = wszystkie cztery wątki; usprawnienia
-  przed portem; architektura portu = wspólny rdzeń + adaptery; odnoga jako komenda
-  `/relai-branch`; rotacja automatyczna przy zamknięciu sesji (świadomie ponad rekomendację,
-  z warunkiem nieusuwalności treści); Cursor przed Codexem; dystrybucja przez repo publiczne;
-  konsultacje ustrukturyzowane przy odchyleniu od planu.
-- **Plan ROZWOJ_PO_WYDANIU** — `docs/plany/ROZWOJ_PO_WYDANIU/`: `PLAN.html` (szablon „Warsztat",
-  bez symulatora — plan nie ma wyliczeń do kręcenia) + `STATUS.md`, 8 etapów E1–E8
-  (odnoga → rotacja → poprawki retro → rdzeń przenośny → adapter Cursor → pilotaż w firmie →
-  adapter Codex → wydanie 2.0.0), 12–17 sesji (SZACUNEK). Linia aktywnego planu w `CLAUDE.md`
-  i `STATE.md` zaktualizowane w tej samej turze.
-
-**Zweryfikowane — jak dokładnie:**
-
-- Retrospektywy i inwentarz: trzy niezależne analizy na plikach projektów (rozmiary, liczba
-  wpisów/aneksów, `git log`/`git status`) — liczby w planie mają etykiety FAKT/SZACUNEK zgodnie
-  ze źródłem.
-- `PLAN.html`: builder `zbuduj.js` zakończony kodem 0 — 6 reguł @font-face osadzonych, plik
-  215 KB, znacznik symulatora usunięty; `grep` po `{{` w gotowym pliku: 0 trafień.
-- Decyzje zamrożone sprawdzone przed planem: D-80 wyłączała port tylko z zakresu v1 (nie na
-  zawsze); D-31/D-37 nie kolidują z odnogą — odnoga domyka ich lukę (brak promptu świeżej sesji).
-- **Nie weryfikowano:** renderu `PLAN.html` w przeglądarce (panel podglądu nieaktywny w tej
-  sesji) — do obejrzenia dwuklikiem przed akceptacją.
-
-**Świadomie odłożone:**
-
-- Generacja `PROMPT_ETAP_1.md` — powstanie przy akceptacji planu (D-34, lazy).
-- Wpisy P1/P2 do tabeli „Stan otwartych ryzyk" — wchodzą z chwilą akceptacji planu, nie przed.
-- Szczegóły API mechanizmów Cursora/Codexa — rozpoznanie stanu faktycznego jest pierwszym
-  krokiem E4, żeby prompty etapowe nie niosły przeterminowanej wiedzy.
-
-**Do zrobienia przez człowieka:**
-
-- **Przeczytać i zaakceptować (albo odesłać z uwagami) plan** — `docs/plany/ROZWOJ_PO_WYDANIU/PLAN.html`. *(rozstrzygnięte 2026-08-12 — plan ZAAKCEPTOWANY z Aneksem A)*
-  *(rozstrzygnięte 2026-08-12 — plan ZAAKCEPTOWANY z Aneksem A)*
-- Cztery decyzje z sekcji 9 planu: upublicznienie repo (przed E8), język warstwy zespołowej *(rozstrzygnięte 2026-08-12 — Aneks A: repo już publiczne, warstwa modelowa EN i ludzka PL, zgoda na auto-rotację, LICENSE potwierdzone)*
-  adapterów (przed E5), zgoda na auto-rotację w istniejących projektach (po E2), brzmienie
-  nazwiska w `LICENSE` (przed E8). *(rozstrzygnięte 2026-08-12 — wszystkie cztery w Aneksie A)*
-
-### 2026-08-12 — Plan ROZWOJ_PO_WYDANIU ZAAKCEPTOWANY (Aneks A)
-
-Autor: RelAI (Fable) + Lukasz
-
-**Zrobione:**
-
-- Plan zaakceptowany przez użytkownika bez zmian w sekcjach 1–9; wszystkie cztery pozycje
-  sekcji 9 rozstrzygnięte przy akceptacji i zapisane jako **Aneks A** w `PLAN.html`:
-  repo już publiczne (opis repo — do E8), warstwa modelowa adapterów po angielsku / ludzka po
-  polsku, zgoda na auto-rotację w istniejących projektach przy `/relai-update`, LICENSE
-  potwierdzone („Łukasz Nowakowski", 2026).
-- `STATUS.md`: plan → ZAAKCEPTOWANY 2026-08-12 (Aneks A), E1 → GOTOWY DO STARTU.
-- Wygenerowano `PROMPT_ETAP_1.md` (odnoga planu, wykonawca Opus) wg specyfikacji promptu
-  etapowego — z realnego stanu repo i kompletu 31 zasad aktywnych.
-- Ryzyka P1 (brak blokad harnessu w adapterach) i P2 (proces bez auto-wyzwalania) dopisane do
-  tabeli „Stan otwartych ryzyk" — zgodnie z sekcją 7 planu.
-- `CLAUDE.md` (linia aktywnego planu), `docs/STATE.md` (blokada repo zdjęta, następny krok:
-  `/relai-stage`) i `docs/USTAWIENIA.md` (wiersz o języku warstw adapterów) zaktualizowane.
-
-**Zweryfikowane — jak dokładnie:**
-
-- Widoczność repo: `gh repo view nowilus/relai` → `"visibility":"PUBLIC"`, `"description":""`
-  — stąd „opis repo" jako zadanie E8, nie deklaracja.
-- Kolumna `Prompt` przy E1 wskazuje istniejący plik (siatka D-34 nie ma czego wyłapywać).
-- Render `PLAN.html` po dopisaniu Aneksu A sprawdzony w panelu podglądu.
-
-**Świadomie odłożone:**
-
-- `PROMPT_ETAP_2.md` — powstanie w rytuale „Na koniec" etapu E1 (D-34, lazy).
-- Opis repo na GitHubie — zaplanowany w E8; kandydat na pierwszą odnogę dogfoodingową w E1.
-
-**Do zrobienia przez człowieka:**
-
-- Uruchomić etap E1 w świeżej sesji **Opus**: `/relai-stage` (albo wkleić
-  `docs/plany/ROZWOJ_PO_WYDANIU/PROMPT_ETAP_1.md`). *(rozstrzygnięte 2026-08-12 — E1 ZREALIZOWANY,
-  wersja 1.1.0)*
-
-### 2026-08-12 — E1: odnogi planu, sygnał odchylenia, RelAI 1.1.0
-
-Autor: RelAI (Opus) + Lukasz
-
-**Zrobione:**
-
-- **`templates/SPEC_ODNOGA.md`** (nowy, 20. specyfikacja) — para plików odnogi: karta `ODNOGA.md`
-  w formacie miniplanu (cel / skąd się wzięła / zakres / poza zakresem / weryfikacja / wynik) oraz
-  `PROMPT_ODNOGA.md` — samowystarczalny prompt świeżej sesji o ośmiu sekcjach, odchudzony kuzyn
-  `SPEC_PROMPT_ETAPU`. Trzy statusy: `OTWARTA`, `ZAMKNIĘTA <data>`,
-  `PRZENIESIONA <data> → docs/fixy/`. Dwa kompletne przykłady (L-0001).
-- **`commands/relai-branch.md`** (nowa, dziesiąta komenda) — sześć kroków: marker RelAI → **zakaz
-  głębokości sprawdzany jako pierwszy** → nazwa i cel (jedno `AskUserQuestion`, tylko o brakujące)
-  → plan i etap-źródło → generacja pary wg specyfikacji czytanej z `.claude/relai/templates/`
-  (L-0012) → jedna linia w sekcji „Odnogi" → instrukcja świeżej sesji. Wariant bez planu:
-  `docs/fixy/<NAZWA>/` i cisza w `STATUS.md`.
-- **`templates/SPEC_STATUS.md`** — sekcja „Odnogi" po tabeli etapów: format linii, trzy statusy,
-  zasada „zamknięcie planu wylicza otwarte odnogi i pyta". Przykład rozszerzony; dopisane wprost, że
-  odnoga zostawia ślad **wyłącznie** w tej sekcji, a dziennik wdrożenia o niej milczy.
-- **`skills/relai-planning/SKILL.md`** — dwie nowe sekcje: **sygnał odchylenia** (warunek
-  wyzwolenia, tabela trzech opcji odnoga/aneks/odłożone, zasada „pytasz raz na wątek") i **„Odnogi
-  planu"** z sześcioma regułami wypisanymi w treści skilla (L-0011). Sekwencja zamknięcia planu
-  urosła z siedmiu kroków do ośmiu — doszło wyliczenie otwartych odnóg przed archiwizacją.
-- **`templates/SPEC_CLAUDE_MD.md` + `skills/relai-core/SKILL.md`** — reguła sygnału odchylenia
-  wchodzi do „Reguł procesu" **każdego** generowanego `CLAUDE.md`, także w projekcie bez planu.
-  Wzorzec L-0030: warstwa zawsze-w-kontekście niesie regułę, skill dokłada procedurę.
-- **`templates/SPEC_KOMENDY.md`**, `docs/KOMENDY.md`, `README.md` (wiersz + ikona `branch.svg`),
-  `commands/relai-stage.md` (Krok 5 kieruje do sygnału odchylenia zamiast do „świadomie odłożone").
-- **Wersja 1.1.0** w obu manifestach, obu skillach, `/relai-update`, README, `SPEC_KOMENDY`,
-  `SPEC_USTAWIENIA`, `SPEC_RAPORT_ADOPCJI`, `docs/KOMENDY.md` i markerze tego repo.
-- **Dogfooding:** dwie realne odnogi tego planu — `OPIS_REPO` (pusty opis repozytorium na GitHubie,
-  wątek zostawiony przez Aneks A do E8) i `POMIAR_ODNOG` (niedomknięty punkt 8 weryfikacji tego
-  etapu). Obie z kartą, promptem i linią w `STATUS.md`.
-
-**Zweryfikowane — jak dokładnie:**
-
-- **Manifest:** `claude plugin validate .claude-plugin/plugin.json` → „Validation passed with
-  warnings"; jedyne ostrzeżenie to znane root `CLAUDE.md` (L-0003). Walidacja marketplace: bez
-  ostrzeżeń.
-- **Wersja:** `git grep -n "1\.0\.0"` po podbiciu — wszystkie pozostałe trafienia historyczne
-  (wpisy dziennika, archiwum planu BUDOWA_RELAI, zamrożony `PLAN.html`, `PROMPT_ETAP_1`, wiersz E10
-  w `CLAUDE.md`, zdania o pilotażu w README). `docs/STATE.md` nadpisany w tym samym rytuale.
-- **Instalacja:** po `push` (commit `e6b41dc`) → `claude plugin marketplace update relai` →
-  `claude plugin update relai@relai` („updated from 1.0.0 to 1.1.0"). `installed_plugins.json`:
-  `"version": "1.1.0"`, `"gitCommitSha": "e6b41dcd1e47…"` — zgodny z wypchniętym commitem (L-0020).
-- **Projekt testowy z aktywnym planem:** powstały `odnogi/OPIS_KART/ODNOGA.md`
-  i `PROMPT_ODNOGA.md`; z dziewięciu plików projektu zmienił się **dokładnie jeden** — `STATUS.md`.
-- **Dowód zamrożenia (L-0007):** sumy kontrolne dziesięciu sekcji `PLAN.html` projektu testowego
-  przed i po utworzeniu odnogi identyczne (`s1 983c7b56…` … `s10 fb6002bb…`, cały plik
-  `a498acbb7d106e70`). Na realnym planie ROZWOJ_PO_WYDANIU mocniejszy dowód: po utworzeniu dwóch
-  odnóg `PLAN.html` **nie pojawia się w `git status`** (suma sekcji: `s1 497dc31e…`).
-- **Projekt bez planu:** komplet w `docs/fixy/LITEROWKI_W_MENU/`, w projekcie **zero** plików
-  `STATUS.md` (`find … -name STATUS.md | wc -l` → `0`), pozostałe sześć plików bez zmian.
-- **Dowód zakazu głębokości (L-0007):** wywołanie z sesji pracującej nad odnogą `LOGI_WYDAN`
-  zakończyło się odmową z propozycją pełnego planu; drzewo plików przed = po, 10/10 sum
-  kontrolnych identycznych — **żaden plik nie powstał**.
-- **Dystrybucja specyfikacji:** hook `session-context` rozprowadził `SPEC_ODNOGA.md` do
-  `.claude/relai/templates/` projektu testowego; kopia zgodna z repo bajt w bajt po normalizacji
-  końców linii (`b800d24712af7216`). Nowa specyfikacja dociera drogą z L-0012 bez żadnej zmiany
-  w hooku.
-
-**Świadomie odłożone:**
-
-- **Punkt 8 weryfikacji — samowystarczalność `PROMPT_ODNOGA` mierzona świeżą sesją — NIE ZOSTAŁ
-  WYKONANY.** Punkty 4, 6 i 7 zmierzono **słabszą metodą**: procedurą wykonaną z pliku
-  `commands/relai-branch.md` w sesji etapu, zamiast wywołaniem zarejestrowanej komendy w świeżej
-  sesji `claude -p`. Artefakty i dowody negatywne są realne, ale to nie jest dowód, że komenda
-  wyzwala się i wykonuje sama. Powód: `claude -p` zwracał „You've hit your session limit · resets
-  4:10pm" — CLI uwierzytelnia się z `~/.claude/.credentials.json` (konto `drb_claude@ibpm.pro`,
-  plik z 08:37), **niezależnie od konta przełączonego w aplikacji**; przelogowanie CLI jest krokiem
-  człowieka. Decyzja użytkownika: zamknąć etap i przenieść pomiar do **odnogi `POMIAR_ODNOG`**
-  z gotowym promptem czterech scenariuszy — zamiast trzymać etap w `W TOKU` albo zamykać go po
-  cichu. Pierwszy raz mechanizm z tego etapu obsłużył własną lukę.
-- Opis repozytorium na GitHubie — odnoga `OPIS_REPO`, nie zadanie tego etapu.
-- Ikona `branch.svg` powstała, ale nie przeszła przeglądu wizualnego — jest spójna stylistycznie
-  z dziewięcioma pozostałymi (szałwia #5f8a68, ten sam grid 48×48, ta sama grubość kreski).
-
-**Do zrobienia przez człowieka:**
-
-- **Restart aplikacji** — bez niego bieżące sesje ładują cache 1.0.0 (L-0031).
-  *(rozstrzygnięte 2026-08-12 — pozycja zastąpiona pełną sekwencją wydania z wpisu o E2; jest ona
-  bramką manualną planu)*
-- **`claude /login`** w terminalu na konto z dostępnym limitem — warunek startu odnogi
-  `POMIAR_ODNOG`; bez tego pomiar padnie na tym samym błędzie. *(rozstrzygnięte 2026-08-12 —
-  pozycja powtórzona we wpisie o E2 i tam prowadzona jako bramka manualna planu)*
-- Uruchomić dwie odnogi w świeżych sesjach Opus (`OPIS_REPO`, `POMIAR_ODNOG`) albo etap E2
-  (`/relai-stage`) — kolejność dowolna, odnogi nie blokują planu. *(rozstrzygnięte 2026-08-12 —
-  wybrano etap E2; obie odnogi zostają otwarte w sekcji „Odnogi" planu)*
+> Wpisy z okresu 2026-08-10 … 2026-08-12 (4 wpisów) są w
+> [docs/archiwum/dziennik/DZIENNIK_2026-08-10_2026-08-12.md](archiwum/dziennik/DZIENNIK_2026-08-10_2026-08-12.md)
+> — przeniesione 2026-08-21, suma kontrolna `fa3e9fe384146138`.
 
 ### 2026-08-12 — E2: rotacja dokumentów, kalibracja progów, RelAI 1.2.0
 
@@ -1913,3 +1648,134 @@ Autor: RelAI (Opus) + Lukasz
 **Do zrobienia przez człowieka:**
 
 - —
+
+### 2026-08-21 — E5: PolyFlow na 1.6.1, pierwsza rotacja w cudzym projekcie, wydanie 1.6.1
+
+Autor: RelAI (Opus 5) + Lukasz
+
+**Zrobione:**
+
+- **PolyFlow zmigrowany z 1.5.2 na 1.6.1.** Backup jako bramka, `/relai-update` z pokazanym diffem,
+  wyprowadzenie 109 otwartych linii do sekcji „Czeka na człowieka" (27 spraw), pierwsza rotacja
+  dziennika i ryzyk w historii tamtego projektu, `STATE.md` 29,6 → 11,7 KB, `CLAUDE.md`
+  15,1 → 7,4 KB, raport migracji z drogą pełnego powrotu. Warstwa startowa **155,7 → 136,4 KB**.
+- **Zakres etapu zawężony do PolyFlow** decyzją Łukasza — JiraManager jest w ciągłym rozwoju, więc
+  nie został dotknięty ani razu.
+- **Poprawiona wersja docelowa w `/relai-update` i wydanie 1.6.1.** Komenda w wydanej wersji 1.6.0
+  deklarowała **1.5.0** w czterech miejscach, w tym w wierszu „marker wersji" — uruchomiona
+  dosłownie **cofnęłaby** wersję migrowanego projektu. Ten sam ślad był w nagłówkach obu skilli,
+  w `SPEC_KOMENDY.md` (nagłówek generowanego `KOMENDY.md`), w `SPEC_USTAWIENIA.md`
+  i `SPEC_RAPORT_ADOPCJI.md` (przykłady markera) oraz w `relai-core/SKILL.md` (marker przy
+  inicjalizacji nowego projektu). Rozszerzenie zakresu za zgodą Łukasza.
+- **`/relai-update` dostała dwa brakujące wiersze inwentaryzacji** — wiersz `Budżet startu sesji`
+  i sekcję „Czeka na człowieka". Bez nich komenda „aktualizująca do 1.6.x" nie wnosiła tego, co
+  1.6.0 wniosło; specyfikacja mówiła wprost, że wiersz budżetu powstaje właśnie przy `/relai-update`.
+- Odnoga **BLOKADA_ROTACJI** założona (karta + prompt świeżej sesji).
+
+**Zweryfikowane — jak dokładnie:**
+
+- **Backup przed pierwszą zmianą w PolyFlow:** `PolyFlow_2026-08-21_1542.zip`, 54,0 MB, nagłówek
+  `50 4b 03 04`, 2330 wpisów; zero trafień na dwanaście wzorców sekretów i na `venv/`, `release/`,
+  `__pycache__/`, `*.log`; kontrola pozytywna na `.git/`, `docs/DZIENNIK.md`, `polyflow/src/`.
+- **Pomiar przed i po w jednym przebiegu** (L-0040), funkcją `startCost` rdzenia; stan „przed"
+  odtworzony z `HEAD` PolyFlow do katalogu tymczasowego, bo na żywym projekcie sprzed migracji
+  funkcja zwracała `null` (brak wiersza budżetu). Wynik: `CLAUDE` 14,9 → 7,4 KB, `STATE`
+  29,6 → 11,7 KB, `ryzyka` 59,4 → **65,3 KB**, `zasady` i `ustawienia` bez zmian; suma
+  **155,7 → 136,4 KB** (−12,4%), ≈48 → ≈42 tys. tokenów `SZACUNEK`.
+- **Dlaczego pozycja ryzyk urosła — rozbite na składniki:** sekcja ryzyk 55,8 → 50,6 KB, nowa
+  sekcja „Czeka na człowieka" +8,1 KB, „ostatni wpis" 3,6 → 6,6 KB. Ten ostatni składnik urósł
+  **z powodu defektu rdzenia** (L-0062).
+- **Nic nie zginęło w rotacjach:** dziennik — suma `3cb689e9c62b00d7` zgodna między żywym plikiem
+  a archiwum odczytanym z dysku, 92 + 5 = 97 wpisów; ryzyka — suma `4c5a757191d58c14`, 46 + 6 = 52
+  wiersze, dowód negatywny na każdym przeniesionym numerze i kontrola pozytywna na R1, R4, R6, R50.
+- **Wyprowadzenie policzone w obie strony:** przed — 109 otwartych linii, **0 bez przypisania**
+  (44 do spraw, 8 zbiorczych, 57 rozstrzygnięć z dowodem); po — **0 otwartych linii** i tyle samo
+  spraw, ile wyszło z deduplikacji. Wszystkie linki sekcji trafiają w istniejący nagłówek;
+  generator kotwic sprawdzony **na działającym linku z dziennika RelAI**, zanim policzył cudze.
+- **Cudza treść w `CLAUDE.md` PolyFlow nietknięta:** sekcje „Zasady projektu (odziedziczone)",
+  „Implementation guidelines" i „Reguły profilu (app)" mają po skróceniu te same sumy kontrolne
+  (`927e998fb38d50e4`, `1a97fedc0dda819a`, `940e0879f7614f49`).
+- **Komendy drogi powrotu uruchomione w tej formie, w jakiej stoją w raporcie** (L-0059) — cztery
+  z czterech działają; `git ls-files` potwierdza, że katalogów `docs/archiwum/dziennik` i `ryzyka`
+  w `HEAD` nie ma, więc krok „usuń je przy powrocie" ma sens.
+- **Po podbiciu na 1.6.1:** `node core/tools/validate-adapters.js` kończy się kodem 0 („3 zrodel,
+  wartosc 1.6.1"), a grep po `1.5.x` i `1.6.0` zostawia wyłącznie wzmianki historyczne
+  („od 1.5.0…", „do 1.5.2…") — każde trafienie rozstrzygnięte pojedynczo.
+- **Nie sprawdzono:** zachowania budżetu i rotacji w **świeżej sesji** PolyFlow — wymaga sesji
+  pomiarowej z CLI, a ta czeka na `claude /login` (L-0032, odnoga `POMIAR_ODNOG`). Nie sprawdzono
+  też poprawionej `/relai-update` **z cache'u pluginu** — migrację poprowadziła treść
+  z repozytorium, bo 1.6.1 nie jest jeszcze wydana.
+
+**Świadomie odłożone:**
+
+- **`docs/USTAWIENIA.md` PolyFlow waży 20,9 KB przy progu 6 KB.** Przepisanie tabeli wg reguły
+  „wiersz to jedna decyzja" jest pracą na treści tamtego projektu i nie mieściło się w zakresie E5.
+- **Walidator spójności nie widzi numerów wersji w treści komend i specyfikacji** — porównuje trzy
+  manifesty. Rozszerzenie go to kandydat na osobny wątek, nie na trzecie rozszerzenie tego etapu.
+- **Kolizja numeru R50 w PolyFlow** (dwa różne ryzyka o tym samym numerze) — wpisana jako sprawa
+  w tamtym projekcie; numeracja ryzyk jest jego treścią, nie warstwą RelAI.
+
+**Do zrobienia przez człowieka:**
+
+- **Sekwencja wydania 1.6.1:** push → `claude plugin marketplace update` → `claude plugin update
+  relai@relai` → **restart aplikacji** (P-005). Do tego czasu cache pluginu niesie `/relai-update`
+  z wersją docelową 1.5.0.
+- **R5 zostaje otwarte** — jeden zmigrowany projekt nie jest dowodem dla ryzyka „dokumenty puchną
+  i zjadają kontekst". JiraManager czeka na decyzję o oknie migracji.
+
+### 2026-08-21 — Plan OPTYMALIZACJA_KONTEKSTU zamknięty: dowiezione vs plan
+
+Autor: RelAI (Opus 5) + Lukasz
+
+**Zrobione — dowiezione vs plan:**
+
+Plan powstał 2026-08-20 z jednego pomiaru: start sesji w trzech projektach kosztował 90 KB (tutaj),
+155 KB (PolyFlow) i 386 KB (JiraManager), a limity ze specyfikacji nie były przez nikogo mierzone.
+Pięć etapów, wszystkie zamknięte.
+
+| Etap | Co miało powstać | Co powstało |
+|---|---|---|
+| E1 | miara warstwy startowej i budżet | `startCost` w rdzeniu, wpięty w hook obu adapterów; raport milczy poniżej budżetu **dowiezione** |
+| E2 | rozbrojenie rotacji | sekcja „Czeka na człowieka" jako jedyny adres blokady, drugie wejście rotacji na starcie **dowiezione** |
+| E3 | `STATE.md` i `CLAUDE.md` pod budżetem | twardy kształt obu, rejestr pułapek poza warstwą startową; 73,4 → 63,8 KB **dowiezione** |
+| E4 | ryzyka, ustawienia, status planu | stan bieżący zamiast kroniki, archiwum ryzyk zamkniętych; sekcja ryzyk 21,4 → 3,7 KB **dowiezione** |
+| E5 | migracja **JiraManagera i PolyFlow** | **PolyFlow** zmigrowany (155,7 → 136,4 KB); **JiraManager nietknięty** — wyłączony decyzją właściciela jako projekt w ciągłym rozwoju **dowiezione w połowie** |
+
+**Co przepadło i dlaczego.** Cel planu brzmiał „dwa żywe projekty schodzą do budżetu" i nie został
+osiągnięty w żadnej z dwóch części. JiraManager nie wszedł do zakresu w ogóle. PolyFlow wszedł, ale
+zatrzymał się na **136,4 KB przy budżecie 80 KB**: rotacja przeniosła 5 wpisów z 97 (blokada na
+najstarszym wpisie — odnoga BLOKADA_ROTACJI), sekcja „Zasady aktywne" ma tam 70 pozycji przy
+limicie 15, a tabela ustawień 20,9 KB przy progu 6 KB — obie czekają na decyzje właściciela
+tamtego projektu. **Ryzyko R5 zostaje otwarte** i to jest uczciwy zapis stanu: mechanizm jest
+kompletny i zmierzony, ale problem, dla którego powstał, jest rozwiązany w jednym projekcie z trzech.
+
+**Co dowiózł ten plan ponad zakres:** wydanie **1.6.1** z poprawką `/relai-update`, która w wydanej
+1.6.0 deklarowała wersję docelową 1.5.0 i cofnęłaby wersję migrowanego projektu.
+
+**Zweryfikowane — jak dokładnie:**
+
+- **Cztery otwarte bramki manualne rozstrzygnięte z Łukaszem przed zamknięciem planu**, każda
+  z zapisem w `STATUS.md`: zamrożenie planu ROZWOJ_PO_WYDANIU (wykonane — status planu
+  `ZAMROŻONY 2026-08-21` z powodem), okno migracji (zamknięte częściowo, JiraManager przechodzi do
+  `STATE.md`), próg 30 KB na „Zasady aktywne" (zostaje — pomiar z E5: RelAI 6,5 KB, PolyFlow
+  31,0 KB), weryfikacja 26 rozstrzygnięć z E2 (potwierdzona w całości).
+- **Odnoga BLOKADA_ROTACJI przeniesiona do `docs/fixy/`** przed archiwizacją planu — sumy kontrolne
+  obu plików zgodne przed usunięciem oryginału (`4124a7835db76621`, `5c33f96aa5dfc387`); karta
+  i prompt przepisane na wariant samodzielny.
+- **Folder planu przeniesiony do `docs/archiwum/plany/OPTYMALIZACJA_KONTEKSTU/`** — 7 plików,
+  sumy kontrolne porównane parami przed usunięciem oryginału.
+- **Warstwa startowa tego repozytorium po zamknięciu planu: 35,1 KB / 80 KB**, żadna pozycja ponad
+  własnym progiem; pozycja `status` wypadła z pomiaru, bo aktywnego planu nie ma — a nie dlatego,
+  że zostawiono martwy link. Rozjazd stanu: brak (`stateDrift` zwraca `null`).
+
+**Świadomie odłożone:**
+
+- **JiraManager (386 KB startu) czeka na okno migracji** — jest w `STATE.md`, nie w archiwum planu.
+- **Trzy rzeczy blokujące zejście PolyFlow do budżetu** żyją w jego własnej sekcji „Czeka na
+  człowieka" (27 spraw), a nie w dokumentach RelAI.
+
+**Do zrobienia przez człowieka:**
+
+- **Sekwencja wydania 1.6.1** — push → `plugin marketplace update` → `plugin update` → restart
+  (P-005). Bez niej cache pluginu niesie `/relai-update` z wersją docelową 1.5.0.
+- **Decyzja o oknie migracji JiraManagera** — dopóki jej nie ma, R5 zostaje otwarte.

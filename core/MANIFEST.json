@@ -1,6 +1,6 @@
 {
   "name": "relai-core",
-  "version": "1.6.0",
+  "version": "1.6.1",
   "description": "Wspolny rdzen RelAI: specyfikacje dokumentow, opisy procesu i guardrails jako czyste skrypty Node. Adaptery narzedzi (Claude Code, Cursor, Codex) korzystaja z tych samych plikow.",
   "templates": "./templates/",
   "guardrails": [

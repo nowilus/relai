@@ -1,14 +1,16 @@
 # STATE — RelAI
 
-Stan na: 2026-08-21
+Stan na: 2026-08-21 (wieczór)
 
 ## Gdzie jesteśmy
 
 RelAI jest wydany (1.5.1) i ma **dwa wyjścia**: Claude Code oraz Cursor — te same dokumenty i ten
 sam proces w dwóch narzędziach. Plan budowy zamknięty, cztery scenariusze akceptacyjne zdane,
-pilotaż Cursora przeszedł na modelu spoza Anthropic. Repozytorium pracuje na **1.6.0** i kończy
+pilotaż Cursora przeszedł na modelu spoza Anthropic. Repozytorium pracuje na **1.6.1** i kończy
 plan **OPTYMALIZACJA_KONTEKSTU**: warstwa czytana przy starcie sesji dostała mierzony budżet i zeszła
-tutaj z 90 KB do 39 KB. Został ostatni etap — przeniesienie tego na dwa żywe projekty.
+tutaj z 90 KB do 35 KB. Plan **zamknięty 2026-08-21**, w połowie celu: PolyFlow działa na 1.6.1,
+JiraManager został wyłączony z zakresu decyzją właściciela, więc ryzyko R5 zostaje otwarte. Plan
+ROZWOJ_PO_WYDANIU jest **zamrożony** — E7 czeka na dostęp do Codeksa.
 
 ## Co działa
 
@@ -51,6 +53,11 @@ tutaj z 90 KB do 39 KB. Został ostatni etap — przeniesienie tego na dwa żywe
 - **Wersja 1.6.0 jest wydana i działa w aplikacji** — potwierdzone po restarcie 2026-08-21: plugin
   wczytany z nowego układu katalogów (`adapters/claude-code/`), kopia specyfikacji w projekcie
   odświeżona automatycznie przez hook startu, raport budżetu milczy przy 35,7 KB / 80 KB.
+- **Mechanizm zadziałał na cudzym projekcie** — PolyFlow przeszedł 2026-08-21 z 1.5.2 na 1.6.1:
+  109 rozsypanych po dzienniku spraw człowieka złożyło się w 27 pozycji jednej sekcji, pierwsza
+  rotacja w historii tego projektu przeniosła wpisy i zamknięte ryzyka z potwierdzoną sumą
+  kontrolną, a start sesji zszedł ze 155,7 do 136,4 KB. Raport migracji ma przetestowaną drogę
+  pełnego powrotu.
 - Trzy dokumenty mówiące o tym samym — status etapu, linia aktywnego planu i opis stanu — nie
   rozjeżdżają się po cichu: sesja mówi o rozjeździe na starcie i pyta, który zapis jest prawdziwy.
   Wpis dziennika jest podpisany modelem i użytkownikiem; brakujący człon zostaje wyłapany.
@@ -66,25 +73,24 @@ tutaj z 90 KB do 39 KB. Został ostatni etap — przeniesienie tego na dwa żywe
 
 ## Nad czym pracujemy teraz
 
-- **Plan [OPTYMALIZACJA_KONTEKSTU](plany/OPTYMALIZACJA_KONTEKSTU/STATUS.md) — 4 z 5 etapów
-  zamknięte, wersja 1.6.0 gotowa do wypuszczenia.** Po co: start sesji w JiraManagerze kosztuje
-  386 KB dokumentów (≈120 tys. tokenów), bo rotacja nigdy nie ruszyła, a limity ze specyfikacji nie
-  były przez nikogo mierzone. Zostaje **E5** — przepuszczenie JiraManagera i PolyFlow przez
-  `/relai-update`, pomiar przed i po, zamknięcie ryzyka R5. E5 jest ostatnim etapem planu.
-- **Plan [ROZWOJ_PO_WYDANIU](plany/ROZWOJ_PO_WYDANIU/STATUS.md) — 6 z 8 etapów zamknięte, E7
-  wstrzymany.** Po co stoi: konto Codeksa jest w planie darmowym i nie ma kto przeprowadzić
-  pilotażu adaptera. Zaplanowany numer wydania E7 (1.6.0) zostaje w dokumentach bez aneksu — kolizja
-  nie grozi, dopóki etap stoi. Formalne zamrożenie planu czeka na decyzję człowieka.
+- **Wydanie 1.6.1.** Po co: repozytorium ma poprawioną `/relai-update`, a cache pluginu nadal
+  starą — tę, która deklaruje wersję docelową 1.5.0 i cofnęłaby wersję migrowanego projektu.
+  Do wykonania: push, `plugin marketplace update`, `plugin update`, **restart aplikacji** (P-005).
+- **Migracja JiraManagera.** Po co: to ostatni projekt, w którym start sesji kosztuje 386 KB
+  dokumentów, a rotacja nigdy nie ruszyła. Czeka na okno — właściciel rozwija go na bieżąco, więc
+  migracja wchodzi dopiero wtedy, gdy żaden etap tam nie trwa. Dopóki nie wejdzie, **ryzyko R5
+  zostaje otwarte**: mechanizm jest kompletny i zmierzony, ale problem, dla którego powstał, jest
+  rozwiązany w dwóch projektach z trzech.
 
 ## Co dalej
 
-- Świeża sesja Opus i `/relai-stage` — **E5**, ostatni etap planu: backup jako bramka, jeden projekt
-  na sesję, `/relai-update` do 1.6.0, pomiar startu przed i po, raport z drogą pełnego powrotu.
-  Warunek startu spełniony — 1.6.0 jest wydane i działa. Zaczynasz od **PolyFlow**: JiraManager ma
-  etap E16-1 w toku, więc jego migracja czeka. Po E5 zamknięcie planu.
-- Cztery odnogi w świeżych sesjach, w dowolnej kolejności wobec etapów: `OPIS_REPO` (pusty opis
-  repozytorium na GitHubie), `POMIAR_ODNOG` (niedomknięte punkty weryfikacji, dziewięć scenariuszy),
-  `REKOMENDACJA_MODELU`, `GUARD_PO_SCIEZCE`. Każda ma gotowy prompt; żadna nie blokuje planu.
+- **Wydanie 1.6.1** — push, `plugin marketplace update`, `plugin update`, **restart** (P-005).
+  Do tego czasu cache pluginu niesie `/relai-update` z wersją docelową 1.5.0, czyli komendę, która
+  cofnęłaby wersję migrowanego projektu.
+- Pięć wątków w świeżych sesjach, w dowolnej kolejności: **[BLOKADA_ROTACJI](fixy/BLOKADA_ROTACJI/ODNOGA.md)**
+  (wątek samodzielny — rotacja stoi na najstarszym wpisie, wyszło na PolyFlow) oraz cztery odnogi
+  zamrożonego planu: `OPIS_REPO`, `POMIAR_ODNOG` (dziewięć scenariuszy), `REKOMENDACJA_MODELU`,
+  `GUARD_PO_SCIEZCE`. Każda ma gotowy prompt; zamrożenie planu ich nie dotyczy.
 - Przejrzeć sekcję **„Czeka na człowieka"** w dzienniku — dziesięć spraw, w tym siedem rozstrzygnięć
   wpisanych w E2 na podstawie faktów z repozytorium, do potwierdzenia.
 - Zainstalować pre-commit tam, gdzie ma pilnować: `node core/guardrails/install-precommit.js
@@ -104,9 +110,11 @@ tutaj z 90 KB do 39 KB. Został ostatni etap — przeniesienie tego na dwa żywe
 - **Adapter Cursora zmierzony w aplikacji, ale nie w całości.** Pilotaż potwierdził reguły, hook
   kontekstu, obie warstwy blokady sekretu i pełne przejście `/relai-stage`. Niezmierzone: hook
   `beforeReadFile`, dostęp poza katalogiem roboczym, osiem pozostałych komend.
-- **Wersja 1.6.0 jest zainstalowana, ale nie działa do restartu aplikacji** (P-005) — dotyczy też
-  naprawy pomiaru przy końcach linii CRLF, istotnej dla każdego projektu sklonowanego na Windowsie.
-  Projekty z gitowym pre-commitem wymagają dodatkowo ponownej instalacji hooka.
+- **Wersja 1.6.1 czeka na wydanie** (P-005) — repozytorium ma poprawioną `/relai-update`, cache
+  pluginu nadal starą. Do restartu aplikacji komenda deklaruje wersję docelową 1.5.0.
+- **Rotacja w PolyFlow ruszyła, ale zaraz stanęła** — 5 wpisów z 97, bo link otwartej sprawy
+  prowadzi do najstarszego wpisu, a wpis linkowany jest nietykalny. Przyczyna jest w regule RelAI,
+  nie w tamtym projekcie; czeka w odnodze `BLOKADA_ROTACJI`.
 - Repozytorium jest **publiczne**, ale ma pusty opis — odnoga `OPIS_REPO`.
 
 ---
@@ -115,9 +123,9 @@ tutaj z 90 KB do 39 KB. Został ostatni etap — przeniesienie tego na dwa żywe
 
 ### Wersja i instalacja
 
-Repozytorium: **1.6.0**, wypchnięte (`9ac3d78`). Zainstalowany globalnie (scope `user`): **1.6.0** —
-`installed_plugins.json` wskazuje katalog `1.6.0` i ten sam commit. **Nowa wersja zacznie działać
-dopiero po restarcie aplikacji** (P-005). Źródło: własny marketplace w tym samym repozytorium.
+Repozytorium: **1.6.1**, niewypchnięte. Zainstalowany globalnie (scope `user`): **1.6.0** —
+`installed_plugins.json` wskazuje katalog `1.6.0` i commit `9ac3d78`. **1.6.1 zacznie działać
+dopiero po sekwencji wydania i restarcie aplikacji** (P-005). Źródło: własny marketplace w tym samym repozytorium.
 
 ### Zawartość pluginu
 
@@ -145,13 +153,15 @@ Pułapki: [PULAPKI.md](PULAPKI.md)
 
 ### Liczby
 
-Etapy: BUDOWA_RELAI 10/10 • ROZWOJ_PO_WYDANIU 6/8 (E7 wstrzymany) • OPTYMALIZACJA_KONTEKSTU 4/5 •
-Warstwa startowa RelAI: **39,4 KB / 80 KB** (`CLAUDE` 3,1 KB, `STATE` 9,8 KB, ryzyka 14,1 KB —
-z czego 7,9 KB to ostatni wpis, sama sekcja ryzyk 3,7 KB; zasady 5,9 KB) • Dziennik: 138,0 KB,
-lekcje 47,0 KB — oba pod progiem rotacji • Sprawy czekające na człowieka: 10 • Zasady aktywne:
-**15 przy limicie 15** • Scenariusze akceptacyjne: 4/4 zdane + pilotaż Cursora • Adaptery: 2 •
-Modele, na których zmierzono proces: 5 (Fable, Opus, Haiku, Composer/auto, Grok 4.6) • Otwarte
-odnogi: 4 • Otwarte bramki manualne: 9 (5 + 4 w dwóch planach) • Otwarte ryzyka: 4 • Zamknięte
-ryzyka: 6 (w archiwum) • Progi rotacji: dziennik 150 KB, lekcje 40 wpisów albo 50 KB, STATE 300
-linii • Archiwum: lekcje L-0001…L-0024, dziennik 2026-08-07…2026-08-09 (16 wpisów) oraz 2026-08-10
-(2 wpisy), ryzyka R1/R3/R4/R6/R7/R8 (2026-08-21)
+Etapy: BUDOWA_RELAI 10/10 • ROZWOJ_PO_WYDANIU 6/8 (ZAMROŻONY) • OPTYMALIZACJA_KONTEKSTU 5/5
+(ZREALIZOWANY) •
+Warstwa startowa RelAI: **35,1 KB / 80 KB**, żadna pozycja ponad własnym progiem • Warstwa
+startowa PolyFlow po migracji: **136,4 KB / 80 KB** (przed: 155,7) • Dziennik: 148,6 KB, lekcje
+51,0 KB — lekcje ponad progiem 50 KB • Sprawy czekające na człowieka: 10 tutaj, 27 w PolyFlow •
+Zasady aktywne: **15 przy limicie 15** • Scenariusze akceptacyjne: 4/4 zdane + pilotaż Cursora •
+Adaptery: 2 • Modele, na których zmierzono proces: 5 (Fable, Opus, Haiku, Composer/auto, Grok 4.6) •
+Projekty na 1.6.x: 2 (RelAI, PolyFlow) • Otwarte wątki: 5 (1 samodzielny + 4 odnogi zamrożonego
+planu) • Otwarte bramki manualne: 4 (wszystkie w zamrożonym ROZWOJ_PO_WYDANIU; w zamkniętym planie
+zero) • Otwarte ryzyka: 4 • Zamknięte ryzyka: 6 (w archiwum) • Progi rotacji: dziennik
+150 KB, lekcje 40 wpisów albo 50 KB, STATE 300 linii • Archiwum: lekcje L-0001…L-0024, dziennik
+2026-08-07…2026-08-09 (16 wpisów) oraz 2026-08-10 (2 wpisy), ryzyka R1/R3/R4/R6/R7/R8 (2026-08-21)

@@ -1,7 +1,15 @@
 # STATUS — plan ROZWOJ_PO_WYDANIU
 
-Plan: [PLAN.html](PLAN.html) · Utworzony: 2026-08-12 · Status planu: **ZAAKCEPTOWANY 2026-08-12
-(Aneks A)** · Model wykonawczy etapów: Opus (z ustawień projektu; architektura i plany: Fable)
+Plan: [PLAN.html](PLAN.html) · Utworzony: 2026-08-12 · Status planu: **ZAMROŻONY 2026-08-21**
+(wcześniej ZAAKCEPTOWANY 2026-08-12 z Aneksem A) · Model wykonawczy etapów: Opus (z ustawień
+projektu; architektura i plany: Fable)
+
+> **Zamrożony decyzją Łukasza 2026-08-21**, przy zamykaniu planu OPTYMALIZACJA_KONTEKSTU. Powód:
+> jedyny niezamknięty etap to **E7 (adapter Codeksa)**, a konto Codeksa jest w planie darmowym
+> i nie ma kto przeprowadzić pilotażu — bez cudzej maszyny i cudzych oczu etapu nie da się
+> zweryfikować. Plan wraca do życia razem z dostępem; do tego czasu nie jest planem aktywnym
+> i nie czeka na niego żadna sesja. **Cztery odnogi tego planu zostają otwarte** i są widoczne
+> w `docs/STATE.md` — zamrożenie planu ich nie dotyczy.
 
 ## Tabela etapów
 
