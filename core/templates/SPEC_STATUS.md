@@ -28,7 +28,7 @@ Agent w kolejnej sesji (pierwszy) i człowiek sprawdzający „gdzie jesteśmy z
 3. **Tabela etapów** — `Etap | Nazwa | Status | Prompt | Uwagi`.
 4. **Odnogi** — sekcja opcjonalna, patrz niżej. Nie ma odnóg → nie ma sekcji.
 5. **Dziennik wdrożenia** — lista dopisywana **na końcu**, jedna linia na zdarzenie:
-   `- RRRR-MM-DD — <co się stało>`. Bez edycji wstecz.
+   `- RRRR-MM-DD — <co się stało>`. Kształt i jedyny wyjątek od append-only: sekcja niżej.
 
 ## Statusy
 
@@ -135,13 +135,41 @@ Zasady:
 - Bramka to nie ryzyko i nie odnoga: ryzyko może się nie zdarzyć, odnoga to praca dla agenta,
   a bramka czeka **konkretnie na człowieka**.
 
+## Dziennik wdrożenia — jedna linia na etap (od 1.6.0)
+
+Ta lista mówi **kiedy co się wydarzyło z planem**. Nie mówi, co zrobiono i jak to sprawdzono — od
+tego jest wpis w `docs/DZIENNIK.md`, do którego ta linia zawsze prowadzi przez datę.
+
+**Jedna linia na etap. Jedno zdanie w linii.** Zmierzone 2026-08-21 w tym repozytorium `FAKT`: trzy
+zamknięte etapy zajmowały tu 22 linie, bo każda linia zamknięcia przepisywała sekcję „Zweryfikowane"
+z wpisu dziennika. `STATUS.md` jest czytany przy każdym starcie sesji z aktywnym planem, więc
+streszczenie wpisu płaci się dwa razy: raz tu, raz w dzienniku.
+
+Co wchodzi do linii zamknięcia etapu: **co powstało** (najkrócej, jak się da) i **stan po** — nowa
+wersja, jeśli się zmieniła, oraz który etap jest teraz gotowy. Co **nie** wchodzi: lista punktów
+weryfikacji, liczby z pomiarów, nazwy plików, nazwy lekcji.
+
+**Linia „E<N> rozpoczęty" scala się z linią zamknięcia** — i to jest jedyny wyjątek od zasady
+append-only w tym pliku. Powód: ta linia nie jest zdarzeniem historycznym, tylko **znacznikiem
+stanu** dla sesji przerwanej w połowie; gdy etap się zamyka, znacznik przestaje cokolwiek znaczyć,
+a historia startu i tak stoi w dacie wpisu dziennika. Przebieg jest więc taki:
+
+1. Start etapu → dopisujesz `- RRRR-MM-DD — E<N> rozpoczęty.`
+2. Zamknięcie etapu → **zastępujesz tę linię** linią wynikową. Nie dopisujesz drugiej.
+3. Sesja przerwana bez zamknięcia → linia zostaje i **to jest jej cała rola**: kolejna sesja widzi,
+   że etap ruszył i nie skończył się.
+
+Wyjątek dotyczy **wyłącznie** pary „rozpoczęty → zamknięty" tego samego etapu. Wszystkich innych
+linii nie edytujesz i nie kasujesz (D-18): akceptacja planu, aneks, wstrzymanie, pominięcie etapu
+i zamknięcie planu zostają na zawsze.
+
 ## Polityka aktualizacji
 
 | Kiedy | Co się zmienia |
 |---|---|
 | Plan zaakceptowany | status planu + linia w dzienniku wdrożenia + pierwszy etap → `GOTOWY DO STARTU` + link do `PROMPT_ETAP_1.md` |
 | Etap rozpoczęty (`/relai-stage` po potwierdzeniu) | status etapu → `W TOKU` + linia w dzienniku wdrożenia |
-| Etap zamknięty | status etapu → `ZREALIZOWANY <data>`, następny → `GOTOWY DO STARTU` **z linkiem do świeżo wygenerowanego promptu**, linia w dzienniku wdrożenia |
+| Etap zamknięty | status etapu → `ZREALIZOWANY <data>`, następny → `GOTOWY DO STARTU` **z linkiem do świeżo wygenerowanego promptu**, linia „E<N> rozpoczęty" **zastąpiona** linią wynikową |
 | Sesja etapu przerwana | status etapu → `W TOKU` + linia w dzienniku wdrożenia mówiąca, co zostało |
 | Aneks do planu | linia w dzienniku wdrożenia z numerem aneksu; **treść aneksu jest w `PLAN.md`**, nie tutaj |
 | Odnoga utworzona (`/relai-branch`) | nowa linia w sekcji „Odnogi" ze statusem `OTWARTA`; sekcja powstaje, jeśli jej nie było. Tabela etapów i dziennik wdrożenia **bez zmian** |
@@ -150,9 +178,10 @@ Zasady:
 | Bramka rozstrzygnięta | status w jej linii → `ROZSTRZYGNIĘTA <data> — <jak>`, równolegle z adnotacją przy pozycji we wpisie dziennika |
 | Plan zamknięty | status planu → `ZREALIZOWANY <data>`, plik razem z folderem idzie do `docs/archiwum/plany/` — po rozstrzygnięciu otwartych odnóg |
 
-Dziennik wdrożenia jest **append-only** — dopisujesz na końcu, nie edytujesz starych linii. Wpis
-w dzienniku wdrożenia jest krótki (jedna linia); szczegóły „co zrobiono i jak zweryfikowano" mieszkają
-w `docs/DZIENNIK.md`, nie tutaj.
+Dziennik wdrożenia jest **append-only z jednym wyjątkiem** — linią „E<N> rozpoczęty", którą
+zamknięcie etapu zastępuje (sekcja wyżej). Poza nią dopisujesz na końcu i nie edytujesz starych
+linii. Wpis w dzienniku wdrożenia jest krótki (jedna linia, jedno zdanie); szczegóły „co zrobiono
+i jak zweryfikowano" mieszkają w `docs/DZIENNIK.md`, nie tutaj.
 
 ## Zakazy
 
@@ -176,7 +205,7 @@ Plan: [PLAN.md](PLAN.md) · Utworzony: 2026-08-12 · Status planu: **ZAAKCEPTOWA
 | Etap | Nazwa | Status | Prompt | Uwagi |
 |---|---|---|---|---|
 | E1 | Model płatności i statusy | **ZREALIZOWANY 2026-08-14** | [PROMPT_ETAP_1.md](PROMPT_ETAP_1.md) | wygasanie 15 min; test współbieżności przeszedł |
-| E2 | Stripe Checkout + webhook | **GOTOWY DO STARTU** | [PROMPT_ETAP_2.md](PROMPT_ETAP_2.md) | wymaga kluczy Stripe (sekcja 9 planu) |
+| E2 | Stripe Checkout + webhook | **W TOKU** | [PROMPT_ETAP_2.md](PROMPT_ETAP_2.md) | wymaga kluczy Stripe (sekcja 9 planu) |
 | E3 | Faktury PDF i wysyłka | OCZEKUJE | — | zakres zależny od decyzji o księgowości |
 | E4 | Panel płatności dla administratora | OCZEKUJE | — | |
 
@@ -195,14 +224,13 @@ Plan: [PLAN.md](PLAN.md) · Utworzony: 2026-08-12 · Status planu: **ZAAKCEPTOWA
 ## Dziennik wdrożenia
 
 - 2026-08-12 — plan utworzony, przekazany do akceptacji.
-- 2026-08-13 — plan ZAAKCEPTOWANY z poprawkami (Aneks A: rezygnacja z BLIK-a w v1, kopia faktury
-  do księgowości). Wygenerowano PROMPT_ETAP_1.
-- 2026-08-14 — E1 rozpoczęty.
-- 2026-08-14 — **E1 ZREALIZOWANY**. Tabela `Payment`, status `oczekuje na płatność`, wygasanie po
-  15 minutach. Szczegóły i weryfikacja: wpis w `docs/DZIENNIK.md` z 2026-08-14. Wygenerowano
-  PROMPT_ETAP_2.
-- 2026-08-14 — E2 ustawiony jako GOTOWY DO STARTU; blokada: klucze Stripe po stronie człowieka.
+- 2026-08-13 — plan ZAAKCEPTOWANY z Aneksem A. Wygenerowano PROMPT_ETAP_1.
+- 2026-08-14 — **E1 ZREALIZOWANY**: model płatności i statusy; E2 gotowy do startu.
+- 2026-08-15 — E2 rozpoczęty.
 ```
 
-W przykładzie widać zasadę: odnoga zostawiła ślad **wyłącznie** w sekcji „Odnogi". Dziennik
-wdrożenia mówi o etapach planu i o niej milczy.
+W przykładzie widać trzy zasady naraz. Odnoga zostawiła ślad **wyłącznie** w sekcji „Odnogi" —
+dziennik wdrożenia mówi o etapach planu i o niej milczy. Zamknięty E1 ma **jedną** linię: linia
+„E1 rozpoczęty" została przez nią zastąpiona, a co dokładnie powstało i jak to sprawdzono, stoi we
+wpisie `docs/DZIENNIK.md` z tej samej daty. Otwarty E2 ma linię „rozpoczęty", bo jego sesja jeszcze
+trwa — gdyby się urwała, ta linia jest jedynym śladem, że etap ruszył.

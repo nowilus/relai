@@ -17,7 +17,7 @@ Czytaj w kolejności, nie skanuj pełnotekstowo repo:
 
 | Co | Status | Gdzie |
 |---|---|---|
-| Plugin RelAI — wydany, dwa adaptery | DZIAŁA (1.5.2 w repo) | [docs/STATE.md](docs/STATE.md) |
+| Plugin RelAI — wydany, dwa adaptery | DZIAŁA (1.6.0 w repo) | [docs/STATE.md](docs/STATE.md) |
 | Plan BUDOWA_RELAI — 10 etapów | ZAMKNIĘTY 2026-08-10 | [archiwum planu](docs/archiwum/plany/BUDOWA_RELAI/STATUS.md) |
 | Plan ROZWOJ_PO_WYDANIU — 8 etapów | 6/8; E7 WSTRZYMANY | [STATUS](docs/plany/ROZWOJ_PO_WYDANIU/STATUS.md) |
 | Plan OPTYMALIZACJA_KONTEKSTU — 5 etapów | 2/5 W TOKU | [STATUS](docs/plany/OPTYMALIZACJA_KONTEKSTU/STATUS.md) |

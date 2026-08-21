@@ -377,7 +377,11 @@ function wytnijSekcje(txt, wzorce) {
   let start = -1;
   let poziom = 0;
   for (let i = 0; i < linie.length; i++) {
-    const m = linie[i].match(/^(#{1,6})\s+(.*)$/);
+    // Bez kotwicy konca linii: kropka w JS nie obejmuje CR, wiec przy koncach linii
+    // CRLF wzorzec zakotwiczony na koncu nie dopasowuje ZADNEGO naglowka — a naglowek
+    // konczacy sekcje (wzorzec nizej, bez kotwicy) dopasowuje sie normalnie. Skutkiem
+    // byla cicha degradacja do pomiaru calego pliku na repo z core.autocrlf=true.
+    const m = linie[i].match(/^(#{1,6})\s+(.*)/);
     if (!m) continue;
     const tytul = m[2].replace(/[„”"'*`]/g, '').trim();
     if (wzorce.some((w) => w.test(tytul))) { start = i; poziom = m[1].length; break; }

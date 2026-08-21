@@ -102,10 +102,13 @@ finish a larger chunk of work:
    `.claude/relai/templates/`. Condition: the `Rotacja dokumentów` row in `docs/USTAWIENIA.md`;
    `wyłączona` / `off` at the start of the cell → stop this step silently. Below the threshold:
    **silence**, no message, no directory created. Two phases: copy + checksum proof first, trim
-   only after the checksums match. Never touch "Stan otwartych ryzyk", "Czeka na człowieka",
-   "Zasady aktywne", the ten newest entries, the twenty newest lessons, or any entry linked from an
-   **open** item of "Czeka na człowieka". An entry whose item carries `*(wyprowadzone …)*` no longer
-   blocks; a project without that section still blocks the old way.
+   only after the checksums match. Never touch "Czeka na człowieka", "Zasady aktywne", the ten
+   newest entries, the twenty newest lessons, or any entry linked from an **open** item of "Czeka
+   na człowieka". An entry whose item carries `*(wyprowadzone …)*` no longer blocks; a project
+   without that section still blocks the old way. **Closed risks (1.6.0)** have their own run: rows
+   whose status starts with `ZAMKNIĘTE` go to `docs/archiwum/ryzyka/RYZYKA_<date>.md` — all of them
+   at once, only when the `ryzyka` sub-threshold is exceeded, same two phases, one reference line
+   with the numbers under the table, and no message of its own.
 3. **Journal entry** — one entry for the session, all four sections. "Zweryfikowane — jak dokładnie"
    must say what you checked and with what result; "nie weryfikowano" is acceptable content, a
    missing section is not.

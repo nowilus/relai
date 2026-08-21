@@ -68,6 +68,38 @@ projektu nadpisuje wartość stąd.
 5. *(opcjonalnie, gdy się pojawi)* **Sekcja „Ustawienia wycofane"** — wpis zastąpiony nie znika
    z tabeli; przenosisz go tutaj z adnotacją „zastąpione przez … dnia … , powód …" (D-18).
 
+## Wiersz to jedna decyzja, jednym zdaniem (od 1.6.0)
+
+Komórka `Decyzja` niesie **rozstrzygnięcie** — to, co obowiązuje. Nie niesie drogi, którą do niego
+doszliśmy: uzasadnienie, odrzucone warianty, historia zmiany zdania i „po czym poznaliśmy, że tak
+jest lepiej" mieszkają w `docs/DECYZJE.md`, a przebieg — we wpisie dziennika.
+
+Powód jest ten sam co przy ryzykach: ten plik jest czytany przy **każdym** starcie sesji, a wiersz
+z uzasadnieniem kosztuje w każdej z nich. Zmierzone 2026-08-21 w tym repozytorium `FAKT`: jedna
+komórka `Decyzja` ważyła 1,3 KB — więcej niż cała reszta tabeli razem.
+
+**Reguła:** jedno zdanie, najwyżej dwa. Trzecie zdanie jest sygnałem, że w komórce siedzi
+uzasadnienie.
+
+**Wiersz, który już jest za długi:** przenosisz, nie kasujesz (D-18). Uzasadnienie i odrzucone
+warianty idą do `DECYZJE.md` jako decyzja z tą samą datą, a w komórce zostaje rozstrzygnięcie
+z odsyłaczem — `(D-61)`. Fakt, który nie ma domu ani tu, ani tam, idzie do wpisu dziennika tej
+sesji, zanim skrócisz wiersz.
+
+### Wiersze czytane maszynowo — tej reguły nie dotyczą
+
+Trzy wiersze mają **zamknięty format** opisany niżej w tej specyfikacji i są parsowane przez hooki:
+
+| Wiersz | Czyta go |
+|---|---|
+| `Profil projektu` | hooki `profile-rules` i `config-protection` |
+| `Rotacja dokumentów` | procedura rotacji (`SPEC_ARCHIWUM.md`) |
+| `Budżet startu sesji` | pomiar warstwy startowej w hooku startu sesji |
+
+**Ich nie skracasz.** Człony rozdzielone `·` wyglądają jak rozwlekłość, a są składnią: usunięcie
+członu zmienia próg na domyślny, a przeredagowanie kotwicy na początku komórki **wycisza mechanizm
+w ciszy** (L-0025). Skrócenie, które wyłącza pomiar albo rotację, jest defektem, nie oszczędnością.
+
 ## Wpisy tworzone przy inicjalizacji
 
 Zawsze te trzy, z odpowiedzi na paczkę startową (D-20), plus wersja RelAI w linii markera:
@@ -223,8 +255,14 @@ Odpowiedź raz udzielona nie wraca jako pytanie.
 | 2026-08-07 | Profil projektu | app (Next.js + PostgreSQL) |
 | 2026-08-07 | Rotacja dokumentów | włączona |
 | 2026-08-07 | Budżet startu sesji | włączony |
-| 2026-08-12 | Podejście do testów | Testy krytycznych ścieżek, bez pełnego TDD — pytanie padło przy pierwszym kodzie |
+| 2026-08-12 | Podejście do testów | Testy krytycznych ścieżek, bez pełnego TDD |
 | 2026-08-14 | Format planów | Interaktywny HTML dla planów głównych; `STATUS.md` i prompty etapowe w Markdown |
-| 2026-08-14 | Szablon planu HTML | Nadpisanie lokalne w `docs/zasoby/HTML_PLAN/` — ma pierwszeństwo przed wersją z pluginu; zmieniona paleta i krój nagłówków |
+| 2026-08-14 | Szablon planu HTML | Nadpisanie lokalne w `docs/zasoby/HTML_PLAN/` — ma pierwszeństwo przed wersją z pluginu (D-58) |
 | 2026-08-20 | Lokalizacja backupów | `D:\Backupy\Projekty` |
 ```
+
+Trzy pierwsze wiersze to jedno zdanie każdy. Wiersze `Profil projektu`, `Rotacja dokumentów`
+i `Budżet startu sesji` wyglądają na dłuższe i **takie mają zostać** — to składnia, nie proza.
+Wiersz „Szablon planu HTML" pokazuje wzorzec skracania: rozstrzygnięcie zostaje, a „zmieniona
+paleta i krój nagłówków, bo domyślna kolorystyka nie przechodziła u klienta" mieszka w `D-58`
+w `docs/DECYZJE.md`.

@@ -42,9 +42,10 @@ z podpowiedzi; skrócona forma działa tam, gdzie podpowiadacz ją rozwinie.
   sama uwaga wraca drugi raz, RelAI proponuje wpisać ją na stałe do `CLAUDE.md`.
 - **Dokumenty nie puchną bez końca.** Gdy dziennik albo rejestr lekcji urośnie ponad próg, przy
   zamykaniu sesji najstarsza historia przenosi się do `docs/archiwum/` — w całości, bez skracania —
-  a w żywym pliku zostaje linia z linkiem do niej. Wpis czekający na Twoją decyzję zostaje na
-  miejscu, choćby był najstarszy. Poniżej progu nie dzieje się nic; progi i wyłącznik masz
-  w `docs/USTAWIENIA.md`.
+  a w żywym pliku zostaje linia z linkiem do niej. Tą samą drogą schodzą **ryzyka zamknięte** —
+  do `docs/archiwum/ryzyka/`, z numerami wypisanymi w żywej tabeli, żeby żaden numer nie wrócił.
+  Wpis czekający na Twoją decyzję zostaje na miejscu, choćby był najstarszy. Poniżej progu nie
+  dzieje się nic; progi i wyłącznik masz w `docs/USTAWIENIA.md`.
 - **Koszt startu sesji jest widoczny, zanim urośnie.** Dokumenty czytane na starcie mają wspólny
   budżet. Gdy go przekroczą, RelAI mówi o tym pierwszym zdaniem sesji, wskazuje trzy najgrubsze
   pozycje i proponuje odchudzenie — niczego nie blokuje i niczego nie zmienia sam. Poniżej budżetu

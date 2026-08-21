@@ -481,16 +481,26 @@ i bez słowa. Wartość nierozpoznana albo brak wiersza w projekcie z wersją 1.
 |---|---|---|
 | `docs/DZIENNIK.md` | 150 KB | najstarsze wpisy → `docs/archiwum/dziennik/DZIENNIK_<data-od>_<data-do>.md` |
 | `docs/LEKCJE.md` | 40 lekcji albo 50 KB | najstarsze pełne lekcje → `docs/archiwum/lekcje/LEKCJE_<numer-od>_<numer-do>.md` |
+| sekcja „Stan otwartych ryzyk" | próg cząstkowy `ryzyka` z wiersza `Budżet startu sesji` (12 KB) | wiersze ryzyk `ZAMKNIĘTE` → `docs/archiwum/ryzyka/RYZYKA_<data>.md` |
 | `docs/STATE.md` | 300 linii | **bez archiwum** — przepisujesz zwięźlej w kroku 1; fakt, który znika, a nie stoi nigdzie indziej, idzie do wpisu dziennika |
 
 **Poniżej progu: cisza.** Zero komunikatów, zero pytań, katalog `docs/archiwum/dziennik/` nie
 powstaje. Rotacja nie przypomina o swoim istnieniu.
 
-**Czego nie ruszasz nigdy:** sekcji „Stan otwartych ryzyk" i „Czeka na człowieka" w dzienniku,
-sekcji „Zasady aktywne" w lekcjach, dziesięciu najnowszych wpisów, dwudziestu najnowszych lekcji
-ani **żadnego wpisu, do którego prowadzi link z otwartej pozycji sekcji „Czeka na człowieka"** —
-niezależnie od jego wieku. Zakres jest ciągły: pierwsza pozycja nietykalna kończy zakres, nie
-przeskakujesz jej.
+**Czego nie ruszasz nigdy:** sekcji „Czeka na człowieka" w dzienniku, sekcji „Zasady aktywne"
+w lekcjach, dziesięciu najnowszych wpisów, dwudziestu najnowszych lekcji ani **żadnego wpisu, do
+którego prowadzi link z otwartej pozycji sekcji „Czeka na człowieka"** — niezależnie od jego wieku.
+Zakres jest ciągły: pierwsza pozycja nietykalna kończy zakres, nie przeskakujesz jej.
+
+**Ryzyka (od 1.6.0) są jedynym wyjątkiem od ciągłości.** Sekcja „Stan otwartych ryzyk" nie jest
+wpisem i do archiwum dziennika nie trafia nigdy — ma własny przebieg: schodzą z niej **wiersze
+ryzyk `ZAMKNIĘTE`**, wszystkie naraz, bez względu na kolejność numerów. Bierzesz się za nie tylko
+wtedy, gdy pozycja `ryzyka` przekracza swój próg cząstkowy **i** jest choć jedno ryzyko zamknięte;
+status inny niż `ZAMKNIĘTE` (`ZMITYGOWANE`, `PRZYJĘTE ŚWIADOMIE`, `ZAWĘŻONE`) znaczy „zostaje"
+i nie zgadujesz intencji. Nagłówek sekcji i wiersz nagłówkowy tabeli zostają zawsze, a pod tabelą
+staje **jedna** linia-odsyłacz z numerami — po niej widać, że numer jest zajęty na zawsze.
+To **nie jest** trzeci komunikat: rotacja ryzyk melduje się tylko we wpisie dziennika tej sesji,
+tak jak pozostałe (L-0049).
 
 **Blokada zmieniła adres w 1.6.0.** Wpis z pozycją opatrzoną adnotacją `*(wyprowadzone RRRR-MM-DD
 → sekcja „Czeka na człowieka")*` **jest przenoszalny**, mimo że jego własna sekcja „Do zrobienia

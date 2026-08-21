@@ -1,8 +1,8 @@
-# SPEC — `docs/archiwum/dziennik/` i `docs/archiwum/lekcje/`
+# SPEC — `docs/archiwum/dziennik/`, `docs/archiwum/lekcje/` i `docs/archiwum/ryzyka/`
 
 Specyfikacja dla LLM (D-60). Nie kopiuj tego pliku. Pliki archiwum powstają **w języku projektu**
-(`docs/archiwum/journal/JOURNAL_<od>_<do>.md` i `docs/archiwum/lessons/LESSONS_<od>_<do>.md`
-w projekcie angielskim).
+(`docs/archiwum/journal/JOURNAL_<od>_<do>.md`, `docs/archiwum/lessons/LESSONS_<od>_<do>.md`
+i `docs/archiwum/risks/RISKS_<data>.md` w projekcie angielskim).
 
 ## Rola
 
@@ -62,7 +62,12 @@ Progi domyślne (`SZACUNEK` — skalibrowane 2026-08-12 na zmierzonych projektac
 |---|---|---|
 | `docs/DZIENNIK.md` | **150 KB** | najstarsze wpisy → `docs/archiwum/dziennik/` |
 | `docs/LEKCJE.md` | **40 lekcji albo 50 KB** (co nastąpi wcześniej) | pełne wpisy najstarszych lekcji → `docs/archiwum/lekcje/` |
+| sekcja „Stan otwartych ryzyk" | **próg cząstkowy `ryzyka`** z wiersza `Budżet startu sesji` (domyślnie 12 KB) | wiersze ryzyk `ZAMKNIĘTE` → `docs/archiwum/ryzyka/` |
 | `docs/STATE.md` | **300 linii** | **nie jest archiwizowany** — patrz sekcja „STATE" |
+
+Wiersz ryzyk **nie dokłada trzeciego wejścia ani własnego komunikatu** (L-0049): rotacja ryzyk
+dzieje się w tych samych dwóch momentach co pozostałe, a próg cząstkowy mówi jedynie, **czy jest
+co brać** — patrz „Ryzyka" w sekcji „Wybór treści".
 
 ## Ścieżki i nazewnictwo
 
@@ -70,10 +75,17 @@ Progi domyślne (`SZACUNEK` — skalibrowane 2026-08-12 na zmierzonych projektac
 |---|---|
 | wpisy dziennika | `docs/archiwum/dziennik/DZIENNIK_<data-od>_<data-do>.md` |
 | pełne lekcje | `docs/archiwum/lekcje/LEKCJE_<numer-od>_<numer-do>.md` |
+| wiersze ryzyk zamkniętych | `docs/archiwum/ryzyka/RYZYKA_<data-rotacji>.md` |
 
 `<data-od>`/`<data-do>` to daty pierwszego i ostatniego przeniesionego wpisu (`RRRR-MM-DD`).
 `<numer-od>`/`<numer-do>` to numery pierwszej i ostatniej przeniesionej lekcji (`L-0001`).
 Zakres w nazwie jest **domknięty obustronnie** i zawsze ciągły — patrz „Wybór treści".
+
+**Ryzyka mają w nazwie datę rotacji, nie zakres numerów** — i to jest różnica celowa. Kryterium
+wyboru jest tu **status**, nie wiek, więc przeniesiony zbiór bywa nieciągły (`R1, R3, R4, R6`).
+Nazwa `RYZYKA_R1_R6.md` obiecywałaby wtedy ciągłość, której nie ma, a nazwa z datą nie obiecuje
+niczego poza tym, co jest prawdą: to jest to, co zeszło tego dnia. Numery przeniesionych ryzyk
+wypisuje linia metryczna w środku pliku oraz linia-odsyłacz w żywej tabeli.
 
 Nazwa pliku nie zawiera kwartału ani wersji: zakres w nazwie ma wystarczyć do odnalezienia okresu
 bez otwierania pliku.
@@ -81,9 +93,11 @@ bez otwierania pliku.
 ## Struktura pliku archiwum
 
 1. **Nagłówek** — `# ARCHIWUM DZIENNIKA — <projekt> · <od> … <do>` (dla lekcji:
-   `# ARCHIWUM LEKCJI — <projekt> · <od> … <do>`).
+   `# ARCHIWUM LEKCJI — <projekt> · <od> … <do>`; dla ryzyk: `# ARCHIWUM RYZYK — <projekt> ·
+   <data rotacji>`).
 2. **Linia metryczna** — data rotacji, plik źródłowy, liczba przeniesionych pozycji, suma
-   kontrolna przeniesionej treści.
+   kontrolna przeniesionej treści. W archiwum ryzyk dochodzi **wyliczenie numerów** przeniesionych
+   ryzyk — to ono zastępuje zakres, którego nie ma w nazwie pliku.
 3. **Jedno zdanie o naturze pliku** — że treść niżej jest kopią bajt w bajt i nic nie zostało
    streszczone.
 4. **Separator `---`**, a pod nim **przeniesiona treść bez żadnej zmiany** — łącznie z nagłówkami
@@ -109,6 +123,20 @@ Kolejne rotacje dokładają kolejne linie **pod poprzednimi**, w porządku chron
 odsyłacza jest jedynym śladem po przeniesionej treści — streszczenia okresu **nie piszesz**
 (streszczenie kłamie tym, czego nie zmieści, a od historii jest archiwum).
 
+**W tabeli ryzyk** linia-odsyłacz stoi **pod tabelą**, nie w niej, i wymienia numery zamiast
+zakresu dat:
+
+```markdown
+> Ryzyka zamknięte R1, R3, R4, R6 (4 pozycje) są w
+> [docs/archiwum/ryzyka/RYZYKA_2026-08-21.md](archiwum/ryzyka/RYZYKA_2026-08-21.md)
+> — przeniesione 2026-08-21, suma kontrolna `a1b2c3d4e5f60718`.
+```
+
+Jedna linia na rotację, nie jedna na ryzyko — inaczej tabela odchudzona z sześciu wierszy zyskałaby
+sześć linii i cała operacja byłaby bez sensu. Wyliczenie numerów w tej linii jest tym, co utrzymuje
+**ciągłość numeracji**: `SPEC_DZIENNIK.md` zabrania użycia numeru ponownie, a numer zarchiwizowany
+musi zostać widoczny w żywym pliku, żeby nikt go nie odzyskał w dobrej wierze.
+
 ## Suma kontrolna — jak liczona
 
 SHA-256 z treści **znormalizowanej do końców linii LF** (L-0033), pierwsze 16 znaków hex. Node bez
@@ -125,13 +153,15 @@ inaczej porównanie faz nic nie dowodzi.
 
 ## Wybór treści — co wolno przenieść
 
-Zasada wspólna: **zakres jest ciągły i liczony od najstarszej pozycji**. Pierwsza pozycja
-nietykalna **przerywa** ciąg — nie przeskakujesz jej, żeby zabrać kolejną. Archiwum ma być
-nieprzerwanym kawałkiem historii, a nie sitem.
+Zasada wspólna dla **dziennika i lekcji**: **zakres jest ciągły i liczony od najstarszej pozycji**.
+Pierwsza pozycja nietykalna **przerywa** ciąg — nie przeskakujesz jej, żeby zabrać kolejną.
+Archiwum ma być nieprzerwanym kawałkiem historii, a nie sitem. **Ryzyka są jedynym wyjątkiem** —
+tam kryterium jest status, nie wiek; patrz podsekcja „Ryzyka".
 
 **Dziennik** — nietykalne są:
 
-- sekcja **„Stan otwartych ryzyk"** (nigdy nie opuszcza żywego pliku — nie jest wpisem),
+- sekcja **„Stan otwartych ryzyk"** (nie jest wpisem, więc do archiwum dziennika nie trafia nigdy;
+  ma własną drogę opisaną niżej),
 - sekcja **„Czeka na człowieka"** (od 1.6.0 — tak samo nie jest wpisem i nie rotuje),
 - **dziesięć najnowszych wpisów** `SZACUNEK`,
 - **każdy wpis, do którego prowadzi link z otwartej pozycji sekcji „Czeka na człowieka"** —
@@ -192,6 +222,34 @@ Ile zabrać: najstarsze pozycje po kolei, aż żywy plik zejdzie **poniżej 60% 
 samego progu, bo rotacja wywoływana przy każdym zamknięciu sesji byłaby wtedy zjawiskiem
 codziennym. Ciąg kończy się wcześniej, gdy trafi na pozycję nietykalną.
 
+### Ryzyka (od 1.6.0)
+
+**Co schodzi:** wiersze tabeli „Stan otwartych ryzyk" ze statusem `ZAMKNIĘTE` — **wszystkie naraz**,
+bez względu na datę zamknięcia i bez względu na to, czy tworzą ciągły zakres numerów. Ryzyko
+zamknięte przestało być ryzykiem; trzyma je w tabeli wyłącznie D-18, a archiwum spełnia D-18 lepiej
+niż wiersz czytany przy każdym starcie.
+
+**Co jest nietykalne:**
+
+- każde ryzyko o statusie **innym niż `ZAMKNIĘTE`** — otwarte, zmitygowane, przyjęte świadomie,
+  zawężone. Zamknięcie poznajesz po statusie zaczynającym się od `ZAMKNIĘTE` (EN: `CLOSED`);
+  status spoza tej listy znaczy „zostaje" i mechanizm nie zgaduje intencji (L-0025). Zmierzone
+  2026-08-21 na trzech projektach `FAKT`: w użyciu jest jedenaście różnych brzmień statusu, w tym
+  `ZMITYGOWANE`, `PRZYJĘTE ŚWIADOMIE`, `ZAWĘŻONE` i `ZMATERIALIZOWAŁO SIĘ` — żadne z nich nie
+  znaczy „zamknięte",
+- **nagłówek i wiersz nagłówkowy tabeli** — sekcja nigdy nie znika, także wtedy, gdy po rotacji
+  zostaje pusta. Tabela bez wierszy z linią-odsyłaczem pod spodem jest informacją; brak sekcji
+  zmuszałby kolejną sesję do zgadywania.
+
+**Kiedy w ogóle bierzesz się za ryzyka:** gdy pozycja `ryzyka` przekracza swój **próg cząstkowy**
+z wiersza `Budżet startu sesji` (domyślnie 12 KB) **i** w tabeli jest choć jedno ryzyko
+`ZAMKNIĘTE`. Próg cząstkowy mówi **czy jest co brać**, nie **kiedy się odezwać** — wyzwalaczem
+pozostają dwa wejścia rotacji opisane wyżej, a rotacja ryzyk nie dokłada ani jednego komunikatu
+(L-0036, L-0049). Poniżej progu cząstkowego nie rotujesz ryzyk, nawet gdy dziennik właśnie rotował.
+
+**Ile zabrać:** wszystkie zamknięte, jednym przebiegiem. Reguła „poniżej 60% progu" **nie
+obowiązuje** — zbiór jest wyznaczony statusem, a nie objętością, więc nie ma czego dozować.
+
 ## Przebieg — dwie fazy, w tej kolejności
 
 **Faza 1 — kopia i dowód:**
@@ -212,6 +270,12 @@ codziennym. Ciąg kończy się wcześniej, gdy trafi na pozycję nietykalną.
 
 Przerwanie między fazami zostawia oryginał kompletny — to jest cały powód, dla którego kolejność
 jest taka, a nie odwrotna.
+
+**Ryzyka przechodzą dokładnie tę samą procedurę** — drugiej nie piszesz. „Fragment" znaczy tam
+zbiór wybranych wierszy tabeli, sklejony w kolejności, w jakiej stoją w żywym pliku, po jednym
+wierszu na linię. Ta sama kolejność obowiązuje po stronie archiwum, inaczej porównanie sum nic nie
+dowodzi. Rotacja dziennika i rotacja ryzyk w jednej sesji to **dwa niezależne przebiegi** z dwiema
+sumami kontrolnymi — nie mieszasz ich treści w jednym pliku archiwum.
 
 ## STATE — inny tryb, bez archiwum
 
@@ -237,13 +301,24 @@ a nie porządkowaniem.
 | Rotacja przerwana między fazą 1 a 2 | Oryginał nietknięty; osierocony plik archiwum **nadpisujesz** przy następnej rotacji tego samego zakresu. Nie tworzysz drugiego pliku o tej samej nazwie z sufiksem |
 | Plik archiwum o tej nazwie już istnieje, a zakres jest **inny** | Nazwa kolizyjna znaczy, że coś poszło nie tak z wyznaczeniem zakresu → **STOP**, żywy plik nietknięty, pytanie do człowieka |
 | Wpis dziennika bez daty w nagłówku (dokument sprzed RelAI, po adopcji) | Nie podlega rotacji — zakres nazwy pliku musi wynikać z dat, a nie ze zgadywania (L-0025) |
+| Pozycja `ryzyka` ponad progiem, ale **żadne** ryzyko nie jest zamknięte | Nie rotujesz ryzyk. Pozycja jest gruba przez ryzyka żywe, a te zostają — **mówisz o tym jednym zdaniem**, bo to jest przypadek „budżet pęka przez pozycję, której nie da się skrócić" (sekcja 8 planu): decyzja o podniesieniu progu należy do człowieka |
+| Wszystkie ryzyka zamknięte — tabela po rotacji byłaby pusta | Rotujesz normalnie. Zostaje nagłówek sekcji, wiersz nagłówkowy tabeli i linia-odsyłacz pod nią; pustej sekcji nie kasujesz i nie zastępujesz zdaniem „brak ryzyk" |
+| Ryzyko zamknięte, do którego prowadzi link z otwartej pozycji „Czeka na człowieka" | Schodzi do archiwum jak każde inne. Blokada z sekcji „Czeka na człowieka" dotyczy **wpisów**, nie wierszy tabeli — sprawa człowieka nie znika, bo jej własna pozycja zostaje w żywym pliku |
+| Ryzyko zamknięte i **ponownie otwarte** (status wrócił do `OTWARTE`) | Zostaje w żywej tabeli; kryterium czyta się ze stanu na dziś, nie z historii statusów. Jeśli zdążyło już zejść do archiwum, wraca jako **nowy numer** z odsyłaczem do archiwum w komórce „Mitygacja" — numeru nie odzyskujesz |
 | Projekt bez `docs/archiwum/` | Katalog powstaje w fazie 1, razem z pierwszym plikiem — nie na zapas (D-11) |
 
 ## Zakazy
 
 - Nie streszczasz, nie skracasz i nie poprawiasz przenoszonej treści — kopia jest bajt w bajt.
+  Dotyczy też wiersza ryzyka: do archiwum idzie **dzisiejsza** treść komórki „Mitygacja", nawet gdy
+  wydaje się za długa. Skracanie jest osobną operacją i robi się je **przed** rotacją, w żywym
+  pliku (`SPEC_DZIENNIK.md`), nigdy po drodze do archiwum.
 - Nie kasujesz niczego przed weryfikacją sum kontrolnych (faza 2 nie rusza bez fazy 1).
-- Nie archiwizujesz sekcji „Stan otwartych ryzyk", „Czeka na człowieka" ani „Zasady aktywne".
+- Nie archiwizujesz sekcji „Czeka na człowieka" ani „Zasady aktywne"; z sekcji „Stan otwartych
+  ryzyk" schodzą **wyłącznie wiersze ryzyk `ZAMKNIĘTE`** — nigdy nagłówek, nigdy cała sekcja,
+  nigdy ryzyko o innym statusie.
+- Nie zmieniasz numeru ryzyka przy przenoszeniu i nie odzyskujesz numeru zwolnionego przez
+  archiwizację — numeracja jest ciągła i nigdy nie wraca (`SPEC_DZIENNIK.md`).
 - Nie przenosisz wpisu, do którego prowadzi link z **otwartej** pozycji sekcji „Czeka na człowieka".
 - Nie wyprowadzasz pozycji „przy okazji" rotacji — wyprowadzenie jest osobną, opisaną procedurą
   z liczeniem przed i po (skill `relai-core`), a rotacja tylko czyta jej wynik.
@@ -339,3 +414,44 @@ lekcji **nadal obowiązują** — żyją w sekcji „Zasady aktywne" pliku `docs
 - **Zasada:** tabela tylko od trzech kolumn wzwyż; dwie kolumny to lista.
 - **Źródło:** „ta tabela nic nie wnosi, wypisz to punktami".
 ```
+
+## Przykład — plik archiwum ryzyk
+
+```markdown
+# ARCHIWUM RYZYK — Parkly · 2026-08-21
+
+Zarchiwizowano: 2026-08-21 · Źródło: `docs/DZIENNIK.md`, sekcja „Stan otwartych ryzyk" · Ryzyk: 3
+(R2, R4, R5) · Suma kontrolna przeniesionej treści: `3fa9c0d271b6e845` (SHA-256, pierwsze 16
+znaków, końce linii LF)
+
+Treść poniżej jest kopią **bajt w bajt** wierszy usuniętych z żywej tabeli ryzyk — nic nie zostało
+streszczone ani zmienione (D-18). Numery R2, R4 i R5 pozostają zajęte na zawsze: numeracja ryzyk
+jest ciągła i archiwizacja jej nie zwalnia.
+
+---
+
+| # | Ryzyko | Poziom | Status | Mitygacja |
+|---|---|---|---|---|
+| R2 | Brak testów listy oczekujących | średni | ZAMKNIĘTE 2026-08-05 | Testy dopisane, pokrycie modułu 71%. Zmierzone: 2026-08-05 (E2) |
+| R4 | Podwójna rezerwacja tego samego miejsca | wysoki | ZAMKNIĘTE 2026-08-07 | Ograniczenie unikalności w bazie; próba 200 równoległych rezerwacji dała zero duplikatów. Zmierzone: 2026-08-07 (E4) |
+| R5 | Mail potwierdzający nie dochodzi przez filtr antyspamowy | niski | ZAMKNIĘTE 2026-08-11 | Nadawca na własnej domenie z SPF i DKIM; 30 wysyłek testowych, wszystkie w skrzynce odbiorczej. Zmierzone: 2026-08-11 (E6) |
+```
+
+Żywa sekcja „Stan otwartych ryzyk" po tej rotacji wygląda tak — nagłówek i wiersz nagłówkowy
+zostają zawsze, także gdyby tabela była pusta:
+
+```markdown
+## Stan otwartych ryzyk
+
+| # | Ryzyko | Poziom | Status | Mitygacja |
+|---|---|---|---|---|
+| R1 | Dostawca płatności niewybrany — blokuje wdrożenie | wysoki | OTWARTE | Wariant awaryjny działa: faktury ręcznie przez księgowość. Otwarte, bo decyzja należy do Łukasza i nie ma terminu. Zmierzone: 2026-08-05 (E2) |
+| R3 | Kolejka oczekujących gubi zgłoszenia przy równoległym zwolnieniu | średni | ZMITYGOWANE 2026-08-07 | Blokada na poziomie bazy; 200 zgłoszeń bez zgubionego. Nie zamknięte, bo zachowania przy ponad 1000 osób w kolejce nikt nie mierzył. Zmierzone: 2026-08-07 (E4) |
+
+> Ryzyka zamknięte R2, R4, R5 (3 pozycje) są w
+> [docs/archiwum/ryzyka/RYZYKA_2026-08-21.md](archiwum/ryzyka/RYZYKA_2026-08-21.md)
+> — przeniesione 2026-08-21, suma kontrolna `3fa9c0d271b6e845`.
+```
+
+W przykładzie widać obie reguły naraz: `ZMITYGOWANE` **nie** jest zamknięciem, więc R3 zostaje,
+a numery R2, R4 i R5 są dalej widoczne w żywym pliku — nikt ich nie odzyska w dobrej wierze.

@@ -9,7 +9,9 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
    zmyślać" wraz z formą zapisu luki. (L-0001, L-0011, L-0026)
 2. **W dokumencie użytkownika stoi tylko to, co działa i co zmierzyłeś** — fraza wchodzi do
    `KOMENDY.md` w wersji, w której realnie działa, a forma wywołania jest tą, którą uruchomiłeś
-   dosłownie. (L-0002, L-0022)
+   dosłownie. Komendę wklejaną do dokumentu odpalasz z tej samej powłoki, którą zobaczy czytelnik:
+   znak interpretowany przez powłokę zapisujesz tak, żeby nie musiała go tknąć. (L-0002, L-0022,
+   L-0059)
 3. **Test „czegoś nie wolno" wymaga dowodu negatywnego:** pokaż, że chroniony fragment ma nadal
    pierwotne brzmienie, nie tylko że nowy wpis powstał. (L-0007)
 4. **Dowodzisz efektem, nie zdarzeniem:** stanem pliku, sumą kontrolną, treścią odpowiedzi.
@@ -21,8 +23,10 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
    w `node -e`; scenariusz „konfiguracji nie ma" mierz z podstawionym katalogiem domowym; dokładaj
    przypadek, który **musi** trafić. Zero trafień przy niepustych zbiorach to defekt instrumentu,
    dopóki nie udowodnisz inaczej — porównanie identyfikatora wygenerowanego z zastanym ma obok
-   siebie kontrolę „ile zastanych nie znalazło pary". Wyczerpany limit konta zatrzymuje pomiar
-   i idzie do odnogi, nie do adnotacji „sprawdzone inaczej". (L-0032, L-0037, L-0054, L-0055)
+   siebie kontrolę „ile zastanych nie znalazło pary". Dzieląc wiersz po separatorze, który da się
+   wyescapować, dziel po separatorze **niepoprzedzonym znakiem ucieczki** i sprawdzaj liczbę pól po
+   podmianie. Wyczerpany limit konta zatrzymuje pomiar i idzie do odnogi, nie do adnotacji
+   „sprawdzone inaczej". (L-0032, L-0037, L-0054, L-0055, L-0056)
 6. **Próg jest liczbą, którą ktoś liczy:** kalibruj go na zmierzonych plikach realnych projektów,
    zapisuj w jednostce mechanizmu kontrolnego wraz z komendą sprawdzającą i daj mu **jeden**
    wyzwalacz — wielkości pomocnicze wskazują przyczynę wewnątrz komunikatu, nie wywołują go.
@@ -40,9 +44,12 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
 10. **Wersję pluginu potwierdzasz plikiem instalacji, nie komunikatem CLI**, zachowania mierzysz
     świeżą sesją, a po podbiciu numeru przepuszczasz repo `grep`-em po starym i rozstrzygasz każde
     trafienie. (L-0004, L-0008, L-0020)
-11. **Sumy kontrolne porównuj po normalizacji CRLF → LF**, a przeniesienie katalogu wskazywanego
-    przez cudzy manifest sprawdzaj najpierw **na kopii**, walidatorem tego manifestu. (L-0033,
-    L-0038)
+11. **Końce linii są wariantem, nie szczegółem.** Sumy kontrolne porównuj po normalizacji
+    CRLF → LF; w regexie nad pojedynczą linią nie zakotwiczaj końca, bo kropka nie obejmuje `\r`
+    i wzorzec przestaje trafiać na repozytorium z `core.autocrlf=true`; mechanizm czytający
+    strukturę pliku sprawdzaj na **obu** wariantach w jednym przebiegu. Przeniesienie katalogu
+    wskazywanego przez cudzy manifest sprawdzaj najpierw **na kopii**, walidatorem tego manifestu.
+    (L-0033, L-0038, L-0057)
 12. **Guardrail zatrzymujący treść, która sekretem nie jest, to defekt rdzenia** — poprawka wraca
     z dowodem, nigdy jako obejście. Wołaj go przez opakowanie powłoki, żeby brak interpretera
     zamieniał się w blokadę, a nie w ciszę; próbki sekretów składaj w czasie wykonania. (L-0043,
@@ -54,7 +61,8 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
 14. **Najpierw zmiana w repozytorium, potem zdanie, które ją opisuje.** Weryfikację planuj tam,
     gdzie jest wykonalna; po pytaniu sprzątasz sam (martwy link nie jest poprawną wartością
     tymczasową); przy wyprowadzaniu pozycji jednostką inwentarza jest **sprawa**, nie linia.
-    (L-0005, L-0013, L-0014, L-0050)
+    Wstawkę kotwicz do elementu, który przeżyje operację, i dowódź **obecności** nowej treści —
+    „nic nie zginęło" nie znaczy „wszystko powstało". (L-0005, L-0013, L-0014, L-0050, L-0058)
 15. **Pytasz raz na projekt, komponent opcjonalny znika bez śladu, komunikaty hooków są ASCII.**
     Przy zadaniu wizualnym zbierasz najpierw cechy pozytywne i pokazujesz jeden wariant do
     kalibracji. Ostrzeżenie `claude plugin validate` o root `CLAUDE.md` jest świadomym skutkiem
@@ -87,6 +95,65 @@ restart aplikacji po `plugin update` (L-0031), `git worktree` zamiast `git archi
   jakąkolwiek zmianą. Zero par przy niepustych zbiorach traktuj jako defekt instrumentu, dopóki nie
   udowodnisz, że jest inaczej.
 - **Źródło:** pierwsza rotacja dziennika w tym repozytorium (2026-08-20), po zamknięciu E3.
+
+### L-0056 — Separator, który da się wyescapować, dzieli wiersz na więcej pól, niż widzisz · 2026-08-21 · AKTYWNA
+
+- **Trigger:** skrypt podmieniający komórkę „Mitygacja" w tabeli ryzyk rozbijał wiersz przez
+  `split('|')`. Komórka ryzyka P1 zawierała w środku `allow \| deny`, więc rozpadła się na trzy
+  pola: podmieniony został pierwszy kawałek, a dwa pozostałe zostały w wierszu jako resztka starej
+  treści. Ten sam defekt miał instrument pomiarowy — meldował komórkę P1 jako **632 znaki**, czyli
+  długość pierwszego kawałka, wartość mieszczącą się w limicie.
+- **Przyczyna:** escapowany separator jest legalną treścią komórki w Markdownie, a naiwny podział
+  nie odróżnia go od separatora. Pomiar zaniżony wygląda przy tym na wynik zdany, więc defekt nie
+  zgłasza się sam.
+- **Zasada:** dzieląc wiersz po separatorze, który w danym formacie da się wyescapować, dziel po
+  separatorze **niepoprzedzonym znakiem ucieczki** i dokładaj przypadek testowy z escapowanym
+  separatorem w środku pola. Po podmianie sprawdź **liczbę pól** w zmienionym wierszu — zgodna
+  liczba kolumn jest tańszym dowodem niż oglądanie treści.
+- **Źródło:** dogfooding E4 planu OPTYMALIZACJA_KONTEKSTU (2026-08-21).
+
+### L-0057 — Kotwica końca linii w regexie nagłówka wycisza mechanizm przy CRLF · 2026-08-21 · AKTYWNA
+
+- **Trigger:** pomiar warstwy startowej na kopii repozytorium z `git worktree` pokazał **213,8 KB**
+  zamiast 55,7 KB, bo dwie pozycje zmierzono jako całe pliki. Przyczyną był wzorzec
+  `/^(#{1,6})\s+(.*)$/`: kropka w JavaScripcie nie obejmuje `\r`, więc przy końcach linii CRLF
+  kotwica `$` nie dopasowuje **żadnego** nagłówka. Wzorzec wykrywający **koniec** sekcji `$` nie
+  miał — działał normalnie, więc mechanizm nie padł, tylko po cichu zdegradował.
+- **Przyczyna:** repozytorium klonowane na Windowsie z domyślnym `core.autocrlf=true` ma CRLF,
+  a katalog roboczy autora miał LF. Defekt był niewidoczny dokładnie tam, gdzie go pisano.
+- **Zasada:** w regexie nad pojedynczą linią **nie zakotwiczaj końca**, jeśli linie mogą nieść `\r`
+  — albo normalizuj końce linii przy wczytaniu. Mechanizm czytający strukturę pliku sprawdzaj na
+  **obu** wariantach końca linii w jednym przebiegu; wariant CRLF nie jest przypadkiem
+  egzotycznym, tylko domyślnym na Windowsie.
+- **Źródło:** E4 planu OPTYMALIZACJA_KONTEKSTU (2026-08-21) — defekt znaleziony przy pomiarze
+  przed/po, naprawiony w `core/process/session-signals.js` za zgodą użytkownika.
+
+### L-0058 — Kotwica wstawki nie może być elementem usuwanym w tej samej pętli · 2026-08-21 · AKTYWNA
+
+- **Trigger:** faza 2 rotacji ryzyk miała usunąć sześć wierszy i wstawić pod tabelą linię-odsyłacz.
+  Wiersze zniknęły, linia nie powstała: punktem zaczepienia wstawki był **ostatni wiersz tabeli**,
+  a ten akurat należał do usuwanych, więc `continue` pominął go razem ze wstawieniem.
+- **Przyczyna:** dwie operacje na tej samej liście — usuwanie i wstawianie — dzieliły jeden
+  przebieg i jeden warunek. Suma kontrolna przeniesionej treści była przy tym zgodna, bo dotyczyła
+  wyłącznie tego, co wyszło; o tym, co miało zostać, nie mówiła nic.
+- **Zasada:** wstawkę kotwicz do elementu, który **na pewno przeżyje** operację (nagłówek sekcji,
+  granica bloku), albo wykonaj wstawianie osobnym przebiegiem po usuwaniu. W weryfikacji dołóż
+  punkt na **obecność** nowej treści — dowód „nic nie zginęło" nie jest dowodem „wszystko powstało".
+- **Źródło:** dogfooding E4 planu OPTYMALIZACJA_KONTEKSTU (2026-08-21), wyłapane punktem
+  weryfikacji o numerach w linii-odsyłaczu.
+
+### L-0059 — Komenda w dokumencie musi przeżyć wklejenie do powłoki · 2026-08-21 · AKTYWNA
+
+- **Trigger:** komenda sprawdzająca limit komórki, wpisana do `SPEC_DZIENNIK.md` z wyrażeniem
+  `/(?<!\\)\|/`, wywaliła się przy pierwszym uruchomieniu: `SyntaxError: Invalid regular
+  expression: /(?<!\)\|/: Unterminated group`. Powłoka zjadła podwójny backslash wewnątrz
+  cudzysłowu, zanim Node zobaczył wzorzec.
+- **Przyczyna:** wzorzec był poprawny jako **kod**, a niepoprawny jako **argument komendy**. Autor
+  sprawdził go w pliku skryptu, gdzie żadna powłoka go nie dotyka.
+- **Zasada:** komendę wklejaną do dokumentu uruchamiasz **dokładnie w tej formie**, w jakiej ma
+  tam stanąć — z tej samej powłoki, którą zobaczy czytelnik. Znak, który powłoka interpretuje,
+  zapisuj tak, by nie musiała: `[\x5c]` zamiast backslasha, klasa znaków zamiast escapowania.
+- **Źródło:** E4 planu OPTYMALIZACJA_KONTEKSTU (2026-08-21); rozwinięcie L-0002.
 
 ## Lekcje zwinięte
 

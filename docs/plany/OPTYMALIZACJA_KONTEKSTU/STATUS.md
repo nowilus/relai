@@ -10,8 +10,8 @@ Model wykonawczy etapów: Opus (z ustawień projektu; architektura i plany: Fabl
 | E1 | Miara startu i budżet | **ZREALIZOWANY 2026-08-20** | [PROMPT_ETAP_1.md](PROMPT_ETAP_1.md) | pomiar w `core/process/session-signals.js`, wpięcie w hook `session-context` obu adapterów; przy okazji naprawiona `liniaAktywnegoPlanu` (L-0048) |
 | E2 | Rozbrojenie rotacji | **ZREALIZOWANY 2026-08-20** | [PROMPT_ETAP_2.md](PROMPT_ETAP_2.md) | sekcja „Czeka na człowieka" w dzienniku i w specyfikacji, blokada liczona tylko z niej, drugie wejście rotacji na starcie; dogfooding: 41 otwartych linii → 9 spraw |
 | E3 | STATE i CLAUDE pod budżetem | **ZREALIZOWANY 2026-08-20** | [PROMPT_ETAP_3.md](PROMPT_ETAP_3.md) | trzy pozycje w „Nad czym pracujemy teraz", limit `CLAUDE.md` w KB, zakaz treści odtwarzalnej, `SPEC_PULAPKI` + `docs/PULAPKI.md`, jeden adres egzekwowania limitu zasad; 73,4 → 63,8 KB |
-| E4 | Ryzyka, ustawienia, status planu | **GOTOWY DO STARTU** | [PROMPT_ETAP_4.md](PROMPT_ETAP_4.md) | stan bieżący zamiast historii; po tym etapie wydanie 1.6.0 |
-| E5 | Migracja JiraManagera i PolyFlow | OCZEKUJE | — | backup bramką, jeden projekt na sesję, pomiar przed i po, zamknięcie R5 |
+| E4 | Ryzyka, ustawienia, status planu | **ZREALIZOWANY 2026-08-21** | [PROMPT_ETAP_4.md](PROMPT_ETAP_4.md) | ryzyka 28,5 → 10,5 KB; przy okazji naprawiony defekt CRLF w pomiarze (zgoda na rozszerzenie zakresu) |
+| E5 | Migracja JiraManagera i PolyFlow | **GOTOWY DO STARTU** | [PROMPT_ETAP_5.md](PROMPT_ETAP_5.md) | backup bramką, jeden projekt na sesję, pomiar przed i po, zamknięcie R5 |
 
 ## Bramki manualne
 
@@ -24,9 +24,13 @@ Model wykonawczy etapów: Opus (z ustawień projektu; architektura i plany: Fabl
   źródło: rozmowa przy starcie E1, 2026-08-20 · **OTWARTA** — jedyny niezamknięty etap tamtego planu
   to E7; formalne zamrożenie albo jego brak zmienia to, co widzi start sesji
 - **Okno na migrację JiraManagera i PolyFlow (oba projekty bez etapu w toku)** · źródło: sekcja 9
-  planu; równoległa bramka planu ROZWOJ_PO_WYDANIU · **OTWARTA**
+  planu; równoległa bramka planu ROZWOJ_PO_WYDANIU · **OTWARTA — częściowo rozpoznana 2026-08-21:**
+  PolyFlow nie ma katalogu `docs/plany`, więc żaden etap tam nie trwa i projekt jest gotowy;
+  JiraManager ma etap **E16-1 planu PANEL_WTYCZKI w statusie `W TOKU`**, więc jego migracja czeka
+  na zamknięcie tamtego etapu (sekcja 8 planu)
 - **Sekwencja wydania 1.6.0: push → `plugin marketplace update` → `plugin update` → restart** ·
-  źródło: sekcja 9 planu · **OTWARTA**
+  źródło: sekcja 9 planu · **OTWARTA — od 2026-08-21 jest warunkiem startu E5:** migracja przechodzi
+  przez `/relai-update` właśnie na tę wersję, a wersja 1.6.0 niesie też naprawę pomiaru przy CRLF
 - **Decyzja o progu 30 KB na sekcję „Zasady aktywne" po pomiarze z E5** · źródło: sekcja 9 planu ·
   **OTWARTA**
 - **Weryfikacja siedmiu rozstrzygnięć wpisanych w E2 do zastanych pozycji dziennika** (każde
@@ -39,25 +43,12 @@ Model wykonawczy etapów: Opus (z ustawień projektu; architektura i plany: Fabl
 
 ## Dziennik wdrożenia
 
-- 2026-08-20 — plan utworzony po pomiarze warstwy startowej w trzech projektach (JiraManager 386 KB,
-  PolyFlow 155 KB, RelAI 90 KB) i dwóch rundach wywiadu; przekazany do akceptacji.
-- 2026-08-20 — plan **ZAAKCEPTOWANY** bez poprawek (brak aneksu). Sekcje 1–9 zamrożone.
-  Wygenerowano PROMPT_ETAP_1; E1 ustawiony jako GOTOWY DO STARTU.
-- 2026-08-20 — E1 rozpoczęty.
-- 2026-08-20 — E1 **ZREALIZOWANY**: `startCost` i `startCostReport` w rdzeniu, oba hooki wołają tę
-  samą funkcję, wiersz `Budżet startu sesji` w specyfikacji i w projekcie. Warstwa startowa RelAI:
-  57,9 KB / 80 KB. Naprawiona `liniaAktywnegoPlanu` — siatka D-34 i detektor rozjazdu przestały
-  milczeć bez powodu. E2 gotowy do startu.
-- 2026-08-20 — E2 rozpoczęty.
-- 2026-08-20 — E2 **ZREALIZOWANY**: blokada rotacji przeniesiona do sekcji „Czeka na człowieka",
-  drugie wejście rotacji na starcie, sprzężenie raportu budżetu z wyłącznikiem rotacji. Zmierzone
-  na projekcie testowym w jednym przebiegu: 0 wpisów pod regułą 1.5.2, 2 wpisy pod 1.6.0. W tym
-  repozytorium 41 otwartych linii → 9 spraw, zero zgubionych. Warstwa startowa: 71,3 KB / 80 KB.
-  Wersja bez zmian (1.5.2). E3 gotowy do startu.
-- 2026-08-20 — E3 rozpoczęty.
-- 2026-08-20 — E3 **ZREALIZOWANY**: twardy kształt `SPEC_STATE` (trzy pozycje, podmiana zamiast
-  dopisywania, próg zwięzłości jako liczba), `SPEC_CLAUDE_MD` na 10 KB z zakazem treści
-  odtwarzalnej, nowa `SPEC_PULAPKI` i `docs/PULAPKI.md` (6 pułapek wyprowadzonych z „Zasad
-  aktywnych"), jeden adres egzekwowania limitu zasad w rytuale zamknięcia sesji. Warstwa startowa
-  **73,4 → 63,8 KB**; `CLAUDE` 3,1 KB i `STATE` 9,3 KB — obie pod własnym progiem. Wersja bez zmian
-  (1.5.2). E4 gotowy do startu.
+- 2026-08-20 — plan utworzony po pomiarze warstwy startowej w trzech projektach; do akceptacji.
+- 2026-08-20 — plan **ZAAKCEPTOWANY** bez poprawek; sekcje 1–9 zamrożone, wygenerowano PROMPT_ETAP_1.
+- 2026-08-20 — **E1 ZREALIZOWANY**: pomiar warstwy startowej w rdzeniu i w obu hookach; E2 gotowy.
+- 2026-08-20 — **E2 ZREALIZOWANY**: blokada rotacji przeniesiona do sekcji „Czeka na człowieka",
+  rotacja dostała drugie wejście na starcie sesji; E3 gotowy.
+- 2026-08-20 — **E3 ZREALIZOWANY**: twardy kształt `STATE.md` i `CLAUDE.md`, rejestr pułapek jako
+  osobny dokument; E4 gotowy.
+- 2026-08-21 — **E4 ZREALIZOWANY**: stan bieżący zamiast kroniki w ryzykach, ustawieniach
+  i dzienniku wdrożenia, archiwum ryzyk zamkniętych, wersja 1.6.0; E5 gotowy.

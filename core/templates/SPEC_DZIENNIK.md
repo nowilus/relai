@@ -28,7 +28,9 @@ Agent w kolejnej sesji (główny) oraz zespół.
 2. **Sekcja „Stan otwartych ryzyk"** — stała, zawsze na górze pliku, **nadpisywana** (jeden z dwóch
    nadpisywanych fragmentów dziennika). Tabela: `# | Ryzyko | Poziom | Status | Mitygacja`. Numeracja
    `R1, R2, …` jest ciągła i nigdy nie jest używana ponownie — ryzyko zamknięte zostaje w tabeli ze
-   statusem `ZAMKNIĘTE` i datą. Poziomy: wysoki / średni / niski.
+   statusem `ZAMKNIĘTE` i datą, a przy rotacji schodzi do `docs/archiwum/ryzyka/`
+   (`SPEC_ARCHIWUM.md`). Poziomy: wysoki / średni / niski. Kształt komórki „Mitygacja" opisuje
+   sekcja niżej.
 3. **Sekcja „Czeka na człowieka"** (od 1.6.0) — stała, tuż pod ryzykami, **nadpisywana**. Sekcja
    niżej.
 4. **Sekcja „Wpisy"** — chronologicznie, najstarszy u góry.
@@ -56,8 +58,10 @@ OPTYMALIZACJA_KONTEKSTU, mechanizm 2).
 
 **Zasady sekcji:**
 
-- **Sekcja jest nadpisywana i nigdy nie trafia do archiwum.** Tak jak „Stan otwartych ryzyk", nie
-  jest wpisem i rotacja jej nie dotyka (`SPEC_ARCHIWUM.md`).
+- **Sekcja jest nadpisywana i nigdy nie trafia do archiwum.** Nie jest wpisem, więc rotacja
+  dziennika jej nie dotyka, i — inaczej niż tabela ryzyk — nie ma też własnej drogi do archiwum:
+  sprawa człowieka albo jest otwarta i stoi tutaj, albo została rozstrzygnięta i znika
+  (`SPEC_ARCHIWUM.md`).
 - **Trzyma wyłącznie sprawy otwarte.** Pozycja rozstrzygnięta **znika z sekcji w tej samej turze**,
   a jej rozstrzygnięcie — data i treść decyzji — zapisuje wpis dziennika tej sesji oraz adnotacja
   przy pozycji we wpisie źródłowym. Gdyby rozstrzygnięte pozycje zostawały, sekcja po pół roku
@@ -72,6 +76,69 @@ OPTYMALIZACJA_KONTEKSTU, mechanizm 2).
 
 **Skąd biorą się pozycje:** z sekcji „Do zrobienia przez człowieka" wpisów. Procedura zebrania
 zastanych pozycji przy przejściu projektu na 1.6.0 mieszka w skillu `relai-core`.
+
+## Komórka „Mitygacja" — stan bieżący, nie kronika (od 1.6.0)
+
+Komórka mówi, **jak z tym ryzykiem jest dzisiaj** i **skąd to wiadomo**. Nie jest zapisem przebiegu
+prac nad ryzykiem — od przebiegu są wpisy, do których prowadzą odsyłacze.
+
+Powód jest mierzalny. Do 1.5.2 komórka rosła o akapit „**data (etap):** …" przy każdym pomiarze,
+bo dopisanie było zawsze łatwiejsze niż przepisanie. Zmierzone 2026-08-21 na trzech projektach
+`FAKT`: 85 komórek, w tym pojedyncze na **5586**, **2576** i **1881** znaków; w tym repozytorium
+suma samych komórek „Mitygacja" dawała 17,9 KB z 21,4 KB całej sekcji. Sekcja ryzyk jest czytana
+przy **każdym** starcie sesji, więc płaci się za nią w każdej sesji — a osiem historycznych
+pomiarów tego samego ryzyka nie mówi nic ponad to, co mówi ostatni.
+
+**Kształt komórki — dwa człony, w tej kolejności:**
+
+1. **Stan na dziś** — co dziś trzyma to ryzyko w ryzach albo dlaczego nadal jest otwarte. Czas
+   teraźniejszy. Jeśli poziom się zmienił, to zdanie mówi, co go zmieniło.
+2. **Odsyłacze do wpisów, które ten stan zmierzyły** — **data i etap, bez linku**:
+
+   ```
+   Zmierzone: 2026-08-12 (E4), 2026-08-17 (E6)
+   ```
+
+   Link markdownowy jest tu świadomie odrzucony. Kotwica polskiego nagłówka waży ponad 100 znaków
+   — kilkanaście procent limitu komórki — a wpisy stoją chronologicznie, więc data prowadzi do
+   wpisu równie pewnie i przeżywa zmianę tytułu (L-0013). Sekcja „Czeka na człowieka" linkuje,
+   bo tam pozycji jest kilka i są czytane pojedynczo; tu odsyłaczy bywa osiem w jednej komórce.
+
+**Limit: 800 znaków na komórkę** — skalibrowany 2026-08-21 na zmierzonych dziennikach trzech
+projektów `FAKT` (RelAI 10 ryzyk, JiraManager 23, PolyFlow 52). Mediana komórki w projektach bez
+narracji przyrostowej mieści się w 700 znakach, więc limit nie tnie treści potrzebnej — przekraczają
+go wyłącznie komórki z kroniką. Jednostką są **znaki**, bo w znakach liczy je komenda niżej; próg
+całej pozycji w warstwie startowej jest osobny i wyrażony w KB (`SPEC_USTAWIENIA.md`, wiersz
+`Budżet startu sesji`).
+
+Sprawdzasz komendą, nie okiem:
+
+```
+node -e "const fs=require('fs');let n=0;for(const l of fs.readFileSync('docs/DZIENNIK.md','utf8').split(/\r?\n/)){if(!l.trim().startsWith('|'))continue;const c=l.split(/(?<![\x5c])[|]/);if(c.length<7)continue;const m=c[5].trim();if(m.length>800){n++;console.log(c[1].trim(),m.length)}}console.log(n+' komorek ponad limitem 800')"
+```
+
+Dwie rzeczy w tej komendzie wyglądają na ozdobniki i nią nie są:
+
+- **Podział po `|` niepoprzedzonym backslashem.** Komórka z `allow \| deny` w środku rozpada się
+  przy naiwnym `split('|')` na kilka kolumn, a instrument melduje wtedy długość pierwszego kawałka
+  zamiast całej komórki — wartość zaniżoną, wyglądającą na zdaną (L-0055).
+- **`[\x5c]` zamiast wpisanego backslasha.** Powłoka zjada `\\` wewnątrz cudzysłowu, więc wersja
+  „ładniejsza" wywala się po wklejeniu na `Invalid regular expression`. Ta forma jest tą, którą
+  realnie uruchomiono.
+
+**Co zrobić z narracją, która już tam stoi.** Nie kasujesz jej (D-18) — **przenosisz**. Każdy człon
+„**data (etap):** …" opisuje pomiar, który ma swój wpis w dzienniku; treść komórki wraca więc tam,
+skąd przyszła, a w komórce zostaje odsyłacz. Kolejność jest jedna i nienegocjowalna:
+
+1. Sprawdź, czy wpis z tej daty **istnieje** i czy niesie ten fakt. Niesie → wystarczy odsyłacz.
+2. **Nie niesie** — fakt istnieje wyłącznie w komórce → przepisz go do **wpisu dziennika tej
+   sesji**, zanim skrócisz komórkę. To ten sam bezpiecznik co przy skracaniu `STATE.md`
+   (`SPEC_STATE.md`): fakt bez innego domu nie znika.
+3. Dopiero teraz przepisz komórkę na dwa człony.
+
+**Skrócenie, które gubi powód otwartego statusu, jest defektem, nie oszczędnością.** Ryzyko
+`OTWARTE` musi po skróceniu nadal odpowiadać na pytanie „dlaczego jeszcze nie zamknięte" — to jest
+jedyna informacja, której nikt nie odtworzy z wpisów bez ich przeczytania.
 
 ## Szablon wpisu (obowiązkowy, D-14)
 
@@ -191,7 +258,9 @@ opisuje `SPEC_ARCHIWUM.md`; tutaj obowiązuje to, czego rotacja nie ma prawa nar
 
 **Co zostaje w żywym pliku zawsze:**
 
-- sekcja **„Stan otwartych ryzyk"** — nie jest wpisem i nigdy nie trafia do archiwum,
+- sekcja **„Stan otwartych ryzyk"** — nie jest wpisem, więc nie wchodzi do archiwum dziennika.
+  Rotację ma **własną i osobną**: do `docs/archiwum/ryzyka/` schodzą wiersze ryzyk `ZAMKNIĘTE`,
+  nigdy cała sekcja i nigdy ryzyko otwarte (`SPEC_ARCHIWUM.md`),
 - sekcja **„Czeka na człowieka"** — tak samo: nie jest wpisem, nie rotuje,
 - **dziesięć najnowszych wpisów** `SZACUNEK`,
 - **każdy wpis, do którego prowadzi link z otwartej pozycji sekcji „Czeka na człowieka"** —
@@ -228,8 +297,12 @@ autora co przed przeniesieniem.
 
 | # | Ryzyko | Poziom | Status | Mitygacja |
 |---|---|---|---|---|
-| R1 | Dostawca płatności niewybrany — blokuje wdrożenie | wysoki | OTWARTE | decyzja Łukasza do 15.08; wariant awaryjny: faktury ręczne |
-| R2 | Brak testów listy oczekujących | średni | ZAMKNIĘTE 2026-08-05 | testy dopisane, pokrycie 71% |
+| R1 | Dostawca płatności niewybrany — blokuje wdrożenie | wysoki | OTWARTE | Wariant awaryjny działa: faktury wystawiane ręcznie przez księgowość, więc brak dostawcy nie wstrzymuje sprzedaży. Otwarte, bo decyzja należy do Łukasza i nie ma terminu. Zmierzone: 2026-08-05 (E2) |
+| R3 | Kolejka oczekujących gubi zgłoszenia przy równoległym zwolnieniu miejsca | średni | ZAMKNIĘTE 2026-08-07 | Blokada na poziomie bazy; test współbieżności 200 zgłoszeń bez zgubionego. Zmierzone: 2026-08-07 (E4) |
+
+> Ryzyka zamknięte R2 (1 pozycja) są w
+> [docs/archiwum/ryzyka/RYZYKA_2026-08-07.md](archiwum/ryzyka/RYZYKA_2026-08-07.md)
+> — przeniesione 2026-08-07, suma kontrolna `9c4d1a77be230f85`.
 
 ## Czeka na człowieka
 

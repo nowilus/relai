@@ -1,14 +1,14 @@
 # STATE — RelAI
 
-Stan na: 2026-08-20
+Stan na: 2026-08-21
 
 ## Gdzie jesteśmy
 
 RelAI jest wydany (1.5.1) i ma **dwa wyjścia**: Claude Code oraz Cursor — te same dokumenty i ten
 sam proces w dwóch narzędziach. Plan budowy zamknięty, cztery scenariusze akceptacyjne zdane,
-pilotaż Cursora przeszedł na modelu spoza Anthropic. Repozytorium pracuje na 1.5.2 i jest w środku
-planu **OPTYMALIZACJA_KONTEKSTU**: warstwa czytana przy starcie sesji dostaje mierzony budżet, żeby
-wielomiesięczny projekt nie dusił się własną pamięcią.
+pilotaż Cursora przeszedł na modelu spoza Anthropic. Repozytorium pracuje na **1.6.0** i kończy
+plan **OPTYMALIZACJA_KONTEKSTU**: warstwa czytana przy starcie sesji dostała mierzony budżet i zeszła
+tutaj z 90 KB do 39 KB. Został ostatni etap — przeniesienie tego na dwa żywe projekty.
 
 ## Co działa
 
@@ -39,6 +39,15 @@ wielomiesięczny projekt nie dusił się własną pamięcią.
   teraz" z podmianą zamiast dopisywania, próg zwięzłości jako liczba sprawdzalna komendą, budżet
   `CLAUDE.md` w KB i zakaz treści odtwarzalnej z repozytorium. Pułapki narzędziowe mają własny
   dokument [PULAPKI.md](PULAPKI.md), czytany **na żądanie** — poza warstwą startową.
+- **Rejestry mówią, jak jest dziś, a nie jak do tego doszło.** Komórka „Mitygacja" trzyma stan
+  bieżący i odsyłacze do wpisów, które go zmierzyły, z limitem 800 znaków sprawdzalnym komendą;
+  ryzyka zamknięte schodzą do `docs/archiwum/ryzyka/` tą samą procedurą dwufazową co dziennik,
+  a ich numery zostają widoczne w żywej tabeli, żeby żaden nie wrócił. Wiersz ustawień to jedna
+  decyzja, dziennik wdrożenia planu — jedna linia na etap. Zmierzone na tym repozytorium:
+  sekcja ryzyk **21,4 → 3,7 KB**.
+- **Pomiar startu działa też na repozytorium sklonowanym na Windowsie.** Wzorzec szukający sekcji
+  nie trafiał przy końcach linii CRLF i po cichu mierzył całe pliki — na kopii tego repozytorium
+  dawało to 213,8 KB zamiast 55,7 KB. Naprawione i sprawdzone na obu wariantach końca linii.
 - Trzy dokumenty mówiące o tym samym — status etapu, linia aktywnego planu i opis stanu — nie
   rozjeżdżają się po cichu: sesja mówi o rozjeździe na starcie i pyta, który zapis jest prawdziwy.
   Wpis dziennika jest podpisany modelem i użytkownikiem; brakujący człon zostaje wyłapany.
@@ -54,11 +63,11 @@ wielomiesięczny projekt nie dusił się własną pamięcią.
 
 ## Nad czym pracujemy teraz
 
-- **Plan [OPTYMALIZACJA_KONTEKSTU](plany/OPTYMALIZACJA_KONTEKSTU/STATUS.md) — 3 z 5 etapów
-  zamknięte** (E1 miara i budżet, E2 rozbrojenie rotacji, E3 kształt STATE i CLAUDE). Po co: start
-  sesji w JiraManagerze kosztuje 386 KB dokumentów (≈120 tys. tokenów), bo rotacja nigdy nie ruszyła,
-  a limity ze specyfikacji nie były przez nikogo mierzone. Zostają E4 (ryzyka, ustawienia, status
-  planu; po nim wydanie 1.6.0) i E5 (migracja JiraManagera i PolyFlow, zamknięcie ryzyka R5).
+- **Plan [OPTYMALIZACJA_KONTEKSTU](plany/OPTYMALIZACJA_KONTEKSTU/STATUS.md) — 4 z 5 etapów
+  zamknięte, wersja 1.6.0 gotowa do wypuszczenia.** Po co: start sesji w JiraManagerze kosztuje
+  386 KB dokumentów (≈120 tys. tokenów), bo rotacja nigdy nie ruszyła, a limity ze specyfikacji nie
+  były przez nikogo mierzone. Zostaje **E5** — przepuszczenie JiraManagera i PolyFlow przez
+  `/relai-update`, pomiar przed i po, zamknięcie ryzyka R5. E5 jest ostatnim etapem planu.
 - **Plan [ROZWOJ_PO_WYDANIU](plany/ROZWOJ_PO_WYDANIU/STATUS.md) — 6 z 8 etapów zamknięte, E7
   wstrzymany.** Po co stoi: konto Codeksa jest w planie darmowym i nie ma kto przeprowadzić
   pilotażu adaptera. Zaplanowany numer wydania E7 (1.6.0) zostaje w dokumentach bez aneksu — kolizja
@@ -66,11 +75,11 @@ wielomiesięczny projekt nie dusił się własną pamięcią.
 
 ## Co dalej
 
-- Świeża sesja Opus i `/relai-stage` — **E4**: komórka „Mitygacja" jako stan bieżący plus odsyłacz,
-  `docs/archiwum/ryzyka/`, wiersz ustawień jako jedna decyzja, jedna linia na etap w `SPEC_STATUS`,
-  podbicie wersji do 1.6.0.
-- Sekwencja wydania 1.6.0 (push → `plugin marketplace update` → `plugin update` → **restart**), potem
-  E5: przepuścić JiraManagera i PolyFlow przez `/relai-update` i zmierzyć start przed i po.
+- Sekwencja wydania 1.6.0 (push → `plugin marketplace update` → `plugin update` → **restart**) —
+  **warunek startu E5**, bo migracja przechodzi właśnie przez tę wersję.
+- Świeża sesja Opus i `/relai-stage` — **E5**: backup jako bramka, jeden projekt na sesję,
+  `/relai-update` do 1.6.0, pomiar startu przed i po, raport z drogą pełnego powrotu. Po nim
+  zamknięcie planu.
 - Cztery odnogi w świeżych sesjach, w dowolnej kolejności wobec etapów: `OPIS_REPO` (pusty opis
   repozytorium na GitHubie), `POMIAR_ODNOG` (niedomknięte punkty weryfikacji, dziewięć scenariuszy),
   `REKOMENDACJA_MODELU`, `GUARD_PO_SCIEZCE`. Każda ma gotowy prompt; żadna nie blokuje planu.
@@ -96,8 +105,9 @@ wielomiesięczny projekt nie dusił się własną pamięcią.
 - **Adapter Cursora zmierzony w aplikacji, ale nie w całości.** Pilotaż potwierdził reguły, hook
   kontekstu, obie warstwy blokady sekretu i pełne przejście `/relai-stage`. Niezmierzone: hook
   `beforeReadFile`, dostęp poza katalogiem roboczym, osiem pozostałych komend.
-- **Poprawki 1.5.1 i 1.5.2 nie działają nigdzie poza tym repozytorium** do czasu sekwencji wydania;
-  projekty z gitowym pre-commitem wymagają dodatkowo ponownej instalacji hooka.
+- **Poprawki 1.5.1–1.6.0 nie działają nigdzie poza tym repozytorium** do czasu sekwencji wydania —
+  łącznie z naprawą pomiaru przy końcach linii CRLF, która dotyczy każdego projektu sklonowanego
+  na Windowsie. Projekty z gitowym pre-commitem wymagają dodatkowo ponownej instalacji hooka.
 - Repozytorium jest **publiczne**, ale ma pusty opis — odnoga `OPIS_REPO`.
 
 ---
@@ -106,7 +116,7 @@ wielomiesięczny projekt nie dusił się własną pamięcią.
 
 ### Wersja i instalacja
 
-Repozytorium: **1.5.2**. Zainstalowany globalnie (scope `user`) pozostaje **1.1.0** do czasu push →
+Repozytorium: **1.6.0**. Zainstalowany globalnie (scope `user`) pozostaje **1.1.0** do czasu push →
 `plugin update` → **restartu aplikacji** (P-005). Źródło: własny marketplace w tym samym
 repozytorium.
 
@@ -136,13 +146,13 @@ Pułapki: [PULAPKI.md](PULAPKI.md)
 
 ### Liczby
 
-Etapy: BUDOWA_RELAI 10/10 • ROZWOJ_PO_WYDANIU 6/8 (E7 wstrzymany) • OPTYMALIZACJA_KONTEKSTU 3/5 •
-Warstwa startowa RelAI: **55,3 KB / 80 KB** (`CLAUDE` 3,1 KB, `STATE` 9,8 KB, ryzyka 28,4 KB,
-zasady 5,0 KB) • Dziennik: 147,8 KB, lekcje 41,6 KB — oba pod progiem rotacji • Sprawy czekające
-na człowieka: 10 • Zasady aktywne: **15 przy limicie 15** •
-Scenariusze akceptacyjne: 4/4 zdane + pilotaż Cursora • Adaptery: 2 • Modele, na których zmierzono
-proces: 5 (Fable, Opus, Haiku, Composer/auto, Grok 4.6) • Otwarte odnogi: 4 • Otwarte bramki
-manualne: 9 (5 + 4 w dwóch planach) • Otwarte ryzyka: 4 • Zamknięte ryzyka: 6 • Progi rotacji: dziennik 150 KB, lekcje
-40 wpisów albo 50 KB, STATE 300 linii • Archiwum: lekcje L-0001…L-0024, dziennik 2026-08-07…
-2026-08-09 (16 wpisów) oraz 2026-08-10 (2 wpisy — **pierwsza rotacja po rozbrojeniu blokady**,
-2026-08-20)
+Etapy: BUDOWA_RELAI 10/10 • ROZWOJ_PO_WYDANIU 6/8 (E7 wstrzymany) • OPTYMALIZACJA_KONTEKSTU 4/5 •
+Warstwa startowa RelAI: **39,4 KB / 80 KB** (`CLAUDE` 3,1 KB, `STATE` 9,8 KB, ryzyka 14,1 KB —
+z czego 7,9 KB to ostatni wpis, sama sekcja ryzyk 3,7 KB; zasady 5,9 KB) • Dziennik: 138,0 KB,
+lekcje 47,0 KB — oba pod progiem rotacji • Sprawy czekające na człowieka: 10 • Zasady aktywne:
+**15 przy limicie 15** • Scenariusze akceptacyjne: 4/4 zdane + pilotaż Cursora • Adaptery: 2 •
+Modele, na których zmierzono proces: 5 (Fable, Opus, Haiku, Composer/auto, Grok 4.6) • Otwarte
+odnogi: 4 • Otwarte bramki manualne: 9 (5 + 4 w dwóch planach) • Otwarte ryzyka: 4 • Zamknięte
+ryzyka: 6 (w archiwum) • Progi rotacji: dziennik 150 KB, lekcje 40 wpisów albo 50 KB, STATE 300
+linii • Archiwum: lekcje L-0001…L-0024, dziennik 2026-08-07…2026-08-09 (16 wpisów) oraz 2026-08-10
+(2 wpisy), ryzyka R1/R3/R4/R6/R7/R8 (2026-08-21)
