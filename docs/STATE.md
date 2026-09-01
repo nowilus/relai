@@ -34,6 +34,8 @@ kosztuje.
   nie zatrzymuje jej już własna reguła:** wpis, na który wskazuje otwarta sprawa człowieka, nie jest
   nietykalny — jego link jest przepinany na plik archiwum w fazie 2, po zgodności sum. Destylat
   lekcji skompresowany z 48 pozycji do 15 przy zachowaniu wszystkich numerów źródłowych.
+  **2026-09-01 mechanizm zadziałał w realnej sesji tego repozytorium po raz pierwszy:** 3 wpisy
+  do archiwum, dziennik 168,0 → 142,2 KB, sumy kontrolne zgodne przed przycięciem.
 - **Zatkana rotacja przestała milczeć, a próg przestał obiecywać niemożliwe (E2, 2026-09-01).**
   Dokument ma trzy wagi podawane razem z progiem: całkowitą, część rotowalną i **dolną granicę
   osiągalną** — to, czego rotacja nie ruszy nigdy. Cel dotyczy części rotowalnej, więc plik złożony
@@ -69,6 +71,10 @@ kosztuje.
   rotacja w historii tego projektu przeniosła wpisy i zamknięte ryzyka z potwierdzoną sumą
   kontrolną, a start sesji zszedł ze 155,7 do 136,4 KB. Raport migracji ma przetestowaną drogę
   pełnego powrotu.
+- **Artefakty mają rejestr, którego wymagał profil `prompty`** — [ARTEFAKTY.md](ARTEFAKTY.md) opisuje
+  38 pozycji (22 specyfikacje, szablon planu HTML, 10 komend, 2 skille, 3 reguły Cursora)
+  i odpowiada na pytanie „po co", którego git nie zna. Hook `profile-rules` przestał ostrzegać:
+  zmierzone na 39 ścieżkach — bez rejestru 33 ostrzeżenia, z rejestrem 0.
 - Trzy dokumenty mówiące o tym samym — status etapu, linia aktywnego planu i opis stanu — nie
   rozjeżdżają się po cichu: sesja mówi o rozjeździe na starcie i pyta, który zapis jest prawdziwy.
   Wpis dziennika jest podpisany modelem i użytkownikiem; brakujący człon zostaje wyłapany.
@@ -106,9 +112,12 @@ kosztuje.
   cofnęłaby wersję migrowanego projektu.
 - Cztery odnogi zamrożonego planu, w dowolnej kolejności: `OPIS_REPO`, `POMIAR_ODNOG` (dziewięć
   scenariuszy), `REKOMENDACJA_MODELU`, `GUARD_PO_SCIEZCE`. Każda ma gotowy prompt; zamrożenie planu
-  ich nie dotyczy. Piąta — **[REJESTR_ARTEFAKTOW](plany/HIGIENA_DOKUMENTOW/odnogi/REJESTR_ARTEFAKTOW/ODNOGA.md)**
-  z E1: profil `prompty` wymaga `docs/ARTEFAKTY.md`, a rejestru nadal nie ma.
-  **[BLOKADA_ROTACJI](fixy/BLOKADA_ROTACJI/ODNOGA.md)** przestała być wątkiem — wchłonął ją E1.
+  ich nie dotyczy. **[REJESTR_ARTEFAKTOW](plany/HIGIENA_DOKUMENTOW/odnogi/REJESTR_ARTEFAKTOW/ODNOGA.md)**
+  zamknięta 2026-09-01, **[BLOKADA_ROTACJI](fixy/BLOKADA_ROTACJI/ODNOGA.md)** wchłonięta przez E1 —
+  obie przestały być wątkami.
+- Rozstrzygnąć dwie sprawy wyjęte z odnogi REJESTR_ARTEFAKTOW: nazwę katalogu archiwum artefaktów
+  (`artefakty` w `SPEC_PROFILE.md` kontra `artefaktow` w `CLAUDE.md`) i to, czy hook `profile-rules`
+  ma widzieć `.mdc` oraz `.html` — dziś sześć z 39 artefaktów jest poza zasięgiem reguły profilu.
 - Przejrzeć sekcję **„Czeka na człowieka"** w dzienniku — dziewięć spraw otwartych, w tym siedem
   rozstrzygnięć wpisanych w E2 planu OPTYMALIZACJA_KONTEKSTU na podstawie faktów z repozytorium,
   do potwierdzenia.
@@ -129,11 +138,14 @@ kosztuje.
 - **Adapter Cursora zmierzony w aplikacji, ale nie w całości.** Pilotaż potwierdził reguły, hook
   kontekstu, obie warstwy blokady sekretu i pełne przejście `/relai-stage`. Niezmierzone: hook
   `beforeReadFile`, dostęp poza katalogiem roboczym, osiem pozostałych komend.
-- **Reguły są naprawione, ale nikt ich jeszcze nie użył w prawdziwej sesji.** E1 zmierzył zakres
-  rotacji na kopiach dziennika PolyFlow (0 → 117 wpisów ze 127) i przeszedł pełny przebieg
-  z przepięciem linków na kopii dziennika RelAI. E2 wypisał komunikat blokady w obu wersjach na
-  pięciu realnych plikach, ale żadna sesja nie napisała go w rytuale zamknięcia. Jedno i drugie
-  wchodzi do E6 razem z wydaniem 1.7.0.
+- **Reguły 1.7.0 działają w repozytorium, ale nie w zainstalowanym pluginie.** Rotacja z 2026-09-01
+  poszła regułą z `core/templates/SPEC_ARCHIWUM.md` (38,8 KB), bo kopia w projekcie
+  `.claude/relai/templates/` niesie wersję **1.6.1** (26,7 KB) z cache'u pluginu i mówi co innego
+  o wpisie linkowanym. Rozjazd wykryło porównanie zrobione ręcznie — **nic go nie zgłasza samo**,
+  a wyrówna go dopiero wydanie 1.7.0 (E6, sekwencja P-005).
+- **Przepięcie linków z E1 nadal czeka na przebieg, w którym coś realnie przepnie.** Rotacja
+  2026-09-01 objęła wpisy 1–3, a pozycje „Czeka na człowieka" linkują do wpisów 6, 12, 16, 22 i 23.
+  Zmierzone jest zachowanie zakresu, nie sama operacja przepięcia w żywym pliku.
 - Repozytorium jest **publiczne**, ale ma pusty opis — odnoga `OPIS_REPO`.
 
 ---
@@ -176,14 +188,15 @@ Pułapki: [PULAPKI.md](PULAPKI.md)
 Etapy: BUDOWA_RELAI 10/10 • ROZWOJ_PO_WYDANIU 6/8 (ZAMROŻONY) • OPTYMALIZACJA_KONTEKSTU 5/5
 (ZREALIZOWANY) • HIGIENA_DOKUMENTOW 2/6 •
 Warstwa startowa RelAI: **35,1 KB / 80 KB** (pomiar sprzed E1) • Warstwa
-startowa PolyFlow po migracji: **136,4 KB / 80 KB** (przed: 155,7) • Dziennik: **163,8 KB —
-ponad progiem 150 KB**; część rotowalna 104,6 KB, dolna granica osiągalna 52,1 KB (pomiar E2, przed
-tym wpisem) • Lekcje 20,6 KB • Sprawy czekające na człowieka: 9 tutaj, 27 w PolyFlow •
+startowa PolyFlow po migracji: **136,4 KB / 80 KB** (przed: 155,7) • Dziennik: **145,6 KB /
+próg 150 KB** po rotacji 2026-09-01 (przed: 168,0); część rotowalna 89,7 KB, dolna granica
+osiągalna 52,2 KB • Lekcje 20,6 KB / 11 lekcji • Sprawy czekające na człowieka: 9 tutaj, 27 w PolyFlow •
 Zasady aktywne: **15 przy limicie 15** • Lekcje: 11 w żywym rejestrze, ostatnia L-0065 •
 Scenariusze akceptacyjne: 4/4 zdane + pilotaż Cursora •
 Adaptery: 2 • Modele, na których zmierzono proces: 5 (Fable, Opus, Haiku, Composer/auto, Grok 4.6) •
-Projekty na 1.6.x: 2 (RelAI, PolyFlow) • Otwarte wątki: 5 (4 odnogi zamrożonego planu +
-REJESTR_ARTEFAKTOW z E1) • Otwarte bramki manualne: 4 (wszystkie w zamrożonym ROZWOJ_PO_WYDANIU) •
+Projekty na 1.6.x: 2 (RelAI, PolyFlow) • Otwarte wątki: 4 (odnogi zamrożonego planu) •
+Artefakty w rejestrze: 38 • Otwarte bramki manualne: 4 (wszystkie w zamrożonym ROZWOJ_PO_WYDANIU) •
 Otwarte ryzyka: 4 • Zamknięte ryzyka: 6 (w archiwum) • Progi rotacji: dziennik
 150 KB, lekcje 40 wpisów albo 50 KB, STATE 300 linii • Archiwum: lekcje L-0001…L-0024, dziennik
-2026-08-07…2026-08-09 (16 wpisów) oraz 2026-08-10 (2 wpisy), ryzyka R1/R3/R4/R6/R7/R8 (2026-08-21)
+2026-08-07…2026-08-09 (16 wpisów), 2026-08-10 (2 wpisy), 2026-08-10…2026-08-12 (4 wpisy)
+oraz 2026-08-12 (3 wpisy, `b4601365eee25163`), ryzyka R1/R3/R4/R6/R7/R8 (2026-08-21)

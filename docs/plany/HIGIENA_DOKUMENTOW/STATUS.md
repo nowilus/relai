@@ -20,7 +20,9 @@ Plan: [PLAN.html](PLAN.html) · Utworzony: 2026-09-01 · Status planu: **ZAAKCEP
   etap-źródło: E1 · [karta](../../fixy/BLOKADA_ROTACJI/ODNOGA.md) ·
   **PRZENIESIONA 2026-09-01 → wchłonięta przez E1**
 - **REJESTR_ARTEFAKTOW** — profil `prompty` wymaga `docs/ARTEFAKTY.md`, a rejestru nie ma ·
-  etap-źródło: E1 · [karta](odnogi/REJESTR_ARTEFAKTOW/ODNOGA.md) · **OTWARTA**
+  etap-źródło: E1 · [karta](odnogi/REJESTR_ARTEFAKTOW/ODNOGA.md) · **ZAMKNIĘTA 2026-09-01** —
+  `docs/ARTEFAKTY.md` z 38 pozycjami; hook `profile-rules` milczy na wszystkich 39 sprawdzonych
+  ścieżkach (bez rejestru: 33 ostrzeżenia)
 
 ## Bramki manualne
 
