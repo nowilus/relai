@@ -35,7 +35,8 @@ kosztuje.
   nietykalny — jego link jest przepinany na plik archiwum w fazie 2, po zgodności sum. Destylat
   lekcji skompresowany z 48 pozycji do 15 przy zachowaniu wszystkich numerów źródłowych.
   **2026-09-01 mechanizm zadziałał w realnej sesji tego repozytorium po raz pierwszy:** 3 wpisy
-  do archiwum, dziennik 168,0 → 142,2 KB, sumy kontrolne zgodne przed przycięciem.
+  do archiwum, dziennik 168,0 → 142,2 KB, sumy kontrolne zgodne przed przycięciem. Drugi przebieg
+  tego samego dnia zabrał kolejne 3 wpisy i zszedł do 130,6 KB.
 - **Zatkana rotacja przestała milczeć, a próg przestał obiecywać niemożliwe (E2, 2026-09-01).**
   Dokument ma trzy wagi podawane razem z progiem: całkowitą, część rotowalną i **dolną granicę
   osiągalną** — to, czego rotacja nie ruszy nigdy. Cel dotyczy części rotowalnej, więc plik złożony
@@ -192,9 +193,9 @@ Pułapki: [PULAPKI.md](PULAPKI.md)
 Etapy: BUDOWA_RELAI 10/10 • ROZWOJ_PO_WYDANIU 6/8 (ZAMROŻONY) • OPTYMALIZACJA_KONTEKSTU 5/5
 (ZREALIZOWANY) • HIGIENA_DOKUMENTOW 2/6 •
 Warstwa startowa RelAI: **35,1 KB / 80 KB** (pomiar sprzed E1) • Warstwa
-startowa PolyFlow po migracji: **136,4 KB / 80 KB** (przed: 155,7) • Dziennik: **145,6 KB /
-próg 150 KB** po rotacji 2026-09-01 (przed: 168,0); część rotowalna 89,7 KB, dolna granica
-osiągalna 52,2 KB • Lekcje 20,6 KB / 11 lekcji • Sprawy czekające na człowieka: **3 tutaj** (było 10 przed 2026-09-01), 27 w PolyFlow •
+startowa PolyFlow po migracji: **136,4 KB / 80 KB** (przed: 155,7) • Dziennik: **130,6 KB /
+próg 150 KB** po dwóch rotacjach 2026-09-01 (przed pierwszą: 168,0); część rotowalna 81,7 KB, dolna granica
+osiągalna 48,7 KB • Lekcje 20,6 KB / 11 lekcji • Sprawy czekające na człowieka: **1 tutaj** (było 10 przed 2026-09-01), 27 w PolyFlow •
 Zasady aktywne: **15 przy limicie 15** • Lekcje: 11 w żywym rejestrze, ostatnia L-0065 •
 Scenariusze akceptacyjne: 4/4 zdane + pilotaż Cursora •
 Adaptery: 2 • Modele, na których zmierzono proces: 5 (Fable, Opus, Haiku, Composer/auto, Grok 4.6) •
@@ -203,5 +204,6 @@ anulowana) • Artefakty w rejestrze: 38 • Otwarte bramki manualne: 2 (sekwenc
 pre-commit) •
 Otwarte ryzyka: 4 • Zamknięte ryzyka: 6 (w archiwum) • Progi rotacji: dziennik
 150 KB, lekcje 40 wpisów albo 50 KB, STATE 300 linii • Archiwum: lekcje L-0001…L-0024, dziennik
-2026-08-07…2026-08-09 (16 wpisów), 2026-08-10 (2 wpisy), 2026-08-10…2026-08-12 (4 wpisy)
-oraz 2026-08-12 (3 wpisy, `b4601365eee25163`), ryzyka R1/R3/R4/R6/R7/R8 (2026-08-21)
+2026-08-07…2026-08-09 (16 wpisów), 2026-08-10 (2 wpisy), 2026-08-10…2026-08-12 (4 wpisy),
+2026-08-12 (3 wpisy, `b4601365eee25163`) oraz 2026-08-12…2026-08-17 (3 wpisy,
+`1690be9b08748504`), ryzyka R1/R3/R4/R6/R7/R8 (2026-08-21)
