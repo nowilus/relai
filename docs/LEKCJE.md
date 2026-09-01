@@ -419,6 +419,25 @@ restart aplikacji po `plugin update` (L-0031), `git worktree` zamiast `git archi
 - **Źródło:** E6 planu HIGIENA_DOKUMENTOW (2026-09-01); rozwinięcie zasady aktywnej 7 (L-0025,
   L-0035, L-0070).
 
+### L-0075 — Grafika sprawdzona u siebie, a nie na stronie, która ją pokazuje · 2026-09-01 · AKTYWNA
+
+- **Trigger:** po poprawieniu dziesięciu ikon README zameldowałem robotę jako zweryfikowaną —
+  kontrast policzony skryptem, render obu motywów obejrzany. Użytkownik odpowiedział, że na GitHubie
+  **nadal widzi słabo**. Dopiero wtedy poszedłem na żywą stronę i zobaczyłem dwie rzeczy, których
+  własny render pokazać nie mógł: GitHub podaje te pliki z `Cache-Control: max-age=300`, więc
+  odbiorca ogląda wersję sprzed poprawki, a ikona **nie ma w README zadeklarowanych 24 px** — DOM
+  mierzy **23 px na szerokim oknie i 17 px na węższym**, bo `max-width:100%` ściska ją do kolumny
+  tabeli. Kreska 2,6 przy `viewBox` 48 schodzi wtedy do **0,92 px**, czyli poniżej piksela.
+- **Przyczyna:** własny render odtwarzał **plik**, a nie **powierzchnię publikacji**. Rozmiar
+  wziąłem z atrybutu `width="24"` w źródle README zamiast go zmierzyć, a cache w ogóle nie wszedł
+  do rozumowania, bo lokalnie go nie ma.
+- **Zasada:** artefakt, którego odbiorcą jest cudza strona, weryfikuje się **na tej stronie**:
+  treść pobrana z jej adresu, rozmiar zmierzony w jej DOM, nagłówki cache odczytane z jej
+  odpowiedzi. Render u siebie dowodzi, że plik jest poprawny — nie że odbiorca to zobaczy.
+  Zdanie „zweryfikowane" bez pomiaru z docelowej powierzchni jest przedwczesne.
+- **Źródło:** poprawka czytelności ikon README (2026-09-01); rozwinięcie zasady aktywnej o pomiarze
+  zamiast deklaracji.
+
 ## Lekcje zwinięte
 
 Pełne wpisy lekcji, których zasady żyją w destylacie „Zasady aktywne" (kompresja 2026-08-20).

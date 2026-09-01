@@ -25,6 +25,11 @@
   potwierdzenie albo sprzeciw** · 2026-08-20 ·
   [wpis 2026-09-01 — Osiem bramek z listy zamkniętych](#2026-09-01--osiem-bramek-z-listy-zamkniętych-plan-rozwoj_po_wydaniu-zamrożony-formalnie)
 
+- **Ikony README renderują się w 17–23 px zamiast 24 px, więc kreska schodzi poniżej piksela** —
+  podbić grubość z 2.6 na 3.2 (zmiana proporcji rysunku) czy scalić kolumnę ikony z kolumną komendy
+  w README (bez ruszania grafiki)? · 2026-09-01 ·
+  [wpis 2026-09-01 — Ikony komend czytelne na obu motywach](#2026-09-01--ikony-komend-czytelne-na-obu-motywach-githuba)
+
 ## Wpisy
 
 > Wpisy z okresu 2026-08-07 … 2026-08-09 (16 wpisów) są w
@@ -1232,6 +1237,15 @@ się w oknie, więc nie było czego naprawiać.
   ikon; `#fffdf7` wyłącznie w `stage.svg`, w jednej linii.
 - Plik podglądu był tymczasowy i **został usunięty** — `git status` pokazuje wyłącznie dziesięć
   zmienionych SVG.
+- **Sprawdzone na żywym GitHubie po wypchnięciu**, bo użytkownik zgłosił, że nadal widzi stary
+  stan. Commit `c07197f` na `origin/main`, drzewo czyste. Pliki **pobrane z
+  `raw.githubusercontent.com`** niosą nową paletę (`#8a7f70` ×19, `#c4643c` ×18, `#5f8a68` ×3,
+  `#b8862a` ×1, zero `#312c25`). `git ls-files` zna dokładnie jeden komplet ikon — kopii nie ma.
+  W DOM wyrenderowanego README dziesięć obrazów, wszystkie z `complete: true` i adresem
+  `/nowilus/relai/raw/main/docs/zasoby/branding/ikony/…`. Render w warunkach GitHuba wykonany
+  **na plikach pobranych z GitHuba**, nie na lokalnych.
+- **Przyczyna zgłoszenia: cache przeglądarki.** GitHub podaje te SVG z `Cache-Control: max-age=300`.
+  Po `Ctrl+Shift+F5` użytkownik potwierdził, że jest wyraźniej.
 
 **Świadomie odłożone:**
 
@@ -1240,7 +1254,16 @@ się w oknie, więc nie było czego naprawiać.
   dziesięć małych plików. Ich kontrast na ciemnym tle **nie był mierzony**.
 - **Ikony nie wchodzą do `ARTEFAKTY.md`** — rejestr obejmuje instrukcje czytane przez model
   (specyfikacje, komendy, skille, reguły), a grafika brandingowa nią nie jest.
+- **Grubość kreski nietknięta**, mimo że pomiar na żywym README pokazał drugą, niezależną od koloru
+  przyczynę bladości: ikona nie ma tam 24 px. Zmierzone w DOM: **23 px przy szerokim oknie i 17 px
+  przy węższym**, bo `max-width:100%` ściska ją do szerokości kolumny tabeli. Kreska 2,6 przy
+  `viewBox` 48 daje wtedy 1,25 px i **0,92 px** — poniżej piksela, więc przeglądarka rozmywa ją
+  antyaliasingiem. Zmiana proporcji rysunku wymaga zgody, więc czeka jako pozycja niżej.
 
 **Do zrobienia przez człowieka:**
 
-- Pozostałe bez zmian.
+- **Zdecydować, czy podbić grubość kreski ikon z 2.6 na 3.2** (linie pomocnicze 2.2 → 2.8).
+  Zysk: 1,53 px zamiast 1,25 px przy realnych 23 px renderowania. Koszt: zmiana proporcji rysunku,
+  czyli ingerencja w stylistykę, której poprawka kontrastu świadomie nie ruszała. Alternatywa bez
+  ruszania grafiki: scalić kolumnę ikony z kolumną komendy w README, żeby komórka przestała ściskać
+  obraz do 17 px na węższym oknie.

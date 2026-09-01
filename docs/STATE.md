@@ -79,6 +79,9 @@ Codeksa. Aktywnego planu nie ma.
   z datą. Poszerzenie listy działa we wszystkich projektach naraz, ale każde nowe brzmienie to nowe
   ryzyko schowania sprawy człowieka w archiwum. Bramka **świadomie zostawiona otwarta** przy
   zamknięciu planu HIGIENA_DOKUMENTOW.
+- **Ikony README renderują się w 17–23 px, nie w 24 px** — kolor jest naprawiony i zmierzony, ale
+  kreska 2,6 przy `viewBox` 48 schodzi wtedy do 0,92 px. Dwie drogi, obie czekają na decyzję:
+  podbicie grubości do 3.2 albo scalenie kolumny ikony z kolumną komendy w README.
 - **60 martwych linków w sekcji „Czeka na człowieka" PolyFlow** — pozostałość po rotacjach sprzed
   1.7.0, które kroku przepięcia nie miały. Osobna operacja na cudzych pozycjach.
 - **Rotacja lekcji i rotacja ryzyk `ZAMKNIĘTYCH` w PolyFlow** — obie należne, obie świadomie poza
@@ -150,8 +153,8 @@ Etapy: BUDOWA_RELAI 10/10 • ROZWOJ_PO_WYDANIU 6/8 (ZAMROŻONY) • OPTYMALIZAC
 HIGIENA_DOKUMENTOW **6/6 (ZREALIZOWANY 2026-09-01)** •
 Warstwa startowa RelAI: **37,0 KB / 80 KB**, raport startu **0 znaków** • Warstwa startowa
 PolyFlow: **157,3 KB / 80 KB**, raport **5 linii przy limicie 6** • Dziennik RelAI: **85,8 KB /
-próg 150 KB** po rotacji 18 wpisów • Lekcje 33,4 KB / 20 lekcji w żywym rejestrze, ostatnia
-L-0074 • Sprawy czekające na człowieka: **2 tutaj**, **32 w PolyFlow**, żadna nieprzeterminowana
+próg 150 KB** po rotacji 18 wpisów • Lekcje 34,9 KB / 21 lekcji w żywym rejestrze, ostatnia
+L-0075 • Sprawy czekające na człowieka: **3 tutaj**, **32 w PolyFlow**, żadna nieprzeterminowana
 przy progu 30 dni • Progi w katalogu: **17, z tego 15 z adresem egzekwowania** •
 Zasady aktywne: **15 przy limicie 15** •
 Scenariusze akceptacyjne: 4/4 zdane + pilotaż Cursora • Adaptery: 2 •
