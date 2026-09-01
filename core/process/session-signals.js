@@ -632,6 +632,208 @@ function startCostReport(miara, opcje) {
   return out;
 }
 
+// --- przeglad spraw czekajacych na czlowieka (1.7.0, E3) --------------------
+// Sprawa z sekcji "Czeka na czlowieka" starsza niz N dni jest PRZETERMINOWANA i wymusza
+// decyzje na starcie sesji. Wylacznik jest OSOBNY od rotacji (Aneks A planu HIGIENA_DOKUMENTOW):
+// "Rotacja dokumentow: wylaczona" nie wycisza tego przegladu i odwrotnie.
+const NAZWA_PRZEGLADU = /^(?:Przegl[ąa]d spraw cz[łl]owieka|Waiting-on-a-human review)\b/i;
+const N_DOMYSLNE = 30;
+
+// Czlon "<liczba> dni" komorki. Jedyne zrodlo prawdy o wartosci domyslnej to
+// core/templates/SPEC_USTAWIENIA.md — tutaj stoi jej kopia wykonawcza.
+const CZLON_DNI = /^(\d+)\s*(?:dni|dzie[ńn]|days?)\b/i;
+
+// Dopisek przy pozycji wyprowadzonej z wpisu bez daty w naglowku (SPEC_DZIENNIK.md).
+const DATA_NIEZNANA = /\((?:data pierwotna nieznana|original date unknown)\)/i;
+
+// Adnotacja odroczenia z licznikiem (SPEC_DZIENNIK.md). Brzmienie zamkniete, czytane
+// maszynowo (L-0035): rdzen slowa + data + licznik. Forma gramatyczna dowolna.
+// UWAGA: koncowka slowa lapana klasa z polskimi znakami, nie przez \w — \w w JS bez flagi
+// unicode nie obejmuje "ę", wiec "odroczeń" i "rozstrzygnięte" nie trafialy (L-0054).
+const KONCOWKA = '[a-ząćęłńóśźż]*';
+const ODROCZENIE = new RegExp(
+  '\\(\\s*(?:odroczo' + KONCOWKA + '|deferred)\\s+(\\d{4}-\\d{2}-\\d{2})\\s*,\\s*' +
+  '(?:odrocze' + KONCOWKA + '|deferrals?)\\s*:\\s*(\\d+)\\s*\\)', 'i');
+
+const DATA_ISO = /^(\d{4}-\d{2}-\d{2})\b/;
+
+// Adnotacja rozstrzygniecia — ta sama zamknieta lista rdzeni co w SPEC_ARCHIWUM.md,
+// z wymogiem daty. Specyfikacja kaze pozycji rozstrzygnietej zniknac z sekcji w tej samej
+// turze, ale projekt prowadzony wczesniej recznie trzyma ja przekreslona (PolyFlow: 45 z 72).
+// Pozycja z takim dopiskiem NIE jest sprawa otwarta, wiec nie ma o co pytac.
+const ROZSTRZYGNIECIE = new RegExp(
+  '(?:rozstrzygni|zrobion|zaakceptowan|domkni|wykonan|anulowan|' +
+  'resolved|done|accepted|closed|cancelled)' + KONCOWKA +
+  '(?:\\*\\*)?\\s+(?:[—-]\\s*)?(?:\\*\\*)?\\d{4}-\\d{2}-\\d{2}', 'i');
+
+function ascii(s) {
+  return String(s).normalize('NFD').replace(/[̀-ͯ]/g, '')
+    .replace(/Ł/g, 'L').replace(/ł/g, 'l')
+    .replace(/[„”"']/g, '"').replace(/[–—]/g, '-')
+    .replace(/[^\x20-\x7e]/g, '').replace(/\s+/g, ' ').trim();
+}
+
+function dniMiedzy(od, do_) {
+  const a = Date.parse(od + 'T00:00:00Z');
+  const b = Date.parse(do_ + 'T00:00:00Z');
+  if (isNaN(a) || isNaN(b)) return null;
+  return Math.floor((b - a) / 86400000);
+}
+
+// Wiersz "Przeglad spraw czlowieka" jako FAKT: null / {nierozpoznany} / {wlaczony, N}.
+// Brak wiersza -> null i cisza: projekt sprzed 1.7.0 nie zaczyna nagle pytac sam z siebie.
+function przegladSprawCzlowieka(txtUstawien) {
+  const komorka = komorkaDecyzji(txtUstawien, NAZWA_PRZEGLADU);
+  if (komorka === null) return null;
+  if (WYLACZONY.test(komorka)) return null;
+  if (!WLACZONY.test(komorka)) {
+    return { nierozpoznany: true, wartosc: komorka.split('·')[0].trim().slice(0, 60) };
+  }
+  let N = N_DOMYSLNE;
+  for (const czlon of String(komorka).split('·').map((c) => c.trim()).slice(1)) {
+    const m = czlon.match(CZLON_DNI);
+    if (m) N = parseInt(m[1], 10);
+  }
+  return { wlaczony: true, N };
+}
+
+// Pozycje sekcji "Czeka na czlowieka". Pozycja bywa zawinieta na kilka linii, wiec
+// blokiem jest wszystko od myslnika do nastepnego myslnika albo do konca sekcji.
+function pozycjeCzeka(txtDziennika) {
+  const sekcja = wytnijSekcje(txtDziennika, NAGLOWEK_CZEKA);
+  if (sekcja === null) return null;
+  const bloki = [];
+  for (const linia of sekcja.split('\n')) {
+    if (/^\s*-\s+/.test(linia)) bloki.push([linia.replace(/^\s*-\s+/, '')]);
+    else if (bloki.length && linia.trim()) bloki[bloki.length - 1].push(linia.trim());
+  }
+  const pozycje = [];
+  for (const blok of bloki) {
+    const tekst = blok.join(' ').replace(/\s+/g, ' ').trim();
+    if (!tekst || tekst === '—' || tekst === '-') continue; // sekcja pusta ma jawne "—"
+    const czlony = tekst.split('·').map((c) => c.trim());
+    const bold = tekst.match(/\*\*(.+?)\*\*/);
+    const tresc = (bold ? bold[1] : czlony[0]).replace(/\*\*/g, '').trim();
+    let data = null;
+    for (const czlon of czlony.slice(1)) {
+      const m = czlon.replace(/\*\*/g, '').trim().match(DATA_ISO);
+      if (m) { data = m[1]; break; }
+    }
+    const odr = tekst.match(ODROCZENIE);
+    pozycje.push({
+      tresc,
+      data,
+      rozstrzygnieta: ROZSTRZYGNIECIE.test(tekst),
+      dataPierwotnaNieznana: DATA_NIEZNANA.test(tekst),
+      odroczone: odr ? odr[1] : null,
+      odroczen: odr ? parseInt(odr[2], 10) : 0,
+    });
+  }
+  return pozycje;
+}
+
+// Zwraca:
+//   null                              — przegladu nie ma (wylaczony, brak wiersza, brak
+//                                       ustawien, brak dziennika, folder nie jest projektem RelAI)
+//   { nierozpoznany: true, wartosc }  — wartosc przelacznika nierozpoznana: liczenia nie ma,
+//                                       ale adapter mowi o tym jednym zdaniem (L-0025)
+//   { wlaczony: true, ... }           — przeglad
+function sprawyPrzeterminowane(cwd, opcje) {
+  try {
+    const o = opcje || {};
+    if (!cwd) return null;
+    const markerFile = relaiMarkerFile(cwd, o.markeryGoscia);
+    if (!markerFile) return null;
+
+    const docsDir = path.join(cwd, 'docs');
+    const plikUstawien = pierwszyIstniejacy(docsDir, ['USTAWIENIA.md', 'SETTINGS.md']);
+    if (!plikUstawien) return null;
+
+    const wiersz = przegladSprawCzlowieka(czytaj(plikUstawien));
+    if (!wiersz) return null;
+    if (wiersz.nierozpoznany) return wiersz;
+
+    const dziennik = pierwszyIstniejacy(docsDir, ['DZIENNIK.md', 'JOURNAL.md']);
+    if (!dziennik) return null;
+    const wszystkie = pozycjeCzeka(czytaj(dziennik));
+    if (wszystkie === null) return null; // projekt sprzed 1.6.0 — sekcji nie ma, cisza
+    // Sprawa rozstrzygnieta nie jest sprawa czekajaca, nawet gdy ktos zostawil ja w sekcji.
+    const pozycje = wszystkie.filter((p) => !p.rozstrzygnieta);
+
+    const dzisiaj = o.dzisiaj || todayLocal();
+    const N = wiersz.N;
+    for (const p of pozycje) {
+      // Wiek CALKOWITY liczy sie od daty pozycji — przy dopisku "(data pierwotna nieznana)"
+      // jest nia data wyprowadzenia (SPEC_DZIENNIK.md). Bez daty w ogole: wieku nie ma,
+      // wiec pozycja nie jest przeterminowana — zgadywanie jest zakazane (L-0025).
+      p.wiek = p.data ? dniMiedzy(p.data, dzisiaj) : null;
+      // Odroczenie przesuwa sprawe o kolejne N dni, wiec licznik przeterminowania
+      // biegnie od daty ostatniego odroczenia, a nie od pierwszego wystapienia.
+      p.wiekOdOdroczenia = p.odroczone ? dniMiedzy(p.odroczone, dzisiaj) : null;
+      const odniesienie = p.odroczone ? p.wiekOdOdroczenia : p.wiek;
+      p.przeterminowana = odniesienie !== null && odniesienie > N;
+    }
+    return {
+      wlaczony: true,
+      N,
+      dzisiaj,
+      pozycje,
+      przeterminowane: pozycje.filter((p) => p.przeterminowana),
+      bezDaty: pozycje.filter((p) => p.data === null).length,
+      rozstrzygniete: wszystkie.length - pozycje.length,
+    };
+  } catch (_) {
+    return null;
+  }
+}
+
+// Raport dla kontekstu startu — ASCII (L-0016), wylacznie gdy cos jest przeterminowane.
+// Cisza jest zachowaniem domyslnym, tak samo jak przy budzecie i przy rotacji.
+function sprawyPrzeterminowaneReport(miara, opcje) {
+  if (!miara) return [];
+  if (miara.nierozpoznany) {
+    return ['[RelAI przeglad spraw] Wartosc przelacznika w wierszu "Przeglad spraw czlowieka" (' +
+      miara.wartosc + ') jest nierozpoznana, wiec przeglad spraw czekajacych na czlowieka jest ' +
+      'wylaczony. Dozwolone wartosci: wlaczony / wylaczony.'];
+  }
+  if (!miara.przeterminowane.length) return [];
+
+  const o = opcje || {};
+  const lista = miara.przeterminowane;
+  const LIMIT = 5;
+  const out = [];
+  out.push('[RelAI przeglad spraw] W sekcji "Czeka na czlowieka" ' + lista.length + ' z ' +
+    miara.pozycje.length + ' spraw czeka dluzej niz ' + miara.N + ' dni.');
+  for (const p of lista.slice(0, LIMIT)) {
+    const wiek = p.wiek === null ? 'wiek nieznany (pozycja bez daty)' : p.wiek + ' dni';
+    const ogon = (p.dataPierwotnaNieznana ? ', data pierwotna nieznana' : '') +
+      (p.odroczen ? ', odroczen: ' + p.odroczen + ' (ostatnie ' + p.odroczone + ', ' +
+        p.wiekOdOdroczenia + ' dni temu)' : '');
+    out.push('- ' + ascii(p.tresc).slice(0, 100) + ' — ' + wiek + ogon + '.');
+  }
+  if (lista.length > LIMIT) {
+    out.push('- i ' + (lista.length - LIMIT) + ' dalszych spraw tego samego rodzaju.');
+  }
+  const zaOdkladane = lista.filter((p) => p.odroczen >= 3);
+  if (zaOdkladane.length) {
+    out.push('Odkladane co najmniej trzy razy: ' + zaOdkladane.length + ' — najstarsza czeka ' +
+      Math.round(Math.max.apply(null, zaOdkladane.map((p) => p.wiek || 0)) / 30) +
+      ' miesiecy od pierwszego wystapienia.');
+  }
+  if (o.interaktywna === false) {
+    out.push('Sesja nieinteraktywna: to jest sam raport, bez pytan — zapis do repozytorium bez ' +
+      'czlowieka przy klawiaturze jest zakazany.');
+    return out;
+  }
+  out.push('ZADANIE: przed akapitem "gdzie jestesmy" zadaj pytanie o te sprawy PARTIAMI PO CZTERY, ' +
+    'az do wyczerpania listy. Kazda sprawa ma trzy realne wybory: zamknac (adnotacja ' +
+    'rozstrzygniecia), odroczyc o kolejne ' + miara.N + ' dni (adnotacja odroczenia z licznikiem) ' +
+    'albo rozstrzygnac teraz. Procedura: skill relai-core, sekcja "Przeglad spraw ' +
+    'przeterminowanych". Wylacznik i wartosc N: wiersz "Przeglad spraw czlowieka" w ' +
+    'docs/USTAWIENIA.md — osobny od rotacji.');
+  return out;
+}
+
 module.exports = {
   isGuest,
   relaiMarkerFile,
@@ -645,4 +847,9 @@ module.exports = {
   ostatniWpis, // eksportowana, zeby dalo sie ja sprawdzic testem na obu kierunkach dziennika
   startCost,
   startCostReport,
+  przelacznikRotacji, // eksportowany, zeby dalo sie pokazac niezaleznosc obu wylacznikow (Aneks A)
+  przegladSprawCzlowieka, // eksportowane, zeby dalo sie sprawdzic testem wylacznik i wartosc N
+  pozycjeCzeka,
+  sprawyPrzeterminowane,
+  sprawyPrzeterminowaneReport,
 };

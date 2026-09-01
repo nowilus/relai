@@ -78,6 +78,36 @@ OPTYMALIZACJA_KONTEKSTU, mechanizm 2).
   nietknięte. Pozycja nigdy nie zostaje z martwym linkiem, a wpis nigdy nie blokuje rotacji
   tylko dlatego, że ktoś na niego wskazuje.
 
+**Adnotacja odroczenia (od 1.7.0).** Sprawa starsza niż `N` dni (wiersz `Przegląd spraw człowieka`
+w `SPEC_USTAWIENIA.md`, domyślnie **30 dni**, wyłącznik **osobny od rotacji**) wymusza na starcie
+sesji decyzję. Pytanie idzie **partiami po cztery sprawy** i daje trzy wybory: zamknąć, odroczyć
+o kolejne `N` dni, rozstrzygnąć teraz. Odpowiedź „zostawiam" przesuwa sprawę o kolejne `N` dni
+i **zostawia ślad przy pozycji** — czwartym członem, po linku:
+
+```
+- **<treść sprawy>** · <RRRR-MM-DD> · [wpis 2026-08-16 — Plan ODBIORCY](#2026-08-16--plan-odbiorcy-utworzony) ·
+  *(odroczone 2026-09-01, odroczeń: 2)*
+```
+
+W projekcie angielskim: `*(deferred 2026-09-01, deferrals: 2)*`.
+
+Brzmienie jest **zamknięte i czytane maszynowo** (L-0035): rdzeń słowa, data ostatniego odroczenia,
+przecinek, licznik. Nie parafrazujesz go i nie poszerzasz listy o warianty. Zasady:
+
+- **Data w adnotacji to dzień ostatniego odroczenia**, a data pozycji zostaje datą **pierwszego**
+  wystąpienia — nie podmieniasz jednej na drugą. Od dnia odroczenia wiek przeterminowania liczy
+  się od adnotacji, a wiek całkowity nadal od daty pozycji.
+- **Licznik rośnie o jeden przy każdym odroczeniu.** Pierwsze odroczenie zapisujesz jako
+  `odroczeń: 1`; kolejne nadpisuje całą adnotację, nie dokłada drugiej.
+- **Po trzecim odroczeniu** (licznik ≥ 3) raport startu mówi wprost, **od ilu miesięcy** sprawa
+  jest odkładana, licząc od daty pozycji, a pytanie o nią zawiera tę liczbę i liczbę wcześniejszych
+  odroczeń. Odroczenie mimo to **zostaje udzielone** — decyzja należy do człowieka; zmienia się
+  komunikat, nie prawo do odpowiedzi.
+- **Adnotacja odroczenia nie jest rozstrzygnięciem.** Pozycja odroczona zostaje w sekcji, nadal
+  liczy się jako otwarta i nadal blokuje to, co blokowała; rdzeń `odroczo` jest wypisany wśród
+  brzmień, które rozstrzygnięciem **nie są** (`SPEC_ARCHIWUM.md`, „Jak poznać pozycję
+  rozstrzygniętą"). Pomyłka w tę stronę schowałaby sprawę człowieka w archiwum.
+
 **Zasady sekcji:**
 
 - **Sekcja jest nadpisywana i nigdy nie trafia do archiwum.** Nie jest wpisem, więc rotacja
@@ -354,6 +384,9 @@ błędem, a wpis bez daty i tak nie podlega rotacji (`SPEC_ARCHIWUM.md`, przypad
   [wpis 2026-08-09 — Cennik i faktury](#2026-08-09--cennik-i-faktury-ręczne)
 - **Potwierdzić treść maila z działem komunikacji** · 2026-08-07 ·
   [wpis 2026-08-07 — Lista oczekujących](archiwum/dziennik/DZIENNIK_2026-03-02_2026-08-07.md#2026-08-07--lista-oczekujących-i-powiadomienia)
+- **Zgoda działu prawnego na regulamin** · 2026-03-02 ·
+  [wpis 2026-08-09 — Cennik i faktury](#2026-08-09--cennik-i-faktury-ręczne) ·
+  *(odroczone 2026-08-09, odroczeń: 3)*
 
 ## Wpisy
 
@@ -390,6 +423,11 @@ W tym przykładzie widać obie reguły linku naraz:
   wpis wjechał do archiwum przy rotacji z 2026-08-09. Link został **przepięty** na plik archiwum
   wraz z kotwicą; tekst linku i treść pozycji zostały nietknięte. Sprawa jest dalej widoczna na
   starcie sesji, mimo że jej wpis jest już poza żywym plikiem.
+
+- **Sprawa zgody działu prawnego** czeka od 2026-03-02 i była już odraczana trzykrotnie, ostatnio
+  2026-08-09. Wiek przeterminowania liczy się od **2026-08-09**, więc przy `N = 30` wróci
+  2026-09-09; wiek całkowity — od **2026-03-02**, więc raport powie, że sprawa jest odkładana od
+  pięciu miesięcy. Pozycja jest otwarta mimo adnotacji: odroczenie nie jest rozstrzygnięciem.
 
 Pozycja i wpis stoją przy tym w dwóch miejscach i to jest zamierzone: w sekcji „Czeka na człowieka"
 jako **sprawa otwarta widoczna na starcie**, we wpisie jako **ślad historii** z adnotacją.

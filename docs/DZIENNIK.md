@@ -5,7 +5,7 @@
 | # | Ryzyko | Poziom | Status | Mitygacja |
 |---|---|---|---|---|
 | R2 | Auto-wyzwalanie skilli bywa zawodne (agent nie zastosuje zasad bez komendy) | **Niski przy Opusie, średni przy modelach słabszych** (2026-08-10 po E10) | **ZMIERZONE 2026-08-10, OTWARTE ŚWIADOMIE** | Warstwą nośną są hook `session-context` i `CLAUDE.md` projektu — działają przy każdym modelu, bez wyzwalania; skill dokłada wyłącznie procedurę (L-0030). Opus wyzwala skill sam i wykonuje procedurę w całości; Sonnet 4.6 i Haiku 4.5 nie wołają `Skill` ani razu, więc projekt nie traci pamięci, ale procedura bywa niepełna. Otwarte świadomie: to trwała własność modeli, nie usterka do naprawienia. Zakres ryzyka rósł od 1.1.0 bez pomiaru — dziesiąta komenda, sygnał odchylenia, rozjazd stanu i kontrola podpisu nie były mierzone w świeżej sesji, bo limit konta zatrzymał CLI (L-0032). **Odnoga `POMIAR_ODNOG` anulowana 2026-09-01** — ta część zakresu zostaje niezmierzona świadomie, karta zostaje w repo. Zmierzone: 2026-08-07 (E5), 2026-08-10 (E10), 2026-08-12 (E1), 2026-08-12 (E3) |
-| R5 | Dokumenty puchną i zjadają kontekst | **Średni, potwierdzony na trzech projektach** (2026-09-01) | **OTWARTE — plan HIGIENA_DOKUMENTOW jest odpowiedzią** | Mechanizm jest kompletny, ale **nie broni się sam**: progi nie mają adresu egzekwowania, więc rosną latami (PolyFlow 862,7 KB przy progu 150 KB). Naprawa idzie planem HIGIENA_DOKUMENTOW (6 etapów, Aneksy A i B). E1: zakres rotacji PolyFlow **0 → 117 wpisów ze 127**. E2: próg liczy się ponad nietykalnymi, a zatkana rotacja wypisuje blokery. **2026-09-01 reguły 1.7.0 zadziałały w realnej sesji tego repo**: rotacja wzięła 3 wpisy, dziennik 168,0 → 142,2 KB, część rotowalna 115,8 → 89,7 KB przy celu 90. Otwarte, dopóki plan nie dobiegnie końca, dopóki nie zmierzy się tego w **cudzym** projekcie i dopóki **JiraManager (386 KB startu) nie zostanie tknięty**. Zmierzone: 2026-08-20, 2026-08-21, 2026-09-01 (E1, E2, rotacja) |
+| R5 | Dokumenty puchną i zjadają kontekst | **Średni, potwierdzony na trzech projektach** (2026-09-01) | **OTWARTE — plan HIGIENA_DOKUMENTOW jest odpowiedzią** | Mechanizm jest kompletny, ale **nie broni się sam**: progi nie mają adresu egzekwowania, więc rosną latami (PolyFlow 862,7 KB przy progu 150 KB). Naprawa idzie planem HIGIENA_DOKUMENTOW (6 etapów, Aneksy A i B). E1: zakres rotacji PolyFlow **0 → 117 wpisów ze 127**. E2: próg liczy się ponad nietykalnymi, a zatkana rotacja wypisuje blokery. E3: sprawa czekająca dłużej niż 30 dni wymusza decyzję na starcie — PolyFlow ma dziś 25 spraw otwartych i 0 przeterminowanych, ale 25 z 25 sześć tygodni później. Otwarte, dopóki plan nie dobiegnie końca, dopóki nie zmierzy się tego w **cudzym** projekcie i dopóki **JiraManager (386 KB startu) nie zostanie tknięty**. Zmierzone: 2026-08-20, 2026-08-21, 2026-09-01 (E1, E2, E3, rotacja) |
 | P1 | Adaptery Cursor/Codex nie egzekwują blokad harnessu — sekret albo zmiana konfiguracji przejdzie tam, gdzie w Claude Code stoi ściana (plan ROZWOJ_PO_WYDANIU) | **Średni** (2026-08-12 po E4; wcześniej wysoki) | **OTWARTE** | Część sekretowa jest zamknięta dowodem z aplikacji: w Cursorze zadziałały obie warstwy — reguła odmówiła pierwsza, a przy prośbie o próbę mimo reguły zapis klucza odbił hook `preToolUse` werdyktem `permission: deny`; niezależnie od narzędzia commit z sekretem zatrzymuje gitowy pre-commit. Otwarte z dwóch powodów: Cursor nie ma egzekwowanego `ask`, więc pliki konfiguracyjne chroni tam sama reguła zamiast bramki, a Codex pozostaje niezmierzony do odmrożenia E7 planu ROZWOJ_PO_WYDANIU. Zmierzone: 2026-08-12 (E4), 2026-08-12 (E5), 2026-08-17 (E6) |
 | P2 | Odpowiednik R2 w Cursor/Codex: bez auto-wyzwalania skilli proces zależy od dyscypliny modelu (plan ROZWOJ_PO_WYDANIU) | **Niski dla Cursora, średni dla Codeksa** (2026-08-17 po E6; wcześniej średni) | **OTWARTE (już tylko Codex)** | Reguła zawsze-w-kontekście działa w Cursorze bez żadnego wyzwalacza: pilotaż przeszedł pełny cykl na trzech modelach, a cały etap poprowadził model spoza Anthropic (Grok 4.6) — rytuał startu, karta etapu z kontrolą modelu, granica zakresu, rytuał zamknięcia z promptem następnego etapu. Dyscyplina procesu nie zależy od dostawcy modelu. Otwarte już tylko dla Codeksa: warstwą nośną ma tam być `AGENTS.md` z twardym limitem 32 KiB, a skille wyzwalają się dopasowaniem opisu — tym samym mechanizmem, który przy R2 okazał się zależny od modelu. Zmierzone: 2026-08-12 (E4), 2026-08-12 (E5), 2026-08-17 (E6) |
 
@@ -1890,3 +1890,93 @@ Autor: RelAI (Opus) + Lukasz
 
 - **Potwierdzić albo cofnąć osiem rozstrzygnięć z E2** — jedyna otwarta pozycja.
 - **Usunąć metadane sesji `ProbaCursorE6`** — trzy ścieżki w poprzednim wpisie.
+
+### 2026-09-01 — E3: sprawa przeterminowana wymusza decyzję
+
+Autor: RelAI (Opus) + Lukasz
+
+**Zrobione:**
+- `core/templates/SPEC_USTAWIENIA.md` — czwarty wiersz czytany maszynowo: `Przegląd spraw
+  człowieka`, format `włączony · 30 dni`, kotwica na początku komórki, zamknięta lista brzmień
+  wyłącznika, wartość nierozpoznana → przegląd wyłączony plus jedno zdanie. Wiersz dopisany do
+  tabeli „Wiersz | Czyta go", do listy wpisów tworzonych przy inicjalizacji i do przykładu.
+  Napisane wprost, że wyłącznik jest **osobny od rotacji** (Aneks A).
+- `core/process/session-signals.js` — `sprawyPrzeterminowane(cwd, opcje)` plus
+  `sprawyPrzeterminowaneReport(miara, opcje)`; pomocniczo `przegladSprawCzlowieka`, `pozycjeCzeka`,
+  `dniMiedzy`, `ascii`. Wiek liczony od daty pozycji, a po odroczeniu — od daty odroczenia;
+  pozycja bez żadnej daty nie jest przeterminowana. Wyeksportowane cztery funkcje plus
+  `przelacznikRotacji` (dowód niezależności wyłączników).
+- Oba hooki `session-context` (Claude Code i Cursor) wołają raport. Cursor przekazuje
+  `interaktywna` z `is_background_agent`; Claude Code, jak przy budżecie, nie zgaduje.
+- `CLAUDE.md` tego repozytorium i `core/templates/SPEC_CLAUDE_MD.md` — nośnik zachowania jako
+  osobna linia pod frazami sesji (L-0030): reguła ma działać przy każdym modelu.
+- `core/templates/SPEC_DZIENNIK.md` — format adnotacji odroczenia `*(odroczone RRRR-MM-DD,
+  odroczeń: N)*` (EN: `*(deferred …, deferrals: N)*`) z licznikiem, zachowaniem po trzecim
+  odroczeniu i przykładem w sekcji „Czeka na człowieka".
+- `core/templates/SPEC_ARCHIWUM.md` — rdzeń `odroczo` dopisany wprost do brzmień, które
+  rozstrzygnięciem **nie są**.
+- Procedura pytania partiami po cztery, z trzema wyborami, w `adapters/claude-code/skills/
+  relai-core/SKILL.md` i w `adapters/cursor/rules/relai-core.mdc` (tam bez `AskUserQuestion`,
+  wg sekcji 7 tamtego pliku).
+- `docs/USTAWIENIA.md` tego projektu — wiersz `Przegląd spraw człowieka: włączony · 30 dni`.
+
+**Zweryfikowane — jak dokładnie:**
+- **Wykrycie na trzech plikach, w obu wariantach końca linii, w jednym przebiegu** — instrument
+  `pomiar.js` poza repozytorium buduje sztuczne projekty RelAI w `%TEMP%` i woła realne funkcje
+  rdzenia (dzień podstawiony: 2026-09-01). RelAI: 1 sprawa otwarta, 0 przeterminowanych przy N=30
+  i przy N=90, 0 bez daty. PolyFlow (`6a330c1`): **25 otwartych, 47 rozstrzygniętych zostawionych
+  w sekcji, 0 bez daty, 0 przeterminowanych przy N=30 i N=90**. Materiał kontrolny: 5 otwartych,
+  1 bez daty, **3 przeterminowane przy N=30 i 1 przy N=90**. Liczby identyczne dla LF i CRLF.
+- **Kontrola zera** (zasada 5: zero trafień to defekt instrumentu, dopóki nie udowodnisz inaczej) —
+  najstarsza sprawa otwarta: RelAI 12 dni, PolyFlow **16 dni**, materiał 239 dni. Zero przy progu
+  30 jest wynikiem, nie defektem. Ten sam plik PolyFlow przy dacie 2026-10-15: **25 z 25
+  przeterminowanych** — mechanizm rusza, gdy jest na czym.
+- **Dowód negatywny wyłącznika** — `Przegląd spraw człowieka: wyłączony` → zwrot `null`, raport
+  `[]`, **zero znaków**. Wiersz nieobecny w pliku → to samo. Wypisane na wyjściu instrumentu.
+- **Niezależność wyłączników** (Aneks A) — przy `Rotacja dokumentów: wyłączona` i `Przegląd spraw
+  człowieka: włączony` w jednym pliku: `przelacznikRotacji` = `false`, `przegladSprawCzlowieka` =
+  `{"wlaczony":true,"N":30}`, wykrycie zwraca 3 przeterminowane. Oba wywołania obok siebie.
+- **Wartość nierozpoznana** — wiersz `może być · 30 dni` → `{nierozpoznany:true}`, brak wykrycia
+  i jedno zdanie „Dozwolone wartosci: wlaczony / wylaczony", bez domysłu.
+- **Przypadek, który musi trafić** (zasada 5) — pozycja z dopiskiem `(data pierwotna nieznana)`
+  trafia do wyniku z wiekiem 48 dni liczonym od daty wyprowadzenia i jest przeterminowana; pozycja
+  bez żadnej daty trafia do wyniku z `wiek=null` i **nie** jest przeterminowana. Obie sprawdzone
+  osobną kontrolą, która wypisałaby „DEFEKT INSTRUMENTU" przy zerze.
+- **Odroczenie przesuwa zegar** — sprawa odroczona 4 dni temu (licznik 3) nie jest przeterminowana
+  mimo wieku 184 dni; sprawa odroczona 62 dni temu jest, a raport dokłada linię „Odkladane co
+  najmniej trzy razy: 1 — najstarsza czeka 8 miesiecy od pierwszego wystapienia".
+- **Realny hook, obie strony** — `session-context.js` uruchomiony na tym repozytorium wypisuje
+  **0 linii** przeglądu; uruchomiony na projekcie kontrolnym wypisuje raport i zadanie „PARTIAMI
+  PO CZTERY". Cisza i sygnał zmierzone w jednym przebiegu.
+- **Sesja nieinteraktywna** — ten sam materiał z `interaktywna: false` kończy raport zdaniem
+  „Sesja nieinteraktywna: to jest sam raport, bez pytan"; linii z zadaniem pytania nie ma.
+- **Cztery dokumenty mówią to samo** — instrument sprawdził w jednym przebiegu obecność czterech
+  faktów (N=30, wyłącznik osobny od rotacji, partie po cztery, trzy wybory) w `SPEC_USTAWIENIA.md`,
+  `SPEC_DZIENNIK.md`, `SKILL.md` i `relai-core.mdc`: wszystkie TAK. Jedno „NIE" okazało się zbyt
+  wąskim oknem wzorca (tabela w skillu ma 369 znaków między pierwszym a trzecim wyborem) —
+  potwierdzone szerszym dopasowaniem, dokument bez zmian.
+- `git grep -n "Przegląd spraw człowieka"` — trafienia w `core/templates/` (4 pliki),
+  `core/process/`, `adapters/claude-code/` i `adapters/cursor/`.
+- `node core/tools/validate-adapters.js` → **kod 0**.
+- `git status --short` — 12 zmodyfikowanych plików śledzonych, zero plików tymczasowych; instrument
+  i materiały pomiarowe mieszkają w `%TEMP%/e3/`.
+
+**Świadomie odłożone:**
+- **Rozjazd promptu E3 ze stanem repozytorium.** Prompt mówił o **9 pozycjach otwartych** w sekcji
+  „Czeka na człowieka"; realnie została **1** — osiem zamknięto 2026-09-01, już po wygenerowaniu
+  promptu. `PLAN.html` nietknięty (D-33), aneksu nie proponowano: „9 pozycji" było opisem materiału,
+  nie kryterium. Materiał zastąpiony dziennikiem PolyFlow i plikiem kontrolnym; rozstrzygnięcie
+  użytkownika padło przed startem etapu.
+- **Filtrowanie pozycji rozstrzygniętych zostawionych w sekcji.** Weszło do zakresu, bo bez niego
+  PolyFlow dawał 67 „spraw otwartych" zamiast 25 i mechanizm pytałby o rzeczy zamknięte tydzień
+  wcześniej. Rdzenie czytane z tej samej zamkniętej listy co w `SPEC_ARCHIWUM.md`.
+- Druga linia raportu startu i progi cząstkowe — **E4**. Rotacja ryzyk i ustawień — **E5**.
+  Podbicie wersji do 1.7.0 i `/relai-update` — **E6**. Niczego z tych rzeczy nie obiecano
+  w dokumentach.
+- **Pomiar w świeżej sesji** — zachowanie „pytanie partiami po cztery" jest dziś opisane, ale
+  niezmierzone: ten etap nie miał ani jednej sprawy przeterminowanej w żywym repozytorium.
+  Pomiar wchodzi do E6 razem z resztą sekwencji wydania.
+
+**Do zrobienia przez człowieka:**
+- **Potwierdzić albo cofnąć osiem rozstrzygnięć z E2** — pozycja bez zmian, nadal otwarta.
+- Nic nowego z tego etapu.

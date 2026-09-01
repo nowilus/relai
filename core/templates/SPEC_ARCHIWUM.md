@@ -266,8 +266,11 @@ Pozycja jest rozstrzygnięta, gdy ma adnotację złożoną z **rdzenia z zamkni�
 | `wykonan` | *(wykonane 2026-09-01)* |
 | `anulowan` | *(anulowane 2026-09-01 — powód)* |
 
-**Nie są rozstrzygnięciem** — nawet z datą: `czeka`, `w toku`, `odłożone`, `zaplanowane`,
-`przypomnieć`, `do sprawdzenia`. Lista rdzeni jest **zamknięta**: dopisek spoza niej znaczy
+**Nie są rozstrzygnięciem** — nawet z datą: `czeka`, `w toku`, `odłożone`, **`odroczone`**,
+`zaplanowane`, `przypomnieć`, `do sprawdzenia`. Rdzeń `odroczo` niesie od 1.7.0 adnotację
+odroczenia z licznikiem (`SPEC_DZIENNIK.md`, sekcja „Czeka na człowieka") i jest tu wymieniony
+wprost: sprawa odroczona jest **otwarta**, a rozpoznanie jej jako zamkniętej schowałoby sprawę
+człowieka w archiwum. Lista rdzeni jest **zamknięta**: dopisek spoza niej znaczy
 „pozycja otwarta", więc wpis zostaje w żywym pliku. Cisza jest bezpieczna — najgorszym skutkiem
 jest dziennik większy, niż musi być; najgorszym skutkiem fałszywego rozpoznania byłaby sprawa
 człowieka schowana w archiwum.

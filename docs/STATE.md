@@ -12,9 +12,9 @@ tutaj z 90 KB do 35 KB. Plan **zamknięty 2026-08-21**, w połowie celu: PolyFlo
 JiraManager został wyłączony z zakresu decyzją właściciela, więc ryzyko R5 zostaje otwarte. Plan
 ROZWOJ_PO_WYDANIU jest **zamrożony** — E7 czeka na dostęp do Codeksa. Aktywny jest plan
 **HIGIENA_DOKUMENTOW** (zaakceptowany 2026-09-01, sześć etapów): zgłoszenie z sesji roboczej
-PolyFlow pokazało sześć miejsc, w których mechanizm rotacji i progów nie broni się sam. **E1 i E2
-są zamknięte** — rotacja przestała się zatykać na własnej regule, a gdy stoi, mówi na czym i ile to
-kosztuje.
+PolyFlow pokazało sześć miejsc, w których mechanizm rotacji i progów nie broni się sam. **E1, E2
+i E3 są zamknięte** — rotacja przestała się zatykać na własnej regule, gdy stoi, mówi na czym i ile
+to kosztuje, a sprawa czekająca na człowieka dłużej niż 30 dni wymusza decyzję na starcie sesji.
 
 ## Co działa
 
@@ -47,6 +47,15 @@ kosztuje.
 - **Sprawy czekające na człowieka mają jeden adres** — sekcję „Czeka na człowieka" na górze
   dziennika, czytaną przy każdym starcie. Wpis, którego pozycja się wyprowadziła, przestaje blokować
   rotację; to był powód, dla którego rotacja nigdy nie ruszyła w JiraManagerze ani w PolyFlow.
+- **Sprawa, która czeka za długo, wymusza decyzję (E3, 2026-09-01).** Wiersz `Przegląd spraw
+  człowieka` w ustawieniach niesie próg `30 dni` i **własny wyłącznik, osobny od rotacji**; wykrycie
+  robi hook startu, więc działa przy każdym modelu i bez wyzwalania skilla. Powyżej progu pada
+  raport i pytanie **partiami po cztery** z trzema wyborami: zamknąć, odroczyć o kolejne 30 dni
+  (adnotacja z licznikiem), rozstrzygnąć teraz. Poniżej progu — zero znaków; zmierzone na tym
+  repozytorium (0 linii) i na projekcie kontrolnym (pełny raport) w jednym przebiegu. Zmierzone na
+  dzienniku PolyFlow: **25 spraw otwartych, 0 przeterminowanych dziś** (najstarsza 16 dni), **25
+  z 25** przy dacie o sześć tygodni późniejszej. Odroczenie przesuwa zegar, a nie zamyka sprawy —
+  rdzeń `odroczo` stoi wśród brzmień, które rozstrzygnięciem nie są.
 - **Koszt startu sesji jest liczony, a nie szacowany.** Hook mierzy sześć pozycji rytuału startu
   i porównuje sumę z budżetem 80 KB. Powyżej budżetu: najwyżej sześć linii z sumą, trzema
   najgrubszymi pozycjami i propozycją odchudzenia. Poniżej: ani jednego znaku. Oba adaptery wołają
@@ -93,15 +102,16 @@ kosztuje.
 
 ## Nad czym pracujemy teraz
 
-- **Plan HIGIENA_DOKUMENTOW — E1 i E2 zrealizowane 2026-09-01, E3 gotowy do startu.** Po co:
+- **Plan HIGIENA_DOKUMENTOW — E1, E2 i E3 zrealizowane 2026-09-01, E4 gotowy do startu.** Po co:
   mechanizm rotacji i progów jest kompletny, ale w projekcie prowadzonym cztery miesiące nie odezwał
   się ani razu — dziennik PolyFlow doszedł do 862,7 KB przy progu 150 KB. **E1 zdjął pierwszą
   przyczynę:** pozycja „Czeka na człowieka" linkuje do najnowszego wystąpienia sprawy, wpis linkowany
   przestał być nietykalny, a jego link jest przepinany na archiwum w fazie 2 — zakres rotacji rośnie
   z **0 do 117 wpisów ze 127**. **E2 zdjął drugą:** próg liczy się ponad nietykalnymi, a zatkana
-  rotacja wypisuje blokery zamiast milczeć. E3: sprawa starsza niż **`N = 30 dni`** wymusza decyzję
-  na starcie sesji (Aneks A — wyłącznik osobny od rotacji). Aneks B: E4 obejmuje też **progi sekcji**
-  i katalog progów.
+  rotacja wypisuje blokery zamiast milczeć. **E3 zdjął trzecią:** sprawa człowieka starsza niż
+  30 dni nie przeżyje startu sesji bez odpowiedzi. E4: raport startu staje się adresem progów —
+  wraz z **progami sekcji** i jawnym katalogiem progów (Aneks B); limit „Zasad aktywnych" zostaje
+  przy swoim dotychczasowym adresie.
 - **Migracja JiraManagera.** Po co: to ostatni projekt, w którym start sesji kosztuje 386 KB
   dokumentów, a rotacja nigdy nie ruszyła. Czeka na okno — właściciel rozwija go na bieżąco, więc
   migracja wchodzi dopiero wtedy, gdy żaden etap tam nie trwa. Dopóki nie wejdzie, **ryzyko R5
@@ -148,6 +158,10 @@ kosztuje.
   `.claude/relai/templates/` niesie wersję **1.6.1** (26,7 KB) z cache'u pluginu i mówi co innego
   o wpisie linkowanym. Rozjazd wykryło porównanie zrobione ręcznie — **nic go nie zgłasza samo**,
   a wyrówna go dopiero wydanie 1.7.0 (E6, sekwencja P-005).
+- **Pytanie partiami po cztery jest opisane, ale niezmierzone w żywej sesji.** E3 nie miał ani
+  jednej sprawy przeterminowanej w tym repozytorium — najstarsza czeka 12 dni przy progu 30 — więc
+  zmierzone jest wykrycie i cisza, nie sam przebieg pytania. Pomiar wchodzi do E6 razem z sekwencją
+  wydania.
 - **Przepięcie linków z E1 nadal czeka na przebieg, w którym coś realnie przepnie.** Rotacja
   2026-09-01 objęła wpisy 1–3, a pozycje „Czeka na człowieka" linkują do wpisów 6, 12, 16, 22 i 23.
   Zmierzone jest zachowanie zakresu, nie sama operacja przepięcia w żywym pliku.
@@ -191,12 +205,13 @@ Pułapki: [PULAPKI.md](PULAPKI.md)
 ### Liczby
 
 Etapy: BUDOWA_RELAI 10/10 • ROZWOJ_PO_WYDANIU 6/8 (ZAMROŻONY) • OPTYMALIZACJA_KONTEKSTU 5/5
-(ZREALIZOWANY) • HIGIENA_DOKUMENTOW 2/6 •
+(ZREALIZOWANY) • HIGIENA_DOKUMENTOW 3/6 •
 Warstwa startowa RelAI: **35,1 KB / 80 KB** (pomiar sprzed E1) • Warstwa
-startowa PolyFlow po migracji: **136,4 KB / 80 KB** (przed: 155,7) • Dziennik: **130,6 KB /
-próg 150 KB** po dwóch rotacjach 2026-09-01 (przed pierwszą: 168,0); część rotowalna 81,7 KB, dolna granica
-osiągalna 48,7 KB • Lekcje 20,6 KB / 11 lekcji • Sprawy czekające na człowieka: **1 tutaj** (było 10 przed 2026-09-01), 27 w PolyFlow •
-Zasady aktywne: **15 przy limicie 15** • Lekcje: 11 w żywym rejestrze, ostatnia L-0065 •
+startowa PolyFlow po migracji: **136,4 KB / 80 KB** (przed: 155,7) • Dziennik: **140,2 KB /
+próg 150 KB** po dwóch rotacjach 2026-09-01 i wpisie E3 (przed pierwszą: 168,0) • Lekcje 23,5 KB /
+13 lekcji • Sprawy czekające na człowieka: **1 tutaj** (było 10 przed 2026-09-01), **25 otwartych
+w PolyFlow**, żadna nieprzeterminowana przy progu 30 dni •
+Zasady aktywne: **15 przy limicie 15** • Lekcje: 13 w żywym rejestrze, ostatnia L-0067 •
 Scenariusze akceptacyjne: 4/4 zdane + pilotaż Cursora •
 Adaptery: 2 • Modele, na których zmierzono proces: 5 (Fable, Opus, Haiku, Composer/auto, Grok 4.6) •
 Projekty na 1.6.x: 2 (RelAI, PolyFlow) • Otwarte wątki: 3 (odnogi zamrożonego planu; POMIAR_ODNOG

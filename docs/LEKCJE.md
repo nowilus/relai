@@ -42,7 +42,10 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
    L-0053, L-0060, L-0065)
 7. **Wartość czytana maszynowo ma kotwicę i zamkniętą listę brzmień:** dopasowanie od początku
    komórki, wybór linii po niesionej wartości (nie po kolejności), wartość nierozpoznana znaczy
-   cisza. (L-0025, L-0035, L-0048)
+   cisza. **Rdzeń słowa w języku z diakrytykami łapiesz klasą znaków tego języka, nie `\w`** —
+   `\w` bez flagi `u` to `[A-Za-z0-9_]`, więc wzorzec przechodzi na formach bez ogonków i odpada
+   na realnym dokumencie; wynik zawyżony jest tak samo podejrzany jak zerowy. (L-0025, L-0035,
+   L-0048, L-0066)
 8. **Zachowanie, które ma działać zawsze, mieszka w warstwie obecnej w każdej sesji** —
    `CLAUDE.md` projektu albo hook; skill dokłada procedurę i wyzwala się zawodnie, a komenda
    wywołana wprost go nie ładuje. Sygnał, który ma paść raz, ma jednego właściciela; cisza
@@ -61,8 +64,10 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
     strukturę pliku sprawdzaj na **obu** wariantach w jednym przebiegu. Przeniesienie katalogu
     wskazywanego przez cudzy manifest sprawdzaj najpierw **na kopii**, walidatorem tego manifestu.
     **Kolejność wpisów w dokumencie jest takim samym wariantem** — kierunek ustalaj z danych (daty
-    w nagłówkach), nie z nawyku wziętego z projektu, w którym mechanizm powstał. (L-0033, L-0038,
-    L-0057, L-0062)
+    w nagłówkach), nie z nawyku wziętego z projektu, w którym mechanizm powstał. **Wariantem jest
+    też stan dokumentu wobec własnej specyfikacji** — realny projekt trzyma pozycje, które reguła
+    każe usunąć; mechanizm sprawdzaj na dokumencie realnego projektu i odsiewaj takie stany tą samą
+    zamkniętą listą brzmień, której używa reszta rdzenia. (L-0033, L-0038, L-0057, L-0062, L-0067)
 12. **Guardrail zatrzymujący treść, która sekretem nie jest, to defekt rdzenia** — poprawka wraca
     z dowodem, nigdy jako obejście. Wołaj go przez opakowanie powłoki, żeby brak interpretera
     zamieniał się w blokadę, a nie w ciszę; próbki sekretów składaj w czasie wykonania. (L-0043,
@@ -256,6 +261,38 @@ restart aplikacji po `plugin update` (L-0031), `git worktree` zamiast `git archi
   przebieg wygląda na porażkę.
 - **Źródło:** E2 planu HIGIENA_DOKUMENTOW (2026-09-01); rozwinięcie zasady aktywnej 6 (L-0034,
   L-0049, L-0053, L-0060).
+
+### L-0066 — `\w` w JavaScripcie nie zna polskich ogonków, więc rdzeń słowa przez niego nie przechodzi · 2026-09-01 · AKTYWNA
+
+- **Trigger:** wzorzec rozpoznający adnotację rozstrzygnięcia brzmiał `rozstrzygni\w*\s+<data>`
+  i nie trafiał na `rozstrzygnięte 2026-08-26`. Skutek zmierzony na dzienniku PolyFlow `FAKT`:
+  **67 „spraw otwartych" zamiast 25**, w tym cztery pozycje o treści `(POWLOKA_UI E6)` — mechanizm
+  zapytałby człowieka o rzeczy zamknięte tydzień wcześniej.
+- **Przyczyna:** `\w` bez flagi `u` to `[A-Za-z0-9_]`. Po rdzeniu `rozstrzygni` stoi `ę`, więc
+  `\w*` dopasowuje pustkę, a następujące `\s+` trafia na literę i całość odpada. Wzorzec **działa**
+  na formach bez ogonków, więc wygląda na poprawny, dopóki nie zobaczy realnego dokumentu.
+- **Zasada:** rdzeń słowa w języku z diakrytykami łapiesz **klasą znaków tego języka**
+  (`[a-ząćęłńóśźż]*`), nie `\w`. Ta sama pułapka dotyczy `\b` przy granicy na literze
+  z ogonkiem. Wynik **zawyżony** jest tak samo podejrzany jak zerowy: liczba pozycji większa niż
+  mówi nagłówek sekcji to defekt instrumentu, dopóki nie udowodnisz inaczej.
+- **Źródło:** E3 planu HIGIENA_DOKUMENTOW (2026-09-01); rozwinięcie zasady aktywnej 7 (L-0025,
+  L-0035, L-0048).
+
+### L-0067 — Specyfikacja mówi, że pozycja znika; realny projekt trzyma ją przekreśloną · 2026-09-01 · AKTYWNA
+
+- **Trigger:** `SPEC_DZIENNIK.md` wymaga, żeby rozstrzygnięta pozycja sekcji „Czeka na człowieka"
+  zniknęła w tej samej turze. Mechanizm napisany pod tę regułę brał **wszystkie** pozycje sekcji.
+  W PolyFlow `FAKT` **47 z 72** pozycji było rozstrzygniętych i zostawionych na miejscu, ze
+  skreśleniem i adnotacją.
+- **Przyczyna:** specyfikacja opisuje stan **wzorcowy**, a mechanizm czyta stan **zastany**.
+  Projekt prowadzony wcześniej ręcznie albo po adopcji trzyma historię tam, gdzie reguła każe ją
+  usunąć — i ma do tego prawo, bo dokument należy do projektu.
+- **Zasada:** mechanizm czytający dokument sprawdzaj **na dokumencie realnego projektu**, nie na
+  przykładzie ze specyfikacji, i odsiewaj stany, których reguła zabrania, zamiast zakładać, że ich
+  nie ma. Odsiew rób **tą samą zamkniętą listą brzmień**, której używa reszta rdzenia — druga lista
+  rozjedzie się z pierwszą.
+- **Źródło:** E3 planu HIGIENA_DOKUMENTOW (2026-09-01); rozwinięcie zasady aktywnej 11 (L-0033,
+  L-0057, L-0062).
 
 ## Lekcje zwinięte
 

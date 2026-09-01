@@ -107,6 +107,15 @@ function onSessionStart(input) {
     out.push(linia);
   }
 
+  // Przeglad spraw czekajacych na czlowieka (1.7.0) — ta sama funkcja rdzenia co w adapterze
+  // Claude Code. Tutaj rozroznienie sesji nieinteraktywnej jest zmierzone (is_background_agent),
+  // wiec agent w tle dostaje sam raport, bez pytan.
+  for (const linia of core.sprawyPrzeterminowaneReport(
+    core.sprawyPrzeterminowane(cwd, { markeryGoscia: MARKERY_GOSCIA }),
+    { interaktywna: input.is_background_agent !== true })) {
+    out.push(linia);
+  }
+
   out.push('Ten folder to projekt RelAI. Zanim odpowiesz merytorycznie, wykonaj rytual startu sesji: ' +
     'przeczytaj CLAUDE.md (albo AGENTS.md), docs/STATE.md (jesli istnieje), docs/DZIENNIK.md ' +
     '(sekcja ryzyk + ostatni wpis), docs/LEKCJE.md (tylko "Zasady aktywne"), docs/USTAWIENIA.md oraz ' +

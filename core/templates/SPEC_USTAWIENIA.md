@@ -88,13 +88,14 @@ sesji, zanim skrócisz wiersz.
 
 ### Wiersze czytane maszynowo — tej reguły nie dotyczą
 
-Trzy wiersze mają **zamknięty format** opisany niżej w tej specyfikacji i są parsowane przez hooki:
+Cztery wiersze mają **zamknięty format** opisany niżej w tej specyfikacji i są parsowane przez hooki:
 
 | Wiersz | Czyta go |
 |---|---|
 | `Profil projektu` | hooki `profile-rules` i `config-protection` |
 | `Rotacja dokumentów` | procedura rotacji (`SPEC_ARCHIWUM.md`) |
 | `Budżet startu sesji` | pomiar warstwy startowej w hooku startu sesji |
+| `Przegląd spraw człowieka` | przegląd spraw przeterminowanych w hooku startu sesji |
 
 **Ich nie skracasz.** Człony rozdzielone `·` wyglądają jak rozwlekłość, a są składnią: usunięcie
 członu zmienia próg na domyślny, a przeredagowanie kotwicy na początku komórki **wycisza mechanizm
@@ -111,6 +112,7 @@ Zawsze te trzy, z odpowiedzi na paczkę startową (D-20), plus wersja RelAI w li
 | Profil projektu | pytanie 3 |
 | Rotacja dokumentów | wartość domyślna `włączona` — **bez pytania**, limit trzech pytań jest twardy (D-80) |
 | Budżet startu sesji | wartość domyślna `włączony` — **bez pytania**, tak samo jak rotacja (od 1.6.0) |
+| Przegląd spraw człowieka | wartość domyślna `włączony · 30 dni` — **bez pytania**, tak samo jak dwa wyżej (od 1.7.0) |
 
 Wiersz **`Profil projektu`** jest czytany maszynowo — hooki `profile-rules` i `config-protection`
 biorą z niego reguły warunkowe (D-50). Kolumna `Decyzja` musi **zaczynać się** od jednej z czterech
@@ -213,6 +215,65 @@ Gdy dokument nie ma szukanego nagłówka (projekt po adopcji, nietypowa struktur
 **cały plik**, a raport mówi o tym wprost i nazywa pozycję. Wartość zawyżona z jawnym powodem jest
 bezpieczna; wartość zgadnięta nie jest.
 
+## Wiersz `Przegląd spraw człowieka` (od 1.7.0)
+
+Sprawa z sekcji „Czeka na człowieka" dziennika (`SPEC_DZIENNIK.md`) starsza niż **`N` dni** jest
+**przeterminowana** i wymusza decyzję na starcie sesji. Ten wiersz mówi, ile wynosi `N`, i jest
+**wyłącznikiem** przeglądu. Powstaje przy inicjalizacji projektu oraz przy `/relai-update` projektu
+z wcześniejszej wersji.
+
+Powód jest mierzalny: sekcja „Czeka na człowieka" jest od 1.6.0 czytana przy każdym starcie, ale
+nic nie patrzyło na **wiek** pozycji — sprawa mogła stać tam pół roku i nie wywołać ani jednego
+pytania. Wykrycie wykonuje **hook startu sesji, nie skill** — ma działać przy każdym modelu i bez
+wyzwalania czegokolwiek (L-0030). Poniżej progu wieku w kontekście startu nie pojawia się ani jeden
+znak. Przegląd niczego nie zmienia w plikach sam — mówi i pyta.
+
+Format komórki `Decyzja` jest sztywny, bo jest czytana maszynowo (L-0025) — kotwica na **początku**
+komórki, człony rozdzielone `·`:
+
+```
+włączony · 30 dni
+```
+
+| Człon | Dozwolone wartości | Znaczenie |
+|---|---|---|
+| przełącznik (**pierwszy, obowiązkowy**) | `włączony` / `wyłączony` (EN: `on` / `off`) | `wyłączony` → nie liczysz nic i nie mówisz nic |
+| `<liczba> dni` (EN: `<liczba> days`) | liczba całkowita | `N` — po ilu dniach sprawa jest przeterminowana; **domyślnie 30** |
+
+To jest **jedyne źródło prawdy o wartości domyślnej `N`** — inne specyfikacje jej nie powtarzają.
+Człon pominięty znaczy „wartość domyślna": projekt, który niczego nie stroi, ma w komórce samo
+`włączony`. Sprawa jest przeterminowana, gdy jej wiek jest **większy** niż `N` — dokładnie `N` dni
+jeszcze nie wystarcza.
+
+**Wiek liczy się od daty pozycji**, czyli od dnia **pierwszego** wystąpienia sprawy. Pozycja
+z dopiskiem `(data pierwotna nieznana)` niesie datę wyprowadzenia i wiek liczy się od niej —
+nie zgadujesz daty i nie pomijasz pozycji. Pozycja, która nie niesie **żadnej** daty, nie ma wieku,
+więc nie jest przeterminowana; mechanizm nie zgaduje (L-0025).
+
+**Pytanie idzie partiami po cztery sprawy**, aż do wyczerpania listy, i każda sprawa ma trzy realne
+wybory: zamknąć, odroczyć o kolejne `N` dni, rozstrzygnąć teraz. Procedura pytania mieszka
+w adapterach (skill `relai-core`, reguła `relai-core.mdc`) — tutaj stoi tylko wartość i wyłącznik.
+W sesji nieinteraktywnej pytania nie padają; zostaje sam raport.
+
+**`N` jest jednocześnie okresem odroczenia.** Odpowiedź „zostawiam" dokłada przy pozycji adnotację
+odroczenia z licznikiem (`SPEC_DZIENNIK.md`) i od tego dnia wiek przeterminowania liczy się **od
+daty ostatniego odroczenia**, a nie od pierwszego wystąpienia. Wiek całkowity zostaje widoczny —
+po trzecim odroczeniu raport mówi wprost, od ilu miesięcy sprawa jest odkładana.
+
+**Wartość przełącznika nierozpoznana → przegląd jest wyłączony** i pada o tym jedno zdanie. To ten
+sam wyjątek co przy rotacji i przy budżecie (L-0025): niepewność rozstrzyga się na korzyść
+bezczynności, ale człowiek ma o tym wiedzieć.
+
+**Brak wiersza w tabeli → cisza.** Projekt sprzed 1.7.0 nie zaczyna nagle pytać sam z siebie;
+wiersz wnosi tam `/relai-update`. Tak samo cicho kończy się brak sekcji „Czeka na człowieka"
+(projekt sprzed 1.6.0) — nie ma czego przeglądać.
+
+**Przegląd i rotacja to dwa niezależne wyłączniki** i mają takie zostać. `Rotacja dokumentów:
+wyłączona` **nie** wycisza przeglądu spraw człowieka, a wyłączony przegląd nie wycisza rotacji.
+Powód: wyłączona rotacja znaczy „nie ruszaj moich plików", a sprawa czekająca miesiącami jest
+problemem niezależnym od tego, czy projekt zgodził się na przenoszenie plików. To jest ta sama
+zasada, co przy budżecie startu sesji, i dokładnie ta pomyłka, którą ten wiersz ma wykluczyć.
+
 ## Polityka aktualizacji
 
 - **Append.** Nowa preferencja to nowy wiersz z datą, nie edycja starego.
@@ -225,8 +286,8 @@ bezpieczna; wartość zgadnięta nie jest.
 ## Co tu trafia, a co nie
 
 **Trafia:** język, git, profil, sposób prowadzenia planów, podejście do testów, model wykonawczy
-etapów, lokalizacja backupów, rotacja dokumentów, budżet startu sesji, zgody na wyjątki od reguł
-domyślnych, wybrany kierunek designu.
+etapów, lokalizacja backupów, rotacja dokumentów, budżet startu sesji, przegląd spraw człowieka,
+zgody na wyjątki od reguł domyślnych, wybrany kierunek designu.
 
 **Nie trafia:** decyzje architektoniczne i produktowe („nie proponuj ponownie") — te idą do
 `docs/DECYZJE.md`; lekcje z korekt — do `docs/LEKCJE.md`; stan prac — do `STATE.md`.
@@ -255,14 +316,16 @@ Odpowiedź raz udzielona nie wraca jako pytanie.
 | 2026-08-07 | Profil projektu | app (Next.js + PostgreSQL) |
 | 2026-08-07 | Rotacja dokumentów | włączona |
 | 2026-08-07 | Budżet startu sesji | włączony |
+| 2026-08-07 | Przegląd spraw człowieka | włączony · 30 dni |
 | 2026-08-12 | Podejście do testów | Testy krytycznych ścieżek, bez pełnego TDD |
 | 2026-08-14 | Format planów | Interaktywny HTML dla planów głównych; `STATUS.md` i prompty etapowe w Markdown |
 | 2026-08-14 | Szablon planu HTML | Nadpisanie lokalne w `docs/zasoby/HTML_PLAN/` — ma pierwszeństwo przed wersją z pluginu (D-58) |
 | 2026-08-20 | Lokalizacja backupów | `D:\Backupy\Projekty` |
 ```
 
-Trzy pierwsze wiersze to jedno zdanie każdy. Wiersze `Profil projektu`, `Rotacja dokumentów`
-i `Budżet startu sesji` wyglądają na dłuższe i **takie mają zostać** — to składnia, nie proza.
+Trzy pierwsze wiersze to jedno zdanie każdy. Wiersze `Profil projektu`, `Rotacja dokumentów`,
+`Budżet startu sesji` i `Przegląd spraw człowieka` wyglądają na dłuższe i **takie mają zostać** —
+to składnia, nie proza.
 Wiersz „Szablon planu HTML" pokazuje wzorzec skracania: rozstrzygnięcie zostaje, a „zmieniona
 paleta i krój nagłówków, bo domyślna kolorystyka nie przechodziła u klienta" mieszka w `D-58`
 w `docs/DECYZJE.md`.

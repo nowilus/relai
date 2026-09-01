@@ -118,6 +118,14 @@ function onSessionStart(input) {
     out.push(linia);
   }
 
+  // Przeglad spraw czekajacych na czlowieka (1.7.0). Nosnikiem jest hook, nie skill:
+  // wykrycie ma dzialac przy kazdym modelu i bez wyzwalania czegokolwiek (L-0030, ryzyko R2).
+  // Nic przeterminowanego = zero znakow. Wylacznik jest OSOBNY od rotacji (Aneks A).
+  for (const linia of core.sprawyPrzeterminowaneReport(
+    core.sprawyPrzeterminowane(cwd, { markeryGoscia: MARKERY_GOSCIA }))) {
+    out.push(linia);
+  }
+
   out.push('Ten folder to projekt RelAI. Zanim odpowiesz merytorycznie, wykonaj rytual startu sesji: ' +
     'przeczytaj CLAUDE.md, docs/STATE.md (jesli istnieje), docs/DZIENNIK.md (sekcja ryzyk + ostatni wpis), ' +
     'docs/LEKCJE.md (tylko "Zasady aktywne"), docs/USTAWIENIA.md oraz STATUS.md aktywnego planu; ' +

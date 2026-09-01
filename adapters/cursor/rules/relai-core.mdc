@@ -51,6 +51,33 @@ report starts a line with **"Zaproponuj rotacje"**, the start layer is over budg
 enabled: offer document rotation as the first step in that same first sentence, run it only after
 the user agrees, and never in a background agent session.
 
+**Overdue matters (since 1.7.0).** An item of "Czeka na człowieka" older than **`N` days** forces a
+decision at session start. `N` and the switch live in the `Przegląd spraw człowieka` row of
+`docs/USTAWIENIA.md` (default `włączony · 30 dni`, `SPEC_USTAWIENIA.md`). That switch is
+**separate** from rotation: `Rotacja dokumentów: wyłączona` does **not** silence this review, and a
+disabled review does not silence rotation. Detection is carried by the `sessionStart` hook, not by
+this rule — it must work on any model and without any trigger (L-0030); the hook prints a
+`[RelAI przeglad spraw]` block listing each overdue matter with its age in days and its deferral
+counter. Do **not** count them again, and do not turn this rule into a second detector: hook silence
+means "nothing is overdue" or "the review is off", never "not checked". When the block is there and
+does **not** end with the "Sesja nieinteraktywna" line, ask about those matters **before** the
+"where we are" paragraph, **in batches of four**, until the list is exhausted — Cursor has no
+structured question tool, so you ask in plain text per section 7 (numbered questions, numbered
+options, the answer format stated with the same digits). Every matter gets **three real choices**:
+
+1. **Close it** — the item disappears from "Czeka na człowieka" and its source entry gets
+   `*(rozstrzygnięte RRRR-MM-DD — <the decision>)*`; the decision also goes into this session's
+   journal entry.
+2. **Defer it by another `N` days** — the item **stays**, and its deferral annotation gets today's
+   date and the counter raised by one (`SPEC_DZIENNIK.md`; a deferral is **not** a resolution).
+3. **Settle it now** — you do the thing, then close the item as in 1.
+
+On the **third and every later** deferral, the question states outright how many days have passed
+since the first occurrence and how many deferrals came before. You never refuse a deferral — the
+decision is the human's; what changes is the message, not the right to answer. You never close a
+matter on your own because it "looks stale" (L-0025). In a background agent session you ask
+**nothing**: the hook report is the whole of it.
+
 ## 2. Definition of done — behaviour, not a declaration (D-44)
 
 **A functional change means you update the documents in the same turn, without asking.**

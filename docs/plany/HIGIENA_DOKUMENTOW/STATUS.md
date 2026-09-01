@@ -9,8 +9,8 @@ Plan: [PLAN.html](PLAN.html) · Utworzony: 2026-09-01 · Status planu: **ZAAKCEP
 |---|---|---|---|---|
 | E1 | Rotacja rusza | **ZREALIZOWANY 2026-09-01** | [PROMPT_ETAP_1.md](PROMPT_ETAP_1.md) | wchłonął odnogę [BLOKADA_ROTACJI](../../fixy/BLOKADA_ROTACJI/ODNOGA.md); zakres rotacji PolyFlow 0 → 117 wpisów ze 127 |
 | E2 | Blokada mówi i próg nie kłamie | **ZREALIZOWANY 2026-09-01** | [PROMPT_ETAP_2.md](PROMPT_ETAP_2.md) | komunikat wypisuje blokery; próg liczony ponad nietykalnymi; `session-signals.js` bez zmian — rozstrzygnięte w zakresie |
-| E3 | Sprawa przeterminowana wymusza decyzję | **GOTOWY DO STARTU** | [PROMPT_ETAP_3.md](PROMPT_ETAP_3.md) | `N = 30 dni`, wyłącznik osobny od rotacji (Aneks A) |
-| E4 | Raport startu jako adres progów | OCZEKUJE | — | limit „Zasad aktywnych" zostaje przy swoim adresie — nie przenosić; zakres obejmuje też progi sekcji i katalog progów (Aneks B) |
+| E3 | Sprawa przeterminowana wymusza decyzję | **ZREALIZOWANY 2026-09-01** | [PROMPT_ETAP_3.md](PROMPT_ETAP_3.md) | `N = 30 dni`, wyłącznik osobny od rotacji (Aneks A); materiał pomiarowy inny, niż zakładał prompt — 1 pozycja zamiast 9 |
+| E4 | Raport startu jako adres progów | **GOTOWY DO STARTU** | [PROMPT_ETAP_4.md](PROMPT_ETAP_4.md) | limit „Zasad aktywnych" zostaje przy swoim adresie — nie przenosić; zakres obejmuje też progi sekcji i katalog progów (Aneks B) |
 | E5 | Ryzyka i ustawienia schodzą do archiwum | OCZEKUJE | — | |
 | E6 | Pomiar na realnych projektach i wydanie | OCZEKUJE | — | wydanie 1.7.0, sekwencja P-005 obowiązuje |
 
@@ -49,3 +49,11 @@ Plan: [PLAN.html](PLAN.html) · Utworzony: 2026-09-01 · Status planu: **ZAAKCEP
   „pozycja → wpis" z wiekiem i liczbą przepuszczanych wpisów; stary komunikat milczał przy rotacji
   biorącej **2 z 87** wpisów PolyFlow. `session-signals.js` bez zmian — komunikat pisze model
   w rytuale zamknięcia. Wygenerowano PROMPT_ETAP_3; E3 gotowy do startu.
+- 2026-09-01 — E3 rozpoczęty.
+- 2026-09-01 — **E3 ZREALIZOWANY**: wiersz `Przegląd spraw człowieka` (`włączony · 30 dni`,
+  wyłącznik osobny od rotacji), wykrycie `sprawyPrzeterminowane` w `session-signals.js` wołane
+  przez oba hooki startu, nośnik w `CLAUDE.md`, procedura pytania partiami po cztery w obu
+  adapterach, adnotacja odroczenia z licznikiem w `SPEC_DZIENNIK.md`. Zmierzone na trzech plikach
+  w obu wariantach końca linii: PolyFlow **25 spraw otwartych, 0 przeterminowanych przy N=30**
+  (najstarsza 16 dni), ten sam plik przy dacie 2026-10-15 — **25 z 25**. Wygenerowano
+  PROMPT_ETAP_4; E4 gotowy do startu.

@@ -88,7 +88,8 @@ zakłada dokument i **w tej samej turze** dokłada tę linię.
    `docs/USTAWIENIA.md` → aktywny plan. Zakończ instrukcją „czytaj w tej kolejności, nie skanuj repo
    pełnotekstowo". `docs/DECYZJE.md` **nie jest** czytany na starcie — sięgasz po niego, gdy temat
    tego wymaga; w regułach procesu zostaje sama zasada „decyzji stamtąd się nie proponuje ponownie".
-   Listę zamyka **jedna linia z trzema frazami sesji** (D-05) — patrz sekcja „Linia fraz sesji".
+   Listę zamyka **jedna linia z trzema frazami sesji** (D-05) — patrz sekcja „Linia fraz sesji" —
+   oraz **jedna linia o sprawach przeterminowanych** (od 1.7.0), patrz sekcja niżej.
 3. **Stan prac** — tabela `Co | Status | Gdzie` z maksymalnie pięcioma wierszami najwyższego
    poziomu. Szczegóły są w `STATE.md`; tu tylko drogowskazy.
 4. **Aktywny plan** — dokładnie **jedna** linia w formacie `Aktywny plan: [<TEMAT>](docs/plany/<TEMAT>/STATUS.md)`,
@@ -132,6 +133,23 @@ propozycją. Dlatego w linii ma stać wyróżniony.
 
 Linia liczy się do limitu 10 KB. Jeśli plik go przekracza, skracasz „Stan prac" albo „Reguły
 procesu" — nie tę linię i nie sekcję profilu.
+
+## Linia przeglądu spraw człowieka (od 1.7.0)
+
+Jedna linia zaraz pod linią fraz sesji. Powód jest ten sam: wymuszone pytanie o sprawę
+przeterminowaną opisane wyłącznie w skillu działa tylko wtedy, gdy skill się wyzwoli — a wyzwala
+się zawodnie poza najsilniejszym modelem (R2, zmierzone). Wykrycie niesie hook startu sesji,
+**regułę niesie ten plik**, a skill dokłada pełną procedurę, gdy się załaduje.
+
+Brzmienie (przetłumacz na język projektu, sensu nie zmieniaj):
+
+> **Sprawa przeterminowana:** pozycja sekcji „Czeka na człowieka" starsza niż `N` dni (wiersz
+> `Przegląd spraw człowieka` w `docs/USTAWIENIA.md`, domyślnie 30) wymusza decyzję **przed**
+> akapitem „gdzie jesteśmy": pytasz partiami po cztery, każda sprawa z trzema wyborami — zamknąć,
+> odroczyć o kolejne `N` dni, rozstrzygnąć teraz. Sesja nieinteraktywna: sam raport, bez pytań.
+
+Linia liczy się do limitu 10 KB. Projekt z wyłączonym przeglądem albo bez sekcji „Czeka na
+człowieka" tej linii **nie ma** — reguła bez mechanizmu jest obietnicą bez pokrycia.
 
 ## Reguła sygnału odchylenia
 
@@ -234,6 +252,11 @@ Czytaj w tej kolejności, nie skanuj repo pełnotekstowo:
 **Frazy sesji:** „kontynuujemy pracę" → rytuał, akapit „gdzie jesteśmy" **i zdanie z propozycją
 najbliższego kroku**; „sprawdź status" → stan, plany, ryzyka, zaległości; „kończymy na dziś" →
 sync dokumentów, wpis do dziennika, ryzyka, propozycja commita.
+
+**Sprawa przeterminowana:** pozycja sekcji „Czeka na człowieka" starsza niż `N` dni (wiersz
+`Przegląd spraw człowieka` w [docs/USTAWIENIA.md](docs/USTAWIENIA.md), domyślnie 30) wymusza
+decyzję **przed** akapitem „gdzie jesteśmy": pytasz partiami po cztery — zamknąć / odroczyć
+o kolejne `N` dni / rozstrzygnąć teraz. Sesja nieinteraktywna: sam raport, bez pytań.
 
 ## Stan prac
 
