@@ -92,3 +92,15 @@ Plan: [PLAN.html](PLAN.html) · Utworzony: 2026-09-01 · Status planu: **ZAAKCEP
   Markdown), bo klasa wartości nie wykluczała backticka. Zasada aktywna 12 zabrania obejścia
   przez `--no-verify`, a bez commita nie ma sekwencji wydania. Zakres pozostałych punktów E6
   bez zmian.
+- 2026-09-01 — **E6, część pierwsza wykonana**: wersja `1.7.0` w trzech źródłach (walidator kod 0),
+  grep po `1.6.1` rozstrzygnięty, commity `06cb0dc` (Aneks D) i `735948e` (wydanie) wypchnięte,
+  `plugin marketplace update` i `plugin update` wykonane — cache `1.7.0` potwierdzony **treścią
+  plików**: `SPEC_ARCHIWUM.md` 53 057 B (było 27 390 B), `session-signals.js` z funkcjami
+  `dokumentyPonadProgiem` i `sprawyPrzeterminowane` (w 1.6.1 nie było ani jednej).
+  Liczby „przed" zmierzone kodem 1.7.0 przed restartem: RelAI — warstwa startowa **55 439 B /
+  80 KB**, raport startu **2 linie** (dziennik 155,6 KB przy progu 150 KB), sprawy przeterminowane
+  **0 z 1 otwartej**; PolyFlow — warstwa startowa **170,2 KB / 80 KB**, raport startu **5 linii**
+  przy limicie 6, **5 dokumentów ponad własnym progiem**, `sprawyPrzeterminowane` zwraca `null`,
+  bo projekt 1.6.1 nie ma wiersza `Przegląd spraw człowieka`. **Czeka na restart aplikacji**
+  (P-005) — dopiero po nim pomiar w świeżej sesji, `/relai-update` dla PolyFlow i realny przebieg
+  rotacji.
