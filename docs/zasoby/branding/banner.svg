@@ -31,9 +31,9 @@
 
   <!-- połączenia: jedna kartka główna karmi trzy rejestry -->
   <g fill="none" stroke="#d3bf9c" stroke-width="3" stroke-linecap="round">
-    <path d="M 668 200 C 706 200 704 108 740 108"/>
-    <path d="M 668 207 C 700 207 708 210 740 210"/>
-    <path d="M 668 214 C 706 214 704 306 740 306"/>
+    <path d="M 668 200 C 695 200 694 108 720 108"/>
+    <path d="M 668 207 C 691 207 697 210 720 210"/>
+    <path d="M 668 214 C 695 214 694 306 720 306"/>
   </g>
 
   <!-- kartka główna -->
@@ -63,23 +63,23 @@
 
   <!-- trzy rejestry -->
   <g transform="rotate(2.2 922 108)">
-    <rect x="744" y="64" width="356" height="88" rx="16" fill="#fffdf7" stroke="#e6d8bd" stroke-width="1.5" filter="url(#cien-s)"/>
-    <circle cx="772" cy="82" r="8" fill="#c4643c"/>
-    <text class="pis" x="796" y="106" font-size="30" font-weight="700" fill="#312c25">DZIENNIK</text>
-    <text class="ui" x="797" y="132" font-size="16.5" fill="#6b6055">wpis w tej samej turze, co zmiana</text>
+    <rect x="724" y="64" width="396" height="88" rx="16" fill="#fffdf7" stroke="#e6d8bd" stroke-width="1.5" filter="url(#cien-s)"/>
+    <circle cx="752" cy="82" r="8" fill="#c4643c"/>
+    <text class="pis" x="776" y="106" font-size="30" font-weight="700" fill="#312c25">DZIENNIK</text>
+    <text class="ui" x="777" y="132" font-size="16.5" fill="#6b6055">wpis w tej samej turze, co zmiana</text>
   </g>
 
   <g transform="rotate(-1.6 922 210)">
-    <rect x="744" y="166" width="356" height="88" rx="16" fill="#fffdf7" stroke="#e6d8bd" stroke-width="1.5" filter="url(#cien-s)"/>
-    <circle cx="772" cy="184" r="8" fill="#d9a134"/>
-    <text class="pis" x="796" y="208" font-size="30" font-weight="700" fill="#312c25">DECYZJE</text>
-    <text class="ui" x="797" y="234" font-size="16.5" fill="#6b6055">raz zamrożone — nie wracają jako pytanie</text>
+    <rect x="724" y="166" width="396" height="88" rx="16" fill="#fffdf7" stroke="#e6d8bd" stroke-width="1.5" filter="url(#cien-s)"/>
+    <circle cx="752" cy="184" r="8" fill="#d9a134"/>
+    <text class="pis" x="776" y="208" font-size="30" font-weight="700" fill="#312c25">DECYZJE</text>
+    <text class="ui" x="777" y="234" font-size="16.5" fill="#6b6055">raz zamrożone — nie wracają jako pytanie</text>
   </g>
 
   <g transform="rotate(2.8 922 312)">
-    <rect x="744" y="268" width="356" height="88" rx="16" fill="#fffdf7" stroke="#e6d8bd" stroke-width="1.5" filter="url(#cien-s)"/>
-    <circle cx="772" cy="286" r="8" fill="#5f8a68"/>
-    <text class="pis" x="796" y="310" font-size="30" font-weight="700" fill="#312c25">LEKCJE</text>
-    <text class="ui" x="797" y="336" font-size="16.5" fill="#6b6055">korekta zapisana bez proszenia</text>
+    <rect x="724" y="268" width="396" height="88" rx="16" fill="#fffdf7" stroke="#e6d8bd" stroke-width="1.5" filter="url(#cien-s)"/>
+    <circle cx="752" cy="286" r="8" fill="#5f8a68"/>
+    <text class="pis" x="776" y="310" font-size="30" font-weight="700" fill="#312c25">LEKCJE</text>
+    <text class="ui" x="777" y="336" font-size="16.5" fill="#6b6055">korekta zapisana bez proszenia</text>
   </g>
 </svg>
