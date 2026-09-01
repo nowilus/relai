@@ -3,8 +3,8 @@
   <title>Lista zmian</title>
   <g fill="none" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
     <circle cx="11" cy="13" r="3" fill="#c4643c" stroke="none"/>
-    <circle cx="11" cy="24" r="3" fill="#d9a134" stroke="none"/>
+    <circle cx="11" cy="24" r="3" fill="#b8862a" stroke="none"/>
     <circle cx="11" cy="35" r="3" fill="#5f8a68" stroke="none"/>
-    <path d="M20 13h21M20 24h16M20 35h19" stroke="#312c25"/>
+    <path d="M20 13h21M20 24h16M20 35h19" stroke="#8a7f70"/>
   </g>
 </svg>

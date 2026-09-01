@@ -2,10 +2,10 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48" role="img" aria-label="Odnoga planu">
   <title>Odnoga planu</title>
   <g fill="none" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
-    <path d="M15 9v30" stroke="#312c25"/>
+    <path d="M15 9v30" stroke="#8a7f70"/>
     <path d="M15 22c0 0 9 0 12-3s3-6 3-6" stroke="#5f8a68"/>
-    <circle cx="15" cy="9" r="3.4" stroke="#312c25"/>
-    <circle cx="15" cy="39" r="3.4" stroke="#312c25" opacity=".55"/>
+    <circle cx="15" cy="9" r="3.4" stroke="#8a7f70"/>
+    <circle cx="15" cy="39" r="3.4" stroke="#8a7f70" stroke-width="2.2"/>
     <circle cx="31" cy="10" r="5" fill="#5f8a68" stroke="none"/>
   </g>
 </svg>

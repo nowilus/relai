@@ -1181,3 +1181,66 @@ w których mechanizm nie bronił się sam.
 - **Zamknięta lista rdzeni rozstrzygnięcia nie zna słownika realnego projektu** — bramka
   **świadomie zostawiona otwarta** przy zamykaniu planu, przeniesiona do `STATE.md`, sekcja
   „Co dalej", żeby nie zginęła razem z folderem planu w archiwum.
+
+### 2026-09-01 — IKONY KOMEND CZYTELNE NA OBU MOTYWACH GITHUBA
+
+Autor: RelAI (Opus 5) + Lukasz
+
+**Zrobione:**
+
+Zgłoszenie ze zrzutu ekranu: dziesięć ikon w sekcji „Komendy" README jest na ciemnym motywie
+przeglądarki nieczytelnych. Przyczyna zmierzona w plikach, nie zgadnięta: główny kształt każdej
+ikony rysuje tusz `#312c25`, który wobec tła GitHub dark (`#0d1117`) daje kontrast **1,08:1** —
+kreska fizycznie znika, zostaje sam pomarańcz.
+
+Wybór między dwoma zestawami przełączanymi przez `<picture media="(prefers-color-scheme: dark)">`
+a jednym zestawem uniwersalnym rozstrzygnął człowiek: **jeden zestaw**. Powód odrzucenia
+`<picture>`: przełącznik czyta ustawienie systemu, a nie motyw GitHuba, więc użytkownik z ciemnym
+GitHubem na jasnym systemie dostałby dokładnie dzisiejszy problem — plus dwa razy więcej plików do
+utrzymania.
+
+Zmiana jest chirurgiczna: **geometria, grubości kresek i kompozycja bez zmian**, ruszone wyłącznie
+kolory i tryb rysowania.
+
+- **Tusz `#312c25` → `#8a7f70`** we wszystkich dziesięciu plikach. Ciepła szarość z tej samej
+  rodziny barwnej, dobrana tak, by mieścić się w oknie kontrastu ≥3:1 wobec **obu** teł naraz.
+- **`opacity=".55"` na liniach pomocniczych zniknęła** — przezroczystość liczy się względem tła,
+  więc na ciemnym schodziła do ~2,3:1. Hierarchię niesie teraz `stroke-width="2.2"` przy 2.6 linii
+  głównej: ta sama różnica, ale niezależna od tła.
+- **Kremowe wypełnienie lupy w `audit.svg` usunięte** (`fill="none"`) — na ciemnym tle była to
+  jasna plama. Kremowy trójkąt w `stage.svg` **zostaje**: leży w całości na pomarańczowym dysku,
+  więc tła strony nie dotyka.
+- **Żółty `#d9a134` → `#b8862a`** w `changelog.svg` — jedyny kolor marki, który wypadał z okna
+  (2,31:1 na jasnym tle).
+- **Martwy element usunięty** z `adopt.svg`: `<path d="M20 39h5" opacity="0">` nie rysował nic.
+
+Pomarańcz `#c4643c` i zieleń `#5f8a68` zostały bez zmian — pomiar pokazał, że obie już mieściły
+się w oknie, więc nie było czego naprawiać.
+
+**Zweryfikowane — jak dokładnie:**
+
+- **Kontrast policzony skryptem** (WCAG, luminancja względna) dla każdego koloru występującego
+  w plikach, wobec trzech teł: `#ffffff`, `#0d1117` (GitHub dark) i `#22272e` (GitHub dark dimmed).
+  Wynik: `#8a7f70` **3,92 / 4,82 / 3,83**, `#c4643c` **4,01 / 4,72 / 3,75**, `#5f8a68`
+  **3,95 / 4,80 / 3,81**, `#b8862a` **3,24 / 5,84 / 4,64** — wszystkie ≥3:1 na wszystkich trzech.
+  `#fffdf7` wypada wobec bieli (1,02:1), ale występuje wyłącznie na pomarańczowym dysku, gdzie daje
+  3,94:1.
+- **Render obu motywów obok siebie** — headless Chrome, `--force-device-scale-factor=2`, wszystkie
+  dziesięć ikon w rozmiarze 48 px i w realnym rozmiarze README (24 px), na `#ffffff` i `#0d1117`.
+  Obejrzane: każda ikona czytelna w obu kolumnach, żadna nie gubi elementu.
+- **Grep kontrolny po podmianie**: zero wystąpień `#312c25` i zero atrybutów `opacity` w katalogu
+  ikon; `#fffdf7` wyłącznie w `stage.svg`, w jednej linii.
+- Plik podglądu był tymczasowy i **został usunięty** — `git status` pokazuje wyłącznie dziesięć
+  zmienionych SVG.
+
+**Świadomie odłożone:**
+
+- **Banner i diagram nietknięte** — świadomy wybór zakresu. Banner był ruszany poprzednim commitem,
+  a obie grafiki mają osadzone fonty i budują się skryptem `zbuduj.js`, więc to inna robota niż
+  dziesięć małych plików. Ich kontrast na ciemnym tle **nie był mierzony**.
+- **Ikony nie wchodzą do `ARTEFAKTY.md`** — rejestr obejmuje instrukcje czytane przez model
+  (specyfikacje, komendy, skille, reguły), a grafika brandingowa nią nie jest.
+
+**Do zrobienia przez człowieka:**
+
+- Pozostałe bez zmian.

@@ -2,9 +2,9 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48" role="img" aria-label="Przeglad projektu">
   <title>Przeglad projektu</title>
   <g fill="none" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
-    <rect x="7" y="6" width="24" height="32" rx="5" stroke="#312c25"/>
-    <path d="M13 14h12M13 20h8" stroke="#312c25" opacity=".55"/>
-    <circle cx="29" cy="29" r="9" stroke="#c4643c" fill="#fffdf7"/>
+    <rect x="7" y="6" width="24" height="32" rx="5" stroke="#8a7f70"/>
+    <path d="M13 14h12M13 20h8" stroke="#8a7f70" stroke-width="2.2"/>
+    <circle cx="29" cy="29" r="9" stroke="#c4643c"/>
     <path d="M35.5 35.5L42 42" stroke="#c4643c"/>
   </g>
 </svg>

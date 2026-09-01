@@ -2,8 +2,8 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48" role="img" aria-label="Pakiet przekazania">
   <title>Pakiet przekazania</title>
   <g fill="none" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
-    <rect x="5" y="12" width="24" height="24" rx="5" stroke="#312c25"/>
-    <path d="M11 20h12M11 27h8" stroke="#312c25" opacity=".55"/>
+    <rect x="5" y="12" width="24" height="24" rx="5" stroke="#8a7f70"/>
+    <path d="M11 20h12M11 27h8" stroke="#8a7f70" stroke-width="2.2"/>
     <path d="M33 24h9" stroke="#c4643c"/>
     <path d="M37 19l5 5-5 5" stroke="#c4643c"/>
   </g>

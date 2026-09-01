@@ -2,8 +2,8 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48" role="img" aria-label="Wycieczka po projekcie">
   <title>Wycieczka po projekcie</title>
   <g fill="none" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
-    <path d="M7 40c6-2 5-9 11-11s7-8 13-9" stroke="#312c25" stroke-dasharray="1 5" opacity=".7"/>
-    <circle cx="7" cy="40" r="3.2" fill="#312c25" stroke="none" opacity=".7"/>
+    <path d="M7 40c6-2 5-9 11-11s7-8 13-9" stroke="#8a7f70" stroke-dasharray="1 5"/>
+    <circle cx="7" cy="40" r="3.2" fill="#8a7f70" stroke="none"/>
     <path d="M33 20V7" stroke="#c4643c"/>
     <path d="M33 8h9l-3 4 3 4h-9z" fill="#c4643c" stroke="#c4643c"/>
   </g>
