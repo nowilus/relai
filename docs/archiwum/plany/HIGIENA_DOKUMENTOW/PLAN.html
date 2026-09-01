@@ -241,7 +241,7 @@ footer .pis{font-family:var(--pis); font-size:1.2rem; color:var(--glina); margin
     <a href="#s5">Jak działa</a><a href="#s6">Etapy</a><a href="#s7">Ryzyka</a><a href="#s8">Brzegowe</a>
     <a href="#s9">Decyzje</a><a href="#s10">Aneksy</a>
   </nav>
-  <span class="stan">ZAAKCEPTOWANY</span>
+  <span class="stan">ZREALIZOWANY</span>
 </div>
 
 <header class="szyld">
@@ -253,7 +253,7 @@ footer .pis{font-family:var(--pis); font-size:1.2rem; color:var(--glina); margin
   </svg>
   <p class="podtytul">Sześć defektów mechanizmu, przez które dziennik projektu urósł do 862,7 KB przy progu 150 KB, a przez cztery miesiące nikt tego nie zauważył.</p>
   <div class="metki">
-    <span class="metka akc"><i></i>status: <b>ZAAKCEPTOWANY 2026-09-01 (Aneksy A, B)</b></span>
+    <span class="metka akc"><i></i>status: <b>ZREALIZOWANY 2026-09-01 (Aneksy A, B, C, D)</b></span>
     <span class="metka">etapów: <b>6</b></span>
     <span class="metka">pracochłonność: <b>9–13 sesji</b> <span class="et et-s">SZACUNEK</span></span>
     <span class="metka">model etapów: <b>Opus</b></span>
@@ -1044,6 +1044,45 @@ footer .pis{font-family:var(--pis); font-size:1.2rem; color:var(--glina); margin
   suma kontrolna <code>d7c16fc38575773e</code>) zbiło <code>LEKCJE.md</code> z 52 260 B do
   <b>16 906 B</b> <span class="et et-f">FAKT</span> — z 2,3 KB nad progiem na 33 KB zapasu.
   Procedura istniała od 1.2.0; zabrakło wyłącznie kogoś, kto liczy.</p>
+
+  <h3>Aneks C — 1 września 2026</h3>
+  <p><b>Powód:</b> kryterium sukcesu etapu E5 — „sekcja ryzyk PolyFlow schodzi pod 12 KB, a wszystkie
+  ryzyka nadal widać" — jest <b>arytmetycznie nieosiągalne</b> mechanizmem z zakresu tego etapu.
+  Policzone na wskazanym materiale <b>przed</b> implementacją, zgodnie z zasadą aktywną 4: sekcja
+  „Stan otwartych ryzyk" dziennika PolyFlow (<code>9fcf433</code>) ma <b>39 548 B, 62 ryzyka
+  i 0 o statusie ZAMKNIĘTE</b> <span class="et et-f">FAKT</span>. Jedyna komórka ponad limitem
+  800 znaków (912) ma status <code>OTWARTE</code>, a tych automat nie rusza. Cała kolumna
+  „Mitygacja" waży <b>22 032 B</b>, więc jej wyzerowanie zostawia 17,5 KB — nadal ponad progiem.</p>
+  <p>Sekcja nie jest gruba kroniką w komórkach, tylko <b>liczbą żywych ryzyk</b>. Odchudza ją
+  zamknięcie ryzyk albo podniesienie progu — obie rzeczy są decyzją człowieka, nie operacją
+  mechanizmu.</p>
+  <ul>
+    <li><b>Kryterium E5 zmienione</b> na dowód działania mechanizmu: kompresja bierze każdą komórkę
+      spełniającą trzy warunki naraz, cytat w żywej tabeli występuje dosłownie w archiwum, a wiersz
+      zostaje w tabeli ze swoim numerem i statusem.</li>
+    <li><b>Zakres prac E5 bez zmian.</b> Zmienia się miara sukcesu, nie robota.</li>
+  </ul>
+
+  <h3>Aneks D — 1 września 2026</h3>
+  <p><b>Powód:</b> guardrail skanujący sekrety zatrzymał commit wydania 1.7.0 na zdaniu
+  <b>opisującym ten sam guardrail</b> — wyliczeniu <code>PASSWORD=</code> / <code>SECRET=</code>
+  zapisanym jako kod liniowy Markdown w <code>SPEC_KOMENDY.md</code>. Klasa wartości we wzorcu nie
+  wykluczała backticka, więc znaki między dwoma fragmentami kodu wyglądały jak hasło. Sekretu tam
+  nie ma.</p>
+  <p>Zasada aktywna 12 zabrania obejścia: guardrail zatrzymujący treść, która sekretem nie jest, to
+  defekt rdzenia, a poprawka wraca z dowodem, nigdy jako <code>--no-verify</code>. Bez commita nie
+  ma sekwencji wydania, więc poprawka weszła do zakresu E6.</p>
+  <ul>
+    <li><b>Zakres E6 rośnie o poprawkę</b> wzorca <code>ASSIGN_RE</code>
+      w <code>core/guardrails/secret-scan.js</code>: backtick otwiera grupę cudzysłowu i jest
+      wykluczony z klasy wartości. Domyka to dziurę w drugą stronę — przypisanie w template licie
+      JavaScriptu zostaje złapane.</li>
+    <li><b>Dowód:</b> obie wersje wzorca w jednym przebiegu na dziewięciu przypadkach — stary myli
+      się <b>1 raz</b>, nowy <b>0 razy</b> <span class="et et-f">FAKT</span>. Dowód negatywny na
+      trzech wariantach indeksu: realne <code>PASSWORD=</code> → kod 1 i brak commita, czysty indeks
+      → kod 0, zdanie dokumentacji → kod 0.</li>
+    <li><b>Pozostałe punkty zakresu E6 bez zmian.</b></li>
+  </ul>
 </section>
 
 <footer>

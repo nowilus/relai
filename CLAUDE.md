@@ -31,10 +31,10 @@ o kolejne `N` dni / rozstrzygnąć teraz. Sesja nieinteraktywna: sam raport, bez
 | Plan BUDOWA_RELAI — 10 etapów | ZAMKNIĘTY 2026-08-10 | [archiwum planu](docs/archiwum/plany/BUDOWA_RELAI/STATUS.md) |
 | Plan ROZWOJ_PO_WYDANIU — 8 etapów | 6/8; **ZAMROŻONY 2026-08-21** (E7 czeka na dostęp do Codeksa) | [STATUS](docs/plany/ROZWOJ_PO_WYDANIU/STATUS.md) |
 | Plan OPTYMALIZACJA_KONTEKSTU — 5 etapów | ZREALIZOWANY 2026-08-21 | [archiwum planu](docs/archiwum/plany/OPTYMALIZACJA_KONTEKSTU/STATUS.md) |
-| Plan HIGIENA_DOKUMENTOW — 6 etapów | **ZAAKCEPTOWANY 2026-09-01**; E1 gotowy do startu | [STATUS](docs/plany/HIGIENA_DOKUMENTOW/STATUS.md) |
-| Odnogi i wątki samodzielne | 5 otwartych (BLOKADA_ROTACJI wchodzi do E1 planu HIGIENA_DOKUMENTOW) | [docs/STATE.md](docs/STATE.md) |
+| Plan HIGIENA_DOKUMENTOW — 6 etapów | **ZREALIZOWANY 2026-09-01** (Aneksy A–D) | [archiwum planu](docs/archiwum/plany/HIGIENA_DOKUMENTOW/STATUS.md) |
+| Odnogi i wątki samodzielne | 3 otwarte, wszystkie z zamrożonego planu ROZWOJ_PO_WYDANIU | [docs/STATE.md](docs/STATE.md) |
 
-Aktywny plan: [HIGIENA_DOKUMENTOW](docs/plany/HIGIENA_DOKUMENTOW/STATUS.md)
+Aktywny plan: brak
 
 ## Reguły procesu
 

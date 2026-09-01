@@ -1,6 +1,6 @@
 # STATUS — plan HIGIENA_DOKUMENTOW
 
-Plan: [PLAN.html](PLAN.html) · Utworzony: 2026-09-01 · Status planu: **ZAAKCEPTOWANY 2026-09-01
+Plan: [PLAN.html](PLAN.html) · Utworzony: 2026-09-01 · Status planu: **ZREALIZOWANY 2026-09-01
 (Aneksy A, B, C, D)** · Model wykonawczy etapów: Opus (D-85)
 
 ## Tabela etapów
@@ -12,7 +12,7 @@ Plan: [PLAN.html](PLAN.html) · Utworzony: 2026-09-01 · Status planu: **ZAAKCEP
 | E3 | Sprawa przeterminowana wymusza decyzję | **ZREALIZOWANY 2026-09-01** | [PROMPT_ETAP_3.md](PROMPT_ETAP_3.md) | `N = 30 dni`, wyłącznik osobny od rotacji (Aneks A); materiał pomiarowy inny, niż zakładał prompt — 1 pozycja zamiast 9 |
 | E4 | Raport startu jako adres progów | **ZREALIZOWANY 2026-09-01** | [PROMPT_ETAP_4.md](PROMPT_ETAP_4.md) | drugi wyzwalacz raportu, progi sekcji, katalog progów w `SPEC_USTAWIENIA.md`; limit „Zasad aktywnych" nietknięty |
 | E5 | Ryzyka i ustawienia schodzą do archiwum | **ZREALIZOWANY 2026-09-01** | [PROMPT_ETAP_5.md](PROMPT_ETAP_5.md) | Aneks C — kryterium „sekcja ryzyk PolyFlow pod 12 KB" nieosiągalne arytmetycznie; zamienione na dowód działania mechanizmu |
-| E6 | Pomiar na realnych projektach i wydanie | **W TOKU** | [PROMPT_ETAP_6.md](PROMPT_ETAP_6.md) | wydanie 1.7.0, sekwencja P-005 obowiązuje; **ostatni etap planu** — rytuał kończy się sekwencją zamknięcia planu (D-36) |
+| E6 | Pomiar na realnych projektach i wydanie | **ZREALIZOWANY 2026-09-01** | [PROMPT_ETAP_6.md](PROMPT_ETAP_6.md) | wydanie 1.7.0, sekwencja P-005 obowiązuje; **ostatni etap planu** — rytuał kończy się sekwencją zamknięcia planu (D-36) |
 
 ## Odnogi
 
@@ -34,6 +34,12 @@ Plan: [PLAN.html](PLAN.html) · Utworzony: 2026-09-01 · Status planu: **ZAAKCEP
 - **Kryterium sukcesu E5 nieosiągalne na wskazanym materiale** · źródło: wpis dziennika 2026-09-01
   (E5) · ROZSTRZYGNIĘTA 2026-09-01 — wybrany wariant „Aneks C": kryterium zamienione na dowód
   działania mechanizmu; zakres prac E5 bez zmian
+
+- **Zamknięta lista rdzeni rozstrzygnięcia nie zna słownika realnego projektu** · źródło: wpis
+  dziennika 2026-09-01 (E6) · **OTWARTA** — 7 z 32 pozycji „Czeka na człowieka" w PolyFlow wygląda
+  dla człowieka na zamknięte, a mechanizm liczy je jako otwarte (`zaliczona` ×3, `dostarczony` ×1,
+  trzy bez rdzenia z datą). Poszerzenie listy jest decyzją projektową: fałszywe rozpoznanie chowa
+  sprawę człowieka w archiwum
 
 ## Dziennik wdrożenia
 
@@ -104,3 +110,12 @@ Plan: [PLAN.html](PLAN.html) · Utworzony: 2026-09-01 · Status planu: **ZAAKCEP
   bo projekt 1.6.1 nie ma wiersza `Przegląd spraw człowieka`. **Czeka na restart aplikacji**
   (P-005) — dopiero po nim pomiar w świeżej sesji, `/relai-update` dla PolyFlow i realny przebieg
   rotacji.
+- 2026-09-01 — **E6 ZREALIZOWANY**: wydanie **1.7.0** (3 źródła, walidator kod 0), grep po `1.6.1`
+  rozstrzygnięty (11 deklaracji podbitych, 41 wzmianek historycznych), sekwencja P-005 z restartem,
+  PolyFlow na 1.7.0 z cache'u pluginu. Wersja wykonywana potwierdzona **treścią pliku**:
+  `SPEC_ARCHIWUM.md` 27 390 → 53 057 B. Pierwszy realny przebieg przepięcia linków: 60 → 65 → 60,
+  bilans zero. Rotacje: PolyFlow dziennik 183,1 → 147,3 KB i ustawienia 29,8 → 25,4 KB, tutaj
+  dziennik 155,6 → 74,1 KB. Kompresja komórek nie ruszyła — dowód negatywny na dwóch wersjach
+  pliku. Pytanie partiami po cztery: 13 spraw, 4 partie; licznik odroczeń 1→2→3 z przesunięciem
+  zegara bez zamknięcia sprawy. Zero regresji ciszy: **0 znaków** tutaj, **5 linii przy limicie 6**
+  w projekcie kontrolnym. `PROMPT_ETAP_7.md` nie powstaje — to był ostatni etap.

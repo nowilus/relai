@@ -37,8 +37,11 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
    kontrolę na wyjściu — jedna kontrola przechodzi zielono, gdy zniknął przypadek, którego nie
    sprawdza. **Wzorzec identyfikatora pozycji ma obok siebie kontrolę „ile wierszy odrzucono"** —
    realny rejestr trzyma numery, których wzorzec nie przewidział, a odrzucenie jest ciche.
+   **Generator identyfikatorów ma kontrolę pozytywną na wszystkich kandydatach, nie na
+   pierwszym** — sprawdzasz, czy wygenerowana wartość występuje w tym samym pliku; pierwszy
+   element bywa jedynym nielinkowanym i przewraca kontrolę na poprawnym generatorze.
    Wyczerpany limit konta zatrzymuje pomiar i idzie do odnogi, nie do adnotacji „sprawdzone
-   inaczej". (L-0032, L-0037, L-0054, L-0055, L-0056, L-0064, L-0068, L-0071)
+   inaczej". (L-0032, L-0037, L-0054, L-0055, L-0056, L-0064, L-0068, L-0071, L-0073)
 6. **Próg jest liczbą, którą ktoś liczy:** kalibruj go na zmierzonych plikach realnych projektów,
    zapisuj w jednostce mechanizmu kontrolnego wraz z komendą sprawdzającą i daj mu **jeden**
    wyzwalacz — wielkości pomocnicze wskazują przyczynę wewnątrz komunikatu, nie wywołują go.
@@ -54,8 +57,10 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
    `\w` bez flagi `u` to `[A-Za-z0-9_]`, więc wzorzec przechodzi na formach bez ogonków i odpada
    na realnym dokumencie; wynik zawyżony jest tak samo podejrzany jak zerowy. **Rdzenia szukasz
    w samym brzmieniu wartości, nie w całej komórce** — za datą stoi proza z tymi samymi słowami,
-   więc dopasowanie „gdziekolwiek" wciąga pozycje, które należą do innego mechanizmu. (L-0025,
-   L-0035, L-0048, L-0066, L-0070)
+   więc dopasowanie „gdziekolwiek" wciąga pozycje, które należą do innego mechanizmu.
+   **Zamknięta lista ma koszt po drugiej stronie i ten koszt mierzysz:** ile pozycji wygląda dla
+   człowieka na rozpoznane, a nie jest; poszerzenie listy jest decyzją człowieka, nie poprawką.
+   (L-0025, L-0035, L-0048, L-0066, L-0070, L-0074)
 8. **Zachowanie, które ma działać zawsze, mieszka w warstwie obecnej w każdej sesji** —
    `CLAUDE.md` projektu albo hook; skill dokłada procedurę i wyzwala się zawodnie, a komenda
    wywołana wprost go nie ładuje. Sygnał, który ma paść raz, ma jednego właściciela; cisza
@@ -80,8 +85,9 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
     zamkniętą listą brzmień, której używa reszta rdzenia. (L-0033, L-0038, L-0057, L-0062, L-0067)
 12. **Guardrail zatrzymujący treść, która sekretem nie jest, to defekt rdzenia** — poprawka wraca
     z dowodem, nigdy jako obejście. Wołaj go przez opakowanie powłoki, żeby brak interpretera
-    zamieniał się w blokadę, a nie w ciszę; próbki sekretów składaj w czasie wykonania. (L-0043,
-    L-0045, L-0046)
+    zamieniał się w blokadę, a nie w ciszę; próbki sekretów składaj w czasie wykonania.
+    **Znak cudzysłowu — także backtick — należy do grupy cudzysłowu, nigdy do klasy wartości**,
+    inaczej guardrail zatrzymuje zdanie opisujące jego samego. (L-0043, L-0045, L-0046, L-0072)
 13. **Cudze narzędzie poznajesz z wydanego builda i z próby**, nie z dokumentacji: payload parsuj
     po zdjęciu BOM i bez założeń o nazwach pól, sesję CLI uruchamiaj z powłoki natywnej, a brak
     sygnału konfrontuj najpierw z **warunkiem milczenia** mechanizmu. (L-0041, L-0042, L-0044,
@@ -366,6 +372,52 @@ restart aplikacji po `plugin update` (L-0031), `git worktree` zamiast `git archi
   nie widzi tego samego dwa razy.
 - **Źródło:** E5 planu HIGIENA_DOKUMENTOW (2026-09-01); rozwinięcie zasady aktywnej 5 (L-0056,
   L-0067).
+
+### L-0072 — Guardrail zatrzymał zdanie, które opisywało jego samego · 2026-09-01 · AKTYWNA
+
+- **Trigger:** commit wydania 1.7.0 odbił się od gitowego pre-commita: „w plikach z indeksu wyglada
+  na to, ze jest sekret — `core/templates/SPEC_KOMENDY.md` (przypisanie PASSWORD= z niepusta
+  wartoscia)". Sekretu tam nie było. Zatrzymało się zdanie wyliczające, czego guardrail pilnuje:
+  `` `PASSWORD=`/`SECRET=` z wartością ``.
+- **Przyczyna:** klasa wartości w `ASSIGN_RE` nie wykluczała backticka, więc po `PASSWORD=`
+  regex zjadał `` `/`SECRET= `` — osiem znaków, żaden z listy placeholderów. Plik przeszedł przez
+  skaner po raz pierwszy, bo od instalacji hooka nikt go nie zmieniał.
+- **Zasada:** znak cudzysłowu należy do **grupy cudzysłowu**, nigdy do klasy wartości — także
+  backtick. Ta sama poprawka domyka dziurę w drugą stronę: przypisanie w template licie JS zostaje
+  złapane, bo otwierający backtick konsumuje grupa cudzysłowu, a nie klasa wartości.
+- **Źródło:** E6 planu HIGIENA_DOKUMENTOW, Aneks D (2026-09-01); rozwinięcie zasad aktywnych 5 i 12
+  (L-0043, L-0056).
+
+### L-0073 — Generator kotwic zwinął dwie spacje w jeden myślnik i zgłosił 78 martwych linków · 2026-09-01 · AKTYWNA
+
+- **Trigger:** kontrola po rotacji dziennika PolyFlow zameldowała **78 pozycji z linkiem do
+  nieistniejącej kotwicy** — w tym linki do wpisów, które stały w żywym pliku dwa ekrany wyżej.
+- **Przyczyna:** generator kotwic zwijał ciąg białych znaków do jednego myślnika (`\s+` → `-`),
+  a Markdown daje **jeden myślnik na każdą spację**. Nagłówek „2026-09-01 — Bramka…" ma po
+  usunięciu myślnika dwie spacje, więc prawdziwa kotwica ma dwa myślniki, a wygenerowana jeden.
+  Instrument nie miał żadnej kontroli, więc liczył z pełnym przekonaniem.
+- **Zasada:** kontrola pozytywna generatora identyfikatorów sprawdza, czy wygenerowana wartość
+  **występuje w tym samym pliku**, i robi to na **wszystkich** kandydatach, nie na pierwszym —
+  pierwszy element bywa jedynym, do którego nikt nie linkuje, i kontrola przewraca się na
+  poprawnym generatorze. Prawidłowa liczba po poprawce: **60 przed rotacją, 65 po niej, 60 po
+  przepięciu** — bilans przebiegu zero.
+- **Źródło:** E6 planu HIGIENA_DOKUMENTOW (2026-09-01); rozwinięcie zasady aktywnej 5 (L-0055,
+  L-0068, L-0071).
+
+### L-0074 — Sprawa zamknięta słowem spoza listy wraca w przeglądzie jak otwarta · 2026-09-01 · AKTYWNA
+
+- **Trigger:** w przeglądzie spraw PolyFlow pojawiła się bramka przekreślona `~~` i opisana
+  „**zaliczona 2026-08-26**". Mechanizm liczył ją jako otwartą i przeterminowaną. Policzone:
+  **7 z 32 pozycji** — 22% — wygląda dla człowieka na zamknięte, a rdzeń widzi je jako otwarte
+  (`zaliczona` ×3, `dostarczony` ×1, trzy bez rdzenia z datą).
+- **Przyczyna:** lista rdzeni rozstrzygnięcia jest zamknięta świadomie, a jej zawartość powstała
+  z brzmień tego repozytorium. Realny projekt zamyka bramki własnym słownikiem.
+- **Zasada:** zamknięta lista brzmień ma **koszt po drugiej stronie** i ten koszt się mierzy:
+  ile pozycji wygląda na zamknięte, a nie jest rozpoznanych. Liczba wchodzi do wpisu jako procent,
+  a poszerzenie listy jest **decyzją człowieka**, nie poprawką — fałszywe rozpoznanie chowa sprawę
+  człowieka w archiwum.
+- **Źródło:** E6 planu HIGIENA_DOKUMENTOW (2026-09-01); rozwinięcie zasady aktywnej 7 (L-0025,
+  L-0035, L-0070).
 
 ## Lekcje zwinięte
 
