@@ -165,6 +165,12 @@ Procedura:
 
 1. Grupujesz aktywne lekcje tematycznie i zapisujesz każdą grupę jako **jedno zdanie** w „Zasadach
    aktywnych", z numerami źródłowymi w nawiasie.
+Próg **30 KB dla samej sekcji „Lekcje zwinięte"** jest od 1.7.0 **czytany maszynowo** przez hook
+startu sesji: sekcja ponad progiem wchodzi do linii `[RelAI progi dokumentow]` razem z nazwą
+procedury (przeniesienie do archiwum lekcji). Do tego dnia próg istniał i nikt go nie liczył —
+w tym repozytorium sekcja ważyła 35 787 B `FAKT`. Pełny wykaz progów: „Katalog progów"
+w `SPEC_USTAWIENIA.md`.
+
 2. Zwinięte wpisy dostają status `ZWINIĘTA <data>` i przenosisz je do sekcji „Lekcje zwinięte" na
    końcu pliku — albo, gdy sekcja sama urośnie ponad 30 KB, do
    `docs/archiwum/lekcje/LEKCJE_<numer-od>_<numer-do>.md` z linkiem (D-18); nazewnictwo i nagłówek

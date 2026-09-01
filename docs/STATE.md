@@ -57,9 +57,20 @@ to kosztuje, a sprawa czekająca na człowieka dłużej niż 30 dni wymusza decy
   z 25** przy dacie o sześć tygodni późniejszej. Odroczenie przesuwa zegar, a nie zamyka sprawy —
   rdzeń `odroczo` stoi wśród brzmień, które rozstrzygnięciem nie są.
 - **Koszt startu sesji jest liczony, a nie szacowany.** Hook mierzy sześć pozycji rytuału startu
-  i porównuje sumę z budżetem 80 KB. Powyżej budżetu: najwyżej sześć linii z sumą, trzema
-  najgrubszymi pozycjami i propozycją odchudzenia. Poniżej: ani jednego znaku. Oba adaptery wołają
+  i porównuje sumę z budżetem 80 KB. Powyżej budżetu: najwyżej sześć linii z sumą, pozycjami ponad
+  progiem cząstkowym i propozycją odchudzenia. Poniżej: ani jednego znaku. Oba adaptery wołają
   tę samą funkcję rdzenia.
+- **Każdy próg ma adres, a raport startu jest tym adresem (E4, 2026-09-01).** Raport odzywa się
+  przy przekroczeniu sumy **albo** gdy dokument czy sekcja przekracza **własny** próg rotacji —
+  dwie rozłączne linie, każda pozycja z nazwą procedury, która ją odchudza. Wcześniej `LEKCJE.md`
+  ważące 52 KB przy progu 50 KB nie odezwałoby się ani razu. Zmierzone: dziennik 154,5 KB → raport,
+  31,2 KB → cisza; `LEKCJE.md` sprzed przeniesienia (52 260 B, sekcja „Lekcje zwinięte" 35 787 B) →
+  plik **i** sekcja, identycznie dla LF i CRLF; dokumenty PolyFlow → **4 pozycje ponad progiem**,
+  z których wcześniej nie odezwała się żadna; pełny zestaw przekroczeń mieści się w **5 liniach**
+  przy limicie 6, a to repozytorium dostaje z obu hooków **0 linii**. Wykaz wszystkich progów RelAI
+  wraz z ich adresami egzekwowania stoi w sekcji „Katalog progów" `SPEC_USTAWIENIA.md`; dwa progi
+  mają tam wpisane wprost „brak automatu". Część „dokumenty ponad progiem" ma wyłącznik **rotacji**,
+  nie budżetu.
 - **`STATE.md` i `CLAUDE.md` mają twardy kształt** (1.6.0): trzy pozycje w „Nad czym pracujemy
   teraz" z podmianą zamiast dopisywania, próg zwięzłości jako liczba sprawdzalna komendą, budżet
   `CLAUDE.md` w KB i zakaz treści odtwarzalnej z repozytorium. Pułapki narzędziowe mają własny
@@ -102,16 +113,17 @@ to kosztuje, a sprawa czekająca na człowieka dłużej niż 30 dni wymusza decy
 
 ## Nad czym pracujemy teraz
 
-- **Plan HIGIENA_DOKUMENTOW — E1, E2 i E3 zrealizowane 2026-09-01, E4 gotowy do startu.** Po co:
+- **Plan HIGIENA_DOKUMENTOW — E1–E4 zrealizowane 2026-09-01, E5 gotowy do startu.** Po co:
   mechanizm rotacji i progów jest kompletny, ale w projekcie prowadzonym cztery miesiące nie odezwał
   się ani razu — dziennik PolyFlow doszedł do 862,7 KB przy progu 150 KB. **E1 zdjął pierwszą
   przyczynę:** pozycja „Czeka na człowieka" linkuje do najnowszego wystąpienia sprawy, wpis linkowany
   przestał być nietykalny, a jego link jest przepinany na archiwum w fazie 2 — zakres rotacji rośnie
   z **0 do 117 wpisów ze 127**. **E2 zdjął drugą:** próg liczy się ponad nietykalnymi, a zatkana
   rotacja wypisuje blokery zamiast milczeć. **E3 zdjął trzecią:** sprawa człowieka starsza niż
-  30 dni nie przeżyje startu sesji bez odpowiedzi. E4: raport startu staje się adresem progów —
-  wraz z **progami sekcji** i jawnym katalogiem progów (Aneks B); limit „Zasad aktywnych" zostaje
-  przy swoim dotychczasowym adresie.
+  30 dni nie przeżyje startu sesji bez odpowiedzi. **E4 zdjął czwartą:** próg dokumentu i sekcji
+  ma adres w raporcie startu, a katalog progów mówi, które progi nikt nie liczy. E5: ryzyka
+  i ustawienia schodzą do archiwum — sekcja ryzyk PolyFlow ma zejść pod 12 KB bez utraty ani
+  jednego z 59 ryzyk.
 - **Migracja JiraManagera.** Po co: to ostatni projekt, w którym start sesji kosztuje 386 KB
   dokumentów, a rotacja nigdy nie ruszyła. Czeka na okno — właściciel rozwija go na bieżąco, więc
   migracja wchodzi dopiero wtedy, gdy żaden etap tam nie trwa. Dopóki nie wejdzie, **ryzyko R5
@@ -205,13 +217,14 @@ Pułapki: [PULAPKI.md](PULAPKI.md)
 ### Liczby
 
 Etapy: BUDOWA_RELAI 10/10 • ROZWOJ_PO_WYDANIU 6/8 (ZAMROŻONY) • OPTYMALIZACJA_KONTEKSTU 5/5
-(ZREALIZOWANY) • HIGIENA_DOKUMENTOW 3/6 •
-Warstwa startowa RelAI: **35,1 KB / 80 KB** (pomiar sprzed E1) • Warstwa
-startowa PolyFlow po migracji: **136,4 KB / 80 KB** (przed: 155,7) • Dziennik: **140,2 KB /
-próg 150 KB** po dwóch rotacjach 2026-09-01 i wpisie E3 (przed pierwszą: 168,0) • Lekcje 23,5 KB /
-13 lekcji • Sprawy czekające na człowieka: **1 tutaj** (było 10 przed 2026-09-01), **25 otwartych
-w PolyFlow**, żadna nieprzeterminowana przy progu 30 dni •
-Zasady aktywne: **15 przy limicie 15** • Lekcje: 13 w żywym rejestrze, ostatnia L-0067 •
+(ZREALIZOWANY) • HIGIENA_DOKUMENTOW 4/6 •
+Warstwa startowa RelAI: **47,1 KB / 80 KB** (pomiar z E4) • Warstwa
+startowa PolyFlow po migracji: **136,4 KB / 80 KB** (przed: 155,7) • Dziennik: **147,7 KB /
+próg 150 KB** po dwóch rotacjach 2026-09-01 i wpisach E3–E4 (przed pierwszą: 168,0) • Lekcje
+25,1 KB / 14 lekcji • Sprawy czekające na człowieka: **1 tutaj** (było 10 przed 2026-09-01),
+**25 otwartych w PolyFlow**, żadna nieprzeterminowana przy progu 30 dni •
+Progi w katalogu: **17, z tego 2 bez adresu egzekwowania** •
+Zasady aktywne: **15 przy limicie 15** • Lekcje: 14 w żywym rejestrze, ostatnia L-0068 •
 Scenariusze akceptacyjne: 4/4 zdane + pilotaż Cursora •
 Adaptery: 2 • Modele, na których zmierzono proces: 5 (Fable, Opus, Haiku, Composer/auto, Grok 4.6) •
 Projekty na 1.6.x: 2 (RelAI, PolyFlow) • Otwarte wątki: 3 (odnogi zamrożonego planu; POMIAR_ODNOG

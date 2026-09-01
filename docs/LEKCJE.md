@@ -29,8 +29,11 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
    wyescapować, dziel po separatorze **niepoprzedzonym znakiem ucieczki** i sprawdzaj liczbę pól po
    podmianie. **Trafienie zgłoszone na materiale, który dotąd był zdrowy, sprawdzasz najpierw na
    instrumencie**; w łańcuchu podmian zbiór znaków zachowywanych wypisujesz raz, bo znak usunięty
-   wcześniej nie wróci później. Wyczerpany limit konta zatrzymuje pomiar i idzie do odnogi, nie do
-   adnotacji „sprawdzone inaczej". (L-0032, L-0037, L-0054, L-0055, L-0056, L-0064)
+   wcześniej nie wróci później. **Filtr odsiewający „to nie jest przypadek do sprawdzenia" ma
+   wyjątek dla linii mówiącej wprost o rzeczy sprawdzanej**, a każdy przypadek graniczny ma własną
+   kontrolę na wyjściu — jedna kontrola przechodzi zielono, gdy zniknął przypadek, którego nie
+   sprawdza. Wyczerpany limit konta zatrzymuje pomiar i idzie do odnogi, nie do
+   adnotacji „sprawdzone inaczej". (L-0032, L-0037, L-0054, L-0055, L-0056, L-0064, L-0068)
 6. **Próg jest liczbą, którą ktoś liczy:** kalibruj go na zmierzonych plikach realnych projektów,
    zapisuj w jednostce mechanizmu kontrolnego wraz z komendą sprawdzającą i daj mu **jeden**
    wyzwalacz — wielkości pomocnicze wskazują przyczynę wewnątrz komunikatu, nie wywołują go.
@@ -293,6 +296,22 @@ restart aplikacji po `plugin update` (L-0031), `git worktree` zamiast `git archi
   rozjedzie się z pierwszą.
 - **Źródło:** E3 planu HIGIENA_DOKUMENTOW (2026-09-01); rozwinięcie zasady aktywnej 11 (L-0033,
   L-0057, L-0062).
+
+### L-0068 — Filtr odsiewający pomiary zjadł próg, bo próg stał w jednym zdaniu z datą pomiaru · 2026-09-01 · AKTYWNA
+
+- **Trigger:** instrument sprawdzający kompletność katalogu progów miał odsiać z rdzenia linie,
+  które progiem nie są: pomiary, daty, numery lekcji, kod HTML. Filtr działał na **całej linii**,
+  więc wyrzucił zdanie „**Limit: 800 znaków na komórkę** — skalibrowany 2026-08-21 na zmierzonych
+  dziennikach trzech…" wyłącznie dlatego, że niosło datę kalibracji. Wynik brzmiał „0 kandydatów
+  bez odpowiednika w katalogu" — prawda, ale bez jednego z progów, które ten punkt miał sprawdzić.
+- **Przyczyna:** próg i dowód jego kalibracji mieszkają w **tym samym zdaniu**, bo tego wymaga
+  zasada „próg jest liczbą, którą ktoś liczy". Filtr wycinający „to jest pomiar, nie próg" wycina
+  wtedy sam próg, a instrument nie mówi ani słowa o tym, co wyrzucił.
+- **Zasada:** filtr odsiewający ma **wyjątek dla linii mówiącej wprost o limicie albo progu**,
+  a każdy przypadek graniczny, który **musi** trafić, ma własną kontrolę wypisywaną na wyjściu.
+  Jedna kontrola nie wystarcza: przechodzi zielono, gdy zniknął przypadek, którego nie sprawdza.
+- **Źródło:** E4 planu HIGIENA_DOKUMENTOW (2026-09-01); rozwinięcie zasady aktywnej 5 (L-0032,
+  L-0037, L-0055).
 
 ## Lekcje zwinięte
 

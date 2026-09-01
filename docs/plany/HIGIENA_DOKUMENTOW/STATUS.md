@@ -10,8 +10,8 @@ Plan: [PLAN.html](PLAN.html) · Utworzony: 2026-09-01 · Status planu: **ZAAKCEP
 | E1 | Rotacja rusza | **ZREALIZOWANY 2026-09-01** | [PROMPT_ETAP_1.md](PROMPT_ETAP_1.md) | wchłonął odnogę [BLOKADA_ROTACJI](../../fixy/BLOKADA_ROTACJI/ODNOGA.md); zakres rotacji PolyFlow 0 → 117 wpisów ze 127 |
 | E2 | Blokada mówi i próg nie kłamie | **ZREALIZOWANY 2026-09-01** | [PROMPT_ETAP_2.md](PROMPT_ETAP_2.md) | komunikat wypisuje blokery; próg liczony ponad nietykalnymi; `session-signals.js` bez zmian — rozstrzygnięte w zakresie |
 | E3 | Sprawa przeterminowana wymusza decyzję | **ZREALIZOWANY 2026-09-01** | [PROMPT_ETAP_3.md](PROMPT_ETAP_3.md) | `N = 30 dni`, wyłącznik osobny od rotacji (Aneks A); materiał pomiarowy inny, niż zakładał prompt — 1 pozycja zamiast 9 |
-| E4 | Raport startu jako adres progów | **GOTOWY DO STARTU** | [PROMPT_ETAP_4.md](PROMPT_ETAP_4.md) | limit „Zasad aktywnych" zostaje przy swoim adresie — nie przenosić; zakres obejmuje też progi sekcji i katalog progów (Aneks B) |
-| E5 | Ryzyka i ustawienia schodzą do archiwum | OCZEKUJE | — | |
+| E4 | Raport startu jako adres progów | **ZREALIZOWANY 2026-09-01** | [PROMPT_ETAP_4.md](PROMPT_ETAP_4.md) | drugi wyzwalacz raportu, progi sekcji, katalog progów w `SPEC_USTAWIENIA.md`; limit „Zasad aktywnych" nietknięty |
+| E5 | Ryzyka i ustawienia schodzą do archiwum | **GOTOWY DO STARTU** | [PROMPT_ETAP_5.md](PROMPT_ETAP_5.md) | |
 | E6 | Pomiar na realnych projektach i wydanie | OCZEKUJE | — | wydanie 1.7.0, sekwencja P-005 obowiązuje |
 
 ## Odnogi
@@ -57,3 +57,12 @@ Plan: [PLAN.html](PLAN.html) · Utworzony: 2026-09-01 · Status planu: **ZAAKCEP
   w obu wariantach końca linii: PolyFlow **25 spraw otwartych, 0 przeterminowanych przy N=30**
   (najstarsza 16 dni), ten sam plik przy dacie 2026-10-15 — **25 z 25**. Wygenerowano
   PROMPT_ETAP_4; E4 gotowy do startu.
+- 2026-09-01 — E4 rozpoczęty.
+- 2026-09-01 — **E4 ZREALIZOWANY**: `startCostReport` ma drugi wyzwalacz (dokument albo sekcja ponad
+  własnym progiem), osobną linię `[RelAI progi dokumentow]` z nazwą procedury, a `SPEC_USTAWIENIA.md`
+  — sekcję „Katalog progów" (17 wierszy, kolumna „Adres egzekwowania", dwa progi bez automatu
+  wypisane wprost). Część dokumentów ma wyłącznik rotacji, nie budżetu. Zmierzone: dziennik
+  154,5 KB → raport, 31,2 KB → zero znaków; `LEKCJE.md` z `ea33e1c` (52 260 B, sekcja 35 787 B) →
+  plik i sekcja z procedurami, identycznie dla LF i CRLF; pełny zestaw przekroczeń → **5 linii**
+  przy limicie 6; to repozytorium → **0 linii** z obu hooków. Wygenerowano PROMPT_ETAP_5;
+  E5 gotowy do startu.

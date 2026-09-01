@@ -341,6 +341,21 @@ const CZLONY = {
   status: ['status'],
 };
 
+// Progi rotacji dokumentow w jednostkach mechanizmu kontrolnego (KB, sztuki, linie).
+// Jedyne zrodlo prawdy o tych wartosciach to core/templates/SPEC_ARCHIWUM.md — tutaj stoi
+// ich kopia wykonawcza. To NIE sa progi czastkowe budzetu: nie sumuja sie do 80 KB,
+// dokument nad wlasnym progiem jest osobnym faktem (1.7.0, E4).
+const PROGI_ROTACJI_DOMYSLNE = {
+  dziennik: 150, // KB
+  lekcjeKB: 50, // KB
+  lekcjeWpisy: 40, // sztuk
+  STATE: 300, // linii
+};
+
+// Prog sekcji "Lekcje zwiniete" w KB. Zrodlo prawdy: core/templates/SPEC_LEKCJE.md,
+// sekcja "Kompresja" ("gdy sekcja sama urosnie ponad 30 KB").
+const PROG_ZWINIETE_KB = 30;
+
 const NAZWA_WIERSZA = /^(?:Bud[żz]et startu sesji|Session start budget)\b/i;
 // Drugi, NIEZALEZNY wylacznik (sekcja 8 planu): rotacja moze byc wylaczona przy
 // wlaczonym budzecie i odwrotnie. Czytamy go jako FAKT — decyzje o tym, co z nim
@@ -357,6 +372,12 @@ const NAGLOWEK_ZASAD = [/^zasady aktywne\b/i, /^active rules\b/i];
 // z sekcji 5 planu i tego etap nie rusza. Brak sekcji (projekt sprzed 1.6.0) = zero bajtow,
 // nie awaria.
 const NAGLOWEK_CZEKA = [/^czeka na cz[łl]owieka\b/i, /^waiting on a human\b/i];
+// Sekcja "Lekcje" bez przymiotnika — kotwica domknieta na koncu tytulu, zeby "Lekcje zwiniete"
+// nie trafila w to samo wyrazenie. Sekcja "Lekcje zwiniete" ma wlasny prog (SPEC_LEKCJE.md).
+const NAGLOWEK_LEKCJI = [/^lekcje$/i, /^lessons$/i];
+const NAGLOWEK_ZWINIETE = [/^lekcje zwini[ęe]te\b/i, /^folded lessons\b/i];
+// Naglowek pojedynczej lekcji: "### L-0007 — tytul". Bez kotwicy konca linii (CRLF, L-0033).
+const NAGLOWEK_LEKCJI_POZYCJA = /^###\s+L-\d+/gm;
 
 function bajty(txt) {
   return Buffer.byteLength(String(txt), 'utf8');
@@ -481,11 +502,106 @@ function przelacznikRotacji(txtUstawien) {
   return null;
 }
 
+// Czlony komorki "Rotacja dokumentow" — kotwica na POCZATKU czlonu i zamknieta lista
+// brzmien (L-0025, L-0035). Czlon nierozpoznany zostawia wartosc domyslna.
+const CZLON_DZIENNIKA = /^(?:dziennik|journal)\s+(\d+)\s*KB\b/i;
+const CZLON_LEKCJI = /^(?:lekcje|lessons)\s+(\d+)\s*(?:wpis[óo]w|wpisy|entries)\s+(?:albo|lub|or)\s+(\d+)\s*KB\b/i;
+const CZLON_STATE = /^STATE\s+(\d+)\s*(?:lini[ie]|lines)\b/i;
+
+function progiRotacjiZKomorki(komorka) {
+  const progi = Object.assign({}, PROGI_ROTACJI_DOMYSLNE);
+  const czlony = String(komorka).split('·').map((c) => c.trim()).filter(Boolean);
+  for (const czlon of czlony.slice(1)) {
+    let m = czlon.match(CZLON_DZIENNIKA);
+    if (m) { progi.dziennik = parseInt(m[1], 10); continue; }
+    m = czlon.match(CZLON_LEKCJI);
+    if (m) {
+      progi.lekcjeWpisy = parseInt(m[1], 10);
+      progi.lekcjeKB = parseInt(m[2], 10);
+      continue;
+    }
+    m = czlon.match(CZLON_STATE);
+    if (m) progi.STATE = parseInt(m[1], 10);
+  }
+  return progi;
+}
+
+// Dokumenty i sekcje ponad WLASNYM progiem — inny fakt niz suma warstwy startowej.
+// Kazda pozycja niesie nazwe procedury, ktora ja odchudza: pozycja bez procedury nie wchodzi
+// do listy, bo raport bez procedury tylko marudzi (ryzyko 3 planu HIGIENA_DOKUMENTOW).
+// Wyzwalaczem tej czesci jest wylacznik ROTACJI, nie budzetu — to dwa niezalezne wylaczniki
+// (SPEC_USTAWIENIA.md). Rotacja wylaczona albo wartosc nierozpoznana → pusta lista i cisza.
+function dokumentyPonadProgiem(cwd, txtUstawien, progRyzyk) {
+  const out = [];
+  // Waga porownywana z progiem rotacji liczy sie po normalizacji CRLF -> LF (L-0033),
+  // tak jak sumy kontrolne rotacji — inaczej ten sam plik wazylby wiecej na Windowsie.
+  const bajtyLF = (txt) => bajty(String(txt).replace(/\r\n/g, '\n'));
+  try {
+    if (przelacznikRotacji(txtUstawien) !== true) return out;
+    const progi = progiRotacjiZKomorki(komorkaDecyzji(txtUstawien, NAZWA_ROTACJI));
+    const docsDir = path.join(cwd, 'docs');
+
+    const dodaj = (etykieta, wartosc, prog, jednostka, procedura) => {
+      if (wartosc > prog) out.push({ etykieta, wartosc, prog, jednostka, procedura });
+    };
+
+    const dziennik = pierwszyIstniejacy(docsDir, ['DZIENNIK.md', 'JOURNAL.md']);
+    if (dziennik) {
+      const txt = czytaj(dziennik);
+      dodaj(path.relative(cwd, dziennik).split(path.sep).join('/'),
+        bajtyLF(txt), progi.dziennik * KB, 'KB', 'rotacja dziennika');
+      // Sekcja ryzyk ma prog CZASTKOWY budzetu (SPEC_ARCHIWUM.md) — mierzona sama,
+      // bez sekcji "Czeka na czlowieka" i bez ostatniego wpisu, bo to jej rotacja odchudza.
+      const ryzyka = wytnijSekcje(txt, NAGLOWEK_RYZYK);
+      if (ryzyka !== null && typeof progRyzyk === 'number') {
+        dodaj('sekcja "Stan otwartych ryzyk"', bajtyLF(ryzyka), progRyzyk, 'KB',
+          'rotacja ryzyk ZAMKNIETYCH do archiwum');
+      }
+    }
+
+    const lekcje = pierwszyIstniejacy(docsDir, ['LEKCJE.md', 'LESSONS.md']);
+    if (lekcje) {
+      const txt = czytaj(lekcje);
+      const sciezka = path.relative(cwd, lekcje).split(path.sep).join('/');
+      const bajtow = bajtyLF(txt);
+      const sekcjaLekcji = wytnijSekcje(txt, NAGLOWEK_LEKCJI);
+      const sztuk = sekcjaLekcji === null
+        ? 0
+        : (sekcjaLekcji.match(NAGLOWEK_LEKCJI_POZYCJA) || []).length;
+      // Prog lekcji ma dwie jednostki i dziala ta, ktora padnie pierwsza — ale pozycja
+      // w raporcie jest jedna, bo procedura jest jedna.
+      if (bajtow > progi.lekcjeKB * KB) {
+        dodaj(sciezka, bajtow, progi.lekcjeKB * KB, 'KB', 'rotacja lekcji');
+      } else if (sztuk > progi.lekcjeWpisy) {
+        dodaj(sciezka, sztuk, progi.lekcjeWpisy, 'lekcji', 'rotacja lekcji');
+      }
+      const zwiniete = wytnijSekcje(txt, NAGLOWEK_ZWINIETE);
+      if (zwiniete !== null) {
+        dodaj('sekcja "Lekcje zwiniete"', bajtyLF(zwiniete), PROG_ZWINIETE_KB * KB, 'KB',
+          'przeniesienie zwinietych lekcji do archiwum');
+      }
+    }
+
+    const state = pierwszyIstniejacy(docsDir, ['STATE.md']);
+    if (state) {
+      const linii = czytaj(state).split('\n').length;
+      dodaj(path.relative(cwd, state).split(path.sep).join('/'), linii, progi.STATE, 'linii',
+        'skrocenie STATE.md');
+    }
+  } catch (_) {
+    return out;
+  }
+  return out;
+}
+
 // Zwraca:
 //   null                              — pomiaru nie ma (wylaczony, brak wiersza, brak
 //                                       ustawien, folder nie jest projektem RelAI)
 //   { nierozpoznany: true, wartosc }  — wartosc przelacznika nierozpoznana: liczenia nie ma,
 //                                       ale adapter mowi o tym jednym zdaniem (L-0025)
+//   { tylkoDokumenty: true, dokumenty } — budzet wylaczony albo bez wiersza, ale rotacja jest
+//                                       wlaczona i cos przekracza WLASNY prog (1.7.0, E4);
+//                                       nic nie przekracza → null, czyli cisza
 //   { wlaczony: true, ... }           — pomiar
 function startCost(cwd, opcje) {
   try {
@@ -500,10 +616,19 @@ function startCost(cwd, opcje) {
 
     const txtUstawien = czytaj(plikUstawien);
     const komorka = komorkaDecyzji(txtUstawien, NAZWA_WIERSZA);
-    if (!komorka) return null; // projekt sprzed 1.6.0 — cisza, nie domysl
-    if (WYLACZONY.test(komorka)) return null;
+    // Budzet i rotacja to dwa NIEZALEZNE wylaczniki (SPEC_USTAWIENIA.md): wylaczony budzet
+    // wycisza pomiar warstwy startowej, ale nie wycisza progow dokumentow. Prog czastkowy
+    // ryzyk bierzemy wtedy z wartosci domyslnej — wiersza budzetu nie ma czego czytac.
+    if (!komorka || WYLACZONY.test(komorka)) {
+      const same = dokumentyPonadProgiem(cwd, txtUstawien, PROGI_DOMYSLNE.ryzyka * KB);
+      return same.length ? { tylkoDokumenty: true, dokumenty: same } : null;
+    }
     if (!WLACZONY.test(komorka)) {
-      return { nierozpoznany: true, wartosc: komorka.split('·')[0].trim().slice(0, 60) };
+      return {
+        nierozpoznany: true,
+        wartosc: komorka.split('·')[0].trim().slice(0, 60),
+        dokumenty: dokumentyPonadProgiem(cwd, txtUstawien, PROGI_DOMYSLNE.ryzyka * KB),
+      };
     }
 
     const progi = progiZKomorki(komorka);
@@ -570,6 +695,7 @@ function startCost(cwd, opcje) {
       pozycje,
       suma,
       przekroczonaSuma: suma > budzet,
+      dokumenty: dokumentyPonadProgiem(cwd, txtUstawien, progi.ryzyka * KB),
       ponadProgiem: pozycje.filter((p) => p.bajty > p.prog).map((p) => p.id),
       bezSekcji: pozycje.filter((p) => p.sposob === 'plik-bez-sekcji').map((p) => p.id),
     };
@@ -583,30 +709,64 @@ function startCost(cwd, opcje) {
 // domyslnym, tak jak przy rotacji.
 function startCostReport(miara, opcje) {
   if (!miara) return [];
-  if (miara.nierozpoznany) {
-    return ['[RelAI budzet startu] Wartosc przelacznika w wierszu "Budzet startu sesji" (' +
-      miara.wartosc + ') jest nierozpoznana, wiec pomiar warstwy startowej jest wylaczony. ' +
-      'Dozwolone wartosci: wlaczony / wylaczony.'];
-  }
-  // Wyzwalaczem jest SUMA wobec budzetu, nie prog czastkowy (sekcja 5 planu: "suma wobec
-  // budzetu -> ponizej: cisza"). Progi czastkowe sluza do wskazania winowajcy WEWNATRZ
-  // raportu, nie do jego wywolania — inaczej projekt zmieszczony w budzecie gadalby o tym,
-  // ze jedna pozycja jest grubsza od swojego progu, i cisza przestalaby cokolwiek znaczyc.
-  if (!miara.przekroczonaSuma) return [];
-
   const o = opcje || {};
   const kb = (n) => (n / KB).toFixed(1).replace(/\.0$/, '') + ' KB';
-  const najgrubsze = miara.pozycje.slice().sort((a, b) => b.bajty - a.bajty).slice(0, 3)
-    .map((p) => p.id + ' ' + kb(p.bajty) + ' (prog ' + kb(p.prog) + ')').join(', ');
+  const miara_ = (d) => (d.jednostka === 'KB' ? kb(d.wartosc) : d.wartosc + ' ' + d.jednostka);
+  const prog_ = (d) => (d.jednostka === 'KB' ? kb(d.prog) : d.prog + ' ' + d.jednostka);
+
+  // Druga linia raportu (1.7.0, E4): dokumenty i sekcje ponad WLASNYM progiem rotacji.
+  // Wyzwalacz rozlaczny z budzetem i osobne zdanie — jedna linia o budzecie, jedna
+  // o dokumentach; nie mieszamy ich w jedno zdanie.
+  // Odmiana rzeczownika przy liczbie — komunikat czyta czlowiek, a "1 dalszych pozycji"
+  // wyglada na usterke mechanizmu. Formy ASCII (L-0016).
+  const odmiana = (n) => {
+    if (n === 1) return 'dalsza pozycja';
+    const dziesiatki = n % 100;
+    const jednosci = n % 10;
+    if (jednosci >= 2 && jednosci <= 4 && (dziesiatki < 12 || dziesiatki > 14)) return 'dalsze pozycje';
+    return 'dalszych pozycji';
+  };
+
+  // Wypisujemy najwyzej trzy pozycje, zeby jedna linia nie urosla w akapit; reszta idzie
+  // jako jawna liczba, nie jako cisza — obciete bez sladu wygladaloby na komplet.
+  const dokumenty = Array.isArray(miara.dokumenty) ? miara.dokumenty : [];
+  const reszta = dokumenty.length - 3;
+  const liniaDokumentow = dokumenty.length
+    ? '[RelAI progi dokumentow] Ponad wlasnym progiem: ' + dokumenty.slice(0, 3)
+      .map((d) => d.etykieta + ' ' + miara_(d) + ' (prog ' + prog_(d) + ') — ' + d.procedura)
+      .join('; ') + (reszta > 0 ? ' oraz ' + reszta + ' ' + odmiana(reszta) + ' ponad progiem' : '') + '.'
+    : null;
 
   const out = [];
-  out.push('[RelAI budzet startu] Warstwa czytana przy starcie sesji wazy ' + kb(miara.suma) +
-    ' przy budzecie ' + kb(miara.budzet) + '.');
-  out.push('Najgrubsze pozycje: ' + najgrubsze + '.');
-  if (miara.bezSekcji.length) {
-    out.push('Zmierzone jako caly plik, bo nie znaleziono szukanej sekcji: ' +
-      miara.bezSekcji.join(', ') + ' — wartosc jest zawyzona z tego powodu.');
+
+  if (miara.nierozpoznany) {
+    out.push('[RelAI budzet startu] Wartosc przelacznika w wierszu "Budzet startu sesji" (' +
+      miara.wartosc + ') jest nierozpoznana, wiec pomiar warstwy startowej jest wylaczony. ' +
+      'Dozwolone wartosci: wlaczony / wylaczony.');
+    if (liniaDokumentow) out.push(liniaDokumentow);
+    return out;
   }
+
+  // Wyzwalacze sa DWA i sa rozlaczne: SUMA wobec budzetu (jak od 1.6.0) albo dokument
+  // czy sekcja ponad wlasnym progiem rotacji (1.7.0). Progi czastkowe budzetu nadal nie
+  // wywoluja raportu — wskazuja winowajce WEWNATRZ niego. Zaden z nich nie padl -> cisza.
+  if (!miara.przekroczonaSuma && !liniaDokumentow) return [];
+
+  if (miara.przekroczonaSuma) {
+    const ponad = miara.pozycje.filter((p) => p.bajty > p.prog);
+    const wybrane = (ponad.length ? ponad : miara.pozycje.slice().sort((a, b) => b.bajty - a.bajty).slice(0, 3))
+      .map((p) => p.id + ' ' + kb(p.bajty) + ' (prog ' + kb(p.prog) + ')').join(', ');
+    out.push('[RelAI budzet startu] Warstwa czytana przy starcie sesji wazy ' + kb(miara.suma) +
+      ' przy budzecie ' + kb(miara.budzet) + '.');
+    out.push((ponad.length ? 'Pozycje ponad progiem czastkowym: ' : 'Najgrubsze pozycje: ') +
+      wybrane + '.' + (miara.bezSekcji.length
+        ? ' Zmierzone jako caly plik, bo nie znaleziono szukanej sekcji: ' +
+          miara.bezSekcji.join(', ') + ' — wartosc jest zawyzona z tego powodu.'
+        : ''));
+  }
+
+  if (liniaDokumentow) out.push(liniaDokumentow);
+
   if (o.interaktywna === false) {
     // Rotacja na starcie to zmiana w repozytorium; bez czlowieka przy klawiaturze nie rusza
     // (SPEC_ARCHIWUM, wejscie 2). Raport zostaje, propozycja znika.
@@ -616,8 +776,12 @@ function startCostReport(miara, opcje) {
   }
 
   out.push('Zglos to uzytkownikowi JEDNYM zdaniem przed akapitem "gdzie jestesmy" i zaproponuj ' +
-    'odchudzenie warstwy startowej jako pierwszy krok. Wylacznik i progi: wiersz "Budzet startu ' +
-    'sesji" w docs/USTAWIENIA.md.');
+    'wymienione procedury jako pierwszy krok. Wylaczniki i progi: wiersze "Budzet startu ' +
+    'sesji" i "Rotacja dokumentow" w docs/USTAWIENIA.md.');
+
+  // Linia o rotacji dziennika nalezy do wyzwalacza BUDZETOWEGO (wejscie 2 rotacji,
+  // SPEC_ARCHIWUM) — przy samym progu dokumentu procedury sa juz nazwane w linii wyzej.
+  if (!miara.przekroczonaSuma) return out;
 
   // Dwa niezalezne wylaczniki (sekcja 8 planu): budzet moze liczyc przy wylaczonej rotacji.
   // Fraza "Zaproponuj rotacje" pada WYLACZNIE przy rotacji wlaczonej — na niej stoi dowod
@@ -848,6 +1012,8 @@ module.exports = {
   startCost,
   startCostReport,
   przelacznikRotacji, // eksportowany, zeby dalo sie pokazac niezaleznosc obu wylacznikow (Aneks A)
+  progiRotacjiZKomorki, // eksportowane, zeby dalo sie sprawdzic testem czlony wiersza rotacji
+  dokumentyPonadProgiem, // eksportowane, zeby dalo sie zmierzyc drugi wyzwalacz osobno (E4)
   przegladSprawCzlowieka, // eksportowane, zeby dalo sie sprawdzic testem wylacznik i wartosc N
   pozycjeCzeka,
   sprawyPrzeterminowane,

@@ -274,6 +274,64 @@ Powód: wyłączona rotacja znaczy „nie ruszaj moich plików", a sprawa czekaj
 problemem niezależnym od tego, czy projekt zgodził się na przenoszenie plików. To jest ta sama
 zasada, co przy budżecie startu sesji, i dokładnie ta pomyłka, którą ten wiersz ma wykluczyć.
 
+## Katalog progów (od 1.7.0)
+
+Ten katalog jest **rejestrem, nie drugim źródłem prawdy**: wartości domyślne zostają tam, gdzie
+mieszkały dotąd, a kolumna „Gdzie mieszka wartość" prowadzi do nich. Powód powstania jest
+zmierzony: `docs/LEKCJE.md` tego repozytorium ważył 52 260 B przy progu 50 KB, a sekcja „Lekcje
+zwinięte" 35 787 B przy progu 30 KB `FAKT` (2026-09-01) — **żaden mechanizm nie odezwał się ani
+razu**, bo raport startu patrzył wyłącznie na sumę warstwy startowej. **Próg nieujęty w katalogu
+nie ma właściciela.**
+
+Katalog mieszka tutaj, a nie w osobnej specyfikacji, bo `docs/USTAWIENIA.md` jest już adresem
+wszystkich wierszy czytanych maszynowo i miejscem, do którego człowiek idzie, gdy chce próg
+zmienić — osobny plik byłby drugim miejscem do zapomnienia.
+
+| Próg | Domyślnie | Gdzie mieszka wartość | Kto go czyta | Po przekroczeniu | Adres egzekwowania |
+|---|---|---|---|---|---|
+| suma warstwy startowej | 80 KB | wiersz `Budżet startu sesji` (ta specyfikacja) | hook startu sesji (`startCost`) | raport `[RelAI budzet startu]`, najwyżej sześć linii | **jest** — hook startu |
+| `CLAUDE.md` | 10 KB | wiersz `Budżet startu sesji`; ten sam limit opisuje `SPEC_CLAUDE_MD.md` | hook startu sesji | wymieniony w raporcie jako pozycja ponad progiem cząstkowym | **jest** — hook startu (tylko wewnątrz raportu) |
+| `docs/STATE.md` — waga | 12 KB | wiersz `Budżet startu sesji` | hook startu sesji | jw. | **jest** — hook startu (tylko wewnątrz raportu) |
+| sekcja „Stan otwartych ryzyk" + „Czeka na człowieka" + ostatni wpis | 12 KB | wiersz `Budżet startu sesji` (człon `ryzyka`) | hook startu sesji | jw. | **jest** — hook startu (tylko wewnątrz raportu) |
+| sekcja „Zasady aktywne" — waga | 30 KB | wiersz `Budżet startu sesji` (człon `zasady`) | hook startu sesji | jw. | **jest** — hook startu (tylko wewnątrz raportu) |
+| `docs/USTAWIENIA.md` | 6 KB | wiersz `Budżet startu sesji` | hook startu sesji | jw. | **jest** — hook startu (tylko wewnątrz raportu) |
+| `STATUS.md` aktywnego planu | 10 KB | wiersz `Budżet startu sesji` | hook startu sesji | jw. | **jest** — hook startu (tylko wewnątrz raportu) |
+| `docs/DZIENNIK.md` — waga | 150 KB | `SPEC_ARCHIWUM.md`, strojenie w wierszu `Rotacja dokumentów` | rotacja + hook startu sesji (od 1.7.0) | rotacja najstarszych wpisów do archiwum; w raporcie linia `[RelAI progi dokumentow]` | **jest** — rytuał zamknięcia (krok 2) i raport startu |
+| `docs/LEKCJE.md` — waga i liczba | 40 lekcji albo 50 KB | `SPEC_ARCHIWUM.md`, strojenie w wierszu `Rotacja dokumentów` | rotacja + hook startu sesji (od 1.7.0) | rotacja najstarszych lekcji do archiwum; linia `[RelAI progi dokumentow]` | **jest** — rytuał zamknięcia (krok 2) i raport startu |
+| `docs/STATE.md` — liczba linii | 300 linii | `SPEC_ARCHIWUM.md`, strojenie w wierszu `Rotacja dokumentów` | rotacja + hook startu sesji (od 1.7.0) | `STATE.md` pisany zwięźlej, bez archiwum; linia `[RelAI progi dokumentow]` | **jest** — rytuał zamknięcia (krok 2) i raport startu |
+| sekcja „Stan otwartych ryzyk" — sama | próg cząstkowy `ryzyka`, 12 KB | wiersz `Budżet startu sesji` | rotacja ryzyk + hook startu sesji (od 1.7.0) | wiersze ryzyk `ZAMKNIĘTE` do `docs/archiwum/ryzyka/`; linia `[RelAI progi dokumentow]` | **jest** — rytuał zamknięcia (krok 2) i raport startu |
+| sekcja „Lekcje zwinięte" | 30 KB | `SPEC_LEKCJE.md`, sekcja „Kompresja" | hook startu sesji (od 1.7.0) | przeniesienie zwiniętych lekcji do `docs/archiwum/lekcje/`; linia `[RelAI progi dokumentow]` | **jest** — raport startu |
+| sekcja „Zasady aktywne" — liczba pozycji | 15 pozycji | `SPEC_LEKCJE.md` | rytuał zamknięcia sesji | jedno zdanie w podsumowaniu: ile pozycji, jaki limit, co z tym zrobić | **jest** — krok 1 rytuału zamknięcia, **jedyny**; do raportu startu nie wchodzi (L-0036) |
+| komórka „Mitygacja" ryzyka | 800 znaków | `SPEC_DZIENNIK.md` | człowiek i model przy pisaniu wiersza ryzyka, komendą z tej specyfikacji | skrócenie komórki do stanu bieżącego, historia do wpisu dziennika | **brak automatu** — sprawdzane komendą przy edycji tabeli ryzyk |
+| wiek sprawy „Czeka na człowieka" | 30 dni | wiersz `Przegląd spraw człowieka` (ta specyfikacja) | hook startu sesji (`sprawyPrzeterminowane`) | wymuszone pytanie partiami po cztery | **jest** — hook startu, własny blok i własny wyzwalacz |
+| propozycja kompresji lekcji | 25 wpisów `AKTYWNA`, 30 KB pliku albo kwartał | `SPEC_LEKCJE.md`, sekcja „Kompresja" | model przy rytuale zamknięcia | propozycja kompresji tematycznej, nigdy wykonanie po cichu | **brak automatu** — propozycja modelu |
+| cel rotacji (nie próg) | 60% progu, liczone na części rotowalnej | `SPEC_ARCHIWUM.md` | rotacja | ile pozycji zabrać w jednym przebiegu | nie dotyczy — to cel, nie warunek odezwania się |
+
+**Czego katalog nie obejmuje, świadomie:** wielkości **nietykalności** (dziesięć najnowszych wpisów,
+dwadzieścia najnowszych lekcji) — nic ich nie „przekracza", więc nie są progiem, tylko dolną
+granicą osiągalną; liczb orientacyjnych z innych specyfikacji („typowo 5–10 pozycji", „typowo 3–6
+pozycji") — te nie mają mechanizmu i mieć nie mają; wartości historycznych, opisanych jako
+zastąpione (limit `CLAUDE.md` brzmiał do 1.5.2 „60 linii").
+
+**Czego katalog nie robi:** nie dokłada ani jednego nowego progu i nie zmienia żadnej wartości.
+Kolumna „Adres egzekwowania" ma być jedynym miejscem, gdzie widać, że próg istnieje, ale nikt go
+nie liczy — dwa takie wiersze zostają świadomie i są opisane wprost.
+
+**Dwa wyzwalacze raportu startu, rozłączne w komunikacie (od 1.7.0).** Raport odzywa się przy
+przekroczeniu **sumy** warstwy startowej (jak od 1.6.0) **albo** gdy dokument czy sekcja przekracza
+**własny** próg rotacji. Te progi się nie sumują: dokument nad progiem rotacji jest osobnym faktem
+i dostaje osobną linię — jedna linia o budżecie, jedna o dokumentach, nigdy jedno zdanie o obu.
+Każda wymieniona pozycja niesie **nazwę procedury**, która ją odchudza; pozycja bez procedury nie
+wchodzi do listy. Wypisywane są najwyżej **trzy** pozycje, a reszta jako jawna liczba. Limit sześciu
+linii całego raportu zostaje, a **projekt w normie dostaje zero znaków** — cisza poniżej progu jest
+nienaruszalna.
+
+Część „dokumenty ponad progiem" ma **wyłącznik rotacji**, nie budżetu: `Rotacja dokumentów:
+wyłączona` albo wartość nierozpoznana wycisza ją w całości (raport budżetu działa dalej), a
+wyłączony budżet jej **nie** wycisza — dokument nad progiem rotacji odezwie się nawet w projekcie,
+który pomiar warstwy startowej ma wyłączony. To ta sama niezależność wyłączników, co przy
+przeglądzie spraw człowieka.
+
 ## Polityka aktualizacji
 
 - **Append.** Nowa preferencja to nowy wiersz z datą, nie edycja starego.

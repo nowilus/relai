@@ -184,6 +184,24 @@ Zakaz zamiany propozycji w automatyczne odpalenie jest tu jedynym zabezpieczenie
 Zasady jak przy pozostałych siatkach: propozycja **nigdy** nie zamienia się w automatyczne
 odpalenie, odmowa zamyka temat na tę sesję, a zgłoszenie idzie **przed** akapitem „gdzie jesteśmy".
 
+### Dokument ponad własnym progiem (od 1.7.0)
+
+Hook startu wypisuje linię `[RelAI progi dokumentow]`, gdy dokument albo sekcja przekracza
+**własny** próg rotacji — niezależnie od tego, czy suma warstwy startowej mieści się w budżecie.
+To **drugi wyzwalacz tego samego raportu**, nie drugi raport: linia o budżecie i linia o dokumentach
+stoją osobno i nie zlewają się w jedno zdanie.
+
+Każda wymieniona pozycja niesie **nazwę procedury**, która ją odchudza (rotacja dziennika, rotacja
+lekcji, rotacja ryzyk zamkniętych, przeniesienie zwiniętych lekcji, skrócenie `STATE.md`).
+Twoja robota: zgłosić to użytkownikowi **jednym zdaniem przed akapitem „gdzie jesteśmy"**
+i zaproponować wymienione procedury jako pierwszy krok. Wykonujesz je **dopiero po zgodzie** i
+**dokładnie** tak, jak opisuje krok 2 rytuału zamknięcia — drugiego mechanizmu nie ma.
+
+**Czego nie robisz:** nie liczysz progów drugi raz (linia niesie zmierzone wartości), nie dokładasz
+własnego komunikatu obok tej linii i nie rotujesz nic bez zgody. Linia wypisuje najwyżej trzy
+pozycje, a resztę jako liczbę — to nie jest komplet do przepisania użytkownikowi. **Cisza hooka
+znaczy „wszystko poniżej progu"**, a nie „nie sprawdzono" (L-0036).
+
 ### Przegląd spraw przeterminowanych (od 1.7.0)
 
 Sprawa z sekcji „Czeka na człowieka" starsza niż **`N` dni** wymusza decyzję na starcie sesji.

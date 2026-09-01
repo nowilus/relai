@@ -5,7 +5,7 @@
 | # | Ryzyko | Poziom | Status | Mitygacja |
 |---|---|---|---|---|
 | R2 | Auto-wyzwalanie skilli bywa zawodne (agent nie zastosuje zasad bez komendy) | **Niski przy Opusie, średni przy modelach słabszych** (2026-08-10 po E10) | **ZMIERZONE 2026-08-10, OTWARTE ŚWIADOMIE** | Warstwą nośną są hook `session-context` i `CLAUDE.md` projektu — działają przy każdym modelu, bez wyzwalania; skill dokłada wyłącznie procedurę (L-0030). Opus wyzwala skill sam i wykonuje procedurę w całości; Sonnet 4.6 i Haiku 4.5 nie wołają `Skill` ani razu, więc projekt nie traci pamięci, ale procedura bywa niepełna. Otwarte świadomie: to trwała własność modeli, nie usterka do naprawienia. Zakres ryzyka rósł od 1.1.0 bez pomiaru — dziesiąta komenda, sygnał odchylenia, rozjazd stanu i kontrola podpisu nie były mierzone w świeżej sesji, bo limit konta zatrzymał CLI (L-0032). **Odnoga `POMIAR_ODNOG` anulowana 2026-09-01** — ta część zakresu zostaje niezmierzona świadomie, karta zostaje w repo. Zmierzone: 2026-08-07 (E5), 2026-08-10 (E10), 2026-08-12 (E1), 2026-08-12 (E3) |
-| R5 | Dokumenty puchną i zjadają kontekst | **Średni, potwierdzony na trzech projektach** (2026-09-01) | **OTWARTE — plan HIGIENA_DOKUMENTOW jest odpowiedzią** | Mechanizm jest kompletny, ale **nie broni się sam**: progi nie mają adresu egzekwowania, więc rosną latami (PolyFlow 862,7 KB przy progu 150 KB). Naprawa idzie planem HIGIENA_DOKUMENTOW (6 etapów, Aneksy A i B). E1: zakres rotacji PolyFlow **0 → 117 wpisów ze 127**. E2: próg liczy się ponad nietykalnymi, a zatkana rotacja wypisuje blokery. E3: sprawa czekająca dłużej niż 30 dni wymusza decyzję na starcie — PolyFlow ma dziś 25 spraw otwartych i 0 przeterminowanych, ale 25 z 25 sześć tygodni później. Otwarte, dopóki plan nie dobiegnie końca, dopóki nie zmierzy się tego w **cudzym** projekcie i dopóki **JiraManager (386 KB startu) nie zostanie tknięty**. Zmierzone: 2026-08-20, 2026-08-21, 2026-09-01 (E1, E2, E3, rotacja) |
+| R5 | Dokumenty puchną i zjadają kontekst | **Średni, potwierdzony na trzech projektach** (2026-09-01) | **OTWARTE — plan HIGIENA_DOKUMENTOW jest odpowiedzią** | Mechanizm jest kompletny, ale **nie broni się sam**: progi nie mają adresu egzekwowania, więc rosną latami (PolyFlow 862,7 KB przy progu 150 KB). Naprawa idzie planem HIGIENA_DOKUMENTOW (6 etapów, Aneksy A i B). E1: zakres rotacji PolyFlow **0 → 117 wpisów ze 127**. E2: próg liczy się ponad nietykalnymi, a zatkana rotacja wypisuje blokery. E3: sprawa czekająca dłużej niż 30 dni wymusza decyzję na starcie. E4: raport startu wymienia dokument i sekcję ponad **własnym** progiem wraz z procedurą — na dokumentach PolyFlow 4 pozycje, z których wcześniej nie odezwała się żadna. Otwarte, dopóki plan nie dobiegnie końca i dopóki **JiraManager (386 KB startu) nie zostanie tknięty**. Zmierzone: 2026-08-20, 2026-08-21, 2026-09-01 (E1–E4, rotacja) |
 | P1 | Adaptery Cursor/Codex nie egzekwują blokad harnessu — sekret albo zmiana konfiguracji przejdzie tam, gdzie w Claude Code stoi ściana (plan ROZWOJ_PO_WYDANIU) | **Średni** (2026-08-12 po E4; wcześniej wysoki) | **OTWARTE** | Część sekretowa jest zamknięta dowodem z aplikacji: w Cursorze zadziałały obie warstwy — reguła odmówiła pierwsza, a przy prośbie o próbę mimo reguły zapis klucza odbił hook `preToolUse` werdyktem `permission: deny`; niezależnie od narzędzia commit z sekretem zatrzymuje gitowy pre-commit. Otwarte z dwóch powodów: Cursor nie ma egzekwowanego `ask`, więc pliki konfiguracyjne chroni tam sama reguła zamiast bramki, a Codex pozostaje niezmierzony do odmrożenia E7 planu ROZWOJ_PO_WYDANIU. Zmierzone: 2026-08-12 (E4), 2026-08-12 (E5), 2026-08-17 (E6) |
 | P2 | Odpowiednik R2 w Cursor/Codex: bez auto-wyzwalania skilli proces zależy od dyscypliny modelu (plan ROZWOJ_PO_WYDANIU) | **Niski dla Cursora, średni dla Codeksa** (2026-08-17 po E6; wcześniej średni) | **OTWARTE (już tylko Codex)** | Reguła zawsze-w-kontekście działa w Cursorze bez żadnego wyzwalacza: pilotaż przeszedł pełny cykl na trzech modelach, a cały etap poprowadził model spoza Anthropic (Grok 4.6) — rytuał startu, karta etapu z kontrolą modelu, granica zakresu, rytuał zamknięcia z promptem następnego etapu. Dyscyplina procesu nie zależy od dostawcy modelu. Otwarte już tylko dla Codeksa: warstwą nośną ma tam być `AGENTS.md` z twardym limitem 32 KiB, a skille wyzwalają się dopasowaniem opisu — tym samym mechanizmem, który przy R2 okazał się zależny od modelu. Zmierzone: 2026-08-12 (E4), 2026-08-12 (E5), 2026-08-17 (E6) |
 
@@ -1976,6 +1976,105 @@ Autor: RelAI (Opus) + Lukasz
 - **Pomiar w świeżej sesji** — zachowanie „pytanie partiami po cztery" jest dziś opisane, ale
   niezmierzone: ten etap nie miał ani jednej sprawy przeterminowanej w żywym repozytorium.
   Pomiar wchodzi do E6 razem z resztą sekwencji wydania.
+
+**Do zrobienia przez człowieka:**
+- **Potwierdzić albo cofnąć osiem rozstrzygnięć z E2** — pozycja bez zmian, nadal otwarta.
+- Nic nowego z tego etapu.
+
+### 2026-09-01 — E4: raport startu jako adres progów
+
+Autor: RelAI (Opus) + Lukasz
+
+**Zrobione:**
+- `core/process/session-signals.js` — `dokumentyPonadProgiem(cwd, txtUstawien, progRyzyk)` mierzy
+  **całe dokumenty i sekcje** wobec ich własnych progów: `DZIENNIK.md` (150 KB), `LEKCJE.md`
+  (50 KB albo 40 lekcji), `STATE.md` (300 linii), sekcja „Stan otwartych ryzyk" (próg cząstkowy
+  `ryzyka`, 12 KB), sekcja „Lekcje zwinięte" (30 KB z `SPEC_LEKCJE.md`). Progi czytane z wiersza
+  `Rotacja dokumentów` przez `progiRotacjiZKomorki` — kotwica na początku członu, zamknięta lista
+  brzmień, człon nierozpoznany zostawia wartość domyślną. Wagi liczone po normalizacji CRLF → LF,
+  tak jak sumy kontrolne rotacji.
+- `startCostReport` ma **drugi wyzwalacz**: raport pada przy przekroczeniu sumy warstwy startowej
+  **albo** gdy dokument czy sekcja przekracza własny próg. Linie są rozłączne — jedna o budżecie,
+  jedna `[RelAI progi dokumentow]` o dokumentach; każda pozycja z **nazwą procedury**, która ją
+  odchudza. Wypisywane są najwyżej trzy pozycje, reszta jako jawna liczba z poprawną odmianą.
+  Linia budżetowa wymienia teraz **pozycje ponad progiem cząstkowym**, a nie trzy najgrubsze,
+  gdy takie pozycje są.
+- **Wyłączniki zostały rozdzielone do końca.** Część „dokumenty ponad progiem" ma wyłącznik
+  **rotacji**: `wyłączona` albo wartość nierozpoznana wycisza ją w całości. Wyłączony budżet
+  jej **nie** wycisza — `startCost` zwraca wtedy kształt `{ tylkoDokumenty: true, dokumenty }`,
+  a gdy nic nie przekracza progu, nadal `null`, czyli cisza.
+- `core/templates/SPEC_USTAWIENIA.md` — sekcja **„Katalog progów"** (Aneks B): 17 wierszy
+  `Próg | Domyślnie | Gdzie mieszka wartość | Kto go czyta | Po przekroczeniu | Adres egzekwowania`.
+  Katalog jest **rejestrem, nie drugim źródłem prawdy** — wartości zostają tam, gdzie były.
+  Dwa progi mają wpisane wprost „brak automatu" (limit 800 znaków komórki „Mitygacja", propozycja
+  kompresji lekcji), a osobny akapit mówi, czego katalog świadomie nie obejmuje: wielkości
+  nietykalności (10 wpisów, 20 lekcji), liczb orientacyjnych i wartości historycznych.
+- `core/templates/SPEC_LEKCJE.md` i `SPEC_ARCHIWUM.md` — po jednym akapicie: próg sekcji „Lekcje
+  zwinięte" jest od 1.7.0 czytany maszynowo, progi rotacji mają adres także na starcie sesji,
+  a raport **mówi, nie rotuje**. Oba odsyłają do katalogu.
+- Oba adaptery — `adapters/claude-code/skills/relai-core/SKILL.md` (sekcja „Dokument ponad własnym
+  progiem") i `adapters/cursor/rules/relai-core.mdc` (ten sam opis po angielsku): jak zareagować na
+  nową linię, że to drugi wyzwalacz tego samego raportu, że procedury wykonuje się dopiero po
+  zgodzie i że linia nie jest kompletem do przepisania. **Limitu „Zasad aktywnych" nie ruszono** —
+  został w kroku 1 rytuału zamknięcia.
+
+**Zweryfikowane — jak dokładnie:**
+- **Dwa wyzwalacze obiema wersjami w jednym przebiegu** (zasada 4) — instrument `pomiar.js`
+  w `%TEMP%/e4/` buduje sztuczne projekty RelAI i woła realne funkcje rdzenia. Projekt mieszczący
+  się w budżecie (4,0 KB / 80 KB) z dziennikiem **154,5 KB przy progu 150 KB** → raport **2 linie**.
+  Ten sam projekt z dziennikiem **31,2 KB** → **zero znaków**. Wypisane obok siebie.
+- **Regresja ciszy** (ryzyko 3 planu) — realne uruchomienie obu hooków startu na tym repozytorium
+  w stanie na dziś (start 47,1 KB / 80 KB, dziennik 140,2 / 150 KB, lekcje 23,5 / 50 KB, STATE
+  224 / 300 linii): `adapters/claude-code/hooks/session-context.js` → **0 linii** raportu,
+  `adapters/cursor/hooks/session-context.js` → **0 linii** przy 1275 B pozostałego kontekstu.
+  Zmierzone uruchomieniem hooka, nie samą funkcją.
+- **Przypadek z Aneksu B odtworzony z gita** — `git show ea33e1c:docs/LEKCJE.md` (**52 260 B**,
+  sekcja „Lekcje zwinięte" **35 787 B**) → raport wymienia **plik i sekcję**, każde z nazwą
+  procedury: „docs/LEKCJE.md 51 KB (prog 50 KB) — rotacja lekcji; sekcja »Lekcje zwiniete«
+  34.9 KB (prog 30 KB) — przeniesienie zwinietych lekcji do archiwum". Liczby identyczne dla LF
+  i CRLF (na dysku 52 928 B, po normalizacji 52 260 B) — zasada 11.
+- **Limit sześciu linii nie pęka** — projekt z przekroczoną sumą budżetu (87,0 KB / 80 KB),
+  **dwoma** progami cząstkowymi (CLAUDE, ryzyka), **trzema** progami dokumentów (dziennik, lekcje,
+  STATE) i **dwoma** progami sekcji (ryzyka, zwinięte): **5 linii** raportu, sesja nieinteraktywna
+  **4 linie**. Limit 6.
+- **Próg nierozpoznany znaczy cisza** (zasada 7) — cztery warianty wiersza rotacji na tym samym
+  materiale: `włączona` → 2 pozycje i linia progów; `być może` → **0 pozycji, linii progów brak**,
+  raport budżetu **działa dalej** (4 linie); `wyłączona` → to samo; `włączona · dziennik sporo` →
+  człon nierozpoznany, wartość domyślna 150 KB, mechanizm działa.
+- **Niezależność wyłączników** — budżet `wyłączony` / bez wiersza / wartość nierozpoznana przy
+  rotacji włączonej i dzienniku ponad progiem: linia progów pada we wszystkich trzech przypadkach.
+  Kontrola ciszy: budżet wyłączony i dokumenty **poniżej** progu → `startCost` = `null`, raport
+  **0 linii**.
+- **Materiał z cudzego projektu** — dokumenty PolyFlow (`9fcf433`) wstawione do sztucznego projektu
+  w `%TEMP%`: dziennik 167,2 KB / 150 KB, sekcja ryzyk 38,6 KB / 12 KB, lekcje 61,3 KB / 50 KB,
+  STATE 301 / 300 linii — **cztery pozycje, z których przed E4 nie odezwałaby się ani jedna**;
+  raport 5 linii.
+- **Katalog progów kompletny** — instrument `s6-katalog.js` zbiera z `core/templates/` i
+  `core/process/` linie niosące liczbę przy jednostce mechanizmu: **51 kandydatów, 0 bez
+  odpowiednika w katalogu**. Dwie kontrole instrumentu, które **muszą** trafić (zasada 5): limit
+  15 pozycji w `SPEC_LEKCJE.md` i limit 800 znaków w `SPEC_DZIENNIK.md` — obie TAK. Druga z nich
+  wyszła dopiero po naprawie instrumentu: linia o limicie 800 znaków niesie datę kalibracji, więc
+  filtr „to jest pomiar, nie próg" zjadał ją w ciszy.
+- **Limit „Zasad aktywnych" nadal ma jeden adres** — `git grep` pokazuje go w kroku 1 rytuału
+  zamknięcia w obu adapterach (`SKILL.md:502`, `relai-core.mdc:136`) i **nigdzie** w opisie raportu
+  startu.
+- `node core/tools/validate-adapters.js` → **kod 0**.
+- `git status --short` — 7 zmodyfikowanych plików śledzonych, zero plików tymczasowych; instrument
+  i materiały pomiarowe mieszkają w `%TEMP%/e4/`.
+
+**Świadomie odłożone:**
+- **Wykonanie rotacji i kompresji na tym repozytorium** — raport ma o nich mówić, a nie robić ich
+  za człowieka. Dziennik po tym wpisie zbliża się do progu 150 KB; rotacja pójdzie własnym trybem
+  w rytuale zamknięcia sesji.
+- **Rotacja ryzyk i ustawień do archiwum oraz kompresja komórki „Mitygacja"** — E5. **Podbicie
+  wersji do 1.7.0, `/relai-update` i pomiar na realnych projektach** — E6. Niczego z tych rzeczy
+  nie obiecano w dokumentach.
+- **Próg sekcji „Zasady aktywne" liczony w pozycjach** został przy swoim adresie (krok 1 rytuału
+  zamknięcia) i **nie** wszedł do raportu startu — decyzja z promptu etapu, powtórzona w planie
+  dwa razy.
+- **Projekt sprzed 1.6.0 (bez wiersza budżetu) usłyszy nową linię**, jeśli ma włączoną rotację
+  i dokument ponad progiem. To skutek rozdzielenia wyłączników, nie przeoczenie: zgodą jest tam
+  wiersz rotacji, obecny od 1.2.0.
 
 **Do zrobienia przez człowieka:**
 - **Potwierdzić albo cofnąć osiem rozstrzygnięć z E2** — pozycja bez zmian, nadal otwarta.

@@ -51,6 +51,17 @@ report starts a line with **"Zaproponuj rotacje"**, the start layer is over budg
 enabled: offer document rotation as the first step in that same first sentence, run it only after
 the user agrees, and never in a background agent session.
 
+**Documents over their own threshold (since 1.7.0).** The start hook prints a
+`[RelAI progi dokumentow]` line whenever a document or a section is over its **own** rotation
+threshold, even when the start layer fits the budget — the **second trigger of the same report**,
+never a second report: the budget line and the documents line stay apart and never merge into one
+sentence. Every listed item carries the **name of the procedure** that slims it (journal rotation,
+lesson rotation, closed-risk rotation, moving folded lessons out, shortening `STATE.md`). Report it
+to the user in **one sentence before the "where we are" paragraph** and offer those procedures as
+the first step; run them only after the user agrees and exactly as step 2 of the closing ritual
+describes. Do not measure the thresholds again, do not add a message of your own next to that line,
+and remember the line lists at most three items plus a count — it is not a full inventory.
+
 **Overdue matters (since 1.7.0).** An item of "Czeka na człowieka" older than **`N` days** forces a
 decision at session start. `N` and the switch live in the `Przegląd spraw człowieka` row of
 `docs/USTAWIENIA.md` (default `włączony · 30 dni`, `SPEC_USTAWIENIA.md`). That switch is

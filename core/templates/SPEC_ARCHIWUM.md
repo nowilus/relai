@@ -69,6 +69,12 @@ Wiersz ryzyk **nie dokłada trzeciego wejścia ani własnego komunikatu** (L-004
 dzieje się w tych samych dwóch momentach co pozostałe, a próg cząstkowy mówi jedynie, **czy jest
 co brać** — patrz „Ryzyka" w sekcji „Wybór treści".
 
+**Od 1.7.0 te progi mają adres także na starcie sesji.** Hook mierzy te dokumenty i sekcje wprost
+i wypisuje linię `[RelAI progi dokumentow]` z nazwą procedury odchudzającej — dotąd raport startu
+patrzył wyłącznie na sumę warstwy startowej, więc dokument ponad własnym progiem mógł nie odezwać
+się ani razu. Raport **mówi, nie rotuje**: wykonanie zostaje przy dwóch wejściach wyżej. Wykaz
+wszystkich progów RelAI wraz z ich adresami egzekwowania: „Katalog progów" w `SPEC_USTAWIENIA.md`.
+
 ## Próg liczony ponad nietykalnymi (od 1.7.0)
 
 Do 1.6.1 próg porównywał się do **całego** żywego pliku, a cel rotacji brzmiał „zejdź poniżej 60%
