@@ -396,8 +396,9 @@ Zapisujesz przy każdej, **co** jest dowodem. Rozstrzygnięcia, które **nie** s
 domysłem, nie robisz — pytasz człowieka (L-0025).
 
 **Krok 4 — sekcja.** Załóż „Czeka na człowieka" tuż pod „Stanem otwartych ryzyk" i wpisz sprawy
-otwarte w formacie ze specyfikacji: treść · data pierwszego wystąpienia · link do najstarszego
-wpisu źródłowego. **Pozycja bez daty** (wpis po adopcji, nagłówek bez daty) dostaje datę
+otwarte w formacie ze specyfikacji: treść · data pierwszego wystąpienia · link do **najnowszego**
+wystąpienia sprawy (od 1.7.0 — link do najstarszego zatykał rotację z definicji, bo zakres jest
+ciągły od najstarszej pozycji; data przy pozycji nadal jest datą **pierwszego** wystąpienia). **Pozycja bez daty** (wpis po adopcji, nagłówek bez daty) dostaje datę
 **wyprowadzenia** i jawny dopisek `(data pierwotna nieznana)` — nie zgadujesz jej i nie pomijasz
 pozycji.
 
@@ -488,9 +489,10 @@ i bez słowa. Wartość nierozpoznana albo brak wiersza w projekcie z wersją 1.
 powstaje. Rotacja nie przypomina o swoim istnieniu.
 
 **Czego nie ruszasz nigdy:** sekcji „Czeka na człowieka" w dzienniku, sekcji „Zasady aktywne"
-w lekcjach, dziesięciu najnowszych wpisów, dwudziestu najnowszych lekcji ani **żadnego wpisu, do
-którego prowadzi link z otwartej pozycji sekcji „Czeka na człowieka"** — niezależnie od jego wieku.
-Zakres jest ciągły: pierwsza pozycja nietykalna kończy zakres, nie przeskakujesz jej.
+w lekcjach, dziesięciu najnowszych wpisów ani dwudziestu najnowszych lekcji. Zakres jest ciągły:
+pierwsza pozycja nietykalna kończy zakres, nie przeskakujesz jej. **Najstarsza i najnowsza pozycja
+to daty w nagłówkach, nie miejsca w pliku** — kolejność wpisów jest własnością projektu i mechanizm
+ją czyta, a nie narzuca (`SPEC_DZIENNIK.md`).
 
 **Ryzyka (od 1.6.0) są jedynym wyjątkiem od ciągłości.** Sekcja „Stan otwartych ryzyk" nie jest
 wpisem i do archiwum dziennika nie trafia nigdy — ma własny przebieg: schodzą z niej **wiersze
@@ -502,11 +504,16 @@ staje **jedna** linia-odsyłacz z numerami — po niej widać, że numer jest za
 To **nie jest** trzeci komunikat: rotacja ryzyk melduje się tylko we wpisie dziennika tej sesji,
 tak jak pozostałe (L-0049).
 
-**Blokada zmieniła adres w 1.6.0.** Wpis z pozycją opatrzoną adnotacją `*(wyprowadzone RRRR-MM-DD
-→ sekcja „Czeka na człowieka")*` **jest przenoszalny**, mimo że jego własna sekcja „Do zrobienia
-przez człowieka" wygląda na otwartą. Projekt, który nie ma jeszcze sekcji „Czeka na człowieka",
-działa po staremu — blokuje własna sekcja wpisu, dopóki nie przejdzie procedury wyprowadzenia
-(sekcja wyżej).
+**Blokada zmieniła adres w 1.6.0, a w 1.7.0 zniknęła.** Wpis z pozycją opatrzoną adnotacją
+`*(wyprowadzone RRRR-MM-DD → sekcja „Czeka na człowieka")*` **jest przenoszalny**, mimo że jego
+własna sekcja „Do zrobienia przez człowieka" wygląda na otwartą. **Wpis, do którego prowadzi link
+z otwartej pozycji „Czeka na człowieka", też jest przenoszalny** — od 1.7.0 nie jest z tego powodu
+nietykalny; zamiast blokady działa **przepięcie linku** na plik archiwum (opis w fazie 2 niżej).
+Powód jest zmierzony: reguła linkowania do najstarszego wystąpienia w mechanizmie idącym od
+najstarszego zatykała go z definicji — na dzienniku PolyFlow sprzed rotacji `FAKT` zakres wynosił
+0 wpisów ze 127, a bez tej blokady wynosi 117. Projekt, który nie ma jeszcze sekcji „Czeka na
+człowieka", działa po staremu — blokuje własna sekcja wpisu, dopóki nie przejdzie procedury
+wyprowadzenia (sekcja wyżej).
 
 **Przebieg jest dwufazowy** i kolejność jest tu całym zabezpieczeniem:
 
@@ -517,12 +524,15 @@ działa po staremu — blokuje własna sekcja wpisu, dopóki nie przejdzie proce
 2. **Sumy różne → STOP.** Żywy plik zostaje nietknięty, mówisz o tym jednym zdaniem. Niczego nie
    naprawiasz po cichu.
 3. **Faza 2 — przycięcie**, dopiero po zgodności sum: usuń fragment z żywego pliku, wstaw
-   linię-odsyłacz na początku sekcji („Wpisy" / „Lekcje"), zapisz.
+   linię-odsyłacz na początku sekcji („Wpisy" / „Lekcje"), **przepnij linki pozycji „Czeka na
+   człowieka" prowadzące do przeniesionych wpisów** (przed kotwicą staje ścieżka pliku archiwum;
+   tekst linku, treść pozycji i data zostają nietknięte), zapisz. Przepięcie dotyczy wyłącznie
+   rotacji dziennika i idzie **przed** zapisem. Policz przy tym pozycje z linkiem do nieistniejącej
+   kotwicy — ma ich być **zero**.
 4. **Ślad w dzienniku** — do wpisu tej sesji (krok 3 rytuału): co przeniesiono, dokąd, ile
-   pozycji, suma kontrolna, rozmiar przed i po.
+   pozycji, suma kontrolna, rozmiar przed i po, ile linków przepięto.
 
-**Powyżej progu, ale nie ma czego przenieść** (same świeże wpisy albo najstarszy wpis jest
-linkowany z otwartej pozycji „Czeka na człowieka") → nie rotujesz i **mówisz o tym jednym zdaniem**
+**Powyżej progu, ale nie ma czego przenieść** (same świeże wpisy) → nie rotujesz i **mówisz o tym jednym zdaniem**
 w podsumowaniu, z powodem. To samo, gdy dziennik jest ponad progiem, ale ma **mniej niż dziesięć
 wpisów**: dziesięć najnowszych jest nietykalne niezależnie od rozmiaru, a problemem są wtedy długie
 wpisy, nie ich liczba. Cisza obowiązuje poniżej progu; powyżej progu milczenie ukryłoby zatkany

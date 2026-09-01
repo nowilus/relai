@@ -5,7 +5,7 @@
 | # | Ryzyko | Poziom | Status | Mitygacja |
 |---|---|---|---|---|
 | R2 | Auto-wyzwalanie skilli bywa zawodne (agent nie zastosuje zasad bez komendy) | **Niski przy Opusie, średni przy modelach słabszych** (2026-08-10 po E10) | **ZMIERZONE 2026-08-10, OTWARTE ŚWIADOMIE** | Warstwą nośną są hook `session-context` i `CLAUDE.md` projektu — działają przy każdym modelu, bez wyzwalania; skill dokłada wyłącznie procedurę (L-0030). Opus wyzwala skill sam i wykonuje procedurę w całości; Sonnet 4.6 i Haiku 4.5 nie wołają `Skill` ani razu, więc projekt nie traci pamięci, ale procedura bywa niepełna. Otwarte świadomie: to trwała własność modeli, nie usterka do naprawienia. Zakres ryzyka rósł od 1.1.0 bez pomiaru — dziesiąta komenda, sygnał odchylenia, rozjazd stanu i kontrola podpisu nie były mierzone w świeżej sesji, bo limit konta zatrzymał CLI (L-0032); czeka to w odnodze `POMIAR_ODNOG`. Zmierzone: 2026-08-07 (E5), 2026-08-10 (E10), 2026-08-12 (E1), 2026-08-12 (E3) |
-| R5 | Dokumenty puchną i zjadają kontekst | **Średni, potwierdzony na trzech projektach** (2026-09-01) | **OTWARTE — plan HIGIENA_DOKUMENTOW jest odpowiedzią** | Mechanizm jest kompletny, ale **nie broni się sam**: progi nie mają adresu egzekwowania, więc rosną latami. Dowody: PolyFlow — dziennik 862,7 KB przy progu 150 KB, rotacja stała tygodniami (zgłoszenie 2026-09-01); RelAI — `LEKCJE.md` 52,3 KB przy progu 50 KB, a sekcja „Lekcje zwinięte" 35,8 KB przy własnym progu 30 KB, żaden z nich nikogo nie obudził. Naprawa idzie planem HIGIENA_DOKUMENTOW (6 etapów, Aneksy A i B); dziś wykonano jedno przeniesienie ręcznie: `LEKCJE.md` 52,3 → 16,9 KB. Otwarte, dopóki plan nie dobiegnie końca **i** dopóki **JiraManager (386 KB startu) nie zostanie tknięty** — jeden zmigrowany projekt nie jest dowodem. Zmierzone: 2026-08-12 (E2), 2026-08-20 (trzy projekty), 2026-08-21 (E4, E5), 2026-09-01 |
+| R5 | Dokumenty puchną i zjadają kontekst | **Średni, potwierdzony na trzech projektach** (2026-09-01) | **OTWARTE — plan HIGIENA_DOKUMENTOW jest odpowiedzią** | Mechanizm jest kompletny, ale **nie broni się sam**: progi nie mają adresu egzekwowania, więc rosną latami. Dowody: PolyFlow — dziennik 862,7 KB przy progu 150 KB, rotacja stała tygodniami (zgłoszenie 2026-09-01); RelAI — `LEKCJE.md` 52,3 KB przy progu 50 KB, a sekcja „Lekcje zwinięte" 35,8 KB przy własnym progu 30 KB, żaden z nich nikogo nie obudził. Naprawa idzie planem HIGIENA_DOKUMENTOW (6 etapów, Aneksy A i B). E1 zdjął pierwszą przyczynę: zakres rotacji na dzienniku PolyFlow sprzed rotacji rośnie z **0 do 117 wpisów ze 127**. Otwarte, dopóki plan nie dobiegnie końca, dopóki reguła nie zadziała w świeżej sesji realnego projektu **i** dopóki **JiraManager (386 KB startu) nie zostanie tknięty**. Zmierzone: 2026-08-12 (E2), 2026-08-20 (trzy projekty), 2026-08-21 (E4, E5), 2026-09-01 (E1) |
 | P1 | Adaptery Cursor/Codex nie egzekwują blokad harnessu — sekret albo zmiana konfiguracji przejdzie tam, gdzie w Claude Code stoi ściana (plan ROZWOJ_PO_WYDANIU) | **Średni** (2026-08-12 po E4; wcześniej wysoki) | **OTWARTE** | Część sekretowa jest zamknięta dowodem z aplikacji: w Cursorze zadziałały obie warstwy — reguła odmówiła pierwsza, a przy prośbie o próbę mimo reguły zapis klucza odbił hook `preToolUse` werdyktem `permission: deny`; niezależnie od narzędzia commit z sekretem zatrzymuje gitowy pre-commit. Otwarte z dwóch powodów: Cursor nie ma egzekwowanego `ask`, więc pliki konfiguracyjne chroni tam sama reguła zamiast bramki, a Codex pozostaje niezmierzony do odmrożenia E7 planu ROZWOJ_PO_WYDANIU. Zmierzone: 2026-08-12 (E4), 2026-08-12 (E5), 2026-08-17 (E6) |
 | P2 | Odpowiednik R2 w Cursor/Codex: bez auto-wyzwalania skilli proces zależy od dyscypliny modelu (plan ROZWOJ_PO_WYDANIU) | **Niski dla Cursora, średni dla Codeksa** (2026-08-17 po E6; wcześniej średni) | **OTWARTE (już tylko Codex)** | Reguła zawsze-w-kontekście działa w Cursorze bez żadnego wyzwalacza: pilotaż przeszedł pełny cykl na trzech modelach, a cały etap poprowadził model spoza Anthropic (Grok 4.6) — rytuał startu, karta etapu z kontrolą modelu, granica zakresu, rytuał zamknięcia z promptem następnego etapu. Dyscyplina procesu nie zależy od dostawcy modelu. Otwarte już tylko dla Codeksa: warstwą nośną ma tam być `AGENTS.md` z twardym limitem 32 KiB, a skille wyzwalają się dopasowaniem opisu — tym samym mechanizmem, który przy R2 okazał się zależny od modelu. Zmierzone: 2026-08-12 (E4), 2026-08-12 (E5), 2026-08-17 (E6) |
 
@@ -17,37 +17,30 @@
 
 - **`claude /login` na konto z dostępnym limitem — warunek startu odnogi `POMIAR_ODNOG`
   (L-0032)** · 2026-08-12 ·
-  [wpis 2026-08-12 — E2: rotacja dokumentów](#2026-08-12--e2-rotacja-dokumentów-kalibracja-progów-relai-120)
+  [wpis 2026-08-21 — E5: PolyFlow na 1.6.1](#2026-08-21--e5-polyflow-na-161-pierwsza-rotacja-w-cudzym-projekcie-wydanie-161)
 - **Okno na `/relai-update` dla JiraManagera i PolyFlow — oba projekty z zamkniętym etapem;
   warunek startu E5** · 2026-08-12 ·
-  [wpis 2026-08-12 — E2: rotacja dokumentów](#2026-08-12--e2-rotacja-dokumentów-kalibracja-progów-relai-120)
+  [wpis 2026-08-21 — Plan OPTYMALIZACJA_KONTEKSTU zamknięty](#2026-08-21--plan-optymalizacja_kontekstu-zamknięty-dowiezione-vs-plan)
 - **Decyzja o instalacji pre-commita: `node core/guardrails/install-precommit.js
   <projekt>`** · 2026-08-12 ·
-  [wpis 2026-08-12 — E4: rdzeń przenośny](#2026-08-12--e4-rdzeń-przenośny-guardrails-jako-skrypty-pre-commit-ze-skanem-sekretów-relai-140)
+  [wpis 2026-08-17 — E6: pilotaż Cursora](#2026-08-17--e6-pilotaż-cursora-wariant-zastępczy-wersja-151)
 - **Feedback od osoby spoza projektu — kryterium „ktoś inny niż autor prowadzi projekt RelAI
   w Cursorze" nadal niespełnione** · 2026-08-13 ·
-  [wpis 2026-08-13 — E6: uzgodnienie pilotażu Cursora](#2026-08-13--e6-uzgodnienie-pilotażu-cursora-przed-startem)
+  [wpis 2026-08-18 — README: rozdzielona instalacja](#2026-08-18--readme-rozdzielona-instalacja-dla-claude-code-i-cursora)
 - **Ponowna instalacja pre-commita tam, gdzie już stoi — poprawka 1.5.1 nie dotrze do
   `.git/hooks/` sama** · 2026-08-17 ·
   [wpis 2026-08-17 — E6: pilotaż Cursora](#2026-08-17--e6-pilotaż-cursora-wariant-zastępczy-wersja-151)
 - **Los projektu testowego `ProbaCursorE6` — zostaje jako materiał do E7 czy idzie do
   kasacji** · 2026-08-17 ·
-  [wpis 2026-08-17 — E6: pilotaż Cursora](#2026-08-17--e6-pilotaż-cursora-wariant-zastępczy-wersja-151)
+  [wpis 2026-08-18 — README: rozdzielona instalacja](#2026-08-18--readme-rozdzielona-instalacja-dla-claude-code-i-cursora)
 - **Przeczytać ścieżkę B w `README.md` oczami kogoś, kto ma wyłącznie Cursora, i powiedzieć,
   gdzie utknął** · 2026-08-18 ·
   [wpis 2026-08-18 — README: rozdzielona instalacja](#2026-08-18--readme-rozdzielona-instalacja-dla-claude-code-i-cursora)
 - **Decyzja o formalnym zamrożeniu planu ROZWOJ_PO_WYDANIU z niezamkniętym E7** · 2026-08-20 ·
-  [wpis 2026-08-20 — E1: miara warstwy startowej](#2026-08-20--e1-miara-warstwy-startowej-budżet-80-kb-naprawa-martwej-siatki-d-34)
+  [wpis 2026-08-21 — Plan OPTYMALIZACJA_KONTEKSTU zamknięty](#2026-08-21--plan-optymalizacja_kontekstu-zamknięty-dowiezione-vs-plan)
 - **Weryfikacja siedmiu rozstrzygnięć wpisanych w E2 — każde ma w adnotacji swój dowód; sprzeciw
   cofa je jedną linią** · 2026-08-20 ·
   [wpis 2026-08-20 — E2: rozbrojenie rotacji](#2026-08-20--e2-rozbrojenie-rotacji--sekcja-czeka-na-człowieka-i-drugie-wejście-na-starcie)
-- **Akceptacja planu HIGIENA_DOKUMENTOW** *(rozstrzygnięte 2026-09-01 — plan ZAAKCEPTOWANY z Aneksem A,
-  `STATUS.md` planu, wygenerowany `PROMPT_ETAP_1.md`)* · 2026-09-01 ·
-  [wpis 2026-09-01 — zgłoszenie z PolyFlow](#2026-09-01--zgłoszenie-z-polyflow-rotacja-i-progi-nie-bronią-się-same-plan-higiena_dokumentow)
-- **Wartość `N` dla przeglądu spraw człowieka i zachowanie przy wyłączonej rotacji**
-  *(rozstrzygnięte 2026-09-01 — `N = 30 dni`, przegląd działa także przy wyłączonej rotacji;
-  Aneks A do PLAN.html, sekcja 10)* · 2026-09-01 ·
-  [wpis 2026-09-01 — zgłoszenie z PolyFlow](#2026-09-01--zgłoszenie-z-polyflow-rotacja-i-progi-nie-bronią-się-same-plan-higiena_dokumentow)
 
 ## Wpisy
 
@@ -2003,3 +1996,107 @@ Autor: RelAI (Opus 5) + Lukasz
 **Do zrobienia przez człowieka:**
 
 - **Uruchomić E1 w świeżej sesji Opusa**, z dostępem do dziennika PolyFlow sprzed rotacji.
+
+### 2026-09-01 — E1: rotacja rusza — link do najnowszego wystąpienia, przepięcie zamiast blokady, kierunek dziennika z dat
+
+Autor: RelAI (Opus) + Lukasz
+
+**Zrobione:**
+
+- **`core/templates/SPEC_DZIENNIK.md`** — pozycja sekcji „Czeka na człowieka" linkuje do
+  **najnowszego** wystąpienia sprawy zamiast do najstarszego; powód i liczby wypisane w treści,
+  format pozycji po przepięciu na archiwum podany dosłownie. Sekcja „Rotacja": wpis linkowany
+  **przestał być nietykalny**, a kolejność wpisów w pliku jest własnością projektu — mechanizmy
+  ustalają ją z dat w nagłówkach. Przykład na końcu pliku przepisany tak, żeby pokazywał obie
+  reguły naraz (sprawa wracająca w nowszym wpisie i sprawa, której wpis wjechał do archiwum).
+- **`core/templates/SPEC_ARCHIWUM.md`** — nietykalność wpisu linkowanego zdjęta, w jej miejsce
+  **przepięcie linku** jako krok 7 fazy 2 (przed zapisem żywego pliku), z liczeniem pozycji
+  z martwym linkiem. Trzy nowe przypadki brzegowe: wpis linkowany wjeżdża do archiwum, kilka
+  pozycji na jednym wpisie, link już przepięty. Nagłówek sekcji o blokadzie zmieniony, bo mówił
+  o mechanizmie, którego już nie ma.
+- **`core/process/session-signals.js`** — `ostatniWpis` ustala kierunek dziennika z **dat**
+  w nagłówkach zamiast brać ostatni nagłówek w pliku; brak dat → zachowanie dotychczasowe i cisza.
+  Funkcja wyeksportowana, żeby dała się sprawdzić testem.
+- **Oba adaptery** — `adapters/claude-code/skills/relai-core/SKILL.md` (reguła linku, zniesienie
+  blokady, przepięcie w fazie 2, „najstarszy" liczony z dat) oraz
+  `adapters/cursor/rules/relai-core.mdc` (ta sama treść po angielsku).
+- **`docs/DZIENNIK.md`** — przeliczone linki sekcji „Czeka na człowieka": sześć z dziewięciu
+  pozycji otwartych wskazuje teraz nowszy wpis. Dwie pozycje rozstrzygnięte 2026-09-01 usunięte
+  z sekcji zgodnie ze specyfikacją (decyzja użytkownika w tej sesji) — sekcja ma 9 pozycji,
+  wszystkie otwarte.
+- **`docs/fixy/BLOKADA_ROTACJI/ODNOGA.md`** — status `PRZENIESIONA 2026-09-01 → wchłonięta przez
+  E1`, sekcja „Wynik" wypełniona. Karta zostaje (D-18).
+- **Odnoga `REJESTR_ARTEFAKTOW`** — sygnał odchylenia z tego etapu: hook `profile-rules` żąda
+  `docs/ARTEFAKTY.md` przy każdej zmianie artefaktu. Karta i prompt świeżej sesji w
+  `docs/plany/HIGIENA_DOKUMENTOW/odnogi/REJESTR_ARTEFAKTOW/`, linia w sekcji „Odnogi" `STATUS.md`.
+
+**Zweryfikowane — jak dokładnie:**
+
+- **Pomiar obiema regułami w jednym przebiegu, na realnym materiale** (instrument
+  `zakres-rotacji.js`, poza repozytorium; obie wersje reguły zaimplementowane wiernie).
+  Dziennik PolyFlow sprzed rotacji z 2026-09-01 (`6a330c1^`, 127 wpisów, 880 437 B): zakres
+  rotacji **starą regułą 0 wpisów**, **nową 117** `FAKT`. Drugi przekrój, migracja z 2026-08-21
+  (`396e243`, 92 wpisy): **6** wobec **82** `FAKT`. Próg odbioru z karty odnogi („co najmniej
+  50 wpisów") przechodzi na obu. Liczba 117 zgadza się z tym, co realna rotacja w PolyFlow
+  osiągnęła po ręcznym rozbrojeniu blokerów — niezależne potwierdzenie.
+- **Kontrola instrumentu** (zasada 5): przy pierwszym przebiegu 29 z 46 pozycji nie znalazło pary
+  treściowej, a na dzienniku RelAI **żaden** z 9 linków nie trafił w żaden wpis — oba wyniki
+  okazały się defektem instrumentu, nie materiału (klucz sprawy wymagał wytłuszczenia; tekst linku
+  w RelAI ma przedrostek „wpis"). Po poprawkach: 6 z 46 bez pary w PolyFlow, 0 nietrafionych
+  linków w RelAI. Liczby PolyFlow po poprawce instrumentu bez zmian (0 → 117).
+- **`ostatniWpis` — osiem punktów, jeden przebieg** (`test-ostatni-wpis.js`, kod wyjścia 0):
+  dziennik rosnący w dół, malejący, oba warianty z CRLF, plik z wpisem dopisanym na końcu wbrew
+  kierunkowi, nagłówki bez dat (zachowanie dotychczasowe, bez błędu), brak wpisów (`null`) oraz
+  **kontrola negatywna** — stara implementacja na dzienniku malejącym bierze wpis najstarszy
+  (`### 2026-08-16 — Najstarszy`), czyli test naprawdę mierzy zmianę.
+- **Na realnych plikach:** PolyFlow sprzed rotacji — stara implementacja brała wpis z 2026-08-26,
+  nowa bierze 2026-09-01; przekrój 2026-08-21 — stara brała 2026-08-10, nowa 2026-08-21. Dziennik
+  RelAI: obie wersje zwracają ten sam wpis, więc zmiana nie ruszyła projektu, który był poprawny.
+- **Dowód negatywny dla przepięcia linku** (zasada 3): próba rotacji na kopii dziennika RelAI
+  zatrzymana po fazie 1 (`proba-rotacji.js`, przebieg A) — plik archiwum powstał, sumy fragmentu
+  w żywym pliku i w archiwum zgodne (`c0eb3e45a56ec88b`), a **żywy dziennik jest bajt w bajt ten
+  sam** (`be82dd80911fa366` przed i po). Sekcja „Czeka na człowieka" **razem z linkami** ma
+  identyczną sumę `7778abe251ee614d` — link nie został przepięty przed potwierdzeniem sumy.
+- **Dowód obecności, nie tylko braku strat** (zasada 14): pełny przebieg na kopii (przebieg B)
+  przeniósł 17 wpisów, przepiął **6 linków** na plik archiwum, a walidator kotwic zgłosił
+  **0 pozycji z martwym linkiem** — sprawdzając kotwice także **w pliku archiwum**, nie tylko
+  w żywym dzienniku. Treść pozycji bez linków identyczna (`eca3a8f0064f651f`).
+- **Sekcja „Czeka na człowieka" w repozytorium:** 11 pozycji przed, 9 po (usunięte dwie
+  rozstrzygnięte), **0 martwych linków** przed i po; treść pozycji bez linków identyczna
+  (`eca3a8f0064f651f` przed i po przeliczeniu linków).
+- **Obie specyfikacje mówią to samo** — przeczytane w jednym przebiegu tej sesji; przy okazji
+  poprawiono zdanie w `SPEC_DZIENNIK.md`, które opisywało starą nietykalność w czasie
+  teraźniejszym.
+- **Zmiana weszła do obu adapterów:** `git grep -c "1.7.0"` daje trafienia w
+  `core/templates/SPEC_DZIENNIK.md` (2), `core/templates/SPEC_ARCHIWUM.md` (3),
+  `adapters/claude-code/skills/relai-core/SKILL.md` (3), `adapters/cursor/rules/relai-core.mdc` (2).
+- **`node core/tools/validate-adapters.js`** — kod wyjścia **0**.
+- **`git status --short`** — wyłącznie pliki z zakresu etapu plus nieśledzony
+  `docs/AUDYT_2026-08-22.html`, który leżał tam przed tą sesją. Instrumenty pomiarowe i kopie prób
+  stoją poza repozytorium.
+- **Nie sprawdzono:** zachowania rotacji w świeżej sesji na realnym projekcie — przepięcie linku
+  jest dziś regułą w dokumentach i przetestowanym przebiegiem na kopii, ale żadna sesja nie
+  wykonała go w rytuale zamknięcia. Nie sprawdzono też adaptera Cursora w aplikacji po tej zmianie.
+
+**Świadomie odłożone:**
+
+- **Punkt weryfikacji z karty odnogi „pozycja `ryzyka` maleje po poprawce" — nie potwierdził się
+  jako sformułowany.** Poprawka sprawia, że pomiar bierze **właściwy** wpis, a nie mniejszy: na
+  przekroju 2026-08-21 właściwy wpis waży 9062 B wobec 6745 B dotąd branych. Kierunek zmiany
+  zależy od długości wpisów projektu, nie od poprawki. Zapisane jako **L-0063**.
+- **Ponowne przeliczenie linków w PolyFlow** — poza zakresem etapu (prompt dopuszczał tam wyłącznie
+  odczyt materiału pomiarowego). Wchodzi do E6 razem z pomiarem na realnych projektach.
+- **Lista blokerów w komunikacie rotacji i próg liczony ponad nietykalnymi** — to E2. Wymuszone
+  pytanie o sprawy przeterminowane — E3. Podbicie wersji do 1.7.0 — E6. W dokumentach nie ma
+  o nich ani jednej obietnicy.
+- **Rozjazd kopii specyfikacji w `.claude/relai/templates/`** — hook odświeża ją z cache'u pluginu
+  (1.6.1), więc do wydania 1.7.0 lokalna kopia niesie starą regułę linku. To znany skutek
+  sekwencji wydania (P-005), nie usterka tego etapu.
+
+**Do zrobienia przez człowieka:**
+
+- **Odnoga [REJESTR_ARTEFAKTOW](plany/HIGIENA_DOKUMENTOW/odnogi/REJESTR_ARTEFAKTOW/ODNOGA.md)** —
+  czeka na świeżą sesję Opusa; prompt jest gotowy.
+- **Pozycja „Decyzja o formalnym zamrożeniu planu ROZWOJ_PO_WYDANIU" wygląda na rozstrzygniętą** —
+  `STATUS.md` tamtego planu niesie `ZAMROŻONY 2026-08-21`. Zamknięcie pozycji jest decyzją
+  człowieka, więc zostaje otwarta; jedno „tak" zdejmuje ją z sekcji.

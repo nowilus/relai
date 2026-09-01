@@ -42,8 +42,11 @@ divergence or an unknown author, that signal goes into the **first sentence** of
 before the "where we are" paragraph, and you **wait** for the user's answer.
 
 "Czeka na człowieka" is the one place where the project keeps things only a human can settle —
-a decision, an access, a purchase, an approval — one line per matter, with a link to the source
-entry; it is never archived and it holds open matters only (`SPEC_DZIENNIK.md`). If the hook
+a decision, an access, a purchase, an approval — one line per matter, with a link to the **newest**
+occurrence of that matter (since 1.7.0 — a link to the oldest one jammed rotation by definition,
+because the rotation range runs from the oldest entry); the date on the item still is the date of
+the **first** occurrence. The section is never archived and it holds open matters only
+(`SPEC_DZIENNIK.md`). If the hook
 report starts a line with **"Zaproponuj rotacje"**, the start layer is over budget and rotation is
 enabled: offer document rotation as the first step in that same first sentence, run it only after
 the user agrees, and never in a background agent session.
@@ -103,8 +106,14 @@ finish a larger chunk of work:
    `wyłączona` / `off` at the start of the cell → stop this step silently. Below the threshold:
    **silence**, no message, no directory created. Two phases: copy + checksum proof first, trim
    only after the checksums match. Never touch "Czeka na człowieka", "Zasady aktywne", the ten
-   newest entries, the twenty newest lessons, or any entry linked from an **open** item of "Czeka
-   na człowieka". An entry whose item carries `*(wyprowadzone …)*` no longer blocks; a project
+   newest entries or the twenty newest lessons. Oldest and newest mean **dates in the headings**,
+   not places in the file — entry order is the project's own property and the mechanism reads it
+   rather than imposing it. An entry linked from an **open** item of "Czeka na człowieka" **no
+   longer blocks** (since 1.7.0): it enters the range like any other and its link is **repinned**
+   to the archive file — the archive path goes in front of the same anchor, in phase 2, before the
+   live file is written; item text, link text and date stay untouched, and the number of items left
+   with a dead anchor must be **zero**. A checksum mismatch stops everything and leaves the link
+   untouched. An entry whose item carries `*(wyprowadzone …)*` no longer blocks either; a project
    without that section still blocks the old way. **Closed risks (1.6.0)** have their own run: rows
    whose status starts with `ZAMKNIĘTE` go to `docs/archiwum/ryzyka/RYZYKA_<date>.md` — all of them
    at once, only when the `ryzyka` sub-threshold is exceeded, same two phases, one reference line

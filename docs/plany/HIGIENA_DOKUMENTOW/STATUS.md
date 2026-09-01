@@ -7,12 +7,20 @@ Plan: [PLAN.html](PLAN.html) · Utworzony: 2026-09-01 · Status planu: **ZAAKCEP
 
 | Etap | Nazwa | Status | Prompt | Uwagi |
 |---|---|---|---|---|
-| E1 | Rotacja rusza | **GOTOWY DO STARTU** | [PROMPT_ETAP_1.md](PROMPT_ETAP_1.md) | wchłania odnogę [BLOKADA_ROTACJI](../../fixy/BLOKADA_ROTACJI/ODNOGA.md); wymaga dostępu do dziennika PolyFlow sprzed rotacji |
-| E2 | Blokada mówi i próg nie kłamie | OCZEKUJE | — | |
+| E1 | Rotacja rusza | **ZREALIZOWANY 2026-09-01** | [PROMPT_ETAP_1.md](PROMPT_ETAP_1.md) | wchłonął odnogę [BLOKADA_ROTACJI](../../fixy/BLOKADA_ROTACJI/ODNOGA.md); zakres rotacji PolyFlow 0 → 117 wpisów ze 127 |
+| E2 | Blokada mówi i próg nie kłamie | **GOTOWY DO STARTU** | [PROMPT_ETAP_2.md](PROMPT_ETAP_2.md) | |
 | E3 | Sprawa przeterminowana wymusza decyzję | OCZEKUJE | — | `N = 30 dni`, wyłącznik osobny od rotacji (Aneks A) |
 | E4 | Raport startu jako adres progów | OCZEKUJE | — | limit „Zasad aktywnych" zostaje przy swoim adresie — nie przenosić; zakres obejmuje też progi sekcji i katalog progów (Aneks B) |
 | E5 | Ryzyka i ustawienia schodzą do archiwum | OCZEKUJE | — | |
 | E6 | Pomiar na realnych projektach i wydanie | OCZEKUJE | — | wydanie 1.7.0, sekwencja P-005 obowiązuje |
+
+## Odnogi
+
+- **BLOKADA_ROTACJI** — link pozycji blokuje rotację najstarszego wpisu, a pomiar bierze zły wpis ·
+  etap-źródło: E1 · [karta](../../fixy/BLOKADA_ROTACJI/ODNOGA.md) ·
+  **PRZENIESIONA 2026-09-01 → wchłonięta przez E1**
+- **REJESTR_ARTEFAKTOW** — profil `prompty` wymaga `docs/ARTEFAKTY.md`, a rejestru nie ma ·
+  etap-źródło: E1 · [karta](odnogi/REJESTR_ARTEFAKTOW/ODNOGA.md) · **OTWARTA**
 
 ## Bramki manualne
 
@@ -29,3 +37,7 @@ Plan: [PLAN.html](PLAN.html) · Utworzony: 2026-09-01 · Status planu: **ZAAKCEP
   Wygenerowano PROMPT_ETAP_1; E1 gotowy do startu.
 - 2026-09-01 — **Aneks B**: zakres E4 rozszerzony o progi sekcji i jawny katalog progów; powód wyszedł
   z rotacji `LEKCJE.md` w rytuale zamknięcia sesji.
+- 2026-09-01 — E1 rozpoczęty.
+- 2026-09-01 — **E1 ZREALIZOWANY**: link pozycji wskazuje najnowsze wystąpienie, nietykalność wpisu
+  linkowanego zastąpiona przepięciem linku w fazie 2, `ostatniWpis` czyta kierunek z dat; zakres
+  rotacji PolyFlow **0 → 117 wpisów ze 127**. Wygenerowano PROMPT_ETAP_2; E2 gotowy do startu.

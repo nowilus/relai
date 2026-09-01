@@ -17,16 +17,20 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
 4. **Dowodzisz efektem, nie zdarzeniem:** stanem pliku, sumą kontrolną, treścią odpowiedzi.
    Kryterium stawiasz na stanie, który kontrolujesz, i na źródle, które artefakt produkuje — nie na
    cudzym strumieniu. Zmianę zachowania pokazujesz **obiema wersjami w jednym przebiegu**,
-   a instrument porównawczy implementuje wiernie każdą z nich. (L-0017, L-0018, L-0040, L-0051,
-   L-0052)
+   a instrument porównawczy implementuje wiernie każdą z nich. **Kryterium stawiasz na poprawności
+   wyniku, nie na kierunku liczby, której nie kontrolujesz** — „wartość maleje" wolno napisać
+   wyłącznie wtedy, gdy zmiana z definicji ją zmniejsza. (L-0017, L-0018, L-0040, L-0051, L-0052,
+   L-0063)
 5. **Instrument pomiarowy sam bywa źródłem fałszu:** wyrażenia regularne trzymaj w pliku, nie
    w `node -e`; scenariusz „konfiguracji nie ma" mierz z podstawionym katalogiem domowym; dokładaj
    przypadek, który **musi** trafić. Zero trafień przy niepustych zbiorach to defekt instrumentu,
    dopóki nie udowodnisz inaczej — porównanie identyfikatora wygenerowanego z zastanym ma obok
    siebie kontrolę „ile zastanych nie znalazło pary". Dzieląc wiersz po separatorze, który da się
    wyescapować, dziel po separatorze **niepoprzedzonym znakiem ucieczki** i sprawdzaj liczbę pól po
-   podmianie. Wyczerpany limit konta zatrzymuje pomiar i idzie do odnogi, nie do adnotacji
-   „sprawdzone inaczej". (L-0032, L-0037, L-0054, L-0055, L-0056)
+   podmianie. **Trafienie zgłoszone na materiale, który dotąd był zdrowy, sprawdzasz najpierw na
+   instrumencie**; w łańcuchu podmian zbiór znaków zachowywanych wypisujesz raz, bo znak usunięty
+   wcześniej nie wróci później. Wyczerpany limit konta zatrzymuje pomiar i idzie do odnogi, nie do
+   adnotacji „sprawdzone inaczej". (L-0032, L-0037, L-0054, L-0055, L-0056, L-0064)
 6. **Próg jest liczbą, którą ktoś liczy:** kalibruj go na zmierzonych plikach realnych projektów,
    zapisuj w jednostce mechanizmu kontrolnego wraz z komendą sprawdzającą i daj mu **jeden**
    wyzwalacz — wielkości pomocnicze wskazują przyczynę wewnątrz komunikatu, nie wywołują go.
@@ -203,6 +207,36 @@ restart aplikacji po `plugin update` (L-0031), `git worktree` zamiast `git archi
   w nagłówkach), a nie z nawyku autora. Zanim uznasz układ za oczywisty, sprawdź go na drugim
   projekcie — pierwszy zawsze potwierdza własne założenia.
 - **Źródło:** E5 planu OPTYMALIZACJA_KONTEKSTU (2026-08-21); pokrewne L-0033, L-0038, L-0057.
+
+### L-0063 — Kryterium postawione na kierunku liczby zamiast na poprawności pomiaru · 2026-09-01 · AKTYWNA
+
+- **Trigger:** karta odnogi `BLOKADA_ROTACJI` miała punkt weryfikacji „pozycja `ryzyka` mierzona
+  dla PolyFlow **maleje** po poprawce". Poprawka weszła i punkt nie przeszedł: na przekroju
+  2026-08-21 właściwy wpis okazał się **większy** od dotąd branego (9062 B wobec 6745 B).
+- **Przyczyna:** poprawka zmienia to, **który** wpis jest mierzony, a nie to, ile on waży. Kierunek
+  zmiany liczby zależy od danych projektu, więc kryterium oparte na kierunku sprawdza cudzy plik,
+  nie moją zmianę.
+- **Zasada:** kryterium weryfikacji stawiaj na **poprawności** wyniku (czy mechanizm bierze właściwy
+  element), nie na kierunku liczby, którego nie kontrolujesz. Punkt „wartość maleje" wolno postawić
+  wyłącznie wtedy, gdy zmiana **z definicji** ją zmniejsza — inaczej zdany punkt jest zbiegiem
+  okoliczności, a niezdany fałszywym alarmem.
+- **Źródło:** E1 planu HIGIENA_DOKUMENTOW (2026-09-01); rozwinięcie zasady aktywnej 4 (L-0017,
+  L-0018, L-0051).
+
+### L-0064 — Pierwsza podmiana zjadła znak, którego potrzebowała druga · 2026-09-01 · AKTYWNA
+
+- **Trigger:** generator kotwic nagłówków zgłosił **dwie martwe kotwice** w sekcji „Czeka na
+  człowieka", których tam nie było. Powód: czyszczenie znaków markdownu (`` ` ``, `*`, `_`)
+  usuwało podkreślnik, zanim właściwa reguła zdążyła go zachować — `HIGIENA_DOKUMENTOW` stawało się
+  `higienadokumentow`.
+- **Przyczyna:** dwie podmiany w łańcuchu, każda poprawna osobno, sprzeczne co do jednego znaku.
+  Instrument nie zgłosił błędu, tylko **wynik wyglądający na defekt cudzego pliku** — a to jest
+  najgorszy rodzaj fałszu, bo prowadzi do „naprawiania" czegoś, co jest sprawne.
+- **Zasada:** trafienie zgłoszone przez instrument sprawdzasz najpierw **na instrumencie**, nie na
+  materiale — zwłaszcza gdy materiał był dotąd zdrowy. W łańcuchu podmian wypisz zbiór znaków
+  zachowywanych **raz**, w jednym miejscu; znak usunięty wcześniej nie wróci do gry później.
+- **Źródło:** E1 planu HIGIENA_DOKUMENTOW (2026-09-01); rozwinięcie zasady aktywnej 5 (L-0054,
+  L-0055), pokrewne L-0037.
 
 ## Lekcje zwinięte
 

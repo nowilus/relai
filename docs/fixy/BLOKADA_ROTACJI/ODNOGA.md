@@ -3,7 +3,7 @@
 Plan: brak (wątek samodzielny — przeniesiony 2026-08-21 z zamkniętego planu
 [OPTYMALIZACJA_KONTEKSTU](../../archiwum/plany/OPTYMALIZACJA_KONTEKSTU/STATUS.md)) ·
 Etap-źródło: E5 — Migracja JiraManagera i PolyFlow · Utworzona: 2026-08-21 ·
-Status: **OTWARTA** · Wykonawca: Opus
+Status: **PRZENIESIONA 2026-09-01 → wchłonięta przez E1 planu HIGIENA_DOKUMENTOW** · Wykonawca: Opus
 
 ## Cel
 
@@ -58,4 +58,20 @@ o 3,0 KB tylko dlatego, że zmienił się najstarszy wpis w pliku.
 
 ## Wynik
 
-*(pusta do czasu zamknięcia)*
+**Odnoga wchłonięta 2026-09-01 przez etap E1 planu
+[HIGIENA_DOKUMENTOW](../../plany/HIGIENA_DOKUMENTOW/STATUS.md).** Zakres tej karty (punkty 1–4)
+wszedł w całości do zakresu tamtego etapu, a etap poszedł dalej, niż karta zakładała: zamiast
+przenosić nietykalność wpisu linkowanego, zdejmuje ją i zastępuje **przepięciem linku** na plik
+archiwum w fazie 2 rotacji.
+
+Zmierzone w E1 na dzienniku PolyFlow sprzed rotacji `FAKT`: zakres rotacji **0 wpisów ze 127**
+starą regułą wobec **117** nową (przekrój 2026-09-01) oraz **6 z 92** wobec **82**
+(przekrój 2026-08-21). Funkcja `ostatniWpis` czyta kierunek dziennika z dat w nagłówkach —
+na obu kierunkach, w wariancie CRLF i przy nagłówkach bez dat.
+
+Punkt weryfikacji „pozycja `ryzyka` mierzona dla PolyFlow **maleje**" **nie potwierdził się jako
+sformułowany**: poprawka sprawia, że pomiar bierze **właściwy** wpis, a nie mniejszy. Na przekroju
+2026-08-21 właściwy wpis jest większy od dotychczas branego (9062 B wobec 6745 B). Kierunek zmiany
+zależy od długości wpisów, nie od poprawki; wartością jest poprawność pomiaru.
+
+Karta zostaje w repozytorium jako ślad (D-18). Szczegóły: wpis dziennika z 2026-09-01 o E1.

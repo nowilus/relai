@@ -158,34 +158,53 @@ Pierwsza pozycja nietykalna **przerywa** ciąg — nie przeskakujesz jej, żeby 
 Archiwum ma być nieprzerwanym kawałkiem historii, a nie sitem. **Ryzyka są jedynym wyjątkiem** —
 tam kryterium jest status, nie wiek; patrz podsekcja „Ryzyka".
 
+„Najstarsza pozycja" znaczy **najwcześniejsza data w nagłówku**, nie „pierwsza od góry pliku":
+kolejność wpisów jest własnością projektu i mechanizm ją czyta, a nie narzuca (`SPEC_DZIENNIK.md`).
+
 **Dziennik** — nietykalne są:
 
 - sekcja **„Stan otwartych ryzyk"** (nie jest wpisem, więc do archiwum dziennika nie trafia nigdy;
   ma własną drogę opisaną niżej),
 - sekcja **„Czeka na człowieka"** (od 1.6.0 — tak samo nie jest wpisem i nie rotuje),
-- **dziesięć najnowszych wpisów** `SZACUNEK`,
-- **każdy wpis, do którego prowadzi link z otwartej pozycji sekcji „Czeka na człowieka"** —
-  niezależnie od wieku.
+- **dziesięć najnowszych wpisów** `SZACUNEK`.
 
-### Blokada liczy się z sekcji „Czeka na człowieka" (od 1.6.0)
+**Wpis linkowany z otwartej pozycji „Czeka na człowieka" nietykalny nie jest** — od 1.7.0. Wchodzi
+do zakresu jak każdy inny, a jego link zostaje przepięty; sekcja niżej mówi, jak i kiedy.
+
+### Sprawa człowieka a rotacja: blokada zmieniła adres w 1.6.0 i zniknęła w 1.7.0
 
 Do 1.5.2 blokowała **własna** sekcja wpisu: wpis z nierozstrzygniętą pozycją „Do zrobienia przez
 człowieka" zostawał w żywym pliku na zawsze. Skutek był mierzalny i odwrotny do zamierzonego —
 w dwóch żywych projektach (JiraManager 1,00 MB, PolyFlow 571 KB) rotacja **nigdy nie ruszyła**,
 bo blokował ją **pierwszy** wpis dziennika, a zakres jest ciągły od najstarszej pozycji `FAKT`.
 
-Od 1.6.0 adres blokady jest jeden:
+Od 1.6.0 adres blokady był jeden — wpisy linkowane z otwartych pozycji sekcji „Czeka na człowieka".
+**Od 1.7.0 blokady nie ma wcale**, bo przeniesienie zamiast niej dostało bezpiecznik.
 
-- **Blokujące są wyłącznie wpisy, do których prowadzi link z pozycji sekcji „Czeka na człowieka"**
-  — i tylko dopóki ta pozycja jest w sekcji, czyli dopóki sprawa jest otwarta.
+Powód jest ten sam, co poprzednio: mierzalny. Przeniesienie adresu blokady nie odetkało mechanizmu,
+tylko przesunęło korek — pozycja linkowała do **najstarszego** wystąpienia sprawy, a zakres jest
+ciągły od najstarszej pozycji, więc chroniony wpis dalej stał dokładnie tam, gdzie kosztował
+najwięcej. Zmierzone na dzienniku PolyFlow sprzed rotacji `FAKT`: zakres 0 wpisów ze 127
+(2026-09-01) i 6 wpisów z 92 (2026-08-21).
+
+Reguła obowiązująca:
+
+- **Żaden wpis nie jest chroniony dlatego, że prowadzi do niego link z pozycji „Czeka na
+  człowieka".** Wchodzi do zakresu jak każdy inny.
+- **Link pozycji jest przepinany na plik archiwum** — ścieżka pliku plus ta sama kotwica — **w fazie
+  2**, razem z przycięciem żywego pliku. Zmienia się wyłącznie adres przed `#`; tekst linku, treść
+  pozycji i jej data zostają nietknięte (`SPEC_DZIENNIK.md`).
+- **Rozjazd sum kontrolnych zatrzymuje całość i link zostaje nietknięty** — przepięcie nie ma prawa
+  wyprzedzić dowodu, bo pozycja wskazywałaby wtedy plik, którego treści nikt nie potwierdził.
 - **Wpis z pozycją wyprowadzoną jest przenoszalny** — także wtedy, gdy jego własna sekcja „Do
   zrobienia przez człowieka" wygląda na otwartą. Adnotacja `*(wyprowadzone RRRR-MM-DD → sekcja
   „Czeka na człowieka")*` znaczy, że sprawa ma inny dom (`SPEC_DZIENNIK.md`).
 - **Wpis z pozycją rozstrzygniętą jest przenoszalny** — bez zmian wobec 1.5.2, patrz sekcja niżej.
 - Sekcja z treścią „—" jest pusta i niczego nie blokuje.
 
-Sprawa człowieka nie może zniknąć w archiwum — dlatego blokada nie znika, tylko **zmienia adres**
-na ten, który sesja czyta na starcie.
+Sprawa człowieka nadal nie może zniknąć — ale trzyma ją przy życiu **pozycja**, nie wpis. Sekcja
+„Czeka na człowieka" nie rotuje nigdy, a po przepięciu prowadzi do tej samej treści pod adresem
+archiwum. Wpisu, do którego nikt nie zajrzy, nie trzeba w tym celu trzymać w żywym pliku.
 
 ### Jak poznać pozycję rozstrzygniętą (od 1.5.2)
 
@@ -264,9 +283,15 @@ obowiązuje** — zbiór jest wyznaczony statusem, a nie objętością, więc ni
 **Faza 2 — przycięcie (dopiero po zgodności sum):**
 
 6. Usuń przeniesiony fragment z żywego pliku i wstaw w jego miejsce linię-odsyłacz.
-7. Zapisz żywy plik.
-8. Rotacja idzie do **wpisu dziennika tej sesji**: co przeniesiono, dokąd, ile pozycji, suma
-   kontrolna, rozmiar przed i po. Wpis powstaje po rotacji, więc trafia już do przyciętego pliku.
+7. **Przepnij linki pozycji „Czeka na człowieka", które prowadziły do przeniesionych wpisów** —
+   przed ścieżką `#kotwica` staje ścieżka pliku archiwum; kotwica, tekst linku, treść pozycji
+   i data zostają nietknięte. Policz, ile pozycji przepięto, i **ile pozycji zostało z linkiem do
+   nieistniejącej kotwicy** — druga liczba ma wynosić zero i idzie do wpisu dziennika razem
+   z pierwszą. Krok dotyczy wyłącznie rotacji dziennika; rotacja lekcji i ryzyk go nie ma.
+8. Zapisz żywy plik.
+9. Rotacja idzie do **wpisu dziennika tej sesji**: co przeniesiono, dokąd, ile pozycji, suma
+   kontrolna, rozmiar przed i po, liczba przepiętych linków. Wpis powstaje po rotacji, więc trafia
+   już do przyciętego pliku.
 
 Przerwanie między fazami zostawia oryginał kompletny — to jest cały powód, dla którego kolejność
 jest taka, a nie odwrotna.
@@ -294,7 +319,10 @@ a nie porządkowaniem.
 |---|---|
 | Żywy plik poniżej progu | Nic się nie dzieje, zero komunikatów, katalog archiwum nie powstaje |
 | Rotacja wyłączona w `USTAWIENIA.md` | Progu nawet nie sprawdzasz; cisza |
-| Powyżej progu, ale **cały** zakres nietykalny (same świeże wpisy albo wpisy linkowane z otwartych pozycji „Czeka na człowieka") | Nie rotujesz i **mówisz o tym jednym zdaniem** w podsumowaniu sesji, z powodem. Cisza jest zarezerwowana dla stanu poniżej progu — powyżej progu milczenie ukryłoby zatkany mechanizm |
+| Powyżej progu, ale **cały** zakres nietykalny (same świeże wpisy) | Nie rotujesz i **mówisz o tym jednym zdaniem** w podsumowaniu sesji, z powodem. Cisza jest zarezerwowana dla stanu poniżej progu — powyżej progu milczenie ukryłoby zatkany mechanizm |
+| **Wpis linkowany z otwartej pozycji „Czeka na człowieka" wjeżdża do archiwum** | Wjeżdża normalnie — od 1.7.0 nie jest z tego powodu nietykalny. Link pozycji zostaje **przepięty** na plik archiwum wraz z kotwicą, w **fazie 2**, w tym samym przebiegu, w którym wpis się przenosi. Rozjazd sum kontrolnych → **STOP przed fazą 2**: żywy plik nietknięty **i link nietknięty**, bo pozycja wskazywałaby wtedy plik, którego treści nikt nie potwierdził. Pozycja nigdy nie zostaje z martwym linkiem: liczba pozycji z linkiem do nieistniejącej kotwicy po rotacji ma wynosić **zero** i tę liczbę wypisuje wpis dziennika |
+| Kilka pozycji linkuje do **tego samego** przenoszonego wpisu | Przepinasz **każdą** z nich — jednostką operacji jest pozycja, nie wpis. Liczba przepiętych linków bywa większa niż liczba przeniesionych wpisów i to nie jest błąd |
+| Pozycja linkuje do wpisu, którego **w żywym pliku już nie ma** (link prowadzi do archiwum po wcześniejszej rotacji) | Nic nie robisz — link jest już przepięty i jest poprawny. Ponownego przepięcia nie wykonujesz i drugiej ścieżki do niego nie doklejasz |
 | Dziennik ponad progiem, ale wpisów jest **mniej niż dziesięć** | Nie rotujesz — dziesięć najnowszych wpisów jest nietykalne niezależnie od rozmiaru pliku. **Mówisz o tym jednym zdaniem z powodem**: problemem są długie wpisy, a nie ich liczba, i rozwiązuje go zwięzłość, nie archiwum |
 | Sesja nieinteraktywna, budżet przekroczony | Wejście 2 (start sesji) nie rusza; raport pomiaru pada, propozycja rotacji nie. Wejście 1 (zamknięcie sesji) działa bez zmian |
 | Wpis ma otwartą pozycję „Do zrobienia przez człowieka", ale **bez** adnotacji o wyprowadzeniu, a sekcji „Czeka na człowieka" w pliku nie ma (projekt sprzed 1.6.0) | Blokuje jak dotąd — reguła 1.5.2 obowiązuje, dopóki projekt nie przejdzie procedury wyprowadzenia (skill `relai-core`). Nie rotujesz „na zapas" i nie zakładasz sekcji przy okazji rotacji |
@@ -319,7 +347,10 @@ a nie porządkowaniem.
   nigdy ryzyko o innym statusie.
 - Nie zmieniasz numeru ryzyka przy przenoszeniu i nie odzyskujesz numeru zwolnionego przez
   archiwizację — numeracja jest ciągła i nigdy nie wraca (`SPEC_DZIENNIK.md`).
-- Nie przenosisz wpisu, do którego prowadzi link z **otwartej** pozycji sekcji „Czeka na człowieka".
+- Nie przycinasz żywego pliku przed przepięciem linków — krok 7 fazy 2 idzie **przed** zapisem
+  (krok 8), żeby przerwanie nie zostawiło pozycji wskazującej w pustkę.
+- Nie przepinasz linku przed potwierdzeniem sum kontrolnych i nie „naprawiasz" go po cichu, gdy
+  suma się nie zgadza.
 - Nie wyprowadzasz pozycji „przy okazji" rotacji — wyprowadzenie jest osobną, opisaną procedurą
   z liczeniem przed i po (skill `relai-core`), a rotacja tylko czyta jej wynik.
 - Nie pytasz o zgodę na rotację i nie meldujesz jej poniżej progu — mechanizm ma być niewidoczny,

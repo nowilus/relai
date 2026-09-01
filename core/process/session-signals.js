@@ -395,15 +395,41 @@ function wytnijSekcje(txt, wzorce) {
   return linie.slice(start, koniec).join('\n');
 }
 
-// Ostatni wpis dziennika: ostatni naglowek trzeciego poziomu do konca pliku.
+// Naglowek wpisu z data: "### RRRR-MM-DD — Temat". Bez kotwicy konca linii (CRLF, L-0033).
+const NAGLOWEK_WPISU = /^###\s+(\d{4}-\d{2}-\d{2})\b/;
+const NAGLOWEK_WPISU_BEZ_DATY = /^###\s+/;
+
+// Ostatni wpis dziennika = wpis NAJNOWSZY, czyli o najpozniejszej dacie w naglowku.
+// Kolejnosc wpisow w pliku jest wlasnoscia projektu (SPEC_DZIENNIK): RelAI dopisuje na koncu,
+// ale projekt zaadoptowany bywa odwrotny. Czytanie "ostatniego naglowka w pliku" braloby tam
+// wpis NAJSTARSZY — zmierzone na PolyFlow 2026-08-21: pozycja "ryzyka" urosla o 3,0 KB tylko
+// dlatego, ze zmienil sie najstarszy wpis.
+// Brak dat albo daty nieparsowalne -> zachowanie dotychczasowe (ostatni naglowek) i cisza.
 function ostatniWpis(txt) {
   const linie = String(txt).split('\n');
-  let start = -1;
+  const zData = [];
+  let ostatniNaglowek = -1;
   for (let i = 0; i < linie.length; i++) {
-    if (/^###\s+/.test(linie[i])) start = i;
+    if (!NAGLOWEK_WPISU_BEZ_DATY.test(linie[i])) continue;
+    ostatniNaglowek = i;
+    const m = linie[i].match(NAGLOWEK_WPISU);
+    if (m) zData.push({ linia: i, data: m[1] });
   }
-  if (start === -1) return null;
-  return linie.slice(start).join('\n');
+  if (ostatniNaglowek === -1) return null;
+  if (zData.length < 2) return linie.slice(ostatniNaglowek).join('\n');
+
+  // Kierunek pliku z danych, nie z nawyku: pierwsza data pozniejsza od ostatniej = malejaco.
+  const malejaco = zData[0].data > zData[zData.length - 1].data;
+  const najpozniejsza = zData.reduce((a, b) => (b.data > a.data ? b : a)).data;
+  const kandydaci = zData.filter((w) => w.data === najpozniejsza);
+  const wybrany = malejaco ? kandydaci[0] : kandydaci[kandydaci.length - 1];
+
+  // Wpis konczy sie na kolejnym naglowku ### albo na naglowku sekcji wyzszego poziomu.
+  let koniec = linie.length;
+  for (let i = wybrany.linia + 1; i < linie.length; i++) {
+    if (/^#{1,3}\s+/.test(linie[i])) { koniec = i; break; }
+  }
+  return linie.slice(wybrany.linia, koniec).join('\n');
 }
 
 // Komorka "Decyzja" wiersza o podanej nazwie. Nazwa dopasowywana od POCZATKU
@@ -616,6 +642,7 @@ module.exports = {
   promptGap,
   stateDrift,
   unknownAuthor,
+  ostatniWpis, // eksportowana, zeby dalo sie ja sprawdzic testem na obu kierunkach dziennika
   startCost,
   startCostReport,
 };

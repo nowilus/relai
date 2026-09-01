@@ -33,7 +33,9 @@ Agent w kolejnej sesji (główny) oraz zespół.
    sekcja niżej.
 3. **Sekcja „Czeka na człowieka"** (od 1.6.0) — stała, tuż pod ryzykami, **nadpisywana**. Sekcja
    niżej.
-4. **Sekcja „Wpisy"** — chronologicznie, najstarszy u góry.
+4. **Sekcja „Wpisy"** — chronologicznie, najstarszy u góry. To jest **domyślna** kolejność
+   projektu zakładanego przez RelAI, nie warunek działania mechanizmów: kolejność wpisów jest
+   własnością projektu i mechanizmy mają ją **czytać** (sekcja „Rotacja"), nie narzucać.
 
 ## Sekcja „Czeka na człowieka" (od 1.6.0)
 
@@ -53,8 +55,28 @@ OPTYMALIZACJA_KONTEKSTU, mechanizm 2).
 - **data** — dzień, w którym sprawa padła **po raz pierwszy**, nie dzień wyprowadzenia.
 - **link** — kotwica nagłówka wpisu źródłowego w tym samym pliku. Tekst linku nazywa wpis (data
   plus skrót tytułu), więc pozycja zostaje odnajdywalna nawet wtedy, gdy kotwica przestanie
-  działać (L-0013). Sprawa powtórzona w kilku wpisach dostaje link do **najstarszego** — tam jest
-  kontekst; kolejne wystąpienia są tylko echem.
+  działać (L-0013). Sprawa powtórzona w kilku wpisach dostaje link do **najnowszego**
+  wystąpienia — tam jest stan sprawy na dziś, a starsze wystąpienia dojdziesz z niego wstecz.
+
+  **Dlaczego do najnowszego, a nie do najstarszego.** Do 1.6.1 reguła wskazywała wpis
+  **najstarszy** i to zatykało rotację z definicji: rotacja bierze ciągły zakres **od
+  najstarszej** pozycji, a wpis linkowany z otwartej sprawy **był wtedy chroniony** — więc blokada
+  siadała dokładnie tam, gdzie kosztowała najwięcej. Od 1.7.0 chroniony nie jest (sekcja
+  „Rotacja"); bezpiecznikiem jest przepięcie linku opisane niżej. Zmierzone na dzienniku PolyFlow sprzed
+  rotacji `FAKT` (2026-09-01, 127 wpisów): starą regułą zakres obejmował **0 wpisów**, nową —
+  **117**. Na przekroju z 2026-08-21 (92 wpisy): **6** wobec **82**.
+
+  **Adnotacja po przepięciu na archiwum.** Wpis, do którego prowadzi link, może wjechać do
+  archiwum — wtedy link zostaje **przepięty** na plik archiwum razem z kotwicą, w fazie 2
+  rotacji (`SPEC_ARCHIWUM.md`). Brzmienie pozycji po przepięciu:
+
+  ```
+  - **<treść sprawy>** · <RRRR-MM-DD> · [wpis 2026-08-16 — Plan ODBIORCY](archiwum/dziennik/DZIENNIK_2026-08-16_2026-08-31.md#2026-08-16--plan-odbiorcy-utworzony)
+  ```
+
+  Zmienia się **wyłącznie** ścieżka przed `#`; tekst linku, treść pozycji i data zostają
+  nietknięte. Pozycja nigdy nie zostaje z martwym linkiem, a wpis nigdy nie blokuje rotacji
+  tylko dlatego, że ktoś na niego wskazuje.
 
 **Zasady sekcji:**
 
@@ -262,12 +284,18 @@ opisuje `SPEC_ARCHIWUM.md`; tutaj obowiązuje to, czego rotacja nie ma prawa nar
   Rotację ma **własną i osobną**: do `docs/archiwum/ryzyka/` schodzą wiersze ryzyk `ZAMKNIĘTE`,
   nigdy cała sekcja i nigdy ryzyko otwarte (`SPEC_ARCHIWUM.md`),
 - sekcja **„Czeka na człowieka"** — tak samo: nie jest wpisem, nie rotuje,
-- **dziesięć najnowszych wpisów** `SZACUNEK`,
-- **każdy wpis, do którego prowadzi link z otwartej pozycji sekcji „Czeka na człowieka"** —
-  niezależnie od wieku. Najpierw rozstrzygnięcie albo wyprowadzenie, potem archiwum: sprawa
-  człowieka, która wyszłaby z żywego dokumentu bez śladu, przestaje istnieć dla kolejnej sesji.
-  Wpis, którego pozycje zostały wyprowadzone albo rozstrzygnięte, jest **przenoszalny** — jego
-  własna sekcja „Do zrobienia przez człowieka" niczego już nie blokuje.
+- **dziesięć najnowszych wpisów** `SZACUNEK` — najnowszych **wg dat w nagłówkach**, nie wg pozycji
+  w pliku.
+
+**Czego rotacja nie zatrzymuje (zmiana w 1.7.0):** wpis **nie** jest chroniony dlatego, że prowadzi
+do niego link z otwartej pozycji „Czeka na człowieka". Taki wpis wchodzi do zakresu normalnie,
+a jego **link jest przepinany** na plik archiwum w fazie 2 (`SPEC_ARCHIWUM.md`). Do 1.6.1 był
+nietykalny — i to była ta jedna reguła, przez którą rotacja w dwóch żywych projektach nie ruszyła
+z miejsca. Sprawa człowieka nie znika przy tym z oczu, bo nie znika **pozycja**: sekcja „Czeka na
+człowieka" nie rotuje nigdy, a po przepięciu prowadzi do tej samej treści pod adresem archiwum.
+
+Wpis, którego pozycje zostały wyprowadzone albo rozstrzygnięte, jest przenoszalny tak samo — jego
+własna sekcja „Do zrobienia przez człowieka" niczego nie blokuje.
 
 **Co odchodzi:** ciągły zakres najstarszych wpisów, **w całości i bajt w bajt**. Wpisu nie dzielisz,
 nie streszczasz i nie skracasz — pierwszy wpis nietykalny kończy zakres.
@@ -279,6 +307,22 @@ zmieściło, a od pełnej treści jest archiwum (D-18).
 
 Format wpisu jest przy tym nienaruszalny: treść w archiwum ma te same cztery sekcje i tę samą linię
 autora co przed przeniesieniem.
+
+**Kolejność wpisów w pliku jest własnością projektu (od 1.7.0).** RelAI dopisuje na końcu sekcji
+„Wpisy", więc w projekcie założonym przez RelAI najstarszy wpis stoi u góry — ale projekt
+zaadoptowany albo prowadzony wcześniej ręcznie bywa odwrotny, a bywa i mieszany. **Mechanizm nie
+narzuca kolejności: ustala ją z dat w nagłówkach `### RRRR-MM-DD`, nie z pozycji w pliku.** Dotyczy
+to wszystkiego, co pyta plik o wiek: wyznaczenia zakresu rotacji („najstarsze" znaczy najwcześniejsza
+data, nie „pierwsze od góry"), dziesięciu nietykalnych wpisów i pomiaru „ostatniego wpisu" w warstwie
+startowej.
+
+Kosztowało to pomiar: w PolyFlow wpisy idą **od najnowszego**, a najstarszy stoi w środku pliku —
+funkcja czytająca „ostatni nagłówek w pliku" brała tam wpis najstarszy i pozycja `ryzyka` urosła
+o 3,0 KB tylko dlatego, że zmienił się najstarszy wpis `FAKT` (2026-08-21).
+
+**Nagłówki bez dat albo z datami nieparsowalnymi** (dokument sprzed adopcji) → mechanizm wraca do
+zachowania dotychczasowego, czyli do kolejności w pliku, i robi to **w ciszy**: brak daty nie jest
+błędem, a wpis bez daty i tak nie podlega rotacji (`SPEC_ARCHIWUM.md`, przypadki brzegowe).
 
 ## Zakazy
 
@@ -307,37 +351,45 @@ autora co przed przeniesieniem.
 ## Czeka na człowieka
 
 - **Wybrać dostawcę płatności — blokuje wdrożenie (R1)** · 2026-08-07 ·
-  [wpis 2026-08-07 — Lista oczekujących](#2026-08-07--lista-oczekujących-i-powiadomienia)
+  [wpis 2026-08-09 — Cennik i faktury](#2026-08-09--cennik-i-faktury-ręczne)
 - **Potwierdzić treść maila z działem komunikacji** · 2026-08-07 ·
-  [wpis 2026-08-07 — Lista oczekujących](#2026-08-07--lista-oczekujących-i-powiadomienia)
+  [wpis 2026-08-07 — Lista oczekujących](archiwum/dziennik/DZIENNIK_2026-03-02_2026-08-07.md#2026-08-07--lista-oczekujących-i-powiadomienia)
 
 ## Wpisy
 
-### 2026-08-07 — Lista oczekujących i powiadomienia
+> Wpisy z okresu 2026-03-02 … 2026-08-07 (15 wpisów) są w
+> [docs/archiwum/dziennik/DZIENNIK_2026-03-02_2026-08-07.md](archiwum/dziennik/DZIENNIK_2026-03-02_2026-08-07.md)
+> — przeniesione 2026-08-09, suma kontrolna `a1b2c3d4e5f60718`.
+
+### 2026-08-09 — Cennik i faktury ręczne
 
 Autor: RelAI (Opus) + Łukasz
 
 **Zrobione:**
-- Kolejka oczekujących na miejsce: zapis, kolejność FIFO, zwolnienie miejsca przydziela pierwszej
-  osobie z listy.
-- Powiadomienie mailowe o przyznaniu miejsca (szablon + wysyłka przez SMTP).
+- Cennik miesięczny w panelu administratora; faktury wystawiane ręcznie przez księgowość, bo
+  dostawcy płatności nadal nie ma (R1).
 
 **Zweryfikowane — jak dokładnie:**
-- 14 testów jednostkowych kolejki (`npm test`) — wszystkie zielone; pokrycie modułu 88%.
-- Test ręczny na środowisku testowym: dwie osoby na liście, zwolnienie miejsca → mail dotarł do
-  pierwszej w ciągu ~20 s, druga została na liście.
-- **Nie sprawdzono:** zachowania przy 100+ osobach w kolejce — brak danych testowych.
+- Trzy faktury wystawione ręcznie na danych testowych — kwoty zgodne z cennikiem co do grosza.
+- **Nie sprawdzono:** niczego po stronie płatności online — nie ma czego sprawdzać, dopóki nie ma
+  dostawcy.
 
 **Świadomie odłożone:**
-- Powiadomienia push (wymagałyby aplikacji mobilnej — poza zakresem v1).
-- Priorytety miejsc dla zarządu — czeka na decyzję biznesową.
+- Integracja płatności — czeka na wybór dostawcy.
 
 **Do zrobienia przez człowieka:**
 - Wybrać dostawcę płatności (R1). *(wyprowadzone 2026-08-08 → sekcja „Czeka na człowieka")*
-- Potwierdzić treść maila z działem komunikacji. *(wyprowadzone 2026-08-08 → sekcja „Czeka na
-  człowieka")*
 ```
 
-Obie pozycje stoją teraz w dwóch miejscach i to jest zamierzone: w sekcji „Czeka na człowieka"
-jako **sprawa otwarta widoczna na starcie**, we wpisie jako **ślad historii** z adnotacją. Wpis od
-tej chwili rotacji nie blokuje.
+W tym przykładzie widać obie reguły linku naraz:
+
+- **Sprawa dostawcy płatności** padła 2026-08-07, ale wraca w tym wpisie z 2026-08-09 — więc
+  pozycja linkuje do wpisu z **2026-08-09**, najnowszego wystąpienia. Data przy pozycji zostaje
+  **2026-08-07**: to nadal dzień pierwszego wystąpienia.
+- **Sprawa maila do działu komunikacji** ma tylko jedno wystąpienie, we wpisie z 2026-08-07 — a ten
+  wpis wjechał do archiwum przy rotacji z 2026-08-09. Link został **przepięty** na plik archiwum
+  wraz z kotwicą; tekst linku i treść pozycji zostały nietknięte. Sprawa jest dalej widoczna na
+  starcie sesji, mimo że jej wpis jest już poza żywym plikiem.
+
+Pozycja i wpis stoją przy tym w dwóch miejscach i to jest zamierzone: w sekcji „Czeka na człowieka"
+jako **sprawa otwarta widoczna na starcie**, we wpisie jako **ślad historii** z adnotacją.
