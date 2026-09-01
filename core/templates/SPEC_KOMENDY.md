@@ -50,7 +50,7 @@ projektu jest w `docs/USTAWIENIA.md`.
 Plik jest **regenerowany**, nie edytowany ręcznie. Wyjątkiem są wiersze oznaczone jako lokalne —
 te przeżywają regenerację (D-62: lokalne nadpisania mają pierwszeństwo).
 
-## Zakres wersji 1.6.1 — co realnie działa
+## Zakres wersji 1.7.0 — co realnie działa
 
 Od 0.4.0 działa **pierwsza komenda** — `/relai-stage` — i wygenerowany `KOMENDY.md` ma tabelę
 komend. W 0.5.0 doszło **osiem hooków**: sekcja „Czego RelAI pilnuje bez proszenia" urosła
@@ -74,7 +74,7 @@ o pracy naprzemiennej (oba narzędzia czytają te same `docs/`, wersję struktur
 — inaczej milczysz, tak jak przy pre-commicie (L-0002, L-0029). W 1.6.0 dochodzi **budżet startu
 sesji**: kolejny punkt w sekcji o zachowaniach automatycznych — start sesji jest mierzony i odzywa
 się wyłącznie ponad budżetem, a rotacja dostaje drugie wejście właśnie tam. Tabela komend nie
-rośnie. Działa:
+rośnie. W 1.7.0 dochodzi **przegląd spraw czekających na człowieka**: pozycja starsza niż próg z wiersza `Przegląd spraw człowieka` wymusza decyzję na starcie sesji — kolejny punkt w sekcji o zachowaniach automatycznych, z własnym wyłącznikiem, osobnym od rotacji. Tabela komend nie rośnie. Działa:
 
 - inicjalizacja struktury projektu (zgoda → trzy pytania → osiem dokumentów),
 - rozpoznanie folderu, który już jest projektem RelAI,
@@ -149,7 +149,8 @@ rośnie. Działa:
   zamykaniu sesji najstarsza historia przenosi się z dziennika i rejestru lekcji do
   `docs/archiwum/`, w całości i bez zmiany choćby znaku; w żywym pliku zostaje linia z linkiem do
   archiwum. Dopóki dokumenty mieszczą się w progu, nie dzieje się nic i nie pada ani jedno słowo.
-  Wpis czekający na decyzję człowieka zostaje na miejscu niezależnie od wieku. Progi i wyłącznik są
+  Od 1.7.0 sprawa czekająca na decyzję człowieka rotacji **nie** zatrzymuje: wpis, do którego
+  prowadzi, jedzie do archiwum, a link sprawy zostaje przepięty. Progi i wyłącznik są
   w `USTAWIENIA.md`. Opisujesz **efekt** — dwufazowość, sumy kontrolne i nazwy plików to mechanika,
   która do ściągi nie wchodzi.
 - **rozjazd stanu (nowe w 1.3.0), do sekcji „Czego RelAI pilnuje bez proszenia":** gdy dokumenty
@@ -175,8 +176,14 @@ rośnie. Działa:
   pochodzący z RelAI); w pozostałych projektach zamiast tego dopisujesz **jedno zdanie
   z możliwością** i poleceniem instalacji. Nigdy nie piszesz, że dzieje się to samo — instalacja
   jest jawną czynnością człowieka (L-0002),
+- **przegląd spraw przeterminowanych (nowe w 1.7.0), do sekcji „Czego RelAI pilnuje bez proszenia":**
+  pozycja sekcji „Czeka na człowieka" starsza niż próg z wiersza `Przegląd spraw człowieka`
+  w `USTAWIENIA.md` (domyślnie 30 dni) wraca na starcie sesji jako pytanie — zamknąć, odroczyć
+  o kolejne tyle samo dni, czy rozstrzygnąć teraz — zadawane partiami po cztery. Poniżej progu nie
+  pada ani jedno słowo, a wyłącznik jest **osobny** od wyłącznika rotacji. Opisujesz efekt, nie
+  nazwę funkcji, która to liczy,
 
-Wygenerowany `KOMENDY.md` w wersji 1.6.1 zawiera **tabelę komend z dziesięcioma pozycjami**
+Wygenerowany `KOMENDY.md` w wersji 1.7.0 zawiera **tabelę komend z dziesięcioma pozycjami**
 oraz tabelę fraz naturalnych:
 
 | Komenda | Co robi |
@@ -205,12 +212,12 @@ oraz tabelę fraz naturalnych:
 - Nie opisujesz mechaniki wewnętrznej (skille, hooki) — użytkownika interesuje efekt.
 - Nie wpisujesz punktów profilu, którego ten projekt nie ma.
 
-## Przykład dla wersji 1.6.1 (projekt polski, profil `app`)
+## Przykład dla wersji 1.7.0 (projekt polski, profil `app`)
 
 ```markdown
 # KOMENDY — Parkly
 
-RelAI 1.6.1
+RelAI 1.7.0
 
 Nic z tej listy nie jest obowiązkowe. RelAI działa w zwykłej rozmowie — piszesz normalnie,
 a struktura projektu nadąża. Komendy są skrótem do rzadszych operacji.
@@ -279,8 +286,12 @@ z podpowiedzi; skrócona forma działa tam, gdzie podpowiadacz ją rozwinie.
   Twojego zatwierdzenia — RelAI zapyta, zanim cokolwiek zmieni.
 - Gdy dziennik albo rejestr lekcji urośnie ponad próg, przy zamykaniu sesji przenosi najstarszą
   historię do `docs/archiwum/` — w całości, bez skracania — i zostawia w żywym pliku linię z linkiem
-  do niej. Wpis czekający na Twoją decyzję zostaje na miejscu, choćby był najstarszy. Dopóki
-  dokumenty mieszczą się w progu, nie dzieje się nic; progi i wyłącznik masz w `USTAWIENIA.md`.
+  do niej. Sprawa czekająca na Twoją decyzję rotacji nie zatrzymuje — link do przeniesionego wpisu
+  zostaje przepięty na archiwum. Dopóki dokumenty mieszczą się w progu, nie dzieje się nic; progi
+  i wyłącznik masz w `USTAWIENIA.md`.
+- Sprawa czekająca na Ciebie dłużej niż 30 dni wraca na starcie sesji jako pytanie: zamknąć,
+  odroczyć, czy rozstrzygnąć teraz. Pytania padają partiami po cztery, a próg i wyłącznik masz
+  w `USTAWIENIA.md`.
 - Przypomina, gdy zmiana kodu została bez wpisu w dzienniku i aktualizacji stanu.
 - Ostrzega przed `console.log` zostawionym w kodzie produkcyjnym; gdy projekt ma TypeScript albo
   ESLint — pokazuje ich błędy zaraz po edycji pliku.

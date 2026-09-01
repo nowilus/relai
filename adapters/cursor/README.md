@@ -4,7 +4,7 @@ RelAI w Cursorze to **te same dokumenty i ten sam proces** co w Claude Code, zł
 które Cursor naprawdę ma. Ten plik jest instrukcją dla człowieka; warstwa czytana przez model
 (reguły `.mdc`) jest po angielsku — tak stanowi Aneks A planu ROZWOJ_PO_WYDANIU.
 
-Wersja adaptera: **1.6.1**. Rozpoznanie, na którym stoi, jest w [docs/PRZENOSNOSC.md](../../docs/PRZENOSNOSC.md);
+Wersja adaptera: **1.7.0**. Rozpoznanie, na którym stoi, jest w [docs/PRZENOSNOSC.md](../../docs/PRZENOSNOSC.md);
 zmierzono je 2026-08-12 na Cursorze 3.7.12 i `cursor-agent` 2026.08.11-e8db854 (Windows 11).
 
 ## Czego potrzebujesz

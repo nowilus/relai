@@ -428,7 +428,7 @@ zgody na wyjątki od reguł domyślnych, wybrany kierunek designu.
 ```markdown
 # USTAWIENIA — Parkly
 
-Wersja RelAI: 1.6.1 · zainicjowano: 2026-08-07
+Wersja RelAI: 1.7.0 · zainicjowano: 2026-08-07
 
 Rejestr wyborów użytkownika dla tego projektu. Każdy wpis: data, czego dotyczył, decyzja.
 Odpowiedź raz udzielona nie wraca jako pytanie.

@@ -1,6 +1,6 @@
 # KOMENDY — RelAI
 
-RelAI 1.6.1
+RelAI 1.7.0
 
 Nic z tej listy nie jest obowiązkowe. RelAI działa w zwykłej rozmowie — piszesz normalnie,
 a struktura projektu nadąża. Komendy są skrótem do rzadszych operacji.
@@ -44,7 +44,8 @@ z podpowiedzi; skrócona forma działa tam, gdzie podpowiadacz ją rozwinie.
   zamykaniu sesji najstarsza historia przenosi się do `docs/archiwum/` — w całości, bez skracania —
   a w żywym pliku zostaje linia z linkiem do niej. Tą samą drogą schodzą **ryzyka zamknięte** —
   do `docs/archiwum/ryzyka/`, z numerami wypisanymi w żywej tabeli, żeby żaden numer nie wrócił.
-  Wpis czekający na Twoją decyzję zostaje na miejscu, choćby był najstarszy. Poniżej progu nie
+  Sprawa czekająca na Twoją decyzję nie zatrzymuje już rotacji: wpis, do którego prowadzi, jedzie
+  do archiwum jak każdy inny, a link sprawy zostaje przepięty na plik archiwum. Poniżej progu nie
   dzieje się nic; progi i wyłącznik masz w `docs/USTAWIENIA.md`.
 - **Koszt startu sesji jest widoczny, zanim urośnie.** Dokumenty czytane na starcie mają wspólny
   budżet. Gdy go przekroczą, RelAI mówi o tym pierwszym zdaniem sesji, wskazuje trzy najgrubsze
@@ -54,6 +55,11 @@ z podpowiedzi; skrócona forma działa tam, gdzie podpowiadacz ją rozwinie.
   czego RelAI nie zrobi za Ciebie — stoi w sekcji „Czeka na człowieka" na górze dziennika, jedna
   linia na sprawę z linkiem do wpisu, w którym padła. Sesja czyta ją na starcie, więc sprawa sprzed
   miesięcy przestaje ginąć; rozstrzygnięta znika z sekcji tego samego dnia.
+- **Sprawa, która czeka zbyt długo, wymusza decyzję.** Pozycja z sekcji „Czeka na człowieka"
+  starsza niż próg z wiersza „Przegląd spraw człowieka" w `docs/USTAWIENIA.md` (domyślnie 30 dni)
+  wraca na starcie sesji jako pytanie: zamknąć, odroczyć o kolejne tyle samo dni, czy rozstrzygnąć
+  teraz. Pytania padają partiami po cztery. Poniżej progu — cisza; wyłącznik jest osobny od
+  wyłącznika rotacji.
 - **Pułapki mają własny dokument.** Rzecz, która raz zaskoczyła i zaskoczy znowu — nieoczywiste
   zachowanie narzędzia, kolejność kroków, wymóg środowiska — trafia do `docs/PULAPKI.md`. Ten plik
   czyta się **na żądanie**, a nie przy starcie sesji, więc nie kosztuje ani jednego tokena, dopóki
@@ -94,8 +100,8 @@ z podpowiedzi; skrócona forma działa tam, gdzie podpowiadacz ją rozwinie.
 **Do włączenia ręcznie:** skan sekretów przy commicie. RelAI ma gitowy hook `pre-commit`, po
 którego zainstalowaniu `git commit` z kluczem albo hasłem w plikach z indeksu kończy się błędem
 i commit nie powstaje — także wtedy, gdy commituje człowiek albo inne narzędzie, bez udziału
-Claude. W tym projekcie **nie jest zainstalowany**; instalacja i cofnięcie to po jednym poleceniu
-opisanym w [core/README.md](../core/README.md).
+Claude. W tym projekcie **jest zainstalowany** (od 2026-09-01); cofnięcie to jedno polecenie opisane
+w [core/README.md](../core/README.md).
 
 Lista rośnie z kolejnymi wersjami RelAI. Numer wersji tego projektu jest w
 [USTAWIENIA.md](USTAWIENIA.md).
