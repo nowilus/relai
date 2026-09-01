@@ -191,7 +191,7 @@ Etapy: BUDOWA_RELAI 10/10 • ROZWOJ_PO_WYDANIU 6/8 (ZAMROŻONY) • OPTYMALIZAC
 Warstwa startowa RelAI: **35,1 KB / 80 KB** (pomiar sprzed E1) • Warstwa
 startowa PolyFlow po migracji: **136,4 KB / 80 KB** (przed: 155,7) • Dziennik: **145,6 KB /
 próg 150 KB** po rotacji 2026-09-01 (przed: 168,0); część rotowalna 89,7 KB, dolna granica
-osiągalna 52,2 KB • Lekcje 20,6 KB / 11 lekcji • Sprawy czekające na człowieka: 9 tutaj, 27 w PolyFlow •
+osiągalna 52,2 KB • Lekcje 20,6 KB / 11 lekcji • Sprawy czekające na człowieka: 10 tutaj, 27 w PolyFlow •
 Zasady aktywne: **15 przy limicie 15** • Lekcje: 11 w żywym rejestrze, ostatnia L-0065 •
 Scenariusze akceptacyjne: 4/4 zdane + pilotaż Cursora •
 Adaptery: 2 • Modele, na których zmierzono proces: 5 (Fable, Opus, Haiku, Composer/auto, Grok 4.6) •

@@ -41,6 +41,9 @@
 - **Weryfikacja siedmiu rozstrzygnięć wpisanych w E2 — każde ma w adnotacji swój dowód; sprzeciw
   cofa je jedną linią** · 2026-08-20 ·
   [wpis 2026-08-20 — E2: rozbrojenie rotacji](#2026-08-20--e2-rozbrojenie-rotacji--sekcja-czeka-na-człowieka-i-drugie-wejście-na-starcie)
+- **Którą kopią specyfikacji ma się kierować sesja do czasu wydania 1.7.0 — `core/templates/`
+  z repo czy `.claude/relai/templates/` z zainstalowanego pluginu 1.6.1** · 2026-09-01 ·
+  [wpis 2026-09-01 — Zamknięcie sesji: pierwsza rotacja regułą 1.7.0](#2026-09-01--zamknięcie-sesji-pierwsza-rotacja-regułą-170-na-własnym-dzienniku)
 
 ## Wpisy
 
