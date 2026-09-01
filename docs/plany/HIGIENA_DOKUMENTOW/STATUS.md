@@ -8,8 +8,8 @@ Plan: [PLAN.html](PLAN.html) · Utworzony: 2026-09-01 · Status planu: **ZAAKCEP
 | Etap | Nazwa | Status | Prompt | Uwagi |
 |---|---|---|---|---|
 | E1 | Rotacja rusza | **ZREALIZOWANY 2026-09-01** | [PROMPT_ETAP_1.md](PROMPT_ETAP_1.md) | wchłonął odnogę [BLOKADA_ROTACJI](../../fixy/BLOKADA_ROTACJI/ODNOGA.md); zakres rotacji PolyFlow 0 → 117 wpisów ze 127 |
-| E2 | Blokada mówi i próg nie kłamie | **GOTOWY DO STARTU** | [PROMPT_ETAP_2.md](PROMPT_ETAP_2.md) | |
-| E3 | Sprawa przeterminowana wymusza decyzję | OCZEKUJE | — | `N = 30 dni`, wyłącznik osobny od rotacji (Aneks A) |
+| E2 | Blokada mówi i próg nie kłamie | **ZREALIZOWANY 2026-09-01** | [PROMPT_ETAP_2.md](PROMPT_ETAP_2.md) | komunikat wypisuje blokery; próg liczony ponad nietykalnymi; `session-signals.js` bez zmian — rozstrzygnięte w zakresie |
+| E3 | Sprawa przeterminowana wymusza decyzję | **GOTOWY DO STARTU** | [PROMPT_ETAP_3.md](PROMPT_ETAP_3.md) | `N = 30 dni`, wyłącznik osobny od rotacji (Aneks A) |
 | E4 | Raport startu jako adres progów | OCZEKUJE | — | limit „Zasad aktywnych" zostaje przy swoim adresie — nie przenosić; zakres obejmuje też progi sekcji i katalog progów (Aneks B) |
 | E5 | Ryzyka i ustawienia schodzą do archiwum | OCZEKUJE | — | |
 | E6 | Pomiar na realnych projektach i wydanie | OCZEKUJE | — | wydanie 1.7.0, sekwencja P-005 obowiązuje |
@@ -41,3 +41,9 @@ Plan: [PLAN.html](PLAN.html) · Utworzony: 2026-09-01 · Status planu: **ZAAKCEP
 - 2026-09-01 — **E1 ZREALIZOWANY**: link pozycji wskazuje najnowsze wystąpienie, nietykalność wpisu
   linkowanego zastąpiona przepięciem linku w fazie 2, `ostatniWpis` czyta kierunek z dat; zakres
   rotacji PolyFlow **0 → 117 wpisów ze 127**. Wygenerowano PROMPT_ETAP_2; E2 gotowy do startu.
+- 2026-09-01 — E2 rozpoczęty.
+- 2026-09-01 — **E2 ZREALIZOWANY**: próg liczony ponad nietykalnymi (waga całkowita = część
+  rotowalna + dolna granica osiągalna), komunikat zablokowanej rotacji wypisuje pary
+  „pozycja → wpis" z wiekiem i liczbą przepuszczanych wpisów; stary komunikat milczał przy rotacji
+  biorącej **2 z 87** wpisów PolyFlow. `session-signals.js` bez zmian — komunikat pisze model
+  w rytuale zamknięcia. Wygenerowano PROMPT_ETAP_3; E3 gotowy do startu.

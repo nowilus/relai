@@ -118,6 +118,32 @@ finish a larger chunk of work:
    whose status starts with `ZAMKNIĘTE` go to `docs/archiwum/ryzyka/RYZYKA_<date>.md` — all of them
    at once, only when the `ryzyka` sub-threshold is exceeded, same two phases, one reference line
    with the numbers under the table, and no message of its own.
+   **Threshold counted above the untouchables (1.7.0):** a document has three weights and you always
+   report them together with the threshold, in this order — **total weight** (whole file, line
+   endings normalised to LF) = **rotatable part** + **lowest reachable floor**. The journal's floor
+   is the sections that never rotate ("Stan otwartych ryzyk", "Czeka na człowieka", headings,
+   reference lines), the ten newest entries and entries with no date in the heading. The **trigger
+   stays on the total weight** — below the threshold, silence. The **target moves to the rotatable
+   part**: take the oldest items until **it** drops below 60% of the threshold, because a target set
+   on the whole file can be unreachable by definition.
+   **Above the threshold, when rotation did not take everything it could → the blocked-rotation
+   message** in the session summary, four parts in this order: (1) how many entries pass out of how
+   many rotatable ones, how many do not and what they weigh; (2) the four numbers — total =
+   rotatable + floor, threshold next to them; (3) the reason plus **"item → entry" pairs**: item
+   text, heading of the blocked entry, **age of the item in days** and **how many entries its
+   closure lets through** — at most **five** blockers, two items each, the rest as "and N further
+   blockers of the same nature"; (4) how many entries closing the **first** item unblocks and how
+   many closing **all** of them does. Pairs appear **only** in a project **without** the "Czeka na
+   człowieka" section, where the entry's own section blocks; an entry linked from an open item of
+   that section is **never** listed, because since 1.7.0 it does not block. With no blockers and an
+   **empty rotatable part** (fewer than ten entries, or all of them fresh) the message keeps the same
+   shape without part 3, and says the file is slimmed by shorter entries, not by the archive, and
+   that raising the threshold is the human's call — the same when the **floor alone exceeds the
+   threshold**, which is not a failure of the mechanism and is not called one. Silence stays
+   inviolable **below** the threshold; above it, silence would hide a jammed mechanism. **You** write
+   this message during the close ritual — the session start hook does not produce it. It is still
+   **one** message: risk rotation adds none of its own, and the "Zasady aktywne" limit keeps its own
+   address in step 1.
 3. **Journal entry** — one entry for the session, all four sections. "Zweryfikowane — jak dokładnie"
    must say what you checked and with what result; "nie weryfikowano" is acceptable content, a
    missing section is not.

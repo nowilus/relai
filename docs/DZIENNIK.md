@@ -5,7 +5,7 @@
 | # | Ryzyko | Poziom | Status | Mitygacja |
 |---|---|---|---|---|
 | R2 | Auto-wyzwalanie skilli bywa zawodne (agent nie zastosuje zasad bez komendy) | **Niski przy Opusie, średni przy modelach słabszych** (2026-08-10 po E10) | **ZMIERZONE 2026-08-10, OTWARTE ŚWIADOMIE** | Warstwą nośną są hook `session-context` i `CLAUDE.md` projektu — działają przy każdym modelu, bez wyzwalania; skill dokłada wyłącznie procedurę (L-0030). Opus wyzwala skill sam i wykonuje procedurę w całości; Sonnet 4.6 i Haiku 4.5 nie wołają `Skill` ani razu, więc projekt nie traci pamięci, ale procedura bywa niepełna. Otwarte świadomie: to trwała własność modeli, nie usterka do naprawienia. Zakres ryzyka rósł od 1.1.0 bez pomiaru — dziesiąta komenda, sygnał odchylenia, rozjazd stanu i kontrola podpisu nie były mierzone w świeżej sesji, bo limit konta zatrzymał CLI (L-0032); czeka to w odnodze `POMIAR_ODNOG`. Zmierzone: 2026-08-07 (E5), 2026-08-10 (E10), 2026-08-12 (E1), 2026-08-12 (E3) |
-| R5 | Dokumenty puchną i zjadają kontekst | **Średni, potwierdzony na trzech projektach** (2026-09-01) | **OTWARTE — plan HIGIENA_DOKUMENTOW jest odpowiedzią** | Mechanizm jest kompletny, ale **nie broni się sam**: progi nie mają adresu egzekwowania, więc rosną latami. Dowody: PolyFlow — dziennik 862,7 KB przy progu 150 KB, rotacja stała tygodniami (zgłoszenie 2026-09-01); RelAI — `LEKCJE.md` 52,3 KB przy progu 50 KB, a sekcja „Lekcje zwinięte" 35,8 KB przy własnym progu 30 KB, żaden z nich nikogo nie obudził. Naprawa idzie planem HIGIENA_DOKUMENTOW (6 etapów, Aneksy A i B). E1 zdjął pierwszą przyczynę: zakres rotacji na dzienniku PolyFlow sprzed rotacji rośnie z **0 do 117 wpisów ze 127**. Otwarte, dopóki plan nie dobiegnie końca, dopóki reguła nie zadziała w świeżej sesji realnego projektu **i** dopóki **JiraManager (386 KB startu) nie zostanie tknięty**. Zmierzone: 2026-08-12 (E2), 2026-08-20 (trzy projekty), 2026-08-21 (E4, E5), 2026-09-01 (E1) |
+| R5 | Dokumenty puchną i zjadają kontekst | **Średni, potwierdzony na trzech projektach** (2026-09-01) | **OTWARTE — plan HIGIENA_DOKUMENTOW jest odpowiedzią** | Mechanizm jest kompletny, ale **nie broni się sam**: progi nie mają adresu egzekwowania, więc rosną latami (PolyFlow: dziennik 862,7 KB przy progu 150 KB; RelAI: `LEKCJE.md` 52,3 KB przy progu 50 KB — żaden nikogo nie obudził). Naprawa idzie planem HIGIENA_DOKUMENTOW (6 etapów, Aneksy A i B). E1 zdjął pierwszą przyczynę: zakres rotacji na dzienniku PolyFlow rośnie z **0 do 117 wpisów ze 127**. E2 zdjął drugą: próg liczy się ponad nietykalnymi, a zablokowana rotacja wypisuje blokery — stary komunikat milczał przy rotacji biorącej **2 z 87** wpisów. Otwarte, dopóki plan nie dobiegnie końca, dopóki reguła nie zadziała w świeżej sesji realnego projektu **i** dopóki **JiraManager (386 KB startu) nie zostanie tknięty**. Zmierzone: 2026-08-20 (trzy projekty), 2026-08-21, 2026-09-01 (E1, E2) |
 | P1 | Adaptery Cursor/Codex nie egzekwują blokad harnessu — sekret albo zmiana konfiguracji przejdzie tam, gdzie w Claude Code stoi ściana (plan ROZWOJ_PO_WYDANIU) | **Średni** (2026-08-12 po E4; wcześniej wysoki) | **OTWARTE** | Część sekretowa jest zamknięta dowodem z aplikacji: w Cursorze zadziałały obie warstwy — reguła odmówiła pierwsza, a przy prośbie o próbę mimo reguły zapis klucza odbił hook `preToolUse` werdyktem `permission: deny`; niezależnie od narzędzia commit z sekretem zatrzymuje gitowy pre-commit. Otwarte z dwóch powodów: Cursor nie ma egzekwowanego `ask`, więc pliki konfiguracyjne chroni tam sama reguła zamiast bramki, a Codex pozostaje niezmierzony do odmrożenia E7 planu ROZWOJ_PO_WYDANIU. Zmierzone: 2026-08-12 (E4), 2026-08-12 (E5), 2026-08-17 (E6) |
 | P2 | Odpowiednik R2 w Cursor/Codex: bez auto-wyzwalania skilli proces zależy od dyscypliny modelu (plan ROZWOJ_PO_WYDANIU) | **Niski dla Cursora, średni dla Codeksa** (2026-08-17 po E6; wcześniej średni) | **OTWARTE (już tylko Codex)** | Reguła zawsze-w-kontekście działa w Cursorze bez żadnego wyzwalacza: pilotaż przeszedł pełny cykl na trzech modelach, a cały etap poprowadził model spoza Anthropic (Grok 4.6) — rytuał startu, karta etapu z kontrolą modelu, granica zakresu, rytuał zamknięcia z promptem następnego etapu. Dyscyplina procesu nie zależy od dostawcy modelu. Otwarte już tylko dla Codeksa: warstwą nośną ma tam być `AGENTS.md` z twardym limitem 32 KiB, a skille wyzwalają się dopasowaniem opisu — tym samym mechanizmem, który przy R2 okazał się zależny od modelu. Zmierzone: 2026-08-12 (E4), 2026-08-12 (E5), 2026-08-17 (E6) |
 
@@ -2100,3 +2100,98 @@ Autor: RelAI (Opus) + Lukasz
 - **Pozycja „Decyzja o formalnym zamrożeniu planu ROZWOJ_PO_WYDANIU" wygląda na rozstrzygniętą** —
   `STATUS.md` tamtego planu niesie `ZAMROŻONY 2026-08-21`. Zamknięcie pozycji jest decyzją
   człowieka, więc zostaje otwarta; jedno „tak" zdejmuje ją z sekcji.
+
+### 2026-09-01 — E2: blokada mówi, a próg liczy się ponad nietykalnymi
+
+Autor: RelAI (Opus) + Lukasz
+
+**Zrobione:**
+
+- **`core/templates/SPEC_ARCHIWUM.md`, nowa sekcja „Próg liczony ponad nietykalnymi"** — dokument
+  ma trzy wagi podawane zawsze razem z progiem: **waga całkowita = część rotowalna + dolna granica
+  osiągalna**. Wyzwalacz zostaje na wadze całkowitej (cisza poniżej progu nienaruszalna), a **cel
+  przenosi się na część rotowalną**: bierzesz najstarsze pozycje, aż **ona** zejdzie poniżej 60%
+  progu. Rozpisane dla dziennika, lekcji i ryzyk; tabela z trzema realnymi pomiarami.
+- **`core/templates/SPEC_ARCHIWUM.md`, nowa sekcja „Komunikat zablokowanej rotacji"** — kształt
+  czterech części w stałej kolejności (stan zakresu → cztery liczby → pary „pozycja → wpis"
+  z wiekiem w dniach i liczbą wpisów przepuszczanych przez zamknięcie → ile odblokowuje pierwsza,
+  ile wszystkie), limit pięciu blokerów po dwie pozycje, tabela realnych powodów blokady po 1.7.0
+  i **dwa przykłady brzmienia wygenerowane z realnych plików**. Skąd wiek pozycji: z adnotacji,
+  a gdy jej nie ma — z daty wpisu; brak obu znaczy pozycję bez wieku, nie pominiętą.
+- **Trzy przypadki brzegowe zgrane z powyższym** — „cały zakres nietykalny", „mniej niż dziesięć
+  wpisów" i „pozycja `ryzyka` ponad progiem bez zamkniętych ryzyk" mówią teraz **tym samym**
+  językiem progu i dolnej granicy; dołożony czwarty: „rotacja wzięła wszystko, a dolna granica
+  i tak przekracza próg". Sekcja „Zakazy" dostała trzy pozycje: zakaz milczenia powyżej progu,
+  zakaz podawania progu bez pozostałych trzech liczb i zakaz wymieniania wpisu linkowanego wśród
+  blokerów (od 1.7.0 nie blokuje).
+- **Oba adaptery** — `adapters/claude-code/skills/relai-core/SKILL.md` (sekcja „Rotacja
+  dokumentów") i `adapters/cursor/rules/relai-core.mdc` (punkt 2 „Session close ritual", po
+  angielsku): sposób liczenia progu i kształt komunikatu wypisane w treści, bo procedura rotacji
+  mieszka w treści skilla (L-0011).
+- **Rozstrzygnięcie granicy wobec kodu (punkt zakresu, nie dowolność): `session-signals.js`
+  zostaje bez zmian.** `startCost` i `startCostReport` liczą **budżet startu sesji** (sześć pozycji
+  wobec 80 KB), a nie progi rotacji; komunikat blokady wymaga wyznaczonego zakresu, sparsowanych
+  pozycji i ich wieku — czyli wyniku rotacji, którego hook startu nie ma. Komunikat pisze **model**
+  w kroku 2 rytuału zamknięcia i tak jest zapisany w obu adapterach. Kodu na zapas nie dołożono.
+
+**Zweryfikowane — jak dokładnie:**
+
+- **Obie wersje komunikatu w jednym przebiegu, wygenerowane przez instrument** (`prog-i-blokada.js`,
+  poza repozytorium; stara reguła 1.6.1 i nowa E2 zaimplementowane obok siebie). Sześć przypadków
+  na realnych plikach `FAKT`:
+  - dziennik PolyFlow sprzed migracji do 1.6.1 (`396e243^`, 97 wpisów, projekt sprzed 1.6.0):
+    stary komunikat **0 znaków**, nowy wypisuje 34 blokery i liczby — rotacja bierze **2 z 87**
+    wpisów rotowalnych, **85 stoi (453,8 KB)**. To jest dowód, po co ten etap był.
+  - dziennik RelAI z 2026-08-17 (`50b3a45`, sprzed odblokowania rotacji): stary **0 znaków**,
+    nowy — 13 blokerów, **3 z 19** wpisów przechodzi, 16 stoi (107,6 KB), pozycje otwarte od 25 dni.
+  - dziennik PolyFlow po rotacji (10 wpisów) przy progu 100 KB: stary „nie ma czego przenieść",
+    nowy — cztery liczby plus zdanie o dolnej granicy.
+- **Cztery liczby na dwóch dokumentach** (próg 150 KB): `docs/DZIENNIK.md` tego repozytorium —
+  całkowita **156,7 KB**, rotowalna **104,6 KB**, dolna granica **52,1 KB**, rotacja bierze 18 z 18;
+  dziennik PolyFlow sprzed rotacji — **859,8 / 748,2 / 111,5 KB**, rotacja bierze 117 ze 117.
+- **Przypadek „sama dolna granica przekracza próg" pokazany na danych:** dziennik PolyFlow po
+  rotacji, 10 wpisów, waga całkowita **115,9 KB** = rotowalna **0 KB** + dolna granica **115,9 KB**
+  przy progu 100 KB. Treść raportu wypisana i przepisana do specyfikacji jako drugi przykład.
+- **Dowód negatywny ciszy poniżej progu** (zasada 3): **ten sam plik** przy progu 150 KB —
+  `komunikatNowy().length === 0` i `komunikatStary().length === 0`, wypisane jako `""`, kod wyjścia
+  **0**. Przy progu 100 KB ten sam plik daje 363 znaki, więc cisza jest funkcją progu, a nie
+  martwej gałęzi.
+- **Kontrola instrumentu** (zasada 5): rozkład pozycji „Do zrobienia przez człowieka" wypisany dla
+  każdego pliku — RelAI 63 pozycje (13 rozstrzygniętych, 35 wyprowadzonych, 3 puste, 12 otwartych),
+  PolyFlow sprzed rotacji 200 (21/29/0/150), PolyFlow sprzed migracji 123 (11/0/0/112). Zero
+  trafień nie wystąpiło nigdzie, a projekt z sekcją „Czeka na człowieka" daje **0 blokerów** mimo
+  otwartych pozycji — czyli instrument rozpoznaje regułę z E1, a nie tylko liczy myślniki.
+- **Trzy dokumenty przeczytane w jednym przebiegu tej sesji** (`SPEC_ARCHIWUM.md`, `SKILL.md`,
+  `relai-core.mdc`): ta sama kolejność czterech liczb, ten sam wyzwalacz, ten sam cel na części
+  rotowalnej, te same cztery części komunikatu, ten sam warunek par „pozycja → wpis".
+- **`git grep -c`** po frazach nowej reguły: „dolna granica osiągalna / lowest reachable floor" —
+  `SPEC_ARCHIWUM.md` 8, `SKILL.md` 1, `relai-core.mdc` 1; „część rotowalna / rotatable part" —
+  12 / 2 / 2; „pozycja → wpis / item → entry" — 2 / 1 / 1.
+- **`node core/tools/validate-adapters.js`** — kod wyjścia **0** („spojne", wersja 1.6.1 z trzech
+  źródeł).
+- **`git status --short`** — wyłącznie pliki z zakresu etapu plus nieśledzony
+  `docs/AUDYT_2026-08-22.html`, który leżał tam przed sesją. Instrument i kopie dzienników stoją
+  poza repozytorium (`%TEMP%\relai-e2`).
+- **Nie sprawdzono:** zachowania komunikatu w świeżej sesji realnego projektu — kształt jest dziś
+  regułą w trzech dokumentach i wynikiem instrumentu, ale żadna sesja nie napisała go w rytuale
+  zamknięcia. Wchodzi do E6 razem z pomiarem na realnych projektach. Nie sprawdzono też adaptera
+  Cursora w aplikacji po tej zmianie.
+
+**Świadomie odłożone:**
+
+- **Rotacja dziennika tego repozytorium** — plik jest ponad progiem (156,7 KB przy 150 KB) i miałby
+  18 wpisów do przeniesienia, ale rotacja należy do rytuału zamknięcia sesji, nie do zakresu etapu.
+  Prompt wymieniał to wprost jako poza zakresem.
+- **Liczba „160,4 KB" w `STATE.md`** była rozmiarem w bajtach podanym jako kilobajty; poprawiona
+  przy okazji aktualizacji obszaru rotacji, bo ten sam akapit i tak był przepisywany.
+- **Rejestr `docs/ARTEFAKTY.md`** — hook `profile-rules` upomniał się o niego przy każdej zmianie
+  specyfikacji. To odnoga **REJESTR_ARTEFAKTOW** z E1, nadal `OTWARTA`; przy okazji etapu jej nie
+  robimy.
+- **Druga linia raportu startu, progi cząstkowe i katalog progów** — E4. Wymuszone pytanie o sprawy
+  przeterminowane — E3. Rotacja ryzyk i ustawień — E5. Podbicie wersji do 1.7.0 — E6. W dokumentach
+  nie ma o nich żadnej obietnicy.
+
+**Do zrobienia przez człowieka:**
+
+- **Odnoga [REJESTR_ARTEFAKTOW](plany/HIGIENA_DOKUMENTOW/odnogi/REJESTR_ARTEFAKTOW/ODNOGA.md)** —
+  nadal czeka na świeżą sesję Opusa; prompt gotowy od E1.

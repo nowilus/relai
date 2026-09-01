@@ -36,7 +36,10 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
    wyzwalacz — wielkości pomocnicze wskazują przyczynę wewnątrz komunikatu, nie wywołują go.
    **Blokadę przeniesioną pod nowy adres mierzysz tak samo:** licz na realnym pliku, ile pozycji
    przechodzi po zmianie — reguła wskazująca „najstarszy element" w mechanizmie idącym od
-   najstarszego zatyka go z definicji. (L-0034, L-0049, L-0053, L-0060)
+   najstarszego zatyka go z definicji. **Próg porównuj do wielkości, którą mechanizm kontroluje**
+   (część usuwalna), a sygnał o zatkaniu wyzwalaj **różnicą między możliwym a wykonanym**, nie
+   zerem wykonanego — warunek „nic nie przeszło" milczy przy „przeszło 2 z 87". (L-0034, L-0049,
+   L-0053, L-0060, L-0065)
 7. **Wartość czytana maszynowo ma kotwicę i zamkniętą listę brzmień:** dopasowanie od początku
    komórki, wybór linii po niesionej wartości (nie po kolejności), wartość nierozpoznana znaczy
    cisza. (L-0025, L-0035, L-0048)
@@ -237,6 +240,22 @@ restart aplikacji po `plugin update` (L-0031), `git worktree` zamiast `git archi
   zachowywanych **raz**, w jednym miejscu; znak usunięty wcześniej nie wróci do gry później.
 - **Źródło:** E1 planu HIGIENA_DOKUMENTOW (2026-09-01); rozwinięcie zasady aktywnej 5 (L-0054,
   L-0055), pokrewne L-0037.
+
+### L-0065 — Warunek postawiony na „nic nie przeszło" milczy przy „prawie nic nie przeszło" · 2026-09-01 · AKTYWNA
+
+- **Trigger:** komunikat zablokowanej rotacji miał warunek „powyżej progu, ale **nie ma** czego
+  przenieść". Zmierzone na dzienniku PolyFlow sprzed migracji `FAKT`: rotacja brała **2 z 87**
+  wpisów rotowalnych, 85 stało (453,8 KB) — a komunikat nie produkował **ani jednego znaku**, bo
+  formalnie „coś przeszło".
+- **Przyczyna:** warunek dwustanowy (zero / niezero) postawiony na wielkości ciągłej. Stan
+  „mechanizm ledwo drgnął" jest praktycznie tym samym co „mechanizm stoi", ale dla warunku należy
+  do drugiej klasy — i cisza wygląda wtedy na sukces.
+- **Zasada:** sygnał o zatkanym mechanizmie wyzwalaj **różnicą między możliwym a wykonanym**, nie
+  zerem wykonanego. Próg porównuj do wielkości, którą mechanizm **kontroluje** — cel postawiony na
+  wielkości zawierającej część nieusuwalną bywa nieosiągalny z definicji, a wtedy każdy poprawny
+  przebieg wygląda na porażkę.
+- **Źródło:** E2 planu HIGIENA_DOKUMENTOW (2026-09-01); rozwinięcie zasady aktywnej 6 (L-0034,
+  L-0049, L-0053, L-0060).
 
 ## Lekcje zwinięte
 

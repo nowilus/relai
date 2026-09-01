@@ -532,11 +532,35 @@ wyprowadzenia (sekcja wyżej).
 4. **Ślad w dzienniku** — do wpisu tej sesji (krok 3 rytuału): co przeniesiono, dokąd, ile
    pozycji, suma kontrolna, rozmiar przed i po, ile linków przepięto.
 
-**Powyżej progu, ale nie ma czego przenieść** (same świeże wpisy) → nie rotujesz i **mówisz o tym jednym zdaniem**
-w podsumowaniu, z powodem. To samo, gdy dziennik jest ponad progiem, ale ma **mniej niż dziesięć
-wpisów**: dziesięć najnowszych jest nietykalne niezależnie od rozmiaru, a problemem są wtedy długie
-wpisy, nie ich liczba. Cisza obowiązuje poniżej progu; powyżej progu milczenie ukryłoby zatkany
-mechanizm.
+**Próg liczony ponad nietykalnymi (od 1.7.0).** Dokument ma trzy wagi i podajesz je **zawsze razem
+z progiem**, w tej kolejności: **waga całkowita** (cały plik, końce linii do LF) = **część
+rotowalna** + **dolna granica osiągalna**. Dolna granica dziennika to sekcje, które nie rotują
+nigdy („Stan otwartych ryzyk", „Czeka na człowieka", nagłówki, linie-odsyłacze), dziesięć
+najnowszych wpisów i wpisy bez daty w nagłówku. **Wyzwalacz zostaje na wadze całkowitej** — poniżej
+progu cisza. **Cel przenosi się na część rotowalną**: bierzesz najstarsze pozycje, aż **ona**
+zejdzie poniżej 60% progu, bo cel postawiony na całym pliku bywa nieosiągalny z definicji.
+
+**Powyżej progu, gdy rotacja nie zabrała wszystkiego, co mogła → komunikat zablokowanej rotacji**
+w podsumowaniu sesji. Cztery części, zawsze w tej kolejności:
+
+1. ile wpisów przechodzi z ilu rotowalnych, ile nie przechodzi i ile ważą;
+2. cztery liczby: waga całkowita = część rotowalna + dolna granica; obok próg;
+3. powód i pary **„pozycja → wpis"** — treść pozycji, nagłówek blokowanego wpisu, **wiek pozycji
+   w dniach** i **ile wpisów przepuści jej zamknięcie**; najwyżej **pięć** blokerów po **dwie**
+   pozycje, reszta jako „i N dalszych blokerów tej samej natury";
+4. ile odblokowuje zamknięcie pierwszej pozycji, a ile zamknięcie wszystkich.
+
+Pary wypisujesz **tylko** w projekcie **bez** sekcji „Czeka na człowieka" — tam blokuje własna
+sekcja wpisu. Wpisu linkowanego z otwartej pozycji „Czeka na człowieka" **nie wymieniasz**: od
+1.7.0 nie blokuje. Gdy blokerów nie ma, a **część rotowalna jest pusta** (mniej niż dziesięć
+wpisów albo same świeże) — ten sam kształt bez punktu 3, ze zdaniem, że plik odchudza zwięzłość
+wpisów, nie archiwum, a podniesienie progu jest decyzją człowieka. Tak samo, gdy sama **dolna
+granica przekracza próg**: to nie jest porażka mechanizmu i nie nazywasz jej porażką.
+
+Cisza obowiązuje **poniżej progu** i jest nienaruszalna; powyżej progu milczenie ukryłoby zatkany
+mechanizm. Komunikat piszesz **ty**, w rytuale zamknięcia — hook startu go nie produkuje. To nadal
+**jeden** komunikat: rotacja ryzyk nie dokłada własnego, a limit „Zasad aktywnych" zostaje przy
+swoim adresie w kroku 1 (L-0036, L-0049).
 
 **To jest krok 2 rytuału zamknięcia, czyli wejście pierwsze.** Wejście drugie — start sesji — jest
 w sekcji „Rotacja na starcie sesji (od 1.6.0)" wyżej i uruchamia **dokładnie tę samą** procedurę.

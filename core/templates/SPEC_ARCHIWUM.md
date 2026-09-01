@@ -69,6 +69,52 @@ Wiersz ryzyk **nie dokłada trzeciego wejścia ani własnego komunikatu** (L-004
 dzieje się w tych samych dwóch momentach co pozostałe, a próg cząstkowy mówi jedynie, **czy jest
 co brać** — patrz „Ryzyka" w sekcji „Wybór treści".
 
+## Próg liczony ponad nietykalnymi (od 1.7.0)
+
+Do 1.6.1 próg porównywał się do **całego** żywego pliku, a cel rotacji brzmiał „zejdź poniżej 60%
+progu". Obie liczby dotyczyły wielkości, której mechanizm **nie kontroluje w całości**: dziesięciu
+najnowszych wpisów nie ruszy nigdy. Skutek: plik, w którym same pozycje nietykalne ważą tyle co
+próg, wyglądał na zatkany bez powodu, a rotacja nie miała jak zameldować, że zrobiła wszystko,
+co mogła.
+
+Od 1.7.0 dokument ma **trzy wagi** i każdy raport podaje je razem z progiem — cztery liczby obok
+siebie, zawsze w tej kolejności:
+
+| Liczba | Co znaczy | Jak liczona (dziennik) |
+|---|---|---|
+| **waga całkowita** | ile waży żywy plik dzisiaj | cały plik, końce linii znormalizowane do LF (L-0033) |
+| **część rotowalna** | ile rotacja **może** stąd zabrać | waga całkowita minus dolna granica osiągalna |
+| **dolna granica osiągalna** | poniżej tego plik nie zejdzie **nigdy** | sekcje nierotowalne („Stan otwartych ryzyk", „Czeka na człowieka", nagłówek pliku, nagłówek sekcji „Wpisy", linie-odsyłacze) **plus** dziesięć najnowszych wpisów **plus** wpisy bez daty w nagłówku |
+| **próg** | wartość z `docs/USTAWIENIA.md` | bez zmian — 150 KB dla dziennika |
+
+Co się przez to zmienia, a co zostaje:
+
+- **Wyzwalacz zostaje na wadze całkowitej.** Powyżej progu mechanizm działa i mówi; poniżej —
+  cisza, nienaruszalna. Przeniesienie wyzwalacza na część rotowalną wyciszyłoby dokładnie ten
+  przypadek, dla którego ta sekcja powstała: gruby plik, którego rotacja nie ma jak odchudzić.
+- **Cel przenosi się na część rotowalną.** Bierzesz najstarsze pozycje, aż **część rotowalna**
+  zejdzie poniżej **60% progu** — nie cały plik. Cel postawiony na całym pliku bywa nieosiągalny
+  z definicji, a cel nieosiągalny jest gorszy niż żaden: każdy przebieg kończy się wtedy jako
+  porażka mechanizmu, który zrobił wszystko, co mógł.
+- **Nietykalność nadal liczy się w sztukach** — dziesięć najnowszych wpisów, dwadzieścia
+  najnowszych lekcji. Zmienia się to, **z czym** porównujesz wynik, nie to, **co** jest chronione.
+
+**Lekcje:** dolna granica to sekcja „Zasady aktywne", sekcja „Lekcje zwinięte" (ma własną drogę,
+patrz `SPEC_LEKCJE.md`) i dwadzieścia najnowszych lekcji. **Ryzyka:** dolna granica to nagłówek
+sekcji, wiersz nagłówkowy tabeli i wszystkie wiersze o statusie innym niż `ZAMKNIĘTE`.
+
+Zmierzone na realnych plikach `FAKT` (2026-09-01, próg 150 KB):
+
+| Dokument | Waga całkowita | Część rotowalna | Dolna granica | Wynik |
+|---|---|---|---|---|
+| `docs/DZIENNIK.md` tego repozytorium, 28 wpisów | 156,7 KB | 104,6 KB | 52,1 KB | rotacja bierze 18 z 18 kandydatów |
+| dziennik PolyFlow sprzed rotacji, 127 wpisów | 859,8 KB | 748,2 KB | 111,5 KB | rotacja bierze 117 ze 117 |
+| dziennik PolyFlow **po** rotacji, 10 wpisów | 115,9 KB | **0 KB** | 115,9 KB | nie ma czego brać — i o tym mówi raport |
+
+Trzeci wiersz jest tu najważniejszy: przy progu 150 KB plik mieści się w progu i mechanizm milczy,
+a przy progu 100 KB ten sam plik jest ponad progiem z **pustą** częścią rotowalną. Wtedy raport
+podaje dolną granicę i mówi wprost, że odchudzi go wyłącznie zwięzłość wpisów.
+
 ## Ścieżki i nazewnictwo
 
 | Co | Ścieżka |
@@ -237,9 +283,11 @@ komentarza. W projekcie anglojęzycznym rdzenie czytasz w języku projektu (`res
 - sekcja „Lekcje zwinięte", jeśli istnieje — ta ma własną drogę do archiwum opisaną
   w `SPEC_LEKCJE.md` (kompresja), i rotacja jej nie dotyka.
 
-Ile zabrać: najstarsze pozycje po kolei, aż żywy plik zejdzie **poniżej 60% progu** — nie do
-samego progu, bo rotacja wywoływana przy każdym zamknięciu sesji byłaby wtedy zjawiskiem
-codziennym. Ciąg kończy się wcześniej, gdy trafi na pozycję nietykalną.
+Ile zabrać: najstarsze pozycje po kolei, aż **część rotowalna** zejdzie **poniżej 60% progu** —
+nie do samego progu, bo rotacja wywoływana przy każdym zamknięciu sesji byłaby wtedy zjawiskiem
+codziennym. Ciąg kończy się wcześniej, gdy trafi na pozycję nietykalną. **Celem jest część
+rotowalna, nie cały plik** (sekcja „Próg liczony ponad nietykalnymi"): cel postawiony na całym
+pliku bywa nieosiągalny, bo dolnej granicy rotacja nie rusza nigdy.
 
 ### Ryzyka (od 1.6.0)
 
@@ -302,6 +350,77 @@ wierszu na linię. Ta sama kolejność obowiązuje po stronie archiwum, inaczej 
 dowodzi. Rotacja dziennika i rotacja ryzyk w jednej sesji to **dwa niezależne przebiegi** z dwiema
 sumami kontrolnymi — nie mieszasz ich treści w jednym pliku archiwum.
 
+## Komunikat zablokowanej rotacji (od 1.7.0)
+
+**Kiedy pada:** waga całkowita dokumentu przekracza próg **i** rotacja nie zabrała wszystkiego,
+co mogła — bo część zakresu blokują pozycje, bo część rotowalna jest pusta albo bo sama dolna
+granica przekracza próg. Poniżej progu **cisza**, bez wyjątku. Powyżej progu milczenie jest
+zakazane: ukrywa mechanizm, który stoi, i wygląda na sukces.
+
+**Gdzie pada:** w podsumowaniu sesji, w kroku 2 rytuału zamknięcia. Pisze go **model**, który
+właśnie wykonał rotację i zna wszystkie liczby — nie hook. Jeden problem, jeden komunikat
+(L-0036, L-0049): rotacja ryzyk nie dokłada własnego, a limit „Zasad aktywnych" zostaje przy
+swoim adresie w kroku 1.
+
+**Kształt — cztery części, zawsze w tej kolejności:**
+
+1. **Stan zakresu** — ile wpisów przechodzi z ilu rotowalnych, ile nie przechodzi i ile ważą.
+2. **Cztery liczby** w jednym zdaniu: waga całkowita = część rotowalna + dolna granica osiągalna,
+   a obok próg. Kolejność jest stała, żeby dało się porównywać przebiegi między sesjami.
+3. **Powód i pary „pozycja → wpis"** — po jednej linii na parę: skrócona treść pozycji, nagłówek
+   blokowanego wpisu, **wiek pozycji w dniach** i **liczba wpisów, które przepuści jej zamknięcie**.
+   Wypisujesz **najwyżej pięć** blokerów i po **dwie** pozycje z każdego; resztę zamykasz linią
+   „i N dalszych blokerów tej samej natury" — lista, której nikt nie przeczyta, nie jest listą.
+4. **Zdanie zamykające** — ile wpisów odblokowuje zamknięcie **pierwszej** pozycji i ile
+   zamknięcie **wszystkich**. To jest liczba, dla której człowiek w ogóle czyta ten komunikat.
+
+**Skąd bierze się wiek pozycji:** z daty w adnotacji pozycji, a gdy jej nie ma — z daty w nagłówku
+wpisu, w którym pozycja stoi. Pozycja bez żadnej daty (dokument po adopcji) idzie do listy **bez**
+wieku; nie zgadujesz go i nie pomijasz pozycji.
+
+**Co dokładnie blokuje po 1.7.0** — wypisujesz **realne** powody, nie historyczne:
+
+| Powód | Kogo dotyczy |
+|---|---|
+| Dziesięć najnowszych wpisów jest nietykalnych | każdego projektu — to jest dolna granica, nie blokada |
+| Wpis z **otwartą** pozycją „Do zrobienia przez człowieka", bez adnotacji o wyprowadzeniu, w projekcie **bez** sekcji „Czeka na człowieka" | projekt sprzed 1.6.0, dopóki nie przejdzie procedury wyprowadzenia |
+| Wpis bez daty w nagłówku | dokument po adopcji — zakres nazwy pliku musi wynikać z dat (L-0025) |
+
+**Czego nie wypisujesz:** wpisu linkowanego z otwartej pozycji „Czeka na człowieka". Od 1.7.0
+**nie blokuje** — jego link jest przepinany w fazie 2. Wymienienie go w komunikacie kazałoby
+człowiekowi zamykać sprawy, które niczego nie trzymają.
+
+**Przykład brzmienia** — wygenerowany z dziennika PolyFlow sprzed migracji do 1.6.1 (`396e243^`,
+97 wpisów, projekt sprzed 1.6.0) `FAKT`, próg 150 KB:
+
+```
+Rotacja dziennika przenosi 2 z 87 wpisów rotowalnych; 85 nie przechodzi (453,8 KB).
+Dziennik 558,2 KB = część rotowalna 460,5 KB + dolna granica osiągalna 97,6 KB; próg 150 KB.
+Blokują otwarte pozycje „Do zrobienia przez człowieka" — projekt nie ma sekcji „Czeka na
+człowieka", więc blokuje własna sekcja wpisu:
+  - Decyzja o E3. Cele 1 i 2 nie są osiągnięte, a etap, który miał je dowieźć… →
+    ### 2026-08-10 — SZYBKOSC E2: przetwarzanie wsadowe odrzucone bramką…
+    · pozycja otwarta od 22 dni · zamknięcie przepuszcza kolejne 1 wpisów
+  - Obserwacja skróconego progu w codziennym użyciu — czy zdania nie zamykają się… →
+    ### 2026-08-10 — SZYBKOSC E1A: mikrofon przestał się zamykać na czas…
+    · pozycja otwarta od 22 dni · zamknięcie przepuszcza kolejne 1 wpisów
+  - … i 32 dalsze blokery tej samej natury.
+Zamknięcie pierwszej pozycji przepuszcza 1 wpisów; zamknięcie wszystkich 34 — 85.
+```
+
+Drugi przykład — ten sam kształt, gdy blokerów nie ma, a **część rotowalna jest pusta**. Dziennik
+PolyFlow po rotacji (10 wpisów, 115,9 KB) przy progu 100 KB `FAKT`:
+
+```
+Rotacja dziennika stoi: wpisów jest 10, a dziesięć najnowszych jest nietykalne niezależnie od
+rozmiaru. Dziennik 115,9 KB = część rotowalna 0 KB + dolna granica osiągalna 115,9 KB; próg 100 KB.
+Część rotowalna jest pusta, a dolna granica osiągalna 115,9 KB przekracza próg — plik odchudza
+zwięzłość wpisów, nie archiwum. Podniesienie progu jest decyzją człowieka.
+```
+
+Ten sam plik przy progu 150 KB nie produkuje **ani jednego znaku** — i to jest zachowanie
+poprawne, nie przeoczenie.
+
 ## STATE — inny tryb, bez archiwum
 
 `STATE.md` jest **nadpisywany**, więc z definicji nie ma historii do przeniesienia; archiwum
@@ -319,17 +438,18 @@ a nie porządkowaniem.
 |---|---|
 | Żywy plik poniżej progu | Nic się nie dzieje, zero komunikatów, katalog archiwum nie powstaje |
 | Rotacja wyłączona w `USTAWIENIA.md` | Progu nawet nie sprawdzasz; cisza |
-| Powyżej progu, ale **cały** zakres nietykalny (same świeże wpisy) | Nie rotujesz i **mówisz o tym jednym zdaniem** w podsumowaniu sesji, z powodem. Cisza jest zarezerwowana dla stanu poniżej progu — powyżej progu milczenie ukryłoby zatkany mechanizm |
+| Powyżej progu, ale **cały** zakres nietykalny (same świeże wpisy) | Nie rotujesz i piszesz **komunikat zablokowanej rotacji** (sekcja wyżej): część rotowalna 0 KB, dolna granica osiągalna równa wadze całkowitej, obok próg. Cisza jest zarezerwowana dla stanu poniżej progu — powyżej progu milczenie ukryłoby zatkany mechanizm |
+| Powyżej progu, rotacja zabrała wszystko, co mogła, ale **sama dolna granica przekracza próg** | Nie jest to porażka mechanizmu i nie nazywasz jej porażką. Komunikat podaje cztery liczby i mówi wprost, że plik odchudzi **zwięzłość wpisów**, a podniesienie progu jest decyzją człowieka. Milczenie byłoby tu najgorszą opcją: wyglądałoby na sukces |
 | **Wpis linkowany z otwartej pozycji „Czeka na człowieka" wjeżdża do archiwum** | Wjeżdża normalnie — od 1.7.0 nie jest z tego powodu nietykalny. Link pozycji zostaje **przepięty** na plik archiwum wraz z kotwicą, w **fazie 2**, w tym samym przebiegu, w którym wpis się przenosi. Rozjazd sum kontrolnych → **STOP przed fazą 2**: żywy plik nietknięty **i link nietknięty**, bo pozycja wskazywałaby wtedy plik, którego treści nikt nie potwierdził. Pozycja nigdy nie zostaje z martwym linkiem: liczba pozycji z linkiem do nieistniejącej kotwicy po rotacji ma wynosić **zero** i tę liczbę wypisuje wpis dziennika |
 | Kilka pozycji linkuje do **tego samego** przenoszonego wpisu | Przepinasz **każdą** z nich — jednostką operacji jest pozycja, nie wpis. Liczba przepiętych linków bywa większa niż liczba przeniesionych wpisów i to nie jest błąd |
 | Pozycja linkuje do wpisu, którego **w żywym pliku już nie ma** (link prowadzi do archiwum po wcześniejszej rotacji) | Nic nie robisz — link jest już przepięty i jest poprawny. Ponownego przepięcia nie wykonujesz i drugiej ścieżki do niego nie doklejasz |
-| Dziennik ponad progiem, ale wpisów jest **mniej niż dziesięć** | Nie rotujesz — dziesięć najnowszych wpisów jest nietykalne niezależnie od rozmiaru pliku. **Mówisz o tym jednym zdaniem z powodem**: problemem są długie wpisy, a nie ich liczba, i rozwiązuje go zwięzłość, nie archiwum |
+| Dziennik ponad progiem, ale wpisów jest **mniej niż dziesięć** | Nie rotujesz — dziesięć najnowszych wpisów jest nietykalne niezależnie od rozmiaru pliku. Komunikat ma **ten sam kształt** co wyżej: część rotowalna 0 KB, dolna granica obok progu, i zdanie, że problemem są długie wpisy, a nie ich liczba — rozwiązuje go zwięzłość, nie archiwum |
 | Sesja nieinteraktywna, budżet przekroczony | Wejście 2 (start sesji) nie rusza; raport pomiaru pada, propozycja rotacji nie. Wejście 1 (zamknięcie sesji) działa bez zmian |
-| Wpis ma otwartą pozycję „Do zrobienia przez człowieka", ale **bez** adnotacji o wyprowadzeniu, a sekcji „Czeka na człowieka" w pliku nie ma (projekt sprzed 1.6.0) | Blokuje jak dotąd — reguła 1.5.2 obowiązuje, dopóki projekt nie przejdzie procedury wyprowadzenia (skill `relai-core`). Nie rotujesz „na zapas" i nie zakładasz sekcji przy okazji rotacji |
+| Wpis ma otwartą pozycję „Do zrobienia przez człowieka", ale **bez** adnotacji o wyprowadzeniu, a sekcji „Czeka na człowieka" w pliku nie ma (projekt sprzed 1.6.0) | Blokuje jak dotąd — reguła 1.5.2 obowiązuje, dopóki projekt nie przejdzie procedury wyprowadzenia (skill `relai-core`). Nie rotujesz „na zapas" i nie zakładasz sekcji przy okazji rotacji. **To jest jedyny przypadek, w którym komunikat wypisuje pary „pozycja → wpis"** — w projekcie z sekcją „Czeka na człowieka" takich blokerów nie ma |
 | Rotacja przerwana między fazą 1 a 2 | Oryginał nietknięty; osierocony plik archiwum **nadpisujesz** przy następnej rotacji tego samego zakresu. Nie tworzysz drugiego pliku o tej samej nazwie z sufiksem |
 | Plik archiwum o tej nazwie już istnieje, a zakres jest **inny** | Nazwa kolizyjna znaczy, że coś poszło nie tak z wyznaczeniem zakresu → **STOP**, żywy plik nietknięty, pytanie do człowieka |
 | Wpis dziennika bez daty w nagłówku (dokument sprzed RelAI, po adopcji) | Nie podlega rotacji — zakres nazwy pliku musi wynikać z dat, a nie ze zgadywania (L-0025) |
-| Pozycja `ryzyka` ponad progiem, ale **żadne** ryzyko nie jest zamknięte | Nie rotujesz ryzyk. Pozycja jest gruba przez ryzyka żywe, a te zostają — **mówisz o tym jednym zdaniem**, bo to jest przypadek „budżet pęka przez pozycję, której nie da się skrócić" (sekcja 8 planu): decyzja o podniesieniu progu należy do człowieka |
+| Pozycja `ryzyka` ponad progiem, ale **żadne** ryzyko nie jest zamknięte | Nie rotujesz ryzyk. Pozycja jest gruba przez ryzyka żywe, a te zostają: część rotowalna 0 KB, dolna granica równa wadze sekcji. Komunikat ma **ten sam kształt** co dla dziennika i pada w tym samym miejscu — to jest przypadek „budżet pęka przez pozycję, której nie da się skrócić": decyzja o podniesieniu progu należy do człowieka. Osobnego komunikatu rotacja ryzyk nadal nie ma (L-0049) — to jest ta sama linia, nie druga |
 | Wszystkie ryzyka zamknięte — tabela po rotacji byłaby pusta | Rotujesz normalnie. Zostaje nagłówek sekcji, wiersz nagłówkowy tabeli i linia-odsyłacz pod nią; pustej sekcji nie kasujesz i nie zastępujesz zdaniem „brak ryzyk" |
 | Ryzyko zamknięte, do którego prowadzi link z otwartej pozycji „Czeka na człowieka" | Schodzi do archiwum jak każde inne. Blokada z sekcji „Czeka na człowieka" dotyczy **wpisów**, nie wierszy tabeli — sprawa człowieka nie znika, bo jej własna pozycja zostaje w żywym pliku |
 | Ryzyko zamknięte i **ponownie otwarte** (status wrócił do `OTWARTE`) | Zostaje w żywej tabeli; kryterium czyta się ze stanu na dziś, nie z historii statusów. Jeśli zdążyło już zejść do archiwum, wraca jako **nowy numer** z odsyłaczem do archiwum w komórce „Mitygacja" — numeru nie odzyskujesz |
@@ -354,7 +474,12 @@ a nie porządkowaniem.
 - Nie wyprowadzasz pozycji „przy okazji" rotacji — wyprowadzenie jest osobną, opisaną procedurą
   z liczeniem przed i po (skill `relai-core`), a rotacja tylko czyta jej wynik.
 - Nie pytasz o zgodę na rotację i nie meldujesz jej poniżej progu — mechanizm ma być niewidoczny,
-  dopóki nie zadziała.
+  dopóki nie zadziała. **Powyżej progu odwrotnie: nie milczysz**, gdy rotacja nie zabrała
+  wszystkiego, co mogła — komunikat zablokowanej rotacji jest wtedy obowiązkowy.
+- Nie podajesz progu bez pozostałych trzech liczb i nie porównujesz go do samej wagi całkowitej,
+  gdy mówisz o tym, ile rotacja jeszcze weźmie — cel dotyczy części rotowalnej.
+- Nie wymieniasz wśród blokerów wpisu linkowanego z otwartej pozycji „Czeka na człowieka": od
+  1.7.0 nie blokuje, a wpisanie go na listę kazałoby człowiekowi zamykać sprawy bez skutku.
 - Nie czytasz archiwum w rytuale startu sesji.
 
 ## Przykład — plik archiwum dziennika

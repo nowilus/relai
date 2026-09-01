@@ -12,8 +12,9 @@ tutaj z 90 KB do 35 KB. Plan **zamknięty 2026-08-21**, w połowie celu: PolyFlo
 JiraManager został wyłączony z zakresu decyzją właściciela, więc ryzyko R5 zostaje otwarte. Plan
 ROZWOJ_PO_WYDANIU jest **zamrożony** — E7 czeka na dostęp do Codeksa. Aktywny jest plan
 **HIGIENA_DOKUMENTOW** (zaakceptowany 2026-09-01, sześć etapów): zgłoszenie z sesji roboczej
-PolyFlow pokazało sześć miejsc, w których mechanizm rotacji i progów nie broni się sam. **E1 jest
-zamknięty** — rotacja przestała się zatykać na własnej regule.
+PolyFlow pokazało sześć miejsc, w których mechanizm rotacji i progów nie broni się sam. **E1 i E2
+są zamknięte** — rotacja przestała się zatykać na własnej regule, a gdy stoi, mówi na czym i ile to
+kosztuje.
 
 ## Co działa
 
@@ -33,6 +34,13 @@ zamknięty** — rotacja przestała się zatykać na własnej regule.
   nie zatrzymuje jej już własna reguła:** wpis, na który wskazuje otwarta sprawa człowieka, nie jest
   nietykalny — jego link jest przepinany na plik archiwum w fazie 2, po zgodności sum. Destylat
   lekcji skompresowany z 48 pozycji do 15 przy zachowaniu wszystkich numerów źródłowych.
+- **Zatkana rotacja przestała milczeć, a próg przestał obiecywać niemożliwe (E2, 2026-09-01).**
+  Dokument ma trzy wagi podawane razem z progiem: całkowitą, część rotowalną i **dolną granicę
+  osiągalną** — to, czego rotacja nie ruszy nigdy. Cel dotyczy części rotowalnej, więc plik złożony
+  z samych świeżych wpisów nie wygląda już na zepsuty mechanizm. Powyżej progu, gdy rotacja nie
+  zabrała wszystkiego, pada komunikat z parami „pozycja → wpis", wiekiem pozycji w dniach i liczbą
+  wpisów, które przepuści jej zamknięcie. Zmierzone: stary komunikat nie mówił **nic**, gdy rotacja
+  w PolyFlow brała **2 z 87** wpisów, a 85 stało (453,8 KB).
 - **Sprawy czekające na człowieka mają jeden adres** — sekcję „Czeka na człowieka" na górze
   dziennika, czytaną przy każdym starcie. Wpis, którego pozycja się wyprowadziła, przestaje blokować
   rotację; to był powód, dla którego rotacja nigdy nie ruszyła w JiraManagerze ani w PolyFlow.
@@ -76,13 +84,15 @@ zamknięty** — rotacja przestała się zatykać na własnej regule.
 
 ## Nad czym pracujemy teraz
 
-- **Plan HIGIENA_DOKUMENTOW — E1 zrealizowany 2026-09-01, E2 gotowy do startu.** Po co: mechanizm
-  rotacji i progów jest kompletny, ale w projekcie prowadzonym cztery miesiące nie odezwał się ani
-  razu — dziennik PolyFlow doszedł do 862,7 KB przy progu 150 KB. **E1 zdjął pierwszą przyczynę:**
-  pozycja „Czeka na człowieka" linkuje do najnowszego wystąpienia sprawy, wpis linkowany przestał
-  być nietykalny, a jego link jest przepinany na archiwum w fazie 2 — zakres rotacji na dzienniku
-  PolyFlow rośnie z **0 do 117 wpisów ze 127**. E2: komunikat blokady i próg liczony ponad
-  nietykalnymi. Aneks A: **`N = 30 dni`**. Aneks B: E4 obejmuje też **progi sekcji** i katalog progów.
+- **Plan HIGIENA_DOKUMENTOW — E1 i E2 zrealizowane 2026-09-01, E3 gotowy do startu.** Po co:
+  mechanizm rotacji i progów jest kompletny, ale w projekcie prowadzonym cztery miesiące nie odezwał
+  się ani razu — dziennik PolyFlow doszedł do 862,7 KB przy progu 150 KB. **E1 zdjął pierwszą
+  przyczynę:** pozycja „Czeka na człowieka" linkuje do najnowszego wystąpienia sprawy, wpis linkowany
+  przestał być nietykalny, a jego link jest przepinany na archiwum w fazie 2 — zakres rotacji rośnie
+  z **0 do 117 wpisów ze 127**. **E2 zdjął drugą:** próg liczy się ponad nietykalnymi, a zatkana
+  rotacja wypisuje blokery zamiast milczeć. E3: sprawa starsza niż **`N = 30 dni`** wymusza decyzję
+  na starcie sesji (Aneks A — wyłącznik osobny od rotacji). Aneks B: E4 obejmuje też **progi sekcji**
+  i katalog progów.
 - **Migracja JiraManagera.** Po co: to ostatni projekt, w którym start sesji kosztuje 386 KB
   dokumentów, a rotacja nigdy nie ruszyła. Czeka na okno — właściciel rozwija go na bieżąco, więc
   migracja wchodzi dopiero wtedy, gdy żaden etap tam nie trwa. Dopóki nie wejdzie, **ryzyko R5
@@ -119,10 +129,11 @@ zamknięty** — rotacja przestała się zatykać na własnej regule.
 - **Adapter Cursora zmierzony w aplikacji, ale nie w całości.** Pilotaż potwierdził reguły, hook
   kontekstu, obie warstwy blokady sekretu i pełne przejście `/relai-stage`. Niezmierzone: hook
   `beforeReadFile`, dostęp poza katalogiem roboczym, osiem pozostałych komend.
-- **Reguła jest naprawiona, ale nikt jej jeszcze nie użył w prawdziwej sesji.** E1 zmierzył zakres
+- **Reguły są naprawione, ale nikt ich jeszcze nie użył w prawdziwej sesji.** E1 zmierzył zakres
   rotacji na kopiach dziennika PolyFlow (0 → 117 wpisów ze 127) i przeszedł pełny przebieg
-  z przepięciem linków na kopii dziennika RelAI. Przepięcie w rytuale zamknięcia sesji na żywym
-  projekcie — nadal niezmierzone; wchodzi do E6 razem z wydaniem 1.7.0.
+  z przepięciem linków na kopii dziennika RelAI. E2 wypisał komunikat blokady w obu wersjach na
+  pięciu realnych plikach, ale żadna sesja nie napisała go w rytuale zamknięcia. Jedno i drugie
+  wchodzi do E6 razem z wydaniem 1.7.0.
 - Repozytorium jest **publiczne**, ale ma pusty opis — odnoga `OPIS_REPO`.
 
 ---
@@ -163,11 +174,12 @@ Pułapki: [PULAPKI.md](PULAPKI.md)
 ### Liczby
 
 Etapy: BUDOWA_RELAI 10/10 • ROZWOJ_PO_WYDANIU 6/8 (ZAMROŻONY) • OPTYMALIZACJA_KONTEKSTU 5/5
-(ZREALIZOWANY) • HIGIENA_DOKUMENTOW 1/6 •
+(ZREALIZOWANY) • HIGIENA_DOKUMENTOW 2/6 •
 Warstwa startowa RelAI: **35,1 KB / 80 KB** (pomiar sprzed E1) • Warstwa
-startowa PolyFlow po migracji: **136,4 KB / 80 KB** (przed: 155,7) • Dziennik: **160,4 KB —
-ponad progiem 150 KB**, lekcje 19,6 KB • Sprawy czekające na człowieka: 9 tutaj, 27 w PolyFlow •
-Zasady aktywne: **15 przy limicie 15** • Lekcje: 10 w żywym rejestrze, ostatnia L-0064 •
+startowa PolyFlow po migracji: **136,4 KB / 80 KB** (przed: 155,7) • Dziennik: **163,8 KB —
+ponad progiem 150 KB**; część rotowalna 104,6 KB, dolna granica osiągalna 52,1 KB (pomiar E2, przed
+tym wpisem) • Lekcje 20,6 KB • Sprawy czekające na człowieka: 9 tutaj, 27 w PolyFlow •
+Zasady aktywne: **15 przy limicie 15** • Lekcje: 11 w żywym rejestrze, ostatnia L-0065 •
 Scenariusze akceptacyjne: 4/4 zdane + pilotaż Cursora •
 Adaptery: 2 • Modele, na których zmierzono proces: 5 (Fable, Opus, Haiku, Composer/auto, Grok 4.6) •
 Projekty na 1.6.x: 2 (RelAI, PolyFlow) • Otwarte wątki: 5 (4 odnogi zamrożonego planu +
