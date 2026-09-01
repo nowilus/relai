@@ -11,10 +11,12 @@ plan **OPTYMALIZACJA_KONTEKSTU**: warstwa czytana przy starcie sesji dostała mi
 tutaj z 90 KB do 35 KB. Plan **zamknięty 2026-08-21**, w połowie celu: PolyFlow działa na 1.6.1,
 JiraManager został wyłączony z zakresu decyzją właściciela, więc ryzyko R5 zostaje otwarte. Plan
 ROZWOJ_PO_WYDANIU jest **zamrożony** — E7 czeka na dostęp do Codeksa. Aktywny jest plan
-**HIGIENA_DOKUMENTOW** (zaakceptowany 2026-09-01, sześć etapów): zgłoszenie z sesji roboczej
-PolyFlow pokazało sześć miejsc, w których mechanizm rotacji i progów nie broni się sam. **E1, E2
-i E3 są zamknięte** — rotacja przestała się zatykać na własnej regule, gdy stoi, mówi na czym i ile
-to kosztuje, a sprawa czekająca na człowieka dłużej niż 30 dni wymusza decyzję na starcie sesji.
+**HIGIENA_DOKUMENTOW** (zaakceptowany 2026-09-01, sześć etapów, Aneksy A–C): zgłoszenie z sesji
+roboczej PolyFlow pokazało sześć miejsc, w których mechanizm rotacji i progów nie broni się sam.
+**E1–E5 są zamknięte** — rotacja przestała się zatykać na własnej regule, gdy stoi, mówi na czym
+i ile to kosztuje, sprawa czekająca dłużej niż 30 dni wymusza decyzję na starcie, każdy próg ma
+adres, a komórka ryzyka i plik ustawień mają wreszcie drogę do archiwum. Został **E6**: pomiar
+na realnych projektach i wydanie 1.7.0.
 
 ## Co działa
 
@@ -69,8 +71,21 @@ to kosztuje, a sprawa czekająca na człowieka dłużej niż 30 dni wymusza decy
   z których wcześniej nie odezwała się żadna; pełny zestaw przekroczeń mieści się w **5 liniach**
   przy limicie 6, a to repozytorium dostaje z obu hooków **0 linii**. Wykaz wszystkich progów RelAI
   wraz z ich adresami egzekwowania stoi w sekcji „Katalog progów" `SPEC_USTAWIENIA.md`; dwa progi
-  mają tam wpisane wprost „brak automatu". Część „dokumenty ponad progiem" ma wyłącznik **rotacji**,
+  ma tam wpisany wprost „brak automatu". Część „dokumenty ponad progiem" ma wyłącznik **rotacji**,
   nie budżetu.
+- **Ryzyko chudnie bez znikania, a ustawienia mają wreszcie wyjście (E5, 2026-09-01).** Komórka
+  „Mitygacja" ryzyka `ZMITYGOWANE` albo `PRZYJĘTE ŚWIADOMIE` oddaje historię do
+  `docs/archiwum/ryzyka/MITYGACJE_<data>.md`, a **wiersz zostaje w tabeli** — w komórce staje
+  **dosłowny cytat** ostatniego zdania stanu i odsyłacz. Trzy warunki naraz: sekcja ponad progiem,
+  komórka ponad 800 znaków, status z zamkniętej listy czytanej **od początku komórki**; wiek
+  komórki warunkiem nie jest, a ryzyka `OTWARTE` automat nie rusza. `docs/USTAWIENIA.md` ma własną
+  rotację — schodzą wiersze sekcji „Ustawienia wycofane", a **pięć wierszy wypisanych z nazwy nie
+  schodzi nigdy**, bo ich brak wyciszyłby mechanizmy, które je czytają. Zmierzone na dzienniku
+  PolyFlow sprzed migracji: sekcja ryzyk **57,1 → 48,0 KB**, 7 komórek z 15 ponad limitem,
+  **52 wiersze przed i po**, 7 z 7 cytatów dosłownie w archiwum; ustawienia PolyFlow
+  **30,1 → 25,6 KB**, 16 wierszy przeniesionych, 5 nietykalnych zostało, a `startCost`
+  i `sprawyPrzeterminowane` zwróciły to samo co przed rotacją. Rozjazd sum kontrolnych zatrzymuje
+  obie procedury i zostawia żywy plik bajt w bajt.
 - **`STATE.md` i `CLAUDE.md` mają twardy kształt** (1.6.0): trzy pozycje w „Nad czym pracujemy
   teraz" z podmianą zamiast dopisywania, próg zwięzłości jako liczba sprawdzalna komendą, budżet
   `CLAUDE.md` w KB i zakaz treści odtwarzalnej z repozytorium. Pułapki narzędziowe mają własny
@@ -113,17 +128,15 @@ to kosztuje, a sprawa czekająca na człowieka dłużej niż 30 dni wymusza decy
 
 ## Nad czym pracujemy teraz
 
-- **Plan HIGIENA_DOKUMENTOW — E1–E4 zrealizowane 2026-09-01, E5 gotowy do startu.** Po co:
+- **Plan HIGIENA_DOKUMENTOW — E1–E5 zrealizowane 2026-09-01, E6 gotowy do startu.** Po co:
   mechanizm rotacji i progów jest kompletny, ale w projekcie prowadzonym cztery miesiące nie odezwał
-  się ani razu — dziennik PolyFlow doszedł do 862,7 KB przy progu 150 KB. **E1 zdjął pierwszą
-  przyczynę:** pozycja „Czeka na człowieka" linkuje do najnowszego wystąpienia sprawy, wpis linkowany
-  przestał być nietykalny, a jego link jest przepinany na archiwum w fazie 2 — zakres rotacji rośnie
-  z **0 do 117 wpisów ze 127**. **E2 zdjął drugą:** próg liczy się ponad nietykalnymi, a zatkana
-  rotacja wypisuje blokery zamiast milczeć. **E3 zdjął trzecią:** sprawa człowieka starsza niż
-  30 dni nie przeżyje startu sesji bez odpowiedzi. **E4 zdjął czwartą:** próg dokumentu i sekcji
-  ma adres w raporcie startu, a katalog progów mówi, które progi nikt nie liczy. E5: ryzyka
-  i ustawienia schodzą do archiwum — sekcja ryzyk PolyFlow ma zejść pod 12 KB bez utraty ani
-  jednego z 59 ryzyk.
+  się ani razu — dziennik PolyFlow doszedł do 862,7 KB przy progu 150 KB. **E1** odetkał rotację
+  (zakres PolyFlow **0 → 117 wpisów ze 127**), **E2** dał progowi trzy wagi i komunikat zatkania,
+  **E3** wymusił decyzję po 30 dniach, **E4** dał każdemu progowi adres w raporcie startu, **E5**
+  dał drogę do archiwum komórce „Mitygacja" i plikowi ustawień. Kryterium E5 zamieniono **Aneksem
+  C**: sekcja ryzyk PolyFlow (62 otwarte, 0 zamkniętych) nie zejdzie pod 12 KB żadnym mechanizmem
+  — to nie kronika w komórkach, tylko liczba żywych ryzyk, a jej skrócenie jest decyzją człowieka.
+  **E6:** pomiar pełnego startu na obu projektach i wydanie 1.7.0 sekwencją P-005.
 - **Migracja JiraManagera.** Po co: to ostatni projekt, w którym start sesji kosztuje 386 KB
   dokumentów, a rotacja nigdy nie ruszyła. Czeka na okno — właściciel rozwija go na bieżąco, więc
   migracja wchodzi dopiero wtedy, gdy żaden etap tam nie trwa. Dopóki nie wejdzie, **ryzyko R5
@@ -217,14 +230,14 @@ Pułapki: [PULAPKI.md](PULAPKI.md)
 ### Liczby
 
 Etapy: BUDOWA_RELAI 10/10 • ROZWOJ_PO_WYDANIU 6/8 (ZAMROŻONY) • OPTYMALIZACJA_KONTEKSTU 5/5
-(ZREALIZOWANY) • HIGIENA_DOKUMENTOW 4/6 •
+(ZREALIZOWANY) • HIGIENA_DOKUMENTOW 5/6 •
 Warstwa startowa RelAI: **47,1 KB / 80 KB** (pomiar z E4) • Warstwa
 startowa PolyFlow po migracji: **136,4 KB / 80 KB** (przed: 155,7) • Dziennik: **147,7 KB /
 próg 150 KB** po dwóch rotacjach 2026-09-01 i wpisach E3–E4 (przed pierwszą: 168,0) • Lekcje
 25,1 KB / 14 lekcji • Sprawy czekające na człowieka: **1 tutaj** (było 10 przed 2026-09-01),
 **25 otwartych w PolyFlow**, żadna nieprzeterminowana przy progu 30 dni •
-Progi w katalogu: **17, z tego 2 bez adresu egzekwowania** •
-Zasady aktywne: **15 przy limicie 15** • Lekcje: 14 w żywym rejestrze, ostatnia L-0068 •
+Progi w katalogu: **17, z tego 1 bez adresu egzekwowania** •
+Zasady aktywne: **15 przy limicie 15** • Lekcje: 17 w żywym rejestrze, ostatnia L-0071 •
 Scenariusze akceptacyjne: 4/4 zdane + pilotaż Cursora •
 Adaptery: 2 • Modele, na których zmierzono proces: 5 (Fable, Opus, Haiku, Composer/auto, Grok 4.6) •
 Projekty na 1.6.x: 2 (RelAI, PolyFlow) • Otwarte wątki: 3 (odnogi zamrożonego planu; POMIAR_ODNOG

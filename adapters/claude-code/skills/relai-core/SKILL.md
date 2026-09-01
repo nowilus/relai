@@ -538,6 +538,8 @@ i bez słowa. Wartość nierozpoznana albo brak wiersza w projekcie z wersją 1.
 | `docs/DZIENNIK.md` | 150 KB | najstarsze wpisy → `docs/archiwum/dziennik/DZIENNIK_<data-od>_<data-do>.md` |
 | `docs/LEKCJE.md` | 40 lekcji albo 50 KB | najstarsze pełne lekcje → `docs/archiwum/lekcje/LEKCJE_<numer-od>_<numer-do>.md` |
 | sekcja „Stan otwartych ryzyk" | próg cząstkowy `ryzyka` z wiersza `Budżet startu sesji` (12 KB) | wiersze ryzyk `ZAMKNIĘTE` → `docs/archiwum/ryzyka/RYZYKA_<data>.md` |
+| komórka „Mitygacja" ryzyka `ZMITYGOWANE` / `PRZYJĘTE ŚWIADOMIE` | 800 znaków, przy sekcji ryzyk ponad progiem | historia komórki → `docs/archiwum/ryzyka/MITYGACJE_<data>.md`; **wiersz zostaje w tabeli** |
+| `docs/USTAWIENIA.md` | próg cząstkowy `ustawienia` z wiersza `Budżet startu sesji` (6 KB) | wiersze sekcji „Ustawienia wycofane" → `docs/archiwum/ustawienia/USTAWIENIA_<data>.md` |
 | `docs/STATE.md` | 300 linii | **bez archiwum** — przepisujesz zwięźlej w kroku 1; fakt, który znika, a nie stoi nigdzie indziej, idzie do wpisu dziennika |
 
 **Poniżej progu: cisza.** Zero komunikatów, zero pytań, katalog `docs/archiwum/dziennik/` nie
@@ -558,6 +560,30 @@ i nie zgadujesz intencji. Nagłówek sekcji i wiersz nagłówkowy tabeli zostaj�
 staje **jedna** linia-odsyłacz z numerami — po niej widać, że numer jest zajęty na zawsze.
 To **nie jest** trzeci komunikat: rotacja ryzyk melduje się tylko we wpisie dziennika tej sesji,
 tak jak pozostałe (L-0049).
+
+**Kompresja komórki „Mitygacja" (od 1.7.0) — wiersz zostaje, historia schodzi.** Gdy sekcja ryzyk
+jest ponad swoim progiem, komórka „Mitygacja" ma **ponad 800 znaków**, a status ryzyka niesie
+rdzeń `zmitygowan` albo `przyj`/`zaakceptowan` **razem z** `świadom` — cała dzisiejsza treść
+komórki idzie do `docs/archiwum/ryzyka/MITYGACJE_<data>.md` (tabela `| # | Mitygacja |`), a w żywej
+komórce zostają **dwa człony**: **dosłowny cytat ostatniego zdania** sprzed `Zmierzone:` oraz
+`Historia: [MITYGACJE_…](…)` i niezmieniony człon `Zmierzone:`. Trzy warunki są koniunkcją;
+**wiek komórki warunkiem nie jest**. Zdanie napisane od siebie zamiast cytatu jest defektem.
+Ryzyka `OTWARTE` nie ruszasz — jego komórka niesie powód, dla którego nie jest zamknięte.
+Komórka po kompresji nadal ponad 800 znaków → **STOP** i pytanie do człowieka, żywa tabela
+nietknięta. Pełna procedura: `SPEC_DZIENNIK.md`, sekcja „Kompresja komórki »Mitygacja«".
+
+**Rotacja ustawień (od 1.7.0).** Gdy `docs/USTAWIENIA.md` przekracza swój próg cząstkowy
+(`ustawienia`, 6 KB) **i** sekcja „Ustawienia wycofane" ma wiersze do wzięcia — schodzą **wszystkie
+naraz** do `docs/archiwum/ustawienia/USTAWIENIA_<data>.md`, a pod tabelą sekcji staje jedna
+linia-odsyłacz. **Nigdy nie schodzi pięć wierszy wypisanych z nazwy:** `Język projektu`,
+`Profil projektu`, `Rotacja dokumentów`, `Budżet startu sesji`, `Przegląd spraw człowieka` — także
+gdy stoją w „Ustawieniach wycofanych"; ich nieobecność wycisza mechanizmy, które je czytają.
+Wierszy **żywej** tabeli nie ruszasz: niosą decyzję obowiązującą. Plik ponad progiem bez sekcji
+„Ustawienia wycofane" → nie rotujesz; odchudza go zwięzłość komórki `Decyzja`.
+
+Obie operacje idą **tą samą** procedurą dwufazową, każda z własną sumą kontrolną i własnym plikiem
+archiwum, i **żadna nie dokłada własnego komunikatu** — meldują się we wpisie dziennika tej sesji,
+jak rotacja ryzyk (L-0049).
 
 **Blokada zmieniła adres w 1.6.0, a w 1.7.0 zniknęła.** Wpis z pozycją opatrzoną adnotacją
 `*(wyprowadzone RRRR-MM-DD → sekcja „Czeka na człowieka")*` **jest przenoszalny**, mimo że jego

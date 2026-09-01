@@ -1,7 +1,7 @@
 # STATUS — plan HIGIENA_DOKUMENTOW
 
 Plan: [PLAN.html](PLAN.html) · Utworzony: 2026-09-01 · Status planu: **ZAAKCEPTOWANY 2026-09-01
-(Aneksy A, B)** · Model wykonawczy etapów: Opus (D-85)
+(Aneksy A, B, C)** · Model wykonawczy etapów: Opus (D-85)
 
 ## Tabela etapów
 
@@ -11,8 +11,8 @@ Plan: [PLAN.html](PLAN.html) · Utworzony: 2026-09-01 · Status planu: **ZAAKCEP
 | E2 | Blokada mówi i próg nie kłamie | **ZREALIZOWANY 2026-09-01** | [PROMPT_ETAP_2.md](PROMPT_ETAP_2.md) | komunikat wypisuje blokery; próg liczony ponad nietykalnymi; `session-signals.js` bez zmian — rozstrzygnięte w zakresie |
 | E3 | Sprawa przeterminowana wymusza decyzję | **ZREALIZOWANY 2026-09-01** | [PROMPT_ETAP_3.md](PROMPT_ETAP_3.md) | `N = 30 dni`, wyłącznik osobny od rotacji (Aneks A); materiał pomiarowy inny, niż zakładał prompt — 1 pozycja zamiast 9 |
 | E4 | Raport startu jako adres progów | **ZREALIZOWANY 2026-09-01** | [PROMPT_ETAP_4.md](PROMPT_ETAP_4.md) | drugi wyzwalacz raportu, progi sekcji, katalog progów w `SPEC_USTAWIENIA.md`; limit „Zasad aktywnych" nietknięty |
-| E5 | Ryzyka i ustawienia schodzą do archiwum | **GOTOWY DO STARTU** | [PROMPT_ETAP_5.md](PROMPT_ETAP_5.md) | |
-| E6 | Pomiar na realnych projektach i wydanie | OCZEKUJE | — | wydanie 1.7.0, sekwencja P-005 obowiązuje |
+| E5 | Ryzyka i ustawienia schodzą do archiwum | **ZREALIZOWANY 2026-09-01** | [PROMPT_ETAP_5.md](PROMPT_ETAP_5.md) | Aneks C — kryterium „sekcja ryzyk PolyFlow pod 12 KB" nieosiągalne arytmetycznie; zamienione na dowód działania mechanizmu |
+| E6 | Pomiar na realnych projektach i wydanie | **GOTOWY DO STARTU** | [PROMPT_ETAP_6.md](PROMPT_ETAP_6.md) | wydanie 1.7.0, sekwencja P-005 obowiązuje; **ostatni etap planu** — rytuał kończy się sekwencją zamknięcia planu (D-36) |
 
 ## Odnogi
 
@@ -31,6 +31,9 @@ Plan: [PLAN.html](PLAN.html) · Utworzony: 2026-09-01 · Status planu: **ZAAKCEP
   wyłączonej rotacji; zapisane jako Aneks A do planu
 - **Akceptacja planu HIGIENA_DOKUMENTOW** · źródło: wpis dziennika 2026-09-01 ·
   ROZSTRZYGNIĘTA 2026-09-01 — plan zaakceptowany z Aneksem A, sekcje 1–9 zamrożone
+- **Kryterium sukcesu E5 nieosiągalne na wskazanym materiale** · źródło: wpis dziennika 2026-09-01
+  (E5) · ROZSTRZYGNIĘTA 2026-09-01 — wybrany wariant „Aneks C": kryterium zamienione na dowód
+  działania mechanizmu; zakres prac E5 bez zmian
 
 ## Dziennik wdrożenia
 
@@ -66,3 +69,19 @@ Plan: [PLAN.html](PLAN.html) · Utworzony: 2026-09-01 · Status planu: **ZAAKCEP
   plik i sekcja z procedurami, identycznie dla LF i CRLF; pełny zestaw przekroczeń → **5 linii**
   przy limicie 6; to repozytorium → **0 linii** z obu hooków. Wygenerowano PROMPT_ETAP_5;
   E5 gotowy do startu.
+- 2026-09-01 — E5 rozpoczęty.
+- 2026-09-01 — **Aneks C**: kryterium E5 „sekcja ryzyk PolyFlow schodzi pod 12 KB" zamienione na
+  dowód działania mechanizmu. Powód zmierzony przed implementacją: sekcja `9fcf433` ma
+  **39 548 B, 62 ryzyka, 0 `ZAMKNIĘTYCH`**, jedną komórkę ponad 800 znaków (i tę o statusie
+  `OTWARTE`), a cała kolumna „Mitygacja" waży 22 032 B — próg jest nieosiągalny mechanizmem
+  z zakresu etapu. Zakres prac bez zmian.
+- 2026-09-01 — **E5 ZREALIZOWANY**: kompresja komórki „Mitygacja" (trzy warunki w koniunkcji,
+  zamknięta lista statusów czytana **od początku komórki**, dosłowny cytat zamiast parafrazy)
+  i rotacja `docs/USTAWIENIA.md` z pięcioma wierszami nietykalnymi z nazwy; obie przez tę samą
+  procedurę dwufazową, obie bez własnego komunikatu. Katalog progów: **17 wierszy, 15 z adresem,
+  1 bez automatu** (było 2). Zmierzone na dzienniku PolyFlow `396e243^`: sekcja ryzyk
+  **57 136 → 49 137 B**, 7 komórek z 15 ponad limitem, **52 wiersze przed i po**, 7 z 7 cytatów
+  dosłownie w archiwum; ustawienia PolyFlow **30 068 → 25 552 B**, 5 wierszy maszynowych
+  zostało, `startCost` i `sprawyPrzeterminowane` bez zmiany. Rozjazd sum zatrzymuje obie
+  procedury. To repozytorium: **0 zmian, 0 znaków**. Wygenerowano PROMPT_ETAP_6; E6 gotowy do
+  startu i jest ostatnim etapem planu.

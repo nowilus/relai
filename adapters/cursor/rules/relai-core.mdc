@@ -156,6 +156,26 @@ finish a larger chunk of work:
    whose status starts with `ZAMKNIĘTE` go to `docs/archiwum/ryzyka/RYZYKA_<date>.md` — all of them
    at once, only when the `ryzyka` sub-threshold is exceeded, same two phases, one reference line
    with the numbers under the table, and no message of its own.
+   **Compressing the "Mitygacja" cell (1.7.0)** — the **row stays**, only its history leaves. Three
+   conditions, all of them: the risk section is over its threshold, the cell is over **800
+   characters**, and the status carries the stem `zmitygowan` or `przyj`/`zaakceptowan` **together
+   with** `świadom`. The whole current cell goes to `docs/archiwum/ryzyka/MITYGACJE_<date>.md`
+   (a `| # | Mitygacja |` table) and the live cell keeps **two members**: the **verbatim quote** of
+   the last sentence before `Zmierzone:`, then `Historia: [MITYGACJE_…](…)` and the unchanged
+   `Zmierzone:` member. **The age of the cell is not a condition.** A sentence written by you
+   instead of the quote is a defect. Never compress the cell of an `OTWARTE` risk — it carries the
+   reason the risk is still open. Still over 800 characters after compression → **stop** and ask the
+   human; the live table stays untouched. Full procedure: `SPEC_DZIENNIK.md`.
+   **Settings rotation (1.7.0)** — when `docs/USTAWIENIA.md` exceeds its `ustawienia` sub-threshold
+   (6 KB) **and** the "Ustawienia wycofane" section has rows to take, they all go at once to
+   `docs/archiwum/ustawienia/USTAWIENIA_<date>.md`, with one reference line under that section's
+   table. **Five rows never leave, by name:** `Język projektu`, `Profil projektu`, `Rotacja
+   dokumentów`, `Budżet startu sesji`, `Przegląd spraw człowieka` — not even when they sit in the
+   withdrawn section; their absence silences the mechanisms that read them. Rows of the **live**
+   table never leave either: they carry a decision that still holds. A file over the threshold with
+   no withdrawn section is not rotated — shorter `Decyzja` cells slim it, not the archive.
+   Both operations use the **same** two-phase procedure, each with its own checksum and its own
+   archive file, and **neither adds a message of its own** (L-0049).
    **Threshold counted above the untouchables (1.7.0):** a document has three weights and you always
    report them together with the threshold, in this order — **total weight** (whole file, line
    endings normalised to LF) = **rotatable part** + **lowest reachable floor**. The journal's floor

@@ -5,7 +5,7 @@
 | # | Ryzyko | Poziom | Status | Mitygacja |
 |---|---|---|---|---|
 | R2 | Auto-wyzwalanie skilli bywa zawodne (agent nie zastosuje zasad bez komendy) | **Niski przy Opusie, średni przy modelach słabszych** (2026-08-10 po E10) | **ZMIERZONE 2026-08-10, OTWARTE ŚWIADOMIE** | Warstwą nośną są hook `session-context` i `CLAUDE.md` projektu — działają przy każdym modelu, bez wyzwalania; skill dokłada wyłącznie procedurę (L-0030). Opus wyzwala skill sam i wykonuje procedurę w całości; Sonnet 4.6 i Haiku 4.5 nie wołają `Skill` ani razu, więc projekt nie traci pamięci, ale procedura bywa niepełna. Otwarte świadomie: to trwała własność modeli, nie usterka do naprawienia. Zakres ryzyka rósł od 1.1.0 bez pomiaru — dziesiąta komenda, sygnał odchylenia, rozjazd stanu i kontrola podpisu nie były mierzone w świeżej sesji, bo limit konta zatrzymał CLI (L-0032). **Odnoga `POMIAR_ODNOG` anulowana 2026-09-01** — ta część zakresu zostaje niezmierzona świadomie, karta zostaje w repo. Zmierzone: 2026-08-07 (E5), 2026-08-10 (E10), 2026-08-12 (E1), 2026-08-12 (E3) |
-| R5 | Dokumenty puchną i zjadają kontekst | **Średni, potwierdzony na trzech projektach** (2026-09-01) | **OTWARTE — plan HIGIENA_DOKUMENTOW jest odpowiedzią** | Mechanizm jest kompletny, ale **nie broni się sam**: progi nie mają adresu egzekwowania, więc rosną latami (PolyFlow 862,7 KB przy progu 150 KB). Naprawa idzie planem HIGIENA_DOKUMENTOW (6 etapów, Aneksy A i B). E1: zakres rotacji PolyFlow **0 → 117 wpisów ze 127**. E2: próg liczy się ponad nietykalnymi, a zatkana rotacja wypisuje blokery. E3: sprawa czekająca dłużej niż 30 dni wymusza decyzję na starcie. E4: raport startu wymienia dokument i sekcję ponad **własnym** progiem wraz z procedurą — na dokumentach PolyFlow 4 pozycje, z których wcześniej nie odezwała się żadna. Otwarte, dopóki plan nie dobiegnie końca i dopóki **JiraManager (386 KB startu) nie zostanie tknięty**. Zmierzone: 2026-08-20, 2026-08-21, 2026-09-01 (E1–E4, rotacja) |
+| R5 | Dokumenty puchną i zjadają kontekst | **Średni, potwierdzony na trzech projektach** (2026-09-01) | **OTWARTE — plan HIGIENA_DOKUMENTOW jest odpowiedzią** | Mechanizm jest kompletny, ale **nie broni się sam**: progi rosły latami bez adresu egzekwowania (PolyFlow 862,7 KB przy progu 150 KB). Naprawa idzie planem HIGIENA_DOKUMENTOW (6 etapów, Aneksy A–C): E1 odetkał rotację (**0 → 117 wpisów ze 127**), E2 dał progowi trzy wagi i komunikat zatkania, E3 wymusza decyzję po 30 dniach, E4 dał każdemu progowi adres w raporcie startu, E5 — komórce „Mitygacja" i plikowi ustawień drogę do archiwum. Otwarte do końca planu i dopóki **JiraManager (386 KB startu) nie zostanie tknięty**; sekcja ryzyk PolyFlow (62 otwarte, 0 zamkniętych) zejdzie pod próg dopiero decyzją o samych ryzykach. Zmierzone: 2026-08-20, 2026-08-21, 2026-09-01 (E1–E5) |
 | P1 | Adaptery Cursor/Codex nie egzekwują blokad harnessu — sekret albo zmiana konfiguracji przejdzie tam, gdzie w Claude Code stoi ściana (plan ROZWOJ_PO_WYDANIU) | **Średni** (2026-08-12 po E4; wcześniej wysoki) | **OTWARTE** | Część sekretowa jest zamknięta dowodem z aplikacji: w Cursorze zadziałały obie warstwy — reguła odmówiła pierwsza, a przy prośbie o próbę mimo reguły zapis klucza odbił hook `preToolUse` werdyktem `permission: deny`; niezależnie od narzędzia commit z sekretem zatrzymuje gitowy pre-commit. Otwarte z dwóch powodów: Cursor nie ma egzekwowanego `ask`, więc pliki konfiguracyjne chroni tam sama reguła zamiast bramki, a Codex pozostaje niezmierzony do odmrożenia E7 planu ROZWOJ_PO_WYDANIU. Zmierzone: 2026-08-12 (E4), 2026-08-12 (E5), 2026-08-17 (E6) |
 | P2 | Odpowiednik R2 w Cursor/Codex: bez auto-wyzwalania skilli proces zależy od dyscypliny modelu (plan ROZWOJ_PO_WYDANIU) | **Niski dla Cursora, średni dla Codeksa** (2026-08-17 po E6; wcześniej średni) | **OTWARTE (już tylko Codex)** | Reguła zawsze-w-kontekście działa w Cursorze bez żadnego wyzwalacza: pilotaż przeszedł pełny cykl na trzech modelach, a cały etap poprowadził model spoza Anthropic (Grok 4.6) — rytuał startu, karta etapu z kontrolą modelu, granica zakresu, rytuał zamknięcia z promptem następnego etapu. Dyscyplina procesu nie zależy od dostawcy modelu. Otwarte już tylko dla Codeksa: warstwą nośną ma tam być `AGENTS.md` z twardym limitem 32 KiB, a skille wyzwalają się dopasowaniem opisu — tym samym mechanizmem, który przy R2 okazał się zależny od modelu. Zmierzone: 2026-08-12 (E4), 2026-08-12 (E5), 2026-08-17 (E6) |
 
@@ -2079,3 +2079,105 @@ Autor: RelAI (Opus) + Lukasz
 **Do zrobienia przez człowieka:**
 - **Potwierdzić albo cofnąć osiem rozstrzygnięć z E2** — pozycja bez zmian, nadal otwarta.
 - Nic nowego z tego etapu.
+
+### 2026-09-01 — E5: ryzyka i ustawienia schodzą do archiwum
+
+Autor: RelAI (Opus) + Lukasz
+
+**Zrobione:**
+- `core/templates/SPEC_DZIENNIK.md` — nowa sekcja „Kompresja komórki »Mitygacja«". Trzy warunki
+  w koniunkcji: sekcja ryzyk ponad progiem cząstkowym `ryzyka`, komórka ponad **800 znaków**,
+  status z **zamkniętej listy** (`zmitygowan`; `przyj`/`zaakceptowan` razem ze `świadom`). Rdzenia
+  szukasz w **brzmieniu statusu** — od początku komórki do pierwszej cyfry, myślnika albo nawiasu.
+  Wiek komórki warunkiem **nie jest**. W żywej komórce zostają dwa człony: **dosłowny cytat**
+  ostatniego zdania sprzed `Zmierzone:` oraz `Historia: [MITYGACJE_…](…)` z niezmienionym członem
+  `Zmierzone:`. Granica zdania rozstrzygnięta wprost (`.!?` + spacja + wielka litera albo `**`).
+  Wynik ponad 800 znaków → STOP i pytanie do człowieka.
+- `core/templates/SPEC_ARCHIWUM.md` — dwie nowe ścieżki
+  (`docs/archiwum/ryzyka/MITYGACJE_<data>.md`, `docs/archiwum/ustawienia/USTAWIENIA_<data>.md`),
+  dwa nowe wiersze tabeli progów, sekcje „Historia komórek »Mitygacja«" i „Wycofane wiersze
+  ustawień", siedem nowych przypadków brzegowych, cztery nowe zakazy i dwa przykłady plików
+  archiwum. Obie operacje to **te same dwa wejścia rotacji**, nie trzecie; każda ma własny przebieg
+  i własną sumę kontrolną.
+- `core/templates/SPEC_USTAWIENIA.md` — sekcja „Rotacja ustawień": schodzą wyłącznie wiersze sekcji
+  „Ustawienia wycofane", wszystkie naraz, przy progu cząstkowym `ustawienia` (6 KB). **Pięć wierszy
+  wypisanych z nazwy nie schodzi nigdy** — `Język projektu`, `Profil projektu`, `Rotacja
+  dokumentów`, `Budżet startu sesji`, `Przegląd spraw człowieka` — także gdy stoją w sekcji
+  wycofanych; `Budżet startu sesji` jest przypadkiem najostrzejszym, bo niesie próg uruchamiający
+  tę właśnie rotację. Sekcja „Ustawienia wycofane" **zostaje** jako sposób na czytelność.
+- Katalog progów: wiersz „komórka »Mitygacja«" przestał być **brak automatu** i dostał adres
+  (krok 2 rytuału zamknięcia); wiersz `docs/USTAWIENIA.md` dostał drugiego czytelnika i drugą
+  procedurę. Wierszy nadal **17**, z adresem **15**, bez automatu **1** (propozycja kompresji
+  lekcji), „nie dotyczy" **1** (cel rotacji).
+- `core/process/session-signals.js` — `dokumentyPonadProgiem` mierzy teraz także
+  `docs/USTAWIENIA.md` (próg cząstkowy przychodzi parametrem, tak jak dla sekcji ryzyk) i wybiera
+  **procedurę zgodną ze stanem pliku**: `rotacja ustawien do archiwum`, gdy sekcja „Ustawienia
+  wycofane" ma wiersze, `zwiezlosc komorki Decyzja`, gdy jej nie ma. Pozycja bez procedury nadal
+  nie wchodzi do listy.
+- Oba adaptery — krok 2 rytuału zamknięcia w `SKILL.md` i `relai-core.mdc` opisuje obie operacje
+  wraz z pięcioma nietykalnymi wierszami z nazwy. Limit „Zasad aktywnych" nietknięty.
+
+**Zweryfikowane — jak dokładnie:**
+- **Punkt 1 weryfikacji NIE PRZESZEDŁ i został zamieniony Aneksem C** (decyzja użytkownika
+  z tej sesji). Materiał wskazany w prompcie — sekcja ryzyk PolyFlow `9fcf433` — jest
+  arytmetycznie nie do zbicia poniżej 12 KB: **39 548 B, 62 ryzyka, 0 `ZAMKNIĘTYCH`, jedna
+  komórka ponad 800 znaków (912) i ta o statusie `OTWARTE`**; cała kolumna „Mitygacja" waży
+  22 032 B, więc jej wyzerowanie zostawia 17,5 KB. To jest przypadek już opisany
+  w `SPEC_ARCHIWUM.md` („sekcja gruba przez ryzyka żywe — decyzja człowieka"), teraz dopisany
+  tam z liczbami.
+- **Obie wersje w jednym przebiegu** na realnym materiale z kroniką: dziennik PolyFlow sprzed
+  migracji (`396e243^`). Sekcja ryzyk **57 136 → 49 137 B** (55,8 → 48,0 KB), **7 komórek
+  skompresowanych z 15 ponad 800 znaków**, największa `R40: 1881 → 163` znaki. **Wierszy przed
+  i po: 52 i 52**, zbiór numerów identyczny co do znaku — żadne ryzyko nie zniknęło z żywej
+  tabeli.
+- **Suma kontrolna:** `6c760e1b89d6d10b` policzona z fragmentu w żywym pliku i odczytana z pliku
+  archiwum **z dysku** — zgodne. Wariant kontrolny z celowo uszkodzoną treścią archiwum:
+  `6c760e1b89d6d10b` vs `a29ae5b08b3aa977`, **STOP**, żywy plik identyczny bajt w bajt,
+  0 zmienionych wierszy. To samo dla ustawień: `99623158984a8313` vs `57c356387b3dcd7c`, plik
+  nietknięty.
+- **Cytat, nie parafraza:** 7 z 7 zdań stanu odnalezionych **dosłownie** w treści archiwum
+  (`indexOf`, nie podobieństwo).
+- **Dowody negatywne:** komórka `ZMITYGOWANE` poniżej limitu (R1, 574 znaki) — brzmienie
+  pierwotne zachowane co do znaku; ryzyko `OTWARTE` z komórką **1866 znaków** (R43) — nietknięte.
+- **Wiersz czytany maszynowo nie schodzi:** plik ustawień PolyFlow z **pięcioma** wierszami
+  przeniesionymi do sekcji „Ustawienia wycofane" (brakujące dołożone wprost, żeby przypadek
+  **musiał** trafić) — po rotacji **wszystkie pięć nadal w pliku**, przeniesionych 16 z 21,
+  nietykalnych 5. `startCost` zwraca te same progi i przełączniki
+  (`start 80 · CLAUDE 10 · STATE 12 · ryzyka 12 · zasady 30 · ustawienia 6 · status 10`,
+  rotacja `true`), `sprawyPrzeterminowane` — `włączony, N=30, 28 pozycji, 0 przeterminowanych`.
+  Suma warstwy startowej spadła o 4 516 B i **to jedyna liczba, która się zmieniła**.
+- **Rotacja ustawień na realnym pliku:** PolyFlow **30 068 → 25 552 B**, 16 wierszy wycofanych
+  przeniesionych, 16 z 16 odnalezionych w archiwum dosłownie, linia-odsyłacz w żywym pliku,
+  sekcja „Ustawienia wycofane" nadal istnieje.
+- **Cisza poniżej progu:** to repozytorium — sekcja ryzyk **3 978 B / 12 288 B**, ustawienia
+  **3 106 B / 6 144 B**; obie procedury kończą się bez zmian w plikach, **katalog archiwum nie
+  powstaje**. Hook `session-context` uruchomiony na tym repozytorium: **0 linii** raportu; ten sam
+  hook na projekcie kontrolnym (dokumenty PolyFlow): **3 linie**, w tym po raz pierwszy
+  `docs/USTAWIENIA.md 29.4 KB (prog 6 KB) — rotacja ustawien do archiwum`. Wariant tego samego
+  pliku bez sekcji wycofanych: procedura zmienia się na `zwiezlosc komorki Decyzja`.
+- **Oba warianty końca linii w jednym przebiegu:** LF i CRLF — identyczna sekcja przed i po
+  (57 136 → 49 137 B), identyczna suma `6c760e1b89d6d10b`, koniec linii pliku zachowany w obu.
+- **Kotwica statusu zmierzona na jedenastu brzmieniach**, w tym pięciu, które **muszą** trafić,
+  i sześciu, które **nie mogą**: dopasowanie w całej komórce dawało **11 kandydatów**,
+  w brzmieniu — **7**; różnicę stanowiły ryzyka `ZAMKNIĘTE` z rdzeniem „zmitygowane" w prozie za
+  datą, które schodziłyby wtedy dwiema drogami naraz.
+- `node core/tools/validate-adapters.js` → **kod 0** („spojne", 3 źródła wersji, wartość 1.6.1).
+- `git grep` na limicie „Zasad aktywnych": dwa trafienia, po jednym w kroku 1 rytuału zamknięcia
+  każdego adaptera — **ani jednego** w `session-signals.js` ani w raporcie startu.
+- **Nie sprawdzono:** przebiegu obu procedur wykonanego **przez model w żywym rytuale zamknięcia**
+  — mechanizm zmierzony instrumentem w `%TEMP%/e5/`, na kopiach poza repozytorium. Wchodzi do E6
+  razem z sekwencją wydania.
+
+**Świadomie odłożone:**
+- **Wykonanie kompresji i rotacji na tym repozytorium** — obie pozycje są poniżej progu, więc nie
+  ma czego robić; mechanizm ma być gotowy, użycie należy do rytuału zamknięcia.
+- **Próg liczby wierszy tabeli ryzyk ani procedura dla ryzyk długo nieruszanych** — to był wariant
+  B pytania o Aneks C i został odrzucony: nowy mechanizm poza sekcją 6 planu.
+- **Wiek komórki jako warunek kompresji** — plan wymieniał „bez zmian od `N` dni", ale nie podał
+  wartości `N`, a rozstrzygnięcie przypadku brzegowego z sekcji 8 planu definiuje wyzwalacz bez
+  wieku. Wiek wymagałby przy tym dowodu spoza dokumentu (historia gita per komórka).
+- Podbicie wersji do 1.7.0, `/relai-update` obu projektów i pomiar pełnego startu — **E6**.
+
+**Do zrobienia przez człowieka:**
+- **Potwierdzić albo cofnąć osiem rozstrzygnięć z E2** — pozycja bez zmian, nadal otwarta.
+- Nic nowego z tego etapu; Aneks C rozstrzygnięty w tej sesji.

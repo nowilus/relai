@@ -1,8 +1,9 @@
-# SPEC — `docs/archiwum/dziennik/`, `docs/archiwum/lekcje/` i `docs/archiwum/ryzyka/`
+# SPEC — `docs/archiwum/dziennik/`, `docs/archiwum/lekcje/`, `docs/archiwum/ryzyka/` i `docs/archiwum/ustawienia/`
 
 Specyfikacja dla LLM (D-60). Nie kopiuj tego pliku. Pliki archiwum powstają **w języku projektu**
-(`docs/archiwum/journal/JOURNAL_<od>_<do>.md`, `docs/archiwum/lessons/LESSONS_<od>_<do>.md`
-i `docs/archiwum/risks/RISKS_<data>.md` w projekcie angielskim).
+(`docs/archiwum/journal/JOURNAL_<od>_<do>.md`, `docs/archiwum/lessons/LESSONS_<od>_<do>.md`,
+`docs/archiwum/risks/RISKS_<data>.md`, `docs/archiwum/risks/MITIGATIONS_<data>.md`
+i `docs/archiwum/settings/SETTINGS_<data>.md` w projekcie angielskim).
 
 ## Rola
 
@@ -63,11 +64,16 @@ Progi domyślne (`SZACUNEK` — skalibrowane 2026-08-12 na zmierzonych projektac
 | `docs/DZIENNIK.md` | **150 KB** | najstarsze wpisy → `docs/archiwum/dziennik/` |
 | `docs/LEKCJE.md` | **40 lekcji albo 50 KB** (co nastąpi wcześniej) | pełne wpisy najstarszych lekcji → `docs/archiwum/lekcje/` |
 | sekcja „Stan otwartych ryzyk" | **próg cząstkowy `ryzyka`** z wiersza `Budżet startu sesji` (domyślnie 12 KB) | wiersze ryzyk `ZAMKNIĘTE` → `docs/archiwum/ryzyka/` |
+| komórka „Mitygacja" ryzyka `ZMITYGOWANE` / `PRZYJĘTE ŚWIADOMIE` (od 1.7.0) | **800 znaków**, przy sekcji ryzyk ponad jej progiem | historia komórki → `docs/archiwum/ryzyka/MITYGACJE_<data>.md`; **wiersz zostaje** |
+| `docs/USTAWIENIA.md` (od 1.7.0) | **próg cząstkowy `ustawienia`** z wiersza `Budżet startu sesji` (domyślnie 6 KB) | wiersze sekcji „Ustawienia wycofane" → `docs/archiwum/ustawienia/` |
 | `docs/STATE.md` | **300 linii** | **nie jest archiwizowany** — patrz sekcja „STATE" |
 
 Wiersz ryzyk **nie dokłada trzeciego wejścia ani własnego komunikatu** (L-0049): rotacja ryzyk
 dzieje się w tych samych dwóch momentach co pozostałe, a próg cząstkowy mówi jedynie, **czy jest
-co brać** — patrz „Ryzyka" w sekcji „Wybór treści".
+co brać** — patrz „Ryzyka" w sekcji „Wybór treści". **To samo dotyczy dwóch wierszy dołożonych
+w 1.7.0** — kompresji komórek „Mitygacja" i rotacji ustawień: to nie są nowe wejścia rotacji ani
+nowe komunikaty, tylko kolejne rzeczy, które **te same dwa wejścia** robią po drodze. Jeden
+problem, jeden komunikat.
 
 **Od 1.7.0 te progi mają adres także na starcie sesji.** Hook mierzy te dokumenty i sekcje wprost
 i wypisuje linię `[RelAI progi dokumentow]` z nazwą procedury odchudzającej — dotąd raport startu
@@ -128,12 +134,14 @@ podaje dolną granicę i mówi wprost, że odchudzi go wyłącznie zwięzłość
 | wpisy dziennika | `docs/archiwum/dziennik/DZIENNIK_<data-od>_<data-do>.md` |
 | pełne lekcje | `docs/archiwum/lekcje/LEKCJE_<numer-od>_<numer-do>.md` |
 | wiersze ryzyk zamkniętych | `docs/archiwum/ryzyka/RYZYKA_<data-rotacji>.md` |
+| historia komórek „Mitygacja" | `docs/archiwum/ryzyka/MITYGACJE_<data-rotacji>.md` |
+| wycofane wiersze ustawień | `docs/archiwum/ustawienia/USTAWIENIA_<data-rotacji>.md` |
 
 `<data-od>`/`<data-do>` to daty pierwszego i ostatniego przeniesionego wpisu (`RRRR-MM-DD`).
 `<numer-od>`/`<numer-do>` to numery pierwszej i ostatniej przeniesionej lekcji (`L-0001`).
 Zakres w nazwie jest **domknięty obustronnie** i zawsze ciągły — patrz „Wybór treści".
 
-**Ryzyka mają w nazwie datę rotacji, nie zakres numerów** — i to jest różnica celowa. Kryterium
+**Trzy pliki z datą rotacji w nazwie, nie z zakresem** — ryzyka, mitygacje i ustawienia. Kryterium
 wyboru jest tu **status**, nie wiek, więc przeniesiony zbiór bywa nieciągły (`R1, R3, R4, R6`).
 Nazwa `RYZYKA_R1_R6.md` obiecywałaby wtedy ciągłość, której nie ma, a nazwa z datą nie obiecuje
 niczego poza tym, co jest prawdą: to jest to, co zeszło tego dnia. Numery przeniesionych ryzyk
@@ -146,10 +154,11 @@ bez otwierania pliku.
 
 1. **Nagłówek** — `# ARCHIWUM DZIENNIKA — <projekt> · <od> … <do>` (dla lekcji:
    `# ARCHIWUM LEKCJI — <projekt> · <od> … <do>`; dla ryzyk: `# ARCHIWUM RYZYK — <projekt> ·
-   <data rotacji>`).
+   <data rotacji>`; dla historii komórek: `# ARCHIWUM MITYGACJI — <projekt> · <data rotacji>`;
+   dla ustawień: `# ARCHIWUM USTAWIEŃ — <projekt> · <data rotacji>`).
 2. **Linia metryczna** — data rotacji, plik źródłowy, liczba przeniesionych pozycji, suma
-   kontrolna przeniesionej treści. W archiwum ryzyk dochodzi **wyliczenie numerów** przeniesionych
-   ryzyk — to ono zastępuje zakres, którego nie ma w nazwie pliku.
+   kontrolna przeniesionej treści. W archiwum ryzyk i mitygacji dochodzi **wyliczenie numerów**
+   przeniesionych ryzyk — to ono zastępuje zakres, którego nie ma w nazwie pliku.
 3. **Jedno zdanie o naturze pliku** — że treść niżej jest kopią bajt w bajt i nic nie zostało
    streszczone.
 4. **Separator `---`**, a pod nim **przeniesiona treść bez żadnej zmiany** — łącznie z nagłówkami
@@ -326,6 +335,77 @@ pozostają dwa wejścia rotacji opisane wyżej, a rotacja ryzyk nie dokłada ani
 **Ile zabrać:** wszystkie zamknięte, jednym przebiegiem. Reguła „poniżej 60% progu" **nie
 obowiązuje** — zbiór jest wyznaczony statusem, a nie objętością, więc nie ma czego dozować.
 
+### Historia komórek „Mitygacja" (od 1.7.0)
+
+**Co schodzi:** treść komórek „Mitygacja" tych ryzyk, które spełniają **wszystkie trzy** warunki
+opisane w `SPEC_DZIENNIK.md` (sekcja ryzyk ponad progiem, komórka ponad 800 znaków, status
+z zamkniętej listy `ZMITYGOWANE` / `PRZYJĘTE ŚWIADOMIE`). Do archiwum idzie **cała dzisiejsza
+treść komórki**, bajt w bajt — także zdanie, które zostanie zacytowane w żywej tabeli.
+
+**Co jest nietykalne:** **wiersz**. Ryzyko nie rusza się z tabeli, nie zmienia numeru, statusu ani
+poziomu; zmienia się wyłącznie zawartość jednej komórki. To jest różnica wobec rotacji ryzyk
+`ZAMKNIĘTE`, gdzie schodzi cały wiersz. Nietykalne są też komórki ryzyk `OTWARTE` — powodu
+otwartego statusu nie skraca automat.
+
+**Plik archiwum jest tabelą dwukolumnową**, po jednym wierszu na ryzyko, w kolejności z żywego
+pliku:
+
+```markdown
+| # | Mitygacja — treść sprzed kompresji |
+|---|---|
+| R12 | <treść komórki bajt w bajt> |
+```
+
+Kolumna `#` niesie numer ryzyka, więc odsyłacz z żywej komórki prowadzi do **pliku**, nie do
+kotwicy. „Fragment", z którego liczysz sumę kontrolną, to **te wiersze danych**, sklejone
+w tej samej kolejności, po jednym na linię — identycznie po obu stronach porównania.
+
+**Ile zabrać:** wszystkie komórki spełniające trzy warunki, jednym przebiegiem. Reguła „poniżej
+60% progu" tu **nie obowiązuje**: zbiór wyznacza limit komórki, nie objętość sekcji. Sekcja bywa
+po tym nadal ponad progiem — i to jest przypadek opisany w „Przypadkach brzegowych", nie porażka.
+
+**Zamiast linii-odsyłacza pod tabelą** ślad zostaje **w każdej skompresowanej komórce** (człon
+drugi: `Historia: [MITYGACJE_…](…)`). Drugiej linii pod tabelą nie dokładasz — tabela odchudzona
+z pięciu komórek zyskałaby wtedy linię, której nikt nie czyta, a każda komórka i tak wskazuje
+swoją historię.
+
+### Wycofane wiersze ustawień (od 1.7.0)
+
+**Co schodzi:** wiersze tabeli z sekcji **„Ustawienia wycofane"** pliku `docs/USTAWIENIA.md` —
+wszystkie naraz, bez względu na datę. Wiersz wycofany przestał obowiązywać; trzyma go w pliku
+wyłącznie D-18, a archiwum spełnia D-18 lepiej niż wiersz czytany przy każdym starcie sesji.
+
+**Co jest nietykalne:**
+
+- **każdy wiersz żywej tabeli** — niesie decyzję obowiązującą dziś, więc nie jest historią,
+- **pięć wierszy wypisanych z nazwy: `Język projektu`, `Profil projektu`, `Rotacja dokumentów`,
+  `Budżet startu sesji` i `Przegląd spraw człowieka`** — nie schodzą **nigdy**, także gdy stoją
+  w sekcji „Ustawienia wycofane" i niezależnie od wieku. Ich nieobecność wycisza mechanizmy, które
+  je czytają, a wyciszenie w ciszy jest najgorszym z możliwych skutków (L-0025),
+- **nagłówek sekcji i wiersz nagłówkowy tabeli** — sekcja nie znika, także gdy po rotacji zostaje
+  pusta,
+- **linia markera `Wersja RelAI:`** — nie jest wierszem tabeli i nie podlega niczemu z tej sekcji.
+
+**Kiedy w ogóle bierzesz się za ustawienia:** gdy plik przekracza swój **próg cząstkowy**
+(`ustawienia` z wiersza `Budżet startu sesji`, domyślnie 6 KB) **i** w sekcji „Ustawienia
+wycofane" stoi choć jeden wiersz, który wolno przenieść. Poniżej progu nie rotujesz ustawień,
+nawet gdy dziennik właśnie rotował.
+
+**Ile zabrać:** wszystkie przenoszalne, jednym przebiegiem. Reguła „poniżej 60% progu" nie
+obowiązuje — zbiór wyznacza przynależność do sekcji, nie objętość.
+
+**Linia-odsyłacz** staje **pod tabelą sekcji „Ustawienia wycofane"**, jedna na rotację:
+
+```markdown
+> Wycofane ustawienia (7 wierszy) są w
+> [docs/archiwum/ustawienia/USTAWIENIA_2026-09-01.md](archiwum/ustawienia/USTAWIENIA_2026-09-01.md)
+> — przeniesione 2026-09-01, suma kontrolna `a1b2c3d4e5f60718`.
+```
+
+**Sekcja „Ustawienia wycofane" zostaje** — jako sposób na czytelność, nie jako sposób na ciężar.
+Rozdzielenie „co obowiązuje" od „co obowiązywało" jest wartością samo w sobie; ciężar zdejmuje
+odtąd archiwum.
+
 ## Przebieg — dwie fazy, w tej kolejności
 
 **Faza 1 — kopia i dowód:**
@@ -358,6 +438,14 @@ zbiór wybranych wierszy tabeli, sklejony w kolejności, w jakiej stoją w żywy
 wierszu na linię. Ta sama kolejność obowiązuje po stronie archiwum, inaczej porównanie sum nic nie
 dowodzi. Rotacja dziennika i rotacja ryzyk w jednej sesji to **dwa niezależne przebiegi** z dwiema
 sumami kontrolnymi — nie mieszasz ich treści w jednym pliku archiwum.
+
+**Kompresja komórek „Mitygacja" i rotacja ustawień też** — obie idą tymi samymi dwiema fazami
+i **każda ma własny przebieg i własną sumę kontrolną**. Różnią się wyłącznie tym, co znaczy
+„fragment" (treści komórek / wiersze sekcji „Ustawienia wycofane") i czym jest krok 6 fazy 2:
+przy kompresji to **podmiana zawartości komórek** na dwa człony z `SPEC_DZIENNIK.md`, a nie
+usunięcie wierszy. Krok 7 (przepięcie linków) dotyczy **wyłącznie** rotacji dziennika. Cztery
+przebiegi w jednej sesji dają cztery pliki archiwum i cztery sumy — nigdy jednego pliku
+zbiorczego.
 
 ## Komunikat zablokowanej rotacji (od 1.7.0)
 
@@ -462,14 +550,28 @@ a nie porządkowaniem.
 | Wszystkie ryzyka zamknięte — tabela po rotacji byłaby pusta | Rotujesz normalnie. Zostaje nagłówek sekcji, wiersz nagłówkowy tabeli i linia-odsyłacz pod nią; pustej sekcji nie kasujesz i nie zastępujesz zdaniem „brak ryzyk" |
 | Ryzyko zamknięte, do którego prowadzi link z otwartej pozycji „Czeka na człowieka" | Schodzi do archiwum jak każde inne. Blokada z sekcji „Czeka na człowieka" dotyczy **wpisów**, nie wierszy tabeli — sprawa człowieka nie znika, bo jej własna pozycja zostaje w żywym pliku |
 | Ryzyko zamknięte i **ponownie otwarte** (status wrócił do `OTWARTE`) | Zostaje w żywej tabeli; kryterium czyta się ze stanu na dziś, nie z historii statusów. Jeśli zdążyło już zejść do archiwum, wraca jako **nowy numer** z odsyłaczem do archiwum w komórce „Mitygacja" — numeru nie odzyskujesz |
+| Sekcja ryzyk ponad progiem, ryzyk `ZAMKNIĘTE` nie ma, a komórki mieszczą się w 800 znakach | Nie rotujesz i nie kompresujesz — **nie ma czego wziąć**. Sekcja jest gruba liczbą **otwartych** ryzyk, a te zostają co do jednego. Komunikat ma ten sam kształt co przy dzienniku i mówi wprost, że sekcję odchudzi wyłącznie zamknięcie ryzyk albo podniesienie progu — obie rzeczy są decyzją człowieka. Zmierzone na dzienniku PolyFlow `FAKT` (2026-09-01, `9fcf433`): sekcja **38,6 KB przy progu 12 KB**, **62 ryzyka, 0 zamkniętych**, jedna komórka ponad 800 znaków (912) i ta o statusie `OTWARTE`. Wyzerowanie **całej** kolumny „Mitygacja" (22,0 KB) zostawia 17,5 KB — próg jest tu nieosiągalny mechanizmem, nie przeoczeniem |
+| Komórka po kompresji nadal ma ponad 800 znaków | **STOP przed podmianą**, żywa tabela nietknięta. Znaczy to, że samo zdanie stanu jest akapitem — cytatu nie skracasz (`SPEC_DZIENNIK.md`), tylko pytasz człowieka |
+| Ryzyko kwalifikujące się do kompresji, którego komórka **nie ma** członu `Zmierzone:` | Cytujesz ostatnie zdanie całej komórki. Członu `Zmierzone:` nie dopisujesz od siebie — brak odsyłaczy jest informacją o tym, że pomiaru nie zapisano |
+| To samo ryzyko kwalifikuje się do kompresji **drugi raz** (komórka znowu urosła) | Kompresujesz normalnie. Do archiwum idzie **dzisiejsza** treść w całości, łącznie z odsyłaczem do poprzedniego pliku archiwum — łańcuch odsyłaczy jest poprawnym stanem, a nie usterką |
+| Ryzyko skompresowane, które później **zamknięto** | Wiersz schodzi rotacją ryzyk jak każdy inny — z komórką w postaci po kompresji. Historii z `MITYGACJE_…` nie sklejasz z powrotem i nie przenosisz drugi raz |
+| `docs/USTAWIENIA.md` ponad progiem, ale sekcji „Ustawienia wycofane" nie ma albo jest pusta | Nie rotujesz ustawień. Plik jest gruby wierszami **obowiązującymi**, a te zostają; odchudza go zwięzłość wierszy (`SPEC_USTAWIENIA.md`, „Wiersz to jedna decyzja"), nie archiwum |
+| W sekcji „Ustawienia wycofane" stoi wiersz czytany maszynowo | **Zostaje.** Pięć wierszy wypisanych z nazwy nie schodzi nigdy; przenosisz resztę, a gdy reszty nie ma — nie rotujesz wcale i nie mówisz nic |
 | Projekt bez `docs/archiwum/` | Katalog powstaje w fazie 1, razem z pierwszym plikiem — nie na zapas (D-11) |
 
 ## Zakazy
 
 - Nie streszczasz, nie skracasz i nie poprawiasz przenoszonej treści — kopia jest bajt w bajt.
   Dotyczy też wiersza ryzyka: do archiwum idzie **dzisiejsza** treść komórki „Mitygacja", nawet gdy
-  wydaje się za długa. Skracanie jest osobną operacją i robi się je **przed** rotacją, w żywym
-  pliku (`SPEC_DZIENNIK.md`), nigdy po drodze do archiwum.
+  wydaje się za długa. Skracanie jest osobną operacją — kompresją komórki opisaną wyżej
+  i w `SPEC_DZIENNIK.md` — i ma **własny** przebieg z własną sumą; nigdy nie dzieje się po drodze
+  do archiwum ani przy okazji rotacji wiersza.
+- Nie zastępujesz cytatu ostatniego zdania streszczeniem napisanym od siebie i nie skracasz samego
+  cytatu — komórka mówiłaby wtedy coś, czego w archiwum nie ma.
+- Nie kompresujesz komórki ryzyka `OTWARTE` i nie przenosisz do archiwum ustawień żadnego z pięciu
+  wierszy wypisanych z nazwy — także wtedy, gdy stoją w sekcji „Ustawienia wycofane".
+- Nie usuwasz sekcji „Ustawienia wycofane" po jej opróżnieniu i nie zastępujesz jej zdaniem
+  „brak wycofanych".
 - Nie kasujesz niczego przed weryfikacją sum kontrolnych (faza 2 nie rusza bez fazy 1).
 - Nie archiwizujesz sekcji „Czeka na człowieka" ani „Zasady aktywne"; z sekcji „Stan otwartych
   ryzyk" schodzą **wyłącznie wiersze ryzyk `ZAMKNIĘTE`** — nigdy nagłówek, nigdy cała sekcja,
@@ -620,3 +722,69 @@ zostają zawsze, także gdyby tabela była pusta:
 
 W przykładzie widać obie reguły naraz: `ZMITYGOWANE` **nie** jest zamknięciem, więc R3 zostaje,
 a numery R2, R4 i R5 są dalej widoczne w żywym pliku — nikt ich nie odzyska w dobrej wierze.
+
+## Przykład — plik archiwum mitygacji
+
+```markdown
+# ARCHIWUM MITYGACJI — Parkly · 2026-08-21
+
+Zarchiwizowano: 2026-08-21 · Źródło: `docs/DZIENNIK.md`, komórki „Mitygacja" · Komórek: 1 (R3) ·
+Suma kontrolna przeniesionej treści: `5e21a0b74c9d3f16` (SHA-256, pierwsze 16 znaków, końce
+linii LF)
+
+Treść poniżej jest kopią **bajt w bajt** komórek sprzed kompresji — nic nie zostało streszczone
+ani zmienione (D-18). Ryzyka zostały w żywej tabeli: zmieniła się wyłącznie zawartość ich komórki
+„Mitygacja".
+
+---
+
+| # | Mitygacja — treść sprzed kompresji |
+|---|---|
+| R3 | **2026-08-07 (E4):** blokada unikalności założona na poziomie bazy. **2026-08-11 (E6):** test współbieżności 200 zgłoszeń — zero zgubionych. **2026-08-19 (E8):** powtórka testu po zmianie puli połączeń, zero zgubionych. Zachowania przy ponad 1000 osób w kolejce nikt nie mierzył. Zmierzone: 2026-08-07 (E4), 2026-08-11 (E6), 2026-08-19 (E8) |
+```
+
+Żywy wiersz R3 po tej kompresji — wiersz **stoi tam, gdzie stał**, ze swoim numerem, poziomem
+i statusem:
+
+```markdown
+| R3 | Kolejka oczekujących gubi zgłoszenia przy równoległym zwolnieniu | średni | ZMITYGOWANE 2026-08-07 | Zachowania przy ponad 1000 osób w kolejce nikt nie mierzył. Historia: [MITYGACJE_2026-08-21](archiwum/ryzyka/MITYGACJE_2026-08-21.md). Zmierzone: 2026-08-07 (E4), 2026-08-11 (E6), 2026-08-19 (E8) |
+```
+
+Zdanie w żywej komórce jest **dosłownie** ostatnim zdaniem członu pierwszego treści z archiwum —
+nie streszczeniem trzech pomiarów. Człon `Zmierzone:` przeszedł bez zmiany, a komórka zeszła
+z 546 do 233 znaków.
+
+## Przykład — plik archiwum ustawień
+
+```markdown
+# ARCHIWUM USTAWIEŃ — Parkly · 2026-08-21
+
+Zarchiwizowano: 2026-08-21 · Źródło: `docs/USTAWIENIA.md`, sekcja „Ustawienia wycofane" ·
+Wierszy: 2 · Suma kontrolna przeniesionej treści: `9b04ce7712af3d68` (SHA-256, pierwsze 16 znaków,
+końce linii LF)
+
+Treść poniżej jest kopią **bajt w bajt** wierszy usuniętych z sekcji „Ustawienia wycofane" — nic
+nie zostało streszczone ani zmienione (D-18).
+
+---
+
+| Data | Czego dotyczy | Decyzja | Zastąpione |
+|---|---|---|---|
+| 2026-08-07 | Format planów | Markdown dla wszystkiego | zastąpione 2026-08-14 (HTML dla planów głównych), powód: odbiorcą planu jest właściciel produktu |
+| 2026-08-09 | Lokalizacja backupów | `C:\Backup` | zastąpione 2026-08-20 (`D:\Backupy\Projekty`), powód: dysk C bez miejsca |
+```
+
+Żywa sekcja `docs/USTAWIENIA.md` po tej rotacji — nagłówek i wiersz nagłówkowy zostają, a wiersz
+`Profil projektu` **nie zszedł**, mimo że został wycofany:
+
+```markdown
+## Ustawienia wycofane
+
+| Data | Czego dotyczy | Decyzja | Zastąpione |
+|---|---|---|---|
+| 2026-08-07 | Profil projektu | app | zastąpione 2026-08-18 (`app (Next.js + PostgreSQL)`), powód: doprecyzowanie stosu |
+
+> Wycofane ustawienia (2 wiersze) są w
+> [docs/archiwum/ustawienia/USTAWIENIA_2026-08-21.md](archiwum/ustawienia/USTAWIENIA_2026-08-21.md)
+> — przeniesione 2026-08-21, suma kontrolna `9b04ce7712af3d68`.
+```

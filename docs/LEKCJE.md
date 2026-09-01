@@ -19,8 +19,11 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
    cudzym strumieniu. Zmianę zachowania pokazujesz **obiema wersjami w jednym przebiegu**,
    a instrument porównawczy implementuje wiernie każdą z nich. **Kryterium stawiasz na poprawności
    wyniku, nie na kierunku liczby, której nie kontrolujesz** — „wartość maleje" wolno napisać
-   wyłącznie wtedy, gdy zmiana z definicji ją zmniejsza. (L-0017, L-0018, L-0040, L-0051, L-0052,
-   L-0063)
+   wyłącznie wtedy, gdy zmiana z definicji ją zmniejsza. **Kryterium sukcesu sprawdzasz na
+   materiale, zanim zaczniesz pracę** — policz na wskazanym pliku liczbę, którą ma osiągnąć,
+   i porównaj ją z tym, co mechanizm w ogóle kontroluje; kryterium arytmetycznie nieosiągalne
+   wraca do człowieka jako aneks, a nie kończy etap jako niedowieziony punkt. (L-0017, L-0018,
+   L-0040, L-0051, L-0052, L-0063, L-0069)
 5. **Instrument pomiarowy sam bywa źródłem fałszu:** wyrażenia regularne trzymaj w pliku, nie
    w `node -e`; scenariusz „konfiguracji nie ma" mierz z podstawionym katalogiem domowym; dokładaj
    przypadek, który **musi** trafić. Zero trafień przy niepustych zbiorach to defekt instrumentu,
@@ -32,8 +35,10 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
    wcześniej nie wróci później. **Filtr odsiewający „to nie jest przypadek do sprawdzenia" ma
    wyjątek dla linii mówiącej wprost o rzeczy sprawdzanej**, a każdy przypadek graniczny ma własną
    kontrolę na wyjściu — jedna kontrola przechodzi zielono, gdy zniknął przypadek, którego nie
-   sprawdza. Wyczerpany limit konta zatrzymuje pomiar i idzie do odnogi, nie do
-   adnotacji „sprawdzone inaczej". (L-0032, L-0037, L-0054, L-0055, L-0056, L-0064, L-0068)
+   sprawdza. **Wzorzec identyfikatora pozycji ma obok siebie kontrolę „ile wierszy odrzucono"** —
+   realny rejestr trzyma numery, których wzorzec nie przewidział, a odrzucenie jest ciche.
+   Wyczerpany limit konta zatrzymuje pomiar i idzie do odnogi, nie do adnotacji „sprawdzone
+   inaczej". (L-0032, L-0037, L-0054, L-0055, L-0056, L-0064, L-0068, L-0071)
 6. **Próg jest liczbą, którą ktoś liczy:** kalibruj go na zmierzonych plikach realnych projektów,
    zapisuj w jednostce mechanizmu kontrolnego wraz z komendą sprawdzającą i daj mu **jeden**
    wyzwalacz — wielkości pomocnicze wskazują przyczynę wewnątrz komunikatu, nie wywołują go.
@@ -47,8 +52,10 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
    komórki, wybór linii po niesionej wartości (nie po kolejności), wartość nierozpoznana znaczy
    cisza. **Rdzeń słowa w języku z diakrytykami łapiesz klasą znaków tego języka, nie `\w`** —
    `\w` bez flagi `u` to `[A-Za-z0-9_]`, więc wzorzec przechodzi na formach bez ogonków i odpada
-   na realnym dokumencie; wynik zawyżony jest tak samo podejrzany jak zerowy. (L-0025, L-0035,
-   L-0048, L-0066)
+   na realnym dokumencie; wynik zawyżony jest tak samo podejrzany jak zerowy. **Rdzenia szukasz
+   w samym brzmieniu wartości, nie w całej komórce** — za datą stoi proza z tymi samymi słowami,
+   więc dopasowanie „gdziekolwiek" wciąga pozycje, które należą do innego mechanizmu. (L-0025,
+   L-0035, L-0048, L-0066, L-0070)
 8. **Zachowanie, które ma działać zawsze, mieszka w warstwie obecnej w każdej sesji** —
    `CLAUDE.md` projektu albo hook; skill dokłada procedurę i wyzwala się zawodnie, a komenda
    wywołana wprost go nie ładuje. Sygnał, który ma paść raz, ma jednego właściciela; cisza
@@ -312,6 +319,53 @@ restart aplikacji po `plugin update` (L-0031), `git worktree` zamiast `git archi
   Jedna kontrola nie wystarcza: przechodzi zielono, gdy zniknął przypadek, którego nie sprawdza.
 - **Źródło:** E4 planu HIGIENA_DOKUMENTOW (2026-09-01); rozwinięcie zasady aktywnej 5 (L-0032,
   L-0037, L-0055).
+
+### L-0069 — Kryterium sukcesu etapu było nieosiągalne arytmetycznie, a materiał mówił to od razu · 2026-09-01 · AKTYWNA
+
+- **Trigger:** E5 miał dowieźć zdanie „sekcja ryzyk PolyFlow (38,6 KB przy progu 12 KB) po
+  kompresji schodzi poniżej 12 KB, a wszystkie ryzyka nadal są widoczne". Pomiar materiału zajął
+  pięć minut i pokazał, że tych dwóch rzeczy nie da się mieć naraz: 62 ryzyka, **zero
+  `ZAMKNIĘTYCH`**, jedna komórka ponad 800 znaków, a cała kolumna „Mitygacja" waży 22,0 KB —
+  wyzerowanie jej w całości zostawia 17,5 KB.
+- **Przyczyna:** plan założył, że sekcja jest gruba **kroniką w komórkach**, bo taka była w tym
+  repozytorium, gdzie mechanizm powstawał. W cudzym projekcie była gruba **liczbą otwartych
+  ryzyk** — wielkością, której żaden mechanizm z zakresu etapu nie kontroluje.
+- **Zasada:** liczbę wpisaną w kryterium sukcesu policz na wskazanym materiale **przed** pierwszą
+  zmianą w repozytorium i porównaj z tym, co mechanizm w ogóle rusza. Rozbieżność idzie do
+  człowieka jako **datowany aneks**, a nie kończy etap jako punkt niedowieziony ani — gorzej —
+  jako kryterium naciągnięte do wyniku.
+- **Źródło:** E5 planu HIGIENA_DOKUMENTOW (2026-09-01), Aneks C; rozwinięcie zasady aktywnej 4
+  (L-0051, L-0063).
+
+### L-0070 — Rdzeń szukany w całej komórce złapał prozę stojącą za datą · 2026-09-01 · AKTYWNA
+
+- **Trigger:** kwalifikacja ryzyka do kompresji komórki czytała status rdzeniami `zmitygowan`
+  i `przyj`+`świadom`. Na dzienniku PolyFlow sprzed migracji dawało to **11 kandydatów**. Cztery
+  z nich miały status `**ZAMKNIĘTE 2026-08-18 (E4 + dowód na żywym…)** — zmitygowane w kodzie`:
+  rdzeń stał w **opisie za datą**, nie w brzmieniu statusu.
+- **Przyczyna:** wiersz `ZAMKNIĘTE` schodzi do archiwum **w całości**, własną rotacją. Złapany
+  drugim mechanizmem schodziłby dwiema drogami naraz — raz jako wiersz, raz jako treść komórki.
+- **Zasada:** rdzenia szukaj w **brzmieniu wartości**, czyli od początku komórki do pierwszej
+  cyfry, myślnika albo nawiasu — nie „gdziekolwiek w komórce". Po zmianie kandydatów było **7**,
+  a różnicę stanowiły dokładnie te cztery wiersze. Kontrolę stawiaj na obu stronach: brzmienia,
+  które **muszą** trafić, i brzmienia, które **nie mogą** (zmierzone na jedenastu naraz).
+- **Źródło:** E5 planu HIGIENA_DOKUMENTOW (2026-09-01); rozwinięcie zasady aktywnej 7 (L-0025,
+  L-0035, L-0066).
+
+### L-0071 — Wzorzec numeru ryzyka odrzucił `R17a` i nie powiedział o tym ani słowa · 2026-09-01 · AKTYWNA
+
+- **Trigger:** instrument liczył wiersze tabeli ryzyk wzorcem „litera + cyfry". Pierwszy przebieg
+  zameldował **51 wierszy przed i 51 po** — liczby równe, punkt weryfikacji zielony. Kontrola
+  „ile linii tabeli odrzucono" pokazała trzy: nagłówek, separator i **`R17a`**, czyli realne
+  ryzyko z sufiksem literowym.
+- **Przyczyna:** numeracja ryzyk w realnym projekcie bywa rozgałęziona (`R17`, `R17a`), a wzorzec
+  powstał z numeracji tego repozytorium, gdzie takiego przypadku nie ma. Odrzucenie było ciche,
+  bo instrument liczył tylko to, co dopasował.
+- **Zasada:** wzorzec identyfikatora pozycji ma **obok siebie kontrolę „ile wierszy odrzucono"**,
+  wypisywaną z treścią odrzuconych. Bez niej „przed = po" znaczy tyle, że instrument konsekwentnie
+  nie widzi tego samego dwa razy.
+- **Źródło:** E5 planu HIGIENA_DOKUMENTOW (2026-09-01); rozwinięcie zasady aktywnej 5 (L-0056,
+  L-0067).
 
 ## Lekcje zwinięte
 

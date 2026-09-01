@@ -376,6 +376,11 @@ const NAGLOWEK_CZEKA = [/^czeka na cz[łl]owieka\b/i, /^waiting on a human\b/i];
 // nie trafila w to samo wyrazenie. Sekcja "Lekcje zwiniete" ma wlasny prog (SPEC_LEKCJE.md).
 const NAGLOWEK_LEKCJI = [/^lekcje$/i, /^lessons$/i];
 const NAGLOWEK_ZWINIETE = [/^lekcje zwini[ęe]te\b/i, /^folded lessons\b/i];
+// Sekcja "Ustawienia wycofane" (SPEC_USTAWIENIA.md). Jej obecnosc rozstrzyga, KTORA procedura
+// odchudza plik ustawien: rotacja do archiwum bierze wylacznie wiersze wycofane, a plik gruby
+// samymi wierszami obowiazujacymi odchudza zwiezlosc komorki "Decyzja". Pozycja bez procedury
+// nie wchodzi do raportu, wiec procedura musi byc ta, ktora naprawde zadziala.
+const NAGLOWEK_WYCOFANE = [/^ustawienia wycofane\b/i, /^withdrawn settings\b/i];
 // Naglowek pojedynczej lekcji: "### L-0007 — tytul". Bez kotwicy konca linii (CRLF, L-0033).
 const NAGLOWEK_LEKCJI_POZYCJA = /^###\s+L-\d+/gm;
 
@@ -531,7 +536,7 @@ function progiRotacjiZKomorki(komorka) {
 // do listy, bo raport bez procedury tylko marudzi (ryzyko 3 planu HIGIENA_DOKUMENTOW).
 // Wyzwalaczem tej czesci jest wylacznik ROTACJI, nie budzetu — to dwa niezalezne wylaczniki
 // (SPEC_USTAWIENIA.md). Rotacja wylaczona albo wartosc nierozpoznana → pusta lista i cisza.
-function dokumentyPonadProgiem(cwd, txtUstawien, progRyzyk) {
+function dokumentyPonadProgiem(cwd, txtUstawien, progRyzyk, progUstawien) {
   const out = [];
   // Waga porownywana z progiem rotacji liczy sie po normalizacji CRLF -> LF (L-0033),
   // tak jak sumy kontrolne rotacji — inaczej ten sam plik wazylby wiecej na Windowsie.
@@ -588,6 +593,23 @@ function dokumentyPonadProgiem(cwd, txtUstawien, progRyzyk) {
       dodaj(path.relative(cwd, state).split(path.sep).join('/'), linii, progi.STATE, 'linii',
         'skrocenie STATE.md');
     }
+
+    // Plik ustawien (1.7.0, E5): prog CZASTKOWY budzetu, tak jak sekcja ryzyk. Dwa wylaczniki
+    // zostaja niezalezne — wyzwalaczem tej listy jest rotacja, a wartosc progu mieszka w wierszu
+    // budzetu i przychodzi tu parametrem.
+    const ustawienia = pierwszyIstniejacy(docsDir, ['USTAWIENIA.md', 'SETTINGS.md']);
+    if (ustawienia && typeof progUstawien === 'number') {
+      const txt = czytaj(ustawienia);
+      const wycofane = wytnijSekcje(txt, NAGLOWEK_WYCOFANE);
+      // Rotacja ustawien bierze WYLACZNIE wiersze sekcji "Ustawienia wycofane". Brak sekcji albo
+      // sekcja bez wierszy tabeli znaczy, ze plik jest gruby wierszami obowiazujacymi — te
+      // odchudza zwiezlosc komorki "Decyzja", nie archiwum (SPEC_USTAWIENIA.md).
+      const maWiersze = wycofane !== null
+        && wycofane.split('\n').filter((l) => l.trim().startsWith('|')).length > 2;
+      dodaj(path.relative(cwd, ustawienia).split(path.sep).join('/'),
+        bajtyLF(txt), progUstawien, 'KB',
+        maWiersze ? 'rotacja ustawien do archiwum' : 'zwiezlosc komorki Decyzja');
+    }
   } catch (_) {
     return out;
   }
@@ -620,14 +642,16 @@ function startCost(cwd, opcje) {
     // wycisza pomiar warstwy startowej, ale nie wycisza progow dokumentow. Prog czastkowy
     // ryzyk bierzemy wtedy z wartosci domyslnej — wiersza budzetu nie ma czego czytac.
     if (!komorka || WYLACZONY.test(komorka)) {
-      const same = dokumentyPonadProgiem(cwd, txtUstawien, PROGI_DOMYSLNE.ryzyka * KB);
+      const same = dokumentyPonadProgiem(cwd, txtUstawien,
+        PROGI_DOMYSLNE.ryzyka * KB, PROGI_DOMYSLNE.ustawienia * KB);
       return same.length ? { tylkoDokumenty: true, dokumenty: same } : null;
     }
     if (!WLACZONY.test(komorka)) {
       return {
         nierozpoznany: true,
         wartosc: komorka.split('·')[0].trim().slice(0, 60),
-        dokumenty: dokumentyPonadProgiem(cwd, txtUstawien, PROGI_DOMYSLNE.ryzyka * KB),
+        dokumenty: dokumentyPonadProgiem(cwd, txtUstawien,
+          PROGI_DOMYSLNE.ryzyka * KB, PROGI_DOMYSLNE.ustawienia * KB),
       };
     }
 
@@ -695,7 +719,7 @@ function startCost(cwd, opcje) {
       pozycje,
       suma,
       przekroczonaSuma: suma > budzet,
-      dokumenty: dokumentyPonadProgiem(cwd, txtUstawien, progi.ryzyka * KB),
+      dokumenty: dokumentyPonadProgiem(cwd, txtUstawien, progi.ryzyka * KB, progi.ustawienia * KB),
       ponadProgiem: pozycje.filter((p) => p.bajty > p.prog).map((p) => p.id),
       bezSekcji: pozycje.filter((p) => p.sposob === 'plik-bez-sekcji').map((p) => p.id),
     };

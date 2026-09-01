@@ -192,6 +192,91 @@ skąd przyszła, a w komórce zostaje odsyłacz. Kolejność jest jedna i nieneg
 `OTWARTE` musi po skróceniu nadal odpowiadać na pytanie „dlaczego jeszcze nie zamknięte" — to jest
 jedyna informacja, której nikt nie odtworzy z wpisów bez ich przeczytania.
 
+## Kompresja komórki „Mitygacja" (od 1.7.0)
+
+Sekcja wyżej mówi, **jak komórka ma wyglądać**, i daje komendę, która liczy znaki. Do 1.6.1 na tym
+się kończyło: limit 800 znaków miał sprawdzenie i nie miał **żadnego mechanizmu**, więc komórka
+raz zapuszczona rosła dalej. Ta sekcja jest jego adresem egzekwowania — historia z komórki schodzi
+do `docs/archiwum/ryzyka/`, a ryzyko **zostaje otwarte i widoczne przy każdym starcie**. To nie
+jest rotacja wiersza: wiersz nie rusza się z tabeli.
+
+**Kiedy rusza — trzy warunki naraz:**
+
+1. sekcja „Stan otwartych ryzyk" przekracza swój **próg cząstkowy** (`ryzyka` z wiersza
+   `Budżet startu sesji`, domyślnie 12 KB),
+2. komórka „Mitygacja" przekracza **800 znaków** (komenda z sekcji wyżej),
+3. status ryzyka stoi na **zamkniętej liście** niżej.
+
+Warunki są koniunkcją i żaden z nich sam nie wystarcza. **Wiek komórki warunkiem nie jest**:
+kosztuje objętość czytana przy każdym starcie, a nie data ostatniej zmiany — komórka
+nietknięta od pół roku i mieszcząca się w limicie nie kosztuje nic. Wiek wymagałby przy tym
+dowodu spoza dokumentu (historia gita per komórka), a mechanizm rdzenia czyta dokument.
+
+**Zamknięta lista statusów** (L-0025) — dopasowanie po rdzeniu, forma gramatyczna dowolna:
+
+| Rdzeń | Przykłady wystąpień |
+|---|---|
+| `zmitygowan` | `ZMITYGOWANE 2026-08-13 (E2)`, `ZMITYGOWANE W KODZIE 2026-09-01` |
+| `przyj` **albo** `zaakceptowan`, **razem z** `świadom` | `PRZYJĘTE ŚWIADOMIE`, `ŚWIADOMIE PRZYJĘTE`, `ŚWIADOMIE ZAAKCEPTOWANE` |
+
+**Rdzenia szukasz w samym brzmieniu statusu, nie w całej komórce** — kotwica na jej **początku**
+(L-0025). Brzmienie to wszystko od pierwszego znaku komórki (po zdjęciu `*`) **do pierwszej cyfry,
+myślnika albo nawiasu**: w `**ZMITYGOWANE W KODZIE 2026-09-01**` brzmieniem jest
+`ZMITYGOWANE W KODZIE`, a w `**ZAMKNIĘTE 2026-08-18 (E4)** — zmitygowane w kodzie` — samo
+`ZAMKNIĘTE`. Bez tej kotwicy rdzeń trafiałby w prozę za datą i wiersz `ZAMKNIĘTE` schodziłby
+**dwiema drogami naraz**: rotacją całego wiersza i kompresją komórki. Zmierzone na dzienniku
+PolyFlow sprzed migracji `FAKT` (2026-09-01, `396e243^`): dopasowanie w całej komórce dawało
+**11 kandydatów**, dopasowanie w brzmieniu — **7**; te cztery to ryzyka `ZAMKNIĘTE` z rdzeniem
+w opisie.
+
+Status spoza listy znaczy **„komórka zostaje"** i mechanizm nie zgaduje intencji. W szczególności:
+
+- **`OTWARTE` nie wchodzi** — komórka ryzyka otwartego niesie powód, dla którego nie jest
+  zamknięte, i tej informacji nie odtworzy nikt bez przeczytania wpisów. Skracasz ją ręcznie albo
+  wcale.
+- **`ZAMKNIĘTE` nie wchodzi** — tam schodzi **cały wiersz**, rotacją ryzyk (`SPEC_ARCHIWUM.md`).
+- `ZAWĘŻONE`, `ZAWIESZONE`, `ZMATERIALIZOWAŁO SIĘ` i brzmienia spoza listy — zostają.
+
+W projekcie angielskim rdzenie czytasz w języku projektu (`mitigated`; `accepted` razem
+z `knowing` / `deliberate`); zasada zamkniętej listy jest ta sama.
+
+**Co schodzi:** **dzisiejsza treść komórki w całości, bajt w bajt** — także ta jej część, która
+zostanie zacytowana w żywej tabeli. Archiwum ma być kompletne samo w sobie, a nie różnicą.
+
+**Co zostaje w żywej komórce — dwa człony, w tej kolejności:**
+
+1. **Cytat ostatniego zdania stanu.** Dosłownie **ostatnie zdanie członu pierwszego** komórki,
+   czyli ostatnie zdanie przed odsyłaczem `Zmierzone:`; gdy odsyłacza nie ma — ostatnie zdanie
+   całej komórki. Nie parafrazujesz go, nie sklejasz z dwóch i nie poprawiasz w nim interpunkcji.
+   **Zdanie napisane przez agenta od siebie jest defektem, nie uproszczeniem** — komórka mówi
+   wtedy coś, czego nie ma w archiwum.
+
+   **Granica zdania jest rozstrzygnięta, nie wyczuwana:** kropka, wykrzyknik albo znak zapytania,
+   po nich spacja, a po niej **wielka litera** albo początek pogrubienia (`**`). Sama kropka
+   granicą nie jest — komórki są pełne dat, numerów wersji i skrótów, a `1.6.1` rozpadłoby się na
+   trzy „zdania".
+2. **Odsyłacz do archiwum, a po nim `Zmierzone:` w niezmienionym brzmieniu:**
+
+   ```
+   Historia: [MITYGACJE_2026-09-01](archiwum/ryzyka/MITYGACJE_2026-09-01.md). Zmierzone: 2026-08-12 (E4), 2026-08-17 (E6)
+   ```
+
+   Odsyłacz prowadzi do **pliku**, nie do kotwicy: plik archiwum jest tabelą numerowaną kolumną
+   `#`, a numer ryzyka odnajduje się w niej bez kotwicy, która potrafi przestać działać (L-0013).
+
+**Wynik ponad 800 znaków → STOP.** Komórka po kompresji ma się mieścić w limicie; jeśli nie mieści
+się samo zdanie stanu, znaczy to, że zdanie jest akapitem — i wtedy pyta się człowieka, zamiast
+skracać cytat. Żywy plik zostaje wtedy nietknięty.
+
+**Procedura jest ta sama co przy rotacji** (`SPEC_ARCHIWUM.md`, „Przebieg — dwie fazy") i drugiej
+nie piszesz: suma kontrolna fragmentu → zapis pliku archiwum → odczyt **z dysku** → porównanie →
+dopiero potem podmiana komórek. Rozjazd sum zatrzymuje całość i **żadna komórka nie jest ruszana**.
+„Fragment" znaczy tu treści kompresowanych komórek, sklejone w kolejności wierszy, po jednej na
+linię — ta sama definicja obowiązuje po stronie archiwum.
+
+**Kompresja nie dokłada własnego komunikatu** (L-0049). Melduje się we wpisie dziennika tej sesji,
+tak jak rotacja: które ryzyka, ile znaków przed i po, dokąd, suma kontrolna.
+
 ## Szablon wpisu (obowiązkowy, D-14)
 
 Nagłówek trzeciego poziomu: `### RRRR-MM-DD — Temat`, pod nim linia autora, potem cztery sekcje

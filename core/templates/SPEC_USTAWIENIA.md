@@ -67,6 +67,7 @@ projektu nadpisuje wartość stąd.
 4. **Tabela ustawień** — `Data | Czego dotyczy | Decyzja`. Najstarsze u góry.
 5. *(opcjonalnie, gdy się pojawi)* **Sekcja „Ustawienia wycofane"** — wpis zastąpiony nie znika
    z tabeli; przenosisz go tutaj z adnotacją „zastąpione przez … dnia … , powód …" (D-18).
+   Od 1.7.0 sekcja ma **rotację** — patrz sekcja „Rotacja ustawień" niżej.
 
 ## Wiersz to jedna decyzja, jednym zdaniem (od 1.6.0)
 
@@ -100,6 +101,12 @@ Cztery wiersze mają **zamknięty format** opisany niżej w tej specyfikacji i s
 **Ich nie skracasz.** Człony rozdzielone `·` wyglądają jak rozwlekłość, a są składnią: usunięcie
 członu zmienia próg na domyślny, a przeredagowanie kotwicy na początku komórki **wycisza mechanizm
 w ciszy** (L-0025). Skrócenie, które wyłącza pomiar albo rotację, jest defektem, nie oszczędnością.
+
+**Nie schodzą też do archiwum** (od 1.7.0) — te cztery oraz **`Język projektu`**, razem pięć
+wierszy wypisanych z nazwy w sekcji „Rotacja ustawień". `Język projektu` nie jest parsowany przez
+żaden hook, ale rozstrzyga, w jakim języku powstają dokumenty i pliki archiwum; jego nieobecność
+kończy się tym samym co brak wiersza czytanego maszynowo — mechanizm robi coś innego, niż projekt
+ustalił, i nie mówi o tym ani słowa.
 
 ## Wpisy tworzone przy inicjalizacji
 
@@ -274,6 +281,59 @@ Powód: wyłączona rotacja znaczy „nie ruszaj moich plików", a sprawa czekaj
 problemem niezależnym od tego, czy projekt zgodził się na przenoszenie plików. To jest ta sama
 zasada, co przy budżecie startu sesji, i dokładnie ta pomyłka, którą ten wiersz ma wykluczyć.
 
+## Rotacja ustawień (od 1.7.0)
+
+Do 1.6.1 ten plik nie miał **żadnej** drogi wyjścia: polityka jest append-only, a sekcja
+„Ustawienia wycofane" przenosiła wiersze w obrębie tego samego pliku — czyli porządkowała
+czytelność, nie ciężar. Plik jest czytany przy **każdym** starcie sesji, więc rósł w każdej z nich.
+Zmierzone `FAKT` (2026-09-01): `docs/USTAWIENIA.md` PolyFlow ważył **29,4 KB przy progu 6 KB**,
+z czego sekcja „Ustawienia wycofane" **5,0 KB** (16 wierszy) — i nie odzywał się żaden mechanizm,
+bo plik nie miał progu z adresem egzekwowania. Ten sam pomiar mówi drugą rzecz i ta specyfikacja
+mówi ją wprost: rotacja zabiera stamtąd **5,0 KB z 23,4 KB nadmiaru**, bo pozostałe 24,4 KB to
+wiersze **obowiązujące** — te odchudza wyłącznie zwięzłość komórki `Decyzja`.
+
+**Kiedy rusza — dwa warunki naraz:**
+
+1. plik przekracza swój **próg cząstkowy** (`ustawienia` z wiersza `Budżet startu sesji`,
+   domyślnie 6 KB),
+2. w sekcji „Ustawienia wycofane" stoi choć jeden wiersz, który **wolno** przenieść.
+
+Wyzwalaczem pozostają **dwa wejścia rotacji** (`SPEC_ARCHIWUM.md`): rytuał zamknięcia sesji i start
+sesji. Rotacja ustawień nie jest trzecim wejściem i **nie dokłada własnego komunikatu** (L-0049).
+
+**Co schodzi:** wiersze sekcji „Ustawienia wycofane", wszystkie naraz, do
+`docs/archiwum/ustawienia/USTAWIENIA_<data-rotacji>.md`, bajt w bajt, procedurą dwufazową z sumą
+kontrolną. Pod tabelą sekcji zostaje **jedna** linia-odsyłacz na rotację.
+
+**Czego nie ruszasz nigdy — pięć wierszy, z nazwy:**
+
+| Wiersz | Dlaczego zostaje |
+|---|---|
+| `Profil projektu` | czytają go hooki `profile-rules` i `config-protection` |
+| `Rotacja dokumentów` | czyta go procedura rotacji |
+| `Budżet startu sesji` | czyta go pomiar warstwy startowej **i ta rotacja** — próg `ustawienia` stoi w tym wierszu |
+| `Przegląd spraw człowieka` | czyta go przegląd spraw przeterminowanych |
+| `Język projektu` | rozstrzyga język dokumentów i nazwy plików archiwum |
+
+Zostają **niezależnie od wieku** i niezależnie od tego, czy ktoś przeniósł je do sekcji „Ustawienia
+wycofane". Wiersz `Budżet startu sesji` jest tu przypadkiem najostrzejszym: jego przeniesienie
+skasowałoby próg, który tę rotację uruchamia — mechanizm zjadłby własny wyzwalacz i zamilkł
+w ciszy.
+
+**Czego nie ruszasz poza tym:** wierszy **żywej** tabeli (niosą decyzję obowiązującą, więc nie są
+historią), nagłówka sekcji i wiersza nagłówkowego tabeli, linii `Wersja RelAI:`.
+
+**Sekcja „Ustawienia wycofane" zostaje w tej specyfikacji** i zostaje w plikach projektów.
+Rozdzielenie „co obowiązuje" od „co obowiązywało" jest wartością samo w sobie — zmienia się
+wyłącznie to, że **ciężar zdejmuje odtąd archiwum**, a nie sama przeprowadzka w obrębie pliku.
+
+**Plik ponad progiem bez sekcji „Ustawienia wycofane" albo z sekcją pustą** → nie rotujesz i nie
+mówisz nic ponad linią raportu startu. Plik jest wtedy gruby wierszami **obowiązującymi**, a te
+odchudza zwięzłość wiersza (sekcja „Wiersz to jedna decyzja, jednym zdaniem"), nie archiwum.
+
+Przykład pliku archiwum i żywej sekcji po rotacji: `SPEC_ARCHIWUM.md`, „Przykład — plik archiwum
+ustawień".
+
 ## Katalog progów (od 1.7.0)
 
 Ten katalog jest **rejestrem, nie drugim źródłem prawdy**: wartości domyślne zostają tam, gdzie
@@ -294,7 +354,7 @@ zmienić — osobny plik byłby drugim miejscem do zapomnienia.
 | `docs/STATE.md` — waga | 12 KB | wiersz `Budżet startu sesji` | hook startu sesji | jw. | **jest** — hook startu (tylko wewnątrz raportu) |
 | sekcja „Stan otwartych ryzyk" + „Czeka na człowieka" + ostatni wpis | 12 KB | wiersz `Budżet startu sesji` (człon `ryzyka`) | hook startu sesji | jw. | **jest** — hook startu (tylko wewnątrz raportu) |
 | sekcja „Zasady aktywne" — waga | 30 KB | wiersz `Budżet startu sesji` (człon `zasady`) | hook startu sesji | jw. | **jest** — hook startu (tylko wewnątrz raportu) |
-| `docs/USTAWIENIA.md` | 6 KB | wiersz `Budżet startu sesji` | hook startu sesji | jw. | **jest** — hook startu (tylko wewnątrz raportu) |
+| `docs/USTAWIENIA.md` | 6 KB | wiersz `Budżet startu sesji` | hook startu sesji **+ rotacja ustawień** (od 1.7.0) | jw.; dodatkowo wiersze sekcji „Ustawienia wycofane" → `docs/archiwum/ustawienia/`; linia `[RelAI progi dokumentow]` | **jest** — rytuał zamknięcia (krok 2) i raport startu |
 | `STATUS.md` aktywnego planu | 10 KB | wiersz `Budżet startu sesji` | hook startu sesji | jw. | **jest** — hook startu (tylko wewnątrz raportu) |
 | `docs/DZIENNIK.md` — waga | 150 KB | `SPEC_ARCHIWUM.md`, strojenie w wierszu `Rotacja dokumentów` | rotacja + hook startu sesji (od 1.7.0) | rotacja najstarszych wpisów do archiwum; w raporcie linia `[RelAI progi dokumentow]` | **jest** — rytuał zamknięcia (krok 2) i raport startu |
 | `docs/LEKCJE.md` — waga i liczba | 40 lekcji albo 50 KB | `SPEC_ARCHIWUM.md`, strojenie w wierszu `Rotacja dokumentów` | rotacja + hook startu sesji (od 1.7.0) | rotacja najstarszych lekcji do archiwum; linia `[RelAI progi dokumentow]` | **jest** — rytuał zamknięcia (krok 2) i raport startu |
@@ -302,7 +362,7 @@ zmienić — osobny plik byłby drugim miejscem do zapomnienia.
 | sekcja „Stan otwartych ryzyk" — sama | próg cząstkowy `ryzyka`, 12 KB | wiersz `Budżet startu sesji` | rotacja ryzyk + hook startu sesji (od 1.7.0) | wiersze ryzyk `ZAMKNIĘTE` do `docs/archiwum/ryzyka/`; linia `[RelAI progi dokumentow]` | **jest** — rytuał zamknięcia (krok 2) i raport startu |
 | sekcja „Lekcje zwinięte" | 30 KB | `SPEC_LEKCJE.md`, sekcja „Kompresja" | hook startu sesji (od 1.7.0) | przeniesienie zwiniętych lekcji do `docs/archiwum/lekcje/`; linia `[RelAI progi dokumentow]` | **jest** — raport startu |
 | sekcja „Zasady aktywne" — liczba pozycji | 15 pozycji | `SPEC_LEKCJE.md` | rytuał zamknięcia sesji | jedno zdanie w podsumowaniu: ile pozycji, jaki limit, co z tym zrobić | **jest** — krok 1 rytuału zamknięcia, **jedyny**; do raportu startu nie wchodzi (L-0036) |
-| komórka „Mitygacja" ryzyka | 800 znaków | `SPEC_DZIENNIK.md` | człowiek i model przy pisaniu wiersza ryzyka, komendą z tej specyfikacji | skrócenie komórki do stanu bieżącego, historia do wpisu dziennika | **brak automatu** — sprawdzane komendą przy edycji tabeli ryzyk |
+| komórka „Mitygacja" ryzyka | 800 znaków | `SPEC_DZIENNIK.md` | model w kroku 2 rytuału zamknięcia (od 1.7.0) oraz człowiek komendą z `SPEC_DZIENNIK.md` | historia komórki → `docs/archiwum/ryzyka/MITYGACJE_<data>.md`, w żywej komórce cytat ostatniego zdania i odsyłacz; **wiersz zostaje** | **jest** — rytuał zamknięcia (krok 2), gdy sekcja ryzyk jest ponad swoim progiem |
 | wiek sprawy „Czeka na człowieka" | 30 dni | wiersz `Przegląd spraw człowieka` (ta specyfikacja) | hook startu sesji (`sprawyPrzeterminowane`) | wymuszone pytanie partiami po cztery | **jest** — hook startu, własny blok i własny wyzwalacz |
 | propozycja kompresji lekcji | 25 wpisów `AKTYWNA`, 30 KB pliku albo kwartał | `SPEC_LEKCJE.md`, sekcja „Kompresja" | model przy rytuale zamknięcia | propozycja kompresji tematycznej, nigdy wykonanie po cichu | **brak automatu** — propozycja modelu |
 | cel rotacji (nie próg) | 60% progu, liczone na części rotowalnej | `SPEC_ARCHIWUM.md` | rotacja | ile pozycji zabrać w jednym przebiegu | nie dotyczy — to cel, nie warunek odezwania się |
@@ -315,7 +375,10 @@ zastąpione (limit `CLAUDE.md` brzmiał do 1.5.2 „60 linii").
 
 **Czego katalog nie robi:** nie dokłada ani jednego nowego progu i nie zmienia żadnej wartości.
 Kolumna „Adres egzekwowania" ma być jedynym miejscem, gdzie widać, że próg istnieje, ale nikt go
-nie liczy — dwa takie wiersze zostają świadomie i są opisane wprost.
+nie liczy. Od 1.7.0 (E5) taki wiersz został **jeden** — propozycja kompresji lekcji, świadomie
+bez automatu, bo jest propozycją dla człowieka, nie operacją. Limit 800 znaków komórki
+„Mitygacja" adres dostał; przez cztery wersje był przykładem progu, który istniał wyłącznie
+w zdaniu.
 
 **Dwa wyzwalacze raportu startu, rozłączne w komunikacie (od 1.7.0).** Raport odzywa się przy
 przekroczeniu **sumy** warstwy startowej (jak od 1.6.0) **albo** gdy dokument czy sekcja przekracza
@@ -354,7 +417,10 @@ zgody na wyjątki od reguł domyślnych, wybrany kierunek designu.
 
 - Zero sekretów, tokenów i haseł — także jako „ustawienie" (D-42). Zapisujesz **nazwę** zmiennej
   środowiskowej i miejsce, gdzie trzymany jest sekret, nigdy wartość.
-- Nie usuwasz wierszy z tabeli.
+- Nie usuwasz wierszy z tabeli. Rotacja ustawień usunięciem nie jest: przenosi wiersze **wycofane**
+  bajt w bajt i zostawia po nich linię-odsyłacz z sumą kontrolną.
+- Nie przenosisz do archiwum pięciu wierszy wypisanych z nazwy w sekcji „Rotacja ustawień" — także
+  wtedy, gdy stoją w „Ustawieniach wycofanych".
 - Nie zmieniasz brzmienia linii `Wersja RelAI:` — jest wykrywana dosłownie.
 
 ## Przykład (projekt polski)
