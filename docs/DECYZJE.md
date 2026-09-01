@@ -80,6 +80,7 @@ Zasada: decyzji z tego rejestru **nie proponuje się ponownie**. Zmiana wymaga j
 - **D-70** `/relai-adopt` wyłącznie na jawną komendę (nigdy automatycznie). Sekwencja obowiązkowa: pełny backup → analiza → migracja → raport zmian (co, skąd, dokąd) → ścieżka pełnego recovery (przetestowana). Bez luk — priorytet zaufania.
 - **D-71** Istniejący CLAUDE.md przy adopcji: scalanie z zachowaniem (backup całości + reguły do sekcji „Zasady projektu (odziedziczone)" + raport + konflikty rozstrzygane pytaniami).
 - **D-72** `/relai-update`: po aktualizacji pluginu porównuje wersję projektu, pokazuje diff zasad/szablonów, aktualizuje za zgodą, szanuje lokalne nadpisania, wpis w DZIENNIKU.
+- **D-87** *(2026-09-01)* **W repozytorium RelAI źródłem prawdy o specyfikacjach jest `core/templates/`, nie kopia `.claude/relai/templates/`.** Kopię odświeża hook z cache'u zainstalowanego pluginu, więc między wydaniami niesie wersję starszą od repo (zmierzone 2026-09-01: `SPEC_ARCHIWUM.md` 26,7 KB w kopii kontra 38,8 KB w repo — dwie różne reguły rotacji). Powód: projekt buduje następną wersję i ma się nią prowadzić (D-82), a rozjazd znika sam po wydaniu. **Dotyczy wyłącznie tego repozytorium** — w projekcie użytkownika kopia zostaje jedynym źródłem, bo katalogu pluginu sesja nie widzi (L-0012).
 
 ## Zakres v1 i budowa
 

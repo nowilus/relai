@@ -110,20 +110,24 @@ kosztuje.
 - **Wydanie 1.6.1** — push, `plugin marketplace update`, `plugin update`, **restart** (P-005).
   Do tego czasu cache pluginu niesie `/relai-update` z wersją docelową 1.5.0, czyli komendę, która
   cofnęłaby wersję migrowanego projektu.
-- Cztery odnogi zamrożonego planu, w dowolnej kolejności: `OPIS_REPO`, `POMIAR_ODNOG` (dziewięć
-  scenariuszy), `REKOMENDACJA_MODELU`, `GUARD_PO_SCIEZCE`. Każda ma gotowy prompt; zamrożenie planu
-  ich nie dotyczy. **[REJESTR_ARTEFAKTOW](plany/HIGIENA_DOKUMENTOW/odnogi/REJESTR_ARTEFAKTOW/ODNOGA.md)**
+- Trzy odnogi zamrożonego planu, w dowolnej kolejności: `OPIS_REPO`, `REKOMENDACJA_MODELU`,
+  `GUARD_PO_SCIEZCE`. Każda ma gotowy prompt; zamrożenie planu ich nie dotyczy. Czwarta,
+  `POMIAR_ODNOG`, jest **anulowana 2026-09-01** — jej warunkiem startu było `claude /login` na konto
+  z limitem, a decyzja brzmi: odpuszczamy. **[REJESTR_ARTEFAKTOW](plany/HIGIENA_DOKUMENTOW/odnogi/REJESTR_ARTEFAKTOW/ODNOGA.md)**
   zamknięta 2026-09-01, **[BLOKADA_ROTACJI](fixy/BLOKADA_ROTACJI/ODNOGA.md)** wchłonięta przez E1 —
   obie przestały być wątkami.
 - Obie sprawy wyjęte z odnogi REJESTR_ARTEFAKTOW **rozstrzygnięte 2026-09-01**: katalog archiwum
   artefaktów to `artefakty`, a `profile-rules` widzi `.mdc` (bez rejestru 36 ostrzeżeń zamiast 33,
   z rejestrem 0). Poza zasięgiem hooka zostają świadomie `HTML_PLAN/*.html`
   i `core/templates/README.md`.
-- Przejrzeć sekcję **„Czeka na człowieka"** w dzienniku — dziewięć spraw otwartych, w tym siedem
-  rozstrzygnięć wpisanych w E2 planu OPTYMALIZACJA_KONTEKSTU na podstawie faktów z repozytorium,
-  do potwierdzenia.
+- Potwierdzić albo cofnąć **osiem rozstrzygnięć wpisanych w E2** planu OPTYMALIZACJA_KONTEKSTU —
+  wypisane co do jednego 2026-09-01, każde ze swoim dowodem. To ostatnia sprawa merytoryczna
+  w sekcji „Czeka na człowieka"; dwie pozostałe dotyczą pre-commita.
 - Zainstalować pre-commit tam, gdzie ma pilnować: `node core/guardrails/install-precommit.js
-  <projekt>`. Hook jest zmierzony, ale nikt go za człowieka nie podłoży.
+  <projekt>`. **Sprawdzone 2026-09-01: w tym repozytorium hooka nie ma.** Tam, gdzie stoi od
+  wcześniej, instalację trzeba powtórzyć — kopia skanera w `.git/hooks/` nie dostanie poprawki
+  z 1.5.1 sama.
+- Usunąć katalog projektu testowego `ProbaCursorE6` — decyzja o kasacji zapadła 2026-09-01.
 - Po odmrożeniu E7: adapter Codeksa, `AGENTS.md` jako plik główny projektu z adapterem Cursora albo
   Codeksa (D-86, 2026-08-17) wraz z przepięciem instalatora Cursora, ten sam scenariusz akceptacyjny
   co w E6.
@@ -132,10 +136,10 @@ kosztuje.
 
 ## Co blokuje
 
-- **Pomiar zachowań w świeżej sesji** — CLI `claude -p` uwierzytelnia się z własnego pliku
-  poświadczeń, a konto tam zapisane ma wyczerpany limit (L-0032). Odblokowuje to `claude /login`;
-  do tego czasu odnoga `POMIAR_ODNOG` stoi. Scenariusze rotacji wymagają dodatkowo restartu
-  aplikacji po aktualizacji pluginu (P-005).
+- **Pomiar zachowań w świeżej sesji nie odbędzie się** — CLI `claude -p` uwierzytelnia się
+  z własnego pliku poświadczeń, a konto tam zapisane ma wyczerpany limit (L-0032). Decyzją z
+  2026-09-01 odnoga `POMIAR_ODNOG` została **anulowana**: dziewięć scenariuszy zostaje
+  niezmierzonych, a **ryzyko R2 pozostaje otwarte świadomie** w części dołożonej po 1.1.0.
 - **Adapter Cursora zmierzony w aplikacji, ale nie w całości.** Pilotaż potwierdził reguły, hook
   kontekstu, obie warstwy blokady sekretu i pełne przejście `/relai-stage`. Niezmierzone: hook
   `beforeReadFile`, dostęp poza katalogiem roboczym, osiem pozostałych komend.
@@ -191,12 +195,13 @@ Etapy: BUDOWA_RELAI 10/10 • ROZWOJ_PO_WYDANIU 6/8 (ZAMROŻONY) • OPTYMALIZAC
 Warstwa startowa RelAI: **35,1 KB / 80 KB** (pomiar sprzed E1) • Warstwa
 startowa PolyFlow po migracji: **136,4 KB / 80 KB** (przed: 155,7) • Dziennik: **145,6 KB /
 próg 150 KB** po rotacji 2026-09-01 (przed: 168,0); część rotowalna 89,7 KB, dolna granica
-osiągalna 52,2 KB • Lekcje 20,6 KB / 11 lekcji • Sprawy czekające na człowieka: 10 tutaj, 27 w PolyFlow •
+osiągalna 52,2 KB • Lekcje 20,6 KB / 11 lekcji • Sprawy czekające na człowieka: **3 tutaj** (było 10 przed 2026-09-01), 27 w PolyFlow •
 Zasady aktywne: **15 przy limicie 15** • Lekcje: 11 w żywym rejestrze, ostatnia L-0065 •
 Scenariusze akceptacyjne: 4/4 zdane + pilotaż Cursora •
 Adaptery: 2 • Modele, na których zmierzono proces: 5 (Fable, Opus, Haiku, Composer/auto, Grok 4.6) •
-Projekty na 1.6.x: 2 (RelAI, PolyFlow) • Otwarte wątki: 4 (odnogi zamrożonego planu) •
-Artefakty w rejestrze: 38 • Otwarte bramki manualne: 4 (wszystkie w zamrożonym ROZWOJ_PO_WYDANIU) •
+Projekty na 1.6.x: 2 (RelAI, PolyFlow) • Otwarte wątki: 3 (odnogi zamrożonego planu; POMIAR_ODNOG
+anulowana) • Artefakty w rejestrze: 38 • Otwarte bramki manualne: 2 (sekwencja wydania,
+pre-commit) •
 Otwarte ryzyka: 4 • Zamknięte ryzyka: 6 (w archiwum) • Progi rotacji: dziennik
 150 KB, lekcje 40 wpisów albo 50 KB, STATE 300 linii • Archiwum: lekcje L-0001…L-0024, dziennik
 2026-08-07…2026-08-09 (16 wpisów), 2026-08-10 (2 wpisy), 2026-08-10…2026-08-12 (4 wpisy)

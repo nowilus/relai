@@ -2,7 +2,7 @@
 
 Plan: [ROZWOJ_PO_WYDANIU](../../STATUS.md) · Etap-źródło: E1 — Odnoga planu (zakres rozszerzony
 2026-08-12 o punkty 5 i 7 weryfikacji E2, a następnie o punkty 3, 4 i 6 weryfikacji E3) ·
-Utworzona: 2026-08-12 · Status: **OTWARTA** · Wykonawca: Opus
+Utworzona: 2026-08-12 · Status: **ANULOWANA 2026-09-01** · Wykonawca: Opus
 
 ## Cel
 
@@ -100,4 +100,15 @@ pomiar padnie na tym samym błędzie („You've hit your session limit").
 
 ## Wynik
 
-—
+**ANULOWANA 2026-09-01 decyzją człowieka — bez wykonania.** Warunkiem startu było `claude /login`
+na konto z dostępnym limitem (L-0032); konto zapisane w pliku poświadczeń CLI ma limit wyczerpany,
+a decyzja brzmi: odpuszczamy i login, i odnogę.
+
+**Co zostaje niezmierzone:** dziewięć scenariuszy zachowań w świeżej sesji — cztery odnogowe
+(punkt 8 weryfikacji E1), dwa rotacyjne (punkty 5 i 7 weryfikacji E2) i trzy z poprawek E3
+(punkty 3, 4 i 6). Ich brak nie unieważnia niczego, co już zmierzono w aplikacji; oznacza tylko,
+że **zakres ryzyka R2 pozostaje niezmierzony w części dołożonej po 1.1.0** — dziesiąta komenda,
+sygnał odchylenia, rozjazd stanu i kontrola podpisu.
+
+**Odwrócenie jest tanie:** karta i zakres zostają w repozytorium, więc gdy pojawi się konto
+z limitem, odnoga wraca jednym zdaniem — nic nie trzeba odtwarzać.

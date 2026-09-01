@@ -4,7 +4,7 @@
 
 | # | Ryzyko | Poziom | Status | Mitygacja |
 |---|---|---|---|---|
-| R2 | Auto-wyzwalanie skilli bywa zawodne (agent nie zastosuje zasad bez komendy) | **Niski przy Opusie, średni przy modelach słabszych** (2026-08-10 po E10) | **ZMIERZONE 2026-08-10, OTWARTE ŚWIADOMIE** | Warstwą nośną są hook `session-context` i `CLAUDE.md` projektu — działają przy każdym modelu, bez wyzwalania; skill dokłada wyłącznie procedurę (L-0030). Opus wyzwala skill sam i wykonuje procedurę w całości; Sonnet 4.6 i Haiku 4.5 nie wołają `Skill` ani razu, więc projekt nie traci pamięci, ale procedura bywa niepełna. Otwarte świadomie: to trwała własność modeli, nie usterka do naprawienia. Zakres ryzyka rósł od 1.1.0 bez pomiaru — dziesiąta komenda, sygnał odchylenia, rozjazd stanu i kontrola podpisu nie były mierzone w świeżej sesji, bo limit konta zatrzymał CLI (L-0032); czeka to w odnodze `POMIAR_ODNOG`. Zmierzone: 2026-08-07 (E5), 2026-08-10 (E10), 2026-08-12 (E1), 2026-08-12 (E3) |
+| R2 | Auto-wyzwalanie skilli bywa zawodne (agent nie zastosuje zasad bez komendy) | **Niski przy Opusie, średni przy modelach słabszych** (2026-08-10 po E10) | **ZMIERZONE 2026-08-10, OTWARTE ŚWIADOMIE** | Warstwą nośną są hook `session-context` i `CLAUDE.md` projektu — działają przy każdym modelu, bez wyzwalania; skill dokłada wyłącznie procedurę (L-0030). Opus wyzwala skill sam i wykonuje procedurę w całości; Sonnet 4.6 i Haiku 4.5 nie wołają `Skill` ani razu, więc projekt nie traci pamięci, ale procedura bywa niepełna. Otwarte świadomie: to trwała własność modeli, nie usterka do naprawienia. Zakres ryzyka rósł od 1.1.0 bez pomiaru — dziesiąta komenda, sygnał odchylenia, rozjazd stanu i kontrola podpisu nie były mierzone w świeżej sesji, bo limit konta zatrzymał CLI (L-0032). **Odnoga `POMIAR_ODNOG` anulowana 2026-09-01** — ta część zakresu zostaje niezmierzona świadomie, karta zostaje w repo. Zmierzone: 2026-08-07 (E5), 2026-08-10 (E10), 2026-08-12 (E1), 2026-08-12 (E3) |
 | R5 | Dokumenty puchną i zjadają kontekst | **Średni, potwierdzony na trzech projektach** (2026-09-01) | **OTWARTE — plan HIGIENA_DOKUMENTOW jest odpowiedzią** | Mechanizm jest kompletny, ale **nie broni się sam**: progi nie mają adresu egzekwowania, więc rosną latami (PolyFlow 862,7 KB przy progu 150 KB). Naprawa idzie planem HIGIENA_DOKUMENTOW (6 etapów, Aneksy A i B). E1: zakres rotacji PolyFlow **0 → 117 wpisów ze 127**. E2: próg liczy się ponad nietykalnymi, a zatkana rotacja wypisuje blokery. **2026-09-01 reguły 1.7.0 zadziałały w realnej sesji tego repo**: rotacja wzięła 3 wpisy, dziennik 168,0 → 142,2 KB, część rotowalna 115,8 → 89,7 KB przy celu 90. Otwarte, dopóki plan nie dobiegnie końca, dopóki nie zmierzy się tego w **cudzym** projekcie i dopóki **JiraManager (386 KB startu) nie zostanie tknięty**. Zmierzone: 2026-08-20, 2026-08-21, 2026-09-01 (E1, E2, rotacja) |
 | P1 | Adaptery Cursor/Codex nie egzekwują blokad harnessu — sekret albo zmiana konfiguracji przejdzie tam, gdzie w Claude Code stoi ściana (plan ROZWOJ_PO_WYDANIU) | **Średni** (2026-08-12 po E4; wcześniej wysoki) | **OTWARTE** | Część sekretowa jest zamknięta dowodem z aplikacji: w Cursorze zadziałały obie warstwy — reguła odmówiła pierwsza, a przy prośbie o próbę mimo reguły zapis klucza odbił hook `preToolUse` werdyktem `permission: deny`; niezależnie od narzędzia commit z sekretem zatrzymuje gitowy pre-commit. Otwarte z dwóch powodów: Cursor nie ma egzekwowanego `ask`, więc pliki konfiguracyjne chroni tam sama reguła zamiast bramki, a Codex pozostaje niezmierzony do odmrożenia E7 planu ROZWOJ_PO_WYDANIU. Zmierzone: 2026-08-12 (E4), 2026-08-12 (E5), 2026-08-17 (E6) |
 | P2 | Odpowiednik R2 w Cursor/Codex: bez auto-wyzwalania skilli proces zależy od dyscypliny modelu (plan ROZWOJ_PO_WYDANIU) | **Niski dla Cursora, średni dla Codeksa** (2026-08-17 po E6; wcześniej średni) | **OTWARTE (już tylko Codex)** | Reguła zawsze-w-kontekście działa w Cursorze bez żadnego wyzwalacza: pilotaż przeszedł pełny cykl na trzech modelach, a cały etap poprowadził model spoza Anthropic (Grok 4.6) — rytuał startu, karta etapu z kontrolą modelu, granica zakresu, rytuał zamknięcia z promptem następnego etapu. Dyscyplina procesu nie zależy od dostawcy modelu. Otwarte już tylko dla Codeksa: warstwą nośną ma tam być `AGENTS.md` z twardym limitem 32 KiB, a skille wyzwalają się dopasowaniem opisu — tym samym mechanizmem, który przy R2 okazał się zależny od modelu. Zmierzone: 2026-08-12 (E4), 2026-08-12 (E5), 2026-08-17 (E6) |
@@ -15,35 +15,15 @@
 
 ## Czeka na człowieka
 
-- **`claude /login` na konto z dostępnym limitem — warunek startu odnogi `POMIAR_ODNOG`
-  (L-0032)** · 2026-08-12 ·
-  [wpis 2026-08-21 — E5: PolyFlow na 1.6.1](#2026-08-21--e5-polyflow-na-161-pierwsza-rotacja-w-cudzym-projekcie-wydanie-161)
-- **Okno na `/relai-update` dla JiraManagera i PolyFlow — oba projekty z zamkniętym etapem;
-  warunek startu E5** · 2026-08-12 ·
-  [wpis 2026-08-21 — Plan OPTYMALIZACJA_KONTEKSTU zamknięty](#2026-08-21--plan-optymalizacja_kontekstu-zamknięty-dowiezione-vs-plan)
 - **Decyzja o instalacji pre-commita: `node core/guardrails/install-precommit.js
   <projekt>`** · 2026-08-12 ·
   [wpis 2026-08-17 — E6: pilotaż Cursora](#2026-08-17--e6-pilotaż-cursora-wariant-zastępczy-wersja-151)
-- **Feedback od osoby spoza projektu — kryterium „ktoś inny niż autor prowadzi projekt RelAI
-  w Cursorze" nadal niespełnione** · 2026-08-13 ·
-  [wpis 2026-08-18 — README: rozdzielona instalacja](#2026-08-18--readme-rozdzielona-instalacja-dla-claude-code-i-cursora)
 - **Ponowna instalacja pre-commita tam, gdzie już stoi — poprawka 1.5.1 nie dotrze do
   `.git/hooks/` sama** · 2026-08-17 ·
   [wpis 2026-08-17 — E6: pilotaż Cursora](#2026-08-17--e6-pilotaż-cursora-wariant-zastępczy-wersja-151)
-- **Los projektu testowego `ProbaCursorE6` — zostaje jako materiał do E7 czy idzie do
-  kasacji** · 2026-08-17 ·
-  [wpis 2026-08-18 — README: rozdzielona instalacja](#2026-08-18--readme-rozdzielona-instalacja-dla-claude-code-i-cursora)
-- **Przeczytać ścieżkę B w `README.md` oczami kogoś, kto ma wyłącznie Cursora, i powiedzieć,
-  gdzie utknął** · 2026-08-18 ·
-  [wpis 2026-08-18 — README: rozdzielona instalacja](#2026-08-18--readme-rozdzielona-instalacja-dla-claude-code-i-cursora)
-- **Decyzja o formalnym zamrożeniu planu ROZWOJ_PO_WYDANIU z niezamkniętym E7** · 2026-08-20 ·
-  [wpis 2026-08-21 — Plan OPTYMALIZACJA_KONTEKSTU zamknięty](#2026-08-21--plan-optymalizacja_kontekstu-zamknięty-dowiezione-vs-plan)
-- **Weryfikacja siedmiu rozstrzygnięć wpisanych w E2 — każde ma w adnotacji swój dowód; sprzeciw
-  cofa je jedną linią** · 2026-08-20 ·
-  [wpis 2026-08-20 — E2: rozbrojenie rotacji](#2026-08-20--e2-rozbrojenie-rotacji--sekcja-czeka-na-człowieka-i-drugie-wejście-na-starcie)
-- **Którą kopią specyfikacji ma się kierować sesja do czasu wydania 1.7.0 — `core/templates/`
-  z repo czy `.claude/relai/templates/` z zainstalowanego pluginu 1.6.1** · 2026-09-01 ·
-  [wpis 2026-09-01 — Zamknięcie sesji: pierwsza rotacja regułą 1.7.0](#2026-09-01--zamknięcie-sesji-pierwsza-rotacja-regułą-170-na-własnym-dzienniku)
+- **Weryfikacja ośmiu rozstrzygnięć wpisanych w E2 — wypisane co do jednego 2026-09-01, czekają na
+  potwierdzenie albo sprzeciw** · 2026-08-20 ·
+  [wpis 2026-09-01 — Osiem bramek z listy zamkniętych](#2026-09-01--osiem-bramek-z-listy-zamkniętych-plan-rozwoj_po_wydaniu-zamrożony-formalnie)
 
 ## Wpisy
 
@@ -591,9 +571,9 @@ Autor: RelAI (Opus 5) + Łukasz
 **Do zrobienia przez człowieka:**
 
 - Przeczytać ścieżkę B oczami kogoś, kto ma wyłącznie Cursora, i powiedzieć, w którym kroku
-  utknął — to jest tańsze niż czekanie na pierwszego użytkownika z zewnątrz. *(wyprowadzone 2026-08-20 → sekcja „Czeka na człowieka")*
+  utknął — to jest tańsze niż czekanie na pierwszego użytkownika z zewnątrz. *(wyprowadzone 2026-08-20 → sekcja „Czeka na człowieka")* *(anulowane 2026-09-01 — decyzja użytkownika, sprawa zdjęta z listy bez wykonania)*
 - Pozostałe bez zmian: ponowna instalacja pre-commita tam, gdzie jest, `claude /login`,
-  `/relai-update` dla JiraManagera i PolyFlow, los `ProbaCursorE6`, wdrożenie D-86 w E7. *(wyprowadzone 2026-08-20 → sekcja „Czeka na człowieka")*
+  `/relai-update` dla JiraManagera i PolyFlow, los `ProbaCursorE6`, wdrożenie D-86 w E7. *(wyprowadzone 2026-08-20 → sekcja „Czeka na człowieka")* *(rozstrzygnięte 2026-09-01 — `claude /login` anulowany wraz z odnogą POMIAR_ODNOG, okno `/relai-update` zamknięte, `ProbaCursorE6` do kasacji ręką człowieka; otwarte zostają obie sprawy pre-commita i wdrożenie D-86 w E7)*
 
 ### 2026-08-20 — Pomiar warstwy startowej trzech projektów i plan OPTYMALIZACJA_KONTEKSTU
 
@@ -1400,6 +1380,8 @@ Autor: RelAI (Opus 5) + Lukasz
   z wersją docelową 1.5.0.
 - **R5 zostaje otwarte** — jeden zmigrowany projekt nie jest dowodem dla ryzyka „dokumenty puchną
   i zjadają kontekst". JiraManager czeka na decyzję o oknie migracji.
+  *(rozstrzygnięte 2026-09-01 — JiraManager przeszedł adopcję poza sesjami tego repozytorium,
+  pozycja zamknięta; R5 zostaje otwarte, bo pomiaru startu po tamtej migracji tutaj nie ma)*
 
 ### 2026-08-21 — Plan OPTYMALIZACJA_KONTEKSTU zamknięty: dowiezione vs plan
 
@@ -1457,6 +1439,8 @@ kompletny i zmierzony, ale problem, dla którego powstał, jest rozwiązany w je
 - **Sekwencja wydania 1.6.1** — push → `plugin marketplace update` → `plugin update` → restart
   (P-005). Bez niej cache pluginu niesie `/relai-update` z wersją docelową 1.5.0.
 - **Decyzja o oknie migracji JiraManagera** — dopóki jej nie ma, R5 zostaje otwarte.
+  *(rozstrzygnięte 2026-09-01 — okno nie jest już potrzebne: adopcja odbyła się poza sesjami tego
+  repozytorium)*
 
 ### 2026-08-21 — Projekt RelAI zaktualizowany do 1.6.1, profil wreszcie czytany maszynowo
 
@@ -2031,3 +2015,58 @@ Autor: RelAI (Opus) + Lukasz
 **Do zrobienia przez człowieka:**
 
 - —
+
+### 2026-09-01 — Osiem bramek z listy zamkniętych, plan ROZWOJ_PO_WYDANIU zamrożony formalnie
+
+Autor: RelAI (Opus) + Lukasz
+
+**Zrobione:**
+
+- **Sekcja „Czeka na człowieka" zeszła z 10 pozycji do 3.** Zamknięte decyzją człowieka w tej
+  turze, każda z brzmieniem z zamkniętej listy i adnotacją przy pozycji we wpisie źródłowym:
+  - **`claude /login`** → *anulowane*. Razem z pozycją **anulowana odnoga `POMIAR_ODNOG`** —
+    login był jej jedynym warunkiem startu.
+  - **Okno na `/relai-update` dla JiraManagera i PolyFlow** → *rozstrzygnięte*: PolyFlow przeszedł
+    2026-08-21, a JiraManager **przeszedł adopcję poza sesjami tego repozytorium**. Okno nie jest
+    już potrzebne.
+  - **Feedback od osoby spoza projektu** → *anulowane*; kryterium akceptacyjne planu zostaje
+    niespełnione świadomie.
+  - **Los `ProbaCursorE6`** → *rozstrzygnięte*: projekt idzie do kasacji. **Katalogu nie usuwam** —
+    trwałe kasowanie danych należy do człowieka.
+  - **Ścieżka B w `README.md` oczami cursorowca** → *anulowane*.
+  - **Formalne zamrożenie planu ROZWOJ_PO_WYDANIU** → *zaakceptowane*. Stan „ZAMROŻONY 2026-08-21"
+    stał w trzech dokumentach od 2026-08-21, ale jawnej zgody nie było; teraz jest, i stoi
+    w nagłówku `STATUS.md` planu.
+  - **Którą kopią specyfikacji kierować się do wydania 1.7.0** → *rozstrzygnięte*: `core/templates/`
+    z repozytorium. Zamrożone jako **D-87**.
+- **`docs/DECYZJE.md` — nowa decyzja D-87**: w repozytorium RelAI źródłem prawdy o specyfikacjach
+  jest `core/templates/`, nie kopia `.claude/relai/templates/`. Decyzja dotyczy **wyłącznie tego
+  repozytorium** — w projekcie użytkownika kopia zostaje jedynym źródłem (L-0012).
+- **Osiem rozstrzygnięć z E2 wypisane co do jednego** — pozycja weryfikacyjna została w sekcji,
+  ale ma już konkretną treść do potwierdzenia zamiast odsyłacza do „siedmiu adnotacji".
+
+**Zweryfikowane — jak dokładnie:**
+
+- **Liczba rozstrzygnięć z E2 policzona z diffa, nie z pamięci:** porównanie `ecd2f82` z rodzicem
+  po adnotacjach z zamkniętej listy rdzeni daje **osiem** nowych, nie siedem. Wpis z 2026-08-20
+  mówił „7 kolejnych" — ósma to zgoda udzielona w tej samej sesji (odchudzenie „Zasad aktywnych"),
+  więc prawdopodobnie nie liczono jej razem z rozstrzygnięciami wziętymi z repozytorium.
+- **Stan pre-commita sprawdzony, nie założony:** `.git/hooks/pre-commit` w tym repozytorium
+  **nie istnieje**. Obie pozycje pre-commita zostają otwarte — instalacja tutaj i ponowna
+  instalacja tam, gdzie hook stoi od wcześniej.
+- **Kotwice sekcji po przycięciu:** 3 pozycje, 3 kotwice, **3 dopasowane, 0 bez pary**, przypadek
+  kontrolny trafia.
+- **Limit komórki „Mitygacja"** po dopisaniu anulowania do R2: sprawdzony komendą, wszystkie
+  cztery ryzyka poniżej 800 znaków.
+- **`node core/tools/validate-adapters.js` → kod 0.**
+
+**Świadomie odłożone:**
+
+- **Instalacja pre-commita w tym repozytorium.** Wyjaśniona co do komendy, ale nie wykonana —
+  to jawna czynność człowieka i pozostaje jego decyzją, tak jak chce sam instalator.
+
+**Do zrobienia przez człowieka:**
+
+- **Usunąć katalog projektu `ProbaCursorE6`** — decyzja zapadła, kasowania nie wykonuję.
+- **Potwierdzić albo cofnąć osiem rozstrzygnięć z E2** wypisanych w tej turze; sprzeciw przy
+  którymkolwiek zawraca sprawę do sekcji „Czeka na człowieka".

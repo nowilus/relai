@@ -10,6 +10,11 @@ projektu; architektura i plany: Fable)
 > zweryfikować. Plan wraca do życia razem z dostępem; do tego czasu nie jest planem aktywnym
 > i nie czeka na niego żadna sesja. **Cztery odnogi tego planu zostają otwarte** i są widoczne
 > w `docs/STATE.md` — zamrożenie planu ich nie dotyczy.
+>
+> **Zamrożenie potwierdzone formalnie 2026-09-01.** Do tej daty stan „ZAMROŻONY" stał w tym pliku,
+> w `CLAUDE.md` i w `STATE.md`, ale brakowało jawnej zgody człowieka — pozycja czekała w sekcji
+> „Czeka na człowieka" od 2026-08-20. Przy tej samej okazji **odnoga `POMIAR_ODNOG` została
+> anulowana**, więc otwarte zostają trzy odnogi, nie cztery.
 
 ## Tabela etapów
 
@@ -31,7 +36,9 @@ projektu; architektura i plany: Fable)
 - **POMIAR_ODNOG** — dziewięć scenariuszy zmierzonych świeżą sesją: cztery odnogowe (punkt 8
   weryfikacji E1), dwa rotacyjne (punkty 5 i 7 weryfikacji E2) i trzy z poprawek E3 (punkty 3, 4
   i 6, dopisane 2026-08-12) · źródło: E1, zakres rozszerzony w E2 i E3 ·
-  [karta](odnogi/POMIAR_ODNOG/ODNOGA.md) · **OTWARTA**
+  [karta](odnogi/POMIAR_ODNOG/ODNOGA.md) · **ANULOWANA 2026-09-01** — warunkiem startu było
+  `claude /login` na konto z dostępnym limitem (L-0032); decyzją człowieka odpuszczamy i login,
+  i odnogę. Dziewięć scenariuszy zostaje niezmierzonych, a **ryzyko R2 zostaje otwarte świadomie**
 - **REKOMENDACJA_MODELU** — rekomendacja modelu wykonawczego z realnej listy modeli narzędzia
   (Cursor: Composer/Auto/Grok/GPT/Gemini; Codex: warianty GPT) zamiast bezprzydomkowych klas ·
   źródło: E6, pilotaż 2026-08-17 · [karta](odnogi/REKOMENDACJA_MODELU/ODNOGA.md) · **OTWARTA**
@@ -46,9 +53,11 @@ projektu; architektura i plany: Fable)
   relai@relai` → restart aplikacji** · źródło: wpis dziennika 2026-08-12 (E1, powtórzone w E2 i E3)
   · **OTWARTA**
 - **`claude /login` na konto z dostępnym limitem** — warunek startu odnogi `POMIAR_ODNOG`
-  (L-0032) · źródło: wpis dziennika 2026-08-12 (E1, powtórzone w E2) · **OTWARTA**
+  (L-0032) · źródło: wpis dziennika 2026-08-12 (E1, powtórzone w E2) · *(anulowane 2026-09-01 —
+  decyzją człowieka odpuszczamy login razem z odnogą; R2 zostaje otwarte świadomie)*
 - **Decyzja, kiedy przepuścić JiraManagera i PolyFlow przez `/relai-update`** · źródło: wpis
-  dziennika 2026-08-12 (E2) · **OTWARTA**
+  dziennika 2026-08-12 (E2) · *(rozstrzygnięte 2026-09-01 — PolyFlow zmigrowany 2026-08-21,
+  JiraManager przeszedł adopcję poza sesjami tego repozytorium; okno niepotrzebne)*
 - **Osoba z zespołu do pilotażu Cursora** · źródło: wpis dziennika 2026-08-12 (E5) · *(rozstrzygnięte 2026-08-17: osoby nie było, pilotaż E6 poprowadził autor w wariancie zastępczym; kryterium akceptacyjne planu pozostaje niespełnione i wraca przy zamknięciu planu)*
 - **Instalacja gitowego pre-commita** — w tym repozytorium i w projektach roboczych; RelAI nie
   podkłada hooków gita sam (`node core/guardrails/install-precommit.js <projekt>`) · źródło: wpis
