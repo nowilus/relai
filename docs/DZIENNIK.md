@@ -1919,19 +1919,23 @@ Autor: RelAI (Opus) + Lukasz
 - **Zmiana `jestArtefaktem()` w `profile-rules.js`**, żeby obejmowała `.mdc`, `.html` szablonu planu
   i `README` katalogu specyfikacji. Poza zakresem odnogi (zakres opisuje stan, nie poprawia
   narzędzi), a hook jest artefaktem-nośnikiem, którego zmiana wymaga własnego pomiaru.
-- **Rozstrzygnięcie nazwy katalogu archiwum artefaktów.** `SPEC_PROFILE.md` mówi
-  `docs/archiwum/artefakty/`, `CLAUDE.md` tego projektu i karta odnogi — `docs/archiwum/artefaktow/`.
-  Katalog nie istnieje (D-11), więc dziś nic się nie zepsuło.
+- **Rozstrzygnięcie nazwy katalogu archiwum artefaktów.** `SPEC_PROFILE.md` **i `CLAUDE.md`** mówią
+  `docs/archiwum/artefakty/`; `artefaktow/` stało wyłącznie w karcie i prompcie tej odnogi.
+  *(sprostowanie 2026-09-01 — pierwsza wersja tego wpisu przypisała `artefaktow/` plikowi
+  `CLAUDE.md`; sprawdzone grepem: linia 50 ma `artefakty`)*. Katalog nie istnieje (D-11), więc
+  dziś nic się nie zepsuło. *(rozstrzygnięte 2026-09-01 — decyzja: `artefakty`)*
 - **Progi i rotacja rejestru** — `ARTEFAKTY.md` nie wchodzi do warstwy startowej sesji ani do
   budżetu; katalog progów jest zakresem E4 planu HIGIENA_DOKUMENTOW (Aneks B).
 
 **Do zrobienia przez człowieka:**
 
-- **Wybrać nazwę katalogu archiwum artefaktów** — `artefakty` (`SPEC_PROFILE.md`) czy `artefaktow`
-  (`CLAUDE.md` projektu). Wybór trzeba nanieść na przegraną stronę, zanim powstanie pierwsza
-  datowana kopia artefaktu.
+- **Wybrać nazwę katalogu archiwum artefaktów** — `artefakty` czy `artefaktow`. Wybór trzeba nanieść
+  na przegraną stronę, zanim powstanie pierwsza datowana kopia artefaktu.
+  *(rozstrzygnięte 2026-09-01 — `artefakty`; poprawione w karcie i prompcie odnogi)*
 - **Zdecydować, czy `profile-rules` ma widzieć `.mdc` i `.html`.** Dziś sześć z 39 artefaktów jest
   poza zasięgiem reguły profilu; rejestr je zna, ale hook o ich zmianie nie przypomni.
+  *(rozstrzygnięte 2026-09-01 — `.mdc` wchodzi do `jestArtefaktem()`; `.html` szablonu planu
+  i `core/templates/README.md` zostają poza zasięgiem świadomie)*
 
 ### 2026-09-01 — Zamknięcie sesji: pierwsza rotacja regułą 1.7.0 na własnym dzienniku
 
@@ -1986,3 +1990,41 @@ Autor: RelAI (Opus) + Lukasz
 
 - **Rozstrzygnąć, którą kopią specyfikacji ma się kierować sesja do czasu wydania 1.7.0.** Dziś
   rozjazd wykryło porównanie zrobione ręcznie; nic go nie zgłasza samo.
+
+### 2026-09-01 — Dwie bramki z odnogi zamknięte: `.mdc` w regule profilu i nazwa `artefakty`
+
+Autor: RelAI (Opus) + Lukasz
+
+**Zrobione:**
+
+- **`adapters/claude-code/hooks/profile-rules.js`, `jestArtefaktem()` widzi `.mdc`.** Reguła
+  adaptera Cursora jest czytana przez model jak skill, więc jest artefaktem; do tej pory trzy
+  reguły `.mdc` nie wyzwalały reguły profilu ani razu. Jedna pozycja we wzorcu rozszerzeń, komentarz
+  z powodem i datą pomiaru.
+- **Nazwa katalogu archiwum artefaktów rozstrzygnięta: `artefakty`.** `CLAUDE.md` i
+  `SPEC_PROFILE.md` miały ją już poprawnie; `artefaktow/` stało wyłącznie w karcie i prompcie odnogi
+  REJESTR_ARTEFAKTOW — poprawione w obu (3 wystąpienia).
+- **Sprostowanie wpisu z tej samej sesji.** Wcześniejszy wpis przypisał wariant `artefaktow/`
+  plikowi `CLAUDE.md`. To nieprawda: `CLAUDE.md:50` ma `artefakty`. Adnotacja sprostowania stoi przy
+  pierwotnym zdaniu, treść nie została skasowana (D-18).
+
+**Zweryfikowane — jak dokładnie:**
+
+- **Hook przemierzony tym samym instrumentem co przed zmianą, obie wersje w jednym przebiegu:**
+  39 ścieżek, dwa katalogi robocze różniące się wyłącznie obecnością rejestru. Bez rejestru
+  **36 ostrzeżeń** (przed zmianą: 33 — przybyły dokładnie trzy `.mdc`), z rejestrem **0**.
+- **Trzy pozycje nadal poza zasięgiem i to jest świadome:** `core/templates/HTML_PLAN/szablon.html`,
+  `komponenty.html` oraz `core/templates/README.md` — decyzja dotyczyła `.mdc`, nie ich.
+- **Stan nazw sprawdzony grepem po całym repozytorium**, nie okiem: po poprawce `artefaktow` nie
+  występuje w żadnym pliku poza adnotacjami historycznymi w tym dzienniku.
+- **`node core/tools/validate-adapters.js` → kod 0.**
+
+**Świadomie odłożone:**
+
+- **`.html` szablonu planu i `README` katalogu specyfikacji w regule profilu.** Oba są artefaktami
+  w rejestrze, ale hook o ich zmianie nie przypomni; `README.md` jest dodatkowo wykluczony wprost,
+  bo w zwykłym projekcie to plik rdzenia, a nie artefakt.
+
+**Do zrobienia przez człowieka:**
+
+- —

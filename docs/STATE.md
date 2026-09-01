@@ -115,9 +115,10 @@ kosztuje.
   ich nie dotyczy. **[REJESTR_ARTEFAKTOW](plany/HIGIENA_DOKUMENTOW/odnogi/REJESTR_ARTEFAKTOW/ODNOGA.md)**
   zamknięta 2026-09-01, **[BLOKADA_ROTACJI](fixy/BLOKADA_ROTACJI/ODNOGA.md)** wchłonięta przez E1 —
   obie przestały być wątkami.
-- Rozstrzygnąć dwie sprawy wyjęte z odnogi REJESTR_ARTEFAKTOW: nazwę katalogu archiwum artefaktów
-  (`artefakty` w `SPEC_PROFILE.md` kontra `artefaktow` w `CLAUDE.md`) i to, czy hook `profile-rules`
-  ma widzieć `.mdc` oraz `.html` — dziś sześć z 39 artefaktów jest poza zasięgiem reguły profilu.
+- Obie sprawy wyjęte z odnogi REJESTR_ARTEFAKTOW **rozstrzygnięte 2026-09-01**: katalog archiwum
+  artefaktów to `artefakty`, a `profile-rules` widzi `.mdc` (bez rejestru 36 ostrzeżeń zamiast 33,
+  z rejestrem 0). Poza zasięgiem hooka zostają świadomie `HTML_PLAN/*.html`
+  i `core/templates/README.md`.
 - Przejrzeć sekcję **„Czeka na człowieka"** w dzienniku — dziewięć spraw otwartych, w tym siedem
   rozstrzygnięć wpisanych w E2 planu OPTYMALIZACJA_KONTEKSTU na podstawie faktów z repozytorium,
   do potwierdzenia.

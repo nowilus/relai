@@ -41,7 +41,8 @@ komend i dwa skille — to własny zakres, nie skutek uboczny etapu o rotacji.
   budżetu; progi dokumentów są zakresem E4 planu HIGIENA_DOKUMENTOW.
 - **Wersjonowanie wsteczne** — nie odtwarzasz historii wersji artefaktu sprzed rejestru; rejestr
   zaczyna liczyć od dziś, z jawną adnotacją o tym.
-- **Katalog `docs/archiwum/artefaktow/`** — powstaje dopiero przy pierwszej datowanej kopii (D-11).
+- **Katalog `docs/archiwum/artefakty/`** — powstaje dopiero przy pierwszej datowanej kopii (D-11).
+  Nazwa rozstrzygnięta 2026-09-01: `artefakty`, zgodnie z `SPEC_PROFILE.md` i `CLAUDE.md`.
 
 ## Weryfikacja
 
@@ -86,7 +87,12 @@ zmiany kodu hooka albo specyfikacji:
    tylko `.md|.txt|.prompt|.tmpl|.j2` i wyklucza każdy `README.md`, więc trzy reguły Cursora
    (`.mdc`), dwa pliki `HTML_PLAN/*.html` i `core/templates/README.md` nie wyzwalają reguły profilu
    nigdy. W rejestrze są, ale ich zmiana nie przypomni o podbiciu wersji.
-2. **Nazwa katalogu archiwum artefaktów rozjeżdża się między dokumentami.** `SPEC_PROFILE.md` mówi
-   `docs/archiwum/artefakty/`, a `CLAUDE.md` tego projektu i karta tej odnogi — `docs/archiwum/
-   artefaktow/`. Katalog nie istnieje, więc nic się dziś nie zepsuło; przy pierwszej datowanej kopii
-   trzeba wybrać jedną nazwę.
+2. **Nazwa katalogu archiwum artefaktów rozjeżdżała się między dokumentami.** `SPEC_PROFILE.md`
+   i `CLAUDE.md` mówią `docs/archiwum/artefakty/`, a karta i prompt tej odnogi mówiły
+   `artefaktow/`. *(rozstrzygnięte 2026-09-01 — decyzja użytkownika: `artefakty`; dokumenty odnogi
+   poprawione, warstwa nośna była już zgodna)*
+
+**Obie sprawy zamknięte 2026-09-01 decyzją użytkownika**, w turze po zamknięciu odnogi:
+`.mdc` wchodzi do `jestArtefaktem()` (pomiar po zmianie: bez rejestru **36** ostrzeżeń zamiast 33,
+z rejestrem nadal **0**), nazwa katalogu to `artefakty`. Poza zasięgiem hooka zostają świadomie
+`core/templates/HTML_PLAN/*.html` i `core/templates/README.md` — o nie decyzja nie padła.

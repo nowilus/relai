@@ -115,10 +115,12 @@ function jestKonfiguracjaWdrozeniowa(rel) {
 }
 
 // Artefakt profilu prompty: tekst poza docs/, bez plikow rdzenia projektu.
+// .mdc to regula adaptera Cursora — czytana przez model jak skill, wiec jest artefaktem.
+// Bez niej trzy reguly Cursora nie wyzwalaly reguly profilu ani razu (pomiar 2026-09-01).
 function jestArtefaktem(rel) {
   const nazwa = rel.split('/').pop() || '';
   if (/^(CLAUDE|README|LICENSE|CHANGELOG|CONTRIBUTING)\.md$/i.test(nazwa)) return false;
-  return /\.(md|txt|prompt|tmpl|j2)$/i.test(rel);
+  return /\.(md|mdc|txt|prompt|tmpl|j2)$/i.test(rel);
 }
 
 function warn(text) {

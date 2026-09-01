@@ -25,7 +25,7 @@ Odnoga: REJESTR_ARTEFAKTOW • Plan-rodzic: HIGIENA_DOKUMENTOW, etap E1 • Wyge
 - **Rejestr odpowiada na pytanie „po co", dziennik na „co się działo"** (`CLAUDE.md`) — nie mieszasz
   ich i nie przepisujesz treści wpisów do rejestru.
 - **Nic nie kasujesz i nie nadpisujesz po cichu** (D-18): poprzednia wersja artefaktu zostaje
-  w historii gita albo jako datowana kopia w `docs/archiwum/artefaktow/`.
+  w historii gita albo jako datowana kopia w `docs/archiwum/artefakty/`.
 - **Nie ruszasz planu głównego.** `PLAN.html` planu HIGIENA_DOKUMENTOW jest zamrożony (D-33): nie
   edytujesz jego sekcji, nie dopisujesz aneksu, nie zmieniasz tabeli etapów w `STATUS.md`. Jedyne,
   co ta odnoga zmienia w dokumentach planu, to własna linia w sekcji „Odnogi" `STATUS.md`.
@@ -136,7 +136,7 @@ urosnąć, prompt nie):
 4. **`docs/STATE.md`** — jedno zdanie, że rejestr istnieje. `CLAUDE.md` bez zmian.
 
 Poza zakresem, choć kusi: zmiana jakiegokolwiek artefaktu, progi i rotacja rejestru (E4 planu),
-odtwarzanie historii wersji sprzed rejestru, zakładanie `docs/archiwum/artefaktow/` na zapas.
+odtwarzanie historii wersji sprzed rejestru, zakładanie `docs/archiwum/artefakty/` na zapas.
 
 ## Weryfikacja (wszystkie punkty muszą przejść)
 
