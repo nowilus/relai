@@ -61,7 +61,8 @@ projektu; architektura i plany: Fable)
 - **Osoba z zespołu do pilotażu Cursora** · źródło: wpis dziennika 2026-08-12 (E5) · *(rozstrzygnięte 2026-08-17: osoby nie było, pilotaż E6 poprowadził autor w wariancie zastępczym; kryterium akceptacyjne planu pozostaje niespełnione i wraca przy zamknięciu planu)*
 - **Instalacja gitowego pre-commita** — w tym repozytorium i w projektach roboczych; RelAI nie
   podkłada hooków gita sam (`node core/guardrails/install-precommit.js <projekt>`) · źródło: wpis
-  dziennika 2026-08-12 (E4) · **OTWARTA**
+  dziennika 2026-08-12 (E4) · *(wykonane 2026-09-01 — zainstalowany w RelAI, JiraManagerze
+  i PolyFlow; w każdym zmierzony na dwóch wariantach indeksu, kod 1 z sekretem i 0 bez)*
 
 ## Dziennik wdrożenia
 

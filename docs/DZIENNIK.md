@@ -15,12 +15,6 @@
 
 ## Czeka na człowieka
 
-- **Decyzja o instalacji pre-commita: `node core/guardrails/install-precommit.js
-  <projekt>`** · 2026-08-12 ·
-  [wpis 2026-08-17 — E6: pilotaż Cursora](#2026-08-17--e6-pilotaż-cursora-wariant-zastępczy-wersja-151)
-- **Ponowna instalacja pre-commita tam, gdzie już stoi — poprawka 1.5.1 nie dotrze do
-  `.git/hooks/` sama** · 2026-08-17 ·
-  [wpis 2026-08-17 — E6: pilotaż Cursora](#2026-08-17--e6-pilotaż-cursora-wariant-zastępczy-wersja-151)
 - **Weryfikacja ośmiu rozstrzygnięć wpisanych w E2 — wypisane co do jednego 2026-09-01, czekają na
   potwierdzenie albo sprzeciw** · 2026-08-20 ·
   [wpis 2026-09-01 — Osiem bramek z listy zamkniętych](#2026-09-01--osiem-bramek-z-listy-zamkniętych-plan-rozwoj_po_wydaniu-zamrożony-formalnie)
@@ -312,13 +306,13 @@ Autor: RelAI (Opus 5) + Łukasz
   **Uwaga z tego etapu:** guardrail tej sesji pochodził z zainstalowanej wersji 1.1.0 i blokował
   łatkę do samego siebie — do restartu obowiązuje stary skaner. *(wyprowadzone 2026-08-20 → sekcja „Czeka na człowieka")*
 - **Projekty z zainstalowanym gitowym pre-commitem wymagają ponownej instalacji** — instalator
-  kopiuje skaner do `.git/hooks/`, więc poprawka 1.5.1 nie dotrze tam sama. *(wyprowadzone 2026-08-20 → sekcja „Czeka na człowieka")*
+  kopiuje skaner do `.git/hooks/`, więc poprawka 1.5.1 nie dotrze tam sama. *(wyprowadzone 2026-08-20 → sekcja „Czeka na człowieka")* *(anulowane 2026-09-01 — sprawa bezprzedmiotowa: `find` po całym katalogu użytkownika nie znalazł ani jednej starej instalacji, więc nie ma czego nadpisywać)*
 - **`claude /login`** na konto z dostępnym limitem — warunek startu odnogi `POMIAR_ODNOG`.
   Bramka manualna planu. *(wyprowadzone 2026-08-20 → sekcja „Czeka na człowieka")*
 - **Decyzja, kiedy przepuścić JiraManagera i PolyFlow przez `/relai-update`.** Bramka manualna. *(wyprowadzone 2026-08-20 → sekcja „Czeka na człowieka")*
-- **Decyzja o instalacji pre-commita.** Bramka manualna. *(wyprowadzone 2026-08-20 → sekcja „Czeka na człowieka")*
+- **Decyzja o instalacji pre-commita.** Bramka manualna. *(wyprowadzone 2026-08-20 → sekcja „Czeka na człowieka")* *(wykonane 2026-09-01 — zainstalowany w RelAI, JiraManagerze i PolyFlow; w każdym zmierzony na dwóch wariantach indeksu)*
 - **Czy projekt testowy `ProbaCursorE6` zostaje** (materiał do E7 i do odnogi `POMIAR_ODNOG`), czy
-  idzie do kasacji. Ma niezacommitowany dorobek E1 i dwie własne bramki (testy, kierunek wizualny). *(wyprowadzone 2026-08-20 → sekcja „Czeka na człowieka")*
+  idzie do kasacji. Ma niezacommitowany dorobek E1 i dwie własne bramki (testy, kierunek wizualny). *(wyprowadzone 2026-08-20 → sekcja „Czeka na człowieka")* *(rozstrzygnięte 2026-09-01 — katalog projektu już nie istnieje; zostały wyłącznie metadane sesji poza repozytorium)*
 
 ### 2026-08-17 — Zamknięcie sesji
 
@@ -2070,3 +2064,56 @@ Autor: RelAI (Opus) + Lukasz
 - **Usunąć katalog projektu `ProbaCursorE6`** — decyzja zapadła, kasowania nie wykonuję.
 - **Potwierdzić albo cofnąć osiem rozstrzygnięć z E2** wypisanych w tej turze; sprzeciw przy
   którymkolwiek zawraca sprawę do sekcji „Czeka na człowieka".
+
+### 2026-09-01 — Pre-commit zainstalowany w trzech repozytoriach i zmierzony w każdym
+
+Autor: RelAI (Opus) + Lukasz
+
+**Zrobione:**
+
+- **Gitowy pre-commit ze skanem sekretów zainstalowany w trzech repozytoriach:** RelAI,
+  JiraManager i PolyFlow. Do `.git/hooks/` każdego trafiły dwa pliki — `pre-commit` i własna kopia
+  `relai-secret-scan.js`. Żaden projekt nie miał wcześniej **jakiegokolwiek** hooka `pre-commit`,
+  więc instalator niczego nie nadpisał.
+- **Guardrail działa teraz poza Claude i Cursorem** — commit z kluczem zatrzyma się także wtedy,
+  gdy pójdzie z terminala albo z IDE. To była ostatnia warstwa, której w tych projektach brakowało.
+- **Sprawa „ponowna instalacja tam, gdzie hook już stoi" okazała się bezprzedmiotowa** i została
+  anulowana — patrz „Zweryfikowane".
+- **Los `ProbaCursorE6` rozstrzygnięty faktem, nie decyzją:** katalog projektu już nie istnieje.
+  Zostały wyłącznie metadane sesji poza repozytorium, wypisane użytkownikowi do samodzielnego
+  usunięcia.
+
+**Zweryfikowane — jak dokładnie:**
+
+- **Każda instalacja zmierzona na dwóch wariantach indeksu w jednym przebiegu.** Indeks z próbką
+  klucza `sk-ant-api03-…` → hook kończy się **kodem 1** i komunikatem „commit ZATRZYMANY", bez
+  cytowania wartości; ten sam hook na indeksie bez sekretu → **kod 0**. Wynik identyczny w RelAI,
+  JiraManagerze i PolyFlow.
+- **Próbka składana w czasie wykonania** (L-0046) — w żadnym pliku repozytorium nie stoi ciąg
+  wyglądający jak klucz. Plik próbny powstawał i znikał w tej samej komendzie.
+- **Praca w toku nietknięta:** oba projekty miały **0 plików w indeksie** przed próbą i **0 po
+  niej**; PolyFlow ma osiem zmodyfikowanych plików w katalogu roboczym, żadnego nie ruszono.
+  Hook wołany wprost, a nie przez `git commit` — ten sam kod, zero ryzyka wpisu do historii.
+- **Trzy kopie są identyczne, nie „podobne":** `sha256sum` na `pre-commit`
+  (`d79908ef859d59e3…`) i `relai-secret-scan.js` (`066b5ed1ad484cf5…`) daje tę samą parę sum
+  w trzech repozytoriach.
+- **Sprawa ponownej instalacji zamknięta pomiarem, nie domysłem:** `find` po całym
+  `C:\Users\Lukasz` (głębokość 5) za `relai-secret-scan.js` w katalogach hooków dał **jedno**
+  trafienie — świeżo zainstalowane w RelAI. Starych instalacji, do których poprawka 1.5.1 miałaby
+  nie dotrzeć, nie ma.
+- **`ProbaCursorE6`:** katalogu nie ma ani na pulpicie, ani nigdzie w katalogu użytkownika do
+  głębokości 4. Istnieją tylko `~/.claude/projects/C--Users-Lukasz-Desktop-ProbaCursorE6`,
+  `~/.claude/session-data/2026-08-17-ProbaCursorE6-session.tmp` oraz
+  `~/.cursor/projects/C-Users-Lukasz-Desktop-ProbaCursorE6`.
+
+**Świadomie odłożone:**
+
+- **Instalacja w pozostałych repozytoriach na pulpicie.** Jest ich kilkadziesiąt; decyzja dotyczyła
+  trzech projektów prowadzonych przez RelAI.
+
+**Do zrobienia przez człowieka:**
+
+- **Usunąć metadane sesji `ProbaCursorE6`** — trzy ścieżki wypisane wyżej. Trwałego kasowania nie
+  wykonuję.
+- **Potwierdzić albo cofnąć osiem rozstrzygnięć z E2** — jedyna pozycja, jaka została w sekcji
+  „Czeka na człowieka".

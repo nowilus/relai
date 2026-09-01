@@ -80,7 +80,9 @@ kosztuje.
   Wpis dziennika jest podpisany modelem i użytkownikiem; brakujący człon zostaje wyłapany.
 - Klucz API nie wejdzie do repozytorium, a reguły projektu nie zmienią się bez potwierdzenia. Skan
   sekretów działa **poza Claude**: gitowy pre-commit zatrzymuje commit z kluczem niezależnie od
-  narzędzia; bez Node.js mówi o tym wprost, zamiast po cichu przepuścić.
+  narzędzia; bez Node.js mówi o tym wprost, zamiast po cichu przepuścić. **Od 2026-09-01 stoi
+  realnie w trzech repozytoriach** — RelAI, JiraManager, PolyFlow — a w każdym zmierzony na dwóch
+  wariantach indeksu (kod 1 z sekretem, 0 bez).
 - Repozytorium ma jawną granicę: `core/` to wspólny rdzeń, a `adapters/claude-code/`
   i `adapters/cursor/` to dwa wyjścia. Walidator wykrywa, gdy adapter odjedzie od rdzenia.
 - **Proces przeżywa zmianę dostawcy modelu** — cały etap poprowadził Grok 4.6 w aplikacji Cursora,
@@ -121,13 +123,10 @@ kosztuje.
   z rejestrem 0). Poza zasięgiem hooka zostają świadomie `HTML_PLAN/*.html`
   i `core/templates/README.md`.
 - Potwierdzić albo cofnąć **osiem rozstrzygnięć wpisanych w E2** planu OPTYMALIZACJA_KONTEKSTU —
-  wypisane co do jednego 2026-09-01, każde ze swoim dowodem. To ostatnia sprawa merytoryczna
-  w sekcji „Czeka na człowieka"; dwie pozostałe dotyczą pre-commita.
-- Zainstalować pre-commit tam, gdzie ma pilnować: `node core/guardrails/install-precommit.js
-  <projekt>`. **Sprawdzone 2026-09-01: w tym repozytorium hooka nie ma.** Tam, gdzie stoi od
-  wcześniej, instalację trzeba powtórzyć — kopia skanera w `.git/hooks/` nie dostanie poprawki
-  z 1.5.1 sama.
-- Usunąć katalog projektu testowego `ProbaCursorE6` — decyzja o kasacji zapadła 2026-09-01.
+  wypisane co do jednego 2026-09-01, każde ze swoim dowodem. To **jedyna** pozycja, jaka została
+  w sekcji „Czeka na człowieka".
+- Usunąć metadane sesji `ProbaCursorE6` (`~/.claude/projects/`, `~/.claude/session-data/`,
+  `~/.cursor/projects/`) — sam katalog projektu już nie istnieje.
 - Po odmrożeniu E7: adapter Codeksa, `AGENTS.md` jako plik główny projektu z adapterem Cursora albo
   Codeksa (D-86, 2026-08-17) wraz z przepięciem instalatora Cursora, ten sam scenariusz akceptacyjny
   co w E6.
