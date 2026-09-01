@@ -1,7 +1,7 @@
 # STATUS — plan HIGIENA_DOKUMENTOW
 
 Plan: [PLAN.html](PLAN.html) · Utworzony: 2026-09-01 · Status planu: **ZAAKCEPTOWANY 2026-09-01
-(Aneksy A, B, C)** · Model wykonawczy etapów: Opus (D-85)
+(Aneksy A, B, C, D)** · Model wykonawczy etapów: Opus (D-85)
 
 ## Tabela etapów
 
@@ -12,7 +12,7 @@ Plan: [PLAN.html](PLAN.html) · Utworzony: 2026-09-01 · Status planu: **ZAAKCEP
 | E3 | Sprawa przeterminowana wymusza decyzję | **ZREALIZOWANY 2026-09-01** | [PROMPT_ETAP_3.md](PROMPT_ETAP_3.md) | `N = 30 dni`, wyłącznik osobny od rotacji (Aneks A); materiał pomiarowy inny, niż zakładał prompt — 1 pozycja zamiast 9 |
 | E4 | Raport startu jako adres progów | **ZREALIZOWANY 2026-09-01** | [PROMPT_ETAP_4.md](PROMPT_ETAP_4.md) | drugi wyzwalacz raportu, progi sekcji, katalog progów w `SPEC_USTAWIENIA.md`; limit „Zasad aktywnych" nietknięty |
 | E5 | Ryzyka i ustawienia schodzą do archiwum | **ZREALIZOWANY 2026-09-01** | [PROMPT_ETAP_5.md](PROMPT_ETAP_5.md) | Aneks C — kryterium „sekcja ryzyk PolyFlow pod 12 KB" nieosiągalne arytmetycznie; zamienione na dowód działania mechanizmu |
-| E6 | Pomiar na realnych projektach i wydanie | **GOTOWY DO STARTU** | [PROMPT_ETAP_6.md](PROMPT_ETAP_6.md) | wydanie 1.7.0, sekwencja P-005 obowiązuje; **ostatni etap planu** — rytuał kończy się sekwencją zamknięcia planu (D-36) |
+| E6 | Pomiar na realnych projektach i wydanie | **W TOKU** | [PROMPT_ETAP_6.md](PROMPT_ETAP_6.md) | wydanie 1.7.0, sekwencja P-005 obowiązuje; **ostatni etap planu** — rytuał kończy się sekwencją zamknięcia planu (D-36) |
 
 ## Odnogi
 
@@ -85,3 +85,10 @@ Plan: [PLAN.html](PLAN.html) · Utworzony: 2026-09-01 · Status planu: **ZAAKCEP
   zostało, `startCost` i `sprawyPrzeterminowane` bez zmiany. Rozjazd sum zatrzymuje obie
   procedury. To repozytorium: **0 zmian, 0 znaków**. Wygenerowano PROMPT_ETAP_6; E6 gotowy do
   startu i jest ostatnim etapem planu.
+- 2026-09-01 — E6 rozpoczęty.
+- 2026-09-01 — **Aneks D**: zakres E6 rozszerzony o poprawkę wzorca `ASSIGN_RE`
+  w `core/guardrails/secret-scan.js`. Powód wyszedł przy commicie wydania: guardrail zatrzymał
+  zdanie specyfikacji **opisujące ten sam guardrail** (`PASSWORD=` / `SECRET=` w kodzie liniowym
+  Markdown), bo klasa wartości nie wykluczała backticka. Zasada aktywna 12 zabrania obejścia
+  przez `--no-verify`, a bez commita nie ma sekwencji wydania. Zakres pozostałych punktów E6
+  bez zmian.

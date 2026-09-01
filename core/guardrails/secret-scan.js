@@ -20,7 +20,14 @@ const PATTERNS = [
   { label: 'klucz prywatny PEM', re: /-----BEGIN [A-Z ]*PRIVATE KEY-----/ },
 ];
 
-const ASSIGN_RE = /\b(PASSWORD|PASSWD|SECRET|TOKEN|API[_-]?KEY|ACCESS[_-]?KEY)\b\s*[:=]\s*["']?([^\s"',;]{8,})/i;
+// Backtick jest znakiem cudzyslowu, nigdy znakiem wartosci. Bez tego rozroznienia zdanie
+// dokumentacji o samym guardrailu (`PASSWORD=` / `SECRET=` z wartoscia) wpadalo w ten wzorzec:
+// po nazwie stoi backtick i ukosnik, a stara klasa wartosci backticka nie wykluczala, wiec
+// znaki miedzy fragmentami kodu wygladaly jak haslo. To jest wyjatek dla linii mowiacej wprost
+// o rzeczy sprawdzanej. Przy okazji domyka dziure w druga strone: template literal w JS zostaje
+// zlapany, bo otwierajacy backtick konsumuje grupa cudzyslowu. Zmierzone w E6 (Aneks D,
+// 2026-09-01) na dziewieciu przypadkach: stary wzorzec myli sie raz, nowy zero razy.
+const ASSIGN_RE = /\b(PASSWORD|PASSWD|SECRET|TOKEN|API[_-]?KEY|ACCESS[_-]?KEY)\b\s*[:=]\s*["'`]?([^\s"',;`]{8,})/i;
 const PLACEHOLDER_RE = /^(\$|%|<|\{|\*|x{3,}$|your[_-]?|change[_-]?me|placeholder|example|dummy|sample|test[_-]?|todo|tbd|none$|null$|undefined$|\.\.\.|process\.env)/i;
 
 // Adnotacja typu, nie wartosc. Sygnatura funkcji haszujacej haslo — identyfikator, dwukropek,
