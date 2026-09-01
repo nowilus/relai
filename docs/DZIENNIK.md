@@ -5,7 +5,7 @@
 | # | Ryzyko | Poziom | Status | Mitygacja |
 |---|---|---|---|---|
 | R2 | Auto-wyzwalanie skilli bywa zawodne (agent nie zastosuje zasad bez komendy) | **Niski przy Opusie, średni przy modelach słabszych** (2026-08-10 po E10) | **ZMIERZONE 2026-08-10, OTWARTE ŚWIADOMIE** | Warstwą nośną są hook `session-context` i `CLAUDE.md` projektu — działają przy każdym modelu, bez wyzwalania; skill dokłada wyłącznie procedurę (L-0030). Opus wyzwala skill sam i wykonuje procedurę w całości; Sonnet 4.6 i Haiku 4.5 nie wołają `Skill` ani razu, więc projekt nie traci pamięci, ale procedura bywa niepełna. Otwarte świadomie: to trwała własność modeli, nie usterka do naprawienia. Zakres ryzyka rósł od 1.1.0 bez pomiaru — dziesiąta komenda, sygnał odchylenia, rozjazd stanu i kontrola podpisu nie były mierzone w świeżej sesji, bo limit konta zatrzymał CLI (L-0032); czeka to w odnodze `POMIAR_ODNOG`. Zmierzone: 2026-08-07 (E5), 2026-08-10 (E10), 2026-08-12 (E1), 2026-08-12 (E3) |
-| R5 | Dokumenty puchną i zjadają kontekst | Średni | **OTWARTE — do obserwacji po 1.0.0** | Mechanizm jest kompletny i mierzony: budżet startu, rotacja z blokadą liczoną z sekcji „Czeka na człowieka", twardy kształt `STATE.md` i `CLAUDE.md`, ryzyka zamknięte schodzące do archiwum. Warstwa startowa tego repozytorium: 90 KB przed planem, 39,4 KB po E4. **PolyFlow przeszedł na 1.6.1 w E5: 155,7 → 136,4 KB (−12,4%)** — mniej, niż zakładał plan: rotacja przeniosła 5 wpisów z 97 (odnoga BLOKADA_ROTACJI), a zasady i ustawienia czekają tam na decyzje właściciela. Otwarte, bo **JiraManager (386 KB startu) nie został tknięty** — właściciel wyłączył go z zakresu jako projekt w ciągłym rozwoju, a jeden zmigrowany projekt nie jest dowodem. Zmierzone: 2026-08-12 (E2), 2026-08-20 (pomiar trzech projektów), 2026-08-20 (E1, E2, E3), 2026-08-21 (E4), 2026-08-21 (E5) |
+| R5 | Dokumenty puchną i zjadają kontekst | **Średni, potwierdzony na trzech projektach** (2026-09-01) | **OTWARTE — plan HIGIENA_DOKUMENTOW jest odpowiedzią** | Mechanizm jest kompletny, ale **nie broni się sam**: progi nie mają adresu egzekwowania, więc rosną latami. Dowody: PolyFlow — dziennik 862,7 KB przy progu 150 KB, rotacja stała tygodniami (zgłoszenie 2026-09-01); RelAI — `LEKCJE.md` 52,3 KB przy progu 50 KB, a sekcja „Lekcje zwinięte" 35,8 KB przy własnym progu 30 KB, żaden z nich nikogo nie obudził. Naprawa idzie planem HIGIENA_DOKUMENTOW (6 etapów, Aneksy A i B); dziś wykonano jedno przeniesienie ręcznie: `LEKCJE.md` 52,3 → 16,9 KB. Otwarte, dopóki plan nie dobiegnie końca **i** dopóki **JiraManager (386 KB startu) nie zostanie tknięty** — jeden zmigrowany projekt nie jest dowodem. Zmierzone: 2026-08-12 (E2), 2026-08-20 (trzy projekty), 2026-08-21 (E4, E5), 2026-09-01 |
 | P1 | Adaptery Cursor/Codex nie egzekwują blokad harnessu — sekret albo zmiana konfiguracji przejdzie tam, gdzie w Claude Code stoi ściana (plan ROZWOJ_PO_WYDANIU) | **Średni** (2026-08-12 po E4; wcześniej wysoki) | **OTWARTE** | Część sekretowa jest zamknięta dowodem z aplikacji: w Cursorze zadziałały obie warstwy — reguła odmówiła pierwsza, a przy prośbie o próbę mimo reguły zapis klucza odbił hook `preToolUse` werdyktem `permission: deny`; niezależnie od narzędzia commit z sekretem zatrzymuje gitowy pre-commit. Otwarte z dwóch powodów: Cursor nie ma egzekwowanego `ask`, więc pliki konfiguracyjne chroni tam sama reguła zamiast bramki, a Codex pozostaje niezmierzony do odmrożenia E7 planu ROZWOJ_PO_WYDANIU. Zmierzone: 2026-08-12 (E4), 2026-08-12 (E5), 2026-08-17 (E6) |
 | P2 | Odpowiednik R2 w Cursor/Codex: bez auto-wyzwalania skilli proces zależy od dyscypliny modelu (plan ROZWOJ_PO_WYDANIU) | **Niski dla Cursora, średni dla Codeksa** (2026-08-17 po E6; wcześniej średni) | **OTWARTE (już tylko Codex)** | Reguła zawsze-w-kontekście działa w Cursorze bez żadnego wyzwalacza: pilotaż przeszedł pełny cykl na trzech modelach, a cały etap poprowadził model spoza Anthropic (Grok 4.6) — rytuał startu, karta etapu z kontrolą modelu, granica zakresu, rytuał zamknięcia z promptem następnego etapu. Dyscyplina procesu nie zależy od dostawcy modelu. Otwarte już tylko dla Codeksa: warstwą nośną ma tam być `AGENTS.md` z twardym limitem 32 KiB, a skille wyzwalają się dopasowaniem opisu — tym samym mechanizmem, który przy R2 okazał się zależny od modelu. Zmierzone: 2026-08-12 (E4), 2026-08-12 (E5), 2026-08-17 (E6) |
 
@@ -41,6 +41,13 @@
 - **Weryfikacja siedmiu rozstrzygnięć wpisanych w E2 — każde ma w adnotacji swój dowód; sprzeciw
   cofa je jedną linią** · 2026-08-20 ·
   [wpis 2026-08-20 — E2: rozbrojenie rotacji](#2026-08-20--e2-rozbrojenie-rotacji--sekcja-czeka-na-człowieka-i-drugie-wejście-na-starcie)
+- **Akceptacja planu HIGIENA_DOKUMENTOW** *(rozstrzygnięte 2026-09-01 — plan ZAAKCEPTOWANY z Aneksem A,
+  `STATUS.md` planu, wygenerowany `PROMPT_ETAP_1.md`)* · 2026-09-01 ·
+  [wpis 2026-09-01 — zgłoszenie z PolyFlow](#2026-09-01--zgłoszenie-z-polyflow-rotacja-i-progi-nie-bronią-się-same-plan-higiena_dokumentow)
+- **Wartość `N` dla przeglądu spraw człowieka i zachowanie przy wyłączonej rotacji**
+  *(rozstrzygnięte 2026-09-01 — `N = 30 dni`, przegląd działa także przy wyłączonej rotacji;
+  Aneks A do PLAN.html, sekcja 10)* · 2026-09-01 ·
+  [wpis 2026-09-01 — zgłoszenie z PolyFlow](#2026-09-01--zgłoszenie-z-polyflow-rotacja-i-progi-nie-bronią-się-same-plan-higiena_dokumentow)
 
 ## Wpisy
 
@@ -1825,3 +1832,174 @@ Autor: RelAI (Opus 5) + Lukasz
 **Do zrobienia przez człowieka:**
 
 - —
+
+### 2026-09-01 — Zgłoszenie z PolyFlow: rotacja i progi nie bronią się same; plan HIGIENA_DOKUMENTOW
+
+Autor: RelAI (Opus 5) + Lukasz
+
+**Zrobione:**
+
+- **Przyjęte zgłoszenie z sesji roboczej PolyFlow (2026-09-01)** — sześć defektów mechanizmu rotacji
+  i progów, opisanych liczbami z pomiaru na tamtym projekcie: pozycja „Czeka na człowieka" bez terminu
+  przydatności, niema blokada rotacji, nietykalność liczona w sztukach przy progu w kilobajtach, sekcja
+  „Ustawienia wycofane" nieodchudzająca niczego, rotacja ryzyk bezsilna wobec statusów innych niż
+  `ZAMKNIĘTE`, progi bez adresu egzekwowania.
+- **Wywiad w czterech rundach** (12 pytań) — rozstrzygnięte: forma pracy (nowy plan, odnoga wchłonięta),
+  właściciel sygnału progów (raport startu bierze progi dokumentów, limit „Zasad aktywnych" zostaje przy
+  kroku 1 rytuału zamknięcia), sposób odchudzenia ryzyk (kompresja komórki „Mitygacja", wiersz zostaje
+  widoczny), kryterium nietykalności (zostaje w sztukach, próg liczony ponad nietykalnymi), źródło daty
+  przeglądu (domyślny wiek N dni z ustawień), tryb pytania (wymuszone `AskUserQuestion` partiami po cztery,
+  aż do wyczerpania listy) i znaczenie odpowiedzi „zostawiam" (odroczenie o kolejne N dni z licznikiem).
+- **`docs/plany/HIGIENA_DOKUMENTOW/PLAN.html`** — plan główny w HTML wg `SPEC_PLAN_HTML.md`: dziesięć
+  sekcji, cztery warianty z jawnymi powodami odrzucenia, diagram przepływu startu sesji, wykres
+  pracochłonności, sześć ryzyk, siedem przypadków brzegowych rozstrzygniętych, trzy sprawy dla człowieka
+  oraz symulator na sześciu wejściach liczący zakres rotacji przed poprawką i po niej.
+- **`docs/plany/HIGIENA_DOKUMENTOW/STATUS.md`** — sześć etapów, wszystkie `OCZEKUJE`, status planu
+  `DO AKCEPTACJI`, model wykonawczy Opus (D-85).
+- **`CLAUDE.md`** — wiersz planu w tabeli „Stan prac" i linia aktywnego planu (dotąd `brak`).
+- **`docs/STATE.md`** — nowa pozycja w „Nad czym pracujemy teraz"; odnoga `BLOKADA_ROTACJI` przestaje być
+  wątkiem samodzielnym i wchodzi jako E1 tego planu.
+
+**Zweryfikowane — jak dokładnie:**
+
+- **Zgłoszenie sprawdzone na tym repozytorium, nie przyjęte na słowo** `FAKT`: `docs/LEKCJE.md` ma
+  **52 260 B przy progu 50 KB** i 38 lekcji przy progu 40 — próg objętościowy przekroczony, rotacja lekcji
+  nie odpaliła nigdy. To potwierdza punkt 6 zgłoszenia w projekcie, w którym mechanizm powstał. Pozostałe
+  pomiary warstwy startowej: `DZIENNIK.md` 140 068 B, `STATE.md` 11 425 B, `USTAWIENIA.md` 3 039 B,
+  `CLAUDE.md` 3 920 B, „Zasady aktywne" 15 pozycji przy limicie 15.
+- **Zakres odnogi `BLOKADA_ROTACJI` przeczytany przed wchłonięciem** — jej sekcja „Poza zakresem" stawiała
+  progi rotacji i rotację ryzyk poza zasięgiem („progi są skalibrowane, problem nie jest w liczbach";
+  „rotacja ryzyk zadziałała poprawnie w PolyFlow"). Pomiar z PolyFlow pokazał, że oba wyłączenia były
+  przedwczesne — stąd plan zamiast rozszerzenia karty odnogi.
+- **Builder planu HTML** — `node .claude/relai/templates/HTML_PLAN/zbuduj.js` zakończony kodem **0**:
+  „Osadzono 6 regul @font-face. Plik ma 239 KB", **zero** niewypełnionych znaczników.
+- **Plan sprawdzony w przeglądarce, nie tylko zbudowany** `FAKT`: symulator na wartościach startowych
+  (stan PolyFlow) daje rotację dziś **1 wpis / ok. 7 KB**, po poprawce **117 wpisów / 750 KB schodzi**,
+  żywy plik **113 KB** — zgodne z pomiarem z sesji PolyFlow (117 wpisów, 749,6 KB, 113,3 KB). Przypadek
+  brzegowy „nietykalne przekraczają próg" wykryty poprawnie po podniesieniu wagi nietykalnych do 200 KB.
+  Zwijanie bloków: `aria-expanded` przechodzi `false → true → false`, klasa `otw` dokłada się i schodzi.
+  Poziome przewijanie: **0 px** przy 1200×900 i przy 375×812; jedyne elementy poza kadrem to linki
+  w pasku nawigacji, który ma własne `overflow-x:auto`. Żądań sieciowych brak — dwa trafienia `http://`
+  to przestrzeń nazw SVG w `createElementNS`, nie zasób.
+
+**Świadomie odłożone:**
+
+- **Nie ruszam sekcji „Czeka na człowieka" tego repozytorium**, mimo że 9 z 10 jej pozycji byłoby po
+  zmianie przeterminowanych. Reguła wieku powstaje w E3; stosowanie jej przed napisaniem byłoby
+  rozstrzyganiem spraw człowieka bez mechanizmu, który to rozstrzyganie definiuje.
+- **Nie rotuję `LEKCJE.md`**, choć jest 2,3 KB nad progiem. Rotacja należy do rytuału zamknięcia sesji,
+  a nie do tury, w której powstaje plan o rotacji.
+
+**Do zrobienia przez człowieka:**
+
+- **Akceptacja planu HIGIENA_DOKUMENTOW** — do czasu zgody plan jest edytowalny; po akceptacji zmiany
+  wyłącznie datowanymi aneksami (D-33).
+- **Wartość `N` — po ilu dniach sprawa człowieka jest przeterminowana** (propozycja: 90 dni) oraz
+  rozstrzygnięcie, czy przegląd spraw ma działać w projekcie z wyłączoną rotacją. Blokuje start E3.
+
+### 2026-09-01 — Plan HIGIENA_DOKUMENTOW zaakceptowany z Aneksem A, E1 gotowy do startu
+
+Autor: RelAI (Opus 5) + Lukasz
+
+**Zrobione:**
+
+- **Plan zaakceptowany** — status w `STATUS.md` i w `PLAN.html`: `ZAAKCEPTOWANY 2026-09-01 (Aneks A)`.
+  Sekcje 1–9 planu są od teraz zamrożone; zmiany wyłącznie datowanymi aneksami (D-33).
+- **Aneks A (2026-09-01)** dopisany do sekcji 10 `PLAN.html` — obie sprawy z sekcji 9, które blokowały
+  start E3, rozstrzygnięte przez człowieka wraz z akceptacją:
+  **`N = 30 dni`** (propozycja planu brzmiała 90 dni — wybór jest trzykrotnie ostrzejszy i wiążący)
+  oraz **przegląd spraw działa także przy wyłączonej rotacji dokumentów**, co przesądza, że wyłącznik
+  przeglądu jest osobny od wiersza `Rotacja dokumentów`.
+- **`PROMPT_ETAP_1.md`** wygenerowany wg `SPEC_PROMPT_ETAPU.md` — dziewięć elementów w stałej
+  kolejności, dziewięć pozycji do przeczytania, osiem punktów zakresu, dziesięć punktów weryfikacji,
+  wszystkie 15 „Zasad aktywnych" przepisanych w całości. Zakres pokrywa cztery punkty wchłoniętej
+  odnogi `BLOKADA_ROTACJI` plus przeliczenie linków w tym repozytorium i przeniesienie zmiany do obu
+  adapterów.
+- **Warunek startu E1 zapisany w prompcie:** etap wymaga dziennika PolyFlow sprzed rotacji
+  (`--add-dir` na katalog projektu albo kopia z `git show HEAD~1:docs/DZIENNIK.md`). Bez tego materiału
+  pierwszy punkt weryfikacji jest niewykonalny — zapisane wprost, zamiast udawać, że punkt nie istnieje.
+- **`STATUS.md`**: E1 → `GOTOWY DO STARTU` z linkiem do promptu, sekcja „Bramki manualne" z dwiema
+  pozycjami rozstrzygniętymi tego samego dnia, dwie linie w dzienniku wdrożenia.
+- **`CLAUDE.md`** i **`docs/STATE.md`** — status planu i wartości z Aneksu A; adnotacje rozstrzygnięcia
+  przy obu pozycjach sekcji „Czeka na człowieka".
+
+**Zweryfikowane — jak dokładnie:**
+
+- **Plan po dopisaniu aneksu nadal się buduje i renderuje** — sekcja 10 zawiera Aneks A, znaczników
+  `{{…}}` w pliku **zero**, status w pasku i w metce zgodny (`ZAAKCEPTOWANY`), fraza `DO AKCEPTACJI`
+  nie występuje już nigdzie w pliku (`grep -c` → 0).
+- **Kolumna `Prompt` wskazuje istniejący plik** — `PROMPT_ETAP_1.md` jest w folderze planu, więc
+  siatka bezpieczeństwa D-34 nie ma czego zgłaszać. Pozostałe etapy mają `—`, zgodnie z lazy-generacją.
+- **Materiał pomiarowy dla E1 istnieje** `FAKT`: `C:\Users\Lukasz\Desktop\PolyFlow\docs\DZIENNIK.md`
+  waży dziś 123 628 B (po rotacji z sesji porządkowej), a stan sprzed rotacji jest dostępny w historii
+  gita tamtego repozytorium. Sprawdzone odczytem katalogu, nie założeniem.
+- **Nie weryfikowano** zachowania mechanizmu po zmianie reguły — to jest zakres E1, nie tej tury.
+
+**Świadomie odłożone:**
+
+- **Wiersza `Przegląd spraw człowieka` w `docs/USTAWIENIA.md` nie zakładam.** Wartość jest
+  rozstrzygnięta, ale ustawienie bez mechanizmu, który je czyta, jest martwym wpisem — powstaje w E3
+  razem z implementacją. Zapis decyzji żyje w Aneksie A i w prompcie E1 jako granica zakresu.
+- **Sekcji „Czeka na człowieka" tego repozytorium nadal nie przeglądam wiekiem.** Przy `N = 30 dni`
+  przeterminowanych byłoby 9 z 10 pozycji — ale reguła powstaje w E3.
+
+**Do zrobienia przez człowieka:**
+
+- **Uruchomić E1 w świeżej sesji Opusa**, z dostępem do dziennika PolyFlow sprzed rotacji.
+
+### 2026-09-01 — Zamknięcie sesji: Aneks B, rotacja „Lekcji zwiniętych", przegląd ryzyk
+
+Autor: RelAI (Opus 5) + Lukasz
+
+**Zrobione:**
+
+- **Rotacja sekcji „Lekcje zwinięte" do archiwum** — `L-0025 … L-0054`, **30 lekcji**, do
+  [docs/archiwum/lekcje/LEKCJE_L-0025_L-0054.md](archiwum/lekcje/LEKCJE_L-0025_L-0054.md),
+  suma kontrolna `d7c16fc38575773e`. Żywy `docs/LEKCJE.md`: **52 260 → 16 906 B** (próg 50 KB).
+  Operacja wykonana **za zgodą** — to krok kompresji z `SPEC_LEKCJE.md`, a nie rotacja, więc nie
+  wolno jej robić po cichu.
+- **Aneks B do planu HIGIENA_DOKUMENTOW** — zakres E4 rozszerzony o **progi sekcji wewnątrz
+  dokumentu** („Lekcje zwinięte" 30 KB, „Stan otwartych ryzyk" 12 KB) oraz o **jawny katalog progów**,
+  jakie RelAI zna. Powód wyszedł z tej samej sesji: plan w brzmieniu z dnia akceptacji pilnował progów
+  dokumentów, więc E4 nie złapałby żadnego z tych dwóch.
+- **Ryzyko R5 przepisane** — z „do obserwacji po 1.0.0" na stan faktyczny: mechanizm jest kompletny,
+  ale nie broni się sam; dowody z dwóch projektów, wskazanie planu jako odpowiedzi. Komórka
+  „Mitygacja" skrócona do stanu bieżącego, zgodnie z regułą z 1.6.0.
+- **Plan i STATUS** doprowadzone do zgodności: status `ZAAKCEPTOWANY 2026-09-01 (Aneksy A, B)`
+  w obu plikach, uwaga przy E4, dwie linie w dzienniku wdrożenia.
+
+**Zweryfikowane — jak dokładnie:**
+
+- **Dowód negatywny dwufazowości** (zasada 3, L-0007) `FAKT`: przebieg zatrzymany po fazie 1 — plik
+  archiwum powstał, a suma kontrolna **całego żywego** `LEKCJE.md` przed i po fazie 1 jest ta sama
+  (`e42f6ccac40d4d93`), rozmiar niezmieniony (52 260 B). Przycięcie nastąpiło dopiero po
+  potwierdzeniu zgodności sum.
+- **Sumy fragmentu zgodne w obie strony** `FAKT`: suma fragmentu w żywym pliku `d7c16fc38575773e`
+  = suma treści odczytanej **z dysku** spod separatora `---` w pliku archiwum. Fragment: 35 564 B,
+  30 nagłówków `### L-`.
+- **Dowód obecności, nie tylko braku strat** (zasada 14) `FAKT`: w archiwum jest **30** lekcji,
+  w żywym pliku zostało **8** pełnych (L-0055…L-0062) — razem 38, czyli tyle, ile było. Sekcja
+  „Zasady aktywne" nietknięta: **15 pozycji** przed i po, przy twardym limicie 15. Nagłówek sekcji
+  „Lekcje zwinięte" został na miejscu z linią-odsyłaczem pod spodem; w pliku są teraz **dwa**
+  odsyłacze (do `L-0001…L-0024` i do `L-0025…L-0054`).
+- **Progi na koniec sesji** `FAKT`: `LEKCJE.md` **16 906 B** przy progu 51 200 B; `DZIENNIK.md`
+  **152 819 B** przy progu 153 600 B po dopisaniu tego wpisu — **781 B poniżej progu**, czyli nadal
+  cisza; sekcja „Stan otwartych ryzyk" 3 846 B / 12 288 B; `STATE.md` 172 linie / 300 i 12 264 B przy
+  progu cząstkowym 12 288 B (24 B zapasu); `CLAUDE.md` 4 180 B / 10 KB.
+- **Plan po dopisaniu Aneksu B**: znaczników `{{…}}` w `PLAN.html` **zero**, status w metce
+  `ZAAKCEPTOWANY 2026-09-01 (Aneksy A, B)`.
+- **Nie weryfikowano** zachowania mechanizmów po zmianach z planu — żaden etap nie był wykonywany.
+
+**Świadomie odłożone:**
+
+- **Rotacji dziennika nie uruchamiam w tej turze.** Przed dopisaniem tego wpisu plik miał 149 114 B,
+  po nim ma 152 819 B — w obu momentach **poniżej** progu 153 600 B, więc rotacja poprawnie milczy.
+  Zapas wynosi jednak **781 B**: pierwszy wpis następnej sesji przekroczy próg i rotacja odpali przy
+  jej zamknięciu. Zakres będzie wtedy zależał od reguły linku, którą zmienia E1 — czyli od etapu,
+  który jest gotowy do startu.
+- **Sekcji „Czeka na człowieka" nadal nie przeglądam wiekiem** — przy `N = 30 dni` przeterminowanych
+  byłoby 9 z 10 pozycji, ale reguła powstaje w E3.
+
+**Do zrobienia przez człowieka:**
+
+- **Uruchomić E1 w świeżej sesji Opusa**, z dostępem do dziennika PolyFlow sprzed rotacji.

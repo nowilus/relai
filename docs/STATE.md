@@ -1,6 +1,6 @@
 # STATE — RelAI
 
-Stan na: 2026-08-21 (wieczór)
+Stan na: 2026-09-01
 
 ## Gdzie jesteśmy
 
@@ -10,7 +10,10 @@ pilotaż Cursora przeszedł na modelu spoza Anthropic. Repozytorium pracuje na *
 plan **OPTYMALIZACJA_KONTEKSTU**: warstwa czytana przy starcie sesji dostała mierzony budżet i zeszła
 tutaj z 90 KB do 35 KB. Plan **zamknięty 2026-08-21**, w połowie celu: PolyFlow działa na 1.6.1,
 JiraManager został wyłączony z zakresu decyzją właściciela, więc ryzyko R5 zostaje otwarte. Plan
-ROZWOJ_PO_WYDANIU jest **zamrożony** — E7 czeka na dostęp do Codeksa.
+ROZWOJ_PO_WYDANIU jest **zamrożony** — E7 czeka na dostęp do Codeksa. Od 2026-09-01 czeka na
+akceptację plan **HIGIENA_DOKUMENTOW**: zgłoszenie z sesji roboczej PolyFlow pokazało sześć miejsc,
+w których mechanizm rotacji i progów nie broni się sam — a jedno z nich potwierdziło się tutaj
+(`LEKCJE.md` 52,3 KB przy progu 50 KB, rotacja lekcji nie odpaliła nigdy).
 
 ## Co działa
 
@@ -73,6 +76,12 @@ ROZWOJ_PO_WYDANIU jest **zamrożony** — E7 czeka na dostęp do Codeksa.
 
 ## Nad czym pracujemy teraz
 
+- **Plan HIGIENA_DOKUMENTOW — zaakceptowany 2026-09-01, E1 gotowy do startu.** Po co: mechanizm
+  rotacji i progów jest kompletny, ale w projekcie prowadzonym cztery miesiące nie odezwał się ani
+  razu — dziennik PolyFlow doszedł do 862,7 KB przy progu 150 KB.
+  Sześć etapów; odnoga `BLOKADA_ROTACJI` wchodzi jako E1, warunek startu stoi
+  w jego prompcie. Aneks A: **`N = 30 dni`**, przegląd spraw działa także przy wyłączonej rotacji.
+  Aneks B: E4 obejmuje też **progi sekcji** i katalog progów.
 - **Migracja JiraManagera.** Po co: to ostatni projekt, w którym start sesji kosztuje 386 KB
   dokumentów, a rotacja nigdy nie ruszyła. Czeka na okno — właściciel rozwija go na bieżąco, więc
   migracja wchodzi dopiero wtedy, gdy żaden etap tam nie trwa. Dopóki nie wejdzie, **ryzyko R5
@@ -84,10 +93,10 @@ ROZWOJ_PO_WYDANIU jest **zamrożony** — E7 czeka na dostęp do Codeksa.
 - **Wydanie 1.6.1** — push, `plugin marketplace update`, `plugin update`, **restart** (P-005).
   Do tego czasu cache pluginu niesie `/relai-update` z wersją docelową 1.5.0, czyli komendę, która
   cofnęłaby wersję migrowanego projektu.
-- Pięć wątków w świeżych sesjach, w dowolnej kolejności: **[BLOKADA_ROTACJI](fixy/BLOKADA_ROTACJI/ODNOGA.md)**
-  (wątek samodzielny — rotacja stoi na najstarszym wpisie, wyszło na PolyFlow) oraz cztery odnogi
-  zamrożonego planu: `OPIS_REPO`, `POMIAR_ODNOG` (dziewięć scenariuszy), `REKOMENDACJA_MODELU`,
-  `GUARD_PO_SCIEZCE`. Każda ma gotowy prompt; zamrożenie planu ich nie dotyczy.
+- Cztery odnogi zamrożonego planu, w dowolnej kolejności: `OPIS_REPO`, `POMIAR_ODNOG` (dziewięć
+  scenariuszy), `REKOMENDACJA_MODELU`, `GUARD_PO_SCIEZCE`. Każda ma gotowy prompt; zamrożenie planu
+  ich nie dotyczy. Piąty wątek — **[BLOKADA_ROTACJI](fixy/BLOKADA_ROTACJI/ODNOGA.md)** — przestał być
+  samodzielny: wchodzi jako E1 planu HIGIENA_DOKUMENTOW, którego zakres jest szerszy niż jego karta.
 - Przejrzeć sekcję **„Czeka na człowieka"** w dzienniku — dziesięć spraw, w tym siedem rozstrzygnięć
   wpisanych w E2 na podstawie faktów z repozytorium, do potwierdzenia.
 - Zainstalować pre-commit tam, gdzie ma pilnować: `node core/guardrails/install-precommit.js
