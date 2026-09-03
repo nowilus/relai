@@ -185,9 +185,11 @@ ROZWOJ_PO_WYDANIU jest **zamrożony** — E7 czeka na dostęp do Codeksa. **Akty
 
 ### Wersja i instalacja
 
-Repozytorium: **1.8.1** (odnoga GUARD_PO_SCIEZCE, 2026-09-03) — **jeszcze niewypchnięte i
-niezainstalowane**; walidator: kod 0, „3 zrodel, wartosc 1.8.1". Poniżej stan wydania
-poprzedniego, który nadal działa w aplikacji.
+Repozytorium: **1.8.1** (odnoga GUARD_PO_SCIEZCE, 2026-09-03), **wypchnięte** (`26036a3`) —
+w aplikacji **jeszcze niezainstalowane**; walidator: kod 0, „3 zrodel, wartosc 1.8.1". Zostaje
+reszta sekwencji P-005: `claude plugin marketplace update relai` → `claude plugin update
+relai@relai` → restart → potwierdzenie treścią pliku. Poniżej stan wydania poprzedniego, który
+nadal działa w aplikacji.
 
 Repozytorium 1.8.0: wypchnięte. Zainstalowany globalnie (scope `user`): **1.8.0**, działa
 w aplikacji — potwierdzone po restarcie 2026-09-03 **treścią pliku, nie komunikatem CLI**: cache
