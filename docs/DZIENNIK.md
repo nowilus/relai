@@ -28,6 +28,11 @@
   potwierdzenie albo sprzeciw** · 2026-08-20 ·
   [wpis 2026-09-01 — Osiem bramek z listy zamkniętych](#2026-09-01--osiem-bramek-z-listy-zamkniętych-plan-rozwoj_po_wydaniu-zamrożony-formalnie)
 
+- **Plan `REKOMENDACJA_MODELU` czeka na akceptację** — cztery etapy, 4–7 sesji (SZACUNEK); do zgody
+  nie startuje żaden etap i nie powstaje `PROMPT_ETAP_1.md`. W jego `STATUS.md` czekają trzy własne
+  bramki: adresy stron dokumentacji modeli, zgoda na ruch sieciowy, numer wydania · 2026-09-03 ·
+  [wpis 2026-09-03 — Wydanie 1.8.1 potwierdzone](#2026-09-03--wydanie-181-potwierdzone-po-restarcie-plan-rekomendacja_modelu-do-akceptacji)
+
 - **Blokada zapisu do cudzego projektu niezmierzona w żywej sesji** — instrument dowiódł werdyktu
   `deny`, ale „plik nie powstał" pokaże dopiero sesja z zainstalowaną wersją 1.8.1 i katalogiem
   roboczym poza projektem docelowym; wymaga wydania i restartu aplikacji · 2026-09-03 ·
@@ -2005,5 +2010,70 @@ bez jednego ostrzeżenia. Odnoga zamyka tę dziurę w rdzeniu i w obu adapterach
 - **Żywy pomiar blokady w sesji z 1.8.1** — instrument dowodzi werdyktu hooka, ale „plik nie
   powstał" da się pokazać dopiero w sesji, która ma zainstalowaną wersję 1.8.1 i katalog roboczy
   poza projektem docelowym.
+
+Autor: RelAI (Opus 5) + Lukasz
+
+### 2026-09-03 — Wydanie 1.8.1 potwierdzone po restarcie; plan REKOMENDACJA_MODELU do akceptacji
+
+Dwie rzeczy: domknięcie sekwencji wydania z poprzedniego wpisu i przekształcenie odnogi
+`REKOMENDACJA_MODELU` w pełny plan — bo wywiad rozszerzył jej zakres ponad próg odnogi.
+
+**Zrobione:**
+
+- **Potwierdzenie wersji po restarcie aplikacji.** `~/.claude/plugins/installed_plugins.json`:
+  `relai@relai` → wersja **1.8.1**, `installPath` w cache'u `1.8.1`, `gitCommitSha`
+  **`897fb0be…`** — czyli dokładnie commit wypchnięty w poprzednim wpisie. Pliki cache'u zgodne
+  z drzewem roboczym bajt w bajt po normalizacji CRLF (pięć plików rdzenia i hooków).
+- **Plan `REKOMENDACJA_MODELU`** — `docs/plany/REKOMENDACJA_MODELU/PLAN.html` (HTML z ustawień
+  projektu, szablon z pluginu, bez nadpisania lokalnego) i `STATUS.md` ze statusem
+  **DO AKCEPTACJI**, czterema etapami i trzema bramkami manualnymi.
+- **Odnoga `REKOMENDACJA_MODELU` przeniesiona do planu** — status `PRZENIESIONA 2026-09-03`
+  w karcie i w sekcji „Odnogi" `STATUS.md` planu ROZWOJ_PO_WYDANIU, sekcja „Wynik" wypełniona.
+  `PROMPT_ODNOGA.md` zostaje jako ślad (D-18) i nie jest już do wykonania.
+- **`CLAUDE.md`** — linia aktywnego planu wskazuje nowy plan, wiersz tabeli „Stan prac" dopisany,
+  linia rytuału startu podniesiona; **`docs/STATE.md`** — nowy obszar prac, jedna otwarta odnoga
+  zamiast dwóch, bramki 1 → 4.
+
+**Zweryfikowane — jak dokładnie:**
+
+- **Wersja zainstalowana ≠ komunikat CLI** (L-0004, L-0020): odczytana z pliku instalacji i z sumy
+  zgodności plików cache'u z repozytorium, nie z `claude plugin details`.
+- **Poprawka guardraili działa na plikach, które ładuje harness** — te same payloady puszczone
+  przez cache **1.8.0** i **1.8.1**, na realnym cudzym projekcie (PolyFlow), z katalogiem sesji
+  ustawionym poza jakimkolwiek projektem RelAI: sekret do `CLAUDE.md` PolyFlow — `cisza` → `deny`;
+  skasowana sekcja niemutowalna w tym samym pliku — `cisza` → `ask`; treść czysta — `cisza`
+  w obu wydaniach (kontrola negatywna, L-0081). Pierwsza próba wybrała katalog sesji **wewnątrz**
+  RelAI i nie różnicowała wydań — stary kierunek rozpoznania wystarczał; scenariusz poprawiono.
+- **Plan HTML sprawdzony w przeglądarce, nie tylko builderem** (krok 6 `SPEC_PLAN_HTML`): builder
+  kod 0, 6 reguł `@font-face` osadzonych, znacznik symulatora usunięty (plan bez wyliczeń).
+  W dokumencie: **10 sekcji**, **12 bloków zwijanych** — klik zmienia `aria-expanded`, zero
+  duplikatów `id`, `scrollWidth` równy `clientWidth` (brak przewijania w poziomie), **0** elementów
+  `svg[role=img]` bez `aria-label`, **0** odwołań `http(s)://` w pliku.
+- **Zakres planu oparty na repozytorium, nie na karcie odnogi.** Sprawdzenie wykazało dwa
+  nieprawdziwe założenia karty z sierpnia: reguła Cursora **nie ma** pytania o model (adapter
+  kopiuje skill z adaptera Claude Code, więc pytanie jest jedno na oba narzędzia), a walidator
+  **nie ma** gałęzi sprawdzającej obecność pliku zadeklarowanego w `MANIFEST.adapters`. Numery
+  linii z karty (`SPEC_CLAUDE_MD.md` 51 i 208) przeliczone na stan 1.8.1: **111–112 i 290–291**.
+
+**Świadomie odłożone:**
+
+- **Dowód „plik nie powstał" w żywej sesji** — hooki odpytano payloadami, co dowodzi werdyktu;
+  pełny dowód wymaga próby zapisu do cudzego projektu z sesji mającej do niego dostęp. Pozycja
+  zostaje w „Czeka na człowieka".
+- **Odświeżanie listy modeli z plików stanu narzędzi** (`~/.cursor/cli-config.json` niesie
+  `modelSelectionHistory`, `~/.claude.json` modele użyte w sesjach) — odrzucone jako **podstawa**
+  listy w sekcji 4 planu, bo to historia wyborów, nie katalog dostępnych. Zostaje jako możliwe
+  źródło pomocnicze przy odświeżaniu.
+- **Rotacja dziennika** — hook startu zgłosił `docs/DZIENNIK.md` **150,1 KB przy progu 150 KB**.
+  Rotacji nie uruchamiam w turze, w której dopisuję do tego pliku dwa wpisy; należy do najbliższego
+  „kończymy na dziś".
+
+**Do zrobienia przez człowieka:**
+
+- **Akceptacja albo odrzucenie planu `REKOMENDACJA_MODELU`.** Do czasu zgody żaden etap nie
+  startuje, a `PROMPT_ETAP_1.md` nie powstaje (D-34).
+- **Trzy bramki planu** wypisane w jego `STATUS.md`: adresy stron dokumentacji modeli dla obu
+  narzędzi i decyzja o zgodzie na ruch sieciowy (obie blokują E2), numer wydania 1.9.0 czy 1.8.2
+  (przed E4).
 
 Autor: RelAI (Opus 5) + Lukasz

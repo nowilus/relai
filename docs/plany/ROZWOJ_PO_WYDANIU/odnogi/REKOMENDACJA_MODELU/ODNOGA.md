@@ -1,7 +1,8 @@
 # ODNOGA — rekomendacja modelu z realnej listy modeli narzędzia
 
 Plan: [ROZWOJ_PO_WYDANIU](../../STATUS.md) · Etap-źródło: E6 — Pilotaż Cursora w firmie · Utworzona:
-2026-08-17 · Status: **OTWARTA** · Wykonawca: Opus
+2026-08-17 · Status: **PRZENIESIONA 2026-09-03 → [docs/plany/REKOMENDACJA_MODELU/](../../../REKOMENDACJA_MODELU/STATUS.md)** ·
+Wykonawca: Opus
 
 ## Cel
 
@@ -65,4 +66,18 @@ Codeksa powstanie z antropikocentrycznym brzmieniem, jeśli wątek zostanie nier
 
 ## Wynik
 
-—
+**Przeniesiona 2026-09-03 do pełnego planu** [REKOMENDACJA_MODELU](../../../REKOMENDACJA_MODELU/STATUS.md).
+Wywiad tego dnia rozszerzył zakres o rzecz, której karta nie przewidywała: lista modeli ma się
+**odświeżać** — komendą na żądanie, ze źródłem w dokumentacji dostawcy albo w odpowiedzi człowieka,
+plus ciche przypomnienie po progu. To wywróciło pozycję „Poza zakresem: lista jest plikiem
+utrzymywanym ręcznie" i przeniosło wątek ponad próg odnogi (8+ plików, kilka decyzji, więcej niż
+jedna sesja).
+
+Dwa założenia karty okazały się nieprawdziwe przy sprawdzeniu repozytorium 2026-09-03 i zostały
+poprawione w planie: reguła Cursora **nie ma** własnego pytania o model (adapter kopiuje skill
+z adaptera Claude Code, więc pytanie jest jedno na oba narzędzia), a walidator **nie ma** gałęzi
+sprawdzającej obecność pliku zadeklarowanego w `MANIFEST.adapters` — to osobna poprawka w E4 planu.
+Numery linii z sekcji „Zakres" pochodzą z 1.5.x i w planie zostały przeliczone na stan 1.8.1.
+
+`PROMPT_ODNOGA.md` zostaje w repozytorium jako ślad (D-18); nie jest już do wykonania — wykonaniu
+podlegają prompty etapowe planu.

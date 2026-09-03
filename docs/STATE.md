@@ -114,6 +114,13 @@ ROZWOJ_PO_WYDANIU jest **zamrożony** — E7 czeka na dostęp do Codeksa. **Akty
   dokumentów, a rotacja nigdy nie ruszyła. Czeka na okno — właściciel rozwija go na bieżąco.
   Dopóki nie wejdzie, **ryzyko R5 zostaje otwarte**, zawężone już wyłącznie do tego jednego
   projektu: mechanizm jest kompletny i zmierzony na dwóch projektach z trzech.
+- **Plan REKOMENDACJA_MODELU czeka na akceptację** (utworzony 2026-09-03, cztery etapy, 4–7 sesji
+  SZACUNEK). Po co: pytanie „na jakim modelu wykonać etap" operuje klasami, które poza Claude Code
+  nie wskazują niczego konkretnego — pilotaż Cursora pokazał kartę żądającą „najsilniejszego
+  modelu" i niepotrafiącą powiedzieć, który to jest. Plan wprowadza listę modeli per narzędzie
+  dostarczaną do projektu, komendę `/relai-models` odświeżającą ją na żądanie i ciche przypomnienie
+  po progu. Do czasu akceptacji **żaden etap nie startuje**; trzy bramki czekają na człowieka
+  (adresy stron dokumentacji, zgoda na sieć, numer wydania).
 - **Plan ROZWOJ_PO_WYDANIU pozostaje zamrożony** (6/8). E7 — adapter Codeksa — czeka na dostęp.
 - **Aktywnego planu nie ma.** Plan SPRZATANIE_ARTEFAKTOW zamknięty 2026-09-03 (4/4) i przeniesiony
   do [archiwum](archiwum/plany/SPRZATANIE_ARTEFAKTOW/STATUS.md); ROZWOJ_PO_WYDANIU pozostaje
@@ -150,10 +157,9 @@ ROZWOJ_PO_WYDANIU jest **zamrożony** — E7 czeka na dostęp do Codeksa. **Akty
 - **`zachowaj` na cudzej ścieżce zapisuje marker u siebie** — `dopiszMarker()` pyta już właściwe
   repozytorium o `check-ignore`, ale plik markerowy wciąż powstaje w projekcie sesji.
   Poza zakresem odnogi GUARD_PO_SCIEZCE, która poprawiła wyłącznie samo pytanie.
-- Dwie pozostałe odnogi, kolejność ustalona 2026-09-03: `REKOMENDACJA_MODELU` (odblokowuje E7 —
-  klasy modeli zejdą do nazw z listy narzędzia), potem `OPIS_REPO` (pusty `description` i tematy
-  na GitHubie). **Ich prompty są z sierpnia i wymagają odświeżenia** — opisują RelAI 1.5.x, tak jak
-  przed odświeżeniem opisywał go prompt `GUARD_PO_SCIEZCE`. Zamrożenie planu odnóg nie dotyczy.
+- Została **jedna odnoga**: `OPIS_REPO` (pusty `description` i tematy na GitHubie). Jej prompt jest
+  z sierpnia i opisuje RelAI 1.5.x — wymaga odświeżenia przed startem, tak jak wymagał go
+  `GUARD_PO_SCIEZCE`. Zamrożenie planu odnóg nie dotyczy.
 - Potwierdzić albo cofnąć **osiem rozstrzygnięć wpisanych w E2** planu OPTYMALIZACJA_KONTEKSTU —
   wypisane co do jednego 2026-09-01, każde ze swoim dowodem.
 - Usunąć metadane sesji `ProbaCursorE6` (`~/.claude/projects/`, `~/.claude/session-data/`,
@@ -236,10 +242,12 @@ przy progu 30 dni • Progi w katalogu: **18, z tego 16 z adresem egzekwowania**
 Zasady aktywne: **15 przy limicie 15** •
 Scenariusze akceptacyjne: 4/4 zdane + pilotaż Cursora • Adaptery: 2 • Komendy: **11** •
 Modele, na których zmierzono proces: 5 (Fable, Opus, Haiku, Composer/auto, Grok 4.6) •
-Projekty na 1.8.0: 2 (RelAI, PolyFlow) • **Aktywny plan: brak** • Otwarte wątki: **2 odnogi**
-zamrożonego planu (GUARD_PO_SCIEZCE zamknięta 2026-09-03) •
-Artefakty w rejestrze: 39 (dwa podbite w odnodze GUARD_PO_SCIEZCE) • Otwarte bramki manualne: **1** (zamknięta lista
-rdzeni rozstrzygnięcia; trzy bramki planu SPRZATANIE_ARTEFAKTOW rozstrzygnięte 2026-09-03) •
+Projekty na 1.8.0: 2 (RelAI, PolyFlow) • **Aktywny plan: REKOMENDACJA_MODELU (DO AKCEPTACJI)** •
+Otwarte wątki: **1 odnoga** zamrożonego planu (GUARD_PO_SCIEZCE zamknięta, REKOMENDACJA_MODELU
+przeniesiona do planu — obie 2026-09-03) •
+Artefakty w rejestrze: 39 (dwa podbite w odnodze GUARD_PO_SCIEZCE) • Otwarte bramki manualne: **4** (zamknięta lista
+rdzeni rozstrzygnięcia + trzy bramki nowego planu REKOMENDACJA_MODELU; trzy bramki planu
+SPRZATANIE_ARTEFAKTOW rozstrzygnięte 2026-09-03) •
 Otwarte ryzyka: **5** (R2 zamknięte 2026-09-03) • Zamknięte ryzyka: **7** (6 w archiwum, R2
 w żywej tabeli) • Progi rotacji: dziennik 150 KB, lekcje
 40 wpisów albo 50 KB, STATE 300 linii • Archiwum dziennika: siedem plików, ostatni
