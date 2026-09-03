@@ -47,7 +47,10 @@ projektu; architektura i plany: Fable)
 
 - **GUARD_PO_SCIEZCE** — guardraile rozpoznaja projekt po sciezce edytowanego pliku, nie tylko
   po katalogu sesji · zrodlo: E10 planu BUDOWA_RELAI, domkniete w E6 ·
-  [karta](odnogi/GUARD_PO_SCIEZCE/ODNOGA.md) · **OTWARTA**
+  [karta](odnogi/GUARD_PO_SCIEZCE/ODNOGA.md) · **ZAMKNIĘTA 2026-09-03** — wydanie 1.8.1;
+  `projektDlaPliku()` w rdzeniu, oba skanery sekretów i `config-protection` liczą od ścieżki pliku,
+  `git check-ignore` we wszystkich trzech miejscach pyta repozytorium właściciela ścieżki;
+  26 scenariuszy na dwóch drzewach, 0 niezgodnych
 
 ## Bramki manualne
 

@@ -27,13 +27,13 @@ o kolejne `N` dni / rozstrzygnąć teraz. Sesja nieinteraktywna: sam raport, bez
 
 | Co | Status | Gdzie |
 |---|---|---|
-| Plugin RelAI — wydany, dwa adaptery | DZIAŁA (1.8.0 w repo) | [docs/STATE.md](docs/STATE.md) |
+| Plugin RelAI — wydany, dwa adaptery | DZIAŁA (1.8.1 w repo) | [docs/STATE.md](docs/STATE.md) |
 | Plan BUDOWA_RELAI — 10 etapów | ZAMKNIĘTY 2026-08-10 | [archiwum planu](docs/archiwum/plany/BUDOWA_RELAI/STATUS.md) |
 | Plan ROZWOJ_PO_WYDANIU — 8 etapów | 6/8; **ZAMROŻONY 2026-08-21** (E7 czeka na dostęp do Codeksa) | [STATUS](docs/plany/ROZWOJ_PO_WYDANIU/STATUS.md) |
 | Plan OPTYMALIZACJA_KONTEKSTU — 5 etapów | ZREALIZOWANY 2026-08-21 | [archiwum planu](docs/archiwum/plany/OPTYMALIZACJA_KONTEKSTU/STATUS.md) |
 | Plan HIGIENA_DOKUMENTOW — 6 etapów | **ZREALIZOWANY 2026-09-01** (Aneksy A–D) | [archiwum planu](docs/archiwum/plany/HIGIENA_DOKUMENTOW/STATUS.md) |
 | Plan SPRZATANIE_ARTEFAKTOW — 4 etapy | **ZREALIZOWANY 2026-09-03** (4/4, wydanie 1.8.0) | [archiwum planu](docs/archiwum/plany/SPRZATANIE_ARTEFAKTOW/STATUS.md) |
-| Odnogi i wątki samodzielne | 3 otwarte, wszystkie z zamrożonego planu ROZWOJ_PO_WYDANIU | [docs/STATE.md](docs/STATE.md) |
+| Odnogi i wątki samodzielne | 2 otwarte, obie z zamrożonego planu ROZWOJ_PO_WYDANIU (GUARD_PO_SCIEZCE zamknięta 2026-09-03) | [docs/STATE.md](docs/STATE.md) |
 
 Aktywny plan: brak
 

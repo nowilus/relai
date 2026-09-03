@@ -6,7 +6,7 @@
 |---|---|---|---|---|
 | R2 | Auto-wyzwalanie skilli bywa zawodne (agent nie zastosuje zasad bez komendy) | **Niski przy Opusie, średni przy modelach słabszych** (2026-08-10 po E10) | **ZAMKNIĘTE 2026-09-03** | Warstwą nośną są hook `session-context` i `CLAUDE.md` projektu — działają przy każdym modelu, bez wyzwalania; skill dokłada wyłącznie procedurę (L-0030). Opus wyzwala skill sam i wykonuje procedurę w całości; Sonnet 4.6 i Haiku 4.5 nie wołają `Skill` ani razu, więc projekt nie traci pamięci, ale procedura bywa niepełna. Otwarte świadomie: to trwała własność modeli, nie usterka do naprawienia. Zakres ryzyka rósł od 1.1.0 bez pomiaru — dziesiąta komenda, sygnał odchylenia, rozjazd stanu i kontrola podpisu nie były mierzone w świeżej sesji, bo limit konta zatrzymał CLI (L-0032). **Odnoga `POMIAR_ODNOG` anulowana 2026-09-01** — ta część zakresu zostaje niezmierzona świadomie, karta zostaje w repo. **ZAMKNIĘTE 2026-09-03 decyzją człowieka** przy domknięciu tej odnogi: ryzyko zamyka się nie dlatego, że brakujące dziewięć scenariuszy zmierzono, tylko dlatego, że **nie zostaną zmierzone nigdy** — warunkiem był `claude /login` na konto z limitem, a decyzja brzmi „odpuszczamy". To, co niesie ochronę, jest zmierzone i działa: hook i `CLAUDE.md` są niezależne od wyzwalania skilla, więc niezmierzona zostaje wyłącznie kompletność procedury przy modelach słabszych od Opusa — trwała własność modeli, nie zaległość projektu. Powrót jest tani: karta odnogi zostaje w repozytorium, a pojawienie się konta z limitem otwiera ryzyko z powrotem jednym wierszem. Zmierzone: 2026-08-07 (E5), 2026-08-10 (E10), 2026-08-12 (E1), 2026-08-12 (E3) |
 | R5 | Dokumenty puchną i zjadają kontekst | **Niski dla projektów na 1.7.0, średni dla niezmigrowanych** (2026-09-01 po E6; wcześniej średni) | **ZMIERZONE 2026-09-01, OTWARTE ŚWIADOMIE — zawężone do migracji JiraManagera** | Mechanizm jest kompletny **i zadziałał na cudzym projekcie w żywej sesji**, nie tylko w instrumentach: PolyFlow 1.6.1 → 1.7.0, rotacja dziennika **183,1 → 147,3 KB** (9 wpisów, suma `566dca8a4dd45ba7` odczytana z dysku przed przycięciem), rotacja ustawień **29,8 → 25,4 KB** (16 wierszy, 5 wierszy maszynowych nietkniętych), przepięcie linków z bilansem zero (60 przed, 65 po rotacji, 60 po przepięciu). Tutaj: dziennik **155,6 → 74,1 KB**, 18 wpisów do archiwum, raport startu z 2 linii na **0**. Zawężone, bo to, co zostało, nie jest już własnością mechanizmu: **JiraManager (386 KB startu) czeka na okno właściciela**, a warstwa startowa PolyFlow (157,3 KB przy budżecie 80 KB) jest gruba sekcją ryzyk, `CLAUDE.md` i `STATE.md` — odchudzają je decyzje człowieka, nie archiwum. Zmierzone: 2026-08-20, 2026-08-21, 2026-09-01 (E1–E6) |
-| P1 | Adaptery Cursor/Codex nie egzekwują blokad harnessu — sekret albo zmiana konfiguracji przejdzie tam, gdzie w Claude Code stoi ściana (plan ROZWOJ_PO_WYDANIU) | **Średni** (2026-08-12 po E4; wcześniej wysoki) | **OTWARTE** | Część sekretowa jest zamknięta dowodem z aplikacji: w Cursorze zadziałały obie warstwy — reguła odmówiła pierwsza, a przy prośbie o próbę mimo reguły zapis klucza odbił hook `preToolUse` werdyktem `permission: deny`; niezależnie od narzędzia commit z sekretem zatrzymuje gitowy pre-commit. Otwarte z dwóch powodów: Cursor nie ma egzekwowanego `ask`, więc pliki konfiguracyjne chroni tam sama reguła zamiast bramki, a Codex pozostaje niezmierzony do odmrożenia E7 planu ROZWOJ_PO_WYDANIU. Zmierzone: 2026-08-12 (E4), 2026-08-12 (E5), 2026-08-17 (E6) |
+| P1 | Adaptery Cursor/Codex nie egzekwują blokad harnessu — sekret albo zmiana konfiguracji przejdzie tam, gdzie w Claude Code stoi ściana (plan ROZWOJ_PO_WYDANIU) | **Średni** (2026-08-12 po E4; wcześniej wysoki) | **OTWARTE** | Część sekretowa jest zamknięta dowodem z aplikacji: w Cursorze zadziałały obie warstwy — reguła odmówiła pierwsza, a przy prośbie o próbę mimo reguły zapis klucza odbił hook `preToolUse` werdyktem `permission: deny`; niezależnie od narzędzia commit z sekretem zatrzymuje gitowy pre-commit. Otwarte z dwóch powodów: Cursor nie ma egzekwowanego `ask`, więc pliki konfiguracyjne chroni tam sama reguła zamiast bramki, a Codex pozostaje niezmierzony do odmrożenia E7 planu ROZWOJ_PO_WYDANIU. **1.8.1 (odnoga GUARD_PO_SCIEZCE) zamyka osobną dziurę tej samej rodziny**, obecną w obu adapterach: guard rozpoznawał projekt wyłącznie po katalogu sesji, więc zapis do cudzego projektu RelAI przechodził bez ostrzeżenia w Claude Code tak samo jak w Cursorze. Zmierzone instrumentem na dwóch drzewach (22 + 4 scenariusze, 0 niezgodnych); poziom bez zmian, bo powód otwarcia jest inny — brak egzekwowanego `ask` w Cursorze. Zmierzone: 2026-08-12 (E4), 2026-08-12 (E5), 2026-08-17 (E6), 2026-09-03 (GUARD_PO_SCIEZCE) |
 | P2 | Odpowiednik R2 w Cursor/Codex: bez auto-wyzwalania skilli proces zależy od dyscypliny modelu (plan ROZWOJ_PO_WYDANIU) | **Niski dla Cursora, średni dla Codeksa** (2026-08-17 po E6; wcześniej średni) | **OTWARTE (już tylko Codex)** | Reguła zawsze-w-kontekście działa w Cursorze bez żadnego wyzwalacza: pilotaż przeszedł pełny cykl na trzech modelach, a cały etap poprowadził model spoza Anthropic (Grok 4.6) — rytuał startu, karta etapu z kontrolą modelu, granica zakresu, rytuał zamknięcia z promptem następnego etapu. Dyscyplina procesu nie zależy od dostawcy modelu. Otwarte już tylko dla Codeksa: warstwą nośną ma tam być `AGENTS.md` z twardym limitem 32 KiB, a skille wyzwalają się dopasowaniem opisu — tym samym mechanizmem, który przy R2 okazał się zależny od modelu. Zmierzone: 2026-08-12 (E4), 2026-08-12 (E5), 2026-08-17 (E6) |
 
 | S1 | Bramka dokumentacyjna przepuści coś potrzebnego — plik nieśledzony, o którym architektura milczy, a bez którego nie da się powtórzyć pomiaru (plan SPRZATANIE_ARTEFAKTOW, ryzyko 1) | **Wysoki** (2026-09-03, przy powstaniu mechanizmu) | **OTWARTE** | Kasowanie wyłącznie po „tak" na grupę z pełną listą pozycji; pliki śledzone nigdy nie są kandydatami; niepewność rozstrzygana na korzyść ochrony; „zostaw na zawsze" dopisuje marker, więc pytanie nie wraca. Pierwszy pomiar (E1, własne repo): 8 grup, 9 pozycji chronionych z powodem — w tym `benchmark`-owy odpowiednik, czyli `.claude/relai/templates` z powodem `opisane` i wskazaniem `README.md:150`. **Bramka przepuściła dorobek własnego etapu**: dwa nowe, niezacommitowane pliki produktu stanęły w grupach jako kandydaci (L-0078) — ochroną jest tam `git add`, nie marker, ale to jest realne trafienie tego ryzyka. Niezmierzone na cudzym projekcie: raport na PolyFlow zostaje jako bramka manualna planu. E2: drugi przebieg bez ani jednego fałszywego kandydata — 1 grupa (katalog etapu zamkniętego), 5 pozycji chronionych, w tym `templates` powodem `opisane`. **E3: trafienie powtórzyło się na innym pliku** — świeżo wygenerowany `PROMPT_ETAP_4.md`, jeszcze nieprzyjęty do indeksu, stanął w raporcie jako kandydat (grupa „repo: katalog docs") i zniknął po `git add`. Wzorzec jest więc stały, nie jednorazowy: **granicą ochrony dorobku sesji jest indeks gita**, a nie marker — i to zdanie należy mówić wprost przy sprzątaniu w trakcie etapu (L-0078). **E4: pierwsze trafienie na cudzym projekcie i najpoważniejsze z dotychczasowych.** Powód `opisane` chronił w PolyFlow **dwa** pliki benchmarku z ośmiu, a sześć dalszych — w tym `formatowanie/probki.json` i `probki_lista.json` z realnymi wypowiedziami właściciela — stanęło w grupie kandydatów. Ochrona przez opis obejmuje wyłącznie to, co ktoś opisał **w dokumencie projektu**; komentarz nad wzorcem w `.gitignore` tym dokumentem nie jest, choć czyta się identycznie. Bramka zadziałała (nic nie zniknęło bez „tak"), ale sama nie wystarczy — potrzebny był marker, i to siedem markerów zamiast zakładanych dwóch. **Ryzyko zostaje otwarte**: mechanizm jest zależny od tego, czy człowiek opisał materiał tam, gdzie narzędzie patrzy. Zmierzone: 2026-09-03 (E1, E2, E3, E4) |
@@ -27,6 +27,11 @@
 - **Weryfikacja ośmiu rozstrzygnięć wpisanych w E2 — wypisane co do jednego 2026-09-01, czekają na
   potwierdzenie albo sprzeciw** · 2026-08-20 ·
   [wpis 2026-09-01 — Osiem bramek z listy zamkniętych](#2026-09-01--osiem-bramek-z-listy-zamkniętych-plan-rozwoj_po_wydaniu-zamrożony-formalnie)
+
+- **Blokada zapisu do cudzego projektu niezmierzona w żywej sesji** — instrument dowiódł werdyktu
+  `deny`, ale „plik nie powstał" pokaże dopiero sesja z zainstalowaną wersją 1.8.1 i katalogiem
+  roboczym poza projektem docelowym; wymaga wydania i restartu aplikacji · 2026-09-03 ·
+  [wpis 2026-09-03 — Odnoga GUARD_PO_SCIEZCE](#2026-09-03--odnoga-guard_po_sciezce-guardraile-rozpoznają-projekt-po-ścieżce-pliku-181)
 
 - **Ikony README renderują się w 17–23 px zamiast 24 px, więc kreska schodzi poniżej piksela** —
   podbić grubość z 2.6 na 3.2 (zmiana proporcji rysunku) czy scalić kolumnę ikony z kolumną komendy
@@ -1912,3 +1917,93 @@ Autor: RelAI (Opus 5) + Lukasz
 - **Uruchomić `GUARD_PO_SCIEZCE` w świeżej sesji Opus** — prompt jest gotowy:
   `docs/plany/ROZWOJ_PO_WYDANIU/odnogi/GUARD_PO_SCIEZCE/PROMPT_ODNOGA.md`. Odnoga kończy się
   wydaniem **1.8.1** wg sekwencji P-005, więc potrzebny będzie restart aplikacji przed pomiarem.
+
+### 2026-09-03 — Odnoga GUARD_PO_SCIEZCE: guardraile rozpoznają projekt po ścieżce pliku (1.8.1)
+
+Guard pilnował tego projektu, w którym stoi sesja, a nie tego, do którego idzie zapis. Sesja
+otwarta gdzie indziej mogła zapisać sekret do cudzego projektu RelAI i zmienić jego `CLAUDE.md`
+bez jednego ostrzeżenia. Odnoga zamyka tę dziurę w rdzeniu i w obu adapterach naraz.
+
+**Zrobione:**
+
+- **`core/process/session-signals.js`** — rozpoznanie rozdzielone na `markerWKatalogu()` (sam
+  odczyt markera w jednym katalogu) i dwa kierunki nad nim. `relaiMarkerFile()` zachowuje
+  dotychczasowe zachowanie od katalogu sesji. Nowe `rozpoznajOdSciezki()` idzie **od katalogu
+  pliku w górę** i jest **trójstanowe**: `projekt` / `goscia` / `brak` — bo „nie znalazłem" i
+  „znalazłem tryb gościa" znaczą dla guarda co innego. `projektDlaPliku()` składa oba kierunki:
+  najpierw plik, potem sesja, a tryb gościa napotkany po drodze kończy sprawę.
+- **`adapters/claude-code/hooks/secret-scanner.js`** i **`adapters/cursor/hooks/secret-scanner.js`**
+  — projekt liczony od ścieżki z `tool_input`, `git check-ignore` wołany z korzenia projektu pliku,
+  ścieżka w komunikacie względna wobec tego samego korzenia.
+- **`adapters/claude-code/hooks/config-protection.js`** — przepięty na rdzeń. Do 1.8.0 był jedynym
+  guardrailem z własną kopią `isGuest` i `relaiMarkerFile`; teraz konsumuje `projektDlaPliku()`,
+  a wszystkie porównania (plik ustawień, `CLAUDE.md`, ścieżka względna, katalog snapshotów) liczą
+  się względem projektu **pliku**, nie sesji.
+- **`core/process/work-artifacts.js`** — trzeci konsument `check-ignore`. Nowe `korzenRepo()` szuka
+  `.git` w górę od sprawdzanej ścieżki, a `juzIgnorowana()` pyta git-a w tym repozytorium, nie
+  w repozytorium sesji.
+- **`core/README.md`** — akapit o hookach z własną kopią `isGuest` przepisany: **osiem** zamiast
+  nieaktualnych „ośmiu" liczonych przy dziewięciu (`config-protection` zszedł z listy, bo został
+  przepięty), lista wypisana z nazwy, powód zostawienia zmieniony na sprawdzalny — żaden z tych
+  ośmiu nie blokuje operacji. Wiersz tabeli o `session-signals.js` wspomina nowe rozpoznanie.
+- **Wydanie 1.8.1** — trzy źródła wersji plus osiem deklaracji stanu docelowego: `README.md`,
+  `docs/KOMENDY.md`, `adapters/cursor/README.md`, `CLAUDE.md`, marker w `docs/USTAWIENIA.md`
+  i cztery liczby w `/relai-update` (zdanie otwierające, nagłówek tabeli obszarów, wymagany
+  nagłówek `KOMENDY.md`, marker i propozycja commita) oraz marker w skillu `relai-core`.
+- **`docs/ARTEFAKTY.md`** — dwa podbicia: `/relai-update` (2 → 3), skill `relai-core` (4 → 5).
+- **`docs/LEKCJE.md`** — **L-0083** o instrumencie, który mutuje własny materiał. Bez pozycji
+  w destylacie: „Zasady aktywne" mają 15 przy limicie 15, lekcja wzmacnia zasady 4 i 5.
+
+**Zweryfikowane — jak dokładnie:**
+
+- **Instrument porównawczy dwóch adapterów w jednym przebiegu** (L-0040): drzewo sprzed zmiany
+  wyciągnięte z HEAD przez `git show` do `drzewo-przed/`, drzewo po zmianie — robocze. **22
+  scenariusze, 0 niezgodnych.** Werdykty niezmienione wobec 1.8.0: **18**. Zmienione: **4** i
+  dokładnie te, dla których odnoga powstała — sekret do pliku śledzonego w cudzym projekcie
+  (`cisza` → `deny`, oba adaptery), zapis do cudzego `docs/USTAWIENIA.md` i skasowanie cudzej
+  sekcji niemutowalnej (`cisza` → `ask`).
+- **Każdy punkt „guard milczy" ma kontrolę pozytywną** (L-0081): czysta treść do tego samego pliku
+  — cisza; sekret do `.env` projektu docelowego — cisza, bo `check-ignore` pyta już właściwe
+  repozytorium; ten sam sekret do pliku śledzonego — `deny`. Tryb gościa sprawdzony **z obu
+  kierunków**: projekt gościa wskazany ścieżką (S4, K4, C4) i projekt gościa jako katalog sesji (S8).
+- **Trzeci konsument `check-ignore`**: `instrument-clean.js`, **4 scenariusze, 0 niezgodnych**.
+  Z1 — ścieżka ignorowana w repozytorium A, oceniana z sesji stojącej w C: przed zmianą narzędzie
+  meldowało „dopisany wzorzec z markerem" (czyli: nieignorowana), po zmianie „brak — ścieżka już
+  ignorowana". Z2 jest kontrolą pozytywną na tej samej parze projektów, Z3 i Z4 pokazują materiał
+  z katalogu sesji bez różnicy. Dowód negatywny: `.gitignore` obu projektów kontrolnych z tą samą
+  sumą przed i po całym przebiegu (`cfcfb83f495c86ca`).
+- **`node core/tools/validate-adapters.js`** → kod 0, „3 zrodel, wartosc 1.8.1".
+- **Hook startu sesji uruchomiony na tym repozytorium po zmianie** — wypisuje kontekst jak
+  dotychczas, kod 0; rozpoznanie od katalogu sesji jest nietknięte.
+- **Katalog roboczy odnogi** `.claude/relai/work/ROZWOJ_PO_WYDANIU/GUARD_PO_SCIEZCE/`:
+  **399 KB / 115 plików → 0**, razem z pustym katalogiem po planie SPRZATANIE_ARTEFAKTOW i pustym
+  katalogiem tematu. Pomiar ponowny: zero kandydatów. Artefaktów poza tym katalogiem **nie było** —
+  wszystkie trzy projekty kontrolne, oba instrumenty i drzewo z HEAD powstały w nim. **Narzędzie
+  nie zaproponowało tego katalogu samo**: materiał kontrolny zawierał plik `.env`, więc katalog
+  wpadł w grupę „Sekrety" (D-42) i został skasowany dopiero po jawnym „tak" człowieka — ochrona
+  zadziałała zgodnie z projektem, a nie wbrew niemu.
+
+**Świadomie odłożone:**
+
+- **`dopiszMarker()` nadal zapisuje marker do repozytorium sesji**, także gdy ścieżka należy do
+  innego projektu — poprawiono wyłącznie **pytanie** o ignorowanie, bo tylko ono jest w zakresie
+  karty (punkt 5). Skutek: `zachowaj` na cudzej ścieżce mówi teraz prawdę o tym, czy jest
+  ignorowana, ale marker wciąż wylądowałby u siebie. Sprawa dla osobnego wątku.
+- **Osiem hooków z własną kopią `isGuest`** zostaje bez przepięcia, z powodem zapisanym w
+  `core/README.md`: żaden nie blokuje operacji.
+- **Wzmianki `1.8.0` w specyfikacjach i skillu `relai-planning`** zostają. Rozstrzygnięte po
+  kolei (zasada 10): „od 1.8.0", „nowość 1.8.0", „projekt sprzed 1.8.0" i zakres wydania
+  w `SPEC_KOMENDY.md` to wzmianki historyczne; przykłady w `SPEC_USTAWIENIA.md` i `SPEC_KOMENDY.md`
+  ilustrują strukturę, nie numer; linia wersji skilla `relai-planning` opisuje wydanie, w którym
+  skill zmieniono ostatni raz, a 1.8.1 go nie dotknęła.
+
+**Do zrobienia przez człowieka:**
+
+- **Sekwencja wydania 1.8.1 (P-005)**: push → `claude plugin marketplace update relai` →
+  `claude plugin update relai@relai` → **restart aplikacji** → potwierdzenie wersji **treścią
+  pliku** w cache'u, nigdy komunikatem CLI.
+- **Żywy pomiar blokady w sesji z 1.8.1** — instrument dowodzi werdyktu hooka, ale „plik nie
+  powstał" da się pokazać dopiero w sesji, która ma zainstalowaną wersję 1.8.1 i katalog roboczy
+  poza projektem docelowym.
+
+Autor: RelAI (Opus 5) + Lukasz

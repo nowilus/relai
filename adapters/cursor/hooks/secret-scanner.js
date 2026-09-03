@@ -31,7 +31,10 @@ try {
 
 // Tryb goscia deklarowany w dowolnym z dwoch narzedzi obowiazuje w obu.
 const MARKERY_GOSCIA = ['.cursor/relai.json', '.claude/relai.json'];
-const relaiMarkerFile = (cwd) => core.relaiMarkerFile(cwd, MARKERY_GOSCIA);
+// Od 1.8.1 projekt liczy sie od SCIEZKI ZAPISYWANEGO PLIKU, a katalog sesji jest dopiero
+// drugim kierunkiem (odnoga GUARD_PO_SCIEZCE). Praca miedzyprojektowa jest w Cursorze
+// norma, nie wyjatkiem.
+const projektPliku = (cwd, filePath) => core.projektDlaPliku(cwd, filePath, MARKERY_GOSCIA);
 
 function isGitIgnored(cwd, filePath) {
   try {
@@ -60,12 +63,16 @@ function workingDir(input) {
 
 function main(input) {
   const cwd = workingDir(input);
-  if (!relaiMarkerFile(cwd)) return process.exit(0);
 
   const tool = input.tool_name || '';
   const ti = input.tool_input || {};
   const filePath = ti.file_path || ti.path || ti.notebook_path || '';
   if (!filePath) return process.exit(0);
+
+  // Rozpoznanie projektu PRZED trescia: sciezka rozstrzyga, ktorego projektu pilnujemy.
+  const abs = path.resolve(cwd, filePath);
+  const projekt = projektPliku(cwd, abs);
+  if (!projekt) return process.exit(0);
 
   let payload = '';
   if (tool === 'Write') payload = String(ti.content || '');
@@ -76,12 +83,14 @@ function main(input) {
   } else if (tool === 'NotebookEdit') payload = String(ti.new_source || '');
   if (!payload) return process.exit(0);
 
-  if (isGitIgnored(cwd, filePath)) return process.exit(0);
+  // git check-ignore liczony w repozytorium, do ktorego nalezy PLIK — nie w tym, w ktorym
+  // stoi sesja (odnoga GUARD_PO_SCIEZCE).
+  if (isGitIgnored(projekt.root, abs)) return process.exit(0);
 
   const finding = scanText(payload);
   if (!finding) return process.exit(0);
 
-  const rel = path.relative(cwd, filePath) || filePath;
+  const rel = path.relative(projekt.root, abs) || abs;
   const msg = 'RelAI secret-scanner: wykryto ' + finding + ' w pliku sledzonym "' + rel +
     '". Sekrety trzymaj wylacznie w .env objetym .gitignore (D-42); do repozytorium moze trafic ' +
     'co najwyzej NAZWA zmiennej srodowiskowej. Wartosc nie zostala zacytowana celowo. ' +

@@ -4,8 +4,10 @@ Stan na: 2026-09-03
 
 ## Gdzie jesteśmy
 
-RelAI jest **wydany w 1.8.0** i ma dwa wyjścia: Claude Code oraz Cursor — te same dokumenty i ten
-sam proces w dwóch narzędziach. Plan **SPRZATANIE_ARTEFAKTOW zamknięty 2026-09-03**, cztery etapy
+RelAI jest **wydany w 1.8.1** i ma dwa wyjścia: Claude Code oraz Cursor — te same dokumenty i ten
+sam proces w dwóch narzędziach. **1.8.1 to poprawka guardraili z odnogi GUARD_PO_SCIEZCE**
+(zamknięta 2026-09-03): guard pilnuje projektu, do którego idzie zapis, a nie tego, w którym stoi
+sesja. W repozytorium jest, w aplikacji zaczyna działać po sekwencji wydania P-005. Plan **SPRZATANIE_ARTEFAKTOW zamknięty 2026-09-03**, cztery etapy
 z czterech: pliki robocze po zamkniętych etapach mają cztery momenty sprzątania i zawsze ten sam
 tryb — raport w grupach, jedno „tak" na grupę, bramka dokumentacyjna. E4 dowiózł to, co przesądza
 o wiarygodności mechanizmu: **pełny przebieg na cudzym projekcie, na materiale wytworzonym
@@ -57,6 +59,14 @@ ROZWOJ_PO_WYDANIU jest **zamrożony** — E7 czeka na dostęp do Codeksa. **Akty
 - Klucz API nie wejdzie do repozytorium, a reguły projektu nie zmienią się bez potwierdzenia. Skan
   sekretów działa **poza Claude**: gitowy pre-commit zatrzymuje commit z kluczem niezależnie od
   narzędzia. Stoi realnie w trzech repozytoriach — RelAI, JiraManager, PolyFlow.
+- **Guard pilnuje projektu, do którego idzie zapis — nie tego, w którym stoi sesja.** Marker
+  szukany jest od ścieżki zapisywanego pliku w górę, a katalog sesji jest dopiero drugim
+  kierunkiem; `git check-ignore` we wszystkich trzech miejscach pyta repozytorium właściciela
+  ścieżki. Sesja otwarta gdzie indziej nie zapisze już sekretu do cudzego projektu RelAI ani nie
+  zmieni jego `CLAUDE.md` bez ostrzeżenia — a tryb gościa napotkany po drodze **wygrywa z obu
+  kierunków**. Zmierzone na dwóch drzewach w jednym przebiegu: **22 + 4 scenariusze, 0
+  niezgodnych**, 18 werdyktów niezmienionych wobec 1.8.0 i cztery zmienione celowo. Niezmierzone:
+  blokada w żywej sesji — czeka na restart aplikacji z 1.8.1.
 - Repozytorium ma jawną granicę: `core/` to wspólny rdzeń, a `adapters/claude-code/`
   i `adapters/cursor/` to dwa wyjścia. Walidator wykrywa, gdy adapter odjedzie od rdzenia.
 - **Proces przeżywa zmianę dostawcy modelu** — cały etap poprowadził Grok 4.6 w aplikacji Cursora,
@@ -133,16 +143,17 @@ ROZWOJ_PO_WYDANIU jest **zamrożony** — E7 czeka na dostęp do Codeksa. **Akty
   1.7.0, które kroku przepięcia nie miały. Osobna operacja na cudzych pozycjach.
 - **Rotacja lekcji i rotacja ryzyk `ZAMKNIĘTYCH` w PolyFlow** — obie należne, obie świadomie poza
   zakresem E6. Raport startu tamtego projektu mówi o nich przy każdym uruchomieniu.
-- **`GUARD_PO_SCIEZCE` — następna w kolejce, prompt odświeżony 2026-09-03.** Guardraile szukają
-  markera projektu wyłącznie od katalogu sesji (`session-signals.js:53`), więc sesja otwarta gdzie
-  indziej zapisze sekret do cudzego projektu RelAI i zmieni jego `CLAUDE.md` bez ostrzeżenia. Karta
-  rozszerzona o punkt 5: **trzeci** konsument `git check-ignore` z `cwd` sesji
-  (`work-artifacts.js:877`, wydany w 1.8.0). Startuje **świeżą sesją Opus** z
-  `PROMPT_ODNOGA.md`; kończy się wydaniem **1.8.1** wg P-005.
+- **Wydać 1.8.1** — repozytorium ma tę wersję w trzech źródłach, aplikacja nadal 1.8.0. Sekwencja
+  P-005: push → `claude plugin marketplace update relai` → `claude plugin update relai@relai` →
+  restart → potwierdzenie **treścią pliku** z cache'u. Dopiero po tym da się pokazać blokadę
+  w żywej sesji.
+- **`zachowaj` na cudzej ścieżce zapisuje marker u siebie** — `dopiszMarker()` pyta już właściwe
+  repozytorium o `check-ignore`, ale plik markerowy wciąż powstaje w projekcie sesji.
+  Poza zakresem odnogi GUARD_PO_SCIEZCE, która poprawiła wyłącznie samo pytanie.
 - Dwie pozostałe odnogi, kolejność ustalona 2026-09-03: `REKOMENDACJA_MODELU` (odblokowuje E7 —
   klasy modeli zejdą do nazw z listy narzędzia), potem `OPIS_REPO` (pusty `description` i tematy
-  na GitHubie). **Ich prompty są z sierpnia i wymagają tego samego odświeżenia** co
-  `GUARD_PO_SCIEZCE` — opisują RelAI 1.5.x. Zamrożenie planu odnóg nie dotyczy.
+  na GitHubie). **Ich prompty są z sierpnia i wymagają odświeżenia** — opisują RelAI 1.5.x, tak jak
+  przed odświeżeniem opisywał go prompt `GUARD_PO_SCIEZCE`. Zamrożenie planu odnóg nie dotyczy.
 - Potwierdzić albo cofnąć **osiem rozstrzygnięć wpisanych w E2** planu OPTYMALIZACJA_KONTEKSTU —
   wypisane co do jednego 2026-09-01, każde ze swoim dowodem.
 - Usunąć metadane sesji `ProbaCursorE6` (`~/.claude/projects/`, `~/.claude/session-data/`,
@@ -174,7 +185,11 @@ ROZWOJ_PO_WYDANIU jest **zamrożony** — E7 czeka na dostęp do Codeksa. **Akty
 
 ### Wersja i instalacja
 
-Repozytorium: **1.8.0**, wypchnięte. Zainstalowany globalnie (scope `user`): **1.8.0**, działa
+Repozytorium: **1.8.1** (odnoga GUARD_PO_SCIEZCE, 2026-09-03) — **jeszcze niewypchnięte i
+niezainstalowane**; walidator: kod 0, „3 zrodel, wartosc 1.8.1". Poniżej stan wydania
+poprzedniego, który nadal działa w aplikacji.
+
+Repozytorium 1.8.0: wypchnięte. Zainstalowany globalnie (scope `user`): **1.8.0**, działa
 w aplikacji — potwierdzone po restarcie 2026-09-03 **treścią pliku, nie komunikatem CLI**: cache
 `1.8.0/` niesie jedenaście plików komend i linię 28 skilla `relai-core` o markerze `zachowaj`,
 a hook startu z tego cache'u przeszedł w tej sesji pomiar na dwóch projektach. Walidator:
@@ -213,14 +228,15 @@ SPRZATANIE_ARTEFAKTOW **4/4 (ZREALIZOWANY 2026-09-03)** •
 HIGIENA_DOKUMENTOW **6/6 (ZREALIZOWANY 2026-09-01)** •
 Warstwa startowa RelAI: **37,0 KB / 80 KB**, raport startu **0 znaków** • Warstwa startowa
 PolyFlow: **157,3 KB / 80 KB**, raport **5 linii przy limicie 6** • Dziennik RelAI: **107,4 KB /
-próg 150 KB** • Lekcje **27 lekcji** w żywym rejestrze, ostatnia
-**L-0082** • Sprawy czekające na człowieka: **3 tutaj**, **32 w PolyFlow**, żadna nieprzeterminowana
+próg 150 KB** • Lekcje **28 lekcji** w żywym rejestrze, ostatnia
+**L-0083** • Sprawy czekające na człowieka: **4 tutaj**, **32 w PolyFlow**, żadna nieprzeterminowana
 przy progu 30 dni • Progi w katalogu: **18, z tego 16 z adresem egzekwowania** •
 Zasady aktywne: **15 przy limicie 15** •
 Scenariusze akceptacyjne: 4/4 zdane + pilotaż Cursora • Adaptery: 2 • Komendy: **11** •
 Modele, na których zmierzono proces: 5 (Fable, Opus, Haiku, Composer/auto, Grok 4.6) •
-Projekty na 1.8.0: 2 (RelAI, PolyFlow) • **Aktywny plan: brak** • Otwarte wątki: 3 odnogi zamrożonego planu •
-Artefakty w rejestrze: 39 (pięć podbitych w E4) • Otwarte bramki manualne: **1** (zamknięta lista
+Projekty na 1.8.0: 2 (RelAI, PolyFlow) • **Aktywny plan: brak** • Otwarte wątki: **2 odnogi**
+zamrożonego planu (GUARD_PO_SCIEZCE zamknięta 2026-09-03) •
+Artefakty w rejestrze: 39 (dwa podbite w odnodze GUARD_PO_SCIEZCE) • Otwarte bramki manualne: **1** (zamknięta lista
 rdzeni rozstrzygnięcia; trzy bramki planu SPRZATANIE_ARTEFAKTOW rozstrzygnięte 2026-09-03) •
 Otwarte ryzyka: **5** (R2 zamknięte 2026-09-03) • Zamknięte ryzyka: **7** (6 w archiwum, R2
 w żywej tabeli) • Progi rotacji: dziennik 150 KB, lekcje

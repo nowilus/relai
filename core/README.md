@@ -14,7 +14,7 @@ istniała, zanim po drugiej stronie pojawi się drugi konsument.
 | `guardrails/secret-scan.js` | czysta logika „czy w tej treści jest sekret". Biblioteka i CLI naraz, bez wiedzy o protokole hooków |
 | `guardrails/pre-commit.js` | hook gita: zatrzymuje commit z sekretem w indeksie. Jedyna gwarancja RelAI działająca **niezależnie od narzędzia** |
 | `guardrails/install-precommit.js` | instaluje i odinstalowuje powyższy hook w `.git/hooks` wskazanego repozytorium |
-| `process/session-signals.js` | rozpoznania startu sesji: marker projektu, tryb gościa, wersja projektu, luka promptu etapowego (D-34), rozjazd stanu, nieznany autor (D-27), ustawienia globalne, prowizjonowanie specyfikacji. Fakty na wyjściu, zero wiedzy o protokole hooków |
+| `process/session-signals.js` | rozpoznania startu sesji: marker projektu, tryb gościa, wersja projektu, luka promptu etapowego (D-34), rozjazd stanu, nieznany autor (D-27), ustawienia globalne, prowizjonowanie specyfikacji. Od 1.8.1 także `projektDlaPliku()` — projekt liczony **od ścieżki pliku** w górę, dla guardraili. Fakty na wyjściu, zero wiedzy o protokole hooków |
 | `tools/validate-adapters.js` | sprawdza, czy adaptery nie odjechały od rdzenia: martwe odwołania (także te z **kodu** adapterów), rozjazd numerów wersji |
 | `MANIFEST.json` | spis treści rdzenia i rejestr adapterów; czyta go walidator |
 
@@ -81,10 +81,18 @@ Do rdzenia trafiło natomiast to, co oba adaptery robią **kodem**, a nie tekste
 startu sesji (`process/session-signals.js`). Kryterium jest to samo co zawsze — hook Cursora
 i hook Claude Code wołają dziś ten sam plik, więc nie ma gdzie się rozjechać.
 
-**Rozpięcia pozostałych ośmiu hooków Claude Code na rdzeń.** Każdy z nich ma własną, dwunastolinijkową
-kopię `isGuest`. Świadomie zostawione: te hooki nie mają bliźniaka w adapterze Cursora, więc
-dryf nie ma się z czym rozjechać, a przepięcie dziesięciu plików zamiast dwóch rozdęłoby diff etapu
-bez zysku. Wraca, gdy któryś z nich dostanie odpowiednik w drugim narzędziu.
+**Rozpięcia pozostałych ośmiu hooków Claude Code na rdzeń.** Każdy z nich ma własną,
+dwunastolinijkową kopię `isGuest`: `auto-format`, `console-log-warn`, `design-quality-check`,
+`doc-sync-reminder`, `journal-signature`, `profile-rules`, `quality-gate`, `session-context`
+(sprawdzenie: `grep -l isGuest adapters/claude-code/hooks/*.js`). Świadomie zostawione: żaden z nich
+nie **blokuje** operacji — ostrzegają albo formatują — więc rozpoznanie liczone od katalogu sesji
+kosztuje najwyżej brak ostrzeżenia, nie cichy zapis do cudzego projektu. Wraca, gdy któryś z nich
+zacznie blokować albo dostanie odpowiednik w drugim narzędziu.
+
+Do 1.8.0 na tej liście stał także `config-protection` (dziewiąty), z własną kopią `isGuest`
+**i** `relaiMarkerFile`. Odnoga `GUARD_PO_SCIEZCE` przepięła go na rdzeń w 1.8.1: to guardrail
+blokujący, więc musiał poznać rozpoznanie liczone **od ścieżki zmienianego pliku** —
+`projektDlaPliku()` w `process/session-signals.js`. Ten sam kierunek dostały oba skanery sekretów.
 
 ## Walidacja przed wydaniem
 

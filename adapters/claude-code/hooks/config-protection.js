@@ -17,40 +17,17 @@ const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
 
-function isGuest(cwd) {
-  try {
-    const p = path.join(cwd, '.claude', 'relai.json');
-    if (!fs.existsSync(p)) return false;
-    const j = JSON.parse(fs.readFileSync(p, 'utf8'));
-    return !!j && j.mode === 'guest';
-  } catch (_) {
-    return true;
-  }
-}
-
-function relaiMarkerFile(cwd) {
-  try {
-    if (!cwd || isGuest(cwd)) return null;
-    const docsDir = path.join(cwd, 'docs');
-    let entries = [];
-    try { entries = fs.readdirSync(docsDir); } catch (_) { return null; }
-    const candidates = [];
-    for (const name of ['USTAWIENIA.md', 'SETTINGS.md']) {
-      if (entries.includes(name)) candidates.push(name);
-    }
-    for (const f of entries) {
-      if (/\.md$/i.test(f) && !candidates.includes(f)) candidates.push(f);
-      if (candidates.length >= 40) break;
-    }
-    for (const f of candidates) {
-      let head = '';
-      try { head = fs.readFileSync(path.join(docsDir, f), 'utf8').slice(0, 4000); } catch (_) { continue; }
-      if (/Wersja RelAI:|RelAI version:/i.test(head)) return path.join(docsDir, f);
-    }
-    return null;
-  } catch (_) {
-    return null;
-  }
+// Od 1.8.1 ten hook KONSUMUJE rdzen zamiast trzymac wlasne kopie isGuest i relaiMarkerFile
+// (odnoga GUARD_PO_SCIEZCE, punkt 2 zakresu). Powod jest ten sam co przy skanerze sekretow:
+// projekt liczy sie od SCIEZKI ZMIENIANEGO PLIKU, a katalog sesji jest dopiero drugim
+// kierunkiem — sesja otwarta gdzie indziej zmieniala dotad cudzy CLAUDE.md bez pytania.
+// Awaria require traktowana jak awaria guarda: hook milknie (konwencja hook-guard).
+let projektDlaPliku;
+try {
+  ({ projektDlaPliku } =
+    require(path.resolve(__dirname, '..', '..', '..', 'core', 'process', 'session-signals.js')));
+} catch (_) {
+  process.exit(0);
 }
 
 // Zwraca {start, end, text} sekcji niemutowalnej albo null.
@@ -167,8 +144,6 @@ function editTouchesSection(current, sec, oldString, replaceAll) {
 
 function main(input) {
   const cwd = input.cwd || process.cwd();
-  const markerFile = relaiMarkerFile(cwd);
-  if (!markerFile) return process.exit(0);
 
   const tool = input.tool_name || '';
   const ti = input.tool_input || {};
@@ -176,7 +151,14 @@ function main(input) {
   if (!filePath) return process.exit(0);
 
   const target = path.resolve(cwd, filePath);
-  const settingsRel = path.relative(cwd, markerFile) || markerFile;
+  const projekt = projektDlaPliku(cwd, target, ['.claude/relai.json']);
+  if (!projekt) return process.exit(0);
+
+  // Korzen projektu PLIKU, nie sesji: wszystkie porownania nizej (plik ustawien,
+  // CLAUDE.md, sciezka wzgledna, snapshoty) dotycza tego projektu, do ktorego zapis idzie.
+  const korzen = projekt.root;
+  const markerFile = projekt.markerFile;
+  const settingsRel = path.relative(korzen, markerFile) || markerFile;
 
   // 1) Plik ustawien (nosnik markera "Wersja RelAI:") — kazda zmiana wymaga zgody.
   if (target === path.resolve(markerFile)) {
@@ -186,7 +168,7 @@ function main(input) {
   }
 
   // 2) CLAUDE.md — chroniona jest wylacznie sekcja niemutowalna.
-  if (target === path.resolve(cwd, 'CLAUDE.md')) {
+  if (target === path.resolve(korzen, 'CLAUDE.md')) {
     let current = '';
     try { current = fs.readFileSync(target, 'utf8'); } catch (_) { return process.exit(0); }
     const sec = immutableSection(current);
@@ -222,10 +204,10 @@ function main(input) {
   const profil = projectProfile(markerFile);
   if (profil !== 'agent-voice' && profil !== 'flow') return process.exit(0);
 
-  const rel = path.relative(cwd, target).split(path.sep).join('/');
+  const rel = path.relative(korzen, target).split(path.sep).join('/');
   if (!objetaBramka(rel)) return process.exit(0);
   if (!fs.existsSync(target)) return process.exit(0); // nowy plik nie ma stanu sprzed zmiany
-  if (maSnapshot(cwd, target)) return process.exit(0);
+  if (maSnapshot(korzen, target)) return process.exit(0);
 
   const dzis = (() => {
     const d = new Date();

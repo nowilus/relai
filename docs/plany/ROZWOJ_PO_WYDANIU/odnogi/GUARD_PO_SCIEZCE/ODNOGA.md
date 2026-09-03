@@ -1,7 +1,7 @@
 # ODNOGA — guard hooków rozpoznaje projekt po ścieżce edytowanego pliku
 
 Plan: [ROZWOJ_PO_WYDANIU](../../STATUS.md) · Etap-źródło: E10 planu BUDOWA_RELAI (pozycja domknięta
-w E6) · Utworzona: 2026-08-17 · Status: **OTWARTA** · Wykonawca: Opus
+w E6) · Utworzona: 2026-08-17 · Status: **ZAMKNIĘTA 2026-09-03** · Wykonawca: Opus
 
 ## Cel
 
@@ -52,21 +52,34 @@ naprawiamy, ale osobno.
 
 ## Weryfikacja
 
-- [ ] Sesja z katalogiem roboczym **poza** projektem RelAI, zapisująca sekret do pliku śledzonego
-      w projekcie RelAI, dostaje blokadę (dowód: plik nie powstał).
-- [ ] Ta sama sesja przy zapisie czystej treści do tego samego pliku nie dostaje żadnego
-      komunikatu (dowód, że test nie jest pusty).
-- [ ] Plik w projekcie z markerem trybu gościa nadal nie jest pilnowany — z obu kierunków
-      rozpoznania.
-- [ ] `git check-ignore` liczony względem projektu pliku: sekret w `.env` projektu docelowego
-      przechodzi, ten sam sekret w pliku śledzonym nie.
-- [ ] Instrument porównawczy dwóch adapterów (L-0040) w jednym przebiegu: komplet zgodnych
-      werdyktów przed zmianą i po niej dla materiału z katalogu sesji.
-- [ ] **Sprzątanie liczy `git check-ignore` względem projektu pliku** — raport `/relai-clean`
-      uruchomiony z sesji spoza projektu docelowego nie uznaje jego plików śledzonych za kandydatów
-      (dowód negatywny na materiale, który dziś przechodzi).
-- [ ] `node core/tools/validate-adapters.js` → kod 0.
+- [x] Sesja z katalogiem roboczym **poza** projektem RelAI, zapisująca sekret do pliku śledzonego
+      w projekcie RelAI, dostaje blokadę (dowód: plik nie powstał). — S1 i C1 instrumentu:
+      `cisza` → `deny` w obu adapterach. Dowodem jest werdykt hooka, bo instrument zapisu nie
+      wykonuje; żywa sesja zmierzy to po restarcie aplikacji z 1.8.1.
+- [x] Ta sama sesja przy zapisie czystej treści do tego samego pliku nie dostaje żadnego
+      komunikatu (dowód, że test nie jest pusty). — S2, C2: `cisza` przed i po.
+- [x] Plik w projekcie z markerem trybu gościa nadal nie jest pilnowany — z obu kierunków
+      rozpoznania. — S4, K4, C4 (kierunek pliku) i S8 (kierunek sesji).
+- [x] `git check-ignore` liczony względem projektu pliku: sekret w `.env` projektu docelowego
+      przechodzi, ten sam sekret w pliku śledzonym nie. — S3 wobec S1, C3 wobec C1.
+- [x] Instrument porównawczy dwóch adapterów (L-0040) w jednym przebiegu: komplet zgodnych
+      werdyktów przed zmianą i po niej dla materiału z katalogu sesji. — 22 scenariusze,
+      0 niezgodnych; 18 werdyktów niezmienionych wobec 1.8.0, 4 zmienione celowo (S1, K1, K2, C1).
+- [x] **Sprzątanie liczy `git check-ignore` względem projektu pliku** — 4 scenariusze
+      `instrument-clean.js`, 0 niezgodnych. Z1: ścieżka ignorowana w cudzym repozytorium przed
+      zmianą wyglądała na nieignorowaną. Zmierzone na `zachowaj`, bo to jedyne wejście
+      `work-artifacts.js`, które przyjmuje ścieżkę spoza katalogu sesji — raport liczy kandydatów
+      wyłącznie w repozytorium sesji.
+- [x] `node core/tools/validate-adapters.js` → kod 0.
 
 ## Wynik
 
-—
+**Zamknięta 2026-09-03, wydanie 1.8.1.** Guardraile rozpoznają projekt **od ścieżki pliku w górę**,
+a katalog sesji jest dopiero drugim kierunkiem. Rdzeń dostał `projektDlaPliku()` (trójstanowe
+`rozpoznajOdSciezki`: projekt / tryb gościa / brak — tryb gościa kończy sprawę, brak pozwala
+sprawdzić jeszcze od sesji). Oba skanery sekretów i `config-protection` liczą od pliku; ten ostatni
+przy okazji przestał być jedynym guardrailem z własną kopią rozpoznania. `git check-ignore` we
+wszystkich trzech miejscach pyta repozytorium, do którego należy ścieżka.
+
+Zmierzone: 22 + 4 scenariusze na dwóch drzewach w jednym przebiegu, 0 niezgodnych. Cztery werdykty
+zmienione — dokładnie te, dla których odnoga powstała.

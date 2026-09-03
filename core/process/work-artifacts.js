@@ -869,12 +869,31 @@ function kasuj(sciezki, opcje) {
 
 // --- marker "zostaw na zawsze" ----------------------------------------------
 
-function juzIgnorowana(cwd, wzgledna) {
+// Korzen repozytorium, do ktorego nalezy sciezka: pierwszy katalog z .git w gore.
+// null = sciezka nie lezy w zadnym repozytorium.
+function korzenRepo(sciezka) {
+  let dir = path.dirname(path.resolve(sciezka));
+  let poprzedni = null;
+  while (dir && dir !== poprzedni) {
+    if (maGita(dir)) return dir;
+    poprzedni = dir;
+    dir = path.dirname(dir);
+  }
+  return null;
+}
+
+// Od 1.8.1 (odnoga GUARD_PO_SCIEZCE) check-ignore pytamy w repozytorium, do ktorego nalezy
+// SPRAWDZANA SCIEZKA, a nie w tym, w ktorym stoi sesja: dla pliku z innego projektu
+// odpowiedz z cwd sesji dotyczyla cudzej historii i brzmiala tak samo pewnie.
+function juzIgnorowana(cwd, wzgledna, bezwzgledna) {
   for (const m of czytajMarkery(cwd)) {
     if (m.re.test(wzgledna)) return true;
   }
+  const cel = path.resolve(cwd, bezwzgledna || wzgledna);
+  const korzen = korzenRepo(cel);
+  if (!korzen) return false;
   try {
-    git(cwd, ['check-ignore', '-q', '--', wzgledna]);
+    git(korzen, ['check-ignore', '-q', '--', relatywna(korzen, cel)]);
     return true;
   } catch (_) {
     return false;
@@ -913,7 +932,7 @@ function dopiszMarker(cwd, sciezka) {
     } catch (_) {
       tresc = '';
     }
-    if (!juzIgnorowana(katalog, wzgledna)) {
+    if (!juzIgnorowana(katalog, wzgledna, bez)) {
       const dopisek = (tresc && !tresc.endsWith('\n') ? '\n' : '') + marker + '\n' + wzgledna + '\n';
       fs.mkdirSync(path.dirname(exclude), { recursive: true });
       fs.appendFileSync(exclude, dopisek, 'utf8');
@@ -947,6 +966,8 @@ module.exports = {
   raportTekst,
   kasuj,
   dopiszMarker,
+  juzIgnorowana, // eksportowana dla instrumentu porownawczego odnogi GUARD_PO_SCIEZCE
+  korzenRepo,
   kontekstBramki,
   LIMIT_WPISOW,
 };

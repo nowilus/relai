@@ -48,28 +48,88 @@ function isGuest(cwd, markery) {
   return false;
 }
 
-// Marker projektu RelAI: plik w docs/ z linia "Wersja RelAI:" albo "RelAI version:".
-// Zwraca sciezke pliku albo null (brak struktury, tryb goscia, nieczytelne docs/).
+// Sam odczyt markera w JEDNYM katalogu: plik w <dir>/docs/ z linia "Wersja RelAI:"
+// albo "RelAI version:". Bez sprawdzania trybu goscia — o goscia pyta wolajacy, bo
+// przy chodzeniu w gore pytanie pada raz na kazdy poziom.
+function markerWKatalogu(dir) {
+  const docsDir = path.join(dir, 'docs');
+  let entries = [];
+  try { entries = fs.readdirSync(docsDir); } catch (_) { return null; }
+  const candidates = [];
+  for (const name of ['USTAWIENIA.md', 'SETTINGS.md']) {
+    if (entries.includes(name)) candidates.push(name);
+  }
+  for (const f of entries) {
+    if (/\.md$/i.test(f) && !candidates.includes(f)) candidates.push(f);
+    if (candidates.length >= 40) break;
+  }
+  for (const f of candidates) {
+    let head = '';
+    try { head = fs.readFileSync(path.join(docsDir, f), 'utf8').slice(0, 4000); } catch (_) { continue; }
+    if (/Wersja RelAI:|RelAI version:/i.test(head)) return path.join(docsDir, f);
+  }
+  return null;
+}
+
+// Marker projektu RelAI szukany od KATALOGU SESJI. Zwraca sciezke pliku albo null
+// (brak struktury, tryb goscia, nieczytelne docs/).
 function relaiMarkerFile(cwd, markeryGoscia) {
   try {
     if (!cwd || isGuest(cwd, markeryGoscia)) return null;
-    const docsDir = path.join(cwd, 'docs');
-    let entries = [];
-    try { entries = fs.readdirSync(docsDir); } catch (_) { return null; }
-    const candidates = [];
-    for (const name of ['USTAWIENIA.md', 'SETTINGS.md']) {
-      if (entries.includes(name)) candidates.push(name);
-    }
-    for (const f of entries) {
-      if (/\.md$/i.test(f) && !candidates.includes(f)) candidates.push(f);
-      if (candidates.length >= 40) break;
-    }
-    for (const f of candidates) {
-      let head = '';
-      try { head = fs.readFileSync(path.join(docsDir, f), 'utf8').slice(0, 4000); } catch (_) { continue; }
-      if (/Wersja RelAI:|RelAI version:/i.test(head)) return path.join(docsDir, f);
-    }
+    return markerWKatalogu(cwd);
+  } catch (_) {
     return null;
+  }
+}
+
+// Katalogi od podanego w gore, do korzenia dysku wlacznie.
+function katalogiWGore(startDir) {
+  const out = [];
+  let dir = path.resolve(startDir);
+  let poprzedni = null;
+  while (dir && dir !== poprzedni) {
+    out.push(dir);
+    poprzedni = dir;
+    dir = path.dirname(dir);
+  }
+  return out;
+}
+
+// Rozpoznanie liczone od SCIEZKI PLIKU w gore. Trojstanowe, bo "nie znalazlem projektu"
+// i "znalazlem tryb goscia" znacza dla guarda co innego: pierwsze pozwala sprobowac
+// jeszcze od katalogu sesji, drugie konczy sprawe (goscia deklaruje sie raz).
+//   { tryb: 'projekt', markerFile, root } | { tryb: 'goscia' } | { tryb: 'brak' }
+function rozpoznajOdSciezki(filePath, markeryGoscia) {
+  try {
+    if (!filePath) return { tryb: 'brak' };
+    const start = path.dirname(path.resolve(filePath));
+    for (const dir of katalogiWGore(start)) {
+      if (isGuest(dir, markeryGoscia)) return { tryb: 'goscia' };
+      const marker = markerWKatalogu(dir);
+      if (marker) return { tryb: 'projekt', markerFile: marker, root: dir };
+    }
+    return { tryb: 'brak' };
+  } catch (_) {
+    return { tryb: 'brak' };
+  }
+}
+
+// Projekt RelAI, do ktorego nalezy PLIK objety operacja — rozpoznanie dla guardraili
+// (odnoga GUARD_PO_SCIEZCE, 1.8.1). Sesja otwarta gdzie indziej nadal pisze do cudzego
+// projektu, ale juz nie po cichu: marker szukany jest najpierw od pliku w gore, a dopiero
+// potem od katalogu sesji (zachowanie sprzed 1.8.1 dla pracy we wlasnym projekcie).
+// Zwraca { markerFile, root, kierunek } albo null. Tryb goscia znaleziony po drodze
+// wycisza guard w calosci — "nie chce tu RelAI" mowi sie raz.
+function projektDlaPliku(cwd, filePath, markeryGoscia) {
+  try {
+    const abs = filePath ? path.resolve(cwd || process.cwd(), filePath) : '';
+    const odPliku = rozpoznajOdSciezki(abs, markeryGoscia);
+    if (odPliku.tryb === 'projekt') {
+      return { markerFile: odPliku.markerFile, root: odPliku.root, kierunek: 'plik' };
+    }
+    if (odPliku.tryb === 'goscia') return null;
+    const marker = relaiMarkerFile(cwd, markeryGoscia);
+    return marker ? { markerFile: marker, root: path.resolve(cwd), kierunek: 'sesja' } : null;
   } catch (_) {
     return null;
   }
@@ -1173,6 +1233,8 @@ function artefaktyRoboczeReport(miara, opcje) {
 module.exports = {
   isGuest,
   relaiMarkerFile,
+  projektDlaPliku, // rozpoznanie od sciezki pliku (guardraile, 1.8.1)
+  rozpoznajOdSciezki, // eksportowane, zeby dalo sie pokazac trzeci stan (tryb goscia) testem
   todayLocal,
   projectVersion,
   provisionTemplates,

@@ -547,6 +547,23 @@ restart aplikacji po `plugin update` (L-0031), `git worktree` zamiast `git archi
   właściciela. Wzmocnienie zasady 4 („kryterium sukcesu sprawdzasz na materiale, zanim zaczniesz
   pracę") — bez własnej pozycji w destylacie, limit 15 pozostaje wykorzystany.
 
+### L-0083 — Instrument porównujący dwa drzewa musi odtwarzać materiał między wariantami · 2026-09-03 · AKTYWNA
+
+- **Trigger:** instrument odnogi GUARD_PO_SCIEZCE uruchamiał ten sam scenariusz najpierw na drzewie
+  sprzed zmiany, potem na drzewie po zmianie. Scenariusz Z3 dał `dopisana linia-marker` przed
+  i `brak — marker juz stoi` po — wyglądało to na zmianę zachowania, a było skutkiem tego, że
+  **pierwszy przebieg dopisał linię do `.gitignore` materiału kontrolnego**, a drugi zastał ją
+  na miejscu.
+- **Przyczyna:** mierzona funkcja miała efekt uboczny na materiale. Dwa warianty w jednym
+  przebiegu (L-0040) dzielą wtedy nie tylko wejście, ale i stan — a różnica w wyniku pochodzi
+  z kolejności wywołań, nie z kodu.
+- **Zasada:** instrument porównawczy **odtwarza materiał przed każdym wariantem**, a na końcu
+  dowodzi, że materiał wyszedł nietknięty — sumą kontrolną pliku, który miał zostać bez zmian.
+  Scenariusz dobieraj tak, żeby trafiał w sprawdzenie, które mierzysz: ścieżka ignorowana wzorcem
+  z korzenia nie dociera do `git check-ignore`, bo wcześniej łapie ją czytanie markerów.
+- **Źródło:** odnoga GUARD_PO_SCIEZCE (2026-09-03), `instrument-clean.js`. Wzmocnienie zasad 4
+  i 5 — bez własnej pozycji w destylacie, limit 15 pozostaje wykorzystany.
+
 ## Lekcje zwinięte
 
 Pełne wpisy lekcji, których zasady żyją w destylacie „Zasady aktywne" (kompresja 2026-08-20).

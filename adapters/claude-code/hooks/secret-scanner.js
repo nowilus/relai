@@ -19,18 +19,21 @@ const { spawnSync } = require('child_process');
 // Od 1.5.0 z rdzenia pochodzi takze rozpoznanie projektu (marker + tryb goscia) —
 // ten sam kod czyta adapter Cursora, wiec nie ma gdzie sie rozjechac (P4).
 let scanText;
-let relaiMarkerFileCore;
+let projektDlaPlikuCore;
 try {
   ({ scanText } = require(path.resolve(__dirname, '..', '..', '..', 'core', 'guardrails', 'secret-scan.js')));
-  ({ relaiMarkerFile: relaiMarkerFileCore } =
+  ({ projektDlaPliku: projektDlaPlikuCore } =
     require(path.resolve(__dirname, '..', '..', '..', 'core', 'process', 'session-signals.js')));
 } catch (_) {
   process.exit(0);
 }
 
 // Marker trybu goscia w adapterze Claude Code to wylacznie .claude/relai.json.
-function relaiMarkerFile(cwd) {
-  return relaiMarkerFileCore(cwd, ['.claude/relai.json']);
+// Od 1.8.1 projekt liczy sie od SCIEZKI ZAPISYWANEGO PLIKU, a katalog sesji jest
+// dopiero drugim kierunkiem: sesja otwarta gdzie indziej pisala dotad sekret do cudzego
+// projektu RelAI bez jednego ostrzezenia (odnoga GUARD_PO_SCIEZCE).
+function projektPliku(cwd, filePath) {
+  return projektDlaPlikuCore(cwd, filePath, ['.claude/relai.json']);
 }
 
 function isGitIgnored(cwd, filePath) {
@@ -50,12 +53,16 @@ function isGitIgnored(cwd, filePath) {
 
 function main(input) {
   const cwd = input.cwd || process.cwd();
-  if (!relaiMarkerFile(cwd)) return process.exit(0);
 
   const tool = input.tool_name || '';
   const ti = input.tool_input || {};
   const filePath = ti.file_path || ti.notebook_path || '';
   if (!filePath) return process.exit(0);
+
+  // Rozpoznanie projektu PRZED trescia: sciezka rozstrzyga, ktorego projektu pilnujemy.
+  const abs = path.resolve(cwd, filePath);
+  const projekt = projektPliku(cwd, abs);
+  if (!projekt) return process.exit(0);
 
   let payload = '';
   if (tool === 'Write') payload = String(ti.content || '');
@@ -64,12 +71,14 @@ function main(input) {
   else if (tool === 'NotebookEdit') payload = String(ti.new_source || '');
   if (!payload) return process.exit(0);
 
-  if (isGitIgnored(cwd, filePath)) return process.exit(0);
+  // git check-ignore liczony w repozytorium, do ktorego nalezy PLIK — nie w tym, w ktorym
+  // stoi sesja. Inaczej odpowiedz dotyczy cudzej historii (odnoga GUARD_PO_SCIEZCE).
+  if (isGitIgnored(projekt.root, abs)) return process.exit(0);
 
   const finding = scanText(payload);
   if (!finding) return process.exit(0);
 
-  const rel = path.relative(cwd, filePath) || filePath;
+  const rel = path.relative(projekt.root, abs) || abs;
   const msg = 'RelAI secret-scanner: wykryto ' + finding + ' w pliku sledzonym "' + rel +
     '". Sekrety trzymaj wylacznie w .env objetym .gitignore (D-42); do repozytorium moze trafic ' +
     'co najwyzej NAZWA zmiennej srodowiskowej. Wartosc nie zostala zacytowana celowo. ' +
