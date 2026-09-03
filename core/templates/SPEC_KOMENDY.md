@@ -50,7 +50,7 @@ projektu jest w `docs/USTAWIENIA.md`.
 Plik jest **regenerowany**, nie edytowany ręcznie. Wyjątkiem są wiersze oznaczone jako lokalne —
 te przeżywają regenerację (D-62: lokalne nadpisania mają pierwszeństwo).
 
-## Zakres wersji 1.7.0 — co realnie działa
+## Zakres wersji 1.8.0 — co realnie działa
 
 Od 0.4.0 działa **pierwsza komenda** — `/relai-stage` — i wygenerowany `KOMENDY.md` ma tabelę
 komend. W 0.5.0 doszło **osiem hooków**: sekcja „Czego RelAI pilnuje bez proszenia" urosła
@@ -74,7 +74,7 @@ o pracy naprzemiennej (oba narzędzia czytają te same `docs/`, wersję struktur
 — inaczej milczysz, tak jak przy pre-commicie (L-0002, L-0029). W 1.6.0 dochodzi **budżet startu
 sesji**: kolejny punkt w sekcji o zachowaniach automatycznych — start sesji jest mierzony i odzywa
 się wyłącznie ponad budżetem, a rotacja dostaje drugie wejście właśnie tam. Tabela komend nie
-rośnie. W 1.7.0 dochodzi **przegląd spraw czekających na człowieka**: pozycja starsza niż próg z wiersza `Przegląd spraw człowieka` wymusza decyzję na starcie sesji — kolejny punkt w sekcji o zachowaniach automatycznych, z własnym wyłącznikiem, osobnym od rotacji. Tabela komend nie rośnie. Działa:
+rośnie. W 1.7.0 dochodzi **przegląd spraw czekających na człowieka**: pozycja starsza niż próg z wiersza `Przegląd spraw człowieka` wymusza decyzję na starcie sesji — kolejny punkt w sekcji o zachowaniach automatycznych, z własnym wyłącznikiem, osobnym od rotacji. Tabela komend nie rośnie. W 1.8.0 dochodzi **sprzątanie artefaktów roboczych**: jedenasta komenda `/relai-clean` w tabeli oraz jeden punkt w sekcji o zachowaniach automatycznych — zdanie na starcie sesji ponad progiem z wiersza `Artefakty robocze` i pytanie o katalogi zamkniętych etapów w rytuale „kończymy na dziś". Wyłącznik jest **osobny** od rotacji i od przeglądu spraw. Działa:
 
 - inicjalizacja struktury projektu (zgoda → trzy pytania → osiem dokumentów),
 - rozpoznanie folderu, który już jest projektem RelAI,
@@ -182,8 +182,20 @@ rośnie. W 1.7.0 dochodzi **przegląd spraw czekających na człowieka**: pozycj
   o kolejne tyle samo dni, czy rozstrzygnąć teraz — zadawane partiami po cztery. Poniżej progu nie
   pada ani jedno słowo, a wyłącznik jest **osobny** od wyłącznika rotacji. Opisujesz efekt, nie
   nazwę funkcji, która to liczy,
+- **sprzątanie artefaktów roboczych (nowe w 1.8.0):** `/relai-clean` pokazuje, co realnie zostało
+  po zamkniętych etapach — w katalogu roboczym projektu (`.claude/relai/work/`), w folderze plików
+  tymczasowych systemu i wśród plików nieśledzonych przez gita — grupuje to i pyta partiami po
+  cztery; kasuje wyłącznie grupy z potwierdzeniem, a odpowiedź „zostaw na zawsze" dopisuje marker
+  `# relai: zachowaj`, więc pytanie nie wraca. Argument `raport` kończy komendę na raporcie,
+- **artefakty robocze (nowe w 1.8.0), do sekcji „Czego RelAI pilnuje bez proszenia":** gdy pliki
+  robocze przekroczą próg z wiersza `Artefakty robocze` w `USTAWIENIA.md` (domyślnie 100 MB),
+  start sesji mówi o tym **jednym zdaniem** — waga, liczba pozycji, trzy najcięższe z pochodzeniem
+  — i proponuje `/relai-clean`; rytuał „kończymy na dziś" pyta o katalogi etapów już zamkniętych.
+  Poniżej progu, przy etapie w toku i przy wierszu `wyłączone` nie pada ani jedno słowo. Piszesz
+  **efekt i granice ochrony** (plik śledzony przez gita nie jest kandydatem nigdy; lokalną notatkę
+  chroni marker), nie nazwę narzędzia liczącego,
 
-Wygenerowany `KOMENDY.md` w wersji 1.7.0 zawiera **tabelę komend z dziesięcioma pozycjami**
+Wygenerowany `KOMENDY.md` w wersji 1.8.0 zawiera **tabelę komend z jedenastoma pozycjami**
 oraz tabelę fraz naturalnych:
 
 | Komenda | Co robi |
@@ -198,6 +210,7 @@ oraz tabelę fraz naturalnych:
 | `/relai-adopt [ŚCIEŻKA_BACKUPU]` | adoptuje zastany projekt: backup-bramka, analiza, struktura z zastanego stanu, scalenie `CLAUDE.md`, raport z procedurą pełnego cofnięcia; wyłącznie na jawne wywołanie |
 | `/relai-update` | aktualizuje projekt do wersji zainstalowanego pluginu: różnice, zgoda, poszanowanie nadpisań lokalnych, wpis w dzienniku |
 | `/relai-branch [NAZWA] [cel]` | zakłada odnogę: kartę wątku i samowystarczalny prompt świeżej sesji; jedna linia w sekcji „Odnogi" `STATUS.md`, zamrożony plan bez zmian; bez planu — wątek samodzielny w `docs/fixy/` |
+| `/relai-clean [raport]` | raport artefaktów roboczych w grupach, z listą chronionych i powodem ochrony; kasuje wyłącznie po „tak" na grupę i mierzy ponownie po operacji; argument `raport` kończy komendę na raporcie |
 
 | Fraza (PL / EN) | Co się stanie |
 |---|---|
@@ -212,12 +225,12 @@ oraz tabelę fraz naturalnych:
 - Nie opisujesz mechaniki wewnętrznej (skille, hooki) — użytkownika interesuje efekt.
 - Nie wpisujesz punktów profilu, którego ten projekt nie ma.
 
-## Przykład dla wersji 1.7.0 (projekt polski, profil `app`)
+## Przykład dla wersji 1.8.0 (projekt polski, profil `app`)
 
 ```markdown
 # KOMENDY — Parkly
 
-RelAI 1.7.0
+RelAI 1.8.0
 
 Nic z tej listy nie jest obowiązkowe. RelAI działa w zwykłej rozmowie — piszesz normalnie,
 a struktura projektu nadąża. Komendy są skrótem do rzadszych operacji.
@@ -237,6 +250,7 @@ a struktura projektu nadąża. Komendy są skrótem do rzadszych operacji.
 | `/relai-adopt` | przenosi istniejący projekt na RelAI: najpierw pełny backup, potem analiza i dokumenty wygenerowane z tego, co w projekcie naprawdę jest; kończy raportem z instrukcją pełnego cofnięcia | w folderze innego projektu, który chcesz objąć RelAI — ten projekt już jest objęty |
 | `/relai-update` | podnosi ten projekt do wersji zainstalowanego RelAI: pokazuje, co się zmieni, czeka na Twoje „tak" i nie rusza niczego, co sam zmieniłeś | gdy RelAI mówi na starcie sesji, że projekt jest starszy niż plugin |
 | `/relai-branch` · `/relai-branch OPIS_REPO` | odkłada boczny wątek na bok: spisuje, o co chodzi i po czym poznać, że zrobione, i przygotowuje gotowy prompt do wklejenia w nowej sesji | gdy w trakcie etapu wypływa coś ważnego, ale nie na teraz — zamiast robić to przy okazji albo zapomnieć |
+| `/relai-clean` · `/relai-clean raport` | pokazuje, co zostało po zamkniętych etapach — w katalogu roboczym projektu, w folderze plików tymczasowych i wśród plików nieśledzonych — grupuje to i pyta; kasuje wyłącznie grupy, na które powiesz „tak". Z argumentem `raport` sam raport, bez pytań | gdy plików roboczych zrobiło się dużo albo gdy RelAI powie o tym na starcie sesji |
 
 Pełna nazwa każdej z nich to `/relai:relai-…` (np. `/relai:relai-backup`) — wpisz `/relai` i wybierz
 z podpowiedzi; skrócona forma działa tam, gdzie podpowiadacz ją rozwinie.
@@ -292,6 +306,10 @@ z podpowiedzi; skrócona forma działa tam, gdzie podpowiadacz ją rozwinie.
 - Sprawa czekająca na Ciebie dłużej niż 30 dni wraca na starcie sesji jako pytanie: zamknąć,
   odroczyć, czy rozstrzygnąć teraz. Pytania padają partiami po cztery, a próg i wyłącznik masz
   w `USTAWIENIA.md`.
+- Gdy pliki robocze po zamkniętych etapach uzbierają się ponad próg z `USTAWIENIA.md` (domyślnie
+  100 MB), mówi o tym jednym zdaniem na starcie sesji i proponuje `/relai-clean`; przy „kończymy na
+  dziś" pyta o katalogi etapów już zamkniętych. Nic nie znika samo — kasowanie wymaga Twojego „tak"
+  na konkretną grupę, a plik śledzony przez gita nie jest kandydatem nigdy.
 - Przypomina, gdy zmiana kodu została bez wpisu w dzienniku i aktualizacji stanu.
 - Ostrzega przed `console.log` zostawionym w kodzie produkcyjnym; gdy projekt ma TypeScript albo
   ESLint — pokazuje ich błędy zaraz po edycji pliku.

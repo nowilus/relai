@@ -490,7 +490,7 @@ zgody na wyjątki od reguł domyślnych, wybrany kierunek designu.
 ```markdown
 # USTAWIENIA — Parkly
 
-Wersja RelAI: 1.7.0 · zainicjowano: 2026-08-07
+Wersja RelAI: 1.8.0 · zainicjowano: 2026-08-07
 
 Rejestr wyborów użytkownika dla tego projektu. Każdy wpis: data, czego dotyczył, decyzja.
 Odpowiedź raz udzielona nie wraca jako pytanie.
@@ -503,6 +503,7 @@ Odpowiedź raz udzielona nie wraca jako pytanie.
 | 2026-08-07 | Rotacja dokumentów | włączona |
 | 2026-08-07 | Budżet startu sesji | włączony |
 | 2026-08-07 | Przegląd spraw człowieka | włączony · 30 dni |
+| 2026-08-07 | Artefakty robocze | włączone · 100 MB |
 | 2026-08-12 | Podejście do testów | Testy krytycznych ścieżek, bez pełnego TDD |
 | 2026-08-14 | Format planów | Interaktywny HTML dla planów głównych; `STATUS.md` i prompty etapowe w Markdown |
 | 2026-08-14 | Szablon planu HTML | Nadpisanie lokalne w `docs/zasoby/HTML_PLAN/` — ma pierwszeństwo przed wersją z pluginu (D-58) |

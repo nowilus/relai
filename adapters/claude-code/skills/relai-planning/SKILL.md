@@ -26,7 +26,7 @@ description: >
 
 # relai-planning — plany, etapy i ich zamrażanie
 
-Wersja 1.7.0 (plan HIGIENA_DOKUMENTOW — rotacja bez blokad, przegląd spraw przeterminowanych, progi z adresem w raporcie startu). Zakres tej wersji: **wykrycie intencji planowania + rozróżnienie
+Wersja 1.8.0 (plan SPRZATANIE_ARTEFAKTOW — katalog roboczy etapu nazwany z góry, krok 1a rytuału „Na koniec"). Zakres tej wersji: **wykrycie intencji planowania + rozróżnienie
 PLAN/MINIPLAN + pytanie startowe + generacja planu w Markdown albo w HTML + `STATUS.md` +
 zamrożenie z aneksami + prompty etapowe `PROMPT_ETAP_N` z lazy-generacją + rytuał „Na koniec" etapu
 + sygnał odchylenia i odnogi planu + **bramki manualne** + zamknięcie planu**. Etap uruchamia komenda `/relai-stage`,

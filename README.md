@@ -3,7 +3,7 @@
 </p>
 
 <p align="center">
-  <em>Wersja 1.7.0 &nbsp;·&nbsp; licencja MIT &nbsp;·&nbsp; wymaga Claude Code albo Cursora, plus Node.js 14+ &nbsp;·&nbsp; zero zależności npm</em>
+  <em>Wersja 1.8.0 &nbsp;·&nbsp; licencja MIT &nbsp;·&nbsp; wymaga Claude Code albo Cursora, plus Node.js 14+ &nbsp;·&nbsp; zero zależności npm</em>
 </p>
 
 **RelAI to plugin do Claude Code (od 1.5.0 także adapter Cursora), który zamienia rozmowę
@@ -146,7 +146,7 @@ mkdir C:/Users/<Ty>/Desktop/MojProjekt
 node C:/Narzedzia/relai/adapters/cursor/install.js C:/Users/<Ty>/Desktop/MojProjekt
 ```
 
-Instalator wypisze, co położył: trzy reguły `.cursor/rules/relai-*.mdc`, dziesięć komend
+Instalator wypisze, co położył: trzy reguły `.cursor/rules/relai-*.mdc`, jedenaście komend
 `/relai-*`, dwa skille, specyfikacje dokumentów w `.claude/relai/templates/` i dwa wpisy
 w `.cursor/hooks.json`. Cudze wpisy w `hooks.json` zostają nietknięte.
 
@@ -235,7 +235,7 @@ wywołanie — nigdy sama z siebie.
 
 ## Komendy
 
-Dziewięć skrótów dla operacji, które w rozmowie byłyby uciążliwe do opisania.
+Jedenaście skrótów dla operacji, które w rozmowie byłyby uciążliwe do opisania.
 
 | | Komenda | Co robi |
 |:--:|---|---|
@@ -249,6 +249,7 @@ Dziewięć skrótów dla operacji, które w rozmowie byłyby uciążliwe do opis
 | <img src="docs/zasoby/branding/ikony/adopt.svg" width="24"> | `/relai-adopt` | przenosi zastany projekt na strukturę RelAI z backupem-bramką i ścieżką cofnięcia |
 | <img src="docs/zasoby/branding/ikony/update.svg" width="24"> | `/relai-update` | dociąga projekt do wersji pluginu; pokazuje różnice, zmienia wyłącznie za zgodą |
 | <img src="docs/zasoby/branding/ikony/branch.svg" width="24"> | `/relai-branch` | odkłada boczny wątek jako odnogę: karta i gotowy prompt świeżej sesji, plan bez zmian |
+| <img src="docs/zasoby/branding/ikony/clean.svg" width="24"> | `/relai-clean` | pokazuje artefakty po zamkniętych etapach w grupach i kasuje wyłącznie te, na które powiesz „tak" |
 
 Claude Code rejestruje komendy pluginu pod pełną nazwą `/relai:relai-<nazwa>`. Skrócona forma
 (`/relai-backup`) działa tam, gdzie podpowiadacz ją rozwija.
@@ -381,8 +382,8 @@ relai/
 ├── adapters/
 │   ├── claude-code/             # ADAPTER Claude Code
 │   │   ├── skills/              #   relai-core (rytuały, rejestry), relai-planning (plany, etapy)
-│   │   ├── commands/            #   dziesięć komend: stage, branch, backup, audit, changelog,
-│   │   │                        #     handover, tour, help, adopt, update
+│   │   ├── commands/            #   jedenaście komend: stage, branch, backup, audit, changelog,
+│   │   │                        #     handover, tour, help, adopt, update, clean
 │   │   └── hooks/
 │   │       ├── hooks.json       #   rejestracja dziesięciu hooków (zdarzenia i matchery)
 │   │       └── *.js             #   dziesięć hooków Node.js, zero zależności npm

@@ -1,6 +1,6 @@
 # KOMENDY — RelAI
 
-RelAI 1.7.0
+RelAI 1.8.0
 
 Nic z tej listy nie jest obowiązkowe. RelAI działa w zwykłej rozmowie — piszesz normalnie,
 a struktura projektu nadąża. Komendy są skrótem do rzadszych operacji.
@@ -20,6 +20,7 @@ a struktura projektu nadąża. Komendy są skrótem do rzadszych operacji.
 | `/relai-adopt` | przenosi istniejący projekt na RelAI: najpierw pełny backup, potem analiza i dokumenty wygenerowane z tego, co w projekcie naprawdę jest; kończy raportem z instrukcją pełnego cofnięcia | w folderze innego projektu, który chcesz objąć RelAI — ten projekt już jest objęty |
 | `/relai-update` | podnosi projekt do wersji zainstalowanego RelAI: pokazuje, co się zmieni, czeka na Twoje „tak" i nie rusza niczego, co sam zmieniłeś | gdy RelAI mówi na starcie sesji, że projekt jest starszy niż plugin |
 | `/relai-branch` · `/relai-branch OPIS_REPO` | odkłada boczny wątek na bok: spisuje, o co chodzi i po czym poznać, że zrobione, i przygotowuje gotowy prompt do wklejenia w nowej sesji | gdy w trakcie etapu wypływa coś ważnego, ale nie na teraz — zamiast robić to przy okazji albo zapomnieć |
+| `/relai-clean` · `/relai-clean raport` | pokazuje, co realnie zostało po zamkniętych etapach — w katalogu roboczym projektu, w folderze plików tymczasowych systemu i wśród plików nieśledzonych — grupuje to i pyta partiami po cztery; kasuje wyłącznie grupy, na które powiesz „tak". Z argumentem `raport` sam raport: żadnych pytań, żadnego kasowania | gdy plików roboczych zrobiło się dużo albo gdy RelAI powie o tym na starcie sesji |
 
 Pełna nazwa każdej z nich to `/relai:relai-…` (np. `/relai:relai-backup`) — wpisz `/relai` i wybierz
 z podpowiedzi; skrócona forma działa tam, gdzie podpowiadacz ją rozwinie.
@@ -60,6 +61,13 @@ z podpowiedzi; skrócona forma działa tam, gdzie podpowiadacz ją rozwinie.
   wraca na starcie sesji jako pytanie: zamknąć, odroczyć o kolejne tyle samo dni, czy rozstrzygnąć
   teraz. Pytania padają partiami po cztery. Poniżej progu — cisza; wyłącznik jest osobny od
   wyłącznika rotacji.
+- **Pliki robocze po zamkniętych etapach nie zostają na zawsze.** Gdy uzbierają się ponad próg
+  z wiersza „Artefakty robocze" w `docs/USTAWIENIA.md` (domyślnie 100 MB), RelAI mówi o tym jednym
+  zdaniem na starcie sesji — waga, ile pozycji, trzy najcięższe — i proponuje `/relai-clean`.
+  Przy „kończymy na dziś" pyta o katalogi etapów już zamkniętych. Nic nie znika samo: kasowanie
+  wymaga Twojego „tak" na konkretną grupę, plik śledzony przez gita nie jest kandydatem nigdy,
+  a Twoją lokalną notatkę chroni linia `# relai: zachowaj` nad wzorcem w `.gitignore`. Poniżej
+  progu i przy etapie w toku — cisza.
 - **Pułapki mają własny dokument.** Rzecz, która raz zaskoczyła i zaskoczy znowu — nieoczywiste
   zachowanie narzędzia, kolejność kroków, wymóg środowiska — trafia do `docs/PULAPKI.md`. Ten plik
   czyta się **na żądanie**, a nie przy starcie sesji, więc nie kosztuje ani jednego tokena, dopóki

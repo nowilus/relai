@@ -25,7 +25,7 @@ description: >
 
 # relai-core — struktura projektu, pamięć i rytuały sesji
 
-Wersja 1.7.0 (plan HIGIENA_DOKUMENTOW — rotacja bez blokad, przegląd spraw przeterminowanych, progi z adresem w raporcie startu). Zakres tego skilla: **rozpoznanie stanu folderu + inicjalizacja + tryb
+Wersja 1.8.0 (plan SPRZATANIE_ARTEFAKTOW — sprzątanie artefaktów roboczych: zdanie na starcie sesji ponad progiem i krok 2a rytuału zamknięcia dnia). Zakres tego skilla: **rozpoznanie stanu folderu + inicjalizacja + tryb
 gościa + niedestrukcyjne dołączenie + rytuały sesji + rotacja dokumentów przy zamknięciu sesji +
 siatka brakujących promptów etapowych + siatka rozjazdu stanu + rejestr decyzji po adopcji +
 rejestry LEKCJE/DECYZJE + trzy frazy naturalne + warstwa ustawień globalnych + reguły warunkowe
@@ -845,7 +845,7 @@ Zasady generacji:
   Dla projektu angielskiego: `docs/STATE.md`, `docs/JOURNAL.md`, `docs/LESSONS.md`,
   `docs/DECISIONS.md`, `docs/SETTINGS.md`, `docs/COMMANDS.md`. Konwencja stała: CAPS_SNAKE, bez dat
   i numerów wersji w nazwie.
-- `docs/USTAWIENIA.md` **musi** zawierać linię `Wersja RelAI: 1.7.0` — to marker, po którym RelAI
+- `docs/USTAWIENIA.md` **musi** zawierać linię `Wersja RelAI: 1.8.0` — to marker, po którym RelAI
   rozpoznaje projekt i po którym przyszły `/relai-update` policzy różnicę wersji.
 - `CLAUDE.md` **musi** zawierać sekcję `## Reguły profilu (<wybrany profil>)` zaraz po „Regułach
   procesu" — 3–6 punktów wg `SPEC_PROFILE.md`. To jedyna warstwa reguł profilu działająca bez
