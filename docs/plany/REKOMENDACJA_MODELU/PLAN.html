@@ -241,7 +241,7 @@ footer .pis{font-family:var(--pis); font-size:1.2rem; color:var(--glina); margin
     <a href="#s5">Jak działa</a><a href="#s6">Etapy</a><a href="#s7">Ryzyka</a><a href="#s8">Brzegowe</a>
     <a href="#s9">Decyzje</a><a href="#s10">Aneksy</a>
   </nav>
-  <span class="stan">DO AKCEPTACJI</span>
+  <span class="stan">ZAAKCEPTOWANY 2026-09-03</span>
 </div>
 
 <header class="szyld">
@@ -253,7 +253,7 @@ footer .pis{font-family:var(--pis); font-size:1.2rem; color:var(--glina); margin
   </svg>
   <p class="podtytul">Pytanie „na jakim modelu to wykonać" ma pokazywać nazwy, które są w tym narzędziu — i wiedzieć, z kiedy pochodzą.</p>
   <div class="metki">
-    <span class="metka akc"><i></i>status: <b>DO AKCEPTACJI</b></span>
+    <span class="metka akc"><i></i>status: <b>ZAAKCEPTOWANY 2026-09-03</b></span>
     <span class="metka">etapów: <b>4</b></span>
     <span class="metka">pracochłonność: <b>4–7 sesji</b> <span class="et et-s">SZACUNEK</span></span>
     <span class="metka">model etapów: <b>Opus (D-85)</b></span>
@@ -690,7 +690,24 @@ zachowania, które trzeba obserwować dłużej niż jeden etap.</p>
 <p>Po akceptacji sekcje 1–9 są zamrożone. Zmiany wyłącznie tutaj, jako datowane aneksy A, B, C…
 Odchylenie fundamentalne — zmiana celu albo wybranego wariantu — nie jest aneksem: kończy ten plan
 statusem CZĘŚCIOWO ZREALIZOWANY i otwiera nowy, z linkiem do tego dokumentu.</p>
-<p>Aneksów jeszcze nie ma.</p>
+<h3>Aneks A — 2026-09-03</h3>
+<p><b>Powód:</b> sprawdzenie repozytorium przy generowaniu promptu E1 wykazało, że <b>oba adaptery
+prowizjonują do tego samego katalogu</b> <code>.claude/relai/</code> — Cursor również
+(<code>adapters/cursor/hooks/session-context.js:134</code> oraz <code>install.js:172</code>,
+<code>destRel: '.claude/relai'</code>). Cursor zakłada własne <code>.cursor/</code> na reguły,
+komendy, skille i hooki, ale specyfikacje trzyma świadomie w jednym miejscu. Rozróżnienie list
+modeli <b>po katalogu docelowym</b>, zapisane w sekcji 5, jest więc niewykonalne bez rozbicia
+cache'u na dwie lokalizacje.</p>
+<p><b>Zmiana:</b> listy rozróżnia <b>nazwa pliku</b>, nie katalog —
+<code>.claude/relai/MODELE-claude-code.md</code> i <code>.claude/relai/MODELE-cursor.md</code>.
+Hook startu każdego adaptera kładzie swój plik i wstrzykuje w kontekst startu jedno zdanie o tym,
+która lista obowiązuje w tej sesji; skill bierze nazwę stamtąd, zamiast rozpoznawać narzędzie
+samodzielnie — rozpoznanie zostaje w warstwie, która wie na pewno (L-0030). Pozostała treść
+sekcji 5, w tym kolejność kroków i zakaz sieci w hooku, bez zmian.</p>
+<p><b>Skutek dla etapów:</b> E1 dostaje dwa pliki o nazwach z przyrostkiem narzędzia i jedno zdanie
+w kontekście startu obu adapterów; ryzyko 1 (zła lista w drugim narzędziu) zmienia mitygację
+z „rozstrzyga katalog" na „rozstrzyga nazwa pliku podana przez hook". Liczba etapów i szacunek
+bez zmian.</p>
 </section>
 
 <footer>

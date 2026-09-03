@@ -2077,3 +2077,52 @@ Dwie rzeczy: domknięcie sekwencji wydania z poprzedniego wpisu i przekształcen
   (przed E4).
 
 Autor: RelAI (Opus 5) + Lukasz
+
+### 2026-09-03 — Plan REKOMENDACJA_MODELU zaakceptowany z Aneksem A; E1 gotowy do startu
+
+**Zrobione:**
+
+- **Plan zaakceptowany i zamrożony** — `STATUS.md`: status planu `ZAAKCEPTOWANY 2026-09-03`,
+  E1 → `GOTOWY DO STARTU` z linkiem do promptu, linia w dzienniku wdrożenia. Metka statusu
+  w `PLAN.html` przepisana w obu miejscach; sekcje 1–9 **nietknięte**.
+- **Aneks A (2026-09-03)** dopisany do sekcji 10 planu. Powód wykryty przy generowaniu promptu E1:
+  **oba adaptery prowizjonują do `.claude/relai/`** — Cursor również
+  (`adapters/cursor/hooks/session-context.js:134`, `install.js:172`, `destRel: '.claude/relai'`).
+  Rozróżnienie list modeli po katalogu, zapisane w sekcji 5, było więc niewykonalne bez rozbicia
+  cache'u na dwie lokalizacje. Zmiana: listy rozróżnia **nazwa pliku**
+  (`MODELE-claude-code.md`, `MODELE-cursor.md`), a która obowiązuje w tej sesji — mówi **hook
+  startu** jednym zdaniem; skill bierze nazwę stamtąd, zamiast rozpoznawać narzędzie samodzielnie
+  (zasada 8, L-0030). Liczba etapów i szacunek bez zmian.
+- **`PROMPT_ETAP_1.md`** wygenerowany ze specyfikacji promptu etapowego: dziewięć sekcji, katalog
+  roboczy nazwany w linii otwierającej zakres, dziewięć punktów weryfikacji, „Zasady aktywne"
+  przepisane w całości wraz z **L-0083** dopisaną do zasady 5.
+- **`CLAUDE.md`** — linia aktywnego planu bez dopisku o akceptacji, wiersz tabeli „Stan prac"
+  i linia rytuału startu podniesione na stan po akceptacji.
+
+**Zweryfikowane — jak dokładnie:**
+
+- **Rozbieżność planu ze stanem repozytorium wyłapana przed startem etapu, nie w jego trakcie.**
+  Sprawdzenie `grep -rn "provisionTemplates"` pokazało trzy wywołania i **wszystkie** z
+  `destRel: '.claude/relai'` — w tym oba wejścia adaptera Cursora. Gdyby prompt powstał „z planu",
+  E1 zacząłby od zakładania katalogu `.cursor/relai/`, którego żaden mechanizm nie czyta.
+- **Metka statusu w `PLAN.html` policzona przed i po podmianie:** `DO AKCEPTACJI` 2 → 0,
+  `ZAAKCEPTOWANY 2026-09-03` 0 → 2, obecność Aneksu A potwierdzona wyrażeniem nad treścią pliku.
+- **Prompt niesie oba fakty, które przewróciły kartę odnogi** — jeden skill dla dwóch narzędzi
+  (instalator Cursora kopiuje komendy i skille z adaptera Claude Code) oraz jeden katalog cache'u —
+  wypisane w sekcji „Stan wyjściowy" jako rzeczy, które łatwo przyjąć odwrotnie.
+
+**Świadomie odłożone:**
+
+- **Sprawdzenie deklaracji `MANIFEST.adapters` przez walidator** — E1 tylko deklaruje pliki list,
+  gałąź sprawdzająca ich obecność należy do E4. Dziś walidator takiej gałęzi nie ma.
+- **Rotacja dziennika** — plik jest ponad progiem 150 KB; rotacja przy najbliższym „kończymy na
+  dziś", nie w turze dopisującej do niego wpis.
+
+**Do zrobienia przez człowieka:**
+
+- **Dwie bramki blokują E2**, nie E1: adresy stron dokumentacji modeli dla obu narzędzi oraz
+  decyzja, czy zgoda na ruch sieciowy pada przy każdym odświeżeniu, czy raz na projekt. E1 startuje
+  bez nich.
+- **Numer wydania (1.9.0 czy 1.8.2)** — przed E4.
+
+Autor: RelAI (Opus 5) + Lukasz
