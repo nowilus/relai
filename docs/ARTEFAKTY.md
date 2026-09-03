@@ -59,7 +59,7 @@ z gita, żeby było widać, które artefakty żyją. Pełna historia treści jes
 Traktowany jako **jedna pozycja**: trzy pliki źródłowe i sześć plików `.woff2` tworzą jeden artefakt,
 którego wersji nie da się podbijać osobno.
 
-## Komendy — `adapters/claude-code/commands/` (10)
+## Komendy — `adapters/claude-code/commands/` (11)
 
 | Artefakt | Plik | Wersja | Data | Co się zmieniło | Po co |
 |---|---|---|---|---|---|
@@ -68,6 +68,7 @@ którego wersji nie da się podbijać osobno.
 | `/relai-backup` | `adapters/claude-code/commands/relai-backup.md` | 1 | 2026-08-08 | wpis startowy; ostatnia zmiana 2026-08-12 | Archiwum ZIP w centralnym folderze, z wykluczeniem sekretów i katalogów runtime |
 | `/relai-branch` | `adapters/claude-code/commands/relai-branch.md` | 1 | 2026-08-12 | wpis startowy; ostatnia zmiana 2026-08-12 | Zakłada odnogę bez ruszania zamrożonego planu — karta plus prompt świeżej sesji |
 | `/relai-changelog` | `adapters/claude-code/commands/relai-changelog.md` | 1 | 2026-08-08 | wpis startowy; ostatnia zmiana 2026-08-12 | Destyluje dziennik do listy zmian; do pliku zapisuje dopiero na życzenie |
+| `/relai-clean` | `adapters/claude-code/commands/relai-clean.md` | 1 | 2026-09-03 | nowy artefakt (plan SPRZATANIE_ARTEFAKTOW, E1) | Artefakty po zamkniętych etapach rosły poza Gitem i w `%TEMP%` bez żadnego adresu — komenda daje im raport w grupach, jedno „tak” na grupę i ślad w dzienniku, a kasowanie zostawia narzędziu rdzenia z asercjami korzeni |
 | `/relai-handover` | `adapters/claude-code/commands/relai-handover.md` | 1 | 2026-08-08 | wpis startowy; ostatnia zmiana 2026-08-12 | Pakiet przekazania projektu w jednym pliku HTML — stan, mapa, plany, ryzyka, od czego zacząć |
 | `/relai-help` | `adapters/claude-code/commands/relai-help.md` | 1 | 2026-08-08 | wpis startowy; ostatnia zmiana 2026-08-12 | Prezentuje `docs/KOMENDY.md` zamiast duplikować jego treść (D-07) |
 | `/relai-stage` | `adapters/claude-code/commands/relai-stage.md` | 1 | 2026-08-07 | wpis startowy; ostatnia zmiana 2026-08-12 | Uruchamia etap aktywnego planu z kontrolą modelu i potwierdzeniem przed startem |
@@ -78,7 +79,7 @@ którego wersji nie da się podbijać osobno.
 
 | Artefakt | Plik | Wersja | Data | Co się zmieniło | Po co |
 |---|---|---|---|---|---|
-| Skill `relai-core` | `adapters/claude-code/skills/relai-core/SKILL.md` | 1 | 2026-08-07 | wpis startowy; ostatnia zmiana 2026-09-01 | Niesie procedurę: rozpoznanie folderu, inicjalizacja, rytuały startu i zamknięcia, rotacja, reguły profilu |
+| Skill `relai-core` | `adapters/claude-code/skills/relai-core/SKILL.md` | 2 | 2026-08-07 | 2026-09-03: sekcja „Pliki lokalne, których nie sprzątamy (od 1.8.0)" — marker `# relai: zachowaj` i reguła stawiania go przy dopisywaniu wzorca do `.gitignore` | Sprzątanie sięga plików nieśledzonych, więc lokalna notatka właściciela musi mieć flagę **zanim** padnie pytanie o jej skasowanie; bez tej sekcji flaga istniałaby tylko w komendzie, a stawia się ją przy pisaniu `.gitignore` |
 | Skill `relai-planning` | `adapters/claude-code/skills/relai-planning/SKILL.md` | 1 | 2026-08-07 | wpis startowy; ostatnia zmiana 2026-08-21 | Niesie procedurę planowania: PLAN vs MINIPLAN, prompty etapowe, rytuał „Na koniec", odnogi |
 
 ## Reguły adaptera Cursora — `adapters/cursor/rules/` (3)

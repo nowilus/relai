@@ -11,7 +11,7 @@ Czytaj w kolejności, nie skanuj pełnotekstowo repo:
 4. [docs/LEKCJE.md](docs/LEKCJE.md) — wyłącznie sekcja „Zasady aktywne".
 5. [docs/DECYZJE.md](docs/DECYZJE.md) — decyzje zamrożone: **nie proponuj ich ponownie**.
 6. [docs/USTAWIENIA.md](docs/USTAWIENIA.md) — preferencje projektu.
-7. Aktywny plan — linia niżej w sekcji „Stan prac"; obecnie: **SPRZATANIE_ARTEFAKTOW** (E1 gotowy do startu).
+7. Aktywny plan — linia niżej w sekcji „Stan prac"; obecnie: **SPRZATANIE_ARTEFAKTOW** (E2 gotowy do startu).
 
 **Frazy sesji:** „kontynuujemy pracę" → rytuał startu, akapit „gdzie jesteśmy" **i jedno zdanie
 z propozycją najbliższego kroku**; „sprawdź status" → stan, plany, ryzyka, zaległości
@@ -32,7 +32,7 @@ o kolejne `N` dni / rozstrzygnąć teraz. Sesja nieinteraktywna: sam raport, bez
 | Plan ROZWOJ_PO_WYDANIU — 8 etapów | 6/8; **ZAMROŻONY 2026-08-21** (E7 czeka na dostęp do Codeksa) | [STATUS](docs/plany/ROZWOJ_PO_WYDANIU/STATUS.md) |
 | Plan OPTYMALIZACJA_KONTEKSTU — 5 etapów | ZREALIZOWANY 2026-08-21 | [archiwum planu](docs/archiwum/plany/OPTYMALIZACJA_KONTEKSTU/STATUS.md) |
 | Plan HIGIENA_DOKUMENTOW — 6 etapów | **ZREALIZOWANY 2026-09-01** (Aneksy A–D) | [archiwum planu](docs/archiwum/plany/HIGIENA_DOKUMENTOW/STATUS.md) |
-| Plan SPRZATANIE_ARTEFAKTOW — 4 etapy | **ZAAKCEPTOWANY 2026-09-03**, 0/4, E1 gotowy | [STATUS](docs/plany/SPRZATANIE_ARTEFAKTOW/STATUS.md) |
+| Plan SPRZATANIE_ARTEFAKTOW — 4 etapy | **1/4** — E1 ZREALIZOWANY 2026-09-03, E2 gotowy | [STATUS](docs/plany/SPRZATANIE_ARTEFAKTOW/STATUS.md) |
 | Odnogi i wątki samodzielne | 3 otwarte, wszystkie z zamrożonego planu ROZWOJ_PO_WYDANIU | [docs/STATE.md](docs/STATE.md) |
 
 Aktywny plan: [SPRZATANIE_ARTEFAKTOW](docs/plany/SPRZATANIE_ARTEFAKTOW/STATUS.md)

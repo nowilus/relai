@@ -438,6 +438,52 @@ restart aplikacji po `plugin update` (L-0031), `git worktree` zamiast `git archi
 - **Źródło:** poprawka czytelności ikon README (2026-09-01); rozwinięcie zasady aktywnej o pomiarze
   zamiast deklaracji.
 
+### L-0076 — `git grep` nie widzi pliku, który właśnie powstał · 2026-09-03 · AKTYWNA
+
+- **Trigger:** punkt weryfikacji E1 brzmiał „`git grep -n \"relai: zachowaj\"` zwraca: plan, prompt,
+  `work-artifacts.js`, komendę i skill". Wykonany dosłownie, zwrócił **wszystko poza** narzędziem
+  i komendą — czyli poza dwoma plikami, które ten etap dopiero utworzył.
+- **Przyczyna:** `git grep` przeszukuje domyślnie **indeks**, nie drzewo robocze. Plik nieśledzony
+  jest dla niego niewidzialny. Kryterium napisane w chwili planowania zakładało stan po commicie,
+  a wykonywane jest przed nim — i wygląda wtedy jak defekt produktu, choć jest defektem instrumentu.
+- **Zasada:** kryterium oparte na `git grep` dla treści **wprowadzanej przez ten sam etap** stawiasz
+  z flagą `--untracked` albo po `git add`. Zero trafień na pliku, o którym wiesz, że treść zawiera,
+  jest defektem instrumentu, dopóki nie udowodnisz inaczej — dotyczy to również narzędzi, które
+  „przeszukują repozytorium" bez powiedzenia, że mają na myśli indeks.
+- **Źródło:** E1 planu SPRZATANIE_ARTEFAKTOW (2026-09-03); rozwinięcie zasady aktywnej nr 5
+  (instrument pomiarowy sam bywa źródłem fałszu).
+
+### L-0077 — Pusta skorupa po skasowanym etapie została chroniona na zawsze · 2026-09-03 · AKTYWNA
+
+- **Trigger:** pierwszy realny przebieg `/relai-clean` skasował katalogi etapów, ale zostawił po nich
+  puste katalogi tematów (`work/HIGIENA_DOKUMENTOW/`). Następny raport pokazał je jako **chronione
+  powodem „etap trwa"** — bo reguła „katalog tematu bez podkatalogów" ustawiała status „w użyciu”.
+- **Przyczyna:** domyślne rozstrzyganie niepewności na korzyść ochrony zastosowałem do przypadku,
+  w którym niepewności nie ma: katalog bez podkatalogu nie ma etapu ani odnogi, która by go trzymała.
+  Ochrona „na wszelki wypadek" wyprodukowała śmieć, którego mechanizm już nigdy sam nie zaproponuje
+  do usunięcia.
+- **Zasada:** „na korzyść ochrony" rozstrzygasz **niepewność**, a nie pustkę. Stan, o którym wiadomo,
+  że nic w nim nie żyje, ma być kandydatem do potwierdzenia — inaczej mechanizm sprzątający zostawia
+  po sobie osad, który sam wyklucza ze sprzątania. Regułę ochronną sprawdzaj także na stanie
+  **po** własnym działaniu, nie tylko przed nim.
+- **Źródło:** E1 planu SPRZATANIE_ARTEFAKTOW (2026-09-03), znalezione w przebiegu na żywo; poprawka
+  plus scenariusz testowy w tym samym etapie.
+
+### L-0078 — Nowy plik produktu wygląda dla sprzątacza jak śmieć · 2026-09-03 · AKTYWNA
+
+- **Trigger:** raport `/relai-clean` uruchomiony w trakcie E1 pokazał w grupach `repo: katalog core`
+  i `repo: katalog adapters` **dorobek tego etapu** — świeżo napisane `work-artifacts.js`
+  i `relai-clean.md`, jeszcze niezacommitowane.
+- **Przyczyna:** jedyną granicą między „produktem" a „artefaktem roboczym" jest indeks gita. Plik,
+  który ma trafić do repozytorium, ale jeszcze do niego nie trafił, leży po złej stronie tej granicy
+  przez cały czas, w którym powstaje — czyli dokładnie wtedy, gdy sesja go sprząta.
+- **Zasada:** mechanizm sprzątający pyta o każdą grupę osobno **właśnie dlatego**; automatyczne
+  kasowanie kandydatów byłoby kasowaniem niezacommitowanej pracy. Przy sprzątaniu w trakcie etapu
+  nazywasz wprost, które grupy są dorobkiem tej sesji, zanim zadasz pytanie — a najpewniejszą
+  ochroną nowego pliku jest `git add`, nie marker.
+- **Źródło:** E1 planu SPRZATANIE_ARTEFAKTOW (2026-09-03), pierwszy przebieg komendy na własnym
+  repozytorium.
+
 ## Lekcje zwinięte
 
 Pełne wpisy lekcji, których zasady żyją w destylacie „Zasady aktywne" (kompresja 2026-08-20).

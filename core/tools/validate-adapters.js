@@ -60,7 +60,10 @@ if (manifest) {
       const rel = zRdzenia(u);
       if (!jest(rel)) bledy.push('adapter "' + a.id + '" uzywa "' + rel + '", a tego pliku rdzenia nie ma');
     }
-    sprawdzone.push('adapter ' + a.id + ': ' + (a.uses || []).length + ' odwolan do rdzenia');
+    // Nazwy, nie sama liczba: dolozenie pliku rdzenia ma byc widoczne w wyjsciu, a nie
+    // wylacznie w roznicy licznika (L-0058 — dowodzisz obecnosci nowej tresci).
+    const nazwy = (a.uses || []).map((u) => u.replace(/\/$/, '').split('/').pop()).join(', ');
+    sprawdzone.push('adapter ' + a.id + ': ' + (a.uses || []).length + ' odwolan do rdzenia (' + nazwy + ')');
   }
 }
 

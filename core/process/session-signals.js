@@ -112,6 +112,26 @@ function copyTree(src, dest) {
   return n;
 }
 
+// Narzedzia rdzenia prowizjonowane do projektu ta sama droga co specyfikacje (L-0012):
+// sesja nie ma dostepu do katalogu pluginu, wiec musi miec kopie u siebie. Kopia jest
+// samowystarczalna — work-artifacts.js nie wola require na zaden inny plik rdzenia.
+const NARZEDZIA = [{ zrodlo: 'work-artifacts.js', cel: 'clean-work.js' }];
+
+function provisionTools(destRoot, opcje) {
+  let n = 0;
+  const o = opcje || {};
+  const srcDir = o.coreProcess || __dirname;
+  const dest = path.join(destRoot, 'tools');
+  try { fs.mkdirSync(dest, { recursive: true }); } catch (_) { return 0; }
+  for (const narzedzie of NARZEDZIA) {
+    try {
+      fs.copyFileSync(path.join(srcDir, narzedzie.zrodlo), path.join(dest, narzedzie.cel));
+      n++;
+    } catch (_) { /* cisza — jak przy specyfikacjach */ }
+  }
+  return n;
+}
+
 // Kopiuje core/templates/ do <cwd>/<destRel>/templates/. destRel domyslnie ".claude/relai"
 // — ta sama sciezka w obu adapterach, zeby komendy i skille mowily o jednym miejscu.
 // Zwraca liczbe skopiowanych plikow (0 = awaria albo brak zrodla — adapter milczy).
@@ -125,7 +145,7 @@ function provisionTemplates(cwd, opcje) {
     fs.mkdirSync(dest, { recursive: true });
     // .gitignore z "*" — lokalna kopia to cache narzedzia, nie zawartosc repo
     try { fs.writeFileSync(path.join(destRoot, '.gitignore'), '*\n'); } catch (_) { /* cisza */ }
-    return copyTree(src, dest);
+    return copyTree(src, dest) + provisionTools(destRoot, o);
   } catch (_) {
     return 0;
   }

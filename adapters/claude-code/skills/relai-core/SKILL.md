@@ -29,7 +29,7 @@ Wersja 1.7.0 (plan HIGIENA_DOKUMENTOW — rotacja bez blokad, przegląd spraw pr
 gościa + niedestrukcyjne dołączenie + rytuały sesji + rotacja dokumentów przy zamknięciu sesji +
 siatka brakujących promptów etapowych + siatka rozjazdu stanu + rejestr decyzji po adopcji +
 rejestry LEKCJE/DECYZJE + trzy frazy naturalne + warstwa ustawień globalnych + reguły warunkowe
-profilu projektu**. Od 0.5.0 działa też zestaw hooków (sekrety, ochrona konfiguracji, przypomnienia,
+profilu projektu + pliki lokalne i marker „zachowaj" (od 1.8.0)**. Od 0.5.0 działa też zestaw hooków (sekrety, ochrona konfiguracji, przypomnienia,
 kontekst sesji, a od 0.8.0 reguły profilu) — pilnują twardych granic niezależnie od tego skilla.
 Od 0.9.0 działa **pełna adopcja zastanego projektu** — wyłącznie na jawne wywołanie `/relai-adopt`
 (D-70); jej procedura mieszka w pliku komendy, nie tutaj.
@@ -645,6 +645,23 @@ swoim adresie w kroku 1 (L-0036, L-0049).
 
 **To jest krok 2 rytuału zamknięcia, czyli wejście pierwsze.** Wejście drugie — start sesji — jest
 w sekcji „Rotacja na starcie sesji (od 1.6.0)" wyżej i uruchamia **dokładnie tę samą** procedurę.
+
+---
+
+## Pliki lokalne, których nie sprzątamy (od 1.8.0)
+
+Sprzątanie artefaktów roboczych (`/relai-clean`) patrzy także na pliki **nieśledzone i ignorowane**
+w repozytorium, a wśród nich stoją lokalne notatki i materiały właściciela, które nie są artefaktem
+żadnego etapu. Chroni je flaga: linia-marker **`# relai: zachowaj`** (albo `# relai: keep`) w
+`.gitignore` **nad** wzorcem — marker dotyczy następnej linii niebędącej komentarzem. Cały
+`.git/info/exclude` jest chroniony bez markera, bo wykluczenie lokalne jest z definicji świadomym
+wyborem właściciela; projekt bez gita trzyma listę w `.claude/relai/keep`, jedna ścieżka na linię.
+
+**Reguła zachowania:** gdy dopisujesz do `.gitignore` wzorzec dla pliku, który jest lokalną notatką
+albo materiałem właściciela — a nie artefaktem etapu ani plikiem regenerowalnym — stawiasz
+linię-marker nad nim **w tej samej edycji**. Nie wiesz, którą rzeczą jest dany plik → pytasz jednym
+zdaniem, zamiast zgadywać: marker dołożony za dużo tylko wycisza pytanie, brakujący marker prowadzi
+do pytania o skasowanie czyjejś pracy.
 
 ---
 

@@ -28,7 +28,13 @@
       "id": "session-signals",
       "file": "./process/session-signals.js",
       "kind": "biblioteka",
-      "description": "Rozpoznanie stanu projektu dla hooka startu sesji: marker, tryb goscia, wersja, luka promptu etapowego, rozjazd stanu, nieznany autor, ustawienia globalne, prowizjonowanie specyfikacji, miara warstwy startowej wobec budzetu. Bez wiedzy o protokole hookow."
+      "description": "Rozpoznanie stanu projektu dla hooka startu sesji: marker, tryb goscia, wersja, luka promptu etapowego, rozjazd stanu, nieznany autor, ustawienia globalne, prowizjonowanie specyfikacji i narzedzi, miara warstwy startowej wobec budzetu. Bez wiedzy o protokole hookow."
+    },
+    {
+      "id": "work-artifacts",
+      "file": "./process/work-artifacts.js",
+      "kind": "biblioteka+CLI",
+      "description": "Pomiar artefaktow roboczych (katalog roboczy, TEMP, pliki niesledzone), zamknieta lista powodow ochrony, raport w grupach i kasowanie listy sciezek z asercjami korzeni. Nigdy nie decyduje sam, co skasowac."
     }
   ],
   "tools": [
@@ -47,7 +53,8 @@
       "uses": [
         "./templates/",
         "./guardrails/secret-scan.js",
-        "./process/session-signals.js"
+        "./process/session-signals.js",
+        "./process/work-artifacts.js"
       ]
     },
     {
@@ -58,7 +65,8 @@
       "uses": [
         "./templates/",
         "./guardrails/secret-scan.js",
-        "./process/session-signals.js"
+        "./process/session-signals.js",
+        "./process/work-artifacts.js"
       ]
     }
   ]

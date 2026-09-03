@@ -11,7 +11,8 @@ kosztuje, sprawa czekająca dłużej niż 30 dni wymusza decyzję na starcie, ka
 w raporcie startu, a komórka „Mitygacja" i plik ustawień mają drogę do archiwum. E6 dowiózł to,
 czego wcześniejsze etapy nie miały: **pomiar po wydaniu, w świeżej sesji, w zainstalowanym
 pluginie, na cudzym projekcie**. Plan ROZWOJ_PO_WYDANIU jest **zamrożony** — E7 czeka na dostęp do
-Codeksa. **Aktywny plan: SPRZATANIE_ARTEFAKTOW** — zaakceptowany 2026-09-03, E1 gotowy do startu.
+Codeksa. **Aktywny plan: SPRZATANIE_ARTEFAKTOW** — 1 etap z 4: narzędzie rdzenia i komenda
+`/relai-clean` działają w repozytorium (jeszcze nie w wydaniu), E2 gotowy do startu.
 
 ## Co działa
 
@@ -60,6 +61,14 @@ Codeksa. **Aktywny plan: SPRZATANIE_ARTEFAKTOW** — zaakceptowany 2026-09-03, E
   i `adapters/cursor/` to dwa wyjścia. Walidator wykrywa, gdy adapter odjedzie od rdzenia.
 - **Proces przeżywa zmianę dostawcy modelu** — cały etap poprowadził Grok 4.6 w aplikacji Cursora,
   z reguł zawsze-w-kontekście, bez przypominania.
+- **Sprzątanie po zamkniętych etapach na żądanie** — komenda `/relai-clean` pokazuje, co realnie
+  leży w katalogu roboczym, w `%TEMP%` i wśród plików nieśledzonych, grupuje to i pyta **partiami
+  po cztery**; kasuje wyłącznie po „tak" na grupę i zawsze mierzy ponownie po operacji. Plik
+  śledzony przez gita nie jest kandydatem nigdy, a lokalną notatkę właściciela chroni linia-marker
+  `# relai: zachowaj` w `.gitignore`. Pierwszy realny przebieg (tutaj, 2026-09-03): 8 grup,
+  9 pozycji chronionych z powodem, **0,59 MB / 25 121 plików sprzątnięte, 0 B po**. Jest
+  w repozytorium, **jeszcze nie w wydaniu** — start sesji i rytuał zamknięcia zaczną o tym mówić
+  w E2, ikona i wydanie 1.8.0 to E4.
 - W folderze, który nie jest projektem RelAI, plugin jest całkowicie niewidoczny.
 
 ## Nad czym pracujemy teraz
@@ -69,7 +78,10 @@ Codeksa. **Aktywny plan: SPRZATANIE_ARTEFAKTOW** — zaakceptowany 2026-09-03, E
   Dopóki nie wejdzie, **ryzyko R5 zostaje otwarte**, zawężone już wyłącznie do tego jednego
   projektu: mechanizm jest kompletny i zmierzony na dwóch projektach z trzech.
 - **Plan ROZWOJ_PO_WYDANIU pozostaje zamrożony** (6/8). E7 — adapter Codeksa — czeka na dostęp.
-- **Plan SPRZATANIE_ARTEFAKTOW zaakceptowany 2026-09-03, E1 gotowy do startu** (4 etapy, 5–7 sesji SZACUNEK, wydanie 1.8.0).
+- **Plan SPRZATANIE_ARTEFAKTOW: E1 zrealizowany 2026-09-03, E2 gotowy do startu** (1/4, wydanie 1.8.0
+  na końcu). E2 daje mechanizmowi głos bez pytania: jedna linia na starcie sesji powyżej progu
+  **100 MB** i krok **2a** rytuału „kończymy na dziś". Punkt odniesienia dla limitu czasu hooka:
+  pomiar na czystym repozytorium **86 ms**, na katalogu 25 000 plików **1 324 ms** z flagą `niepelne`.
   Po co: porządki w PolyFlow 2026-09-03 pokazały ~550 MB artefaktów etapowych poza Gitem
   i w `%TEMP%` (FAKT), a punkt „brak plików tymczasowych” w `SPEC_PROMPT_ETAPU.md` mówi
   wyłącznie o repo. Etap dostaje katalog roboczy `.claude/relai/work/<TEMAT>/E<N>/`, sprzątanie
@@ -135,7 +147,8 @@ i `sprawyPrzeterminowane`. Źródło: własny marketplace w tym samym repozytori
 jako skrypty (skan sekretów, pre-commit, instalator) • rozpoznania startu sesji
 (`process/session-signals.js`, wołane przez oba adaptery) • walidator spójności • `MANIFEST.json`.
 
-**Adapter Claude Code**: dwa skille, dziesięć komend, dziesięć hooków Node.js bez zależności npm.
+**Adapter Claude Code**: dwa skille, **jedenaście komend w repozytorium** (dziesięć w wydaniu
+1.7.0 — `/relai-clean` czeka na 1.8.0), dziesięć hooków Node.js bez zależności npm.
 Manifest i marketplace zostają w `.claude-plugin/` w korzeniu — tego wymaga Claude Code.
 
 **Adapter Cursor**: trzy reguły `.mdc` z `alwaysApply: true`, dwa hooki z opakowaniem powłoki dla
@@ -159,15 +172,16 @@ Pułapki: [PULAPKI.md](PULAPKI.md)
 Etapy: BUDOWA_RELAI 10/10 • ROZWOJ_PO_WYDANIU 6/8 (ZAMROŻONY) • OPTYMALIZACJA_KONTEKSTU 5/5 •
 HIGIENA_DOKUMENTOW **6/6 (ZREALIZOWANY 2026-09-01)** •
 Warstwa startowa RelAI: **37,0 KB / 80 KB**, raport startu **0 znaków** • Warstwa startowa
-PolyFlow: **157,3 KB / 80 KB**, raport **5 linii przy limicie 6** • Dziennik RelAI: **85,8 KB /
-próg 150 KB** po rotacji 18 wpisów • Lekcje 34,9 KB / 21 lekcji w żywym rejestrze, ostatnia
-L-0075 • Sprawy czekające na człowieka: **3 tutaj**, **32 w PolyFlow**, żadna nieprzeterminowana
+PolyFlow: **157,3 KB / 80 KB**, raport **5 linii przy limicie 6** • Dziennik RelAI: **107,4 KB /
+próg 150 KB** • Lekcje 38,5 KB / 24 lekcje w żywym rejestrze, ostatnia
+L-0078 • Sprawy czekające na człowieka: **3 tutaj**, **32 w PolyFlow**, żadna nieprzeterminowana
 przy progu 30 dni • Progi w katalogu: **17, z tego 15 z adresem egzekwowania** •
 Zasady aktywne: **15 przy limicie 15** •
 Scenariusze akceptacyjne: 4/4 zdane + pilotaż Cursora • Adaptery: 2 •
 Modele, na których zmierzono proces: 5 (Fable, Opus, Haiku, Composer/auto, Grok 4.6) •
-Projekty na 1.7.0: 2 (RelAI, PolyFlow) • Aktywny plan: SPRZATANIE_ARTEFAKTOW 0/4 (ZAAKCEPTOWANY 2026-09-03, E1 gotowy) • Otwarte wątki: 3 odnogi zamrożonego planu •
-Artefakty w rejestrze: 38 • Otwarte bramki manualne: **1** (zamknięta lista rdzeni) •
-Otwarte ryzyka: 4 • Zamknięte ryzyka: 6 (w archiwum) • Progi rotacji: dziennik 150 KB, lekcje
+Projekty na 1.7.0: 2 (RelAI, PolyFlow) • Aktywny plan: SPRZATANIE_ARTEFAKTOW **1/4** (E1 ZREALIZOWANY 2026-09-03, E2 gotowy) • Otwarte wątki: 3 odnogi zamrożonego planu •
+Artefakty w rejestrze: 39 • Otwarte bramki manualne: **4** (zamknięta lista rdzeni + trzy planu
+SPRZATANIE_ARTEFAKTOW: ikona `clean.svg`, markery w PolyFlow, raport na PolyFlow) •
+Otwarte ryzyka: 6 • Zamknięte ryzyka: 6 (w archiwum) • Progi rotacji: dziennik 150 KB, lekcje
 40 wpisów albo 50 KB, STATE 300 linii • Archiwum dziennika: siedem plików, ostatni
 2026-08-17…2026-08-21 (18 wpisów, `74a4d2a5fb9a3390`)
