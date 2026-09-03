@@ -14,7 +14,10 @@ o wiarygodności mechanizmu: **pełny przebieg na cudzym projekcie, na materiale
 celowo** — PolyFlow 125,0 → 0,0 MB. Wcześniej plan **HIGIENA_DOKUMENTOW zamknięty 2026-09-01**,
 sześć etapów z sześciu: rotacja przestała się zatykać na własnej regule, sprawa czekająca dłużej
 niż 30 dni wymusza decyzję na starcie, każdy próg ma adres w raporcie startu. Plan
-ROZWOJ_PO_WYDANIU jest **zamrożony** — E7 czeka na dostęp do Codeksa. **Aktywnego planu nie ma.**
+ROZWOJ_PO_WYDANIU jest **zamrożony** — E7 czeka na dostęp do Codeksa. Aktywny plan to
+**REKOMENDACJA_MODELU**, zaakceptowany 2026-09-03 z Aneksem A; **E1 zamknięty tego samego dnia**
+i kamień milowy planu już zapadł — pytanie o model wykonawczy pokazuje nazwy modeli narzędzia,
+w którym trwa sesja, zamiast trzech klas. E2 czeka na dwie bramki człowieka.
 
 ## Co działa
 
@@ -106,6 +109,15 @@ ROZWOJ_PO_WYDANIU jest **zamrożony** — E7 czeka na dostęp do Codeksa. **Akty
   na katalogu 30 MB / 3 000 plików przy celu poniżej 300 ms, testy **29/29**, sprzątanie po etapie
   **141,2 MB → 0**. Ochrona `etap trwa` trzyma: przy 141,2 MB w katalogu etapu **w toku** start
   sesji nadal milczał.
+- **Pytanie „na jakim modelu to wykonać" pokazuje nazwy, nie klasy.** Każdy adapter niesie własną
+  listę modeli (`MODELE.md` — trzy klasy, data, źródło przy każdej pozycji), hook startu kładzie ją
+  w projekcie pod nazwą swojego narzędzia i mówi jednym zdaniem, która obowiązuje. Skill planowania
+  bierze nazwę stamtąd — sam narzędzia nie rozpoznaje. **Kopia w projekcie jest trwała**: powstaje
+  tylko wtedy, gdy jej nie ma, więc ręczna poprawka przeżywa restart sesji. Zmierzone na dwóch
+  projektach kontrolnych i dwóch świeżych sesjach `claude -p` w jednym przebiegu: z listą pytanie
+  wymienia Opus 5, Fable 5.1, Sonnet 5 i Haiku 4.5 razem z datą listy, bez listy zostaje przy
+  brzmieniu klasowym i **nie pokazuje ani jednej nazwy**. Lista Cursora ma dziś jedną pozycję
+  z pomiaru (Grok 4.6) i dwie jawnie puste — bo z pomiaru ich nie ma.
 - W folderze, który nie jest projektem RelAI, plugin jest całkowicie niewidoczny.
 
 ## Nad czym pracujemy teraz
@@ -114,17 +126,15 @@ ROZWOJ_PO_WYDANIU jest **zamrożony** — E7 czeka na dostęp do Codeksa. **Akty
   dokumentów, a rotacja nigdy nie ruszyła. Czeka na okno — właściciel rozwija go na bieżąco.
   Dopóki nie wejdzie, **ryzyko R5 zostaje otwarte**, zawężone już wyłącznie do tego jednego
   projektu: mechanizm jest kompletny i zmierzony na dwóch projektach z trzech.
-- **Plan REKOMENDACJA_MODELU czeka na akceptację** (utworzony 2026-09-03, cztery etapy, 4–7 sesji
-  SZACUNEK). Po co: pytanie „na jakim modelu wykonać etap" operuje klasami, które poza Claude Code
-  nie wskazują niczego konkretnego — pilotaż Cursora pokazał kartę żądającą „najsilniejszego
-  modelu" i niepotrafiącą powiedzieć, który to jest. Plan wprowadza listę modeli per narzędzie
-  dostarczaną do projektu, komendę `/relai-models` odświeżającą ją na żądanie i ciche przypomnienie
-  po progu. Do czasu akceptacji **żaden etap nie startuje**; trzy bramki czekają na człowieka
-  (adresy stron dokumentacji, zgoda na sieć, numer wydania).
+- **Plan REKOMENDACJA_MODELU — 1/4, E1 zamknięty 2026-09-03.** Kamień milowy planu zapadł już przy
+  pierwszym etapie: pytanie o model pokazuje nazwy. Reszta planu dokłada świeżość listy i miejsca,
+  w których nazwa ma konsekwencje. **E2 (`/relai-models`) jest `GOTOWY DO STARTU`, ale zablokowany
+  dwiema bramkami**: adresami stron dokumentacji modeli dla obu narzędzi i decyzją, czy zgoda na
+  ruch sieciowy pada przy każdym odświeżeniu, czy raz na projekt. Trzecia bramka — numer wydania —
+  czeka przed E4, czwarta (nazwy modeli Cursora dla klas `balanced` i `cheap`) niczego nie blokuje.
 - **Plan ROZWOJ_PO_WYDANIU pozostaje zamrożony** (6/8). E7 — adapter Codeksa — czeka na dostęp.
-- **Aktywnego planu nie ma.** Plan SPRZATANIE_ARTEFAKTOW zamknięty 2026-09-03 (4/4) i przeniesiony
-  do [archiwum](archiwum/plany/SPRZATANIE_ARTEFAKTOW/STATUS.md); ROZWOJ_PO_WYDANIU pozostaje
-  zamrożony. Następny plan wybiera człowiek — kandydaci są w sekcji „Co dalej".
+- Plan SPRZATANIE_ARTEFAKTOW zamknięty 2026-09-03 (4/4) i przeniesiony do
+  [archiwum](archiwum/plany/SPRZATANIE_ARTEFAKTOW/STATUS.md).
 
 ## Co dalej
 
@@ -233,22 +243,27 @@ Pułapki: [PULAPKI.md](PULAPKI.md)
 
 Etapy: BUDOWA_RELAI 10/10 • ROZWOJ_PO_WYDANIU 6/8 (ZAMROŻONY) • OPTYMALIZACJA_KONTEKSTU 5/5 •
 SPRZATANIE_ARTEFAKTOW **4/4 (ZREALIZOWANY 2026-09-03)** •
+REKOMENDACJA_MODELU **1/4 (E1 zamknięty 2026-09-03)** •
 HIGIENA_DOKUMENTOW **6/6 (ZREALIZOWANY 2026-09-01)** •
 Warstwa startowa RelAI: **37,0 KB / 80 KB**, raport startu **0 znaków** • Warstwa startowa
 PolyFlow: **157,3 KB / 80 KB**, raport **5 linii przy limicie 6** • Dziennik RelAI: **107,4 KB /
 próg 150 KB** • Lekcje **28 lekcji** w żywym rejestrze, ostatnia
-**L-0083** • Sprawy czekające na człowieka: **4 tutaj**, **32 w PolyFlow**, żadna nieprzeterminowana
+**L-0085** • Sprawy czekające na człowieka: **6 tutaj**, **32 w PolyFlow**, żadna nieprzeterminowana
 przy progu 30 dni • Progi w katalogu: **18, z tego 16 z adresem egzekwowania** •
 Zasady aktywne: **15 przy limicie 15** •
 Scenariusze akceptacyjne: 4/4 zdane + pilotaż Cursora • Adaptery: 2 • Komendy: **11** •
 Modele, na których zmierzono proces: 5 (Fable, Opus, Haiku, Composer/auto, Grok 4.6) •
-Projekty na 1.8.0: 2 (RelAI, PolyFlow) • **Aktywny plan: REKOMENDACJA_MODELU (DO AKCEPTACJI)** •
+Projekty na 1.8.0: 2 (RelAI, PolyFlow) • **Aktywny plan: REKOMENDACJA_MODELU (1/4, E2 gotowy, ale
+zablokowany dwiema bramkami)** •
 Otwarte wątki: **1 odnoga** zamrożonego planu (GUARD_PO_SCIEZCE zamknięta, REKOMENDACJA_MODELU
 przeniesiona do planu — obie 2026-09-03) •
-Artefakty w rejestrze: 39 (dwa podbite w odnodze GUARD_PO_SCIEZCE) • Otwarte bramki manualne: **4** (zamknięta lista
-rdzeni rozstrzygnięcia + trzy bramki nowego planu REKOMENDACJA_MODELU; trzy bramki planu
+Artefakty w rejestrze: **40** (dwie listy modeli jako nowe, skill `relai-planning` podbity w E1;
+inwentarz przeliczony komendą 2026-09-03) •
+Otwarte bramki manualne: **5** (zamknięta lista
+rdzeni rozstrzygnięcia + cztery bramki planu REKOMENDACJA_MODELU; trzy bramki planu
 SPRZATANIE_ARTEFAKTOW rozstrzygnięte 2026-09-03) •
-Otwarte ryzyka: **5** (R2 zamknięte 2026-09-03) • Zamknięte ryzyka: **7** (6 w archiwum, R2
+Otwarte ryzyka: **7** (M1 i M2 dopisane 2026-09-03 przy E1; R2 zamknięte, ale na przesłance, którą
+E1 przewrócił) • Zamknięte ryzyka: **7** (6 w archiwum, R2
 w żywej tabeli) • Progi rotacji: dziennik 150 KB, lekcje
 40 wpisów albo 50 KB, STATE 300 linii • Archiwum dziennika: siedem plików, ostatni
 2026-08-17…2026-08-21 (18 wpisów, `74a4d2a5fb9a3390`)

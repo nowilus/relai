@@ -138,6 +138,19 @@ w tym samym projekcie: pytanie startowe pada raz na projekt, nie raz na plan.
 | 2 | Format planu głównego | interaktywny HTML (Rekomendowane — plan do czytania przez człowieka: zwijane sekcje, diagram, symulator; jeden samowystarczalny plik) / Markdown (lżejszy, czytelny w diffie) — cokolwiek padnie, `STATUS.md` i prompty etapowe zostają w Markdown (D-32) |
 | 3 | Model wykonawczy etapów | rekomendacja RelAI (Rekomendowane): złożone etapy — model najsilniejszy, mechaniczne — najtańszy / jeden model do wszystkiego / opis własny |
 
+**Nazwy zamiast klas, gdy sesja ma listę modeli.** Kontekst startu sesji mówi jednym zdaniem, która
+lista obowiązuje (`.claude/relai/MODELE-<narzędzie>.md`) i z kiedy jest. Rozpoznanie narzędzia należy
+do hooka — sam go nie prowadzisz i drugiej listy nie otwierasz. Gdy to zdanie padło:
+
+- przeczytaj wskazany plik i weź z niego pozycje klas `strong`, `balanced`, `cheap`;
+- opcje pytania 3 wymieniają **nazwy modeli** zamiast samych klas, a treść pytania niesie **datę
+  listy** — żeby człowiek widział, jak świeże są nazwy, które mu pokazujesz;
+- pozycja `<TO BE FILLED IN: …>` nie jest nazwą: mówisz wprost, że listy dla tej klasy nie ma,
+  i wskazujesz `/relai-models`. Nazw nie zgadujesz i nie uzupełniasz z pamięci modelu (L-0026).
+
+Zdania o liście nie było albo pliku nie ma → pytanie zostaje **dokładnie takie jak w tabeli**,
+samymi klasami, bez ani jednego dodatkowego komunikatu. Cisza jest zachowaniem domyślnym.
+
 Zasady tego pytania:
 
 - **Odpowiedź swobodna jest dopuszczalna i nadrzędna.** „Etapy 1–3 Opusem, resztę Haiku" ma trafić

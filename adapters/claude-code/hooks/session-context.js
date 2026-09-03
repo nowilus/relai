@@ -52,6 +52,15 @@ const provisionTemplates = (cwd) => core.provisionTemplates(cwd, {
   destRel: '.claude/relai',
 });
 
+// Lista modeli TEGO narzedzia (1.9.0). Nazwa pliku docelowego rozroznia listy w jednym
+// katalogu cache — o tym, ktora obowiazuje, mowi hook, nie skill (L-0030, zasada 8).
+const MODELE_ZRODLO = path.join(__dirname, '..', 'MODELE.md');
+const provisionModelList = (cwd) => core.provisionModelList(cwd, {
+  zrodlo: MODELE_ZRODLO,
+  nazwa: 'MODELE-claude-code.md',
+  destRel: '.claude/relai',
+});
+
 function pluginVersion() {
   try {
     const j = JSON.parse(fs.readFileSync(path.join(PLUGIN_ROOT, '.claude-plugin', 'plugin.json'), 'utf8'));
@@ -144,6 +153,14 @@ function onSessionStart(input) {
   if (copied > 0) {
     out.push('Specyfikacje dokumentow RelAI sa skopiowane lokalnie do .claude/relai/templates/ (' + copied +
       ' plikow). Czytaj je stamtad — katalog pluginu jest poza zasiegiem sesji.');
+  }
+
+  // Jedno zdanie o tym, ktora lista modeli obowiazuje w tej sesji. Brak listy = zero znakow.
+  const lista = provisionModelList(cwd);
+  if (lista) {
+    out.push('Lista modeli tego narzedzia: .claude/relai/' + lista.nazwa +
+      (lista.data ? ' (z dnia ' + lista.data + ')' : ' (bez czytelnej daty)') +
+      '. Pytajac o model wykonawczy etapow, podaj nazwy z tej listy razem z jej data.');
   }
 
   const gs = core.globalSettingsText('.claude/relai');

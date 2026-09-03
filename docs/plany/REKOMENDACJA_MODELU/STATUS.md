@@ -13,8 +13,8 @@ Plan: [PLAN.html](PLAN.html) · Utworzony: 2026-09-03 · Status planu: **ZAAKCEP
 
 | Etap | Nazwa | Status | Prompt | Uwagi |
 |---|---|---|---|---|
-| E1 | Lista modeli i pytanie z nazwami | **GOTOWY DO STARTU** | [PROMPT_ETAP_1.md](PROMPT_ETAP_1.md) | `MODELE.md` w obu adapterach, prowizjonowanie kopii do projektu **tylko przy braku pliku**, listy rozróżniane nazwą pliku (Aneks A); kamień milowy planu |
-| E2 | Komenda `/relai-models` | OCZEKUJE | — | wejście: adresy stron dokumentacji i decyzja o zgodzie na sieć (sekcja 9 planu) |
+| E1 | Lista modeli i pytanie z nazwami | **ZREALIZOWANY 2026-09-03** | [PROMPT_ETAP_1.md](PROMPT_ETAP_1.md) | `MODELE.md` w obu adapterach, prowizjonowanie kopii do projektu **tylko przy braku pliku**, listy rozróżniane nazwą pliku (Aneks A); kamień milowy planu |
+| E2 | Komenda `/relai-models` | **GOTOWY DO STARTU** | [PROMPT_ETAP_2.md](PROMPT_ETAP_2.md) | wejście: adresy stron dokumentacji i decyzja o zgodzie na sieć (sekcja 9 planu) — **obie bramki nadal OTWARTE, startu nie ma bez nich** |
 | E3 | Próg i przypomnienie | OCZEKUJE | — | wiersz `Lista modeli` w `USTAWIENIA.md`, jedno zdanie w hooku startu, pozycja w katalogu progów |
 | E4 | Kontrola modelu, dokumenty, wydanie | OCZEKUJE | — | nazwa spoza listy w karcie etapu, `SPEC_CLAUDE_MD` / `SPEC_STATUS` / `SPEC_PROMPT_ETAPU`, nowe sprawdzenie w walidatorze; numer wydania do rozstrzygnięcia |
 
@@ -25,6 +25,9 @@ Plan: [PLAN.html](PLAN.html) · Utworzony: 2026-09-03 · Status planu: **ZAAKCEP
 - **Czy zgoda na ruch sieciowy pada przy każdym odświeżeniu, czy raz na projekt** · źródło: sekcja 9
   planu (2026-09-03) · **OTWARTA** — blokuje E2
 - **Numer wydania: 1.9.0 czy 1.8.2** · źródło: sekcja 9 planu (2026-09-03) · **OTWARTA** — przed E4
+- **Nazwy modeli Cursora dla klas `balanced` i `cheap`** · źródło: E1 (2026-09-03) — z pomiaru mam
+  wyłącznie `strong: Grok 4.6` (pilotaż E6), więc dwie pozycje stoją jako `<TO BE FILLED IN: …>` ·
+  **OTWARTA** — nie blokuje E2, bo to właśnie ta komenda ma je uzupełniać
 
 ## Dziennik wdrożenia
 
@@ -35,3 +38,8 @@ Plan: [PLAN.html](PLAN.html) · Utworzony: 2026-09-03 · Status planu: **ZAAKCEP
   (FAKT sprawdzony przy generowaniu promptu E1), więc listy rozróżnia **nazwa pliku**
   (`MODELE-claude-code.md`, `MODELE-cursor.md`), a która obowiązuje — mówi hook startu.
   Wygenerowano `PROMPT_ETAP_1.md`.
+- 2026-09-03 — E1 rozpoczęty
+- 2026-09-03 — E1 **ZREALIZOWANY**: `MODELE.md` w obu adapterach, `provisionModelList()` w rdzeniu
+  (kopia trwała), zdanie o liście w obu hookach startu, nazwy zamiast klas w Kroku 3 skilla
+  `relai-planning`, deklaracja `models` w `MANIFEST.json`. Weryfikacja 9/9; dwa instrumenty,
+  12/12 i 7/7 zdanych. Nowa bramka: kompletna lista modeli Cursora (`balanced`, `cheap`).

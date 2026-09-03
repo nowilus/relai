@@ -50,6 +50,7 @@
       "root": "./../adapters/claude-code/",
       "manifest": "./../.claude-plugin/plugin.json",
       "entry": "./../adapters/claude-code/hooks/hooks.json",
+      "models": "./../adapters/claude-code/MODELE.md",
       "uses": [
         "./templates/",
         "./guardrails/secret-scan.js",
@@ -62,6 +63,7 @@
       "root": "./../adapters/cursor/",
       "manifest": "./../adapters/cursor/README.md",
       "entry": "./../adapters/cursor/install.js",
+      "models": "./../adapters/cursor/MODELE.md",
       "uses": [
         "./templates/",
         "./guardrails/secret-scan.js",

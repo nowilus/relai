@@ -211,6 +211,44 @@ function provisionTemplates(cwd, opcje) {
   }
 }
 
+// --- lista modeli narzedzia (1.9.0, plan REKOMENDACJA_MODELU E1) ------------
+// Rdzen zna mechanizm dostarczania, NIE zna nazw narzedzi ani nazw modeli: adapter podaje
+// zrodlo (swoj MODELE.md) i nazwe pliku docelowego, wiec listy rozroznia nazwa pliku w jednym
+// katalogu .claude/relai/ (Aneks A planu z 2026-09-03 — oba adaptery prowizjonuja tam samo).
+//
+// Rozni sie od provisionTemplates jedna rzecza, ktora jest tu cala poenta: kopia powstaje
+// TYLKO wtedy, gdy pliku nie ma. Specyfikacje sa nadpisywane przy kazdym starcie, a lista nie —
+// inaczej odswiezenie zrobione komenda ginelo by przy najblizszym starcie sesji (ryzyko 2 planu).
+function dataListyModeli(plik) {
+  try {
+    const m = fs.readFileSync(plik, 'utf8').match(/^list-date:\s*(\d{4}-\d{2}-\d{2})\s*$/m);
+    return m ? m[1] : '';
+  } catch (_) {
+    return '';
+  }
+}
+
+// Zwraca { nazwa, data, skopiowany } albo null (brak zrodla, brak nazwy, awaria zapisu).
+// null znaczy dla adaptera: cisza — zadnego zdania o liscie.
+function provisionModelList(cwd, opcje) {
+  try {
+    const o = opcje || {};
+    if (!o.zrodlo || !o.nazwa) return null;
+    if (!fs.existsSync(o.zrodlo)) return null;
+    const destRoot = path.join(cwd, ...String(o.destRel || '.claude/relai').split('/'));
+    const cel = path.join(destRoot, o.nazwa);
+    let skopiowany = false;
+    if (!fs.existsSync(cel)) {
+      fs.mkdirSync(destRoot, { recursive: true });
+      fs.copyFileSync(o.zrodlo, cel);
+      skopiowany = true;
+    }
+    return { nazwa: o.nazwa, data: dataListyModeli(cel), skopiowany };
+  } catch (_) {
+    return null;
+  }
+}
+
 // --- ustawienia globalne (D-23, L-0010) -------------------------------------
 // Warstwa globalna mieszka w ~/.claude/relai/ niezaleznie od narzedzia: to ustawienia
 // RelAI, a nie Claude Code, i uzytkownik pracujacy naprzemiennie ma miec je jedne.
@@ -1238,6 +1276,8 @@ module.exports = {
   todayLocal,
   projectVersion,
   provisionTemplates,
+  provisionModelList, // lista modeli narzedzia — kopia trwala, nie nadpisywana (1.9.0)
+  dataListyModeli, // eksportowana, zeby dalo sie sprawdzic testem kotwice i format daty
   globalSettingsText,
   promptGap,
   stateDrift,

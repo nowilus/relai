@@ -4,13 +4,16 @@
 
 | # | Ryzyko | Poziom | Status | Mitygacja |
 |---|---|---|---|---|
-| R2 | Auto-wyzwalanie skilli bywa zawodne (agent nie zastosuje zasad bez komendy) | **Niski przy Opusie, średni przy modelach słabszych** (2026-08-10 po E10) | **ZAMKNIĘTE 2026-09-03** | Warstwą nośną są hook `session-context` i `CLAUDE.md` projektu — działają przy każdym modelu, bez wyzwalania; skill dokłada wyłącznie procedurę (L-0030). Opus wyzwala skill sam i wykonuje procedurę w całości; Sonnet 4.6 i Haiku 4.5 nie wołają `Skill` ani razu, więc projekt nie traci pamięci, ale procedura bywa niepełna. Otwarte świadomie: to trwała własność modeli, nie usterka do naprawienia. Zakres ryzyka rósł od 1.1.0 bez pomiaru — dziesiąta komenda, sygnał odchylenia, rozjazd stanu i kontrola podpisu nie były mierzone w świeżej sesji, bo limit konta zatrzymał CLI (L-0032). **Odnoga `POMIAR_ODNOG` anulowana 2026-09-01** — ta część zakresu zostaje niezmierzona świadomie, karta zostaje w repo. **ZAMKNIĘTE 2026-09-03 decyzją człowieka** przy domknięciu tej odnogi: ryzyko zamyka się nie dlatego, że brakujące dziewięć scenariuszy zmierzono, tylko dlatego, że **nie zostaną zmierzone nigdy** — warunkiem był `claude /login` na konto z limitem, a decyzja brzmi „odpuszczamy". To, co niesie ochronę, jest zmierzone i działa: hook i `CLAUDE.md` są niezależne od wyzwalania skilla, więc niezmierzona zostaje wyłącznie kompletność procedury przy modelach słabszych od Opusa — trwała własność modeli, nie zaległość projektu. Powrót jest tani: karta odnogi zostaje w repozytorium, a pojawienie się konta z limitem otwiera ryzyko z powrotem jednym wierszem. Zmierzone: 2026-08-07 (E5), 2026-08-10 (E10), 2026-08-12 (E1), 2026-08-12 (E3) |
+| R2 | Auto-wyzwalanie skilli bywa zawodne (agent nie zastosuje zasad bez komendy) | **Niski przy Opusie, średni przy modelach słabszych** (2026-08-10 po E10) | **ZAMKNIĘTE 2026-09-03** | Warstwą nośną są hook `session-context` i `CLAUDE.md` projektu — działają przy każdym modelu, bez wyzwalania; skill dokłada wyłącznie procedurę (L-0030). Opus wyzwala skill sam i wykonuje procedurę w całości; Sonnet 4.6 i Haiku 4.5 nie wołają `Skill` ani razu, więc projekt nie traci pamięci, ale procedura bywa niepełna. Otwarte świadomie: to trwała własność modeli, nie usterka do naprawienia. Zakres ryzyka rósł od 1.1.0 bez pomiaru — dziesiąta komenda, sygnał odchylenia, rozjazd stanu i kontrola podpisu nie były mierzone w świeżej sesji, bo limit konta zatrzymał CLI (L-0032). **Odnoga `POMIAR_ODNOG` anulowana 2026-09-01** — ta część zakresu zostaje niezmierzona świadomie, karta zostaje w repo. **ZAMKNIĘTE 2026-09-03 decyzją człowieka** przy domknięciu tej odnogi: ryzyko zamyka się nie dlatego, że brakujące dziewięć scenariuszy zmierzono, tylko dlatego, że **nie zostaną zmierzone nigdy** — warunkiem był `claude /login` na konto z limitem, a decyzja brzmi „odpuszczamy". To, co niesie ochronę, jest zmierzone i działa: hook i `CLAUDE.md` są niezależne od wyzwalania skilla, więc niezmierzona zostaje wyłącznie kompletność procedury przy modelach słabszych od Opusa — trwała własność modeli, nie zaległość projektu. Powrót jest tani: karta odnogi zostaje w repozytorium, a pojawienie się konta z limitem otwiera ryzyko z powrotem jednym wierszem. Zmierzone: 2026-08-07 (E5), 2026-08-10 (E10), 2026-08-12 (E1), 2026-08-12 (E3). **Adnotacja 2026-09-03 (E1 planu REKOMENDACJA_MODELU): przesłanka zamknięcia jest nieaktualna** — `claude -p` w tej sesji **zadziałał** i poprowadził pomiar dwóch świeżych sesji (L-0084). Warunek „konto z limitem" jest spełniony, więc powrót ryzyka kosztuje jeden wiersz. Statusu **nie zmieniam sam** — zamknięcie było decyzją człowieka i do człowieka wraca; pytanie stoi w sekcji „Czeka na człowieka" |
 | R5 | Dokumenty puchną i zjadają kontekst | **Niski dla projektów na 1.7.0, średni dla niezmigrowanych** (2026-09-01 po E6; wcześniej średni) | **ZMIERZONE 2026-09-01, OTWARTE ŚWIADOMIE — zawężone do migracji JiraManagera** | Mechanizm jest kompletny **i zadziałał na cudzym projekcie w żywej sesji**, nie tylko w instrumentach: PolyFlow 1.6.1 → 1.7.0, rotacja dziennika **183,1 → 147,3 KB** (9 wpisów, suma `566dca8a4dd45ba7` odczytana z dysku przed przycięciem), rotacja ustawień **29,8 → 25,4 KB** (16 wierszy, 5 wierszy maszynowych nietkniętych), przepięcie linków z bilansem zero (60 przed, 65 po rotacji, 60 po przepięciu). Tutaj: dziennik **155,6 → 74,1 KB**, 18 wpisów do archiwum, raport startu z 2 linii na **0**. Zawężone, bo to, co zostało, nie jest już własnością mechanizmu: **JiraManager (386 KB startu) czeka na okno właściciela**, a warstwa startowa PolyFlow (157,3 KB przy budżecie 80 KB) jest gruba sekcją ryzyk, `CLAUDE.md` i `STATE.md` — odchudzają je decyzje człowieka, nie archiwum. Zmierzone: 2026-08-20, 2026-08-21, 2026-09-01 (E1–E6) |
 | P1 | Adaptery Cursor/Codex nie egzekwują blokad harnessu — sekret albo zmiana konfiguracji przejdzie tam, gdzie w Claude Code stoi ściana (plan ROZWOJ_PO_WYDANIU) | **Średni** (2026-08-12 po E4; wcześniej wysoki) | **OTWARTE** | Część sekretowa jest zamknięta dowodem z aplikacji: w Cursorze zadziałały obie warstwy — reguła odmówiła pierwsza, a przy prośbie o próbę mimo reguły zapis klucza odbił hook `preToolUse` werdyktem `permission: deny`; niezależnie od narzędzia commit z sekretem zatrzymuje gitowy pre-commit. Otwarte z dwóch powodów: Cursor nie ma egzekwowanego `ask`, więc pliki konfiguracyjne chroni tam sama reguła zamiast bramki, a Codex pozostaje niezmierzony do odmrożenia E7 planu ROZWOJ_PO_WYDANIU. **1.8.1 (odnoga GUARD_PO_SCIEZCE) zamyka osobną dziurę tej samej rodziny**, obecną w obu adapterach: guard rozpoznawał projekt wyłącznie po katalogu sesji, więc zapis do cudzego projektu RelAI przechodził bez ostrzeżenia w Claude Code tak samo jak w Cursorze. Zmierzone instrumentem na dwóch drzewach (22 + 4 scenariusze, 0 niezgodnych); poziom bez zmian, bo powód otwarcia jest inny — brak egzekwowanego `ask` w Cursorze. Zmierzone: 2026-08-12 (E4), 2026-08-12 (E5), 2026-08-17 (E6), 2026-09-03 (GUARD_PO_SCIEZCE) |
 | P2 | Odpowiednik R2 w Cursor/Codex: bez auto-wyzwalania skilli proces zależy od dyscypliny modelu (plan ROZWOJ_PO_WYDANIU) | **Niski dla Cursora, średni dla Codeksa** (2026-08-17 po E6; wcześniej średni) | **OTWARTE (już tylko Codex)** | Reguła zawsze-w-kontekście działa w Cursorze bez żadnego wyzwalacza: pilotaż przeszedł pełny cykl na trzech modelach, a cały etap poprowadził model spoza Anthropic (Grok 4.6) — rytuał startu, karta etapu z kontrolą modelu, granica zakresu, rytuał zamknięcia z promptem następnego etapu. Dyscyplina procesu nie zależy od dostawcy modelu. Otwarte już tylko dla Codeksa: warstwą nośną ma tam być `AGENTS.md` z twardym limitem 32 KiB, a skille wyzwalają się dopasowaniem opisu — tym samym mechanizmem, który przy R2 okazał się zależny od modelu. Zmierzone: 2026-08-12 (E4), 2026-08-12 (E5), 2026-08-17 (E6) |
 
 | S1 | Bramka dokumentacyjna przepuści coś potrzebnego — plik nieśledzony, o którym architektura milczy, a bez którego nie da się powtórzyć pomiaru (plan SPRZATANIE_ARTEFAKTOW, ryzyko 1) | **Wysoki** (2026-09-03, przy powstaniu mechanizmu) | **OTWARTE** | Kasowanie wyłącznie po „tak" na grupę z pełną listą pozycji; pliki śledzone nigdy nie są kandydatami; niepewność rozstrzygana na korzyść ochrony; „zostaw na zawsze" dopisuje marker, więc pytanie nie wraca. Pierwszy pomiar (E1, własne repo): 8 grup, 9 pozycji chronionych z powodem — w tym `benchmark`-owy odpowiednik, czyli `.claude/relai/templates` z powodem `opisane` i wskazaniem `README.md:150`. **Bramka przepuściła dorobek własnego etapu**: dwa nowe, niezacommitowane pliki produktu stanęły w grupach jako kandydaci (L-0078) — ochroną jest tam `git add`, nie marker, ale to jest realne trafienie tego ryzyka. Niezmierzone na cudzym projekcie: raport na PolyFlow zostaje jako bramka manualna planu. E2: drugi przebieg bez ani jednego fałszywego kandydata — 1 grupa (katalog etapu zamkniętego), 5 pozycji chronionych, w tym `templates` powodem `opisane`. **E3: trafienie powtórzyło się na innym pliku** — świeżo wygenerowany `PROMPT_ETAP_4.md`, jeszcze nieprzyjęty do indeksu, stanął w raporcie jako kandydat (grupa „repo: katalog docs") i zniknął po `git add`. Wzorzec jest więc stały, nie jednorazowy: **granicą ochrony dorobku sesji jest indeks gita**, a nie marker — i to zdanie należy mówić wprost przy sprzątaniu w trakcie etapu (L-0078). **E4: pierwsze trafienie na cudzym projekcie i najpoważniejsze z dotychczasowych.** Powód `opisane` chronił w PolyFlow **dwa** pliki benchmarku z ośmiu, a sześć dalszych — w tym `formatowanie/probki.json` i `probki_lista.json` z realnymi wypowiedziami właściciela — stanęło w grupie kandydatów. Ochrona przez opis obejmuje wyłącznie to, co ktoś opisał **w dokumencie projektu**; komentarz nad wzorcem w `.gitignore` tym dokumentem nie jest, choć czyta się identycznie. Bramka zadziałała (nic nie zniknęło bez „tak"), ale sama nie wystarczy — potrzebny był marker, i to siedem markerów zamiast zakładanych dwóch. **Ryzyko zostaje otwarte**: mechanizm jest zależny od tego, czy człowiek opisał materiał tam, gdzie narzędzie patrzy. Zmierzone: 2026-09-03 (E1, E2, E3, E4) |
 | S2 | Narzędzie skasuje coś poza dozwolonymi korzeniami — zła ścieżka względna, dowiązanie prowadzące na zewnątrz, junction do innego dysku (plan SPRZATANIE_ARTEFAKTOW, ryzyko 2) | **Wysoki** (2026-09-03, przy powstaniu mechanizmu) | **OTWARTE** | Asercje w `kasuj`: każda ścieżka po `realpath` musi leżeć **pod** katalogiem projektu albo pod `os.tmpdir()`, nie być którymkolwiek korzeniem ani `.git` projektu; dowiązanie usuwane jako dowiązanie, bez wchodzenia do celu. Pierwszy pomiar (E1) z dowodami negatywnymi: ścieżka w katalogu domowym i `.git` projektu → dwie odmowy, zero skasowanych, `.git` **31 plików przed i 31 po**; junction wskazujący poza kandydata → dowiązanie zniknęło, cel **2 pliki przed i 2 po**. Klon repozytorium z obiektami tylko do odczytu skasowany bez ani jednego niepowodzenia (14 923 442 B → 0 B). E2: kasowanie 141,2 MB w katalogu roboczym etapu zamkniętego, zero niepowodzeń, `%TEMP%` i `work/` puste po operacji. E3: trzeci przebieg, katalog roboczy etapu i pusty katalog tematu, zero niepowodzeń; **ochrona `etap trwa` pokazana w obie strony w jednym dniu** — ten sam katalog był chroniony przy statusie `W TOKU` i został kandydatem dopiero po `ZREALIZOWANY`. **E4: czwarty przebieg, pierwszy na cudzym projekcie** — dwie pozycje (katalog etapu zamkniętego 90 MB i katalog w `%TEMP%` 35 MB), **125,0 → 0,0 MB**, zero niepowodzeń, a pomiar ponowny dał zero kandydatów. Asercje korzeni wytrzymały też przypadek, którego nikt nie planował: ścieżka **dysko-relatywna ze znakiem CR w środku** (rozjechane escapowanie w `node -e`) rozwinęła się względem katalogu projektu, `lstat` jej nie znalazł i **żadna operacja nie wykonała się na dysku**. Ujawniło to jednak osobną wadę raportowania: taka pozycja jest meldowana jako `skasowane`, nie jako `nieobecne` (`work-artifacts.js:843`) — wołający nie ma po czym poznać, że jego lista jest zepsuta. Wada zapisana w `STATE.md`, poza zakresem planu. Niezmierzone bez zmian: junction na inny dysk i ścieżka dłuższa niż limit Windows. Zmierzone: 2026-09-03 (E1, E2, E3, E4) |
+
+| M1 | Skill wspólny dla dwóch narzędzi pokaże listę tego drugiego — sesja w Cursorze zobaczy modele Anthropic (plan REKOMENDACJA_MODELU, ryzyko 1) | **Wysoki** (2026-09-03, przy powstaniu mechanizmu) | **OTWARTE** | O liście rozstrzyga **nazwa pliku**, którą podaje adapter wołający rdzeń (Aneks A) — treść skilla jest jedna i nazwy narzędzia nie zna; która lista obowiązuje, mówi hook startu jednym zdaniem (zasada 8). Pierwszy pomiar (E1) na dwóch projektach kontrolnych w jednym przebiegu: projekt obsłużony hookiem Claude Code ma w `.claude/relai/` **wyłącznie** `MODELE-claude-code.md`, projekt Cursora **wyłącznie** `MODELE-cursor.md`; treść obu kopii zgodna sumą ze źródłem adaptera. Otwarte, bo zmierzone na hookach uruchomionych z repozytorium, a **nie w żywej sesji Cursora** — reguły 1.7.0 i 1.8.0 tego adaptera też nigdy nie były w nim uruchomione. Zmierzone: 2026-09-03 (E1) |
+| M2 | Kopia listy w projekcie zostaje nadpisana przy starcie sesji i zjada odświeżenie zrobione komendą (plan REKOMENDACJA_MODELU, ryzyko 2) | **Wysoki** (2026-09-03, przy powstaniu mechanizmu) | **OTWARTE** | `provisionModelList()` kopiuje **tylko wtedy, gdy pliku nie ma** — jedyna różnica wobec `provisionTemplates()`, które nadpisuje przy każdym starcie. Dowód negatywny (E1): plik zmieniony ręcznie w projekcie kontrolnym przeżył ponowne uruchomienie hooka, suma po normalizacji CRLF → LF `ecc6d18d9f6ccf65` przed i po; kontrola pozytywna w tym samym przebiegu — skasowany plik powstał ponownie z sumą źródła. Otwarte do czasu, aż istnieje druga droga zapisu do tego pliku: `/relai-models` z E2 będzie pisać do tej samej kopii, a `/relai-update` do katalogu obok. Zmierzone: 2026-09-03 (E1) |
 
 > Ryzyka zamknięte R1, R3, R4, R6, R7, R8 (6 pozycji) są w
 > [docs/archiwum/ryzyka/RYZYKA_2026-08-21.md](archiwum/ryzyka/RYZYKA_2026-08-21.md)
@@ -28,10 +31,22 @@
   potwierdzenie albo sprzeciw** · 2026-08-20 ·
   [wpis 2026-09-01 — Osiem bramek z listy zamkniętych](#2026-09-01--osiem-bramek-z-listy-zamkniętych-plan-rozwoj_po_wydaniu-zamrożony-formalnie)
 
-- **Plan `REKOMENDACJA_MODELU` czeka na akceptację** — cztery etapy, 4–7 sesji (SZACUNEK); do zgody
-  nie startuje żaden etap i nie powstaje `PROMPT_ETAP_1.md`. W jego `STATUS.md` czekają trzy własne
-  bramki: adresy stron dokumentacji modeli, zgoda na ruch sieciowy, numer wydania · 2026-09-03 ·
+- **Trzy bramki planu `REKOMENDACJA_MODELU`** *(pozycja zawężona 2026-09-03 — plan został
+  zaakceptowany tego samego dnia, więc czekanie na akceptację odpadło)*: adresy stron dokumentacji
+  modeli dla obu narzędzi **i** decyzja o zgodzie na ruch sieciowy blokują **E2**; numer wydania
+  (1.9.0 czy 1.8.2) czeka przed E4 · 2026-09-03 ·
   [wpis 2026-09-03 — Wydanie 1.8.1 potwierdzone](#2026-09-03--wydanie-181-potwierdzone-po-restarcie-plan-rekomendacja_modelu-do-akceptacji)
+
+- **Lista modeli Cursora jest niekompletna** — z pomiaru mam wyłącznie `strong: Grok 4.6` (pilotaż
+  E6), a klasy `balanced` i `cheap` stoją jako `<TO BE FILLED IN: …>`. Uzupełnić ręcznie teraz czy
+  poczekać na `/relai-models` z E2? · 2026-09-03 ·
+  [wpis 2026-09-03 — E1 planu REKOMENDACJA_MODELU](#2026-09-03--e1-planu-rekomendacja_modelu-pytanie-o-model-pokazuje-nazwy-nie-klasy)
+
+- **Ryzyko R2 zamknięte na nieaktualnej przesłance** — 2026-09-03 zamknięto je zdaniem „nie zostanie
+  zmierzone nigdy", opartym na wyczerpanym limicie `claude -p` (L-0032). W E1 tego samego dnia
+  `claude -p` **zadziałał** i poprowadził pomiar świeżych sesji (L-0084). Otworzyć R2 ponownie,
+  przepisać jego treść czy zostawić zamknięte z adnotacją? · 2026-09-03 ·
+  [wpis 2026-09-03 — E1 planu REKOMENDACJA_MODELU](#2026-09-03--e1-planu-rekomendacja_modelu-pytanie-o-model-pokazuje-nazwy-nie-klasy)
 
 - **Blokada zapisu do cudzego projektu niezmierzona w żywej sesji** — instrument dowiódł werdyktu
   `deny`, ale „plik nie powstał" pokaże dopiero sesja z zainstalowaną wersją 1.8.1 i katalogiem
@@ -2124,5 +2139,89 @@ Autor: RelAI (Opus 5) + Lukasz
   decyzja, czy zgoda na ruch sieciowy pada przy każdym odświeżeniu, czy raz na projekt. E1 startuje
   bez nich.
 - **Numer wydania (1.9.0 czy 1.8.2)** — przed E4.
+
+Autor: RelAI (Opus 5) + Lukasz
+
+### 2026-09-03 — E1 planu REKOMENDACJA_MODELU: pytanie o model pokazuje nazwy, nie klasy
+
+**Zrobione:**
+
+- **`adapters/claude-code/MODELE.md` i `adapters/cursor/MODELE.md`** — listy modeli per narzędzie.
+  Blok maszynowy z kotwicą na początku linii, zamknięta lista brzmień klas
+  (`strong` / `balanced` / `cheap`), `list-date` i **źródło przy każdej pozycji**. Warstwa modelowa
+  po angielsku, cały plik ASCII. Claude Code: Opus 5 i Fable 5.1 jako `strong` (obie pozycje realne
+  i obie potrzebne — D-85 wykonuje etapy Opusem, plany pisze Fable), Sonnet 5, Haiku 4.5. Cursor:
+  wyłącznie `strong: Grok 4.6` z pilotażu E6; `balanced` i `cheap` stoją jako
+  `<TO BE FILLED IN: …>`, bo z pomiaru ich nie ma.
+- **`core/process/session-signals.js`** — `provisionModelList()` i `dataListyModeli()`. Rdzeń zna
+  mechanizm, **nie zna nazw narzędzi**: adapter podaje źródło i nazwę pliku docelowego. Kopia
+  powstaje **tylko wtedy, gdy pliku nie ma** — jedyna różnica wobec `provisionTemplates()` i cała
+  mitygacja ryzyka 2 planu.
+- **Oba hooki startu** (`adapters/claude-code/hooks/session-context.js`,
+  `adapters/cursor/hooks/session-context.js`) — każdy kładzie **swoją** listę i dokłada jedno zdanie
+  ASCII o tym, która obowiązuje, wraz z datą listy. Rozpoznanie narzędzia zostaje w warstwie obecnej
+  w każdej sesji (zasada 8), skill go nie prowadzi.
+- **`adapters/claude-code/skills/relai-planning/SKILL.md`** — Krok 3 dostał akapit „Nazwy zamiast
+  klas, gdy sesja ma listę modeli": skill czyta plik wskazany przez hook, opcje pytania 3 wymieniają
+  nazwy razem z datą listy, a pozycja `<TO BE FILLED IN: …>` **nie jest nazwą** — mówi się o luce
+  i wskazuje `/relai-models`. Bez listy pytanie zostaje dokładnie takie jak w tabeli.
+- **`core/MANIFEST.json`** — pole `models` w sekcji obu adapterów. Sama deklaracja; gałąź
+  sprawdzająca ją w walidatorze należy do E4.
+
+**Zweryfikowane — jak dokładnie:**
+
+Dwa instrumenty w katalogu roboczym etapu, obie wersje zachowania w jednym przebiegu (zasada 4),
+materiał odtwarzany i na końcu dowiedziony jako nietknięty (zasada 5, L-0083).
+
+- **`pomiar-listy.js` — 12/12 zdanych, na żywych hookach obu adapterów.** Dwa projekty kontrolne:
+  w projekcie obsłużonym hookiem Claude Code `ls .claude/relai/` daje **wyłącznie**
+  `MODELE-claude-code.md`, w projekcie Cursora **wyłącznie** `MODELE-cursor.md`; treść obu kopii
+  zgadza się sumą ze źródłem adaptera (`1f67fe1bc954ecdc`, `ac8fe88a943f0a92`).
+- **Kopia trwała — dowód negatywny.** Plik listy zmieniony ręcznie w projekcie kontrolnym
+  (podmieniona data + dopisana linia) **przeżył** ponowne uruchomienie hooka: suma po normalizacji
+  CRLF → LF `ecc6d18d9f6ccf65` przed i po. Kontrola pozytywna w tym samym przebiegu: skasowany plik
+  **powstał** ponownie, z sumą źródła.
+- **Zdanie o liście pada raz i jest ASCII.** Hook Claude Code: 1 linia, hook Cursora: 1 linia, znaków
+  spoza ASCII **0**. Brzmienie: `Lista modeli tego narzedzia: .claude/relai/MODELE-claude-code.md
+  (z dnia 2026-09-03). Pytajac o model wykonawczy etapow, podaj nazwy z tej listy razem z jej data.`
+  Ten sam hook z **odsuniętym** plikiem źródłowym adaptera: **0 linii** na ten temat i **0 plików**
+  w cache'u projektu, przy nietkniętej reszcie kontekstu startu (1187 znaków, rytuał na miejscu).
+- **`pomiar-pytania.js` — 7/7 zdanych, dowodem jest zapisana treść pytania, nie kod skilla.** Dwie
+  świeże sesje `claude -p` uruchomione z powłoki natywnej, na dwóch projektach kontrolnych.
+  Projekt **z listą** dał: *„Pytanie nr 3 — Model wykonawczy etapów (nazwy z listy
+  `.claude/relai/MODELE-claude-code.md` z dnia 2026-09-03) … etapy złożone na modelu najsilniejszym
+  (Opus 5 albo Fable 5.1), etapy mechaniczne na najtańszym (Haiku 4.5) … Sonnet 5 (zrównoważony)"*.
+  Projekt **bez listy**, w tym samym przebiegu: *„Rekomendacja RelAI — złożone etapy: model
+  najsilniejszy; mechaniczne: najtańszy"* — **zero nazw modeli**.
+- **Nic poza zakresem.** `git diff --stat`: pięć plików zakresu + `STATUS.md` planu, 90 linii
+  dodanych, 1 usunięta. Żaden plik z listy „Nie ruszasz" nietknięty.
+- **`node core/tools/validate-adapters.js` → kod 0** („3 zrodel, wartosc 1.8.1").
+- **Katalog roboczy** `.claude/relai/work/REKOMENDACJA_MODELU/E1/`: **2,7 MB / 186 plików przed,
+  0,0 MB po** — skasowany po „tak" razem z `%TEMP%\relai_d_list.txt`. Poza katalogiem etapu nie
+  powstał żaden artefakt; `zloz-plan.js` (poziom wyżej, artefakt planowania) został nietknięty.
+
+**Świadomie odłożone:**
+
+- **Sprawdzenie deklaracji `models` przez walidator** — E1 deklaruje, E4 sprawdza. Dziś usunięcie
+  pliku listy z adaptera nadal daje kod 0.
+- **`adapters/cursor/install.js`** — prowizjonuje specyfikacje przy instalacji, listy modeli nie.
+  Nie szkodzi: hook startu Cursora kładzie ją przy pierwszej sesji. Poza zakresem punktu 4 promptu.
+- **Rotacja dziennika** — plik przekroczył próg 150 KB (158 KB na starcie sesji). Rotacja przy
+  „kończymy na dziś", nie w turze dopisującej wpis.
+- **Defekt `kasuj`, trzecia reprodukcja.** Lista ścieżek zbudowana z literałami w `node -e` przeszła
+  przez escapowanie powłoki i dała `Skasowane: 2` przy **zerze realnych operacji** — ścieżki
+  w wydruku były okaleczone (`C:UsersLukasz…`). Poprawne kasowanie wykonano listą zbudowaną
+  `path.resolve()`. To ten sam otwarty punkt ze `STATE.md` (`work-artifacts.js:843`), nie nowy.
+
+**Do zrobienia przez człowieka:**
+
+- **Nazwy modeli Cursora dla klas `balanced` i `cheap`** — dziś dwie pozycje z trzech stoją jako
+  `<TO BE FILLED IN: …>`. Nie blokuje E2; to właśnie ta komenda ma je uzupełniać.
+- **Dwie bramki nadal blokują E2**: adresy stron dokumentacji modeli dla obu narzędzi oraz decyzja,
+  czy zgoda na ruch sieciowy pada przy każdym odświeżeniu, czy raz na projekt.
+- **Numer wydania (1.9.0 czy 1.8.2)** — przed E4. Kod E1 mówi już „1.9.0" w komentarzach.
+- **Ryzyko R2 warto otworzyć ponownie albo przepisać** — zamknięto je 2026-09-03 zdaniem „nie
+  zostanie zmierzone nigdy", opartym na L-0032 (wyczerpany limit `claude -p`). W tej sesji
+  `claude -p` **działa** i poprowadził pomiar (L-0084).
 
 Autor: RelAI (Opus 5) + Lukasz

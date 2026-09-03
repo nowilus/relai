@@ -38,6 +38,10 @@ try {
 // Tryb goscia deklarowany w dowolnym z dwoch narzedzi obowiazuje w obu.
 const MARKERY_GOSCIA = ['.cursor/relai.json', '.claude/relai.json'];
 
+// Lista modeli TEGO narzedzia (1.9.0). Katalog cache jest wspolny z adapterem Claude Code,
+// wiec listy rozroznia nazwa pliku (Aneks A planu REKOMENDACJA_MODELU z 2026-09-03).
+const MODELE_ZRODLO = path.join(__dirname, '..', 'MODELE.md');
+
 function workingDir(input) {
   if (typeof input.cwd === 'string' && input.cwd) return input.cwd;
   const roots = Array.isArray(input.workspace_roots) ? input.workspace_roots : [];
@@ -135,6 +139,18 @@ function onSessionStart(input) {
   if (copied > 0) {
     out.push('Specyfikacje dokumentow RelAI sa skopiowane lokalnie do .claude/relai/templates/ (' + copied +
       ' plikow). Czytaj je stamtad — katalog adaptera moze byc poza katalogiem roboczym.');
+  }
+
+  // Jedno zdanie o tym, ktora lista modeli obowiazuje w tej sesji. Brak listy = zero znakow.
+  const lista = core.provisionModelList(cwd, {
+    zrodlo: MODELE_ZRODLO,
+    nazwa: 'MODELE-cursor.md',
+    destRel: '.claude/relai',
+  });
+  if (lista) {
+    out.push('Lista modeli tego narzedzia: .claude/relai/' + lista.nazwa +
+      (lista.data ? ' (z dnia ' + lista.data + ')' : ' (bez czytelnej daty)') +
+      '. Pytajac o model wykonawczy etapow, podaj nazwy z tej listy razem z jej data.');
   }
 
   const gs = core.globalSettingsText('.claude/relai');

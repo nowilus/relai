@@ -11,7 +11,7 @@ Czytaj w kolejności, nie skanuj pełnotekstowo repo:
 4. [docs/LEKCJE.md](docs/LEKCJE.md) — wyłącznie sekcja „Zasady aktywne".
 5. [docs/DECYZJE.md](docs/DECYZJE.md) — decyzje zamrożone: **nie proponuj ich ponownie**.
 6. [docs/USTAWIENIA.md](docs/USTAWIENIA.md) — preferencje projektu.
-7. Aktywny plan — linia niżej w sekcji „Stan prac"; obecnie: **REKOMENDACJA_MODELU** (zaakceptowany 2026-09-03 z Aneksem A; E1 `GOTOWY DO STARTU`, prompt gotowy).
+7. Aktywny plan — linia niżej w sekcji „Stan prac"; obecnie: **REKOMENDACJA_MODELU** (zaakceptowany 2026-09-03 z Aneksem A; E1 `ZREALIZOWANY`, E2 `GOTOWY DO STARTU`, ale **zablokowany dwiema bramkami człowieka**).
 
 **Frazy sesji:** „kontynuujemy pracę" → rytuał startu, akapit „gdzie jesteśmy" **i jedno zdanie
 z propozycją najbliższego kroku**; „sprawdź status" → stan, plany, ryzyka, zaległości
@@ -33,7 +33,7 @@ o kolejne `N` dni / rozstrzygnąć teraz. Sesja nieinteraktywna: sam raport, bez
 | Plan OPTYMALIZACJA_KONTEKSTU — 5 etapów | ZREALIZOWANY 2026-08-21 | [archiwum planu](docs/archiwum/plany/OPTYMALIZACJA_KONTEKSTU/STATUS.md) |
 | Plan HIGIENA_DOKUMENTOW — 6 etapów | **ZREALIZOWANY 2026-09-01** (Aneksy A–D) | [archiwum planu](docs/archiwum/plany/HIGIENA_DOKUMENTOW/STATUS.md) |
 | Plan SPRZATANIE_ARTEFAKTOW — 4 etapy | **ZREALIZOWANY 2026-09-03** (4/4, wydanie 1.8.0) | [archiwum planu](docs/archiwum/plany/SPRZATANIE_ARTEFAKTOW/STATUS.md) |
-| Plan REKOMENDACJA_MODELU — 4 etapy | **ZAAKCEPTOWANY 2026-09-03** (Aneks A); E1 gotowy do startu | [STATUS](docs/plany/REKOMENDACJA_MODELU/STATUS.md) |
+| Plan REKOMENDACJA_MODELU — 4 etapy | **1/4** (E1 zamknięty 2026-09-03); E2 czeka na dwie bramki | [STATUS](docs/plany/REKOMENDACJA_MODELU/STATUS.md) |
 | Odnogi i wątki samodzielne | 1 otwarta (`OPIS_REPO`); GUARD_PO_SCIEZCE zamknięta, REKOMENDACJA_MODELU przeniesiona do planu — obie 2026-09-03 | [docs/STATE.md](docs/STATE.md) |
 
 Aktywny plan: [REKOMENDACJA_MODELU](docs/plany/REKOMENDACJA_MODELU/STATUS.md)

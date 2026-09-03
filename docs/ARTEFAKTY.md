@@ -80,7 +80,7 @@ którego wersji nie da się podbijać osobno.
 | Artefakt | Plik | Wersja | Data | Co się zmieniło | Po co |
 |---|---|---|---|---|---|
 | Skill `relai-core` | `adapters/claude-code/skills/relai-core/SKILL.md` | 5 | 2026-08-07 | 2026-09-03 (wersja 5): linia wersji skilla i marker wymagany w `docs/USTAWIENIA.md` podniesione na **1.8.1**; procedura skilla nietknięta — bez podbicia nowy projekt dostawałby marker starszy od pluginu, a `/relai-update` nie miałby czego domknąć. Wersja 4: linia wersji skilla i marker `Wersja RelAI:` w wymaganiach struktury podniesione na 1.8.0. Wersja 3: krok **2a** rytuału zamknięcia — sprzątanie artefaktów roboczych po rotacji, przed wpisem, z własną sekcją procedury; numeracja kroków 1–6 nietknięta (wersja 2 tego samego dnia: sekcja „Pliki lokalne, których nie sprzątamy") | Sprzątanie potrzebuje momentu w rytuale, a nie tylko komendy wywołanej wprost; bez kroku w rytuale katalogi zamkniętych etapów zostają na dysku do następnego przypadkowego spojrzenia |
-| Skill `relai-planning` | `adapters/claude-code/skills/relai-planning/SKILL.md` | 3 | 2026-08-07 | 2026-09-03 (wersja 3): linia wersji skilla podniesiona na 1.8.0 z opisem zakresu tego wydania. Wersja 2: elementy 7 i 8 układu promptu etapowego nazywają katalog roboczy, a rytuał „Na koniec" dostał krok `1a` (sprzątanie przed wpisem, żeby liczby trafiły do wpisu); numeracja 1–6 nietknięta | Niesie procedurę planowania: PLAN vs MINIPLAN, prompty etapowe, rytuał „Na koniec", odnogi |
+| Skill `relai-planning` | `adapters/claude-code/skills/relai-planning/SKILL.md` | 4 | 2026-08-07 | 2026-09-03 (wersja 4): Krok 3 dostał akapit „Nazwy zamiast klas, gdy sesja ma listę modeli" — pytanie o model wykonawczy wymienia nazwy z pliku wskazanego przez hook startu razem z datą listy, a pozycja `<TO BE FILLED IN: …>` znaczy lukę do zgłoszenia, nie nazwę do zgadnięcia; bez listy pytanie zostaje dokładnie takie jak w tabeli. Rozpoznania narzędzia skill nie prowadzi — to należy do hooka (zasada 8). Wersja 3: linia wersji skilla podniesiona na 1.8.0 z opisem zakresu tego wydania. Wersja 2: elementy 7 i 8 układu promptu etapowego nazywają katalog roboczy, a rytuał „Na koniec" dostał krok `1a` (sprzątanie przed wpisem, żeby liczby trafiły do wpisu); numeracja 1–6 nietknięta | Niesie procedurę planowania: PLAN vs MINIPLAN, prompty etapowe, rytuał „Na koniec", odnogi |
 
 ## Reguły adaptera Cursora — `adapters/cursor/rules/` (3)
 
@@ -90,9 +90,16 @@ którego wersji nie da się podbijać osobno.
 | Reguła `relai-guardrails` | `adapters/cursor/rules/relai-guardrails.mdc` | 1 | 2026-08-12 | wpis startowy; ostatnia zmiana 2026-08-12 | Sekrety, chroniona konfiguracja, bramka snapshotu i reguły profilu tam, gdzie Cursor nie ma egzekwowanego `ask` |
 | Reguła `relai-planning` | `adapters/cursor/rules/relai-planning.mdc` | 2 | 2026-08-12 | 2026-09-03: ten sam krok `1a` rytuału po angielsku, a karta potwierdzenia etapu wymienia katalog roboczy — reguła jest jedynym nośnikiem rytuału w Cursorze (P2) | Plany, etapy, sygnał odchylenia i odnogi w Cursorze — bez zależności od auto-wyzwalania |
 
-## Zgodność liczb z dyskiem (2026-09-01)
+## Listy modeli — `adapters/*/MODELE.md` (2)
 
-Inwentarz robiony komendą, nie okiem. **38 pozycji rejestru** = 22 + 1 + 10 + 2 + 3.
+| Artefakt | Plik | Wersja | Data | Co się zmieniło | Po co |
+|---|---|---|---|---|---|
+| Lista modeli Claude Code | `adapters/claude-code/MODELE.md` | 1 | 2026-09-03 | wpis startowy (E1 planu REKOMENDACJA_MODELU): blok maszynowy z kotwicą na początku linii, zamknięta lista brzmień klas (`strong` / `balanced` / `cheap`), `list-date` i źródło przy każdej pozycji; cztery pozycje, w tym dwie w klasie `strong` | Klasa modelu bez nazwy nie wskazuje niczego konkretnego — lista daje klasom nazwy tego narzędzia i mówi, z kiedy pochodzą |
+| Lista modeli Cursora | `adapters/cursor/MODELE.md` | 1 | 2026-09-03 | wpis startowy (E1): ten sam format; jedna pozycja z pomiaru (`strong: Grok 4.6`, pilotaż E6), `balanced` i `cheap` jako `<TO BE FILLED IN: …>` — nazw, których nie ma z pomiaru, lista nie zmyśla | Cursor ma modele kilku dostawców i zmienia je szybciej niż wydania RelAI; lista zaczyna od tego, co realnie zmierzono |
+
+## Zgodność liczb z dyskiem (2026-09-03)
+
+Inwentarz robiony komendą, nie okiem. **40 pozycji rejestru** = 22 + 1 + 10 + 2 + 3 + 2.
 
 | Zbiór | Komenda | Na dysku | W rejestrze |
 |---|---|---|---|
@@ -101,6 +108,7 @@ Inwentarz robiony komendą, nie okiem. **38 pozycji rejestru** = 22 + 1 + 10 + 2
 | komendy | `ls adapters/claude-code/commands/*.md \| wc -l` | 10 | 10 |
 | skille | `ls adapters/claude-code/skills/*/SKILL.md` | 2 | 2 |
 | reguły Cursora | `ls adapters/cursor/rules/*.mdc` | 3 | 3 |
+| listy modeli | `ls adapters/*/MODELE.md` | 2 | 2 |
 
 **Rozbieżność wobec karty odnogi — wypisana jawnie:** karta `REJESTR_ARTEFAKTOW/ODNOGA.md` i hook
 `session-context` mówią o **31 specyfikacjach**. Na dysku plików `.md` w `core/templates/` jest

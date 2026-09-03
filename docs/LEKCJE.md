@@ -40,8 +40,12 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
    **Generator identyfikatorów ma kontrolę pozytywną na wszystkich kandydatach, nie na
    pierwszym** — sprawdzasz, czy wygenerowana wartość występuje w tym samym pliku; pierwszy
    element bywa jedynym nielinkowanym i przewraca kontrolę na poprawnym generatorze.
-   Wyczerpany limit konta zatrzymuje pomiar i idzie do odnogi, nie do adnotacji „sprawdzone
-   inaczej". (L-0032, L-0037, L-0054, L-0055, L-0056, L-0064, L-0068, L-0071, L-0073)
+   **Instrument porównujący dwa drzewa odtwarza materiał przed każdym wariantem** i dowodzi na
+   końcu, że materiał wyszedł nietknięty. Wyczerpany limit konta zatrzymuje pomiar i idzie do
+   odnogi, nie do adnotacji „sprawdzone inaczej" — ale **niedostępność cudzej usługi sprawdzasz
+   ponownie jednym najtańszym wywołaniem**, zanim odpiszesz pomiar jako niewykonalny: lekcja o niej
+   niesie datę i jest hipotezą, nie werdyktem. (L-0032, L-0037, L-0054, L-0055, L-0056, L-0064,
+   L-0068, L-0071, L-0073, L-0083, L-0084)
 6. **Próg jest liczbą, którą ktoś liczy:** kalibruj go na zmierzonych plikach realnych projektów,
    zapisuj w jednostce mechanizmu kontrolnego wraz z komendą sprawdzającą i daj mu **jeden**
    wyzwalacz — wielkości pomocnicze wskazują przyczynę wewnątrz komunikatu, nie wywołują go.
@@ -72,7 +76,10 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
     świeżą sesją, a po podbiciu numeru przepuszczasz repo `grep`-em po starym i rozstrzygasz każde
     trafienie — **także w treści komend, skilli i specyfikacji**, dzieląc je na wzmianki
     historyczne i deklaracje stanu docelowego. Kontrola patrząca tylko na manifesty tej różnicy nie
-    widzi. (L-0004, L-0008, L-0020, L-0061)
+    widzi. **Zachowanie zmienione, ale jeszcze niewydane, mierzysz artefaktem podłożonym lokalnie
+    w projekcie kontrolnym** — hook przez `.claude/settings.json`, skill przez `.claude/skills/`
+    pod **inną nazwą** niż wersja z pluginu; kolizja nazw znaczy, że nie wiesz, którą treść
+    zmierzyłeś. (L-0004, L-0008, L-0020, L-0061, L-0085)
 11. **Końce linii są wariantem, nie szczegółem.** Sumy kontrolne porównuj po normalizacji
     CRLF → LF; w regexie nad pojedynczą linią nie zakotwiczaj końca, bo kropka nie obejmuje `\r`
     i wzorzec przestaje trafiać na repozytorium z `core.autocrlf=true`; mechanizm czytający
@@ -563,6 +570,39 @@ restart aplikacji po `plugin update` (L-0031), `git worktree` zamiast `git archi
   z korzenia nie dociera do `git check-ignore`, bo wcześniej łapie ją czytanie markerów.
 - **Źródło:** odnoga GUARD_PO_SCIEZCE (2026-09-03), `instrument-clean.js`. Wzmocnienie zasad 4
   i 5 — bez własnej pozycji w destylacie, limit 15 pozostaje wykorzystany.
+
+### L-0084 — Niedostępność cudzej usługi jest stanem chwilowym, nie własnością świata · 2026-09-03 · AKTYWNA
+
+- **Trigger:** punkt weryfikacji E1 wymagał treści pytania ze świeżej sesji. L-0032 (2026-08-21)
+  mówi, że `claude -p` uwierzytelnia się z własnego pliku poświadczeń, a konto tam zapisane ma
+  wyczerpany limit — na tej podstawie punkt był o krok od opisania jako niewykonalny i oddania
+  człowiekowi. Jedno tanie wywołanie kontrolne (`claude -p` z modelem Haiku) **przeszło**.
+- **Przyczyna:** lekcja zapisała stan cudzej usługi z konkretnego dnia, a przy czytaniu została
+  wzięta za trwałą właściwość narzędzia. Odnoga `POMIAR_ODNOG` została na jej podstawie anulowana,
+  a ryzyko R2 zamknięte słowami „nie zostanie zmierzone nigdy".
+- **Zasada:** zanim odpiszesz pomiar jako niewykonalny **z powodu cudzej usługi** — limit konta,
+  brak dostępu, awaria API — sprawdź ją **jednym najtańszym wywołaniem w tej sesji**. Lekcja o cudzej
+  usłudze niesie datę i jest hipotezą do odświeżenia, nie werdyktem. Dotyczy to również lekcji
+  własnych: wpis mówi, co było prawdą tamtego dnia.
+- **Źródło:** E1 planu REKOMENDACJA_MODELU (2026-09-03). Wzmocnienie zasady 5 (człon o wyczerpanym
+  limicie) — bez własnej pozycji w destylacie, limit 15 pozostaje wykorzystany.
+
+### L-0085 — Zachowanie zależne od wydania mierzysz artefaktem podłożonym lokalnie, pod własną nazwą · 2026-09-03 · AKTYWNA
+
+- **Trigger:** punkt weryfikacji E1 żądał dowodu treścią pytania ze świeżej sesji, ale zmiana
+  mieszkała w repozytorium, nie w zainstalowanym pluginie. Sprawdzenie sześciu katalogów cache'u
+  (1.5.2…1.8.1) pokazało, że **żaden nie ma pliku `MODELE.md`** — świeża sesja czytałaby skill
+  sprzed zmiany i pomiar dałby fałsz zgodny z oczekiwaniem „nic się nie zmieniło".
+- **Przyczyna:** świeża sesja bierze skille i hooki z cache'u pluginu, a nie z katalogu roboczego.
+  Domknięcie tej luki sekwencją wydania oznaczałoby wydawanie wersji w środku etapu, który wydania
+  nie ma w zakresie.
+- **Zasada:** artefakt wykonawczy (skill, hook) podkładasz **lokalnie w projekcie kontrolnym**:
+  hook przez `.claude/settings.json` wskazujące plik z repozytorium, skill przez
+  `.claude/skills/<nazwa>/` z **inną nazwą niż wersja z pluginu** — kolizja nazw znaczy, że nie
+  wiesz, którą treść zmierzyłeś. Mierzysz wtedy **treść artefaktu**, nie jego wyzwalanie; to drugie
+  należy do warstwy hooka i mierzy się osobno.
+- **Źródło:** E1 planu REKOMENDACJA_MODELU (2026-09-03), `pomiar-pytania.js`. Wzmocnienie
+  zasady 10 — bez własnej pozycji w destylacie, limit 15 pozostaje wykorzystany.
 
 ## Lekcje zwinięte
 
