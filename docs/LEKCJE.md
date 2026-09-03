@@ -484,6 +484,51 @@ restart aplikacji po `plugin update` (L-0031), `git worktree` zamiast `git archi
 - **Źródło:** E1 planu SPRZATANIE_ARTEFAKTOW (2026-09-03), pierwszy przebieg komendy na własnym
   repozytorium.
 
+### L-0079 — Zamknięta lista brzmień przełącznika jest związana z rodzajem nazwy wiersza · 2026-09-03 · AKTYWNA
+
+- **Trigger:** nowy wiersz `Artefakty robocze | włączone · 100 MB` odczytany przez rdzeń wyszedł
+  jako **wartość nierozpoznana**. Wzorzec `WLACZONY` w `session-signals.js` zna `włączony`
+  i `włączona` — bo wszystkie dotychczasowe wiersze mają nazwę w rodzaju męskim albo żeńskim
+  (`Budżet`, `Rotacja`, `Przegląd`). Nazwa w liczbie mnogiej wymusza `włączone`, którego tam nie ma.
+- **Przyczyna:** zamknięta lista brzmień była pisana pod konkretne wiersze, a nie pod język. Defekt
+  nie milczy — mechanizm ratunkowy zadziałał i wypisał linię o nierozpoznanej wartości — ale wygląda
+  wtedy na błąd człowieka w ustawieniach, a nie na dziurę we wzorcu.
+- **Zasada:** dokładając wiersz czytany maszynowo, sprawdź, czy jego nazwa wymusza inną **formę
+  gramatyczną** przełącznika niż wiersze istniejące. Wymusza → dołóż **własną parę wzorców dla tego
+  wiersza**, a nie poszerzaj wspólnej listy: poszerzenie zmienia po cichu, co przechodzi w każdym
+  innym mechanizmie, i nikt tego nie mierzy.
+- **Źródło:** E2 planu SPRZATANIE_ARTEFAKTOW (2026-09-03), 15 z 29 testów czerwonych na jednej
+  przyczynie.
+
+### L-0080 — Kryterium nieosiągalne wskaż pomiarem wariantu bez wkładu etapu · 2026-09-03 · AKTYWNA
+
+- **Trigger:** punkt weryfikacji „pełny zestaw przekroczeń mieści się w sześciu liniach raportu
+  startu" dał na materiale kontrolowanym **14 linii**. Sam blok `[RelAI przeglad spraw]` ma ich osiem
+  (nagłówek + pięć spraw + „i N dalszych" + ZADANIE) i wszedł do produktu w 1.7.0.
+- **Przyczyna:** kryterium liczy sumę linii **wszystkich** bloków, a limit sześciu linii jest
+  własnością jednego z nich (`startCostReport`, tam 5 z 6). Bez drugiego pomiaru nie da się odróżnić
+  „etap zepsuł raport" od „kryterium było nieosiągalne, zanim etap się zaczął".
+- **Zasada:** punkt weryfikacji o kształcie „całość mieści się w N" mierz **dwa razy w jednym
+  przebiegu**: z wkładem etapu i bez niego (wyłącznik, usunięty wiersz, wariant konfiguracji).
+  Różnica jest wkładem etapu i to ona podlega ocenie; wynik bezwzględny idzie do człowieka razem
+  z obiema liczbami, a nie do dziennika jako „niedowieziony punkt".
+- **Źródło:** E2 planu SPRZATANIE_ARTEFAKTOW (2026-09-03); zmierzone 13 linii bez wiersza
+  `Artefakty robocze` i 14 z nim.
+
+### L-0081 — Ścieżka Windows w JSON-ie na stdin hooka milczy tak samo jak brak markera · 2026-09-03 · AKTYWNA
+
+- **Trigger:** ręczne wywołanie hooka startu z powłoki (`printf … | node session-context.js`) ze
+  ścieżką `C:\Users\…` dało **zero znaków** — dokładnie taki sam wynik, jaki daje folder niebędący
+  projektem RelAI i jaki jest poprawnym wynikiem punktu weryfikacji „cisza poniżej progu".
+- **Przyczyna:** `\U`, `\L`, `\D` nie są poprawnymi sekwencjami ucieczki w JSON-ie, więc
+  `JSON.parse` rzuca, a hook z założenia milczy przy każdym wyjątku. Instrument produkuje wtedy
+  fałszywy dowód **na korzyść tezy**, którą ma sprawdzać.
+- **Zasada:** ścieżkę Windows w payloadzie hooka podawaj z ukośnikami zwykłymi (`C:/Users/…`) albo
+  buduj payload `JSON.stringify`, nie ręcznie. Punkt weryfikacji, którego poprawnym wynikiem jest
+  cisza, sprawdzaj **parą przebiegów**: jeden musi dać niepustą odpowiedź, inaczej mierzysz awarię
+  instrumentu.
+- **Źródło:** E2 planu SPRZATANIE_ARTEFAKTOW (2026-09-03), dowód ciszy hooka po sprzątaniu.
+
 ## Lekcje zwinięte
 
 Pełne wpisy lekcji, których zasady żyją w destylacie „Zasady aktywne" (kompresja 2026-08-20).

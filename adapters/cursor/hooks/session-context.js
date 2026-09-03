@@ -116,6 +116,15 @@ function onSessionStart(input) {
     out.push(linia);
   }
 
+  // Artefakty robocze (1.8.0) — ta sama funkcja rdzenia i ta sama kolejnosc co w adapterze
+  // Claude Code: propozycja stoi po zadaniach i po raportach. Agent w tle dostaje te sama
+  // linie bez propozycji komendy.
+  for (const linia of core.artefaktyRoboczeReport(
+    core.artefaktyRobocze(cwd, { markeryGoscia: MARKERY_GOSCIA }),
+    { interaktywna: input.is_background_agent !== true })) {
+    out.push(linia);
+  }
+
   out.push('Ten folder to projekt RelAI. Zanim odpowiesz merytorycznie, wykonaj rytual startu sesji: ' +
     'przeczytaj CLAUDE.md (albo AGENTS.md), docs/STATE.md (jesli istnieje), docs/DZIENNIK.md ' +
     '(sekcja ryzyk + ostatni wpis), docs/LEKCJE.md (tylko "Zasady aktywne"), docs/USTAWIENIA.md oraz ' +

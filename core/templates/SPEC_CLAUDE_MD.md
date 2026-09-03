@@ -125,7 +125,7 @@ Brzmienie (przetłumacz na język projektu, sensu nie zmieniaj):
 > **Frazy sesji:** „kontynuujemy pracę" → rytuał startu, akapit „gdzie jesteśmy" **i jedno zdanie
 > z propozycją najbliższego kroku**; „sprawdź status" → stan, plany, ryzyka, zaległości
 > dokumentacyjne; „kończymy na dziś" → sync dokumentów, wpis do dziennika, przegląd ryzyk,
-> propozycja commita.
+> sprzątanie artefaktów roboczych, propozycja commita.
 
 Trzeci człon pierwszej frazy jest tym, co najczęściej wypada — zmierzone w pilotażu E10: sesja bez
 wyzwolonego skilla napisała akapit „gdzie jesteśmy" i zakończyła pytaniem „Co dalej?" zamiast
@@ -251,7 +251,7 @@ Czytaj w tej kolejności, nie skanuj repo pełnotekstowo:
 
 **Frazy sesji:** „kontynuujemy pracę" → rytuał, akapit „gdzie jesteśmy" **i zdanie z propozycją
 najbliższego kroku**; „sprawdź status" → stan, plany, ryzyka, zaległości; „kończymy na dziś" →
-sync dokumentów, wpis do dziennika, ryzyka, propozycja commita.
+sync dokumentów, wpis do dziennika, ryzyka, sprzątanie artefaktów roboczych, propozycja commita.
 
 **Sprawa przeterminowana:** pozycja sekcji „Czeka na człowieka" starsza niż `N` dni (wiersz
 `Przegląd spraw człowieka` w [docs/USTAWIENIA.md](docs/USTAWIENIA.md), domyślnie 30) wymusza

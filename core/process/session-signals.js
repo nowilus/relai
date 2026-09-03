@@ -1042,6 +1042,134 @@ function sprawyPrzeterminowaneReport(miara, opcje) {
   return out;
 }
 
+// --- artefakty robocze (1.8.0, plan SPRZATANIE_ARTEFAKTOW E2) ---------------
+// Katalogi robocze etapow i pliki tymczasowe projektu rosna poza Gitem, wiec `git status`
+// o nich milczy i nikt ich nie widzi, dopoki ktos nie spojrzy na wolne miejsce na dysku.
+// Start sesji ma powiedziec o tym JEDNYM zdaniem. Pomiar jest juz napisany i mieszka
+// w core/process/work-artifacts.js (E1) — tutaj stoi wylacznie cienka warstwa: wylacznik
+// z ustawien, zawezenie zrodel i format jednej linii. Drugiej implementacji pomiaru nie ma
+// (ryzyko P4 — dryf rdzenia i adapterow).
+//
+// Zrodlo "repo" (git status --ignored) na start sesji NIE wchodzi: to najdrozsza czesc
+// pomiaru, a hook startu ma limit czasu (ryzyko 3 planu). Pelny obraz daje /relai-clean.
+const NAZWA_ARTEFAKTOW = /^(?:Artefakty robocze|Work artifacts)\b/i;
+// Prog domyslny w MB. Jedyne zrodlo prawdy o tej wartosci to core/templates/SPEC_USTAWIENIA.md
+// — tutaj stoi jej kopia wykonawcza, tak samo jak przy progach budzetu i rotacji.
+const PROG_ARTEFAKTOW_MB = 100;
+const CZLON_MB = /^(\d+)\s*MB\b/i;
+const MB = 1024 * 1024;
+// Wlasna para wzorcow, a nie WLACZONY / WYLACZONY: nazwa tego wiersza jest liczba mnoga
+// ("Artefakty robocze"), wiec przelacznik brzmi "wlaczone", a nie "wlaczony" jak przy
+// budzecie czy rotacji. Wzorce sa lokalne, zeby poszerzenie zamknietej listy brzmien
+// dotknelo wylacznie tego wiersza — pozostale mechanizmy czytaja dokladnie to co dotad.
+const ARTEFAKTY_WLACZONE = /^(?:w[łl][ąa]czone|on|enabled)\b/i;
+const ARTEFAKTY_WYLACZONE = /^(?:wy[łl][ąa]czone|off|disabled)\b/i;
+
+// Rdzen wolajacy rdzen jest dozwolony: oba pliki mieszkaja w katalogu pluginu. Zakaz z L-0012
+// dotyczy kopii narzedzia podkladanej do projektu, ktora zadnego `require` na rdzen miec nie moze.
+// Require jest leniwy, zeby brak jednego pliku rdzenia nie zabral sesji WSZYSTKICH pozostalych
+// rozpoznan — hook adaptera lapie awarie `require` calego modulu i wtedy milknie w calosci.
+let _workArtifacts = null;
+function rdzenArtefaktow() {
+  if (!_workArtifacts) _workArtifacts = require('./work-artifacts.js');
+  return _workArtifacts;
+}
+
+// Zwraca:
+//   null                                 — folder nie jest projektem RelAI albo nie ma ustawien
+//   { wlaczone:false, brakWiersza:true } — projekt sprzed 1.8.0: wiersza nie ma, wiec cisza;
+//                                          projekt nie zaczyna nagle mowic sam z siebie
+//   { wlaczone:false }                   — wylaczone wprost
+//   { wlaczone:false, nierozpoznana }    — wartosc spoza zamknietej listy brzmien: pomiaru nie
+//                                          ma, ale adapter mowi o tym jednym zdaniem (L-0025,
+//                                          L-0035, ryzyko 6 planu) — cisza bylaby tu bledem
+//   { wlaczone:true, ... }               — pomiar
+function artefaktyRobocze(cwd, opcje) {
+  try {
+    const o = opcje || {};
+    if (!cwd) return null;
+    const markerFile = relaiMarkerFile(cwd, o.markeryGoscia);
+    if (!markerFile) return null;
+
+    const plikUstawien = pierwszyIstniejacy(path.join(cwd, 'docs'), ['USTAWIENIA.md', 'SETTINGS.md']);
+    if (!plikUstawien) return null;
+
+    const komorka = komorkaDecyzji(czytaj(plikUstawien), NAZWA_ARTEFAKTOW);
+    if (komorka === null) return { wlaczone: false, brakWiersza: true };
+    if (ARTEFAKTY_WYLACZONE.test(komorka)) return { wlaczone: false };
+    if (!ARTEFAKTY_WLACZONE.test(komorka)) {
+      return { wlaczone: false, nierozpoznana: komorka.split('·')[0].trim().slice(0, 60) };
+    }
+
+    let progMB = PROG_ARTEFAKTOW_MB;
+    for (const czlon of String(komorka).split('·').map((c) => c.trim()).slice(1)) {
+      const m = czlon.match(CZLON_MB);
+      if (m) progMB = parseInt(m[1], 10);
+    }
+
+    // Suma dotyczy KANDYDATOW, nie wszystkich pozycji: katalog etapu w toku albo pozycja
+    // z markerem "zachowaj" nie ma prawa podniesc raportu, bo nikt jej nie skasuje.
+    const miara = rdzenArtefaktow().artefaktyRobocze(cwd, {
+      zrodla: ['work', 'temp'],
+      limitWpisow: o.limitWpisow,
+    });
+    const kandydaci = miara.kandydaci.slice().sort((a, b) => b.bajty - a.bajty);
+
+    return {
+      wlaczone: true,
+      progMB,
+      suma: miara.suma,
+      sumaMB: miara.suma / MB,
+      pozycji: kandydaci.length,
+      najciezsze: kandydaci.slice(0, 3).map((p) => ({
+        wzgledna: p.wzgledna,
+        bajty: p.bajty,
+        pochodzenie: p.pochodzenie,
+      })),
+      niepelne: kandydaci.some((p) => p.niepelne),
+      czas: miara.czas,
+    };
+  } catch (_) {
+    return null;
+  }
+}
+
+// Raport dla kontekstu startu — ASCII (L-0016) i DOKLADNIE JEDNA linia albo zero.
+// Start sesji konczy sie na zdaniu: hook niczego nie kasuje i nie zostawia sladu, a
+// sprzataniem zajmuje sie komenda albo krok 2a rytualu zamkniecia (ryzyko 8, L-0036).
+// Cisza jest zachowaniem domyslnym: ponizej progu, przy wierszu wylaczonym i w projekcie
+// bez wiersza nie pada ani jeden znak.
+function artefaktyRoboczeReport(miara, opcje) {
+  if (!miara) return [];
+  const o = opcje || {};
+
+  if (miara.nierozpoznana) {
+    return ['[RelAI artefakty robocze] Wartosc przelacznika w wierszu "Artefakty robocze" (' +
+      ascii(miara.nierozpoznana) + ') jest nierozpoznana, wiec raport o artefaktach roboczych ' +
+      'jest wylaczony. Dozwolone wartosci: wlaczone / wylaczone (on / off).'];
+  }
+  if (!miara.wlaczone) return [];
+  if (!(miara.sumaMB > miara.progMB)) return [];
+
+  const waga = (b) => (b / MB).toFixed(1) + ' MB';
+  // Najwyzej trzy pozycje z nazwy, zeby jedna linia nie urosla w akapit; reszta idzie jako
+  // jawna liczba, nie jako cisza — obciete bez sladu wygladaloby na komplet (jak w budzecie).
+  const lista = miara.najciezsze
+    .map((p) => ascii(p.wzgledna) + ' ' + waga(p.bajty) + ' (' + ascii(p.pochodzenie) + ')')
+    .join('; ');
+  const reszta = miara.pozycji - miara.najciezsze.length;
+
+  return ['[RelAI artefakty robocze] Katalogi robocze i pliki tymczasowe tego projektu waza ' +
+    waga(miara.suma) + ' w ' + miara.pozycji + ' poz. przy progu ' + miara.progMB + ' MB. ' +
+    'Najciezsze: ' + lista + (reszta > 0 ? '; pozostale: ' + reszta + ' poz' : '') + '.' +
+    (miara.niepelne ? ' Pomiar niepelny: pozycja przekroczyla limit wpisow.' : '') +
+    // Sesja nieinteraktywna dostaje ten sam raport bez propozycji: kasowanie bez czlowieka
+    // przy klawiaturze jest zakazane, wiec proponowanie komendy nie ma do kogo mowic.
+    (o.interaktywna === false ? '' :
+      ' Zaproponuj uzytkownikowi komende /relai-clean - pokaze raport w grupach i skasuje ' +
+      'wylacznie po potwierdzeniu grupy.')];
+}
+
 module.exports = {
   isGuest,
   relaiMarkerFile,
@@ -1062,4 +1190,6 @@ module.exports = {
   pozycjeCzeka,
   sprawyPrzeterminowane,
   sprawyPrzeterminowaneReport,
+  artefaktyRobocze,
+  artefaktyRoboczeReport,
 };

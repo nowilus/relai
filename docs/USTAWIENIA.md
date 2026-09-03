@@ -23,6 +23,7 @@ Rejestr wyborów użytkownika dla tego projektu. Każdy wpis: data, czego dotycz
 | 2026-08-12 | Język warstw adapterów | Warstwa czytana przez model — angielski; warstwa czytana przez człowieka — polski; dokumenty projektów w języku projektu (Aneks A planu ROZWOJ_PO_WYDANIU) |
 | 2026-08-20 | Budżet startu sesji | włączony · start 80 KB · CLAUDE 10 KB · STATE 12 KB · ryzyka 12 KB · zasady 30 KB · ustawienia 6 KB · status 10 KB |
 | 2026-09-01 | Przegląd spraw człowieka | włączony · 30 dni |
+| 2026-09-03 | Artefakty robocze | włączone · 100 MB |
 
 ## Ustawienia wycofane
 

@@ -126,6 +126,14 @@ function onSessionStart(input) {
     out.push(linia);
   }
 
+  // Artefakty robocze (1.8.0). Stoja PO raportach wymagajacych dzialania i po sprawach
+  // czekajacych na czlowieka: to propozycja, nie zadanie — kolejnosc idzie od zadan przez
+  // raporty do propozycji. Ponizej progu i bez wiersza w ustawieniach = zero znakow.
+  for (const linia of core.artefaktyRoboczeReport(
+    core.artefaktyRobocze(cwd, { markeryGoscia: MARKERY_GOSCIA }))) {
+    out.push(linia);
+  }
+
   out.push('Ten folder to projekt RelAI. Zanim odpowiesz merytorycznie, wykonaj rytual startu sesji: ' +
     'przeczytaj CLAUDE.md, docs/STATE.md (jesli istnieje), docs/DZIENNIK.md (sekcja ryzyk + ostatni wpis), ' +
     'docs/LEKCJE.md (tylko "Zasady aktywne"), docs/USTAWIENIA.md oraz STATUS.md aktywnego planu; ' +

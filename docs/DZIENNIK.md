@@ -9,8 +9,8 @@
 | P1 | Adaptery Cursor/Codex nie egzekwują blokad harnessu — sekret albo zmiana konfiguracji przejdzie tam, gdzie w Claude Code stoi ściana (plan ROZWOJ_PO_WYDANIU) | **Średni** (2026-08-12 po E4; wcześniej wysoki) | **OTWARTE** | Część sekretowa jest zamknięta dowodem z aplikacji: w Cursorze zadziałały obie warstwy — reguła odmówiła pierwsza, a przy prośbie o próbę mimo reguły zapis klucza odbił hook `preToolUse` werdyktem `permission: deny`; niezależnie od narzędzia commit z sekretem zatrzymuje gitowy pre-commit. Otwarte z dwóch powodów: Cursor nie ma egzekwowanego `ask`, więc pliki konfiguracyjne chroni tam sama reguła zamiast bramki, a Codex pozostaje niezmierzony do odmrożenia E7 planu ROZWOJ_PO_WYDANIU. Zmierzone: 2026-08-12 (E4), 2026-08-12 (E5), 2026-08-17 (E6) |
 | P2 | Odpowiednik R2 w Cursor/Codex: bez auto-wyzwalania skilli proces zależy od dyscypliny modelu (plan ROZWOJ_PO_WYDANIU) | **Niski dla Cursora, średni dla Codeksa** (2026-08-17 po E6; wcześniej średni) | **OTWARTE (już tylko Codex)** | Reguła zawsze-w-kontekście działa w Cursorze bez żadnego wyzwalacza: pilotaż przeszedł pełny cykl na trzech modelach, a cały etap poprowadził model spoza Anthropic (Grok 4.6) — rytuał startu, karta etapu z kontrolą modelu, granica zakresu, rytuał zamknięcia z promptem następnego etapu. Dyscyplina procesu nie zależy od dostawcy modelu. Otwarte już tylko dla Codeksa: warstwą nośną ma tam być `AGENTS.md` z twardym limitem 32 KiB, a skille wyzwalają się dopasowaniem opisu — tym samym mechanizmem, który przy R2 okazał się zależny od modelu. Zmierzone: 2026-08-12 (E4), 2026-08-12 (E5), 2026-08-17 (E6) |
 
-| S1 | Bramka dokumentacyjna przepuści coś potrzebnego — plik nieśledzony, o którym architektura milczy, a bez którego nie da się powtórzyć pomiaru (plan SPRZATANIE_ARTEFAKTOW, ryzyko 1) | **Wysoki** (2026-09-03, przy powstaniu mechanizmu) | **OTWARTE** | Kasowanie wyłącznie po „tak" na grupę z pełną listą pozycji; pliki śledzone nigdy nie są kandydatami; niepewność rozstrzygana na korzyść ochrony; „zostaw na zawsze" dopisuje marker, więc pytanie nie wraca. Pierwszy pomiar (E1, własne repo): 8 grup, 9 pozycji chronionych z powodem — w tym `benchmark`-owy odpowiednik, czyli `.claude/relai/templates` z powodem `opisane` i wskazaniem `README.md:150`. **Bramka przepuściła dorobek własnego etapu**: dwa nowe, niezacommitowane pliki produktu stanęły w grupach jako kandydaci (L-0078) — ochroną jest tam `git add`, nie marker, ale to jest realne trafienie tego ryzyka. Niezmierzone na cudzym projekcie: raport na PolyFlow zostaje jako bramka manualna planu. Zmierzone: 2026-09-03 (E1) |
-| S2 | Narzędzie skasuje coś poza dozwolonymi korzeniami — zła ścieżka względna, dowiązanie prowadzące na zewnątrz, junction do innego dysku (plan SPRZATANIE_ARTEFAKTOW, ryzyko 2) | **Wysoki** (2026-09-03, przy powstaniu mechanizmu) | **OTWARTE** | Asercje w `kasuj`: każda ścieżka po `realpath` musi leżeć **pod** katalogiem projektu albo pod `os.tmpdir()`, nie być którymkolwiek korzeniem ani `.git` projektu; dowiązanie usuwane jako dowiązanie, bez wchodzenia do celu. Pierwszy pomiar (E1) z dowodami negatywnymi: ścieżka w katalogu domowym i `.git` projektu → dwie odmowy, zero skasowanych, `.git` **31 plików przed i 31 po**; junction wskazujący poza kandydata → dowiązanie zniknęło, cel **2 pliki przed i 2 po**. Klon repozytorium z obiektami tylko do odczytu skasowany bez ani jednego niepowodzenia (14 923 442 B → 0 B). Niezmierzone: zachowanie przy junction na inny dysk i przy ścieżce dłuższej niż limit Windows. Zmierzone: 2026-09-03 (E1) |
+| S1 | Bramka dokumentacyjna przepuści coś potrzebnego — plik nieśledzony, o którym architektura milczy, a bez którego nie da się powtórzyć pomiaru (plan SPRZATANIE_ARTEFAKTOW, ryzyko 1) | **Wysoki** (2026-09-03, przy powstaniu mechanizmu) | **OTWARTE** | Kasowanie wyłącznie po „tak" na grupę z pełną listą pozycji; pliki śledzone nigdy nie są kandydatami; niepewność rozstrzygana na korzyść ochrony; „zostaw na zawsze" dopisuje marker, więc pytanie nie wraca. Pierwszy pomiar (E1, własne repo): 8 grup, 9 pozycji chronionych z powodem — w tym `benchmark`-owy odpowiednik, czyli `.claude/relai/templates` z powodem `opisane` i wskazaniem `README.md:150`. **Bramka przepuściła dorobek własnego etapu**: dwa nowe, niezacommitowane pliki produktu stanęły w grupach jako kandydaci (L-0078) — ochroną jest tam `git add`, nie marker, ale to jest realne trafienie tego ryzyka. Niezmierzone na cudzym projekcie: raport na PolyFlow zostaje jako bramka manualna planu. E2: drugi przebieg bez ani jednego fałszywego kandydata — 1 grupa (katalog etapu zamkniętego), 5 pozycji chronionych, w tym `templates` powodem `opisane`. Zmierzone: 2026-09-03 (E1, E2) |
+| S2 | Narzędzie skasuje coś poza dozwolonymi korzeniami — zła ścieżka względna, dowiązanie prowadzące na zewnątrz, junction do innego dysku (plan SPRZATANIE_ARTEFAKTOW, ryzyko 2) | **Wysoki** (2026-09-03, przy powstaniu mechanizmu) | **OTWARTE** | Asercje w `kasuj`: każda ścieżka po `realpath` musi leżeć **pod** katalogiem projektu albo pod `os.tmpdir()`, nie być którymkolwiek korzeniem ani `.git` projektu; dowiązanie usuwane jako dowiązanie, bez wchodzenia do celu. Pierwszy pomiar (E1) z dowodami negatywnymi: ścieżka w katalogu domowym i `.git` projektu → dwie odmowy, zero skasowanych, `.git` **31 plików przed i 31 po**; junction wskazujący poza kandydata → dowiązanie zniknęło, cel **2 pliki przed i 2 po**. Klon repozytorium z obiektami tylko do odczytu skasowany bez ani jednego niepowodzenia (14 923 442 B → 0 B). E2: kasowanie 141,2 MB w katalogu roboczym etapu zamkniętego, zero niepowodzeń, `%TEMP%` i `work/` puste po operacji. Niezmierzone: zachowanie przy junction na inny dysk i przy ścieżce dłuższej niż limit Windows. Zmierzone: 2026-09-03 (E1, E2) |
 
 > Ryzyka zamknięte R1, R3, R4, R6, R7, R8 (6 pozycji) są w
 > [docs/archiwum/ryzyka/RYZYKA_2026-08-21.md](archiwum/ryzyka/RYZYKA_2026-08-21.md)
@@ -1470,3 +1470,143 @@ Autor: RelAI (Opus) + Lukasz
   grupie (śledzone), `benchmark/` ma stać wśród chronionych z powodem `opisane` i wskazaniem
   `CLAUDE.md` z linią, `tools/cache/` ma być kandydatem. Zapisane jako bramka manualna planu;
   termin najpóźniej razem z E4.
+
+### 2026-09-03 — E2: jedno zdanie na starcie sesji i krok 2a rytuału zamknięcia
+
+Autor: RelAI (Opus) + Lukasz
+
+**Zrobione:**
+
+- **`core/process/session-signals.js`** — dwie funkcje jako **cienka warstwa** nad narzędziem z E1,
+  bez drugiej implementacji pomiaru (P4). `artefaktyRobocze(cwd, opcje)` czyta wiersz `Artefakty
+  robocze` z ustawień (kotwica + próg w MB), woła `work-artifacts.js` **wyłącznie ze źródeł `work`
+  i `temp`** — `git status --ignored` na start sesji nie wchodzi — i zwraca
+  `{wlaczone, progMB, suma, sumaMB, pozycji, najciezsze[3], niepelne, czas}`. Suma liczy
+  **kandydatów**, nie wszystkie pozycje: katalog etapu w toku ani pozycja z markerem nie podnoszą
+  raportu, po którym nie ma czego zrobić. `artefaktyRoboczeReport(miara, opcje)` zwraca **tablicę
+  jednej linii albo pustą**, z opcją `interaktywna` jak `startCostReport`.
+- **Własna para wzorców przełącznika** — `ARTEFAKTY_WLACZONE` / `ARTEFAKTY_WYLACZONE`. Nazwa wiersza
+  jest w liczbie mnogiej, więc przełącznik brzmi `włączone`, a wspólne `WLACZONY` w rdzeniu zna
+  wyłącznie `włączony` / `włączona` (L-0079). Wzorce są lokalne — brzmienia czytane przez budżet,
+  rotację i przegląd spraw zostały nietknięte.
+- **Oba hooki `session-context`** (Claude Code i Cursor) — wywołanie obok istniejących raportów.
+  **Kolejność w raporcie startu jest świadoma:** zadania (`ZADANIE PIERWSZE`) → budżet i progi
+  dokumentów → sprawy przeterminowane → **artefakty robocze na końcu**, bo to jedyny blok, który
+  niczego nie wymaga, tylko proponuje komendę. Cursor przekazuje
+  `interaktywna: input.is_background_agent !== true`.
+- **`core/templates/SPEC_USTAWIENIA.md`** — sekcja „Wiersz `Artefakty robocze` (od 1.8.0)" z kotwicą,
+  zamkniętą listą brzmień, zachowaniem przy wartości nierozpoznanej i regułą „suma z kandydatów";
+  **wiersz 18** katalogu progów (17 → 18); lista nietykalnych w rotacji ustawień **pięć → sześć**;
+  tabela wierszy czytanych maszynowo **cztery → pięć**; wiersz w tabeli wpisów tworzonych przy
+  inicjalizacji (wartość domyślna bez pytania, jak trzy poprzednie).
+- **`docs/USTAWIENIA.md`** — wiersz `| 2026-09-03 | Artefakty robocze | włączone · 100 MB |`.
+- **Krok `2a` rytuału zamknięcia** w skillu `relai-core` i w regule `relai-core.mdc`: po rotacji,
+  przed wpisem do dziennika. Numer `2a`, a nie `3`, bo „krok 2" jest cytowany jako adres rotacji
+  w jedenastu miejscach. Krok pyta **wyłącznie** o katalogi etapów i odnóg zamkniętych oraz o całość
+  ponad progiem, partiami po cztery, i **nie produkuje własnego komunikatu** poza wpisem sesji.
+- **Linia fraz sesji** — `core/templates/SPEC_CLAUDE_MD.md` (oba miejsca) i `CLAUDE.md` tego
+  repozytorium: „kończymy na dziś" → … przegląd ryzyk, **sprzątanie artefaktów roboczych**,
+  propozycja commita.
+- **`docs/ARTEFAKTY.md`** — cztery podbicia wersji: `SPEC_USTAWIENIA.md` → 2, `SPEC_CLAUDE_MD.md` → 2,
+  skill `relai-core` → 3, reguła `relai-core.mdc` → 2. `session-signals.js` i hooki są nośnikiem
+  i do rejestru nie wchodzą.
+
+**Zweryfikowane — jak dokładnie:**
+
+- **Testy rdzenia i obu hooków: 29 scenariuszy, 29 przeszło** (`test-e2.js`, wyrażenia regularne
+  w pliku, materiał budowany przez skrypt). Pierwszy przebieg dał **15 czerwonych na jednej
+  przyczynie** — brzmienie `włączone` poza wzorcem (L-0079); po poprawce 28/29, po zdjęciu pauzy
+  z linii raportu 29/29.
+- **Cisza poniżej progu jest nienaruszalna.** Hook startu na tym repozytorium po sprzątaniu
+  (payload `SessionStart` przez stdin, `work/` puste, `%TEMP%` bez pozycji `relai-*`) — pełne
+  wyjście, **zero** wystąpień `[RelAI artefakty robocze]`:
+
+  ```
+  [RelAI session-context]
+  Data dzisiejsza: 2026-09-03. Daty do wpisow bierz stad, nie z pamieci modelu.
+  Ten folder to projekt RelAI. Zanim odpowiesz merytorycznie, wykonaj rytual startu sesji: (…)
+  Specyfikacje dokumentow RelAI sa skopiowane lokalnie do .claude/relai/templates/ (32 plikow). (…)
+  Ustawienia globalne uzytkownika (~/.claude/relai/USTAWIENIA.md; (…)):
+  # USTAWIENIA — preferencje globalne
+  (…tabela dwóch wierszy ustawień globalnych…)
+  ```
+
+  Mocniejszy wariant tej samej ciszy padł **przed** sprzątaniem: przy **141,2 MB** materiału
+  w katalogu etapu **w toku** hook też milczał — ochrona `etap trwa` trzyma, a nie tylko pusty
+  katalog.
+- **Powyżej progu pada dokładnie jedna linia** (fixture 105 MB w pięciu pozycjach):
+
+  ```
+  [RelAI artefakty robocze] Katalogi robocze i pliki tymczasowe tego projektu waza 105.0 MB w 5 poz.
+  przy progu 100 MB. Najciezsze: .claude/relai/work/A/E1 40.0 MB (nieznane); .claude/relai/work/B/E1
+  30.0 MB (nieznane); .claude/relai/work/C/E1 20.0 MB (nieznane); pozostale: 2 poz. Zaproponuj
+  uzytkownikowi komende /relai-clean - pokaze raport w grupach i skasuje wylacznie po potwierdzeniu grupy.
+  ```
+
+  Trzy pozycje z nazwy, reszta jako liczba, linia bez znaku nowej linii i **czysto ASCII**.
+- **Oba warianty w jednym przebiegu** (zasada 4): ten sam materiał, wiersz `włączone` → jedna linia;
+  wiersz `wyłączone` → zero linii, a **pozostałe wyjście hooka identyczne bajt w bajt** (porównanie
+  po odjęciu tej jednej linii).
+- **Wartość nierozpoznana nie milczy:** `tak · 100 MB` → jedna linia z brzmieniami
+  `wlaczone / wylaczone (on / off)`, i pada **także poniżej progu** (materiał 5 MB). **Brak wiersza
+  → cisza** mimo 120 MB materiału. `off` i `on · 250 MB` rozpoznane; człon pominięty daje próg 100.
+- **Sesja nieinteraktywna** (Cursor, `is_background_agent: true`) → ta sama linia **bez** propozycji;
+  wariant `false` → z propozycją, oba w jednym przebiegu.
+- **Czas — cel spełniony.** `artefaktyRobocze` (źródła `work` + `temp`, mediana z 5 przebiegów):
+  projekt bez katalogu roboczego **35 ms**; katalog **30 MB / 3 000 plików — 116 ms** przy celu
+  **< 300 ms** (`FAKT`, 2026-09-03); katalog **20 500 plików — 720 ms** z `niepelne: true`.
+  `LIMIT_WPISOW` został na 20 000 — obniżanie nie było potrzebne. Dla porównania to samo wywołanie
+  ze źródłem `repo`: **77 ms** na czystym repo, ale **2 152–2 335 ms** na materiale z E1 — dlatego
+  hook tego źródła nie woła.
+- **Krok 2a nie przenumerował rytuału** (dowód negatywny): `git grep` po `krok 2 | kroku 2 | step 2`
+  w skillu, regule Cursora i specyfikacjach — **11 odwołań w HEAD, te same 11 w drzewie roboczym**,
+  co do treści; przybyły wyłącznie dwa zdania mówiące o samym kroku 2a.
+- **Wiersz ustawień czytany maszynowo:** `core.artefaktyRobocze` na realnym `docs/USTAWIENIA.md`
+  tego repozytorium zwraca `wlaczone: true, progMB: 100` — sprawdzone wywołaniem funkcji, nie okiem.
+- **Liczby w specyfikacji:** katalog progów **18 wierszy danych**, lista nietykalnych **6 pozycji** —
+  policzone `awk`-iem na pliku.
+- **`node core/tools/validate-adapters.js` → kod 0**, oba adaptery po 4 odwołania do rdzenia.
+- **Wersja nie podbita:** walidator melduje „numery wersji: 3 zrodel, wartosc 1.7.0"; wszystkie
+  trafienia `1.8.0` siedzą w planie, promptach, skillu, regule, hookach, rdzeniu, specyfikacji
+  i dokumentach — żadne w `MANIFEST.json`, `plugin.json`, `marketplace.json`.
+- **Hook `profile-rules` milczy** po wpisach do rejestru — sprawdzone wywołaniem hooka z payloadem
+  `PostToolUse` dla każdego z czterech artefaktów: cztery razy cisza.
+- **Sprzątanie po etapie:** raport → potwierdzenie właściciela → `kasuj`. **141,2 MB / 1 pozycja
+  przed, 0,0 MB po**, zero niepowodzeń; `.claude/relai/work/` puste, `%TEMP%` bez pozycji `relai-*`.
+  Pięć pozycji chronionych (`templates` powodem `opisane / README.md:150`, reszta jako
+  `zaleznosci / narzedzia`) nietkniętych.
+
+**Punkt weryfikacji, który nie przeszedł w brzmieniu dosłownym — i decyzja:**
+
+- **„Pełny zestaw przekroczeń mieści się w sześciu liniach raportu startu".** Policzone na projekcie
+  kontrolowanym (budżet + progi dokumentów + 6 spraw przeterminowanych + 110 MB artefaktów):
+  **14 linii** raportu. Rozkład: `startCostReport` **5 linii przy własnym limicie 6** (nienaruszony),
+  `[RelAI przeglad spraw]` **8 linii** (nagłówek + 5 spraw + „i N dalszych" + ZADANIE — mechanizm
+  z 1.7.0), `[RelAI artefakty robocze]` **1 linia**. Ten sam materiał **bez** wiersza `Artefakty
+  robocze`, czyli stan sprzed tego etapu: **13 linii**. Wkład E2 to dokładnie jedna linia, czyli to,
+  czego wymaga mitygacja ryzyka 8 planu; kryterium w brzmieniu „całość w sześciu" było arytmetycznie
+  nieosiągalne, zanim etap się zaczął.
+- **Decyzja właściciela (2026-09-03): przyjąć i przeformułować.** Limit sześciu linii jest
+  własnością raportu budżetu, nie sumy wszystkich bloków; ryzyko 8 mierzy się wkładem etapu.
+  W kodzie nic nie zmieniono. Lekcja z tego pomiaru: **L-0080**.
+
+**Świadomie odłożone:**
+
+- **Katalog roboczy etapu skasowany razem ze skryptami pomiarowymi** (`test-e2.js`, `czas-e2.js`,
+  `limit-linii.js`, `sonda-czasu.js`) — zgodnie z regułą planu i precedensem E1. Treść dowodów
+  została w tym wpisie; E3 buduje własne instrumenty, jeśli będą potrzebne.
+- **Przykład pełnego pliku ustawień w `SPEC_USTAWIENIA.md` nie dostał wiersza `Artefakty robocze`** —
+  niesie linię `Wersja RelAI: 1.7.0`, więc wiersz z 1.8.0 byłby w nim niespójny. Wchodzi w E4 razem
+  z podbiciem wersji; wyłapie go `grep` po starym numerze, którego wymaga L-0061.
+- **Reguła Cursora nie dostała sekcji o markerze `# relai: zachowaj`** — E1 dołożył ją wyłącznie do
+  skilla Claude Code. To jest realny rozjazd adapterów (P4), ale poza zakresem tego etapu.
+- **Lekcje L-0079…L-0081 bez pozycji w destylacie** — „Zasady aktywne" mają **15 przy limicie 15**,
+  a nowa pozycja wchodzi wyłącznie przez kompresję tematyczną za zgodą człowieka. Wszystkie trzy
+  mieszczą się tematycznie w zasadach 5 i 7.
+
+**Do zrobienia przez człowieka:**
+
+- **Raport `/relai-clean` na PolyFlow** — bramka z E1, nadal otwarta; sesja E2 też nie miała dostępu
+  do tamtego folderu. Termin bez zmian: najpóźniej razem z E4.
+- **Ikona `clean.svg` w README** — bramka z akceptacji planu, potrzebna przed E4; wciąż otwarta,
+  razem z otwartą sprawą grubości kreski ikon renderowanych w 17–23 px.

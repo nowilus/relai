@@ -67,8 +67,17 @@ Codeksa. **Aktywny plan: SPRZATANIE_ARTEFAKTOW** — 1 etap z 4: narzędzie rdze
   śledzony przez gita nie jest kandydatem nigdy, a lokalną notatkę właściciela chroni linia-marker
   `# relai: zachowaj` w `.gitignore`. Pierwszy realny przebieg (tutaj, 2026-09-03): 8 grup,
   9 pozycji chronionych z powodem, **0,59 MB / 25 121 plików sprzątnięte, 0 B po**. Jest
-  w repozytorium, **jeszcze nie w wydaniu** — start sesji i rytuał zamknięcia zaczną o tym mówić
-  w E2, ikona i wydanie 1.8.0 to E4.
+  w repozytorium, **jeszcze nie w wydaniu** — ikona i wydanie 1.8.0 to E4.
+- **Mechanizm mówi sam, bez pytania — i sprząta w rytuale.** Start sesji dostał **dokładnie jedno
+  zdanie**: waga, liczba pozycji, próg, trzy najcięższe pozycje z pochodzeniem, reszta jako liczba
+  i propozycja `/relai-clean`. Poniżej progu **100 MB**, przy wierszu `wyłączone` i w projekcie bez
+  wiersza — zero znaków; wartość spoza listy brzmień nie milczy, tylko mówi, co jest dozwolone.
+  Rytuał „kończymy na dziś" ma krok **2a**: po rotacji, przed wpisem, pyta wyłącznie o katalogi
+  etapów zamkniętych i o całość ponad progiem. Hook mierzy katalog roboczy i `%TEMP%`, **nie**
+  skanuje repozytorium — `git status --ignored` należy do komendy. Zmierzone 2026-09-03: **116 ms**
+  na katalogu 30 MB / 3 000 plików przy celu poniżej 300 ms, testy **29/29**, sprzątanie po etapie
+  **141,2 MB → 0**. Ochrona `etap trwa` trzyma: przy 141,2 MB w katalogu etapu **w toku** start
+  sesji nadal milczał.
 - W folderze, który nie jest projektem RelAI, plugin jest całkowicie niewidoczny.
 
 ## Nad czym pracujemy teraz
@@ -78,16 +87,17 @@ Codeksa. **Aktywny plan: SPRZATANIE_ARTEFAKTOW** — 1 etap z 4: narzędzie rdze
   Dopóki nie wejdzie, **ryzyko R5 zostaje otwarte**, zawężone już wyłącznie do tego jednego
   projektu: mechanizm jest kompletny i zmierzony na dwóch projektach z trzech.
 - **Plan ROZWOJ_PO_WYDANIU pozostaje zamrożony** (6/8). E7 — adapter Codeksa — czeka na dostęp.
-- **Plan SPRZATANIE_ARTEFAKTOW: E1 zrealizowany 2026-09-03, E2 gotowy do startu** (1/4, wydanie 1.8.0
-  na końcu). E2 daje mechanizmowi głos bez pytania: jedna linia na starcie sesji powyżej progu
-  **100 MB** i krok **2a** rytuału „kończymy na dziś". Punkt odniesienia dla limitu czasu hooka:
-  pomiar na czystym repozytorium **86 ms**, na katalogu 25 000 plików **1 324 ms** z flagą `niepelne`.
-  Po co: porządki w PolyFlow 2026-09-03 pokazały ~550 MB artefaktów etapowych poza Gitem
-  i w `%TEMP%` (FAKT), a punkt „brak plików tymczasowych” w `SPEC_PROMPT_ETAPU.md` mówi
-  wyłącznie o repo. Etap dostaje katalog roboczy `.claude/relai/work/<TEMAT>/E<N>/`, sprzątanie
-  ma cztery momenty (zamknięcie etapu, „kończymy na dziś”, zdanie na starcie sesji, `/relai-clean`)
-  i zawsze ten sam tryb: raport w grupach, jedno „tak” na grupę, bramka dokumentacyjna. Rozstrzygnięte przy
-  akceptacji: marker `# relai: zachowaj`, próg 100 MB; przed E4 czeka ikona `clean.svg`. Plan:
+- **Plan SPRZATANIE_ARTEFAKTOW: E1 i E2 zrealizowane 2026-09-03, E3 gotowy do startu** (2/4, wydanie
+  1.8.0 na końcu). E3 to **prewencja i same specyfikacje**: prompt etapowy i prompt odnogi mają
+  nazywać katalog roboczy **z góry**, a martwy punkt weryfikacji „brak plików tymczasowych" (mówi
+  wyłącznie o repozytorium) zastąpi punkt o katalogu roboczym przejrzanym raportem i skasowanym po
+  „tak". Dotyka `SPEC_PROMPT_ETAPU.md`, `SPEC_ODNOGA.md`, skilla i reguły planowania oraz kart
+  potwierdzenia `/relai-stage` i `/relai-branch` — kodu nie dotyka wcale. Po co: porządki w PolyFlow
+  2026-09-03 pokazały ~550 MB artefaktów etapowych poza Gitem i w `%TEMP%` (FAKT). Sprzątanie ma
+  cztery momenty (zamknięcie etapu, „kończymy na dziś", zdanie na starcie sesji, `/relai-clean`)
+  i zawsze ten sam tryb: raport w grupach, jedno „tak" na grupę, bramka dokumentacyjna.
+  Rozstrzygnięte: marker `# relai: zachowaj`, próg 100 MB, limit linii raportu startu; przed E4
+  czeka ikona `clean.svg`. Plan:
   [docs/plany/SPRZATANIE_ARTEFAKTOW/](plany/SPRZATANIE_ARTEFAKTOW/STATUS.md).
 
 ## Co dalej
@@ -169,17 +179,17 @@ Pułapki: [PULAPKI.md](PULAPKI.md)
 
 ### Liczby
 
-Etapy: BUDOWA_RELAI 10/10 • ROZWOJ_PO_WYDANIU 6/8 (ZAMROŻONY) • OPTYMALIZACJA_KONTEKSTU 5/5 •
+Etapy: BUDOWA_RELAI 10/10 • ROZWOJ_PO_WYDANIU 6/8 (ZAMROŻONY) • OPTYMALIZACJA_KONTEKSTU 5/5 • SPRZATANIE_ARTEFAKTOW **2/4** •
 HIGIENA_DOKUMENTOW **6/6 (ZREALIZOWANY 2026-09-01)** •
 Warstwa startowa RelAI: **37,0 KB / 80 KB**, raport startu **0 znaków** • Warstwa startowa
 PolyFlow: **157,3 KB / 80 KB**, raport **5 linii przy limicie 6** • Dziennik RelAI: **107,4 KB /
-próg 150 KB** • Lekcje 38,5 KB / 24 lekcje w żywym rejestrze, ostatnia
-L-0078 • Sprawy czekające na człowieka: **3 tutaj**, **32 w PolyFlow**, żadna nieprzeterminowana
-przy progu 30 dni • Progi w katalogu: **17, z tego 15 z adresem egzekwowania** •
+próg 150 KB** • Lekcje **27 lekcji** w żywym rejestrze, ostatnia
+**L-0081** • Sprawy czekające na człowieka: **3 tutaj**, **32 w PolyFlow**, żadna nieprzeterminowana
+przy progu 30 dni • Progi w katalogu: **18, z tego 16 z adresem egzekwowania** •
 Zasady aktywne: **15 przy limicie 15** •
 Scenariusze akceptacyjne: 4/4 zdane + pilotaż Cursora • Adaptery: 2 •
 Modele, na których zmierzono proces: 5 (Fable, Opus, Haiku, Composer/auto, Grok 4.6) •
-Projekty na 1.7.0: 2 (RelAI, PolyFlow) • Aktywny plan: SPRZATANIE_ARTEFAKTOW **1/4** (E1 ZREALIZOWANY 2026-09-03, E2 gotowy) • Otwarte wątki: 3 odnogi zamrożonego planu •
+Projekty na 1.7.0: 2 (RelAI, PolyFlow) • Aktywny plan: SPRZATANIE_ARTEFAKTOW **2/4** (E1 i E2 ZREALIZOWANE 2026-09-03, E3 gotowy) • Otwarte wątki: 3 odnogi zamrożonego planu •
 Artefakty w rejestrze: 39 • Otwarte bramki manualne: **4** (zamknięta lista rdzeni + trzy planu
 SPRZATANIE_ARTEFAKTOW: ikona `clean.svg`, markery w PolyFlow, raport na PolyFlow) •
 Otwarte ryzyka: 6 • Zamknięte ryzyka: 6 (w archiwum) • Progi rotacji: dziennik 150 KB, lekcje

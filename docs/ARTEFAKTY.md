@@ -30,7 +30,7 @@ z gita, żeby było widać, które artefakty żyją. Pełna historia treści jes
 | Przewodnik po specyfikacjach | `core/templates/README.md` | 1 | 2026-08-07 | wpis startowy; ostatnia zmiana 2026-08-20 | Mówi, że pliki obok **nie są szablonami do skopiowania**, tylko instrukcjami generacji dla modelu (D-60) — bez tego adapter kopiowałby specyfikację do projektu użytkownika |
 | Specyfikacja `ARCHITEKTURA.md` | `core/templates/SPEC_ARCHITEKTURA.md` | 1 | 2026-08-08 | wpis startowy; ostatnia zmiana 2026-08-12 | Opis granic, przepływu i powodów dla kogoś, kto wejdzie w kod — czyli tego, czego z kodu nie widać |
 | Specyfikacja archiwum | `core/templates/SPEC_ARCHIWUM.md` | 1 | 2026-08-12 | wpis startowy; ostatnia zmiana 2026-09-01 | Procedura rotacji dwufazowej z sumą kontrolną: historia schodzi z żywego dokumentu bajt w bajt, zamiast być streszczana albo kasowana |
-| Specyfikacja `CLAUDE.md` | `core/templates/SPEC_CLAUDE_MD.md` | 1 | 2026-08-07 | wpis startowy; ostatnia zmiana 2026-08-20 | Trzyma `CLAUDE.md` w roli routera procesowego z budżetem 10 KB — plik płaci tokenami przy każdym prompcie |
+| Specyfikacja `CLAUDE.md` | `core/templates/SPEC_CLAUDE_MD.md` | 2 | 2026-08-07 | 2026-09-03: linia fraz sesji wymienia **sprzątanie artefaktów roboczych** w rozwinięciu „kończymy na dziś" (oba miejsca: brzmienie wzorcowe i przykład) | `CLAUDE.md` jest jedyną warstwą obecną w każdej sesji, więc krok rytuału nienazwany tam nie wykona się przy modelu, który nie wyzwolił skilla (R2, L-0030) |
 | Specyfikacja `DECYZJE.md` | `core/templates/SPEC_DECYZJE.md` | 1 | 2026-08-07 | wpis startowy; ostatnia zmiana 2026-08-12 | Rejestr rozstrzygnięć zamrożonych, żeby ten sam temat nie wracał co dwie sesje |
 | Specyfikacja `DESIGN.md` | `core/templates/SPEC_DESIGN.md` | 1 | 2026-08-08 | wpis startowy; ostatnia zmiana 2026-08-12 | Umowa o wyglądzie spisana raz i egzekwowana przy każdej zmianie interfejsu |
 | Specyfikacja `DZIENNIK.md` | `core/templates/SPEC_DZIENNIK.md` | 1 | 2026-08-07 | wpis startowy; ostatnia zmiana 2026-09-01 | Pamięć między sesjami: co się wydarzyło, co sprawdzono i jak, co czeka na człowieka |
@@ -48,7 +48,7 @@ z gita, żeby było widać, które artefakty żyją. Pełna historia treści jes
 | Specyfikacja `srodowiska/` | `core/templates/SPEC_SRODOWISKA.md` | 1 | 2026-08-08 | wpis startowy; ostatnia zmiana 2026-08-12 | Instrukcja wdrożenia i cofnięcia wykonalna o drugiej w nocy przez kogoś, kto nie zna projektu |
 | Specyfikacja `STATE.md` | `core/templates/SPEC_STATE.md` | 1 | 2026-08-07 | wpis startowy; ostatnia zmiana 2026-08-20 | Odpowiedź „jak to teraz stoi" na jeden ekran, bez historii i bez czytania czegokolwiek innego |
 | Specyfikacja `STATUS.md` planu | `core/templates/SPEC_STATUS.md` | 1 | 2026-08-07 | wpis startowy; ostatnia zmiana 2026-08-21 | Rozdziela zamiar od postępu — dzięki temu plan można zamrozić, nie blokując pracy |
-| Specyfikacja `USTAWIENIA.md` | `core/templates/SPEC_USTAWIENIA.md` | 1 | 2026-08-07 | wpis startowy; ostatnia zmiana 2026-08-21 | Rejestr preferencji **i marker struktury RelAI**: odpowiedź raz udzielona nie wraca jako pytanie (D-22) |
+| Specyfikacja `USTAWIENIA.md` | `core/templates/SPEC_USTAWIENIA.md` | 2 | 2026-08-07 | 2026-09-03: wiersz `Artefakty robocze` (od 1.8.0) — kotwica, zamknięta lista brzmień, próg 100 MB; wiersz 18 katalogu progów; szósta pozycja listy nietykalnych w rotacji ustawień | Bez wiersza w ustawieniach raport o artefaktach nie miałby wyłącznika ani adresu progu, a próg nieujęty w katalogu nie ma właściciela |
 
 ## Szablon planu HTML — `core/templates/HTML_PLAN/` (1)
 
@@ -79,14 +79,14 @@ którego wersji nie da się podbijać osobno.
 
 | Artefakt | Plik | Wersja | Data | Co się zmieniło | Po co |
 |---|---|---|---|---|---|
-| Skill `relai-core` | `adapters/claude-code/skills/relai-core/SKILL.md` | 2 | 2026-08-07 | 2026-09-03: sekcja „Pliki lokalne, których nie sprzątamy (od 1.8.0)" — marker `# relai: zachowaj` i reguła stawiania go przy dopisywaniu wzorca do `.gitignore` | Sprzątanie sięga plików nieśledzonych, więc lokalna notatka właściciela musi mieć flagę **zanim** padnie pytanie o jej skasowanie; bez tej sekcji flaga istniałaby tylko w komendzie, a stawia się ją przy pisaniu `.gitignore` |
+| Skill `relai-core` | `adapters/claude-code/skills/relai-core/SKILL.md` | 3 | 2026-08-07 | 2026-09-03: krok **2a** rytuału zamknięcia — sprzątanie artefaktów roboczych po rotacji, przed wpisem, z własną sekcją procedury; numeracja kroków 1–6 nietknięta (wersja 2 tego samego dnia: sekcja „Pliki lokalne, których nie sprzątamy") | Sprzątanie potrzebuje momentu w rytuale, a nie tylko komendy wywołanej wprost; bez kroku w rytuale katalogi zamkniętych etapów zostają na dysku do następnego przypadkowego spojrzenia |
 | Skill `relai-planning` | `adapters/claude-code/skills/relai-planning/SKILL.md` | 1 | 2026-08-07 | wpis startowy; ostatnia zmiana 2026-08-21 | Niesie procedurę planowania: PLAN vs MINIPLAN, prompty etapowe, rytuał „Na koniec", odnogi |
 
 ## Reguły adaptera Cursora — `adapters/cursor/rules/` (3)
 
 | Artefakt | Plik | Wersja | Data | Co się zmieniło | Po co |
 |---|---|---|---|---|---|
-| Reguła `relai-core` | `adapters/cursor/rules/relai-core.mdc` | 1 | 2026-08-12 | wpis startowy; ostatnia zmiana 2026-09-01 | `alwaysApply: true` — proces działa bez wyzwalania skilla, także na modelu spoza Anthropic (odpowiedź na R2) |
+| Reguła `relai-core` | `adapters/cursor/rules/relai-core.mdc` | 2 | 2026-08-12 | 2026-09-03: krok **2a** rytuału zamknięcia (sprzątanie artefaktów roboczych) i szósty wiersz nietykalny w rotacji ustawień | Reguła zawsze-w-kontekście jest w Cursorze jedynym nośnikiem rytuału — krok nieopisany tam nie wykona się w tamtym narzędziu w ogóle (P2) |
 | Reguła `relai-guardrails` | `adapters/cursor/rules/relai-guardrails.mdc` | 1 | 2026-08-12 | wpis startowy; ostatnia zmiana 2026-08-12 | Sekrety, chroniona konfiguracja, bramka snapshotu i reguły profilu tam, gdzie Cursor nie ma egzekwowanego `ask` |
 | Reguła `relai-planning` | `adapters/cursor/rules/relai-planning.mdc` | 1 | 2026-08-12 | wpis startowy; ostatnia zmiana 2026-08-12 | Plany, etapy, sygnał odchylenia i odnogi w Cursorze — bez zależności od auto-wyzwalania |
 

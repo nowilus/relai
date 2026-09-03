@@ -89,7 +89,7 @@ sesji, zanim skrócisz wiersz.
 
 ### Wiersze czytane maszynowo — tej reguły nie dotyczą
 
-Cztery wiersze mają **zamknięty format** opisany niżej w tej specyfikacji i są parsowane przez hooki:
+Pięć wierszy ma **zamknięty format** opisany niżej w tej specyfikacji i jest parsowanych przez hooki:
 
 | Wiersz | Czyta go |
 |---|---|
@@ -97,12 +97,13 @@ Cztery wiersze mają **zamknięty format** opisany niżej w tej specyfikacji i s
 | `Rotacja dokumentów` | procedura rotacji (`SPEC_ARCHIWUM.md`) |
 | `Budżet startu sesji` | pomiar warstwy startowej w hooku startu sesji |
 | `Przegląd spraw człowieka` | przegląd spraw przeterminowanych w hooku startu sesji |
+| `Artefakty robocze` | raport artefaktów w hooku startu sesji i krok 2a rytuału zamknięcia |
 
 **Ich nie skracasz.** Człony rozdzielone `·` wyglądają jak rozwlekłość, a są składnią: usunięcie
 członu zmienia próg na domyślny, a przeredagowanie kotwicy na początku komórki **wycisza mechanizm
 w ciszy** (L-0025). Skrócenie, które wyłącza pomiar albo rotację, jest defektem, nie oszczędnością.
 
-**Nie schodzą też do archiwum** (od 1.7.0) — te cztery oraz **`Język projektu`**, razem pięć
+**Nie schodzą też do archiwum** (od 1.7.0) — te pięć oraz **`Język projektu`**, razem sześć
 wierszy wypisanych z nazwy w sekcji „Rotacja ustawień". `Język projektu` nie jest parsowany przez
 żaden hook, ale rozstrzyga, w jakim języku powstają dokumenty i pliki archiwum; jego nieobecność
 kończy się tym samym co brak wiersza czytanego maszynowo — mechanizm robi coś innego, niż projekt
@@ -120,6 +121,7 @@ Zawsze te trzy, z odpowiedzi na paczkę startową (D-20), plus wersja RelAI w li
 | Rotacja dokumentów | wartość domyślna `włączona` — **bez pytania**, limit trzech pytań jest twardy (D-80) |
 | Budżet startu sesji | wartość domyślna `włączony` — **bez pytania**, tak samo jak rotacja (od 1.6.0) |
 | Przegląd spraw człowieka | wartość domyślna `włączony · 30 dni` — **bez pytania**, tak samo jak dwa wyżej (od 1.7.0) |
+| Artefakty robocze | wartość domyślna `włączone · 100 MB` — **bez pytania**, tak samo jak trzy wyżej (od 1.8.0) |
 
 Wiersz **`Profil projektu`** jest czytany maszynowo — hooki `profile-rules` i `config-protection`
 biorą z niego reguły warunkowe (D-50). Kolumna `Decyzja` musi **zaczynać się** od jednej z czterech
@@ -281,6 +283,64 @@ Powód: wyłączona rotacja znaczy „nie ruszaj moich plików", a sprawa czekaj
 problemem niezależnym od tego, czy projekt zgodził się na przenoszenie plików. To jest ta sama
 zasada, co przy budżecie startu sesji, i dokładnie ta pomyłka, którą ten wiersz ma wykluczyć.
 
+## Wiersz `Artefakty robocze` (od 1.8.0)
+
+Katalogi robocze etapów (`.claude/relai/work/<TEMAT>/E<N>/`) i pliki tymczasowe projektu rosną
+**poza Gitem**, więc `git status` o nich milczy i nikt ich nie widzi, dopóki ktoś nie spojrzy na
+wolne miejsce na dysku. Ten wiersz mówi, **od ilu megabajtów** start sesji ma o tym powiedzieć,
+i jest **wyłącznikiem** tego zdania oraz kroku **2a** rytuału zamknięcia sesji. Powstaje przy
+inicjalizacji projektu oraz przy `/relai-update` projektu z wcześniejszej wersji.
+
+Powód jest zmierzony: porządki w cudzym projekcie (2026-09-03) odsłoniły **~550 MB** artefaktów po
+zamkniętych etapach — w katalogu roboczym i w `%TEMP%` — a punkt „brak plików tymczasowych"
+specyfikacji promptu etapowego mówił wyłącznie o repozytorium. Wykrycie wykonuje **hook startu
+sesji, nie skill** — ma działać przy każdym modelu i bez wyzwalania czegokolwiek (L-0030).
+
+Format komórki `Decyzja` jest sztywny, bo jest czytana maszynowo (L-0025) — kotwica na **początku**
+komórki, człony rozdzielone `·`:
+
+```
+włączone · 100 MB
+```
+
+| Człon | Dozwolone wartości | Znaczenie |
+|---|---|---|
+| przełącznik (**pierwszy, obowiązkowy**) | `włączone` / `wyłączone` (EN: `on` / `off`) | `wyłączone` → start sesji milczy i krok 2a nie pyta |
+| `<liczba> MB` | liczba całkowita | próg sumy; **domyślnie 100 MB** |
+
+To jest **jedyne źródło prawdy o wartości domyślnej progu** — inne specyfikacje jej nie powtarzają.
+Człon pominięty znaczy „wartość domyślna": projekt, który niczego nie stroi, ma w komórce samo
+`włączone`. Raport pada, gdy suma jest **większa** niż próg — dokładnie tyle jeszcze nie wystarcza.
+
+**Sumę liczą wyłącznie kandydaci**, czyli pozycje, które wolno skasować. Katalog etapu **w toku**,
+pozycja z markerem `# relai: zachowaj`, plik śledzony przez gita ani nic innego, co bramka
+dokumentacyjna zatrzymała, nie podnosi sumy — nikt tego nie skasuje, więc podnoszenie progu przez
+takie pozycje byłoby raportem, po którym nie ma czego zrobić.
+
+**Start sesji kończy się na jednym zdaniu.** Dokładnie **jedna** linia `[RelAI artefakty robocze]`:
+waga, liczba pozycji, próg, najwyżej **trzy** najcięższe pozycje z pochodzeniem, reszta jako liczba
+i propozycja `/relai-clean`. Hook niczego nie kasuje, o nic nie pyta i nie zostawia śladu w plikach.
+W sesji nieinteraktywnej pada ta sama linia **bez** propozycji komendy.
+
+**Start sesji nie skanuje repozytorium.** Hook mierzy katalog roboczy i pliki tymczasowe; pełny
+obraz — z plikami nieśledzonymi i ignorowanymi — daje dopiero komenda `/relai-clean`, bo
+`git status --ignored` jest najdroższą częścią pomiaru, a hook startu ma limit czasu.
+
+**Wartość przełącznika nierozpoznana → raport jest wyłączony** i pada o tym jedno zdanie
+z wypisanymi dozwolonymi brzmieniami. To ten sam wyjątek co przy rotacji, budżecie i przeglądzie
+spraw (L-0025): niepewność rozstrzyga się na korzyść bezczynności, ale człowiek ma o tym wiedzieć.
+
+**Brak wiersza w tabeli → cisza.** Projekt sprzed 1.8.0 nie zaczyna nagle mówić sam z siebie;
+wiersz wnosi tam `/relai-update`.
+
+**Wyłączony wiersz wycisza wyłącznie start sesji i krok 2a.** Komenda `/relai-clean` działa zawsze,
+bo jest jawnym wywołaniem człowieka, a punkt „katalog roboczy sprzątnięty" w weryfikacji etapu
+działa zawsze, bo należy do definicji ukończenia etapu — nie do raportowania.
+
+**Ten wyłącznik jest niezależny od pozostałych.** `Rotacja dokumentów: wyłączona` **nie** wycisza
+raportu o artefaktach, a wyłączony raport nie wycisza rotacji ani przeglądu spraw. Rotacja dotyczy
+ciężaru dokumentów czytanych przy starcie, ten wiersz — miejsca na dysku poza Gitem.
+
 ## Rotacja ustawień (od 1.7.0)
 
 Do 1.6.1 ten plik nie miał **żadnej** drogi wyjścia: polityka jest append-only, a sekcja
@@ -305,7 +365,7 @@ sesji. Rotacja ustawień nie jest trzecim wejściem i **nie dokłada własnego k
 `docs/archiwum/ustawienia/USTAWIENIA_<data-rotacji>.md`, bajt w bajt, procedurą dwufazową z sumą
 kontrolną. Pod tabelą sekcji zostaje **jedna** linia-odsyłacz na rotację.
 
-**Czego nie ruszasz nigdy — pięć wierszy, z nazwy:**
+**Czego nie ruszasz nigdy — sześć wierszy, z nazwy:**
 
 | Wiersz | Dlaczego zostaje |
 |---|---|
@@ -313,6 +373,7 @@ kontrolną. Pod tabelą sekcji zostaje **jedna** linia-odsyłacz na rotację.
 | `Rotacja dokumentów` | czyta go procedura rotacji |
 | `Budżet startu sesji` | czyta go pomiar warstwy startowej **i ta rotacja** — próg `ustawienia` stoi w tym wierszu |
 | `Przegląd spraw człowieka` | czyta go przegląd spraw przeterminowanych |
+| `Artefakty robocze` | czyta go raport startu sesji i krok 2a rytuału zamknięcia |
 | `Język projektu` | rozstrzyga język dokumentów i nazwy plików archiwum |
 
 Zostają **niezależnie od wieku** i niezależnie od tego, czy ktoś przeniósł je do sekcji „Ustawienia
@@ -364,6 +425,7 @@ zmienić — osobny plik byłby drugim miejscem do zapomnienia.
 | sekcja „Zasady aktywne" — liczba pozycji | 15 pozycji | `SPEC_LEKCJE.md` | rytuał zamknięcia sesji | jedno zdanie w podsumowaniu: ile pozycji, jaki limit, co z tym zrobić | **jest** — krok 1 rytuału zamknięcia, **jedyny**; do raportu startu nie wchodzi (L-0036) |
 | komórka „Mitygacja" ryzyka | 800 znaków | `SPEC_DZIENNIK.md` | model w kroku 2 rytuału zamknięcia (od 1.7.0) oraz człowiek komendą z `SPEC_DZIENNIK.md` | historia komórki → `docs/archiwum/ryzyka/MITYGACJE_<data>.md`, w żywej komórce cytat ostatniego zdania i odsyłacz; **wiersz zostaje** | **jest** — rytuał zamknięcia (krok 2), gdy sekcja ryzyk jest ponad swoim progiem |
 | wiek sprawy „Czeka na człowieka" | 30 dni | wiersz `Przegląd spraw człowieka` (ta specyfikacja) | hook startu sesji (`sprawyPrzeterminowane`) | wymuszone pytanie partiami po cztery | **jest** — hook startu, własny blok i własny wyzwalacz |
+| suma artefaktów roboczych (katalog roboczy + pliki tymczasowe) | 100 MB | wiersz `Artefakty robocze` (ta specyfikacja) | hook startu sesji (`artefaktyRobocze`) **i krok 2a rytuału zamknięcia** | jedna linia `[RelAI artefakty robocze]` z propozycją `/relai-clean`; w kroku 2a pytanie o grupy i kasowanie po „tak" | **jest** — hook startu, własny blok i własny wyzwalacz; drugi adres to krok 2a rytuału zamknięcia |
 | propozycja kompresji lekcji | 25 wpisów `AKTYWNA`, 30 KB pliku albo kwartał | `SPEC_LEKCJE.md`, sekcja „Kompresja" | model przy rytuale zamknięcia | propozycja kompresji tematycznej, nigdy wykonanie po cichu | **brak automatu** — propozycja modelu |
 | cel rotacji (nie próg) | 60% progu, liczone na części rotowalnej | `SPEC_ARCHIWUM.md` | rotacja | ile pozycji zabrać w jednym przebiegu | nie dotyczy — to cel, nie warunek odezwania się |
 

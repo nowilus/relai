@@ -489,6 +489,10 @@ gdy sam kończysz większą porcję pracy. Kolejność:
    sekcji „Zasady aktywne"** — sekcja niżej.
 2. **Rotacja dokumentów** (od 1.2.0) — sekcja niżej. Wykonujesz ją **przed** wpisem do dziennika,
    żeby wpis tej sesji opisał rotację i wylądował już w przyciętym pliku.
+2a. **Sprzątanie artefaktów roboczych** (od 1.8.0) — sekcja niżej. Stoi **po** rotacji i **przed**
+   wpisem, z tego samego powodu: wpis tej sesji ma opisać także sprzątanie. Numer `2a`, a nie `3`,
+   jest świadomy — „krok 2" jest cytowany jako adres rotacji w kilku dokumentach i numeracji kroków
+   1–6 nie ruszamy.
 3. **Wpis do dziennika** — jeden wpis zbiorczy za sesję, na końcu sekcji „Wpisy". Sekcja
    „Zweryfikowane — jak dokładnie" musi mówić, czym i z jakim wynikiem sprawdzałeś; „nie
    weryfikowano" jest dopuszczalną treścią, brak sekcji nie jest.
@@ -646,6 +650,38 @@ swoim adresie w kroku 1 (L-0036, L-0049).
 **To jest krok 2 rytuału zamknięcia, czyli wejście pierwsze.** Wejście drugie — start sesji — jest
 w sekcji „Rotacja na starcie sesji (od 1.6.0)" wyżej i uruchamia **dokładnie tę samą** procedurę.
 
+### Sprzątanie artefaktów roboczych (krok 2a rytuału zamknięcia, od 1.8.0)
+
+Katalogi robocze etapów (`.claude/relai/work/<TEMAT>/E<N>/`) i pliki tymczasowe projektu rosną
+**poza Gitem**. Ten krok jest ich adresem w rytuale zamknięcia — obok komendy `/relai-clean`,
+zdania na starcie sesji i punktu weryfikacji etapu.
+
+**Wyłącznik i próg:** wiersz `Artefakty robocze` w `docs/USTAWIENIA.md` (`SPEC_USTAWIENIA.md`).
+Wiersz `wyłączone`, wartość nierozpoznana albo brak wiersza → tego kroku **nie wykonujesz** i nie
+mówisz o nim ani słowa.
+
+Przebieg — zawsze w tej kolejności:
+
+1. **Zmierz** — `node .claude/relai/tools/clean-work.js raport`. Narzędzia nie ma → jedno zdanie,
+   że wymaga restartu sesji (podkłada je hook startu), i przechodzisz do kroku 3 rytuału. **Nigdy**
+   nie kopiujesz go ręcznie z katalogu pluginu.
+2. **Pytaj wyłącznie o dwie rzeczy:** katalogi etapów i odnóg o statusie **zamkniętym**
+   (`ZREALIZOWANY`, `POMINIĘTY`, `ZAMKNIĘTA`) oraz — gdy suma kandydatów przekracza próg — o całość
+   ponad progiem. Katalog etapu **w toku**, pozycja chroniona bramką i wszystko poniżej progu bez
+   zamkniętych etapów → **cisza**: ani pytania, ani zdania.
+3. **Pytanie idzie partiami po cztery grupy**, tak jak w komendzie, i kasujesz **wyłącznie** po
+   „tak" na daną grupę. Lista ścieżek pochodzi z pliku raportu, nie z przepisywania ręką.
+4. **Zmierz ponownie** po operacji i weź obie liczby — przed i po — do wpisu tej sesji (krok 3).
+
+**Ten krok nie produkuje własnego komunikatu.** Jedynym śladem jest wpis dziennika: jeden problem,
+jeden komunikat (L-0036, L-0049). Zdanie na starcie sesji ma swojego właściciela — hook — i tutaj
+się go nie powtarza.
+
+**To jest krok 2a rytuału zamknięcia.** Pozostałe trzy momenty sprzątania: punkt weryfikacji przy
+zamknięciu etapu, zdanie hooka na starcie sesji i komenda `/relai-clean` wywołana wprost. Wszystkie
+cztery używają **tego samego** narzędzia i tego samego trybu: raport w grupach, jedno „tak" na
+grupę, bramka dokumentacyjna.
+
 ---
 
 ## Pliki lokalne, których nie sprzątamy (od 1.8.0)
@@ -672,9 +708,11 @@ dosłowne brzmienie: „kończymy", „na dziś wystarczy", „that's it for tod
 
 ### „kończymy na dziś" / „wrapping up"
 
-Wykonaj **rytuał zamknięcia sesji** (sekcja wyżej), punkty 1–6, w tej kolejności. Nie pytaj, czy na
-pewno — użytkownik już powiedział. Jedyne pytanie, jakie może paść, to zgoda na commit; rotacja
-dokumentów (punkt 2) o zgodę nie pyta i poniżej progu nie zostawia śladu.
+Wykonaj **rytuał zamknięcia sesji** (sekcja wyżej), punkty 1–6 wraz z krokiem 2a, w tej kolejności.
+Nie pytaj, czy na pewno — użytkownik już powiedział. Pytania, jakie mogą paść, są dwa: zgoda na
+commit i zgoda na skasowanie grupy artefaktów w kroku 2a. Rotacja dokumentów (punkt 2) o zgodę nie
+pyta i poniżej progu nie zostawia śladu; krok 2a bez zamkniętych etapów i poniżej progu milczy
+tak samo.
 
 ### „kontynuujemy pracę" / „let's continue"
 

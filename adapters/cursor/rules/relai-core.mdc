@@ -169,8 +169,8 @@ finish a larger chunk of work:
    **Settings rotation (1.7.0)** — when `docs/USTAWIENIA.md` exceeds its `ustawienia` sub-threshold
    (6 KB) **and** the "Ustawienia wycofane" section has rows to take, they all go at once to
    `docs/archiwum/ustawienia/USTAWIENIA_<date>.md`, with one reference line under that section's
-   table. **Five rows never leave, by name:** `Język projektu`, `Profil projektu`, `Rotacja
-   dokumentów`, `Budżet startu sesji`, `Przegląd spraw człowieka` — not even when they sit in the
+   table. **Six rows never leave, by name:** `Język projektu`, `Profil projektu`, `Rotacja
+   dokumentów`, `Budżet startu sesji`, `Przegląd spraw człowieka`, `Artefakty robocze` — not even when they sit in the
    withdrawn section; their absence silences the mechanisms that read them. Rows of the **live**
    table never leave either: they carry a decision that still holds. A file over the threshold with
    no withdrawn section is not rotated — shorter `Decyzja` cells slim it, not the archive.
@@ -202,6 +202,22 @@ finish a larger chunk of work:
    this message during the close ritual — the session start hook does not produce it. It is still
    **one** message: risk rotation adds none of its own, and the "Zasady aktywne" limit keeps its own
    address in step 1.
+2a. **Work-artifact cleanup (1.8.0)** — after rotation, before the journal entry, so that the entry
+   describes the cleanup too. The number is `2a` and not `3` on purpose: "step 2" is quoted as the
+   address of rotation in several documents, so the 1–6 numbering does not move.
+   Switch and threshold: the `Artefakty robocze` row in `docs/USTAWIENIA.md` (`SPEC_USTAWIENIA.md`).
+   Row `wyłączone`, an unrecognised value or no row at all → **skip this step silently**.
+   Measure with `node .claude/relai/tools/clean-work.js raport`; the tool missing → one sentence that
+   it needs a session restart (the start hook provisions it) and move on — **never** copy it by hand
+   from the plugin directory. Ask about **two things only**: working directories of stages and
+   branches whose status is **closed** (`ZREALIZOWANY`, `POMINIĘTY`, `ZAMKNIĘTA`), and — when the
+   candidates' total exceeds the threshold — everything above it. A stage **in progress**, a
+   protected item, and anything below the threshold with no closed stages → **silence**: no question,
+   no sentence. Questions go **in batches of four groups**, and you delete **only** after a "yes" for
+   that group, from the report file rather than from a hand-copied list. Measure again afterwards and
+   take both numbers — before and after — into the session entry. This step **adds no message of its
+   own** (L-0036, L-0049): the journal entry is its only trace, and the session-start line has its
+   own owner, the hook.
 3. **Journal entry** — one entry for the session, all four sections. "Zweryfikowane — jak dokładnie"
    must say what you checked and with what result; "nie weryfikowano" is acceptable content, a
    missing section is not.
