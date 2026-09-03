@@ -23,7 +23,7 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
    materiale, zanim zaczniesz pracę** — policz na wskazanym pliku liczbę, którą ma osiągnąć,
    i porównaj ją z tym, co mechanizm w ogóle kontroluje; kryterium arytmetycznie nieosiągalne
    wraca do człowieka jako aneks, a nie kończy etap jako niedowieziony punkt. (L-0017, L-0018,
-   L-0040, L-0051, L-0052, L-0063, L-0069)
+   L-0040, L-0051, L-0052, L-0063, L-0069, L-0082)
 5. **Instrument pomiarowy sam bywa źródłem fałszu:** wyrażenia regularne trzymaj w pliku, nie
    w `node -e`; scenariusz „konfiguracji nie ma" mierz z podstawionym katalogiem domowym; dokładaj
    przypadek, który **musi** trafić. Zero trafień przy niepustych zbiorach to defekt instrumentu,
@@ -528,6 +528,24 @@ restart aplikacji po `plugin update` (L-0031), `git worktree` zamiast `git archi
   cisza, sprawdzaj **parą przebiegów**: jeden musi dać niepustą odpowiedź, inaczej mierzysz awarię
   instrumentu.
 - **Źródło:** E2 planu SPRZATANIE_ARTEFAKTOW (2026-09-03), dowód ciszy hooka po sprzątaniu.
+
+### L-0082 — Kryterium „fraza zniknęła" postawione na katalogu łapie zdania, które ją opisują · 2026-09-03 · AKTYWNA
+
+- **Trigger:** punkt weryfikacji E3 brzmiał „`git grep` po martwej frazie w `core/templates/`
+  zwraca zero trafień". Po wykonaniu całego zakresu trafienia były **dwa**: zdanie tego etapu
+  wyjaśniające, dlaczego stary punkt nie wystarcza, i wzmianka historyczna z etapu poprzedniego
+  („punkt … mówił wyłącznie o repozytorium") w pliku oznaczonym w prompcie jako `BEZ ZMIAN`.
+- **Przyczyna:** fraza usuwana jest jednocześnie **nazwą rzeczy usuwanej**. Zakres postawiony na
+  katalogu obejmuje więc nie tylko wystąpienia normatywne, ale też każdy opis zmiany — w tym opis,
+  który sam etap dopiero napisze. Wzmianka z E2 istniała w HEAD **przed** startem etapu, więc
+  kryterium było nieosiągalne od chwili napisania promptu, a nie z powodu wykonania.
+- **Zasada:** kryterium „fraza zniknęła" zawężaj do **pliku, który frazę niósł**, nie do katalogu,
+  i **policz trafienia w HEAD, zanim zaczniesz pracę** — liczba większa od liczby miejsc, które
+  etap ma zmienić, znaczy, że kryterium mierzy coś innego, niż zakładasz. Własne wyjaśnienie
+  zmiany pisz **bez cytowania** usuwanej frazy.
+- **Źródło:** E3 planu SPRZATANIE_ARTEFAKTOW (2026-09-03), punkt przeformułowany za zgodą
+  właściciela. Wzmocnienie zasady 4 („kryterium sukcesu sprawdzasz na materiale, zanim zaczniesz
+  pracę") — bez własnej pozycji w destylacie, limit 15 pozostaje wykorzystany.
 
 ## Lekcje zwinięte
 

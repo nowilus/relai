@@ -71,6 +71,10 @@ Pokaż użytkownikowi kartę potwierdzenia i **zatrzymaj się**:
 - **Etap** — `EN z EM` + tytuł.
 - **Model wykonawczy** — z `STATUS.md`. Model bieżącej sesji jest inny niż wymagany → napisz to
   wprost jako pierwszą rzecz i zaproponuj przełączenie przed startem.
+- **Katalog roboczy** — ścieżka `.claude/relai/work/<TEMAT>/E<N>/`, przepisana z linii otwierającej
+  sekcję „Zakres etapu" promptu. Karta jest miejscem, w którym człowiek widzi, **gdzie powstaną
+  pliki, zanim cokolwiek powstanie**. Prompt tej linii nie ma (etap sprzed 1.8.0) → podaj ścieżkę
+  wyprowadzoną z tematu i numeru etapu i powiedz jednym zdaniem, że prompt jej nie niesie.
 - **Czego dotyczy** — 2–4 zdania z sekcji „Zakres etapu" promptu, własnymi słowami. Nie przepisujesz
   całej sekcji.
 - **Weryfikacja** — liczba punktów do przejścia i jednym zdaniem, co jest najtwardsze.

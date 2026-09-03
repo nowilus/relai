@@ -100,6 +100,9 @@ Wariant samodzielny (`docs/fixy/`): tego kroku nie ma. W żadnym `STATUS.md` nie
 Trzy–cztery zdania, nie więcej:
 
 - co powstało i gdzie (ścieżki obu plików),
+- **katalog roboczy tej odnogi** — `.claude/relai/work/<TEMAT>/<NAZWA>/` (wariant samodzielny:
+  `.claude/relai/work/_fixy/<NAZWA>/`); to jest miejsce, w którym sesja wykonawcza ma trzymać
+  wszystko tymczasowe, i człowiek widzi je **zanim cokolwiek tam powstanie**,
 - jak to uruchomić: **świeża sesja** na modelu z karty, wklejony `PROMPT_ODNOGA.md`,
 - że bieżąca praca wraca do swojego zakresu — wątek jest odłożony, nie porzucony,
 - w wariancie samodzielnym: że w żadnym planie nic się nie zmieniło, bo nie ma czego zmieniać.

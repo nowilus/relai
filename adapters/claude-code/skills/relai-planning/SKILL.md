@@ -362,9 +362,13 @@ Układ jest **stały, dziewięć elementów, w tej kolejności** (szczegóły ka
    ostatni punkt wyznacza granicę zakresu wobec etapów następnych.
 6. **Stan wyjściowy** — realny stan repo: drzewko plików, akapit „Czego jeszcze NIE ma",
    przepisane w całości „Zasady aktywne" z rejestru lekcji.
-7. **Zakres etapu** — numerowana lista, każdy punkt ze ścieżką pliku.
+7. **Zakres etapu** — sekcja **otwiera się linią z katalogiem roboczym etapu**
+   (`.claude/relai/work/<TEMAT>/E<N>/` — ścieżka podstawiona, nie opisana; artefakt spoza projektu
+   idzie do wpisu dziennika z nazwy), dalej numerowana lista, każdy punkt ze ścieżką pliku.
 8. **Weryfikacja** — checkboxy, nagłówek „wszystkie punkty muszą przejść". Sekcja obowiązkowa
-   zawsze (D-25).
+   zawsze (D-25). Wśród ostatnich punktów stoi **zawsze** katalog roboczy etapu: przejrzany
+   raportem, skasowany po „tak", liczby przed i po do wpisu; artefakty spoza niego wypisane
+   z nazwy. Wyłączony wiersz `Artefakty robocze` tego punktu nie wycisza.
 9. **Na koniec** — `STATUS.md` → dziennik (+ lekcje, + ryzyka) → dokumenty → **generacja
    `PROMPT_ETAP_N+1`** → commit, z adnotacją „bez tego rytuału etap NIE jest ukończony".
 
@@ -438,6 +442,12 @@ ukończenia z `relai-core`, tylko dla etapu planu. Kolejność jest wiążąca:
 1. **`STATUS.md`** — etap N → `ZREALIZOWANY <data>`; etap N+1 → `GOTOWY DO STARTU`; linia
    w dzienniku wdrożenia (jedna, zwięzła); kolumna `Prompt` przy N+1 dostaje link zaraz po
    punkcie 5.
+1a. **Katalog roboczy etapu** (`.claude/relai/work/<TEMAT>/E<N>/`) — zmierz
+   (`node .claude/relai/tools/clean-work.js raport`), pokaż pozycje, skasuj po „tak"; artefakty,
+   które musiały powstać poza tym katalogiem, wypisz z nazwy. **Obie liczby, przed i po, idą do
+   wpisu z punktu 2** — dlatego krok stoi tutaj, a nie przy dokumentach. Numer z literą, bo
+   numeracji punktów 1–6 nie zmieniamy. Weryfikacja etapu ma ten sam punkt: jeśli przeszedł, ten
+   krok jest wyłącznie przeniesieniem liczb do wpisu.
 2. **`docs/DZIENNIK.md`** — wpis wg `SPEC_DZIENNIK.md` na końcu sekcji „Wpisy": Zrobione /
    Zweryfikowane — jak dokładnie / Świadomie odłożone / Do zrobienia przez człowieka. Podpis
    w formacie `Autor: RelAI (<model>) + <git config user.name>` — bez członu użytkownika wpis nie

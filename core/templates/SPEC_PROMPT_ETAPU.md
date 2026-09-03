@@ -104,8 +104,20 @@ Zawiera:
 
 ### 7. Zakres etapu
 
-Numerowana lista rzeczy do zrobienia. Każdy punkt: **artefakt** (ścieżka pliku) **i** decydujące
-wymagania wobec niego. Punkt bez wskazanego pliku jest życzeniem, nie zakresem.
+**Sekcja otwiera się linią z katalogiem roboczym etapu**, przed pierwszym punktem zakresu, w tym
+kształcie (ścieżka podstawiona, nie opisana):
+
+> **Katalog roboczy tego etapu: `.claude/relai/work/<TEMAT>/E<N>/`.** Wszystko tymczasowe — skrypty
+> pomiarowe, materiał testowy, wyjścia narzędzi, pobrane paczki — powstaje tam. Artefakt, który
+> z natury musi leżeć **poza** projektem (`%TEMP%`, katalog domowy, klon cudzego repozytorium),
+> wpisujesz do wpisu dziennika **z nazwy**, a jego nazwę zaczynasz od slugu projektu.
+
+Świeża sesja ma tę ścieżkę **przepisać, nie wymyślić** — dlatego podajesz ją dosłownie,
+z podstawionym tematem planu i numerem etapu. Katalog powstaje przy pierwszym zapisie i nikt nie
+zakłada go na zapas (D-11).
+
+Dalej: numerowana lista rzeczy do zrobienia. Każdy punkt: **artefakt** (ścieżka pliku) **i**
+decydujące wymagania wobec niego. Punkt bez wskazanego pliku jest życzeniem, nie zakresem.
 
 Elementy, które w praktyce zamykają etap i łatwo je pominąć, wymieniasz osobno: podbicie wersji,
 aktualizacja dokumentu użytkownika (`KOMENDY.md`), dogfooding, git.
@@ -125,8 +137,17 @@ Zasady:
   punktem weryfikacji; „`npm test` kończy się bez błędu" jest.
 - Sprawdzenie zachowania typu „tego nie wolno" wymaga **dowodu negatywnego**: pokaż, że chroniony
   fragment ma nadal pierwotne brzmienie, nie tylko że nowy artefakt powstał.
-- Ostatnie punkty dotyczą śladów pracy: wpis w dzienniku we właściwym miejscu, uprzątnięte foldery
-  testowe, brak plików tymczasowych.
+- Ostatnie punkty dotyczą śladów pracy: wpis w dzienniku we właściwym miejscu i **katalog roboczy
+  etapu**. Ten drugi ma dwie części i wchodzi do promptu jako gotowy checkbox: **(a)** katalog
+  `.claude/relai/work/<TEMAT>/E<N>/` przejrzany raportem
+  (`node .claude/relai/tools/clean-work.js raport`) i skasowany po „tak", z **liczbami przed i po**
+  do wpisu dziennika; **(b)** artefakty, które musiały powstać **poza** tym katalogiem, wypisane
+  z nazwy (`%TEMP%`, katalog domowy, cudze repozytorium) — razem z tym, co się z nimi stało.
+  Punkt mówiący wyłącznie o repozytorium go **nie zastępuje** — artefakty etapu z definicji leżą
+  poza Gitem, więc `git status` o nich milczy i taki punkt zalicza się sam.
+- Ten punkt stoi w prompcie **zawsze**, także w projekcie, którego wiersz `Artefakty robocze`
+  w `docs/USTAWIENIA.md` jest `wyłączone`. Wyłącznik wycisza zdanie na starcie sesji i krok 2a
+  rytuału zamknięcia dnia — nie definicję ukończenia etapu.
 - Punkt, którego w tym etapie zweryfikować **się nie da**, opisujesz wprost razem z warunkiem
   wykonalności i etapem, w którym da się go sprawdzić — nie udajesz, że go nie ma.
 
@@ -223,6 +244,10 @@ zdarzeń (Stripe wysyła je wielokrotnie).
 
 ## Zakres etapu
 
+**Katalog roboczy tego etapu: `.claude/relai/work/PLATNOSCI/E2/`.** Wszystko tymczasowe — fixture'y
+zdarzeń Stripe, wyjścia `stripe trigger`, zrzuty bazy — powstaje tam. Artefakt, który musi leżeć
+poza projektem, wpisujesz do wpisu dziennika z nazwy.
+
 1. **`src/payments/checkout.ts`** — utworzenie sesji Stripe Checkout dla zamówienia: kwota i waluta
    z zamówienia, `success_url` / `cancel_url` z konfiguracji, `metadata.orderId` obowiązkowe
    (webhook nie ma innej drogi powiązania zdarzenia z zamówieniem).
@@ -252,7 +277,11 @@ zdarzeń (Stripe wysyła je wielokrotnie).
 - [ ] `git grep -nE "sk_(test|live)_"` nie zwraca nic w plikach śledzonych.
 - [ ] Wpis w `docs/DZIENNIK.md` dopisany na końcu sekcji „Wpisy", z autorem w nagłówku;
       `docs/STATE.md` nadpisany.
-- [ ] Dane testowe usunięte z bazy deweloperskiej; brak plików tymczasowych w repo.
+- [ ] Dane testowe usunięte z bazy deweloperskiej.
+- [ ] Katalog roboczy `.claude/relai/work/PLATNOSCI/E2/` przejrzany raportem
+      (`node .claude/relai/tools/clean-work.js raport`) i skasowany po „tak"; liczby przed i po
+      w sekcji „Zweryfikowane" wpisu. Artefakty poza tym katalogiem: `%TEMP%/platnosci-stripe-cli/`
+      — wypisany z nazwy i skasowany razem z resztą.
 
 ## Na koniec (rytuał obowiązkowy — bez niego etap NIE jest ukończony)
 

@@ -39,9 +39,11 @@ Stage statuses: `OCZEKUJE` → `GOTOWY DO STARTU` → `W TOKU` → `ZREALIZOWANY
 
 ## 3. Running a stage
 
-1. Confirm with the user **before** starting: plan, stage, executing model, what it covers in 2–4
-   sentences, how many verification points, then ask "Zaczynamy?" and **wait**. "Run the stage" in
-   the user's prompt is not consent to start; you still show the card. Silence is not consent.
+1. Confirm with the user **before** starting: plan, stage, executing model, the stage work
+   directory (`.claude/relai/work/<TOPIC>/E<N>/` — where the files will appear, shown before any of
+   them exists), what it covers in 2–4 sentences, how many verification points, then ask
+   "Zaczynamy?" and **wait**. "Run the stage" in the user's prompt is not consent to start; you
+   still show the card. Silence is not consent.
 2. After consent: set the stage to `W TOKU` in `STATUS.md` and add a log line
    (`- <date> — E<N> rozpoczęty`). An interrupted session then leaves a trace, not a riddle.
 3. Execute `PROMPT_ETAP_N.md` **literally**: read what it tells you to read, in the given order;
@@ -55,6 +57,12 @@ Stage statuses: `OCZEKUJE` → `GOTOWY DO STARTU` → `W TOKU` → `ZREALIZOWANY
 1. `STATUS.md`: stage → `ZREALIZOWANY <date>`, next stage → `GOTOWY DO STARTU` with a link in the
    `Prompt` column, a line in the implementation log, "Bramki manualne" refreshed from the entry's
    "Do zrobienia przez człowieka".
+1a. The stage work directory (`.claude/relai/work/<TOPIC>/E<N>/`): measure it
+   (`node .claude/relai/tools/clean-work.js raport`), show the items, delete only after a "yes";
+   name any artefact that had to live outside that directory. **Both numbers, before and after, go
+   into the entry in point 2** — that is why this step sits here. A letter, not `3`, because the
+   1–6 numbering does not move. A disabled `Artefakty robocze` row does not silence this step: it
+   belongs to the definition of a finished stage.
 2. `docs/DZIENNIK.md`: the entry, all four sections, signed with both parts. Review the risk table.
    Lessons from the stage → `docs/LEKCJE.md` plus refreshed "Zasady aktywne".
 3. `docs/STATE.md`: overwrite what changed.

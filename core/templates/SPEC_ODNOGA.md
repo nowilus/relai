@@ -139,8 +139,26 @@ Stan faktyczny repozytorium, sprawdzony w chwili generacji, nie stan planowany. 
 
 ### 7. Zakres i weryfikacja
 
-Dwie krótkie sekcje: zakres przepisany z karty odnogi (punkty ze ścieżkami plików) i checkboxy
+**Sekcja otwiera się linią z katalogiem roboczym odnogi**, przed pierwszym punktem zakresu, w tym
+kształcie (ścieżka podstawiona, nie opisana):
+
+> **Katalog roboczy tej odnogi: `.claude/relai/work/<TEMAT>/<NAZWA_ODNOGI>/`.** Wszystko tymczasowe
+> powstaje tam. Artefakt, który z natury musi leżeć **poza** projektem (`%TEMP%`, katalog domowy,
+> klon cudzego repozytorium), wpisujesz do wpisu dziennika **z nazwy**, a jego nazwę zaczynasz od
+> slugu projektu.
+
+Wariant samodzielny (`docs/fixy/<NAZWA>/`) używa tej samej ścieżki z nazwą wątku w miejscu tematu:
+`.claude/relai/work/_fixy/<NAZWA>/`. Katalog powstaje przy pierwszym zapisie, nie na zapas (D-11).
+
+Dalej dwie krótkie sekcje: zakres przepisany z karty odnogi (punkty ze ścieżkami plików) i checkboxy
 weryfikacji. Rozbieżność między kartą a promptem jest błędem — karta jest źródłem.
+
+Wśród checkboxów stoi **zawsze** punkt o katalogu roboczym, w tych samych dwóch częściach co
+w prompcie etapowym: **(a)** katalog przejrzany raportem
+(`node .claude/relai/tools/clean-work.js raport`) i skasowany po „tak", z liczbami przed i po do
+wpisu dziennika; **(b)** artefakty spoza tego katalogu wypisane z nazwy. Wyłączony wiersz
+`Artefakty robocze` w `docs/USTAWIENIA.md` tego punktu **nie wycisza** — jest częścią definicji
+zamknięcia odnogi.
 
 ### 8. Na koniec — rytuał zamknięcia odnogi
 
@@ -149,6 +167,10 @@ Numerowana lista, z nagłówkiem mówiącym wprost: **bez tego rytuału odnoga N
 1. **`ODNOGA.md`** — status → `ZAMKNIĘTA <data>`, sekcja „Wynik" wypełniona.
 2. **`STATUS.md` planu-rodzica** — linia tej odnogi w sekcji „Odnogi" → `ZAMKNIĘTA <data>`.
    Tabeli etapów i dziennika wdrożenia **nie ruszasz**. Wariant `docs/fixy/`: punkt odpada.
+2a. **Katalog roboczy odnogi** — zmierz (`node .claude/relai/tools/clean-work.js raport`), pokaż
+   pozycje i skasuj po „tak"; obie liczby, przed i po, idą do wpisu w punkcie 3. Artefakty spoza
+   katalogu wypisz z nazwy. Numer z literą, a nie `3`, żeby numeracja pozostałych punktów
+   pozostała nietknięta — krok stoi **przed** wpisem, bo wpis ma go opisać.
 3. **`docs/DZIENNIK.md`** — wpis wg `SPEC_DZIENNIK.md` (Zrobione / Zweryfikowane — jak dokładnie /
    Świadomie odłożone / Do zrobienia przez człowieka), na końcu sekcji „Wpisy".
 4. **`docs/STATE.md`** — tylko jeśli odnoga zmieniła stan projektu widoczny na tym poziomie.
@@ -209,6 +231,8 @@ jest błąd etapu — to brakująca obserwowalność, spoza zakresu E2.
 - [ ] Zdarzenie wysłane dwa razy przez `stripe trigger` daje w logu dokładnie jedną linię `info`
       z numerem zamówienia (sprawdzone na wyjściu, nie na kodzie).
 - [ ] `git diff` nie dotyka żadnego pliku spoza dwóch wymienionych w zakresie.
+- [ ] Katalog roboczy `.claude/relai/work/PLATNOSCI/PONOWIONE_ZDARZENIA/` przejrzany raportem
+      i skasowany po „tak"; liczby przed i po we wpisie dziennika, artefakty spoza niego z nazwy.
 
 ## Wynik
 
@@ -260,11 +284,20 @@ src/payments/int/webhook.test.ts        # 11 testów, w tym „zdarzenie powtór
    (L-0001).
 2. Testy integracyjne odpalasz komendą `npm run test:int` (L-0003).
 
+## Zakres i weryfikacja
+
+**Katalog roboczy tej odnogi: `.claude/relai/work/PLATNOSCI/PONOWIONE_ZDARZENIA/`.** Wszystko
+tymczasowe powstaje tam; artefakt spoza projektu wpisujesz do wpisu dziennika z nazwy.
+
+(zakres i checkboxy przepisane z karty — karta jest źródłem)
+
 ## Na koniec (rytuał obowiązkowy — bez niego odnoga NIE jest zamknięta)
 
 1. `ODNOGA.md`: status → `ZAMKNIĘTA 2026-08-15`, sekcja „Wynik" wypełniona.
 2. `docs/plany/PLATNOSCI/STATUS.md`: linia tej odnogi w sekcji „Odnogi" → `ZAMKNIĘTA 2026-08-15`.
    Tabeli etapów i dziennika wdrożenia nie ruszasz.
+2a. Katalog roboczy `.claude/relai/work/PLATNOSCI/PONOWIONE_ZDARZENIA/` — raport, „tak", kasowanie;
+   liczby przed i po do wpisu z punktu 3.
 3. `docs/DZIENNIK.md`: wpis wg szablonu, na końcu sekcji „Wpisy".
 4. `docs/STATE.md` — bez zmian, odnoga nie zmienia stanu obszaru płatności.
 5. Commit (conventional, EN) — propozycja, nie wykonanie bez zgody.
