@@ -1267,3 +1267,99 @@ się w oknie, więc nie było czego naprawiać.
   czyli ingerencja w stylistykę, której poprawka kontrastu świadomie nie ruszała. Alternatywa bez
   ruszania grafiki: scalić kolumnę ikony z kolumną komendy w README, żeby komórka przestała ściskać
   obraz do 17 px na węższym oknie.
+
+### 2026-09-03 — PLAN SPRZATANIE_ARTEFAKTOW: jedno miejsce na pliki robocze etapu i cztery momenty sprzątania
+
+Autor: RelAI (Fable) + Lukasz
+
+**Zrobione:**
+
+- **Plan `docs/plany/SPRZATANIE_ARTEFAKTOW/` — `PLAN.html` (249 KB z osadzonymi fontami) + `STATUS.md`
+  (`DO AKCEPTACJI`), cztery etapy, 5–7 sesji (SZACUNEK), wydanie jako 1.8.0.** Powód: porządki
+  w PolyFlow z tego samego dnia — ~340 MB artefaktów poza Gitem w folderze projektu i 211 MB
+  w 43 pozycjach w `%LOCALAPPDATA%\Temp` (FAKT), wszystko z etapów zamkniętych 2026-08-10…09-02.
+  Luka w rdzeniu: `SPEC_PROMPT_ETAPU.md` linie 129 i 255 mówią „brak plików tymczasowych”
+  wyłącznie o repo, więc każdy etap ten punkt zaliczał.
+- **Wybrany mechanizm (wariant A):** narzędzie w rdzeniu `core/process/work-artifacts.js` (Node,
+  jeden plik, biblioteka + CLI, bez zależności), prowizjonowane do `.claude/relai/tools/clean-work.js`
+  tą samą drogą co specyfikacje; komenda `/relai-clean` w konwencji `/relai-backup`; hook startu
+  z jedną linią `[RelAI artefakty robocze]` ponad progiem z wiersza `Artefakty robocze` w USTAWIENIA;
+  krok **2a** rytuału zamknięcia (numeracja 1–6 zostaje, bo „krok 2” jest cytowany jako adres
+  rotacji); punkt weryfikacji etapu w miejsce martwego. Odrzucone z powodem: sama procedura
+  w Markdown (dziś kosztowała trzy blokady i `WinError 5`), skrypt PowerShell/Python (D-40, P-003),
+  automatyczne kasowanie w hooku (D-18).
+- **Rozstrzygnięcia z wywiadu (AskUserQuestion, jedna runda):** katalog roboczy etapu
+  w projekcie — `.claude/relai/work/<TEMAT>/E<N>/` (gitignorowany, poza backupem, w zasięgu sesji,
+  bez bramki „poza projektem”); pliki nieśledzone i ignorowane w repo **są** w zakresie, ale
+  lokalne notatki właściciela dostają flagę w chwili decyzji o nieśledzeniu — linia-marker
+  `# relai: zachowaj` nad wzorcem w `.gitignore`, cały `.git/info/exclude` jako chroniony, a bez
+  gita `.claude/relai/keep`. Pliki śledzone przez gita nigdy nie są kandydatami (nie-cel).
+- **`CLAUDE.md`:** linia `Aktywny plan` wskazuje nowy plan; wiersz w „Stanie prac”. **`STATE.md`:**
+  nowy obszar w „Nad czym pracujemy teraz”.
+
+**Zweryfikowane — jak dokładnie:**
+
+- `PLAN.html` zbudowany builderem z `.claude/relai/templates/HTML_PLAN/` (6 reguł `@font-face`,
+  „plan bez symulatora — znacznik usunięty”); kontrola skryptem: 10 sekcji, 0 żądań `http` w
+  `src`/`href`/`url()`, 22 bloki zwijalne z unikalnymi `aria-controls`. Otwarty w przeglądarce
+  przez lokalny serwer (`file://` odmówił): 6 fontów załadowanych, brak przewijania w poziomie
+  (scrollWidth 625 przy oknie 640), kliknięcie bloku przełącza `aria-expanded`.
+- `fs.rmSync(recursive, force, maxRetries)` na Node 24.13.1 usuwa katalog z plikiem tylko do
+  odczytu bez `onerror` — sprawdzone w `%TEMP%` przed napisaniem wariantu A (katalog testowy
+  skasowany w tym samym poleceniu).
+- `%LOCALAPPDATA%\Temp` po porządkach właściciela: 0 pozycji `relai-*` / `polyflow*` — plan
+  startuje od zera, E4 musi wytworzyć materiał pomiarowy.
+- Nie weryfikowano: zachowania bramki hooka blokującej `rm -rf` wobec `node …clean-work.js`
+  (ryzyko 7 planu, test w E1).
+
+**Świadomie odłożone:**
+
+- Fragmenty planu i skrypt wypełniający powstały w `.claude/relai/work/_sesja/2026-09-03/` —
+  dogfooding lokalizacji, zanim mechanizm istnieje; skasowane na koniec sesji (utworzone w tej
+  sesji, D-18 nie dotyczy).
+- Ikona `clean.svg` i grubość kreski ikon (17–23 px) — sprawa 3 sekcji 9 planu, razem z otwartą
+  pozycją „Czeka na człowieka”.
+- `PROMPT_ETAP_1.md` nie powstaje przed akceptacją (D-34).
+
+**Do zrobienia przez człowieka:**
+
+- **Akceptacja planu SPRZATANIE_ARTEFAKTOW** — po niej sekcje 1–9 zamrożone, powstaje
+  `PROMPT_ETAP_1.md`, start świeżą sesją Opus i `/relai-stage`.
+- **Brzmienie markera „zachowaj”** (`# relai: zachowaj` / `# relai: keep`, `.git/info/exclude`
+  chroniony w całości) — blokuje E1.
+- **Próg domyślny wiersza `Artefakty robocze`** — rekomendacja 100 MB; przed E2.
+
+### 2026-09-03 — PLAN SPRZATANIE_ARTEFAKTOW ZAAKCEPTOWANY: marker „zachowaj”, próg 100 MB, E1 gotowy
+
+Autor: RelAI (Fable) + Lukasz
+
+**Zrobione:**
+
+- **Plan zaakceptowany bez aneksów** — sekcje 1–9 `PLAN.html` zamrożone (D-33). Dwie sprawy sekcji 9
+  rozstrzygnięte zgodnie z rekomendacją: marker `# relai: zachowaj` (EN `# relai: keep`) nad
+  wzorcem w `.gitignore`, cały `.git/info/exclude` chroniony, bez gita `.claude/relai/keep`; próg
+  domyślny wiersza `Artefakty robocze` **100 MB**. Zapisane w `STATUS.md` jako bramki manualne
+  `ROZSTRZYGNIĘTA`; dwie zostają `OTWARTA` (ikona `clean.svg`, markery w PolyFlow).
+- **`PROMPT_ETAP_1.md`** wygenerowany wg `SPEC_PROMPT_ETAPU.md`: dziewięć elementów, zasady aktywne
+  przepisane w całości (15 pozycji), zakres w 11 punktach z eksportami narzędzia, listą scenariuszy
+  testowych i próbą z żywej sesji, 16 punktów weryfikacji, rytuał „Na koniec” z generacją
+  `PROMPT_ETAP_2`. Katalog roboczy etapu nazwany z góry: `.claude/relai/work/SPRZATANIE_ARTEFAKTOW/E1/`.
+- `STATUS.md`: `ZAAKCEPTOWANY 2026-09-03`, E1 `GOTOWY DO STARTU` z linkiem; `CLAUDE.md` i `STATE.md`
+  zaktualizowane.
+
+**Zweryfikowane — jak dokładnie:**
+
+- Kolumna `Prompt` przy E1 wskazuje istniejący plik (siatka D-34 ma milczeć na starcie następnej
+  sesji); linia „Aktywny plan” w `CLAUDE.md` prowadzi do istniejącego `STATUS.md`.
+- Nie weryfikowano: treści promptu świeżą sesją — to zrobi E1.
+
+**Świadomie odłożone:**
+
+- Tabela „Stan prac” w `CLAUDE.md` ma siedem wierszy przy limicie pięciu z `SPEC_CLAUDE_MD.md`
+  (plik 4,7 KB przy budżecie 10 KB) — porządek w tabeli przy zamknięciu któregoś z planów, nie
+  teraz.
+
+**Do zrobienia przez człowieka:**
+
+- Uruchomić E1 w świeżej sesji **Opus**: `/relai-stage`. Punkty weryfikacji na PolyFlow wymagają
+  `--add-dir "C:\Users\Lukasz\Desktop\PolyFlow"` albo osobnej sesji w tamtym folderze.

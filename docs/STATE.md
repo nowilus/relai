@@ -1,6 +1,6 @@
 # STATE — RelAI
 
-Stan na: 2026-09-01
+Stan na: 2026-09-03
 
 ## Gdzie jesteśmy
 
@@ -11,7 +11,7 @@ kosztuje, sprawa czekająca dłużej niż 30 dni wymusza decyzję na starcie, ka
 w raporcie startu, a komórka „Mitygacja" i plik ustawień mają drogę do archiwum. E6 dowiózł to,
 czego wcześniejsze etapy nie miały: **pomiar po wydaniu, w świeżej sesji, w zainstalowanym
 pluginie, na cudzym projekcie**. Plan ROZWOJ_PO_WYDANIU jest **zamrożony** — E7 czeka na dostęp do
-Codeksa. Aktywnego planu nie ma.
+Codeksa. **Aktywny plan: SPRZATANIE_ARTEFAKTOW** — zaakceptowany 2026-09-03, E1 gotowy do startu.
 
 ## Co działa
 
@@ -69,7 +69,14 @@ Codeksa. Aktywnego planu nie ma.
   Dopóki nie wejdzie, **ryzyko R5 zostaje otwarte**, zawężone już wyłącznie do tego jednego
   projektu: mechanizm jest kompletny i zmierzony na dwóch projektach z trzech.
 - **Plan ROZWOJ_PO_WYDANIU pozostaje zamrożony** (6/8). E7 — adapter Codeksa — czeka na dostęp.
-- **Aktywnego planu nie ma.** Następny powstanie z prośby o plan.
+- **Plan SPRZATANIE_ARTEFAKTOW zaakceptowany 2026-09-03, E1 gotowy do startu** (4 etapy, 5–7 sesji SZACUNEK, wydanie 1.8.0).
+  Po co: porządki w PolyFlow 2026-09-03 pokazały ~550 MB artefaktów etapowych poza Gitem
+  i w `%TEMP%` (FAKT), a punkt „brak plików tymczasowych” w `SPEC_PROMPT_ETAPU.md` mówi
+  wyłącznie o repo. Etap dostaje katalog roboczy `.claude/relai/work/<TEMAT>/E<N>/`, sprzątanie
+  ma cztery momenty (zamknięcie etapu, „kończymy na dziś”, zdanie na starcie sesji, `/relai-clean`)
+  i zawsze ten sam tryb: raport w grupach, jedno „tak” na grupę, bramka dokumentacyjna. Rozstrzygnięte przy
+  akceptacji: marker `# relai: zachowaj`, próg 100 MB; przed E4 czeka ikona `clean.svg`. Plan:
+  [docs/plany/SPRZATANIE_ARTEFAKTOW/](plany/SPRZATANIE_ARTEFAKTOW/STATUS.md).
 
 ## Co dalej
 
@@ -159,7 +166,7 @@ przy progu 30 dni • Progi w katalogu: **17, z tego 15 z adresem egzekwowania**
 Zasady aktywne: **15 przy limicie 15** •
 Scenariusze akceptacyjne: 4/4 zdane + pilotaż Cursora • Adaptery: 2 •
 Modele, na których zmierzono proces: 5 (Fable, Opus, Haiku, Composer/auto, Grok 4.6) •
-Projekty na 1.7.0: 2 (RelAI, PolyFlow) • Otwarte wątki: 3 odnogi zamrożonego planu •
+Projekty na 1.7.0: 2 (RelAI, PolyFlow) • Aktywny plan: SPRZATANIE_ARTEFAKTOW 0/4 (ZAAKCEPTOWANY 2026-09-03, E1 gotowy) • Otwarte wątki: 3 odnogi zamrożonego planu •
 Artefakty w rejestrze: 38 • Otwarte bramki manualne: **1** (zamknięta lista rdzeni) •
 Otwarte ryzyka: 4 • Zamknięte ryzyka: 6 (w archiwum) • Progi rotacji: dziennik 150 KB, lekcje
 40 wpisów albo 50 KB, STATE 300 linii • Archiwum dziennika: siedem plików, ostatni
