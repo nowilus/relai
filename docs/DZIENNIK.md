@@ -9,8 +9,8 @@
 | P1 | Adaptery Cursor/Codex nie egzekwują blokad harnessu — sekret albo zmiana konfiguracji przejdzie tam, gdzie w Claude Code stoi ściana (plan ROZWOJ_PO_WYDANIU) | **Średni** (2026-08-12 po E4; wcześniej wysoki) | **OTWARTE** | Część sekretowa jest zamknięta dowodem z aplikacji: w Cursorze zadziałały obie warstwy — reguła odmówiła pierwsza, a przy prośbie o próbę mimo reguły zapis klucza odbił hook `preToolUse` werdyktem `permission: deny`; niezależnie od narzędzia commit z sekretem zatrzymuje gitowy pre-commit. Otwarte z dwóch powodów: Cursor nie ma egzekwowanego `ask`, więc pliki konfiguracyjne chroni tam sama reguła zamiast bramki, a Codex pozostaje niezmierzony do odmrożenia E7 planu ROZWOJ_PO_WYDANIU. Zmierzone: 2026-08-12 (E4), 2026-08-12 (E5), 2026-08-17 (E6) |
 | P2 | Odpowiednik R2 w Cursor/Codex: bez auto-wyzwalania skilli proces zależy od dyscypliny modelu (plan ROZWOJ_PO_WYDANIU) | **Niski dla Cursora, średni dla Codeksa** (2026-08-17 po E6; wcześniej średni) | **OTWARTE (już tylko Codex)** | Reguła zawsze-w-kontekście działa w Cursorze bez żadnego wyzwalacza: pilotaż przeszedł pełny cykl na trzech modelach, a cały etap poprowadził model spoza Anthropic (Grok 4.6) — rytuał startu, karta etapu z kontrolą modelu, granica zakresu, rytuał zamknięcia z promptem następnego etapu. Dyscyplina procesu nie zależy od dostawcy modelu. Otwarte już tylko dla Codeksa: warstwą nośną ma tam być `AGENTS.md` z twardym limitem 32 KiB, a skille wyzwalają się dopasowaniem opisu — tym samym mechanizmem, który przy R2 okazał się zależny od modelu. Zmierzone: 2026-08-12 (E4), 2026-08-12 (E5), 2026-08-17 (E6) |
 
-| S1 | Bramka dokumentacyjna przepuści coś potrzebnego — plik nieśledzony, o którym architektura milczy, a bez którego nie da się powtórzyć pomiaru (plan SPRZATANIE_ARTEFAKTOW, ryzyko 1) | **Wysoki** (2026-09-03, przy powstaniu mechanizmu) | **OTWARTE** | Kasowanie wyłącznie po „tak" na grupę z pełną listą pozycji; pliki śledzone nigdy nie są kandydatami; niepewność rozstrzygana na korzyść ochrony; „zostaw na zawsze" dopisuje marker, więc pytanie nie wraca. Pierwszy pomiar (E1, własne repo): 8 grup, 9 pozycji chronionych z powodem — w tym `benchmark`-owy odpowiednik, czyli `.claude/relai/templates` z powodem `opisane` i wskazaniem `README.md:150`. **Bramka przepuściła dorobek własnego etapu**: dwa nowe, niezacommitowane pliki produktu stanęły w grupach jako kandydaci (L-0078) — ochroną jest tam `git add`, nie marker, ale to jest realne trafienie tego ryzyka. Niezmierzone na cudzym projekcie: raport na PolyFlow zostaje jako bramka manualna planu. E2: drugi przebieg bez ani jednego fałszywego kandydata — 1 grupa (katalog etapu zamkniętego), 5 pozycji chronionych, w tym `templates` powodem `opisane`. **E3: trafienie powtórzyło się na innym pliku** — świeżo wygenerowany `PROMPT_ETAP_4.md`, jeszcze nieprzyjęty do indeksu, stanął w raporcie jako kandydat (grupa „repo: katalog docs") i zniknął po `git add`. Wzorzec jest więc stały, nie jednorazowy: **granicą ochrony dorobku sesji jest indeks gita**, a nie marker — i to zdanie należy mówić wprost przy sprzątaniu w trakcie etapu (L-0078). Zmierzone: 2026-09-03 (E1, E2, E3) |
-| S2 | Narzędzie skasuje coś poza dozwolonymi korzeniami — zła ścieżka względna, dowiązanie prowadzące na zewnątrz, junction do innego dysku (plan SPRZATANIE_ARTEFAKTOW, ryzyko 2) | **Wysoki** (2026-09-03, przy powstaniu mechanizmu) | **OTWARTE** | Asercje w `kasuj`: każda ścieżka po `realpath` musi leżeć **pod** katalogiem projektu albo pod `os.tmpdir()`, nie być którymkolwiek korzeniem ani `.git` projektu; dowiązanie usuwane jako dowiązanie, bez wchodzenia do celu. Pierwszy pomiar (E1) z dowodami negatywnymi: ścieżka w katalogu domowym i `.git` projektu → dwie odmowy, zero skasowanych, `.git` **31 plików przed i 31 po**; junction wskazujący poza kandydata → dowiązanie zniknęło, cel **2 pliki przed i 2 po**. Klon repozytorium z obiektami tylko do odczytu skasowany bez ani jednego niepowodzenia (14 923 442 B → 0 B). E2: kasowanie 141,2 MB w katalogu roboczym etapu zamkniętego, zero niepowodzeń, `%TEMP%` i `work/` puste po operacji. E3: trzeci przebieg, katalog roboczy etapu i pusty katalog tematu, zero niepowodzeń; **ochrona `etap trwa` pokazana w obie strony w jednym dniu** — ten sam katalog był chroniony przy statusie `W TOKU` i został kandydatem dopiero po `ZREALIZOWANY`. Niezmierzone: zachowanie przy junction na inny dysk i przy ścieżce dłuższej niż limit Windows. Zmierzone: 2026-09-03 (E1, E2, E3) |
+| S1 | Bramka dokumentacyjna przepuści coś potrzebnego — plik nieśledzony, o którym architektura milczy, a bez którego nie da się powtórzyć pomiaru (plan SPRZATANIE_ARTEFAKTOW, ryzyko 1) | **Wysoki** (2026-09-03, przy powstaniu mechanizmu) | **OTWARTE** | Kasowanie wyłącznie po „tak" na grupę z pełną listą pozycji; pliki śledzone nigdy nie są kandydatami; niepewność rozstrzygana na korzyść ochrony; „zostaw na zawsze" dopisuje marker, więc pytanie nie wraca. Pierwszy pomiar (E1, własne repo): 8 grup, 9 pozycji chronionych z powodem — w tym `benchmark`-owy odpowiednik, czyli `.claude/relai/templates` z powodem `opisane` i wskazaniem `README.md:150`. **Bramka przepuściła dorobek własnego etapu**: dwa nowe, niezacommitowane pliki produktu stanęły w grupach jako kandydaci (L-0078) — ochroną jest tam `git add`, nie marker, ale to jest realne trafienie tego ryzyka. Niezmierzone na cudzym projekcie: raport na PolyFlow zostaje jako bramka manualna planu. E2: drugi przebieg bez ani jednego fałszywego kandydata — 1 grupa (katalog etapu zamkniętego), 5 pozycji chronionych, w tym `templates` powodem `opisane`. **E3: trafienie powtórzyło się na innym pliku** — świeżo wygenerowany `PROMPT_ETAP_4.md`, jeszcze nieprzyjęty do indeksu, stanął w raporcie jako kandydat (grupa „repo: katalog docs") i zniknął po `git add`. Wzorzec jest więc stały, nie jednorazowy: **granicą ochrony dorobku sesji jest indeks gita**, a nie marker — i to zdanie należy mówić wprost przy sprzątaniu w trakcie etapu (L-0078). **E4: pierwsze trafienie na cudzym projekcie i najpoważniejsze z dotychczasowych.** Powód `opisane` chronił w PolyFlow **dwa** pliki benchmarku z ośmiu, a sześć dalszych — w tym `formatowanie/probki.json` i `probki_lista.json` z realnymi wypowiedziami właściciela — stanęło w grupie kandydatów. Ochrona przez opis obejmuje wyłącznie to, co ktoś opisał **w dokumencie projektu**; komentarz nad wzorcem w `.gitignore` tym dokumentem nie jest, choć czyta się identycznie. Bramka zadziałała (nic nie zniknęło bez „tak"), ale sama nie wystarczy — potrzebny był marker, i to siedem markerów zamiast zakładanych dwóch. **Ryzyko zostaje otwarte**: mechanizm jest zależny od tego, czy człowiek opisał materiał tam, gdzie narzędzie patrzy. Zmierzone: 2026-09-03 (E1, E2, E3, E4) |
+| S2 | Narzędzie skasuje coś poza dozwolonymi korzeniami — zła ścieżka względna, dowiązanie prowadzące na zewnątrz, junction do innego dysku (plan SPRZATANIE_ARTEFAKTOW, ryzyko 2) | **Wysoki** (2026-09-03, przy powstaniu mechanizmu) | **OTWARTE** | Asercje w `kasuj`: każda ścieżka po `realpath` musi leżeć **pod** katalogiem projektu albo pod `os.tmpdir()`, nie być którymkolwiek korzeniem ani `.git` projektu; dowiązanie usuwane jako dowiązanie, bez wchodzenia do celu. Pierwszy pomiar (E1) z dowodami negatywnymi: ścieżka w katalogu domowym i `.git` projektu → dwie odmowy, zero skasowanych, `.git` **31 plików przed i 31 po**; junction wskazujący poza kandydata → dowiązanie zniknęło, cel **2 pliki przed i 2 po**. Klon repozytorium z obiektami tylko do odczytu skasowany bez ani jednego niepowodzenia (14 923 442 B → 0 B). E2: kasowanie 141,2 MB w katalogu roboczym etapu zamkniętego, zero niepowodzeń, `%TEMP%` i `work/` puste po operacji. E3: trzeci przebieg, katalog roboczy etapu i pusty katalog tematu, zero niepowodzeń; **ochrona `etap trwa` pokazana w obie strony w jednym dniu** — ten sam katalog był chroniony przy statusie `W TOKU` i został kandydatem dopiero po `ZREALIZOWANY`. **E4: czwarty przebieg, pierwszy na cudzym projekcie** — dwie pozycje (katalog etapu zamkniętego 90 MB i katalog w `%TEMP%` 35 MB), **125,0 → 0,0 MB**, zero niepowodzeń, a pomiar ponowny dał zero kandydatów. Asercje korzeni wytrzymały też przypadek, którego nikt nie planował: ścieżka **dysko-relatywna ze znakiem CR w środku** (rozjechane escapowanie w `node -e`) rozwinęła się względem katalogu projektu, `lstat` jej nie znalazł i **żadna operacja nie wykonała się na dysku**. Ujawniło to jednak osobną wadę raportowania: taka pozycja jest meldowana jako `skasowane`, nie jako `nieobecne` (`work-artifacts.js:843`) — wołający nie ma po czym poznać, że jego lista jest zepsuta. Wada zapisana w `STATE.md`, poza zakresem planu. Niezmierzone bez zmian: junction na inny dysk i ścieżka dłuższa niż limit Windows. Zmierzone: 2026-09-03 (E1, E2, E3, E4) |
 
 > Ryzyka zamknięte R1, R3, R4, R6, R7, R8 (6 pozycji) są w
 > [docs/archiwum/ryzyka/RYZYKA_2026-08-21.md](archiwum/ryzyka/RYZYKA_2026-08-21.md)
@@ -1723,3 +1723,124 @@ Autor: RelAI (Opus) + Lukasz
   właściciela tamtego projektu przy pierwszym raporcie w E4.
 - **Raport `/relai-clean` na PolyFlow** — bramka z E1, trzecia sesja bez dostępu do tamtego
   folderu. Termin bez zmian: najpóźniej razem z E4.
+  *(rozstrzygnięte 2026-09-03 — wykonane w E4 jako pełny przebieg, nie sam odczyt)*
+
+### 2026-09-03 — E4: wydanie 1.8.0 zmierzone na dwóch projektach, plan SPRZATANIE_ARTEFAKTOW zamknięty
+
+Autor: RelAI (Opus 5) + Lukasz
+
+**Zrobione — dowiezione vs plan:**
+
+Plan miał cztery etapy i **dowiózł wszystkie cztery**. E1 dał narzędzie rdzenia i komendę, E2 —
+zdanie na starcie sesji i krok 2a rytuału zamknięcia, E3 — katalog roboczy nazwany z góry
+w promptach etapowych i odnogach, E4 — dokument użytkownika, wydanie 1.8.0 i pomiar. Nie przepadło
+nic z zakresu. Zakres E4 wyszedł w jednym miejscu **szerzej niż plan**: markerów `zachowaj`
+w PolyFlow miało być dwa, postawionych jest siedem — powód niżej.
+
+- **Część pierwsza (przed restartem), commit `6dba2a4`:** jedenasta komenda w dokumencie
+  użytkownika (`KOMENDY.md` 10 → 11 komend, `README.md` 10 → 11 wierszy z ikoną, ikony 10 → 11
+  plików), `SPEC_KOMENDY.md` z zakresem 1.8.0, `relai-update.md` z wierszem `Artefakty robocze`
+  i tabelą jedenastu komend, wersja 1.8.0 w trzech źródłach, pięć podbić w `ARTEFAKTY.md`.
+  Sekwencja **P-005** przeszła w całości: push → `claude plugin update` → restart aplikacji →
+  potwierdzenie **treścią pliku** z cache'u `1.8.0/`.
+- **Ikona `clean.svg`** w stylu dziesięciu istniejących: `viewBox` 48, kreska 2.6 z akcentem 2.2,
+  paleta `#8a7f70` + `#c4643c`. Rejestr artefaktów ikon nie prowadzi (zero wystąpień `svg`
+  w `ARTEFAKTY.md`), więc pozycja dla niej nie powstała — to nie przeoczenie, tylko kształt
+  rejestru.
+- **Pomiar u siebie, parą przebiegów** (L-0081): hook startu z cache'u **1.8.0**, pełne wyjście
+  **1201 znaków, 0 wystąpień** `[RelAI artefakty robocze]` przy pustym `work/`; kontrola pozytywna
+  (3 MB w `work/` przy progu 1 MB) → **1 wystąpienie** z wagą, liczbą pozycji, trzema najcięższymi
+  i propozycją `/relai-clean`. Cisza jest wynikiem pomiaru, nie awarią instrumentu.
+- **`git grep` po `1.7.0` przepuszczony przez repozytorium:** trafienia w **32 plikach**, każde
+  rozstrzygnięte. Wszystkie to wzmianki historyczne — „od 1.7.0", „since 1.7.0", „nowość 1.7.0",
+  trigger lekcji, przykładowy raport adopcji datowany 2026-08-09. W `MANIFEST.json`,
+  `plugin.json` i `marketplace.json` **zero**. Jedyne deklaracje stanu stały w `docs/STATE.md`
+  i poszły do 1.8.0 razem z tym wpisem.
+- **PolyFlow: `/relai-update` 1.7.0 → 1.8.0.** Cztery zmiany po pokazaniu diffu i zgodzie: wiersz
+  `Artefakty robocze | włączone · 100 MB`, człon o sprzątaniu dopisany do linii fraz sesji
+  w `CLAUDE.md`, jedenasta komenda w `KOMENDY.md` z punktem zachowań automatycznych, marker wersji
+  **na końcu**. Nietknięte jako świadomy wybór projektu (R6): wiersze `Rotacja dokumentów`,
+  `Budżet startu sesji`, `Przegląd spraw człowieka`, sekcja reguł profilu `app`, sekcja „Czeka na
+  człowieka". Gitowy pre-commit **nie instalowany**.
+- **Narzędzie podłożył hook, nie ręczne kopiowanie:** `.claude/relai/tools/clean-work.js` powstało
+  w PolyFlow przy pierwszym przebiegu hooka startu w tamtym folderze.
+- **Materiał wytworzony celowo, nie zastany:** 90 MB w `work/AWATAR_3D/E1` (etap
+  **ZREALIZOWANY 2026-08-31**), 20 MB w `work/AWATAR_3D/E2` (etap **GOTOWY DO STARTU** — kontrola
+  ochrony) i 35 MB w `%TEMP%\polyflow-awatar-render`. **Klonu repozytorium nie robiłem** wbrew
+  literze promptu: materiał nieśledzony po stronie repo jest w PolyFlow realny (`tools/cache/`,
+  13 MB, zero plików śledzonych), a realny bije sztuczny.
+
+**Zweryfikowane — jak dokładnie:**
+
+- **Linia na starcie sesji PolyFlow, para przebiegów.** Przed materiałem cisza; po materiale
+  **„waza 125.0 MB w 2 poz. przy progu 100 MB"**, najcięższe z pochodzeniem —
+  `work/AWATAR_3D/E1` 90.0 MB (`etap`), `%TEMP%\polyflow-awatar-render` 35.0 MB (`temp-projekt`).
+  Z wytworzonych **145 MB do sumy weszło 125 MB**: 20 MB katalogu etapu niezamkniętego mechanizm
+  pominął sam, bez pytania.
+- **Pełny przebieg `/relai-clean` na PolyFlow.** Raport: cztery grupy, pomiar **2391 ms**, suma
+  kandydatów **125,4 MB**, **13 pozycji chronionych z powodem**. Kasowanie po „tak" na grupę:
+  dwie pozycje, **125,0 MB przed, 0,0 MB po**, kod wyjścia 0. Raport ponowny: **zero kandydatów**,
+  pomiar 1149 ms; start sesji znów milczy.
+- **Dowód negatywny na `tools/`:** katalogu **nie ma w raporcie w ogóle** — ani wśród kandydatów,
+  ani wśród chronionych, bo 26 plików jest śledzonych. Kandydatem był wyłącznie `tools/cache/`
+  i to on dostał marker.
+- **Powody chronionych, dosłownie z raportu:** `.claude/relai/work/AWATAR_3D/E2` →
+  `etap trwa / E2 / GOTOWY DO STARTU`; `tools/cache` → `zachowaj / .gitignore: tools/cache/`;
+  `benchmark/nagranie.mp3` → `opisane / docs/ARCHITEKTURA.md:2055`; `benchmark/wzorzec.txt` →
+  `opisane / README.md:41`; `polyflow/venv` → `opisane / docs/ARCHITEKTURA.md:11`;
+  `polyflow/sessions` → `opisane / docs/ARCHITEKTURA.md:2042`; `release` →
+  `opisane / docs/ARCHITEKTURA.md:499`.
+- **Hook `profile-rules` sprawdzony wywołaniem, parą przebiegów** (L-0081): sześć plików zakresu
+  → **cisza** (0 znaków każdy, w tym `clean.svg`); kontrola pozytywna na artefakcie spoza rejestru
+  → ostrzeżenie „artefakt … nie ma wpisu w docs/ARTEFAKTY.md".
+- **Katalog roboczy etapu — dowód w obie strony, drugi raz.** Przy statusie `W TOKU` ten sam
+  katalog stał wśród chronionych z powodem `etap trwa / E4 / W TOKU` i raport miał **zero
+  kandydatów**; po zmianie statusu na `ZREALIZOWANY 2026-09-03` przeszedł do grupy
+  `etap zamkniety`. Skasowany po „tak": **5 plików / 64 KB przed, 0 plików po** (`hook-profile.js`,
+  `hook-start.js`, `hook-start2.js`, `polyflow-pomiar.js`, `plan-text.txt`). Pusty katalog tematu
+  (4 KB) **został** — narzędzie pokaże go przy następnym przebiegu jako
+  `katalog tematu bez podkatalogow`.
+- **Artefakty poza katalogiem roboczym, z nazwy:** `%TEMP%\relai-e4-kontrola` (kontrola pozytywna,
+  usunięta przez własny skrypt), `%TEMP%\polyflow-awatar-render` (35 MB, skasowany komendą),
+  `PolyFlow\.claude\relai\work\AWATAR_3D\E1` (90 MB, skasowany komendą), `…\E2` (20 MB, usunięty
+  ręcznie przez właściciela), `PolyFlow\.claude\relai\e4-zachowaj.json` (lista pomocnicza,
+  usunięta), pusty `…\work\AWATAR_3D` (skasowany narzędziem). `work/` w PolyFlow jest puste.
+
+**Dlaczego markerów jest siedem, a nie dwa:**
+
+Bramka planu zakładała markery dla `tools/cache/` i „surowego materiału benchmarku", z założeniem,
+że benchmark jest już chroniony powodem `opisane`. **Pomiar to obalił.** `opisane` obejmowało
+**dwa** pliki z ośmiu (`nagranie.mp3`, `wzorzec.txt`), a sześć dalszych stało w grupie kandydatów
+`repo: katalog benchmark` — w tym `formatowanie/probki.json` i `probki_lista.json`, które
+`.gitignore` PolyFlow opisuje jako „realne wypowiedzi wlasciciela". Ochrona przez opis działa
+wyłącznie dla tego, co ktoś realnie opisał **w dokumencie projektu**; komentarz nad wzorcem
+w `.gitignore` tym dokumentem nie jest. Wszystkie siedem markerów postawiło **narzędzie**
+(`clean-work.js zachowaj`) nad **istniejącymi** wzorcami — żaden nowy wzorzec nie powstał.
+Pozycje chronione w PolyFlow: **13 → 21**.
+
+**Świadomie odłożone:**
+
+- **`kasuj` melduje `skasowane` dla ścieżki, której nie ma.** Gałąź „juz go nie ma — stan docelowy
+  osiagniety" w `core/process/work-artifacts.js:843` gasi jedyny sygnał, po którym wołający
+  poznałby, że lista zawiera literówkę albo rozjechane escapowanie. Zreprodukowane dwa razy dziś:
+  ścieżka dysko-relatywna z `\r` w środku (skutek `node -e` z podwójnym escapowaniem backslashy)
+  dała `Skasowane: 1` bez ani jednej realnej operacji, a `Przed/po` nic nie powiedziało, bo
+  pozycja i tak liczyła 0,0 MB. Poprawka to rozdzielenie `skasowane` od `nieobecne` w wyniku
+  i w wydruku — **kod z E1, wydany już w 1.8.0**, więc poza zakresem E4. Przeniesione do
+  `docs/STATE.md`, sekcja „Co dalej", żeby nie zginęło z folderem planu w archiwum.
+- **Grubość kreski ikon renderowanych w 17–23 px** — jedenasta ikona powstała w tej samej kresce
+  2.6 co dziesięć poprzednich, bo podbicie do 3.2 dotyczy **wszystkich jedenastu naraz**. Sprawa
+  zostaje otwarta w `STATE.md`.
+- **Reguły 1.8.0 adaptera Cursora nie były uruchomione w Cursorze** — tak samo jak 1.7.0. Ryzyko
+  przyjęte świadomie (ryzyko 5 planu).
+- **Lekcji z tego etapu nie dopisuję do destylatu** — „Zasady aktywne" mają 15 przy limicie 15,
+  a nowa pozycja wymaga kompresji tematycznej za zgodą człowieka. Znalezisko o fałszywym `OK`
+  mieści się pod zasadą 5 („instrument pomiarowy sam bywa źródłem fałszu") i pod L-0037, który
+  już mówi: wyrażenia i ścieżki trzymaj w pliku, nie w `node -e`.
+
+**Do zrobienia przez człowieka:**
+
+- **Wybrać następny plan** — `CLAUDE.md` ma teraz `Aktywny plan: brak`. Kandydaci: odmrożenie
+  ROZWOJ_PO_WYDANIU (E7 czeka na dostęp do Codeksa), migracja JiraManagera (ostatni projekt bez
+  rotacji, trzyma otwarte ryzyko R5), trzy odnogi zamrożonego planu, poprawka `kasuj` opisana
+  wyżej.

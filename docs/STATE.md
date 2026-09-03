@@ -4,15 +4,15 @@ Stan na: 2026-09-03
 
 ## Gdzie jesteśmy
 
-RelAI jest **wydany w 1.7.0** i ma dwa wyjścia: Claude Code oraz Cursor — te same dokumenty i ten
-sam proces w dwóch narzędziach. Plan **HIGIENA_DOKUMENTOW zamknięty 2026-09-01**, sześć etapów
-z sześciu: rotacja przestała się zatykać na własnej regule, gdy stoi — mówi na czym i ile to
-kosztuje, sprawa czekająca dłużej niż 30 dni wymusza decyzję na starcie, każdy próg ma adres
-w raporcie startu, a komórka „Mitygacja" i plik ustawień mają drogę do archiwum. E6 dowiózł to,
-czego wcześniejsze etapy nie miały: **pomiar po wydaniu, w świeżej sesji, w zainstalowanym
-pluginie, na cudzym projekcie**. Plan ROZWOJ_PO_WYDANIU jest **zamrożony** — E7 czeka na dostęp do
-Codeksa. **Aktywny plan: SPRZATANIE_ARTEFAKTOW** — 1 etap z 4: narzędzie rdzenia i komenda
-`/relai-clean` działają w repozytorium (jeszcze nie w wydaniu), E2 gotowy do startu.
+RelAI jest **wydany w 1.8.0** i ma dwa wyjścia: Claude Code oraz Cursor — te same dokumenty i ten
+sam proces w dwóch narzędziach. Plan **SPRZATANIE_ARTEFAKTOW zamknięty 2026-09-03**, cztery etapy
+z czterech: pliki robocze po zamkniętych etapach mają cztery momenty sprzątania i zawsze ten sam
+tryb — raport w grupach, jedno „tak" na grupę, bramka dokumentacyjna. E4 dowiózł to, co przesądza
+o wiarygodności mechanizmu: **pełny przebieg na cudzym projekcie, na materiale wytworzonym
+celowo** — PolyFlow 125,0 → 0,0 MB. Wcześniej plan **HIGIENA_DOKUMENTOW zamknięty 2026-09-01**,
+sześć etapów z sześciu: rotacja przestała się zatykać na własnej regule, sprawa czekająca dłużej
+niż 30 dni wymusza decyzję na starcie, każdy próg ma adres w raporcie startu. Plan
+ROZWOJ_PO_WYDANIU jest **zamrożony** — E7 czeka na dostęp do Codeksa. **Aktywnego planu nie ma.**
 
 ## Co działa
 
@@ -66,8 +66,15 @@ Codeksa. **Aktywny plan: SPRZATANIE_ARTEFAKTOW** — 1 etap z 4: narzędzie rdze
   po cztery**; kasuje wyłącznie po „tak" na grupę i zawsze mierzy ponownie po operacji. Plik
   śledzony przez gita nie jest kandydatem nigdy, a lokalną notatkę właściciela chroni linia-marker
   `# relai: zachowaj` w `.gitignore`. Pierwszy realny przebieg (tutaj, 2026-09-03): 8 grup,
-  9 pozycji chronionych z powodem, **0,59 MB / 25 121 plików sprzątnięte, 0 B po**. Jest
-  w repozytorium, **jeszcze nie w wydaniu** — ikona i wydanie 1.8.0 to E4.
+  9 pozycji chronionych z powodem, **0,59 MB / 25 121 plików sprzątnięte, 0 B po**. **Wydane
+  w 1.8.0 i zmierzone na cudzym projekcie:** PolyFlow dostał komendę przez `/relai-update`,
+  narzędzie podłożył hook startu, a na materiale 145 MB wytworzonym celowo start sesji powiedział
+  **125,0 MB przy progu 100 MB** — 20 MB katalogu etapu niezamkniętego pominął sam. Pełny przebieg
+  komendy: cztery grupy, 13 pozycji chronionych z powodem, kasowanie po „tak" na grupę
+  **125,0 → 0,0 MB**, raport ponowny z zerem kandydatów. Siedem markerów `zachowaj` postawionych
+  **narzędziem, nad istniejącymi wzorcami** — bez dokładania nowych; pozycje chronione **13 → 21**.
+  Ochrona przez opis ma zmierzoną granicę: `opisane` obejmowało **dwa** pliki benchmarku z ośmiu,
+  bo komentarz nad wzorcem w `.gitignore` dokumentem projektu nie jest.
 - **Etap wie, gdzie wolno mu tworzyć pliki — zanim je utworzy.** Prompt etapowy i prompt odnogi
   **otwierają zakres linią z katalogiem roboczym** (`.claude/relai/work/<TEMAT>/E<N>/`, odnoga
   `<NAZWA_ODNOGI>`, wątek samodzielny `_fixy`), a artefakt, który z natury musi leżeć poza
@@ -98,18 +105,9 @@ Codeksa. **Aktywny plan: SPRZATANIE_ARTEFAKTOW** — 1 etap z 4: narzędzie rdze
   Dopóki nie wejdzie, **ryzyko R5 zostaje otwarte**, zawężone już wyłącznie do tego jednego
   projektu: mechanizm jest kompletny i zmierzony na dwóch projektach z trzech.
 - **Plan ROZWOJ_PO_WYDANIU pozostaje zamrożony** (6/8). E7 — adapter Codeksa — czeka na dostęp.
-- **Plan SPRZATANIE_ARTEFAKTOW: E1–E3 zrealizowane 2026-09-03, E4 gotowy do startu** (3/4).
-  Mechanizm jest **kompletny w repozytorium i wciąż niewidoczny dla użytkownika**: `docs/KOMENDY.md`,
-  `README.md`, `SPEC_KOMENDY.md` i `relai-update.md` mają **zero wystąpień `relai-clean`** (FAKT).
-  E4 to ostatni etap: jedenasta komenda w dokumencie użytkownika, ikona `clean.svg`, wiersze 1.8.0
-  w `relai-update.md`, podbicie wersji w trzech źródłach, sekwencja P-005 z restartem i **pomiar na
-  dwóch projektach** — tutaj 0 znaków na starcie, w PolyFlow pełny przebieg komendy na materiale
-  wytworzonym celowo. Etap zamyka trzy bramki `OTWARTA` i kończy się **sekwencją zamknięcia planu
-  (D-36)**. Po co cały plan: porządki w PolyFlow 2026-09-03 pokazały ~550 MB artefaktów etapowych
-  poza Gitem i w `%TEMP%` (FAKT). Sprzątanie ma cztery momenty (zamknięcie etapu, „kończymy na
-  dziś", zdanie na starcie sesji, `/relai-clean`) i zawsze ten sam tryb: raport w grupach, jedno
-  „tak" na grupę, bramka dokumentacyjna. Plan:
-  [docs/plany/SPRZATANIE_ARTEFAKTOW/](plany/SPRZATANIE_ARTEFAKTOW/STATUS.md).
+- **Aktywnego planu nie ma.** Plan SPRZATANIE_ARTEFAKTOW zamknięty 2026-09-03 (4/4) i przeniesiony
+  do [archiwum](archiwum/plany/SPRZATANIE_ARTEFAKTOW/STATUS.md); ROZWOJ_PO_WYDANIU pozostaje
+  zamrożony. Następny plan wybiera człowiek — kandydaci są w sekcji „Co dalej".
 
 ## Co dalej
 
@@ -121,7 +119,16 @@ Codeksa. **Aktywny plan: SPRZATANIE_ARTEFAKTOW** — 1 etap z 4: narzędzie rdze
   zamknięciu planu HIGIENA_DOKUMENTOW.
 - **Ikony README renderują się w 17–23 px, nie w 24 px** — kolor jest naprawiony i zmierzony, ale
   kreska 2,6 przy `viewBox` 48 schodzi wtedy do 0,92 px. Dwie drogi, obie czekają na decyzję:
-  podbicie grubości do 3.2 albo scalenie kolumny ikony z kolumną komendy w README.
+  podbicie grubości do 3.2 albo scalenie kolumny ikony z kolumną komendy w README. Sprawa
+  **zostawiona świadomie otwarta** przy zamknięciu planu SPRZATANIE_ARTEFAKTOW: jedenasta ikona
+  (`clean.svg`) powstała w tej samej kresce 2.6 co dziesięć poprzednich, bo podbicie dotyczy
+  **wszystkich jedenastu naraz** — jedna ikona grubsza rozjechałaby zestaw.
+- **`kasuj` melduje `skasowane` dla ścieżki, której nie ma** — gałąź „juz go nie ma, stan docelowy
+  osiagniety" w `core/process/work-artifacts.js:843` gasi jedyny sygnał, po którym wołający poznałby,
+  że lista zawiera literówkę albo rozjechane escapowanie. Zreprodukowane dwa razy 2026-09-03 (E4):
+  ścieżka dysko-relatywna z `\r` w środku dała `Skasowane: 1` bez ani jednej realnej operacji.
+  Poprawka to rozdzielenie `skasowane` od `nieobecne` w wyniku i w wydruku — poza zakresem E4, bo
+  to kod z E1 wydany już w 1.8.0.
 - **60 martwych linków w sekcji „Czeka na człowieka" PolyFlow** — pozostałość po rotacjach sprzed
   1.7.0, które kroku przepięcia nie miały. Osobna operacja na cudzych pozycjach.
 - **Rotacja lekcji i rotacja ryzyk `ZAMKNIĘTYCH` w PolyFlow** — obie należne, obie świadomie poza
@@ -146,8 +153,9 @@ Codeksa. **Aktywny plan: SPRZATANIE_ARTEFAKTOW** — 1 etap z 4: narzędzie rdze
   w E6 na żywym starcie sesji po restarcie.
 - **Adapter Cursora zmierzony w aplikacji, ale nie w całości.** Pilotaż potwierdził reguły, hook
   kontekstu, obie warstwy blokady sekretu i pełne przejście `/relai-stage`. Niezmierzone: hook
-  `beforeReadFile`, dostęp poza katalogiem roboczym, osiem pozostałych komend. Reguły 1.7.0
-  adaptera Cursora **nie były uruchomione w Cursorze** — wydanie zmierzono wyłącznie w Claude Code.
+  `beforeReadFile`, dostęp poza katalogiem roboczym, osiem pozostałych komend. Reguły **1.7.0
+  i 1.8.0** adaptera Cursora **nie były uruchomione w Cursorze** — oba wydania zmierzono wyłącznie
+  w Claude Code.
 - Repozytorium jest **publiczne**, ale ma pusty opis — odnoga `OPIS_REPO`.
 
 ---
@@ -156,11 +164,11 @@ Codeksa. **Aktywny plan: SPRZATANIE_ARTEFAKTOW** — 1 etap z 4: narzędzie rdze
 
 ### Wersja i instalacja
 
-Repozytorium: **1.7.0**, wypchnięte. Zainstalowany globalnie (scope `user`): **1.7.0**, działa
-w aplikacji — potwierdzone po restarcie 2026-09-01 **treścią pliku, nie komunikatem CLI**: lokalna
-kopia `SPEC_ARCHIWUM.md` w projekcie ma 53 057 B wobec 27 390 B przed restartem, a
-`session-signals.js` w cache'u 1.6.1 nie miał ani jednego wystąpienia `dokumentyPonadProgiem`
-i `sprawyPrzeterminowane`. Źródło: własny marketplace w tym samym repozytorium.
+Repozytorium: **1.8.0**, wypchnięte. Zainstalowany globalnie (scope `user`): **1.8.0**, działa
+w aplikacji — potwierdzone po restarcie 2026-09-03 **treścią pliku, nie komunikatem CLI**: cache
+`1.8.0/` niesie jedenaście plików komend i linię 28 skilla `relai-core` o markerze `zachowaj`,
+a hook startu z tego cache'u przeszedł w tej sesji pomiar na dwóch projektach. Walidator:
+kod 0, „3 zrodel, wartosc 1.8.0". Źródło: własny marketplace w tym samym repozytorium.
 
 ### Zawartość pluginu
 
@@ -168,8 +176,8 @@ i `sprawyPrzeterminowane`. Źródło: własny marketplace w tym samym repozytori
 jako skrypty (skan sekretów, pre-commit, instalator) • rozpoznania startu sesji
 (`process/session-signals.js`, wołane przez oba adaptery) • walidator spójności • `MANIFEST.json`.
 
-**Adapter Claude Code**: dwa skille, **jedenaście komend w repozytorium** (dziesięć w wydaniu
-1.7.0 — `/relai-clean` czeka na 1.8.0), dziesięć hooków Node.js bez zależności npm.
+**Adapter Claude Code**: dwa skille, **jedenaście komend** (`/relai-clean` weszła do wydania
+w 1.8.0), dziesięć hooków Node.js bez zależności npm.
 Manifest i marketplace zostają w `.claude-plugin/` w korzeniu — tego wymaga Claude Code.
 
 **Adapter Cursor**: trzy reguły `.mdc` z `alwaysApply: true`, dwa hooki z opakowaniem powłoki dla
@@ -190,7 +198,8 @@ Pułapki: [PULAPKI.md](PULAPKI.md)
 
 ### Liczby
 
-Etapy: BUDOWA_RELAI 10/10 • ROZWOJ_PO_WYDANIU 6/8 (ZAMROŻONY) • OPTYMALIZACJA_KONTEKSTU 5/5 • SPRZATANIE_ARTEFAKTOW **3/4** •
+Etapy: BUDOWA_RELAI 10/10 • ROZWOJ_PO_WYDANIU 6/8 (ZAMROŻONY) • OPTYMALIZACJA_KONTEKSTU 5/5 •
+SPRZATANIE_ARTEFAKTOW **4/4 (ZREALIZOWANY 2026-09-03)** •
 HIGIENA_DOKUMENTOW **6/6 (ZREALIZOWANY 2026-09-01)** •
 Warstwa startowa RelAI: **37,0 KB / 80 KB**, raport startu **0 znaków** • Warstwa startowa
 PolyFlow: **157,3 KB / 80 KB**, raport **5 linii przy limicie 6** • Dziennik RelAI: **107,4 KB /
@@ -198,11 +207,11 @@ próg 150 KB** • Lekcje **27 lekcji** w żywym rejestrze, ostatnia
 **L-0082** • Sprawy czekające na człowieka: **3 tutaj**, **32 w PolyFlow**, żadna nieprzeterminowana
 przy progu 30 dni • Progi w katalogu: **18, z tego 16 z adresem egzekwowania** •
 Zasady aktywne: **15 przy limicie 15** •
-Scenariusze akceptacyjne: 4/4 zdane + pilotaż Cursora • Adaptery: 2 •
+Scenariusze akceptacyjne: 4/4 zdane + pilotaż Cursora • Adaptery: 2 • Komendy: **11** •
 Modele, na których zmierzono proces: 5 (Fable, Opus, Haiku, Composer/auto, Grok 4.6) •
-Projekty na 1.7.0: 2 (RelAI, PolyFlow) • Aktywny plan: SPRZATANIE_ARTEFAKTOW **3/4** (E1–E3 ZREALIZOWANE 2026-09-03, E4 gotowy — ostatni) • Otwarte wątki: 3 odnogi zamrożonego planu •
-Artefakty w rejestrze: 39 (sześć podbitych w E3) • Otwarte bramki manualne: **4** (zamknięta lista rdzeni + trzy planu
-SPRZATANIE_ARTEFAKTOW: ikona `clean.svg`, markery w PolyFlow, raport na PolyFlow) •
+Projekty na 1.8.0: 2 (RelAI, PolyFlow) • **Aktywny plan: brak** • Otwarte wątki: 3 odnogi zamrożonego planu •
+Artefakty w rejestrze: 39 (pięć podbitych w E4) • Otwarte bramki manualne: **1** (zamknięta lista
+rdzeni rozstrzygnięcia; trzy bramki planu SPRZATANIE_ARTEFAKTOW rozstrzygnięte 2026-09-03) •
 Otwarte ryzyka: 6 • Zamknięte ryzyka: 6 (w archiwum) • Progi rotacji: dziennik 150 KB, lekcje
 40 wpisów albo 50 KB, STATE 300 linii • Archiwum dziennika: siedem plików, ostatni
 2026-08-17…2026-08-21 (18 wpisów, `74a4d2a5fb9a3390`)
