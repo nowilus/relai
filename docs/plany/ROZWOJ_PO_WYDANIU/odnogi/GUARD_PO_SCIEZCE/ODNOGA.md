@@ -30,8 +30,19 @@ naprawiamy, ale osobno.
    `adapters/cursor/hooks/secret-scanner.js`.
 3. Sprawdzenie `isGitIgnored()` — dziś woła `git check-ignore` z `cwd` sesji; ma być wołane
    z katalogu projektu, do którego należy plik, inaczej wynik dotyczy cudzego repozytorium.
-4. Pozostałe hooki adaptera Claude Code (osiem z własną kopią `isGuest`) — przepięte na rdzeń albo
-   świadomie zostawione, z powodem zapisanym w `core/README.md`.
+4. Pozostałe hooki adaptera Claude Code z własną kopią `isGuest` — przepięte na rdzeń albo
+   świadomie zostawione, z powodem zapisanym w `core/README.md`. **Liczba zaktualizowana
+   2026-09-03: dziewięć, nie osiem** (`auto-format`, `config-protection`, `console-log-warn`,
+   `design-quality-check`, `doc-sync-reminder`, `journal-signature`, `profile-rules`,
+   `quality-gate`, `session-context`) — FAKT, policzone `grep -l isGuest` w dniu odświeżenia
+   promptu. `config-protection.js` ma **własną** kopię `relaiMarkerFile` (linia 31), więc punkt 2
+   znaczy dla niego przepięcie na rdzeń, nie samą zmianę argumentu.
+5. **`core/process/work-artifacts.js:877`** — trzeci konsument `git check-ignore` wołany z `cwd`
+   sesji, ta sama klasa błędu co punkt 3. Dopisany do zakresu **2026-09-03** decyzją człowieka:
+   plik powstał w E1 planu SPRZATANIE_ARTEFAKTOW (2026-09-03) i jest już wydany w 1.8.0, więc karta
+   z 2026-08-17 nie mogła o nim wiedzieć. Powód dopisania: rozdzielenie tej samej poprawki na dwa
+   wątki zostawiłoby połowę dziury — sprzątanie pytałoby gita o cudze repozytorium dokładnie tak
+   samo, jak robi to dziś skan sekretów.
 
 ## Poza zakresem
 
@@ -51,6 +62,9 @@ naprawiamy, ale osobno.
       przechodzi, ten sam sekret w pliku śledzonym nie.
 - [ ] Instrument porównawczy dwóch adapterów (L-0040) w jednym przebiegu: komplet zgodnych
       werdyktów przed zmianą i po niej dla materiału z katalogu sesji.
+- [ ] **Sprzątanie liczy `git check-ignore` względem projektu pliku** — raport `/relai-clean`
+      uruchomiony z sesji spoza projektu docelowego nie uznaje jego plików śledzonych za kandydatów
+      (dowód negatywny na materiale, który dziś przechodzi).
 - [ ] `node core/tools/validate-adapters.js` → kod 0.
 
 ## Wynik

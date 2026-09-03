@@ -4,7 +4,7 @@
 
 | # | Ryzyko | Poziom | Status | Mitygacja |
 |---|---|---|---|---|
-| R2 | Auto-wyzwalanie skilli bywa zawodne (agent nie zastosuje zasad bez komendy) | **Niski przy Opusie, średni przy modelach słabszych** (2026-08-10 po E10) | **ZMIERZONE 2026-08-10, OTWARTE ŚWIADOMIE** | Warstwą nośną są hook `session-context` i `CLAUDE.md` projektu — działają przy każdym modelu, bez wyzwalania; skill dokłada wyłącznie procedurę (L-0030). Opus wyzwala skill sam i wykonuje procedurę w całości; Sonnet 4.6 i Haiku 4.5 nie wołają `Skill` ani razu, więc projekt nie traci pamięci, ale procedura bywa niepełna. Otwarte świadomie: to trwała własność modeli, nie usterka do naprawienia. Zakres ryzyka rósł od 1.1.0 bez pomiaru — dziesiąta komenda, sygnał odchylenia, rozjazd stanu i kontrola podpisu nie były mierzone w świeżej sesji, bo limit konta zatrzymał CLI (L-0032). **Odnoga `POMIAR_ODNOG` anulowana 2026-09-01** — ta część zakresu zostaje niezmierzona świadomie, karta zostaje w repo. Zmierzone: 2026-08-07 (E5), 2026-08-10 (E10), 2026-08-12 (E1), 2026-08-12 (E3) |
+| R2 | Auto-wyzwalanie skilli bywa zawodne (agent nie zastosuje zasad bez komendy) | **Niski przy Opusie, średni przy modelach słabszych** (2026-08-10 po E10) | **ZAMKNIĘTE 2026-09-03** | Warstwą nośną są hook `session-context` i `CLAUDE.md` projektu — działają przy każdym modelu, bez wyzwalania; skill dokłada wyłącznie procedurę (L-0030). Opus wyzwala skill sam i wykonuje procedurę w całości; Sonnet 4.6 i Haiku 4.5 nie wołają `Skill` ani razu, więc projekt nie traci pamięci, ale procedura bywa niepełna. Otwarte świadomie: to trwała własność modeli, nie usterka do naprawienia. Zakres ryzyka rósł od 1.1.0 bez pomiaru — dziesiąta komenda, sygnał odchylenia, rozjazd stanu i kontrola podpisu nie były mierzone w świeżej sesji, bo limit konta zatrzymał CLI (L-0032). **Odnoga `POMIAR_ODNOG` anulowana 2026-09-01** — ta część zakresu zostaje niezmierzona świadomie, karta zostaje w repo. **ZAMKNIĘTE 2026-09-03 decyzją człowieka** przy domknięciu tej odnogi: ryzyko zamyka się nie dlatego, że brakujące dziewięć scenariuszy zmierzono, tylko dlatego, że **nie zostaną zmierzone nigdy** — warunkiem był `claude /login` na konto z limitem, a decyzja brzmi „odpuszczamy". To, co niesie ochronę, jest zmierzone i działa: hook i `CLAUDE.md` są niezależne od wyzwalania skilla, więc niezmierzona zostaje wyłącznie kompletność procedury przy modelach słabszych od Opusa — trwała własność modeli, nie zaległość projektu. Powrót jest tani: karta odnogi zostaje w repozytorium, a pojawienie się konta z limitem otwiera ryzyko z powrotem jednym wierszem. Zmierzone: 2026-08-07 (E5), 2026-08-10 (E10), 2026-08-12 (E1), 2026-08-12 (E3) |
 | R5 | Dokumenty puchną i zjadają kontekst | **Niski dla projektów na 1.7.0, średni dla niezmigrowanych** (2026-09-01 po E6; wcześniej średni) | **ZMIERZONE 2026-09-01, OTWARTE ŚWIADOMIE — zawężone do migracji JiraManagera** | Mechanizm jest kompletny **i zadziałał na cudzym projekcie w żywej sesji**, nie tylko w instrumentach: PolyFlow 1.6.1 → 1.7.0, rotacja dziennika **183,1 → 147,3 KB** (9 wpisów, suma `566dca8a4dd45ba7` odczytana z dysku przed przycięciem), rotacja ustawień **29,8 → 25,4 KB** (16 wierszy, 5 wierszy maszynowych nietkniętych), przepięcie linków z bilansem zero (60 przed, 65 po rotacji, 60 po przepięciu). Tutaj: dziennik **155,6 → 74,1 KB**, 18 wpisów do archiwum, raport startu z 2 linii na **0**. Zawężone, bo to, co zostało, nie jest już własnością mechanizmu: **JiraManager (386 KB startu) czeka na okno właściciela**, a warstwa startowa PolyFlow (157,3 KB przy budżecie 80 KB) jest gruba sekcją ryzyk, `CLAUDE.md` i `STATE.md` — odchudzają je decyzje człowieka, nie archiwum. Zmierzone: 2026-08-20, 2026-08-21, 2026-09-01 (E1–E6) |
 | P1 | Adaptery Cursor/Codex nie egzekwują blokad harnessu — sekret albo zmiana konfiguracji przejdzie tam, gdzie w Claude Code stoi ściana (plan ROZWOJ_PO_WYDANIU) | **Średni** (2026-08-12 po E4; wcześniej wysoki) | **OTWARTE** | Część sekretowa jest zamknięta dowodem z aplikacji: w Cursorze zadziałały obie warstwy — reguła odmówiła pierwsza, a przy prośbie o próbę mimo reguły zapis klucza odbił hook `preToolUse` werdyktem `permission: deny`; niezależnie od narzędzia commit z sekretem zatrzymuje gitowy pre-commit. Otwarte z dwóch powodów: Cursor nie ma egzekwowanego `ask`, więc pliki konfiguracyjne chroni tam sama reguła zamiast bramki, a Codex pozostaje niezmierzony do odmrożenia E7 planu ROZWOJ_PO_WYDANIU. Zmierzone: 2026-08-12 (E4), 2026-08-12 (E5), 2026-08-17 (E6) |
 | P2 | Odpowiednik R2 w Cursor/Codex: bez auto-wyzwalania skilli proces zależy od dyscypliny modelu (plan ROZWOJ_PO_WYDANIU) | **Niski dla Cursora, średni dla Codeksa** (2026-08-17 po E6; wcześniej średni) | **OTWARTE (już tylko Codex)** | Reguła zawsze-w-kontekście działa w Cursorze bez żadnego wyzwalacza: pilotaż przeszedł pełny cykl na trzech modelach, a cały etap poprowadził model spoza Anthropic (Grok 4.6) — rytuał startu, karta etapu z kontrolą modelu, granica zakresu, rytuał zamknięcia z promptem następnego etapu. Dyscyplina procesu nie zależy od dostawcy modelu. Otwarte już tylko dla Codeksa: warstwą nośną ma tam być `AGENTS.md` z twardym limitem 32 KiB, a skille wyzwalają się dopasowaniem opisu — tym samym mechanizmem, który przy R2 okazał się zależny od modelu. Zmierzone: 2026-08-12 (E4), 2026-08-12 (E5), 2026-08-17 (E6) |
@@ -1844,3 +1844,71 @@ Pozycje chronione w PolyFlow: **13 → 21**.
   ROZWOJ_PO_WYDANIU (E7 czeka na dostęp do Codeksa), migracja JiraManagera (ostatni projekt bez
   rotacji, trzyma otwarte ryzyko R5), trzy odnogi zamrożonego planu, poprawka `kasuj` opisana
   wyżej.
+  *(rozstrzygnięte 2026-09-03 — kolejność odnóg ustalona, patrz wpis niżej)*
+
+### 2026-09-03 — Kolejność odnóg ustalona: GUARD_PO_SCIEZCE odświeżony, POMIAR_ODNOG domknięty zupełnie
+
+Autor: RelAI (Opus 5) + Lukasz
+
+**Zrobione:**
+
+- **Kolejność trzech odnóg zamrożonego planu ustalona decyzją człowieka:** `GUARD_PO_SCIEZCE`
+  teraz, `REKOMENDACJA_MODELU` na koniec, `OPIS_REPO` przy okazji. Czwarta, `POMIAR_ODNOG`,
+  domknięta zupełnie.
+- **`POMIAR_ODNOG` — domknięcie.** Karta była `ANULOWANA 2026-09-01` z wypełnioną sekcją „Wynik",
+  ale dyndały dwie rzeczy. `PROMPT_ODNOGA.md` **usunięty** (`git rm`): gotowy prompt w folderze
+  odnogi anulowanej wygląda dla świeżej sesji jak zadanie do wykonania, a nie jak ślad po decyzji.
+  Historia gita trzyma go w całości, więc D-18 („nigdy ciche kasowanie") jest zachowane, a karta
+  i zakres zostają — odtworzenie promptu z karty jest tak samo tanie jak jego pierwsze powstanie.
+- **Ryzyko R2 zamknięte 2026-09-03.** Nie dlatego, że dziewięć brakujących scenariuszy zmierzono,
+  tylko dlatego, że **nie zostaną zmierzone nigdy**: warunkiem był `claude /login` na konto
+  z dostępnym limitem, a decyzja brzmi „odpuszczamy". Zamknięcie jest uczciwe, bo to, co niesie
+  ochronę, jest zmierzone i działa — hook `session-context` i `CLAUDE.md` projektu są niezależne
+  od wyzwalania skilla (L-0030). Niezmierzona zostaje wyłącznie kompletność procedury przy
+  modelach słabszych od Opusa, a to trwała własność modeli, nie zaległość projektu. Powrót jest
+  tani: karta zostaje w repozytorium, konto z limitem otwiera ryzyko z powrotem jednym wierszem.
+- **`GUARD_PO_SCIEZCE` — karta rozszerzona o punkt 5.** `core/process/work-artifacts.js:877` woła
+  `git check-ignore` z `cwd` sesji, czyli powtarza dokładnie ten błąd, który odnoga naprawia
+  w punkcie 3. Plik powstał w E1 planu SPRZATANIE_ARTEFAKTOW **dziś** i jest już wydany w 1.8.0,
+  więc karta z 2026-08-17 nie mogła o nim wiedzieć. Decyzja człowieka: dopisać do zakresu, bo
+  rozdzielenie tej samej poprawki na dwa wątki zostawiłoby połowę dziury — sprzątanie pytałoby
+  gita o cudze repozytorium tak samo, jak robi to dziś skan sekretów. Weryfikacja dostała
+  odpowiadający punkt.
+- **`PROMPT_ODNOGA.md` odnogi `GUARD_PO_SCIEZCE` wygenerowany od nowa.** Poprzedni był z sierpnia
+  i kłamał o stanie repozytorium w pięciu miejscach naraz.
+
+**Zweryfikowane — jak dokładnie:**
+
+- **Rozbieżności starego promptu policzone na repozytorium, nie oszacowane:** „RelAI 1.5.2" wobec
+  **1.8.0**; „osiem hooków z własną kopią `isGuest`" wobec **dziewięciu**
+  (`grep -l isGuest adapters/claude-code/hooks/*.js` → `auto-format`, `config-protection`,
+  `console-log-warn`, `design-quality-check`, `doc-sync-reminder`, `journal-signature`,
+  `profile-rules`, `quality-gate`, `session-context`); „cztery źródła wersji" wobec **trzech**
+  (walidator: „3 zrodel, wartosc 1.8.0"); destylat **47 lekcji** wobec **15 zasad** przy limicie
+  15; kotwica `relaiMarkerFile()` w linii **48** wobec linii **53**.
+- **Rozkład konsumentów rdzenia sprawdzony w kodzie, nie założony:**
+  `adapters/claude-code/hooks/secret-scanner.js` **konsumuje** rdzeń (linie 22–33),
+  `adapters/cursor/hooks/secret-scanner.js` też (linia 34), ale
+  `adapters/claude-code/hooks/config-protection.js` ma **własną** kopię `isGuest` (linia 20)
+  **i** `relaiMarkerFile` (linia 31). To zmienia treść punktu 2 zakresu: dla tego hooka znaczy on
+  przepięcie na rdzeń, nie samą zmianę argumentu. Stary prompt nazywał oba „konsumentami rdzenia".
+- **Trzy miejsca wołające `git check-ignore` z `cwd` sesji** wypisane ze ścieżkami i liniami:
+  `adapters/claude-code/hooks/secret-scanner.js:38`, `adapters/cursor/hooks/secret-scanner.js:38`,
+  `core/process/work-artifacts.js:877`.
+- **`core/README.md:84` niesie nieaktualną liczbę** („pozostałych ośmiu hooków") — wpisane do
+  zakresu jako poprawka niezależna od wybranego wariantu przepięcia.
+
+**Świadomie odłożone:**
+
+- **Prompty `REKOMENDACJA_MODELU` i `OPIS_REPO` nie były odświeżane** — są z sierpnia i opisują
+  RelAI 1.5.x, więc mają tę samą chorobę co odświeżony dziś. Odświeżenie należy do sesji, która
+  je uruchomi; zapisane w `STATE.md`, żeby nikt nie wystartował z przeterminowanego promptu.
+- **Odnoga nie została wykonana w tej sesji.** Zmiana dotyka guardraili w rdzeniu i obu adapterach,
+  a weryfikacja wymaga instrumentu porównującego dwa adaptery w jednym przebiegu (L-0040) — ta
+  sesja ma za sobą cały etap E4 i zamknięcie planu.
+
+**Do zrobienia przez człowieka:**
+
+- **Uruchomić `GUARD_PO_SCIEZCE` w świeżej sesji Opus** — prompt jest gotowy:
+  `docs/plany/ROZWOJ_PO_WYDANIU/odnogi/GUARD_PO_SCIEZCE/PROMPT_ODNOGA.md`. Odnoga kończy się
+  wydaniem **1.8.1** wg sekwencji P-005, więc potrzebny będzie restart aplikacji przed pomiarem.

@@ -112,3 +112,10 @@ sygnał odchylenia, rozjazd stanu i kontrola podpisu.
 
 **Odwrócenie jest tanie:** karta i zakres zostają w repozytorium, więc gdy pojawi się konto
 z limitem, odnoga wraca jednym zdaniem — nic nie trzeba odtwarzać.
+
+**Domknięcie 2026-09-03 (decyzja człowieka).** `PROMPT_ODNOGA.md` **usunięty** — gotowy prompt
+w folderze odnogi anulowanej wygląda dla świeżej sesji jak zadanie do wykonania, a nie jak ślad po
+decyzji; historia gita trzyma go w całości (D-18: przeniesienie albo zapis, nigdy ciche kasowanie).
+Karta i zakres zostają, więc odwrócenie nadal jest tanie: prompt odtwarza się z tej karty tak samo,
+jak powstał pierwotnie. Razem z tym **ryzyko R2 zostało zamknięte** — nie dlatego, że scenariusze
+zmierzono, tylko dlatego, że nie zostaną zmierzone nigdy i przestaje to być zaległością.

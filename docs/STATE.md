@@ -133,8 +133,16 @@ ROZWOJ_PO_WYDANIU jest **zamrożony** — E7 czeka na dostęp do Codeksa. **Akty
   1.7.0, które kroku przepięcia nie miały. Osobna operacja na cudzych pozycjach.
 - **Rotacja lekcji i rotacja ryzyk `ZAMKNIĘTYCH` w PolyFlow** — obie należne, obie świadomie poza
   zakresem E6. Raport startu tamtego projektu mówi o nich przy każdym uruchomieniu.
-- Trzy odnogi zamrożonego planu, w dowolnej kolejności: `OPIS_REPO`, `REKOMENDACJA_MODELU`,
-  `GUARD_PO_SCIEZCE`. Każda ma gotowy prompt; zamrożenie planu ich nie dotyczy.
+- **`GUARD_PO_SCIEZCE` — następna w kolejce, prompt odświeżony 2026-09-03.** Guardraile szukają
+  markera projektu wyłącznie od katalogu sesji (`session-signals.js:53`), więc sesja otwarta gdzie
+  indziej zapisze sekret do cudzego projektu RelAI i zmieni jego `CLAUDE.md` bez ostrzeżenia. Karta
+  rozszerzona o punkt 5: **trzeci** konsument `git check-ignore` z `cwd` sesji
+  (`work-artifacts.js:877`, wydany w 1.8.0). Startuje **świeżą sesją Opus** z
+  `PROMPT_ODNOGA.md`; kończy się wydaniem **1.8.1** wg P-005.
+- Dwie pozostałe odnogi, kolejność ustalona 2026-09-03: `REKOMENDACJA_MODELU` (odblokowuje E7 —
+  klasy modeli zejdą do nazw z listy narzędzia), potem `OPIS_REPO` (pusty `description` i tematy
+  na GitHubie). **Ich prompty są z sierpnia i wymagają tego samego odświeżenia** co
+  `GUARD_PO_SCIEZCE` — opisują RelAI 1.5.x. Zamrożenie planu odnóg nie dotyczy.
 - Potwierdzić albo cofnąć **osiem rozstrzygnięć wpisanych w E2** planu OPTYMALIZACJA_KONTEKSTU —
   wypisane co do jednego 2026-09-01, każde ze swoim dowodem.
 - Usunąć metadane sesji `ProbaCursorE6` (`~/.claude/projects/`, `~/.claude/session-data/`,
@@ -148,9 +156,11 @@ ROZWOJ_PO_WYDANIU jest **zamrożony** — E7 czeka na dostęp do Codeksa. **Akty
 
 - **Pomiar zachowań w świeżej sesji CLI nie odbędzie się** — `claude -p` uwierzytelnia się z własnego
   pliku poświadczeń, a konto tam zapisane ma wyczerpany limit (L-0032). Odnoga `POMIAR_ODNOG`
-  **anulowana 2026-09-01**: dziewięć scenariuszy zostaje niezmierzonych, a **ryzyko R2 pozostaje
-  otwarte świadomie** w części dołożonej po 1.1.0. Nie dotyczy to zachowań hooków — te zmierzono
-  w E6 na żywym starcie sesji po restarcie.
+  **anulowana 2026-09-01 i domknięta zupełnie 2026-09-03**: dziewięć scenariuszy zostaje
+  niezmierzonych, prompt odnogi usunięty (historia gita go trzyma), a **ryzyko R2 zamknięte** —
+  nie dlatego, że coś zmierzono, tylko dlatego, że nie zostanie zmierzone nigdy, więc przestaje
+  być zaległością. Nie dotyczy to zachowań hooków — te zmierzono w E6 na żywym starcie sesji po
+  restarcie, a warstwa nośna ochrony (hook + `CLAUDE.md`) działa bez wyzwalania skilla.
 - **Adapter Cursora zmierzony w aplikacji, ale nie w całości.** Pilotaż potwierdził reguły, hook
   kontekstu, obie warstwy blokady sekretu i pełne przejście `/relai-stage`. Niezmierzone: hook
   `beforeReadFile`, dostęp poza katalogiem roboczym, osiem pozostałych komend. Reguły **1.7.0
@@ -212,6 +222,7 @@ Modele, na których zmierzono proces: 5 (Fable, Opus, Haiku, Composer/auto, Grok
 Projekty na 1.8.0: 2 (RelAI, PolyFlow) • **Aktywny plan: brak** • Otwarte wątki: 3 odnogi zamrożonego planu •
 Artefakty w rejestrze: 39 (pięć podbitych w E4) • Otwarte bramki manualne: **1** (zamknięta lista
 rdzeni rozstrzygnięcia; trzy bramki planu SPRZATANIE_ARTEFAKTOW rozstrzygnięte 2026-09-03) •
-Otwarte ryzyka: 6 • Zamknięte ryzyka: 6 (w archiwum) • Progi rotacji: dziennik 150 KB, lekcje
+Otwarte ryzyka: **5** (R2 zamknięte 2026-09-03) • Zamknięte ryzyka: **7** (6 w archiwum, R2
+w żywej tabeli) • Progi rotacji: dziennik 150 KB, lekcje
 40 wpisów albo 50 KB, STATE 300 linii • Archiwum dziennika: siedem plików, ostatni
 2026-08-17…2026-08-21 (18 wpisów, `74a4d2a5fb9a3390`)

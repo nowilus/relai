@@ -38,7 +38,9 @@ projektu; architektura i plany: Fable)
   i 6, dopisane 2026-08-12) · źródło: E1, zakres rozszerzony w E2 i E3 ·
   [karta](odnogi/POMIAR_ODNOG/ODNOGA.md) · **ANULOWANA 2026-09-01** — warunkiem startu było
   `claude /login` na konto z dostępnym limitem (L-0032); decyzją człowieka odpuszczamy i login,
-  i odnogę. Dziewięć scenariuszy zostaje niezmierzonych, a **ryzyko R2 zostaje otwarte świadomie**
+  i odnogę. Dziewięć scenariuszy zostaje niezmierzonych. **Domknięta zupełnie 2026-09-03:**
+  `PROMPT_ODNOGA.md` usunięty (historia gita go trzyma), a **ryzyko R2 zamknięte** — nie dlatego,
+  że scenariusze zmierzono, tylko dlatego, że nie zostaną zmierzone nigdy
 - **REKOMENDACJA_MODELU** — rekomendacja modelu wykonawczego z realnej listy modeli narzędzia
   (Cursor: Composer/Auto/Grok/GPT/Gemini; Codex: warianty GPT) zamiast bezprzydomkowych klas ·
   źródło: E6, pilotaż 2026-08-17 · [karta](odnogi/REKOMENDACJA_MODELU/ODNOGA.md) · **OTWARTA**
