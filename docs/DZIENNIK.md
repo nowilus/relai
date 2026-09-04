@@ -31,10 +31,9 @@
   potwierdzenie albo sprzeciw** · 2026-08-20 ·
   [wpis 2026-09-01 — Osiem bramek z listy zamkniętych](#2026-09-01--osiem-bramek-z-listy-zamkniętych-plan-rozwoj_po_wydaniu-zamrożony-formalnie)
 
-- **Trzy bramki planu `REKOMENDACJA_MODELU`** *(pozycja zawężona 2026-09-03 — plan został
-  zaakceptowany tego samego dnia, więc czekanie na akceptację odpadło)*: adresy stron dokumentacji
-  modeli dla obu narzędzi **i** decyzja o zgodzie na ruch sieciowy blokują **E2**; numer wydania
-  (1.9.0 czy 1.8.2) czeka przed E4 · 2026-09-03 ·
+- **Numer wydania planu `REKOMENDACJA_MODELU`: 1.9.0 czy 1.8.2** — czeka przed E4 *(pozycja zawężona
+  dwa razy: 2026-09-03 odpadło czekanie na akceptację planu, 2026-09-04 **rozstrzygnięte** obie
+  bramki wejściowe E2 — pięć adresów źródeł i zgoda na sieć każdorazowa)* · 2026-09-03 ·
   [wpis 2026-09-03 — Wydanie 1.8.1 potwierdzone](#2026-09-03--wydanie-181-potwierdzone-po-restarcie-plan-rekomendacja_modelu-do-akceptacji)
 
 - **Lista modeli Cursora jest niekompletna** — z pomiaru mam wyłącznie `strong: Grok 4.6` (pilotaż
@@ -2219,6 +2218,14 @@ materiał odtwarzany i na końcu dowiedziony jako nietknięty (zasada 5, L-0083)
   `<TO BE FILLED IN: …>`. Nie blokuje E2; to właśnie ta komenda ma je uzupełniać.
 - **Dwie bramki nadal blokują E2**: adresy stron dokumentacji modeli dla obu narzędzi oraz decyzja,
   czy zgoda na ruch sieciowy pada przy każdym odświeżeniu, czy raz na projekt.
+  *(rozstrzygnięte 2026-09-04: pięć adresów wskazanych przez człowieka i sprawdzonych odczytem tego
+  samego dnia — `code.claude.com/docs/en/model-config` jako główne dla Claude Code,
+  `support.claude.com/en/articles/11940350-…` jako lista ID, `platform.claude.com/docs/en/api/models/list`
+  jako źródło opcjonalne wymagające `X-Api-Key`, `cursor.com/docs/models-and-pricing` jako główne dla
+  Cursora i `cursor.com/help/models-and-usage/available-models` jako uzupełnienie opisowe; zgoda na
+  ruch sieciowy **każdorazowa**, więc wiersz w `USTAWIENIA.md` nie powstaje. Przy okazji rozstrzygnięte
+  sprowadzanie ~40 nazw Cursora do trzech klas: komenda pokazuje kandydatów i pyta, nie typuje sama.
+  `STATUS.md` i `PROMPT_ETAP_2.md` zaktualizowane, warunek startu zdjęty)*
 - **Numer wydania (1.9.0 czy 1.8.2)** — przed E4. Kod E1 mówi już „1.9.0" w komentarzach.
 - **Ryzyko R2 warto otworzyć ponownie albo przepisać** — zamknięto je 2026-09-03 zdaniem „nie
   zostanie zmierzone nigdy", opartym na L-0032 (wyczerpany limit `claude -p`). W tej sesji

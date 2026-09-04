@@ -7,15 +7,9 @@ D-85")
 > **Kontrola modelu:** ten etap wykonuj wyłącznie na modelu **Opus** (D-85). Jeśli sesja działa na
 > innym modelu — zatrzymaj się i poproś użytkownika o przełączenie, zanim cokolwiek zrobisz.
 
-> **Warunek startu — dwie bramki manualne.** Ten etap **nie startuje**, dopóki człowiek nie
-> rozstrzygnie obu pozycji z sekcji „Bramki manualne" `STATUS.md`:
-> 1. **adresy stron dokumentacji modeli** dla Claude Code i dla Cursora — bez nich jedynym źródłem
->    odświeżenia zostaje pytanie do człowieka, a to zmienia zakres komendy;
-> 2. **czy zgoda na ruch sieciowy pada przy każdym odświeżeniu, czy raz na projekt** — „raz na
->    projekt" wymaga własnego wiersza w `docs/USTAWIENIA.md` i własnego wyłącznika.
->
-> Sprawdź je w `STATUS.md` **zanim** cokolwiek napiszesz. Obie nadal `OTWARTE` → zatrzymaj się,
-> wypisz je i zapytaj. Nie zgadujesz adresów i nie przyjmujesz domyślnej odpowiedzi za człowieka.
+> **Obie bramki wejściowe są rozstrzygnięte (2026-09-04)** — adresy źródeł i tryb zgody na sieć
+> masz w sekcji „Decyzje już podjęte". Startu nic nie blokuje. Adresów **nie szukasz sam** i nie
+> podmieniasz ich na „nowsze", które znajdziesz po drodze: to decyzja człowieka, nie propozycja.
 
 ## Co przeczytać na start (w tej kolejności, nic więcej)
 
@@ -34,6 +28,36 @@ D-85")
 
 ## Decyzje już podjęte — NIE otwieraj ich ponownie
 
+- **Zgoda na ruch sieciowy pada KAŻDORAZOWO** — bramka rozstrzygnięta 2026-09-04. Każde wywołanie
+  `/relai-models` pyta o zgodę przed pierwszym połączeniem. **Nie powstaje** wiersz zgody
+  w `docs/USTAWIENIA.md` ani osobny wyłącznik, a zapamiętanie zgody „na projekt" jest **zakazane**.
+  To jest zwężenie punktu 7 zakresu: wyjątku dla `USTAWIENIA.md` nie ma.
+- **Adresy źródeł — wskazane przez człowieka, wszystkie sprawdzone odczytem 2026-09-04.** Claude
+  Code, w kolejności użycia: (1) `https://code.claude.com/docs/en/model-config` — **główne**, tabela
+  aliasów (`opus`, `sonnet`, `haiku`, `fable`, `best`, `opusplan`, `sonnet[1m]`, `opus[1m]`) i tabela
+  poziomów `effort`; (2)
+  `https://support.claude.com/en/articles/11940350-claude-code-model-configuration` — lista modeli
+  wspieranych przez Claude Code z pełnymi ID, **nośnikiem jest lista punktowa, nie tabela**;
+  (3) `https://platform.claude.com/docs/en/api/models/list` — **opcjonalne**: `GET /v1/models` zwraca
+  listę maszynowo, ale **wymaga nagłówka `X-Api-Key`**, więc używasz go wyłącznie wtedy, gdy klucz
+  jest w `.env`; wartości klucza nie zapisujesz nigdzie (D-42), a brak klucza znaczy „pomiń to
+  źródło", nie „zgłoś błąd". Cursor: `https://cursor.com/docs/models-and-pricing` — **główne**, dwie
+  parsowalne tabele; `https://cursor.com/help/models-and-usage/available-models` — uzupełniające,
+  modele w prozie, przydatne dla opisu klas, nie dla nazw.
+- **Aliasy Claude Code są warstwą, którą użytkownik realnie przełącza model** (`opus`, `sonnet`,
+  `haiku`, `fable`). Lista ma nieść **i alias, i pełne ID** — dziś w `MODELE.md` stoi sama nazwa
+  z ID. Poszerzenie linii o alias mieści się w formacie z E1 (kolejne pole `nazwa: wartość` po `|`)
+  i **nie jest** przeprojektowaniem bloku.
+- **Żadna ze stron Cursora nie ma daty aktualizacji** (sprawdzone 2026-09-04). `list-date` po
+  odświeżeniu jest **datą odczytu**, nie datą źródła — i tak ma być nazwane w adnotacji źródła
+  przy pozycji.
+- **`docs.claude.com/en/docs/about-claude/models/overview` oddaje 302** na `platform.claude.com`.
+  Do listy wchodzi adres **docelowy**; komenda, która trafi na przekierowanie, idzie za nim raz
+  i zapisuje adres końcowy.
+- **Lista Cursora ma ~40 pozycji, a klasy są trzy: komenda POKAZUJE kandydatów i pyta, nie typuje
+  sama** — bramka rozstrzygnięta 2026-09-04. Modele wypisujesz pogrupowane po dostawcy i pytasz,
+  który idzie do której klasy. RelAI nie rankuje cudzych modeli (sekcja 2 planu: „lista mówi, co
+  jest, nie co lepsze").
 - **Zapis dopiero po „tak".** Komenda pokazuje **różnicę stara–nowa** przed zapisem; „nie" zostawia
   plik nietknięty. Sekcja 2 planu, cel 3.
 - **Sieć wyłącznie w komendzie wywołanej wprost.** Hook startu zostaje w całości lokalny i cichy —
@@ -181,9 +205,13 @@ projektu. Katalog powstaje przy pierwszym zapisie, nie na zapas.
    z własnego rozpoznania narzędzia) → **zgoda na ruch sieciowy w kształcie rozstrzygniętym bramką**
    → odczyt źródła → **różnica stara–nowa pokazana przed zapisem** → zapis dopiero po „tak".
    Sekcja „Zakazy tej komendy" na końcu, wzorem pozostałych.
-2. **Dwa źródła, w tej kolejności:** strona dokumentacji pod adresem z bramki, a gdy jej nie ma albo
-   odczyt zawiódł — **pytanie do człowieka**, którego odpowiedź zapisujesz z adnotacją „podane przez
-   człowieka" i datą. Niepowodzenie obu źródeł zostawia listę **nietkniętą** i mówi o tym wprost.
+2. **Źródła w kolejności z sekcji „Decyzje już podjęte"**, a gdy wszystkie zawiodą — **pytanie do
+   człowieka**, którego odpowiedź zapisujesz z adnotacją „podane przez człowieka" i datą.
+   Niepowodzenie wszystkich źródeł zostawia listę **nietkniętą** i mówi o tym wprost. Przy liście
+   Cursora krok pośredni jest obowiązkowy: **wypisz kandydatów pogrupowanych po dostawcy i zapytaj**,
+   który model idzie do której klasy.
+2a. **Zgoda na sieć pada przed pierwszym połączeniem, przy każdym wywołaniu** — bez niej komenda
+   przechodzi od razu do pytania do człowieka i nie dotyka sieci ani razu.
 3. **Zapis idzie do kopii w projekcie** (`.claude/relai/MODELE-<narzędzie>.md`), nie do pliku
    adaptera — kopia jest trwała (E1), więc odświeżenie przeżywa start sesji. `list-date` przestawiasz
    **wyłącznie wtedy**, gdy realnie zmieniła się treść listy.
@@ -198,14 +226,17 @@ projektu. Katalog powstaje przy pierwszym zapisie, nie na zapas.
 7. **Nie ruszasz**: `core/process/session-signals.js` (prowizjonowanie zostaje jakie jest),
    hooków startu, `SPEC_CLAUDE_MD.md`, `SPEC_STATUS.md`, `SPEC_PROMPT_ETAPU.md`,
    `validate-adapters.js`, `docs/USTAWIENIA.md` ani numeru wersji — to zakres E3 i E4.
-   Wyjątek dla `USTAWIENIA.md`: **wyłącznie** wtedy, gdy bramka rozstrzygnie „zgoda raz na projekt"
-   — wtedy wiersz zgody należy do tego etapu, bo bez niego komenda nie ma gdzie zapisać odpowiedzi.
+   `USTAWIENIA.md` **bez wyjątku**: zgoda na sieć jest każdorazowa, więc nie ma czego zapisywać.
 
 ## Weryfikacja (wszystkie punkty muszą przejść)
 
-- [ ] **Obie bramki manualne rozstrzygnięte** przed pracą, a ich rozstrzygnięcia zapisane
-      w `STATUS.md` (`ROZSTRZYGNIĘTA <data> — <jak>`) i w sekcji „Do zrobienia przez człowieka"
-      wpisu dziennika.
+- [ ] **Adresy źródeł w komendzie są dokładnie tymi z sekcji „Decyzje już podjęte"** — pięć pozycji,
+      żadnej podmienionej ani dołożonej; adres `docs.claude.com/...` (przekierowujący) **nie
+      występuje** w treści komendy. Dowód: `grep` po treści `relai-models.md`.
+- [ ] **Zgoda na sieć pada przy każdym wywołaniu (dowód negatywny, zasada 3):** dwa wywołania pod
+      rząd w tym samym projekcie kontrolnym — **oba** pytają o zgodę. Kontrola pozytywna w tym samym
+      przebiegu: `docs/USTAWIENIA.md` po obu wywołaniach **nie ma** żadnego nowego wiersza (suma
+      kontrolna przed i po, po normalizacji CRLF → LF).
 - [ ] `adapters/claude-code/commands/relai-models.md` istnieje, ma frontmatter z `description`
       i sekcję „Zakazy tej komendy"; `ls adapters/claude-code/commands/*.md | wc -l` → **12**.
 - [ ] **„Nie" zostawia plik nietknięty (dowód negatywny, zasada 3):** w projekcie kontrolnym
@@ -236,8 +267,9 @@ projektu. Katalog powstaje przy pierwszym zapisie, nie na zapas.
 
 1. **`docs/plany/REKOMENDACJA_MODELU/STATUS.md`** — E2 → `ZREALIZOWANY <data>`, E3 →
    `GOTOWY DO STARTU` z linkiem do `PROMPT_ETAP_3.md` w kolumnie `Prompt`, linia w dzienniku
-   wdrożenia. Sekcję „Bramki manualne" odśwież: obie bramki tego etapu → `ROZSTRZYGNIĘTA <data>`,
-   nowe pozycje z sekcji „Do zrobienia przez człowieka" Twojego wpisu → `OTWARTA`.
+   wdrożenia. Sekcję „Bramki manualne" odśwież: obie bramki wejściowe są już
+   `ROZSTRZYGNIĘTA 2026-09-04` i tego **nie ruszasz**; dopisujesz wyłącznie nowe pozycje z sekcji
+   „Do zrobienia przez człowieka" Twojego wpisu, ze statusem `OTWARTA`.
 1a. **Katalog roboczy etapu** — zmierz, pokaż pozycje, skasuj po „tak"; obie liczby idą do wpisu
    z punktu 2.
 2. **`docs/DZIENNIK.md`** — wpis wg `SPEC_DZIENNIK.md` na końcu sekcji „Wpisy": Zrobione /

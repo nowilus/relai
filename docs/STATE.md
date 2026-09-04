@@ -128,10 +128,12 @@ w którym trwa sesja, zamiast trzech klas. E2 czeka na dwie bramki człowieka.
   projektu: mechanizm jest kompletny i zmierzony na dwóch projektach z trzech.
 - **Plan REKOMENDACJA_MODELU — 1/4, E1 zamknięty 2026-09-03.** Kamień milowy planu zapadł już przy
   pierwszym etapie: pytanie o model pokazuje nazwy. Reszta planu dokłada świeżość listy i miejsca,
-  w których nazwa ma konsekwencje. **E2 (`/relai-models`) jest `GOTOWY DO STARTU`, ale zablokowany
-  dwiema bramkami**: adresami stron dokumentacji modeli dla obu narzędzi i decyzją, czy zgoda na
-  ruch sieciowy pada przy każdym odświeżeniu, czy raz na projekt. Trzecia bramka — numer wydania —
-  czeka przed E4, czwarta (nazwy modeli Cursora dla klas `balanced` i `cheap`) niczego nie blokuje.
+  w których nazwa ma konsekwencje. **E2 (`/relai-models`) jest `GOTOWY DO STARTU` i nic go już nie
+  blokuje** — obie bramki wejściowe rozstrzygnięte 2026-09-04: pięć adresów źródeł (trzy dla Claude
+  Code, w tym opcjonalny `GET /v1/models` wymagający klucza z `.env`; dwa dla Cursora), wszystkie
+  sprawdzone odczytem tego samego dnia, oraz **zgoda na ruch sieciowy każdorazowa** — wiersz
+  w `USTAWIENIA.md` nie powstaje. Zostają dwie bramki niepilne: numer wydania przed E4 i nazwy
+  modeli Cursora dla klas `balanced` i `cheap`.
 - **Plan ROZWOJ_PO_WYDANIU pozostaje zamrożony** (6/8). E7 — adapter Codeksa — czeka na dostęp.
 - Plan SPRZATANIE_ARTEFAKTOW zamknięty 2026-09-03 (4/4) i przeniesiony do
   [archiwum](archiwum/plany/SPRZATANIE_ARTEFAKTOW/STATUS.md).
@@ -248,7 +250,7 @@ HIGIENA_DOKUMENTOW **6/6 (ZREALIZOWANY 2026-09-01)** •
 Warstwa startowa RelAI: **37,0 KB / 80 KB**, raport startu **0 znaków** • Warstwa startowa
 PolyFlow: **157,3 KB / 80 KB**, raport **5 linii przy limicie 6** • Dziennik RelAI: **107,4 KB /
 próg 150 KB** • Lekcje **28 lekcji** w żywym rejestrze, ostatnia
-**L-0085** • Sprawy czekające na człowieka: **6 tutaj**, **32 w PolyFlow**, żadna nieprzeterminowana
+**L-0085** • Sprawy czekające na człowieka: **5 tutaj**, **32 w PolyFlow**, żadna nieprzeterminowana
 przy progu 30 dni • Progi w katalogu: **18, z tego 16 z adresem egzekwowania** •
 Zasady aktywne: **15 przy limicie 15** •
 Scenariusze akceptacyjne: 4/4 zdane + pilotaż Cursora • Adaptery: 2 • Komendy: **11** •
@@ -259,9 +261,10 @@ Otwarte wątki: **1 odnoga** zamrożonego planu (GUARD_PO_SCIEZCE zamknięta, RE
 przeniesiona do planu — obie 2026-09-03) •
 Artefakty w rejestrze: **40** (dwie listy modeli jako nowe, skill `relai-planning` podbity w E1;
 inwentarz przeliczony komendą 2026-09-03) •
-Otwarte bramki manualne: **5** (zamknięta lista
-rdzeni rozstrzygnięcia + cztery bramki planu REKOMENDACJA_MODELU; trzy bramki planu
-SPRZATANIE_ARTEFAKTOW rozstrzygnięte 2026-09-03) •
+Otwarte bramki manualne: **3** (zamknięta lista
+rdzeni rozstrzygnięcia + numer wydania i lista modeli Cursora z planu REKOMENDACJA_MODELU; dwie
+bramki wejściowe E2 rozstrzygnięte 2026-09-04, trzy bramki planu SPRZATANIE_ARTEFAKTOW
+rozstrzygnięte 2026-09-03) •
 Otwarte ryzyka: **7** (M1 i M2 dopisane 2026-09-03 przy E1; R2 zamknięte, ale na przesłance, którą
 E1 przewrócił) • Zamknięte ryzyka: **7** (6 w archiwum, R2
 w żywej tabeli) • Progi rotacji: dziennik 150 KB, lekcje
