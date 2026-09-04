@@ -88,9 +88,6 @@ nie mamy. Największa otwarta rzecz jest poza kodem: RelAI nie miał jeszcze uż
   i ryzyk zamkniętych — osobne operacje na cudzym projekcie.
 - **Odnoga `OPIS_REPO`** (pusty opis repozytorium i tematy na GitHubie) — jej prompt jest z sierpnia
   i opisuje RelAI 1.5.x, więc wymaga odświeżenia przed startem.
-- **Zainstalować adapter Cursora w tym repozytorium** (`node adapters/cursor/install.js .`), żeby
-  kolejna sesja GUI dostała `sessionStart` i `preToolUse` od startu — zmierzone 2026-09-04:
-  bez tego `/relai-models` kończy się na Kroku 1, a zapis z kluczem w GUI przechodzi.
 - Potwierdzić albo cofnąć **osiem rozstrzygnięć wpisanych w E2** planu OPTYMALIZACJA_KONTEKSTU —
   wypisane co do jednego 2026-09-01, każde ze swoim dowodem.
 - Usunąć metadane sesji `ProbaCursorE6` (`~/.claude/projects/`, `~/.claude/session-data/`,
@@ -102,14 +99,15 @@ nie mamy. Największa otwarta rzecz jest poza kodem: RelAI nie miał jeszcze uż
 
 ## Co blokuje
 
-- **Repozytorium RelAI otwarte w Cursorze nie ma zainstalowanego adaptera.** Wątek
-  [CURSOR_1_9_1](fixy/CURSOR_1_9_1/ODNOGA.md) zmierzył adapter na 1.9.1 (Grok 4.6): instalator
-  kładzie dwanaście komend i manifest `1.9.1`, hook startu mówi o `MODELE-cursor.md`, para
-  wariantów wieku listy daje 253 znaki wobec zera, a `cursor-agent` na projekcie kontrolnym
-  odbija zapis z kluczem — plik nie powstaje. Ta sesja GUI w tym repozytorium zdania hooka
-  **nie dostała**, bo `.cursor/` tu nie leży; dołożenie `hooks.json` w trakcie sesji zapisu
-  nie zatrzymało. Niezmierzone zostają dostęp poza katalogiem roboczym i osiem komend poza
-  trzema uruchomionymi (`/relai-help`, `/relai-clean`, `/relai-models`).
+- **Adapter Cursora zmierzony na 1.9.1, ale nie w tym repozytorium — i tak zostaje (D-87).** Wątek
+  [CURSOR_1_9_1](fixy/CURSOR_1_9_1/ODNOGA.md) sprawdził go w aplikacji Cursora na Groku 4.6:
+  instalator kładzie dwanaście komend i manifest `1.9.1`, hook startu mówi o `MODELE-cursor.md`,
+  para wariantów wieku listy daje 253 znaki wobec zera, a `cursor-agent` na projekcie kontrolnym
+  odbija zapis z kluczem — plik nie powstaje. **Tutaj adaptera nie instalujemy**, żeby kopie
+  dwunastu komend nie trafiły do repozytorium, które jest ich źródłem; skutkiem jest brak
+  kontekstu RelAI i blokady sekretu w sesji Cursora otwartej w tym folderze. Niezmierzone
+  zostają dostęp poza katalogiem roboczym i osiem komend poza trzema uruchomionymi
+  (`/relai-help`, `/relai-clean`, `/relai-models`).
 - **Dostępność świeżej sesji CLI bywa zmienna** — `claude -p` odmówił uwierzytelnienia rano
   2026-09-04 i zadziałał tego samego dnia po południu, więc każdy etap opierający pomiar na tej
   usłudze sprawdza ją przed startem (L-0084, L-0087). Dziewięć scenariuszy odnogi `POMIAR_ODNOG`
@@ -161,10 +159,10 @@ Plany: BUDOWA_RELAI 10/10 • OPTYMALIZACJA_KONTEKSTU 5/5 • HIGIENA_DOKUMENTOW
 SPRZATANIE_ARTEFAKTOW 4/4 • REKOMENDACJA_MODELU 4/4 (zamknięty 2026-09-04) •
 ROZWOJ_PO_WYDANIU 6/8 (ZAMROŻONY) • **Aktywny plan: brak** •
 Warstwa startowa: **50,5 KB / 80 KB** — raport budżetu milczy, raport progów wymienia jedną
-pozycję (sekcja ryzyk) • Dziennik: **102,5 KB / 150 KB**
-(17 wpisów) • Lekcje: **37,2 KB / 50 KB** (20 w żywym rejestrze, ostatnia L-0090) • Sekcja ryzyk:
+pozycję (sekcja ryzyk) • Dziennik: **104,0 KB / 150 KB**
+(18 wpisów) • Lekcje: **37,2 KB / 50 KB** (20 w żywym rejestrze, ostatnia L-0090) • Sekcja ryzyk:
 **14,4 KB / 12 KB** — nie ma już czego rotować • Archiwum: siedem plików dziennika, trzy lekcji,
-dwa ryzyk • Sprawy czekające na człowieka: **6 tutaj**, 32 w PolyFlow, żadna nieprzeterminowana •
+dwa ryzyk • Sprawy czekające na człowieka: **5 tutaj**, 32 w PolyFlow, żadna nieprzeterminowana •
 Otwarte ryzyka: **9** • Zamknięte ryzyka: **8, wszystkie w archiwum** •
 Otwarte bramki manualne: **1** (zamknięta lista rdzeni rozstrzygnięcia) •
 Otwarte wątki: **1** — odnoga `OPIS_REPO` • Artefakty w rejestrze: **40** •

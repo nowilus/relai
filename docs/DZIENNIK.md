@@ -52,12 +52,6 @@
   w README (bez ruszania grafiki)? · 2026-09-01 ·
   [wpis 2026-09-01 — Ikony komend czytelne na obu motywach](archiwum/dziennik/DZIENNIK_2026-09-01_2026-09-03.md#2026-09-01--ikony-komend-czytelne-na-obu-motywach-githuba)
 
-- **Czy zainstalować adapter Cursora w repozytorium RelAI** (`node adapters/cursor/install.js .`)
-  — bez tego sesja GUI w tym folderze nie dostaje `sessionStart` ani `preToolUse`, więc
-  `/relai-models` kończy się na Kroku 1, a zapis z kluczem przechodzi, dopóki nie zrestartujesz
-  Cursora z `.cursor/hooks.json` już na miejscu · 2026-09-04 ·
-  [wpis 2026-09-04 — Wątek CURSOR_1_9_1 zmierzony](#2026-09-04--wątek-cursor_1_9_1-adapter-cursora-zmierzony-na-wydaniu-191)
-
 ## Wpisy
 
 > Wpisy z okresu 2026-08-07 … 2026-08-09 (16 wpisów) są w
@@ -1274,5 +1268,41 @@ Autor: RelAI (Grok 4.6) + Lukasz
 
 - **Czy `SPEC_ARCHIWUM` ma opisać przypadek „sprawa rozstrzygnięta po zarchiwizowaniu jej wpisu"**
   — dziś reguła każe adnotować wpis źródłowy, a ten bywa już w archiwum chronionym sumą kontrolną.
+
+Autor: RelAI (Opus 5) + Lukasz
+
+### 2026-09-04 — D-87: repozytorium RelAI zostaje bez adaptera Cursora
+
+**Zrobione:**
+
+- **Decyzja zamrożona jako D-87** w `docs/DECYZJE.md`: w tym repozytorium **nie instalujemy**
+  adaptera Cursora. Powód jest architektoniczny, nie wygodowy — `install.js` kładzie w `.cursor/`
+  kopie **dwunastu komend i dwóch skilli**, których oryginały leżą w tym samym drzewie, a `.cursor/`
+  nie jest w `.gitignore`; źródło i kopia w jednym repozytorium rozjechałyby się przy pierwszej
+  zmianie komendy.
+- **Pozycja „Czy zainstalować adapter Cursora" zdjęta** z sekcji „Czeka na człowieka" tego samego
+  dnia, w którym zapadła decyzja. Sekcja: **6 → 5** pozycji.
+- **`STATE.md`** — pozycja z „Co dalej" zastąpiona zdaniem o rozstrzygnięciu; sekcja „Co blokuje"
+  mówi teraz, że brak kontekstu RelAI w sesji Cursora **w tym folderze** jest skutkiem decyzji,
+  a nie zaległością.
+
+**Zweryfikowane — jak dokładnie:**
+
+- **Podstawa decyzji policzona, nie oszacowana**: `adapters/claude-code/commands/` — 12 plików,
+  `skills/` — 2, `adapters/cursor/rules/` — 3; `grep -n cursor .gitignore` — **brak wpisu**,
+  więc kopie byłyby śledzone. `ls -d .cursor` — katalogu tu nie ma i po tej decyzji nie powstanie.
+- **Konsekwencja opisana wprost, nie przemilczana**: sesja Cursora otwarta w tym folderze nie
+  dostanie kontekstu RelAI ani blokady sekretu, a `/relai-models` skończy na Kroku 1 — dokładnie
+  to zmierzył wątek CURSOR_1_9_1 i to zostaje stanem docelowym, nie usterką.
+
+**Świadomie odłożone:**
+
+- **`.cursor/` w `.gitignore`** — nie dopisuję go „na zapas". Wpis ma sens dopiero wtedy, gdy ktoś
+  zmieni tę decyzję; D-87 mówi wprost, że to jest wtedy pierwszy krok.
+
+**Do zrobienia przez człowieka:**
+
+- **Nic w tej sprawie.** Wątek Cursora jest domknięty: adapter zmierzony na 1.9.1 na projektach
+  kontrolnych, a sposób jego mierzenia w przyszłości zapisany w D-87.
 
 Autor: RelAI (Opus 5) + Lukasz
