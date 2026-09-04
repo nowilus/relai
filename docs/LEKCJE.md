@@ -41,11 +41,15 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
    pierwszym** — sprawdzasz, czy wygenerowana wartość występuje w tym samym pliku; pierwszy
    element bywa jedynym nielinkowanym i przewraca kontrolę na poprawnym generatorze.
    **Instrument porównujący dwa drzewa odtwarza materiał przed każdym wariantem** i dowodzi na
-   końcu, że materiał wyszedł nietknięty. Wyczerpany limit konta zatrzymuje pomiar i idzie do
+   końcu, że materiał wyszedł nietknięty — a **wynik wariantu, który ma przeżyć pomiar, wynosisz
+   z katalogu odtwarzanego od razu**; plik brany z katalogu kontrolnego przenosisz z porównaniem
+   sumy, nie samym `cp`. Wyczerpany limit konta zatrzymuje pomiar i idzie do
    odnogi, nie do adnotacji „sprawdzone inaczej" — ale **niedostępność cudzej usługi sprawdzasz
    ponownie jednym najtańszym wywołaniem**, zanim odpiszesz pomiar jako niewykonalny: lekcja o niej
-   niesie datę i jest hipotezą, nie werdyktem. (L-0032, L-0037, L-0054, L-0055, L-0056, L-0064,
-   L-0068, L-0071, L-0073, L-0083, L-0084)
+   niesie datę i jest hipotezą, nie werdyktem. **Datowanie działa w obie strony** — „usługa działała
+   wczoraj" też jest hipotezą, więc etap opierający punkt weryfikacji na cudzej usłudze sprawdza ją
+   przed rozpoczęciem pracy. (L-0032, L-0037, L-0054, L-0055, L-0056, L-0064,
+   L-0068, L-0071, L-0073, L-0083, L-0084, L-0086, L-0087)
 6. **Próg jest liczbą, którą ktoś liczy:** kalibruj go na zmierzonych plikach realnych projektów,
    zapisuj w jednostce mechanizmu kontrolnego wraz z komendą sprawdzającą i daj mu **jeden**
    wyzwalacz — wielkości pomocnicze wskazują przyczynę wewnątrz komunikatu, nie wywołują go.
@@ -603,6 +607,40 @@ restart aplikacji po `plugin update` (L-0031), `git worktree` zamiast `git archi
   należy do warstwy hooka i mierzy się osobno.
 - **Źródło:** E1 planu REKOMENDACJA_MODELU (2026-09-03), `pomiar-pytania.js`. Wzmocnienie
   zasady 10 — bez własnej pozycji w destylacie, limit 15 pozostaje wykorzystany.
+
+### L-0086 — Wynik wariantu wynosisz z katalogu, który instrument odtwarza · 2026-09-04 · AKTYWNA
+
+- **Trigger:** E2 mierzył cztery przebiegi w dwóch projektach kontrolnych. Przebieg 2 zapisał do
+  `p1` odświeżoną listę (suma `f82ee8da0dbe7997`), przebieg 3 zaczął się od odtworzenia materiału
+  (L-0083) i przywrócił listę sprzed odświeżenia. Przy przenoszeniu wyniku do adaptera `cp` wziął
+  plik z `p1` — czyli **starą treść** — i dopiero porównanie sum (`1f67fe1bc954ecdc` zamiast
+  `f82ee8da0dbe7997`) pokazało podmianę.
+- **Przyczyna:** L-0083 nakazuje odtwarzać materiał przed każdym wariantem, ale nie mówi, co zrobić
+  z **wynikiem** wariantu poprzedniego. Katalog kontrolny pełni wtedy dwie role naraz: jest
+  materiałem wejściowym i jedynym nośnikiem dorobku.
+- **Zasada:** wynik wariantu, który ma przeżyć pomiar, **kopiujesz poza katalog odtwarzany**
+  natychmiast po jego wytworzeniu — albo zapisujesz go tam, gdzie ma trafić docelowo. Przy
+  przenoszeniu pliku z katalogu kontrolnego **porównujesz sumę źródła z sumą oczekiwaną**; `cp`
+  bez tego porównania nie jest dowodem, że przeniosłeś to, co myślisz.
+- **Źródło:** E2 planu REKOMENDACJA_MODELU (2026-09-04). Wzmocnienie zasady 5 — bez własnej pozycji
+  w destylacie, limit 15 pozostaje wykorzystany.
+
+### L-0087 — Dostępność cudzej usługi sprawdzasz w tej sesji, także gdy poprzednia ją potwierdziła · 2026-09-04 · AKTYWNA
+
+- **Trigger:** `PROMPT_ETAP_2.md` niósł w „Stanie wyjściowym" zdanie „`claude -p` **działa** — w E1
+  poprowadził pomiar dwóch świeżych sesji", oparte na pomiarze z 2026-09-03 (L-0084). Nazajutrz to
+  samo wywołanie zwróciło `Failed to authenticate: OAuth session expired and could not be
+  refreshed`. Pomiar w świeżych sesjach CLI nie odbył się.
+- **Przyczyna:** L-0084 poprawiła jeden kierunek błędu — „niedostępne wczoraj" brane za „niedostępne
+  zawsze". Drugi kierunek został otwarty: „dostępne wczoraj" wzięte za „dostępne dziś" i wpisane do
+  promptu etapowego jako FAKT stanu wyjściowego.
+- **Zasada:** zdanie o cudzej usłudze jest **datowane w obie strony**. Prompt etapowy, który opiera
+  punkt weryfikacji na dostępności usługi, każe ją sprawdzić **przed rozpoczęciem pracy tego etapu**
+  — jednym najtańszym wywołaniem, tak samo jak przy podejrzeniu niedostępności (zasada 4: kryterium
+  sprawdzasz na materiale, zanim zaczniesz). Wynik sprawdzenia idzie do wpisu, nawet gdy jest
+  pozytywny.
+- **Źródło:** E2 planu REKOMENDACJA_MODELU (2026-09-04). Wzmocnienie zasad 4 i 5 — bez własnej
+  pozycji w destylacie, limit 15 pozostaje wykorzystany.
 
 ## Lekcje zwinięte
 

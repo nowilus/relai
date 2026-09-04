@@ -14,8 +14,8 @@ Plan: [PLAN.html](PLAN.html) · Utworzony: 2026-09-03 · Status planu: **ZAAKCEP
 | Etap | Nazwa | Status | Prompt | Uwagi |
 |---|---|---|---|---|
 | E1 | Lista modeli i pytanie z nazwami | **ZREALIZOWANY 2026-09-03** | [PROMPT_ETAP_1.md](PROMPT_ETAP_1.md) | `MODELE.md` w obu adapterach, prowizjonowanie kopii do projektu **tylko przy braku pliku**, listy rozróżniane nazwą pliku (Aneks A); kamień milowy planu |
-| E2 | Komenda `/relai-models` | **GOTOWY DO STARTU** | [PROMPT_ETAP_2.md](PROMPT_ETAP_2.md) | obie bramki wejściowe **rozstrzygnięte 2026-09-04** — pięć adresów źródeł i zgoda na sieć każdorazowa; startu nic już nie blokuje |
-| E3 | Próg i przypomnienie | OCZEKUJE | — | wiersz `Lista modeli` w `USTAWIENIA.md`, jedno zdanie w hooku startu, pozycja w katalogu progów |
+| E2 | Komenda `/relai-models` | **ZREALIZOWANY 2026-09-04** | [PROMPT_ETAP_2.md](PROMPT_ETAP_2.md) | `relai-models.md` (12. komenda), zgoda na sieć każdorazowa, różnica przed zapisem; **Aneks B** — wynik odświeżenia przeniesiony do obu `MODELE.md`, aliasy i klasy Cursora domknięte |
+| E3 | Próg i przypomnienie | **GOTOWY DO STARTU** | [PROMPT_ETAP_3.md](PROMPT_ETAP_3.md) | wiersz `Lista modeli` w `USTAWIENIA.md`, jedno zdanie w hooku startu, pozycja w katalogu progów |
 | E4 | Kontrola modelu, dokumenty, wydanie | OCZEKUJE | — | nazwa spoza listy w karcie etapu, `SPEC_CLAUDE_MD` / `SPEC_STATUS` / `SPEC_PROMPT_ETAPU`, nowe sprawdzenie w walidatorze; numer wydania do rozstrzygnięcia |
 
 ## Bramki manualne
@@ -50,9 +50,18 @@ Plan: [PLAN.html](PLAN.html) · Utworzony: 2026-09-03 · Status planu: **ZAAKCEP
   wywołanie `/relai-models` pyta o zgodę na ruch sieciowy przed pierwszym połączeniem. Zapamiętanie
   zgody na projekt jest **zakazane**.
 - **Numer wydania: 1.9.0 czy 1.8.2** · źródło: sekcja 9 planu (2026-09-03) · **OTWARTA** — przed E4
+- **Czy pomiar wykonany przez sesję etapu domyka dwa punkty weryfikacji E2** — „oba wywołania pytają
+  o zgodę" i „fraza w `KOMENDY.md` w brzmieniu realnie uruchomionym" · źródło: E2 (2026-09-04),
+  `claude -p` zwrócił `Failed to authenticate: OAuth session expired and could not be refreshed`,
+  a `.env` z kluczem nie istnieje · **OTWARTA** — domknięcie wymaga `claude /login` albo klucza
+  w `.env`; nie blokuje E3
 - **Nazwy modeli Cursora dla klas `balanced` i `cheap`** · źródło: E1 (2026-09-03) — z pomiaru mam
-  wyłącznie `strong: Grok 4.6` (pilotaż E6), więc dwie pozycje stoją jako `<TO BE FILLED IN: …>` ·
-  **OTWARTA** — nie blokuje E2, bo to właśnie ta komenda ma je uzupełniać
+  wyłącznie `strong: Grok 4.6` (pilotaż E6), więc dwie pozycje stały jako `<TO BE FILLED IN: …>` ·
+  **ROZSTRZYGNIĘTA 2026-09-04 — człowiek wskazał `balanced: Composer 2.5` i `cheap: Auto`** po
+  pokazaniu kandydatów pogrupowanych po dostawcy (~45 pozycji, pięciu dostawców, odczyt
+  `cursor.com/docs/models-and-pricing` z tego samego dnia). Obie pozycje niosą w polu `source`
+  adnotację `named by the human` z datą; `cheap: Auto` ma `id: -`, bo za trybem automatycznym stoi
+  zmienny model, nie stały identyfikator. Zapisane w `adapters/cursor/MODELE.md` (Aneks B)
 
 ## Dziennik wdrożenia
 
@@ -73,3 +82,12 @@ Plan: [PLAN.html](PLAN.html) · Utworzony: 2026-09-03 · Status planu: **ZAAKCEP
   zgoda na ruch sieciowy **każdorazowa**. Przy okazji rozstrzygnięty sposób sprowadzania listy
   Cursora do trzech klas: komenda **pokazuje kandydatów i pyta**, nie typuje sama. `PROMPT_ETAP_2.md`
   zaktualizowany — warunek startu zdjęty, rozstrzygnięcia wpisane w „Decyzje już podjęte".
+- 2026-09-04 — E2 rozpoczęty
+- 2026-09-04 — E2 **ZREALIZOWANY**: `adapters/claude-code/commands/relai-models.md` (11 → 12
+  komend), wiersz w `KOMENDY.md` i w tabeli `README.md` (kolumna ikony pusta — dwunastej ikony
+  świadomie nie rysowano). Weryfikacja 12/12, cztery przebiegi na dwóch projektach kontrolnych.
+  **Aneks B (2026-09-04)** rozszerzył zakres o jednorazowe przeniesienie wyniku odświeżenia do
+  `adapters/claude-code/MODELE.md` (aliasy `opus`/`fable`/`sonnet`/`haiku`) i
+  `adapters/cursor/MODELE.md` (`balanced: Composer 2.5`, `cheap: Auto`) — bramka „nazwy modeli
+  Cursora" zamknięta. Ograniczenie pomiaru: procedurę komendy wykonała sesja etapu, nie świeża
+  sesja CLI — `claude -p` odmówił uwierzytelnienia (wygasła sesja OAuth).

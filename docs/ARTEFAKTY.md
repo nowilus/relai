@@ -59,7 +59,7 @@ z gita, żeby było widać, które artefakty żyją. Pełna historia treści jes
 Traktowany jako **jedna pozycja**: trzy pliki źródłowe i sześć plików `.woff2` tworzą jeden artefakt,
 którego wersji nie da się podbijać osobno.
 
-## Komendy — `adapters/claude-code/commands/` (11)
+## Komendy — `adapters/claude-code/commands/` (12)
 
 | Artefakt | Plik | Wersja | Data | Co się zmieniło | Po co |
 |---|---|---|---|---|---|
@@ -71,6 +71,7 @@ którego wersji nie da się podbijać osobno.
 | `/relai-clean` | `adapters/claude-code/commands/relai-clean.md` | 1 | 2026-09-03 | nowy artefakt (plan SPRZATANIE_ARTEFAKTOW, E1) | Artefakty po zamkniętych etapach rosły poza Gitem i w `%TEMP%` bez żadnego adresu — komenda daje im raport w grupach, jedno „tak” na grupę i ślad w dzienniku, a kasowanie zostawia narzędziu rdzenia z asercjami korzeni |
 | `/relai-handover` | `adapters/claude-code/commands/relai-handover.md` | 1 | 2026-08-08 | wpis startowy; ostatnia zmiana 2026-08-12 | Pakiet przekazania projektu w jednym pliku HTML — stan, mapa, plany, ryzyka, od czego zacząć |
 | `/relai-help` | `adapters/claude-code/commands/relai-help.md` | 1 | 2026-08-08 | wpis startowy; ostatnia zmiana 2026-08-12 | Prezentuje `docs/KOMENDY.md` zamiast duplikować jego treść (D-07) |
+| `/relai-models` | `adapters/claude-code/commands/relai-models.md` | 1 | 2026-09-04 | nowy artefakt (plan REKOMENDACJA_MODELU, E2): dziewięć kroków od markera projektu po zapis, zgoda na ruch sieciowy pytana **przy każdym wywołaniu** i nigdzie niezapamiętywana, pięć adresów źródeł wskazanych przez człowieka jako lista zamknięta, pytanie do człowieka jako drugie źródło, różnica stara–nowa przed zapisem, dwanaście zakazów | Listy modeli nie dało się odświeżyć inaczej niż ręczną edycją pliku, więc data przy pytaniu o model starzała się bez żadnej drogi wyjścia; komenda daje tę drogę, ale zostawia człowiekowi obie decyzje, których maszyna nie powinna podejmować — wejście do sieci i przypisanie cudzego modelu do klasy |
 | `/relai-stage` | `adapters/claude-code/commands/relai-stage.md` | 2 | 2026-08-07 | 2026-09-03: karta potwierdzenia (Krok 4) dostała pozycję **Katalog roboczy** — ścieżka z linii otwierającej zakres promptu, z rozstrzygnięciem dla promptów sprzed 1.8.0 | Uruchamia etap aktywnego planu z kontrolą modelu i potwierdzeniem przed startem — a człowiek widzi, gdzie powstaną pliki, zanim powstaną |
 | `/relai-tour` | `adapters/claude-code/commands/relai-tour.md` | 1 | 2026-08-08 | wpis startowy; ostatnia zmiana 2026-08-12 | Oprowadza po cudzym projekcie wyłącznie na podstawie jego dokumentów |
 | `/relai-update` | `adapters/claude-code/commands/relai-update.md` | 3 | 2026-08-09 | 2026-09-03 (wersja 3): wersja docelowa podniesiona na **1.8.1** w czterech deklaracjach stanu docelowego — zdanie otwierające, nagłówek tabeli obszarów, wymagany nagłówek `docs/KOMENDY.md`, marker `Wersja RelAI:` i propozycja commita. Wymagania struktury bez zmian: 1.8.1 to poprawka rdzenia guardraili, nie nowy dokument. Wersja 2 z 2026-09-03: wersja docelowa 1.8.0 — wiersz inwentaryzacji `Artefakty robocze` (dopisywany, nigdy nadpisywany), tabela komend jedenastu pozycji, człon o sprzątaniu w linii fraz sesji, marker i propozycja commita na 1.8.0 | Podnosi strukturę projektu do wersji pluginu: różnice pokazane, zmiany wyłącznie za zgodą; bez wierszy 1.8.0 projekt zaktualizowany nie dostałby ani progu, ani jedenastej komendy |
@@ -94,18 +95,20 @@ którego wersji nie da się podbijać osobno.
 
 | Artefakt | Plik | Wersja | Data | Co się zmieniło | Po co |
 |---|---|---|---|---|---|
-| Lista modeli Claude Code | `adapters/claude-code/MODELE.md` | 1 | 2026-09-03 | wpis startowy (E1 planu REKOMENDACJA_MODELU): blok maszynowy z kotwicą na początku linii, zamknięta lista brzmień klas (`strong` / `balanced` / `cheap`), `list-date` i źródło przy każdej pozycji; cztery pozycje, w tym dwie w klasie `strong` | Klasa modelu bez nazwy nie wskazuje niczego konkretnego — lista daje klasom nazwy tego narzędzia i mówi, z kiedy pochodzą |
-| Lista modeli Cursora | `adapters/cursor/MODELE.md` | 1 | 2026-09-03 | wpis startowy (E1): ten sam format; jedna pozycja z pomiaru (`strong: Grok 4.6`, pilotaż E6), `balanced` i `cheap` jako `<TO BE FILLED IN: …>` — nazw, których nie ma z pomiaru, lista nie zmyśla | Cursor ma modele kilku dostawców i zmienia je szybciej niż wydania RelAI; lista zaczyna od tego, co realnie zmierzono |
+| Lista modeli Claude Code | `adapters/claude-code/MODELE.md` | 2 | 2026-09-03 | 2026-09-04 (wersja 2, E2 / Aneks B): pierwsze odświeżenie z dokumentacji — blok maszynowy dostał czwarte pole **`alias`** (`opus`, `fable`, `sonnet`, `haiku`) opisane w zasadach parsowania, pole `source` przy każdej pozycji wskazuje adres i datę odczytu zamiast środowiska sesji, `list-date` 2026-09-03 → 2026-09-04. Wersja 1: wpis startowy (E1) — kotwica klasy na początku linii, zamknięta lista brzmień, cztery pozycje, w tym dwie w klasie `strong` | Alias jest warstwą, którą użytkownik realnie przełącza model, i przeżywa podbicie wersji, którego pełne ID nie przeżywa — lista mówiąca samo ID starzeje się szybciej, niż ktokolwiek zdąży ją odświeżyć |
+| Lista modeli Cursora | `adapters/cursor/MODELE.md` | 2 | 2026-09-03 | 2026-09-04 (wersja 2, E2 / Aneks B): dwie pozycje `<TO BE FILLED IN: …>` zastąpione nazwami wskazanymi przez człowieka — `balanced: Composer 2.5` i `cheap: Auto`, obie z adnotacją `named by the human` i datą; `cheap` ma `id: -`, bo za trybem automatycznym stoi zmienny model. Pole `alias` dodane dla zgodności formatu z listą Claude Code (wszystkie pozycje `-`). Wersja 1: wpis startowy (E1) z jedną pozycją z pomiaru | Lista z dwiema trzecimi pozycji pustych odsyłała do komendy, która wtedy nie istniała; po E2 komenda istnieje i to ona pokazała człowiekowi ~45 kandydatów pogrupowanych po dostawcy, zamiast typować klasy za niego |
 
-## Zgodność liczb z dyskiem (2026-09-03)
+## Zgodność liczb z dyskiem (2026-09-04)
 
-Inwentarz robiony komendą, nie okiem. **40 pozycji rejestru** = 22 + 1 + 10 + 2 + 3 + 2.
+Inwentarz robiony komendą, nie okiem. **42 pozycje rejestru** = 22 + 1 + 12 + 2 + 3 + 2.
+Wiersz komend przy poprzednim przeliczeniu mówił `10 / 10` przy jedenastu wierszach w tabeli —
+`/relai-clean` doszedł do tabeli, a nie do tego wiersza. Poprawione razem z liczbą 12.
 
 | Zbiór | Komenda | Na dysku | W rejestrze |
 |---|---|---|---|
 | specyfikacje dokumentów | `ls core/templates/*.md \| wc -l` | 22 | 22 |
 | szablon planu HTML | `find core/templates/HTML_PLAN -type f` | 9 plików | 1 pozycja (jeden artefakt złożony) |
-| komendy | `ls adapters/claude-code/commands/*.md \| wc -l` | 10 | 10 |
+| komendy | `ls adapters/claude-code/commands/*.md \| wc -l` | 12 | 12 |
 | skille | `ls adapters/claude-code/skills/*/SKILL.md` | 2 | 2 |
 | reguły Cursora | `ls adapters/cursor/rules/*.mdc` | 3 | 3 |
 | listy modeli | `ls adapters/*/MODELE.md` | 2 | 2 |

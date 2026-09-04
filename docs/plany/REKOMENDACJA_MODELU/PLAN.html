@@ -708,6 +708,24 @@ sekcji 5, w tym kolejność kroków i zakaz sieci w hooku, bez zmian.</p>
 w kontekście startu obu adapterów; ryzyko 1 (zła lista w drugim narzędziu) zmienia mitygację
 z „rozstrzyga katalog" na „rozstrzyga nazwa pliku podana przez hook". Liczba etapów i szacunek
 bez zmian.</p>
+<h3>Aneks B — 2026-09-04</h3>
+<p><b>Powód:</b> odświeżenie wykonane w E2 wytworzyło dwie rzeczy, których zakres tego etapu nie
+przewidywał jako trwałych. Pierwsza to <b>aliasy</b> (<code>opus</code>, <code>fable</code>,
+<code>sonnet</code>, <code>haiku</code>) — warstwa, którą użytkownik realnie przełącza model
+w Claude Code; sekcja „Decyzje już podjęte" promptu E2 rozstrzygnęła, że lista ma nieść i alias,
+i pełne ID. Druga to <b>rozstrzygnięcie bramki „nazwy modeli Cursora"</b> przez człowieka
+(<code>balanced: Composer 2.5</code>, <code>cheap: Auto</code>). Zakres E2 mówi „zapis idzie do
+kopii w projekcie, nie do pliku adaptera", więc jedno i drugie żyłoby wyłącznie w projekcie
+kontrolnym kasowanym przy zamykaniu etapu, a nowy projekt dostawałby listę bez aliasów i z dwiema
+pozycjami <code>&lt;TO BE FILLED IN: …&gt;</code>.</p>
+<p><b>Zmiana:</b> E2 dokłada do zakresu jednorazowe przeniesienie wyniku odświeżenia do plików
+adapterów — <code>adapters/claude-code/MODELE.md</code> i <code>adapters/cursor/MODELE.md</code>.
+Zasada „komenda pisze do kopii w projekcie" <b>zostaje bez zmian</b>: to jest zapis wykonany ręką
+etapu, nie ścieżką komendy. Blok maszynowy dostaje jedno nowe pole <code>alias</code>, opisane
+w zasadach parsowania; klasy pozostają trzy, a <code>dataListyModeli()</code> czyta datę tak samo.</p>
+<p><b>Skutek dla etapów:</b> bramka „nazwy modeli Cursora dla klas <code>balanced</code>
+i <code>cheap</code>" zamyka się w E2 zamiast czekać do E4. Liczba etapów, ich cele i szacunek
+bez zmian; E3 i E4 nietknięte.</p>
 </section>
 
 <footer>

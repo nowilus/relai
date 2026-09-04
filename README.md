@@ -146,7 +146,7 @@ mkdir C:/Users/<Ty>/Desktop/MojProjekt
 node C:/Narzedzia/relai/adapters/cursor/install.js C:/Users/<Ty>/Desktop/MojProjekt
 ```
 
-Instalator wypisze, co położył: trzy reguły `.cursor/rules/relai-*.mdc`, jedenaście komend
+Instalator wypisze, co położył: trzy reguły `.cursor/rules/relai-*.mdc`, dwanaście komend
 `/relai-*`, dwa skille, specyfikacje dokumentów w `.claude/relai/templates/` i dwa wpisy
 w `.cursor/hooks.json`. Cudze wpisy w `hooks.json` zostają nietknięte.
 
@@ -235,7 +235,7 @@ wywołanie — nigdy sama z siebie.
 
 ## Komendy
 
-Jedenaście skrótów dla operacji, które w rozmowie byłyby uciążliwe do opisania.
+Dwanaście skrótów dla operacji, które w rozmowie byłyby uciążliwe do opisania.
 
 | | Komenda | Co robi |
 |:--:|---|---|
@@ -250,6 +250,7 @@ Jedenaście skrótów dla operacji, które w rozmowie byłyby uciążliwe do opi
 | <img src="docs/zasoby/branding/ikony/update.svg" width="24"> | `/relai-update` | dociąga projekt do wersji pluginu; pokazuje różnice, zmienia wyłącznie za zgodą |
 | <img src="docs/zasoby/branding/ikony/branch.svg" width="24"> | `/relai-branch` | odkłada boczny wątek jako odnogę: karta i gotowy prompt świeżej sesji, plan bez zmian |
 | <img src="docs/zasoby/branding/ikony/clean.svg" width="24"> | `/relai-clean` | pokazuje artefakty po zamkniętych etapach w grupach i kasuje wyłącznie te, na które powiesz „tak" |
+| | `/relai-models` | odświeża listę modeli narzędzia: zgoda na sieć, źródło albo pytanie do Ciebie, różnica przed zapisem |
 
 Claude Code rejestruje komendy pluginu pod pełną nazwą `/relai:relai-<nazwa>`. Skrócona forma
 (`/relai-backup`) działa tam, gdzie podpowiadacz ją rozwija.
@@ -382,8 +383,8 @@ relai/
 ├── adapters/
 │   ├── claude-code/             # ADAPTER Claude Code
 │   │   ├── skills/              #   relai-core (rytuały, rejestry), relai-planning (plany, etapy)
-│   │   ├── commands/            #   jedenaście komend: stage, branch, backup, audit, changelog,
-│   │   │                        #     handover, tour, help, adopt, update, clean
+│   │   ├── commands/            #   dwanaście komend: stage, branch, backup, audit, changelog,
+│   │   │                        #     handover, tour, help, adopt, update, clean, models
 │   │   └── hooks/
 │   │       ├── hooks.json       #   rejestracja dziesięciu hooków (zdarzenia i matchery)
 │   │       └── *.js             #   dziesięć hooków Node.js, zero zależności npm

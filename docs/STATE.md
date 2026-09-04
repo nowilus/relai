@@ -1,6 +1,6 @@
 # STATE — RelAI
 
-Stan na: 2026-09-03
+Stan na: 2026-09-04
 
 ## Gdzie jesteśmy
 
@@ -118,6 +118,18 @@ w którym trwa sesja, zamiast trzech klas. E2 czeka na dwie bramki człowieka.
   wymienia Opus 5, Fable 5.1, Sonnet 5 i Haiku 4.5 razem z datą listy, bez listy zostaje przy
   brzmieniu klasowym i **nie pokazuje ani jednej nazwy**. Lista Cursora ma dziś jedną pozycję
   z pomiaru (Grok 4.6) i dwie jawnie puste — bo z pomiaru ich nie ma.
+- **Listę modeli da się odświeżyć jedną komendą, a bez „tak" nie zmienia się nic.**
+  `/relai-models` pyta o zgodę na ruch sieciowy **przy każdym wywołaniu** — zgody nie zapamiętuje
+  nigdzie, więc `USTAWIENIA.md` po dwóch wywołaniach pod rząd ma tę samą sumę. Czyta pięć adresów
+  wskazanych przez człowieka, a gdy zawiodą — pyta jego samego i zapisuje odpowiedź z adnotacją
+  „podane przez człowieka" i datą. Przed zapisem pokazuje różnicę stara–nowa; „nie" zostawia plik
+  bajt w bajt (suma `1f67fe1bc954ecdc` przed i po), „tak" zmienia treść i `list-date`. Odczyt
+  nieudany (`HTTP 404`) **zostawia starą listę z jej datą**, nigdy pustą. Zapis idzie do trwałej
+  kopii w projekcie, więc przeżywa start sesji: sumy `f82ee8da0dbe7997` i `65eca9cbea99f0b3`
+  niezmienione po ponownym uruchomieniu obu hooków. Lista Cursora ma teraz komplet — dwie pozycje
+  `<TO BE FILLED IN: …>` zeszły do zera po pytaniu, w którym ~45 modeli od pięciu dostawców zostało
+  pokazanych człowiekowi pogrupowanych po dostawcy; RelAI cudzych modeli nie rankuje. Lista Claude
+  Code niesie od tej pory **alias obok pełnego ID** — bo aliasem użytkownik realnie przełącza model.
 - W folderze, który nie jest projektem RelAI, plugin jest całkowicie niewidoczny.
 
 ## Nad czym pracujemy teraz
@@ -126,14 +138,13 @@ w którym trwa sesja, zamiast trzech klas. E2 czeka na dwie bramki człowieka.
   dokumentów, a rotacja nigdy nie ruszyła. Czeka na okno — właściciel rozwija go na bieżąco.
   Dopóki nie wejdzie, **ryzyko R5 zostaje otwarte**, zawężone już wyłącznie do tego jednego
   projektu: mechanizm jest kompletny i zmierzony na dwóch projektach z trzech.
-- **Plan REKOMENDACJA_MODELU — 1/4, E1 zamknięty 2026-09-03.** Kamień milowy planu zapadł już przy
-  pierwszym etapie: pytanie o model pokazuje nazwy. Reszta planu dokłada świeżość listy i miejsca,
-  w których nazwa ma konsekwencje. **E2 (`/relai-models`) jest `GOTOWY DO STARTU` i nic go już nie
-  blokuje** — obie bramki wejściowe rozstrzygnięte 2026-09-04: pięć adresów źródeł (trzy dla Claude
-  Code, w tym opcjonalny `GET /v1/models` wymagający klucza z `.env`; dwa dla Cursora), wszystkie
-  sprawdzone odczytem tego samego dnia, oraz **zgoda na ruch sieciowy każdorazowa** — wiersz
-  w `USTAWIENIA.md` nie powstaje. Zostają dwie bramki niepilne: numer wydania przed E4 i nazwy
-  modeli Cursora dla klas `balanced` i `cheap`.
+- **Plan REKOMENDACJA_MODELU — 2/4, E2 zamknięty 2026-09-04.** Kamień milowy planu zapadł już przy
+  pierwszym etapie: pytanie o model pokazuje nazwy. E2 dołożył drugą drogę zapisu do listy —
+  komendę `/relai-models` — i **Aneksem B** przeniósł jej pierwszy wynik do plików obu adapterów,
+  więc bramka „nazwy modeli Cursora" jest zamknięta (`balanced: Composer 2.5`, `cheap: Auto`).
+  **E3 (próg i przypomnienie) jest `GOTOWY DO STARTU`.** Otwarte bramki: numer wydania przed E4
+  oraz pytanie, czy pomiar wykonany przez sesję etapu domyka dwa punkty weryfikacji E2 — `claude -p`
+  odmówił uwierzytelnienia, więc świeża sesja CLI nie zmierzyła zachowania komendy.
 - **Plan ROZWOJ_PO_WYDANIU pozostaje zamrożony** (6/8). E7 — adapter Codeksa — czeka na dostęp.
 - Plan SPRZATANIE_ARTEFAKTOW zamknięty 2026-09-03 (4/4) i przeniesiony do
   [archiwum](archiwum/plany/SPRZATANIE_ARTEFAKTOW/STATUS.md).
@@ -183,6 +194,12 @@ w którym trwa sesja, zamiast trzech klas. E2 czeka na dwie bramki człowieka.
 
 ## Co blokuje
 
+- **Świeża sesja CLI znów jest niedostępna** — 2026-09-04 `claude -p` zwrócił `Failed to
+  authenticate: OAuth session expired and could not be refreshed`, a `.env` z kluczem API w tym
+  repozytorium nie istnieje. Dzień wcześniej to samo wywołanie działało (L-0084), więc zdanie
+  o dostępności cudzej usługi jest datowane w obie strony (L-0087). Skutek dla E2: procedurę komendy
+  wykonała sesja etapu — skutki na plikach zmierzone, zachowanie świeżej sesji nie. Odblokowuje to
+  `claude /login` albo klucz w `.env`; obie drogi są decyzją właściciela.
 - **Pomiar zachowań w świeżej sesji CLI nie odbędzie się** — `claude -p` uwierzytelnia się z własnego
   pliku poświadczeń, a konto tam zapisane ma wyczerpany limit (L-0032). Odnoga `POMIAR_ODNOG`
   **anulowana 2026-09-01 i domknięta zupełnie 2026-09-03**: dziewięć scenariuszy zostaje
@@ -221,8 +238,8 @@ kod 0, „3 zrodel, wartosc 1.8.0". Źródło: własny marketplace w tym samym r
 jako skrypty (skan sekretów, pre-commit, instalator) • rozpoznania startu sesji
 (`process/session-signals.js`, wołane przez oba adaptery) • walidator spójności • `MANIFEST.json`.
 
-**Adapter Claude Code**: dwa skille, **jedenaście komend** (`/relai-clean` weszła do wydania
-w 1.8.0), dziesięć hooków Node.js bez zależności npm.
+**Adapter Claude Code**: dwa skille, **dwanaście komend** (`/relai-clean` weszła do wydania
+w 1.8.0; `/relai-models` czeka na wydanie z E4), dziesięć hooków Node.js bez zależności npm.
 Manifest i marketplace zostają w `.claude-plugin/` w korzeniu — tego wymaga Claude Code.
 
 **Adapter Cursor**: trzy reguły `.mdc` z `alwaysApply: true`, dwa hooki z opakowaniem powłoki dla
@@ -245,15 +262,15 @@ Pułapki: [PULAPKI.md](PULAPKI.md)
 
 Etapy: BUDOWA_RELAI 10/10 • ROZWOJ_PO_WYDANIU 6/8 (ZAMROŻONY) • OPTYMALIZACJA_KONTEKSTU 5/5 •
 SPRZATANIE_ARTEFAKTOW **4/4 (ZREALIZOWANY 2026-09-03)** •
-REKOMENDACJA_MODELU **1/4 (E1 zamknięty 2026-09-03)** •
+REKOMENDACJA_MODELU **2/4 (E2 zamknięty 2026-09-04)** •
 HIGIENA_DOKUMENTOW **6/6 (ZREALIZOWANY 2026-09-01)** •
 Warstwa startowa RelAI: **37,0 KB / 80 KB**, raport startu **0 znaków** • Warstwa startowa
 PolyFlow: **157,3 KB / 80 KB**, raport **5 linii przy limicie 6** • Dziennik RelAI: **107,4 KB /
-próg 150 KB** • Lekcje **28 lekcji** w żywym rejestrze, ostatnia
-**L-0085** • Sprawy czekające na człowieka: **5 tutaj**, **32 w PolyFlow**, żadna nieprzeterminowana
+próg 150 KB** • Lekcje **30 lekcji** w żywym rejestrze, ostatnia
+**L-0087** • Sprawy czekające na człowieka: **5 tutaj**, **32 w PolyFlow**, żadna nieprzeterminowana
 przy progu 30 dni • Progi w katalogu: **18, z tego 16 z adresem egzekwowania** •
 Zasady aktywne: **15 przy limicie 15** •
-Scenariusze akceptacyjne: 4/4 zdane + pilotaż Cursora • Adaptery: 2 • Komendy: **11** •
+Scenariusze akceptacyjne: 4/4 zdane + pilotaż Cursora • Adaptery: 2 • Komendy: **12** •
 Modele, na których zmierzono proces: 5 (Fable, Opus, Haiku, Composer/auto, Grok 4.6) •
 Projekty na 1.8.0: 2 (RelAI, PolyFlow) • **Aktywny plan: REKOMENDACJA_MODELU (1/4, E2 gotowy, ale
 zablokowany dwiema bramkami)** •
@@ -262,11 +279,11 @@ przeniesiona do planu — obie 2026-09-03) •
 Artefakty w rejestrze: **40** (dwie listy modeli jako nowe, skill `relai-planning` podbity w E1;
 inwentarz przeliczony komendą 2026-09-03) •
 Otwarte bramki manualne: **3** (zamknięta lista
-rdzeni rozstrzygnięcia + numer wydania i lista modeli Cursora z planu REKOMENDACJA_MODELU; dwie
-bramki wejściowe E2 rozstrzygnięte 2026-09-04, trzy bramki planu SPRZATANIE_ARTEFAKTOW
-rozstrzygnięte 2026-09-03) •
-Otwarte ryzyka: **7** (M1 i M2 dopisane 2026-09-03 przy E1; R2 zamknięte, ale na przesłance, którą
-E1 przewrócił) • Zamknięte ryzyka: **7** (6 w archiwum, R2
+rdzeni rozstrzygnięcia + numer wydania i pomiar E2 w świeżej sesji; lista modeli Cursora
+rozstrzygnięta 2026-09-04 wraz z dwiema bramkami wejściowymi E2, trzy bramki planu
+SPRZATANIE_ARTEFAKTOW rozstrzygnięte 2026-09-03) •
+Otwarte ryzyka: **10** (M1 i M2 dopisane 2026-09-03 przy E1, M3–M5 przy E2 2026-09-04; R2 zamknięte,
+ale na przesłance, którą E1 przewrócił) • Zamknięte ryzyka: **7** (6 w archiwum, R2
 w żywej tabeli) • Progi rotacji: dziennik 150 KB, lekcje
 40 wpisów albo 50 KB, STATE 300 linii • Archiwum dziennika: siedem plików, ostatni
 2026-08-17…2026-08-21 (18 wpisów, `74a4d2a5fb9a3390`)
