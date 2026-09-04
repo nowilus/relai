@@ -105,8 +105,13 @@ tknąć.
 
 ### 3. Kontrola modelu
 
-Blockquote, jedno zdanie: wykonuj wyłącznie na modelu X; inny model → zatrzymaj się i poproś
-o przełączenie. Sekcja obowiązkowa nawet wtedy, gdy projekt ma jeden model do wszystkiego.
+Blockquote, jedno zdanie: wykonuj wyłącznie na modelu klasy X, w tym narzędziu — nazwa (i data
+listy, z której nazwa pochodzi); inny model → zatrzymaj się i poproś o przełączenie. Nazwę i datę
+bierzesz z listy modeli narzędzia (`.claude/relai/MODELE-<narzędzie>.md`, pole `list-date`); która
+lista obowiązuje, mówi zdanie hooka startu. Listy nie ma → zdanie zostaje przy samej klasie, bez
+zmyślonej nazwy. Postać zdania jest ta sama co w `SPEC_PROMPT_ETAPU.md`, sekcja 3 — odnoga i etap
+mówią o modelu jednym językiem. Sekcja obowiązkowa nawet wtedy, gdy projekt ma jeden model do
+wszystkiego.
 
 ### 4. Co przeczytać na start
 
@@ -247,8 +252,9 @@ jest błąd etapu — to brakująca obserwowalność, spoza zakresu E2.
 Odnoga: PONOWIONE_ZDARZENIA • Plan-rodzic: PLATNOSCI, etap E2 • Wygenerowano: 2026-08-15
 (autor: Opus) • Wykonawca: **Opus**
 
-> **Kontrola modelu:** ten wątek wykonuj wyłącznie na modelu **Opus**. Jeśli sesja działa na innym
-> modelu — zatrzymaj się i poproś użytkownika o przełączenie, zanim cokolwiek zrobisz.
+> **Kontrola modelu:** ten wątek wykonuj wyłącznie na modelu klasy **najsilniejszy**, w tym
+> narzędziu: **Opus 5** (lista modeli z dnia `2026-09-04`). Jeśli sesja działa na innym modelu —
+> zatrzymaj się i poproś użytkownika o przełączenie, zanim cokolwiek zrobisz.
 
 ## Co przeczytać na start (w tej kolejności, nic więcej)
 

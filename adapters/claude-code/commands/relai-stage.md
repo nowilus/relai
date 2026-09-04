@@ -69,8 +69,17 @@ Pokaż użytkownikowi kartę potwierdzenia i **zatrzymaj się**:
 
 - **Plan** — temat + status planu.
 - **Etap** — `EN z EM` + tytuł.
-- **Model wykonawczy** — z `STATUS.md`. Model bieżącej sesji jest inny niż wymagany → napisz to
-  wprost jako pierwszą rzecz i zaproponuj przełączenie przed startem.
+- **Model wykonawczy** — z `STATUS.md`, w trzech przypadkach:
+  - **zgodny** — jedno zdanie, że model sesji odpowiada wymaganemu;
+  - **inny niż wymagany** — napisz to wprost jako pierwszą rzecz karty i zaproponuj przełączenie
+    przed startem;
+  - **spoza listy** — model bieżącej sesji **nie występuje** na liście modeli narzędzia. Karta pisze
+    wtedy nazwę modelu sesji, klasę wymaganą przez plan i **datę listy**, i **nie blokuje startu** —
+    lista mówi, co jest, a nie kto ma prawo pracować; decyzja należy do człowieka. Nazwę pliku listy
+    (`.claude/relai/MODELE-<narzędzie>.md`) bierzesz **ze zdania hooka startu**, nigdy z własnego
+    rozpoznania narzędzia; listy nie ma albo zdanie nie padło → zostajesz przy dwóch pierwszych
+    przypadkach i o liście nie mówisz nic. Przypomnienia o starej liście karta **nie powtarza** —
+    to należy do hooka startu (L-0036).
 - **Katalog roboczy** — ścieżka `.claude/relai/work/<TEMAT>/E<N>/`, przepisana z linii otwierającej
   sekcję „Zakres etapu" promptu. Karta jest miejscem, w którym człowiek widzi, **gdzie powstaną
   pliki, zanim cokolwiek powstanie**. Prompt tej linii nie ma (etap sprzed 1.8.0) → podaj ścieżkę

@@ -1,6 +1,6 @@
 # KOMENDY — RelAI
 
-RelAI 1.8.1
+RelAI 1.9.0
 
 Nic z tej listy nie jest obowiązkowe. RelAI działa w zwykłej rozmowie — piszesz normalnie,
 a struktura projektu nadąża. Komendy są skrótem do rzadszych operacji.
@@ -69,6 +69,11 @@ z podpowiedzi; skrócona forma działa tam, gdzie podpowiadacz ją rozwinie.
   wymaga Twojego „tak" na konkretną grupę, plik śledzony przez gita nie jest kandydatem nigdy,
   a Twoją lokalną notatkę chroni linia `# relai: zachowaj` nad wzorcem w `.gitignore`. Poniżej
   progu i przy etapie w toku — cisza.
+- **Stara lista modeli przypomina się sama.** Start sesji mówi, która lista modeli obowiązuje
+  w tym narzędziu, a gdy jest starsza niż próg z wiersza „Lista modeli" w `docs/USTAWIENIA.md`
+  (domyślnie 7 dni) — dokłada jedno zdanie z jej wiekiem i propozycją `/relai-models`. Samo zdanie
+  niczego nie pobiera: do internetu RelAI wchodzi wyłącznie po Twoim „tak" w komendzie, i pyta
+  o nie za każdym razem. Poniżej progu — cisza; wyłącznik jest osobny od pozostałych.
 - **Pułapki mają własny dokument.** Rzecz, która raz zaskoczyła i zaskoczy znowu — nieoczywiste
   zachowanie narzędzia, kolejność kroków, wymóg środowiska — trafia do `docs/PULAPKI.md`. Ten plik
   czyta się **na żądanie**, a nie przy starcie sesji, więc nie kosztuje ani jednego tokena, dopóki

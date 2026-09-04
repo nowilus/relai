@@ -144,6 +144,33 @@ if (unikalne.length > 1) {
 }
 sprawdzone.push('numery wersji: ' + wersje.length + ' zrodel, wartosc "' + (unikalne[0] || '?') + '"');
 
+// 6) Listy modeli adapterow: deklaracja "models" wskazuje istniejacy plik, a plik niesie
+// czytelna linie "list-date: RRRR-MM-DD". Bez tego sprawdzenia deklaracja moze wskazywac
+// plik, ktorego nie ma, albo liste bez daty — a wtedy prog swiezosci milczy i nikt tego nie
+// widzi (cisza mechanizmu wyglada dokladnie tak samo jak zgodnosc).
+if (manifest) {
+  const zRdzenia = (p) => path.relative(ROOT, path.resolve(CORE, p)).split(path.sep).join('/');
+  let list = 0;
+  for (const a of (manifest.adapters || [])) {
+    if (!a.models) continue;
+    list++;
+    const rel = zRdzenia(a.models);
+    if (!jest(rel)) {
+      bledy.push('adapter "' + a.id + '": deklaracja models wskazuje "' + rel + '", a tego pliku nie ma');
+      continue;
+    }
+    let txt = '';
+    try { txt = fs.readFileSync(path.resolve(ROOT, rel), 'utf8'); } catch (e) {
+      bledy.push('adapter "' + a.id + '": nie moge odczytac "' + rel + '" (' + e.message + ')');
+      continue;
+    }
+    if (!/^list-date:\s*\d{4}-\d{2}-\d{2}\s*$/m.test(txt)) {
+      bledy.push('adapter "' + a.id + '": lista modeli "' + rel + '" nie ma czytelnej linii "list-date: RRRR-MM-DD"');
+    }
+  }
+  sprawdzone.push('listy modeli adapterow: ' + list);
+}
+
 // --- wynik -----------------------------------------------------------------
 if (bledy.length) {
   process.stderr.write('RelAI validate-adapters: ZNALEZIONO ' + bledy.length + ' problemow\n');

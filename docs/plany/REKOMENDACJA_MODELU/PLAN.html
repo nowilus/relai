@@ -743,6 +743,22 @@ pomiaru, a sam pomiar nie dotyka ani jednego pliku produktu.</p>
 <p><b>Skutek dla etapów:</b> bramka „czy pomiar wykonany przez sesję etapu domyka dwa punkty
 weryfikacji E2" zamyka się w E3 zamiast czekać do zamknięcia planu. Liczba etapów, ich cele
 i szacunek bez zmian; E4 nietknięty.</p>
+<h3>Aneks D — 2026-09-04</h3>
+<p><b>Powód:</b> zakres E4 wymienia trzy specyfikacje, które mają nauczyć się listy modeli:
+<code>SPEC_PROMPT_ETAPU</code>, <code>SPEC_CLAUDE_MD</code> i <code>SPEC_STATUS</code>. Przy
+weryfikacji punktu „grep po starym brzmieniu przykładu nie zwraca nic" wyszło trafienie
+w <b>czwartym</b> pliku: <code>core/templates/SPEC_ODNOGA.md</code> niesie ten sam blockquote
+„Kontrola modelu" w starej postaci (sama nazwa modelu, bez klasy i bez daty listy). Prompt odnogi
+i prompt etapowy to dwie drogi do tej samej sesji wykonawczej, więc po zmianie mówiłyby o modelu
+dwoma różnymi językami — a projekt, który generuje odnogę po wydaniu, dostałby postać sprzed
+całego planu.</p>
+<p><b>Zmiana:</b> E4 dokłada do zakresu <code>SPEC_ODNOGA.md</code> — sekcja 3 „Kontrola modelu"
+i jej przykład dostają tę samą postać co w <code>SPEC_PROMPT_ETAPU.md</code> (klasa i nazwa razem,
+data listy przy nazwie, brak listy → sama klasa). Nic poza tym blockquote'em i jego przykładem
+w tym pliku nie jest ruszane; pozostałe punkty zakresu E4 bez zmian.</p>
+<p><b>Skutek dla etapów:</b> liczba etapów, ich cele i szacunek bez zmian — E4 rośnie o jedną
+edycję w pliku tej samej rodziny. Decyzja człowieka z 2026-09-04, po sygnale odchylenia zgłoszonym
+w trakcie etapu.</p>
 </section>
 
 <footer>

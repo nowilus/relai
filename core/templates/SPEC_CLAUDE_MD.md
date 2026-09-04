@@ -110,7 +110,10 @@ zakłada dokument i **w tej samej turze** dokłada tę linię.
 8. **Dobór modeli — rekomendacja** — jawnie oznaczona jako rekomendacja, nie reguła (D-38): analiza,
    architektura i plany → model najsilniejszy; wykonanie etapów → model wyważony; zadania
    mechaniczne → model najtańszy. Dopisz jedno zdanie: użytkownik może to nadpisać przy każdym
-   planie, a wybór trafia do `STATUS.md` planu (D-39).
+   planie, a wybór trafia do `STATUS.md` planu (D-39). Drugie zdanie **odsyła do listy modeli**
+   narzędzia (`.claude/relai/MODELE-<narzędzie>.md`) — nazwy modeli mieszkają tam, nie tutaj. Nazwy
+   wpisanej na stałe w `CLAUDE.md` nikt nie odświeża, a ten plik jest kopiowany latami; lista ma
+   własną datę i własną komendę odświeżenia (`/relai-models`).
 9. **Sekcja niemutowalna** — patrz niżej.
 
 ## Linia fraz sesji
@@ -289,6 +292,8 @@ Aktywny plan: [PLATNOSCI](docs/plany/PLATNOSCI/STATUS.md)
 
 Analiza i plany → model najsilniejszy. Wykonanie etapów → model wyważony. Zadania mechaniczne →
 model najtańszy. Przy każdym planie potwierdzasz wybór; trafia on do STATUS planu.
+Nazwy modeli tego narzędzia są w `.claude/relai/MODELE-<narzędzie>.md` (data listy w polu
+`list-date`, odświeżenie: `/relai-models`) — tutaj stoją klasy, bo nazwy się starzeją.
 
 ## Implementation guidelines (sekcja niemutowalna)
 

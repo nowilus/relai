@@ -74,7 +74,12 @@ o pracy naprzemiennej (oba narzędzia czytają te same `docs/`, wersję struktur
 — inaczej milczysz, tak jak przy pre-commicie (L-0002, L-0029). W 1.6.0 dochodzi **budżet startu
 sesji**: kolejny punkt w sekcji o zachowaniach automatycznych — start sesji jest mierzony i odzywa
 się wyłącznie ponad budżetem, a rotacja dostaje drugie wejście właśnie tam. Tabela komend nie
-rośnie. W 1.7.0 dochodzi **przegląd spraw czekających na człowieka**: pozycja starsza niż próg z wiersza `Przegląd spraw człowieka` wymusza decyzję na starcie sesji — kolejny punkt w sekcji o zachowaniach automatycznych, z własnym wyłącznikiem, osobnym od rotacji. Tabela komend nie rośnie. W 1.8.0 dochodzi **sprzątanie artefaktów roboczych**: jedenasta komenda `/relai-clean` w tabeli oraz jeden punkt w sekcji o zachowaniach automatycznych — zdanie na starcie sesji ponad progiem z wiersza `Artefakty robocze` i pytanie o katalogi zamkniętych etapów w rytuale „kończymy na dziś". Wyłącznik jest **osobny** od rotacji i od przeglądu spraw. Działa:
+rośnie. W 1.7.0 dochodzi **przegląd spraw czekających na człowieka**: pozycja starsza niż próg z wiersza `Przegląd spraw człowieka` wymusza decyzję na starcie sesji — kolejny punkt w sekcji o zachowaniach automatycznych, z własnym wyłącznikiem, osobnym od rotacji. Tabela komend nie rośnie. W 1.8.0 dochodzi **sprzątanie artefaktów roboczych**: jedenasta komenda `/relai-clean` w tabeli oraz jeden punkt w sekcji o zachowaniach automatycznych — zdanie na starcie sesji ponad progiem z wiersza `Artefakty robocze` i pytanie o katalogi zamkniętych etapów w rytuale „kończymy na dziś". Wyłącznik jest **osobny** od rotacji i od przeglądu spraw. W 1.9.0 dochodzi **lista modeli
+narzędzia**: dwunasta komenda `/relai-models` w tabeli oraz jeden punkt w sekcji o zachowaniach
+automatycznych — start sesji mówi, która lista obowiązuje, a listę starszą niż próg z wiersza
+`Lista modeli` przypomina jednym zdaniem z propozycją odświeżenia. Wyłącznik jest **osobny** od
+poprzednich; poniżej progu nie pada ani jedno słowo, a komenda pyta o zgodę na ruch sieciowy przy
+**każdym** wywołaniu. Działa:
 
 - inicjalizacja struktury projektu (zgoda → trzy pytania → osiem dokumentów),
 - rozpoznanie folderu, który już jest projektem RelAI,
@@ -195,7 +200,7 @@ rośnie. W 1.7.0 dochodzi **przegląd spraw czekających na człowieka**: pozycj
   **efekt i granice ochrony** (plik śledzony przez gita nie jest kandydatem nigdy; lokalną notatkę
   chroni marker), nie nazwę narzędzia liczącego,
 
-Wygenerowany `KOMENDY.md` w wersji 1.8.0 zawiera **tabelę komend z jedenastoma pozycjami**
+Wygenerowany `KOMENDY.md` w wersji 1.9.0 zawiera **tabelę komend z dwunastoma pozycjami**
 oraz tabelę fraz naturalnych:
 
 | Komenda | Co robi |
@@ -211,6 +216,7 @@ oraz tabelę fraz naturalnych:
 | `/relai-update` | aktualizuje projekt do wersji zainstalowanego pluginu: różnice, zgoda, poszanowanie nadpisań lokalnych, wpis w dzienniku |
 | `/relai-branch [NAZWA] [cel]` | zakłada odnogę: kartę wątku i samowystarczalny prompt świeżej sesji; jedna linia w sekcji „Odnogi" `STATUS.md`, zamrożony plan bez zmian; bez planu — wątek samodzielny w `docs/fixy/` |
 | `/relai-clean [raport]` | raport artefaktów roboczych w grupach, z listą chronionych i powodem ochrony; kasuje wyłącznie po „tak" na grupę i mierzy ponownie po operacji; argument `raport` kończy komendę na raporcie |
+| `/relai-models` | odświeża listę modeli narzędzia: pyta o zgodę na ruch sieciowy przy każdym wywołaniu, czyta strony dokumentacji, pokazuje różnicę stara–nowa i zapisuje dopiero po „tak”; odczyt nieudany zostawia starą listę z jej datą |
 
 | Fraza (PL / EN) | Co się stanie |
 |---|---|

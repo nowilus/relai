@@ -1,7 +1,8 @@
 # STATUS — plan REKOMENDACJA_MODELU
 
 Plan: [PLAN.html](PLAN.html) · Utworzony: 2026-09-03 · Status planu: **ZAAKCEPTOWANY 2026-09-03**
-(z Aneksem A) · Model wykonawczy etapów: Opus (z ustawień projektu, D-85; architektura i plany: Fable)
+(z Aneksami A–D) · Model wykonawczy etapów: Opus (z ustawień projektu, D-85; architektura i plany:
+Fable) — ustalony w Claude Code
 
 > Plan powstał z odnogi `REKOMENDACJA_MODELU` planu ROZWOJ_PO_WYDANIU (utworzonej 2026-08-17 po
 > pilotażu E6). Wywiad 2026-09-03 rozszerzył zakres o odświeżanie listy modeli — komenda na żądanie
@@ -16,7 +17,7 @@ Plan: [PLAN.html](PLAN.html) · Utworzony: 2026-09-03 · Status planu: **ZAAKCEP
 | E1 | Lista modeli i pytanie z nazwami | **ZREALIZOWANY 2026-09-03** | [PROMPT_ETAP_1.md](PROMPT_ETAP_1.md) | `MODELE.md` w obu adapterach, prowizjonowanie kopii do projektu **tylko przy braku pliku**, listy rozróżniane nazwą pliku (Aneks A); kamień milowy planu |
 | E2 | Komenda `/relai-models` | **ZREALIZOWANY 2026-09-04** | [PROMPT_ETAP_2.md](PROMPT_ETAP_2.md) | `relai-models.md` (12. komenda), zgoda na sieć każdorazowa, różnica przed zapisem; **Aneks B** — wynik odświeżenia przeniesiony do obu `MODELE.md`, aliasy i klasy Cursora domknięte |
 | E3 | Próg i przypomnienie | **ZREALIZOWANY 2026-09-04** | [PROMPT_ETAP_3.md](PROMPT_ETAP_3.md) | wiersz `Lista modeli` (`włączona · 7 dni`), `wiekListyModeli()` w rdzeniu, jedno zdanie ASCII w obu hookach, pozycja w katalogu progów; **Aneks C** — domknięcie bramki pomiaru E2 w świeżej sesji CLI |
-| E4 | Kontrola modelu, dokumenty, wydanie | **GOTOWY DO STARTU** | [PROMPT_ETAP_4.md](PROMPT_ETAP_4.md) | nazwa spoza listy w karcie etapu, `SPEC_CLAUDE_MD` / `SPEC_STATUS` / `SPEC_PROMPT_ETAPU`, nowe sprawdzenie w walidatorze; numer wydania do rozstrzygnięcia |
+| E4 | Kontrola modelu, dokumenty, wydanie | **W TOKU** | [PROMPT_ETAP_4.md](PROMPT_ETAP_4.md) | nazwa spoza listy w karcie etapu, `SPEC_CLAUDE_MD` / `SPEC_STATUS` / `SPEC_PROMPT_ETAPU`, nowe sprawdzenie w walidatorze; numer wydania do rozstrzygnięcia |
 
 ## Bramki manualne
 
@@ -108,3 +109,4 @@ Plan: [PLAN.html](PLAN.html) · Utworzony: 2026-09-03 · Status planu: **ZAAKCEP
   30-dniowy przepisał zdanie dosłownie, wariant jednodniowy odpowiedział `BRAK LINII`.
   **Aneks C (2026-09-04)** rozszerzył zakres o domknięcie bramki pomiaru E2 — dwa wywołania
   `/relai-models` w świeżych sesjach, obie zatrzymane na pytaniu o zgodę, sumy plików niezmienione.
+- 2026-09-04 — E4 rozpoczęty

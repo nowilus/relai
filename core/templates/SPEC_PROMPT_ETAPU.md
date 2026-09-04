@@ -53,10 +53,17 @@ Jedna linia, elementy oddzielone `•`:
 
 ### 3. Kontrola modelu
 
-Blockquote, jedno zdanie z numerem decyzji, jeśli model jest decyzją zamrożoną:
+Blockquote, jedno zdanie z numerem decyzji, jeśli model jest decyzją zamrożoną. Zdanie niesie
+**klasę i nazwę razem**, a przy nazwie — datę listy, z której nazwa pochodzi:
 
-> **Kontrola modelu:** ten etap wykonuj wyłącznie na modelu **<model>**. Jeśli sesja działa na innym
-> modelu — zatrzymaj się i poproś użytkownika o przełączenie, zanim cokolwiek zrobisz.
+> **Kontrola modelu:** ten etap wykonuj wyłącznie na modelu klasy **<klasa>**, w tym narzędziu:
+> **<nazwa>** (lista modeli z dnia `<list-date>`). Jeśli sesja działa na innym modelu — zatrzymaj
+> się i poproś użytkownika o przełączenie, zanim cokolwiek zrobisz.
+
+Nazwa i data pochodzą z listy modeli narzędzia (`.claude/relai/MODELE-<narzędzie>.md`, pole
+`list-date`); która lista obowiązuje — mówi zdanie hooka startu, nie własne rozpoznanie narzędzia.
+**Listy nie ma → zdanie zostaje przy samej klasie**, bez zmyślonej nazwy i bez daty; sama klasa
+wystarcza, żeby sesja wiedziała, czy została uruchomiona właściwie.
 
 Sekcja obowiązkowa nawet wtedy, gdy model jest ten sam we wszystkich etapach. Świeża sesja nie wie,
 na czym została uruchomiona.
@@ -192,8 +199,9 @@ punkt zastępujesz wskazaniem: **uruchom sekwencję zamknięcia planu** (D-36).
 Plan: PLATNOSCI • Etap: **E2 z E4** • Wygenerowano: 2026-08-14 (autor: Opus, w rytuale „Na koniec"
 E1) • Wykonawca: **Opus** (plan: „Opus dla E2–E3, Haiku dla reszty")
 
-> **Kontrola modelu:** ten etap wykonuj wyłącznie na modelu **Opus**. Jeśli sesja działa na innym
-> modelu — zatrzymaj się i poproś użytkownika o przełączenie, zanim cokolwiek zrobisz.
+> **Kontrola modelu:** ten etap wykonuj wyłącznie na modelu klasy **najsilniejszy**, w tym
+> narzędziu: **Opus 5** (lista modeli z dnia `2026-09-04`). Jeśli sesja działa na innym modelu —
+> zatrzymaj się i poproś użytkownika o przełączenie, zanim cokolwiek zrobisz.
 
 ## Co przeczytać na start (w tej kolejności, nic więcej)
 

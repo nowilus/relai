@@ -25,6 +25,11 @@ Agent w kolejnej sesji (pierwszy) i człowiek sprawdzający „gdzie jesteśmy z
    - **status planu** (lista niżej),
    - **model wykonawczy etapów** — dosłownie tak, jak odpowiedział użytkownik przy pytaniu
      startowym (D-39); „Opus" albo „złożone etapy: Opus, mechaniczne: Haiku" — nie normalizujesz.
+     Do tego samego członu dopisujesz **narzędzie, w którym model ustalono** (`w Claude Code`,
+     `w Cursorze`) — od chwili, w której każde narzędzie ma własną listę modeli, sama nazwa modelu
+     nie mówi, gdzie ta nazwa obowiązuje. Nazwę narzędzia bierzesz ze zdania hooka startu; zdanie
+     nie padło → członu nie zmyślasz i zostaje sam model. Linia pozostaje **jedną** linią, człony
+     rozdzielone `·`.
 3. **Tabela etapów** — `Etap | Nazwa | Status | Prompt | Uwagi`.
 4. **Odnogi** — sekcja opcjonalna, patrz niżej. Nie ma odnóg → nie ma sekcji.
 5. **Dziennik wdrożenia** — lista dopisywana **na końcu**, jedna linia na zdarzenie:
@@ -198,7 +203,8 @@ i jak zweryfikowano" mieszkają w `docs/DZIENNIK.md`, nie tutaj.
 # STATUS — plan PLATNOSCI
 
 Plan: [PLAN.md](PLAN.md) · Utworzony: 2026-08-12 · Status planu: **ZAAKCEPTOWANY 2026-08-13
-(Aneks A)** · Model wykonawczy etapów: Opus dla E2–E3, Haiku dla reszty (wybór użytkownika)
+(Aneks A)** · Model wykonawczy etapów: Opus dla E2–E3, Haiku dla reszty (wybór użytkownika,
+ustalony w Claude Code)
 
 ## Tabela etapów
 
