@@ -1042,9 +1042,21 @@ Autor: RelAI (Opus 5) + Lukasz
   (`work-artifacts.js:843`), nadal otwarta; poprawka wymaga rozdzielenia `skasowane` od
   `nieobecne` w wyniku i w wydruku, czyli zmiany kontraktu funkcji.
 
+**Domknięte po restarcie (2026-09-04, ta sama sesja):**
+
+- **Żywa sesja aplikacji wykonuje 1.9.1 — dowód treścią pliku, nie komunikatem CLI** (L-0004,
+  L-0061). Kopia narzędzia podłożona do projektu przez hook **tej** sesji niesie poprawkę
+  (`const kandydaci = temat ? [` w linii 346), a jej suma `e9b5bed342dbb6a3` jest identyczna
+  z rdzeniem repozytorium i z cache'em `1.9.1`, przy sumie `0a7a6bed187efb52` dla `1.9.0` —
+  to jest ta sama para wariantów, tylko zmierzona na wersji, którą aplikacja realnie ładuje.
+- **Zachowanie w żywej sesji, nie w instrumencie:** katalog `.claude/relai/work/_fixy/kontrola-1-9-1/`
+  utworzony po restarcie dał raport z kodem **0** i pozycją `[etap trwa / watek kontrola-1-9-1 /
+  brak karty]`, `Suma kandydatow: 0.0 MB`, pomiar 77 ms. Przed poprawką ta sama ścieżka kończyła
+  się wywrotką. Materiał kontrolny skasowany po pomiarze.
+
 **Do zrobienia przez człowieka:**
 
-- **Restart aplikacji** — teraz obejmuje 1.9.1; do restartu żywa sesja wykonuje kod sprzed obu
-  wydań tego dnia.
+- **Blokada guardraila z 1.8.1 w żywej sesji** — restart zdjął jedyną przeszkodę techniczną,
+  a sam pomiar (zapis do cudzego projektu RelAI z katalogiem roboczym poza nim) nadal czeka.
 
 Autor: RelAI (Opus 5) + Lukasz

@@ -198,11 +198,9 @@ REKOMENDACJA_MODELU został zamknięty i przeniesiony do archiwum 2026-09-04.
   1.7.0, które kroku przepięcia nie miały. Osobna operacja na cudzych pozycjach.
 - **Rotacja lekcji i rotacja ryzyk `ZAMKNIĘTYCH` w PolyFlow** — obie należne, obie świadomie poza
   zakresem E6. Raport startu tamtego projektu mówi o nich przy każdym uruchomieniu.
-- **Zrestartować aplikację Claude Code** — 1.9.0 jest wydane, potwierdzone treścią plików z cache'u
-  i zmierzone w świeżych sesjach CLI, ale żywa sesja aplikacji wykonuje kod sprzed restartu
-  (P-005). Pozycja **świadomie zostawiona otwarta** przy zamknięciu planu REKOMENDACJA_MODELU:
-  nic od niej nie zależy poza pomiarami w żywej sesji — w tym niepokazaną wciąż blokadą guardraila
-  z 1.8.1.
+- **Pokazać blokadę guardraila z 1.8.1 w żywej sesji** — jedyna pozycja, która nadal czeka na
+  pomiar w aplikacji. Restart **jest wykonany** (2026-09-04), więc warunek techniczny zniknął:
+  brakuje samego przebiegu z katalogiem roboczym poza projektem docelowym.
 - **`zachowaj` na cudzej ścieżce zapisuje marker u siebie** — `dopiszMarker()` pyta już właściwe
   repozytorium o `check-ignore`, ale plik markerowy wciąż powstaje w projekcie sesji.
   Poza zakresem odnogi GUARD_PO_SCIEZCE, która poprawiła wyłącznie samo pytanie.
@@ -254,8 +252,10 @@ niesie **dwanaście** plików komend z `relai-models.md`, obie listy `MODELE.md`
 `/relai-stage` z przypadkiem „spoza listy" i `"version": "1.9.0"` w `core/MANIFEST.json`
 oraz `.claude-plugin/plugin.json`. Zmierzone z tego cache'u w świeżych sesjach CLI: zdanie
 o wieku listy pada przy liście starszej niż próg i milczy przy świeżej. **Żywa sesja aplikacji
-wykonuje 1.9.0 dopiero po restarcie** (P-005) — restart jest jedyną otwartą pozycją wydania.
-Źródło: własny marketplace w tym samym repozytorium.
+wykonuje 1.9.1 — zmierzone po restarcie 2026-09-04**: kopia narzędzia podłożona do projektu przez
+hook tej sesji niesie poprawkę `_fixy` i ma sumę `e9b5bed342dbb6a3`, identyczną z cache'em 1.9.1
+i różną od 1.9.0 (`0a7a6bed187efb52`); raport artefaktów na katalogu `_fixy` w żywej sesji kończy
+się kodem 0 zamiast wywrotki. Źródło: własny marketplace w tym samym repozytorium.
 
 ### Zawartość pluginu
 
