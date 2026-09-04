@@ -47,6 +47,13 @@
   zostaje przy `ask`), zostawić bez zmian, czy opisać to jako świadomą granicę? · 2026-09-04 ·
   [wpis 2026-09-04 — Blokada guardraila pokazana w żywej sesji](#2026-09-04--blokada-guardraila-pokazana-w-żywej-sesji-ochrona-konfiguracji-okazuje-się-doradcza)
 
+- **Ponowna instalacja pre-commita w projektach z hookiem sprzed 1.9.2** — stary układ
+  (bezrozszerzeniowy `pre-commit` + `relai-secret-scan.js`) przewraca się w projekcie
+  z `"type": "module"` i blokuje każdy commit. Dotyczy PolyFlow, JiraManagera i projektów
+  zewnętrznych; instalacja jest jawną czynnością człowieka, więc RelAI jej nie wykona sam.
+  · 2026-09-04 ·
+  [wpis 2026-09-04 — Cztery defekty pre-commita](#2026-09-04--cztery-defekty-pre-commita-ze-zgłoszenia-zewnętrznego-wydanie-192)
+
 - **Ikony README renderują się w 17–23 px zamiast 24 px, więc kreska schodzi poniżej piksela** —
   podbić grubość z 2.6 na 3.2 (zmiana proporcji rysunku) czy scalić kolumnę ikony z kolumną komendy
   w README (bez ruszania grafiki)? · 2026-09-01 ·
@@ -1354,5 +1361,76 @@ Autor: RelAI (Opus 5) + Lukasz
 
 - Bez zmian wobec listy „Czeka na człowieka": pięć pozycji, żadna nieprzeterminowana przy progu
   30 dni. Najstarsza czeka od 2026-08-20.
+
+Autor: RelAI (Opus 5) + Lukasz
+
+### 2026-09-04 — Cztery defekty pre-commita ze zgłoszenia zewnętrznego, wydanie 1.9.2
+
+**Zrobione:**
+
+- **Pierwsze zgłoszenie z cudzego projektu** (widget Preact/TS, Node 24.13.1, Windows 11) i pierwsza
+  poprawka wydana tego samego dnia. Wątek samodzielny
+  [PRECOMMIT_ESM](fixy/PRECOMMIT_ESM/ODNOGA.md), bez planu nadrzędnego.
+- **Defekt blokujący: hook zatrzymywał każdy commit w projekcie z `"type": "module"`.** Instalator
+  kładł logikę jako bezrozszerzeniowy `pre-commit` i plik `.js`, a o systemie modułów rozstrzyga
+  najbliższy `package.json` w górę drzewa — dla `.git/hooks/` jest nim `package.json` projektu.
+  Od 1.9.2 do `.git/hooks/` idzie shim `#!/bin/sh` plus `relai-pre-commit.cjs`
+  i `relai-secret-scan.cjs`.
+- **Instalacja przestała być czynnością bez dowodu.** Kończy się testem dymnym: hook uruchomiony
+  przy pustym indeksie (`GIT_INDEX_FILE` podstawiony, prawdziwy indeks nietknięty) musi zwrócić 0.
+  Wynik inny cofa instalację do stanu sprzed niej i kończy się kodem 2 zamiast komunikatu o sukcesie.
+- **Skan widzi nazwy z przedrostkiem.** `AWS_SECRET_ACCESS_KEY=`, `GITHUB_TOKEN=`, `DB_PASSWORD=` —
+  do 1.9.1 przechodziły, bo `\b` przed rdzeniem nazwy nie zachodzi po podkreślniku. Doszła druga
+  reguła, **wrażliwa na wielkość liter**; stara została nietknięta.
+- **Wartość oczywiście przykładowa przestała blokować dokumentację.** Filtr `EXAMPLE_RE` na
+  dopasowanym tokenie z listy `PATTERNS`.
+- **Czwarty defekt, znaleziony przy okazji:** `scanText` sprawdzał tylko pierwsze dopasowanie
+  każdego wzorca, więc placeholder w pierwszej linii pliku wyciszał realny sekret niżej. Teraz
+  przegląda wszystkie dopasowania.
+- **Dokumentacja:** nowa pułapka `P-007` (rozstrzyganie systemu modułów w `.git/hooks/`), akapity
+  w `README.md` i `core/README.md`, wymóg ponownej instalacji dopisany do procedury `/relai-update`.
+
+**Zweryfikowane — jak dokładnie:**
+
+- **Defekt odtworzony przed poprawką, nie tylko wyczytany z kodu:** świeże repo w `%TEMP%`
+  z `"type": "module"`, instalacja, `git commit` → `ReferenceError: require is not defined in ES
+  module scope` w linii 17, kod 1. Ślad co do linii zgodny ze zgłoszeniem.
+- **Regresja instalatora: 27 przypadków, 0 rozjazdów**, sześć scenariuszy w osobnych repozytoriach —
+  projekt ESM (commit czysty przechodzi, commit z sekretem zatrzymany, sekret nie wszedł do
+  historii, komunikat nie cytuje wartości), projekt CommonJS (dokument z kluczem przykładowym
+  przechodzi, ten sam wzorzec bez markera zatrzymany), deinstalacja, cudzy hook z **dowodem
+  negatywnym** (treść nietknięta), cofnięcie po nieudanym teście dymnym (poprzedni hook wrócił
+  bajt w bajt, żaden plik z nieudanej instalacji nie został), aktualizacja układu sprzed 1.9.2.
+- **Tabela przypadków ze zgłoszenia: 14/14 zgodnych.**
+- **Fałszywe trafienia zmierzone na cudzym materiale, obie wersje w jednym przebiegu** — stara
+  wzięta `git show HEAD:`, nie przepisana z pamięci. 3705 plików z pięciu repozytoriów:
+  **86 → 113** plików z trafieniem, 27 różnic. Wariant pośredni (przedrostek z flagą `i`) dawał
+  **54** różnice, prawie wyłącznie na polach kodu pisanych małymi literami — i to jest powód,
+  dla którego reguła przedrostkowa jest wrażliwa na wielkość liter. Własne repozytorium:
+  188 plików, **0 → 1** trafienie.
+- **Poszerzenie `PLACEHOLDER_RE` o akcesory środowiska zmierzone i odrzucone** — `Deno.env.get`,
+  `import.meta.env`, `os.environ` uciszają **2** trafienia ze 113, więc nie wchodzą.
+  Instrument miał kontrolę pozytywną: wariant kandydacki musiał milczeć na akcesorze i trafiać
+  w realną wartość, inaczej pomiar był przerywany.
+- **Walidator spójności:** kod 0, „3 zrodel, wartosc 1.9.2".
+- **Hook tego repozytorium przeinstalowany** na układ 1.9.2 — stara kopia `relai-secret-scan.js`
+  zniknęła, test dymny zdany przez shim i przez samą logikę.
+
+**Świadomie odłożone:**
+
+- **86 fałszywych trafień obecnych już w 1.9.1** na cudzym materiale — zmierzone, nieruszane.
+  To nie jest skutek tej poprawki i nie było przedmiotem zgłoszenia.
+- **Linia `SECRET_TOKEN=` w archiwum dziennika tego repozytorium** (wartość pozorowana w dowodzie
+  negatywnym do D-42) świeci od 1.9.2. Archiwum jest kopią bajt w bajt i się go nie edytuje (D-18);
+  skutek jest realny tylko wtedy, gdy ktoś ten plik zaindeksuje.
+- **Weryfikacja zapisu dokumentu z kanoniczną wartością przykładową przez hook żywej sesji** —
+  wymaga restartu aplikacji (P-005), bo sesja używa kopii z cache'u.
+
+**Do zrobienia przez człowieka:**
+
+- **Ponowna instalacja pre-commita w projektach, które mają go sprzed 1.9.2** (PolyFlow,
+  JiraManager, każdy projekt zewnętrzny). Stary układ przewraca się w projekcie ESM; rozpoznanie
+  po obecności `.git/hooks/relai-secret-scan.js`. Instalacja jest jawną czynnością człowieka,
+  więc RelAI tego nie zrobi sam.
 
 Autor: RelAI (Opus 5) + Lukasz

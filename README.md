@@ -3,7 +3,7 @@
 </p>
 
 <p align="center">
-  <em>Wersja 1.9.1 &nbsp;·&nbsp; licencja MIT &nbsp;·&nbsp; wymaga Claude Code albo Cursora, plus Node.js 14+ &nbsp;·&nbsp; zero zależności npm</em>
+  <em>Wersja 1.9.2 &nbsp;·&nbsp; licencja MIT &nbsp;·&nbsp; wymaga Claude Code albo Cursora, plus Node.js 14+ &nbsp;·&nbsp; zero zależności npm</em>
 </p>
 
 **RelAI to plugin do Claude Code (od 1.5.0 także adapter Cursora), który zamienia rozmowę
@@ -449,6 +449,15 @@ node <RelAI>/core/guardrails/install-precommit.js <katalog-projektu> --uninstall
 
 Bez Node.js w `PATH` instalator odmawia i mówi o tym wprost — warstwa dokumentowo-procesowa działa
 dalej w całości, sam skan przy commicie nie. Cudzego hooka `pre-commit` instalator nie nadpisuje.
+
+Od **1.9.2** do `.git/hooks/` trafiają trzy pliki: `pre-commit` jako shim powłokowy oraz logika
+w `relai-pre-commit.cjs` i `relai-secret-scan.cjs`. Rozszerzenie `.cjs` jest warunkiem działania,
+nie estetyką — o systemie modułów rozstrzyga najbliższy `package.json`, a dla `.git/hooks/` jest
+nim `package.json` **projektu**, więc w projekcie z `"type": "module"` starszy układ przewracał się
+na pierwszym `require` i blokował każdy commit. Instalacja kończy się **testem dymnym**: hook musi
+przejść przy pustym indeksie, a wynik inny niż zero cofa instalację do stanu sprzed niej i kończy
+się błędem. Projekt z hookiem sprzed 1.9.2 wymaga **ponownej instalacji** — poznasz go po pliku
+`.git/hooks/relai-secret-scan.js`.
 
 ### Konwencja: hook-guard
 

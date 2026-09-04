@@ -49,10 +49,22 @@ Cofnięcie — jedno polecenie:
 node <RelAI>/core/guardrails/install-precommit.js <katalog-projektu> --uninstall
 ```
 
-Instalator kopiuje do `.git/hooks/` dwa pliki: sam hook i kopię skanera. Kopia zamiast odwołania
+Instalator kopiuje do `.git/hooks/` trzy pliki: shim powłokowy `pre-commit`, logikę
+`relai-pre-commit.cjs` i kopię skanera `relai-secret-scan.cjs`. Kopia zamiast odwołania
 do katalogu pluginu jest świadoma — hook ma działać także po aktualizacji, przeniesieniu albo
 odinstalowaniu pluginu. Cena: po zmianie reguł skanu instalację trzeba powtórzyć, i instalator
 mówi o tym przy nadpisaniu.
+
+**Rozszerzenie `.cjs` i shim to warunek działania, nie estetyka** (od 1.9.2, `PULAPKI.md` P-007):
+o systemie modułów rozstrzyga najbliższy `package.json`, a dla `.git/hooks/` jest nim
+`package.json` projektu — w projekcie z `"type": "module"` starszy układ przewracał się na
+pierwszym `require` i blokował **każdy** commit. Projekt z hookiem sprzed 1.9.2 (poznasz go po
+pliku `.git/hooks/relai-secret-scan.js`) wymaga ponownej instalacji.
+
+**Instalacja kończy się testem dymnym**: zainstalowany hook musi przejść przy pustym indeksie
+(podstawionym przez `GIT_INDEX_FILE`, więc prawdziwy indeks zostaje nietknięty). Kod inny niż zero
+oznacza instalację nieudaną — instalator przywraca stan sprzed niej, bajt w bajt, i kończy się
+błędem. Skopiowanie plików nie jest dowodem, że hook działa.
 
 **Bez Node.js w `PATH`** instalator odmawia i mówi o tym wprost. Warstwa dokumentowo-procesowa
 RelAI działa wtedy w całości (to tekst), sam skan przy commicie — nie. Żadnej cichej degradacji.

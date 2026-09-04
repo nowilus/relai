@@ -8,6 +8,23 @@ Specyfikacja: `SPEC_PULAPKI.md`.
 
 ## Pułapki
 
+### P-007 — o systemie modułów pliku w `.git/hooks/` rozstrzyga `package.json` projektu · 2026-09-04 · AKTYWNA
+
+- **Objaw:** `ReferenceError: require is not defined in ES module scope` przy **każdym** commicie
+  w projekcie, którego `package.json` ma `"type": "module"` — mimo że hook jest poprawnym
+  CommonJS-em. Hook fails-closed, więc projekt traci możliwość commitowania czegokolwiek, a człowiek
+  widzi stack trace Node'a zamiast komunikatu RelAI.
+- **Przyczyna:** Node wybiera system modułów po **najbliższym `package.json` w górę drzewa**.
+  Dla `.git/hooks/` tym najbliższym jest `package.json` projektu — katalog `.git/` nie jest
+  granicą. Plik bezrozszerzeniowy i plik `.js` podlegają tej samej regule.
+- **Obejście:** rozszerzenie `.cjs` wygrywa z każdą wartością `"type"`. Od 1.9.2 instalator
+  RelAI kładzie logikę jako `relai-pre-commit.cjs` i `relai-secret-scan.cjs`, a sam
+  `.git/hooks/pre-commit` jest shimem `#!/bin/sh` z `exec node`. Drugie obejście, gdyby trzeba
+  było ratować cudzy hook: `.git/hooks/package.json` z `{ "type": "commonjs" }`.
+- **Zasięg:** każdy hook gita napisany w Node w projekcie ESM — nie tylko RelAI. Sprawdzenie
+  instalacji: hook uruchomiony przy pustym indeksie ma kończyć się kodem 0; od 1.9.2 robi to sam
+  instalator (test dymny z cofnięciem). Źródło: zgłoszenie zewnętrzne 2026-09-04, Node 24.13.1.
+
 ### P-006 — `git archive | tar` na Windows nie robi kopii drzewa · 2026-08-12 · AKTYWNA
 
 - **Objaw:** `tar: Cannot connect to C: resolve failed` przy próbie zmaterializowania drzewa

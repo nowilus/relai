@@ -10,6 +10,12 @@
 // Skanujemy TRESC Z INDEKSU (git show :plik), a nie plik z dysku: commitowane jest to,
 // co w indeksie, i tylko to ma znaczenie dla tego, co trafi do historii.
 //
+// Ten plik jest CommonJS i od 1.9.2 instaluje sie jako .git/hooks/relai-pre-commit.cjs,
+// wolany przez shim powlokowy .git/hooks/pre-commit. Rozszerzenie .cjs jest tu warunkiem
+// dzialania, nie ozdoba: o systemie modulow rozstrzyga najblizszy package.json w gore drzewa,
+// a dla .git/hooks/ jest nim package.json PROJEKTU — w projekcie z "type": "module" plik .js
+// (albo bezrozszerzeniowy) jest parsowany jako ESM i wywala sie na pierwszym require.
+//
 // Kod wyjscia: 0 = commit przechodzi, 1 = commit zatrzymany.
 // Komunikaty celowo bez polskich znakow diakrytycznych (L-0016) — hook wypisuje je
 // do konsoli gita, ktora na Windows bywa w codepage 852/1250.
@@ -20,8 +26,11 @@ const { spawnSync } = require('child_process');
 // Skaner: najpierw kopia obok zainstalowanego hooka (.git/hooks/), potem plik rdzenia
 // przy uruchomieniu wprost z repozytorium RelAI. Brak obu = brak gwarancji, wiec mowimy
 // o tym glosno i zatrzymujemy commit — cicha degradacja bylaby gorsza niz halas.
+// Kolejnosc: kopia .cjs z instalacji 1.9.2+, kopia .js ze starszych instalacji (hook sprzed
+// aktualizacji nadal ma dzialac), plik rdzenia przy uruchomieniu wprost z repozytorium RelAI.
 function wczytajSkaner() {
   const kandydaci = [
+    path.join(__dirname, 'relai-secret-scan.cjs'),
     path.join(__dirname, 'relai-secret-scan.js'),
     path.join(__dirname, 'secret-scan.js'),
   ];

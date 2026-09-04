@@ -28,7 +28,26 @@ const PATTERNS = [
 // zlapany, bo otwierajacy backtick konsumuje grupa cudzyslowu. Zmierzone w E6 (Aneks D,
 // 2026-09-01) na dziewieciu przypadkach: stary wzorzec myli sie raz, nowy zero razy.
 const ASSIGN_RE = /\b(PASSWORD|PASSWD|SECRET|TOKEN|API[_-]?KEY|ACCESS[_-]?KEY)\b\s*[:=]\s*["'`]?([^\s"',;`]{8,})/i;
+
+// Nazwa z przedrostkiem — druga regula, bo realne zmienne srodowiskowe nazywaja sie
+// AWS_SECRET_ACCESS_KEY, GITHUB_TOKEN, DB_PASSWORD, a granica \b w regule wyzej nie zachodzi,
+// gdy przed rdzeniem stoi podkreslnik (podkreslnik jest znakiem slownym). Do 1.9.1 przez skan
+// przechodzila wiec wiekszosc realnie uzywanych nazw.
+//
+// Ta regula jest WRAZLIWA NA WIELKOSC LITER, w odroznieniu od tej wyzej, i to nie jest
+// niedopatrzenie. Pomiar na 3705 plikach z pieciu cudzych repozytoriow (2026-09-04) pokazal,
+// ze wariant z flaga "i" lapie pola kodu pisane malymi literami — access_token, client_secret,
+// refresh_token w normalnym kodzie OAuth — czyli 54 nowe trafienia, prawie wszystkie falszywe.
+// Wielkie litery sa konwencja zmiennych srodowiskowych i oddzielaja jedno od drugiego bez
+// zgadywania. Grupa 1 lapie CALA nazwe, zeby werdykt mowil, ktora zmienna zaswiecila.
+const ASSIGN_PREFIX_RE = /(?:^|[^A-Za-z0-9_])((?:[A-Z0-9]+[_-])+(?:PASSWORD|PASSWD|SECRET|TOKEN|API[_-]?KEY|ACCESS[_-]?KEY))\s*[:=]\s*["'`]?([^\s"',;`]{8,})/;
 const PLACEHOLDER_RE = /^(\$|%|<|\{|\*|x{3,}$|your[_-]?|change[_-]?me|placeholder|example|dummy|sample|test[_-]?|todo|tbd|none$|null$|undefined$|\.\.\.|process\.env)/i;
+
+// Wartosc oczywiscie przykladowa — marker STOI W SRODKU tokenu (AKIA...IOSFODNN7EXAMPLE), wiec
+// PLACEHOLDER_RE z kotwica ^ nie ma tu nic do roboty. To jest ta sama klasa problemu, co poprawka
+// backtickowa: zdanie o rzeczy sprawdzanej wpadalo w regule, ktora te rzecz sprawdza — dokumentacja
+// guardraila nie dala sie zapisac. Surowosc dla wszystkiego pozostalego zostaje bez zmian.
+const EXAMPLE_RE = /(EXAMPLE|SAMPLE|PLACEHOLDER)/i;
 
 // Adnotacja typu, nie wartosc. Sygnatura funkcji haszujacej haslo — identyfikator, dwukropek,
 // typ, nawias zamykajacy i typ zwracany — wpada w ASSIGN_RE, bo klasa wartosci dopuszcza nawias
@@ -41,15 +60,34 @@ const TYPE_TOKEN_RE = /^(string|number|boolean|bigint|symbol|object|any|unknown|
 // Werdykt: null = brak sekretu, string = etykieta znaleziska.
 // Wartosci NIGDY nie zwracamy i nie cytujemy — samo znalezisko wystarczy do decyzji,
 // a zacytowany sekret wedrowalby dalej w logach i transkrypcie (D-42).
+// Kazdy wzorzec przegladamy DO KONCA tresci, nie do pierwszego trafienia: plik moze miec
+// najpierw wartosc przykladowa albo placeholder, a dopiero nizej prawdziwy sekret. Pierwsze
+// trafienie, ktore przechodzi filtry, jest werdyktem; brak takiego trafienia to cisza.
+function kazdeTrafienie(re, text, fn) {
+  const g = new RegExp(re.source, re.flags.indexOf('g') === -1 ? re.flags + 'g' : re.flags);
+  let m;
+  while ((m = g.exec(text)) !== null) {
+    if (m[0] === '') { g.lastIndex++; continue; }
+    const wynik = fn(m);
+    if (wynik) return wynik;
+  }
+  return null;
+}
+
 function scanText(payload) {
   const text = String(payload || '');
   if (!text) return null;
   for (const p of PATTERNS) {
-    if (p.re.test(text)) return p.label;
+    const werdykt = kazdeTrafienie(p.re, text, (m) => (EXAMPLE_RE.test(m[0]) ? null : p.label));
+    if (werdykt) return werdykt;
   }
-  const m = text.match(ASSIGN_RE);
-  if (m && !PLACEHOLDER_RE.test(m[2]) && !TYPE_TOKEN_RE.test(m[2])) {
-    return 'przypisanie ' + m[1].toUpperCase() + '= z niepusta wartoscia';
+  for (const re of [ASSIGN_RE, ASSIGN_PREFIX_RE]) {
+    const werdykt = kazdeTrafienie(re, text, (m) => (
+      PLACEHOLDER_RE.test(m[2]) || TYPE_TOKEN_RE.test(m[2])
+        ? null
+        : 'przypisanie ' + m[1].toUpperCase() + '= z niepusta wartoscia'
+    ));
+    if (werdykt) return werdykt;
   }
   return null;
 }

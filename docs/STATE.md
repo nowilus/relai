@@ -4,11 +4,14 @@ Stan na: 2026-09-04
 
 ## Gdzie jesteśmy
 
-RelAI jest wydany w **1.9.1** i działa w dwóch narzędziach — Claude Code oraz Cursorze — z tym samym
-kompletem dokumentów i tym samym procesem. Ostatnie wydanie domknęło temat modeli: pytanie „na jakim
+RelAI jest wydany w **1.9.2** i działa w dwóch narzędziach — Claude Code oraz Cursorze — z tym samym
+kompletem dokumentów i tym samym procesem. Wydanie 1.9.0 domknęło temat modeli: pytanie „na jakim
 modelu to wykonać" pokazuje nazwy dostępne w danym narzędziu zamiast trzech ogólnych klas, listę da
 się odświeżyć jedną komendą, a stara lista sama się przypomina. Poprawka 1.9.1 z tego samego dnia
 usunęła defekt, przez który raport plików roboczych wywracał się na katalogu wątku pobocznego.
+**1.9.2 naprawia gitowy pre-commit po pierwszym zgłoszeniu z cudzego projektu** — hook przestał
+blokować każdy commit w projekcie z `"type": "module"`, skan zaczął widzieć nazwy z przedrostkiem,
+a instalacja kończy się testem dymnym zamiast samego komunikatu o sukcesie.
 Adapter Cursora ma od dziś przebieg na **1.9.1 we własnym narzędziu** — instalacja, zdania o liście
 modeli, blokada sekretu przez opakowanie powłoki i deinstalacja z cudzym wpisem. Żadnego planu
 nie prowadzimy teraz aktywnie — jedyny niezamknięty czeka na dostęp do narzędzia, którego jeszcze
@@ -37,7 +40,11 @@ nie mamy. Największa otwarta rzecz jest poza kodem: RelAI nie miał jeszcze uż
   pozycję. Poniżej progu raport milczy i to milczenie jest gwarantowane.
 - **Klucz API nie wejdzie do repozytorium, a reguły projektu nie zmienią się bez potwierdzenia.**
   Skan sekretów działa też poza Claude: gitowy pre-commit zatrzymuje commit z kluczem niezależnie
-  od narzędzia. Guard pilnuje projektu, **do którego idzie zapis**, a nie tego, w którym stoi
+  od narzędzia — **od 1.9.2 także w projekcie z `"type": "module"`**, gdzie do 1.9.1 przewracał się
+  na starcie i blokował każdy commit. Instalacja kończy się testem dymnym: hook, który nie
+  przechodzi przy pustym indeksie, jest cofany, a nie meldowany jako sukces. Skan widzi nazwy
+  z przedrostkiem (`AWS_SECRET_ACCESS_KEY=`) i przepuszcza wartości oczywiście przykładowe, więc
+  guardrail da się opisać w dokumentacji projektu. Guard pilnuje projektu, **do którego idzie zapis**, a nie tego, w którym stoi
   sesja — **pokazane w żywej sesji 2026-09-04**: próba zapisania klucza do projektu RelAI
   w `%TEMP%`, z sesji otwartej w tym repozytorium, została odbita, a **plik nie powstał**.
   Ten sam zapis bez sekretu, tą samą drogą, przeszedł.
@@ -66,6 +73,12 @@ nie mamy. Największa otwarta rzecz jest poza kodem: RelAI nie miał jeszcze uż
 
 ## Co dalej
 
+- **Wydanie 1.9.2 czeka na restart aplikacji** (P-005): repozytorium i walidator mówią 1.9.2, cache
+  pluginu nadal 1.9.1. Po restarcie zostaje jedno sprawdzenie z wątku PRECOMMIT_ESM — zapis
+  dokumentu z kanoniczną wartością przykładową przez hook żywej sesji.
+- **Projekty z hookiem sprzed 1.9.2 wymagają ponownej instalacji pre-commita** — stary układ
+  przewraca się w projekcie z `"type": "module"`. Rozpoznanie: obecność
+  `.git/hooks/relai-secret-scan.js`. Dotyczy PolyFlow i JiraManagera, jeśli mają hook.
 - **Ochrona konfiguracji jest doradcza, nie twarda** — `config-protection` zwraca werdykt `ask`,
   więc zatrzymuje zapis tylko wtedy, gdy tryb uprawnień sesji ten werdykt egzekwuje. W sesji
   z automatyczną akceptacją edycja sekcji niemutowalnej **cudzego** `CLAUDE.md` przeszła bez
@@ -120,12 +133,13 @@ nie mamy. Największa otwarta rzecz jest poza kodem: RelAI nie miał jeszcze uż
 
 ### Wersja i instalacja
 
-Repozytorium i aplikacja: **1.9.1** (poprawka `_fixy` w rdzeniu, 2026-09-04; wcześniej tego samego
-dnia 1.9.0 z planu REKOMENDACJA_MODELU). Walidator: kod 0, „3 zrodel, wartosc 1.9.1". Wydanie
-potwierdzone **treścią plików z cache'u, nie komunikatem CLI** (P-005): kopia narzędzia podłożona do
-projektu przez hook żywej sesji po restarcie ma sumę `e9b5bed342dbb6a3`, identyczną z cache'em 1.9.1
-i różną od 1.9.0 (`0a7a6bed187efb52`). Źródło instalacji: własny marketplace w tym repozytorium,
-scope `user`.
+Repozytorium: **1.9.2** (trzy defekty gitowego pre-commita ze zgłoszenia zewnętrznego, 2026-09-04;
+tego samego dnia wcześniej 1.9.0 z planu REKOMENDACJA_MODELU i poprawka `_fixy` w 1.9.1).
+Walidator: kod 0, „3 zrodel, wartosc 1.9.2". **Aplikacja niesie jeszcze 1.9.1** — potwierdzenie
+1.9.2 treścią plików z cache'u czeka na restart (P-005); 1.9.1 było potwierdzone sumą
+`e9b5bed342dbb6a3`, różną od 1.9.0 (`0a7a6bed187efb52`). Źródło instalacji: własny marketplace
+w tym repozytorium, scope `user`. Hook gitowy tego repozytorium przeinstalowany na układ 1.9.2
+(shim + dwa pliki `.cjs`), test dymny zdany przez shim i przez samą logikę.
 
 ### Zawartość pluginu
 
@@ -169,4 +183,5 @@ Otwarte wątki: **1** — odnoga `OPIS_REPO` • Artefakty w rejestrze: **40** �
 Zasady aktywne: **15 przy limicie 15** • Progi w katalogu: **18, z tego 17 z adresem egzekwowania** •
 Adaptery: 2 • Komendy: **12** • Scenariusze akceptacyjne: 4/4 zdane + pilotaż Cursora •
 Modele, na których zmierzono proces: 5 (Fable, Opus, Haiku, Composer/auto, Grok 4.6) •
-Projekty na RelAI: 3 (RelAI 1.9.1, PolyFlow 1.8.0, JiraManager przed migracją)
+Projekty na RelAI: 3 (RelAI 1.9.2, PolyFlow 1.8.0, JiraManager przed migracją) •
+Zgłoszenia z cudzych projektów: **1, obsłużone w dniu wpłynięcia** (pre-commit, 4 defekty)
