@@ -158,9 +158,9 @@ Komendy i frazy: [KOMENDY.md](KOMENDY.md)
 Plany: BUDOWA_RELAI 10/10 • OPTYMALIZACJA_KONTEKSTU 5/5 • HIGIENA_DOKUMENTOW 6/6 •
 SPRZATANIE_ARTEFAKTOW 4/4 • REKOMENDACJA_MODELU 4/4 (zamknięty 2026-09-04) •
 ROZWOJ_PO_WYDANIU 6/8 (ZAMROŻONY) • **Aktywny plan: brak** •
-Warstwa startowa: **50,5 KB / 80 KB** — raport budżetu milczy, raport progów wymienia jedną
-pozycję (sekcja ryzyk) • Dziennik: **104,0 KB / 150 KB**
-(18 wpisów) • Lekcje: **37,2 KB / 50 KB** (20 w żywym rejestrze, ostatnia L-0090) • Sekcja ryzyk:
+Warstwa startowa: **51,0 KB / 80 KB** — raport budżetu milczy, raport progów wymienia jedną
+pozycję (sekcja ryzyk) • Dziennik: **107,0 KB / 150 KB**
+(19 wpisów) • Lekcje: **39,2 KB / 50 KB** (21 w żywym rejestrze, ostatnia L-0090) • Sekcja ryzyk:
 **14,4 KB / 12 KB** — nie ma już czego rotować • Archiwum: siedem plików dziennika, trzy lekcji,
 dwa ryzyk • Sprawy czekające na człowieka: **5 tutaj**, 32 w PolyFlow, żadna nieprzeterminowana •
 Otwarte ryzyka: **9** • Zamknięte ryzyka: **8, wszystkie w archiwum** •

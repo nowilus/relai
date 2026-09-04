@@ -1306,3 +1306,53 @@ Autor: RelAI (Opus 5) + Lukasz
   kontrolnych, a sposób jego mierzenia w przyszłości zapisany w D-87.
 
 Autor: RelAI (Opus 5) + Lukasz
+
+### 2026-09-04 — Zamknięcie dnia: dwa wydania, trzy rotacje i adapter Cursora zmierzony
+
+**Zrobione:**
+
+- **Dwa wydania w jeden dzień.** `1.9.0` domknęło plan REKOMENDACJA_MODELU (E4 z Aneksem D):
+  karta etapu rozpoznaje model **spoza listy**, cztery specyfikacje mówią o modelu jednym językiem,
+  walidator dostał szóste sprawdzenie. `1.9.1` naprawiło defekt znaleziony godzinę później —
+  raport artefaktów wywracał się na katalogu wątku samodzielnego `_fixy`.
+- **Trzy rotacje**: dziennik (22 wpisy), ryzyka zamknięte (R2, M4), lekcje (15 pozycji).
+- **Blokada guardraila pokazana w żywej sesji** ze skutkiem na dysku — pomiar czekał od 1.8.1.
+- **Adapter Cursora zmierzony na 1.9.1 we własnym narzędziu** (wątek CURSOR_1_9_1, Grok 4.6),
+  a decyzją **D-87** repozytorium RelAI zostaje bez tego adaptera.
+- **`STATE.md` skrócony** 317 → 173 linie (11,8 KB), poniżej obu progów.
+
+**Zweryfikowane — jak dokładnie:**
+
+- **Rotacja przy zamknięciu: nie ma czego wziąć.** Dziennik **104,0 KB** przy progu 150,
+  lekcje **39,2 KB** przy 50, ustawienia **3,1 KB** przy 6, `STATE.md` **173 linie** przy 300 —
+  wszystko poniżej progu, więc cisza. Wyjątkiem jest sekcja ryzyk i to jest komunikat wymagany
+  powyżej progu, nie przeoczenie:
+  > Rotacja ryzyk stoi: w tabeli jest **9 wierszy i ani jednego `ZAMKNIĘTE`**.
+  > Sekcja **14,4 KB** = część rotowalna **0 KB** + dolna granica osiągalna **14,4 KB**;
+  > próg **12 KB**. Sekcję odchudzi wyłącznie zamknięcie ryzyk albo podniesienie progu — obie
+  > rzeczy są decyzją człowieka, mechanizm zrobił wszystko, co mógł.
+- **Sprzątanie artefaktów: zero kandydatów** (`clean-work.js raport`, 71 ms). Sześć pozycji
+  chronionych z powodem, w tym `templates` przez opis w `README.md:150`. Katalog
+  `.claude/relai/work/` jest pusty — poprzednie sesje sprzątnęły po sobie.
+- **Przegląd ryzyk: dziewięć otwartych, żadne nie zmieniło poziomu.** `P1`, `P2` i `M1` dostały
+  dziś wyniki z Cursora (opakowanie powłoki `deny` i plik nieutworzony; cały wątek poprowadzony
+  przez model spoza Anthropic; hook Cursora mówi o **własnej** liście modeli). `M4` zamknięte przy
+  wydaniu i zeszło rotacją do archiwum. `M2` zostaje otwarte z jednego powodu — zakaz nadpisywania
+  listy przez `/relai-update` jest **napisany, nie zmierzony**.
+- **Zasady aktywne: 15 przy limicie 15** — policzone komendą; limit wykorzystany, nie przekroczony,
+  więc lekcja L-0090 poszła do zasady 5 zamiast otwierać szesnastą pozycję.
+- **Sprawy czekające na człowieka: 5** — z dziewięciu rano, po zdjęciu czterech rozstrzygniętych
+  tego samego dnia.
+
+**Świadomie odłożone:**
+
+- **`adapters/cursor/README.md` mówi o „dziesięciu komendach"** przy dwunastu — znalezisko wątku
+  Cursora, poprawka pójdzie z następną zmianą adaptera.
+- **`.cursor/` w `.gitignore`** — dopiero gdyby D-87 zostało zmienione.
+
+**Do zrobienia przez człowieka:**
+
+- Bez zmian wobec listy „Czeka na człowieka": pięć pozycji, żadna nieprzeterminowana przy progu
+  30 dni. Najstarsza czeka od 2026-08-20.
+
+Autor: RelAI (Opus 5) + Lukasz
