@@ -1434,3 +1434,40 @@ Autor: RelAI (Opus 5) + Lukasz
   więc RelAI tego nie zrobi sam.
 
 Autor: RelAI (Opus 5) + Lukasz
+
+### 2026-09-04 — 1.9.2 potwierdzone w aplikacji, guardrail pokazany w obie strony
+
+**Zrobione:**
+
+- **Wydanie 1.9.2 domknięte w aplikacji.** Sekwencja `claude plugin update` → restart → sprawdzenie
+  treścią plików z cache'u (P-005). Sam restart okazał się bezużyteczny — katalog nowej wersji
+  pojawia się w cache'u dopiero przy `update`, więc pułapka P-005 dostała punkt o kolejności
+  działającej w obie strony.
+- **Kanoniczna wartość przykładowa wróciła do dokumentacji projektu**: `P-007` ma teraz akapit
+  „sprawdzenie samego skanu" z wartością, której do 1.9.1 nie dało się zapisać.
+
+**Zweryfikowane — jak dokładnie:**
+
+- **Wydanie: treścią plików, nie komunikatem CLI.** `installed_plugins.json` wskazuje ścieżkę
+  `...\1.9.2` i commit `ff3e6bc`; pięć plików z cache'u (trzy guardraile, `MANIFEST.json`,
+  `SKILL.md`) zgadza się sumą z repozytorium po normalizacji CRLF → LF — **5/5** — i różni się
+  od sum 1.9.1. `MANIFEST.json` w cache'u mówi `1.9.2`.
+- **Hook żywej sesji pokazany w obie strony w jednym przebiegu.** Dopisanie do `docs/PULAPKI.md`
+  akapitu z `AKIAIOSFODNN7EXAMPLE` **przeszło** — do 1.9.1 ten zapis był blokowany, co było
+  treścią trzeciego defektu ze zgłoszenia. Kontrola pozytywna: ten sam wzorzec bez markera
+  przykładu, na ścieżce śledzonej, odbity werdyktem `klucz AWS (AKIA...)`, **plik nie powstał**
+  (`ls` → `No such file or directory`).
+- **Pierwsza kontrola pozytywna była nieważna i to też jest wynik.** Postawiłem ją
+  w `.claude/relai/work/`, czyli na ścieżce objętej `.gitignore` — hook przepuszcza takie pliki
+  **z założenia** (`secret-scanner.js`: „pliki objete .gitignore przechodza"). Zapis przeszedł
+  zgodnie z projektem, nie mimo niego; cisza wyglądała identycznie jak awaria hooka.
+
+**Świadomie odłożone:**
+
+- Nic nowego.
+
+**Do zrobienia przez człowieka:**
+
+- Bez zmian: ponowna instalacja pre-commita w projektach z hookiem sprzed 1.9.2.
+
+Autor: RelAI (Opus 5) + Lukasz

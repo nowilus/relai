@@ -74,8 +74,17 @@ guardraila.
       `client_secret`), i **dlatego** reguła przedrostkowa jest wrażliwa na wielkość liter.
 - [x] **Własne repozytorium**: 188 plików, 0 → 1 trafienie (linia archiwum opisana wyżej).
 - [x] Walidator spójności: kod 0, `3 zrodel, wartosc "1.9.2"`.
-- [ ] **Zapis dokumentu z kanonicznym kluczem przykładowym AWS przez hook żywej sesji** — do
-      sprawdzenia **po restarcie aplikacji**, bo sesja używa kopii z cache'u pluginu (P-005).
+- [x] **Zapis dokumentu z kanonicznym kluczem przykładowym AWS przez hook żywej sesji** —
+      zmierzone 2026-09-04 po aktualizacji pluginu i restarcie, **obie strony w jednym przebiegu**:
+      dopisanie sprawdzenia z wartością `AKIAIOSFODNN7EXAMPLE` do `docs/PULAPKI.md` **przeszło**
+      (do 1.9.1 było blokowane), a kontrola pozytywna — ten sam wzorzec bez markera przykładu,
+      na tej samej ścieżce śledzonej — została odbita werdyktem `klucz AWS (AKIA...)` i **plik
+      nie powstał**. Pierwsza próba kontroli była nieważna: postawiona w `.claude/relai/work/`,
+      czyli na ścieżce objętej `.gitignore`, którą hook przepuszcza z założenia.
+- [x] **Wydanie potwierdzone treścią plików z cache'u, nie komunikatem CLI** (P-005): katalog
+      `1.9.2` w cache'u, `MANIFEST.json` z wersją `1.9.2`, `installed_plugins.json` wskazujący
+      ścieżkę `...\1.9.2` i commit `ff3e6bc`. Pięć plików (trzy guardraile, manifest, SKILL)
+      zgodnych sumą z repozytorium po normalizacji CRLF → LF, **5/5**, i różnych od 1.9.1.
 
 ## Wynik
 

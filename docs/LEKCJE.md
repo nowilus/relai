@@ -56,8 +56,12 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
    zachowanie domyślne mechanizmu, więc na kontrolę pozytywną patrzysz pierwszą. **Cisza zmierzona
    złym wejściem jest fałszem, nie ciszą** — narzędzie wołane z podstawionym payloadem dostaje
    kontrolę pozytywną **na tym samym wejściu** (odbite pole, nazwa projektu), bo „0 znaków" wygląda
-   tak samo przy poprawnej ścieżce i przy rozjechanej. (L-0032, L-0037, L-0054, L-0055, L-0056,
-   L-0064, L-0068, L-0071, L-0073, L-0083, L-0084, L-0086, L-0087, L-0088, L-0090)
+   tak samo przy poprawnej ścieżce i przy rozjechanej. **Kontrolę pozytywną stawiasz na wejściu,
+   którego mechanizm naprawdę pilnuje** — wejście z jego własnej listy wyłączeń (ścieżka objęta
+   `.gitignore`, rozszerzenie pomijane, tryb wyciszony) daje przebieg zielony niezależnie od tego,
+   czy mechanizm żyje; listę wyłączeń czytasz w kodzie, zanim postawisz kontrolę. (L-0032, L-0037,
+   L-0054, L-0055, L-0056, L-0064, L-0068, L-0071, L-0073, L-0083, L-0084, L-0086, L-0087, L-0088,
+   L-0090, L-0091)
 6. **Próg jest liczbą, którą ktoś liczy:** kalibruj go na zmierzonych plikach realnych projektów,
    zapisuj w jednostce mechanizmu kontrolnego wraz z komendą sprawdzającą i daj mu **jeden**
    wyzwalacz — wielkości pomocnicze wskazują przyczynę wewnątrz komunikatu, nie wywołują go.
@@ -482,6 +486,25 @@ restart aplikacji po `plugin update` (L-0031), `git worktree` zamiast `git archi
 - **Źródło:** rotacja dokumentów 2026-09-04; sprostowanie wpisane do tego samego wpisu dziennika
   w tej samej sesji. Bez własnej pozycji w destylacie — dopisane do zasady 5, limit 15 pozostaje
   wykorzystany.
+
+### L-0091 — Kontrola pozytywna postawiona na ścieżce, którą mechanizm przepuszcza z założenia, nie jest kontrolą · 2026-09-04 · AKTYWNA
+
+- **Trigger:** po wydaniu 1.9.2 sprawdzałem hook skanu sekretów w żywej sesji. Zapis dokumentu
+  z kanoniczną wartością przykładową przeszedł — tego oczekiwałem. Jako kontrolę pozytywną
+  zapisałem plik z wartością bez markera przykładu do `.claude/relai/work/` i **ten zapis też
+  przeszedł**, co przez chwilę wyglądało na dowód, że hook w ogóle nie działa.
+- **Przyczyna:** `.claude/relai/work/` jest objęte `.gitignore`, a hook przepuszcza pliki
+  ignorowane **z projektu, nie z przeoczenia** (`secret-scanner.js`: „pliki objete .gitignore
+  przechodza"). Kontrola mierzyła więc zachowanie domyślne mechanizmu, nie jego blokadę. Ta sama
+  cisza znaczyła co innego, niż zakładałem — powtórzenie na ścieżce **śledzonej** dało werdykt
+  odmowy i nieutworzony plik w pierwszej próbie.
+- **Zasada:** kontrola pozytywna musi stać **na wejściu, którego mechanizm naprawdę pilnuje** —
+  zanim ją postawisz, sprawdź w kodzie mechanizmu, jakie wejścia są wyłączone przez projekt
+  (ścieżki ignorowane, rozszerzenia pomijane, tryby wyciszone). Wejście z listy wyłączeń daje
+  przebieg zielony niezależnie od tego, czy mechanizm żyje. Wzmocnienie zasady 5 od strony
+  **doboru materiału**, nie escapowania.
+- **Źródło:** weryfikacja wydania 1.9.2 w żywej sesji, wątek PRECOMMIT_ESM. Bez własnej pozycji
+  w destylacie — dopisane do zasady 5, limit 15 pozostaje wykorzystany.
 
 ## Lekcje zwinięte
 

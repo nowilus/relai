@@ -30,24 +30,25 @@ nie mamy. Największa otwarta rzecz jest poza kodem: RelAI nie miał jeszcze uż
 - Dwanaście skrótów operacyjnych: etap planu, odnoga, kopia zapasowa, przegląd, lista zmian, pakiet
   przekazania, wycieczka po projekcie, ściąga, adopcja, aktualizacja, sprzątanie plików roboczych,
   odświeżenie listy modeli.
-- **Dokumenty nie puchną bez końca.** Najstarsza historia przenosi się do archiwum w całości, bez
+- **Dokumenty nie puchną bez końca.** Najstarsza historia idzie do archiwum w całości, bez
   skracania, a w żywym pliku zostaje linia z linkiem; sprawa czekająca na człowieka nie zatrzymuje
-  już tego ruchu, bo jej link jest przepinany na plik archiwum. Poniżej progu nie pada ani jedno
-  słowo, a gdy mechanizm nie może zabrać wszystkiego — mówi to wprost, zamiast udawać sukces.
+  tego ruchu — jej link jest przepinany na archiwum. Poniżej progu cisza, a gdy mechanizm nie może
+  zabrać wszystkiego, mówi to wprost.
 - **Sprawy czekające na człowieka mają jeden adres** i wracają jako pytanie, gdy czekają zbyt
   długo: zamknąć, odroczyć, rozstrzygnąć teraz. Odroczenie przesuwa zegar, nie zamyka sprawy.
 - **Każdy próg ma adres w raporcie startu sesji** — razem z nazwą procedury, która odchudza daną
   pozycję. Poniżej progu raport milczy i to milczenie jest gwarantowane.
 - **Klucz API nie wejdzie do repozytorium, a reguły projektu nie zmienią się bez potwierdzenia.**
-  Skan sekretów działa też poza Claude: gitowy pre-commit zatrzymuje commit z kluczem niezależnie
-  od narzędzia — **od 1.9.2 także w projekcie z `"type": "module"`**, gdzie do 1.9.1 przewracał się
-  na starcie i blokował każdy commit. Instalacja kończy się testem dymnym: hook, który nie
-  przechodzi przy pustym indeksie, jest cofany, a nie meldowany jako sukces. Skan widzi nazwy
-  z przedrostkiem (`AWS_SECRET_ACCESS_KEY=`) i przepuszcza wartości oczywiście przykładowe, więc
-  guardrail da się opisać w dokumentacji projektu. Guard pilnuje projektu, **do którego idzie zapis**, a nie tego, w którym stoi
-  sesja — **pokazane w żywej sesji 2026-09-04**: próba zapisania klucza do projektu RelAI
-  w `%TEMP%`, z sesji otwartej w tym repozytorium, została odbita, a **plik nie powstał**.
-  Ten sam zapis bez sekretu, tą samą drogą, przeszedł.
+  Gitowy pre-commit zatrzymuje commit z kluczem niezależnie od narzędzia — **od 1.9.2 także
+  w projekcie z `"type": "module"`**, gdzie wcześniej przewracał się na starcie i blokował każdy
+  commit; instalacja kończy się testem dymnym, więc hook, który nie przechodzi, jest cofany,
+  a nie meldowany jako sukces. Skan widzi nazwy z przedrostkiem (`AWS_SECRET_ACCESS_KEY=`)
+  i przepuszcza wartości oczywiście przykładowe, więc guardrail da się opisać w dokumentacji.
+  Guard pilnuje projektu, **do którego idzie zapis**, a nie tego, w którym stoi sesja.
+  **Dwa pomiary w żywej sesji 2026-09-04, każdy w obie strony**: klucz do projektu RelAI
+  w `%TEMP%` odbity (plik nie powstał), ten sam zapis bez sekretu przeszedł; zdanie
+  z kanoniczną wartością przykładową dopisane do `PULAPKI.md` przeszło, ten sam wzorzec bez
+  markera na ścieżce śledzonej odbity (plik nie powstał).
 - **Pliki robocze po zamkniętych etapach mają cztery momenty sprzątania** i zawsze ten sam tryb:
   raport w grupach, jedno „tak" na grupę, ponowny pomiar po operacji. Plik śledzony przez gita nie
   jest kandydatem nigdy, a lokalną notatkę właściciela chroni marker w `.gitignore`. Etap wie, gdzie
@@ -64,18 +65,15 @@ nie mamy. Największa otwarta rzecz jest poza kodem: RelAI nie miał jeszcze uż
 
 ## Nad czym pracujemy teraz
 
-- **Migracja JiraManagera.** Po co: to ostatni projekt, w którym start sesji kosztuje 386 KB
-  dokumentów, a rotacja nigdy nie ruszyła. Czeka na okno właściciela, który rozwija go na bieżąco.
-  Dopóki nie wejdzie, ryzyko R5 zostaje otwarte — zawężone wyłącznie do tego jednego projektu.
+- **Migracja JiraManagera** — ostatni projekt, w którym start sesji kosztuje 386 KB dokumentów,
+  a rotacja nigdy nie ruszyła. Czeka na okno właściciela; do tego czasu ryzyko R5 zostaje otwarte,
+  zawężone do tego jednego projektu.
 - **Plan ROZWOJ_PO_WYDANIU pozostaje zamrożony** (6/8) i jest jedynym niezamkniętym planem. E7 —
   adapter Codeksa — czeka na dostęp; linia „Aktywny plan" w `CLAUDE.md` brzmi `brak`, bo plan
   zamrożony nie jest planem aktywnym.
 
 ## Co dalej
 
-- **Wydanie 1.9.2 czeka na restart aplikacji** (P-005): repozytorium i walidator mówią 1.9.2, cache
-  pluginu nadal 1.9.1. Po restarcie zostaje jedno sprawdzenie z wątku PRECOMMIT_ESM — zapis
-  dokumentu z kanoniczną wartością przykładową przez hook żywej sesji.
 - **Projekty z hookiem sprzed 1.9.2 wymagają ponownej instalacji pre-commita** — stary układ
   przewraca się w projekcie z `"type": "module"`. Rozpoznanie: obecność
   `.git/hooks/relai-secret-scan.js`. Dotyczy PolyFlow i JiraManagera, jeśli mają hook.
@@ -83,28 +81,22 @@ nie mamy. Największa otwarta rzecz jest poza kodem: RelAI nie miał jeszcze uż
   więc zatrzymuje zapis tylko wtedy, gdy tryb uprawnień sesji ten werdykt egzekwuje. W sesji
   z automatyczną akceptacją edycja sekcji niemutowalnej **cudzego** `CLAUDE.md` przeszła bez
   pytania (zmierzone 2026-09-04). Skan sekretów tego problemu nie ma — używa `deny`.
-- **Rozstrzygnąć, czy zamknięta lista rdzeni rozstrzygnięcia ma poznać słownik realnego projektu.**
-  7 z 32 pozycji „Czeka na człowieka" w PolyFlow wygląda dla człowieka na zamknięte, a mechanizm
-  liczy je jako otwarte. Poszerzenie listy działa we wszystkich projektach naraz, więc każde nowe
-  brzmienie to nowe ryzyko schowania sprawy człowieka w archiwum.
+- **Rozstrzygnąć, czy zamknięta lista rdzeni rozstrzygnięcia ma poznać słownik realnego projektu**
+  — 7 z 32 pozycji PolyFlow wygląda na zamknięte, a mechanizm liczy je jako otwarte; poszerzenie
+  listy działa we wszystkich projektach naraz. Szczegóły: „Czeka na człowieka" w dzienniku.
 - **Reguła głębokości rotacji** — cel „60% części rotowalnej" zatrzymuje rotację nad progiem
   w dokumencie o grubej dolnej granicy; 2026-09-04 głębokość trzeba było wybierać ręcznie.
-- **Ikony README renderują się w 17–23 px zamiast 24 px**, więc kreska schodzi poniżej piksela.
-  Dwie drogi: podbicie grubości do 3.2 albo scalenie kolumny ikony z kolumną komendy — zmiana
-  dotyczy wszystkich jedenastu ikon naraz.
-- **`kasuj` melduje `skasowane` dla ścieżki, której nie ma** (`work-artifacts.js:843`) — gasi jedyny
-  sygnał, po którym wołający poznałby literówkę w liście. Poprawka rozdziela `skasowane` od
-  `nieobecne` w wyniku i w wydruku.
-- **`zachowaj` na cudzej ścieżce zapisuje marker u siebie** — `dopiszMarker()` pyta już właściwe
-  repozytorium o `check-ignore`, ale plik markerowy wciąż powstaje w projekcie sesji.
+- **Ikony README renderują się w 17–23 px zamiast 24 px** — grubość 3.2 albo scalenie kolumny
+  ikony z kolumną komendy; zmiana dotyczy wszystkich jedenastu ikon naraz.
+- **Dwie wady `work-artifacts.js`**: `kasuj` melduje `skasowane` dla ścieżki, której nie ma
+  (linia 843 — gasi sygnał o literówce w liście), a `zachowaj` na cudzej ścieżce zapisuje marker
+  w projekcie sesji zamiast w projekcie pliku.
 - **60 martwych linków w sekcji „Czeka na człowieka" PolyFlow** oraz należna tam rotacja lekcji
   i ryzyk zamkniętych — osobne operacje na cudzym projekcie.
 - **Odnoga `OPIS_REPO`** (pusty opis repozytorium i tematy na GitHubie) — jej prompt jest z sierpnia
   i opisuje RelAI 1.5.x, więc wymaga odświeżenia przed startem.
-- Potwierdzić albo cofnąć **osiem rozstrzygnięć wpisanych w E2** planu OPTYMALIZACJA_KONTEKSTU —
-  wypisane co do jednego 2026-09-01, każde ze swoim dowodem.
-- Usunąć metadane sesji `ProbaCursorE6` (`~/.claude/projects/`, `~/.claude/session-data/`,
-  `~/.cursor/projects/`) — sam katalog projektu już nie istnieje.
+- Potwierdzić albo cofnąć **osiem rozstrzygnięć z E2** planu OPTYMALIZACJA_KONTEKSTU (wypisane
+  2026-09-01) oraz usunąć metadane sesji `ProbaCursorE6` z `~/.claude/` i `~/.cursor/`.
 - Po odmrożeniu E7: adapter Codeksa i `AGENTS.md` jako plik główny projektu (D-86) wraz
   z przepięciem instalatora Cursora.
 - **Feedback od osób spoza projektu** — pilotaż poprowadził autor, więc kryterium „ktoś inny niż
@@ -112,20 +104,12 @@ nie mamy. Największa otwarta rzecz jest poza kodem: RelAI nie miał jeszcze uż
 
 ## Co blokuje
 
-- **Adapter Cursora zmierzony na 1.9.1, ale nie w tym repozytorium — i tak zostaje (D-87).** Wątek
-  [CURSOR_1_9_1](fixy/CURSOR_1_9_1/ODNOGA.md) sprawdził go w aplikacji Cursora na Groku 4.6:
-  instalator kładzie dwanaście komend i manifest `1.9.1`, hook startu mówi o `MODELE-cursor.md`,
-  para wariantów wieku listy daje 253 znaki wobec zera, a `cursor-agent` na projekcie kontrolnym
-  odbija zapis z kluczem — plik nie powstaje. **Tutaj adaptera nie instalujemy**, żeby kopie
-  dwunastu komend nie trafiły do repozytorium, które jest ich źródłem; skutkiem jest brak
-  kontekstu RelAI i blokady sekretu w sesji Cursora otwartej w tym folderze. Niezmierzone
-  zostają dostęp poza katalogiem roboczym i osiem komend poza trzema uruchomionymi
-  (`/relai-help`, `/relai-clean`, `/relai-models`).
-- **Dostępność świeżej sesji CLI bywa zmienna** — `claude -p` odmówił uwierzytelnienia rano
-  2026-09-04 i zadziałał tego samego dnia po południu, więc każdy etap opierający pomiar na tej
-  usłudze sprawdza ją przed startem (L-0084, L-0087). Dziewięć scenariuszy odnogi `POMIAR_ODNOG`
-  zostaje niezmierzonych świadomie — decyzja z 2026-09-03.
-- Repozytorium jest **publiczne**, ale ma pusty opis — odnoga `OPIS_REPO`.
+- **Adapter Cursora zmierzony na 1.9.1, ale nie w tym repozytorium — i tak zostaje (D-87).** Wynik
+  i lista rzeczy niezmierzonych: [CURSOR_1_9_1](fixy/CURSOR_1_9_1/ODNOGA.md). Skutek tutaj: sesja
+  Cursora otwarta w tym folderze nie ma kontekstu RelAI ani blokady sekretu.
+- **Dostępność świeżej sesji CLI bywa zmienna** — `claude -p` odmówił rano 2026-09-04 i zadziałał
+  po południu, więc etap opierający pomiar na tej usłudze sprawdza ją przed startem (L-0084,
+  L-0087). Dziewięć scenariuszy odnogi `POMIAR_ODNOG` niezmierzonych świadomie (2026-09-03).
 
 ---
 
@@ -135,11 +119,14 @@ nie mamy. Największa otwarta rzecz jest poza kodem: RelAI nie miał jeszcze uż
 
 Repozytorium: **1.9.2** (trzy defekty gitowego pre-commita ze zgłoszenia zewnętrznego, 2026-09-04;
 tego samego dnia wcześniej 1.9.0 z planu REKOMENDACJA_MODELU i poprawka `_fixy` w 1.9.1).
-Walidator: kod 0, „3 zrodel, wartosc 1.9.2". **Aplikacja niesie jeszcze 1.9.1** — potwierdzenie
-1.9.2 treścią plików z cache'u czeka na restart (P-005); 1.9.1 było potwierdzone sumą
-`e9b5bed342dbb6a3`, różną od 1.9.0 (`0a7a6bed187efb52`). Źródło instalacji: własny marketplace
-w tym repozytorium, scope `user`. Hook gitowy tego repozytorium przeinstalowany na układ 1.9.2
-(shim + dwa pliki `.cjs`), test dymny zdany przez shim i przez samą logikę.
+Walidator: kod 0, „3 zrodel, wartosc 1.9.2". **Wydanie potwierdzone treścią plików z cache'u, nie
+komunikatem CLI** (P-005): `installed_plugins.json` wskazuje ścieżkę `...\1.9.2` i commit
+`ff3e6bc`, a pięć plików z cache'u — trzy guardraile, `MANIFEST.json` i `SKILL.md` — zgadza się
+sumą z repozytorium po normalizacji CRLF → LF (5/5) i różni od 1.9.1. Sam restart nie wystarczył:
+cache dostaje nową wersję dopiero po `claude plugin update`, a restart ją ładuje. Źródło
+instalacji: własny marketplace w tym repozytorium, scope `user`. Hook gitowy tego repozytorium
+przeinstalowany na układ 1.9.2 (shim + dwa pliki `.cjs`), test dymny zdany przez shim i przez samą
+logikę; pierwszy realny commit (19 plików) przeszedł przez niego cicho.
 
 ### Zawartość pluginu
 
@@ -149,12 +136,11 @@ jako skrypty (skan sekretów, pre-commit, instalator) • rozpoznania startu ses
 oba adaptery • walidator spójności • `MANIFEST.json`.
 
 **Adapter Claude Code**: dwa skille, **dwanaście komend**, dziesięć hooków Node.js bez zależności
-npm, własna lista modeli `MODELE.md`. Manifest i marketplace zostają w `.claude-plugin/` w korzeniu
-— tego wymaga Claude Code.
+npm, własna lista modeli. Manifest i marketplace zostają w `.claude-plugin/` — tego wymaga Claude Code.
 
-**Adapter Cursor**: trzy reguły `.mdc` z `alwaysApply: true`, dwa hooki z opakowaniem powłoki dla
-guardraila, instalator z deinstalacją i flagą `--bez-skanu`, własna lista modeli. Komendy i skille
-kopiuje z adaptera Claude Code.
+**Adapter Cursor**: trzy reguły `.mdc` z `alwaysApply: true`, dwa hooki z opakowaniem powłoki,
+instalator z deinstalacją i flagą `--bez-skanu`, własna lista modeli. Komendy i skille kopiuje
+z adaptera Claude Code.
 
 ### Wymagania
 
@@ -172,16 +158,16 @@ Komendy i frazy: [KOMENDY.md](KOMENDY.md)
 Plany: BUDOWA_RELAI 10/10 • OPTYMALIZACJA_KONTEKSTU 5/5 • HIGIENA_DOKUMENTOW 6/6 •
 SPRZATANIE_ARTEFAKTOW 4/4 • REKOMENDACJA_MODELU 4/4 (zamknięty 2026-09-04) •
 ROZWOJ_PO_WYDANIU 6/8 (ZAMROŻONY) • **Aktywny plan: brak** •
-Warstwa startowa: **51,0 KB / 80 KB** — raport budżetu milczy, raport progów wymienia jedną
-pozycję (sekcja ryzyk) • Dziennik: **107,0 KB / 150 KB**
-(19 wpisów) • Lekcje: **39,2 KB / 50 KB** (21 w żywym rejestrze, ostatnia L-0090) • Sekcja ryzyk:
-**14,4 KB / 12 KB** — nie ma już czego rotować • Archiwum: siedem plików dziennika, trzy lekcji,
-dwa ryzyk • Sprawy czekające na człowieka: **5 tutaj**, 32 w PolyFlow, żadna nieprzeterminowana •
-Otwarte ryzyka: **9** • Zamknięte ryzyka: **8, wszystkie w archiwum** •
-Otwarte bramki manualne: **1** (zamknięta lista rdzeni rozstrzygnięcia) •
-Otwarte wątki: **1** — odnoga `OPIS_REPO` • Artefakty w rejestrze: **40** •
-Zasady aktywne: **15 przy limicie 15** • Progi w katalogu: **18, z tego 17 z adresem egzekwowania** •
-Adaptery: 2 • Komendy: **12** • Scenariusze akceptacyjne: 4/4 zdane + pilotaż Cursora •
+Warstwa startowa: **51,0 KB / 80 KB** — jedna pozycja ponad progiem cząstkowym (sekcja ryzyk
+19,3 przy 12; STATE zszedł do 11,99) • Dziennik: **114,4 KB / 150 KB** (21 wpisów) •
+Lekcje: **41,0 KB / 50 KB** (22 w żywym rejestrze, ostatnia L-0091) • Sekcja ryzyk w widoku
+rotacji: **14,4 KB / 12 KB** — nie ma czego rotować • Archiwum: siedem plików dziennika, trzy
+lekcji, dwa ryzyk • Sprawy czekające na człowieka: **6 tutaj**, 32 w PolyFlow, żadna
+nieprzeterminowana • Otwarte ryzyka: **9** • Zamknięte: **8, w archiwum** •
+Otwarte bramki manualne: **1** • Otwarte wątki: **1** — odnoga `OPIS_REPO` •
+Artefakty w rejestrze: **40** • Zasady aktywne: **15 przy limicie 15** •
+Progi w katalogu: **18, z tego 17 z adresem egzekwowania** • Adaptery: 2 • Komendy: **12** •
+Scenariusze akceptacyjne: 4/4 + pilotaż Cursora •
 Modele, na których zmierzono proces: 5 (Fable, Opus, Haiku, Composer/auto, Grok 4.6) •
 Projekty na RelAI: 3 (RelAI 1.9.2, PolyFlow 1.8.0, JiraManager przed migracją) •
 Zgłoszenia z cudzych projektów: **1, obsłużone w dniu wpłynięcia** (pre-commit, 4 defekty)

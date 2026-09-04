@@ -24,6 +24,15 @@ Specyfikacja: `SPEC_PULAPKI.md`.
 - **Zasięg:** każdy hook gita napisany w Node w projekcie ESM — nie tylko RelAI. Sprawdzenie
   instalacji: hook uruchomiony przy pustym indeksie ma kończyć się kodem 0; od 1.9.2 robi to sam
   instalator (test dymny z cofnięciem). Źródło: zgłoszenie zewnętrzne 2026-09-04, Node 24.13.1.
+- **Sprawdzenie samego skanu** — kanoniczna wartość przykładowa z dokumentacji AWS
+  (`AKIAIOSFODNN7EXAMPLE`) ma **przechodzić**, a ten sam wzorzec bez markera przykładu ma być
+  zatrzymany. Do 1.9.1 blokowane było jedno i drugie, więc tego zdania nie dało się zapisać:
+
+  ```
+  node <RelAI>/core/guardrails/secret-scan.js docs/PULAPKI.md
+  ```
+
+  Oczekiwany wynik dla tego pliku: `BRAK` i kod 0.
 
 ### P-006 — `git archive | tar` na Windows nie robi kopii drzewa · 2026-08-12 · AKTYWNA
 
@@ -51,8 +60,14 @@ Specyfikacja: `SPEC_PULAPKI.md`.
   Warstw jest cztery: `plugin details` pokazuje wersję z marketplace, `plugin install` na
   zainstalowanym jest no-opem, `plugin update` porównuje numer wersji, a cache w pamięci aplikacji
   przeżywa je wszystkie do restartu.
-- **Zasięg:** Claude Code, aplikacja desktopowa; potwierdzone na 0.9.0 → 1.0.0. Źródło: L-0031,
-  L-0020.
+- **Kolejność działa w obie strony** (2026-09-04, 1.9.1 → 1.9.2): sam restart nie ładuje niczego
+  nowego, bo katalog nowej wersji pojawia się w cache'u dopiero przy `claude plugin update`.
+  Po restarcie bez update `~/.claude/plugins/cache/<marketplace>/<plugin>/` kończył się na starej
+  wersji, a hook startu meldował rozjazd „projekt 1.9.2 / plugin 1.9.1". Sekwencja to
+  **update → restart → sprawdzenie treścią plików z cache'u**; żaden z tych kroków nie zastępuje
+  pozostałych.
+- **Zasięg:** Claude Code, aplikacja desktopowa; potwierdzone na 0.9.0 → 1.0.0 oraz 1.9.1 → 1.9.2.
+  Źródło: L-0031, L-0020.
 
 ### P-004 — `acceptEdits` nie obejmuje poleceń Bash · 2026-08-09 · AKTYWNA
 
