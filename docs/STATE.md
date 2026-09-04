@@ -4,8 +4,11 @@ Stan na: 2026-09-04
 
 ## Gdzie jesteśmy
 
-RelAI jest **wydany w 1.9.0** i ma dwa wyjścia: Claude Code oraz Cursor — te same dokumenty i ten
-sam proces w dwóch narzędziach. **1.9.0 zamyka plan REKOMENDACJA_MODELU (4/4, 2026-09-04)**:
+RelAI jest **wydany w 1.9.1** i ma dwa wyjścia: Claude Code oraz Cursor — te same dokumenty i ten
+sam proces w dwóch narzędziach. **1.9.1 to poprawka rdzenia z tego samego dnia**: raport artefaktów
+roboczych wywracał się (`ERR_INVALID_ARG_TYPE`) na katalogu wątku samodzielnego `_fixy` — czyli na
+ścieżce, którą sam poleca prompt odnogi; defekt siedział w kodzie od 1.8.0 i wyszedł przy pierwszym
+realnym użyciu tej ścieżki. **1.9.0 zamyka plan REKOMENDACJA_MODELU (4/4, 2026-09-04)**:
 pytanie „na jakim modelu to wykonać" pokazuje nazwy modeli tego narzędzia zamiast trzech klas,
 listę da się odświeżyć komendą `/relai-models` za każdorazową zgodą na ruch sieciowy, stara lista
 przypomina się sama po siedmiu dniach, a karta etapu mówi wprost, gdy model sesji jest **spoza
@@ -242,8 +245,9 @@ REKOMENDACJA_MODELU został zamknięty i przeniesiony do archiwum 2026-09-04.
 
 ### Wersja i instalacja
 
-Repozytorium: **1.9.0** (plan REKOMENDACJA_MODELU, 2026-09-04), **wypchnięte** (`09335b4`);
-walidator: kod 0, „3 zrodel, wartosc 1.9.0". Zainstalowany globalnie (scope `user`): **1.9.0** —
+Repozytorium: **1.9.1** (poprawka `_fixy` w rdzeniu, 2026-09-04); walidator: kod 0,
+„3 zrodel, wartosc 1.9.1". Wcześniej tego samego dnia **1.9.0** (plan REKOMENDACJA_MODELU,
+`09335b4`). Zainstalowany globalnie (scope `user`): **1.9.0** —
 `claude plugin update relai@relai` zameldował „updated from 1.8.1 to 1.9.0", a potwierdzenie poszło
 **treścią plików z cache'u, nie komunikatem CLI**: `~/.claude/plugins/cache/relai/relai/1.9.0/`
 niesie **dwanaście** plików komend z `relai-models.md`, obie listy `MODELE.md`, kartę
@@ -287,9 +291,10 @@ SPRZATANIE_ARTEFAKTOW **4/4 (ZREALIZOWANY 2026-09-03)** •
 REKOMENDACJA_MODELU **4/4 (ZREALIZOWANY 2026-09-04)** •
 HIGIENA_DOKUMENTOW **6/6 (ZREALIZOWANY 2026-09-01)** •
 Warstwa startowa RelAI: **37,0 KB / 80 KB**, raport startu **0 znaków** • Warstwa startowa
-PolyFlow: **157,3 KB / 80 KB**, raport **5 linii przy limicie 6** • Dziennik RelAI: **186,4 KB /
-próg 150 KB — rotacja należna** • Lekcje **35 aktywnych** w żywym rejestrze (**52,9 KB / próg 50 KB —
-rotacja należna**), ostatnia **L-0089** • Sprawy czekające na człowieka: **5 tutaj**, **32
+PolyFlow: **157,3 KB / 80 KB**, raport **5 linii przy limicie 6** • Dziennik RelAI: **84,4 KB /
+próg 150 KB** po rotacji 2026-09-04 (10 wpisów w żywym pliku) • Lekcje **20 w żywym rejestrze**
+(**37,2 KB / próg 50 KB**), ostatnia **L-0089** • Sekcja ryzyk: **13,4 KB / próg 12 KB** — nie ma
+już czego rotować, dziewięć ryzyk otwartych • Sprawy czekające na człowieka: **7 tutaj**, **32
 w PolyFlow**, żadna nieprzeterminowana przy progu 30 dni •
 Progi w katalogu: **18, z tego 17 z adresem egzekwowania** •
 Zasady aktywne: **15 przy limicie 15** •
@@ -304,8 +309,9 @@ Artefakty w rejestrze: **40** (osiem pozycji podbitych w E4: cztery specyfikacje
 Otwarte bramki manualne: **1** (zamknięta lista rdzeni rozstrzygnięcia; numer wydania
 rozstrzygnięty 2026-09-04 na `1.9.0`, pomiar E2 Aneksem C, lista modeli Cursora i dwie bramki
 wejściowe E2 tego samego dnia, trzy bramki planu SPRZATANIE_ARTEFAKTOW 2026-09-03) •
-Otwarte ryzyka: **9** (M4 zamknięte 2026-09-04 przy wydaniu; M1–M3 i M5 otwarte, R2 zamknięte,
-ale na przesłance, którą E1 przewrócił) • Zamknięte ryzyka: **8** (6 w archiwum, R2 i M4
-w żywej tabeli) • Progi rotacji: dziennik 150 KB, lekcje
-40 wpisów albo 50 KB, STATE 300 linii • Archiwum dziennika: siedem plików, ostatni
-2026-08-17…2026-08-21 (18 wpisów, `74a4d2a5fb9a3390`)
+Otwarte ryzyka: **9** w żywej tabeli (M4 zamknięte 2026-09-04 przy wydaniu) • Zamknięte ryzyka:
+**8, wszystkie w archiwum** (R2 i M4 zeszły rotacją 2026-09-04, `e2542c88b2ccd9a8`) •
+Progi rotacji: dziennik 150 KB, lekcje 40 wpisów albo 50 KB, STATE 300 linii •
+Archiwum dziennika: **siedem plików**, ostatni 2026-09-01…2026-09-03 (22 wpisy,
+`4829effc7c2db525`) • Archiwum lekcji: **trzy pliki**, ostatni L-0055…L-0069 (15 lekcji,
+`f71e94d2e913893b`)

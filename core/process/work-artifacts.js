@@ -340,9 +340,14 @@ function statusEtapu(plikStatus, etap) {
 }
 
 function statusOdnogi(cwd, temat, nazwa) {
-  const kandydaci = [
+  // Watek samodzielny (_fixy) nie ma planu-rodzica i przychodzi tu z temat === null.
+  // Dwie pierwsze sciezki sa wtedy bez sensu, a path.join rzuca na null — czyli caly
+  // raport artefaktow wywracal sie na katalogu, ktory prompt odnogi sam poleca (1.9.1).
+  const kandydaci = temat ? [
     path.join(cwd, 'docs', 'plany', temat, 'odnogi', nazwa, 'ODNOGA.md'),
     path.join(cwd, 'docs', 'archiwum', 'plany', temat, 'odnogi', nazwa, 'ODNOGA.md'),
+    path.join(cwd, 'docs', 'fixy', nazwa, 'ODNOGA.md'),
+  ] : [
     path.join(cwd, 'docs', 'fixy', nazwa, 'ODNOGA.md'),
   ];
   for (const p of kandydaci) {
