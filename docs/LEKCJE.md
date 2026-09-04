@@ -6,7 +6,10 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
 
 1. **Specyfikacja dokumentu jest kompletna albo martwa:** kończy się realnym przykładem, wypisuje
    wymaganą strukturę w treści (odesłanie nie wystarcza) i ma zapisaną ścieżkę „pytam zamiast
-   zmyślać" wraz z formą zapisu luki. (L-0001, L-0011, L-0026)
+   zmyślać" wraz z formą zapisu luki. **Wzorzec powtarzalny sprawdzasz na całej rodzinie
+   dokumentów** — punkt „stare brzmienie nie zwraca nic" uruchamiaj na katalogu specyfikacji, bo
+   jego wartością jest trafienie **poza** zakresem etapu; takie trafienie jest sygnałem odchylenia,
+   nie usterką weryfikacji. (L-0001, L-0011, L-0026, L-0089)
 2. **W dokumencie użytkownika stoi tylko to, co działa i co zmierzyłeś** — fraza wchodzi do
    `KOMENDY.md` w wersji, w której realnie działa, a forma wywołania jest tą, którą uruchomiłeś
    dosłownie. Komendę wklejaną do dokumentu odpalasz z tej samej powłoki, którą zobaczy czytelnik:
@@ -662,6 +665,24 @@ restart aplikacji po `plugin update` (L-0031), `git worktree` zamiast `git archi
   kolizja nie kosztuje jednej funkcji, tylko wszystkie.
 - **Źródło:** E3 planu REKOMENDACJA_MODELU (2026-09-04). Wzmocnienie zasad 5 i 8 — bez własnej
   pozycji w destylacie, limit 15 pozostaje wykorzystany.
+
+### L-0089 — Punkt „stare brzmienie zniknęło" jest wykrywaczem rodzeństwa dokumentu · 2026-09-04 · AKTYWNA
+
+- **Trigger:** E4 miał zmienić blockquote „Kontrola modelu" w trzech specyfikacjach wymienionych
+  w zakresie. Punkt weryfikacji kazał sprawdzić `grep`-em, że stare brzmienie przykładu zniknęło —
+  i `grep` po całym `core/templates/` zwrócił **czwarty** plik: `SPEC_ODNOGA.md`, z tym samym
+  zdaniem w starej postaci. Zakres go nie wymieniał, bo przy pisaniu planu nikt nie pamiętał, że
+  prompt odnogi ma tę samą sekcję co prompt etapowy.
+- **Przyczyna:** zakres etapu powstaje z **listy plików**, a wzorzec tekstowy żyje w **rodzinie
+  dokumentów**. Lista jest pisana z pamięci autora planu; `grep` czyta repozytorium. Rozjazd między
+  nimi jest regułą, nie wyjątkiem — i ujawnia się dopiero przy weryfikacji, czyli po zmianie.
+- **Zasada:** punkt weryfikacji „stare brzmienie nie zwraca nic" uruchamiaj **na katalogu rodziny,
+  nie na zmienianych plikach** — jego wartością jest właśnie trafienie poza zakresem. Takie
+  trafienie jest **sygnałem odchylenia** (odnoga / aneks / świadomie odłożone), nigdy usterką
+  weryfikacji ani cichym dopisaniem pliku do zakresu. Zmiana wzorca powtarzalnego w jednym miejscu
+  z czterech rozjeżdża dokumenty tym mocniej, im dłużej nikt nie patrzy.
+- **Źródło:** E4 planu REKOMENDACJA_MODELU (2026-09-04) — rozstrzygnięte Aneksem D w trakcie etapu.
+  Wzmocnienie zasad 1 i 14; bez własnej pozycji w destylacie, limit 15 pozostaje wykorzystany.
 
 ## Lekcje zwinięte
 

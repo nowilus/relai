@@ -1,8 +1,8 @@
 # STATUS — plan REKOMENDACJA_MODELU
 
-Plan: [PLAN.html](PLAN.html) · Utworzony: 2026-09-03 · Status planu: **ZAAKCEPTOWANY 2026-09-03**
-(z Aneksami A–D) · Model wykonawczy etapów: Opus (z ustawień projektu, D-85; architektura i plany:
-Fable) — ustalony w Claude Code
+Plan: [PLAN.html](PLAN.html) · Utworzony: 2026-09-03 · Status planu: **ZREALIZOWANY 2026-09-04**
+(zaakceptowany 2026-09-03, Aneksy A–D) · Model wykonawczy etapów: Opus (z ustawień projektu, D-85;
+architektura i plany: Fable) — ustalony w Claude Code
 
 > Plan powstał z odnogi `REKOMENDACJA_MODELU` planu ROZWOJ_PO_WYDANIU (utworzonej 2026-08-17 po
 > pilotażu E6). Wywiad 2026-09-03 rozszerzył zakres o odświeżanie listy modeli — komenda na żądanie
@@ -17,7 +17,7 @@ Fable) — ustalony w Claude Code
 | E1 | Lista modeli i pytanie z nazwami | **ZREALIZOWANY 2026-09-03** | [PROMPT_ETAP_1.md](PROMPT_ETAP_1.md) | `MODELE.md` w obu adapterach, prowizjonowanie kopii do projektu **tylko przy braku pliku**, listy rozróżniane nazwą pliku (Aneks A); kamień milowy planu |
 | E2 | Komenda `/relai-models` | **ZREALIZOWANY 2026-09-04** | [PROMPT_ETAP_2.md](PROMPT_ETAP_2.md) | `relai-models.md` (12. komenda), zgoda na sieć każdorazowa, różnica przed zapisem; **Aneks B** — wynik odświeżenia przeniesiony do obu `MODELE.md`, aliasy i klasy Cursora domknięte |
 | E3 | Próg i przypomnienie | **ZREALIZOWANY 2026-09-04** | [PROMPT_ETAP_3.md](PROMPT_ETAP_3.md) | wiersz `Lista modeli` (`włączona · 7 dni`), `wiekListyModeli()` w rdzeniu, jedno zdanie ASCII w obu hookach, pozycja w katalogu progów; **Aneks C** — domknięcie bramki pomiaru E2 w świeżej sesji CLI |
-| E4 | Kontrola modelu, dokumenty, wydanie | **W TOKU** | [PROMPT_ETAP_4.md](PROMPT_ETAP_4.md) | nazwa spoza listy w karcie etapu, `SPEC_CLAUDE_MD` / `SPEC_STATUS` / `SPEC_PROMPT_ETAPU`, nowe sprawdzenie w walidatorze; numer wydania do rozstrzygnięcia |
+| E4 | Kontrola modelu, dokumenty, wydanie | **ZREALIZOWANY 2026-09-04** | [PROMPT_ETAP_4.md](PROMPT_ETAP_4.md) | trzeci przypadek „model spoza listy" w karcie `/relai-stage`, cztery specyfikacje (`SPEC_PROMPT_ETAPU`, `SPEC_CLAUDE_MD`, `SPEC_STATUS`, `SPEC_ODNOGA` z **Aneksu D**), szóste sprawdzenie walidatora, **wydanie 1.9.0** potwierdzone treścią plików z cache'u |
 
 ## Bramki manualne
 
@@ -50,7 +50,11 @@ Fable) — ustalony w Claude Code
   Skutek dla E2: **nie powstaje** wiersz zgody w `docs/USTAWIENIA.md` ani osobny wyłącznik, a każde
   wywołanie `/relai-models` pyta o zgodę na ruch sieciowy przed pierwszym połączeniem. Zapamiętanie
   zgody na projekt jest **zakazane**.
-- **Numer wydania: 1.9.0 czy 1.8.2** · źródło: sekcja 9 planu (2026-09-03) · **OTWARTA** — przed E4
+- **Numer wydania: 1.9.0 czy 1.8.2** · źródło: sekcja 9 planu (2026-09-03) · **ROZSTRZYGNIĘTA
+  2026-09-04 — `1.9.0`.** Decyzja człowieka na starcie E4, powód: wydanie niesie funkcję widoczną
+  dla użytkownika — dwunastą komendę `/relai-models`, nowy wiersz ustawień `Lista modeli` i nowe
+  zdanie na starcie sesji. `1.8.x` była linią poprawek guardraili, więc patch schowałby nową
+  komendę przed kimś, kto patrzy wyłącznie na numer
 - **Czy pomiar wykonany przez sesję etapu domyka dwa punkty weryfikacji E2** — „oba wywołania pytają
   o zgodę" i „fraza w `KOMENDY.md` w brzmieniu realnie uruchomionym" · źródło: E2 (2026-09-04),
   `claude -p` zwrócił `Failed to authenticate: OAuth session expired and could not be refreshed`,
@@ -110,3 +114,12 @@ Fable) — ustalony w Claude Code
   **Aneks C (2026-09-04)** rozszerzył zakres o domknięcie bramki pomiaru E2 — dwa wywołania
   `/relai-models` w świeżych sesjach, obie zatrzymane na pytaniu o zgodę, sumy plików niezmienione.
 - 2026-09-04 — E4 rozpoczęty
+- 2026-09-04 — **Aneks D**: zakres E4 rozszerzony o `core/templates/SPEC_ODNOGA.md` — sygnał
+  odchylenia zgłoszony w trakcie etapu (ten sam blockquote „Kontrola modelu" w starej postaci),
+  rozstrzygnięty przez człowieka jako aneks.
+- 2026-09-04 — E4 **ZREALIZOWANY**: trzeci przypadek w karcie `/relai-stage` (model spoza listy —
+  nazwa, klasa, data listy, bez blokady startu), cztery specyfikacje z klasą i nazwą razem,
+  szóste sprawdzenie walidatora (`models` → istniejący plik z czytelną `list-date`),
+  **wydanie 1.9.0** (trzy źródła + markery, `SPEC_KOMENDY` i `/relai-update` na dwanaście komend).
+  Weryfikacja 11/11; dwa instrumenty (4/4 i 4 scenariusze `claude -p`), wydanie potwierdzone
+  treścią plików z cache'u 1.9.0.

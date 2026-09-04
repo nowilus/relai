@@ -1,7 +1,7 @@
 # ODNOGA — rekomendacja modelu z realnej listy modeli narzędzia
 
 Plan: [ROZWOJ_PO_WYDANIU](../../STATUS.md) · Etap-źródło: E6 — Pilotaż Cursora w firmie · Utworzona:
-2026-08-17 · Status: **PRZENIESIONA 2026-09-03 → [docs/plany/REKOMENDACJA_MODELU/](../../../REKOMENDACJA_MODELU/STATUS.md)** ·
+2026-08-17 · Status: **PRZENIESIONA 2026-09-03 → [docs/plany/REKOMENDACJA_MODELU/](../../../../archiwum/plany/REKOMENDACJA_MODELU/STATUS.md)** ·
 Wykonawca: Opus
 
 ## Cel
@@ -66,7 +66,7 @@ Codeksa powstanie z antropikocentrycznym brzmieniem, jeśli wątek zostanie nier
 
 ## Wynik
 
-**Przeniesiona 2026-09-03 do pełnego planu** [REKOMENDACJA_MODELU](../../../REKOMENDACJA_MODELU/STATUS.md).
+**Przeniesiona 2026-09-03 do pełnego planu** [REKOMENDACJA_MODELU](../../../../archiwum/plany/REKOMENDACJA_MODELU/STATUS.md).
 Wywiad tego dnia rozszerzył zakres o rzecz, której karta nie przewidywała: lista modeli ma się
 **odświeżać** — komendą na żądanie, ze źródłem w dokumentacji dostawcy albo w odpowiedzi człowieka,
 plus ciche przypomnienie po progu. To wywróciło pozycję „Poza zakresem: lista jest plikiem

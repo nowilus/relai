@@ -44,7 +44,7 @@ projektu; architektura i plany: Fable)
 - **REKOMENDACJA_MODELU** — rekomendacja modelu wykonawczego z realnej listy modeli narzędzia
   (Cursor: Composer/Auto/Grok/GPT/Gemini; Codex: warianty GPT) zamiast bezprzydomkowych klas ·
   źródło: E6, pilotaż 2026-08-17 · [karta](odnogi/REKOMENDACJA_MODELU/ODNOGA.md) ·
-  **PRZENIESIONA 2026-09-03 → [docs/plany/REKOMENDACJA_MODELU/](../REKOMENDACJA_MODELU/STATUS.md)** —
+  **PRZENIESIONA 2026-09-03 → [docs/plany/REKOMENDACJA_MODELU/](../../archiwum/plany/REKOMENDACJA_MODELU/STATUS.md)** —
   wywiad rozszerzył zakres o odświeżanie listy (komenda + próg), więc wątek przeszedł próg odnogi
   i stał się pełnym planem czterech etapów
 

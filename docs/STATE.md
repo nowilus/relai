@@ -4,20 +4,23 @@ Stan na: 2026-09-04
 
 ## Gdzie jesteśmy
 
-RelAI jest **wydany w 1.8.1** i ma dwa wyjścia: Claude Code oraz Cursor — te same dokumenty i ten
-sam proces w dwóch narzędziach. **1.8.1 to poprawka guardraili z odnogi GUARD_PO_SCIEZCE**
-(zamknięta 2026-09-03): guard pilnuje projektu, do którego idzie zapis, a nie tego, w którym stoi
-sesja. W repozytorium jest, w aplikacji zaczyna działać po sekwencji wydania P-005. Plan **SPRZATANIE_ARTEFAKTOW zamknięty 2026-09-03**, cztery etapy
+RelAI jest **wydany w 1.9.0** i ma dwa wyjścia: Claude Code oraz Cursor — te same dokumenty i ten
+sam proces w dwóch narzędziach. **1.9.0 zamyka plan REKOMENDACJA_MODELU (4/4, 2026-09-04)**:
+pytanie „na jakim modelu to wykonać" pokazuje nazwy modeli tego narzędzia zamiast trzech klas,
+listę da się odświeżyć komendą `/relai-models` za każdorazową zgodą na ruch sieciowy, stara lista
+przypomina się sama po siedmiu dniach, a karta etapu mówi wprost, gdy model sesji jest **spoza
+listy** — i mimo to nie blokuje startu. Wydanie potwierdzone treścią plików z cache'u; żywa sesja
+aplikacji wykonuje 1.9.0 po restarcie (P-005). Wcześniej **1.8.1** — poprawka guardraili z odnogi
+GUARD_PO_SCIEZCE (zamknięta 2026-09-03): guard pilnuje projektu, do którego idzie zapis, a nie
+tego, w którym stoi sesja. Plan **SPRZATANIE_ARTEFAKTOW zamknięty 2026-09-03**, cztery etapy
 z czterech: pliki robocze po zamkniętych etapach mają cztery momenty sprzątania i zawsze ten sam
 tryb — raport w grupach, jedno „tak" na grupę, bramka dokumentacyjna. E4 dowiózł to, co przesądza
 o wiarygodności mechanizmu: **pełny przebieg na cudzym projekcie, na materiale wytworzonym
 celowo** — PolyFlow 125,0 → 0,0 MB. Wcześniej plan **HIGIENA_DOKUMENTOW zamknięty 2026-09-01**,
 sześć etapów z sześciu: rotacja przestała się zatykać na własnej regule, sprawa czekająca dłużej
 niż 30 dni wymusza decyzję na starcie, każdy próg ma adres w raporcie startu. Plan
-ROZWOJ_PO_WYDANIU jest **zamrożony** — E7 czeka na dostęp do Codeksa. Aktywny plan to
-**REKOMENDACJA_MODELU**, zaakceptowany 2026-09-03 z Aneksem A; **E1 zamknięty tego samego dnia**
-i kamień milowy planu już zapadł — pytanie o model wykonawczy pokazuje nazwy modeli narzędzia,
-w którym trwa sesja, zamiast trzech klas. E2 czeka na dwie bramki człowieka.
+ROZWOJ_PO_WYDANIU jest **zamrożony** — E7 czeka na dostęp do Codeksa. Aktywnego planu **nie ma**:
+REKOMENDACJA_MODELU został zamknięty i przeniesiony do archiwum 2026-09-04.
 
 ## Co działa
 
@@ -29,8 +32,9 @@ w którym trwa sesja, zamiast trzech klas. E2 czeka na dwie bramki człowieka.
 - Plany powstają jako osobny dokument z wariantami i ryzykami; dla odbiorcy nietechnicznego — jako
   jeden plik HTML działający bez internetu. Boczny wątek z etapu ma gdzie zamieszkać: odnoga
   dostaje kartę i gotowy prompt świeżej sesji, bez ruszania zamrożonego planu.
-- Dziesięć skrótów operacyjnych: etap planu, odnoga, kopia zapasowa, przegląd, lista zmian, pakiet
-  przekazania, wycieczka po projekcie, ściąga, adopcja, aktualizacja.
+- Dwanaście skrótów operacyjnych: etap planu, odnoga, kopia zapasowa, przegląd, lista zmian, pakiet
+  przekazania, wycieczka po projekcie, ściąga, adopcja, aktualizacja, sprzątanie artefaktów
+  roboczych, odświeżenie listy modeli.
 - **Rotacja rusza także tam, gdzie stała latami.** Najstarsza historia sama przenosi się do
   archiwum, bajt w bajt, a w żywym pliku zostaje linia z linkiem; poniżej progu nie pada ani jedno
   słowo. Sprawa czekająca na człowieka **nie blokuje już wpisu** — jego link jest przepinany na plik
@@ -140,6 +144,17 @@ w którym trwa sesja, zamiast trzech klas. E2 czeka na dwie bramki człowieka.
   listy, próg wyższy niż wiek — a wartość spoza zamkniętej listy brzmień nie milczy, tylko mówi, co
   jest dozwolone. Para wariantów różniąca się **wyłącznie** datą listy: **258 znaków wobec 0**;
   w świeżej sesji CLI wariant stary przepisał zdanie dosłownie, świeży odpowiedział `BRAK LINII`.
+- **Karta etapu wie, że model sesji jest spoza listy — i mimo to nie blokuje startu.** Punkt „Model
+  wykonawczy" rozstrzyga trzy przypadki: zgodny, inny niż wymagany i **spoza listy** — wtedy pisze
+  nazwę modelu sesji, klasę wymaganą przez plan i datę listy, a decyzję zostawia człowiekowi. Nazwę
+  pliku listy bierze ze zdania hooka startu, nigdy z własnego rozpoznania narzędzia; bez listy
+  o liście milczy. Zmierzone parą projektów kontrolnych różniącą się **wyłącznie** listą, w świeżych
+  sesjach CLI: `claude-opus-5[1m]` spoza listy dał zdanie z nazwą, klasą i datą `2026-09-04` bez
+  blokady, a ten sam model obecny na liście — brak tego zdania. Cztery specyfikacje mówią odtąd
+  o modelu jednym językiem (klasa i nazwa razem, data przy nazwie), a `CLAUDE.md` generowany
+  z `SPEC_CLAUDE_MD` **odsyła do listy** zamiast wpisywać nazwy na stałe. Walidator sprawdza
+  szóstą rzecz: deklaracja `models` musi wskazywać istniejący plik z czytelną `list-date`
+  (kod 1 na obu usterkach, kod 0 na repo, materiał nietknięty).
 - W folderze, który nie jest projektem RelAI, plugin jest całkowicie niewidoczny.
 
 ## Nad czym pracujemy teraz
@@ -148,15 +163,11 @@ w którym trwa sesja, zamiast trzech klas. E2 czeka na dwie bramki człowieka.
   dokumentów, a rotacja nigdy nie ruszyła. Czeka na okno — właściciel rozwija go na bieżąco.
   Dopóki nie wejdzie, **ryzyko R5 zostaje otwarte**, zawężone już wyłącznie do tego jednego
   projektu: mechanizm jest kompletny i zmierzony na dwóch projektach z trzech.
-- **Plan REKOMENDACJA_MODELU — 3/4, E3 zamknięty 2026-09-04.** Kamień milowy planu zapadł już przy
-  pierwszym etapie: pytanie o model pokazuje nazwy. E2 dołożył drugą drogę zapisu do listy —
-  komendę `/relai-models` — i **Aneksem B** przeniósł jej pierwszy wynik do plików obu adapterów.
-  E3 dołożył listom **wiek**: próg 7 dni z własnym wyłącznikiem, jedno zdanie w obu hookach startu
-  i pozycja w katalogu progów. **Aneksem C** domknął przy okazji bramkę pomiaru E2 — `claude -p`
-  odzyskał uwierzytelnienie, więc dwa wywołania komendy zmierzono w świeżych sesjach CLI.
-  **E4 (kontrola modelu, dokumenty, wydanie) jest `GOTOWY DO STARTU`** i jest ostatni.
-  Otwarta bramka jedna: numer wydania — 1.9.0 czy 1.8.2.
-- **Plan ROZWOJ_PO_WYDANIU pozostaje zamrożony** (6/8). E7 — adapter Codeksa — czeka na dostęp.
+- **Plan ROZWOJ_PO_WYDANIU pozostaje zamrożony** (6/8) i jest jedynym planem niezamkniętym.
+  E7 — adapter Codeksa — czeka na dostęp. Linia „Aktywny plan" w `CLAUDE.md` brzmi **`brak`**:
+  plan zamrożony nie jest planem aktywnym.
+- Plan REKOMENDACJA_MODELU zamknięty 2026-09-04 (4/4, Aneksy A–D) i przeniesiony do
+  [archiwum](archiwum/plany/REKOMENDACJA_MODELU/STATUS.md); wydanie 1.9.0.
 - Plan SPRZATANIE_ARTEFAKTOW zamknięty 2026-09-03 (4/4) i przeniesiony do
   [archiwum](archiwum/plany/SPRZATANIE_ARTEFAKTOW/STATUS.md).
 
@@ -184,10 +195,11 @@ w którym trwa sesja, zamiast trzech klas. E2 czeka na dwie bramki człowieka.
   1.7.0, które kroku przepięcia nie miały. Osobna operacja na cudzych pozycjach.
 - **Rotacja lekcji i rotacja ryzyk `ZAMKNIĘTYCH` w PolyFlow** — obie należne, obie świadomie poza
   zakresem E6. Raport startu tamtego projektu mówi o nich przy każdym uruchomieniu.
-- **Wydać 1.8.1** — repozytorium ma tę wersję w trzech źródłach, aplikacja nadal 1.8.0. Sekwencja
-  P-005: push → `claude plugin marketplace update relai` → `claude plugin update relai@relai` →
-  restart → potwierdzenie **treścią pliku** z cache'u. Dopiero po tym da się pokazać blokadę
-  w żywej sesji.
+- **Zrestartować aplikację Claude Code** — 1.9.0 jest wydane, potwierdzone treścią plików z cache'u
+  i zmierzone w świeżych sesjach CLI, ale żywa sesja aplikacji wykonuje kod sprzed restartu
+  (P-005). Pozycja **świadomie zostawiona otwarta** przy zamknięciu planu REKOMENDACJA_MODELU:
+  nic od niej nie zależy poza pomiarami w żywej sesji — w tym niepokazaną wciąż blokadą guardraila
+  z 1.8.1.
 - **`zachowaj` na cudzej ścieżce zapisuje marker u siebie** — `dopiszMarker()` pyta już właściwe
   repozytorium o `check-ignore`, ale plik markerowy wciąż powstaje w projekcie sesji.
   Poza zakresem odnogi GUARD_PO_SCIEZCE, która poprawiła wyłącznie samo pytanie.
@@ -230,17 +242,16 @@ w którym trwa sesja, zamiast trzech klas. E2 czeka na dwie bramki człowieka.
 
 ### Wersja i instalacja
 
-Repozytorium: **1.8.1** (odnoga GUARD_PO_SCIEZCE, 2026-09-03), **wypchnięte** (`26036a3`) —
-w aplikacji **jeszcze niezainstalowane**; walidator: kod 0, „3 zrodel, wartosc 1.8.1". Zostaje
-reszta sekwencji P-005: `claude plugin marketplace update relai` → `claude plugin update
-relai@relai` → restart → potwierdzenie treścią pliku. Poniżej stan wydania poprzedniego, który
-nadal działa w aplikacji.
-
-Repozytorium 1.8.0: wypchnięte. Zainstalowany globalnie (scope `user`): **1.8.0**, działa
-w aplikacji — potwierdzone po restarcie 2026-09-03 **treścią pliku, nie komunikatem CLI**: cache
-`1.8.0/` niesie jedenaście plików komend i linię 28 skilla `relai-core` o markerze `zachowaj`,
-a hook startu z tego cache'u przeszedł w tej sesji pomiar na dwóch projektach. Walidator:
-kod 0, „3 zrodel, wartosc 1.8.0". Źródło: własny marketplace w tym samym repozytorium.
+Repozytorium: **1.9.0** (plan REKOMENDACJA_MODELU, 2026-09-04), **wypchnięte** (`09335b4`);
+walidator: kod 0, „3 zrodel, wartosc 1.9.0". Zainstalowany globalnie (scope `user`): **1.9.0** —
+`claude plugin update relai@relai` zameldował „updated from 1.8.1 to 1.9.0", a potwierdzenie poszło
+**treścią plików z cache'u, nie komunikatem CLI**: `~/.claude/plugins/cache/relai/relai/1.9.0/`
+niesie **dwanaście** plików komend z `relai-models.md`, obie listy `MODELE.md`, kartę
+`/relai-stage` z przypadkiem „spoza listy" i `"version": "1.9.0"` w `core/MANIFEST.json`
+oraz `.claude-plugin/plugin.json`. Zmierzone z tego cache'u w świeżych sesjach CLI: zdanie
+o wieku listy pada przy liście starszej niż próg i milczy przy świeżej. **Żywa sesja aplikacji
+wykonuje 1.9.0 dopiero po restarcie** (P-005) — restart jest jedyną otwartą pozycją wydania.
+Źródło: własny marketplace w tym samym repozytorium.
 
 ### Zawartość pluginu
 
@@ -249,7 +260,8 @@ jako skrypty (skan sekretów, pre-commit, instalator) • rozpoznania startu ses
 (`process/session-signals.js`, wołane przez oba adaptery) • walidator spójności • `MANIFEST.json`.
 
 **Adapter Claude Code**: dwa skille, **dwanaście komend** (`/relai-clean` weszła do wydania
-w 1.8.0; `/relai-models` czeka na wydanie z E4), dziesięć hooków Node.js bez zależności npm.
+w 1.8.0, `/relai-models` w 1.9.0), dziesięć hooków Node.js bez zależności npm, własna lista modeli
+`MODELE.md`.
 Manifest i marketplace zostają w `.claude-plugin/` w korzeniu — tego wymaga Claude Code.
 
 **Adapter Cursor**: trzy reguły `.mdc` z `alwaysApply: true`, dwa hooki z opakowaniem powłoki dla
@@ -272,29 +284,28 @@ Pułapki: [PULAPKI.md](PULAPKI.md)
 
 Etapy: BUDOWA_RELAI 10/10 • ROZWOJ_PO_WYDANIU 6/8 (ZAMROŻONY) • OPTYMALIZACJA_KONTEKSTU 5/5 •
 SPRZATANIE_ARTEFAKTOW **4/4 (ZREALIZOWANY 2026-09-03)** •
-REKOMENDACJA_MODELU **3/4 (E3 zamknięty 2026-09-04)** •
+REKOMENDACJA_MODELU **4/4 (ZREALIZOWANY 2026-09-04)** •
 HIGIENA_DOKUMENTOW **6/6 (ZREALIZOWANY 2026-09-01)** •
 Warstwa startowa RelAI: **37,0 KB / 80 KB**, raport startu **0 znaków** • Warstwa startowa
 PolyFlow: **157,3 KB / 80 KB**, raport **5 linii przy limicie 6** • Dziennik RelAI: **186,4 KB /
-próg 150 KB — rotacja należna** • Lekcje **34 aktywne** w żywym rejestrze (**52,9 KB / próg 50 KB —
-rotacja należna**), ostatnia **L-0088** • Sprawy czekające na człowieka: **5 tutaj**, **32
+próg 150 KB — rotacja należna** • Lekcje **35 aktywnych** w żywym rejestrze (**52,9 KB / próg 50 KB —
+rotacja należna**), ostatnia **L-0089** • Sprawy czekające na człowieka: **5 tutaj**, **32
 w PolyFlow**, żadna nieprzeterminowana przy progu 30 dni •
 Progi w katalogu: **18, z tego 17 z adresem egzekwowania** •
 Zasady aktywne: **15 przy limicie 15** •
 Scenariusze akceptacyjne: 4/4 zdane + pilotaż Cursora • Adaptery: 2 • Komendy: **12** •
 Modele, na których zmierzono proces: 5 (Fable, Opus, Haiku, Composer/auto, Grok 4.6) •
-Projekty na 1.8.0: 2 (RelAI, PolyFlow) • **Aktywny plan: REKOMENDACJA_MODELU (3/4, E4 gotowy
-do startu — ostatni etap planu)** •
+Projekty na 1.8.0: 2 (RelAI, PolyFlow — RelAI podniesiony do 1.9.0 2026-09-04) •
+**Aktywny plan: brak** (ROZWOJ_PO_WYDANIU zamrożony) •
 Otwarte wątki: **1 odnoga** zamrożonego planu (GUARD_PO_SCIEZCE zamknięta, REKOMENDACJA_MODELU
 przeniesiona do planu — obie 2026-09-03) •
-Artefakty w rejestrze: **40** (dwie listy modeli jako nowe, skill `relai-planning` podbity w E1;
-inwentarz przeliczony komendą 2026-09-03) •
-Otwarte bramki manualne: **2** (zamknięta lista
-rdzeni rozstrzygnięcia + numer wydania; pomiar E2 w świeżej sesji rozstrzygnięty 2026-09-04
-Aneksem C, lista modeli Cursora i dwie bramki wejściowe E2 tego samego dnia, trzy bramki planu
-SPRZATANIE_ARTEFAKTOW 2026-09-03) •
-Otwarte ryzyka: **10** (M1 i M2 dopisane 2026-09-03 przy E1, M3–M5 przy E2 2026-09-04; R2 zamknięte,
-ale na przesłance, którą E1 przewrócił) • Zamknięte ryzyka: **7** (6 w archiwum, R2
+Artefakty w rejestrze: **40** (osiem pozycji podbitych w E4: cztery specyfikacje, `SPEC_KOMENDY`,
+`/relai-stage`, `/relai-update`, skill `relai-core`) •
+Otwarte bramki manualne: **1** (zamknięta lista rdzeni rozstrzygnięcia; numer wydania
+rozstrzygnięty 2026-09-04 na `1.9.0`, pomiar E2 Aneksem C, lista modeli Cursora i dwie bramki
+wejściowe E2 tego samego dnia, trzy bramki planu SPRZATANIE_ARTEFAKTOW 2026-09-03) •
+Otwarte ryzyka: **9** (M4 zamknięte 2026-09-04 przy wydaniu; M1–M3 i M5 otwarte, R2 zamknięte,
+ale na przesłance, którą E1 przewrócił) • Zamknięte ryzyka: **8** (6 w archiwum, R2 i M4
 w żywej tabeli) • Progi rotacji: dziennik 150 KB, lekcje
 40 wpisów albo 50 KB, STATE 300 linii • Archiwum dziennika: siedem plików, ostatni
 2026-08-17…2026-08-21 (18 wpisów, `74a4d2a5fb9a3390`)
