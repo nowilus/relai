@@ -37,7 +37,9 @@ użytkownika spoza autora.
 - **Klucz API nie wejdzie do repozytorium, a reguły projektu nie zmienią się bez potwierdzenia.**
   Skan sekretów działa też poza Claude: gitowy pre-commit zatrzymuje commit z kluczem niezależnie
   od narzędzia. Guard pilnuje projektu, **do którego idzie zapis**, a nie tego, w którym stoi
-  sesja — więc sesja otwarta gdzie indziej nie zapisze sekretu do cudzego projektu RelAI.
+  sesja — **pokazane w żywej sesji 2026-09-04**: próba zapisania klucza do projektu RelAI
+  w `%TEMP%`, z sesji otwartej w tym repozytorium, została odbita, a **plik nie powstał**.
+  Ten sam zapis bez sekretu, tą samą drogą, przeszedł.
 - **Pliki robocze po zamkniętych etapach mają cztery momenty sprzątania** i zawsze ten sam tryb:
   raport w grupach, jedno „tak" na grupę, ponowny pomiar po operacji. Plik śledzony przez gita nie
   jest kandydatem nigdy, a lokalną notatkę właściciela chroni marker w `.gitignore`. Etap wie, gdzie
@@ -63,8 +65,10 @@ użytkownika spoza autora.
 
 ## Co dalej
 
-- **Pokazać blokadę guardraila w żywej sesji** — restart 2026-09-04 zdjął jedyną przeszkodę
-  techniczną; brakuje samego przebiegu z katalogiem roboczym poza projektem docelowym.
+- **Ochrona konfiguracji jest doradcza, nie twarda** — `config-protection` zwraca werdykt `ask`,
+  więc zatrzymuje zapis tylko wtedy, gdy tryb uprawnień sesji ten werdykt egzekwuje. W sesji
+  z automatyczną akceptacją edycja sekcji niemutowalnej **cudzego** `CLAUDE.md` przeszła bez
+  pytania (zmierzone 2026-09-04). Skan sekretów tego problemu nie ma — używa `deny`.
 - **Rozstrzygnąć, czy zamknięta lista rdzeni rozstrzygnięcia ma poznać słownik realnego projektu.**
   7 z 32 pozycji „Czeka na człowieka" w PolyFlow wygląda dla człowieka na zamknięte, a mechanizm
   liczy je jako otwarte. Poszerzenie listy działa we wszystkich projektach naraz, więc każde nowe
@@ -152,7 +156,7 @@ Warstwa startowa: **50,5 KB / 80 KB** — raport budżetu milczy, raport progów
 pozycję (sekcja ryzyk) • Dziennik: **84,4 KB / 150 KB**
 (10 wpisów) • Lekcje: **37,2 KB / 50 KB** (20 w żywym rejestrze, ostatnia L-0090) • Sekcja ryzyk:
 **13,4 KB / 12 KB** — nie ma już czego rotować • Archiwum: siedem plików dziennika, trzy lekcji,
-dwa ryzyk • Sprawy czekające na człowieka: **7 tutaj**, 32 w PolyFlow, żadna nieprzeterminowana •
+dwa ryzyk • Sprawy czekające na człowieka: **8 tutaj**, 32 w PolyFlow, żadna nieprzeterminowana •
 Otwarte ryzyka: **9** • Zamknięte ryzyka: **8, wszystkie w archiwum** •
 Otwarte bramki manualne: **1** (zamknięta lista rdzeni rozstrzygnięcia) •
 Otwarte wątki: **1 odnoga** (`OPIS_REPO`) • Artefakty w rejestrze: **40** •

@@ -59,6 +59,12 @@
   roboczym poza projektem docelowym; wymaga wydania i restartu aplikacji · 2026-09-03 ·
   [wpis 2026-09-03 — Odnoga GUARD_PO_SCIEZCE](#2026-09-03--odnoga-guard_po_sciezce-guardraile-rozpoznają-projekt-po-ścieżce-pliku-181)
 
+- **Czy ochrona konfiguracji ma zostać przy werdykcie `ask`** — w sesji z automatyczną akceptacją
+  edycji `ask` nie zatrzymuje niczego, więc edycja sekcji niemutowalnej **cudzego** `CLAUDE.md`
+  przechodzi mimo poprawnego werdyktu hooka. Podnieść do `deny` dla cudzego projektu (własny
+  zostaje przy `ask`), zostawić bez zmian, czy opisać to jako świadomą granicę? · 2026-09-04 ·
+  [wpis 2026-09-04 — Blokada guardraila pokazana w żywej sesji](#2026-09-04--blokada-guardraila-pokazana-w-żywej-sesji-ochrona-konfiguracji-okazuje-się-doradcza)
+
 - **Ikony README renderują się w 17–23 px zamiast 24 px, więc kreska schodzi poniżej piksela** —
   podbić grubość z 2.6 na 3.2 (zmiana proporcji rysunku) czy scalić kolumnę ikony z kolumną komendy
   w README (bez ruszania grafiki)? · 2026-09-01 ·
@@ -1063,5 +1069,50 @@ Autor: RelAI (Opus 5) + Lukasz
 
 - **Blokada guardraila z 1.8.1 w żywej sesji** — restart zdjął jedyną przeszkodę techniczną,
   a sam pomiar (zapis do cudzego projektu RelAI z katalogiem roboczym poza nim) nadal czeka.
+  *(rozstrzygnięte 2026-09-04 — zmierzone w tej samej sesji, patrz wpis niżej)*
+
+Autor: RelAI (Opus 5) + Lukasz
+
+### 2026-09-04 — Blokada guardraila pokazana w żywej sesji; ochrona konfiguracji okazuje się doradcza
+
+**Zrobione:**
+
+- **Pomiar, który czekał od 1.8.1**, wykonany bez instrumentu i bez podkładania czegokolwiek:
+  żywa sesja aplikacji, otwarta w tym repozytorium, spróbowała zapisać plik z kluczem do **innego**
+  projektu RelAI (`%TEMP%/relai-guard-zywa-sesja/`, materiał wytworzony na tę okazję i skasowany
+  po pomiarze).
+
+**Zweryfikowane — jak dokładnie:**
+
+- **Kontrola pozytywna najpierw** (L-0088): zapis **bez sekretu** tą samą drogą — narzędzie `Write`,
+  ta sama ścieżka docelowa, ta sama sesja — **przeszedł**. Odmowa niżej jest więc własnością
+  treści, a nie ścieżki ani uprawnień do katalogu.
+- **Zapis z kluczem odbity:** `RelAI secret-scanner: wykryto klucz AWS (AKIA...) w pliku sledzonym
+  "config.md"`. Wartości hook nie zacytował — celowo.
+- **Dowód, którego nie było przez trzy wydania: plik nie powstał.** Po odmowie w katalogu
+  docelowym stoją wyłącznie `CLAUDE.md`, `docs/` i plik kontroli pozytywnej; `test -e config.md`
+  daje „NIE ISTNIEJE", a `grep -r` po samej wartości klucza nie znajduje jej **ani** w projekcie
+  docelowym, **ani** w repozytorium sesji. Dotąd zmierzony był sam werdykt `deny` z instrumentu.
+- **Druga warstwa zachowała się poprawnie, a moje oczekiwanie było błędne.** Dopisanie zwykłej
+  reguły do cudzego `CLAUDE.md` przeszło bez słowa — i tak ma być: `config-protection` chroni
+  **wyłącznie sekcję niemutowalną**, a projekt kontrolny jej wtedy nie miał. Po dołożeniu sekcji
+  hook zapytany o ten sam zapis odpowiedział `ask` z uzasadnieniem, a przy zapisie poza tą sekcją
+  **milczał** — trzy scenariusze, w tym kontrola negatywna, jednym skryptem trzymanym w pliku,
+  nie w `node -e` (L-0090). Werdykt `ask` pada także dla `docs/USTAWIENIA.md` cudzego projektu.
+
+**Świadomie odłożone:**
+
+- **`ask` jest tak silne, jak tryb uprawnień sesji.** Edycja sekcji niemutowalnej cudzego
+  `CLAUDE.md` **przeszła** w tej sesji bez pytania, mimo poprawnego werdyktu hooka — bo sesja
+  akceptuje edycje automatycznie. To nie jest defekt RelAI i nie zmieniam z tego powodu kodu:
+  skan sekretów używa `deny` i dlatego zatrzymuje zapis niezależnie od trybu, a ochrona
+  konfiguracji ma z założenia pytać człowieka. Fakt idzie do `STATE.md`, żeby nikt nie czytał
+  „bez ostrzeżenia" jako „nie da się".
+
+**Do zrobienia przez człowieka:**
+
+- **Czy ochrona konfiguracji ma zostać przy `ask`** — dziś w sesji z automatyczną akceptacją nie
+  zatrzymuje niczego. Podniesienie do `deny` dla **cudzego** projektu (własny zostawia `ask`) jest
+  zmianą zachowania w obu adapterach, więc wymaga decyzji, nie poprawki przy okazji.
 
 Autor: RelAI (Opus 5) + Lukasz
