@@ -5,13 +5,13 @@
 | # | Ryzyko | Poziom | Status | Mitygacja |
 |---|---|---|---|---|
 | R5 | Dokumenty puchną i zjadają kontekst | **Niski dla projektów na 1.7.0, średni dla niezmigrowanych** (2026-09-01 po E6; wcześniej średni) | **ZMIERZONE 2026-09-01, OTWARTE ŚWIADOMIE — zawężone do migracji JiraManagera** | Mechanizm jest kompletny **i zadziałał na cudzym projekcie w żywej sesji**, nie tylko w instrumentach: PolyFlow 1.6.1 → 1.7.0, rotacja dziennika **183,1 → 147,3 KB** (9 wpisów, suma `566dca8a4dd45ba7` odczytana z dysku przed przycięciem), rotacja ustawień **29,8 → 25,4 KB** (16 wierszy, 5 wierszy maszynowych nietkniętych), przepięcie linków z bilansem zero (60 przed, 65 po rotacji, 60 po przepięciu). Tutaj: dziennik **155,6 → 74,1 KB**, 18 wpisów do archiwum, raport startu z 2 linii na **0**. Zawężone, bo to, co zostało, nie jest już własnością mechanizmu: **JiraManager (386 KB startu) czeka na okno właściciela**, a warstwa startowa PolyFlow (157,3 KB przy budżecie 80 KB) jest gruba sekcją ryzyk, `CLAUDE.md` i `STATE.md` — odchudzają je decyzje człowieka, nie archiwum. Zmierzone: 2026-08-20, 2026-08-21, 2026-09-01 (E1–E6) |
-| P1 | Adaptery Cursor/Codex nie egzekwują blokad harnessu — sekret albo zmiana konfiguracji przejdzie tam, gdzie w Claude Code stoi ściana (plan ROZWOJ_PO_WYDANIU) | **Średni** (2026-08-12 po E4; wcześniej wysoki) | **OTWARTE** | Część sekretowa jest zamknięta dowodem z aplikacji: w Cursorze zadziałały obie warstwy — reguła odmówiła pierwsza, a przy prośbie o próbę mimo reguły zapis klucza odbił hook `preToolUse` werdyktem `permission: deny`; niezależnie od narzędzia commit z sekretem zatrzymuje gitowy pre-commit. Otwarte z dwóch powodów: Cursor nie ma egzekwowanego `ask`, więc pliki konfiguracyjne chroni tam sama reguła zamiast bramki, a Codex pozostaje niezmierzony do odmrożenia E7 planu ROZWOJ_PO_WYDANIU. **1.8.1 (odnoga GUARD_PO_SCIEZCE) zamyka osobną dziurę tej samej rodziny**, obecną w obu adapterach: guard rozpoznawał projekt wyłącznie po katalogu sesji, więc zapis do cudzego projektu RelAI przechodził bez ostrzeżenia w Claude Code tak samo jak w Cursorze. Zmierzone instrumentem na dwóch drzewach (22 + 4 scenariusze, 0 niezgodnych); poziom bez zmian, bo powód otwarcia jest inny — brak egzekwowanego `ask` w Cursorze. Zmierzone: 2026-08-12 (E4), 2026-08-12 (E5), 2026-08-17 (E6), 2026-09-03 (GUARD_PO_SCIEZCE) |
-| P2 | Odpowiednik R2 w Cursor/Codex: bez auto-wyzwalania skilli proces zależy od dyscypliny modelu (plan ROZWOJ_PO_WYDANIU) | **Niski dla Cursora, średni dla Codeksa** (2026-08-17 po E6; wcześniej średni) | **OTWARTE (już tylko Codex)** | Reguła zawsze-w-kontekście działa w Cursorze bez żadnego wyzwalacza: pilotaż przeszedł pełny cykl na trzech modelach, a cały etap poprowadził model spoza Anthropic (Grok 4.6) — rytuał startu, karta etapu z kontrolą modelu, granica zakresu, rytuał zamknięcia z promptem następnego etapu. Dyscyplina procesu nie zależy od dostawcy modelu. Otwarte już tylko dla Codeksa: warstwą nośną ma tam być `AGENTS.md` z twardym limitem 32 KiB, a skille wyzwalają się dopasowaniem opisu — tym samym mechanizmem, który przy R2 okazał się zależny od modelu. Zmierzone: 2026-08-12 (E4), 2026-08-12 (E5), 2026-08-17 (E6) |
+| P1 | Adaptery Cursor/Codex nie egzekwują blokad harnessu — sekret albo zmiana konfiguracji przejdzie tam, gdzie w Claude Code stoi ściana (plan ROZWOJ_PO_WYDANIU) | **Średni** (2026-08-12 po E4; wcześniej wysoki) | **OTWARTE** | Część sekretowa jest zamknięta dowodem z aplikacji: w Cursorze zadziałały obie warstwy — reguła odmówiła pierwsza, a przy prośbie o próbę mimo reguły zapis klucza odbił hook `preToolUse` werdyktem `permission: deny`; niezależnie od narzędzia commit z sekretem zatrzymuje gitowy pre-commit. Otwarte z dwóch powodów: Cursor nie ma egzekwowanego `ask`, więc pliki konfiguracyjne chroni tam sama reguła zamiast bramki, a Codex pozostaje niezmierzony do odmrożenia E7 planu ROZWOJ_PO_WYDANIU. **1.8.1 (odnoga GUARD_PO_SCIEZCE) zamyka osobną dziurę tej samej rodziny**, obecną w obu adapterach: guard rozpoznawał projekt wyłącznie po katalogu sesji, więc zapis do cudzego projektu RelAI przechodził bez ostrzeżenia w Claude Code tak samo jak w Cursorze. Zmierzone instrumentem na dwóch drzewach (22 + 4 scenariusze, 0 niezgodnych); poziom bez zmian, bo powód otwarcia jest inny — brak egzekwowanego `ask` w Cursorze. **1.9.1 (CURSOR_1_9_1):** opakowanie `secret-scanner.cmd` zwraca `deny` i nie cytuje wartości; świeża sesja `cursor-agent -p` na projekcie kontrolnym z hookami od startu — plik z kluczem **nie powstał**, kontrola pozytywna bez sekretu utworzyła `ok.md`. Sesja GUI w repozytorium RelAI bez zainstalowanego adaptera zapisu nie zatrzymała (hooki dołożone w trakcie sesji się nie załadowały). Zmierzone: 2026-08-12 (E4), 2026-08-12 (E5), 2026-08-17 (E6), 2026-09-03 (GUARD_PO_SCIEZCE), 2026-09-04 (CURSOR_1_9_1) |
+| P2 | Odpowiednik R2 w Cursor/Codex: bez auto-wyzwalania skilli proces zależy od dyscypliny modelu (plan ROZWOJ_PO_WYDANIU) | **Niski dla Cursora, średni dla Codeksa** (2026-08-17 po E6; wcześniej średni) | **OTWARTE (już tylko Codex)** | Reguła zawsze-w-kontekście działa w Cursorze bez żadnego wyzwalacza: pilotaż przeszedł pełny cykl na trzech modelach, a cały etap poprowadził model spoza Anthropic (Grok 4.6) — rytuał startu, karta etapu z kontrolą modelu, granica zakresu, rytuał zamknięcia z promptem następnego etapu. Dyscyplina procesu nie zależy od dostawcy modelu. Otwarte już tylko dla Codeksa: warstwą nośną ma tam być `AGENTS.md` z twardym limitem 32 KiB, a skille wyzwalają się dopasowaniem opisu — tym samym mechanizmem, który przy R2 okazał się zależny od modelu. **1.9.1 (CURSOR_1_9_1):** cały wątek pomiarowy poprowadził Grok 4.6 w aplikacji Cursora — rytuał startu, karta, granica „nie poprawiasz kodu", trzy komendy, rytuał zamknięcia. Zmierzone: 2026-08-12 (E4), 2026-08-12 (E5), 2026-08-17 (E6), 2026-09-04 (CURSOR_1_9_1) |
 
 | S1 | Bramka dokumentacyjna przepuści coś potrzebnego — plik nieśledzony, o którym architektura milczy, a bez którego nie da się powtórzyć pomiaru (plan SPRZATANIE_ARTEFAKTOW, ryzyko 1) | **Wysoki** (2026-09-03, przy powstaniu mechanizmu) | **OTWARTE** | Kasowanie wyłącznie po „tak" na grupę z pełną listą pozycji; pliki śledzone nigdy nie są kandydatami; niepewność rozstrzygana na korzyść ochrony; „zostaw na zawsze" dopisuje marker, więc pytanie nie wraca. Pierwszy pomiar (E1, własne repo): 8 grup, 9 pozycji chronionych z powodem — w tym `benchmark`-owy odpowiednik, czyli `.claude/relai/templates` z powodem `opisane` i wskazaniem `README.md:150`. **Bramka przepuściła dorobek własnego etapu**: dwa nowe, niezacommitowane pliki produktu stanęły w grupach jako kandydaci (L-0078) — ochroną jest tam `git add`, nie marker, ale to jest realne trafienie tego ryzyka. Niezmierzone na cudzym projekcie: raport na PolyFlow zostaje jako bramka manualna planu. E2: drugi przebieg bez ani jednego fałszywego kandydata — 1 grupa (katalog etapu zamkniętego), 5 pozycji chronionych, w tym `templates` powodem `opisane`. **E3: trafienie powtórzyło się na innym pliku** — świeżo wygenerowany `PROMPT_ETAP_4.md`, jeszcze nieprzyjęty do indeksu, stanął w raporcie jako kandydat (grupa „repo: katalog docs") i zniknął po `git add`. Wzorzec jest więc stały, nie jednorazowy: **granicą ochrony dorobku sesji jest indeks gita**, a nie marker — i to zdanie należy mówić wprost przy sprzątaniu w trakcie etapu (L-0078). **E4: pierwsze trafienie na cudzym projekcie i najpoważniejsze z dotychczasowych.** Powód `opisane` chronił w PolyFlow **dwa** pliki benchmarku z ośmiu, a sześć dalszych — w tym `formatowanie/probki.json` i `probki_lista.json` z realnymi wypowiedziami właściciela — stanęło w grupie kandydatów. Ochrona przez opis obejmuje wyłącznie to, co ktoś opisał **w dokumencie projektu**; komentarz nad wzorcem w `.gitignore` tym dokumentem nie jest, choć czyta się identycznie. Bramka zadziałała (nic nie zniknęło bez „tak"), ale sama nie wystarczy — potrzebny był marker, i to siedem markerów zamiast zakładanych dwóch. **Ryzyko zostaje otwarte**: mechanizm jest zależny od tego, czy człowiek opisał materiał tam, gdzie narzędzie patrzy. Zmierzone: 2026-09-03 (E1, E2, E3, E4) |
 | S2 | Narzędzie skasuje coś poza dozwolonymi korzeniami — zła ścieżka względna, dowiązanie prowadzące na zewnątrz, junction do innego dysku (plan SPRZATANIE_ARTEFAKTOW, ryzyko 2) | **Wysoki** (2026-09-03, przy powstaniu mechanizmu) | **OTWARTE** | Asercje w `kasuj`: każda ścieżka po `realpath` musi leżeć **pod** katalogiem projektu albo pod `os.tmpdir()`, nie być którymkolwiek korzeniem ani `.git` projektu; dowiązanie usuwane jako dowiązanie, bez wchodzenia do celu. Pierwszy pomiar (E1) z dowodami negatywnymi: ścieżka w katalogu domowym i `.git` projektu → dwie odmowy, zero skasowanych, `.git` **31 plików przed i 31 po**; junction wskazujący poza kandydata → dowiązanie zniknęło, cel **2 pliki przed i 2 po**. Klon repozytorium z obiektami tylko do odczytu skasowany bez ani jednego niepowodzenia (14 923 442 B → 0 B). E2: kasowanie 141,2 MB w katalogu roboczym etapu zamkniętego, zero niepowodzeń, `%TEMP%` i `work/` puste po operacji. E3: trzeci przebieg, katalog roboczy etapu i pusty katalog tematu, zero niepowodzeń; **ochrona `etap trwa` pokazana w obie strony w jednym dniu** — ten sam katalog był chroniony przy statusie `W TOKU` i został kandydatem dopiero po `ZREALIZOWANY`. **E4: czwarty przebieg, pierwszy na cudzym projekcie** — dwie pozycje (katalog etapu zamkniętego 90 MB i katalog w `%TEMP%` 35 MB), **125,0 → 0,0 MB**, zero niepowodzeń, a pomiar ponowny dał zero kandydatów. Asercje korzeni wytrzymały też przypadek, którego nikt nie planował: ścieżka **dysko-relatywna ze znakiem CR w środku** (rozjechane escapowanie w `node -e`) rozwinęła się względem katalogu projektu, `lstat` jej nie znalazł i **żadna operacja nie wykonała się na dysku**. Ujawniło to jednak osobną wadę raportowania: taka pozycja jest meldowana jako `skasowane`, nie jako `nieobecne` (`work-artifacts.js:843`) — wołający nie ma po czym poznać, że jego lista jest zepsuta. Wada zapisana w `STATE.md`, poza zakresem planu. Niezmierzone bez zmian: junction na inny dysk i ścieżka dłuższa niż limit Windows. Zmierzone: 2026-09-03 (E1, E2, E3, E4) |
 
-| M1 | Skill wspólny dla dwóch narzędzi pokaże listę tego drugiego — sesja w Cursorze zobaczy modele Anthropic (plan REKOMENDACJA_MODELU, ryzyko 1) | **Wysoki** (2026-09-03, przy powstaniu mechanizmu) | **OTWARTE** | O liście rozstrzyga **nazwa pliku**, którą podaje adapter wołający rdzeń (Aneks A) — treść skilla jest jedna i nazwy narzędzia nie zna; która lista obowiązuje, mówi hook startu jednym zdaniem (zasada 8). Pierwszy pomiar (E1) na dwóch projektach kontrolnych w jednym przebiegu: projekt obsłużony hookiem Claude Code ma w `.claude/relai/` **wyłącznie** `MODELE-claude-code.md`, projekt Cursora **wyłącznie** `MODELE-cursor.md`; treść obu kopii zgodna sumą ze źródłem adaptera. Otwarte, bo zmierzone na hookach uruchomionych z repozytorium, a **nie w żywej sesji Cursora** — reguły 1.7.0 i 1.8.0 tego adaptera też nigdy nie były w nim uruchomione. **E4: mechanizm jest wydany (1.9.0) i zmierzony po stronie Claude Code w świeżej sesji z wydanego cache'u** — projekt kontrolny bez podłożonego hooka dostał zdanie o liście i zdanie o jej wieku z pliku `MODELE-claude-code.md`. Powód otwarcia bez zmian i **jedyny**: żadna z tych ścieżek nie była uruchomiona w aplikacji Cursora. Zmierzone: 2026-09-03 (E1), 2026-09-04 (E4) |
+| M1 | Skill wspólny dla dwóch narzędzi pokaże listę tego drugiego — sesja w Cursorze zobaczy modele Anthropic (plan REKOMENDACJA_MODELU, ryzyko 1) | **Wysoki** (2026-09-03, przy powstaniu mechanizmu) | **OTWARTE** | O liście rozstrzyga **nazwa pliku**, którą podaje adapter wołający rdzeń (Aneks A) — treść skilla jest jedna i nazwy narzędzia nie zna; która lista obowiązuje, mówi hook startu jednym zdaniem (zasada 8). Pierwszy pomiar (E1) na dwóch projektach kontrolnych w jednym przebiegu: projekt obsłużony hookiem Claude Code ma w `.claude/relai/` **wyłącznie** `MODELE-claude-code.md`, projekt Cursora **wyłącznie** `MODELE-cursor.md`; treść obu kopii zgodna sumą ze źródłem adaptera. Otwarte, bo zmierzone na hookach uruchomionych z repozytorium, a **nie w żywej sesji Cursora** — reguły 1.7.0 i 1.8.0 tego adaptera też nigdy nie były w nim uruchomione. **E4: mechanizm jest wydany (1.9.0) i zmierzony po stronie Claude Code w świeżej sesji z wydanego cache'u** — projekt kontrolny bez podłożonego hooka dostał zdanie o liście i zdanie o jej wieku z pliku `MODELE-claude-code.md`. Powód otwarcia bez zmian i **jedyny**: żadna z tych ścieżek nie była uruchomiona w aplikacji Cursora. **CURSOR_1_9_1 (2026-09-04):** hook Cursora na protokole aplikacji (`workspace_roots`, BOM) produkuje zdanie o `MODELE-cursor.md`, nie o liście Claude Code; para wariantów wieku zgadza się z E3. Sesja GUI w repozytorium RelAI bez zainstalowanego adaptera tego zdania **nie dostała**, a `/relai-models` zgodnie z procedurą nie zgadła narzędzia — to jest pozostały kształt ryzyka tutaj, nie rozjazd list. Zmierzone: 2026-09-03 (E1), 2026-09-04 (E4), 2026-09-04 (CURSOR_1_9_1) |
 | M2 | Kopia listy w projekcie zostaje nadpisana przy starcie sesji i zjada odświeżenie zrobione komendą (plan REKOMENDACJA_MODELU, ryzyko 2) | **Wysoki** (2026-09-03, przy powstaniu mechanizmu) | **OTWARTE** | `provisionModelList()` kopiuje **tylko wtedy, gdy pliku nie ma** — jedyna różnica wobec `provisionTemplates()`, które nadpisuje przy każdym starcie. Dowód negatywny (E1): plik zmieniony ręcznie w projekcie kontrolnym przeżył ponowne uruchomienie hooka, suma po normalizacji CRLF → LF `ecc6d18d9f6ccf65` przed i po; kontrola pozytywna w tym samym przebiegu — skasowany plik powstał ponownie z sumą źródła. Otwarte do czasu, aż istnieje druga droga zapisu do tego pliku: `/relai-models` z E2 pisze do tej samej kopii, a `/relai-update` do katalogu obok. **E2: druga droga zapisu istnieje i przeżywa start sesji.** Po odświeżeniu w projekcie kontrolnym Claude Code suma listy `f82ee8da0dbe7997` przed ponownym uruchomieniem hooka i po nim, a hook zameldował nową datę (`z dnia 2026-09-04`) zamiast starej; w projekcie Cursora to samo z sumą `65eca9cbea99f0b3`. Otwarte już tylko z powodu `/relai-update`, którego ta droga jeszcze nie dotknęła. **E4: trzecia droga ma odtąd zapisany zakaz** — wiersz `Lista modeli` w tabeli stanu docelowego `/relai-update` kończy się zdaniem „samej listy `.claude/relai/MODELE-<narzędzie>.md` **nie ruszasz** — kopia w projekcie jest trwała i przeżywa aktualizację". Zakaz jest **napisany, nie zmierzony**: pierwszy przebieg `/relai-update` na projekcie z ręcznie poprawioną listą jeszcze się nie odbył i to jest jedyny powód, dla którego ryzyko zostaje otwarte. Zmierzone: 2026-09-03 (E1), 2026-09-04 (E2) |
 | M3 | Strona dokumentacji zmienia układ i odczyt z sieci zwraca śmieci albo nic (plan REKOMENDACJA_MODELU, ryzyko 3) | **Średni** (2026-09-04, przy wejściu sieci do mechanizmu) | **OTWARTE** | Odświeżenie zawsze kończy się pokazaniem różnicy i pytaniem; niepowodzenie zostawia starą listę **z jej datą**, nigdy pustą. Pomiar E2 na odczycie adresu nieistniejącego (`HTTP 404 Not Found`): lista w projekcie kontrolnym została z sumą `1f67fe1bc954ecdc` i `list-date: 2026-09-03`, czyli dokładnie taka jak przed przebiegiem — dowód treścią pliku, nie komunikatem. Niezmierzone: strona odpowiadająca **200 ze zmienionym układem** (odczyt „udany", treść bez nazw) — to jest realny kształt tego ryzyka i czeka na pierwszy taki przypadek. **E4: stan po wydaniu bez zmian** — komenda jest w cache'u 1.9.0 i od tej pory może ją wywołać każdy projekt, więc szansa na trafienie rośnie, ale sam mechanizm ochrony (różnica przed zapisem, stara lista przy niepowodzeniu) jest ten sam co zmierzony w E2. Zmierzone: 2026-09-04 (E2) |
 | M5 | Nazwy modeli zmieniają się szybciej niż wydania RelAI (plan REKOMENDACJA_MODELU, ryzyko 6) | **Średni** (2026-09-04) | **OTWARTE** | Lista mieszka w adapterze **i** w projekcie; `/relai-models` aktualizuje kopię projektu bez wydawania nowej wersji pluginu. Pierwsze realne odświeżenie (E2) potwierdziło, że ryzyko nie jest teoretyczne: strona aliasów wymienia dziś dziesięć pełnych ID (`claude-opus-5` … `claude-fable-5`), a lista Cursora ~45 pozycji od pięciu dostawców — wobec czterech i trzech pozycji w listach RelAI. Od E3 lista ma wiek i próg: powyżej **7 dni** start sesji mówi jedno zdanie z propozycją `/relai-models`, poniżej — zero znaków (zmierzone parą wariantów różniącą się wyłącznie `list-date`: 258 znaków wobec 0, potwierdzone w świeżej sesji CLI odpowiedzią `BRAK LINII`). **E4: pierwszy pełny cykl domknięty** — lista, komenda, próg i **wydanie** (1.9.0, potwierdzone treścią plików z cache'u; dwanaście komend, obie listy, zdanie o wieku działające w świeżej sesji z wydanej wersji). Otwarte już **wyłącznie** z pierwszego powodu: przypomnienie mówi o wieku listy, a nie o tym, że dostawca zmienił nazwy — lista tygodniowa może być świeża i nieprawdziwa naraz. To jest trwała własność mechanizmu, nie zaległość wydania. Zmierzone: 2026-09-04 (E2, E3, E4) |
@@ -25,7 +25,6 @@
 > — przeniesione 2026-08-21, suma kontrolna `4b370c3e2b31c6ba`.
 
 ## Czeka na człowieka
-
 - **Zamknięta lista rdzeni rozstrzygnięcia nie zna słownika realnego projektu** — 7 z 32 pozycji
   „Czeka na człowieka" w PolyFlow wygląda dla człowieka na zamknięte, a mechanizm liczy je jako
   otwarte (`zaliczona` ×3, `dostarczony` ×1, trzy bez rdzenia z datą). Poszerzyć listę w rdzeniu
@@ -36,33 +35,11 @@
   potwierdzenie albo sprzeciw** · 2026-08-20 ·
   [wpis 2026-09-01 — Osiem bramek z listy zamkniętych](archiwum/dziennik/DZIENNIK_2026-09-01_2026-09-03.md#2026-09-01--osiem-bramek-z-listy-zamkniętych-plan-rozwoj_po_wydaniu-zamrożony-formalnie)
 
-- **Numer wydania planu `REKOMENDACJA_MODELU`: 1.9.0 czy 1.8.2** — czeka przed E4 *(pozycja zawężona
-  dwa razy: 2026-09-03 odpadło czekanie na akceptację planu, 2026-09-04 **rozstrzygnięte** obie
-  bramki wejściowe E2 — pięć adresów źródeł i zgoda na sieć każdorazowa)* · 2026-09-03 ·
-  [wpis 2026-09-03 — Wydanie 1.8.1 potwierdzone](#2026-09-03--wydanie-181-potwierdzone-po-restarcie-plan-rekomendacja_modelu-do-akceptacji)
-
-- **Czy pomiar wykonany przez sesję etapu domyka weryfikację E2** — `claude -p` zwrócił
-  `Failed to authenticate: OAuth session expired and could not be refreshed`, więc procedurę komendy
-  `/relai-models` wykonała sesja etapu, nie świeża sesja CLI. Skutki na plikach zmierzone; brakuje
-  zachowania sesji, która zna wyłącznie treść komendy. Zalogować `claude /login`, dołożyć klucz do
-  `.env`, czy uznać pomiar za wystarczający? · 2026-09-04 ·
-  [wpis 2026-09-04 — E2 planu REKOMENDACJA_MODELU](#2026-09-04--e2-planu-rekomendacja_modelu-listę-modeli-da-się-odświeżyć-komendą)
-
 - **Ryzyko R2 zamknięte na nieaktualnej przesłance** — 2026-09-03 zamknięto je zdaniem „nie zostanie
   zmierzone nigdy", opartym na wyczerpanym limicie `claude -p` (L-0032). W E1 tego samego dnia
   `claude -p` **zadziałał** i poprowadził pomiar świeżych sesji (L-0084). Otworzyć R2 ponownie,
   przepisać jego treść czy zostawić zamknięte z adnotacją? · 2026-09-03 ·
   [wpis 2026-09-03 — E1 planu REKOMENDACJA_MODELU](#2026-09-03--e1-planu-rekomendacja_modelu-pytanie-o-model-pokazuje-nazwy-nie-klasy)
-
-- **Blokada zapisu do cudzego projektu niezmierzona w żywej sesji** — instrument dowiódł werdyktu
-  `deny`, ale „plik nie powstał" pokaże dopiero sesja z zainstalowaną wersją 1.8.1 i katalogiem
-  roboczym poza projektem docelowym; wymaga wydania i restartu aplikacji · 2026-09-03 ·
-  [wpis 2026-09-03 — Odnoga GUARD_PO_SCIEZCE](#2026-09-03--odnoga-guard_po_sciezce-guardraile-rozpoznają-projekt-po-ścieżce-pliku-181)
-
-- **Kiedy ruszy wątek `CURSOR_1_9_1`** — karta i prompt świeżej sesji są gotowe od 2026-09-04,
-  wykonanie należy do człowieka: wątek wymaga **aplikacji Cursora**, więc żadna sesja w Claude Code
-  go nie zrobi · 2026-09-04 ·
-  [wpis 2026-09-04 — Wątek CURSOR_1_9_1](#2026-09-04--wątek-cursor_1_9_1-adapter-cursora-dostaje-kartę-i-prompt-świeżej-sesji)
 
 - **Czy ochrona konfiguracji ma zostać przy werdykcie `ask`** — w sesji z automatyczną akceptacją
   edycji `ask` nie zatrzymuje niczego, więc edycja sekcji niemutowalnej **cudzego** `CLAUDE.md`
@@ -74,6 +51,12 @@
   podbić grubość z 2.6 na 3.2 (zmiana proporcji rysunku) czy scalić kolumnę ikony z kolumną komendy
   w README (bez ruszania grafiki)? · 2026-09-01 ·
   [wpis 2026-09-01 — Ikony komend czytelne na obu motywach](archiwum/dziennik/DZIENNIK_2026-09-01_2026-09-03.md#2026-09-01--ikony-komend-czytelne-na-obu-motywach-githuba)
+
+- **Czy zainstalować adapter Cursora w repozytorium RelAI** (`node adapters/cursor/install.js .`)
+  — bez tego sesja GUI w tym folderze nie dostaje `sessionStart` ani `preToolUse`, więc
+  `/relai-models` kończy się na Kroku 1, a zapis z kluczem przechodzi, dopóki nie zrestartujesz
+  Cursora z `.cursor/hooks.json` już na miejscu · 2026-09-04 ·
+  [wpis 2026-09-04 — Wątek CURSOR_1_9_1 zmierzony](#2026-09-04--wątek-cursor_1_9_1-adapter-cursora-zmierzony-na-wydaniu-191)
 
 ## Wpisy
 
@@ -1162,5 +1145,134 @@ Autor: RelAI (Opus 5) + Lukasz
 - **Uruchomić wątek w aplikacji Cursora** — Claude Code go nie wykona, bo cały sens pomiaru leży
   w narzędziu docelowym. Prompt jest samowystarczalny: świeża sesja nie potrzebuje niczego z tej
   rozmowy.
+
+Autor: RelAI (Opus 5) + Lukasz
+
+### 2026-09-04 — Wątek CURSOR_1_9_1: adapter Cursora zmierzony na wydaniu 1.9.1
+
+**Zrobione:**
+
+- **Instalacja na projekcie kontrolnym** `%TEMP%\relai-cursor-1-9-1`:
+  `node adapters/cursor/install.js` → kod 0, manifest `.cursor/relai-install.json` niesie
+  **1.9.1**, `.cursor/commands/` ma **12** plików (w tym `relai-models.md` i `relai-clean.md`),
+  trzy reguły `.mdc`, dwa skille, 32 pliki specyfikacji, hooki `sessionStart` i `preToolUse`.
+  Cudzy wpis `afterFileEdit` / `pomiar-cudzy` przeżył instalację.
+- **Start sesji — para wariantów na protokole Cursora** (payload z `workspace_roots`, bez `cwd`,
+  podwójny BOM jak w E5): lista `list-date: 2026-08-05` → linia `[RelAI lista modeli]` **253 znaki**
+  (30 dni przy progu 7); lista `2026-09-04` → **0 znaków**. Zdanie o `MODELE-cursor.md` w obu.
+  Suma listy identyczna przed i po. Materiał odtwarzany przed każdym wariantem.
+- **Blokada sekretu.** Opakowanie `secret-scanner.cmd`: `permission: deny`, wartości nie cytuje;
+  kontrola pozytywna na tym samym wejściu milczy (kod 0, puste stdout). Świeża sesja
+  `cursor-agent -p` na projekcie kontrolnym z hookami od startu: zapis z kluczem →
+  `WRITE_DENIED_FILE_MISSING`; zapis bez sekretu → `WRITE_OK_FILE_EXISTS` (`ok.md`).
+- **Trzy komendy w tej sesji GUI (Grok 4.6):** `/relai-help` — `docs/KOMENDY.md` w całości,
+  nagłówek 1.9.1 zgodny z `USTAWIENIA.md`; `/relai-models` — stop na Kroku 1, bo zdania hooka
+  nie było w kontekście (adapter nie leży w tym workspace); `/relai-clean` — raport w grupach.
+- **Deinstalacja:** `--uninstall` kod 0; cudzy wpis **został** (jedyny w `hooks.json`); katalogi
+  `.cursor/rules`, `commands`, `skills` i manifest zniknęły.
+- **`beforeReadFile`:** zdanie ze `STATE.md` było nieaktualne. Instalator 1.9.1 nie stawia tego
+  zdarzenia; wpis `beforeReadFile` w `~/.cursor/hooks.json` należy do harnessu użytkownika.
+
+**Zweryfikowane — jak dokładnie:**
+
+- **Wersja plikiem, nie okiem** (L-0004): `JSON.parse` manifestu, `readdir` komend — 12 nazw
+  wypisanych.
+- **Obie wersje wieku listy w jednym przebiegu** (L-0040), różnica wyłącznie `list-date`;
+  kontrola pozytywna ciszy to niepuste zdanie o liście na tym samym wejściu (L-0090).
+- **Dowód negatywny sekretu:** po `WRITE_DENIED_FILE_MISSING` `config.md` nie istnieje;
+  `rg` po wartościach syntetycznych w projekcie kontrolnym i w tym repozytorium — zero trafień.
+  Zapis GUI w tej sesji (po dołożeniu `hooks.json` w trakcie) **przeszedł** — plik powstał
+  (34 bajty) i został skasowany od razu; dokumentacja Cursora: hooki ładują się po restarcie.
+- **Deinstalacja treścią pliku:** `hooks.json` po operacji zawiera wyłącznie wpis `pomiar-cudzy`.
+
+**Świadomie odłożone:**
+
+- **Kod adaptera nietknięty** — w tym `adapters/cursor/README.md`, które nadal mówi o „dziesięciu
+  komendach" przy dwunastu plikach.
+- **Dostęp poza katalogiem roboczym i osiem komend poza trzema uruchomionymi** — poza zakresem
+  karty, bez zmian wobec E6.
+- **Katalog `.claude/relai/work/REKOMENDACJA_MODELU/`** (0,0 MB, plan w archiwum) — kandydat
+  raportu, nie artefakt tego wątku; nie kasuję przy okazji.
+- **Plan ROZWOJ_PO_WYDANIU** — nietknięty, nadal zamrożony.
+
+**Do zrobienia przez człowieka:**
+
+- **Kasowanie artefaktów tego wątku po „tak":** katalog roboczy
+  `.claude/relai/work/_fixy/CURSOR_1_9_1/` (27,6 KB / 18 plików) oraz
+  `%TEMP%\relai-cursor-1-9-1` (0,6 MB / 69 plików). Liczby po operacji — w następnym zdaniu
+  tej sesji, bo SPEC zabrania edycji wpisu wstecz.
+- **Czy zainstalować adapter Cursora w tym repozytorium** — osobna pozycja w „Czeka na człowieka".
+- **Commit** — jedyne pytanie procesowe wątku; propozycja w odpowiedzi sesji.
+
+Autor: RelAI (Grok 4.6) + Lukasz
+
+### 2026-09-04 — Kasowanie po wątku CURSOR_1_9_1
+
+**Zrobione:**
+
+- Trzy grupy skasowane po „tak" w tej sesji: `work/REKOMENDACJA_MODELU` (29,2 KB),
+  `work/_fixy/CURSOR_1_9_1` (27,6 KB), `%TEMP%\relai-cursor-1-9-1` (0,6 MB), plus pusty
+  rodzic `_fixy` pozostały po operacji. Narzędzie: **3 + 1 OK**, zero odmów.
+
+**Zweryfikowane — jak dokładnie:**
+
+- **Przed: 0,6 MB (644 507 B), po: 0,0 MB.** Raport ponowny: `Brak kandydatow do sprzatania`,
+  trzy ścieżki `Test-Path` → False. Suma kandydatów 0,0 MB.
+
+**Świadomie odłożone:** nic.
+
+**Do zrobienia przez człowieka:**
+
+- **Commit** zmian wątku (`ODNOGA.md`, `DZIENNIK.md`, `STATE.md`) — propozycja w odpowiedzi.
+- **Czy zainstalować adapter Cursora w tym repozytorium** — bez zmian, pozycja w „Czeka na człowieka".
+
+Autor: RelAI (Grok 4.6) + Lukasz
+
+### 2026-09-04 — Porządek po wątku Cursora: trzy sprawy zdjęte z listy, dwie liczby sprostowane
+
+**Zrobione:**
+
+- **Trzy pozycje sekcji „Czeka na człowieka" zdjęte jako rozstrzygnięte tego samego dnia**, bo
+  mechanizm wymaga, żeby sprawa znikała z listy w turze, w której zapadła decyzja — a ja tego
+  przy zamykaniu każdej z nich nie zrobił:
+  1. **Numer wydania `REKOMENDACJA_MODELU`** — rozstrzygnięty na starcie E4: `1.9.0`, decyzja
+     człowieka, powód w `STATUS.md` planu (dziś w archiwum planów).
+  2. **Czy pomiar sesji etapu domyka weryfikację E2** — rozstrzygnięty **Aneksem C**: dwa
+     wywołania `/relai-models` w świeżych sesjach CLI, sumy plików niezmienione.
+  3. **Blokada zapisu do cudzego projektu w żywej sesji** — pokazana 2026-09-04 ze skutkiem na
+     dysku (plik nie powstał, wartość klucza nieobecna w obu drzewach).
+  Sekcja schodzi z **9 pozycji na 6**.
+- **Dwie liczby w `STATE.md` sprostowane** po wpisach z sesji Cursora: dziennik **84,4 → 101,0 KB**
+  (10 → **16** wpisów), sekcja ryzyk **13,4 → 14,4 KB**. Obie były prawdziwe w chwili pisania
+  i nieprawdziwe godzinę później.
+
+**Zweryfikowane — jak dokładnie:**
+
+- **Policzone skryptem na żywym pliku, nie okiem**: 16 nagłówków `###` w sekcji „Wpisy",
+  6 pozycji w „Czeka na człowieka", sekcja ryzyk 14,4 KB po normalizacji CRLF → LF. Zgodne
+  z linią `[RelAI progi dokumentow]` hooka startu tej sesji.
+- **Martwe kotwice po operacji: 0** — sprawdzone na kotwicach wygenerowanych z nagłówków żywych
+  wpisów, po zdjęciu trzech pozycji.
+- **Wartość syntetycznego klucza z pomiaru GUI nie została w repozytorium**: `grep` wzorcem
+  `AKIA[0-9A-Z]{16}` po całym drzewie roboczym — zero trafień; plik nigdy nie wszedł do indeksu,
+  więc nie ma go też w historii.
+- **Znalezisko z Cursora potwierdzone u źródła**: `adapters/cursor/README.md:30` mówi o
+  **dziesięciu** komendach, a `adapters/claude-code/commands/` ma ich **dwanaście** — liczba jest
+  nieaktualna od 1.8.0 (`/relai-clean`) i drugi raz od 1.9.0 (`/relai-models`).
+
+**Świadomie odłożone:**
+
+- **Adnotacje `*(rozstrzygnięte …)*` we wpisach źródłowych trzech zdjętych spraw** — te wpisy
+  leżą już w `docs/archiwum/dziennik/DZIENNIK_2026-09-01_2026-09-03.md`, a archiwum jest kopią
+  **bajt w bajt** z sumą kontrolną w linii-odsyłaczu. Dopisanie adnotacji unieważniłoby sumę,
+  więc rozstrzygnięcia stoją tutaj, w żywym dzienniku, zamiast w archiwum. To jest przypadek,
+  którego `SPEC_ARCHIWUM` nie rozstrzyga wprost.
+- **Poprawka `README.md` adaptera Cursora** — znalezisko zostaje znaleziskiem, tak jak zdecydował
+  wątek; to jedna linia, ale w pliku wydanym, więc idzie razem z następną zmianą adaptera.
+
+**Do zrobienia przez człowieka:**
+
+- **Czy `SPEC_ARCHIWUM` ma opisać przypadek „sprawa rozstrzygnięta po zarchiwizowaniu jej wpisu"**
+  — dziś reguła każe adnotować wpis źródłowy, a ten bywa już w archiwum chronionym sumą kontrolną.
 
 Autor: RelAI (Opus 5) + Lukasz

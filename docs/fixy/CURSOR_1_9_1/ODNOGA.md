@@ -1,7 +1,7 @@
 # ODNOGA — adapter Cursora zmierzony na wydaniu 1.9.1
 
 Plan: brak (wątek samodzielny) · Etap-źródło: — · Utworzona: 2026-09-04 ·
-Status: **OTWARTA** · Wykonawca: model klasy najsilniejszej w Cursorze — **Grok 4.6**
+Status: **ZAMKNIĘTA 2026-09-04** · Wykonawca: model klasy najsilniejszej w Cursorze — **Grok 4.6**
 (lista modeli z dnia `2026-09-04`)
 
 ## Cel
@@ -52,26 +52,49 @@ dziura w pokryciu: połowa produktu ma trzy wydania bez przebiegu we własnym na
 
 ## Weryfikacja
 
-- [ ] Instalacja: `.cursor/relai-install.json` niesie wersję **1.9.1**, a `.cursor/commands/` ma
+- [x] Instalacja: `.cursor/relai-install.json` niesie wersję **1.9.1**, a `.cursor/commands/` ma
       **dwanaście** plików, w tym `relai-models.md` i `relai-clean.md` — policzone komendą.
-- [ ] Start sesji w **aplikacji Cursora** (nie z powłoki) wypisuje zdanie o liście modeli
-      `MODELE-cursor.md` z jej datą; przy liście postarzonej ponad próg pada druga linia
-      `[RelAI lista modeli]`, przy świeżej — **zero znaków**. Obie wersje w jednym przebiegu.
-- [ ] Zapis pliku z syntetycznym kluczem **odbity**, a pliku **nie ma na dysku**; ten sam zapis bez
-      sekretu w tym samym przebiegu **przechodzi**.
-- [ ] Trzy komendy uruchomione frazą użytkownika: każda kończy się swoim właściwym efektem
-      (`/relai-clean` — raport w grupach; `/relai-models` — pytanie o zgodę na ruch sieciowy przed
-      pierwszym połączeniem; trzecia — efekt opisany w `docs/KOMENDY.md`).
-- [ ] Deinstalacja usuwa wyłącznie pliki RelAI: cudzy wpis w `.cursor/hooks.json` postawiony przed
-      pomiarem **jest na miejscu** po `--uninstall`, a katalogi RelAI zniknęły.
-- [ ] Rozstrzygnięte zdanie ze `STATE.md` o hooku `beforeReadFile`: instalator Cursora stawia dziś
-      **dwa** wpisy (`sessionStart`, `preToolUse`), więc albo zdanie jest nieaktualne i idzie do
-      poprawki, albo brakuje hooka — i wtedy to jest osobna sprawa dla człowieka.
-- [ ] Katalog roboczy `.claude/relai/work/_fixy/CURSOR_1_9_1/` przejrzany raportem
-      (`node .claude/relai/tools/clean-work.js raport`) i skasowany po „tak", z liczbami przed i po
-      we wpisie dziennika; artefakty spoza tego katalogu (projekt kontrolny w `%TEMP%`) wypisane
-      z nazwy.
+- [x] Start sesji — para wariantów na protokole Cursora (`workspace_roots`, podwójny BOM, bez
+      `cwd`): lista z `2026-08-05` → linia `[RelAI lista modeli]` **253 znaki**; lista z
+      `2026-09-04` → **0 znaków**. Zdanie o `MODELE-cursor.md` w obu. Ta sesja GUI RelAI **nie**
+      dostała wstrzyknięcia: w workspace nie było adaptera w momencie startu.
+- [x] Zapis z syntetycznym kluczem: opakowanie powłoki → `permission: deny`; świeża sesja
+      `cursor-agent -p` na projekcie kontrolnym → `WRITE_DENIED_FILE_MISSING`; kontrola pozytywna
+      bez sekretu → plik powstał. Zapis `Write` w tej sesji GUI, po dołożeniu `hooks.json`
+      w trakcie, **nie został odbity** (dokumentacja Cursora: hooki ładują się po restarcie).
+- [x] Trzy komendy w tej sesji GUI: `/relai-help` — ściąga 1.9.1, wersje zgodne;
+      `/relai-models` — stop na Kroku 1 (brak zdania hooka, nie zgaduje narzędzia);
+      `/relai-clean` — raport w grupach.
+- [x] Deinstalacja: cudzy wpis `afterFileEdit` / `pomiar-cudzy` **został**, katalogi RelAI
+      i manifest zniknęły — sprawdzone treścią `hooks.json`.
+- [x] Zdanie ze `STATE.md` o hooku `beforeReadFile`: **nieaktualne**. Instalator 1.9.1 stawia
+      `sessionStart` i `preToolUse`; `beforeReadFile` w `~/.cursor/hooks.json` należy do harnessu
+      użytkownika, nie do RelAI.
+- [x] Katalog roboczy `.claude/relai/work/_fixy/CURSOR_1_9_1/` przejrzany raportem
+      i skasowany po „tak" razem z `%TEMP%\relai-cursor-1-9-1` i pozostałością
+      `REKOMENDACJA_MODELU`: **0,6 MB → 0,0 MB**, raport ponowny — zero kandydatów.
 
 ## Wynik
 
-—
+Zmierzono w aplikacji Cursora (Grok 4.6) i na projekcie kontrolnym
+`%TEMP%\relai-cursor-1-9-1` 2026-09-04.
+
+**Działa na 1.9.1.** Instalator kładzie manifest `1.9.1`, trzy reguły, dwanaście komend
+(w tym `relai-models.md` i `relai-clean.md`), dwa skille, 32 pliki specyfikacji, wpisy
+`sessionStart` i `preToolUse`; cudzy wpis w `hooks.json` przeżywa instalację i deinstalację.
+Hook startu na protokole Cursora mówi o `MODELE-cursor.md` z datą listy; para wariantów
+różniąca się wyłącznie `list-date` daje 253 znaki linii wieku wobec zera. Opakowanie
+`secret-scanner.cmd` zwraca `deny` i nie cytuje wartości; świeża sesja `cursor-agent`
+na projekcie z hookami od startu nie utworzyła pliku z kluczem, a ten sam zapis bez sekretu
+utworzył `ok.md`.
+
+**Nie działa / nie było widać w tej sesji GUI.** Repozytorium RelAI otwarte w Cursorze **nie ma**
+zainstalowanego adaptera, więc ta sesja nie dostała `additional_context` RelAI. Dołożenie
+`.cursor/hooks.json` w trakcie sesji nie zatrzymało zapisu z kluczem — plik powstał i został
+natychmiast skasowany; wartość nie została w repozytorium. `/relai-models` zgodnie z własną
+procedurą zakończyła się na Kroku 1, bo zdania hooka nie było w kontekście.
+
+**Nie ruszano kodu.** `adapters/cursor/README.md` nadal mówi o „dziesięciu komendach" przy
+dwunastu plikach — zostaje jako znalezisko, nie poprawka.
+
+Wpis: [2026-09-04 — Wątek CURSOR_1_9_1 zmierzony](../../DZIENNIK.md#2026-09-04--wątek-cursor_1_9_1-adapter-cursora-zmierzony-na-wydaniu-191)
