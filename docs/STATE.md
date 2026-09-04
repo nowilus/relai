@@ -99,9 +99,11 @@ użytkownika spoza autora.
 ## Co blokuje
 
 - **Adapter Cursora zmierzony w aplikacji, ale nie w całości.** Pilotaż potwierdził reguły, hook
-  kontekstu, obie warstwy blokady sekretu i pełne przejście `/relai-stage`. Niezmierzone: hook
-  `beforeReadFile`, dostęp poza katalogiem roboczym, osiem pozostałych komend — a reguły 1.7.0,
-  1.8.0 i 1.9.x tego adaptera nie były w Cursorze uruchomione ani razu.
+  kontekstu, obie warstwy blokady sekretu i pełne przejście `/relai-stage` — ale na **1.6.x**.
+  Reguły 1.7.0, 1.8.0 i 1.9.x nie były w Cursorze uruchomione ani razu; niezmierzone zostają też
+  dostęp poza katalogiem roboczym i osiem komend. Wątek na to czeka gotowy:
+  [docs/fixy/CURSOR_1_9_1/](fixy/CURSOR_1_9_1/ODNOGA.md), do wykonania **w aplikacji Cursora**
+  na modelu Grok 4.6.
 - **Dostępność świeżej sesji CLI bywa zmienna** — `claude -p` odmówił uwierzytelnienia rano
   2026-09-04 i zadziałał tego samego dnia po południu, więc każdy etap opierający pomiar na tej
   usłudze sprawdza ją przed startem (L-0084, L-0087). Dziewięć scenariuszy odnogi `POMIAR_ODNOG`
@@ -156,10 +158,10 @@ Warstwa startowa: **50,5 KB / 80 KB** — raport budżetu milczy, raport progów
 pozycję (sekcja ryzyk) • Dziennik: **84,4 KB / 150 KB**
 (10 wpisów) • Lekcje: **37,2 KB / 50 KB** (20 w żywym rejestrze, ostatnia L-0090) • Sekcja ryzyk:
 **13,4 KB / 12 KB** — nie ma już czego rotować • Archiwum: siedem plików dziennika, trzy lekcji,
-dwa ryzyk • Sprawy czekające na człowieka: **8 tutaj**, 32 w PolyFlow, żadna nieprzeterminowana •
+dwa ryzyk • Sprawy czekające na człowieka: **9 tutaj**, 32 w PolyFlow, żadna nieprzeterminowana •
 Otwarte ryzyka: **9** • Zamknięte ryzyka: **8, wszystkie w archiwum** •
 Otwarte bramki manualne: **1** (zamknięta lista rdzeni rozstrzygnięcia) •
-Otwarte wątki: **1 odnoga** (`OPIS_REPO`) • Artefakty w rejestrze: **40** •
+Otwarte wątki: **2** — odnoga `OPIS_REPO` i wątek samodzielny `CURSOR_1_9_1` • Artefakty w rejestrze: **40** •
 Zasady aktywne: **15 przy limicie 15** • Progi w katalogu: **18, z tego 17 z adresem egzekwowania** •
 Adaptery: 2 • Komendy: **12** • Scenariusze akceptacyjne: 4/4 zdane + pilotaż Cursora •
 Modele, na których zmierzono proces: 5 (Fable, Opus, Haiku, Composer/auto, Grok 4.6) •

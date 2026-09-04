@@ -59,6 +59,11 @@
   roboczym poza projektem docelowym; wymaga wydania i restartu aplikacji · 2026-09-03 ·
   [wpis 2026-09-03 — Odnoga GUARD_PO_SCIEZCE](#2026-09-03--odnoga-guard_po_sciezce-guardraile-rozpoznają-projekt-po-ścieżce-pliku-181)
 
+- **Kiedy ruszy wątek `CURSOR_1_9_1`** — karta i prompt świeżej sesji są gotowe od 2026-09-04,
+  wykonanie należy do człowieka: wątek wymaga **aplikacji Cursora**, więc żadna sesja w Claude Code
+  go nie zrobi · 2026-09-04 ·
+  [wpis 2026-09-04 — Wątek CURSOR_1_9_1](#2026-09-04--wątek-cursor_1_9_1-adapter-cursora-dostaje-kartę-i-prompt-świeżej-sesji)
+
 - **Czy ochrona konfiguracji ma zostać przy werdykcie `ask`** — w sesji z automatyczną akceptacją
   edycji `ask` nie zatrzymuje niczego, więc edycja sekcji niemutowalnej **cudzego** `CLAUDE.md`
   przechodzi mimo poprawnego werdyktu hooka. Podnieść do `deny` dla cudzego projektu (własny
@@ -1114,5 +1119,48 @@ Autor: RelAI (Opus 5) + Lukasz
 - **Czy ochrona konfiguracji ma zostać przy `ask`** — dziś w sesji z automatyczną akceptacją nie
   zatrzymuje niczego. Podniesienie do `deny` dla **cudzego** projektu (własny zostawia `ask`) jest
   zmianą zachowania w obu adapterach, więc wymaga decyzji, nie poprawki przy okazji.
+
+Autor: RelAI (Opus 5) + Lukasz
+
+### 2026-09-04 — Wątek CURSOR_1_9_1: adapter Cursora dostaje kartę i prompt świeżej sesji
+
+**Zrobione:**
+
+- **Wątek samodzielny `CURSOR_1_9_1`** — `docs/fixy/CURSOR_1_9_1/ODNOGA.md` (karta) plus
+  `PROMPT_ODNOGA.md` (cała pamięć świeżej sesji). Lokalizacja `docs/fixy/`, nie `docs/plany/`,
+  bo żaden plan nie jest niezamknięty poza zamrożonym ROZWOJ_PO_WYDANIU, a ten wątek do niego
+  nie należy: E7 dotyczy Codeksa, nie Cursora.
+- **Wykonawca wzięty z listy modeli Cursora, nie z klasy** — `Grok 4.6`, `list-date 2026-09-04`.
+  To pierwszy dokument procesu, który korzysta z mechanizmu wydanego w 1.9.0 po to, żeby nazwać
+  model **narzędzia docelowego**, a nie tego, w którym powstaje prompt.
+- **Zakres pięciopunktowy**: instalacja adaptera do projektu kontrolnego, start sesji z dwoma
+  zdaniami o liście modeli, blokada sekretu przez opakowanie powłoki, trzy komendy nieuruchomione
+  w Cursorze nigdy (`/relai-clean`, `/relai-models`, jedna do wyboru) i deinstalacja z cudzym
+  wpisem w `hooks.json` jako kontrolą.
+
+**Zweryfikowane — jak dokładnie:**
+
+- **Stan wyjściowy promptu spisany z repozytorium, nie z pamięci**: trzy reguły `.mdc`
+  (19,5 + 5,7 + 4,5 KB), cztery pliki w `adapters/cursor/hooks/`, instalator z pięcioma krokami
+  i manifestem `.cursor/relai-install.json`, lista modeli z `list-date: 2026-09-04`.
+- **Kolizja z dokumentacją wyłapana przy pisaniu karty**: `STATE.md` wymieniał hook
+  `beforeReadFile` jako niezmierzony, a instalator stawia dziś **dwa** wpisy — `sessionStart`
+  i `preToolUse`. Zamiast poprawiać `STATE.md` z marszu, wpisałem to jako punkt weryfikacji wątku:
+  rozstrzygnie go przebieg w Cursorze, nie moje czytanie kodu (zasada 13).
+- **Karta i prompt zgodne co do zakresu** — pięć punktów w obu, w tej samej kolejności, przy
+  czym prompt mówi wprost, że w razie rozbieżności **wygrywa karta**.
+
+**Świadomie odłożone:**
+
+- **Rejestr artefaktów nietknięty** — `docs/ARTEFAKTY.md` jawnie wyłącza karty odnóg i prompty
+  z rejestru: to produkty procesu RelAI, nie artefakty pluginu. Liczba 40 bez zmian.
+- **Poprawki adaptera Cursora** — wątek jest pomiarem; defekt znaleziony w przebiegu ma iść do
+  dziennika i do sekcji „Czeka na człowieka", a nie do kodu przy okazji.
+
+**Do zrobienia przez człowieka:**
+
+- **Uruchomić wątek w aplikacji Cursora** — Claude Code go nie wykona, bo cały sens pomiaru leży
+  w narzędziu docelowym. Prompt jest samowystarczalny: świeża sesja nie potrzebuje niczego z tej
+  rozmowy.
 
 Autor: RelAI (Opus 5) + Lukasz
