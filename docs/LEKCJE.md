@@ -53,8 +53,11 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
    wczoraj" też jest hipotezą, więc etap opierający punkt weryfikacji na cudzej usłudze sprawdza ją
    przed rozpoczęciem pracy. **Przebieg, w którym oczekujesz ciszy, jest ważny wyłącznie razem
    z kontrolą pozytywną w tym samym przebiegu** — awaria ładowania modułu wygląda dokładnie jak
-   zachowanie domyślne mechanizmu, więc na kontrolę pozytywną patrzysz pierwszą. (L-0032, L-0037,
-   L-0054, L-0055, L-0056, L-0064, L-0068, L-0071, L-0073, L-0083, L-0084, L-0086, L-0087, L-0088)
+   zachowanie domyślne mechanizmu, więc na kontrolę pozytywną patrzysz pierwszą. **Cisza zmierzona
+   złym wejściem jest fałszem, nie ciszą** — narzędzie wołane z podstawionym payloadem dostaje
+   kontrolę pozytywną **na tym samym wejściu** (odbite pole, nazwa projektu), bo „0 znaków" wygląda
+   tak samo przy poprawnej ścieżce i przy rozjechanej. (L-0032, L-0037, L-0054, L-0055, L-0056,
+   L-0064, L-0068, L-0071, L-0073, L-0083, L-0084, L-0086, L-0087, L-0088, L-0090)
 6. **Próg jest liczbą, którą ktoś liczy:** kalibruj go na zmierzonych plikach realnych projektów,
    zapisuj w jednostce mechanizmu kontrolnego wraz z komendą sprawdzającą i daj mu **jeden**
    wyzwalacz — wielkości pomocnicze wskazują przyczynę wewnątrz komunikatu, nie wywołują go.
@@ -458,6 +461,27 @@ restart aplikacji po `plugin update` (L-0031), `git worktree` zamiast `git archi
   z czterech rozjeżdża dokumenty tym mocniej, im dłużej nikt nie patrzy.
 - **Źródło:** E4 planu REKOMENDACJA_MODELU (2026-09-04) — rozstrzygnięte Aneksem D w trakcie etapu.
   Wzmocnienie zasad 1 i 14; bez własnej pozycji w destylacie, limit 15 pozostaje wykorzystany.
+
+### L-0090 — Cisza mechanizmu zmierzona złym wejściem jest fałszem, nie ciszą · 2026-09-04 · AKTYWNA
+
+- **Trigger:** po rotacji trzech dokumentów uruchomiłem hook startu poleceniem
+  `echo '{"cwd":"C:\\Users\\Lukasz\\Desktop\\RelAI",…}' | node …`. Hook wypisał **0 znaków**,
+  co zapisałem do dziennika jako dowód, że po rotacji nie ma już nic ponad progiem. Godzinę później
+  ten sam hook — wołany przez aplikację przy starcie sesji — wypisał linię o sekcji ryzyk
+  **13,4 KB przy progu 12 KB**.
+- **Przyczyna:** w pojedynczych cudzysłowach powłoki `\\` zostaje dwoma znakami w JSON-ie, więc
+  `cwd` rozjechał się na ścieżkę, której nie ma. Hook zachował się poprawnie: folder bez markera
+  RelAI to folder, o którym nie ma nic do powiedzenia. **Zero znaków było prawdziwą odpowiedzią
+  na złe pytanie** — a wygląda identycznie jak prawdziwa odpowiedź na dobre pytanie.
+- **Zasada:** przebieg, w którym oczekujesz ciszy, wymaga **kontroli pozytywnej na tym samym
+  wejściu** — zanim uznasz ciszę za wynik, pokaż, że to wejście potrafi cokolwiek wypisać. Przy
+  narzędziu przyjmującym ścieżkę w JSON-ie kontrolą jest jedno pole odbite z powrotem (echo
+  ścieżki, nazwa projektu, wersja) albo ta sama ścieżka podana w postaci, której powłoka nie tknie
+  (ukośniki). Wzmocnienie zasady 5: instrument bywa źródłem fałszu **także wtedy, gdy sam kod
+  mechanizmu jest w porządku**.
+- **Źródło:** rotacja dokumentów 2026-09-04; sprostowanie wpisane do tego samego wpisu dziennika
+  w tej samej sesji. Bez własnej pozycji w destylacie — dopisane do zasady 5, limit 15 pozostaje
+  wykorzystany.
 
 ## Lekcje zwinięte
 

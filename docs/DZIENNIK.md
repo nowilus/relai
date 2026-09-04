@@ -971,9 +971,14 @@ Autor: RelAI (Opus 5) + Lukasz
 - **Przepięcie linków sekcji „Czeka na człowieka": 3 pozycje**, każda dostała przed kotwicą ścieżkę
   pliku archiwum; treść pozycji, tekst linku i data nietknięte. **Pozycji z martwą kotwicą: 0** —
   policzone niezależnym skryptem po rotacji, na wygenerowanych kotwicach dziesięciu żywych wpisów.
-- **Cisza mechanizmu po rotacji.** Hook startu uruchomiony na tym repozytorium po operacji wypisał
-  **0 znaków** — ani linii `[RelAI budzet startu]`, ani `[RelAI progi dokumentow]`. Przed rotacją
-  wypisywał cztery pozycje ponad własnym progiem.
+- **Raport startu po rotacji: zostaje jedna pozycja z czterech.** Linia `[RelAI budzet startu]`
+  znika (warstwa startowa mieści się w budżecie), z `[RelAI progi dokumentow]` schodzą dziennik
+  i lekcje, a zostaje **sekcja „Stan otwartych ryzyk" 13,4 KB przy progu 12 KB** — bo nie ma tam
+  już czego rotować.
+  *(sprostowanie z tej samej sesji: pierwotnie stało tu „hook wypisał 0 znaków". Zdanie było
+  fałszem instrumentu, nie pomiarem — hooka wołałem przez `echo '{"cwd":"C:\\Users\\…"}'`,
+  gdzie backslashe rozjechały ścieżkę, więc milczał z powodu złego wejścia. Ścieżka z ukośnikami
+  daje linię progu. L-0090.)*
 - **Decyzja o głębokości była decyzją człowieka, nie mechanizmu.** Litera reguły („bierz, aż część
   rotowalna zejdzie poniżej 60% progu") była spełniona po **sześciu** wpisach, a plik zostawałby
   wtedy na 169,5 KB — nadal ponad progiem 150 KB, z pustym już zapasem do wzięcia. W lekcjach
