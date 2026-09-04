@@ -5,7 +5,7 @@
 | # | Ryzyko | Poziom | Status | Mitygacja |
 |---|---|---|---|---|
 | R5 | Dokumenty puchną i zjadają kontekst | **Niski dla projektów na 1.7.0, średni dla niezmigrowanych** (2026-09-01 po E6; wcześniej średni) | **ZMIERZONE 2026-09-01, OTWARTE ŚWIADOMIE — zawężone do migracji JiraManagera** | Mechanizm jest kompletny **i zadziałał na cudzym projekcie w żywej sesji**, nie tylko w instrumentach: PolyFlow 1.6.1 → 1.7.0, rotacja dziennika **183,1 → 147,3 KB** (9 wpisów, suma `566dca8a4dd45ba7` odczytana z dysku przed przycięciem), rotacja ustawień **29,8 → 25,4 KB** (16 wierszy, 5 wierszy maszynowych nietkniętych), przepięcie linków z bilansem zero (60 przed, 65 po rotacji, 60 po przepięciu). Tutaj: dziennik **155,6 → 74,1 KB**, 18 wpisów do archiwum, raport startu z 2 linii na **0**. Zawężone, bo to, co zostało, nie jest już własnością mechanizmu: **JiraManager (386 KB startu) czeka na okno właściciela**, a warstwa startowa PolyFlow (157,3 KB przy budżecie 80 KB) jest gruba sekcją ryzyk, `CLAUDE.md` i `STATE.md` — odchudzają je decyzje człowieka, nie archiwum. Zmierzone: 2026-08-20, 2026-08-21, 2026-09-01 (E1–E6) |
-| P1 | Adaptery Cursor/Codex nie egzekwują blokad harnessu — sekret albo zmiana konfiguracji przejdzie tam, gdzie w Claude Code stoi ściana (plan ROZWOJ_PO_WYDANIU) | **Średni** (2026-08-12 po E4; wcześniej wysoki) | **OTWARTE** | Część sekretowa jest zamknięta dowodem z aplikacji: w Cursorze zadziałały obie warstwy — reguła odmówiła pierwsza, a przy prośbie o próbę mimo reguły zapis klucza odbił hook `preToolUse` werdyktem `permission: deny`; niezależnie od narzędzia commit z sekretem zatrzymuje gitowy pre-commit. Otwarte z dwóch powodów: Cursor nie ma egzekwowanego `ask`, więc pliki konfiguracyjne chroni tam sama reguła zamiast bramki, a Codex pozostaje niezmierzony do odmrożenia E7 planu ROZWOJ_PO_WYDANIU. **1.8.1 (odnoga GUARD_PO_SCIEZCE) zamyka osobną dziurę tej samej rodziny**, obecną w obu adapterach: guard rozpoznawał projekt wyłącznie po katalogu sesji, więc zapis do cudzego projektu RelAI przechodził bez ostrzeżenia w Claude Code tak samo jak w Cursorze. Zmierzone instrumentem na dwóch drzewach (22 + 4 scenariusze, 0 niezgodnych); poziom bez zmian, bo powód otwarcia jest inny — brak egzekwowanego `ask` w Cursorze. **1.9.1 (CURSOR_1_9_1):** opakowanie `secret-scanner.cmd` zwraca `deny` i nie cytuje wartości; świeża sesja `cursor-agent -p` na projekcie kontrolnym z hookami od startu — plik z kluczem **nie powstał**, kontrola pozytywna bez sekretu utworzyła `ok.md`. Sesja GUI w repozytorium RelAI bez zainstalowanego adaptera zapisu nie zatrzymała (hooki dołożone w trakcie sesji się nie załadowały). Zmierzone: 2026-08-12 (E4), 2026-08-12 (E5), 2026-08-17 (E6), 2026-09-03 (GUARD_PO_SCIEZCE), 2026-09-04 (CURSOR_1_9_1) |
+| P1 | Adaptery Cursor/Codex nie egzekwują blokad harnessu — sekret albo zmiana konfiguracji przejdzie tam, gdzie w Claude Code stoi ściana (plan ROZWOJ_PO_WYDANIU) | **Średni** (2026-08-12 po E4; wcześniej wysoki) | **OTWARTE** | Część sekretowa jest zamknięta dowodem z aplikacji: w Cursorze zadziałały obie warstwy — reguła odmówiła pierwsza, a przy prośbie o próbę mimo reguły zapis klucza odbił hook `preToolUse` werdyktem `permission: deny`; niezależnie od narzędzia commit z sekretem zatrzymuje gitowy pre-commit. Otwarte z dwóch powodów: Cursor nie ma egzekwowanego `ask`, więc pliki konfiguracyjne chroni tam sama reguła zamiast bramki, a Codex pozostaje niezmierzony do odmrożenia E7 planu ROZWOJ_PO_WYDANIU. **1.8.1 (odnoga GUARD_PO_SCIEZCE) zamyka osobną dziurę tej samej rodziny**, obecną w obu adapterach: guard rozpoznawał projekt wyłącznie po katalogu sesji, więc zapis do cudzego projektu RelAI przechodził bez ostrzeżenia w Claude Code tak samo jak w Cursorze. Zmierzone instrumentem na dwóch drzewach (22 + 4 scenariusze, 0 niezgodnych); poziom bez zmian, bo powód otwarcia jest inny — brak egzekwowanego `ask` w Cursorze. **1.9.1 (CURSOR_1_9_1):** opakowanie `secret-scanner.cmd` zwraca `deny` i nie cytuje wartości; świeża sesja `cursor-agent -p` na projekcie kontrolnym z hookami od startu — plik z kluczem **nie powstał**, kontrola pozytywna bez sekretu utworzyła `ok.md`. Sesja GUI w repozytorium RelAI bez zainstalowanego adaptera zapisu nie zatrzymała (hooki dołożone w trakcie sesji się nie załadowały). **1.9.2 (PRECOMMIT_ESM) trafia w rdzeń tego ryzyka od strony, której nie przewidywało:** mitygacja sama była zepsuta w całej klasie projektów — pre-commit instalowany od 1.4.0 przewracał się na starcie w każdym projekcie z `"type": "module"` i blokował **każdy** commit, a wykryło to **zgłoszenie z cudzego projektu**, nie nasz pomiar; guardrail nigdy wcześniej nie był uruchomiony poza repozytoriami, które sami zakładaliśmy. Po poprawce: 27 przypadków regresji w sześciu scenariuszach (0 rozjazdów), instalacja kończy się testem dymnym z cofnięciem, a fałszywe trafienia policzone na 3705 plikach z pięciu cudzych repozytoriów. Poziom bez zmian — powód otwarcia jest ten sam (brak egzekwowanego `ask` w Cursorze, Codex niezmierzony), ale doszła własność zmierzona: **gwarancja poza harnessem była dotąd sprawdzana wyłącznie na materiale własnym**. Zmierzone: 2026-08-12 (E4), 2026-08-12 (E5), 2026-08-17 (E6), 2026-09-03 (GUARD_PO_SCIEZCE), 2026-09-04 (CURSOR_1_9_1), 2026-09-04 (PRECOMMIT_ESM) |
 | P2 | Odpowiednik R2 w Cursor/Codex: bez auto-wyzwalania skilli proces zależy od dyscypliny modelu (plan ROZWOJ_PO_WYDANIU) | **Niski dla Cursora, średni dla Codeksa** (2026-08-17 po E6; wcześniej średni) | **OTWARTE (już tylko Codex)** | Reguła zawsze-w-kontekście działa w Cursorze bez żadnego wyzwalacza: pilotaż przeszedł pełny cykl na trzech modelach, a cały etap poprowadził model spoza Anthropic (Grok 4.6) — rytuał startu, karta etapu z kontrolą modelu, granica zakresu, rytuał zamknięcia z promptem następnego etapu. Dyscyplina procesu nie zależy od dostawcy modelu. Otwarte już tylko dla Codeksa: warstwą nośną ma tam być `AGENTS.md` z twardym limitem 32 KiB, a skille wyzwalają się dopasowaniem opisu — tym samym mechanizmem, który przy R2 okazał się zależny od modelu. **1.9.1 (CURSOR_1_9_1):** cały wątek pomiarowy poprowadził Grok 4.6 w aplikacji Cursora — rytuał startu, karta, granica „nie poprawiasz kodu", trzy komendy, rytuał zamknięcia. Zmierzone: 2026-08-12 (E4), 2026-08-12 (E5), 2026-08-17 (E6), 2026-09-04 (CURSOR_1_9_1) |
 
 | S1 | Bramka dokumentacyjna przepuści coś potrzebnego — plik nieśledzony, o którym architektura milczy, a bez którego nie da się powtórzyć pomiaru (plan SPRZATANIE_ARTEFAKTOW, ryzyko 1) | **Wysoki** (2026-09-03, przy powstaniu mechanizmu) | **OTWARTE** | Kasowanie wyłącznie po „tak" na grupę z pełną listą pozycji; pliki śledzone nigdy nie są kandydatami; niepewność rozstrzygana na korzyść ochrony; „zostaw na zawsze" dopisuje marker, więc pytanie nie wraca. Pierwszy pomiar (E1, własne repo): 8 grup, 9 pozycji chronionych z powodem — w tym `benchmark`-owy odpowiednik, czyli `.claude/relai/templates` z powodem `opisane` i wskazaniem `README.md:150`. **Bramka przepuściła dorobek własnego etapu**: dwa nowe, niezacommitowane pliki produktu stanęły w grupach jako kandydaci (L-0078) — ochroną jest tam `git add`, nie marker, ale to jest realne trafienie tego ryzyka. Niezmierzone na cudzym projekcie: raport na PolyFlow zostaje jako bramka manualna planu. E2: drugi przebieg bez ani jednego fałszywego kandydata — 1 grupa (katalog etapu zamkniętego), 5 pozycji chronionych, w tym `templates` powodem `opisane`. **E3: trafienie powtórzyło się na innym pliku** — świeżo wygenerowany `PROMPT_ETAP_4.md`, jeszcze nieprzyjęty do indeksu, stanął w raporcie jako kandydat (grupa „repo: katalog docs") i zniknął po `git add`. Wzorzec jest więc stały, nie jednorazowy: **granicą ochrony dorobku sesji jest indeks gita**, a nie marker — i to zdanie należy mówić wprost przy sprzątaniu w trakcie etapu (L-0078). **E4: pierwsze trafienie na cudzym projekcie i najpoważniejsze z dotychczasowych.** Powód `opisane` chronił w PolyFlow **dwa** pliki benchmarku z ośmiu, a sześć dalszych — w tym `formatowanie/probki.json` i `probki_lista.json` z realnymi wypowiedziami właściciela — stanęło w grupie kandydatów. Ochrona przez opis obejmuje wyłącznie to, co ktoś opisał **w dokumencie projektu**; komentarz nad wzorcem w `.gitignore` tym dokumentem nie jest, choć czyta się identycznie. Bramka zadziałała (nic nie zniknęło bez „tak"), ale sama nie wystarczy — potrzebny był marker, i to siedem markerów zamiast zakładanych dwóch. **Ryzyko zostaje otwarte**: mechanizm jest zależny od tego, czy człowiek opisał materiał tam, gdzie narzędzie patrzy. Zmierzone: 2026-09-03 (E1, E2, E3, E4) |
@@ -1469,5 +1469,60 @@ Autor: RelAI (Opus 5) + Lukasz
 **Do zrobienia przez człowieka:**
 
 - Bez zmian: ponowna instalacja pre-commita w projektach z hookiem sprzed 1.9.2.
+
+Autor: RelAI (Opus 5) + Lukasz
+
+### 2026-09-04 — Zamknięcie dnia: trzy wydania, zgłoszenie z zewnątrz obsłużone w dniu wpłynięcia
+
+**Zrobione:**
+
+- **Trzeci raz tego dnia podniesiona wersja**: 1.9.0 (plan REKOMENDACJA_MODELU), 1.9.1 (poprawka
+  `_fixy`), **1.9.2** (cztery defekty gitowego pre-commita ze zgłoszenia zewnętrznego).
+- **Pierwsze zgłoszenie spoza projektu przeszło pełny cykl w jednej sesji**: odtworzenie defektu,
+  poprawka, regresja, pomiar fałszywych trafień, wydanie, potwierdzenie w aplikacji, dokumentacja.
+- **`STATE.md` przycięty** z 13,5 KB do **11,99 KB** — zszedł poniżej progu cząstkowego 12 KB,
+  liczby przeliczone wydanym modułem sygnałów, nie z pamięci.
+- **Katalog roboczy wątku przemianowany** na `_fixy/PRECOMMIT_ESM` — zgodnie z `SPEC_ODNOGA.md:156`
+  (`_fixy/<NAZWA>/`). Nazwa z datą sprawiała, że mechanizm sprzątania meldował „brak karty" mimo
+  istniejącej karty wątku.
+
+**Zweryfikowane — jak dokładnie:**
+
+- **Rotacja: nie ma czego wziąć.** Dziennik **119,0 KB** przy progu 150, lekcje **41,0 KB** przy 50
+  (22 pozycje przy progu 40), ustawienia **3,1 KB** przy 6, `STATE.md` **174 linie** przy 300 —
+  wszystko poniżej progu, więc cisza. Sekcja ryzyk zostaje **ponad progiem** i to jest komunikat
+  wymagany, nie przeoczenie:
+  > W tabeli jest **9 wierszy i ani jednego `ZAMKNIĘTE`**. Sekcja **15,3 KB** (po dopisaniu dzisiejszego wyniku do P1) = część rotowalna
+  > **0 KB** + dolna granica osiągalna **15,3 KB**; próg **12 KB**. Odchudzi ją wyłącznie zamknięcie
+  > ryzyka albo podniesienie progu — obie rzeczy są decyzją człowieka.
+  Kompresja komórki „Mitygacja" nie wchodzi: sprawdzone mechanicznie, żaden z dziewięciu statusów
+  nie niesie rdzenia `zmitygowan` ani pary `przyj`/`zaakceptowan` + `świadom`.
+- **Zasady aktywne: 15 przy limicie 15** — policzone komendą. Limit wykorzystany, nie przekroczony,
+  więc L-0091 poszła do zasady 5 zamiast otwierać szesnastą pozycję.
+- **Sprzątanie artefaktów: dwie grupy kandydatów, jedna skasowana za zgodą.** Repozytorium
+  probiercze `%TEMP%\relai-esm-probe-1` usunięte narzędziem (`Skasowane: 1`, `OK`), pomiar ponowny
+  pokazuje już tylko jedną grupę. Katalog instrumentów wątku zostaje **decyzją człowieka** —
+  regresja instalatora i pomiar FP przydadzą się przy następnej zmianie reguł skanu.
+- **Dwa drzewa regresji w `%TEMP%` są chronione powodem `sekret`** i mechanizm ich nie skasuje:
+  zawierają pozorowane wartości pasujące do wzorców D-42. Ochrona zadziałała dokładnie tak, jak
+  powinna, ale skutkiem jest materiał, który zejdzie z dysku wyłącznie ręką człowieka.
+- **Przegląd ryzyk: dziewięć otwartych, żadne nie zmieniło poziomu.** `P1` dostało dziś wynik
+  najcięższego kalibru — mitygacja tego ryzyka **sama była zepsuta** w całej klasie projektów od
+  1.4.0 i wykryło to zgłoszenie z zewnątrz, nie nasz pomiar.
+- **Sprawy czekające na człowieka: 6**, żadna nieprzeterminowana przy progu 30 dni; najstarsza
+  czeka od 2026-08-20 (15 dni). Nowa pozycja z dziś: ponowna instalacja pre-commita w projektach
+  z hookiem sprzed 1.9.2.
+
+**Świadomie odłożone:**
+
+- **86 fałszywych trafień skanu obecnych już w 1.9.1** na cudzym materiale — zmierzone, nieruszane.
+- **Katalog `_fixy/PRECOMMIT_ESM` wróci jako kandydat** przy następnym sprzątaniu; markera
+  „zachowaj" nie dopisuję, bo decyzja brzmiała „zostawić", a nie „zostawić na zawsze".
+
+**Do zrobienia przez człowieka:**
+
+- Bez zmian wobec sekcji „Czeka na człowieka": sześć pozycji, żadna nieprzeterminowana.
+- Poza listą, drobne: skasować ręcznie dwa drzewa `%TEMP%\relai-precommit-regresja-*`, których
+  mechanizm nie tknie z powodu ochrony `sekret`.
 
 Autor: RelAI (Opus 5) + Lukasz
