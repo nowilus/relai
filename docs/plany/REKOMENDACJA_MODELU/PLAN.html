@@ -726,6 +726,23 @@ w zasadach parsowania; klasy pozostają trzy, a <code>dataListyModeli()</code> c
 <p><b>Skutek dla etapów:</b> bramka „nazwy modeli Cursora dla klas <code>balanced</code>
 i <code>cheap</code>" zamyka się w E2 zamiast czekać do E4. Liczba etapów, ich cele i szacunek
 bez zmian; E3 i E4 nietknięte.</p>
+<h3>Aneks C — 2026-09-04</h3>
+<p><b>Powód:</b> E2 zamknięto z zapisanym ograniczeniem pomiaru — procedurę komendy
+<code>/relai-models</code> wykonała sesja etapu, bo <code>claude -p</code> odmówił uwierzytelnienia
+(<code>OAuth session expired and could not be refreshed</code>). Dwa punkty weryfikacji E2 — „oba
+wywołania pytają o zgodę" i „fraza w <code>KOMENDY.md</code> w brzmieniu realnie uruchomionym" —
+zostały więc bez dowodu ze świeżej sesji, a bramka trafiła do <code>STATUS.md</code> jako
+<code>OTWARTA</code>. Sprawdzenie na starcie E3 (L-0087: datowanie działa w obie strony) wykazało,
+że <code>claude -p</code> <b>znów działa</b>, więc pomiar stał się wykonalny tego samego dnia.</p>
+<p><b>Zmiana:</b> E3 dokłada do zakresu jednorazowe domknięcie tej bramki — dwa wywołania
+<code>/relai-models</code> w świeżych sesjach CLI, na projekcie kontrolnym z komendą podłożoną
+lokalnie w <code>.claude/commands/</code> (L-0085: zachowanie niewydane mierzy się artefaktem
+podłożonym w projekcie). Zakres E3 opisany w sekcji 6 <b>zostaje bez zmian</b>: próg świeżości
+listy, zdanie w hookach startu i pozycja w katalogu progów są dowiezione niezależnie od tego
+pomiaru, a sam pomiar nie dotyka ani jednego pliku produktu.</p>
+<p><b>Skutek dla etapów:</b> bramka „czy pomiar wykonany przez sesję etapu domyka dwa punkty
+weryfikacji E2" zamyka się w E3 zamiast czekać do zamknięcia planu. Liczba etapów, ich cele
+i szacunek bez zmian; E4 nietknięty.</p>
 </section>
 
 <footer>

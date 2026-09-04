@@ -89,7 +89,7 @@ sesji, zanim skrócisz wiersz.
 
 ### Wiersze czytane maszynowo — tej reguły nie dotyczą
 
-Pięć wierszy ma **zamknięty format** opisany niżej w tej specyfikacji i jest parsowanych przez hooki:
+Sześć wierszy ma **zamknięty format** opisany niżej w tej specyfikacji i jest parsowanych przez hooki:
 
 | Wiersz | Czyta go |
 |---|---|
@@ -98,12 +98,13 @@ Pięć wierszy ma **zamknięty format** opisany niżej w tej specyfikacji i jest
 | `Budżet startu sesji` | pomiar warstwy startowej w hooku startu sesji |
 | `Przegląd spraw człowieka` | przegląd spraw przeterminowanych w hooku startu sesji |
 | `Artefakty robocze` | raport artefaktów w hooku startu sesji i krok 2a rytuału zamknięcia |
+| `Lista modeli` | przypomnienie o wieku listy modeli w hooku startu sesji (od 1.9.0) |
 
 **Ich nie skracasz.** Człony rozdzielone `·` wyglądają jak rozwlekłość, a są składnią: usunięcie
 członu zmienia próg na domyślny, a przeredagowanie kotwicy na początku komórki **wycisza mechanizm
 w ciszy** (L-0025). Skrócenie, które wyłącza pomiar albo rotację, jest defektem, nie oszczędnością.
 
-**Nie schodzą też do archiwum** (od 1.7.0) — te pięć oraz **`Język projektu`**, razem sześć
+**Nie schodzą też do archiwum** (od 1.7.0) — te sześć oraz **`Język projektu`**, razem siedem
 wierszy wypisanych z nazwy w sekcji „Rotacja ustawień". `Język projektu` nie jest parsowany przez
 żaden hook, ale rozstrzyga, w jakim języku powstają dokumenty i pliki archiwum; jego nieobecność
 kończy się tym samym co brak wiersza czytanego maszynowo — mechanizm robi coś innego, niż projekt
@@ -122,6 +123,7 @@ Zawsze te trzy, z odpowiedzi na paczkę startową (D-20), plus wersja RelAI w li
 | Budżet startu sesji | wartość domyślna `włączony` — **bez pytania**, tak samo jak rotacja (od 1.6.0) |
 | Przegląd spraw człowieka | wartość domyślna `włączony · 30 dni` — **bez pytania**, tak samo jak dwa wyżej (od 1.7.0) |
 | Artefakty robocze | wartość domyślna `włączone · 100 MB` — **bez pytania**, tak samo jak trzy wyżej (od 1.8.0) |
+| Lista modeli | wartość domyślna `włączona · 7 dni` — **bez pytania**, tak samo jak cztery wyżej (od 1.9.0) |
 
 Wiersz **`Profil projektu`** jest czytany maszynowo — hooki `profile-rules` i `config-protection`
 biorą z niego reguły warunkowe (D-50). Kolumna `Decyzja` musi **zaczynać się** od jednej z czterech
@@ -341,6 +343,65 @@ działa zawsze, bo należy do definicji ukończenia etapu — nie do raportowani
 raportu o artefaktach, a wyłączony raport nie wycisza rotacji ani przeglądu spraw. Rotacja dotyczy
 ciężaru dokumentów czytanych przy starcie, ten wiersz — miejsca na dysku poza Gitem.
 
+## Wiersz `Lista modeli` (od 1.9.0)
+
+Lista modeli narzędzia (`.claude/relai/MODELE-<narzędzie>.md`) niesie w bloku maszynowym własną
+datę — `list-date` — i ta data pada przy każdym pytaniu o model wykonawczy etapów. Do 1.8.x
+**nikt jej z niczym nie porównywał**: nazwy sprzed kwartału wyglądały tak samo pewnie jak
+dzisiejsze. Ten wiersz mówi, **po ilu dniach** start sesji ma o tym powiedzieć, i jest
+**wyłącznikiem** tego zdania. Powstaje przy inicjalizacji projektu oraz przy `/relai-update`
+projektu z wcześniejszej wersji.
+
+**Przekroczony próg daje zdanie, nigdy połączenie.** Hook startu jest w całości lokalny i cichy;
+sieć należy wyłącznie do komendy `/relai-models` wywołanej wprost przez człowieka, która pyta
+o zgodę na ruch sieciowy przy każdym uruchomieniu. Odświeżenie listy bez zgody człowieka jest
+zakazane także wtedy, gdy próg jest przekroczony od miesięcy.
+
+Format komórki `Decyzja` jest sztywny, bo jest czytana maszynowo (L-0025) — kotwica na **początku**
+komórki, człony rozdzielone `·`:
+
+```
+włączona · 7 dni
+```
+
+| Człon | Dozwolone wartości | Znaczenie |
+|---|---|---|
+| przełącznik (**pierwszy, obowiązkowy**) | `włączona` / `wyłączona` (EN: `on` / `off`) | `wyłączona` → start sesji milczy o wieku listy |
+| `<liczba> dni` | liczba całkowita | próg wieku listy; **domyślnie 7 dni** |
+
+To jest **jedyne źródło prawdy o wartości domyślnej progu** — inne specyfikacje jej nie powtarzają.
+Człon pominięty znaczy „wartość domyślna": projekt, który niczego nie stroi, ma w komórce samo
+`włączona`. Końcówka `-e` (`włączone` / `wyłączone`) jest przyjmowana na równi, bo tak brzmią trzy
+wiersze obok, a literówka rodzaju gramatycznego wyciszyłaby mechanizm w ciszy.
+
+**Zdanie pada, gdy wiek listy jest większy niż próg** — dokładnie tyle jeszcze nie wystarcza.
+Wiek liczy się w dniach między `list-date` a dniem dzisiejszym. Liczona jest **ta lista, którą
+kładzie hook wołający**: adapter podaje nazwę pliku, a rdzeń nazw narzędzi nie zna (Aneks A planu
+REKOMENDACJA_MODELU). Projekt otwierany naprzemiennie w dwóch narzędziach ma dwie listy, dwie daty
+i dwa niezależne wieki.
+
+**Start sesji kończy się na jednym zdaniu.** Dokładnie **jedna** linia `[RelAI lista modeli]`:
+nazwa pliku listy, jej data, wiek w dniach, próg i propozycja `/relai-models`. Hook niczego nie
+pobiera, niczego nie zapisuje i nie zostawia śladu w plikach — także w samej liście. W sesji
+nieinteraktywnej pada ta sama linia **bez** propozycji komendy.
+
+**Data nieczytelna, brak listy albo data z przyszłości → cisza.** Mechanizm milczy zamiast zgadywać:
+`list-date: wczoraj` i data jutrzejsza znaczą to samo co brak listy w projekcie. To ta sama zasada
+co przy dacie pozycji „Czeka na człowieka" (L-0025) — wieku, którego nie da się policzyć, nie ma.
+
+**Wartość przełącznika nierozpoznana → przypomnienie jest wyłączone** i pada o tym jedno zdanie
+z wypisanymi dozwolonymi brzmieniami. Ten sam wyjątek co przy rotacji, budżecie, przeglądzie spraw
+i artefaktach: niepewność rozstrzyga się na korzyść bezczynności, ale człowiek ma o tym wiedzieć.
+
+**Brak wiersza w tabeli → cisza.** Projekt sprzed 1.9.0 nie zaczyna nagle mówić sam z siebie;
+wiersz wnosi tam `/relai-update`.
+
+**Ten wyłącznik jest niezależny od pozostałych.** `Rotacja dokumentów: wyłączona` ani `Artefakty
+robocze: wyłączone` **nie** wyciszają przypomnienia o liście, a wyłączone przypomnienie nie wycisza
+żadnego z nich. Wyłączony wiersz nie dotyka też samej listy: zdanie o tym, **która** lista obowiązuje
+w tej sesji, pada dalej — wycisza się wyłącznie zdanie o jej **wieku**. Komenda `/relai-models`
+działa zawsze, bo jest jawnym wywołaniem człowieka.
+
 ## Rotacja ustawień (od 1.7.0)
 
 Do 1.6.1 ten plik nie miał **żadnej** drogi wyjścia: polityka jest append-only, a sekcja
@@ -374,6 +435,7 @@ kontrolną. Pod tabelą sekcji zostaje **jedna** linia-odsyłacz na rotację.
 | `Budżet startu sesji` | czyta go pomiar warstwy startowej **i ta rotacja** — próg `ustawienia` stoi w tym wierszu |
 | `Przegląd spraw człowieka` | czyta go przegląd spraw przeterminowanych |
 | `Artefakty robocze` | czyta go raport startu sesji i krok 2a rytuału zamknięcia |
+| `Lista modeli` | czyta go przypomnienie o wieku listy modeli w hooku startu sesji |
 | `Język projektu` | rozstrzyga język dokumentów i nazwy plików archiwum |
 
 Zostają **niezależnie od wieku** i niezależnie od tego, czy ktoś przeniósł je do sekcji „Ustawienia
@@ -426,6 +488,7 @@ zmienić — osobny plik byłby drugim miejscem do zapomnienia.
 | komórka „Mitygacja" ryzyka | 800 znaków | `SPEC_DZIENNIK.md` | model w kroku 2 rytuału zamknięcia (od 1.7.0) oraz człowiek komendą z `SPEC_DZIENNIK.md` | historia komórki → `docs/archiwum/ryzyka/MITYGACJE_<data>.md`, w żywej komórce cytat ostatniego zdania i odsyłacz; **wiersz zostaje** | **jest** — rytuał zamknięcia (krok 2), gdy sekcja ryzyk jest ponad swoim progiem |
 | wiek sprawy „Czeka na człowieka" | 30 dni | wiersz `Przegląd spraw człowieka` (ta specyfikacja) | hook startu sesji (`sprawyPrzeterminowane`) | wymuszone pytanie partiami po cztery | **jest** — hook startu, własny blok i własny wyzwalacz |
 | suma artefaktów roboczych (katalog roboczy + pliki tymczasowe) | 100 MB | wiersz `Artefakty robocze` (ta specyfikacja) | hook startu sesji (`artefaktyRobocze`) **i krok 2a rytuału zamknięcia** | jedna linia `[RelAI artefakty robocze]` z propozycją `/relai-clean`; w kroku 2a pytanie o grupy i kasowanie po „tak" | **jest** — hook startu, własny blok i własny wyzwalacz; drugi adres to krok 2a rytuału zamknięcia |
+| wiek listy modeli narzędzia (`list-date` w `.claude/relai/MODELE-<narzędzie>.md`) | 7 dni | wiersz `Lista modeli` (ta specyfikacja) | hook startu sesji (`wiekListyModeli`) | jedna linia `[RelAI lista modeli]` z propozycją `/relai-models`; nigdy połączenie sieciowe | **jest** — hook startu, własny blok i własny wyzwalacz |
 | propozycja kompresji lekcji | 25 wpisów `AKTYWNA`, 30 KB pliku albo kwartał | `SPEC_LEKCJE.md`, sekcja „Kompresja" | model przy rytuale zamknięcia | propozycja kompresji tematycznej, nigdy wykonanie po cichu | **brak automatu** — propozycja modelu |
 | cel rotacji (nie próg) | 60% progu, liczone na części rotowalnej | `SPEC_ARCHIWUM.md` | rotacja | ile pozycji zabrać w jednym przebiegu | nie dotyczy — to cel, nie warunek odezwania się |
 
@@ -504,6 +567,7 @@ Odpowiedź raz udzielona nie wraca jako pytanie.
 | 2026-08-07 | Budżet startu sesji | włączony |
 | 2026-08-07 | Przegląd spraw człowieka | włączony · 30 dni |
 | 2026-08-07 | Artefakty robocze | włączone · 100 MB |
+| 2026-08-07 | Lista modeli | włączona · 7 dni |
 | 2026-08-12 | Podejście do testów | Testy krytycznych ścieżek, bez pełnego TDD |
 | 2026-08-14 | Format planów | Interaktywny HTML dla planów głównych; `STATUS.md` i prompty etapowe w Markdown |
 | 2026-08-14 | Szablon planu HTML | Nadpisanie lokalne w `docs/zasoby/HTML_PLAN/` — ma pierwszeństwo przed wersją z pluginu (D-58) |

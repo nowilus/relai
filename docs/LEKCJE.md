@@ -48,8 +48,10 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
    ponownie jednym najtańszym wywołaniem**, zanim odpiszesz pomiar jako niewykonalny: lekcja o niej
    niesie datę i jest hipotezą, nie werdyktem. **Datowanie działa w obie strony** — „usługa działała
    wczoraj" też jest hipotezą, więc etap opierający punkt weryfikacji na cudzej usłudze sprawdza ją
-   przed rozpoczęciem pracy. (L-0032, L-0037, L-0054, L-0055, L-0056, L-0064,
-   L-0068, L-0071, L-0073, L-0083, L-0084, L-0086, L-0087)
+   przed rozpoczęciem pracy. **Przebieg, w którym oczekujesz ciszy, jest ważny wyłącznie razem
+   z kontrolą pozytywną w tym samym przebiegu** — awaria ładowania modułu wygląda dokładnie jak
+   zachowanie domyślne mechanizmu, więc na kontrolę pozytywną patrzysz pierwszą. (L-0032, L-0037,
+   L-0054, L-0055, L-0056, L-0064, L-0068, L-0071, L-0073, L-0083, L-0084, L-0086, L-0087, L-0088)
 6. **Próg jest liczbą, którą ktoś liczy:** kalibruj go na zmierzonych plikach realnych projektów,
    zapisuj w jednostce mechanizmu kontrolnego wraz z komendą sprawdzającą i daj mu **jeden**
    wyzwalacz — wielkości pomocnicze wskazują przyczynę wewnątrz komunikatu, nie wywołują go.
@@ -640,6 +642,25 @@ restart aplikacji po `plugin update` (L-0031), `git worktree` zamiast `git archi
   sprawdzasz na materiale, zanim zaczniesz). Wynik sprawdzenia idzie do wpisu, nawet gdy jest
   pozytywny.
 - **Źródło:** E2 planu REKOMENDACJA_MODELU (2026-09-04). Wzmocnienie zasad 4 i 5 — bez własnej
+  pozycji w destylacie, limit 15 pozostaje wykorzystany.
+
+### L-0088 — Awaria ładowania modułu wygląda dokładnie jak cisza mechanizmu · 2026-09-04 · AKTYWNA
+
+- **Trigger:** nowa stała w rdzeniu dostała nazwę `CZLON_DNI`, zajętą od 1.7.0 przez wiersz
+  „Przegląd spraw człowieka". `SyntaxError: Identifier 'CZLON_DNI' has already been declared`
+  wywrócił **cały** `session-signals.js`, a oba hooki łapią awarię `require` i milkną z założenia.
+  Pierwszy przebieg instrumentu pokazał wtedy **7 scenariuszy „zdanych"** — wszystkie te, których
+  oczekiwanym wynikiem było zero znaków.
+- **Przyczyna:** cisza jest w RelAI zachowaniem domyślnym każdego progu, więc „mechanizm milczy, bo
+  jest poniżej progu" i „mechanizm milczy, bo nie istnieje" dają **identyczne** wyjście. Scenariusz
+  ciszy sam z siebie niczego nie dowodzi.
+- **Zasada:** przebieg, w którym oczekujesz ciszy, jest ważny **wyłącznie razem z kontrolą
+  pozytywną w tym samym przebiegu** — i to ona jest pierwszą rzeczą, na którą patrzysz. Kontrola
+  pozytywna, która nie trafiła przy niepustym materiale, znaczy „mechanizm nie działa", a nie
+  „jeszcze nie doszedłem do tego przypadku". Przy dokładaniu funkcji do modułu, który ma jedno
+  wejście dla wszystkich rozpoznań, **nazwy stałych sprawdzasz `grep`-em przed napisaniem** —
+  kolizja nie kosztuje jednej funkcji, tylko wszystkie.
+- **Źródło:** E3 planu REKOMENDACJA_MODELU (2026-09-04). Wzmocnienie zasad 5 i 8 — bez własnej
   pozycji w destylacie, limit 15 pozostaje wykorzystany.
 
 ## Lekcje zwinięte

@@ -15,8 +15,8 @@
 | M1 | Skill wspólny dla dwóch narzędzi pokaże listę tego drugiego — sesja w Cursorze zobaczy modele Anthropic (plan REKOMENDACJA_MODELU, ryzyko 1) | **Wysoki** (2026-09-03, przy powstaniu mechanizmu) | **OTWARTE** | O liście rozstrzyga **nazwa pliku**, którą podaje adapter wołający rdzeń (Aneks A) — treść skilla jest jedna i nazwy narzędzia nie zna; która lista obowiązuje, mówi hook startu jednym zdaniem (zasada 8). Pierwszy pomiar (E1) na dwóch projektach kontrolnych w jednym przebiegu: projekt obsłużony hookiem Claude Code ma w `.claude/relai/` **wyłącznie** `MODELE-claude-code.md`, projekt Cursora **wyłącznie** `MODELE-cursor.md`; treść obu kopii zgodna sumą ze źródłem adaptera. Otwarte, bo zmierzone na hookach uruchomionych z repozytorium, a **nie w żywej sesji Cursora** — reguły 1.7.0 i 1.8.0 tego adaptera też nigdy nie były w nim uruchomione. Zmierzone: 2026-09-03 (E1) |
 | M2 | Kopia listy w projekcie zostaje nadpisana przy starcie sesji i zjada odświeżenie zrobione komendą (plan REKOMENDACJA_MODELU, ryzyko 2) | **Wysoki** (2026-09-03, przy powstaniu mechanizmu) | **OTWARTE** | `provisionModelList()` kopiuje **tylko wtedy, gdy pliku nie ma** — jedyna różnica wobec `provisionTemplates()`, które nadpisuje przy każdym starcie. Dowód negatywny (E1): plik zmieniony ręcznie w projekcie kontrolnym przeżył ponowne uruchomienie hooka, suma po normalizacji CRLF → LF `ecc6d18d9f6ccf65` przed i po; kontrola pozytywna w tym samym przebiegu — skasowany plik powstał ponownie z sumą źródła. Otwarte do czasu, aż istnieje druga droga zapisu do tego pliku: `/relai-models` z E2 pisze do tej samej kopii, a `/relai-update` do katalogu obok. **E2: druga droga zapisu istnieje i przeżywa start sesji.** Po odświeżeniu w projekcie kontrolnym Claude Code suma listy `f82ee8da0dbe7997` przed ponownym uruchomieniem hooka i po nim, a hook zameldował nową datę (`z dnia 2026-09-04`) zamiast starej; w projekcie Cursora to samo z sumą `65eca9cbea99f0b3`. Otwarte już tylko z powodu `/relai-update`, którego ta droga jeszcze nie dotknęła. Zmierzone: 2026-09-03 (E1), 2026-09-04 (E2) |
 | M3 | Strona dokumentacji zmienia układ i odczyt z sieci zwraca śmieci albo nic (plan REKOMENDACJA_MODELU, ryzyko 3) | **Średni** (2026-09-04, przy wejściu sieci do mechanizmu) | **OTWARTE** | Odświeżenie zawsze kończy się pokazaniem różnicy i pytaniem; niepowodzenie zostawia starą listę **z jej datą**, nigdy pustą. Pomiar E2 na odczycie adresu nieistniejącego (`HTTP 404 Not Found`): lista w projekcie kontrolnym została z sumą `1f67fe1bc954ecdc` i `list-date: 2026-09-03`, czyli dokładnie taka jak przed przebiegiem — dowód treścią pliku, nie komunikatem. Niezmierzone: strona odpowiadająca **200 ze zmienionym układem** (odczyt „udany", treść bez nazw) — to jest realny kształt tego ryzyka i czeka na pierwszy taki przypadek. Zmierzone: 2026-09-04 (E2) |
-| M4 | Sieć wchodzi do mechanizmu, który dotąd działał w całości bez internetu (plan REKOMENDACJA_MODELU, ryzyko 4) | **Średni** (2026-09-04, przy wejściu sieci do mechanizmu) | **OTWARTE** | Sieć wyłącznie w komendzie wywołanej wprost; hook startu zostaje lokalny i cichy. Zgoda pada **każdorazowo** (bramka rozstrzygnięta 2026-09-04), więc nie ma stanu, w którym mechanizm łączy się bez pytania: `docs/USTAWIENIA.md` po dwóch wywołaniach pod rząd miał tę samą sumę `65315611192c87dd`, a komenda nie ma ani jednej ścieżki zapisu zgody. Otwarte, bo dowód „hook startu z odciętą siecią zachowuje się identycznie" należy do E3, a zachowanie samej komendy zmierzyła sesja etapu, nie świeża sesja CLI. Zmierzone: 2026-09-04 (E2) |
-| M5 | Nazwy modeli zmieniają się szybciej niż wydania RelAI (plan REKOMENDACJA_MODELU, ryzyko 6) | **Średni** (2026-09-04) | **OTWARTE** | Lista mieszka w adapterze **i** w projekcie; `/relai-models` aktualizuje kopię projektu bez wydawania nowej wersji pluginu. Pierwsze realne odświeżenie (E2) potwierdziło, że ryzyko nie jest teoretyczne: strona aliasów wymienia dziś dziesięć pełnych ID (`claude-opus-5` … `claude-fable-5`), a lista Cursora ~45 pozycji od pięciu dostawców — wobec czterech i trzech pozycji w listach RelAI. Otwarte, bo przypomnienie o starej liście powstaje dopiero w E3; do tego czasu nic nie mówi użytkownikowi, że lista się zestarzała. Zmierzone: 2026-09-04 (E2) |
+| M4 | Sieć wchodzi do mechanizmu, który dotąd działał w całości bez internetu (plan REKOMENDACJA_MODELU, ryzyko 4) | **Średni** (2026-09-04, przy wejściu sieci do mechanizmu) | **OTWARTE** | Sieć wyłącznie w komendzie wywołanej wprost; hook startu zostaje lokalny i cichy. Zgoda pada **każdorazowo** (bramka rozstrzygnięta 2026-09-04), więc nie ma stanu, w którym mechanizm łączy się bez pytania: `docs/USTAWIENIA.md` po dwóch wywołaniach pod rząd miał tę samą sumę `65315611192c87dd`, a komenda nie ma ani jednej ścieżki zapisu zgody. Dowód negatywny dowieziony w E3: przebieg powyżej progu z preloadem, w którym każde użycie `http`/`https`/`net`/`tls`/`dgram`/`dns` oraz `fetch` rzuca wyjątek, dał **to samo zdanie co do znaku**, kod wyjścia `0` i tę samą sumę listy `c062812573483d0a` przed i po. Zachowanie samej komendy zmierzone w E3 w **dwóch świeżych sesjach CLI** (Aneks C): oba wywołania zatrzymały się na pytaniu o zgodę, sumy `docs/USTAWIENIA.md` (`de58434a7e6fa020`) i listy (`bb7a0feae4583734`) niezmienione. Otwarte już tylko na czas do wydania — mechanizm działa w repozytorium, w aplikacji stoi 1.8.1. Zmierzone: 2026-09-04 (E2, E3) |
+| M5 | Nazwy modeli zmieniają się szybciej niż wydania RelAI (plan REKOMENDACJA_MODELU, ryzyko 6) | **Średni** (2026-09-04) | **OTWARTE** | Lista mieszka w adapterze **i** w projekcie; `/relai-models` aktualizuje kopię projektu bez wydawania nowej wersji pluginu. Pierwsze realne odświeżenie (E2) potwierdziło, że ryzyko nie jest teoretyczne: strona aliasów wymienia dziś dziesięć pełnych ID (`claude-opus-5` … `claude-fable-5`), a lista Cursora ~45 pozycji od pięciu dostawców — wobec czterech i trzech pozycji w listach RelAI. Od E3 lista ma wiek i próg: powyżej **7 dni** start sesji mówi jedno zdanie z propozycją `/relai-models`, poniżej — zero znaków (zmierzone parą wariantów różniącą się wyłącznie `list-date`: 258 znaków wobec 0, potwierdzone w świeżej sesji CLI odpowiedzią `BRAK LINII`). Otwarte, bo przypomnienie mówi o wieku listy, a nie o tym, że dostawca zmienił nazwy — i bo mechanizm czeka na wydanie. Zmierzone: 2026-09-04 (E2, E3) |
 
 > Ryzyka zamknięte R1, R3, R4, R6, R7, R8 (6 pozycji) są w
 > [docs/archiwum/ryzyka/RYZYKA_2026-08-21.md](archiwum/ryzyka/RYZYKA_2026-08-21.md)
@@ -2328,5 +2328,104 @@ Autor: RelAI (Opus 5) + Lukasz
   zna wyłącznie treść komendy. Domknięcie wymaga `claude /login` na konto z limitem albo klucza
   w `.env` — obie drogi są decyzją właściciela.
 - **Numer wydania: 1.9.0 czy 1.8.2** — bez zmian, przed E4.
+
+Autor: RelAI (Opus 5) + Lukasz
+
+### 2026-09-04 — E3 planu REKOMENDACJA_MODELU: stara lista przypomina się sama, świeża milczy
+
+**Zrobione:**
+
+- **`core/templates/SPEC_USTAWIENIA.md` — wiersz `Lista modeli`.** Nowa sekcja „Wiersz `Lista
+  modeli` (od 1.9.0)": format komórki (`włączona · 7 dni`), zamknięta lista brzmień przełącznika,
+  człon liczbowy z jednostką, cztery zachowania ciszy i realny przykład. Wiersz dołączył do tabeli
+  wierszy czytanych maszynowo (**pięć → sześć**) i do listy wierszy, które nie schodzą do archiwum
+  (**sześć → siedem**, razem z `Język projektu`). W „Katalogu progów" doszła pozycja z kompletem
+  sześciu kolumn — **19 → 20 wierszy**, kolumna „Adres egzekwowania" mówi „jest".
+- **`core/process/session-signals.js` — `wiekListyModeli()` i `wiekListyModeliReport()`.**
+  Wzorzec przepisany z `artefaktyRobocze()`: własna para wzorców przełącznika (`LISTA_WLACZONA` /
+  `LISTA_WYLACZONA`, nie współdzielona z żadnym innym wierszem), kopia wykonawcza progu
+  `PROG_LISTY_MODELI_DNI = 7` z komentarzem, że jedynym źródłem prawdy jest specyfikacja, i zwrot
+  rozróżniający `brakWiersza` / `wyłączone` / `nierozpoznana` / `brakDaty` / pomiar. Datę bierze
+  `dataListyModeli()` — funkcja nietknięta. Nazwa pliku listy przychodzi od adaptera, tak jak
+  w `provisionModelList()`.
+- **Oba hooki startu — jedno zdanie ASCII, obok zdania o liście.** `[RelAI lista modeli]`: nazwa
+  pliku, data listy, wiek w dniach, próg i propozycja `/relai-models`. Adapter Cursora podaje
+  dodatkowo `interaktywna` z `is_background_agent`, tak jak przy trzech pozostałych raportach.
+  W obu adapterach nazwa pliku listy zeszła do stałej `MODELE_NAZWA` — jedno miejsce dla
+  prowizjonowania i dla pomiaru wieku.
+- **`docs/USTAWIENIA.md`** — wiersz `| 2026-09-04 | Lista modeli | włączona · 7 dni |`. Hook
+  `config-protection` zapisu nie zatrzymał.
+- **Aneks C do planu (2026-09-04)** — rozszerzenie zakresu o domknięcie bramki pomiaru E2, po
+  pytaniu do właściciela i jego decyzji „zmierz teraz, w tym etapie".
+
+**Zweryfikowane — jak dokładnie:**
+
+- **Para wariantów różniąca się wyłącznie `list-date`.** Ten sam projekt kontrolny, materiał
+  odtwarzany przed każdym wariantem: lista z **2026-08-05** → dokładnie jedna linia, **258 znaków**;
+  lista z **2026-09-03** → **0 znaków**. Całe wyjście hooka: 16 linii wobec 15, różnica dwie linie —
+  nowe zdanie i zdanie o liście z inną datą.
+- **Cztery scenariusze ciszy, każdy z własną kontrolą, plus trzy dodatkowe.** Brak wiersza,
+  `wyłączona`, `list-date: wczoraj`, data z przyszłości (2026-09-07), brak listy w projekcie oraz
+  próg 60 dni przy liście sprzed 30 — **wszystkie 0 znaków**; kontrola pozytywna w tym samym
+  przebiegu dała zdanie. Instrument: **10/10 scenariuszy zgodnych**.
+- **Wartość spoza zamkniętej listy brzmień nie milczy.** Wiersz `Lista modeli | czasem` →
+  204 znaki: „Dozwolone wartosci: wlaczona / wylaczona (on / off)". Ani pomiaru, ani ciszy.
+- **Dowód negatywny „hook nie dotyka sieci" (ryzyko M4).** Przebieg powyżej progu z preloadem
+  blokującym `http`, `https`, `net`, `tls`, `dgram`, `dns` (każde użycie rzuca wyjątek) oraz globalne
+  `fetch`/`WebSocket`/`XMLHttpRequest`: **to samo zdanie co do znaku**, kod wyjścia `0` w obu
+  przebiegach, `stderr` pusty, suma listy `c062812573483d0a` przed i po. Blokada jest mocniejsza od
+  odciętej karty sieciowej — łapie także próbę, której błąd dałoby się zjeść w `catch`.
+- **Lista nie zmienia się od samego przypomnienia.** Suma kontrolna pliku listy (po normalizacji
+  CRLF → LF) identyczna przed przebiegiem powyżej progu i po nim we **wszystkich** scenariuszach.
+  Jedyny wyjątek nazwany wprost w instrumencie: scenariusz „brak listy", w którym plik **ma prawo
+  powstać** — kładzie go `provisionModelList()` z E1, a wiek liczy się już od świeżej daty.
+- **Oba adaptery mówią to samo.** Ten sam projekt kontrolny, hook Claude Code i hook Cursora: zdania
+  identyczne po podmianie nazwy pliku listy (`MODELE-claude-code.md` wobec `MODELE-cursor.md`).
+  Poniżej progu oba milczą.
+- **Zdanie jest ASCII.** `grep -P` w tej powłoce odmawia pracy („-P supports only unibyte and UTF-8
+  locales"), więc wzorzec zamieszkał w pliku (L-0037): **16 linii komunikatu sprawdzonych, 0 znaków
+  poza ASCII**; kontrola pozytywna instrumentu (linia z myślnikiem) zwróciła oczekiwany 1.
+- **Pomiar w świeżej sesji CLI.** `claude -p` odzyskał uwierzytelnienie — sprawdzone jednym
+  najtańszym wywołaniem na starcie etapu (L-0087), dzień po odmowie. Hook podłożony lokalnie przez
+  `.claude/settings.json` projektu kontrolnego (L-0085): wariant „lista z 2026-08-05" przepisał
+  zdanie dosłownie, wariant „lista z 2026-09-03" odpowiedział `BRAK LINII`.
+- **Bramka E2 domknięta (Aneks C).** Komenda podłożona jako `.claude/commands/relai-models.md`,
+  fraza uruchomiona dosłownie `/relai-models`, dwa wywołania w **tym samym** projekcie bez
+  odtwarzania materiału między nimi. Obie sesje zatrzymały się na pytaniu o zgodę na ruch sieciowy
+  przed pierwszym połączeniem i wypisały adresy, które chcą odczytać; sumy `docs/USTAWIENIA.md`
+  (`de58434a7e6fa020`) i listy (`bb7a0feae4583734`) identyczne przed pierwszym i po drugim
+  wywołaniu — **zgoda nie została nigdzie zapamiętana**. Obie sesje przy okazji zacytowały nowe
+  zdanie E3 („95 dni przy progu 7").
+- **Rdzeń czyta wiersz tego projektu.** `wiekListyModeli()` na RelAI zwraca pomiar, nie
+  `brakWiersza`: `{progDni: 7, data: "2026-09-04", wiekDni: 0}` → raport pusty; przy podstawionej
+  dacie `2026-10-14` → `wiekDni: 40` i jedno zdanie. Projekt milczy dziś, bo lista jest dzisiejsza.
+- **Pliki z sekcji „Nie ruszasz" nietknięte.** `git diff --stat` pokazuje wyłącznie pliki zakresu:
+  oba hooki, rdzeń, `SPEC_USTAWIENIA.md`, `docs/USTAWIENIA.md`, `STATUS.md` planu i `PLAN.html`
+  (Aneks C). Ani `dataListyModeli()`, ani `MODELE.md` adapterów, ani `relai-models.md`, ani
+  walidator, ani `KOMENDY.md`, ani `README.md`, ani numer wersji.
+- **`node core/tools/validate-adapters.js` → kod 0** („3 zrodel, wartosc 1.8.1").
+- **Katalog roboczy etapu.** `.claude/relai/work/REKOMENDACJA_MODELU/E3/` — raport przed:
+  **1,6 MB, 1 pozycja**, po kasowaniu **0,0 MB**, raport ponowny: zero kandydatów, siedem pozycji
+  chronionych z powodem. Artefakty poza katalogiem etapu: **żadne** — trzy projekty kontrolne
+  (`p1`, `p-sesja`, `p-bramka`) i cztery instrumenty leżały w środku. Kopia listy
+  `.claude/relai/MODELE-claude-code.md`, którą hook położył w tym repozytorium podczas pomiaru,
+  **zostaje**: jest trwałą kopią projektu, nie artefaktem etapu.
+
+**Świadomie odłożone:**
+
+- **`kasuj` melduje `skasowane` dla ścieżki, której nie ma — trzecia reprodukcja.** Lista kasowania
+  zapisana przez `node -e` z podwójnym escapowaniem straciła backslashe; narzędzie wypisało
+  `Skasowane: 1` i `OK` dla ścieżki `...\RelAI\UsersLukaszDesktopRelAI...`, która nigdy nie
+  istniała, a katalog stał nietknięty. Jedynym sygnałem rozbieżności było `Przed: 0.0 MB, po:
+  0.0 MB` przy 1,6 MB kandydatów w raporcie chwilę wcześniej. Poprawka (rozdzielenie `skasowane`
+  od `nieobecne`) dotyczy kodu wydanego w 1.8.0 — poza zakresem E3.
+- **`zloz-plan.js` w `.claude/relai/work/REKOMENDACJA_MODELU/`** — plik z czasu tworzenia planu,
+  leżący **obok** katalogów etapów, więc żadna grupa raportu go nie obejmuje. Zostaje.
+- **Prowizjonowanie listy przy instalacji Cursora** — bez zmian wobec E1 i E2.
+
+**Do zrobienia przez człowieka:**
+
+- **Numer wydania: 1.9.0 czy 1.8.2** — bez zmian, przed E4. Po E3 argument za `1.9.0` urósł:
+  wydanie niesie nową komendę, nowy wiersz ustawień i nowy próg.
 
 Autor: RelAI (Opus 5) + Lukasz

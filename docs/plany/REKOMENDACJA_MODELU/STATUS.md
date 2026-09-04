@@ -15,8 +15,8 @@ Plan: [PLAN.html](PLAN.html) · Utworzony: 2026-09-03 · Status planu: **ZAAKCEP
 |---|---|---|---|---|
 | E1 | Lista modeli i pytanie z nazwami | **ZREALIZOWANY 2026-09-03** | [PROMPT_ETAP_1.md](PROMPT_ETAP_1.md) | `MODELE.md` w obu adapterach, prowizjonowanie kopii do projektu **tylko przy braku pliku**, listy rozróżniane nazwą pliku (Aneks A); kamień milowy planu |
 | E2 | Komenda `/relai-models` | **ZREALIZOWANY 2026-09-04** | [PROMPT_ETAP_2.md](PROMPT_ETAP_2.md) | `relai-models.md` (12. komenda), zgoda na sieć każdorazowa, różnica przed zapisem; **Aneks B** — wynik odświeżenia przeniesiony do obu `MODELE.md`, aliasy i klasy Cursora domknięte |
-| E3 | Próg i przypomnienie | **GOTOWY DO STARTU** | [PROMPT_ETAP_3.md](PROMPT_ETAP_3.md) | wiersz `Lista modeli` w `USTAWIENIA.md`, jedno zdanie w hooku startu, pozycja w katalogu progów |
-| E4 | Kontrola modelu, dokumenty, wydanie | OCZEKUJE | — | nazwa spoza listy w karcie etapu, `SPEC_CLAUDE_MD` / `SPEC_STATUS` / `SPEC_PROMPT_ETAPU`, nowe sprawdzenie w walidatorze; numer wydania do rozstrzygnięcia |
+| E3 | Próg i przypomnienie | **ZREALIZOWANY 2026-09-04** | [PROMPT_ETAP_3.md](PROMPT_ETAP_3.md) | wiersz `Lista modeli` (`włączona · 7 dni`), `wiekListyModeli()` w rdzeniu, jedno zdanie ASCII w obu hookach, pozycja w katalogu progów; **Aneks C** — domknięcie bramki pomiaru E2 w świeżej sesji CLI |
+| E4 | Kontrola modelu, dokumenty, wydanie | **GOTOWY DO STARTU** | [PROMPT_ETAP_4.md](PROMPT_ETAP_4.md) | nazwa spoza listy w karcie etapu, `SPEC_CLAUDE_MD` / `SPEC_STATUS` / `SPEC_PROMPT_ETAPU`, nowe sprawdzenie w walidatorze; numer wydania do rozstrzygnięcia |
 
 ## Bramki manualne
 
@@ -53,8 +53,14 @@ Plan: [PLAN.html](PLAN.html) · Utworzony: 2026-09-03 · Status planu: **ZAAKCEP
 - **Czy pomiar wykonany przez sesję etapu domyka dwa punkty weryfikacji E2** — „oba wywołania pytają
   o zgodę" i „fraza w `KOMENDY.md` w brzmieniu realnie uruchomionym" · źródło: E2 (2026-09-04),
   `claude -p` zwrócił `Failed to authenticate: OAuth session expired and could not be refreshed`,
-  a `.env` z kluczem nie istnieje · **OTWARTA** — domknięcie wymaga `claude /login` albo klucza
-  w `.env`; nie blokuje E3
+  a `.env` z kluczem nie istnieje · **ROZSTRZYGNIĘTA 2026-09-04 — zmierzone w dwóch świeżych sesjach
+  CLI (Aneks C).** `claude -p` odzyskał uwierzytelnienie tego samego dnia (sprawdzone na starcie E3,
+  L-0087). Komenda podłożona lokalnie w `.claude/commands/relai-models.md` projektu kontrolnego
+  (L-0085 — plugin w aplikacji jest w 1.8.1 i tej komendy nie ma), fraza uruchomiona dosłownie
+  `/relai-models`. Oba wywołania w **tym samym** projekcie, bez odtwarzania materiału między nimi,
+  zatrzymały się na pytaniu o zgodę na ruch sieciowy przed pierwszym połączeniem; sumy kontrolne
+  `docs/USTAWIENIA.md` (`de58434a7e6fa020`) i listy modeli (`bb7a0feae4583734`) identyczne przed
+  pierwszym i po drugim wywołaniu — zgoda nie została nigdzie zapamiętana
 - **Nazwy modeli Cursora dla klas `balanced` i `cheap`** · źródło: E1 (2026-09-03) — z pomiaru mam
   wyłącznie `strong: Grok 4.6` (pilotaż E6), więc dwie pozycje stały jako `<TO BE FILLED IN: …>` ·
   **ROZSTRZYGNIĘTA 2026-09-04 — człowiek wskazał `balanced: Composer 2.5` i `cheap: Auto`** po
@@ -91,3 +97,14 @@ Plan: [PLAN.html](PLAN.html) · Utworzony: 2026-09-03 · Status planu: **ZAAKCEP
   `adapters/cursor/MODELE.md` (`balanced: Composer 2.5`, `cheap: Auto`) — bramka „nazwy modeli
   Cursora" zamknięta. Ograniczenie pomiaru: procedurę komendy wykonała sesja etapu, nie świeża
   sesja CLI — `claude -p` odmówił uwierzytelnienia (wygasła sesja OAuth).
+- 2026-09-04 — E3 rozpoczęty
+- 2026-09-04 — E3 **ZREALIZOWANY**: wiersz `Lista modeli` w `SPEC_USTAWIENIA.md` (nowa sekcja,
+  szósty wiersz czytany maszynowo) i pozycja w katalogu progów (19 → 20 wierszy),
+  `wiekListyModeli()` + `wiekListyModeliReport()` w rdzeniu, jedno zdanie ASCII obok zdania o liście
+  w obu hookach startu, wiersz `włączona · 7 dni` w `docs/USTAWIENIA.md`. Weryfikacja 13/13;
+  instrument: 10 scenariuszy zdanych, w tym cztery scenariusze ciszy z kontrolą pozytywną w tym
+  samym przebiegu i dowód negatywny „sieć odcięta" (preload blokujący `http`/`https`/`net`/`dns`).
+  Zmierzone dodatkowo w **świeżej sesji CLI** (`claude -p` odzyskał uwierzytelnienie): wariant
+  30-dniowy przepisał zdanie dosłownie, wariant jednodniowy odpowiedział `BRAK LINII`.
+  **Aneks C (2026-09-04)** rozszerzył zakres o domknięcie bramki pomiaru E2 — dwa wywołania
+  `/relai-models` w świeżych sesjach, obie zatrzymane na pytaniu o zgodę, sumy plików niezmienione.

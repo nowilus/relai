@@ -249,6 +249,99 @@ function provisionModelList(cwd, opcje) {
   }
 }
 
+// --- wiek listy modeli (1.9.0, plan REKOMENDACJA_MODELU E3) -----------------
+// Lista niesie date, ale do E3 nikt jej z niczym nie porownywal: nazwy sprzed kwartalu
+// wygladaja tak samo pewnie jak dzisiejsze (ryzyko 5 planu). Ten prog daje im wiek.
+//
+// Sieci tu nie ma i miec nie bedzie (ryzyko 4 planu): przekroczony prog daje ZDANIE,
+// nigdy polaczenie. Odswieza wylacznie /relai-models wywolana wprost przez czlowieka.
+const NAZWA_LISTY_MODELI = /^(?:Lista modeli|Model list)\b/i;
+// Prog domyslny w dniach. Jedyne zrodlo prawdy o tej wartosci to core/templates/SPEC_USTAWIENIA.md
+// — tutaj stoi jej kopia wykonawcza, tak samo jak PROG_ARTEFAKTOW_MB przy artefaktach.
+const PROG_LISTY_MODELI_DNI = 7;
+// Nazwa z sufiksem: CZLON_DNI nalezy juz do wiersza "Przeglad spraw czlowieka" (1.7.0).
+const CZLON_DNI_LISTY = /^(\d+)\s*(?:dni|dzie[nń]|days?|day)\b/i;
+// Wlasna para wzorcow, nie wspoldzielona z pozostalymi wierszami: nazwa tego wiersza jest
+// rodzaju zenskiego ("Lista modeli"), wiec przelacznik brzmi "wlaczona". Koncowke -e tez
+// przyjmujemy, bo trzy wiersze obok maja wlasnie ja i literowka byla by tu cisza (L-0025).
+const LISTA_WLACZONA = /^(?:w[łl][ąa]czon[ae]|on|enabled)\b/i;
+const LISTA_WYLACZONA = /^(?:wy[łl][ąa]czon[ae]|off|disabled)\b/i;
+
+// Zwraca:
+//   null                                 — folder nie jest projektem RelAI albo nie ma ustawien
+//   { wlaczone:false, brakWiersza:true } — projekt sprzed 1.9.0: wiersza nie ma, wiec cisza
+//   { wlaczone:false }                   — wylaczone wprost
+//   { wlaczone:false, nierozpoznana }    — wartosc spoza zamknietej listy brzmien: przypomnienia
+//                                          nie ma, ale adapter mowi o tym jednym zdaniem
+//   { wlaczone:true, brakDaty:true }     — listy nie ma, data nieczytelna albo z przyszlosci:
+//                                          mechanizm milczy zamiast zgadywac (przypadek b5 planu)
+//   { wlaczone:true, wiekDni, progDni }  — pomiar
+//
+// Nazwa pliku listy przychodzi od adaptera (tak jak w provisionModelList): rdzen nazw narzedzi
+// nie zna, a listy rozroznia nazwa pliku w jednym katalogu .claude/relai/ (Aneks A planu).
+function wiekListyModeli(cwd, opcje) {
+  try {
+    const o = opcje || {};
+    if (!cwd || !o.nazwa) return null;
+    const markerFile = relaiMarkerFile(cwd, o.markeryGoscia);
+    if (!markerFile) return null;
+
+    const plikUstawien = pierwszyIstniejacy(path.join(cwd, 'docs'), ['USTAWIENIA.md', 'SETTINGS.md']);
+    if (!plikUstawien) return null;
+
+    const komorka = komorkaDecyzji(czytaj(plikUstawien), NAZWA_LISTY_MODELI);
+    if (komorka === null) return { wlaczone: false, brakWiersza: true };
+    if (LISTA_WYLACZONA.test(komorka)) return { wlaczone: false };
+    if (!LISTA_WLACZONA.test(komorka)) {
+      return { wlaczone: false, nierozpoznana: komorka.split('·')[0].trim().slice(0, 60) };
+    }
+
+    let progDni = PROG_LISTY_MODELI_DNI;
+    for (const czlon of String(komorka).split('·').map((c) => c.trim()).slice(1)) {
+      const m = czlon.match(CZLON_DNI_LISTY);
+      if (m) progDni = parseInt(m[1], 10);
+    }
+
+    const destRoot = path.join(cwd, ...String(o.destRel || '.claude/relai').split('/'));
+    const plikListy = path.join(destRoot, o.nazwa);
+    const data = dataListyModeli(plikListy);
+    if (!data) return { wlaczone: true, progDni, nazwa: o.nazwa, brakDaty: true };
+
+    const wiekDni = dniMiedzy(data, o.dzisiaj || todayLocal());
+    // Wiek ujemny znaczy date z przyszlosci — to samo co data nieczytelna: cisza (b5 planu).
+    if (wiekDni === null || wiekDni < 0) {
+      return { wlaczone: true, progDni, nazwa: o.nazwa, brakDaty: true };
+    }
+
+    return { wlaczone: true, progDni, nazwa: o.nazwa, data, wiekDni };
+  } catch (_) {
+    return null;
+  }
+}
+
+// Raport dla kontekstu startu — ASCII (L-0016) i DOKLADNIE JEDNA linia albo zero.
+// Hook niczego nie pobiera i niczego nie zapisuje: przypomnienie jest zdaniem, nie akcja.
+function wiekListyModeliReport(miara, opcje) {
+  if (!miara) return [];
+  const o = opcje || {};
+
+  if (miara.nierozpoznana) {
+    return ['[RelAI lista modeli] Wartosc przelacznika w wierszu "Lista modeli" (' +
+      ascii(miara.nierozpoznana) + ') jest nierozpoznana, wiec przypomnienie o wieku listy ' +
+      'modeli jest wylaczone. Dozwolone wartosci: wlaczona / wylaczona (on / off).'];
+  }
+  if (!miara.wlaczone || miara.brakDaty) return [];
+  if (!(miara.wiekDni > miara.progDni)) return [];
+
+  return ['[RelAI lista modeli] Lista modeli tego narzedzia (.claude/relai/' + ascii(miara.nazwa) +
+    ', z dnia ' + miara.data + ') ma ' + miara.wiekDni + ' dni przy progu ' + miara.progDni +
+    ' dni, wiec nazwy moga byc nieaktualne.' +
+    // Sesja nieinteraktywna dostaje ten sam fakt bez propozycji: komenda pyta o zgode na siec,
+    // a bez czlowieka przy klawiaturze nie ma jej komu udzielic.
+    (o.interaktywna === false ? '' :
+      ' Zaproponuj uzytkownikowi komende /relai-models - pokaze roznice i zapisze dopiero po "tak".')];
+}
+
 // --- ustawienia globalne (D-23, L-0010) -------------------------------------
 // Warstwa globalna mieszka w ~/.claude/relai/ niezaleznie od narzedzia: to ustawienia
 // RelAI, a nie Claude Code, i uzytkownik pracujacy naprzemiennie ma miec je jedne.
@@ -1278,6 +1371,8 @@ module.exports = {
   provisionTemplates,
   provisionModelList, // lista modeli narzedzia — kopia trwala, nie nadpisywana (1.9.0)
   dataListyModeli, // eksportowana, zeby dalo sie sprawdzic testem kotwice i format daty
+  wiekListyModeli, // prog swiezosci listy — wylacznik, prog w dniach, cisza ponizej (1.9.0)
+  wiekListyModeliReport,
   globalSettingsText,
   promptGap,
   stateDrift,

@@ -130,6 +130,16 @@ w którym trwa sesja, zamiast trzech klas. E2 czeka na dwie bramki człowieka.
   `<TO BE FILLED IN: …>` zeszły do zera po pytaniu, w którym ~45 modeli od pięciu dostawców zostało
   pokazanych człowiekowi pogrupowanych po dostawcy; RelAI cudzych modeli nie rankuje. Lista Claude
   Code niesie od tej pory **alias obok pełnego ID** — bo aliasem użytkownik realnie przełącza model.
+- **Stara lista modeli przypomina się sama, świeża nie mówi ani słowa.** Wiersz `Lista modeli`
+  w ustawieniach (`włączona · 7 dni`) daje progowi wyłącznik i wartość, a start sesji — jedno zdanie
+  ASCII obok zdania o tym, która lista obowiązuje: wiek w dniach, próg i propozycja `/relai-models`.
+  **Przekroczony próg daje zdanie, nigdy połączenie**: przebieg z odciętą siecią (każde użycie
+  `http`/`https`/`net`/`dns`/`fetch` rzuca wyjątek) dał to samo zdanie co do znaku, ten sam kod
+  wyjścia i tę samą sumę listy. Cisza jest zmierzona w siedmiu scenariuszach z kontrolą pozytywną
+  w tym samym przebiegu — brak wiersza, `wyłączona`, data nieczytelna, data z przyszłości, brak
+  listy, próg wyższy niż wiek — a wartość spoza zamkniętej listy brzmień nie milczy, tylko mówi, co
+  jest dozwolone. Para wariantów różniąca się **wyłącznie** datą listy: **258 znaków wobec 0**;
+  w świeżej sesji CLI wariant stary przepisał zdanie dosłownie, świeży odpowiedział `BRAK LINII`.
 - W folderze, który nie jest projektem RelAI, plugin jest całkowicie niewidoczny.
 
 ## Nad czym pracujemy teraz
@@ -138,13 +148,14 @@ w którym trwa sesja, zamiast trzech klas. E2 czeka na dwie bramki człowieka.
   dokumentów, a rotacja nigdy nie ruszyła. Czeka na okno — właściciel rozwija go na bieżąco.
   Dopóki nie wejdzie, **ryzyko R5 zostaje otwarte**, zawężone już wyłącznie do tego jednego
   projektu: mechanizm jest kompletny i zmierzony na dwóch projektach z trzech.
-- **Plan REKOMENDACJA_MODELU — 2/4, E2 zamknięty 2026-09-04.** Kamień milowy planu zapadł już przy
+- **Plan REKOMENDACJA_MODELU — 3/4, E3 zamknięty 2026-09-04.** Kamień milowy planu zapadł już przy
   pierwszym etapie: pytanie o model pokazuje nazwy. E2 dołożył drugą drogę zapisu do listy —
-  komendę `/relai-models` — i **Aneksem B** przeniósł jej pierwszy wynik do plików obu adapterów,
-  więc bramka „nazwy modeli Cursora" jest zamknięta (`balanced: Composer 2.5`, `cheap: Auto`).
-  **E3 (próg i przypomnienie) jest `GOTOWY DO STARTU`.** Otwarte bramki: numer wydania przed E4
-  oraz pytanie, czy pomiar wykonany przez sesję etapu domyka dwa punkty weryfikacji E2 — `claude -p`
-  odmówił uwierzytelnienia, więc świeża sesja CLI nie zmierzyła zachowania komendy.
+  komendę `/relai-models` — i **Aneksem B** przeniósł jej pierwszy wynik do plików obu adapterów.
+  E3 dołożył listom **wiek**: próg 7 dni z własnym wyłącznikiem, jedno zdanie w obu hookach startu
+  i pozycja w katalogu progów. **Aneksem C** domknął przy okazji bramkę pomiaru E2 — `claude -p`
+  odzyskał uwierzytelnienie, więc dwa wywołania komendy zmierzono w świeżych sesjach CLI.
+  **E4 (kontrola modelu, dokumenty, wydanie) jest `GOTOWY DO STARTU`** i jest ostatni.
+  Otwarta bramka jedna: numer wydania — 1.9.0 czy 1.8.2.
 - **Plan ROZWOJ_PO_WYDANIU pozostaje zamrożony** (6/8). E7 — adapter Codeksa — czeka na dostęp.
 - Plan SPRZATANIE_ARTEFAKTOW zamknięty 2026-09-03 (4/4) i przeniesiony do
   [archiwum](archiwum/plany/SPRZATANIE_ARTEFAKTOW/STATUS.md).
@@ -194,12 +205,11 @@ w którym trwa sesja, zamiast trzech klas. E2 czeka na dwie bramki człowieka.
 
 ## Co blokuje
 
-- **Świeża sesja CLI znów jest niedostępna** — 2026-09-04 `claude -p` zwrócił `Failed to
-  authenticate: OAuth session expired and could not be refreshed`, a `.env` z kluczem API w tym
-  repozytorium nie istnieje. Dzień wcześniej to samo wywołanie działało (L-0084), więc zdanie
-  o dostępności cudzej usługi jest datowane w obie strony (L-0087). Skutek dla E2: procedurę komendy
-  wykonała sesja etapu — skutki na plikach zmierzone, zachowanie świeżej sesji nie. Odblokowuje to
-  `claude /login` albo klucz w `.env`; obie drogi są decyzją właściciela.
+- **Świeża sesja CLI wróciła tego samego dnia** — `claude -p` odmówił uwierzytelnienia rano
+  (`OAuth session expired and could not be refreshed`), a przy starcie E3 zwrócił `OK` z kodem 0.
+  Zdanie o dostępności cudzej usługi jest więc datowane w obie strony i sprawdzane przed każdym
+  etapem, który się na nim opiera (L-0084, L-0087). Skutek: pomiary E3 **i** zaległy pomiar E2
+  poszły przez świeże sesje CLI, z artefaktem podłożonym lokalnie w projekcie kontrolnym (L-0085).
 - **Pomiar zachowań w świeżej sesji CLI nie odbędzie się** — `claude -p` uwierzytelnia się z własnego
   pliku poświadczeń, a konto tam zapisane ma wyczerpany limit (L-0032). Odnoga `POMIAR_ODNOG`
   **anulowana 2026-09-01 i domknięta zupełnie 2026-09-03**: dziewięć scenariuszy zostaje
@@ -262,26 +272,27 @@ Pułapki: [PULAPKI.md](PULAPKI.md)
 
 Etapy: BUDOWA_RELAI 10/10 • ROZWOJ_PO_WYDANIU 6/8 (ZAMROŻONY) • OPTYMALIZACJA_KONTEKSTU 5/5 •
 SPRZATANIE_ARTEFAKTOW **4/4 (ZREALIZOWANY 2026-09-03)** •
-REKOMENDACJA_MODELU **2/4 (E2 zamknięty 2026-09-04)** •
+REKOMENDACJA_MODELU **3/4 (E3 zamknięty 2026-09-04)** •
 HIGIENA_DOKUMENTOW **6/6 (ZREALIZOWANY 2026-09-01)** •
 Warstwa startowa RelAI: **37,0 KB / 80 KB**, raport startu **0 znaków** • Warstwa startowa
-PolyFlow: **157,3 KB / 80 KB**, raport **5 linii przy limicie 6** • Dziennik RelAI: **107,4 KB /
-próg 150 KB** • Lekcje **30 lekcji** w żywym rejestrze, ostatnia
-**L-0087** • Sprawy czekające na człowieka: **5 tutaj**, **32 w PolyFlow**, żadna nieprzeterminowana
-przy progu 30 dni • Progi w katalogu: **18, z tego 16 z adresem egzekwowania** •
+PolyFlow: **157,3 KB / 80 KB**, raport **5 linii przy limicie 6** • Dziennik RelAI: **186,4 KB /
+próg 150 KB — rotacja należna** • Lekcje **34 aktywne** w żywym rejestrze (**52,9 KB / próg 50 KB —
+rotacja należna**), ostatnia **L-0088** • Sprawy czekające na człowieka: **5 tutaj**, **32
+w PolyFlow**, żadna nieprzeterminowana przy progu 30 dni •
+Progi w katalogu: **18, z tego 17 z adresem egzekwowania** •
 Zasady aktywne: **15 przy limicie 15** •
 Scenariusze akceptacyjne: 4/4 zdane + pilotaż Cursora • Adaptery: 2 • Komendy: **12** •
 Modele, na których zmierzono proces: 5 (Fable, Opus, Haiku, Composer/auto, Grok 4.6) •
-Projekty na 1.8.0: 2 (RelAI, PolyFlow) • **Aktywny plan: REKOMENDACJA_MODELU (1/4, E2 gotowy, ale
-zablokowany dwiema bramkami)** •
+Projekty na 1.8.0: 2 (RelAI, PolyFlow) • **Aktywny plan: REKOMENDACJA_MODELU (3/4, E4 gotowy
+do startu — ostatni etap planu)** •
 Otwarte wątki: **1 odnoga** zamrożonego planu (GUARD_PO_SCIEZCE zamknięta, REKOMENDACJA_MODELU
 przeniesiona do planu — obie 2026-09-03) •
 Artefakty w rejestrze: **40** (dwie listy modeli jako nowe, skill `relai-planning` podbity w E1;
 inwentarz przeliczony komendą 2026-09-03) •
-Otwarte bramki manualne: **3** (zamknięta lista
-rdzeni rozstrzygnięcia + numer wydania i pomiar E2 w świeżej sesji; lista modeli Cursora
-rozstrzygnięta 2026-09-04 wraz z dwiema bramkami wejściowymi E2, trzy bramki planu
-SPRZATANIE_ARTEFAKTOW rozstrzygnięte 2026-09-03) •
+Otwarte bramki manualne: **2** (zamknięta lista
+rdzeni rozstrzygnięcia + numer wydania; pomiar E2 w świeżej sesji rozstrzygnięty 2026-09-04
+Aneksem C, lista modeli Cursora i dwie bramki wejściowe E2 tego samego dnia, trzy bramki planu
+SPRZATANIE_ARTEFAKTOW 2026-09-03) •
 Otwarte ryzyka: **10** (M1 i M2 dopisane 2026-09-03 przy E1, M3–M5 przy E2 2026-09-04; R2 zamknięte,
 ale na przesłance, którą E1 przewrócił) • Zamknięte ryzyka: **7** (6 w archiwum, R2
 w żywej tabeli) • Progi rotacji: dziennik 150 KB, lekcje

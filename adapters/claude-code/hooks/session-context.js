@@ -55,9 +55,10 @@ const provisionTemplates = (cwd) => core.provisionTemplates(cwd, {
 // Lista modeli TEGO narzedzia (1.9.0). Nazwa pliku docelowego rozroznia listy w jednym
 // katalogu cache — o tym, ktora obowiazuje, mowi hook, nie skill (L-0030, zasada 8).
 const MODELE_ZRODLO = path.join(__dirname, '..', 'MODELE.md');
+const MODELE_NAZWA = 'MODELE-claude-code.md';
 const provisionModelList = (cwd) => core.provisionModelList(cwd, {
   zrodlo: MODELE_ZRODLO,
-  nazwa: 'MODELE-claude-code.md',
+  nazwa: MODELE_NAZWA,
   destRel: '.claude/relai',
 });
 
@@ -161,6 +162,15 @@ function onSessionStart(input) {
     out.push('Lista modeli tego narzedzia: .claude/relai/' + lista.nazwa +
       (lista.data ? ' (z dnia ' + lista.data + ')' : ' (bez czytelnej daty)') +
       '. Pytajac o model wykonawczy etapow, podaj nazwy z tej listy razem z jej data.');
+  }
+
+  // Wiek listy modeli (1.9.0). Zdanie wyzej mowi, KTORA lista obowiazuje; to mowi, ze sie
+  // zestarzala — stoi OBOK niego, nie zamiast. Ponizej progu, bez wiersza w ustawieniach
+  // i przy dacie nieczytelnej: zero znakow. Siec do hooka nie wchodzi (ryzyko 4 planu) —
+  // przekroczony prog daje zdanie, a odswieza dopiero /relai-models wywolana wprost.
+  for (const linia of core.wiekListyModeliReport(
+    core.wiekListyModeli(cwd, { nazwa: MODELE_NAZWA, markeryGoscia: MARKERY_GOSCIA }))) {
+    out.push(linia);
   }
 
   const gs = core.globalSettingsText('.claude/relai');

@@ -41,6 +41,7 @@ const MARKERY_GOSCIA = ['.cursor/relai.json', '.claude/relai.json'];
 // Lista modeli TEGO narzedzia (1.9.0). Katalog cache jest wspolny z adapterem Claude Code,
 // wiec listy rozroznia nazwa pliku (Aneks A planu REKOMENDACJA_MODELU z 2026-09-03).
 const MODELE_ZRODLO = path.join(__dirname, '..', 'MODELE.md');
+const MODELE_NAZWA = 'MODELE-cursor.md';
 
 function workingDir(input) {
   if (typeof input.cwd === 'string' && input.cwd) return input.cwd;
@@ -144,13 +145,22 @@ function onSessionStart(input) {
   // Jedno zdanie o tym, ktora lista modeli obowiazuje w tej sesji. Brak listy = zero znakow.
   const lista = core.provisionModelList(cwd, {
     zrodlo: MODELE_ZRODLO,
-    nazwa: 'MODELE-cursor.md',
+    nazwa: MODELE_NAZWA,
     destRel: '.claude/relai',
   });
   if (lista) {
     out.push('Lista modeli tego narzedzia: .claude/relai/' + lista.nazwa +
       (lista.data ? ' (z dnia ' + lista.data + ')' : ' (bez czytelnej daty)') +
       '. Pytajac o model wykonawczy etapow, podaj nazwy z tej listy razem z jej data.');
+  }
+
+  // Wiek listy modeli (1.9.0) — ta sama funkcja rdzenia i to samo zdanie co w adapterze
+  // Claude Code; rozni je wylacznie nazwa pliku listy. Agent w tle dostaje ten sam fakt
+  // bez propozycji komendy. Siec do hooka nie wchodzi (ryzyko 4 planu).
+  for (const linia of core.wiekListyModeliReport(
+    core.wiekListyModeli(cwd, { nazwa: MODELE_NAZWA, markeryGoscia: MARKERY_GOSCIA }),
+    { interaktywna: input.is_background_agent !== true })) {
+    out.push(linia);
   }
 
   const gs = core.globalSettingsText('.claude/relai');
