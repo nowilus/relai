@@ -119,7 +119,7 @@ Wiersz komend przy poprzednim przeliczeniu mówił `10 / 10` przy jedenastu wier
 `.claude/relai/templates/` łącznie z dziewięcioma plikami katalogu `HTML_PLAN/` (22 + 9 = 31) —
 czyli liczba plików, nie liczba specyfikacji. Rejestr trzyma się stanu z dysku.
 
-## Adapter Codex — artefakty natywne (1.10.0)
+## Adapter Codex — artefakty natywne (2.0.0; wcześniej 1.10.0)
 
 | Artefakt | Plik | Wersja | Data | Co się zmieniło | Po co |
 |---|---|---|---|---|---|

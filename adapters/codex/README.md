@@ -1,6 +1,6 @@
 # RelAI — adapter Codex
 
-Adapter Codeksa jest natywnym pluginem od wersji 1.10.0. Źródłem prawdy jest repozytorium RelAI:
+Adapter Codeksa jest natywnym pluginem od wersji 2.0.0 (wcześniej dostępny eksperymentalnie w 1.10.0). Źródłem prawdy jest repozytorium RelAI:
 `.codex-plugin/plugin.json` opisuje pakiet, `.agents/plugins/marketplace.json` wystawia repozytorium,
 a rootowy `skills/` powstaje deterministycznie z 12 komend adaptera Claude Code oraz dwóch skilli rdzeniowych.
 Nie kopiuj `core/` do drugiego drzewa.

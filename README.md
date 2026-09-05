@@ -3,7 +3,7 @@
 </p>
 
 <p align="center">
-  <em>Wersja 1.10.0 &nbsp;·&nbsp; licencja MIT &nbsp;·&nbsp; wymaga Claude Code, Cursora albo Codexa, plus Node.js 14+ &nbsp;·&nbsp; zero zależności npm</em>
+  <em>Wersja 2.0.0 &nbsp;·&nbsp; licencja MIT &nbsp;·&nbsp; wymaga Claude Code, Cursora albo Codexa, plus Node.js 14+ &nbsp;·&nbsp; zero zależności npm</em>
 </p>
 
 **RelAI to plugin do Claude Code (od 1.5.0 także adapter Cursora, od 1.10.0 natywny plugin Codexa), który zamienia rozmowę
@@ -191,7 +191,7 @@ Wtedy wpis `preToolUse` w ogóle nie powstaje, a instalator mówi wprost, że tw
 Zostaje reguła `relai-guardrails.mdc` — słabsza, bo zależy od dyscypliny modelu. Trzecia droga,
 gdy Node jest, ale nie ma go w `PATH` sesji: zmienna `RELAI_NODE` wskazująca interpreter.
 
-### C. Codex — natywny plugin (1.10.0)
+### C. Codex — natywny plugin (2.0.0; kompatybilność Codexa od 1.10.0)
 
 Codex korzysta z repozytorium jako korzenia pluginu: `.codex-plugin/plugin.json`,
 `.agents/plugins/marketplace.json`, `skills/` generowane deterministycznie z adaptera Claude Code
@@ -410,7 +410,7 @@ relai/
 │       ├── rules/               #   trzy reguły .mdc z alwaysApply: true — warstwa nośna
 │       ├── hooks/               #   sessionStart (kontekst) i preToolUse (skan sekretów)
 │       └── README.md            #   instrukcja instalacji i tabela różnic
-│   └── codex/                   # ADAPTER Codex (od 1.10.0)
+│   └── codex/                   # ADAPTER Codex (od 1.10.0, stabilny w 2.0.0)
 │       ├── AGENTS.md            #   router warstwy zawsze-w-kontekście
 │       ├── generate-skills.js   #   generator z jednego źródła komend Claude Code
 │       ├── install.js           #   odwracalna integracja D-86

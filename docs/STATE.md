@@ -4,7 +4,7 @@ Stan na: 2026-09-05
 
 ## Gdzie jesteśmy
 
-RelAI jest na **1.10.0** i działa w Claude Code, Cursorze oraz jako natywny plugin Codexa z jednym
+RelAI jest na **2.0.0** i działa w Claude Code, Cursorze oraz jako natywny plugin Codexa z jednym
 rdzeniem procesu. Seria 1.9.x dodała listy modeli per narzędzie, poprawiła sprzątanie oraz uszczelniła pre-commit: działa
 w projektach ESM, kończy instalację testem dymnym i nie blokuje poprawnych odczytów sekretów ze
 środowiska. Szczegóły i dowody wydań są w dwóch ostatnich wpisach dziennika.
@@ -68,8 +68,8 @@ dystrybucję; pełna świeża sesja Codexa pozostaje NOT TESTED po błędzie Aut
 - **Migracja JiraManagera** — ostatni projekt, w którym start sesji kosztuje 386 KB dokumentów,
   a rotacja nigdy nie ruszyła. Czeka na okno właściciela; do tego czasu ryzyko R5 zostaje otwarte,
   zawężone do tego jednego projektu.
-- **ROZWOJ_PO_WYDANIU jest aktywny** (6/8); E7 — natywny plugin Codeksa 1.10.0 — czeka na świeżą
-  sesję `gpt-5.6-terra/high` z aktualnym `PROMPT_ETAP_7.md`.
+- **ROZWOJ_PO_WYDANIU jest aktywny** (7/8); E7 jest zamknięty, a E8 — wydanie 2.0.0 i dystrybucja —
+  korzysta z `PROMPT_ETAP_8.md`.
 
 ## Co dalej
 
@@ -99,7 +99,7 @@ dystrybucję; pełna świeża sesja Codexa pozostaje NOT TESTED po błędzie Aut
 - Potwierdzić albo cofnąć **osiem rozstrzygnięć z E2** planu OPTYMALIZACJA_KONTEKSTU (wypisane
   2026-09-01) oraz usunąć metadane sesji `ProbaCursorE6` z `~/.claude/` i `~/.cursor/`.
 - **E8 — wydanie 2.0.0 i dystrybucja:** świeża sesja ma użyć `docs/plany/ROZWOJ_PO_WYDANIU/PROMPT_ETAP_8.md`;
-  publiczne 1.10.0 pozostaje bazą i dowodem ścieżki instalacji Codexa.
+  publiczne 1.10.0 pozostaje bazą, a bieżące deklaracje stanu są podbijane do 2.0.0.
 - **Feedback od osób spoza projektu** — pilotaż poprowadził autor, więc kryterium „ktoś inny niż
   autor" nadal czeka.
 
@@ -118,11 +118,11 @@ dystrybucję; pełna świeża sesja Codexa pozostaje NOT TESTED po błędzie Aut
 
 ### Wersja i instalacja
 
-Repozytorium: **1.10.0** (natywny plugin Codexa wydany 2026-09-05; pełna macierz cross-tool pozostaje
+Repozytorium: **2.0.0** (natywny plugin Codexa wydany 2026-09-05; pełna macierz cross-tool pozostaje
 częściowo niezmierzona).
 Poprzednio 1.9.2 (trzy defekty gitowego pre-commita ze zgłoszenia zewnętrznego, 2026-09-04;
 tego samego dnia wcześniej 1.9.0 z planu REKOMENDACJA_MODELU i poprawka `_fixy` w 1.9.1).
-Walidator: kod 0, „3 zrodel, wartosc 1.9.3". **Wydanie potwierdzone treścią plików z cache'u, nie
+Walidator: kod 0, „3 zrodel, wartosc 2.0.0". **Wydanie potwierdzone treścią plików z cache'u, nie
 komunikatem CLI** (P-005): `installed_plugins.json` wskazuje ścieżkę `...\1.9.2` i commit
 `ff3e6bc`, a pięć plików z cache'u — trzy guardraile, `MANIFEST.json` i `SKILL.md` — zgadza się
 sumą z repozytorium po normalizacji CRLF → LF (5/5) i różni od 1.9.1. Sam restart nie wystarczył:
@@ -173,7 +173,7 @@ Progi w katalogu: **18, z tego 17 z adresem egzekwowania** • Adaptery: **2 + C
 Procedury: **12** •
 Scenariusze akceptacyjne: 4/4 + pilotaż Cursora •
 Modele, na których zmierzono proces: 5 (Fable, Opus, Haiku, Composer/auto, Grok 4.6) •
-Projekty na RelAI: 3 (RelAI 1.9.3, PolyFlow 1.8.0, JiraManager przed migracją) •
+Projekty na RelAI: 3 (RelAI 2.0.0, PolyFlow 1.8.0, JiraManager przed migracją) •
 Testy regresyjne guardraili: **19** (`core/guardrails/tests/`, nowy katalog od 1.9.3) •
 Modele, które zmieniły kod produktu: **2** (Opus 5, gpt-6-astra) •
 Zgłoszenia z cudzych projektów: **1, obsłużone w dniu wpłynięcia** (pre-commit, 4 defekty)

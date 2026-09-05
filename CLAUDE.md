@@ -27,7 +27,7 @@ o kolejne `N` dni / rozstrzygnąć teraz. Sesja nieinteraktywna: sam raport, bez
 
 | Co | Status | Gdzie |
 |---|---|---|
-| Plugin RelAI — wydany, dwa adaptery | DZIAŁA (1.9.2 w repo) | [docs/STATE.md](docs/STATE.md) |
+| Plugin RelAI — wydany, trzy adaptery | DZIAŁA (2.0.0 w repo) | [docs/STATE.md](docs/STATE.md) |
 | Plan BUDOWA_RELAI — 10 etapów | ZAMKNIĘTY 2026-08-10 | [archiwum planu](docs/archiwum/plany/BUDOWA_RELAI/STATUS.md) |
 | Plan ROZWOJ_PO_WYDANIU — 8 etapów | 6/8; **ODMROŻONY 2026-09-05**, E7 gotowy (`gpt-5.6-terra/high`) | [STATUS](docs/plany/ROZWOJ_PO_WYDANIU/STATUS.md) |
 | Plan OPTYMALIZACJA_KONTEKSTU — 5 etapów | ZREALIZOWANY 2026-08-21 | [archiwum planu](docs/archiwum/plany/OPTYMALIZACJA_KONTEKSTU/STATUS.md) |
