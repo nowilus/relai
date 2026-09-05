@@ -1664,7 +1664,10 @@ Autor: RelAI (gpt-5.6-terra/high) + Lukasz
 
 - GitHub API: `main` wskazuje `e36cb6e2dc74ea0c836c4b14647291a6da98887a`, release `v1.10.0` jest publiczny,
   nie jest draftem ani prerelease.
-- Oficjalny validator plugin-creator, walidator adapterów, generator skilli i 26 testów Node pozostają zielone.
+- Oficjalny validator plugin-creator, walidator adapterów, generator skilli i 27 testów Node pozostają zielone.
+- Dodatkowy test walidatora odrzucił ręczną kopię rdzenia na kopii repozytorium (kod 1, wskazany plik).
+- Świeży proces `codex exec` z publicznym pluginem rozpoczął `SessionStart`, lecz worker MCP zwrócił
+  `AuthRequired` przed scenariuszem akceptacyjnym; projekt kontrolny usunięto bez pozostałości.
 
 **Świadomie odłożone:**
 

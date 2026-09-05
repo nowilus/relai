@@ -14,6 +14,7 @@
 
 const fs = require('fs');
 const path = require('path');
+const crypto = require('crypto');
 
 const CORE = path.resolve(__dirname, '..');
 const ROOT = path.resolve(CORE, '..');
@@ -102,6 +103,34 @@ if (manifest) {
     }
   }
   sprawdzone.push('odwolania z kodu adapterow do rdzenia: ' + odwolan);
+
+  // Adapter may consume core modules, but it must not carry a second manual
+  // copy. Compare hashes of declared core JavaScript files with every adapter
+  // JavaScript file so a copied module fails the release gate with its path.
+  const coreHashes = new Map();
+  const coreFiles = [manifest.templates]
+    .concat((manifest.guardrails || []).map((g) => g.file))
+    .concat((manifest.process || []).map((p) => p.file))
+    .concat((manifest.tools || []).map((t) => t.file))
+    .filter((p) => p && /\.js$/i.test(p));
+  for (const rel of coreFiles) {
+    const file = path.resolve(CORE, rel);
+    try { coreHashes.set(crypto.createHash('sha256').update(fs.readFileSync(file)).digest('hex'), path.relative(ROOT, file)); } catch (_) { /* missing files are reported above */ }
+  }
+  let duplicates = 0;
+  for (const a of (manifest.adapters || [])) {
+    for (const file of plikiJs(path.resolve(CORE, a.root || '.'), [])) {
+      let hash = '';
+      try { hash = crypto.createHash('sha256').update(fs.readFileSync(file)).digest('hex'); } catch (_) { continue; }
+      const source = coreHashes.get(hash);
+      if (source) {
+        duplicates++;
+        bledy.push('adapter "' + a.id + '": ' + path.relative(ROOT, file).split(path.sep).join('/') +
+          ' jest reczna kopia rdzenia "' + source + '" — adapter ma go wolac, nie kopiowac');
+      }
+    }
+  }
+  sprawdzone.push('duplikaty plikow rdzenia w adapterach: ' + duplicates);
 }
 
 // 3) Manifest pluginu Claude Code: kazda zadeklarowana sciezka istnieje.

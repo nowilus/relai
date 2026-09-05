@@ -11,11 +11,12 @@ Etap pozostaje `W TOKU`, ponieważ karta wymaga kompletu PASS. Wpis `NOT TESTED`
 | Instalator/deinstalator Codex D-86 | PASS | `node --test adapters/codex/tests/install.test.js`: 5 scenariuszy, zachowanie treści użytkownika. |
 | Instalator Cursor D-86 | PASS | Izolowany projekt: istniejący `CLAUDE.md` odtworzony po deinstalacji. |
 | Walidator trzech adapterów | PASS | `node core/tools/validate-adapters.js`: kod 0, trzy adaptery, 5 źródeł wersji `1.10.0`. |
-| Testy guardraili | PASS | 26 testów Node przechodzi; `git diff --check` kod 0. |
+| Testy guardraili i walidatora | PASS | 27 testów Node przechodzi; `git diff --check` kod 0. |
 | Hook `SessionStart` w projekcie RelAI | PASS | Świeży cache pluginu zwrócił `hookSpecificOutput` z kontekstem RelAI i raportem progów. |
 | Hook poza projektem RelAI | PASS | Kontrolny proces z katalogu tymczasowego zwrócił pusty stdout/stderr i kod 0. |
 | Hook sekretów: `Bash`/`apply_patch`, brak Node.js | PASS częściowy | Runtime-built token w `apply_patch` dał `permissionDecision: deny`, czysty Bash przeszedł, wrapper Windows bez Node.js zwrócił kod 2; pełny protokół świeżej sesji pozostaje `NOT TESTED`. |
-| Dziewięć kroków scenariusza akceptacyjnego | NOT TESTED | Świeża sesja zatrzymała się na odczycie instrukcji; brak wiarygodnego kompletu odpowiedzi. |
+| Dziewięć kroków scenariusza akceptacyjnego | NOT TESTED | Świeży `codex exec` 0.153.4 załadował publiczny plugin i rozpoczął `SessionStart`, ale worker MCP zakończył się `AuthRequired` przed wykonaniem kroków; kontrolny projekt został usunięty bez pozostałości. |
+| Ręczna kopia rdzenia na kopii repo | PASS | Test walidatora podłożył `manual-core-copy.js`; validator zakończył się kodem 1 i wskazał plik. |
 | Praca naprzemienna Codex–Cursor–Claude | NOT TESTED | Nie wykonano pełnego przebiegu trzema narzędziami. |
 | Cleanup konfiguracji i artefaktów | PASS | Plugin/marketplace usunięte, `config.toml` przywrócony sumą SHA-256; katalogi `relai-e7-*` poza repo usunięte. |
 
