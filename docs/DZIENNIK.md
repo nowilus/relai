@@ -1725,3 +1725,29 @@ Autor: RelAI (gpt-5.6-terra/high) + Lukasz
 - Uruchomić nową sesję Codeksa na `gpt-5.6-terra` z effortem `high` i przekazać jej
   `docs/plany/ROZWOJ_PO_WYDANIU/PROMPT_ETAP_7.md`. Ten punkt nie jest bramką planu — prompt zawiera
   jawną zgodę na start E7.
+
+### 2026-09-05 — Zamknięcie E7 i przekazanie do E8
+
+**Zrobione:**
+
+- E7 oznaczono jako `ZREALIZOWANY` zgodnie z Aneksem C: wszystkie kontrole dostępne w środowisku
+  przeszły, a niedostępne ścieżki pozostają jawnie `NOT TESTED`.
+- Wygenerowano `PROMPT_ETAP_8.md` z aktualnego stanu repozytorium, sekcji E8 planu i pełnego rejestru
+  aktywnych zasad.
+
+**Zweryfikowane — jak dokładnie:**
+
+- `python validate_plugin.py`, `node core/tools/validate-adapters.js`, generator skilli, 27 testów Node,
+  `node --check` i `git diff --check` — PASS.
+- Publiczne wydanie 1.10.0 i instalacja z marketplace — PASS; pełna sesja akceptacyjna Codexa zatrzymała
+  się na `AuthRequired` worker'a MCP i pozostaje `NOT TESTED`.
+
+**Świadomie odłożone:**
+
+- E8: wydanie 2.0.0, finalna dystrybucja i zamknięcie planu.
+
+**Do zrobienia przez człowieka:**
+
+- Uruchomić świeżą sesję E8 z `PROMPT_ETAP_8.md`.
+
+Autor: RelAI (gpt-5.6-terra/high) + Lukasz

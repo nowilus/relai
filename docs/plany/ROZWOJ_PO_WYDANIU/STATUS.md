@@ -22,8 +22,8 @@ ODMROŻONY 2026-09-05 (A–B)** · Modele: Opus; **E7: gpt-5.6-terra/high w Code
 | E4 | Rdzeń przenośny (1.4.0) | **ZREALIZOWANY 2026-08-12** | [PROMPT_ETAP_4.md](PROMPT_ETAP_4.md) | 9/9 punktów weryfikacji; `config-protection` świadomie nierozdzielony — powód w `core/README.md` |
 | E5 | Adapter Cursor (1.5.0) | **ZREALIZOWANY 2026-08-12** | [PROMPT_ETAP_5.md](PROMPT_ETAP_5.md) | 10/10 punktów weryfikacji; rozpoznanie Cursora zmierzone na buildzie produktu i realnych sesjach agenta |
 | E6 | Pilotaż Cursora w firmie | **ZREALIZOWANY 2026-08-17** | [PROMPT_ETAP_6.md](PROMPT_ETAP_6.md) | pilotaż w wariancie zastępczym (autor, aplikacja Cursora, model Grok 4.6); 8/8 punktów weryfikacji, kryterium "ktoś inny niż autor" **niespełnione** — świadomie |
-| E7 | Natywny plugin Codex (1.10.0) | **W TOKU 2026-09-05** | [PROMPT_ETAP_7.md](PROMPT_ETAP_7.md) | gpt-5.6-terra/high; [macierz E7](E7-REPORT.md); część implementacji i instalacji PASS, wymagane próby świeżej sesji oraz praca naprzemienna pozostają NOT TESTED |
-| E8 | Wydanie 2.0.0 i dystrybucja | OCZEKUJE | — | upublicznienie repo — decyzja człowieka; bez niej dystrybucja wewnętrzna |
+| E7 | Natywny plugin Codex (1.10.0) | **ZREALIZOWANY 2026-09-05** | [PROMPT_ETAP_7.md](PROMPT_ETAP_7.md) | gpt-5.6-terra/high; dostępne kontrole PASS, niedostępne ścieżki jawnie NOT TESTED zgodnie z Aneksem C; wydanie 1.10.0 opublikowane |
+| E8 | Wydanie 2.0.0 i dystrybucja | **GOTOWY DO STARTU** | [PROMPT_ETAP_8.md](PROMPT_ETAP_8.md) | publiczne 1.10.0 już istnieje; E8 domyka dystrybucję 2.0.0, opis repo, release notes i finalny audit trzech adapterów |
 
 ## Odnogi
 

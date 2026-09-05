@@ -9,10 +9,10 @@ rdzeniem procesu. Seria 1.9.x dodała listy modeli per narzędzie, poprawiła sp
 w projektach ESM, kończy instalację testem dymnym i nie blokuje poprawnych odczytów sekretów ze
 środowiska. Szczegóły i dowody wydań są w dwóch ostatnich wpisach dziennika.
 
-**ROZWOJ_PO_WYDANIU odmrożono 2026-09-05 Aneksem B.** E7 ma już lokalną implementację natywnego
-pluginu Codeksa 1.10.0, manifest, marketplace, generator skilli, hooki i integrację D-86 dla Codexa
-oraz Cursora. Etap pozostaje W TOKU, bo pełny scenariusz świeżej sesji, niezależny test blokady
-sekretów i praca naprzemienna trzech narzędzi nie mają jeszcze kompletu dowodów.
+**ROZWOJ_PO_WYDANIU odmrożono 2026-09-05 Aneksem B.** E7 dostarczył natywny plugin Codexa 1.10.0,
+manifest, marketplace, generator skilli, hooki i integrację D-86 dla Codexa oraz Cursora; dostępne
+kontrole przeszły, a ograniczenia są jawne. E8 jest gotowy do startu i domyka wydanie 2.0.0 oraz
+dystrybucję; pełna świeża sesja Codexa pozostaje NOT TESTED po błędzie AuthRequired worker'a MCP.
 
 ## Co działa
 
@@ -98,9 +98,8 @@ sekretów i praca naprzemienna trzech narzędzi nie mają jeszcze kompletu dowod
   i opisuje RelAI 1.5.x, więc wymaga odświeżenia przed startem.
 - Potwierdzić albo cofnąć **osiem rozstrzygnięć z E2** planu OPTYMALIZACJA_KONTEKSTU (wypisane
   2026-09-01) oraz usunąć metadane sesji `ProbaCursorE6` z `~/.claude/` i `~/.cursor/`.
-- **Dokończyć E7:** dziewięciokrokowy scenariusz świeżej sesji, niezależny test `PreToolUse` dla
-  Bash/apply_patch i braku Node.js oraz praca naprzemienna Codex–Cursor–Claude; macierz jest w
-  `docs/plany/ROZWOJ_PO_WYDANIU/E7-REPORT.md`.
+- **E8 — wydanie 2.0.0 i dystrybucja:** świeża sesja ma użyć `docs/plany/ROZWOJ_PO_WYDANIU/PROMPT_ETAP_8.md`;
+  publiczne 1.10.0 pozostaje bazą i dowodem ścieżki instalacji Codexa.
 - **Feedback od osób spoza projektu** — pilotaż poprowadził autor, więc kryterium „ktoś inny niż
   autor" nadal czeka.
 
@@ -161,7 +160,7 @@ Komendy i frazy: [KOMENDY.md](KOMENDY.md)
 
 Plany: BUDOWA_RELAI 10/10 • OPTYMALIZACJA_KONTEKSTU 5/5 • HIGIENA_DOKUMENTOW 6/6 •
 SPRZATANIE_ARTEFAKTOW 4/4 • REKOMENDACJA_MODELU 4/4 (zamknięty 2026-09-04) •
-ROZWOJ_PO_WYDANIU 6/8 (**AKTYWNY, E7 W TOKU**) • **Aktywny plan: ROZWOJ_PO_WYDANIU** •
+ROZWOJ_PO_WYDANIU 7/8 (**AKTYWNY, E7 ZREALIZOWANY, E8 GOTOWY**) • **Aktywny plan: ROZWOJ_PO_WYDANIU** •
 Warstwa startowa: **62,8/80 KB** — ponad progiem tylko ryzyka **21,3/12 KB**; STATE **11,9/12**,
 status **9,9/10** • Dziennik: **127,2/150 KB** (24 wpisy) •
 Lekcje: **41,0 KB / 50 KB** (22 w żywym rejestrze, ostatnia L-0091) • Sekcja ryzyk w widoku

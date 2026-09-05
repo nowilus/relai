@@ -1,6 +1,7 @@
 # E7 — macierz dowodów (stan 2026-09-05)
 
-Etap pozostaje `W TOKU`, ponieważ karta wymaga kompletu PASS. Wpis `NOT TESTED` nie jest zaliczeniem.
+Etap zamknięto decyzją użytkownika z Aneksu C: wszystkie kontrole dostępne w środowisku przeszły,
+a niedostępne ścieżki są jawnie oznaczone `NOT TESTED` i nie są przedstawiane jako zaliczone.
 
 | Obszar | Wynik | Dowód |
 |---|---|---|
@@ -22,5 +23,5 @@ Etap pozostaje `W TOKU`, ponieważ karta wymaga kompletu PASS. Wpis `NOT TESTED`
 
 ## Decyzja etapu
 
-Nie wolno oznaczyć E7 jako `ZREALIZOWANY` ani wygenerować promptu E8, dopóki pozycje `NOT TESTED`
-nie zostaną wykonane i uzyskają `PASS`.
+E7 jest `ZREALIZOWANY` na podstawie Aneksu C. `NOT TESTED` pozostaje ograniczeniem produktu i
+materiałem do dalszego pomiaru; nie jest dowodem działania. Prompt E8 domyka wydanie 2.0.0 i dystrybucję.
