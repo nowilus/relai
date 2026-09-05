@@ -4,8 +4,8 @@ Stan na: 2026-09-05
 
 ## Gdzie jesteśmy
 
-RelAI jest na **1.9.3** i działa w Claude Code oraz Cursorze z jednym rdzeniem procesu. Seria
-1.9.x dodała listy modeli per narzędzie, poprawiła sprzątanie oraz uszczelniła pre-commit: działa
+RelAI jest na **1.10.0** i działa w Claude Code, Cursorze oraz jako natywny plugin Codexa z jednym
+rdzeniem procesu. Seria 1.9.x dodała listy modeli per narzędzie, poprawiła sprzątanie oraz uszczelniła pre-commit: działa
 w projektach ESM, kończy instalację testem dymnym i nie blokuje poprawnych odczytów sekretów ze
 środowiska. Szczegóły i dowody wydań są w dwóch ostatnich wpisach dziennika.
 
@@ -119,8 +119,8 @@ sekretów i praca naprzemienna trzech narzędzi nie mają jeszcze kompletu dowod
 
 ### Wersja i instalacja
 
-Repozytorium: **1.9.3** (dwie regresje wprowadzone przez fix 1.9.2, znalezione i naprawione przez
-Codeksa 2026-09-05; wersja **nie jest jeszcze wydana** — sekwencja P-005 przed nią).
+Repozytorium: **1.10.0** (natywny plugin Codexa wydany 2026-09-05; pełna macierz cross-tool pozostaje
+częściowo niezmierzona).
 Poprzednio 1.9.2 (trzy defekty gitowego pre-commita ze zgłoszenia zewnętrznego, 2026-09-04;
 tego samego dnia wcześniej 1.9.0 z planu REKOMENDACJA_MODELU i poprawka `_fixy` w 1.9.1).
 Walidator: kod 0, „3 zrodel, wartosc 1.9.3". **Wydanie potwierdzone treścią plików z cache'u, nie

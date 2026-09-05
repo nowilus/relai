@@ -1650,6 +1650,33 @@ Autor: RelAI (gpt-5.6-sol) + Lukasz
 
 Autor: RelAI (gpt-5.6-terra/high) + Lukasz
 
+### 2026-09-05 — Publikacja RelAI 1.10.0 z natywnym pluginem Codexa
+
+**Zrobione:**
+
+- Utworzono commit `e36cb6e` (`feat: add native Codex plugin`) oraz tag `v1.10.0`.
+- Wypchnięto `main` i tag do `github.com/nowilus/relai`.
+- Utworzono publiczny GitHub Release: `RelAI 1.10.0 — native Codex plugin`.
+- Zweryfikowano ścieżkę użytkownika końcowego z publicznego marketplace: `codex plugin marketplace upgrade relai`
+  oraz `codex plugin add relai@relai` zainstalowały wersję `1.10.0`; cache zawiera manifest, 14 skilli i hooki.
+
+**Zweryfikowane — jak dokładnie:**
+
+- GitHub API: `main` wskazuje `e36cb6e2dc74ea0c836c4b14647291a6da98887a`, release `v1.10.0` jest publiczny,
+  nie jest draftem ani prerelease.
+- Oficjalny validator plugin-creator, walidator adapterów, generator skilli i 26 testów Node pozostają zielone.
+
+**Świadomie odłożone:**
+
+- Pełny scenariusz akceptacyjny Codexa oraz praca naprzemienna Codex–Cursor–Claude pozostają `NOT TESTED`;
+  nie są przedstawiane jako zaliczone.
+
+**Do zrobienia przez człowieka:**
+
+- Dokończyć pełny scenariusz akceptacyjny Codexa i dopiero wtedy zamknąć E7 oraz przygotować dalszy zakres E8.
+
+Autor: RelAI (gpt-5.6-terra/high) + Lukasz
+
 **Zrobione:**
 
 - Plan ROZWOJ_PO_WYDANIU odmrożony Aneksem B, ponieważ lokalny Codeks 0.153.4 ma już natywne
