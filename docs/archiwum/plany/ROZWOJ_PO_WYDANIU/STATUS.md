@@ -1,7 +1,6 @@
 # STATUS — plan ROZWOJ_PO_WYDANIU
 
-Plan: [PLAN.html](PLAN.html) · Utworzony: 2026-08-12 · Status: **ZAAKCEPTOWANY 2026-08-12,
-ODMROŻONY 2026-09-05 (A–B)** · Modele: Opus; **E7: gpt-5.6-terra/high w Codeksie**
+Plan: [PLAN.html](PLAN.html) · Utworzony: 2026-08-12 · Status: **ZREALIZOWANY 2026-09-05 (A–C)** · Modele: Opus; **E7: gpt-5.6-terra/high w Codeksie**
 (wyjątek D-85; architektura i plany: Fable)
 
 > **Odmrożony 2026-09-05 (Aneks B):** Codeks 0.153.4 pozwala zbudować i zmierzyć natywny plugin
@@ -23,7 +22,7 @@ ODMROŻONY 2026-09-05 (A–B)** · Modele: Opus; **E7: gpt-5.6-terra/high w Code
 | E5 | Adapter Cursor (1.5.0) | **ZREALIZOWANY 2026-08-12** | [PROMPT_ETAP_5.md](PROMPT_ETAP_5.md) | 10/10 punktów weryfikacji; rozpoznanie Cursora zmierzone na buildzie produktu i realnych sesjach agenta |
 | E6 | Pilotaż Cursora w firmie | **ZREALIZOWANY 2026-08-17** | [PROMPT_ETAP_6.md](PROMPT_ETAP_6.md) | pilotaż w wariancie zastępczym (autor, aplikacja Cursora, model Grok 4.6); 8/8 punktów weryfikacji, kryterium "ktoś inny niż autor" **niespełnione** — świadomie |
 | E7 | Natywny plugin Codex (1.10.0) | **ZREALIZOWANY 2026-09-05** | [PROMPT_ETAP_7.md](PROMPT_ETAP_7.md) | gpt-5.6-terra/high; dostępne kontrole PASS, niedostępne ścieżki jawnie NOT TESTED zgodnie z Aneksem C; wydanie 1.10.0 opublikowane |
-| E8 | Wydanie 2.0.0 i dystrybucja | **GOTOWY DO STARTU** | [PROMPT_ETAP_8.md](PROMPT_ETAP_8.md) | publiczne 1.10.0 już istnieje; E8 domyka dystrybucję 2.0.0, opis repo, release notes i finalny audit trzech adapterów |
+| E8 | Wydanie 2.0.0 i dystrybucja | **ZREALIZOWANY 2026-09-05** | [PROMPT_ETAP_8.md](PROMPT_ETAP_8.md) | publiczny release v2.0.0, marketplace Codex 2.0.0, README i audit lokalny zakończone; Cursor/Claude cross-tool pozostają NOT TESTED |
 
 ## Odnogi
 
@@ -55,7 +54,7 @@ ODMROŻONY 2026-09-05 (A–B)** · Modele: Opus; **E7: gpt-5.6-terra/high w Code
 
 - **Sekwencja wydania: push → `claude plugin marketplace update relai` → `claude plugin update
   relai@relai` → restart aplikacji** · źródło: wpis dziennika 2026-08-12 (E1, powtórzone w E2 i E3)
-  · **OTWARTA**
+  · **NOT TESTED — ścieżka Claude Code niedostępna w sesji; publiczna ścieżka Codexa PASS**
 - **`claude /login` na konto z dostępnym limitem** — warunek startu odnogi `POMIAR_ODNOG`
   (L-0032) · źródło: wpis dziennika 2026-08-12 (E1, powtórzone w E2) · *(anulowane 2026-09-01 —
   decyzją człowieka odpuszczamy login razem z odnogą; R2 zostaje otwarte świadomie)*
@@ -118,5 +117,8 @@ ODMROŻONY 2026-09-05 (A–B)** · Modele: Opus; **E7: gpt-5.6-terra/high w Code
   Wygenerowano PROMPT_ETAP_7.
 - 2026-09-05 — plan **ODMROŻONY Aneksem B**; E7 zaktualizowany do natywnego pluginu Codeksa 1.10.0,
   wykonawca `gpt-5.6-terra/high`, odświeżono PROMPT_ETAP_7 z realnego stanu repozytorium.
+- 2026-09-05 — **E7 i E8 ZREALIZOWANE** zgodnie z Aneksem C; publiczny release `v2.0.0`, marketplace
+  Codex 2.0.0 i instrukcje trzech adapterów zweryfikowane. Cross-tool Cursor/Claude pozostają jawnie
+  `NOT TESTED`; plan gotowy do przeniesienia do archiwum.
 - 2026-09-05 — **E7 rozpoczęty** po potwierdzeniu wykonawcy `gpt-5.6-terra/high`; zakres obejmuje
   wyłącznie lokalny plugin Codeksa 1.10.0 i projekty kontrolne.

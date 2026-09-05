@@ -27,7 +27,7 @@ jak zachowania RelAI mierzy się sesją, nie zapisem w specyfikacji (L-0005).
 > instalację repo-marketplace i pluginu `relai` 1.10.0. Świeży proces uruchomił hooki pluginu,
 > a `SessionStart` zwrócił kontekst RelAI w projekcie z markerem. Źródła oznaczam **[próba]**,
 > **[kod produktu]** i **[dokumentacja]**; pełna macierz i pozycje `NOT TESTED` są w
-> `docs/plany/ROZWOJ_PO_WYDANIU/E7-REPORT.md`.
+> `docs/archiwum/plany/ROZWOJ_PO_WYDANIU/E7-REPORT.md`.
 
 ---
 

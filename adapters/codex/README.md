@@ -30,4 +30,4 @@ node --test adapters/codex/tests/*.test.js
 ```
 
 Świeża sesja, praca naprzemienna i ograniczenia są raportowane w
-`docs/plany/ROZWOJ_PO_WYDANIU/E7-REPORT.md`.
+`docs/archiwum/plany/ROZWOJ_PO_WYDANIU/E7-REPORT.md`.

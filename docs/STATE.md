@@ -68,8 +68,8 @@ dystrybucję; pełna świeża sesja Codexa pozostaje NOT TESTED po błędzie Aut
 - **Migracja JiraManagera** — ostatni projekt, w którym start sesji kosztuje 386 KB dokumentów,
   a rotacja nigdy nie ruszyła. Czeka na okno właściciela; do tego czasu ryzyko R5 zostaje otwarte,
   zawężone do tego jednego projektu.
-- **ROZWOJ_PO_WYDANIU jest aktywny** (7/8); E7 jest zamknięty, a E8 — wydanie 2.0.0 i dystrybucja —
-  korzysta z `PROMPT_ETAP_8.md`.
+- **ROZWOJ_PO_WYDANIU zamknięto 2026-09-05** (8/8); wydania 1.10.0 i 2.0.0 są publiczne,
+  a plan przechodzi do archiwum.
 
 ## Co dalej
 
@@ -98,8 +98,8 @@ dystrybucję; pełna świeża sesja Codexa pozostaje NOT TESTED po błędzie Aut
   i opisuje RelAI 1.5.x, więc wymaga odświeżenia przed startem.
 - Potwierdzić albo cofnąć **osiem rozstrzygnięć z E2** planu OPTYMALIZACJA_KONTEKSTU (wypisane
   2026-09-01) oraz usunąć metadane sesji `ProbaCursorE6` z `~/.claude/` i `~/.cursor/`.
-- **E8 — wydanie 2.0.0 i dystrybucja:** świeża sesja ma użyć `docs/plany/ROZWOJ_PO_WYDANIU/PROMPT_ETAP_8.md`;
-  publiczne 1.10.0 pozostaje bazą, a bieżące deklaracje stanu są podbijane do 2.0.0.
+- **Po planie:** pełna sesja Codexa i praca Cursor/Claude pozostają możliwą odnogą pomiarową;
+  nie są blokadą opublikowanego wydania 2.0.0.
 - **Feedback od osób spoza projektu** — pilotaż poprowadził autor, więc kryterium „ktoś inny niż
   autor" nadal czeka.
 
@@ -160,7 +160,7 @@ Komendy i frazy: [KOMENDY.md](KOMENDY.md)
 
 Plany: BUDOWA_RELAI 10/10 • OPTYMALIZACJA_KONTEKSTU 5/5 • HIGIENA_DOKUMENTOW 6/6 •
 SPRZATANIE_ARTEFAKTOW 4/4 • REKOMENDACJA_MODELU 4/4 (zamknięty 2026-09-04) •
-ROZWOJ_PO_WYDANIU 7/8 (**AKTYWNY, E7 ZREALIZOWANY, E8 GOTOWY**) • **Aktywny plan: ROZWOJ_PO_WYDANIU** •
+ROZWOJ_PO_WYDANIU 8/8 (**ZREALIZOWANY**) • **Aktywny plan: brak** •
 Warstwa startowa: **62,8/80 KB** — ponad progiem tylko ryzyka **21,3/12 KB**; STATE **11,9/12**,
 status **9,9/10** • Dziennik: **127,2/150 KB** (24 wpisy) •
 Lekcje: **41,0 KB / 50 KB** (22 w żywym rejestrze, ostatnia L-0091) • Sekcja ryzyk w widoku

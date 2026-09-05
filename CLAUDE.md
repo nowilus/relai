@@ -11,7 +11,7 @@ Czytaj w kolejności, nie skanuj pełnotekstowo repo:
 4. [docs/LEKCJE.md](docs/LEKCJE.md) — wyłącznie sekcja „Zasady aktywne".
 5. [docs/DECYZJE.md](docs/DECYZJE.md) — decyzje zamrożone: **nie proponuj ich ponownie**.
 6. [docs/USTAWIENIA.md](docs/USTAWIENIA.md) — preferencje projektu.
-7. Aktywny plan — linia niżej w sekcji „Stan prac"; obecnie: **ROZWOJ_PO_WYDANIU, E7 gotowy do startu**.
+7. Ostatni plan — linia niżej w sekcji „Stan prac"; **ROZWOJ_PO_WYDANIU został zamknięty 2026-09-05**.
 
 **Frazy sesji:** „kontynuujemy pracę" → rytuał startu, akapit „gdzie jesteśmy" **i jedno zdanie
 z propozycją najbliższego kroku**; „sprawdź status" → stan, plany, ryzyka, zaległości
@@ -29,14 +29,14 @@ o kolejne `N` dni / rozstrzygnąć teraz. Sesja nieinteraktywna: sam raport, bez
 |---|---|---|
 | Plugin RelAI — wydany, trzy adaptery | DZIAŁA (2.0.0 w repo) | [docs/STATE.md](docs/STATE.md) |
 | Plan BUDOWA_RELAI — 10 etapów | ZAMKNIĘTY 2026-08-10 | [archiwum planu](docs/archiwum/plany/BUDOWA_RELAI/STATUS.md) |
-| Plan ROZWOJ_PO_WYDANIU — 8 etapów | 6/8; **ODMROŻONY 2026-09-05**, E7 gotowy (`gpt-5.6-terra/high`) | [STATUS](docs/plany/ROZWOJ_PO_WYDANIU/STATUS.md) |
+| Plan ROZWOJ_PO_WYDANIU — 8 etapów | **ZREALIZOWANY 2026-09-05**; wydania 1.10.0 i 2.0.0 opublikowane | [archiwum planu](docs/archiwum/plany/ROZWOJ_PO_WYDANIU/STATUS.md) |
 | Plan OPTYMALIZACJA_KONTEKSTU — 5 etapów | ZREALIZOWANY 2026-08-21 | [archiwum planu](docs/archiwum/plany/OPTYMALIZACJA_KONTEKSTU/STATUS.md) |
 | Plan HIGIENA_DOKUMENTOW — 6 etapów | **ZREALIZOWANY 2026-09-01** (Aneksy A–D) | [archiwum planu](docs/archiwum/plany/HIGIENA_DOKUMENTOW/STATUS.md) |
 | Plan SPRZATANIE_ARTEFAKTOW — 4 etapy | **ZREALIZOWANY 2026-09-03** (4/4, wydanie 1.8.0) | [archiwum planu](docs/archiwum/plany/SPRZATANIE_ARTEFAKTOW/STATUS.md) |
 | Plan REKOMENDACJA_MODELU — 4 etapy | **ZREALIZOWANY 2026-09-04** (4/4, Aneksy A–D, wydanie 1.9.0) | [archiwum planu](docs/archiwum/plany/REKOMENDACJA_MODELU/STATUS.md) |
 | Odnogi i wątki samodzielne | 1 otwarta (`OPIS_REPO`); `PRECOMMIT_ESM` zamknięta 2026-09-04 wydaniem 1.9.2, `CURSOR_1_9_1` tego samego dnia | [docs/STATE.md](docs/STATE.md) |
 
-Aktywny plan: [ROZWOJ_PO_WYDANIU](docs/plany/ROZWOJ_PO_WYDANIU/STATUS.md)
+Aktywny plan: brak — ostatni: [ROZWOJ_PO_WYDANIU](docs/archiwum/plany/ROZWOJ_PO_WYDANIU/STATUS.md)
 
 ## Reguły procesu
 

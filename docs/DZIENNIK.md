@@ -1632,7 +1632,7 @@ Autor: RelAI (gpt-5.6-sol) + Lukasz
   widoczne, instalacja wersji `1.10.0` zakończona sukcesem.
 - Świeży proces `codex exec` uruchomił hooki pluginu; `SessionStart` wykonał się w projekcie kontrolnym,
   a cache pluginu zawiera manifest, root `hooks/hooks.json` i 14 skilli. Szczegółowa macierz jest w
-  [E7-REPORT.md](plany/ROZWOJ_PO_WYDANIU/E7-REPORT.md).
+  [E7-REPORT.md](archiwum/plany/ROZWOJ_PO_WYDANIU/E7-REPORT.md).
 - Cleanup: plugin i marketplace usunięte, `config.toml` przywrócony sumą SHA-256
   `32DEC73C724985898C9D823365DAA333DBD03CBB188208F83D54B2BAA8EF64A8`, katalogi `relai-e7-*`
   poza repo usunięte.
@@ -1647,6 +1647,36 @@ Autor: RelAI (gpt-5.6-sol) + Lukasz
 
 - Dokończyć scenariusze oznaczone `NOT TESTED` z macierzy E7, następnie dopiero rozstrzygnąć P1/P2,
   zamknąć E7 i wygenerować prompt E8.
+
+Autor: RelAI (gpt-5.6-terra/high) + Lukasz
+
+### 2026-09-05 — E8: publiczne wydanie RelAI 2.0.0 i zamknięcie planu
+
+**Zrobione:**
+
+- Podbito deklaracje stanu do 2.0.0 w manifestach, markerze projektu, README, komendzie aktualizacji,
+  dokumentacji i rootowych skillach Codexa.
+- Utworzono commit `47559a0`, tag `v2.0.0` i publiczny GitHub Release
+  [RelAI 2.0.0](https://github.com/nowilus/relai/releases/tag/v2.0.0).
+- Marketplace publiczny został odświeżony, a `codex plugin add relai@relai` zainstalował wersję 2.0.0;
+  cache zawiera manifest, 14 skilli i hooki.
+- E7 i E8 oznaczono jako zrealizowane zgodnie z Aneksem C; plan jest gotowy do archiwizacji.
+
+**Zweryfikowane — jak dokładnie:**
+
+- Oficjalny validator plugin-creator — PASS; validator trzech adapterów — PASS; generator skilli — PASS;
+  27 testów Node — PASS; `node --check` — PASS; `git diff --check` — PASS.
+- Publiczny release nie jest draftem ani prerelease; `main` i tag `v2.0.0` wskazują commit release candidate.
+- Publiczna instalacja Codexa 2.0.0 — PASS. Pełna sesja akceptacyjna Codexa zatrzymała się wcześniej na
+  `AuthRequired` worker'a MCP; Cursor/Claude cross-tool pozostają `NOT TESTED`.
+
+**Świadomie odłożone:**
+
+- Pełny cross-tool scenariusz oraz ponowienie świeżej sesji Codexa po usunięciu problemu MCP.
+
+**Do zrobienia przez człowieka:**
+
+- Brak bramki wydania; ewentualny pomiar `NOT TESTED` może zostać wykonany jako osobna odnoga po planie.
 
 Autor: RelAI (gpt-5.6-terra/high) + Lukasz
 
