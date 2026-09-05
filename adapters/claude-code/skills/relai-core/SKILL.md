@@ -25,7 +25,7 @@ description: >
 
 # relai-core — struktura projektu, pamięć i rytuały sesji
 
-Wersja 1.9.2 (poprawki rdzenia w guardrailu sekretow: gitowy pre-commit instaluje sie jako shim powlokowy + pliki `.cjs`, wiec dziala takze w projekcie z `"type": "module"`, a instalacja konczy sie testem dymnym z cofnieciem; skan lapie nazwy z przedrostkiem typu `AWS_SECRET_ACCESS_KEY=` i przepuszcza wartosci oczywiscie przykladowe; procedura skilla bez zmian, podniesiony marker wersji wymagany w `docs/USTAWIENIA.md`). Wersja 1.9.1: raport artefaktow roboczych nie wywraca sie na katalogu watku samodzielnego `_fixy`. Wersja 1.9.0: plan REKOMENDACJA_MODELU — lista modeli narzedzia, komenda `/relai-models`, prog swiezosci listy. Wersja 1.8.0: plan SPRZATANIE_ARTEFAKTOW — sprzątanie artefaktów roboczych: zdanie na starcie sesji ponad progiem i krok 2a rytuału zamknięcia dnia. Zakres tego skilla: **rozpoznanie stanu folderu + inicjalizacja + tryb
+Wersja 1.9.3 (dwie regresje wprowadzone przez fix 1.9.2, znalezione i naprawione przez Codeksa: skan traktowal odczyt zmiennej srodowiskowej jako literalna wartosc i blokowal commit w projekcie Python/Vite/Deno, a deinstalacja pre-commita kasowala pliki `.cjs` wolane przez cudzy hook i zostawiala go zepsutego; procedura skilla bez zmian, podniesiony marker wersji wymagany w `docs/USTAWIENIA.md`). Wersja 1.9.2 (poprawki rdzenia w guardrailu sekretow: gitowy pre-commit instaluje sie jako shim powlokowy + pliki `.cjs`, wiec dziala takze w projekcie z `"type": "module"`, a instalacja konczy sie testem dymnym z cofnieciem; skan lapie nazwy z przedrostkiem typu `AWS_SECRET_ACCESS_KEY=` i przepuszcza wartosci oczywiscie przykladowe; procedura skilla bez zmian, podniesiony marker wersji wymagany w `docs/USTAWIENIA.md`). Wersja 1.9.1: raport artefaktow roboczych nie wywraca sie na katalogu watku samodzielnego `_fixy`. Wersja 1.9.0: plan REKOMENDACJA_MODELU — lista modeli narzedzia, komenda `/relai-models`, prog swiezosci listy. Wersja 1.8.0: plan SPRZATANIE_ARTEFAKTOW — sprzątanie artefaktów roboczych: zdanie na starcie sesji ponad progiem i krok 2a rytuału zamknięcia dnia. Zakres tego skilla: **rozpoznanie stanu folderu + inicjalizacja + tryb
 gościa + niedestrukcyjne dołączenie + rytuały sesji + rotacja dokumentów przy zamknięciu sesji +
 siatka brakujących promptów etapowych + siatka rozjazdu stanu + rejestr decyzji po adopcji +
 rejestry LEKCJE/DECYZJE + trzy frazy naturalne + warstwa ustawień globalnych + reguły warunkowe
@@ -845,7 +845,7 @@ Zasady generacji:
   Dla projektu angielskiego: `docs/STATE.md`, `docs/JOURNAL.md`, `docs/LESSONS.md`,
   `docs/DECISIONS.md`, `docs/SETTINGS.md`, `docs/COMMANDS.md`. Konwencja stała: CAPS_SNAKE, bez dat
   i numerów wersji w nazwie.
-- `docs/USTAWIENIA.md` **musi** zawierać linię `Wersja RelAI: 1.9.2` — to marker, po którym RelAI
+- `docs/USTAWIENIA.md` **musi** zawierać linię `Wersja RelAI: 1.9.3` — to marker, po którym RelAI
   rozpoznaje projekt i po którym przyszły `/relai-update` policzy różnicę wersji.
 - `CLAUDE.md` **musi** zawierać sekcję `## Reguły profilu (<wybrany profil>)` zaraz po „Regułach
   procesu" — 3–6 punktów wg `SPEC_PROFILE.md`. To jedyna warstwa reguł profilu działająca bez

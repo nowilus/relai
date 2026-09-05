@@ -8,6 +8,23 @@ Specyfikacja: `SPEC_PULAPKI.md`.
 
 ## Pułapki
 
+### P-008 — sandbox Codeksa nie ma działającego Git Basha · 2026-09-05 · AKTYWNA
+
+- **Objaw:** test uruchamiający `git commit` przez powłokę kończy się w sesji Codeksa błędem
+  `CreateFileMapping … Win32 error 5`, a nie asercją. Ten sam test uruchomiony w zwykłej sesji
+  przechodzi. Sprawdzone: `install-precommit.test.js`, pełny cykl B — 932 ms i zielono poza
+  sandboxem, twardy błąd wewnątrz.
+- **Przyczyna:** sandbox Windows Codeksa (`[windows] sandbox = "unelevated"` w `~/.codex/config.toml`)
+  blokuje mapowanie pamięci, którego MSYS2 używa przy starcie. Dotyczy całej rodziny `sh`/`bash`
+  z Git for Windows, nie samego gita.
+- **Obejście:** nie każ Codeksowi mierzyć niczego, co przechodzi przez powłokę POSIX-ową.
+  Zlecenia formułuj tak, żeby weryfikacja szła przez `node` i API, a testy powłokowe **powtórz
+  sam** po jego zakończeniu. Codex sam ten błąd rozpoznaje i raportuje — jego „test nie przeszedł"
+  nie znaczy „kod jest zły", dopóki nie powtórzysz przebiegu na zewnątrz.
+- **Zasięg:** każde zlecenie `codex-companion.mjs task --write` na Windows. Objaw pokrewny w tej
+  samej sesji: `spawnSync` z potokami nie zwracał wyjścia, więc Codex sam obszedł to pomiarem
+  przez pliki (`file-stdio.cjs`).
+
 ### P-007 — o systemie modułów pliku w `.git/hooks/` rozstrzyga `package.json` projektu · 2026-09-04 · AKTYWNA
 
 - **Objaw:** `ReferenceError: require is not defined in ES module scope` przy **każdym** commicie

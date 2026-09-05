@@ -1,10 +1,10 @@
 # STATE — RelAI
 
-Stan na: 2026-09-04
+Stan na: 2026-09-05
 
 ## Gdzie jesteśmy
 
-RelAI jest wydany w **1.9.2** i działa w dwóch narzędziach — Claude Code oraz Cursorze — z tym samym
+RelAI jest wydany w **1.9.3** i działa w dwóch narzędziach — Claude Code oraz Cursorze — z tym samym
 kompletem dokumentów i tym samym procesem. Wydanie 1.9.0 domknęło temat modeli: pytanie „na jakim
 modelu to wykonać" pokazuje nazwy dostępne w danym narzędziu zamiast trzech ogólnych klas, listę da
 się odświeżyć jedną komendą, a stara lista sama się przypomina. Poprawka 1.9.1 z tego samego dnia
@@ -12,10 +12,13 @@ usunęła defekt, przez który raport plików roboczych wywracał się na katalo
 **1.9.2 naprawia gitowy pre-commit po pierwszym zgłoszeniu z cudzego projektu** — hook przestał
 blokować każdy commit w projekcie z `"type": "module"`, skan zaczął widzieć nazwy z przedrostkiem,
 a instalacja kończy się testem dymnym zamiast samego komunikatu o sukcesie.
-Adapter Cursora ma od dziś przebieg na **1.9.1 we własnym narzędziu** — instalacja, zdania o liście
-modeli, blokada sekretu przez opakowanie powłoki i deinstalacja z cudzym wpisem. Żadnego planu
-nie prowadzimy teraz aktywnie — jedyny niezamknięty czeka na dostęp do narzędzia, którego jeszcze
-nie mamy. Największa otwarta rzecz jest poza kodem: RelAI nie miał jeszcze użytkownika spoza autora.
+Adapter Cursora ma przebieg na **1.9.1 we własnym narzędziu** — instalacja, zdania o liście
+modeli, blokada sekretu przez opakowanie powłoki i deinstalacja z cudzym wpisem.
+**1.9.3 zamyka dwie regresje, które sam fix 1.9.2 wprowadził**: skan blokował poprawny odczyt
+sekretu ze środowiska w Pythonie, Vite i Deno, a deinstalacja zostawiała wiszące wywołanie
+w cudzym hooku. Znalazł je **Codex** w adversarial review własnego pluginu i on je naprawił —
+to pierwszy raz, gdy kod produktu zmienił model spoza Anthropic. Największa otwarta rzecz jest
+poza kodem: RelAI nie miał jeszcze użytkownika spoza autora.
 
 ## Co działa
 
@@ -74,9 +77,11 @@ nie mamy. Największa otwarta rzecz jest poza kodem: RelAI nie miał jeszcze uż
 
 ## Co dalej
 
-- **Projekty z hookiem sprzed 1.9.2 wymagają ponownej instalacji pre-commita** — stary układ
-  przewraca się w projekcie z `"type": "module"`. Rozpoznanie: obecność
-  `.git/hooks/relai-secret-scan.js`. Dotyczy PolyFlow i JiraManagera, jeśli mają hook.
+- **Projekty z hookiem sprzed 1.9.3 wymagają ponownej instalacji pre-commita** — układ sprzed
+  1.9.2 przewraca się w projekcie z `"type": "module"` (rozpoznanie: obecność
+  `.git/hooks/relai-secret-scan.js`), a układ 1.9.2 niesie obie regresje zamknięte w 1.9.3:
+  blokadę poprawnego odczytu sekretu ze środowiska i deinstalację psującą cudzy hook. Dotyczy
+  PolyFlow i JiraManagera, jeśli mają hook.
 - **Ochrona konfiguracji jest doradcza, nie twarda** — `config-protection` zwraca werdykt `ask`,
   więc zatrzymuje zapis tylko wtedy, gdy tryb uprawnień sesji ten werdykt egzekwuje. W sesji
   z automatyczną akceptacją edycja sekcji niemutowalnej **cudzego** `CLAUDE.md` przeszła bez
@@ -117,9 +122,11 @@ nie mamy. Największa otwarta rzecz jest poza kodem: RelAI nie miał jeszcze uż
 
 ### Wersja i instalacja
 
-Repozytorium: **1.9.2** (trzy defekty gitowego pre-commita ze zgłoszenia zewnętrznego, 2026-09-04;
+Repozytorium: **1.9.3** (dwie regresje wprowadzone przez fix 1.9.2, znalezione i naprawione przez
+Codeksa 2026-09-05; wersja **nie jest jeszcze wydana** — sekwencja P-005 przed nią).
+Poprzednio 1.9.2 (trzy defekty gitowego pre-commita ze zgłoszenia zewnętrznego, 2026-09-04;
 tego samego dnia wcześniej 1.9.0 z planu REKOMENDACJA_MODELU i poprawka `_fixy` w 1.9.1).
-Walidator: kod 0, „3 zrodel, wartosc 1.9.2". **Wydanie potwierdzone treścią plików z cache'u, nie
+Walidator: kod 0, „3 zrodel, wartosc 1.9.3". **Wydanie potwierdzone treścią plików z cache'u, nie
 komunikatem CLI** (P-005): `installed_plugins.json` wskazuje ścieżkę `...\1.9.2` i commit
 `ff3e6bc`, a pięć plików z cache'u — trzy guardraile, `MANIFEST.json` i `SKILL.md` — zgadza się
 sumą z repozytorium po normalizacji CRLF → LF (5/5) i różni od 1.9.1. Sam restart nie wystarczył:
@@ -169,5 +176,7 @@ Artefakty w rejestrze: **40** • Zasady aktywne: **15 przy limicie 15** •
 Progi w katalogu: **18, z tego 17 z adresem egzekwowania** • Adaptery: 2 • Komendy: **12** •
 Scenariusze akceptacyjne: 4/4 + pilotaż Cursora •
 Modele, na których zmierzono proces: 5 (Fable, Opus, Haiku, Composer/auto, Grok 4.6) •
-Projekty na RelAI: 3 (RelAI 1.9.2, PolyFlow 1.8.0, JiraManager przed migracją) •
+Projekty na RelAI: 3 (RelAI 1.9.3, PolyFlow 1.8.0, JiraManager przed migracją) •
+Testy regresyjne guardraili: **19** (`core/guardrails/tests/`, nowy katalog od 1.9.3) •
+Modele, które zmieniły kod produktu: **2** (Opus 5, gpt-6-astra) •
 Zgłoszenia z cudzych projektów: **1, obsłużone w dniu wpłynięcia** (pre-commit, 4 defekty)

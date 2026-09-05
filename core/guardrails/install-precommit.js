@@ -149,6 +149,22 @@ function main() {
     if (tresc !== null) {
       if (tresc.indexOf(NAGLOWEK_RELAI) === -1) {
         obcy = true;
+        // Cudzy hook moze wolac nasze kopie. Odmowa musi nastapic PRZED usunieciem
+        // ktoregokolwiek pliku; integracje usuwa wlasciciel hooka, nie instalator.
+        const references = tresc.split(/\r?\n/).map((line, index) => (
+          /relai-(?:pre-commit\.cjs|secret-scan\.(?:cjs|js))/i.test(line)
+            ? '  linia ' + (index + 1) + ': ' + line
+            : null
+        )).filter(Boolean);
+        if (references.length) {
+          process.stderr.write(
+            'RelAI: deinstalacja przerwana — cudzy hook nadal odwoluje sie do RelAI.\n' +
+            'Nie usunieto zadnych plikow. Usun recznie ponizsze linie z "' + celHook + '":\n' +
+            references.join('\n') + '\n' +
+            'Nastepnie powtorz polecenie z --uninstall.\n'
+          );
+          return 1;
+        }
       } else {
         try { fs.unlinkSync(celHook); usunieto++; } catch (_) { /* jw. */ }
       }

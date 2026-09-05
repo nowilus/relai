@@ -1526,3 +1526,78 @@ Autor: RelAI (Opus 5) + Lukasz
   mechanizm nie tknie z powodu ochrony `sekret`.
 
 Autor: RelAI (Opus 5) + Lukasz
+
+### 2026-09-05 — Dwie regresje 1.9.2 znalezione i naprawione przez Codeksa, wydanie 1.9.3
+
+Autor: RelAI (Opus 5 + gpt-6-astra) + Lukasz
+
+**Zrobione — dowiezione vs plan:**
+
+Dzień zaczął się od testu narzędzia, nie od pracy nad produktem. Cel: sprawdzić, czy skille
+pluginu `codex` faktycznie przekazują zadania do Codeksa i na jakim uwierzytelnieniu. Odpowiedź:
+subskrypcja Claude nie ma z tym nic wspólnego — plugin odpala lokalną binarkę `codex`
+(0.148.0, logowanie ChatGPT), a `codex-companion.mjs` rozmawia z jej app-serverem po protokole.
+
+- **Pierwszy przebieg — `adversarial-review` na commicie `ff3e6bc`** (fix guardraili z 1.9.2),
+  `--base cfcc40c`. Werdykt `needs-attention`, dwa znaleziska `medium`, czas 1 min 48 s. Model:
+  `gpt-5.6-sol` na efforcie **`low`** — wartości domyślne z `~/.codex/config.toml`, bo plugin
+  przekazuje do `turn/start` jawne `model: null, effort: null`. To jest istotne: obie regresje
+  padły na najniższym efforcie, a jedna z nich została odtworzona uruchomionym kodem.
+- **Drugi przebieg — `task --write` na `gpt-6-astra`, effort `xhigh`.** Zlecenie w dwóch
+  rozdzielonych fazach: najpierw odtworzenie obu znalezisk wykonywalnym kodem, dopiero potem
+  naprawa i tylko tego, co się potwierdzi. Codeksowi zabroniono commita, dotykania `docs/`
+  i podbijania wersji. Czas: ok. 16 minut, kod wyjścia 0.
+- **Znalezisko A potwierdzone i naprawione** (`core/guardrails/secret-scan.js`). Reguła
+  przedrostkowa traktowała odczyt zmiennej środowiskowej jako literalną wartość, a filtr wyjątków
+  znał wyłącznie `process.env`. Skutek: projekt w Pythonie, Vite albo Deno dostawał blokadę
+  commita **za to, że poprawnie wyniósł sekret do środowiska**. Naprawa nie rozluźnia skanera,
+  tylko go zaostrza: `process.env` znikło z `PLACEHOLDER_RE` (dopasowanie przedrostkiem), a nowe
+  `ENV_READ_RE` wymaga **kompletnego, niecytowanego wyrażenia** zakończonego końcem linii,
+  średnikiem albo komentarzem. Operator po odczycie przywraca blokadę.
+- **Znalezisko B potwierdzone i naprawione** (`core/guardrails/install-precommit.js`). Instalator
+  instruował właściciela cudzego hooka, żeby dopisał wywołanie `relai-pre-commit.cjs`, a przy
+  `--uninstall` zachowywał ten hook i bezwarunkowo kasował oba pliki `.cjs` — zostawiając wiszące
+  wywołanie z `|| exit 1`, czyli **zepsuty commit w cudzym projekcie**. Teraz deinstalacja
+  przerywa się kodem 1 **przed usunięciem czegokolwiek** i wypisuje numery oraz treść linii do
+  usunięcia. Cudzego pliku RelAI nie modyfikuje — nie jest jego właścicielem.
+- **Wersja 1.9.3** w sześciu źródłach deklarujących stan; wzmianki historyczne („od 1.9.2")
+  nietknięte.
+
+**Zweryfikowane — jak dokładnie:**
+
+- **19 z 19 testów regresyjnych przechodzi** — ale dopiero poza sandboxem Codeksa.
+  U niego padał jeden: pełny cykl B (`cudzy hook → integracja → deinstalacja → czysty commit`),
+  bo Git Bash zgłaszał `CreateFileMapping … Win32 error 5`. **Jego diagnoza była trafna** — ten
+  sam test uruchomiony w tej sesji przechodzi w 932 ms. Nowy katalog `core/guardrails/tests/`
+  (14 przypadków skanu, 5 instalatora); konwencji testów w repozytorium wcześniej nie było.
+- **Kontrola pozytywna napisana niezależnie od testów Codeksa**, na przypadkach, których nie
+  próbował: `7 sekretów zablokowanych, 5 bezpiecznych przepuszczonych`. W blokowanych m.in.
+  `os.environ.get("X") or "hunter2superlong"` i `process.env.DB_PASSWORD + "suffixsecret123"` —
+  czyli dokładnie te kształty, w których zbyt szeroki wyjątek ukryłby literał.
+- **`node core/tools/validate-adapters.js`** → `RelAI validate-adapters: spojne.`, kod 0.
+- **`process.exit(main())`** potwierdzone odczytem — `return 1` z gałęzi odmowy realnie propaguje
+  do kodu wyjścia procesu.
+- **`git diff --check`** kod 0; drzewo po testach bez śmieci.
+
+**Świadomie odłożone:**
+
+- **Deinstalator nadal zwraca kod 1 przy pozostawieniu cudzego hooka bez odwołań do RelAI** —
+  zachowanie sprzed tej zmiany, nietykane, bo poza zakresem obu znalezisk.
+- **Pełny objaw B podczas realnego `git commit`** niepotwierdzony po stronie Codeksa (sandbox);
+  potwierdzony testem w tej sesji, ale nie ręcznym commitem w cudzym projekcie.
+- **`AGENTS.md` z korzenia repozytorium** — nieśledzony duplikat `CLAUDE.md` z podmienioną nazwą
+  narzędzia, niezgodny z D-86 (który mówi o **wskaźniku**, nie o bliźniaczej kopii). Przeniesiony
+  do `.claude/relai/work/_fixy/guardrails-2026-09-05/AGENTS.md.odrzucony`, nie skasowany, bo git
+  by go nie odzyskał. Poprawny układ ma powstać w E7.
+- **Pomiar wartości efforta** — czy `high` znajduje istotnie więcej niż `low` na tym samym
+  materiale. Kuszące, ale to osobny eksperyment, nie część fixu.
+
+**Do zrobienia przez człowieka:**
+
+- **Sekwencja wydania 1.9.3** (P-005): push → `claude plugin marketplace update relai` →
+  `claude plugin update relai@relai` → restart aplikacji.
+- **Ponowna instalacja pre-commita w projektach z hookiem sprzed 1.9.3** dotyczy teraz także
+  tych, które dostały 1.9.2: zmiana A zmienia zachowanie skanera na odczytach środowiska.
+- Sekcja „Czeka na człowieka" bez zmian: sześć pozycji, żadna nieprzeterminowana.
+
+Autor: RelAI (Opus 5 + gpt-6-astra) + Lukasz

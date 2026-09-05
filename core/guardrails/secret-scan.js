@@ -27,7 +27,7 @@ const PATTERNS = [
 // o rzeczy sprawdzanej. Przy okazji domyka dziure w druga strone: template literal w JS zostaje
 // zlapany, bo otwierajacy backtick konsumuje grupa cudzyslowu. Zmierzone w E6 (Aneks D,
 // 2026-09-01) na dziewieciu przypadkach: stary wzorzec myli sie raz, nowy zero razy.
-const ASSIGN_RE = /\b(PASSWORD|PASSWD|SECRET|TOKEN|API[_-]?KEY|ACCESS[_-]?KEY)\b\s*[:=]\s*["'`]?([^\s"',;`]{8,})/i;
+const ASSIGN_RE = /\b(PASSWORD|PASSWD|SECRET|TOKEN|API[_-]?KEY|ACCESS[_-]?KEY)\b\s*[:=]\s*(["'`]?)([^\s"',;`]{8,})/i;
 
 // Nazwa z przedrostkiem — druga regula, bo realne zmienne srodowiskowe nazywaja sie
 // AWS_SECRET_ACCESS_KEY, GITHUB_TOKEN, DB_PASSWORD, a granica \b w regule wyzej nie zachodzi,
@@ -40,8 +40,13 @@ const ASSIGN_RE = /\b(PASSWORD|PASSWD|SECRET|TOKEN|API[_-]?KEY|ACCESS[_-]?KEY)\b
 // refresh_token w normalnym kodzie OAuth — czyli 54 nowe trafienia, prawie wszystkie falszywe.
 // Wielkie litery sa konwencja zmiennych srodowiskowych i oddzielaja jedno od drugiego bez
 // zgadywania. Grupa 1 lapie CALA nazwe, zeby werdykt mowil, ktora zmienna zaswiecila.
-const ASSIGN_PREFIX_RE = /(?:^|[^A-Za-z0-9_])((?:[A-Z0-9]+[_-])+(?:PASSWORD|PASSWD|SECRET|TOKEN|API[_-]?KEY|ACCESS[_-]?KEY))\s*[:=]\s*["'`]?([^\s"',;`]{8,})/;
-const PLACEHOLDER_RE = /^(\$|%|<|\{|\*|x{3,}$|your[_-]?|change[_-]?me|placeholder|example|dummy|sample|test[_-]?|todo|tbd|none$|null$|undefined$|\.\.\.|process\.env)/i;
+const ASSIGN_PREFIX_RE = /(?:^|[^A-Za-z0-9_])((?:[A-Z0-9]+[_-])+(?:PASSWORD|PASSWD|SECRET|TOKEN|API[_-]?KEY|ACCESS[_-]?KEY))\s*[:=]\s*(["'`]?)([^\s"',;`]{8,})/;
+const PLACEHOLDER_RE = /^(\$|%|<|\{|\*|x{3,}$|your[_-]?|change[_-]?me|placeholder|example|dummy|sample|test[_-]?|todo|tbd|none$|null$|undefined$|\.\.\.)/i;
+
+// Odczyt srodowiska musi byc kompletnym, niecytowanym wyrazeniem. Sam przedrostek
+// ukrylby literal o takiej tresci, podobny identyfikator albo fallback z haslem.
+// Sprawdzamy pelny tekst od wartosci, bo ASSIGN_RE urywa ja przed cudzyslowem klucza.
+const ENV_READ_RE = /^(?:(?:process\.env|import\.meta\.env)\.[A-Za-z_$][\w$]*|(?:process\.env|os\.environ)\[[ \t]*(["'])[A-Za-z_][A-Za-z0-9_]*\1[ \t]*\]|(?:os\.environ\.get|Deno\.env\.get)\([ \t]*(["'])[A-Za-z_][A-Za-z0-9_]*\2[ \t]*\))(?=[ \t]*(?:$|[\r\n;,]|#|\/\/))/;
 
 // Wartosc oczywiscie przykladowa — marker STOI W SRODKU tokenu (AKIA...IOSFODNN7EXAMPLE), wiec
 // PLACEHOLDER_RE z kotwica ^ nie ma tu nic do roboty. To jest ta sama klasa problemu, co poprawka
@@ -82,11 +87,19 @@ function scanText(payload) {
     if (werdykt) return werdykt;
   }
   for (const re of [ASSIGN_RE, ASSIGN_PREFIX_RE]) {
-    const werdykt = kazdeTrafienie(re, text, (m) => (
-      PLACEHOLDER_RE.test(m[2]) || TYPE_TOKEN_RE.test(m[2])
+    const werdykt = kazdeTrafienie(re, text, (m) => {
+      const valueStart = m.index + m[0].length - m[3].length;
+      const envRead = !m[2] && ENV_READ_RE.exec(text.slice(valueStart));
+      if (envRead) {
+        // Nowa linia nie konczy wyrazenia JS: operator lub dalszy dostep moze
+        // dopisac literal. Pomijamy biale znaki i komentarze liniowe, nie kod.
+        const rest = text.slice(valueStart + envRead[0].length).replace(/^(?:\s|(?:\/\/|#)[^\r\n]*)*/, '');
+        if (!/^[+?&|*/%<>=!.\[(`-]/.test(rest)) return null;
+      }
+      return PLACEHOLDER_RE.test(m[3]) || TYPE_TOKEN_RE.test(m[3])
         ? null
-        : 'przypisanie ' + m[1].toUpperCase() + '= z niepusta wartoscia'
-    ));
+        : 'przypisanie ' + m[1].toUpperCase() + '= z niepusta wartoscia';
+    });
     if (werdykt) return werdykt;
   }
   return null;
