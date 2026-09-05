@@ -1,0 +1,8 @@
+{
+  "description": "RelAI lifecycle hooks for Codex.",
+  "hooks": {
+    "SessionStart": [{ "matcher": "startup|resume|clear|compact", "hooks": [{ "type": "command", "command": "node \"${CLAUDE_PLUGIN_ROOT}/adapters/codex/hooks/session-context.js\"", "timeout": 10 }] }],
+    "PreToolUse": [{ "matcher": "Bash|apply_patch|Edit|Write", "hooks": [{ "type": "command", "command": "\"${CLAUDE_PLUGIN_ROOT}/adapters/codex/hooks/secret-scanner.sh\"", "commandWindows": "\"${CLAUDE_PLUGIN_ROOT}/adapters/codex/hooks/secret-scanner.cmd\"", "timeout": 10 }] }],
+    "SessionEnd": [{ "hooks": [{ "type": "command", "command": "node \"${CLAUDE_PLUGIN_ROOT}/adapters/codex/hooks/session-end.js\"", "timeout": 3 }] }]
+  }
+}

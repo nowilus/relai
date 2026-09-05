@@ -596,6 +596,42 @@ footer .pis{font-family:var(--pis); font-size:1.2rem; color:var(--glina); margin
     <li><strong>Auto-rotacja w istniejących projektach</strong> (JiraManager, PolyFlow) przy <code>/relai-update</code>: <strong>zgoda</strong>.</li>
     <li><strong>LICENSE:</strong> brzmienie „Łukasz Nowakowski", rok 2026 — potwierdzone.</li>
   </ul>
+  <h3>Aneks B (2026-09-05) — odmrożenie E7 i natywny plugin Codeksa</h3>
+  <p>Plan zostaje odmrożony, ponieważ zniknęła przeszkoda zapisana 2026-08-21: Codeks jest dostępny
+  lokalnie i pozwala wykonać realną instalację oraz próbę w świeżej sesji. Sekcje 1–9 pozostają
+  zamrożone; poniższe rozstrzygnięcia aktualizują wyłącznie sposób realizacji E7 wobec aktualnej
+  architektury Codeksa.</p>
+  <ul>
+    <li><strong>Wykonawca E7:</strong> <code>gpt-5.6-terra</code> z effortem <code>high</code> —
+    datowany wyjątek od D-85 zatwierdzony przez użytkownika. Wcześniejsza propozycja
+    <code>gpt-5.6-sol/high</code> z promptu uruchamiającego została zastąpiona przed rozpoczęciem
+    implementacji z powodu małego pozostałego limitu konta.</li>
+    <li><strong>Wersja po E7:</strong> <strong>1.10.0</strong>. Numer 2.0.0 pozostaje zakresem E8,
+    ponieważ dopiero ten etap obejmuje wydanie i dystrybucję.</li>
+    <li><strong>Forma produktu:</strong> E7 dostarcza pełnoprawny natywny plugin Codeksa, a nie
+    dawny zestaw plików nazywany adapterem. Repozytorium RelAI jest korzeniem pluginu, z wymaganym
+    manifestem <code>.codex-plugin/plugin.json</code>; repozytoryjny marketplace mieszka w
+    <code>.agents/plugins/marketplace.json</code> i wskazuje ten korzeń. Ten wariant zachowuje
+    pojedyncze źródło wspólnego kodu w <code>core/</code>.</li>
+    <li><strong>Natywne mechanizmy:</strong> dwanaście procedur RelAI jest wykrywalnymi skillami,
+    cykl życia korzysta z <code>hooks/hooks.json</code> i aktualnych zdarzeń Codeksa
+    (<code>SessionStart</code>, <code>PreToolUse</code>, <code>SessionEnd</code> oraz potrzebnych
+    zdarzeń pomocniczych), a instalacja, aktualizacja i usunięcie pluginu przechodzą przez
+    marketplace i polecenia <code>codex plugin</code>. Pluginowe hooki wymagają osobnego zaufania
+    użytkownika; ta granica ma zostać zmierzona i opisana, nie ukryta.</li>
+    <li><strong>Brak sztucznego MCP i aplikacji UI:</strong> plugin składa się ze skilli, hooków,
+    skryptów oraz zasobów potrzebnych RelAI. MCP ani UI nie powstają bez funkcjonalnej potrzeby.</li>
+    <li><strong>Granica projektu:</strong> instalator integracji projektowej realizuje D-86:
+    <code>AGENTS.md</code> staje się głównym routerem, a <code>CLAUDE.md</code> wskaźnikiem bez
+    utraty istniejącej treści; deinstalacja odwraca wyłącznie własne zmiany. Instalator Cursora
+    dostaje ten sam układ.</li>
+    <li><strong>Bezpieczny pomiar:</strong> adapterów Codeksa ani Cursora nie instaluje się w samym
+    repozytorium RelAI. Wszystkie próby projektowe odbywają się w projektach kontrolnych, a
+    instalacje, marketplace, cachebustery i konfiguracje tymczasowe są usuwane po testach.</li>
+    <li><strong>Źródło prawdy o Codeksie:</strong> aktualny skill <code>plugin-creator</code>,
+    oficjalna dokumentacja OpenAI oraz próba na lokalnym Codeksie 0.153.4. Stare fakty techniczne
+    z promptu E7 z 2026-08-17 nie są wiążące.</li>
+  </ul>
 </section>
 
 <footer>

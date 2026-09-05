@@ -1,7 +1,8 @@
 ---
+name: relai-update
 description: Aktualizuje projekt RelAI do wersji zainstalowanego pluginu — pokazuje różnice, zmienia wyłącznie za zgodą, szanuje lokalne nadpisania i kończy wpisem w dzienniku
-argument-hint: ""
 ---
+
 
 # /relai-update — aktualizacja projektu do wersji pluginu
 

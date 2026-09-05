@@ -1,6 +1,6 @@
 {
   "name": "relai-core",
-  "version": "1.9.3",
+  "version": "1.10.0",
   "description": "Wspolny rdzen RelAI: specyfikacje dokumentow, opisy procesu i guardrails jako czyste skrypty Node. Adaptery narzedzi (Claude Code, Cursor, Codex) korzystaja z tych samych plikow.",
   "templates": "./templates/",
   "guardrails": [
@@ -64,6 +64,19 @@
       "manifest": "./../adapters/cursor/README.md",
       "entry": "./../adapters/cursor/install.js",
       "models": "./../adapters/cursor/MODELE.md",
+      "uses": [
+        "./templates/",
+        "./guardrails/secret-scan.js",
+        "./process/session-signals.js",
+        "./process/work-artifacts.js"
+      ]
+    },
+    {
+      "id": "codex",
+      "root": "./../adapters/codex/",
+      "manifest": "./../.codex-plugin/plugin.json",
+      "entry": "./../hooks/hooks.json",
+      "models": "./../adapters/codex/MODELE.md",
       "uses": [
         "./templates/",
         "./guardrails/secret-scan.js",

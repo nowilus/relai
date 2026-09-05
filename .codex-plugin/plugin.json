@@ -1,0 +1,24 @@
+{
+  "name": "relai",
+  "version": "1.10.0",
+  "description": "Documentation-first project process framework for Codex.",
+  "author": { "name": "nowilus", "url": "https://github.com/nowilus" },
+  "homepage": "https://github.com/nowilus/relai",
+  "repository": "https://github.com/nowilus/relai",
+  "license": "MIT",
+  "keywords": ["documentation", "process", "project-memory", "planning", "workflow"],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "RelAI",
+    "shortDescription": "Your project remembers everything.",
+    "longDescription": "Documentation-first project process framework for Codex.",
+    "developerName": "nowilus",
+    "category": "Productivity",
+    "capabilities": ["Write"],
+    "defaultPrompt": [
+      "Start or continue a RelAI project session",
+      "Run the current RelAI plan stage",
+      "Show the project's current state"
+    ]
+  }
+}

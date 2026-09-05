@@ -1,15 +1,11 @@
 # STATUS — plan ROZWOJ_PO_WYDANIU
 
-Plan: [PLAN.html](PLAN.html) · Utworzony: 2026-08-12 · Status planu: **ZAMROŻONY 2026-08-21**
-(wcześniej ZAAKCEPTOWANY 2026-08-12 z Aneksem A) · Model wykonawczy etapów: Opus (z ustawień
-projektu; architektura i plany: Fable)
+Plan: [PLAN.html](PLAN.html) · Utworzony: 2026-08-12 · Status: **ZAAKCEPTOWANY 2026-08-12,
+ODMROŻONY 2026-09-05 (A–B)** · Modele: Opus; **E7: gpt-5.6-terra/high w Codeksie**
+(wyjątek D-85; architektura i plany: Fable)
 
-> **Zamrożony decyzją Łukasza 2026-08-21**, przy zamykaniu planu OPTYMALIZACJA_KONTEKSTU. Powód:
-> jedyny niezamknięty etap to **E7 (adapter Codeksa)**, a konto Codeksa jest w planie darmowym
-> i nie ma kto przeprowadzić pilotażu — bez cudzej maszyny i cudzych oczu etapu nie da się
-> zweryfikować. Plan wraca do życia razem z dostępem; do tego czasu nie jest planem aktywnym
-> i nie czeka na niego żadna sesja. **Cztery odnogi tego planu zostają otwarte** i są widoczne
-> w `docs/STATE.md` — zamrożenie planu ich nie dotyczy.
+> **Odmrożony 2026-09-05 (Aneks B):** Codeks 0.153.4 pozwala zbudować i zmierzyć natywny plugin
+> 1.10.0 w projektach kontrolnych. Repozytorium jest korzeniem pluginu; 2.0.0 zostaje w E8.
 >
 > **Zamrożenie potwierdzone formalnie 2026-09-01.** Do tej daty stan „ZAMROŻONY" stał w tym pliku,
 > w `CLAUDE.md` i w `STATE.md`, ale brakowało jawnej zgody człowieka — pozycja czekała w sekcji
@@ -26,7 +22,7 @@ projektu; architektura i plany: Fable)
 | E4 | Rdzeń przenośny (1.4.0) | **ZREALIZOWANY 2026-08-12** | [PROMPT_ETAP_4.md](PROMPT_ETAP_4.md) | 9/9 punktów weryfikacji; `config-protection` świadomie nierozdzielony — powód w `core/README.md` |
 | E5 | Adapter Cursor (1.5.0) | **ZREALIZOWANY 2026-08-12** | [PROMPT_ETAP_5.md](PROMPT_ETAP_5.md) | 10/10 punktów weryfikacji; rozpoznanie Cursora zmierzone na buildzie produktu i realnych sesjach agenta |
 | E6 | Pilotaż Cursora w firmie | **ZREALIZOWANY 2026-08-17** | [PROMPT_ETAP_6.md](PROMPT_ETAP_6.md) | pilotaż w wariancie zastępczym (autor, aplikacja Cursora, model Grok 4.6); 8/8 punktów weryfikacji, kryterium "ktoś inny niż autor" **niespełnione** — świadomie |
-| E7 | Adapter Codex (1.6.0) | **GOTOWY DO STARTU** | [PROMPT_ETAP_7.md](PROMPT_ETAP_7.md) | ten sam scenariusz akceptacyjny co E6; wejście: odnoga REKOMENDACJA_MODELU i decyzja AGENTS.md vs CLAUDE.md |
+| E7 | Natywny plugin Codex (1.10.0) | **W TOKU 2026-09-05** | [PROMPT_ETAP_7.md](PROMPT_ETAP_7.md) | gpt-5.6-terra/high; [macierz E7](E7-REPORT.md); część implementacji i instalacji PASS, wymagane próby świeżej sesji oraz praca naprzemienna pozostają NOT TESTED |
 | E8 | Wydanie 2.0.0 i dystrybucja | OCZEKUJE | — | upublicznienie repo — decyzja człowieka; bez niej dystrybucja wewnętrzna |
 
 ## Odnogi
@@ -120,3 +116,7 @@ projektu; architektura i plany: Fable)
   wynikiem pomiaru. P1 zawężone (część sekretowa Cursora zamknięta), P2 obniżone do niskiego dla
   Cursora. Nowa odnoga REKOMENDACJA_MODELU. Szczegóły: wpis w `docs/DZIENNIK.md` z 2026-08-17.
   Wygenerowano PROMPT_ETAP_7.
+- 2026-09-05 — plan **ODMROŻONY Aneksem B**; E7 zaktualizowany do natywnego pluginu Codeksa 1.10.0,
+  wykonawca `gpt-5.6-terra/high`, odświeżono PROMPT_ETAP_7 z realnego stanu repozytorium.
+- 2026-09-05 — **E7 rozpoczęty** po potwierdzeniu wykonawcy `gpt-5.6-terra/high`; zakres obejmuje
+  wyłącznie lokalny plugin Codeksa 1.10.0 i projekty kontrolne.

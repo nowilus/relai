@@ -27,10 +27,60 @@
 
 const fs = require('fs');
 const path = require('path');
+const crypto = require('crypto');
 
 const ADAPTER = __dirname;
 const REPO_ROOT = path.resolve(ADAPTER, '..', '..');
 const MANIFEST_NAME = 'relai-install.json';
+const GUIDANCE_DIR = path.join('.cursor', 'relai-guidance');
+
+function hash(text) { return crypto.createHash('sha256').update(text).digest('hex'); }
+
+function router(originals) {
+  const links = originals.map((name) => '- Preserve and follow `.cursor/relai-guidance/original-' + name.toLowerCase() + '`.').join('\n');
+  return '# RelAI project router\n\nFollow the RelAI process before editing: read the project state and active plan first.\n' +
+    'Do not perform non-trivial work outside the active stage without asking whether to create a branch, an addendum, or a deferred item.\n' +
+    (links ? '\n## Preserved project guidance\n' + links + '\n' : '');
+}
+
+function claudePointer() { return '# Claude Code compatibility\n\nRead AGENTS.md for the active project instructions.\n'; }
+
+function guidanceInstall(projekt) {
+  const dir = path.join(projekt, GUIDANCE_DIR);
+  const statePath = path.join(dir, 'state.json');
+  if (fs.existsSync(statePath)) return;
+  const originals = [];
+  for (const name of ['AGENTS.md', 'CLAUDE.md']) {
+    const file = path.join(projekt, name);
+    if (!fs.existsSync(file)) continue;
+    fs.mkdirSync(dir, { recursive: true });
+    fs.copyFileSync(file, path.join(dir, 'original-' + name.toLowerCase()));
+    originals.push(name);
+  }
+  const agents = router(originals);
+  const claude = claudePointer();
+  fs.writeFileSync(path.join(projekt, 'AGENTS.md'), agents, 'utf8');
+  fs.writeFileSync(path.join(projekt, 'CLAUDE.md'), claude, 'utf8');
+  fs.mkdirSync(dir, { recursive: true });
+  fs.writeFileSync(statePath, JSON.stringify({ originals, managed: { 'AGENTS.md': hash(agents), 'CLAUDE.md': hash(claude) } }, null, 2) + '\n', 'utf8');
+}
+
+function guidanceUninstall(projekt) {
+  const dir = path.join(projekt, GUIDANCE_DIR);
+  let state;
+  try { state = JSON.parse(fs.readFileSync(path.join(dir, 'state.json'), 'utf8')); } catch (_) { return true; }
+  for (const [name, expected] of Object.entries(state.managed || {})) {
+    try { if (hash(fs.readFileSync(path.join(projekt, name), 'utf8')) !== expected) return false; } catch (_) { return false; }
+  }
+  for (const name of ['AGENTS.md', 'CLAUDE.md']) {
+    const backup = path.join(dir, 'original-' + name.toLowerCase());
+    const destination = path.join(projekt, name);
+    if (fs.existsSync(backup)) fs.renameSync(backup, destination);
+    else fs.unlinkSync(destination);
+  }
+  try { fs.unlinkSync(path.join(dir, 'state.json')); fs.rmdirSync(dir); } catch (_) { /* user content wins */ }
+  return true;
+}
 
 function wersja() {
   try {
@@ -148,6 +198,8 @@ function istnialCudzy(cfg) {
 function install(projekt, bezSkanu) {
   const zapisane = [];
 
+  guidanceInstall(projekt);
+
   for (const src of pliki(path.join(ADAPTER, 'rules'), /\.mdc$/i)) {
     kopiuj(src, path.join(projekt, '.cursor', 'rules', path.basename(src)), zapisane);
   }
@@ -222,6 +274,11 @@ function uninstall(projekt) {
   if (!manifest) {
     process.stderr.write('RelAI install: nie widze ' + manifestPath + ' — nie wiem, co bylo instalowane, ' +
       'wiec nie usuwam niczego. Skasuj pliki recznie albo zainstaluj adapter ponownie.\n');
+    return 1;
+  }
+
+  if (!guidanceUninstall(projekt)) {
+    process.stderr.write('RelAI install: AGENTS.md albo CLAUDE.md zostal zmieniony po instalacji; zachowuje oba pliki i przerywa deinstalacje.\n');
     return 1;
   }
 

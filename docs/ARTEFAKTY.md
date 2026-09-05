@@ -119,6 +119,14 @@ Wiersz komend przy poprzednim przeliczeniu mówił `10 / 10` przy jedenastu wier
 `.claude/relai/templates/` łącznie z dziewięcioma plikami katalogu `HTML_PLAN/` (22 + 9 = 31) —
 czyli liczba plików, nie liczba specyfikacji. Rejestr trzyma się stanu z dysku.
 
+## Adapter Codex — artefakty natywne (1.10.0)
+
+| Artefakt | Plik | Wersja | Data | Co się zmieniło | Po co |
+|---|---|---|---|---|---|
+| Router Codexa | `adapters/codex/AGENTS.md` | 1 | 2026-09-05 | nowy artefakt; krótka warstwa zawsze-w-kontekście | Reguła procesu musi działać niezależnie od automatycznego wyzwolenia skilla |
+| Skille Codexa | `adapters/codex/skills/` | 1 | 2026-09-05 | 12 procedur wygenerowanych deterministycznie z komend Claude Code + 2 skille rdzeniowe | Jedno źródło treści, wykrywalny format Codexa i walidacja rozjazdu |
+| Instrukcja adaptera Codexa | `adapters/codex/README.md` | 1 | 2026-09-05 | nowy artefakt; instalacja, D-86 i macierz dowodów | Użytkownik dostaje faktyczną ścieżkę instalacji, nie deklarację z manifestu |
+
 ## Poza rejestrem — świadomie
 
 - **Hooki, guardraile, walidator, `session-signals.js`** — kod wykonawczy, nie instrukcja czytana

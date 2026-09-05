@@ -1601,3 +1601,97 @@ subskrypcja Claude nie ma z tym nic wspólnego — plugin odpala lokalną binark
 - Sekcja „Czeka na człowieka" bez zmian: sześć pozycji, żadna nieprzeterminowana.
 
 Autor: RelAI (Opus 5 + gpt-6-astra) + Lukasz
+
+### 2026-09-05 — Plan ROZWOJ_PO_WYDANIU odmrożony; E7 przekazany do lekkiej sesji Codeksa
+
+Autor: RelAI (gpt-5.6-sol) + Lukasz
+
+### 2026-09-05 — E7: natywny plugin Codeksa 1.10.0 — implementacja lokalna i instalacja kontrolna
+
+**Zrobione:**
+
+- Dodano natywny manifest `.codex-plugin/plugin.json`, repo-marketplace `.agents/plugins/marketplace.json`,
+  adapter `adapters/codex/`, generator 12 skilli, router `AGENTS.md`, instalator/deinstalator D-86,
+  hooki `SessionStart`, `PreToolUse` i `SessionEnd` oraz trzeci wpis w `core/MANIFEST.json`.
+- Instalator Cursora wykonuje tę samą odwracalną zamianę `AGENTS.md` / `CLAUDE.md`, zachowując
+  zastaną treść w kopii i odtwarzając ją przy deinstalacji.
+- Wersja deklarowana przez manifesty adapterów została podbita do `1.10.0`; rdzeń nie jest kopiowany.
+- Hook sekretów ma teraz wrappery fail-closed dla Windows i Unix oraz walidator sprawdzający
+  `commandWindows`, obecność obu wrapperów i rootowy `hooks/hooks.json`.
+- Plan wykonawczy wydania Codexa 1.10.0 został zaakceptowany; brak Cursor/Claude nie blokuje
+  publikacji, ale pozostaje jawnie `NOT TESTED`.
+- Oficjalny validator `plugin-creator` zaakceptował root pluginu po przeniesieniu wygenerowanych
+  skilli do `skills/` i dodaniu trzech promptów startowych w metadanych interfejsu.
+
+**Zweryfikowane — jak dokładnie:**
+
+- `node --test adapters/codex/tests/*.test.js core/guardrails/tests/*.test.js` — 26/26 PASS.
+- `node core/tools/validate-adapters.js` — kod 0, trzy adaptery, pięć zgodnych źródeł wersji `1.10.0`.
+- `git diff --check` — kod 0.
+- `codex plugin marketplace add` i `codex plugin add relai@relai-e7-2` — marketplace oraz plugin
+  widoczne, instalacja wersji `1.10.0` zakończona sukcesem.
+- Świeży proces `codex exec` uruchomił hooki pluginu; `SessionStart` wykonał się w projekcie kontrolnym,
+  a cache pluginu zawiera manifest, root `hooks/hooks.json` i 14 skilli. Szczegółowa macierz jest w
+  [E7-REPORT.md](plany/ROZWOJ_PO_WYDANIU/E7-REPORT.md).
+- Cleanup: plugin i marketplace usunięte, `config.toml` przywrócony sumą SHA-256
+  `32DEC73C724985898C9D823365DAA333DBD03CBB188208F83D54B2BAA8EF64A8`, katalogi `relai-e7-*`
+  poza repo usunięte.
+
+**Świadomie odłożone:**
+
+- Pełny dziewięciokrokowy scenariusz świeżej sesji, niezależne próby blokady sekretu przez `Bash`/
+  `apply_patch` i bez Node.js oraz praca naprzemienna Codex–Cursor–Claude pozostają `NOT TESTED`.
+- P1/P2 nie zostały rozstrzygnięte, a E7 nie został oznaczony jako zrealizowany.
+
+**Do zrobienia przez człowieka:**
+
+- Dokończyć scenariusze oznaczone `NOT TESTED` z macierzy E7, następnie dopiero rozstrzygnąć P1/P2,
+  zamknąć E7 i wygenerować prompt E8.
+
+Autor: RelAI (gpt-5.6-terra/high) + Lukasz
+
+**Zrobione:**
+
+- Plan ROZWOJ_PO_WYDANIU odmrożony Aneksem B, ponieważ lokalny Codeks 0.153.4 ma już natywne
+  pluginy, repo-marketplace, skille i hooki potrzebne do realnej implementacji oraz pomiaru E7.
+- Rozstrzygnięto dwie decyzje architektoniczne: wersja po E7 to **1.10.0** (2.0.0 zostaje w E8),
+  a repozytorium RelAI jest korzeniem pluginu z `.codex-plugin/plugin.json` oraz marketplace w
+  `.agents/plugins/marketplace.json`, bez drugiej ręcznie utrzymywanej kopii `core/`.
+- D-85 dostało datowany wyjątek: E7 wykona `gpt-5.6-terra` z effortem `high` w Codeksie. Pierwotnie
+  proponowane `gpt-5.6-sol/high` zostało zastąpione przed rozpoczęciem implementacji ze względu na
+  mały pozostały limit konta.
+- `PROMPT_ETAP_7.md` odświeżony z realnego stanu 1.9.3 i aktualnej dokumentacji OpenAI. Obejmuje
+  natywny manifest, dwanaście skilli, hooki, D-86 dla Codeksa i Cursora, walidację trzech
+  adapterów, realną świeżą sesję, pracę naprzemienną, macierz PASS/FAIL/NOT TESTED oraz pełny
+  cleanup.
+- `CLAUDE.md`, `STATE.md` i `STATUS.md` wskazują odtąd plan jako aktywny, z E7 gotowym do startu.
+- Historyczne streszczenie wydań w `STATE.md` skrócone bez utraty faktów — pełne dowody pozostają
+  w dzienniku — aby pakiet E7 mieścił się w progu dokumentu startowego.
+
+**Zweryfikowane — jak dokładnie:**
+
+- Metadane bieżącej sesji: model `gpt-5.6-sol`, effort `high`, okno kontekstu 828 400 tokenów;
+  `HEAD=f38ae47f8ef04446fc64fa7e27afdc36bcc8d062`, drzewo było czyste przed zmianami planistycznymi.
+- Oficjalna dokumentacja OpenAI otwarta 2026-09-05 potwierdziła manifest
+  `.codex-plugin/plugin.json`, repo-marketplace `.agents/plugins/marketplace.json`, skille,
+  `hooks/hooks.json`, aktualne zdarzenia i osobne zaufanie dla hooków pluginu.
+- `codex-cli 0.153.4`: polecenia `plugin add|list|remove` i
+  `plugin marketplace add|list|upgrade|remove` potwierdzone przez lokalne `--help`.
+- Pomiar rdzeniem po synchronizacji: warstwa startowa 64 285 / 81 920 B; `STATE.md`
+  12 198 / 12 288 B, aktywny `STATUS.md` 10 114 / 10 240 B. Ponad własnym progiem pozostaje tylko
+  istniejąca sekcja ryzyk; nie ma w niej zamkniętych wierszy do rotacji.
+- Implementacji, instalacji pluginu i testów produktu świadomie nie uruchamiano w tej sesji;
+  zadaniem było wyłącznie przygotowanie kompletnego pakietu nowej sesji.
+
+**Świadomie odłożone:**
+
+- Cała implementacja i weryfikacja E7 — do świeżej sesji `gpt-5.6-terra/high` uruchomionej
+  aktualnym `PROMPT_ETAP_7.md`.
+- Commit pakietu przekazania — użytkownik nie wyraził zgody na commit; nowy prompt opisuje
+  oczekiwany nieczysty stan i zamkniętą listę siedmiu zmienionych dokumentów.
+
+**Do zrobienia przez człowieka:**
+
+- Uruchomić nową sesję Codeksa na `gpt-5.6-terra` z effortem `high` i przekazać jej
+  `docs/plany/ROZWOJ_PO_WYDANIU/PROMPT_ETAP_7.md`. Ten punkt nie jest bramką planu — prompt zawiera
+  jawną zgodę na start E7.

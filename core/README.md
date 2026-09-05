@@ -1,7 +1,7 @@
 # Rdzeń RelAI
 
 Ten katalog jest **wspólną częścią RelAI** — tym, co nie należy do żadnego narzędzia. Adaptery
-(dziś jeden: Claude Code) korzystają z tych samych plików, zamiast trzymać własne kopie.
+Claude Code, Cursor i Codex korzystają z tych samych plików, zamiast trzymać własne kopie.
 
 Powstał w etapie E4 planu ROZWOJ_PO_WYDANIU, przed adapterami Cursora i Codexa — żeby granica
 istniała, zanim po drugiej stronie pojawi się drugi konsument.
@@ -33,6 +33,8 @@ Dzisiejszy adapter Claude Code mieszka w `adapters/claude-code/` (skille, komend
 manifest w `.claude-plugin/` — tam, gdzie wymaga tego Claude Code. Od 1.5.0 obok stoi
 `adapters/cursor/`: reguły `.mdc`, dwa hooki i instalator, który kopiuje do projektu komendy
 i skille **z adaptera Claude Code** — bo Cursor czyta ten sam format (zmierzone, `docs/PRZENOSNOSC.md`).
+Od 1.10.0 `adapters/codex/` dostarcza natywny router projektu, generator skilli i cienkie hooki;
+manifest pluginu leży w `.codex-plugin/`, a automatycznie wykrywane hooki w rootowym `hooks/`.
 
 ## Instalacja pre-commita
 

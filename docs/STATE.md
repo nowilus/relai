@@ -4,21 +4,15 @@ Stan na: 2026-09-05
 
 ## Gdzie jesteśmy
 
-RelAI jest wydany w **1.9.3** i działa w dwóch narzędziach — Claude Code oraz Cursorze — z tym samym
-kompletem dokumentów i tym samym procesem. Wydanie 1.9.0 domknęło temat modeli: pytanie „na jakim
-modelu to wykonać" pokazuje nazwy dostępne w danym narzędziu zamiast trzech ogólnych klas, listę da
-się odświeżyć jedną komendą, a stara lista sama się przypomina. Poprawka 1.9.1 z tego samego dnia
-usunęła defekt, przez który raport plików roboczych wywracał się na katalogu wątku pobocznego.
-**1.9.2 naprawia gitowy pre-commit po pierwszym zgłoszeniu z cudzego projektu** — hook przestał
-blokować każdy commit w projekcie z `"type": "module"`, skan zaczął widzieć nazwy z przedrostkiem,
-a instalacja kończy się testem dymnym zamiast samego komunikatu o sukcesie.
-Adapter Cursora ma przebieg na **1.9.1 we własnym narzędziu** — instalacja, zdania o liście
-modeli, blokada sekretu przez opakowanie powłoki i deinstalacja z cudzym wpisem.
-**1.9.3 zamyka dwie regresje, które sam fix 1.9.2 wprowadził**: skan blokował poprawny odczyt
-sekretu ze środowiska w Pythonie, Vite i Deno, a deinstalacja zostawiała wiszące wywołanie
-w cudzym hooku. Znalazł je **Codex** w adversarial review własnego pluginu i on je naprawił —
-to pierwszy raz, gdy kod produktu zmienił model spoza Anthropic. Największa otwarta rzecz jest
-poza kodem: RelAI nie miał jeszcze użytkownika spoza autora.
+RelAI jest na **1.9.3** i działa w Claude Code oraz Cursorze z jednym rdzeniem procesu. Seria
+1.9.x dodała listy modeli per narzędzie, poprawiła sprzątanie oraz uszczelniła pre-commit: działa
+w projektach ESM, kończy instalację testem dymnym i nie blokuje poprawnych odczytów sekretów ze
+środowiska. Szczegóły i dowody wydań są w dwóch ostatnich wpisach dziennika.
+
+**ROZWOJ_PO_WYDANIU odmrożono 2026-09-05 Aneksem B.** E7 ma już lokalną implementację natywnego
+pluginu Codeksa 1.10.0, manifest, marketplace, generator skilli, hooki i integrację D-86 dla Codexa
+oraz Cursora. Etap pozostaje W TOKU, bo pełny scenariusz świeżej sesji, niezależny test blokady
+sekretów i praca naprzemienna trzech narzędzi nie mają jeszcze kompletu dowodów.
 
 ## Co działa
 
@@ -64,6 +58,9 @@ poza kodem: RelAI nie miał jeszcze użytkownika spoza autora.
   w aplikacji Cursora, z reguł zawsze obecnych w kontekście, bez przypominania.
 - Repozytorium ma jawną granicę: wspólny rdzeń i dwa adaptery, a walidator wykrywa, gdy adapter
   odjedzie od rdzenia — od 1.9.0 sprawdza też, czy lista modeli istnieje i ma czytelną datę.
+- **E7 ma trzeci adapter lokalnie.** Natywny manifest Codeksa 1.10.0, repo-marketplace, 14
+  wygenerowanych katalogów skilli, router `AGENTS.md`, integracja D-86 i trzy hooki przechodzą
+  lokalną walidację; instalacja w tymczasowym marketplace zakończyła się widoczną wersją 1.10.0.
 - W folderze, który nie jest projektem RelAI, plugin jest całkowicie niewidoczny.
 
 ## Nad czym pracujemy teraz
@@ -71,9 +68,8 @@ poza kodem: RelAI nie miał jeszcze użytkownika spoza autora.
 - **Migracja JiraManagera** — ostatni projekt, w którym start sesji kosztuje 386 KB dokumentów,
   a rotacja nigdy nie ruszyła. Czeka na okno właściciela; do tego czasu ryzyko R5 zostaje otwarte,
   zawężone do tego jednego projektu.
-- **Plan ROZWOJ_PO_WYDANIU pozostaje zamrożony** (6/8) i jest jedynym niezamkniętym planem. E7 —
-  adapter Codeksa — czeka na dostęp; linia „Aktywny plan" w `CLAUDE.md` brzmi `brak`, bo plan
-  zamrożony nie jest planem aktywnym.
+- **ROZWOJ_PO_WYDANIU jest aktywny** (6/8); E7 — natywny plugin Codeksa 1.10.0 — czeka na świeżą
+  sesję `gpt-5.6-terra/high` z aktualnym `PROMPT_ETAP_7.md`.
 
 ## Co dalej
 
@@ -102,8 +98,9 @@ poza kodem: RelAI nie miał jeszcze użytkownika spoza autora.
   i opisuje RelAI 1.5.x, więc wymaga odświeżenia przed startem.
 - Potwierdzić albo cofnąć **osiem rozstrzygnięć z E2** planu OPTYMALIZACJA_KONTEKSTU (wypisane
   2026-09-01) oraz usunąć metadane sesji `ProbaCursorE6` z `~/.claude/` i `~/.cursor/`.
-- Po odmrożeniu E7: adapter Codeksa i `AGENTS.md` jako plik główny projektu (D-86) wraz
-  z przepięciem instalatora Cursora.
+- **Dokończyć E7:** dziewięciokrokowy scenariusz świeżej sesji, niezależny test `PreToolUse` dla
+  Bash/apply_patch i braku Node.js oraz praca naprzemienna Codex–Cursor–Claude; macierz jest w
+  `docs/plany/ROZWOJ_PO_WYDANIU/E7-REPORT.md`.
 - **Feedback od osób spoza projektu** — pilotaż poprowadził autor, więc kryterium „ktoś inny niż
   autor" nadal czeka.
 
@@ -164,16 +161,17 @@ Komendy i frazy: [KOMENDY.md](KOMENDY.md)
 
 Plany: BUDOWA_RELAI 10/10 • OPTYMALIZACJA_KONTEKSTU 5/5 • HIGIENA_DOKUMENTOW 6/6 •
 SPRZATANIE_ARTEFAKTOW 4/4 • REKOMENDACJA_MODELU 4/4 (zamknięty 2026-09-04) •
-ROZWOJ_PO_WYDANIU 6/8 (ZAMROŻONY) • **Aktywny plan: brak** •
-Warstwa startowa: **53,6 KB / 80 KB** — jedna pozycja ponad progiem cząstkowym (sekcja ryzyk
-21,9 przy 12; STATE zszedł do 11,99) • Dziennik: **119,0 KB / 150 KB** (22 wpisy) •
+ROZWOJ_PO_WYDANIU 6/8 (**AKTYWNY, E7 W TOKU**) • **Aktywny plan: ROZWOJ_PO_WYDANIU** •
+Warstwa startowa: **62,8/80 KB** — ponad progiem tylko ryzyka **21,3/12 KB**; STATE **11,9/12**,
+status **9,9/10** • Dziennik: **127,2/150 KB** (24 wpisy) •
 Lekcje: **41,0 KB / 50 KB** (22 w żywym rejestrze, ostatnia L-0091) • Sekcja ryzyk w widoku
 rotacji: **15,3 KB / 12 KB** — nie ma czego rotować • Archiwum: siedem plików dziennika, trzy
 lekcji, dwa ryzyk • Sprawy czekające na człowieka: **6 tutaj**, 32 w PolyFlow, żadna
 nieprzeterminowana • Otwarte ryzyka: **9** • Zamknięte: **8, w archiwum** •
 Otwarte bramki manualne: **1** • Otwarte wątki: **1** — odnoga `OPIS_REPO` •
 Artefakty w rejestrze: **40** • Zasady aktywne: **15 przy limicie 15** •
-Progi w katalogu: **18, z tego 17 z adresem egzekwowania** • Adaptery: 2 • Komendy: **12** •
+Progi w katalogu: **18, z tego 17 z adresem egzekwowania** • Adaptery: **2 + Codex w E7** •
+Procedury: **12** •
 Scenariusze akceptacyjne: 4/4 + pilotaż Cursora •
 Modele, na których zmierzono proces: 5 (Fable, Opus, Haiku, Composer/auto, Grok 4.6) •
 Projekty na RelAI: 3 (RelAI 1.9.3, PolyFlow 1.8.0, JiraManager przed migracją) •

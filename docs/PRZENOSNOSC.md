@@ -23,6 +23,12 @@ jak zachowania RelAI mierzy się sesją, nie zapisem w specyfikacji (L-0005).
 > **[dokumentacja]** — strona producenta. Sekcja 2 (Codex) pozostaje bez zmian, na dokumentacji —
 > jej próba należy do E7.
 
+> **Aktualizacja 2026-09-05 (E7, stan częściowy).** Codex CLI 0.153.4 potwierdził lokalnie
+> instalację repo-marketplace i pluginu `relai` 1.10.0. Świeży proces uruchomił hooki pluginu,
+> a `SessionStart` zwrócił kontekst RelAI w projekcie z markerem. Źródła oznaczam **[próba]**,
+> **[kod produktu]** i **[dokumentacja]**; pełna macierz i pozycje `NOT TESTED` są w
+> `docs/plany/ROZWOJ_PO_WYDANIU/E7-REPORT.md`.
+
 ---
 
 ## 1. Cursor
@@ -160,7 +166,7 @@ mieliśmy — dla projektu po adopcji z regułami odziedziczonymi to realna gran
 | Zdarzenia | `SessionStart`, `SessionEnd`, `SubagentStart`, `SubagentStop`, `PreToolUse`, `PermissionRequest`, `PostToolUse`, `PreCompact`, `PostCompact`, `UserPromptSubmit`, `Stop` | [learn.chatgpt.com/docs/hooks](https://learn.chatgpt.com/docs/hooks) |
 | Blokada | `PreToolUse` — „To deny a supported tool call, return this hook-specific shape" z `"permissionDecision": "deny"`, alternatywnie kod wyjścia `2` z powodem na stderr; `PermissionRequest` — `"behavior": "deny"`; `UserPromptSubmit` — `"decision": "block"` | jw. |
 | Czego nie da się | `PostToolUse` nie cofa skutków — „it can't undo side effects from a tool that already ran" | jw. |
-| Przeglądarka hooków | polecenie `/hooks` w TUI pokazuje aktywne hooki i pozwala je przełączać (od wersji 0.129.0) | `<DO UZUPEŁNIENIA: potwierdzić na stronie producenta — informacja pochodzi z wyszukiwania, nie z otwartej strony dokumentacji>` |
+| Przeglądarka hooków | Nie opieramy gwarancji E7 na poleceniu `/hooks`; oficjalna dokumentacja hooków opisuje zdarzenia i konfigurację, ale nie potwierdza tego interfejsu | **[dokumentacja]** sprawdzone 2026-09-05 |
 
 **Co to znaczy dla RelAI.** Założenie planu, że Codex jest narzędziem **bez blokad harnessu**
 („brak blokad harnessu opisany wprost", sekcja 5), jest **nieaktualne**: nazewnictwo
@@ -175,7 +181,7 @@ bez listy narzędzi objętych blokadą.
 | Skille — lokalizacje | `$REPO_ROOT/.agents/skills`, `$CWD/../.agents/skills`, `$HOME/.agents/skills`, `/etc/codex/skills` | [learn.chatgpt.com/docs/build-skills](https://learn.chatgpt.com/docs/build-skills) |
 | Struktura | katalog z `SKILL.md` (wymagany, metadane `name` i `description`), opcjonalnie `scripts/`, `references/`, `agents/openai.yaml` | jw. |
 | Wywołanie | jawnie przez `$nazwa-skilla` albo pośrednio, gdy zadanie pasuje do `description` | jw. |
-| Prompty własne | pliki `.md` w `$CODEX_HOME/prompts/` (domyślnie `~/.codex/prompts/`), wywołanie `/nazwa`; **producent kieruje do skilli jako formatu autorskiego** | jw. + `<DO UZUPEŁNIENIA: strona dokumentacji opisująca custom prompts — adresy learn.chatgpt.com/docs/prompts-and-skills/custom-prompts i /docs/prompts-and-skills/skills zwracają 404; szczegóły ścieżek pochodzą z wyszukiwania>` |
+| Prompty własne | RelAI nie używa własnych promptów Codeksa; procedury są generowane jako skille z `SKILL.md` | **[dokumentacja]** oficjalny kierunek rozwoju wskazuje skille; ścieżki promptów nie są kontraktem adaptera |
 
 **Co to znaczy dla RelAI.** Mechanizm `description` + dopasowanie do zadania to ten sam wzorzec
 auto-wyzwalania, który w Claude Code okazał się zależny od modelu (R2) — czyli **P2 zostaje
@@ -183,23 +189,24 @@ wysokie**. Reguła musi jechać w `AGENTS.md`, skill może nieść co najwyżej 
 
 ### 2.4 Sandbox i dostęp do plików
 
-`<DO UZUPEŁNIENIA: model sandboxa Codeksa (tryby zatwierdzania, dostęp do plików poza katalogiem
-roboczym, dostęp sieciowy) — nie sprawdzony w tym etapie; potrzebny w E7 do rozstrzygnięcia, czy
-adapter może w ogóle prowadzić dokumenty projektu bez pytania o zgodę przy każdym zapisie>`
+**[próba, ograniczona]** `codex exec 0.153.4` uruchomiony 2026-09-05 w kontrolnym katalogu z
+`-s read-only`, `--ephemeral` i `--dangerously-bypass-hook-trust`; sesja wypisała aktywny model,
+załadowała hooki pluginu i odczytała skill. Nie wykonano pełnego scenariusza zapisów, odmowy
+sekretu i pracy naprzemiennej — te gwarancje pozostają `NOT TESTED` w E7.
 
 ---
 
 ## 3. Tabela gwarancji
 
-Stan po **E5** (adapter Cursora, 1.5.0). Kolumna „Cursor" mówi jedno z trzech: **działa tak samo**,
-**działa inaczej** (z opisem różnicy), **nie ma** (z powodem). Kolumna „Codex" jest wciąż
-z dokumentacji — jej próba należy do E7.
+Stan po **E7 (częściowo)** (adapter Codexa 1.10.0 i Cursor). Kolumna „Cursor" mówi jedno z trzech: **działa tak samo**,
+**działa inaczej** (z opisem różnicy), **nie ma** (z powodem). Kolumna „Codex" zawiera obecnie
+ dowody E7 oraz jawne `NOT TESTED` dla scenariuszy, których nie wykonano.
 
 ### 3.1 Mechanizmy
 
 | Gwarancja RelAI | Claude Code | Cursor (po E5) | Codex |
 |---|---|---|---|
-| Reguła zawsze w kontekście | `CLAUDE.md` projektu | **działa tak samo** — `.cursor/rules/relai-*.mdc`, `alwaysApply: true` (zmierzone). Różnica: limit 500 linii na regułę, więc treść jest w trzech plikach. **Pilotaż 2026-08-17 (E6):** potwierdzone w aplikacji z interfejsem i na modelu spoza Anthropic (Grok 4.6) — rytuał startu, zakres etapu i rytuał zamknięcia wykonane bez przypominania | `AGENTS.md` (limit 32 KiB) |
+| Reguła zawsze w kontekście | `CLAUDE.md` projektu | **działa tak samo** — `.cursor/rules/relai-*.mdc`, `alwaysApply: true` (zmierzone). Różnica: limit 500 linii na regułę, więc treść jest w trzech plikach. **Pilotaż 2026-08-17 (E6):** potwierdzone w aplikacji z interfejsem i na modelu spoza Anthropic (Grok 4.6) — rytuał startu, zakres etapu i rytuał zamknięcia wykonane bez przypominania | `AGENTS.md` (limit 32 KiB); **[dokumentacja]** limit potwierdzony, **[próba]** świeża sesja odczytała skille, ale projektowy router D-86 nie przeszedł pełnego scenariusza |
 | Kontekst na starcie sesji | hook `SessionStart` | **działa tak samo** — `sessionStart` + `additional_context` (zmierzone). Różnica: nie działa w agentach chmurowych; brak pola `cwd` (katalog z `workspace_roots`). **Pilotaż 2026-08-17 (E6):** potwierdzone w aplikacji — model zacytował wstrzyknięty blok dosłownie, razem z ustawieniami globalnymi z `~/.claude/relai/`, czyli hook przenosi warstwę niedostępną dla sesji (L-0010). Hook milczy w folderze bez markera RelAI — to zachowanie zamierzone, nie awaria | hook `SessionStart` |
 | Twarda blokada zapisu sekretu | hook `PreToolUse` + `deny` | **działa tak samo** — `preToolUse` + `permission: deny`, payload niesie `tool_input.content` (zmierzone: zapis klucza zablokowany, czysta treść przeszła). **Pilotaż 2026-08-17 (E6):** potwierdzone w aplikacji na modelu spoza Anthropic — próba zapisu klucza AWS do pliku śledzonego odbita przez `permission: deny`, plik nie powstał (dowód negatywny). Kolejność warstw: reguła odmawia pierwsza, hook zatrzymuje wtedy, gdy model mimo wszystko spróbuje | `PreToolUse` + `permissionDecision: deny` (do potwierdzenia: które narzędzia) |
 | Guardrail nie znika po cichu | brak interpretera = brak hooka, ale plugin jest instalowany razem z runtime'em | **działa inaczej.** Samo narzędzie **milczy i przepuszcza zapis**, gdy polecenia hooka nie da się uruchomić (zmierzone). Adapter obchodzi to opakowaniem powłoki: bez Node.js kończy się kodem 2, czyli blokadą **każdego** zapisu z komunikatem (zmierzone). Świadoma rezygnacja: instalacja z `--bez-skanu` | nie sprawdzone |

@@ -3,10 +3,10 @@
 </p>
 
 <p align="center">
-  <em>Wersja 1.9.3 &nbsp;·&nbsp; licencja MIT &nbsp;·&nbsp; wymaga Claude Code albo Cursora, plus Node.js 14+ &nbsp;·&nbsp; zero zależności npm</em>
+  <em>Wersja 1.10.0 &nbsp;·&nbsp; licencja MIT &nbsp;·&nbsp; wymaga Claude Code, Cursora albo Codexa, plus Node.js 14+ &nbsp;·&nbsp; zero zależności npm</em>
 </p>
 
-**RelAI to plugin do Claude Code (od 1.5.0 także adapter Cursora), który zamienia rozmowę
+**RelAI to plugin do Claude Code (od 1.5.0 także adapter Cursora, od 1.10.0 natywny plugin Codexa), który zamienia rozmowę
 z agentem w prowadzony projekt.**
 Ustalenia, decyzje, stan prac i historia zostają w plikach obok kodu — a nie w kontekście sesji,
 który za chwilę zniknie.
@@ -32,7 +32,7 @@ Then open Claude Code in a project folder and just talk. The plugin asks for con
 three questions, and generates the structure. Documentation is generated in the project's language
 — the plugin's own docs and this README are Polish, but a project set to English gets
 `docs/STATE.md`, `JOURNAL.md`, `LESSONS.md`, `DECISIONS.md`, `SETTINGS.md`, `COMMANDS.md`.
-Nine commands, nine hooks, four project profiles, MIT licence.
+Twelve procedures, native Codex hooks, four project profiles, MIT licence.
 
 </details>
 
@@ -73,15 +73,15 @@ pilnuje, żeby to, co ustalone, wylądowało w pliku.**
 
 ## Instalacja
 
-RelAI działa w dwóch narzędziach i instaluje się w nich **inaczej**. Wybierz swoją ścieżkę —
-drugiego narzędzia nie potrzebujesz.
+RelAI działa w trzech narzędziach i instaluje się w nich **inaczej**. Wybierz swoją ścieżkę —
+pozostałych narzędzi nie potrzebujesz.
 
-| | Claude Code | Cursor |
-|---|---|---|
-| Co instalujesz | plugin z marketplace'u | adapter z repozytorium |
-| Zasięg instalacji | **raz na maszynę**, działa w każdym folderze | **raz na projekt**, pliki lądują w projekcie |
-| Potrzebne repozytorium RelAI na dysku | nie | **tak** — hooki wskazują jego ścieżkę |
-| Aktualizacja | `claude plugin update` + restart | `git pull` + ponowny instalator w projektach |
+| | Claude Code | Cursor | Codex |
+|---|---|---|---|
+| Co instalujesz | plugin z marketplace'u | adapter z repozytorium | plugin z repo-marketplace'u |
+| Zasięg instalacji | **raz na maszynę**, działa w każdym folderze | **raz na projekt**, pliki lądują w projekcie | plugin z repo-marketplace'u, raz na maszynę |
+| Potrzebne repozytorium RelAI na dysku | nie | **tak** — hooki wskazują jego ścieżkę | marketplace lokalny lub repozytorium |
+| Aktualizacja | `claude plugin update` + restart | `git pull` + ponowny instalator w projektach | `codex plugin marketplace upgrade` + reinstall |
 
 ### A. Claude Code — plugin
 
@@ -190,6 +190,23 @@ node C:/Narzedzia/relai/adapters/cursor/install.js <projekt> --bez-skanu
 Wtedy wpis `preToolUse` w ogóle nie powstaje, a instalator mówi wprost, że twardej blokady nie ma.
 Zostaje reguła `relai-guardrails.mdc` — słabsza, bo zależy od dyscypliny modelu. Trzecia droga,
 gdy Node jest, ale nie ma go w `PATH` sesji: zmienna `RELAI_NODE` wskazująca interpreter.
+
+### C. Codex — natywny plugin (1.10.0)
+
+Codex korzysta z repozytorium jako korzenia pluginu: `.codex-plugin/plugin.json`,
+`.agents/plugins/marketplace.json`, `skills/` generowane deterministycznie z adaptera Claude Code
+i `hooks/hooks.json`. Dla projektu używanego przez Codex instalator D-86 tworzy router `AGENTS.md`,
+przenosi zastaną treść do kopii i zostawia `CLAUDE.md` jako wskaźnik.
+
+```bash
+codex plugin marketplace add C:/Narzedzia/relai
+codex plugin add relai@relai
+node C:/Narzedzia/relai/adapters/codex/install.js C:/Users/<Ty>/Desktop/MojProjekt
+```
+
+Hook startu dostarcza kontekst wyłącznie projektom z markerem RelAI, a `PreToolUse` skanuje zapisy
+niezależnie od reguły modelowej. Szczegóły dowodów i ograniczeń adaptera są w
+[`docs/PRZENOSNOSC.md`](docs/PRZENOSNOSC.md); E7 pozostaje w toku do czasu przejścia pełnej macierzy.
 
 ## Pierwsze pięć minut
 
@@ -388,14 +405,23 @@ relai/
 │   │   └── hooks/
 │   │       ├── hooks.json       #   rejestracja dziesięciu hooków (zdarzenia i matchery)
 │   │       └── *.js             #   dziesięć hooków Node.js, zero zależności npm
-│   └── cursor/                  # ADAPTER Cursor (od 1.5.0)
+│   ├── cursor/                  # ADAPTER Cursor (od 1.5.0)
 │       ├── install.js           #   instalacja i cofnięcie jednym poleceniem
 │       ├── rules/               #   trzy reguły .mdc z alwaysApply: true — warstwa nośna
 │       ├── hooks/               #   sessionStart (kontekst) i preToolUse (skan sekretów)
 │       └── README.md            #   instrukcja instalacji i tabela różnic
-├── .claude-plugin/              # manifest pluginu i własny marketplace — w korzeniu,
+│   └── codex/                   # ADAPTER Codex (od 1.10.0)
+│       ├── AGENTS.md            #   router warstwy zawsze-w-kontekście
+│       ├── generate-skills.js   #   generator z jednego źródła komend Claude Code
+│       ├── install.js           #   odwracalna integracja D-86
+│       └── hooks/               #   cienkie hooki konsumujące core/
+├── skills/                      # wygenerowany pakiet Codex: 12 procedur + 2 skille rdzenia
+├── .claude-plugin/              # manifest pluginu i marketplace Claude Code
 │   ├── plugin.json              #   bo tego wymaga Claude Code; wskazuje na adapters/claude-code/
 │   └── marketplace.json
+├── .codex-plugin/plugin.json    # manifest natywnego pluginu Codex
+├── .agents/plugins/marketplace.json # repo-marketplace Codex wskazujący ten root
+├── hooks/hooks.json             # automatycznie wykrywane hooki Codex
 └── docs/                        # dokumentacja budowy samego RelAI (dogfooding)
     └── PRZENOSNOSC.md           #   co Cursor i Codex realnie dają — wejście do adapterów
 ```

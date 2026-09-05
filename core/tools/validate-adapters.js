@@ -117,6 +117,45 @@ if (plugin) {
   sprawdzone.push('sciezki z plugin.json: ' + sciezki.length);
 }
 
+// 3b) Native Codex package: it is rooted in this repository, with skills
+// generated from the Claude Code command source and lifecycle hooks discovered
+// from adapters/codex/hooks/hooks.json.
+const codexPlugin = czytajJson('.codex-plugin/plugin.json');
+const codexMarketplace = czytajJson('.agents/plugins/marketplace.json');
+if (codexPlugin) {
+  if (!codexPlugin.skills || !jest(codexPlugin.skills.replace(/^\.\//, ''))) {
+    bledy.push('Codex plugin.json nie wskazuje istniejacego katalogu skills');
+  }
+  if (!jest('hooks/hooks.json')) bledy.push('plugin Codex nie ma hooks/hooks.json');
+  else {
+    const codexHooks = czytajJson('hooks/hooks.json');
+    const pre = codexHooks && codexHooks.hooks && codexHooks.hooks.PreToolUse;
+    const handler = Array.isArray(pre) && pre[0] && Array.isArray(pre[0].hooks) && pre[0].hooks[0];
+    if (!handler || !handler.commandWindows || !/secret-scanner\.sh/.test(handler.command || '') ||
+        !jest('adapters/codex/hooks/secret-scanner.sh') || !jest('adapters/codex/hooks/secret-scanner.cmd')) {
+      bledy.push('hooks/hooks.json nie ma kompletu command/commandWindows i wrapperow fail-closed');
+    }
+  }
+  try {
+    const generator = require(path.join(ROOT, 'adapters', 'codex', 'generate-skills.js'));
+    for (const file of generator.verify()) bledy.push('wygenerowany skill Codeksa rozjechal sie ze zrodlem: ' + path.relative(ROOT, file));
+  } catch (e) {
+    bledy.push('nie moge zweryfikowac generatora skilli Codeksa (' + e.message + ')');
+  }
+}
+if (codexMarketplace) {
+  const entry = Array.isArray(codexMarketplace.plugins) && codexMarketplace.plugins.find((item) => item.name === 'relai');
+  if (!entry) bledy.push('marketplace Codeksa nie ma wpisu relai');
+  else {
+    if (!entry.source || entry.source.source !== 'local' || entry.source.path !== './') {
+      bledy.push('marketplace Codeksa musi wskazywac lokalny korzen repozytorium przez source.path "./"');
+    }
+    if (!entry.policy || entry.policy.installation !== 'AVAILABLE' || entry.policy.authentication !== 'ON_INSTALL') {
+      bledy.push('marketplace Codeksa musi deklarowac policy AVAILABLE/ON_INSTALL');
+    }
+  }
+}
+
 // 4) hooks.json: kazde wywolanie ${CLAUDE_PLUGIN_ROOT}/... wskazuje istniejacy plik.
 const hooksRel = (plugin && plugin.hooks) || 'adapters/claude-code/hooks/hooks.json';
 let hooksTxt = '';
@@ -135,8 +174,12 @@ const marketplace = czytajJson('.claude-plugin/marketplace.json');
 const wersje = [];
 if (manifest) wersje.push(['core/MANIFEST.json', manifest.version]);
 if (plugin) wersje.push(['.claude-plugin/plugin.json', plugin.version]);
+if (codexPlugin) wersje.push(['.codex-plugin/plugin.json', codexPlugin.version]);
 if (marketplace && Array.isArray(marketplace.plugins)) {
   for (const p of marketplace.plugins) wersje.push(['.claude-plugin/marketplace.json (' + p.name + ')', p.version]);
+}
+if (codexMarketplace && Array.isArray(codexMarketplace.plugins)) {
+  for (const p of codexMarketplace.plugins) wersje.push(['.agents/plugins/marketplace.json (' + p.name + ')', p.version]);
 }
 const unikalne = Array.from(new Set(wersje.map((w) => w[1]).filter(Boolean)));
 if (unikalne.length > 1) {
