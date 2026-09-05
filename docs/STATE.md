@@ -9,10 +9,9 @@ rdzeniem procesu. Seria 1.9.x dodała listy modeli per narzędzie, poprawiła sp
 w projektach ESM, kończy instalację testem dymnym i nie blokuje poprawnych odczytów sekretów ze
 środowiska. Szczegóły i dowody wydań są w dwóch ostatnich wpisach dziennika.
 
-**ROZWOJ_PO_WYDANIU odmrożono 2026-09-05 Aneksem B.** E7 dostarczył natywny plugin Codexa 1.10.0,
-manifest, marketplace, generator skilli, hooki i integrację D-86 dla Codexa oraz Cursora; dostępne
-kontrole przeszły, a ograniczenia są jawne. E8 jest gotowy do startu i domyka wydanie 2.0.0 oraz
-dystrybucję; pełna świeża sesja Codexa pozostaje NOT TESTED po błędzie AuthRequired worker'a MCP.
+**ROZWOJ_PO_WYDANIU odmrożono 2026-09-05 Aneksem B i zamknięto 2026-09-05.** E7 dostarczył natywny
+plugin Codexa 1.10.0, a E8 podbił stan do 2.0.0, opublikował release i zamknął plan. Dostępne
+kontrole przeszły; pełna świeża sesja Codexa pozostaje NOT TESTED po błędzie AuthRequired worker'a MCP.
 
 ## Co działa
 
