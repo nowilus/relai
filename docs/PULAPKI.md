@@ -8,6 +8,23 @@ Specyfikacja: `SPEC_PULAPKI.md`.
 
 ## Pułapki
 
+### P-009 — długi opis w jednej komórce zmniejsza obrazek w sąsiedniej kolumnie · 2026-09-06 · AKTYWNA
+
+- **Objaw:** ikony w tabeli README, wstawione jako `<img … width="24">`, renderują się mniejsze
+  niż 24 px — i to bez żadnej zmiany w plikach graficznych. Zmierzone: pliki SVG nietknięte od
+  1.8.0, a ikony skurczyły się po commicie, który dodał **wiersz tekstu**.
+- **Przyczyna:** GitHub renderuje tabele z `table-layout: auto`, więc szerokości kolumn wynikają
+  z zawartości. Jedna komórka dłuższa od reszty (u nas opis `/relai-crew`: **204** znaki wobec
+  67–100 w pozostałych wierszach) zabiera szerokość dla swojej kolumny, a kolumna z samym
+  obrazkiem dostaje resztki. Wtedy `.markdown-body img { max-width: 100% }` skaluje obrazek
+  **poniżej** deklarowanej szerokości. Atrybut `width` jest życzeniem, nie gwarancją.
+- **Obejście:** nie stawiaj obrazka w osobnej, wąskiej kolumnie. Scal go z kolumną, której
+  szerokość wymusza tekst (`<img … width="24" align="absmiddle">` w jednej komórce z nazwą),
+  i pilnuj, żeby żaden opis nie był dwa razy dłuższy od reszty. Grubsza kreska w SVG jest
+  leczeniem objawu — obrazek nadal będzie mniejszy.
+- **Zasięg:** każdy Markdown renderowany przez GitHub i przez podglądy używające jego CSS; im
+  węższy widok, tym wcześniej to uderza. Źródło: naprawa README 2026-09-06.
+
 ### P-008 — sandbox Codeksa nie ma działającego Git Basha · 2026-09-05 · AKTYWNA
 
 - **Objaw:** test uruchamiający `git commit` przez powłokę kończy się w sesji Codeksa błędem

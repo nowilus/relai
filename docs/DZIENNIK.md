@@ -55,11 +55,6 @@
   · 2026-09-04 ·
   [wpis 2026-09-04 — Cztery defekty pre-commita](#2026-09-04--cztery-defekty-pre-commita-ze-zgłoszenia-zewnętrznego-wydanie-192)
 
-- **Ikony README renderują się w 17–23 px zamiast 24 px, więc kreska schodzi poniżej piksela** —
-  podbić grubość z 2.6 na 3.2 (zmiana proporcji rysunku) czy scalić kolumnę ikony z kolumną komendy
-  w README (bez ruszania grafiki)? · 2026-09-01 ·
-  [wpis 2026-09-01 — Ikony komend czytelne na obu motywach](archiwum/dziennik/DZIENNIK_2026-09-01_2026-09-03.md#2026-09-01--ikony-komend-czytelne-na-obu-motywach-githuba)
-
 ## Wpisy
 
 > Wpisy z okresu 2026-08-07 … 2026-08-09 (16 wpisów) są w
@@ -1866,3 +1861,69 @@ Autor: RelAI (gpt-5.6-terra/high) + Lukasz
   propozycja odnogi pomiarowej, jak przy 2.0.0.
 
 Autor: RelAI (Fable 5.1) + Lukasz
+
+### 2026-09-06 — Wydanie 2.1.0 potwierdzone w cache'u; ikony README naprawione przyczyną, nie objawem
+
+**Zrobione:**
+
+- **Rotacja ryzyk: nie odbyła się, bo mechanizm nie ma czego wziąć.** Sekcja „Stan otwartych
+  ryzyk" waży **16 625 B (16,2 KB) przy progu 12 KB**, ale wszystkie **dziesięć** wierszy (R5, P1,
+  P2, S1, S2, M1, M2, M3, M5, M6) ma status inny niż `ZAMKNIĘTE`, a brzmienia statusów to
+  `ZMIERZONE` i `OTWARTE` — żadne nie trafia na zamkniętą listę kompresji komórek
+  (`zmitygowan`, `przyj`+`świadom`). To jest przypadek opisany wprost w `SPEC_ARCHIWUM.md`:
+  część rotowalna 0 KB, dolna granica równa wadze sekcji. Plik **nietknięty**; decyzja
+  o podniesieniu progu albo zamknięciu ryzyka należy do człowieka. Dla orientacji: dziesięć
+  komórek „Mitygacja" waży 14,3 KB z 16,2 KB sekcji, najcięższe P1 (2296 znaków), S1 (2017),
+  S2 (1794).
+- **`/relai-update` zatrzymany na kroku 1 zgodnie z własną bramką.** Marker projektu 2.1.0,
+  wersja docelowa wykonywanej komendy 2.0.0 (sesja wystartowała przed aktualizacją pluginu),
+  więc rozstrzygnięcie brzmiało „projekt nowszy niż plugin → nie cofasz projektu". Zero zmian:
+  ani pliku, ani markera, ani wpisu — zgodnie z zakazem „nie cofasz projektu do starszej wersji".
+- **Ikony README: rozpoznana przyczyna i naprawa układu tabeli.** Sprawa stała otwarta w „Czeka
+  na człowieka" od 2026-09-01 z pytaniem „grubość 3.2 czy scalenie kolumn"; rozstrzygnięta
+  2026-09-06 na **scalenie kolumny ikony z kolumną komendy**. Tabela komend ma odtąd **dwie
+  kolumny zamiast trzech**, ikona stoi w jednej komórce z nazwą komendy
+  (`<img … width="24" align="absmiddle">` plus `` `/relai-…` ``). Grafiki **nie ruszono**:
+  grubość kreski zostaje 2.6 we wszystkich plikach.
+- **Dwie brakujące ikony dorysowane** — `docs/zasoby/branding/ikony/models.svg` (trzy pozycje
+  listy `#8a7f70`, terakotowa czteroramienna gwiazda świeżości jako wypełniony kształt — celowo
+  inna forma niż kreskowane iskry `clean.svg`) i `crew.svg` (dwa obrysowane krążki `#8a7f70`
+  z tyłu, jeden wypełniony `#c4643c` z przodu — załoga i orkiestrator; bez linii, żeby nie
+  kolidować z `branch.svg`). Oba w konwencji zestawu: `viewBox 0 0 48 48`, `stroke-width 2.6`,
+  `stroke-linecap/linejoin="round"`, `role="img"` z etykietą ASCII. Komplet ikon: **13 z 13**.
+- Opis `/relai-crew` w tabeli README skrócony z **204 do 95 znaków**; opis `/relai-models`
+  przywrócony bez zmian po tym, jak skróciłem go poza zakresem zgody.
+
+**Zweryfikowane — jak dokładnie:**
+
+- **Wydanie 2.1.0 doszło na miejsce.** `main` == `origin/main` (commit `6bec097` na zdalnym);
+  cache pluginu `~/.claude/plugins/cache/relai/relai/2.1.0/` z `plugin.json` → `"version":
+  "2.1.0"`; zawartość policzona: **13** komend (z `relai-crew.md`), **3** agenty
+  (`relai-coder`, `relai-tester`, `relai-reviewer`), **15** skilli (z `relai-crew/`).
+  Sesja nadal wykonuje komendy z 2.0.0, bo wystartowała przed aktualizacją.
+- **Przyczyna zmniejszenia ikon zmierzona, nie zgadnięta.** Pliki SVG są nietknięte od 1.8.0
+  (`6dba2a4`) — zmieniła się długość sąsiedniej kolumny. Opisy w kolumnie trzeciej: `/relai-crew`
+  **204** znaki wobec 67–100 w pozostałych dwunastu wierszach (drugi najdłuższy: `/relai-models`
+  100). Przy `table-layout: auto` komórka z 204 znakami żąda szerokości dla trzeciej kolumny,
+  pierwsza dostaje resztki, a `.markdown-body img { max-width: 100% }` skaluje obrazek poniżej
+  deklarowanych 24 px. Po naprawie rozpiętość kolumny opisu wynosi **67–100** znaków, a kolumn
+  jest dwie zamiast trzech.
+- Zestaw trzynastu ikon obejrzany w 48 px i 24 px na tle kremowym `#fffdf7` i na tle GitHuba
+  w trybie ciemnym `#0d1117` — obie nowe czytelne w 24 px na obu motywach. Podgląd był plikiem
+  roboczym pod `docs/AUDYT_*.html` (wzorzec z `.gitignore`, potwierdzony `git check-ignore`)
+  i został skasowany razem z kopią w `%TEMP%`.
+
+**Świadomie odłożone:**
+
+- Rotacja ryzyk i kompresja komórek — patrz wyżej: brak materiału, nie zaległość.
+
+**Do zrobienia przez człowieka:**
+
+- **Tag `v2.1.0` nie istnieje na zdalnym** — są tylko `v1.10.0` i `v2.0.0`, mimo że cache
+  pobrał 2.1.0 (marketplace ciągnie z gałęzi, nie z wydań). Jeśli tagi mają zostać śladem
+  wydań: `git tag v2.1.0 6bec097 && git push origin v2.1.0`.
+- Decyzja o sekcji ryzyk: podnieść próg `ryzyka` w wierszu `Budżet startu sesji` czy zamknąć
+  któreś z dziesięciu otwartych ryzyk. Bez jednej z tych rzeczy raport startu będzie meldował
+  przekroczenie przy każdej sesji.
+
+Autor: RelAI (Opus 5) + Lukasz

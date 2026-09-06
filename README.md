@@ -254,21 +254,21 @@ wywołanie — nigdy sama z siebie.
 
 Trzynaście skrótów dla operacji, które w rozmowie byłyby uciążliwe do opisania.
 
-| | Komenda | Co robi |
-|:--:|---|---|
-| <img src="docs/zasoby/branding/ikony/stage.svg" width="24"> | `/relai-stage` | uruchamia kolejny etap aktywnego planu — pokazuje, co zrobi, i **czeka** na zgodę |
-| <img src="docs/zasoby/branding/ikony/backup.svg" width="24"> | `/relai-backup` | pakuje projekt do ZIP-a w centralnym folderze kopii, z twardym wykluczeniem sekretów |
-| <img src="docs/zasoby/branding/ikony/audit.svg" width="24"> | `/relai-audit` | raport o stanie dokumentacji zakończony listą propozycji — sam niczego nie zmienia |
-| <img src="docs/zasoby/branding/ikony/changelog.svg" width="24"> | `/relai-changelog` | destyluje dziennik do listy zmian; na ekran, do pliku dopiero na życzenie |
-| <img src="docs/zasoby/branding/ikony/handover.svg" width="24"> | `/relai-handover` | składa pakiet przekazania projektu w jednym pliku HTML do wysłania dalej |
-| <img src="docs/zasoby/branding/ikony/tour.svg" width="24"> | `/relai-tour` | oprowadza po projekcie wyłącznie na podstawie jego dokumentów; niczego nie zapisuje |
-| <img src="docs/zasoby/branding/ikony/help.svg" width="24"> | `/relai-help` | pokazuje ściągę projektu — komendy, frazy i zachowania automatyczne |
-| <img src="docs/zasoby/branding/ikony/adopt.svg" width="24"> | `/relai-adopt` | przenosi zastany projekt na strukturę RelAI z backupem-bramką i ścieżką cofnięcia |
-| <img src="docs/zasoby/branding/ikony/update.svg" width="24"> | `/relai-update` | dociąga projekt do wersji pluginu; pokazuje różnice, zmienia wyłącznie za zgodą |
-| <img src="docs/zasoby/branding/ikony/branch.svg" width="24"> | `/relai-branch` | odkłada boczny wątek jako odnogę: karta i gotowy prompt świeżej sesji, plan bez zmian |
-| <img src="docs/zasoby/branding/ikony/clean.svg" width="24"> | `/relai-clean` | pokazuje artefakty po zamkniętych etapach w grupach i kasuje wyłącznie te, na które powiesz „tak" |
-| | `/relai-models` | odświeża listę modeli narzędzia: zgoda na sieć, źródło albo pytanie do Ciebie, różnica przed zapisem |
-| | `/relai-crew` | załoga: Twoja sesja zostaje orkiestratorem — wywiad o role i modele, fale zadań bez konfliktów plików, delegacja do subagentów albo drugiego narzędzia, przegląd krzyżowy; bez drugiego narzędzia tryb basic |
+| Komenda | Co robi |
+|---|---|
+| <img src="docs/zasoby/branding/ikony/stage.svg" width="24" align="absmiddle"> `/relai-stage` | uruchamia kolejny etap aktywnego planu — pokazuje, co zrobi, i **czeka** na zgodę |
+| <img src="docs/zasoby/branding/ikony/backup.svg" width="24" align="absmiddle"> `/relai-backup` | pakuje projekt do ZIP-a w centralnym folderze kopii, z twardym wykluczeniem sekretów |
+| <img src="docs/zasoby/branding/ikony/audit.svg" width="24" align="absmiddle"> `/relai-audit` | raport o stanie dokumentacji zakończony listą propozycji — sam niczego nie zmienia |
+| <img src="docs/zasoby/branding/ikony/changelog.svg" width="24" align="absmiddle"> `/relai-changelog` | destyluje dziennik do listy zmian; na ekran, do pliku dopiero na życzenie |
+| <img src="docs/zasoby/branding/ikony/handover.svg" width="24" align="absmiddle"> `/relai-handover` | składa pakiet przekazania projektu w jednym pliku HTML do wysłania dalej |
+| <img src="docs/zasoby/branding/ikony/tour.svg" width="24" align="absmiddle"> `/relai-tour` | oprowadza po projekcie wyłącznie na podstawie jego dokumentów; niczego nie zapisuje |
+| <img src="docs/zasoby/branding/ikony/help.svg" width="24" align="absmiddle"> `/relai-help` | pokazuje ściągę projektu — komendy, frazy i zachowania automatyczne |
+| <img src="docs/zasoby/branding/ikony/adopt.svg" width="24" align="absmiddle"> `/relai-adopt` | przenosi zastany projekt na strukturę RelAI z backupem-bramką i ścieżką cofnięcia |
+| <img src="docs/zasoby/branding/ikony/update.svg" width="24" align="absmiddle"> `/relai-update` | dociąga projekt do wersji pluginu; pokazuje różnice, zmienia wyłącznie za zgodą |
+| <img src="docs/zasoby/branding/ikony/branch.svg" width="24" align="absmiddle"> `/relai-branch` | odkłada boczny wątek jako odnogę: karta i gotowy prompt świeżej sesji, plan bez zmian |
+| <img src="docs/zasoby/branding/ikony/clean.svg" width="24" align="absmiddle"> `/relai-clean` | pokazuje artefakty po zamkniętych etapach w grupach i kasuje wyłącznie te, na które powiesz „tak" |
+| <img src="docs/zasoby/branding/ikony/models.svg" width="24" align="absmiddle"> `/relai-models` | odświeża listę modeli narzędzia: zgoda na sieć, źródło albo pytanie do Ciebie, różnica przed zapisem |
+| <img src="docs/zasoby/branding/ikony/crew.svg" width="24" align="absmiddle"> `/relai-crew` | zamienia sesję w orkiestratora: fale zadań bez konfliktów plików, delegacja i przegląd krzyżowy |
 
 Claude Code rejestruje komendy pluginu pod pełną nazwą `/relai:relai-<nazwa>`. Skrócona forma
 (`/relai-backup`) działa tam, gdzie podpowiadacz ją rozwija.

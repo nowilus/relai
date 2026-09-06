@@ -101,8 +101,9 @@ kontrole przeszły; pełna świeża sesja Codexa pozostaje NOT TESTED po błędz
   listy działa we wszystkich projektach naraz. Szczegóły: „Czeka na człowieka" w dzienniku.
 - **Reguła głębokości rotacji** — cel „60% części rotowalnej" zatrzymuje rotację nad progiem
   w dokumencie o grubej dolnej granicy; 2026-09-04 głębokość trzeba było wybierać ręcznie.
-- **Ikony README renderują się w 17–23 px zamiast 24 px** — grubość 3.2 albo scalenie kolumny
-  ikony z kolumną komendy; zmiana dotyczy wszystkich jedenastu ikon naraz.
+- ~~**Ikony README renderują się w 17–23 px zamiast 24 px**~~ — rozstrzygnięte 2026-09-06:
+  scalenie kolumny ikony z kolumną komendy (dwie kolumny zamiast trzech), grubość kreski 2.6
+  bez zmian. Grafiki nietknięte; komplet ikon uzupełniony do trzynastu (`models`, `crew`).
 - **Dwie wady `work-artifacts.js`**: `kasuj` melduje `skasowane` dla ścieżki, której nie ma
   (linia 843 — gasi sygnał o literówce w liście), a `zachowaj` na cudzej ścieżce zapisuje marker
   w projekcie sesji zamiast w projekcie pliku.
