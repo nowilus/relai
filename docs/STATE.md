@@ -101,12 +101,17 @@ kontrole przeszły; pełna świeża sesja Codexa pozostaje NOT TESTED po błędz
   listy działa we wszystkich projektach naraz. Szczegóły: „Czeka na człowieka" w dzienniku.
 - **Reguła głębokości rotacji** — cel „60% części rotowalnej" zatrzymuje rotację nad progiem
   w dokumencie o grubej dolnej granicy; 2026-09-04 głębokość trzeba było wybierać ręcznie.
-- ~~**REGRESJA 2.0.0: komendy pluginu Claude Code nie ładują się w ogóle**~~ — naprawione
-  w repozytorium 2026-09-06 (2.1.1): skille Codeksa przeniesione do `adapters/codex/skills/`,
-  korzeń bez `skills/`, powrót blokuje walidator. Zmierzone, że Codex czyta ścieżkę zagnieżdżoną
-  (15 skilli w `codex debug prompt-input`, izolowany `CODEX_HOME`). Szczegóły: [P-010](PULAPKI.md).
-  **Czeka na wydanie** — dopóki 2.1.1 nie jest opublikowane, każdy użytkownik 2.0.0 i 2.1.0 nie ma
-  komend w Claude Code.
+- ~~**REGRESJA: komendy pluginu Claude Code nie ładują się w ogóle**~~ — **dwie niezależne
+  przyczyny**, obie naprawione 2026-09-06. (1) Korzeniowy `skills/` kolidował nazwami z komendami
+  ([P-010](PULAPKI.md), 2.1.1) — skille Codeksa przeniesione do `adapters/codex/skills/`, Codex
+  czyta ścieżkę zagnieżdżoną (zmierzone: 15 skilli w `codex debug prompt-input`, izolowany
+  `CODEX_HOME`). (2) Pole `agents` wskazywało **katalog**, a przyjmuje wyłącznie pliki `.md`, więc
+  manifest odpadał w całości ([P-011](PULAPKI.md), 2.1.2) — `claude plugin list` meldował
+  `✘ failed to load`, a `claude plugin validate` wskazywał `agents: Invalid input`. Po naprawie
+  `✔ Validation passed`. **Czeka na wydanie 2.1.2** — do tego czasu żaden użytkownik 2.0.0–2.1.1
+  nie ma komend w Claude Code.
+- **Bramka wydania: `claude plugin validate <ścieżka>`** — narzędzie istniało przez cały czas
+  i wskazałoby obie wady w sekundę. Wprowadzić do sekwencji P-005 jako krok obowiązkowy przed tagiem.
 - **`PRZENOSNOSC.md` sekcja 2.3 jest nieaktualna** — opisuje wywołanie procedur Codeksa jako
   `$nazwa-skilla` (stan dokumentacji z 2026-08-12), a w aplikacji desktopowej Codeksa `/relai`
   podpowiada komplet. Rozpoznanie do powtórzenia i przepisania.

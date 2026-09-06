@@ -5,7 +5,7 @@
     {
       "name": "relai",
       "source": { "source": "local", "path": "./" },
-      "version": "2.1.1",
+      "version": "2.1.2",
       "description": "Your project remembers everything — documentation-first process framework for Codex.",
       "policy": { "installation": "AVAILABLE", "authentication": "ON_INSTALL" },
       "category": "Productivity",

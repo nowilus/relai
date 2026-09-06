@@ -8,6 +8,25 @@ Specyfikacja: `SPEC_PULAPKI.md`.
 
 ## Pułapki
 
+### P-011 — katalog w polu `agents` unieważnia CAŁY manifest pluginu · 2026-09-06 · AKTYWNA
+
+- **Objaw:** plugin nie ma ani jednej komendy, mimo że pliki komend leżą na miejscu i mają poprawny
+  frontmatter. Sesja nie mówi nic. `claude plugin list` pokazuje `Status: ✘ failed to load`,
+  a okno `/plugin` — `Validation errors: agents: Invalid input`.
+- **Przyczyna:** pola `commands` i `skills` przyjmują **katalogi**, pole `agents` — **wyłącznie
+  pliki `.md`**. Ta niesymetryczność nie rzuca się w oczy i kusi, żeby napisać
+  `"agents": ["./adapters/claude-code/agents/"]` przez analogię. Manifest odpada wtedy **w całości**,
+  więc przestają działać także `commands`, `skills` i `hooks` — nie tylko agenci.
+- **Obejście:** wymieniaj pliki po jednym
+  (`"./adapters/claude-code/agents/relai-coder.md"`, …). **Przed każdym wydaniem uruchamiaj
+  `claude plugin validate <ścieżka>`** — to narzędzie mówi wprost, które pole odpadło, a bez niego
+  jedynym śladem jest okno `/plugin`, do którego nikt nie zagląda. W RelAI pilnuje tego dodatkowo
+  `core/tools/validate-adapters.js`.
+- **Zasięg:** manifest pluginu Claude Code. W RelAI weszło z 2.1.0 (commit `6bec097`, razem
+  z trzema agentami `/relai-crew`) i przez dwa wydania maskowało się nawzajem z P-010: dopóki
+  korzeń miał `skills/`, plugin wyglądał na działający, bo skille odnajduje **domyślny skan**,
+  bez manifestu. Naprawione w 2.1.2.
+
 ### P-010 — katalog `skills/` w korzeniu kasuje komendy pluginu Claude Code · 2026-09-06 · AKTYWNA
 
 - **Objaw:** komendy pluginu przestają istnieć — `/relai` nie podpowiada niczego, a plugin poza tym

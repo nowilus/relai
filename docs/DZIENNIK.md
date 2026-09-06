@@ -1985,3 +1985,52 @@ Autor: RelAI (Opus 5) + Lukasz
 - Tagi `v2.1.0` i `v2.1.1` nie istnieją na zdalnym — repozytorium ma dziś tylko `v1.10.0` i `v2.0.0`.
 
 Autor: RelAI (Opus 5) + Lukasz
+
+### 2026-09-06 — Druga przyczyna tej samej awarii: katalog w polu `agents` unieważniał cały manifest (2.1.2)
+
+**Zrobione:**
+
+- **Rozpoznanie zamknięte dopiero po wskazówce użytkownika.** Po wydaniu 2.1.1 komend nadal nie
+  było. Okno `/plugin` pokazało to, czego nie widać ani w sesji, ani w logu aplikacji:
+  `Plugin relai has an invalid manifest file … Validation errors: agents: Invalid input`.
+  `claude plugin list` potwierdził: `Status: ✘ failed to load`.
+- **Przyczyna:** `.claude-plugin/plugin.json` miał `"agents": ["./adapters/claude-code/agents/"]`.
+  Pola `commands` i `skills` przyjmują katalogi, pole **`agents` wyłącznie pliki `.md`** — ta
+  niesymetryczność kusi analogią. Katalog unieważnia manifest **w całości**, więc razem z agentami
+  przestają działać `commands`, `skills` i `hooks`.
+- **Naprawa:** trzej agenci wymienieni po jednym pliku. Wersja **2.1.2** w pięciu źródłach
+  i markerze.
+- **Blokada w walidatorze projektu:** `validate-adapters.js` odmawia, gdy wpis w `agents` nie jest
+  plikiem `.md`, z odsyłaczem do P-011. Nowa pułapka **P-011**.
+- **Dwie wady maskowały się nawzajem.** Dopóki korzeń miał `skills/` (P-010), plugin wyglądał na
+  działający, bo skille odnajduje **domyślny skan**, bez manifestu. Usunięcie korzenia w 2.1.1
+  zabrało tę protezę i dopiero wtedy P-011 stało się widoczne. Kolejność napraw była więc
+  konieczna, choć wyglądała na nieskuteczną.
+
+**Zweryfikowane — jak dokładnie:**
+
+- `claude plugin validate` na cache'u 2.1.1: `✘ Found 1 error: plugins[0] plugin.json → agents:
+  Invalid input`. Na repozytorium po naprawie: `✔ Validation passed` (po wyrównaniu numerów wersji;
+  wcześniej samo ostrzeżenie o rozjeździe 2.1.1 vs 2.1.2 między wpisem marketplace'u a `plugin.json`).
+- Blokada walidatora pokazana w obie strony: manifest z listą plików → kod 0; podłożony katalog
+  w `agents` → `ZNALEZIONO 1 problemow` z komunikatem P-011; przywrócony → kod 0.
+- `validate-adapters.js` — „5 zrodel, wartosc 2.1.2", 6 ścieżek z `plugin.json`.
+
+**Lekcja procesowa:**
+
+- **`claude plugin validate <ścieżka>` istniało przez cały czas** i wskazałoby obie wady w sekundę.
+  Trzy wydania (2.1.0, 2.1.1) wyszły bez tej bramki, a diagnozę pchnęło dopiero okno `/plugin`
+  otwarte przez użytkownika. Narzędzie producenta sprawdzające **własny** format bije każdy pomiar
+  pośredni: log aplikacji milczał o nieważnym manifeście, a skaner CCD czytał go mimo to i wypisywał
+  ostrzeżenia o kolizji — czyli sugerował, że manifest jest czytany poprawnie.
+- Moje próby przez `claude -p --plugin-dir` były **nierozstrzygające, nie negatywne**: kontrola na
+  2.1.0 dała ten sam wynik `BRAK`, co znaczy, że tryb headless nie pokazuje modelowi komend ani
+  skilli pluginu. Wniosek wyciągnięty z takiej próby byłby fałszywy.
+
+**Do zrobienia przez człowieka:**
+
+- Wydanie 2.1.2: tag, release, `claude plugin update relai@relai`, restart. Sprawdzian:
+  `claude plugin list` ma pokazać `relai@relai` **bez** `failed to load`, a `/relai` — trzynaście komend.
+- Wpisać `claude plugin validate` do sekwencji P-005 jako krok obowiązkowy przed tagiem.
+
+Autor: RelAI (Opus 5) + Lukasz

@@ -144,6 +144,16 @@ if (plugin) {
   for (const s of sciezki) {
     if (!jest(s)) bledy.push('plugin.json deklaruje "' + s + '", a tego nie ma — runtime zglosi blad ladowania');
   }
+  // P-011: "agents" przyjmuje WYLACZNIE pliki .md, w odroznieniu od "commands" i "skills",
+  // ktore biora katalogi. Katalog w tym polu wywraca CALY manifest ("agents: Invalid input"),
+  // a wtedy plugin nie laduje ani jednej komendy — i nie mowi o tym w sesji ani slowa.
+  for (const a of [].concat(plugin.agents || [])) {
+    const rel = String(a).replace(/^\.\//, '');
+    if (!a.endsWith('.md') || (jest(rel) && fs.statSync(path.join(ROOT, rel)).isDirectory())) {
+      bledy.push('plugin.json: "agents" musi wymieniac pliki .md, a "' + a + '" nim nie jest (P-011) — '
+        + 'katalog w tym polu uniewaznia caly manifest');
+    }
+  }
   sprawdzone.push('sciezki z plugin.json: ' + sciezki.length);
 }
 
