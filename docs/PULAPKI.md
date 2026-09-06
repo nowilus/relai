@@ -8,6 +8,22 @@ Specyfikacja: `SPEC_PULAPKI.md`.
 
 ## Pułapki
 
+### P-012 — dwukropek w opisie komendy sprawia, że komenda znika bez słowa · 2026-09-06 · AKTYWNA
+
+- **Objaw:** plugin ładuje się poprawnie, komendy działają — **poza jedną**. Nie ma jej w
+  podpowiadaczu ani na liście widzianej przez model, a plik leży na miejscu i wygląda jak reszta.
+  Ani sesja, ani log aplikacji, ani `claude plugin validate` nie mówią o niej ani słowa: walidator
+  sprawdza **manifest**, nie nagłówki plików komend.
+- **Przyczyna:** `description:` w nagłówku to **niecytowany skalar YAML**. Dwukropek ze spacją
+  w środku (`…orkiestratorem celu: wywiad o role…`) czyni z niego mapę, nagłówek przestaje się
+  parsować i komenda wypada. Reszta pluginu działa dalej, więc nic nie sugeruje awarii.
+- **Obejście:** bierz wartość w cudzysłów, gdy zawiera `: ` — to samo dotyczy `argument-hint`.
+  W RelAI pilnuje tego `core/tools/validate-adapters.js` (kontrola nagłówków wszystkich komend).
+- **Zasięg:** nagłówki YAML komend i skilli. Zmierzone 2026-09-06 na wszystkich zainstalowanych
+  pluginach: spośród komend **tylko** `relai-crew.md` miała `: ` w opisie i **tylko** ona się nie
+  ładowała. Codex tego samego opisu nie odrzucał — parsery różnią się tolerancją, więc działanie
+  w jednym narzędziu niczego nie dowodzi o drugim. Naprawione w 2.1.3.
+
 ### P-011 — katalog w polu `agents` unieważnia CAŁY manifest pluginu · 2026-09-06 · AKTYWNA
 
 - **Objaw:** plugin nie ma ani jednej komendy, mimo że pliki komend leżą na miejscu i mają poprawny

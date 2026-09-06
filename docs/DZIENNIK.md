@@ -2034,3 +2034,56 @@ Autor: RelAI (Opus 5) + Lukasz
 - Wpisać `claude plugin validate` do sekwencji P-005 jako krok obowiązkowy przed tagiem.
 
 Autor: RelAI (Opus 5) + Lukasz
+
+### 2026-09-06 — Trzecia, ostatnia przyczyna: dwukropek w opisie zjadał trzynastą komendę (2.1.3)
+
+**Zrobione:**
+
+- **2.1.2 potwierdzone w aplikacji przez użytkownika** — komendy widoczne, agenci załogi
+  (`relai-coder`, `relai-tester`, `relai-reviewer`) dostępni, czyli manifest ładuje się w całości.
+- **Znaleziony brak przy odbiorze:** komend było **dwanaście, nie trzynaście** — nie ładowała się
+  `/relai-crew`. Plik leżał w cache'u 2.1.2, miał poprawny frontmatter, a `claude plugin validate`
+  milczał, bo sprawdza **manifest**, nie nagłówki plików komend.
+- **Przyczyna:** `description:` w nagłówku to niecytowany skalar YAML, a opis zawierał dwukropek
+  ze spacją (`…orkiestratorem celu: wywiad o role…`). Skalar staje się wtedy mapą, nagłówek nie
+  parsuje się i komenda wypada — reszta pluginu działa dalej, więc nic nie sygnalizuje awarii.
+- **Naprawa:** opis wzięty w cudzysłów, treść bez zmian. Kontrola w `validate-adapters.js`:
+  `description` i `argument-hint` każdej komendy nie mogą zawierać `: ` bez cudzysłowu.
+  Nowa pułapka **P-012**, wersja **2.1.3**.
+
+**Zweryfikowane — jak dokładnie:**
+
+- **Korelacja policzona na całym zainstalowanym materiale:** przejrzane nagłówki wszystkich komend
+  wszystkich pluginów w `~/.claude/plugins/cache` — dwukropek ze spacją w opisie ma **wyłącznie**
+  `relai-crew.md` i **wyłącznie** ta komenda się nie ładowała.
+- Blokada walidatora pokazana w obie strony: opis w cudzysłowie → `13 sprawdzonych, 0 wadliwych`;
+  cudzysłów zdjęty → `ZNALEZIONO 1 problemow` z komunikatem P-012; przywrócony → znowu czysto.
+- `generate-skills.js --verify` spójny (cudzysłów przechodzi też do skilla Codeksa),
+  `validate-adapters.js` — „5 zrodel, wartosc 2.1.3", `claude plugin validate` — `✔ Validation passed`.
+
+**Ustalone przy okazji:**
+
+- **Codex tego samego opisu nie odrzucał** — w pomiarze z tego dnia `codex debug prompt-input`
+  wypisał `relai-crew` wśród piętnastu skilli. Parsery różnią się tolerancją, więc działanie
+  procedury w jednym narzędziu nie dowodzi niczego o drugim.
+- Opis `/relai-crew` ma **337 znaków** i jest najdłuższy w zestawie — wchodzi do kontekstu każdej
+  sesji. Skrócenie zostawiam jako osobną decyzję, poza zakresem tej naprawy.
+
+**Trzy przyczyny jednej awarii — podsumowanie dnia:**
+
+| Wydanie | Przyczyna | Skutek |
+|---|---|---|
+| 2.1.1 | korzeniowy `skills/` kolidował z nazwami komend (P-010) | wszystkie komendy pomijane |
+| 2.1.2 | katalog w polu `agents` unieważniał manifest (P-011) | plugin `failed to load` |
+| 2.1.3 | dwukropek w `description` psuł nagłówek YAML (P-012) | jedna komenda znikała |
+
+Każda maskowała następną: dopóki działała pierwsza, druga była niewidoczna, a trzecia ujawniła się
+dopiero przy odbiorze poprawnie działającego pluginu.
+
+**Do zrobienia przez człowieka:**
+
+- Wydanie 2.1.3: tag, release, `claude plugin update relai@relai`, restart. Sprawdzian: `/relai`
+  ma pokazać **trzynaście** komend, z `/relai-crew` włącznie.
+- Wpisać `claude plugin validate` do sekwencji P-005 (wciąż otwarte z poprzedniego wpisu).
+
+Autor: RelAI (Opus 5) + Lukasz

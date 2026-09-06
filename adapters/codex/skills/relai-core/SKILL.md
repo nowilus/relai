@@ -25,7 +25,9 @@ description: >
 
 # relai-core — struktura projektu, pamięć i rytuały sesji
 
-Aktualny stan dystrybucyjny: RelAI 2.1.2; wcześniejsze akapity wersji opisują historię zmian.
+Aktualny stan dystrybucyjny: RelAI 2.1.3; wcześniejsze akapity wersji opisują historię zmian.
+
+Wersja 2.1.3 (trzynasta komenda `/relai-crew` znikala bez slowa: jej `description` w naglowku YAML zawieral dwukropek ze spacja i niecytowany skalar przestawal sie parsowac, wiec plugin ladowal dwanascie komend zamiast trzynastu; opis wziety w cudzyslow, `validate-adapters.js` pilnuje naglowkow wszystkich komend; procedura tego skilla bez zmian, podniesiony marker wersji wymagany w `docs/USTAWIENIA.md`).
 
 Wersja 2.1.2 (druga polowa tej samej regresji: pole `agents` w `.claude-plugin/plugin.json` wskazywalo KATALOG, a przyjmuje wylacznie pliki `.md` — manifest odpadal w calosci (`agents: Invalid input`), wiec plugin nie ladowal ani jednej komendy i maskowal to korzeniowym `skills/`; agenci wymienieni po jednym, bramka `claude plugin validate` przed wydaniem; procedura tego skilla bez zmian, podniesiony marker wersji wymagany w `docs/USTAWIENIA.md`).
 
@@ -853,7 +855,7 @@ Zasady generacji:
   Dla projektu angielskiego: `docs/STATE.md`, `docs/JOURNAL.md`, `docs/LESSONS.md`,
   `docs/DECISIONS.md`, `docs/SETTINGS.md`, `docs/COMMANDS.md`. Konwencja stała: CAPS_SNAKE, bez dat
   i numerów wersji w nazwie.
-- `docs/USTAWIENIA.md` **musi** zawierać linię `Wersja RelAI: 2.1.2` — to marker, po którym RelAI
+- `docs/USTAWIENIA.md` **musi** zawierać linię `Wersja RelAI: 2.1.3` — to marker, po którym RelAI
   rozpoznaje projekt i po którym przyszły `/relai-update` policzy różnicę wersji.
 - `CLAUDE.md` **musi** zawierać sekcję `## Reguły profilu (<wybrany profil>)` zaraz po „Regułach
   procesu" — 3–6 punktów wg `SPEC_PROFILE.md`. To jedyna warstwa reguł profilu działająca bez

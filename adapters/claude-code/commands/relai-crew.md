@@ -1,5 +1,5 @@
 ---
-description: Załoga — model, który wywołał komendę, zostaje orkiestratorem celu: wywiad o role i modele, plan fal bez konfliktów plików, delegacja do subagentów gospodarza albo do drugiego narzędzia (Claude Code, Codex, Cursor), przegląd krzyżowy i rytuał zamknięcia; bez drugiego zalogowanego narzędzia płynnie przechodzi w tryb basic
+description: "Załoga — model, który wywołał komendę, zostaje orkiestratorem celu: wywiad o role i modele, plan fal bez konfliktów plików, delegacja do subagentów gospodarza albo do drugiego narzędzia (Claude Code, Codex, Cursor), przegląd krzyżowy i rytuał zamknięcia; bez drugiego zalogowanego narzędzia płynnie przechodzi w tryb basic"
 argument-hint: "[cel] | setup | status | review [--base GAŁĄŹ] | rescue <zadanie>"
 ---
 

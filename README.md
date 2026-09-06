@@ -3,7 +3,7 @@
 </p>
 
 <p align="center">
-  <em>Wersja 2.1.2 &nbsp;·&nbsp; licencja MIT &nbsp;·&nbsp; wymaga Claude Code, Cursora albo Codexa, plus Node.js 14+ &nbsp;·&nbsp; zero zależności npm</em>
+  <em>Wersja 2.1.3 &nbsp;·&nbsp; licencja MIT &nbsp;·&nbsp; wymaga Claude Code, Cursora albo Codexa, plus Node.js 14+ &nbsp;·&nbsp; zero zależności npm</em>
 </p>
 
 **RelAI to plugin do Claude Code (od 1.5.0 także adapter Cursora, od 1.10.0 natywny plugin Codexa), który zamienia rozmowę

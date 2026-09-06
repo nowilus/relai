@@ -154,6 +154,29 @@ if (plugin) {
         + 'katalog w tym polu uniewaznia caly manifest');
     }
   }
+  // P-012: "description:" w naglowku komendy to niecytowany skalar YAML. Dwukropek ze spacja
+  // w srodku czyni z niego mape i naglowek przestaje sie parsowac — komenda znika BEZ SLOWA,
+  // reszta pluginu dziala dalej. Cudzyslow zdejmuje problem.
+  const kmd = path.join(ROOT, 'adapters', 'claude-code', 'commands');
+  let zleOpisy = 0;
+  if (jest('adapters/claude-code/commands')) {
+    for (const nazwa of fs.readdirSync(kmd).filter((n) => n.endsWith('.md'))) {
+      const linie = fs.readFileSync(path.join(kmd, nazwa), 'utf8').split(/\r?\n/);
+      for (const l of linie.slice(0, 6)) {
+        const m = /^(description|argument-hint):\s+(.*)$/.exec(l);
+        if (!m) continue;
+        const wartosc = m[2].trim();
+        const cytowana = /^".*"$/.test(wartosc) || /^'.*'$/.test(wartosc);
+        if (!cytowana && wartosc.includes(': ')) {
+          zleOpisy += 1;
+          bledy.push('komenda "' + nazwa + '": pole ' + m[1] + ' ma dwukropek ze spacja bez cudzyslowu '
+            + '(P-012) — naglowek YAML sie nie sparsuje i komenda zniknie bez komunikatu');
+        }
+      }
+    }
+  }
+  sprawdzone.push('naglowki YAML komend: ' + fs.readdirSync(kmd).filter((n) => n.endsWith('.md')).length
+    + ' sprawdzonych, ' + zleOpisy + ' wadliwych');
   sprawdzone.push('sciezki z plugin.json: ' + sciezki.length);
 }
 

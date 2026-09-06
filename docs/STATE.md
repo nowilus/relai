@@ -4,12 +4,14 @@ Stan na: 2026-09-06
 
 ## Gdzie jesteśmy
 
-RelAI ma w repozytorium **2.1.0** (opublikowane wydanie: 2.0.0) i działa w Claude Code, Cursorze oraz
+RelAI ma w repozytorium **2.1.3** (opublikowane wydanie: 2.1.2) i działa w Claude Code, Cursorze oraz
 jako natywny plugin Codexa z jednym rdzeniem procesu. **2.1.0 dokłada załogę** — trzynastą komendę
 `/relai-crew`: sesja zostaje orkiestratorem celu, pyta o role, liczbę subagentów, tryb i zakres
 modeli, układa zadania w fale bez konfliktów plików, deleguje je subagentom gospodarza albo do
 drugiego zalogowanego narzędzia i zleca przegląd krzyżowy; bez drugiego narzędzia pracuje w trybie
-basic. Wydanie 2.1.0 (tag, `plugin update`, restart) czeka na człowieka.
+basic. **Seria 2.1.1–2.1.3 to naprawa dystrybucji, nie nowe funkcje**: trzy niezależne wady wprowadzone
+razem z 2.0.0 i 2.1.0 sprawiały, że plugin Claude Code nie ładował komend (P-010, P-011, P-012).
+2.1.2 jest opublikowane i potwierdzone w aplikacji; 2.1.3 czeka na wydanie.
 
 Seria 1.9.x dodała listy modeli per narzędzie, poprawiła sprzątanie oraz uszczelniła pre-commit: działa
 w projektach ESM, kończy instalację testem dymnym i nie blokuje poprawnych odczytów sekretów ze
@@ -110,6 +112,10 @@ kontrole przeszły; pełna świeża sesja Codexa pozostaje NOT TESTED po błędz
   `✘ failed to load`, a `claude plugin validate` wskazywał `agents: Invalid input`. Po naprawie
   `✔ Validation passed`. **Czeka na wydanie 2.1.2** — do tego czasu żaden użytkownik 2.0.0–2.1.1
   nie ma komend w Claude Code.
+- ~~**Trzynasta komenda `/relai-crew` nie ładowała się**~~ — naprawione 2026-09-06 (2.1.3): dwukropek
+  ze spacją w niecytowanym `description` wywracał parsowanie nagłówka YAML, więc plugin miał dwanaście
+  komend zamiast trzynastu, bez jednego komunikatu ([P-012](PULAPKI.md)). Kontrola nagłówków wszystkich
+  komend jest w `validate-adapters.js`. **Czeka na wydanie 2.1.3.**
 - **Bramka wydania: `claude plugin validate <ścieżka>`** — narzędzie istniało przez cały czas
   i wskazałoby obie wady w sekundę. Wprowadzić do sekwencji P-005 jako krok obowiązkowy przed tagiem.
 - **`PRZENOSNOSC.md` sekcja 2.3 jest nieaktualna** — opisuje wywołanie procedur Codeksa jako
