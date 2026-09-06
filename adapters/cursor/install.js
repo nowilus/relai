@@ -111,6 +111,30 @@ function pliki(dir, filtr) {
   }
 }
 
+// Agent Claude Code -> subagent Cursora (.cursor/agents/*.md). Zmienia sie wylacznie frontmatter:
+// `tools:` z listy po przecinku na tablice JSON, ograniczona do nazw, ktore Cursor rozpoznaje
+// (Read, Grep, Glob, Bash); rola piszaca (Edit/Write w zrodle) dostaje brak pola `tools`, czyli
+// wszystkie narzedzia Cursora. Tresc pod frontmatterem przechodzi bajt w bajt.
+const NARZEDZIA_CURSORA = ['Read', 'Grep', 'Glob', 'Bash'];
+
+function agentCursora(tekst) {
+  const m = String(tekst).replace(/\r\n/g, '\n').match(/^---\n([\s\S]*?)\n---\n([\s\S]*)$/);
+  if (!m) return tekst;
+  const linie = [];
+  let pisze = false;
+  let toolsLinia = '';
+  for (const l of m[1].split('\n')) {
+    const t = l.match(/^tools:\s*(.*)$/);
+    if (!t) { linie.push(l); continue; }
+    const nazwy = t[1].split(',').map((s) => s.trim()).filter(Boolean);
+    pisze = nazwy.some((n) => /^(Edit|Write|MultiEdit|NotebookEdit)$/.test(n));
+    const dozwolone = nazwy.filter((n) => NARZEDZIA_CURSORA.includes(n));
+    toolsLinia = 'tools: ' + JSON.stringify(dozwolone);
+  }
+  if (toolsLinia && !pisze) linie.push(toolsLinia);
+  return '---\n' + linie.join('\n') + '\n---\n' + m[2];
+}
+
 // --- hooks.json -------------------------------------------------------------
 // Wpisy RelAI sa oznaczone description zaczynajacym sie od "RelAI:", zeby deinstalacja
 // wiedziala, co jest nasze, i zeby cudzy hook przezyl obie operacje.
@@ -209,6 +233,16 @@ function install(projekt, bezSkanu) {
     kopiuj(src, path.join(projekt, '.cursor', 'commands', path.basename(src)), zapisane);
   }
 
+  // 2.1.0: subagenci zalogi (/relai-crew) — zrodlem sa agenci adaptera Claude Code, a roznica
+  // formatu (frontmatter Cursora) powstaje tutaj, zeby tresc roli byla w repozytorium jeden raz.
+  const agenci = pliki(path.join(REPO_ROOT, 'adapters', 'claude-code', 'agents'), /^relai-.*\.md$/i);
+  for (const src of agenci) {
+    const dest = path.join(projekt, '.cursor', 'agents', path.basename(src));
+    fs.mkdirSync(path.dirname(dest), { recursive: true });
+    fs.writeFileSync(dest, agentCursora(fs.readFileSync(src, 'utf8')), 'utf8');
+    zapisane.push(dest);
+  }
+
   const skillsRoot = path.join(REPO_ROOT, 'adapters', 'claude-code', 'skills');
   let skille = [];
   try { skille = fs.readdirSync(skillsRoot, { withFileTypes: true }).filter((d) => d.isDirectory()); } catch (_) { skille = []; }
@@ -244,6 +278,7 @@ function install(projekt, bezSkanu) {
   process.stdout.write('  + reguly zawsze-w-kontekscie: ' + pliki(path.join(ADAPTER, 'rules'), /\.mdc$/i).length + '\n');
   process.stdout.write('  + komendy /relai-*: ' + komendy.length + '\n');
   process.stdout.write('  + skille: ' + skille.length + '\n');
+  process.stdout.write('  + subagenci zalogi w .cursor/agents/: ' + agenci.length + '\n');
   // Licznik obejmuje pliki, nie same specyfikacje: 20 plikow SPEC_*.md + szablon planu HTML.
   // Etykieta "specyfikacje: 30" wprowadzala w blad (pilotaz E6, 2026-08-17).
   process.stdout.write('  + pliki specyfikacji i szablonow w .claude/relai/templates/: ' + templates + '\n');
@@ -288,7 +323,7 @@ function uninstall(projekt) {
     try { fs.unlinkSync(p); usuniete++; } catch (_) { /* juz go nie ma */ }
   }
   // Puste katalogi po naszych plikach — tylko nasze, tylko gdy puste.
-  for (const rel of ['.cursor/skills', '.cursor/commands', '.cursor/rules']) {
+  for (const rel of ['.cursor/skills', '.cursor/commands', '.cursor/rules', '.cursor/agents']) {
     const p = path.join(projekt, ...rel.split('/'));
     try {
       for (const d of fs.readdirSync(p, { withFileTypes: true })) {

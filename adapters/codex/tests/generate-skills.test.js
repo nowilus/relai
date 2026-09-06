@@ -14,14 +14,14 @@ function fixture(t) {
   return root;
 }
 
-test('generates twelve deterministic native skills from Claude Code commands', (t) => {
+test('generates thirteen deterministic native skills from Claude Code commands', (t) => {
   const output = fixture(t);
   const first = generator.generate({ output });
   const snapshot = new Map(first.files.map((file) => [file, fs.readFileSync(file, 'utf8')]));
   const second = generator.generate({ output });
 
-  assert.equal(first.commandSkills, 12);
-  assert.equal(second.commandSkills, 12);
+  assert.equal(first.commandSkills, 13);
+  assert.equal(second.commandSkills, 13);
   assert.deepEqual(second.files, first.files);
   for (const [file, content] of snapshot) assert.equal(fs.readFileSync(file, 'utf8'), content);
   assert.match(snapshot.get(path.join(output, 'relai-stage', 'SKILL.md')), /^---\nname: relai-stage\ndescription: /);

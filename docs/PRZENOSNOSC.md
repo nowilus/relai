@@ -254,3 +254,59 @@ Drugi wniosek jest ostrzeżeniem: oba narzędzia mają blokady mocniejsze, niż 
 2026-08-12 rano. Jeżeli potwierdzi je próba w E5 i E7, „jawna tabela gwarancji per narzędzie"
 przestanie być listą braków, a stanie się listą różnic — i to jest lepszy wynik, niż plan
 przewidywał.
+
+---
+
+## 4. Orkiestracja wielu agentów — co każde narzędzie daje załodze (2.1.0, zmierzone 2026-09-06)
+
+Komenda `/relai-crew` ma jedną treść w trzech adapterach, więc każda droga delegacji musi stać na
+mechanizmie, który dane narzędzie **ma**. Poniżej stan faktyczny; kolumna „Źródło" mówi, czy to
+próba, kod produktu czy dokumentacja (L-0041). Narzędzie `core/process/crew.js` woła CLI, nie API.
+
+### 4.1 Subagenci we własnym narzędziu (tryb basic)
+
+| Narzędzie | Mechanizm | Stan | Źródło |
+|---|---|---|---|
+| Claude Code | narzędzie `Agent` + agenci pluginu (`plugin.json` → `agents/`): `relai-coder`, `relai-tester`, `relai-reviewer` | działa jako mechanizm; agenci RelAI **zmierzeni wyłącznie plikami** (frontmatter, walidator), nie sesją | **[kod produktu]** + **[dokumentacja]** |
+| Codex | natywni subagenci, flaga `multi_agent` (`codex features list` → `stable true` na 0.153.4); role własne w `.codex/agents/*.toml` i `[agents.<nazwa>]` w `config.toml` | flaga zmierzona; RelAI **nie kładzie** własnych `.toml` — prompt roli daje `crew.js prompt` | **[próba]** (flaga) + **[dokumentacja]** (format) |
+| Cursor | subagenci projektu `.cursor/agents/*.md` (frontmatter `name`, `description`, `tools` jako tablica JSON, opcjonalnie `model`); instalator adaptera kładzie trzech agentów załogi | format zdjęty z agentów zainstalowanych przez cudzy plugin w `~/.cursor/agents/`; wywołanie subagenta RelAI w sesji Cursora **NOT TESTED** | **[kod produktu]** (pliki) — sesja niezmierzona |
+
+### 4.2 Delegacja do drugiego narzędzia (tryb full)
+
+Zmierzone **z Claude Code jako gospodarza**, w projekcie kontrolnym w `%TEMP%`, przez
+`crew.js run` (prompt na stdin, wyjście do pliku, manifest przebiegu):
+
+| Cel | Wywołanie | Wynik | Źródło |
+|---|---|---|---|
+| Codex, tylko-do-odczytu | `codex exec --skip-git-repo-check -s read-only --ephemeral -o <plik> -` | `PONG` w 9 s, exit 0, ostatnia wiadomość odczytana z `-o` | **[próba]** 2026-09-06 |
+| Codex, zapis | `codex exec -s workspace-write -c approval_policy="never"` | plik `hello.txt` powstał z żądaną treścią; raport `## Report` z rolą CODER | **[próba]** 2026-09-06 |
+| Cursor, tylko-do-odczytu | `agent -p --output-format text --trust --mode ask --workspace <cwd>`, prompt na **stdin** | `PONG`, exit 0. Ten sam prompt wieloliniowy podany jako **argument** został przeczytany fragmentami („Acknowledged. Line one ignored. What's the actual question?") — stąd stdin | **[próba]** 2026-09-06 |
+| Cursor, zapis | `agent -p -f …` | **NOT TESTED** (zapis przez Cursora nie był uruchamiany) | — |
+| Claude Code (z Claude Code, zagnieżdżone) | `claude -p --output-format text --permission-mode plan`, prompt na stdin | `PONG`, exit 0 | **[próba]** 2026-09-06 |
+| Claude Code, zapis | `claude -p --permission-mode acceptEdits --allowedTools Read Glob Grep Edit Write MultiEdit NotebookEdit Bash` (P-004: `acceptEdits` nie obejmuje Bash) | **NOT TESTED** | — |
+| przegląd Codeksem | `codex review --uncommitted` / `--base <gałąź>` z preambułą recenzenta | **NOT TESTED** (komenda składana, nieuruchomiona) | **[kod produktu]** `codex review --help` |
+
+**Kierunki odwrotne** (Codex albo Cursor jako gospodarz delegujący do pozostałych) idą tą samą
+komendą `crew.js run` z powłoki narzędzia i pozostają **NOT TESTED** — w tej sesji gospodarzem był
+Claude Code. Rozpoznanie gospodarza po zmiennych środowiska (`CLAUDECODE`, `CODEX_*`, `CURSOR_*`)
+jest podpowiedzią; wiążąca jest nazwa ze zdania hooka o liście modeli.
+
+### 4.3 Rozpoznanie logowania (bez czytania sekretów)
+
+| Narzędzie | Komenda | Odpowiedź przy zalogowaniu | Źródło |
+|---|---|---|---|
+| Claude Code | `claude auth status` | JSON z `"loggedIn": true` (plus adres konta, którego komenda **nie wypisuje**) | **[próba]** 2026-09-06 |
+| Codex | `codex login status` | `Logged in using ChatGPT`, exit 0 | **[próba]** 2026-09-06 |
+| Cursor | `agent status` | `Logged in as …`, exit 0 | **[próba]** 2026-09-06 |
+
+Na Windows nazwa CLI bez rozszerzenia nie wystarcza: `claude` jest `.exe`, `codex` i `agent` są
+`.cmd`, a `.cmd` nie uruchamia się przez `spawnSync` bez powłoki (EINVAL od Node 18.20). Narzędzie
+bierze ścieżkę z `where` i woła ją przez `cmd.exe /d /s /c` z cytowaniem każdego argumentu.
+
+### 4.4 Pułapka zmierzona przy okazji
+
+Cudzy hook `preToolUse` w `~/.cursor/hooks/` (z innego pluginu, skrypt PowerShell wołany przez
+bash) blokował **każdy** odczyt pliku w sesji `agent -p` — pierwsza próba delegacji do Cursora
+z instrukcją „przeczytaj plik zadania" skończyła się raportem o blokadzie, choć exit był 0. Skutek
+dla załogi: prompt idzie stdin-em w całości, a `exit 0` nie jest dowodem wykonania — dowodem jest
+sekcja `## Report` i `git status` po fali (krok 7 komendy).

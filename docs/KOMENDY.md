@@ -1,6 +1,6 @@
 # KOMENDY — RelAI
 
-RelAI 2.0.0
+RelAI 2.1.0
 
 Nic z tej listy nie jest obowiązkowe. RelAI działa w zwykłej rozmowie — piszesz normalnie,
 a struktura projektu nadąża. Komendy są skrótem do rzadszych operacji.
@@ -21,6 +21,7 @@ a struktura projektu nadąża. Komendy są skrótem do rzadszych operacji.
 | `/relai-update` | podnosi projekt do wersji zainstalowanego RelAI: pokazuje, co się zmieni, czeka na Twoje „tak" i nie rusza niczego, co sam zmieniłeś | gdy RelAI mówi na starcie sesji, że projekt jest starszy niż plugin |
 | `/relai-branch` · `/relai-branch OPIS_REPO` | odkłada boczny wątek na bok: spisuje, o co chodzi i po czym poznać, że zrobione, i przygotowuje gotowy prompt do wklejenia w nowej sesji | gdy w trakcie etapu wypływa coś ważnego, ale nie na teraz — zamiast robić to przy okazji albo zapomnieć |
 | `/relai-models` | odświeża listę modeli Twojego narzędzia: pyta o zgodę na wejście do internetu, czyta dokumentację dostawcy albo pyta Ciebie o nazwy, pokazuje różnicę stara–nowa i zapisuje dopiero po Twoim „tak" | gdy przy pytaniu o model widzisz starą datę listy albo pozycję „do uzupełnienia" |
+| `/relai-crew` · `/relai-crew <cel>` · `/relai-crew review` · `/relai-crew rescue <zadanie>` · `/relai-crew setup` · `/relai-crew status` | robi z Twojej sesji orkiestratora celu: pyta o podział ról, liczbę subagentów, tryb pracy i zakres modeli, układa zadania w fale tak, żeby dwa nie pisały naraz do tego samego pliku, deleguje je subagentom w Twoim narzędziu albo do drugiego zalogowanego narzędzia (Claude Code, Codex, Cursor), a na końcu zleca przegląd krzyżowy innemu modelowi i domyka dokumenty; bez drugiego narzędzia mówi o tym jednym zdaniem i pracuje w trybie basic w obrębie Twojego; `review` to sam przegląd krzyżowy bieżących zmian, `rescue` — jedno zadanie oddane drugiemu narzędziu, `setup` — raport gotowości z poleceniami dla Ciebie, `status` — stan przebiegów | gdy cel jest za duży na jedną parę rąk, albo gdy chcesz, żeby kod napisany w jednym narzędziu przejrzało drugie |
 | `/relai-clean` · `/relai-clean raport` | pokazuje, co realnie zostało po zamkniętych etapach — w katalogu roboczym projektu, w folderze plików tymczasowych systemu i wśród plików nieśledzonych — grupuje to i pyta partiami po cztery; kasuje wyłącznie grupy, na które powiesz „tak". Z argumentem `raport` sam raport: żadnych pytań, żadnego kasowania | gdy plików roboczych zrobiło się dużo albo gdy RelAI powie o tym na starcie sesji |
 
 Pełna nazwa każdej z nich to `/relai:relai-…` (np. `/relai:relai-backup`) — wpisz `/relai` i wybierz

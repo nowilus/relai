@@ -1,6 +1,6 @@
 {
   "name": "relai-core",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "description": "Wspolny rdzen RelAI: specyfikacje dokumentow, opisy procesu i guardrails jako czyste skrypty Node. Adaptery narzedzi (Claude Code, Cursor, Codex) korzystaja z tych samych plikow.",
   "templates": "./templates/",
   "guardrails": [
@@ -35,6 +35,12 @@
       "file": "./process/work-artifacts.js",
       "kind": "biblioteka+CLI",
       "description": "Pomiar artefaktow roboczych (katalog roboczy, TEMP, pliki niesledzone), zamknieta lista powodow ochrony, raport w grupach i kasowanie listy sciezek z asercjami korzeni. Nigdy nie decyduje sam, co skasowac."
+    },
+    {
+      "id": "crew",
+      "file": "./process/crew.js",
+      "kind": "biblioteka+CLI",
+      "description": "Orkiestracja /relai-crew: rozpoznanie narzedzi i logowania (bez czytania sekretow), fale zadan bez konfliktow plikow, delegacja jednego zadania do Claude Code / Codex / Cursor w trybie read-only albo write, przeglad krzyzowy, status przebiegow. Nigdy nie decyduje sam, kto co robi."
     }
   ],
   "tools": [
@@ -55,7 +61,8 @@
         "./templates/",
         "./guardrails/secret-scan.js",
         "./process/session-signals.js",
-        "./process/work-artifacts.js"
+        "./process/work-artifacts.js",
+        "./process/crew.js"
       ]
     },
     {
@@ -68,7 +75,8 @@
         "./templates/",
         "./guardrails/secret-scan.js",
         "./process/session-signals.js",
-        "./process/work-artifacts.js"
+        "./process/work-artifacts.js",
+        "./process/crew.js"
       ]
     },
     {
@@ -81,7 +89,8 @@
         "./templates/",
         "./guardrails/secret-scan.js",
         "./process/session-signals.js",
-        "./process/work-artifacts.js"
+        "./process/work-artifacts.js",
+        "./process/crew.js"
       ]
     }
   ]

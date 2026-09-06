@@ -15,6 +15,7 @@
 | M2 | Kopia listy w projekcie zostaje nadpisana przy starcie sesji i zjada odświeżenie zrobione komendą (plan REKOMENDACJA_MODELU, ryzyko 2) | **Wysoki** (2026-09-03, przy powstaniu mechanizmu) | **OTWARTE** | `provisionModelList()` kopiuje **tylko wtedy, gdy pliku nie ma** — jedyna różnica wobec `provisionTemplates()`, które nadpisuje przy każdym starcie. Dowód negatywny (E1): plik zmieniony ręcznie w projekcie kontrolnym przeżył ponowne uruchomienie hooka, suma po normalizacji CRLF → LF `ecc6d18d9f6ccf65` przed i po; kontrola pozytywna w tym samym przebiegu — skasowany plik powstał ponownie z sumą źródła. Otwarte do czasu, aż istnieje druga droga zapisu do tego pliku: `/relai-models` z E2 pisze do tej samej kopii, a `/relai-update` do katalogu obok. **E2: druga droga zapisu istnieje i przeżywa start sesji.** Po odświeżeniu w projekcie kontrolnym Claude Code suma listy `f82ee8da0dbe7997` przed ponownym uruchomieniem hooka i po nim, a hook zameldował nową datę (`z dnia 2026-09-04`) zamiast starej; w projekcie Cursora to samo z sumą `65eca9cbea99f0b3`. Otwarte już tylko z powodu `/relai-update`, którego ta droga jeszcze nie dotknęła. **E4: trzecia droga ma odtąd zapisany zakaz** — wiersz `Lista modeli` w tabeli stanu docelowego `/relai-update` kończy się zdaniem „samej listy `.claude/relai/MODELE-<narzędzie>.md` **nie ruszasz** — kopia w projekcie jest trwała i przeżywa aktualizację". Zakaz jest **napisany, nie zmierzony**: pierwszy przebieg `/relai-update` na projekcie z ręcznie poprawioną listą jeszcze się nie odbył i to jest jedyny powód, dla którego ryzyko zostaje otwarte. Zmierzone: 2026-09-03 (E1), 2026-09-04 (E2) |
 | M3 | Strona dokumentacji zmienia układ i odczyt z sieci zwraca śmieci albo nic (plan REKOMENDACJA_MODELU, ryzyko 3) | **Średni** (2026-09-04, przy wejściu sieci do mechanizmu) | **OTWARTE** | Odświeżenie zawsze kończy się pokazaniem różnicy i pytaniem; niepowodzenie zostawia starą listę **z jej datą**, nigdy pustą. Pomiar E2 na odczycie adresu nieistniejącego (`HTTP 404 Not Found`): lista w projekcie kontrolnym została z sumą `1f67fe1bc954ecdc` i `list-date: 2026-09-03`, czyli dokładnie taka jak przed przebiegiem — dowód treścią pliku, nie komunikatem. Niezmierzone: strona odpowiadająca **200 ze zmienionym układem** (odczyt „udany", treść bez nazw) — to jest realny kształt tego ryzyka i czeka na pierwszy taki przypadek. **E4: stan po wydaniu bez zmian** — komenda jest w cache'u 1.9.0 i od tej pory może ją wywołać każdy projekt, więc szansa na trafienie rośnie, ale sam mechanizm ochrony (różnica przed zapisem, stara lista przy niepowodzeniu) jest ten sam co zmierzony w E2. Zmierzone: 2026-09-04 (E2) |
 | M5 | Nazwy modeli zmieniają się szybciej niż wydania RelAI (plan REKOMENDACJA_MODELU, ryzyko 6) | **Średni** (2026-09-04) | **OTWARTE** | Lista mieszka w adapterze **i** w projekcie; `/relai-models` aktualizuje kopię projektu bez wydawania nowej wersji pluginu. Pierwsze realne odświeżenie (E2) potwierdziło, że ryzyko nie jest teoretyczne: strona aliasów wymienia dziś dziesięć pełnych ID (`claude-opus-5` … `claude-fable-5`), a lista Cursora ~45 pozycji od pięciu dostawców — wobec czterech i trzech pozycji w listach RelAI. Od E3 lista ma wiek i próg: powyżej **7 dni** start sesji mówi jedno zdanie z propozycją `/relai-models`, poniżej — zero znaków (zmierzone parą wariantów różniącą się wyłącznie `list-date`: 258 znaków wobec 0, potwierdzone w świeżej sesji CLI odpowiedzią `BRAK LINII`). **E4: pierwszy pełny cykl domknięty** — lista, komenda, próg i **wydanie** (1.9.0, potwierdzone treścią plików z cache'u; dwanaście komend, obie listy, zdanie o wieku działające w świeżej sesji z wydanej wersji). Otwarte już **wyłącznie** z pierwszego powodu: przypomnienie mówi o wieku listy, a nie o tym, że dostawca zmienił nazwy — lista tygodniowa może być świeża i nieprawdziwa naraz. To jest trwała własność mechanizmu, nie zaległość wydania. Zmierzone: 2026-09-04 (E2, E3, E4) |
+| M6 | Załoga stoi na flagach CLI trzech dostawców (`claude -p --permission-mode`, `codex exec -s`, `agent -p --mode`), które zmieniają się szybciej niż wydania RelAI (wątek ORKIESTRACJA) | **Średni** (2026-09-06) | **OTWARTE** | Flagi stoją w jednym miejscu (`buildCommand` w `core/process/crew.js`), a test pilnuje trybu read-only bez `--write` i zamkniętej listy flag zakazanych; porażka `run` kończy się statusem `failed` z `stderr` w pliku przebiegu, nigdy ciszą, a krok 7 komendy każe czytać raport zadania i `git status`, nie kod wyjścia. Zmierzone 2026-09-06 z Claude Code jako gospodarza: Codex read-only i write, Cursor read-only (prompt stdin-em), zagnieżdżony Claude Code read-only — trzy narzędzia, cztery zadania `done`. Otwarte, bo kierunki z Codeksa i Cursora jako gospodarza i zapis przez Cursora są NOT TESTED, a zmiana flagi u dostawcy nie ma dziś własnego sygnału poza porażką przebiegu |
 
 > Ryzyka zamknięte R2, M4 (2 pozycje) są w
 > [docs/archiwum/ryzyka/RYZYKA_2026-09-04.md](archiwum/ryzyka/RYZYKA_2026-09-04.md)
@@ -1781,3 +1782,87 @@ Autor: RelAI (gpt-5.6-terra/high) + Lukasz
 - Uruchomić świeżą sesję E8 z `PROMPT_ETAP_8.md`.
 
 Autor: RelAI (gpt-5.6-terra/high) + Lukasz
+
+### 2026-09-06 — Wątek ORKIESTRACJA: trzynasta komenda `/relai-crew`, 2.1.0 w repozytorium
+
+**Zrobione:**
+
+- **`core/process/crew.js`** — nowe narzędzie rdzenia, samowystarczalne (zero `require` na inne
+  pliki rdzenia), prowizjonowane do `.claude/relai/tools/crew.js` tą samą drogą co `clean-work.js`
+  (jeden wpis w liście `NARZEDZIA` w `session-signals.js`). Podkomendy: `detect`/`setup`
+  (które CLI jest, które zalogowane — bez czytania wartości sekretów; subagenci natywni; tryb
+  `basic`/`full`), `plan` (fale zadań: wspólny plik = zależność, cykl = błąd), `prompt`
+  (preambuła roli), `run` (jedno zadanie w jednym narzędziu; `--write` tylko dla `coder`
+  i `tester`), `review` (Codex przez `codex review`, reszta zadaniem read-only), `status`.
+  Zamknięta lista flag zakazanych (`--dangerously-*`, `--yolo`, `bypassPermissions`,
+  `danger-full-access`) sprawdzana przed każdym uruchomieniem. Na Windows CLI z `where`
+  i `cmd.exe /d /s /c` (P: `.cmd` przez `spawnSync` bez powłoki daje EINVAL).
+- **`adapters/claude-code/commands/relai-crew.md`** — trzynasta komenda: pięć trybów argumentu
+  (cel, `setup`, `status`, `review`, `rescue`) jako natywne odpowiedniki funkcji pluginu Codex,
+  dziewięć kroków, wywiad w jednym `AskUserQuestion` (role, liczba subagentów, tryb, zakres
+  modeli z list `MODELE-*.md`), tabela dróg delegacji per gospodarz, monitorowanie po fali
+  z kontrolą plików spoza zakresu, przegląd krzyżowy z werdyktem i limitem dwóch rund, dwanaście
+  zakazów. Ta sama treść trafia do Cursora (kopia) i Codeksa (wygenerowany skill).
+- **Trzej agenci pluginu Claude Code** (`adapters/claude-code/agents/relai-{coder,tester,reviewer}.md`)
+  i wpis `"agents"` w `plugin.json`. Instalator Cursora przepisuje ich do `.cursor/agents/`
+  (frontmatter Cursora; koder i tester bez pola `tools`, recenzent `["Read","Glob","Grep","Bash"]`),
+  deinstalacja sprząta także `.cursor/agents`. Tryb basic Cursora — subagenci projektu.
+- Liczniki i wersje: generator skilli Codeksa i jego test na 13, walidator sprawdza też ścieżkę
+  `agents` z `plugin.json`, wersja **2.1.0** w pięciu źródłach i markerze `USTAWIENIA.md`;
+  `KOMENDY.md`, `SPEC_KOMENDY.md` (v4), `README.md`, README adapterów Cursora i Codeksa,
+  `relai-update` (v7), skill `relai-core` (v9), `PRZENOSNOSC.md` (nowa sekcja 4 z macierzą
+  pomiarów), `ARTEFAKTY.md` (46 pozycji), `STATE.md`, `CLAUDE.md`; karta wątku
+  [ORKIESTRACJA](fixy/ORKIESTRACJA/ODNOGA.md) z wariantami, ryzykami i weryfikacją.
+- Zmiany są adytywne: żaden istniejący hook, komenda ani skill nie zmienił zachowania; w kodzie
+  istniejącym doszły wyłącznie wpis listy prowizjonowania, wpis manifestu, jedna linia walidatora,
+  krok instalatora Cursora i podbicie liczby 12→13 w generatorze.
+
+**Zweryfikowane — jak dokładnie:**
+
+- `node --test adapters/codex/tests/*.test.js core/guardrails/tests/*.test.js core/process/tests/*.test.js`
+  — **36/36** (nowe 9: fale i konflikty, cykle i duplikaty, flagi read-only/write bez flag
+  zakazanych dla trzech narzędzi, przegląd Codeksem, preambuła roli, `detect` z podstawionym
+  wykonawcą w trybie full i basic, `run` z manifestem i odmową `--write` dla recenzenta, werdykt,
+  CLI). `node core/tools/validate-adapters.js` — kod 0, „5 zrodel, wartosc 2.1.0".
+  `generate-skills.js --verify` — 13 + 2 spójne. `git diff --check` — czysto.
+- **Delegacja realna, z Claude Code jako gospodarza, projekt kontrolny w `%TEMP%`** (L-0084 —
+  cudza usługa sprawdzona najtańszym wywołaniem przed zapisaniem czegokolwiek o niej): Codex
+  read-only `PONG` w 9 s (exit 0, wiadomość z `-o`); Codex write — `hello.txt` z żądaną treścią
+  i raport `## Report` roli CODER; Cursor read-only `PONG` **po zmianie dostarczania promptu na
+  stdin** (prompt jako argument wieloliniowy Cursor czytał fragmentami, a pierwsza próba
+  z instrukcją „przeczytaj plik" odbiła się o cudzy hook `~/.cursor/hooks/` blokujący odczyt —
+  exit 0, zadanie niewykonane; stąd zasada „dowodem jest raport, nie kod wyjścia" w kroku 7);
+  zagnieżdżony Claude Code read-only `PONG`; `status --run-id smoke` — 4 zadania `done`.
+- `crew.js detect` na tej maszynie: gospodarz Claude Code po `CLAUDECODE`, trzy CLI zalogowane
+  (`claude auth status` JSON, `codex login status`, `agent status`), Codex `multi_agent stable
+  true`, tryb `full`. Przed poprawką rozpoznawania ścieżek `claude` meldował „BRAK CLI", bo jest
+  `.exe`, a nie `.cmd` — dowód kontrolą pozytywną na realnym środowisku.
+- Instalator Cursora w `%TEMP%`: 13 komend, 3 agentów z poprawnym frontmatterem, `crew.js`
+  obok `clean-work.js`; `--uninstall` usunął 22 pliki i pusty `.cursor/agents`.
+- **Nie weryfikowano:** sesji z Codeksem albo Cursorem jako gospodarzem, zapisu przez Cursora
+  (`agent -p -f`), zapisu przez zagnieżdżony Claude Code (`acceptEdits` + `allowedTools`),
+  `codex review` uruchomionego naprawdę, wywołania agentów `relai:relai-*` przez `Agent`
+  w świeżej sesji z wydanego pluginu. Wszystkie stoją jako `NOT TESTED` w `PRZENOSNOSC.md` §4.
+
+**Świadomie odłożone:**
+
+- Role `.toml` dla Codeksa i scalanie `[agents.*]` z cudzym `config.toml` — Codex ma subagentów
+  natywnych bez konfiguracji, prompt roli daje `crew.js prompt`.
+- Anulowanie biegnącego zadania i wznawianie wątków między sesjami (wymagałoby brokera
+  app-server jak w pluginie Codex — wariant B karty wątku, odrzucony jako YAGNI i D-04).
+- Zapamiętywanie odpowiedzi wywiadu w `USTAWIENIA.md` — wywiad pada przy każdym wywołaniu,
+  bo skład załogi zależy od celu i kosztu przebiegu.
+- Proces tej sesji: wywiad wstępny i akceptacja planu przed kodem (zasady nadrzędne) zostały
+  **pominięte na jawną dyrektywę** użytkownika (autonomia, jedna sesja); zamiast planu powstała
+  karta wątku z wariantami i ryzykami, spisana po pomiarach.
+
+**Do zrobienia przez człowieka:**
+
+- Wydanie 2.1.0 sekwencją P-005: tag i release na GitHubie, `claude plugin update relai`,
+  restart aplikacji, potwierdzenie treścią plików z cache'u (`crew.js` w `core/process/`,
+  `relai-crew.md` w komendach). Do tego czasu `/relai-crew` w tym repozytorium kończy się na
+  kroku 1.
+- Pomiar odwrotnych kierunków (gospodarz Codex, gospodarz Cursor) i zapisu przez Cursora —
+  propozycja odnogi pomiarowej, jak przy 2.0.0.
+
+Autor: RelAI (Fable 5.1) + Lukasz

@@ -1,11 +1,17 @@
 # STATE — RelAI
 
-Stan na: 2026-09-05
+Stan na: 2026-09-06
 
 ## Gdzie jesteśmy
 
-RelAI jest na **2.0.0** i działa w Claude Code, Cursorze oraz jako natywny plugin Codexa z jednym
-rdzeniem procesu. Seria 1.9.x dodała listy modeli per narzędzie, poprawiła sprzątanie oraz uszczelniła pre-commit: działa
+RelAI ma w repozytorium **2.1.0** (opublikowane wydanie: 2.0.0) i działa w Claude Code, Cursorze oraz
+jako natywny plugin Codexa z jednym rdzeniem procesu. **2.1.0 dokłada załogę** — trzynastą komendę
+`/relai-crew`: sesja zostaje orkiestratorem celu, pyta o role, liczbę subagentów, tryb i zakres
+modeli, układa zadania w fale bez konfliktów plików, deleguje je subagentom gospodarza albo do
+drugiego zalogowanego narzędzia i zleca przegląd krzyżowy; bez drugiego narzędzia pracuje w trybie
+basic. Wydanie 2.1.0 (tag, `plugin update`, restart) czeka na człowieka.
+
+Seria 1.9.x dodała listy modeli per narzędzie, poprawiła sprzątanie oraz uszczelniła pre-commit: działa
 w projektach ESM, kończy instalację testem dymnym i nie blokuje poprawnych odczytów sekretów ze
 środowiska. Szczegóły i dowody wydań są w dwóch ostatnich wpisach dziennika.
 
@@ -23,9 +29,14 @@ kontrole przeszły; pełna świeża sesja Codexa pozostaje NOT TESTED po błędz
 - Plany powstają jako osobny dokument z wariantami i ryzykami — dla odbiorcy nietechnicznego jako
   jeden plik HTML działający bez internetu. Boczny wątek dostaje własną kartę i gotowy prompt
   świeżej sesji, bez ruszania zamrożonego planu.
-- Dwanaście skrótów operacyjnych: etap planu, odnoga, kopia zapasowa, przegląd, lista zmian, pakiet
+- Trzynaście skrótów operacyjnych: etap planu, odnoga, kopia zapasowa, przegląd, lista zmian, pakiet
   przekazania, wycieczka po projekcie, ściąga, adopcja, aktualizacja, sprzątanie plików roboczych,
-  odświeżenie listy modeli.
+  odświeżenie listy modeli, **załoga**.
+- **Załoga działa między trzema narzędziami** — zmierzone 2026-09-06 z Claude Code jako gospodarza:
+  Codex (odczyt i zapis), Cursor (odczyt, prompt stdin-em) i zagnieżdżony Claude Code (odczyt)
+  wykonały delegowane zadanie z poprawnym raportem; recenzent nigdy nie dostaje prawa zapisu, a dwa
+  zadania nigdy nie piszą naraz do tego samego pliku. Kierunki z Codeksa i Cursora jako gospodarza
+  oraz zapis przez Cursora pozostają NOT TESTED.
 - **Dokumenty nie puchną bez końca.** Najstarsza historia idzie do archiwum w całości, bez
   skracania, a w żywym pliku zostaje linia z linkiem; sprawa czekająca na człowieka nie zatrzymuje
   tego ruchu — jej link jest przepinany na archiwum. Poniżej progu cisza, a gdy mechanizm nie może
@@ -64,6 +75,10 @@ kontrole przeszły; pełna świeża sesja Codexa pozostaje NOT TESTED po błędz
 
 ## Nad czym pracujemy teraz
 
+- **Wydanie 2.1.0** — repo ma komplet (komenda, narzędzie, agenci, dokumenty, 36 testów); publikacja
+  to sekwencja z P-005: tag i release, `claude plugin update`, restart, potwierdzenie treścią cache'u.
+  Do tego czasu `/relai-crew` w **tym** repozytorium kończy się na kroku 1 (hook z cache'u 2.0.0 nie
+  podkłada `crew.js`) — jak każda funkcja między wydaniami (D-87).
 - **Migracja JiraManagera** — ostatni projekt, w którym start sesji kosztuje 386 KB dokumentów,
   a rotacja nigdy nie ruszyła. Czeka na okno właściciela; do tego czasu ryzyko R5 zostaje otwarte,
   zawężone do tego jednego projektu.
@@ -117,11 +132,11 @@ kontrole przeszły; pełna świeża sesja Codexa pozostaje NOT TESTED po błędz
 
 ### Wersja i instalacja
 
-Repozytorium: **2.0.0** (natywny plugin Codexa wydany 2026-09-05; pełna macierz cross-tool pozostaje
-częściowo niezmierzona).
+Repozytorium: **2.1.0** (załoga `/relai-crew`, 2026-09-06, niewydane). Poprzednio 2.0.0 (natywny plugin
+Codexa wydany 2026-09-05; pełna macierz cross-tool pozostaje częściowo niezmierzona).
 Poprzednio 1.9.2 (trzy defekty gitowego pre-commita ze zgłoszenia zewnętrznego, 2026-09-04;
 tego samego dnia wcześniej 1.9.0 z planu REKOMENDACJA_MODELU i poprawka `_fixy` w 1.9.1).
-Walidator: kod 0, „3 zrodel, wartosc 2.0.0". **Wydanie potwierdzone treścią plików z cache'u, nie
+Walidator: kod 0, „5 zrodel, wartosc 2.1.0" (2026-09-06; przy wydaniu 2.0.0: „3 zrodel"). **Wydanie potwierdzone treścią plików z cache'u, nie
 komunikatem CLI** (P-005): `installed_plugins.json` wskazuje ścieżkę `...\1.9.2` i commit
 `ff3e6bc`, a pięć plików z cache'u — trzy guardraile, `MANIFEST.json` i `SKILL.md` — zgadza się
 sumą z repozytorium po normalizacji CRLF → LF (5/5) i różni od 1.9.1. Sam restart nie wystarczył:
@@ -134,15 +149,16 @@ logikę; pierwszy realny commit (19 plików) przeszedł przez niego cicho.
 
 **Rdzeń** (`core/`): specyfikacje dokumentów + szablon planu HTML z osadzonymi fontami • guardraile
 jako skrypty (skan sekretów, pre-commit, instalator) • rozpoznania startu sesji
-(`process/session-signals.js`) i pomiar artefaktów (`process/work-artifacts.js`), oba wołane przez
-oba adaptery • walidator spójności • `MANIFEST.json`.
+(`process/session-signals.js`), pomiar artefaktów (`process/work-artifacts.js`) i załoga
+(`process/crew.js`: rozpoznanie narzędzi, fale zadań, delegacja, przegląd krzyżowy), wołane przez
+adaptery • walidator spójności • `MANIFEST.json`.
 
-**Adapter Claude Code**: dwa skille, **dwanaście komend**, dziesięć hooków Node.js bez zależności
-npm, własna lista modeli. Manifest i marketplace zostają w `.claude-plugin/` — tego wymaga Claude Code.
+**Adapter Claude Code**: dwa skille, **trzynaście komend**, trzej agenci załogi, dziesięć hooków Node.js
+bez zależności npm, własna lista modeli. Manifest i marketplace zostają w `.claude-plugin/` — tego wymaga Claude Code.
 
 **Adapter Cursor**: trzy reguły `.mdc` z `alwaysApply: true`, dwa hooki z opakowaniem powłoki,
 instalator z deinstalacją i flagą `--bez-skanu`, własna lista modeli. Komendy i skille kopiuje
-z adaptera Claude Code.
+z adaptera Claude Code, agentów załogi przepisuje na frontmatter Cursora.
 
 ### Wymagania
 
@@ -166,13 +182,13 @@ Lekcje: **41,0 KB / 50 KB** (22 w żywym rejestrze, ostatnia L-0091) • Sekcja 
 rotacji: **15,3 KB / 12 KB** — nie ma czego rotować • Archiwum: siedem plików dziennika, trzy
 lekcji, dwa ryzyk • Sprawy czekające na człowieka: **6 tutaj**, 32 w PolyFlow, żadna
 nieprzeterminowana • Otwarte ryzyka: **9** • Zamknięte: **8, w archiwum** •
-Otwarte bramki manualne: **1** • Otwarte wątki: **1** — odnoga `OPIS_REPO` •
-Artefakty w rejestrze: **40** • Zasady aktywne: **15 przy limicie 15** •
-Progi w katalogu: **18, z tego 17 z adresem egzekwowania** • Adaptery: **2 + Codex w E7** •
-Procedury: **12** •
+Otwarte bramki manualne: **1** • Otwarte wątki: **1** — odnoga `OPIS_REPO`; `ORKIESTRACJA` zamknięta 2026-09-06 •
+Artefakty w rejestrze: **46** • Zasady aktywne: **15 przy limicie 15** •
+Progi w katalogu: **18, z tego 17 z adresem egzekwowania** • Adaptery: **3** •
+Procedury: **13** •
 Scenariusze akceptacyjne: 4/4 + pilotaż Cursora •
 Modele, na których zmierzono proces: 5 (Fable, Opus, Haiku, Composer/auto, Grok 4.6) •
 Projekty na RelAI: 3 (RelAI 2.0.0, PolyFlow 1.8.0, JiraManager przed migracją) •
-Testy regresyjne guardraili: **19** (`core/guardrails/tests/`, nowy katalog od 1.9.3) •
+Testy regresyjne: **36** (guardraile 19, adapter Codex 8, załoga 9 w `core/process/tests/`) •
 Modele, które zmieniły kod produktu: **2** (Opus 5, gpt-6-astra) •
 Zgłoszenia z cudzych projektów: **1, obsłużone w dniu wpłynięcia** (pre-commit, 4 defekty)

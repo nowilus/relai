@@ -1,6 +1,6 @@
 {
   "name": "relai",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "description": "Your project remembers everything — documentation-first process framework for Claude Code",
   "author": {
     "name": "nowilus",
@@ -22,5 +22,8 @@
   "commands": [
     "./adapters/claude-code/commands/"
   ],
-  "hooks": "./adapters/claude-code/hooks/hooks.json"
+  "hooks": "./adapters/claude-code/hooks/hooks.json",
+  "agents": [
+    "./adapters/claude-code/agents/"
+  ]
 }

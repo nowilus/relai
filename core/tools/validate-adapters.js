@@ -139,6 +139,7 @@ if (plugin) {
   const sciezki = []
     .concat(plugin.skills || [])
     .concat(plugin.commands || [])
+    .concat(plugin.agents || [])
     .concat(plugin.hooks ? [plugin.hooks] : []);
   for (const s of sciezki) {
     if (!jest(s)) bledy.push('plugin.json deklaruje "' + s + '", a tego nie ma — runtime zglosi blad ladowania');

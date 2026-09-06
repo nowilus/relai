@@ -4,7 +4,7 @@ RelAI w Cursorze to **te same dokumenty i ten sam proces** co w Claude Code, zł
 które Cursor naprawdę ma. Ten plik jest instrukcją dla człowieka; warstwa czytana przez model
 (reguły `.mdc`) jest po angielsku — tak stanowi Aneks A planu ROZWOJ_PO_WYDANIU.
 
-Wersja adaptera: **2.0.0**. Rozpoznanie, na którym stoi, jest w [docs/PRZENOSNOSC.md](../../docs/PRZENOSNOSC.md);
+Wersja adaptera: **2.1.0**. Rozpoznanie, na którym stoi, jest w [docs/PRZENOSNOSC.md](../../docs/PRZENOSNOSC.md);
 zmierzono je 2026-08-12 na Cursorze 3.7.12 i `cursor-agent` 2026.08.11-e8db854 (Windows 11).
 
 ## Czego potrzebujesz
@@ -23,11 +23,11 @@ Z katalogu repozytorium RelAI:
 node adapters/cursor/install.js <ścieżka-do-projektu>
 ```
 
-Instalator kładzie w projekcie dokładnie pięć rzeczy i wypisuje, co zrobił:
+Instalator kładzie w projekcie dokładnie sześć rzeczy i wypisuje, co zrobił:
 
 1. `.cursor/rules/relai-*.mdc` — trzy reguły `alwaysApply: true`: rdzeń procesu, planowanie,
    guardraile. To jest **warstwa nośna** — wchodzi do każdej sesji bez wyzwalania czegokolwiek.
-2. `.cursor/commands/relai-*.md` — dwanaście komend wywoływanych jako `/relai-stage`, `/relai-tour`…
+2. `.cursor/commands/relai-*.md` — trzynaście komend wywoływanych jako `/relai-stage`, `/relai-tour`…
    Pliki są kopiami z adaptera Claude Code: jedno źródło w repozytorium, kopia w projekcie.
 3. `.cursor/skills/relai-core/`, `.cursor/skills/relai-planning/` — te same skille co w Claude Code;
    w Cursorze niosą procedurę, nigdy regułę.
@@ -35,7 +35,10 @@ Instalator kładzie w projekcie dokładnie pięć rzeczy i wypisuje, co zrobił:
    (razem trzydzieści plików).
    Katalog nazywa się tak samo jak w Claude Code **celowo**: komendy i skille mówią o jednej ścieżce,
    więc oba narzędzia widzą to samo.
-5. Dwa wpisy w `.cursor/hooks.json` — `sessionStart` i `preToolUse`. Cudze wpisy zostają nietknięte;
+5. `.cursor/agents/relai-coder.md`, `relai-tester.md`, `relai-reviewer.md` — trzej subagenci załogi
+   dla `/relai-crew` (od 2.1.0). Treść ról pochodzi z agentów adaptera Claude Code; instalator zmienia
+   wyłącznie frontmatter na format Cursora (recenzent dostaje narzędzia tylko-do-odczytu).
+6. Dwa wpisy w `.cursor/hooks.json` — `sessionStart` i `preToolUse`. Cudze wpisy zostają nietknięte;
    nasze są oznaczone opisem zaczynającym się od `RelAI:`.
 
 Instalacja jest **idempotentna**: powtórzone uruchomienie nadpisuje własne pliki i nie mnoży wpisów

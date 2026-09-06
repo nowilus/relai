@@ -3,7 +3,7 @@
 </p>
 
 <p align="center">
-  <em>Wersja 2.0.0 &nbsp;·&nbsp; licencja MIT &nbsp;·&nbsp; wymaga Claude Code, Cursora albo Codexa, plus Node.js 14+ &nbsp;·&nbsp; zero zależności npm</em>
+  <em>Wersja 2.1.0 &nbsp;·&nbsp; licencja MIT &nbsp;·&nbsp; wymaga Claude Code, Cursora albo Codexa, plus Node.js 14+ &nbsp;·&nbsp; zero zależności npm</em>
 </p>
 
 **RelAI to plugin do Claude Code (od 1.5.0 także adapter Cursora, od 1.10.0 natywny plugin Codexa), który zamienia rozmowę
@@ -32,7 +32,7 @@ Then open Claude Code in a project folder and just talk. The plugin asks for con
 three questions, and generates the structure. Documentation is generated in the project's language
 — the plugin's own docs and this README are Polish, but a project set to English gets
 `docs/STATE.md`, `JOURNAL.md`, `LESSONS.md`, `DECISIONS.md`, `SETTINGS.md`, `COMMANDS.md`.
-Twelve procedures, native Codex hooks, four project profiles, MIT licence.
+Thirteen procedures, native Codex hooks, four project profiles, MIT licence.
 
 </details>
 
@@ -146,7 +146,7 @@ mkdir C:/Users/<Ty>/Desktop/MojProjekt
 node C:/Narzedzia/relai/adapters/cursor/install.js C:/Users/<Ty>/Desktop/MojProjekt
 ```
 
-Instalator wypisze, co położył: trzy reguły `.cursor/rules/relai-*.mdc`, dwanaście komend
+Instalator wypisze, co położył: trzy reguły `.cursor/rules/relai-*.mdc`, trzynaście komend
 `/relai-*`, dwa skille, specyfikacje dokumentów w `.claude/relai/templates/` i dwa wpisy
 w `.cursor/hooks.json`. Cudze wpisy w `hooks.json` zostają nietknięte.
 
@@ -252,7 +252,7 @@ wywołanie — nigdy sama z siebie.
 
 ## Komendy
 
-Dwanaście skrótów dla operacji, które w rozmowie byłyby uciążliwe do opisania.
+Trzynaście skrótów dla operacji, które w rozmowie byłyby uciążliwe do opisania.
 
 | | Komenda | Co robi |
 |:--:|---|---|
@@ -268,6 +268,7 @@ Dwanaście skrótów dla operacji, które w rozmowie byłyby uciążliwe do opis
 | <img src="docs/zasoby/branding/ikony/branch.svg" width="24"> | `/relai-branch` | odkłada boczny wątek jako odnogę: karta i gotowy prompt świeżej sesji, plan bez zmian |
 | <img src="docs/zasoby/branding/ikony/clean.svg" width="24"> | `/relai-clean` | pokazuje artefakty po zamkniętych etapach w grupach i kasuje wyłącznie te, na które powiesz „tak" |
 | | `/relai-models` | odświeża listę modeli narzędzia: zgoda na sieć, źródło albo pytanie do Ciebie, różnica przed zapisem |
+| | `/relai-crew` | załoga: Twoja sesja zostaje orkiestratorem — wywiad o role i modele, fale zadań bez konfliktów plików, delegacja do subagentów albo drugiego narzędzia, przegląd krzyżowy; bez drugiego narzędzia tryb basic |
 
 Claude Code rejestruje komendy pluginu pod pełną nazwą `/relai:relai-<nazwa>`. Skrócona forma
 (`/relai-backup`) działa tam, gdzie podpowiadacz ją rozwija.
@@ -394,14 +395,16 @@ relai/
 │   │   ├── pre-commit.js        #   hook gita: commit z sekretem nie przechodzi
 │   │   └── install-precommit.js #   instalacja i cofnięcie jednym poleceniem
 │   ├── process/
-│   │   └── session-signals.js   #   rozpoznania startu sesji: marker, luka promptu, rozjazd stanu
+│   │   ├── session-signals.js   #   rozpoznania startu sesji: marker, luka promptu, rozjazd stanu
+│   │   └── crew.js              #   załoga: rozpoznanie narzędzi, fale zadań, delegacja, przegląd krzyżowy
 │   └── tools/
 │       └── validate-adapters.js #   wykrywa rozjazd rdzenia i adapterów
 ├── adapters/
 │   ├── claude-code/             # ADAPTER Claude Code
 │   │   ├── skills/              #   relai-core (rytuały, rejestry), relai-planning (plany, etapy)
-│   │   ├── commands/            #   dwanaście komend: stage, branch, backup, audit, changelog,
-│   │   │                        #     handover, tour, help, adopt, update, clean, models
+│   │   ├── commands/            #   trzynaście komend: stage, branch, backup, audit, changelog,
+│   │   │                        #     handover, tour, help, adopt, update, clean, models, crew
+│   │   ├── agents/              #   trzej subagenci załogi: relai-coder, relai-tester, relai-reviewer
 │   │   └── hooks/
 │   │       ├── hooks.json       #   rejestracja dziesięciu hooków (zdarzenia i matchery)
 │   │       └── *.js             #   dziesięć hooków Node.js, zero zależności npm
@@ -415,7 +418,7 @@ relai/
 │       ├── generate-skills.js   #   generator z jednego źródła komend Claude Code
 │       ├── install.js           #   odwracalna integracja D-86
 │       └── hooks/               #   cienkie hooki konsumujące core/
-├── skills/                      # wygenerowany pakiet Codex: 12 procedur + 2 skille rdzenia
+├── skills/                      # wygenerowany pakiet Codex: 13 procedur + 2 skille rdzenia
 ├── .claude-plugin/              # manifest pluginu i marketplace Claude Code
 │   ├── plugin.json              #   bo tego wymaga Claude Code; wskazuje na adapters/claude-code/
 │   └── marketplace.json

@@ -79,7 +79,12 @@ narzędzia**: dwunasta komenda `/relai-models` w tabeli oraz jeden punkt w sekcj
 automatycznych — start sesji mówi, która lista obowiązuje, a listę starszą niż próg z wiersza
 `Lista modeli` przypomina jednym zdaniem z propozycją odświeżenia. Wyłącznik jest **osobny** od
 poprzednich; poniżej progu nie pada ani jedno słowo, a komenda pyta o zgodę na ruch sieciowy przy
-**każdym** wywołaniu. Działa:
+**każdym** wywołaniu. W 2.1.0 dochodzi **załoga**: trzynasta komenda `/relai-crew`
+w tabeli — orkiestracja wielu agentów z wywiadem o role, liczbę subagentów, tryb i zakres modeli,
+fale zadań bez konfliktów plików, delegacja do subagentów gospodarza albo do drugiego zalogowanego
+narzędzia i przegląd krzyżowy; bez drugiego narzędzia komenda mówi o tym jednym zdaniem i pracuje
+w trybie basic. Sekcja o zachowaniach automatycznych **nie** rośnie: załoga nie ma hooka i nic
+nie startuje bez „zaczynamy". Działa:
 
 - inicjalizacja struktury projektu (zgoda → trzy pytania → osiem dokumentów),
 - rozpoznanie folderu, który już jest projektem RelAI,
@@ -192,6 +197,14 @@ poprzednich; poniżej progu nie pada ani jedno słowo, a komenda pyta o zgodę n
   tymczasowych systemu i wśród plików nieśledzonych przez gita — grupuje to i pyta partiami po
   cztery; kasuje wyłącznie grupy z potwierdzeniem, a odpowiedź „zostaw na zawsze" dopisuje marker
   `# relai: zachowaj`, więc pytanie nie wraca. Argument `raport` kończy komendę na raporcie,
+- **załoga (nowe w 2.1.0):** `/relai-crew` robi z sesji orkiestratora celu: wywiad o role, liczbę
+  subagentów, tryb pracy i zakres modeli (z list modeli narzędzi), fale zadań, w których dwa zadania
+  nigdy nie piszą naraz do tego samego pliku, delegacja do subagentów gospodarza (Claude Code:
+  agenci pluginu; Cursor: `.cursor/agents/`; Codex: subagenci natywni) albo do drugiego
+  zalogowanego narzędzia, przegląd krzyżowy z werdyktem APPROVE / WARN / BLOCK i domknięcie
+  dokumentów. Argumenty `setup`, `status`, `review`, `rescue` dają natywne odpowiedniki funkcji
+  pluginu Codex. Opisujesz **efekt i granice** (nic nie startuje bez zgody, recenzent nie pisze,
+  bez drugiego narzędzia tryb basic), nie mechanikę narzędzia,
 - **artefakty robocze (nowe w 1.8.0), do sekcji „Czego RelAI pilnuje bez proszenia":** gdy pliki
   robocze przekroczą próg z wiersza `Artefakty robocze` w `USTAWIENIA.md` (domyślnie 100 MB),
   start sesji mówi o tym **jednym zdaniem** — waga, liczba pozycji, trzy najcięższe z pochodzeniem
@@ -200,7 +213,7 @@ poprzednich; poniżej progu nie pada ani jedno słowo, a komenda pyta o zgodę n
   **efekt i granice ochrony** (plik śledzony przez gita nie jest kandydatem nigdy; lokalną notatkę
   chroni marker), nie nazwę narzędzia liczącego,
 
-Wygenerowany `KOMENDY.md` w wersji 1.9.0 zawiera **tabelę komend z dwunastoma pozycjami**
+Wygenerowany `KOMENDY.md` w wersji 2.1.0 zawiera **tabelę komend z trzynastoma pozycjami**
 oraz tabelę fraz naturalnych:
 
 | Komenda | Co robi |
@@ -217,6 +230,7 @@ oraz tabelę fraz naturalnych:
 | `/relai-branch [NAZWA] [cel]` | zakłada odnogę: kartę wątku i samowystarczalny prompt świeżej sesji; jedna linia w sekcji „Odnogi" `STATUS.md`, zamrożony plan bez zmian; bez planu — wątek samodzielny w `docs/fixy/` |
 | `/relai-clean [raport]` | raport artefaktów roboczych w grupach, z listą chronionych i powodem ochrony; kasuje wyłącznie po „tak" na grupę i mierzy ponownie po operacji; argument `raport` kończy komendę na raporcie |
 | `/relai-models` | odświeża listę modeli narzędzia: pyta o zgodę na ruch sieciowy przy każdym wywołaniu, czyta strony dokumentacji, pokazuje różnicę stara–nowa i zapisuje dopiero po „tak”; odczyt nieudany zostawia starą listę z jej datą |
+| `/relai-crew [cel | setup | status | review | rescue <zadanie>]` | załoga: sesja zostaje orkiestratorem celu — wywiad (role, liczba subagentów, tryb, zakres modeli), fale zadań bez konfliktów plików, delegacja do subagentów gospodarza albo drugiego zalogowanego narzędzia, przegląd krzyżowy z werdyktem, rytuał zamknięcia; nic nie startuje bez „zaczynamy”; bez drugiego narzędzia tryb basic |
 
 | Fraza (PL / EN) | Co się stanie |
 |---|---|

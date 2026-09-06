@@ -175,7 +175,10 @@ function copyTree(src, dest) {
 // Narzedzia rdzenia prowizjonowane do projektu ta sama droga co specyfikacje (L-0012):
 // sesja nie ma dostepu do katalogu pluginu, wiec musi miec kopie u siebie. Kopia jest
 // samowystarczalna — work-artifacts.js nie wola require na zaden inny plik rdzenia.
-const NARZEDZIA = [{ zrodlo: 'work-artifacts.js', cel: 'clean-work.js' }];
+const NARZEDZIA = [
+  { zrodlo: 'work-artifacts.js', cel: 'clean-work.js' },
+  { zrodlo: 'crew.js', cel: 'crew.js' }, // 2.1.0: /relai-crew — tak samo samowystarczalny
+];
 
 function provisionTools(destRoot, opcje) {
   let n = 0;
