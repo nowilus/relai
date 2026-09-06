@@ -15,6 +15,7 @@
 | M2 | Kopia listy w projekcie zostaje nadpisana przy starcie sesji i zjada odświeżenie zrobione komendą (plan REKOMENDACJA_MODELU, ryzyko 2) | **Wysoki** (2026-09-03, przy powstaniu mechanizmu) | **OTWARTE** | `provisionModelList()` kopiuje **tylko wtedy, gdy pliku nie ma** — jedyna różnica wobec `provisionTemplates()`, które nadpisuje przy każdym starcie. Dowód negatywny (E1): plik zmieniony ręcznie w projekcie kontrolnym przeżył ponowne uruchomienie hooka, suma po normalizacji CRLF → LF `ecc6d18d9f6ccf65` przed i po; kontrola pozytywna w tym samym przebiegu — skasowany plik powstał ponownie z sumą źródła. Otwarte do czasu, aż istnieje druga droga zapisu do tego pliku: `/relai-models` z E2 pisze do tej samej kopii, a `/relai-update` do katalogu obok. **E2: druga droga zapisu istnieje i przeżywa start sesji.** Po odświeżeniu w projekcie kontrolnym Claude Code suma listy `f82ee8da0dbe7997` przed ponownym uruchomieniem hooka i po nim, a hook zameldował nową datę (`z dnia 2026-09-04`) zamiast starej; w projekcie Cursora to samo z sumą `65eca9cbea99f0b3`. Otwarte już tylko z powodu `/relai-update`, którego ta droga jeszcze nie dotknęła. **E4: trzecia droga ma odtąd zapisany zakaz** — wiersz `Lista modeli` w tabeli stanu docelowego `/relai-update` kończy się zdaniem „samej listy `.claude/relai/MODELE-<narzędzie>.md` **nie ruszasz** — kopia w projekcie jest trwała i przeżywa aktualizację". Zakaz jest **napisany, nie zmierzony**: pierwszy przebieg `/relai-update` na projekcie z ręcznie poprawioną listą jeszcze się nie odbył i to jest jedyny powód, dla którego ryzyko zostaje otwarte. Zmierzone: 2026-09-03 (E1), 2026-09-04 (E2) |
 | M3 | Strona dokumentacji zmienia układ i odczyt z sieci zwraca śmieci albo nic (plan REKOMENDACJA_MODELU, ryzyko 3) | **Średni** (2026-09-04, przy wejściu sieci do mechanizmu) | **OTWARTE** | Odświeżenie zawsze kończy się pokazaniem różnicy i pytaniem; niepowodzenie zostawia starą listę **z jej datą**, nigdy pustą. Pomiar E2 na odczycie adresu nieistniejącego (`HTTP 404 Not Found`): lista w projekcie kontrolnym została z sumą `1f67fe1bc954ecdc` i `list-date: 2026-09-03`, czyli dokładnie taka jak przed przebiegiem — dowód treścią pliku, nie komunikatem. Niezmierzone: strona odpowiadająca **200 ze zmienionym układem** (odczyt „udany", treść bez nazw) — to jest realny kształt tego ryzyka i czeka na pierwszy taki przypadek. **E4: stan po wydaniu bez zmian** — komenda jest w cache'u 1.9.0 i od tej pory może ją wywołać każdy projekt, więc szansa na trafienie rośnie, ale sam mechanizm ochrony (różnica przed zapisem, stara lista przy niepowodzeniu) jest ten sam co zmierzony w E2. Zmierzone: 2026-09-04 (E2) |
 | M5 | Nazwy modeli zmieniają się szybciej niż wydania RelAI (plan REKOMENDACJA_MODELU, ryzyko 6) | **Średni** (2026-09-04) | **OTWARTE** | Lista mieszka w adapterze **i** w projekcie; `/relai-models` aktualizuje kopię projektu bez wydawania nowej wersji pluginu. Pierwsze realne odświeżenie (E2) potwierdziło, że ryzyko nie jest teoretyczne: strona aliasów wymienia dziś dziesięć pełnych ID (`claude-opus-5` … `claude-fable-5`), a lista Cursora ~45 pozycji od pięciu dostawców — wobec czterech i trzech pozycji w listach RelAI. Od E3 lista ma wiek i próg: powyżej **7 dni** start sesji mówi jedno zdanie z propozycją `/relai-models`, poniżej — zero znaków (zmierzone parą wariantów różniącą się wyłącznie `list-date`: 258 znaków wobec 0, potwierdzone w świeżej sesji CLI odpowiedzią `BRAK LINII`). **E4: pierwszy pełny cykl domknięty** — lista, komenda, próg i **wydanie** (1.9.0, potwierdzone treścią plików z cache'u; dwanaście komend, obie listy, zdanie o wieku działające w świeżej sesji z wydanej wersji). Otwarte już **wyłącznie** z pierwszego powodu: przypomnienie mówi o wieku listy, a nie o tym, że dostawca zmienił nazwy — lista tygodniowa może być świeża i nieprawdziwa naraz. To jest trwała własność mechanizmu, nie zaległość wydania. Zmierzone: 2026-09-04 (E2, E3, E4) |
+| W1 | Wydanie pluginu wychodzi bez bramki walidacyjnej narzędzia docelowego — format manifestu i nagłówków sprawdzamy własnym walidatorem, który zna tylko to, co ktoś w nim opisał (wątek samodzielny, 2026-09-06) | **Wysoki** (2026-09-06, przy powstaniu wpisu) | **OTWARTE** | Trzy kolejne wydania (2.1.0, 2.1.1, 2.1.2) wyszły z pluginem, który w Claude Code nie ładował komend, a wykrył to **użytkownik oknem `/plugin`**, nie żaden pomiar: log aplikacji o nieważnym manifeście milczał, a skaner czytał go mimo wszystko i wypisywał ostrzeżenia sugerujące, że format jest w porządku. `claude plugin validate` istniało przez cały ten czas i wskazuje pole oraz powód w jednym wywołaniu. Zmierzone 2026-09-06: na cache'u 2.1.1 `✘ Found 1 error: plugins[0] plugin.json → agents: Invalid input`, na repozytorium po naprawie `✔ Validation passed`. Częściowa mitygacja **jest**: `validate-adapters.js` blokuje katalog w polu `agents` (P-011), korzeniowy `skills/` (P-010) i dwukropek bez cudzysłowu w nagłówkach komend (P-012) — każda kontrola pokazana w obie strony. Ryzyko zostaje otwarte, bo mitygacja jest **retrospektywna**: chroni przed trzema znanymi kształtami, a nie przed czwartym, i nie zna schematu narzędzia. Zamknie je dopiero wpisanie `claude plugin validate` do sekwencji wydania P-005 jako kroku obowiązkowego przed tagiem — to jest decyzja człowieka i stoi w `STATE.md` |
 | M6 | Załoga stoi na flagach CLI trzech dostawców (`claude -p --permission-mode`, `codex exec -s`, `agent -p --mode`), które zmieniają się szybciej niż wydania RelAI (wątek ORKIESTRACJA) | **Średni** (2026-09-06) | **OTWARTE** | Flagi stoją w jednym miejscu (`buildCommand` w `core/process/crew.js`), a test pilnuje trybu read-only bez `--write` i zamkniętej listy flag zakazanych; porażka `run` kończy się statusem `failed` z `stderr` w pliku przebiegu, nigdy ciszą, a krok 7 komendy każe czytać raport zadania i `git status`, nie kod wyjścia. Zmierzone 2026-09-06 z Claude Code jako gospodarza: Codex read-only i write, Cursor read-only (prompt stdin-em), zagnieżdżony Claude Code read-only — trzy narzędzia, cztery zadania `done`. Otwarte, bo kierunki z Codeksa i Cursora jako gospodarza i zapis przez Cursora są NOT TESTED, a zmiana flagi u dostawcy nie ma dziś własnego sygnału poza porażką przebiegu |
 
 > Ryzyka zamknięte R2, M4 (2 pozycje) są w
@@ -2085,5 +2086,49 @@ dopiero przy odbiorze poprawnie działającego pluginu.
 - Wydanie 2.1.3: tag, release, `claude plugin update relai@relai`, restart. Sprawdzian: `/relai`
   ma pokazać **trzynaście** komend, z `/relai-crew` włącznie.
 - Wpisać `claude plugin validate` do sekwencji P-005 (wciąż otwarte z poprzedniego wpisu).
+
+Autor: RelAI (Opus 5) + Lukasz
+
+### 2026-09-06 — Zamknięcie dnia: cztery wydania, trzy pułapki, jedna diagnoza od użytkownika
+
+**Zrobione:**
+
+- **2.1.2 potwierdzone w aplikacji, 2.1.3 wydane w repozytorium.** Komendy widoczne, komplet
+  trzynastu po naprawie nagłówka `/relai-crew`; agenci załogi dostępni, czyli manifest ładuje się
+  w całości. Tagi `v2.1.0`, `v2.1.1`, `v2.1.2`, `v2.1.3` są na zdalnym — do dziś repozytorium
+  miało ślad wydań tylko do `v2.0.0`.
+- **Wcześniej tego samego dnia:** commit `/relai-crew` (2.1.0), naprawa ikon README (scalenie
+  kolumny ikony z kolumną komendy, dwie brakujące ikony, komplet 13/13) oraz trzy naprawy
+  dystrybucji opisane w osobnych wpisach.
+- **Dwie lekcje:** [[L-0092]] — narzędzie producenta sprawdzające własny format bije każdy pomiar
+  pośredni; [[L-0093]] — pomiar bez kontroli na wersji zepsutej nie odróżnia „nie działa" od „nie
+  mierzy". Pierwsza dopisana do zasady aktywnej 13, druga bez własnej pozycji w destylacie:
+  **limit 15 pozostaje wykorzystany, nie przekroczony**.
+- **Nowe ryzyko W1** — wydanie wychodzi bez bramki walidacyjnej narzędzia docelowego.
+
+**Zweryfikowane — jak dokładnie:**
+
+- **Rotacja: nie ruszyła, bo nie miała czego wziąć.** Zmierzone przed wpisem: dziennik 149,4 KB
+  (próg 150), lekcje 39,1 KB i 22 wpisy (progi 50 KB / 40), ustawienia 3,0 KB (próg 6),
+  `STATE.md` 216 linii (próg 300). Sekcja ryzyk **15,6 KB przy progu 12 KB** — nadal zero ryzyk
+  `ZAMKNIĘTE` i zero komórek na zamkniętej liście statusów kompresji, więc część rotowalna wynosi
+  0 KB. **Dzisiejsze wpisy przekroczą próg dziennika**, więc rotacja ruszy na starcie następnej sesji.
+- **Sprzątanie artefaktów: 30,2 → 0,0 MB**, siedem pozycji, zero niepowodzeń, pomiar ponowny dał
+  **zero kandydatów**. Zeszły: katalog zamkniętego wątku `PRECOMMIT_ESM`, cały materiał pomiarowy
+  z dziś (`relai-skillpath` 15,9 MB z izolowanym `CODEX_HOME`, `relai-rootcmd` 6,4 MB,
+  `relai-cmdtest`) oraz starszy materiał w `%TEMP%` (7,9 MB plus dwa pliki `.bak`). Dziewięć
+  pozycji chronionych nietkniętych, w tym dwa katalogi z wzorca grupy „Sekrety" (D-42).
+- `node --test` — 36/36; `validate-adapters.js` — „5 zrodel, wartosc 2.1.3", 13 nagłówków komend
+  bez wady; `claude plugin validate` — `✔ Validation passed`.
+
+**Do zrobienia przez człowieka:**
+
+- **Wydanie 2.1.3**: release z taga `v2.1.3`, `claude plugin update relai@relai`, restart,
+  sprawdzenie, że `/relai` pokazuje trzynaście komend.
+- **Wpisać `claude plugin validate` do sekwencji P-005** jako krok obowiązkowy przed tagiem —
+  to zamyka ryzyko W1.
+- **Sekcja ryzyk 15,6 KB przy progu 12 KB**: podnieść próg czy zamknąć któreś z jedenastu
+  otwartych ryzyk. Bez jednej z tych decyzji raport startu melduje przekroczenie przy każdej sesji.
+- Opis `/relai-crew` ma 337 znaków i wchodzi do kontekstu każdej sesji — skrócić czy zostawić.
 
 Autor: RelAI (Opus 5) + Lukasz

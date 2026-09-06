@@ -77,10 +77,10 @@ kontrole przeszły; pełna świeża sesja Codexa pozostaje NOT TESTED po błędz
 
 ## Nad czym pracujemy teraz
 
-- **Wydanie 2.1.0** — repo ma komplet (komenda, narzędzie, agenci, dokumenty, 36 testów); publikacja
-  to sekwencja z P-005: tag i release, `claude plugin update`, restart, potwierdzenie treścią cache'u.
-  Do tego czasu `/relai-crew` w **tym** repozytorium kończy się na kroku 1 (hook z cache'u 2.0.0 nie
-  podkłada `crew.js`) — jak każda funkcja między wydaniami (D-87).
+- **Wydanie 2.1.3** — repo ma naprawę trzeciej wady dystrybucji (nagłówek YAML `/relai-crew`),
+  tag `v2.1.3` jest na zdalnym; zostaje release, `claude plugin update relai@relai` i restart.
+  **2.1.2 jest opublikowane i potwierdzone w aplikacji**: komendy widoczne, agenci załogi dostępni.
+  Sekwencja P-005 dostaje nowy krok obowiązkowy — `claude plugin validate` przed tagiem (ryzyko W1).
 - **Migracja JiraManagera** — ostatni projekt, w którym start sesji kosztuje 386 KB dokumentów,
   a rotacja nigdy nie ruszyła. Czeka na okno właściciela; do tego czasu ryzyko R5 zostaje otwarte,
   zawężone do tego jednego projektu.

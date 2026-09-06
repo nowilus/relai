@@ -113,8 +113,11 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
     inaczej guardrail zatrzymuje zdanie opisujące jego samego. (L-0043, L-0045, L-0046, L-0072)
 13. **Cudze narzędzie poznajesz z wydanego builda i z próby**, nie z dokumentacji: payload parsuj
     po zdjęciu BOM i bez założeń o nazwach pól, sesję CLI uruchamiaj z powłoki natywnej, a brak
-    sygnału konfrontuj najpierw z **warunkiem milczenia** mechanizmu. (L-0041, L-0042, L-0044,
-    L-0047)
+    sygnału konfrontuj najpierw z **warunkiem milczenia** mechanizmu. Gdy narzędzie nie przyjmuje
+    Twojego artefaktu, **najpierw sięgnij po jego własny walidator albo widok statusu**
+    (`<narzędzie> validate`, `<narzędzie> list`, okno ustawień) — zna schemat, którego nie
+    odtworzysz z obserwacji, a cisza w logu nie jest dowodem poprawności. (L-0041, L-0042, L-0044,
+    L-0047, L-0092)
 14. **Najpierw zmiana w repozytorium, potem zdanie, które ją opisuje.** Weryfikację planuj tam,
     gdzie jest wykonalna; po pytaniu sprzątasz sam (martwy link nie jest poprawną wartością
     tymczasową); przy wyprowadzaniu pozycji jednostką inwentarza jest **sprawa**, nie linia.
@@ -505,6 +508,41 @@ restart aplikacji po `plugin update` (L-0031), `git worktree` zamiast `git archi
   **doboru materiału**, nie escapowania.
 - **Źródło:** weryfikacja wydania 1.9.2 w żywej sesji, wątek PRECOMMIT_ESM. Bez własnej pozycji
   w destylacie — dopisane do zasady 5, limit 15 pozostaje wykorzystany.
+
+### L-0092 — Narzędzie producenta sprawdzające własny format bije każdy pomiar pośredni · 2026-09-06 · AKTYWNA
+
+- **Trigger:** komendy pluginu przestały się ładować w Claude Code. Przez trzy wydania (2.1.0,
+  2.1.1, 2.1.2) szukałem przyczyny logiem aplikacji, kodem skanera z paczki `app.asar`, sesjami
+  `claude -p --plugin-dir` i porównaniami z cudzymi pluginami. Rozstrzygnęło dopiero okno
+  `/plugin` otwarte **przez użytkownika**: `Validation errors: agents: Invalid input`.
+- **Przyczyna:** manifest był nieważny, ale żadne z moich wejść tego nie mówiło. Log aplikacji
+  o nieważnym manifeście **milczał**, a skaner CCD czytał ten sam plik mimo wszystko i wypisywał
+  ostrzeżenia o kolizji nazw — czyli aktywnie **sugerował**, że manifest jest poprawnie parsowany.
+  Przez cały ten czas istniało `claude plugin validate <ścieżka>`, które wskazuje pole i powód
+  w jednym wywołaniu, oraz `claude plugin list` ze statusem `✘ failed to load`.
+- **Zasada:** gdy cudze narzędzie nie przyjmuje Twojego artefaktu, **najpierw sprawdź, czy ma
+  własny walidator albo widok statusu** (`<narzędzie> validate`, `<narzędzie> list`, okno
+  ustawień) — dopiero potem loguj, dekompiluj i porównuj z cudzymi przykładami. Walidator zna
+  schemat, którego nie odtworzysz z obserwacji; brak komunikatu w logu **nie** jest dowodem, że
+  format jest poprawny.
+- **Źródło:** naprawa regresji 2.1.0 → 2.1.3, pułapki P-010, P-011, P-012. Bramka wydania wpisana
+  do `STATE.md` jako krok sekwencji P-005.
+
+### L-0093 — Pomiar bez kontroli na wersji zepsutej nie odróżnia „nie działa" od „nie mierzy" · 2026-09-06 · AKTYWNA
+
+- **Trigger:** sprawdzałem, czy CLI ładuje komendy pluginu ze ścieżki z `plugin.json`. Sesja
+  `claude -p --plugin-dir <cache 2.1.1>` odpowiedziała `BRAK` — wynik zgodny z hipotezą, gotowy
+  do wyciągnięcia wniosku, że winna jest ścieżka.
+- **Przyczyna:** kontrola na wariancie z komendami w korzeniu dała **to samo** `BRAK`, a kontrola
+  na wersji 2.1.0 z korzeniowym `skills/` — również. Tryb headless po prostu nie pokazuje modelowi
+  komend ani skilli pluginu, więc próba nie mierzyła niczego. Bez tej kontroli zbudowałbym
+  wydanie na wniosku wyprowadzonym z martwego wejścia.
+- **Zasada:** zanim uznasz negatywny wynik za dowód, **powtórz pomiar na wejściu, o którym wiesz,
+  że powinno dać wynik pozytywny**. Ten sam wynik po obu stronach znaczy, że przyrząd nie mierzy —
+  i wtedy wnioskiem jest „próba nierozstrzygająca", nie „mechanizm nie działa". Rozszerzenie
+  [[L-0090]] na przyrząd: tam cisza zmierzona złym wejściem, tu wynik zmierzony martwym trybem.
+- **Źródło:** naprawa regresji 2.1.x. Bez własnej pozycji w destylacie — mieści się w zasadzie
+  o dowodzie negatywnym, limit 15 pozostaje wykorzystany.
 
 ## Lekcje zwinięte
 
