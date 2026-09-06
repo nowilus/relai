@@ -48,7 +48,7 @@ function entries(output) {
   }));
 }
 
-function generate({ output = path.join(ROOT, 'skills') } = {}) {
+function generate({ output = path.join(ROOT, 'adapters', 'codex', 'skills') } = {}) {
   const files = [];
   let commandSkills = 0;
   for (const entry of entries(output)) {
@@ -60,7 +60,7 @@ function generate({ output = path.join(ROOT, 'skills') } = {}) {
   return { commandSkills, files };
 }
 
-function verify({ output = path.join(ROOT, 'skills') } = {}) {
+function verify({ output = path.join(ROOT, 'adapters', 'codex', 'skills') } = {}) {
   const mismatches = [];
   for (const entry of entries(output)) {
     let actual = '';

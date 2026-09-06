@@ -8,6 +8,25 @@ Specyfikacja: `SPEC_PULAPKI.md`.
 
 ## Pułapki
 
+### P-010 — katalog `skills/` w korzeniu kasuje komendy pluginu Claude Code · 2026-09-06 · AKTYWNA
+
+- **Objaw:** komendy pluginu przestają istnieć — `/relai` nie podpowiada niczego, a plugin poza tym
+  działa (hooki, skille). Żaden komunikat nie trafia do sesji; ślad jest wyłącznie w logu aplikacji
+  `%LOCALAPPDATA%\Claude\logs\main.log`, po jednej linii na komendę:
+  `[warn] [PluginScan] Skipping legacy command "relai:relai-crew" — name collides with skills/ entry`.
+- **Przyczyna:** aplikacja skanuje katalog `skills/` **w korzeniu pluginu** niezależnie od tego, co
+  deklaruje `.claude-plugin/plugin.json`, i przy kolizji nazw wygrywa skill, a komenda jest
+  pomijana jako „legacy". W RelAI korzeń zawiera skille wygenerowane dla **Codeksa**
+  (`.codex-plugin/plugin.json` → `"skills": "./skills/"`), o nazwach identycznych z komendami — bo
+  jedne i drugie powstają z tego samego źródła. Oba marketplace'y mają `"source": "./"`, więc
+  artefakt jednego adaptera leży fizycznie wewnątrz pluginu drugiego.
+- **Obejście:** trzymaj powierzchnie adapterów w rozłącznych katalogach; korzeń repozytorium
+  wspólnego dla wielu narzędzi nie jest niczyją prywatną przestrzenią nazw. Przy sprawdzaniu, czy
+  komendy się załadowały, patrz w log aplikacji — brak komendy nie zgłasza się nigdzie indziej.
+- **Zasięg:** repozytorium obsługujące więcej niż jedno narzędzie z jednego korzenia. W RelAI weszło
+  wydaniem **2.0.0** (commit `e36cb6e`, katalog `skills/`), pierwszy skip w logu 2026-09-05 23:26:28;
+  wersje 1.8.1–1.9.2 nie miały korzeniowego `skills/` i komendy w nich działały.
+
 ### P-009 — długi opis w jednej komórce zmniejsza obrazek w sąsiedniej kolumnie · 2026-09-06 · AKTYWNA
 
 - **Objaw:** ikony w tabeli README, wstawione jako `<img … width="24">`, renderują się mniejsze

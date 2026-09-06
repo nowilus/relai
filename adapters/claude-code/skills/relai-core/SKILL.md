@@ -25,7 +25,9 @@ description: >
 
 # relai-core — struktura projektu, pamięć i rytuały sesji
 
-Aktualny stan dystrybucyjny: RelAI 2.1.0; wcześniejsze akapity wersji opisują historię zmian.
+Aktualny stan dystrybucyjny: RelAI 2.1.1; wcześniejsze akapity wersji opisują historię zmian.
+
+Wersja 2.1.1 (naprawa regresji wprowadzonej w 2.0.0: skille generowane dla Codeksa mieszkały w korzeniu repozytorium, więc aplikacja Claude Code pomijała **wszystkie** komendy pluginu jako kolidujące nazwą ze skillem i `/relai` nie podpowiadał niczego; skille Codeksa przeniesione do `adapters/codex/skills/`, korzeń bez katalogu `skills/`; procedura tego skilla bez zmian, podniesiony marker wersji wymagany w `docs/USTAWIENIA.md`).
 
 Wersja 2.1.0 (trzynasta komenda `/relai-crew` — załoga: orkiestracja wielu agentów z wywiadem o role i modele, plan fal bez konfliktów plików, delegacja do subagentów gospodarza albo do drugiego zalogowanego narzędzia i przegląd krzyżowy; narzędzie `crew.js` prowizjonowane do `.claude/relai/tools/` tą samą drogą co `clean-work.js`; procedura tego skilla bez zmian, podniesiony marker wersji wymagany w `docs/USTAWIENIA.md`).
 
@@ -849,7 +851,7 @@ Zasady generacji:
   Dla projektu angielskiego: `docs/STATE.md`, `docs/JOURNAL.md`, `docs/LESSONS.md`,
   `docs/DECISIONS.md`, `docs/SETTINGS.md`, `docs/COMMANDS.md`. Konwencja stała: CAPS_SNAKE, bez dat
   i numerów wersji w nazwie.
-- `docs/USTAWIENIA.md` **musi** zawierać linię `Wersja RelAI: 2.1.0` — to marker, po którym RelAI
+- `docs/USTAWIENIA.md` **musi** zawierać linię `Wersja RelAI: 2.1.1` — to marker, po którym RelAI
   rozpoznaje projekt i po którym przyszły `/relai-update` policzy różnicę wersji.
 - `CLAUDE.md` **musi** zawierać sekcję `## Reguły profilu (<wybrany profil>)` zaraz po „Regułach
   procesu" — 3–6 punktów wg `SPEC_PROFILE.md`. To jedyna warstwa reguł profilu działająca bez

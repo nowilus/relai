@@ -2,8 +2,15 @@
 
 Adapter Codeksa jest natywnym pluginem od wersji 2.0.0 (wcześniej dostępny eksperymentalnie w 1.10.0). Źródłem prawdy jest repozytorium RelAI:
 `.codex-plugin/plugin.json` opisuje pakiet, `.agents/plugins/marketplace.json` wystawia repozytorium,
-a rootowy `skills/` powstaje deterministycznie z 13 komend adaptera Claude Code oraz dwóch skilli rdzeniowych.
+a `adapters/codex/skills/` powstaje deterministycznie z 13 komend adaptera Claude Code oraz dwóch skilli rdzeniowych.
 Nie kopiuj `core/` do drugiego drzewa.
+
+**Katalog skilli nie może wrócić do korzenia** (P-010, naprawione w 2.1.1). Korzeń repozytorium jest
+jednocześnie korzeniem pluginu Claude Code, a ta aplikacja skanuje `skills/` niezależnie od
+`.claude-plugin/plugin.json` i przy kolizji nazw pomija **własne komendy** — a nazwy są identyczne,
+bo jedne i drugie generują się z tych samych plików. Zmierzone 2026-09-06: Codex rejestruje
+komplet 15 skilli ze ścieżki zagnieżdżonej (`codex debug prompt-input` w izolowanym `CODEX_HOME`),
+więc przeniesienie niczego w nim nie kosztuje. Powrót do korzenia blokuje `validate-adapters.js`.
 
 Od 2.1.0 wśród procedur jest `relai-crew` (załoga). W Codeksie orkiestrator deleguje zadania
 natywnym subagentom (funkcja `multi_agent`, prompt roli z `node .claude/relai/tools/crew.js prompt`),

@@ -101,6 +101,15 @@ kontrole przeszły; pełna świeża sesja Codexa pozostaje NOT TESTED po błędz
   listy działa we wszystkich projektach naraz. Szczegóły: „Czeka na człowieka" w dzienniku.
 - **Reguła głębokości rotacji** — cel „60% części rotowalnej" zatrzymuje rotację nad progiem
   w dokumencie o grubej dolnej granicy; 2026-09-04 głębokość trzeba było wybierać ręcznie.
+- ~~**REGRESJA 2.0.0: komendy pluginu Claude Code nie ładują się w ogóle**~~ — naprawione
+  w repozytorium 2026-09-06 (2.1.1): skille Codeksa przeniesione do `adapters/codex/skills/`,
+  korzeń bez `skills/`, powrót blokuje walidator. Zmierzone, że Codex czyta ścieżkę zagnieżdżoną
+  (15 skilli w `codex debug prompt-input`, izolowany `CODEX_HOME`). Szczegóły: [P-010](PULAPKI.md).
+  **Czeka na wydanie** — dopóki 2.1.1 nie jest opublikowane, każdy użytkownik 2.0.0 i 2.1.0 nie ma
+  komend w Claude Code.
+- **`PRZENOSNOSC.md` sekcja 2.3 jest nieaktualna** — opisuje wywołanie procedur Codeksa jako
+  `$nazwa-skilla` (stan dokumentacji z 2026-08-12), a w aplikacji desktopowej Codeksa `/relai`
+  podpowiada komplet. Rozpoznanie do powtórzenia i przepisania.
 - ~~**Ikony README renderują się w 17–23 px zamiast 24 px**~~ — rozstrzygnięte 2026-09-06:
   scalenie kolumny ikony z kolumną komendy (dwie kolumny zamiast trzech), grubość kreski 2.6
   bez zmian. Grafiki nietknięte; komplet ikon uzupełniony do trzynastu (`models`, `crew`).

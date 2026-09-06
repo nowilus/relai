@@ -1927,3 +1927,61 @@ Autor: RelAI (Fable 5.1) + Lukasz
   przekroczenie przy każdej sesji.
 
 Autor: RelAI (Opus 5) + Lukasz
+
+### 2026-09-06 — Regresja 2.0.0: korzeniowy `skills/` kasował komendy Claude Code; naprawione wydaniem 2.1.1
+
+**Zrobione:**
+
+- **Rozpoznanie: `/relai` nie podpowiada niczego w Claude Code od wydania 2.0.0.** Aplikacja
+  skanuje katalog `skills/` **w korzeniu pluginu** niezależnie od `.claude-plugin/plugin.json`
+  i przy kolizji nazw pomija własne komendy jako „legacy". Korzeń zawierał skille generowane dla
+  **Codeksa** (`.codex-plugin/plugin.json` → `"skills": "./skills/"`) o nazwach identycznych
+  z komendami, bo jedne i drugie powstają z tych samych plików. Oba marketplace'y mają
+  `"source": "./"`, więc artefakt jednego adaptera leżał fizycznie wewnątrz pluginu drugiego.
+- **Naprawa: `skills/` → `adapters/codex/skills/`.** Zmiana obejmuje trzy miejsca —
+  `.codex-plugin/plugin.json` (ścieżka), `adapters/codex/generate-skills.js` (domyślne wyjście
+  `generate` i `verify`) oraz sam katalog, przeniesiony `git mv`, więc historia plików zostaje.
+  Korzeń repozytorium ma odtąd siedem pozycji i **żadnego** katalogu `skills/`.
+- **Blokada powrotu w walidatorze.** `core/tools/validate-adapters.js` odmawia, gdy w korzeniu
+  pojawi się `skills/`, z komunikatem wskazującym P-010 i właściwe miejsce. To jest mechanizm,
+  nie notatka: regresja weszła cicho i przez pięć dni nikt jej nie zauważył, bo nic nie krzyczało.
+- Wersja **2.1.1** w pięciu źródłach i w markerze `docs/USTAWIENIA.md`; `relai-update` (v8),
+  skill `relai-core` (v10), `README.md`, `KOMENDY.md`, README adapterów Cursora i Codeksa,
+  rejestr `ARTEFAKTY.md`, `STATE.md`, nowa pułapka **P-010**.
+
+**Zweryfikowane — jak dokładnie:**
+
+- **Pomiar rozstrzygający, czy Codex przyjmie ścieżkę spoza korzenia** — bo wszystkie **20**
+  zainstalowanych pluginów Codeksa deklaruje `"./skills/"` i precedensu nie było. Kopia repozytorium
+  w `%TEMP%` z przeniesionym katalogiem, zarejestrowana jako lokalny marketplace w **izolowanym
+  `CODEX_HOME`** (instalacja użytkownika nietknięta), a następnie `codex debug prompt-input` —
+  narzędzie renderujące listę widzianą przez model **bez sesji API**. Wynik: **15 skilli**
+  `relai-*` (13 procedur + `relai-core` + `relai-planning`). Trzynastu procedur nie ma nigdzie
+  indziej w drzewie, więc Codex czyta ścieżkę zagnieżdżoną. Pierwsza próba, przez `codex exec`,
+  padła na `401 Unauthorized` — izolowany `CODEX_HOME` nie ma poświadczeń; `debug prompt-input`
+  obchodzi to bez dotykania pliku z sekretami.
+- **Blokada walidatora pokazana w obie strony**: korzeń pusty → kod 0; podłożony pusty `skills/`
+  → `ZNALEZIONO 1 problemow` z komunikatem o P-010; katalog usunięty → znowu kod 0.
+- `node --test` na trzech katalogach — **36/36**. `generate-skills.js --verify` — 13 + 2 spójne.
+  `validate-adapters.js` — „5 zrodel, wartosc 2.1.1". `git status` pokazuje przeniesienie jako
+  `R` (rename), nie jako parę usunięcie/dodanie.
+- **Zasięg regresji policzony z cache'u wersji**: 1.8.1–1.9.2 nie miały korzeniowego `skills/`
+  (komendy działały), 2.0.0 miało 14 skilli przy 12 komendach, 2.1.0 — 15 przy 13. Pierwszy skip
+  w logu aplikacji: **2026-09-05 23:26:28**, czyli tuż po instalacji 2.0.0.
+
+**Ustalone przy okazji:**
+
+- **`PRZENOSNOSC.md` 2.3 jest nieaktualne co do wywołania procedur w Codeksie.** Zapis z 2026-08-12
+  mówi o `$nazwa-skilla`; użytkownik potwierdził, że w aplikacji desktopowej Codeksa `/relai`
+  podpowiada komplet. Sekcja wymaga odświeżenia — zapisane w `STATE.md`, poza zakresem tej naprawy.
+- Cursor tej wady nie ma: instalator kładzie komendy do `.cursor/commands/` i tylko **dwa** skille,
+  więc nazwy się nie pokrywają.
+
+**Do zrobienia przez człowieka:**
+
+- Wydanie 2.1.1: tag, release, `claude plugin update relai@relai`, **restart aplikacji**
+  i sprawdzenie, że `/relai` podpowiada trzynaście komend. Dowodem negatywnym jest brak linii
+  `[PluginScan] Skipping legacy command "relai:…"` w `%LOCALAPPDATA%\Claude\logs\main.log`.
+- Tagi `v2.1.0` i `v2.1.1` nie istnieją na zdalnym — repozytorium ma dziś tylko `v1.10.0` i `v2.0.0`.
+
+Autor: RelAI (Opus 5) + Lukasz

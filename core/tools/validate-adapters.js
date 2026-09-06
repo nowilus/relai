@@ -156,6 +156,14 @@ if (codexPlugin) {
   if (!codexPlugin.skills || !jest(codexPlugin.skills.replace(/^\.\//, ''))) {
     bledy.push('Codex plugin.json nie wskazuje istniejacego katalogu skills');
   }
+  // P-010: katalog "skills/" w korzeniu jest jednoczesnie korzeniem pluginu Claude Code, ktory
+  // skanuje go niezaleznie od plugin.json i przy kolizji nazw KASUJE wlasne komendy. Skille
+  // Codeksa maja te same nazwy co komendy, wiec korzen musi zostac pusty — inaczej /relai
+  // przestaje podpowiadac cokolwiek, i to bez zadnego komunikatu w sesji.
+  if (jest('skills')) {
+    bledy.push('katalog "skills/" w korzeniu koliduje z komendami pluginu Claude Code (P-010) — '
+      + 'skille Codeksa naleza do adapters/codex/skills');
+  }
   if (!jest('hooks/hooks.json')) bledy.push('plugin Codex nie ma hooks/hooks.json');
   else {
     const codexHooks = czytajJson('hooks/hooks.json');

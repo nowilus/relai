@@ -1,13 +1,13 @@
 {
   "name": "relai",
-  "version": "2.1.0",
+  "version": "2.1.1",
   "description": "Documentation-first project process framework for Codex.",
   "author": { "name": "nowilus", "url": "https://github.com/nowilus" },
   "homepage": "https://github.com/nowilus/relai",
   "repository": "https://github.com/nowilus/relai",
   "license": "MIT",
   "keywords": ["documentation", "process", "project-memory", "planning", "workflow"],
-  "skills": "./skills/",
+  "skills": "./adapters/codex/skills/",
   "interface": {
     "displayName": "RelAI",
     "shortDescription": "Your project remembers everything.",
