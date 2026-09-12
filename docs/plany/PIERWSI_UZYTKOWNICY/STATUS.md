@@ -11,8 +11,8 @@ kalendarzowych (SZACUNEK). Progi pilotażu są propozycją do akceptacji, nie wy
 
 | Etap | Nazwa | Status | Prompt | Uwagi |
 |---|---|---|---|---|
-| E1 | Pokaz i wiarygodne wejście | W TOKU | [PROMPT_ETAP_1.md](PROMPT_ETAP_1.md) | Sprawdzona instalacja, **materiał demo renderowany przez agenta** (Aneks A: 25 s GIF + 60 s MP4, PL/EN), aktualny początek README; bez publikacji |
-| E2 | Zaproszenie i próby | OCZEKUJE | — | Gotowe materiały, istniejący wątek OPIS_REPO, próby spoza autora; publikacja po konkretnej dyspozycji |
+| E1 | Pokaz i wiarygodne wejście | ZREALIZOWANY 2026-09-12 | [PROMPT_ETAP_1.md](PROMPT_ETAP_1.md) | Sprawdzona instalacja, **materiał demo renderowany przez agenta** (Aneks A: 25 s GIF + 60 s MP4, PL/EN), aktualny początek README; bez publikacji |
+| E2 | Zaproszenie i próby | GOTOWY DO STARTU | [PROMPT_ETAP_2.md](PROMPT_ETAP_2.md) | Gotowe materiały, istniejący wątek OPIS_REPO, próby spoza autora; publikacja po konkretnej dyspozycji |
 | E3 | Powrót i decyzja | OCZEKUJE | — | Obserwacje po przerwie, WYNIKI.md, rekomendacja dalszego kierunku; jawnie także wynik nierozstrzygający |
 
 ## Odnogi
@@ -35,8 +35,12 @@ z jawnym śladem zmiany. Nie została teraz przeniesiona ani zamknięta.
   kanałów/odbiorców. Samo zatwierdzenie planu nie zleca wysyłki.
 - **Uczestnicy** — E2; wskazanie chętnych lub wykorzystanie przygotowanego zaproszenia przez Łukasza.
   Brak kandydatów nie uruchamia bezterminowej rekrutacji; raport opisze brak danych.
-- **Kalibracja smaku materiału demo** — E1 (Aneks A); jedna klatka kluczowa do oceny przed
-  produkcją serii. Bez zgody na kierunek wizualny render nie startuje.
+- ~~**Kalibracja smaku materiału demo**~~ — **ROZSTRZYGNIĘTA 2026-09-12**: Łukasz zaakceptował
+  kierunek na jednej klatce kluczowej („Jest OK. Akceptuję"); szczegóły w
+  [DEMO.md](DEMO.md), sekcja „Kierunek wizualny".
+- **Wydanie 2.1.4** — E1 dowiózł naprawę P-013 i commit lokalny; tag `v2.1.4`, push i release
+  należą do właściciela. **Do wydania nikogo nie zapraszamy** — publiczna instalacja serwuje 2.1.3
+  z wadą.
 
 ## Dziennik wdrożenia
 
@@ -58,5 +62,12 @@ z jawnym śladem zmiany. Nie została teraz przeniesiona ani zamknięta.
   wizualny (ciepły papier, zaokrąglone karty w lekkim szkle, Caveat jako akcent, chipy etapów,
   strzałka jako spoiwo między sesjami) zaakceptowany przez Łukasza. Korekta układu zapisana jako
   L-0094; prompt E1 dostał moduł tokenów i instrument kontroli układu.
+- 2026-09-12 — **E1 ZREALIZOWANY**. Dowiezione: zmierzona publiczna instalacja (2.1.3, 13 komend,
+  `validate` PASS, 6/6 plików zgodnych z tagiem), dwa realne przebiegi w neutralnym projekcie
+  kontrolnym, cztery pliki materiału (25 s GIF i 60 s MP4, PL i EN), `DEMO.md` z tabelą pokrycia
+  11/11, `docs/zasoby/demo/`, poprawiony początek README z osadzonym GIF-em, datowany odczyt wpisu
+  na Odpalone. Po drodze odnoga HOOKI_KORZEN (P-013, 2.1.4) — zamknięta. Niedowiezione jawnie:
+  weryfikacja GIF-a na żywym GitHubie (wymaga pusha) i potwierdzenie pojedynczego bloku kontekstu
+  w aplikacji (wymaga `plugin update` i restartu). E2 → GOTOWY DO STARTU.
 
 RelAI (GPT-6) + Lukasz

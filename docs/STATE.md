@@ -82,11 +82,19 @@ kontrole przeszły; pełna świeża sesja Codexa pozostaje NOT TESTED po błędz
 
 ## Nad czym pracujemy teraz
 
-- **PIERWSI_UZYTKOWNICY — DO AKCEPTACJI**: [plan](plany/PIERWSI_UZYTKOWNICY/PLAN.html)
-  i [status](plany/PIERWSI_UZYTKOWNICY/STATUS.md). Cel uzgodniony 2026-09-12: aktywni użytkownicy
-  i feedback od polskich samodzielnych twórców pracujących z AI; limit 2–4 sesje, bez płatnej
-  promocji. Propozycja: realne demo, próby spoza autora, powrót po przerwie i decyzja o kierunku.
-  Etapy nie rozpoczęte. OPIS_REPO pozostaje istniejącą zależnością, bez drugiej odnogi.
+- **PIERWSI_UZYTKOWNICY — ZAAKCEPTOWANY, E1 ZREALIZOWANY 2026-09-12, E2 gotowy do startu**:
+  [plan](plany/PIERWSI_UZYTKOWNICY/PLAN.html) i [status](plany/PIERWSI_UZYTKOWNICY/STATUS.md).
+  Cel: aktywni użytkownicy i feedback od polskich samodzielnych twórców pracujących z AI; limit
+  2–4 sesje, bez płatnej promocji. **Aneks A**: materiał demo produkuje agent, nie nagrywa go
+  człowiek. E1 dowiózł **cztery pliki materiału** (25 s GIF i 60 s MP4, PL i EN, bez dźwięku)
+  w [docs/zasoby/demo/](zasoby/demo/), [dokumentację materiału](plany/PIERWSI_UZYTKOWNICY/DEMO.md)
+  z tabelą pokrycia 11/11, [zapis źródłowy](plany/PIERWSI_UZYTKOWNICY/zapis/) siedmiu sesji
+  i poprawiony początek README z osadzonym GIF-em. **E2 nie zaprasza nikogo przed wydaniem 2.1.4.**
+  OPIS_REPO pozostaje zależnością E2, bez drugiej odnogi.
+- **Materiał demo jest odtworzeniem zmierzonego przebiegu, nie nagraniem ekranu.** Każda klatka
+  pokazująca plik albo odpowiedź agenta ma pokrycie w zapisie realnych sesji; instrument pokrycia
+  ma kontrolę pozytywną. Kontrola układu na wyrenderowanych klatkach: **0 przepełnień** na
+  wszystkich scenach obu cięć i obu wersjach językowych.
 - **Wydanie 2.1.4** — repo ma naprawę **czwartej** wady dystrybucji (korzeniowy `hooks/`, P-013):
   bramka hosta na `CLAUDECODE` w czterech skryptach Codeksa, kontrola w `validate-adapters.js`
   („bramki hosta: 4/4"). Zmierzone oba warianty w jednej izolowanej konfiguracji: 2.1.3 → jedno
@@ -145,7 +153,10 @@ kontrole przeszły; pełna świeża sesja Codexa pozostaje NOT TESTED po błędz
   bez zmian. Grafiki nietknięte; komplet ikon uzupełniony do trzynastu (`models`, `crew`).
 - **Dwie wady `work-artifacts.js`**: `kasuj` melduje `skasowane` dla ścieżki, której nie ma
   (linia 843 — gasi sygnał o literówce w liście), a `zachowaj` na cudzej ścieżce zapisuje marker
-  w projekcie sesji zamiast w projekcie pliku.
+  w projekcie sesji zamiast w projekcie pliku. **Pierwsza wada potwierdzona w działaniu 2026-09-12**:
+  lista ścieżek z backslashami została zjedzona ze znaków ucieczki, narzędzie zameldowało `OK` dla
+  trzech nieistniejących ścieżek i nie skasowało niczego. Obejście do czasu naprawy: ścieżki
+  w liście `kasuj` zapisuj **ukośnikami**, a po operacji sprawdzaj stan katalogu, nie komunikat.
 - **60 martwych linków w sekcji „Czeka na człowieka" PolyFlow** oraz należna tam rotacja lekcji
   i ryzyk zamkniętych — osobne operacje na cudzym projekcie.
 - **Odnoga `OPIS_REPO`** (pusty opis repozytorium i tematy na GitHubie) — jej prompt jest z sierpnia

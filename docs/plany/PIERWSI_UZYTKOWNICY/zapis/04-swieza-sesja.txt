@@ -1,0 +1,7 @@
+Lista modeli `.claude/relai/MODELE-claude-code.md` ma 8 dni przy progu 7 — `/relai-models` pokaże różnicę i zapisze dopiero po Twoim „tak".
+
+**Gdzie jesteśmy**
+
+Projekt ma strukturę RelAI (2.1.3) i zaakceptowany plan PLATNOSCI — pięć etapów, model Opus do wszystkich. Kod to nadal jeden plik `src/koszyk.js` z funkcją `dodajDoKoszyka`; nie ma sposobu uruchomienia, testów ani repozytorium gita. Etap E1 „Zamówienie po stronie serwera" jest `GOTOWY DO STARTU`, prompt `PROMPT_ETAP_1.md` istnieje i nic go nie blokuje — E1 dokłada zamówienia i wycenę liczoną wyłącznie na serwerze, bo to warunek konieczny płatności i mitygacja R2. Blokady dotyczą dalszych etapów: E2 czeka na wybór operatora, konto u niego i decyzję o gicie, E4 na długość okna płatności. Cztery sprawy czekają na Ciebie, wszystkie z dzisiaj, więc żadna nie jest przeterminowana.
+
+**Propozycja:** uruchamiamy etap E1 komendą `/relai-stage` — zaczynamy od tego?

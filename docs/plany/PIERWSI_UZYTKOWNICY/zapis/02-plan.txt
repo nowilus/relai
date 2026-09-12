@@ -1,0 +1,32 @@
+Plan gotowy: `docs/plany/PLATNOSCI/PLAN.md` + `STATUS.md`. Status **DO AKCEPTACJI** — nie tykam kodu, dopóki nie powiesz „akceptuję".
+
+**Wybrany wariant:** hostowana strona płatności operatora + webhook. Odrzucone trzy: osadzony formularz karty (poszerza twoją odpowiedzialność za dane kartowe), przelew z ręcznym odznaczaniem (przenosi problem na człowieka), przejście na gotową platformę sklepową (przekreśla projekt). Każde odrzucenie z powodem w tabeli.
+
+**Pięć etapów, 8–12 sesji (SZACUNEK):**
+
+| | Etap | Efekt widoczny |
+|---|---|---|
+| E1 | Zamówienie po stronie serwera | koszyk daje zamówienie z numerem i kwotą, przeżywa restart |
+| E2 | Sesja płatności u operatora | klient klika „Zapłać" i trafia na stronę płatności |
+| E3 | Webhook i potwierdzanie | opłacone zamówienie samo pokazuje się jako opłacone |
+| E4 | Wygasanie i ścieżki nieszczęśliwe | porzucona płatność nie zawiesza zamówienia |
+| E5 | Widok zamówień | właściciel widzi, co opłacone |
+
+Kamień milowy „da się zapłacić" po E3.
+
+**Dwie rzeczy wyszły z odczytu repo i musisz je znać:**
+
+1. **E1 nie jest o płatnościach — jest warunkiem ich istnienia.** Dziś kwota mogłaby powstać tylko w przeglądarce, a to znaczy, że klient płaci, ile chce. Ryzyko nr 1 w planie, poziom wysoki, z testem krytycznym w E1.
+2. **Trzy sprawy blokują E2:** wybór operatora, konto u niego (przyjmowanie realnych pieniędzy wymaga podmiotu gospodarczego — projekt demo może skończyć na trybie testowym) i decyzja o gicie. Ta ostatnia nie jest formalnością: pierwszy klucz API powinien trafić do `.env` chronionego przez `.gitignore`.
+
+**Dwie sprawy techniczne po mojej stronie:**
+
+- Zapis do `docs/USTAWIENIA.md` **zatrzymała ochrona rejestru ustawień** — to plik, którego agent nie zmienia bez twojej zgody, a sesja jest nieinteraktywna. Dwa wiersze czekają na dopisanie:
+  ```
+  | 2026-09-12 | Format planów | Markdown — plan główny, `STATUS.md` i prompty etapowe |
+  | 2026-09-12 | Model wykonawczy etapów | Opus do wszystkich etapów (ustalone w Claude Code) |
+  ```
+  Bez nich pytanie o format i model wróci przy następnym planie. Nie dopisałem ich też do twoich ustawień globalnych — podałeś je dla tego sklepu, nie jako regułę na wszystkie projekty.
+- Lista modeli tego narzędzia ma 8 dni przy progu 7. Nazwę „Opus 5" wziąłem z niej, ale może być nieaktualna — `/relai-models` pokaże różnicę i zapisze dopiero po twoim „tak".
+
+`STATE.md` i wpis w dzienniku zaktualizowane w tej samej turze. Po akceptacji generuję `PROMPT_ETAP_1.md` i etap ruszasz świeżą sesją przez `/relai-stage`.

@@ -1,0 +1,23 @@
+Projekt RelAI potwierdzony. Plan aktywny wykryty, etap gotowy.
+
+---
+
+# Karta potwierdzenia — start etapu
+
+**Plan** — `PLATNOSCI` · status **ZAAKCEPTOWANY 2026-09-12**
+
+**Etap** — **E1 z E5** · „Zamówienie po stronie serwera z kwotą liczoną na serwerze"
+
+**Model wykonawczy** — plan wymaga klasy najsilniejszej (Opus 5). Sesja działa na Opus 5. Zgodny, nic nie przełączasz.
+
+**Katalog roboczy** — `.claude/relai/work/PLATNOSCI/E1/` (przepisany z sekcji „Zakres etapu" promptu). Tam powstają wszystkie artefakty tymczasowe; na koniec raport + kasowanie.
+
+**Czego dotyczy** — etap stawia fundament, bez którego płatność nie ma o co zaczepić. Powstaje katalog produktów z cenami po stronie serwera, model zamówienia z kontrolowanymi przejściami stanów, wycena licząca kwotę wyłącznie z własnego katalogu, trwałość w pliku JSON i minimalny serwer HTTP na `node:http` — bez zależności zewnętrznych. Dokładane są też: skrypty `start`/`test`, testy krytycznych ścieżek na `node:test`, `.gitignore`, sekcja „Jak uruchomić" w README i `docs/ARCHITEKTURA.md`. Operatora płatności, sesji płatności, webhooka ani wygasania **nie dotykamy** — to E2–E4.
+
+**Weryfikacja** — 11 punktów. Najtwardszy: dowód ryzyka nr 1 od strony zachowania — żądanie z dopisaną `"cena": 1` musi dać kwotę z katalogu, sprawdzone **odczytem zapisanego zamówienia**, nie logiem serwera. Tuż obok: dowód trwałości przez restart serwera.
+
+**Subagent** — nie rekomenduję. Zakres dotyka ~10 plików i 11 punktów weryfikacji, plus dokumenty rdzeniowe (`STATE.md`, `DZIENNIK.md`, `ARCHITEKTURA.md`). Poza progami mechaniczności.
+
+---
+
+**Zaczynamy?**

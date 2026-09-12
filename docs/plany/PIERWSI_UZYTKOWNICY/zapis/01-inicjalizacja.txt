@@ -1,0 +1,13 @@
+Gotowe. Folder nie był pusty, więc poszła ścieżka **dołączenia niedestrukcyjnego** — twój `README.md`, `package.json` i `src/koszyk.js` nietknięte.
+
+**Powstało:** `CLAUDE.md` (3,9 KB, limit 10 KB) + `docs/` z sześcioma dokumentami: `STATE.md` (stan na dziś), `DZIENNIK.md` (historia, ryzyka, sprawy czekające na ciebie), `LEKCJE.md` (twoje korekty zamienione w zasady), `DECYZJE.md` (rozstrzygnięcia, do których się nie wraca), `USTAWIENIA.md` (marker `Wersja RelAI: 2.1.3` + twoje wybory), `KOMENDY.md` (ściąga).
+
+**Pominięty:** `README.md` — istniał przed inicjalizacją. RelAI trzymałby tam opis projektu, sposób uruchomienia i mapę `docs/`. Twojego nie ruszyłem.
+
+**Trzy rzeczy, które warto znać:**
+
+1. **Bez gita.** Repozytorium nie istnieje, a o gita nie pytałem — zabroniłeś dopytywania. Zapisane jako ryzyko `R1` i sprawa w „Czeka na człowieka". Bez gita nie ma cofania zmian ani commita inicjalizacyjnego. Powiedz słowo, zrobię `git init`.
+2. **`docs/ARCHITEKTURA.md` nie powstał celowo.** Profil `app` tworzy go przy pierwszej zmianie kodu, nie na zapas. Odpowiedź o testach (krytyczne ścieżki) już siedzi w ustawieniach, więc pytanie nie wróci.
+3. **Podpis wpisu.** `git config user.name` wymagał zgody, której w tej sesji nie było — podpisałem „Łukasz" z twoich ustawień globalnych RelAI. Jeśli git ma inną nazwę, następny wpis ją weźmie.
+
+Od teraz mówisz normalnie — dokumenty aktualizują się w ramach pracy, nie jako osobne zadanie. `/relai-help` pokazuje ściągę.

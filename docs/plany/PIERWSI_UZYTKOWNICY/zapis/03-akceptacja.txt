@@ -1,0 +1,16 @@
+Plan zamrożony. Sekcje 1–9 nietykalne — zmiany tylko datowanymi aneksami.
+
+**Co się zmieniło:**
+
+- `STATUS.md` → `ZAAKCEPTOWANY 2026-09-12`, E1 `GOTOWY DO STARTU`, sekcja „Bramki manualne" z czterema pozycjami otwartymi.
+- `PROMPT_ETAP_1.md` — samowystarczalny prompt E1: dziesięć punktów zakresu ze ścieżkami plików, jedenaście punktów weryfikacji, rytuał zamknięcia. Świeża sesja nie musi nic dopytywać.
+- Ryzyka 1–4 planu weszły do stałego monitorowania jako **R2–R5**, wszystkie wysokie: kwota z przeglądarki, webhook zgubiony/powtórzony, webhook podrobiony, klucze w repo. R1 (git) uzupełnione o powiązanie z planem.
+- `CLAUDE.md`, `STATE.md`, dziennik — zaktualizowane w tej samej turze.
+
+**E1 nie jest zablokowany niczym** — możesz go ruszyć od razu. Świeża sesja, `/relai-stage`, model Opus (prompt sam sprawdzi, czy sesja działa na właściwym).
+
+**Trzy rzeczy przed E2**, wszystkie w „Bramkach manualnych": operator płatności, konto u niego, decyzja o gicie. Czwarta — długość okna płatności — przed E4. E1 dokłada `.gitignore` z `.env` właśnie po to, żeby był na miejscu, zanim w E2 pojawi się pierwszy klucz.
+
+**Nadal wisi:** dwa wiersze do `docs/USTAWIENIA.md` (format planów, model wykonawczy) — ochrona rejestru ustawień nie wpuściła zapisu w sesji nieinteraktywnej, treść podałem w poprzedniej odpowiedzi. Bez nich pytanie o format i model wróci przy następnym planie.
+
+Commita nie proponuję — repozytorium nie istnieje.

@@ -1,0 +1,26 @@
+Zapisane. Rejestr `docs/DECYZJE.md` — pierwszy wpis:
+
+```markdown
+# DECYZJE — Sklep demo
+
+Decyzji z tego rejestru **nie proponuje się ponownie**. Zmiana wymaga jawnej prośby człowieka
+i nowego wpisu z datą oraz powodem.
+
+## Architektura i technologie
+
+- **D-01** *(2026-09-12)* Dane projektu (zamówienia, katalog, koszyk) trzymamy w lokalnych plikach
+  w katalogu danych projektu — bez zewnętrznej bazy danych. Powód: aplikacja ma działać offline,
+  a serwer bazy danych wymagałby stałego połączenia albo osobnej instalacji obok aplikacji.
+  Odrzucone: zewnętrzna baza (PostgreSQL, MySQL, hosting bazodanowy) — przekreśla pracę offline
+  i dokłada zależność, której projekt dziś nie ma.
+```
+
+Gdzie i czemu tam: `DECYZJE.md` to rejestr rozstrzygnięć w projekcie — nie `LEKCJE.md` (korekty zachowania agenta), nie `USTAWIENIA.md` (preferencje z pytań). Grupa „Architektura i technologie" założona teraz, bo dostała pierwszą decyzję.
+
+Domknięte w tej samej turze:
+- `docs/DZIENNIK.md` — wpis „Decyzja D-01: dane w plikach lokalnych, bez zewnętrznej bazy".
+- `docs/STATE.md` — nowa podsekcja „Dane" w szczegółach technicznych, z odsyłaczem do D-01.
+
+Zgodność z planem sprawdzona: E1 planu PLATNOSCI już przewiduje `src/magazyn.js` + `dane/zamowienia.json`. Decyzja nic nie zmienia w etapach — domyka zdanie promptu E1, że „plik JSON nie przesądza o niczym później". Teraz przesądza.
+
+Osobno: lista modeli `.claude/relai/MODELE-claude-code.md` ma 8 dni przy progu 7 — `/relai-models` pokaże różnicę i zapisze dopiero po potwierdzeniu.

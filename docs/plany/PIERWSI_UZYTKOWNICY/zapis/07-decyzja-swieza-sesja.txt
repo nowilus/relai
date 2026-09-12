@@ -1,0 +1,7 @@
+**Powód:** aplikacja ma działać offline. Serwer bazy wymagałby stałego połączenia albo osobnej instalacji obok aplikacji.
+
+**Plik źródłowy:** `docs/DECYZJE.md:8` — decyzja **D-01** z 2026-09-12.
+
+Odrzucono: zewnętrzna baza (PostgreSQL, MySQL, hosting bazodanowy) — przekreśla pracę offline, dokłada zależność.
+
+Decyzja w rejestrze = nie proponuje się ponownie. Zmiana wymaga jawnej prośby i nowego wpisu z datą i powodem.

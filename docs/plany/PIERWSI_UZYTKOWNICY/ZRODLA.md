@@ -23,6 +23,17 @@ Lokalne źródła:
 - [DECYZJE](../../DECYZJE.md), [USTAWIENIA](../../USTAWIENIA.md) — zamrożone wybory, HTML jako format,
   Opus jako model wykonawczy; bez zmiany nazwy, tagline’u, licencji czy architektury.
 
+## Uzupełnienie — E1, 2026-09-12
+
+- **`odpalone.pl/p/relai` odczytane** przy ponowieniu w E1; przy tworzeniu planu tego samego dnia
+  odczyt się nie udał, więc niedostępność była stanem chwilowym, nie własnością źródła (L-0084,
+  datowanie działa w obie strony). Wpis nosi tytuł „RelAI — Plugin do prowadzenia projektu za pomocą
+  Claude, Codex lub Cursora", opisuje pamięć projektu w plikach obok kodu, rotację do archiwum
+  z linkiem w żywym dokumencie i blokadę sekretów; deklaruje stos JavaScript + HTML i status
+  „świeżo wydane, szukam szczerego feedbacku". **Treści wpisu nie redagowano** — to zakres E2.
+- **Dokumentacja Claude Code o hookach** (`code.claude.com/docs/en/hooks`) — nie odczytywana;
+  rozpoznanie P-013 oparte na wydanym buildzie i próbie, zgodnie z zasadą aktywną 13.
+
 **Wnioski, nie fakty rynkowe:** ciągłość procesu jest obiecującym kierunkiem komunikacji;
 wersja komercyjna wymaga osobnego potwierdzenia potrzeby; demo i mały pilotaż lepiej odpowiadają
 uzgodnionemu celowi niż budowa strony lub nowych funkcji. Progi sukcesu i czas planu to propozycje.

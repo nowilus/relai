@@ -8,6 +8,25 @@ Specyfikacja: `SPEC_PULAPKI.md`.
 
 ## Pułapki
 
+### P-014 — zagnieżdżona sesja nie zapisze niczego pod `.claude/` · 2026-09-12 · AKTYWNA
+
+- **Objaw:** pomiar wymagający **projektu kontrolnego** (świeża sesja, własna struktura, własne
+  dokumenty) odbija się od ochrony plików: sesja uruchomiona z katalogu pod `.claude/` melduje
+  „sensitive file" i odrzuca **każdy** zapis, także utworzenie nowego pliku. W sesji
+  nieinteraktywnej nie ma czym tego zatwierdzić, więc pomiar staje w miejscu.
+- **Przyczyna:** Claude Code traktuje wszystko pod `.claude/` jako pliki chronione wymagające zgody
+  człowieka. Reguła RelAI mówi jednocześnie, że artefakty robocze etapu mieszkają
+  w `.claude/relai/work/<TEMAT>/E<N>/` — i te dwie rzeczy zderzają się dokładnie wtedy, gdy
+  artefaktem roboczym jest **cały projekt**, w którym ma pracować druga sesja.
+- **Obejście:** projekt kontrolny zakładaj **poza** projektem — w `%TEMP%`, z nazwą zaczynającą się
+  od slugu projektu (`relai-<temat>-<co>`), i wpisz go do wpisu dziennika **z nazwy**. Prompt etapowy
+  przewiduje ten przypadek w linii o katalogu roboczym. Skrypty pomiarowe, zapisy przebiegu i stos
+  renderu zostają w katalogu roboczym — blokada dotyczy zapisów **z zagnieżdżonej sesji**, nie
+  zapisów sesji prowadzącej.
+- **Zasięg:** każdy pomiar z drugą sesją Claude Code w roli badanego: inicjalizacja, adopcja,
+  instalacja pluginu, przebieg dowodowy. Zmierzone 2026-09-12: osiem plików odrzuconych przy próbie
+  inicjalizacji pod `.claude/relai/work/...`, ten sam prompt bez zmian przeszedł w `%TEMP%`.
+
 ### P-013 — korzeniowy `hooks/` ładuje się obok hooków zadeklarowanych w manifeście · 2026-09-12 · AKTYWNA
 
 - **Objaw:** dwa bloki kontekstu startu sesji zamiast jednego — drugi w języku i brzmieniu **innego

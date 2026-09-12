@@ -38,6 +38,19 @@ Thirteen procedures, native Codex hooks, four project profiles, MIT licence.
 
 ---
 
+## Zobacz, jak to działa
+
+<p align="center">
+  <img src="docs/zasoby/demo/demo-relai-25s-pl.gif" alt="RelAI: plan jako dokument, etapy, świeża sesja wracająca do pracy" width="900">
+</p>
+
+Plan jako osobny dokument, etapy ze statusami, a po przerwie **świeża sesja mówi, który etap jest
+gotowy do startu i z którego pliku to wie**. Materiał jest odtworzeniem prawdziwego przebiegu:
+każda pokazana odpowiedź i każda ścieżka pochodzą z zapisu realnych sesji, nie z inscenizacji —
+wersje narzędzia i modelu oraz tabela pokrycia klatek są w
+[dokumentacji materiału](docs/plany/PIERWSI_UZYTKOWNICY/DEMO.md). Dłuższa wersja i napisy
+angielskie: [`docs/zasoby/demo/`](docs/zasoby/demo/).
+
 ## Znasz to?
 
 Wracasz do projektu po tygodniu. Otwierasz sesję i pierwsze, co słyszysz, to pytanie, na które
@@ -59,8 +72,10 @@ pilnuje, żeby to, co ustalone, wylądowało w pliku.**
   zamrożona nie wraca jako propozycja.
 - **Uczy się Twoich poprawek.** Powiedziałeś „nie rób tego tak"? To zdanie ląduje w rejestrze lekcji
   bez pytania. Gdy uwaga wraca drugi raz, RelAI proponuje wpisać ją na stałe do reguł projektu.
-- **Pilnuje granic.** Klucz API nie wejdzie do repozytorium. Reguły projektu nie zmienią się po
-  cichu. Konfiguracja produkcyjna nie zostanie nadpisana bez kopii sprzed zmiany.
+- **Pilnuje granic.** Klucz API nie wejdzie do repozytorium — to blokada twarda. Zmiana reguł
+  projektu i nadpisanie konfiguracji produkcyjnej **wracają do Ciebie jako pytanie**; w sesji
+  z automatyczną akceptacją zmian pytanie może przejść samo, więc ostrożność z takim trybem jest
+  Twoją częścią umowy.
 - **Nie pozwala dokumentom spuchnąć.** Gdy dziennik urośnie ponad próg, przy zamykaniu sesji
   najstarsza historia sama przenosi się do archiwum — w całości, bez skracania — a w żywym pliku
   zostaje linia z linkiem. Nic nie ginie, kontekst sesji odzyskuje miejsce.
@@ -194,8 +209,9 @@ gdy Node jest, ale nie ma go w `PATH` sesji: zmienna `RELAI_NODE` wskazująca in
 ### C. Codex — natywny plugin (2.0.0; kompatybilność Codexa od 1.10.0)
 
 Codex korzysta z repozytorium jako korzenia pluginu: `.codex-plugin/plugin.json`,
-`.agents/plugins/marketplace.json`, `skills/` generowane deterministycznie z adaptera Claude Code
-i `hooks/hooks.json`. Dla projektu używanego przez Codex instalator D-86 tworzy router `AGENTS.md`,
+`.agents/plugins/marketplace.json`, `adapters/codex/skills/` generowane deterministycznie z adaptera
+Claude Code i `hooks/hooks.json` — hooki Codeksa mają bramkę hosta, więc pod Claude Code milczą
+i nie dublują hooków adaptera ([P-013](docs/PULAPKI.md)). Dla projektu używanego przez Codex instalator D-86 tworzy router `AGENTS.md`,
 przenosi zastaną treść do kopii i zostawia `CLAUDE.md` jako wskaźnik.
 
 ```bash
@@ -206,7 +222,8 @@ node C:/Narzedzia/relai/adapters/codex/install.js C:/Users/<Ty>/Desktop/MojProje
 
 Hook startu dostarcza kontekst wyłącznie projektom z markerem RelAI, a `PreToolUse` skanuje zapisy
 niezależnie od reguły modelowej. Szczegóły dowodów i ograniczeń adaptera są w
-[`docs/PRZENOSNOSC.md`](docs/PRZENOSNOSC.md); E7 pozostaje w toku do czasu przejścia pełnej macierzy.
+[`docs/PRZENOSNOSC.md`](docs/PRZENOSNOSC.md). Adapter jest wydany i stabilny od 2.0.0; pełna macierz
+cross-tool pozostaje częściowo niezmierzona — co dokładnie, mówi `docs/STATE.md`.
 
 ## Pierwsze pięć minut
 
@@ -288,7 +305,7 @@ Dziewięć hooków w Node.js, zero zależności npm. **Dwa blokują, pięć ostr
 | Pilnuje | Co się stanie |
 |---|---|
 | **sekretów** | zapis klucza `sk-…`, `ghp…`, `AKIA…`, tokenu JWT, klucza PEM albo przypisania `SECRET=` do pliku śledzonego przez gita zostaje **zablokowany**; ten sam zapis do pliku objętego `.gitignore` przechodzi |
-| **reguł projektu** | zmiana sekcji niemutowalnej `CLAUDE.md` albo pliku ustawień wymaga Twojego jawnego potwierdzenia |
+| **reguł projektu** | zmiana sekcji niemutowalnej `CLAUDE.md` albo pliku ustawień wraca jako **pytanie** (werdykt `ask`) — zatrzymuje zapis tylko wtedy, gdy tryb uprawnień sesji ten werdykt egzekwuje; w trybie automatycznej akceptacji zmian przechodzi (zmierzone 2026-09-04). Skan sekretów tego ograniczenia nie ma — używa `deny` |
 | **konfiguracji produkcyjnej** | w projektach typu „agent głosowy" i „automatyzacja" zmiana bez kopii stanu sprzed zmiany zostaje **zatrzymana**: najpierw snapshot, potem zmiana |
 | **jakości** | `tsc` i eslint po edycji — ale tylko wtedy, gdy projekt naprawdę je ma |
 | **śmieci diagnostycznych** | `console.log` w zapisanym pliku dostaje ostrzeżenie |
@@ -417,8 +434,9 @@ relai/
 │       ├── AGENTS.md            #   router warstwy zawsze-w-kontekście
 │       ├── generate-skills.js   #   generator z jednego źródła komend Claude Code
 │       ├── install.js           #   odwracalna integracja D-86
-│       └── hooks/               #   cienkie hooki konsumujące core/
-├── skills/                      # wygenerowany pakiet Codex: 13 procedur + 2 skille rdzenia
+│       ├── skills/              #   wygenerowany pakiet: 13 procedur + 2 skille rdzenia (od 2.1.1)
+│       └── hooks/               #   cienkie hooki konsumujące core/, z bramką hosta
+├── hooks/hooks.json             # hooki Codeksa (jego konwencja korzenia), z bramką hosta — P-013
 ├── .claude-plugin/              # manifest pluginu i marketplace Claude Code
 │   ├── plugin.json              #   bo tego wymaga Claude Code; wskazuje na adapters/claude-code/
 │   └── marketplace.json

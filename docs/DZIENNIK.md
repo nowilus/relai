@@ -2257,3 +2257,96 @@ Autor: RelAI (Opus 5) + Lukasz
   kontekstu startu jest jeden.
 
 Autor: RelAI (Opus 5) + Lukasz
+
+### 2026-09-12 — E1 zamknięty: materiał demo wyrenderowany z realnego przebiegu, README bez obietnic ponad dowody
+
+Autor: RelAI (Opus 5) + Lukasz
+
+**Zrobione — dowiezione vs plan:**
+
+- **Cztery pliki materiału** (Aneks A): `demo-relai-25s-pl.gif` 4,83 MB i `-en` 4,77 MB (960×540,
+  25 s, 10 kl./s), `demo-relai-60s-pl.mp4` 7,17 MB i `-en` 7,10 MB (1920×1080, 60 s, 30 kl./s),
+  wszystkie bez ścieżki dźwiękowej — w `docs/zasoby/demo/` razem z `README.md` katalogu.
+- **Dwa realne przebiegi w neutralnym projekcie kontrolnym**, siedem sesji: inicjalizacja → plan
+  PLATNOSCI (5 etapów) → akceptacja i `PROMPT_ETAP_1.md` → **świeża sesja** „Kontynuujemy pracę" →
+  **świeża sesja** `/relai-stage` z kartą potwierdzenia; osobno decyzja D-01 i **świeża sesja**
+  odnajdująca ją ze wskazaniem `docs/DECYZJE.md:8`.
+- **`DEMO.md`** — wersje z pomiaru, oba przebiegi z promptami i liczbą prób, tabela pokrycia klatek,
+  ograniczenia materiału wypisane wprost, instrukcja odtworzenia renderu od zera.
+- **Zapis źródłowy przeniesiony do repozytorium** (`docs/plany/PIERWSI_UZYTKOWNICY/zapis/`,
+  11 plików, 53 KB) — plan wymaga zachowania materiału źródłowego, a katalog roboczy szedł do
+  skasowania.
+- **README**: nowa sekcja „Zobacz, jak to działa" z osadzonym GIF-em; zamknięte trzy nieaktualności
+  (korzeniowy `skills/` jako pakiet Codeksa, „E7 pozostaje w toku", obietnica twardej ochrony
+  konfiguracji) i dopisana bramka hosta hooków Codeksa w opisie adaptera.
+- **Poza planem, bo wypłynęło z pomiaru E1:** odnoga **HOOKI_KORZEN** — czwarta wada dystrybucji
+  (P-013), naprawiona i zamknięta tego samego dnia wydaniem 2.1.4 w repozytorium.
+- **Nie było w planie i nie zostało zrobione:** nic. Zakres E1 z Aneksem A dowieziony w całości
+  poza dwoma punktami jawnie niewykonalnymi bez człowieka (niżej).
+
+**Zweryfikowane — jak dokładnie:**
+
+- **Instalacja obcego użytkownika**: świeża instalacja z marketplace `nowilus/relai` w izolowanym
+  `CLAUDE_CONFIG_DIR` → `✔ enabled`, **2.1.3** (marketplace serwuje `main`, nie obiekt release —
+  korekta wobec założenia „publiczne = 2.1.2"), **13 komend**, `claude plugin validate` →
+  `✔ Validation passed`, **6/6** plików zgodnych sumą z tagiem `v2.1.3` po normalizacji CRLF → LF;
+  kontrola pozytywna na `v2.1.2` zgłosiła różnicę. Konfiguracja właściciela nietknięta
+  (`sha256sum -c` na dwóch plikach → OK).
+- **Kontrola pozytywna i negatywna w jednym przebiegu**: świeża sesja w projekcie z markerem
+  odpowiedziała `TAK` na pytanie o obecność kontekstu RelAI, sesja w folderze bez markera → `NIE`.
+- **Headless widzi komendy pluginu** — 13 komend i 2 skille wypisane przez model w `claude -p`.
+  To przewraca wniosek z L-0093: niewidoczność była własnością **zepsutego manifestu** 2.1.0/2.1.1,
+  nie trybu. Zapisane jako **L-0095** i doklejone do zasady aktywnej 5.
+- **Kontrola układu na wyrenderowanych klatkach**: 0 elementów wychodzących poza kontener i 0
+  tekstów uciętych bez zamiaru na **wszystkich** scenach obu cięć i obu wersjach językowych (112
+  linii pomiaru w renderze EN); kontrola pozytywna na scenie z celowym przepełnieniem → **1**
+  trafienie, +1199 px. Instrument poprawiany dwa razy, oba razy po tym, jak sam się zdradził:
+  najpierw mierzył przed ułożeniem drzewa (`zbadane=0`), potem zgłaszał pięć fałszywych trafień na
+  rodzicu z `display:contents`.
+- **Pokrycie klatek: 11/11**, 0 bez pokrycia; kontrola pozytywna z podłożonym cytatem → `BEZ
+  POKRYCIA`. Trzy pierwsze trafienia okazały się różnicą formatowania markdown, jedno było
+  prawdziwe — dopisana kropka w cytacie, usunięta.
+- **Polskie znaki**: pierwszy render wyszedł z przekręconymi glifami („płatnosći"), bo podzbiór
+  `latin` nie niesie diakrytyków; po dołożeniu `latin-ext` z `unicode-range` tytuł renderuje się
+  poprawnie — sprawdzone na klatce, nie w kodzie.
+- **Repozytorium nie wchłonęło stosu renderu**: `git status --porcelain` bez ani jednego pliku
+  z `node_modules`, `git check-ignore -v` potwierdza regułę; kontrola negatywna — plik wynikowy
+  w `docs/zasoby/demo/` **nie** jest ignorowany (kod 1).
+- **Instrukcja instalacji z README uruchomiona dosłownie** — obie komendy, w izolowanej
+  konfiguracji, z wynikiem zapisanym.
+- **`odpalone.pl/p/relai` odczytane** przy ponowieniu; przy tworzeniu planu tego samego dnia odczyt
+  się nie udał. Wynik i treść wpisu dopisane do `ZRODLA.md` z datą.
+- **Sekrety**: `git grep` po wzorcach `sk_test/live` i `AKIA…` nie zwraca nic w plikach śledzonych
+  poza udokumentowanymi wartościami przykładowymi; przeniesiony zapis przebiegów przeskanowany
+  osobno — czysto.
+- **Katalog roboczy E1**: przed **9538 plików / 492 MB** (raport narzędzia: 461,2 MB), po **0**.
+  Skasowane razem z artefaktami poza projektem: `%TEMP%/relai-pierwsi-uzytkownicy-sklep-demo`
+  (projekt kontrolny) i `%TEMP%/relai-pierwsi-uzytkownicy-obcy-folder` (kontrola negatywna).
+  Headless Shell Remotiona (102 MB) został w cache'u narzędzia poza projektem.
+- **Wada `work-artifacts.js` potwierdzona na własnej skórze**: `kasuj` z listą ścieżek zapisanych
+  backslashami zjadł znaki ucieczki i zameldował `OK` dla trzech ścieżek, **których nie ma** —
+  nic nie zostało skasowane, a raport mówił, że tak. Ponowienie z ukośnikami przeszło poprawnie
+  (461,2 MB → 0,0 MB). To dokładnie ta pozycja z „Co dalej" w `STATE.md`.
+
+**Świadomie odłożone:**
+
+- Rotacja dziennika (**172 KB** przy progu 150 KB) i ryzyk zamkniętych; odświeżenie listy modeli
+  (8 dni przy progu 7); `docs/PRZENOSNOSC.md` sekcja 2.3.
+- Decyzja o trwałym miejscu źródeł renderu — należy do E3 (Aneks A, ryzyko A2). Dziś projekt
+  renderu przestał istnieć razem z katalogiem roboczym; odtworzenie jest opisane w `DEMO.md`.
+- Ewentualne przeniesienie plików MP4 (14,3 MB) z repozytorium do zasobów wydania — repozytorium
+  urosło o 24 MB mediów.
+- Naprawa dwóch wad `work-artifacts.js` (ciche `OK` dla nieistniejącej ścieżki, marker `zachowaj`
+  w złym projekcie) — osobny zakres, nie E1.
+
+**Do zrobienia przez człowieka:**
+
+- **Wydanie 2.1.4**: tag `v2.1.4`, push i release. Do tego czasu publiczna instalacja serwuje 2.1.3
+  z wadą P-013, więc **E2 nie zaprasza nikogo** — to jest zapisane w prompcie E2 jako decyzja.
+- Po wydaniu: `claude plugin update relai@relai` + restart aplikacji i potwierdzenie, że blok
+  kontekstu startu jest **jeden** (dziś NOT TESTED — pomiar wymaga aplikacji, nie CLI).
+- **Weryfikacja osadzonego GIF-a na github.com** — wymaga pusha; do tego czasu sprawdzony jest tylko
+  podgląd lokalny (L-0075). Punkt wchodzi do weryfikacji E2.
+- Dyspozycja publikacji i kontaktów oraz wskazanie uczestników — bramki manualne E2.
+
+Autor: RelAI (Opus 5) + Lukasz

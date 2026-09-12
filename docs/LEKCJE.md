@@ -59,7 +59,10 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
    tak samo przy poprawnej ścieżce i przy rozjechanej. **Kontrolę pozytywną stawiasz na wejściu,
    którego mechanizm naprawdę pilnuje** — wejście z jego własnej listy wyłączeń (ścieżka objęta
    `.gitignore`, rozszerzenie pomijane, tryb wyciszony) daje przebieg zielony niezależnie od tego,
-   czy mechanizm żyje; listę wyłączeń czytasz w kodzie, zanim postawisz kontrolę. (L-0032, L-0037,
+   czy mechanizm żyje; listę wyłączeń czytasz w kodzie, zanim postawisz kontrolę. **Wniosek
+   o własności cudzego narzędzia, wyprowadzony w czasie, gdy własny artefakt był zepsuty, wygasa
+   razem z jego naprawą** — datuj go wersją artefaktu, nie tylko dniem, i sprawdź ponownie, zanim
+   oprzesz na nim zakres etapu. (L-0032, L-0037, L-0095,
    L-0054, L-0055, L-0056, L-0064, L-0068, L-0071, L-0073, L-0083, L-0084, L-0086, L-0087, L-0088,
    L-0090, L-0091)
 6. **Próg jest liczbą, którą ktoś liczy:** kalibruj go na zmierzonych plikach realnych projektów,
@@ -567,6 +570,22 @@ restart aplikacji po `plugin update` (L-0031), `git worktree` zamiast `git archi
   To samo dotyczy renderu wideo: skoro klatki składa silnik HTML, podgląd kalibracyjny też.
 - **Źródło:** korekta Łukasza, przygotowanie materiału demo E1 planu PIERWSI_UZYTKOWNICY
   (Aneks A). Destylat: doklejone do zasady 15 o zadaniu wizualnym, bez szesnastej pozycji.
+
+### L-0095 — Wniosek o własności narzędzia wyprowadzony przy zepsutym artefakcie wygasa z jego naprawą · 2026-09-12 · AKTYWNA
+
+- **Trigger:** E1 potrzebował przebiegu dowodowego w świeżej sesji. L-0093 mówił wprost: „tryb
+  headless po prostu nie pokazuje modelowi komend ani skilli pluginu", więc przebieg wyglądał na
+  niewykonalny bez człowieka klikającego w aplikacji.
+- **Przyczyna:** tamten pomiar szedł na wersjach **2.1.0 i 2.1.1**, czyli na pluginie z manifestem,
+  który odpadał w całości (P-011). Niewidoczność komend była skutkiem zepsutego manifestu, a nie
+  własnością trybu headless. Po naprawie manifestu ta sama komenda w tym samym trybie wypisała
+  **trzynaście komend i dwa skille** (zmierzone 2026-09-12), co otworzyło całą ścieżkę pomiarową.
+- **Zasada:** wniosek o **własności cudzego narzędzia**, wyprowadzony w czasie, gdy własny artefakt
+  był zepsuty, jest hipotezą datowaną **podwójnie** — datą pomiaru i wersją artefaktu. Naprawa
+  artefaktu unieważnia wniosek: sprawdzasz go ponownie jednym najtańszym wywołaniem, zanim oprzesz
+  na nim plan etapu. Rozszerzenie [[L-0084]] („niedostępność cudzej usługi jest stanem chwilowym")
+  na niedostępność **funkcji**: tam zmienia się świat, tu zmienia się nasz własny artefakt.
+- **Źródło:** E1 planu PIERWSI_UZYTKOWNICY. Destylat: doklejone do zasady 5, bez nowej pozycji.
 
 ## Lekcje zwinięte
 
