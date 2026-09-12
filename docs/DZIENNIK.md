@@ -2403,3 +2403,30 @@ Autor: RelAI (Opus 5) + Lukasz
   manualne E2. Nic technicznego już nie blokuje zaproszeń.
 
 Autor: RelAI (Opus 5) + Lukasz
+
+### 2026-09-12 — P-013 potwierdzone w aplikacji po restarcie: sprawa człowieka zamknięta
+
+Autor: RelAI (Opus 5) + Lukasz
+
+**Zrobione:** zamknięcie ostatniej pozycji „Do zrobienia przez człowieka" z wpisu o wydaniu 2.1.4 —
+Łukasz zrestartował aplikację, więc pomiar, który wcześniej dał się wykonać wyłącznie w CLI, został
+powtórzony tam, gdzie objaw mieszkał.
+
+**Zweryfikowane — jak dokładnie:**
+
+- **Kontekst startu tej sesji zawiera dokładnie jeden blok `[RelAI session-context]`** — polski,
+  z adaptera Claude Code, kierujący do `CLAUDE.md` i `docs/STATE.md`. Zdania
+  „This is a RelAI project. Before substantive work, read AGENTS.md…" (linia 18
+  `adapters/codex/hooks/session-context.js`) **nie ma**. Przy starcie poprzedniej sesji, na 2.1.3,
+  były oba — ten sam projekt, ta sama aplikacja, więc pomiar ma obie strony.
+- **`claude plugin list`**: `relai@relai` 2.1.4, scope `user`, `✔ enabled`; cache wydanej wersji ma
+  **trzynaście** plików komend. Restart nie zgubił niczego, co naprawa mogła zepsuć.
+
+**Świadomie odłożone:** rotacja dziennika (**178,2 KB** przy progu 150 KB) i rotacja ryzyk
+zamkniętych (**17,6 KB** przy progu 12 KB) — obie należne, obie do rytuału zamknięcia dnia.
+Odświeżenie listy modeli (8 dni przy progu 7). Aktualizacja `docs/PRZENOSNOSC.md` sekcji 2.3.
+
+**Do zrobienia przez człowieka:** dwie bramki manualne E2 — dyspozycja publikacji i kontaktów oraz
+wskazanie uczestników. Nic technicznego nie blokuje już zaproszeń.
+
+Autor: RelAI (Opus 5) + Lukasz

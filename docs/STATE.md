@@ -99,7 +99,9 @@ kontrole przeszły; pełna świeża sesja Codexa pozostaje NOT TESTED po błędz
   [release](https://github.com/nowilus/relai/releases/tag/v2.1.4), `claude plugin update` wykonany.
   Wersja potwierdzona **treścią plików z cache'u** (5/5 zgodnych z tagiem po normalizacji CRLF → LF,
   bramka hosta obecna), nie komunikatem CLI (P-005). Świeża sesja CLI: jeden blok kontekstu startu,
-  zero komunikatów o błędzie hooka. **W aplikacji desktopowej zobaczysz to po jej restarcie.**
+  zero komunikatów o błędzie hooka. **Potwierdzone także w aplikacji desktopowej po restarcie
+  2026-09-12**: sesja dostaje jeden blok kontekstu startu, bez zdania kierującego do `AGENTS.md`;
+  `claude plugin list` pokazuje 2.1.4 `✔ enabled`, cache ma trzynaście komend.
   Sekwencja P-005 ma od 2.1.4 krok obowiązkowy **wykonany**: `claude plugin validate` przed tagiem
   (ryzyko W1) — przy tym wydaniu `✔ Validation passed` na manifeście marketplace.
 - **Migracja JiraManagera** — ostatni projekt, w którym start sesji kosztuje 386 KB dokumentów,
