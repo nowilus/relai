@@ -38,9 +38,10 @@ z jawnym śladem zmiany. Nie została teraz przeniesiona ani zamknięta.
 - ~~**Kalibracja smaku materiału demo**~~ — **ROZSTRZYGNIĘTA 2026-09-12**: Łukasz zaakceptował
   kierunek na jednej klatce kluczowej („Jest OK. Akceptuję"); szczegóły w
   [DEMO.md](DEMO.md), sekcja „Kierunek wizualny".
-- **Wydanie 2.1.4** — E1 dowiózł naprawę P-013 i commit lokalny; tag `v2.1.4`, push i release
-  należą do właściciela. **Do wydania nikogo nie zapraszamy** — publiczna instalacja serwuje 2.1.3
-  z wadą.
+- ~~**Wydanie 2.1.4**~~ — **ROZSTRZYGNIĘTE 2026-09-12**: tag `v2.1.4` i push na `origin/main`,
+  [release](https://github.com/nowilus/relai/releases/tag/v2.1.4) opublikowany, `claude plugin
+  update` wykonany (cache 2.1.4, 5/5 plików zgodnych z tagiem). Blokada „nie zapraszamy przed
+  wydaniem" zdjęta — E2 może ruszyć po dyspozycji publikacji.
 
 ## Dziennik wdrożenia
 

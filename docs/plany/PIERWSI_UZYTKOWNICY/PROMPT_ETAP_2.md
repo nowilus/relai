@@ -23,9 +23,10 @@ Plan: PIERWSI_UZYTKOWNICY • Etap: **E2 z E3** • Wygenerowano: 2026-09-12 (au
 
 ## Decyzje już podjęte — NIE otwieraj ich ponownie
 
-- **Nikogo nie zapraszamy przed wydaniem 2.1.4.** Publiczna instalacja serwuje 2.1.3 z wadą P-013
-  (zdublowany kontekst startu, błąd schematu `SessionEnd`). Naprawa jest w repozytorium i czeka na
-  tag, push i release — to pozycja „Do zrobienia przez człowieka" z wpisu z 2026-09-12.
+- **Blokada „nie zapraszamy przed wydaniem 2.1.4" jest zdjęta.** Wydanie wyszło 2026-09-12: tag
+  `v2.1.4`, release na GitHubie, publiczna instalacja serwuje **2.1.4** z naprawą P-013 (zmierzone:
+  świeża sesja ma jeden blok kontekstu startu, zero komunikatów o błędzie hooka). Wersję u siebie
+  potwierdzasz plikiem instalacji, nie komunikatem CLI (P-005).
 - **Granica publikacji** (sekcje 5 i 9 planu): wolno **przygotować** materiały; wysyłka, publikacja,
   zmiana opisu repozytorium na GitHubie i `git push` wymagają **osobnej, konkretnej dyspozycji**
   Łukasza dotyczącej gotowego materiału. Akceptacja planu nią nie jest, zamknięcie E1 też nie.
@@ -50,9 +51,11 @@ Plan: PIERWSI_UZYTKOWNICY • Etap: **E2 z E3** • Wygenerowano: 2026-09-12 (au
 
 ## Stan wyjściowy — co realnie zastajesz
 
-E1 zamknięty 2026-09-12. Repozytorium ma **2.1.4** z naprawą P-013 (odnoga HOOKI_KORZEN zamknięta
-tego samego dnia), ale **publicznie instalowalne jest 2.1.3** — marketplace serwuje `main`, a nie
-obiekt release, więc do wydania 2.1.4 pozostaje tag, push i release (FAKT, 2026-09-12).
+E1 zamknięty 2026-09-12, tego samego dnia **wydano 2.1.4** z naprawą P-013 (odnoga HOOKI_KORZEN):
+tag `v2.1.4` i release na GitHubie, `claude plugin update` wykonany, cache zgodny z tagiem w 5/5
+sprawdzonych plikach po normalizacji CRLF → LF (FAKT). Świeża sesja CLI na tej wersji ma **jeden**
+blok kontekstu startu i zero komunikatów o błędzie hooka. Potwierdzenie w aplikacji desktopowej
+wymaga jej restartu (P-005) — jeśli nie padło, sprawdź to na wejściu.
 
 Materiał demo istnieje i leży w repozytorium:
 
@@ -69,8 +72,10 @@ docs/plany/PIERWSI_UZYTKOWNICY/ZRODLA.md # datowany odczyt wpisu na Odpalone (ud
 
 **Czego jeszcze NIE ma (to jest zakres tego etapu):** tekstu zaproszenia dla Odpalone i dla sieci
 Łukasza; rzeczowej odpowiedzi na krytykę; odświeżonej karty odnogi `OPIS_REPO` z kryterium
-aktualnego opisu i tematów; pliku, w którym mieszkają zapisy prób uczestników; **weryfikacji, że
-osadzony GIF renderuje się na żywym GitHubie** (w E1 jawnie NOT TESTED — wymaga pusha).
+aktualnego opisu i tematów; pliku, w którym mieszkają zapisy prób uczestników. Materiał demo jest
+już publiczny i **sprawdzony na żywej stronie** (2026-09-12): README serwuje GIF z `raw/main`
+z atrybutem `data-animated-image`, HTTP 200, `image/gif`, 5 063 834 B — więc tego punktu E2 już nie
+niesie.
 
 **Zasady aktywne z `docs/LEKCJE.md`, obowiązujące w tym etapie** (przepisane w całości):
 
@@ -156,9 +161,10 @@ z drugą sesją zakładasz **poza** `.claude/` (P-014).
    dotyczyło 1.5.x". Kryterium domknięcia odnogi: opis i tematy widoczne **na stronie
    repozytorium**, nie w pliku lokalnym. Odnogi **nie zamykasz** — zamknięcie wymaga zmiany na
    GitHubie, czyli dyspozycji.
-4. **Weryfikacja materiału na żywym GitHubie** — po pushu (jeśli dyspozycja padnie): GIF renderuje
-   się w `README.md` na github.com, nie jest ucięty i nie przekracza rozsądnego czasu wczytania.
-   Bez dyspozycji punkt zostaje **jawnie niewykonany**, z zapisanym warunkiem wykonalności.
+4. **Kontrola materiału po stronie odbiorcy** — GIF jest już sprawdzony technicznie na żywej stronie
+   (E1, 2026-09-12). W tym etapie oceniasz to, czego pomiar nie powie: czy pierwsze trzy sekundy
+   mówią, o co chodzi, i czy tekst na klatkach jest czytelny na wąskim ekranie telefonu. Poprawka
+   napisów mieści się w rezerwie planu i wymaga zdania w dzienniku; nowy render kompozycji — nie.
 5. **Zapis wyników kontaktów** — każda wysłana wiadomość i każda odmowa trafia do `PROBY.md`
    w tej samej turze, w której się zdarzyła. Brak odpowiedzi po tygodniu jest wynikiem, nie luką.
 6. **Git** — commit lokalny. **Push, publikacja i kontakt z odbiorcami wyłącznie po jawnej

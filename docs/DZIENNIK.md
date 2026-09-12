@@ -2350,3 +2350,56 @@ Autor: RelAI (Opus 5) + Lukasz
 - Dyspozycja publikacji i kontaktów oraz wskazanie uczestników — bramki manualne E2.
 
 Autor: RelAI (Opus 5) + Lukasz
+
+### 2026-09-12 — Wydanie 2.1.4: trzy sprawy człowieka domknięte tego samego dnia
+
+Autor: RelAI (Opus 5) + Lukasz
+
+**Zrobione:**
+
+- **Wydanie 2.1.4** — bramka W1 przed tagiem (`claude plugin validate` → `✔ Validation passed`,
+  walidator adapterów kod 0), push `9e4387a..2b8d2ac` na `origin/main`, tag `v2.1.4` na zdalnym,
+  [release](https://github.com/nowilus/relai/releases/tag/v2.1.4) z notą opisującą P-013, sposób
+  pomiaru i materiał demo.
+- **`claude plugin update relai@relai`** wykonany; cache przeszedł na `...\cache\relai\relai\2.1.4`,
+  commit `2b8d2ac`.
+- **Dokumenty zsynchronizowane w tej samej turze:** `STATE.md` (wersja, zamknięte pozycje „Co
+  dalej", stan materiału), `STATUS.md` planu (bramka wydania rozstrzygnięta), `CLAUDE.md` (wiersz
+  stanu), `PROMPT_ETAP_2.md` (zdjęta blokada „nie zapraszamy przed wydaniem", punkt o weryfikacji
+  GIF-a zamieniony na ocenę odbioru — techniczna część jest już zmierzona).
+
+**Zweryfikowane — jak dokładnie:**
+
+- **Wersja potwierdzona plikiem, nie komunikatem** (P-005): `installed_plugins.json` wskazuje
+  ścieżkę z numerem **2.1.4** i commit `2b8d2ac`, a **5/5** plików z cache'u (`plugin.json`, oba
+  hooki Codeksa, walidator, rejestr pułapek) zgadza się sumą z tagiem `v2.1.4` po normalizacji
+  CRLF → LF. Kontrola pozytywna: bramka hosta (`CLAUDECODE`) **obecna** w pliku z cache'u.
+- **Naprawa P-013 działa w świeżej sesji na wydanej wersji**: sesja CLI zapytana o własny kontekst
+  odpowiedziała „fraza `RelAI session-context` — **raz** (drugie wystąpienie to treść pytania)",
+  zdanie Codeksa „Before substantive work, read AGENTS.md" — **NIE**, polski rytuał startu —
+  **TAK**, a w całym przebiegu **zero** komunikatów `Hook JSON output validation failed`.
+  Wcześniejszy pomiar tej samej pary dawał jedno trafienie błędu, więc kontrola działa w obie strony.
+- **GIF na żywej stronie repozytorium**: HTML README niesie
+  `<img src="/nowilus/relai/raw/main/docs/zasoby/demo/demo-relai-25s-pl.gif" … data-animated-image>`,
+  a pobranie tego adresu zwraca **HTTP 200**, `image/gif`, **5 063 834 B** — pełny plik, bez
+  obcięcia. GitHub serwuje go z własnej ścieżki `raw`, więc limit proxy obrazów nie wchodzi w grę.
+  To domyka punkt, który E1 zostawił jawnie jako NOT TESTED (L-0075: grafikę ocenia się na stronie,
+  która ją pokazuje).
+- Odczyt strony repozytorium potwierdził też **brak zepsutych odnośników do obrazów** w README.
+
+**Świadomie odłożone:**
+
+- Rotacja dziennika (**ponad 179 KB** przy progu 150 KB) i ryzyk zamkniętych — do rytuału zamknięcia
+  dnia; odświeżenie listy modeli (9 dni przy progu 7); `docs/PRZENOSNOSC.md` sekcja 2.3.
+- Przeniesienie plików MP4 (14,3 MB) z repozytorium do zasobów wydania — repozytorium urosło
+  o 24 MB mediów, ale pliki są potrzebne E2 i decyzja należy do E3.
+- Naprawa dwóch wad `work-artifacts.js` — osobny zakres.
+
+**Do zrobienia przez człowieka:**
+
+- **Restart aplikacji desktopowej** — cache ma 2.1.4, ale ta sesja pracuje na kodzie sprzed
+  aktualizacji; potwierdzenie pojedynczego bloku kontekstu w aplikacji (nie w CLI) wymaga restartu.
+- **Dyspozycja publikacji i kontaktów** oraz **wskazanie uczestników** — dwie otwarte bramki
+  manualne E2. Nic technicznego już nie blokuje zaproszeń.
+
+Autor: RelAI (Opus 5) + Lukasz

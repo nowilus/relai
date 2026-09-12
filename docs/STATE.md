@@ -4,19 +4,18 @@ Stan na: 2026-09-12 (aktualizacja obszaru planowania; stan techniczny poniżej z
 
 ## Gdzie jesteśmy
 
-RelAI ma w repozytorium **2.1.4** (z marketplace instaluje się **2.1.3**, bo marketplace serwuje
-`main`, a nie obiekt release — zmierzone 2026-09-12) i działa w Claude Code, Cursorze oraz
+RelAI ma w repozytorium i publicznie **2.1.4** (wydane 2026-09-12: tag, release, potwierdzone
+treścią plików z cache'u po `plugin update`) i działa w Claude Code, Cursorze oraz
 jako natywny plugin Codexa z jednym rdzeniem procesu. **2.1.0 dokłada załogę** — trzynastą komendę
 `/relai-crew`: sesja zostaje orkiestratorem celu, pyta o role, liczbę subagentów, tryb i zakres
 modeli, układa zadania w fale bez konfliktów plików, deleguje je subagentom gospodarza albo do
 drugiego zalogowanego narzędzia i zleca przegląd krzyżowy; bez drugiego narzędzia pracuje w trybie
 basic. **Seria 2.1.1–2.1.3 to naprawa dystrybucji, nie nowe funkcje**: trzy niezależne wady wprowadzone
 razem z 2.0.0 i 2.1.0 sprawiały, że plugin Claude Code nie ładował komend (P-010, P-011, P-012).
-2.1.2 jest opublikowane i potwierdzone w aplikacji; 2.1.3 jest instalowalne z marketplace, ale niesie
-**czwartą wadę tej samej klasy** ([P-013](PULAPKI.md)): korzeniowy `hooks/` Codeksa jest dla Claude
-Code katalogiem konwencyjnym, więc ładował się obok hooków z manifestu — zdublowany kontekst startu
-i błąd schematu `SessionEnd`. **2.1.4 w repozytorium to naprawa tej wady** (odnoga HOOKI_KORZEN,
-2026-09-12); czeka na tag, push i release.
+**2.1.4 domyka czwartą wadę tej samej klasy** ([P-013](PULAPKI.md)): korzeniowy `hooks/` Codeksa jest
+dla Claude Code katalogiem konwencyjnym, więc ładował się obok hooków z manifestu — zdublowany
+kontekst startu i błąd schematu `SessionEnd`. Naprawione bramką hosta i wydane 2026-09-12 (odnoga
+HOOKI_KORZEN); **świeża sesja na 2.1.4 ma jeden blok kontekstu i zero komunikatów o błędzie hooka**.
 
 Seria 1.9.x dodała listy modeli per narzędzie, poprawiła sprzątanie oraz uszczelniła pre-commit: działa
 w projektach ESM, kończy instalację testem dymnym i nie blokuje poprawnych odczytów sekretów ze
@@ -89,20 +88,20 @@ kontrole przeszły; pełna świeża sesja Codexa pozostaje NOT TESTED po błędz
   człowiek. E1 dowiózł **cztery pliki materiału** (25 s GIF i 60 s MP4, PL i EN, bez dźwięku)
   w [docs/zasoby/demo/](zasoby/demo/), [dokumentację materiału](plany/PIERWSI_UZYTKOWNICY/DEMO.md)
   z tabelą pokrycia 11/11, [zapis źródłowy](plany/PIERWSI_UZYTKOWNICY/zapis/) siedmiu sesji
-  i poprawiony początek README z osadzonym GIF-em. **E2 nie zaprasza nikogo przed wydaniem 2.1.4.**
-  OPIS_REPO pozostaje zależnością E2, bez drugiej odnogi.
+  i poprawiony początek README z osadzonym GIF-em — **sprawdzonym na żywej stronie**: GitHub serwuje
+  go z `raw/main` jako animowany obraz (HTTP 200, `image/gif`, 5 063 834 B). Blokada „nie zapraszamy
+  przed wydaniem" zdjęta razem z wydaniem 2.1.4. OPIS_REPO pozostaje zależnością E2, bez drugiej odnogi.
 - **Materiał demo jest odtworzeniem zmierzonego przebiegu, nie nagraniem ekranu.** Każda klatka
   pokazująca plik albo odpowiedź agenta ma pokrycie w zapisie realnych sesji; instrument pokrycia
   ma kontrolę pozytywną. Kontrola układu na wyrenderowanych klatkach: **0 przepełnień** na
   wszystkich scenach obu cięć i obu wersjach językowych.
-- **Wydanie 2.1.4** — repo ma naprawę **czwartej** wady dystrybucji (korzeniowy `hooks/`, P-013):
-  bramka hosta na `CLAUDECODE` w czterech skryptach Codeksa, kontrola w `validate-adapters.js`
-  („bramki hosta: 4/4"). Zmierzone oba warianty w jednej izolowanej konfiguracji: 2.1.3 → jedno
-  trafienie błędu `SessionEnd`, 2.1.4 → zero. Zostaje tag `v2.1.4`, push, release,
-  `claude plugin update relai@relai` i restart — **do tego czasu nikogo nie zapraszamy**.
-  Tag `v2.1.3` jest na zdalnym; 2.1.3 ma naprawę trzeciej wady (nagłówek YAML `/relai-crew`).
-  **2.1.2 jest opublikowane i potwierdzone w aplikacji**: komendy widoczne, agenci załogi dostępni.
-  Sekwencja P-005 dostaje nowy krok obowiązkowy — `claude plugin validate` przed tagiem (ryzyko W1).
+- ~~**Wydanie 2.1.4**~~ — **wydane 2026-09-12**: tag `v2.1.4`, push na `origin/main`,
+  [release](https://github.com/nowilus/relai/releases/tag/v2.1.4), `claude plugin update` wykonany.
+  Wersja potwierdzona **treścią plików z cache'u** (5/5 zgodnych z tagiem po normalizacji CRLF → LF,
+  bramka hosta obecna), nie komunikatem CLI (P-005). Świeża sesja CLI: jeden blok kontekstu startu,
+  zero komunikatów o błędzie hooka. **W aplikacji desktopowej zobaczysz to po jej restarcie.**
+  Sekwencja P-005 ma od 2.1.4 krok obowiązkowy **wykonany**: `claude plugin validate` przed tagiem
+  (ryzyko W1) — przy tym wydaniu `✔ Validation passed` na manifeście marketplace.
 - **Migracja JiraManagera** — ostatni projekt, w którym start sesji kosztuje 386 KB dokumentów,
   a rotacja nigdy nie ruszyła. Czeka na okno właściciela; do tego czasu ryzyko R5 zostaje otwarte,
   zawężone do tego jednego projektu.
@@ -137,12 +136,12 @@ kontrole przeszły; pełna świeża sesja Codexa pozostaje NOT TESTED po błędz
 - ~~**Trzynasta komenda `/relai-crew` nie ładowała się**~~ — naprawione 2026-09-06 (2.1.3): dwukropek
   ze spacją w niecytowanym `description` wywracał parsowanie nagłówka YAML, więc plugin miał dwanaście
   komend zamiast trzynastu, bez jednego komunikatu ([P-012](PULAPKI.md)). Kontrola nagłówków wszystkich
-  komend jest w `validate-adapters.js`. Tag `v2.1.3` na zdalnym, marketplace je serwuje.
+  komend jest w `validate-adapters.js`. Tag `v2.1.3` na zdalnym; marketplace serwuje już 2.1.4.
 - ~~**Zdublowany kontekst startu sesji i błąd hooka `SessionEnd` w Claude Code**~~ — naprawione
   2026-09-12 (2.1.4, [P-013](PULAPKI.md)): korzeniowy `hooks/` jest katalogiem konwencyjnym Claude
   Code, więc hooki Codeksa ładowały się obok zadeklarowanych w `plugin.json`. Bramka hosta na
   `CLAUDECODE`; ochrona sekretów bez zmian — w Claude Code skanuje hook adaptera Claude Code.
-  **Czeka na wydanie 2.1.4.**
+  **Wydane w 2.1.4** i zmierzone po aktualizacji: jeden blok kontekstu, zero błędów hooka.
 - **Bramka wydania: `claude plugin validate <ścieżka>`** — narzędzie istniało przez cały czas
   i wskazałoby obie wady w sekundę. Wprowadzić do sekwencji P-005 jako krok obowiązkowy przed tagiem.
 - **`PRZENOSNOSC.md` sekcja 2.3 jest nieaktualna** — opisuje wywołanie procedur Codeksa jako
@@ -166,7 +165,8 @@ kontrole przeszły; pełna świeża sesja Codexa pozostaje NOT TESTED po błędz
 - **Po planie:** pełna sesja Codexa i praca Cursor/Claude pozostają możliwą odnogą pomiarową;
   nie są blokadą opublikowanego wydania 2.0.0.
 - **Feedback od osób spoza projektu** — pilotaż poprowadził autor, więc kryterium „ktoś inny niż
-  autor" nadal czeka.
+  autor" nadal czeka. Materiał demo i wydanie 2.1.4 zdejmują ostatnią techniczną przeszkodę:
+  E2 może zapraszać, gdy padnie dyspozycja publikacji i kontaktów.
 
 ## Co blokuje
 
