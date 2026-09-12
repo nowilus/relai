@@ -1,6 +1,11 @@
 #!/usr/bin/env node
 'use strict';
 
+// Root hooks/ is a convention directory in Claude Code too, so these Codex hooks load
+// there on top of the adapter hooks declared in plugin.json. The Claude Code adapter has
+// its own session-context hook, so stay silent there instead of doubling it (P-013).
+if (process.env.CLAUDECODE) process.exit(0);
+
 const path = require('node:path');
 
 const ROOT = process.env.CLAUDE_PLUGIN_ROOT || path.resolve(__dirname, '..', '..', '..');

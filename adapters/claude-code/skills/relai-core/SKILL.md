@@ -25,7 +25,9 @@ description: >
 
 # relai-core — struktura projektu, pamięć i rytuały sesji
 
-Aktualny stan dystrybucyjny: RelAI 2.1.3; wcześniejsze akapity wersji opisują historię zmian.
+Aktualny stan dystrybucyjny: RelAI 2.1.4; wcześniejsze akapity wersji opisują historię zmian.
+
+Wersja 2.1.4 (czwarta wada dystrybucji tej samej klasy: korzeniowy `hooks/` jest dla Claude Code katalogiem konwencyjnym, wiec hooki Codeksa ladowaly sie OBOK hookow zadeklarowanych w `plugin.json` — kontekst startu sesji dublowal sie blokiem innego adaptera, a `SessionEnd` Codeksa odpadal na schemacie Claude Code z komunikatem `Hook JSON output validation failed`; skrypty wolane z korzenia dostaly bramke hosta na zmiennej `CLAUDECODE`, `validate-adapters.js` pilnuje jej obecnosci, ochrona sekretow zostaje przy hooku adaptera Claude Code; procedura tego skilla bez zmian, podniesiony marker wersji wymagany w `docs/USTAWIENIA.md`).
 
 Wersja 2.1.3 (trzynasta komenda `/relai-crew` znikala bez slowa: jej `description` w naglowku YAML zawieral dwukropek ze spacja i niecytowany skalar przestawal sie parsowac, wiec plugin ladowal dwanascie komend zamiast trzynastu; opis wziety w cudzyslow, `validate-adapters.js` pilnuje naglowkow wszystkich komend; procedura tego skilla bez zmian, podniesiony marker wersji wymagany w `docs/USTAWIENIA.md`).
 
@@ -855,7 +857,7 @@ Zasady generacji:
   Dla projektu angielskiego: `docs/STATE.md`, `docs/JOURNAL.md`, `docs/LESSONS.md`,
   `docs/DECISIONS.md`, `docs/SETTINGS.md`, `docs/COMMANDS.md`. Konwencja stała: CAPS_SNAKE, bez dat
   i numerów wersji w nazwie.
-- `docs/USTAWIENIA.md` **musi** zawierać linię `Wersja RelAI: 2.1.3` — to marker, po którym RelAI
+- `docs/USTAWIENIA.md` **musi** zawierać linię `Wersja RelAI: 2.1.4` — to marker, po którym RelAI
   rozpoznaje projekt i po którym przyszły `/relai-update` policzy różnicę wersji.
 - `CLAUDE.md` **musi** zawierać sekcję `## Reguły profilu (<wybrany profil>)` zaraz po „Regułach
   procesu" — 3–6 punktów wg `SPEC_PROFILE.md`. To jedyna warstwa reguł profilu działająca bez

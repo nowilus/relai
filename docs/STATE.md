@@ -1,17 +1,22 @@
 # STATE — RelAI
 
-Stan na: 2026-09-06
+Stan na: 2026-09-12 (aktualizacja obszaru planowania; stan techniczny poniżej z 2026-09-06)
 
 ## Gdzie jesteśmy
 
-RelAI ma w repozytorium **2.1.3** (opublikowane wydanie: 2.1.2) i działa w Claude Code, Cursorze oraz
+RelAI ma w repozytorium **2.1.4** (z marketplace instaluje się **2.1.3**, bo marketplace serwuje
+`main`, a nie obiekt release — zmierzone 2026-09-12) i działa w Claude Code, Cursorze oraz
 jako natywny plugin Codexa z jednym rdzeniem procesu. **2.1.0 dokłada załogę** — trzynastą komendę
 `/relai-crew`: sesja zostaje orkiestratorem celu, pyta o role, liczbę subagentów, tryb i zakres
 modeli, układa zadania w fale bez konfliktów plików, deleguje je subagentom gospodarza albo do
 drugiego zalogowanego narzędzia i zleca przegląd krzyżowy; bez drugiego narzędzia pracuje w trybie
 basic. **Seria 2.1.1–2.1.3 to naprawa dystrybucji, nie nowe funkcje**: trzy niezależne wady wprowadzone
 razem z 2.0.0 i 2.1.0 sprawiały, że plugin Claude Code nie ładował komend (P-010, P-011, P-012).
-2.1.2 jest opublikowane i potwierdzone w aplikacji; 2.1.3 czeka na wydanie.
+2.1.2 jest opublikowane i potwierdzone w aplikacji; 2.1.3 jest instalowalne z marketplace, ale niesie
+**czwartą wadę tej samej klasy** ([P-013](PULAPKI.md)): korzeniowy `hooks/` Codeksa jest dla Claude
+Code katalogiem konwencyjnym, więc ładował się obok hooków z manifestu — zdublowany kontekst startu
+i błąd schematu `SessionEnd`. **2.1.4 w repozytorium to naprawa tej wady** (odnoga HOOKI_KORZEN,
+2026-09-12); czeka na tag, push i release.
 
 Seria 1.9.x dodała listy modeli per narzędzie, poprawiła sprzątanie oraz uszczelniła pre-commit: działa
 w projektach ESM, kończy instalację testem dymnym i nie blokuje poprawnych odczytów sekretów ze
@@ -77,8 +82,17 @@ kontrole przeszły; pełna świeża sesja Codexa pozostaje NOT TESTED po błędz
 
 ## Nad czym pracujemy teraz
 
-- **Wydanie 2.1.3** — repo ma naprawę trzeciej wady dystrybucji (nagłówek YAML `/relai-crew`),
-  tag `v2.1.3` jest na zdalnym; zostaje release, `claude plugin update relai@relai` i restart.
+- **PIERWSI_UZYTKOWNICY — DO AKCEPTACJI**: [plan](plany/PIERWSI_UZYTKOWNICY/PLAN.html)
+  i [status](plany/PIERWSI_UZYTKOWNICY/STATUS.md). Cel uzgodniony 2026-09-12: aktywni użytkownicy
+  i feedback od polskich samodzielnych twórców pracujących z AI; limit 2–4 sesje, bez płatnej
+  promocji. Propozycja: realne demo, próby spoza autora, powrót po przerwie i decyzja o kierunku.
+  Etapy nie rozpoczęte. OPIS_REPO pozostaje istniejącą zależnością, bez drugiej odnogi.
+- **Wydanie 2.1.4** — repo ma naprawę **czwartej** wady dystrybucji (korzeniowy `hooks/`, P-013):
+  bramka hosta na `CLAUDECODE` w czterech skryptach Codeksa, kontrola w `validate-adapters.js`
+  („bramki hosta: 4/4"). Zmierzone oba warianty w jednej izolowanej konfiguracji: 2.1.3 → jedno
+  trafienie błędu `SessionEnd`, 2.1.4 → zero. Zostaje tag `v2.1.4`, push, release,
+  `claude plugin update relai@relai` i restart — **do tego czasu nikogo nie zapraszamy**.
+  Tag `v2.1.3` jest na zdalnym; 2.1.3 ma naprawę trzeciej wady (nagłówek YAML `/relai-crew`).
   **2.1.2 jest opublikowane i potwierdzone w aplikacji**: komendy widoczne, agenci załogi dostępni.
   Sekwencja P-005 dostaje nowy krok obowiązkowy — `claude plugin validate` przed tagiem (ryzyko W1).
 - **Migracja JiraManagera** — ostatni projekt, w którym start sesji kosztuje 386 KB dokumentów,
@@ -115,7 +129,12 @@ kontrole przeszły; pełna świeża sesja Codexa pozostaje NOT TESTED po błędz
 - ~~**Trzynasta komenda `/relai-crew` nie ładowała się**~~ — naprawione 2026-09-06 (2.1.3): dwukropek
   ze spacją w niecytowanym `description` wywracał parsowanie nagłówka YAML, więc plugin miał dwanaście
   komend zamiast trzynastu, bez jednego komunikatu ([P-012](PULAPKI.md)). Kontrola nagłówków wszystkich
-  komend jest w `validate-adapters.js`. **Czeka na wydanie 2.1.3.**
+  komend jest w `validate-adapters.js`. Tag `v2.1.3` na zdalnym, marketplace je serwuje.
+- ~~**Zdublowany kontekst startu sesji i błąd hooka `SessionEnd` w Claude Code**~~ — naprawione
+  2026-09-12 (2.1.4, [P-013](PULAPKI.md)): korzeniowy `hooks/` jest katalogiem konwencyjnym Claude
+  Code, więc hooki Codeksa ładowały się obok zadeklarowanych w `plugin.json`. Bramka hosta na
+  `CLAUDECODE`; ochrona sekretów bez zmian — w Claude Code skanuje hook adaptera Claude Code.
+  **Czeka na wydanie 2.1.4.**
 - **Bramka wydania: `claude plugin validate <ścieżka>`** — narzędzie istniało przez cały czas
   i wskazałoby obie wady w sekundę. Wprowadzić do sekwencji P-005 jako krok obowiązkowy przed tagiem.
 - **`PRZENOSNOSC.md` sekcja 2.3 jest nieaktualna** — opisuje wywołanie procedur Codeksa jako
@@ -196,7 +215,7 @@ Komendy i frazy: [KOMENDY.md](KOMENDY.md)
 
 Plany: BUDOWA_RELAI 10/10 • OPTYMALIZACJA_KONTEKSTU 5/5 • HIGIENA_DOKUMENTOW 6/6 •
 SPRZATANIE_ARTEFAKTOW 4/4 • REKOMENDACJA_MODELU 4/4 (zamknięty 2026-09-04) •
-ROZWOJ_PO_WYDANIU 8/8 (**ZREALIZOWANY**) • **Aktywny plan: brak** •
+ROZWOJ_PO_WYDANIU 8/8 (**ZREALIZOWANY**) • **Aktywny plan: PIERWSI_UZYTKOWNICY — DO AKCEPTACJI** •
 Warstwa startowa: **62,8/80 KB** — ponad progiem tylko ryzyka **21,3/12 KB**; STATE **11,9/12**,
 status **9,9/10** • Dziennik: **127,2/150 KB** (24 wpisy) •
 Lekcje: **41,0 KB / 50 KB** (22 w żywym rejestrze, ostatnia L-0091) • Sekcja ryzyk w widoku

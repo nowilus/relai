@@ -27,6 +27,8 @@
 > — przeniesione 2026-08-21, suma kontrolna `4b370c3e2b31c6ba`.
 
 ## Czeka na człowieka
+- **Akceptacja planu PIERWSI_UZYTKOWNICY** — demo i pilotaż w limicie 2–4 sesji; plan jest przygotowany, wdrożenie nie rozpoczęte. Podgląd przeglądarkowy pozostaje niezweryfikowany z powodu polityki narzędzia. · 2026-09-12 · [wpis 2026-09-12 — Plan pierwszych użytkowników](#2026-09-12--plan-pierwszych-użytkowników)
+
 - **Zamknięta lista rdzeni rozstrzygnięcia nie zna słownika realnego projektu** — 7 z 32 pozycji
   „Czeka na człowieka" w PolyFlow wygląda dla człowieka na zamknięte, a mechanizm liczy je jako
   otwarte (`zaliczona` ×3, `dostarczony` ×1, trzy bez rdzenia z datą). Poszerzyć listę w rdzeniu
@@ -2130,5 +2132,128 @@ Autor: RelAI (Opus 5) + Lukasz
 - **Sekcja ryzyk 15,6 KB przy progu 12 KB**: podnieść próg czy zamknąć któreś z jedenastu
   otwartych ryzyk. Bez jednej z tych decyzji raport startu melduje przekroczenie przy każdej sesji.
 - Opis `/relai-crew` ma 337 znaków i wchodzi do kontekstu każdej sesji — skrócić czy zostawić.
+
+Autor: RelAI (Opus 5) + Lukasz
+
+
+### 2026-09-12 — Plan pierwszych użytkowników
+
+**Zrobione:**
+
+- Oceniono krytykę z Odpalone przekazaną przez Łukasza: potrzeba demo jest zasadna, natomiast
+  konieczność monetyzacji i wersji zespołowej pozostaje hipotezą. Sprawdzono dokumenty projektu,
+  publiczne pole About repo i oficjalne dokumentacje pamięci Claude Code oraz reguł Cursora.
+  Strony Odpalone nie udało się odczytać; źródłem samej krytyki był tekst użytkownika.
+- Wywiad rozstrzygnął cel: aktywni użytkownicy i feedback, polscy samodzielni twórcy pracujący
+  z AI, mały eksperyment 2–4 sesje bez płatnej promocji. Te odpowiedzi są zgodą na kierunek planu,
+  nie akceptacją jego jeszcze nieprzedstawionej treści.
+- Utworzono [PLAN.html](plany/PIERWSI_UZYTKOWNICY/PLAN.html),
+  [STATUS.md](plany/PIERWSI_UZYTKOWNICY/STATUS.md) i
+  [ZRODLA.md](plany/PIERWSI_UZYTKOWNICY/ZRODLA.md). Propozycja obejmuje demo i poprawę wejścia,
+  próby spoza autora oraz powrót po przerwie. Proponowane progi: co najmniej 3 aktywacje i 2
+  udokumentowane powroty; są kryteriami do akceptacji, nie wynikiem. Szacunek: 3–4 sesje,
+  około 5–8 h pracy w oknie 14–21 dni. Wynik nierozstrzygający jest dopuszczony jawnie.
+- Wskazanie aktywnego planu zsynchronizowane w AGENTS.md, CLAUDE.md i STATE.md. Istniejąca
+  odnoga OPIS_REPO pozostaje zależnością E2, bez tworzenia drugiej odnogi. Model wykonawczy Opus
+  i format HTML pochodzą z ustawień. Plany są produktami procesu, wyłączonymi z rejestru
+  artefaktów pluginu zgodnie z sekcją „Poza rejestrem” ARTEFAKTY.md.
+
+**Zweryfikowane — jak dokładnie:**
+
+- Builder z core/templates/HTML_PLAN/ (D-87): osadzonych 6 fontów, brak pozostałych znaczników;
+  plan nie wymaga symulatora — nie zawiera modelu wyliczeń do regulowania.
+- Kontrola pliku: 10 sekcji, 3 bloki zwijane, unikalne identyfikatory i poprawne aria-controls,
+  istniejące linki lokalne, brak zewnętrznych zasobów, UTF-8 i prefers-reduced-motion.
+- AGENTS.md i CLAUDE.md mają po jednym wskazaniu planu; status DO AKCEPTACJI, wszystkie etapy
+  OCZEKUJE, PROMPT_ETAP_1.md nie powstał. git diff --check bez błędów.
+- **Podgląd wizualny i interakcje NOT TESTED**: CLI Playwright zakończył wyświetlenie pomocy
+  asercją procesu na Windows; narzędzie przeglądarkowe następnie odrzuciło lokalny adres file
+  polityką bezpieczeństwa. Nie obchodzono blokady innym adresem ani powierzchnią przeglądarki.
+  Kontrola strukturalna nie jest dowodem renderowania ani działania kliknięć.
+
+**Świadomie odłożone:**
+
+- Implementacja etapów, nagranie demo, zmiany README i publikacje — plan czeka na akceptację.
+- Nowe funkcje, płatna wersja, osobna strona i szerszy audyt poza ścieżką demo — poza eksperymentem.
+- W repo przed pracą był nieśledzony AGENTS.md; zachowano jego treść poza konieczną aktualizacją
+  wskazania planu. Bez commita i bez zmian zdalnych.
+
+**Do zrobienia przez człowieka:**
+
+- Ocenić i zaakceptować albo skorygować plan PIERWSI_UZYTKOWNICY. Weryfikacja jego podglądu
+  pozostaje jawnie niedomknięta; akceptacja planu nie jest zgodą na wysyłanie zaproszeń.
+
+Autor: RelAI (GPT-6) + Lukasz
+
+### 2026-09-12 — E1 w toku: publiczna instalacja zmierzona, czwarta wada dystrybucji naprawiona (odnoga HOOKI_KORZEN, 2.1.4)
+
+Autor: RelAI (Opus 5) + Lukasz
+
+**Zrobione:**
+
+- **Plan PIERWSI_UZYTKOWNICY zaakceptowany i zamrożony**; `PROMPT_ETAP_1.md` wygenerowany ze
+  specyfikacji, E1 uruchomiony po karcie potwierdzenia.
+- **Aneks A do planu** (sekcja 10): materiał demo produkuje agent, nie nagrywa go człowiek. Remotion,
+  25 s GIF do README i 60 s MP4 na kanały (SZACUNEK), napisy PL i EN, bez dźwięku, bohater „plan,
+  etapy, świeża sesja etapu", replay z neutralnego projektu kontrolnego. Trzy nowe ryzyka A1–A3,
+  nowa bramka manualna „kalibracja smaku".
+- **Bramka kalibracji zamknięta przed startem etapu**: kierunek wizualny (ciepły papier, zaokrąglone
+  karty w lekkim szkle, Caveat jako akcent, chipy etapów, strzałka jako spoiwo) zaakceptowany na
+  jednej klatce kluczowej. Po korekcie właściciela klatka przebudowana z ręcznie stawianego SVG na
+  HTML z `grid`/`flex` i jednostkami kontenera — **L-0094**, doklejona do zasady aktywnej 15.
+- **Pomiar ścieżki obcego użytkownika** (punkt 1 zakresu E1) — świeża instalacja z marketplace
+  `nowilus/relai` w izolowanym `CLAUDE_CONFIG_DIR`, bez dotykania konfiguracji właściciela.
+- **Odnoga HOOKI_KORZEN utworzona i zamknięta tego samego dnia**: korzeniowy `hooks/` jest dla
+  Claude Code katalogiem konwencyjnym, więc hooki Codeksa ładowały się **obok** hooków
+  zadeklarowanych w `plugin.json`. Bramka hosta na `CLAUDECODE` w czterech skryptach, kontrola tej
+  klasy wady w `core/tools/validate-adapters.js`, pozycja **P-013** w rejestrze pułapek, wersja
+  **2.1.4** w pięciu źródłach prawdy i dziewięciu deklaracjach stanu docelowego, skille Codeksa
+  przegenerowane (15 plików), dwa wiersze rejestru artefaktów podbite.
+
+**Zweryfikowane — jak dokładnie:**
+
+- **Publiczna wersja to 2.1.3, nie 2.1.2** — marketplace serwuje `main`, a nie obiekt release.
+  Świeża instalacja: `✔ enabled`, 13 komend, `claude plugin validate` → `✔ Validation passed`,
+  6/6 plików zgodnych sumą z tagiem `v2.1.3` po normalizacji CRLF → LF; kontrola pozytywna na
+  `v2.1.2` zgłosiła różnicę. Konfiguracja właściciela nietknięta: `sha256sum -c` na
+  `installed_plugins.json` i `known_marketplaces.json` → OK po operacji.
+- **Wada zmierzona i naprawa dowiedziona oba warianty w jednym układzie** — ta sama izolowana
+  konfiguracja, ten sam projekt kontrolny, ta sama komenda: instalacja 2.1.3 → **1 trafienie**
+  `Hook JSON output validation failed`; instalacja 2.1.4 z lokalnego marketplace → **0 trafień**
+  tego komunikatu i **0 trafień** zdania Codeksa „read AGENTS.md".
+- **Bramka hosta na poziomie skryptów: 3/3**, każdy z kontrolą pozytywną w tym samym przebiegu —
+  pod `CLAUDECODE` 0 znaków, bez niej 893 (`session-context.js`), 178 (`session-end.js`)
+  i 218 znaków z werdyktem `deny` (`secret-scanner.js` na payloadzie z próbką sekretu składaną
+  w czasie wykonania). Guardrail Codeksa żyje dalej, a w Claude Code skan robi hook adaptera
+  Claude Code zarejestrowany na `PreToolUse`.
+- **Walidator**: kod 0 i „bramki hosta w hookach Codeksa: 4/4"; na podłożonym skrypcie bez bramki
+  kod 1 ze wskazaniem pliku, po przywróceniu ponownie kod 0. Numery wersji: 5 źródeł, wartość 2.1.4.
+- **Pierwszy dowód potwierdzenia zdublowanego kontekstu w tej sesji**: angielski blok
+  `[RelAI session-context]` jest dosłownie linią 18 `adapters/codex/hooks/session-context.js`,
+  obok polskiego bloku adaptera Claude Code.
+- **Pomiar, który nic nie zmierzył, i tak jest wynikiem**: `claude -p --plugin-dir` dał zero trafień
+  po **obu** stronach — ta ścieżka nie podłącza hooków pluginu. Potwierdzenie L-0093 i P-002; wynik
+  odrzucony, nie zaliczony.
+- **Katalog roboczy odnogi**: przed 2 pliki / 12 KB, po 0 — skasowany razem z pięcioma
+  pozostałościami w `%TEMP%` z 7–8 września (`relai_t7_before.txt`, `relai_t7_after.txt`,
+  `relai_panel_head.js`, `relai_readme.txt`, `relai_mut_path.txt`). Raport: przed 0,3 MB, po 0,0 MB.
+
+**Świadomie odłożone:**
+
+- **Zdublowany blok kontekstu w aplikacji desktopowej NOT TESTED** — potwierdzenie wymaga
+  `claude plugin update relai@relai` i restartu aplikacji (P-005), czyli działania człowieka.
+- Reszta zakresu E1: przebieg dowodowy „plan → etap → świeża sesja", przebieg zapasowy „decyzja
+  przeżywa sesję", stos renderu, sceny i napisy, pliki wynikowe, `docs/zasoby/demo/`, `DEMO.md`,
+  poprawki README, ponowny odczyt `odpalone.pl/p/relai`.
+- Rotacja dziennika (163 KB przy progu 150 KB) i ryzyk zamkniętych (17,6 KB przy progu 12 KB),
+  odświeżenie listy modeli (8 dni przy progu 7), aktualizacja `docs/PRZENOSNOSC.md` sekcji 2.3.
+- Decyzja o trwałym miejscu źródeł renderu — należy do E3 (Aneks A, ryzyko A2).
+
+**Do zrobienia przez człowieka:**
+
+- **Wydanie 2.1.4**: tag `v2.1.4`, push i release. Właściciel wybrał commit lokalny bez pushu, więc
+  do tego czasu marketplace serwuje 2.1.3 z wadą P-013 — i do tego czasu **nie zapraszamy nikogo**.
+- Po wydaniu: `claude plugin update relai@relai` + restart aplikacji i potwierdzenie, że blok
+  kontekstu startu jest jeden.
 
 Autor: RelAI (Opus 5) + Lukasz

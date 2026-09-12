@@ -8,6 +8,31 @@ Specyfikacja: `SPEC_PULAPKI.md`.
 
 ## Pułapki
 
+### P-013 — korzeniowy `hooks/` ładuje się obok hooków zadeklarowanych w manifeście · 2026-09-12 · AKTYWNA
+
+- **Objaw:** dwa bloki kontekstu startu sesji zamiast jednego — drugi w języku i brzmieniu **innego
+  adaptera** — oraz komunikat przy zamknięciu sesji: `SessionEnd hook [...] failed: Hook JSON output
+  validation failed — (root): Invalid input`. Manifest jest poprawny, `claude plugin validate`
+  mówi `✔ Validation passed`, komendy działają, więc nic nie wskazuje na wadę pakowania.
+- **Przyczyna:** `hooks/` w korzeniu repozytorium jest dla Claude Code **katalogiem konwencyjnym**,
+  tak samo jak `commands/`, `skills/` i `agents/`. Pole `hooks` w `plugin.json` nie zastępuje tej
+  konwencji, tylko ją **uzupełnia** — więc hooki innego adaptera, trzymane w korzeniu dla jego
+  własnej konwencji (Codex szuka ich właśnie tam), uruchamiają się dodatkowo. Stąd duplikat
+  `SessionStart` i błąd `SessionEnd`: schemat `SessionEnd` w Claude Code **nie przyjmuje**
+  `additionalContext`, który dla Codeksa jest poprawny.
+- **Obejście:** skrypt wołany z korzeniowego `hooks/hooks.json` dostaje **bramkę hosta** — pod
+  Claude Code kończy się cicho kodem 0 (`if (process.env.CLAUDECODE) process.exit(0);`, w `.sh`
+  i `.cmd` odpowiednik na tej samej zmiennej). Sygnał `CLAUDECODE` jest obecny w sesji Claude Code
+  (zmierzone 2026-09-12) i zgodny z konwencją rozpoznania narzędzi w `core/process/crew.js`.
+  Guardrail nie traci ochrony: skan sekretów w Claude Code robi hook adaptera Claude Code,
+  zarejestrowany na `PreToolUse`. W RelAI pilnuje tego `core/tools/validate-adapters.js` —
+  każdy skrypt z korzeniowego `hooks.json` musi nieść bramkę, inaczej walidator kończy kodem 1.
+- **Zasięg:** trzeci przypadek tej samej klasy po P-010 (korzeniowy `skills/`) — **katalog
+  konwencyjny hosta wygrywa z manifestem i robi to po cichu**. Zanim uznasz, że plugin
+  wieloadapterowy jest poprawnie spakowany, wypisz katalogi konwencyjne narzędzia i sprawdź, czy
+  któryś z nich nie należy w Twoim repozytorium do kogoś innego. Zmierzone na świeżej instalacji
+  publicznej 2.1.3 w izolowanym `CLAUDE_CONFIG_DIR`. Naprawione w 2.1.4.
+
 ### P-012 — dwukropek w opisie komendy sprawia, że komenda znika bez słowa · 2026-09-06 · AKTYWNA
 
 - **Objaw:** plugin ładuje się poprawnie, komendy działają — **poza jedną**. Nie ma jej w

@@ -125,8 +125,13 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
     „nic nie zginęło" nie znaczy „wszystko powstało". (L-0005, L-0013, L-0014, L-0050, L-0058)
 15. **Pytasz raz na projekt, komponent opcjonalny znika bez śladu, komunikaty hooków są ASCII.**
     Przy zadaniu wizualnym zbierasz najpierw cechy pozytywne i pokazujesz jeden wariant do
-    kalibracji. Ostrzeżenie `claude plugin validate` o root `CLAUDE.md` jest świadomym skutkiem
-    dogfoodingu — nie „naprawiaj" go. (L-0003, L-0006, L-0016, L-0019, L-0029)
+    kalibracji. **Kompozycję z tekstem budujesz w warstwie, która liczy układ** — HTML
+    z `grid`/`flex`, wymiary w jednostkach kontenera, karty domknięte `overflow`; ręczne
+    współrzędne zostają dla geometrii dekoracyjnej, nigdy dla treści, bo szerokość napisu jest
+    wtedy szacunkiem metryki fontu. Dziecko wychodzące poza kontener to defekt blokujący,
+    a instrument mierzący prostokąty ma kontrolę pozytywną na podłożonym przepełnieniu.
+    Ostrzeżenie `claude plugin validate` o root `CLAUDE.md` jest świadomym skutkiem
+    dogfoodingu — nie „naprawiaj" go. (L-0003, L-0006, L-0016, L-0019, L-0029, L-0094)
 
 **Wyprowadzone 2026-08-20 do `docs/PULAPKI.md`:** sześć pozycji, które były pułapkami
 narzędziowymi, a nie zasadami pracy — `tar` na `PATH` (L-0021), sesja pomiarowa `claude -p`
@@ -543,6 +548,25 @@ restart aplikacji po `plugin update` (L-0031), `git worktree` zamiast `git archi
   [[L-0090]] na przyrząd: tam cisza zmierzona złym wejściem, tu wynik zmierzony martwym trybem.
 - **Źródło:** naprawa regresji 2.1.x. Bez własnej pozycji w destylacie — mieści się w zasadzie
   o dowodzie negatywnym, limit 15 pozostaje wykorzystany.
+
+### L-0094 — Tekst postawiony współrzędnymi nie wie, gdzie kończy się karta · 2026-09-12 · AKTYWNA
+
+- **Trigger:** klatka kalibracyjna materiału demo powstała jako SVG z ręcznie wpisanymi `x`/`y`
+  każdego `<text>`. Dwa napisy wyszły poza swoje karty — odręczny podpis pod tabelą etapów
+  i zdanie świeżej sesji z kropką za krawędzią. Łukasz zobaczył to od razu.
+- **Przyczyna:** `<text>` w SVG nie ma silnika układu: nie zawija się, nie zna szerokości
+  rodzica, nie da się go domknąć `overflow`. Szerokość każdego napisu była **moim szacunkiem
+  metryki fontu**, a przy podmianie fontu na zamiennik systemowy szacunek przestaje trzymać
+  w ogóle. Kontrola „czy coś wystaje" nie istniała, bo nie było czego zapytać.
+- **Zasada:** **kompozycję wizualną z tekstem budujesz w warstwie, która liczy układ** — HTML
+  z `grid`/`flex`, wymiary w jednostkach kontenera (`cqw`), karty z `overflow:hidden`, tekst
+  zawijany albo świadomie ucinany. Ręczne współrzędne zostają dla geometrii dekoracyjnej
+  (krzywe, plamy), nigdy dla treści. Kryterium stawiasz na zmierzonych prostokątach: dziecko
+  wychodzące poza kontener to **defekt blokujący**, a instrument liczący te prostokąty ma
+  kontrolę pozytywną na podłożonym przepełnieniu ([[L-0090]] — cisza bez kontroli jest fałszem).
+  To samo dotyczy renderu wideo: skoro klatki składa silnik HTML, podgląd kalibracyjny też.
+- **Źródło:** korekta Łukasza, przygotowanie materiału demo E1 planu PIERWSI_UZYTKOWNICY
+  (Aneks A). Destylat: doklejone do zasady 15 o zadaniu wizualnym, bez szesnastej pozycji.
 
 ## Lekcje zwinięte
 

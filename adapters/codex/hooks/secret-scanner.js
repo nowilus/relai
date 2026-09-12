@@ -1,6 +1,12 @@
 #!/usr/bin/env node
 'use strict';
 
+// Root hooks/ is a convention directory in Claude Code too, so these Codex hooks load
+// there on top of the adapter hooks declared in plugin.json. Claude Code registers its own
+// PreToolUse secret scanner (adapters/claude-code/hooks/secret-scanner.js), which keeps the
+// guardrail in place, so this copy stays silent under that host (P-013).
+if (process.env.CLAUDECODE) process.exit(0);
+
 const path = require('node:path');
 const { spawnSync } = require('node:child_process');
 

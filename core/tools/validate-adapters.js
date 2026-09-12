@@ -206,6 +206,26 @@ if (codexPlugin) {
         !jest('adapters/codex/hooks/secret-scanner.sh') || !jest('adapters/codex/hooks/secret-scanner.cmd')) {
       bledy.push('hooks/hooks.json nie ma kompletu command/commandWindows i wrapperow fail-closed');
     }
+    // Korzeniowy "hooks/" jest katalogiem konwencyjnym takze dla Claude Code, wiec te hooki
+    // laduja sie tam OBOK hookow zadeklarowanych w plugin.json: kontekst startu dubluje sie,
+    // a SessionEnd Codeksa odpada na schemacie Claude Code. Kazdy skrypt wolany z korzenia
+    // musi miec bramke hosta na zmiennej CLAUDECODE (P-013).
+    let txt = '';
+    try { txt = fs.readFileSync(path.resolve(ROOT, 'hooks/hooks.json'), 'utf8'); } catch (_) { /* zgloszone wyzej */ }
+    const wolane = [...new Set((txt.match(/\$\{CLAUDE_PLUGIN_ROOT\}\/[^"\\]+/g) || [])
+      .map((o) => o.replace('${CLAUDE_PLUGIN_ROOT}/', '')))];
+    let zBramka = 0;
+    for (const rel of wolane) {
+      if (!jest(rel)) continue;
+      let kod = '';
+      try { kod = fs.readFileSync(path.resolve(ROOT, rel), 'utf8'); } catch (_) { kod = ''; }
+      if (/CLAUDECODE/.test(kod)) zBramka += 1;
+      else {
+        bledy.push('skrypt "' + rel + '" wolany z korzeniowego hooks/hooks.json nie ma bramki hosta '
+          + 'na CLAUDECODE (P-013) — w Claude Code uruchomi sie obok hookow adaptera');
+      }
+    }
+    if (wolane.length) sprawdzone.push('bramki hosta w hookach Codeksa: ' + zBramka + '/' + wolane.length);
   }
   try {
     const generator = require(path.join(ROOT, 'adapters', 'codex', 'generate-skills.js'));
