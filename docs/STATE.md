@@ -1,6 +1,6 @@
 # STATE — RelAI
 
-Stan na: 2026-09-12 (aktualizacja obszaru planowania; stan techniczny poniżej z 2026-09-06)
+Stan na: 2026-09-13 (aktualizacja obszaru planowania; stan techniczny poniżej z 2026-09-06)
 
 ## Gdzie jesteśmy
 
@@ -81,20 +81,37 @@ kontrole przeszły; pełna świeża sesja Codexa pozostaje NOT TESTED po błędz
 
 ## Nad czym pracujemy teraz
 
-- **PIERWSI_UZYTKOWNICY — ZAAKCEPTOWANY, E1 ZREALIZOWANY 2026-09-12, E2 gotowy do startu**:
-  [plan](plany/PIERWSI_UZYTKOWNICY/PLAN.html) i [status](plany/PIERWSI_UZYTKOWNICY/STATUS.md).
+- **PIERWSI_UZYTKOWNICY — ZAAKCEPTOWANY, E1 i E2 ZREALIZOWANE (2026-09-12 i 2026-09-13), E3 gotowy
+  do startu**: [plan](plany/PIERWSI_UZYTKOWNICY/PLAN.html) i [status](plany/PIERWSI_UZYTKOWNICY/STATUS.md).
   Cel: aktywni użytkownicy i feedback od polskich samodzielnych twórców pracujących z AI; limit
   2–4 sesje, bez płatnej promocji. **Aneks A**: materiał demo produkuje agent, nie nagrywa go
   człowiek. E1 dowiózł **cztery pliki materiału** (25 s GIF i 60 s MP4, PL i EN, bez dźwięku)
   w [docs/zasoby/demo/](zasoby/demo/), [dokumentację materiału](plany/PIERWSI_UZYTKOWNICY/DEMO.md)
-  z tabelą pokrycia 11/11, [zapis źródłowy](plany/PIERWSI_UZYTKOWNICY/zapis/) siedmiu sesji
+  z tabelą pokrycia 11/11, [zapis źródłowy](plany/PIERWSI_UZYTKOWNICY/zapis/) siedmiu kroków
   i poprawiony początek README z osadzonym GIF-em — **sprawdzonym na żywej stronie**: GitHub serwuje
-  go z `raw/main` jako animowany obraz (HTTP 200, `image/gif`, 5 063 834 B). Blokada „nie zapraszamy
-  przed wydaniem" zdjęta razem z wydaniem 2.1.4. OPIS_REPO pozostaje zależnością E2, bez drugiej odnogi.
+  go z `raw/main` jako animowany obraz (HTTP 200, `image/gif`, 5 063 834 B).
+- **E2 dowiózł materiały zaproszenia — nic nie zostało wysłane.**
+  [ZAPROSZENIE.md](plany/PIERWSI_UZYTKOWNICY/ZAPROSZENIE.md) ma cztery bloki gotowe do wklejenia
+  (Odpalone, własna sieć, odpowiedź na krytykę, instrukcja dla uczestnika) i tabelę pokrycia
+  **27 tez, 27 ze wskazanym źródłem**; [PROBY.md](plany/PIERWSI_UZYTKOWNICY/PROBY.md) czeka pusty,
+  z regułą wypełniania i wierszami-wzorami. Odnoga `OPIS_REPO` **odświeżona, nie zamknięta** —
+  jej domknięcie wymaga zmiany na GitHubie. Publikacja, wysyłka i kontakty czekają na dyspozycję;
+  bramki „Dyspozycja publikacji i kontaktów" oraz „Uczestnicy" są otwarte. Liczniki pilotażu:
+  **0 kontaktów, 0 prób, 0 aktywacji** przy progach 3–5 / ≥3 / ≥2.
+- **Publiczna instalacja serwuje 2.1.4** — zmierzone 2026-09-13 w izolowanym `CLAUDE_CONFIG_DIR`
+  obiema komendami z README: `✔ enabled`, 13 komend, `claude plugin validate` → `✔ Validation
+  passed`, **6/6** plików cache'u zgodnych sumą z tagiem `v2.1.4` po normalizacji CRLF → LF
+  (kontrola pozytywna na `v2.1.3` zgłosiła różnicę). Marketplace serwuje `main`, nie obiekt release.
 - **Materiał demo jest odtworzeniem zmierzonego przebiegu, nie nagraniem ekranu.** Każda klatka
   pokazująca plik albo odpowiedź agenta ma pokrycie w zapisie realnych sesji; instrument pokrycia
   ma kontrolę pozytywną. Kontrola układu na wyrenderowanych klatkach: **0 przepełnień** na
   wszystkich scenach obu cięć i obu wersjach językowych.
+- **Materiał demo nie działa na telefonie i pierwsze trzy sekundy nie mówią, o co chodzi**
+  (ocena odbiorcza, E2, 2026-09-13). Na szerokości 375 px, czyli tej, którą GitHub daje obrazowi na
+  telefonie, czytelny jest **wyłącznie tytuł sceny** (32 px → 12,50 px); lista etapów 13 px →
+  5,08 px, treść karty 14 px → 5,47 px, ścieżki plików 9 px → 3,52 px, przy progu 8 px (SZACUNEK).
+  Scena `sesja` jest najbliżej progu (7,42 px). Treść merytoryczna zaczyna się dopiero w 3,5 s —
+  3 z 25 sekund to plansza tytułowa. Naprawa wymaga nowego renderu, więc jest decyzją do E3.
 - ~~**Wydanie 2.1.4**~~ — **wydane 2026-09-12**: tag `v2.1.4`, push na `origin/main`,
   [release](https://github.com/nowilus/relai/releases/tag/v2.1.4), `claude plugin update` wykonany.
   Wersja potwierdzona **treścią plików z cache'u** (5/5 zgodnych z tagiem po normalizacji CRLF → LF,
@@ -167,8 +184,18 @@ kontrole przeszły; pełna świeża sesja Codexa pozostaje NOT TESTED po błędz
 - **Po planie:** pełna sesja Codexa i praca Cursor/Claude pozostają możliwą odnogą pomiarową;
   nie są blokadą opublikowanego wydania 2.0.0.
 - **Feedback od osób spoza projektu** — pilotaż poprowadził autor, więc kryterium „ktoś inny niż
-  autor" nadal czeka. Materiał demo i wydanie 2.1.4 zdejmują ostatnią techniczną przeszkodę:
-  E2 może zapraszać, gdy padnie dyspozycja publikacji i kontaktów.
+  autor" nadal czeka. Materiał demo i wydanie 2.1.4 zdjęły ostatnią techniczną przeszkodę, a E2
+  przygotował komplet tekstów. **Zostaje jedna rzecz i jest po stronie człowieka:** dyspozycja
+  publikacji i wskazanie odbiorców. Do tego czasu `PROBY.md` stoi pusty i to jest stan zamierzony,
+  nie zaległość.
+- **Ponowny render materiału demo pod ekran telefonu** — decyzja do E3. Źródła renderu przestały
+  istnieć razem z katalogiem roboczym E1, więc każdy nowy render zaczyna się od ich odtworzenia
+  według instrukcji z [DEMO.md](plany/PIERWSI_UZYTKOWNICY/DEMO.md) — to jest ta sama decyzja co
+  „trwałe miejsce źródeł renderu" (Aneks A, ryzyko A2), tylko z nowym powodem.
+- **`description` i `keywords` manifestu opisują produkt jednonarzędziowy** („…framework for Claude
+  Code"), a RelAI ma trzy adaptery; `keywords` nie zawiera ani jednej nazwy narzędzia. Wizytówka
+  repozytorium ma to skopiować czy najpierw poprawiamy manifest (czyli podbicie wersji i pełna
+  sekwencja wydania)? Rozstrzygnięcie należy do odnogi `OPIS_REPO`, gdzie jest zapisane.
 
 ## Co blokuje
 
@@ -228,14 +255,16 @@ Komendy i frazy: [KOMENDY.md](KOMENDY.md)
 
 Plany: BUDOWA_RELAI 10/10 • OPTYMALIZACJA_KONTEKSTU 5/5 • HIGIENA_DOKUMENTOW 6/6 •
 SPRZATANIE_ARTEFAKTOW 4/4 • REKOMENDACJA_MODELU 4/4 (zamknięty 2026-09-04) •
-ROZWOJ_PO_WYDANIU 8/8 (**ZREALIZOWANY**) • **Aktywny plan: PIERWSI_UZYTKOWNICY — DO AKCEPTACJI** •
-Warstwa startowa: **62,8/80 KB** — ponad progiem tylko ryzyka **21,3/12 KB**; STATE **11,9/12**,
-status **9,9/10** • Dziennik: **127,2/150 KB** (24 wpisy) •
-Lekcje: **41,0 KB / 50 KB** (22 w żywym rejestrze, ostatnia L-0091) • Sekcja ryzyk w widoku
-rotacji: **15,3 KB / 12 KB** — nie ma czego rotować • Archiwum: siedem plików dziennika, trzy
-lekcji, dwa ryzyk • Sprawy czekające na człowieka: **6 tutaj**, 32 w PolyFlow, żadna
-nieprzeterminowana • Otwarte ryzyka: **9** • Zamknięte: **8, w archiwum** •
-Otwarte bramki manualne: **1** • Otwarte wątki: **1** — odnoga `OPIS_REPO`; `ORKIESTRACJA` zamknięta 2026-09-06 •
+ROZWOJ_PO_WYDANIU 8/8 (**ZREALIZOWANY**) • **Aktywny plan: PIERWSI_UZYTKOWNICY — 2/3, E3 gotowy do startu** •
+Warstwa startowa: pomiar z 2026-09-12 (**62,8/80 KB**) jest nieaktualny — dziennik urósł od tego
+czasu o 69 KB • Dziennik: **196,0/150 KB** (28 wpisów) — **rotacja należna** •
+Lekcje: **54,3 KB / 50 KB** (25 w żywym rejestrze, ostatnia L-0098) — **rotacja należna** •
+Sekcja ryzyk w widoku rotacji: **17,6 KB / 12 KB** — **rotacja zamkniętych należna** • Archiwum:
+siedem plików dziennika, trzy lekcji, dwa ryzyk • Sprawy czekające na człowieka: **8 tutaj**
+(1 rozstrzygnięta 2026-09-12), 32 w PolyFlow, żadna nieprzeterminowana •
+Otwarte ryzyka: **10** (doszło U1 — pilotaż bez uczestnika) • Zamknięte: **8, w archiwum** •
+Otwarte bramki manualne: **3** (dyspozycja publikacji i kontaktów, uczestnicy, ponowny render demo — wszystkie E3) •
+Otwarte wątki: **1** — odnoga `OPIS_REPO`, zakres odświeżony 2026-09-13; `ORKIESTRACJA` zamknięta 2026-09-06 •
 Artefakty w rejestrze: **46** • Zasady aktywne: **15 przy limicie 15** •
 Progi w katalogu: **18, z tego 17 z adresem egzekwowania** • Adaptery: **3** •
 Procedury: **13** •

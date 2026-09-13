@@ -16,6 +16,7 @@
 | M3 | Strona dokumentacji zmienia układ i odczyt z sieci zwraca śmieci albo nic (plan REKOMENDACJA_MODELU, ryzyko 3) | **Średni** (2026-09-04, przy wejściu sieci do mechanizmu) | **OTWARTE** | Odświeżenie zawsze kończy się pokazaniem różnicy i pytaniem; niepowodzenie zostawia starą listę **z jej datą**, nigdy pustą. Pomiar E2 na odczycie adresu nieistniejącego (`HTTP 404 Not Found`): lista w projekcie kontrolnym została z sumą `1f67fe1bc954ecdc` i `list-date: 2026-09-03`, czyli dokładnie taka jak przed przebiegiem — dowód treścią pliku, nie komunikatem. Niezmierzone: strona odpowiadająca **200 ze zmienionym układem** (odczyt „udany", treść bez nazw) — to jest realny kształt tego ryzyka i czeka na pierwszy taki przypadek. **E4: stan po wydaniu bez zmian** — komenda jest w cache'u 1.9.0 i od tej pory może ją wywołać każdy projekt, więc szansa na trafienie rośnie, ale sam mechanizm ochrony (różnica przed zapisem, stara lista przy niepowodzeniu) jest ten sam co zmierzony w E2. Zmierzone: 2026-09-04 (E2) |
 | M5 | Nazwy modeli zmieniają się szybciej niż wydania RelAI (plan REKOMENDACJA_MODELU, ryzyko 6) | **Średni** (2026-09-04) | **OTWARTE** | Lista mieszka w adapterze **i** w projekcie; `/relai-models` aktualizuje kopię projektu bez wydawania nowej wersji pluginu. Pierwsze realne odświeżenie (E2) potwierdziło, że ryzyko nie jest teoretyczne: strona aliasów wymienia dziś dziesięć pełnych ID (`claude-opus-5` … `claude-fable-5`), a lista Cursora ~45 pozycji od pięciu dostawców — wobec czterech i trzech pozycji w listach RelAI. Od E3 lista ma wiek i próg: powyżej **7 dni** start sesji mówi jedno zdanie z propozycją `/relai-models`, poniżej — zero znaków (zmierzone parą wariantów różniącą się wyłącznie `list-date`: 258 znaków wobec 0, potwierdzone w świeżej sesji CLI odpowiedzią `BRAK LINII`). **E4: pierwszy pełny cykl domknięty** — lista, komenda, próg i **wydanie** (1.9.0, potwierdzone treścią plików z cache'u; dwanaście komend, obie listy, zdanie o wieku działające w świeżej sesji z wydanej wersji). Otwarte już **wyłącznie** z pierwszego powodu: przypomnienie mówi o wieku listy, a nie o tym, że dostawca zmienił nazwy — lista tygodniowa może być świeża i nieprawdziwa naraz. To jest trwała własność mechanizmu, nie zaległość wydania. Zmierzone: 2026-09-04 (E2, E3, E4) |
 | W1 | Wydanie pluginu wychodzi bez bramki walidacyjnej narzędzia docelowego — format manifestu i nagłówków sprawdzamy własnym walidatorem, który zna tylko to, co ktoś w nim opisał (wątek samodzielny, 2026-09-06) | **Wysoki** (2026-09-06, przy powstaniu wpisu) | **OTWARTE** | Trzy kolejne wydania (2.1.0, 2.1.1, 2.1.2) wyszły z pluginem, który w Claude Code nie ładował komend, a wykrył to **użytkownik oknem `/plugin`**, nie żaden pomiar: log aplikacji o nieważnym manifeście milczał, a skaner czytał go mimo wszystko i wypisywał ostrzeżenia sugerujące, że format jest w porządku. `claude plugin validate` istniało przez cały ten czas i wskazuje pole oraz powód w jednym wywołaniu. Zmierzone 2026-09-06: na cache'u 2.1.1 `✘ Found 1 error: plugins[0] plugin.json → agents: Invalid input`, na repozytorium po naprawie `✔ Validation passed`. Częściowa mitygacja **jest**: `validate-adapters.js` blokuje katalog w polu `agents` (P-011), korzeniowy `skills/` (P-010) i dwukropek bez cudzysłowu w nagłówkach komend (P-012) — każda kontrola pokazana w obie strony. Ryzyko zostaje otwarte, bo mitygacja jest **retrospektywna**: chroni przed trzema znanymi kształtami, a nie przed czwartym, i nie zna schematu narzędzia. Zamknie je dopiero wpisanie `claude plugin validate` do sekwencji wydania P-005 jako kroku obowiązkowego przed tagiem — to jest decyzja człowieka i stoi w `STATE.md` |
+| U1 | Pilotaż kończy się bez ani jednego uczestnika spoza autora — brak kandydatów albo brak odpowiedzi (plan PIERWSI_UZYTKOWNICY, sekcja 7) | **Średni** (2026-09-13, przy wejściu ryzyka do rejestru) | **OTWARTE** | Mitygacja z planu: własna sieć Łukasza i istniejący wpis na Odpalone, każde zaproszenie zanotowane, raport w terminie **także przy małej próbie**, z werdyktem „wynik nierozstrzygający". Materiały gotowe od 2026-09-13 (`ZAPROSZENIE.md`, cztery bloki), rejestr `PROBY.md` czeka pusty. **Stan faktyczny na dziś: 0 kontaktów, 0 prób, 0 aktywacji** przy progach 3–5 uczestników / ≥3 aktywacje / ≥2 powroty. Ryzyko nie zmaterializowało się jeszcze **ani nie zostało odparte** — zegar nie ruszył, bo wysyłka wymaga dyspozycji, której nie było. Termin graniczny raportu: **2026-10-03** (21 dni od akceptacji, SZACUNEK). Doszła własność, której plan nie przewidywał: materiał demo, którym zaproszenie się posługuje, jest **nieczytelny na telefonie** (pomiar E2) — a to jest urządzenie, na którym większość odbiorców zobaczy link pierwszy raz |
 | M6 | Załoga stoi na flagach CLI trzech dostawców (`claude -p --permission-mode`, `codex exec -s`, `agent -p --mode`), które zmieniają się szybciej niż wydania RelAI (wątek ORKIESTRACJA) | **Średni** (2026-09-06) | **OTWARTE** | Flagi stoją w jednym miejscu (`buildCommand` w `core/process/crew.js`), a test pilnuje trybu read-only bez `--write` i zamkniętej listy flag zakazanych; porażka `run` kończy się statusem `failed` z `stderr` w pliku przebiegu, nigdy ciszą, a krok 7 komendy każe czytać raport zadania i `git status`, nie kod wyjścia. Zmierzone 2026-09-06 z Claude Code jako gospodarza: Codex read-only i write, Cursor read-only (prompt stdin-em), zagnieżdżony Claude Code read-only — trzy narzędzia, cztery zadania `done`. Otwarte, bo kierunki z Codeksa i Cursora jako gospodarza i zapis przez Cursora są NOT TESTED, a zmiana flagi u dostawcy nie ma dziś własnego sygnału poza porażką przebiegu |
 
 > Ryzyka zamknięte R2, M4 (2 pozycje) są w
@@ -27,7 +28,29 @@
 > — przeniesione 2026-08-21, suma kontrolna `4b370c3e2b31c6ba`.
 
 ## Czeka na człowieka
-- **Akceptacja planu PIERWSI_UZYTKOWNICY** — demo i pilotaż w limicie 2–4 sesji; plan jest przygotowany, wdrożenie nie rozpoczęte. Podgląd przeglądarkowy pozostaje niezweryfikowany z powodu polityki narzędzia. · 2026-09-12 · [wpis 2026-09-12 — Plan pierwszych użytkowników](#2026-09-12--plan-pierwszych-użytkowników)
+- ~~**Akceptacja planu PIERWSI_UZYTKOWNICY**~~ *(rozstrzygnięte 2026-09-12 — plan zaakceptowany i zamrożony; E1 i E2 zamknięte)* · 2026-09-12 · [wpis 2026-09-12 — Plan pierwszych użytkowników](#2026-09-12--plan-pierwszych-użytkowników)
+
+- **Dyspozycja publikacji i kontaktów (plan PIERWSI_UZYTKOWNICY)** — cztery bloki tekstu czekają
+  gotowe w `docs/plany/PIERWSI_UZYTKOWNICY/ZAPROSZENIE.md`. Bez wskazania kanału, treści i odbiorców
+  nic nie zostanie wysłane, `PROBY.md` zostanie pusty, a E3 zamknie plan wynikiem
+  nierozstrzygającym. · 2026-09-13 ·
+  [wpis 2026-09-13 — E2 zamknięty](#2026-09-13--e2-zamknięty-materiały-zaproszenia-gotowe-demo-nieczytelne-na-telefonie)
+
+- **Wskazanie uczestników pilotażu** — trzy do pięciu osób z własnym małym, niekrytycznym
+  projektem. Brak kandydatów nie uruchamia bezterminowej rekrutacji. · 2026-09-13 ·
+  [wpis 2026-09-13 — E2 zamknięty](#2026-09-13--e2-zamknięty-materiały-zaproszenia-gotowe-demo-nieczytelne-na-telefonie)
+
+- **Czy powstaje nowa wersja materiału demo pod ekran telefonu** — dziś na 375 px czytelny jest
+  wyłącznie tytuł sceny (12,50 px przy progu 8 px), treść scen ma 3,52–7,42 px, a wejście brandowe
+  zajmuje 3 z 25 sekund. Naprawa to nowy render; źródła renderu nie istnieją, więc łączy się
+  z decyzją o ich trwałym miejscu (Aneks A, ryzyko A2). Rozstrzygnięcie należy do E3. · 2026-09-13 ·
+  [wpis 2026-09-13 — E2 zamknięty](#2026-09-13--e2-zamknięty-materiały-zaproszenia-gotowe-demo-nieczytelne-na-telefonie)
+
+- **Rozjazd manifestu z produktem przy opisie repozytorium** — `description`
+  w `.claude-plugin/plugin.json` mówi „…framework for Claude Code", a RelAI ma trzy adaptery;
+  `keywords` nie zawiera ani jednej nazwy narzędzia. Wizytówka GitHuba ma skopiować manifest, czy
+  najpierw poprawiamy manifest (czyli podbicie wersji i pełna sekwencja wydania)? · 2026-09-13 ·
+  [karta odnogi OPIS_REPO](archiwum/plany/ROZWOJ_PO_WYDANIU/odnogi/OPIS_REPO/ODNOGA.md)
 
 - **Zamknięta lista rdzeni rozstrzygnięcia nie zna słownika realnego projektu** — 7 z 32 pozycji
   „Czeka na człowieka" w PolyFlow wygląda dla człowieka na zamknięte, a mechanizm liczy je jako
@@ -2428,5 +2451,122 @@ Odświeżenie listy modeli (8 dni przy progu 7). Aktualizacja `docs/PRZENOSNOSC.
 
 **Do zrobienia przez człowieka:** dwie bramki manualne E2 — dyspozycja publikacji i kontaktów oraz
 wskazanie uczestników. Nic technicznego nie blokuje już zaproszeń.
+
+Autor: RelAI (Opus 5) + Lukasz
+
+### 2026-09-13 — E2 zamknięty: materiały zaproszenia gotowe, demo nieczytelne na telefonie
+
+Autor: RelAI (Opus 5) + Lukasz
+
+**Zrobione:**
+
+- **`docs/plany/PIERWSI_UZYTKOWNICY/ZAPROSZENIE.md`** — cztery bloki do wklejenia bez
+  przeredagowania: (a) aktualizacja wpisu na Odpalone z osadzonym GIF-em przez `raw/main`,
+  (b) krótki tekst dla własnej sieci z jawnym „szukam 3–5 osób", (c) odpowiedź na cztery tezy
+  krytyki z sekcji 3 planu, (d) instrukcja dla uczestnika: dwie komendy, jedno zadanie, jedno
+  pytanie. Na końcu **tabela pokrycia: 27 tez, każda ze wskazanym źródłem** w `STATE.md`, `DEMO.md`,
+  `ZRODLA.md`, `README.md` albo w dzisiejszym pomiarze — plus lista tez **świadomie
+  niepostawionych** (liczba użytkowników, porównanie z pamięcią natywną, twarda ochrona
+  konfiguracji, niezawodność z jednego przebiegu).
+- **`docs/plany/PIERWSI_UZYTKOWNICY/PROBY.md`** — rejestr prób, **pusty i to jest stan zamierzony**.
+  Osiem reguł wypełniania, dwie tabele (kontakty i próby) z kolumnami dokładnie z sekcji 5 planu,
+  wiersz „odmowa / brak odpowiedzi" jako pełnoprawny wynik, wiersze `PRZYKŁAD` do skasowania przy
+  pierwszym realnym wpisie, tabela progów z sekcji 2 i cztery werdykty z sekcji 5.
+- **Karta odnogi `OPIS_REPO` odświeżona** — zakres i kryteria przepisane z RelAI 1.5.x na 2.1.4,
+  datowana linia śladu zmiany na górze, **poprzednie brzmienie zachowane w treści** (nie tylko
+  w historii gita). Status nadal `OTWARTA`; linia o niej dopisana do sekcji „Odnogi" w `STATUS.md`.
+  Karta niesie teraz rzecz, której stare kryterium nie widziało: `description` manifestu mówi
+  „…for Claude Code", a produkt ma trzy adaptery, więc kryterium „identyczne z manifestem"
+  skopiowałoby do wizytówki repozytorium opis sprzed trzech serii wydań.
+- **Ocena materiału demo po stronie odbiorcy** (punkt 4 zakresu) — dwa pytania, na które pomiar
+  z E1 nie odpowiadał.
+- **Nie było w planie i nie zostało zrobione:** żaden kontakt nie został wysłany, nic nie zostało
+  opublikowane, opis repozytorium na GitHubie nietknięty. Wszystko trzy czekają na dyspozycję —
+  to jest zakres bramek manualnych, nie zaległość etapu.
+
+**Zweryfikowane — jak dokładnie:**
+
+- **Publiczna instalacja serwuje 2.1.4.** Obie komendy z README uruchomione dosłownie
+  w izolowanym `CLAUDE_CONFIG_DIR` (`%TEMP%/relai-e2-instalacja/konfiguracja`):
+  `✔ Successfully added marketplace` → `✔ Successfully installed plugin` → `claude plugin list`
+  pokazuje `Version: 2.1.4`, `✔ enabled`. Manifest cache'u niesie `"version": "2.1.4"`, katalog
+  komend ma **13** plików, `claude plugin validate` na klonie marketplace → `✔ Validation passed`.
+  **Potwierdzenie treścią plików, nie komunikatem** (P-005): sześć plików cache'u (trzy guardraile,
+  `MANIFEST.json`, `SKILL.md` skilla rdzeniowego, komenda `relai-stage`) zgadza się sumą z tagiem
+  `v2.1.4` po normalizacji CRLF → LF — **6/6**. Kontrola pozytywna: ten sam plik wobec `v2.1.3`
+  daje inną sumę (`7242dfc0…` vs `cb056525…`), więc zielony wynik coś znaczy. Klon marketplace stoi
+  na commicie `fceb255` (HEAD `main`), a tag `v2.1.4` wskazuje `061d95f` — **marketplace serwuje
+  gałąź, nie obiekt release**; potwierdzenie ustalenia z E1.
+- **Pokrycie tez: 27/27.** Instrument przechodzi tezę po tezie i sprawdza, czy wskazane źródło
+  naprawdę ją niesie. Kontrola pozytywna: podłożona teza „RelAI ma 500 aktywnych użytkowników"
+  zgłoszona jako BRAK. Jedna teza wypadła po drodze z tekstu — „siedem sesji" nie ma czystego
+  pokrycia (`DEMO.md` opisuje kroki 1–3 jako **jedną** sesję), więc blok (a) mówi teraz „dwa
+  przebiegi, siedem zachowanych zapisów kroków", a liczba 7 jest policzona na plikach `zapis/*.txt`.
+- **Żadna obietnica nie przekracza dowodów:** `git grep -niE "gwarant|nie pozwoli|uniemożliwia"`
+  w `ZAPROSZENIE.md` nie zwraca nic (kod 1), a ten sam wzorzec na `docs/*.md` zwraca cztery pliki —
+  więc instrument działa. Zdanie o ochronie konfiguracji mówi o pytaniu, nie o blokadzie.
+- **Dowód negatywny na README:** `git diff README.md` pusty; nazwa, tagline, ścieżka bannera
+  i ścieżka GIF-a mają nadal pierwotne brzmienie (linie 2, 9, 44).
+- **Anchor sprawdzony na żywej stronie** (L-0075): blok (b) linkuje
+  `github.com/nowilus/relai#zobacz-jak-to-działa`; odczyt HTML strony 2026-09-13 pokazuje
+  `user-content-zobacz-jak-to-działa`, więc link prowadzi tam, gdzie ma.
+- **Stan GitHuba odczytany dziś, nie wzięty z sierpnia** (L-0087, datowanie w obie strony):
+  `gh repo view nowilus/relai --json description,homepageUrl,repositoryTopics` →
+  `{"description":"","homepageUrl":"","repositoryTopics":null}`. Stan identyczny jak przy założeniu
+  odnogi 2026-08-12.
+- **Ocena demo — pierwsze trzy sekundy.** Klatki wyciągnięte w 0,5 / 1,5 / 2,5 / 3,5 s: do 2,5 s na
+  ekranie jest sam napis „RelAI" z taglinem, treść (scena `plan`) wchodzi dopiero w **3,5 s**.
+  **3 z 25 sekund to plansza tytułowa.** Materiał nie mówi, o co chodzi, w oknie, w którym człowiek
+  decyduje, czy patrzeć dalej.
+- **Ocena demo — czytelność na 375 px** (szerokość, jaką GitHub daje obrazowi na telefonie; skala
+  0,3906). Próg: wysokość glifów ≥ 8 px na ekranie telefonu (SZACUNEK). Scena `plan`: tytuł sceny
+  32 px → **12,50 px CZYTELNE**; lista etapów 13 px → 5,08 px; nagłówek karty 15–19 px →
+  5,86–7,42 px; treść karty 14 px → 5,47 px; ścieżka w ramce 9 px → 3,52 px. Scena `sesja`,
+  najbliżej progu: zdanie główne 16–20 px → 6,25–7,81 px, propozycja komendy 19 px → 7,42 px.
+  **Czytelny jest wyłącznie tytuł sceny.** Kontrola pozytywna instrumentu jest w tej samej parze:
+  tytuł zwraca CZYTELNE, reszta PONIŻEJ PROGU, więc instrument rozróżnia obie odpowiedzi.
+- **Dwa razy złapałem własny instrument na kłamstwie i oba trafienia są lekcjami.** (1) Porównanie
+  sum plików z cache'u meldowało **3/5 zgodnych** przy wszystkich pięciu ścieżkach nieistniejących —
+  suma pustego strumienia jest po obu stronach ta sama (`e3b0c442…`). **L-0096.** (2) Pomiar
+  wysokości wierszy brał `min()` po wszystkich pasmach ciemnych pikseli i meldował 2 px dla wiersza,
+  który ma 13 — bo kreska i kropka nad „i" też są pasmami. **L-0097.** Trzecia lekcja jest o samym
+  wyniku: materiał przeszedł w E1 kontrolę układu (0 przepełnień), bo mierzyła geometrię w skali
+  renderu, a nie czytelność w skali odbiorcy. **L-0098.**
+- **Sekrety:** `git grep -nE "sk_(test|live)_|AKIA[0-9A-Z]{16}"` zwraca trzy trafienia, wszystkie to
+  udokumentowana wartość przykładowa AWS w `DZIENNIK.md`, `PULAPKI.md` i karcie `PRECOMMIT_ESM` —
+  ta sama trójka co w E1.
+- **Katalog roboczy E2**: przed **1,6 MB / 24 pliki**, po **0**. Razem z nim skasowane artefakty
+  spoza projektu, wypisane z nazwy: `%TEMP%/relai-e2-instalacja` (82,7 MB — izolowana konfiguracja
+  i klon marketplace z pomiaru instalacji) oraz dwa puste katalogi
+  `%TEMP%/relai-precommit-regresja-1216` i `-23948` z 2026-09-04. **Razem 84,2 → 0,0 MB**,
+  sprawdzone **stanem dysku, nie komunikatem** — narzędzie melduje `OK` także dla ścieżki, której
+  nie ma. Ponowny raport: 0,0 MB kandydatów. Po drodze potwierdziło się L-0078: świeżo wygenerowany
+  `PROMPT_ETAP_3.md` stanął w raporcie jako kandydat i zniknął dopiero po `git add` — granicą
+  ochrony dorobku sesji jest indeks gita, nie marker.
+
+**Świadomie odłożone:**
+
+- Rotacja dziennika (**179,7 KB** przy progu 150 KB) i rotacja ryzyk zamkniętych (**17,6 KB** przy
+  progu 12 KB) — obie należne od wczoraj, obie do rytuału zamknięcia dnia.
+- Odświeżenie listy modeli — **9 dni** przy progu 7.
+- `docs/PRZENOSNOSC.md` sekcja 2.3 (opisuje wywołanie procedur Codeksa stanem z 2026-08-12).
+- Naprawa dwóch wad `work-artifacts.js`: ciche `OK` dla nieistniejącej ścieżki i marker `zachowaj`
+  zapisywany w projekcie sesji zamiast w projekcie pliku.
+- Przeniesienie plików MP4 (14,3 MB) z repozytorium do zasobów wydania.
+- **Nowy render materiału demo** — decyzja należy do E3 razem z decyzją o trwałym miejscu źródeł
+  renderu (Aneks A, ryzyko A2); źródła nie istnieją, odtworzenie opisuje `DEMO.md`.
+
+**Do zrobienia przez człowieka:**
+
+- **Dyspozycja publikacji i kontaktów** — materiały są gotowe i czekają w `ZAPROSZENIE.md`. Bez
+  wskazania kanału, treści i odbiorców `PROBY.md` zostanie pusty, a E3 zamknie plan wynikiem
+  nierozstrzygającym. To jest dopuszczalne zakończenie, ale warto, żeby było wyborem, nie skutkiem
+  przeoczenia.
+- **Wskazanie uczestników** — trzech do pięciu osób z własnym małym projektem.
+- **Decyzja o ponownym renderze demo pod telefon** — dopisana do bramek manualnych `STATUS.md`;
+  rozstrzygnięcie należy do E3.
+- **Rozjazd manifestu z produktem** (`description` mówi „for Claude Code", `keywords` nie zawiera
+  nazwy żadnego narzędzia) — wizytówka repozytorium ma go skopiować czy najpierw poprawiamy
+  manifest, czyli podbijamy wersję? Zapisane w karcie odnogi `OPIS_REPO` i w `STATE.md`.
 
 Autor: RelAI (Opus 5) + Lukasz

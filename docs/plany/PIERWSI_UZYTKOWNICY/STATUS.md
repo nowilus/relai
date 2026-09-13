@@ -12,29 +12,40 @@ kalendarzowych (SZACUNEK). Progi pilotażu są propozycją do akceptacji, nie wy
 | Etap | Nazwa | Status | Prompt | Uwagi |
 |---|---|---|---|---|
 | E1 | Pokaz i wiarygodne wejście | ZREALIZOWANY 2026-09-12 | [PROMPT_ETAP_1.md](PROMPT_ETAP_1.md) | Sprawdzona instalacja, **materiał demo renderowany przez agenta** (Aneks A: 25 s GIF + 60 s MP4, PL/EN), aktualny początek README; bez publikacji |
-| E2 | Zaproszenie i próby | GOTOWY DO STARTU | [PROMPT_ETAP_2.md](PROMPT_ETAP_2.md) | Gotowe materiały, istniejący wątek OPIS_REPO, próby spoza autora; publikacja po konkretnej dyspozycji |
-| E3 | Powrót i decyzja | OCZEKUJE | — | Obserwacje po przerwie, WYNIKI.md, rekomendacja dalszego kierunku; jawnie także wynik nierozstrzygający |
+| E2 | Zaproszenie i próby | ZREALIZOWANY 2026-09-13 | [PROMPT_ETAP_2.md](PROMPT_ETAP_2.md) | Cztery bloki `ZAPROSZENIE.md` z tabelą pokrycia 27 tez, pusty `PROBY.md`, odświeżona karta OPIS_REPO, publiczna instalacja 2.1.4 zmierzona; **nic nie wysłano** — publikacja czeka na dyspozycję |
+| E3 | Powrót i decyzja | GOTOWY DO STARTU | [PROMPT_ETAP_3.md](PROMPT_ETAP_3.md) | Obserwacje po przerwie, WYNIKI.md, rekomendacja dalszego kierunku; jawnie także wynik nierozstrzygający. **Ostatni etap** — kończy go sekwencja zamknięcia planu (D-36) |
 
 ## Odnogi
 
 | Odnoga | O co chodzi | Etap-źródło | Karta | Status |
 |---|---|---|---|---|
-| HOOKI_KORZEN | Claude Code ładuje korzeniowy `hooks/` Codeksa obok hooków adaptera: zdublowany kontekst startu i błąd schematu `SessionEnd` | E1 | [karta](odnogi/HOOKI_KORZEN/ODNOGA.md) | **ZAMKNIĘTA 2026-09-12** (2.1.4, P-013; release czeka na dyspozycję) |
+| HOOKI_KORZEN | Claude Code ładuje korzeniowy `hooks/` Codeksa obok hooków adaptera: zdublowany kontekst startu i błąd schematu `SessionEnd` | E1 | [karta](odnogi/HOOKI_KORZEN/ODNOGA.md) | **ZAMKNIĘTA 2026-09-12** (2.1.4, P-013; wydane tego samego dnia) |
+| OPIS_REPO | Pusty opis i brak tematów na stronie repozytorium — **zależność E2**, odnoga istniejąca, nie nowa | E1 planu ROZWOJ_PO_WYDANIU | [karta](../../archiwum/plany/ROZWOJ_PO_WYDANIU/odnogi/OPIS_REPO/ODNOGA.md) | **OTWARTA** · zakres odświeżony w E2 dnia 2026-09-13; domknięcie wymaga zmiany na GitHubie, czyli dyspozycji |
 
 ## Zależność od istniejącego wątku
 
 E2 korzysta z otwartej [odnogi OPIS_REPO](../../archiwum/plany/ROZWOJ_PO_WYDANIU/odnogi/OPIS_REPO/ODNOGA.md).
-Nie utworzono drugiej odnogi. Jej karta wymaga aktualizacji zakresu i kryteriów podczas E2,
-z jawnym śladem zmiany. Nie została teraz przeniesiona ani zamknięta.
+Nie utworzono drugiej odnogi. **Karta odświeżona 2026-09-13 w E2**: zakres i kryteria przepisane na
+stan produktu (2.1.4, trzy adaptery), datowana linia śladu zmiany na górze karty, poprzednie
+brzmienie zachowane w treści. Odczyt stanu GitHuba powtórzony tego dnia — `description`,
+`homepageUrl` i `repositoryTopics` nadal puste. Odnoga **nie została zamknięta ani przeniesiona**:
+jej domknięcie wymaga zmiany po stronie GitHuba, czyli dyspozycji.
 
 ## Bramki manualne
 
 - ~~**Akceptacja planu**~~ — **ROZSTRZYGNIĘTE 2026-09-12**: Łukasz zaakceptował plan; plan zamrożony,
   PROMPT_ETAP_1.md wygenerowany, E1 gotowy do startu.
-- **Dyspozycja publikacji i kontaktów** — E2; dotyczy dopiero gotowych materiałów i określonych
-  kanałów/odbiorców. Samo zatwierdzenie planu nie zleca wysyłki.
-- **Uczestnicy** — E2; wskazanie chętnych lub wykorzystanie przygotowanego zaproszenia przez Łukasza.
-  Brak kandydatów nie uruchamia bezterminowej rekrutacji; raport opisze brak danych.
+- **Dyspozycja publikacji i kontaktów** — **OTWARTA**, przechodzi do E3. Materiały są gotowe od
+  2026-09-13: cztery bloki w [ZAPROSZENIE.md](ZAPROSZENIE.md), każdy do wklejenia bez
+  przeredagowania. Czeka wskazanie kanału i treści oraz zlecenie wysyłki albo publikacja przez
+  Łukasza. Nic nie zostało wysłane.
+- **Uczestnicy** — **OTWARTA**, przechodzi do E3. Wskazanie chętnych lub wykorzystanie
+  przygotowanego zaproszenia przez Łukasza. Brak kandydatów nie uruchamia bezterminowej rekrutacji;
+  raport opisze brak danych. Rejestr czeka pusty: [PROBY.md](PROBY.md).
+- **Ponowny render materiału demo pod ekran telefonu** — **OTWARTA**, do rozstrzygnięcia w E3.
+  Pomiar E2: na 375 px czytelny jest wyłącznie tytuł sceny (12,50 px przy progu 8 px), treść scen
+  schodzi do 3,52–7,42 px; wejście brandowe zajmuje 3 z 25 sekund. Naprawa wymaga nowego renderu,
+  a źródła renderu nie istnieją — łączy się z decyzją o ich trwałym miejscu (Aneks A, ryzyko A2).
 - ~~**Kalibracja smaku materiału demo**~~ — **ROZSTRZYGNIĘTA 2026-09-12**: Łukasz zaakceptował
   kierunek na jednej klatce kluczowej („Jest OK. Akceptuję"); szczegóły w
   [DEMO.md](DEMO.md), sekcja „Kierunek wizualny".
@@ -70,5 +81,15 @@ z jawnym śladem zmiany. Nie została teraz przeniesiona ani zamknięta.
   na Odpalone. Po drodze odnoga HOOKI_KORZEN (P-013, 2.1.4) — zamknięta. Niedowiezione jawnie:
   weryfikacja GIF-a na żywym GitHubie (wymaga pusha) i potwierdzenie pojedynczego bloku kontekstu
   w aplikacji (wymaga `plugin update` i restartu). E2 → GOTOWY DO STARTU.
+- 2026-09-13 — E2 rozpoczęty.
+- 2026-09-13 — **E2 ZREALIZOWANY**. Dowiezione: `ZAPROSZENIE.md` z czterema blokami (Odpalone,
+  własna sieć, odpowiedź na krytykę, instrukcja dla uczestnika) i tabelą pokrycia **27/27 tez ze
+  wskazanym źródłem**; pusty `PROBY.md` z ośmioma regułami wypełniania, dwiema tabelami i wierszami
+  PRZYKŁAD; karta odnogi `OPIS_REPO` przepisana na stan 2.1.4 z datowanym śladem zmiany i zachowanym
+  poprzednim brzmieniem; publiczna instalacja zmierzona obiema komendami w izolowanej konfiguracji
+  (2.1.4, 13 komend, `validate` PASS, 6/6 plików zgodnych z tagiem); ocena materiału po stronie
+  odbiorcy. Niedowiezione, bo zależy od człowieka: żaden kontakt nie został wysłany, `PROBY.md` jest
+  pusty. Znalezione po drodze: materiał demo jest **nieczytelny na telefonie** — nowa bramka.
+  E3 → GOTOWY DO STARTU.
 
 RelAI (GPT-6) + Lukasz

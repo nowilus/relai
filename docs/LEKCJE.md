@@ -62,7 +62,13 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
    czy mechanizm żyje; listę wyłączeń czytasz w kodzie, zanim postawisz kontrolę. **Wniosek
    o własności cudzego narzędzia, wyprowadzony w czasie, gdy własny artefakt był zepsuty, wygasa
    razem z jego naprawą** — datuj go wersją artefaktu, nie tylko dniem, i sprawdź ponownie, zanim
-   oprzesz na nim zakres etapu. (L-0032, L-0037, L-0095,
+   oprzesz na nim zakres etapu. **Porównanie dwóch nieistniejących wejść jest zgodnością** —
+   instrument porównujący dwa źródła sprawdza najpierw, czy oba istnieją, i zgłasza brak jako osobny
+   stan, bo suma pustego strumienia jest po obu stronach ta sama; kontrola pozytywna wobec **innej
+   wersji** musi zwrócić różnicę. **Agregat po wykrytych elementach bierze też elementy innej klasy
+   niż mierzona** — `min()` po pasmach ciemnych pikseli zwraca kreskę, nie wiersz tekstu; próg
+   odsiewu podajesz jawnie i pokazujesz cały zbiór obok wyniku. (L-0032, L-0037, L-0095, L-0096,
+   L-0097,
    L-0054, L-0055, L-0056, L-0064, L-0068, L-0071, L-0073, L-0083, L-0084, L-0086, L-0087, L-0088,
    L-0090, L-0091)
 6. **Próg jest liczbą, którą ktoś liczy:** kalibruj go na zmierzonych plikach realnych projektów,
@@ -133,8 +139,12 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
     współrzędne zostają dla geometrii dekoracyjnej, nigdy dla treści, bo szerokość napisu jest
     wtedy szacunkiem metryki fontu. Dziecko wychodzące poza kontener to defekt blokujący,
     a instrument mierzący prostokąty ma kontrolę pozytywną na podłożonym przepełnieniu.
-    Ostrzeżenie `claude plugin validate` o root `CLAUDE.md` jest świadomym skutkiem
-    dogfoodingu — nie „naprawiaj" go. (L-0003, L-0006, L-0016, L-0019, L-0029, L-0094)
+    **Kryterium materiału wizualnego wyrażasz w warunkach odbiorcy, nie autora** — szerokość, na
+    jakiej realnie się wyświetli, i minimalna wysokość glifów przy tej szerokości; kontrola
+    geometrii w skali renderu jest dodatkiem, nie zamiennikiem, i przechodzi zielono na materiale,
+    którego nikt nie przeczyta. Ostrzeżenie `claude plugin validate` o root `CLAUDE.md` jest
+    świadomym skutkiem dogfoodingu — nie „naprawiaj" go. (L-0003, L-0006, L-0016, L-0019, L-0029,
+    L-0094, L-0098)
 
 **Wyprowadzone 2026-08-20 do `docs/PULAPKI.md`:** sześć pozycji, które były pułapkami
 narzędziowymi, a nie zasadami pracy — `tar` na `PATH` (L-0021), sesja pomiarowa `claude -p`
@@ -586,6 +596,59 @@ restart aplikacji po `plugin update` (L-0031), `git worktree` zamiast `git archi
   na nim plan etapu. Rozszerzenie [[L-0084]] („niedostępność cudzej usługi jest stanem chwilowym")
   na niedostępność **funkcji**: tam zmienia się świat, tu zmienia się nasz własny artefakt.
 - **Źródło:** E1 planu PIERWSI_UZYTKOWNICY. Destylat: doklejone do zasady 5, bez nowej pozycji.
+
+### L-0096 — Porównanie dwóch nieistniejących plików jest zgodnością · 2026-09-13 · AKTYWNA
+
+- **Trigger:** instrument E2 porównywał sumy plików z cache'u zainstalowanego pluginu z ich treścią
+  w tagu `v2.1.4`. Zameldował **3/5 zgodnych** — i to był wynik zmyślony w całości. Ścieżki po obu
+  stronach były błędne: pliki guardraili nazywają się `secret-scan.js`, nie `secret-scanner.js`,
+  a cache trzyma je w podkatalogu wersji (`.../relai/relai/2.1.4/`), którego w ścieżce nie było.
+- **Przyczyna:** `tr -d '\r' < nieistniejący_plik | sha256sum` i `git show v2.1.4:nieistniejąca/ścieżka
+  | sha256sum` zwracają **tę samą sumę** — `e3b0c442…`, sumę pustego strumienia. Instrument
+  porównywał dwa nic i meldował zgodność. Trzy z pięciu pozycji „przeszły" właśnie dlatego, że nie
+  istniały po żadnej ze stron; dwie pozostałe „nie przeszły", bo istniały po stronie taga.
+  **Zielony wynik był tu dowodem awarii, nie zgodności.**
+- **Zasada:** instrument porównujący dwa źródła sprawdza **najpierw, czy oba wejścia istnieją**,
+  i zgłasza brak jako osobny stan (`BRAK`), nigdy jako wynik porównania. Do tego kontrola pozytywna
+  po drugiej stronie: to samo porównanie wobec **innej wersji** musi zwrócić różnicę — bez niej
+  „6/6 zgodnych" jest nieodróżnialne od „6/6 pustych". Rozszerzenie [[L-0090]] na porównania:
+  tam cisza zmierzona złym wejściem, tu **zgodność** zmierzona złym wejściem.
+- **Źródło:** E2 planu PIERWSI_UZYTKOWNICY, pomiar publicznej instalacji 2.1.4. Destylat: doklejone
+  do zasady 5, bez nowej pozycji.
+
+### L-0097 — Agregat po wykrytych elementach bierze też te, których nie mierzysz · 2026-09-13 · AKTYWNA
+
+- **Trigger:** instrument czytelności wyciągał wysokość wierszy tekstu z wyrenderowanej klatki
+  i meldował, że najniższy wiersz listy etapów ma **2 px**. Na oku ten wiersz ma kilkanaście.
+- **Przyczyna:** instrument wykrywał pasma rzędów zawierających ciemne piksele i brał z nich
+  `min()`. Pasmem jest jednak wszystko, co jest ciemne: kreska oddzielająca nagłówek, kropka nad
+  „i", cień karty, odłamek glifu rozcięty progiem ciemności. `min()` po całym zbiorze zwracał
+  najcieńszą kreskę w prostokącie, nie najniższy wiersz — i robił to **cicho**, bo 2 px jest
+  wynikiem prawdopodobnym dla „za małego tekstu".
+- **Zasada:** agregat (`min`, `max`, średnia) po zbiorze wykrytych elementów jest ważny dopiero po
+  odsianiu elementów **innej klasy niż mierzona** — a próg odsiewu podajesz jawnie i pokazujesz
+  **cały zbiór obok wyniku**, żeby dało się zobaczyć, co wypadło. Wynik zgodny z oczekiwaniem jest
+  tu najgroźniejszy: nikt nie sprawdza liczby, która potwierdza to, czego się spodziewał.
+- **Źródło:** E2 planu PIERWSI_UZYTKOWNICY, ocena czytelności materiału demo. Destylat: doklejone
+  do zasady 5, bez nowej pozycji.
+
+### L-0098 — Materiał wizualny sprawdzony w warunkach autora, nie odbiorcy · 2026-09-13 · AKTYWNA
+
+- **Trigger:** materiał demo przeszedł w E1 twardą kontrolę układu — 0 przepełnień i 0 tekstów
+  uciętych na wszystkich scenach obu cięć i obu wersjach językowych. W E2, przy pierwszym pytaniu
+  o odbiorcę, okazało się, że na ekranie telefonu czytelny jest **wyłącznie tytuł sceny**: lista
+  etapów schodzi do 5,08 px, treść karty do 5,47 px, ścieżki plików do 3,52 px przy progu 8 px.
+- **Przyczyna:** kontrola z E1 mierzyła **geometrię kompozycji w jej własnej skali** (960 px) —
+  czy coś wychodzi poza kontener. To poprawne pytanie i poprawna odpowiedź, tylko inne niż „czy
+  człowiek to przeczyta". Skala odbiorcy nie była żadnym parametrem pomiaru, bo nikt jej nie
+  wpisał do kryterium. Rozszerzenie [[L-0075]] („grafikę ocenia się na stronie, która ją pokazuje")
+  o drugi wymiar: nie tylko **gdzie** się ją pokazuje, ale **jak duża** tam jest.
+- **Zasada:** materiał wizualny ma kryterium wyrażone **w warunkach odbiorcy**, nie autora:
+  szerokość, na jakiej realnie się wyświetli, i minimalna wysokość glifów przy tej szerokości.
+  Kontrola geometrii w skali renderu jest do tego **dodatkiem**, nie zamiennikiem — przechodzi
+  zielono na materiale, którego nikt nie przeczyta.
+- **Źródło:** E2 planu PIERWSI_UZYTKOWNICY, ocena materiału po stronie odbiorcy. Destylat: doklejone
+  do zasady 15, bez szesnastej pozycji.
 
 ## Lekcje zwinięte
 
