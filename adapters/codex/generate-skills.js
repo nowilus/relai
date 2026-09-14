@@ -32,7 +32,7 @@ function sourceFiles() {
     .filter((name) => /^relai-[a-z-]+\.md$/.test(name))
     .sort()
     .map((name) => ({ name: path.basename(name, '.md'), source: path.join(COMMANDS, name), content: commandSkill(path.join(COMMANDS, name)) }));
-  if (commands.length !== 13) throw new Error('Oczekiwano 13 komend RelAI, znaleziono: ' + commands.length);
+  if (commands.length !== 14) throw new Error('Oczekiwano 14 komend RelAI, znaleziono: ' + commands.length);
   for (const name of ['relai-core', 'relai-planning']) {
     const source = path.join(CORE_SKILLS, name, 'SKILL.md');
     commands.push({ name, source, content: read(source) });
@@ -77,7 +77,8 @@ if (require.main === module) {
     for (const file of mismatches) process.stderr.write('  - ' + path.relative(ROOT, file) + '\n');
     process.exit(1);
   }
-  process.stdout.write('RelAI Codex skills: 13 procedur + 2 skille rdzeniowe, spojne.\n');
+  const procedury = entries(path.join(ROOT, 'adapters', 'codex', 'skills')).filter((e) => e.command).length;
+  process.stdout.write('RelAI Codex skills: ' + procedury + ' procedur + 2 skille rdzeniowe, spojne.\n');
 }
 
 module.exports = { generate, verify };

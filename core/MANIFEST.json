@@ -23,6 +23,20 @@
       "description": "Instaluje i odinstalowuje pre-commit w .git/hooks wskazanego repozytorium."
     }
   ],
+  "prompt": [
+    {
+      "id": "prompt-reguly",
+      "file": "./prompt/REGULY.md",
+      "kind": "baza regul",
+      "description": "Reguly optymalizatora promptow: dziewiec wymiarow intencji, limit trzech pytan, wzorce awarii w szesciu grupach, bezpieczne techniki, sanityzacja wklejonej tresci, ochrona poswiadczen, oznaczanie dopowiedzen. Bez nazw modeli — czesc zalezna od modelu czyta liste narzedzia."
+    },
+    {
+      "id": "prompt-szablony",
+      "file": "./prompt/SZABLONY.md",
+      "kind": "rusztowania",
+      "description": "Trzy rusztowania promptu: zmiana w kodzie, analiza i rozpoznanie, praca dokumentacyjna. Czytane wybiorczo — tylko rozdzial pasujacy do rozpoznanego ksztaltu zadania."
+    }
+  ],
   "process": [
     {
       "id": "session-signals",
@@ -59,6 +73,7 @@
       "models": "./../adapters/claude-code/MODELE.md",
       "uses": [
         "./templates/",
+        "./prompt/",
         "./guardrails/secret-scan.js",
         "./process/session-signals.js",
         "./process/work-artifacts.js",

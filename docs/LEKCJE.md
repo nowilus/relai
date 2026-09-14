@@ -9,7 +9,9 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
    zmyślać" wraz z formą zapisu luki. **Wzorzec powtarzalny sprawdzasz na całej rodzinie
    dokumentów** — punkt „stare brzmienie nie zwraca nic" uruchamiaj na katalogu specyfikacji, bo
    jego wartością jest trafienie **poza** zakresem etapu; takie trafienie jest sygnałem odchylenia,
-   nie usterką weryfikacji. (L-0001, L-0011, L-0026, L-0089)
+   nie usterką weryfikacji. **Pierwszy realny przebieg reguły jest częścią jej pisania**, nie
+   kontrolą po fakcie: planuj go przed zamknięciem pliku, a rozjazd traktuj jako defekt reguły,
+   nie jako wyjątek do obejścia w wykonaniu. (L-0001, L-0011, L-0026, L-0089, L-0100)
 2. **W dokumencie użytkownika stoi tylko to, co działa i co zmierzyłeś** — fraza wchodzi do
    `KOMENDY.md` w wersji, w której realnie działa, a forma wywołania jest tą, którą uruchomiłeś
    dosłownie. Komendę wklejaną do dokumentu odpalasz z tej samej powłoki, którą zobaczy czytelnik:
@@ -78,8 +80,10 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
    przechodzi po zmianie — reguła wskazująca „najstarszy element" w mechanizmie idącym od
    najstarszego zatyka go z definicji. **Próg porównuj do wielkości, którą mechanizm kontroluje**
    (część usuwalna), a sygnał o zatkaniu wyzwalaj **różnicą między możliwym a wykonanym**, nie
-   zerem wykonanego — warunek „nic nie przeszło" milczy przy „przeszło 2 z 87". (L-0034, L-0049,
-   L-0053, L-0060, L-0065)
+   zerem wykonanego — warunek „nic nie przeszło" milczy przy „przeszło 2 z 87". **Liczbę zbioru
+   liczysz także w komunikacie sukcesu**, nie tylko w asercji: literał w tekście czytanym przez
+   człowieka jest zapisem stanu z dnia napisania i przy pierwszej zmianie zakresu staje się cichym
+   fałszem. (L-0034, L-0049, L-0053, L-0060, L-0065, L-0099)
 7. **Wartość czytana maszynowo ma kotwicę i zamkniętą listę brzmień:** dopasowanie od początku
    komórki, wybór linii po niesionej wartości (nie po kolejności), wartość nierozpoznana znaczy
    cisza. **Rdzeń słowa w języku z diakrytykami łapiesz klasą znaków tego języka, nie `\w`** —
@@ -512,6 +516,39 @@ restart aplikacji po `plugin update` (L-0031), `git worktree` zamiast `git archi
   zielono na materiale, którego nikt nie przeczyta.
 - **Źródło:** E2 planu PIERWSI_UZYTKOWNICY, ocena materiału po stronie odbiorcy. Destylat: doklejone
   do zasady 15, bez szesnastej pozycji.
+
+### L-0099 — Liczba wpisana literałem w komunikacie sukcesu kłamie pierwszego dnia po zmianie · 2026-09-14 · AKTYWNA
+
+- **Trigger:** czternasta komenda przewróciła walidator na twardym `!== 13` w generatorze skilli
+  Codeksa. Po podbiciu liczby do 14 generator zameldował `14 procedur` — nieprawda, bo komunikat
+  sukcesu miał **drugą** liczbę wpisaną literałem: `13 procedur + 2 skille rdzeniowe`. Asercja
+  i komunikat mówiły dwie różne rzeczy o tym samym przebiegu.
+- **Przyczyna:** asercja i komunikat powstały razem, więc przy pisaniu wyglądały na jedną prawdę.
+  Przy zmianie zakresu poprawia się to, co **przewraca przebieg** — komunikat sukcesu nie przewraca
+  niczego, więc zostaje ze starą liczbą i jest tym głośniejszy, im częściej przebieg wychodzi
+  zielono.
+- **Zasada:** liczbę mierzonego zbioru **liczysz w miejscu, w którym ją piszesz** — także
+  w komunikacie sukcesu, nie tylko w asercji. Literał w tekście, który czyta człowiek, jest
+  zapisem stanu z dnia napisania, a nie pomiarem; przy pierwszej zmianie zakresu zamienia się
+  w cichy fałsz. Rozszerzenie [[L-0053]] o drugą stronę: próg liczy ktoś, ale komunikat też.
+- **Źródło:** E1 planu OPTYMALIZATOR_PROMPTOW, `adapters/codex/generate-skills.js`. Destylat:
+  doklejone do zasady 6, bez nowej pozycji.
+
+### L-0100 — Regułę pisaną w tym samym etapie, co jej pierwszy przebieg, przewraca ten przebieg · 2026-09-14 · AKTYWNA
+
+- **Trigger:** reguła optymalizatora mówiła „brak krytyczny → zamiast propozycji stoją pytania
+  i nic więcej". Pierwszy realny przebieg na zdaniu „zrób coś z tym raportem, żeby był lepszy"
+  pokazał, że to wyklucza najczęstszy przypadek: zadanie jest jasne, a niewyprowadzalny jest
+  **jeden** wymiar. Litera reguły dawała same pytania tam, gdzie człowiek oczekuje propozycji.
+- **Przyczyna:** reguła powstała z materiału źródłowego, zanim cokolwiek przez nią przeszło.
+  Materiał niósł limit trzech pytań, ale nie rozstrzygał, **gdzie** pytania stoją wobec propozycji —
+  i ta luka wyglądała na rozstrzygniętą, dopóki nie pojawiło się wejście, które w nią trafia.
+- **Zasada:** pierwszy realny przebieg reguły jest **częścią jej pisania**, nie kontrolą po fakcie:
+  planuj go przed zamknięciem pliku i traktuj rozjazd jako defekt reguły, nie jako wyjątek do
+  obejścia w wykonaniu. Reguła, której nikt nie przepuścił przez materiał, jest hipotezą — tak samo
+  jak instrument bez kontroli pozytywnej (zasada 5).
+- **Źródło:** E1 planu OPTYMALIZATOR_PROMPTOW, `core/prompt/REGULY.md`. Destylat: doklejone do
+  zasady 1, bez nowej pozycji.
 
 ## Lekcje zwinięte
 

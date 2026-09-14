@@ -81,22 +81,28 @@ kontrole przeszły; pełna świeża sesja Codexa pozostaje NOT TESTED po błędz
 
 ## Nad czym pracujemy teraz
 
-- **OPTYMALIZATOR_PROMPTOW — ZAAKCEPTOWANY 2026-09-14, E1 GOTOWY DO STARTU**:
+- **OPTYMALIZATOR_PROMPTOW — E1 ZREALIZOWANY 2026-09-14, E2 GOTOWY DO STARTU** (1/5):
   [plan](plany/OPTYMALIZATOR_PROMPTOW/PLAN.html) i [status](plany/OPTYMALIZATOR_PROMPTOW/STATUS.md).
-  Cel: warstwa zamieniająca podyktowane zdanie w precyzyjny prompt — komenda na żądanie plus tryb
-  ciągły włączany jawnie, zawsze z pokazaną różnicą przed wykonaniem. Merytoryka portowana
-  z `nidhinjs/prompt-master` (MIT, 12 820 gwiazdek, pięć plików Markdown, zero kodu wykonywalnego —
-  odczyt 2026-09-14). **Pięć etapów, 5–6 sesji** — o jedną ponad pierwotny budżet 4–5, świadomie,
-  po dołożeniu etapu pomiaru modeli. Zakres to prompty użytkownika do agenta; prompty etapowe,
-  narzędzia zewnętrzne i brief nowego projektu są nie-celami.
-  **Optymalizację wykonuje subagent na modelu z ustawień, nie model sesji** — mechanizm istnieje
+  **Komenda `/relai-prompt` działa i jest czternastą komendą w repozytorium** (niewydana — E5):
+  bierze podyktowane zdanie, dokłada format wyjścia, kryterium odbioru i granicę zakresu, oznacza
+  każde dopowiedzenie markerem z powodem, usuwa wartości poświadczeń i **zatrzymuje się** na
+  propozycji stojącej obok oryginału. Reguły mieszkają w `core/prompt/REGULY.md` i `SZABLONY.md`
+  (port `nidhinjs/prompt-master`, MIT; nota w `LICENSE` w tym samym commicie — ryzyko O3 zamknięte).
+  Zmierzone pięcioma przebiegami z kontrolami pozytywnymi: 15 punktów, 0 niezaliczonych; zero nazw
+  modeli w bazie reguł przy 5 trafieniach kontroli na liście modeli. **Luka do wydania:**
+  w cudzym projekcie komenda nie widzi rusztowań (katalog pluginu poza zasięgiem sesji) i pracuje
+  na samym rdzeniu reguł — kopia `core/prompt/` musi trafić do projektu tą samą drogą co
+  specyfikacje; bramka „E3 czy E5" czeka na człowieka. Cel całości: warstwa zamieniająca zdanie
+  w precyzyjny prompt — komenda plus tryb ciągły włączany jawnie. **Pięć etapów, 5–6 sesji.**
+  **Optymalizację ma wykonywać subagent na modelu z ustawień, nie model sesji** (od E2) — mechanizm istnieje
   i jest wydany (`/relai-crew` 2.1.0 deleguje przez `Agent` z parametrem `model` oraz przez
   `crew.js run --model`). Który model, rozstrzyga **pomiar w E2**: Haiku 4.5 kosztuje $1/$5 za milion
   tokenów wobec $5/$25 Opusa 5 i $2/$10 Sonneta 5 (dokumentacja Anthropic, stan 2026-06-24), ale
   **jakość żadnego z nich w tym zadaniu nie została zmierzona**. Ścieżka odwrotu: Sonnet 5, potem
-  model sesji bez delegacji. Komenda nazywa się **`/relai-prompt`** (rozstrzygnięte 2026-09-14).
-  **Pięć bramek czeka na człowieka**; żadna nie blokuje startu E1. Ryzyka **O1, O4, O6 i O9**
-  weszły do rejestru otwartych ryzyk przy akceptacji.
+  model sesji bez delegacji.
+  **Sześć bramek czeka na człowieka**; żadna nie blokuje startu E2. Ryzyka **O1, O4, O6 i O9**
+  zostają otwarte; **O2, O3 i O7 domknięte w E1** — marker dopowiedzenia, nota licencyjna i reguła
+  treści inertnej są w repozytorium i zmierzone.
 - **PIERWSI_UZYTKOWNICY — WSTRZYMANY 2026-09-14**, E1 i E2 ZREALIZOWANE (2026-09-12 i 2026-09-13),
   E3 zostaje gotowy do startu: [plan](plany/PIERWSI_UZYTKOWNICY/PLAN.html) i [status](plany/PIERWSI_UZYTKOWNICY/STATUS.md).
   Pierwszeństwo dostał nowy plan; **termin graniczny raportu 2026-10-03 traci moc** do czasu
@@ -280,24 +286,26 @@ Komendy i frazy: [KOMENDY.md](KOMENDY.md)
 Plany: BUDOWA_RELAI 10/10 • OPTYMALIZACJA_KONTEKSTU 5/5 • HIGIENA_DOKUMENTOW 6/6 •
 SPRZATANIE_ARTEFAKTOW 4/4 • REKOMENDACJA_MODELU 4/4 (zamknięty 2026-09-04) •
 ROZWOJ_PO_WYDANIU 8/8 (**ZREALIZOWANY**) • PIERWSI_UZYTKOWNICY 2/3 (**WSTRZYMANY 2026-09-14**) •
-**Aktywny plan: OPTYMALIZATOR_PROMPTOW — 0/5, ZAAKCEPTOWANY, E1 gotowy do startu** •
+**Aktywny plan: OPTYMALIZATOR_PROMPTOW — 1/5, E2 gotowy do startu** •
 Warstwa startowa: **71,2/80 KB** (pomiar 2026-09-14 po rotacji; przed nią 83,4 KB) •
-Dziennik: **87,3/150 KB** (12 wpisów) — rotowany 2026-09-14 • Lekcje: **42,6/50 KB**
-(20 w żywym rejestrze, ostatnia L-0098) — rotowane 2026-09-14 • Sekcja ryzyk: **21,7 KB / 12 KB**,
+Dziennik: **100,6/150 KB** (13 wpisów) — rotowany 2026-09-14 • Lekcje: **45,6/50 KB**
+(22 w żywym rejestrze, ostatnia L-0100) — rotowane 2026-09-14 • Sekcja ryzyk: **21,7 KB / 12 KB**,
 **0 zamkniętych z 16** — rotacja nie ma czego wziąć, odchudzi ją wyłącznie zamknięcie ryzyk albo
-podniesienie progu • `STATE.md`: 23,7 KB przy progu cząstkowym 12 KB (299 linii przy progu 300) —
-odchudza go przepisanie zwięźlej, nie archiwum • Archiwum:
-**osiem** plików dziennika, **cztery** lekcji, dwa ryzyk • Sprawy czekające na człowieka: **8 tutaj**
+podniesienie progu • `STATE.md`: 25,0 KB przy progu cząstkowym 12 KB (**313 linii przy progu 300 —
+ponad progiem od 2026-09-14**) — odchudza go przepisanie zwięźlej, nie archiwum • Archiwum:
+**osiem** plików dziennika, **cztery** lekcji, dwa ryzyk • Sprawy czekające na człowieka: **9 tutaj**
 (1 rozstrzygnięta 2026-09-12), 32 w PolyFlow, żadna nieprzeterminowana •
-Otwarte ryzyka: **14** (doszły O1, O4, O6, O9 z planu optymalizatora) • Zamknięte: **8, w archiwum** •
-Otwarte bramki manualne: **8** — 3 w planie wstrzymanym (dyspozycja publikacji i kontaktów,
-uczestnicy, ponowny render demo) i 5 w aktywnym (model domyślny przy nierozstrzygającym pomiarze,
-kolizja z ECC, licznik kosztu, tryb ciągły dla Cursora i Codeksa, powrót pilotażu); akceptacja planu
-i nazwa komendy rozstrzygnięte 2026-09-14 •
+Otwarte ryzyka: **14** (O1, O4, O6, O9 z planu optymalizatora; O2, O3 i O7 domknięte w E1, do tabeli
+nie weszły) • Zamknięte: **8, w archiwum** •
+Otwarte bramki manualne: **9** — 3 w planie wstrzymanym (dyspozycja publikacji i kontaktów,
+uczestnicy, ponowny render demo) i 6 w aktywnym (model domyślny przy nierozstrzygającym pomiarze,
+kolizja z ECC, licznik kosztu, tryb ciągły dla Cursora i Codeksa, powrót pilotażu, prowizjonowanie
+`core/prompt/`); akceptacja planu i nazwa komendy rozstrzygnięte 2026-09-14 •
 Otwarte wątki: **1** — odnoga `OPIS_REPO`, zakres odświeżony 2026-09-13; `ORKIESTRACJA` zamknięta 2026-09-06 •
-Artefakty w rejestrze: **46** • Zasady aktywne: **15 przy limicie 15** •
+Artefakty w rejestrze: **49** • Zasady aktywne: **15 przy limicie 15** (L-0099 i L-0100 doklejone
+do zasad 6 i 1, bez szesnastej pozycji) •
 Progi w katalogu: **18, z tego 17 z adresem egzekwowania** • Adaptery: **3** •
-Procedury: **13** •
+Procedury: **14** (czternasta — `/relai-prompt`, w repozytorium, niewydana) •
 Scenariusze akceptacyjne: 4/4 + pilotaż Cursora •
 Modele, na których zmierzono proces: 5 (Fable, Opus, Haiku, Composer/auto, Grok 4.6) •
 Projekty na RelAI: 3 (RelAI 2.0.0, PolyFlow 1.8.0, JiraManager przed migracją) •

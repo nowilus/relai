@@ -59,7 +59,14 @@ z gita, żeby było widać, które artefakty żyją. Pełna historia treści jes
 Traktowany jako **jedna pozycja**: trzy pliki źródłowe i sześć plików `.woff2` tworzą jeden artefakt,
 którego wersji nie da się podbijać osobno.
 
-## Komendy — `adapters/claude-code/commands/` (13)
+## Baza reguł optymalizatora — `core/prompt/` (2)
+
+| Artefakt | Plik | Wersja | Data | Co się zmieniło | Po co |
+|---|---|---|---|---|---|
+| Reguły optymalizatora promptów | `core/prompt/REGULY.md` | 1 | 2026-09-14 | nowy artefakt (plan OPTYMALIZATOR_PROMPTOW, E1): port merytoryki `nidhinjs/prompt-master` (MIT) przepisany po polsku — dziewięć wymiarów intencji z oznaczeniem krytycznych, limit trzech pytań, wzorce awarii w sześciu grupach, katalog bezpiecznych technik z listą technik podwyższonego ryzyka, sanityzacja wklejonej treści, ochrona poświadczeń, marker dopowiedzenia z powodem, kontrola przed oddaniem, przykład „przed / po" | Prompt podyktowany w biegu gubi format wyjścia, kryterium odbioru i granicę zakresu, a agent wykonuje go mimo to; reguły dają jedno źródło dla wszystkich adapterów i zamykają dwa ryzyka na raz — zniekształcenie intencji (O2) przez obowiązkowy marker dopowiedzenia oraz wykonanie wklejonej instrukcji (O7) przez regułę treści inertnej. Zero nazw modeli w pliku: część zależna od modelu czyta listę narzędzia, więc nie powstaje drugi rejestr nazw obok `MODELE-<narzędzie>.md` (O5, rodzina M5) |
+| Rusztowania promptu | `core/prompt/SZABLONY.md` | 1 | 2026-09-14 | nowy artefakt (plan OPTYMALIZATOR_PROMPTOW, E1): trzy rusztowania — zmiana w kodzie, analiza i rozpoznanie, praca dokumentacyjna — z tabelą rozpoznania kształtu, blokiem granic działania dla agenta z dostępem do dysku, blokiem kontekstu projektu i przykładem „przed / po" na rusztowaniu analitycznym | Jedna baza reguł dla trzech różnych kształtów zadania produkuje prompt pasujący do żadnego z nich; osobny plik pozwala też czytać **wyłącznie** rozdział pasujący do rozpoznanego kształtu, więc baza reguł nie rośnie liniowo w koszcie każdego wywołania (O8) |
+
+## Komendy — `adapters/claude-code/commands/` (14)
 
 | Artefakt | Plik | Wersja | Data | Co się zmieniło | Po co |
 |---|---|---|---|---|---|
@@ -71,6 +78,7 @@ którego wersji nie da się podbijać osobno.
 | `/relai-clean` | `adapters/claude-code/commands/relai-clean.md` | 1 | 2026-09-03 | nowy artefakt (plan SPRZATANIE_ARTEFAKTOW, E1) | Artefakty po zamkniętych etapach rosły poza Gitem i w `%TEMP%` bez żadnego adresu — komenda daje im raport w grupach, jedno „tak” na grupę i ślad w dzienniku, a kasowanie zostawia narzędziu rdzenia z asercjami korzeni |
 | `/relai-handover` | `adapters/claude-code/commands/relai-handover.md` | 1 | 2026-08-08 | wpis startowy; ostatnia zmiana 2026-08-12 | Pakiet przekazania projektu w jednym pliku HTML — stan, mapa, plany, ryzyka, od czego zacząć |
 | `/relai-help` | `adapters/claude-code/commands/relai-help.md` | 1 | 2026-08-08 | wpis startowy; ostatnia zmiana 2026-08-12 | Prezentuje `docs/KOMENDY.md` zamiast duplikować jego treść (D-07) |
+| `/relai-prompt` | `adapters/claude-code/commands/relai-prompt.md` | 1 | 2026-09-14 | nowy artefakt (plan OPTYMALIZATOR_PROMPTOW, E1): dziewięć kroków od sprawdzenia, czy jest co przerabiać, po zatrzymanie na propozycji — treść wejściowa jako dane inertne i ochrona poświadczeń **przed** analizą merytoryczną, dziewięć wymiarów intencji, sześć grup wzorców awarii, rozpoznanie kształtu zadania z kolejnością szukania rusztowań, marker dopowiedzenia, siedmiopunktowa kontrola przed pokazaniem, wyjście w trzech częściach, jedenaście zakazów | Komenda wywołana wprost nie ładuje skilla (zasada aktywna 8), więc reguły musi nieść w sobie; komenda zamiast skilla zamyka też kolizję z obcym optymalizatorem w konfiguracji użytkownika (O6), bo wywołanie wprost nie konkuruje opisem o wyzwolenie |
 | `/relai-models` | `adapters/claude-code/commands/relai-models.md` | 1 | 2026-09-04 | nowy artefakt (plan REKOMENDACJA_MODELU, E2): dziewięć kroków od markera projektu po zapis, zgoda na ruch sieciowy pytana **przy każdym wywołaniu** i nigdzie niezapamiętywana, pięć adresów źródeł wskazanych przez człowieka jako lista zamknięta, pytanie do człowieka jako drugie źródło, różnica stara–nowa przed zapisem, dwanaście zakazów | Listy modeli nie dało się odświeżyć inaczej niż ręczną edycją pliku, więc data przy pytaniu o model starzała się bez żadnej drogi wyjścia; komenda daje tę drogę, ale zostawia człowiekowi obie decyzje, których maszyna nie powinna podejmować — wejście do sieci i przypisanie cudzego modelu do klasy |
 | `/relai-stage` | `adapters/claude-code/commands/relai-stage.md` | 3 | 2026-08-07 | 2026-09-04 (wersja 3): punkt „Model wykonawczy" karty rozstrzyga **trzy** przypadki zamiast dwóch — doszedł model **spoza listy**: karta pisze nazwę modelu sesji, klasę z planu i datę listy i **nie blokuje startu**; nazwę pliku listy bierze ze zdania hooka startu, a przypomnienia o starej liście nie powtarza (L-0036). Wersja 2 z 2026-09-03: karta potwierdzenia (Krok 4) dostała pozycję **Katalog roboczy** — ścieżka z linii otwierającej zakres promptu, z rozstrzygnięciem dla promptów sprzed 1.8.0 | Uruchamia etap aktywnego planu z kontrolą modelu i potwierdzeniem przed startem — a człowiek widzi, gdzie powstaną pliki, zanim powstaną |
 | `/relai-tour` | `adapters/claude-code/commands/relai-tour.md` | 1 | 2026-08-08 | wpis startowy; ostatnia zmiana 2026-08-12 | Oprowadza po cudzym projekcie wyłącznie na podstawie jego dokumentów |
@@ -113,21 +121,23 @@ narzędzia, które tych plików nie widzi.
 | Lista modeli Claude Code | `adapters/claude-code/MODELE.md` | 2 | 2026-09-03 | 2026-09-04 (wersja 2, E2 / Aneks B): pierwsze odświeżenie z dokumentacji — blok maszynowy dostał czwarte pole **`alias`** (`opus`, `fable`, `sonnet`, `haiku`) opisane w zasadach parsowania, pole `source` przy każdej pozycji wskazuje adres i datę odczytu zamiast środowiska sesji, `list-date` 2026-09-03 → 2026-09-04. Wersja 1: wpis startowy (E1) — kotwica klasy na początku linii, zamknięta lista brzmień, cztery pozycje, w tym dwie w klasie `strong` | Alias jest warstwą, którą użytkownik realnie przełącza model, i przeżywa podbicie wersji, którego pełne ID nie przeżywa — lista mówiąca samo ID starzeje się szybciej, niż ktokolwiek zdąży ją odświeżyć |
 | Lista modeli Cursora | `adapters/cursor/MODELE.md` | 2 | 2026-09-03 | 2026-09-04 (wersja 2, E2 / Aneks B): dwie pozycje `<TO BE FILLED IN: …>` zastąpione nazwami wskazanymi przez człowieka — `balanced: Composer 2.5` i `cheap: Auto`, obie z adnotacją `named by the human` i datą; `cheap` ma `id: -`, bo za trybem automatycznym stoi zmienny model. Pole `alias` dodane dla zgodności formatu z listą Claude Code (wszystkie pozycje `-`). Wersja 1: wpis startowy (E1) z jedną pozycją z pomiaru | Lista z dwiema trzecimi pozycji pustych odsyłała do komendy, która wtedy nie istniała; po E2 komenda istnieje i to ona pokazała człowiekowi ~45 kandydatów pogrupowanych po dostawcy, zamiast typować klasy za niego |
 
-## Zgodność liczb z dyskiem (2026-09-04)
+## Zgodność liczb z dyskiem (2026-09-14)
 
-Inwentarz robiony komendą, nie okiem. **46 pozycji rejestru** = 22 + 1 + 13 + 2 + 3 + 3 + 2 (stan 2026-09-06; 42 przy przeliczeniu 2026-09-04).
-Wiersz komend przy poprzednim przeliczeniu mówił `10 / 10` przy jedenastu wierszach w tabeli —
+Inwentarz robiony komendą, nie okiem. **49 pozycji rejestru** = 22 + 1 + 2 + 14 + 2 + 3 + 3 + 2
+(stan 2026-09-14; 46 przy przeliczeniu 2026-09-06, 42 przy 2026-09-04).
+Wiersz komend przy przeliczeniu z 2026-09-04 mówił `10 / 10` przy jedenastu wierszach w tabeli —
 `/relai-clean` doszedł do tabeli, a nie do tego wiersza. Poprawione razem z liczbą 12.
 
 | Zbiór | Komenda | Na dysku | W rejestrze |
 |---|---|---|---|
 | specyfikacje dokumentów | `ls core/templates/*.md \| wc -l` | 22 | 22 |
 | szablon planu HTML | `find core/templates/HTML_PLAN -type f` | 9 plików | 1 pozycja (jeden artefakt złożony) |
-| komendy | `ls adapters/claude-code/commands/*.md \| wc -l` | 13 | 13 |
+| baza reguł optymalizatora | `ls core/prompt/*.md \| wc -l` | 2 | 2 |
+| komendy | `ls adapters/claude-code/commands/*.md \| wc -l` | 14 | 14 |
 | agenci załogi | `ls adapters/claude-code/agents/*.md \| wc -l` | 3 | 3 |
 | skille | `ls adapters/claude-code/skills/*/SKILL.md` | 2 | 2 |
 | reguły Cursora | `ls adapters/cursor/rules/*.mdc` | 3 | 3 |
-| listy modeli | `ls adapters/*/MODELE.md` | 2 | 2 |
+| listy modeli | `ls adapters/*/MODELE.md` | **3** | 2 — brakuje wiersza listy Codeksa; zaległość sprzed E1, nierozstrzygnięta |
 
 **Rozbieżność wobec karty odnogi — wypisana jawnie:** karta `REJESTR_ARTEFAKTOW/ODNOGA.md` i hook
 `session-context` mówią o **31 specyfikacjach**. Na dysku plików `.md` w `core/templates/` jest
