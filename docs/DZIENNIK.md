@@ -19,6 +19,11 @@
 | U1 | Pilotaż kończy się bez ani jednego uczestnika spoza autora — brak kandydatów albo brak odpowiedzi (plan PIERWSI_UZYTKOWNICY, sekcja 7) | **Średni** (2026-09-13, przy wejściu ryzyka do rejestru) | **OTWARTE** | Mitygacja z planu: własna sieć Łukasza i istniejący wpis na Odpalone, każde zaproszenie zanotowane, raport w terminie **także przy małej próbie**, z werdyktem „wynik nierozstrzygający". Materiały gotowe od 2026-09-13 (`ZAPROSZENIE.md`, cztery bloki), rejestr `PROBY.md` czeka pusty. **Stan faktyczny na dziś: 0 kontaktów, 0 prób, 0 aktywacji** przy progach 3–5 uczestników / ≥3 aktywacje / ≥2 powroty. Ryzyko nie zmaterializowało się jeszcze **ani nie zostało odparte** — zegar nie ruszył, bo wysyłka wymaga dyspozycji, której nie było. Termin graniczny raportu: **2026-10-03** (21 dni od akceptacji, SZACUNEK). Doszła własność, której plan nie przewidywał: materiał demo, którym zaproszenie się posługuje, jest **nieczytelny na telefonie** (pomiar E2) — a to jest urządzenie, na którym większość odbiorców zobaczy link pierwszy raz |
 | M6 | Załoga stoi na flagach CLI trzech dostawców (`claude -p --permission-mode`, `codex exec -s`, `agent -p --mode`), które zmieniają się szybciej niż wydania RelAI (wątek ORKIESTRACJA) | **Średni** (2026-09-06) | **OTWARTE** | Flagi stoją w jednym miejscu (`buildCommand` w `core/process/crew.js`), a test pilnuje trybu read-only bez `--write` i zamkniętej listy flag zakazanych; porażka `run` kończy się statusem `failed` z `stderr` w pliku przebiegu, nigdy ciszą, a krok 7 komendy każe czytać raport zadania i `git status`, nie kod wyjścia. Zmierzone 2026-09-06 z Claude Code jako gospodarza: Codex read-only i write, Cursor read-only (prompt stdin-em), zagnieżdżony Claude Code read-only — trzy narzędzia, cztery zadania `done`. Otwarte, bo kierunki z Codeksa i Cursora jako gospodarza i zapis przez Cursora są NOT TESTED, a zmiana flagi u dostawcy nie ma dziś własnego sygnału poza porażką przebiegu |
 
+| O1 | Hook `UserPromptSubmit` w Claude Code nie podmienia promptu, tylko dokłada kontekst — „tryb ciągły" może być nierealizowalny w zakładanym kształcie (plan OPTYMALIZATOR_PROMPTOW, ryzyko O1) | **Wysoki** (2026-09-14, przy akceptacji planu) | **OTWARTE** | Pomiar idzie **pierwszym krokiem E4**, przed napisaniem czegokolwiek: hook kontrolny w projekcie neutralnym, dowód treścią odpowiedzi, nie komunikatem. Ścieżka odwrotu zapisana z góry — tryb ciągły degraduje do wstrzykniętej reguły, która każe modelowi najpierw pokazać różnicę; funkcja zostaje, zmienia się nośnik. Niezmierzone: cokolwiek — ryzyko wchodzi do rejestru przed pierwszym przebiegiem |
+| O4 | Tryb ciągły kosztuje turę przy każdym zdaniu — praca zwalnia i drożeje (plan OPTYMALIZATOR_PROMPTOW, ryzyko O4) | **Średni** (2026-09-14, przy akceptacji planu) | **OTWARTE** | Filtr pomijania jest częścią E4, nie dodatkiem: komendy RelAI, frazy sesji, krótkie potwierdzenia i pytania o kod przechodzą nietknięte. Mierzone parą przypadków w jednym przebiegu, z których jeden **musi** trafić (zasada aktywna 5). Wyłącznik jest wierszem w `USTAWIENIA.md`, więc odwrót kosztuje jedną edycję. Sprawa „czy tryb ciągły ma licznik kosztu" czeka na człowieka — bez licznika opłacalność oceniamy na wrażeniu, nie na danych |
+| O6 | Kolizja z zainstalowanym `ecc:prompt-optimizer` — dwa skille o podobnych opisach wyzwalają się nawzajem albo zamiast siebie (plan OPTYMALIZATOR_PROMPTOW, ryzyko O6) | **Średni** (2026-09-14, przy akceptacji planu) | **OTWARTE** | Komenda wołana wprost kolizji nie ma — to jest jeden z powodów, dla których E1 daje komendę, a nie skill. Opis trybu ciągłego będzie zawężony markerem projektu RelAI, jak opisy pozostałych skilli (zasada aktywna 9). Otwarte, bo rozstrzygnięcie należy do człowieka: wyłączenie cudzego pluginu jest zmianą w konfiguracji użytkownika i RelAI jej nie wykona sam. Stan faktyczny: skill ECC obecny w konfiguracji, 16 843 B, autor YannJY02 |
+| O9 | Tani model nie udźwignie optymalizacji — prompt wychodzi gorszy niż zdanie, które człowiek podyktował, a oszczędność zamienia się w koszt poprawek (plan OPTYMALIZATOR_PROMPTOW, ryzyko O9) | **Wysoki** (2026-09-14, przy akceptacji planu) | **OTWARTE** | **E2 istnieje wyłącznie po to, żeby to zmierzyć.** Ten sam zestaw surowych zdań przez Haiku 4.5, Sonneta 5 i Opusa 5; instrument liczy pokrycie dziewięciu wymiarów i koszt jednego przerobienia, osobno z blokiem kontekstu i bez niego — różnica między tymi przebiegami jest ceną utraconego cache'u (ryzyko O10). Kontrola pozytywna: podłożony prompt bez formatu wyjścia i bez kryterium sukcesu **musi** zostać zgłoszony jako niepokryty. Ceny bazowe (dokumentacja Anthropic, stan 2026-06-24): Haiku 4.5 $1/$5, Sonnet 5 $2/$10, Opus 5 $5/$25 za milion tokenów; kontekst 200K u Haiku wobec 1M u pozostałych. Ścieżka odwrotu: Sonnet 5, potem model sesji bez delegacji. Zapisujemy **każdy** wynik, także ten, który przewraca założenie o Haiku |
+
 > Ryzyka zamknięte R2, M4 (2 pozycje) są w
 > [docs/archiwum/ryzyka/RYZYKA_2026-09-04.md](archiwum/ryzyka/RYZYKA_2026-09-04.md)
 > — przeniesione 2026-09-04, suma kontrolna `e2542c88b2ccd9a8`.
@@ -29,6 +34,37 @@
 
 ## Czeka na człowieka
 - ~~**Akceptacja planu PIERWSI_UZYTKOWNICY**~~ *(rozstrzygnięte 2026-09-12 — plan zaakceptowany i zamrożony; E1 i E2 zamknięte)* · 2026-09-12 · [wpis 2026-09-12 — Plan pierwszych użytkowników](#2026-09-12--plan-pierwszych-użytkowników)
+
+- ~~**Akceptacja planu OPTYMALIZATOR_PROMPTOW**~~ *(rozstrzygnięte 2026-09-14 — Łukasz zaakceptował
+  plan bez uwag; plan zamrożony, `PROMPT_ETAP_1.md` wygenerowany, E1 gotowy do startu)* · 2026-09-14 ·
+  [wpis 2026-09-14 — Nowy plan OPTYMALIZATOR_PROMPTOW](#2026-09-14--nowy-plan-optymalizator_promptow-pilotaż-wstrzymany-na-wniosek-właściciela)
+
+- ~~**Nazwa komendy optymalizatora**~~ *(rozstrzygnięte 2026-09-14 — `/relai-prompt`, zgodnie
+  z konwencją rodziny komend)* · 2026-09-14 ·
+  [wpis 2026-09-14 — Nowy plan OPTYMALIZATOR_PROMPTOW](#2026-09-14--nowy-plan-optymalizator_promptow-pilotaż-wstrzymany-na-wniosek-właściciela)
+
+- **Który model zostaje domyślny, jeśli pomiar E2 wyjdzie nierozstrzygający** — na przykład gdy
+  Haiku pokryje siedem wymiarów na dziewięć i wypadnie na wybiórczym czytaniu decyzji. Wybór między
+  tańszym i słabszym a droższym i pewnym jest decyzją o jakości pracy, nie o cenniku. · 2026-09-14 ·
+  [wpis 2026-09-14 — Nowy plan OPTYMALIZATOR_PROMPTOW](#2026-09-14--nowy-plan-optymalizator_promptow-pilotaż-wstrzymany-na-wniosek-właściciela)
+
+- **Kolizja z zainstalowanym `ecc:prompt-optimizer`** — dwa skille o podobnych opisach mogą wyzwalać
+  się nawzajem albo zamiast siebie. Wyłączenie cudzego pluginu jest zmianą w konfiguracji
+  użytkownika, więc RelAI jej nie wykona sam. · 2026-09-14 ·
+  [wpis 2026-09-14 — Nowy plan OPTYMALIZATOR_PROMPTOW](#2026-09-14--nowy-plan-optymalizator_promptow-pilotaż-wstrzymany-na-wniosek-właściciela)
+
+- **Czy tryb ciągły optymalizatora ma licznik kosztu** — dokłada około pół sesji do E3 i jest
+  jedynym sposobem, żeby ocenić opłacalność trybu na danych zamiast na wrażeniu. · 2026-09-14 ·
+  [wpis 2026-09-14 — Nowy plan OPTYMALIZATOR_PROMPTOW](#2026-09-14--nowy-plan-optymalizator_promptow-pilotaż-wstrzymany-na-wniosek-właściciela)
+
+- **Czy tryb ciągły dla Cursora i Codeksa dostaje własny plan** — plan OPTYMALIZATOR_PROMPTOW daje
+  im wyłącznie komendę; tryb ciągły wymaga poznania ich mechanizmu przechwytywania promptu.
+  · 2026-09-14 ·
+  [wpis 2026-09-14 — Nowy plan OPTYMALIZATOR_PROMPTOW](#2026-09-14--nowy-plan-optymalizator_promptow-pilotaż-wstrzymany-na-wniosek-właściciela)
+
+- **Kiedy wraca plan PIERWSI_UZYTKOWNICY** — wstrzymany 2026-09-14, nie zamknięty; E3 i trzy bramki
+  czekają nietknięte, a termin graniczny raportu traci moc do czasu wznowienia. · 2026-09-14 ·
+  [wpis 2026-09-14 — Nowy plan OPTYMALIZATOR_PROMPTOW](#2026-09-14--nowy-plan-optymalizator_promptow-pilotaż-wstrzymany-na-wniosek-właściciela)
 
 - **Dyspozycja publikacji i kontaktów (plan PIERWSI_UZYTKOWNICY)** — cztery bloki tekstu czekają
   gotowe w `docs/plany/PIERWSI_UZYTKOWNICY/ZAPROSZENIE.md`. Bez wskazania kanału, treści i odbiorców
@@ -2568,5 +2604,132 @@ Autor: RelAI (Opus 5) + Lukasz
 - **Rozjazd manifestu z produktem** (`description` mówi „for Claude Code", `keywords` nie zawiera
   nazwy żadnego narzędzia) — wizytówka repozytorium ma go skopiować czy najpierw poprawiamy
   manifest, czyli podbijamy wersję? Zapisane w karcie odnogi `OPIS_REPO` i w `STATE.md`.
+
+Autor: RelAI (Opus 5) + Lukasz
+
+### 2026-09-14 — Nowy plan OPTYMALIZATOR_PROMPTOW; pilotaż wstrzymany na wniosek właściciela
+
+Autor: RelAI (Opus 5) + Lukasz
+
+**Zrobione:**
+
+- **Walidacja `nidhinjs/prompt-master`** na wniosek Łukasza — licencja, zdrowie projektu,
+  powierzchnia ataku i jakość merytoryczna. Wynik: **MIT, zgodne z licencją RelAI**; pięć plików
+  Markdown, zero kodu wykonywalnego, zero GitHub Actions.
+- **Przegląd alternatyw** — osiem kandydatów z dwóch zapytań do API GitHuba plus wyszukiwanie
+  w sieci. Jeden odpadł licencyjnie (`linshenkx/prompt-optimizer`, AGPL-3.0), jeden jako martwy
+  (`microsoft/PromptWizard`, ostatni push 2025-10-13), trzy jako zły kształt (DSPy, GEPA,
+  prompt-ops wymagają datasetu i metryki), jeden bez licencji
+  (`anthropics/prompt-eng-interactive-tutorial`).
+- **Wywiad w trzech rundach**, jedenaście rozstrzygnięć. Zakres: wyłącznie prompty użytkownika do
+  agenta. Wyzwalacz: komenda on-demand **plus** tryb ciągły z trwałym przełącznikiem. Adopcja: port
+  reguł, nie vendoring. Tryb: pokaż różnicę i czekaj. Pomijanie: potwierdzenia, komendy RelAI,
+  pytania o kod. Kontekst: wybiórczy i widoczny. Język: domyślnie polski, pytanie raz na projekt.
+  Reguły: w pluginie, nazwy modeli z istniejącej listy. Budżet: 4–5 sesji.
+- **`docs/plany/OPTYMALIZATOR_PROMPTOW/PLAN.html`** — dziesięć sekcji, pięć wariantów (jeden wybrany,
+  cztery z jawnym powodem odrzucenia), cztery etapy MVP-first, osiem ryzyk, dziesięć rozstrzygniętych
+  przypadków brzegowych, sześć spraw dla człowieka. Diagram przepływu i wykres pracochłonności;
+  bez symulatora, bo plan nie ma wyliczeń, którymi da się pokręcić.
+- **`docs/plany/OPTYMALIZATOR_PROMPTOW/STATUS.md`** — status `DO AKCEPTACJI`, cztery etapy
+  `OCZEKUJE`, sześć bramek manualnych.
+- **Plan PIERWSI_UZYTKOWNICY przeszedł w stan `WSTRZYMANY`** — decyzja Łukasza, nie wniosek agenta.
+  E3 zostaje `GOTOWY DO STARTU` z gotowym promptem, trzy bramki otwarte, **termin graniczny raportu
+  2026-10-03 traci moc** do czasu wznowienia. Nic z dorobku E1 i E2 nie zostało ruszone.
+- **Linia aktywnego planu w `CLAUDE.md`** przestawiona na nowy plan; tabela „Stan prac" dostała
+  wiersz planu wstrzymanego.
+- **Plan rozszerzony przed akceptacją o wątek kosztu modelu** (czwarta runda wywiadu, na wniosek
+  Łukasza). Optymalizacja ma biec na **modelu wskazanym przez człowieka**, jak najtańszym przy
+  zachowanej jakości. Rozpoznanie pokazało, że **mechanizm już istnieje i jest wydany**:
+  `/relai-crew` (2.1.0) pyta o model wg listy `MODELE-<narzędzie>.md` i deleguje przez narzędzie
+  `Agent` z parametrem `model` albo przez `crew.js run --model`, gdzie `buildCommand` zna flagę
+  modelu dla wszystkich trzech dostawców. Do planu weszły: **nowy etap E2 (pomiar modeli)**, wiersz
+  `Model optymalizatora` w ustawieniach, sekcja „Kto to wykonuje" w rozwiązaniu, trzy ryzyka
+  (**O9** jakość taniego modelu — wysokie, **O10** utrata cache'u przy delegacji, **O11** opóźnienie
+  subagenta), cztery przypadki brzegowe (b11–b14) i jedna sprawa dla człowieka. Plan ma **pięć
+  etapów i 5–6 sesji** zamiast czterech i 4–5 — **przekroczenie pierwotnego budżetu jest świadome
+  i zaakceptowane w wywiadzie**, nie przeoczone.
+- **Plan ZAAKCEPTOWANY i zamrożony tego samego dnia** (D-33), bez uwag. Sekwencja akceptacji
+  wykonana w całości: status planu w `STATUS.md` **i w nagłówku `PLAN.html`** (żeby dwa dokumenty
+  nie mówiły dwóch rzeczy), E1 → `GOTOWY DO STARTU`, bramka „Akceptacja planu" → rozstrzygnięta
+  w obu miejscach, cztery ryzyka planu (**O1, O4, O6, O9**) przeniesione do tabeli „Stan otwartych
+  ryzyk" — tak, jak plan to przewidział w sekcji 7.
+- **`docs/plany/OPTYMALIZATOR_PROMPTOW/PROMPT_ETAP_1.md`** — samowystarczalny prompt świeżej sesji
+  wg `SPEC_PROMPT_ETAPU.md`: dziewięć elementów w stałej kolejności, kontrola modelu z nazwą
+  **Opus 5** i datą listy `2026-09-04`, dwanaście pozycji do przeczytania, siedem decyzji
+  zamkniętych z jawną granicą zakresu wobec E2–E5, drzewko stanu faktycznego, jedenaście punktów
+  weryfikacji i rytuał „Na koniec". Zasady aktywne przepisane w prompcie w skrócie (wzorzec
+  `PROMPT_ETAP_3` planu PIERWSI_UZYTKOWNICY), bo pełna sekcja waży 13,8 KB.
+
+**Zweryfikowane — jak dokładnie:**
+
+- **Licencje odczytane z API, nie z opisu repozytorium**: `repos/nidhinjs/prompt-master/license`
+  zwraca `{"spdx":"MIT"}`, a nagłówek pliku — `Copyright (c) 2026 Nidhin Joseph Nelson`.
+  Kontrola porównawcza na `linshenkx/prompt-optimizer`: `spdx: NOASSERTION`, a nagłówek mówi
+  `GNU Affero General Public License v3.0 only` — czyli pole SPDX samo w sobie nie wystarcza
+  i trzeba czytać treść pliku.
+- **Zdrowie projektu z metadanych, nie z wrażenia**: 12 820 gwiazdek, 1 505 forków, 58 commitów,
+  7 kontrybutorów (autor 41), **0 tagów i 0 release'ów**, 32 otwarte zgłoszenia, ostatni push
+  2026-08-24. Drzewo repozytorium ma **5 pozycji**, największa to `SKILL.md` (32 138 B).
+- **Builder planu HTML: kod wyjścia 0**, komunikat „Osadzono 6 regul @font-face", zero
+  niewypełnionych znaczników. Kontrola zasobów zewnętrznych: `grep` po `http(s)://` w gotowym pliku
+  zwraca wyłącznie `www.w3.org` z przestrzeni nazw SVG. Duplikaty `aria-controls`: zero.
+- **Kontrola układu na żywej stronie** (zasada aktywna 15): dokument **nie przewija się w poziomie**
+  (`scrollWidth` 1009 = `clientWidth` 1009), 15 bloków zwijalnych, 14 zwiniętych na starcie,
+  rozwinięcie przez `click` zmienia `aria-expanded` na `true` i daje wysokość 398 px.
+- **Instrument przepełnień z kontrolą pozytywną.** Pierwszy przebieg wykrył realne trafienie:
+  napis „dziewięć wymiarów, max 3 pytania" wychodził **5 px** poza prawą krawędź kartki diagramu.
+  Kontrola pozytywna w tym samym przebiegu — podłożony napis wystający o 320 px został wykryty,
+  więc zielony wynik coś znaczy. Po skróceniu napisu i przegenerowaniu **zero przepełnień
+  w diagramie**; jedyne pozostałe trafienie to adnotacja odręczna nad słupkiem wykresu, która
+  z założenia leży poza słupkiem i **mieści się w `viewBox`** (0 tekstów poza `viewBox`).
+- **Zero emoji** — policzone w Node po zdjęciu `data:` URI fontów, zakresy 1F300–1FAFF, 2600–27BF
+  i selektory wariantu. Zero trafień na fiolet i poświatę.
+- **Etykiety liczb**: po rozszerzeniu 19 wystąpień `FAKT` i 10 `SZACUNEK` w gotowym pliku
+  (przed rozszerzeniem: 14 i 9). Kontrola, że etykieta nie została napisana zwykłym tekstem zamiast
+  znacznikiem — `grep -oE '[^>](FAKT|SZACUNEK)\)'` zwraca pusto; pierwszy przebieg po rozszerzeniu
+  **zwracał trafienie** i zostało poprawione.
+- **Ceny modeli wzięte z dokumentacji, nie z pamięci** — Opus 5 $5/$25, Sonnet 5 $2/$10,
+  Haiku 4.5 $1/$5 za milion tokenów wejścia/wyjścia; kontekst 1M wobec 200K u Haiku
+  (stan cache'u dokumentacji: 2026-06-24). Stamtąd pochodzi też przestroga wpisana do planu:
+  przed budowaniem kaskady wielomodelowej warto zmierzyć mocniejszy model na **niższym wysiłku**,
+  a cache jest **przypisany do modelu**, więc delegacja traci możliwość jego odczytu.
+- **Mechanizm delegacji sprawdzony w kodzie, nie założony** — `buildCommand` w
+  `core/process/crew.js` ma gałąź `--model` / `-m` / `-c model=` dla trzech dostawców, a komenda
+  `/relai-crew` wprost wymienia narzędzie `Agent` z `subagent_type` i `model` z wywiadu. Trzej
+  agenci załogi **nie mają** pola `model` w nagłówku — model podaje się przy wywołaniu.
+- **Układ po rozszerzeniu sprawdzony ponownie na żywej stronie**: brak przewijania poziomego,
+  19 bloków zwijalnych, 32 wiersze tabel, zero tekstów poza `viewBox` obu figur. Jedyne trafienie
+  instrumentu przepełnień to adnotacja odręczna nad słupkiem wykresu, która z założenia leży poza
+  słupkiem. Kontrola pozytywna instrumentu w tym samym przebiegu: **wykryta**.
+
+**Świadomie odłożone:**
+
+- **Rotacja dziennika, lekcji i ryzyk zamkniętych** — zgłoszona na starcie sesji (warstwa startowa
+  83,4 KB przy budżecie 80 KB; dziennik 191,4/150 KB, ryzyka 18,7/12 KB, lekcje 53/50 KB) i nadal
+  należna. Ten wpis dokłada do dziennika kolejne kilka KB.
+- **Odświeżenie listy modeli** — `.claude/relai/MODELE-claude-code.md` ma 10 dni przy progu 7.
+- **Ryzyka O1–O8 nie weszły do tabeli „Stan otwartych ryzyk"** — plan przewiduje, że O1, O4 i O6
+  przechodzą tam **przy akceptacji**, nie przy utworzeniu planu.
+- **Pytanie o nadpisanie lokalne szablonu HTML** (D-62) — pada raz na projekt i nadal nie ma
+  swojego wiersza w `USTAWIENIA.md`, mimo że plany HTML powstają tu od sierpnia.
+
+**Do zrobienia przez człowieka:**
+
+- ~~**Akceptacja planu OPTYMALIZATOR_PROMPTOW**~~ *(rozstrzygnięte 2026-09-14 — zaakceptowany bez
+  uwag; plan zamrożony, sekcje 1–9 nietykalne, `PROMPT_ETAP_1.md` wygenerowany, E1 gotowy do startu,
+  ryzyka O1/O4/O6/O9 w rejestrze)*
+- ~~**Nazwa komendy**~~ *(rozstrzygnięte 2026-09-14 — `/relai-prompt`; prompt E1 był już na tę nazwę
+  napisany, więc nie wymagał poprawki)*
+- **Który model zostaje domyślny, jeśli pomiar E2 wyjdzie nierozstrzygający** — realny wynik to
+  „Haiku wystarcza w siedmiu wymiarach na dziewięć, a wypada na wybiórczym czytaniu decyzji".
+  Wybór między tańszym i słabszym a droższym i pewnym jest decyzją o jakości pracy, nie o cenniku.
+- **Co z zainstalowanym `ecc:prompt-optimizer`** — dwa skille o podobnych opisach mogą wyzwalać się
+  nawzajem albo zamiast siebie (ryzyko O6). Wyłączenie cudzego pluginu jest zmianą w konfiguracji
+  użytkownika, więc RelAI jej nie wykona sam.
+- **Czy tryb ciągły ma licznik kosztu** — dokłada około pół sesji do E3 i jest jedynym sposobem,
+  żeby ocenić opłacalność trybu na danych zamiast na wrażeniu.
+- **Czy tryb ciągły dla Cursora i Codeksa dostaje własny plan** — ten plan daje im wyłącznie komendę.
+- **Kiedy wraca plan PIERWSI_UZYTKOWNICY** — jest wstrzymany, nie zamknięty; trzy bramki i E3
+  czekają nietknięte.
 
 Autor: RelAI (Opus 5) + Lukasz

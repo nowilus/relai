@@ -25,6 +25,7 @@ Rejestr wyborów użytkownika dla tego projektu. Każdy wpis: data, czego dotycz
 | 2026-09-01 | Przegląd spraw człowieka | włączony · 30 dni |
 | 2026-09-03 | Artefakty robocze | włączone · 100 MB |
 | 2026-09-04 | Lista modeli | włączona · 7 dni |
+| 2026-09-14 | Szablon planu HTML | domyślny z pluginu — bez nadpisania lokalnego w `docs/zasoby/HTML_PLAN/`; plany dziedziczą poprawki szablonu przy każdej aktualizacji (D-62) |
 
 ## Ustawienia wycofane
 

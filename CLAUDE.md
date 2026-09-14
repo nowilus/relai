@@ -34,9 +34,10 @@ o kolejne `N` dni / rozstrzygnąć teraz. Sesja nieinteraktywna: sam raport, bez
 | Plan HIGIENA_DOKUMENTOW — 6 etapów | **ZREALIZOWANY 2026-09-01** (Aneksy A–D) | [archiwum planu](docs/archiwum/plany/HIGIENA_DOKUMENTOW/STATUS.md) |
 | Plan SPRZATANIE_ARTEFAKTOW — 4 etapy | **ZREALIZOWANY 2026-09-03** (4/4, wydanie 1.8.0) | [archiwum planu](docs/archiwum/plany/SPRZATANIE_ARTEFAKTOW/STATUS.md) |
 | Plan REKOMENDACJA_MODELU — 4 etapy | **ZREALIZOWANY 2026-09-04** (4/4, Aneksy A–D, wydanie 1.9.0) | [archiwum planu](docs/archiwum/plany/REKOMENDACJA_MODELU/STATUS.md) |
+| Plan PIERWSI_UZYTKOWNICY — 3 etapy | **WSTRZYMANY 2026-09-14** (E1 i E2 zrealizowane, E3 gotowy do startu) | [status planu](docs/plany/PIERWSI_UZYTKOWNICY/STATUS.md) |
 | Odnogi i wątki samodzielne | 1 otwarta (`OPIS_REPO`); `ORKIESTRACJA` zamknięta 2026-09-06 (2.1.0 w repo), `PRECOMMIT_ESM` 2026-09-04 wydaniem 1.9.2, `CURSOR_1_9_1` tego samego dnia | [docs/STATE.md](docs/STATE.md) |
 
-Aktywny plan: [PIERWSI_UZYTKOWNICY](docs/plany/PIERWSI_UZYTKOWNICY/STATUS.md) — **ZAAKCEPTOWANY** 2026-09-12, E1 gotowy do startu.
+Aktywny plan: [OPTYMALIZATOR_PROMPTOW](docs/plany/OPTYMALIZATOR_PROMPTOW/STATUS.md) — **ZAAKCEPTOWANY** 2026-09-14, E1 gotowy do startu.
 
 ## Reguły procesu
 

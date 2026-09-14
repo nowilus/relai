@@ -1,6 +1,11 @@
 # STATUS — plan PIERWSI_UZYTKOWNICY
 
-Plan: [PLAN.html](PLAN.html) · Utworzony: 2026-09-12 · Status: **ZAAKCEPTOWANY** (zamrożony 2026-09-12, D-33) · Model wykonawczy etapów: **Opus** (preferencja z USTAWIENIA.md, D-85)
+Plan: [PLAN.html](PLAN.html) · Utworzony: 2026-09-12 · Status: **WSTRZYMANY 2026-09-14 — pierwszeństwo dostaje plan [OPTYMALIZATOR_PROMPTOW](../OPTYMALIZATOR_PROMPTOW/STATUS.md); E3 czeka na dyspozycję publikacji, której nie było** (zamrożony 2026-09-12, D-33) · Model wykonawczy etapów: **Opus** (preferencja z USTAWIENIA.md, D-85)
+
+> **Wstrzymanie nie unieważnia planu.** E3 zostaje `GOTOWY DO STARTU` z gotowym promptem, trzy
+> bramki manualne zostają otwarte, a materiały E1 i E2 są kompletne. **Termin graniczny raportu
+> 2026-10-03 traci moc** — zegar 21 dni ruszy dopiero przy wznowieniu, bo nie sposób liczyć czasu
+> pilotażu, który nie wysłał ani jednego zaproszenia.
 
 Cel: sprawdzić aktywne użycie RelAI przez samodzielnych twórców pracujących z AI w Polsce.
 Uzgodniony limit: 2–4 sesje, bez płatnej promocji (FAKT — wywiad 2026-09-12).
@@ -91,5 +96,8 @@ jej domknięcie wymaga zmiany po stronie GitHuba, czyli dyspozycji.
   odbiorcy. Niedowiezione, bo zależy od człowieka: żaden kontakt nie został wysłany, `PROBY.md` jest
   pusty. Znalezione po drodze: materiał demo jest **nieczytelny na telefonie** — nowa bramka.
   E3 → GOTOWY DO STARTU.
+- 2026-09-14 — **plan WSTRZYMANY**. Pierwszeństwo dostaje nowy plan
+  [OPTYMALIZATOR_PROMPTOW](../OPTYMALIZATOR_PROMPTOW/STATUS.md); E3 i trzy bramki manualne
+  zostają otwarte, termin graniczny raportu traci moc do czasu wznowienia.
 
 RelAI (GPT-6) + Lukasz

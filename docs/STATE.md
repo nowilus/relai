@@ -1,6 +1,6 @@
 # STATE — RelAI
 
-Stan na: 2026-09-13 (aktualizacja obszaru planowania; stan techniczny poniżej z 2026-09-06)
+Stan na: 2026-09-14 (aktualizacja obszaru planowania; stan techniczny poniżej z 2026-09-06)
 
 ## Gdzie jesteśmy
 
@@ -81,8 +81,26 @@ kontrole przeszły; pełna świeża sesja Codexa pozostaje NOT TESTED po błędz
 
 ## Nad czym pracujemy teraz
 
-- **PIERWSI_UZYTKOWNICY — ZAAKCEPTOWANY, E1 i E2 ZREALIZOWANE (2026-09-12 i 2026-09-13), E3 gotowy
-  do startu**: [plan](plany/PIERWSI_UZYTKOWNICY/PLAN.html) i [status](plany/PIERWSI_UZYTKOWNICY/STATUS.md).
+- **OPTYMALIZATOR_PROMPTOW — ZAAKCEPTOWANY 2026-09-14, E1 GOTOWY DO STARTU**:
+  [plan](plany/OPTYMALIZATOR_PROMPTOW/PLAN.html) i [status](plany/OPTYMALIZATOR_PROMPTOW/STATUS.md).
+  Cel: warstwa zamieniająca podyktowane zdanie w precyzyjny prompt — komenda na żądanie plus tryb
+  ciągły włączany jawnie, zawsze z pokazaną różnicą przed wykonaniem. Merytoryka portowana
+  z `nidhinjs/prompt-master` (MIT, 12 820 gwiazdek, pięć plików Markdown, zero kodu wykonywalnego —
+  odczyt 2026-09-14). **Pięć etapów, 5–6 sesji** — o jedną ponad pierwotny budżet 4–5, świadomie,
+  po dołożeniu etapu pomiaru modeli. Zakres to prompty użytkownika do agenta; prompty etapowe,
+  narzędzia zewnętrzne i brief nowego projektu są nie-celami.
+  **Optymalizację wykonuje subagent na modelu z ustawień, nie model sesji** — mechanizm istnieje
+  i jest wydany (`/relai-crew` 2.1.0 deleguje przez `Agent` z parametrem `model` oraz przez
+  `crew.js run --model`). Który model, rozstrzyga **pomiar w E2**: Haiku 4.5 kosztuje $1/$5 za milion
+  tokenów wobec $5/$25 Opusa 5 i $2/$10 Sonneta 5 (dokumentacja Anthropic, stan 2026-06-24), ale
+  **jakość żadnego z nich w tym zadaniu nie została zmierzona**. Ścieżka odwrotu: Sonnet 5, potem
+  model sesji bez delegacji. Komenda nazywa się **`/relai-prompt`** (rozstrzygnięte 2026-09-14).
+  **Pięć bramek czeka na człowieka**; żadna nie blokuje startu E1. Ryzyka **O1, O4, O6 i O9**
+  weszły do rejestru otwartych ryzyk przy akceptacji.
+- **PIERWSI_UZYTKOWNICY — WSTRZYMANY 2026-09-14**, E1 i E2 ZREALIZOWANE (2026-09-12 i 2026-09-13),
+  E3 zostaje gotowy do startu: [plan](plany/PIERWSI_UZYTKOWNICY/PLAN.html) i [status](plany/PIERWSI_UZYTKOWNICY/STATUS.md).
+  Pierwszeństwo dostał nowy plan; **termin graniczny raportu 2026-10-03 traci moc** do czasu
+  wznowienia, bo pilotaż nie wysłał ani jednego zaproszenia.
   Cel: aktywni użytkownicy i feedback od polskich samodzielnych twórców pracujących z AI; limit
   2–4 sesje, bez płatnej promocji. **Aneks A**: materiał demo produkuje agent, nie nagrywa go
   człowiek. E1 dowiózł **cztery pliki materiału** (25 s GIF i 60 s MP4, PL i EN, bez dźwięku)
@@ -255,15 +273,19 @@ Komendy i frazy: [KOMENDY.md](KOMENDY.md)
 
 Plany: BUDOWA_RELAI 10/10 • OPTYMALIZACJA_KONTEKSTU 5/5 • HIGIENA_DOKUMENTOW 6/6 •
 SPRZATANIE_ARTEFAKTOW 4/4 • REKOMENDACJA_MODELU 4/4 (zamknięty 2026-09-04) •
-ROZWOJ_PO_WYDANIU 8/8 (**ZREALIZOWANY**) • **Aktywny plan: PIERWSI_UZYTKOWNICY — 2/3, E3 gotowy do startu** •
+ROZWOJ_PO_WYDANIU 8/8 (**ZREALIZOWANY**) • PIERWSI_UZYTKOWNICY 2/3 (**WSTRZYMANY 2026-09-14**) •
+**Aktywny plan: OPTYMALIZATOR_PROMPTOW — 0/5, ZAAKCEPTOWANY, E1 gotowy do startu** •
 Warstwa startowa: pomiar z 2026-09-12 (**62,8/80 KB**) jest nieaktualny — dziennik urósł od tego
 czasu o 69 KB • Dziennik: **196,0/150 KB** (28 wpisów) — **rotacja należna** •
 Lekcje: **54,3 KB / 50 KB** (25 w żywym rejestrze, ostatnia L-0098) — **rotacja należna** •
 Sekcja ryzyk w widoku rotacji: **17,6 KB / 12 KB** — **rotacja zamkniętych należna** • Archiwum:
 siedem plików dziennika, trzy lekcji, dwa ryzyk • Sprawy czekające na człowieka: **8 tutaj**
 (1 rozstrzygnięta 2026-09-12), 32 w PolyFlow, żadna nieprzeterminowana •
-Otwarte ryzyka: **10** (doszło U1 — pilotaż bez uczestnika) • Zamknięte: **8, w archiwum** •
-Otwarte bramki manualne: **3** (dyspozycja publikacji i kontaktów, uczestnicy, ponowny render demo — wszystkie E3) •
+Otwarte ryzyka: **14** (doszły O1, O4, O6, O9 z planu optymalizatora) • Zamknięte: **8, w archiwum** •
+Otwarte bramki manualne: **8** — 3 w planie wstrzymanym (dyspozycja publikacji i kontaktów,
+uczestnicy, ponowny render demo) i 5 w aktywnym (model domyślny przy nierozstrzygającym pomiarze,
+kolizja z ECC, licznik kosztu, tryb ciągły dla Cursora i Codeksa, powrót pilotażu); akceptacja planu
+i nazwa komendy rozstrzygnięte 2026-09-14 •
 Otwarte wątki: **1** — odnoga `OPIS_REPO`, zakres odświeżony 2026-09-13; `ORKIESTRACJA` zamknięta 2026-09-06 •
 Artefakty w rejestrze: **46** • Zasady aktywne: **15 przy limicie 15** •
 Progi w katalogu: **18, z tego 17 z adresem egzekwowania** • Adaptery: **3** •
