@@ -161,6 +161,12 @@ kontrole przeszły; pełna świeża sesja Codexa pozostaje NOT TESTED po błędz
   listy działa we wszystkich projektach naraz. Szczegóły: „Czeka na człowieka" w dzienniku.
 - **Reguła głębokości rotacji** — cel „60% części rotowalnej" zatrzymuje rotację nad progiem
   w dokumencie o grubej dolnej granicy; 2026-09-04 głębokość trzeba było wybierać ręcznie.
+  **Potwierdzone drugi raz 2026-09-14, tym razem na dwóch dokumentach naraz**: litera specyfikacji
+  wzięłaby z dziennika 7 wpisów (zostałoby 164,8 KB przy progu 150) i z lekcji **zero** pozycji
+  (zostałoby 53,0 KB przy progu 50), bo ich część rotowalna jest poniżej 60% progu, zanim cokolwiek
+  się zabierze. Kryterium „cały plik poniżej 60% progu" dało 29 wpisów i 9 lekcji, czyli 87,3 KB
+  i 42,6 KB. **To jest wada rdzenia RelAI, nie tego projektu** — poprawka `SPEC_ARCHIWUM.md`
+  wymaga decyzji, czy cel przenosi się na wagę całkowitą; kandydat na odnogę.
 - ~~**REGRESJA: komendy pluginu Claude Code nie ładują się w ogóle**~~ — **dwie niezależne
   przyczyny**, obie naprawione 2026-09-06. (1) Korzeniowy `skills/` kolidował nazwami z komendami
   ([P-010](PULAPKI.md), 2.1.1) — skille Codeksa przeniesione do `adapters/codex/skills/`, Codex
@@ -275,11 +281,13 @@ Plany: BUDOWA_RELAI 10/10 • OPTYMALIZACJA_KONTEKSTU 5/5 • HIGIENA_DOKUMENTOW
 SPRZATANIE_ARTEFAKTOW 4/4 • REKOMENDACJA_MODELU 4/4 (zamknięty 2026-09-04) •
 ROZWOJ_PO_WYDANIU 8/8 (**ZREALIZOWANY**) • PIERWSI_UZYTKOWNICY 2/3 (**WSTRZYMANY 2026-09-14**) •
 **Aktywny plan: OPTYMALIZATOR_PROMPTOW — 0/5, ZAAKCEPTOWANY, E1 gotowy do startu** •
-Warstwa startowa: pomiar z 2026-09-12 (**62,8/80 KB**) jest nieaktualny — dziennik urósł od tego
-czasu o 69 KB • Dziennik: **196,0/150 KB** (28 wpisów) — **rotacja należna** •
-Lekcje: **54,3 KB / 50 KB** (25 w żywym rejestrze, ostatnia L-0098) — **rotacja należna** •
-Sekcja ryzyk w widoku rotacji: **17,6 KB / 12 KB** — **rotacja zamkniętych należna** • Archiwum:
-siedem plików dziennika, trzy lekcji, dwa ryzyk • Sprawy czekające na człowieka: **8 tutaj**
+Warstwa startowa: **71,2/80 KB** (pomiar 2026-09-14 po rotacji; przed nią 83,4 KB) •
+Dziennik: **87,3/150 KB** (12 wpisów) — rotowany 2026-09-14 • Lekcje: **42,6/50 KB**
+(20 w żywym rejestrze, ostatnia L-0098) — rotowane 2026-09-14 • Sekcja ryzyk: **21,7 KB / 12 KB**,
+**0 zamkniętych z 16** — rotacja nie ma czego wziąć, odchudzi ją wyłącznie zamknięcie ryzyk albo
+podniesienie progu • `STATE.md`: 23,7 KB przy progu cząstkowym 12 KB (299 linii przy progu 300) —
+odchudza go przepisanie zwięźlej, nie archiwum • Archiwum:
+**osiem** plików dziennika, **cztery** lekcji, dwa ryzyk • Sprawy czekające na człowieka: **8 tutaj**
 (1 rozstrzygnięta 2026-09-12), 32 w PolyFlow, żadna nieprzeterminowana •
 Otwarte ryzyka: **14** (doszły O1, O4, O6, O9 z planu optymalizatora) • Zamknięte: **8, w archiwum** •
 Otwarte bramki manualne: **8** — 3 w planie wstrzymanym (dyspozycja publikacji i kontaktów,
