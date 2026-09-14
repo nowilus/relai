@@ -26,6 +26,7 @@
   "agents": [
     "./adapters/claude-code/agents/relai-coder.md",
     "./adapters/claude-code/agents/relai-tester.md",
-    "./adapters/claude-code/agents/relai-reviewer.md"
+    "./adapters/claude-code/agents/relai-reviewer.md",
+    "./adapters/claude-code/agents/relai-prompt-optimizer.md"
   ]
 }

@@ -22,7 +22,7 @@
 | O1 | Hook `UserPromptSubmit` w Claude Code nie podmienia promptu, tylko dokłada kontekst — „tryb ciągły" może być nierealizowalny w zakładanym kształcie (plan OPTYMALIZATOR_PROMPTOW, ryzyko O1) | **Wysoki** (2026-09-14, przy akceptacji planu) | **OTWARTE** | Pomiar idzie **pierwszym krokiem E4**, przed napisaniem czegokolwiek: hook kontrolny w projekcie neutralnym, dowód treścią odpowiedzi, nie komunikatem. Ścieżka odwrotu zapisana z góry — tryb ciągły degraduje do wstrzykniętej reguły, która każe modelowi najpierw pokazać różnicę; funkcja zostaje, zmienia się nośnik. Niezmierzone: cokolwiek — ryzyko wchodzi do rejestru przed pierwszym przebiegiem |
 | O4 | Tryb ciągły kosztuje turę przy każdym zdaniu — praca zwalnia i drożeje (plan OPTYMALIZATOR_PROMPTOW, ryzyko O4) | **Średni** (2026-09-14, przy akceptacji planu) | **OTWARTE** | Filtr pomijania jest częścią E4, nie dodatkiem: komendy RelAI, frazy sesji, krótkie potwierdzenia i pytania o kod przechodzą nietknięte. Mierzone parą przypadków w jednym przebiegu, z których jeden **musi** trafić (zasada aktywna 5). Wyłącznik jest wierszem w `USTAWIENIA.md`, więc odwrót kosztuje jedną edycję. Sprawa „czy tryb ciągły ma licznik kosztu" czeka na człowieka — bez licznika opłacalność oceniamy na wrażeniu, nie na danych |
 | O6 | Kolizja z zainstalowanym `ecc:prompt-optimizer` — dwa skille o podobnych opisach wyzwalają się nawzajem albo zamiast siebie (plan OPTYMALIZATOR_PROMPTOW, ryzyko O6) | **Średni** (2026-09-14, przy akceptacji planu) | **OTWARTE** | Komenda wołana wprost kolizji nie ma — to jest jeden z powodów, dla których E1 daje komendę, a nie skill. Opis trybu ciągłego będzie zawężony markerem projektu RelAI, jak opisy pozostałych skilli (zasada aktywna 9). Otwarte, bo rozstrzygnięcie należy do człowieka: wyłączenie cudzego pluginu jest zmianą w konfiguracji użytkownika i RelAI jej nie wykona sam. Stan faktyczny: skill ECC obecny w konfiguracji, 16 843 B, autor YannJY02 |
-| O9 | Tani model nie udźwignie optymalizacji — prompt wychodzi gorszy niż zdanie, które człowiek podyktował, a oszczędność zamienia się w koszt poprawek (plan OPTYMALIZATOR_PROMPTOW, ryzyko O9) | **Wysoki** (2026-09-14, przy akceptacji planu) | **OTWARTE** | **E2 istnieje wyłącznie po to, żeby to zmierzyć.** Ten sam zestaw surowych zdań przez Haiku 4.5, Sonneta 5 i Opusa 5; instrument liczy pokrycie dziewięciu wymiarów i koszt jednego przerobienia, osobno z blokiem kontekstu i bez niego — różnica między tymi przebiegami jest ceną utraconego cache'u (ryzyko O10). Kontrola pozytywna: podłożony prompt bez formatu wyjścia i bez kryterium sukcesu **musi** zostać zgłoszony jako niepokryty. Ceny bazowe (dokumentacja Anthropic, stan 2026-06-24): Haiku 4.5 $1/$5, Sonnet 5 $2/$10, Opus 5 $5/$25 za milion tokenów; kontekst 200K u Haiku wobec 1M u pozostałych. Ścieżka odwrotu: Sonnet 5, potem model sesji bez delegacji. Zapisujemy **każdy** wynik, także ten, który przewraca założenie o Haiku |
+| O9 | Tani model nie udźwignie optymalizacji — prompt wychodzi gorszy niż zdanie, które człowiek podyktował, a oszczędność zamienia się w koszt poprawek (plan OPTYMALIZATOR_PROMPTOW, ryzyko O9) | **Wysoki** (2026-09-14, przy akceptacji planu) | **ZMIERZONE i ZAMKNIĘTE 2026-09-14 (E2)** — Haiku 4.5 dał propozycję w **3 z 20** przebiegów (w pozostałych same pytania przy wyprowadzalnym zadaniu), a 12 z 20 jego odpowiedzi było po angielsku przy polskim wejściu; Sonnet 5: **14 z 20** propozycji, zero rozjazdu językowego; Opus 5: 11 z 13 przy pokryciu 37–40%. Wiersz `Model optymalizatora` = **Sonnet 5** (wskazanie człowieka). Szczegóły i tabela: wpis dziennika 2026-09-14 (E2) | **E2 istnieje wyłącznie po to, żeby to zmierzyć.** Ten sam zestaw surowych zdań przez Haiku 4.5, Sonneta 5 i Opusa 5; instrument liczy pokrycie dziewięciu wymiarów i koszt jednego przerobienia, osobno z blokiem kontekstu i bez niego — różnica między tymi przebiegami jest ceną utraconego cache'u (ryzyko O10). Kontrola pozytywna: podłożony prompt bez formatu wyjścia i bez kryterium sukcesu **musi** zostać zgłoszony jako niepokryty. Ceny bazowe (dokumentacja Anthropic, stan 2026-06-24): Haiku 4.5 $1/$5, Sonnet 5 $2/$10, Opus 5 $5/$25 za milion tokenów; kontekst 200K u Haiku wobec 1M u pozostałych. Ścieżka odwrotu: Sonnet 5, potem model sesji bez delegacji. Zapisujemy **każdy** wynik, także ten, który przewraca założenie o Haiku |
 
 > Ryzyka zamknięte R2, M4 (2 pozycje) są w
 > [docs/archiwum/ryzyka/RYZYKA_2026-09-04.md](archiwum/ryzyka/RYZYKA_2026-09-04.md)
@@ -39,8 +39,9 @@
   plan bez uwag; plan zamrożony, `PROMPT_ETAP_1.md` wygenerowany, E1 gotowy do startu)* · 2026-09-14 ·
   [wpis 2026-09-14 — Nowy plan OPTYMALIZATOR_PROMPTOW](#2026-09-14--nowy-plan-optymalizator_promptow-pilotaż-wstrzymany-na-wniosek-właściciela)
 
-- **Gdzie wchodzi prowizjonowanie `core/prompt/` do projektu użytkownika** — E3 czy E5; bez kopii
-  komenda w cudzym projekcie nie widzi rusztowań i pracuje na samym rdzeniu reguł · 2026-09-14 ·
+- ~~**Gdzie wchodzi prowizjonowanie `core/prompt/` do projektu użytkownika**~~ *(rozstrzygnięte
+  2026-09-14 — **E5, razem z sekwencją wydania**; do tego czasu komenda w cudzym projekcie pracuje
+  na rdzeniu reguł niesionym w samej komendzie i jest to stan zamierzony)* · 2026-09-14 ·
   [wpis 2026-09-14 — E1 optymalizatora](#2026-09-14--e1-optymalizatora-baza-reguł-czternasta-komenda-i-nota-licencyjna-w-jednym-commicie)
 
 - ~~**Nazwa komendy optymalizatora**~~ *(rozstrzygnięte 2026-09-14 — `/relai-prompt`, zgodnie
@@ -1120,8 +1121,313 @@ Autor: RelAI (Opus 5) + Lukasz
 
 **Do zrobienia przez człowieka:**
 
-- **Gdzie wchodzi prowizjonowanie `core/prompt/` do projektu** — do E3 (razem z adapterami Cursor
-  i Codex, gdzie i tak trzeba dotknąć dystrybucji) czy do E5 (razem z sekwencją wydania). Bez tego
-  komenda w cudzym projekcie działa wyłącznie na rdzeniu reguł z samej komendy, bez rusztowań.
+- ~~**Gdzie wchodzi prowizjonowanie `core/prompt/` do projektu**~~ *(rozstrzygnięte 2026-09-14 —
+  **E5, razem z sekwencją wydania**: kopia idzie do projektu tą samą drogą co specyfikacje, a do
+  czasu wydania komenda pracuje na rdzeniu reguł niesionym w sobie i jest to stan zamierzony.
+  Skutek dla planu: E5 dostaje punkt zakresu, którego nie przewidywał — propozycja aneksu w tej
+  samej turze)*
+
+Autor: RelAI (Opus 5) + Lukasz
+
+### 2026-09-14 — E2 optymalizatora: trzy modele zmierzone, Haiku odpada, delegacja idzie na Sonneta
+
+Autor: RelAI (Opus 5) + Lukasz
+
+**Zrobione:**
+
+- **`adapters/claude-code/agents/relai-prompt-optimizer.md`** — czwarty agent adaptera i pierwszy
+  spoza załogi. Nagłówek jak u trzech ról załogi, **bez pola `model`** (nazwa przychodzi przy
+  wywołaniu), `description` w cudzysłowie (P-012), narzędzia wyłącznie czytające. Preambuła niesie
+  rdzeń reguł — w cudzym projekcie `core/prompt/` jest poza zasięgiem (L-0012) — zakaz wykonania
+  przerobionego promptu i **obowiązkową ostatnią linię `model:`** z nazwą modelu, na którym
+  odpowiedź powstała. Plik dopisany do tablicy `agents` w `.claude-plugin/plugin.json`; wersji
+  pluginu **nie ruszono** (E5).
+- **`adapters/claude-code/commands/relai-prompt.md`** — nowy **`Krok 1`**: czytanie wiersza
+  `Model optymalizatora`, delegacja do agenta z jawną nazwą modelu i cztery ścieżki awaryjne
+  z sekcji 8 planu — nazwa spoza listy (b11), brak wiersza (b12), awaria subagenta (b13), prompt
+  ponad kontekst (b14). Kroki 1–8 przenumerowane na 2–9, ich treść nietknięta; zakazów jest
+  **czternaście**, a zakaz zapisu ma odtąd jeden nazwany wyjątek — wiersz ustawień.
+- **Wiersz `Model optymalizatora` w `docs/USTAWIENIA.md`**: `Sonnet 5 · lista claude-code z dnia
+  2026-09-04`. Wartość wskazał **człowiek**, po pokazaniu tabeli; pomiar dał rekomendację, nie wpis.
+- **`docs/ARTEFAKTY.md`** — agent jako nowa pozycja (wersja 1), komenda podbita do **wersji 2**,
+  sekcja agentów przemianowana z „Agenci załogi (3)" na „Agenci (4)", inwentarz przeliczony
+  komendą: **50 pozycji**.
+- **Zestaw pomiarowy i instrument** w `.claude/relai/work/OPTYMALIZATOR_PROMPTOW/E2/`: dziesięć
+  surowych zdań z realnej pracy (dwa dosłownie z wiadomości właściciela z tej sesji, reszta
+  z dziennika i z sekcji „Co dalej" w `STATE.md`), plik oczekiwań, `wzorce.js` (dwa liczniki
+  pokrycia i klasyfikacja kształtu odpowiedzi), `kontrola.js`, `mierz.js`, `licz.js`,
+  `czytaj-ustawienia.js`, `awaria.js`, ręcznie złożony blok kontekstu i `ceny.md`.
+- **Odstępstwo od granicy zakresu, rozstrzygnięte przez człowieka w trakcie etapu** — drugi raz
+  ten sam wzorzec co w E1: zmiana komendy rozjechała wygenerowany skill Codeksa, a adaptery należą
+  do E3. Wybrana opcja „regeneruj teraz": `generate-skills.js` (generacja deterministyczna z pliku
+  komendy), walidator z powrotem na kodzie 0.
+
+**Tabela wynikowa — `claude -p`, katalog neutralny poza projektem, 2026-09-14 (FAKT):**
+
+| model | wariant | zdań | propozycja powstała | pokrycie 9 wymiarów na propozycjach | tokeny we | tokeny wy | koszt/zdanie USD |
+|---|---|---|---|---|---|---|---|
+| Haiku 4.5 | bez bloku | 10 | **2** | 16,7% (n=2) | 24 425 | 2 162 | 0,0628 |
+| Haiku 4.5 | z blokiem | 10 | **1** | 33,3% (n=1) | 25 126 | 2 805 | 0,0665 |
+| Sonnet 5 | bez bloku | 10 | **7** | 19,0% (n=7) | 44 306 | 4 574 | 0,3909 |
+| Sonnet 5 | z blokiem | 10 | **7** | 17,5% (n=7) | 45 394 | 4 966 | 0,3931 |
+| Opus 5 | bez bloku | **7 z 10** | 6 | 37,0% (n=6) | 43 453 | 3 447 | 0,5857 |
+| Opus 5 | z blokiem | **6 z 10** | 5 | 40,0% (n=5) | 44 938 | 4 061 | 0,6115 |
+
+Tokeny to średnia na zdanie, liczona jako `input + cache_creation` z `usage` zwróconego przez CLI.
+Ceny bazowe z dokumentacji dostawcy (`platform.claude.com/docs/en/about-claude/pricing`, **odczyt
+2026-09-14**): Haiku 4.5 $1/$5, Sonnet 5 $2/$10, Opus 5 $5/$25 za milion — **bez zmian** wobec
+liczb z planu (stan 2026-06-24). Zapis cache'u godzinowego kosztuje **2×** cenę wejścia i to on
+zjada większość rachunku: sesja `claude -p` zakłada cache na własny prompt systemowy, a każde
+wywołanie zakłada go od nowa. **Razem 56 zapisanych wywołań, 17,80 USD, 2 091 995 tokenów wejścia
+i 193 673 wyjścia.**
+
+**Cena utraconego cache'u — policzona, nie oszacowana (różnica tokenów wejścia między wariantami
+tego samego modelu):**
+
+| model | we bez bloku | we z blokiem | różnica | różnica kosztu USD/zdanie |
+|---|---|---|---|---|
+| Haiku 4.5 | 24 425 | 25 126 | **+701** | +0,0037 |
+| Sonnet 5 | 44 306 | 45 394 | **+1 088** | +0,0022 |
+| Opus 5 | 43 453 | 44 938 | **+1 485** | +0,0258 |
+
+**Zweryfikowane — jak dokładnie:**
+
+- **Delegacja biegnie na modelu z wiersza ustawień, nie na modelu sesji** — dwa przebiegi **tego
+  samego zdania** (`03-rotacja`) z dwiema różnymi wartościami wiersza, odczytanymi tym samym
+  czytnikiem: `Haiku 4.5` → alias `haiku`, `Opus 5` → alias `opus`. Odpowiedź pierwsza kończy się
+  linią `model: claude-haiku-4-5-20251001` i zawiera **same pytania**; druga linią `model: Opus 5`
+  i niesie rozpisaną propozycję z pięcioma oznaczonymi dopowiedzeniami. **Dowód treścią odpowiedzi,
+  nie komunikatem narzędzia.** Sesja prowadząca cały etap stoi na Opusie, więc pierwszy przebieg
+  nie mógł powstać w wątku głównym.
+- **Kontrola pozytywna instrumentu w tym samym przebiegu**, bez niej żadna liczba pokrycia nic nie
+  znaczy: **28 punktów, 0 niezaliczonych** (`kontrola.js`). Materiał pełny → 9/9 wymiarów pod obu
+  licznikami; ten sam materiał bez sekcji formatu i kryterium → wymiary **2 i 3 niepokryte**,
+  pozostałe siedem nadal pokryte. Podłożone zdanie `07-notka.txt` (celowo bez formatu wyjścia
+  i bez kryterium sukcesu) zgłoszone jako **niepokryte w obu tych wymiarach** przez oba liczniki.
+  Kontrola przeciwna zawyżeniu: dziesięć surowych zdań pod licznikiem luźniejszym daje
+  **0,0,1,0,0,1,1,1,0,1** z dziewięciu, czyli wzorzec nie łapie prozy.
+- **Wiersz ustawień czytany maszynowo — obie strony w jednym przebiegu.** Realny plik po zapisie:
+  `stan=rozpoznana, nazwa="Sonnet 5", alias=sonnet, id=claude-sonnet-5, klasa=balanced, lista
+  z dnia 2026-09-04`. Fixtura z wartością `Haiku 3.7 Turbo`: `stan=spoza-listy`, **cisza i wskazanie
+  `/relai-models`**, pole modelu zostaje niewypełnione — nazwa **nie** jest podmieniana na najbliższą
+  z listy. Brak wiersza → cisza i pytanie raz na projekt (b12); brzmienie `model sesji` → rozpoznane
+  jako praca bez delegacji. Czytnik: **5 punktów, 0 niezaliczonych**.
+- **Awaria subagenta nie jest cicha (b13)** — `awaria.js`, **6 punktów, 0 niezaliczonych**.
+  Delegacja z nazwą `relai-nieistniejacy-model` zwróciła `is_error: true`; ścieżka rozpoznana jako
+  `b13-awaria`, do wykonania poszedł **oryginał bajt w bajt** (porównanie treści, nie długości),
+  a obok stanęło jedno zdanie o nieudanej optymalizacji. Kontrola pozytywna w tym samym przebiegu:
+  ten sam materiał na modelu z listy przeszedł delegację (1 240 znaków wobec 104 oryginału,
+  oryginał przytoczony w treści).
+- **Ochrona poświadczeń — dowód negatywny na całym materiale.** Wartość testowa, składana w czasie
+  wykonania (L-0046), nie występuje w **żadnym** z 55 plików wyjściowych. Kontrola pozytywna tego
+  samego wzorca: placeholder stoi w pliku zdania, a wartość po podstawieniu **trafia**.
+- **Zero nazw modeli w bazie reguł nadal obowiązuje:** wzorzec `opus|sonnet|haiku|fable|gpt-|claude-`
+  na `core/prompt/*.md` → **0 trafień**; kontrola pozytywna tego samego wzorca na
+  `adapters/claude-code/MODELE.md` → **7 trafień**.
+- **Walidator adapterów zielony:** `node core/tools/validate-adapters.js` → `spojne`, **kod 0**,
+  w tym `naglowki YAML komend: 14 sprawdzonych, 0 wadliwych` i `sciezki z plugin.json: 7`
+  (o jedną więcej po dopisaniu agenta). Przed regeneracją skilla Codeksa ten sam walidator
+  zgłaszał dokładnie jeden problem — **obie strony pokazane w jednym dniu**.
+- **`docs/USTAWIENIA.md` zmieniony za zgodą człowieka** — wartość wskazana w pytaniu
+  ustrukturyzowanym przed zapisem, nie po nim.
+- **Dwa defekty instrumentu wykryte i naprawione w trakcie**, oba tej samej klasy co zasada
+  aktywna 5. (1) Pierwszy licznik mierzył zgodność z **nazwami sekcji rusztowania**, a modele
+  w neutralnym katalogu `SZABLONY.md` nigdy nie widziały — pokrycie 8–27% opisywało formę, nie
+  wymiar; dołożony drugi licznik, semantyczny, z własną kontrolą przeciw zawyżeniu. (2) Klasyfikator
+  kształtu odpowiedzi przewracał się na **numerowanym nagłówku** (`## 2. Propozycja`) i meldował
+  „brak propozycji" dla Opusa, który propozycje miał; numeracja weszła do wzorca razem
+  z przypadkiem kontrolnym dokładnie tego kształtu.
+- **Sygnał, którego plan nie przewidywał: Haiku odpowiada po angielsku na polskie wejście** —
+  **12 z 20** jego odpowiedzi ma nagłówki `Original` / `Proposal`; Sonnet i Opus **0 z 33**.
+  Wykryte osobnym wzorcem z kontrolą w obie strony.
+- **Katalog roboczy etapu:** przed **0,3 MB / 111 plików**, po **0,0 MB — katalog nie istnieje**
+  (sprawdzone `ls`, nie komunikatem narzędzia). Ponowny pomiar: **0,0 MB kandydatów, zero grup**.
+  Artefakty **poza** katalogiem roboczym: dwa katalogi `%TEMP%/relai-optymalizator-cwd`
+  i `%TEMP%/relai-optymalizator-probe` — neutralne katalogi robocze sesji `claude -p`, skasowane
+  razem z resztą i potwierdzone `ls`.
+- **Potwierdzenie ryzyka S1 po raz piąty:** raport przed `git add` pokazał dorobek etapu (nowy agent
+  i `PROMPT_ETAP_3.md`) jako **kandydatów do skasowania**; po przyjęciu do indeksu zniknęły z listy.
+  Granicą ochrony dorobku sesji jest indeks gita, nie marker (L-0078).
+
+**Ryzyka:**
+
+- **O9 (tani model nie udźwignie) — ZMIERZONE i ZAMKNIĘTE.** Haiku 4.5 dał propozycję w **3 z 20**
+  przebiegów, a w pozostałych zwrócił same pytania, choć zadanie było wyprowadzalne; do tego
+  połowa odpowiedzi po angielsku. Sonnet 5: **14 z 20** propozycji, zero rozjazdu językowego.
+  Założenie o modelu tanim przewrócone i zapisane tak, jak wyszło. Reszta nie jest już ryzykiem,
+  lecz wyborem człowieka: Sonnet ma pokrycie 17–19%, Opus 37–40% — to jest cena za taniość
+  i została przyjęta świadomie.
+- **O10 (delegacja traci cache) — ZMIERZONE i ZAMKNIĘTE.** Blok kontekstu waży 701–1 485 tokenów
+  wejścia, czyli 0,0022–0,0258 USD na zdanie; do tabeli ryzyk dziennika nigdy nie wszedł i nie
+  wchodzi. Wniosek: utracony cache **nie** zjada oszczędności — rachunek robi narzut samej sesji,
+  nie blok pamięci projektu.
+
+**Świadomie odłożone:**
+
+- **Opus zmierzony na 7 i 6 zdaniach z dziesięciu, nie na pełnym zestawie** — decyzja właściciela
+  w trakcie przebiegu („ogranicz te testy, może tego Opusa, żeby nie przepalać"). Kolumna zostaje
+  w tabeli z jawną liczbą zdań; przy 0,59 USD za wywołanie pełny zestaw kosztowałby jeszcze ~4 USD.
+  Kierunek wyniku jest ten sam w obu wariantach, więc dołożenie brakujących zdań niczego nie
+  przewraca — ale nie jest to komplet i tak zostaje zapisane.
+- **Pokrycie dziewięciu wymiarów jest miarą względną, nie oceną jakości.** Wartość bezwzględna
+  17–40% mówi o tym, ile wymiarów instrument **rozpoznał wzorcem**; porównanie między modelami na
+  tym samym materiale jest wiarygodne, sama liczba nie jest oceną promptu.
+- **Narzut harnessu CLI nie daje się rzetelnie odjąć.** Baseline (22 917 / 45 107 / 57 661 tokenów)
+  okazał się większy niż realne wywołania Sonneta i Opusa, więc kolumna „we − baseline" wychodzi
+  ujemna i jest w raporcie oznaczona jako nierzetelna. Rzetelne są liczby surowe i różnica między
+  wariantami tego samego modelu.
+- **Zachowanie w cudzym projekcie** — komenda i agent nie są wydane, więc delegacji z pluginu nie
+  da się zmierzyć (E5). **Opóźnienie delegacji w trybie ciągłym** (O11) — tryb ciągły powstaje w E4.
+- **Trzy odpowiedzi z markerem dopowiedzenia bez powodu** (`bez-sonnet-05` dwa, `z-opus-03` jeden)
+  — realne naruszenie własnej reguły przez modele, nie defekt instrumentu. Poprawka brzmienia
+  reguły nie należy do tego etapu.
+- **Sonnet bez bloku kontekstu przeczytał „E5" jako licencję Microsoft 365** zamiast etapu planu
+  (`bez-sonnet-01`). To jest najmocniejszy pojedynczy argument za blokiem pamięci projektu z E3
+  i zostaje zapisany jako materiał dla tego etapu.
+
+**Do zrobienia przez człowieka:**
+
+- ~~**Który model zostaje domyślny, jeśli pomiar wyjdzie nierozstrzygający**~~ *(rozstrzygnięte
+  2026-09-14 — pomiar wyszedł **rozstrzygający**: Haiku odpada na trzech propozycjach z dwudziestu,
+  a właściciel wskazał **Sonnet 5**; wiersz ustawień zapisany)*
+
+Autor: RelAI (Opus 5) + Lukasz
+
+### 2026-09-14 — E3 optymalizatora: prompt zna decyzje projektu z numeru, a język rozstrzyga wejście
+
+Autor: RelAI (Opus 5) + Lukasz
+
+**Zrobione:**
+
+- **`adapters/claude-code/commands/relai-prompt.md` (wersja 3)** — dwa nowe kroki. `Krok 6` składa
+  **blok kontekstu projektu** z trzech źródeł (`docs/DECYZJE.md`, sekcja „Zasady aktywne"
+  w `docs/LEKCJE.md`, `docs/STATE.md`; dziennika, planów i archiwum nie otwiera): kryterium wyboru
+  „usunięcie pozycji zmieniłoby treść promptu", wiersz **zaczynający się od identyfikatora** bez
+  etykiety źródła, limit **1 300 znaków i sześciu pozycji**, przycinanie po pozycjach najmniej
+  związanych — nigdy w środku pozycji. `Krok 9` rozstrzyga **język**: decyduje język wejścia (b5),
+  wiersz `Język promptu` jest odpowiedzią wyłącznie dla zdania nierozstrzygalnego, wartość spoza
+  zamkniętej listy znaczy cisza. Kroki 6–9 przenumerowane na 7–8 i 10–11, kontrola przed pokazaniem
+  z siedmiu punktów na dziewięć, zakazów szesnaście, zakaz zapisu z dwoma nazwanymi wyjątkami.
+- **Delegacja w Codeksie rozstrzygnięta** — akapit w `Kroku 1` (czyli w pliku, który generuje skill
+  Codeksa): host bez pojęcia agenta pracuje **bez delegacji**, z rdzenia reguł niesionych w
+  procedurze, i mówi pół zdaniem, że wiersz ustawień nie ma tam jak zadziałać. Osobnego agenta dla
+  Codeksa się nie dorabia. Droga `crew.js run --model` **odrzucona**: proces zewnętrzny i flagi CLI
+  dostawcy (ryzyko M6) kosztują więcej, niż dają przy jednym przepisywanym zdaniu.
+- **`core/prompt/SZABLONY.md` (wersja 2)** — sekcja „Blok kontekstu projektu" przestała być atrapą:
+  trzy źródła, kryterium wyboru, format wiersza, limit i **realny przykład bloku** z tego
+  repozytorium (zadanie o prowizjonowaniu `core/prompt/` do E5).
+- **`adapters/claude-code/agents/relai-prompt-optimizer.md` (wersja 2)** — sekcja „Project context
+  block": blok przychodzi **w treści zadania**, nie jako ścieżka; agent stawia go w pierwszej jednej
+  trzeciej propozycji, przenosi dokładnie to, co dostał, **nie dopisuje własnych pozycji** i nie
+  pisze nagłówka, gdy bloku nie było. Dwa nowe zakazy.
+- **Wiersz `Język promptu` w `docs/USTAWIENIA.md`** = **`język wejścia`** (wskazanie właściciela
+  w pytaniu ustrukturyzowanym, przed zapisem).
+- **`docs/ARTEFAKTY.md`** — trzy podbicia wersji z opisem „co się zmieniło / po co"; inwentarz
+  przeliczony skryptem: **50 pozycji rejestru bez zmian** (53 wiersze w pliku = 50 + 3 wiersze
+  sekcji Codeksa). **`docs/KOMENDY.md`** — wiersz komendy opisuje blok pamięci i język; o trybie
+  ciągłym milczy, bo go jeszcze nie ma.
+- **Instrument w `.claude/relai/work/OPTYMALIZATOR_PROMPTOW/E3/`**: `pula.js` (123 pozycje pamięci
+  z trzech rejestrów), `zloz-bloki.js` (regułę czyta **z pliku komendy**, nie z kopii), `mierz.js`,
+  `waga.js`, `licz.js` + `wzorce.js` (dwa liczniki identyfikatora), `przycinanie.js`,
+  `czytaj-ustawienia.js`, `propagacja.js`, `kontrolne.js`, `bieg.js`.
+
+**Zweryfikowane — jak dokładnie:**
+
+- **Blok zmienia wynik, nie tylko rachunek** — to samo zdanie z E2 (`prowizjonowanie do E5, razem
+  z sekwencją wydania`), ten sam model (Sonnet 5), dwa warianty w jednym przebiegu. **Bez bloku**
+  odpowiedź pyta wprost: „Co oznacza »E5« tutaj — poziom licencji (np. Microsoft 365 E5)…" — czyli
+  powtórzyła pomyłkę z E2. **Z blokiem** propozycja mówi o etapie wydania tego planu: `claude plugin
+  validate` przed tagiem, push `origin/main`, release, `claude plugin update`. Dowód treścią obu
+  odpowiedzi (zasada 4).
+- **Blok jest wybiórczy, nie hurtowy** — trzy zadania o różnych tematach wzięły **6, 4 i 5 pozycji
+  ze 123 dostępnych**, a par wspólnych identyfikatorów jest **zero** w każdej z trzech par zadań.
+  Identyczny blok byłby defektem; nie wystąpił.
+- **Każda pozycja z numerem albo nazwą** — wzorce w pliku `wzorce.js`, nie w `node -e`; **siedem
+  kontroli, 0 niezaliczonych**, w tym trzy przypadki, które **muszą** trafić (podłożone
+  „Dołączono kontekst projektu" z etykietą źródła i bez, oraz proza bez identyfikatora).
+- **Limit i przycięcie na materiale** — blok ośmiu pozycji (1 320 znaków) przycięty do **sześciu
+  (1 168 znaków)**; wypadły dwie pozycje najmniej związane z zadaniem (`D-63` o podpisach, `D-44`
+  o aktualności docs), żadna nie została urwana w środku. Kontrola pozytywna wykrywania urwania:
+  podłożona pozycja ucięta w połowie zdania → zgłoszona.
+- **Waga bloku policzona, nie oszacowana** — 674–1 320 znaków to **217–473 tokeny** wejścia
+  (dwa niezależne przebiegi: 422/290/262 i 385/305/217, pasmo błędu ±7 i ±82 tokeny). To **mniej**
+  niż ręcznie złożony blok z E2 (701–1 485 tokenów) — wybiórczość jest tańsza od przepisywania.
+- **Język rozstrzyga wejście (b5)** — przy wierszu ustawień `polski`: zdanie angielskie wróciło
+  **po angielsku** (licznik 26 trafień EN wobec 6 PL), a zdanie złożone z samych ścieżek
+  i identyfikatorów wróciło **po polsku** (86 PL wobec 0 EN). Obie strony w jednym przebiegu, oba
+  liczniki z kontrolą na materiale o znanym języku.
+- **Wiersz `Język promptu` czytany maszynowo** — `czytaj-ustawienia.js`, **5 fixtur, 0
+  niezaliczonych**: wartość z listy (PL i EN) → rozpoznana; `śląski` → **spoza listy, cisza**;
+  brzmienie w środku prozy („zwykle polski, ale zależy") → **spoza listy**, nie podmiana na
+  najbliższą; brak wiersza → własny stan. Realny plik po zapisie: `stan=rozpoznana,
+  wartość=język wejścia`.
+- **Projekt bez struktury RelAI (b10)** — katalog kontrolny `%TEMP%/relai-optymalizator-e3-b10`
+  z samym `README.md`: komenda **zadziałała**, w wyjściu **nie ma nagłówka bloku** ani żadnej
+  pozycji pamięci, pytanie o język **nie padło**, propozycja powstała, brak struktury opisany jednym
+  zdaniem. Dowód treścią odpowiedzi.
+- **Propagacja do adapterów zmierzona sumą** — po normalizacji CRLF → LF: komenda
+  → `.cursor/commands/` `dc00f92084d182cb` = `dc00f92084d182cb`; agent → `.cursor/agents/`
+  (bez frontmatteru, który installer przepisuje świadomie) `b445546584e2b0a2` = `b445546584e2b0a2`;
+  komenda → skill Codeksa `5c97c272d3242259` = `5c97c272d3242259`. **Zero rozjazdów.** Dwie kontrole
+  w tym samym przebiegu: kopia z doklejoną linią → `ROZJAZD`, plik nieistniejący → **`BRAK PLIKU`**
+  jako osobny stan, nie zgodność. `node core/tools/validate-adapters.js` → `spojne`, **kod 0**
+  (14 nagłówków komend, 0 wadliwych); `generate-skills.js` → 14 procedur + 2 skille, spójne.
+- **Zero nazw modeli w bazie reguł** — `grep -niE "opus|sonnet|haiku|fable|gpt-|claude-[a-z0-9-]+"`
+  na `core/prompt/*.md` → **0 trafień** w obu plikach; kontrola pozytywna tego samego wzorca na
+  `adapters/claude-code/MODELE.md` → **7 trafień** (17 przy liczeniu wszystkich wystąpień).
+- **`docs/USTAWIENIA.md` zmieniony za zgodą człowieka** — wartość wiersza wskazana w pytaniu
+  ustrukturyzowanym **przed** zapisem, nie po nim.
+- **Katalog roboczy etapu:** przed **312 KB / 82 pliki**, po **katalog nie istnieje** (sprawdzone
+  `ls`, nie komunikatem narzędzia); ponowny pomiar: **0,0 MB kandydatów**. Skasowane po „tak" na obie
+  grupy. Artefakty **poza** katalogiem roboczym, wszystkie z przedrostkiem `relai-optymalizator-`:
+  `%TEMP%/relai-optymalizator-e3` (neutralny katalog roboczy sesji `claude -p`),
+  `%TEMP%/relai-optymalizator-e3-b8-fixtura` i `%TEMP%/relai-optymalizator-e3-config` (izolowana
+  konfiguracja, która skończyła się `Not logged in`) — skasowane razem z resztą i potwierdzone `ls`.
+  Trzy dalsze katalogi kontrolne (`-e3-b10`, `-e3-b8`, `-e3-cursor`) **zniknęły przed raportem**
+  i nie wiem, co je usunęło — raport ich nie widział, `ls` też nie; zapisuję to jako obserwację,
+  nie jako wykonaną operację.
+- **Potwierdzenie ryzyka S1 po raz szósty:** raport przed `git add` pokazałby dorobek etapu jako
+  kandydatów; po przyjęciu do indeksu zostały w raporcie wyłącznie pliki instrumentu. Granicą
+  ochrony dorobku sesji jest indeks gita, nie marker (L-0078).
+
+**Ryzyka:**
+
+- **O5 (drugi rejestr nazw modeli obok listy narzędzia) — bez zmian, potwierdzone pomiarem.** Baza
+  reguł nadal nie zna ani jednej nazwy modelu, a część zależna od modelu milczy, gdy listy nie ma
+  (b8). Ryzyko nigdy nie weszło do tabeli i nie wchodzi.
+- **O8 (baza reguł rośnie i zjada kontekst) — pierwsza realna liczba.** `Krok 6` waży 2 839 znaków,
+  `Krok 9` 1 558; komenda urosła z 216 do **305 linii**, `SZABLONY.md` ze 184 do **217**, agent
+  z 82 do **100**. Blok kontekstu
+  dokłada do promptu 217–473 tokeny na wywołanie. Ryzyko zostaje otwarte: E4 dokłada tryb ciągły,
+  czyli mnoży ten koszt przez liczbę zdań w sesji.
+- **O1, O4, O6** bez zmian — wszystkie trzy należą do E4 i E5.
+
+**Świadomie odłożone:**
+
+- **b8 zmierzone na fixturze, nie w żywym projekcie kontrolnym.** Projekt z markerem `Wersja RelAI:`
+  dostaje listę modeli **od hooka startu sesji zainstalowanego pluginu** — sprawdzone na dysku:
+  `MODELE-claude-code.md` pojawiło się w katalogu kontrolnym o 16:09, minutę po starcie sesji.
+  Sesja z izolowanym `CLAUDE_CONFIG_DIR` kończy się `Not logged in`, więc scenariusza „projekt
+  z markerem, ale bez listy" nie da się dziś zmierzyć na żywo. Fixtura (katalog neutralny + stan
+  projektu podany w prompcie) dała wynik zgodny z regułą: **zero nazw modeli w wyjściu**, propozycja
+  powstała, część zależna od modelu milczy.
+- **b13 trafione przypadkiem i zapisane** — pierwszy przebieg kontrolny b8 (z wierszem `Model
+  optymalizatora`) wszedł w ścieżkę awarii delegacji, bo agenta nie ma w wydanej instalacji:
+  do wykonania poszedł **oryginał w niezmienionej postaci** plus jedno zdanie o nieudanej
+  optymalizacji. Zachowanie zgodne z b13, zmierzone w projekcie kontrolnym, nie w instrumencie.
+- **Zachowanie z wydanego pluginu** (E5) i **blok kontekstu w trybie ciągłym** (E4) — poza tym
+  etapem, jak zapisano w prompcie.
+- **Pomiar zatrzymany limitem konta** — o 15:22 `claude -p` zwróciło `You've hit your session limit ·
+  resets 4pm (Europe/Warsaw)`. Trzy punkty weryfikacji (język, b10, b8) czekały do 16:02; decyzja
+  właściciela: czekamy, zamiast zamykać etap bez kompletu.
+- **Pierwsza wersja instrumentu wagi upadła i jest opisana, nie usunięta** — różnica jednego bloku
+  wobec bazy tonęła w szumie narzutu sesji (wyniki ujemne), a kontrola „blok podwojony" dała
+  **0,98×** zamiast 2×. Wersja druga powiela blok 50 razy i dzieli różnicę przez 50.
+
+**Do zrobienia przez człowieka:**
+
+- **Czy tryb ciągły dla Cursora i Codeksa dostaje własny plan** — bramka **zostaje otwarta do E4**
+  (decyzja właściciela 2026-09-14): rozstrzygnięcie wymaga wyniku pomiaru ryzyka O1, który jest
+  pierwszym krokiem tamtego etapu. Sama delegacja w Codeksie jest rozstrzygnięta w tym etapie.
 
 Autor: RelAI (Opus 5) + Lukasz

@@ -143,8 +143,41 @@ rozstrzygnięciach. Stoi w **pierwszej jednej trzeciej** promptu — przed treś
 Pozycje wymieniasz **z nazwy albo numeru**. „Dołączono kontekst projektu" nie jest blokiem
 kontekstu — człowiek ma widzieć, co dokładnie doleciało, żeby móc to odrzucić.
 
-Blok wypełnia się dopiero wtedy, gdy warstwa ma dostęp do pamięci projektu. Dopóki go nie ma,
-sekcja **nie powstaje** — pusty nagłówek jest gorszy niż jego brak.
+**Skąd bierzesz pozycje.** Z trzech plików i ani jednego więcej: `docs/DECYZJE.md` (decyzja
+zamrożona — `D-NN`), sekcja „Zasady aktywne" w `docs/LEKCJE.md` (`zasada N`) i `docs/STATE.md`
+(nazwa pozycji: co działa, co jest w toku, czego już próbowano). Dziennik, plany i archiwum zostają
+zamknięte — historia jest tam po to, żeby jej nie nosić w każdym prompcie.
+
+**Które pozycje.** Tylko te, których **usunięcie zmieniłoby treść promptu**: dotykają tego samego
+pliku, obszaru albo mechanizmu co zadanie, rozstrzygają sposób wykonania albo mówią, że coś już
+próbowano i nie zadziałało. Każda pozycja to identyfikator plus **jedno zdanie własnymi słowami
+o tym, co z niej wynika dla tego zadania** — przepisane brzmienie rejestru jest cytatem, nie
+wyborem. Wiersz **zaczyna się od identyfikatora** (`- D-85 — …`, `- zasada 6 — …`,
+`- Reguła głębokości rotacji — …`); etykiety źródła (`[STATE]`, `[DECYZJE]`) nie przepisujesz. Dwa zadania o różnych tematach dostają różne zestawy pozycji; identyczny blok pod każdym
+promptem znaczy, że blok nie jest wybiórczy.
+
+**Ile.** Najwyżej **sześć pozycji i 1 300 znaków** (próg skalibrowany na 123 pozycjach pamięci tego
+repozytorium: mediana 164 znaki, trzeci kwartyl 216). Blok ponad limit przycinasz po pozycjach
+**najmniej związanych z zadaniem**, nigdy w środku pozycji, i mówisz o przycięciu w zdaniu
+podsumowującym.
+
+**Kiedy sekcja nie powstaje.** Projekt bez struktury RelAI (nie ma skąd brać) albo zadanie
+samowystarczalne (nie ma czego przenosić). Pusty nagłówek jest gorszy niż jego brak.
+
+**Realny przykład** — zadanie „dokończ prowizjonowanie `core/prompt/` do projektu użytkownika"
+w tym repozytorium:
+
+```
+## Kontekst projektu (przeniesiony)
+- E5 to ostatni etap planu OPTYMALIZATOR_PROMPTOW — wydanie: testy regresyjne, walidator,
+  pełna sekwencja P-005. Prowizjonowanie należy właśnie do niego.
+- D-87: źródłem prawdy o specyfikacjach jest `core/templates/`, a kopia `.claude/relai/templates/`
+  bywa starsza od repo między wydaniami — kopiowanie idzie w tę stronę, nigdy odwrotnie.
+- zasada 10: wersję pluginu potwierdza plik instalacji, nie komunikat CLI, więc dowodem na
+  dostarczoną kopię jest jej treść w projekcie, nie meldunek narzędzia.
+- Stan: komenda w cudzym projekcie nie widzi rusztowań i pracuje z rdzenia reguł niesionego
+  w sobie — to jest stan zamierzony do czasu wydania.
+```
 
 ---
 

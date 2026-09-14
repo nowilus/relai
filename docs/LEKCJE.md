@@ -11,7 +11,10 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
    jego wartością jest trafienie **poza** zakresem etapu; takie trafienie jest sygnałem odchylenia,
    nie usterką weryfikacji. **Pierwszy realny przebieg reguły jest częścią jej pisania**, nie
    kontrolą po fakcie: planuj go przed zamknięciem pliku, a rozjazd traktuj jako defekt reguły,
-   nie jako wyjątek do obejścia w wykonaniu. (L-0001, L-0011, L-0026, L-0089, L-0100)
+   nie jako wyjątek do obejścia w wykonaniu. **Reguła produkująca tekst opisuje początek wiersza
+   i to, czego w nim nie ma**, nie tylko jego zawartość — model domyka lukę formatem materiału,
+   który ma pod ręką; materiał sprzed poprawki reguły zostaje obok materiału po niej.
+   (L-0001, L-0011, L-0026, L-0089, L-0100, L-0108)
 2. **W dokumencie użytkownika stoi tylko to, co działa i co zmierzyłeś** — fraza wchodzi do
    `KOMENDY.md` w wersji, w której realnie działa, a forma wywołania jest tą, którą uruchomiłeś
    dosłownie. Komendę wklejaną do dokumentu odpalasz z tej samej powłoki, którą zobaczy czytelnik:
@@ -69,8 +72,22 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
    stan, bo suma pustego strumienia jest po obu stronach ta sama; kontrola pozytywna wobec **innej
    wersji** musi zwrócić różnicę. **Agregat po wykrytych elementach bierze też elementy innej klasy
    niż mierzona** — `min()` po pasmach ciemnych pikseli zwraca kreskę, nie wiersz tekstu; próg
-   odsiewu podajesz jawnie i pokazujesz cały zbiór obok wyniku. (L-0032, L-0037, L-0095, L-0096,
-   L-0097,
+   odsiewu podajesz jawnie i pokazujesz cały zbiór obok wyniku. **Metrykę „czy X jest w tekście"
+   stawiasz na dwóch licznikach naraz** — wąskim, ze słownika własnego wzorca, i szerokim, z brzmień,
+   którymi to samo mówi ktoś, kto Twojego wzorca nie zna; szeroki dostaje kontrolę **przeciw
+   zawyżeniu** na materiale, który tej rzeczy na pewno nie ma, a rozjazd między licznikami jest
+   wynikiem, nie usterką. **Najpierw klasyfikujesz kształt odpowiedzi, potem liczysz jakość** — i
+   liczysz ją wyłącznie tam, gdzie mierzona rzecz miała powstać; liczba przypadków stoi w raporcie
+   obok procentu, bo procent bez mianownika kłamie najciszej, a sam rozkład kształtów bywa
+   ważniejszy od jakości. **Różnica dwóch przebiegów mierzy tylko to, co przekracza szum** — zmierz
+   szum między dwiema bazami, a sygnał od niego mniejszy wzmocnij powieleniem materiału i podaj
+   pasmo błędu razem z kontrolą na połowie materiału. **Scenariusz „czegoś nie ma" planuj razem
+   z listą mechanizmów, które to coś tworzą same**; czego nie da się odciąć, tam pomiar schodzi na
+   fixturę i mówi to wprost. **Licznik wąski buduj przez wykluczenie znaku otwierającego przypadek,
+   który ma odpaść** — alternatywa ogólna znosi zamkniętą listę brzmień, a kontrola oczekująca tego
+   samego od licznika wąskiego i szerokiego nie sprawdza niczego.
+   (L-0032, L-0037, L-0095, L-0096, L-0105, L-0106, L-0107,
+   L-0097, L-0101, L-0102,
    L-0054, L-0055, L-0056, L-0064, L-0068, L-0071, L-0073, L-0083, L-0084, L-0086, L-0087, L-0088,
    L-0090, L-0091)
 6. **Próg jest liczbą, którą ktoś liczy:** kalibruj go na zmierzonych plikach realnych projektów,
@@ -83,7 +100,11 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
    zerem wykonanego — warunek „nic nie przeszło" milczy przy „przeszło 2 z 87". **Liczbę zbioru
    liczysz także w komunikacie sukcesu**, nie tylko w asercji: literał w tekście czytanym przez
    człowieka jest zapisem stanu z dnia napisania i przy pierwszej zmianie zakresu staje się cichym
-   fałszem. (L-0034, L-0049, L-0053, L-0060, L-0065, L-0099)
+   fałszem. **Wielkość odejmowaną od pomiaru traktujesz jako hipotezę o stałej i sprawdzasz ją,
+   zanim na niej oprzesz liczbę** — różnica ujemna albo rozjeżdżająca się znaczy, że nie ma czego
+   odejmować; zostaje liczba surowa i różnica między wariantami mierzonymi w tych samych warunkach,
+   gdzie narzut skraca się sam. Wynik oparty na nierzetelnym odjęciu **oznaczasz** jako nierzetelny,
+   a nie usuwasz. (L-0034, L-0049, L-0053, L-0060, L-0065, L-0099, L-0104)
 7. **Wartość czytana maszynowo ma kotwicę i zamkniętą listę brzmień:** dopasowanie od początku
    komórki, wybór linii po niesionej wartości (nie po kolejności), wartość nierozpoznana znaczy
    cisza. **Rdzeń słowa w języku z diakrytykami łapiesz klasą znaków tego języka, nie `\w`** —
@@ -118,7 +139,10 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
     w nagłówkach), nie z nawyku wziętego z projektu, w którym mechanizm powstał. **Wariantem jest
     też stan dokumentu wobec własnej specyfikacji** — realny projekt trzyma pozycje, które reguła
     każe usunąć; mechanizm sprawdzaj na dokumencie realnego projektu i odsiewaj takie stany tą samą
-    zamkniętą listą brzmień, której używa reszta rdzenia. (L-0033, L-0038, L-0057, L-0062, L-0067)
+    zamkniętą listą brzmień, której używa reszta rdzenia. **Numeracja i wytłuszczenie nagłówka są
+    takim samym wariantem** — nagłówek w cudzej odpowiedzi rozpoznawaj z tolerancją na `## 2.`,
+    `**…**` i poziom znaków `#`, a kształt, który raz przewrócił wzorzec, dokładaj do kontroli
+    dosłownie w tym brzmieniu, w jakim go spotkałeś. (L-0033, L-0038, L-0057, L-0062, L-0067, L-0103)
 12. **Guardrail zatrzymujący treść, która sekretem nie jest, to defekt rdzenia** — poprawka wraca
     z dowodem, nigdy jako obejście. Wołaj go przez opakowanie powłoki, żeby brak interpretera
     zamieniał się w blokadę, a nie w ciszę; próbki sekretów składaj w czasie wykonania.
@@ -558,3 +582,120 @@ Treść jest kopią bajt w bajt — zmieniony został wyłącznie status w linii
 > Lekcje zwinięte L-0025 … L-0054 (30 lekcji) są w
 > [docs/archiwum/lekcje/LEKCJE_L-0025_L-0054.md](archiwum/lekcje/LEKCJE_L-0025_L-0054.md)
 > — przeniesione 2026-09-01, suma kontrolna `d7c16fc38575773e`.
+
+### L-0101 — Licznik „pokrycia" po nazwach sekcji mierzy formę, nie wymiar · 2026-09-14 · AKTYWNA
+
+- **Trigger:** instrument E2 liczył pokrycie dziewięciu wymiarów, szukając nagłówków rusztowania
+  (`Zakres:`, `Gotowe, gdy:`). Wyszło 8–27% na wszystkich trzech modelach, przy kontroli fixtur
+  9/9 — czyli instrument działał i jednocześnie mówił nieprawdę o materiale.
+- **Przyczyna:** materiał powstawał w katalogu neutralnym, gdzie `SZABLONY.md` jest nieosiągalny.
+  Model wyrażał ten sam wymiar prozą („nie ruszasz stylów", „testy przechodzą") i dostawał zero.
+  Wzorzec zbudowany na słowniku własnego szablonu mierzy **zgodność z szablonem**, a nie obecność
+  wymiaru — i nie da się tego zauważyć po samej kontroli fixtur, bo fixtura jest pisana tym
+  słownikiem.
+- **Zasada:** metrykę „czy X jest w tekście" stawiaj na **dwóch** licznikach naraz: wąskim (słownik
+  własnego wzorca) i szerokim (brzmienia, którymi to samo mówi ktoś, kto Twojego wzorca nie zna).
+  Szeroki dostaje własną kontrolę **przeciw zawyżeniu** — materiał, który na pewno tej rzeczy nie ma
+  (tu: dziesięć surowych zdań), musi zostać nisko. Rozjazd między licznikami jest wynikiem, nie
+  usterką.
+- **Źródło:** E2 planu OPTYMALIZATOR_PROMPTOW, `wzorce.js`. Destylat: doklejone do zasady 5.
+
+### L-0102 — Metryka licząca odpowiedzi bez rozpoznania ich kształtu miesza porażkę z poprawną odmową · 2026-09-14 · AKTYWNA
+
+- **Trigger:** „0 pokrytych wymiarów" oznaczało w E2 dwie zupełnie różne rzeczy: model, który
+  zawiódł, i model, który **zgodnie z regułą** zwrócił same pytania, bo zadania nie dało się
+  wyprowadzić. Średnia po obu jest liczbą bez znaczenia.
+- **Przyczyna:** reguła dopuszcza trzy kształty odpowiedzi (propozycja, propozycja z pytaniami,
+  same pytania), a instrument mierzył tylko treść propozycji — której w dwóch z tych kształtów nie
+  ma. Metryka była policzona na zbiorze, do którego nie należała.
+- **Zasada:** najpierw **klasyfikuj kształt** odpowiedzi, potem licz jakość — i licz ją wyłącznie na
+  tych przypadkach, w których mierzona rzecz w ogóle miała powstać. Liczba przypadków wchodzi do
+  raportu obok wyniku (`37% na 6 propozycjach`), bo procent bez licznika mianownika kłamie
+  najciszej. Rozkład kształtów bywa **ważniejszy** od samej jakości: to on pokazał, że tani model
+  nie odmawia gorszych propozycji, tylko nie proponuje wcale.
+- **Źródło:** E2 planu OPTYMALIZATOR_PROMPTOW, `licz.js`. Destylat: doklejone do zasady 5.
+
+### L-0103 — Numeracja w nagłówku jest wariantem, nie szczegółem · 2026-09-14 · AKTYWNA
+
+- **Trigger:** klasyfikator kształtu odpowiedzi meldował „brak propozycji" dla Opusa, który
+  propozycje miał w każdej odpowiedzi. Wzorzec nagłówka dopuszczał `## Propozycja`, a model pisał
+  `## 2. Propozycja`.
+- **Przyczyna:** wzorzec powstał z kształtu opisanego we własnej regule, a nie z kształtu, który
+  realnie produkuje druga strona. Numeracja sekcji jest swobodą formatowania, tak samo jak końce
+  linii czy kolejność wpisów — i przewraca dopasowanie równie cicho.
+- **Zasada:** nagłówek rozpoznawaj z tolerancją na numerację, wytłuszczenie i poziom znaków `#`,
+  a przypadek, który raz przewrócił wzorzec, **dokładaj do kontroli dosłownie w tym brzmieniu**,
+  w jakim go spotkałeś. Trafienie „zero" na materiale, o którym wiesz, że rzecz tam jest, sprawdzaj
+  **najpierw na instrumencie** (zasada 5), a nie na materiale.
+- **Źródło:** E2 planu OPTYMALIZATOR_PROMPTOW, `wzorce.js`. Destylat: doklejone do zasady 11.
+
+### L-0104 — Narzut odejmowany od pomiaru wymaga dowodu, że jest stały · 2026-09-14 · AKTYWNA
+
+- **Trigger:** koszt jednego przerobienia miał być liczony jako „tokeny wywołania minus narzut
+  harnessu", zmierzony osobnym wywołaniem kontrolnym. Dla Sonneta i Opusa różnica wyszła **ujemna**
+  (−801 i −14 208 tokenów): realne wywołania zużyły mniej wejścia niż wywołanie kontrolne.
+- **Przyczyna:** narzut sesji CLI nie jest stałą — zależy od modelu i od tego, co harness dołoży do
+  konkretnego wywołania. Wywołanie kontrolne z jednozdaniowym promptem to inny przypadek, nie
+  „to samo bez treści".
+- **Zasada:** wielkość odejmowaną od pomiaru traktuj jako **hipotezę o stałej** i sprawdź ją,
+  zanim na niej oprzesz liczbę: ujemna albo rozjeżdżająca się różnica znaczy, że nie ma czego
+  odejmować. Rzetelna zostaje liczba surowa i **różnica między wariantami mierzonymi w tych samych
+  warunkach** — tam narzut się skraca sam. Wynik oparty na nierzetelnym odjęciu oznaczasz w raporcie
+  jako nierzetelny zamiast go usuwać.
+- **Źródło:** E2 planu OPTYMALIZATOR_PROMPTOW, `licz.js`. Destylat: doklejone do zasady 6.
+
+### L-0105 — Różnica wobec bazy mierzy tylko to, co przekracza szum · 2026-09-14 · AKTYWNA
+
+- **Trigger:** waga bloku kontekstu miała być różnicą tokenów wejścia między przebiegiem z blokiem
+  a przebiegiem bez niego. Wszystkie trzy różnice wyszły **ujemne** (−3 686, −3 773, −4 198), a
+  kontrola pozytywna „ten sam blok podwojony" dała **0,98×** zamiast ~2×.
+- **Przyczyna:** mierzona wielkość (≈300 tokenów) była mniejsza od wahania narzutu sesji CLI między
+  przebiegami (±4 000 tokenów). Instrument mierzył szum, nie blok.
+- **Zasada:** zanim zaufasz różnicy dwóch przebiegów, **zmierz szum między dwiema bazami** i porównaj
+  go z sygnałem. Sygnał mniejszy od szumu wzmacniasz powieleniem materiału (N kopii, wynik dzielony
+  przez N), a wiarygodność wyniku raportujesz **pasmem błędu** i kontrolą na połowie materiału —
+  odchylenie tej kontroli jest miarą zaufania do liczby, nie ozdobnikiem.
+- **Źródło:** E3 planu OPTYMALIZATOR_PROMPTOW, `waga.js` (wersja 1 upadła, wersja 2 z N=50).
+  Destylat: doklejone do zasady 5.
+
+### L-0106 — Scenariusza „pliku nie ma" nie zmierzysz tam, gdzie hook ten plik podkłada · 2026-09-14 · AKTYWNA
+
+- **Trigger:** projekt kontrolny dla przypadku „brak listy modeli" dostał `MODELE-claude-code.md`
+  **od hooka startu sesji zainstalowanego pluginu** — minutę po starcie, bo miał marker
+  `Wersja RelAI:`. Pomiar mierzył obecność listy, a miał mierzyć jej brak.
+- **Przyczyna:** własny mechanizm prowizjonowania działa także na projektach kontrolnych; izolacja
+  przez `CLAUDE_CONFIG_DIR` kończy się `Not logged in`, więc odcięcie pluginu kosztuje sesję.
+- **Zasada:** scenariusz „czegoś nie ma" planuj razem z listą mechanizmów, które to coś **tworzą
+  same**; jeśli któregoś nie da się odciąć, pomiar schodzi na fixturę (stan projektu podany
+  w prompcie) i **mówi to wprost w raporcie**, zamiast udawać pomiar na żywym projekcie. Dowodem,
+  że mechanizm zadziałał, jest stan katalogu sprawdzony po przebiegu, nie założenie sprzed niego.
+- **Źródło:** E3 planu OPTYMALIZATOR_PROMPTOW, `kontrolne.js`, przypadek b8. Destylat: doklejone do
+  zasady 5.
+
+### L-0107 — Ogólna alternatywa we wzorcu przepuszcza dokładnie to, co miała łapać · 2026-09-14 · AKTYWNA
+
+- **Trigger:** licznik „wiersz zaczyna się od identyfikatora" miał odróżnić pozycję z numerem od
+  pozycji z przepisaną etykietą źródła (`[STATE] Nazwa —`). Przepuścił obie: alternatywa
+  „dowolna nazwa zakończona myślnikiem" objęła też etykietę.
+- **Przyczyna:** alternatywa ogólna w zamkniętej liście brzmień znosi zamknięcie listy — wzorzec
+  przestaje być wąski w momencie, w którym dopisujesz do niego „albo cokolwiek innego pasującego
+  do kształtu".
+- **Zasada:** licznik wąski buduj **przez wykluczenie znaku otwierającego przypadek, który ma
+  odpaść** (tu: nawias kwadratowy), a przypadek graniczny opisz osobną kontrolą oczekującą
+  **różnego** wyniku na obu licznikach. Kontrola, która oczekuje tego samego od licznika wąskiego
+  i szerokiego, nie sprawdza niczego.
+- **Źródło:** E3 planu OPTYMALIZATOR_PROMPTOW, `wzorce.js`. Destylat: doklejone do zasady 5.
+
+### L-0108 — Model przepisuje format materiału, który dostał · 2026-09-14 · AKTYWNA
+
+- **Trigger:** reguła bloku kontekstu kazała wypisywać pozycje „z numeru albo nazwy". Model dostał
+  pulę pozycji w formacie `[ZRODLO] id — treść` i **przepisał etykiety źródła** do bloku, choć
+  reguła o nich nie mówiła ani słowa.
+- **Przyczyna:** reguła opisywała, **co** ma się znaleźć w wierszu, ale nie **czym wiersz się
+  zaczyna**; model domknął lukę formatem materiału, który miał pod ręką.
+- **Zasada:** reguła produkująca tekst opisuje **początek wiersza i to, czego w nim nie ma**, nie
+  tylko jego zawartość — a pierwszy realny przebieg traktujesz jako część pisania reguły: rozjazd
+  między regułą a wynikiem jest defektem reguły, a materiał sprzed poprawki zostaje obok materiału
+  po niej.
+- **Źródło:** E3 planu OPTYMALIZATOR_PROMPTOW, `blok-02-rotacja` przed poprawką i po niej.
+  Destylat: doklejone do zasady 1.
