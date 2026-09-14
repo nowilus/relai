@@ -140,15 +140,11 @@ kontrole przeszły; pełna świeża sesja Codexa pozostaje NOT TESTED po błędz
   5,08 px, treść karty 14 px → 5,47 px, ścieżki plików 9 px → 3,52 px, przy progu 8 px (SZACUNEK).
   Scena `sesja` jest najbliżej progu (7,42 px). Treść merytoryczna zaczyna się dopiero w 3,5 s —
   3 z 25 sekund to plansza tytułowa. Naprawa wymaga nowego renderu, więc jest decyzją do E3.
-- ~~**Wydanie 2.1.4**~~ — **wydane 2026-09-12**: tag `v2.1.4`, push na `origin/main`,
-  [release](https://github.com/nowilus/relai/releases/tag/v2.1.4), `claude plugin update` wykonany.
-  Wersja potwierdzona **treścią plików z cache'u** (5/5 zgodnych z tagiem po normalizacji CRLF → LF,
-  bramka hosta obecna), nie komunikatem CLI (P-005). Świeża sesja CLI: jeden blok kontekstu startu,
-  zero komunikatów o błędzie hooka. **Potwierdzone także w aplikacji desktopowej po restarcie
-  2026-09-12**: sesja dostaje jeden blok kontekstu startu, bez zdania kierującego do `AGENTS.md`;
-  `claude plugin list` pokazuje 2.1.4 `✔ enabled`, cache ma trzynaście komend.
-  Sekwencja P-005 ma od 2.1.4 krok obowiązkowy **wykonany**: `claude plugin validate` przed tagiem
-  (ryzyko W1) — przy tym wydaniu `✔ Validation passed` na manifeście marketplace.
+- ~~**Wydanie 2.1.4**~~ — **wydane 2026-09-12**:
+  [release](https://github.com/nowilus/relai/releases/tag/v2.1.4), wersja potwierdzona treścią
+  plików z cache'u (5/5 po normalizacji CRLF → LF), nie komunikatem CLI (P-005); świeża sesja CLI
+  i aplikacja desktopowa po restarcie mają jeden blok kontekstu i zero błędów hooka. Sekwencja
+  P-005 wykonała po raz pierwszy `claude plugin validate` przed tagiem (ryzyko W1).
 - **Migracja JiraManagera** — ostatni projekt, w którym start sesji kosztuje 386 KB dokumentów,
   a rotacja nigdy nie ruszyła. Czeka na okno właściciela; do tego czasu ryzyko R5 zostaje otwarte,
   zawężone do tego jednego projektu.
@@ -177,32 +173,16 @@ kontrole przeszły; pełna świeża sesja Codexa pozostaje NOT TESTED po błędz
   się zabierze. Kryterium „cały plik poniżej 60% progu" dało 29 wpisów i 9 lekcji, czyli 87,3 KB
   i 42,6 KB. **To jest wada rdzenia RelAI, nie tego projektu** — poprawka `SPEC_ARCHIWUM.md`
   wymaga decyzji, czy cel przenosi się na wagę całkowitą; kandydat na odnogę.
-- ~~**REGRESJA: komendy pluginu Claude Code nie ładują się w ogóle**~~ — **dwie niezależne
-  przyczyny**, obie naprawione 2026-09-06. (1) Korzeniowy `skills/` kolidował nazwami z komendami
-  ([P-010](PULAPKI.md), 2.1.1) — skille Codeksa przeniesione do `adapters/codex/skills/`, Codex
-  czyta ścieżkę zagnieżdżoną (zmierzone: 15 skilli w `codex debug prompt-input`, izolowany
-  `CODEX_HOME`). (2) Pole `agents` wskazywało **katalog**, a przyjmuje wyłącznie pliki `.md`, więc
-  manifest odpadał w całości ([P-011](PULAPKI.md), 2.1.2) — `claude plugin list` meldował
-  `✘ failed to load`, a `claude plugin validate` wskazywał `agents: Invalid input`. Po naprawie
-  `✔ Validation passed`. **Czeka na wydanie 2.1.2** — do tego czasu żaden użytkownik 2.0.0–2.1.1
-  nie ma komend w Claude Code.
-- ~~**Trzynasta komenda `/relai-crew` nie ładowała się**~~ — naprawione 2026-09-06 (2.1.3): dwukropek
-  ze spacją w niecytowanym `description` wywracał parsowanie nagłówka YAML, więc plugin miał dwanaście
-  komend zamiast trzynastu, bez jednego komunikatu ([P-012](PULAPKI.md)). Kontrola nagłówków wszystkich
-  komend jest w `validate-adapters.js`. Tag `v2.1.3` na zdalnym; marketplace serwuje już 2.1.4.
-- ~~**Zdublowany kontekst startu sesji i błąd hooka `SessionEnd` w Claude Code**~~ — naprawione
-  2026-09-12 (2.1.4, [P-013](PULAPKI.md)): korzeniowy `hooks/` jest katalogiem konwencyjnym Claude
-  Code, więc hooki Codeksa ładowały się obok zadeklarowanych w `plugin.json`. Bramka hosta na
-  `CLAUDECODE`; ochrona sekretów bez zmian — w Claude Code skanuje hook adaptera Claude Code.
-  **Wydane w 2.1.4** i zmierzone po aktualizacji: jeden blok kontekstu, zero błędów hooka.
+- ~~**Cztery wady dystrybucji 2.0.0–2.1.3**~~ — wszystkie naprawione i wydane do 2.1.4: korzeniowy
+  `skills/` kasujący komendy (P-010), katalog w polu `agents` unieważniający manifest (P-011),
+  dwukropek w `description` zjadający trzynastą komendę (P-012), korzeniowy `hooks/` dublujący
+  kontekst startu (P-013). Opisy i dowody: [PULAPKI.md](PULAPKI.md) i wpisy dziennika z 2026-09-06
+  i 2026-09-12.
 - **Bramka wydania: `claude plugin validate <ścieżka>`** — narzędzie istniało przez cały czas
   i wskazałoby obie wady w sekundę. Wprowadzić do sekwencji P-005 jako krok obowiązkowy przed tagiem.
 - **`PRZENOSNOSC.md` sekcja 2.3 jest nieaktualna** — opisuje wywołanie procedur Codeksa jako
   `$nazwa-skilla` (stan dokumentacji z 2026-08-12), a w aplikacji desktopowej Codeksa `/relai`
   podpowiada komplet. Rozpoznanie do powtórzenia i przepisania.
-- ~~**Ikony README renderują się w 17–23 px zamiast 24 px**~~ — rozstrzygnięte 2026-09-06:
-  scalenie kolumny ikony z kolumną komendy (dwie kolumny zamiast trzech), grubość kreski 2.6
-  bez zmian. Grafiki nietknięte; komplet ikon uzupełniony do trzynastu (`models`, `crew`).
 - **Dwie wady `work-artifacts.js`**: `kasuj` melduje `skasowane` dla ścieżki, której nie ma
   (linia 843 — gasi sygnał o literówce w liście), a `zachowaj` na cudzej ścieżce zapisuje marker
   w projekcie sesji zamiast w projekcie pliku. **Pierwsza wada potwierdzona w działaniu 2026-09-12**:
@@ -291,13 +271,13 @@ Plany: BUDOWA_RELAI 10/10 • OPTYMALIZACJA_KONTEKSTU 5/5 • HIGIENA_DOKUMENTOW
 SPRZATANIE_ARTEFAKTOW 4/4 • REKOMENDACJA_MODELU 4/4 (zamknięty 2026-09-04) •
 ROZWOJ_PO_WYDANIU 8/8 (**ZREALIZOWANY**) • PIERWSI_UZYTKOWNICY 2/3 (**WSTRZYMANY 2026-09-14**) •
 **Aktywny plan: OPTYMALIZATOR_PROMPTOW — 3/5, E4 gotowy do startu** •
-Dziennik: **123,2/150 KB** (15 wpisów) — rotowany 2026-09-14 • Lekcje: **56,8/50 KB —
-ponad progiem** (30 w żywym rejestrze, ostatnia L-0108) — rotacja należna przy zamknięciu sesji •
-Sekcja ryzyk: **22,2 KB / 12 KB**, **1 zamknięte z 16** (O9 w E2) — rotacja weźmie je dopiero
-przy kolejnym przebiegu • `STATE.md`: **25,6 KB przy progu cząstkowym 12 KB, 316 linii przy progu
-300** — obszar optymalizatora przepisany zwięźlej w E3 (−3 linie); dalej odchudza go przepisanie,
-nie archiwum • Archiwum:
-**osiem** plików dziennika, **cztery** lekcji, dwa ryzyk • Sprawy czekające na człowieka: **7 tutaj**
+Dziennik: **122,9/150 KB** (15 wpisów) — rotowany 2026-09-14 • Lekcje: **43,9/50 KB** (20 w żywym
+rejestrze, ostatnia L-0108) — rotowane 2026-09-14, zeszło L-0079…L-0088 • Sekcja ryzyk:
+**20,9 KB / 12 KB — ponad progiem z pustą częścią rotowalną**: O9 zeszło, a pozostałych 15 pozycji
+jest `OTWARTE`, więc odchudzi ją wyłącznie zamknięcie ryzyk • `STATE.md`: **23,6 KB przy progu
+cząstkowym 12 KB, 299 linii przy progu 300** — skrócony 2026-09-14 o 20 linii (zwinięte cztery
+wady dystrybucji i wydanie 2.1.4); dalej odchudza go przepisanie, nie archiwum • Archiwum:
+**osiem** plików dziennika, **pięć** lekcji, trzy ryzyk • Sprawy czekające na człowieka: **7 tutaj**
 (3 rozstrzygnięte: 2026-09-12 i dwie 2026-09-14), 32 w PolyFlow, żadna nieprzeterminowana •
 Otwarte ryzyka: **13** (O1, O4, O6 z planu optymalizatora; O2, O3 i O7 domknięte w E1, **O9 w E2**,
 O10 zmierzone i nigdy nie weszło do tabeli) • Zamknięte: **8 w archiwum + 1 w tabeli (O9)** •

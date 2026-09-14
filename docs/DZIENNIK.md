@@ -22,7 +22,10 @@
 | O1 | Hook `UserPromptSubmit` w Claude Code nie podmienia promptu, tylko dokłada kontekst — „tryb ciągły" może być nierealizowalny w zakładanym kształcie (plan OPTYMALIZATOR_PROMPTOW, ryzyko O1) | **Wysoki** (2026-09-14, przy akceptacji planu) | **OTWARTE** | Pomiar idzie **pierwszym krokiem E4**, przed napisaniem czegokolwiek: hook kontrolny w projekcie neutralnym, dowód treścią odpowiedzi, nie komunikatem. Ścieżka odwrotu zapisana z góry — tryb ciągły degraduje do wstrzykniętej reguły, która każe modelowi najpierw pokazać różnicę; funkcja zostaje, zmienia się nośnik. Niezmierzone: cokolwiek — ryzyko wchodzi do rejestru przed pierwszym przebiegiem |
 | O4 | Tryb ciągły kosztuje turę przy każdym zdaniu — praca zwalnia i drożeje (plan OPTYMALIZATOR_PROMPTOW, ryzyko O4) | **Średni** (2026-09-14, przy akceptacji planu) | **OTWARTE** | Filtr pomijania jest częścią E4, nie dodatkiem: komendy RelAI, frazy sesji, krótkie potwierdzenia i pytania o kod przechodzą nietknięte. Mierzone parą przypadków w jednym przebiegu, z których jeden **musi** trafić (zasada aktywna 5). Wyłącznik jest wierszem w `USTAWIENIA.md`, więc odwrót kosztuje jedną edycję. Sprawa „czy tryb ciągły ma licznik kosztu" czeka na człowieka — bez licznika opłacalność oceniamy na wrażeniu, nie na danych |
 | O6 | Kolizja z zainstalowanym `ecc:prompt-optimizer` — dwa skille o podobnych opisach wyzwalają się nawzajem albo zamiast siebie (plan OPTYMALIZATOR_PROMPTOW, ryzyko O6) | **Średni** (2026-09-14, przy akceptacji planu) | **OTWARTE** | Komenda wołana wprost kolizji nie ma — to jest jeden z powodów, dla których E1 daje komendę, a nie skill. Opis trybu ciągłego będzie zawężony markerem projektu RelAI, jak opisy pozostałych skilli (zasada aktywna 9). Otwarte, bo rozstrzygnięcie należy do człowieka: wyłączenie cudzego pluginu jest zmianą w konfiguracji użytkownika i RelAI jej nie wykona sam. Stan faktyczny: skill ECC obecny w konfiguracji, 16 843 B, autor YannJY02 |
-| O9 | Tani model nie udźwignie optymalizacji — prompt wychodzi gorszy niż zdanie, które człowiek podyktował, a oszczędność zamienia się w koszt poprawek (plan OPTYMALIZATOR_PROMPTOW, ryzyko O9) | **Wysoki** (2026-09-14, przy akceptacji planu) | **ZMIERZONE i ZAMKNIĘTE 2026-09-14 (E2)** — Haiku 4.5 dał propozycję w **3 z 20** przebiegów (w pozostałych same pytania przy wyprowadzalnym zadaniu), a 12 z 20 jego odpowiedzi było po angielsku przy polskim wejściu; Sonnet 5: **14 z 20** propozycji, zero rozjazdu językowego; Opus 5: 11 z 13 przy pokryciu 37–40%. Wiersz `Model optymalizatora` = **Sonnet 5** (wskazanie człowieka). Szczegóły i tabela: wpis dziennika 2026-09-14 (E2) | **E2 istnieje wyłącznie po to, żeby to zmierzyć.** Ten sam zestaw surowych zdań przez Haiku 4.5, Sonneta 5 i Opusa 5; instrument liczy pokrycie dziewięciu wymiarów i koszt jednego przerobienia, osobno z blokiem kontekstu i bez niego — różnica między tymi przebiegami jest ceną utraconego cache'u (ryzyko O10). Kontrola pozytywna: podłożony prompt bez formatu wyjścia i bez kryterium sukcesu **musi** zostać zgłoszony jako niepokryty. Ceny bazowe (dokumentacja Anthropic, stan 2026-06-24): Haiku 4.5 $1/$5, Sonnet 5 $2/$10, Opus 5 $5/$25 za milion tokenów; kontekst 200K u Haiku wobec 1M u pozostałych. Ścieżka odwrotu: Sonnet 5, potem model sesji bez delegacji. Zapisujemy **każdy** wynik, także ten, który przewraca założenie o Haiku |
+
+> Ryzyka zamknięte O9 (1 pozycja) są w
+> [docs/archiwum/ryzyka/RYZYKA_2026-09-14.md](archiwum/ryzyka/RYZYKA_2026-09-14.md)
+> — przeniesione 2026-09-14, suma kontrolna `fe5db0ded0c018ee`.
 
 > Ryzyka zamknięte R2, M4 (2 pozycje) są w
 > [docs/archiwum/ryzyka/RYZYKA_2026-09-04.md](archiwum/ryzyka/RYZYKA_2026-09-04.md)
@@ -1423,6 +1426,34 @@ Autor: RelAI (Opus 5) + Lukasz
 - **Pierwsza wersja instrumentu wagi upadła i jest opisana, nie usunięta** — różnica jednego bloku
   wobec bazy tonęła w szumie narzutu sesji (wyniki ujemne), a kontrola „blok podwojony" dała
   **0,98×** zamiast 2×. Wersja druga powiela blok 50 razy i dzieli różnicę przez 50.
+
+**Rotacja i sprzątanie (rytuał zamknięcia sesji):**
+
+- **Lekcje** — `docs/LEKCJE.md` **56,8 → 43,9 KB** przy progu 50 KB; zeszło **10 pozycji**
+  (`L-0079`…`L-0088`) do
+  [docs/archiwum/lekcje/LEKCJE_L-0079_L-0088.md](archiwum/lekcje/LEKCJE_L-0079_L-0088.md), suma
+  kontrolna `bbca7854a607be7b`. Zakres ciągły od najstarszej pozycji, zatrzymany przez dwadzieścia
+  nietykalnych lekcji. **Cel „część rotowalna poniżej 60% progu" był tu nieosiągalny z definicji**
+  (dolna granica 43,9 KB przy 60% progu = 30 KB), więc głębokość wyznaczyło zejście całego pliku
+  poniżej progu — **to jest ta sama wada rdzenia, co zapisana w `STATE.md` 2026-09-04 i 2026-09-14**,
+  drugi raz rozstrzygana ręcznie.
+- **Ryzyka** — sekcja „Stan otwartych ryzyk" **22,2 → 20,9 KB** przy progu cząstkowym 12 KB; zeszło
+  **jedno** ryzyko `ZAMKNIĘTE` (**O9**) do
+  [docs/archiwum/ryzyka/RYZYKA_2026-09-14.md](archiwum/ryzyka/RYZYKA_2026-09-14.md), suma kontrolna
+  `fe5db0ded0c018ee`. Kompresja komórek „Mitygacja" **nie miała kandydatów**: żadne z pozostałych
+  15 ryzyk nie ma statusu `ZMITYGOWANE` ani `PRZYJĘTE ŚWIADOMIE` (R5 niesie `OTWARTE ŚWIADOMIE`,
+  co do tej listy nie należy).
+- **Dwa niezależne przebiegi, każdy dwufazowy** — i **pierwsze podejście obu zatrzymało się na
+  rozjeździe sum** (`bbca…` wobec `b1e6…`, `fe5d…` wobec `4b77…`), bo instrument liczył sumę
+  archiwum razem z linią pustą po separatorze. Żywe pliki zostały wtedy **nietknięte**; po poprawce
+  instrumentu sumy zgodne po obu stronach. Kontrola negatywna: ten sam plik z doklejoną linią daje
+  inną sumę.
+- **`docs/STATE.md`** — **319 → 299 linii** przy progu 300 (23,6 KB): cztery wady dystrybucji
+  2.0.0–2.1.3 zwinięte w jedną pozycję, wydanie 2.1.4 skrócone, pozycja o ikonach README usunięta.
+  Wszystkie te fakty stoją w `PULAPKI.md` i we wpisach z 2026-09-06 i 2026-09-12 — żaden nie zniknął.
+- **Artefakty robocze** — raport po sprzątaniu E3: **0,0 MB kandydatów**, zero grup. Krok 2a rytuału
+  nie miał czego proponować.
+- **Dziennik (122,9/150 KB) i ustawienia (3,5/6 KB)** — poniżej progów, bez rotacji.
 
 **Do zrobienia przez człowieka:**
 
