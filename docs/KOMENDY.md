@@ -77,6 +77,13 @@ z podpowiedzi; skrócona forma działa tam, gdzie podpowiadacz ją rozwinie.
   (domyślnie 7 dni) — dokłada jedno zdanie z jej wiekiem i propozycją `/relai-models`. Samo zdanie
   niczego nie pobiera: do internetu RelAI wchodzi wyłącznie po Twoim „tak" w komendzie, i pyta
   o nie za każdym razem. Poniżej progu — cisza; wyłącznik jest osobny od pozostałych.
+- **Podyktowane zdanie wraca poprawione, zanim ruszy w robotę.** Wiersz „Tryb ciągły"
+  w `docs/USTAWIENIA.md` włącza optymalizator na stałe: każdy prompt merytoryczny wraca najpierw
+  z propozycją i oryginałem obok, a wykonanie czeka na Twoją zgodę. Nietknięte przechodzą
+  wywołania komend, frazy sesji, krótkie potwierdzenia i pytania — o kod pytasz normalnie.
+  Wyłącznikiem jest ten jeden wiersz; wartość spoza listy i brak wiersza znaczą wyłączony i ciszę.
+  Tryb działa w **Claude Code**; w Cursorze i Codeksie komenda `/relai-prompt` działa normalnie,
+  a o braku trybu pada jedno zdanie przy pierwszym wywołaniu w sesji.
 - **Pułapki mają własny dokument.** Rzecz, która raz zaskoczyła i zaskoczy znowu — nieoczywiste
   zachowanie narzędzia, kolejność kroków, wymóg środowiska — trafia do `docs/PULAPKI.md`. Ten plik
   czyta się **na żądanie**, a nie przy starcie sesji, więc nie kosztuje ani jednego tokena, dopóki

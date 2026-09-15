@@ -1,6 +1,6 @@
 # STATE — RelAI
 
-Stan na: 2026-09-14 (aktualizacja obszaru optymalizatora po E3; stan techniczny poniżej z 2026-09-06)
+Stan na: 2026-09-15 (aktualizacja obszaru optymalizatora po E4; stan techniczny poniżej z 2026-09-06)
 
 ## Gdzie jesteśmy
 
@@ -81,32 +81,29 @@ kontrole przeszły; pełna świeża sesja Codexa pozostaje NOT TESTED po błędz
 
 ## Nad czym pracujemy teraz
 
-- **OPTYMALIZATOR_PROMPTOW — E3 ZREALIZOWANY 2026-09-14, E4 GOTOWY DO STARTU** (3/5):
+- **OPTYMALIZATOR_PROMPTOW — E4 ZREALIZOWANY 2026-09-15, E5 GOTOWY DO STARTU** (4/5):
   [plan](plany/OPTYMALIZATOR_PROMPTOW/PLAN.html) i [status](plany/OPTYMALIZATOR_PROMPTOW/STATUS.md).
   Cel całości: warstwa zamieniająca podyktowane zdanie w precyzyjny prompt — komenda plus tryb
   ciągły włączany jawnie. **Pięć etapów, 5–6 sesji**; komenda `/relai-prompt` jest czternastą
   i **niewydaną** (E5).
-  **Prompt zna pamięć projektu i mówi Twoim językiem (E3).** Komenda przenosi do propozycji
-  **wybiórczy blok kontekstu** z trzech rejestrów (decyzje zamrożone, zasady aktywne, stan): 4–6
-  pozycji ze 123 dostępnych, każda z numeru albo nazwy, limit 1 300 znaków i sześciu pozycji,
-  przycinanie po pozycjach najmniej związanych. **Blok zmienia wynik, nie tylko rachunek**: to samo
-  zdanie bez bloku zostało przeczytane jako licencja pakietu biurowego, z blokiem — jako etap
-  wydania tego planu. Waga bloku: 217–473 tokeny, czyli **mniej** niż ręcznie złożony blok z E2.
-  Język rozstrzyga **wejście**; wiersz `Język promptu` (= `język wejścia`) obowiązuje tylko dla
-  zdania złożonego z samych ścieżek i identyfikatorów. Delegacja w Codeksie rozstrzygnięta: praca
-  bez delegacji z rdzenia reguł, bez osobnego agenta. Propagacja do Cursora i Codeksa zmierzona
-  sumami — trzy pary zgodne po normalizacji CRLF → LF, walidator na kodzie 0.
-  **Optymalizację wykonuje subagent na modelu z ustawień (E2).** `relai-prompt-optimizer` bez pola
-  `model`, nazwa przychodzi przy wywołaniu; ostatnia linia odpowiedzi niesie model, na którym
-  powstała. Pomiar trzech modeli (56 wywołań, 17,80 USD): **Haiku 3 propozycje z 20** i 12 z 20
-  odpowiedzi po angielsku na polskie wejście, Sonnet 14 z 20 bez rozjazdu, Opus 11 z 13 przy
-  najlepszym pokryciu wymiarów. **O9 zamknięte wynikiem przeciwnym do założenia** (tani model nie
-  proponuje wcale, zamiast proponować gorzej), **O10 zamknięte liczbą**. Wiersz ustawień = Sonnet 5.
-  **Luka do wydania:** w cudzym projekcie komenda nie widzi rusztowań i pracuje z rdzenia reguł
-  niesionego w sobie; kopia `core/prompt/` trafi do projektu w **E5**. Ryzyka **O1, O4 i O6**
-  otwarte, **O8 ma pierwszą liczbę** (komenda urosła do 305 linii, blok dokłada 217–473 tokeny na
-  wywołanie). Bramka „tryb ciągły dla Cursora i Codeksa" **świadomie otwarta do E4**, bo rozstrzyga
-  ją pomiar O1.
+  **Tryb ciągły działa i stoi na wstrzykniętej regule (E4).** Pomiar rozstrzygnął ryzyko **O1**:
+  hook `UserPromptSubmit` **dokłada kontekst**, a promptu **nie podmienia** — dowód znacznikami
+  rozdzielonymi między prompt i regułę, trzy pary przebiegów. Wariant „podmiana" nie istnieje, więc
+  ścieżka odwrotu z planu jest ścieżką główną. Włącza wiersz `Tryb ciągły` w `USTAWIENIA.md`
+  (**włączony** w tym projekcie); wartość spoza listy i brak wiersza = wyłączony i cisza. Filtr
+  pomijania przepuszcza komendy, frazy sesji, krótkie potwierdzenia i pytania — **12 punktów
+  kontroli, 0 niezaliczonych**, obie kontrole przeciw zawyżeniu trafiły. Koszt nośnika: **+110
+  tokenów na turę** (reguła 245 znaków). Zmierzony trzeci nośnik, nieużyty: `exit 2` zatrzymuje
+  turę **przed modelem** za 0,00 USD. **Aneks A**: Codex ma własne `UserPromptSubmit`, więc tryb
+  poza Claude Code dostaje **osobny plan po E5** — zakres E4 nie urósł.
+  **Prompt zna pamięć projektu i mówi Twoim językiem (E3).** Komenda przenosi **wybiórczy blok
+  kontekstu** z trzech rejestrów: 4–6 pozycji ze 123, limit 1 300 znaków, przycinanie po pozycjach.
+  Blok zmienia wynik, nie tylko rachunek — to samo zdanie bez bloku zostało przeczytane jako
+  licencja pakietu biurowego, z blokiem jako etap wydania. Waga 217–473 tokeny. Język rozstrzyga
+  **wejście**. **Optymalizację wykonuje subagent na modelu z ustawień (E2)** — wiersz = Sonnet 5,
+  po pomiarze trzech modeli (56 wywołań, 17,80 USD; Haiku 3 propozycje z 20, Sonnet 14 z 20);
+  **O9 i O10 zamknięte**. **Luka do wydania:** w cudzym projekcie komenda pracuje z rdzenia reguł
+  niesionego w sobie, kopia `core/prompt/` trafia tam w **E5**. Otwarte: **O4 i O6**.
 - **PIERWSI_UZYTKOWNICY — WSTRZYMANY 2026-09-14**, E1 i E2 ZREALIZOWANE (2026-09-12 i 2026-09-13),
   E3 zostaje gotowy do startu: [plan](plany/PIERWSI_UZYTKOWNICY/PLAN.html) i [status](plany/PIERWSI_UZYTKOWNICY/STATUS.md).
   Pierwszeństwo dostał nowy plan; **termin graniczny raportu 2026-10-03 traci moc** do czasu
@@ -270,8 +267,8 @@ Komendy i frazy: [KOMENDY.md](KOMENDY.md)
 Plany: BUDOWA_RELAI 10/10 • OPTYMALIZACJA_KONTEKSTU 5/5 • HIGIENA_DOKUMENTOW 6/6 •
 SPRZATANIE_ARTEFAKTOW 4/4 • REKOMENDACJA_MODELU 4/4 (zamknięty 2026-09-04) •
 ROZWOJ_PO_WYDANIU 8/8 (**ZREALIZOWANY**) • PIERWSI_UZYTKOWNICY 2/3 (**WSTRZYMANY 2026-09-14**) •
-**Aktywny plan: OPTYMALIZATOR_PROMPTOW — 3/5, E4 gotowy do startu** •
-Dziennik: **122,9/150 KB** (15 wpisów) — rotowany 2026-09-14 • Lekcje: **43,9/50 KB** (20 w żywym
+**Aktywny plan: OPTYMALIZATOR_PROMPTOW — 4/5, E5 gotowy do startu** (Aneks A z 2026-09-15) •
+Dziennik: **133,0/150 KB** (16 wpisów) — rotowany 2026-09-14 • Lekcje: **43,9/50 KB** (20 w żywym
 rejestrze, ostatnia L-0108) — rotowane 2026-09-14, zeszło L-0079…L-0088 • Sekcja ryzyk:
 **20,9 KB / 12 KB — ponad progiem z pustą częścią rotowalną**: O9 zeszło, a pozostałych 15 pozycji
 jest `OTWARTE`, więc odchudzi ją wyłącznie zamknięcie ryzyk • `STATE.md`: **23,6 KB przy progu
@@ -279,14 +276,17 @@ cząstkowym 12 KB, 299 linii przy progu 300** — skrócony 2026-09-14 o 20 lini
 wady dystrybucji i wydanie 2.1.4); dalej odchudza go przepisanie, nie archiwum • Archiwum:
 **osiem** plików dziennika, **pięć** lekcji, trzy ryzyk • Sprawy czekające na człowieka: **7 tutaj**
 (3 rozstrzygnięte: 2026-09-12 i dwie 2026-09-14), 32 w PolyFlow, żadna nieprzeterminowana •
-Otwarte ryzyka: **13** (O1, O4, O6 z planu optymalizatora; O2, O3 i O7 domknięte w E1, **O9 w E2**,
-O10 zmierzone i nigdy nie weszło do tabeli) • Zamknięte: **8 w archiwum + 1 w tabeli (O9)** •
+Otwarte ryzyka: **12** (O4 i O6 z planu optymalizatora; **O1 zamknięte w E4** pomiarem, O2, O3
+i O7 domknięte w E1, **O9 w E2**, O10 zmierzone i nigdy nie weszło do tabeli) •
+Zamknięte: **8 w archiwum + 2 w tabeli (O9, O1)** •
 Otwarte bramki manualne: **7** — 3 w planie wstrzymanym (dyspozycja publikacji i kontaktów,
-uczestnicy, ponowny render demo) i 4 w aktywnym (kolizja z ECC, licznik kosztu, tryb ciągły dla
-Cursora i Codeksa — **świadomie do E4**, powrót pilotażu); akceptacja planu, nazwa komendy,
-prowizjonowanie `core/prompt/` (→ E5) i **model domyślny (→ Sonnet 5)** rozstrzygnięte 2026-09-14 •
+uczestnicy, ponowny render demo) i 3 w aktywnym (kolizja z ECC, licznik kosztu — **dostał liczbę
++110 tokenów na turę**, powrót pilotażu); **tryb ciągły dla Cursora i Codeksa rozstrzygnięty
+2026-09-15 Aneksem A** (osobny plan po E5); akceptacja planu, nazwa komendy, prowizjonowanie
+`core/prompt/` (→ E5) i **model domyślny (→ Sonnet 5)** rozstrzygnięte 2026-09-14 •
 Otwarte wątki: **1** — odnoga `OPIS_REPO`, zakres odświeżony 2026-09-13; `ORKIESTRACJA` zamknięta 2026-09-06 •
-Artefakty w rejestrze: **50** (E3 podbił trzy wersje, nie dodał pozycji) • Zasady aktywne:
+Artefakty w rejestrze: **50** (E4 podbił wersję komendy do 4; hook i moduł rdzenia są kodem
+wykonawczym, więc do rejestru nie wchodzą) • Zasady aktywne:
 **15 przy limicie 15** (L-0105…L-0108 doklejone do zasad 1 i 5, bez szesnastej pozycji) •
 Progi w katalogu: **18, z tego 17 z adresem egzekwowania** • Adaptery: **3** •
 Procedury: **14** (czternasta — `/relai-prompt`, w repozytorium, niewydana) •

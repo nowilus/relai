@@ -45,6 +45,12 @@
       "description": "Rozpoznanie stanu projektu dla hooka startu sesji: marker, tryb goscia, wersja, luka promptu etapowego, rozjazd stanu, nieznany autor, ustawienia globalne, prowizjonowanie specyfikacji i narzedzi, miara warstwy startowej wobec budzetu. Bez wiedzy o protokole hookow."
     },
     {
+      "id": "prompt-mode",
+      "file": "./process/prompt-mode.js",
+      "kind": "biblioteka",
+      "description": "Tryb ciagly optymalizatora promptow: przelacznik `Tryb ciagly` z ustawien czytany maszynowo (wlaczony / wylaczony / nie wiadomo), filtr pomijania (komendy, frazy sesji, krotkie potwierdzenia, pytania) i tresc reguly wstrzykiwanej do tury. Bez wiedzy o protokole hookow."
+    },
+    {
       "id": "work-artifacts",
       "file": "./process/work-artifacts.js",
       "kind": "biblioteka+CLI",

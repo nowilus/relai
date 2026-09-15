@@ -27,6 +27,13 @@
         ]
       }
     ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          { "type": "command", "command": "node \"${CLAUDE_PLUGIN_ROOT}/adapters/claude-code/hooks/prompt-mode.js\"" }
+        ]
+      }
+    ],
     "SessionStart": [
       {
         "hooks": [

@@ -27,6 +27,7 @@ Rejestr wyborów użytkownika dla tego projektu. Każdy wpis: data, czego dotycz
 | 2026-09-04 | Lista modeli | włączona · 7 dni |
 | 2026-09-14 | Model optymalizatora | Sonnet 5 · lista claude-code z dnia 2026-09-04 |
 | 2026-09-14 | Język promptu | język wejścia |
+| 2026-09-15 | Tryb ciągły | włączony — każdy prompt merytoryczny wraca najpierw z propozycją i oryginałem obok; filtr pomijania przepuszcza komendy, frazy sesji, krótkie potwierdzenia i pytania. Wartość spoza listy albo brak wiersza = wyłączony i cisza |
 | 2026-09-14 | Szablon planu HTML | domyślny z pluginu — bez nadpisania lokalnego w `docs/zasoby/HTML_PLAN/`; plany dziedziczą poprawki szablonu przy każdej aktualizacji (D-62) |
 
 ## Ustawienia wycofane

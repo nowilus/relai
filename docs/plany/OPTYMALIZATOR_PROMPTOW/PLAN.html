@@ -946,7 +946,24 @@ do tego dokumentu.</p>
 <p><b>Plan zaakceptowany i zamrożony 2026-09-14</b> — bez uwag, w kształcie po czwartej rundzie
 wywiadu (pięć etapów, 5–6 sesji, wątek kosztu modelu włączony). Od tej chwili sekcje 1–9 są
 nietykalne.</p>
-<p><i>Aneksów jeszcze nie ma.</i></p>
+<h3>Aneks A · 2026-09-15 · założenie b7 obalone pomiarem</h3>
+<p><b>Powód.</b> Sekcja 8 (przypadek <b>b7</b>) i opis E4 zakładały, że hooka <code>UserPromptSubmit</code>
+w Cursorze i Codeksie nie ma, więc tryb ciągły może tam tylko raz powiedzieć, że milczy. Pomiar
+z 2026-09-15 pokazał co innego: lokalny Codex CLI <code>0.153.4</code> dostarcza hookowi zdarzenie
+<code>UserPromptSubmit</code> z pełnym promptem i katalogiem roboczym, a <code>additionalContext</code>
+wpływa na odpowiedź tej samej tury. Założenie jest nieaktualne dla tego hosta.</p>
+<p><b>Treść aneksu.</b> Zakres E4 <b>nie rośnie</b>: tryb ciągły powstaje wyłącznie dla Claude Code,
+zgodnie z sekcjami 5 i 6. Zmienia się natomiast <b>uzasadnienie</b> zachowania z b7 — Cursor i Codex
+milczą nie dlatego, że nie mają nośnika, tylko dlatego, że nośnik dla nich nie został zmierzony ani
+zaprojektowany w tym planie. Zdanie, które tryb tam wypowiada, ma mówić o braku wsparcia w tej
+wersji, a nie o braku hooka w narzędziu.</p>
+<p><b>Skutek dla bramki.</b> Sprawa „czy tryb ciągły dla Cursora i Codeksa dostaje własny plan"
+zostaje rozstrzygnięta: <b>tak, osobnym planem po E5</b>, na materiale z tego pomiaru. Budżet
+5–6 sesji tego planu zostaje bez zmian.</p>
+<p><b>Dowody.</b> <code>.claude/relai/work/OPTYMALIZATOR_PROMPTOW/E4/POMIAR_CODEX.md</code> (strona
+Codeksa, <code>gpt-5.6-terra</code>) oraz <code>POMIAR_CLAUDE.md</code> (strona Claude Code: hook
+dokłada kontekst, nie podmienia promptu; <code>exit 2</code> zatrzymuje turę przed modelem za zero
+tokenów; 132 znaki wstrzykniętej reguły = +51 tokenów wejścia).</p>
 
 </section>
 

@@ -159,7 +159,10 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
     gdzie jest wykonalna; po pytaniu sprzątasz sam (martwy link nie jest poprawną wartością
     tymczasową); przy wyprowadzaniu pozycji jednostką inwentarza jest **sprawa**, nie linia.
     Wstawkę kotwicz do elementu, który przeżyje operację, i dowódź **obecności** nowej treści —
-    „nic nie zginęło" nie znaczy „wszystko powstało". (L-0005, L-0013, L-0014, L-0050, L-0058)
+    „nic nie zginęło" nie znaczy „wszystko powstało". **Gdy prompt etapowy przeczy regule zapisanej
+    w dokumencie docelowym, wygrywa dokument**, a rozjazd idzie do dziennika jako odstępstwo
+    z powodem; z prompta wiążąca jest intencja, nie nazwa pliku.
+    (L-0005, L-0013, L-0014, L-0050, L-0058, L-0109)
 15. **Pytasz raz na projekt, komponent opcjonalny znika bez śladu, komunikaty hooków są ASCII.**
     Przy zadaniu wizualnym zbierasz najpierw cechy pozytywne i pokazujesz jeden wariant do
     kalibracji. **Kompozycję z tekstem budujesz w warstwie, która liczy układ** — HTML
@@ -536,3 +539,17 @@ Treść jest kopią bajt w bajt — zmieniony został wyłącznie status w linii
   po niej.
 - **Źródło:** E3 planu OPTYMALIZATOR_PROMPTOW, `blok-02-rotacja` przed poprawką i po niej.
   Destylat: doklejone do zasady 1.
+
+### L-0109 — Prompt etapowy nie jest źródłem prawdy o regułach dokumentu, który sam opisuje · 2026-09-15 · AKTYWNA
+
+- **Trigger:** `PROMPT_ETAP_4.md` wymagał wpisania nowego hooka do `docs/ARTEFAKTY.md` jako pozycji
+  rejestru. Rejestr ma jednak własną sekcję „Poza rejestrem — świadomie", która **wprost wyklucza**
+  hooki, guardraile i moduły rdzenia jako kod wykonawczy.
+- **Przyczyna:** prompt etapowy powstaje przed etapem, z planu i ze stanu repozytorium **sprzed**
+  poprzednich etapów; reguła dokumentu mogła zostać dopisana później i prompt jej nie zna.
+- **Zasada:** gdy prompt etapowy każe zrobić coś, czemu przeczy reguła zapisana w samym dokumencie
+  docelowym, **wygrywa dokument** — a rozjazd idzie do dziennika jako świadome odstępstwo z powodem,
+  nie jako cicha zmiana ani ślepe wykonanie. To samo dotyczy wskazanego w prompcie **pliku**:
+  intencja („logika w rdzeniu, nie w hooku") jest wiążąca, konkretna nazwa pliku nie.
+- **Źródło:** E4 planu OPTYMALIZATOR_PROMPTOW — hook i `core/process/prompt-mode.js` poza rejestrem,
+  do rejestru poszło wyłącznie podbicie wersji komendy. Destylat: doklejone do zasady 14.

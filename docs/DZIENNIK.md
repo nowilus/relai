@@ -19,8 +19,8 @@
 | U1 | Pilotaż kończy się bez ani jednego uczestnika spoza autora — brak kandydatów albo brak odpowiedzi (plan PIERWSI_UZYTKOWNICY, sekcja 7) | **Średni** (2026-09-13, przy wejściu ryzyka do rejestru) | **OTWARTE** | Mitygacja z planu: własna sieć Łukasza i istniejący wpis na Odpalone, każde zaproszenie zanotowane, raport w terminie **także przy małej próbie**, z werdyktem „wynik nierozstrzygający". Materiały gotowe od 2026-09-13 (`ZAPROSZENIE.md`, cztery bloki), rejestr `PROBY.md` czeka pusty. **Stan faktyczny na dziś: 0 kontaktów, 0 prób, 0 aktywacji** przy progach 3–5 uczestników / ≥3 aktywacje / ≥2 powroty. Ryzyko nie zmaterializowało się jeszcze **ani nie zostało odparte** — zegar nie ruszył, bo wysyłka wymaga dyspozycji, której nie było. Termin graniczny raportu: **2026-10-03** (21 dni od akceptacji, SZACUNEK). Doszła własność, której plan nie przewidywał: materiał demo, którym zaproszenie się posługuje, jest **nieczytelny na telefonie** (pomiar E2) — a to jest urządzenie, na którym większość odbiorców zobaczy link pierwszy raz |
 | M6 | Załoga stoi na flagach CLI trzech dostawców (`claude -p --permission-mode`, `codex exec -s`, `agent -p --mode`), które zmieniają się szybciej niż wydania RelAI (wątek ORKIESTRACJA) | **Średni** (2026-09-06) | **OTWARTE** | Flagi stoją w jednym miejscu (`buildCommand` w `core/process/crew.js`), a test pilnuje trybu read-only bez `--write` i zamkniętej listy flag zakazanych; porażka `run` kończy się statusem `failed` z `stderr` w pliku przebiegu, nigdy ciszą, a krok 7 komendy każe czytać raport zadania i `git status`, nie kod wyjścia. Zmierzone 2026-09-06 z Claude Code jako gospodarza: Codex read-only i write, Cursor read-only (prompt stdin-em), zagnieżdżony Claude Code read-only — trzy narzędzia, cztery zadania `done`. Otwarte, bo kierunki z Codeksa i Cursora jako gospodarza i zapis przez Cursora są NOT TESTED, a zmiana flagi u dostawcy nie ma dziś własnego sygnału poza porażką przebiegu |
 
-| O1 | Hook `UserPromptSubmit` w Claude Code nie podmienia promptu, tylko dokłada kontekst — „tryb ciągły" może być nierealizowalny w zakładanym kształcie (plan OPTYMALIZATOR_PROMPTOW, ryzyko O1) | **Wysoki** (2026-09-14, przy akceptacji planu) | **OTWARTE** | Pomiar idzie **pierwszym krokiem E4**, przed napisaniem czegokolwiek: hook kontrolny w projekcie neutralnym, dowód treścią odpowiedzi, nie komunikatem. Ścieżka odwrotu zapisana z góry — tryb ciągły degraduje do wstrzykniętej reguły, która każe modelowi najpierw pokazać różnicę; funkcja zostaje, zmienia się nośnik. Niezmierzone: cokolwiek — ryzyko wchodzi do rejestru przed pierwszym przebiegiem |
-| O4 | Tryb ciągły kosztuje turę przy każdym zdaniu — praca zwalnia i drożeje (plan OPTYMALIZATOR_PROMPTOW, ryzyko O4) | **Średni** (2026-09-14, przy akceptacji planu) | **OTWARTE** | Filtr pomijania jest częścią E4, nie dodatkiem: komendy RelAI, frazy sesji, krótkie potwierdzenia i pytania o kod przechodzą nietknięte. Mierzone parą przypadków w jednym przebiegu, z których jeden **musi** trafić (zasada aktywna 5). Wyłącznik jest wierszem w `USTAWIENIA.md`, więc odwrót kosztuje jedną edycję. Sprawa „czy tryb ciągły ma licznik kosztu" czeka na człowieka — bez licznika opłacalność oceniamy na wrażeniu, nie na danych |
+| O1 | Hook `UserPromptSubmit` w Claude Code nie podmienia promptu, tylko dokłada kontekst — „tryb ciągły" może być nierealizowalny w zakładanym kształcie (plan OPTYMALIZATOR_PROMPTOW, ryzyko O1) | **Wysoki** (2026-09-14, przy akceptacji planu) | **ZAMKNIĘTE 2026-09-15 (E4)** | **Zmierzone, nie założone.** Hook `UserPromptSubmit` **dokłada kontekst i nie podmienia promptu**: w trzech parach przebiegów odpowiedź przy hooku niosła znacznik promptu (`ALFA7731`) obok znacznika wstrzykniętej reguły (`-BETA9042`), której treść znacznika promptu nie zawierała; bez hooka sam `ALFA7731`. Ryzyko nie zmaterializowało się w kształcie „funkcja nierealizowalna": ścieżka odwrotu z planu **jest** ścieżką główną — tryb ciągły stoi na wstrzykniętej regule i działa (E4, dowód treścią odpowiedzi na żywym prompcie). Trzeci nośnik zmierzony przy okazji: `exit 2` zatrzymuje turę **przed modelem** za 0,00 USD i oddaje użytkownikowi oryginał — materiał dla trybu poza Claude Code, nieużyty w tym planie. Zmierzone: 2026-09-15 (E4, Claude Code CLI 2.1.227) |
+| O4 | Tryb ciągły kosztuje turę przy każdym zdaniu — praca zwalnia i drożeje (plan OPTYMALIZATOR_PROMPTOW, ryzyko O4) | **Średni** (2026-09-14, przy akceptacji planu) | **OTWARTE** | Filtr pomijania jest częścią E4, nie dodatkiem: komendy RelAI, frazy sesji, krótkie potwierdzenia i pytania o kod przechodzą nietknięte. Mierzone parą przypadków w jednym przebiegu, z których jeden **musi** trafić (zasada aktywna 5). Wyłącznik jest wierszem w `USTAWIENIA.md`, więc odwrót kosztuje jedną edycję. Sprawa „czy tryb ciągły ma licznik kosztu" czeka na człowieka — bez licznika opłacalność oceniamy na wrażeniu, nie na danych. **E4 daje liczbę: +110 tokenów wejścia na turę merytoryczną** (reguła 245 znaków; 25 523 wobec 25 413 `cache_creation` na tym samym zdaniu), przelicznik **2,2–2,6 znaku na token** z dwóch niezależnych pomiarów. Filtr zmierzony: **12 punktów kontroli, 0 niezaliczonych**, obie kontrole przeciw zawyżeniu trafiły. Otwarte, bo zmierzony jest **nośnik**, a nie skutek — koszt zachowania modelu (dłuższa tura, dodatkowe narzędzia) utonął w szumie eksploracji i czeka na pomiar po E5, na wydanej wersji. Zmierzone: 2026-09-15 (E4) |
 | O6 | Kolizja z zainstalowanym `ecc:prompt-optimizer` — dwa skille o podobnych opisach wyzwalają się nawzajem albo zamiast siebie (plan OPTYMALIZATOR_PROMPTOW, ryzyko O6) | **Średni** (2026-09-14, przy akceptacji planu) | **OTWARTE** | Komenda wołana wprost kolizji nie ma — to jest jeden z powodów, dla których E1 daje komendę, a nie skill. Opis trybu ciągłego będzie zawężony markerem projektu RelAI, jak opisy pozostałych skilli (zasada aktywna 9). Otwarte, bo rozstrzygnięcie należy do człowieka: wyłączenie cudzego pluginu jest zmianą w konfiguracji użytkownika i RelAI jej nie wykona sam. Stan faktyczny: skill ECC obecny w konfiguracji, 16 843 B, autor YannJY02 |
 
 > Ryzyka zamknięte O9 (1 pozycja) są w
@@ -1460,5 +1460,113 @@ Autor: RelAI (Opus 5) + Lukasz
 - **Czy tryb ciągły dla Cursora i Codeksa dostaje własny plan** — bramka **zostaje otwarta do E4**
   (decyzja właściciela 2026-09-14): rozstrzygnięcie wymaga wyniku pomiaru ryzyka O1, który jest
   pierwszym krokiem tamtego etapu. Sama delegacja w Codeksie jest rozstrzygnięta w tym etapie.
+
+Autor: RelAI (Opus 5) + Lukasz
+
+### 2026-09-15 — E4 optymalizatora: hook dokłada kontekst, nie podmienia promptu; tryb ciągły stoi na wstrzykniętej regule
+
+Autor: RelAI (Opus 5) + Lukasz
+
+**Zrobione:**
+
+- **Pomiar ryzyka O1 po obu stronach.** Codex (Terra, wyjątek wykonawczy z tego dnia) zmierzył
+  własne środowisko: Codex CLI `0.153.4` **ma** działające `UserPromptSubmit` z pełnym promptem
+  i `cwd`, a `additionalContext` wpływa na tę samą turę. Claude Code (Opus 5) zmierzył swoje
+  w projekcie neutralnym poza repozytorium: **hook dokłada kontekst i nie podmienia promptu** —
+  znacznik promptu `ALFA7731` przeżył obok wstrzykniętej reguły w trzech parach przebiegów, a sama
+  reguła znacznika nie zawierała. Wariant „podmiana" jest wykluczony, więc tryb ciągły stoi na
+  **wstrzykniętej regule**, dokładnie jak przewidywała ścieżka odwrotu planu.
+- **Trzeci nośnik, którego plan nie przewidywał:** `exit 2` w hooku zatrzymuje turę **przed
+  modelem** — `num_turns: 0`, koszt **0,00 USD**, a użytkownik dostaje komunikat hooka razem
+  z oryginalnym promptem. W E4 nie został użyty (człowiek ma dostać propozycję, nie odbity prompt),
+  ale jest zapisany jako materiał dla trybu ciągłego poza Claude Code.
+- **`core/process/prompt-mode.js`** — nowy moduł rdzenia: przełącznik `Tryb ciągły` czytany
+  maszynowo (`włączony` / `wyłączony` / nie wiadomo), filtr pomijania i treść reguły. Bez wiedzy
+  o protokole hooków, jak `session-signals.js`. Pozycja w `core/MANIFEST.json`.
+- **`adapters/claude-code/hooks/prompt-mode.js`** — hook `UserPromptSubmit`, cichy, z czterema
+  warunkami ciszy: nie projekt RelAI albo tryb gościa, przełącznik inny niż włączony, prompt
+  z filtru pomijania, awaria `require` rdzenia. Deklaracja w `adapters/claude-code/hooks/hooks.json`.
+- **Zdanie o włączonym trybie na starcie sesji** — w `session-context.js`, obok pozostałych
+  raportów stanu; przy przełączniku wyłączonym zero znaków.
+- **Wiersz `Tryb ciągły` w `docs/USTAWIENIA.md`** — wartość **włączony**, wpisana po jednym pytaniu
+  do właściciela. Wartość spoza zamkniętej listy i brak wiersza znaczą **wyłączony i cisza**
+  (reguła domyślna SPEC_USTAWIENIA; rotacja pozostaje jedynym wyjątkiem).
+- **`/relai-prompt` (wersja 4)** — sekcja „Tryb ciągły — kiedy ta procedura rusza bez wywołania",
+  rozstrzygająca też **b7**: tryb istnieje wyłącznie w Claude Code, a w Cursorze i Codeksie pada
+  jedno zdanie przy pierwszym wywołaniu komendy w sesji — o **braku wsparcia w tej wersji**, nie
+  o braku hooka w narzędziu. Skill Codeksa zregenerowany, `--verify` na zero.
+- **Aneks A do `PLAN.html`** — założenie b7 obalone pomiarem; zakres E4 nie rośnie, zmienia się
+  uzasadnienie. Bramka „czy tryb ciągły dla Cursora i Codeksa dostaje własny plan" zamknięta:
+  **osobnym planem po E5**.
+- **`docs/KOMENDY.md`** — tryb ciągły w sekcji zachowań automatycznych, opisany wyłącznie tym, co
+  po tym etapie działa.
+
+**Zweryfikowane — jak dokładnie:**
+
+- **O1 dowodem z treści odpowiedzi, nie z dokumentacji.** Prompt niósł znacznik `ALFA7731`,
+  wstrzyknięta reguła kazała dopisać `-BETA9042` do „identyfikatora podanego przez użytkownika"
+  i sama znacznika nie zawierała. Trzy przebiegi z hookiem dały `ALFA7731-BETA9042`, trzy bez
+  hooka `ALFA7731`. Sonda Codeksa miała tu słabszy rozdział (jej kontekst niósł cały oczekiwany
+  napis) — dlatego pomiar po stronie Claude Code powtórzył go z rozdzielonymi znacznikami.
+- **Tryb ciągły na żywym prompcie** — projekt kontrolny, `sonnet`, zdanie „popraw walidacje
+  w formularzu logowania bo sie sypie na pustym mailu": wróciło **oryginałem obok propozycji**,
+  z wypisanymi brakami i pytaniem o zgodę, **bez wykonania**. Ten sam prompt przy przełączniku
+  `wyłączony` poszedł prosto do wykonania — model zaczął szukać formularza i **ani jeden znak
+  trybu nie padł**.
+- **Filtr pomijania — 12 punktów kontroli, 0 niezaliczonych** (`instrument-filtru.js`, hook
+  uruchamiany jako proces z JSON-em na stdin). Przechodzą nietknięte: `/relai-stage`,
+  `/relai-prompt` z argumentem, trzy frazy sesji, `tak`, pytanie o kod. **Kontrole przeciw
+  zawyżeniu, obie trafiły:** „popraw opis komendy /relai-stage w dokumentacji" i „sprawdz status
+  wszystkich planow i wypisz etapy zalegle…" **zostają przerobione** — nazwa komendy i fraza sesji
+  w środku zdania nie zwalniają z przerobki. Kontrola żywa: prompt `tak` w sesji z włączonym trybem
+  przeszedł bez śladu reguły.
+- **Wyłącznik wyłącza — cztery wartości jednego wiersza w jednym przebiegu:** `włączony` → 327
+  znaków wyjścia hooka, `wyłączony` → 0, `czasami` (spoza listy) → 0, brak wiersza → 0.
+- **Zdanie o trybie na starcie sesji — para wariantów różniących się wyłącznie tym wierszem:**
+  **245 znaków wobec 0**, całe wyjście hooka 1 596 wobec 1 350 znaków, `stderr` pusty w obu.
+- **Koszt trybu policzony, nie oszacowany.** Reguła ma **245 znaków** i dokłada **+110 tokenów**
+  wejścia na turę (25 523 wobec 25 413 `cache_creation` na tym samym zdaniu, sonda wstrzykująca
+  dokładnie tę regułę). Pasmo przelicznika z dwóch niezależnych pomiarów: **2,2–2,6 znaku na
+  token** (132 znaki → +51 tokenów w pomiarze O1). Pierwsza para przebiegów była zanieczyszczona
+  budową cache'u i została odrzucona, nie uśredniona. Próba zmierzenia kosztu na **zachowaniu**
+  modelu (tryb włączony wobec wyłączonego w żywej sesji) dała sygnał mniejszy od szumu —
+  `cache_read` różnił się czterokrotnie przez różną eksplorację repozytorium — więc mierzony jest
+  **nośnik**, nie skutek (L-0105).
+- **Hook nie psuje sesji** — przebiegi z oboma hookami naraz (`SessionStart` + `UserPromptSubmit`)
+  kończą się `is_error: false`, zero komunikatów o hooku w wyniku, `stderr` pusty. **To fixtura:**
+  projekt kontrolny z lokalnym `settings.json`, nie świeża sesja w tym repozytorium — zainstalowany
+  plugin serwuje 2.1.4, który tego hooka jeszcze nie ma (L-0106).
+- **`node core/tools/validate-adapters.js`** → kod 0, 9 plików rdzenia z manifestu, 12 wywołań
+  z `hooks.json`. **`node adapters/codex/generate-skills.js --verify`** → kod 0 po regeneracji.
+- **Artefakty robocze** — raport przed sprzątaniem: **0,6 MB w dwóch grupach** (katalog E4
+  i projekt neutralny `relai-optymalizator-o1-claude` w `%TEMP%`, artefakt spoza repozytorium
+  wypisany tu z nazwy). Po zgodzie właściciela skasowane obie: **0,6 MB → 0,0 MB**. Pliki produktu
+  weszły wcześniej pod kontrolę gita, więc przestały być kandydatami — raport pokazał to obiema
+  stronami, przed objęciem gitem i po nim.
+
+**Świadomie odłożone:**
+
+- **Hook i moduł rdzenia nie wchodzą do `docs/ARTEFAKTY.md`**, choć prompt etapowy tego oczekiwał.
+  Rejestr ma własną sekcję „Poza rejestrem — świadomie", która wprost wyklucza hooki, guardraile
+  i `session-signals.js` jako **kod wykonawczy**. Wpisanie ich złamałoby zasadę rejestru; do
+  rejestru poszło wyłącznie podbicie wersji komendy (3 → 4).
+- **Logika przełącznika mieszka w nowym `core/process/prompt-mode.js`, nie w `session-signals.js`**,
+  jak sugerował prompt etapowy. Intencja („rdzeń, nie hook") jest zachowana; `session-signals.js`
+  ma już 1 395 linii i opisuje **start sesji**, a tryb ciągły to inne zdarzenie.
+- **Regeneracja skilla Codeksa** — adaptery formalnie należą do E3/E5, ale zmiana komendy zostawia
+  rozjazd, który `--verify` wykrywa natychmiast. Wykonana w tym etapie, jak w E1 i E2.
+- **Zachowanie z wydanego pluginu** i tryb ciągły w cudzym projekcie — do E5, razem
+  z prowizjonowaniem `core/prompt/`. Żywy przebieg pokazał to wprost: model nie miał komendy
+  `/relai-prompt` i odtworzył procedurę z opisu w regule.
+- **Ryzyko O11** (opóźnienie delegacji w trybie ciągłym) — nadal **niezmierzone**: delegacja do
+  agenta `relai-prompt-optimizer` nie zachodzi w projekcie kontrolnym, bo agenta nie ma
+  w zainstalowanym pluginie. Pierwszy pomiar możliwy dopiero po E5.
+
+**Do zrobienia przez człowieka:**
+
+- **Czy tryb ciągły ma licznik kosztu** — sprawa dostaje liczbę: **+110 tokenów wejścia na turę
+  merytoryczną**. Przy pięćdziesięciu zdaniach w sesji to 5 500 tokenów, czyli mniej niż jeden
+  blok kontekstu startu. Decyzja, czy licznik w ogóle budować, nadal czeka.
+- **Co z zainstalowanym `ecc:prompt-optimizer`** — bramka otwarta od 2026-09-14, bez zmiany.
 
 Autor: RelAI (Opus 5) + Lukasz

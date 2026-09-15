@@ -37,8 +37,10 @@ const CORE_TEMPLATES = path.join(PLUGIN_ROOT, 'core', 'templates');
 
 // Awaria require rdzenia jest traktowana jak awaria guarda: hook milknie.
 let core;
+let trybPromptu;
 try {
   core = require(path.join(PLUGIN_ROOT, 'core', 'process', 'session-signals.js'));
+  trybPromptu = require(path.join(PLUGIN_ROOT, 'core', 'process', 'prompt-mode.js'));
 } catch (_) {
   process.exit(0);
 }
@@ -141,6 +143,14 @@ function onSessionStart(input) {
   // raporty do propozycji. Ponizej progu i bez wiersza w ustawieniach = zero znakow.
   for (const linia of core.artefaktyRoboczeReport(
     core.artefaktyRobocze(cwd, { markeryGoscia: MARKERY_GOSCIA }))) {
+    out.push(linia);
+  }
+
+  // Tryb ciagly optymalizatora promptow (E4). Jedno zdanie, wylacznie przy przelaczniku
+  // WLACZONYM — brak wiersza i wartosc spoza zamknietej listy daja zero znakow. Stoi tutaj,
+  // bo jest stanem projektu, a nie zadaniem: czlowiek ma wiedziec, czemu jego zdania wracaja
+  // z propozycja, zanim zobaczy pierwsza z nich.
+  for (const linia of trybPromptu.trybCiaglyReport(trybPromptu.trybCiaglyProjektu(cwd))) {
     out.push(linia);
   }
 

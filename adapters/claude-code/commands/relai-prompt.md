@@ -279,6 +279,25 @@ wracasz do tematu w tej turze.
 
 ---
 
+## Tryb ciągły — kiedy ta procedura rusza bez wywołania
+
+Ta sama procedura ma drugie wejście: **tryb ciągły**, włączany wierszem `Tryb ciągły`
+w `docs/USTAWIENIA.md`. Gdy jest włączony, każdy prompt merytoryczny wraca najpierw z propozycją
+i oryginałem obok — bez wpisywania komendy. Nietknięte przechodzą: wywołania komend (tekst
+zaczynający się od `/`), frazy sesji, krótkie potwierdzenia i pytania.
+
+Tryb ciągły **istnieje wyłącznie w Claude Code**, bo tylko dla tego narzędzia został w RelAI
+zmierzony i zbudowany nośnik. W **Cursorze i Codeksie** komenda działa normalnie, a trybu nie ma:
+gdy pracujesz w takim narzędziu i wiersz `Tryb ciągły` jest w projekcie **włączony**, mówisz o tym
+**jednym zdaniem przy pierwszym wywołaniu komendy w sesji** i nie wracasz do tematu. Inaczej
+człowiek widzi włączony wiersz i zakłada, że jego zdania są przerabiane same z siebie.
+
+Zdanie brzmi o **braku wsparcia w tej wersji**, a nie o braku hooka w narzędziu: pomiar
+z 2026-09-15 pokazał, że Codex ma własne zdarzenie promptu — nośnik dla niego jest możliwy,
+tylko nie należy do tego planu.
+
+---
+
 ## Zakazy tej komendy
 
 - **Nie wykonujesz promptu, który właśnie przerobiłeś.** Komenda kończy się na propozycji.
