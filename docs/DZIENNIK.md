@@ -1757,3 +1757,8 @@ wydania 2.2.0 i blokował zielony przebieg całości.
 - **Odpowiedź testerowi** — czy po odmowie pytanie wróciło w tym samym folderze.
 
 Autor: RelAI (Opus 5) + Lukasz
+
+**Wydanie (ten sam dzień, po wpisie powyżej):** commit `8479212` i tag `v2.3.0` wypchnięte na
+`origin/main` — 30 plików, +703/−46. Zachowanie obu bramek z **zainstalowanego** pluginu pozostaje
+niezmierzone: ta sesja wykonuje 2.2.0 z pamięci aplikacji, więc pierwszy dowód da dopiero świeża
+sesja po restarcie (P-005).

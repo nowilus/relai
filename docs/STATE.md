@@ -92,14 +92,16 @@ kontrole przeszły; pełna świeża sesja Codexa pozostaje NOT TESTED po błędz
 
 ## Nad czym pracujemy teraz
 
-- **2.3.0 — dwie bramki zgody, w repo, NIEWYDANE** (2026-09-15, zgłoszenie testera → P-015).
+- **2.3.0 — dwie bramki zgody, WYDANE 2026-09-15** (zgłoszenie testera → P-015).
   Proaktywne zachowania RelAI pytają o zgodę, zamiast jej zakładać: (1) tryb ciągły optymalizatora
   pyta raz na sesję — ta sesja / nie pytaj więcej / nie — bo włączony wiersz `Tryb ciągły` znaczy
   „tryb dostępny", a nie „tryb działa"; zgoda sesyjna wiąże się z identyfikatorem sesji, trwała
   mieszka w wierszu `Zgoda na optymalizator` z przypomnieniem co 30 dni; (2) wiersz `Propozycja
   RelAI poza projektem` wycisza propozycję zakładania struktury **we wszystkich** folderach bez
   markera naraz. Przełączniki: `/relai-prompt on|off [--globalnie]`. Testy 50/50, dowód na nośniku
-  9/9. **Do zrobienia przed publikacją:** commit, tag i `plugin update` po stronie użytkowników.
+  9/9. Wydane commitem `8479212` i tagiem `v2.3.0` na `origin/main`. **Niezmierzone:** zachowanie
+  obu bramek z **zainstalowanego** pluginu — u użytkowników po `plugin update`, u nas po restarcie
+  aplikacji (P-005); ta sesja nadal wykonuje 2.2.0 z pamięci.
 
 - **OPTYMALIZATOR_PROMPTOW — ZREALIZOWANY 2026-09-15** (5/5, wydanie **2.2.0**):
   [archiwum planu](archiwum/plany/OPTYMALIZATOR_PROMPTOW/STATUS.md). Warstwa zamieniająca podyktowane
