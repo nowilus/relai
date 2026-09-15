@@ -30,7 +30,7 @@ o kolejne `N` dni / rozstrzygnąć teraz. Sesja nieinteraktywna: sam raport, bez
 
 | Co | Status | Gdzie |
 |---|---|---|
-| Plugin RelAI — wydany, trzy adaptery | DZIAŁA (2.1.4 w repo i publicznie, wydane 2026-09-12) | [docs/STATE.md](docs/STATE.md) |
+| Plugin RelAI — wydany, trzy adaptery | DZIAŁA (2.2.0 w repo i publicznie, wydane 2026-09-15) | [docs/STATE.md](docs/STATE.md) |
 | Plan BUDOWA_RELAI — 10 etapów | ZAMKNIĘTY 2026-08-10 | [archiwum planu](docs/archiwum/plany/BUDOWA_RELAI/STATUS.md) |
 | Plan ROZWOJ_PO_WYDANIU — 8 etapów | **ZREALIZOWANY 2026-09-05**; wydania 1.10.0 i 2.0.0 opublikowane | [archiwum planu](docs/archiwum/plany/ROZWOJ_PO_WYDANIU/STATUS.md) |
 | Plan OPTYMALIZACJA_KONTEKSTU — 5 etapów | ZREALIZOWANY 2026-08-21 | [archiwum planu](docs/archiwum/plany/OPTYMALIZACJA_KONTEKSTU/STATUS.md) |
@@ -38,9 +38,11 @@ o kolejne `N` dni / rozstrzygnąć teraz. Sesja nieinteraktywna: sam raport, bez
 | Plan SPRZATANIE_ARTEFAKTOW — 4 etapy | **ZREALIZOWANY 2026-09-03** (4/4, wydanie 1.8.0) | [archiwum planu](docs/archiwum/plany/SPRZATANIE_ARTEFAKTOW/STATUS.md) |
 | Plan REKOMENDACJA_MODELU — 4 etapy | **ZREALIZOWANY 2026-09-04** (4/4, Aneksy A–D, wydanie 1.9.0) | [archiwum planu](docs/archiwum/plany/REKOMENDACJA_MODELU/STATUS.md) |
 | Plan PIERWSI_UZYTKOWNICY — 3 etapy | **WSTRZYMANY 2026-09-14** (E1 i E2 zrealizowane, E3 gotowy do startu) | [status planu](docs/plany/PIERWSI_UZYTKOWNICY/STATUS.md) |
+| Plan OPTYMALIZATOR_PROMPTOW — 5 etapów | **ZREALIZOWANY 2026-09-15** (5/5, Aneksy A i B, wydanie 2.2.0) | [archiwum planu](docs/archiwum/plany/OPTYMALIZATOR_PROMPTOW/STATUS.md) |
 | Odnogi i wątki samodzielne | 1 otwarta (`OPIS_REPO`); `ORKIESTRACJA` zamknięta 2026-09-06 (2.1.0 w repo), `PRECOMMIT_ESM` 2026-09-04 wydaniem 1.9.2, `CURSOR_1_9_1` tego samego dnia | [docs/STATE.md](docs/STATE.md) |
 
-Aktywny plan: [OPTYMALIZATOR_PROMPTOW](docs/plany/OPTYMALIZATOR_PROMPTOW/STATUS.md) — **ZAAKCEPTOWANY** 2026-09-14, E1 gotowy do startu.
+Aktywny plan: **brak** — OPTYMALIZATOR_PROMPTOW zamknięty 2026-09-15 (5/5, wydanie 2.2.0). Kierunek
+następnego planu czeka na decyzję: wznowienie PIERWSI_UZYTKOWNICY albo tryb ciągły poza Claude Code.
 
 ## Reguły procesu
 

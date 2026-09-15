@@ -1,11 +1,13 @@
 # STATE — RelAI
 
-Stan na: 2026-09-15 (aktualizacja obszaru optymalizatora po E4; stan techniczny poniżej z 2026-09-06)
+Stan na: 2026-09-15 (zamknięcie planu OPTYMALIZATOR_PROMPTOW i wydanie 2.2.0; stan techniczny poniżej z 2026-09-06)
 
 ## Gdzie jesteśmy
 
-RelAI ma w repozytorium i publicznie **2.1.4** (wydane 2026-09-12: tag, release, potwierdzone
-treścią plików z cache'u po `plugin update`) i działa w Claude Code, Cursorze oraz
+RelAI ma w repozytorium i publicznie **2.2.0** (wydane 2026-09-15: tag, push, potwierdzone treścią
+plików z cache'u po `plugin update` — 10/10, kontrola pozytywna na 2.1.4 dała różnicę). **2.2.0
+dokłada czternastą komendę `/relai-prompt` i tryb ciągły optymalizatora.** Poprzednio **2.1.4**
+(wydane 2026-09-12) i działa w Claude Code, Cursorze oraz
 jako natywny plugin Codexa z jednym rdzeniem procesu. **2.1.0 dokłada załogę** — trzynastą komendę
 `/relai-crew`: sesja zostaje orkiestratorem celu, pyta o role, liczbę subagentów, tryb i zakres
 modeli, układa zadania w fale bez konfliktów plików, deleguje je subagentom gospodarza albo do
@@ -35,9 +37,13 @@ kontrole przeszły; pełna świeża sesja Codexa pozostaje NOT TESTED po błędz
 - Plany powstają jako osobny dokument z wariantami i ryzykami — dla odbiorcy nietechnicznego jako
   jeden plik HTML działający bez internetu. Boczny wątek dostaje własną kartę i gotowy prompt
   świeżej sesji, bez ruszania zamrożonego planu.
-- Trzynaście skrótów operacyjnych: etap planu, odnoga, kopia zapasowa, przegląd, lista zmian, pakiet
+- Czternaście skrótów operacyjnych: etap planu, odnoga, kopia zapasowa, przegląd, lista zmian, pakiet
   przekazania, wycieczka po projekcie, ściąga, adopcja, aktualizacja, sprzątanie plików roboczych,
-  odświeżenie listy modeli, **załoga**.
+  odświeżenie listy modeli, załoga, **optymalizator promptu**.
+- **Podyktowane zdanie wraca poprawione, zanim ruszy w robotę** — na żądanie komendą albo przy
+  każdym prompcie merytorycznym, gdy tryb ciągły jest włączony. Oryginał stoi obok propozycji,
+  dopowiedzenia są oznaczone, a wykonanie czeka na zgodę; komendy, frazy sesji, potwierdzenia
+  i pytania przechodzą nietknięte.
 - **Załoga działa między trzema narzędziami** — zmierzone 2026-09-06 z Claude Code jako gospodarza:
   Codex (odczyt i zapis), Cursor (odczyt, prompt stdin-em) i zagnieżdżony Claude Code (odczyt)
   wykonały delegowane zadanie z poprawnym raportem; recenzent nigdy nie dostaje prawa zapisu, a dwa
@@ -81,29 +87,25 @@ kontrole przeszły; pełna świeża sesja Codexa pozostaje NOT TESTED po błędz
 
 ## Nad czym pracujemy teraz
 
-- **OPTYMALIZATOR_PROMPTOW — E4 ZREALIZOWANY 2026-09-15, E5 GOTOWY DO STARTU** (4/5):
-  [plan](plany/OPTYMALIZATOR_PROMPTOW/PLAN.html) i [status](plany/OPTYMALIZATOR_PROMPTOW/STATUS.md).
-  Cel całości: warstwa zamieniająca podyktowane zdanie w precyzyjny prompt — komenda plus tryb
-  ciągły włączany jawnie. **Pięć etapów, 5–6 sesji**; komenda `/relai-prompt` jest czternastą
-  i **niewydaną** (E5).
-  **Tryb ciągły działa i stoi na wstrzykniętej regule (E4).** Pomiar rozstrzygnął ryzyko **O1**:
-  hook `UserPromptSubmit` **dokłada kontekst**, a promptu **nie podmienia** — dowód znacznikami
-  rozdzielonymi między prompt i regułę, trzy pary przebiegów. Wariant „podmiana" nie istnieje, więc
-  ścieżka odwrotu z planu jest ścieżką główną. Włącza wiersz `Tryb ciągły` w `USTAWIENIA.md`
-  (**włączony** w tym projekcie); wartość spoza listy i brak wiersza = wyłączony i cisza. Filtr
-  pomijania przepuszcza komendy, frazy sesji, krótkie potwierdzenia i pytania — **12 punktów
-  kontroli, 0 niezaliczonych**, obie kontrole przeciw zawyżeniu trafiły. Koszt nośnika: **+110
-  tokenów na turę** (reguła 245 znaków). Zmierzony trzeci nośnik, nieużyty: `exit 2` zatrzymuje
-  turę **przed modelem** za 0,00 USD. **Aneks A**: Codex ma własne `UserPromptSubmit`, więc tryb
-  poza Claude Code dostaje **osobny plan po E5** — zakres E4 nie urósł.
-  **Prompt zna pamięć projektu i mówi Twoim językiem (E3).** Komenda przenosi **wybiórczy blok
-  kontekstu** z trzech rejestrów: 4–6 pozycji ze 123, limit 1 300 znaków, przycinanie po pozycjach.
-  Blok zmienia wynik, nie tylko rachunek — to samo zdanie bez bloku zostało przeczytane jako
-  licencja pakietu biurowego, z blokiem jako etap wydania. Waga 217–473 tokeny. Język rozstrzyga
-  **wejście**. **Optymalizację wykonuje subagent na modelu z ustawień (E2)** — wiersz = Sonnet 5,
-  po pomiarze trzech modeli (56 wywołań, 17,80 USD; Haiku 3 propozycje z 20, Sonnet 14 z 20);
-  **O9 i O10 zamknięte**. **Luka do wydania:** w cudzym projekcie komenda pracuje z rdzenia reguł
-  niesionego w sobie, kopia `core/prompt/` trafia tam w **E5**. Otwarte: **O4 i O6**.
+- **OPTYMALIZATOR_PROMPTOW — ZREALIZOWANY 2026-09-15** (5/5, wydanie **2.2.0**):
+  [archiwum planu](archiwum/plany/OPTYMALIZATOR_PROMPTOW/STATUS.md). Warstwa zamieniająca podyktowane
+  zdanie w precyzyjny prompt jest **publiczna**: czternasta komenda `/relai-prompt` plus **tryb
+  ciągły** włączany wierszem `Tryb ciągły` w `USTAWIENIA.md` (w tym projekcie **włączony**; wartość
+  spoza listy i brak wiersza = wyłączony i cisza). Komenda przenosi do promptu **pamięć projektu**
+  (4–6 pozycji ze 123, limit 1 300 znaków), odpowiada w języku wejścia i deleguje na model z wiersza
+  `Model optymalizatora` = **Sonnet 5** (E2: 56 wywołań, 17,80 USD; Haiku 3 propozycje z 20, Sonnet
+  14 z 20). Baza reguł jedzie do projektu razem ze specyfikacjami — kopia **nadpisywana** przy każdym
+  starcie, w odróżnieniu od trwałej listy modeli.
+  **Nośnik trybu jest zmierzony, nie założony:** hook `UserPromptSubmit` **dokłada kontekst**
+  i promptu **nie podmienia** (O1), koszt **+110 tokenów na turę**, filtr pomijania 12/12. Na wydanej
+  wersji obie strony na jednym zdaniu: `włączony` → 13 tur i propozycja bez wykonania (1,00 USD),
+  `wyłączony` → 4 tury prosto do wykonania (0,35 USD). Zamknięte: **O1, O6, O9, O10** i **W1**
+  (`claude plugin validate` jest odtąd krokiem P-005). Otwarte: **O4** — liczba jest, ale rozrzut
+  zachowania modelu przewyższa mierzoną różnicę.
+  **Zostało po planie, do rozstrzygnięcia:** kierunek następnego planu — wznowienie pilotażu
+  PIERWSI_UZYTKOWNICY albo tryb ciągły poza Claude Code (materiał: `UserPromptSubmit` Codeksa
+  i nośnik `exit 2`, który zatrzymuje turę przed modelem za 0,00 USD). Delegacja w trybie ciągłym
+  **bywa pomijana** — model raz otwiera komendę, raz odtwarza procedurę z reguły.
 - **PIERWSI_UZYTKOWNICY — WSTRZYMANY 2026-09-14**, E1 i E2 ZREALIZOWANE (2026-09-12 i 2026-09-13),
   E3 zostaje gotowy do startu: [plan](plany/PIERWSI_UZYTKOWNICY/PLAN.html) i [status](plany/PIERWSI_UZYTKOWNICY/STATUS.md).
   Pierwszeństwo dostał nowy plan; **termin graniczny raportu 2026-10-03 traci moc** do czasu
@@ -123,10 +125,9 @@ kontrole przeszły; pełna świeża sesja Codexa pozostaje NOT TESTED po błędz
   jej domknięcie wymaga zmiany na GitHubie. Publikacja, wysyłka i kontakty czekają na dyspozycję;
   bramki „Dyspozycja publikacji i kontaktów" oraz „Uczestnicy" są otwarte. Liczniki pilotażu:
   **0 kontaktów, 0 prób, 0 aktywacji** przy progach 3–5 / ≥3 / ≥2.
-- **Publiczna instalacja serwuje 2.1.4** — zmierzone 2026-09-13 w izolowanym `CLAUDE_CONFIG_DIR`
-  obiema komendami z README: `✔ enabled`, 13 komend, `claude plugin validate` → `✔ Validation
-  passed`, **6/6** plików cache'u zgodnych sumą z tagiem `v2.1.4` po normalizacji CRLF → LF
-  (kontrola pozytywna na `v2.1.3` zgłosiła różnicę). Marketplace serwuje `main`, nie obiekt release.
+- **Publiczna instalacja zmierzona 2026-09-13** na 2.1.4 w izolowanym `CLAUDE_CONFIG_DIR`: obie
+  komendy z README, `✔ enabled`, `✔ Validation passed`, 6/6 plików cache'u zgodnych z tagiem.
+  Marketplace serwuje `main`, nie obiekt release. Na 2.2.0 nie powtórzone.
 - **Materiał demo jest odtworzeniem zmierzonego przebiegu, nie nagraniem ekranu.** Każda klatka
   pokazująca plik albo odpowiedź agenta ma pokrycie w zapisie realnych sesji; instrument pokrycia
   ma kontrolę pozytywną. Kontrola układu na wyrenderowanych klatkach: **0 przepełnień** na
@@ -137,11 +138,8 @@ kontrole przeszły; pełna świeża sesja Codexa pozostaje NOT TESTED po błędz
   5,08 px, treść karty 14 px → 5,47 px, ścieżki plików 9 px → 3,52 px, przy progu 8 px (SZACUNEK).
   Scena `sesja` jest najbliżej progu (7,42 px). Treść merytoryczna zaczyna się dopiero w 3,5 s —
   3 z 25 sekund to plansza tytułowa. Naprawa wymaga nowego renderu, więc jest decyzją do E3.
-- ~~**Wydanie 2.1.4**~~ — **wydane 2026-09-12**:
-  [release](https://github.com/nowilus/relai/releases/tag/v2.1.4), wersja potwierdzona treścią
-  plików z cache'u (5/5 po normalizacji CRLF → LF), nie komunikatem CLI (P-005); świeża sesja CLI
-  i aplikacja desktopowa po restarcie mają jeden blok kontekstu i zero błędów hooka. Sekwencja
-  P-005 wykonała po raz pierwszy `claude plugin validate` przed tagiem (ryzyko W1).
+- ~~**Wydanie 2.1.4**~~ — wydane 2026-09-12, potwierdzone treścią plików z cache'u (5/5); od niego
+  `claude plugin validate` przed tagiem jest krokiem sekwencji P-005 (W1, zamknięte 2026-09-15).
 - **Migracja JiraManagera** — ostatni projekt, w którym start sesji kosztuje 386 KB dokumentów,
   a rotacja nigdy nie ruszyła. Czeka na okno właściciela; do tego czasu ryzyko R5 zostaje otwarte,
   zawężone do tego jednego projektu.
@@ -150,6 +148,12 @@ kontrole przeszły; pełna świeża sesja Codexa pozostaje NOT TESTED po błędz
 
 ## Co dalej
 
+- **Kierunek następnego planu — decyzja czeka.** Dwaj kandydaci: wznowienie wstrzymanego
+  PIERWSI_UZYTKOWNICY (E3 gotowy, materiały kompletne, brakuje dyspozycji publikacji) albo nowy plan
+  **trybu ciągłego poza Claude Code** (Codex ma własne `UserPromptSubmit` z pełnym promptem,
+  a `exit 2` zatrzymuje turę przed modelem za 0,00 USD). Linia aktywnego planu brzmi `brak`.
+- **Restart aplikacji desktopowej po wydaniu 2.2.0** — do tego czasu ta aplikacja ładuje 2.1.4
+  z pamięci (P-005). Sekwencja wydania zamknęła się na świeżych sesjach CLI z cache'u.
 - **Projekty z hookiem sprzed 1.9.3 wymagają ponownej instalacji pre-commita** — układ sprzed
   1.9.2 przewraca się w projekcie z `"type": "module"` (rozpoznanie: obecność
   `.git/hooks/relai-secret-scan.js`), a układ 1.9.2 niesie obie regresje zamknięte w 1.9.3:
@@ -223,29 +227,24 @@ kontrole przeszły; pełna świeża sesja Codexa pozostaje NOT TESTED po błędz
 
 ### Wersja i instalacja
 
-Repozytorium: **2.1.0** (załoga `/relai-crew`, 2026-09-06, niewydane). Poprzednio 2.0.0 (natywny plugin
-Codexa wydany 2026-09-05; pełna macierz cross-tool pozostaje częściowo niezmierzona).
-Poprzednio 1.9.2 (trzy defekty gitowego pre-commita ze zgłoszenia zewnętrznego, 2026-09-04;
-tego samego dnia wcześniej 1.9.0 z planu REKOMENDACJA_MODELU i poprawka `_fixy` w 1.9.1).
-Walidator: kod 0, „5 zrodel, wartosc 2.1.0" (2026-09-06; przy wydaniu 2.0.0: „3 zrodel"). **Wydanie potwierdzone treścią plików z cache'u, nie
-komunikatem CLI** (P-005): `installed_plugins.json` wskazuje ścieżkę `...\1.9.2` i commit
-`ff3e6bc`, a pięć plików z cache'u — trzy guardraile, `MANIFEST.json` i `SKILL.md` — zgadza się
-sumą z repozytorium po normalizacji CRLF → LF (5/5) i różni od 1.9.1. Sam restart nie wystarczył:
-cache dostaje nową wersję dopiero po `claude plugin update`, a restart ją ładuje. Źródło
-instalacji: własny marketplace w tym repozytorium, scope `user`. Hook gitowy tego repozytorium
-przeinstalowany na układ 1.9.2 (shim + dwa pliki `.cjs`), test dymny zdany przez shim i przez samą
-logikę; pierwszy realny commit (19 plików) przeszedł przez niego cicho.
+Repozytorium i publicznie: **2.2.0** (2026-09-15, tag `v2.2.0`, commit `fb8cd7c`). Walidator:
+kod 0, „5 zrodel, wartosc 2.2.0". **Wydanie potwierdzone treścią plików z cache'u, nie komunikatem
+CLI** (P-005): `installed_plugins.json` wskazuje `...\2.2.0`, a dziesięć plików z katalogu wydanej
+wersji zgadza się sumą z repozytorium po normalizacji CRLF → LF (10/10); kontrola pozytywna wobec
+2.1.4 dała różnicę. Sekwencja: `update` → restart → dowód treścią, przy czym `plugin update` wymaga
+**pełnej nazwy** `relai@relai`. Źródło instalacji: własny marketplace w tym repozytorium, scope
+`user`. Gitowy pre-commit tego repozytorium stoi na układzie 1.9.2 (shim + dwa pliki `.cjs`).
 
 ### Zawartość pluginu
 
 **Rdzeń** (`core/`): specyfikacje dokumentów + szablon planu HTML z osadzonymi fontami • guardraile
 jako skrypty (skan sekretów, pre-commit, instalator) • rozpoznania startu sesji
 (`process/session-signals.js`), pomiar artefaktów (`process/work-artifacts.js`) i załoga
-(`process/crew.js`: rozpoznanie narzędzi, fale zadań, delegacja, przegląd krzyżowy), wołane przez
-adaptery • walidator spójności • `MANIFEST.json`.
+(`process/crew.js`) i tryb ciągły optymalizatora (`process/prompt-mode.js`), wołane przez
+adaptery • **baza reguł optymalizatora** (`prompt/`) • walidator spójności • `MANIFEST.json`.
 
-**Adapter Claude Code**: dwa skille, **trzynaście komend**, trzej agenci załogi, dziesięć hooków Node.js
-bez zależności npm, własna lista modeli. Manifest i marketplace zostają w `.claude-plugin/` — tego wymaga Claude Code.
+**Adapter Claude Code**: dwa skille, **czternaście komend**, trzej agenci załogi plus optymalizator
+promptu, jedenaście hooków Node.js bez zależności npm, własna lista modeli. Manifest i marketplace zostają w `.claude-plugin/` — tego wymaga Claude Code.
 
 **Adapter Cursor**: trzy reguły `.mdc` z `alwaysApply: true`, dwa hooki z opakowaniem powłoki,
 instalator z deinstalacją i flagą `--bez-skanu`, własna lista modeli. Komendy i skille kopiuje
@@ -267,32 +266,32 @@ Komendy i frazy: [KOMENDY.md](KOMENDY.md)
 Plany: BUDOWA_RELAI 10/10 • OPTYMALIZACJA_KONTEKSTU 5/5 • HIGIENA_DOKUMENTOW 6/6 •
 SPRZATANIE_ARTEFAKTOW 4/4 • REKOMENDACJA_MODELU 4/4 (zamknięty 2026-09-04) •
 ROZWOJ_PO_WYDANIU 8/8 (**ZREALIZOWANY**) • PIERWSI_UZYTKOWNICY 2/3 (**WSTRZYMANY 2026-09-14**) •
-**Aktywny plan: OPTYMALIZATOR_PROMPTOW — 4/5, E5 gotowy do startu** (Aneks A z 2026-09-15) •
-Dziennik: **133,0/150 KB** (16 wpisów) — rotowany 2026-09-14 • Lekcje: **43,9/50 KB** (20 w żywym
-rejestrze, ostatnia L-0108) — rotowane 2026-09-14, zeszło L-0079…L-0088 • Sekcja ryzyk:
-**20,9 KB / 12 KB — ponad progiem z pustą częścią rotowalną**: O9 zeszło, a pozostałych 15 pozycji
-jest `OTWARTE`, więc odchudzi ją wyłącznie zamknięcie ryzyk • `STATE.md`: **23,6 KB przy progu
-cząstkowym 12 KB, 299 linii przy progu 300** — skrócony 2026-09-14 o 20 linii (zwinięte cztery
-wady dystrybucji i wydanie 2.1.4); dalej odchudza go przepisanie, nie archiwum • Archiwum:
-**osiem** plików dziennika, **pięć** lekcji, trzy ryzyk • Sprawy czekające na człowieka: **7 tutaj**
-(3 rozstrzygnięte: 2026-09-12 i dwie 2026-09-14), 32 w PolyFlow, żadna nieprzeterminowana •
-Otwarte ryzyka: **12** (O4 i O6 z planu optymalizatora; **O1 zamknięte w E4** pomiarem, O2, O3
-i O7 domknięte w E1, **O9 w E2**, O10 zmierzone i nigdy nie weszło do tabeli) •
-Zamknięte: **8 w archiwum + 2 w tabeli (O9, O1)** •
-Otwarte bramki manualne: **7** — 3 w planie wstrzymanym (dyspozycja publikacji i kontaktów,
-uczestnicy, ponowny render demo) i 3 w aktywnym (kolizja z ECC, licznik kosztu — **dostał liczbę
-+110 tokenów na turę**, powrót pilotażu); **tryb ciągły dla Cursora i Codeksa rozstrzygnięty
-2026-09-15 Aneksem A** (osobny plan po E5); akceptacja planu, nazwa komendy, prowizjonowanie
-`core/prompt/` (→ E5) i **model domyślny (→ Sonnet 5)** rozstrzygnięte 2026-09-14 •
+OPTYMALIZATOR_PROMPTOW 5/5 (**ZREALIZOWANY 2026-09-15**, Aneksy A i B) • **Aktywny plan: brak** •
+Dziennik: **144,4/150 KB** (17 wpisów) — rotowany 2026-09-14 • Lekcje: **48,6/50 KB** (23 w żywym
+rejestrze, ostatnia L-0111) — rotowane 2026-09-14, zeszło L-0079…L-0088 • Sekcja ryzyk:
+**23,5 KB / 12 KB — ponad progiem**: O6 i W1 zamknięte 2026-09-15, więc część rotowalna przestała
+być pusta i **rotacja ryzyk ma wreszcie co zabrać** • `STATE.md`: **24,4 KB przy progu cząstkowym
+12 KB, ~300 linii przy progu 300** — skracany 2026-09-14 i 2026-09-15; odchudza go przepisanie,
+nie archiwum • Archiwum: **osiem** plików dziennika, **pięć** lekcji, trzy ryzyk •
+Sprawy czekające na człowieka: **8 tutaj** (6 rozstrzygniętych: 2026-09-12, dwie 2026-09-14
+i trzy 2026-09-15), 32 w PolyFlow, żadna nieprzeterminowana •
+Otwarte ryzyka: **10** (z planu optymalizatora został **O4**; O1 zamknięte w E4, **O6 i W1 w E5**,
+O2, O3 i O7 w E1, O9 w E2, O10 i O11 zmierzone i nigdy nie weszły do tabeli) •
+Zamknięte: **8 w archiwum + 4 w tabeli (O9, O1, O6, W1)** •
+Otwarte bramki manualne: **3** — wszystkie w planie wstrzymanym (dyspozycja publikacji i kontaktów,
+uczestnicy, ponowny render demo). **Cztery bramki optymalizatora rozstrzygnięte 2026-09-15**:
+kolizja z ECC (oba zostają), licznik kosztu (nie budujemy), powrót pilotażu (nie teraz) oraz tryb
+poza Claude Code (osobny plan, Aneks A) •
 Otwarte wątki: **1** — odnoga `OPIS_REPO`, zakres odświeżony 2026-09-13; `ORKIESTRACJA` zamknięta 2026-09-06 •
-Artefakty w rejestrze: **50** (E4 podbił wersję komendy do 4; hook i moduł rdzenia są kodem
-wykonawczym, więc do rejestru nie wchodzą) • Zasady aktywne:
-**15 przy limicie 15** (L-0105…L-0108 doklejone do zasad 1 i 5, bez szesnastej pozycji) •
+Artefakty w rejestrze: **50** (E5 podbił wersje czterech: komenda do 5, `/relai-update` do 12,
+skill `relai-core` do 14, dwie specyfikacje do 5; kod wykonawczy i zasoby wizualne do rejestru
+nie wchodzą) • Zasady aktywne:
+**15 przy limicie 15** (L-0110 i L-0111 doklejone do zasady 5, bez szesnastej pozycji) •
 Progi w katalogu: **18, z tego 17 z adresem egzekwowania** • Adaptery: **3** •
-Procedury: **14** (czternasta — `/relai-prompt`, w repozytorium, niewydana) •
+Procedury: **14** (czternasta — `/relai-prompt`, **wydana 2026-09-15**) •
 Scenariusze akceptacyjne: 4/4 + pilotaż Cursora •
 Modele, na których zmierzono proces: 5 (Fable, Opus, Haiku, Composer/auto, Grok 4.6) •
 Projekty na RelAI: 3 (RelAI 2.0.0, PolyFlow 1.8.0, JiraManager przed migracją) •
-Testy regresyjne: **36** (guardraile 19, adapter Codex 8, załoga 9 w `core/process/tests/`) •
+Testy regresyjne: **43** (guardraile 19, adapter Codex 8, załoga 9, **tryb ciągły 7**) •
 Modele, które zmieniły kod produktu: **2** (Opus 5, gpt-6-astra) •
 Zgłoszenia z cudzych projektów: **1, obsłużone w dniu wpłynięcia** (pre-commit, 4 defekty)

@@ -1,6 +1,6 @@
 # STATUS — plan OPTYMALIZATOR_PROMPTOW
 
-Plan: [PLAN.html](PLAN.html) · Utworzony: 2026-09-14 · Status planu: **ZAAKCEPTOWANY 2026-09-14** (zamrożony, D-33; **Aneks A** z 2026-09-15) · Model wykonawczy etapów: **Opus** (preferencja z USTAWIENIA.md, D-85; ustalony w Claude Code)
+Plan: [PLAN.html](PLAN.html) · Utworzony: 2026-09-14 · Status planu: **ZREALIZOWANY 2026-09-15** (5/5; zamrożony D-33, **Aneksy A i B** z 2026-09-15) · Model wykonawczy etapów: **Opus** (preferencja z USTAWIENIA.md, D-85; ustalony w Claude Code)
 
 Cel: dołożyć do RelAI warstwę, która zamienia podyktowane zdanie w precyzyjny prompt — komendą na
 żądanie i trybem ciągłym włączanym jawnie, zawsze z pokazaną różnicą przed wykonaniem, zawsze na
@@ -17,7 +17,7 @@ etapowe, narzędzia zewnętrzne i brief nowego projektu są nie-celami.
 | E2 | Pomiar modeli | **ZREALIZOWANY 2026-09-14** | [PROMPT_ETAP_2.md](PROMPT_ETAP_2.md) | Ten sam zestaw surowych zdań przez Haiku 4.5, Sonneta 5 i Opusa 5; instrument liczy **pokrycie dziewięciu wymiarów i koszt jednego przerobienia**, osobno z blokiem kontekstu i bez niego (cena utraconego cache'u). Wynik ustala rekomendację w wierszu `Model optymalizatora` |
 | E3 | Pamięć projektu i język | **ZREALIZOWANY 2026-09-14** | [PROMPT_ETAP_3.md](PROMPT_ETAP_3.md) | Wybiórczy blok kontekstu z decyzji, zasad i stanu; pytanie o język raz na projekt; komenda w adapterach Cursor i Codex |
 | E4 | Tryb ciągły | **ZREALIZOWANY 2026-09-15** | [PROMPT_ETAP_4.md](PROMPT_ETAP_4.md) | **Pierwszy krok etapu to pomiar ryzyka O1** — czy hook `UserPromptSubmit` w ogóle niesie tę funkcję; ścieżka odwrotu zapisana w planie. Wyjątek wykonawczy zaakceptowany 2026-09-15: Terra zamiast Opus |
-| E5 | Wydanie | **W TOKU** | [PROMPT_ETAP_5.md](PROMPT_ETAP_5.md) | Testy regresyjne, `validate-adapters.js`, `claude plugin validate`, pełna sekwencja P-005; czternasta komenda publicznie |
+| E5 | Wydanie | **ZREALIZOWANY 2026-09-15** | [PROMPT_ETAP_5.md](PROMPT_ETAP_5.md) | Testy regresyjne, `validate-adapters.js`, `claude plugin validate`, pełna sekwencja P-005; czternasta komenda publicznie |
 
 ## Bramki manualne
 
@@ -28,15 +28,23 @@ etapowe, narzędzia zewnętrzne i brief nowego projektu są nie-celami.
   dał propozycję w 3 z 20 przebiegów i w 12 z 20 odpowiedział po angielsku, Sonnet 5 w 14 z 20
   bez rozjazdu językowego. Właściciel wskazał **Sonnet 5**; wiersz `Model optymalizatora`
   w `docs/USTAWIENIA.md` zapisany
-- **Co z zainstalowanym `ecc:prompt-optimizer`** · źródło: wpis dziennika 2026-09-14 · **OTWARTA**
-- **Czy tryb ciągły ma licznik kosztu** · źródło: wpis dziennika 2026-09-14 · **OTWARTA**
+- ~~**Co z zainstalowanym `ecc:prompt-optimizer`**~~ · źródło: wpis dziennika 2026-09-14 ·
+  ROZSTRZYGNIĘTA 2026-09-15 — **oba zostają, ryzyko O6 zamknięte**. Komenda wołana wprost o wyzwolenie
+  nie konkuruje; przez pięć etapów ani razu nie wyzwolił się nie ten optymalizator. Decyzja właściciela
+- ~~**Czy tryb ciągły ma licznik kosztu**~~ · źródło: wpis dziennika 2026-09-14 ·
+  ROZSTRZYGNIĘTA 2026-09-15 — **licznika nie budujemy**. Koszt jest zmierzony i zapisany (+110 tokenów
+  wejścia na turę; 0,74 USD z delegacją wobec 0,27 USD bez niej, E5), a licznik liczony w każdej turze
+  sam kosztowałby tokeny. Decyzja właściciela
 - ~~**Czy tryb ciągły dla Cursora i Codeksa dostaje własny plan**~~ · źródło: wpis dziennika
   2026-09-14 · ROZSTRZYGNIĘTA 2026-09-15 — **tak, osobnym planem po E5**. Pomiar obalił założenie
   b7: Codex CLI `0.153.4` ma działające `UserPromptSubmit` z pełnym promptem i wpływem
   `additionalContext` na tę samą turę. Zakres E4 nie rośnie; fakt i skutek zapisane **Aneksem A**
   do planu. **Sama delegacja w Codeksie jest w E3 rozstrzygnięta** i bramki nie dotyczy: praca bez
   delegacji z rdzenia reguł, bez osobnego agenta
-- **Kiedy wraca plan PIERWSI_UZYTKOWNICY** · źródło: wpis dziennika 2026-09-14 · **OTWARTA**
+- ~~**Kiedy wraca plan PIERWSI_UZYTKOWNICY**~~ · źródło: wpis dziennika 2026-09-14 ·
+  ROZSTRZYGNIĘTA 2026-09-15 — **nie teraz**: linia aktywnego planu brzmi `brak`, a wybór między
+  wznowieniem pilotażu a nowym planem trybu poza Claude Code należy do następnej sesji. Obie pozycje
+  przeniesione do `docs/STATE.md`, żeby nie zginęły razem z folderem planu w archiwum
 - ~~**Gdzie wchodzi prowizjonowanie `core/prompt/` do projektu użytkownika**~~ · źródło: wpis
   dziennika 2026-09-14 (E1) · ROZSTRZYGNIĘTA 2026-09-14 — **E5, razem z sekwencją wydania**:
   kopia `core/prompt/` trafia do projektu tą samą drogą co specyfikacje (`provisionTemplates()`
@@ -91,5 +99,12 @@ etapowe, narzędzia zewnętrzne i brief nowego projektu są nie-celami.
   wiersza), filtr 12/12 z obiema kontrolami przeciw zawyżeniu, zdanie startu 245 znaków wobec 0,
   koszt nośnika **+110 tokenów na turę**. Walidator i `--verify` na kodzie 0. E5 → GOTOWY DO STARTU.
 - 2026-09-15 — E5 rozpoczęty.
+- 2026-09-15 — **E5 ZREALIZOWANY, plan ZAMKNIĘTY**: wydanie **2.2.0** potwierdzone treścią plików
+  z cache'u (10/10, kontrola pozytywna na 2.1.4 dała różnicę, 14 komend na dysku wydanej wersji).
+  Testy rdzenia trybu (7 nowych, 16/16 razem) z dowodem negatywnym; dwie nowe kontrole walidatora,
+  każda pokazana obiema stronami — kontrola `uses` trafiła od razu w realną lukę po E4.
+  Prowizjonowanie `core/prompt/` zmierzone w cudzym projekcie z wydanej wersji, nadpisywanie kopii
+  dowiedzione na żywo. Tryb ciągły na wydanej wersji w obie strony: 13 tur z propozycją wobec 4 tur
+  prosto do wykonania. **Aneks B** dopisał prowizjonowanie do zakresu E5. Trzy bramki rozstrzygnięte.
 
 RelAI (Opus 5) + Lukasz

@@ -198,6 +198,12 @@ Specyfikacja: `SPEC_PULAPKI.md`.
   wersji, a hook startu meldował rozjazd „projekt 1.9.2 / plugin 1.9.1". Sekwencja to
   **update → restart → sprawdzenie treścią plików z cache'u**; żaden z tych kroków nie zastępuje
   pozostałych.
+- **Krok obowiązkowy PRZED tagiem: `claude plugin validate <ścieżka>`** (od 2026-09-15, ryzyko W1).
+  Narzędzie dostawcy zna schemat manifestu, którego własny walidator nie zna, i wskazuje pole oraz
+  powód w jednym wywołaniu — trzy wydania 2.1.x wyszły z pluginem, który nie ładował ani jednej
+  komendy, a wykrył to użytkownik oknem `/plugin`, nie żaden pomiar. Wynik inny niż
+  `✔ Validation passed` zatrzymuje wydanie; `claude plugin update <plugin>@<marketplace>` wymaga
+  **pełnej nazwy z marketplace'em** — sama nazwa pluginu kończy się `Plugin "…" not found`.
 - **Zasięg:** Claude Code, aplikacja desktopowa; potwierdzone na 0.9.0 → 1.0.0 oraz 1.9.1 → 1.9.2.
   Źródło: L-0031, L-0020.
 

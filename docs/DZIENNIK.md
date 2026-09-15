@@ -15,13 +15,13 @@
 | M2 | Kopia listy w projekcie zostaje nadpisana przy starcie sesji i zjada odświeżenie zrobione komendą (plan REKOMENDACJA_MODELU, ryzyko 2) | **Wysoki** (2026-09-03, przy powstaniu mechanizmu) | **OTWARTE** | `provisionModelList()` kopiuje **tylko wtedy, gdy pliku nie ma** — jedyna różnica wobec `provisionTemplates()`, które nadpisuje przy każdym starcie. Dowód negatywny (E1): plik zmieniony ręcznie w projekcie kontrolnym przeżył ponowne uruchomienie hooka, suma po normalizacji CRLF → LF `ecc6d18d9f6ccf65` przed i po; kontrola pozytywna w tym samym przebiegu — skasowany plik powstał ponownie z sumą źródła. Otwarte do czasu, aż istnieje druga droga zapisu do tego pliku: `/relai-models` z E2 pisze do tej samej kopii, a `/relai-update` do katalogu obok. **E2: druga droga zapisu istnieje i przeżywa start sesji.** Po odświeżeniu w projekcie kontrolnym Claude Code suma listy `f82ee8da0dbe7997` przed ponownym uruchomieniem hooka i po nim, a hook zameldował nową datę (`z dnia 2026-09-04`) zamiast starej; w projekcie Cursora to samo z sumą `65eca9cbea99f0b3`. Otwarte już tylko z powodu `/relai-update`, którego ta droga jeszcze nie dotknęła. **E4: trzecia droga ma odtąd zapisany zakaz** — wiersz `Lista modeli` w tabeli stanu docelowego `/relai-update` kończy się zdaniem „samej listy `.claude/relai/MODELE-<narzędzie>.md` **nie ruszasz** — kopia w projekcie jest trwała i przeżywa aktualizację". Zakaz jest **napisany, nie zmierzony**: pierwszy przebieg `/relai-update` na projekcie z ręcznie poprawioną listą jeszcze się nie odbył i to jest jedyny powód, dla którego ryzyko zostaje otwarte. Zmierzone: 2026-09-03 (E1), 2026-09-04 (E2) |
 | M3 | Strona dokumentacji zmienia układ i odczyt z sieci zwraca śmieci albo nic (plan REKOMENDACJA_MODELU, ryzyko 3) | **Średni** (2026-09-04, przy wejściu sieci do mechanizmu) | **OTWARTE** | Odświeżenie zawsze kończy się pokazaniem różnicy i pytaniem; niepowodzenie zostawia starą listę **z jej datą**, nigdy pustą. Pomiar E2 na odczycie adresu nieistniejącego (`HTTP 404 Not Found`): lista w projekcie kontrolnym została z sumą `1f67fe1bc954ecdc` i `list-date: 2026-09-03`, czyli dokładnie taka jak przed przebiegiem — dowód treścią pliku, nie komunikatem. Niezmierzone: strona odpowiadająca **200 ze zmienionym układem** (odczyt „udany", treść bez nazw) — to jest realny kształt tego ryzyka i czeka na pierwszy taki przypadek. **E4: stan po wydaniu bez zmian** — komenda jest w cache'u 1.9.0 i od tej pory może ją wywołać każdy projekt, więc szansa na trafienie rośnie, ale sam mechanizm ochrony (różnica przed zapisem, stara lista przy niepowodzeniu) jest ten sam co zmierzony w E2. Zmierzone: 2026-09-04 (E2) |
 | M5 | Nazwy modeli zmieniają się szybciej niż wydania RelAI (plan REKOMENDACJA_MODELU, ryzyko 6) | **Średni** (2026-09-04) | **OTWARTE** | Lista mieszka w adapterze **i** w projekcie; `/relai-models` aktualizuje kopię projektu bez wydawania nowej wersji pluginu. Pierwsze realne odświeżenie (E2) potwierdziło, że ryzyko nie jest teoretyczne: strona aliasów wymienia dziś dziesięć pełnych ID (`claude-opus-5` … `claude-fable-5`), a lista Cursora ~45 pozycji od pięciu dostawców — wobec czterech i trzech pozycji w listach RelAI. Od E3 lista ma wiek i próg: powyżej **7 dni** start sesji mówi jedno zdanie z propozycją `/relai-models`, poniżej — zero znaków (zmierzone parą wariantów różniącą się wyłącznie `list-date`: 258 znaków wobec 0, potwierdzone w świeżej sesji CLI odpowiedzią `BRAK LINII`). **E4: pierwszy pełny cykl domknięty** — lista, komenda, próg i **wydanie** (1.9.0, potwierdzone treścią plików z cache'u; dwanaście komend, obie listy, zdanie o wieku działające w świeżej sesji z wydanej wersji). Otwarte już **wyłącznie** z pierwszego powodu: przypomnienie mówi o wieku listy, a nie o tym, że dostawca zmienił nazwy — lista tygodniowa może być świeża i nieprawdziwa naraz. To jest trwała własność mechanizmu, nie zaległość wydania. Zmierzone: 2026-09-04 (E2, E3, E4) |
-| W1 | Wydanie pluginu wychodzi bez bramki walidacyjnej narzędzia docelowego — format manifestu i nagłówków sprawdzamy własnym walidatorem, który zna tylko to, co ktoś w nim opisał (wątek samodzielny, 2026-09-06) | **Wysoki** (2026-09-06, przy powstaniu wpisu) | **OTWARTE** | Trzy kolejne wydania (2.1.0, 2.1.1, 2.1.2) wyszły z pluginem, który w Claude Code nie ładował komend, a wykrył to **użytkownik oknem `/plugin`**, nie żaden pomiar: log aplikacji o nieważnym manifeście milczał, a skaner czytał go mimo wszystko i wypisywał ostrzeżenia sugerujące, że format jest w porządku. `claude plugin validate` istniało przez cały ten czas i wskazuje pole oraz powód w jednym wywołaniu. Zmierzone 2026-09-06: na cache'u 2.1.1 `✘ Found 1 error: plugins[0] plugin.json → agents: Invalid input`, na repozytorium po naprawie `✔ Validation passed`. Częściowa mitygacja **jest**: `validate-adapters.js` blokuje katalog w polu `agents` (P-011), korzeniowy `skills/` (P-010) i dwukropek bez cudzysłowu w nagłówkach komend (P-012) — każda kontrola pokazana w obie strony. Ryzyko zostaje otwarte, bo mitygacja jest **retrospektywna**: chroni przed trzema znanymi kształtami, a nie przed czwartym, i nie zna schematu narzędzia. Zamknie je dopiero wpisanie `claude plugin validate` do sekwencji wydania P-005 jako kroku obowiązkowego przed tagiem — to jest decyzja człowieka i stoi w `STATE.md` |
+| W1 | Wydanie pluginu wychodzi bez bramki walidacyjnej narzędzia docelowego — format manifestu i nagłówków sprawdzamy własnym walidatorem, który zna tylko to, co ktoś w nim opisał (wątek samodzielny, 2026-09-06) | **Wysoki** (2026-09-06, przy powstaniu wpisu) | **ZAMKNIĘTE 2026-09-15 (E5)** | Trzy kolejne wydania (2.1.0, 2.1.1, 2.1.2) wyszły z pluginem, który w Claude Code nie ładował komend, a wykrył to **użytkownik oknem `/plugin`**, nie żaden pomiar: log aplikacji o nieważnym manifeście milczał, a skaner czytał go mimo wszystko i wypisywał ostrzeżenia sugerujące, że format jest w porządku. `claude plugin validate` istniało przez cały ten czas i wskazuje pole oraz powód w jednym wywołaniu. Zmierzone 2026-09-06: na cache'u 2.1.1 `✘ Found 1 error: plugins[0] plugin.json → agents: Invalid input`, na repozytorium po naprawie `✔ Validation passed`. Częściowa mitygacja **jest**: `validate-adapters.js` blokuje katalog w polu `agents` (P-011), korzeniowy `skills/` (P-010) i dwukropek bez cudzysłowu w nagłówkach komend (P-012) — każda kontrola pokazana w obie strony. Ryzyko zostaje otwarte, bo mitygacja jest **retrospektywna**: chroni przed trzema znanymi kształtami, a nie przed czwartym, i nie zna schematu narzędzia. **Zamknięte 2026-09-15**: krok jest **wpisany do sekwencji P-005** w `docs/PULAPKI.md` jako obowiązkowy przed tagiem, a nie tylko wykonywany z pamięci — i wyszedł już dwa wydania z rzędu (2.1.4 i 2.2.0, oba `✔ Validation passed` przed tagiem). Retrospektywność własnego walidatora zostaje i jest tu wliczona: `validate-adapters.js` chroni przed czterema **znanymi** kształtami (P-010…P-013), a przed piątym ochroni narzędzie dostawcy — dlatego jego wywołanie jest odtąd krokiem sekwencji, nie dobrą praktyką. Zmierzone: 2026-09-06 (2.1.1), 2026-09-12 (2.1.4), 2026-09-15 (2.2.0) |
 | U1 | Pilotaż kończy się bez ani jednego uczestnika spoza autora — brak kandydatów albo brak odpowiedzi (plan PIERWSI_UZYTKOWNICY, sekcja 7) | **Średni** (2026-09-13, przy wejściu ryzyka do rejestru) | **OTWARTE** | Mitygacja z planu: własna sieć Łukasza i istniejący wpis na Odpalone, każde zaproszenie zanotowane, raport w terminie **także przy małej próbie**, z werdyktem „wynik nierozstrzygający". Materiały gotowe od 2026-09-13 (`ZAPROSZENIE.md`, cztery bloki), rejestr `PROBY.md` czeka pusty. **Stan faktyczny na dziś: 0 kontaktów, 0 prób, 0 aktywacji** przy progach 3–5 uczestników / ≥3 aktywacje / ≥2 powroty. Ryzyko nie zmaterializowało się jeszcze **ani nie zostało odparte** — zegar nie ruszył, bo wysyłka wymaga dyspozycji, której nie było. Termin graniczny raportu: **2026-10-03** (21 dni od akceptacji, SZACUNEK). Doszła własność, której plan nie przewidywał: materiał demo, którym zaproszenie się posługuje, jest **nieczytelny na telefonie** (pomiar E2) — a to jest urządzenie, na którym większość odbiorców zobaczy link pierwszy raz |
 | M6 | Załoga stoi na flagach CLI trzech dostawców (`claude -p --permission-mode`, `codex exec -s`, `agent -p --mode`), które zmieniają się szybciej niż wydania RelAI (wątek ORKIESTRACJA) | **Średni** (2026-09-06) | **OTWARTE** | Flagi stoją w jednym miejscu (`buildCommand` w `core/process/crew.js`), a test pilnuje trybu read-only bez `--write` i zamkniętej listy flag zakazanych; porażka `run` kończy się statusem `failed` z `stderr` w pliku przebiegu, nigdy ciszą, a krok 7 komendy każe czytać raport zadania i `git status`, nie kod wyjścia. Zmierzone 2026-09-06 z Claude Code jako gospodarza: Codex read-only i write, Cursor read-only (prompt stdin-em), zagnieżdżony Claude Code read-only — trzy narzędzia, cztery zadania `done`. Otwarte, bo kierunki z Codeksa i Cursora jako gospodarza i zapis przez Cursora są NOT TESTED, a zmiana flagi u dostawcy nie ma dziś własnego sygnału poza porażką przebiegu |
 
 | O1 | Hook `UserPromptSubmit` w Claude Code nie podmienia promptu, tylko dokłada kontekst — „tryb ciągły" może być nierealizowalny w zakładanym kształcie (plan OPTYMALIZATOR_PROMPTOW, ryzyko O1) | **Wysoki** (2026-09-14, przy akceptacji planu) | **ZAMKNIĘTE 2026-09-15 (E4)** | **Zmierzone, nie założone.** Hook `UserPromptSubmit` **dokłada kontekst i nie podmienia promptu**: w trzech parach przebiegów odpowiedź przy hooku niosła znacznik promptu (`ALFA7731`) obok znacznika wstrzykniętej reguły (`-BETA9042`), której treść znacznika promptu nie zawierała; bez hooka sam `ALFA7731`. Ryzyko nie zmaterializowało się w kształcie „funkcja nierealizowalna": ścieżka odwrotu z planu **jest** ścieżką główną — tryb ciągły stoi na wstrzykniętej regule i działa (E4, dowód treścią odpowiedzi na żywym prompcie). Trzeci nośnik zmierzony przy okazji: `exit 2` zatrzymuje turę **przed modelem** za 0,00 USD i oddaje użytkownikowi oryginał — materiał dla trybu poza Claude Code, nieużyty w tym planie. Zmierzone: 2026-09-15 (E4, Claude Code CLI 2.1.227) |
-| O4 | Tryb ciągły kosztuje turę przy każdym zdaniu — praca zwalnia i drożeje (plan OPTYMALIZATOR_PROMPTOW, ryzyko O4) | **Średni** (2026-09-14, przy akceptacji planu) | **OTWARTE** | Filtr pomijania jest częścią E4, nie dodatkiem: komendy RelAI, frazy sesji, krótkie potwierdzenia i pytania o kod przechodzą nietknięte. Mierzone parą przypadków w jednym przebiegu, z których jeden **musi** trafić (zasada aktywna 5). Wyłącznik jest wierszem w `USTAWIENIA.md`, więc odwrót kosztuje jedną edycję. Sprawa „czy tryb ciągły ma licznik kosztu" czeka na człowieka — bez licznika opłacalność oceniamy na wrażeniu, nie na danych. **E4 daje liczbę: +110 tokenów wejścia na turę merytoryczną** (reguła 245 znaków; 25 523 wobec 25 413 `cache_creation` na tym samym zdaniu), przelicznik **2,2–2,6 znaku na token** z dwóch niezależnych pomiarów. Filtr zmierzony: **12 punktów kontroli, 0 niezaliczonych**, obie kontrole przeciw zawyżeniu trafiły. Otwarte, bo zmierzony jest **nośnik**, a nie skutek — koszt zachowania modelu (dłuższa tura, dodatkowe narzędzia) utonął w szumie eksploracji i czeka na pomiar po E5, na wydanej wersji. Zmierzone: 2026-09-15 (E4) |
-| O6 | Kolizja z zainstalowanym `ecc:prompt-optimizer` — dwa skille o podobnych opisach wyzwalają się nawzajem albo zamiast siebie (plan OPTYMALIZATOR_PROMPTOW, ryzyko O6) | **Średni** (2026-09-14, przy akceptacji planu) | **OTWARTE** | Komenda wołana wprost kolizji nie ma — to jest jeden z powodów, dla których E1 daje komendę, a nie skill. Opis trybu ciągłego będzie zawężony markerem projektu RelAI, jak opisy pozostałych skilli (zasada aktywna 9). Otwarte, bo rozstrzygnięcie należy do człowieka: wyłączenie cudzego pluginu jest zmianą w konfiguracji użytkownika i RelAI jej nie wykona sam. Stan faktyczny: skill ECC obecny w konfiguracji, 16 843 B, autor YannJY02 |
+| O4 | Tryb ciągły kosztuje turę przy każdym zdaniu — praca zwalnia i drożeje (plan OPTYMALIZATOR_PROMPTOW, ryzyko O4) | **Średni** (2026-09-14, przy akceptacji planu) | **OTWARTE** | Filtr pomijania jest częścią E4, nie dodatkiem: komendy RelAI, frazy sesji, krótkie potwierdzenia i pytania o kod przechodzą nietknięte. Mierzone parą przypadków w jednym przebiegu, z których jeden **musi** trafić (zasada aktywna 5). Wyłącznik jest wierszem w `USTAWIENIA.md`, więc odwrót kosztuje jedną edycję. Sprawa „czy tryb ciągły ma licznik kosztu" czeka na człowieka — bez licznika opłacalność oceniamy na wrażeniu, nie na danych. **E4 daje liczbę: +110 tokenów wejścia na turę merytoryczną** (reguła 245 znaków; 25 523 wobec 25 413 `cache_creation` na tym samym zdaniu), przelicznik **2,2–2,6 znaku na token** z dwóch niezależnych pomiarów. Filtr zmierzony: **12 punktów kontroli, 0 niezaliczonych**, obie kontrole przeciw zawyżeniu trafiły. **E5 daje liczbę ze skutku, zmierzoną na wydanej wersji**: ten sam prompt merytoryczny przy przełączniku `włączony` kosztował **13 tur i 1,00 USD**, przy `wyłączony` — **4 tury i 0,35 USD**; przerobienie bez eksploracji repozytorium zeszło do **0,27 USD i jednej tury**. Praca rzeczywiście zwalnia i drożeje: pasmo **0,27–1,00 USD za zdanie merytoryczne** przy koszcie nośnika nieprzekraczającym 110 tokenów. Ryzyko **zostaje otwarte**, bo to jedna para przebiegów, a rozrzut zachowania modelu — 1 tura wobec 13 na promptach tej samej wielkości — jest **większy niż mierzona różnica**; ten sam kształt co w E4, tylko o poziom wyżej. Sprawa „licznik kosztu" rozstrzygnięta 2026-09-15: licznika nie budujemy, bo liczony w każdej turze sam kosztowałby tokeny. Zmierzone: 2026-09-15 (E4, E5) |
+| O6 | Kolizja z zainstalowanym `ecc:prompt-optimizer` — dwa skille o podobnych opisach wyzwalają się nawzajem albo zamiast siebie (plan OPTYMALIZATOR_PROMPTOW, ryzyko O6) | **Średni** (2026-09-14, przy akceptacji planu) | **ZAMKNIĘTE 2026-09-15 (E5)** | Komenda wołana wprost kolizji nie ma — to jest jeden z powodów, dla których E1 daje komendę, a nie skill. Opis trybu ciągłego będzie zawężony markerem projektu RelAI, jak opisy pozostałych skilli (zasada aktywna 9). Otwarte, bo rozstrzygnięcie należy do człowieka: wyłączenie cudzego pluginu jest zmianą w konfiguracji użytkownika i RelAI jej nie wykona sam. Stan faktyczny: skill ECC obecny w konfiguracji, 16 843 B, autor YannJY02. **Rozstrzygnięte przez właściciela 2026-09-15: oba zostają.** Ryzyko nie zmaterializowało się ani razu przez pięć etapów — w żadnej sesji planu, w tym w dwóch żywych sesjach z wydanej wersji, nie wyzwolił się nie ten optymalizator; komenda wołana wprost o wyzwolenie nie konkuruje, a tryb ciągły stoi na hooku, nie na opisie skilla. **Wraca w dniu, w którym tryb ciągły dostanie postać skilla** — dziś nie ma z czym prowadzić konkurencji opisów. Zmierzone: 2026-09-15 (E5, delegacja potwierdzona transkryptem: `Skill relai:relai-prompt` → `Agent relai:relai-prompt-optimizer`) |
 
 > Ryzyka zamknięte O9 (1 pozycja) są w
 > [docs/archiwum/ryzyka/RYZYKA_2026-09-14.md](archiwum/ryzyka/RYZYKA_2026-09-14.md)
@@ -1568,5 +1568,115 @@ Autor: RelAI (Opus 5) + Lukasz
   merytoryczną**. Przy pięćdziesięciu zdaniach w sesji to 5 500 tokenów, czyli mniej niż jeden
   blok kontekstu startu. Decyzja, czy licznik w ogóle budować, nadal czeka.
 - **Co z zainstalowanym `ecc:prompt-optimizer`** — bramka otwarta od 2026-09-14, bez zmiany.
+
+Autor: RelAI (Opus 5) + Lukasz
+
+### 2026-09-15 — E5 optymalizatora: wydanie 2.2.0 i zamknięcie planu; tryb ciągły zmierzony z zainstalowanego pluginu
+
+Autor: RelAI (Opus 5) + Lukasz
+
+**Zrobione — dowiezione vs plan:**
+
+Plan zakładał pięć etapów i 5–6 sesji. Dowiezione: **5/5 etapów**, wszystkie cele sekcji 2 —
+komenda na żądanie, tryb ciągły włączany jawnie, różnica przed wykonaniem, model z ustawień.
+Nie przepadł żaden punkt planu; doszedł jeden, którego plan nie przewidział — **Aneks B**.
+
+- **Aneks B do `PLAN.html` napisany przed pracą.** Sekcja 6 opisywała E5 bez prowizjonowania
+  `core/prompt/`; bramka z 2026-09-14 wskazała ten etap. Zamrożonej sekcji nie ruszono — punkt
+  wszedł datowanym aneksem, razem z wymogiem, żeby trwałość kopii była **zmierzona, nie założona**.
+- **`core/prompt/` prowizjonowane do projektu** — `provisionPrompt()` w `session-signals.js`, wołane
+  z `provisionTemplates()`, więc żaden adapter nie wymagał zmiany i kopię dostają wszystkie trzy.
+  Rozstrzygnięcie trwałości z powodem: **kopia jest nadpisywana przy każdym starcie**, jak
+  specyfikacje, a nie trwała jak lista modeli — bo do listy pisze druga droga (`/relai-models`),
+  a do `.claude/relai/prompt/` nie pisze nikt, więc poprawka reguł ma dotrzeć do projektu przy
+  pierwszym starcie po `plugin update`.
+- **Testy regresyjne rdzenia trybu** — `core/process/tests/prompt-mode.test.js`, siedem testów;
+  razem z załogą **16/16** na kodzie 0. Pokrycie z obiema stronami: przełącznik w czterech
+  wartościach, filtr w obu kierunkach, treść reguły z progiem długości — bo każdy jej znak płaci
+  się przy każdym prompcie sesji.
+- **Dwie nowe kontrole w `validate-adapters.js`.** Pierwsza: moduł rdzenia wołany z kodu adaptera
+  musi być wymieniony w `uses` tego adaptera — **trafiła od razu w realną lukę po E4**
+  (`prompt-mode.js` działał, a manifest o nim nie wiedział). Druga: baza reguł nie może nieść nazw
+  modeli (ryzyko **O5** — plan przewidział ją w sekcji 7 właśnie dla tego etapu).
+- **`SPEC_USTAWIENIA.md` i `SPEC_KOMENDY.md` opisują wiersz `Tryb ciągły`** — bez tego nowy projekt
+  i `/relai-update` nie miałyby skąd go wziąć, czyli funkcja byłaby wydana wyłącznie na papierze.
+  Wartość domyślna przy inicjalizacji: **`wyłączony`**, zgodnie z celem planu „włączany jawnie".
+- **Wydanie 2.2.0** — pięć źródeł wersji, `/relai-update` na nową wersję docelową razem z nowym
+  wierszem obszaru, czternasta komenda w `README.md` z **własną ikoną** (`prompt.svg`), liczniki
+  komend, hooków i agentów w drzewku README doprowadzone do stanu z dysku.
+
+**Zweryfikowane — jak dokładnie:**
+
+- **Wydanie potwierdzone treścią plików z cache'u, nie komunikatem CLI** (P-005):
+  `~/.claude/plugins/cache/relai/relai/2.2.0`, **10/10** plików zgodnych sumą z repozytorium po
+  normalizacji CRLF → LF, `installed_plugins.json` wskazuje commit `fb8cd7c`. **Kontrola pozytywna
+  na 2.1.4** zgłosiła różnicę, więc pomiar nie porównywał czegoś z samym sobą. Komend na dysku
+  wydanej wersji: **14**.
+- **Test filtru udowodniony negatywnie.** Instrument psuł filtr w jednym miejscu — dokładnie tak,
+  jak zepsułby go ktoś „rozszerzający" go w dobrej wierze (zdanie od „popraw" jako drobiazg).
+  Rdzeń zdrowy → kod 0, filtr zepsuty → **kod 1**, suma pliku przed i po **zgodna**
+  (`af2d1746977ea6cb`).
+- **Obie kontrole walidatora pokazane obiema stronami**, każda z materiałem przywróconym i sumą
+  na wyjściu: manifest bez wpisu → kod 1 z nazwą pliku rdzenia **i** pliku adaptera; podłożona
+  nazwa modelu w `REGULY.md` → kod 1 z numerem linii i cytatem trafionego brzmienia. Materiał
+  zdrowy: **0 trafień** przy dwóch plikach — i to zero jest wiarygodne wyłącznie dlatego, że
+  kontrola pozytywna trafiła.
+- **Prowizjonowanie zmierzone w cudzym projekcie z wydanej wersji.** Projekt kontrolny w `%TEMP%`,
+  świeża sesja `claude -p`: `.claude/relai/prompt/` z dwoma plikami, sumy zgodne ze źródłem.
+  **Drugi start sesji zmierzony, nie założony**: ręcznie podmieniona kopia `REGULY.md` wróciła do
+  treści źródła (`ec484ca230ec4216`), a lista modeli w tym samym przebiegu **została zmieniona** —
+  dwie drogi obok siebie, każda z własnym zachowaniem.
+- **Tryb ciągły na wydanej wersji, obie strony na tym samym zdaniu.** Przełącznik `włączony`:
+  13 tur, propozycja z oryginałem obok, dopowiedzenia oznaczone, **bez wykonania**, 1,00 USD.
+  Ten sam prompt przy `wyłączony`: 4 tury, prosto do wykonania, **ani jednego znaku trybu**,
+  0,35 USD.
+- **Hooki wydanej wersji zmierzone jako procesy z payloadem na stdin — 12 punktów, 0 niezaliczonych.**
+  Blok kontekstu startu: **dokładnie jeden** przy obu wartościach wiersza (P-013). Zdanie o trybie:
+  1 przy `włączony`, **0** przy `wyłączony`, różnica wyjścia **1 596 wobec 1 350 znaków**. Reguła
+  pada na zdaniu merytorycznym (327 znaków) i na zdaniu z nazwą komendy **w środku**, a milczy przy
+  komendzie, potwierdzeniu, pytaniu, przełączniku `wyłączony` i braku wiersza. `stderr` pusty
+  w obu żywych sesjach — zero komunikatów o błędzie hooka.
+- **`claude plugin validate .` → `✔ Validation passed`** (W1 — krok wykonany przed tagiem, drugi
+  raz z rzędu). `node core/tools/validate-adapters.js` → kod 0, „5 zrodel, wartosc 2.2.0".
+  `node adapters/codex/generate-skills.js --verify` → kod 0, 14 procedur.
+- **Delegacja w trybie ciągłym rozstrzygnięta transkryptem**, nie domysłem: `stream-json` pokazał
+  `Skill relai:relai-prompt` → `Agent relai:relai-prompt-optimizer` z modelem `sonnet`, czyli wiersz
+  `Model optymalizatora` bywa respektowany także wtedy, gdy procedurę uruchomił hook. Pierwszy odczyt
+  tego samego przebiegu dał „delegacji nie ma" — bo instrument szukał narzędzia `Task`, a delegacja
+  nazywa się w tym buildzie `Agent`. Defekt instrumentu, nie wynik (L-0110).
+- **Artefakty robocze** — raport przed: **0,6 MB w dwóch grupach** (katalog E5 i projekt kontrolny
+  w `%TEMP%`, artefakt spoza repozytorium wypisany tu z nazwy). Po zgodzie właściciela skasowane
+  obie: **0,6 MB → 0,0 MB**, potwierdzone stanem katalogów, nie komunikatem narzędzia (obejście
+  znanej wady `work-artifacts.js:843`). Ochrona `etap trwa` pokazana **obiema stronami w jednym
+  dniu**: ten sam katalog był chroniony przy `W TOKU` i stał się kandydatem po `ZREALIZOWANY`.
+
+**Świadomie odłożone:**
+
+- **Zachowanie trybu ciągłego w cudzym projekcie z realną pracą** i to, jak tryb znosi długą sesję —
+  zmierzony jest projekt kontrolny, nie praca. Prompt etapowy wymieniał to wprost jako niemierzalne
+  w tym etapie.
+- **Restart aplikacji desktopowej.** Sekwencja P-005 zamknęła się na `update` i świeżych sesjach CLI
+  z cache'u wydanej wersji. Aplikacja, w której trwa ta sesja, nadal wykonuje **2.1.4** z pamięci —
+  zachowanie w niej potwierdzi dopiero pierwsza sesja po restarcie.
+- **Delegacja w trybie ciągłym bywa pomijana.** Jeden przebieg (1 tura, 9 964 ms, 0,27 USD) przerobił
+  prompt **bez** otwierania komendy i bez agenta — reguła mówi „przerób procedurą komendy", a model
+  raz ją odtwarza z pamięci, raz otwiera. Skutek: wiersz `Model optymalizatora` w trybie ciągłym jest
+  respektowany **nie zawsze**. Materiał dla planu trybu poza Claude Code.
+- **Ikona `prompt.svg` nie weszła do `docs/ARTEFAKTY.md`** — rejestr obejmuje artefakty czytane jako
+  instrukcja, a zasoby wizualne nie mają tam swojej klasy. Pierwsza wersja ikony została odrzucona na
+  podglądzie: trzy linie plus znaczek w rogu to ten sam kształt co `models.svg`.
+- **Kotwica wiersza `Tryb ciągły` łapie także brzmienie dłuższe** („Tryb ciągły w Cursorze"), bo
+  sprawdza początek komórki, a nie całą jej treść. Dziś nieszkodliwe; wróci w dniu, w którym tryb
+  dostanie drugi wiersz dla innego narzędzia. Poza zakresem etapu, nie ruszane.
+
+**Do zrobienia przez człowieka:**
+
+- ~~**Co z zainstalowanym `ecc:prompt-optimizer`**~~ *(rozstrzygnięte 2026-09-15 — oba zostają,
+  ryzyko O6 zamknięte)*
+- ~~**Czy tryb ciągły ma licznik kosztu**~~ *(rozstrzygnięte 2026-09-15 — licznika nie budujemy,
+  koszt jest zmierzony i zapisany)*
+- ~~**Kiedy wraca plan PIERWSI_UZYTKOWNICY**~~ *(rozstrzygnięte 2026-09-15 — nie teraz; linia
+  aktywnego planu brzmi `brak`, a wybór kierunku należy do następnej sesji)*
+- **Restart aplikacji desktopowej** — do tego czasu ta aplikacja ładuje 2.1.4 z pamięci (P-005).
 
 Autor: RelAI (Opus 5) + Lukasz

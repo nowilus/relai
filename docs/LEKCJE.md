@@ -85,8 +85,14 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
    z listą mechanizmów, które to coś tworzą same**; czego nie da się odciąć, tam pomiar schodzi na
    fixturę i mówi to wprost. **Licznik wąski buduj przez wykluczenie znaku otwierającego przypadek,
    który ma odpaść** — alternatywa ogólna znosi zamkniętą listę brzmień, a kontrola oczekująca tego
-   samego od licznika wąskiego i szerokiego nie sprawdza niczego.
-   (L-0032, L-0037, L-0095, L-0096, L-0105, L-0106, L-0107,
+   samego od licznika wąskiego i szerokiego nie sprawdza niczego. **Zero trafień w cudzym
+   transkrypcie jest najpierw zdaniem o instrumencie** — nazwa narzędzia w cudzym protokole jest
+   takim samym wariantem jak nazwa pola, więc wypisz zbiór nazw, które w materiale wystąpiły, zanim
+   orzekniesz, że tej jednej nie ma. **Nową kontrolę spójności uruchamiasz na zastanym materiale,
+   zanim nazwiesz ją profilaktyką**: jej pierwsze trafienia są wynikiem etapu, a cisza od pierwszego
+   uruchomienia jest podejrzana do czasu pokazania drugiej strony na podłożonym defekcie; fałszywe
+   trafienie zawężasz **z powodem**, nie wyciszeniem kontroli.
+   (L-0032, L-0037, L-0095, L-0096, L-0105, L-0106, L-0107, L-0110, L-0111,
    L-0097, L-0101, L-0102,
    L-0054, L-0055, L-0056, L-0064, L-0068, L-0071, L-0073, L-0083, L-0084, L-0086, L-0087, L-0088,
    L-0090, L-0091)
@@ -174,7 +180,10 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
     jakiej realnie się wyświetli, i minimalna wysokość glifów przy tej szerokości; kontrola
     geometrii w skali renderu jest dodatkiem, nie zamiennikiem, i przechodzi zielono na materiale,
     którego nikt nie przeczyta. Ostrzeżenie `claude plugin validate` o root `CLAUDE.md` jest
-    świadomym skutkiem dogfoodingu — nie „naprawiaj" go. (L-0003, L-0006, L-0016, L-0019, L-0029,
+    świadomym skutkiem dogfoodingu — nie „naprawiaj" go. **Nowy element zbioru wizualnego różnisz
+    kształtem, nie detalem** — dwie ikony złożone z tych samych brył (trzy linie plus znaczek
+    w rogu) czyta się jako jedną; porównanie robisz na podglądzie **całego zbioru** i w skali,
+    w której element realnie się wyświetli. (L-0003, L-0006, L-0016, L-0019, L-0029,
     L-0094, L-0098)
 
 **Wyprowadzone 2026-08-20 do `docs/PULAPKI.md`:** sześć pozycji, które były pułapkami
@@ -553,3 +562,33 @@ Treść jest kopią bajt w bajt — zmieniony został wyłącznie status w linii
   intencja („logika w rdzeniu, nie w hooku") jest wiążąca, konkretna nazwa pliku nie.
 - **Źródło:** E4 planu OPTYMALIZATOR_PROMPTOW — hook i `core/process/prompt-mode.js` poza rejestrem,
   do rejestru poszło wyłącznie podbicie wersji komendy. Destylat: doklejone do zasady 14.
+
+### L-0110 — Nazwa cudzego narzędzia jest wariantem, a „nie znalazłem" bywa zdaniem o instrumencie · 2026-09-15 · AKTYWNA
+
+- **Trigger:** pomiar delegacji w trybie ciągłym. Instrument czytał transkrypt `stream-json`
+  i szukał wywołania narzędzia `Task`; wypisał „delegacja: false" na przebiegu, w którym delegacja
+  **zaszła** — narzędzie nazywa się w tym buildzie `Agent`. Gotowy był wniosek, że tryb ciągły
+  pomija wiersz `Model optymalizatora`.
+- **Przyczyna:** nazwa narzędzia w cudzym protokole jest tak samo zmienna jak nazwa pola czy
+  końcówka wiersza — a wzorzec szukający jednej nazwy odpada w ciszy, bo „brak trafień" jest
+  poprawnym wynikiem technicznie i fałszywym merytorycznie.
+- **Zasada:** zero trafień w transkrypcie sprawdzasz **najpierw na instrumencie**: wypisz wszystkie
+  nazwy, które w materiale wystąpiły, zanim orzekniesz, że tej jednej nie ma. Wniosek o cudzym
+  narzędziu stawiasz na **wypisanym zbiorze**, nie na negatywnym dopasowaniu.
+- **Źródło:** E5 planu OPTYMALIZATOR_PROMPTOW — pełna lista wywołań pokazała `Skill` i `Agent`,
+  a dopiero ona rozstrzygnęła fakt. Destylat: doklejone do zasady 5.
+
+### L-0111 — Nową kontrolę spójności uruchamiasz na dzisiejszym stanie, zanim uznasz ją za profilaktykę · 2026-09-15 · AKTYWNA
+
+- **Trigger:** kontrola „moduł rdzenia wołany przez adapter musi być w `uses` manifestu" powstała
+  jako zabezpieczenie **na przyszłość**. Pierwsze uruchomienie zgłosiło dwa błędy w zastanym
+  repozytorium: `prompt-mode.js` z poprzedniego etapu działał, a manifest o nim nie wiedział.
+- **Przyczyna:** kontrola pisana „żeby ktoś kiedyś tego nie zepsuł" zakłada milcząco, że dziś jest
+  czysto — a to założenie nikt nie sprawdził, bo do tej pory nie było czym.
+- **Zasada:** nowa kontrola idzie na **zastany materiał** przed naprawą czegokolwiek, a jej pierwsze
+  trafienia są wynikiem etapu, nie przeszkodą w jego domknięciu. Kontrola, która na dzisiejszym
+  stanie milczy od pierwszego uruchomienia, jest **podejrzana** dopóty, dopóki nie pokażesz jej
+  drugiej strony na podłożonym defekcie. Fałszywe trafienie zawężasz **z powodem** (pliki testów
+  wołają rdzeń, żeby go sprawdzić — to nie jest jego użycie), nie przez wyciszenie kontroli.
+- **Źródło:** E5 planu OPTYMALIZATOR_PROMPTOW — dwa trafienia realne, dwa fałszywe z katalogu
+  `tests/`; po zawężeniu kod 0, a obie strony pokazane instrumentem. Destylat: doklejone do zasady 5.
