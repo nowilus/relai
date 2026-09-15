@@ -17,7 +17,7 @@ etapowe, narzędzia zewnętrzne i brief nowego projektu są nie-celami.
 | E2 | Pomiar modeli | **ZREALIZOWANY 2026-09-14** | [PROMPT_ETAP_2.md](PROMPT_ETAP_2.md) | Ten sam zestaw surowych zdań przez Haiku 4.5, Sonneta 5 i Opusa 5; instrument liczy **pokrycie dziewięciu wymiarów i koszt jednego przerobienia**, osobno z blokiem kontekstu i bez niego (cena utraconego cache'u). Wynik ustala rekomendację w wierszu `Model optymalizatora` |
 | E3 | Pamięć projektu i język | **ZREALIZOWANY 2026-09-14** | [PROMPT_ETAP_3.md](PROMPT_ETAP_3.md) | Wybiórczy blok kontekstu z decyzji, zasad i stanu; pytanie o język raz na projekt; komenda w adapterach Cursor i Codex |
 | E4 | Tryb ciągły | **ZREALIZOWANY 2026-09-15** | [PROMPT_ETAP_4.md](PROMPT_ETAP_4.md) | **Pierwszy krok etapu to pomiar ryzyka O1** — czy hook `UserPromptSubmit` w ogóle niesie tę funkcję; ścieżka odwrotu zapisana w planie. Wyjątek wykonawczy zaakceptowany 2026-09-15: Terra zamiast Opus |
-| E5 | Wydanie | **GOTOWY DO STARTU** | [PROMPT_ETAP_5.md](PROMPT_ETAP_5.md) | Testy regresyjne, `validate-adapters.js`, `claude plugin validate`, pełna sekwencja P-005; czternasta komenda publicznie |
+| E5 | Wydanie | **W TOKU** | [PROMPT_ETAP_5.md](PROMPT_ETAP_5.md) | Testy regresyjne, `validate-adapters.js`, `claude plugin validate`, pełna sekwencja P-005; czternasta komenda publicznie |
 
 ## Bramki manualne
 
@@ -90,5 +90,6 @@ etapowe, narzędzia zewnętrzne i brief nowego projektu są nie-celami.
   regule i działa na żywym prompcie; wyłącznik wyłącza (327 znaków wobec 0 na czterech wartościach
   wiersza), filtr 12/12 z obiema kontrolami przeciw zawyżeniu, zdanie startu 245 znaków wobec 0,
   koszt nośnika **+110 tokenów na turę**. Walidator i `--verify` na kodzie 0. E5 → GOTOWY DO STARTU.
+- 2026-09-15 — E5 rozpoczęty.
 
 RelAI (Opus 5) + Lukasz

@@ -135,11 +135,12 @@ nie zmianę) · **praca dokumentacyjna** (produkuje tekst dla człowieka).
 
 **Dopiero teraz** otwierasz rusztowanie — i tylko to jedno, które pasuje. Szukasz w tej kolejności:
 
-1. `.claude/relai/prompt/SZABLONY.md` — kopia w projekcie,
+1. `.claude/relai/prompt/SZABLONY.md` — kopia w projekcie; w projekcie RelAI powstaje sama przy
+   starcie sesji i jest przy każdym starcie odświeżana ze źródła,
 2. `core/prompt/SZABLONY.md` — gdy sesja stoi w repozytorium RelAI.
 
-Żadnego z nich nie ma → pracujesz z rdzenia reguł niesionego w tej komendzie i mówisz o tym
-**pół zdaniem** w podsumowaniu. Nie odtwarzasz rusztowań z pamięci i nie prosisz o dostęp do
+Żadnego z nich nie ma — czyli folder nie jest projektem RelAI — → pracujesz z rdzenia reguł
+niesionego w tej komendzie i mówisz o tym **pół zdaniem** w podsumowaniu. Nie odtwarzasz rusztowań z pamięci i nie prosisz o dostęp do
 katalogu pluginu (L-0012).
 
 W każdym rusztowaniu **kryterium sukcesu stoi w sekcji `Gotowe, gdy`**, a **granica zakresu

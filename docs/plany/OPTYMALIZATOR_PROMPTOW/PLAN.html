@@ -965,6 +965,25 @@ Codeksa, <code>gpt-5.6-terra</code>) oraz <code>POMIAR_CLAUDE.md</code> (strona 
 dokłada kontekst, nie podmienia promptu; <code>exit 2</code> zatrzymuje turę przed modelem za zero
 tokenów; 132 znaki wstrzykniętej reguły = +51 tokenów wejścia).</p>
 
+<h3>Aneks B · 2026-09-15 · prowizjonowanie <code>core/prompt/</code> wchodzi do zakresu E5</h3>
+<p><b>Powód.</b> Sekcja 6 opisuje E5 jako testy, walidację, sekwencję P-005 i dokumentację — o kopii
+bazy reguł w projekcie użytkownika nie mówi nic. Plan założył milcząco, że komenda niesie rdzeń
+reguł w sobie i to wystarcza. Bramka manualna rozstrzygnięta 2026-09-14 („gdzie wchodzi
+prowizjonowanie <code>core/prompt/</code> do projektu użytkownika") wskazała ten etap, więc do E5
+dochodzi punkt zakresu, którego sekcja 6 nie przewidziała. Zamrożonej sekcji nie poprawiamy
+w miejscu (D-33) — punkt wchodzi aneksem.</p>
+<p><b>Treść aneksu.</b> Zakres E5 obejmuje dodatkowo: kopiowanie <code>core/prompt/</code> do
+<code>.claude/relai/prompt/</code> projektu tą samą drogą, którą idą specyfikacje
+(<code>provisionTemplates()</code> w <code>core/process/session-signals.js</code>), wraz z jawnym
+rozstrzygnięciem trwałości kopii — nadpisywana przy każdym starcie jak specyfikacje czy powstająca
+raz jak lista modeli (<code>provisionModelList()</code>). Rozstrzygnięcie ma mieć zapisany powód,
+bo dwie drogi już w tym repozytorium istnieją i różnią się dokładnie tym.</p>
+<p><b>Skutek.</b> Budżet 5–6 sesji bez zmian — punkt jest jedną funkcją obok istniejącej, nie nową
+warstwą. Krok 5 komendy przestaje zależeć od ścieżki awaryjnej wszędzie tam, gdzie projekt ma
+strukturę RelAI; sama ścieżka awaryjna zostaje, bo komenda działa też w folderze bez tej struktury.
+Punkt wchodzi do sekcji Weryfikacja E5 jako osobne kryterium: liczba plików i suma zgodna ze
+źródłem, zachowanie przy drugim starcie sesji <b>zmierzone</b>, nie założone.</p>
+
 </section>
 
 <footer>

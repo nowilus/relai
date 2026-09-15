@@ -99,12 +99,13 @@ Sześć wierszy ma **zamknięty format** opisany niżej w tej specyfikacji i jes
 | `Przegląd spraw człowieka` | przegląd spraw przeterminowanych w hooku startu sesji |
 | `Artefakty robocze` | raport artefaktów w hooku startu sesji i krok 2a rytuału zamknięcia |
 | `Lista modeli` | przypomnienie o wieku listy modeli w hooku startu sesji (od 1.9.0) |
+| `Tryb ciągły` | hook `prompt-mode` (`UserPromptSubmit`) i zdanie o trybie w hooku startu sesji (od 2.2.0) |
 
 **Ich nie skracasz.** Człony rozdzielone `·` wyglądają jak rozwlekłość, a są składnią: usunięcie
 członu zmienia próg na domyślny, a przeredagowanie kotwicy na początku komórki **wycisza mechanizm
 w ciszy** (L-0025). Skrócenie, które wyłącza pomiar albo rotację, jest defektem, nie oszczędnością.
 
-**Nie schodzą też do archiwum** (od 1.7.0) — te sześć oraz **`Język projektu`**, razem siedem
+**Nie schodzą też do archiwum** (od 1.7.0) — te siedem oraz **`Język projektu`**, razem osiem
 wierszy wypisanych z nazwy w sekcji „Rotacja ustawień". `Język projektu` nie jest parsowany przez
 żaden hook, ale rozstrzyga, w jakim języku powstają dokumenty i pliki archiwum; jego nieobecność
 kończy się tym samym co brak wiersza czytanego maszynowo — mechanizm robi coś innego, niż projekt
@@ -124,6 +125,7 @@ Zawsze te trzy, z odpowiedzi na paczkę startową (D-20), plus wersja RelAI w li
 | Przegląd spraw człowieka | wartość domyślna `włączony · 30 dni` — **bez pytania**, tak samo jak dwa wyżej (od 1.7.0) |
 | Artefakty robocze | wartość domyślna `włączone · 100 MB` — **bez pytania**, tak samo jak trzy wyżej (od 1.8.0) |
 | Lista modeli | wartość domyślna `włączona · 7 dni` — **bez pytania**, tak samo jak cztery wyżej (od 1.9.0) |
+| Tryb ciągły | wartość domyślna **`wyłączony`** — **bez pytania**; tryb ciągły włącza się **jawnie**, bo przerabia każdy prompt merytoryczny i kosztuje +110 tokenów na turę (od 2.2.0) |
 
 Wiersz **`Profil projektu`** jest czytany maszynowo — hooki `profile-rules` i `config-protection`
 biorą z niego reguły warunkowe (D-50). Kolumna `Decyzja` musi **zaczynać się** od jednej z czterech
@@ -402,6 +404,51 @@ robocze: wyłączone` **nie** wyciszają przypomnienia o liście, a wyłączone 
 w tej sesji, pada dalej — wycisza się wyłącznie zdanie o jej **wieku**. Komenda `/relai-models`
 działa zawsze, bo jest jawnym wywołaniem człowieka.
 
+## Wiersz `Tryb ciągły` (od 2.2.0)
+
+Komenda `/relai-prompt` zamienia podyktowane zdanie w precyzyjny prompt, ale trzeba o niej
+pamiętać — a pamięta się o niej wtedy, gdy już się jej nie potrzebuje. Ten wiersz daje tej samej
+procedurze **drugie wejście**: przy włączonym trybie **każdy prompt merytoryczny** wraca najpierw
+z propozycją i oryginałem obok, a wykonanie czeka na zgodę człowieka. Wiersz jest jednocześnie
+**wyłącznikiem** tego zachowania i powstaje przy inicjalizacji projektu oraz przy `/relai-update`
+projektu z wcześniejszej wersji.
+
+**Nośnik jest zmierzony, nie założony** (2026-09-15): hook `UserPromptSubmit` **dokłada kontekst**
+do tury i promptu **nie podmienia**, więc tryb stoi na regule wstrzykiwanej obok oryginału.
+Koszt nośnika: **+110 tokenów wejścia** na turę merytoryczną (reguła 245 znaków).
+
+Format komórki `Decyzja` jest sztywny, bo jest czytana maszynowo (L-0025) — kotwica na **początku**
+komórki:
+
+```
+włączony
+```
+
+| Człon | Dozwolone wartości | Znaczenie |
+|---|---|---|
+| przełącznik (**pierwszy, obowiązkowy**) | `włączony` / `wyłączony` (EN: `on` / `off`) | `wyłączony` → prompt idzie do wykonania nietknięty, a hook milczy |
+
+Dalsza część komórki jest **opisem dla człowieka** i mechanizm jej nie czyta.
+
+**Filtr pomijania jest częścią trybu, nie dodatkiem.** Nietknięte przechodzą: wywołania komend
+(prompt zaczynający się od `/`), frazy sesji, krótkie potwierdzenia (`tak`, `ok`, `dalej`) oraz
+pytania rozpoznane po **pierwszym słowie**. Nazwa komendy albo fraza sesji **w środku** zdania
+z przerobki nie zwalnia — inaczej filtr połykałby zdania merytoryczne, a objawem byłaby cisza.
+
+**Wartość przełącznika nierozpoznana → tryb wyłączony i cisza.** Ten sam wyjątek co przy rotacji,
+budżecie, przeglądzie spraw, artefaktach i liście modeli, z jedną różnicą: tutaj **nie pada nawet
+zdanie o nierozpoznanej wartości**. Tryb, który włączyłby się z literówki, byłby gorszy od jego
+braku, a tryb, który z literówki zacząłby o sobie mówić, byłby hałasem w każdej turze.
+
+**Brak wiersza w tabeli → cisza.** Projekt sprzed 2.2.0 nie zaczyna nagle przerabiać promptów;
+wiersz wnosi tam `/relai-update`.
+
+**Tryb działa w Claude Code.** W Cursorze i Codeksie komenda `/relai-prompt` działa normalnie,
+a o braku trybu w tej wersji pada jedno zdanie przy pierwszym wywołaniu komendy w sesji.
+
+**Ten wyłącznik jest niezależny od pozostałych** i od wiersza `Model optymalizatora`: tryb wyłączony
+nie wycisza komendy, a komenda wywołana wprost działa niezależnie od wartości tego wiersza.
+
 ## Rotacja ustawień (od 1.7.0)
 
 Do 1.6.1 ten plik nie miał **żadnej** drogi wyjścia: polityka jest append-only, a sekcja
@@ -426,7 +473,7 @@ sesji. Rotacja ustawień nie jest trzecim wejściem i **nie dokłada własnego k
 `docs/archiwum/ustawienia/USTAWIENIA_<data-rotacji>.md`, bajt w bajt, procedurą dwufazową z sumą
 kontrolną. Pod tabelą sekcji zostaje **jedna** linia-odsyłacz na rotację.
 
-**Czego nie ruszasz nigdy — sześć wierszy, z nazwy:**
+**Czego nie ruszasz nigdy — osiem wierszy, z nazwy:**
 
 | Wiersz | Dlaczego zostaje |
 |---|---|
@@ -436,6 +483,7 @@ kontrolną. Pod tabelą sekcji zostaje **jedna** linia-odsyłacz na rotację.
 | `Przegląd spraw człowieka` | czyta go przegląd spraw przeterminowanych |
 | `Artefakty robocze` | czyta go raport startu sesji i krok 2a rytuału zamknięcia |
 | `Lista modeli` | czyta go przypomnienie o wieku listy modeli w hooku startu sesji |
+| `Tryb ciągły` | czyta go hook `prompt-mode` przy KAŻDYM prompcie sesji |
 | `Język projektu` | rozstrzyga język dokumentów i nazwy plików archiwum |
 
 Zostają **niezależnie od wieku** i niezależnie od tego, czy ktoś przeniósł je do sekcji „Ustawienia

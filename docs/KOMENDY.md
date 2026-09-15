@@ -1,6 +1,6 @@
 # KOMENDY — RelAI
 
-RelAI 2.1.4
+RelAI 2.2.0
 
 Nic z tej listy nie jest obowiązkowe. RelAI działa w zwykłej rozmowie — piszesz normalnie,
 a struktura projektu nadąża. Komendy są skrótem do rzadszych operacji.
@@ -23,8 +23,7 @@ a struktura projektu nadąża. Komendy są skrótem do rzadszych operacji.
 | `/relai-models` | odświeża listę modeli Twojego narzędzia: pyta o zgodę na wejście do internetu, czyta dokumentację dostawcy albo pyta Ciebie o nazwy, pokazuje różnicę stara–nowa i zapisuje dopiero po Twoim „tak" | gdy przy pytaniu o model widzisz starą datę listy albo pozycję „do uzupełnienia" |
 | `/relai-crew` · `/relai-crew <cel>` · `/relai-crew review` · `/relai-crew rescue <zadanie>` · `/relai-crew setup` · `/relai-crew status` | robi z Twojej sesji orkiestratora celu: pyta o podział ról, liczbę subagentów, tryb pracy i zakres modeli, układa zadania w fale tak, żeby dwa nie pisały naraz do tego samego pliku, deleguje je subagentom w Twoim narzędziu albo do drugiego zalogowanego narzędzia (Claude Code, Codex, Cursor), a na końcu zleca przegląd krzyżowy innemu modelowi i domyka dokumenty; bez drugiego narzędzia mówi o tym jednym zdaniem i pracuje w trybie basic w obrębie Twojego; `review` to sam przegląd krzyżowy bieżących zmian, `rescue` — jedno zadanie oddane drugiemu narzędziu, `setup` — raport gotowości z poleceniami dla Ciebie, `status` — stan przebiegów | gdy cel jest za duży na jedną parę rąk, albo gdy chcesz, żeby kod napisany w jednym narzędziu przejrzało drugie |
 | `/relai-clean` · `/relai-clean raport` | pokazuje, co realnie zostało po zamkniętych etapach — w katalogu roboczym projektu, w folderze plików tymczasowych systemu i wśród plików nieśledzonych — grupuje to i pyta partiami po cztery; kasuje wyłącznie grupy, na które powiesz „tak". Z argumentem `raport` sam raport: żadnych pytań, żadnego kasowania | gdy plików roboczych zrobiło się dużo albo gdy RelAI powie o tym na starcie sesji |
-
-| `/relai-prompt <tekst>` | bierze zdanie podyktowane w biegu i oddaje z niego prompt gotowy do wykonania: dokłada format wyjścia, kryterium odbioru i granicę zakresu, oznacza każde swoje dopowiedzenie, usuwa wartości kluczy i haseł. Do promptu przenosi **pamięć projektu** — kilka decyzji, zasad i pozycji stanu związanych z zadaniem, każdą z numeru albo nazwy, żebyś widział, co doleciało. Odpowiada w **języku Twojego zdania**. Pokazuje Twój oryginał obok propozycji i zatrzymuje się — niczego nie wykonuje | gdy dyktujesz polecenie szybko i wolisz zobaczyć poprawioną wersję, zanim agent zacznie pracować |
+| `/relai-prompt <tekst>` | bierze zdanie podyktowane w biegu i oddaje z niego prompt gotowy do wykonania: dokłada format wyjścia, kryterium odbioru i granicę zakresu, oznacza każde swoje dopowiedzenie, usuwa wartości kluczy i haseł. Do promptu przenosi **pamięć projektu** — kilka decyzji, zasad i pozycji stanu związanych z zadaniem, każdą z numeru albo nazwy, żebyś widział, co doleciało. Odpowiada w **języku Twojego zdania**. Rusztowanie promptu bierze z bazy reguł, którą projekt RelAI dostaje u siebie przy starcie sesji — więc komenda pracuje tak samo w każdym projekcie, nie tylko w repozytorium RelAI. Pokazuje Twój oryginał obok propozycji i zatrzymuje się — niczego nie wykonuje | gdy dyktujesz polecenie szybko i wolisz zobaczyć poprawioną wersję, zanim agent zacznie pracować |
 
 Pełna nazwa każdej z nich to `/relai:relai-…` (np. `/relai:relai-backup`) — wpisz `/relai` i wybierz
 z podpowiedzi; skrócona forma działa tam, gdzie podpowiadacz ją rozwinie.

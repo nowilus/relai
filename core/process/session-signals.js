@@ -195,6 +195,24 @@ function provisionTools(destRoot, opcje) {
   return n;
 }
 
+// Baza regul optymalizatora promptow prowizjonowana ta sama droga co specyfikacje
+// (E5 planu OPTYMALIZATOR_PROMPTOW, Aneks B). Do E5 komenda /relai-prompt w cudzym
+// projekcie pracowala z rdzenia regul niesionego w sobie, bo katalogu pluginu nie widzi.
+//
+// Kopia jest NADPISYWANA przy kazdym starcie, jak specyfikacje — nie trwala, jak lista
+// modeli. Powod jest jeden i konkretny: do listy modeli pisze druga droga (/relai-models
+// odswieza ja w projekcie), wiec nadpisanie zjadloby odswiezenie. Do .claude/relai/prompt/
+// nie pisze nikt poza tym miejscem, a poprawka regul ma dotrzec do projektu przy pierwszym
+// starcie po `plugin update`, bez kasowania kopii recznie.
+function provisionPrompt(destRoot, opcje) {
+  const o = opcje || {};
+  const src = o.corePrompt || path.resolve(__dirname, '..', 'prompt');
+  if (!fs.existsSync(src)) return 0;
+  const dest = path.join(destRoot, 'prompt');
+  try { fs.mkdirSync(dest, { recursive: true }); } catch (_) { return 0; }
+  return copyTree(src, dest);
+}
+
 // Kopiuje core/templates/ do <cwd>/<destRel>/templates/. destRel domyslnie ".claude/relai"
 // — ta sama sciezka w obu adapterach, zeby komendy i skille mowily o jednym miejscu.
 // Zwraca liczbe skopiowanych plikow (0 = awaria albo brak zrodla — adapter milczy).
@@ -208,7 +226,7 @@ function provisionTemplates(cwd, opcje) {
     fs.mkdirSync(dest, { recursive: true });
     // .gitignore z "*" — lokalna kopia to cache narzedzia, nie zawartosc repo
     try { fs.writeFileSync(path.join(destRoot, '.gitignore'), '*\n'); } catch (_) { /* cisza */ }
-    return copyTree(src, dest) + provisionTools(destRoot, o);
+    return copyTree(src, dest) + provisionTools(destRoot, o) + provisionPrompt(destRoot, o);
   } catch (_) {
     return 0;
   }
@@ -1372,6 +1390,7 @@ module.exports = {
   todayLocal,
   projectVersion,
   provisionTemplates,
+  provisionPrompt, // baza regul optymalizatora — kopia nadpisywana, jak specyfikacje (2.2.0)
   provisionModelList, // lista modeli narzedzia — kopia trwala, nie nadpisywana (1.9.0)
   dataListyModeli, // eksportowana, zeby dalo sie sprawdzic testem kotwice i format daty
   wiekListyModeli, // prog swiezosci listy — wylacznik, prog w dniach, cisza ponizej (1.9.0)

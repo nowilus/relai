@@ -84,7 +84,12 @@ w tabeli — orkiestracja wielu agentów z wywiadem o role, liczbę subagentów,
 fale zadań bez konfliktów plików, delegacja do subagentów gospodarza albo do drugiego zalogowanego
 narzędzia i przegląd krzyżowy; bez drugiego narzędzia komenda mówi o tym jednym zdaniem i pracuje
 w trybie basic. Sekcja o zachowaniach automatycznych **nie** rośnie: załoga nie ma hooka i nic
-nie startuje bez „zaczynamy". Działa:
+nie startuje bez „zaczynamy". W 2.2.0 dochodzi **optymalizator promptu**: czternasta komenda
+`/relai-prompt` w tabeli oraz jeden punkt w sekcji o zachowaniach automatycznych — wiersz
+`Tryb ciągły` w `USTAWIENIA.md` włącza przerabianie **każdego promptu merytorycznego** bez
+wpisywania komendy, z oryginałem obok propozycji i zgodą przed wykonaniem; filtr pomijania
+przepuszcza komendy, frazy sesji, krótkie potwierdzenia i pytania. Wyłącznik jest **osobny** od
+poprzednich, a domyślną wartością wiersza jest `wyłączony` — tryb włącza się jawnie. Działa:
 
 - inicjalizacja struktury projektu (zgoda → trzy pytania → osiem dokumentów),
 - rozpoznanie folderu, który już jest projektem RelAI,

@@ -85,9 +85,18 @@ function plikiJs(katalog, zebrane) {
 if (manifest) {
   const RE = /'core'\s*,\s*'([A-Za-z0-9_.-]+)'\s*,\s*'([A-Za-z0-9_.-]+\.js)'/g;
   let odwolan = 0;
+  let nieopisanych = 0;
   for (const a of (manifest.adapters || [])) {
     const rootAbs = path.resolve(CORE, a.root || '.');
+    // Deklaracja "uses" sprowadzona do sciezek od korzenia repozytorium. Katalog
+    // ("./prompt/") pokrywa wszystko, co pod nim lezy; plik pokrywa sam siebie.
+    const deklarowane = (a.uses || []).map((u) => 'core/' + String(u).replace(/^\.\//, ''));
+    const opisany = (rel) => deklarowane.some((d) => (d.endsWith('/') ? rel.startsWith(d) : d === rel));
+    const zgloszone = new Set();
     for (const plik of plikiJs(rootAbs, [])) {
+      // Testy adaptera wolaja rdzen, zeby go SPRAWDZIC — to nie jest uzycie, ktore
+      // manifest opisuje. Martwe odwolanie w tescie dalej jest bledem (krok wyzej).
+      const wTestach = /(^|[\\/])tests?[\\/]/.test(path.relative(rootAbs, plik));
       let txt = '';
       try { txt = fs.readFileSync(plik, 'utf8'); } catch (_) { continue; }
       let m;
@@ -98,11 +107,23 @@ if (manifest) {
         if (!jest(rel)) {
           bledy.push('adapter "' + a.id + '": ' + path.relative(ROOT, plik).split(path.sep).join('/') +
             ' wola "' + rel + '", a tego pliku rdzenia nie ma');
+          continue;
+        }
+        // Sytuacja odwrotna do martwego odwolania i rownie cicha: modul rdzenia
+        // DODANY i dzialajacy, ktorego MANIFEST nie wymienia w "uses" adaptera.
+        // Nic tego nie widzi — az do dnia, w ktorym ktos zmieni rdzen, ufajac,
+        // ze manifest mowi, kto go uzywa.
+        if (!wTestach && !opisany(rel) && !zgloszone.has(plik + '|' + rel)) {
+          zgloszone.add(plik + '|' + rel);
+          nieopisanych++;
+          bledy.push('adapter "' + a.id + '": ' + path.relative(ROOT, plik).split(path.sep).join('/') +
+            ' wola "' + rel + '", a MANIFEST.json nie wymienia tego pliku w "uses" tego adaptera');
         }
       }
     }
   }
-  sprawdzone.push('odwolania z kodu adapterow do rdzenia: ' + odwolan);
+  sprawdzone.push('odwolania z kodu adapterow do rdzenia: ' + odwolan +
+    ', nieopisanych w MANIFEST: ' + nieopisanych);
 
   // Adapter may consume core modules, but it must not carry a second manual
   // copy. Compare hashes of declared core JavaScript files with every adapter
@@ -303,6 +324,37 @@ if (manifest) {
     }
   }
   sprawdzone.push('listy modeli adapterow: ' + list);
+}
+
+// 7) Baza regul optymalizatora NIE nosi nazw modeli (ryzyko O5 planu OPTYMALIZATOR_PROMPTOW).
+// Technika promptowania zmienia sie wolno i mieszka w pluginie; czesc zalezna od modelu czyta
+// MODELE-<narzedzie>.md, ktory ma wlasny prog wieku i komende odswiezajaca. Nazwa modelu wpisana
+// do regul starzeje sie po cichu — plik nie ma daty, wiec nic o jej wieku nie powie.
+if (manifest) {
+  // Zamknieta lista rdzeni nazw rodzin, nie pelnych identyfikatorow: "Sonnet 5" zestarzeje sie
+  // tak samo jak "claude-sonnet-5", a oba brzmienia sa w listach modeli obu narzedzi.
+  const RODZINY = /\b(opus|sonnet|haiku|fable|gpt-\d|claude-[a-z]+-\d|gemini|grok|terra|composer|o\d-mini)\b/i;
+  const katalog = path.resolve(CORE, 'prompt');
+  let plikow = 0;
+  let trafien = 0;
+  let wpisy = [];
+  try { wpisy = fs.readdirSync(katalog).filter((n) => /\.md$/i.test(n)); } catch (_) { wpisy = []; }
+  for (const nazwa of wpisy) {
+    plikow++;
+    let linie = [];
+    try { linie = fs.readFileSync(path.join(katalog, nazwa), 'utf8').split(/\r?\n/); } catch (e) {
+      bledy.push('nie moge odczytac bazy regul "core/prompt/' + nazwa + '" (' + e.message + ')');
+      continue;
+    }
+    for (let i = 0; i < linie.length; i++) {
+      const m = RODZINY.exec(linie[i]);
+      if (!m) continue;
+      trafien++;
+      bledy.push('baza regul "core/prompt/' + nazwa + '" linia ' + (i + 1) + ': nazwa modelu "' + m[1] +
+        '" (O5) — czesc zalezna od modelu czyta MODELE-<narzedzie>.md, nie reguly');
+    }
+  }
+  sprawdzone.push('baza regul bez nazw modeli: ' + plikow + ' plikow, ' + trafien + ' trafien');
 }
 
 // --- wynik -----------------------------------------------------------------

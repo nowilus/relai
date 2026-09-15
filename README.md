@@ -161,7 +161,7 @@ mkdir C:/Users/<Ty>/Desktop/MojProjekt
 node C:/Narzedzia/relai/adapters/cursor/install.js C:/Users/<Ty>/Desktop/MojProjekt
 ```
 
-Instalator wypisze, co położył: trzy reguły `.cursor/rules/relai-*.mdc`, trzynaście komend
+Instalator wypisze, co położył: trzy reguły `.cursor/rules/relai-*.mdc`, czternaście komend
 `/relai-*`, dwa skille, specyfikacje dokumentów w `.claude/relai/templates/` i dwa wpisy
 w `.cursor/hooks.json`. Cudze wpisy w `hooks.json` zostają nietknięte.
 
@@ -269,7 +269,7 @@ wywołanie — nigdy sama z siebie.
 
 ## Komendy
 
-Trzynaście skrótów dla operacji, które w rozmowie byłyby uciążliwe do opisania.
+Czternaście skrótów dla operacji, które w rozmowie byłyby uciążliwe do opisania.
 
 | Komenda | Co robi |
 |---|---|
@@ -286,6 +286,7 @@ Trzynaście skrótów dla operacji, które w rozmowie byłyby uciążliwe do opi
 | <img src="docs/zasoby/branding/ikony/clean.svg" width="24" align="absmiddle"> `/relai-clean` | pokazuje artefakty po zamkniętych etapach w grupach i kasuje wyłącznie te, na które powiesz „tak" |
 | <img src="docs/zasoby/branding/ikony/models.svg" width="24" align="absmiddle"> `/relai-models` | odświeża listę modeli narzędzia: zgoda na sieć, źródło albo pytanie do Ciebie, różnica przed zapisem |
 | <img src="docs/zasoby/branding/ikony/crew.svg" width="24" align="absmiddle"> `/relai-crew` | zamienia sesję w orkiestratora: fale zadań bez konfliktów plików, delegacja i przegląd krzyżowy |
+| <img src="docs/zasoby/branding/ikony/prompt.svg" width="24" align="absmiddle"> `/relai-prompt` | zamienia podyktowane zdanie w precyzyjny prompt: oryginał obok propozycji, każde dopowiedzenie oznaczone, wykonanie czeka na zgodę |
 
 Claude Code rejestruje komendy pluginu pod pełną nazwą `/relai:relai-<nazwa>`. Skrócona forma
 (`/relai-backup`) działa tam, gdzie podpowiadacz ją rozwija.
@@ -419,12 +420,12 @@ relai/
 ├── adapters/
 │   ├── claude-code/             # ADAPTER Claude Code
 │   │   ├── skills/              #   relai-core (rytuały, rejestry), relai-planning (plany, etapy)
-│   │   ├── commands/            #   trzynaście komend: stage, branch, backup, audit, changelog,
-│   │   │                        #     handover, tour, help, adopt, update, clean, models, crew
-│   │   ├── agents/              #   trzej subagenci załogi: relai-coder, relai-tester, relai-reviewer
+│   │   ├── commands/            #   czternaście komend: stage, branch, backup, audit, changelog,
+│   │   │                        #     handover, tour, help, adopt, update, clean, models, crew, prompt
+│   │   ├── agents/              #   czterej subagenci: trzej załogi + relai-prompt-optimizer
 │   │   └── hooks/
-│   │       ├── hooks.json       #   rejestracja dziesięciu hooków (zdarzenia i matchery)
-│   │       └── *.js             #   dziesięć hooków Node.js, zero zależności npm
+│   │       ├── hooks.json       #   rejestracja jedenastu hooków (zdarzenia i matchery)
+│   │       └── *.js             #   jedenaście hooków Node.js, zero zależności npm
 │   ├── cursor/                  # ADAPTER Cursor (od 1.5.0)
 │       ├── install.js           #   instalacja i cofnięcie jednym poleceniem
 │       ├── rules/               #   trzy reguły .mdc z alwaysApply: true — warstwa nośna

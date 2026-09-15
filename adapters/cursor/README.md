@@ -4,7 +4,7 @@ RelAI w Cursorze to **te same dokumenty i ten sam proces** co w Claude Code, zł
 które Cursor naprawdę ma. Ten plik jest instrukcją dla człowieka; warstwa czytana przez model
 (reguły `.mdc`) jest po angielsku — tak stanowi Aneks A planu ROZWOJ_PO_WYDANIU.
 
-Wersja adaptera: **2.1.4**. Rozpoznanie, na którym stoi, jest w [docs/PRZENOSNOSC.md](../../docs/PRZENOSNOSC.md);
+Wersja adaptera: **2.2.0**. Rozpoznanie, na którym stoi, jest w [docs/PRZENOSNOSC.md](../../docs/PRZENOSNOSC.md);
 zmierzono je 2026-08-12 na Cursorze 3.7.12 i `cursor-agent` 2026.08.11-e8db854 (Windows 11).
 
 ## Czego potrzebujesz
@@ -27,7 +27,7 @@ Instalator kładzie w projekcie dokładnie sześć rzeczy i wypisuje, co zrobił
 
 1. `.cursor/rules/relai-*.mdc` — trzy reguły `alwaysApply: true`: rdzeń procesu, planowanie,
    guardraile. To jest **warstwa nośna** — wchodzi do każdej sesji bez wyzwalania czegokolwiek.
-2. `.cursor/commands/relai-*.md` — trzynaście komend wywoływanych jako `/relai-stage`, `/relai-tour`…
+2. `.cursor/commands/relai-*.md` — czternaście komend wywoływanych jako `/relai-stage`, `/relai-tour`…
    Pliki są kopiami z adaptera Claude Code: jedno źródło w repozytorium, kopia w projekcie.
 3. `.cursor/skills/relai-core/`, `.cursor/skills/relai-planning/` — te same skille co w Claude Code;
    w Cursorze niosą procedurę, nigdy regułę.
