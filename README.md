@@ -119,6 +119,16 @@ i `/plugin install relai`.)
 czy założyć strukturę. **Odmowa jest ostateczna** — plugin zapisuje marker trybu gościa i nie
 wraca do tematu w tym folderze.
 
+> **Plugin instaluje się dla całego konta, nie dla jednego projektu.** Tak działają pluginy Claude
+> Code i Codeksa: po instalacji RelAI jest dostępny w **każdym** folderze, który otworzysz — i w
+> każdym nowym zapyta raz, czy założyć strukturę. Dokumenty projektu powstają wyłącznie tam, gdzie
+> się na to zgodzisz; poza nimi nie powstaje ani jeden plik, a hooki milczą aż do markera
+> `Wersja RelAI`. Nie chcesz tego pytania nigdzie poza swoimi projektami RelAI? Przy pierwszej
+> odmowie wybierz **„nigdy poza projektami RelAI"** — zapisze się wiersz
+> `Propozycja RelAI poza projektem` w `~/.claude/relai/USTAWIENIA.md` i temat zamknie się na całej
+> maszynie. Adapter Cursora działa inaczej: instalujesz go per projekt, więc nie widzi niczego poza
+> nim.
+
 > **Po każdej aktualizacji pluginu zrestartuj aplikację.** Sesja uruchomiona przed aktualizacją
 > nadal wykonuje starą wersję — to nie usterka, tylko sposób ładowania pluginów.
 
@@ -286,7 +296,7 @@ Czternaście skrótów dla operacji, które w rozmowie byłyby uciążliwe do op
 | <img src="docs/zasoby/branding/ikony/clean.svg" width="24" align="absmiddle"> `/relai-clean` | pokazuje artefakty po zamkniętych etapach w grupach i kasuje wyłącznie te, na które powiesz „tak" |
 | <img src="docs/zasoby/branding/ikony/models.svg" width="24" align="absmiddle"> `/relai-models` | odświeża listę modeli narzędzia: zgoda na sieć, źródło albo pytanie do Ciebie, różnica przed zapisem |
 | <img src="docs/zasoby/branding/ikony/crew.svg" width="24" align="absmiddle"> `/relai-crew` | zamienia sesję w orkiestratora: fale zadań bez konfliktów plików, delegacja i przegląd krzyżowy |
-| <img src="docs/zasoby/branding/ikony/prompt.svg" width="24" align="absmiddle"> `/relai-prompt` | zamienia podyktowane zdanie w precyzyjny prompt: oryginał obok propozycji, każde dopowiedzenie oznaczone, wykonanie czeka na zgodę |
+| <img src="docs/zasoby/branding/ikony/prompt.svg" width="24" align="absmiddle"> `/relai-prompt` | zamienia podyktowane zdanie w precyzyjny prompt: oryginał obok propozycji, każde dopowiedzenie oznaczone, wykonanie czeka na zgodę. Tryb ciągły robi to z każdym promptem — ale najpierw pyta raz na sesję, czy ma działać (`on` / `off` / `off --globalnie` przestawiają go bez edycji pliku) |
 
 Claude Code rejestruje komendy pluginu pod pełną nazwą `/relai:relai-<nazwa>`. Skrócona forma
 (`/relai-backup`) działa tam, gdzie podpowiadacz ją rozwija.

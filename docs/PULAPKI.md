@@ -8,6 +8,26 @@ Specyfikacja: `SPEC_PULAPKI.md`.
 
 ## Pułapki
 
+### P-015 — plugin jest widoczny w każdym folderze, hook nie · 2026-09-15 · AKTYWNA
+
+- **Objaw:** tester zainstalował plugin, zaadoptował swój projekt, a potem otworzył **zupełnie inny**
+  projekt — i sesja zaczęła tam dopytywać o adopcję do RelAI. Wygląda jak wyciek instalacji do
+  globalnego `CLAUDE.md` albo `AGENTS.md`; nie jest nim.
+- **Przyczyna:** `claude plugin install` i `codex plugin add` instalują plugin w zakresie
+  **użytkownika** — inaczej nie dałoby się go wywołać w nowym folderze. Razem z nim globalne stają
+  się skille, komendy, agenci i hooki. Hooki mają twardą bramkę markera (`relaiMarkerFile`, pierwszy
+  warunek każdego z nich), więc poza projektem RelAI milczą. **Skill `relai-core` bramki nie ma i
+  mieć nie może**: jego `description` każe wprost sprawdzić folder „in any folder" i zaproponować
+  strukturę, gdy jej nie ma. To jest źródło pytania, nie żaden plik w katalogu domowym.
+- **Czego NIE szukać:** zapisu poza projektem. Instalatory Cursora i Codeksa piszą wyłącznie do
+  wskazanego katalogu, a katalog domowy jest **tylko czytany** (ustawienia globalne D-23, `.gitconfig`).
+- **Obejście:** odmowa zakłada marker trybu gościa i zamyka temat w tym jednym folderze (D-21).
+  Od 2.3.0 pytanie towarzyszące zamyka go na całej maszynie — wiersz `Propozycja RelAI poza projektem`
+  w `~/.claude/relai/USTAWIENIA.md`. Adapter Cursora tej pułapki nie ma: instaluje się per projekt.
+- **Do zapamiętania przy pisaniu dokumentów:** zdanie „w folderze bez struktury RelAI plugin jest
+  całkowicie niewidoczny" było prawdziwe o **hookach** i nieprawdziwe o skillu. Zdanie o niewidoczności
+  pisz zawsze z nazwą warstwy, której dotyczy.
+
 ### P-014 — zagnieżdżona sesja nie zapisze niczego pod `.claude/` · 2026-09-12 · AKTYWNA
 
 - **Objaw:** pomiar wymagający **projektu kontrolnego** (świeża sesja, własna struktura, własne

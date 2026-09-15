@@ -363,6 +363,43 @@ function wiekListyModeliReport(miara, opcje) {
       ' Zaproponuj uzytkownikowi komende /relai-models - pokaze roznice i zapisze dopiero po "tak".')];
 }
 
+// --- propozycja struktury poza projektem (2.3.0) ----------------------------
+// Plugin jest instalowany w zakresie UZYTKOWNIKA, wiec skill relai-core widzi kazdy
+// folder na maszynie i w kazdym proponuje zalozenie struktury. Marker trybu goscia
+// (D-21) wycisza jeden folder; ten wiersz wycisza wszystkie naraz — jedna odpowiedz
+// "nie pytaj mnie o to nigdzie" zamiast odmowy w kazdym nowym katalogu z osobna.
+//
+//   | 2026-09-15 | Propozycja RelAI poza projektem | nie proponuj |
+//
+// Wiersz mieszka w warstwie globalnej, bo dotyczy maszyny, a nie projektu: w folderze
+// bez struktury RelAI nie ma docs/USTAWIENIA.md, ktory moglby cokolwiek nadpisac.
+const NAZWA_PROPOZYCJI = /^(?:Propozycja RelAI poza projektem|RelAI offer outside a project)\b/i;
+const PROPOZYCJA_NIE = /^(?:nie proponuj|nie|off|do not offer|never)\b/i;
+const PROPOZYCJA_TAK = /^(?:proponuj|tak|on|offer)\b/i;
+
+// true = proponuj, false = nie proponuj, null = nie wiadomo (brak wiersza albo wartosc
+// spoza listy). null zachowuje sie jak "proponuj": cisza wymaga jawnej decyzji czlowieka,
+// a nie literowki w pliku ustawien.
+function propozycjaPozaProjektem(txtGlobalny) {
+  const komorka = komorkaDecyzji(String(txtGlobalny || ''), NAZWA_PROPOZYCJI);
+  if (komorka === null) return null;
+  const kotwica = komorka.split('·')[0].trim();
+  if (PROPOZYCJA_NIE.test(kotwica)) return false;
+  if (PROPOZYCJA_TAK.test(kotwica)) return true;
+  return null;
+}
+
+// Jedyna linia, ktora hook startu wypisuje w folderze BEZ struktury RelAI — i tylko
+// wtedy, gdy czlowiek sam o to poprosil. We wszystkich pozostalych przypadkach plugin
+// zostaje niewidoczny, tak jak przed 2.3.0.
+function propozycjaPozaProjektemReport(stan) {
+  if (stan !== false) return [];
+  return ['[RelAI] Ten folder nie jest projektem RelAI, a uzytkownik wylaczyl propozycje ' +
+    'zakladania struktury poza projektami (wiersz "Propozycja RelAI poza projektem" w ' +
+    '~/.claude/relai/USTAWIENIA.md). NIE proponuj adopcji ani inicjalizacji RelAI i nie pytaj ' +
+    'o nie — czekaj na jawna prosbe albo komende. Poza tym pracuj jak zwykle.'];
+}
+
 // --- ustawienia globalne (D-23, L-0010) -------------------------------------
 // Warstwa globalna mieszka w ~/.claude/relai/ niezaleznie od narzedzia: to ustawienia
 // RelAI, a nie Claude Code, i uzytkownik pracujacy naprzemiennie ma miec je jedne.
@@ -1396,6 +1433,8 @@ module.exports = {
   wiekListyModeli, // prog swiezosci listy — wylacznik, prog w dniach, cisza ponizej (1.9.0)
   wiekListyModeliReport,
   globalSettingsText,
+  propozycjaPozaProjektem, // wiersz globalny "nie pytaj mnie o RelAI poza projektami" (2.3.0)
+  propozycjaPozaProjektemReport,
   promptGap,
   stateDrift,
   unknownAuthor,

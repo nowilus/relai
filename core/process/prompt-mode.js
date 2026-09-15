@@ -1,11 +1,16 @@
 #!/usr/bin/env node
 'use strict';
 // RelAI rdzen: prompt-mode — tryb ciagly optymalizatora promptow (E4 planu
-// OPTYMALIZATOR_PROMPTOW). Trzy rzeczy i ani jednej wiecej:
+// OPTYMALIZATOR_PROMPTOW). Cztery rzeczy i ani jednej wiecej:
 //
 // 1) przelacznik `Tryb ciagly` z docs/USTAWIENIA.md czytany maszynowo,
 // 2) filtr pomijania — ktory prompt przechodzi NIETKNIETY,
-// 3) tresc reguly wstrzykiwanej do tury.
+// 3) tresc reguly wstrzykiwanej do tury,
+// 4) BRAMKA ZGODY (2.3.0): wlaczony przelacznik nie wystarcza — pierwszy prompt
+//    merytoryczny sesji pyta czlowieka, czy optymalizator ma dzialac. Trzy
+//    odpowiedzi: ta sesja / na stale (zapis globalny) / nie. Powod: tryb ciagly
+//    dotyka KAZDEGO promptu, a wiersz w pliku ustawien jest zgoda sprzed
+//    tygodni, nie zgoda na dzisiejsza sesje.
 //
 // Bez wiedzy o protokole hookow — tak samo jak session-signals.js. Adapter
 // wola te funkcje i sam decyduje, jak wyglada jego zdarzenie.
@@ -22,6 +27,27 @@ const path = require('path');
 const NAZWA_TRYBU = /^(?:Tryb ci[ąa]g[łl]y|Continuous mode)\b/i;
 const WLACZONY = /^(?:w[łl][ąa]czony|w[łl][ąa]czona|on|enabled)\b/i;
 const WYLACZONY = /^(?:wy[łl][ąa]czony|wy[łl][ąa]czona|off|disabled)\b/i;
+
+// --- bramka zgody (2.3.0) ---------------------------------------------------
+// Zgoda globalna mieszka w ~/.claude/relai/USTAWIENIA.md, czyli w warstwie
+// uzytkownika (D-23), bo dotyczy czlowieka, nie projektu. Wiersz ma ten sam
+// ksztalt co reszta przelacznikow: kotwica na POCZATKU komorki, dalsze czlony
+// po `·` (L-0025, L-0035).
+//
+//   | 2026-09-15 | Zgoda na optymalizator | tak · przypomnienie co 30 dni |
+//
+// Data z PIERWSZEJ komorki jest data udzielenia zgody — od niej liczy sie prog
+// przypomnienia. Zgoda bez daty zyje dalej, tylko nigdy nie przypomina o sobie:
+// zgadywanie daty byloby gorsze od ciszy.
+const NAZWA_ZGODY = /^(?:Zgoda na optymalizator|Prompt optimizer consent)\b/i;
+const ZGODA_TAK = /^(?:tak|yes|udzielona|granted)\b/i;
+const ZGODA_NIE = /^(?:nie|no|cofni[ęe]ta|revoked)\b/i;
+const PROG_PRZYPOMNIENIA_DNI = 30;
+const CZLON_DNI_ZGODY = /^(?:przypomnienie co|reminder every)\s+(\d{1,3})\s+(?:dni|days)$/i;
+
+// Zgoda na jedna sesje nie ma gdzie mieszkac poza projektem, wiec mieszka w jego
+// cache — tam, gdzie reszta rzeczy nieprzenoszalnych miedzy maszynami.
+const PLIK_ZGODY_SESJI = '.claude/relai/zgoda-promptu.json';
 
 // Frazy sesji z CLAUDE.md i skilla relai-core. Prompt, ktory sie od nich zaczyna,
 // jest poleceniem rytualu, nie zdaniem do przerobienia.
@@ -97,6 +123,72 @@ function trybCiaglyProjektu(cwd) {
   return null;
 }
 
+// Wiersz zgody globalnej jako FAKT: null albo { tak, data, progDni }.
+// null znaczy "nie wiadomo" — brak wiersza albo kotwica spoza zamknietej listy.
+// Adapter traktuje null jak BRAK ZGODY i pyta: zgoda, ktora wlacza sie z literowki,
+// nie jest zgoda.
+function zgodaGlobalna(txtUstawien) {
+  for (const linia of String(txtUstawien || '').split('\n')) {
+    if (!linia.trim().startsWith('|')) continue;
+    const cells = linia.split('|').map((c) => c.trim());
+    if (cells.length < 5) continue;
+    const czego = cells[2].replace(/\*\*/g, '').trim();
+    if (!NAZWA_ZGODY.test(czego)) continue;
+
+    const czlony = cells[3].replace(/\*\*/g, '').trim().split('·').map((c) => c.trim());
+    let tak;
+    if (ZGODA_TAK.test(czlony[0])) tak = true;
+    else if (ZGODA_NIE.test(czlony[0])) tak = false;
+    else return null;
+
+    let progDni = PROG_PRZYPOMNIENIA_DNI;
+    for (const czlon of czlony.slice(1)) {
+      const m = czlon.match(CZLON_DNI_ZGODY);
+      if (m) progDni = parseInt(m[1], 10);
+    }
+    const data = /^\d{4}-\d{2}-\d{2}$/.test(cells[1]) ? cells[1] : null;
+    return { tak, data, progDni };
+  }
+  return null;
+}
+
+// Zgoda na TE sesje. Plik wiazacy decyzje z identyfikatorem sesji — bez niego
+// "tak w tej sesji" przeciekloby do nastepnej, a o to czlowiek nie prosil.
+// Zwraca true / false / null (brak pliku, inna sesja, wartosc nierozpoznana).
+function zgodaSesji(cwd, sesja) {
+  if (!sesja) return null;
+  try {
+    const p = path.join(cwd || '.', ...PLIK_ZGODY_SESJI.split('/'));
+    const j = JSON.parse(fs.readFileSync(p, 'utf8'));
+    if (String(j.sesja || '') !== String(sesja)) return null;
+    const decyzja = String(j.decyzja || '');
+    if (ZGODA_TAK.test(decyzja)) return true;
+    if (ZGODA_NIE.test(decyzja)) return false;
+    return null;
+  } catch (_) {
+    return null;
+  }
+}
+
+// Stan bramki jako jedno slowo: 'dziala' | 'cisza' | 'pytaj'.
+// Sesja ma pierwszenstwo nad globalna zgoda w OBIE strony: "nie w tej sesji"
+// wycisza tryb mimo zgody na stale, a "tak w tej sesji" wlacza go mimo jej braku.
+function stanBramki(stan) {
+  const s = stan || {};
+  if (s.sesja === true) return 'dziala';
+  if (s.sesja === false) return 'cisza';
+  if (s.globalna && s.globalna.tak === true) return 'dziala';
+  if (s.globalna && s.globalna.tak === false) return 'cisza';
+  return 'pytaj';
+}
+
+function dniMiedzy(od, do_) {
+  const a = Date.parse(od + 'T00:00:00Z');
+  const b = Date.parse(do_ + 'T00:00:00Z');
+  if (isNaN(a) || isNaN(b)) return null;
+  return Math.floor((b - a) / 86400000);
+}
+
 // Czy ten prompt przechodzi NIETKNIETY. Zwraca powod albo null.
 // Kolejnosc ma znaczenie: komenda jest rozpoznawana po POCZATKU tekstu, wiec
 // zdanie, ktore tylko wspomina nazwe komendy, nie jest pomijane.
@@ -139,6 +231,34 @@ function regula() {
   return REGULA;
 }
 
+// Tresc bramki. Placi sie tylko do momentu odpowiedzi — potem wraca zwykla REGULA
+// albo cisza — wiec moze byc dluzsza od niej, ale nie dowolnie: prompt, na ktory
+// czlowiek czeka, konkuruje z nia o kontekst. Identyfikator sesji wstawia adapter,
+// bo model go nie widzi, a bez niego zgoda "na te sesje" nie ma czego pilnowac.
+function regulaBramki(sesja) {
+  return '[RelAI bramka zgody] Tryb ciagly optymalizatora jest wlaczony w tym projekcie, ale ' +
+    'zgody na te sesje jeszcze nie ma. ZANIM zrobisz cokolwiek z tym promptem, zadaj JEDNO ' +
+    'pytanie (AskUserQuestion) o trzy opcje: (1) tak, w tej sesji; (2) tak i nie pytaj wiecej — ' +
+    'zgoda zapisana globalnie; (3) nie, nie korzystaj w tej sesji. Odpowiedz ZAPISZ, zanim ' +
+    'wykonasz prompt: (1) i (3) do .claude/relai/zgoda-promptu.json jako {"sesja":"' +
+    String(sesja || '') + '","decyzja":"tak albo nie","data":"RRRR-MM-DD"}; (2) to samo z ' +
+    'decyzja "tak" PLUS wiersz "| RRRR-MM-DD | Zgoda na optymalizator | tak |" w ' +
+    '~/.claude/relai/USTAWIENIA.md. Po (1) i (2) przerabiasz ten prompt procedura /relai-prompt; ' +
+    'po (3) wykonujesz go bez zmian i nie wracasz do tematu w tej sesji.';
+}
+
+// Przypomnienie o zgodzie udzielonej na stale — JEDNA linia albo zero, na starcie
+// sesji, nie przy kazdym prompcie. Zgoda bez daty i zgoda mlodsza od progu milcza.
+function przypomnienieZgodyReport(zg, dzisiaj) {
+  if (!zg || zg.tak !== true || !zg.data) return [];
+  const wiekDni = dniMiedzy(zg.data, dzisiaj || '');
+  if (wiekDni === null || wiekDni < 0 || wiekDni <= zg.progDni) return [];
+  return ['[RelAI zgoda optymalizatora] Zgoda na tryb ciagly zostala udzielona globalnie ' +
+    zg.data + ' (' + wiekDni + ' dni przy progu ' + zg.progDni + '), wiec kazdy prompt ' +
+    'merytoryczny wraca najpierw z propozycja. Cofasz ja komenda /relai-prompt off --globalnie ' +
+    'albo wierszem "Zgoda na optymalizator" w ~/.claude/relai/USTAWIENIA.md.'];
+}
+
 // Jedno zdanie o wlaczonym trybie na starcie sesji. Wylaczony albo nierozpoznany
 // przelacznik = pusta lista, czyli zero znakow w kontekscie startu.
 function trybCiaglyReport(stan) {
@@ -156,4 +276,11 @@ module.exports = {
   pomija,
   regula,
   normalizuj,
+  // Bramka zgody (2.3.0) — kazda czesc eksportowana osobno, zeby dalo sie
+  // zmierzyc testem odczyt wiersza, wiazanie z sesja i sam wybor stanu.
+  zgodaGlobalna,
+  zgodaSesji,
+  stanBramki,
+  regulaBramki,
+  przypomnienieZgodyReport,
 };

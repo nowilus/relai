@@ -36,6 +36,15 @@
 > — przeniesione 2026-08-21, suma kontrolna `4b370c3e2b31c6ba`.
 
 ## Czeka na człowieka
+- **Zamrożenie dwóch bramek zgody jako decyzji** — zgoda na tryb ciągły (raz na sesję, z zapisem
+  globalnym) i zgoda na propozycję struktury poza projektem (raz na maszynę). Oba wzorce wrócą przy
+  każdym nowym zachowaniu proaktywnym RelAI · 2026-09-15 ·
+  [wpis 2026-09-15 — Zgłoszenie testera](#2026-09-15--zgłoszenie-testera-plugin-pyta-o-relai-w-cudzym-folderze-dwie-bramki-zgody-i-wydanie-230)
+
+- **Odpowiedź testerowi: czy po odmowie pytanie o RelAI wróciło w tym samym folderze** — jeśli tak,
+  defekt jest w markerze trybu gościa, a nie w zakresie instalacji · 2026-09-15 ·
+  [wpis 2026-09-15 — Zgłoszenie testera](#2026-09-15--zgłoszenie-testera-plugin-pyta-o-relai-w-cudzym-folderze-dwie-bramki-zgody-i-wydanie-230)
+
 - ~~**Akceptacja planu PIERWSI_UZYTKOWNICY**~~ *(rozstrzygnięte 2026-09-12 — plan zaakceptowany i zamrożony; E1 i E2 zamknięte)* · 2026-09-12 · [wpis 2026-09-12 — Plan pierwszych użytkowników](#2026-09-12--plan-pierwszych-użytkowników)
 
 - ~~**Akceptacja planu OPTYMALIZATOR_PROMPTOW**~~ *(rozstrzygnięte 2026-09-14 — Łukasz zaakceptował
@@ -1678,5 +1687,73 @@ Nie przepadł żaden punkt planu; doszedł jeden, którego plan nie przewidział
 - ~~**Kiedy wraca plan PIERWSI_UZYTKOWNICY**~~ *(rozstrzygnięte 2026-09-15 — nie teraz; linia
   aktywnego planu brzmi `brak`, a wybór kierunku należy do następnej sesji)*
 - **Restart aplikacji desktopowej** — do tego czasu ta aplikacja ładuje 2.1.4 z pamięci (P-005).
+
+Autor: RelAI (Opus 5) + Lukasz
+
+### 2026-09-15 — Zgłoszenie testera: plugin pyta o RelAI w cudzym folderze; dwie bramki zgody i wydanie 2.3.0
+
+Autor: RelAI (Opus 5) + Lukasz
+
+**Skąd to się wzięło.** Tester zainstalował plugin, zaadoptował swój projekt, a potem otworzył
+**zupełnie inny** projekt — i sesja zaczęła tam dopytywać o adopcję do RelAI. Hipoteza właściciela:
+instalacja wyciekła do globalnego `CLAUDE.md` / `AGENTS.md` dla trzech narzędzi naraz.
+
+**Co pokazała analiza (hipoteza nietrafiona, objaw prawdziwy):**
+
+- **Zapis poza projektem jest niemożliwy.** Instalatory Cursora i Codeksa piszą wyłącznie do
+  wskazanego katalogu (`adapters/cursor/install.js`, `adapters/codex/install.js`), a katalog domowy
+  jest **tylko czytany** — ustawienia globalne D-23 i `.gitconfig`.
+- **Aktywacja poza projektem jest możliwa i była z założenia.** `claude plugin install` instaluje
+  plugin w zakresie **użytkownika**, więc globalne stają się skille, komendy, agenci i hooki. Hooki
+  mają twardą bramkę markera (`session-context.js`, pierwszy warunek) i poza projektem milczą.
+  Skill `relai-core` bramki nie ma: jego `description` każe sprawdzić folder „in any folder" i
+  zaproponować strukturę. To był cały mechanizm — zapisane jako **P-015**.
+- **Rozjazd dokumentu.** `docs/STATE.md` twierdził, że „w folderze bez struktury RelAI plugin jest
+  całkowicie niewidoczny". Prawda o **hookach**, nieprawda o **skillu**. Zdanie poprawione z nazwą
+  warstwy, której dotyczy.
+
+**Zrobione — dwie bramki zgody, jedno wydanie 2.3.0:**
+
+- **Bramka propozycji poza projektem.** Nowy wiersz warstwy globalnej `Propozycja RelAI poza
+  projektem` (`proponuj` / `nie proponuj`). Przy odmowie inicjalizacji pada jedno pytanie
+  towarzyszące o **zasięg**: ten folder (tryb gościa, D-21) czy cała maszyna. Przy wyciszeniu hook
+  startu wypisuje w folderze bez markera **dokładnie jedną linię**, która wycisza skill; projektów
+  z markerem `Wersja RelAI` to nie dotyka. Nośnik w obu adapterach z zakresem użytkownika — Claude
+  Code i Codex; Cursor go nie potrzebuje, bo instaluje się per projekt.
+- **Bramka zgody na tryb ciągły.** Włączony wiersz `Tryb ciągły` znaczy odtąd „tryb **dostępny**",
+  a nie „tryb działa bez pytania". Pierwszy prompt merytoryczny sesji wraca pytaniem o trzy opcje:
+  ta sesja / nie pytaj więcej / nie. Zgoda sesyjna mieszka w `.claude/relai/zgoda-promptu.json`
+  **związana z identyfikatorem sesji** — nie przecieka do następnej; trwała w wierszu `Zgoda na
+  optymalizator` z członem `· przypomnienie co N dni` (domyślnie 30). Decyzja sesyjna ma
+  pierwszeństwo w **obie** strony.
+- **Wyłączniki bez edycji plików:** `/relai-prompt on`, `/relai-prompt off`,
+  `/relai-prompt on|off --globalnie` (`Krok 0a` komendy).
+- **Testy:** 6 nowych w `core/process/tests/prompt-mode.test.js`, nowy plik
+  `core/process/tests/session-signals.test.js` (2 testy), razem **50/50** zielonych. Dodatkowo
+  **dowód na nośniku** (`.claude/relai/work/BRAMKI/dowod-hookow.js`): oba hooki uruchomione przez
+  stdin, 9/9 — bramka pyta, zgoda działa, zgoda nie przecieka do innej sesji, odmowa daje zero
+  znaków, filtr pomijania stoi przed bramką, a projekt z markerem dostaje pełny kontekst startu
+  mimo wyciszenia.
+
+**Naprawione przy okazji (defekt sprzed tej sesji):** `adapters/codex/tests/generate-skills.test.js`
+oczekiwał **13** wygenerowanych skilli, a od 2.2.0 komend jest **14** — test był czerwony od
+wydania 2.2.0 i blokował zielony przebieg całości.
+
+**Świadomie odłożone:**
+
+- **Czym był „Cursor" u testera** — bez dostępu do jego maszyny nie da się rozstrzygnąć między
+  Claude Code w oknie Cursora, Codeksem a ręcznie uruchomionym `adapters/cursor/install.js`.
+  Wszystkie trzy dają ten sam objaw; pierwsze dwa nie wymagają jego świadomego działania.
+- **Czy pytanie wróciło po odmowie** — gdyby wróciło, byłby to defekt markera trybu gościa,
+  a nie zakresu instalacji. Do dopytania testera.
+- **Zgody globalnej nikt za użytkownika nie wpisał** — wiersze warstwy globalnej powstają wyłącznie
+  z odpowiedzi człowieka; w `~/.claude/relai/USTAWIENIA.md` nie ma ich po tej sesji ani jednego.
+
+**Do zrobienia przez człowieka:**
+
+- **Zamrożenie dwóch decyzji** — bramka zgody na tryb ciągły i bramka propozycji poza projektem to
+  rozstrzygnięcia, które będą wracać przy każdym nowym zachowaniu proaktywnym. Propozycja: wpis do
+  `DECYZJE.md`.
+- **Odpowiedź testerowi** — czy po odmowie pytanie wróciło w tym samym folderze.
 
 Autor: RelAI (Opus 5) + Lukasz

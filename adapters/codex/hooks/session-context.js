@@ -16,7 +16,20 @@ const markers = ['.claude/relai.json'];
 function main(input) {
   const cwd = input.cwd || process.cwd();
   const marker = core.relaiMarkerFile(cwd, markers);
-  if (!marker) return;
+  // Outside a RelAI project the plugin stays invisible, with one exception since 2.3.0:
+  // a user who answered "never offer this outside my RelAI projects" gets the line that
+  // silences the skill. The Codex plugin is installed per user, so the skill sees every
+  // folder on the machine; guest mode (D-21) only settles one folder at a time.
+  if (!marker) {
+    const gs = core.globalSettingsText('.claude/relai');
+    const off = core.propozycjaPozaProjektemReport(core.propozycjaPozaProjektem(gs ? gs.text : ''));
+    if (off.length) {
+      process.stdout.write(JSON.stringify({
+        hookSpecificOutput: { hookEventName: 'SessionStart', additionalContext: off.join('\n') },
+      }));
+    }
+    return;
+  }
   const copied = core.provisionTemplates(cwd, { coreTemplates: path.join(ROOT, 'core', 'templates'), destRel: '.claude/relai' });
   const lines = [
     '[RelAI session-context]',

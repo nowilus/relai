@@ -449,6 +449,58 @@ a o braku trybu w tej wersji pada jedno zdanie przy pierwszym wywołaniu komendy
 **Ten wyłącznik jest niezależny od pozostałych** i od wiersza `Model optymalizatora`: tryb wyłączony
 nie wycisza komendy, a komenda wywołana wprost działa niezależnie od wartości tego wiersza.
 
+**Od 2.3.0 włączony wiersz nie wystarcza.** Mówi on, że tryb jest w tym projekcie **dostępny** —
+o tym, czy ma działać w tej sesji, decyduje bramka zgody opisana niżej.
+
+## Wiersze warstwy globalnej (od 2.3.0)
+
+Dwa wiersze mieszkają **wyłącznie** w `~/.claude/relai/USTAWIENIA.md`, bo dotyczą człowieka i jego
+maszyny, a nie projektu. Nie powstają przy inicjalizacji ani przy `/relai-update` — zapisuje je
+odpowiedź na pytanie zadane w momencie, w którym sprawa jest realna. Brak wiersza jest
+**normalnym stanem**, nie brakiem do uzupełnienia.
+
+### `Zgoda na optymalizator`
+
+Bramka trybu ciągłego. Tryb dotyka **każdego** promptu merytorycznego, a wiersz `Tryb ciągły` w
+projekcie bywa zgodą sprzed tygodni — więc pierwszy taki prompt w sesji wraca pytaniem o trzy
+opcje: **ta sesja** / **nie pytaj więcej** / **nie**. Zgoda sesyjna trafia do
+`.claude/relai/zgoda-promptu.json` związana z identyfikatorem sesji (nie przecieka do następnej),
+trwała — do tego wiersza.
+
+```
+| 2026-09-15 | Zgoda na optymalizator | tak · przypomnienie co 30 dni |
+```
+
+| Człon | Dozwolone wartości | Znaczenie |
+|---|---|---|
+| przełącznik (**pierwszy, obowiązkowy**) | `tak` / `nie` (EN: `yes` / `no`) | `tak` → bramka nie pyta; `nie` → tryb ciągły milczy mimo włączonego wiersza projektowego |
+| próg przypomnienia | `przypomnienie co N dni` (EN: `reminder every N days`) | domyślnie **30**; start sesji przypomina o zgodzie raz po przekroczeniu progu |
+
+**Data w pierwszej komórce jest datą udzielenia zgody** — od niej liczy się próg. Zgoda z datą
+nieczytelną żyje dalej, tylko nigdy o sobie nie przypomni: zgadywanie daty byłoby gorsze od ciszy.
+
+**Decyzja sesyjna ma pierwszeństwo w obie strony:** „nie w tej sesji" wycisza tryb mimo zgody na
+stałe, „tak w tej sesji" włącza go mimo jej braku. Wyłącznik: `/relai-prompt off --globalnie`.
+
+### `Propozycja RelAI poza projektem`
+
+Plugin jest instalowany w zakresie **użytkownika**, więc skill `relai-core` widzi każdy folder na
+maszynie i w każdym proponuje założenie struktury. Tryb gościa (D-21) zamyka temat w **jednym**
+folderze; ten wiersz zamyka go we wszystkich naraz.
+
+```
+| 2026-09-15 | Propozycja RelAI poza projektem | nie proponuj |
+```
+
+| Człon | Dozwolone wartości | Znaczenie |
+|---|---|---|
+| przełącznik (**pierwszy, obowiązkowy**) | `proponuj` / `nie proponuj` (EN: `offer` / `do not offer`) | `nie proponuj` → w folderze **bez** markera RelAI hook startu wypisuje jedną linię wyciszającą skill, a skill nie proponuje ani inicjalizacji, ani adopcji |
+
+**Wartość spoza listy i brak wiersza znaczą `proponuj`** — wyciszenie wymaga jawnej decyzji
+człowieka, a nie literówki w pliku ustawień. Wiersz **nie dotyka** projektów z markerem
+`Wersja RelAI`: tam rytuał startu sesji działa bez zmian. Pytanie o niego pada raz — po odmowie
+inicjalizacji, razem z markerem trybu gościa.
+
 ## Rotacja ustawień (od 1.7.0)
 
 Do 1.6.1 ten plik nie miał **żadnej** drogi wyjścia: polityka jest append-only, a sekcja

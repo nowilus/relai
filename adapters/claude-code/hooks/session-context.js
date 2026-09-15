@@ -73,10 +73,24 @@ function pluginVersion() {
   }
 }
 
+// Folder poza projektem RelAI. Zero znakow, chyba ze wiersz globalny mowi wprost
+// "nie proponuj" — wtedy dokladnie jedna linia i koniec.
+function poza() {
+  const gs = core.globalSettingsText('.claude/relai');
+  const linie = core.propozycjaPozaProjektemReport(
+    core.propozycjaPozaProjektem(gs ? gs.text : ''));
+  if (linie.length) process.stdout.write(linie.join('\n'));
+  return process.exit(0);
+}
+
 function onSessionStart(input) {
   const cwd = input.cwd || process.cwd();
   const markerFile = relaiMarkerFile(cwd);
-  if (!markerFile) return process.exit(0);
+  // Folder bez struktury RelAI: do 2.2.0 zawsze cisza. Od 2.3.0 jeden wyjatek — czlowiek,
+  // ktory raz odpowiedzial "nie pytaj mnie o to nigdzie", dostaje tu linie wyciszajaca
+  // skill. Bez niej plugin w zakresie uzytkownika proponowalby strukture w kazdym nowym
+  // katalogu, a marker trybu goscia (D-21) zamyka temat tylko w jednym.
+  if (!markerFile) return poza();
 
   const out = [];
   out.push('[RelAI session-context]');
@@ -184,6 +198,15 @@ function onSessionStart(input) {
   }
 
   const gs = core.globalSettingsText('.claude/relai');
+
+  // Przypomnienie o zgodzie na tryb ciagly udzielonej na stale (2.3.0). Stoi na starcie
+  // sesji, a nie przy prompcie: zgoda "nie pytaj wiecej" ma przestac pytac, a nie zamienic
+  // pytanie w zdanie doklejane do kazdej tury. Ponizej progu — zero znakow.
+  for (const linia of trybPromptu.przypomnienieZgodyReport(
+    trybPromptu.zgodaGlobalna(gs ? gs.text : ''), core.todayLocal())) {
+    out.push(linia);
+  }
+
   if (gs) {
     out.push('Ustawienia globalne uzytkownika (' + gs.file + '; wpis projektowy w docs/USTAWIENIA.md ma pierwszenstwo):\n' + gs.text);
   }

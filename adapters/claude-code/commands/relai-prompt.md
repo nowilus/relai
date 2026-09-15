@@ -1,6 +1,6 @@
 ---
 description: "Zamienia podyktowane zdanie w precyzyjny prompt — pokazuje oryginał obok propozycji, oznacza każde dopowiedzenie i czeka na zgodę; niczego nie wykonuje"
-argument-hint: "[tekst do przerobienia] — np. /relai-prompt popraw walidację w formularzu logowania, bo się sypie"
+argument-hint: "[tekst do przerobienia] albo on / off [--globalnie] — np. /relai-prompt popraw walidację w formularzu logowania, bo się sypie"
 ---
 
 # /relai-prompt — optymalizator promptu
@@ -14,6 +14,25 @@ Komenda **niesie reguły w sobie**: komenda wywołana wprost nie ładuje skilla,
 żadną warstwę poza tym plikiem i plikami, które sam otworzysz.
 
 ---
+
+## Krok 0a — przełącznik zamiast tekstu (od 2.3.0)
+
+Argument będący **wyłącznie** jednym z poniższych brzmień jest przełącznikiem, nie zdaniem do
+przerobienia. Wykonujesz zapis, meldujesz **jednym zdaniem** i kończysz — niczego nie optymalizujesz.
+
+| Argument | Co zapisujesz | Skutek |
+|---|---|---|
+| `on` | wiersz `Tryb ciągły` = `włączony` w `docs/USTAWIENIA.md` | tryb dostępny w tym projekcie; o zgodę na sesję i tak pyta bramka |
+| `off` | wiersz `Tryb ciągły` = `wyłączony` w `docs/USTAWIENIA.md` | tryb milczy w tym projekcie, ustawienia globalne bez zmian |
+| `off --globalnie` | wiersz `Zgoda na optymalizator` = `nie` w `~/.claude/relai/USTAWIENIA.md` | zgoda na stałe cofnięta; bramka pyta od nowa w każdej sesji |
+| `on --globalnie` | wiersz `Zgoda na optymalizator` = `tak` z dzisiejszą datą w `~/.claude/relai/USTAWIENIA.md` | bramka przestaje pytać; przypomnienie wraca po progu z członu `· przypomnienie co N dni` (domyślnie 30) |
+
+Brak pliku ustawień w projekcie przy `on`/`off` → powiedz **jednym zdaniem**, że ten folder nie jest
+projektem RelAI, więc przełącznika nie ma gdzie zapisać. Nie zakładasz struktury przy okazji.
+
+`off --globalnie` **nie wyłącza** trybu w projektach — kasuje wyłącznie zgodę „nie pytaj więcej".
+Te dwie warstwy są rozdzielone świadomie: projekt mówi, czy tryb jest dostępny, człowiek mówi, czy
+w tej sesji ma działać.
 
 ## Krok 0 — czy jest co przerabiać
 
@@ -286,6 +305,15 @@ Ta sama procedura ma drugie wejście: **tryb ciągły**, włączany wierszem `Tr
 w `docs/USTAWIENIA.md`. Gdy jest włączony, każdy prompt merytoryczny wraca najpierw z propozycją
 i oryginałem obok — bez wpisywania komendy. Nietknięte przechodzą: wywołania komend (tekst
 zaczynający się od `/`), frazy sesji, krótkie potwierdzenia i pytania.
+
+**Bramka zgody (od 2.3.0).** Włączony wiersz znaczy „tryb jest dostępny", a nie „tryb działa bez
+pytania". Pierwszy prompt merytoryczny sesji wraca **pytaniem o trzy opcje**: tak w tej sesji / tak
+i nie pytaj więcej (zapis globalny) / nie. Odpowiedź zapisuje się od razu — sesyjna do
+`.claude/relai/zgoda-promptu.json` (związana z identyfikatorem sesji, więc nie przecieka do
+następnej), trwała wierszem `Zgoda na optymalizator` w `~/.claude/relai/USTAWIENIA.md`. Odpowiedź
+„nie" wycisza tryb do końca sesji i wraca dopiero w następnej. Przy zgodzie trwałej start sesji
+przypomina o niej raz na `N` dni (człon `· przypomnienie co N dni`, domyślnie 30), a wyłącza ją
+`/relai-prompt off --globalnie`.
 
 Tryb ciągły **istnieje wyłącznie w Claude Code**, bo tylko dla tego narzędzia został w RelAI
 zmierzony i zbudowany nośnik. W **Cursorze i Codeksie** komenda działa normalnie, a trybu nie ma:

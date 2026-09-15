@@ -25,7 +25,9 @@ description: >
 
 # relai-core — struktura projektu, pamięć i rytuały sesji
 
-Aktualny stan dystrybucyjny: RelAI 2.2.0; wcześniejsze akapity wersji opisują historię zmian.
+Aktualny stan dystrybucyjny: RelAI 2.3.0; wcześniejsze akapity wersji opisują historię zmian.
+
+Wersja 2.3.0 (dwie bramki zgody na proaktywne zachowanie RelAI, obie w warstwie globalnej uzytkownika: (1) tryb ciagly optymalizatora pyta o zgode na KAZDA sesje — ta sesja / nie pytaj wiecej / nie — bo wlaczony wiersz `Tryb ciagly` mowi, ze tryb jest dostepny, a nie ze ma dzialac bez pytania; zgoda sesyjna mieszka w `.claude/relai/zgoda-promptu.json` zwiazana z identyfikatorem sesji, trwala w wierszu `Zgoda na optymalizator` z czlonem `· przypomnienie co N dni` (domyslnie 30) i wylacznikiem `/relai-prompt off --globalnie`; (2) wiersz `Propozycja RelAI poza projektem` wycisza propozycje zakladania struktury we WSZYSTKICH folderach bez markera naraz — plugin jest instalowany w zakresie uzytkownika, wiec ten skill widzi kazdy katalog na maszynie, a tryb goscia (D-21) zamyka temat tylko w jednym; procedura tego skilla zmieniona w Kroku 0 i w obu stanach bez markera, podniesiony marker wersji wymagany w `docs/USTAWIENIA.md`).
 
 Wersja 2.2.0 (czternasta komenda `/relai-prompt` publicznie: optymalizator promptu z blokiem pamieci projektu i trybem ciaglym wlaczanym wierszem `Tryb ciagly` w `docs/USTAWIENIA.md`; baza regul `core/prompt/` prowizjonowana do projektu jak specyfikacje — kopia nadpisywana przy kazdym starcie, wiec komenda pracuje z rusztowan takze w cudzym projekcie; testy regresyjne rdzenia trybu i dwie nowe kontrole walidatora: modul rdzenia wolany przez adapter musi byc w `uses` MANIFESTU, a baza regul nie moze niesc nazw modeli; procedura tego skilla bez zmian, podniesiony marker wersji wymagany w `docs/USTAWIENIA.md`).
 
@@ -82,6 +84,10 @@ Sprawdź po kolei, ciszej niż użytkownik zauważy. Nie komentuj samego sprawdz
    `.gitignore`, `.gitattributes`, `LICENSE`. Cokolwiek innego (kod, dokumenty, `package.json`,
    `README.md`) → folder ma zawartość.
    → Stan: **PUSTY** albo **Z ZAWARTOŚCIĄ**.
+4. **Wyciszenie globalne** (od 2.3.0) — wiersz `Propozycja RelAI poza projektem` = `nie proponuj`
+   w `~/.claude/relai/USTAWIENIA.md`. Hook startu sesji mówi o nim jedną linią `[RelAI]`.
+   Dotyczy **wyłącznie** stanów PUSTY i Z ZAWARTOŚCIĄ → w nich nic nie proponujesz i o nic nie
+   pytasz. Stan PROJEKT RELAI działa bez zmian.
 
 Dalej idź dokładnie jedną ścieżką.
 
@@ -798,7 +804,29 @@ i `docs/` z sześcioma dokumentami) i że nic poza tym nie zostanie utworzone. P
 - **Zgoda** → punkt 2.
 - **Odmowa** → utwórz `.claude/relai.json` o treści `{"mode":"guest"}`, potwierdź jednym zdaniem
   („Tryb gościa — nie wrócę do tego tematu w tym folderze; wystarczy powiedzieć »dodaj RelAI«,
-  gdy zmienisz zdanie") i zamknij temat. Żadnych plików poza markerem.
+  gdy zmienisz zdanie"), zadaj **pytanie o zasięg odmowy** (niżej) i zamknij temat. Żadnych plików
+  poza markerem.
+
+### 1a. Zasięg odmowy — pytanie raz na maszynę (od 2.3.0)
+
+Plugin jest zainstalowany w zakresie **użytkownika**, więc ten skill widzi każdy folder na tej
+maszynie i w każdym zaproponuje strukturę. Marker trybu gościa zamyka temat w **jednym** folderze —
+człowiek, który nie chce tej propozycji nigdzie, musiałby odmawiać w kółko.
+
+Po odmowie zadaj **jedno** pytanie (AskUserQuestion, dwie opcje):
+
+| Opcja | Co robisz |
+|---|---|
+| Tylko ten folder (Rekomendowane) | nic ponad marker gościa, który właśnie powstał |
+| Nigdy poza projektami RelAI | dopisz do `~/.claude/relai/USTAWIENIA.md` wiersz `\| <dzisiejsza data> \| Propozycja RelAI poza projektem \| nie proponuj \|` i potwierdź jednym zdaniem, że w projektach z markerem RelAI wszystko działa jak dotąd |
+
+Wiersz `nie proponuj` jest **wyciszeniem tego skilla poza projektami**, a nie wyłączeniem RelAI:
+w folderze z markerem `Wersja RelAI` rytuał startu sesji obowiązuje bez zmian. Wycofanie wiersza to
+zmiana jego wartości na `proponuj` albo skasowanie linijki — powiedz o tym w tym samym zdaniu.
+
+Widzisz w kontekście startu sesji linię `[RelAI]` mówiącą, że propozycja poza projektami jest
+wyłączona → **nie proponujesz niczego i nie pytasz o zasięg**; pracujesz jak zwykły Claude Code,
+dopóki człowiek sam nie poprosi o RelAI.
 
 ### 2. Paczka dokładnie trzech pytań (D-20)
 
@@ -859,7 +887,7 @@ Zasady generacji:
   Dla projektu angielskiego: `docs/STATE.md`, `docs/JOURNAL.md`, `docs/LESSONS.md`,
   `docs/DECISIONS.md`, `docs/SETTINGS.md`, `docs/COMMANDS.md`. Konwencja stała: CAPS_SNAKE, bez dat
   i numerów wersji w nazwie.
-- `docs/USTAWIENIA.md` **musi** zawierać linię `Wersja RelAI: 2.2.0` — to marker, po którym RelAI
+- `docs/USTAWIENIA.md` **musi** zawierać linię `Wersja RelAI: 2.3.0` — to marker, po którym RelAI
   rozpoznaje projekt i po którym przyszły `/relai-update` policzy różnicę wersji.
 - `CLAUDE.md` **musi** zawierać sekcję `## Reguły profilu (<wybrany profil>)` zaraz po „Regułach
   procesu" — 3–6 punktów wg `SPEC_PROFILE.md`. To jedyna warstwa reguł profilu działająca bez
@@ -911,8 +939,11 @@ Przedstaw dokładnie cztery możliwości i zapytaj (AskUserQuestion, jedno pytan
    o tych samych nazwach zostają nietknięte: nie nadpisujesz, nie scalasz, nie dopisujesz —
    wymieniasz je w podsumowaniu jako pominięte i mówisz, co RelAI by tam trzymał. Istniejący
    `CLAUDE.md` zostaje bez zmian; scalanie reguł to domena adopcji.
-3. **Tryb gościa** — marker `.claude/relai.json` = `{"mode":"guest"}`, koniec tematu.
-4. **Nic teraz** — użytkownik decyduje później; nie wracasz do tematu w tej sesji.
+3. **Tryb gościa** — marker `.claude/relai.json` = `{"mode":"guest"}`, koniec tematu. Po tym wyborze
+   zadajesz pytanie o **zasięg odmowy** (sekcja „1a" w stanie PUSTY): tylko ten folder czy nigdy
+   poza projektami RelAI.
+4. **Nic teraz** — użytkownik decyduje później; nie wracasz do tematu w tej sesji. O zasięg nie
+   pytasz: „później" nie jest odmową.
 
 Po dołączeniu niedestrukcyjnym obowiązuje ta sama generacja co w stanie PUSTY (paczka trzech pytań
 włącznie), z jedną różnicą: pliki już obecne w folderze są pomijane.
@@ -922,6 +953,8 @@ włącznie), z jedną różnicą: pliki już obecne w folderze są pomijane.
 ## Twarde zakazy tego skilla
 
 - Nie kasujesz i nie nadpisujesz niczego, czego RelAI nie utworzył w tej sesji.
+- Nie proponujesz inicjalizacji ani adopcji, gdy wiersz `Propozycja RelAI poza projektem` mówi
+  `nie proponuj` — ani wprost, ani „przy okazji" innego tematu.
 - Nie zadajesz więcej niż trzech pytań startowych. Wywiady wielopytaniowe są poza zakresem (D-80).
 - Nie pytasz o zgodę na zapis lekcji ani na aktualizację STATE/DZIENNIKA — to część ukończenia
   zadania, nie osobna prośba.

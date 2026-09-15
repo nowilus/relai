@@ -131,3 +131,97 @@ test('normalizuj strips diacritics, case and trailing punctuation', () => {
   assert.equal(tryb.normalizuj('  TAK.  '), 'tak');
   assert.equal(tryb.normalizuj('Co   robi   ta  funkcja?'), 'co robi ta funkcja');
 });
+
+// --- bramka zgody (2.3.0) ---------------------------------------------------
+
+// Wiersz zgody w ksztalcie, ktory ma realny ~/.claude/relai/USTAWIENIA.md:
+// plik globalny NIE ma linii "Wersja RelAI" — marker wersji jest cecha projektu.
+function ustawieniaGlobalne(wartosc, data) {
+  const wiersz = wartosc === null
+    ? ''
+    : '| ' + (data || '2026-09-15') + ' | Zgoda na optymalizator | ' + wartosc + ' |\n';
+  return '# USTAWIENIA — preferencje globalne\n\n'
+    + '| Data | Czego dotyczy | Decyzja |\n|---|---|---|\n'
+    + '| 2026-08-09 | Jezyk pracy | Polski |\n'
+    + wiersz;
+}
+
+test('zgodaGlobalna reads the consent row as a fact, with the date it was given', () => {
+  assert.deepEqual(tryb.zgodaGlobalna(ustawieniaGlobalne('tak')),
+    { tak: true, data: '2026-09-15', progDni: 30 });
+  assert.equal(tryb.zgodaGlobalna(ustawieniaGlobalne('nie')).tak, false);
+  assert.equal(tryb.zgodaGlobalna(ustawieniaGlobalne('yes')).tak, true);
+  assert.equal(tryb.zgodaGlobalna(ustawieniaGlobalne('cofnięta')).tak, false);
+  // Prog przypomnienia jest CZLONEM tego samego wiersza — jak w rotacji i liscie modeli.
+  assert.equal(tryb.zgodaGlobalna(ustawieniaGlobalne('tak · przypomnienie co 7 dni')).progDni, 7);
+  assert.equal(tryb.zgodaGlobalna(ustawieniaGlobalne('tak · przypomnienie co 7 dni')).tak, true);
+  // Kotwica spoza zamknietej listy i brak wiersza znacza to samo: zgody nie ma.
+  assert.equal(tryb.zgodaGlobalna(ustawieniaGlobalne('chyba tak')), null);
+  assert.equal(tryb.zgodaGlobalna(ustawieniaGlobalne(null)), null);
+  assert.equal(tryb.zgodaGlobalna(''), null);
+  // Data nieczytelna nie uniewaznia zgody — gasi wylacznie przypomnienie.
+  assert.equal(tryb.zgodaGlobalna(ustawieniaGlobalne('tak', 'wczoraj')).data, null);
+});
+
+test('zgodaSesji binds the decision to one session id and never leaks to the next', (t) => {
+  const root = fixture(t);
+  fs.mkdirSync(path.join(root, '.claude', 'relai'), { recursive: true });
+  const plik = path.join(root, '.claude', 'relai', 'zgoda-promptu.json');
+
+  fs.writeFileSync(plik, JSON.stringify({ sesja: 'abc', decyzja: 'tak', data: '2026-09-15' }));
+  assert.equal(tryb.zgodaSesji(root, 'abc'), true);
+  // Inna sesja tego samego projektu zaczyna od zera — o to wlasnie chodzi w opcji
+  // "tak, w tej sesji".
+  assert.equal(tryb.zgodaSesji(root, 'xyz'), null);
+  assert.equal(tryb.zgodaSesji(root, ''), null);
+
+  fs.writeFileSync(plik, JSON.stringify({ sesja: 'abc', decyzja: 'nie' }));
+  assert.equal(tryb.zgodaSesji(root, 'abc'), false);
+
+  fs.writeFileSync(plik, '{ to nie jest json');
+  assert.equal(tryb.zgodaSesji(root, 'abc'), null);
+  fs.rmSync(plik);
+  assert.equal(tryb.zgodaSesji(root, 'abc'), null);
+});
+
+test('stanBramki: session decision wins over the standing consent in both directions', () => {
+  const tak = { tak: true, data: '2026-09-15', progDni: 30 };
+  const nie = { tak: false, data: '2026-09-15', progDni: 30 };
+
+  assert.equal(tryb.stanBramki({ sesja: null, globalna: null }), 'pytaj');
+  assert.equal(tryb.stanBramki({}), 'pytaj');
+  assert.equal(tryb.stanBramki({ sesja: true, globalna: null }), 'dziala');
+  assert.equal(tryb.stanBramki({ sesja: false, globalna: tak }), 'cisza');
+  assert.equal(tryb.stanBramki({ sesja: true, globalna: nie }), 'dziala');
+  assert.equal(tryb.stanBramki({ sesja: null, globalna: tak }), 'dziala');
+  assert.equal(tryb.stanBramki({ sesja: null, globalna: nie }), 'cisza');
+});
+
+test('regulaBramki carries the three options, the session id and the place to write them', () => {
+  const r = tryb.regulaBramki('sesja-42');
+  assert.match(r, /sesja-42/);
+  assert.match(r, /AskUserQuestion/);
+  assert.match(r, /zgoda-promptu\.json/);
+  assert.match(r, /USTAWIENIA\.md/);
+  assert.match(r, /relai-prompt/);
+  assert.ok(!/[ąćęłńóśźżĄĆĘŁŃÓŚŹŻ]/.test(r), 'bramka ma byc w ASCII');
+  // Bramka placi sie tylko do odpowiedzi, wiec moze byc dluzsza od reguly — ale nie
+  // dowolnie: czlowiek czeka na swoj prompt, a nie na regulamin.
+  assert.ok(r.length <= 1200, 'bramka urosla do ' + r.length + ' znakow');
+});
+
+test('przypomnienieZgodyReport speaks once past the threshold and stays silent otherwise', () => {
+  const zg = (data, progDni) => ({ tak: true, data, progDni: progDni || 30 });
+  assert.deepEqual(tryb.przypomnienieZgodyReport(zg('2026-09-01'), '2026-09-15'), []);
+  assert.deepEqual(tryb.przypomnienieZgodyReport(zg('2026-08-16'), '2026-09-15'), []); // dokladnie 30
+  const linie = tryb.przypomnienieZgodyReport(zg('2026-08-01'), '2026-09-15');
+  assert.equal(linie.length, 1);
+  assert.match(linie[0], /2026-08-01/);
+  assert.match(linie[0], /relai-prompt off --globalnie/);
+  assert.ok(!/[ąćęłńóśźżĄĆĘŁŃÓŚŹŻ]/.test(linie[0]), 'przypomnienie ma byc w ASCII');
+  // Zgoda cofnieta, zgoda bez daty, brak zgody i data z przyszlosci: zero znakow.
+  assert.deepEqual(tryb.przypomnienieZgodyReport({ tak: false, data: '2026-01-01', progDni: 30 }, '2026-09-15'), []);
+  assert.deepEqual(tryb.przypomnienieZgodyReport(zg(null), '2026-09-15'), []);
+  assert.deepEqual(tryb.przypomnienieZgodyReport(null, '2026-09-15'), []);
+  assert.deepEqual(tryb.przypomnienieZgodyReport(zg('2026-12-01'), '2026-09-15'), []);
+});

@@ -83,9 +83,23 @@ kontrole przeszły; pełna świeża sesja Codexa pozostaje NOT TESTED po błędz
 - **E7 ma trzeci adapter lokalnie.** Natywny manifest Codeksa 1.10.0, repo-marketplace, 14
   wygenerowanych katalogów skilli, router `AGENTS.md`, integracja D-86 i trzy hooki przechodzą
   lokalną walidację; instalacja w tymczasowym marketplace zakończyła się widoczną wersją 1.10.0.
-- W folderze, który nie jest projektem RelAI, plugin jest całkowicie niewidoczny.
+- W folderze, który nie jest projektem RelAI, **hooki** pluginu są całkowicie niewidome: pierwszy
+  warunek każdego z nich to marker `Wersja RelAI`. **Skill `relai-core` widzi każdy folder** — plugin
+  instaluje się w zakresie użytkownika, a opis skilla każe mu sprawdzić folder przy pierwszym
+  prompcie sesji i zaproponować strukturę, gdy jej nie ma (zgłoszenie testera, 2026-09-15). Od 2.3.0
+  propozycję można wyciszyć raz na maszynę wierszem `Propozycja RelAI poza projektem`; tryb gościa
+  (D-21) nadal zamyka temat w jednym folderze.
 
 ## Nad czym pracujemy teraz
+
+- **2.3.0 — dwie bramki zgody, w repo, NIEWYDANE** (2026-09-15, zgłoszenie testera → P-015).
+  Proaktywne zachowania RelAI pytają o zgodę, zamiast jej zakładać: (1) tryb ciągły optymalizatora
+  pyta raz na sesję — ta sesja / nie pytaj więcej / nie — bo włączony wiersz `Tryb ciągły` znaczy
+  „tryb dostępny", a nie „tryb działa"; zgoda sesyjna wiąże się z identyfikatorem sesji, trwała
+  mieszka w wierszu `Zgoda na optymalizator` z przypomnieniem co 30 dni; (2) wiersz `Propozycja
+  RelAI poza projektem` wycisza propozycję zakładania struktury **we wszystkich** folderach bez
+  markera naraz. Przełączniki: `/relai-prompt on|off [--globalnie]`. Testy 50/50, dowód na nośniku
+  9/9. **Do zrobienia przed publikacją:** commit, tag i `plugin update` po stronie użytkowników.
 
 - **OPTYMALIZATOR_PROMPTOW — ZREALIZOWANY 2026-09-15** (5/5, wydanie **2.2.0**):
   [archiwum planu](archiwum/plany/OPTYMALIZATOR_PROMPTOW/STATUS.md). Warstwa zamieniająca podyktowane

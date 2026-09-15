@@ -1,6 +1,6 @@
 # KOMENDY — RelAI
 
-RelAI 2.2.0
+RelAI 2.3.0
 
 Nic z tej listy nie jest obowiązkowe. RelAI działa w zwykłej rozmowie — piszesz normalnie,
 a struktura projektu nadąża. Komendy są skrótem do rzadszych operacji.
@@ -83,6 +83,16 @@ z podpowiedzi; skrócona forma działa tam, gdzie podpowiadacz ją rozwinie.
   Wyłącznikiem jest ten jeden wiersz; wartość spoza listy i brak wiersza znaczą wyłączony i ciszę.
   Tryb działa w **Claude Code**; w Cursorze i Codeksie komenda `/relai-prompt` działa normalnie,
   a o braku trybu pada jedno zdanie przy pierwszym wywołaniu w sesji.
+  **Od 2.3.0 włączony wiersz nie wystarcza:** pierwszy prompt merytoryczny sesji wraca pytaniem
+  o zgodę — **ta sesja** / **nie pytaj więcej** / **nie**. Odmowa wycisza tryb do końca sesji,
+  zgoda „nie pytaj więcej" idzie do ustawień globalnych i przypomina o sobie raz na 30 dni.
+  Przełączniki: `/relai-prompt on`, `/relai-prompt off` (projekt) oraz `/relai-prompt off --globalnie`
+  (cofnięcie zgody na stałe).
+- **RelAI nie proponuje się w cudzym folderze dwa razy.** Plugin jest zainstalowany dla całego
+  konta, więc widzi każdy katalog otwarty w Claude Code albo Codeksie i w każdym zapyta raz, czy
+  założyć strukturę. Odmowa zamyka temat w tym folderze (tryb gościa), a od 2.3.0 pytanie
+  towarzyszące zamyka go **na całej maszynie** — wiersz `Propozycja RelAI poza projektem`
+  w ustawieniach globalnych. Projektów z markerem RelAI to nie dotyczy.
 - **Pułapki mają własny dokument.** Rzecz, która raz zaskoczyła i zaskoczy znowu — nieoczywiste
   zachowanie narzędzia, kolejność kroków, wymóg środowiska — trafia do `docs/PULAPKI.md`. Ten plik
   czyta się **na żądanie**, a nie przy starcie sesji, więc nie kosztuje ani jednego tokena, dopóki

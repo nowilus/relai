@@ -15,6 +15,10 @@
 // (brak wiersza i wartosc spoza listy licza sie jako wylaczony), prompt zlapany
 // przez filtr pomijania.
 //
+// Piaty warunek od 2.3.0: BRAMKA ZGODY. Wlaczony przelacznik mowi, ze tryb jest
+// dostepny, a nie ze ma dzialac bez pytania. Stan bramki rozstrzyga rdzen; tutaj
+// zostaje wybor tresci: regula trybu, tresc bramki albo cisza.
+//
 // Reguly niesie rdzen (core/process/prompt-mode.js). Tutaj zostaje wylacznie to,
 // co jest wlasciwoscia Claude Code — protokol zdarzenia i ksztalt wyjscia.
 
@@ -42,10 +46,17 @@ function main(input) {
   if (tryb.trybCiaglyProjektu(cwd) !== true) return process.exit(0);
   if (tryb.pomija(input.prompt)) return process.exit(0);
 
+  const globalne = core.globalSettingsText('.claude/relai');
+  const stan = tryb.stanBramki({
+    sesja: tryb.zgodaSesji(cwd, input.session_id),
+    globalna: tryb.zgodaGlobalna(globalne ? globalne.text : ''),
+  });
+  if (stan === 'cisza') return process.exit(0);
+
   process.stdout.write(JSON.stringify({
     hookSpecificOutput: {
       hookEventName: 'UserPromptSubmit',
-      additionalContext: tryb.regula(),
+      additionalContext: stan === 'pytaj' ? tryb.regulaBramki(input.session_id) : tryb.regula(),
     },
   }));
   process.exit(0);
