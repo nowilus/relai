@@ -96,7 +96,7 @@ pozostałych narzędzi nie potrzebujesz.
 | Co instalujesz | plugin z marketplace'u | adapter z repozytorium | plugin z repo-marketplace'u |
 | Zasięg instalacji | **raz na maszynę**, działa w każdym folderze | **raz na projekt**, pliki lądują w projekcie | plugin z repo-marketplace'u, raz na maszynę |
 | Potrzebne repozytorium RelAI na dysku | nie | **tak** — hooki wskazują jego ścieżkę | marketplace lokalny lub repozytorium |
-| Aktualizacja | `claude plugin update` + restart | `git pull` + ponowny instalator w projektach | `codex plugin marketplace upgrade` + reinstall |
+| Aktualizacja | `claude plugin update relai@relai` + restart — [instrukcja](#aktualizacja) | `git pull` w repo RelAI + ponowny instalator w projektach — [instrukcja](#aktualizacja) | `codex plugin marketplace upgrade` + reinstall — [instrukcja](#aktualizacja) |
 
 ### A. Claude Code — plugin
 
@@ -129,8 +129,8 @@ wraca do tematu w tym folderze.
 > maszynie. Adapter Cursora działa inaczej: instalujesz go per projekt, więc nie widzi niczego poza
 > nim.
 
-> **Po każdej aktualizacji pluginu zrestartuj aplikację.** Sesja uruchomiona przed aktualizacją
-> nadal wykonuje starą wersję — to nie usterka, tylko sposób ładowania pluginów.
+> **Aktualizacja pluginu:** pełna instrukcja krok po kroku jest w sekcji
+> [„Aktualizacja"](#aktualizacja) niżej — łącznie z obowiązkowym restartem aplikacji.
 
 ### B. Cursor — adapter (bez Claude Code)
 
@@ -191,8 +191,8 @@ dokumenty aktualizują się w ramach pracy.
 **Kolejny projekt:** powtarzasz wyłącznie krok 4 ze ścieżką nowego folderu. Repozytorium RelAI
 klonujesz raz.
 
-**Aktualizacja:** `git pull` w katalogu RelAI, a potem ponowne uruchomienie instalatora w każdym
-projekcie, który ma adapter (instalacja jest idempotentna — nie mnoży wpisów).
+**Aktualizacja:** pełna instrukcja krok po kroku jest w sekcji [„Aktualizacja"](#aktualizacja)
+niżej. Instalator jest idempotentny — ponowne uruchomienie nie mnoży wpisów.
 
 **Deinstalacja:** `node C:/Narzedzia/relai/adapters/cursor/install.js <projekt> --uninstall` —
 usuwa dokładnie to, co położył instalator. `docs/`, `CLAUDE.md` i cache specyfikacji zostają,
@@ -234,6 +234,103 @@ Hook startu dostarcza kontekst wyłącznie projektom z markerem RelAI, a `PreToo
 niezależnie od reguły modelowej. Szczegóły dowodów i ograniczeń adaptera są w
 [`docs/PRZENOSNOSC.md`](docs/PRZENOSNOSC.md). Adapter jest wydany i stabilny od 2.0.0; pełna macierz
 cross-tool pozostaje częściowo niezmierzona — co dokładnie, mówi `docs/STATE.md`.
+
+## Aktualizacja
+
+Wydaliśmy nową wersję i chcesz ją mieć u siebie? Znajdź swoje narzędzie niżej — kroki są takie
+same niezależnie od tego, jaką wersję masz teraz, i możesz je bezpiecznie powtórzyć, jeśli coś nie
+zadziała za pierwszym razem.
+
+### A. Claude Code
+
+**Gdzie wkleić:** dowolny terminal na Twoim komputerze — na Windows to **PowerShell** albo
+**Wiersz poleceń (cmd)**, na macOS/Linux **Terminal**. Komenda `claude` działa identycznie
+w każdym z nich, więc nie musisz się zastanawiać, który akurat masz otwarty.
+
+**1.** Otwórz terminal i wklej:
+
+```bash
+claude plugin update relai@relai
+```
+
+(Samo `relai` bez `@relai` nie zadziała — `@relai` to nazwa źródła, z którego plugin pochodzi;
+bez niej komenda nic nie robi i nie zgłasza błędu.)
+
+**2.** Zamknij **całą** aplikację Claude Code i otwórz ją ponownie. Ten krok jest obowiązkowy —
+sesja, która już działa, nie widzi nowej wersji, dopóki jej nie zrestartujesz.
+
+**3.** Sprawdź, czy się udało:
+
+```bash
+claude plugin list
+```
+
+Powinieneś zobaczyć przy `relai` numer najnowszej wersji. Nie wiesz, jaki numer jest aktualny? Zapytaj
+osobę, która Cię do testów zaprosiła.
+
+**Alternatywa bez terminala** — wewnątrz sesji Claude Code (czyli w oknie czatu, gdzie normalnie
+piszesz do RelAI) wklej:
+
+```text
+/plugin update relai@relai
+```
+
+To ta sama operacja co komenda terminalowa z kroku 1, tylko wykonana z poziomu rozmowy. Krok 2
+(restart aplikacji) nadal obowiązuje.
+
+### B. Cursor
+
+**Gdzie wkleić:** terminal ustawiony w katalogu, w którym sklonowałeś RelAI przy instalacji
+(domyślnie `C:/Narzedzia/relai` na Windows albo `~/narzedzia/relai` na macOS/Linux). Może to być
+terminal wbudowany w Cursora (skrót `` Ctrl+` ``) albo zwykły terminal systemowy — działają tak samo.
+
+**1.** Pobierz nową wersję repozytorium:
+
+```bash
+cd C:/Narzedzia/relai
+git pull
+```
+
+(macOS/Linux: `cd ~/narzedzia/relai && git pull`.)
+
+**2.** Dla **każdego** projektu, w którym masz adapter RelAI, uruchom ponownie instalator —
+podmień ścieżkę na swój projekt:
+
+```bash
+node C:/Narzedzia/relai/adapters/cursor/install.js C:/Users/<Ty>/Desktop/MojProjekt
+```
+
+Instalator jest bezpieczny do wielokrotnego uruchamiania — nadpisuje stare pliki nowymi, nie
+duplikuje wpisów.
+
+**3.** Zrestartuj Cursora w każdym z tych projektów.
+
+### C. Codex
+
+**Gdzie wkleić:** terminal systemowy (PowerShell/cmd na Windows, Terminal na macOS/Linux) — Codex
+nie ma odpowiednika tej operacji w czacie.
+
+**1.** Pobierz nową wersję repozytorium (ta sama ścieżka co przy instalacji):
+
+```bash
+cd C:/Narzedzia/relai
+git pull
+```
+
+**2.** Odśwież plugin z marketplace'u:
+
+```bash
+codex plugin marketplace upgrade
+codex plugin add relai@relai
+```
+
+**3.** Dla każdego projektu z adapterem Codex uruchom ponownie instalator:
+
+```bash
+node C:/Narzedzia/relai/adapters/codex/install.js C:/Users/<Ty>/Desktop/MojProjekt
+```
+
+**4.** Zrestartuj Codex.
 
 ## Pierwsze pięć minut
 
