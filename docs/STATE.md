@@ -5,8 +5,8 @@ Stan na: 2026-09-24 (plan PROWADZENIE_END_TO_END zamknięty; wydanie 2.7.0 w rep
 ## Gdzie jesteśmy
 
 RelAI ma w repozytorium **2.7.0** — jedno wydanie po etapach E5–E7 planu PROWADZENIE_END_TO_END,
-który zamknął się tego samego dnia (7/7 etapów). Publicznie nadal 2.6.0, dopóki tag i release nie
-dostaną zgody człowieka. Plugin działa w trzech narzędziach — Claude Code, Cursorze i Codeksie — na
+który zamknął się tego samego dnia (7/7 etapów); wydanie jest publiczne (tag `v2.7.0`, release
+Latest), a w aplikacji działa po restarcie. Plugin działa w trzech narzędziach — Claude Code, Cursorze i Codeksie — na
 jednym rdzeniu procesu, z czternastoma komendami. Plan dał lżejszy start sesji, skille czytane
 na żądanie, prompty skrojone pod model, README od pierwszego kroku, procedury dla usterki i pierwszego
 wdrożenia, a na koniec pilnowanie jakości: „gotowe" przychodzi z wynikiem testów, niedomknięty rytuał
@@ -44,12 +44,12 @@ Opinii spoza projektu nadal nie ma — pilotaż z użytkownikami zamknięto prze
 
 ## Nad czym pracujemy teraz
 
-- Nic w toku. Wydanie 2.7.0 czeka na zgodę na tag, push i release.
+- Nic w toku.
 
 ## Co dalej
 
-- **Publikacja 2.7.0** (P-005): tag `v2.7.0` → push → release → `marketplace update` →
-  `plugin update relai@relai` → restart aplikacji; wersję potwierdza treść plików z cache'u.
+- **Restart aplikacji desktopowej**, żeby sesje ładowały 2.7.0 (P-005) — instalacja i cache
+  `relai/relai/2.7.0` już są, sumy plików zgodne z repo.
 - **Bramki świadomie otwarte przy zamknięciu planu** (po restarcie pod 2.7.0, w sesji
   interaktywnej): pierwszy prompt merytoryczny z trybem ciągłym, bez zgody i bez modelu, daje
   **jedno** okno pytań (Aneks F); zakończone zadanie w tle nie dostaje pytania o zgodę (Aneks H).
@@ -81,8 +81,7 @@ Opinii spoza projektu nadal nie ma — pilotaż z użytkownikami zamknięto prze
 
 ### Wersja i instalacja
 
-Repozytorium: **2.7.0**; publicznie **2.6.0** (tag `v2.6.0`, release Latest) do czasu publikacji
-2.7.0. Źródło instalacji: własny marketplace w tym repozytorium, scope `user`. Wydanie potwierdzasz
+Repozytorium i publicznie: **2.7.0** (tag `v2.7.0`, release Latest, 2026-09-24). Źródło instalacji: własny marketplace w tym repozytorium, scope `user`. Wydanie potwierdzasz
 treścią plików z cache'u, nie komunikatem CLI (P-005): `claude plugin validate` → tag → push →
 release → `marketplace update` → `plugin update relai@relai` → suma plików po CRLF → LF. Walidator
 `core/tools/validate-adapters.js` sprawdza 7 źródeł wersji, w tym baner README i tę sekcję

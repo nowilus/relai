@@ -1695,6 +1695,9 @@ i **K5** (lista Codeksa) zostają — K3 jako nowe otwarte ryzyko w tabeli, K5 j
 **Do zrobienia przez człowieka:**
 
 - Zgoda na tag `v2.7.0`, push i release (P-005), potem `plugin update` i restart aplikacji.
+  *(rozstrzygnięte 2026-09-24 — Łukasz: „tak"; commit `559d5df`, tag `v2.7.0`, release Latest,
+  `plugin update` 2.6.0 → 2.7.0, cache `relai/relai/2.7.0` sprawdzony sumami czterech plików;
+  zostaje restart aplikacji)*
 - Po restarcie pod 2.7.0: bramki Aneksów F i H w sesji interaktywnej.
 - Odświeżenie listy modeli Codeksa w sesji Codeksa (`/relai-models`).
 
