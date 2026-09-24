@@ -30,10 +30,11 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
    wyłącznie wtedy, gdy zmiana z definicji ją zmniejsza. **Kryterium sukcesu sprawdzasz na
    materiale, zanim zaczniesz pracę** — policz na wskazanym pliku liczbę, którą ma osiągnąć,
    i porównaj ją z tym, co mechanizm w ogóle kontroluje; kryterium arytmetycznie nieosiągalne
-   wraca do człowieka jako aneks, a nie kończy etap jako niedowieziony punkt. (L-0017, L-0018,
-   L-0040, L-0051, L-0052, L-0063, L-0069, L-0082)
-5. **Instrument pomiarowy sam bywa źródłem fałszu:** wyrażenia regularne trzymaj w pliku, nie
-   w `node -e`; scenariusz „konfiguracji nie ma" mierz z podstawionym katalogiem domowym; dokładaj
+   wraca do człowieka jako aneks, a nie kończy etap jako niedowieziony punkt. **Autor promptu
+   etapu robi to samo przy pisaniu kryterium** — na materiale i wobec reguł specyfikacji, którą
+   etap wykona. (L-0017, L-0018, L-0040, L-0051, L-0052, L-0063, L-0069, L-0082, L-0115)
+5. **Instrument pomiarowy sam bywa źródłem fałszu:** wyrażenia regularne trzymaj w pliku zapisanym
+   narzędziem zapisu, nie w `node -e` ani w heredoku (L-0116); scenariusz „konfiguracji nie ma" mierz z podstawionym katalogiem domowym; dokładaj
    przypadek, który **musi** trafić. Zero trafień przy niepustych zbiorach to defekt instrumentu,
    dopóki nie udowodnisz inaczej — porównanie identyfikatora wygenerowanego z zastanym ma obok
    siebie kontrolę „ile zastanych nie znalazło pary". Dzieląc wiersz po separatorze, który da się
@@ -645,3 +646,30 @@ Treść jest kopią bajt w bajt — zmieniony został wyłącznie status w linii
   decyzja człowieka z 2026-09-24: RelAI celuje w modele flagowe.
 - **Źródło:** E1 planu PROWADZENIE_END_TO_END (M02+M09, K1); wydanie 2.3.1. Destylat: zasada 9
   przepisana.
+
+### L-0115 — Kryterium w prompcie etapu przeczyło regułom, które etap wykonuje · 2026-09-24 · AKTYWNA
+
+- **Trigger:** trzy punkty weryfikacji E2 okazały się nieosiągalne w brzmieniu promptu: sekcja ryzyk
+  „≤ ~400 B na wiersz" wymagała kompresji komórek ryzyk `OTWARTE`, której specyfikacja zabrania;
+  dziennik „≤ 90 KB" był osiągalny wyłącznie przy rotacji ryzyk **przed** dziennikiem (dolna granica
+  104,5 KB); „najstarszy żywy wpis późniejszy niż najnowszy zarchiwizowany" przeczył regule
+  ciągłości zakresu, bo 2026-09-14 było pięć wpisów, a trzy z nich były nietykalne.
+- **Przyczyna:** autor promptu (rytuał „Na koniec" E1) spisał kryteria z intencji, nie z pomiaru
+  materiału i nie z reguł `SPEC_ARCHIWUM.md` / `SPEC_DZIENNIK.md`.
+- **Zasada:** kryterium liczbowe w prompcie etapu sprawdzasz **przy jego pisaniu** na materiale
+  i wobec reguł specyfikacji, którą etap będzie wykonywał; wykonawca sprawdza je ponownie przed
+  pracą, a rozjazd idzie do człowieka jednym pytaniem, nie do niedowiezionego punktu.
+- **Źródło:** E2 planu PROWADZENIE_END_TO_END — dwa pytania do człowieka (kompresja ręczna za
+  zgodą, brzmienie „nie wcześniejszy"). Destylat: zasada 4 uzupełniona.
+
+### L-0116 — Heredoc w powłoce narzędzia gubi backslashe także w cudzysłowie · 2026-09-24 · AKTYWNA
+
+- **Trigger:** skrypt z wyrażeniem `(?<!\\)\|` zapisany przez `cat <<'EOF'` trafił na dysk jako
+  `(?<!\)\|` i wywalił się na `Invalid regular expression`; ten sam kłopot zamienił `'\n'` w kodzie
+  wstawianym przez Pythona w dosłowny koniec linii w środku literału JS.
+- **Przyczyna:** warstwa, przez którą narzędzie przekazuje komendę powłoce, zjada `\` zanim heredoc
+  z cytowanym ogranicznikiem ma szansę go chronić.
+- **Zasada:** plik z wyrażeniami regularnymi albo sekwencjami ucieczki powstaje narzędziem zapisu
+  pliku (Write/Edit), nigdy heredokiem ani `node -e`/`python -c`; po zapisie sprawdzasz linię
+  `cat -A`, zanim ją uruchomisz.
+- **Źródło:** E2 planu PROWADZENIE_END_TO_END. Destylat: zasada 5 uzupełniona.

@@ -173,10 +173,15 @@ jedynym źródłem prawdy o wartościach domyślnych.
 
 ## Wiersz `Budżet startu sesji` (od 1.6.0)
 
-Rytuał startu sesji czyta sześć pozycji: `CLAUDE.md`, `docs/STATE.md`, sekcję „Stan otwartych
-ryzyk" **plus ostatni wpis** dziennika, sekcję „Zasady aktywne" rejestru lekcji, ten plik oraz
-`STATUS.md` aktywnego planu. Ten wiersz mówi, ile ta szóstka **wolno**, żeby ważyła, i jest
-**wyłącznikiem** pomiaru. Powstaje przy inicjalizacji projektu oraz przy `/relai-update` projektu
+Rytuał startu sesji czyta sześć stałych pozycji: `CLAUDE.md`, `docs/STATE.md`, sekcję „Stan
+otwartych ryzyk" **plus ostatni wpis** dziennika, sekcję „Zasady aktywne" rejestru lekcji, ten plik
+oraz `STATUS.md` aktywnego planu. **Od E2 planu PROWADZENIE_END_TO_END suma liczy też dwie rzeczy,
+które start realnie płaci:** skill wymuszany przez adapter na pierwszym prompcie (w Claude Code
+`relai-core`; ścieżkę podaje adapter) oraz każdy plik linkowany z **numerowanej listy** sekcji
+„Rytuał startu sesji" w `CLAUDE.md` projektu, którego sześć stałych pozycji jeszcze nie mierzy.
+Te dwie pozycje nie mają progów cząstkowych — raport wymienia je w linii „W sumie", która mówi, co
+suma zawiera. Ten wiersz mówi, ile to wszystko **wolno**, żeby ważyło, i jest **wyłącznikiem**
+pomiaru. Powstaje przy inicjalizacji projektu oraz przy `/relai-update` projektu
 z wcześniejszej wersji.
 
 Pomiar wykonuje hook startu sesji, nie skill — ma działać przy każdym modelu i bez wyzwalania
@@ -188,13 +193,13 @@ Format komórki `Decyzja` jest sztywny, bo jest czytana maszynowo (L-0025) — k
 komórki, człony rozdzielone `·`:
 
 ```
-włączony · start 80 KB · CLAUDE 10 KB · STATE 12 KB · ryzyka 12 KB · zasady 30 KB · ustawienia 6 KB · status 10 KB
+włączony · start 140 KB · CLAUDE 10 KB · STATE 12 KB · ryzyka 12 KB · zasady 30 KB · ustawienia 6 KB · status 10 KB
 ```
 
 | Człon | Dozwolone wartości | Znaczenie |
 |---|---|---|
 | przełącznik (**pierwszy, obowiązkowy**) | `włączony` / `wyłączony` (EN: `on` / `off`) | `wyłączony` → nie liczysz nic i nie mówisz nic |
-| `start <liczba> KB` | liczba całkowita | budżet całej warstwy startowej — **domyślnie 80** |
+| `start <liczba> KB` | liczba całkowita | budżet całej warstwy startowej — **domyślnie 140** (do 2.3.1: 80; podniesione, gdy suma zaczęła liczyć skill `relai-core`, 65,6 KB — decyzja człowieka 2026-09-24, do ponownego pomiaru po podziale skilla w E3) |
 | `CLAUDE <liczba> KB` | liczba całkowita | próg cząstkowy `CLAUDE.md` — **domyślnie 10** |
 | `STATE <liczba> KB` | liczba całkowita | próg cząstkowy `docs/STATE.md` — **domyślnie 12** |
 | `ryzyka <liczba> KB` (EN: `risks`) | liczba całkowita | próg sekcji ryzyk wraz z ostatnim wpisem — **domyślnie 12** |
@@ -204,7 +209,7 @@ włączony · start 80 KB · CLAUDE 10 KB · STATE 12 KB · ryzyka 12 KB · zasa
 
 To jest **jedyne źródło prawdy o domyślnym budżecie** — inne specyfikacje nie powtarzają tych
 liczb. Człon pominięty znaczy „wartość domyślna": projekt, który niczego nie stroi, ma w komórce
-samo `włączony`. Progi cząstkowe **nie sumują się do budżetu** i nie mają się sumować — 80 KB jest
+samo `włączony`. Progi cząstkowe **nie sumują się do budżetu** i nie mają się sumować — 140 KB jest
 sufitem całości, a progi cząstkowe wskazują winowajcę. Raport wyzwala **wyłącznie** przekroczenie
 sumy: pozycja grubsza od swojego progu w projekcie mieszczącym się w budżecie nie odzywa się
 w ogóle, bo inaczej cisza przestałaby cokolwiek znaczyć.
@@ -572,7 +577,7 @@ zmienić — osobny plik byłby drugim miejscem do zapomnienia.
 
 | Próg | Domyślnie | Gdzie mieszka wartość | Kto go czyta | Po przekroczeniu | Adres egzekwowania |
 |---|---|---|---|---|---|
-| suma warstwy startowej | 80 KB | wiersz `Budżet startu sesji` (ta specyfikacja) | hook startu sesji (`startCost`) | raport `[RelAI budzet startu]`, najwyżej sześć linii | **jest** — hook startu |
+| suma warstwy startowej | 140 KB (skill i pliki rytuału w sumie) | wiersz `Budżet startu sesji` (ta specyfikacja) | hook startu sesji (`startCost`) | raport `[RelAI budzet startu]`, najwyżej sześć linii | **jest** — hook startu |
 | `CLAUDE.md` | 10 KB | wiersz `Budżet startu sesji`; ten sam limit opisuje `SPEC_CLAUDE_MD.md` | hook startu sesji | wymieniony w raporcie jako pozycja ponad progiem cząstkowym | **jest** — hook startu (tylko wewnątrz raportu) |
 | `docs/STATE.md` — waga | 12 KB | wiersz `Budżet startu sesji` | hook startu sesji | jw. | **jest** — hook startu (tylko wewnątrz raportu) |
 | sekcja „Stan otwartych ryzyk" + „Czeka na człowieka" + ostatni wpis | 12 KB | wiersz `Budżet startu sesji` (człon `ryzyka`) | hook startu sesji | jw. | **jest** — hook startu (tylko wewnątrz raportu) |
@@ -590,7 +595,7 @@ zmienić — osobny plik byłby drugim miejscem do zapomnienia.
 | suma artefaktów roboczych (katalog roboczy + pliki tymczasowe) | 100 MB | wiersz `Artefakty robocze` (ta specyfikacja) | hook startu sesji (`artefaktyRobocze`) **i krok 2a rytuału zamknięcia** | jedna linia `[RelAI artefakty robocze]` z propozycją `/relai-clean`; w kroku 2a pytanie o grupy i kasowanie po „tak" | **jest** — hook startu, własny blok i własny wyzwalacz; drugi adres to krok 2a rytuału zamknięcia |
 | wiek listy modeli narzędzia (`list-date` w `.claude/relai/MODELE-<narzędzie>.md`) | 7 dni | wiersz `Lista modeli` (ta specyfikacja) | hook startu sesji (`wiekListyModeli`) | jedna linia `[RelAI lista modeli]` z propozycją `/relai-models`; nigdy połączenie sieciowe | **jest** — hook startu, własny blok i własny wyzwalacz |
 | propozycja kompresji lekcji | 25 wpisów `AKTYWNA`, 30 KB pliku albo kwartał | `SPEC_LEKCJE.md`, sekcja „Kompresja" | model przy rytuale zamknięcia | propozycja kompresji tematycznej, nigdy wykonanie po cichu | **brak automatu** — propozycja modelu |
-| cel rotacji (nie próg) | 60% progu, liczone na części rotowalnej | `SPEC_ARCHIWUM.md` | rotacja | ile pozycji zabrać w jednym przebiegu | nie dotyczy — to cel, nie warunek odezwania się |
+| cel rotacji (nie próg) | 60% progu, liczone na wadze całkowitej żywego pliku (D-88) | `SPEC_ARCHIWUM.md` | rotacja | ile pozycji zabrać w jednym przebiegu | nie dotyczy — to cel, nie warunek odezwania się |
 
 **Czego katalog nie obejmuje, świadomie:** wielkości **nietykalności** (dziesięć najnowszych wpisów,
 dwadzieścia najnowszych lekcji) — nic ich nie „przekracza", więc nie są progiem, tylko dolną

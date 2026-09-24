@@ -16,7 +16,9 @@ description: >
 
 # relai-core — struktura projektu, pamięć i rytuały sesji
 
-Aktualny stan dystrybucyjny: RelAI 2.3.1; wcześniejsze akapity wersji opisują historię zmian.
+Aktualny stan dystrybucyjny: RelAI 2.4.0; wcześniejsze akapity wersji opisują historię zmian.
+
+Wersja 2.4.0 (lżejszy start sesji, etap E2 planu PROWADZENIE_END_TO_END: rotacja zabiera najstarsze pozycje, aż **cały żywy plik** zejdzie poniżej 60% progu (D-88), a ryzyka rotują przed dziennikiem; budżet startu liczy także skill wymuszany na pierwszym prompcie i pliki z numerowanej listy rytuału `CLAUDE.md`, a raport mówi w linii „W sumie", co zawiera; domyślny budżet 140 KB; hook wywołania skilla nie powtarza ustawień globalnych podanych już na starcie sesji).
 
 Wersja 2.3.1 (poprawki spójności, etap E1 planu PROWADZENIE_END_TO_END: opisy skilli `relai-core` i `relai-planning` mieszczą się w limicie 1 024 znaków i mówią w trzeciej osobie, bez nacisku `MUST BE USED`; recenzent załogi zgłasza każde znalezisko z wagą i pewnością, a filtruje orkiestrator; zgoda sesyjna na tryb ciągły mieszka w osobnym pliku każdej sesji, `.claude/relai/zgoda-promptu/<id>.json`, więc dwie sesje naraz nie wypierają sobie decyzji — stary plik `zgoda-promptu.json` z jednym rekordem czytany dalej; `/relai-prompt` pozwala człowiekowi wybrać model optymalizatora; lista modeli Claude Code z Opus 5.5; procedura tego skilla bez zmian).
 
@@ -635,8 +637,10 @@ z progiem**, w tej kolejności: **waga całkowita** (cały plik, końce linii do
 rotowalna** + **dolna granica osiągalna**. Dolna granica dziennika to sekcje, które nie rotują
 nigdy („Stan otwartych ryzyk", „Czeka na człowieka", nagłówki, linie-odsyłacze), dziesięć
 najnowszych wpisów i wpisy bez daty w nagłówku. **Wyzwalacz zostaje na wadze całkowitej** — poniżej
-progu cisza. **Cel przenosi się na część rotowalną**: bierzesz najstarsze pozycje, aż **ona**
-zejdzie poniżej 60% progu, bo cel postawiony na całym pliku bywa nieosiągalny z definicji.
+progu cisza. **Cel stoi na wadze całkowitej (D-88)**: bierzesz najstarsze pozycje, aż **cały żywy
+plik** zejdzie poniżej 60% progu; ciąg kończy się wcześniej tylko na pozycji nietykalnej albo po
+wyczerpaniu części rotowalnej — trzy wagi mówią, ile da się wziąć, nie kiedy przestać. Gdy rotują
+i ryzyka, i dziennik, **ryzyka idą pierwsze**: ich sekcja należy do dolnej granicy dziennika.
 
 **Powyżej progu, gdy rotacja nie zabrała wszystkiego, co mogła → komunikat zablokowanej rotacji**
 w podsumowaniu sesji. Cztery części, zawsze w tej kolejności:
@@ -880,7 +884,7 @@ Zasady generacji:
   Dla projektu angielskiego: `docs/STATE.md`, `docs/JOURNAL.md`, `docs/LESSONS.md`,
   `docs/DECISIONS.md`, `docs/SETTINGS.md`, `docs/COMMANDS.md`. Konwencja stała: CAPS_SNAKE, bez dat
   i numerów wersji w nazwie.
-- `docs/USTAWIENIA.md` **musi** zawierać linię `Wersja RelAI: 2.3.1` — to marker, po którym RelAI
+- `docs/USTAWIENIA.md` **musi** zawierać linię `Wersja RelAI: 2.4.0` — to marker, po którym RelAI
   rozpoznaje projekt i po którym przyszły `/relai-update` policzy różnicę wersji.
 - `CLAUDE.md` **musi** zawierać sekcję `## Reguły profilu (<wybrany profil>)` zaraz po „Regułach
   procesu" — 3–6 punktów wg `SPEC_PROFILE.md`. To jedyna warstwa reguł profilu działająca bez

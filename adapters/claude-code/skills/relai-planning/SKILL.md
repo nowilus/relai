@@ -16,7 +16,7 @@ description: >
 
 # relai-planning — plany, etapy i ich zamrażanie
 
-Aktualny stan dystrybucyjny: RelAI 2.3.1; procedura tego skilla pochodzi z wersji 1.8.0, a akapit niżej opisuje jej zakres.
+Aktualny stan dystrybucyjny: RelAI 2.4.0; procedura tego skilla pochodzi z wersji 1.8.0, a akapit niżej opisuje jej zakres.
 
 Wersja procedury 1.8.0 (plan SPRZATANIE_ARTEFAKTOW — katalog roboczy etapu nazwany z góry, krok 1a rytuału „Na koniec"). Zakres tej wersji: **wykrycie intencji planowania + rozróżnienie
 PLAN/MINIPLAN + pytanie startowe + generacja planu w Markdown albo w HTML + `STATUS.md` +

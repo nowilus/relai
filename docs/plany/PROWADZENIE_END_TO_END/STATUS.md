@@ -14,7 +14,7 @@ Szacunek: 7 etapów, 10–13 sesji (SZACUNEK). Poprzednik: [PIERWSI_UZYTKOWNICY]
 | Etap | Nazwa | Status | Prompt | Uwagi |
 |---|---|---|---|---|
 | E1 | Szybkie poprawki i wydanie 2.3.1 | ZREALIZOWANY 2026-09-24 | [PROMPT_ETAP_1.md](PROMPT_ETAP_1.md) | `/effort medium`; 9 pozycji rejestru; wydanie 2.3.1 (tag `v2.3.1` na commicie zamykającym E1) |
-| E2 | Lżejszy start sesji | GOTOWY DO STARTU | [PROMPT_ETAP_2.md](PROMPT_ETAP_2.md) | `/effort high`; 6 pozycji; rotacja wg wagi całkowitej (decyzja 2026-09-24) |
+| E2 | Lżejszy start sesji | W TOKU | [PROMPT_ETAP_2.md](PROMPT_ETAP_2.md) | `/effort high`; 6 pozycji; rotacja wg wagi całkowitej (decyzja 2026-09-24) |
 | E3 | Skille w progresywnym ujawnianiu | OCZEKUJE | — | `/effort high`; 4 pozycje; pomiar wyzwalania przed i po na trzech modelach |
 | E4 | Zasady skrojone pod model | OCZEKUJE | — | `/effort high`; 13 pozycji; nakładka openai zależy od odświeżenia listy Codeksa |
 | E5 | Pierwsze 30 minut | OCZEKUJE | — | `/effort medium`; 8 pozycji; w tym render demo z PIERWSI_UZYTKOWNICY |
@@ -32,5 +32,7 @@ Szacunek: 7 etapów, 10–13 sesji (SZACUNEK). Poprzednik: [PIERWSI_UZYTKOWNICY]
 - 2026-09-24 — plan utworzony ze scalenia trzech raportów sesji po dwóch rundach wywiadu (jeden plan, wydanie po etapie, uczciwe minimum dla Cursora i Codeksa, rotacja wg wagi całkowitej, nowe procedury jako ostatnie etapy); PIERWSI_UZYTKOWNICY zamknięty tego samego dnia.
 - 2026-09-24 — plan zaakceptowany i zamrożony bez poprawek (D-33); zamrożona D-88 (cel rotacji na wadze całkowitej); PROMPT_ETAP_1.md wygenerowany, E1 gotowy do startu.
 - 2026-09-24 — E1 zrealizowany: 9/9 pozycji rejestru, 11/11 punktów weryfikacji, wydanie 2.3.1; pomiar wyzwalania bez spadku na opus i sonnet (haiku poza kryterium — decyzja człowieka); E2 gotowy do startu.
+- 2026-09-24 — E2 rozpoczęty
+- 2026-09-24 — Aneks A: zakres E2 poszerzony o zdania z celem rotacji w `SPEC_USTAWIENIA.md` i w `relai-core/SKILL.md` obu adapterów (grep po starym brzmieniu trafił poza zakres; decyzja człowieka).
 
 RelAI (Opus 5.5) + Lukasz

@@ -590,7 +590,7 @@ const KB = 1024;
 // Progi domyslne w KB. Jedyne zrodlo prawdy o tych wartosciach to
 // core/templates/SPEC_USTAWIENIA.md — tutaj stoi ich kopia wykonawcza.
 const PROGI_DOMYSLNE = {
-  start: 80,
+  start: 140, // do 2.3.1: 80; suma liczy odtad skill startu (E2 PROWADZENIE_END_TO_END)
   CLAUDE: 10,
   STATE: 12,
   ryzyka: 12,
@@ -612,7 +612,7 @@ const CZLONY = {
 
 // Progi rotacji dokumentow w jednostkach mechanizmu kontrolnego (KB, sztuki, linie).
 // Jedyne zrodlo prawdy o tych wartosciach to core/templates/SPEC_ARCHIWUM.md — tutaj stoi
-// ich kopia wykonawcza. To NIE sa progi czastkowe budzetu: nie sumuja sie do 80 KB,
+// ich kopia wykonawcza. To NIE sa progi czastkowe budzetu: nie sumuja sie do budzetu,
 // dokument nad wlasnym progiem jest osobnym faktem (1.7.0, E4).
 const PROGI_ROTACJI_DOMYSLNE = {
   dziennik: 150, // KB
@@ -762,6 +762,26 @@ function sciezkaStatusuPlanu(cwd) {
   if (!linia || !linia.link) return null;
   const p = path.resolve(cwd, linia.link);
   return fs.existsSync(p) ? p : null;
+}
+
+// Pliki z numerowanej listy sekcji "Rytual startu sesji" CLAUDE.md (EN: "Session start
+// ritual"), jako sciezki bezwzgledne istniejacych plikow. Link liczy sie tylko w pozycji listy
+// numerowanej — akapit fraz sesji i dalsze sekcje nie sa czytane na starcie.
+const NAGLOWEK_RYTUALU = [/^rytua[łl] startu sesji\b/i, /^session start ritual\b/i];
+function plikiRytualu(cwd, claudeMd) {
+  if (!claudeMd) return [];
+  const sekcja = wytnijSekcje(czytaj(claudeMd), NAGLOWEK_RYTUALU);
+  if (sekcja === null) return [];
+  const out = [];
+  for (const linia of sekcja.split('\n')) {
+    if (!/^\s*\d+\.\s/.test(linia)) continue;
+    for (const m of linia.matchAll(/\]\(([^)#\s]+)(?:#[^)]*)?\)/g)) {
+      if (/^[a-z]+:/i.test(m[1])) continue;
+      const p = path.resolve(cwd, m[1]);
+      if (fs.existsSync(p) && fs.statSync(p).isFile() && !out.includes(p)) out.push(p);
+    }
+  }
+  return out;
 }
 
 // Przelacznik rotacji dokumentow jako FAKT: true / false / null.
@@ -933,7 +953,7 @@ function startCost(cwd, opcje) {
         id,
         sciezka: path.relative(cwd, plik).split(path.sep).join('/'),
         bajty: bajty(tresc),
-        prog: progi[id] * KB,
+        prog: typeof progi[id] === 'number' ? progi[id] * KB : null,
         sposob,
       });
     };
@@ -977,6 +997,29 @@ function startCost(cwd, opcje) {
     const statusPath = sciezkaStatusuPlanu(cwd);
     if (statusPath) dodaj('status', statusPath, czytaj(statusPath), 'plik');
 
+    // 7. skill wymuszany na pierwszym prompcie (E2 PROWADZENIE_END_TO_END, A11) — sciezke
+    // podaje adapter, bo tylko on wie, skad laduje skill; rdzen katalogu pluginu nie zna.
+    // Caly plik, bez progu czastkowego: nie ma go w wierszu budzetu, wiec wskazuje winowajce
+    // wylacznie w linii skladnikow, nie w "ponad progiem".
+    for (const sciezka of Array.isArray(o.skille) ? o.skille : []) {
+      if (!sciezka || !fs.existsSync(sciezka)) continue;
+      // Etykieta: nazwa katalogu skilla, bo plik zawsze nazywa sie SKILL.md.
+      const nazwa = path.basename(sciezka) === 'SKILL.md' ? path.basename(path.dirname(sciezka)) : path.basename(sciezka);
+      pozycje.push({ id: 'skill ' + nazwa, sciezka, bajty: bajty(czytaj(sciezka)),
+        prog: null, sposob: 'plik' });
+    }
+
+    // 8. pliki z rytualu startu CLAUDE.md, ktorych pozycje 1-6 nie mierza (np. rejestr decyzji
+    // czytany na starcie). Tylko numerowana lista sekcji rytualu — link w akapicie fraz sesji
+    // nie jest czytany na starcie. Plik liczony juz wyzej nie wchodzi drugi raz.
+    const zmierzone = new Set([claudeMd, state, dziennik, lekcje, plikUstawien, statusPath]
+      .filter(Boolean).map((p) => path.resolve(p)));
+    for (const plik of plikiRytualu(cwd, claudeMd)) {
+      if (zmierzone.has(plik)) continue;
+      zmierzone.add(plik);
+      dodaj('rytual ' + path.relative(cwd, plik).split(path.sep).join('/'), plik, czytaj(plik), 'plik');
+    }
+
     const suma = pozycje.reduce((s, p) => s + p.bajty, 0);
     const budzet = progi.start * KB;
 
@@ -989,7 +1032,7 @@ function startCost(cwd, opcje) {
       suma,
       przekroczonaSuma: suma > budzet,
       dokumenty: dokumentyPonadProgiem(cwd, txtUstawien, progi.ryzyka * KB, progi.ustawienia * KB),
-      ponadProgiem: pozycje.filter((p) => p.bajty > p.prog).map((p) => p.id),
+      ponadProgiem: pozycje.filter((p) => p.prog !== null && p.bajty > p.prog).map((p) => p.id),
       bezSekcji: pozycje.filter((p) => p.sposob === 'plik-bez-sekcji').map((p) => p.id),
     };
   } catch (_) {
@@ -1046,9 +1089,10 @@ function startCostReport(miara, opcje) {
   if (!miara.przekroczonaSuma && !liniaDokumentow) return [];
 
   if (miara.przekroczonaSuma) {
-    const ponad = miara.pozycje.filter((p) => p.bajty > p.prog);
+    const ponad = miara.pozycje.filter((p) => p.prog !== null && p.bajty > p.prog);
     const wybrane = (ponad.length ? ponad : miara.pozycje.slice().sort((a, b) => b.bajty - a.bajty).slice(0, 3))
-      .map((p) => p.id + ' ' + kb(p.bajty) + ' (prog ' + kb(p.prog) + ')').join(', ');
+      .map((p) => p.id + ' ' + kb(p.bajty) +
+        (p.prog === null ? ' (bez progu czastkowego)' : ' (prog ' + kb(p.prog) + ')')).join(', ');
     out.push('[RelAI budzet startu] Warstwa czytana przy starcie sesji wazy ' + kb(miara.suma) +
       ' przy budzecie ' + kb(miara.budzet) + '.');
     out.push((ponad.length ? 'Pozycje ponad progiem czastkowym: ' : 'Najgrubsze pozycje: ') +
@@ -1056,6 +1100,9 @@ function startCostReport(miara, opcje) {
         ? ' Zmierzone jako caly plik, bo nie znaleziono szukanej sekcji: ' +
           miara.bezSekcji.join(', ') + ' — wartosc jest zawyzona z tego powodu.'
         : ''));
+    // Skladniki sumy (E2 PROWADZENIE_END_TO_END, A11): czlowiek widzi, co budzet liczy,
+    // zamiast zgadywac, czy skill i pliki rytualu sa w srodku.
+    out.push('W sumie: ' + miara.pozycje.map((p) => p.id + ' ' + kb(p.bajty)).join(', ') + '.');
   }
 
   if (liniaDokumentow) out.push(liniaDokumentow);

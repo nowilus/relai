@@ -9,7 +9,7 @@ Czytaj w kolejności, nie skanuj pełnotekstowo repo:
 2. [docs/STATE.md](docs/STATE.md) — stan na dziś, cały plik; jest krótki.
 3. [docs/DZIENNIK.md](docs/DZIENNIK.md) — sekcja „Stan otwartych ryzyk" + ostatni wpis.
 4. [docs/LEKCJE.md](docs/LEKCJE.md) — wyłącznie sekcja „Zasady aktywne".
-5. [docs/DECYZJE.md](docs/DECYZJE.md) — decyzje zamrożone: **nie proponuj ich ponownie**.
+5. Rejestru decyzji **nie czytasz na starcie** — `docs/DECYZJE.md` otwierasz, gdy temat dotyka decyzji; decyzji zamrożonych **nie proponujesz ponownie**.
 6. [docs/USTAWIENIA.md](docs/USTAWIENIA.md) — preferencje projektu.
 7. Aktywny plan — linia „Aktywny plan" pod tabelą „Stan prac"; plany zamknięte mają tam status i link do archiwum.
 
@@ -27,7 +27,7 @@ o kolejne `N` dni / rozstrzygnąć teraz. Sesja nieinteraktywna: sam raport, bez
 
 | Co | Status | Gdzie |
 |---|---|---|
-| Plugin RelAI — wydany, trzy adaptery | DZIAŁA (2.3.1 w repo i publicznie, wydane 2026-09-24) | [docs/STATE.md](docs/STATE.md) |
+| Plugin RelAI — wydany, trzy adaptery | DZIAŁA (2.4.0 w repo i publicznie, wydane 2026-09-24) | [docs/STATE.md](docs/STATE.md) |
 | Plan BUDOWA_RELAI — 10 etapów | ZAMKNIĘTY 2026-08-10 | [archiwum planu](docs/archiwum/plany/BUDOWA_RELAI/STATUS.md) |
 | Plan ROZWOJ_PO_WYDANIU — 8 etapów | **ZREALIZOWANY 2026-09-05**; wydania 1.10.0 i 2.0.0 opublikowane | [archiwum planu](docs/archiwum/plany/ROZWOJ_PO_WYDANIU/STATUS.md) |
 | Plan OPTYMALIZACJA_KONTEKSTU — 5 etapów | ZREALIZOWANY 2026-08-21 | [archiwum planu](docs/archiwum/plany/OPTYMALIZACJA_KONTEKSTU/STATUS.md) |

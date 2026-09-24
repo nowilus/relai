@@ -33,7 +33,7 @@ node -e "console.log((require('fs').statSync('CLAUDE.md').size/1024).toFixed(1)+
 
 **Wartość projektowa ma pierwszeństwo przed domyślną** — projekt z własnym progiem w
 `USTAWIENIA.md` pracuje na swojej liczbie, a `/relai-update` jej nie nadpisuje. Progi cząstkowe
-nie sumują się do budżetu 80 KB i nie mają się sumować: 10 KB to sufit tej pozycji, nie przydział.
+nie sumują się do budżetu startu i nie mają się sumować: 10 KB to sufit tej pozycji, nie przydział.
 
 ## Zakaz treści odtwarzalnej z repozytorium (od 1.6.0)
 

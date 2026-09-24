@@ -36,7 +36,7 @@ startu sesji wygląda dokładnie tak, jakby ta specyfikacja nie istniała.
 
 `docs/PULAPKI.md` **nie wchodzi do warstwy startowej sesji**. Rytuał startu czyta sześć pozycji
 (`SPEC_USTAWIENIA.md`, wiersz `Budżet startu sesji`) i ten plik nie jest żadną z nich — dlatego nie
-liczy się do budżetu 80 KB i może rosnąć bez szkody dla kosztu pierwszego prompta.
+liczy się do budżetu startu i może rosnąć bez szkody dla kosztu pierwszego prompta.
 
 Sesja sięga po niego w trzech sytuacjach:
 

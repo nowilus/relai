@@ -29,6 +29,7 @@
 
 const fs = require('fs');
 const path = require('path');
+const os = require('os');
 
 // Od 1.4.0 hooki mieszkaja w adapters/claude-code/hooks/, a specyfikacje w core/templates/
 // (wydzielenie rdzenia, E4). PLUGIN_ROOT to korzen repozytorium/pluginu — trzy poziomy w gore.
@@ -140,7 +141,10 @@ function onSessionStart(input) {
   // Claude Code nie daje w payloadzie SessionStart zadnego zmierzonego rozroznienia
   // sesji interaktywnej od `claude -p`, wiec opcji `interaktywna` tu nie podajemy:
   // zgadywanie byloby gorsze niz zdanie propozycji wypisane do sesji bez czlowieka.
-  for (const linia of core.startCostReport(core.startCost(cwd, { markeryGoscia: MARKERY_GOSCIA }))) {
+  // Skill relai-core jest wymuszany na pierwszym prompcie (linia rytualu nizej), wiec jego
+  // wage liczy budzet (E2 PROWADZENIE_END_TO_END, A11); sciezke zna tylko adapter.
+  const skillStartu = path.join(PLUGIN_ROOT, 'adapters', 'claude-code', 'skills', 'relai-core', 'SKILL.md');
+  for (const linia of core.startCostReport(core.startCost(cwd, { markeryGoscia: MARKERY_GOSCIA, skille: [skillStartu] }))) {
     out.push(linia);
   }
 
@@ -209,10 +213,28 @@ function onSessionStart(input) {
 
   if (gs) {
     out.push('Ustawienia globalne uzytkownika (' + gs.file + '; wpis projektowy w docs/USTAWIENIA.md ma pierwszenstwo):\n' + gs.text);
+    oznaczUstawieniaPodane(input.session_id);
   }
 
   process.stdout.write(out.join('\n'));
   process.exit(0);
+}
+
+// Ustawienia globalne padaja RAZ na sesje (E2 PROWADZENIE_END_TO_END, A16). Start sesji,
+// ktory je podal, zostawia znacznik w katalogu tymczasowym, nazwany identyfikatorem sesji;
+// hook wywolania skilla po znaczniku ich nie powtarza. Brak identyfikatora albo znacznika
+// (sesja zaczeta poza projektem, projekt zalozony w trakcie) = ustawienia podane jak dotad.
+function znacznikUstawien(sesja) {
+  const id = String(sesja || '').replace(/[^A-Za-z0-9_-]/g, '');
+  return id ? path.join(os.tmpdir(), 'relai-ustawienia-podane-' + id) : null;
+}
+function oznaczUstawieniaPodane(sesja) {
+  const plik = znacznikUstawien(sesja);
+  try { if (plik) fs.writeFileSync(plik, ''); } catch (_) { /* brak znacznika = powtorzenie, nie awaria */ }
+}
+function ustawieniaPodane(sesja) {
+  const plik = znacznikUstawien(sesja);
+  return plik !== null && fs.existsSync(plik);
 }
 
 function onSkillInvoked(input) {
@@ -230,7 +252,7 @@ function onSkillInvoked(input) {
       '.claude/relai/templates/ (' + copied + ' plikow). Generuj dokumenty wedlug nich — katalog pluginu ' +
       'jest poza zasiegiem sesji, wiec nie probuj czytac go bezposrednio.');
   }
-  const gs = core.globalSettingsText('.claude/relai');
+  const gs = ustawieniaPodane(input.session_id) ? null : core.globalSettingsText('.claude/relai');
   if (gs) {
     parts.push('Ustawienia globalne uzytkownika (' + gs.file + '; wpis projektowy ma pierwszenstwo):\n' + gs.text);
   }

@@ -104,12 +104,20 @@ Co się przez to zmienia, a co zostaje:
 - **Wyzwalacz zostaje na wadze całkowitej.** Powyżej progu mechanizm działa i mówi; poniżej —
   cisza, nienaruszalna. Przeniesienie wyzwalacza na część rotowalną wyciszyłoby dokładnie ten
   przypadek, dla którego ta sekcja powstała: gruby plik, którego rotacja nie ma jak odchudzić.
-- **Cel przenosi się na część rotowalną.** Bierzesz najstarsze pozycje, aż **część rotowalna**
-  zejdzie poniżej **60% progu** — nie cały plik. Cel postawiony na całym pliku bywa nieosiągalny
-  z definicji, a cel nieosiągalny jest gorszy niż żaden: każdy przebieg kończy się wtedy jako
-  porażka mechanizmu, który zrobił wszystko, co mógł.
+- **Cel stoi na wadze całkowitej (D-88, od E2 planu PROWADZENIE_END_TO_END).** Bierzesz najstarsze
+  pozycje, aż **waga całkowita** żywego pliku zejdzie poniżej **60% progu**. Ciąg kończy się
+  wcześniej wyłącznie wtedy, gdy wyczerpie część rotowalną albo trafi na pozycję nietykalną —
+  wtedy plik zostaje, ile waży, i jeśli nadal przekracza **próg**, pada komunikat zablokowanej
+  rotacji (sekcja niżej). Cel nieosiągalny nie jest porażką: mechanizm, który zabrał wszystko, co
+  mógł, mówi to czterema liczbami.
+- **Czego już nie robisz:** do 2.3.1 cel brzmiał „część rotowalna poniżej 60% progu". Zmierzone
+  dwa razy (2026-09-04 i 2026-09-14) `FAKT`: w dokumencie o grubej dolnej granicy ten cel był
+  spełniony, **zanim** rotacja cokolwiek wzięła — dziennik zostałby na 164,8 KB przy progu 150,
+  a z lekcji nie zeszłaby ani jedna pozycja, podczas gdy cel na całym pliku dawał 87,3 KB
+  i 42,6 KB. Cel liczony od wielkości, która może już być mała, zatrzymuje mechanizm na starcie.
 - **Nietykalność nadal liczy się w sztukach** — dziesięć najnowszych wpisów, dwadzieścia
-  najnowszych lekcji. Zmienia się to, **z czym** porównujesz wynik, nie to, **co** jest chronione.
+  najnowszych lekcji. Trzy wagi zostają, bo mówią, **ile da się zabrać** i gdzie leży dno — nie
+  są już celem.
 
 **Lekcje:** dolna granica to sekcja „Zasady aktywne", sekcja „Lekcje zwinięte" (ma własną drogę,
 patrz `SPEC_LEKCJE.md`) i dwadzieścia najnowszych lekcji. **Ryzyka:** dolna granica to nagłówek
@@ -301,11 +309,17 @@ komentarza. W projekcie anglojęzycznym rdzenie czytasz w języku projektu (`res
 - sekcja „Lekcje zwinięte", jeśli istnieje — ta ma własną drogę do archiwum opisaną
   w `SPEC_LEKCJE.md` (kompresja), i rotacja jej nie dotyka.
 
-Ile zabrać: najstarsze pozycje po kolei, aż **część rotowalna** zejdzie **poniżej 60% progu** —
-nie do samego progu, bo rotacja wywoływana przy każdym zamknięciu sesji byłaby wtedy zjawiskiem
-codziennym. Ciąg kończy się wcześniej, gdy trafi na pozycję nietykalną. **Celem jest część
-rotowalna, nie cały plik** (sekcja „Próg liczony ponad nietykalnymi"): cel postawiony na całym
-pliku bywa nieosiągalny, bo dolnej granicy rotacja nie rusza nigdy.
+Ile zabrać: najstarsze pozycje po kolei, aż **waga całkowita** żywego pliku zejdzie **poniżej
+60% progu** (D-88) — nie do samego progu, bo rotacja wywoływana przy każdym zamknięciu sesji byłaby
+wtedy zjawiskiem codziennym. Ciąg kończy się wcześniej, gdy trafi na pozycję nietykalną albo
+wyczerpie część rotowalną (sekcja „Próg liczony ponad nietykalnymi"); plik ponad progiem po takim
+przebiegu dostaje komunikat zablokowanej rotacji, nie cichy sukces.
+
+**Kolejność w jednej sesji:** gdy rotują i ryzyka, i dziennik, **ryzyka idą pierwsze** — sekcja
+ryzyk leży w dzienniku i należy do jego dolnej granicy, więc jej odchudzenie zmniejsza liczbę
+wpisów, które dziennik musi oddać do celu. Zmierzone na tym repozytorium 2026-09-24 `FAKT`:
+dolna granica dziennika 104,5 KB przy sekcji ryzyk 24,2 KB — cel 90 KB był nieosiągalny przed
+rotacją ryzyk i osiągalny po niej.
 
 ### Ryzyka (od 1.6.0)
 
@@ -587,8 +601,9 @@ a nie porządkowaniem.
 - Nie pytasz o zgodę na rotację i nie meldujesz jej poniżej progu — mechanizm ma być niewidoczny,
   dopóki nie zadziała. **Powyżej progu odwrotnie: nie milczysz**, gdy rotacja nie zabrała
   wszystkiego, co mogła — komunikat zablokowanej rotacji jest wtedy obowiązkowy.
-- Nie podajesz progu bez pozostałych trzech liczb i nie porównujesz go do samej wagi całkowitej,
-  gdy mówisz o tym, ile rotacja jeszcze weźmie — cel dotyczy części rotowalnej.
+- Nie podajesz progu bez pozostałych trzech liczb. Cel rotacji stoi na **wadze całkowitej**
+  (60% progu, D-88); część rotowalna mówi, ile rotacja **może** jeszcze wziąć, a nie kiedy ma
+  przestać.
 - Nie wymieniasz wśród blokerów wpisu linkowanego z otwartej pozycji „Czeka na człowieka": od
   1.7.0 nie blokuje, a wpisanie go na listę kazałoby człowiekowi zamykać sprawy bez skutku.
 - Nie czytasz archiwum w rytuale startu sesji.
