@@ -48,7 +48,7 @@ Plan jako osobny dokument, etapy ze statusami, a po przerwie **świeża sesja m�
 gotowy do startu i z którego pliku to wie**. Materiał jest odtworzeniem prawdziwego przebiegu:
 każda pokazana odpowiedź i każda ścieżka pochodzą z zapisu realnych sesji, nie z inscenizacji —
 wersje narzędzia i modelu oraz tabela pokrycia klatek są w
-[dokumentacji materiału](docs/plany/PIERWSI_UZYTKOWNICY/DEMO.md). Dłuższa wersja i napisy
+[dokumentacji materiału](docs/archiwum/plany/PIERWSI_UZYTKOWNICY/DEMO.md). Dłuższa wersja i napisy
 angielskie: [`docs/zasoby/demo/`](docs/zasoby/demo/).
 
 ## Znasz to?

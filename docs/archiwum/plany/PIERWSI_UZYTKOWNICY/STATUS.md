@@ -1,6 +1,6 @@
 # STATUS — plan PIERWSI_UZYTKOWNICY
 
-Plan: [PLAN.html](PLAN.html) · Utworzony: 2026-09-12 · Status: **WSTRZYMANY 2026-09-14 — pierwszeństwo dostaje plan [OPTYMALIZATOR_PROMPTOW](../OPTYMALIZATOR_PROMPTOW/STATUS.md); E3 czeka na dyspozycję publikacji, której nie było** (zamrożony 2026-09-12, D-33) · Model wykonawczy etapów: **Opus** (preferencja z USTAWIENIA.md, D-85)
+Plan: [PLAN.html](PLAN.html) · Utworzony: 2026-09-12 · Status: **CZĘŚCIOWO ZREALIZOWANY 2026-09-24 — pilotaż nie wystartował (zero wysłanych zaproszeń), a pierwszeństwo dostaje plan [PROWADZENIE_END_TO_END](../../../plany/PROWADZENIE_END_TO_END/STATUS.md); E1 i E2 dowiezione, E3 pominięty** (zamrożony 2026-09-12, D-33) · Model wykonawczy etapów: **Opus** (preferencja z USTAWIENIA.md, D-85)
 
 > **Wstrzymanie nie unieważnia planu.** E3 zostaje `GOTOWY DO STARTU` z gotowym promptem, trzy
 > bramki manualne zostają otwarte, a materiały E1 i E2 są kompletne. **Termin graniczny raportu
@@ -18,18 +18,18 @@ kalendarzowych (SZACUNEK). Progi pilotażu są propozycją do akceptacji, nie wy
 |---|---|---|---|---|
 | E1 | Pokaz i wiarygodne wejście | ZREALIZOWANY 2026-09-12 | [PROMPT_ETAP_1.md](PROMPT_ETAP_1.md) | Sprawdzona instalacja, **materiał demo renderowany przez agenta** (Aneks A: 25 s GIF + 60 s MP4, PL/EN), aktualny początek README; bez publikacji |
 | E2 | Zaproszenie i próby | ZREALIZOWANY 2026-09-13 | [PROMPT_ETAP_2.md](PROMPT_ETAP_2.md) | Cztery bloki `ZAPROSZENIE.md` z tabelą pokrycia 27 tez, pusty `PROBY.md`, odświeżona karta OPIS_REPO, publiczna instalacja 2.1.4 zmierzona; **nic nie wysłano** — publikacja czeka na dyspozycję |
-| E3 | Powrót i decyzja | GOTOWY DO STARTU | [PROMPT_ETAP_3.md](PROMPT_ETAP_3.md) | Obserwacje po przerwie, WYNIKI.md, rekomendacja dalszego kierunku; jawnie także wynik nierozstrzygający. **Ostatni etap** — kończy go sekwencja zamknięcia planu (D-36) |
+| E3 | Powrót i decyzja | POMINIĘTY — plan zamknięty 2026-09-24 przed wysyłką zaproszeń; bez uczestników nie ma czego obserwować | [PROMPT_ETAP_3.md](PROMPT_ETAP_3.md) | Obserwacje po przerwie, WYNIKI.md, rekomendacja dalszego kierunku; jawnie także wynik nierozstrzygający. **Ostatni etap** — kończy go sekwencja zamknięcia planu (D-36) |
 
 ## Odnogi
 
 | Odnoga | O co chodzi | Etap-źródło | Karta | Status |
 |---|---|---|---|---|
 | HOOKI_KORZEN | Claude Code ładuje korzeniowy `hooks/` Codeksa obok hooków adaptera: zdublowany kontekst startu i błąd schematu `SessionEnd` | E1 | [karta](odnogi/HOOKI_KORZEN/ODNOGA.md) | **ZAMKNIĘTA 2026-09-12** (2.1.4, P-013; wydane tego samego dnia) |
-| OPIS_REPO | Pusty opis i brak tematów na stronie repozytorium — **zależność E2**, odnoga istniejąca, nie nowa | E1 planu ROZWOJ_PO_WYDANIU | [karta](../../archiwum/plany/ROZWOJ_PO_WYDANIU/odnogi/OPIS_REPO/ODNOGA.md) | **OTWARTA** · zakres odświeżony w E2 dnia 2026-09-13; domknięcie wymaga zmiany na GitHubie, czyli dyspozycji |
+| OPIS_REPO | Pusty opis i brak tematów na stronie repozytorium — **zależność E2**, odnoga istniejąca, nie nowa | E1 planu ROZWOJ_PO_WYDANIU | [karta](../../../fixy/OPIS_REPO/ODNOGA.md) | **PRZENIESIONA 2026-09-24 → docs/fixy/OPIS_REPO/** · wątek samodzielny; domknięcie nadal wymaga zmiany na GitHubie |
 
 ## Zależność od istniejącego wątku
 
-E2 korzysta z otwartej [odnogi OPIS_REPO](../../archiwum/plany/ROZWOJ_PO_WYDANIU/odnogi/OPIS_REPO/ODNOGA.md).
+E2 korzysta z otwartej [odnogi OPIS_REPO](../../../fixy/OPIS_REPO/ODNOGA.md) (od 2026-09-24 wątek samodzielny w `docs/fixy/`).
 Nie utworzono drugiej odnogi. **Karta odświeżona 2026-09-13 w E2**: zakres i kryteria przepisane na
 stan produktu (2.1.4, trzy adaptery), datowana linia śladu zmiany na górze karty, poprzednie
 brzmienie zachowane w treści. Odczyt stanu GitHuba powtórzony tego dnia — `description`,
@@ -40,14 +40,14 @@ jej domknięcie wymaga zmiany po stronie GitHuba, czyli dyspozycji.
 
 - ~~**Akceptacja planu**~~ — **ROZSTRZYGNIĘTE 2026-09-12**: Łukasz zaakceptował plan; plan zamrożony,
   PROMPT_ETAP_1.md wygenerowany, E1 gotowy do startu.
-- **Dyspozycja publikacji i kontaktów** — **OTWARTA**, przechodzi do E3. Materiały są gotowe od
+- ~~**Dyspozycja publikacji i kontaktów**~~ — **ROZSTRZYGNIĘTA 2026-09-24 — przepada razem z pilotażem** (decyzja Łukasza przy zamknięciu planu; materiały zostają w archiwum do ponownego użycia). Wcześniej: OTWARTA, przechodziła do E3. Materiały są gotowe od
   2026-09-13: cztery bloki w [ZAPROSZENIE.md](ZAPROSZENIE.md), każdy do wklejenia bez
   przeredagowania. Czeka wskazanie kanału i treści oraz zlecenie wysyłki albo publikacja przez
   Łukasza. Nic nie zostało wysłane.
-- **Uczestnicy** — **OTWARTA**, przechodzi do E3. Wskazanie chętnych lub wykorzystanie
+- ~~**Uczestnicy**~~ — **ROZSTRZYGNIĘTA 2026-09-24 — przepada razem z pilotażem** (decyzja Łukasza; bez pilotażu nie ma kogo rekrutować). Wcześniej: OTWARTA, przechodziła do E3. Wskazanie chętnych lub wykorzystanie
   przygotowanego zaproszenia przez Łukasza. Brak kandydatów nie uruchamia bezterminowej rekrutacji;
   raport opisze brak danych. Rejestr czeka pusty: [PROBY.md](PROBY.md).
-- **Ponowny render materiału demo pod ekran telefonu** — **OTWARTA**, do rozstrzygnięcia w E3.
+- ~~**Ponowny render materiału demo pod ekran telefonu**~~ — **ROZSTRZYGNIĘTA 2026-09-24 — przeniesiona do planu PROWADZENIE_END_TO_END** (GIF stoi w README, więc to sprawa onboardingu). Wcześniej: OTWARTA, do rozstrzygnięcia w E3.
   Pomiar E2: na 375 px czytelny jest wyłącznie tytuł sceny (12,50 px przy progu 8 px), treść scen
   schodzi do 3,52–7,42 px; wejście brandowe zajmuje 3 z 25 sekund. Naprawa wymaga nowego renderu,
   a źródła renderu nie istnieją — łączy się z decyzją o ich trwałym miejscu (Aneks A, ryzyko A2).
@@ -99,5 +99,6 @@ jej domknięcie wymaga zmiany po stronie GitHuba, czyli dyspozycji.
 - 2026-09-14 — **plan WSTRZYMANY**. Pierwszeństwo dostaje nowy plan
   [OPTYMALIZATOR_PROMPTOW](../OPTYMALIZATOR_PROMPTOW/STATUS.md); E3 i trzy bramki manualne
   zostają otwarte, termin graniczny raportu traci moc do czasu wznowienia.
+- 2026-09-24 — **plan CZĘŚCIOWO ZREALIZOWANY i zarchiwizowany**. Decyzja Łukasza: pilotaż nie wraca w tej postaci, pierwszeństwo dostaje plan PROWADZENIE_END_TO_END. Bramki publikacji i uczestników przepadają, render demo pod telefon przechodzi do nowego planu, odnoga OPIS_REPO przeniesiona do `docs/fixy/`. E3 POMINIĘTY.
 
 RelAI (GPT-6) + Lukasz

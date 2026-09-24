@@ -16,7 +16,7 @@
 | M3 | Strona dokumentacji zmienia układ i odczyt z sieci zwraca śmieci albo nic (plan REKOMENDACJA_MODELU, ryzyko 3) | **Średni** (2026-09-04, przy wejściu sieci do mechanizmu) | **OTWARTE** | Odświeżenie zawsze kończy się pokazaniem różnicy i pytaniem; niepowodzenie zostawia starą listę **z jej datą**, nigdy pustą. Pomiar E2 na odczycie adresu nieistniejącego (`HTTP 404 Not Found`): lista w projekcie kontrolnym została z sumą `1f67fe1bc954ecdc` i `list-date: 2026-09-03`, czyli dokładnie taka jak przed przebiegiem — dowód treścią pliku, nie komunikatem. Niezmierzone: strona odpowiadająca **200 ze zmienionym układem** (odczyt „udany", treść bez nazw) — to jest realny kształt tego ryzyka i czeka na pierwszy taki przypadek. **E4: stan po wydaniu bez zmian** — komenda jest w cache'u 1.9.0 i od tej pory może ją wywołać każdy projekt, więc szansa na trafienie rośnie, ale sam mechanizm ochrony (różnica przed zapisem, stara lista przy niepowodzeniu) jest ten sam co zmierzony w E2. Zmierzone: 2026-09-04 (E2) |
 | M5 | Nazwy modeli zmieniają się szybciej niż wydania RelAI (plan REKOMENDACJA_MODELU, ryzyko 6) | **Średni** (2026-09-04) | **OTWARTE** | Lista mieszka w adapterze **i** w projekcie; `/relai-models` aktualizuje kopię projektu bez wydawania nowej wersji pluginu. Pierwsze realne odświeżenie (E2) potwierdziło, że ryzyko nie jest teoretyczne: strona aliasów wymienia dziś dziesięć pełnych ID (`claude-opus-5` … `claude-fable-5`), a lista Cursora ~45 pozycji od pięciu dostawców — wobec czterech i trzech pozycji w listach RelAI. Od E3 lista ma wiek i próg: powyżej **7 dni** start sesji mówi jedno zdanie z propozycją `/relai-models`, poniżej — zero znaków (zmierzone parą wariantów różniącą się wyłącznie `list-date`: 258 znaków wobec 0, potwierdzone w świeżej sesji CLI odpowiedzią `BRAK LINII`). **E4: pierwszy pełny cykl domknięty** — lista, komenda, próg i **wydanie** (1.9.0, potwierdzone treścią plików z cache'u; dwanaście komend, obie listy, zdanie o wieku działające w świeżej sesji z wydanej wersji). Otwarte już **wyłącznie** z pierwszego powodu: przypomnienie mówi o wieku listy, a nie o tym, że dostawca zmienił nazwy — lista tygodniowa może być świeża i nieprawdziwa naraz. To jest trwała własność mechanizmu, nie zaległość wydania. Zmierzone: 2026-09-04 (E2, E3, E4) |
 | W1 | Wydanie pluginu wychodzi bez bramki walidacyjnej narzędzia docelowego — format manifestu i nagłówków sprawdzamy własnym walidatorem, który zna tylko to, co ktoś w nim opisał (wątek samodzielny, 2026-09-06) | **Wysoki** (2026-09-06, przy powstaniu wpisu) | **ZAMKNIĘTE 2026-09-15 (E5)** | Trzy kolejne wydania (2.1.0, 2.1.1, 2.1.2) wyszły z pluginem, który w Claude Code nie ładował komend, a wykrył to **użytkownik oknem `/plugin`**, nie żaden pomiar: log aplikacji o nieważnym manifeście milczał, a skaner czytał go mimo wszystko i wypisywał ostrzeżenia sugerujące, że format jest w porządku. `claude plugin validate` istniało przez cały ten czas i wskazuje pole oraz powód w jednym wywołaniu. Zmierzone 2026-09-06: na cache'u 2.1.1 `✘ Found 1 error: plugins[0] plugin.json → agents: Invalid input`, na repozytorium po naprawie `✔ Validation passed`. Częściowa mitygacja **jest**: `validate-adapters.js` blokuje katalog w polu `agents` (P-011), korzeniowy `skills/` (P-010) i dwukropek bez cudzysłowu w nagłówkach komend (P-012) — każda kontrola pokazana w obie strony. Ryzyko zostaje otwarte, bo mitygacja jest **retrospektywna**: chroni przed trzema znanymi kształtami, a nie przed czwartym, i nie zna schematu narzędzia. **Zamknięte 2026-09-15**: krok jest **wpisany do sekwencji P-005** w `docs/PULAPKI.md` jako obowiązkowy przed tagiem, a nie tylko wykonywany z pamięci — i wyszedł już dwa wydania z rzędu (2.1.4 i 2.2.0, oba `✔ Validation passed` przed tagiem). Retrospektywność własnego walidatora zostaje i jest tu wliczona: `validate-adapters.js` chroni przed czterema **znanymi** kształtami (P-010…P-013), a przed piątym ochroni narzędzie dostawcy — dlatego jego wywołanie jest odtąd krokiem sekwencji, nie dobrą praktyką. Zmierzone: 2026-09-06 (2.1.1), 2026-09-12 (2.1.4), 2026-09-15 (2.2.0) |
-| U1 | Pilotaż kończy się bez ani jednego uczestnika spoza autora — brak kandydatów albo brak odpowiedzi (plan PIERWSI_UZYTKOWNICY, sekcja 7) | **Średni** (2026-09-13, przy wejściu ryzyka do rejestru) | **OTWARTE** | Mitygacja z planu: własna sieć Łukasza i istniejący wpis na Odpalone, każde zaproszenie zanotowane, raport w terminie **także przy małej próbie**, z werdyktem „wynik nierozstrzygający". Materiały gotowe od 2026-09-13 (`ZAPROSZENIE.md`, cztery bloki), rejestr `PROBY.md` czeka pusty. **Stan faktyczny na dziś: 0 kontaktów, 0 prób, 0 aktywacji** przy progach 3–5 uczestników / ≥3 aktywacje / ≥2 powroty. Ryzyko nie zmaterializowało się jeszcze **ani nie zostało odparte** — zegar nie ruszył, bo wysyłka wymaga dyspozycji, której nie było. Termin graniczny raportu: **2026-10-03** (21 dni od akceptacji, SZACUNEK). Doszła własność, której plan nie przewidywał: materiał demo, którym zaproszenie się posługuje, jest **nieczytelny na telefonie** (pomiar E2) — a to jest urządzenie, na którym większość odbiorców zobaczy link pierwszy raz |
+| U1 | Pilotaż kończy się bez ani jednego uczestnika spoza autora — brak kandydatów albo brak odpowiedzi (plan PIERWSI_UZYTKOWNICY, sekcja 7) | **Średni** (2026-09-13, przy wejściu ryzyka do rejestru) | **ZAMKNIĘTE 2026-09-24 — pilotaż zamknięty przed wysyłką** (plan CZĘŚCIOWO ZREALIZOWANY; ryzyko ani się nie zmaterializowało, ani nie zostało odparte) | Mitygacja z planu: własna sieć Łukasza i istniejący wpis na Odpalone, każde zaproszenie zanotowane, raport w terminie **także przy małej próbie**, z werdyktem „wynik nierozstrzygający". Materiały gotowe od 2026-09-13 (`ZAPROSZENIE.md`, cztery bloki), rejestr `PROBY.md` czeka pusty. **Stan faktyczny na dziś: 0 kontaktów, 0 prób, 0 aktywacji** przy progach 3–5 uczestników / ≥3 aktywacje / ≥2 powroty. Ryzyko nie zmaterializowało się jeszcze **ani nie zostało odparte** — zegar nie ruszył, bo wysyłka wymaga dyspozycji, której nie było. Termin graniczny raportu: **2026-10-03** (21 dni od akceptacji, SZACUNEK). Doszła własność, której plan nie przewidywał: materiał demo, którym zaproszenie się posługuje, jest **nieczytelny na telefonie** (pomiar E2) — a to jest urządzenie, na którym większość odbiorców zobaczy link pierwszy raz |
 | M6 | Załoga stoi na flagach CLI trzech dostawców (`claude -p --permission-mode`, `codex exec -s`, `agent -p --mode`), które zmieniają się szybciej niż wydania RelAI (wątek ORKIESTRACJA) | **Średni** (2026-09-06) | **OTWARTE** | Flagi stoją w jednym miejscu (`buildCommand` w `core/process/crew.js`), a test pilnuje trybu read-only bez `--write` i zamkniętej listy flag zakazanych; porażka `run` kończy się statusem `failed` z `stderr` w pliku przebiegu, nigdy ciszą, a krok 7 komendy każe czytać raport zadania i `git status`, nie kod wyjścia. Zmierzone 2026-09-06 z Claude Code jako gospodarza: Codex read-only i write, Cursor read-only (prompt stdin-em), zagnieżdżony Claude Code read-only — trzy narzędzia, cztery zadania `done`. Otwarte, bo kierunki z Codeksa i Cursora jako gospodarza i zapis przez Cursora są NOT TESTED, a zmiana flagi u dostawcy nie ma dziś własnego sygnału poza porażką przebiegu |
 
 | O1 | Hook `UserPromptSubmit` w Claude Code nie podmienia promptu, tylko dokłada kontekst — „tryb ciągły" może być nierealizowalny w zakładanym kształcie (plan OPTYMALIZATOR_PROMPTOW, ryzyko O1) | **Wysoki** (2026-09-14, przy akceptacji planu) | **ZAMKNIĘTE 2026-09-15 (E4)** | **Zmierzone, nie założone.** Hook `UserPromptSubmit` **dokłada kontekst i nie podmienia promptu**: w trzech parach przebiegów odpowiedź przy hooku niosła znacznik promptu (`ALFA7731`) obok znacznika wstrzykniętej reguły (`-BETA9042`), której treść znacznika promptu nie zawierała; bez hooka sam `ALFA7731`. Ryzyko nie zmaterializowało się w kształcie „funkcja nierealizowalna": ścieżka odwrotu z planu **jest** ścieżką główną — tryb ciągły stoi na wstrzykniętej regule i działa (E4, dowód treścią odpowiedzi na żywym prompcie). Trzeci nośnik zmierzony przy okazji: `exit 2` zatrzymuje turę **przed modelem** za 0,00 USD i oddaje użytkownikowi oryginał — materiał dla trybu poza Claude Code, nieużyty w tym planie. Zmierzone: 2026-09-15 (E4, Claude Code CLI 2.1.227) |
@@ -1791,5 +1791,47 @@ sesja po restarcie (P-005).
 - `core/templates/SPEC_KOMENDY.md` nie opisuje jeszcze wyboru modelu — dopisanie razem z wydaniem 2.3.1.
 - Naprawa pliku zgody (rekord per sesja) — pozycja następnego planu.
 - Nagłówek `docs/STATE.md` nadal mówi 2.2.0 w sekcji „Gdzie jesteśmy" — pozycja następnego planu.
+
+Autor: RelAI (Opus 5.5) + Lukasz
+
+### 2026-09-24 — PIERWSI_UZYTKOWNICY zamknięty jako częściowo zrealizowany; plan PROWADZENIE_END_TO_END do akceptacji
+
+**Zrobione:**
+
+- **Zamknięcie PIERWSI_UZYTKOWNICY — dowiezione vs plan.** Miało powstać: pokaz i wiarygodne wejście
+  (E1), zaproszenie i próby (E2), obserwacje i decyzja o kierunku (E3). Powstało: E1 i E2 w całości
+  (materiał demo, poprawiony początek README, cztery bloki `ZAPROSZENIE.md`, pusty `PROBY.md`).
+  Przepadło: E3 — pilotaż nie wysłał ani jednego zaproszenia, więc nie było czego obserwować.
+  Decyzje Łukasza przy zamknięciu: bramki „Dyspozycja publikacji i kontaktów” i „Uczestnicy”
+  przepadają razem z pilotażem; „Render demo pod telefon” przechodzi do nowego planu (E5); odnoga
+  `OPIS_REPO` przeniesiona do `docs/fixy/OPIS_REPO/` jako wątek samodzielny. Folder planu w
+  `docs/archiwum/plany/PIERWSI_UZYTKOWNICY/`, ryzyko U1 zamknięte, linki w README, STATE
+  i `docs/zasoby/demo/README.md` przepięte na archiwum.
+- **Plan [PROWADZENIE_END_TO_END](plany/PROWADZENIE_END_TO_END/STATUS.md) — DO AKCEPTACJI.**
+  Scala trzy raporty tej sesji (audyt w pięciu obszarach, dopasowanie do modeli wykonawczych,
+  Opus 5.5 i rodzina GPT-6) w rejestr **56 ustaleń** z dowodami: 47 przypisanych do siedmiu etapów,
+  9 odrzuconych z powodem, 0 bez przypisania (FAKT, policzone generatorem). Wywiad dwiema rundami:
+  jeden plan; wydanie 2.3.1 w E1, potem wydanie po etapie; uczciwe minimum dla Cursora i Codeksa;
+  cel rotacji na wadze całkowitej; debug, bezpieczeństwo i deploy jako ostatnie etapy. Format
+  i model z ustawień: HTML, Opus (dziś Opus 5.5). Pliki: `PLAN.html` (builder: 6 fontów, 252 KB,
+  bez symulatora), `STATUS.md`, `REJESTR.md` — rejestr w Markdown dla świeżych sesji etapów.
+
+**Zweryfikowane — jak dokładnie:**
+
+- Builder `zbuduj.js` zakończył się kodem 0 bez niewypełnionych znaczników; zero odwołań sieciowych
+  w `src`, `href` i `url()` (grep).
+- Podgląd w przeglądarce: 10 sekcji, sekcja rejestru rozwija się (`aria-expanded="true"`, 27 wierszy
+  grupy A), brak przewijania w poziomie przy 1265 px i 375 px.
+
+**Świadomie odłożone:**
+
+- `PROMPT_ETAP_1.md` powstaje dopiero przy akceptacji planu (D-34).
+- Krok 7 rytuału w `CLAUDE.md` nadal wymienia plan zamknięty 2026-09-05 — pozycja A07, etap E1.
+
+**Do zrobienia przez człowieka:**
+
+- Akceptacja planu PROWADZENIE_END_TO_END albo poprawki przed zamrożeniem.
+- Odświeżenie listy modeli Codeksa (`/relai-models` w sesji Codeksa) przed startem E4.
+- Zamrożenie decyzji o celu rotacji na wadze całkowitej jako nowej pozycji `DECYZJE.md` przy akceptacji.
 
 Autor: RelAI (Opus 5.5) + Lukasz

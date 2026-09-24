@@ -1,9 +1,9 @@
 # ODNOGA — opis repozytorium na GitHubie
 
-Plan: [ROZWOJ_PO_WYDANIU](../../STATUS.md) · Etap-źródło: E1 — Odnoga planu · Utworzona: 2026-08-12 ·
-Status: **OTWARTA** · Wykonawca: Opus
+Plan: [ROZWOJ_PO_WYDANIU](../../archiwum/plany/ROZWOJ_PO_WYDANIU/STATUS.md) · Etap-źródło: E1 — Odnoga planu · Utworzona: 2026-08-12 ·
+Status: **OTWARTA — wątek samodzielny od 2026-09-24** (przeniesiona z odnóg planu przy zamknięciu PIERWSI_UZYTKOWNICY) · Wykonawca: Opus
 
-> **Zakres odświeżony w E2 planu [PIERWSI_UZYTKOWNICY](../../../../../plany/PIERWSI_UZYTKOWNICY/STATUS.md)
+> **Zakres odświeżony w E2 planu [PIERWSI_UZYTKOWNICY](../../archiwum/plany/PIERWSI_UZYTKOWNICY/STATUS.md)
 > dnia 2026-09-13.** Poprzednie brzmienie opisywało RelAI 1.5.x — jeden adapter i pusty opis jako
 > zaległość ośmioetapowego planu. Produkt ma dziś 2.1.4, trzy adaptery i materiał demo, więc zakres
 > i kryteria zostały przepisane. Brzmienie sprzed odświeżenia zachowane niżej w sekcji

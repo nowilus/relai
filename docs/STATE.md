@@ -126,21 +126,21 @@ kontrole przeszły; pełna świeża sesja Codexa pozostaje NOT TESTED po błędz
   PIERWSI_UZYTKOWNICY albo tryb ciągły poza Claude Code (materiał: `UserPromptSubmit` Codeksa
   i nośnik `exit 2`, który zatrzymuje turę przed modelem za 0,00 USD). Delegacja w trybie ciągłym
   **bywa pomijana** — model raz otwiera komendę, raz odtwarza procedurę z reguły.
-- **PIERWSI_UZYTKOWNICY — WSTRZYMANY 2026-09-14**, E1 i E2 ZREALIZOWANE (2026-09-12 i 2026-09-13),
-  E3 zostaje gotowy do startu: [plan](plany/PIERWSI_UZYTKOWNICY/PLAN.html) i [status](plany/PIERWSI_UZYTKOWNICY/STATUS.md).
+- **PIERWSI_UZYTKOWNICY — CZĘŚCIOWO ZREALIZOWANY 2026-09-24** (wcześniej wstrzymany 2026-09-14), E1 i E2
+  ZREALIZOWANE (2026-09-12 i 2026-09-13), E3 pominięty — pilotaż nie wystartował; zarchiwizowany: [plan](archiwum/plany/PIERWSI_UZYTKOWNICY/PLAN.html) i [status](archiwum/plany/PIERWSI_UZYTKOWNICY/STATUS.md).
   Pierwszeństwo dostał nowy plan; **termin graniczny raportu 2026-10-03 traci moc** do czasu
   wznowienia, bo pilotaż nie wysłał ani jednego zaproszenia.
   Cel: aktywni użytkownicy i feedback od polskich samodzielnych twórców pracujących z AI; limit
   2–4 sesje, bez płatnej promocji. **Aneks A**: materiał demo produkuje agent, nie nagrywa go
   człowiek. E1 dowiózł **cztery pliki materiału** (25 s GIF i 60 s MP4, PL i EN, bez dźwięku)
-  w [docs/zasoby/demo/](zasoby/demo/), [dokumentację materiału](plany/PIERWSI_UZYTKOWNICY/DEMO.md)
-  z tabelą pokrycia 11/11, [zapis źródłowy](plany/PIERWSI_UZYTKOWNICY/zapis/) siedmiu kroków
+  w [docs/zasoby/demo/](zasoby/demo/), [dokumentację materiału](archiwum/plany/PIERWSI_UZYTKOWNICY/DEMO.md)
+  z tabelą pokrycia 11/11, [zapis źródłowy](archiwum/plany/PIERWSI_UZYTKOWNICY/zapis/) siedmiu kroków
   i poprawiony początek README z osadzonym GIF-em — **sprawdzonym na żywej stronie**: GitHub serwuje
   go z `raw/main` jako animowany obraz (HTTP 200, `image/gif`, 5 063 834 B).
 - **E2 dowiózł materiały zaproszenia — nic nie zostało wysłane.**
-  [ZAPROSZENIE.md](plany/PIERWSI_UZYTKOWNICY/ZAPROSZENIE.md) ma cztery bloki gotowe do wklejenia
+  [ZAPROSZENIE.md](archiwum/plany/PIERWSI_UZYTKOWNICY/ZAPROSZENIE.md) ma cztery bloki gotowe do wklejenia
   (Odpalone, własna sieć, odpowiedź na krytykę, instrukcja dla uczestnika) i tabelę pokrycia
-  **27 tez, 27 ze wskazanym źródłem**; [PROBY.md](plany/PIERWSI_UZYTKOWNICY/PROBY.md) czeka pusty,
+  **27 tez, 27 ze wskazanym źródłem**; [PROBY.md](archiwum/plany/PIERWSI_UZYTKOWNICY/PROBY.md) czeka pusty,
   z regułą wypełniania i wierszami-wzorami. Odnoga `OPIS_REPO` **odświeżona, nie zamknięta** —
   jej domknięcie wymaga zmiany na GitHubie. Publikacja, wysyłka i kontakty czekają na dyspozycję;
   bramki „Dyspozycja publikacji i kontaktów" oraz „Uczestnicy" są otwarte. Liczniki pilotażu:
@@ -168,10 +168,10 @@ kontrole przeszły; pełna świeża sesja Codexa pozostaje NOT TESTED po błędz
 
 ## Co dalej
 
-- **Kierunek następnego planu — decyzja czeka.** Dwaj kandydaci: wznowienie wstrzymanego
-  PIERWSI_UZYTKOWNICY (E3 gotowy, materiały kompletne, brakuje dyspozycji publikacji) albo nowy plan
-  **trybu ciągłego poza Claude Code** (Codex ma własne `UserPromptSubmit` z pełnym promptem,
-  a `exit 2` zatrzymuje turę przed modelem za 0,00 USD). Linia aktywnego planu brzmi `brak`.
+- **Plan [PROWADZENIE_END_TO_END](plany/PROWADZENIE_END_TO_END/STATUS.md) czeka na akceptację**
+  (utworzony 2026-09-24): 7 etapów, 10–13 sesji (SZACUNEK), rejestr 56 ustaleń z trzech raportów
+  sesji — spójność, lżejszy start, podział skilli, nakładki per model (Opus 5.5 główny), onboarding,
+  debug / bezpieczeństwo / deploy. Tryb ciągły poza Claude Code nie wszedł do tego planu.
 - **Restart aplikacji desktopowej po wydaniu 2.2.0** — do tego czasu ta aplikacja ładuje 2.1.4
   z pamięci (P-005). Sekwencja wydania zamknęła się na świeżych sesjach CLI z cache'u.
 - **Projekty z hookiem sprzed 1.9.3 wymagają ponownej instalacji pre-commita** — układ sprzed
@@ -218,14 +218,13 @@ kontrole przeszły; pełna świeża sesja Codexa pozostaje NOT TESTED po błędz
   2026-09-01) oraz usunąć metadane sesji `ProbaCursorE6` z `~/.claude/` i `~/.cursor/`.
 - **Po planie:** pełna sesja Codexa i praca Cursor/Claude pozostają możliwą odnogą pomiarową;
   nie są blokadą opublikowanego wydania 2.0.0.
-- **Feedback od osób spoza projektu** — pilotaż poprowadził autor, więc kryterium „ktoś inny niż
-  autor" nadal czeka. Materiał demo i wydanie 2.1.4 zdjęły ostatnią techniczną przeszkodę, a E2
-  przygotował komplet tekstów. **Zostaje jedna rzecz i jest po stronie człowieka:** dyspozycja
-  publikacji i wskazanie odbiorców. Do tego czasu `PROBY.md` stoi pusty i to jest stan zamierzony,
-  nie zaległość.
-- **Ponowny render materiału demo pod ekran telefonu** — decyzja do E3. Źródła renderu przestały
+- **Feedback od osób spoza projektu** — pilotaż PIERWSI_UZYTKOWNICY zamknięto 2026-09-24 przed
+  wysyłką; kryterium „ktoś inny niż autor" nadal czeka i wróci, jeśli w ogóle, osobnym planem.
+  Materiały zaproszenia zostają w archiwum planu do ponownego użycia.
+- **Ponowny render materiału demo pod ekran telefonu** — od 2026-09-24 w etapie E5 planu
+  PROWADZENIE_END_TO_END. Źródła renderu przestały
   istnieć razem z katalogiem roboczym E1, więc każdy nowy render zaczyna się od ich odtworzenia
-  według instrukcji z [DEMO.md](plany/PIERWSI_UZYTKOWNICY/DEMO.md) — to jest ta sama decyzja co
+  według instrukcji z [DEMO.md](archiwum/plany/PIERWSI_UZYTKOWNICY/DEMO.md) — to jest ta sama decyzja co
   „trwałe miejsce źródeł renderu" (Aneks A, ryzyko A2), tylko z nowym powodem.
 - **`description` i `keywords` manifestu opisują produkt jednonarzędziowy** („…framework for Claude
   Code"), a RelAI ma trzy adaptery; `keywords` nie zawiera ani jednej nazwy narzędzia. Wizytówka
@@ -285,8 +284,8 @@ Komendy i frazy: [KOMENDY.md](KOMENDY.md)
 
 Plany: BUDOWA_RELAI 10/10 • OPTYMALIZACJA_KONTEKSTU 5/5 • HIGIENA_DOKUMENTOW 6/6 •
 SPRZATANIE_ARTEFAKTOW 4/4 • REKOMENDACJA_MODELU 4/4 (zamknięty 2026-09-04) •
-ROZWOJ_PO_WYDANIU 8/8 (**ZREALIZOWANY**) • PIERWSI_UZYTKOWNICY 2/3 (**WSTRZYMANY 2026-09-14**) •
-OPTYMALIZATOR_PROMPTOW 5/5 (**ZREALIZOWANY 2026-09-15**, Aneksy A i B) • **Aktywny plan: brak** •
+ROZWOJ_PO_WYDANIU 8/8 (**ZREALIZOWANY**) • PIERWSI_UZYTKOWNICY 2/3 (**CZĘŚCIOWO ZREALIZOWANY 2026-09-24**) •
+OPTYMALIZATOR_PROMPTOW 5/5 (**ZREALIZOWANY 2026-09-15**, Aneksy A i B) • **Aktywny plan: PROWADZENIE_END_TO_END (DO AKCEPTACJI)** •
 Dziennik: **144,4/150 KB** (17 wpisów) — rotowany 2026-09-14 • Lekcje: **48,6/50 KB** (23 w żywym
 rejestrze, ostatnia L-0111) — rotowane 2026-09-14, zeszło L-0079…L-0088 • Sekcja ryzyk:
 **23,5 KB / 12 KB — ponad progiem**: O6 i W1 zamknięte 2026-09-15, więc część rotowalna przestała

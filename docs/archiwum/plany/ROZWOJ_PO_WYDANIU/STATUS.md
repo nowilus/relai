@@ -27,7 +27,7 @@ Plan: [PLAN.html](PLAN.html) · Utworzony: 2026-08-12 · Status: **ZREALIZOWANY 
 ## Odnogi
 
 - **OPIS_REPO** — opis i tematy repozytorium na GitHubie (dziś puste) · źródło: E1 ·
-  [karta](odnogi/OPIS_REPO/ODNOGA.md) · **OTWARTA**
+  [karta](../../../fixy/OPIS_REPO/ODNOGA.md) · **PRZENIESIONA 2026-09-24 → docs/fixy/OPIS_REPO/**
 - **POMIAR_ODNOG** — dziewięć scenariuszy zmierzonych świeżą sesją: cztery odnogowe (punkt 8
   weryfikacji E1), dwa rotacyjne (punkty 5 i 7 weryfikacji E2) i trzy z poprawek E3 (punkty 3, 4
   i 6, dopisane 2026-08-12) · źródło: E1, zakres rozszerzony w E2 i E3 ·

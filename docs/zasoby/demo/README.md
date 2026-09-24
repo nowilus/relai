@@ -18,7 +18,7 @@ przebiegu — zostaje w katalogu roboczym etapu i nie wchodzi do repozytorium.
   pobiera niczego z sieci przy odtwarzaniu.
 - **Bez dźwięku.** Materiał musi być czytelny przy wyciszonym odtwarzaniu — napisy niosą całą treść.
 - **Każda klatka pokazująca plik albo odpowiedź agenta ma pokrycie** w zapisie realnego przebiegu.
-  Tabela pokrycia i sposób sprawdzenia: [`docs/plany/PIERWSI_UZYTKOWNICY/DEMO.md`](../../plany/PIERWSI_UZYTKOWNICY/DEMO.md)
+  Tabela pokrycia i sposób sprawdzenia: [`docs/archiwum/plany/PIERWSI_UZYTKOWNICY/DEMO.md`](../../archiwum/plany/PIERWSI_UZYTKOWNICY/DEMO.md)
   (po zamknięciu planu: w archiwum planów).
 - **GIF do README trzyma się poniżej 5 MB** (SZACUNEK — próg przyjęty dla czasu wczytania strony
   repozytorium). Przekroczenie rozwiązuje się liczbą klatek i paletą, nie skróceniem materiału.
