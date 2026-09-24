@@ -1835,3 +1835,32 @@ Autor: RelAI (Opus 5.5) + Lukasz
 - Zamrożenie decyzji o celu rotacji na wadze całkowitej jako nowej pozycji `DECYZJE.md` przy akceptacji.
 
 Autor: RelAI (Opus 5.5) + Lukasz
+
+### 2026-09-24 — Plan PROWADZENIE_END_TO_END zaakceptowany; D-88 zamrożona
+
+**Zrobione:**
+
+- Plan [PROWADZENIE_END_TO_END](plany/PROWADZENIE_END_TO_END/STATUS.md) **zaakceptowany i zamrożony**
+  bez poprawek (D-33) — zgoda Łukasza w tej samej sesji. `STATUS.md`: ZAAKCEPTOWANY 2026-09-24,
+  E1 → GOTOWY DO STARTU; `PLAN.html` przebudowany ze statusem i notą o akceptacji w sekcji 10.
+- **D-88** w `docs/DECYZJE.md`: rotacja zabiera najstarsze pozycje, aż waga całego żywego pliku zejdzie
+  poniżej 60% progu. Wdrożenie w specyfikacji i mechanizmie — etap E2.
+- `PROMPT_ETAP_1.md` wygenerowany wg `SPEC_PROMPT_ETAPU.md`: 9 pozycji rejestru z przypisaniem E1,
+  realny stan repo po commicie `31b142a`, zasady aktywne przepisane w całości (17 794 B), pomiar
+  wyzwalania skilli przed i po zmianie opisów (ryzyko K1), wydanie 2.3.1 na końcu.
+
+**Zweryfikowane — jak dokładnie:**
+
+- Builder planu: kod 0, bez niewypełnionych znaczników. Prompt E1: zero pozostałych znaczników
+  `{{…}}` po złożeniu (sprawdzone skryptem).
+
+**Świadomie odłożone:**
+
+- Przenumerowanie drugiego D-87 — pozycja A03, zakres E1 (pierwszy wolny numer po D-88).
+
+**Do zrobienia przez człowieka:**
+
+- Start E1 w świeżej sesji na Opus 5.5 (`/relai-stage`); zgoda na tag, push i release 2.3.1 na końcu etapu.
+- Odświeżenie listy modeli Codeksa przed E4 (bramka w `STATUS.md`).
+
+Autor: RelAI (Opus 5.5) + Lukasz

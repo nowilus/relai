@@ -168,8 +168,8 @@ kontrole przeszły; pełna świeża sesja Codexa pozostaje NOT TESTED po błędz
 
 ## Co dalej
 
-- **Plan [PROWADZENIE_END_TO_END](plany/PROWADZENIE_END_TO_END/STATUS.md) czeka na akceptację**
-  (utworzony 2026-09-24): 7 etapów, 10–13 sesji (SZACUNEK), rejestr 56 ustaleń z trzech raportów
+- **Plan [PROWADZENIE_END_TO_END](plany/PROWADZENIE_END_TO_END/STATUS.md) zaakceptowany 2026-09-24**
+  (zamrożony; E1 gotowy do startu, prompt wygenerowany): 7 etapów, 10–13 sesji (SZACUNEK), rejestr 56 ustaleń z trzech raportów
   sesji — spójność, lżejszy start, podział skilli, nakładki per model (Opus 5.5 główny), onboarding,
   debug / bezpieczeństwo / deploy. Tryb ciągły poza Claude Code nie wszedł do tego planu.
 - **Restart aplikacji desktopowej po wydaniu 2.2.0** — do tego czasu ta aplikacja ładuje 2.1.4
@@ -285,7 +285,7 @@ Komendy i frazy: [KOMENDY.md](KOMENDY.md)
 Plany: BUDOWA_RELAI 10/10 • OPTYMALIZACJA_KONTEKSTU 5/5 • HIGIENA_DOKUMENTOW 6/6 •
 SPRZATANIE_ARTEFAKTOW 4/4 • REKOMENDACJA_MODELU 4/4 (zamknięty 2026-09-04) •
 ROZWOJ_PO_WYDANIU 8/8 (**ZREALIZOWANY**) • PIERWSI_UZYTKOWNICY 2/3 (**CZĘŚCIOWO ZREALIZOWANY 2026-09-24**) •
-OPTYMALIZATOR_PROMPTOW 5/5 (**ZREALIZOWANY 2026-09-15**, Aneksy A i B) • **Aktywny plan: PROWADZENIE_END_TO_END (DO AKCEPTACJI)** •
+OPTYMALIZATOR_PROMPTOW 5/5 (**ZREALIZOWANY 2026-09-15**, Aneksy A i B) • **Aktywny plan: PROWADZENIE_END_TO_END (ZAAKCEPTOWANY 2026-09-24, E1 gotowy)** •
 Dziennik: **144,4/150 KB** (17 wpisów) — rotowany 2026-09-14 • Lekcje: **48,6/50 KB** (23 w żywym
 rejestrze, ostatnia L-0111) — rotowane 2026-09-14, zeszło L-0079…L-0088 • Sekcja ryzyk:
 **23,5 KB / 12 KB — ponad progiem**: O6 i W1 zamknięte 2026-09-15, więc część rotowalna przestała

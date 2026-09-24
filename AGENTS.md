@@ -38,11 +38,11 @@ o kolejne `N` dni / rozstrzygnąć teraz. Sesja nieinteraktywna: sam raport, bez
 | Plan SPRZATANIE_ARTEFAKTOW — 4 etapy | **ZREALIZOWANY 2026-09-03** (4/4, wydanie 1.8.0) | [archiwum planu](docs/archiwum/plany/SPRZATANIE_ARTEFAKTOW/STATUS.md) |
 | Plan REKOMENDACJA_MODELU — 4 etapy | **ZREALIZOWANY 2026-09-04** (4/4, Aneksy A–D, wydanie 1.9.0) | [archiwum planu](docs/archiwum/plany/REKOMENDACJA_MODELU/STATUS.md) |
 | Plan PIERWSI_UZYTKOWNICY — 3 etapy | **CZĘŚCIOWO ZREALIZOWANY 2026-09-24** (E1 i E2 zrealizowane, E3 pominięty — pilotaż nie wystartował) | [archiwum planu](docs/archiwum/plany/PIERWSI_UZYTKOWNICY/STATUS.md) |
-| Plan PROWADZENIE_END_TO_END — 7 etapów | **DO AKCEPTACJI** (utworzony 2026-09-24; rejestr 56 ustaleń) | [status planu](docs/plany/PROWADZENIE_END_TO_END/STATUS.md) |
+| Plan PROWADZENIE_END_TO_END — 7 etapów | **ZAAKCEPTOWANY 2026-09-24** (E1 gotowy do startu; rejestr 56 ustaleń) | [status planu](docs/plany/PROWADZENIE_END_TO_END/STATUS.md) |
 | Plan OPTYMALIZATOR_PROMPTOW — 5 etapów | **ZREALIZOWANY 2026-09-15** (5/5, Aneksy A i B, wydanie 2.2.0) | [archiwum planu](docs/archiwum/plany/OPTYMALIZATOR_PROMPTOW/STATUS.md) |
 | Odnogi i wątki samodzielne | 1 otwarta (`OPIS_REPO`, od 2026-09-24 wątek samodzielny w `docs/fixy/`); `ORKIESTRACJA` zamknięta 2026-09-06 (2.1.0 w repo), `PRECOMMIT_ESM` 2026-09-04 wydaniem 1.9.2, `CURSOR_1_9_1` tego samego dnia | [docs/STATE.md](docs/STATE.md) |
 
-Aktywny plan: [PROWADZENIE_END_TO_END](docs/plany/PROWADZENIE_END_TO_END/STATUS.md) — **DO AKCEPTACJI** (2026-09-24).
+Aktywny plan: [PROWADZENIE_END_TO_END](docs/plany/PROWADZENIE_END_TO_END/STATUS.md) — **ZAAKCEPTOWANY 2026-09-24**, E1 gotowy do startu (`/relai-stage` w świeżej sesji Opus 5.5).
 
 ## Reguły procesu
 
