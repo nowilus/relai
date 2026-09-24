@@ -1107,3 +1107,105 @@ Autor: RelAI (Opus 5.5) + Lukasz
 - Restart aplikacji desktopowej, żeby sesje w aplikacji ładowały 2.3.1 (P-005).
 
 Autor: RelAI (Opus 5.5) + Lukasz
+
+### 2026-09-24 — E2 planu PROWADZENIE_END_TO_END: lżejszy start sesji i wydanie 2.4.0
+
+**Zrobione:**
+
+- **Cel rotacji wg D-88 (A10):** `SPEC_ARCHIWUM.md` — bierzesz najstarsze pozycje, aż **cały żywy
+  plik** zejdzie poniżej 60% progu; ciąg kończy się wcześniej tylko na pozycji nietykalnej albo po
+  wyczerpaniu części rotowalnej, a wtedy plik ponad progiem dostaje komunikat zablokowanej rotacji.
+  Trzy wagi zostają — mówią, ile da się zabrać, nie kiedy przestać. Wyzwalacz został na wadze
+  całkowitej (tak było od 1.7.0), więc tytuł sekcji „Próg liczony ponad nietykalnymi" też został:
+  inne dokumenty odsyłają do niego nazwą. Nowa reguła kolejności: **ryzyka rotują przed dziennikiem**,
+  bo ich sekcja należy do dolnej granicy dziennika. Mechanizm (`session-signals.js`) celu nie liczy
+  — kod i test tego punktu nie dotyczą.
+- **Aneks A (decyzja Łukasza):** grep po starym brzmieniu trafił poza specyfikację — katalog progów
+  w `SPEC_USTAWIENIA.md` i skill `relai-core` obu adapterów, czyli wykonawca rotacji. Poprawione
+  zdania z celem; skilla nie skracano (granica z E3).
+- **Rotacja tego repo (A13, A15), trzy przebiegi dwufazowe, każdy z własną sumą:**
+
+  | Przebieg | Co | Plik archiwum | Suma |
+  |---|---|---|---|
+  | ryzyka zamknięte | W1, U1, O1, O6 (5,6 KB) | `docs/archiwum/ryzyka/RYZYKA_2026-09-24.md` | `06fbd954f5ade1fe` |
+  | historia komórek „Mitygacja" | 11 ryzyk otwartych | `docs/archiwum/ryzyka/MITYGACJE_2026-09-24.md` | `783a4cb23e7f6bd1` |
+  | dziennik | 12 wpisów, 2026-09-06 … 2026-09-14 | `docs/archiwum/dziennik/DZIENNIK_2026-09-06_2026-09-14.md` | `6b63318cde49df9c` |
+
+  Dziennik **166 398 → 86 375 B**, sekcja ryzyk **24 198 → 5 317 B**, średnio 401 B na wiersz.
+  Linki „Czeka na człowieka": 11 przepiętych na archiwum, 0 martwych kotwic.
+  **Odstępstwo od `SPEC_DZIENNIK.md` za zgodą Łukasza:** komórki ryzyk `OTWARTE` skompresowane
+  ręcznie — pełna treść w archiwum, w komórce stan jednym zdaniem napisanym od nowa (nie cytat)
+  i odsyłacz `Historia:`; bez członu `Zmierzone:` (daty są w archiwum). Zakaz w specyfikacji
+  dotyczy automatu i zostaje bez zmian.
+- **Budżet startu (A11):** `startCost()` liczy skill wymuszany na pierwszym prompcie (ścieżkę podaje
+  adapter Claude Code) i pliki z **numerowanej listy** rytuału `CLAUDE.md`, których sześć stałych
+  pozycji nie mierzy; obie nowe pozycje bez progu cząstkowego. Raport ma linię „W sumie". Domyślny
+  budżet **80 → 140 KB** w rdzeniu, `SPEC_USTAWIENIA.md` i w tym projekcie (decyzja Łukasza; stary
+  wiersz w „Ustawienia wycofane"), do ponownego pomiaru po podziale skilli w E3. Nowy test
+  `core/process/tests/start-cost.test.js` (3 przypadki).
+- **Rytuał startu (A05):** krok 5 `CLAUDE.md` i `AGENTS.md` — rejestru decyzji nie czytasz na
+  starcie, zakaz proponowania zamrożonych decyzji został; ścieżka w kodzie, nie w linku, więc
+  budżet go nie liczy.
+- **Hook skilla (A16):** start sesji, który podał ustawienia globalne, zostawia znacznik
+  `%TEMP%\relai-ustawienia-podane-<id sesji>`; hook wywołania skilla po znaczniku ich nie powtarza.
+  Brak identyfikatora albo znacznika = zachowanie jak dotąd.
+- **STATE (tryb bez archiwum):** 319 → 108 linii, 25,6 → 6,4 KB. Fakty, które zniknęły ze STATE, a nie
+  stoją gdzie indziej: **usunięcie metadanych sesji `ProbaCursorE6` z `~/.claude/` i `~/.cursor/`**
+  (sprawa człowieka — przeniesiona do „Co dalej" w nowym STATE); liczby z sekcji
+  „Liczby" sprzed E2 (43 testy regresyjne, 50 artefaktów w rejestrze, 18 progów w katalogu,
+  2 modele zmieniające kod produktu, 1 zgłoszenie z cudzego projektu). Reszta — szczegóły 2.3.0,
+  optymalizatora, demo i pilotażu — stoi we wpisach zarchiwizowanych dziś i w archiwach planów.
+- **Rejestr artefaktów:** `SPEC_ARCHIWUM` 2, `SPEC_USTAWIENIA` 8, `SPEC_CLAUDE_MD` 4, `SPEC_PULAPKI` 2,
+  skill `relai-core` 17.
+- **Recenzja kodu (subagent):** jeden błąd — linia „Najgrubsze pozycje" pisała „prog 0 KB" przy
+  pozycji bez progu. Test dopisany (czerwony), poprawka, test zielony.
+- **Wydanie 2.4.0:** commit `04bae44`, tag `v2.4.0`, push na `origin/main`, release na GitHubie
+  (Latest), `marketplace update`, `plugin update relai@relai` 2.3.1 → 2.4.0.
+
+**Zweryfikowane — jak dokładnie:**
+
+- `grep` po `core/templates/`: żadne zdanie nie stawia części rotowalnej jako celu; D-88 przywołane
+  przy regule i w zakazie.
+- Dziennik po rotacji 86 375 B ≤ 92 160 B (`wc -c`); sumy fragmentów w żywym pliku i treści spod
+  separatora odczytanej z dysku zgodne dla trzech archiwów; kopia podglądu → żywy plik zgodna sumą.
+  Najnowszy zarchiwizowany wpis i najstarszy żywy mają tę samą datę 2026-09-14 — punkt uznany
+  w brzmieniu „nie wcześniejszy" (decyzja Łukasza): tego dnia było pięć wpisów, trzy nietykalne,
+  a specyfikacja wymaga ciągłości, nie rozdzielnych dat.
+- Sekcja ryzyk: 11 wierszy, 0 zamkniętych (instrument: status od `ZAMKNI`, kontrola „linie tabeli
+  nie-wiersze = 2").
+- Budżet: test 3/3; hook startu na tym repo przez stdin — **przed zmianą 95 KB** (raport startu tej
+  sesji, 6 pozycji, przed rotacją), po rotacji i STATE starym liczeniem 58,1 KB, **nowym liczeniem
+  123,7 KB** (`skill relai-core 65.6 KB` w linii „W sumie"; wcześniej z DECYZJE 162,9 KB). Przy
+  budżecie 80 KB raport pada (kontrola pozytywna), przy 140 KB milczy.
+- `grep -n DECYZJE CLAUDE.md` — krok 5 mówi „nie czytasz na starcie"; `diff CLAUDE.md AGENTS.md` —
+  nagłówek kopii i nazwa narzędzia.
+- Hook skilla na tym samym payloadzie `relai:relai-core`: bez startu sesji ustawienia padają (1),
+  po starcie tej samej sesji nie padają (0); drugi identyfikator — to samo. Znaczniki testowe
+  w `%TEMP%` skasowane.
+- `wc -l docs/STATE.md` = 108; `node core/tools/validate-adapters.js` kod 0, „7 zrodel, wartosc
+  2.4.0"; `generate-skills.js` — 14 procedur + 2 skille, spójne.
+- `node --test` (rdzeń, guardraile, Codex) — **56/56**.
+- `claude plugin validate .` → `✔ Validation passed` przed tagiem. Cache 2.4.0 wobec repo po
+  CRLF → LF: **6/6 zgodnych** (dwie specyfikacje, `session-signals.js`, hook, skill, manifest),
+  kontrola pozytywna: 6/6 różnych od cache 2.3.1; `installed_plugins.json` wskazuje `2.4.0`.
+- Katalog roboczy `.claude/relai/work/PROWADZENIE_END_TO_END/E2/`: 17 plików, 111,8 KB → skasowany
+  po „tak", ponowny pomiar: katalogu nie ma. Poza projektem: `%TEMP%\relai-a.txt` (lista kotwic)
+  skasowany; `%TEMP%\relai-t-lFgTO6` z raportu sprzątania nie pochodzi z tego etapu — zostaje.
+
+**Świadomie odłożone:**
+
+- `LEKCJE.md` 56 KB przy progu 50 KB — rotacja lekcji (wejście 1, rytuał zamknięcia sesji); E2
+  obejmował dziennik i ryzyka.
+- Projekty z jawnym `start 80 KB` w wierszu budżetu zostają przy swojej wartości (wartość
+  projektowa ma pierwszeństwo); `/relai-update` jej nie nadpisuje.
+- Codex i Cursor nie podają ścieżki skilla do budżetu — nie wymuszają skilla na pierwszym prompcie.
+- Sekcja ryzyk w pozycji budżetu `ryzyka` (20,7 KB z „Czeka na człowieka" i ostatnim wpisem) nadal
+  ponad progiem cząstkowym 12 KB — gruba sekcją spraw człowieka i długością wpisu, nie ryzykami.
+- Pozycja „Czeka na człowieka" starsza niż 30 dni (weryfikacja ośmiu rozstrzygnięć z 2026-09-01) —
+  hook zgłosił, decyzji w tej sesji nie było.
+
+**Do zrobienia przez człowieka:**
+
+- Restart aplikacji desktopowej, żeby sesje w aplikacji ładowały 2.4.0 (P-005).
+
+Autor: RelAI (Opus 5.5) + Lukasz

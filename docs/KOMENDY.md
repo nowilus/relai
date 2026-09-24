@@ -51,9 +51,10 @@ z podpowiedzi; skrócona forma działa tam, gdzie podpowiadacz ją rozwinie.
   Sprawa czekająca na Twoją decyzję nie zatrzymuje już rotacji: wpis, do którego prowadzi, jedzie
   do archiwum jak każdy inny, a link sprawy zostaje przepięty na plik archiwum. Poniżej progu nie
   dzieje się nic; progi i wyłącznik masz w `docs/USTAWIENIA.md`.
-- **Koszt startu sesji jest widoczny, zanim urośnie.** Dokumenty czytane na starcie mają wspólny
-  budżet. Gdy go przekroczą, RelAI mówi o tym pierwszym zdaniem sesji, wskazuje trzy najgrubsze
-  pozycje i proponuje odchudzenie — niczego nie blokuje i niczego nie zmienia sam. Poniżej budżetu
+- **Koszt startu sesji jest widoczny, zanim urośnie.** Dokumenty czytane na starcie — razem
+  ze skillem ładowanym na pierwszym prompcie i plikami z rytuału startu w `CLAUDE.md` — mają wspólny
+  budżet (domyślnie 140 KB). Gdy go przekroczą, RelAI mówi o tym pierwszym zdaniem sesji, wskazuje
+  najgrubsze pozycje, wylicza, co jest w sumie, i proponuje odchudzenie — niczego nie blokuje i niczego nie zmienia sam. Poniżej budżetu
   milczy. Budżet, progi i wyłącznik: wiersz „Budżet startu sesji" w `docs/USTAWIENIA.md`.
 - **Sprawy czekające na Ciebie mają stałe miejsce.** Decyzja, dostęp, zakup, akceptacja — wszystko,
   czego RelAI nie zrobi za Ciebie — stoi w sekcji „Czeka na człowieka" na górze dziennika, jedna

@@ -1,13 +1,14 @@
 # STATE — RelAI
 
-Stan na: 2026-09-24 (etap E2 planu PROWADZENIE_END_TO_END — lżejszy start sesji)
+Stan na: 2026-09-24 (po etapie E2 planu PROWADZENIE_END_TO_END — wydanie 2.4.0)
 
 ## Gdzie jesteśmy
 
 RelAI ma w repozytorium **2.4.0** — wydanie z etapu E2 planu PROWADZENIE_END_TO_END (lżejszy
 start sesji; poprzednio 2.3.1 z E1). Plugin działa w trzech narzędziach — Claude Code, Cursorze i Codeksie — na jednym
-rdzeniu procesu, z czternastoma komendami. Trwa etap E2: start sesji ma kosztować mniej i liczyć
-uczciwie wszystko, co naprawdę czyta. Ostatni pilotaż z użytkownikami zamknięto przed wysyłką
+rdzeniu procesu, z czternastoma komendami. Start sesji kosztuje teraz mniej i liczy uczciwie
+wszystko, co naprawdę czyta; następny krok to podział największych instrukcji na części czytane
+na żądanie. Ostatni pilotaż z użytkownikami zamknięto przed wysyłką
 zaproszeń, więc opinii spoza projektu nadal nie ma.
 
 ## Co działa
@@ -38,16 +39,15 @@ zaproszeń, więc opinii spoza projektu nadal nie ma.
 
 ## Nad czym pracujemy teraz
 
-- **E2 planu PROWADZENIE_END_TO_END — lżejszy start sesji.** Rotacja liczy cel na wadze całego
-  pliku (D-88), dziennik i ryzyka tego repozytorium są odchudzone, budżet startu liczy skill
-  wymuszany na pierwszym prompcie i pliki z rytuału, rytuał nie czyta już rejestru decyzji, a hook
-  skilla nie powtarza ustawień globalnych. Po co: start sesji ma kosztować tyle, ile pokazuje
-  pomiar, a pomiar ma pokazywać wszystko.
+- **E3 planu PROWADZENIE_END_TO_END — skille w progresywnym ujawnianiu** (gotowy do startu). Dwa
+  największe skille schodzą poniżej 500 linii, procedury rzadkie idą do plików doczytywanych na
+  żądanie, a walidator pilnuje, żeby oba adaptery miały tę samą treść. Po co: skill ładowany na
+  pierwszym prompcie to dziś ponad połowa kosztu startu (65,6 z 123,7 KB).
 
 ## Co dalej
 
-- **E3–E7 planu** [PROWADZENIE_END_TO_END](plany/PROWADZENIE_END_TO_END/STATUS.md): skille
-  w progresywnym ujawnianiu, zasady pod model, pierwsze 30 minut (w tym render demo pod telefon),
+- **E4–E7 planu** [PROWADZENIE_END_TO_END](plany/PROWADZENIE_END_TO_END/STATUS.md): zasady
+  pod model, pierwsze 30 minut (w tym render demo pod telefon),
   debug / bezpieczeństwo / deploy, jakość pracy solo i załogi.
 - Przed E4: odświeżenie listy modeli Codeksa (bramka manualna planu).
 - Odnoga `OPIS_REPO` — opis i tematy repozytorium na GitHubie; opis manifestu nadal mówi
@@ -58,6 +58,7 @@ zaproszeń, więc opinii spoza projektu nadal nie ma.
   ścieżki nieistniejącej, `zachowaj` na cudzej ścieżce pisze marker w projekcie sesji. Obejście:
   ścieżki ukośnikami, po operacji sprawdzaj stan katalogu.
 - `PRZENOSNOSC.md` sekcja 2.3 (wywołanie procedur Codeksa) jest nieaktualna.
+- Usunąć metadane sesji `ProbaCursorE6` z `~/.claude/` i `~/.cursor/` (sprawa człowieka od 2026-09-01).
 - W PolyFlow: 60 martwych linków w „Czeka na człowieka" oraz należna rotacja lekcji i ryzyk.
 
 ## Co blokuje
@@ -101,8 +102,8 @@ Backupy: `C:\Users\Lukasz\Backupy\RelAI` • [PRZENOSNOSC.md](PRZENOSNOSC.md) �
 ### Liczby
 
 Plany zamknięte: 8 (ostatni PIERWSI_UZYTKOWNICY, częściowo, 2026-09-24) • Aktywny:
-PROWADZENIE_END_TO_END, E1/7 zrealizowany, E2 w toku • Dziennik: **84,4 KB / 150 KB** po rotacji
-2026-09-24 (archiwum: 9 plików) • Sekcja ryzyk: **5,3 KB / 12 KB**, 11 otwartych, archiwum
-ryzyk: 4 pliki + 1 mitygacji • Lekcje: ~53 KB / 50 KB — rotacja należna • Adaptery: 3 •
+PROWADZENIE_END_TO_END, E2/7 zrealizowany, E3 gotowy • Start sesji: **123,7 KB / 140 KB** (skill 65,6 KB) • Dziennik: **91,8 KB / 150 KB** (po rotacji
+2026-09-24 i wpisie E2 (archiwum: 9 plików)) • Sekcja ryzyk: **5,3 KB / 12 KB**, 11 otwartych, archiwum
+ryzyk: 4 pliki + 1 mitygacji • Lekcje: 56 KB / 50 KB — rotacja należna • Adaptery: 3 •
 Komendy: 14 • Projekty na RelAI: 3 (RelAI, PolyFlow, JiraManager przed migracją) • Modele, na
 których zmierzono proces: 5 (Fable, Opus, Haiku, Composer/auto, Grok 4.6).
