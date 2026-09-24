@@ -56,7 +56,6 @@ Opinii spoza projektu nadal nie ma — pilotaż z użytkownikami zamknięto prze
 - Odświeżenie listy modeli Codeksa w sesji Codeksa (`/relai-models`): lista ma nazwy z 2026-09-05,
   Codex zaleca dziś gpt-6-astra, gpt-6-sol i gpt-6-luna; do tego czasu nakładka `openai` nie ma
   reguł z nazwą modelu, a przydział modeli poza Claude Code jest sprawą człowieka.
-- Rotacja `LEKCJE.md` (ponad progiem 50 KB) przy najbliższym „kończymy na dziś".
 - Wątek `OPIS_REPO` w `docs/fixy/` — opis i tematy repozytorium na GitHubie; opis manifestu nadal
   mówi o jednym narzędziu.
 - Projekty z pre-commitem sprzed 1.9.3 (PolyFlow, JiraManager) wymagają ponownej instalacji hooka.
@@ -113,6 +112,6 @@ Backupy: `C:\Users\Lukasz\Backupy\RelAI` • [PRZENOSNOSC.md](PRZENOSNOSC.md) �
 
 Plany zamknięte: 9 (ostatni PROWADZENIE_END_TO_END, 2026-09-24) • Aktywny: brak • Start sesji:
 **88,6 KB / 100 KB** (bez aktywnego planu; po E6 98,2 KB) • Dziennik: **128,8 KB / 150 KB** • Sekcja ryzyk: 12 otwartych, archiwum ryzyk: 4 pliki
-+ 1 mitygacji • Lekcje: **71,6 KB / 50 KB** — rotacja należna • Adaptery: 3 • Komendy: 14 •
++ 1 mitygacji • Lekcje: **41,9 KB / 50 KB**, 20 w żywym pliku • Adaptery: 3 • Komendy: 14 •
 Testy rdzenia i adapterów: 89 • Projekty na RelAI: 3 (RelAI, PolyFlow, JiraManager przed migracją) •
 Modele, na których zmierzono proces: 6 (Fable, Opus, Sonnet, Haiku, Composer/auto, Grok 4.6).

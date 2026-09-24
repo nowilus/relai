@@ -1702,3 +1702,41 @@ i **K5** (lista Codeksa) zostają — K3 jako nowe otwarte ryzyko w tabeli, K5 j
 - Odświeżenie listy modeli Codeksa w sesji Codeksa (`/relai-models`).
 
 Autor: RelAI (Opus 5.5) + Lukasz
+
+### 2026-09-24 — Zamknięcie sesji: rotacja lekcji i sprzątanie po planie
+
+**Zrobione:**
+
+- **Rotacja lekcji** (krok 2, plik ponad progiem: 73 294 B przy 50 KB, 43 lekcje przy 40):
+  L-0089 … L-0111 (23 pozycje) → [archiwum](archiwum/lekcje/LEKCJE_L-0089_L-0111.md), suma
+  kontrolna `797c63f8e33a2a66`; żywy plik 73 294 → 42 900 B, zostało 20 najnowszych lekcji
+  (L-0112 … L-0131). „Zasady aktywne" nietknięte (15 pozycji, limit 15).
+- **Poprawka układu `LEKCJE.md` przed rotacją:** od 2026-09-14 nowe lekcje (L-0101 … L-0131, także
+  cztery z E7) dopisywano na końcu pliku, czyli **pod** nagłówkiem „Lekcje zwinięte", choć miały
+  status AKTYWNA — stąd hook widział tę sekcję jako 32,3 KB ponad progiem 30 KB. Nagłówek sekcji
+  (opis i odsyłacz, bez żadnej lekcji w środku) przestawiony na koniec pliku; treść lekcji bajt
+  w bajt, zmieniło się tylko miejsce nagłówka. Sekcja „Lekcje zwinięte": 33 079 → 433 B.
+- **Sprzątanie artefaktów** (krok 2a, cztery grupy po „tak"): `PROWADZENIE_END_TO_END/PLAN`,
+  `OPTYMALIZATOR_PROMPTOW/PLAN`, `BRAMKI`, `SESJA_2026-09-24`; `work` 200 → 48 KB (został
+  chroniony `_fixy`). Grupa `%TEMP%` poniżej progu — bez pytania.
+- Tryb ciągły optymalizatora: w tej sesji „nie" (plik zgody sesji); bramka zgody 2.6.0 odpaliła się
+  wcześniej na powiadomieniu o subagencie — defekt Aneksu H, poprawiony w 2.7.0.
+
+**Zweryfikowane — jak dokładnie:**
+
+- Konwencja sumy sprawdzona najpierw na dwóch istniejących archiwach lekcji (odtworzone
+  `bbca7854a607be7b` i `d18c21a837531ba1` — treść po LF, bez białych znaków na końcach; pierwsza
+  wersja instrumentu jej nie odtwarzała i dopiero druga poszła do rotacji). Suma fragmentu
+  i suma pliku archiwum odczytanego z dysku: zgodne.
+- Żywy plik po rotacji: 20 wpisów, wszystkie AKTYWNA, pierwszy L-0112; sekcje w kolejności
+  „Zasady aktywne" → „Lekcje" → „Lekcje zwinięte"; każdy katalog skasowany sprawdzony na brak.
+
+**Świadomie odłożone:**
+
+- Dziennik 128,8 KB (próg 150 KB) i sekcja ryzyk poniżej progów — bez rotacji.
+
+**Do zrobienia przez człowieka:**
+
+- Restart aplikacji pod 2.7.0 i bramki Aneksów F i H (wpis wyżej).
+
+Autor: RelAI (Opus 5.5) + Lukasz
