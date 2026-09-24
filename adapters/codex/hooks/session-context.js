@@ -37,6 +37,24 @@ function main(input) {
     'Use the project instruction router for process rules; skills add procedures but do not replace always-on guidance.',
   ];
   if (copied) lines.push('RelAI templates were provisioned in .claude/relai/templates (' + copied + ' files).');
+  // Model list (2.6.0): the same core function as in the Cursor adapter — copied only when the
+  // project has none, so a refresh made by /relai-models survives the next start. Without it the
+  // prompt optimizer finds no `family` and the openai overlay never applies in its own tool.
+  const list = core.provisionModelList(cwd, {
+    zrodlo: path.join(ROOT, 'adapters', 'codex', 'MODELE.md'),
+    nazwa: 'MODELE-codex.md',
+    destRel: '.claude/relai',
+  });
+  if (list) {
+    lines.push('Model list for this tool: .claude/relai/' + list.nazwa +
+      (list.data ? ' (dated ' + list.data + ')' : ' (no readable date)') +
+      '. When asking which model runs plan stages, name models from this list together with its date.');
+  }
+  for (const line of core.wiekListyModeliReport(
+    core.wiekListyModeli(cwd, { nazwa: 'MODELE-codex.md', markeryGoscia: markers }),
+    { interaktywna: true })) {
+    lines.push(line);
+  }
   for (const line of core.startCostReport(core.startCost(cwd, { markeryGoscia: markers }))) lines.push(line);
   process.stdout.write(JSON.stringify({ hookSpecificOutput: { hookEventName: 'SessionStart', additionalContext: lines.join('\n') } }));
 }

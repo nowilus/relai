@@ -35,7 +35,7 @@ Dwa pliki, dwie różne role:
 `ODNOGA.md` — człowiek wracający do wątku i agent czytający `STATUS.md` planu.
 `PROMPT_ODNOGA.md` — agent w świeżej sesji, na modelu wskazanym w karcie.
 
-## Czego odnoga NIE robi
+## Czego odnoga nie robi
 
 - **Nie dotyka `PLAN.md` / `PLAN.html`.** Plan zaakceptowany jest zamrożony (D-33), a odnoga nie
   jest aneksem: nie zmienia zakresu żadnego etapu ani celów planu. Zmiana samego planu to aneks,
@@ -98,7 +98,9 @@ mniej sekcji, bo odnoga jest mniejsza od etapu.
 ### 2. Linia metryczna
 
 Elementy oddzielone `•`: `Odnoga: <NAZWA>` • `Plan-rodzic: <TEMAT>, etap E<N>` (albo
-`Plan-rodzic: brak`) • `Wygenerowano: <data> (autor: <model>)` • `Wykonawca: **<model>**`.
+`Plan-rodzic: brak`) • `Wygenerowano: <data> (autor: <model>)` • `Wykonawca: **<model>**`, a po nim zalecany poziom
+`/effort <poziom>` — ta sama reguła co w `SPEC_PROMPT_ETAPU.md`, sekcja 2 (bez wskazania w planie
+albo bez planu: `medium`; narzędzie bez takiego ustawienia → element pomijasz).
 
 Człon **plan-rodzic jest obowiązkowy** — świeża sesja musi wiedzieć, czyjego planu nie wolno jej
 tknąć.
@@ -109,7 +111,7 @@ Blockquote, jedno zdanie: wykonuj wyłącznie na modelu klasy X, w tym narzędzi
 listy, z której nazwa pochodzi); inny model → zatrzymaj się i poproś o przełączenie. Nazwę i datę
 bierzesz z listy modeli narzędzia (`.claude/relai/MODELE-<narzędzie>.md`, pole `list-date`); która
 lista obowiązuje, mówi zdanie hooka startu. Listy nie ma → zdanie zostaje przy samej klasie, bez
-zmyślonej nazwy. Postać zdania jest ta sama co w `SPEC_PROMPT_ETAPU.md`, sekcja 3 — odnoga i etap
+zmyślonej nazwy. Zdanie kończy zalecany poziom `/effort` z powodem w jednym zdaniu. Postać zdania jest ta sama co w `SPEC_PROMPT_ETAPU.md`, sekcja 3 — odnoga i etap
 mówią o modelu jednym językiem. Sekcja obowiązkowa nawet wtedy, gdy projekt ma jeden model do
 wszystkiego.
 
@@ -120,7 +122,7 @@ mniej niż w prompcie etapowym, bo zakres jest węższy. Zawsze obecne: `CLAUDE.
 (`ODNOGA.md`), pliki, które wątek będzie zmieniał. `PLAN.md` / `PLAN.html` planu-rodzica **tylko
 wtedy**, gdy odnoga naprawdę potrzebuje kontekstu planu — zwykle nie potrzebuje.
 
-### 5. Decyzje już podjęte — NIE otwieraj ich ponownie
+### 5. Decyzje już podjęte — nie otwierasz ich ponownie
 
 Lista punktowa z numerami `D-NN` albo źródłami. Ostatni punkt jest **stały i obowiązkowy** —
 granica wobec planu głównego, w tym brzmieniu (przetłumaczonym na język projektu, sens bez zmian):
@@ -138,7 +140,7 @@ Stan faktyczny repozytorium, sprawdzony w chwili generacji, nie stan planowany. 
 
 - jedno–dwa zdania o tym, co w tym obszarze jest dzisiaj,
 - listę plików istotnych dla wątku z jednolinijkowym opisem każdego,
-- akapit **„Czego jeszcze NIE ma"** — dokładnie to, co odnoga ma dowieźć,
+- akapit **„Czego jeszcze nie ma"** — dokładnie to, co odnoga ma dowieźć,
 - **„Zasady aktywne" z `docs/LEKCJE.md` przepisane w całości** — tak samo jak w prompcie etapowym.
   Odnoga jest mniejsza, ale świeża sesja jest tak samo świeża.
 
@@ -167,7 +169,7 @@ zamknięcia odnogi.
 
 ### 8. Na koniec — rytuał zamknięcia odnogi
 
-Numerowana lista, z nagłówkiem mówiącym wprost: **bez tego rytuału odnoga NIE jest zamknięta**.
+Numerowana lista, z nagłówkiem mówiącym wprost: **bez tego rytuału odnoga nie jest zamknięta**.
 
 1. **`ODNOGA.md`** — status → `ZAMKNIĘTA <data>`, sekcja „Wynik" wypełniona.
 2. **`STATUS.md` planu-rodzica** — linia tej odnogi w sekcji „Odnogi" → `ZAMKNIĘTA <data>`.
@@ -191,7 +193,7 @@ Punktu „wygeneruj następny prompt" tu **nie ma** — odnogi nie tworzą łań
 - Nie wpisujesz odnogi do tabeli etapów `STATUS.md` i nie nadajesz jej numeru etapu.
 - Nie zakładasz folderu `odnogi/` na zapas — powstaje razem z pierwszą odnogą (D-11).
 - Nie tworzysz odnogi dla wątku, który jest zmianą samego planu — to aneks (D-33).
-- Nie tworzysz odnogi z wnętrza odnogi — jedna głębokość, patrz „Czego odnoga NIE robi".
+- Nie tworzysz odnogi z wnętrza odnogi — jedna głębokość, patrz „Czego odnoga nie robi".
 - Nie zostawiasz karty bez sekcji „Weryfikacja" (D-25) ani promptu bez „Zasad aktywnych".
 - Zero sekretów — nazwy zmiennych tak, wartości nigdy (D-42).
 
@@ -250,11 +252,12 @@ jest błąd etapu — to brakująca obserwowalność, spoza zakresu E2.
 # PROMPT_ODNOGA — ponowione zdarzenia Stripe w logu aplikacji
 
 Odnoga: PONOWIONE_ZDARZENIA • Plan-rodzic: PLATNOSCI, etap E2 • Wygenerowano: 2026-08-15
-(autor: Opus) • Wykonawca: **Opus**
+(autor: Opus) • Wykonawca: **Opus**, `/effort medium`
 
 > **Kontrola modelu:** ten wątek wykonuj wyłącznie na modelu klasy **najsilniejszy**, w tym
 > narzędziu: **Opus 5** (lista modeli z dnia `2026-09-04`). Jeśli sesja działa na innym modelu —
-> zatrzymaj się i poproś użytkownika o przełączenie, zanim cokolwiek zrobisz.
+> zatrzymaj się i poproś użytkownika o przełączenie, zanim cokolwiek zrobisz. Zalecany poziom
+> `/effort`: `medium` (wątek wąski: jeden plik i jeden przypadek brzegowy).
 
 ## Co przeczytać na start (w tej kolejności, nic więcej)
 
@@ -265,7 +268,7 @@ Odnoga: PONOWIONE_ZDARZENIA • Plan-rodzic: PLATNOSCI, etap E2 • Wygenerowano
 | `src/app/api/payments/webhook/route.ts` | gałąź „już przetworzone" — tu wchodzi log |
 | `src/payments/int/webhook.test.ts` | konwencja testów integracyjnych z E2 |
 
-## Decyzje już podjęte — NIE otwieraj ich ponownie
+## Decyzje już podjęte — nie otwierasz ich ponownie
 
 - Poziom logu to `info`, nie `warn` — duplikat jest normalnym zachowaniem Stripe'a, nie usterką.
 - Formatu logów nie zmieniamy; dopisujesz linię w istniejącej konwencji.
@@ -282,7 +285,7 @@ src/app/api/payments/webhook/route.ts   # weryfikacja podpisu + dwie gałęzie z
 src/payments/int/webhook.test.ts        # 11 testów, w tym „zdarzenie powtórzone"
 ```
 
-**Czego jeszcze NIE ma:** żadnego śladu w logu przy zdarzeniu powtórzonym — gałąź kończy się
+**Czego jeszcze nie ma:** żadnego śladu w logu przy zdarzeniu powtórzonym — gałąź kończy się
 `return new Response(null, { status: 200 })` bez linii logu.
 
 **Zasady aktywne z `docs/LEKCJE.md`, obowiązujące w tym wątku** (przepisane w całości):
@@ -297,7 +300,7 @@ tymczasowe powstaje tam; artefakt spoza projektu wpisujesz do wpisu dziennika z 
 
 (zakres i checkboxy przepisane z karty — karta jest źródłem)
 
-## Na koniec (rytuał obowiązkowy — bez niego odnoga NIE jest zamknięta)
+## Na koniec (rytuał obowiązkowy — bez niego odnoga nie jest zamknięta)
 
 1. `ODNOGA.md`: status → `ZAMKNIĘTA 2026-08-15`, sekcja „Wynik" wypełniona.
 2. `docs/plany/PLATNOSCI/STATUS.md`: linia tej odnogi w sekcji „Odnogi" → `ZAMKNIĘTA 2026-08-15`.

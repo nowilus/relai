@@ -1,6 +1,6 @@
 {
   "name": "relai-core",
-  "version": "2.5.0",
+  "version": "2.6.0",
   "description": "Wspolny rdzen RelAI: specyfikacje dokumentow, opisy procesu i guardrails jako czyste skrypty Node. Adaptery narzedzi (Claude Code, Cursor, Codex) korzystaja z tych samych plikow.",
   "templates": "./templates/",
   "guardrails": [
@@ -35,6 +35,18 @@
       "file": "./prompt/SZABLONY.md",
       "kind": "rusztowania",
       "description": "Trzy rusztowania promptu: zmiana w kodzie, analiza i rozpoznanie, praca dokumentacyjna. Czytane wybiorczo — tylko rozdzial pasujacy do rozpoznanego ksztaltu zadania."
+    },
+    {
+      "id": "prompt-rodzina-claude",
+      "file": "./prompt/rodziny/claude.md",
+      "kind": "nakladka rodziny",
+      "description": "Reguly optymalizatora dla modelu docelowego z family: claude na liscie narzedzia — tagi XML, material przed zadaniem, raport z pracy per model. Kazda regula ze zrodlem dostawcy i data odczytu; overlay-date czyta hook startu."
+    },
+    {
+      "id": "prompt-rodzina-openai",
+      "file": "./prompt/rodziny/openai.md",
+      "kind": "nakladka rodziny",
+      "description": "Reguly optymalizatora dla modelu docelowego z family: openai — cel i kontrakt wyjscia bez krokow, zacheta do dzialania, pierwszenstwo polecenia nad skillem. Bez nazw modeli do odswiezenia listy Codeksa."
     }
   ],
   "process": [

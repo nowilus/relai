@@ -125,7 +125,7 @@ Zawsze te trzy, z odpowiedzi na paczkę startową (D-20), plus wersja RelAI w li
 | Przegląd spraw człowieka | wartość domyślna `włączony · 30 dni` — **bez pytania**, tak samo jak dwa wyżej (od 1.7.0) |
 | Artefakty robocze | wartość domyślna `włączone · 100 MB` — **bez pytania**, tak samo jak trzy wyżej (od 1.8.0) |
 | Lista modeli | wartość domyślna `włączona · 7 dni` — **bez pytania**, tak samo jak cztery wyżej (od 1.9.0) |
-| Tryb ciągły | wartość domyślna **`wyłączony`** — **bez pytania**; tryb ciągły włącza się **jawnie**, bo przerabia każdy prompt merytoryczny i kosztuje +110 tokenów na turę (od 2.2.0) |
+| Tryb ciągły | wartość domyślna **`wyłączony`** — **bez pytania**; tryb ciągły włącza się **jawnie**, bo przerabia każdy prompt merytoryczny, a jedna przeróbka kosztuje rzędu 60 KB kontekstu i jedną turę więcej — rozbicie w sekcji „Tryb ciągły" niżej (od 2.2.0) |
 
 Wiersz **`Profil projektu`** jest czytany maszynowo — hooki `profile-rules` i `config-protection`
 biorą z niego reguły warunkowe (D-50). Kolumna `Decyzja` musi **zaczynać się** od jednej z czterech
@@ -420,7 +420,22 @@ projektu z wcześniejszej wersji.
 
 **Nośnik jest zmierzony, nie założony** (2026-09-15): hook `UserPromptSubmit` **dokłada kontekst**
 do tury i promptu **nie podmienia**, więc tryb stoi na regule wstrzykiwanej obok oryginału.
-Koszt nośnika: **+110 tokenów wejścia** na turę merytoryczną (reguła 245 znaków).
+Koszt nośnika: **+110 tokenów wejścia** na turę merytoryczną (reguła 245 znaków). To jest koszt
+**nośnika**, nie przeróbki — reguła każe przerobić prompt, a sama przeróbka kosztuje znacznie więcej.
+
+**Pełny koszt jednej przeróbki** (pomiar 2026-09-24, wersja 2.6.0):
+
+| Składnik | Ile | Etykieta |
+|---|---|---|
+| reguła wstrzykiwana do tury | 245 B, ok. 110 tokenów, przy każdej turze merytorycznej | FAKT (bajty `regula()`); tokeny z pomiaru 2026-09-15 |
+| pierwsza tura sesji: pytanie o zgodę zamiast reguły | 809 B, raz na sesję | FAKT (bajty `regulaBramki()`) |
+| procedura komendy `/relai-prompt` w kontekście sesji | 28,6 KB | FAKT (`wc -c`) |
+| reguły czytane przez subagenta: `REGULY.md`, rusztowanie, nakładka rodziny, definicja agenta | 16,9 KB + do 9,4 KB + 4,7–6,8 KB + 7,4 KB | FAKT (rozmiary plików); ile z tego trafia do kontekstu w danym przebiegu — SZACUNEK |
+| tura zgody człowieka | jedna wymiana więcej na każdy prompt: propozycja → zgoda → wykonanie | FAKT (procedura); czas i tokeny tej tury — SZACUNEK |
+
+Razem: **rzędu 60 KB kontekstu, ok. 15–20 tys. tokenów, i jedna tura więcej** na każdy prompt
+merytoryczny (SZACUNEK z sumy rozmiarów, przy ok. 3,5 bajta na token tekstu polskiego z markdownem).
+Część składników idzie przez subagenta, więc nie obciąża kontekstu sesji — ale obciąża rachunek.
 
 Format komórki `Decyzja` jest sztywny, bo jest czytana maszynowo (L-0025) — kotwica na **początku**
 komórki:

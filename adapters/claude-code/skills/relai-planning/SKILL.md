@@ -16,7 +16,7 @@ description: >
 
 # relai-planning — plany, etapy i ich zamrażanie
 
-Aktualny stan dystrybucyjny: RelAI 2.5.0; procedura tego skilla pochodzi z wersji 1.8.0, a akapit niżej opisuje jej zakres.
+Aktualny stan dystrybucyjny: RelAI 2.6.0; procedura tego skilla pochodzi z wersji 1.8.0, a akapit niżej opisuje jej zakres.
 
 Wersja procedury 1.8.0 (plan SPRZATANIE_ARTEFAKTOW — katalog roboczy etapu nazwany z góry, krok 1a rytuału „Na koniec"). Zakres tej wersji: **wykrycie intencji planowania + rozróżnienie
 PLAN/MINIPLAN + pytanie startowe + generacja planu w Markdown albo w HTML + `STATUS.md` +
@@ -291,12 +291,14 @@ Układ jest **stały, dziewięć elementów, w tej kolejności** (szczegóły ka
 
 1. Nagłówek `# PROMPT_ETAP_N — <tytuł etapu>`.
 2. Linia metryczna: `Plan: <TEMAT> • Etap: **EN z EM** • Wygenerowano: <data> (autor: <model>) •
-   Wykonawca: **<model ze STATUS.md>**`.
-3. **Kontrola modelu** — blockquote „wykonuj wyłącznie na modelu X; inny model → zatrzymaj się".
+   Wykonawca: **<model ze STATUS.md>**`, a po nim zalecany poziom `/effort <poziom>` (z tabeli
+   etapów planu; plan go nie podaje → `medium`).
+3. **Kontrola modelu** — blockquote „wykonuj wyłącznie na modelu X; inny model → zatrzymaj się",
+   zakończony zalecanym poziomem `/effort` z powodem w jednym zdaniu.
 4. **Co przeczytać na start** — tabela `Plik | Po co`, z dopiskiem „w tej kolejności, nic więcej".
-5. **Decyzje już podjęte — NIE otwieraj ich ponownie** — lista z numerami `D-NN` / źródłami;
+5. **Decyzje już podjęte — nie otwierasz ich ponownie** — lista z numerami `D-NN` / źródłami;
    ostatni punkt wyznacza granicę zakresu wobec etapów następnych.
-6. **Stan wyjściowy** — realny stan repo: drzewko plików, akapit „Czego jeszcze NIE ma",
+6. **Stan wyjściowy** — realny stan repo: drzewko plików, akapit „Czego jeszcze nie ma",
    przepisane w całości „Zasady aktywne" z rejestru lekcji.
 7. **Zakres etapu** — sekcja **otwiera się linią z katalogiem roboczym etapu**
    (`.claude/relai/work/<TEMAT>/E<N>/` — ścieżka podstawiona, nie opisana; artefakt spoza projektu
@@ -306,7 +308,7 @@ Układ jest **stały, dziewięć elementów, w tej kolejności** (szczegóły ka
    raportem, skasowany po „tak", liczby przed i po do wpisu; artefakty spoza niego wypisane
    z nazwy. Wyłączony wiersz `Artefakty robocze` tego punktu nie wycisza.
 9. **Na koniec** — `STATUS.md` → dziennik (+ lekcje, + ryzyka) → dokumenty → **generacja
-   `PROMPT_ETAP_N+1`** → commit, z adnotacją „bez tego rytuału etap NIE jest ukończony".
+   `PROMPT_ETAP_N+1`** → commit, z adnotacją „bez tego rytuału etap nie jest ukończony".
 
 Ta sama zasada dotyczy `STATUS.md`: generujesz go i aktualizujesz wg `SPEC_STATUS.md`, a nie wg
 własnego układu tabeli. Kolumny są dokładnie `Etap | Nazwa | Status | Prompt | Uwagi`, a linia
@@ -399,7 +401,7 @@ ukończenia z `relai-core`, tylko dla etapu planu. Kolejność jest wiążąca:
 5. **Wygeneruj `PROMPT_ETAP_N+1.md`** ze specyfikacji promptu etapowego — z sekcji `PLAN.md`
    opisującej etap N+1, z **realnego stanu repo po tym etapie** i z lekcji, które w tym etapie
    powstały. To jest punkt, który najłatwiej pominąć i który przesądza o ciągłości pracy:
-   **etap bez wygenerowanego następnego promptu NIE jest ukończony** (D-34).
+   **etap bez wygenerowanego następnego promptu nie jest ukończony** (D-34).
 6. **Commit** — propozycja, conventional message. Jedyny punkt tego rytuału, o który pytasz.
 
 Zamykany etap był **ostatnim** w planie → punkt 5 zastępujesz sekwencją „Zamknięcie planu" z pliku `plan-closing.md`.

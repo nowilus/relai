@@ -249,7 +249,52 @@ function dataListyModeli(plik) {
   }
 }
 
-// Zwraca { nazwa, data, skopiowany } albo null (brak zrodla, brak nazwy, awaria zapisu).
+// --- pole family w kopii projektu (2.6.0, plan PROWADZENIE_END_TO_END E4) ---
+// Kopia listy w projekcie jest trwala (patrz wyzej), wiec lista sprzed 2.6.0 nigdy nie dostalaby
+// pola family, a bez niego optymalizator nie wybierze nakladki rodziny. Uzupelniamy WYLACZNIE
+// brakujace pole, i tylko przy pozycji, ktorej id wystepuje w liscie pluginu z rodzina — nazwy,
+// klasy, zrodla i daty nie ruszamy. Pozycja bez pary zostaje bez pola: sam rdzen, nie domysl.
+const LINIA_POZYCJI = /^(?:strong|balanced|cheap):/;
+const POLE_ID = /\|\s*id:\s*([^|\s]+)/;
+const POLE_RODZINY = /\|\s*family:\s*([^|\s]+)/;
+
+function rodzinyZrodla(txt) {
+  const mapa = new Map();
+  for (const l of txt.split(/\r?\n/)) {
+    if (!LINIA_POZYCJI.test(l)) continue;
+    const id = POLE_ID.exec(l);
+    const rodzina = POLE_RODZINY.exec(l);
+    if (id && rodzina && id[1] !== '-') mapa.set(id[1], rodzina[1]);
+  }
+  return mapa;
+}
+
+// Zwraca liczbe uzupelnionych pozycji (0 = nic do zrobienia albo awaria — cisza).
+function uzupelnijRodzine(cel, zrodlo) {
+  try {
+    const txt = fs.readFileSync(cel, 'utf8');
+    const mapa = rodzinyZrodla(fs.readFileSync(zrodlo, 'utf8'));
+    if (!mapa.size) return 0;
+    let n = 0;
+    const eol = txt.includes('\r\n') ? '\r\n' : '\n';
+    const linie = txt.split(/\r?\n/).map((l) => {
+      if (!LINIA_POZYCJI.test(l) || POLE_RODZINY.test(l)) return l;
+      const id = POLE_ID.exec(l);
+      const rodzina = id && mapa.get(id[1]);
+      if (!rodzina) return l;
+      n++;
+      return / \| source:/.test(l)
+        ? l.replace(' | source:', ' | family: ' + rodzina + ' | source:')
+        : l + ' | family: ' + rodzina;
+    });
+    if (n) fs.writeFileSync(cel, linie.join(eol));
+    return n;
+  } catch (_) {
+    return 0;
+  }
+}
+
+// Zwraca { nazwa, data, skopiowany, uzupelnione } albo null (brak zrodla, brak nazwy, awaria zapisu).
 // null znaczy dla adaptera: cisza — zadnego zdania o liscie.
 function provisionModelList(cwd, opcje) {
   try {
@@ -259,12 +304,15 @@ function provisionModelList(cwd, opcje) {
     const destRoot = path.join(cwd, ...String(o.destRel || '.claude/relai').split('/'));
     const cel = path.join(destRoot, o.nazwa);
     let skopiowany = false;
+    let uzupelnione = 0;
     if (!fs.existsSync(cel)) {
       fs.mkdirSync(destRoot, { recursive: true });
       fs.copyFileSync(o.zrodlo, cel);
       skopiowany = true;
+    } else {
+      uzupelnione = uzupelnijRodzine(cel, o.zrodlo);
     }
-    return { nazwa: o.nazwa, data: dataListyModeli(cel), skopiowany };
+    return { nazwa: o.nazwa, data: dataListyModeli(cel), skopiowany, uzupelnione };
   } catch (_) {
     return null;
   }
@@ -287,6 +335,32 @@ const CZLON_DNI_LISTY = /^(\d+)\s*(?:dni|dzie[nń]|days?|day)\b/i;
 // przyjmujemy, bo trzy wiersze obok maja wlasnie ja i literowka byla by tu cisza (L-0025).
 const LISTA_WLACZONA = /^(?:w[łl][ąa]czon[ae]|on|enabled)\b/i;
 const LISTA_WYLACZONA = /^(?:wy[łl][ąa]czon[ae]|off|disabled)\b/i;
+
+// --- wiek nakladek rodzin modeli (2.6.0, plan PROWADZENIE_END_TO_END E4, ryzyko K3) ---
+// Nakladka niesie reguly dostawcy z data odczytu zrodel (linia "overlay-date: RRRR-MM-DD").
+// Przychodzi z pluginem i jest nadpisywana przy kazdym starcie, wiec w projekcie nie da sie jej
+// odswiezyc — swieza przychodzi z aktualizacja pluginu. Stad prog wlasny i dluzszy niz listy
+// (tydzien bylby szumem, ktorego czlowiek nie ma czym usunac), a wylacznik wspolny: wiersz
+// "Lista modeli" wycisza oba sygnaly naraz, bo oba mowia o wiedzy o modelach z data.
+const PROG_NAKLADKI_DNI = 30;
+const DATA_NAKLADKI = /^overlay-date:\s*(\d{4}-\d{2}-\d{2})\s*$/m;
+
+// Zwraca liste { plik, data, wiekDni, progDni } dla nakladek z czytelna data nie z przyszlosci.
+// Brak katalogu albo brak daty w pliku = brak pozycji (cisza, nie domysl).
+function wiekNakladek(destRoot, dzisiaj) {
+  const katalog = path.join(destRoot, 'prompt', 'rodziny');
+  let pliki = [];
+  try { pliki = fs.readdirSync(katalog).filter((n) => /\.md$/i.test(n)).sort(); } catch (_) { return []; }
+  const wynik = [];
+  for (const plik of pliki) {
+    const m = DATA_NAKLADKI.exec(czytaj(path.join(katalog, plik)));
+    if (!m) continue;
+    const wiekDni = dniMiedzy(m[1], dzisiaj);
+    if (wiekDni === null || wiekDni < 0) continue;
+    wynik.push({ plik, data: m[1], wiekDni, progDni: PROG_NAKLADKI_DNI });
+  }
+  return wynik;
+}
 
 // Zwraca:
 //   null                                 — folder nie jest projektem RelAI albo nie ma ustawien
@@ -324,24 +398,26 @@ function wiekListyModeli(cwd, opcje) {
     }
 
     const destRoot = path.join(cwd, ...String(o.destRel || '.claude/relai').split('/'));
+    const nakladki = wiekNakladek(destRoot, o.dzisiaj || todayLocal());
     const plikListy = path.join(destRoot, o.nazwa);
     const data = dataListyModeli(plikListy);
-    if (!data) return { wlaczone: true, progDni, nazwa: o.nazwa, brakDaty: true };
+    if (!data) return { wlaczone: true, progDni, nazwa: o.nazwa, brakDaty: true, nakladki };
 
     const wiekDni = dniMiedzy(data, o.dzisiaj || todayLocal());
     // Wiek ujemny znaczy date z przyszlosci — to samo co data nieczytelna: cisza (b5 planu).
     if (wiekDni === null || wiekDni < 0) {
-      return { wlaczone: true, progDni, nazwa: o.nazwa, brakDaty: true };
+      return { wlaczone: true, progDni, nazwa: o.nazwa, brakDaty: true, nakladki };
     }
 
-    return { wlaczone: true, progDni, nazwa: o.nazwa, data, wiekDni };
+    return { wlaczone: true, progDni, nazwa: o.nazwa, data, wiekDni, nakladki };
   } catch (_) {
     return null;
   }
 }
 
-// Raport dla kontekstu startu — ASCII (L-0016) i DOKLADNIE JEDNA linia albo zero.
-// Hook niczego nie pobiera i niczego nie zapisuje: przypomnienie jest zdaniem, nie akcja.
+// Raport dla kontekstu startu — ASCII (L-0016): najwyzej jedna linia o liscie i jedna
+// o nakladkach, zero ponizej progow. Hook niczego nie pobiera i niczego nie zapisuje:
+// przypomnienie jest zdaniem, nie akcja.
 function wiekListyModeliReport(miara, opcje) {
   if (!miara) return [];
   const o = opcje || {};
@@ -351,16 +427,27 @@ function wiekListyModeliReport(miara, opcje) {
       ascii(miara.nierozpoznana) + ') jest nierozpoznana, wiec przypomnienie o wieku listy ' +
       'modeli jest wylaczone. Dozwolone wartosci: wlaczona / wylaczona (on / off).'];
   }
-  if (!miara.wlaczone || miara.brakDaty) return [];
-  if (!(miara.wiekDni > miara.progDni)) return [];
-
-  return ['[RelAI lista modeli] Lista modeli tego narzedzia (.claude/relai/' + ascii(miara.nazwa) +
-    ', z dnia ' + miara.data + ') ma ' + miara.wiekDni + ' dni przy progu ' + miara.progDni +
-    ' dni, wiec nazwy moga byc nieaktualne.' +
-    // Sesja nieinteraktywna dostaje ten sam fakt bez propozycji: komenda pyta o zgode na siec,
-    // a bez czlowieka przy klawiaturze nie ma jej komu udzielic.
-    (o.interaktywna === false ? '' :
-      ' Zaproponuj uzytkownikowi komende /relai-models - pokaze roznice i zapisze dopiero po "tak".')];
+  if (!miara.wlaczone) return [];
+  const linie = [];
+  if (!miara.brakDaty && miara.wiekDni > miara.progDni) {
+    linie.push('[RelAI lista modeli] Lista modeli tego narzedzia (.claude/relai/' + ascii(miara.nazwa) +
+      ', z dnia ' + miara.data + ') ma ' + miara.wiekDni + ' dni przy progu ' + miara.progDni +
+      ' dni, wiec nazwy moga byc nieaktualne.' +
+      // Sesja nieinteraktywna dostaje ten sam fakt bez propozycji: komenda pyta o zgode na siec,
+      // a bez czlowieka przy klawiaturze nie ma jej komu udzielic.
+      (o.interaktywna === false ? '' :
+        ' Zaproponuj uzytkownikowi komende /relai-models - pokaze roznice i zapisze dopiero po "tak".'));
+  }
+  // Nakladki: jedna linia na wszystkie przeterminowane naraz, zero ponizej progu.
+  const stare = (miara.nakladki || []).filter((n) => n.wiekDni > n.progDni);
+  if (stare.length) {
+    linie.push('[RelAI nakladki modeli] Reguly optymalizatora promptow dla rodzin modeli (' +
+      stare.map((n) => '.claude/relai/prompt/rodziny/' + ascii(n.plik) + ' z dnia ' + n.data +
+        ', ' + n.wiekDni + ' dni').join('; ') + ') sa starsze niz ' + stare[0].progDni +
+      ' dni, wiec moga nie nadazac za wytycznymi dostawcow. Swieze przychodza z aktualizacja ' +
+      'pluginu RelAI; do tego czasu /relai-prompt korzysta z nich dalej.');
+  }
+  return linie;
 }
 
 // --- propozycja struktury poza projektem (2.3.0) ----------------------------
@@ -1479,6 +1566,8 @@ module.exports = {
   dataListyModeli, // eksportowana, zeby dalo sie sprawdzic testem kotwice i format daty
   wiekListyModeli, // prog swiezosci listy — wylacznik, prog w dniach, cisza ponizej (1.9.0)
   wiekListyModeliReport,
+  wiekNakladek, // eksportowane, zeby dalo sie sprawdzic testem nakladke stara i swieza (K3)
+  uzupelnijRodzine, // eksportowane, zeby dalo sie sprawdzic testem uzupelnienie pola family
   globalSettingsText,
   propozycjaPozaProjektem, // wiersz globalny "nie pytaj mnie o RelAI poza projektami" (2.3.0)
   propozycjaPozaProjektemReport,

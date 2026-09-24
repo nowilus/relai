@@ -16,7 +16,7 @@ description: >
 
 # relai-core — struktura projektu, pamięć i rytuały sesji
 
-Aktualny stan dystrybucyjny: RelAI 2.5.0. Historia zmian wersji: `history.md`.
+Aktualny stan dystrybucyjny: RelAI 2.6.0. Historia zmian wersji: `history.md`.
 
 Zakres tego skilla: **rozpoznanie stanu folderu + inicjalizacja + tryb
 gościa + niedestrukcyjne dołączenie + rytuały sesji + rotacja dokumentów przy zamknięciu sesji +

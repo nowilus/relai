@@ -6,6 +6,10 @@ portowana z `nidhinjs/prompt-master` (MIT, © 2026 Nidhin Joseph Nelson); nota �
 **Czytasz wyłącznie ten rozdział, który pasuje do rozpoznanego kształtu.** Nie ładujesz całego
 pliku „na wszelki wypadek" — baza reguł ma zostać tania w każdym wywołaniu (ryzyko O8).
 
+**Rusztowania są neutralne wobec modelu.** Nagłówki tekstowe niżej to treść sekcji, nie ich
+opakowanie: nakładka rodziny modelu docelowego (`rodziny/<rodzina>.md`) mówi, czy sekcje idą
+w tagach, gdzie stoi materiał i jak brzmi raport z pracy. Bez nakładki zostaje postać z tego pliku.
+
 ## Jak rozpoznać kształt
 
 | Kształt | Rozpoznajesz po tym, że zadanie… | Rusztowanie |
@@ -56,8 +60,12 @@ Granice działania:
 - wolno: odczyt, edycja i uruchomienie kontroli w obrębie zakresu
 - zatrzymujesz się i pytasz przed: skasowaniem pliku, dodaniem zależności, zmianą schematu danych,
   operacją nieodwracalną i wyjściem poza zakres
-- po każdym kroku meldujesz, co zostało zrobione
+- [raport z pracy — w kształcie z nakładki rodziny; bez nakładki: na końcu, co zrobione,
+  co sprawdzone, co zostało]
 ```
+
+Lista „zatrzymujesz się i pytasz przed" jest zamknięta: nakładka może dopisać zachętę do działania
+w pozostałych sprawach, ale żadnej z pięciu bramek nie usuwa.
 
 **Czego pilnujesz najbardziej:** ścieżki pliku i listy „nie ruszasz". Polecenie bez kotwicy w pliku
 jest najczęstszą przyczyną zmiany w złym miejscu.

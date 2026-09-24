@@ -16,7 +16,12 @@ Parsing rules for whoever reads this file:
   never a guess;
 - a class may carry more than one line when the tool really offers more than one model of that
   weight; `<TO BE FILLED IN: ...>` in the `name` field means the entry has not been measured yet;
-- fields inside a line are separated by ` | ` and named: `alias`, `id`, `source`;
+- fields inside a line are separated by ` | ` and named: `alias`, `id`, `family`, `source`;
+- `family` names the vendor family of the model, from a closed vocabulary: `claude`, `openai`,
+  `xai`, `cursor`, or `-` when the entry is not a single model; it is read from this field, never
+  guessed from the name or the alias (an alias can point to a different model on another
+  provider). The prompt optimizer picks its family overlay by this field; a family without an
+  overlay, `-`, or a missing field means the core rules alone;
 - `alias` is the wording the user actually types to switch the model in this tool; an entry with
   no alias carries `-`;
 - `list-date` is the date of the whole list, in `YYYY-MM-DD`; an unreadable date means the reader
@@ -26,10 +31,10 @@ Parsing rules for whoever reads this file:
 list-date: 2026-09-24
 tool: claude-code
 
-strong: Opus 5.5 | alias: opus | id: claude-opus-5-5 | source: code.claude.com/docs/en/model-config, read 2026-09-24
-strong: Fable 5.1 | alias: fable | id: claude-fable-5-1 | source: support.claude.com/en/articles/11940350-claude-code-model-configuration, read 2026-09-04
-balanced: Sonnet 5 | alias: sonnet | id: claude-sonnet-5 | source: code.claude.com/docs/en/model-config, read 2026-09-04
-cheap: Haiku 4.5 | alias: haiku | id: claude-haiku-4-5-20251001 | source: support.claude.com/en/articles/11940350-claude-code-model-configuration, read 2026-09-04
+strong: Opus 5.5 | alias: opus | id: claude-opus-5-5 | family: claude | source: code.claude.com/docs/en/model-config, read 2026-09-24
+strong: Fable 5.1 | alias: fable | id: claude-fable-5-1 | family: claude | source: support.claude.com/en/articles/11940350-claude-code-model-configuration, read 2026-09-04
+balanced: Sonnet 5 | alias: sonnet | id: claude-sonnet-5 | family: claude | source: code.claude.com/docs/en/model-config, read 2026-09-04
+cheap: Haiku 4.5 | alias: haiku | id: claude-haiku-4-5-20251001 | family: claude | source: support.claude.com/en/articles/11940350-claude-code-model-configuration, read 2026-09-04
 ```
 
 ## Notes for the reader

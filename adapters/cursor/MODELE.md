@@ -18,7 +18,12 @@ Parsing rules for whoever reads this file:
   never a guess;
 - a class may carry more than one line when the tool really offers more than one model of that
   weight; `<TO BE FILLED IN: ...>` in the `name` field means the entry has not been measured yet;
-- fields inside a line are separated by ` | ` and named: `alias`, `id`, `source`;
+- fields inside a line are separated by ` | ` and named: `alias`, `id`, `family`, `source`;
+- `family` names the vendor family of the model, from a closed vocabulary: `claude`, `openai`,
+  `xai`, `cursor`, or `-` when the entry is not a single model; it is read from this field, never
+  guessed from the name or the alias (an alias can point to a different model on another
+  provider). The prompt optimizer picks its family overlay by this field; a family without an
+  overlay, `-`, or a missing field means the core rules alone;
 - `alias` is the wording the user actually types to switch the model in this tool; an entry with
   no alias carries `-`;
 - `list-date` is the date of the whole list, in `YYYY-MM-DD`; an unreadable date means the reader
@@ -28,9 +33,9 @@ Parsing rules for whoever reads this file:
 list-date: 2026-09-04
 tool: cursor
 
-strong: Grok 4.6 | alias: - | id: grok-4.6 | source: RelAI pilot E6 in the Cursor app, 2026-08-17 - carried a whole plan stage
-balanced: Composer 2.5 | alias: - | id: composer-2.5 | source: named by the human, 2026-09-04 - listed under "Cursor Models" on cursor.com/docs/models-and-pricing, read the same day
-cheap: Auto | alias: - | id: - | source: named by the human, 2026-09-04 - the tool's built-in automatic pick, not a single model
+strong: Grok 4.6 | alias: - | id: grok-4.6 | family: xai | source: RelAI pilot E6 in the Cursor app, 2026-08-17 - carried a whole plan stage
+balanced: Composer 2.5 | alias: - | id: composer-2.5 | family: cursor | source: named by the human, 2026-09-04 - listed under "Cursor Models" on cursor.com/docs/models-and-pricing, read the same day
+cheap: Auto | alias: - | id: - | family: - | source: named by the human, 2026-09-04 - the tool's built-in automatic pick, not a single model
 ```
 
 ## Notes for the reader

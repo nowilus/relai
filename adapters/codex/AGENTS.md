@@ -2,6 +2,7 @@
 
 This adapter supplies a short project-instruction router. The project's generated `AGENTS.md` is always-on guidance; skills contain procedures and are not a replacement for it.
 
+- An explicit instruction from the user in this conversation takes precedence over a skill's procedure; a skill describes how to do the work the user asked for, not a reason to do something else.
 - Start each RelAI project by following its instruction router and reading the current state before substantive work.
 - Keep project documentation synchronized with functional changes in the same turn.
 - Treat plan stages as bounded work: park unrelated non-trivial work as a branch, addendum, or deferred item.

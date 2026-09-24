@@ -133,8 +133,12 @@ Zapis idzie do **kopii w projekcie**: `.claude/relai/MODELE-<narzędzie>.md`, po
 hooka. **Nie** do pliku adaptera w katalogu pluginu i **nie** do drugiej listy.
 
 Format bloku maszynowego zostaje bez zmian: jedna pozycja na linię, słowo klasy zakotwiczone na
-początku linii, pola rozdzielone ` | ` i nazwane (`id`, `source`), `list-date` w formacie
-`RRRR-MM-DD`. Komenda **wypełnia listę, nie przeprojektowuje jej** — czyta ją rdzeń i skill
+początku linii, pola rozdzielone ` | ` i nazwane (`alias`, `id`, `family`, `source`), `list-date`
+w formacie `RRRR-MM-DD`. Pole `family` (od 2.6.0) bierzesz z **dostawcy**, pod którym model stoi
+w źródle (grupowanie z Kroku 6) — zamknięta lista `claude`, `openai`, `xai`, `cursor`, a `-` dla
+pozycji, która nie jest jednym modelem (tryb automatyczny narzędzia); dostawca spoza listy albo
+niejasny → pytasz człowieka, nie zgadujesz z nazwy. Pozycji zastanej bez pola dopisujesz je przy tej
+samej różnicy (Krok 7) — to zmiana treści listy. Komenda **wypełnia listę, nie przeprojektowuje jej** — czyta ją rdzeń i skill
 planowania.
 
 **„Nie"** → plik zostaje **nietknięty**, łącznie z datą. Mówisz, że nic nie zapisano.

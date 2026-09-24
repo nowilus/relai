@@ -1,14 +1,15 @@
 # STATE — RelAI
 
-Stan na: 2026-09-24 (po etapie E3 planu PROWADZENIE_END_TO_END — wydanie 2.5.0)
+Stan na: 2026-09-24 (po etapie E4 planu PROWADZENIE_END_TO_END — wydanie 2.6.0)
 
 ## Gdzie jesteśmy
 
-RelAI ma w repozytorium **2.5.0** — wydanie z etapu E3 planu PROWADZENIE_END_TO_END (skille
-w progresywnym ujawnianiu; poprzednio 2.4.0 z E2). Plugin działa w trzech narzędziach — Claude Code, Cursorze i Codeksie — na jednym
-rdzeniu procesu, z czternastoma komendami. Instrukcja ładowana na starcie każdej sesji jest ponad
-dwa razy lżejsza, a rzadkie procedury model otwiera dopiero wtedy, gdy są potrzebne; następny
-krok to zasady skrojone pod model, który je czyta. Ostatni pilotaż z użytkownikami zamknięto przed wysyłką
+RelAI ma w repozytorium **2.6.0** — wydanie z etapu E4 planu PROWADZENIE_END_TO_END (zasady
+skrojone pod model; poprzednio 2.5.0 z E3). Plugin działa w trzech narzędziach — Claude Code, Cursorze i Codeksie — na jednym
+rdzeniu procesu, z czternastoma komendami. Instrukcja ładowana na starcie sesji jest ponad dwa razy
+lżejsza niż przed planem, a optymalizator promptów mówi językiem modelu, który prompt wykona —
+według wytycznych jego dostawcy, z datą odczytu przy każdej regule. Następny krok to prostsze
+pierwsze 30 minut dla nowej osoby. Ostatni pilotaż z użytkownikami zamknięto przed wysyłką
 zaproszeń, więc opinii spoza projektu nadal nie ma.
 
 ## Co działa
@@ -36,18 +37,23 @@ zaproszeń, więc opinii spoza projektu nadal nie ma.
 - Proces przeżywa zmianę dostawcy modelu — cały etap poprowadził model spoza Anthropic.
 - W folderze bez struktury RelAI hooki milczą; skill proponuje strukturę, a propozycję da się
   wyciszyć raz na maszynę.
+- Prompt przerobiony przez `/relai-prompt` jest skrojony pod model, który go wykona: dla Claude
+  w tagach, z materiałem przed zadaniem, dla modeli OpenAI z zachętą do działania i raportem na
+  końcu; model spoza list dostaje sam rdzeń. Reguły dostawców mają datę i przypominają się po 30 dniach.
 
 ## Nad czym pracujemy teraz
 
-- **E4 planu PROWADZENIE_END_TO_END — zasady skrojone pod model** (gotowy do startu po bramce
-  „Odświeżenie listy modeli Codeksa"). Nakładki per rodzina modeli w plikach doczytywanych,
-  w kształcie ustalonym w E3; `/relai-prompt` ustala model docelowy.
+- **E5 planu PROWADZENIE_END_TO_END — pierwsze 30 minut** (gotowy do startu): README z pierwszymi
+  krokami na górze i słowniczkiem, jedno pytanie procesowe na starcie, tabela „co pilnuje tylko
+  Claude Code", render demo czytelny na telefonie.
 
 ## Co dalej
 
-- **E5–E7 planu** [PROWADZENIE_END_TO_END](plany/PROWADZENIE_END_TO_END/STATUS.md): pierwsze 30 minut (w tym render demo pod telefon),
-  debug / bezpieczeństwo / deploy, jakość pracy solo i załogi.
-- Przed E4: odświeżenie listy modeli Codeksa (bramka manualna planu).
+- **E6–E7 planu** [PROWADZENIE_END_TO_END](plany/PROWADZENIE_END_TO_END/STATUS.md): debug /
+  bezpieczeństwo / deploy, jakość pracy solo i załogi.
+- Odświeżenie listy modeli Codeksa w sesji Codeksa (`/relai-models`): lista ma nazwy z 2026-09-05,
+  Codex zaleca dziś gpt-6-astra, gpt-6-sol i gpt-6-luna; do tego czasu nakładka `openai` nie ma
+  reguł z nazwą modelu, a przydział modeli poza Claude Code jest sprawą człowieka.
 - Odnoga `OPIS_REPO` — opis i tematy repozytorium na GitHubie; opis manifestu nadal mówi
   o jednym narzędziu.
 - Projekty z pre-commitem sprzed 1.9.3 (PolyFlow, JiraManager) wymagają ponownej instalacji hooka.
@@ -72,7 +78,7 @@ zaproszeń, więc opinii spoza projektu nadal nie ma.
 
 ### Wersja i instalacja
 
-Repozytorium i publicznie: **2.5.0** (tag `v2.5.0`, release Latest). Źródło instalacji: własny
+Repozytorium i publicznie: **2.6.0** (tag `v2.6.0`, release Latest). Źródło instalacji: własny
 marketplace w tym repozytorium, scope `user`. Wydanie potwierdzasz treścią plików z cache'u, nie
 komunikatem CLI (P-005): `claude plugin validate` → tag → push → release → `marketplace update` →
 `plugin update relai@relai` → suma plików po CRLF → LF. Walidator `core/tools/validate-adapters.js`
@@ -83,9 +89,9 @@ układ 1.9.2 (shim + dwa pliki `.cjs`).
 
 **Rdzeń** (`core/`): specyfikacje dokumentów, szablon planu HTML, guardraile, rozpoznania startu
 sesji (`process/session-signals.js`), artefakty robocze, załoga, tryb ciągły, baza reguł
-optymalizatora, walidator. **Adapter Claude Code**: dwa skille (każdy poniżej 500 linii, razem 8 plików doczytywanych), 14 komend, 4 agenci, 11 hooków,
+optymalizatora z nakładkami rodzin modeli (`claude`, `openai`), walidator. **Adapter Claude Code**: dwa skille (każdy poniżej 500 linii, razem 8 plików doczytywanych), 14 komend, 4 agenci, 11 hooków,
 lista modeli. **Adapter Cursor**: trzy reguły `.mdc`, dwa hooki, instalator. **Adapter Codex**:
-natywny manifest, 14 skilli, router `AGENTS.md`, trzy hooki.
+natywny manifest, 14 skilli, router `AGENTS.md`, trzy hooki (start sesji kopiuje listę modeli).
 
 ### Wymagania
 
@@ -100,7 +106,7 @@ Backupy: `C:\Users\Lukasz\Backupy\RelAI` • [PRZENOSNOSC.md](PRZENOSNOSC.md) �
 ### Liczby
 
 Plany zamknięte: 8 (ostatni PIERWSI_UZYTKOWNICY, częściowo, 2026-09-24) • Aktywny:
-PROWADZENIE_END_TO_END, E3/7 zrealizowany, E4 gotowy • Start sesji: **88,8 KB / 100 KB** (skill 28,6 KB; przed E3 126,3 KB) • Dziennik: **91,8 KB / 150 KB** (po rotacji
+PROWADZENIE_END_TO_END, E4/7 zrealizowany, E5 gotowy • Start sesji: **88,8 KB / 100 KB** (skill 28,6 KB; przed E3 126,3 KB) • Dziennik: **91,8 KB / 150 KB** (po rotacji
 2026-09-24 i wpisie E2 (archiwum: 9 plików)) • Sekcja ryzyk: **5,3 KB / 12 KB**, 11 otwartych, archiwum
 ryzyk: 4 pliki + 1 mitygacji • Lekcje: 56 KB / 50 KB — rotacja należna • Adaptery: 3 •
 Komendy: 14 • Projekty na RelAI: 3 (RelAI, PolyFlow, JiraManager przed migracją) • Modele, na

@@ -49,7 +49,10 @@ Jedna linia, elementy oddzielone `•`:
 - `Wygenerowano: <data> (autor: <model>, w rytuale „Na koniec" etapu N-1)`
 - `Wykonawca: **<model>**` — **przepisany z linii metrycznej `STATUS.md`**, dosłownie. Gdy plan
   różnicuje model per etap („złożone etapy: Opus, mechaniczne: Haiku"), wpisujesz model właściwy
-  **dla tego etapu** i w nawiasie skąd wynika.
+  **dla tego etapu** i w nawiasie skąd wynika. Po nazwie modelu stoi **zalecany poziom wysiłku**
+  (`/effort <poziom>` w Claude Code) — z tabeli etapów planu, a gdy plan go nie podaje, `medium`,
+  bo tak zaleca dostawca jako punkt wyjścia i nie każdy model startuje na tym samym poziomie
+  domyślnym. Narzędzie bez takiego ustawienia → element pomijasz.
 
 ### 3. Kontrola modelu
 
@@ -58,7 +61,11 @@ Blockquote, jedno zdanie z numerem decyzji, jeśli model jest decyzją zamrożon
 
 > **Kontrola modelu:** ten etap wykonuj wyłącznie na modelu klasy **<klasa>**, w tym narzędziu:
 > **<nazwa>** (lista modeli z dnia `<list-date>`). Jeśli sesja działa na innym modelu — zatrzymaj
-> się i poproś użytkownika o przełączenie, zanim cokolwiek zrobisz.
+> się i poproś użytkownika o przełączenie, zanim cokolwiek zrobisz. Zalecany poziom `/effort`:
+> `<poziom>` (<powód jednym zdaniem>).
+
+Poziom w kontroli modelu jest ten sam co w linii metrycznej; powód mówi, dlaczego etap potrzebuje
+więcej albo mniej niż `medium`.
 
 Nazwa i data pochodzą z listy modeli narzędzia (`.claude/relai/MODELE-<narzędzie>.md`, pole
 `list-date`); która lista obowiązuje — mówi zdanie hooka startu, nie własne rozpoznanie narzędzia.
@@ -83,7 +90,7 @@ Zasady doboru:
   etapu), pliki, które etap będzie zmieniał.
 - **Zakaz** wpisywania „przejrzyj repo", „zapoznaj się z kodem" — to nie jest pozycja do przeczytania.
 
-### 5. Decyzje już podjęte — NIE otwieraj ich ponownie
+### 5. Decyzje już podjęte — nie otwierasz ich ponownie
 
 Lista punktowa. Każdy punkt: rozstrzygnięcie **plus numer decyzji** (`D-NN`) albo źródło (aneks,
 lekcja, wpis w dzienniku).
@@ -105,7 +112,7 @@ Zawiera:
 - jedno zdanie o wersji/stanie produktu i o rzeczach zmienionych od poprzedniego etapu, w tym
   **zmianach warunków pracy** (np. „plugin jest zainstalowany", „testy odpalasz komendą X"),
 - **drzewko albo listę plików** istotnych dla etapu, z jednolinijkowym opisem zawartości każdego,
-- akapit **„Czego jeszcze NIE ma"** — dokładnie to, co ten etap ma dowieźć,
+- akapit **„Czego jeszcze nie ma"** — dokładnie to, co ten etap ma dowieźć,
 - **listę aktywnych zasad z rejestru lekcji**, przepisaną w całości (nie linkiem): świeża sesja
   czyta `LEKCJE.md`, ale zasada wpisana wprost w prompt działa nawet wtedy, gdy plik urośnie.
 
@@ -163,7 +170,7 @@ Zasady:
 Numerowana lista zamykająca etap, zawsze w tej kolejności: `STATUS.md` → wpis w dzienniku (+ lekcje,
 + ryzyka) → aktualizacja dokumentów projektu → **wygenerowanie `PROMPT_ETAP_N+1.md`** → commit.
 
-Nagłówek zawiera zdanie: **bez tego rytuału etap NIE jest ukończony**.
+Nagłówek zawiera zdanie: **bez tego rytuału etap nie jest ukończony**.
 
 Punkt o generacji następnego promptu podaje **materiał**, z którego ma powstać: sekcje `PLAN.md`
 opisujące etap N+1, realny stan po tym etapie i lekcje z tego etapu. Przy ostatnim etapie planu ten
@@ -197,18 +204,20 @@ punkt zastępujesz wskazaniem: **uruchom sekwencję zamknięcia planu** (D-36).
 # PROMPT_ETAP_2 — Stripe Checkout i webhook potwierdzający płatność
 
 Plan: PLATNOSCI • Etap: **E2 z E4** • Wygenerowano: 2026-08-14 (autor: Opus, w rytuale „Na koniec"
-E1) • Wykonawca: **Opus** (plan: „Opus dla E2–E3, Haiku dla reszty")
+E1) • Wykonawca: **Opus** (plan: „Opus dla E2–E3, Haiku dla reszty"), `/effort high`
 
 > **Kontrola modelu:** ten etap wykonuj wyłącznie na modelu klasy **najsilniejszy**, w tym
 > narzędziu: **Opus 5** (lista modeli z dnia `2026-09-04`). Jeśli sesja działa na innym modelu —
-> zatrzymaj się i poproś użytkownika o przełączenie, zanim cokolwiek zrobisz.
+> zatrzymaj się i poproś użytkownika o przełączenie, zanim cokolwiek zrobisz. Zalecany poziom
+> `/effort`: `high` (webhook płatności ma przypadki brzegowe, których nie widać w szczęśliwej
+> ścieżce).
 
 ## Co przeczytać na start (w tej kolejności, nic więcej)
 
 | Plik | Po co |
 |---|---|
 | `CLAUDE.md` | reguły procesu, definicja ukończenia, sekcja niemutowalna |
-| `docs/DZIENNIK.md` | sekcja „Stan otwartych ryzyk" + wpis z 2026-08-14 o E1 (co powstało i czego NIE zweryfikowano) |
+| `docs/DZIENNIK.md` | sekcja „Stan otwartych ryzyk" + wpis z 2026-08-14 o E1 (co powstało i czego nie zweryfikowano) |
 | `docs/LEKCJE.md` | wyłącznie sekcja „Zasady aktywne" |
 | `docs/plany/PLATNOSCI/PLAN.md` | sekcje 5 (przebieg płatności), 6 (opis E2), 9 (dostępy po stronie człowieka), 10 (Aneks A) |
 | `src/payments/model.ts` | tabela `Payment` i statusy z E1 — webhook ma zmieniać te statusy, nie własne |
@@ -216,7 +225,7 @@ E1) • Wykonawca: **Opus** (plan: „Opus dla E2–E3, Haiku dla reszty")
 | `docs/USTAWIENIA.md` | preferencje projektu, w tym podejście do testów |
 | `.env.example` | konwencja nazw zmiennych; klucze Stripe wchodzą tutaj wyłącznie jako nazwy |
 
-## Decyzje już podjęte — NIE otwieraj ich ponownie
+## Decyzje już podjęte — nie otwierasz ich ponownie
 
 - Płatności obsługuje **Stripe Checkout** (hostowana strona płatności), nie własny formularz karty —
   wariant wybrany w sekcji 4 planu, powód: brak zakresu PCI po naszej stronie.
@@ -239,7 +248,7 @@ src/payments/model.test.ts   # 11 testów: przejścia statusów i współbieżno
 .env.example                 # STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET (same nazwy)
 ```
 
-**Czego jeszcze NIE ma (to jest zakres tego etapu):** utworzenia sesji Stripe Checkout,
+**Czego jeszcze nie ma (to jest zakres tego etapu):** utworzenia sesji Stripe Checkout,
 przekierowania użytkownika, endpointu webhooka, weryfikacji podpisu webhooka, obsługi ponowionych
 zdarzeń (Stripe wysyła je wielokrotnie).
 
@@ -291,7 +300,7 @@ poza projektem, wpisujesz do wpisu dziennika z nazwy.
       w sekcji „Zweryfikowane" wpisu. Artefakty poza tym katalogiem: `%TEMP%/platnosci-stripe-cli/`
       — wypisany z nazwy i skasowany razem z resztą.
 
-## Na koniec (rytuał obowiązkowy — bez niego etap NIE jest ukończony)
+## Na koniec (rytuał obowiązkowy — bez niego etap nie jest ukończony)
 
 1. `docs/plany/PLATNOSCI/STATUS.md`: E2 → ZREALIZOWANY (data), E3 → GOTOWY DO STARTU, link do
    `PROMPT_ETAP_3.md` w kolumnie `Prompt`, linia w dzienniku wdrożenia.

@@ -341,6 +341,8 @@ sprawdzone.push('numery wersji: ' + wersje.length + ' zrodel, wartosc "' + (unik
 if (manifest) {
   const zRdzenia = (p) => path.relative(ROOT, path.resolve(CORE, p)).split(path.sep).join('/');
   let list = 0;
+  let pozycjiZRodzina = 0;
+  const RODZINY_LIST = ['claude', 'openai', 'xai', 'cursor', '-'];
   for (const a of (manifest.adapters || [])) {
     if (!a.models) continue;
     list++;
@@ -357,8 +359,26 @@ if (manifest) {
     if (!/^list-date:\s*\d{4}-\d{2}-\d{2}\s*$/m.test(txt)) {
       bledy.push('adapter "' + a.id + '": lista modeli "' + rel + '" nie ma czytelnej linii "list-date: RRRR-MM-DD"');
     }
+    // Pole family (2.6.0): optymalizator wybiera po nim nakladke rodziny, wiec pozycja bez pola
+    // albo z brzmieniem spoza listy dostalaby po cichu sam rdzen. Kontrola "ile pozycji" stoi
+    // obok, bo lista bez ani jednej pozycji przeszlaby te petle zielono (zasada 5).
+    const pozycje = txt.split(/\r?\n/).filter((l) => /^(?:strong|balanced|cheap):/.test(l));
+    if (!pozycje.length) {
+      bledy.push('adapter "' + a.id + '": lista modeli "' + rel + '" nie ma ani jednej pozycji klasy');
+    }
+    for (const l of pozycje) {
+      const m = /\|\s*family:\s*([^|\s]+)\s*(?:\||$)/.exec(l);
+      if (!m) {
+        bledy.push('adapter "' + a.id + '": pozycja bez pola family w "' + rel + '": ' + l.split('|')[0].trim());
+      } else if (!RODZINY_LIST.includes(m[1])) {
+        bledy.push('adapter "' + a.id + '": family "' + m[1] + '" spoza zamknietej listy (' +
+          RODZINY_LIST.join(', ') + ') w "' + rel + '"');
+      } else {
+        pozycjiZRodzina++;
+      }
+    }
   }
-  sprawdzone.push('listy modeli adapterow: ' + list);
+  sprawdzone.push('listy modeli adapterow: ' + list + ', pozycji z polem family: ' + pozycjiZRodzina);
 }
 
 // 7) Baza regul optymalizatora NIE nosi nazw modeli (ryzyko O5 planu OPTYMALIZATOR_PROMPTOW).
@@ -390,6 +410,48 @@ if (manifest) {
     }
   }
   sprawdzone.push('baza regul bez nazw modeli: ' + plikow + ' plikow, ' + trafien + ' trafien');
+}
+
+// 8) Nakladki rodzin modeli (2.6.0, ryzyko K3 planu PROWADZENIE_END_TO_END): kazda regula
+// (naglowek "### ") ma co najmniej jedna linie "Zrodlo: https://... · odczyt RRRR-MM-DD",
+// a plik — czytelna linie "overlay-date", z ktorej hook liczy wiek. Regula bez zrodla jest
+// zgadywaniem, a nakladka bez daty starzeje sie po cichu. Obie liczby stoja w komunikacie,
+// bo "0 regul, 0 ze zrodlem" tez jest zgodnoscia (zasada 5).
+{
+  const katalog = path.resolve(CORE, 'prompt', 'rodziny');
+  const ZRODLO_REGULY = /^Źródło:\s*https:\/\/\S+\s*·\s*odczyt\s+\d{4}-\d{2}-\d{2}\s*$/;
+  let plikow = 0;
+  let regul = 0;
+  let zeZrodlem = 0;
+  let wpisy = [];
+  try { wpisy = fs.readdirSync(katalog).filter((n) => /\.md$/i.test(n)); } catch (_) { wpisy = []; }
+  for (const nazwa of wpisy) {
+    plikow++;
+    const rel = 'core/prompt/rodziny/' + nazwa;
+    const linie = fs.readFileSync(path.join(katalog, nazwa), 'utf8').split(/\r?\n/);
+    if (!linie.some((l) => /^overlay-date:\s*\d{4}-\d{2}-\d{2}\s*$/.test(l))) {
+      bledy.push('nakladka "' + rel + '" nie ma czytelnej linii "overlay-date: RRRR-MM-DD"');
+    }
+    let biezaca = null;
+    let maZrodlo = false;
+    const zamknij = () => {
+      if (biezaca === null) return;
+      regul++;
+      if (maZrodlo) zeZrodlem++;
+      else bledy.push('nakladka "' + rel + '": regula "' + biezaca + '" bez linii zrodla z data odczytu');
+    };
+    for (const l of linie) {
+      if (/^#{1,3} /.test(l)) {
+        zamknij();
+        biezaca = /^### /.test(l) ? l.slice(4).trim() : null;
+        maZrodlo = false;
+      } else if (biezaca !== null && ZRODLO_REGULY.test(l.trim())) {
+        maZrodlo = true;
+      }
+    }
+    zamknij();
+  }
+  sprawdzone.push('nakladki rodzin: ' + plikow + ' plikow, ' + regul + ' regul, ' + zeZrodlem + ' ze zrodlem i data');
 }
 
 // --- wynik -----------------------------------------------------------------
