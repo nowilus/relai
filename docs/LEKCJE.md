@@ -133,7 +133,10 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
    wywołana wprost go nie ładuje. Sygnał, który ma paść raz, ma jednego właściciela; cisza
    właściciela znaczy „sprawdzone i zgodne". **Stan zapisywany przez model ma kształt, w którym nie ma czego
    scalać** — osobny plik na zapisującego, nie wspólny plik z regułą scalania opisaną prozą.
-   (L-0015, L-0030, L-0036, L-0112)
+   **Fakt rozstrzygnięty przez wywołującego idzie do subagenta jako rozstrzygnięty** — agent
+   widzi węższy materiał, więc go nie sprawdza i nie komentuje. **Zmiana formatu pliku, którego
+   kopia w projekcie jest trwała, ma od razu drogę migracji kopii** (uzupełnienie brakującego pola
+   po kluczu, reszta nietknięta). (L-0015, L-0030, L-0036, L-0112, L-0120, L-0121)
 9. **Skill nie zakłada dostępu do niczego poza katalogiem roboczym** — ani do katalogu pluginu, ani
    do domowego. Opis mieści się w **1 024 znakach** i mówi w trzeciej osobie, co skill robi i kiedy
    go użyć, z markerem projektu i płaską listą fraz — bez `MUST BE USED` (zmierzone 2026-09-24:
@@ -162,7 +165,9 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
     zamkniętą listą brzmień, której używa reszta rdzenia. **Numeracja i wytłuszczenie nagłówka są
     takim samym wariantem** — nagłówek w cudzej odpowiedzi rozpoznawaj z tolerancją na `## 2.`,
     `**…**` i poziom znaków `#`, a kształt, który raz przewrócił wzorzec, dokładaj do kontroli
-    dosłownie w tym brzmieniu, w jakim go spotkałeś. (L-0033, L-0038, L-0057, L-0062, L-0067, L-0103)
+    dosłownie w tym brzmieniu, w jakim go spotkałeś. **Regułę dostawcy przepisujesz po ponownym
+    odczycie źródła, z zakresem, który źródło jej nadaje** — streszczenie w rejestrze gubi, dla
+    którego modelu reguła powstała. (L-0033, L-0038, L-0057, L-0062, L-0067, L-0103, L-0122)
 12. **Guardrail zatrzymujący treść, która sekretem nie jest, to defekt rdzenia** — poprawka wraca
     z dowodem, nigdy jako obejście. Wołaj go przez opakowanie powłoki, żeby brak interpretera
     zamieniał się w blokadę, a nie w ciszę; próbki sekretów składaj w czasie wykonania.
@@ -713,3 +718,41 @@ Treść jest kopią bajt w bajt — zmieniony został wyłącznie status w linii
   w dokumentach piszesz z ukośnikami `/`. Kandydat do graduacji do `CLAUDE.md` (propozycja
   w podsumowaniu etapu, decyzja człowieka).
 - **Źródło:** E3 planu PROWADZENIE_END_TO_END, wykryte odczytem pliku po zapisie.
+
+### L-0120 — Trwała kopia pliku w projekcie blokuje każdą zmianę jego formatu · 2026-09-24 · AKTYWNA
+
+- **Trigger:** E4 dodał pole `family` do list modeli pluginu, a kopia listy w projekcie powstaje
+  wyłącznie wtedy, gdy jej nie ma — właśnie po to, żeby odświeżenie komendą przeżyło start sesji.
+  Każdy istniejący projekt zostałby na zawsze bez pola, a nakładka nie zadziałałaby nigdzie poza
+  nowymi projektami. Plan tego nie przewidział; wyszło przy czytaniu hooka.
+- **Przyczyna:** decyzja „kopii nie nadpisujemy" chroni treść, ale zamraża też kształt. Zmiana
+  formatu źródła nie ma drogi do plików, które tę decyzję niosą.
+- **Zasada:** zmieniając format pliku, którego kopia w projekcie jest trwała, projektujesz od razu
+  **drogę migracji dla kopii** — uzupełnienie brakującego pola po kluczu, bez ruszania reszty —
+  i mierzysz ją na realnej kopii sprzed zmiany (tu: 0 → 4 pozycje z polem, data listy bez zmian).
+- **Źródło:** E4 planu PROWADZENIE_END_TO_END, `core/process/session-signals.js` (`uzupelnijRodzine`).
+
+### L-0121 — Subagent sprawdza na nowo fakt rozstrzygnięty przez wywołującego i mówi nieprawdę · 2026-09-24 · AKTYWNA
+
+- **Trigger:** sesja znalazła `gpt-6-astra` na liście Codeksa i przekazała agentowi optymalizatora
+  linię z modelem docelowym i nakładką. Agent sam przejrzał listy, trafił tylko na listę Claude Code
+  i napisał człowiekowi, że modelu „nie ma na listach" — obok propozycji poprawnie skrojonej pod
+  jego nakładkę.
+- **Przyczyna:** agent miał regułę „nazwy modeli wyłącznie z listy narzędzia" i potraktował ją jako
+  obowiązek weryfikacji, choć widział węższy wycinek niż wywołujący.
+- **Zasada:** fakt, który wywołujący rozstrzygnął na pełniejszym materiale, przekazujesz agentowi
+  **razem ze zdaniem, że jest rozstrzygnięty** — agent go nie sprawdza i nie komentuje. Regułę
+  „czytaj tylko z X" piszesz tak, żeby nie dało się jej przeczytać jako „sprawdź na nowo".
+- **Źródło:** E4, przebieg kryterium `wynik-openai-2` → poprawka agenta → `wynik-openai-3`.
+
+### L-0122 — Streszczenie źródła w rejestrze gubi to, do kogo źródło stosuje regułę · 2026-09-24 · AKTYWNA
+
+- **Trigger:** rejestr planu opisał trzy zalecenia jako ogólne („wersaliki nadinterpretowane przez
+  nowsze modele", „cel i ograniczenia bez kroków", „przewodnik promptów OpenAI"). Odczyt stron przed
+  pisaniem nakładek pokazał: wersaliki strona wiąże z modelami 4.5 i 4.6, „cel bez kroków" —
+  z modelami GPT-5, a adres przewodnika OpenAI przekierowuje na stronę najnowszego modelu.
+- **Przyczyna:** streszczenie niesie treść reguły, a gubi jej zakres — dla kogo dostawca ją napisał.
+- **Zasada:** regułę dostawcy przepisujesz dopiero po ponownym odczycie źródła i zapisujesz przy niej
+  **zakres wskazany przez źródło**; reguła przeniesiona poza ten zakres stoi jako reguła rodziny
+  z jawnym zdaniem, że dla pozostałych modeli jest hipotezą do pomiaru.
+- **Źródło:** E4, `core/prompt/rodziny/claude.md` (C3), `openai.md` (O1, O4, nagłówek).

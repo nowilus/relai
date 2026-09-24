@@ -1318,6 +1318,27 @@ wykonuje. Poprawiona sama specyfikacja zostawiłaby wykonawcę sprzecznego z D-8
 głębokości rotacji. Granica z E3 zostaje: skilla się tu nie skraca ani nie dzieli.</p>
 <p><b>Skutek dla etapów:</b> E2 dotyka dwóch plików więcej; E3 zastaje skill już zgodny z D-88.
 Liczba etapów i szacunek bez zmian. Decyzja człowieka 2026-09-24.</p>
+<h3>Aneks B — 2026-09-24</h3>
+<p><b>Powód:</b> przy wykonaniu E4 grep po wersalikach nacisku w rodzinie specyfikacji promptów
+trafił poza <code>SPEC_PROMPT_ETAPU.md</code>: <code>core/templates/SPEC_ODNOGA.md</code> niesie te
+same nagłówki („NIE otwieraj", „Czego jeszcze NIE ma") i tę samą kontrolę modelu bez zalecanego
+poziomu <code>/effort</code>. Prompt odnogi prowadzi świeżą sesję tak samo jak prompt etapu.</p>
+<p><b>Zmiana:</b> zakres E4 (pozycje O01 i O14) obejmuje także <code>SPEC_ODNOGA.md</code>,
+wyłącznie w tych dwóch zmianach: wersaliki nacisku na zwykły zapis, <code>/effort</code> w linii
+metrycznej i w kontroli modelu.</p>
+<p><b>Skutek dla etapów:</b> E4 dotyka jednego pliku więcej. Liczba etapów i szacunek bez zmian.
+Decyzja człowieka 2026-09-24.</p>
+<h3>Aneks C — 2026-09-24</h3>
+<p><b>Powód:</b> przy wykonaniu E4 okazało się, że hook startu Codeksa
+(<code>adapters/codex/hooks/session-context.js</code>) nie kopiuje listy modeli do projektu, choć
+hooki Claude Code i Cursora to robią. Optymalizator w Codeksie nie znalazłby pola
+<code>family: openai</code>, więc nakładka <code>openai</code> nie działałaby w narzędziu, dla
+którego powstała.</p>
+<p><b>Zmiana:</b> zakres E4 (pozycja M10+O17) obejmuje także hook startu Codeksa: kopia
+<code>MODELE-codex.md</code> do <code>.claude/relai/</code> tą samą funkcją rdzenia co w Cursorze,
+ze zdaniem o obowiązującej liście. Bez nowych mechanizmów.</p>
+<p><b>Skutek dla etapów:</b> E4 dotyka jednego pliku więcej. Liczba etapów i szacunek bez zmian.
+Decyzja człowieka 2026-09-24.</p>
 
 </section>
 

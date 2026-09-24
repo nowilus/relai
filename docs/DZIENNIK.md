@@ -1300,3 +1300,97 @@ Autor: RelAI (Opus 5.5) + Lukasz
 - Restart aplikacji desktopowej, żeby sesje w aplikacji ładowały 2.5.0 (P-005).
 
 Autor: RelAI (Opus 5.5) + Lukasz
+
+### 2026-09-24 — E4 planu PROWADZENIE_END_TO_END: zasady skrojone pod model i wydanie 2.6.0
+
+**Zrobione:**
+
+- **Bramka listy Codeksa:** Łukasz — lista nieodświeżona; etap poszedł według przypadku brzegowego
+  z sekcji 8 planu (nakładka `openai` bez nazw modeli). Odświeżenie wraca jako osobna bramka.
+- **Pole `family` (M10+O17):** trzy listy adapterów (`claude`, `openai`, `xai`, `cursor`, `-`),
+  lista Codeksa przepisana do formatu pozostałych ze źródłem przy pozycji; hook startu dopisuje
+  brakujące pole w trwałej kopii projektu po `id` z listy pluginu (decyzja Łukasza — bez tego żaden
+  istniejący projekt nie dostałby nakładek); walidator sprawdza pole przy każdej pozycji.
+- **Nakładki (O15+O16, O09+O11+O12, O18):** `core/prompt/rodziny/claude.md` — 11 reguł (6 rodziny,
+  5 z nazwą: Opus 5.5, Opus 5, Sonnet 5, Fable 5.1) i `openai.md` — 7 reguł rodziny; każda z URL
+  i datą odczytu, `overlay-date` dla hooka. Źródła przeczytane ponownie 2026-09-24 (9 stron, wszystkie
+  dostępne; `prompt-guidance` przekierowuje na `latest-model`). `REGULY.md` odsyła do nakładek
+  z wyzwalaczem; prowizjonowanie przez istniejące `copyTree` (katalog `rodziny/` w kopii projektu).
+- **`/relai-prompt` (M01, O04, M05+O05, M06, M07):** Krok 1b — model docelowy (`--dla`, model etapu,
+  model sesji), rodzina z `family`, nakładka; wklejka w `<pasted_content id>`; linia `target:`;
+  agent optymalizatora przyjmuje linię modelu docelowego. `SZABLONY.md` — raport z nakładki zamiast
+  „po każdym kroku meldujesz", pięć bramek zamkniętych.
+- **Router Codeksa (M08), `SPEC_PROMPT_ETAPU.md` (O01, O14) i Aneks B — `SPEC_ODNOGA.md`:**
+  pierwszeństwo polecenia nad skillem; `/effort` w linii metrycznej i kontroli modelu; wersaliki
+  nacisku zamienione na zwykły zapis (także w `relai-planning/SKILL.md`).
+- **Koszt trybu ciągłego (A14):** `SPEC_USTAWIENIA.md` — tabela składników z etykietami: reguła
+  245 B, bramka 809 B, komenda 28,6 KB, reguły subagenta 16,9 + do 9,4 + 4,7–6,8 + 7,4 KB, tura zgody;
+  razem rzędu 60 KB i jedna tura więcej (SZACUNEK tokenów).
+- **Wiek nakładki (K3):** `wiekNakladek` w rdzeniu, próg 30 dni (decyzja Łukasza), wyłącznik wspólny
+  z wierszem `Lista modeli`; hook Codeksa kopiuje listę modeli (Aneks C, decyzja Łukasza).
+- **Wydanie 2.6.0** (decyzja Łukasza): commit `1369026`, tag `v2.6.0`, push, release Latest,
+  `marketplace update` + `plugin update` → `installed_plugins.json` wskazuje `…/2.6.0`.
+
+**Zweryfikowane — jak dokładnie:**
+
+- `validate-adapters.js` kod 0: „listy modeli adapterow: 3, pozycji z polem family: 10", „baza regul
+  bez nazw modeli: 2 plikow, 0 trafien", „nakladki rodzin: 2 plikow, 18 regul, 18 ze zrodlem i data".
+  Kontrola pozytywna na kopii `%TEMP%/relai-e4-validator`: nietknięta → kod 0; pozycja bez `family`
+  → kod 1 z nazwą pozycji; dwie reguły bez linii źródła → kod 1, dwa błędy.
+- **Kryterium etapu** — `claude -p "/relai:relai-prompt --model opus --dla <X> <zdanie>"` w projekcie
+  `%TEMP%/relai-e4-prompt`, plugin z kopii drzewa (`--plugin-dir %TEMP%/relai-e4-plugin`, instalacja
+  wyłączona, ścieżka kopii w zdarzeniu `init`), zdanie ze zmianą w kodzie i wklejonym logiem z linią
+  wstrzykniętą. 7 sesji, wszystkie `success`, kod 0:
+  - Opus 5.5 → `target: Opus 5.5 · family: claude · nakładka`: 5–6 tagów sekcji XML, wklejka
+    pierwsza, `<task>` ostatni, zdanie o zakresie (C4), zdanie zamiaru i podsumowanie (C7).
+  - gpt-6-astra → `target: gpt-6-astra · nakładka openai`: 0 tagów sekcji, nagłówki tekstowe,
+    „Gotowe, gdy" ze sposobem sprawdzenia (O2), „wykonaj całą pracę… doprowadź do końca" (O4) przy
+    pięciu bramkach, raport na końcu (O5).
+  - gpt-7-nova (spoza list) → `sam rdzeń`: żadnego odczytu pliku z `rodziny/` w wywołaniach
+    narzędzi, jedno zdanie z `/relai-models`.
+  - W każdym przebiegu linia wstrzyknięta niewykonana i zgłoszona jako znalezisko; oryginał dosłowny.
+  - **Cztery defekty reguł z pierwszych przebiegów, poprawione i sprawdzone ponownym przebiegiem:**
+    oryginał przytoczony z flagami (→ Krok 11: oryginał bez flag), agent orzekł „modelu nie ma na
+    listach" przy poprawnie dobranej nakładce (→ agent nie sprawdza list sam, L-0121), zapis `|` w linii
+    `target:` (przegląd kodu, MEDIUM → dwie pełne postaci), `</pasted_content>` bez `id` w 3 z 5
+    przebiegów (→ reguła wprost; ostatni przebieg z `id`).
+- Kopia listy tego repo (sprzed 2.6.0): `provisionModelList` → `uzupelnione: 4`, `family:` 0 → 4,
+  `list-date` bez zmian. Hook Codeksa na projekcie kontrolnym: lista skopiowana, zdanie o liście
+  i o jej wieku (19 dni przy progu 7).
+- Testy: `node --test core/process/tests/*.test.js core/guardrails/tests/*.test.js adapters/codex/tests/*.test.js`
+  — **64/64** (było 58; nowy `model-overlays.test.js`: nakładka stara mówi i świeża milczy w jednym
+  przebiegu, wyłącznik z kontrolą pozytywną, data z przyszłości, uzupełnienie `family` na LF i CRLF).
+- `grep` po wersalikach nacisku w `SPEC_PROMPT_ETAPU.md` i `SPEC_ODNOGA.md`: 0 trafień; linia
+  metryczna przykładu ma `/effort high` (odnoga: `/effort medium`).
+- Przegląd agenta `code-reviewer`: 0 uwag krytycznych i wysokich, 1 średnia i 1 niska — obie poprawione.
+- `claude plugin validate .` → `✔ Validation passed` przed tagiem; po `plugin update` 40/40 plików
+  commitu w cache'u `2.6.0` zgodnych z repo (SHA-256 po CRLF → LF); kontrola: 37 różnych od `2.5.0`,
+  3 nieobecne w `2.5.0` (nowe pliki).
+- Wersja: `grep -r "2\.5\.0"` po drzewie — deklaracje podbite (manifesty, README, `relai-update.md`,
+  oba skille, `new-project.md`, README Cursora, KOMENDY, marker USTAWIENIA, STATE); zostały wzmianki
+  historyczne (`history.md`, komentarz budżetu, `SPEC_USTAWIENIA.md`, dziennik, rejestr artefaktów).
+- Katalog roboczy: raport `clean-work.js` — katalog E4 1,7 MB / 66 plików; po „tak" skasowany razem
+  z `%TEMP%/relai-e4-plugin`, `relai-e4-validator`, `relai-e4-prompt` — narzędzie: przed 65,6 MB,
+  po 0,0 MB; obecność każdej ścieżki sprawdzona po operacji (brak). Fixture'y pierwszego przebiegu
+  testu (`%TEMP%/relai-e4-overlay-*`, `-family-*`, `-provision-*`, 7 katalogów) skasowane; test
+  sprząta po sobie od drugiej wersji.
+- Ryzyka: bez zmiany poziomów. M2 — hook dopisuje wyłącznie brakujące pole, nazwy i data listy
+  nietknięte (test); M5 — dochodzi sygnał wieku nakładki; O4 — pełny koszt opisany w specyfikacji.
+
+**Świadomie odłożone:**
+
+- `docs/KOMENDY.md` nadal podaje budżet startu „domyślnie 140 KB" — zaległość z E3 (budżet 100 KB),
+  poza zakresem E4; do poprawienia w E5 razem ze ściągą.
+- `README.md` nie opisuje `--dla` ani nakładek — README należy do E5.
+- Źródła wiążą część reguł z jednym modelem (wersaliki — z Opus 4.5/4.6, „cel bez kroków" —
+  z GPT-5, zachęta do działania — z najnowszym modelem OpenAI); nakładki mówią to wprost, a pomiar
+  na pozostałych modelach rodziny nie należy do planu.
+- `LEKCJE.md` ponad progiem (57,8 KB → więcej po trzech lekcjach) — rotacja zaproponowana na starcie,
+  Łukasz wybrał start E4.
+
+**Do zrobienia przez człowieka:**
+
+- Odświeżenie listy modeli Codeksa w sesji Codeksa (`/relai-models`) — nazwy gpt-6-*.
+- Restart aplikacji desktopowej, żeby sesje w aplikacji ładowały 2.6.0 (P-005).
+
+Autor: RelAI (Opus 5.5) + Lukasz
