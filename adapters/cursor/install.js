@@ -9,7 +9,7 @@
 // Co robi instalacja (kolejnosc jest tresciwa, nie kosmetyczna):
 //   1) reguly zawsze-w-kontekscie  -> <projekt>/.cursor/rules/relai-*.mdc
 //   2) komendy /relai-*            -> <projekt>/.cursor/commands/*.md   (z adaptera Claude Code)
-//   3) skille relai-core/planning  -> <projekt>/.cursor/skills/<nazwa>/SKILL.md
+//   3) skille relai-core/planning  -> <projekt>/.cursor/skills/<nazwa>/ (SKILL.md + pliki doczytywane)
 //   4) specyfikacje dokumentow     -> <projekt>/.claude/relai/templates/  (R8; ta sama sciezka
 //                                     co w Claude Code, bo komendy i skille mowia o jednej)
 //   5) hooki                       -> wpisy w <projekt>/.cursor/hooks.json wskazujace pliki
@@ -246,10 +246,14 @@ function install(projekt, bezSkanu) {
   const skillsRoot = path.join(REPO_ROOT, 'adapters', 'claude-code', 'skills');
   let skille = [];
   try { skille = fs.readdirSync(skillsRoot, { withFileTypes: true }).filter((d) => d.isDirectory()); } catch (_) { skille = []; }
+  // E3 PROWADZENIE_END_TO_END: skill to SKILL.md plus pliki doczytywane obok niego —
+  // kopiujemy kazdy plik .md katalogu skilla, inaczej odeslanie z SKILL.md prowadzi donikad.
   for (const d of skille) {
-    const src = path.join(skillsRoot, d.name, 'SKILL.md');
-    if (!fs.existsSync(src)) continue;
-    kopiuj(src, path.join(projekt, '.cursor', 'skills', d.name, 'SKILL.md'), zapisane);
+    const katalog = path.join(skillsRoot, d.name);
+    if (!fs.existsSync(path.join(katalog, 'SKILL.md'))) continue;
+    for (const plik of pliki(katalog, /\.md$/i)) {
+      kopiuj(plik, path.join(projekt, '.cursor', 'skills', d.name, path.basename(plik)), zapisane);
+    }
   }
 
   let templates = 0;

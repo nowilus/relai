@@ -193,13 +193,13 @@ Format komórki `Decyzja` jest sztywny, bo jest czytana maszynowo (L-0025) — k
 komórki, człony rozdzielone `·`:
 
 ```
-włączony · start 140 KB · CLAUDE 10 KB · STATE 12 KB · ryzyka 12 KB · zasady 30 KB · ustawienia 6 KB · status 10 KB
+włączony · start 100 KB · CLAUDE 10 KB · STATE 12 KB · ryzyka 12 KB · zasady 30 KB · ustawienia 6 KB · status 10 KB
 ```
 
 | Człon | Dozwolone wartości | Znaczenie |
 |---|---|---|
 | przełącznik (**pierwszy, obowiązkowy**) | `włączony` / `wyłączony` (EN: `on` / `off`) | `wyłączony` → nie liczysz nic i nie mówisz nic |
-| `start <liczba> KB` | liczba całkowita | budżet całej warstwy startowej — **domyślnie 140** (do 2.3.1: 80; podniesione, gdy suma zaczęła liczyć skill `relai-core`, 65,6 KB — decyzja człowieka 2026-09-24, do ponownego pomiaru po podziale skilla w E3) |
+| `start <liczba> KB` | liczba całkowita | budżet całej warstwy startowej — **domyślnie 100** (do 2.3.1: 80; w 2.4.0: 140, gdy suma zaczęła liczyć skill `relai-core`, 65,6 KB; od 2.5.0: 100 — po podziale skilla na pliki doczytywane skill waży 28,6 KB, a repozytorium RelAI 88,8 KB; decyzja człowieka 2026-09-24) |
 | `CLAUDE <liczba> KB` | liczba całkowita | próg cząstkowy `CLAUDE.md` — **domyślnie 10** |
 | `STATE <liczba> KB` | liczba całkowita | próg cząstkowy `docs/STATE.md` — **domyślnie 12** |
 | `ryzyka <liczba> KB` (EN: `risks`) | liczba całkowita | próg sekcji ryzyk wraz z ostatnim wpisem — **domyślnie 12** |
@@ -209,7 +209,7 @@ włączony · start 140 KB · CLAUDE 10 KB · STATE 12 KB · ryzyka 12 KB · zas
 
 To jest **jedyne źródło prawdy o domyślnym budżecie** — inne specyfikacje nie powtarzają tych
 liczb. Człon pominięty znaczy „wartość domyślna": projekt, który niczego nie stroi, ma w komórce
-samo `włączony`. Progi cząstkowe **nie sumują się do budżetu** i nie mają się sumować — 140 KB jest
+samo `włączony`. Progi cząstkowe **nie sumują się do budżetu** i nie mają się sumować — 100 KB jest
 sufitem całości, a progi cząstkowe wskazują winowajcę. Raport wyzwala **wyłącznie** przekroczenie
 sumy: pozycja grubsza od swojego progu w projekcie mieszczącym się w budżecie nie odzywa się
 w ogóle, bo inaczej cisza przestałaby cokolwiek znaczyć.
@@ -577,7 +577,7 @@ zmienić — osobny plik byłby drugim miejscem do zapomnienia.
 
 | Próg | Domyślnie | Gdzie mieszka wartość | Kto go czyta | Po przekroczeniu | Adres egzekwowania |
 |---|---|---|---|---|---|
-| suma warstwy startowej | 140 KB (skill i pliki rytuału w sumie) | wiersz `Budżet startu sesji` (ta specyfikacja) | hook startu sesji (`startCost`) | raport `[RelAI budzet startu]`, najwyżej sześć linii | **jest** — hook startu |
+| suma warstwy startowej | 100 KB (skill i pliki rytuału w sumie) | wiersz `Budżet startu sesji` (ta specyfikacja) | hook startu sesji (`startCost`) | raport `[RelAI budzet startu]`, najwyżej sześć linii | **jest** — hook startu |
 | `CLAUDE.md` | 10 KB | wiersz `Budżet startu sesji`; ten sam limit opisuje `SPEC_CLAUDE_MD.md` | hook startu sesji | wymieniony w raporcie jako pozycja ponad progiem cząstkowym | **jest** — hook startu (tylko wewnątrz raportu) |
 | `docs/STATE.md` — waga | 12 KB | wiersz `Budżet startu sesji` | hook startu sesji | jw. | **jest** — hook startu (tylko wewnątrz raportu) |
 | sekcja „Stan otwartych ryzyk" + „Czeka na człowieka" + ostatni wpis | 12 KB | wiersz `Budżet startu sesji` (człon `ryzyka`) | hook startu sesji | jw. | **jest** — hook startu (tylko wewnątrz raportu) |

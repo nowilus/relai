@@ -1,6 +1,6 @@
 # USTAWIENIA — projekt: budowa RelAI
 
-Wersja RelAI: 2.4.0 · zainicjowano: 2026-08-07
+Wersja RelAI: 2.5.0 · zainicjowano: 2026-08-07
 
 Rejestr wyborów użytkownika dla tego projektu. Każdy wpis: data, czego dotyczył, decyzja.
 
@@ -21,7 +21,7 @@ Rejestr wyborów użytkownika dla tego projektu. Każdy wpis: data, czego dotycz
 | 2026-08-07 | Instalacja pluginu w trakcie budowy | Zainstalowany na stałe (scope `user`); po każdej zmianie obowiązuje sekwencja wydania — [PULAPKI.md](PULAPKI.md) P-005 |
 | 2026-08-12 | Rotacja dokumentów | włączona · dziennik 150 KB · lekcje 40 wpisów albo 50 KB · STATE 300 linii — progi skalibrowane w E2 na zmierzonych dziennikach JiraManagera i PolyFlow |
 | 2026-08-12 | Język warstw adapterów | Warstwa czytana przez model — angielski; warstwa czytana przez człowieka — polski; dokumenty projektów w języku projektu (Aneks A planu ROZWOJ_PO_WYDANIU) |
-| 2026-09-24 | Budżet startu sesji | włączony · start 140 KB · CLAUDE 10 KB · STATE 12 KB · ryzyka 12 KB · zasady 30 KB · ustawienia 6 KB · status 10 KB |
+| 2026-09-24 | Budżet startu sesji | włączony · start 100 KB · CLAUDE 10 KB · STATE 12 KB · ryzyka 12 KB · zasady 30 KB · ustawienia 6 KB · status 10 KB |
 | 2026-09-01 | Przegląd spraw człowieka | włączony · 30 dni |
 | 2026-09-03 | Artefakty robocze | włączone · 100 MB |
 | 2026-09-04 | Lista modeli | włączona · 7 dni |
@@ -34,6 +34,7 @@ Rejestr wyborów użytkownika dla tego projektu. Każdy wpis: data, czego dotycz
 
 | Data | Czego dotyczy | Decyzja | Zastąpione |
 |---|---|---|---|
+| 2026-09-24 | Budżet startu sesji | włączony · start 140 KB · CLAUDE 10 KB · STATE 12 KB · ryzyka 12 KB · zasady 30 KB · ustawienia 6 KB · status 10 KB | zastąpione 2026-09-24 wartością `start 100 KB`, powód: po podziale skilla `relai-core` na pliki doczytywane (E3 planu PROWADZENIE_END_TO_END) skill waży 28,6 KB, a warstwa startowa tego repozytorium 88,8 KB; decyzja człowieka w E3 |
 | 2026-08-20 | Budżet startu sesji | włączony · start 80 KB · CLAUDE 10 KB · STATE 12 KB · ryzyka 12 KB · zasady 30 KB · ustawienia 6 KB · status 10 KB | zastąpione 2026-09-24 wartością `start 140 KB`, powód: suma liczy odtąd skill `relai-core` (65,6 KB) i pliki rytuału — 123,7 KB na tym repozytorium; decyzja człowieka w E2 planu PROWADZENIE_END_TO_END |
 | 2026-08-07 | Instalacja pluginu w trakcie budowy | Odinstalowany do końca budowy; instalacja docelowa po ostatnim etapie | zastąpione decyzją z 2026-08-07 (plugin zainstalowany na stałe), powód: dwa etapy przeszły bez pomiaru ryzyka R2, a pomiar wymaga zainstalowanego pluginu |
 | 2026-08-07 | Profil projektu | Narzędzie/plugin (odpowiednik profilu „prompty/artefakty" — kod TS/JS + specyfikacje) | zastąpione 2026-08-21 wartością `prompty` przy `/relai-update` do 1.6.1, powód: wartość opisowa nie przechodzi kotwicy maszynowej, więc reguły profilu były w tym projekcie wyciszone od początku |

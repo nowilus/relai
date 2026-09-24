@@ -29,6 +29,36 @@ test('generates fourteen deterministic native skills from Claude Code commands',
   assert.match(snapshot.get(path.join(output, 'relai-planning', 'SKILL.md')), /^---\nname: relai-planning\n/);
 });
 
+test('copies every reference file of the core skills next to SKILL.md', (t) => {
+  const output = fixture(t);
+  generator.generate({ output });
+  const source = path.join(__dirname, '..', '..', 'claude-code', 'skills');
+
+  for (const name of ['relai-core', 'relai-planning']) {
+    const expected = fs.readdirSync(path.join(source, name)).filter((file) => file.endsWith('.md')).sort();
+    assert.ok(expected.length > 1, name + ' should ship reference files next to SKILL.md');
+    assert.deepEqual(fs.readdirSync(path.join(output, name)).sort(), expected);
+    for (const file of expected) {
+      const want = fs.readFileSync(path.join(source, name, file), 'utf8').replace(/\r\n/g, '\n');
+      assert.equal(fs.readFileSync(path.join(output, name, file), 'utf8'), want);
+    }
+  }
+});
+
+test('detects drift and orphans among the reference files of a core skill', (t) => {
+  const output = fixture(t);
+  generator.generate({ output });
+  const drifted = path.join(output, 'relai-core', 'session-close.md');
+  const orphan = path.join(output, 'relai-planning', 'removed-procedure.md');
+  fs.appendFileSync(drifted, '\nlocal drift\n');
+  fs.writeFileSync(orphan, 'left behind by an older release\n');
+
+  assert.deepEqual(generator.verify({ output }).sort(), [drifted, orphan].sort());
+  generator.generate({ output });
+  assert.deepEqual(generator.verify({ output }), []);
+  assert.equal(fs.existsSync(orphan), false);
+});
+
 test('detects a generated skill that no longer matches its Claude Code source', (t) => {
   const output = fixture(t);
   generator.generate({ output });

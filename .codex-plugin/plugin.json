@@ -1,6 +1,6 @@
 {
   "name": "relai",
-  "version": "2.4.0",
+  "version": "2.5.0",
   "description": "Documentation-first project process framework for Codex.",
   "author": { "name": "nowilus", "url": "https://github.com/nowilus" },
   "homepage": "https://github.com/nowilus/relai",

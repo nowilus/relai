@@ -590,7 +590,7 @@ const KB = 1024;
 // Progi domyslne w KB. Jedyne zrodlo prawdy o tych wartosciach to
 // core/templates/SPEC_USTAWIENIA.md — tutaj stoi ich kopia wykonawcza.
 const PROGI_DOMYSLNE = {
-  start: 140, // do 2.3.1: 80; suma liczy odtad skill startu (E2 PROWADZENIE_END_TO_END)
+  start: 100, // do 2.3.1: 80; 2.4.0: 140 (suma liczy skill startu); 2.5.0: 100 po podziale skilla (E3)
   CLAUDE: 10,
   STATE: 12,
   ryzyka: 12,

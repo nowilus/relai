@@ -1,14 +1,14 @@
 # STATE — RelAI
 
-Stan na: 2026-09-24 (po etapie E2 planu PROWADZENIE_END_TO_END — wydanie 2.4.0)
+Stan na: 2026-09-24 (po etapie E3 planu PROWADZENIE_END_TO_END — wydanie 2.5.0)
 
 ## Gdzie jesteśmy
 
-RelAI ma w repozytorium **2.4.0** — wydanie z etapu E2 planu PROWADZENIE_END_TO_END (lżejszy
-start sesji; poprzednio 2.3.1 z E1). Plugin działa w trzech narzędziach — Claude Code, Cursorze i Codeksie — na jednym
-rdzeniu procesu, z czternastoma komendami. Start sesji kosztuje teraz mniej i liczy uczciwie
-wszystko, co naprawdę czyta; następny krok to podział największych instrukcji na części czytane
-na żądanie. Ostatni pilotaż z użytkownikami zamknięto przed wysyłką
+RelAI ma w repozytorium **2.5.0** — wydanie z etapu E3 planu PROWADZENIE_END_TO_END (skille
+w progresywnym ujawnianiu; poprzednio 2.4.0 z E2). Plugin działa w trzech narzędziach — Claude Code, Cursorze i Codeksie — na jednym
+rdzeniu procesu, z czternastoma komendami. Instrukcja ładowana na starcie każdej sesji jest ponad
+dwa razy lżejsza, a rzadkie procedury model otwiera dopiero wtedy, gdy są potrzebne; następny
+krok to zasady skrojone pod model, który je czyta. Ostatni pilotaż z użytkownikami zamknięto przed wysyłką
 zaproszeń, więc opinii spoza projektu nadal nie ma.
 
 ## Co działa
@@ -39,15 +39,13 @@ zaproszeń, więc opinii spoza projektu nadal nie ma.
 
 ## Nad czym pracujemy teraz
 
-- **E3 planu PROWADZENIE_END_TO_END — skille w progresywnym ujawnianiu** (gotowy do startu). Dwa
-  największe skille schodzą poniżej 500 linii, procedury rzadkie idą do plików doczytywanych na
-  żądanie, a walidator pilnuje, żeby oba adaptery miały tę samą treść. Po co: skill ładowany na
-  pierwszym prompcie to dziś ponad połowa kosztu startu (65,6 z 123,7 KB).
+- **E4 planu PROWADZENIE_END_TO_END — zasady skrojone pod model** (gotowy do startu po bramce
+  „Odświeżenie listy modeli Codeksa"). Nakładki per rodzina modeli w plikach doczytywanych,
+  w kształcie ustalonym w E3; `/relai-prompt` ustala model docelowy.
 
 ## Co dalej
 
-- **E4–E7 planu** [PROWADZENIE_END_TO_END](plany/PROWADZENIE_END_TO_END/STATUS.md): zasady
-  pod model, pierwsze 30 minut (w tym render demo pod telefon),
+- **E5–E7 planu** [PROWADZENIE_END_TO_END](plany/PROWADZENIE_END_TO_END/STATUS.md): pierwsze 30 minut (w tym render demo pod telefon),
   debug / bezpieczeństwo / deploy, jakość pracy solo i załogi.
 - Przed E4: odświeżenie listy modeli Codeksa (bramka manualna planu).
 - Odnoga `OPIS_REPO` — opis i tematy repozytorium na GitHubie; opis manifestu nadal mówi
@@ -74,7 +72,7 @@ zaproszeń, więc opinii spoza projektu nadal nie ma.
 
 ### Wersja i instalacja
 
-Repozytorium i publicznie: **2.4.0** (tag `v2.4.0`, release Latest). Źródło instalacji: własny
+Repozytorium i publicznie: **2.5.0** (tag `v2.5.0`, release Latest). Źródło instalacji: własny
 marketplace w tym repozytorium, scope `user`. Wydanie potwierdzasz treścią plików z cache'u, nie
 komunikatem CLI (P-005): `claude plugin validate` → tag → push → release → `marketplace update` →
 `plugin update relai@relai` → suma plików po CRLF → LF. Walidator `core/tools/validate-adapters.js`
@@ -85,7 +83,7 @@ układ 1.9.2 (shim + dwa pliki `.cjs`).
 
 **Rdzeń** (`core/`): specyfikacje dokumentów, szablon planu HTML, guardraile, rozpoznania startu
 sesji (`process/session-signals.js`), artefakty robocze, załoga, tryb ciągły, baza reguł
-optymalizatora, walidator. **Adapter Claude Code**: dwa skille, 14 komend, 4 agenci, 11 hooków,
+optymalizatora, walidator. **Adapter Claude Code**: dwa skille (każdy poniżej 500 linii, razem 8 plików doczytywanych), 14 komend, 4 agenci, 11 hooków,
 lista modeli. **Adapter Cursor**: trzy reguły `.mdc`, dwa hooki, instalator. **Adapter Codex**:
 natywny manifest, 14 skilli, router `AGENTS.md`, trzy hooki.
 
@@ -102,7 +100,7 @@ Backupy: `C:\Users\Lukasz\Backupy\RelAI` • [PRZENOSNOSC.md](PRZENOSNOSC.md) �
 ### Liczby
 
 Plany zamknięte: 8 (ostatni PIERWSI_UZYTKOWNICY, częściowo, 2026-09-24) • Aktywny:
-PROWADZENIE_END_TO_END, E2/7 zrealizowany, E3 gotowy • Start sesji: **123,7 KB / 140 KB** (skill 65,6 KB) • Dziennik: **91,8 KB / 150 KB** (po rotacji
+PROWADZENIE_END_TO_END, E3/7 zrealizowany, E4 gotowy • Start sesji: **88,8 KB / 100 KB** (skill 28,6 KB; przed E3 126,3 KB) • Dziennik: **91,8 KB / 150 KB** (po rotacji
 2026-09-24 i wpisie E2 (archiwum: 9 plików)) • Sekcja ryzyk: **5,3 KB / 12 KB**, 11 otwartych, archiwum
 ryzyk: 4 pliki + 1 mitygacji • Lekcje: 56 KB / 50 KB — rotacja należna • Adaptery: 3 •
 Komendy: 14 • Projekty na RelAI: 3 (RelAI, PolyFlow, JiraManager przed migracją) • Modele, na

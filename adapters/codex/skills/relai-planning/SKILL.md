@@ -16,7 +16,7 @@ description: >
 
 # relai-planning — plany, etapy i ich zamrażanie
 
-Aktualny stan dystrybucyjny: RelAI 2.4.0; procedura tego skilla pochodzi z wersji 1.8.0, a akapit niżej opisuje jej zakres.
+Aktualny stan dystrybucyjny: RelAI 2.5.0; procedura tego skilla pochodzi z wersji 1.8.0, a akapit niżej opisuje jej zakres.
 
 Wersja procedury 1.8.0 (plan SPRZATANIE_ARTEFAKTOW — katalog roboczy etapu nazwany z góry, krok 1a rytuału „Na koniec"). Zakres tej wersji: **wykrycie intencji planowania + rozróżnienie
 PLAN/MINIPLAN + pytanie startowe + generacja planu w Markdown albo w HTML + `STATUS.md` +
@@ -31,6 +31,12 @@ czytaj z lokalnej kopii **`.claude/relai/templates/`** — utrzymuje ją hook `s
 katalog pluginu jest dla sesji niedostępny (L-0012). Tą samą drogą dociera szablon HTML
 (`.claude/relai/templates/HTML_PLAN/`). Brak kopii → powiedz o tym i poproś o `--add-dir` na katalog
 pluginu, zamiast generować z pamięci.
+
+Dwie procedury leżą obok tego pliku, w katalogu skilla, i otwierasz je dopiero przy wyzwalaczu:
+`html-plan.md` — plan główny powstaje w HTML albo człowiek zmienia styl planów HTML;
+`plan-closing.md` — ostatni etap planu dostał status ZREALIZOWANY. Pliku nie ma obok `SKILL.md`
+(instalacja niepełna) → mówisz o tym jednym zdaniem i prosisz o aktualizację pluginu; procedury
+nie odtwarzasz z pamięci.
 
 Ten skill zakłada strukturę RelAI w folderze (marker `Wersja RelAI:` w `docs/USTAWIENIA.md`).
 Nie ma struktury → to zadanie dla `relai-core`, nie dla tego skilla: najpierw inicjalizacja albo
@@ -165,8 +171,8 @@ Zasady tego pytania:
    razem z pierwszym planem (D-11).
 3. **Wygeneruj plan główny w formacie z ustawień** (Krok 3, domyślnie HTML):
    - **Markdown** → `PLAN.md` wg `.claude/relai/templates/SPEC_PLAN.md`;
-   - **HTML** → `PLAN.html` wg `.claude/relai/templates/SPEC_PLAN_HTML.md`, procedurą z sekcji
-     „Plan główny w HTML" niżej. Treść merytoryczna jest w obu przypadkach ta sama — dziesięć
+   - **HTML** → `PLAN.html` wg `.claude/relai/templates/SPEC_PLAN_HTML.md`, procedurą z pliku
+     `html-plan.md` (sekcja „Plan główny w HTML" niżej mówi, kiedy go otworzyć). Treść merytoryczna jest w obu przypadkach ta sama — dziesięć
      sekcji z `SPEC_PLAN.md`. Format zmienia nośnik, nie zawartość.
 4. **Wygeneruj `STATUS.md`** wg `.claude/relai/templates/SPEC_STATUS.md` — ze statusem planu
    `DO AKCEPTACJI` i modelem wykonawczym z Kroku 3. `STATUS.md` jest w Markdown **zawsze**,
@@ -186,86 +192,11 @@ Czego **nie** robisz na tym etapie: nie zaczynasz implementacji, **nie generujes
 
 ## Plan główny w HTML (D-32)
 
-W HTML powstaje **wyłącznie plan główny**. `STATUS.md`, prompty etapowe i MINIPLAN-y zostają
-w Markdown — HTML jest dla ludzi, Markdown dla agentów.
-
-### Skąd bierzesz szablon — kolejność jest wiążąca
-
-1. **`docs/zasoby/HTML_PLAN/`** — lokalne nadpisanie projektu (D-62). Istnieje → używasz go
-   i nie zaglądasz dalej. **Lokalne ma zawsze pierwszeństwo.**
-2. **`.claude/relai/templates/HTML_PLAN/`** — kopia z pluginu, utrzymywana przez hook
-   `session-context`.
-3. Nie ma ani jednego → powiedz to wprost i poproś o uruchomienie sesji z `--add-dir` na katalog
-   pluginu. **Nie improwizujesz własnego HTML-a** — plan ma wyglądać tak samo w każdym projekcie.
-
-### Procedura — sześć kroków
-
-Pełny opis: `.claude/relai/templates/SPEC_PLAN_HTML.md`. Przebieg wypisany tutaj, bo odesłanie
-do pliku bywa pomijane (L-0011):
-
-1. **Skopiuj** `szablon.html` do `docs/plany/<TEMAT>/PLAN.html`.
-2. **Wypełnij znaczniki nagłówkowe:** `{{JEZYK}}`, `{{TYTUL}}`, `{{PODTYTUL}}`, `{{DATA}}`,
-   `{{STATUS}}`, `{{LICZBA_ETAPOW}}`, `{{PRACOCHLONNOSC}}`, `{{MODEL_WYKONAWCZY}}`, `{{PODPIS}}`,
-   `{{TEMAT_PLANU}}`.
-3. **Wypełnij `{{SEKCJA_1}}`…`{{SEKCJA_10}}`** treścią wg `SPEC_PLAN.md`, składając ją z gotowych
-   fragmentów z `komponenty.html` — **bierzesz tylko te, które ten plan potrzebuje**.
-   `{{SZEPT_N}}` to półzdanie na marginesie nagłówka sekcji.
-4. **Symulator** — tylko gdy plan zawiera wyliczenia. Ma je: wklejasz komponent 10 (karta pól)
-   i komponent 12 (skrypt) w miejsce `/*{{SKRYPT_SYMULATORA}}*/`, po czym wypełniasz znaczniki,
-   które razem z nimi przyszły. Nie ma: **nie wklejasz nic i nie wypełniasz niczego** — znacznik
-   zostawiasz nietknięty, builder usunie go po cichu. Żadnych wartości pustych.
-5. **Uruchom builder:** `node <katalog szablonu>/zbuduj.js docs/plany/<TEMAT>/PLAN.html`. Osadza
-   fonty, sprząta znacznik symulatora i **wypisuje pozostałe niewypełnione znaczniki, kończąc
-   kodem 1** — to błąd, nie ostrzeżenie.
-6. **Otwórz plik i sprawdź**, że symulator liczy, sekcje się zwijają i strona nie przewija się
-   w poziomie. Bez tego kroku plan nie jest gotowy.
-
-Zakazy nośnika (pełna lista w `SPEC_PLAN_HTML.md`): zero żądań sieciowych, zero fioletu i poświaty,
-zero emoji, zero animacji ozdobnych — w szczególności **żadnej kropki wędrującej po diagramie**.
-Obsługa `prefers-reduced-motion` jest w szablonie; nie usuwasz jej.
-
----
-
-## Nadpisanie lokalne szablonu (D-62)
-
-Projekt może mieć **własną wersję szablonu HTML**, która wygrywa z wersją z pluginu.
-
-**Pytanie pada raz na projekt**, po pokazaniu **pierwszego** wygenerowanego planu HTML — wtedy,
-gdy użytkownik ma plik przed oczami i wie, o czym decyduje. Zanim zapytasz, sprawdź w
-`docs/USTAWIENIA.md` wiersz „Szablon planu HTML" i warstwę globalną; jest odpowiedź → **nie
-pytasz** (L-0006). To pytanie **nie należy** do jednego wywołania z Kroku 3 i nie łamie zakazu
-pytania po wygenerowaniu planu: tamten zakaz dotyczy pytań o rodzaj, format i model, bez których
-planu nie da się napisać.
-
-Odpowiedź „zostawiam domyślny" też zapisujesz — inaczej pytanie wróci przy następnym planie.
-
-Zmiana stylu — kolejno:
-
-1. **Skopiuj całe drzewo** `.claude/relai/templates/HTML_PLAN/` do `docs/zasoby/HTML_PLAN/`
-   (szablon, komponenty, `zbuduj.js` i katalog `fonty/` — bez fontów builder nie ma czego osadzić).
-2. **Zmień wygląd wyłącznie przez tokeny w `:root`** w `docs/zasoby/HTML_PLAN/szablon.html` —
-   kolory, promienie, kroje. Nie dopisujesz reguł CSS pod konkretny plan; przy następnej zmianie
-   szablonu nikt nie odgadnie, co było celowe.
-3. **Dopisz wiersz do `docs/USTAWIENIA.md`** z dzisiejszą datą: czego dotyczy („Szablon planu
-   HTML"), decyzja („nadpisanie lokalne w `docs/zasoby/HTML_PLAN/`, ma pierwszeństwo przed wersją
-   z pluginu") — plus jednym półzdaniem, co zmieniono. **Ten zapis przechodzi przez hook
-   `config-protection`**, który zażąda potwierdzenia — to jest w porządku, bo użytkownik przed
-   chwilą zgodził się na zmianę stylu. Zapisu **nie odpuszczasz po cichu**: bez wiersza pytanie
-   wróci przy następnym planie (L-0006). Blokada bez możliwości potwierdzenia (np. sesja
-   nieinteraktywna) → powiedz wprost, że wiersz czeka na dopisanie, i pokaż jego treść.
-4. **Przegeneruj plan** z lokalnej kopii, żeby użytkownik zobaczył efekt w tej samej turze.
-
-Od tej chwili **każdy** plan HTML w tym projekcie powstaje z `docs/zasoby/HTML_PLAN/`, także po
-aktualizacji pluginu.
-
-### Dlaczego `docs/zasoby/`, a nie `.claude/relai/`
-
-`.claude/relai/` jest **cache'em pluginu**: hook `session-context` nadpisuje tam pliki przy każdym
-starcie sesji, a `.gitignore` z `*` trzyma cały katalog poza repozytorium. Nadpisanie schowane
-w cache'u przeżyłoby aktualizację pluginu (hook pisze tylko do `.claude/relai/templates/`), ale zniknęłoby przy
-klonowaniu repo, na drugiej maszynie i u współpracownika — a to jest świadoma decyzja projektu,
-nie plik tymczasowy. `docs/zasoby/` jest w repo (D-11, D-24), wchodzi do backupu i jest widoczne
-w diffie. Dlatego nadpisanie mieszka tam (mitygacja R6).
+W HTML powstaje **wyłącznie plan główny**; `STATUS.md`, prompty etapowe i MINIPLAN-y zostają
+w Markdown. Plan główny w formacie HTML → **otwórz `html-plan.md`** przed skopiowaniem szablonu
+i wykonaj z niego kolejność szablonów (lokalne `docs/zasoby/HTML_PLAN/` przed kopią z pluginu)
+oraz procedurę sześciu kroków z builderem. Ten sam plik niesie pytanie o nadpisanie lokalne
+szablonu (D-62) po pierwszym planie HTML i przebieg zmiany stylu.
 
 ---
 
@@ -471,7 +402,7 @@ ukończenia z `relai-core`, tylko dla etapu planu. Kolejność jest wiążąca:
    **etap bez wygenerowanego następnego promptu NIE jest ukończony** (D-34).
 6. **Commit** — propozycja, conventional message. Jedyny punkt tego rytuału, o który pytasz.
 
-Zamykany etap był **ostatnim** w planie → punkt 5 zastępujesz sekwencją „Zamknięcie planu" niżej.
+Zamykany etap był **ostatnim** w planie → punkt 5 zastępujesz sekwencją „Zamknięcie planu" z pliku `plan-closing.md`.
 
 Sesja przerwana w połowie rytuału zostawia etap w statusie `W TOKU`. Kolejne `/relai-stage` ma
 wtedy dokończyć, nie zaczynać od zera — a siatka z `relai-core` wyłapie brakujący prompt na starcie
@@ -479,63 +410,12 @@ następnej sesji.
 
 ## Zamknięcie planu (D-36)
 
-Gdy ostatni etap dostaje status ZREALIZOWANY, zamknięcie wykonujesz **sam, w tej samej turze**,
-w tej kolejności:
+Ostatni etap dostał status ZREALIZOWANY → **otwórz `plan-closing.md`** i wykonaj jego dziewięć
+kroków w tej samej turze, w podanej kolejności. Dwa pierwsze są blokujące — otwarte bramki
+manualne i otwarte odnogi rozstrzyga człowiek, zanim gdziekolwiek napiszesz, że plan jest
+zrealizowany. Linia „Aktywny plan" w `CLAUDE.md` kończy turę, wskazując istniejący plik albo
+brzmiąc `Aktywny plan: brak`.
 
-**Dwa punkty blokujące idą pierwsze** (1 i 2). Dopiero po nich wolno napisać gdziekolwiek, że plan
-jest zrealizowany: zdanie „plan ZREALIZOWANY", postawione przed rozstrzygnięciem bramek i odnóg,
-jest fałszem w dokumencie, któremu następna sesja zaufa bezwarunkowo — a gdy człowiek odpowie
-inaczej, niż zakładałeś, zostaje po nim wpis do wycofania.
-
-1. **Otwarte bramki manualne** — zajrzyj do sekcji „Bramki manualne" w `STATUS.md` **i** przejrzyj
-   sekcje „Do zrobienia przez człowieka" we wpisach dziennika z okresu tego planu; pozycja bez
-   adnotacji „*(rozstrzygnięte …)*" jest otwarta, także wtedy, gdy nie ma jeszcze swojej linii
-   w `STATUS.md` (plan sprzed 1.3.0). Jest choć jedna → **wypisz je wszystkie i zapytaj o każdą**:
-   rozstrzygnięta teraz (wtedy zapisujesz jak — w obu miejscach) czy świadomie zostawiona otwarta
-   (wtedy przechodzi do `STATE.md`, sekcja „Co blokuje" albo „Co dalej", żeby nie zginęła razem
-   z folderem planu w archiwum). Bez decyzji człowieka **plan się nie zamyka**.
-
-   Powód: „plan ZREALIZOWANY" przy kilkunastu pozycjach czekających na człowieka to zdanie
-   nieprawdziwe, a po archiwizacji nikt już do nich nie zagląda (PolyFlow, retrospektywa
-   2026-08-12, `FAKT`). Brak sekcji i brak otwartych pozycji → punkt przechodzi bez pytania
-   i bez komentarza.
-2. **Otwarte odnogi** — zajrzyj do sekcji „Odnogi" w `STATUS.md`. Jest tam choć jedna linia
-   `OTWARTA` → **wypisz je wszystkie i zapytaj o każdą**: zamknąć teraz czy przenieść do
-   `docs/fixy/<NAZWA>/` jako wątek samodzielny. Przeniesienie = folder odnogi wędruje do
-   `docs/fixy/`, a jej linia w `STATUS.md` dostaje status
-   `PRZENIESIONA <data> → docs/fixy/<NAZWA>/`. Bez decyzji człowieka **plan się nie zamyka** —
-   folder planu w archiwum z żywym wątkiem w środku znaczy, że wątek przepadł. Brak sekcji „Odnogi"
-   albo same linie zamknięte → punkt przechodzi bez pytania i bez komentarza.
-3. **`docs/STATE.md`** — nadpisz: obszar planu przechodzi z „w toku" do stanu faktycznego.
-4. **Wpis zamykający w `DZIENNIK.md`** — sekcja „Zrobione" mówi **dowiezione vs plan**: co miało
-   powstać, co powstało, co przepadło. Bez tego porównania wpis jest niepełny.
-5. **`STATUS.md`** — status planu → `ZREALIZOWANY <data>`, wszystkie etapy domknięte.
-6. **Ryzyka** — przejrzyj tabelę „Stan otwartych ryzyk": ryzyka związane z planem zamknij z datą,
-   nowe (jeśli praca je ujawniła) dopisz.
-7. **Archiwum** — przenieś `docs/plany/<TEMAT>/` do `docs/archiwum/plany/<TEMAT>/`. Zawartość bez
-   zmian; przeniesienie, nie kasowanie.
-8. **`CLAUDE.md`** — linia aktywnego planu. **Warunek twardy: kiedy kończysz turę, linia wskazuje
-   istniejący plik albo brzmi `Aktywny plan: brak`.** Link do przeniesionego folderu jest błędem —
-   prowadzi donikąd, a jednocześnie mówi „tu trwa praca". Rozstrzygasz tak:
-
-   - jest dokładnie jeden inny plan niezamknięty → wpisujesz go, bez pytania;
-   - jest ich więcej albo nie masz pewności → wpisujesz `Aktywny plan: brak`, **a potem** pytasz
-     jednym zdaniem, który ma być następny;
-   - nie ma żadnego → `Aktywny plan: brak`.
-
-   Pytanie o następcę jest dozwolone. Pytanie **zamiast** poprawienia linii — nie: to zostawia
-   projekt z martwym linkiem i przerzuca sprzątanie po sobie na człowieka. `brak` jest zawsze
-   poprawną wartością tymczasową; martwy link nie jest poprawny nigdy.
-9. **Podsumowanie** — 3–5 zdań dla użytkownika: co dowieziono, czego nie i dlaczego, co czeka na
-   człowieka.
-
-Punkty 3–8 nie są przedmiotem pytania. Pytaniem może być wyłącznie commit oraz punkty 1 i 2 — gdy
-plan ma otwarte bramki manualne albo otwarte odnogi.
-
-**Kolejność: najpierw zmiana w repozytorium, potem zdanie, które ją opisuje.** Wpis dziennika
-mówiący „folder przeniesiony do archiwum", napisany zanim folder został przeniesiony, jest fałszem
-w dokumencie, któremu następna sesja zaufa bezwarunkowo. Dotyczy to każdego kroku tego rytuału
-i rytuału „Na koniec" etapu.
 
 ---
 

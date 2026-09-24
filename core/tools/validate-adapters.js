@@ -250,7 +250,11 @@ if (codexPlugin) {
   }
   try {
     const generator = require(path.join(ROOT, 'adapters', 'codex', 'generate-skills.js'));
-    for (const file of generator.verify()) bledy.push('wygenerowany skill Codeksa rozjechal sie ze zrodlem: ' + path.relative(ROOT, file));
+    // A09 (E3 PROWADZENIE_END_TO_END): verify() porownuje KAZDY plik skilla — SKILL.md i pliki
+    // doczytywane — i zglasza pliki osierocone; Cursor kopiuje te same pliki przy instalacji.
+    const rozjazdy = generator.verify();
+    for (const file of rozjazdy) bledy.push('wygenerowany skill Codeksa rozjechal sie ze zrodlem: ' + path.relative(ROOT, file));
+    if (!rozjazdy.length) sprawdzone.push('parytet skilli Claude Code -> Codex: ' + generator.expected().length + ' plikow, 0 rozjazdow');
   } catch (e) {
     bledy.push('nie moge zweryfikowac generatora skilli Codeksa (' + e.message + ')');
   }

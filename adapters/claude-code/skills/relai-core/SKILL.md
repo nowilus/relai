@@ -16,27 +16,9 @@ description: >
 
 # relai-core — struktura projektu, pamięć i rytuały sesji
 
-Aktualny stan dystrybucyjny: RelAI 2.4.0; wcześniejsze akapity wersji opisują historię zmian.
+Aktualny stan dystrybucyjny: RelAI 2.5.0. Historia zmian wersji: `history.md`.
 
-Wersja 2.4.0 (lżejszy start sesji, etap E2 planu PROWADZENIE_END_TO_END: rotacja zabiera najstarsze pozycje, aż **cały żywy plik** zejdzie poniżej 60% progu (D-88), a ryzyka rotują przed dziennikiem; budżet startu liczy także skill wymuszany na pierwszym prompcie i pliki z numerowanej listy rytuału `CLAUDE.md`, a raport mówi w linii „W sumie", co zawiera; domyślny budżet 140 KB; hook wywołania skilla nie powtarza ustawień globalnych podanych już na starcie sesji).
-
-Wersja 2.3.1 (poprawki spójności, etap E1 planu PROWADZENIE_END_TO_END: opisy skilli `relai-core` i `relai-planning` mieszczą się w limicie 1 024 znaków i mówią w trzeciej osobie, bez nacisku `MUST BE USED`; recenzent załogi zgłasza każde znalezisko z wagą i pewnością, a filtruje orkiestrator; zgoda sesyjna na tryb ciągły mieszka w osobnym pliku każdej sesji, `.claude/relai/zgoda-promptu/<id>.json`, więc dwie sesje naraz nie wypierają sobie decyzji — stary plik `zgoda-promptu.json` z jednym rekordem czytany dalej; `/relai-prompt` pozwala człowiekowi wybrać model optymalizatora; lista modeli Claude Code z Opus 5.5; procedura tego skilla bez zmian).
-
-Wersja 2.3.0 (dwie bramki zgody na proaktywne zachowanie RelAI, obie w warstwie globalnej uzytkownika: (1) tryb ciagly optymalizatora pyta o zgode na KAZDA sesje — ta sesja / nie pytaj wiecej / nie — bo wlaczony wiersz `Tryb ciagly` mowi, ze tryb jest dostepny, a nie ze ma dzialac bez pytania; zgoda sesyjna mieszka w `.claude/relai/zgoda-promptu.json` zwiazana z identyfikatorem sesji, trwala w wierszu `Zgoda na optymalizator` z czlonem `· przypomnienie co N dni` (domyslnie 30) i wylacznikiem `/relai-prompt off --globalnie`; (2) wiersz `Propozycja RelAI poza projektem` wycisza propozycje zakladania struktury we WSZYSTKICH folderach bez markera naraz — plugin jest instalowany w zakresie uzytkownika, wiec ten skill widzi kazdy katalog na maszynie, a tryb goscia (D-21) zamyka temat tylko w jednym; procedura tego skilla zmieniona w Kroku 0 i w obu stanach bez markera, podniesiony marker wersji wymagany w `docs/USTAWIENIA.md`).
-
-Wersja 2.2.0 (czternasta komenda `/relai-prompt` publicznie: optymalizator promptu z blokiem pamieci projektu i trybem ciaglym wlaczanym wierszem `Tryb ciagly` w `docs/USTAWIENIA.md`; baza regul `core/prompt/` prowizjonowana do projektu jak specyfikacje — kopia nadpisywana przy kazdym starcie, wiec komenda pracuje z rusztowan takze w cudzym projekcie; testy regresyjne rdzenia trybu i dwie nowe kontrole walidatora: modul rdzenia wolany przez adapter musi byc w `uses` MANIFESTU, a baza regul nie moze niesc nazw modeli; procedura tego skilla bez zmian, podniesiony marker wersji wymagany w `docs/USTAWIENIA.md`).
-
-Wersja 2.1.4 (czwarta wada dystrybucji tej samej klasy: korzeniowy `hooks/` jest dla Claude Code katalogiem konwencyjnym, wiec hooki Codeksa ladowaly sie OBOK hookow zadeklarowanych w `plugin.json` — kontekst startu sesji dublowal sie blokiem innego adaptera, a `SessionEnd` Codeksa odpadal na schemacie Claude Code z komunikatem `Hook JSON output validation failed`; skrypty wolane z korzenia dostaly bramke hosta na zmiennej `CLAUDECODE`, `validate-adapters.js` pilnuje jej obecnosci, ochrona sekretow zostaje przy hooku adaptera Claude Code; procedura tego skilla bez zmian, podniesiony marker wersji wymagany w `docs/USTAWIENIA.md`).
-
-Wersja 2.1.3 (trzynasta komenda `/relai-crew` znikala bez slowa: jej `description` w naglowku YAML zawieral dwukropek ze spacja i niecytowany skalar przestawal sie parsowac, wiec plugin ladowal dwanascie komend zamiast trzynastu; opis wziety w cudzyslow, `validate-adapters.js` pilnuje naglowkow wszystkich komend; procedura tego skilla bez zmian, podniesiony marker wersji wymagany w `docs/USTAWIENIA.md`).
-
-Wersja 2.1.2 (druga polowa tej samej regresji: pole `agents` w `.claude-plugin/plugin.json` wskazywalo KATALOG, a przyjmuje wylacznie pliki `.md` — manifest odpadal w calosci (`agents: Invalid input`), wiec plugin nie ladowal ani jednej komendy i maskowal to korzeniowym `skills/`; agenci wymienieni po jednym, bramka `claude plugin validate` przed wydaniem; procedura tego skilla bez zmian, podniesiony marker wersji wymagany w `docs/USTAWIENIA.md`).
-
-Wersja 2.1.1 (naprawa regresji wprowadzonej w 2.0.0: skille generowane dla Codeksa mieszkały w korzeniu repozytorium, więc aplikacja Claude Code pomijała **wszystkie** komendy pluginu jako kolidujące nazwą ze skillem i `/relai` nie podpowiadał niczego; skille Codeksa przeniesione do `adapters/codex/skills/`, korzeń bez katalogu `skills/`; procedura tego skilla bez zmian, podniesiony marker wersji wymagany w `docs/USTAWIENIA.md`).
-
-Wersja 2.1.0 (trzynasta komenda `/relai-crew` — załoga: orkiestracja wielu agentów z wywiadem o role i modele, plan fal bez konfliktów plików, delegacja do subagentów gospodarza albo do drugiego zalogowanego narzędzia i przegląd krzyżowy; narzędzie `crew.js` prowizjonowane do `.claude/relai/tools/` tą samą drogą co `clean-work.js`; procedura tego skilla bez zmian, podniesiony marker wersji wymagany w `docs/USTAWIENIA.md`).
-
-Wersja 1.9.3 (dwie regresje wprowadzone przez fix 1.9.2, znalezione i naprawione przez Codeksa: skan traktowal odczyt zmiennej srodowiskowej jako literalna wartosc i blokowal commit w projekcie Python/Vite/Deno, a deinstalacja pre-commita kasowala pliki `.cjs` wolane przez cudzy hook i zostawiala go zepsutego; procedura skilla bez zmian, podniesiony marker wersji wymagany w `docs/USTAWIENIA.md`). Wersja 1.9.2 (poprawki rdzenia w guardrailu sekretow: gitowy pre-commit instaluje sie jako shim powlokowy + pliki `.cjs`, wiec dziala takze w projekcie z `"type": "module"`, a instalacja konczy sie testem dymnym z cofnieciem; skan lapie nazwy z przedrostkiem typu `AWS_SECRET_ACCESS_KEY=` i przepuszcza wartosci oczywiscie przykladowe; procedura skilla bez zmian, podniesiony marker wersji wymagany w `docs/USTAWIENIA.md`). Wersja 1.9.1: raport artefaktow roboczych nie wywraca sie na katalogu watku samodzielnego `_fixy`. Wersja 1.9.0: plan REKOMENDACJA_MODELU — lista modeli narzedzia, komenda `/relai-models`, prog swiezosci listy. Wersja 1.8.0: plan SPRZATANIE_ARTEFAKTOW — sprzątanie artefaktów roboczych: zdanie na starcie sesji ponad progiem i krok 2a rytuału zamknięcia dnia. Zakres tego skilla: **rozpoznanie stanu folderu + inicjalizacja + tryb
+Zakres tego skilla: **rozpoznanie stanu folderu + inicjalizacja + tryb
 gościa + niedestrukcyjne dołączenie + rytuały sesji + rotacja dokumentów przy zamknięciu sesji +
 siatka brakujących promptów etapowych + siatka rozjazdu stanu + rejestr decyzji po adopcji +
 rejestry LEKCJE/DECYZJE + trzy frazy naturalne + warstwa ustawień globalnych + reguły warunkowe
@@ -63,11 +45,28 @@ folderze — utrzymuje ją hook `session-context` (katalog pluginu jest dla sesj
 L-0012). Jeśli kopii nie ma (hook nie zadziałał), powiedz o tym jednym zdaniem i poproś
 o uruchomienie sesji z `--add-dir` na katalog pluginu — nie generuj dokumentów z pamięci.
 
+### Pliki doczytywane — kiedy który otworzyć
+
+Procedury rzadkie leżą obok tego pliku, w tym samym katalogu skilla. Otwierasz plik dopiero wtedy,
+gdy zachodzi jego wyzwalacz, i czytasz go w całości przed pierwszym krokiem procedury:
+
+| Plik | Otwierasz go, gdy |
+|---|---|
+| `session-close.md` | użytkownik kończy sesję („kończymy na dziś", „wrapping up") albo sam domykasz większą porcję pracy |
+| `document-rotation.md` | wykonujesz rotację: krok 2 rytuału zamknięcia albo rotacja zaproponowana na starcie sesji i przyjęta przez człowieka |
+| `new-project.md` | Krok 0 rozpoznał stan PUSTY albo Z ZAWARTOŚCIĄ (propozycja niewyciszona) albo użytkownik prosi o RelAI w folderze bez markera |
+| `profiles.md` | zachodzi zdarzenie profilu, człowiek zmienia profil albo inicjalizujesz projekt |
+| `waiting-migration.md` | dziennik projektu 1.6.0+ nie ma sekcji „Czeka na człowieka" i człowiek zgodził się ją założyć |
+| `history.md` | pytanie dotyczy tego, co zmieniło się w konkretnej wersji pluginu |
+
+Pliku nie ma obok `SKILL.md` (instalacja niepełna) → mówisz o tym jednym zdaniem i prosisz
+o aktualizację pluginu; procedury nie odtwarzasz z pamięci.
+
 ---
 
 ## Krok 0 — rozpoznanie stanu folderu (zawsze pierwsze, bez pytania)
 
-Sprawdź po kolei, ciszej niż użytkownik zauważy. Nie komentuj samego sprawdzania.
+Sprawdź po kolei i po cichu — użytkownik widzi wynik, a samo sprawdzanie przechodzi bez komentarza.
 
 1. **Marker trybu gościa** — plik `.claude/relai.json` zawierający `"mode": "guest"`.
    → Stan: **GOŚĆ**.
@@ -92,7 +91,7 @@ Dalej idź dokładnie jedną ścieżką.
 
 Użytkownik już raz odmówił w tym folderze (D-21). Pracuj jak zwykły Claude Code.
 
-- **Nie** pytaj ponownie o inicjalizację — ani w tej sesji, ani w żadnej następnej.
+- Temat inicjalizacji jest zamknięty w tej sesji i w każdej następnej.
 - Jedyny wyjątek: użytkownik sam prosi („dodaj RelAI", „dołącz strukturę", „add RelAI").
   Wtedy usuń marker i przejdź ścieżką odpowiednią do zawartości folderu.
 
@@ -114,9 +113,9 @@ Zamiast tego wykonaj **rytuał startu** — raz na sesję, przed pierwszą meryt
 | 5 | `docs/USTAWIENIA.md` | tabela preferencji — zanim o cokolwiek zapytasz |
 | 6 | aktywny plan (`docs/plany/<TEMAT>/STATUS.md`) | tylko jeśli `CLAUDE.md` go wskazuje |
 
-**Zakaz pełnotekstowego skanowania repo na starcie.** Nie czytasz `docs/DECYZJE.md` w całości ani
-starych wpisów dziennika — sięgasz po nie, gdy temat konkretnie tego wymaga. Pliku, którego nie ma
-(np. `LEKCJE.md` w projekcie sprzed 0.2.0), po prostu nie czytasz; nie zgłaszaj tego jako błędu.
+**Na starcie czytasz wyłącznie pliki z tabeli.** `docs/DECYZJE.md` i starsze wpisy dziennika
+otwierasz dopiero wtedy, gdy temat konkretnie tego wymaga. Brakujący plik (np. `LEKCJE.md`
+w projekcie sprzed 0.2.0) pomijasz po cichu — to zwykły stan starszego projektu.
 
 ### Siatka bezpieczeństwa: brakujący prompt etapowy (D-34)
 
@@ -124,7 +123,7 @@ Ostatni krok czytania, wykonywany **tylko wtedy**, gdy `CLAUDE.md` wskazuje akty
 w jego `STATUS.md`: czy etap ze statusem `GOTOWY DO STARTU` ma w kolumnie `Prompt` link do
 istniejącego pliku.
 
-- **Ma** → nic nie robisz i nic nie komentujesz.
+- **Ma** → siatka milczy.
 - **Nie ma** (kolumna pusta, `—`, albo link prowadzi do nieistniejącego pliku) → to ślad po sesji
   przerwanej w połowie rytuału „Na koniec". Powiedz o tym **jednym zdaniem** i zaproponuj
   wygenerowanie promptu. **Po zgodzie** generuje go skill `relai-planning`
@@ -134,12 +133,12 @@ Zasady siatki:
 
 - Bez zgody **nie generujesz** — to jest zauważenie luki, nie automatyczna naprawa.
 - Zauważenie idzie **przed** akapitem „gdzie jesteśmy", żeby użytkownik zobaczył je od razu.
-- Odmowa zamyka temat na tę sesję; nie wracasz do niej przy kolejnych promptach.
+- Odmowa zamyka temat do końca tej sesji.
 - Brak aktywnego planu, plan `DO AKCEPTACJI`, brak etapu `GOTOWY DO STARTU` → siatka milczy.
 
 Od 0.5.0 siatka ma **dwie warstwy**: ten krok rytuału oraz hook `session-context` (SessionStart),
-który wstrzykuje lukę do kontekstu nawet wtedy, gdy skill się nie wyzwolił. Jeśli hook już zgłosił
-lukę w kontekście sesji, nie zgłaszaj jej drugi raz — przejdź od razu do propozycji dogenerowania.
+który wstrzykuje lukę do kontekstu nawet wtedy, gdy skill się nie wyzwolił. Hook już zgłosił
+lukę w kontekście sesji → przechodzisz od razu do propozycji dogenerowania; jego zgłoszenie wystarcza.
 
 ### Siatka bezpieczeństwa: rozjazd stanu (od 1.3.0)
 
@@ -156,14 +155,14 @@ zdaniem** przed akapitem „gdzie jesteśmy".
 Twoja rola w rytuale startu:
 
 - **Hook zgłosił rozjazd** → zgłaszasz go użytkownikowi jednym zdaniem i pytasz, który zapis jest
-  prawdziwy. **Nie powtarzasz sygnału drugi raz** i nie sprawdzasz porównania ponownie.
-- **Hook milczy** → milczysz też. Cisza hooka znaczy „dokumenty są zgodne", a nie „nie sprawdzono";
-  nie robisz z rytuału drugiego detektora, bo dwa detektory dają dwa komunikaty na jeden problem.
+  prawdziwy. **Zgłoszenie hooka jest jedynym zgłoszeniem**, a jego porównanie — rozstrzygające.
+- **Hook milczy** → milczysz też. Cisza hooka znaczy „sprawdzone i zgodne"; rytuał zostaje przy
+  czytaniu, bo dwa detektory dają dwa komunikaty na jeden problem.
 - **Hooka nie było w kontekście sesji w ogóle** (żadnego bloku `[RelAI session-context]`) → dopiero
   wtedy porównujesz sam: etap `W TOKU` w `STATUS.md` kontra linia „Aktywny plan" i kontra wzmianka
   o tym planie w `STATE.md`.
 
-Czego **nie** robisz: nie prostujesz żadnego z trzech dokumentów samodzielnie. Rozjazd nie mówi,
+Trzy dokumenty prostujesz dopiero po odpowiedzi człowieka. Rozjazd nie mówi,
 który zapis jest prawdą — etap mógł trwać albo urwać się w połowie, a wybór między tymi wersjami
 należy do człowieka. Po jego odpowiedzi aktualizujesz wszystkie trzy w tej samej turze (D-44).
 
@@ -179,14 +178,14 @@ sesji kontekst jest już wykupiony, a przy starcie rotacja jeszcze coś oszczęd
    `Rotacja dokumentów` w `USTAWIENIA.md` jest włączony — nie sprawdzasz tego drugi raz),
 3. sesja jest **interaktywna**.
 
-Brak któregokolwiek warunku → nie proponujesz i nie komentujesz. Cisza hooka znaczy „mieści się
-w budżecie", a nie „nie sprawdzono" (L-0036).
+Brak któregokolwiek warunku → milczysz. Cisza hooka znaczy „sprawdzone i mieści się w budżecie"
+(L-0036).
 
 **Jak to robi się w praktyce:** zgłaszasz budżet jednym zdaniem przed akapitem „gdzie jesteśmy”
 i w tym samym zdaniu proponujesz rotację. **Po zgodzie** wykonujesz **dokładnie tę samą**
-procedurę, co w kroku 2 rytuału zamknięcia (sekcja „Rotacja dokumentów" niżej) — dwie fazy, suma
-kontrolna, linia-odsyłacz, ślad we wpisie dziennika tej sesji. Drugiego mechanizmu nie ma i nie
-piszesz go.
+procedurę, co w kroku 2 rytuału zamknięcia — **otwórz `document-rotation.md`** — dwie fazy, suma
+kontrolna, linia-odsyłacz, ślad we wpisie dziennika tej sesji. Mechanizm jest
+jeden.
 
 **Sesja nieinteraktywna** (`claude -p`, agent w tle, hook w CI) → rotacji na starcie **nie
 uruchamiasz**: zmiana w repozytorium bez człowieka przy klawiaturze jest zakazana. Poznajesz ją po
@@ -204,18 +203,19 @@ odpalenie, odmowa zamyka temat na tę sesję, a zgłoszenie idzie **przed** akap
 Hook startu wypisuje linię `[RelAI progi dokumentow]`, gdy dokument albo sekcja przekracza
 **własny** próg rotacji — niezależnie od tego, czy suma warstwy startowej mieści się w budżecie.
 To **drugi wyzwalacz tego samego raportu**, nie drugi raport: linia o budżecie i linia o dokumentach
-stoją osobno i nie zlewają się w jedno zdanie.
+stoją osobno, każda we własnym zdaniu.
 
 Każda wymieniona pozycja niesie **nazwę procedury**, która ją odchudza (rotacja dziennika, rotacja
 lekcji, rotacja ryzyk zamkniętych, przeniesienie zwiniętych lekcji, skrócenie `STATE.md`).
 Twoja robota: zgłosić to użytkownikowi **jednym zdaniem przed akapitem „gdzie jesteśmy"**
 i zaproponować wymienione procedury jako pierwszy krok. Wykonujesz je **dopiero po zgodzie** i
-**dokładnie** tak, jak opisuje krok 2 rytuału zamknięcia — drugiego mechanizmu nie ma.
+**dokładnie** tak, jak opisuje krok 2 rytuału zamknięcia (**`document-rotation.md`**) — mechanizm
+jest jeden.
 
-**Czego nie robisz:** nie liczysz progów drugi raz (linia niesie zmierzone wartości), nie dokładasz
-własnego komunikatu obok tej linii i nie rotujesz nic bez zgody. Linia wypisuje najwyżej trzy
-pozycje, a resztę jako liczbę — to nie jest komplet do przepisania użytkownikowi. **Cisza hooka
-znaczy „wszystko poniżej progu"**, a nie „nie sprawdzono" (L-0036).
+**Linia hooka jest jedynym komunikatem i niesie zmierzone wartości** — bierzesz je z niej, a rotujesz
+dopiero po zgodzie. Linia wypisuje najwyżej trzy pozycje, a resztę jako liczbę: przekazujesz
+skrót, a komplet zostaje w linii. **Cisza hooka znaczy „sprawdzone i wszystko poniżej progu"**
+(L-0036).
 
 ### Przegląd spraw przeterminowanych (od 1.7.0)
 
@@ -226,9 +226,9 @@ dokumentów: wyłączona` nie wycisza tego przeglądu, a wyłączony przegląd n
 
 **Wykrycie niesie hook `session-context`, nie ten skill** — ma działać przy każdym modelu i bez
 wyzwalania czegokolwiek (L-0030, R2). Hook wypisuje blok `[RelAI przeglad spraw]` z listą spraw
-przeterminowanych: treść, wiek w dniach, licznik odroczeń. **Nie liczysz tego drugi raz** i nie
-robisz z rytuału drugiego detektora. Cisza hooka znaczy „nic nie jest przeterminowane" albo
-„przegląd jest wyłączony", a nie „nie sprawdzono".
+przeterminowanych: treść, wiek w dniach, licznik odroczeń. **Lista hooka jest rozstrzygająca**, a rytuał
+zostaje przy czytaniu. Cisza hooka znaczy „sprawdzone: nic przeterminowanego" albo „przegląd jest
+wyłączony".
 
 **Kiedy pytasz** — gdy spełnione są **wszystkie trzy** warunki:
 
@@ -237,8 +237,8 @@ robisz z rytuału drugiego detektora. Cisza hooka znaczy „nic nie jest przeter
 3. sesja jest interaktywna.
 
 **Jak pytasz.** Przed akapitem „gdzie jesteśmy", narzędziem `AskUserQuestion`, **partiami po
-cztery sprawy**, aż do wyczerpania listy — nie jedno wielkie pytanie o wszystko i nie osobne
-pytanie na każdą sprawę. Każda sprawa ma **trzy realne wybory**:
+cztery sprawy**, aż do wyczerpania listy — cztery sprawy na jedno
+pytanie. Każda sprawa ma **trzy realne wybory**:
 
 | Wybór | Co robisz w tej samej turze |
 |---|---|
@@ -260,7 +260,7 @@ Drugi krok kontrolny rytuału startu, wykonywany po przeczytaniu dziennika. Spra
 podpis pod wpisami (`Autor: RelAI (<model>) + <użytkownik>`) zawiera nazwę bieżącego użytkownika
 z `git config user.name`.
 
-- **Zawiera** albo dziennik nie ma jeszcze ani jednego podpisu → nic nie mówisz.
+- **Zawiera** albo dziennik nie ma jeszcze ani jednego podpisu → milczysz.
 - **Nie zawiera żadnego** → to cudzy projekt. Powiedz **jednym zdaniem**, że wpisy w dzienniku
   podpisał kto inny, i zaproponuj wycieczkę: stan, mapa dokumentów, aktywne plany, ryzyka, od czego
   zacząć. **Czekasz na zgodę** — po niej wykonujesz procedurę komendy `/relai-tour`.
@@ -271,7 +271,7 @@ odpalenie, odmowa zamyka temat na tę sesję, a propozycja idzie **przed** akapi
 
 Od 0.7.0 sygnał ma **dwie warstwy**: ten krok rytuału oraz hook `session-context` (SessionStart),
 który to samo porównanie wykonuje niezależnie od tego, czy skill się wyzwolił (R2). Hook już zgłosił
-nieznanego autora w kontekście sesji → nie powtarzaj zgłoszenia, przejdź od razu do propozycji.
+nieznanego autora w kontekście sesji → przejdź od razu do propozycji; zgłoszenie hooka wystarcza.
 Sygnał gaśnie sam, gdy nowa osoba dopisze pierwszy wpis do dziennika.
 
 ### Podsumowanie dla użytkownika
@@ -302,9 +302,9 @@ W tej samej turze, w której to zrobiłeś:
 3. **`README.md`** — tylko jeśli zmienił się sposób uruchomienia, doszła zmienna w `.env` albo nowy
    dokument w `docs/`.
 
-Czego **nie** robisz: nie pytasz „czy zaktualizować dokumenty?", nie zostawiasz tego „na koniec
-sesji", nie zgłaszasz zadania jako ukończonego, dopóki tego nie zrobisz. Zadanie z działającym
-kodem i nieaktualnym STATE jest **w toku**, nie skończone.
+Aktualizacja idzie bez pytania i od razu — w tej samej turze co zmiana, a nie „na koniec sesji";
+zadanie zgłaszasz jako ukończone dopiero po niej. Zadanie z działającym kodem i nieaktualnym STATE
+jest **w toku**.
 
 Czego to **nie** dotyczy: pytań, analiz, czytania kodu, eksperymentów bez zapisu, poprawek
 literówek w komentarzu.
@@ -313,87 +313,15 @@ literówek w komentarzu.
 
 ## Reguły warunkowe profilu (D-50…D-53)
 
-Profil projektu stoi w `docs/USTAWIENIA.md` w wierszu „Profil projektu" — to jedyne miejsce, z
-którego go czytasz. Cztery wartości, lista zamknięta: `app`, `agent-voice`, `flow`, `prompty`.
+Profil projektu stoi w `docs/USTAWIENIA.md` w wierszu „Profil projektu" (lista zamknięta: `app`,
+`agent-voice`, `flow`, `prompty`). Profil dokłada dokumenty warunkowe, które powstają **przy
+zdarzeniu**, a regułę niesie sekcja `## Reguły profilu` w `CLAUDE.md` projektu.
 
-Profil **nie zmienia rdzenia dokumentacyjnego**. Dokłada do niego dokumenty warunkowe, które
-powstają **przy zdarzeniu**, oraz zachowania pilnowane tylko w tym typie projektu. Szczegóły
-i przykłady: `.claude/relai/templates/SPEC_PROFILE.md`.
-
-**Zasada nadrzędna: warunkowe znaczy warunkowe.** Dokument warunkowy nie powstaje przy
-inicjalizacji ani „na zapas" (D-10). Pusty dokument z nagłówkami i zdaniem „do uzupełnienia" jest
-**zakazany**. Świeżo zainicjowany projekt `app` ma dokładnie te same osiem dokumentów co projekt
-`prompty` — różnica pojawia się dopiero przy pierwszym zdarzeniu.
-
-### Co robi który profil
-
-| Profil | Zdarzenie | Co powstaje | Specyfikacja |
-|---|---|---|---|
-| `app` | pierwszy plik źródłowy | `docs/ARCHITEKTURA.md` + jedno pytanie o testy | `SPEC_ARCHITEKTURA.md` |
-| `app` | pierwszy plik interfejsu | `docs/DESIGN.md` + jedno pytanie o kierunek | `SPEC_DESIGN.md` |
-| `app` | pierwsze wdrożenie środowiska | `docs/srodowiska/<NAZWA>.md` | `SPEC_SRODOWISKA.md` |
-| `agent-voice`, `flow` | **przed** zmianą konfiguracji produkcyjnej | `docs/snapshoty/<data>/` | `SPEC_SNAPSHOT.md` |
-| `prompty` | pierwszy artefakt | `docs/ARTEFAKTY.md` | `SPEC_PROFILE.md` |
-
-Zdarzenie rozpoznajesz też z rozmowy, nie tylko z zapisu pliku: „wdrożyliśmy to na testowe" jest
-pierwszym wdrożeniem tak samo jak pojawienie się `Dockerfile`.
-
-### Jedno pytanie towarzyszące — jak brzmi
-
-Profil dokłada najwyżej **jedno** pytanie na zdarzenie i tylko w profilu `app`. Nigdy w tej samej
-turze co inicjalizacja: **limit trzech pytań startowych jest twardy** (D-20, D-80).
-
-Zanim zapytasz, sprawdź `docs/USTAWIENIA.md`, potem warstwę globalną (L-0006). Odpowiedź już tam
-jest → nie pytasz, tylko mówisz pół zdaniem, co przyjąłeś i skąd.
-
-- **Testy (przy pierwszym kodzie, D-25):** trzy opcje — pełny TDD / testy krytycznych ścieżek /
-  bez testów. Rekomendację (pierwsza opcja, dopisek „(Rekomendowane)") uzasadniasz jednym zdaniem
-  wziętym z charakteru tego projektu, nie z ogólnej prawdy o testach. Odpowiedź → wiersz
-  `Podejście do testów` w `USTAWIENIA.md`, z datą. Sekcja „Weryfikacja" w prompcie etapowym jest
-  obowiązkowa **zawsze**, niezależnie od odpowiedzi.
-- **Kierunek wizualny (przy pierwszym UI, D-51):** pytasz o **cechy pozytywne** — nastrój,
-  skojarzenie, co użytkownik ma poczuć. Lista zakazów jest filtrem końcowym, nie briefem (L-0019).
-  Odpowiedź → sekcja „Kierunek" w `DESIGN.md`, dosłownie.
-
-### Snapshot jako bramka (`agent-voice`, `flow` — D-52)
-
-Najpierw kopia, potem zmiana. To jedyna reguła profilu, która **zatrzymuje** operację, a nie
-ostrzega — pilnuje jej hook `config-protection`, więc zadziała także wtedy, gdy ten skill się nie
-wyzwolił.
-
-Twoja część procedury, gdy zmieniasz konfigurację produkcyjną (eksport workflow, konfiguracja
-agenta, baza wiedzy):
-
-1. Skopiuj plik sprzed zmiany do `docs/snapshoty/<RRRR-MM-DD>/` pod nazwą
-   `<nazwa>__przed-<co-zmieniamy>.<rozszerzenie>` — **bajt w bajt**, bez przeformatowania.
-2. Dopisz `OPIS.md` w tym katalogu: co zmieniamy, dlaczego, który plik jest stanem sprzed zmiany.
-3. Dopiero teraz zmieniaj — **skryptem migracyjnym z asercjami**, nie ręczną edycją JSON-a.
-   Asercje przed zmianą (element istnieje i wygląda jak zakładasz) i po niej (zmiana weszła, nic
-   poza nią się nie ruszyło, wynik daje się wczytać). Asercja, która nie przeszła, przerywa skrypt
-   bez zapisu.
-4. Wpis w dzienniku mówi, który snapshot jest stanem sprzed i co sprawdziły asercje.
-
-Baza wiedzy profilu `agent-voice` ma dwie własne zasady: **numeracja sekcji jest nietykalna**
-(numer to identyfikator routingu — sekcję wycofaną oznaczasz, numer zostaje, nowa bierze kolejny
-wolny) oraz **split PL treść / EN routing** (treść w języku rozmowy, nazwy sekcji i tagi routingu
-po angielsku).
-
-### Reguły profilu w `CLAUDE.md` projektu
-
-Przy inicjalizacji `CLAUDE.md` dostaje sekcję `## Reguły profilu (<nazwa>)` zaraz po „Regułach
-procesu": 3–6 punktów w trybie rozkazującym, bez odsyłaczy do plików spoza projektu (L-0012).
-Gotowe brzmienie dla każdego z czterech profili jest w `SPEC_PROFILE.md`, sekcja „Przykład".
-
-To jest **warstwa nośna reguły**: `CLAUDE.md` siedzi w kontekście każdej sesji, więc reguła działa
-bez wyzwalania czegokolwiek. Hook wykrywa zdarzenie, ten skill niesie procedurę, a `CLAUDE.md` —
-samą regułę. Gdy hook zgłosił już zdarzenie w kontekście, nie powtarzaj zgłoszenia — od razu rób
-to, co reguła nakazuje.
-
-### Zmiana profilu
-
-Wyłącznie na prośbę człowieka: nowy wiersz w `USTAWIENIA.md` (stary do „Ustawień wycofanych"),
-podmiana sekcji w `CLAUDE.md`. **Dokumentów starego profilu nie kasujesz** — ten, który stracił
-sens, dostaje adnotację „NIEAKTUALNE" i idzie do `docs/archiwum/` (D-18).
+**Otwórz `profiles.md`**, gdy zachodzi zdarzenie profilu (pierwszy plik źródłowy albo interfejsu
+w `app`, pierwsze wdrożenie środowiska, zmiana konfiguracji produkcyjnej w `agent-voice` / `flow`,
+pierwszy artefakt w `prompty`), gdy hook zgłosił takie zdarzenie, gdy człowiek zmienia profil
+albo przy inicjalizacji. Tam są: tabela zdarzeń, jedno pytanie towarzyszące, snapshot jako
+bramka, reguły w `CLAUDE.md` i zmiana profilu.
 
 ---
 
@@ -424,7 +352,7 @@ Użytkownik poprawił sposób, w jaki coś zrobiłeś — nie treść zadania, t
 
 1. **Zapisz lekcję bez pytania.** Wpis `L-NNNN` na końcu sekcji „Lekcje" w `docs/LEKCJE.md`, format
    wg `SPEC_LEKCJE.md` (trigger / przyczyna / zasada / źródło). Potwierdź jedną linią: „Zapisane
-   jako L-0007.". Nie pytaj o zgodę, nie przepraszaj, nie rozwijaj tematu.
+   jako L-0007.". Na tym kończysz — bez pytania o zgodę, przeprosin i rozwijania tematu.
 2. **Zaktualizuj „Zasady aktywne"**, jeśli lekcja wnosi zasadę, której tam jeszcze nie ma.
 3. **Sprawdź powtórzenie.** Jeśli ta sama sprawa była już zapisana — zamiast bliźniaczego wpisu
    dopisz lekcję z adnotacją „powtórzenie L-XXXX" i **zaproponuj graduację** do `CLAUDE.md` jednym
@@ -439,282 +367,25 @@ Użytkownik poprawił sposób, w jaki coś zrobiłeś — nie treść zadania, t
 
 ## Wyprowadzenie spraw czekających na człowieka (jednorazowo, od 1.6.0)
 
-Do 1.5.2 sprawy człowieka mieszkały w sekcjach „Do zrobienia przez człowieka" pojedynczych wpisów.
-Skutek był odwrotny do zamierzonego: sprawa sprzed czterech miesięcy była niewidoczna dla sesji,
-a jej wpis blokował rotację całego dziennika, bo zakres rotacji jest ciągły od najstarszej pozycji.
-Od 1.6.0 sprawy mają jeden dom — sekcję **„Czeka na człowieka"** na górze dziennika
-(`SPEC_DZIENNIK.md`).
-
-Projekt, który tej sekcji jeszcze nie ma, przechodzi **jednorazową** procedurę. Wykonujesz ją na
-prośbę użytkownika albo po jego zgodzie, gdy zauważysz brak sekcji w projekcie z wersją 1.6.0 lub
-nowszą. Nigdy „przy okazji" rotacji.
-
-**Krok 1 — inwentarz.** Przejrzyj **wszystkie** wpisy dziennika, także te już zarchiwizowane
-(`docs/archiwum/dziennik/`), i wypisz każdą **otwartą** pozycję sekcji „Do zrobienia przez
-człowieka". Otwarta znaczy: bez adnotacji rozstrzygnięcia z zamkniętej listy brzmień
-(`SPEC_ARCHIWUM.md`). Liczenie robisz **skryptem**, nie okiem — plik ma zwykle setki linii.
-
-**Krok 2 — deduplikacja do spraw.** Jednostką sekcji jest **sprawa**, nie linia. Ta sama sprawa
-powtórzona w ośmiu wpisach („pozostałe bez zmian: …") to jedna pozycja. Wypisz listę spraw
-z przypisaniem, które linie źródłowe do której sprawy należą — ta lista jest **materiałem
-dowodowym**, idzie do wpisu dziennika tej sesji.
-
-**Krok 3 — rozstrzygnięcia, które już zapadły.** Sprawa, której rozstrzygnięcie **jest faktem
-w repozytorium** (etap zamknięty, decyzja w `DECYZJE.md`, lekcja w rejestrze), nie jest otwarta:
-dostaje we wpisie adnotację `*(rozstrzygnięte RRRR-MM-DD — <dowód>)*` i **nie wchodzi** do sekcji.
-Zapisujesz przy każdej, **co** jest dowodem. Rozstrzygnięcia, które **nie** są faktem, tylko Twoim
-domysłem, nie robisz — pytasz człowieka (L-0025).
-
-**Krok 4 — sekcja.** Załóż „Czeka na człowieka" tuż pod „Stanem otwartych ryzyk" i wpisz sprawy
-otwarte w formacie ze specyfikacji: treść · data pierwszego wystąpienia · link do **najnowszego**
-wystąpienia sprawy (od 1.7.0 — link do najstarszego zatykał rotację z definicji, bo zakres jest
-ciągły od najstarszej pozycji; data przy pozycji nadal jest datą **pierwszego** wystąpienia). **Pozycja bez daty** (wpis po adopcji, nagłówek bez daty) dostaje datę
-**wyprowadzenia** i jawny dopisek `(data pierwotna nieznana)` — nie zgadujesz jej i nie pomijasz
-pozycji.
-
-**Krok 5 — adnotacje w źródłach.** Każda linia źródłowa — także powtórzona i także ta w archiwum —
-dostaje w miejscu `*(wyprowadzone RRRR-MM-DD → sekcja „Czeka na człowieka")*`. Brzmienie jest
-zamknięte i czytane maszynowo (L-0035).
-
-**Krok 6 — liczenie przed i po, skryptem, na obu stanach pliku.** Trzy liczby do wpisu dziennika:
-
-| Miara | Przed | Po |
-|---|---|---|
-| otwarte linie źródłowe (bez adnotacji) | N | **0** |
-| sprawy otwarte (po deduplikacji) | M | **M** — tyle samo pozycji w sekcji |
-| sprawy rozstrzygnięte w tej turze | — | K, każda z dowodem |
-
-**Liczby muszą się zgadzać: `M` przed = `M` po, a `N` po = 0.** Rozjazd znaczy, że sprawa zginęła
-w przenosinach — wtedy **STOP** i pytanie do człowieka, nie „pewnie tak miało być".
-
-**Czego nie robisz:** nie kasujesz linii źródłowych (D-18), nie streszczasz treści pozycji, nie
-wpisujesz do sekcji rzeczy, które agent może zrobić sam, i nie rotujesz w tej samej turze —
-rotacja czyta wynik wyprowadzenia, więc idzie po nim, nie razem z nim.
+Projekt z wersją 1.6.0 lub nowszą, którego dziennik nie ma sekcji „Czeka na człowieka", przechodzi
+jednorazową procedurę sześciu kroków. Proponujesz ją jednym zdaniem, gdy zauważysz brak sekcji;
+**po zgodzie** (albo na prośbę) **otwórz `waiting-migration.md`** i wykonaj ją stamtąd. Rotacja
+idzie po niej, w osobnej turze.
 
 ---
 
 ## Zamknięcie sesji
 
-Rytuał zamknięcia wykonujesz, gdy użytkownik powie, że kończycie (patrz „Frazy naturalne"), albo
-gdy sam kończysz większą porcję pracy. Kolejność:
+Rytuał zamknięcia — sześć kroków z krokiem 2a (sync dokumentów z limitem „Zasad aktywnych",
+rotacja, sprzątanie artefaktów roboczych, wpis do dziennika, ryzyka, commit, podsumowanie) oraz
+reguła plików lokalnych z markerem `# relai: zachowaj` — mieszka w **`session-close.md`**.
+Otwierasz go, gdy użytkownik kończy sesję (fraza niżej) albo gdy sam domykasz większą porcję
+pracy. Krok 2 wykonujesz według **`document-rotation.md`** — to ten sam plik, który otwierasz przy
+rotacji zaproponowanej na starcie sesji.
 
-1. **Sync dokumentów** — przejrzyj, co się w tej sesji zmieniło, i domknij: `STATE.md`,
-   `USTAWIENIA.md` (jeśli padły nowe preferencje), `LEKCJE.md` / `DECYZJE.md` (jeśli coś zostało
-   niezapisane), `README.md` (jeśli zmienił się sposób uruchomienia). Tu też **policz pozycje
-   sekcji „Zasady aktywne"** — sekcja niżej.
-2. **Rotacja dokumentów** (od 1.2.0) — sekcja niżej. Wykonujesz ją **przed** wpisem do dziennika,
-   żeby wpis tej sesji opisał rotację i wylądował już w przyciętym pliku.
-2a. **Sprzątanie artefaktów roboczych** (od 1.8.0) — sekcja niżej. Stoi **po** rotacji i **przed**
-   wpisem, z tego samego powodu: wpis tej sesji ma opisać także sprzątanie. Numer `2a`, a nie `3`,
-   jest świadomy — „krok 2" jest cytowany jako adres rotacji w kilku dokumentach i numeracji kroków
-   1–6 nie ruszamy.
-3. **Wpis do dziennika** — jeden wpis zbiorczy za sesję, na końcu sekcji „Wpisy". Sekcja
-   „Zweryfikowane — jak dokładnie" musi mówić, czym i z jakim wynikiem sprawdzałeś; „nie
-   weryfikowano" jest dopuszczalną treścią, brak sekcji nie jest.
-4. **Ryzyka** — zaktualizuj tabelę „Stan otwartych ryzyk", jeśli któreś zamknięto, otwarto albo
-   zmienił się jego poziom.
-5. **Commit** — jeśli projekt ma gita i są niezacommitowane zmiany, zaproponuj commit
-   z conventional message. Nie commituj bez zgody, poza commitem inicjalizacyjnym.
-6. **Podsumowanie** — 3–5 zdań: co zrobione, co zweryfikowane, co czeka na człowieka, od czego
-   zacząć następnym razem. Bez list zadań i bez obietnic terminów.
-
-### Limit „Zasad aktywnych" — jedyny adres egzekwowania (krok 1, od 1.6.0)
-
-Sekcja „Zasady aktywne" w `LEKCJE.md` ma twardy limit **15 pozycji** (`SPEC_LEKCJE.md`). Reguła
-istniała od 0.2.0 i była łamana wszędzie, bo **nikt jej nie mierzył**: 46 pozycji tutaj, 930 linii
-w projekcie po adopcji `FAKT` (2026-08-20). Ten krok jest jej **jedynym** adresem egzekwowania.
-
-W kroku 1 rytuału zamknięcia policz pozycje **komendą, nie okiem** — sekcja bywa długa:
-
-```
-node -e "const s=require('fs').readFileSync('docs/LEKCJE.md','utf8').split(/^## /m).find(x=>/^Zasady aktywne|^Active rules/.test(x));console.log((s.match(/^\d+\.\s/gm)||[]).length)"
-```
-
-Wynik **powyżej limitu** → **jedno** zdanie w podsumowaniu sesji: ile pozycji, jaki limit i co z tym
-zrobić (kompresja tematyczna albo graduacja do `CLAUDE.md` — obie za zgodą człowieka,
-`SPEC_LEKCJE.md`). Wynik **w limicie** → **cisza**, ani jednego znaku.
-
-**Drugiego adresu nie dokładasz** (L-0036, L-0049). W szczególności **nie** wchodzi to do raportu
-budżetu startu sesji: raport odzywa się wyłącznie przy przekroczeniu **sumy** warstwy startowej,
-więc projekt z 46 pozycjami mieszczący się w budżecie nie usłyszałby o limicie ani razu — a to jest
-dokładnie ten przypadek, dla którego ten krok powstał. Jeden problem, jeden komunikat.
-
-### Rotacja dokumentów (krok 2 rytuału zamknięcia, od 1.2.0)
-
-Żywe dokumenty rosną, a każda sesja czyta je od nowa. Rotacja przenosi najstarszą historię do
-`docs/archiwum/`, **bajt w bajt**, i zostawia po niej linię-odsyłacz. Dzieje się sama i **nie
-pyta o zgodę** — bo niczego nie kasuje ani nie streszcza. Pełna specyfikacja:
-`SPEC_ARCHIWUM.md` (czytasz ją z `.claude/relai/templates/` **przed** rotacją, nie z pamięci);
-poniżej jest to, co obowiązuje zawsze.
-
-**Warunek — wiersz `Rotacja dokumentów` w `docs/USTAWIENIA.md`.** Kotwica na początku komórki
-`Decyzja`: `wyłączona` (EN `off`) → **kończysz ten krok natychmiast**, bez sprawdzania progów
-i bez słowa. Wartość nierozpoznana albo brak wiersza w projekcie z wersją 1.2.0 lub nowszą → traktujesz jak
-`wyłączona` i mówisz o tym jednym zdaniem. Progi domyślne, gdy wiersz ich nie podaje:
-
-| Dokument | Próg | Działanie po przekroczeniu |
-|---|---|---|
-| `docs/DZIENNIK.md` | 150 KB | najstarsze wpisy → `docs/archiwum/dziennik/DZIENNIK_<data-od>_<data-do>.md` |
-| `docs/LEKCJE.md` | 40 lekcji albo 50 KB | najstarsze pełne lekcje → `docs/archiwum/lekcje/LEKCJE_<numer-od>_<numer-do>.md` |
-| sekcja „Stan otwartych ryzyk" | próg cząstkowy `ryzyka` z wiersza `Budżet startu sesji` (12 KB) | wiersze ryzyk `ZAMKNIĘTE` → `docs/archiwum/ryzyka/RYZYKA_<data>.md` |
-| komórka „Mitygacja" ryzyka `ZMITYGOWANE` / `PRZYJĘTE ŚWIADOMIE` | 800 znaków, przy sekcji ryzyk ponad progiem | historia komórki → `docs/archiwum/ryzyka/MITYGACJE_<data>.md`; **wiersz zostaje w tabeli** |
-| `docs/USTAWIENIA.md` | próg cząstkowy `ustawienia` z wiersza `Budżet startu sesji` (6 KB) | wiersze sekcji „Ustawienia wycofane" → `docs/archiwum/ustawienia/USTAWIENIA_<data>.md` |
-| `docs/STATE.md` | 300 linii | **bez archiwum** — przepisujesz zwięźlej w kroku 1; fakt, który znika, a nie stoi nigdzie indziej, idzie do wpisu dziennika |
-
-**Poniżej progu: cisza.** Zero komunikatów, zero pytań, katalog `docs/archiwum/dziennik/` nie
-powstaje. Rotacja nie przypomina o swoim istnieniu.
-
-**Czego nie ruszasz nigdy:** sekcji „Czeka na człowieka" w dzienniku, sekcji „Zasady aktywne"
-w lekcjach, dziesięciu najnowszych wpisów ani dwudziestu najnowszych lekcji. Zakres jest ciągły:
-pierwsza pozycja nietykalna kończy zakres, nie przeskakujesz jej. **Najstarsza i najnowsza pozycja
-to daty w nagłówkach, nie miejsca w pliku** — kolejność wpisów jest własnością projektu i mechanizm
-ją czyta, a nie narzuca (`SPEC_DZIENNIK.md`).
-
-**Ryzyka (od 1.6.0) są jedynym wyjątkiem od ciągłości.** Sekcja „Stan otwartych ryzyk" nie jest
-wpisem i do archiwum dziennika nie trafia nigdy — ma własny przebieg: schodzą z niej **wiersze
-ryzyk `ZAMKNIĘTE`**, wszystkie naraz, bez względu na kolejność numerów. Bierzesz się za nie tylko
-wtedy, gdy pozycja `ryzyka` przekracza swój próg cząstkowy **i** jest choć jedno ryzyko zamknięte;
-status inny niż `ZAMKNIĘTE` (`ZMITYGOWANE`, `PRZYJĘTE ŚWIADOMIE`, `ZAWĘŻONE`) znaczy „zostaje"
-i nie zgadujesz intencji. Nagłówek sekcji i wiersz nagłówkowy tabeli zostają zawsze, a pod tabelą
-staje **jedna** linia-odsyłacz z numerami — po niej widać, że numer jest zajęty na zawsze.
-To **nie jest** trzeci komunikat: rotacja ryzyk melduje się tylko we wpisie dziennika tej sesji,
-tak jak pozostałe (L-0049).
-
-**Kompresja komórki „Mitygacja" (od 1.7.0) — wiersz zostaje, historia schodzi.** Gdy sekcja ryzyk
-jest ponad swoim progiem, komórka „Mitygacja" ma **ponad 800 znaków**, a status ryzyka niesie
-rdzeń `zmitygowan` albo `przyj`/`zaakceptowan` **razem z** `świadom` — cała dzisiejsza treść
-komórki idzie do `docs/archiwum/ryzyka/MITYGACJE_<data>.md` (tabela `| # | Mitygacja |`), a w żywej
-komórce zostają **dwa człony**: **dosłowny cytat ostatniego zdania** sprzed `Zmierzone:` oraz
-`Historia: [MITYGACJE_…](…)` i niezmieniony człon `Zmierzone:`. Trzy warunki są koniunkcją;
-**wiek komórki warunkiem nie jest**. Zdanie napisane od siebie zamiast cytatu jest defektem.
-Ryzyka `OTWARTE` nie ruszasz — jego komórka niesie powód, dla którego nie jest zamknięte.
-Komórka po kompresji nadal ponad 800 znaków → **STOP** i pytanie do człowieka, żywa tabela
-nietknięta. Pełna procedura: `SPEC_DZIENNIK.md`, sekcja „Kompresja komórki »Mitygacja«".
-
-**Rotacja ustawień (od 1.7.0).** Gdy `docs/USTAWIENIA.md` przekracza swój próg cząstkowy
-(`ustawienia`, 6 KB) **i** sekcja „Ustawienia wycofane" ma wiersze do wzięcia — schodzą **wszystkie
-naraz** do `docs/archiwum/ustawienia/USTAWIENIA_<data>.md`, a pod tabelą sekcji staje jedna
-linia-odsyłacz. **Nigdy nie schodzi pięć wierszy wypisanych z nazwy:** `Język projektu`,
-`Profil projektu`, `Rotacja dokumentów`, `Budżet startu sesji`, `Przegląd spraw człowieka` — także
-gdy stoją w „Ustawieniach wycofanych"; ich nieobecność wycisza mechanizmy, które je czytają.
-Wierszy **żywej** tabeli nie ruszasz: niosą decyzję obowiązującą. Plik ponad progiem bez sekcji
-„Ustawienia wycofane" → nie rotujesz; odchudza go zwięzłość komórki `Decyzja`.
-
-Obie operacje idą **tą samą** procedurą dwufazową, każda z własną sumą kontrolną i własnym plikiem
-archiwum, i **żadna nie dokłada własnego komunikatu** — meldują się we wpisie dziennika tej sesji,
-jak rotacja ryzyk (L-0049).
-
-**Blokada zmieniła adres w 1.6.0, a w 1.7.0 zniknęła.** Wpis z pozycją opatrzoną adnotacją
-`*(wyprowadzone RRRR-MM-DD → sekcja „Czeka na człowieka")*` **jest przenoszalny**, mimo że jego
-własna sekcja „Do zrobienia przez człowieka" wygląda na otwartą. **Wpis, do którego prowadzi link
-z otwartej pozycji „Czeka na człowieka", też jest przenoszalny** — od 1.7.0 nie jest z tego powodu
-nietykalny; zamiast blokady działa **przepięcie linku** na plik archiwum (opis w fazie 2 niżej).
-Powód jest zmierzony: reguła linkowania do najstarszego wystąpienia w mechanizmie idącym od
-najstarszego zatykała go z definicji — na dzienniku PolyFlow sprzed rotacji `FAKT` zakres wynosił
-0 wpisów ze 127, a bez tej blokady wynosi 117. Projekt, który nie ma jeszcze sekcji „Czeka na
-człowieka", działa po staremu — blokuje własna sekcja wpisu, dopóki nie przejdzie procedury
-wyprowadzenia (sekcja wyżej).
-
-**Przebieg jest dwufazowy** i kolejność jest tu całym zabezpieczeniem:
-
-1. **Faza 1 — kopia i dowód.** Wyznacz ciągły zakres najstarszych pozycji (tyle, żeby żywy plik
-   zszedł poniżej 60% progu). Policz sumę kontrolną tego fragmentu w żywym pliku. Zapisz plik
-   archiwum. Odczytaj go **z dysku**, policz sumę treści spod separatora i porównaj. Suma:
-   SHA-256 z treści znormalizowanej do LF (L-0033), pierwsze 16 znaków hex.
-2. **Sumy różne → STOP.** Żywy plik zostaje nietknięty, mówisz o tym jednym zdaniem. Niczego nie
-   naprawiasz po cichu.
-3. **Faza 2 — przycięcie**, dopiero po zgodności sum: usuń fragment z żywego pliku, wstaw
-   linię-odsyłacz na początku sekcji („Wpisy" / „Lekcje"), **przepnij linki pozycji „Czeka na
-   człowieka" prowadzące do przeniesionych wpisów** (przed kotwicą staje ścieżka pliku archiwum;
-   tekst linku, treść pozycji i data zostają nietknięte), zapisz. Przepięcie dotyczy wyłącznie
-   rotacji dziennika i idzie **przed** zapisem. Policz przy tym pozycje z linkiem do nieistniejącej
-   kotwicy — ma ich być **zero**.
-4. **Ślad w dzienniku** — do wpisu tej sesji (krok 3 rytuału): co przeniesiono, dokąd, ile
-   pozycji, suma kontrolna, rozmiar przed i po, ile linków przepięto.
-
-**Próg liczony ponad nietykalnymi (od 1.7.0).** Dokument ma trzy wagi i podajesz je **zawsze razem
-z progiem**, w tej kolejności: **waga całkowita** (cały plik, końce linii do LF) = **część
-rotowalna** + **dolna granica osiągalna**. Dolna granica dziennika to sekcje, które nie rotują
-nigdy („Stan otwartych ryzyk", „Czeka na człowieka", nagłówki, linie-odsyłacze), dziesięć
-najnowszych wpisów i wpisy bez daty w nagłówku. **Wyzwalacz zostaje na wadze całkowitej** — poniżej
-progu cisza. **Cel stoi na wadze całkowitej (D-88)**: bierzesz najstarsze pozycje, aż **cały żywy
-plik** zejdzie poniżej 60% progu; ciąg kończy się wcześniej tylko na pozycji nietykalnej albo po
-wyczerpaniu części rotowalnej — trzy wagi mówią, ile da się wziąć, nie kiedy przestać. Gdy rotują
-i ryzyka, i dziennik, **ryzyka idą pierwsze**: ich sekcja należy do dolnej granicy dziennika.
-
-**Powyżej progu, gdy rotacja nie zabrała wszystkiego, co mogła → komunikat zablokowanej rotacji**
-w podsumowaniu sesji. Cztery części, zawsze w tej kolejności:
-
-1. ile wpisów przechodzi z ilu rotowalnych, ile nie przechodzi i ile ważą;
-2. cztery liczby: waga całkowita = część rotowalna + dolna granica; obok próg;
-3. powód i pary **„pozycja → wpis"** — treść pozycji, nagłówek blokowanego wpisu, **wiek pozycji
-   w dniach** i **ile wpisów przepuści jej zamknięcie**; najwyżej **pięć** blokerów po **dwie**
-   pozycje, reszta jako „i N dalszych blokerów tej samej natury";
-4. ile odblokowuje zamknięcie pierwszej pozycji, a ile zamknięcie wszystkich.
-
-Pary wypisujesz **tylko** w projekcie **bez** sekcji „Czeka na człowieka" — tam blokuje własna
-sekcja wpisu. Wpisu linkowanego z otwartej pozycji „Czeka na człowieka" **nie wymieniasz**: od
-1.7.0 nie blokuje. Gdy blokerów nie ma, a **część rotowalna jest pusta** (mniej niż dziesięć
-wpisów albo same świeże) — ten sam kształt bez punktu 3, ze zdaniem, że plik odchudza zwięzłość
-wpisów, nie archiwum, a podniesienie progu jest decyzją człowieka. Tak samo, gdy sama **dolna
-granica przekracza próg**: to nie jest porażka mechanizmu i nie nazywasz jej porażką.
-
-Cisza obowiązuje **poniżej progu** i jest nienaruszalna; powyżej progu milczenie ukryłoby zatkany
-mechanizm. Komunikat piszesz **ty**, w rytuale zamknięcia — hook startu go nie produkuje. To nadal
-**jeden** komunikat: rotacja ryzyk nie dokłada własnego, a limit „Zasad aktywnych" zostaje przy
-swoim adresie w kroku 1 (L-0036, L-0049).
-
-**To jest krok 2 rytuału zamknięcia, czyli wejście pierwsze.** Wejście drugie — start sesji — jest
-w sekcji „Rotacja na starcie sesji (od 1.6.0)" wyżej i uruchamia **dokładnie tę samą** procedurę.
-
-### Sprzątanie artefaktów roboczych (krok 2a rytuału zamknięcia, od 1.8.0)
-
-Katalogi robocze etapów (`.claude/relai/work/<TEMAT>/E<N>/`) i pliki tymczasowe projektu rosną
-**poza Gitem**. Ten krok jest ich adresem w rytuale zamknięcia — obok komendy `/relai-clean`,
-zdania na starcie sesji i punktu weryfikacji etapu.
-
-**Wyłącznik i próg:** wiersz `Artefakty robocze` w `docs/USTAWIENIA.md` (`SPEC_USTAWIENIA.md`).
-Wiersz `wyłączone`, wartość nierozpoznana albo brak wiersza → tego kroku **nie wykonujesz** i nie
-mówisz o nim ani słowa.
-
-Przebieg — zawsze w tej kolejności:
-
-1. **Zmierz** — `node .claude/relai/tools/clean-work.js raport`. Narzędzia nie ma → jedno zdanie,
-   że wymaga restartu sesji (podkłada je hook startu), i przechodzisz do kroku 3 rytuału. **Nigdy**
-   nie kopiujesz go ręcznie z katalogu pluginu.
-2. **Pytaj wyłącznie o dwie rzeczy:** katalogi etapów i odnóg o statusie **zamkniętym**
-   (`ZREALIZOWANY`, `POMINIĘTY`, `ZAMKNIĘTA`) oraz — gdy suma kandydatów przekracza próg — o całość
-   ponad progiem. Katalog etapu **w toku**, pozycja chroniona bramką i wszystko poniżej progu bez
-   zamkniętych etapów → **cisza**: ani pytania, ani zdania.
-3. **Pytanie idzie partiami po cztery grupy**, tak jak w komendzie, i kasujesz **wyłącznie** po
-   „tak" na daną grupę. Lista ścieżek pochodzi z pliku raportu, nie z przepisywania ręką.
-4. **Zmierz ponownie** po operacji i weź obie liczby — przed i po — do wpisu tej sesji (krok 3).
-
-**Ten krok nie produkuje własnego komunikatu.** Jedynym śladem jest wpis dziennika: jeden problem,
-jeden komunikat (L-0036, L-0049). Zdanie na starcie sesji ma swojego właściciela — hook — i tutaj
-się go nie powtarza.
-
-**To jest krok 2a rytuału zamknięcia.** Pozostałe trzy momenty sprzątania: punkt weryfikacji przy
-zamknięciu etapu, zdanie hooka na starcie sesji i komenda `/relai-clean` wywołana wprost. Wszystkie
-cztery używają **tego samego** narzędzia i tego samego trybu: raport w grupach, jedno „tak" na
-grupę, bramka dokumentacyjna.
-
----
-
-## Pliki lokalne, których nie sprzątamy (od 1.8.0)
-
-Sprzątanie artefaktów roboczych (`/relai-clean`) patrzy także na pliki **nieśledzone i ignorowane**
-w repozytorium, a wśród nich stoją lokalne notatki i materiały właściciela, które nie są artefaktem
-żadnego etapu. Chroni je flaga: linia-marker **`# relai: zachowaj`** (albo `# relai: keep`) w
-`.gitignore` **nad** wzorcem — marker dotyczy następnej linii niebędącej komentarzem. Cały
-`.git/info/exclude` jest chroniony bez markera, bo wykluczenie lokalne jest z definicji świadomym
-wyborem właściciela; projekt bez gita trzyma listę w `.claude/relai/keep`, jedna ścieżka na linię.
-
-**Reguła zachowania:** gdy dopisujesz do `.gitignore` wzorzec dla pliku, który jest lokalną notatką
-albo materiałem właściciela — a nie artefaktem etapu ani plikiem regenerowalnym — stawiasz
-linię-marker nad nim **w tej samej edycji**. Nie wiesz, którą rzeczą jest dany plik → pytasz jednym
-zdaniem, zamiast zgadywać: marker dołożony za dużo tylko wycisza pytanie, brakujący marker prowadzi
-do pytania o skasowanie czyjejś pracy.
+Gdy dopisujesz do `.gitignore` wzorzec dla lokalnej notatki albo materiału właściciela, reguła
+markera `# relai: zachowaj` też jest w `session-close.md` (sekcja „Pliki lokalne, których nie
+sprzątamy").
 
 ---
 
@@ -725,8 +396,9 @@ dosłowne brzmienie: „kończymy", „na dziś wystarczy", „that's it for tod
 
 ### „kończymy na dziś" / „wrapping up"
 
-Wykonaj **rytuał zamknięcia sesji** (sekcja wyżej), punkty 1–6 wraz z krokiem 2a, w tej kolejności.
-Nie pytaj, czy na pewno — użytkownik już powiedział. Pytania, jakie mogą paść, są dwa: zgoda na
+Otwórz **`session-close.md`** i wykonaj rytuał zamknięcia sesji, punkty 1–6 wraz z krokiem 2a, w tej
+kolejności.
+Zaczynasz od razu — użytkownik już zdecydował. Pytania, jakie mogą paść, są dwa: zgoda na
 commit i zgoda na skasowanie grupy artefaktów w kroku 2a. Rotacja dokumentów (punkt 2) o zgodę nie
 pyta i poniżej progu nie zostawia śladu; krok 2a bez zamkniętych etapów i poniżej progu milczy
 tak samo.
@@ -752,8 +424,8 @@ Zwięzły raport, bez wykonywania pracy. Kolejno:
    rozstrzygnięte.
 5. Zakończ pytaniem o najbliższy krok — jednym zdaniem.
 
-Wszystkie trzy frazy są opisane w wygenerowanym `docs/KOMENDY.md`. Fraz, których nie ma na tej
-liście, nie obsługujesz i nie zapowiadasz.
+Wszystkie trzy frazy są opisane w wygenerowanym `docs/KOMENDY.md`. Obsługujesz i zapowiadasz
+wyłącznie frazy z tej listy.
 
 ---
 
@@ -772,7 +444,7 @@ nakazem — jeśli projekt mówi inaczej, obowiązuje projekt.
 Zasady:
 
 - **Odczyt:** przed każdym pytaniem o preferencję sprawdź najpierw `docs/USTAWIENIA.md`, potem
-  plik globalny. Znalazłeś odpowiedź → **nie pytaj**, użyj jej i wspomnij o tym pół zdaniem
+  plik globalny. Znalazłeś odpowiedź → **używasz jej bez pytania** i wspominasz o tym pół zdaniem
   („zgodnie z Twoim ustawieniem globalnym — polski").
 - **Utworzenie:** plik globalny powstaje przy **pierwszej inicjalizacji projektu RelAI na tej
   maszynie**, zaraz po paczce trzech pytań. Trafiają do niego wyłącznie odpowiedzi
@@ -790,160 +462,13 @@ Zasady:
 
 ---
 
-## Stan PUSTY — zgoda, trzy pytania, generacja
+## Stan PUSTY i Stan Z ZAWARTOŚCIĄ
 
-### 1. Zgoda (D-20)
-
-Zapytaj **zwykłym tekstem**, krótko: czym jest RelAI (framework dokumentacyjno-procesowy: projekt
-pamięta ustalenia, decyzje i stan między sesjami), co konkretnie powstanie (`CLAUDE.md`, `README.md`
-i `docs/` z sześcioma dokumentami) i że nic poza tym nie zostanie utworzone. Poproś o zgodę.
-
-- **Zgoda** → punkt 2.
-- **Odmowa** → utwórz `.claude/relai.json` o treści `{"mode":"guest"}`, potwierdź jednym zdaniem
-  („Tryb gościa — nie wrócę do tego tematu w tym folderze; wystarczy powiedzieć »dodaj RelAI«,
-  gdy zmienisz zdanie"), zadaj **pytanie o zasięg odmowy** (niżej) i zamknij temat. Żadnych plików
-  poza markerem.
-
-### 1a. Zasięg odmowy — pytanie raz na maszynę (od 2.3.0)
-
-Plugin jest zainstalowany w zakresie **użytkownika**, więc ten skill widzi każdy folder na tej
-maszynie i w każdym zaproponuje strukturę. Marker trybu gościa zamyka temat w **jednym** folderze —
-człowiek, który nie chce tej propozycji nigdzie, musiałby odmawiać w kółko.
-
-Po odmowie zadaj **jedno** pytanie (AskUserQuestion, dwie opcje):
-
-| Opcja | Co robisz |
-|---|---|
-| Tylko ten folder (Rekomendowane) | nic ponad marker gościa, który właśnie powstał |
-| Nigdy poza projektami RelAI | dopisz do `~/.claude/relai/USTAWIENIA.md` wiersz `\| <dzisiejsza data> \| Propozycja RelAI poza projektem \| nie proponuj \|` i potwierdź jednym zdaniem, że w projektach z markerem RelAI wszystko działa jak dotąd |
-
-Wiersz `nie proponuj` jest **wyciszeniem tego skilla poza projektami**, a nie wyłączeniem RelAI:
-w folderze z markerem `Wersja RelAI` rytuał startu sesji obowiązuje bez zmian. Wycofanie wiersza to
-zmiana jego wartości na `proponuj` albo skasowanie linijki — powiedz o tym w tym samym zdaniu.
-
-Widzisz w kontekście startu sesji linię `[RelAI]` mówiącą, że propozycja poza projektami jest
-wyłączona → **nie proponujesz niczego i nie pytasz o zasięg**; pracujesz jak zwykły Claude Code,
-dopóki człowiek sam nie poprosi o RelAI.
-
-### 2. Paczka dokładnie trzech pytań (D-20)
-
-Jedno wywołanie **AskUserQuestion**, trzy pytania naraz. Wykryte wartości (a dla preferencji
-ponadprojektowych — wartości z ustawień globalnych) idą jako **pierwsza opcja z dopiskiem
-„(Rekomendowane)"**. Nie dokładaj czwartego pytania — limit jest twardy (D-80).
-
-| Pytanie | Skąd default | Opcje |
-|---|---|---|
-| Język projektu | ustawienia globalne → język promptów użytkownika → język systemu | wykryty (Rekomendowane) / polski / English |
-| Git | stan folderu (`.git/` obecne?) | repo lokalne + propozycja GitHub (Rekomendowane) / tylko lokalnie / bez gita |
-| Profil projektu | auto-detekcja (niżej) | wykryty (Rekomendowane) + trzy pozostałe |
-
-**Auto-detekcja profilu:**
-
-| Sygnał w folderze | Profil |
-|---|---|
-| `package.json`, `pyproject.toml`, `go.mod`, `Cargo.toml`, `src/`, pliki źródłowe | `app` |
-| konfiguracje agentów głosowych (ElevenLabs, Vapi, Retell), katalog bazy wiedzy (`kb/`, `knowledge/`, `baza-wiedzy/`) | `agent-voice` |
-| eksporty workflow n8n / Make (JSON z tablicą `nodes` i obiektem `connections`), katalog `workflows/` | `flow` |
-| wyłącznie dokumenty, prompty i szablony tekstowe | `prompty` |
-| pusto — brak sygnałów | `app` jako default, ale zaznacz, że to zgadywanka |
-
-Sygnały mogą się mieszać — wygrywa **najbardziej specyficzny**: eksport n8n przebija `package.json`,
-konfiguracja agenta głosowego przebija oba. Wybrana wartość jest jedynym źródłem reguł warunkowych
-(sekcja „Reguły warunkowe profilu"), więc trafia do `USTAWIENIA.md` dosłownie: `app`, `agent-voice`,
-`flow` albo `prompty`.
-
-**Git — konsekwencje do pokazania przy opcjach:**
-- *repo lokalne + GitHub* — `git init` teraz, propozycja utworzenia repo zdalnego osobno (RelAI go
-  nie zakłada za użytkownika).
-- *tylko lokalnie* — `git init`, bez zdalnego.
-- *bez gita* — dozwolone, ale powiedz wprost: znika siatka bezpieczeństwa historii zmian (D-53).
-
-**Zawsze i bez wyjątku:** zagnieżdżone repo są zakazane (D-53). Jeśli folder nadrzędny jest już repo
-gitem, nie rób `git init` — powiedz o tym i pracuj w repo nadrzędnym.
-
-### 3. Generacja plików
-
-Ze specyfikacji w `.claude/relai/templates/` (lokalna kopia; dostarcza ją hook `session-context`
-przy wywołaniu tego skilla) wygeneruj komplet **w języku projektu** (D-60 — specyfikacje to
-instrukcje dla Ciebie, nie pliki do skopiowania):
-
-| Plik | Specyfikacja |
-|---|---|
-| `CLAUDE.md` | `SPEC_CLAUDE_MD.md` |
-| `README.md` | `SPEC_README.md` |
-| `docs/STATE.md` | `SPEC_STATE.md` |
-| `docs/DZIENNIK.md` | `SPEC_DZIENNIK.md` |
-| `docs/LEKCJE.md` | `SPEC_LEKCJE.md` |
-| `docs/DECYZJE.md` | `SPEC_DECYZJE.md` |
-| `docs/USTAWIENIA.md` | `SPEC_USTAWIENIA.md` |
-| `docs/KOMENDY.md` | `SPEC_KOMENDY.md` |
-
-Zasady generacji:
-
-- **Nazwy plików podążają za językiem projektu** (D-12). Powyższa tabela pokazuje wariant polski.
-  Dla projektu angielskiego: `docs/STATE.md`, `docs/JOURNAL.md`, `docs/LESSONS.md`,
-  `docs/DECISIONS.md`, `docs/SETTINGS.md`, `docs/COMMANDS.md`. Konwencja stała: CAPS_SNAKE, bez dat
-  i numerów wersji w nazwie.
-- `docs/USTAWIENIA.md` **musi** zawierać linię `Wersja RelAI: 2.4.0` — to marker, po którym RelAI
-  rozpoznaje projekt i po którym przyszły `/relai-update` policzy różnicę wersji.
-- `CLAUDE.md` **musi** zawierać sekcję `## Reguły profilu (<wybrany profil>)` zaraz po „Regułach
-  procesu" — 3–6 punktów wg `SPEC_PROFILE.md`. To jedyna warstwa reguł profilu działająca bez
-  wyzwolenia skilla i bez zdarzenia, więc jej brak wycisza cały profil.
-- `CLAUDE.md` **musi** zawierać **linię fraz sesji** zaraz pod listą rytuału startu, wg
-  `SPEC_CLAUDE_MD.md` (sekcja „Linia fraz sesji"). Z tego samego powodu co wyżej: bez niej trzy
-  frazy naturalne działają tylko wtedy, gdy skill się wyzwoli — a to jest zawodne (R2).
-- `CLAUDE.md` **musi** zawierać w „Regułach procesu" **regułę sygnału odchylenia**, wg
-  `SPEC_CLAUDE_MD.md` (sekcja „Reguła sygnału odchylenia"): wątek spoza zakresu etapu → zatrzymaj
-  się i zapytaj — odnoga (`/relai-branch`), aneks do planu czy „świadomie odłożone" do dziennika;
-  nigdy „przy okazji". Punkt wchodzi także do projektu, który nie ma jeszcze żadnego planu.
-- **Żadnego dokumentu warunkowego przy inicjalizacji.** `ARCHITEKTURA.md`, `DESIGN.md`,
-  `docs/srodowiska/`, `docs/snapshoty/` i `ARTEFAKTY.md` powstają przy zdarzeniu (D-10) — także
-  wtedy, gdy profil jest już znany.
-- `docs/LEKCJE.md` i `docs/DECYZJE.md` powstają **puste, ale kompletne strukturalnie**: nagłówek,
-  zdanie o roli, sekcja „Zasady aktywne" (LEKCJE) z informacją, że jest jeszcze pusta, i pusta
-  sekcja na wpisy. Pusty rejestr z gotową strukturą zapełnia się sam; brakujący plik nie.
-- Do tabeli ustawień wpisz trzy odpowiedzi z paczki startowej, każda z dzisiejszą datą, oraz
-  **czwarty wiersz `Rotacja dokumentów` z wartością `włączona`** — bez pytania o niego (limit trzech
-  pytań jest twardy, D-80). Wiersz jest wyłącznikiem: użytkownik, któremu rotacja przeszkadza,
-  wpisuje tam `wyłączona`.
-- Zapisz ponadprojektowe odpowiedzi do warstwy globalnej (sekcja „Warstwa ustawień globalnych").
-- Podfolderów `docs/plany/`, `docs/fixy/`, `docs/archiwum/`, `docs/zasoby/` **nie** twórz na zapas —
-  powstają, gdy pojawia się pierwsza zawartość (D-11).
-- Datę bierz z kontekstu sesji, nigdy z pamięci modelu.
-- Po zapisie: gdy wybrano git, wykonaj `git init` (jeśli trzeba) i **jeden** commit
-  `chore: initialize RelAI project structure`. Bez pytania o commit — to część inicjalizacji.
-
-### 4. Podsumowanie dla użytkownika
-
-Trzy–pięć zdań: co powstało, co robi każdy dokument, co się dzieje dalej („od teraz mówisz normalnie
-— dokumenty aktualizują się w ramach pracy"), plus zdanie o zapamiętanej preferencji globalnej.
-Bez ozdobników i bez listy komend, których jeszcze nie ma.
-
----
-
-## Stan Z ZAWARTOŚCIĄ — cztery drogi, wybiera użytkownik
-
-Folder ma już swoje życie. **Niczego istniejącego nie ruszasz** — ani jednego pliku, ani jednej linii.
-
-Przedstaw dokładnie cztery możliwości i zapytaj (AskUserQuestion, jedno pytanie):
-
-1. **Pełna adopcja (Rekomendowane)** — `/relai-adopt`: backup jako bramka, analiza kodu
-   i historii, struktura wygenerowana z zastanego stanu, scalenie istniejącego `CLAUDE.md`
-   z zachowaniem reguł, raport zmian z przetestowaną ścieżką pełnego cofnięcia. Po wyborze tej
-   opcji wykonujesz procedurę komendy `/relai-adopt` (jej krok 0 masz już za sobą) — świadomy
-   wybór użytkownika jest jawnym wywołaniem w rozumieniu D-70.
-2. **Dołączenie niedestrukcyjne** — dokładasz wyłącznie brakujące pliki RelAI. Istniejące pliki
-   o tych samych nazwach zostają nietknięte: nie nadpisujesz, nie scalasz, nie dopisujesz —
-   wymieniasz je w podsumowaniu jako pominięte i mówisz, co RelAI by tam trzymał. Istniejący
-   `CLAUDE.md` zostaje bez zmian; scalanie reguł to domena adopcji.
-3. **Tryb gościa** — marker `.claude/relai.json` = `{"mode":"guest"}`, koniec tematu. Po tym wyborze
-   zadajesz pytanie o **zasięg odmowy** (sekcja „1a" w stanie PUSTY): tylko ten folder czy nigdy
-   poza projektami RelAI.
-4. **Nic teraz** — użytkownik decyduje później; nie wracasz do tematu w tej sesji. O zasięg nie
-   pytasz: „później" nie jest odmową.
-
-Po dołączeniu niedestrukcyjnym obowiązuje ta sama generacja co w stanie PUSTY (paczka trzech pytań
-włącznie), z jedną różnicą: pliki już obecne w folderze są pomijane.
+Folder bez struktury RelAI, propozycja niewyciszona globalnie (Krok 0, punkt 4) → **otwórz
+`new-project.md`** i idź jego ścieżką: w stanie PUSTY zgoda, pytanie o zasięg odmowy, paczka
+dokładnie trzech pytań i generacja plików; w stanie Z ZAWARTOŚCIĄ cztery drogi do wyboru
+użytkownika. Ten sam plik otwierasz, gdy użytkownik sam prosi o RelAI („dodaj RelAI",
+„zainicjuj projekt") w folderze bez markera.
 
 ---
 
@@ -952,17 +477,15 @@ włącznie), z jedną różnicą: pliki już obecne w folderze są pomijane.
 - Nie kasujesz i nie nadpisujesz niczego, czego RelAI nie utworzył w tej sesji.
 - Nie proponujesz inicjalizacji ani adopcji, gdy wiersz `Propozycja RelAI poza projektem` mówi
   `nie proponuj` — ani wprost, ani „przy okazji" innego tematu.
-- Nie zadajesz więcej niż trzech pytań startowych. Wywiady wielopytaniowe są poza zakresem (D-80).
-- Nie pytasz o zgodę na zapis lekcji ani na aktualizację STATE/DZIENNIKA — to część ukończenia
-  zadania, nie osobna prośba.
+- Pytania startowe: najwyżej trzy, w jednym wywołaniu. Wywiady wielopytaniowe są poza zakresem (D-80).
+- Lekcje i aktualizacje STATE/DZIENNIKA zapisujesz bez pytania — to część ukończenia zadania.
 - Nie dopisujesz reguł do `CLAUDE.md` i nie zamrażasz decyzji bez zgody człowieka.
 - Nie zapisujesz sekretów w plikach śledzonych — klucze wyłącznie w `.env` objętym `.gitignore`
   (D-42).
-- Nie tworzysz repo zagnieżdżonego w innym repo (D-53).
-- Nie tworzysz dokumentu warunkowego profilu przy inicjalizacji ani „na przyszłość" (D-10).
-- Nie dokładasz czwartego pytania startowego z powodu profilu — pytania profilu padają przy
-  zdarzeniu, nie przy inicjalizacji (D-20, D-80).
+- Repo zakładasz wyłącznie poza innym repo (D-53).
+- Dokument warunkowy profilu powstaje wyłącznie przy swoim zdarzeniu (D-10).
+- Pytania profilu padają przy zdarzeniu, poza paczką startową (D-20, D-80).
 - Nie zmieniasz produkcyjnej konfiguracji w profilu `agent-voice` / `flow` przed snapshotem (D-52).
-- Nie tworzysz piątego profilu i nie łączysz czterech istniejących (D-50).
-- Nie obiecujesz komend i rytuałów, których ta wersja pluginu nie ma. Lista tego, co realnie działa,
-  jest w wygenerowanym `docs/KOMENDY.md`.
+- Profile są cztery i pozostają rozdzielne (D-50).
+- Obiecujesz wyłącznie komendy i rytuały, które ta wersja pluginu ma — ich lista jest
+  w wygenerowanym `docs/KOMENDY.md`.
