@@ -16,7 +16,7 @@ description: >
 
 # relai-core — struktura projektu, pamięć i rytuały sesji
 
-Aktualny stan dystrybucyjny: RelAI 2.6.0. Historia zmian wersji: `history.md`.
+Aktualny stan dystrybucyjny: RelAI 2.7.0. Historia zmian wersji: `history.md`.
 
 Zakres tego skilla: **rozpoznanie stanu folderu + inicjalizacja + tryb
 gościa + niedestrukcyjne dołączenie + rytuały sesji + rotacja dokumentów przy zamknięciu sesji +
@@ -57,6 +57,7 @@ gdy zachodzi jego wyzwalacz, i czytasz go w całości przed pierwszym krokiem pr
 | `new-project.md` | Krok 0 rozpoznał stan PUSTY albo Z ZAWARTOŚCIĄ (propozycja niewyciszona) albo użytkownik prosi o RelAI w folderze bez markera |
 | `profiles.md` | zachodzi zdarzenie profilu, człowiek zmienia profil albo inicjalizujesz projekt |
 | `debugging.md` | coś nie działa: „nie działa", „błąd", „sypie się", „it's broken", „doesn't work", test albo komenda pada bez jasnej przyczyny |
+| `done-check.md` | zaczynasz zadanie, które zmieni kod — kroki (testy projektu, przegląd diffu) wykonujesz **przed** zgłoszeniem „gotowe" |
 | `first-deploy.md` | **przed** pierwszym wdrożeniem środowiska: „wdrażamy", „deploy", pierwsza konfiguracja wdrożeniowa |
 | `waiting-migration.md` | dziennik projektu 1.6.0+ nie ma sekcji „Czeka na człowieka" i człowiek zgodził się ją założyć |
 | `history.md` | pytanie dotyczy tego, co zmieniło się w konkretnej wersji pluginu |

@@ -1,6 +1,6 @@
 # STATUS — plan PIERWSI_UZYTKOWNICY
 
-Plan: [PLAN.html](PLAN.html) · Utworzony: 2026-09-12 · Status: **CZĘŚCIOWO ZREALIZOWANY 2026-09-24 — pilotaż nie wystartował (zero wysłanych zaproszeń), a pierwszeństwo dostaje plan [PROWADZENIE_END_TO_END](../../../plany/PROWADZENIE_END_TO_END/STATUS.md); E1 i E2 dowiezione, E3 pominięty** (zamrożony 2026-09-12, D-33) · Model wykonawczy etapów: **Opus** (preferencja z USTAWIENIA.md, D-85)
+Plan: [PLAN.html](PLAN.html) · Utworzony: 2026-09-12 · Status: **CZĘŚCIOWO ZREALIZOWANY 2026-09-24 — pilotaż nie wystartował (zero wysłanych zaproszeń), a pierwszeństwo dostaje plan [PROWADZENIE_END_TO_END](../PROWADZENIE_END_TO_END/STATUS.md); E1 i E2 dowiezione, E3 pominięty** (zamrożony 2026-09-12, D-33) · Model wykonawczy etapów: **Opus** (preferencja z USTAWIENIA.md, D-85)
 
 > **Wstrzymanie nie unieważnia planu.** E3 zostaje `GOTOWY DO STARTU` z gotowym promptem, trzy
 > bramki manualne zostają otwarte, a materiały E1 i E2 są kompletne. **Termin graniczny raportu

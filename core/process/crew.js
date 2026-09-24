@@ -42,6 +42,22 @@ const NARZEDZIA = {
   cursor: { cli: 'agent', etykieta: 'Cursor', env: ['CURSOR_AGENT', 'CURSOR_TRACE_ID'] },
 };
 
+// Akapit dla rol AUTONOMICZNYCH (coder, tester): czlonek zalogi biegnie bez czlowieka, wiec tura
+// zakonczona samym tekstem konczy zadanie. Zrodlo: [A-O55] "Unattended agentic runs" (odczyt
+// 2026-09-24) — lista zadan, nazwane rodzaje niechcianych zatrzyman, nazwane zatrzymania chciane;
+// dostawca zaleca go WYLACZNIE dla agentow bez czlowieka w petli, stad nie ma go recenzent
+// ani zaden prompt rdzenia (E7 PROWADZENIE_END_TO_END, O06 + O07). Ta sama tresc stoi
+// w adapters/claude-code/agents/relai-coder.md i relai-tester.md.
+const AUTONOMIA = [
+  'Keep the parts of the task as a checklist in your report: "- [x]" done, "- [ ]" open. An open item',
+  'carries the reason it is blocked, written as "(blocked: ...)".',
+  'You run unattended: nobody answers until your turn ends, and a turn that ends with text ends the task.',
+  'Do not end it with a summary that announces the next step instead of taking it, with an offer to go on,',
+  'with a list of decisions that block nothing, or because a milestone feels like a good place to report.',
+  'Stop only when every item is done and proven, or when an item cannot move without a human - then name',
+  'the blocker. Actions that are risky or destructive still need confirmation, not a guess.',
+];
+
 // Role subagentow — zamknieta lista. Ta sama tresc stoi w plikach agentow adapterow
 // (adapters/claude-code/agents/, adapters/cursor/agents/); tutaj jest zrodlem dla zadan
 // delegowanych do INNEGO narzedzia, ktore tych plikow nie widzi.
@@ -55,9 +71,10 @@ const ROLE = {
       'if the task cannot be done without touching another file, stop and report it instead of doing it.',
       'Keep code and identifiers in English. Never write a secret into a tracked file.',
       'Do not edit docs/STATE.md, docs/DZIENNIK.md or any file under docs/ — the orchestrator owns them.',
-      'Finish with a section "## Report" listing: files changed, how you verified the change',
+    ].concat(AUTONOMIA, [
+      'Finish with a section "## Report" listing: the checklist, files changed, how you verified the change',
       '(exact commands and results), and anything you deliberately left out.',
-    ],
+    ]),
   },
   tester: {
     etykieta: 'tester',
@@ -68,8 +85,9 @@ const ROLE = {
       'Touch only test files and the files listed in the task. Never weaken an existing assertion',
       'to make a test pass — report the failure instead.',
       'Do not edit anything under docs/ — the orchestrator owns documentation.',
-      'Finish with a section "## Report": tests added, command run, pass/fail counts, gaps left.',
-    ],
+    ].concat(AUTONOMIA, [
+      'Finish with a section "## Report": the checklist, tests added, command run, pass/fail counts, gaps left.',
+    ]),
   },
   reviewer: {
     etykieta: 'reviewer',
@@ -386,8 +404,59 @@ function composePrompt(rola, trescZadania, o) {
   const czesci = [r.preambula.join('\n'), ''];
   if (opcje.files && opcje.files.length) czesci.push('Files in scope: ' + opcje.files.join(', '), '');
   czesci.push('## Task', '', String(trescZadania).trim(), '');
+  if (opcje.done) czesci.push('## Done when', '', String(opcje.done).trim(), '');
   czesci.push('Working directory: ' + (opcje.cwd || process.cwd()), 'RelAI crew run: ' + (opcje.runId || '-') + ', task: ' + (opcje.taskId || '-'));
   return czesci.join('\n') + '\n';
+}
+
+// --- meldunek i kontynuacje (E7 PROWADZENIE_END_TO_END, O06 + O07) ---------------
+// Meldunek jest dowodem ukonczenia wtedy, gdy ma sekcje "## Report", w niej JEDNA linia z poleceniem
+// (w backtickach, nie sama sciezka pliku) i jego wynikiem, a lista zadan — w calym meldunku, nie tylko
+// pod naglowkiem — nie ma punktow otwartych bez nazwanego blokera. Zamknieta lista brzmien wyniku
+// (zasada 7): liczby testow, pass/fail, kod wyjscia. Samo "ok" wynikiem nie jest ("looks ok"),
+// a polecenie i wynik w osobnych liniach nie sa dowodem — tak przeglad E7 pokazal falszywe przyjecie.
+const WYNIK = /(\b\d+\s*\/\s*\d+\b|\b(?:pass(?:ed|es|ing)?|fail(?:ed|s|ures?)?|exit(?:\s*code)?\s*[:=]?\s*\d+|kod\s*\d+|\d+\s+(?:tests?|errors?|warnings?))\b|✔|✖)/i;
+const POLECENIE = /`([^`\n]+)`/g;
+const SAMA_SCIEZKA = /^[\w@.\/\\-]+\.[A-Za-z0-9]+$/;
+const OTWARTY = /^\s*[-*]\s*\[ \]\s*(.+?)\s*$/gm;
+
+function liniaDowodu(linia) {
+  if (!WYNIK.test(linia)) return false;
+  for (const m of linia.matchAll(POLECENIE)) if (!SAMA_SCIEZKA.test(m[1].trim())) return true;
+  return false;
+}
+const BLOKER = /\b(?:blocked|blocker|zablokowan\w*)\b/i;
+const KONTYNUACJE_MAX = 2;
+
+function ocenMeldunek(tekst) {
+  const t = String(tekst || '').replace(/\r\n/g, '\n');
+  const m = t.match(/^#{1,3}\s*Report\b.*$/im);
+  if (!m) return { kompletny: false, braki: ['report'], otwarte: [], zablokowane: [] };
+  const raport = t.slice(m.index);
+  const otwarte = [];
+  const zablokowane = [];
+  for (const p of t.matchAll(OTWARTY)) (BLOKER.test(p[1]) ? zablokowane : otwarte).push(p[1]);
+  const braki = [];
+  if (!raport.split('\n').some(liniaDowodu)) braki.push('proof');
+  if (otwarte.length) braki.push('open');
+  return { kompletny: braki.length === 0, braki, otwarte, zablokowane };
+}
+
+// Najwyzej KONTYNUACJE_MAX automatycznych kontynuacji na zadanie [A-O55: "two or three"];
+// po nich zadanie idzie do czlowieka, zeby przebieg naprawde zablokowany skonczyl sie przegladem,
+// a nie petla. `wyslane` = ile kontynuacji to zadanie juz dostalo.
+function kontynuacja(ocena, wyslane) {
+  if (ocena.kompletny) return { akcja: 'przyjmij', wiadomosc: '' };
+  if ((Number(wyslane) || 0) >= KONTYNUACJE_MAX) return { akcja: 'czlowiek', wiadomosc: '' };
+  let wiadomosc;
+  if (ocena.braki.includes('report')) {
+    wiadomosc = 'Your turn ended without the "## Report" section, so the task is not done. Finish it, then report the checklist, the files changed and the exact verification command with its result. If something is blocked, say what is blocking it.';
+  } else if (ocena.otwarte.length) {
+    wiadomosc = 'Your task list still has open items: ' + ocena.otwarte.join('; ') + '. Continue with them. If one is blocked, say what is blocking it as "(blocked: ...)".';
+  } else {
+    wiadomosc = 'Your report has no proof: run the check named in "Done when" (or the narrowest check that proves the change) and add the exact command with its result. If it cannot be run, say what is blocking it.';
+  }
+  return { akcja: 'kontynuuj', wiadomosc };
 }
 
 // --- run ---------------------------------------------------------------------
@@ -423,7 +492,7 @@ function run(cwd, o) {
   const katalog = path.join(katalogWork(cwd), runId);
   fs.mkdirSync(katalog, { recursive: true });
   const tresc = opcje.prompt !== undefined ? String(opcje.prompt) : fs.readFileSync(opcje.promptFile, 'utf8');
-  const prompt = opcje.raw ? tresc : composePrompt(rola, tresc, { files: opcje.files, cwd, runId, taskId });
+  const prompt = opcje.raw ? tresc : composePrompt(rola, tresc, { files: opcje.files, cwd, runId, taskId, done: opcje.done });
   const promptPlik = path.join(katalog, taskId + '.prompt.md');
   fs.writeFileSync(promptPlik, prompt, 'utf8');
   const lastMessageFile = path.join(katalog, taskId + '.last.md');
@@ -543,10 +612,11 @@ const UZYCIE = [
   '  setup                        to samo plus instrukcje instalacji/logowania (nic nie wykonuje)',
   '  plan <zadania.json>          fale zadan bez konfliktow plikow',
   '  run --runtime <r> --task <plik> [--role coder|tester|reviewer] [--write] [--model m]',
-  '      [--run-id id] [--task-id id] [--files a,b] [--timeout s] [--raw]',
+  '      [--run-id id] [--task-id id] [--files a,b] [--done kryterium] [--timeout s] [--raw]',
   '  review --runtime <r> [--base galaz] [--model m] [--run-id id] [--context plik]',
   '  status [--run-id id]',
-  '  prompt --role <rola> [--task <plik>] [--files a,b]   sklada prompt roli (dla natywnych subagentow gospodarza)',
+  '  check --report <plik> [--continuations N]   meldunek czlonka zalogi: przyjmij / kontynuuj / czlowiek',
+  '  prompt --role <rola> [--task <plik>] [--files a,b] [--done kryterium]   prompt roli (natywni subagenci gospodarza)',
   'Narzedzia: ' + Object.keys(NARZEDZIA).join(', ') + '. Role: ' + Object.keys(ROLE).join(', ') + '.',
 ];
 
@@ -575,7 +645,7 @@ function main(argv) {
       if (!flagi.runtime || !flagi.task) { process.stderr.write('run: wymagane --runtime i --task <plik>\n'); return 2; }
       const r = run(cwd, {
         runtime: flagi.runtime, promptFile: path.resolve(flagi.task), role: flagi.role, write: flagi.write ? true : undefined,
-        model: flagi.model, runId: flagi['run-id'], taskId: flagi['task-id'], raw: Boolean(flagi.raw),
+        model: flagi.model, runId: flagi['run-id'], taskId: flagi['task-id'], raw: Boolean(flagi.raw), done: flagi.done,
         files: flagi.files ? String(flagi.files).split(',').map((s) => s.trim()).filter(Boolean) : [],
         timeoutS: flagi.timeout ? Number(flagi.timeout) : undefined,
       });
@@ -592,9 +662,23 @@ function main(argv) {
     if (cmd === 'prompt') {
       if (!flagi.role) { process.stderr.write('prompt: wymagane --role\n'); return 2; }
       const tresc = flagi.task ? fs.readFileSync(path.resolve(flagi.task), 'utf8') : '';
-      const p = composePrompt(flagi.role, tresc, { cwd, runId: flagi['run-id'], taskId: flagi['task-id'], files: flagi.files ? String(flagi.files).split(',').map((x) => x.trim()).filter(Boolean) : [] });
+      const p = composePrompt(flagi.role, tresc, { cwd, runId: flagi['run-id'], taskId: flagi['task-id'], done: flagi.done, files: flagi.files ? String(flagi.files).split(',').map((x) => x.trim()).filter(Boolean) : [] });
       wypisz({ role: flagi.role, prompt: p }, [p]);
       return 0;
+    }
+    if (cmd === 'check') {
+      if (!flagi.report) { process.stderr.write('check: wymagane --report <plik z meldunkiem>\n'); return 2; }
+      const ocena = ocenMeldunek(fs.readFileSync(path.resolve(flagi.report), 'utf8'));
+      const wyslane = Number(flagi.continuations) || 0;
+      const d = kontynuacja(ocena, wyslane);
+      wypisz(Object.assign({ decision: d.akcja, message: d.wiadomosc, continuationsSent: wyslane }, ocena), [
+        'DECYZJA: ' + d.akcja + ' (kontynuacji wyslanych: ' + wyslane + ' z ' + KONTYNUACJE_MAX + ')',
+        'Braki: ' + (ocena.braki.length ? ocena.braki.join(', ') : 'brak'),
+        ocena.otwarte.length ? 'Otwarte: ' + ocena.otwarte.join('; ') : '',
+        ocena.zablokowane.length ? 'Zablokowane (do czlowieka): ' + ocena.zablokowane.join('; ') : '',
+        d.wiadomosc ? 'Wiadomosc kontynuacji:\n' + d.wiadomosc : '',
+      ].filter(Boolean));
+      return d.akcja === 'przyjmij' ? 0 : 1;
     }
     if (cmd === 'status') {
       const s = status(cwd, flagi['run-id']);
@@ -618,5 +702,6 @@ module.exports = {
   gospodarz, detect, detectReport, setupReport,
   planWaves, planReport,
   buildCommand, buildReviewCommand, sprawdzFlagi, composePrompt,
+  ocenMeldunek, kontynuacja, KONTYNUACJE_MAX, AUTONOMIA,
   run, review, status, statusReport, sciezkaCli, main,
 };

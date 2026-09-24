@@ -1,18 +1,17 @@
 # STATE — RelAI
 
-Stan na: 2026-09-24 (po etapie E6 planu PROWADZENIE_END_TO_END — bez wydania, Aneks G)
+Stan na: 2026-09-24 (plan PROWADZENIE_END_TO_END zamknięty; wydanie 2.7.0 w repozytorium)
 
 ## Gdzie jesteśmy
 
-RelAI ma w repozytorium **2.6.0** — wydanie z etapu E4 planu PROWADZENIE_END_TO_END (zasady
-skrojone pod model; poprzednio 2.5.0 z E3). Plugin działa w trzech narzędziach — Claude Code, Cursorze i Codeksie — na jednym
-rdzeniu procesu, z czternastoma komendami. Instrukcja ładowana na starcie sesji jest ponad dwa razy
-lżejsza niż przed planem, a optymalizator promptów mówi językiem modelu, który prompt wykona —
-według wytycznych jego dostawcy, z datą odczytu przy każdej regule. W repozytorium (jeszcze bez
-wydania — wydanie idzie przy zamknięciu planu) README zaczyna się od instalacji i ma słowniczek,
-a demo jest czytelne na telefonie. Następny krok to procedury na krańcach drogi: debugowanie,
-bezpieczeństwo zależności, pierwszy deploy. Ostatni pilotaż z użytkownikami zamknięto przed wysyłką
-zaproszeń, więc opinii spoza projektu nadal nie ma.
+RelAI ma w repozytorium **2.7.0** — jedno wydanie po etapach E5–E7 planu PROWADZENIE_END_TO_END,
+który zamknął się tego samego dnia (7/7 etapów). Publicznie nadal 2.6.0, dopóki tag i release nie
+dostaną zgody człowieka. Plugin działa w trzech narzędziach — Claude Code, Cursorze i Codeksie — na
+jednym rdzeniu procesu, z czternastoma komendami. Plan dał lżejszy start sesji, skille czytane
+na żądanie, prompty skrojone pod model, README od pierwszego kroku, procedury dla usterki i pierwszego
+wdrożenia, a na koniec pilnowanie jakości: „gotowe" przychodzi z wynikiem testów, niedomknięty rytuał
+jest zgłaszany na starcie, a członek załogi nie kończy samym meldunkiem. Aktywnego planu nie ma.
+Opinii spoza projektu nadal nie ma — pilotaż z użytkownikami zamknięto przed wysyłką zaproszeń.
 
 ## Co działa
 
@@ -25,44 +24,41 @@ zaproszeń, więc opinii spoza projektu nadal nie ma.
   ściąga, adopcja, aktualizacja, sprzątanie, lista modeli, załoga, optymalizator promptu.
 - Podyktowane zdanie może wrócić poprawione, zanim ruszy w robotę — na żądanie albo w trybie
   ciągłym, o który sesja pyta raz; oryginał stoi obok propozycji.
-- Załoga deleguje zadania do trzech narzędzi (zmierzone z Claude Code jako gospodarzem); recenzent
-  nie dostaje prawa zapisu, dwa zadania nie piszą naraz do jednego pliku.
+- Załoga deleguje zadania do trzech narzędzi; recenzent nie dostaje prawa zapisu, dwa zadania nie
+  piszą naraz do jednego pliku, meldunek bez dowodu dostaje najwyżej dwie kontynuacje.
+- Zadanie z kodem kończy się uruchomieniem testów projektu i przeglądem diffu, zgłoszonymi trzema
+  liniami; „coś nie działa" i pierwsze wdrożenie mają własne procedury.
+- Na starcie sesji zgłaszane jest to, co zostało niedomknięte: brakujący prompt etapu, etap bez
+  wpisu w dzienniku, artefakt bez podbitej wersji, rozjechana kopia `CLAUDE.md`, rozjazd stanu.
 - Dokumenty nie puchną bez końca: stara historia idzie do archiwum w całości, z sumą kontrolną,
   a rotacja zabiera najstarsze pozycje, aż cały plik zejdzie poniżej 60% progu.
 - Sprawy czekające na człowieka mają jeden adres i wracają jako pytanie, gdy czekają zbyt długo.
-- Każdy próg ma adres w raporcie startu sesji; poniżej progu raport milczy.
 - Klucz API nie wejdzie do repozytorium (pre-commit w każdym narzędziu, także w projektach ESM),
   a guard pilnuje projektu, do którego idzie zapis.
 - Pliki robocze sprząta się raportem w grupach, jednym „tak" na grupę; plik śledzony nie jest
   kandydatem nigdy.
-- Pytanie o model pokazuje nazwy z listy narzędzia; lista odświeża się po zgodzie na sieć.
-- Proces przeżywa zmianę dostawcy modelu — cały etap poprowadził model spoza Anthropic.
+- Pytanie o model pokazuje nazwy z listy narzędzia; prompt przerobiony przez `/relai-prompt` jest
+  skrojony pod model, który go wykona, według reguł dostawcy z datą odczytu.
 - W folderze bez struktury RelAI hooki milczą; skill proponuje strukturę, a propozycję da się
   wyciszyć raz na maszynę.
-- Prompt przerobiony przez `/relai-prompt` jest skrojony pod model, który go wykona: dla Claude
-  w tagach, z materiałem przed zadaniem, dla modeli OpenAI z zachętą do działania i raportem na
-  końcu; model spoza list dostaje sam rdzeń. Reguły dostawców mają datę i przypominają się po 30 dniach.
 
 ## Nad czym pracujemy teraz
 
-- **E7 planu PROWADZENIE_END_TO_END — jakość pracy solo i załogi** (gotowy do startu, ostatni):
-  testy i przegląd w pracy solo, siatka rytuału „Na koniec", załoga bez kończenia meldunkiem,
-  reguła delegacji; zamyka plan jedynym wydaniem.
-- **Zmienione w repo, niewydane (E5–E6):** README od pierwszego kroku, jedno okno pytań trybu
-  ciągłego, reguła planowania Cursora na żądanie, demo pionowe (E5); procedury „coś nie działa"
-  i pierwszego wdrożenia (pliki doczytywane `relai-core` z drogowskazem w hooku startu), punkt
-  audytu zależności i podstaw OWASP w promptach etapów z kodem, powiadomienia w tle poza bramką
-  trybu ciągłego (E6).
+- Nic w toku. Wydanie 2.7.0 czeka na zgodę na tag, push i release.
 
 ## Co dalej
 
-- **E7 planu, potem jedno wydanie** (Aneks G) [PROWADZENIE_END_TO_END](plany/PROWADZENIE_END_TO_END/STATUS.md): jakość pracy
-  solo i załogi.
+- **Publikacja 2.7.0** (P-005): tag `v2.7.0` → push → release → `marketplace update` →
+  `plugin update relai@relai` → restart aplikacji; wersję potwierdza treść plików z cache'u.
+- **Bramki świadomie otwarte przy zamknięciu planu** (po restarcie pod 2.7.0, w sesji
+  interaktywnej): pierwszy prompt merytoryczny z trybem ciągłym, bez zgody i bez modelu, daje
+  **jedno** okno pytań (Aneks F); zakończone zadanie w tle nie dostaje pytania o zgodę (Aneks H).
 - Odświeżenie listy modeli Codeksa w sesji Codeksa (`/relai-models`): lista ma nazwy z 2026-09-05,
   Codex zaleca dziś gpt-6-astra, gpt-6-sol i gpt-6-luna; do tego czasu nakładka `openai` nie ma
   reguł z nazwą modelu, a przydział modeli poza Claude Code jest sprawą człowieka.
-- Odnoga `OPIS_REPO` — opis i tematy repozytorium na GitHubie; opis manifestu nadal mówi
-  o jednym narzędziu.
+- Rotacja `LEKCJE.md` (ponad progiem 50 KB) przy najbliższym „kończymy na dziś".
+- Wątek `OPIS_REPO` w `docs/fixy/` — opis i tematy repozytorium na GitHubie; opis manifestu nadal
+  mówi o jednym narzędziu.
 - Projekty z pre-commitem sprzed 1.9.3 (PolyFlow, JiraManager) wymagają ponownej instalacji hooka.
 - Migracja JiraManagera czeka na okno właściciela (ryzyko R5).
 - Dwie znane wady narzędzia sprzątania (`work-artifacts.js`): `kasuj` melduje `skasowane` dla
@@ -85,37 +81,39 @@ zaproszeń, więc opinii spoza projektu nadal nie ma.
 
 ### Wersja i instalacja
 
-Repozytorium i publicznie: **2.6.0** (tag `v2.6.0`, release Latest); repozytorium niesie ponad tym
-zmiany E5 bez podbicia numeru — wydanie przy zamknięciu planu (Aneks G), numer zatwierdza człowiek. Źródło instalacji: własny
-marketplace w tym repozytorium, scope `user`. Wydanie potwierdzasz treścią plików z cache'u, nie
-komunikatem CLI (P-005): `claude plugin validate` → tag → push → release → `marketplace update` →
-`plugin update relai@relai` → suma plików po CRLF → LF. Walidator `core/tools/validate-adapters.js`
-sprawdza 7 źródeł wersji, w tym baner README i tę sekcję „Gdzie jesteśmy". Pre-commit tego repo:
-układ 1.9.2 (shim + dwa pliki `.cjs`).
+Repozytorium: **2.7.0**; publicznie **2.6.0** (tag `v2.6.0`, release Latest) do czasu publikacji
+2.7.0. Źródło instalacji: własny marketplace w tym repozytorium, scope `user`. Wydanie potwierdzasz
+treścią plików z cache'u, nie komunikatem CLI (P-005): `claude plugin validate` → tag → push →
+release → `marketplace update` → `plugin update relai@relai` → suma plików po CRLF → LF. Walidator
+`core/tools/validate-adapters.js` sprawdza 7 źródeł wersji, w tym baner README i tę sekcję
+„Gdzie jesteśmy". Pre-commit tego repo: układ 1.9.2 (shim + dwa pliki `.cjs`).
 
 ### Zawartość pluginu
 
 **Rdzeń** (`core/`): specyfikacje dokumentów, szablon planu HTML, guardraile, rozpoznania startu
-sesji (`process/session-signals.js`), artefakty robocze, załoga, tryb ciągły, baza reguł
-optymalizatora z nakładkami rodzin modeli (`claude`, `openai`), walidator. **Adapter Claude Code**: dwa skille (każdy poniżej 500 linii, razem 8 plików doczytywanych), 14 komend, 4 agenci, 11 hooków,
-lista modeli. **Adapter Cursor**: trzy reguły `.mdc`, dwa hooki, instalator. **Adapter Codex**:
-natywny manifest, 14 skilli, router `AGENTS.md`, trzy hooki (start sesji kopiuje listę modeli).
+sesji (`process/session-signals.js`, z siatką rytuału), artefakty robocze, załoga (z oceną meldunku),
+tryb ciągły, baza reguł optymalizatora z nakładkami rodzin modeli (`claude`, `openai`), walidator.
+**Adapter Claude Code**: dwa skille (każdy poniżej 500 linii, razem 9 plików doczytywanych),
+14 komend, 4 agenci, 11 hooków, lista modeli. **Adapter Cursor**: trzy reguły `.mdc`, dwa hooki,
+instalator. **Adapter Codex**: natywny manifest, 14 skilli, router `AGENTS.md`, trzy hooki (start
+sesji kopiuje listę modeli).
 
 ### Wymagania
 
-Claude Code, Cursor albo Codex • Node.js 14+ w `PATH` • git (opcjonalnie).
+Claude Code, Cursor albo Codex • Node.js 14+ w `PATH` • git (opcjonalnie; siatka wersji artefaktów
+bez gita milczy).
 
 ### Linki
 
 Repo: github.com/nowilus/relai • Plany zamknięte: [docs/archiwum/plany/](archiwum/plany/) •
+ostatni: [PROWADZENIE_END_TO_END](archiwum/plany/PROWADZENIE_END_TO_END/STATUS.md) •
 Backupy: `C:\Users\Lukasz\Backupy\RelAI` • [PRZENOSNOSC.md](PRZENOSNOSC.md) •
 [PULAPKI.md](PULAPKI.md) • [KOMENDY.md](KOMENDY.md)
 
 ### Liczby
 
-Plany zamknięte: 8 (ostatni PIERWSI_UZYTKOWNICY, częściowo, 2026-09-24) • Aktywny:
-PROWADZENIE_END_TO_END, E6/7 zrealizowany, E7 gotowy • Start sesji: **95,9 KB / 100 KB** (po E6; skill 28,6 KB; przed E3 126,3 KB) • Dziennik: **114,1 KB / 150 KB** (po rotacji
-2026-09-24 i wpisie E6 (archiwum: 9 plików)) • Sekcja ryzyk: **5,3 KB / 12 KB**, 11 otwartych, archiwum
-ryzyk: 4 pliki + 1 mitygacji • Lekcje: 65,2 KB / 50 KB — rotacja należna • Adaptery: 3 •
-Komendy: 14 • Projekty na RelAI: 3 (RelAI, PolyFlow, JiraManager przed migracją) • Modele, na
-których zmierzono proces: 5 (Fable, Opus, Haiku, Composer/auto, Grok 4.6).
+Plany zamknięte: 9 (ostatni PROWADZENIE_END_TO_END, 2026-09-24) • Aktywny: brak • Start sesji:
+**88,6 KB / 100 KB** (bez aktywnego planu; po E6 98,2 KB) • Dziennik: **128,8 KB / 150 KB** • Sekcja ryzyk: 12 otwartych, archiwum ryzyk: 4 pliki
++ 1 mitygacji • Lekcje: **71,6 KB / 50 KB** — rotacja należna • Adaptery: 3 • Komendy: 14 •
+Testy rdzenia i adapterów: 89 • Projekty na RelAI: 3 (RelAI, PolyFlow, JiraManager przed migracją) •
+Modele, na których zmierzono proces: 6 (Fable, Opus, Sonnet, Haiku, Composer/auto, Grok 4.6).

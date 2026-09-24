@@ -23,6 +23,7 @@
 const fs = require('fs');
 const os = require('os');
 const path = require('path');
+const { spawnSync } = require('child_process');
 
 // Domyslne markery trybu goscia: kazdy adapter dodaje swoj katalog konfiguracyjny.
 const DOMYSLNE_MARKERY_GOSCIA = ['.claude/relai.json', '.cursor/relai.json'];
@@ -611,6 +612,176 @@ function stateDrift(cwd) {
   } catch (_) {
     return null;
   }
+}
+
+// --- siatka rytualu "Na koniec" i wersji artefaktow (E7 PROWADZENIE_END_TO_END, A06) --
+// Reguly procesu, ktore do 2.6.0 nie mialy mechanizmu: rytual zamkniecia etapu (hook widzial
+// tylko brakujacy prompt etapu GOTOWEGO — tamta luka zostaje u promptGap, jeden wlasciciel),
+// podbicie wersji artefaktu w rejestrze i reczna synchronizacja kopii CLAUDE.md w AGENTS.md.
+// Kazda funkcja zwraca liste faktow; pusta lista = sprawdzone i zgodne albo nie ma czego
+// sprawdzac (brak planu, gita, rejestru, kopii). Tresc faktow jest po polsku bez ogonkow,
+// bo idzie do komunikatu hooka (L-0016).
+
+const DATA = /\b(\d{4}-\d{2}-\d{2})\b/;
+const ZAMKNIETY = /^\**\s*(ZREALIZOWANY|DONE|COMPLETED)\b/i;
+const POMINIETY = /^\**\s*(POMINI[ĘE]TY|SKIPPED)\b/i;
+const GOTOWY = /GOTOWY DO STARTU|READY TO START/i;
+
+function wierszeEtapow(txt) {
+  const wynik = [];
+  for (const row of txt.split('\n')) {
+    if (!row.trim().startsWith('|')) continue;
+    const cells = row.split('|').map((c) => c.trim());
+    if (cells.length < 6 || !/^\**E\d+\b/i.test(cells[1])) continue;
+    wynik.push({ etap: cells[1].replace(/\*/g, ''), status: cells[3], prompt: cells[4] || '' });
+  }
+  return wynik;
+}
+
+function dziennikMaDate(cwd, data) {
+  const naglowek = new RegExp('^#{2,4} .*' + data, 'm');
+  for (const name of ['DZIENNIK.md', 'JOURNAL.md']) {
+    if (naglowek.test(czytaj(path.join(cwd, 'docs', name)))) return true;
+  }
+  for (const rel of [['docs', 'archiwum', 'dziennik'], ['docs', 'archive', 'journal']]) {
+    let pliki = [];
+    try { pliki = fs.readdirSync(path.join(cwd, ...rel)); } catch (_) { continue; }
+    for (const f of pliki) {
+      if (/\.md$/i.test(f) && naglowek.test(czytaj(path.join(cwd, ...rel, f)))) return true;
+    }
+  }
+  return false;
+}
+
+function rytualEtapu(cwd) {
+  try {
+    const linia = liniaAktywnegoPlanu(cwd);
+    if (!linia || linia.brak || !linia.link) return [];
+    const statusPath = path.resolve(cwd, linia.link);
+    const etapy = wierszeEtapow(czytaj(statusPath));
+    let ostatni = -1;
+    etapy.forEach((e, i) => { if (ZAMKNIETY.test(e.status)) ostatni = i; });
+    if (ostatni < 0) return [];
+
+    const fakty = [];
+    const zamkniety = etapy[ostatni];
+    const data = (zamkniety.status.match(DATA) || [])[1];
+    if (data && !dziennikMaDate(cwd, data)) {
+      fakty.push('etap ' + zamkniety.etap + ' ma status ZREALIZOWANY ' + data +
+        ', a dziennik nie ma wpisu z ta data');
+    }
+    const nastepny = etapy.slice(ostatni + 1).find((e) => !POMINIETY.test(e.status));
+    if (nastepny && !GOTOWY.test(nastepny.status)) {
+      const m = nastepny.prompt.match(/\]\(([^)]+)\)/);
+      const jest = m && fs.existsSync(path.resolve(path.dirname(statusPath), m[1]));
+      if (!jest) {
+        fakty.push('po zamknieciu etapu ' + zamkniety.etap + ' etap ' + nastepny.etap +
+          ' nie ma promptu etapowego (rytual "Na koniec" go generuje)');
+      }
+    }
+    return fakty.map(ascii);
+  } catch (_) {
+    return [];
+  }
+}
+
+function gitTekst(cwd, args) {
+  try {
+    const r = spawnSync('git', args, { cwd, encoding: 'utf8', timeout: 3000, windowsHide: true });
+    return r.status === 0 ? r.stdout : null;
+  } catch (_) {
+    return null;
+  }
+}
+
+// Kolumny "Plik" i "Wersja" rozpoznane po naglowku tabeli (SPEC_PROFILE, profil prompty),
+// nie po pozycji: rejestr moze miec kolumny w innej kolejnosci albo po angielsku.
+function wersjeRejestru(txt) {
+  const wersje = {};
+  let kPlik = -1;
+  let kWersja = -1;
+  for (const row of String(txt || '').split('\n')) {
+    if (!row.trim().startsWith('|')) { kPlik = -1; kWersja = -1; continue; }
+    const cells = row.split('|').map((c) => c.trim());
+    const iPlik = cells.findIndex((c) => /^(Plik|File)$/i.test(c));
+    const iWersja = cells.findIndex((c) => /^(Wersja|Version)$/i.test(c));
+    if (iPlik > 0 && iWersja > 0) { kPlik = iPlik; kWersja = iWersja; continue; }
+    if (kPlik < 0) continue;
+    const plik = ((cells[kPlik] || '').match(/^`([^`]+)`$/) || [])[1];
+    const wersja = parseInt(cells[kWersja], 10);
+    if (plik && !isNaN(wersja)) wersje[plik] = wersja;
+  }
+  return wersje;
+}
+
+function artefaktyBezWersji(cwd) {
+  try {
+    const rejestr = ['docs/ARTEFAKTY.md', 'docs/ARTIFACTS.md'].find((r) => fs.existsSync(path.join(cwd, r)));
+    if (!rejestr) return [];
+    // Hook startu ma zostac szybki (przeglad E7): rejestr czytany z dysku, git wolany raz,
+    // a drugi raz — tylko gdy zmieniony plik naprawde jest w rejestrze.
+    const teraz = wersjeRejestru(czytaj(path.join(cwd, rejestr)));
+    if (!Object.keys(teraz).length) return [];
+    const zmienione = gitTekst(cwd, ['diff', '--name-only', '--relative', 'HEAD']);
+    if (zmienione === null) return []; // brak gita albo repo bez commita — nie ma z czym porownac
+    const doSprawdzenia = zmienione.split('\n').map((l) => l.trim()).filter((p) => p in teraz);
+    if (!doSprawdzenia.length) return [];
+    const przed = wersjeRejestru(gitTekst(cwd, ['show', 'HEAD:./' + rejestr]) || '');
+    const fakty = [];
+    for (const plik of doSprawdzenia) {
+      if (!(plik in przed)) continue; // wpis nowy w tym drzewie roboczym
+      if (teraz[plik] > przed[plik]) continue;
+      fakty.push('artefakt ' + plik + ' jest zmieniony w drzewie roboczym, a ' + rejestr +
+        ' ma dla niego nadal wersje ' + teraz[plik]);
+    }
+    return fakty.map(ascii);
+  } catch (_) {
+    return [];
+  }
+}
+
+// Kopia deklaruje sie sama w naglowku ("Kopia `CLAUDE.md` ..."). Wstep przed pierwsza sekcja
+// "## " jest naglowkiem kopii — w tym repo mowi "dla Codeksa" zamiast "dla Claude Code"
+// swiadomie; porownanie zaczyna sie od pierwszej sekcji. AGENTS.md-router (instalator
+// Cursora i Codeksa) kopia nie jest i dostaje cisze.
+function sekcje(txt) {
+  const linie = String(txt).replace(/\r\n/g, '\n').split('\n').map((l) => l.replace(/\s+$/, ''));
+  const start = linie.findIndex((l) => /^## /.test(l));
+  return start < 0 ? [] : linie.slice(start);
+}
+
+function kopiaAgents(cwd) {
+  try {
+    const kopia = czytaj(path.join(cwd, 'AGENTS.md'));
+    const glowa = kopia.split('\n').slice(0, 15).join('\n');
+    if (!/(Kopia|Copy of)\s+`?CLAUDE\.md`?/i.test(glowa)) return [];
+    const oryginal = czytaj(path.join(cwd, 'CLAUDE.md'));
+    if (!oryginal) return [];
+    const a = sekcje(oryginal);
+    const b = sekcje(kopia);
+    const n = Math.max(a.length, b.length);
+    let sekcja = '';
+    for (let i = 0; i < n; i++) {
+      if (/^## /.test(a[i] || '')) sekcja = a[i];
+      if (a[i] === b[i]) continue;
+      return [ascii('AGENTS.md (kopia CLAUDE.md) rozni sie od CLAUDE.md w sekcji "' +
+        (sekcja || a[i] || b[i] || '?') + '"')];
+    }
+    return [];
+  } catch (_) {
+    return [];
+  }
+}
+
+function siatkaRytualu(cwd) {
+  return [].concat(rytualEtapu(cwd), artefaktyBezWersji(cwd), kopiaAgents(cwd));
+}
+
+function siatkaRytualuReport(fakty) {
+  if (!fakty || !fakty.length) return [];
+  return [ascii('Siatka rytualu (A06): ' + fakty.join('; ') + '. Zglos to uzytkownikowi JEDNYM ' +
+    'zdaniem przed akapitem "gdzie jestesmy" i zaproponuj uzupelnienie (wpis w dzienniku, prompt ' +
+    'etapu, podbicie wersji w rejestrze, synchronizacja kopii) - niczego nie uzupelniaj bez zgody.')];
 }
 
 // --- nieznany autor (D-27) --------------------------------------------------
@@ -1573,6 +1744,12 @@ module.exports = {
   propozycjaPozaProjektemReport,
   promptGap,
   stateDrift,
+  rytualEtapu, // siatka rytualu "Na koniec" (E7, A06) — trzy sprawdzenia i jeden raport
+  artefaktyBezWersji,
+  wersjeRejestru, // eksportowane dla instrumentu przegladajacego historie commitow
+  kopiaAgents,
+  siatkaRytualu,
+  siatkaRytualuReport,
   unknownAuthor,
   ostatniWpis, // eksportowana, zeby dalo sie ja sprawdzic testem na obu kierunkach dziennika
   startCost,

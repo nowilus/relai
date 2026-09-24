@@ -1,6 +1,6 @@
 # KOMENDY — RelAI
 
-RelAI 2.6.0
+RelAI 2.7.0
 
 Nic z tej listy nie jest obowiązkowe. RelAI działa w zwykłej rozmowie — piszesz normalnie,
 a struktura projektu nadąża. Komendy są skrótem do rzadszych operacji.
@@ -21,7 +21,7 @@ a struktura projektu nadąża. Komendy są skrótem do rzadszych operacji.
 | `/relai-update` | podnosi projekt do wersji zainstalowanego RelAI: pokazuje, co się zmieni, czeka na Twoje „tak" i nie rusza niczego, co sam zmieniłeś | gdy RelAI mówi na starcie sesji, że projekt jest starszy niż plugin |
 | `/relai-branch` · `/relai-branch OPIS_REPO` | odkłada boczny wątek na bok: spisuje, o co chodzi i po czym poznać, że zrobione, i przygotowuje gotowy prompt do wklejenia w nowej sesji | gdy w trakcie etapu wypływa coś ważnego, ale nie na teraz — zamiast robić to przy okazji albo zapomnieć |
 | `/relai-models` | odświeża listę modeli Twojego narzędzia: pyta o zgodę na wejście do internetu, czyta dokumentację dostawcy albo pyta Ciebie o nazwy, pokazuje różnicę stara–nowa i zapisuje dopiero po Twoim „tak" | gdy przy pytaniu o model widzisz starą datę listy albo pozycję „do uzupełnienia" |
-| `/relai-crew` · `/relai-crew <cel>` · `/relai-crew review` · `/relai-crew rescue <zadanie>` · `/relai-crew setup` · `/relai-crew status` | robi z Twojej sesji orkiestratora celu: pyta o podział ról, liczbę subagentów, tryb pracy i zakres modeli, układa zadania w fale tak, żeby dwa nie pisały naraz do tego samego pliku, deleguje je subagentom w Twoim narzędziu albo do drugiego zalogowanego narzędzia (Claude Code, Codex, Cursor), a na końcu zleca przegląd krzyżowy innemu modelowi i domyka dokumenty; bez drugiego narzędzia mówi o tym jednym zdaniem i pracuje w trybie basic w obrębie Twojego; `review` to sam przegląd krzyżowy bieżących zmian, `rescue` — jedno zadanie oddane drugiemu narzędziu, `setup` — raport gotowości z poleceniami dla Ciebie, `status` — stan przebiegów | gdy cel jest za duży na jedną parę rąk, albo gdy chcesz, żeby kod napisany w jednym narzędziu przejrzało drugie |
+| `/relai-crew` · `/relai-crew <cel>` · `/relai-crew review` · `/relai-crew rescue <zadanie>` · `/relai-crew setup` · `/relai-crew status` | robi z Twojej sesji orkiestratora celu: pyta o podział ról, liczbę subagentów, tryb pracy i zakres modeli, układa zadania w fale tak, żeby dwa nie pisały naraz do tego samego pliku, deleguje je subagentom w Twoim narzędziu albo do drugiego zalogowanego narzędzia (Claude Code, Codex, Cursor), a na końcu zleca przegląd krzyżowy innemu modelowi i domyka dokumenty; bez drugiego narzędzia mówi o tym jednym zdaniem i pracuje w trybie basic w obrębie Twojego; `review` to sam przegląd krzyżowy bieżących zmian, `rescue` — jedno zadanie oddane drugiemu narzędziu, `setup` — raport gotowości z poleceniami dla Ciebie, `status` — stan przebiegów. Od 2.7.0 członek załogi, który kończy samym meldunkiem bez dowodu, dostaje najwyżej dwie automatyczne kontynuacje, potem sprawa wraca do Ciebie; zadania trafiają do subagentów tylko wtedy, gdy są duże i niezależne | gdy cel jest za duży na jedną parę rąk, albo gdy chcesz, żeby kod napisany w jednym narzędziu przejrzało drugie |
 | `/relai-clean` · `/relai-clean raport` | pokazuje, co realnie zostało po zamkniętych etapach — w katalogu roboczym projektu, w folderze plików tymczasowych systemu i wśród plików nieśledzonych — grupuje to i pyta partiami po cztery; kasuje wyłącznie grupy, na które powiesz „tak". Z argumentem `raport` sam raport: żadnych pytań, żadnego kasowania | gdy plików roboczych zrobiło się dużo albo gdy RelAI powie o tym na starcie sesji |
 | `/relai-prompt <tekst>` | bierze zdanie podyktowane w biegu i oddaje z niego prompt gotowy do wykonania: dokłada format wyjścia, kryterium odbioru i granicę zakresu, oznacza każde swoje dopowiedzenie, usuwa wartości kluczy i haseł. Do promptu przenosi **pamięć projektu** — kilka decyzji, zasad i pozycji stanu związanych z zadaniem, każdą z numeru albo nazwy, żebyś widział, co doleciało. Odpowiada w **języku Twojego zdania**. Rusztowanie promptu bierze z bazy reguł, którą projekt RelAI dostaje u siebie przy starcie sesji — więc komenda pracuje tak samo w każdym projekcie, nie tylko w repozytorium RelAI. **Model, który przerabia prompt, wybierasz Ty** (od 2.3.1): pierwsze wywołanie pyta o model i zasięg wyboru — ten prompt / ta sesja / ten projekt / wszystkie projekty; `/relai-prompt --model opus <tekst>` wybiera jednorazowo, bez pytania. **Prompt jest skrojony pod
 model, który go wykona** (od 2.6.0): domyślnie model tej sesji, przy etapie planu — model etapu,
@@ -136,6 +136,15 @@ z podpowiedzi; skrócona forma działa tam, gdzie podpowiadacz ją rozwinie.
   użytkownika zostaje wyłapany zaraz po zapisie, żeby po miesiącach było wiadomo, kto przy tym był.
 - **Brakujący prompt etapowy jest wyłapywany.** Sesja przerwana w połowie zamykania etapu zostawia
   lukę — RelAI mówi o niej na starcie i proponuje uzupełnienie. Nigdy nie robi tego sam.
+- **Niedomknięty rytuał jest wyłapywany** (od 2.7.0). Na starcie sesji RelAI mówi jednym zdaniem,
+  gdy etap ma status zrealizowany, a dziennik nie ma wpisu z tą datą albo następny etap nie ma
+  promptu; gdy artefakt z `docs/ARTEFAKTY.md` jest zmieniony, a jego wersja w rejestrze nie
+  urosła; gdy `AGENTS.md` będący kopią `CLAUDE.md` rozjechał się z oryginałem. Proponuje
+  uzupełnienie — nigdy nie robi go sam. Gdy wszystko się zgadza, milczy.
+- **„Gotowe" przychodzi z wynikiem testów** (od 2.7.0). Zadanie, które zmieniło kod, RelAI kończy
+  uruchomieniem testów Twojego projektu (`npm test`, `pytest`…; gdy testów nie ma, mówi to wprost)
+  i przeglądem własnego diffu, a zgłasza je trzema liniami: testy z wynikiem, zmienione pliki,
+  ryzyka. Własnego narzędzia do testów nie ma — uruchamia komendę projektu.
 - **Cudzy projekt dostaje propozycję wycieczki.** Gdy wszystkie wpisy w dzienniku podpisał ktoś
   inny, RelAI proponuje oprowadzenie po projekcie — propozycja, nigdy automatyczne odpalenie.
 - **Różnica wersji jest sygnalizowana.** Gdy projekt jest starszy niż zainstalowany plugin, RelAI

@@ -124,6 +124,13 @@ function onSessionStart(input) {
       'go z rytualu startu.');
   }
 
+  // Siatka rytualu "Na koniec" i wersji artefaktow (E7 PROWADZENIE_END_TO_END, A06): jeden
+  // wlasciciel sygnalu, cisza przy stanie zgodnym. Brakujacy prompt etapu GOTOWEGO zostaje
+  // u siatki D-34 wyzej — tu go nie powtarzamy.
+  for (const linia of core.siatkaRytualuReport(core.siatkaRytualu(cwd))) {
+    out.push(linia);
+  }
+
   const obcy = core.unknownAuthor(cwd);
   if (obcy) {
     out.push('ZADANIE PIERWSZE (nieznany autor, D-27). git user.name to "' + obcy.ja + '", a zaden z ' +
@@ -182,6 +189,17 @@ function onSessionStart(input) {
   // warstwie dal 3/3 — procedury rzadkie zostaja w plikach, tu stoi tylko drogowskaz.
   out.push('Zgloszenie usterki ("cos nie dziala", "blad", "it is broken") albo zapowiedz pierwszego wdrozenia: ' +
     'zanim dotkniesz kodu, wywolaj skill relai-core i otworz jego plik debugging.md albo first-deploy.md.');
+  // E7 PROWADZENIE_END_TO_END (A26): ten sam wzorzec dla kroku "testy i przeglad diffu" w pracy
+  // solo — bez tego zdania ani Sonnet 5 (0/2), ani Opus 5.5 (0/1) nie otworzyli done-check.md.
+  // Samo odeslanie do skilla dalo Sonnetowi 1/3 (wyzwalacz na koncu zadania) i 0/3 (na starcie):
+  // na krotkim zadaniu z kodem Sonnet nie wywoluje skilla wcale. Krok zyje wiec tutaj, w warstwie
+  // obecnej w kazdej sesji (zasada 8), a done-check.md niesie pelna procedure (Opus 3/3 go otwiera).
+  out.push('Zadanie, ktore zmienilo kod, konczysz tak, zanim napiszesz "gotowe": (1) uruchom testy projektu ' +
+    '(npm test, pytest, go test ./...; brak testow - powiedz to wprost); (2) uruchom git status --short ' +
+    'i git diff i przeczytaj wynik: pliki spoza zadania, sekrety, resztki diagnostyczne, oslabione testy; ' +
+    '(3) zglos w trzech liniach: "Testy: <komenda> -> <wynik>", "Zmiana: <pliki z git status>", ' +
+    '"Ryzyka: <lista albo: brak po przegladzie git diff>". ' +
+    'Pelna procedura: plik done-check.md skilla relai-core.');
 
   const copied = provisionTemplates(cwd);
   if (copied > 0) {

@@ -13,8 +13,11 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
    kontrolą po fakcie: planuj go przed zamknięciem pliku, a rozjazd traktuj jako defekt reguły,
    nie jako wyjątek do obejścia w wykonaniu. **Reguła produkująca tekst opisuje początek wiersza
    i to, czego w nim nie ma**, nie tylko jego zawartość — model domyka lukę formatem materiału,
-   który ma pod ręką; materiał sprzed poprawki reguły zostaje obok materiału po niej.
-   (L-0001, L-0011, L-0026, L-0089, L-0100, L-0108)
+   który ma pod ręką; materiał sprzed poprawki reguły zostaje obok materiału po niej. **Linia
+   raportu, która ma poświadczać krok, bierze treść z wyniku polecenia tego kroku** („Zmiana:
+   <pliki z git status>", „brak po przeglądzie git diff") — linia bez takiej kotwicy powstaje bez
+   uruchomienia polecenia.
+   (L-0001, L-0011, L-0026, L-0089, L-0100, L-0108, L-0129)
 2. **W dokumencie użytkownika stoi tylko to, co działa i co zmierzyłeś** — fraza wchodzi do
    `KOMENDY.md` w wersji, w której realnie działa, a forma wywołania jest tą, którą uruchomiłeś
    dosłownie. Komendę wklejaną do dokumentu odpalasz z tej samej powłoki, którą zobaczy czytelnik:
@@ -106,11 +109,13 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
    krokiem**, i czytasz kod wyjścia każdej sesji — wyjście limitem obok „nie wywołano" znaczy
    „nie zmierzono"; instrument poprawiony w trakcie idzie od nowa dla obu wariantów. **Podłożony
    hook sprawdzasz `node --check` i liczysz w transkrypcie zdanie, które ma wstrzyknąć** — zero
-   trafień unieważnia przebieg (L-0127).
+   trafień unieważnia przebieg (L-0127). **Kontrola spójności puszczona po historii commitów mierzy
+   inną semantykę niż na drzewie roboczym** — trafienia dzielisz na „naprawione później" i „nigdy",
+   zanim nazwiesz je defektem (L-0131).
    (L-0032, L-0037, L-0095, L-0096, L-0105, L-0106, L-0107, L-0110, L-0111, L-0113,
    L-0097, L-0101, L-0102,
    L-0054, L-0055, L-0056, L-0064, L-0068, L-0071, L-0073, L-0083, L-0084, L-0086, L-0087, L-0088,
-   L-0090, L-0091, L-0124, L-0125)
+   L-0090, L-0091, L-0124, L-0125, L-0130, L-0131)
 6. **Próg jest liczbą, którą ktoś liczy:** kalibruj go na zmierzonych plikach realnych projektów,
    zapisuj w jednostce mechanizmu kontrolnego wraz z komendą sprawdzającą i daj mu **jeden**
    wyzwalacz — wielkości pomocnicze wskazują przyczynę wewnątrz komunikatu, nie wywołują go.
@@ -146,8 +151,10 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
    kopia w projekcie jest trwała, ma od razu drogę migracji kopii** (uzupełnienie brakującego pola
    po kluczu, reszta nietknięta). **Plik doczytywany, który ma działać na klasie `balanced`, ma
    drogowskaz w warstwie zawsze obecnej** — zdanie z wyzwalaczem i nazwą pliku; ogólne „wywołaj
-   skill" Sonnet 5 pomija.
-   (L-0015, L-0030, L-0036, L-0112, L-0120, L-0121, L-0126)
+   skill" Sonnet 5 pomija. **Drogowskaz działa tylko przy wyzwalaczu frazą z promptu** („coś nie
+   działa"); krok wyzwalany kształtem zadania (każde zadanie z kodem) stoi w warstwie zawsze obecnej
+   **sam, w skrócie**, a plik doczytywany niesie pełną procedurę.
+   (L-0015, L-0030, L-0036, L-0112, L-0120, L-0121, L-0126, L-0128)
 9. **Skill nie zakłada dostępu do niczego poza katalogiem roboczym** — ani do katalogu pluginu, ani
    do domowego. Opis mieści się w **1 024 znakach** i mówi w trzeciej osobie, co skill robi i kiedy
    go użyć, z markerem projektu i płaską listą fraz — bez `MUST BE USED` (zmierzone 2026-09-24:
@@ -834,3 +841,53 @@ Treść jest kopią bajt w bajt — zmieniony został wyłącznie status w linii
   w transkrypcie **zdanie, które hook ma wstrzyknąć** — zero trafień unieważnia przebieg, nie jest
   wynikiem. Powtórzenie L-0119: propozycja graduacji do `CLAUDE.md`.
 - **Źródło:** E6 planu PROWADZENIE_END_TO_END; destylat: dopisane do zasady 5.
+
+### L-0128 — Drogowskaz do skilla nie uruchamia kroku, którego wyzwalaczem jest kształt zadania · 2026-09-24 · AKTYWNA
+
+- **Trigger:** pierwszy realny przebieg kroku „testy i przegląd diffu" (E7, A26). Sonnet 5 bez
+  zdania w hooku 0/2; z drogowskazem „zanim napiszesz, że gotowe, wywołaj skill relai-core
+  i otwórz done-check.md" 1/3; z wyzwalaczem przeniesionym na start zadania 0/3. Opus 5.5 z każdym
+  drogowskazem 3/3.
+- **Przyczyna:** w E6 drogowskaz działał, bo prompt niósł dosłownie frazę wyzwalacza („coś nie
+  działa"). Zadanie z kodem nie ma frazy — ma kształt; Sonnet kończy je w 3–4 turach, nie wywołując
+  skilla wcale.
+- **Zasada:** krok wyzwalany kształtem zadania stoi w warstwie zawsze obecnej **w skrócie, sam**
+  (trzy punkty w hooku startu: Sonnet 3/3, Opus 2/2), a plik doczytywany niesie pełną procedurę.
+  Drogowskaz zostaje dla procedur z frazą wyzwalacza.
+- **Źródło:** E7 planu PROWADZENIE_END_TO_END, `.claude/relai/work/PROWADZENIE_END_TO_END/E7/przebieg.js`;
+  destylat: dopisane do zasady 8.
+
+### L-0129 — Linia „Ryzyka: brak." bez uruchomionego git diff · 2026-09-24 · AKTYWNA
+
+- **Trigger:** reguła „(2) przejrzyj git status i git diff; (3) zgłoś Testy / Zmiana / Ryzyka" dała
+  Sonnetowi trzy linie raportu w 3/3 przebiegów, ale `git diff` uruchomił w 1/3 — w pozostałych
+  napisał „Ryzyka: brak." bez przeglądu.
+- **Przyczyna:** format linii nie zależał od wyniku polecenia, więc linię dało się wypełnić
+  z pamięci zmiany.
+- **Zasada:** linia raportu poświadczająca krok bierze treść z wyniku polecenia tego kroku
+  („Zmiana: <pliki z git status>", „Ryzyka: <lista albo: brak po przeglądzie git diff>"), a krok
+  nazywa polecenie wprost („uruchom … i przeczytaj wynik"). Po poprawce: `git diff` 3/3.
+- **Źródło:** E7, przebiegi `sonnet-l*` → `sonnet-m*`; destylat: dopisane do zasady 1.
+
+### L-0130 — Backslash w skrypcie z heredoku, trzeci raz (powtórzenie L-0119, L-0127) · 2026-09-24 · AKTYWNA
+
+- **Trigger:** w E7 dwa razy: skrypt Pythona z regexem JS w heredoku przewrócił powłokę
+  („unexpected EOF"), a `\b` w zwykłym napisie Pythona stał się znakiem backspace (0x08) we
+  wzorcu instrumentu — licznik linii „Ryzyka" przestał trafiać na przebiegach, które je miały.
+- **Przyczyna:** ta sama co w L-0116/L-0119/L-0127 — tekst z backslashem przez warstwę, która go
+  interpretuje (powłoka, literał Pythona).
+- **Zasada:** bez zmian — skrypt z regexem piszesz narzędziem Write, a wzorzec sprawdzasz kontrolą
+  pozytywną na materiale, który musi trafić. Trzecie powtórzenie wzmacnia otwartą propozycję
+  graduacji do `CLAUDE.md`.
+- **Źródło:** E7; destylat: zasada 5 (bez nowego brzmienia).
+
+### L-0131 — Siatka po historii: 64 „trafienia", z czego 57 naprawionych później · 2026-09-24 · AKTYWNA
+
+- **Trigger:** nowa kontrola „artefakt zmieniony bez podbicia wersji" puszczona po 160 commitach:
+  64 ze 141 par (commit, artefakt) bez podbicia w tym samym commicie.
+- **Przyczyna:** kontrola pisana dla drzewa roboczego (zmiana vs HEAD), a w historii rejestr bywał
+  podbijany osobnym commitem rytuału — ta sama reguła, inna semantyka.
+- **Zasada:** trafienia kontroli na historii dzielisz na „naprawione później" i „nigdy", zanim
+  nazwiesz je defektem; zostało 7 (4 zmiany treści, 3 samego numeru wydania) — do dziennika,
+  rejestru wstecz nie przepisujesz (decyzja człowieka).
+- **Źródło:** E7, `historia.js` i `podzial.js`; destylat: dopisane do zasady 5.

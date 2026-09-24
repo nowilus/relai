@@ -170,3 +170,110 @@ test('CLI usage and plan file round-trip', (t) => {
   assert.match(out[1], /Uzycie/);
   assert.match(out[2], /role of TESTER[\s\S]*Files in scope: a\.js/);
 });
+
+// --- meldunek bez dowodu (E7 PROWADZENIE_END_TO_END, O06 + O07) ----------------
+// Tura zakonczona samym tekstem to raport, nie dowod ukonczenia [A-O55]. Orkiestrator
+// wysyla najwyzej dwie automatyczne kontynuacje; trzeci meldunek bez dowodu idzie do czlowieka.
+
+const MELDUNEK_Z_DOWODEM = [
+  'Done.', '', '## Report', '',
+  '- [x] add discount rule — `src/cart.js`',
+  '- [x] test for empty cart — `test/cart.test.js`',
+  'Files changed: src/cart.js, test/cart.test.js',
+  'Verification: `npm test` -> 12/12 passed, exit 0',
+].join('\n');
+
+test('ocenMeldunek accepts a report with a command and its result and no open items', () => {
+  const o = crew.ocenMeldunek(MELDUNEK_Z_DOWODEM);
+  assert.equal(o.kompletny, true, JSON.stringify(o));
+  assert.deepEqual(o.braki, []);
+});
+
+test('ocenMeldunek names what is missing: section, command with result, open items', () => {
+  assert.deepEqual(crew.ocenMeldunek('I changed the cart logic and it should work now.').braki, ['report']);
+  const bezWyniku = crew.ocenMeldunek('## Report\n\nFiles changed: src/cart.js\nNext I will run the tests.');
+  assert.equal(bezWyniku.kompletny, false);
+  assert.ok(bezWyniku.braki.includes('proof'));
+  const otwarte = crew.ocenMeldunek(MELDUNEK_Z_DOWODEM.replace('- [x] test for empty cart', '- [ ] test for empty cart'));
+  assert.equal(otwarte.kompletny, false);
+  assert.deepEqual(otwarte.otwarte, ['test for empty cart — `test/cart.test.js`']);
+  // Punkt otwarty z nazwanym blokerem nie jest meldunkiem bez dowodu — idzie do czlowieka jako blokada.
+  const zBlokerem = crew.ocenMeldunek(MELDUNEK_Z_DOWODEM.replace('- [x] test for empty cart', '- [ ] test for empty cart (blocked: no test runner in repo)'));
+  assert.equal(zBlokerem.kompletny, true);
+  assert.deepEqual(zBlokerem.zablokowane, ['test for empty cart (blocked: no test runner in repo) — `test/cart.test.js`']);
+});
+
+test('kontynuacja sends two continuations, then hands the task to the human', () => {
+  const zly = crew.ocenMeldunek('## Report\n\n- [ ] migrate endpoint B\nFiles changed: api.js');
+  const r0 = crew.kontynuacja(zly, 0);
+  assert.equal(r0.akcja, 'kontynuuj');
+  assert.match(r0.wiadomosc, /migrate endpoint B/);
+  assert.match(r0.wiadomosc, /blocked/);
+  assert.equal(crew.kontynuacja(zly, 1).akcja, 'kontynuuj');
+  assert.equal(crew.kontynuacja(zly, 2).akcja, 'czlowiek');
+  assert.equal(crew.KONTYNUACJE_MAX, 2);
+  assert.equal(crew.kontynuacja(crew.ocenMeldunek(MELDUNEK_Z_DOWODEM), 0).akcja, 'przyjmij');
+});
+
+test('autonomous roles carry the task-list rule and the early-stop paragraph; the reviewer does not', () => {
+  for (const rola of ['coder', 'tester']) {
+    const p = crew.composePrompt(rola, 'Add a rule.', { done: '`npm test` passes' });
+    assert.match(p, /## Done when\n\n`npm test` passes/);
+    assert.match(p, /- \[ \]/, rola + ': lista zadan w formie checklisty');
+    assert.match(p, /announc/i, rola + ': akapit o zatrzymaniach');
+  }
+  const r = crew.composePrompt('reviewer', 'Review.', {});
+  assert.doesNotMatch(r, /announc/i);
+});
+
+test('CLI check prints the decision and exits 0 only when the report is accepted', (t) => {
+  const root = fixture(t);
+  const plik = path.join(root, 'out.md');
+  fs.writeFileSync(plik, 'All good, I will now run the tests.');
+  const zapis = [];
+  const stary = process.stdout.write;
+  process.stdout.write = (s) => { zapis.push(String(s)); return true; };
+  let k0; let k2;
+  try {
+    k0 = crew.main(['check', '--report', plik]);
+    k2 = crew.main(['check', '--report', plik, '--continuations', '2']);
+  } finally { process.stdout.write = stary; }
+  assert.equal(k0, 1);
+  assert.equal(k2, 1);
+  assert.match(zapis[0], /DECYZJA: kontynuuj/);
+  assert.match(zapis[1], /DECYZJA: czlowiek/);
+  fs.writeFileSync(plik, MELDUNEK_Z_DOWODEM);
+  process.stdout.write = (s) => { zapis.push(String(s)); return true; };
+  let k; try { k = crew.main(['check', '--report', plik]); } finally { process.stdout.write = stary; }
+  assert.equal(k, 0);
+  assert.match(zapis[2], /DECYZJA: przyjmij/);
+});
+
+test('Claude Code crew agents carry the same unattended-run paragraph as the crew.js preambles', () => {
+  const agenci = path.join(__dirname, '..', '..', '..', 'adapters', 'claude-code', 'agents');
+  for (const plik of ['relai-coder.md', 'relai-tester.md']) {
+    const tresc = fs.readFileSync(path.join(agenci, plik), 'utf8').replace(/\r\n/g, '\n');
+    assert.ok(tresc.includes(crew.AUTONOMIA.join('\n')), plik + ': akapit rozjechany z crew.js');
+  }
+  const recenzent = fs.readFileSync(path.join(agenci, 'relai-reviewer.md'), 'utf8');
+  assert.doesNotMatch(recenzent, /You run unattended/);
+});
+
+// Przeglad E7 (code-reviewer): falszywe przyjecie i punkty otwarte nad sekcja raportu.
+test('ocenMeldunek rejects a file name plus "looks ok" and needs command and result on one line', () => {
+  const pozor = crew.ocenMeldunek('## Report\n\nFiles changed: `src/cart.js`\nLooks ok to me, no issues found.');
+  assert.equal(pozor.kompletny, false);
+  assert.deepEqual(pozor.braki, ['proof']);
+  const rozdzielone = crew.ocenMeldunek('## Report\n\nI ran `npm test`.\nEverything passed.');
+  assert.equal(rozdzielone.kompletny, false, 'polecenie i wynik w osobnych liniach to nie dowod');
+  for (const linia of ['Verified: `npm test` → 3 pass, 0 fail.', 'Command: `pytest -q` - 8 passed in 0.4s',
+    '`go test ./...` -> ok, exit 0', 'Ran `cargo test`: 12/12']) {
+    assert.equal(crew.ocenMeldunek('## Report\n\n' + linia).kompletny, true, linia);
+  }
+});
+
+test('ocenMeldunek sees open checklist items written above the Report heading', () => {
+  const o = crew.ocenMeldunek('- [x] task A\n- [ ] task B\n\n## Report\n\nVerification: `npm test` -> 5/5 passed, exit 0');
+  assert.equal(o.kompletny, false);
+  assert.deepEqual(o.otwarte, ['task B']);
+});

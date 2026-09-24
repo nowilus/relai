@@ -1,12 +1,12 @@
 # STATUS — plan PROWADZENIE_END_TO_END
 
-Plan: [PLAN.html](PLAN.html) · Rejestr: [REJESTR.md](REJESTR.md) · Utworzony: 2026-09-24 · Status: **ZAAKCEPTOWANY 2026-09-24** (zamrożony, D-33) · Model wykonawczy etapów: **Opus** (preferencja z USTAWIENIA.md, D-85) — dziś Opus 5.5, lista claude-code z dnia 2026-09-24, poziom `/effort` per etap w tabeli · w Claude Code
+Plan: [PLAN.html](PLAN.html) · Rejestr: [REJESTR.md](REJESTR.md) · Utworzony: 2026-09-24 · Status: **ZREALIZOWANY 2026-09-24** (7/7 etapów, Aneksy A–K, wydanie 2.7.0; zaakceptowany i zamrożony tego samego dnia, D-33) · Model wykonawczy etapów: **Opus** (preferencja z USTAWIENIA.md, D-85) — dziś Opus 5.5, lista claude-code z dnia 2026-09-24, poziom `/effort` per etap w tabeli · w Claude Code
 
 Cel: RelAI prowadzi vibe codera od pomysłu po utrzymanie bez pilnowania procesu — spójne dokumenty,
 start w budżecie, skille w progresywnym ujawnianiu, zasady skrojone pod model wykonawczy, prostsze
 pierwsze 30 minut i procedury dla debugowania, bezpieczeństwa zależności i pierwszego deployu.
 Rejestr: **56 pozycji**, 47 przypisanych do etapów, 9 odrzuconych z powodem, 0 bez przypisania (FAKT).
-Szacunek: 7 etapów, 10–13 sesji (SZACUNEK). Poprzednik: [PIERWSI_UZYTKOWNICY](../../archiwum/plany/PIERWSI_UZYTKOWNICY/STATUS.md)
+Szacunek: 7 etapów, 10–13 sesji (SZACUNEK). Poprzednik: [PIERWSI_UZYTKOWNICY](../PIERWSI_UZYTKOWNICY/STATUS.md)
 (CZĘŚCIOWO ZREALIZOWANY 2026-09-24).
 
 ## Tabela etapów
@@ -19,7 +19,7 @@ Szacunek: 7 etapów, 10–13 sesji (SZACUNEK). Poprzednik: [PIERWSI_UZYTKOWNICY]
 | E4 | Zasady skrojone pod model | ZREALIZOWANY 2026-09-24 | [PROMPT_ETAP_4.md](PROMPT_ETAP_4.md) | `/effort high`; 13 pozycji + Aneksy B i C; wydanie 2.6.0 (tag `v2.6.0`); nakładka openai bez nazw modeli (lista Codeksa nieodświeżona) |
 | E5 | Pierwsze 30 minut | ZREALIZOWANY 2026-09-24 | [PROMPT_ETAP_5.md](PROMPT_ETAP_5.md) | `/effort medium`; 8 pozycji + Aneksy D–G; bez wydania (Aneks G) |
 | E6 | Krańce drogi: debug, bezpieczeństwo, deploy | ZREALIZOWANY 2026-09-24 | [PROMPT_ETAP_6.md](PROMPT_ETAP_6.md) | `/effort high`; 3 pozycje + Aneksy H, I, J; bez wydania (Aneks G) |
-| E7 | Jakość pracy solo i załogi | GOTOWY DO STARTU | [PROMPT_ETAP_7.md](PROMPT_ETAP_7.md) | `/effort high`; 4 pozycje; ostatni etap — kończy go sekwencja zamknięcia planu (D-36) |
+| E7 | Jakość pracy solo i załogi | ZREALIZOWANY 2026-09-24 | [PROMPT_ETAP_7.md](PROMPT_ETAP_7.md) | `/effort high`; 4 pozycje + Aneks K; wydanie przy zamknięciu planu (Aneks G) |
 
 ## Bramki manualne
 
@@ -28,11 +28,11 @@ Szacunek: 7 etapów, 10–13 sesji (SZACUNEK). Poprzednik: [PIERWSI_UZYTKOWNICY]
 - **Odświeżenie listy modeli Codeksa (przydział modeli poza Claude Code)** · źródło: wpis dziennika 2026-09-24 · ROZSTRZYGNIĘTA 2026-09-24 — Łukasz: lista nieodświeżona; E4 poszedł według przypadku brzegowego z sekcji 8 (nakładka `openai` bez nazw modeli), odświeżenie wraca jako osobna bramka niżej
 - **Restart aplikacji desktopowej, żeby ładowała 2.4.0** · źródło: wpis dziennika 2026-09-24 (E2) · ROZSTRZYGNIĘTA 2026-09-24 — sesja E3 w aplikacji ładowała skill z cache'u 2.4.0
 - **Restart aplikacji desktopowej, żeby ładowała 2.5.0** · źródło: wpis dziennika 2026-09-24 (E3) · ROZSTRZYGNIĘTA 2026-09-24 — sesja E4 w aplikacji ładowała skill z cache'u 2.5.0
-- **Odświeżenie listy modeli Codeksa w sesji Codeksa (`/relai-models`)** · źródło: wpis dziennika 2026-09-24 (E4) · **OTWARTA** — do tego czasu przydział modeli poza Claude Code należy do człowieka, a nakładka `openai` nie ma reguł z nazwą modelu
-- **Restart aplikacji desktopowej, żeby ładowała 2.6.0** · źródło: wpis dziennika 2026-09-24 (E4) · **OTWARTA**
-- **Jedno okno pytań na starcie w sesji interaktywnej (Aneks F)** · źródło: wpis dziennika 2026-09-24 (E5) · **OTWARTA** — po wydaniu przy zamknięciu planu: pierwszy prompt merytoryczny w projekcie z trybem ciągłym, bez zgody i bez wiersza modelu, ma dać jedno okno z pytaniem o zgodę i o model
-- **Powiadomienie w tle bez bramki w sesji interaktywnej (Aneks H)** · źródło: wpis dziennika 2026-09-24 (E6) · **OTWARTA** — po wydaniu: zakończenie zadania w tle w projekcie z trybem ciągłym bez zgody nie daje pytania o zgodę
-- **Graduacja zasady „tekst z backslashem nie idzie przez powłokę" do `CLAUDE.md`** · źródło: wpis dziennika 2026-09-24 (E6), L-0127 (powtórzenie L-0119) · **OTWARTA** — decyzja człowieka: dopisać do „Reguł procesu" czy zostawić w „Zasadach aktywnych"
+- **Odświeżenie listy modeli Codeksa w sesji Codeksa (`/relai-models`)** · źródło: wpis dziennika 2026-09-24 (E4) · **ŚWIADOMIE OTWARTA 2026-09-24** — decyzja człowieka przy zamknięciu planu: wymaga sesji w Codeksie; przeniesiona do `docs/STATE.md` („Co dalej"); do tego czasu przydział modeli poza Claude Code należy do człowieka, a nakładka `openai` nie ma reguł z nazwą modelu
+- **Restart aplikacji desktopowej, żeby ładowała 2.6.0** · źródło: wpis dziennika 2026-09-24 (E4) · ROZSTRZYGNIĘTA 2026-09-24 — sesja E6 ładowała skill z cache'u `relai/relai/2.6.0`, a sesja E7 dostała zdania hooków 2.6.0 (bramka zgody odpaliła się na powiadomieniu w tle — defekt Aneksu H, który w 2.6.0 jeszcze jest)
+- **Jedno okno pytań na starcie w sesji interaktywnej (Aneks F)** · źródło: wpis dziennika 2026-09-24 (E5) · **ŚWIADOMIE OTWARTA 2026-09-24** — decyzja człowieka przy zamknięciu planu, przeniesiona do `docs/STATE.md` („Co dalej"); po wydaniu przy zamknięciu planu: pierwszy prompt merytoryczny w projekcie z trybem ciągłym, bez zgody i bez wiersza modelu, ma dać jedno okno z pytaniem o zgodę i o model
+- **Powiadomienie w tle bez bramki w sesji interaktywnej (Aneks H)** · źródło: wpis dziennika 2026-09-24 (E6) · **ŚWIADOMIE OTWARTA 2026-09-24** — decyzja człowieka przy zamknięciu planu, przeniesiona do `docs/STATE.md` („Co dalej"); po wydaniu: zakończenie zadania w tle w projekcie z trybem ciągłym bez zgody nie daje pytania o zgodę
+- **Graduacja zasady „tekst z backslashem nie idzie przez powłokę" do `CLAUDE.md`** · źródło: wpis dziennika 2026-09-24 (E6), L-0127 (powtórzenie L-0119) · ROZSTRZYGNIĘTA 2026-09-24 — Łukasz: dopisać do „Reguł procesu" (trzecie powtórzenie w E7, L-0130); linia w `CLAUDE.md` i `AGENTS.md"
 
 ## Dziennik wdrożenia
 
@@ -53,5 +53,8 @@ Szacunek: 7 etapów, 10–13 sesji (SZACUNEK). Poprzednik: [PIERWSI_UZYTKOWNICY]
 - 2026-09-24 — Aneks I (decyzja człowieka w E6): komunikat hooka `profile-rules`, `SPEC_PROFILE.md` i `SPEC_CLAUDE_MD.md` dostają kolejność „lista przed wdrożeniem, dokument środowiska po nim"; `SPEC_KOMENDY.md` — frazę „coś nie działa" i tę samą kolejność.
 - 2026-09-24 — Aneks J (decyzja człowieka w E6): hook startu Claude Code dostaje zdanie-drogowskaz do `debugging.md` i `first-deploy.md` — Sonnet 5 bez niego nie wywoływał skilla (0/7), z nim 3/3.
 - 2026-09-24 — E6 zrealizowany: 3/3 pozycje rejestru + Aneks H, 9/9 punktów weryfikacji, Aneksy I i J; nowe pliki `debugging.md` i `first-deploy.md`, punkt audytu i podstaw OWASP w `SPEC_PROMPT_ETAPU.md`, filtr powiadomień w tle; procedury przeszły pierwszy przebieg (Opus 5.5 i Sonnet 5); testy 66 → 68; E7 gotowy do startu.
+- 2026-09-24 — Aneks K (decyzja człowieka w E7): `SPEC_KOMENDY.md` dostaje dwa punkty listy zachowań wersji — siatkę rytuału i wersji artefaktów oraz krok „testy i przegląd diffu" przed zgłoszeniem zadania z kodem.
+- 2026-09-24 — E7 zrealizowany: 4/4 pozycje rejestru + Aneks K, 7/7 punktów weryfikacji; siatka rytuału i wersji artefaktów w hooku startu (cisza przy zgodnym stanie, po jednym sygnale na podłożony defekt), krok „testy i przegląd diffu" jako trzy punkty w hooku startu + `done-check.md` (Sonnet 5 3/3, Opus 5.5 2/2; sam drogowskaz dał Sonnetowi 1/3 i 0/3), załoga z `crew.js check` i najwyżej dwiema kontynuacjami, reguła delegacji; testy 68 → 89; plan przechodzi do sekwencji zamknięcia.
+- 2026-09-24 — plan zamknięty (D-36): bramki manualne rozstrzygnięte z człowiekiem (restart pod 2.6.0 i graduacja zasady o backslashu — rozstrzygnięte; lista Codeksa oraz bramki Aneksów F i H — świadomie otwarte, przeniesione do `STATE.md`), odnóg brak; wydanie 2.7.0 w repozytorium; folder przeniesiony do `docs/archiwum/plany/`.
 
 RelAI (Opus 5.5) + Lukasz

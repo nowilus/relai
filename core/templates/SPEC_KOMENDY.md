@@ -111,6 +111,14 @@ nie wyborem. Sekcja o zachowaniach automatycznych nie rośnie. Działa:
   „it's broken") uruchamia procedurę: odtworzenie komendą z wynikiem, jedna hipoteza naraz
   sprawdzana dowodem, najmniejsza poprawka, dowód na tym samym odtworzeniu, wpis do
   `docs/PULAPKI.md`, gdy przyczyną jest nieoczywiste zachowanie narzędzia,
+- **„gotowe" z wynikiem testów (nowe w 2.7.0):** zadanie, które zmieniło kod, kończy się
+  uruchomieniem komendy testów projektu (brak testów — zdanie wprost) i przeglądem własnego diffu;
+  zgłoszenie ma trzy linie: testy z wynikiem, zmienione pliki, ryzyka,
+- **siatka rytuału (nowe w 2.7.0), do sekcji „Czego RelAI pilnuje bez proszenia":** na starcie
+  sesji jedno zdanie, gdy etap ma status zrealizowany bez wpisu w dzienniku z tą datą albo bez
+  promptu następnego etapu, gdy artefakt z `docs/ARTEFAKTY.md` zmienił się bez podbicia wersji,
+  albo gdy `AGENTS.md` będący kopią `CLAUDE.md` rozjechał się z oryginałem; przy zgodnym stanie
+  cisza,
 - naturalne prośby: „dodaj RelAI", „dołącz strukturę RelAI",
 - **planowanie (od 0.3.1):** prośba o plan w zwykłej rozmowie → `docs/plany/<TEMAT>/PLAN.md`
   + `STATUS.md` + linia „Aktywny plan" w `CLAUDE.md`; drobne zadanie → miniplan w dzienniku;

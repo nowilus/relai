@@ -85,7 +85,9 @@ na **zadania**. Każde ma:
   do planu — rozbijasz je dalej albo pytasz,
 - `role`: `coder`, `tester` albo `reviewer` (lista zamknięta),
 - `dependsOn` — identyfikatory zadań, które muszą się skończyć wcześniej,
-- kryterium ukończenia: jedno zdanie sprawdzalne poleceniem albo stanem pliku (L-0017).
+- kryterium ukończenia: jedno zdanie sprawdzalne poleceniem albo stanem pliku (L-0017) — idzie do
+  członka załogi jako sekcja „Done when" (`--done` w kroku 6); zadanie wieloczęściowe dostaje
+  części jako listę, którą członek odhacza w raporcie.
 
 Cel będący etapem planu **nie zwalnia** z `/relai-stage`: karta etapu, zgoda i rytuał
 „Na koniec" należą do etapu; załoga jest **sposobem wykonania** wewnątrz niego. Cel spoza etapu
@@ -136,8 +138,24 @@ prompt złożony z **preambuły roli** i treści zadania (pliki w zakresie, kryt
 katalog roboczy) — preambułę niesie narzędzie i jest ta sama dla wszystkich dróg:
 
 ```bash
-node .claude/relai/tools/crew.js prompt --role coder --task <plik-zadania.md> --files a.js,b.js
+node .claude/relai/tools/crew.js prompt --role coder --task <plik-zadania.md> --files a.js,b.js --done "<kryterium z kroku 3>"
 ```
+
+Preambuły ról `coder` i `tester` niosą akapit dla agentów bez człowieka w pętli: lista zadań
+odhaczana w raporcie i zakaz kończenia tury zapowiedzią następnego kroku. Recenzent go nie ma —
+dostawca zaleca ten akapit wyłącznie agentom biegnącym bez nadzoru ([Anthropic, „Prompting Claude
+Opus 5.5", sekcja „Unattended agentic runs"](https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-opus-5-5), odczyt 2026-09-24).
+
+**Kiedy delegować, a kiedy nie.** Opus 5 i 5.5 delegują do subagentów chętniej niż poprzednie
+modele, a delegacja małej pracy mnoży koszt i czas ([Anthropic, „Prompting Claude Opus 5",
+sekcja „Controlling subagent spawning"](https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-opus-5),
+odczyt 2026-09-24). Zadanie oddajesz członkowi załogi, gdy ma **własne pliki, kryterium
+sprawdzalne komendą i jest na tyle duże, że nie skończysz go w kilku wywołaniach narzędzi** —
+najlepiej w fali z innymi zadaniami bez wspólnych plików. **Nie delegujesz:** zmiany w jednym
+pliku, którą zrobisz sam w kilku krokach; zadania, które wymaga kontekstu tej rozmowy (ustaleń
+z człowiekiem, których nie da się zapisać w pliku zadania); decyzji projektowej — ta wraca do
+człowieka; sprawdzania własnej pracy — od tego jest krok 8. Jeden członek wystarcza → jeden,
+nie kilku.
 
 Droga zależy od tego, **gdzie** biegnie zadanie:
 
@@ -166,8 +184,24 @@ Po każdej fali, zanim ruszy następna:
 1. `node .claude/relai/tools/crew.js status --run-id <run>` — status każdego zadania
    (`done` / `failed` / `timeout`), a dla subagentów gospodarza — ich własne raporty.
 2. Czytasz sekcję `## Report` każdego zadania (plik `<id>.out.txt` przy zadaniach z drugiego
-   narzędzia). Raport bez listy zmienionych plików albo bez sposobu weryfikacji to zadanie
-   **niezakończone**, choćby proces zwrócił 0.
+   narzędzia) i przepuszczasz meldunek przez narzędzie — tura zakończona samym tekstem jest
+   **raportem, nie dowodem ukończenia**:
+
+   ```bash
+   node .claude/relai/tools/crew.js check --report <plik-z-meldunkiem> --continuations <ile-już-wysłanych>
+   ```
+
+   - `DECYZJA: przyjmij` — raport ma polecenie z wynikiem i żadnego punktu otwartego bez blokera.
+   - `DECYZJA: kontynuuj` — wysyłasz **wiadomość kontynuacji** z wyjścia narzędzia temu samemu
+     członkowi (Claude Code: `SendMessage` do tego subagenta; drugie narzędzie: ponowny `crew.js
+     run` z plikiem zadania, poprzednim raportem i tą wiadomością na końcu). Bez pytania człowieka.
+   - `DECYZJA: czlowiek` — po **dwóch** kontynuacjach bez dowodu zadanie idzie do człowieka
+     z raportem i listą braków; trzeciej kontynuacji nie wysyłasz.
+   - Punkt z nazwanym blokerem (`blocked: …`) idzie do człowieka od razu — to blokada, nie
+     meldunek bez dowodu.
+
+   Członek, który zostawił coś w biegu (polecenie w tle, własnego subagenta), nie jest skończony:
+   czekasz na wynik i oddajesz mu go jako następną wiadomość.
 3. `git status --short` i `git diff --stat` — plik zmieniony **spoza** listy zadania to STOP:
    pokazujesz różnicę i pytasz człowieka (cofnąć / przyjąć / przenieść do nowego zadania).
    Nie decydujesz sam.
@@ -226,6 +260,8 @@ etapu wykonujesz **dodatkowo**, według `relai-planning`.
 - **Nie wypisujesz wartości sekretów** ani identyfikatorów kont z odpowiedzi o logowaniu.
 - **Nie przesuwasz zadania do innego narzędzia po cichu** po porażce — pytasz.
 - **Nie przyjmujesz zmiany spoza listy plików zadania** bez pytania.
+- **Nie uznajesz meldunku bez dowodu za ukończenie** i nie wysyłasz trzeciej kontynuacji — po dwóch
+  pytasz człowieka.
 - **Nie zamykasz przebiegu bez werdyktu** recenzenta i bez wpisu w dzienniku.
 - **Nie zastępujesz `/relai-stage`** — etap ma swoją kartę, zgodę i rytuał; załoga działa w nim.
 - **Nie rozpoznajesz gospodarza po własnym modelu** — nazwa narzędzia pochodzi ze zdania hooka.

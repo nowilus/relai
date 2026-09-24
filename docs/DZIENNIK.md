@@ -18,6 +18,7 @@
 | M6 | Załoga stoi na flagach CLI trzech dostawców (`claude -p --permission-mode`, `codex exec -s`, `agent -p --mode`), które zmieniają się szybciej niż wydania RelAI (wątek ORKIESTRACJA) | **Średni** (2026-09-06) | **OTWARTE** | Flagi w `buildCommand`, porażka zawsze w raporcie; otwarte: Codex i Cursor jako gospodarz niezmierzone. Historia: [MITYGACJE_2026-09-24](archiwum/ryzyka/MITYGACJE_2026-09-24.md). |
 
 | O4 | Tryb ciągły kosztuje turę przy każdym zdaniu — praca zwalnia i drożeje (plan OPTYMALIZATOR_PROMPTOW, ryzyko O4) | **Średni** (2026-09-14, przy akceptacji planu) | **OTWARTE** | Wyłącznik w `USTAWIENIA.md`, filtr pomija komendy; otwarte: rozrzut kosztu większy niż mierzona różnica. Historia: [MITYGACJE_2026-09-24](archiwum/ryzyka/MITYGACJE_2026-09-24.md). |
+| K3 | Nakładki rodzin modeli starzeją się szybciej niż wydania RelAI — dostawca zmienia wytyczne, a reguła z datą zostaje (plan PROWADZENIE_END_TO_END, ryzyko K3) | **Średni** (2026-09-24, przy zamknięciu planu) | **OTWARTE** | Każda reguła nakładki ma źródło i datę odczytu; hook startu mówi o nakładce starszej niż 30 dni; odświeżenie razem z `/relai-models`. |
 
 > Ryzyka zamknięte W1, U1, O1, O6 (4 pozycje) są w
 > [docs/archiwum/ryzyka/RYZYKA_2026-09-24.md](archiwum/ryzyka/RYZYKA_2026-09-24.md)
@@ -39,7 +40,8 @@
 - **Powiadomienie w tle bez bramki zgody** — po wydaniu sprawdzić w sesji interaktywnej, że
   zakończone zadanie w tle nie dostaje pytania o zgodę (Aneks H) · 2026-09-24 · [wpis 2026-09-24 — E6](#2026-09-24--e6-planu-prowadzenie_end_to_end-krańce-drogi-bez-wydania)
 
-- **Graduacja L-0127 do `CLAUDE.md`** — tekst z backslashem nie idzie przez powłokę (powtórzenie
+- ~~**Graduacja L-0127 do `CLAUDE.md`**~~ *(rozstrzygnięte 2026-09-24 — dopisane do „Reguł procesu"
+  po trzecim powtórzeniu, L-0130)* — tekst z backslashem nie idzie przez powłokę (powtórzenie
   L-0119) · 2026-09-24 · [wpis 2026-09-24 — E6](#2026-09-24--e6-planu-prowadzenie_end_to_end-krańce-drogi-bez-wydania)
 
 - **Jedno okno pytań na starcie w sesji interaktywnej** — po wydaniu przy zamknięciu planu
@@ -968,7 +970,7 @@ Autor: RelAI (Opus 5.5) + Lukasz
   `OPIS_REPO` przeniesiona do `docs/fixy/OPIS_REPO/` jako wątek samodzielny. Folder planu w
   `docs/archiwum/plany/PIERWSI_UZYTKOWNICY/`, ryzyko U1 zamknięte, linki w README, STATE
   i `docs/zasoby/demo/README.md` przepięte na archiwum.
-- **Plan [PROWADZENIE_END_TO_END](plany/PROWADZENIE_END_TO_END/STATUS.md) — DO AKCEPTACJI.**
+- **Plan [PROWADZENIE_END_TO_END](archiwum/plany/PROWADZENIE_END_TO_END/STATUS.md) — DO AKCEPTACJI.**
   Scala trzy raporty tej sesji (audyt w pięciu obszarach, dopasowanie do modeli wykonawczych,
   Opus 5.5 i rodzina GPT-6) w rejestr **56 ustaleń** z dowodami: 47 przypisanych do siedmiu etapów,
   9 odrzuconych z powodem, 0 bez przypisania (FAKT, policzone generatorem). Wywiad dwiema rundami:
@@ -1001,7 +1003,7 @@ Autor: RelAI (Opus 5.5) + Lukasz
 
 **Zrobione:**
 
-- Plan [PROWADZENIE_END_TO_END](plany/PROWADZENIE_END_TO_END/STATUS.md) **zaakceptowany i zamrożony**
+- Plan [PROWADZENIE_END_TO_END](archiwum/plany/PROWADZENIE_END_TO_END/STATUS.md) **zaakceptowany i zamrożony**
   bez poprawek (D-33) — zgoda Łukasza w tej samej sesji. `STATUS.md`: ZAAKCEPTOWANY 2026-09-24,
   E1 → GOTOWY DO STARTU; `PLAN.html` przebudowany ze statusem i notą o akceptacji w sekcji 10.
 - **D-88** w `docs/DECYZJE.md`: rotacja zabiera najstarsze pozycje, aż waga całego żywego pliku zejdzie
@@ -1021,7 +1023,7 @@ Autor: RelAI (Opus 5.5) + Lukasz
 
 **Do zrobienia przez człowieka:**
 
-- Start E1 w świeżej sesji na Opus 5.5 (`/relai-stage`); zgoda na tag, push i release 2.3.1 na końcu etapu.
+- Start E1 w świeżej sesji na Opus 5.5 (`/relai-stage`); zgoda na tag, push i release 2.3.1 na końcu etapu. *(rozstrzygnięte 2026-09-24 — E1 wykonany na Opus 5.5, wydanie 2.3.1 opublikowane)*
 - Odświeżenie listy modeli Codeksa przed E4 (bramka w `STATUS.md`).
 
 Autor: RelAI (Opus 5.5) + Lukasz
@@ -1116,7 +1118,7 @@ Autor: RelAI (Opus 5.5) + Lukasz
 
 - Zamrożenie decyzji „haiku nie jest kryterium, RelAI celuje w modele flagowe" jako pozycji
   `DECYZJE.md` *(rozstrzygnięte 2026-09-24 — Łukasz zgodził się, zamrożona jako **D-90**)*.
-- Restart aplikacji desktopowej, żeby sesje w aplikacji ładowały 2.3.1 (P-005).
+- Restart aplikacji desktopowej, żeby sesje w aplikacji ładowały 2.3.1 (P-005). *(rozstrzygnięte 2026-09-24 — zdezaktualizowane: sesje E3–E7 ładowały 2.4.0–2.6.0)*
 
 Autor: RelAI (Opus 5.5) + Lukasz
 
@@ -1308,7 +1310,7 @@ Autor: RelAI (Opus 5.5) + Lukasz
 
 **Do zrobienia przez człowieka:**
 
-- Restart aplikacji desktopowej, żeby sesje w aplikacji ładowały 2.5.0 (P-005).
+- Restart aplikacji desktopowej, żeby sesje w aplikacji ładowały 2.5.0 (P-005). *(rozstrzygnięte 2026-09-24 — sesja E4 ładowała skill z cache'u `relai/relai/2.5.0`)*
 
 Autor: RelAI (Opus 5.5) + Lukasz
 
@@ -1401,8 +1403,8 @@ Autor: RelAI (Opus 5.5) + Lukasz
 
 **Do zrobienia przez człowieka:**
 
-- Odświeżenie listy modeli Codeksa w sesji Codeksa (`/relai-models`) — nazwy gpt-6-*.
-- Restart aplikacji desktopowej, żeby sesje w aplikacji ładowały 2.6.0 (P-005).
+- Odświeżenie listy modeli Codeksa w sesji Codeksa (`/relai-models`) — nazwy gpt-6-*. *(świadomie otwarte przy zamknięciu planu 2026-09-24 — przeniesione do `STATE.md`, „Co dalej")*
+- Restart aplikacji desktopowej, żeby sesje w aplikacji ładowały 2.6.0 (P-005). *(rozstrzygnięte 2026-09-24 — sesje E6 i E7 ładowały 2.6.0)*
 
 Autor: RelAI (Opus 5.5) + Lukasz
 
@@ -1504,8 +1506,8 @@ Autor: RelAI (Opus 5.5) + Lukasz
 **Do zrobienia przez człowieka:**
 
 - Po wydaniu przy zamknięciu planu: sprawdzić w sesji interaktywnej, że pierwszy prompt merytoryczny
-  z trybem ciągłym, bez zgody i bez modelu, daje **jedno** okno pytań (bramka Aneksu F).
-- Restart aplikacji desktopowej pod 2.6.0 i odświeżenie listy Codeksa — bez zmian z E4.
+  z trybem ciągłym, bez zgody i bez modelu, daje **jedno** okno pytań (bramka Aneksu F). *(świadomie otwarte przy zamknięciu planu 2026-09-24 — `STATE.md`, „Co dalej")*
+- Restart aplikacji desktopowej pod 2.6.0 i odświeżenie listy Codeksa — bez zmian z E4. *(restart rozstrzygnięty 2026-09-24; lista Codeksa świadomie otwarta — `STATE.md`)*
 
 Autor: RelAI (Opus 5.5) + Lukasz
 
@@ -1570,7 +1572,130 @@ Autor: RelAI (Opus 5.5) + Lukasz
 
 **Do zrobienia przez człowieka:**
 
-- Po wydaniu: powiadomienie w tle w sesji interaktywnej bez pytania o zgodę (bramka Aneksu H).
-- Decyzja o graduacji L-0127 (powtórzenie L-0119) do `CLAUDE.md`.
+- Po wydaniu: powiadomienie w tle w sesji interaktywnej bez pytania o zgodę (bramka Aneksu H). *(świadomie otwarte przy zamknięciu planu 2026-09-24 — `STATE.md`, „Co dalej")*
+- Decyzja o graduacji L-0127 (powtórzenie L-0119) do `CLAUDE.md`. *(rozstrzygnięte 2026-09-24 — Łukasz: dopisane do „Reguł procesu" w `CLAUDE.md` i `AGENTS.md`)*
+
+Autor: RelAI (Opus 5.5) + Lukasz
+
+### 2026-09-24 — E7 planu PROWADZENIE_END_TO_END: jakość pracy solo i załogi
+
+**Zrobione:**
+
+- **Krok „gotowe z wynikiem testów" (A26):** `relai-core/done-check.md` — komenda testów wykryta
+  z projektu (tabela ekosystemów; brak testów → zdanie wprost), przegląd własnego diffu w sześciu
+  punktach, zgłoszenie trzema liniami „Testy / Zmiana / Ryzyka"; wiersz w `SKILL.md`. Skrót kroku
+  (trzy punkty) stoi w hooku startu — sam drogowskaz nie wystarczył (niżej). `quality-gate` bez zmian (D-41).
+- **Siatka rytuału i wersji artefaktów (A06):** `session-signals.js` — `rytualEtapu` (etap
+  ZREALIZOWANY bez wpisu z tą datą, także w archiwum dziennika; następny etap bez promptu — luka
+  etapu GOTOWEGO zostaje u `promptGap`), `artefaktyBezWersji` (plik z rejestru zmieniony wobec
+  HEAD, wersja nie urosła; kolumny rozpoznane po nagłówku), `kopiaAgents` (kopia `CLAUDE.md`
+  porównywana od pierwszej sekcji `##`); jeden raport ASCII w hooku startu, cisza przy zgodnym stanie.
+- **Załoga bez kończenia meldunkiem (O06 + O07):** `crew.js` — akapit `AUTONOMIA` w preambułach
+  `coder` i `tester` (nie recenzent), `--done` jako sekcja „Done when", `ocenMeldunek` +
+  `kontynuacja` + CLI `check` (przyjmij / kontynuuj / człowiek, `KONTYNUACJE_MAX` = 2); ten sam
+  akapit w agentach Claude Code (test parytetu); `relai-crew.md` kroki 3, 6, 7 i zakaz.
+- **Reguła delegacji (O13):** `relai-crew.md` krok 6 — kiedy delegować, kiedy nie, zdanie o Opus
+  5/5.5 ze źródłem [A-O5] i datą odczytu 2026-09-24 (źródła [A-O55] i [A-O5] odczytane ponownie).
+- **Aneks K** (decyzja człowieka): dwa punkty w `SPEC_KOMENDY.md`. Dokumenty: `KOMENDY.md`,
+  `PRZEWODNIK.md`, `ARTEFAKTY.md` (5 podbić, 1 nowy), lekcje L-0128–L-0131. Skille Codeksa
+  wygenerowane; instalator Cursora kładzie `done-check.md` i nowych agentów bez zmian w kodzie.
+
+**Zweryfikowane — jak dokładnie:**
+
+- **Krok solo — pierwszy realny przebieg** (`claude -p`, plugin z kopii drzewa
+  `%TEMP%/relai-e7-plugin`, instalacja wyłączona, ścieżka w `init`, zdanie hooka policzone
+  w transkrypcie przy każdym przebiegu; zadanie: `applyDiscount` w projekcie z `npm test`).
+  Bez zdania w hooku: Sonnet 5 0/2, Opus 5.5 0/1 (Opus sam z siebie uruchomił testy, diffu nie).
+  Drogowskaz „zanim napiszesz, że gotowe, otwórz done-check.md": Sonnet 1/3, Opus 2/2; ten sam
+  na starcie zadania: Sonnet 0/3, Opus 1/1. Trzy punkty w hooku: testy 4/4, `git diff` Sonnet
+  1/3 („Ryzyka: brak." bez przeglądu) → linie przywiązane do wyniku polecenia: **Sonnet 3/3,
+  Opus 2/2** — testy po ostatniej edycji, `git status` + `git diff`, trzy linie zgłoszenia.
+  Instrument poprawiony dwa razy w trakcie (dopasowanie edycji po ścieżce, nie po treści; wariant
+  pogrubiony `**Testy:**`), każdy przebieg przeliczony od nowa.
+- **Siatka:** hook startu z kopii na projektach podłożonych — zgodny: 0 linii siatki (kontrola
+  daty z tego samego wyjścia: jest); etap bez wpisu, artefakt bez podbicia, rozjechany `AGENTS.md`:
+  po 1 linii z 1 faktem. Na tym repo: 5 artefaktów zmienionych w E7 zgłoszonych, po podbiciu 0.
+  Na historii (160 commitów): 141 par (commit, artefakt) — 64 bez podbicia w tym samym commicie,
+  z tego 57 podbitych później, 7 nigdy: treść `SPEC_DZIENNIK.md` (`473ee46`, `9c6fde1`),
+  `SPEC_LEKCJE.md` (`0eb1757`), `adapters/codex/README.md` (`44e6b7a`), sam numer wydania
+  (`735948e` `SPEC_RAPORT_ADOPCJI.md`, `1369026` `relai-update.md` i `history.md`) — rejestru
+  wstecz nie przepisuję (decyzja człowieka). `AGENTS.md`: 14 commitów, 0 rozjazdów; rytuał etapu:
+  49 commitów planów, 0 sygnałów. Koszt siatki na starcie: ~91 ms na tym repo.
+- **Załoga:** prawdziwy członek `coder` (Sonnet 5, `crew.js run --runtime claude-code --done …`)
+  oddał listę z trzema `[x]` i `npm test` → 3 pass, 0 fail; `check` → przyjmij (kontrola
+  pozytywna na materiale realnym; `npm test` w projekcie niezależnie 3/3, zmienione tylko pliki
+  zadania). Podłożony meldunek bez dowodu: kontynuuj (0), kontynuuj (1), człowiek (2).
+- **Przegląd `code-reviewer`:** WARN — HIGH: `check` przyjmował „Looks ok" + nazwę pliku
+  w backtickach; MEDIUM: punkty `- [ ]` nad sekcją raportu niewidoczne; MEDIUM: dwa wywołania gita
+  na każdym starcie. Wszystkie poprawione z testami (polecenie i wynik w jednej linii, sama
+  ścieżka nie jest poleceniem, bez gołego „ok"; lista w całym meldunku; git raz, drugi raz tylko
+  dla pliku z rejestru, limit 3 s); realny meldunek po poprawce nadal przyjęty.
+- Testy **89/89** (było 68); `validate-adapters.js` kod 0, parytet Codeksa 27 plików bez rozjazdów;
+  `claude plugin validate .` → `✔ Validation passed`; wyjście hooka startu na tym repo 2 923 →
+  3 419 B; budżet startu 98 245 → 98 716 B przed wpisami rytuału (próg 102 400 B).
+- Własne testy siatki zostawiały katalogi w `%TEMP%` (108 po kilku przebiegach) — dodane
+  sprzątanie `after`, przyrost po przebiegu: 0.
+
+**Świadomie odłożone:**
+
+- Bramka zgody 2.6.0 znów odpaliła się na powiadomieniu o subagencie (Aneks H) — poprawka
+  w wydaniu 2.7.0.
+- Cursor i Codex nie mają hooka: krok „gotowe" dociera tam tylko przez skill (A01).
+- Sekcja „Zgodność liczb z dyskiem" w `ARTEFAKTY.md` jest z 2026-09-14 i nie liczy plików E3–E7.
+- Rotacja `LEKCJE.md` (ponad progiem) — rytuał sesji.
+
+**Do zrobienia przez człowieka:**
+
+- Rozstrzygnięte w sekwencji zamknięcia planu (wpis niżej).
+
+Autor: RelAI (Opus 5.5) + Lukasz
+
+### 2026-09-24 — Plan PROWADZENIE_END_TO_END zamknięty; wydanie 2.7.0
+
+**Zrobione — dowiezione vs plan:**
+
+- Cel planu: RelAI prowadzi od pomysłu po utrzymanie bez pilnowania procesu. **Dowiezione 7/7
+  etapów** i 47/47 pozycji rejestru przypisanych do etapów (9 odrzuconych z powodem od początku):
+  E1 spójność i 2.3.1, E2 lżejszy start (2.4.0), E3 skille w progresywnym ujawnianiu (2.5.0),
+  E4 zasady pod model (2.6.0), E5 pierwsze 30 minut, E6 krańce drogi, E7 jakość pracy — E5–E7
+  razem w wydaniu **2.7.0** (Aneks G).
+- **Inaczej niż w planie:** wydanie po każdym etapie tylko do E4 (Aneks G); jedenaście aneksów
+  (A–K), każdy decyzją człowieka; procedury z E6 i krok z E7 potrzebowały zdania w hooku startu
+  (Aneks J, L-0128) — plik doczytywany sam nie działa na klasie `balanced`.
+- **Przepadło:** nic z zakresu. Nakładka `openai` bez nazw modeli, bo lista Codeksa nie została
+  odświeżona (bramka świadomie otwarta).
+- **Bramki manualne** (decyzje Łukasza): restart pod 2.6.0 — rozstrzygnięty; graduacja zasady
+  o backslashu — dopisana do „Reguł procesu"; lista Codeksa, bramki Aneksów F i H — świadomie
+  otwarte, przeniesione do `STATE.md` („Co dalej"). Odnóg planu nie było. Pozycje „Do zrobienia"
+  wpisów E0–E6 dostały adnotacje.
+- Wydanie 2.7.0 w repozytorium: pięć manifestów, README, `STATE`, `KOMENDY`, `USTAWIENIA`,
+  `relai-update` (wersja docelowa i siatka w stanie docelowym `KOMENDY`), marker nowego projektu,
+  nagłówki skilli, README Cursora, akapit w `history.md`; `grep -r` po „2.6.0": pozostałe trafienia
+  to wzmianki historyczne (etykiety „od 2.6.0", fikstura testu, pomiar w `SPEC_USTAWIENIA`);
+  po „2.7.0": same zapowiedzi „od 2.7.0", teraz prawdziwe.
+- Folder planu w [archiwum](archiwum/plany/PROWADZENIE_END_TO_END/STATUS.md); linki z dziennika
+  i z planu PIERWSI_UZYTKOWNICY przepięte.
+
+**Zweryfikowane — jak dokładnie:**
+
+- Po podbiciu: testy 89/89, `validate-adapters.js` kod 0 (7 źródeł wersji = 2.7.0),
+  `claude plugin validate .` → `✔ Validation passed`. Siatka złapała cztery artefakty podbite
+  numerem wydania bez wpisu w rejestrze (`relai-update`, `history.md`, `new-project.md`,
+  `relai-planning/SKILL.md`) — uzupełnione, po nich cisza; hook startu na tym repo: bez sygnałów.
+- Sprzątanie (zgoda „tak, obie grupy"): katalog roboczy `work` 1 627 → 188 KB (E7, 1 439 KB,
+  skasowany); `%TEMP%`: 132 pozycje `relai-e7-*` (159 MB — `relai-e7-plugin`, 21 projektów
+  `relai-e7-solo-*`, `relai-e7-crew`, `relai-e7-cursor`, 108 katalogów `relai-e7-net-*` po
+  testach sprzed poprawki) skasowane; brak każdej sprawdzony.
+
+**Ryzyka:** plan K1–K8 — K1 (wyzwalanie) mierzone przed i po w E1/E3; K2 (rotacja) sprawdzona
+w E2; K4 (wydania) rozładowane Aneksem G; K6 (waga startu) 98,7 KB przy budżecie 100 KB;
+K7 plan domknięty; K8 zgoda per sesja od E1. **K3** (nakładki starzeją się szybciej niż wydania)
+i **K5** (lista Codeksa) zostają — K3 jako nowe otwarte ryzyko w tabeli, K5 jako sprawa w `STATE.md`.
+
+**Do zrobienia przez człowieka:**
+
+- Zgoda na tag `v2.7.0`, push i release (P-005), potem `plugin update` i restart aplikacji.
+- Po restarcie pod 2.7.0: bramki Aneksów F i H w sesji interaktywnej.
+- Odświeżenie listy modeli Codeksa w sesji Codeksa (`/relai-models`).
 
 Autor: RelAI (Opus 5.5) + Lukasz
