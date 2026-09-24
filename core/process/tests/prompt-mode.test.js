@@ -255,6 +255,35 @@ test('regulaBramki carries the three options, the session id and the place to wr
   assert.ok(r.length <= 1200, 'bramka urosla do ' + r.length + ' znakow');
 });
 
+test('regulaBramki asks about the model in the same call only when told to (A20+S03, 2.7.0)', () => {
+  const bez = tryb.regulaBramki('sesja-42');
+  const z = tryb.regulaBramki('sesja-42', { pytajOModel: true, listaModeli: 'MODELE-claude-code.md' });
+  const wylaczone = tryb.regulaBramki('sesja-42', { pytajOModel: false, listaModeli: 'MODELE-claude-code.md' });
+  // Kontrola pozytywna: wariant z modelem niesie pytanie, liste i zasieg.
+  assert.match(z, /W TYM SAMYM wywolaniu/);
+  assert.match(z, /\.claude\/relai\/MODELE-claude-code\.md/);
+  assert.match(z, /ten prompt \/ ta sesja \/ ten projekt \/ wszystkie projekty/);
+  // Dowod negatywny: bez opcji i z opcja wylaczona tresc jest ta sama co przed 2.7.0.
+  assert.equal(wylaczone, bez);
+  assert.doesNotMatch(bez, /TYM SAMYM/);
+  // Pytanie o zgode nadal jest JEDNO — wywolanie AskUserQuestion pada w tresci raz.
+  assert.equal((z.match(/AskUserQuestion/g) || []).length, 1);
+  assert.ok(!/[ąćęłńóśźżĄĆĘŁŃÓŚŹŻ]/.test(z), 'bramka ma byc w ASCII');
+  assert.ok(z.length <= 1200, 'bramka z pytaniem o model urosla do ' + z.length + ' znakow');
+});
+
+test('modelOptymalizatoraNaStale: only a row with "nie pytaj" settles the model', () => {
+  const tab = (decyzja) => '| Data | Czego dotyczy | Decyzja |\n|---|---|---|\n' +
+    '| 2026-09-24 | Model optymalizatora | ' + decyzja + ' |\n';
+  assert.equal(tryb.modelOptymalizatoraNaStale(tab('Sonnet 5 · lista claude-code z dnia 2026-09-24 · nie pytaj')), true);
+  assert.equal(tryb.modelOptymalizatoraNaStale('', tab('opus · nie pytaj')), true, 'wiersz globalny tez rozstrzyga');
+  assert.equal(tryb.modelOptymalizatoraNaStale(tab('Sonnet 5 · lista claude-code z dnia 2026-09-24')), false,
+    'wiersz bez czlonu jest podpowiedzia');
+  assert.equal(tryb.modelOptymalizatoraNaStale(tab('nie pytaj')), false, 'czlon na miejscu wartosci nie liczy sie');
+  assert.equal(tryb.modelOptymalizatoraNaStale('', ''), false);
+  assert.equal(tryb.modelOptymalizatoraNaStale(tab('opus · nie pytaj').replace(/\n/g, '\r\n')), true, 'CRLF');
+});
+
 test('przypomnienieZgodyReport speaks once past the threshold and stays silent otherwise', () => {
   const zg = (data, progDni) => ({ tak: true, data, progDni: progDni || 30 });
   assert.deepEqual(tryb.przypomnienieZgodyReport(zg('2026-09-01'), '2026-09-15'), []);

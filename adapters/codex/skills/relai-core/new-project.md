@@ -47,7 +47,18 @@ ponadprojektowych — wartości z ustawień globalnych) idą jako **pierwsza opc
 |---|---|---|
 | Język projektu | ustawienia globalne → język promptów użytkownika → język systemu | wykryty (Rekomendowane) / polski / English |
 | Git | stan folderu (`.git/` obecne?) | repo lokalne + propozycja GitHub (Rekomendowane) / tylko lokalnie / bez gita |
-| Profil projektu | auto-detekcja (niżej) | wykryty (Rekomendowane) + trzy pozostałe |
+| Profil projektu | auto-detekcja (niżej) | wykryty (Rekomendowane) + trzy pozostałe, każda z objaśnieniem niżej |
+
+**Opcje profilu niosą objaśnienie w samym pytaniu** — pole `description` każdej opcji to jedno
+zdanie z tabeli poniżej, w języku projektu. Sama nazwa (`agent-voice`, `flow`) nic nie mówi
+człowiekowi, który widzi ją pierwszy raz.
+
+| Profil | Objaśnienie w opcji |
+|---|---|
+| `app` | aplikacja albo biblioteka z kodem — dokument architektury przy pierwszym pliku kodu, designu przy pierwszym ekranie, opis wdrożenia przy pierwszym deployu |
+| `agent-voice` | agent głosowy (np. ElevenLabs, Vapi, Retell) — przed każdą zmianą konfiguracji produkcyjnej kopia stanu sprzed zmiany |
+| `flow` | automatyzacja w n8n albo Make — przed zmianą produkcyjnego workflow kopia stanu sprzed zmiany |
+| `prompty` | same prompty, instrukcje i szablony — rejestr wersji artefaktów od pierwszego z nich |
 
 **Auto-detekcja profilu:**
 

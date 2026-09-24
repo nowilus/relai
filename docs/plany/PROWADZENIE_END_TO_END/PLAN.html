@@ -1340,6 +1340,68 @@ ze zdaniem o obowiązującej liście. Bez nowych mechanizmów.</p>
 <p><b>Skutek dla etapów:</b> E4 dotyka jednego pliku więcej. Liczba etapów i szacunek bez zmian.
 Decyzja człowieka 2026-09-24.</p>
 
+<h3>Aneks D — 2026-09-24</h3>
+<p><b>Powód:</b> przy wykonaniu E5 <code>grep</code> po zdaniu „Sesja nieinteraktywna: sam raport,
+bez pytań" trafił poza zakres pozycji A08: w <code>AGENTS.md</code> (router Codeksa tego repo, kopia
+reguł z <code>CLAUDE.md</code>) i w <code>core/templates/SPEC_CLAUDE_MD.md</code>, z którego powstaje
+<code>CLAUDE.md</code> każdego nowego projektu. Poprawka samego <code>CLAUDE.md</code> zostawiłaby
+nowe projekty i Codeksa przy starym, nieuczciwym brzmieniu.</p>
+<p><b>Zmiana:</b> zakres E5 (pozycja A08) obejmuje także <code>AGENTS.md</code>
+i <code>SPEC_CLAUDE_MD.md</code> — to samo brzmienie co w <code>CLAUDE.md</code>. Bez nowych
+mechanizmów.</p>
+<p><b>Skutek dla etapów:</b> E5 dotyka dwóch plików więcej. Liczba etapów i szacunek bez zmian.
+Decyzja człowieka 2026-09-24.</p>
+
+<h3>Aneks E — 2026-09-24</h3>
+<p><b>Powód:</b> źródła poprzedniego renderu demo zniknęły razem z katalogiem roboczym
+(ryzyko A2 z planu PIERWSI_UZYTKOWNICY), więc materiału nie dało się poprawić — E5 zbudował
+render od zera. Bez trwałego miejsca źródeł każda kolejna poprawka powtórzy tę pracę.</p>
+<p><b>Zmiana:</b> zakres E5 (pozycja S04) obejmuje także trwałe źródła renderu w
+<code>docs/zasoby/demo/zrodla/</code> (sceny, render przez DevTools Protocol, składanie GIF-a,
+pomiar glifów, pokrycie cytatów) — na wzór <code>docs/zasoby/branding/zrodla/</code>. Wynik
+pośredni idzie do <code>.claude/relai/work/demo/</code>, poza gitem. Bez zależności npm.</p>
+<p><b>Skutek dla etapów:</b> E5 dokłada pięć małych plików. Liczba etapów i szacunek bez zmian.
+Decyzja człowieka 2026-09-24.</p>
+
+<h3>Aneks F — 2026-09-24</h3>
+<p><b>Powód:</b> punkt weryfikacji E5 „jedno wywołanie AskUserQuestion — dowód z przebiegu
+<code>claude -p</code> stream-json" jest arytmetycznie nieosiągalny: w trybie <code>-p</code>
+(Claude Code 2.1.280) narzędzia AskUserQuestion nie ma w zdarzeniu <code>init</code>, a
+<code>--allowedTools</code> ani <code>--tools</code> go nie włączają (zmierzone 2026-09-24). Trzy
+przebiegi (nowa wersja, 2.6.0, kontrola) dały po 0 wywołań; bramka dotarła do modelu, który
+w odpowiedzi napisał, że nie ma jak zapytać.</p>
+<p><b>Zmiana:</b> kryterium zastępcze — wyjście hooka <code>prompt-mode</code> na realnym projekcie
+z przebiegu (po starcie sesji, z kopią listy modeli) niesie pytanie o zgodę i o model
+<b>w jednym</b> wywołaniu, a na projekcie z modelem „nie pytaj" pytania o model nie niesie; do
+tego test jednostkowy obu wariantów. Liczenie okien pytań w sesji interaktywnej po instalacji
+nowej wersji przechodzi do <b>bramki manualnej</b> dla człowieka.</p>
+<p><b>Skutek dla etapów:</b> jeden punkt weryfikacji E5 zmienia instrument; dochodzi bramka
+manualna. Liczba etapów i szacunek bez zmian. Decyzja człowieka 2026-09-24.</p>
+
+<h3>Aneks G — 2026-09-24</h3>
+<p><b>Powód:</b> przy zamykaniu E5 człowiek zdecydował, że kolejne wydanie pluginu idzie
+<b>po zakończeniu planu</b>, a nie po każdym etapie.</p>
+<p><b>Zmiana:</b> rytm „wydanie po etapie zmieniającym plugin" obowiązuje do E4 włącznie. E5, E6
+i E7 zmieniają plugin w repozytorium bez wydania; jedno wydanie (numer proponuje agent, zatwierdza
+człowiek, P-005) należy do sekwencji zamknięcia planu. Punkty weryfikacji etapów dotyczące cache'u
+po <code>plugin update</code> przechodzą do tego wydania; <code>claude plugin validate</code>
+zostaje w każdym etapie. Dokumenty mówiące „od 2.7.0" zakładają, że następne wydanie dostanie ten
+numer — przy wydaniu numer jest potwierdzany <code>grep</code>-em.</p>
+<p><b>Skutek dla etapów:</b> E5–E7 bez tagów i release'ów; ostatnie wydanie publiczne zostaje
+2.6.0 aż do zamknięcia planu. Liczba etapów i szacunek bez zmian. Decyzja człowieka 2026-09-24.</p>
+
+<h3>Aneks H — 2026-09-24</h3>
+<p><b>Powód:</b> w sesji E5 bramka zgody trybu ciągłego (hook <code>prompt-mode</code>, 2.6.0)
+odpaliła się na <b>powiadomieniu o zadaniu w tle</b>, które Claude Code przekazuje zdarzeniem
+<code>UserPromptSubmit</code> — filtr pomijania go nie rozpoznaje, więc człowiek dostaje pytanie
+o zgodę bez swojego promptu.</p>
+<p><b>Zmiana:</b> zakres E6 obejmuje także rozpoznanie powiadomień systemowych w filtrze pomijania
+(<code>core/process/prompt-mode.js</code>, <code>powodPominiecia</code>) z testem na treści
+powiadomienia zapisanej z realnego zdarzenia i dowodem negatywnym, że prompt człowieka dalej
+przechodzi przez bramkę.</p>
+<p><b>Skutek dla etapów:</b> E6 dotyka jednego pliku rdzenia i testu więcej. Liczba etapów
+i szacunek bez zmian. Decyzja człowieka 2026-09-24.</p>
+
 </section>
 
 <footer>

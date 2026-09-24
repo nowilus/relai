@@ -2,7 +2,7 @@
 'use strict';
 // RelAI hook: secret-scanner — PreToolUse (Write/Edit), BLOKUJE (D-41, D-42).
 // Blokuje zapis sekretu do pliku sledzonego przez git; pliki objete .gitignore przechodza.
-// Konwencja hook-guard (README, sekcja "Konwencja: hook-guard"): poza projektem RelAI
+// Konwencja hook-guard (docs/PRZEWODNIK.md, sekcja "Konwencja: hook-guard"): poza projektem RelAI
 // hook konczy sie kodem 0 bez zadnego efektu; awaria guarda = wyjscie bez efektu.
 //
 // Od 1.4.0 ten plik jest CIENKA WARSTWA adaptera: sama regula "czy to sekret" mieszka

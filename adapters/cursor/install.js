@@ -279,7 +279,12 @@ function install(projekt, bezSkanu) {
   fs.writeFileSync(manifestPath, JSON.stringify(manifest, null, 2) + '\n', 'utf8');
 
   process.stdout.write('RelAI adapter Cursor zainstalowany w ' + projekt + '\n');
-  process.stdout.write('  + reguly zawsze-w-kontekscie: ' + pliki(path.join(ADAPTER, 'rules'), /\.mdc$/i).length + '\n');
+  // Od 2.7.0 regula planowania jest dobierana na zadanie (alwaysApply: false) — liczba
+  // w komunikacie idzie z frontmattera, nie z liczby plikow.
+  const reguly = pliki(path.join(ADAPTER, 'rules'), /\.mdc$/i);
+  const zawsze = reguly.filter((p) => /^alwaysApply:\s*true\s*$/m.test(fs.readFileSync(p, 'utf8'))).length;
+  process.stdout.write('  + reguly .mdc: ' + reguly.length + ' (zawsze w kontekscie: ' + zawsze +
+    ', na zadanie: ' + (reguly.length - zawsze) + ')\n');
   process.stdout.write('  + komendy /relai-*: ' + komendy.length + '\n');
   process.stdout.write('  + skille: ' + skille.length + '\n');
   process.stdout.write('  + subagenci zalogi w .cursor/agents/: ' + agenci.length + '\n');

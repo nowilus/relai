@@ -149,7 +149,7 @@ Brzmienie (przetłumacz na język projektu, sensu nie zmieniaj):
 > **Sprawa przeterminowana:** pozycja sekcji „Czeka na człowieka" starsza niż `N` dni (wiersz
 > `Przegląd spraw człowieka` w `docs/USTAWIENIA.md`, domyślnie 30) wymusza decyzję **przed**
 > akapitem „gdzie jesteśmy": pytasz partiami po cztery, każda sprawa z trzema wyborami — zamknąć,
-> odroczyć o kolejne `N` dni, rozstrzygnąć teraz. Sesja nieinteraktywna: sam raport, bez pytań.
+> odroczyć o kolejne `N` dni, rozstrzygnąć teraz. Sesja nieinteraktywna: sam raport, bez pytań — rozpoznajesz ją z kontekstu (`claude -p`, agent w tle); żaden hook jej nie sygnalizuje.
 
 Linia liczy się do limitu 10 KB. Projekt z wyłączonym przeglądem albo bez sekcji „Czeka na
 człowieka" tej linii **nie ma** — reguła bez mechanizmu jest obietnicą bez pokrycia.
@@ -259,7 +259,7 @@ sync dokumentów, wpis do dziennika, ryzyka, sprzątanie artefaktów roboczych, 
 **Sprawa przeterminowana:** pozycja sekcji „Czeka na człowieka" starsza niż `N` dni (wiersz
 `Przegląd spraw człowieka` w [docs/USTAWIENIA.md](docs/USTAWIENIA.md), domyślnie 30) wymusza
 decyzję **przed** akapitem „gdzie jesteśmy": pytasz partiami po cztery — zamknąć / odroczyć
-o kolejne `N` dni / rozstrzygnąć teraz. Sesja nieinteraktywna: sam raport, bez pytań.
+o kolejne `N` dni / rozstrzygnąć teraz. Sesja nieinteraktywna: sam raport, bez pytań — rozpoznajesz ją z kontekstu (`claude -p`, agent w tle); żaden hook jej nie sygnalizuje.
 
 ## Stan prac
 

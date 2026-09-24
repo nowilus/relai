@@ -33,6 +33,10 @@ Read, in this order, and nothing else:
 Do **not** full-text scan the repository at session start. Do not read `docs/DECYZJE.md` whole —
 reach for it when the topic requires it. A file that does not exist is not an error.
 
+Plans and stages have their own rule, `.cursor/rules/relai-planning.mdc`, pulled in on demand.
+When a plan, a stage or a branch is on the table and that rule is not in your context, read the
+file before you write anything.
+
 Then write **one paragraph** (3–5 sentences) "where we are": what works, what we are working on,
 what blocks, the nearest step. No lists, no tables. Then do what the user asked.
 

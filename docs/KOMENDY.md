@@ -56,7 +56,7 @@ z podpowiedzi; skrócona forma działa tam, gdzie podpowiadacz ją rozwinie.
   dzieje się nic; progi i wyłącznik masz w `docs/USTAWIENIA.md`.
 - **Koszt startu sesji jest widoczny, zanim urośnie.** Dokumenty czytane na starcie — razem
   ze skillem ładowanym na pierwszym prompcie i plikami z rytuału startu w `CLAUDE.md` — mają wspólny
-  budżet (domyślnie 140 KB). Gdy go przekroczą, RelAI mówi o tym pierwszym zdaniem sesji, wskazuje
+  budżet (domyślnie 100 KB). Gdy go przekroczą, RelAI mówi o tym pierwszym zdaniem sesji, wskazuje
   najgrubsze pozycje, wylicza, co jest w sumie, i proponuje odchudzenie — niczego nie blokuje i niczego nie zmienia sam. Poniżej budżetu
   milczy. Budżet, progi i wyłącznik: wiersz „Budżet startu sesji" w `docs/USTAWIENIA.md`.
 - **Sprawy czekające na Ciebie mają stałe miejsce.** Decyzja, dostęp, zakup, akceptacja — wszystko,
@@ -68,6 +68,9 @@ z podpowiedzi; skrócona forma działa tam, gdzie podpowiadacz ją rozwinie.
   wraca na starcie sesji jako pytanie: zamknąć, odroczyć o kolejne tyle samo dni, czy rozstrzygnąć
   teraz. Pytania padają partiami po cztery. Poniżej progu — cisza; wyłącznik jest osobny od
   wyłącznika rotacji.
+  W sesji bez człowieka (`claude -p`, agent w tle) zostaje sam raport, bez pytań — ale sesję
+  taką rozpoznaje model z kontekstu, a nie hook: żaden sygnał techniczny jej nie oznacza, więc
+  reguła działa tak dobrze, jak to rozpoznanie.
 - **Pliki robocze po zamkniętych etapach nie zostają na zawsze.** Gdy uzbierają się ponad próg
   z wiersza „Artefakty robocze" w `docs/USTAWIENIA.md` (domyślnie 100 MB), RelAI mówi o tym jednym
   zdaniem na starcie sesji — waga, ile pozycji, trzy najcięższe — i proponuje `/relai-clean`.
@@ -94,6 +97,9 @@ z podpowiedzi; skrócona forma działa tam, gdzie podpowiadacz ją rozwinie.
   zgoda „nie pytaj więcej" idzie do ustawień globalnych i przypomina o sobie raz na 30 dni.
   Przełączniki: `/relai-prompt on`, `/relai-prompt off` (projekt) oraz `/relai-prompt off --globalnie`
   (cofnięcie zgody na stałe).
+  **Od 2.7.0 pytanie jest jedno:** gdy model optymalizatora nie jest jeszcze wybrany na stałe,
+  bramka każe zadać zgodę i wybór modelu (z zasięgiem) w tym samym oknie pytań, zamiast dwóch
+  pytań po kolei (sprawdzone na treści bramki; w oknie aplikacji czeka na potwierdzenie).
 - **RelAI nie proponuje się w cudzym folderze dwa razy.** Plugin jest zainstalowany dla całego
   konta, więc widzi każdy katalog otwarty w Claude Code albo Codeksie i w każdym zapyta raz, czy
   założyć strukturę. Odmowa zamyka temat w tym folderze (tryb gościa), a od 2.3.0 pytanie

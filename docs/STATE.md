@@ -1,6 +1,6 @@
 # STATE — RelAI
 
-Stan na: 2026-09-24 (po etapie E4 planu PROWADZENIE_END_TO_END — wydanie 2.6.0)
+Stan na: 2026-09-24 (po etapie E5 planu PROWADZENIE_END_TO_END — bez wydania, Aneks G)
 
 ## Gdzie jesteśmy
 
@@ -8,8 +8,10 @@ RelAI ma w repozytorium **2.6.0** — wydanie z etapu E4 planu PROWADZENIE_END_T
 skrojone pod model; poprzednio 2.5.0 z E3). Plugin działa w trzech narzędziach — Claude Code, Cursorze i Codeksie — na jednym
 rdzeniu procesu, z czternastoma komendami. Instrukcja ładowana na starcie sesji jest ponad dwa razy
 lżejsza niż przed planem, a optymalizator promptów mówi językiem modelu, który prompt wykona —
-według wytycznych jego dostawcy, z datą odczytu przy każdej regule. Następny krok to prostsze
-pierwsze 30 minut dla nowej osoby. Ostatni pilotaż z użytkownikami zamknięto przed wysyłką
+według wytycznych jego dostawcy, z datą odczytu przy każdej regule. W repozytorium (jeszcze bez
+wydania — wydanie idzie przy zamknięciu planu) README zaczyna się od instalacji i ma słowniczek,
+a demo jest czytelne na telefonie. Następny krok to procedury na krańcach drogi: debugowanie,
+bezpieczeństwo zależności, pierwszy deploy. Ostatni pilotaż z użytkownikami zamknięto przed wysyłką
 zaproszeń, więc opinii spoza projektu nadal nie ma.
 
 ## Co działa
@@ -43,13 +45,16 @@ zaproszeń, więc opinii spoza projektu nadal nie ma.
 
 ## Nad czym pracujemy teraz
 
-- **E5 planu PROWADZENIE_END_TO_END — pierwsze 30 minut** (gotowy do startu): README z pierwszymi
-  krokami na górze i słowniczkiem, jedno pytanie procesowe na starcie, tabela „co pilnuje tylko
-  Claude Code", render demo czytelny na telefonie.
+- **E6 planu PROWADZENIE_END_TO_END — krańce drogi** (gotowy do startu): procedura „coś nie
+  działa", bezpieczeństwo zależności w weryfikacji etapu z kodem, lista kontrolna pierwszego
+  wdrożenia — pliki doczytywane na żądanie.
+- **Zmienione w repo, niewydane (E5):** README od pierwszego kroku (1 079 słów, treść w
+  `docs/INSTALACJA.md` i `docs/PRZEWODNIK.md`), jedno okno pytań na starcie trybu ciągłego,
+  objaśnione opcje profilu, reguła planowania Cursora na żądanie, demo pionowe z trwałymi źródłami.
 
 ## Co dalej
 
-- **E6–E7 planu** [PROWADZENIE_END_TO_END](plany/PROWADZENIE_END_TO_END/STATUS.md): debug /
+- **E6–E7 planu, potem jedno wydanie** (Aneks G) [PROWADZENIE_END_TO_END](plany/PROWADZENIE_END_TO_END/STATUS.md): debug /
   bezpieczeństwo / deploy, jakość pracy solo i załogi.
 - Odświeżenie listy modeli Codeksa w sesji Codeksa (`/relai-models`): lista ma nazwy z 2026-09-05,
   Codex zaleca dziś gpt-6-astra, gpt-6-sol i gpt-6-luna; do tego czasu nakładka `openai` nie ma
@@ -78,7 +83,8 @@ zaproszeń, więc opinii spoza projektu nadal nie ma.
 
 ### Wersja i instalacja
 
-Repozytorium i publicznie: **2.6.0** (tag `v2.6.0`, release Latest). Źródło instalacji: własny
+Repozytorium i publicznie: **2.6.0** (tag `v2.6.0`, release Latest); repozytorium niesie ponad tym
+zmiany E5 bez podbicia numeru — wydanie przy zamknięciu planu (Aneks G), numer zatwierdza człowiek. Źródło instalacji: własny
 marketplace w tym repozytorium, scope `user`. Wydanie potwierdzasz treścią plików z cache'u, nie
 komunikatem CLI (P-005): `claude plugin validate` → tag → push → release → `marketplace update` →
 `plugin update relai@relai` → suma plików po CRLF → LF. Walidator `core/tools/validate-adapters.js`
@@ -106,8 +112,8 @@ Backupy: `C:\Users\Lukasz\Backupy\RelAI` • [PRZENOSNOSC.md](PRZENOSNOSC.md) �
 ### Liczby
 
 Plany zamknięte: 8 (ostatni PIERWSI_UZYTKOWNICY, częściowo, 2026-09-24) • Aktywny:
-PROWADZENIE_END_TO_END, E4/7 zrealizowany, E5 gotowy • Start sesji: **88,8 KB / 100 KB** (skill 28,6 KB; przed E3 126,3 KB) • Dziennik: **91,8 KB / 150 KB** (po rotacji
-2026-09-24 i wpisie E2 (archiwum: 9 plików)) • Sekcja ryzyk: **5,3 KB / 12 KB**, 11 otwartych, archiwum
-ryzyk: 4 pliki + 1 mitygacji • Lekcje: 56 KB / 50 KB — rotacja należna • Adaptery: 3 •
+PROWADZENIE_END_TO_END, E5/7 zrealizowany, E6 gotowy • Start sesji: **95,9 KB / 100 KB** (po E5; skill 28,6 KB; przed E3 126,3 KB) • Dziennik: **114,1 KB / 150 KB** (po rotacji
+2026-09-24 i wpisie E5 (archiwum: 9 plików)) • Sekcja ryzyk: **5,3 KB / 12 KB**, 11 otwartych, archiwum
+ryzyk: 4 pliki + 1 mitygacji • Lekcje: 65,2 KB / 50 KB — rotacja należna • Adaptery: 3 •
 Komendy: 14 • Projekty na RelAI: 3 (RelAI, PolyFlow, JiraManager przed migracją) • Modele, na
 których zmierzono proces: 5 (Fable, Opus, Haiku, Composer/auto, Grok 4.6).

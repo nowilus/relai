@@ -260,17 +260,49 @@ function regula() {
 // albo cisza — wiec moze byc dluzsza od niej, ale nie dowolnie: prompt, na ktory
 // czlowiek czeka, konkuruje z nia o kontekst. Identyfikator sesji wstawia adapter,
 // bo model go nie widzi, a bez niego zgoda "na te sesje" nie ma czego pilnowac.
-function regulaBramki(sesja) {
+//
+// Od 2.7.0 (E5 PROWADZENIE_END_TO_END, A20+S03): gdy model optymalizatora nie jest
+// wybrany na stale, pytanie o model i zasieg idzie W TYM SAMYM wywolaniu AskUserQuestion
+// co zgoda — czlowiek dostaje jedno okno pytan zamiast dwoch po kolei. O tym, czy pytac,
+// decyduje adapter (opcja `pytajOModel`), bo tylko on zna nazwe listy modeli swojego narzedzia.
+function regulaBramki(sesja, opcje) {
+  const o = opcje || {};
+  const model = o.pytajOModel && o.listaModeli
+    ? ' W TYM SAMYM wywolaniu dodaj dwa pytania z Kroku 1 komendy /relai-prompt: model ' +
+      'optymalizatora (pozycje z .claude/relai/' + o.listaModeli + ' z data listy oraz "model ' +
+      'sesji") i zasieg (ten prompt / ta sesja / ten projekt / wszystkie projekty); zapis wg ' +
+      'tabeli zasiegu z Kroku 1. Po (3) odpowiedz o model pomijasz.'
+    : '';
   return '[RelAI bramka zgody] Tryb ciagly optymalizatora jest wlaczony w tym projekcie, ale ' +
     'zgody na te sesje jeszcze nie ma. ZANIM zrobisz cokolwiek z tym promptem, zadaj JEDNO ' +
     'pytanie (AskUserQuestion) o trzy opcje: (1) tak, w tej sesji; (2) tak i nie pytaj wiecej — ' +
-    'zgoda zapisana globalnie; (3) nie, nie korzystaj w tej sesji. Odpowiedz ZAPISZ, zanim ' +
+    'zgoda zapisana globalnie; (3) nie, nie korzystaj w tej sesji.' + model + ' Odpowiedz ZAPISZ, zanim ' +
     'wykonasz prompt: (1) i (3) do WLASNEGO pliku tej sesji .claude/relai/zgoda-promptu/' +
     String(sesja || '') + '.json jako {"decyzja":"tak albo nie","data":"RRRR-MM-DD"} - ' +
     'plikow innych sesji nie ruszasz; (2) to samo z ' +
     'decyzja "tak" PLUS wiersz "| RRRR-MM-DD | Zgoda na optymalizator | tak |" w ' +
     '~/.claude/relai/USTAWIENIA.md. Po (1) i (2) przerabiasz ten prompt procedura /relai-prompt; ' +
     'po (3) wykonujesz go bez zmian i nie wracasz do tematu w tej sesji.';
+}
+
+// Czy model optymalizatora jest wybrany NA STALE: wiersz `Model optymalizatora` z czlonem
+// `nie pytaj` w ktorymkolwiek z podanych plikow ustawien (projekt, globalne). Wiersz bez
+// tego czlonu jest tylko podpowiedzia (relai-prompt.md, Krok 1), wiec pytanie i tak pada.
+const NAZWA_MODELU_OPT = /^(?:Model optymalizatora|Prompt optimizer model)\b/i;
+const CZLON_NIE_PYTAJ = /^(?:nie pytaj|don'?t ask)$/i;
+
+function modelOptymalizatoraNaStale(...teksty) {
+  for (const txt of teksty) {
+    for (const linia of String(txt || '').split('\n')) {
+      if (!linia.trim().startsWith('|')) continue;
+      const cells = linia.split('|').map((c) => c.trim());
+      if (cells.length < 5) continue;
+      if (!NAZWA_MODELU_OPT.test(cells[2].replace(/\*\*/g, '').trim())) continue;
+      const czlony = cells[3].replace(/\*\*/g, '').split('·').map((c) => c.trim());
+      if (czlony.slice(1).some((c) => CZLON_NIE_PYTAJ.test(c))) return true;
+    }
+  }
+  return false;
 }
 
 // Przypomnienie o zgodzie udzielonej na stale — JEDNA linia albo zero, na starcie
@@ -308,5 +340,6 @@ module.exports = {
   zgodaSesji,
   stanBramki,
   regulaBramki,
+  modelOptymalizatoraNaStale,
   przypomnienieZgodyReport,
 };

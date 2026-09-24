@@ -25,8 +25,10 @@ node adapters/cursor/install.js <ścieżka-do-projektu>
 
 Instalator kładzie w projekcie dokładnie sześć rzeczy i wypisuje, co zrobił:
 
-1. `.cursor/rules/relai-*.mdc` — trzy reguły `alwaysApply: true`: rdzeń procesu, planowanie,
-   guardraile. To jest **warstwa nośna** — wchodzi do każdej sesji bez wyzwalania czegokolwiek.
+1. `.cursor/rules/relai-*.mdc` — trzy reguły: rdzeń procesu i guardraile z `alwaysApply: true`
+   (**warstwa nośna** — wchodzi do każdej sesji bez wyzwalania czegokolwiek) oraz planowanie
+   z `alwaysApply: false` i opisem wyzwalającym (od 2.7.0) — Cursor dobiera ją, gdy rozmowa
+   dotyczy planu, etapu albo odnogi, a reguła rdzenia każe ją doczytać, gdyby się nie dobrała.
 2. `.cursor/commands/relai-*.md` — czternaście komend wywoływanych jako `/relai-stage`, `/relai-tour`…
    Pliki są kopiami z adaptera Claude Code: jedno źródło w repozytorium, kopia w projekcie.
 3. `.cursor/skills/relai-core/`, `.cursor/skills/relai-planning/` — te same skille co w Claude Code;
@@ -70,6 +72,9 @@ a nie po kopii w każdym projekcie — inaczej wraca ryzyko rozjazdu wersji.
   z kluczem `AKIA…` nie powstał, ta sama próba bez sekretu przeszła bez słowa.
 - **Reguły obowiązują bez wyzwalania.** `alwaysApply: true` znaczy „każda sesja czatu" — zmierzone
   na czystym projekcie.
+  Od 2.7.0 dotyczy to rdzenia i guardraili; reguła planowania (5,7 KB) wchodzi na żądanie.
+  Dobieranie po opisie nie jest jeszcze zmierzone w żywej sesji Cursora — asekuracją jest zdanie
+  w regule rdzenia, które każe doczytać plik przy planie, etapie albo odnodze.
 - **Dokumenty aktualizują się w tej samej turze co zmiana** — definicja ukończenia (D-44) jest
   w regule, nie w skillu.
 

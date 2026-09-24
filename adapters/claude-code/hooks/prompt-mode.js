@@ -22,6 +22,7 @@
 // Reguly niesie rdzen (core/process/prompt-mode.js). Tutaj zostaje wylacznie to,
 // co jest wlasciwoscia Claude Code — protokol zdarzenia i ksztalt wyjscia.
 
+const fs = require('fs');
 const path = require('path');
 
 const PLUGIN_ROOT = path.resolve(__dirname, '..', '..', '..');
@@ -37,6 +38,15 @@ try {
 }
 
 const MARKERY_GOSCIA = ['.claude/relai.json'];
+// Nazwa kopii listy modeli tego narzedzia — ta sama, ktora kopiuje hook startu.
+const LISTA_MODELI = 'MODELE-claude-code.md';
+
+function ustawieniaProjektu(cwd) {
+  for (const nazwa of ['USTAWIENIA.md', 'SETTINGS.md']) {
+    try { return fs.readFileSync(path.join(cwd, 'docs', nazwa), 'utf8'); } catch (_) { /* nastepny */ }
+  }
+  return '';
+}
 
 function main(input) {
   if (String(input.hook_event_name || '') !== 'UserPromptSubmit') return process.exit(0);
@@ -53,10 +63,18 @@ function main(input) {
   });
   if (stan === 'cisza') return process.exit(0);
 
+  // Od 2.7.0 bramka pyta o model optymalizatora w tym samym oknie co o zgode — ale tylko
+  // wtedy, gdy jest z czego wybierac (lista modeli w projekcie) i wybor nie zapadl na stale.
+  const opcjeBramki = { listaModeli: LISTA_MODELI, pytajOModel: false };
+  if (stan === 'pytaj') {
+    opcjeBramki.pytajOModel = fs.existsSync(path.join(cwd, '.claude', 'relai', LISTA_MODELI)) &&
+      !tryb.modelOptymalizatoraNaStale(ustawieniaProjektu(cwd), globalne ? globalne.text : '');
+  }
+
   process.stdout.write(JSON.stringify({
     hookSpecificOutput: {
       hookEventName: 'UserPromptSubmit',
-      additionalContext: stan === 'pytaj' ? tryb.regulaBramki(input.session_id) : tryb.regula(),
+      additionalContext: stan === 'pytaj' ? tryb.regulaBramki(input.session_id, opcjeBramki) : tryb.regula(),
     },
   }));
   process.exit(0);

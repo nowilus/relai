@@ -1,6 +1,6 @@
 ---
-description: RelAI planning — plans, stages, the closing ritual, deviation signal, branches. Always in context.
-alwaysApply: true
+description: RelAI planning — use when the user asks for a plan, approach, staging or breakdown of work, or starts, runs or closes a plan stage, or parks a side thread as a branch (PL: "przygotuj plan", "zaplanuj", "rozpisz na etapy", "wykonaj etap", "następny etap", "zamknij etap", "odnoga"). Covers PLAN/STATUS files, frozen plans and annexes, the closing ritual, the deviation signal and branches.
+alwaysApply: false
 ---
 
 # RelAI — plans and stages

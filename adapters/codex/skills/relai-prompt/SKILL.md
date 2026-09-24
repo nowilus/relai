@@ -57,7 +57,7 @@ O modelu decyduje człowiek (od 2.3.1). Nazwę bierzesz z **pierwszego pasujące
 | # | Źródło | Zasięg |
 |---|---|---|
 | 1 | flaga `--model <wartość>` na **początku** argumentu | wyłącznie to wywołanie; niczego nie zapisujesz |
-| 2 | wybór „ta sesja" z pytania zadanego wcześniej **w tej rozmowie** | do końca sesji |
+| 2 | wybór „ta sesja" z pytania zadanego wcześniej **w tej rozmowie** — także z bramki zgody trybu ciągłego | do końca sesji |
 | 3 | wiersz `Model optymalizatora` w `docs/USTAWIENIA.md` z członem `· nie pytaj` | ten projekt |
 | 4 | wiersz `Model optymalizatora` w `~/.claude/relai/USTAWIENIA.md` z członem `· nie pytaj` | projekty bez własnego wiersza z tym członem |
 | 5 | nic z powyższych → **pytanie o model** (niżej) | — |
@@ -77,7 +77,9 @@ fladze `--dla` z Kroku 1b, jeśli stoi obok) jest tekstem do przerobienia; sama 
 nie zapisuje.
 
 **Pytanie o model** — jedno wywołanie `AskUserQuestion` z dwoma pytaniami, **zanim** przerobisz
-prompt:
+prompt. **Bramka zgody trybu ciągłego zadaje je razem z pytaniem o zgodę** (od 2.7.0, jedno okno
+pytań na starcie sesji): jeśli w tej rozmowie odpowiedź już padła, jej wybór z zasięgiem `ten prompt`
+obowiązuje dla promptu, przy którym padło pytanie, a `ta sesja` jest źródłem 2 — drugi raz nie pytasz.
 
 1. **Model** — pozycje z listy z jej datą w treści pytania oraz `model sesji`; najwyżej cztery
    opcje, resztę człowiek wpisuje w polu „Other". Pierwsza opcja z dopiskiem „(Rekomendowane)":

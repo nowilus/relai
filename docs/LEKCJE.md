@@ -33,8 +33,10 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
    wraca do człowieka jako aneks, a nie kończy etap jako niedowieziony punkt. **Autor promptu
    etapu robi to samo przy pisaniu kryterium** — na materiale i wobec reguł specyfikacji, którą
    etap wykona. **Etap przenoszący treść liczy metrykę treści na całym pakiecie** (plik źródłowy
-   + pliki docelowe), bo sam plik źródłowy pokazuje przeprowadzkę, nie zmianę. (L-0017, L-0018,
-   L-0040, L-0051, L-0052, L-0063, L-0069, L-0082, L-0115, L-0117)
+   + pliki docelowe), bo sam plik źródłowy pokazuje przeprowadzkę, nie zmianę. **Kryterium liczące
+   wywołania narzędzia zaczynasz od listy narzędzi w `init` trybu pomiaru** — narzędzia nieobecnego
+   (AskUserQuestion w `claude -p`) nie da się policzyć, a zero wygląda jak sukces. (L-0017, L-0018,
+   L-0040, L-0051, L-0052, L-0063, L-0069, L-0082, L-0115, L-0117, L-0123)
 5. **Instrument pomiarowy sam bywa źródłem fałszu:** wyrażenia regularne trzymaj w pliku zapisanym
    narzędziem zapisu, nie w `node -e` ani w heredoku, a tekst z backslashem (także ścieżkę
    Windows) wstawiasz Edit/Write albo piszesz z `/` (L-0116, L-0119); scenariusz „konfiguracji nie ma" mierz z podstawionym katalogiem domowym; dokładaj
@@ -96,13 +98,17 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
    zanim nazwiesz ją profilaktyką**: jej pierwsze trafienia są wynikiem etapu, a cisza od pierwszego
    uruchomienia jest podejrzana do czasu pokazania drugiej strony na podłożonym defekcie; fałszywe
    trafienie zawężasz **z powodem**, nie wyciszeniem kontroli.
+   **Pomiar czytelności klatek bierze wyłącznie klatki ustalone i oba kierunki kontrastu** — szczeliny
+   między jasnymi literami na ciemnym panelu i klatki przenikania nie są tekstem; **korpus kontroli
+   pokrycia to sam materiał źródłowy**, bez dokumentacji poprzedniego pomiaru, która niesie jego
+   cytat kontrolny.
    **Limit tur w pomiarze ustawiasz na cały łańcuch, który mechanizm uruchamia przed mierzonym
    krokiem**, i czytasz kod wyjścia każdej sesji — wyjście limitem obok „nie wywołano" znaczy
    „nie zmierzono"; instrument poprawiony w trakcie idzie od nowa dla obu wariantów.
    (L-0032, L-0037, L-0095, L-0096, L-0105, L-0106, L-0107, L-0110, L-0111, L-0113,
    L-0097, L-0101, L-0102,
    L-0054, L-0055, L-0056, L-0064, L-0068, L-0071, L-0073, L-0083, L-0084, L-0086, L-0087, L-0088,
-   L-0090, L-0091)
+   L-0090, L-0091, L-0124, L-0125)
 6. **Próg jest liczbą, którą ktoś liczy:** kalibruj go na zmierzonych plikach realnych projektów,
    zapisuj w jednostce mechanizmu kontrolnego wraz z komendą sprawdzającą i daj mu **jeden**
    wyzwalacz — wielkości pomocnicze wskazują przyczynę wewnątrz komunikatu, nie wywołują go.
@@ -756,3 +762,46 @@ Treść jest kopią bajt w bajt — zmieniony został wyłącznie status w linii
   **zakres wskazany przez źródło**; reguła przeniesiona poza ten zakres stoi jako reguła rodziny
   z jawnym zdaniem, że dla pozostałych modeli jest hipotezą do pomiaru.
 - **Źródło:** E4, `core/prompt/rodziny/claude.md` (C3), `openai.md` (O1, O4, nagłówek).
+
+### L-0123 — Kryterium liczące wywołania narzędzia, którego tryb pomiaru nie ma · 2026-09-24 · AKTYWNA
+
+- **Trigger:** punkt weryfikacji E5 kazał policzyć wywołania AskUserQuestion w przebiegu
+  `claude -p` stream-json. Trzy przebiegi dały po 0 — nie dlatego, że bramka nie zadziałała, tylko
+  dlatego, że w trybie `-p` (Claude Code 2.1.280) tego narzędzia nie ma w zdarzeniu `init`,
+  a `--allowedTools` ani `--tools` go nie włączają. Kryterium wróciło do człowieka jako Aneks F.
+- **Przyczyna:** autor kryterium sprawdził, że mechanizm da się uruchomić w trybie pomiaru, a nie
+  sprawdził, że narzędzie, którego wywołania liczy, w tym trybie istnieje. Zero wywołań narzędzia
+  nieobecnego wygląda tak samo jak zero wywołań narzędzia pominiętego.
+- **Zasada:** kryterium liczące wywołania narzędzia zaczynasz od odczytu listy narzędzi w zdarzeniu
+  `init` trybu, w którym będziesz mierzyć — przy pisaniu promptu etapu i ponownie przed pracą.
+  Narzędzie nieobecne znaczy kryterium nieosiągalne: wraca do człowieka jako aneks z kryterium
+  zastępczym na źródle, które mechanizm produkuje (wyjście hooka), a zachowanie w oknie aplikacji
+  idzie do bramki manualnej.
+- **Źródło:** E5 planu PROWADZENIE_END_TO_END, Aneks F; destylat: dopisane do zasady 4.
+
+### L-0124 — Pomiar glifów w klatkach bierze szczeliny i przejścia za tekst · 2026-09-24 · AKTYWNA
+
+- **Trigger:** instrument wysokości glifów na nowym GIF-ie zwrócił minimum 2,0 px przy materiale,
+  który w DOM miał najmniejszy tekst 15 px przy 375 px. Minima pochodziły z trzech klas, które nie
+  są tekstem: szczelin między jasnymi literami na ciemnym dymku (maska „ciemne = tusz"), klatek
+  przenikania scen i ostatniej klatki w połowie wygaszania.
+- **Przyczyna:** maska tuszu zakładała jeden kierunek kontrastu, a próbkowanie co N klatek nie
+  odróżniało klatki stojącej od przejściowej. Stary materiał ma dodatkowo dryf plam tła, więc
+  „klatka identyczna z sąsiadem" nie zachodzi w nim nigdy.
+- **Zasada:** instrument czytelności mierzy wyłącznie **klatki ustalone** (czas ≥ 300 ms albo prawie
+  zero zmienionych pikseli wobec sąsiada, z progiem podanym jawnie), osobną maską dla tekstu jasnego
+  na ciemnym panelu, a ostatnia klatka nie jest ustalona z urzędu. Instrument poprawiony w trakcie
+  mierzy od nowa **oba** materiały — nowy i kontrolny.
+- **Źródło:** E5, `docs/zasoby/demo/zrodla/glify.py`; destylat: dopisane do zasady 5.
+
+### L-0125 — Podłożony cytat kontrolny stał w korpusie, który miał go nie mieć · 2026-09-24 · AKTYWNA
+
+- **Trigger:** kontrola pokrycia cytatów demo wzięła do korpusu cały `DEMO.md` (potrzebna była
+  tabela promptów). Podłożony cytat kontrolny okazał się **pokryty**: `DEMO.md` opisuje kontrolę
+  poprzedniego instrumentu i niesie dokładnie ten cytat.
+- **Przyczyna:** korpus źródłowy zawierał dokumentację o poprzednim pomiarze, a nie tylko materiał,
+  z którego cytaty pochodzą.
+- **Zasada:** korpus kontroli pokrycia to wyłącznie materiał źródłowy — z dokumentu opisowego bierzesz
+  sekcję, która jest zapisem, nie cały plik; cytat kontrolny jest nowy dla tego przebiegu, a nie
+  przeniesiony z dokumentacji poprzedniego.
+- **Źródło:** E5, `docs/zasoby/demo/zrodla/pokrycie.py`; destylat: dopisane do zasady 5.

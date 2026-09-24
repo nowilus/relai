@@ -5,7 +5,7 @@
 | # | Ryzyko | Poziom | Status | Mitygacja |
 |---|---|---|---|---|
 | R5 | Dokumenty puchną i zjadają kontekst | **Niski dla projektów na 1.7.0, średni dla niezmigrowanych** (2026-09-01 po E6; wcześniej średni) | **ZMIERZONE 2026-09-01, OTWARTE ŚWIADOMIE — zawężone do migracji JiraManagera** | Rotacja działa na cudzych projektach; otwarte, bo JiraManager czeka na migrację. Historia: [MITYGACJE_2026-09-24](archiwum/ryzyka/MITYGACJE_2026-09-24.md). |
-| P1 | Adaptery Cursor/Codex nie egzekwują blokad harnessu — sekret albo zmiana konfiguracji przejdzie tam, gdzie w Claude Code stoi ściana (plan ROZWOJ_PO_WYDANIU) | **Średni** (2026-08-12 po E4; wcześniej wysoki) | **OTWARTE** | Sekret zatrzymują hook i pre-commit; otwarte: Cursor bez egzekwowanego `ask`, Codex niezmierzony. Historia: [MITYGACJE_2026-09-24](archiwum/ryzyka/MITYGACJE_2026-09-24.md). |
+| P1 | Adaptery Cursor/Codex nie egzekwują blokad harnessu — sekret albo zmiana konfiguracji przejdzie tam, gdzie w Claude Code stoi ściana (plan ROZWOJ_PO_WYDANIU) | **Średni** (2026-08-12 po E4; wcześniej wysoki) | **OTWARTE** | Sekret zatrzymują hook i pre-commit; otwarte: Cursor bez egzekwowanego `ask`, Codex niezmierzony. Od E5 (2026-09-24) różnica jest jawna w README: tabela „Co pilnuje tylko Claude Code”. Historia: [MITYGACJE_2026-09-24](archiwum/ryzyka/MITYGACJE_2026-09-24.md). |
 | P2 | Odpowiednik R2 w Cursor/Codex: bez auto-wyzwalania skilli proces zależy od dyscypliny modelu (plan ROZWOJ_PO_WYDANIU) | **Niski dla Cursora, średni dla Codeksa** (2026-08-17 po E6; wcześniej średni) | **OTWARTE (już tylko Codex)** | Cursor prowadzi proces regułą zawsze w kontekście; otwarte dla Codeksa, gdzie skille wyzwala opis. Historia: [MITYGACJE_2026-09-24](archiwum/ryzyka/MITYGACJE_2026-09-24.md). |
 
 | S1 | Bramka dokumentacyjna przepuści coś potrzebnego — plik nieśledzony, o którym architektura milczy, a bez którego nie da się powtórzyć pomiaru (plan SPRZATANIE_ARTEFAKTOW, ryzyko 1) | **Wysoki** (2026-09-03, przy powstaniu mechanizmu) | **OTWARTE** | Kasowanie tylko po „tak”; otwarte, bo ochrona zależy od opisu materiału, a dorobek sesji chroni `git add`. Historia: [MITYGACJE_2026-09-24](archiwum/ryzyka/MITYGACJE_2026-09-24.md). |
@@ -36,6 +36,11 @@
 > — przeniesione 2026-08-21, suma kontrolna `4b370c3e2b31c6ba`.
 
 ## Czeka na człowieka
+- **Jedno okno pytań na starcie w sesji interaktywnej** — po wydaniu przy zamknięciu planu
+  PROWADZENIE_END_TO_END sprawdzić, że bramka trybu ciągłego pyta o zgodę i model w jednym oknie
+  (Aneks F) · 2026-09-24 ·
+  [wpis 2026-09-24 — E5](#2026-09-24--e5-planu-prowadzenie_end_to_end-pierwsze-30-minut-bez-wydania)
+
 - **Zamrożenie dwóch bramek zgody jako decyzji** — zgoda na tryb ciągły (raz na sesję, z zapisem
   globalnym) i zgoda na propozycję struktury poza projektem (raz na maszynę). Oba wzorce wrócą przy
   każdym nowym zachowaniu proaktywnym RelAI · 2026-09-15 ·
@@ -1392,5 +1397,108 @@ Autor: RelAI (Opus 5.5) + Lukasz
 
 - Odświeżenie listy modeli Codeksa w sesji Codeksa (`/relai-models`) — nazwy gpt-6-*.
 - Restart aplikacji desktopowej, żeby sesje w aplikacji ładowały 2.6.0 (P-005).
+
+Autor: RelAI (Opus 5.5) + Lukasz
+
+### 2026-09-24 — E5 planu PROWADZENIE_END_TO_END: pierwsze 30 minut, bez wydania
+
+**Zrobione:**
+
+- **README od pierwszego kroku (A19, A21):** `README.md` 4 838 → **1 079 słów**; pierwsza sekcja
+  „Instalacja i pierwsze kroki", dalej demo, „Na co dzień", ostrzeżenie o zależności od modelu
+  (klasy `strong` i `balanced`, D-90), tabela hooków, słowniczek (hook, skill, etap, aneks, odnoga,
+  rotacja, D-NN, L-NNNN). Reszta treści przeniesiona dosłownie skryptem do `docs/INSTALACJA.md`
+  (instalacja, aktualizacja, wymagania) i `docs/PRZEWODNIK.md` (co robi, komendy, hooki, plany,
+  dowody, czego nie robi, szczegóły techniczne, pełne streszczenie EN); akapit demo — do
+  `docs/zasoby/demo/README.md`. Przy przeprowadzce poprawione fakty nieaktualne: „dziewięć hooków"
+  → jedenaście, „automatycznej rotacji jeszcze nie ma" → rotacja przy „kończymy na dziś", Wymagania
+  „jedno z dwóch" → trzy narzędzia, reguły Cursora.
+- **Tabela „co pilnuje tylko Claude Code" (A01):** 11 wierszy — każdy hook z `hooks.json` z
+  odpowiednikiem w Cursorze i Codeksie albo „tylko pamięć modelu" / „brak".
+- **Jedno pytanie na starcie (A20+S03):** `core/process/prompt-mode.js` — `regulaBramki(sesja, opcje)`
+  dokłada pytanie o model i zasięg **w tym samym** wywołaniu AskUserQuestion, gdy adapter tak
+  zdecyduje; `modelOptymalizatoraNaStale()` czyta wiersz `Model optymalizatora` z członem
+  `· nie pytaj`. Hook Claude Code pyta o model tylko przy liście modeli w projekcie i bez wyboru
+  na stałe. `/relai-prompt` Krok 1: odpowiedź z bramki jest źródłem 2, drugi raz nie pyta.
+- **Profil (A22):** `new-project.md` — każda opcja z jednym zdaniem objaśnienia w `description`.
+- **Sesja nieinteraktywna (A08, Aneks D):** `CLAUDE.md`, `AGENTS.md`, `SPEC_CLAUDE_MD.md` (dwa
+  miejsca), `docs/KOMENDY.md` — reguła opisana jako zależna od rozpoznania przez model. Przy okazji
+  ściąga: budżet startu „140 KB" → 100 KB (zaległość z E3).
+- **Cursor (M13):** `relai-planning.mdc` → `alwaysApply: false` z opisem wyzwalającym ([C-R] „Apply
+  Intelligently", odczyt 2026-09-24); `relai-core.mdc` każe doczytać regułę przy planie, etapie albo
+  odnodze; komunikat instalatora liczy reguły z frontmattera; README adaptera.
+- **Demo na telefon (S04, Aneks E):** nowy render PL i EN, pion 720×900, 25 s, 1,56 / 1,46 MB,
+  kierunek z 2026-09-12 (kalibracja na trzech klatkach — Łukasz: „Tak, renderuj"). Bez pakietów npm:
+  sceny HTML (grid/flex, `cqw`, tokeny), klatki z lokalnego Chromium przez DevTools Protocol, GIF
+  z Pillow. Źródła trwale w `docs/zasoby/demo/zrodla/`, dokumentacja materiału w
+  `docs/zasoby/demo/README.md`; README osadza GIF w szerokości 420.
+- **Aneksy D–G** w `PLAN.html` (decyzje Łukasza): D — dwa pliki więcej dla A08; E — źródła demo
+  w repo; F — kryterium jednego pytania na wyjściu hooka + bramka manualna; G — **wydanie dopiero
+  przy zamknięciu planu**, E5–E7 bez tagów.
+- `docs/ARTEFAKTY.md` — nowe wersje: `SPEC_CLAUDE_MD` 5, `/relai-prompt` 10, `new-project.md` 2,
+  `relai-core.mdc` 3, `relai-planning.mdc` 3.
+- Lekcje L-0123 (kryterium liczące narzędzie nieobecne w trybie pomiaru), L-0124 (glify: klatki
+  ustalone i oba kierunki kontrastu), L-0125 (cytat kontrolny w korpusie); destylat zasad 4 i 5.
+
+**Zweryfikowane — jak dokładnie:**
+
+- `wc -w README.md` → **1 079** (< 1 500); pierwsza sekcja „Instalacja i pierwsze kroki". Kontrola
+  „każda treść ma nowe miejsce" (skrypt, akapity starego README z `HEAD` szukane po normalizacji
+  w czterech dokumentach docelowych): 168 akapitów, **0 bez miejsca**; 15 wyjątków jawnych, każdy
+  z fragmentem wymaganym u celu (przeredagowanie albo poprawka faktu); podłożony akapit wypada.
+- Słowniczek: pojęcia A21 obecne w README poza słowniczkiem ∩ hasła — 0 bez hasła; kontrola
+  pozytywna („plugin" bez hasła) wypada.
+- Tabela hooków: `hooks.json` — 12 wpisów, **11 skryptów** (session-context zarejestrowany dwa razy);
+  tabela — **11 wierszy**, zbiory równe.
+- **Jedno pytanie (Aneks F):** trzy przebiegi `claude -p` stream-json (plugin z kopii drzewa
+  `%TEMP%/relai-e5-plugin` i 2.6.0 z cache'u, instalacja wyłączona, ścieżki w `init` sprawdzone) —
+  AskUserQuestion **0/0/0**, bo w trybie `-p` narzędzia nie ma (`init`: 51 narzędzi bez niego;
+  `--allowedTools` i `--tools` go nie włączają). Kontrola pozytywna: oba modele napisały, że bramka
+  kazała pytać o zgodę, a sesja nie pozwala. Kryterium zastępcze: hook z kopii na projekcie
+  z przebiegu (`relai-e5-nowy`, lista modeli skopiowana przez start sesji) — treść bramki niesie
+  „W TYM SAMYM wywolaniu dodaj dwa pytania…"; na projekcie z modelem „nie pytaj" (`relai-e5-kontrola`)
+  — 0 trafień. Test jednostkowy obu wariantów (dowód negatywny: bez opcji treść bajt w bajt jak w 2.6.0).
+- Bajty: wyjście startu 1 933 → 1 933 B; bramka 809 B bez pytania o model, **1 122 B** z nim
+  (test: ≤ 1 200 znaków). Budżet startu (`startCost` jak w hooku) na tym repo **92,8 → 93,3 KB**
+  przed dopisaniem lekcji (< 100 KB); po lekcjach — liczba w `STATE.md`.
+- Cursor: instalator na `%TEMP%/relai-e5-cursor` — `relai-planning.mdc` z `alwaysApply: false`,
+  rdzeń i guardraile `true`; komunikat „reguly .mdc: 3 (zawsze w kontekscie: 2, na zadanie: 1)".
+  Dobieranie po opisie w żywej sesji Cursora **niezmierzone** (README adaptera mówi to wprost).
+- **Demo:** próg ustalony przed renderem — mediana wysokości glifów w linii ≥ 7 px przy 375 px.
+  Nowy GIF PL: 38 klatek ustalonych, 167 linii, minimum **8,0 px**; EN: 40 klatek, 169 linii,
+  8,0 px — przechodzą. Stary GIF PL i EN (kontrola pozytywna, ten sam instrument): minimum 2,0 px
+  — nie przechodzą. Instrument poprawiany dwa razy (szczeliny na ciemnym dymku, klatki przejść —
+  L-0124) i za każdym razem mierzył oba materiały od nowa. DOM: 0 przepełnień w pięciu stanach
+  ustalonych, kontrola pozytywna na podłożonym przepełnieniu wykryta; najmniejszy tekst 15 px przy
+  375 px; luminancja tekstu ≤ 0,167. Pokrycie cytatów: **17/17**, podłożony cytat wypada (po
+  poprawce korpusu — L-0125). Render z repo po przeniesieniu źródeł: HTML identyczny, klatka różni
+  się w 1 pikselu.
+- Testy: `node --test core/process/tests/*.test.js core/guardrails/tests/*.test.js adapters/codex/tests/*.test.js`
+  — **66/66** (było 64); `validate-adapters.js` kod 0; generator skilli Codeksa spójny (24 pliki).
+- `claude plugin validate .` → `✔ Validation passed`. Punkt cache'u po `plugin update` — **nie
+  dotyczy** (Aneks G: bez wydania).
+- Przegląd agenta `code-reviewer`: 0 uwag krytycznych, wysokich i średnich.
+- Katalog roboczy: raport `clean-work.js` — E5 **118 MB** (chroniony, etap w toku) + `work/demo`
+  0,9 MB; `%TEMP%`: `relai-e5-plugin`, `-cursor`, `-nowy`, `-stary`, `-kontrola`,
+  `relai-e5-settings.json` — 5,1 MB. Po „tak" skasowane wszystkie; brak każdej ścieżki sprawdzony
+  po operacji; `.claude/relai/work` 188 KB (pozostałości innych wątków, nietknięte).
+- Ryzyka: P1 — bez zmiany poziomu; różnica między narzędziami stoi teraz jawnie w README (tabela).
+  O4 — bramka z pytaniem o model jest o 313 B dłuższa, ale zadaje jedno okno zamiast dwóch.
+
+**Świadomie odłożone:**
+
+- W tej sesji bramka 2.6.0 odpaliła się na **powiadomieniu o zadaniu w tle**, nie na prompcie
+  człowieka — filtr pomijania go nie łapie. Poza zakresem E5; decyzją Łukasza wchodzi do E6 jako
+  **Aneks H** (punkt 6 promptu E6).
+- 13 wzmianek „od 2.7.0 / w wydaniu 2.7.0" (kod, komenda, KOMENDY, README Cursora, INSTALACJA,
+  PRZEWODNIK) zakłada numer następnego wydania — do potwierdzenia `grep`-em przy wydaniu (Aneks G).
+- README na GitHubie opisuje nowe zachowanie dopiero po pushu; publiczny plugin zostaje 2.6.0.
+- Rotacja `LEKCJE.md` (ponad progiem 50 KB, teraz 66,8 KB) — należy do rytuału sesji.
+
+**Do zrobienia przez człowieka:**
+
+- Po wydaniu przy zamknięciu planu: sprawdzić w sesji interaktywnej, że pierwszy prompt merytoryczny
+  z trybem ciągłym, bez zgody i bez modelu, daje **jedno** okno pytań (bramka Aneksu F).
+- Restart aplikacji desktopowej pod 2.6.0 i odświeżenie listy Codeksa — bez zmian z E4.
 
 Autor: RelAI (Opus 5.5) + Lukasz
