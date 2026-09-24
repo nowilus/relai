@@ -32,9 +32,12 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
    i porównaj ją z tym, co mechanizm w ogóle kontroluje; kryterium arytmetycznie nieosiągalne
    wraca do człowieka jako aneks, a nie kończy etap jako niedowieziony punkt. **Autor promptu
    etapu robi to samo przy pisaniu kryterium** — na materiale i wobec reguł specyfikacji, którą
-   etap wykona. (L-0017, L-0018, L-0040, L-0051, L-0052, L-0063, L-0069, L-0082, L-0115)
+   etap wykona. **Etap przenoszący treść liczy metrykę treści na całym pakiecie** (plik źródłowy
+   + pliki docelowe), bo sam plik źródłowy pokazuje przeprowadzkę, nie zmianę. (L-0017, L-0018,
+   L-0040, L-0051, L-0052, L-0063, L-0069, L-0082, L-0115, L-0117)
 5. **Instrument pomiarowy sam bywa źródłem fałszu:** wyrażenia regularne trzymaj w pliku zapisanym
-   narzędziem zapisu, nie w `node -e` ani w heredoku (L-0116); scenariusz „konfiguracji nie ma" mierz z podstawionym katalogiem domowym; dokładaj
+   narzędziem zapisu, nie w `node -e` ani w heredoku, a tekst z backslashem (także ścieżkę
+   Windows) wstawiasz Edit/Write albo piszesz z `/` (L-0116, L-0119); scenariusz „konfiguracji nie ma" mierz z podstawionym katalogiem domowym; dokładaj
    przypadek, który **musi** trafić. Zero trafień przy niepustych zbiorach to defekt instrumentu,
    dopóki nie udowodnisz inaczej — porównanie identyfikatora wygenerowanego z zastanym ma obok
    siebie kontrolę „ile zastanych nie znalazło pary". Dzieląc wiersz po separatorze, który da się
@@ -137,13 +140,16 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
    opus i sonnet bez spadku; haiku nie jest kryterium). Każdy krok sięgający dalej ma zapisane
    wyjście po odmowie dostępu. (L-0009, L-0010, L-0012, L-0023, L-0114)
 10. **Wersję pluginu potwierdzasz plikiem instalacji, nie komunikatem CLI**, zachowania mierzysz
-    świeżą sesją, a po podbiciu numeru przepuszczasz repo `grep`-em po starym i rozstrzygasz każde
+    świeżą sesją, a po podbiciu numeru przepuszczasz repo `grep`-em po starym (zwykłym `grep -r`,
+    nie `git grep`, który nie widzi plików nowych w etapie) i rozstrzygasz każde
     trafienie — **także w treści komend, skilli i specyfikacji**, dzieląc je na wzmianki
     historyczne i deklaracje stanu docelowego. Kontrola patrząca tylko na manifesty tej różnicy nie
     widzi. **Zachowanie zmienione, ale jeszcze niewydane, mierzysz artefaktem podłożonym lokalnie
     w projekcie kontrolnym** — hook przez `.claude/settings.json`, skill przez `.claude/skills/`
     pod **inną nazwą** niż wersja z pluginu; kolizja nazw znaczy, że nie wiesz, którą treść
-    zmierzyłeś. (L-0004, L-0008, L-0020, L-0061, L-0085)
+    zmierzyłeś. Cały plugin podkładasz `claude -p --plugin-dir <kopia>` z wyłączoną instalacją
+    (`--settings` z `enabledPlugins` na `false`) i sprawdzasz ścieżkę pluginu w zdarzeniu `init`.
+    (L-0004, L-0008, L-0020, L-0061, L-0085, L-0118)
 11. **Końce linii są wariantem, nie szczegółem.** Sumy kontrolne porównuj po normalizacji
     CRLF → LF; w regexie nad pojedynczą linią nie zakotwiczaj końca, bo kropka nie obejmuje `\r`
     i wzorzec przestaje trafiać na repozytorium z `core.autocrlf=true`; mechanizm czytający
@@ -673,3 +679,37 @@ Treść jest kopią bajt w bajt — zmieniony został wyłącznie status w linii
   pliku (Write/Edit), nigdy heredokiem ani `node -e`/`python -c`; po zapisie sprawdzasz linię
   `cat -A`, zanim ją uruchomisz.
 - **Źródło:** E2 planu PROWADZENIE_END_TO_END. Destylat: zasada 5 uzupełniona.
+
+### L-0117 — Przeniesienie treści do innego pliku udaje poprawę każdej metryki pliku źródłowego · 2026-09-24 · AKTYWNA
+
+- **Trigger:** po podziale `relai-core` licznik negacji na samym `SKILL.md` spadł z 296 do 159,
+  zanim przepisano choć jedno zdanie — treść wyjechała do plików doczytywanych.
+- **Przyczyna:** metryka „ile X jest w tekście" liczona na pliku, z którego zmiana przenosi treść,
+  mierzy przeprowadzkę, nie zmianę.
+- **Zasada:** gdy etap przenosi treść, metrykę treści liczysz na **całym pakiecie** (plik + pliki,
+  do których treść trafiła), przed i po, tym samym licznikiem; liczba dla samego pliku źródłowego
+  stoi obok jako informacja o rozkładzie, nigdy jako wynik.
+- **Źródło:** E3 planu PROWADZENIE_END_TO_END (pakiet: 296 → 304 po przeprowadzce, 235 po
+  przepisaniu). Destylat: zasada 4 uzupełniona.
+
+### L-0118 — `git grep` po podbiciu wersji nie widzi plików, które etap właśnie utworzył · 2026-09-24 · AKTYWNA
+
+- **Trigger:** `git grep "2\.4\.0"` po podbiciu numeru pokazał „czyste" repo, a nowy plik
+  doczytywany `new-project.md` nadal wymagał markera `Wersja RelAI: 2.4.0` — plik był nieśledzony.
+- **Przyczyna:** `git grep` przeszukuje wyłącznie pliki śledzone; pliki utworzone w etapie i jeszcze
+  niedodane są dla niego niewidoczne.
+- **Zasada:** kontrolę „stary numer nie zwraca nic" uruchamiasz zwykłym `grep -r` po drzewie
+  (z wykluczeniem archiwum) albo po `git add` — nigdy samym `git grep` na drzewie z nowymi plikami.
+- **Źródło:** E3 planu PROWADZENIE_END_TO_END. Destylat: zasada 10 uzupełniona.
+
+### L-0119 — Ścieżka Windows w literale Pythona z heredoku zamienia się w znaki sterujące · 2026-09-24 · AKTYWNA
+
+- **Trigger:** adnotacja z ścieżką cache'u `relai` / `relai` / `2.4.0` rozdzielaną backslashami,
+  wstawiona skryptem Pythona z heredoku, trafiła do dziennika jako `\r` i `\x02` — tekst
+  „relaielai.4.0" w dokumencie.
+- **Przyczyna:** ta sama warstwa co w L-0116 zjada jeden poziom ucieczki, a Python interpretuje
+  resztę jako sekwencje `\r` i `\2`.
+- **Zasada:** powtórzenie L-0116 — tekst z backslashem wstawiasz narzędziem Edit/Write; ścieżki
+  w dokumentach piszesz z ukośnikami `/`. Kandydat do graduacji do `CLAUDE.md` (propozycja
+  w podsumowaniu etapu, decyzja człowieka).
+- **Źródło:** E3 planu PROWADZENIE_END_TO_END, wykryte odczytem pliku po zapisie.

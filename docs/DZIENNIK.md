@@ -114,6 +114,7 @@
 - **Weryfikacja ośmiu rozstrzygnięć wpisanych w E2 — wypisane co do jednego 2026-09-01, czekają na
   potwierdzenie albo sprzeciw** · 2026-08-20 ·
   [wpis 2026-09-01 — Osiem bramek z listy zamkniętych](archiwum/dziennik/DZIENNIK_2026-09-01_2026-09-03.md#2026-09-01--osiem-bramek-z-listy-zamkniętych-plan-rozwoj_po_wydaniu-zamrożony-formalnie)
+  *(odroczone 2026-09-24, odroczeń: 1)*
 
 - **Ryzyko R2 zamknięte na nieaktualnej przesłance** — 2026-09-03 zamknięto je zdaniem „nie zostanie
   zmierzone nigdy", opartym na wyczerpanym limicie `claude -p` (L-0032). W E1 tego samego dnia
@@ -1207,5 +1208,95 @@ Autor: RelAI (Opus 5.5) + Lukasz
 **Do zrobienia przez człowieka:**
 
 - Restart aplikacji desktopowej, żeby sesje w aplikacji ładowały 2.4.0 (P-005).
+  *(rozstrzygnięte 2026-09-24 — sesja E3 w aplikacji ładowała skill `relai-planning` z cache'u `relai/relai/2.4.0`)*
+
+Autor: RelAI (Opus 5.5) + Lukasz
+
+### 2026-09-24 — E3 planu PROWADZENIE_END_TO_END: skille w progresywnym ujawnianiu i wydanie 2.5.0
+
+**Zrobione:**
+
+- **Przegląd spraw na starcie sesji:** „Weryfikacja ośmiu rozstrzygnięć wpisanych w E2" (35 dni)
+  odroczona decyzją Łukasza — adnotacja `odroczone 2026-09-24, odroczeń: 1`.
+- **Podział skilli (A12+M03):** `relai-core` 968 → **491** linii, `relai-planning` 575 → **455**.
+  Procedury rzadkie przeniesione **bez zmian treści** do plików obok `SKILL.md`: `session-close.md`,
+  `document-rotation.md`, `new-project.md`, `profiles.md`, `waiting-migration.md`, `history.md`
+  (core) oraz `html-plan.md`, `plan-closing.md` (planning). Każdy `SKILL.md` ma tabelę albo akapit
+  „otwierasz go, gdy …" i sekcje-wskaźniki pod starymi nagłówkami, więc odesłania z komend
+  (`/relai-stage` → „Zamknięcie planu (D-36)", hook → „Przegląd spraw przeterminowanych") trafiają.
+  Skill startu **66,1 → 28,6 KB** (FAKT, `wc -c` 67 656 → 29 333 B).
+- **Mniej zakazów (M12):** 30 zdań `relai-core/SKILL.md` z zakazem opisującym zachowanie od tyłu
+  przepisane na opis zachowania; zakazy sekretów, kasowania/nadpisywania i zgody bez zmian.
+- **Dystrybucja:** `generate-skills.js` kopiuje każdy plik `.md` skilli rdzeniowych, usuwa i zgłasza
+  pliki osierocone, eksportuje `expected()`; `adapters/cursor/install.js` kopiuje wszystkie pliki
+  `.md` katalogu skilla (deinstalacja zdejmuje je z manifestu). Dwa nowe testy generatora.
+- **Parytet (A09):** `validate-adapters.js` zgłasza rozjazd każdego pliku skilla i pliki osierocone,
+  a w sukcesie pisze „parytet skilli Claude Code -> Codex: 24 plikow, 0 rozjazdow".
+- **Budżet startu:** domyślnie **100 KB** (było 140) w rdzeniu, `SPEC_USTAWIENIA.md`
+  i `docs/USTAWIENIA.md` — decyzja Łukasza; stary wiersz w „Ustawieniach wycofanych".
+- **Wydanie 2.5.0** (decyzja Łukasza): commit `9ef2d83`, tag `v2.5.0`, push, release Latest,
+  `marketplace update` + `plugin update` → `installed_plugins.json` wskazuje `…/2.5.0`.
+
+**Zweryfikowane — jak dokładnie:**
+
+- `wc -l`: `relai-core/SKILL.md` 491, `relai-planning/SKILL.md` 455 — tak samo w `adapters/codex/skills/`
+  (generator, identyczne bajtowo). Każdy z 8 plików doczytywanych ma w `SKILL.md` wyzwalacz.
+- Mapa sekcji przed → po (skrypt na zamrożonej kopii): core 39/39, planning 23/23 sekcji z miejscem
+  docelowym; kontrola pozytywna — przemianowany nagłówek w kopii → „bez miejsca po: 1". Dodatkowo
+  każda niepusta linia oryginału `relai-core` znaleziona po podziale poza 11 zmienionymi celowo
+  (odesłania). Przegląd agenta `code-reviewer`: APPROVE, 0 uwag krytycznych, wysokich i średnich.
+- **Wyzwalanie (K1, A17):** `claude -p` w projekcie testowym `%TEMP%\relai-e3-trigger` (git,
+  podpis Lukasz, tryb ciągły wyłączony), `--max-turns 12`, dowód = `tool_use` `Skill` w
+  `stream-json`, ścieżka pluginu ze zdarzenia `init`. „Przed" = zainstalowane 2.4.0 (2 powt.) +
+  `--plugin-dir` z worktree HEAD (3 + 3 Sonnet); „po" = `--plugin-dir` z kopią drzewa roboczego
+  (3 + 3 Sonnet), instalacja wyłączona `enabledPlugins`:
+
+  | Model | `relai-core` przed → po | `relai-planning` przed → po |
+  |---|---|---|
+  | Opus 5.5 | 5/5 → 3/3 | 5/5 → 3/3 |
+  | Sonnet 5 | 6/8 → 6/6 | 5/8 → 4/6 |
+  | Haiku 4.5 (D-90, raport) | 1/5 → 2/3 | 0/5 → 0/3 |
+
+  Bez spadku na Opus i Sonnet — opis skilli bez zmian. Szum Sonneta przy planowaniu jest duży: dwie
+  serie tej samej wersji dały 3/3 i 1/3, dwie serie HEAD 2/3 i 2/3. Kody wyjścia: **60/60 sesji
+  `code 0 success`**, kontrola pozytywna (prośba o `relai-help`) 6/6 w obu fazach.
+- Negacje w pakiecie `relai-core` (licznik: `nie`, `nigdy`, `żadn*`, `zakaz*` jako całe słowa,
+  kontrola na próbce 5/5): **296 → 235**, a po akapicie 2.5.0 w `history.md` **237** (ten sam licznik, `grep -P`); sam `SKILL.md` 296 → 90 (reszta w plikach doczytywanych,
+  L-0117). `relai-planning` bez przepisywania: 162 → 164 (tekst wskaźników).
+- `node adapters/codex/generate-skills.js --verify` → „14 procedur + 2 skille rdzeniowe (10 plikow),
+  spojne", kod 0. Instalator Cursora na `%TEMP%\relai-e3-cursor`: 10/10 plików skilli `cmp` zgodnych
+  z repo, deinstalacja usunęła katalog `.cursor/skills`.
+- `validate-adapters.js`: repo kod 0; kopia `%TEMP%\relai-e3-validator` z dopisaną linią w
+  `codex/.../session-close.md` → kod 1 z nazwą pliku; plus osierocony `orphan.md` → kod 1, dwa błędy.
+- Budżet startu (`startCost` jak w hooku) na tym repo: **126,3 → 88,8 KB** (`skill relai-core
+  66.1 KB` → `28.6 KB` w linii „W sumie").
+- Testy: `node --test core/process/tests/*.test.js core/guardrails/tests/*.test.js adapters/codex/tests/*.test.js`
+  — **58/58** (było 56).
+- `claude plugin validate .` → `✔ Validation passed` przed tagiem; po `plugin update` 20/20 plików
+  skilli w cache'u `2.5.0` zgodnych z repo (SHA-256 po CRLF → LF); kontrola: oba `SKILL.md` w cache'u
+  `2.4.0` różne od repo (2/2), `relai-core` w 2.4.0 ma 1 plik.
+- Wersja: `grep -r "2\.4\.0"` po drzewie — deklaracje podbite (manifesty, README, `relai-update.md`,
+  oba skille, `new-project.md`, README Cursora, KOMENDY, marker USTAWIENIA, STATE); zostały wzmianki
+  historyczne (`history.md`, komentarz budżetu, `SPEC_USTAWIENIA.md`, dziennik).
+- Katalog roboczy: raport `clean-work.js` przed — kandydaci 65,8 MB, katalog E3 chroniony (etap
+  w toku, 7,9 MB, 106 plików); po „tak" skasowany razem z `%TEMP%\relai-e3-trigger`,
+  `relai-e3-plugin-head` (worktree, `git worktree remove`), `relai-e3-plugin-after`,
+  `relai-e3-validator`, `relai-e3-cursor`; raport po — kandydaci 0,1 MB.
+
+**Świadomie odłożone:**
+
+- `LEKCJE.md` ponad progiem (54,8 KB → więcej po trzech nowych lekcjach) — rotacja lekcji
+  zaproponowana na starcie, Łukasz wybrał start E3.
+- Hook `UserPromptSubmit` (bramka zgody trybu ciągłego) odpalał się na powiadomieniach o zadaniach
+  w tle, bez promptu człowieka — pytanie o zgodę nie miało czego dotyczyć; nie zadano go. Do
+  sprawdzenia, czy payload odróżnia powiadomienie od promptu.
+- Pozycja budżetu `ryzyka` 21,5 KB przy progu cząstkowym 12 KB — jak w E2, gruba sekcją „Czeka na
+  człowieka" i ostatnim wpisem.
+- Pliki doczytywane nie mają jeszcze angielskich odpowiedników warstwy modelu — treść przeniesiona
+  po polsku, jak była (zakres E4).
+
+**Do zrobienia przez człowieka:**
+
+- Restart aplikacji desktopowej, żeby sesje w aplikacji ładowały 2.5.0 (P-005).
 
 Autor: RelAI (Opus 5.5) + Lukasz
