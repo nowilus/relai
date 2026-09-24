@@ -293,6 +293,37 @@ if (marketplace && Array.isArray(marketplace.plugins)) {
 if (codexMarketplace && Array.isArray(codexMarketplace.plugins)) {
   for (const p of codexMarketplace.plugins) wersje.push(['.agents/plugins/marketplace.json (' + p.name + ')', p.version]);
 }
+// 5b) Wersja w dokumentach czytanych przez ludzi (od 2.3.1, pozycja A02+A18): baner README
+// i pierwszy numer wersji w sekcji "Gdzie jestesmy" STATE.md. Manifesty rozjezdzaly sie
+// z nimi po cichu — README stal na 2.1.4, a STATE na 2.2.0 przy wydanym 2.3.0. Brak banera
+// albo sekcji to blad, nie cisza: kontrola, ktora nie znalazla, czego pilnuje, nie sprawdza.
+const WERSJA = /\b(\d+\.\d+\.\d+)\b/;
+function wersjaZDokumentu(rel, wycinek) {
+  let txt = '';
+  try { txt = fs.readFileSync(path.resolve(ROOT, rel), 'utf8').replace(/\r\n/g, '\n'); } catch (e) {
+    bledy.push('nie moge odczytac ' + rel + ' (' + e.message + ')');
+    return;
+  }
+  const fragment = wycinek(txt);
+  const m = fragment === null ? null : WERSJA.exec(fragment);
+  if (!m) {
+    bledy.push(rel + ': nie znaleziono numeru wersji tam, gdzie powinien stac');
+    return;
+  }
+  wersje.push([rel, m[1]]);
+}
+wersjaZDokumentu('README.md', (txt) => {
+  const m = /<em>Wersja (\d+\.\d+\.\d+)/.exec(txt);
+  return m ? m[1] : null;
+});
+wersjaZDokumentu('docs/STATE.md', (txt) => {
+  const start = txt.search(/^## Gdzie jeste[śs]my\s*$/m);
+  if (start < 0) return null;
+  const reszta = txt.slice(start).split('\n').slice(1).join('\n');
+  const koniec = reszta.search(/^## /m);
+  return koniec < 0 ? reszta : reszta.slice(0, koniec);
+});
+
 const unikalne = Array.from(new Set(wersje.map((w) => w[1]).filter(Boolean)));
 if (unikalne.length > 1) {
   bledy.push('wersje sie rozjechaly: ' + wersje.map((w) => w[0] + ' = ' + w[1]).join(', '));

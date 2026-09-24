@@ -13,7 +13,7 @@ Szacunek: 7 etapów, 10–13 sesji (SZACUNEK). Poprzednik: [PIERWSI_UZYTKOWNICY]
 
 | Etap | Nazwa | Status | Prompt | Uwagi |
 |---|---|---|---|---|
-| E1 | Szybkie poprawki i wydanie 2.3.1 | GOTOWY DO STARTU | [PROMPT_ETAP_1.md](PROMPT_ETAP_1.md) | `/effort medium`; 9 pozycji rejestru; kończy się wydaniem 2.3.1 (w repo czeka commit `36991a9`) |
+| E1 | Szybkie poprawki i wydanie 2.3.1 | W TOKU | [PROMPT_ETAP_1.md](PROMPT_ETAP_1.md) | `/effort medium`; 9 pozycji rejestru; kończy się wydaniem 2.3.1 (w repo czeka commit `36991a9`) |
 | E2 | Lżejszy start sesji | OCZEKUJE | — | `/effort high`; 6 pozycji; rotacja wg wagi całkowitej (decyzja 2026-09-24) |
 | E3 | Skille w progresywnym ujawnianiu | OCZEKUJE | — | `/effort high`; 4 pozycje; pomiar wyzwalania przed i po na trzech modelach |
 | E4 | Zasady skrojone pod model | OCZEKUJE | — | `/effort high`; 13 pozycji; nakładka openai zależy od odświeżenia listy Codeksa |
@@ -30,5 +30,6 @@ Szacunek: 7 etapów, 10–13 sesji (SZACUNEK). Poprzednik: [PIERWSI_UZYTKOWNICY]
 
 - 2026-09-24 — plan utworzony ze scalenia trzech raportów sesji po dwóch rundach wywiadu (jeden plan, wydanie po etapie, uczciwe minimum dla Cursora i Codeksa, rotacja wg wagi całkowitej, nowe procedury jako ostatnie etapy); PIERWSI_UZYTKOWNICY zamknięty tego samego dnia.
 - 2026-09-24 — plan zaakceptowany i zamrożony bez poprawek (D-33); zamrożona D-88 (cel rotacji na wadze całkowitej); PROMPT_ETAP_1.md wygenerowany, E1 gotowy do startu.
+- 2026-09-24 — E1 rozpoczęty
 
 RelAI (Opus 5.5) + Lukasz

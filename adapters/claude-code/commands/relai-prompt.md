@@ -91,8 +91,9 @@ prompt:
 | `ten projekt` | wiersz `Model optymalizatora` w `docs/USTAWIENIA.md` z dzisiejszą datą i członem `· nie pytaj`; istniejący wiersz **nadpisujesz**, nie dopisujesz drugiego | po usunięciu członu `· nie pytaj` |
 | `wszystkie projekty` | ten sam wiersz w `~/.claude/relai/USTAWIENIA.md` (brak pliku → tworzysz go z tabelą `\| Data \| Czego dotyczy \| Decyzja \|`) | po usunięciu członu; projekt z własnym wierszem `· nie pytaj` ma pierwszeństwo |
 
-Wybór „ta sesja" świadomie nie ma pliku: plik stanu współdzielony przez sesje nadpisuje się przy
-dwóch sesjach naraz — zmierzone 2026-09-24 na `.claude/relai/zgoda-promptu.json`.
+Wybór „ta sesja" świadomie nie ma pliku: rozmowa go niesie, a plik stanu współdzielony przez sesje
+nadpisywał się przy dwóch sesjach naraz — zmierzone 2026-09-24 na `.claude/relai/zgoda-promptu.json`,
+dlatego od 2.3.1 każda sesja zapisuje zgodę we własnym pliku.
 
 Rozstrzygasz według tego, co zastajesz:
 
@@ -343,7 +344,7 @@ zaczynający się od `/`), frazy sesji, krótkie potwierdzenia i pytania.
 **Bramka zgody (od 2.3.0).** Włączony wiersz znaczy „tryb jest dostępny", a nie „tryb działa bez
 pytania". Pierwszy prompt merytoryczny sesji wraca **pytaniem o trzy opcje**: tak w tej sesji / tak
 i nie pytaj więcej (zapis globalny) / nie. Odpowiedź zapisuje się od razu — sesyjna do
-`.claude/relai/zgoda-promptu.json` (związana z identyfikatorem sesji, więc nie przecieka do
+`.claude/relai/zgoda-promptu/<id sesji>.json` (od 2.3.1 osobny plik na sesję, więc nie przecieka do
 następnej), trwała wierszem `Zgoda na optymalizator` w `~/.claude/relai/USTAWIENIA.md`. Odpowiedź
 „nie" wycisza tryb do końca sesji i wraca dopiero w następnej. Przy zgodzie trwałej start sesji
 przypomina o niej raz na `N` dni (człon `· przypomnienie co N dni`, domyślnie 30), a wyłącza ją

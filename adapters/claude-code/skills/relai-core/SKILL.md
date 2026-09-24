@@ -1,31 +1,24 @@
 ---
 name: relai-core
 description: >
-  MUST BE USED on the first prompt of a session in any folder, before answering anything else — to
-  check whether the folder is a RelAI project (docs/USTAWIENIA.md contains "Wersja RelAI" / "RelAI
-  version"), run the session start ritual when it is, and offer to set the structure up when it is
-  not. Skipping this check means working without the project's memory, rules and open risks.
+  Runs the RelAI session start ritual and keeps the project's memory current. Use it on the first
+  prompt of a session in any folder: it checks whether the folder is a RelAI project
+  (docs/USTAWIENIA.md contains "Wersja RelAI" / "RelAI version"), reads the project's state,
+  journal, lessons and decisions when it is, and offers to set the structure up when it is not —
+  without this check the session works without the project's memory, rules and open risks.
   Trigger phrases (Polish): "zacznijmy projekt", "nowy projekt", "zaczynam projekt", "zainicjuj
   projekt", "dodaj RelAI", "dołącz RelAI", "zaadoptuj projekt", "co to za projekt", "kończymy na
   dziś", "kontynuujemy pracę", "sprawdź status", "jak stoimy". English: "start project", "new
   project", "init project", "set up RelAI", "adopt this project", "wrapping up", "let's continue",
-  "status check".
-  Covers: initialization (consent, then exactly three questions, then generation of CLAUDE.md,
-  README.md and docs/ with STATE, DZIENNIK, LEKCJE, DECYZJE, USTAWIENIA, KOMENDY), guest mode,
-  non-destructive attach, full adoption of an existing project (explicit /relai-adopt only, D-70),
-  keeping STATE and the journal current in the same turn as any functional
-  change, automatic two-phase rotation of the journal and the lessons register into docs/archiwum/
-  during the session-closing ritual (thresholds and an off switch live in USTAWIENIA; silence below
-  the threshold), recording a lesson after every user correction, proposing to freeze a recurring decision,
-  and the conditional rules of the project profile (app / agent-voice / flow / prompty): the
-  document that appears at the first code, the first UI, the first deploy, the first artifact, and
-  the snapshot that must precede any production config change. Planning is a separate skill
-  (relai-planning).
+  "status check". Also covers guest mode, attach, the closing ritual with journal rotation, lessons
+  after user corrections and profile rules. Plans: relai-planning.
 ---
 
 # relai-core — struktura projektu, pamięć i rytuały sesji
 
-Aktualny stan dystrybucyjny: RelAI 2.3.0; wcześniejsze akapity wersji opisują historię zmian.
+Aktualny stan dystrybucyjny: RelAI 2.3.1; wcześniejsze akapity wersji opisują historię zmian.
+
+Wersja 2.3.1 (poprawki spójności, etap E1 planu PROWADZENIE_END_TO_END: opisy skilli `relai-core` i `relai-planning` mieszczą się w limicie 1 024 znaków i mówią w trzeciej osobie, bez nacisku `MUST BE USED`; recenzent załogi zgłasza każde znalezisko z wagą i pewnością, a filtruje orkiestrator; zgoda sesyjna na tryb ciągły mieszka w osobnym pliku każdej sesji, `.claude/relai/zgoda-promptu/<id>.json`, więc dwie sesje naraz nie wypierają sobie decyzji — stary plik `zgoda-promptu.json` z jednym rekordem czytany dalej; `/relai-prompt` pozwala człowiekowi wybrać model optymalizatora; lista modeli Claude Code z Opus 5.5; procedura tego skilla bez zmian).
 
 Wersja 2.3.0 (dwie bramki zgody na proaktywne zachowanie RelAI, obie w warstwie globalnej uzytkownika: (1) tryb ciagly optymalizatora pyta o zgode na KAZDA sesje — ta sesja / nie pytaj wiecej / nie — bo wlaczony wiersz `Tryb ciagly` mowi, ze tryb jest dostepny, a nie ze ma dzialac bez pytania; zgoda sesyjna mieszka w `.claude/relai/zgoda-promptu.json` zwiazana z identyfikatorem sesji, trwala w wierszu `Zgoda na optymalizator` z czlonem `· przypomnienie co N dni` (domyslnie 30) i wylacznikiem `/relai-prompt off --globalnie`; (2) wiersz `Propozycja RelAI poza projektem` wycisza propozycje zakladania struktury we WSZYSTKICH folderach bez markera naraz — plugin jest instalowany w zakresie uzytkownika, wiec ten skill widzi kazdy katalog na maszynie, a tryb goscia (D-21) zamyka temat tylko w jednym; procedura tego skilla zmieniona w Kroku 0 i w obu stanach bez markera, podniesiony marker wersji wymagany w `docs/USTAWIENIA.md`).
 
@@ -887,7 +880,7 @@ Zasady generacji:
   Dla projektu angielskiego: `docs/STATE.md`, `docs/JOURNAL.md`, `docs/LESSONS.md`,
   `docs/DECISIONS.md`, `docs/SETTINGS.md`, `docs/COMMANDS.md`. Konwencja stała: CAPS_SNAKE, bez dat
   i numerów wersji w nazwie.
-- `docs/USTAWIENIA.md` **musi** zawierać linię `Wersja RelAI: 2.3.0` — to marker, po którym RelAI
+- `docs/USTAWIENIA.md` **musi** zawierać linię `Wersja RelAI: 2.3.1` — to marker, po którym RelAI
   rozpoznaje projekt i po którym przyszły `/relai-update` policzy różnicę wersji.
 - `CLAUDE.md` **musi** zawierać sekcję `## Reguły profilu (<wybrany profil>)` zaraz po „Regułach
   procesu" — 3–6 punktów wg `SPEC_PROFILE.md`. To jedyna warstwa reguł profilu działająca bez

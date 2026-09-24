@@ -1,13 +1,18 @@
 # STATE — RelAI
 
-Stan na: 2026-09-15 (zamknięcie planu OPTYMALIZATOR_PROMPTOW i wydanie 2.2.0; stan techniczny poniżej z 2026-09-06)
+Stan na: 2026-09-24 (etap E1 planu PROWADZENIE_END_TO_END — wydanie 2.3.1; stan techniczny poniżej z 2026-09-06)
 
 ## Gdzie jesteśmy
 
-RelAI ma w repozytorium i publicznie **2.2.0** (wydane 2026-09-15: tag, push, potwierdzone treścią
-plików z cache'u po `plugin update` — 10/10, kontrola pozytywna na 2.1.4 dała różnicę). **2.2.0
-dokłada czternastą komendę `/relai-prompt` i tryb ciągły optymalizatora.** Poprzednio **2.1.4**
-(wydane 2026-09-12) i działa w Claude Code, Cursorze oraz
+RelAI ma w repozytorium **2.3.1** — poprawki spójności z etapu E1 planu PROWADZENIE_END_TO_END:
+opisy skilli `relai-core` i `relai-planning` w limicie 1 024 znaków, recenzent załogi zgłaszający
+wszystko z wagą i pewnością, zgoda na tryb ciągły w osobnym pliku każdej sesji, wybór modelu
+optymalizatora w `/relai-prompt`, lista modeli Claude Code z Opus 5.5 oraz walidator, który
+sprawdza wersję także w banerze README i w tej sekcji. Poprzednio **2.3.0** (wydane 2026-09-15):
+dwie bramki zgody na proaktywne zachowanie RelAI. **2.2.0** dołożyło czternastą komendę
+`/relai-prompt` i tryb ciągły optymalizatora.
+
+RelAI działa w Claude Code, Cursorze oraz
 jako natywny plugin Codexa z jednym rdzeniem procesu. **2.1.0 dokłada załogę** — trzynastą komendę
 `/relai-crew`: sesja zostaje orkiestratorem celu, pyta o role, liczbę subagentów, tryb i zakres
 modeli, układa zadania w fale bez konfliktów plików, deleguje je subagentom gospodarza albo do
@@ -18,10 +23,6 @@ razem z 2.0.0 i 2.1.0 sprawiały, że plugin Claude Code nie ładował komend (P
 dla Claude Code katalogiem konwencyjnym, więc ładował się obok hooków z manifestu — zdublowany
 kontekst startu i błąd schematu `SessionEnd`. Naprawione bramką hosta i wydane 2026-09-12 (odnoga
 HOOKI_KORZEN); **świeża sesja na 2.1.4 ma jeden blok kontekstu i zero komunikatów o błędzie hooka**.
-
-**W repo, niewydane (2026-09-24, zakres 2.3.1):** `/relai-prompt` pyta o model optymalizatora
-i zasięg wyboru (ten prompt / ta sesja / ten projekt / wszystkie projekty), a flaga `--model`
-wybiera jednorazowo. Wydanie razem z pierwszym etapem następnego planu.
 
 Seria 1.9.x dodała listy modeli per narzędzie, poprawiła sprzątanie oraz uszczelniła pre-commit: działa
 w projektach ESM, kończy instalację testem dymnym i nie blokuje poprawnych odczytów sekretów ze
@@ -233,7 +234,7 @@ kontrole przeszły; pełna świeża sesja Codexa pozostaje NOT TESTED po błędz
 
 ## Co blokuje
 
-- **Adapter Cursora zmierzony na 1.9.1, ale nie w tym repozytorium — i tak zostaje (D-87).** Wynik
+- **Adapter Cursora zmierzony na 1.9.1, ale nie w tym repozytorium — i tak zostaje (D-89).** Wynik
   i lista rzeczy niezmierzonych: [CURSOR_1_9_1](fixy/CURSOR_1_9_1/ODNOGA.md). Skutek tutaj: sesja
   Cursora otwarta w tym folderze nie ma kontekstu RelAI ani blokady sekretu.
 - **Dostępność świeżej sesji CLI bywa zmienna** — `claude -p` odmówił rano 2026-09-04 i zadziałał

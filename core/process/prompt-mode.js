@@ -47,7 +47,8 @@ const CZLON_DNI_ZGODY = /^(?:przypomnienie co|reminder every)\s+(\d{1,3})\s+(?:d
 
 // Zgoda na jedna sesje nie ma gdzie mieszkac poza projektem, wiec mieszka w jego
 // cache — tam, gdzie reszta rzeczy nieprzenoszalnych miedzy maszynami.
-const PLIK_ZGODY_SESJI = '.claude/relai/zgoda-promptu.json';
+const PLIK_ZGODY_SESJI = '.claude/relai/zgoda-promptu.json'; // format 2.3.0, tylko odczyt
+const KATALOG_ZGODY_SESJI = '.claude/relai/zgoda-promptu';
 
 // Frazy sesji z CLAUDE.md i skilla relai-core. Prompt, ktory sie od nich zaczyna,
 // jest poleceniem rytualu, nie zdaniem do przerobienia.
@@ -154,17 +155,41 @@ function zgodaGlobalna(txtUstawien) {
 
 // Zgoda na TE sesje. Plik wiazacy decyzje z identyfikatorem sesji — bez niego
 // "tak w tej sesji" przeciekloby do nastepnej, a o to czlowiek nie prosil.
+//
+// Od 2.3.1: JEDEN PLIK NA SESJE w katalogu zgoda-promptu/, nazwany jej
+// identyfikatorem. Wspolny plik z jednym rekordem nadpisywala rownolegla sesja
+// (zmierzone 2026-09-24 — rekord obcej sesji wyparl odpowiedz "nie" i bramka
+// zapytala ponownie), a wspolny plik z mapa wymagalby od modelu scalania JSON-a
+// z prozy — ta sama klasa bledu. Osobny plik nie ma czego scalac.
+//
+// Stary plik zgoda-promptu.json z jednym rekordem { sesja, decyzja, data } jest
+// czytany dalej — zapis 2.3.0 nie moze wywolac ani bledu, ani ponownego pytania.
+// Identyfikator spoza [A-Za-z0-9_-] znaczy null: z niego skladana jest sciezka.
+const ID_SESJI = /^[A-Za-z0-9_-]{1,128}$/;
+
+function plikZgodySesji(cwd, sesja) {
+  if (!ID_SESJI.test(String(sesja || ''))) return null;
+  return path.join(cwd || '.', ...KATALOG_ZGODY_SESJI.split('/'), String(sesja) + '.json');
+}
+
+function decyzjaZRekordu(j) {
+  const decyzja = String((j && typeof j === 'object' && j.decyzja) || '');
+  if (ZGODA_TAK.test(decyzja)) return true;
+  if (ZGODA_NIE.test(decyzja)) return false;
+  return null;
+}
+
 // Zwraca true / false / null (brak pliku, inna sesja, wartosc nierozpoznana).
 function zgodaSesji(cwd, sesja) {
-  if (!sesja) return null;
+  const plik = plikZgodySesji(cwd, sesja);
+  if (!plik) return null;
   try {
-    const p = path.join(cwd || '.', ...PLIK_ZGODY_SESJI.split('/'));
-    const j = JSON.parse(fs.readFileSync(p, 'utf8'));
-    if (String(j.sesja || '') !== String(sesja)) return null;
-    const decyzja = String(j.decyzja || '');
-    if (ZGODA_TAK.test(decyzja)) return true;
-    if (ZGODA_NIE.test(decyzja)) return false;
-    return null;
+    return decyzjaZRekordu(JSON.parse(fs.readFileSync(plik, 'utf8')));
+  } catch (_) { /* brak pliku tej sesji — sprawdzamy stary format */ }
+  try {
+    const stary = JSON.parse(fs.readFileSync(path.join(cwd || '.', ...PLIK_ZGODY_SESJI.split('/')), 'utf8'));
+    if (!stary || String(stary.sesja || '') !== String(sesja)) return null;
+    return decyzjaZRekordu(stary);
   } catch (_) {
     return null;
   }
@@ -240,8 +265,9 @@ function regulaBramki(sesja) {
     'zgody na te sesje jeszcze nie ma. ZANIM zrobisz cokolwiek z tym promptem, zadaj JEDNO ' +
     'pytanie (AskUserQuestion) o trzy opcje: (1) tak, w tej sesji; (2) tak i nie pytaj wiecej — ' +
     'zgoda zapisana globalnie; (3) nie, nie korzystaj w tej sesji. Odpowiedz ZAPISZ, zanim ' +
-    'wykonasz prompt: (1) i (3) do .claude/relai/zgoda-promptu.json jako {"sesja":"' +
-    String(sesja || '') + '","decyzja":"tak albo nie","data":"RRRR-MM-DD"}; (2) to samo z ' +
+    'wykonasz prompt: (1) i (3) do WLASNEGO pliku tej sesji .claude/relai/zgoda-promptu/' +
+    String(sesja || '') + '.json jako {"decyzja":"tak albo nie","data":"RRRR-MM-DD"} - ' +
+    'plikow innych sesji nie ruszasz; (2) to samo z ' +
     'decyzja "tak" PLUS wiersz "| RRRR-MM-DD | Zgoda na optymalizator | tak |" w ' +
     '~/.claude/relai/USTAWIENIA.md. Po (1) i (2) przerabiasz ten prompt procedura /relai-prompt; ' +
     'po (3) wykonujesz go bez zmian i nie wracasz do tematu w tej sesji.';

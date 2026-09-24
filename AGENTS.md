@@ -14,7 +14,7 @@ Czytaj w kolejności, nie skanuj pełnotekstowo repo:
 4. [docs/LEKCJE.md](docs/LEKCJE.md) — wyłącznie sekcja „Zasady aktywne".
 5. [docs/DECYZJE.md](docs/DECYZJE.md) — decyzje zamrożone: **nie proponuj ich ponownie**.
 6. [docs/USTAWIENIA.md](docs/USTAWIENIA.md) — preferencje projektu.
-7. Ostatni plan — linia niżej w sekcji „Stan prac"; **ROZWOJ_PO_WYDANIU został zamknięty 2026-09-05**.
+7. Aktywny plan — linia „Aktywny plan" pod tabelą „Stan prac"; plany zamknięte mają tam status i link do archiwum.
 
 **Frazy sesji:** „kontynuujemy pracę" → rytuał startu, akapit „gdzie jesteśmy" **i jedno zdanie
 z propozycją najbliższego kroku**; „sprawdź status" → stan, plany, ryzyka, zaległości

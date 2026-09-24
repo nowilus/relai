@@ -187,6 +187,9 @@ Recenzent z wywiadu dostaje **całość zmian przebiegu**, nie pojedyncze zadani
   (Claude Code) / `.cursor/agents/relai-reviewer.md` (Cursor) / natywny subagent z promptem
   `crew.js prompt --role reviewer` (Codex) — **innym modelem niż koder**, gdy lista na to pozwala.
 
+Recenzent zgłasza **wszystkie** znaleziska, każde z wagą i pewnością — filtr jest Twój: człowiekowi
+pokazujesz CRITICAL i HIGH zawsze, a MEDIUM i LOW o niskiej pewności zbiorczo, jedną linią z liczbą.
+
 Werdykt jest jeden z trzech: **APPROVE** → krok 9; **WARN** → pokazujesz znaleziska i pytasz,
 czy poprawić teraz (wtedy krok 6 dla wskazanych zadań) czy przyjąć świadomie (wchodzi do wpisu
 jako „świadomie odłożone"); **BLOCK** → wracasz do kroku 6 dla wskazanych zadań, potem ponowny

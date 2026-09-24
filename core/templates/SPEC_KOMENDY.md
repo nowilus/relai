@@ -89,7 +89,13 @@ nie startuje bez „zaczynamy". W 2.2.0 dochodzi **optymalizator promptu**: czte
 `Tryb ciągły` w `USTAWIENIA.md` włącza przerabianie **każdego promptu merytorycznego** bez
 wpisywania komendy, z oryginałem obok propozycji i zgodą przed wykonaniem; filtr pomijania
 przepuszcza komendy, frazy sesji, krótkie potwierdzenia i pytania. Wyłącznik jest **osobny** od
-poprzednich, a domyślną wartością wiersza jest `wyłączony` — tryb włącza się jawnie. Działa:
+poprzednich, a domyślną wartością wiersza jest `wyłączony` — tryb włącza się jawnie. W 2.3.1
+**model optymalizatora wybiera człowiek**: flaga `--model <nazwa|alias|id|sesja>` na jedno
+wywołanie bez pytania, a bez flagi i bez wiersza `Model optymalizatora` z członem `· nie pytaj`
+komenda pyta o model i o zasięg wyboru — `ten prompt` (nic nie zapisuje), `ta sesja` (wybór żyje
+w rozmowie, bez pliku), `ten projekt` (wiersz w `docs/USTAWIENIA.md`), `wszystkie projekty`
+(wiersz w `~/.claude/relai/USTAWIENIA.md`). Wiersz bez członu `· nie pytaj` jest podpowiedzią,
+nie wyborem. Sekcja o zachowaniach automatycznych nie rośnie. Działa:
 
 - inicjalizacja struktury projektu (zgoda → trzy pytania → osiem dokumentów),
 - rozpoznanie folderu, który już jest projektem RelAI,

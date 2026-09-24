@@ -23,10 +23,10 @@ Parsing rules for whoever reads this file:
   treats the list as undated and stays silent about its age.
 
 ```
-list-date: 2026-09-04
+list-date: 2026-09-24
 tool: claude-code
 
-strong: Opus 5 | alias: opus | id: claude-opus-5 | source: code.claude.com/docs/en/model-config, read 2026-09-04
+strong: Opus 5.5 | alias: opus | id: claude-opus-5-5 | source: code.claude.com/docs/en/model-config, read 2026-09-24
 strong: Fable 5.1 | alias: fable | id: claude-fable-5-1 | source: support.claude.com/en/articles/11940350-claude-code-model-configuration, read 2026-09-04
 balanced: Sonnet 5 | alias: sonnet | id: claude-sonnet-5 | source: code.claude.com/docs/en/model-config, read 2026-09-04
 cheap: Haiku 4.5 | alias: haiku | id: claude-haiku-4-5-20251001 | source: support.claude.com/en/articles/11940350-claude-code-model-configuration, read 2026-09-04

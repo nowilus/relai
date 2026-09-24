@@ -184,6 +184,49 @@ test('zgodaSesji binds the decision to one session id and never leaks to the nex
   assert.equal(tryb.zgodaSesji(root, 'abc'), null);
 });
 
+test('two sessions writing alternately keep their own decisions (S01, 2.3.1)', (t) => {
+  const root = fixture(t);
+  const katalog = path.join(root, '.claude', 'relai', 'zgoda-promptu');
+  // Dokladnie to, co regula bramki kaze modelowi: wlasny plik sesji, cudzych nie ruszac.
+  const zapisz = (sesja, decyzja) => {
+    fs.mkdirSync(katalog, { recursive: true });
+    fs.writeFileSync(path.join(katalog, sesja + '.json'), JSON.stringify({ decyzja, data: '2026-09-24' }));
+  };
+
+  zapisz('A', 'nie');
+  zapisz('B', 'tak');
+  assert.equal(tryb.zgodaSesji(root, 'A'), false, 'zapis B wyparl decyzje A');
+  assert.equal(tryb.zgodaSesji(root, 'B'), true);
+
+  zapisz('A', 'tak');
+  zapisz('B', 'nie');
+  assert.equal(tryb.zgodaSesji(root, 'A'), true);
+  assert.equal(tryb.zgodaSesji(root, 'B'), false);
+  assert.equal(tryb.zgodaSesji(root, 'C'), null, 'trzecia sesja zaczyna od zera');
+});
+
+test('the 2.3.0 single-record file is still read, and the per-session file wins over it', (t) => {
+  const root = fixture(t);
+  fs.mkdirSync(path.join(root, '.claude', 'relai'), { recursive: true });
+  const stary = path.join(root, '.claude', 'relai', 'zgoda-promptu.json');
+  fs.writeFileSync(stary, JSON.stringify({ sesja: 'stara', decyzja: 'nie', data: '2026-09-15' }));
+
+  assert.equal(tryb.zgodaSesji(root, 'stara'), false);
+  assert.equal(tryb.zgodaSesji(root, 'nowa'), null);
+
+  const katalog = path.join(root, '.claude', 'relai', 'zgoda-promptu');
+  fs.mkdirSync(katalog, { recursive: true });
+  fs.writeFileSync(path.join(katalog, 'stara.json'), JSON.stringify({ decyzja: 'tak', data: '2026-09-24' }));
+  assert.equal(tryb.zgodaSesji(root, 'stara'), true, 'plik sesji ma pierwszenstwo przed starym rekordem');
+
+  // Zepsuty plik sesji nie rzuca, a identyfikator, ktory wychodzi z katalogu, nie jest czytany.
+  fs.writeFileSync(path.join(katalog, 'X.json'), '{ zepsuty');
+  assert.equal(tryb.zgodaSesji(root, 'X'), null);
+  fs.writeFileSync(path.join(root, '.claude', 'relai', 'wyjscie.json'), JSON.stringify({ decyzja: 'tak' }));
+  assert.equal(tryb.zgodaSesji(root, '../wyjscie'), null);
+  assert.equal(tryb.zgodaSesji(root, '__proto__'), null);
+});
+
 test('stanBramki: session decision wins over the standing consent in both directions', () => {
   const tak = { tak: true, data: '2026-09-15', progDni: 30 };
   const nie = { tak: false, data: '2026-09-15', progDni: 30 };
@@ -201,7 +244,9 @@ test('regulaBramki carries the three options, the session id and the place to wr
   const r = tryb.regulaBramki('sesja-42');
   assert.match(r, /sesja-42/);
   assert.match(r, /AskUserQuestion/);
-  assert.match(r, /zgoda-promptu\.json/);
+  // Od 2.3.1 wlasny plik sesji: wspolny plik nadpisywala rownolegla sesja (S01).
+  assert.match(r, /zgoda-promptu\/sesja-42\.json/);
+  assert.match(r, /innych sesji nie ruszasz/);
   assert.match(r, /USTAWIENIA\.md/);
   assert.match(r, /relai-prompt/);
   assert.ok(!/[ąćęłńóśźżĄĆĘŁŃÓŚŹŻ]/.test(r), 'bramka ma byc w ASCII');

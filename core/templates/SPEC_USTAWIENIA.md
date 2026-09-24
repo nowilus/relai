@@ -464,7 +464,7 @@ odpowiedź na pytanie zadane w momencie, w którym sprawa jest realna. Brak wier
 Bramka trybu ciągłego. Tryb dotyka **każdego** promptu merytorycznego, a wiersz `Tryb ciągły` w
 projekcie bywa zgodą sprzed tygodni — więc pierwszy taki prompt w sesji wraca pytaniem o trzy
 opcje: **ta sesja** / **nie pytaj więcej** / **nie**. Zgoda sesyjna trafia do
-`.claude/relai/zgoda-promptu.json` związana z identyfikatorem sesji (nie przecieka do następnej),
+`.claude/relai/zgoda-promptu/<id sesji>.json` (od 2.3.1 osobny plik na sesję; plik `zgoda-promptu.json` z 2.3.0 czytany dalej) związana z identyfikatorem sesji (nie przecieka do następnej),
 trwała — do tego wiersza.
 
 ```

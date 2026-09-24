@@ -1,27 +1,17 @@
 ---
 name: relai-planning
 description: >
-  MUST BE USED whenever the user asks for any plan, concept, approach, staging or breakdown of work
-  in a project that has RelAI structure (docs/USTAWIENIA.md contains "Wersja RelAI" / "RelAI
-  version") — invoke this skill BEFORE writing the plan, because RelAI plans have a required file
-  layout that differs from a plain Markdown answer.
-  Trigger phrases (Polish): "przygotuj plan", "zaplanuj", "zaplanujmy", "rozpisz to na etapy",
-  "zrób plan", "plan wdrożenia", "plan projektu", "rozpisz plan", "jak to ugryźć", "od czego
-  zacząć", "w jakiej kolejności". English: "make a plan", "plan this out", "break this into
-  stages", "what's the approach". Also for a refactor, migration or rewrite request that spans more
-  than one session, even when the word "plan" is absent.
-  ALSO USE when a stage of an existing plan is being started or closed. Trigger phrases (Polish):
-  "wykonaj etap", "zrób etap", "uruchom etap", "następny etap", "kolejny etap", "zamknij etap",
-  "kończymy etap". English: "run the stage", "next stage", "close the stage".
-  ALSO USE when a side thread appears during a stage and has to be parked instead of done now —
-  a branch of the plan. Trigger phrases (Polish): "odnoga", "zrób z tego odnogę", "boczny wątek",
-  "to nie na teraz", "zróbmy to osobno", "odłóż to na potem". English: "branch this off",
-  "park this", "side thread", "not now, later".
-  The skill decides between a full PLAN (docs/plany/<TOPIC>/PLAN.md + STATUS.md, one active-plan
-  line in CLAUDE.md) and a MINIPLAN (a single journal entry), asks once about kind, format and the
-  model executing the stages, freezes the plan after acceptance so changes go in as dated annexes,
-  generates the self-contained stage prompts PROMPT_ETAP_N.md lazily, runs the end-of-stage ritual,
-  and closes the plan when the last stage is done.
+  Creates and runs RelAI plans (PLAN + STATUS in docs/plany/<TOPIC>/, or a one-entry MINIPLAN),
+  frozen after acceptance and run stage by stage. Use it before writing any plan, concept, staging or breakdown of
+  work in a project with RelAI structure (docs/USTAWIENIA.md contains "Wersja RelAI" / "RelAI
+  version"), because RelAI plans have a required file layout; also for a refactor, migration or
+  rewrite spanning more than one session. Phrases (Polish): "przygotuj plan", "zaplanuj",
+  "zaplanujmy", "rozpisz to na etapy", "zrób plan", "plan wdrożenia", "plan projektu", "jak to
+  ugryźć", "od czego zacząć", "w jakiej kolejności"; English: "make a plan", "plan this out",
+  "break this into stages", "what's the approach". Also when a stage starts or closes: "wykonaj
+  etap", "uruchom etap", "następny etap", "zamknij etap", "run the stage", "next stage", "close
+  the stage"; and when a side thread is parked: "odnoga", "boczny wątek", "to nie na teraz",
+  "odłóż to na potem", "branch this off", "park this".
 ---
 
 # relai-planning — plany, etapy i ich zamrażanie
