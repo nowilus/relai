@@ -128,7 +128,9 @@ Niżej to, czego pilnują; pełna lista hooków z odpowiednikami w Cursorze i Co
 | **śmieci diagnostycznych** | `console.log` w zapisanym pliku dostaje ostrzeżenie |
 | **spójności wizualnej** | gdy projekt ma `docs/DESIGN.md`, odstępstwo od zapisanego kierunku jest sygnalizowane |
 | **aktualności dokumentów** | zmiana kodu bez wpisu do dziennika kończy się przypomnieniem |
-| **reguł rodzaju projektu** | pierwszy plik kodu, pierwszy ekran, pierwsze wdrożenie — każde z nich tworzy dokument, który wtedy ma sens (i ani chwili wcześniej) |
+| **reguł rodzaju projektu** | pierwszy plik kodu, pierwszy ekran, pierwsze wdrożenie — każde z nich tworzy dokument, który wtedy ma sens (i ani chwili wcześniej); przed pierwszym wdrożeniem najpierw lista kontrolna, opis środowiska dopiero po nim (od 2.7.0) |
+| **kolejności przy usterce** | „coś nie działa" uruchamia procedurę zamiast poprawki w ciemno: odtworzenie komendą, jedna hipoteza naraz z dowodem, najmniejsza poprawka, ta sama komenda jako dowód; dziwactwo narzędzia trafia do `docs/PULAPKI.md` (od 2.7.0) |
+| **bezpieczeństwa zależności** | prompt etapu, który dotyka kodu z zależnościami albo wejściem od użytkownika, dostaje punkt audytu komendą Twojego ekosystemu (`npm audit`, `pip-audit`…) i podstawy: walidacja wejścia, zapytania parametryzowane, sekrety poza repo, uprawnienia po stronie serwera — RelAI wskazuje komendę, nie skanuje sam (od 2.7.0) |
 | **startu sesji** | data dnia, rytuał startu, kontrola wersji i sygnały wymagające reakcji trafiają do kontekstu niezależnie od tego, czy cokolwiek się „wyzwoliło" |
 
 **Poza projektem RelAI wszystkie hooki milczą.** To twarda konwencja, nie deklaracja: hook, który

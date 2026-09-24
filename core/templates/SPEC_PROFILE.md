@@ -133,9 +133,14 @@ Zdarzenie: projekt trafia na jakiekolwiek środowisko — pojawia się konfigura
 (`Dockerfile`, `docker-compose.yml`, workflow CI, `vercel.json`, `fly.toml`, manifest Kubernetes,
 `Procfile`, pliki Terraform) albo użytkownik mówi, że coś zostało wdrożone.
 
-Powstaje `docs/srodowiska/<nazwa>.md` wg [SPEC_SRODOWISKA.md](SPEC_SRODOWISKA.md) — jeden plik na
-środowisko, nie jeden zbiorczy. Zawiera URL, **wskazanie** dostępów, procedurę wdrożenia
-i procedurę cofnięcia.
+**Przed** wdrożeniem — konfiguracja wdrożeniowa albo zapowiedź zapowiada je, a nie potwierdza —
+sesja przechodzi listę kontrolną z pliku doczytywanego skilla `relai-core` `first-deploy.md`
+(zmienne i sekrety, kopia danych, droga cofnięcia, dostępy, audyt zależności); wynik idzie do wpisu
+w dzienniku, w `docs/` nie powstaje nic.
+
+**Po** wdrożeniu powstaje `docs/srodowiska/<nazwa>.md` wg [SPEC_SRODOWISKA.md](SPEC_SRODOWISKA.md) —
+jeden plik na środowisko, nie jeden zbiorczy. Zawiera URL, **wskazanie** dostępów, procedurę
+wdrożenia, procedurę cofnięcia i to, co obserwować po wdrożeniu.
 
 **Wartości sekretów nie trafiają tam nigdy** (D-42). Plik mówi, jak nazywa się zmienna i gdzie
 mieszka jej wartość — nigdy jaka ona jest. To jest twardy zakaz, nie zalecenie.
@@ -243,8 +248,8 @@ Cztery kompletne sekcje, gotowe do wklejenia w `CLAUDE.md` projektu polskiego.
 - Pierwszy plik źródłowy w projekcie → w tej samej turze powstaje `docs/ARCHITEKTURA.md` i pada
   jedno pytanie o podejście do testów; odpowiedź do `docs/USTAWIENIA.md`.
 - Pierwszy plik interfejsu → jedno pytanie o kierunek wizualny i `docs/DESIGN.md`.
-- Pierwsze wdrożenie środowiska → `docs/srodowiska/<nazwa>.md` z URL-em, wskazaniem dostępów,
-  procedurą wdrożenia i procedurą cofnięcia.
+- Przed pierwszym wdrożeniem środowiska → lista kontrolna z `first-deploy.md`; po wdrożeniu →
+  `docs/srodowiska/<nazwa>.md` z URL-em, wskazaniem dostępów, procedurą wdrożenia i cofnięcia.
 - W `docs/srodowiska/` są nazwy zmiennych i miejsce przechowywania sekretu — nigdy wartości.
 - Zmiana modułu opisanego w `ARCHITEKTURA.md` aktualizuje ten opis w tej samej turze.
 ```

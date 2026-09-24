@@ -104,7 +104,9 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
    cytat kontrolny.
    **Limit tur w pomiarze ustawiasz na cały łańcuch, który mechanizm uruchamia przed mierzonym
    krokiem**, i czytasz kod wyjścia każdej sesji — wyjście limitem obok „nie wywołano" znaczy
-   „nie zmierzono"; instrument poprawiony w trakcie idzie od nowa dla obu wariantów.
+   „nie zmierzono"; instrument poprawiony w trakcie idzie od nowa dla obu wariantów. **Podłożony
+   hook sprawdzasz `node --check` i liczysz w transkrypcie zdanie, które ma wstrzyknąć** — zero
+   trafień unieważnia przebieg (L-0127).
    (L-0032, L-0037, L-0095, L-0096, L-0105, L-0106, L-0107, L-0110, L-0111, L-0113,
    L-0097, L-0101, L-0102,
    L-0054, L-0055, L-0056, L-0064, L-0068, L-0071, L-0073, L-0083, L-0084, L-0086, L-0087, L-0088,
@@ -142,7 +144,10 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
    **Fakt rozstrzygnięty przez wywołującego idzie do subagenta jako rozstrzygnięty** — agent
    widzi węższy materiał, więc go nie sprawdza i nie komentuje. **Zmiana formatu pliku, którego
    kopia w projekcie jest trwała, ma od razu drogę migracji kopii** (uzupełnienie brakującego pola
-   po kluczu, reszta nietknięta). (L-0015, L-0030, L-0036, L-0112, L-0120, L-0121)
+   po kluczu, reszta nietknięta). **Plik doczytywany, który ma działać na klasie `balanced`, ma
+   drogowskaz w warstwie zawsze obecnej** — zdanie z wyzwalaczem i nazwą pliku; ogólne „wywołaj
+   skill" Sonnet 5 pomija.
+   (L-0015, L-0030, L-0036, L-0112, L-0120, L-0121, L-0126)
 9. **Skill nie zakłada dostępu do niczego poza katalogiem roboczym** — ani do katalogu pluginu, ani
    do domowego. Opis mieści się w **1 024 znakach** i mówi w trzeciej osobie, co skill robi i kiedy
    go użyć, z markerem projektu i płaską listą fraz — bez `MUST BE USED` (zmierzone 2026-09-24:
@@ -805,3 +810,27 @@ Treść jest kopią bajt w bajt — zmieniony został wyłącznie status w linii
   sekcję, która jest zapisem, nie cały plik; cytat kontrolny jest nowy dla tego przebiegu, a nie
   przeniesiony z dokumentacji poprzedniego.
 - **Źródło:** E5, `docs/zasoby/demo/zrodla/pokrycie.py`; destylat: dopisane do zasady 5.
+
+### L-0126 — Sonnet pomija „wywołaj skill", więc plik doczytywany jest dla niego niewidoczny · 2026-09-24 · AKTYWNA
+
+- **Trigger:** pierwszy realny przebieg procedury „coś nie działa" (E6): Sonnet 5 w 7 przebiegach
+  ani razu nie wywołał skilla `relai-core`, choć hook startu kazał to zrobić — przeczytał pliki
+  rytuału i od razu poprawił kod. Bez skilla nie znał ścieżki `debugging.md`. Opus 5.5 wywołał
+  skill i przeszedł procedurę.
+- **Przyczyna:** ogólne „jeśli dostępny jest skill, wywołaj go" model `balanced` traktuje jako tło,
+  gdy prompt wygląda na zadanie. Frazy usterki w opisie skilla też nie pomogły (0/3).
+- **Zasada:** procedura w pliku doczytywanym, która ma działać na klasie `balanced`, dostaje
+  **drogowskaz w warstwie zawsze obecnej** — zdanie z konkretnym wyzwalaczem i nazwą pliku (hook
+  startu: 3/3). Treść procedury zostaje w pliku; w warstwie startu stoi tylko wskazanie.
+- **Źródło:** E6 planu PROWADZENIE_END_TO_END, Aneks J; destylat: dopisane do zasady 8.
+
+### L-0127 — Zepsuta kopia hooka dała trzy „wyniki" pomiaru (powtórzenie L-0119) · 2026-09-24 · AKTYWNA
+
+- **Trigger:** wariant hooka startu wstawiony do kopii pluginu heredokiem z `\'` — backslash
+  zniknął, hook miał błąd składni i milczał. Trzy przebiegi Sonnetu wyglądały jak wynik „0/3".
+- **Przyczyna:** tekst z backslashem przepuszczony przez powłokę (L-0116, L-0119) i brak kontroli
+  pozytywnej, że zdanie hooka w ogóle dotarło do sesji.
+- **Zasada:** przebieg z podłożonym hookiem zaczynasz od `node --check` na kopii i liczysz
+  w transkrypcie **zdanie, które hook ma wstrzyknąć** — zero trafień unieważnia przebieg, nie jest
+  wynikiem. Powtórzenie L-0119: propozycja graduacji do `CLAUDE.md`.
+- **Źródło:** E6 planu PROWADZENIE_END_TO_END; destylat: dopisane do zasady 5.

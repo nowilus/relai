@@ -177,6 +177,11 @@ function onSessionStart(input) {
     'docs/LEKCJE.md (tylko "Zasady aktywne"), docs/USTAWIENIA.md oraz STATUS.md aktywnego planu; ' +
     'potem napisz akapit "gdzie jestesmy". Jesli dostepny jest skill relai-core, wywolaj go — ' +
     'ta instrukcja obowiazuje takze wtedy, gdy skill sie nie wyzwolil.');
+  // Aneks J (E6 PROWADZENIE_END_TO_END): Sonnet 5 pomija wywolanie skilla z linii wyzej (0/7
+  // przebiegow), a bez skilla nie zna sciezki plikow doczytywanych. Konkretny wyzwalacz w tej
+  // warstwie dal 3/3 — procedury rzadkie zostaja w plikach, tu stoi tylko drogowskaz.
+  out.push('Zgloszenie usterki ("cos nie dziala", "blad", "it is broken") albo zapowiedz pierwszego wdrozenia: ' +
+    'zanim dotkniesz kodu, wywolaj skill relai-core i otworz jego plik debugging.md albo first-deploy.md.');
 
   const copied = provisionTemplates(cwd);
   if (copied > 0) {

@@ -160,10 +160,13 @@ function regulyApp(cwd, markerFile, rel, komunikaty) {
 
   if (jestKonfiguracjaWdrozeniowa(rel) &&
       !katalogMaPliki(cwd, 'docs/srodowiska') && !katalogMaPliki(cwd, 'docs/environments')) {
+    // Od E6 PROWADZENIE_END_TO_END (Aneks I): konfiguracja wdrozeniowa zapowiada wdrozenie,
+    // a nie je potwierdza — najpierw lista kontrolna, dokument srodowiska dopiero po wdrozeniu.
     komunikaty.push('Profil app, zdarzenie "pierwsze wdrozenie": pojawila sie konfiguracja wdrozeniowa "' +
-      rel + '", a docs/srodowiska/ jest puste. Utworz docs/srodowiska/<NAZWA>.md wedlug SPEC_SRODOWISKA.md: ' +
-      'adres, WSKAZANIE dostepow (nigdy wartosci — D-42), procedura wdrozenia i procedura cofniecia. ' +
-      'Nazwe srodowiska ustal z uzytkownikiem, jesli nie wynika z pliku.');
+      rel + '", a docs/srodowiska/ jest puste. PRZED wdrozeniem otworz first-deploy.md skilla relai-core ' +
+      'i przejdz liste kontrolna (zmienne i sekrety, kopia danych, droga cofniecia, dostepy, audyt zaleznosci). ' +
+      'Dopiero PO wdrozeniu utworz docs/srodowiska/<NAZWA>.md wedlug SPEC_SRODOWISKA.md: adres, WSKAZANIE ' +
+      'dostepow (nigdy wartosci — D-42), wdrozenie, cofniecie i co obserwowac.');
   }
 }
 

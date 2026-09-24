@@ -22,12 +22,14 @@ inicjalizacji ani „na zapas" (D-10). Pusty dokument z nagłówkami i zdaniem �
 |---|---|---|---|
 | `app` | pierwszy plik źródłowy | `docs/ARCHITEKTURA.md` + jedno pytanie o testy | `SPEC_ARCHITEKTURA.md` |
 | `app` | pierwszy plik interfejsu | `docs/DESIGN.md` + jedno pytanie o kierunek | `SPEC_DESIGN.md` |
-| `app` | pierwsze wdrożenie środowiska | `docs/srodowiska/<NAZWA>.md` | `SPEC_SRODOWISKA.md` |
+| `app` | **przed** pierwszym wdrożeniem środowiska | nic w `docs/` — lista kontrolna w rozmowie i we wpisie dziennika | `first-deploy.md` |
+| `app` | pierwsze wdrożenie środowiska (po nim) | `docs/srodowiska/<NAZWA>.md` z sekcją obserwacji | `SPEC_SRODOWISKA.md` |
 | `agent-voice`, `flow` | **przed** zmianą konfiguracji produkcyjnej | `docs/snapshoty/<data>/` | `SPEC_SNAPSHOT.md` |
 | `prompty` | pierwszy artefakt | `docs/ARTEFAKTY.md` | `SPEC_PROFILE.md` |
 
 Zdarzenie rozpoznajesz też z rozmowy, nie tylko z zapisu pliku: „wdrożyliśmy to na testowe" jest
-pierwszym wdrożeniem tak samo jak pojawienie się `Dockerfile`.
+pierwszym wdrożeniem tak samo jak pojawienie się `Dockerfile`. Zapowiedź („wdrażamy jutro",
+pierwsza konfiguracja wdrożeniowa przed wdrożeniem) otwiera `first-deploy.md` **przed** faktem.
 
 ### Jedno pytanie towarzyszące — jak brzmi
 

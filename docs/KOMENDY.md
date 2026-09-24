@@ -38,6 +38,8 @@ z podpowiedzi; skrócona forma działa tam, gdzie podpowiadacz ją rozwinie.
 | „kończymy na dziś" / „wrapping up" | RelAI domyka dokumenty, zapisuje wpis w dzienniku, aktualizuje ryzyka, proponuje commit i podsumowuje sesję |
 | „kontynuujemy pracę" / „let's continue" | RelAI odtwarza kontekst z dokumentów, mówi, gdzie jesteśmy, i proponuje najbliższy krok |
 | „sprawdź status" / „status check" | krótki raport: stan projektu, plany i etapy, otwarte ryzyka, zaległości w dokumentach |
+| „coś nie działa — …" (np. „coś nie działa — npm test pada przy sumie koszyka, napraw to") | zanim RelAI dotknie kodu, odtwarza błąd komendą i pokazuje jej wynik, sprawdza po jednej hipotezie z dowodem, robi najmniejszą poprawkę i uruchamia tę samą komendę jeszcze raz; kończy raportem: odtworzenie, przyczyna, poprawka, dowód. Przyczyna, która jest dziwactwem narzędzia, trafia do `docs/PULAPKI.md`. Po trzech odrzuconych hipotezach zatrzymuje się i mówi, czego potrzebuje od Ciebie (od 2.7.0) |
+| „jutro wdrażamy … na produkcję" / „wdrażamy …" | **przed** pierwszym wdrożeniem środowiska: lista kontrolna w sześciu punktach — zmienne i sekrety, kopia danych, droga cofnięcia, kto ma dostęp, audyt zależności (`npm audit` i odpowiedniki), jak sprawdzić, że działa — każdy ze stanem OK / BRAK / NIE DOTYCZY; o wdrożeniu mimo braków decydujesz Ty. Opis środowiska z sekcją „co obserwować po wdrożeniu" powstaje dopiero po wdrożeniu (od 2.7.0) |
 | „przygotuj plan…" / „zaplanuj…" / „rozpisz to na etapy" | powstaje plan w `docs/plany/` z wariantami, ryzykami i etapami — albo krótki miniplan w dzienniku, jeśli zadanie jest drobne |
 
 ## Czego RelAI pilnuje bez proszenia
@@ -88,7 +90,9 @@ z podpowiedzi; skrócona forma działa tam, gdzie podpowiadacz ją rozwinie.
 - **Podyktowane zdanie wraca poprawione, zanim ruszy w robotę.** Wiersz „Tryb ciągły"
   w `docs/USTAWIENIA.md` włącza optymalizator na stałe: każdy prompt merytoryczny wraca najpierw
   z propozycją i oryginałem obok, a wykonanie czeka na Twoją zgodę. Nietknięte przechodzą
-  wywołania komend, frazy sesji, krótkie potwierdzenia i pytania — o kod pytasz normalnie.
+  wywołania komend, frazy sesji, krótkie potwierdzenia i pytania — o kod pytasz normalnie. Od
+  2.7.0 nietknięte przechodzi też powiadomienie o zakończonym zadaniu w tle — nie jest Twoim
+  promptem, więc nie dostaje pytania o zgodę.
   Wyłącznikiem jest ten jeden wiersz; wartość spoza listy i brak wiersza znaczą wyłączony i ciszę.
   Tryb działa w **Claude Code**; w Cursorze i Codeksie komenda `/relai-prompt` działa normalnie,
   a o braku trybu pada jedno zdanie przy pierwszym wywołaniu w sesji.

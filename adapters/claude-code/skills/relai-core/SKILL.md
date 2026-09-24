@@ -56,6 +56,8 @@ gdy zachodzi jego wyzwalacz, i czytasz go w całości przed pierwszym krokiem pr
 | `document-rotation.md` | wykonujesz rotację: krok 2 rytuału zamknięcia albo rotacja zaproponowana na starcie sesji i przyjęta przez człowieka |
 | `new-project.md` | Krok 0 rozpoznał stan PUSTY albo Z ZAWARTOŚCIĄ (propozycja niewyciszona) albo użytkownik prosi o RelAI w folderze bez markera |
 | `profiles.md` | zachodzi zdarzenie profilu, człowiek zmienia profil albo inicjalizujesz projekt |
+| `debugging.md` | coś nie działa: „nie działa", „błąd", „sypie się", „it's broken", „doesn't work", test albo komenda pada bez jasnej przyczyny |
+| `first-deploy.md` | **przed** pierwszym wdrożeniem środowiska: „wdrażamy", „deploy", pierwsza konfiguracja wdrożeniowa |
 | `waiting-migration.md` | dziennik projektu 1.6.0+ nie ma sekcji „Czeka na człowieka" i człowiek zgodził się ją założyć |
 | `history.md` | pytanie dotyczy tego, co zmieniło się w konkretnej wersji pluginu |
 

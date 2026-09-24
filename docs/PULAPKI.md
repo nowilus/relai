@@ -8,6 +8,20 @@ Specyfikacja: `SPEC_PULAPKI.md`.
 
 ## Pułapki
 
+### P-016 — `claude -p` kończy się, zanim przyjdzie powiadomienie o zadaniu w tle · 2026-09-24 · AKTYWNA
+
+- **Objaw:** sesja `claude -p` uruchamia komendę w tle i kończy turę; hook `UserPromptSubmit`
+  odpala się raz (prompt człowieka), a strumień kończy zdarzenie `task_notification` ze statusem
+  `stopped`. Powiadomienia jako promptu nie da się tak przechwycić — cisza wygląda jak „nie ma
+  takiego zdarzenia".
+- **Przyczyna:** tryb `-p` zamyka sesję po ostatniej turze i zatrzymuje zadania w tle. Powiadomienie
+  wchodzi jako nowa tura (`UserPromptSubmit` z polem `prompt` = `<task-notification>…`) tylko w sesji,
+  która czeka bezczynnie — tak jak w aplikacji.
+- **Obejście:** `claude -p --input-format stream-json --output-format stream-json --verbose`
+  z **otwartym stdin** (pierwsza wiadomość jako JSON, `stdin.end()` dopiero po czasie dłuższym niż
+  zadanie w tle); hook diagnostyczny dopisuje payload do pliku.
+- **Zasięg:** Claude Code 2.1.280, Windows, Git Bash. Źródło: E6 planu PROWADZENIE_END_TO_END (Aneks H).
+
 ### P-015 — plugin jest widoczny w każdym folderze, hook nie · 2026-09-15 · AKTYWNA
 
 - **Objaw:** tester zainstalował plugin, zaadoptował swój projekt, a potem otworzył **zupełnie inny**

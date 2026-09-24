@@ -1402,6 +1402,35 @@ przechodzi przez bramkę.</p>
 <p><b>Skutek dla etapów:</b> E6 dotyka jednego pliku rdzenia i testu więcej. Liczba etapów
 i szacunek bez zmian. Decyzja człowieka 2026-09-24.</p>
 
+<h3>Aneks I — 2026-09-24</h3>
+<p><b>Powód:</b> w E6 procedura pierwszego wdrożenia ustawiła kolejność „lista kontrolna przed
+wdrożeniem → wdrożenie → dokument środowiska". Hook <code>profile-rules</code> (Claude Code)
+przy pierwszej konfiguracji wdrożeniowej każe tworzyć <code>docs/srodowiska/&lt;NAZWA&gt;.md</code>
+od razu, czyli przed wdrożeniem; tę samą kolejność powtarzają <code>SPEC_PROFILE.md</code>
+i przykład reguł profilu w <code>SPEC_CLAUDE_MD.md</code>.</p>
+<p><b>Zmiana:</b> zakres E6 obejmuje także treść komunikatu hooka <code>profile-rules</code>
+(odesłanie do listy z <code>first-deploy.md</code>, dokument środowiska dopiero po wdrożeniu) —
+bez nowego mechanizmu, ten sam warunek wyzwolenia — oraz zdania o kolejności w
+<code>SPEC_PROFILE.md</code> i <code>SPEC_CLAUDE_MD.md</code>. Drugą decyzją tego samego dnia
+aneks obejmuje też <code>SPEC_KOMENDY.md</code>: fraza „coś nie działa" na liście zachowań
+i kolejność wdrożenia w punkcie profilu <code>app</code> — bez niej ściąga projektów użytkowników
+nie zna nowych procedur.</p>
+<p><b>Skutek dla etapów:</b> E6 dotyka czterech plików więcej. Liczba etapów i szacunek bez zmian.
+Decyzja człowieka 2026-09-24.</p>
+
+<h3>Aneks J — 2026-09-24</h3>
+<p><b>Powód:</b> pierwszy realny przebieg procedury „coś nie działa" w E6: Sonnet 5 nie wywołał
+skilla <code>relai-core</code> w żadnym z siedmiu przebiegów (także z frazami usterki w opisie
+skilla), więc nie znał ścieżki <code>debugging.md</code>; Opus 5.5 przeszedł procedurę. Kryterium
+odbioru to klasy <code>strong</code> i <code>balanced</code> (D-90).</p>
+<p><b>Zmiana:</b> hook startu Claude Code (<code>session-context</code>) dostaje jedno zdanie —
+drogowskaz: przy zgłoszeniu usterki albo zapowiedzi pierwszego wdrożenia wywołaj
+<code>relai-core</code> i otwórz <code>debugging.md</code> albo <code>first-deploy.md</code>
+(+200 B wyjścia startu; na kopii: Sonnet 3 na 3). Procedury zostają w plikach doczytywanych;
+Cursor i Codex bez zmian (A01).</p>
+<p><b>Skutek dla etapów:</b> E6 dotyka jednego pliku więcej. Liczba etapów i szacunek bez zmian.
+Decyzja człowieka 2026-09-24.</p>
+
 </section>
 
 <footer>

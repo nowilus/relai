@@ -18,8 +18,8 @@ Szacunek: 7 etapów, 10–13 sesji (SZACUNEK). Poprzednik: [PIERWSI_UZYTKOWNICY]
 | E3 | Skille w progresywnym ujawnianiu | ZREALIZOWANY 2026-09-24 | [PROMPT_ETAP_3.md](PROMPT_ETAP_3.md) | `/effort high`; 4 pozycje; wydanie 2.5.0 (tag `v2.5.0`) |
 | E4 | Zasady skrojone pod model | ZREALIZOWANY 2026-09-24 | [PROMPT_ETAP_4.md](PROMPT_ETAP_4.md) | `/effort high`; 13 pozycji + Aneksy B i C; wydanie 2.6.0 (tag `v2.6.0`); nakładka openai bez nazw modeli (lista Codeksa nieodświeżona) |
 | E5 | Pierwsze 30 minut | ZREALIZOWANY 2026-09-24 | [PROMPT_ETAP_5.md](PROMPT_ETAP_5.md) | `/effort medium`; 8 pozycji + Aneksy D–G; bez wydania (Aneks G) |
-| E6 | Krańce drogi: debug, bezpieczeństwo, deploy | GOTOWY DO STARTU | [PROMPT_ETAP_6.md](PROMPT_ETAP_6.md) | `/effort high`; 3 pozycje + Aneks H |
-| E7 | Jakość pracy solo i załogi | OCZEKUJE | — | `/effort high`; 4 pozycje; ostatni etap — kończy go sekwencja zamknięcia planu (D-36) |
+| E6 | Krańce drogi: debug, bezpieczeństwo, deploy | ZREALIZOWANY 2026-09-24 | [PROMPT_ETAP_6.md](PROMPT_ETAP_6.md) | `/effort high`; 3 pozycje + Aneksy H, I, J; bez wydania (Aneks G) |
+| E7 | Jakość pracy solo i załogi | GOTOWY DO STARTU | [PROMPT_ETAP_7.md](PROMPT_ETAP_7.md) | `/effort high`; 4 pozycje; ostatni etap — kończy go sekwencja zamknięcia planu (D-36) |
 
 ## Bramki manualne
 
@@ -31,6 +31,8 @@ Szacunek: 7 etapów, 10–13 sesji (SZACUNEK). Poprzednik: [PIERWSI_UZYTKOWNICY]
 - **Odświeżenie listy modeli Codeksa w sesji Codeksa (`/relai-models`)** · źródło: wpis dziennika 2026-09-24 (E4) · **OTWARTA** — do tego czasu przydział modeli poza Claude Code należy do człowieka, a nakładka `openai` nie ma reguł z nazwą modelu
 - **Restart aplikacji desktopowej, żeby ładowała 2.6.0** · źródło: wpis dziennika 2026-09-24 (E4) · **OTWARTA**
 - **Jedno okno pytań na starcie w sesji interaktywnej (Aneks F)** · źródło: wpis dziennika 2026-09-24 (E5) · **OTWARTA** — po wydaniu przy zamknięciu planu: pierwszy prompt merytoryczny w projekcie z trybem ciągłym, bez zgody i bez wiersza modelu, ma dać jedno okno z pytaniem o zgodę i o model
+- **Powiadomienie w tle bez bramki w sesji interaktywnej (Aneks H)** · źródło: wpis dziennika 2026-09-24 (E6) · **OTWARTA** — po wydaniu: zakończenie zadania w tle w projekcie z trybem ciągłym bez zgody nie daje pytania o zgodę
+- **Graduacja zasady „tekst z backslashem nie idzie przez powłokę" do `CLAUDE.md`** · źródło: wpis dziennika 2026-09-24 (E6), L-0127 (powtórzenie L-0119) · **OTWARTA** — decyzja człowieka: dopisać do „Reguł procesu" czy zostawić w „Zasadach aktywnych"
 
 ## Dziennik wdrożenia
 
@@ -48,5 +50,8 @@ Szacunek: 7 etapów, 10–13 sesji (SZACUNEK). Poprzednik: [PIERWSI_UZYTKOWNICY]
 - 2026-09-24 — Aneks G (decyzja człowieka w E5): wydanie dopiero przy zamknięciu planu; E5–E7 bez tagów i release'ów.
 - 2026-09-24 — Aneks H (decyzja człowieka w E5): filtr bramki trybu ciągłego pomija powiadomienia o zadaniach w tle — zakres E6.
 - 2026-09-24 — E5 zrealizowany: 8/8 pozycji rejestru, 11/11 punktów weryfikacji (punkt jednego pytania wg Aneksu F, punkt cache'u przeniesiony do wydania wg Aneksu G), Aneksy D–G; README 4 838 → 1 079 słów, treść w `docs/INSTALACJA.md` i `docs/PRZEWODNIK.md` (0 akapitów bez miejsca), demo pionowe 720×900 z minimum glifów 8,0 px przy 375 px (stare 2,0 px), źródła renderu w repo; testy 64 → 66; E6 gotowy do startu.
+- 2026-09-24 — Aneks I (decyzja człowieka w E6): komunikat hooka `profile-rules`, `SPEC_PROFILE.md` i `SPEC_CLAUDE_MD.md` dostają kolejność „lista przed wdrożeniem, dokument środowiska po nim"; `SPEC_KOMENDY.md` — frazę „coś nie działa" i tę samą kolejność.
+- 2026-09-24 — Aneks J (decyzja człowieka w E6): hook startu Claude Code dostaje zdanie-drogowskaz do `debugging.md` i `first-deploy.md` — Sonnet 5 bez niego nie wywoływał skilla (0/7), z nim 3/3.
+- 2026-09-24 — E6 zrealizowany: 3/3 pozycje rejestru + Aneks H, 9/9 punktów weryfikacji, Aneksy I i J; nowe pliki `debugging.md` i `first-deploy.md`, punkt audytu i podstaw OWASP w `SPEC_PROMPT_ETAPU.md`, filtr powiadomień w tle; procedury przeszły pierwszy przebieg (Opus 5.5 i Sonnet 5); testy 66 → 68; E7 gotowy do startu.
 
 RelAI (Opus 5.5) + Lukasz

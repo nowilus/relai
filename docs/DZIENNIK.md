@@ -36,6 +36,12 @@
 > — przeniesione 2026-08-21, suma kontrolna `4b370c3e2b31c6ba`.
 
 ## Czeka na człowieka
+- **Powiadomienie w tle bez bramki zgody** — po wydaniu sprawdzić w sesji interaktywnej, że
+  zakończone zadanie w tle nie dostaje pytania o zgodę (Aneks H) · 2026-09-24 · [wpis 2026-09-24 — E6](#2026-09-24--e6-planu-prowadzenie_end_to_end-krańce-drogi-bez-wydania)
+
+- **Graduacja L-0127 do `CLAUDE.md`** — tekst z backslashem nie idzie przez powłokę (powtórzenie
+  L-0119) · 2026-09-24 · [wpis 2026-09-24 — E6](#2026-09-24--e6-planu-prowadzenie_end_to_end-krańce-drogi-bez-wydania)
+
 - **Jedno okno pytań na starcie w sesji interaktywnej** — po wydaniu przy zamknięciu planu
   PROWADZENIE_END_TO_END sprawdzić, że bramka trybu ciągłego pyta o zgodę i model w jednym oknie
   (Aneks F) · 2026-09-24 ·
@@ -1500,5 +1506,71 @@ Autor: RelAI (Opus 5.5) + Lukasz
 - Po wydaniu przy zamknięciu planu: sprawdzić w sesji interaktywnej, że pierwszy prompt merytoryczny
   z trybem ciągłym, bez zgody i bez modelu, daje **jedno** okno pytań (bramka Aneksu F).
 - Restart aplikacji desktopowej pod 2.6.0 i odświeżenie listy Codeksa — bez zmian z E4.
+
+Autor: RelAI (Opus 5.5) + Lukasz
+
+### 2026-09-24 — E6 planu PROWADZENIE_END_TO_END: krańce drogi, bez wydania
+
+**Zrobione:**
+
+- **„Coś nie działa" (A24):** `relai-core/debugging.md` — odtworzenie komendą z wynikiem, jedna
+  hipoteza naraz z dowodem (stop po trzech), najmniejsza poprawka, ta sama komenda jako dowód,
+  ślad w `PULAPKI` / dzienniku / lekcjach, wzór raportu. Wiersz wyzwalacza w `SKILL.md`.
+- **Bezpieczeństwo (A25):** `SPEC_PROMPT_ETAPU.md` sekcja 8 — etap z kodem, zależnościami albo
+  wejściem od użytkownika dostaje punkt audytu komendą ekosystemu (`npm audit --omit=dev`,
+  `pip-audit`…; brak narzędzia → warunek wykonalności) i podstawy OWASP; przykład z oboma.
+- **Pierwsze wdrożenie (A27+A28):** `relai-core/first-deploy.md` — lista **przed** (sześć punktów,
+  OK / BRAK / NIE DOTYCZY, decyzja o wdrożeniu mimo braku należy do człowieka) i obserwacja po;
+  `SPEC_SRODOWISKA.md` z obowiązkową sekcją „Co obserwować po wdrożeniu"; `profiles.md`.
+- **Aneks H:** `powodPominiecia` zwraca „powiadomienie systemowe" dla promptu, który w całości jest
+  elementem `<task-notification>` (kształt z realnego payloadu); test + dowód negatywny.
+- **Aneks I:** komunikat `profile-rules`, `SPEC_PROFILE`, `SPEC_CLAUDE_MD`, `SPEC_KOMENDY` — lista
+  przed wdrożeniem, dokument środowiska po nim; fraza „coś nie działa" w ściądze projektów.
+- **Aneks J:** zdanie-drogowskaz w hooku startu (+200 B: 1 933 → 2 133 B na tym repo).
+- Adaptery: skille Codeksa wygenerowane (12 plików rdzenia), instalator Cursora kopiuje oba pliki.
+  Dokumenty: `KOMENDY.md` (dwie frazy, powiadomienia w tle), `PRZEWODNIK.md`, `ARTEFAKTY.md`
+  (7 podbić, 2 nowe), pułapka P-016, lekcje L-0126 i L-0127.
+
+**Zweryfikowane — jak dokładnie:**
+
+- **Pierwsze realne przebiegi** (`claude -p`, plugin z kopii drzewa `%TEMP%/relai-e6-plugin`,
+  instalacja wyłączona, ścieżka w `init`, 51 narzędzi z `Skill` i `Read`):
+  - debugowanie, podłożony błąd `reduce` bez wartości startowej (`'[object Object]5'` zamiast 25):
+    Opus 5.5 — skill → `debugging.md` → `npm test` → poprawka → ta sama komenda, raport wg wzoru.
+    Rozjazd: test dopisany razem z poprawką — reguła poprawiona, powtórka bez rozjazdu.
+    Sonnet 5 bez Aneksu J: **0/7** odczytów (4 bez zmian, 3 z frazami w opisie skilla); z nim
+    **3/3**, pełna kolejność. Kontrola: 2.6.0 z cache'u (Opus) — 0 odczytów, pliku nie ma.
+  - wdrożenie (`jutro wdrażamy … na fly.io`): Opus i Sonnet — `first-deploy.md`, tabela sześciu
+    punktów, `npm audit` (7 podatności, 4 high w `express@4.17.1`), **brak** `docs/srodowiska/`.
+  - bezpieczeństwo: `/relai-stage` dogenerował prompt dla projektu z `package.json` —
+    `npm audit --omit=dev` ze stanem wyjściowym i podstawy; dla projektu samych dokumentów —
+    **0 trafień** audytu (generator czytał specyfikację z regułą).
+- Aneks H: payload powiadomienia zapisany hookiem diagnostycznym w sesji `--input-format
+  stream-json` z otwartym stdin (P-016). Hook repo na tym repo: powiadomienie **1 194 → 0 B**,
+  prompt człowieka i zdanie zaczynające się od `<task-notification>` — 1 194 B przed i po.
+- Testy **68/68** (było 66); `validate-adapters.js` kod 0; parytet Codeksa spójny;
+  `claude plugin validate .` → `✔ Validation passed` (bez wydania, Aneks G).
+- `grep`: „npm audit" w `SPEC_PROMPT_ETAPU.md` i `first-deploy.md` (obu adapterów), „OWASP"
+  w `SPEC_PROMPT_ETAPU.md`, „debug" w skillach (przed: 0) — `SKILL.md` obu adapterów.
+- Budżet startu: 99 172 B przed (prompt podawał 95,9 KB — urosły lekcje i `STATUS`), 99 949 B po
+  zmianach etapu, **98 245 B** po rytuale (wpis E6 krótszy od wpisu E5 jako „ostatni"); próg 102 400 B.
+- Przegląd `code-reviewer`: 0 krytycznych i wysokich; średnia (dwa kształty tabeli obserwacji)
+  poprawiona; niska (człowiek wkleja samo powiadomienie) — ryzyko przyjęte, payload nie ma pola typu.
+- Katalog roboczy: `work` 2 996 → 188 KB (E6 2 808 KB skasowany po „tak"); `%TEMP%`: 22 pozycje
+  `relai-e6-*` (kopia pluginu, projekty `debug*`, `deploy*`, `sec-npm`, `sec-docs`, `cursor`,
+  `hookdump`, `settings.json`) — 23,6 MB skasowane, brak każdej sprawdzony.
+
+**Świadomie odłożone:**
+
+- W tej sesji bramka 2.6.0 znów odpaliła się na powiadomieniu o subagencie — poprawka czeka na
+  wydanie (Aneks G).
+- `relai-planning/SKILL.md` streszcza sekcję 8 bez punktu bezpieczeństwa; generator czyta pełną
+  specyfikację (przebieg to pokazał), więc streszczenie zostaje.
+- Rotacja `LEKCJE.md` (ponad progiem) — rytuał sesji.
+
+**Do zrobienia przez człowieka:**
+
+- Po wydaniu: powiadomienie w tle w sesji interaktywnej bez pytania o zgodę (bramka Aneksu H).
+- Decyzja o graduacji L-0127 (powtórzenie L-0119) do `CLAUDE.md`.
 
 Autor: RelAI (Opus 5.5) + Lukasz

@@ -111,6 +111,40 @@ test('powodPominiecia must not swallow a real instruction', () => {
   }
 });
 
+// Aneks H (E6): powiadomienie o zadaniu w tle przychodzi zdarzeniem UserPromptSubmit
+// z tresca w polu `prompt` i BEZ zadnego pola, ktore by je odroznialo. Tresc ponizej
+// jest zapisana doslownie z payloadu realnego zdarzenia (Claude Code 2.1.280,
+// hook diagnostyczny w projekcie kontrolnym, 2026-09-24) — nie zgadnieta.
+const POWIADOMIENIE_W_TLE = '<task-notification>\n<task-id>be1lp00nd</task-id>\n' +
+  '<tool-use-id>toolu_01KeomHkvvbeCQnsbgPo1UrX</tool-use-id>\n' +
+  '<output-file>C:\\Users\\Lukasz\\AppData\\Local\\Temp\\claude\\C--Users-Lukasz-AppData-Local-Temp-relai-e6-hookdump\\308cc2dc-6fb2-4e21-97cf-5e5f21dfb47c\\tasks\\be1lp00nd.output</output-file>\n' +
+  '<status>completed</status>\n' +
+  '<summary>Background command "sleep 10 &amp;&amp; echo gotowe" completed (exit code 0)</summary>\n' +
+  '</task-notification>';
+
+test('powodPominiecia skips a background task notification recorded from a real event', () => {
+  assert.equal(tryb.powodPominiecia(POWIADOMIENIE_W_TLE), 'powiadomienie systemowe');
+  assert.equal(tryb.pomija(POWIADOMIENIE_W_TLE), true);
+  // Konce linii sa wariantem (zasada 11) — ta sama tresc z CRLF i z odstepem na brzegach.
+  const crlf = '  ' + POWIADOMIENIE_W_TLE.replace(/\n/g, '\r\n') + '\r\n';
+  assert.equal(tryb.powodPominiecia(crlf), 'powiadomienie systemowe');
+});
+
+// Dowod negatywny: zdanie czlowieka z tym samym poczatkiem dalej idzie do bramki.
+test('powodPominiecia still gates a human prompt that only starts like a notification', () => {
+  const ludzkie = [
+    '<task-notification> nie dochodzi do hooka, popraw filtr w prompt-mode',
+    'task-notification przychodzi dwa razy — sprawdz dlaczego i popraw',
+    'task notification z buildu pokazuje zly kod wyjscia, popraw parser',
+    // Caly znacznik skopiowany do zdania, ale z poleceniem za nim: to nie jest samo powiadomienie.
+    POWIADOMIENIE_W_TLE + '\npopraw parser tego powiadomienia',
+  ];
+  for (const prompt of ludzkie) {
+    assert.equal(tryb.powodPominiecia(prompt), null, JSON.stringify(prompt));
+    assert.equal(tryb.pomija(prompt), false, JSON.stringify(prompt));
+  }
+});
+
 test('regula carries the whole contract and costs what it was measured to cost', () => {
   const r = tryb.regula();
   assert.ok(r.length > 0, 'pusta regula znaczy tryb bez tresci');

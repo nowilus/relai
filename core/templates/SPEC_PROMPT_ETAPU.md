@@ -151,6 +151,23 @@ Zasady:
   punktem weryfikacji; „`npm test` kończy się bez błędu" jest.
 - Sprawdzenie zachowania typu „tego nie wolno" wymaga **dowodu negatywnego**: pokaż, że chroniony
   fragment ma nadal pierwotne brzmienie, nie tylko że nowy artefakt powstał.
+- **Bezpieczeństwo — gdy etap dotyka kodu z zależnościami albo wejściem od użytkownika** (od
+  2.7.0, D-80: wskazanie komendy ekosystemu, nie własny skaner). Taki prompt dostaje dwa punkty:
+  - **audyt zależności** komendą wykrytą z plików projektu, z wynikiem do wpisu dziennika:
+    `package.json` → `npm audit --omit=dev` (albo `pnpm audit` / `yarn npm audit` przy ich pliku
+    blokady), `requirements.txt` / `pyproject.toml` → `pip-audit`, `Gemfile.lock` →
+    `bundle audit`, `go.mod` → `govulncheck ./...`, `Cargo.lock` → `cargo audit`,
+    `composer.lock` → `composer audit`. Kryterium: zero podatności **wysokich i krytycznych**
+    wprowadzonych w tym etapie; zastane idą do wpisu jako ryzyko, nie blokują. Narzędzia audytu
+    nie ma na maszynie → punkt zostaje, opisany z **warunkiem wykonalności** (co zainstalować
+    i gdzie da się go wykonać), nigdy pominięty;
+  - **podstawy** (najczęstsze pozycje OWASP Top 10) sprawdzane na zmianie tego etapu, każda z dowodem: wejście od użytkownika
+    walidowane, zanim cokolwiek zapisze; zapytania do bazy parametryzowane, bez sklejania tekstu;
+    sekrety wyłącznie w zmiennych środowiskowych, `git grep` po wzorcu klucza nie zwraca nic;
+    uprawnienia sprawdzane po stronie serwera, nie tylko w interfejsie.
+
+  Etap bez kodu (dokumenty, konfiguracja bez zależności, plan) i projekt bez pliku zależności
+  i bez wejścia od użytkownika → **tych punktów nie ma**; nie wpisujesz ich „na zapas".
 - Ostatnie punkty dotyczą śladów pracy: wpis w dzienniku we właściwym miejscu i **katalog roboczy
   etapu**. Ten drugi ma dwie części i wchodzi do promptu jako gotowy checkbox: **(a)** katalog
   `.claude/relai/work/<TEMAT>/E<N>/` przejrzany raportem
@@ -291,7 +308,12 @@ poza projektem, wpisujesz do wpisu dziennika z nazwy.
 - [ ] Webhook z podpisem podmienionym na losowy → HTTP 400, brak zmiany w bazie.
 - [ ] Zdarzenie dla zamówienia wygasłego → HTTP 200, status pozostaje `wygaslo` (dowód: odczyt
       statusu przed i po).
-- [ ] `git grep -nE "sk_(test|live)_"` nie zwraca nic w plikach śledzonych.
+- [ ] `npm audit --omit=dev` — zero podatności wysokich i krytycznych wprowadzonych w tym etapie
+      (liczby przed i po do wpisu; zastane idą do tabeli ryzyk).
+- [ ] Podstawy na zmianie etapu: payload webhooka walidowany schematem przed zapisem (test ze
+      złym kształtem → HTTP 400); zapytania przez Prismę, zero `$queryRawUnsafe`;
+      `git grep -nE "sk_(test|live)_"` nie zwraca nic w plikach śledzonych; endpoint webhooka nie
+      przyjmuje żądania bez poprawnego podpisu (punkt wyżej).
 - [ ] Wpis w `docs/DZIENNIK.md` dopisany na końcu sekcji „Wpisy", z autorem w nagłówku;
       `docs/STATE.md` nadpisany.
 - [ ] Dane testowe usunięte z bazy deweloperskiej.

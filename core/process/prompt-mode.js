@@ -58,6 +58,14 @@ const FRAZY_SESJI = [
 ];
 const LIMIT_FRAZY = 60;
 
+// Powiadomienie o zadaniu w tle (Aneks H): Claude Code przekazuje je zdarzeniem
+// UserPromptSubmit, a jedynym znakiem rozpoznawczym jest tresc — payload nie ma pola
+// typu. Ksztalt odczytany z realnego zdarzenia (2.1.280, 2026-09-24): CALY prompt to
+// jeden element <task-notification>. Wymagamy znacznika otwarcia NA POCZATKU i
+// zamkniecia NA KONCU, wiec zdanie czlowieka zaczynajace sie tak samo dalej idzie
+// do bramki.
+const POWIADOMIENIE_W_TLE = /^\s*<task-notification>[\s\S]*<\/task-notification>\s*$/;
+
 // Krotkie potwierdzenia — zamknieta lista, dopasowanie do CALEGO promptu.
 const POTWIERDZENIA = new Set([
   'tak', 'nie', 'ok', 'okej', 'okey', 'dobra', 'dobrze', 'jasne', 'zgoda', 'dawaj',
@@ -221,6 +229,7 @@ function powodPominiecia(prompt) {
   const surowy = String(prompt || '');
   if (!surowy.trim()) return 'pusty prompt';
   if (/^\s*\//.test(surowy)) return 'wywolanie komendy';
+  if (POWIADOMIENIE_W_TLE.test(surowy)) return 'powiadomienie systemowe';
 
   const n = normalizuj(surowy);
   if (!n) return 'pusty prompt';

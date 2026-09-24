@@ -43,11 +43,19 @@ jest wpadką narzędzia, tylko błędem autora.
 (`Dockerfile`, `docker-compose.yml`, workflow CI, `vercel.json`, `fly.toml`, `Procfile`, manifest
 Kubernetes, pliki Terraform) albo człowiek mówi, że coś zostało gdzieś wystawione.
 
+**Przed pierwszym wdrożeniem** dokument jeszcze nie powstaje, ale wdrożenie nie idzie w ciemno:
+zapowiedź wdrożenia albo pierwsza konfiguracja wdrożeniowa otwiera listę kontrolną z pliku
+doczytywanego skilla `relai-core` — `first-deploy.md` (zmienne i sekrety, kopia danych, droga
+cofnięcia, dostępy, audyt zależności, sprawdzenie, że działa). Jej wynik trafia do wpisu
+w dzienniku, a po wdrożeniu jest materiałem tego dokumentu: zmienne → tabela zmiennych, droga
+cofnięcia → „Jak cofnąć", sprawdzenie → ostatni krok „Jak wdrożyć".
+
 | Kiedy | Co się zmienia |
 |---|---|
 | Zmiana adresu, hostingu albo sposobu wdrożenia | sekcje „Adres" i „Jak wdrożyć" |
 | Nowa zmienna środowiskowa | tabela zmiennych |
 | Zmiana procedury cofnięcia | sekcja „Jak cofnąć" — i to jest zmiana wysokiego ryzyka, warta wpisu w dzienniku |
+| Nowy kanał alertów, limit kosztów albo narzędzie do błędów | sekcja „Co obserwować po wdrożeniu" |
 | Wdrożenie kolejnej wersji aplikacji | **nic** — to jest wpis w `DZIENNIK.md` |
 | Środowisko wyłączone | adnotacja „NIEAKTUALNE" i przeniesienie do `docs/archiwum/` (D-18) |
 
@@ -68,11 +76,14 @@ szczegóły.
 7. **Jak cofnąć** — sekcja obowiązkowa, o tej samej wadze co „Jak wdrożyć". Podaj: do jakiego stanu
    się cofa, jakimi poleceniami, ile to trwa, co się dzieje z danymi (migracje bazy!) i po czym
    poznać, że cofnięcie się udało. Zdanie „przywróć poprzednią wersję" nie jest procedurą.
-8. **Co może pójść nie tak** — dwa–trzy znane tryby awarii i pierwszy ruch przy każdym.
-9. **Zależności zewnętrzne tego środowiska** — usługi, bez których nie działa, i co się dzieje,
+8. **Co obserwować po wdrożeniu** — tabela `Co | Gdzie patrzysz | Kiedy to jest alarm | Kto dostaje
+   alert` z trzema wierszami: logi, błędy, koszty. Brak odbiorcy alertu albo limitu kosztów
+   zapisujesz w komórce jako `<DO UZUPEŁNIENIA: …>`, nie pomijasz wiersza.
+9. **Co może pójść nie tak** — dwa–trzy znane tryby awarii i pierwszy ruch przy każdym.
+10. **Zależności zewnętrzne tego środowiska** — usługi, bez których nie działa, i co się dzieje,
    gdy któraś padnie.
 
-Sekcji 6 i 7 nie wolno pominąć ani zredukować do odsyłacza. Reszta może zniknąć, jeśli nie ma
+Sekcji 6, 7 i 8 nie wolno pominąć ani zredukować do odsyłacza. Reszta może zniknąć, jeśli nie ma
 treści.
 
 **Gdy nie znasz faktów, pytasz — nie zgadujesz.** Zdarzenie wyzwala dokument, ale nie dostarcza
@@ -153,6 +164,14 @@ Cofasz do poprzedniego udanego wdrożenia. Czas: około 2 minuty.
 4. **Sprawdź, że cofnięcie się udało:** adres aplikacji odpowiada, a w panelu hostingu wdrożenie
    sprzed zmiany ma etykietę „Current".
 5. Wpis w `docs/DZIENNIK.md`: co cofnięto, dlaczego i w jakim stanie została baza.
+
+## Co obserwować po wdrożeniu
+
+| Co | Gdzie patrzysz | Kiedy to jest alarm | Kto dostaje alert |
+|---|---|---|---|
+| Logi | panel hostingu → „Logs", filtr `production` | pierwsza doba po wdrożeniu: przejrzeć raz ręcznie | osoba wdrażająca |
+| Błędy | panel hostingu → „Observability", odsetek odpowiedzi 5xx | powyżej 1% żądań w ciągu godziny | Łukasz, mail z panelu hostingu; <DO UZUPEŁNIENIA: zastępstwo urlopowe> |
+| Koszty | Vercel → „Usage"; Neon → „Billing" | alert budżetowy Vercel przy 20 USD w miesiącu | Łukasz, mail z panelu rozliczeń |
 
 ## Co może pójść nie tak
 

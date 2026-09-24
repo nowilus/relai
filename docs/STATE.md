@@ -1,6 +1,6 @@
 # STATE — RelAI
 
-Stan na: 2026-09-24 (po etapie E5 planu PROWADZENIE_END_TO_END — bez wydania, Aneks G)
+Stan na: 2026-09-24 (po etapie E6 planu PROWADZENIE_END_TO_END — bez wydania, Aneks G)
 
 ## Gdzie jesteśmy
 
@@ -45,17 +45,19 @@ zaproszeń, więc opinii spoza projektu nadal nie ma.
 
 ## Nad czym pracujemy teraz
 
-- **E6 planu PROWADZENIE_END_TO_END — krańce drogi** (gotowy do startu): procedura „coś nie
-  działa", bezpieczeństwo zależności w weryfikacji etapu z kodem, lista kontrolna pierwszego
-  wdrożenia — pliki doczytywane na żądanie.
-- **Zmienione w repo, niewydane (E5):** README od pierwszego kroku (1 079 słów, treść w
-  `docs/INSTALACJA.md` i `docs/PRZEWODNIK.md`), jedno okno pytań na starcie trybu ciągłego,
-  objaśnione opcje profilu, reguła planowania Cursora na żądanie, demo pionowe z trwałymi źródłami.
+- **E7 planu PROWADZENIE_END_TO_END — jakość pracy solo i załogi** (gotowy do startu, ostatni):
+  testy i przegląd w pracy solo, siatka rytuału „Na koniec", załoga bez kończenia meldunkiem,
+  reguła delegacji; zamyka plan jedynym wydaniem.
+- **Zmienione w repo, niewydane (E5–E6):** README od pierwszego kroku, jedno okno pytań trybu
+  ciągłego, reguła planowania Cursora na żądanie, demo pionowe (E5); procedury „coś nie działa"
+  i pierwszego wdrożenia (pliki doczytywane `relai-core` z drogowskazem w hooku startu), punkt
+  audytu zależności i podstaw OWASP w promptach etapów z kodem, powiadomienia w tle poza bramką
+  trybu ciągłego (E6).
 
 ## Co dalej
 
-- **E6–E7 planu, potem jedno wydanie** (Aneks G) [PROWADZENIE_END_TO_END](plany/PROWADZENIE_END_TO_END/STATUS.md): debug /
-  bezpieczeństwo / deploy, jakość pracy solo i załogi.
+- **E7 planu, potem jedno wydanie** (Aneks G) [PROWADZENIE_END_TO_END](plany/PROWADZENIE_END_TO_END/STATUS.md): jakość pracy
+  solo i załogi.
 - Odświeżenie listy modeli Codeksa w sesji Codeksa (`/relai-models`): lista ma nazwy z 2026-09-05,
   Codex zaleca dziś gpt-6-astra, gpt-6-sol i gpt-6-luna; do tego czasu nakładka `openai` nie ma
   reguł z nazwą modelu, a przydział modeli poza Claude Code jest sprawą człowieka.
@@ -112,8 +114,8 @@ Backupy: `C:\Users\Lukasz\Backupy\RelAI` • [PRZENOSNOSC.md](PRZENOSNOSC.md) �
 ### Liczby
 
 Plany zamknięte: 8 (ostatni PIERWSI_UZYTKOWNICY, częściowo, 2026-09-24) • Aktywny:
-PROWADZENIE_END_TO_END, E5/7 zrealizowany, E6 gotowy • Start sesji: **95,9 KB / 100 KB** (po E5; skill 28,6 KB; przed E3 126,3 KB) • Dziennik: **114,1 KB / 150 KB** (po rotacji
-2026-09-24 i wpisie E5 (archiwum: 9 plików)) • Sekcja ryzyk: **5,3 KB / 12 KB**, 11 otwartych, archiwum
+PROWADZENIE_END_TO_END, E6/7 zrealizowany, E7 gotowy • Start sesji: **95,9 KB / 100 KB** (po E6; skill 28,6 KB; przed E3 126,3 KB) • Dziennik: **114,1 KB / 150 KB** (po rotacji
+2026-09-24 i wpisie E6 (archiwum: 9 plików)) • Sekcja ryzyk: **5,3 KB / 12 KB**, 11 otwartych, archiwum
 ryzyk: 4 pliki + 1 mitygacji • Lekcje: 65,2 KB / 50 KB — rotacja należna • Adaptery: 3 •
 Komendy: 14 • Projekty na RelAI: 3 (RelAI, PolyFlow, JiraManager przed migracją) • Modele, na
 których zmierzono proces: 5 (Fable, Opus, Haiku, Composer/auto, Grok 4.6).

@@ -284,8 +284,8 @@ Aktywny plan: [PLATNOSCI](docs/plany/PLATNOSCI/STATUS.md)
 - Pierwszy plik źródłowy → w tej samej turze powstaje `docs/ARCHITEKTURA.md` i pada jedno pytanie
   o podejście do testów; odpowiedź do `docs/USTAWIENIA.md`.
 - Pierwszy plik interfejsu → jedno pytanie o kierunek wizualny i `docs/DESIGN.md`.
-- Pierwsze wdrożenie środowiska → `docs/srodowiska/<NAZWA>.md` z adresem, wskazaniem dostępów,
-  procedurą wdrożenia i procedurą cofnięcia.
+- Przed pierwszym wdrożeniem środowiska → lista kontrolna z `first-deploy.md`; po wdrożeniu →
+  `docs/srodowiska/<NAZWA>.md` z adresem, wskazaniem dostępów, procedurą wdrożenia i cofnięcia.
 - W `docs/srodowiska/` są nazwy zmiennych i miejsce przechowywania sekretu — nigdy wartości.
 
 ## Dobór modeli (rekomendacja, nie reguła)

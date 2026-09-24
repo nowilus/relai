@@ -107,6 +107,10 @@ nie wyborem. Sekcja o zachowaniach automatycznych nie rośnie. Działa:
 - rejestr decyzji: propozycja zamrożenia powracającego tematu, przechwytywanie fraz zamykających,
 - dziedziczenie preferencji globalnych między projektami,
 - trzy frazy rytualne (poniżej) w wariancie polskim i angielskim,
+- **„coś nie działa" (nowe w 2.7.0):** zgłoszenie usterki („nie działa", „błąd", „sypie się",
+  „it's broken") uruchamia procedurę: odtworzenie komendą z wynikiem, jedna hipoteza naraz
+  sprawdzana dowodem, najmniejsza poprawka, dowód na tym samym odtworzeniu, wpis do
+  `docs/PULAPKI.md`, gdy przyczyną jest nieoczywiste zachowanie narzędzia,
 - naturalne prośby: „dodaj RelAI", „dołącz strukturę RelAI",
 - **planowanie (od 0.3.1):** prośba o plan w zwykłej rozmowie → `docs/plany/<TEMAT>/PLAN.md`
   + `STATUS.md` + linia „Aktywny plan" w `CLAUDE.md`; drobne zadanie → miniplan w dzienniku;
@@ -144,8 +148,10 @@ nie wyborem. Sekcja o zachowaniach automatycznych nie rośnie. Działa:
   **wyłącznie punkty profilu tego projektu** — projekt `app` nie czyta o snapshotach, a projekt
   `flow` o dokumencie architektury:
   - profil `app`: pierwszy kod → opis architektury i jedno pytanie o testy; pierwszy ekran →
-    jedno pytanie o kierunek wizualny i dokument wyglądu; pierwsze wdrożenie → opis środowiska
-    z procedurą wdrożenia i cofnięcia, z nazwami zmiennych zamiast wartości,
+    jedno pytanie o kierunek wizualny i dokument wyglądu; **przed** pierwszym wdrożeniem → lista
+    kontrolna (zmienne i sekrety, kopia danych, droga cofnięcia, dostępy, audyt zależności); po
+    nim → opis środowiska z procedurą wdrożenia i cofnięcia, z tym, co obserwować, i z nazwami
+    zmiennych zamiast wartości,
   - profile `agent-voice` i `flow`: zmiana produkcyjnej konfiguracji bez kopii stanu sprzed
     zmiany zostaje **zatrzymana** — RelAI mówi, jaką kopię zrobić, i czeka,
   - profil `prompty`: rejestr wersji artefaktów; nowy albo niezarejestrowany artefakt →
