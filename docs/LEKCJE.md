@@ -92,7 +92,10 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
    zanim nazwiesz ją profilaktyką**: jej pierwsze trafienia są wynikiem etapu, a cisza od pierwszego
    uruchomienia jest podejrzana do czasu pokazania drugiej strony na podłożonym defekcie; fałszywe
    trafienie zawężasz **z powodem**, nie wyciszeniem kontroli.
-   (L-0032, L-0037, L-0095, L-0096, L-0105, L-0106, L-0107, L-0110, L-0111,
+   **Limit tur w pomiarze ustawiasz na cały łańcuch, który mechanizm uruchamia przed mierzonym
+   krokiem**, i czytasz kod wyjścia każdej sesji — wyjście limitem obok „nie wywołano" znaczy
+   „nie zmierzono"; instrument poprawiony w trakcie idzie od nowa dla obu wariantów.
+   (L-0032, L-0037, L-0095, L-0096, L-0105, L-0106, L-0107, L-0110, L-0111, L-0113,
    L-0097, L-0101, L-0102,
    L-0054, L-0055, L-0056, L-0064, L-0068, L-0071, L-0073, L-0083, L-0084, L-0086, L-0087, L-0088,
    L-0090, L-0091)
@@ -124,10 +127,14 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
 8. **Zachowanie, które ma działać zawsze, mieszka w warstwie obecnej w każdej sesji** —
    `CLAUDE.md` projektu albo hook; skill dokłada procedurę i wyzwala się zawodnie, a komenda
    wywołana wprost go nie ładuje. Sygnał, który ma paść raz, ma jednego właściciela; cisza
-   właściciela znaczy „sprawdzone i zgodne". (L-0015, L-0030, L-0036)
+   właściciela znaczy „sprawdzone i zgodne". **Stan zapisywany przez model ma kształt, w którym nie ma czego
+   scalać** — osobny plik na zapisującego, nie wspólny plik z regułą scalania opisaną prozą.
+   (L-0015, L-0030, L-0036, L-0112)
 9. **Skill nie zakłada dostępu do niczego poza katalogiem roboczym** — ani do katalogu pluginu, ani
-   do domowego. Opis zaczynaj od `MUST BE USED`, markera projektu i płaskiej listy fraz; każdy krok
-   sięgający dalej ma zapisane wyjście po odmowie dostępu. (L-0009, L-0010, L-0012, L-0023)
+   do domowego. Opis mieści się w **1 024 znakach** i mówi w trzeciej osobie, co skill robi i kiedy
+   go użyć, z markerem projektu i płaską listą fraz — bez `MUST BE USED` (zmierzone 2026-09-24:
+   opus i sonnet bez spadku; haiku nie jest kryterium). Każdy krok sięgający dalej ma zapisane
+   wyjście po odmowie dostępu. (L-0009, L-0010, L-0012, L-0023, L-0114)
 10. **Wersję pluginu potwierdzasz plikiem instalacji, nie komunikatem CLI**, zachowania mierzysz
     świeżą sesją, a po podbiciu numeru przepuszczasz repo `grep`-em po starym i rozstrzygasz każde
     trafienie — **także w treści komend, skilli i specyfikacji**, dzieląc je na wzmianki
@@ -592,3 +599,49 @@ Treść jest kopią bajt w bajt — zmieniony został wyłącznie status w linii
   wołają rdzeń, żeby go sprawdzić — to nie jest jego użycie), nie przez wyciszenie kontroli.
 - **Źródło:** E5 planu OPTYMALIZATOR_PROMPTOW — dwa trafienia realne, dwa fałszywe z katalogu
   `tests/`; po zawężeniu kod 0, a obie strony pokazane instrumentem. Destylat: doklejone do zasady 5.
+
+### L-0112 — Stan, który zapisuje model, nie może wymagać scalania · 2026-09-24 · AKTYWNA
+
+- **Trigger:** plik zgody na tryb ciągły trzymał jeden rekord i równoległa sesja wyparła decyzję
+  tej sesji. Pierwsza poprawka zamieniła rekord na mapę sesji w jednym pliku i dopisała regułę
+  „wpisy innych sesji zostaw" — recenzent wskazał, że funkcja scalająca istnieje wyłącznie w testach,
+  a plik nadal pisze model z prozy.
+- **Przyczyna:** gdy zapisującym jest model, poprawność scalania zależy od tego, czy przeczyta
+  zastany plik i odtworzy go w całości. To ta sama klasa błędu co nadpisanie, tylko rzadsza —
+  a test funkcji, której produkcja nie woła, dowodzi niczego.
+- **Zasada:** stan zapisywany przez model dostaje **kształt, w którym nie ma czego scalać** —
+  osobny plik na zapisującego (tu: `zgoda-promptu/<id sesji>.json`), identyfikator sprawdzony przed
+  złożeniem ścieżki. Kod, który czyta ten stan, jest jedynym miejscem logiki; test stawiasz na tym,
+  co naprawdę robi zapisujący.
+- **Źródło:** E1 planu PROWADZENIE_END_TO_END, pozycja S01; recenzja diffu przed wydaniem 2.3.1.
+  Destylat: doklejone do zasady 8.
+
+### L-0113 — Limit tur w pomiarze wyzwalania ucina drugi skill łańcucha · 2026-09-24 · AKTYWNA
+
+- **Trigger:** pomiar „przygotuj plan…" na `--max-turns 4` dał opus 1/2 dla `relai-planning`.
+  Transkrypt: sesja najpierw wywołuje `relai-core` (tak każe hook startu), czyta pliki rytuału
+  i kończy się kodem limitu, zanim dojdzie do planowania.
+- **Przyczyna:** limit tur był ustawiony pod jeden skill, a zdanie o planie w projekcie RelAI
+  uruchamia **łańcuch** — rytuał startu, potem planowanie. Cisza drugiego skilla była zdaniem
+  o instrumencie, nie o opisie.
+- **Zasada:** limit tur w pomiarze ustawiasz z zapasem na **cały łańcuch**, który mechanizm
+  uruchamia przed mierzonym krokiem, i czytasz kod wyjścia każdej sesji — wyjście limitem obok
+  „nie wywołano" znaczy „nie zmierzono". Instrument poprawiony w trakcie idzie od nowa dla obu
+  wariantów, nie tylko dla drugiego.
+- **Źródło:** E1 planu PROWADZENIE_END_TO_END (K1); limit podniesiony do 8, pomiar „przed"
+  powtórzony w całości. Destylat: doklejone do zasady 5.
+
+### L-0114 — Opis skilla nie potrzebuje nacisku, żeby się wyzwalać · 2026-09-24 · AKTYWNA
+
+- **Trigger:** opisy `relai-core` (~1 730 znaków) i `relai-planning` (~1 790) przekraczały limit
+  1 024 znaków listy skilli i zaczynały się od `MUST BE USED` — zasada 9 każe tak zaczynać.
+  Przepisane do 994 i 997 znaków, w trzeciej osobie, bez nacisku.
+- **Przyczyna:** zasada 9 powstała na modelach, które pomijały skill bez nacisku; nowsze modele
+  nadinterpretują wersaliki, a opis ucięty w liście traci frazy z końca.
+- **Zasada:** opis skilla mieści się w **1 024 znakach** i mówi w trzeciej osobie, co skill robi
+  i kiedy go użyć, z markerem projektu i płaską listą fraz. Zmierzone przed i po na zainstalowanym
+  pluginie (`stream-json`, wywołanie `Skill`): opus i sonnet 4/4 w obu wariantach. Haiku jest
+  niestabilny w obu (`relai-core` 3/6 → 2/6, `relai-planning` 0/6 → 0/6) i **nie jest kryterium** —
+  decyzja człowieka z 2026-09-24: RelAI celuje w modele flagowe.
+- **Źródło:** E1 planu PROWADZENIE_END_TO_END (M02+M09, K1); wydanie 2.3.1. Destylat: zasada 9
+  przepisana.

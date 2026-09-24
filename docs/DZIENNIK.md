@@ -1864,3 +1864,97 @@ Autor: RelAI (Opus 5.5) + Lukasz
 - Odświeżenie listy modeli Codeksa przed E4 (bramka w `STATUS.md`).
 
 Autor: RelAI (Opus 5.5) + Lukasz
+
+### 2026-09-24 — E1 planu PROWADZENIE_END_TO_END: poprawki spójności i wydanie 2.3.1
+
+**Zrobione:**
+
+- **Opisy skilli (M02+M09):** `relai-core` 994 znaki (było ~1 730), `relai-planning` 997 (~1 790) —
+  trzecia osoba, bez `MUST BE USED` i `ALSO USE`, frazy PL i EN zostały; treść poniżej frontmattera
+  bez zmian. Skille Codeksa wygenerowane.
+- **Recenzent (M04+O10):** `relai-reviewer.md` i preambuła roli `reviewer` w `core/process/crew.js`
+  każą zgłaszać każde znalezisko z wagą i pewnością; `/relai-crew` mówi, że filtr należy do
+  orkiestratora. Preambuła w `crew.js` to ten sam artefakt w drugim nośniku, dlatego weszła razem.
+- **Spójność wersji (A02+A18):** wybrany mechanizm to **walidator**, nie `stateDrift()`. Powód:
+  rozjazd wersji w README i STATE jest cechą tego repozytorium w chwili wydania, a `stateDrift()`
+  działa w projektach użytkowników, których STATE nie mówi o wersji pluginu. Nowa kontrola 5b
+  czyta baner README i pierwszy numer wersji w sekcji „Gdzie jesteśmy"; brak banera lub sekcji jest
+  błędem. **Pierwsze uruchomienie na zastanym stanie zgłosiło oba rozjazdy** (README 2.1.4, STATE
+  2.2.0 przy manifestach 2.3.0) — to wynik etapu, nie przeszkoda (L-0111).
+- **DECYZJE (A03, A04):** drugie D-87 (adapter Cursora) → **D-89** z adnotacją przy numerze;
+  odwołanie w `STATE.md` poprawione; aneksy D-40 (11 hooków) i D-80 (Cursor i Codex od 2.x)
+  w sekcji „Decyzje zmienione".
+- **Krok 7 rytuału (A07):** `CLAUDE.md` i `AGENTS.md` odsyłają do linii „Aktywny plan" zamiast
+  nazwy planu zamkniętego 2026-09-05.
+- **Zgoda sesyjna (S01):** osobny plik na sesję, `.claude/relai/zgoda-promptu/<id>.json`;
+  identyfikator spoza `[A-Za-z0-9_-]` nie jest czytany; plik `zgoda-promptu.json` z 2.3.0 czytany
+  dalej. Pierwsza wersja poprawki (mapa sesji w jednym pliku ze scalaniem opisanym prozą) nie
+  przeszła recenzji: funkcja scalająca istniała tylko w testach, a plik pisze model (L-0112).
+- **Lista modeli pluginu (M11):** Opus 5.5, `list-date` 2026-09-24. **SPEC_KOMENDY (S02):** opis
+  wyboru modelu optymalizatora.
+- **Wydanie 2.3.1:** commit `20f22eb`, tag `v2.3.1`, push na `origin/main`, release na GitHubie
+  (Latest — 2.2.0 i 2.3.0 miały same tagi), `marketplace update` i `plugin update relai@relai`.
+  Po wyrównaniu deklaracji wersji tag `v2.3.1` i release **przesunięte na commit zamykający E1**
+  (decyzja Łukasza) — tag niesie poprawione `relai-update` i `relai-planning`.
+- **Deklaracje wersji wyrównane na prośbę Łukasza:** wiersz stanu w `CLAUDE.md`/`AGENTS.md`,
+  sekcja „Wersja i instalacja" i punkt o restarcie w `STATE.md`, linia stanu dystrybucyjnego
+  w `relai-planning`, „nowość 2.3.0" → „nowość 2.2.0" przy wierszu `Tryb ciągły` w `relai-update`
+  (błąd faktu — wiersz wszedł w 2.2.0), status karty `ORKIESTRACJA`. Wzmianki historyczne
+  („od 2.3.0 dochodzi…") zostały, bo mówią, kiedy coś weszło.
+
+**Zweryfikowane — jak dokładnie:**
+
+- `description` policzony skryptem (folded scalar złożony jak YAML): 994 i 997, zero „MUST"
+  i „ALSO USE" w obu adapterach; `generate-skills.js --verify` spójne — i złapał rozjazd, gdy
+  komenda `relai-crew` zmieniła się bez regeneracji (kontrola pozytywna).
+- Pomiar wyzwalania (K1), `claude -p` w projekcie testowym `%TEMP%\relai-e1-trigger`, dowód:
+  wywołanie narzędzia `Skill` w `stream-json`. „Przed" = zainstalowane 2.3.0, „po" = zainstalowane
+  2.3.1 (ścieżka `relai\relai\2.3.1` w transkryptach):
+
+  | Model | `relai-core` przed → po | `relai-planning` przed → po |
+  |---|---|---|
+  | opus | 2/2 → 2/2 | 2/2 → 2/2 |
+  | sonnet | 2/2 → 2/2 | 2/2 → 2/2 |
+  | haiku (2 + 4 powtórzenia) | 3/6 → 2/6 | 0/6 → 0/6 |
+
+  Haiku przy „przygotuj plan" nie woła skilla wcale — prowadzi wywiad według globalnego
+  `CLAUDE.md` użytkownika; różnica 3/6 → 2/6 mieści się w szumie. **Decyzja Łukasza z tego dnia:
+  haiku nie jest kryterium** — RelAI celuje w modele flagowe, więc spadek na haiku nie cofa opisu
+  (odstępstwo od litery punktu 12 promptu E1, zapisane w bramce `STATUS.md`). Pierwszy przebieg
+  „przed" z `--max-turns 4` przerwany: limit ucinał `relai-planning` po `relai-core` (L-0113).
+- `relai-reviewer.md` i `crew.js`: `grep "confident about"` — zero trafień (dowód negatywny).
+- Walidator: kopia repo z podmienionym banerem (9.9.9), podmienioną wersją w STATE (9.9.8) i bez
+  banera — trzy razy kod 1 z właściwym komunikatem; na repo kod 0, „7 zrodel, wartosc 2.3.1".
+- `grep -c "\*\*D-87\*\*" docs/DECYZJE.md` = 1, `**D-89**` = 1; `git diff` DECYZJE usuwa jedną
+  linię (stare D-87) — treść D-40 i D-80 nietknięta.
+- `diff CLAUDE.md AGENTS.md`: wyłącznie nagłówek kopii i nazwa narzędzia.
+- Testy: `node --test core/process/tests/*.test.js core/guardrails/tests/*.test.js adapters/codex/tests/*.test.js`
+  — **53/53** (było 50). Nowe testy zgody na starym `prompt-mode.js` — 3 z 14 czerwone, na nowym
+  zielone (obie wersje w jednym przebiegu).
+- `claude plugin validate .` → `✔ Validation passed` przed tagiem i po poprawkach wersji;
+  `installed_plugins.json` wskazuje `...\2.3.1`, cztery zmienione pliki w cache'u zgodne z repo
+  sumą po CRLF → LF (4/4), cache 2.3.0 daje inną sumę.
+- Katalog roboczy `.claude/relai/work/PROWADZENIE_END_TO_END/E1/`: 4,7 MB, 51 plików (skrypt
+  pomiaru, transkrypty `stream-json`, logi) — skasowany po „tak"; poza projektem
+  `%TEMP%\relai-e1-trigger` (0,6 MB, projekt testowy pomiaru) — skasowany razem z nim. Raport
+  `clean-work.js`: kandydaci 5,3 MB przed, 0,1 MB po (pozostałości zamkniętych wątków spoza E1).
+  Katalogi testów walidatora `%TEMP%\relai-e1-version-*` sprząta sam test.
+- Przegląd ryzyk: bez zmiany statusów; M5 (nazwy modeli) i W1 (bramka walidacyjna) zadziałały
+  zgodnie z mitygacją.
+
+**Świadomie odłożone:**
+
+- **Zastrzeżenie dla słabszych modeli** („na modelach spoza klasy flagowej RelAI działa gorzej") —
+  pomysł Łukasza z tego dnia; należy do E4 („Zasady skrojone pod model"), nie do E1.
+- `docs/fixy/OPIS_REPO/PROMPT_ODNOGA.md` niesie starą zasadę 9 (`MUST BE USED`) — prompt
+  otwartej odnogi odświeża się przy jej starcie.
+- Pozycja „Czeka na człowieka" starsza niż 30 dni (weryfikacja ośmiu rozstrzygnięć z E2,
+  2026-09-01) — hook startu zgłosił ją, decyzji w tej sesji nie było.
+
+**Do zrobienia przez człowieka:**
+
+- Zamrożenie decyzji „haiku nie jest kryterium, RelAI celuje w modele flagowe" jako pozycji
+  `DECYZJE.md` *(rozstrzygnięte 2026-09-24 — Łukasz zgodził się, zamrożona jako **D-90**)*.
+- Restart aplikacji desktopowej, żeby sesje w aplikacji ładowały 2.3.1 (P-005).
+
+Autor: RelAI (Opus 5.5) + Lukasz

@@ -1,6 +1,6 @@
 # WĄTEK — załoga: orkiestracja wielu agentów i przegląd krzyżowy (`/relai-crew`)
 
-Status: **ZAMKNIĘTA 2026-09-06** (2.1.0 w repozytorium; wydanie czeka na człowieka)
+Status: **ZAMKNIĘTA 2026-09-06** (wydana w 2.1.0)
 Wywołanie: dyrektywa użytkownika z 2026-09-06 (`/goal`): zaprojektować i wdrożyć adytywnie komendę
 orkiestracji multi-agentowej z delegacją między Claude Code, Codeksem i Cursorem, w jednej sesji,
 bez subagentów i bez workflowów

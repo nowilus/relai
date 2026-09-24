@@ -170,11 +170,12 @@ kontrole przeszły; pełna świeża sesja Codexa pozostaje NOT TESTED po błędz
 ## Co dalej
 
 - **Plan [PROWADZENIE_END_TO_END](plany/PROWADZENIE_END_TO_END/STATUS.md) zaakceptowany 2026-09-24**
-  (zamrożony; E1 gotowy do startu, prompt wygenerowany): 7 etapów, 10–13 sesji (SZACUNEK), rejestr 56 ustaleń z trzech raportów
+  (zamrożony; **E1 zrealizowany 2026-09-24 wydaniem 2.3.1**, E2 „Lżejszy start sesji" gotowy do
+  startu): 7 etapów, 10–13 sesji (SZACUNEK), rejestr 56 ustaleń z trzech raportów
   sesji — spójność, lżejszy start, podział skilli, nakładki per model (Opus 5.5 główny), onboarding,
   debug / bezpieczeństwo / deploy. Tryb ciągły poza Claude Code nie wszedł do tego planu.
-- **Restart aplikacji desktopowej po wydaniu 2.2.0** — do tego czasu ta aplikacja ładuje 2.1.4
-  z pamięci (P-005). Sekwencja wydania zamknęła się na świeżych sesjach CLI z cache'u.
+- **Restart aplikacji desktopowej po wydaniu 2.3.1** — do tego czasu działająca aplikacja ładuje
+  2.3.0 z pamięci (P-005); świeże sesje CLI biorą już 2.3.1 z cache'u.
 - **Projekty z hookiem sprzed 1.9.3 wymagają ponownej instalacji pre-commita** — układ sprzed
   1.9.2 przewraca się w projekcie z `"type": "module"` (rozpoznanie: obecność
   `.git/hooks/relai-secret-scan.js`), a układ 1.9.2 niesie obie regresje zamknięte w 1.9.3:
@@ -247,12 +248,13 @@ kontrole przeszły; pełna świeża sesja Codexa pozostaje NOT TESTED po błędz
 
 ### Wersja i instalacja
 
-Repozytorium i publicznie: **2.2.0** (2026-09-15, tag `v2.2.0`, commit `fb8cd7c`). Walidator:
-kod 0, „5 zrodel, wartosc 2.2.0". **Wydanie potwierdzone treścią plików z cache'u, nie komunikatem
-CLI** (P-005): `installed_plugins.json` wskazuje `...\2.2.0`, a dziesięć plików z katalogu wydanej
-wersji zgadza się sumą z repozytorium po normalizacji CRLF → LF (10/10); kontrola pozytywna wobec
-2.1.4 dała różnicę. Sekwencja: `update` → restart → dowód treścią, przy czym `plugin update` wymaga
-**pełnej nazwy** `relai@relai`. Źródło instalacji: własny marketplace w tym repozytorium, scope
+Repozytorium i publicznie: **2.3.1** (2026-09-24, tag `v2.3.1` na commicie zamykającym E1, release na GitHubie
+oznaczony jako Latest). Walidator: kod 0, „7 zrodel, wartosc 2.3.1" — od 2.3.1 liczy także baner README
+i sekcję „Gdzie jesteśmy" tego pliku. **Wydanie potwierdzone treścią plików z cache'u, nie komunikatem
+CLI** (P-005): `installed_plugins.json` wskazuje `....3.1`, a cztery zmienione pliki z katalogu
+wydanej wersji zgadzają się sumą z repozytorium po normalizacji CRLF → LF (4/4); kontrola pozytywna
+wobec 2.3.0 dała różnicę. Sekwencja: `claude plugin validate` → tag → push → release →
+`marketplace update` → `plugin update relai@relai` → dowód treścią. Źródło instalacji: własny marketplace w tym repozytorium, scope
 `user`. Gitowy pre-commit tego repozytorium stoi na układzie 1.9.2 (shim + dwa pliki `.cjs`).
 
 ### Zawartość pluginu

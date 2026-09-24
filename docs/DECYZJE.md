@@ -50,6 +50,7 @@ Zasada: decyzji z tego rejestru **nie proponuje się ponownie**. Zmiana wymaga j
 - **D-37** Fixy: drobne = wpis w DZIENNIKU; duże = pełna triada w `docs/fixy/<TEMAT>/`.
 - **D-38** *(zmienione Aneksem A)* Dobór modelu w CLAUDE.md projektu jako REKOMENDACJA-default (analiza/plany → najsilniejszy; wykonanie → tańszy; mechaniczne → najtańszy) — nie twarda reguła.
 - **D-39** *(Aneks A, 2026-08-07)* Przed powstaniem każdego planu RelAI pyta użytkownika, jakim modelem Claude mają być realizowane etapy; odpowiedź swobodna (może różnicować per etap), nic nie jest narzucane pod spodem. Pytanie zawiera REKOMENDACJĘ RelAI z uzasadnieniem (np. „złożone etapy: Opus, mechaniczne: Haiku") jako opcję domyślną. Preferencja utrwalana globalnie/projektowo (D-23). Wybrany model zapisany w STATUS planu i w treści promptów etapowych.
+- **D-90** *(2026-09-24, w E1 planu PROWADZENIE_END_TO_END)* **RelAI celuje w modele flagowe; słabsze modele nie są kryterium odbioru.** Pomiary zachowania (wyzwalanie skilli, przestrzeganie rytuałów) raportujemy także na słabszych modelach, ale ich spadek nie cofa zmiany ani nie blokuje wydania — kryterium stoją modele klasy `strong` i `balanced` z listy narzędzia. Powód (zmierzone 2026-09-24): Haiku 4.5 wyzwalał `relai-planning` 0/6 zarówno przed zmianą opisu, jak i po niej, a `relai-core` 3/6 → 2/6 — niestabilność niezależna od RelAI; optymalizacja pod model, który nie trzyma się zasad, nie ma sensu. Ewentualne zastrzeżenie dla użytkownika o słabszych modelach — etap E4.
 
 ## Hooki, bezpieczeństwo, backup
 
