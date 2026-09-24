@@ -1762,3 +1762,34 @@ Autor: RelAI (Opus 5) + Lukasz
 `origin/main` — 30 plików, +703/−46. Zachowanie obu bramek z **zainstalowanego** pluginu pozostaje
 niezmierzone: ta sesja wykonuje 2.2.0 z pamięci aplikacji, więc pierwszy dowód da dopiero świeża
 sesja po restarcie (P-005).
+
+### 2026-09-24 — Audyt i dopasowanie do modeli (analiza); `/relai-prompt` dostaje wybór modelu optymalizatora
+
+**Co się stało:**
+
+- Sesja analityczna bez zmian w repo: audyt RelAI w pięciu obszarach, raport o dopasowaniu warstwy
+  instrukcji do wytycznych dostawców modeli i raport o Opus 5.5 oraz GPT-6 Sol i Luna. Raporty
+  żyją w rozmowie; ich wnioski wejdą do następnego planu po akceptacji.
+- `/relai-models` odświeżył kopię listy w projekcie: `.claude/relai/MODELE-claude-code.md`
+  z dnia **2026-09-24**, Opus 5.5 (`claude-opus-5-5`, alias `opus`) zamiast Opus 5 w klasie strong.
+  Lista w pluginie (`adapters/claude-code/MODELE.md`) i lista Codeksa bez zmian.
+- `/relai-prompt` (artefakt wersja 7, zakres 2.3.1, **niewydane**): model optymalizatora wybiera
+  człowiek — flaga `--model` na jedno wywołanie albo pytanie o model i zasięg (ten prompt / ta sesja
+  / ten projekt / wszystkie projekty). Wiersz bez członu `· nie pytaj` jest podpowiedzią, więc
+  wiersz `Model optymalizatora` = Sonnet 5 w tym projekcie przestaje wyłączać pytanie.
+  Skill Codeksa wygenerowany z komendy (`generate-skills.js`), `docs/KOMENDY.md` zaktualizowany.
+- Kontrole: `node --test` 50/50, `validate-adapters.js` kod 0.
+
+**Zmierzone przy okazji:**
+
+- Plik `.claude/relai/zgoda-promptu.json` trzyma jeden rekord — równoległa sesja nadpisała zgodę tej
+  sesji (obcy identyfikator w pliku), więc bramka pytała ponownie mimo odpowiedzi „nie". Dlatego zasięg
+  „ta sesja" wyboru modelu nie ma pliku stanu.
+
+**Świadomie odłożone:**
+
+- `core/templates/SPEC_KOMENDY.md` nie opisuje jeszcze wyboru modelu — dopisanie razem z wydaniem 2.3.1.
+- Naprawa pliku zgody (rekord per sesja) — pozycja następnego planu.
+- Nagłówek `docs/STATE.md` nadal mówi 2.2.0 w sekcji „Gdzie jesteśmy" — pozycja następnego planu.
+
+Autor: RelAI (Opus 5.5) + Lukasz

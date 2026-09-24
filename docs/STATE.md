@@ -19,6 +19,10 @@ dla Claude Code katalogiem konwencyjnym, więc ładował się obok hooków z man
 kontekst startu i błąd schematu `SessionEnd`. Naprawione bramką hosta i wydane 2026-09-12 (odnoga
 HOOKI_KORZEN); **świeża sesja na 2.1.4 ma jeden blok kontekstu i zero komunikatów o błędzie hooka**.
 
+**W repo, niewydane (2026-09-24, zakres 2.3.1):** `/relai-prompt` pyta o model optymalizatora
+i zasięg wyboru (ten prompt / ta sesja / ten projekt / wszystkie projekty), a flaga `--model`
+wybiera jednorazowo. Wydanie razem z pierwszym etapem następnego planu.
+
 Seria 1.9.x dodała listy modeli per narzędzie, poprawiła sprzątanie oraz uszczelniła pre-commit: działa
 w projektach ESM, kończy instalację testem dymnym i nie blokuje poprawnych odczytów sekretów ze
 środowiska. Szczegóły i dowody wydań są w dwóch ostatnich wpisach dziennika.

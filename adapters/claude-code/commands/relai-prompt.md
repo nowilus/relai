@@ -1,6 +1,6 @@
 ---
 description: "Zamienia podyktowane zdanie w precyzyjny prompt — pokazuje oryginał obok propozycji, oznacza każde dopowiedzenie i czeka na zgodę; niczego nie wykonuje"
-argument-hint: "[tekst do przerobienia] albo on / off [--globalnie] — np. /relai-prompt popraw walidację w formularzu logowania, bo się sypie"
+argument-hint: "[--model <nazwa>] [tekst do przerobienia] albo on / off [--globalnie] — np. /relai-prompt --model opus popraw walidację w formularzu logowania, bo się sypie"
 ---
 
 # /relai-prompt — optymalizator promptu
@@ -51,25 +51,58 @@ dopóki jest komu ją oddać. Wykonawcą jest agent `relai-prompt-optimizer`, ur
 `Agent` z **jawnie podaną nazwą modelu**. Kroki 2–11 opisują to, co robi **agent**; gdy delegacji nie
 ma, wykonujesz je sam.
 
-Nazwę modelu czytasz z wiersza `Model optymalizatora` w `docs/USTAWIENIA.md`. Komórka `Decyzja`
-jest czytana maszynowo: kotwica na **początku** komórki, człony rozdzielone `·`, zamknięta lista
-brzmień — nazwy i aliasy z `.claude/relai/MODELE-<narzędzie>.md` oraz jedno brzmienie własne
-`model sesji` (praca bez delegacji).
+O modelu decyduje człowiek (od 2.3.1). Nazwę bierzesz z **pierwszego pasującego** źródła:
+
+| # | Źródło | Zasięg |
+|---|---|---|
+| 1 | flaga `--model <wartość>` na **początku** argumentu | wyłącznie to wywołanie; niczego nie zapisujesz |
+| 2 | wybór „ta sesja" z pytania zadanego wcześniej **w tej rozmowie** | do końca sesji |
+| 3 | wiersz `Model optymalizatora` w `docs/USTAWIENIA.md` z członem `· nie pytaj` | ten projekt |
+| 4 | wiersz `Model optymalizatora` w `~/.claude/relai/USTAWIENIA.md` z członem `· nie pytaj` | projekty bez własnego wiersza z tym członem |
+| 5 | nic z powyższych → **pytanie o model** (niżej) | — |
+
+Komórka `Decyzja` jest czytana maszynowo: kotwica na **początku** komórki, człony rozdzielone `·`,
+zamknięta lista brzmień — nazwy i aliasy z `.claude/relai/MODELE-<narzędzie>.md` oraz jedno brzmienie
+własne `model sesji` (praca bez delegacji). Człon `· nie pytaj` znaczy „wybór na stałe"; wiersz
+**bez** niego jest wyłącznie podpowiedzią — tak czytasz wiersze zapisane przed 2.3.1.
 
 ```
-| 2026-09-14 | Model optymalizatora | Haiku 4.5 · lista claude-code z dnia 2026-09-04 |
+| 2026-09-24 | Model optymalizatora | Sonnet 5 · lista claude-code z dnia 2026-09-24 · nie pytaj |
 ```
+
+**Flaga.** `--model` i jedna wartość: nazwa jednowyrazowa, alias albo `id` z listy (`opus`,
+`sonnet`, `claude-opus-5-5`) albo `sesja` (= `model sesji`). Reszta argumentu po wartości jest
+tekstem do przerobienia; sama flaga bez tekstu to argument pusty (Krok 0). Flaga nie pyta i niczego
+nie zapisuje.
+
+**Pytanie o model** — jedno wywołanie `AskUserQuestion` z dwoma pytaniami, **zanim** przerobisz
+prompt:
+
+1. **Model** — pozycje z listy z jej datą w treści pytania oraz `model sesji`; najwyżej cztery
+   opcje, resztę człowiek wpisuje w polu „Other". Pierwsza opcja z dopiskiem „(Rekomendowane)":
+   wartość wiersza-podpowiedzi (projektowego, a gdy go nie ma — globalnego); bez wiersza —
+   **model sesji**, bo dopóki nie ma pomiaru w projekcie, cena nie jest dowodem jakości.
+2. **Zasięg** — cztery opcje: `ten prompt` · `ta sesja` · `ten projekt` · `wszystkie projekty`.
+
+| Zasięg | Co zapisujesz | Kiedy pytanie wraca |
+|---|---|---|
+| `ten prompt` | nic | przy następnym wywołaniu |
+| `ta sesja` | nic — wybór żyje w rozmowie, bez pliku stanu | w nowej sesji, po `/clear` i po kompakcji kontekstu |
+| `ten projekt` | wiersz `Model optymalizatora` w `docs/USTAWIENIA.md` z dzisiejszą datą i członem `· nie pytaj`; istniejący wiersz **nadpisujesz**, nie dopisujesz drugiego | po usunięciu członu `· nie pytaj` |
+| `wszystkie projekty` | ten sam wiersz w `~/.claude/relai/USTAWIENIA.md` (brak pliku → tworzysz go z tabelą `\| Data \| Czego dotyczy \| Decyzja \|`) | po usunięciu członu; projekt z własnym wierszem `· nie pytaj` ma pierwszeństwo |
+
+Wybór „ta sesja" świadomie nie ma pliku: plik stanu współdzielony przez sesje nadpisuje się przy
+dwóch sesjach naraz — zmierzone 2026-09-24 na `.claude/relai/zgoda-promptu.json`.
 
 Rozstrzygasz według tego, co zastajesz:
 
 | Co zastajesz | Co robisz |
 |---|---|
-| wartość z listy | delegujesz do agenta z tą nazwą modelu; o wyborze nie mówisz nic — decyzja padła raz |
-| wartość `model sesji` | pracujesz sam, bez delegacji; też nic nie mówisz |
-| **wiersza nie ma** (b12) | zadajesz **jedno** pytanie z nazwami z listy **razem z jej datą**, zapisujesz odpowiedź do `docs/USTAWIENIA.md` i **dopiero potem** przerabiasz prompt. Pytanie pada **raz na projekt**. Dopóki nie ma pomiaru w tym projekcie, rekomendacją jest **model sesji** — nie najtańsza pozycja z listy, bo cena nie jest dowodem jakości |
-| **nazwa spoza listy** (b11) | pracujesz na modelu sesji i mówisz o tym **jednym zdaniem** przy pierwszym wywołaniu w sesji, ze wskazaniem `/relai-models`. Nazwy **nie podmieniasz** na najbliższą z listy: wpisana mogła być świadomym wyborem człowieka, a lista bywa nieaktualna |
-| **listy modeli nie ma** | ta część milczy, reszta komendy działa normalnie; nazw nie zgadujesz z pamięci (L-0026) |
-| projekt bez struktury RelAI | nie ma skąd wziąć wiersza, więc pracujesz na modelu sesji i nie pytasz o nic |
+| nazwa z listy | delegujesz do agenta z tą nazwą modelu; wyboru nie komentujesz |
+| `model sesji` | pracujesz sam, bez delegacji; też nic nie mówisz |
+| **nazwa spoza listy** (b11) — z flagi, wiersza albo pola „Other" | pracujesz na modelu sesji i mówisz o tym **jednym zdaniem**, ze wskazaniem `/relai-models`. Nazwy **nie podmieniasz** na najbliższą z listy: wpisana mogła być świadomym wyborem człowieka, a lista bywa nieaktualna |
+| **listy modeli nie ma** | ta część milczy, nie pytasz, reszta komendy działa normalnie na modelu sesji; nazw nie zgadujesz z pamięci (L-0026) |
+| projekt bez struktury RelAI | listy nie ma, więc pracujesz na modelu sesji i nie pytasz o nic; flaga z nazwą spoza listy — jak b11 |
 
 **Awaria delegacji (b13).** Agent nie odpowiada, zwraca pustkę albo treść bez oryginału → do
 wykonania idzie **oryginał w niezmienionej postaci**, a człowiek dostaje **jedno zdanie** o tym, że
@@ -83,9 +116,10 @@ optymalizacji na modelu sesji. Ciche obcięcie zmieniłoby zadanie, którego nik
 **Narzędzie bez subagentów.** Host, który nie zna pojęcia agenta — tak działa Codex, gdzie warstwą
 jest skill, czyli ten sam plik procedury — **delegacji nie dostaje i nie udaje**. Optymalizację
 wykonuje tam model sesji z reguł niesionych w tej procedurze, a osobnego agenta dla takiego
-narzędzia się nie dorabia: rola jest jedna i mieszka w jednym pliku. Gdy wiersz `Model
-optymalizatora` wskazuje model inny niż sesyjny, mówisz **pół zdaniem**, że w tym narzędziu
-ustawienie nie ma jak zadziałać — inaczej człowiek widzi wiersz i zakłada, że jest respektowany.
+narzędzia się nie dorabia: rola jest jedna i mieszka w jednym pliku. **Pytania o model tam nie
+zadajesz** — wybór nie miałby jak zadziałać. Gdy wiersz `Model optymalizatora` albo flaga `--model`
+wskazuje model inny niż sesyjny, mówisz **pół zdaniem**, że w tym narzędziu ustawienie nie ma jak
+zadziałać — inaczej człowiek widzi wiersz i zakłada, że jest respektowany.
 Droga przez `crew.js run --model` zostaje odrzucona świadomie: uruchamia proces zewnętrzny i stoi
 na flagach CLI dostawcy (ryzyko M6), więc przy jednym przepisywanym zdaniu kosztuje więcej, niż
 daje.
@@ -347,7 +381,11 @@ tylko nie należy do tego planu.
 - **Nie zostawiasz awarii delegacji w ciszy** — do wykonania idzie oryginał, a człowiek dostaje
   o tym jedno zdanie.
 - **Nie obcinasz promptu po cichu**, gdy nie mieści się w kontekście modelu z ustawień.
-- **Nie podmieniasz nazwy modelu spoza listy** na najbliższą z listy i nie pytasz o model drugi raz
-  w tym samym projekcie.
-- Nie zmieniasz żadnego pliku w projekcie **poza dwoma wyjątkami**: wiersze `Model optymalizatora`
-  i `Język promptu` w `docs/USTAWIENIA.md`, każdy zapisywany raz na projekt po odpowiedzi człowieka.
+- **Nie podmieniasz nazwy modelu spoza listy** na najbliższą z listy. O model nie pytasz, gdy
+  rozstrzyga flaga, wybór „ta sesja" albo wiersz z członem `· nie pytaj`.
+- **Nie zapisujesz wyboru modelu bez zasięgu wskazanego przez człowieka** — flaga i zasięgi
+  `ten prompt` / `ta sesja` nie zmieniają żadnego pliku.
+- Nie zmieniasz żadnego pliku **poza wyjątkami**: wiersz `Język promptu` w `docs/USTAWIENIA.md`
+  (raz na projekt po odpowiedzi człowieka) oraz wiersz `Model optymalizatora` — w
+  `docs/USTAWIENIA.md` po zasięgu `ten projekt` albo w `~/.claude/relai/USTAWIENIA.md` po zasięgu
+  `wszystkie projekty`.
