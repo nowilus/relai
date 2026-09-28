@@ -1784,3 +1784,35 @@ Autor: RelAI (Opus 5.5) + Lukasz
   zostaje restart aplikacji)*
 
 Autor: RelAI (Opus 5.5) + Lukasz
+
+### 2026-09-28 — Zamknięcie sesji: wydanie 2.7.1 i jedna zaległa deklaracja wersji
+
+**Co się działo:**
+
+- Sesja dała poprawkę kopii narzędzi w projektach ESM, wydanie 2.7.1 i zapis publikacji (dwa
+  wpisy wyżej). Hook startu tej sesji, już z cache 2.7.1, położył
+  `.claude/relai/tools/package.json` w tym repozytorium — poprawka działa na samym sobie.
+- W rytuale zamknięcia wyszła luka wydania: `relai-core/SKILL.md` (Claude Code i Codex) nadal mówi
+  „Aktualny stan dystrybucyjny: RelAI 2.7.0". Poprawione w repo (skill `relai-core` wersja 21
+  w rejestrze), Codex przegenerowany; w opublikowanym 2.7.1 linia zostaje stara — to tylko
+  nagłówek, procedura bez zmian. Lekcja L-0132 (filtr `grep -v` po nazwie pliku).
+- Sprzątanie (krok 2a): brak zamkniętych etapów, kandydaci 0,0 MB — bez pytań. Rotacja: dziennik
+  ~137 KB przy progu 150 KB, „Zasady aktywne" 15/15 — bez rotacji. Ryzyka bez zmian.
+
+**Zweryfikowane — jak dokładnie:**
+
+- `git grep` po deklaracjach `2.7.0` bez filtrów wyjścia: zostały wyłącznie wzmianki historyczne
+  (rejestr artefaktów, treść L-0132). `generate-skills.js`: spójne.
+
+**Świadomie odłożone:**
+
+- Nagłówek `relai-core` 2.7.1 dotrze do użytkowników z następnym wydaniem; osobnego wydania dla
+  jednej linii nie robiono.
+- Walidator nie sprawdza nagłówków „Aktualny stan dystrybucyjny" skilli — kandydat na kontrolę
+  przy następnej pracy nad `validate-adapters.js`.
+
+**Do zrobienia przez człowieka:**
+
+- Restart aplikacji pod 2.7.1, potem sesja w ExpensesManager (kopie narzędzi bez obejścia `.cjs`).
+
+Autor: RelAI (Opus 5.5) + Lukasz

@@ -513,6 +513,18 @@ restart aplikacji po `plugin update` (L-0031), `git worktree` zamiast `git archi
   rejestru wstecz nie przepisujesz (decyzja człowieka).
 - **Źródło:** E7, `historia.js` i `podzial.js`; destylat: dopisane do zasady 5.
 
+### L-0132 — Filtr `grep -v` po nazwie pliku wyciął trafienie z treści · 2026-09-28 · AKTYWNA
+
+- **Trigger:** wydanie 2.7.1 poszło z linią `Aktualny stan dystrybucyjny: RelAI 2.7.0` w obu
+  `relai-core/SKILL.md`; wyszło dopiero w rytuale zamknięcia, gdy skill 2.7.1 pokazał starą liczbę.
+- **Przyczyna:** listę wystąpień starej wersji zawęziłem `grep -v "history.md"`, żeby pominąć
+  plik historii — a ta linia sama zawiera tekst `history.md`, więc filtr po treści zjadł trafienie.
+  Walidator tej linii nie sprawdza.
+- **Zasada:** wykluczenie pliku z listy trafień robisz ścieżką (`':!ścieżka'` w `git grep`), nigdy
+  `grep -v` po nazwie na wyjściu; przy podbiciu wersji po edycji puszczasz ten sam grep bez
+  filtrów i czytasz każdy wiersz, który został.
+- **Źródło:** sesja 2026-09-28, poprawka 2.7.1; naprawione w repo, trafi do następnego wydania.
+
 ## Lekcje zwinięte
 
 Pełne wpisy lekcji, których zasady żyją w destylacie „Zasady aktywne" (kompresja 2026-08-20).
