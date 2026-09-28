@@ -15,7 +15,8 @@
 //
 // Kopia tego pliku laduje w projekcie uzytkownika jako .claude/relai/tools/clean-work.js
 // (prowizjonowanie w session-signals.js, ta sama droga co specyfikacje — L-0012). Kopia musi
-// dzialac SAMA: dlatego zero require na inne pliki rdzenia i zero zaleznosci npm.
+// dzialac SAMA: dlatego zero require na inne pliki rdzenia i zero zaleznosci npm. W projekcie
+// z "type": "module" dziala dzieki package.json { "type": "commonjs" } obok kopii (P-007, 2.7.1).
 //
 // Komunikaty CLI celowo bez polskich znakow diakrytycznych (L-0016): konsola Windows.
 

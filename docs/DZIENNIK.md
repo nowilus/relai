@@ -1740,3 +1740,44 @@ Autor: RelAI (Opus 5.5) + Lukasz
 - Restart aplikacji pod 2.7.0 i bramki Aneksów F i H (wpis wyżej).
 
 Autor: RelAI (Opus 5.5) + Lukasz
+
+### 2026-09-28 — Poprawka 2.7.1: kopie narzędzi w projekcie z `"type": "module"` (bez publikacji)
+
+**Co się działo:**
+
+- Zgłoszenie z projektu ExpensesManager (Vite + React, `"type": "module"`, Node 24.13.1): kopia
+  `.claude/relai/tools/clean-work.js raport` padała na `require is not defined in ES module scope`,
+  tak samo builder planu HTML. Druga odsłona P-007 — Node dziedziczy `"type"` z `package.json`
+  projektu.
+- Rozpoznanie: dotknięte wszystkie trzy kopiowane skrypty (`clean-work.js`, `crew.js`,
+  `templates/HTML_PLAN/zbuduj.js`); hook startu **nie** — ładuje rdzeń z katalogu pluginu, więc ani
+  nie padał, ani nie milkł. Ścieżka `.js` stoi w ~60 miejscach trzech adapterów i specyfikacji oraz
+  w promptach etapowych już wygenerowanych w cudzych projektach.
+- Wybrany wariant A (zgoda człowieka, bo zmienia zawartość kopii w istniejących projektach):
+  `provisionTemplates` kładzie `package.json` z `{ "type": "commonjs" }` w `tools/`
+  i `templates/HTML_PLAN/`. Wariant `.cjs` odrzucony — nie naprawiłby promptów już wygenerowanych.
+  Nie w całym `.claude/relai/`, bo `work/` trzyma skrypty robocze projektu.
+- Wersja 2.7.1 w pięciu manifestach, README, `relai-update` (5 deklaracji), markerze nowego
+  projektu, nagłówku `relai-planning`, historii wersji; Codex przegenerowany. PULAPKI P-007
+  dostała drugie wystąpienie.
+
+**Zweryfikowane — jak dokładnie:**
+
+- Nowy test `core/process/tests/esm-project.test.js` (10 przypadków): trzy skrypty × trzy próbki
+  (bez `type`, `commonjs`, `module`) plus naprawa kopii 2.7.0 przy następnym starcie z ESM-owym
+  skryptem w `work/`. Przed poprawką: 6 ✔, 3 ✖ — wyłącznie próbka `module`. Po: 10/10.
+- Cały zestaw: 89 → 99, 0 porażek. `validate-adapters.js`: spójne. `generate-skills.js --check`:
+  spójne.
+- Prawdziwy hook startu Claude Code na próbce ESM, potem `node .claude/relai/tools/clean-work.js
+  raport` i `crew.js status` z cwd projektu: exit 0 bez obejścia.
+
+**Świadomie odłożone:**
+
+- Commit, tag i publikacja 2.7.1 — czekają na „tak" człowieka.
+
+**Do zrobienia przez człowieka:**
+
+- Decyzja o publikacji 2.7.1; po niej `plugin update relai@relai` i restart aplikacji — dopiero
+  wtedy ExpensesManager dostaje poprawkę przy pierwszym starcie sesji.
+
+Autor: RelAI (Opus 5.5) + Lukasz

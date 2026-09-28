@@ -187,6 +187,15 @@ Specyfikacja: `SPEC_PULAPKI.md`.
   RelAI kładzie logikę jako `relai-pre-commit.cjs` i `relai-secret-scan.cjs`, a sam
   `.git/hooks/pre-commit` jest shimem `#!/bin/sh` z `exec node`. Drugie obejście, gdyby trzeba
   było ratować cudzy hook: `.git/hooks/package.json` z `{ "type": "commonjs" }`.
+- **Drugie wystąpienie (2026-09-28, 2.7.1):** ta sama reguła dotyczy kopii narzędzi w
+  `.claude/relai/` — `tools/clean-work.js`, `tools/crew.js` i `templates/HTML_PLAN/zbuduj.js`.
+  W projekcie Vite + React z `"type": "module"` padał raport `clean-work.js` z punktu weryfikacji
+  promptu etapowego i builder planu HTML. Hook startu nie był dotknięty: ładuje rdzeń z katalogu
+  pluginu, nie kopię. Tu wybrano drugie obejście, nie `.cjs`: hook startu kładzie
+  `package.json` z `{ "type": "commonjs" }` w `tools/` i `templates/HTML_PLAN/`, bo ścieżka `.js`
+  stoi w komendach trzech adapterów, specyfikacjach i promptach etapowych już wygenerowanych
+  w cudzych projektach. Nie w całym `.claude/relai/` — `work/` trzyma skrypty robocze projektu,
+  które mają zachować jego typ. Test: `core/process/tests/esm-project.test.js`.
 - **Zasięg:** każdy hook gita napisany w Node w projekcie ESM — nie tylko RelAI. Sprawdzenie
   instalacji: hook uruchomiony przy pustym indeksie ma kończyć się kodem 0; od 1.9.2 robi to sam
   instalator (test dymny z cofnięciem). Źródło: zgłoszenie zewnętrzne 2026-09-04, Node 24.13.1.

@@ -196,6 +196,23 @@ function provisionTools(destRoot, opcje) {
   return n;
 }
 
+// Kopie skryptow .js leza w drzewie projektu, wiec Node bierze ich system modulow z najblizszego
+// package.json w gore — przy "type": "module" projektu CommonJS pada na pierwszym `require`
+// (P-007, 2.7.1). Wlasny package.json w kazdym katalogu ze skryptami przecina to dziedziczenie
+// bez zmiany sciezek w komendach, specyfikacjach i promptach etapowych juz wygenerowanych.
+// Tylko te katalogi: nie cale .claude/relai/, bo work/ trzyma skrypty robocze samego projektu.
+const KATALOGI_SKRYPTOW = ['tools', 'templates/HTML_PLAN'];
+const PAKIET_COMMONJS = '{ "type": "commonjs" }\n';
+
+function markCommonJs(destRoot) {
+  for (const rel of KATALOGI_SKRYPTOW) {
+    const dir = path.join(destRoot, ...rel.split('/'));
+    try {
+      if (fs.existsSync(dir)) fs.writeFileSync(path.join(dir, 'package.json'), PAKIET_COMMONJS);
+    } catch (_) { /* cisza — jak przy specyfikacjach */ }
+  }
+}
+
 // Baza regul optymalizatora promptow prowizjonowana ta sama droga co specyfikacje
 // (E5 planu OPTYMALIZATOR_PROMPTOW, Aneks B). Do E5 komenda /relai-prompt w cudzym
 // projekcie pracowala z rdzenia regul niesionego w sobie, bo katalogu pluginu nie widzi.
@@ -227,7 +244,9 @@ function provisionTemplates(cwd, opcje) {
     fs.mkdirSync(dest, { recursive: true });
     // .gitignore z "*" — lokalna kopia to cache narzedzia, nie zawartosc repo
     try { fs.writeFileSync(path.join(destRoot, '.gitignore'), '*\n'); } catch (_) { /* cisza */ }
-    return copyTree(src, dest) + provisionTools(destRoot, o) + provisionPrompt(destRoot, o);
+    const n = copyTree(src, dest) + provisionTools(destRoot, o) + provisionPrompt(destRoot, o);
+    markCommonJs(destRoot);
+    return n;
   } catch (_) {
     return 0;
   }

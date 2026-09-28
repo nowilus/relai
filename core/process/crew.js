@@ -16,7 +16,8 @@
 //
 // Kopia tego pliku laduje w projekcie uzytkownika jako .claude/relai/tools/crew.js
 // (prowizjonowanie w session-signals.js, ta sama droga co clean-work.js — L-0012). Kopia musi
-// dzialac SAMA: zero require na inne pliki rdzenia i zero zaleznosci npm.
+// dzialac SAMA: zero require na inne pliki rdzenia i zero zaleznosci npm. W projekcie
+// z "type": "module" dziala dzieki package.json { "type": "commonjs" } obok kopii (P-007, 2.7.1).
 //
 // Twarde granice (D-41, D-42):
 //   - nigdy nie dodaje flag omijajacych uprawnienia (--dangerously-*, --yolo, bypassPermissions);
