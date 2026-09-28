@@ -1779,5 +1779,8 @@ Autor: RelAI (Opus 5.5) + Lukasz
 
 - Decyzja o publikacji 2.7.1; po niej `plugin update relai@relai` i restart aplikacji — dopiero
   wtedy ExpensesManager dostaje poprawkę przy pierwszym starcie sesji.
+  *(rozstrzygnięte 2026-09-28 — Łukasz: „tak"; commit `26e4a61`, tag `v2.7.1`, release Latest,
+  `plugin update` 2.7.0 → 2.7.1, cache `relai/relai/2.7.1` sprawdzony sumami czterech plików;
+  zostaje restart aplikacji)*
 
 Autor: RelAI (Opus 5.5) + Lukasz

@@ -1,13 +1,13 @@
 # STATE — RelAI
 
-Stan na: 2026-09-28 (poprawka 2.7.1 przygotowana w repozytorium, nieopublikowana)
+Stan na: 2026-09-28 (wydanie 2.7.1 publiczne)
 
 ## Gdzie jesteśmy
 
 RelAI ma w repozytorium **2.7.1** — poprawkę kopii narzędzi w projektach z `"type": "module"`
-(P-007), przygotowaną, ale jeszcze bez commita i publikacji; publicznie działa 2.7.0 (tag `v2.7.0`,
-release Latest), jedno wydanie po etapach E5–E7 planu PROWADZENIE_END_TO_END, zamkniętego
-2026-09-24 (7/7 etapów). Plugin działa w trzech narzędziach — Claude Code, Cursorze i Codeksie — na
+(P-007), wydaną publicznie 2026-09-28 (tag `v2.7.1`, release Latest); w aplikacji działa po
+restarcie. Poprzednie wydanie, 2.7.0, zamknęło etapy E5–E7 planu PROWADZENIE_END_TO_END
+(2026-09-24, 7/7 etapów). Plugin działa w trzech narzędziach — Claude Code, Cursorze i Codeksie — na
 jednym rdzeniu procesu, z czternastoma komendami. Plan dał lżejszy start sesji, skille czytane
 na żądanie, prompty skrojone pod model, README od pierwszego kroku, procedury dla usterki i pierwszego
 wdrożenia, a na koniec pilnowanie jakości: „gotowe" przychodzi z wynikiem testów, niedomknięty rytuał
@@ -49,11 +49,10 @@ Opinii spoza projektu nadal nie ma — pilotaż z użytkownikami zamknięto prze
 
 ## Co dalej
 
-- **Commit i publikacja 2.7.1** — decyzja człowieka. Dopiero po `plugin update` i restarcie
-  aplikacji kopie narzędzi w projektach z `"type": "module"` (np. ExpensesManager) dostają
-  `package.json` przy pierwszym starcie sesji; do tego czasu tam działa wyłącznie obejście `.cjs`.
-- **Restart aplikacji desktopowej**, żeby sesje ładowały 2.7.0 (P-005) — instalacja i cache
-  `relai/relai/2.7.0` już są, sumy plików zgodne z repo.
+- **Restart aplikacji desktopowej**, żeby sesje ładowały 2.7.1 (P-005) — instalacja i cache
+  `relai/relai/2.7.1` już są, sumy plików zgodne z repo. Potem pierwszy start sesji
+  w ExpensesManager kładzie `package.json` przy kopiach narzędzi; obejście `.cjs` przestaje być
+  potrzebne.
 - **Bramki świadomie otwarte przy zamknięciu planu** (po restarcie pod 2.7.0, w sesji
   interaktywnej): pierwszy prompt merytoryczny z trybem ciągłym, bez zgody i bez modelu, daje
   **jedno** okno pytań (Aneks F); zakończone zadanie w tle nie dostaje pytania o zgodę (Aneks H).
@@ -84,7 +83,7 @@ Opinii spoza projektu nadal nie ma — pilotaż z użytkownikami zamknięto prze
 
 ### Wersja i instalacja
 
-Repozytorium: **2.7.1** (przygotowana 2026-09-28, bez tagu). Publicznie: **2.7.0** (tag `v2.7.0`, release Latest, 2026-09-24). Źródło instalacji: własny marketplace w tym repozytorium, scope `user`. Wydanie potwierdzasz
+Repozytorium i publicznie: **2.7.1** (tag `v2.7.1`, release Latest, 2026-09-28). Źródło instalacji: własny marketplace w tym repozytorium, scope `user`. Wydanie potwierdzasz
 treścią plików z cache'u, nie komunikatem CLI (P-005): `claude plugin validate` → tag → push →
 release → `marketplace update` → `plugin update relai@relai` → suma plików po CRLF → LF. Walidator
 `core/tools/validate-adapters.js` sprawdza 7 źródeł wersji, w tym baner README i tę sekcję
