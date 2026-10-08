@@ -1,6 +1,6 @@
 # STATE — RelAI
 
-Stan na: 2026-10-08 (E1 planu PANEL_CLAUDE; wydanie publiczne nadal 2.7.1)
+Stan na: 2026-10-08 (E2 planu PANEL_CLAUDE i Aneks A; wydanie publiczne nadal 2.7.1)
 
 ## Gdzie jesteśmy
 
@@ -111,15 +111,21 @@ tryb ciągły, baza reguł optymalizatora z nakładkami rodzin modeli (`claude`,
 instalator. **Adapter Codex**: natywny manifest, 14 skilli, router `AGENTS.md`, trzy hooki (start
 sesji kopiuje listę modeli).
 
-### Panel `relai-panel` (plan PANEL_CLAUDE, po E1)
+### Panel `relai-panel` (plan PANEL_CLAUDE, po E2)
 
-Folder `panel/` — drugi plugin marketplace `relai` (źródło `./panel`, wersja 0.1.1 w
+Folder `panel/` — drugi plugin marketplace `relai` (źródło `./panel`, wersja 0.2.0 w
 `panel/.claude-plugin/plugin.json`, niewydany). Moduł hooków Claude Code Mods (`hooks/register.tsx`,
 silnik 2.1.293, „early access”) rysuje pasek `AbovePrompt`: aktywny plan i etap z `CLAUDE.md`
 i `STATUS.md`, timer cache (progi 10 i 5 min, TTL założony do pomiaru), koszt sesji
 z `$.session.usage()` jako hipotetyczny koszt API. Poza projektem RelAI milczy; przy
 `cache-keeper-pl` chowa swój timer; paski innych wtyczek zostają (owijacz woła `next`, bez `width` — P-017).
 Zmierzone na żywo w aplikacji desktopowej 2026-10-08.
+Komenda `/relai-panel` otwiera panel boczny (tylko z komendy, nigdy sam): formularze 14 komend
+z podglądem dokładnego tekstu i przyciskiem „Wyślij” (`$.command.run`, nazwa z `$.command.list()`),
+ściągę z `docs/KOMENDY.md` z wyszukiwaniem i frazy sesji wysyłane przyciskiem (`$.prompt.submit`).
+Bez pluginu `relai` panel niczego nie wysyła; poza RelAI komenda odpowiada jednym zdaniem.
+Formularze pilnuje test parujący je z `argument-hint` nagłówków komend. Panel na desktopie
+zmierzony na żywo 2026-10-08; wygląd czeka na etap E8 „Motyw RelAI i ikony komend” (Aneks A).
 Nie woła modelu, nie dopisuje nic do kontekstu, nie używa sieci. Rachunki: `core/panel/*.mjs`
 (ESM — silnik nie ładuje CommonJS ani importu spoza folderu pluginu); `panel/hooks/core/` to kopia
 bajt w bajt z `node core/tools/sync-panel-core.js`, pilnowana testem. Testy: `claude plugin test

@@ -20,7 +20,8 @@
 | O4 | Tryb ciągły kosztuje turę przy każdym zdaniu — praca zwalnia i drożeje (plan OPTYMALIZATOR_PROMPTOW, ryzyko O4) | **Średni** (2026-09-14, przy akceptacji planu) | **OTWARTE** | Wyłącznik w `USTAWIENIA.md`, filtr pomija komendy; otwarte: rozrzut kosztu większy niż mierzona różnica. Historia: [MITYGACJE_2026-09-24](archiwum/ryzyka/MITYGACJE_2026-09-24.md). |
 | K3 | Nakładki rodzin modeli starzeją się szybciej niż wydania RelAI — dostawca zmienia wytyczne, a reguła z datą zostaje (plan PROWADZENIE_END_TO_END, ryzyko K3) | **Średni** (2026-09-24, przy zamknięciu planu) | **OTWARTE** | Każda reguła nakładki ma źródło i datę odczytu; hook startu mówi o nakładce starszej niż 30 dni; odświeżenie razem z `/relai-models`. |
 | C1 | API modów Claude Code („early access”) zmieni się między wydaniami i `relai-panel` przestanie się ładować (plan PANEL_CLAUDE, ryzyko R1) | **Wysoki** (2026-10-08, przy E1) | **OTWARTE** | Osobny plugin; rachunki w `core/panel/` poza API modów; `plugin validate` i `plugin test` przed wydaniem; `cache-keeper-pl` jako kanarek. Otwarte: minimalna wersja silnika niezmierzona (działa 2.1.293). |
-| C3 | Desktop rysuje panel inaczej niż terminal (plan PANEL_CLAUDE, ryzyko R3) | **Niski dla paska, średni dla panelu bocznego** (2026-10-08 po E1; wcześniej średni) | **OTWARTE** | Pasek zmierzony na żywo w aplikacji desktopowej 2026-10-08; panel boczny (`Pane`) to E2 — tam pomiar na żywo jako punkt weryfikacji. |
+| C3 | Desktop rysuje panel inaczej niż terminal (plan PANEL_CLAUDE, ryzyko R3) | **Niski dla paska i panelu na desktopie, średni dla panelu w terminalu** (2026-10-08 po E2; wcześniej średni dla panelu) | **OTWARTE** | Pasek i panel boczny zmierzone na żywo w aplikacji desktopowej 2026-10-08 (formularz, podgląd, wysyłka komendy i frazy); testy montażu na obu powierzchniach. Otwarte: panel boczny w terminalu niezmierzony na żywo. |
+| C9 | Motyw RelAI i ikony komend nie zmieszczą się w elementach silnika modów — `Svg` tylko na desktopie, `Client` niezmierzony, terminal bez grafiki (plan PANEL_CLAUDE, Aneks A) | **Średni** (2026-10-08, przy Aneksie A) | **OTWARTE** | E8 zaczyna od sondy tego, co desktop realnie rysuje; brak → motyw w granicach elementów silnika, opisany w dzienniku; terminal dostaje odpowiednik tekstowy. |
 | C8 | Inny mod paska nad promptem rysuje bez `next` albo owija węzeł silnika w `Box` z `width` i pasek RelAI znika bez komunikatu (E1, P-017) | **Średni** (2026-10-08, przy E1) | **OTWARTE** | `relai-panel` zawsze woła `next` i nie dokłada `width` do owijacza; `cache-keeper-pl` 0.1.2 poprawiony tak samo. Otwarte: cudze mody poza kontrolą — ostrzeżenie w README w E7. |
 
 > Ryzyka zamknięte W1, U1, O1, O6 (4 pozycje) są w
@@ -2166,3 +2167,99 @@ Autor: RelAI (Opus 5.5) + Lukasz
 - Zgoda na publikację gotowego wydania przed E8.
 
 Autor: RelAI (gpt-6.1-sol) + Lukasz
+
+### 2026-10-08 — E2 planu PANEL_CLAUDE: panel boczny i formularze 14 komend
+
+**Zrobione:**
+
+- `core/panel/commands.mjs`: formularze 14 komend (wybór z listy / tekst / ścieżka, pola zależne
+  od trybu dla `/relai-crew`, `/relai-prompt`, `/relai-changelog`, `/relai-branch`) i składanie
+  **dokładnego tekstu komendy** z wartości; walidacja po zamkniętej liście i wzorcu (`EN`, temat,
+  data, wersja, liczba), tekst z nową linią odrzucany. Każdy formularz niesie `argument-hint`,
+  z którego powstał, dosłownie — `checkForms()` paruje go z nagłówkami YAML repo, a rozjazd,
+  komenda bez formularza i formularz bez komendy są odrzucane z powodem, nie zgadywane.
+  Nazwę uruchomienia (`relai:relai-tour`) bierze z `$.command.list()`.
+- `core/panel/phrases.mjs`: frazy sesji i ściąga z `docs/KOMENDY.md` projektu (sekcje „Komendy"
+  i „Frazy, które działają"), przykłady w nawiasach pominięte, fraza z „…" to szablon do
+  uzupełnienia; wyszukiwanie; wiersze nierozpoznane liczone.
+- `panel/hooks/register.tsx`: komenda `/relai-panel` (rejestrowana też poza RelAI — tam odpowiada
+  jednym zdaniem z propozycją „zacznijmy projekt") otwiera panel `Pane` tylko z komendy: zakładki
+  Komendy / Ściąga / Frazy, formularz wybranej komendy, podgląd „Do czatu pójdzie: …", przycisk
+  „Wyślij" (`$.command.run`) wyłącznie przy poprawnych wartościach; frazy przyciskami
+  (`$.prompt.submit`, `asUser`); bez pluginu `relai` panel mówi to jednym zdaniem i niczego nie
+  wysyła. Stan w `$.state` z kontraktem `panel/types/index.d.ts` (pole `types` w `plugin.json`).
+  `relai-panel` 0.1.1 → 0.2.0, niewydany.
+- **Odstępstwo od promptu, z powodem:** panel miał iść do osobnego `pane.tsx`; walidator modów
+  odrzucił przekazanie `$` przez import („$ is followed only into a function declared in this same
+  file, never across an import") — całość w `register.tsx` (484 linie), czysta logika w `core/panel/`.
+  P-017 punkt 5, L-0136.
+- **Aneks A do planu** (decyzja człowieka po pomiarze na żywo): nowy etap **E8 „Motyw RelAI
+  i ikony komend"** po E2, przed E3; numery E3–E7 bez zmian. `PLAN.html` sekcja 10, `STATUS.md`,
+  ryzyko C9, `PROMPT_ETAP_8.md`.
+- Lekcje L-0136, L-0137 (zasady 13 i 15), P-017 punkt 5, ryzyka C3 (obniżone dla desktopu) i C9.
+
+**Zweryfikowane — jak dokładnie:**
+
+- Testy repo: `node --test core/process/tests/*.test.js core/guardrails/tests/*.test.js adapters/codex/tests/*.test.js core/panel/tests/*.test.js`
+  → 126/126 (przed etapem 115/115; +7 `commands.test.js`, +4 `phrases.test.js`). Test synchronizacji
+  z E1 sam zgłosił brak kopii nowych plików przed `sync` — kontrola żyje.
+- 14 formularzy: test liczy pliki komend w `adapters/claude-code/commands/` i pary — `paired` równe
+  liczbie plików, odrzuconych 0, liczby w komunikatach liczone; strona druga podłożona: zmieniony
+  hint `/relai-tour`, komenda bez formularza i formularz bez komendy — każde odrzucone. Frazy na
+  całej rodzinie dokumentów (`docs/KOMENDY.md`, `core/templates/SPEC_KOMENDY.md` i jego kopia):
+  liczba wierszy tabel liczona niezależnie = liczba sparsowanych, odrzuconych 0.
+- `node core/tools/sync-panel-core.js --check` — zgodne, 4 pliki.
+- `claude plugin validate panel` (binarka 2.1.293) — zaliczone; wywołania `$`: clock, command.list/
+  register/run, fs.exists/read, prompt.submit, session.cwd/id/usage, state.get/set, store, ui.invalidate/
+  open/resolve/toast — **bez** `$.net`, `fetch`, `$.model`, `prompt.compose`, `session.append`;
+  `command.run{relai-panel}` jako „answers its own command". `claude plugin validate .` — wynik
+  identyczny jak na HEAD (`git worktree` HEAD, `diff` po zdjęciu ścieżek pusty; jedno ostrzeżenie
+  o root `CLAUDE.md`).
+- `tsc` strict (TypeScript 5.9.3, typy silnika 2.1.293, `checkJs` na rdzeniu) — 0 błędów; kontrola
+  pozytywna: dwa podłożone błędy (`$.prompt.sendNow`, typ JSDoc w `phrases.mjs`) złapane, po cofnięciu
+  0. `claude plugin test panel` — 15/15 (7 nowych + 8 z E1): 14 formularzy z podglądem na terminalu
+  i desktopie, `/relai-tour krotko` → hook testu na `command.run` zapisuje `relai:relai-tour` +
+  `krotko` dopiero po „Wyślij", zła wartość bez przycisku, fraza i szablon przez `prompt.submit`,
+  ściąga z filtrem, brak pluginu `relai` → 0 wywołań `command.run` i `prompt.submit`, poza RelAI
+  zero `ui.open`. Kontrola pozytywna: podłożony „Wyślij zawsze widoczny" → 2 testy oblane.
+- `node core/tools/validate-adapters.js` — zaliczone.
+- **Na żywo, aplikacja desktopowa, 2026-10-08** (hot reload modów tej sesji, kopia `panel/` zgodna
+  sumami 11/11): `/relai-panel` → „Panel RelAI otwarty."; formularz `/relai-tour` z `krotko`
+  pokazał podgląd i „Wyślij" uruchomił `/relai:relai-tour krotko` w czacie; przycisk frazy
+  „sprawdź status" wysłał tę frazę (relacja człowieka); oba paski (RelAI i `cache-keeper-pl`)
+  widoczne, szarej linii `refused` brak (relacja człowieka). Ocena człowieka: wygląd wymaga remontu
+  → Aneks A.
+- Bezpieczeństwo: `grep -nE "sk-ant-|ANTHROPIC_API_KEY="` po 23 plikach z `git status --short`
+  (bez promptów etapowych) — 2 trafienia, oba w dokumentach cytujących wzorzec (wpis E1 w dzienniku,
+  L-0134), 0 w kodzie; kontrola pozytywna na podłożonej próbce — 1 trafienie. Tekst trafia do
+  `$.command.run` / `$.prompt.submit` wyłącznie po kliknięciu (testy wyżej).
+- Katalog roboczy `.claude/relai/work/PANEL_CLAUDE/E2/` przejrzany raportem `clean-work.js`
+  i skasowany po „tak": przed 0,1 MB (1 pozycja: katalog E2), po 0,0 MB. Pozostałe pozycje raportu
+  to dorobek etapu w `core/` i `panel/` (do commita) oraz wspólny TEMP `relai-*` innych projektów —
+  nietknięte.
+- Artefakty poza katalogiem roboczym: `C:\Users\Lukasz\.claude\dev-mods\cd13613d-2197-4a7f-ad88-8bd1ae6ee9db\relai-panel`
+  (kopia `panel/` do pomiaru na żywo) — **zostaje** z decyzji człowieka do czasu E8, potem do
+  usunięcia przez człowieka; sonda E1 `…\dev-mods\ab158a41-…\relai-probe` — nadal do usunięcia.
+
+**Świadomie odłożone:**
+
+- Wygląd panelu, motyw RelAI i ikony komend — E8 (Aneks A).
+- Panel boczny w terminalu na żywo — niezmierzony (C3); testy montażu przechodzą na obu
+  powierzchniach.
+- „Rozpoczęcie" jako grupa fraz: `docs/KOMENDY.md` tego projektu nie ma takiej frazy, a panel
+  bierze frazy wyłącznie z pliku; frazy angielskiego `KOMENDY` (inne nagłówki sekcji) niezmierzone —
+  panel mówi wtedy, że sekcji nie znalazł.
+- Karta potwierdzenia `/relai-stage`, edycja `/relai-crew`, listy `/relai-clean` / `/relai-update` /
+  `/relai-models`, „świeży czat" — E5, jak w planie.
+- Rotacja `docs/DZIENNIK.md` (161 KB przy progu 150 KB) i niezacommitowane zmiany sesji
+  PANEL_CODEX (`AGENTS.md`, `README.md`, `DECYZJE`, `USTAWIENIA`, `WYWIAD`, `docs/plany/PANEL_CODEX/`)
+  — poza zakresem etapu, do zamknięcia sesji.
+
+**Do zrobienia przez człowieka:**
+
+- Usunąć sondę `C:\Users\Lukasz\.claude\dev-mods\ab158a41-acc6-4d0e-8eab-fd9f0c583580\relai-probe`
+  (bramka z E1, nadal otwarta).
+- Po E8 usunąć kopię `C:\Users\Lukasz\.claude\dev-mods\cd13613d-2197-4a7f-ad88-8bd1ae6ee9db\relai-panel`.
+- Uruchomić E8 w świeżej sesji na Opusie: `/relai-stage`.
+
+Autor: RelAI (Opus 5.5) + Lukasz

@@ -606,8 +606,18 @@ zostanie zmierzony. Gdy w sesji działa <code>cache-keeper-pl</code> (komenda <c
 
 <section id="s10">
   <svg class="pinezka" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="9" r="7" fill="#5f8a68"/><circle cx="9.5" cy="6.5" r="2.2" fill="rgba(255,255,255,.5)"/><path d="M12 16v6" stroke="#456338" stroke-width="2" stroke-linecap="round"/></svg>
-  <div class="tyt-sek"><span class="nr">10</span><h2>Aneksy</h2><span class="szept">pusto do akceptacji</span></div>
+  <div class="tyt-sek"><span class="nr">10</span><h2>Aneksy</h2><span class="szept">po akceptacji tylko tutaj</span></div>
   <p>Po akceptacji sekcje 1–9 są zamrożone. Zmiany trafiają wyłącznie tutaj, jako datowane aneksy A, B, C… Odchylenie fundamentalne (zmiana celu albo wybranego wariantu) oznacza status CZĘŚCIOWO ZREALIZOWANY i nowy plan z linkiem do tego dokumentu.</p>
+  <h3>Aneks A — 2026-10-08 — motyw RelAI i ikony komend w panelu</h3>
+  <p><b>Powód:</b> pomiar na żywo E2 (2026-10-08) — panel działa (formularz, podgląd, wysyłka komendy i frazy), ale wygląd odbiega od motywu RelAI: szablonu HTML planów oraz grafik README i demo. Człowiek oczekuje remontu według dobrych praktyk UI/UX i ikon 14 komend z <code>docs/zasoby/branding/ikony/</code>.</p>
+  <p><b>Treść:</b></p>
+  <ul>
+    <li>Nowy etap <b>E8 „Motyw RelAI i ikony komend”</b>, wykonywany po E2, przed E3. Numery E3–E7 bez zmian, żeby sekcje 1–9 i terminy decyzji („przed E3/E6/E7”) wskazywały te same etapy.</li>
+    <li>Zakres: tokeny motywu (paleta, typografia, odstępy) wyprowadzone z szablonu HTML planów i brandingu, w <code>core/panel/</code>; układ według dobrych praktyk UI/UX (hierarchia, grupy komend, stany, błędy); ikony 14 komend na desktopie (<code>Svg</code> albo <code>Client</code> po pomiarze), w terminalu odpowiednik tekstowy; jeden wariant do kalibracji smaku przed resztą; zero przepełnień.</li>
+    <li>Pierwszy krok E8: sonda, co desktop realnie rysuje (<code>Svg</code>, <code>Client</code>, <code>Image</code>). Brak → motyw w granicach elementów silnika, opisane w dzienniku.</li>
+    <li>Szacunek: 1–2 sesje SZACUNEK; plan razem 12–18 sesji SZACUNEK.</li>
+    <li>Model: Opus, jak pozostałe etapy.</li>
+  </ul>
 </section>
 
 <footer>

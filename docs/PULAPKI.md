@@ -8,7 +8,7 @@ Specyfikacja: `SPEC_PULAPKI.md`.
 
 ## Pułapki
 
-### P-017 — Silnik modów Claude Code: cztery zachowania, których nie widać w czytaniu typów · 2026-10-08 · AKTYWNA
+### P-017 — Silnik modów Claude Code: pięć zachowań, których nie widać w czytaniu typów · 2026-10-08 · AKTYWNA
 
 - **Objaw:** pasek `AbovePrompt` przechodzi `plugin validate`, `tsc` i `plugin test`, a na żywo
   znika — razem z paskiem innego moda. Wcześniej: import rdzenia odrzucony, testy `find({ key })`
@@ -21,9 +21,14 @@ Specyfikacja: `SPEC_PULAPKI.md`.
      swoje, czyli nic — `plugin test` tego nie widzi, bo pod wtyczką w teście leży zwykły `Box`;
   3. `AbovePrompt` ma **jedną** instancję: hook, który rysuje bez `next`, zasłania paski wszystkich
      wtyczek pod nim;
-  4. `key` przeżywa na `Box`, z `Text` znika; `$.fs` dostaje ścieżki w postaci systemu (`C:\…`).
+  4. `key` przeżywa na `Box`, z `Text` znika; `$.fs` dostaje ścieżki w postaci systemu (`C:\…`);
+  5. (E2) `$` i `on` nie przechodzą przez import: walidator odrzuca moduł, który przekazuje `$` do
+     funkcji z innego pliku pluginu („$ is followed only into a function declared in this same
+     file, never across an import"), choć `tsc` przechodzi. W teście atrapa `ui.open` odpowiada
+     `{ value: { isPlaced: true } }`; hook modu pominięty przez błąd zostawia komendę atrapie testu,
+     więc test sprawdza tekst odpowiedzi modu, a nie sam brak błędu.
 - **Obejście:** rdzeń jako `.mjs` z kopią w folderze pluginu (`core/tools/sync-panel-core.js`);
-  owijacz pasków bez `width`, zawsze z `next`; klucze testowe na `Box`; atrapy `$.fs` normalizują
+  owijacz pasków bez `width`, zawsze z `next`; cały kod z `$` w pliku modułu hooków; klucze testowe na `Box`; atrapy `$.fs` normalizują
   `\` → `/`. Zasłonięcie mierzysz sondą w hot reload (licznik wywołań `ui.render`), a szarą linię
   `refused` w transkrypcie czytasz jako pierwszą — dla zainstalowanych pluginów trafia tylko do logu
   debug.

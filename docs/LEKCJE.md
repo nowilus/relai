@@ -202,8 +202,10 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
     (`<narzędzie> validate`, `<narzędzie> list`, okno ustawień) — zna schemat, którego nie
     odtworzysz z obserwacji, a cisza w logu nie jest dowodem poprawności. **Zielony walidator, typy
     i testy modu nie dowodzą zachowania w łańcuchu wtyczek** — to mierzysz na żywo, a ciszę na żywo
-    najpierw sondą (licznik wywołań hooka, wynik `next`) (P-017). (L-0041, L-0042, L-0044,
-    L-0047, L-0092, L-0133)
+    najpierw sondą (licznik wywołań hooka, wynik `next`) (P-017). **Wszystko, co dostaje `$` albo
+    `on`, mieszka w pliku modułu hooków** — walidator modów nie śledzi `$` przez import; na zewnątrz
+    wynosisz tylko czystą logikę, a `plugin validate` puszczasz zaraz po podziale pliku.
+    (L-0041, L-0042, L-0044, L-0047, L-0092, L-0133, L-0136)
 14. **Najpierw zmiana w repozytorium, potem zdanie, które ją opisuje.** Weryfikację planuj tam,
     gdzie jest wykonalna; po pytaniu sprzątasz sam (martwy link nie jest poprawną wartością
     tymczasową); przy wyprowadzaniu pozycji jednostką inwentarza jest **sprawa**, nie linia.
@@ -226,8 +228,10 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
     świadomym skutkiem dogfoodingu — nie „naprawiaj" go. **Nowy element zbioru wizualnego różnisz
     kształtem, nie detalem** — dwie ikony złożone z tych samych brył (trzy linie plus znaczek
     w rogu) czyta się jako jedną; porównanie robisz na podglądzie **całego zbioru** i w skali,
-    w której element realnie się wyświetli. (L-0003, L-0006, L-0016, L-0019, L-0029,
-    L-0094, L-0098)
+    w której element realnie się wyświetli. **Plan z interfejsem dla człowieka wskazuje źródło
+    motywu i kryterium wyglądu w pierwszym etapie, który rysuje więcej niż linię tekstu**, a zrzut
+    do kalibracji smaku pada przed dokończeniem etapu, nie przy pomiarze na żywo.
+    (L-0003, L-0006, L-0016, L-0019, L-0029, L-0094, L-0098, L-0137)
 
 **Wyprowadzone 2026-08-20 do `docs/PULAPKI.md`:** sześć pozycji, które były pułapkami
 narzędziowymi, a nie zasadami pracy — `tar` na `PATH` (L-0021), sesja pomiarowa `claude -p`
@@ -563,6 +567,29 @@ restart aplikacji po `plugin update` (L-0031), `git worktree` zamiast `git archi
   edycja Pythonem omija takie wiersze, a po każdej edycji kodu uruchamiasz `plugin validate` /
   test przed następnym krokiem.
 - **Źródło:** E1 planu PANEL_CLAUDE; destylat: dopisane do zasady 5.
+
+### L-0136 — Panel podzielony na dwa pliki odrzucony przez walidator modów · 2026-10-08 · AKTYWNA
+
+- **Trigger:** `pane.tsx` z rysowaniem panelu, importowany przez `register.tsx`, przeszedł `tsc`,
+  a `claude plugin validate` odrzucił moduł: „$ is followed only into a function declared in this
+  same file, never across an import" (silnik 2.1.293).
+- **Przyczyna:** walidator śledzi każde wywołanie `$` statycznie i nie przechodzi przez import;
+  to samo dotyczy `on` — oba muszą zostać w pliku modułu hooków. Typy tej reguły nie niosą.
+- **Zasada:** wszystko, co dostaje `$` albo `on`, mieszka w pliku modułu hooków; na zewnątrz
+  wynosisz tylko czystą logikę bez API modów (`core/panel/*.mjs`). `plugin validate` uruchamiasz
+  po pierwszym podziale pliku, zanim dopiszesz testy.
+- **Źródło:** E2 planu PANEL_CLAUDE; destylat: dopisane do zasady 13; P-017 punkt 5.
+
+### L-0137 — Interfejs dla człowieka bez kryterium wyglądu w planie · 2026-10-08 · AKTYWNA
+
+- **Trigger:** E2 przeszedł wszystkie punkty weryfikacji, także na żywo, a człowiek przy pierwszym
+  spojrzeniu ocenił panel jako brzydki i wymagający remontu; potrzebny był Aneks A z nowym etapem.
+- **Przyczyna:** plan panelu opisał funkcje i pomiary, ale żaden etap nie miał kryterium wyglądu
+  ani źródła motywu (szablon HTML planów, branding, ikony komend już istniały w repo).
+- **Zasada:** plan z interfejsem dla człowieka wskazuje źródło motywu i kryterium wyglądu w
+  pierwszym etapie, który rysuje cokolwiek poza jedną linią tekstu; zrzut do kalibracji smaku
+  pokazujesz przed dokończeniem etapu, nie dopiero przy pomiarze na żywo.
+- **Źródło:** E2 planu PANEL_CLAUDE (Aneks A); destylat: dopisane do zasady 15.
 
 ## Lekcje zwinięte
 
