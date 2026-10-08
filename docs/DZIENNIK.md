@@ -2000,3 +2000,31 @@ Autor: RelAI (gpt-6.1-sol) + Lukasz
 - Restart aplikacji, żeby nowe sesje załadowały `cache-keeper-pl`.
 
 Autor: RelAI (Opus 5.5) + Lukasz
+
+### 2026-10-08 — Plan PANEL_CLAUDE zaakceptowany; aneks do D-80
+
+**Zrobione:**
+
+- Człowiek zaakceptował plan [PANEL_CLAUDE](plany/PANEL_CLAUDE/STATUS.md) bez poprawek — plan
+  zamrożony, zmiany od teraz wyłącznie aneksami.
+- Na wprost wyrażoną zgodę człowieka wpisano do `docs/DECYZJE.md` aneks do D-80: GUI i telemetria
+  kosztów wchodzą w zakres RelAI wyłącznie jako plugin `relai-panel` i rdzeń `core/panel/`;
+  pozostałe wykluczenia D-80 bez zmian.
+- `STATUS.md`: plan ZAAKCEPTOWANY 2026-10-08, E1 GOTOWY DO STARTU; wygenerowano
+  `PROMPT_ETAP_1.md` (wykonawca Opus, `/effort high`), z „Zasadami aktywnymi” przepisanymi
+  w całości z `LEKCJE.md` (20 418 znaków, FAKT).
+
+**Zweryfikowane — jak dokładnie:**
+
+- W `PROMPT_ETAP_1.md` nie został żaden znacznik `{{…}}`; kolumna `Prompt` przy E1 wskazuje
+  istniejący plik; jeden etap ma status GOTOWY DO STARTU.
+
+**Świadomie odłożone:**
+
+- —
+
+**Do zrobienia przez człowieka:**
+
+- Uruchomić E1 w świeżej sesji na Opusie: `/relai-stage`.
+
+Autor: RelAI (Opus 5.5) + Lukasz

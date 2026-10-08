@@ -49,9 +49,9 @@ Opinii spoza projektu nadal nie ma — pilotaż z użytkownikami zamknięto prze
   lokalnym śledzeniu pracy, kosztach API i timerze cache zakończony. Ustalenia:
   [WYWIAD.md](zasoby/PANEL_RELAI/WYWIAD.md). Panel Codeksa: plan HTML w toku w sesji Codeksa.
 - Panel dla Claude Code ma osobny plan [PANEL_CLAUDE](plany/PANEL_CLAUDE/STATUS.md) (7 etapów,
-  **DO AKCEPTACJI**, 2026-10-08): plugin `relai-panel` na Claude Code Mods, wspólny rdzeń
-  `core/panel/`. Autor: Opus 5.5 — wyjątek od reguły Fable, decyzja człowieka. E1 blokuje aneks
-  do D-80 (GUI i telemetria kosztów).
+  **ZAAKCEPTOWANY** 2026-10-08): plugin `relai-panel` na Claude Code Mods, wspólny rdzeń
+  `core/panel/`. Autor: Opus 5.5 — wyjątek od reguły Fable, decyzja człowieka. Aneks do D-80
+  (GUI i telemetria kosztów w zakresie) wpisany; E1 gotowy do startu w świeżej sesji Opus.
 
 ## Co dalej
 
@@ -121,7 +121,7 @@ Backupy: `C:\Users\Lukasz\Backupy\RelAI` • [PRZENOSNOSC.md](PRZENOSNOSC.md) �
 
 ### Liczby
 
-Plany zamknięte: 9 (ostatni PROWADZENIE_END_TO_END, 2026-09-24) • Aktywny: PANEL_CLAUDE (do akceptacji) • Start sesji:
+Plany zamknięte: 9 (ostatni PROWADZENIE_END_TO_END, 2026-09-24) • Aktywny: PANEL_CLAUDE (E1 gotowy do startu) • Start sesji:
 **88,6 KB / 100 KB** (bez aktywnego planu; po E6 98,2 KB) • Dziennik: **128,8 KB / 150 KB** • Sekcja ryzyk: 12 otwartych, archiwum ryzyk: 4 pliki
 + 1 mitygacji • Lekcje: **41,9 KB / 50 KB**, 20 w żywym pliku • Adaptery: 3 • Komendy: 14 •
 Testy rdzenia i adapterów: 89 • Projekty na RelAI: 3 (RelAI, PolyFlow, JiraManager przed migracją) •

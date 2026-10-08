@@ -1,10 +1,10 @@
 # STATUS — plan PANEL_CLAUDE
 
-[PLAN.html](PLAN.html) · utworzony 2026-10-08 · **DO AKCEPTACJI** · model wykonawczy: Opus, w Claude Code (autor planu: Opus 5.5 — jednorazowy wyjątek od reguły „plany: Fable”, decyzja człowieka 2026-10-08)
+[PLAN.html](PLAN.html) · utworzony 2026-10-08 · **ZAAKCEPTOWANY 2026-10-08** · model wykonawczy: Opus, w Claude Code (autor planu: Opus 5.5 — jednorazowy wyjątek od reguły „plany: Fable”, decyzja człowieka 2026-10-08)
 
 | Etap | Nazwa | Status | Prompt | Uwagi |
 |---|---|---|---|---|
-| E1 | Szkielet relai-panel i pasek RelAI | OCZEKUJE | — | blokuje go aneks do D-80 (sekcja 9 planu) |
+| E1 | Szkielet relai-panel i pasek RelAI | GOTOWY DO STARTU | [PROMPT_ETAP_1.md](PROMPT_ETAP_1.md) | aneks do D-80 wpisany 2026-10-08 |
 | E2 | Panel boczny i formularze 14 komend | OCZEKUJE | — | kamień milowy „GUI zamiast wpisywania” |
 | E3 | Kolektor pomiarów i raport kosztów | OCZEKUJE | — | schemat pomiaru wspólny z panelem Codeksa — decyzja przed E3 |
 | E4 | Mapa przepływu i przypisanie pracy | OCZEKUJE | — | |
@@ -15,3 +15,4 @@
 ## Dziennik wdrożenia
 
 - 2026-10-08 — Plan utworzony na podstawie `docs/zasoby/PANEL_RELAI/WYWIAD.md` i trzech rund wywiadu w sesji Claude Code; prototyp wzorców API: prywatny mod `cache-keeper-pl` (poza repo). Czeka na akceptację.
+- 2026-10-08 — Plan zaakceptowany bez poprawek; aneks do D-80 wpisany do `docs/DECYZJE.md`; wygenerowano `PROMPT_ETAP_1.md`.
