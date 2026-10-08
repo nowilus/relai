@@ -115,6 +115,8 @@ gitowy pre-commit — [przewodnik](docs/PRZEWODNIK.md#skan-sekretów-przy-commic
 
 ## Dalej
 
+- [Plan panelu Codeksa](docs/plany/PANEL_CODEX/PLAN.html) — pełny zakres GUI, tokenów i kosztów;
+  osobny plan do akceptacji, realizowany po PANEL_CLAUDE.
 - [Przewodnik](docs/PRZEWODNIK.md) — co RelAI robi i czego nie robi, komendy, plany, dowody działania,
   struktura repozytorium, konwencje hooków.
 - [Instalacja i aktualizacja](docs/INSTALACJA.md) — Claude Code, Cursor, Codex.

@@ -30,6 +30,8 @@ Rejestr wyborów użytkownika dla tego projektu. Każdy wpis: data, czego dotycz
 | 2026-09-15 | Tryb ciągły | włączony — każdy prompt merytoryczny wraca najpierw z propozycją i oryginałem obok; filtr pomijania przepuszcza komendy, frazy sesji, krótkie potwierdzenia i pytania. Wartość spoza listy albo brak wiersza = wyłączony i cisza |
 | 2026-09-14 | Szablon planu HTML | domyślny z pluginu — bez nadpisania lokalnego w `docs/zasoby/HTML_PLAN/`; plany dziedziczą poprawki szablonu przy każdej aktualizacji (D-62) |
 
+| 2026-10-08 | Plan PANEL_CODEX | Autor i wykonawca etapów: **gpt-6.1-sol w Codeksie**, świeże sesje; osobny plan realizowany po pełnym zamknięciu PANEL_CLAUDE. Wyjątek od ogólnego przydziału Fable/Opus tylko dla tego zakresu. |
+
 ## Ustawienia wycofane
 
 | Data | Czego dotyczy | Decyzja | Zastąpione |

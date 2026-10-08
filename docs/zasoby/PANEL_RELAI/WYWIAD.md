@@ -123,3 +123,12 @@ nie zastępuje planu wdrożenia ani jego akceptacji. Historia rozmowy i rozpozna
 - D-80 wykluczała GUI i telemetrię z wcześniejszego zakresu; nowa inicjatywa ma dostać osobny
   plan i jawne rozstrzygnięcie tej granicy, bez przepisywania dawnych planów.
 - Akceptacja planu poprzedza implementację. Pierwszy prompt etapowy powstaje po akceptacji.
+
+## Doprecyzowanie PANEL_CODEX — 2026-10-08
+
+Dla panelu Codeksa autor planu i wykonawca wszystkich etapów: **gpt-6.1-sol w Codeksie**,
+w świeżych sesjach (jawny wybór Łukasza). Funkcjonalny wywiad bez zmian. Osobny plan
+[PLAN.html](../../plany/PANEL_CODEX/PLAN.html) i [STATUS.md](../../plany/PANEL_CODEX/STATUS.md),
+realizowany dopiero po pełnym zamknięciu PANEL_CLAUDE. PANEL_CLAUDE pozostaje aktywny;
+jego wybory i implementacja należą do osobnego planu. Przejście do wykonania Codeksa wymaga
+akceptacji jego planu i checklisty przejęcia wspólnego rdzenia.
