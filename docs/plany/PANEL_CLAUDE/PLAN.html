@@ -618,6 +618,17 @@ zostanie zmierzony. Gdy w sesji działa <code>cache-keeper-pl</code> (komenda <c
     <li>Szacunek: 1–2 sesje SZACUNEK; plan razem 12–18 sesji SZACUNEK.</li>
     <li>Model: Opus, jak pozostałe etapy.</li>
   </ul>
+  <h3>Aneks B — 2026-10-08 — postęp pracy i agenci na żywo, porządek paska nad promptem</h3>
+  <p><b>Powód:</b> w trakcie E3 (2026-10-08) człowiek zobaczył w jednym pasku nad promptem trzy mody naraz — RelAI, <code>savvy-progress</code> (cudzy plugin, johnnyvizz/claude-kit, MIT) i prywatny <code>cache-keeper-pl</code> — bez granic między nimi, oraz pasek postępu <code>savvy-progress</code>, który śledzi tylko przepływ <code>/savvy-flow</code>. Oczekuje: postępu każdej pracy w sesji RelAI (etap, załoga, dowolna praca) natywnie w RelAI, panelu agentów z ich kosztami i jawnie oddzielonych modów nad promptem. Decyzje człowieka z 2026-10-08 (AskUserQuestion w E3): własna implementacja w <code>relai-panel</code> wzorowana na <code>savvy-progress</code>; nowy etap po E3; jednolite karty modów; fork <code>savvy-progress</code> do marketplace <code>lukasz-mods</code>; przebudowa paska trzech modów w tym etapie.</p>
+  <p><b>Treść:</b></p>
+  <ul>
+    <li>Nowy etap <b>E9 „Postęp pracy i agenci na żywo”</b>, wykonywany po E3, przed E4. Numery E4–E7 bez zmian (ta sama zasada co w Aneksie A).</li>
+    <li>Zakres: pasek postępu RelAI w <code>relai-panel</code> dla każdej pracy w sesji — etap planu (punkty zakresu i weryfikacji z <code>STATUS.md</code> i promptu), przebieg <code>/relai-crew</code>, praca poza planem — zasilany kolektorem z E3, bez wołania modelu; panel agentów na żywo (uruchomieni, zakończeni, model, kontekst, koszt z kolektora) wzorowany na <code>savvy-progress</code>, z atrybucją MIT.</li>
+    <li>Pasek nad promptem: każdy mod w jednolitej karcie (etykieta moda, treść, odstęp), granice jawne. Dotyczy <code>relai-panel</code> (repo), <code>cache-keeper-pl</code> (prywatne repo człowieka, <code>C:\Users\Lukasz\Desktop\cache-keeper-pl</code>) i forka <code>savvy-progress</code> w <code>lukasz-mods</code> — dwa ostatnie poza tym repozytorium, opisane w dzienniku z nazwy. Zasada „każdy mod nad promptem jawnie oddzielony” obowiązuje każdy przyszły element paska.</li>
+    <li>Granica: przypisanie kosztów do etapu i zadania oraz mapa przepływu zostają w E4; E9 pokazuje postęp i agentów, nie liczy kosztu etapu.</li>
+    <li>Szacunek: 2–3 sesje SZACUNEK; plan razem 14–21 sesji SZACUNEK.</li>
+    <li>Model: Opus, jak pozostałe etapy.</li>
+  </ul>
 </section>
 
 <footer>

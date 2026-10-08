@@ -1,8 +1,8 @@
 {
   "name": "relai-panel",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "author": { "name": "nowilus", "url": "https://github.com/nowilus" },
-  "description": "RelAI panel for Claude Code (early access mods): a band above the prompt with the active plan and stage, a prompt-cache timer and the session's hypothetical API cost; /relai-panel opens a pane with forms for the 14 RelAI commands, the project's cheat sheet and the session phrases. Silent outside RelAI projects.",
+  "description": "RelAI panel for Claude Code (early access mods): a band above the prompt with the active plan and stage, a prompt-cache timer and the session's hypothetical API cost; /relai-panel opens a pane with forms for the 14 RelAI commands, the project's cheat sheet, the session phrases and the session's measured costs (main loop, subagents, compactions; per agent and model, priced at a dated list). Measurements go to .claude/relai/pomiary/, a file per session. Silent outside RelAI projects.",
   "homepage": "https://github.com/nowilus/relai",
   "repository": "https://github.com/nowilus/relai",
   "license": "MIT",

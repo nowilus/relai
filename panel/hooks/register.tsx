@@ -19,15 +19,19 @@ import { DEFAULT_WARN_MIN, MIN, UNMEASURED, applyVerdict, cacheState, dueWarning
 import type { TtlState, Usage } from './core/cache-timer.mjs'
 import { planState } from './core/plan-state.mjs'
 import type { PlanState } from './core/plan-state.mjs'
-import { clip, join, minutes, tokens, usd } from './fmt'
+import { clip, join, minutes, pct, tokens, usd } from './fmt'
 import type { PanelView } from '../types'
 import { FORMS, buildCommand, formOf, isShown, resolveName, valueOf } from './core/commands.mjs'
 import type { Field, Form } from './core/commands.mjs'
 import { buildPhrase, parseSheet, searchSheet } from './core/phrases.mjs'
 import type { Phrase, Sheet } from './core/phrases.mjs'
-import { FEATURED, GROUPS, NAMES, THEME, glyph, iconName } from './core/theme.mjs'
+import { COST_COLORS, FEATURED, GROUPS, NAMES, THEME, glyph, iconName } from './core/theme.mjs'
 import { HEADING_ART } from './core/headings.mjs'
 import { ICONS } from './core/icons.mjs'
+import { aggregate, compactRecord, fileName, gapsInWords, isFileOf, mergeRecords, parseRecords, plural, projectSummary, requestSeries, serializeRecords, stepRecord, turnSeries } from './core/measure.mjs'
+import type { Group, MeasureRecord, Report, TurnCost } from './core/measure.mjs'
+import { PRICING, cacheEffect, priceRecord } from './core/pricing.mjs'
+import { blocks, bucketRanges, figureArt, hoverColumns, hoverHeight, niceStep, spark, stackBar } from './core/charts.mjs'
 
 type $T = EngineInterface
 
@@ -37,6 +41,7 @@ const KEEPER_COMMANDS = ['cache', 'ckp-cache']
 const WARN_MIN_TOKENS = 50_000 // below this a cache rewrite costs too little to interrupt anyone
 const SNAP_MAX_AGE = 2 * 60 * MIN
 const NARROW_COLUMNS = 100
+const LATE_MS = 2 * MIN // a collector that began this much after the session missed part of it
 
 type Session = {
   id: string
@@ -48,6 +53,8 @@ type Session = {
   ttl: TtlState
   ctx: number
   costUsd: number | null
+  startedAt: number // when the session began, as the engine counts it ($.session.usage)
+  loadedAt: number // when this module began collecting in it (a reload starts over)
   justCompacted: boolean
   announcedFor: number // the lastActivity the announced warnings belong to
   announced: number[]
@@ -58,7 +65,7 @@ type Snap = Pick<Session, 'id' | 'lastActivity' | 'ttl' | 'ctx' | 'costUsd' | 'a
 
 const FRESH: Session = {
   id: '', cwd: '', isRelai: false, plan: { kind: 'none' }, hasKeeper: false, lastActivity: 0, ttl: UNMEASURED,
-  ctx: 0, costUsd: null, justCompacted: false, announcedFor: 0, announced: [],
+  ctx: 0, costUsd: null, startedAt: 0, loadedAt: 0, justCompacted: false, announcedFor: 0, announced: [],
 }
 
 // Replaced, never mutated in place; a reload starts it over and session.start restores it
@@ -112,6 +119,7 @@ async function refresh($: $T) {
     hasKeeper,
     ctx: usage?.context?.tokens || S.ctx,
     costUsd: usage?.cost ? usage.cost.usd : S.costUsd,
+    startedAt: usage?.startedAt || S.startedAt,
   })
 }
 
@@ -131,6 +139,73 @@ async function tick($: $T) {
   const now = await $.clock.now()
   warnStep($, now)
   $.ui.invalidate('ui.render')
+}
+
+// ---------- the collector ----------
+// Every model request of a RelAI session, main loop and subagents (turn.step) and each
+// compaction's own request (session.compact, which no step carries: relai-probe-e3, 2026-10-08),
+// goes to .claude/relai/pomiary/<date>-<session>.jsonl, a file per session (plan, section 8).
+// $.fs has no append: the session's records are held here and the file is written whole, by
+// one writer, in order. The session id is asked at each write: /clear changes it within the
+// process and raises no session.start (probe). A reload or a resume reads the file back first.
+
+const MEASURE_DIR = '.claude/relai/pomiary'
+
+type Ledger = { session: string, path: string, name: string, records: MeasureRecord[], bad: string[] }
+
+let ledger: Ledger | null = null // replaced, never mutated in place
+let writes: Promise<void> = Promise.resolve()
+let lastModel: string | null = null // the main loop's, which a compaction runs on
+
+async function ledgerFor($: $T, session: string): Promise<Ledger> {
+  if (ledger && ledger.session === session) return ledger
+  const dir = join(S.cwd, MEASURE_DIR)
+  const entries = (await $.fs.exists(dir).catch(() => false)) ? await $.fs.list(dir).catch(() => []) : []
+  const found = entries.find((x) => x.kind === 'file' && isFileOf(x.name, session))
+  const name = found ? found.name : fileName(new Date(await $.clock.now()), session)
+  const read = found ? parseRecords(await readText($, join(dir, name))) : { records: [], bad: [] }
+  ledger = { session, path: join(dir, name), name, records: read.records, bad: read.bad }
+  return ledger
+}
+
+function collect($: $T, make: (session: string) => MeasureRecord): Promise<void> {
+  writes = writes.then(async () => {
+    const session = await $.session.id()
+    const current = await ledgerFor($, session)
+    const records = mergeRecords(current.records, [make(session)])
+    if (records.length === current.records.length) return
+    ledger = { ...current, records }
+    await $.fs.write(current.path, serializeRecords(records, current.bad))
+  }).catch(() => undefined)
+  return writes
+}
+
+type ProjectSum = ReturnType<typeof projectSummary>
+type CallCost = ReturnType<typeof requestSeries>[number]
+type CostData = { report: Report, records: MeasureRecord[], series: TurnCost[], calls: CallCost[], effect: ReturnType<typeof cacheEffect>, project: ProjectSum, file: string }
+
+const price = (r: MeasureRecord) => priceRecord(r)
+
+// What the costs tab draws: this session from the collector's own records, the project from
+// every session file in the measurements folder (this one's from memory, the rest read back)
+async function costData($: $T): Promise<CostData> {
+  await writes
+  const current = await ledgerFor($, await $.session.id().catch(() => S.id))
+  const dir = join(S.cwd, MEASURE_DIR)
+  const entries = (await $.fs.exists(dir).catch(() => false)) ? await $.fs.list(dir).catch(() => []) : []
+  const others = entries.filter((x) => x.kind === 'file' && x.name.endsWith('.jsonl') && x.name !== current.name)
+  const read = await Promise.all(others.map(async (x) => parseRecords(await readText($, join(dir, x.name))).records))
+  const now = new Date(await $.clock.now())
+  const isToday = (at: number) => { const d = new Date(at); return d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth() && d.getDate() === now.getDate() }
+  return {
+    report: aggregate(current.records, price),
+    records: current.records,
+    series: turnSeries(current.records, price),
+    calls: requestSeries(current.records, price),
+    effect: cacheEffect(current.records),
+    project: projectSummary([current.records, ...read], price, isToday),
+    file: `${MEASURE_DIR}/${current.name}`,
+  }
 }
 
 // ---------- the band ----------
@@ -162,7 +237,12 @@ function band($: $T, e: Parameters<$T['ui']['resolve']>[0], columns: number, now
     parts.push(timer)
   }
   if (!isNarrow) parts.push(<Box key="cost"><Text dimColor>{` │ sesja ≈ ${usd(S.costUsd)} wg cennika API`}</Text></Box>)
-  return <Box key="relai-band" flexDirection="row" width="100%">{parts}</Box>
+  // Framed, so the band reads as one mod's among the others above the prompt (rule of 2026-10-08)
+  return (
+    <Box key="relai-band-frame" borderStyle="round" borderColor={THEME.mark} paddingX={1}>
+      <Box key="relai-band" flexDirection="row" width="100%">{parts}</Box>
+    </Box>
+  )
 }
 
 // ---------- the pane ----------
@@ -267,7 +347,7 @@ export const register: Register = (on) => {
   on('session.start', async ($, e, next) => {
     const cwd = await $.session.cwd()
     const isRelai = await detectRelai($, cwd)
-    S = { ...FRESH, id: await $.session.id(), cwd, isRelai }
+    S = { ...FRESH, id: await $.session.id(), cwd, isRelai, loadedAt: await $.clock.now() }
     // Registered everywhere, so outside RelAI the command can say so in one sentence (plan, section 8)
     await $.command.register({ name: 'relai-panel', description: 'Panel RelAI: formularze komend, ściąga i frazy sesji' }).catch(() => undefined)
     if (!isRelai) return next(e)
@@ -366,7 +446,7 @@ export const register: Register = (on) => {
       ? <Box key="sent"><Text color={last.startsWith('Wysłano') ? THEME.ok : THEME.accentText}>{(last.startsWith('Wysłano') ? '✓ ' : '✗ ') + last}</Text></Box>
       : null
 
-    const TABS = [['commands', 'Komendy'], ['sheet', 'Ściąga'], ['phrases', 'Frazy']] as const
+    const TABS = [['commands', 'Komendy'], ['sheet', 'Ściąga'], ['phrases', 'Frazy'], ['costs', 'Koszty']] as const
     const tabs = (
       <Box key="tabs" flexDirection="row" flexWrap="wrap" gap={1}>
         {TABS.map(([v, label]) => btn(`tab-${v}`, label, v === tab ? 'primary' : 'secondary', () => { void update($, view, () => v) }))}
@@ -533,7 +613,191 @@ export const register: Register = (on) => {
       ]
     }
 
-    const body = tab === 'commands' ? commandsView() : tab === 'sheet' ? sheetView() : phrasesView()
+    // ---------- costs ----------
+    // The session's measured requests, priced: a hypothetical API cost, never the subscription's
+    // bill (plan, section 3). A gap is said in words and the sum called partial, never a zero.
+    // Drawings are geometry only (charts.mjs); every word stands in a box the surface lays out.
+    // Kept short (calibration 2026-10-08): figures first, one line of words where one is needed,
+    // the details of each call in the tooltips of the columns.
+    const CATS = [
+      ['input', 'wejście', COST_COLORS.input], ['cacheRead', 'odczyt cache', COST_COLORS.cacheRead],
+      ['cacheWrite', 'zapis cache', COST_COLORS.cacheWrite], ['output', 'wyjście', COST_COLORS.output],
+    ] as const
+    const barCols = Math.max(10, Math.min(width - 6, 60))
+    const figure = (key: string, text: string, size: number, color: string) => {
+      const art = Svg ? figureArt(text, size, color) : null
+      if (Svg && art) return <Svg key={key} source={art.svg} alt={text} width={art.width} height={art.height} />
+      return <Text key={key} bold color={color}>{text}</Text>
+    }
+    // A bar says in its alt what it draws: each slice's share, in words
+    const shares = (slices: { value: number, label: string }[]) => {
+      const sum = slices.reduce((s, x) => s + x.value, 0)
+      return slices.map((s) => `${s.label} ${pct(s.value, sum)}`).join(', ')
+    }
+    const bar = (key: string, slices: { value: number, color: string, label: string }[], height: number) => {
+      if (Svg) return <Svg key={key} source={stackBar(slices, THEME.lineOff, height)} alt={'udział: ' + shares(slices)} height={height} />
+      const runs = blocks(slices, barCols)
+      return <Box key={key} flexDirection="row">{runs.length ? runs.map((r, i) => <Text key={`${key}-${i}`} color={r.color}>{r.text}</Text>) : [<Text key={`${key}-0`} color={THEME.lineOff}>{'░'.repeat(barCols)}</Text>]}</Box>
+    }
+    const costBox = (key: string, items: RenderChildren[], isMain = false, grow = false) => (
+      <Box key={key} flexDirection="column" gap={isGui ? 1 : 0} paddingX={isGui ? 2 : 1} paddingY={isGui ? 1 : 0}
+        {...(grow ? { flexGrow: 1 } : {})}
+        {...frame(isMain)} borderColor={isMain ? THEME.mark : THEME.line} backgroundColor={isMain ? THEME.cardFeatured : THEME.card}>
+        {items}
+      </Box>
+    )
+    const line = (key: string, text: string, color: string = THEME.body, bold = false) => <Text key={key} color={color} bold={bold}>{text}</Text>
+    const clock = (at: number) => { const d = new Date(at); return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}` }
+    const day = (at: number) => { const d = new Date(at); return `${String(d.getDate()).padStart(2, '0')}.${String(d.getMonth() + 1).padStart(2, '0')}` }
+    const money = (n: number | null) => (n === null ? 'brak ceny' : usd(n))
+    const nCalls = (n: number) => `${n} ${plural(n, 'wywołanie', 'wywołania', 'wywołań')}`
+    const nTurns = (n: number) => `${n} ${plural(n, 'tura', 'tury', 'tur')}`
+    const who = (c: { agent: string | null, kind?: string }) => (c.kind === 'compact' ? 'kompakcja' : c.agent === null ? 'wątek główny' : `subagent ${c.agent.slice(0, 8)}`)
+
+    // The sum: the figure, what it counts, its four categories as one bar and a one-row legend
+    // The four categories of a group: a dot in its color, the name, tokens and dollars
+    const legend = (key: string, g: Group) => (
+      <Box key={key} flexDirection="row" flexWrap="wrap" columnGap={2}>
+        {CATS.map(([k, label, color]) => (
+          <Box key={`${key}-${k}`} flexDirection="row" columnGap={1}>
+            <Text color={color}>●</Text>
+            <Text color={THEME.title}>{label}</Text>
+            <Text color={THEME.body}>{`${tokens(g[k])} · ${usd(g.parts[k])}`}</Text>
+          </Box>
+        ))}
+      </Box>
+    )
+
+    // The sum: the figure, what it counts, its four categories as one bar and the legend
+    const totalCard = (rep: Report, turnCount: number) => {
+      const g = rep.total
+      return costBox('cost-total', [
+        <Box key="cost-total-head" flexDirection="row" flexWrap="wrap" alignItems="center" columnGap={2}>
+          {figure('cost-total-fig', money(g.usd), 34, THEME.mark)}
+          <Box key="cost-total-cap" flexDirection="column">
+            {line('cost-total-t', `Suma sesji · ${nCalls(g.records)} · ${nTurns(turnCount)}`, THEME.title, true)}
+            {line('cost-total-s', g.isPartial ? 'suma częściowa — braki na dole' : 'hipotetyczny koszt w cenach API, nie rachunek abonamentu', g.isPartial ? THEME.accentText : THEME.body)}
+          </Box>
+        </Box>,
+        bar('cost-total-bar', CATS.map(([k, label, color]) => ({ value: g.parts[k], color, label })), 10),
+        legend('legend', g),
+      ], true)
+    }
+
+    // Three tiles in a row (stacked when the pane is narrow): the figure, what it is, one sentence
+    const tile = (key: string, fig: string, color: string, label: string, note: string, noteColor: string = THEME.body) => (
+      <Box key={key} flexDirection="column" gap={isGui ? 1 : 0} paddingX={isGui ? 2 : 1} paddingY={isGui ? 1 : 0}
+        width="30%" flexGrow={1} minWidth={26} {...frame(false)} borderColor={THEME.line} backgroundColor={THEME.card}>
+        <Box key={`${key}-head`} flexDirection="row" flexWrap="wrap" alignItems="center" columnGap={1}>
+          {figure(`${key}-fig`, fig, 24, color)}
+          {line(`${key}-l`, label, THEME.title, true)}
+        </Box>
+        {line(`${key}-n`, note, noteColor)}
+      </Box>
+    )
+    const engineTile = (rep: Report, since: number | null) => {
+      const engine = S.costUsd
+      if (engine === null) return tile('cost-engine', '~', THEME.title, 'licznik Claude Code', 'Ta sesja nie ma licznika kosztu — zostaje pomiar kolektora.')
+      if (rep.records === 0) return tile('cost-engine', usd(engine), THEME.title, 'licznik Claude Code', 'Cała sesja (jak /cost). Kolektor jeszcze nic nie zmierzył — kwota bez rozbicia.', THEME.accentText)
+      const measured = rep.total.usd ?? 0
+      const rest = Math.max(0, engine - measured)
+      if (rest < Math.max(0.01, engine * 0.01)) return tile('cost-engine', usd(engine), THEME.title, 'licznik Claude Code', 'Cała sesja (jak /cost) — zgodna z pomiarem kolektora.', THEME.ok)
+      // Late only when the collector really began after the session (a mod loaded mid-session):
+      // a collector there from the start explains the rest by requests outside the conversation
+      const isLate = S.startedAt > 0 && S.loadedAt - S.startedAt > LATE_MS && (since ?? S.loadedAt) - S.startedAt > LATE_MS
+      return tile('cost-engine', usd(engine), THEME.title, 'licznik Claude Code', isLate
+        ? `Cała sesja (jak /cost). Kolektor działa od ${clock(since ?? S.loadedAt)}; ${usd(rest)} to tury sprzed tej chwili — bez rozbicia.`
+        : `Cała sesja (jak /cost). ${usd(rest)} to wywołania poza rozmową (tytuł sesji, inne pluginy) — bez rozbicia.`)
+    }
+    const cacheTile = (fx: ReturnType<typeof cacheEffect>) =>
+      tile('cost-cache', pct(fx.fromCache, 1), COST_COLORS.cacheRead, 'wejścia z cache',
+        `Zapłacone ${usd(fx.paidUsd)} zamiast ${usd(fx.noCacheUsd)} bez cache — oszczędność ${usd(Math.max(0, fx.noCacheUsd - fx.paidUsd))}.`)
+    const projectTile = (p: ProjectSum) => p.sessions === 0
+      ? tile('cost-project', '~', THEME.title, 'cały projekt', 'Brak pomiarów w tym projekcie.')
+      : tile('cost-project', money(p.usd), THEME.title, 'cały projekt',
+        `${p.sessions} ${plural(p.sessions, 'sesja', 'sesje', 'sesji')} z pomiarem${p.since ? ` od ${day(p.since)}` : ''}; dziś ${money(p.todayUsd)}.`)
+
+    // One column per model request, the scale in grid lines, a card of the call under the pointer
+    const callsSection = (series: TurnCost[], calls: CallCost[]) => {
+      const values = calls.map((c) => c.usd)
+      const top = values.reduce<number>((best, v, i) => ((v ?? -1) > (values[best] ?? -1) ? i : best), 0)
+      const peak = calls[top]
+      // Past MAX_COLUMNS calls, neighbours share a column: its card sums them and says how many
+      const ranges = bucketRanges(calls.length)
+      const perColumn = ranges.length ? Math.max(...ranges.map(([a, b]) => b - a + 1)) : 1
+      const points = ranges.map(([a, b]) => {
+        const group = calls.slice(a, b + 1)
+        const priced = group.filter((c) => c.usd !== null)
+        const sum = (k: 'input' | 'cacheRead' | 'cacheWrite' | 'output') => group.reduce((s, c) => s + (c[k] ?? 0), 0)
+        const sumUsd = (k: 'input' | 'cacheRead' | 'cacheWrite' | 'output') => group.reduce((s, c) => s + (c.parts ? c.parts[k] : 0), 0)
+        const value = priced.length ? priced.reduce((s, c) => s + (c.usd ?? 0), 0) : null
+        const first = group[0]!
+        const last = group[group.length - 1]!
+        return {
+          value,
+          head: group.length === 1 ? `${clock(first.at)} · ${who(first)}`
+            : `${clock(first.at) === clock(last.at) ? clock(first.at) : `${clock(first.at)}–${clock(last.at)}`} · ${nCalls(group.length)}`,
+          figure: money(value) + (priced.length < group.length && value !== null ? ' (częściowo)' : ''),
+          rows: CATS.map(([k, label, color]) => ({ color, label, value: `${tokens(sum(k))} · ${priced.length ? usd(sumUsd(k)) : '—'}` })),
+        }
+      })
+      const columnTop = points.reduce<number>((best, p, i) => ((p.value ?? -1) > (points[best]?.value ?? -1) ? i : best), 0)
+      const step = niceStep(Math.max(0, ...points.map((p) => p.value ?? 0)))
+      const chart = (
+        <Box key="cost-turns-chart" flexDirection="column">
+          {Svg
+            ? <Svg key="cost-turns-svg" isInteractive height={hoverHeight(120)} alt={`${nCalls(calls.length)} w czasie; najwyższe ${peak ? money(peak.usd) : 'brak'}`}
+                source={hoverColumns(points, { color: COST_COLORS.cacheWrite, markColor: THEME.mark, track: THEME.lineOff, grid: THEME.line, background: THEME.card, card: THEME.cardOn, line: THEME.line, text: THEME.title, muted: THEME.body, mark: columnTop, height: 120, step })} />
+            : <Text key="cost-turns-spark" color={THEME.mark}>{spark(values.slice(-barCols))}</Text>}
+          {Svg || !calls.length ? [] : [<Text key="cost-turns-axis" color={THEME.body}>{`${clock((calls[Math.max(0, calls.length - barCols)] ?? calls[0])!.at)} → ${clock(calls[calls.length - 1]!.at)} · najwyższy słupek ${money(peak?.usd ?? null)}`}</Text>]}
+        </Box>
+      )
+      return section('costs-turns', 'costs-turns', '', [costBox('cost-turns', [
+        chart,
+        line('cost-turns-peak', peak
+          ? `Najwyższe ${money(peak.usd)} o ${clock(peak.at)} (${who(peak)})${Svg ? ' · najedź na słupek po szczegóły' : ''}`
+          : 'Brak wywołań.'),
+        line('cost-turns-last', `${nCalls(calls.length)} w ${series.length} ${plural(series.length, 'turze', 'turach', 'turach')}${Svg && perColumn > 1 ? ` · jeden słupek to do ${perColumn} kolejnych wywołań` : ''}.`),
+      ])])
+    }
+
+    // Agents or models: a smaller card each, the same set as the sum — figure, share, bar, legend
+    const groupCards = (key: string, groups: Group[], total: number) => groups.map((g, i) => costBox(`${key}-${i}`, [
+      <Box key={`${key}-${i}-head`} flexDirection="row" flexWrap="wrap" alignItems="center" columnGap={2}>
+        {figure(`${key}-${i}-fig`, money(g.usd), 22, g.isPartial ? THEME.accentText : THEME.mark)}
+        {line(`${key}-${i}-l`, g.label, THEME.title, true)}
+        {line(`${key}-${i}-v`, `${pct(g.usd ?? 0, total)} sesji · ${nCalls(g.records)}${g.isPartial ? ' · częściowo' : ''}`)}
+      </Box>,
+      bar(`${key}-${i}-bar`, CATS.map(([k, label, color]) => ({ value: g.parts[k], color, label })), 6),
+      legend(`${key}-${i}-legend`, g),
+    ]))
+
+    const costsView = (cd: CostData) => {
+      const { report: rep, series, calls, effect, project } = cd
+      const gaps = gapsInWords(rep)
+      const total = rep.total.usd ?? 0
+      const since = rep.records ? Math.min(...cd.records.map((r) => r.at)) : null
+      return [
+        section('costs', 'costs', '', [
+          ...(rep.records ? [totalCard(rep, series.length)] : []),
+          <Box key="cost-tiles" flexDirection="row" flexWrap="wrap" gap={1}>
+            {[engineTile(rep, since), ...(rep.records ? [cacheTile(effect)] : []), projectTile(project)]}
+          </Box>,
+        ]),
+        ...(rep.records ? [
+          callsSection(series, calls),
+          section('costs-agents', 'costs-agents', '', groupCards('cost-agents', rep.byAgent, total)),
+          section('costs-models', 'costs-models', '', groupCards('cost-models', rep.byModel, total)),
+        ] : []),
+        <Box key="cost-notes" flexDirection="column">
+          {gaps.map((w, i) => <Box key={`gap-${i}`}><Text color={THEME.accentText}>{'⚠ ' + w}</Text></Box>)}
+          <Box key="cost-foot"><Text dimColor>{`Ceny API z ${PRICING.date}.`}</Text></Box>
+        </Box>,
+      ]
+    }
+
+    const costs = tab === 'costs' ? await costData($) : null
+    const body = tab === 'commands' ? commandsView() : tab === 'sheet' ? sheetView() : costs ? costsView(costs) : phrasesView()
     const isSentInDrawer = tab === 'commands' && picked !== '' && formOf(picked) !== undefined
     return (
       <Box key="relai-pane" flexDirection="column" gap={1} paddingX={isGui ? 1 : 0}>
@@ -554,12 +818,22 @@ export const register: Register = (on) => {
     return next(e)
   })
 
-  // Each main-loop request: did it read the cache or write it again?
+  // Each request, main loop and subagents, to the collector; the main loop's to the timer too:
+  // did it read the cache or write it again?
   on('turn.step', async function* ($, e, next) {
     const startedAt = await $.clock.now()
     const result = yield* next(e)
-    if (!S.isRelai || e.agentId || !result || !result.usage) return result
-    const now = await $.clock.now()
+    if (!S.isRelai) return result
+    const at = await $.clock.now()
+    // No response at all (stopReason null): no request reached the API, nothing to measure.
+    // A response without usage is a measurement missing, recorded as such.
+    if (result && (result.usage || result.stopReason !== null)) {
+      const usage = result.usage
+      if (!e.agentId) lastModel = usage ? usage.model : e.model
+      void collect($, (session) => stepRecord({ session, turn: e.turnId, index: e.index, agent: e.agentId ?? null, model: e.model, at, usage }))
+    }
+    if (e.agentId || !result || !result.usage) return result
+    const now = at
     const u = result.usage as Usage
     const gap = S.lastActivity ? startedAt - S.lastActivity : 0
     const verdict = judgeStep(u, gap, !!S.lastActivity, S.justCompacted, effectiveTtl(S.ttl).ttlMin)
@@ -578,7 +852,14 @@ export const register: Register = (on) => {
 
   on('session.compact', async ($, e, next) => {
     const r = await next(e)
-    if (S.isRelai) set({ justCompacted: true })
+    if (!S.isRelai) return r
+    if (!e.agentId) set({ justCompacted: true })
+    // Usage is absent when no request was made (a reused summary, a hook's own): nothing to measure
+    const usage = r && 'usage' in r ? r.usage : undefined
+    if (usage) {
+      const at = await $.clock.now()
+      void collect($, (session) => compactRecord({ session, agent: e.agentId ?? null, model: lastModel, at, usage }))
+    }
     return r
   }).catch(($, e, next) => next(e))
 

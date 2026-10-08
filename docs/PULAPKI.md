@@ -8,6 +8,39 @@ Specyfikacja: `SPEC_PULAPKI.md`.
 
 ## Pułapki
 
+### P-020 — Silnik modów Claude Code: pomiar tokenów i wykresy w panelu · 2026-10-08 · AKTYWNA
+
+- **Objaw:** kolektor kosztów liczy „wszystko z `turn.step`", a suma i tak nie zgadza się z `/cost`;
+  sonda z jednym plikiem logu gubi wiersze drugiej sesji; wykres `Svg` przechodzi testy montażu,
+  a na desktopie jest pusty; wykres ze skalą wychodzi poza kartę mimo `calc()` w CSS.
+- **Przyczyna (2.1.293, sonda `relai-probe-e3` i pomiar na żywo w E3 planu PANEL_CLAUDE):**
+  1. `$.fs` nie ma `append` — tylko `write` całego pliku; dwa procesy piszące do jednego pliku
+     nadpisują sobie wiersze (sonda zgubiła całą sesję terminalową).
+  2. `$.session.usage()` nie zna kategorii tokenów: daje `cost.usd` (licznik jak `/cost`), kontekst
+     i limity. Kategorie niesie `usage` wyniku `turn.step` (każde wywołanie, też subagenta, z
+     `agentId`) i `turn.complete` (suma tury).
+  3. Kompakcja nie przechodzi przez `turn.step`: jej usage jest wyłącznie w wyniku `session.compact`.
+  4. `/clear` zmienia `$.session.id()` w tym samym procesie i **nie** odpala `session.start`; hook
+     `classic.SessionStart` z matcherem `source` nie odpalił w żadnym wariancie (start, `/clear`,
+     wznowienie). Wznowienie (`--continue`) zachowuje identyfikator i odpala `session.start`.
+  5. Zapis cache: krok wątku głównego ×2 (cache 1 h), **subagent i kompakcja ×1,25 (cache 5 min)** —
+     `usage` tego nie mówi; ustalone z licznika silnika co do $0,0003.
+  6. Licznik silnika obejmuje wywołania spoza `turn.step` i kompakcji (tytuł sesji, możliwe inne
+     pluginy i klasyfikator trybu auto): w sesji E3 9,16% przyrostu, $1,57 na $17,10.
+  7. `Svg` bez `width` bierze szerokość **markupu**; markup bez `width` (sam `viewBox`) rysuje się
+     pusto, choć `plugin test` widzi element.
+  8. `isInteractive` rysuje Svg w osobnej ramce: działają `:hover` i selektor `~`, style ramek są od
+     siebie izolowane. Chromium liczy CSS `width: calc(…)` na zagnieżdżonym `<svg>`, ale go **nie
+     stosuje** — viewport zostaje 100%.
+- **Obejście:** plik pomiarów na sesję, jeden pisarz z kolejką, odczyt pliku po przeładowaniu;
+  kompakcja z `session.compact`; identyfikator sesji pytany przy każdym zapisie; kategorie
+  porównywane z `turn.complete`, dolary z licznikiem silnika z resztą opisaną słowami; zapis cache
+  wyceniany pętlą (`core/panel/pricing.mjs`, `writeTtl`). Wykresy: `width` w markupie; pas osi
+  w pikselach i pozycja słupka jako `p%` plus przesunięcie w pikselach w zagnieżdżonym `<svg>`
+  (`core/panel/charts.mjs`); obraz sprawdzany w Chromium pomiarem prostokątów, każdy wykres
+  w osobnym `iframe`.
+- **Zasięg:** Claude Code 2.1.293 (mody „early access"), aplikacja desktopowa i terminal, Windows.
+
 ### P-019 — Binarka Claude Code z aplikacji desktopowej niewidoczna w zwykłym PowerShellu · 2026-10-08 · AKTYWNA
 
 - **Objaw:** `& "$env:APPDATA\Claude\claude-code\2.1.293\<hash>\claude.exe"` w oknie PowerShell

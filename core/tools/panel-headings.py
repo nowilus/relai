@@ -76,4 +76,14 @@ def draw(item):
             'textWidth': round(text_width), 'x': pad, 'svg': svg}
 
 
-json.dump([draw(i) for i in json.load(sys.stdin)], sys.stdout, ensure_ascii=False)
+def numerals(item):
+    # Kalam cut to the characters of figures drawn at run time (the cost report, E3): the font
+    # once, and each character's advance in em, so the panel sums a figure's width exactly.
+    chars, weight = item['glyphs'], item.get('weight', 700)
+    fonts = faces(weight)
+    adv = {ch: round(advance(fonts, ch), 4) for ch in chars}
+    return {'key': item['key'], 'weight': weight, 'advances': adv,
+            'font': subset_b64(f"{FONTS}/kalam-{weight}-latin.woff2", ''.join(c for c in chars if c != ' '))}
+
+
+json.dump([numerals(i) if 'glyphs' in i else draw(i) for i in json.load(sys.stdin)], sys.stdout, ensure_ascii=False)

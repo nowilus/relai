@@ -5,8 +5,12 @@ export function usd(n: number | null): string {
   if (n === null) return 'brak pomiaru'
   if (n === 0) return '$0'
   if (n < 0.01) return '<$0.01'
-  if (n < 10) return '$' + n.toFixed(2)
-  return '$' + n.toFixed(0)
+  return '$' + n.toFixed(2) // cents always: "$190" hid what "$11" against "$190" was made of
+}
+
+// A share in percent with two decimals: 99.61% is not 100% (calibration 2026-10-08)
+export function pct(part: number, whole: number): string {
+  return (whole > 0 ? (part / whole) * 100 : 0).toFixed(2) + '%'
 }
 
 export function minutes(ms: number): string {

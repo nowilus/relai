@@ -95,8 +95,23 @@ export const HEADINGS = Object.freeze([
   { key: 'phrases', text: 'Frazy sesji', size: 22, color: ROOT.musztarda },
   { key: 'phrases-ready', text: 'Jednym kliknięciem', size: 20, color: mix(ROOT.glina, ROOT.kartka, 0.25) },
   { key: 'phrases-fill', text: 'Do uzupełnienia', size: 20, color: mix(ROOT.glina, ROOT.kartka, 0.25) },
+  { key: 'costs', text: 'Koszty sesji', size: 22, color: ROOT.musztarda },
+  { key: 'costs-turns', text: 'Wywołania w czasie', size: 20, color: mix(ROOT.glina, ROOT.kartka, 0.25) },
+  { key: 'costs-agents', text: 'Agenci', size: 20, color: mix(ROOT.glina, ROOT.kartka, 0.25) },
+  { key: 'costs-models', text: 'Modele', size: 20, color: mix(ROOT.glina, ROOT.kartka, 0.25) },
   ...Object.entries(NAMES).map(([c, [name]]) => ({ key: 'name-' + c, text: name, size: 26, color: mix(ROOT.glina, ROOT.kartka, 0.25) })),
 ]);
+
+/** The characters a figure of the cost report may hold, drawn in Kalam at run time (E3). */
+export const NUMERAL_GLYPHS = '$0123456789.,<%~kM ';
+
+/** The four token categories of the cost report, each its own color of the motif (E3). */
+export const COST_COLORS = Object.freeze({
+  input: ROOT.szalwia,
+  cacheRead: mix(ROOT.szalwia, ROOT.kartka, 0.5),
+  cacheWrite: ROOT.glina,
+  output: ROOT.musztarda,
+});
 
 /** Small line glyphs of the pane's own controls (tabs, phrase cards), 24×24, in one color. */
 const GLYPH_PATHS = Object.freeze({

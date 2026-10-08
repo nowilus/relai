@@ -40,8 +40,9 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
    wywołania narzędzia zaczynasz od listy narzędzi w `init` trybu pomiaru** — narzędzia nieobecnego
    (AskUserQuestion w `claude -p`) nie da się policzyć, a zero wygląda jak sukces. **Kryterium
    wyszukujące wzorzec nie przeszukuje plików, które ten wzorzec cytują** — prompt etapu łapie sam
-   siebie. (L-0017, L-0018,
-   L-0040, L-0051, L-0052, L-0063, L-0069, L-0082, L-0115, L-0117, L-0123, L-0134)
+   siebie. **Tekst, który tłumaczy liczbę, ma warunek prawdziwości i test dla stanu docelowego**,
+   nie tylko dla sesji pomiarowej, w której powstał (L-0144). (L-0017, L-0018,
+   L-0040, L-0051, L-0052, L-0063, L-0069, L-0082, L-0115, L-0117, L-0123, L-0134, L-0144)
 5. **Instrument pomiarowy sam bywa źródłem fałszu:** wyrażenia regularne trzymaj w pliku zapisanym
    narzędziem zapisu, nie w `node -e` ani w heredoku, a tekst z backslashem (także ścieżkę
    Windows) wstawiasz Edit/Write albo piszesz z `/` (L-0116, L-0119); scenariusz „konfiguracji nie ma" mierz z podstawionym katalogiem domowym; dokładaj
@@ -115,11 +116,14 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
    inną semantykę niż na drzewie roboczym** — trafienia dzielisz na „naprawione później" i „nigdy",
    zanim nazwiesz je defektem (L-0131). **Wiersz z backslashem w kodzie wstawiasz tylko Edit/Write,
    także przy edycji zbiorczej** — skrypt Pythona z heredoku zgubił poziom ucieczki dwa razy w jednym
-   etapie (L-0135).
+   etapie (L-0135); w E3 trzeci raz, `node -` z heredoku — sprawdzaj wynik grepem stałego ciągu.
+   **Instrument w środowisku bez `append` pisze plik na proces** — dwóch pisarzy jednego pliku
+   kasuje sobie wiersze (L-0141). **Porównanie dwóch plików kasuje oba przed przebiegiem** i
+   sprawdza, że oba powstały teraz — nieudany zapis wygląda jak zgodność ze starym wynikiem (L-0143).
    (L-0032, L-0037, L-0095, L-0096, L-0105, L-0106, L-0107, L-0110, L-0111, L-0113,
    L-0097, L-0101, L-0102,
    L-0054, L-0055, L-0056, L-0064, L-0068, L-0071, L-0073, L-0083, L-0084, L-0086, L-0087, L-0088,
-   L-0090, L-0091, L-0124, L-0125, L-0130, L-0131, L-0135)
+   L-0090, L-0091, L-0124, L-0125, L-0130, L-0131, L-0135, L-0141, L-0143)
 6. **Próg jest liczbą, którą ktoś liczy:** kalibruj go na zmierzonych plikach realnych projektów,
    zapisuj w jednostce mechanizmu kontrolnego wraz z komendą sprawdzającą i daj mu **jeden**
    wyzwalacz — wielkości pomocnicze wskazują przyczynę wewnątrz komunikatu, nie wywołują go.
@@ -240,7 +244,11 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
     a warianty do kalibracji rysujesz **w tym samym nośniku** (mod z przełącznikiem wariantów),
     nie w makiecie, która obiecuje typografię i ruch, których silnik nie narysuje; ograniczenie
     nośnika mówisz człowiekowi wprost razem z opcjami, które realnie są.
-    (L-0003, L-0006, L-0016, L-0019, L-0029, L-0094, L-0098, L-0137, L-0140)
+    **Rysunek idzie do człowieka po renderze w Chromium z pomiarem prostokątów** (każdy w osobnym
+    `iframe`, kontrola na podłożonym defekcie) — test montażu widzi element, nie obraz (L-0142).
+    **W raporcie liczb procenty i kwoty mają dwa miejsca po przecinku**; zaokrąglenie zmieniające
+    odczyt jest błędem (L-0145).
+    (L-0003, L-0006, L-0016, L-0019, L-0029, L-0094, L-0098, L-0137, L-0140, L-0142, L-0145)
 
 **Wyprowadzone 2026-08-20 do `docs/PULAPKI.md`:** sześć pozycji, które były pułapkami
 narzędziowymi, a nie zasadami pracy — `tar` na `PATH` (L-0021), sesja pomiarowa `claude -p`
@@ -637,6 +645,63 @@ restart aplikacji po `plugin update` (L-0031), `git worktree` zamiast `git archi
   wprost razem z realnymi opcjami — człowiek wybrał natywne przyciski z sygnałem kliknięcia.
 - **Źródło:** E8 planu PANEL_CLAUDE (sonda `relai-probe-e8`, warianty `relai-variants-e8`);
   destylat: dopisane do zasady 15; P-018.
+
+### L-0141 — Sonda z jednym plikiem logu zgubiła całą sesję terminalową · 2026-10-08 · AKTYWNA
+
+- **Trigger:** sonda E3 pisała z dwóch procesów (desktop i terminal) do jednego pliku; `$.fs` nie ma
+  `append`, więc desktop trzymał log w pamięci i nadpisał wiersze terminala — test człowieka trzeba
+  było powtórzyć.
+- **Przyczyna:** instrument założył, że zapis do pliku dopisuje; zapis całego pliku przez dwóch
+  pisarzy kasuje to, czego drugi nie widział.
+- **Zasada:** instrument pomiarowy w środowisku bez `append` pisze **plik na proces** (albo na sesję)
+  od pierwszego przebiegu; dwóch pisarzy jednego pliku to defekt instrumentu, nie przypadek.
+- **Źródło:** E3 planu PANEL_CLAUDE; destylat: dopisane do zasady 5; P-020 pkt 1.
+
+### L-0142 — Wykres zielony w testach montażu i pusty na desktopie · 2026-10-08 · AKTYWNA
+
+- **Trigger:** zakładka „Koszty" przeszła `plugin test` (element `Svg` na miejscu), a na żywo żaden
+  wykres się nie narysował — markup miał `viewBox` bez `width`. Dwie rundy później oś X nie
+  narysowała się wcale, a kwoty osi Y stały na słupkach — człowiek zobaczył to przed mną.
+- **Przyczyna:** test montażu sprawdza drzewo elementów, nie obraz; o tym, co się narysuje, decyduje
+  markup i przeglądarka.
+- **Zasada:** rysunek oddawany człowiekowi przechodzi najpierw **render w Chromium** (wbudowana
+  przeglądarka, każdy rysunek w osobnym `iframe`, jak w aplikacji) z pomiarem prostokątów: tekst
+  poza obszarem danych, nic poza kartą, nic na siebie — z kontrolą pozytywną na podłożonym defekcie.
+  Asercja na markupie (`width` obecny, opis w `alt`) zostaje w teście modu jako siatka.
+- **Źródło:** E3 planu PANEL_CLAUDE (trzy rundy kalibracji wykresu); destylat: dopisane do zasady 15;
+  P-020 pkt 7–8.
+
+### L-0143 — Porównanie z plikiem, którego zapis się nie udał · 2026-10-08 · AKTYWNA
+
+- **Trigger:** `plugin validate .` z HEAD nie zapisało wyniku (zła ścieżka względna w podpowłoce), a
+  `diff` porównał nowy wynik ze starym plikiem z poprzedniego przebiegu i ogłosił „IDENTICAL".
+- **Przyczyna:** instrument nie kasował wyników sprzed przebiegu; porażka zapisu wyglądała jak
+  zgodność.
+- **Zasada:** instrument porównujący dwa pliki **kasuje oba przed przebiegiem**, pisze je ścieżką
+  bezwzględną i sprawdza, że oba powstały w tym przebiegu; kontrola pozytywna (podłożona różnica)
+  w tym samym przebiegu.
+- **Źródło:** zamknięcie E3 planu PANEL_CLAUDE; destylat: dopisane do zasady 5.
+
+### L-0144 — Tekst raportu zaszyty pod sesję testową · 2026-10-08 · AKTYWNA
+
+- **Trigger:** kafel licznika silnika mówił „$X to wcześniejsze tury" — prawdziwe tylko w sesji,
+  w której mod załadowano w trakcie. W docelowej instalacji kolektor działa od startu, a różnica
+  z `/cost` to wywołania poza rozmową. Człowiek zapytał wprost, które teksty są „na sztywno".
+- **Przyczyna:** tekst powstał z obserwacji jednej sesji pomiarowej, bez warunku, kiedy jest prawdziwy.
+- **Zasada:** każdy tekst raportu, który tłumaczy liczbę, ma **warunek prawdziwości i test dla stanu
+  docelowego** (instalacja od startu), nie tylko dla sesji, w której powstał; wariant „pomiar
+  włączony w trakcie" jest osobną gałęzią z własnym warunkiem.
+- **Źródło:** E3 planu PANEL_CLAUDE; destylat: dopisane do zasady 4.
+
+### L-0145 — „100%" i „$190" w raporcie kosztów · 2026-10-08 · AKTYWNA
+
+- **Trigger:** kafel cache pokazał „100% wejścia z cache", a kwoty od $10 bez groszy („$11 zamiast
+  $190"); realnie 99,53% i $11,75 zamiast $198,78.
+- **Przyczyna:** formatowanie dobrane do paska nad promptem (krótko) przeniesione do raportu, który
+  ma odpowiadać na pytanie „ile dokładnie".
+- **Zasada:** w raporcie liczb procenty i kwoty mają **dwa miejsca po przecinku**; zaokrąglenie,
+  które zmienia odczyt (99,53% → 100%), jest błędem, nie stylem — test pilnuje wzorca `\d.\d\d%`.
+- **Źródło:** E3 planu PANEL_CLAUDE; destylat: dopisane do zasady 15.
 
 ## Lekcje zwinięte
 

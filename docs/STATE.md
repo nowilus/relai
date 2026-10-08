@@ -1,6 +1,6 @@
 # STATE — RelAI
 
-Stan na: 2026-10-08 (E8 planu PANEL_CLAUDE — motyw RelAI panelu; wydanie publiczne nadal 2.7.1)
+Stan na: 2026-10-08 (E3 planu PANEL_CLAUDE — kolektor pomiarów i raport kosztów; wydanie publiczne nadal 2.7.1)
 
 ## Gdzie jesteśmy
 
@@ -53,8 +53,10 @@ Opinii spoza projektu nadal nie ma — pilotaż z użytkownikami zamknięto prze
 - Panel dla Claude Code ma osobny plan [PANEL_CLAUDE](plany/PANEL_CLAUDE/STATUS.md) (7 etapów,
   **ZAAKCEPTOWANY** 2026-10-08): plugin `relai-panel` na Claude Code Mods, wspólny rdzeń
   `core/panel/`. Autor: Opus 5.5 — wyjątek od reguły Fable, decyzja człowieka. Aneks do D-80
-  (GUI i telemetria kosztów w zakresie) wpisany. **E1 w repo (2026-10-08):** pasek RelAI nad
-  promptem — plan, etap, timer cache, koszt sesji; plugin niewydany (wydanie to E7).
+  (GUI i telemetria kosztów w zakresie) wpisany. Zrealizowane 2026-10-08: E1 (pasek), E2 (panel
+  i formularze), E8 (motyw, Aneks A), **E3 (kolektor pomiarów i zakładka „Koszty")**. Aneks B
+  dodał E9 „Postęp pracy i agenci na żywo" (po E3, przed E4) — następny etap. Plugin niewydany
+  (wydanie to E7).
 
 ## Co dalej
 
@@ -111,9 +113,9 @@ tryb ciągły, baza reguł optymalizatora z nakładkami rodzin modeli (`claude`,
 instalator. **Adapter Codex**: natywny manifest, 14 skilli, router `AGENTS.md`, trzy hooki (start
 sesji kopiuje listę modeli).
 
-### Panel `relai-panel` (plan PANEL_CLAUDE, po E8)
+### Panel `relai-panel` (plan PANEL_CLAUDE, po E3)
 
-Folder `panel/` — drugi plugin marketplace `relai` (źródło `./panel`, wersja 0.3.0 w
+Folder `panel/` — drugi plugin marketplace `relai` (źródło `./panel`, wersja 0.4.0 w
 `panel/.claude-plugin/plugin.json`, niewydany). Moduł hooków Claude Code Mods (`hooks/register.tsx`,
 silnik 2.1.293, „early access”) rysuje pasek `AbovePrompt`: aktywny plan i etap z `CLAUDE.md`
 i `STATUS.md`, timer cache (progi 10 i 5 min, TTL założony do pomiaru), koszt sesji
@@ -134,6 +136,16 @@ w karcie. Nagłówki Kalamem jako Svg z fontem przyciętym do liter napisu
 `docs/zasoby/branding/ikony/` w module `icons.mjs` składanym przez `sync-panel-core.js`. Przyciski
 natywne aplikacji, kliknięcie odpowiada błyskiem ramki karty i etykietą „✓ Wysłano” przez 0,9 s.
 Terminal: te same karty tekstem w tych samych kolorach, bez grafiki. Ograniczenia silnika: P-018.
+**Pomiar kosztów (E3):** kolektor zapisuje każde wywołanie modelu sesji RelAI — wątek główny
+i subagenci (`turn.step`), kompakcje (`session.compact`) — do `.claude/relai/pomiary/<data>-<sesja>.jsonl`
+(poza gitem, plik na sesję, rekord bez treści: sesja, tura, indeks, agent, model, cztery kategorie
+tokenów, pole `tool` — schemat wspólny z panelem Codeksa). Rachunki w `core/panel/measure.mjs`
+(klucz bez podwójnego liczenia, braki słowami), cennik z datą w `core/panel/pricing.mjs` (zapis
+cache: wątek główny 1 h, subagent i kompakcja 5 min — P-020), wykresy w `core/panel/charts.mjs`.
+Zakładka „Koszty": suma sesji z kategoriami, kafle licznika Claude Code (jak `/cost`, reszta poza
+pętlą słowami), cache i całego projektu, wywołania w czasie z osią Y i podpowiedziami po najechaniu,
+agenci, modele; kwoty i procenty z dwoma miejscami. Pasek RelAI nad promptem w ramce — jawnie
+oddzielony od innych modów.
 Nie woła modelu, nie dopisuje nic do kontekstu, nie używa sieci. Rachunki: `core/panel/*.mjs`
 (ESM — silnik nie ładuje CommonJS ani importu spoza folderu pluginu); `panel/hooks/core/` to kopia
 bajt w bajt z `node core/tools/sync-panel-core.js`, pilnowana testem. Testy: `claude plugin test

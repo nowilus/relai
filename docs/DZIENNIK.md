@@ -23,6 +23,8 @@
 | C3 | Desktop rysuje panel inaczej niż terminal (plan PANEL_CLAUDE, ryzyko R3) | **Niski** (2026-10-08 po E8; wcześniej średni dla panelu w terminalu) | **OTWARTE** | Pasek i panel zmierzone na żywo na desktopie (E1, E2, E8) i panel w terminalu 2.1.293 (E8: nagłówki tekstem, przyciski `[ … ]`); powierzchnię rozpoznaje `e.surface` (L-0138), test sprawdza odpowiednik tekstowy. Otwarte, bo każdy nowy element panelu (E3–E6) ma dwie powierzchnie do zmierzenia. |
 | C9 | Motyw RelAI i ikony komend nie zmieszczą się w elementach silnika modów — `Svg` tylko na desktopie, `Client` niezmierzony, terminal bez grafiki (plan PANEL_CLAUDE, Aneks A) | **Niski** (2026-10-08 po E8; wcześniej średni) | **ZAMKNIĘTE 2026-10-08** | Sonda E8: Svg z osadzonym fontem działa na desktopie, `Client` działa, `foreignObject` i interaktywne Svg odpadają, `plain` odwraca kolory (P-018); motyw zbudowany w tych granicach i przyjęty przez człowieka; terminal dostał odpowiednik tekstowy, zmierzony na żywo. |
 | C8 | Inny mod paska nad promptem rysuje bez `next` albo owija węzeł silnika w `Box` z `width` i pasek RelAI znika bez komunikatu (E1, P-017) | **Średni** (2026-10-08, przy E1) | **OTWARTE** | `relai-panel` zawsze woła `next` i nie dokłada `width` do owijacza; `cache-keeper-pl` 0.1.2 poprawiony tak samo. Otwarte: cudze mody poza kontrolą — ostrzeżenie w README w E7. |
+| C10 | Pomiar kosztów niepełny albo podwójny — subagenci, kompakcja, wznowienie, `/clear`, wywołania poza pętlą (plan PANEL_CLAUDE, ryzyko R2) | **Niski** (2026-10-08 po E3; wcześniej wysoki) | **OTWARTE** | Klucz sesja + tura + indeks + agent, plik na sesję, kompakcja z `session.compact`, identyfikator sesji przy każdym zapisie; na żywo 117/117 kroków i 8/8 tur zgodnych z sondą co do kategorii. Otwarte: 9,16% przyrostu licznika silnika to wywołania spoza `turn.step` i kompakcji — raport mówi o nich słowami, bez rozbicia (P-020 pkt 6) |
+| C11 | Pliki pomiarów puchną albo trafiają do gita (plan PANEL_CLAUDE, ryzyko R5) | **Niski** (2026-10-08 po E3) | **OTWARTE** | `.claude/relai/` poza gitem (sprawdzone `git check-ignore`), plik na sesję, rekord bez treści (~250 B); otwarte: sprzątanie starych plików nie istnieje — do E6/E7 |
 
 > Ryzyka zamknięte W1, U1, O1, O6 (4 pozycje) są w
 > [docs/archiwum/ryzyka/RYZYKA_2026-09-24.md](archiwum/ryzyka/RYZYKA_2026-09-24.md)
@@ -2373,5 +2375,131 @@ Autor: RelAI (Opus 5.5) + Lukasz
 - Bramki z E1 (`relai-probe` w `ab158a41-…`) i E2 (`relai-panel` w `cd13613d-…`) nadal otwarte.
 - Przed E3: decyzja „wspólny schemat pomiaru z panelem Codeksa" — prompt E3 pyta o nią pierwszy.
 - Uruchomić E3 w świeżej sesji na Opusie: `/relai-stage`.
+
+Autor: RelAI (Opus 5.5) + Lukasz
+
+### 2026-10-08 — E3 planu PANEL_CLAUDE: kolektor pomiarów i raport kosztów
+
+**Zrobione:**
+
+- **Decyzja przed pracą (plan, sekcja 9):** wspólny schemat pomiaru z panelem Codeksa **ustala ten
+  plan** (AskUserQuestion, rekomendacja przyjęta) — pola niezależne od narzędzia i pole `tool`;
+  PANEL_CODEX przejmuje go razem z rdzeniem.
+- **Sonda `relai-probe-e3`** (hot reload, desktop + terminal 2.1.293, plik logu na proces): wątek
+  główny i subagent w `turn.step` z `agentId`, suma kroków = `turn.complete` co do kategorii;
+  `/compact` — usage tylko w wyniku `session.compact`; `/clear` — nowy `session.id` w tym samym
+  procesie, bez `session.start`; wznowienie `--continue` — ten sam identyfikator, `session.start`
+  odpala; `classic.SessionStart` nie odpalił w żadnym wariancie. Zapis cache subagenta i kompakcji
+  ×1,25 (5 min), wątku głównego ×2 (1 h) — ustalone z licznika silnika. Kontrola pozytywna: zapis
+  wątku głównego w tym samym przebiegu. Pierwszy przebieg terminalowy stracony przez sondę (jeden plik
+  dla dwóch procesów, brak `append`) — powtórzony po poprawce (L-0141). Całość: P-020.
+- `core/panel/measure.mjs` — rekord (14 pól, bez treści), klucz sesja + tura + indeks + agent,
+  scalanie bez duplikatów, odczyt pliku z zachowaniem linii nieczytelnych, agregacja po sesji /
+  agencie / modelu z kosztem w czterech kategoriach, seria tur i wywołań, sumy projektu, braki
+  słowami (`gapsInWords`), odmiana liczebników.
+- `core/panel/pricing.mjs` — cennik z datą i źródłem (Opus 5.5: $4 / $20 za mln, odczyt ×0,05, zapis
+  ×2 / ×1,25 — FAKT z planu, sekcja 5), `writeTtl` według pętli, wycena rekordu modelem, który
+  odpowiedział, „brak ceny dla <model>", efekt cache (udział, koszt bez cache).
+- `core/panel/charts.mjs` — kwoty Kalamem z fontem cyfr przyciętym do `NUMERAL_GLYPHS` i szerokością
+  z metryk (`build-panel-headings.js` + `panel-headings.py` generują też `NUMERALS`), pasek udziałów,
+  wykres wywołań z podpowiedziami (`isInteractive`, CSS `:hover`, karta w stylu legendy przypięta do
+  rogu wykresu), oś Y w pasie 52 px, grupowanie powyżej 60 wywołań, odpowiedniki tekstowe dla
+  terminala (`█`, `▁…█`).
+- `panel/hooks/register.tsx` — kolektor w `turn.step` (wątek główny i subagenci) i `session.compact`,
+  plik `.claude/relai/pomiary/<data>-<sesja>.jsonl`, jeden pisarz z kolejką, odczyt pliku po
+  przeładowaniu i wznowieniu, identyfikator sesji pytany przy każdym zapisie; zakładka **„Koszty"**:
+  suma sesji z legendą kategorii, trzy kafle (licznik Claude Code, cache, cały projekt), „Wywołania
+  w czasie", agenci, modele, data cennika. Tekst licznika zależy od stanu: kolektor od startu →
+  „wywołania poza rozmową", mod załadowany w trakcie → „tury sprzed tej chwili", różnica ≤ 1% →
+  „zgodna". Pasek RelAI w musztardowej ramce (zasada „każdy mod nad promptem jawnie oddzielony").
+  Kwoty i procenty z dwoma miejscami po przecinku (`fmt.ts`: `usd`, `pct`).
+- **Kalibracja na żywo w 6 rundach** (zrzuty człowieka): wykresy bez `width` w markupie puste →
+  `width="1000"`; za dużo tekstu → kondensacja; za mało → kafle pełnym zdaniem i legenda u agentów
+  i modeli; podpowiedź „raw" → własna karta; osie → oś Y w pasie, bez osi X; „100%" → 99,53%.
+- **Aneks B** (decyzje człowieka w trakcie E3): nowy etap E9 „Postęp pracy i agenci na żywo" po E3,
+  przed E4 — własny pasek postępu i panel agentów w `relai-panel` wzorowane na `savvy-progress` (MIT),
+  jednolite karty modów nad promptem (`relai-panel`, `cache-keeper-pl`, fork `savvy-progress`
+  w `lukasz-mods`). Zasada odstępów zapisana też w pamięci asystenta.
+- `relai-panel` 0.3.0 → **0.4.0** (niewydany); `PanelView` z `costs`; P-020; L-0141–L-0145
+  (zasady 4, 5, 15); ryzyka C10 i C11; `docs/STATE.md`.
+
+**Zweryfikowane — jak dokładnie:**
+
+- Testy repo: `node --test core/process/tests/*.test.js core/guardrails/tests/*.test.js adapters/codex/tests/*.test.js core/panel/tests/*.test.js`
+  → **167/167** (przed etapem 137; +30: `measure`, `pricing`, `charts`).
+- Testy rdzenia na liczbach z sondy: suma sesji `b5d50f8d` = `/cost` człowieka ($0,5721 / $0,57;
+  12 / 365 359 / 57 284 / 2 034); sesja `b40cc142` z subagentem i kompakcją = licznik silnika minus
+  $0,000128 sprzed pierwszego kroku. Podłożony duplikat rekordu — suma bez zmian; kontrola mutacyjna
+  (klucz z losowym składnikiem) — test duplikatów oblewa.
+- `node core/tools/sync-panel-core.js --check` — „zgodne: 9 plików core/panel i 14 ikon".
+- `claude plugin validate panel` (2.1.293) — zaliczone; wywołania `$` bez `$.net`, `fetch`, `$.model`,
+  `prompt.compose`, `session.append` (0 trafień; kontrola wzorca na podłożonym tekście — 3).
+  `claude plugin validate .` — identyczny z HEAD (`git worktree`, oba pliki świeże, ścieżki
+  bezwzględne; podłożona różnica wykryta). Pierwsze porównanie było fałszywe — `diff` ze starym
+  plikiem po nieudanym zapisie (L-0143) — powtórzone.
+- `tsc` strict na typach silnika 2.1.293 (`lib` ES2023, `checkJs` na rdzeniu) — 0 błędów; podłożony
+  błąd typu → 1. `claude plugin test panel` — **33/33** (19 z E1, E2 i E8 bez zmian asercji + 14:
+  kolektor wątku głównego, subagenta i kompakcji bez treści, duplikat i odczyt po przeładowaniu,
+  cisza poza RelAI, raport na obu powierzchniach, brak usage słowami, „brak pomiarów" nie $0, licznik
+  silnika w trzech wariantach, cache z dwoma miejscami, projekt z wielu plików, osie, szerokość w
+  markupie z kontrolą na podłożonym defekcie, 40 kolumn bez przepełnień, ramka paska).
+- `node core/tools/validate-adapters.js` — zaliczone (kod 0).
+- **R2 na żywo (ta sesja, subagent `Explore`):** 117/117 kroków `turn.step` widzianych przez sondę
+  ma rekord w kolektorze; 8/8 tur (w tym tura subagenta) zgodnych z `turn.complete` co do każdej
+  kategorii; podłożona różnica 1 tokena wykryta. Dolary: licznik silnika urósł o $17,10, kroki
+  wycenione $15,53 — **rozjazd $1,57 (9,16%) to wywołania spoza `turn.step` i kompakcji** (kompakcji
+  w zakresie 0, kroków sprzed kolektora 0); źródła niezidentyfikowane z osobna — hipoteza: tytuł
+  sesji, klasyfikator trybu auto, inne pluginy (`cache-keeper-pl` pinguje tylko na żądanie).
+  Kryterium „co do kategorii z `$.session.usage()`" było nieosiągalne w brzmieniu promptu — API nie
+  zna kategorii (sprawdzone na typach przed kodem); zamiennik zmierzony: kategorie wobec
+  `turn.complete`, dolary wobec licznika.
+- Brak pomiaru: test rdzenia i modu — odpowiedź bez usage → „1 wywołanie bez pomiaru — suma
+  częściowa", karta sumy „suma częściowa".
+- **Wykres w Chromium** (wbudowana przeglądarka, dane tej sesji, każdy wykres w osobnym `iframe`,
+  900 / 560 / 360 px): kwoty osi 18–44 px w pasie 52 px, słupki od 52 px do ≥ 4 px przed marginesem,
+  zero kwot na słupkach, zero nachodzących słupków, karta podpowiedzi w obszarze wykresu z tekstem
+  10 px od krawędzi; instrument złapał dwa defekty przed oddaniem (CSS `calc` na zagnieżdżonym
+  `<svg>` ignorowany, „$0" ucięty o 1 px).
+- **Na żywo, aplikacja desktopowa (hot reload `45c5daa1-…`):** `/relai-panel` → „Koszty" w motywie
+  E8, wykresy, podpowiedzi i oś Y przyjęte przez człowieka („wygląda naprawdę fajnie"), pasek RelAI
+  w ramce widoczny razem z paskami innych modów; plik `.claude/relai/pomiary/2026-10-08-45c5daa1-….jsonl`
+  istnieje, `git status` go nie pokazuje (`git check-ignore`: `.claude/relai/.gitignore`).
+- Bezpieczeństwo: `grep -rnE "sk-ant-|ANTHROPIC_API_KEY="` po 21 plikach z `git status --short`
+  i `panel/hooks/core/` — 0 trafień; kontrola na podłożonej próbce — 1. Pola rekordu: `v, tool,
+  session, turn, index, agent, kind, model, at, input, cacheRead, cacheWrite, output, missing` — bez
+  treści; test pilnuje listy i braku tekstu odpowiedzi w pliku.
+- Katalog roboczy `.claude/relai/work/PANEL_CLAUDE/E3/` przejrzany raportem `clean-work.js` i
+  skasowany po „tak" (`clean-work.js kasuj`): przed **19,5 MB** (sonda i jej logi, strony kontrolne,
+  `pylib` z fontTools, skrypty R2, kopia typów silnika), po **0 MB**; cały `work/` 0,6 MB (obce
+  pliki wcześniejszych wątków, nietknięte). Poza katalogiem, w
+  `C:\Users\Lukasz\.claude\dev-mods\45c5daa1-875f-46bb-9751-dcc7a1ed28b3\`: `relai-probe-e3`
+  (zapis wyłączony przy zamknięciu) i `relai-panel` (kopia 0.4.0) — **zostają** do usunięcia przez
+  człowieka (bramka). Lista kasowania w `%TEMP%\relai-e3-clean-list.json` — usunięta.
+- Przy generowaniu `PROMPT_ETAP_9.md` katalog `E3/` **odrodził się**: sonda z `isOn = false`
+  po przeładowaniu silnika o 23:49 dalej zapisywała `probe-pjvwm2.jsonl` (85 KB), obok leżał
+  `PANEL_CLAUDE/fill.py` z wcześniejszej wklejki. Folder `relai-probe-e3` usunięty z modów sesji
+  (przełącznik w kodzie nie wystarczył — zasada wpisana do promptu E9), oba pliki skasowane;
+  `relai-panel` w tym folderze zostaje do bramki.
+
+**Świadomie odłożone:**
+
+- 9,16% licznika silnika bez rozbicia — rozróżnienie źródeł wymaga hooków poza `turn.step`
+  (`$.model.*` innych pluginów nie widać); raport mówi o tym słowami.
+- Timer cache po `/clear` nie wraca do „nieznany": reset wisi na `classic.SessionStart`, który
+  w 2.1.293 nie odpala (P-020 pkt 4) — usterka z E1, poza zakresem E3; do E9 (pasek) albo odnogi.
+- Sprzątanie starych plików pomiarów (C11) — do E6/E7.
+- Rotacja `docs/DZIENNIK.md` i `docs/LEKCJE.md` (ponad progami), odświeżenie listy modeli
+  (`/relai-models`, 14 dni), synchronizacja `AGENTS.md` z `CLAUDE.md` („Stan prac") — do zamknięcia
+  sesji, za zgodą człowieka.
+- Guardrail sekretów zatrzymał stałą testową `SECRET = '…'` (nazwa zmiennej, nie sekret) — nazwa
+  zmieniona na `ANSWER_TEXT`, bo była myląca; reguła guardraila bez zmian (zasada 12).
+
+**Do zrobienia przez człowieka:**
+
+- Usunąć z `C:\Users\Lukasz\.claude\dev-mods\45c5daa1-875f-46bb-9751-dcc7a1ed28b3\` mod
+  `relai-panel` (bramka; `relai-probe-e3` usunięty przy zamknięciu).
+- Bramki z E2 (`relai-panel` w `cd13613d-…`) i E8 (`6916a9af-…`) nadal otwarte; bramka E1
+  rozstrzygnięta (folder pusty).
+- Uruchomić E9 w świeżej sesji na Opusie: `/relai-stage`.
 
 Autor: RelAI (Opus 5.5) + Lukasz

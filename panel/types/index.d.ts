@@ -1,7 +1,7 @@
 // relai-panel: the values its pane draws from, held by the host in $.state for the session.
 
-/** Which tab of the pane shows: the command forms, the cheat sheet, the session phrases. */
-export type PanelView = 'commands' | 'sheet' | 'phrases'
+/** Which tab of the pane shows: the command forms, the cheat sheet, the session phrases, the costs. */
+export type PanelView = 'commands' | 'sheet' | 'phrases' | 'costs'
 
 declare module 'claude-code' {
   interface PluginState {
