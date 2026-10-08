@@ -119,6 +119,8 @@ gitowy pre-commit — [przewodnik](docs/PRZEWODNIK.md#skan-sekretów-przy-commic
   struktura repozytorium, konwencje hooków.
 - [Instalacja i aktualizacja](docs/INSTALACJA.md) — Claude Code, Cursor, Codex.
 - [Przenośność](docs/PRZENOSNOSC.md) — co Cursor i Codex realnie dają.
+- [Wywiad o panelu wizualnym](docs/zasoby/PANEL_RELAI/WYWIAD.md) — uzgodnione wymagania nowego
+  obszaru rozwoju, przed przygotowaniem i akceptacją planu.
 
 <details>
 <summary><strong>English summary</strong></summary>

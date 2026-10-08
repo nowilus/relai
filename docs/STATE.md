@@ -1,6 +1,6 @@
 # STATE — RelAI
 
-Stan na: 2026-09-28 (wydanie 2.7.1 publiczne)
+Stan na: 2026-10-08 (wywiad o panelu wizualnym; wydanie publiczne nadal 2.7.1)
 
 ## Gdzie jesteśmy
 
@@ -45,10 +45,18 @@ Opinii spoza projektu nadal nie ma — pilotaż z użytkownikami zamknięto prze
 
 ## Nad czym pracujemy teraz
 
-- Nic w toku.
+- Przygotowanie planu panelu wizualnego RelAI: wywiad o 14 komendach, dodatkowych frazach,
+  lokalnym śledzeniu pracy, kosztach API i timerze cache zakończony. Ustalenia:
+  [WYWIAD.md](zasoby/PANEL_RELAI/WYWIAD.md). Panel Codeksa: plan HTML w toku w sesji Codeksa.
+- Panel dla Claude Code ma osobny plan [PANEL_CLAUDE](plany/PANEL_CLAUDE/STATUS.md) (7 etapów,
+  **DO AKCEPTACJI**, 2026-10-08): plugin `relai-panel` na Claude Code Mods, wspólny rdzeń
+  `core/panel/`. Autor: Opus 5.5 — wyjątek od reguły Fable, decyzja człowieka. E1 blokuje aneks
+  do D-80 (GUI i telemetria kosztów).
 
 ## Co dalej
 
+- Osobny plan HTML panelu na podstawie wywiadu, po rozstrzygnięciu autora. Format i wykonawca
+  etapów z ustawień projektu: HTML i Opus. Plan będzie wymagał akceptacji przed implementacją.
 - **Restart aplikacji desktopowej**, żeby sesje ładowały 2.7.1 (P-005) — instalacja i cache
   `relai/relai/2.7.1` już są, sumy plików zgodne z repo. Potem pierwszy start sesji
   w ExpensesManager kładzie `package.json` przy kopiach narzędzi; obejście `.cjs` przestaje być
@@ -57,7 +65,7 @@ Opinii spoza projektu nadal nie ma — pilotaż z użytkownikami zamknięto prze
   interaktywnej): pierwszy prompt merytoryczny z trybem ciągłym, bez zgody i bez modelu, daje
   **jedno** okno pytań (Aneks F); zakończone zadanie w tle nie dostaje pytania o zgodę (Aneks H).
 - Odświeżenie listy modeli Codeksa w sesji Codeksa (`/relai-models`): lista ma nazwy z 2026-09-05,
-  Codex zaleca dziś gpt-6-astra, gpt-6-sol i gpt-6-luna; do tego czasu nakładka `openai` nie ma
+  odczyt z 2026-09-24 wskazywał gpt-6-astra, gpt-6-sol i gpt-6-luna; do tego czasu nakładka `openai` nie ma
   reguł z nazwą modelu, a przydział modeli poza Claude Code jest sprawą człowieka.
 - Wątek `OPIS_REPO` w `docs/fixy/` — opis i tematy repozytorium na GitHubie; opis manifestu nadal
   mówi o jednym narzędziu.
@@ -113,7 +121,7 @@ Backupy: `C:\Users\Lukasz\Backupy\RelAI` • [PRZENOSNOSC.md](PRZENOSNOSC.md) �
 
 ### Liczby
 
-Plany zamknięte: 9 (ostatni PROWADZENIE_END_TO_END, 2026-09-24) • Aktywny: brak • Start sesji:
+Plany zamknięte: 9 (ostatni PROWADZENIE_END_TO_END, 2026-09-24) • Aktywny: PANEL_CLAUDE (do akceptacji) • Start sesji:
 **88,6 KB / 100 KB** (bez aktywnego planu; po E6 98,2 KB) • Dziennik: **128,8 KB / 150 KB** • Sekcja ryzyk: 12 otwartych, archiwum ryzyk: 4 pliki
 + 1 mitygacji • Lekcje: **41,9 KB / 50 KB**, 20 w żywym pliku • Adaptery: 3 • Komendy: 14 •
 Testy rdzenia i adapterów: 89 • Projekty na RelAI: 3 (RelAI, PolyFlow, JiraManager przed migracją) •

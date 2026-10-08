@@ -123,6 +123,7 @@
   otwarte (`zaliczona` ×3, `dostarczony` ×1, trzy bez rdzenia z datą). Poszerzyć listę w rdzeniu
   czy przepisać adnotacje w cudzym projekcie? · 2026-09-01 ·
   [wpis 2026-09-01 — E6: wydanie 1.7.0](archiwum/dziennik/DZIENNIK_2026-09-01_2026-09-03.md#2026-09-01--e6-wydanie-170-pomiar-po-restarcie-i-pierwsza-rotacja-z-przepięciem-linków)
+  *(odroczone 2026-10-08, odroczeń: 1)*
 
 - **Weryfikacja ośmiu rozstrzygnięć wpisanych w E2 — wypisane co do jednego 2026-09-01, czekają na
   potwierdzenie albo sprzeciw** · 2026-08-20 ·
@@ -134,12 +135,14 @@
   `claude -p` **zadziałał** i poprowadził pomiar świeżych sesji (L-0084). Otworzyć R2 ponownie,
   przepisać jego treść czy zostawić zamknięte z adnotacją? · 2026-09-03 ·
   [wpis 2026-09-03 — E1 planu REKOMENDACJA_MODELU](archiwum/dziennik/DZIENNIK_2026-09-03_2026-09-06.md#2026-09-03--e1-planu-rekomendacja_modelu-pytanie-o-model-pokazuje-nazwy-nie-klasy)
+  *(odroczone 2026-10-08, odroczeń: 1)*
 
 - **Czy ochrona konfiguracji ma zostać przy werdykcie `ask`** — w sesji z automatyczną akceptacją
   edycji `ask` nie zatrzymuje niczego, więc edycja sekcji niemutowalnej **cudzego** `CLAUDE.md`
   przechodzi mimo poprawnego werdyktu hooka. Podnieść do `deny` dla cudzego projektu (własny
   zostaje przy `ask`), zostawić bez zmian, czy opisać to jako świadomą granicę? · 2026-09-04 ·
   [wpis 2026-09-04 — Blokada guardraila pokazana w żywej sesji](archiwum/dziennik/DZIENNIK_2026-09-03_2026-09-06.md#2026-09-04--blokada-guardraila-pokazana-w-żywej-sesji-ochrona-konfiguracji-okazuje-się-doradcza)
+  *(odroczone 2026-10-08, odroczeń: 1)*
 
 - **Ponowna instalacja pre-commita w projektach z hookiem sprzed 1.9.2** — stary układ
   (bezrozszerzeniowy `pre-commit` + `relai-secret-scan.js`) przewraca się w projekcie
@@ -147,6 +150,7 @@
   zewnętrznych; instalacja jest jawną czynnością człowieka, więc RelAI jej nie wykona sam.
   · 2026-09-04 ·
   [wpis 2026-09-04 — Cztery defekty pre-commita](archiwum/dziennik/DZIENNIK_2026-09-03_2026-09-06.md#2026-09-04--cztery-defekty-pre-commita-ze-zgłoszenia-zewnętrznego-wydanie-192)
+  *(odroczone 2026-10-08, odroczeń: 1)*
 
 ## Wpisy
 
@@ -1814,5 +1818,185 @@ Autor: RelAI (Opus 5.5) + Lukasz
 **Do zrobienia przez człowieka:**
 
 - Restart aplikacji pod 2.7.1, potem sesja w ExpensesManager (kopie narzędzi bez obejścia `.cjs`).
+
+Autor: RelAI (Opus 5.5) + Lukasz
+
+### 2026-10-08 — Rozpoznanie panelu wizualnego RelAI i odroczenie czterech spraw
+
+**Zrobione:**
+
+- Na prośbę Łukasza rozpoznano możliwość rozszerzenia RelAI o interaktywny panel procesu,
+  przyciski komend, podgląd dokumentów oraz pomiary tokenów, kosztów i cache. To analiza
+  wykonalności i wywiad; nie powstał plan ani implementacja. Granica GUI i telemetrii w D-80
+  pozostaje zapisana; nowa inicjatywa wymaga osobnego zakresu, bez zmian dawnych planów.
+- Człowiek odroczył o 30 dni cztery sprawy: rozpoznawanie zamkniętych pozycji w PolyFlow,
+  przesłankę zamknięcia R2, werdykt ochrony konfiguracji oraz reinstalację pre-commita w
+  PolyFlow/JiraManagerze. Pozycje otrzymały adnotację `odroczone 2026-10-08, odroczeń: 1`;
+  następny przegląd po przekroczeniu 30 dni od tej daty.
+
+**Ustalenia panelu — wywiad w toku:**
+
+- Pierwsza platforma: Codex desktop, następnie Claude Code. Dane panelu wyłącznie lokalne;
+  brak synchronizacji historii projektu z chmurą.
+- Przyciski zachowują nazwy komend `/relai-…`; polskie objaśnienie może je uzupełniać, ale nie
+  zastępuje identyfikatora. Każda komenda wymaga osobnego przejścia ścieżki GUI w wywiadzie.
+- Kliknięcie otwiera w panelu opcje i parametry komendy przed jej wysłaniem do czatu.
+- `/relai-stage`: jeden formularz z opcją `Automatycznie` (aktywny plan i następny etap),
+  z możliwością ręcznego wskazania planu i etapu. Domyślnie świeży czat; dostępny też bieżący.
+  Jedno potwierdzenie w panelu zatwierdza kartę plan/etap/model/zakres/weryfikacja, bez ponownego
+  pytania o ten sam start w czacie. Ta ostatnia ścieżka wymaga przyszłego dostosowania procedury
+  komendy; dzisiejszej procedury ani zamrożonych decyzji nie zmieniono.
+- `/relai-prompt`: oryginał, propozycja i dopowiedzenia w panelu; propozycję można edytować.
+  Osobne kliknięcie wysyła wynik do bieżącego czatu (domyślnie) lub świeżego czatu; dostępne też
+  kopiowanie. Model docelowy widoczny, domyślnie z bieżącej sesji albo wskazanego etapu;
+  pozostałe opcje rozwijane, funkcje bez potwierdzonego wsparcia gospodarza oznaczone jako
+  niedostępne. Optymalizacja sama nie uruchamia wynikowego promptu.
+- `/relai-crew`: jeden przycisk z wyborem trybu w panelu. Człowiek podaje cel, agent proponuje
+  zadania i skład; przed startem człowiek edytuje i zatwierdza zadania, pliki, zależności, role,
+  modele oraz równoległość. Domyślnie bieżący czat jako orkiestrator, z opcją świeżego czatu
+  i przekazaniem jawnego opisu celu oraz potrzebnego kontekstu. Od pierwszej wersji dozwoleni
+  wykonawcy także w lokalnym Claude Code i Cursorze, jeśli dostępni i zalogowani, z jawnym
+  wyborem dozwolonych narzędzi i kosztami wykonawców, gdy dane są dostępne.
+- `/relai-branch`: proponowana z kontekstu nazwa i cel do edycji, widoczne źródło (plan/etap
+  albo wariant samodzielny), zatwierdzenie przed utworzeniem. Po utworzeniu podgląd karty
+  i promptu, kopiowanie oraz osobny przycisk uruchomienia w świeżym czacie; samo utworzenie
+  odkłada wątek i nie uruchamia wykonania.
+- `/relai-backup`: krótki formularz z ustawioną lokalizacją, możliwością jednorazowej zmiany
+  i przyciskiem utworzenia backupu. Wynik pokazuje ścieżkę, rozmiar i weryfikację archiwum ZIP.
+- `/relai-audit`: panel ustawia zakres (pełny, `porzadki`, `zdrowie`) i uruchamia komendę;
+  wynik wyłącznie w czacie. Nie przyjęto propozycji raportu ani zatwierdzania poprawek w panelu.
+- `/relai-changelog`: formularz zakresu (cały dziennik, od daty, od wersji albo ostatnie N
+  wpisów); wynik w panelu, podgląd, kopiowanie i osobny przycisk zapisu do pliku.
+- `/relai-handover`: formularz ścieżki z domyślną lokalizacją i możliwością zmiany; podgląd
+  gotowego lokalnego HTML w panelu.
+- `/relai-tour`: wybór pełnego oprowadzenia lub `krotko`; wynik w panelu i czacie.
+- `/relai-help`: ściąga projektu z wyszukiwaniem i przyciskami otwierającymi formularze komend;
+  samo czytanie lub filtrowanie pomocy nie uruchamia pracy.
+- `/relai-adopt`: postęp i raport w panelu; konflikty reguł oraz zgoda na konkretne zmiany
+  rozstrzygane w czacie. Nie wybrano kreatora zbierającego te decyzje wyłącznie w panelu.
+- `/relai-update`: różnice i wybór konkretnych zmian w panelu, wersja obecna/docelowa oraz
+  chronione nadpisania widoczne przed zatwierdzeniem; wykonanie po zatwierdzeniu w panelu.
+- `/relai-models`: całość w panelu — lokalna lista z datą, pobranie z pokazanych źródeł,
+  wybór klas, różnica stara/nowa i osobne zatwierdzenie zapisu. Katalog modeli oddzielny
+  od cennika używanego przez przyszły kolektor kosztów.
+- `/relai-clean`: raport i decyzje w panelu, rozwijane grupy, pełne ścieżki, rozmiary,
+  powody ochrony, wyjątki oraz wybór usunięcia/zostawienia/trwałej ochrony; zatwierdzenie
+  dokładnej listy. Nic nie jest domyślnie zaznaczone do usunięcia.
+- Przejście wszystkich 14 komend zakończone w wywiadzie. Otwarte pozostają decyzje o całym
+  panelu, powiązaniu czatu/projektu, dodatkowych frazach RelAI i pomiarach kosztów/cache.
+- Powiązanie panelu: projekt bieżącego czatu widoczny w nagłówku; przy braku możliwości
+  rozpoznania jawne powiązanie przez człowieka. Bez przeglądu wielu projektów w pierwszym
+  zakresie. Główny widok: mapa przepływu z zależnościami i rozwijanymi zadaniami.
+- Poza komendami panel obejmuje przyciski dla naturalnych wyzwalaczy RelAI, grupujące
+  równoważne frazy pod wspólnymi działaniami, m.in. kontynuacja, status, zakończenie pracy
+  i rozpoczęcie. Każde działanie ma ujawniać frazę/procedurę wywoływaną pod spodem.
+- Śledzenie obejmuje całą aktywność czatów tego projektu, również zwykłą pracę poza RelAI.
+  Dla takiej pracy punktem wyjścia do zadania jest wiadomość uruchamiająca pracę, z ręcznym
+  scalaniem i przypisaniem do etapu; bez osobnego modelu analizującego każdą rozmowę.
+- Cenniki API odświeżane wyłącznie ręcznie przyciskiem, z datą, źródłem i ostrzeżeniem o wieku.
+- Korekta celu pomiarów: Łukaszowi chodzi o tokeny i hipotetyczny koszt API dla poszczególnych
+  modeli oraz uczestników (orkiestrator, subagenci, tester itd.) i koszt całego wykonania,
+  zamiast wcześniejszego pomysłu procentów abonamentu. Główny układ raportu nadal w wywiadzie.
+- Brak pełnych liczników któregoś uczestnika daje częściową sumę i jawne oznaczenie braku
+  pomiaru; brak danych nie jest zerem ani domyślnym szacunkiem.
+- Doprecyzowanie trackera cache: potrzebny timer przerwy w aktywności z powiadomieniami przed
+  końcem przyjętego okna i resetem po aktywności, analogiczny do widzianego pluginu Claude Code.
+  Źródło resetu, sposób ustalenia czasu dla Codeksa i kanał powiadomień pozostają w wywiadzie.
+- Dodatkowe rozpoznanie: historyczny rekord Claude Code z 2026-08-20 w zapisach RelAI ma
+  dodatnie `cache_creation.ephemeral_1h_input_tokens`. Potwierdza użycie godzinnego TTL w tym
+  przebiegu, nie stan wszystkich dzisiejszych sesji. Aktualna dokumentacja OpenAI opisuje
+  minimum 30 minut dla GPT-5.6 i nowszych w API; nie ustalono faktycznego TTL sesji abonamentowej
+  Codeksa. Koniec timera nie jest dowodem resetu rozmowy ani utraty całego cache.
+- Timer: reset od potwierdzonego odczytu lub zapisu cache; jeśli pomiar niedostępny,
+  jawnie oznaczony timer aktywności z mniej pewnego źródła. Dla Codeksa przy nieznanym TTL
+  datowany profil modelu stanowi prognozę, z możliwością zmiany założenia przez użytkownika.
+  Kanał ostrzeżeń pozostaje pytaniem wywiadu.
+- Domknięcie pytań o pomiary: raport na poziomach sesja, etap/zadanie i agent/model, jedna
+  suma bez podwójnego liczenia subagentów, bez procentów abonamentu. Zbieranie lokalnie
+  także przy zamkniętym GUI podczas aktywnych sesji. Ostrzeżenia timera w panelu i systemie,
+  przy progach domyślnych 10 i 5 minut, edytowalnych; wsparcie powiadomień wymaga próby.
+- Kompletny zapis wywiadu w [WYWIAD.md](zasoby/PANEL_RELAI/WYWIAD.md), odnośniki w STATE
+  i README. Wywiad zakończony; pytanie o autora planu wynika z reguły Fable w AGENTS.md
+  przy bieżącym modelu gpt-6.1-sol. Format HTML i Opus dla etapów pozostają z ustawień projektu.
+
+**Zweryfikowane — jak dokładnie:**
+
+- Odczytano manifest Codeksa, rejestr hooków i `core/process/crew.js`: istnieją identyfikatory
+  przebiegu i zadania oraz statusy rozpoczęcia i zakończenia. Delegacje zapisują wyjście tekstowe;
+  nie ma jeszcze kolektora tokenów ani interaktywnego panelu MCP.
+- W lokalnym transkrypcie bieżącego czatu sprawdzono wyłącznie rekordy liczników i metadane
+  modelu: są liczniki wejścia, wejścia z cache, zapisów cache, wyjścia i rozumowania, a także
+  limity okien konta. Odczyt narzędziem aplikacji potwierdził dostępność procentów limitów.
+  Nie przypisano tych danych do poszczególnych zadań; nie jest to stabilny kontrakt pluginu.
+- Sprawdzono dokumentację producentów: [Extensions](https://developers.openai.com/plugins/build/extensions),
+  [protokół Extensions](https://github.com/openai/mcp-extensions/blob/main/docs/spec.md),
+  [Codex app-server](https://learn.chatgpt.com/docs/app-server),
+  [OpenAI prompt caching](https://developers.openai.com/api/docs/guides/prompt-caching),
+  [Claude Code monitoring](https://code.claude.com/docs/en/monitoring-usage),
+  [Claude Code channels](https://code.claude.com/docs/en/channels),
+  [Claude prompt caching](https://platform.claude.com/docs/en/build-with-claude/prompt-caching)
+  i [cennik OpenAI](https://developers.openai.com/api/docs/pricing). Panel i komunikaty mają
+  podstawę protokołową, lecz integracja z zainstalowanym gospodarzem nie została zmierzona.
+
+**Świadomie odłożone:**
+
+- Implementacja i instalacja do ustalenia zakresu oraz akceptacji osobnego planu.
+- Pewny licznik wygaśnięcia cache, gwarancja zachowania cache po forku oraz dokładny procent
+  limitu przypisany zadaniu: dostępne dane nie dowodzą takich możliwości. Koszt hipotetyczny
+  API musi być oddzielony od abonamentu, a różnica procentów limitu od pomiaru samego zadania.
+- Aktualizacja listy modeli Codeksa z 2026-09-05 — zaproponować `/relai-models`, bez samodzielnego
+  odświeżania listy lub wyboru modeli wykonawczych.
+
+**Do zrobienia przez człowieka:**
+
+- Rozstrzygnięcie autora planu: pakiet przekazania do Fable albo jednorazowy wyjątek dla
+  gpt-6.1-sol z recenzją subagenta. Następnie akceptacja konkretnego planu HTML.
+
+Autor: RelAI (gpt-6.1-sol) + Lukasz
+
+### 2026-10-08 — Plan PANEL_CLAUDE i prywatny mod cache-keeper-pl (Claude Code)
+
+**Zrobione:**
+
+- Odtworzono z filmu Nate'a Herka („Claude Code Mods Are Game Changers”) mod Cache Keeper jako
+  prywatny, dedykowany mod `cache-keeper-pl` — poza repozytorium RelAI (decyzja człowieka: tylko
+  osobny mod). Film niedostępny (YouTube pokazał CAPTCHA, nie obchodzona); źródłem był README i kod
+  oryginału na licencji MIT. Zakres: pasek nad promptem (stan i odliczanie cache, kontekst,
+  hipotetyczny koszt ponownego zapisu, limity planu, koszt sesji), `/cache` z ustawieniami po
+  polsku, `/keepwarm` (ping przez `$.model.fork`), strażnik zimnego wysłania, `/handoff` —
+  w projekcie RelAI przez synchronizację dokumentów, `/clear` i „kontynuujemy pracę”.
+  Cennik zweryfikowany 2026-10-08 na stronie cennika Claude API; oryginał zawyżał odczyt cache
+  Sonneta 5.5 dwukrotnie i nie znał Haiku 5.5.
+- Mod zainstalowany na stałe: `C:\Users\Lukasz\Desktop\cache-keeper-pl`, lokalny marketplace
+  `lukasz-mods`, scope `user`.
+- Utworzono plan [PANEL_CLAUDE](plany/PANEL_CLAUDE/STATUS.md): osobny plugin `relai-panel`
+  na Claude Code Mods, 7 etapów, 11–16 sesji (SZACUNEK), status DO AKCEPTACJI. Ustalenia
+  wywiadu w tej sesji: panel z własnym timerem cache, pełny zakres WYWIAD.md ze wspólnym rdzeniem
+  `core/panel/`, „świeży czat” jako `/clear` po potwierdzeniu, pomiary w `.claude/relai/pomiary/`,
+  panel boczny + pasek. Autor planu: Opus 5.5 — jednorazowy wyjątek od reguły „plany: Fable”.
+
+**Zweryfikowane — jak dokładnie:**
+
+- `cache-keeper-pl`: `claude plugin validate` (silnik 2.1.293) — zaliczone; `tsc` strict na
+  typach z silnika — 0 błędów; `claude plugin test` — 16/16. Recenzja subagenta: 0 krytycznych,
+  2 wysokie i 5 średnich (zablokowane przekazanie, `/clear` w trakcie przekazania, podwójne pingi,
+  ping przy zimnym cache, pochopny pomiar TTL 5 min, utrata stanu przy przeładowaniu, stare
+  limity) — wszystkie poprawione i ponownie przetestowane.
+- `PLAN.html`: builder osadził 6 fontów i nie zgłosił niewypełnionych znaczników; zero adresów
+  sieciowych; w przeglądarce symulator przelicza (3 → 6 przerw: zapisy $3,60 → $7,20), sekcja
+  zwinięta się rozwija, brak przewijania w poziomie, podpisy diagramu mieszczą się w kartkach
+  (sprawdzone pomiarem `getBBox`, margines ≥ 8 px).
+
+**Świadomie odłożone:**
+
+- Działanie `cache-keeper-pl` na żywo (pasek w aplikacji desktopowej, ping, przekazanie) nie
+  zostało obejrzane w tej sesji — sprawdzi to pierwsza nowa sesja po restarcie.
+- Fragment filmu 2:53–5:30 nieobejrzany; jeśli mod ma odtwarzać coś, czego nie ma w README
+  oryginału, potrzebny opis od człowieka.
+
+**Do zrobienia przez człowieka:**
+
+- Akceptacja planu PANEL_CLAUDE albo poprawki; przed E1 — aneks do D-80.
+- Restart aplikacji, żeby nowe sesje załadowały `cache-keeper-pl`.
 
 Autor: RelAI (Opus 5.5) + Lukasz
