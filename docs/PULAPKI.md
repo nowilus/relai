@@ -8,6 +8,50 @@ Specyfikacja: `SPEC_PULAPKI.md`.
 
 ## Pułapki
 
+### P-019 — Binarka Claude Code z aplikacji desktopowej niewidoczna w zwykłym PowerShellu · 2026-10-08 · AKTYWNA
+
+- **Objaw:** `& "$env:APPDATA\Claude\claude-code\2.1.293\<hash>\claude.exe"` w oknie PowerShell
+  Windows kończy się „is not recognized as the name of a cmdlet…", choć Bash sesji w aplikacji
+  widzi i uruchamia ten sam plik pod `$APPDATA`.
+- **Przyczyna:** aplikacja Claude jest pakietem MSIX (`Claude_pzs8sxrjxfjjc`); Windows wirtualizuje
+  jej `AppData\Roaming`. Procesy uruchomione przez aplikację (sesja, jej Bash) widzą widok
+  wirtualny, zwykła powłoka — folder fizyczny pakietu.
+- **Obejście:** poza aplikacją ścieżka fizyczna:
+  `$env:LOCALAPPDATA\Packages\Claude_pzs8sxrjxfjjc\LocalCache\Roaming\Claude\claude-code\<wersja>\<hash>\claude.exe`.
+  Instrukcję dla człowieka sprawdzasz w tej samej powłoce, którą zobaczy (zasada 2).
+- **Zasięg:** aplikacja desktopowa Claude (MSIX), Windows 11; zmierzone przy pomiarze terminalowym
+  E8 planu PANEL_CLAUDE.
+
+### P-018 — Silnik modów Claude Code: co rysuje desktop, a czego nie da się zrobić · 2026-10-08 · AKTYWNA
+
+- **Objaw:** projekt panelu zakłada typografię, rozmiary fontu, przyciski w kolorach marki i ruch;
+  na żywo część elementów znika, przyciski odwracają kolory pod kursorem, a mod przechodzący
+  `validate` pada albo zostaje zastąpiony przez silnik („the engine drew its own").
+- **Przyczyna (2.1.293, sonda E8 planu PANEL_CLAUDE, aplikacja desktopowa, Windows):**
+  1. `Text` ma tylko kolor, tło, pogrubienie, kursywę i podkreślenie, bez rozmiaru i kroju;
+     odstępy liczone w komórkach. Jedyny klikalny element to `Button`.
+  2. `Svg` rysuje dowolne SVG razem z fontem osadzonym w `@font-face` (`data:` woff2) — Kalam
+     działa; bez `width` Svg rozciąga się do szerokości slotu. `foreignObject` jest wycinany
+     (pusto). `isInteractive` daje ramkę z **białym tłem** i rozciąga się na całą szerokość.
+  3. `Button` z `plain` w malowanym `Box` **odwraca kolory pod kursorem i nie da się tego
+     wyłączyć**; natywny `Button` (`variant`) nie odwraca. Brak `transform`, `transition`, `onPress`
+     na `Box`.
+  4. Wartość właściwości obecna, ale `undefined` (`backgroundColor={undefined}`, także w `hover`)
+     — drzewo odrzucone w całości.
+  5. Tabela elementów terminala ma w czasie wykonania klucz `Svg` (typy go nie mają); narysowane nim
+     elementy znikają po cichu — powierzchnię rozpoznaje się po `e.surface`.
+  6. Zmienna `h` albo `Fragment` w module przesłania fabrykę JSX: „h is not a function" dopiero na
+     żywo. `Code` przyjmuje `source`, nie `code`. `Client` działa (region modułu powierzchni), ale
+     `surface.width` w pierwszym wywołaniu jest `undefined`.
+  7. Na ciemnym motywie aplikacji `Text` bez koloru jest jasny: karta z własnym tłem musi podawać
+     kolor każdego tekstu, inaczej na jasnym motywie tekst znika.
+- **Obejście:** typografia marki w Svg z fontem przyciętym do liter napisu i szerokością z metryk
+  fontu (`core/tools/build-panel-headings.js`); przyciski natywne, marka w kartach, a odpowiedź na
+  kliknięcie przez stan (błysk ramki, etykieta „✓ Wysłano" na 0,9 s); właściwości opcjonalne
+  rozkładane warunkowo; `tsc` i `plugin test` z montażem przed pokazaniem na żywo.
+- **Zasięg:** Claude Code 2.1.293 (mody „early access"), aplikacja desktopowa, Windows. Terminal:
+  testy montażu; pomiar na żywo w dzienniku E8.
+
 ### P-017 — Silnik modów Claude Code: pięć zachowań, których nie widać w czytaniu typów · 2026-10-08 · AKTYWNA
 
 - **Objaw:** pasek `AbovePrompt` przechodzi `plugin validate`, `tsc` i `plugin test`, a na żywo

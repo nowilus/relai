@@ -205,7 +205,12 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
     najpierw sondą (licznik wywołań hooka, wynik `next`) (P-017). **Wszystko, co dostaje `$` albo
     `on`, mieszka w pliku modułu hooków** — walidator modów nie śledzi `$` przez import; na zewnątrz
     wynosisz tylko czystą logikę, a `plugin validate` puszczasz zaraz po podziale pliku.
-    (L-0041, L-0042, L-0044, L-0047, L-0092, L-0133, L-0136)
+    **Typy silnika mówią, co powierzchnia przyjmie, nie co tabela elementów niesie w czasie
+    wykonania** — gałąź „desktop / terminal" rozstrzygasz polem powierzchni z wejścia, a test
+    sprawdza **obecność odpowiednika** na drugiej powierzchni, nie tylko brak grafiki. Każde
+    drzewo trafia do `plugin test` z montażem i kliknięciem, **zanim** człowiek zobaczy je na
+    żywo — błąd czasu wykonania (nazwa fabryki JSX przesłonięta zmienną) przechodzi `validate`.
+    (L-0041, L-0042, L-0044, L-0047, L-0092, L-0133, L-0136, L-0138, L-0139)
 14. **Najpierw zmiana w repozytorium, potem zdanie, które ją opisuje.** Weryfikację planuj tam,
     gdzie jest wykonalna; po pytaniu sprzątasz sam (martwy link nie jest poprawną wartością
     tymczasową); przy wyprowadzaniu pozycji jednostką inwentarza jest **sprawa**, nie linia.
@@ -231,7 +236,11 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
     w której element realnie się wyświetli. **Plan z interfejsem dla człowieka wskazuje źródło
     motywu i kryterium wyglądu w pierwszym etapie, który rysuje więcej niż linię tekstu**, a zrzut
     do kalibracji smaku pada przed dokończeniem etapu, nie przy pomiarze na żywo.
-    (L-0003, L-0006, L-0016, L-0019, L-0029, L-0094, L-0098, L-0137)
+    **Na nośniku z ograniczonym zestawem elementów sonda ustala pułap, zanim powstanie projekt**,
+    a warianty do kalibracji rysujesz **w tym samym nośniku** (mod z przełącznikiem wariantów),
+    nie w makiecie, która obiecuje typografię i ruch, których silnik nie narysuje; ograniczenie
+    nośnika mówisz człowiekowi wprost razem z opcjami, które realnie są.
+    (L-0003, L-0006, L-0016, L-0019, L-0029, L-0094, L-0098, L-0137, L-0140)
 
 **Wyprowadzone 2026-08-20 do `docs/PULAPKI.md`:** sześć pozycji, które były pułapkami
 narzędziowymi, a nie zasadami pracy — `tar` na `PATH` (L-0021), sesja pomiarowa `claude -p`
@@ -590,6 +599,44 @@ restart aplikacji po `plugin update` (L-0031), `git worktree` zamiast `git archi
   pierwszym etapie, który rysuje cokolwiek poza jedną linią tekstu; zrzut do kalibracji smaku
   pokazujesz przed dokończeniem etapu, nie dopiero przy pomiarze na żywo.
 - **Źródło:** E2 planu PANEL_CLAUDE (Aneks A); destylat: dopisane do zasady 15.
+
+### L-0138 — Terminal „bez Svg" w typach, z kluczem `Svg` w czasie wykonania · 2026-10-08 · AKTYWNA
+
+- **Trigger:** panel rozpoznawał desktop warunkiem `'Svg' in el`; na terminalu zniknęły nagłówki
+  i znaczniki kart, bo tabela elementów terminala ma w czasie wykonania klucz `Svg`, a narysowane
+  nim elementy są odrzucane po cichu. Złapał to dopiero nowy test sprawdzający, że terminal
+  pokazuje nagłówek „Polecane teraz" tekstem.
+- **Przyczyna:** typy (`Elements['terminal']`) opisują, co powierzchnia przyjmie, a nie zawartość
+  obiektu zwracanego przez `$.ui.resolve`; test „brak Svg na terminalu" przechodził zielono.
+- **Zasada:** powierzchnię rozstrzygasz polem `e.surface`; test drugiej powierzchni sprawdza
+  obecność odpowiednika, nie tylko brak elementu, którego tam nie ma.
+- **Źródło:** E8 planu PANEL_CLAUDE; destylat: dopisane do zasady 13; P-018.
+
+### L-0139 — Zmienna `h` w module JSX: `validate` zielony, panel pada na żywo · 2026-10-08 · AKTYWNA
+
+- **Trigger:** mod kalibracyjny przeszedł `plugin validate`, a na żywo pierwszy `Svg` rzucił
+  „h is not a function" — zmienna lokalna `h` przesłoniła fabrykę JSX. Drugi błąd (pole `code`
+  zamiast `source` w `Code`) złapał dopiero `tsc`. Człowiek dostał dwie rundy z błędem.
+- **Przyczyna:** mod pokazany na żywo bez `tsc` i bez testu montażu; walidator czyta wywołania `$`,
+  nie wykonuje drzewa.
+- **Zasada:** nazwy `h` i `Fragment` są zarezerwowane; każde drzewo przechodzi `tsc` i `plugin test`
+  z montażem i kliknięciem przed pokazaniem człowiekowi.
+- **Źródło:** E8 planu PANEL_CLAUDE (mod `relai-variants-e8`); destylat: dopisane do zasady 13.
+
+### L-0140 — Pułap nośnika najpierw, warianty w tym samym nośniku · 2026-10-08 · AKTYWNA
+
+- **Trigger:** człowiek poprosił o kilka wariantów panelu z „efektem wow", odpowiednią typografią,
+  rozmiarami fontu i efektem kliknięcia. Silnik modów nie ma rozmiaru ani kroju w `Text`, jedyny
+  klikalny element to natywny `Button`, przycisk `plain` odwraca kolory pod kursorem bez wyłącznika,
+  a ruchu (translate, transition) nie ma wcale.
+- **Przyczyna:** prośba o wygląd zakłada nośnik HTML; makieta HTML obiecałaby rzeczy, których panel
+  nie narysuje, a rozczarowanie przyszłoby przy pomiarze na żywo.
+- **Zasada:** najpierw sonda z ponumerowanymi elementami (co rysuje, co odrzuca), potem warianty
+  w samym nośniku z przełącznikiem; typografię „z charakterem" przenosisz tam, gdzie nośnik ją
+  rysuje (Svg z fontem przyciętym do liter napisu, szerokość z metryk fontu), a ograniczenie mówisz
+  wprost razem z realnymi opcjami — człowiek wybrał natywne przyciski z sygnałem kliknięcia.
+- **Źródło:** E8 planu PANEL_CLAUDE (sonda `relai-probe-e8`, warianty `relai-variants-e8`);
+  destylat: dopisane do zasady 15; P-018.
 
 ## Lekcje zwinięte
 

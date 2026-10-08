@@ -45,3 +45,33 @@ test('a changed copy, a missing copy and an orphan copy are reported (planted de
   fs.writeFileSync(path.join(root, 'panel', 'hooks', 'core', 'a.mjs'), 'export const a = 1;\r\n');
   assert.equal(spawnSync(process.execPath, [tool, '--check'], { encoding: 'utf8' }).status, 0);
 });
+
+test('the icons module follows the icon files: a changed icon is reported (planted defect)', (t) => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'relai-panel-icons-'));
+  t.after(() => fs.rmSync(root, { recursive: true, force: true }));
+  for (const d of [['core', 'tools'], ['core', 'panel'], ['panel', 'hooks', 'core'], ['docs', 'zasoby', 'branding', 'ikony']]) {
+    fs.mkdirSync(path.join(root, ...d), { recursive: true });
+  }
+  fs.copyFileSync(TOOL, path.join(root, 'core', 'tools', 'sync-panel-core.js'));
+  fs.writeFileSync(path.join(root, 'core', 'panel', 'a.mjs'), 'export const a = 1;\n');
+  const ikony = path.join(root, 'docs', 'zasoby', 'branding', 'ikony');
+  fs.writeFileSync(path.join(ikony, 'stage.svg'), '<?xml version="1.0"?>\r\n<svg id="s"/>\r\n');
+  fs.writeFileSync(path.join(ikony, 'tour.svg'), '<svg id="t"/>\n');
+  const tool = path.join(root, 'core', 'tools', 'sync-panel-core.js');
+
+  const made = spawnSync(process.execPath, [tool], { encoding: 'utf8' });
+  assert.equal(made.status, 0, made.stderr);
+  assert.match(made.stdout, /1 plikow core\/panel i 2 ikon/);
+  const mod = fs.readFileSync(path.join(root, 'panel', 'hooks', 'core', 'icons.mjs'), 'utf8');
+  assert.match(mod, /"stage": "<svg id=\\"s\\"\/>"/); // XML declaration dropped, CRLF gone
+  assert.match(mod, /"tour": "<svg id=\\"t\\"\/>"/);
+
+  fs.writeFileSync(path.join(ikony, 'tour.svg'), '<svg id="t2"/>\n');
+  const bad = spawnSync(process.execPath, [tool, '--check'], { encoding: 'utf8' });
+  assert.equal(bad.status, 1);
+  assert.match(bad.stderr, /icons\.mjs rozni sie od docs\/zasoby\/branding\/ikony/);
+
+  fs.unlinkSync(path.join(root, 'panel', 'hooks', 'core', 'icons.mjs'));
+  const gone = spawnSync(process.execPath, [tool, '--check'], { encoding: 'utf8' });
+  assert.match(gone.stderr, /brak panel\/hooks\/core\/icons\.mjs/);
+});

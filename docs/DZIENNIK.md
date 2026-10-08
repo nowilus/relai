@@ -20,8 +20,8 @@
 | O4 | Tryb ciągły kosztuje turę przy każdym zdaniu — praca zwalnia i drożeje (plan OPTYMALIZATOR_PROMPTOW, ryzyko O4) | **Średni** (2026-09-14, przy akceptacji planu) | **OTWARTE** | Wyłącznik w `USTAWIENIA.md`, filtr pomija komendy; otwarte: rozrzut kosztu większy niż mierzona różnica. Historia: [MITYGACJE_2026-09-24](archiwum/ryzyka/MITYGACJE_2026-09-24.md). |
 | K3 | Nakładki rodzin modeli starzeją się szybciej niż wydania RelAI — dostawca zmienia wytyczne, a reguła z datą zostaje (plan PROWADZENIE_END_TO_END, ryzyko K3) | **Średni** (2026-09-24, przy zamknięciu planu) | **OTWARTE** | Każda reguła nakładki ma źródło i datę odczytu; hook startu mówi o nakładce starszej niż 30 dni; odświeżenie razem z `/relai-models`. |
 | C1 | API modów Claude Code („early access”) zmieni się między wydaniami i `relai-panel` przestanie się ładować (plan PANEL_CLAUDE, ryzyko R1) | **Wysoki** (2026-10-08, przy E1) | **OTWARTE** | Osobny plugin; rachunki w `core/panel/` poza API modów; `plugin validate` i `plugin test` przed wydaniem; `cache-keeper-pl` jako kanarek. Otwarte: minimalna wersja silnika niezmierzona (działa 2.1.293). |
-| C3 | Desktop rysuje panel inaczej niż terminal (plan PANEL_CLAUDE, ryzyko R3) | **Niski dla paska i panelu na desktopie, średni dla panelu w terminalu** (2026-10-08 po E2; wcześniej średni dla panelu) | **OTWARTE** | Pasek i panel boczny zmierzone na żywo w aplikacji desktopowej 2026-10-08 (formularz, podgląd, wysyłka komendy i frazy); testy montażu na obu powierzchniach. Otwarte: panel boczny w terminalu niezmierzony na żywo. |
-| C9 | Motyw RelAI i ikony komend nie zmieszczą się w elementach silnika modów — `Svg` tylko na desktopie, `Client` niezmierzony, terminal bez grafiki (plan PANEL_CLAUDE, Aneks A) | **Średni** (2026-10-08, przy Aneksie A) | **OTWARTE** | E8 zaczyna od sondy tego, co desktop realnie rysuje; brak → motyw w granicach elementów silnika, opisany w dzienniku; terminal dostaje odpowiednik tekstowy. |
+| C3 | Desktop rysuje panel inaczej niż terminal (plan PANEL_CLAUDE, ryzyko R3) | **Niski** (2026-10-08 po E8; wcześniej średni dla panelu w terminalu) | **OTWARTE** | Pasek i panel zmierzone na żywo na desktopie (E1, E2, E8) i panel w terminalu 2.1.293 (E8: nagłówki tekstem, przyciski `[ … ]`); powierzchnię rozpoznaje `e.surface` (L-0138), test sprawdza odpowiednik tekstowy. Otwarte, bo każdy nowy element panelu (E3–E6) ma dwie powierzchnie do zmierzenia. |
+| C9 | Motyw RelAI i ikony komend nie zmieszczą się w elementach silnika modów — `Svg` tylko na desktopie, `Client` niezmierzony, terminal bez grafiki (plan PANEL_CLAUDE, Aneks A) | **Niski** (2026-10-08 po E8; wcześniej średni) | **ZAMKNIĘTE 2026-10-08** | Sonda E8: Svg z osadzonym fontem działa na desktopie, `Client` działa, `foreignObject` i interaktywne Svg odpadają, `plain` odwraca kolory (P-018); motyw zbudowany w tych granicach i przyjęty przez człowieka; terminal dostał odpowiednik tekstowy, zmierzony na żywo. |
 | C8 | Inny mod paska nad promptem rysuje bez `next` albo owija węzeł silnika w `Box` z `width` i pasek RelAI znika bez komunikatu (E1, P-017) | **Średni** (2026-10-08, przy E1) | **OTWARTE** | `relai-panel` zawsze woła `next` i nie dokłada `width` do owijacza; `cache-keeper-pl` 0.1.2 poprawiony tak samo. Otwarte: cudze mody poza kontrolą — ostrzeżenie w README w E7. |
 
 > Ryzyka zamknięte W1, U1, O1, O6 (4 pozycje) są w
@@ -2261,5 +2261,117 @@ Autor: RelAI (gpt-6.1-sol) + Lukasz
   (bramka z E1, nadal otwarta).
 - Po E8 usunąć kopię `C:\Users\Lukasz\.claude\dev-mods\cd13613d-2197-4a7f-ad88-8bd1ae6ee9db\relai-panel`.
 - Uruchomić E8 w świeżej sesji na Opusie: `/relai-stage`.
+
+Autor: RelAI (Opus 5.5) + Lukasz
+
+### 2026-10-08 — E8 planu PANEL_CLAUDE: motyw RelAI i ikony komend w panelu
+
+**Zrobione:**
+
+- **Sonda `relai-probe-e8`** (12 ponumerowanych elementów, hot reload, desktop): działa tło
+  i zaokrąglona ramka `Box`, kolory hex, `Svg` z ikoną, **`Svg` z osadzonym Kalamem**, `Client`;
+  odpada `foreignObject` (pusto), interaktywne `Svg` (białe tło ramki, rozciągnięte na całą
+  szerokość), przycisk `plain` na jasnej karcie (niewidoczny napis). `Text` nie ma rozmiaru ani
+  kroju. Kontrola pozytywna w tym samym przebiegu: punkt 1 (zwykły tekst) narysowany. Całość
+  w P-018.
+- **Kalibracja smaku na żywo:** mod `relai-variants-e8` z przełącznikiem trzech wariantów na
+  realnych danych (A · Karty, B · Kafle, C · Polecane). **Odstępstwo od promptu z powodem:** prompt
+  (i pamięć projektu) mówił „jeden wariant do kalibracji"; człowiek poprosił wprost o kilka
+  wariantów — wygrała prośba człowieka. **Decyzja człowieka:** wariant A (karty) wszędzie
+  z funkcją „Polecane" z C jako nieco większe karty u góry. Druga runda: przyciski i zakładka
+  Frazy „nijakie" → przebudowa; trzecia: pigułki z `plain` „AI-slopowe", odwracanie tekstu na
+  hoverze „tragedia", prośba o efekt kliknięcia z `translate` — silnik nie pozwala ani wyłączyć
+  odwracania, ani animować; **decyzja człowieka** (AskUserQuestion): natywne przyciski + sygnał
+  kliknięcia. Przyciski przyjęte („przyciski ok").
+- `core/panel/theme.mjs`: `ROOT` — kolory `:root` szablonu planów dosłownie; `THEME` — role
+  kolorów jako te kolory albo ich mieszanki (`mix()`), bo panel stoi na ciemnym motywie aplikacji;
+  `NAMES` (polska nazwa i jednolinijkowy cel 14 komend), `FEATURED` (etap, prompt, wycieczka),
+  `GROUPS` (Prowadzenie pracy / Wiedza o projekcie / Porządek i bezpieczeństwo), `HEADINGS`,
+  `glyph()` (ikonki dymka do Fraz).
+- **Nagłówki Kalamem:** `core/tools/build-panel-headings.js` + `core/tools/panel-headings.py`
+  (fontTools): font przycięty do liter napisu (kilka KB zamiast 46 KB), szerokość z metryk fontu,
+  wynik deterministyczny (`recalcTimestamp=False`) → `core/panel/headings.mjs` (23 nagłówki).
+- **Ikony w pluginie:** `core/tools/sync-panel-core.js` składa `panel/hooks/core/icons.mjs` z 14 SVG
+  `docs/zasoby/branding/ikony/`; `--check` obejmuje ikony.
+- `panel/hooks/register.tsx`, panel: nagłówek „Panel RelAI" Kalamem; „Polecane teraz" (karty
+  z musztardową ramką, ikona 48 px, karta etapu pokazuje bieżący plan i etap); trzy grupy kart
+  z ikonami 36 px; formularz rozwija się w karcie (nazwa Kalamem, pola, ramka „Do czatu pójdzie",
+  „Wyślij do czatu" / „Zamknij"); Ściąga i Frazy w tym samym wzorcu sekcji (nagłówek + linia „po
+  co" + stos kart); Frazy w dwóch sekcjach: „Jednym kliknięciem" i „Do uzupełnienia" (pole, podgląd,
+  wysyłka w kolejności formularza komendy). Stany: wybrana (ramka gliny), niedostępna w sesji,
+  błąd wartości, wysłano / nie wysłano (✓ / ✗). Przyciski natywne; kliknięcie: ramka karty błyska
+  musztardą i etykieta wysyłki mówi „✓ Wysłano" przez 0,9 s (`$.state.pressed`, `$.clock.after`).
+  Terminal: te same karty tekstem w tych samych kolorach, ramka tylko przy wybranej. Pasek z E1 bez
+  zmian.
+- `relai-panel` 0.2.0 → **0.3.0** (niewydany). Lekcje L-0138, L-0139, L-0140 (zasady 13 i 15),
+  pułapki **P-018** (silnik modów: co rysuje desktop) i **P-019** (ścieżka MSIX binarki).
+  `docs/STATE.md`, linia „Aktywny plan" w `CLAUDE.md`, ryzyka C3 i C9.
+
+**Zweryfikowane — jak dokładnie:**
+
+- Testy repo: `node --test core/process/tests/*.test.js core/guardrails/tests/*.test.js adapters/codex/tests/*.test.js core/panel/tests/*.test.js`
+  → **137/137** (przed etapem 126/126; +10 `theme.test.js`, +1 `sync.test.js`).
+- `theme.test.js`: kolory `ROOT` = `:root` szablonu (12 kolorów czytanych z pliku), podłożona zmiana
+  `--glina` zgłoszona; komendy z `FORMS` sparowane z ikonami i nazwami — 14 z 14, plików ikon 14,
+  odrzuconych 0, podłożona komenda bez ikony i ikona bez komendy zgłoszone; polecane + grupy
+  pokrywają `FORMS` dokładnie raz; **kontrast WCAG AA ≥ 4,5:1** dla 15 par tekst/karta — przy
+  pierwszym uruchomieniu trafił realnie („wysłano" na karcie polecanej 4,42:1 → kolor rozjaśniony),
+  podłożony zbyt bliski kolor zgłoszony; 23 nagłówki zgodne z `HEADINGS` i mieszczą się w swoich
+  ramkach, podłożony za szeroki i nieaktualny zgłoszone. Przed wbudowaniem zmierzone też
+  w przeglądarce (`getBBox` tekstu vs viewBox): 20/20 w ramkach, kontrola z ramką zwężoną do 60 %
+  → OVERFLOW.
+- `node core/tools/sync-panel-core.js --check` — „zgodne: 6 plikow core/panel i 14 ikon";
+  test z podłożonym rozjazdem ikony oblewa (`icons.mjs rozni sie…`), brak modułu zgłoszony.
+- `claude plugin validate panel` (binarka 2.1.293) — zaliczone; wywołania `$` bez `$.net`, `fetch`,
+  `$.model`, `prompt.compose`, `session.append` (0 trafień; kontrola wzorca na podłożonym tekście —
+  2 trafienia). `claude plugin validate .` — identyczny z HEAD (`git worktree`, diff linii `❯`/`✔`
+  po zdjęciu ścieżek pusty; 1 ostrzeżenie o root `CLAUDE.md` przed i po).
+- `tsc` strict (TypeScript 5, typy silnika 2.1.293, `checkJs` na rdzeniu, testy modu wyłączone
+  z `include` jak w E2) — 0 błędów; podłożony błąd typu w `panel/hooks/planted-e8.ts` → 1 błąd,
+  po usunięciu 0. `claude plugin test panel` — **19/19** (15 z E1/E2 bez zmian asercji + 4 nowe:
+  14 ikon na desktopie i nagłówek Kalamem, terminal bez `Svg` **i** z nagłówkiem tekstem, zero
+  przepełnień przy 40 kolumnach na obu powierzchniach dla 14 formularzy i trzech zakładek
+  (instrument `minWidth`, kontrola na podłożonym za długim przycisku), sygnał kliknięcia:
+  „✓ Wysłano" i ramka `pressed`, po 1 s powrót).
+- `node core/tools/validate-adapters.js` — zaliczone (kod 0).
+- **Na żywo, aplikacja desktopowa (hot reload modów sesji `6916a9af-…`):** `/relai-panel` w nowym
+  motywie; formularz `/relai-tour` z „krotko" wysłał dokładnie `/relai:relai-tour krotko` (przyszło
+  do sesji jako komenda); fraza „sprawdź status" poszła z przycisku (przyszła jako prompt); oba
+  paski nad promptem widoczne, szarej linii `refused` / `threw` brak (relacja człowieka). Dwie
+  rundy z błędem przed tym (mod kalibracyjny: `h is not a function`, pole `Code`) — L-0139.
+- **Na żywo, terminal** (`claude.exe` 2.1.293 z `--plugin-dir panel`, PowerShell człowieka, ścieżka
+  MSIX — P-019): `/relai-panel` otwiera panel, nagłówki tekstem, przyciski `[ … ]` widoczne
+  (relacja człowieka). C3 obniżone.
+- Bezpieczeństwo: `grep -rnE "sk-ant-|ANTHROPIC_API_KEY="` po plikach z `git status --short`
+  i `panel/hooks/core/` — 0 trafień; kontrola pozytywna na podłożonej próbce — 1 trafienie.
+- Katalog roboczy `.claude/relai/work/PANEL_CLAUDE/E8/` przejrzany raportem `clean-work.js`
+  (był chroniony jako etap W TOKU) i skasowany po „tak": przed **20 MB** (skrypty sondy i wariantów,
+  `pylib` z fontTools, przycięte fonty, strona pomiaru nagłówków, wyjścia `validate`), po **0 MB**
+  (katalog nie istnieje); cały `work/` 1 MB (obcy `fill.py`, nietknięty).
+- Artefakty poza katalogiem roboczym, w `C:\Users\Lukasz\.claude\dev-mods\6916a9af-3d58-441f-8b75-e70121bf5b9c\`:
+  `relai-probe-e8`, `relai-variants-e8`, `relai-panel` (kopia do pomiaru) — **zostają** do usunięcia
+  przez człowieka (bramka w `STATUS.md`); `git worktree` HEAD do porównania `validate` — usunięty.
+
+**Świadomie odłożone:**
+
+- Animacja kliknięcia (translate, transition) i własny styl przycisku bez odwracania kolorów —
+  silnik 2.1.293 tego nie daje (P-018); wraca, jeśli API modów dostanie `Box` klikalny albo
+  `transform`.
+- Jasny motyw aplikacji: karty podają kolor każdego tekstu, ale natywne przyciski na ciemnej
+  karcie w jasnym motywie niezmierzone.
+- Generator nagłówków wymaga fontTools (Python) — tylko przy zmianie `HEADINGS`; `headings.mjs`
+  jest w repo, więc testy i wydanie go nie potrzebują.
+- Integracja powłoki panelu Terminal aplikacji zgłasza brak `claude-desktop.ps1` — poza zakresem,
+  pomiar terminalowy zrobiony w zwykłym PowerShellu.
+- Rotacja `docs/DZIENNIK.md` (ponad 150 KB) i odświeżenie listy modeli (`/relai-models`, 14 dni) —
+  do zamknięcia sesji.
+
+**Do zrobienia przez człowieka:**
+
+- Usunąć z `C:\Users\Lukasz\.claude\dev-mods\6916a9af-3d58-441f-8b75-e70121bf5b9c\` mody
+  `relai-probe-e8` i `relai-variants-e8`; `relai-panel` — po E3 albo wcześniej (bramka).
+- Bramki z E1 (`relai-probe` w `ab158a41-…`) i E2 (`relai-panel` w `cd13613d-…`) nadal otwarte.
+- Przed E3: decyzja „wspólny schemat pomiaru z panelem Codeksa" — prompt E3 pyta o nią pierwszy.
+- Uruchomić E3 w świeżej sesji na Opusie: `/relai-stage`.
 
 Autor: RelAI (Opus 5.5) + Lukasz

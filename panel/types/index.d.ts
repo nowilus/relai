@@ -17,6 +17,8 @@ declare module 'claude-code' {
       fills: Record<string, string>
       /** The last thing the pane sent, or why it could not: shown under the forms. */
       sent: string
+      /** The control pressed in the last moment (FLASH_MS): its card flashes; '' for none. */
+      pressed: string
     }
   }
 }

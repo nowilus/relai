@@ -1,6 +1,6 @@
 # STATE — RelAI
 
-Stan na: 2026-10-08 (E2 planu PANEL_CLAUDE i Aneks A; wydanie publiczne nadal 2.7.1)
+Stan na: 2026-10-08 (E8 planu PANEL_CLAUDE — motyw RelAI panelu; wydanie publiczne nadal 2.7.1)
 
 ## Gdzie jesteśmy
 
@@ -111,9 +111,9 @@ tryb ciągły, baza reguł optymalizatora z nakładkami rodzin modeli (`claude`,
 instalator. **Adapter Codex**: natywny manifest, 14 skilli, router `AGENTS.md`, trzy hooki (start
 sesji kopiuje listę modeli).
 
-### Panel `relai-panel` (plan PANEL_CLAUDE, po E2)
+### Panel `relai-panel` (plan PANEL_CLAUDE, po E8)
 
-Folder `panel/` — drugi plugin marketplace `relai` (źródło `./panel`, wersja 0.2.0 w
+Folder `panel/` — drugi plugin marketplace `relai` (źródło `./panel`, wersja 0.3.0 w
 `panel/.claude-plugin/plugin.json`, niewydany). Moduł hooków Claude Code Mods (`hooks/register.tsx`,
 silnik 2.1.293, „early access”) rysuje pasek `AbovePrompt`: aktywny plan i etap z `CLAUDE.md`
 i `STATUS.md`, timer cache (progi 10 i 5 min, TTL założony do pomiaru), koszt sesji
@@ -124,8 +124,16 @@ Komenda `/relai-panel` otwiera panel boczny (tylko z komendy, nigdy sam): formul
 z podglądem dokładnego tekstu i przyciskiem „Wyślij” (`$.command.run`, nazwa z `$.command.list()`),
 ściągę z `docs/KOMENDY.md` z wyszukiwaniem i frazy sesji wysyłane przyciskiem (`$.prompt.submit`).
 Bez pluginu `relai` panel niczego nie wysyła; poza RelAI komenda odpowiada jednym zdaniem.
-Formularze pilnuje test parujący je z `argument-hint` nagłówków komend. Panel na desktopie
-zmierzony na żywo 2026-10-08; wygląd czeka na etap E8 „Motyw RelAI i ikony komend” (Aneks A).
+Formularze pilnuje test parujący je z `argument-hint` nagłówków komend. Wygląd (E8, wybrany przez
+człowieka po kalibracji trzech wariantów na żywo): motyw RelAI z bloku `:root` szablonu planów
+(`core/panel/theme.mjs` — kolory przepisane i ich mieszanki na ciemne tło, kontrast tekstu na
+kartach ≥ 4,5:1 pilnowany testem), na górze „Polecane teraz” (etap, prompt, wycieczka; karta etapu
+pokazuje bieżący plan i etap), niżej trzy grupy kart z ikonami 14 komend; formularz rozwija się
+w karcie. Nagłówki Kalamem jako Svg z fontem przyciętym do liter napisu
+(`core/tools/build-panel-headings.js` → `core/panel/headings.mjs`, wymaga fontTools), ikony z
+`docs/zasoby/branding/ikony/` w module `icons.mjs` składanym przez `sync-panel-core.js`. Przyciski
+natywne aplikacji, kliknięcie odpowiada błyskiem ramki karty i etykietą „✓ Wysłano” przez 0,9 s.
+Terminal: te same karty tekstem w tych samych kolorach, bez grafiki. Ograniczenia silnika: P-018.
 Nie woła modelu, nie dopisuje nic do kontekstu, nie używa sieci. Rachunki: `core/panel/*.mjs`
 (ESM — silnik nie ładuje CommonJS ani importu spoza folderu pluginu); `panel/hooks/core/` to kopia
 bajt w bajt z `node core/tools/sync-panel-core.js`, pilnowana testem. Testy: `claude plugin test
@@ -145,7 +153,7 @@ Backupy: `C:\Users\Lukasz\Backupy\RelAI` • [PRZENOSNOSC.md](PRZENOSNOSC.md) �
 
 ### Liczby
 
-Plany zamknięte: 9 (ostatni PROWADZENIE_END_TO_END, 2026-09-24) • Aktywny: PANEL_CLAUDE (E1 zrealizowany, E2 gotowy do startu) • Start sesji:
+Plany zamknięte: 9 (ostatni PROWADZENIE_END_TO_END, 2026-09-24) • Aktywny: PANEL_CLAUDE (E1, E2 i E8 zrealizowane, E3 gotowy do startu) • Start sesji:
 **88,6 KB / 100 KB** (bez aktywnego planu; po E6 98,2 KB) • Dziennik: **158,1 KB / 150 KB** (rotacja należna) • Sekcja ryzyk: 12 otwartych, archiwum ryzyk: 4 pliki
 + 1 mitygacji • Lekcje: **45,7 KB / 50 KB**, 24 w żywym pliku • Adaptery: 3 • Komendy: 14 •
 Testy rdzenia i adapterów: 115 (z `core/panel/`) + 8 testów pluginu `relai-panel` • Projekty na RelAI: 3 (RelAI, PolyFlow, JiraManager przed migracją) •

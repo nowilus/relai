@@ -1,7 +1,9 @@
 // relai-panel: the RelAI band above the prompt. Active plan and stage from CLAUDE.md and the
 // plan's STATUS.md, a prompt-cache timer, the session's hypothetical API cost. The /relai-panel
 // command opens a side pane with the forms of the 14 RelAI commands, the cheat sheet and the
-// session phrases.
+// session phrases, drawn in the RelAI motif (E8): cards with the command icons, Kalam headings,
+// three recommended commands on top. A desktop draws the SVG; the terminal gets the same cards
+// as text, in the same colors.
 //
 // The mod draws and calls; the core counts (plan PANEL_CLAUDE, section 5). Everything the band
 // reckons with lives in ./core/*.mjs: a byte-identical copy of core/panel/ written by
@@ -12,7 +14,7 @@
 // so the band hides its own timer (plan, section 8).
 
 import { atom, read, update } from 'claude-code'
-import type { EngineInterface, Register } from 'claude-code'
+import type { EngineInterface, Register, RenderChildren } from 'claude-code'
 import { DEFAULT_WARN_MIN, MIN, UNMEASURED, applyVerdict, cacheState, dueWarning, effectiveTtl, judgeStep, msLeft, totalInput } from './core/cache-timer.mjs'
 import type { TtlState, Usage } from './core/cache-timer.mjs'
 import { planState } from './core/plan-state.mjs'
@@ -23,6 +25,9 @@ import { FORMS, buildCommand, formOf, isShown, resolveName, valueOf } from './co
 import type { Field, Form } from './core/commands.mjs'
 import { buildPhrase, parseSheet, searchSheet } from './core/phrases.mjs'
 import type { Phrase, Sheet } from './core/phrases.mjs'
+import { FEATURED, GROUPS, NAMES, THEME, glyph, iconName } from './core/theme.mjs'
+import { HEADING_ART } from './core/headings.mjs'
+import { ICONS } from './core/icons.mjs'
 
 type $T = EngineInterface
 
@@ -176,6 +181,15 @@ const values = atom({ plugin: 'relai-panel', key: 'values' } as const, {} as Rec
 const query = atom({ plugin: 'relai-panel', key: 'query' } as const, '')
 const fills = atom({ plugin: 'relai-panel', key: 'fills' } as const, {} as Record<string, string>)
 const sent = atom({ plugin: 'relai-panel', key: 'sent' } as const, '')
+const pressed = atom({ plugin: 'relai-panel', key: 'pressed' } as const, '')
+
+// How long a press answers: the card of the pressed control flashes, a send says "Wysłano"
+const FLASH_MS = 900
+
+function flash($: $T, key: string) {
+  void update($, pressed, () => key)
+  $.clock.after(FLASH_MS, () => { void update($, pressed, (k) => (k === key ? '' : k)) })
+}
 
 // The Select of a choice cannot hold an empty value: '' travels as this one
 const NONE = '_'
@@ -223,9 +237,10 @@ function formValues(all: Record<string, string>, form: Form): Record<string, str
   return out
 }
 
-// What a description says before its first dash: the line the typeahead shows, cut to the room
-function short(description: string, max: number): string {
-  return clip(description.split(' — ')[0] ?? description, max)
+// What the recommended stage card says under its purpose: the plan and stage the band shows
+function stageHint(plan: PlanState): string {
+  if (plan.kind !== 'ok') return ''
+  return plan.stage ? `${plan.plan} · ${plan.stage.id} ${plan.stage.name}` : `${plan.plan} · wszystkie etapy zamknięte`
 }
 
 async function sendCommand($: $T, name: string, args: string, text: string) {
@@ -289,20 +304,74 @@ export const register: Register = (on) => {
       const { Text } = $.ui.resolve(e)
       return <Text>Formularze RelAI wymagają terminala albo aplikacji desktopowej.</Text>
     }
-    const { Box, Text, Button, Input, Select } = $.ui.resolve(e)
+    const el = $.ui.resolve(e)
+    const { Box, Text, Button, Input, Select } = el
+    // A desktop draws SVG: icons and Kalam headings. The terminal gets text in the same colors.
+    // Decided by the surface, not by `'Svg' in el`: the terminal's table carries the key at run
+    // time and drops what it draws (2.1.293, measured by theme.test.ts in E8).
+    const Svg = (e.surface === 'desktop' || e.surface === 'vscode') && 'Svg' in el ? el.Svg : null
+    const isGui = Svg !== null
     if (!isRelai) return <Box key="not-relai"><Text>{NOT_RELAI}</Text></Box>
     const d = data ?? (await loadData($, cwd))
     const width = Math.max(30, e.props.bodyColumns)
-    const [tab, picked, all, q, filled, last] = await Promise.all([
-      read($, view), read($, selected), read($, values), read($, query), read($, fills), read($, sent),
+    const [tab, picked, all, q, filled, last, flashed] = await Promise.all([
+      read($, view), read($, selected), read($, values), read($, query), read($, fills), read($, sent), read($, pressed),
     ])
+    const pick = (c: string) => { void update($, selected, (s) => (s === c ? '' : c)) }
 
-    const tabs = (['commands', 'sheet', 'phrases'] as const).map((v) => (
-      <Button key={`tab-${v}`} variant={v === tab ? 'primary' : 'secondary'}
-        onPress={() => { void update($, view, () => v) }}>
-        {v === 'commands' ? 'Komendy' : v === 'sheet' ? 'Ściąga' : 'Frazy'}
+    // ---------- the pane's parts: one look for every tab and every later section ----------
+    const heading = (key: string, color: string = THEME.mark) => {
+      const art = HEADING_ART[key]
+      if (Svg && art) return <Svg key={`h-${key}`} source={art.svg} alt={art.text} width={art.width} height={art.height} />
+      return <Text bold color={color}>{art?.text ?? key}</Text>
+    }
+    const icon = (c: string, px: number) => {
+      const source = ICONS[iconName(c)]
+      if (Svg && source) return <Svg key={`icon-${c}`} source={source} alt={NAMES[c]?.[0] ?? c} width={px} height={px} />
+      return <Text color={THEME.accent}>●</Text>
+    }
+    const mark = (name: string, color: string, px: number, alt: string) => {
+      const source = glyph(name, color, px)
+      if (Svg && source) return <Svg key={`g-${name}-${px}`} source={source} alt={alt} width={px} height={px} />
+      return <Text color={color}>●</Text>
+    }
+    // Every control is the surface's own button (calibration 2026-10-08): a `plain` button in a
+    // painted box inverts under the pointer and that cannot be turned off, so the brand stays in
+    // the cards and the press answers by itself: the control's card flashes and, where a press
+    // sends something, the label says so for FLASH_MS.
+    const isFlash = (key: string) => flashed === key
+    const btn = (key: string, label: string, kind: 'primary' | 'secondary', onPress: () => void, doneLabel?: string) => (
+      <Button key={key} variant={kind} onPress={() => { onPress(); flash($, key) }}>
+        {doneLabel && isFlash(key) ? doneLabel : label}
       </Button>
-    ))
+    )
+    const flashBorder = (key: string, rest: string) => (isFlash(key) ? THEME.pressed : rest)
+    // A section: Kalam heading, one line saying what it is for, then its cards
+    const section = (key: string, head: string, about: string, items: RenderChildren[]) => (
+      <Box key={key} flexDirection="column" gap={isGui ? 1 : 0}>
+        {heading(head)}
+        {about ? [<Text key={`${key}-about`} color={THEME.body}>{about}</Text>] : []}
+        {items}
+      </Box>
+    )
+    // A card: rounded and filled on a desktop; on the terminal only the selected one is framed
+    const frame = (isOn: boolean) => (isGui || isOn ? { borderStyle: 'round' } : {})
+    // The exact text that goes to the chat, in a well of its own
+    const well = (key: string, text: string, isOk: boolean) => (
+      <Box key={key} paddingX={1} {...frame(false)} borderColor={THEME.line} backgroundColor={THEME.card}>
+        <Text color={isOk ? THEME.title : THEME.accentText}>{isOk ? [<Text key={`${key}-l`} color={THEME.mark} bold>{'Do czatu pójdzie: '}</Text>, text] : text}</Text>
+      </Box>
+    )
+    const sentLine = last
+      ? <Box key="sent"><Text color={last.startsWith('Wysłano') ? THEME.ok : THEME.accentText}>{(last.startsWith('Wysłano') ? '✓ ' : '✗ ') + last}</Text></Box>
+      : null
+
+    const TABS = [['commands', 'Komendy'], ['sheet', 'Ściąga'], ['phrases', 'Frazy']] as const
+    const tabs = (
+      <Box key="tabs" flexDirection="row" flexWrap="wrap" gap={1}>
+        {TABS.map(([v, label]) => btn(`tab-${v}`, label, v === tab ? 'primary' : 'secondary', () => { void update($, view, () => v) }))}
+      </Box>
+    )
 
     // ---------- commands ----------
     const fieldEl = (form: Form, f: Field, current: Record<string, string>) => {
@@ -322,106 +391,160 @@ export const register: Register = (on) => {
       )
     }
 
-    const commandsView = () => {
-      const rows = FORMS.map((f) => {
-        const name = d.names[f.command] ?? null
-        return (
-          <Box key={`row-${f.command}`} flexDirection="row">
-            <Button key={`cmd-${f.command}`} plain variant={f.command === picked ? 'primary' : 'secondary'}
-              onPress={() => { void update($, selected, (s) => (s === f.command ? '' : f.command)) }}>
-              {'/' + f.command}
-            </Button>
-            <Text dimColor>{' ' + (name === null ? '(niedostępna w tej sesji)' : short(d.descriptions[f.command] ?? '', width - f.command.length - 4))}</Text>
-          </Box>
-        )
-      })
-      const form = picked ? formOf(picked) : undefined
-      if (!form) return [...rows, <Box key="hint"><Text dimColor>Wybierz komendę, żeby zobaczyć jej opcje.</Text></Box>]
+    // The open form of a card: options, the exact text, then "Wyślij" only when it can go out
+    const drawer = (form: Form) => {
       const current = formValues(all, form)
       const name = d.names[form.command] ?? null
       const built = buildCommand(form, current, name ?? form.command)
       const fields = form.fields.filter((f) => isShown(f, current)).map((f) => fieldEl(form, f, current))
       const canSend = built.isOk && name !== null
-      return [
-        ...rows,
-        <Box key="form" flexDirection="column" marginTop={1}>
-          <Text bold>{`/${form.command} — opcje`}</Text>
-          {fields.length ? fields : [<Text key="no-options" dimColor>Ta komenda nie ma opcji.</Text>]}
-        </Box>,
-        <Box key="preview"><Text>{`Do czatu pójdzie: ${built.text}`}</Text></Box>,
-        ...(built.errors.length ? [<Box key="errors"><Text color="red">{built.errors.join(' · ')}</Text></Box>] : []),
-        canSend
-          ? <Button key="send" variant="primary" onPress={() => { void sendCommand($, name, built.args, built.text) }}>Wyślij</Button>
-          : <Box key="no-send"><Text dimColor>{name === null ? 'Komenda niedostępna w tej sesji — nic nie zostanie wysłane.' : 'Popraw opcje, żeby wysłać.'}</Text></Box>,
-      ]
+      return (
+        <Box key="form" flexDirection="column" gap={isGui ? 1 : 0} paddingX={isGui ? 2 : 1} paddingY={isGui ? 1 : 0}
+          borderStyle="round" borderColor={flashBorder('send', THEME.accent)} backgroundColor={THEME.cardOn}>
+          {heading(`name-${form.command}`, THEME.accentText)}
+          {fields.length ? fields : [<Text key="no-options" color={THEME.body}>Ta komenda nie ma opcji — wystarczy ją wysłać.</Text>]}
+          <Box key="preview" flexDirection="column">{well('preview-well', built.text, true)}</Box>
+          {built.errors.length ? [<Box key="errors"><Text color={THEME.accentText}>{'⚠ ' + built.errors.join(' · ')}</Text></Box>] : []}
+          {canSend
+            ? <Box key="actions" flexDirection="row" flexWrap="wrap" gap={1}>
+                {btn('send', 'Wyślij do czatu', 'primary', () => { void sendCommand($, name, built.args, built.text) }, '✓ Wysłano')}
+                {btn('close', 'Zamknij', 'secondary', () => pick(form.command))}
+              </Box>
+            : <Box key="no-send"><Text color={THEME.body}>{name === null ? 'Komenda niedostępna w tej sesji — nic nie zostanie wysłane.' : 'Popraw opcje, żeby wysłać.'}</Text></Box>}
+          {sentLine ? [sentLine] : []}
+        </Box>
+      )
     }
+
+    const card = (c: string, isFeatured: boolean) => {
+      const name = d.names[c] ?? null
+      const isOn = c === picked
+      const [title, purpose] = NAMES[c] ?? [c, '']
+      const hint = isFeatured && c === 'relai-stage' ? stageHint(S.plan) : ''
+      const border = isOn ? THEME.accent : name === null ? THEME.lineOff : isFeatured ? THEME.mark : THEME.line
+      const form = isOn ? formOf(c) : undefined
+      return (
+        <Box key={`card-${c}`} flexDirection="column">
+          <Box key={`row-${c}`} flexDirection="row" alignItems="center" gap={isGui ? 2 : 1}
+            paddingX={isFeatured && isGui ? 2 : 1} paddingY={isGui ? 1 : 0} {...frame(isOn)} borderColor={flashBorder(`cmd-${c}`, border)}
+            backgroundColor={isOn ? THEME.cardOn : isFeatured ? THEME.cardFeatured : THEME.card} hover={{ borderColor: THEME.accent }}>
+            {icon(c, isFeatured ? 48 : 36)}
+            <Box key={`text-${c}`} flexDirection="column" flexGrow={1} flexShrink={1}>
+              <Text bold color={isFeatured ? THEME.mark : THEME.title} wrap="truncate">{title}</Text>
+              <Text color={THEME.body} wrap="truncate">{name === null ? 'niedostępna w tej sesji' : purpose}</Text>
+              {hint ? [<Text key={`hint-${c}`} color={THEME.accentText} wrap="truncate">{hint}</Text>] : []}
+            </Box>
+            {btn(`cmd-${c}`, '/' + c, isOn || isFeatured ? 'primary' : 'secondary', () => pick(c))}
+          </Box>
+          {form ? [drawer(form)] : []}
+        </Box>
+      )
+    }
+
+    const commandsView = () => [
+      section('featured', 'featured', '', FEATURED.map((c) => card(c, true))),
+      ...GROUPS.map((g) => section(`group-${g.id}`, `group-${g.id}`, '', g.commands.map((c) => card(c, false)))),
+    ]
 
     // ---------- cheat sheet ----------
     const sheetView = () => {
-      if (d.sheet.reason) return [<Box key="sheet-reason"><Text dimColor>{d.sheet.reason}</Text></Box>]
+      if (d.sheet.reason) return [<Box key="sheet-reason"><Text color={THEME.body}>{d.sheet.reason}</Text></Box>]
       const hit = searchSheet(d.sheet, q)
+      const commands = hit.commands.map((r) => (
+        <Box key={`sheet-${r.command}`} flexDirection="row" alignItems="center" gap={isGui ? 2 : 1}
+          paddingX={1} paddingY={isGui ? 1 : 0} {...frame(false)} borderColor={THEME.line} backgroundColor={THEME.card} hover={{ borderColor: THEME.accent }}>
+          {icon(r.command, 32)}
+          <Box key={`sheet-text-${r.command}`} flexDirection="column" flexGrow={1} flexShrink={1}>
+            <Text bold color={THEME.title}>{r.forms.join(' · ')}</Text>
+            <Text color={THEME.body}>{clip(r.what, width * 2)}</Text>
+          </Box>
+          {btn(`open-${r.command}`, 'Formularz', 'secondary',
+            () => { void update($, selected, () => r.command).then(() => update($, view, () => 'commands' as const)) })}
+        </Box>
+      ))
+      const phrases = hit.phrases.map((p, i) => (
+        <Box key={`sheet-ph-${i}`} flexDirection="row" alignItems="center" gap={isGui ? 2 : 1}
+          paddingX={1} paddingY={isGui ? 1 : 0} {...frame(false)} borderColor={THEME.line} backgroundColor={THEME.card}>
+          {mark('phrases', THEME.mark, 28, 'fraza')}
+          <Box key={`sheet-ph-text-${i}`} flexDirection="column" flexGrow={1} flexShrink={1}>
+            <Text bold color={THEME.mark}>{p.phrases.map((x) => `„${x}”`).join(' / ')}</Text>
+            <Text color={THEME.body}>{clip(p.effect, width * 2)}</Text>
+          </Box>
+        </Box>
+      ))
+      const none = hit.commands.length + hit.phrases.length === 0 ? [<Box key="sheet-none"><Text color={THEME.body}>Nic nie pasuje.</Text></Box>] : []
       return [
-        <Input key="search" label="Szukaj: " value={q} placeholder="np. backup"
-          onInput={(v) => { void update($, query, () => v) }} onSubmit={(v) => { void update($, query, () => v) }} />,
-        ...hit.commands.map((r) => (
-          <Box key={`sheet-${r.command}`} flexDirection="column">
-            <Box key={`sheet-head-${r.command}`} flexDirection="row">
-              <Text bold>{r.forms.join(' · ')}</Text>
-              <Button key={`open-${r.command}`} plain dimColor
-                onPress={() => { void update($, selected, () => r.command).then(() => update($, view, () => 'commands' as const)) }}>
-                {' formularz'}
-              </Button>
-            </Box>
-            <Text dimColor>{clip(r.what, width * 2)}</Text>
-          </Box>
-        )),
-        ...hit.phrases.map((p, i) => (
-          <Box key={`sheet-ph-${i}`} flexDirection="column">
-            <Text bold>{p.phrases.map((x) => `„${x}”`).join(' / ')}</Text>
-            <Text dimColor>{clip(p.effect, width * 2)}</Text>
-          </Box>
-        )),
-        ...(hit.commands.length + hit.phrases.length === 0 ? [<Box key="sheet-none"><Text dimColor>Nic nie pasuje.</Text></Box>] : []),
+        section('sheet', 'sheet', 'Komendy i frazy z docs/KOMENDY.md — wpisz słowo, żeby zawęzić.', [
+          <Input key="search" label="Szukaj: " value={q} placeholder="np. backup"
+            onInput={(v) => { void update($, query, () => v) }} onSubmit={(v) => { void update($, query, () => v) }} />,
+          ...commands, ...phrases, ...none,
+        ]),
       ]
     }
 
     // ---------- phrases ----------
-    const phraseEl = (p: Phrase, i: number) => {
+    // One click: the phrase is the button; its effect under it, the bubble on the left
+    const readyCard = (p: Phrase, i: number) => {
+      const canSend = buildPhrase(p, '').isOk && d.hasRelai
+      return (
+        <Box key={`ph-${i}`} flexDirection="row" alignItems="center" gap={isGui ? 2 : 1} paddingX={isGui ? 2 : 1} paddingY={isGui ? 1 : 0}
+          {...frame(false)} borderColor={flashBorder(`phrase-${i}`, THEME.line)} backgroundColor={THEME.card} hover={{ borderColor: THEME.accent }}>
+          {mark('phrases', THEME.mark, 32, 'fraza')}
+          <Box key={`ph-body-${i}`} flexDirection="column" gap={isGui ? 1 : 0} flexGrow={1} flexShrink={1} alignItems="flex-start">
+            {canSend
+              ? btn(`phrase-${i}`, p.phrase, 'primary', () => { void sendPhrase($, p.phrase) }, '✓ ' + p.phrase)
+              : <Text key={`phrase-text-${i}`} bold color={THEME.title}>{`„${p.phrase}”`}</Text>}
+            <Text color={THEME.body}>{clip(p.effect, width * 2)}</Text>
+          </Box>
+        </Box>
+      )
+    }
+    // To complete: the same order as a command form — what it does, the field, the exact text, send
+    const fillCard = (p: Phrase, i: number) => {
       const built = buildPhrase(p, filled[p.phrase] ?? '')
       const canSend = built.isOk && d.hasRelai
-      const send = () => { void sendPhrase($, built.text) }
-      if (!p.isTemplate) {
-        return (
-          <Box key={`ph-${i}`} flexDirection="column">
-            {canSend
-              ? <Button key={`phrase-${i}`} onPress={send}>{p.phrase}</Button>
-              : <Text key={`phrase-text-${i}`}>{p.phrase}</Text>}
-            <Text dimColor>{clip(p.effect, width * 2)}</Text>
-          </Box>
-        )
-      }
       return (
-        <Box key={`ph-${i}`} flexDirection="column">
-          <Input key={`fill-${i}`} label={p.phrase.replace('…', '___') + ': '} value={filled[p.phrase] ?? ''} placeholder="uzupełnij „…”"
+        <Box key={`ph-${i}`} flexDirection="column" gap={isGui ? 1 : 0} paddingX={isGui ? 2 : 1} paddingY={isGui ? 1 : 0}
+          {...frame(false)} borderColor={flashBorder(`phrase-${i}`, THEME.line)} backgroundColor={THEME.card}>
+          <Box key={`ph-head-${i}`} flexDirection="row" alignItems="center" gap={isGui ? 2 : 1}>
+            {mark('fill', THEME.accentText, 32, 'fraza do uzupełnienia')}
+            <Box key={`ph-title-${i}`} flexDirection="column" flexGrow={1} flexShrink={1}>
+              <Text bold color={THEME.title}>{`„${p.phrase}”`}</Text>
+              <Text color={THEME.body}>{clip(p.effect, width * 2)}</Text>
+            </Box>
+          </Box>
+          <Input key={`fill-${i}`} label="Uzupełnij: " value={filled[p.phrase] ?? ''} placeholder="w miejsce „…”"
             onInput={(v) => { void update($, fills, (m) => ({ ...m, [p.phrase]: v })) }}
             onSubmit={(v) => { void update($, fills, (m) => ({ ...m, [p.phrase]: v })) }} />
-          <Box key={`ph-prev-${i}`}><Text>{built.isOk ? `Do czatu pójdzie: ${built.text}` : (built.error ?? '')}</Text></Box>
-          {canSend ? <Button key={`phrase-${i}`} onPress={send}>Wyślij</Button> : <Text dimColor>{clip(p.effect, width * 2)}</Text>}
+          <Box key={`ph-prev-${i}`} flexDirection="column">{well(`ph-well-${i}`, built.isOk ? built.text : (built.error ?? ''), built.isOk)}</Box>
+          {canSend ? [<Box key={`ph-act-${i}`} flexDirection="row">{btn(`phrase-${i}`, 'Wyślij do czatu', 'primary', () => { void sendPhrase($, built.text) }, '✓ Wysłano')}</Box>] : []}
         </Box>
       )
     }
     const phrasesView = () => {
-      if (d.sheet.reason) return [<Box key="sheet-reason"><Text dimColor>{d.sheet.reason}</Text></Box>]
-      return d.sheet.phrases.map(phraseEl)
+      if (d.sheet.reason) return [<Box key="sheet-reason"><Text color={THEME.body}>{d.sheet.reason}</Text></Box>]
+      const indexed = d.sheet.phrases.map((p, i) => [p, i] as const)
+      const ready = indexed.filter(([p]) => !p.isTemplate).map(([p, i]) => readyCard(p, i))
+      const toFill = indexed.filter(([p]) => p.isTemplate).map(([p, i]) => fillCard(p, i))
+      return [
+        heading('phrases'),
+        ...(ready.length ? [section('phrases-ready', 'phrases-ready', 'Kliknij frazę — pójdzie do czatu tak, jakbyś ją napisał.', ready)] : []),
+        ...(toFill.length ? [section('phrases-fill', 'phrases-fill', 'Wpisz brakującą część, sprawdź podgląd i wyślij.', toFill)] : []),
+      ]
     }
 
     const body = tab === 'commands' ? commandsView() : tab === 'sheet' ? sheetView() : phrasesView()
+    const isSentInDrawer = tab === 'commands' && picked !== '' && formOf(picked) !== undefined
     return (
-      <Box key="relai-pane" flexDirection="column">
-        <Box key="tabs" flexDirection="row">{tabs}</Box>
-        {d.hasRelai ? [] : [<Box key="no-relai"><Text color="yellow">{NO_RELAI}</Text></Box>]}
-        <Box key="body" flexDirection="column">{body}</Box>
-        {last ? [<Box key="sent"><Text dimColor>{last}</Text></Box>] : []}
+      <Box key="relai-pane" flexDirection="column" gap={1} paddingX={isGui ? 1 : 0}>
+        <Box key="hero" flexDirection="column">
+          {heading('hero', THEME.accent)}
+          <Text dimColor>{`${FORMS.length} komend RelAI · kliknij komendę, żeby otworzyć jej formularz`}</Text>
+        </Box>
+        {tabs}
+        {d.hasRelai ? [] : [<Box key="no-relai"><Text color={THEME.mark}>{NO_RELAI}</Text></Box>]}
+        <Box key="body" flexDirection="column" gap={isGui ? 2 : 1}>{body}</Box>
+        {sentLine && !isSentInDrawer ? [sentLine] : []}
       </Box>
     )
   })
