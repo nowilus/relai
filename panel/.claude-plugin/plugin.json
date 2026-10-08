@@ -1,0 +1,9 @@
+{
+  "name": "relai-panel",
+  "version": "0.1.1",
+  "author": { "name": "nowilus", "url": "https://github.com/nowilus" },
+  "description": "RelAI panel for Claude Code (early access mods): a band above the prompt with the active plan and stage, a prompt-cache timer and the session's hypothetical API cost. Silent outside RelAI projects.",
+  "homepage": "https://github.com/nowilus/relai",
+  "repository": "https://github.com/nowilus/relai",
+  "license": "MIT"
+}

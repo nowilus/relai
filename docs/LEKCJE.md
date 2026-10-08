@@ -38,8 +38,10 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
    etap wykona. **Etap przenoszący treść liczy metrykę treści na całym pakiecie** (plik źródłowy
    + pliki docelowe), bo sam plik źródłowy pokazuje przeprowadzkę, nie zmianę. **Kryterium liczące
    wywołania narzędzia zaczynasz od listy narzędzi w `init` trybu pomiaru** — narzędzia nieobecnego
-   (AskUserQuestion w `claude -p`) nie da się policzyć, a zero wygląda jak sukces. (L-0017, L-0018,
-   L-0040, L-0051, L-0052, L-0063, L-0069, L-0082, L-0115, L-0117, L-0123)
+   (AskUserQuestion w `claude -p`) nie da się policzyć, a zero wygląda jak sukces. **Kryterium
+   wyszukujące wzorzec nie przeszukuje plików, które ten wzorzec cytują** — prompt etapu łapie sam
+   siebie. (L-0017, L-0018,
+   L-0040, L-0051, L-0052, L-0063, L-0069, L-0082, L-0115, L-0117, L-0123, L-0134)
 5. **Instrument pomiarowy sam bywa źródłem fałszu:** wyrażenia regularne trzymaj w pliku zapisanym
    narzędziem zapisu, nie w `node -e` ani w heredoku, a tekst z backslashem (także ścieżkę
    Windows) wstawiasz Edit/Write albo piszesz z `/` (L-0116, L-0119); scenariusz „konfiguracji nie ma" mierz z podstawionym katalogiem domowym; dokładaj
@@ -111,11 +113,13 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
    hook sprawdzasz `node --check` i liczysz w transkrypcie zdanie, które ma wstrzyknąć** — zero
    trafień unieważnia przebieg (L-0127). **Kontrola spójności puszczona po historii commitów mierzy
    inną semantykę niż na drzewie roboczym** — trafienia dzielisz na „naprawione później" i „nigdy",
-   zanim nazwiesz je defektem (L-0131).
+   zanim nazwiesz je defektem (L-0131). **Wiersz z backslashem w kodzie wstawiasz tylko Edit/Write,
+   także przy edycji zbiorczej** — skrypt Pythona z heredoku zgubił poziom ucieczki dwa razy w jednym
+   etapie (L-0135).
    (L-0032, L-0037, L-0095, L-0096, L-0105, L-0106, L-0107, L-0110, L-0111, L-0113,
    L-0097, L-0101, L-0102,
    L-0054, L-0055, L-0056, L-0064, L-0068, L-0071, L-0073, L-0083, L-0084, L-0086, L-0087, L-0088,
-   L-0090, L-0091, L-0124, L-0125, L-0130, L-0131)
+   L-0090, L-0091, L-0124, L-0125, L-0130, L-0131, L-0135)
 6. **Próg jest liczbą, którą ktoś liczy:** kalibruj go na zmierzonych plikach realnych projektów,
    zapisuj w jednostce mechanizmu kontrolnego wraz z komendą sprawdzającą i daj mu **jeden**
    wyzwalacz — wielkości pomocnicze wskazują przyczynę wewnątrz komunikatu, nie wywołują go.
@@ -196,8 +200,10 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
     sygnału konfrontuj najpierw z **warunkiem milczenia** mechanizmu. Gdy narzędzie nie przyjmuje
     Twojego artefaktu, **najpierw sięgnij po jego własny walidator albo widok statusu**
     (`<narzędzie> validate`, `<narzędzie> list`, okno ustawień) — zna schemat, którego nie
-    odtworzysz z obserwacji, a cisza w logu nie jest dowodem poprawności. (L-0041, L-0042, L-0044,
-    L-0047, L-0092)
+    odtworzysz z obserwacji, a cisza w logu nie jest dowodem poprawności. **Zielony walidator, typy
+    i testy modu nie dowodzą zachowania w łańcuchu wtyczek** — to mierzysz na żywo, a ciszę na żywo
+    najpierw sondą (licznik wywołań hooka, wynik `next`) (P-017). (L-0041, L-0042, L-0044,
+    L-0047, L-0092, L-0133)
 14. **Najpierw zmiana w repozytorium, potem zdanie, które ją opisuje.** Weryfikację planuj tam,
     gdzie jest wykonalna; po pytaniu sprzątasz sam (martwy link nie jest poprawną wartością
     tymczasową); przy wyprowadzaniu pozycji jednostką inwentarza jest **sprawa**, nie linia.
@@ -524,6 +530,39 @@ restart aplikacji po `plugin update` (L-0031), `git worktree` zamiast `git archi
   `grep -v` po nazwie na wyjściu; przy podbiciu wersji po edycji puszczasz ten sam grep bez
   filtrów i czytasz każdy wiersz, który został.
 - **Źródło:** sesja 2026-09-28, poprawka 2.7.1; naprawione w repo, trafi do następnego wydania.
+
+### L-0133 — Pasek zielony w trzech kontrolach i pusty na żywo · 2026-10-08 · AKTYWNA
+
+- **Trigger:** `relai-panel` przeszedł `plugin validate`, `tsc` strict i `plugin test` 8/8, a na
+  żywo nie narysował niczego — dwa razy, z dwóch różnych powodów (zasłonięty przez moda wyżej
+  w łańcuchu; potem węzeł silnika pod `Box` z `width` odrzucony razem z paskiem drugiego moda).
+- **Przyczyna:** test podkłada pod wtyczkę własny hook i własne drzewo; ani kolejności wtyczek, ani
+  węzła `{ type: 'engine' }` w nim nie ma, więc to, co odróżnia sesję od testu, jest poza pomiarem.
+- **Zasada:** zachowanie modu zależne od łańcucha (pasek, owijanie `next`) dowodzisz **na żywo**,
+  a ciszę na żywo mierzysz najpierw sondą — licznik wywołań hooka i to, co zwraca `next` — zanim
+  zmienisz kod; poprawkę cudzego moda dowodzisz testem, który oblewa na starym kodzie.
+- **Źródło:** E1 planu PANEL_CLAUDE, P-017; destylat: dopisane do zasady 13.
+
+### L-0134 — Kryterium cytujące wzorzec łapie samo siebie · 2026-10-08 · AKTYWNA
+
+- **Trigger:** punkt „`git grep -nE "sk-ant-|ANTHROPIC_API_KEY="` nie zwraca nic" zwrócił 2 trafienia:
+  sam `PROMPT_ETAP_1.md`, który tę komendę cytuje, i opis z archiwum dziennika.
+- **Przyczyna:** prompt etapu jest plikiem śledzonym w tym samym repo, które kryterium przeszukuje.
+- **Zasada:** kryterium wyszukujące wzorzec stawiasz na plikach etapu albo z wykluczeniem plików,
+  które go opisują — i sprawdzasz je na materiale **przy pisaniu promptu**; punkt nieosiągalny
+  w brzmieniu idzie do człowieka (tu: zaliczony z adnotacją).
+- **Źródło:** E1 planu PANEL_CLAUDE; destylat: dopisane do zasady 4.
+
+### L-0135 — Backslash w edycji TS przez `python -` z heredoku, dwa razy w jednym etapie · 2026-10-08 · AKTYWNA
+
+- **Trigger:** `/\\/g` i `'\\n'` wstawione do `.ts`/`.tsx` skryptem Pythona z heredoku dały
+  `Unterminated string literal` — dwa razy w E1, mimo reguły w `CLAUDE.md` (powtórzenie L-0130).
+- **Przyczyna:** ucieczka przeszła przez dwa literały (Python, potem TS) i zgubiła jeden poziom;
+  reguła mówi o skryptach, a tu „skryptem" była sama edycja.
+- **Zasada:** wiersz z backslashem w kodzie wstawiasz wyłącznie narzędziem Edit/Write; zbiorcza
+  edycja Pythonem omija takie wiersze, a po każdej edycji kodu uruchamiasz `plugin validate` /
+  test przed następnym krokiem.
+- **Źródło:** E1 planu PANEL_CLAUDE; destylat: dopisane do zasady 5.
 
 ## Lekcje zwinięte
 

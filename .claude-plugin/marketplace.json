@@ -24,6 +24,20 @@
         "planning",
         "workflow"
       ]
+    },
+    {
+      "name": "relai-panel",
+      "source": "./panel",
+      "description": "RelAI panel for Claude Code (early access mods): active plan and stage, prompt-cache timer and session cost above the prompt",
+      "category": "productivity",
+      "homepage": "https://github.com/nowilus/relai",
+      "repository": "https://github.com/nowilus/relai",
+      "keywords": [
+        "relai",
+        "panel",
+        "mods",
+        "prompt-cache"
+      ]
     }
   ]
 }

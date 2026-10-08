@@ -1,6 +1,6 @@
 # STATE — RelAI
 
-Stan na: 2026-10-08 (wywiad o panelu wizualnym; wydanie publiczne nadal 2.7.1)
+Stan na: 2026-10-08 (E1 planu PANEL_CLAUDE; wydanie publiczne nadal 2.7.1)
 
 ## Gdzie jesteśmy
 
@@ -11,7 +11,7 @@ restarcie. Poprzednie wydanie, 2.7.0, zamknęło etapy E5–E7 planu PROWADZENIE
 jednym rdzeniu procesu, z czternastoma komendami. Plan dał lżejszy start sesji, skille czytane
 na żądanie, prompty skrojone pod model, README od pierwszego kroku, procedury dla usterki i pierwszego
 wdrożenia, a na koniec pilnowanie jakości: „gotowe" przychodzi z wynikiem testów, niedomknięty rytuał
-jest zgłaszany na starcie, a członek załogi nie kończy samym meldunkiem. Aktywnego planu nie ma.
+jest zgłaszany na starcie, a członek załogi nie kończy samym meldunkiem. Aktywny plan: PANEL_CLAUDE.
 Opinii spoza projektu nadal nie ma — pilotaż z użytkownikami zamknięto przed wysyłką zaproszeń.
 
 ## Co działa
@@ -45,18 +45,22 @@ Opinii spoza projektu nadal nie ma — pilotaż z użytkownikami zamknięto prze
 
 ## Nad czym pracujemy teraz
 
-- Przygotowanie planu panelu wizualnego RelAI: wywiad o 14 komendach, dodatkowych frazach,
-  lokalnym śledzeniu pracy, kosztach API i timerze cache zakończony. Ustalenia:
-  [WYWIAD.md](zasoby/PANEL_RELAI/WYWIAD.md). Panel Codeksa: plan HTML w toku w sesji Codeksa.
+- Plan Codeksa [PANEL_CODEX](plany/PANEL_CODEX/STATUS.md) przygotowany jako osobny HTML,
+  **DO AKCEPTACJI**, realizacja dopiero po pełnym zamknięciu PANEL_CLAUDE. Autor i wykonawca:
+  **gpt-6.1-sol w Codeksie**. Pełny zakres wywiadu zachowany; 8 etapów, checklist przejęcia
+  rdzenia i symulator API w planie. Żaden etap nie rozpoczęty, brak promptu E1 przed akceptacją.
+
 - Panel dla Claude Code ma osobny plan [PANEL_CLAUDE](plany/PANEL_CLAUDE/STATUS.md) (7 etapów,
   **ZAAKCEPTOWANY** 2026-10-08): plugin `relai-panel` na Claude Code Mods, wspólny rdzeń
   `core/panel/`. Autor: Opus 5.5 — wyjątek od reguły Fable, decyzja człowieka. Aneks do D-80
-  (GUI i telemetria kosztów w zakresie) wpisany; E1 gotowy do startu w świeżej sesji Opus.
+  (GUI i telemetria kosztów w zakresie) wpisany. **E1 w repo (2026-10-08):** pasek RelAI nad
+  promptem — plan, etap, timer cache, koszt sesji; plugin niewydany (wydanie to E7).
 
 ## Co dalej
 
-- Osobny plan HTML panelu na podstawie wywiadu, po rozstrzygnięciu autora. Format i wykonawca
-  etapów z ustawień projektu: HTML i Opus. Plan będzie wymagał akceptacji przed implementacją.
+- Akceptacja [PANEL_CODEX](plany/PANEL_CODEX/PLAN.html) i zakresu adaptera Codeksa w D-80;
+  wykonanie po pełnym zamknięciu PANEL_CLAUDE oraz przejęciu jego rdzenia i testów.
+  PANEL_CLAUDE pozostaje aktywny.
 - **Restart aplikacji desktopowej**, żeby sesje ładowały 2.7.1 (P-005) — instalacja i cache
   `relai/relai/2.7.1` już są, sumy plików zgodne z repo. Potem pierwszy start sesji
   w ExpensesManager kładzie `package.json` przy kopiach narzędzi; obejście `.cjs` przestaje być
@@ -107,6 +111,20 @@ tryb ciągły, baza reguł optymalizatora z nakładkami rodzin modeli (`claude`,
 instalator. **Adapter Codex**: natywny manifest, 14 skilli, router `AGENTS.md`, trzy hooki (start
 sesji kopiuje listę modeli).
 
+### Panel `relai-panel` (plan PANEL_CLAUDE, po E1)
+
+Folder `panel/` — drugi plugin marketplace `relai` (źródło `./panel`, wersja 0.1.1 w
+`panel/.claude-plugin/plugin.json`, niewydany). Moduł hooków Claude Code Mods (`hooks/register.tsx`,
+silnik 2.1.293, „early access”) rysuje pasek `AbovePrompt`: aktywny plan i etap z `CLAUDE.md`
+i `STATUS.md`, timer cache (progi 10 i 5 min, TTL założony do pomiaru), koszt sesji
+z `$.session.usage()` jako hipotetyczny koszt API. Poza projektem RelAI milczy; przy
+`cache-keeper-pl` chowa swój timer; paski innych wtyczek zostają (owijacz woła `next`, bez `width` — P-017).
+Zmierzone na żywo w aplikacji desktopowej 2026-10-08.
+Nie woła modelu, nie dopisuje nic do kontekstu, nie używa sieci. Rachunki: `core/panel/*.mjs`
+(ESM — silnik nie ładuje CommonJS ani importu spoza folderu pluginu); `panel/hooks/core/` to kopia
+bajt w bajt z `node core/tools/sync-panel-core.js`, pilnowana testem. Testy: `claude plugin test
+panel` (binarka 2.1.293) i `core/panel/tests/`.
+
 ### Wymagania
 
 Claude Code, Cursor albo Codex • Node.js 14+ w `PATH` • git (opcjonalnie; siatka wersji artefaktów
@@ -121,8 +139,8 @@ Backupy: `C:\Users\Lukasz\Backupy\RelAI` • [PRZENOSNOSC.md](PRZENOSNOSC.md) �
 
 ### Liczby
 
-Plany zamknięte: 9 (ostatni PROWADZENIE_END_TO_END, 2026-09-24) • Aktywny: PANEL_CLAUDE (E1 gotowy do startu) • Start sesji:
-**88,6 KB / 100 KB** (bez aktywnego planu; po E6 98,2 KB) • Dziennik: **128,8 KB / 150 KB** • Sekcja ryzyk: 12 otwartych, archiwum ryzyk: 4 pliki
-+ 1 mitygacji • Lekcje: **41,9 KB / 50 KB**, 20 w żywym pliku • Adaptery: 3 • Komendy: 14 •
-Testy rdzenia i adapterów: 89 • Projekty na RelAI: 3 (RelAI, PolyFlow, JiraManager przed migracją) •
+Plany zamknięte: 9 (ostatni PROWADZENIE_END_TO_END, 2026-09-24) • Aktywny: PANEL_CLAUDE (E1 zrealizowany, E2 gotowy do startu) • Start sesji:
+**88,6 KB / 100 KB** (bez aktywnego planu; po E6 98,2 KB) • Dziennik: **158,1 KB / 150 KB** (rotacja należna) • Sekcja ryzyk: 12 otwartych, archiwum ryzyk: 4 pliki
++ 1 mitygacji • Lekcje: **45,7 KB / 50 KB**, 24 w żywym pliku • Adaptery: 3 • Komendy: 14 •
+Testy rdzenia i adapterów: 115 (z `core/panel/`) + 8 testów pluginu `relai-panel` • Projekty na RelAI: 3 (RelAI, PolyFlow, JiraManager przed migracją) •
 Modele, na których zmierzono proces: 6 (Fable, Opus, Sonnet, Haiku, Composer/auto, Grok 4.6).

@@ -19,6 +19,9 @@
 
 | O4 | Tryb ciągły kosztuje turę przy każdym zdaniu — praca zwalnia i drożeje (plan OPTYMALIZATOR_PROMPTOW, ryzyko O4) | **Średni** (2026-09-14, przy akceptacji planu) | **OTWARTE** | Wyłącznik w `USTAWIENIA.md`, filtr pomija komendy; otwarte: rozrzut kosztu większy niż mierzona różnica. Historia: [MITYGACJE_2026-09-24](archiwum/ryzyka/MITYGACJE_2026-09-24.md). |
 | K3 | Nakładki rodzin modeli starzeją się szybciej niż wydania RelAI — dostawca zmienia wytyczne, a reguła z datą zostaje (plan PROWADZENIE_END_TO_END, ryzyko K3) | **Średni** (2026-09-24, przy zamknięciu planu) | **OTWARTE** | Każda reguła nakładki ma źródło i datę odczytu; hook startu mówi o nakładce starszej niż 30 dni; odświeżenie razem z `/relai-models`. |
+| C1 | API modów Claude Code („early access”) zmieni się między wydaniami i `relai-panel` przestanie się ładować (plan PANEL_CLAUDE, ryzyko R1) | **Wysoki** (2026-10-08, przy E1) | **OTWARTE** | Osobny plugin; rachunki w `core/panel/` poza API modów; `plugin validate` i `plugin test` przed wydaniem; `cache-keeper-pl` jako kanarek. Otwarte: minimalna wersja silnika niezmierzona (działa 2.1.293). |
+| C3 | Desktop rysuje panel inaczej niż terminal (plan PANEL_CLAUDE, ryzyko R3) | **Niski dla paska, średni dla panelu bocznego** (2026-10-08 po E1; wcześniej średni) | **OTWARTE** | Pasek zmierzony na żywo w aplikacji desktopowej 2026-10-08; panel boczny (`Pane`) to E2 — tam pomiar na żywo jako punkt weryfikacji. |
+| C8 | Inny mod paska nad promptem rysuje bez `next` albo owija węzeł silnika w `Box` z `width` i pasek RelAI znika bez komunikatu (E1, P-017) | **Średni** (2026-10-08, przy E1) | **OTWARTE** | `relai-panel` zawsze woła `next` i nie dokłada `width` do owijacza; `cache-keeper-pl` 0.1.2 poprawiony tak samo. Otwarte: cudze mody poza kontrolą — ostrzeżenie w README w E7. |
 
 > Ryzyka zamknięte W1, U1, O1, O6 (4 pozycje) są w
 > [docs/archiwum/ryzyka/RYZYKA_2026-09-24.md](archiwum/ryzyka/RYZYKA_2026-09-24.md)
@@ -2028,3 +2031,138 @@ Autor: RelAI (Opus 5.5) + Lukasz
 - Uruchomić E1 w świeżej sesji na Opusie: `/relai-stage`.
 
 Autor: RelAI (Opus 5.5) + Lukasz
+
+### 2026-10-08 — E1 planu PANEL_CLAUDE: pasek RelAI nad promptem
+
+**Zrobione:**
+
+- Rdzeń panelu `core/panel/`: `cache-timer.mjs` (stany cache nieznany / ciepły / stygnie / zimny,
+  progi 10 i 5 min, ocena zapytania, TTL 60 od trafienia po przerwie > 5,5 min, 5 dopiero po dwóch
+  takich zapisach) i `plan-state.mjs` (linia „Aktywny plan” + tabela etapów `STATUS.md`, zamknięte
+  listy statusów; brak planu → „brak”, plik nieczytelny → „nieznany”). Testy w `core/panel/tests/`.
+- **Odstępstwo od promptu, z powodem:** rdzeń panelu jest ESM (`.mjs`), nie CommonJS jak reszta
+  `core/`. Silnik modów 2.1.293 odmawia importu spoza folderu pluginu („cannot import … it is outside
+  the plugin's folder”) i nie ładuje CommonJS („Export named 'hello' not found”) — sprawdzone sondą.
+  Wariant A zachowany: źródłem jest wyłącznie `core/panel/`, a `panel/hooks/core/` to kopia bajt
+  w bajt z nowego `core/tools/sync-panel-core.js`, pilnowana testem (z podłożonym rozjazdem).
+  Node 24 czyta `.mjs` z testów CommonJS przez `require(esm)`.
+- Plugin `relai-panel` w `panel/` (0.1.1, niewydany): pasek `AbovePrompt` z planem, etapem,
+  postępem, timerem cache i kosztem sesji z `$.session.usage()` jako hipotetycznym kosztem API;
+  milczy poza projektem RelAI; chowa swój timer, gdy w sesji jest `cache` / `ckp-cache`; stan timera
+  przeżywa przeładowanie przez `$.store`; rysuje się **nad** paskami niższych wtyczek, nie zamiast
+  nich. `.gitignore`: pliki, które silnik generuje w folderze modu.
+- `.claude-plugin/marketplace.json`: druga pozycja `relai-panel` (źródło `./panel`) **bez pola
+  `version`** — walidator adapterów czyta wersję z każdej pozycji jako wersję repo i zgłosiłby
+  rozjazd 0.1.x ≠ 2.7.1; objęcie drugiego pluginu walidatorem to E7.
+- Na żywo wyszły dwie usterki niewidoczne w testach (P-017): (1) `cache-keeper-pl` rysował bez
+  `next` i zasłaniał pasek RelAI — `ui.render` panelu wywołany 0 razy (sonda); (2) po poprawce oba
+  mody owijały węzeł silnika w `Box` z `width` i silnik odrzucał całość („engine node under a Box
+  with prop "width"”). Za zgodą człowieka poprawiony prywatny mod **`cache-keeper-pl` → 0.1.2**
+  (poza repo, `C:\Users\Lukasz\Desktop\cache-keeper-pl`): woła `next` i układa paski, bez `width`;
+  nowy test oblewa na starym kodzie. `relai-panel` poprawiony tak samo.
+- `docs/STATE.md` (obszar panelu), `docs/PULAPKI.md` (P-017), lekcje L-0133–L-0135 z destylatem
+  (zasady 4, 5, 13), ryzyka C1, C3, C8.
+
+**Zweryfikowane — jak dokładnie:**
+
+- Testy repo: `node --test core/process/tests/*.test.js core/guardrails/tests/*.test.js adapters/codex/tests/*.test.js core/panel/tests/*.test.js`
+  → 115/115 (przed etapem 99/99 bez `core/panel/`). Real material: wszystkie 10 plików `STATUS.md`
+  w repo (aktywny + 9 archiwalnych) parsują się, 0 wierszy etapów odrzuconych; wariant
+  niedomkniętego pogrubienia (HIGIENA_DOKUMENTOW) znaleziony tą kontrolą i obsłużony.
+- `claude plugin validate panel` (binarka 2.1.293) — zaliczone; wywołania `$`: clock, command.list,
+  fs.exists/read, session.cwd/id/usage, store, ui — **bez** `$.net`, `fetch`, `$.model`,
+  `prompt.compose`, `session.append`. `claude plugin validate .` — wynik identyczny jak przed etapem
+  (`diff` pusty; jedno ostrzeżenie o root `CLAUDE.md`).
+- `tsc` strict (TypeScript 5.9.3 z lokalnego cache npm, typy silnika 2.1.293, `checkJs` na rdzeniu)
+  — 0 błędów; kontrola pozytywna: dwa podłożone błędy (typ z JSDoc rdzenia, nieistniejąca metoda
+  `$.session`) złapane. `claude plugin test panel` — 8/8 (milczenie poza RelAI, plan i etap,
+  terminal i desktop, timer schowany przy `cache` i `ckp-cache` z kontrolą pozytywną, „brak
+  aktywnego planu”, wąski pasek, nieczytelny `STATUS.md`, przeżycie przez `$.store`, cudzy snapshot).
+- `node core/tools/validate-adapters.js` — zaliczone (8 źródeł wersji, jedna wartość 2.7.1;
+  przed etapem 7 źródeł). `marketplace.json`: `git diff` pokazuje wyłącznie dopisaną pozycję.
+- **Na żywo, aplikacja desktopowa, 2026-10-08** (tymczasowa instalacja `relai-panel` w scope
+  `user` z lokalnego marketplace `relai-panel-test`, kopia zgodna sumami 7/7; po pomiarze
+  odinstalowana, marketplace usunięty, 0 wpisów w `installed_plugins.json`): w repo RelAI dwie linie
+  nad promptem — pasek `cache-keeper-pl` z odliczaniem i pod nim
+  `RelAI · PANEL_CLAUDE · E1 W TOKU Szkielet relai-panel i pasek RelAI · 0/7 │ sesja ≈ $11 wg cennika API`
+  **bez drugiego odliczania** (zrzut człowieka); w folderze bez RelAI linii RelAI nie ma (relacja
+  człowieka). Kontrola pozytywna i negatywna w jednym przebiegu.
+- Budżet startu: panel nie dopisuje tekstu do kontekstu (brak hooków `prompt.compose` /
+  `session.append` w liście z `validate`); suma warstwy startowej po etapie 92 602 B — wzrost tylko
+  z dokumentów rytuału (STATE +987 B, ryzyka +1 119 B, zasady +542 B).
+- Bezpieczeństwo: `git grep -nE "sk-ant-|ANTHROPIC_API_KEY="` — 2 trafienia, oba opisy:
+  `docs/archiwum/dziennik/DZIENNIK_2026-09-01_2026-09-03.md:613` (ucięty przykład z testu hooka)
+  i `docs/plany/PANEL_CLAUDE/PROMPT_ETAP_1.md:341` (prompt cytuje tę komendę); `grep -r` po plikach
+  nowych z E1 — 0. Punkt w tym brzmieniu nieosiągalny; **rozstrzygnięcie człowieka: zaliczony
+  z adnotacją** (L-0134).
+- Katalog roboczy `.claude/relai/work/PANEL_CLAUDE/E1/` przejrzany raportem `clean-work.js`
+  i skasowany po „tak” razem z `PANEL_CLAUDE/accept.py`: przed 0,1 MB (39 plików E1 + 1,6 KB), po
+  0,0 MB. `PANEL_CLAUDE/fill.py` (generator `PLAN.html`) zostaje — decyzja człowieka, na aneksy.
+- Artefakty poza katalogiem roboczym: `C:\Users\Lukasz\.claude\dev-mods\ab158a41-acc6-4d0e-8eab-fd9f0c583580\relai-panel`
+  (kopia z diagnostyką) — usunięta przez człowieka; `…\dev-mods\ab158a41-…\relai-probe` (przezroczysta
+  sonda) — **zostaje do usunięcia przez człowieka** (bramka GateGuard blokuje `rm` w tej sesji);
+  `~/.claude/plugins/cache/relai-panel-test/` — zdjęte z instalacji przez `plugin uninstall`.
+
+**Świadomie odłożone:**
+
+- Wpisanie `core/panel/` i `sync-panel-core.js` do `core/MANIFEST.json` oraz objęcie `relai-panel`
+  walidatorem wersji — E7 (prompt E1 zabraniał zmiany zakresu walidatora).
+- Ostrzeżenie w README o modach, które zasłaniają pasek (C8) — E7.
+- Rotacja `docs/DZIENNIK.md` (150,2 KB przed tym wpisem, próg 150 KB) i synchronizacja `AGENTS.md`
+  z `CLAUDE.md` — zgłoszone przez hook startu; poza zakresem etapu, do rytuału zamknięcia sesji.
+- Edycja progów ostrzeżeń timera przez człowieka (WYWIAD.md: „edytowalne”) — formularze to E2.
+
+**Do zrobienia przez człowieka:**
+
+- Usunąć sondę `C:\Users\Lukasz\.claude\dev-mods\ab158a41-acc6-4d0e-8eab-fd9f0c583580\relai-probe`.
+- Uruchomić E2 w świeżej sesji na Opusie: `/relai-stage`.
+
+Autor: RelAI (Opus 5.5) + Lukasz
+
+### 2026-10-08 — PANEL_CODEX: osobny plan po PANEL_CLAUDE
+
+**Zrobione:**
+
+- Dokończono [PLAN.html](plany/PANEL_CODEX/PLAN.html) w kierunku Warsztat, z kompletnym
+  wywiadem 14 komend, naturalnymi działaniami sesji, mapą, dokumentami, lokalnymi pomiarami
+  wszystkich uczestników, ekwiwalentem API oraz timerem i powiadomieniami. Założenia
+  funkcjonalne bez zmian; 8 etapów, 75–120 h (SZACUNEK) po gotowym rdzeniu poprzednika.
+- Osobny [STATUS.md](plany/PANEL_CODEX/STATUS.md): DO AKCEPTACJI, wszystkie etapy OCZEKUJE;
+  [PRZEJECIE.md](plany/PANEL_CODEX/PRZEJECIE.md) opisuje bramkę PANEL_CLAUDE → PANEL_CODEX.
+  PANEL_CLAUDE pozostaje aktywny. Nie wykonano żadnego etapu Codeksa, nie utworzono promptu E1.
+- Jawny wybór człowieka: autor i wykonawca etapów **gpt-6.1-sol w Codeksie**. Zapisano wyjątek
+  D-84/D-85, ustawienie zakresu i regułę procesu; CLAUDE.md oraz kopia AGENTS.md zsynchronizowane.
+  STATE i README wskazują nowy plan, WYWIAD.md ma datowane doprecyzowanie kolejności/modelu.
+- Rdzeń core/panel przejmowany dopiero po zamknięciu poprzednika. Pakiet gospodarza planowany
+  w adapters/codex/panel, z walidacją mostka i formatu manifestu w E1; brak przebudowy Claude Mods.
+
+**Zweryfikowane — jak dokładnie:**
+
+- Builder core/templates/HTML_PLAN/zbuduj.js: 6 osadzonych fontów, zero znaczników, 225 KB.
+- Przeglądarka Chromium przez Playwright: 10 sekcji, 14 wierszy komend, 8 etapów; zwijanie
+  myszą i klawiaturą, wyłączona interakcja wewnątrz zwiniętych bloków. Okna 1280 i 390 px,
+  również po rozwinięciu sekcji: brak przewijania strony w poziomie i wyjścia kontenerów.
+- Symulator na rzeczywistych licznikach tej sesji (62 109 wejścia, 50 944 odczytu cache,
+  0 zapisu cache, 135 wyjścia; reasoning jest częścią wyjścia): ekwiwalent przy stawkach
+  Standard API 0,0287744 USD; scenariusz bez cache 0,125568 USD; zapis cache 5000 tokenów daje
+  0,0312744 USD. Kontrola niezależnym rachunkiem; nadmiar cache, ułamkowe tokeny i pusta cena
+  odrzucone. Te kwoty to scenariusz API (SZACUNEK), nie rachunek abonamentu.
+- Zero żądań HTTP(S) i błędów JavaScript przy otwarciu dokumentu. Brak PROMPT_ETAP_1;
+  żaden wiersz etapów nie ma GOTOWY DO STARTU. Kontrola dodatnia wykrywa podłożony link sieciowy.
+- Skrypty i obrazy w .claude/relai/work/PANEL_CODEX/PLAN/; dokumenty planu w docs/plany/PANEL_CODEX/.
+
+**Świadomie odłożone:**
+
+- Implementacja Codeksa do zamknięcia PANEL_CLAUDE i akceptacji PANEL_CODEX. Natywny panel,
+  powiązanie i wysyłanie akcji do bieżącego/świeżego czatu oraz alerty Windows wymagają
+  weryfikacji w E1/E7; otwarcie dokumentu HTML nie jest dowodem działania pluginu.
+- Aneks do D-80 dla adaptera Codeksa pokazany w sekcji decyzji planu, nie zapisany jako zaakceptowany.
+- Commit, publikacja i zmiana aktywnego planu na PANEL_CODEX.
+
+**Do zrobienia przez człowieka:**
+
+- Akceptacja konkretnego PANEL_CODEX i zakresu adaptera w D-80; później zakończenie PANEL_CLAUDE
+  i przejęcie zgodnie z checklistą. Przygotowanie planu nie oznacza zgody na jego implementację.
+- Zgoda na publikację gotowego wydania przed E8.
+
+Autor: RelAI (gpt-6.1-sol) + Lukasz

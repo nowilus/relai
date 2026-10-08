@@ -8,6 +8,27 @@ Specyfikacja: `SPEC_PULAPKI.md`.
 
 ## Pułapki
 
+### P-017 — Silnik modów Claude Code: cztery zachowania, których nie widać w czytaniu typów · 2026-10-08 · AKTYWNA
+
+- **Objaw:** pasek `AbovePrompt` przechodzi `plugin validate`, `tsc` i `plugin test`, a na żywo
+  znika — razem z paskiem innego moda. Wcześniej: import rdzenia odrzucony, testy `find({ key })`
+  zwracają `undefined`, atrapy `$.fs` w teście nie trafiają.
+- **Przyczyna (2.1.293, zmierzone w E1 planu PANEL_CLAUDE):**
+  1. moduł importuje wyłącznie pliki **z folderu pluginu** („cannot import … outside the plugin's
+     folder") i każdy plik jest ESM — CommonJS ładuje się bez eksportów;
+  2. `next(e)` w `ui.render` zwraca węzeł silnika `{ type: 'engine', ref }`; pod `Box` z `width`
+     silnik go odrzuca („engine node under a Box with prop "width"; the engine drew its own") i rysuje
+     swoje, czyli nic — `plugin test` tego nie widzi, bo pod wtyczką w teście leży zwykły `Box`;
+  3. `AbovePrompt` ma **jedną** instancję: hook, który rysuje bez `next`, zasłania paski wszystkich
+     wtyczek pod nim;
+  4. `key` przeżywa na `Box`, z `Text` znika; `$.fs` dostaje ścieżki w postaci systemu (`C:\…`).
+- **Obejście:** rdzeń jako `.mjs` z kopią w folderze pluginu (`core/tools/sync-panel-core.js`);
+  owijacz pasków bez `width`, zawsze z `next`; klucze testowe na `Box`; atrapy `$.fs` normalizują
+  `\` → `/`. Zasłonięcie mierzysz sondą w hot reload (licznik wywołań `ui.render`), a szarą linię
+  `refused` w transkrypcie czytasz jako pierwszą — dla zainstalowanych pluginów trafia tylko do logu
+  debug.
+- **Zasięg:** Claude Code 2.1.293 (mody „early access"), aplikacja desktopowa, Windows.
+
 ### P-016 — `claude -p` kończy się, zanim przyjdzie powiadomienie o zadaniu w tle · 2026-09-24 · AKTYWNA
 
 - **Objaw:** sesja `claude -p` uruchamia komendę w tle i kończy turę; hook `UserPromptSubmit`
