@@ -45,9 +45,16 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
    zmienia proces (checkboxy, statusy), sam ustawia stan wyjściowy**, a licznik testów do dziennika
    pochodzi z przebiegu po ostatniej zmianie przed commitem (L-0150). **Pytanie o zasięg zmiany
    pliku stawiasz po sprawdzeniu, czy plik nie jest generowany z innego** — opcja, której kontrola
-   parytetu nie przepuści, nie trafia do pytania jako wykonalna (L-0154). (L-0017, L-0018,
-   L-0040, L-0051, L-0052, L-0063, L-0069, L-0082, L-0115, L-0117, L-0123, L-0134, L-0144, L-0150,
-   L-0154)
+   parytetu nie przepuści, nie trafia do pytania jako wykonalna (L-0154). **Zmianę dowodzisz na
+   widoku, który obejmuje zbiór z jej rekordami** — sprawdzasz, na którym ekranie liczba się zmienia,
+   nie tylko że się zmienia (L-0155). **Test na realnym materiale bierze plik śledzony przez gita
+   albo własną fixturę** — plik z `.gitignore` daje zielony test tylko na drzewie roboczym (L-0156).
+   **Widok rysowany z danych projektu mierzysz na prawdziwych danych w najgorszym stanie** (wszystko
+   rozwinięte) i ograniczasz go w kodzie — harness przyjmuje drzewo, które desktop gubi bez słowa
+   (L-0158). **Diagnozę na żywo zaczynasz od znacznika wersji w logu** — przeładowanie potrafi
+   zostawić starą wersję i każdy wniosek z niej jest fałszywy (L-0159).
+   (L-0017, L-0018, L-0040, L-0051, L-0052, L-0063, L-0069, L-0082, L-0115, L-0117, L-0123, L-0134,
+   L-0144, L-0150, L-0154, L-0155, L-0156, L-0158, L-0159)
 5. **Instrument pomiarowy sam bywa źródłem fałszu:** wyrażenia regularne trzymaj w pliku zapisanym
    narzędziem zapisu, nie w `node -e` ani w heredoku, a tekst z backslashem (także ścieżkę
    Windows) wstawiasz Edit/Write albo piszesz z `/` (L-0116, L-0119); **skrypt edycji kodu, który
@@ -265,9 +272,11 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
     twierdzi fakt o przeszłości („sprzed znacznika", „zmierzono"), ma warunek prawdziwości na
     danych** i test na materiale, gdzie warunek nie zachodzi (L-0149). **Komórka liczby w wierszu
     ma `flexShrink={0}`** — ustępuje nazwa; test sprawdza tę właściwość, a zrzut z terminala jest
-    częścią pomiaru (L-0152).
+    częścią pomiaru (L-0152). **Karta decyzji pokazuje w całości tylko pozycje, które decyzja zmienia
+    dla człowieka**, resztę jednym wierszem z liczbą i nazwami; stawka nie jest kwotą — ma tyle
+    miejsc, ile ma źródło (L-0157).
     (L-0003, L-0006, L-0016, L-0019, L-0029, L-0094, L-0098, L-0137, L-0140, L-0142, L-0145, L-0147,
-    L-0149, L-0152)
+    L-0149, L-0152, L-0157)
 
 **Wyprowadzone 2026-08-20 do `docs/PULAPKI.md`:** sześć pozycji, które były pułapkami
 narzędziowymi, a nie zasadami pracy — `tar` na `PATH` (L-0021), sesja pomiarowa `claude -p`
@@ -822,6 +831,57 @@ restart aplikacji po `plugin update` (L-0031), `git worktree` zamiast `git archi
 - **Zasada:** pytanie o zasięg zmiany pliku stawiasz po sprawdzeniu, czy plik nie jest generowany
   z innego; opcja, której kontrola parytetu nie przepuści, nie trafia do pytania jako wykonalna.
 - **Źródło:** E5 planu PANEL_CLAUDE (człowiek 2026-10-09: regenerować); destylat: zasada 4.
+
+### L-0155 — Kwota Sonneta była policzona, ale nie było jej gdzie zobaczyć · 2026-10-09 · AKTYWNA
+
+- **Trigger:** po zapisie cennika na żywo człowiek: „nie widzę cennika sonneta po tej aktualizacji”;
+  suma projektu urosła o $0,24, lista modeli w „Kosztach” go nie miała.
+- **Przyczyna:** kryterium („kwota tego modelu już z ceną”) dotyczyło rekordów projektu, a widok,
+  na który patrzy człowiek, liczył tylko bieżącą sesję — rekordy Sonneta leżały w innej.
+- **Zasada:** zmianę dowodzisz na widoku, który obejmuje zbiór z jej rekordami; zanim zamkniesz
+  kryterium, sprawdzasz, na którym ekranie liczba się zmienia, a nie tylko, że się zmienia.
+- **Źródło:** E6 planu PANEL_CLAUDE (zrzuty człowieka 2026-10-09); destylat: zasada 4.
+
+### L-0156 — Test na realnym pliku spoza gita pada w czystym worktree · 2026-10-09 · AKTYWNA
+
+- **Trigger:** pomiar „przed” E6 w osobnym `git worktree` HEAD-a: 235/236 zamiast zapisanych
+  236/236; test E5 czyta `.claude/relai/MODELE-claude-code.md`, który jest w `.gitignore`.
+- **Przyczyna:** test na „realnym pliku” wziął plik, który istnieje tylko w drzewie roboczym — na
+  drzewie zielony, w czystym klonie ENOENT; liczba z dziennika E5 była prawdziwa tylko lokalnie.
+- **Zasada:** test na realnym materiale bierze plik śledzony przez gita (`git ls-files`) albo
+  własną fixturę; liczba testów „przed” mierzona w worktree rozdziela wynik kodu od wyniku
+  środowiska, zanim trafi do dziennika.
+- **Źródło:** E6 planu PANEL_CLAUDE (worktree w `%TEMP%`, 2026-10-09); destylat: zasada 4.
+
+### L-0157 — Karta z dziewiętnastoma wierszami stawek zakryła ten jeden, o który pytała · 2026-10-09 · AKTYWNA
+
+- **Trigger:** drugi krok karty cennika na żywo: 19 wierszy „Nowy” z pięcioma stawkami każdy;
+  Sonnet, dla którego człowiek uruchomił aktualizację, był w połowie listy, a stawka $0,125 jako $0,13.
+- **Przyczyna:** karta pokazała całą różnicę strony, nie różnicę, której dotyczy decyzja.
+- **Zasada:** karta decyzji pokazuje w całości tylko pozycje, które decyzja zmienia dla człowieka
+  (zmierzone, bez ceny, zmienione); resztę jednym wierszem z liczbą i nazwami.
+- **Źródło:** E6 planu PANEL_CLAUDE (zrzut człowieka 2026-10-09); destylat: zasada 15.
+
+### L-0158 — Panel „otwarty”, a na ekranie nic: drzewo za duże dla desktopu, harness go przyjął · 2026-10-09 · AKTYWNA
+
+- **Trigger:** po rozwinięciu archiwum w drzewie „Dokumentów” foldery przestały reagować, a każde
+  `/relai-panel` odpowiadało „otwarty” bez panelu; zero szarych linii `refused`.
+- **Przyczyna:** drzewo z danych projektu nie miało górnej granicy (726 węzłów, 121 Svg, 256 tys.
+  znaków); `plugin test` na fixturze kilku plików go nie dotknął, a zapamiętane zwinięcie
+  odtwarzało ten stan przy każdym otwarciu. Przy 53 tys. znaków panel wrócił.
+- **Zasada:** widok rysowany z danych projektu mierzysz na prawdziwych danych w najgorszym stanie
+  i ograniczasz w kodzie (limit wierszy z linią „jeszcze N”); test regresji na limit.
+- **Źródło:** E6 planu PANEL_CLAUDE (log rysowania, zgłoszenie człowieka 2026-10-09); destylat: zasada 4.
+
+### L-0159 — Wniosek z logu na żywo był fałszywy, bo silnik trzymał starą wersję modułu · 2026-10-09 · AKTYWNA
+
+- **Trigger:** po wgraniu limitu 60 wierszy log rysowania nadal pokazywał 121 Svg — liczba możliwa
+  tylko przy starym limicie 120.
+- **Przyczyna:** przeładowanie modu raz nie wczytało nowej kopii; log nie mówił, która wersja go
+  napisała.
+- **Zasada:** diagnoza na żywo zaczyna się od znacznika wersji w każdej linii logu; bez niego
+  liczby z logu nie są dowodem zmiany.
+- **Źródło:** E6 planu PANEL_CLAUDE (render.log 2026-10-09, znacznik `v=rows60`); destylat: zasada 4.
 
 ## Lekcje zwinięte
 

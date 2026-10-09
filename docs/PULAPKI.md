@@ -8,6 +8,48 @@ Specyfikacja: `SPEC_PULAPKI.md`.
 
 ## Pułapki
 
+### P-023 — Silnik modów i strona cennika Anthropic: `$.http.fetch`, `toolUses`, znaki ikon · 2026-10-09 · AKTYWNA
+
+- **Objaw:** parser strony cennika odrzucał 4 z 20 wierszy modeli, choć nazwy wyglądały poprawnie;
+  znacznik „zmieniony w tej turze” oparty na `tool.call` nie widział ścieżki pliku.
+- **Przyczyna (2.1.293, sonda `relai-probe-e6` w E6 planu PANEL_CLAUDE, desktop):**
+  1. `$.http.fetch('https://platform.claude.com/docs/en/about-claude/pricing')` z modu działa:
+     status 200, `text/html`, ~940 KB, bez przekierowania; tabela „Model pricing” jest w HTML
+     serwowanym (bez skryptu), 13 tabel na stronie.
+  2. Strona rysuje ikony (model wycofany, wymaga weryfikacji, zwijanie sekcji) znakami z obszaru
+     prywatnego Unicode (U+E02A, U+E0F0); `\s` ich nie łapie, więc „Claude Opus 4.1” kończy się
+     niewidocznym znakiem. Cena stoi jako `$4<!-- --> <span>/ MTok</span>`.
+  3. Stawki cache zależą od modelu: odczyt 0,1× wejścia, 0,05× na Opus i Sonnet 5.5, 0,025× na
+     Fable i Mythos 5.1; Haiku 5.5 ma drugi próg ceny powyżej 100 000 tokenów promptu (`rowSpan=2`).
+  4. `turn.step` zwraca `toolUses: [{ name, input }]` — wywołania, o które model **poprosił**
+     (przed wykonaniem); `input.file_path` niesie pełną ścieżkę Windows. W `tool.call` pole wejścia
+     nie nazywa się `input` (sonda: `file_path` pusty).
+  5. `$.fs.write` sam zakłada brakujący katalog (`.claude/relai/panel/`, na żywo).
+  6. Przeładowanie modu po edycji jego pliku zeruje zmienne modułu — stan „w tej turze” trzymany
+     w module przepada w turze, która modyfikuje mod.
+  7. **Za duże drzewo panelu znika bez słowa:** drzewo 726 węzłów / 121 Svg / 256 tys. znaków
+     (zakładka „Dokumenty” z rozwiniętym archiwum) — hook skończył się poprawnie, `/relai-panel`
+     odpowiada „otwarty”, a desktop nie pokazuje nic i nie ma szarej linii `refused`; `plugin test`
+     takie drzewo przyjmuje. 209 / 27 / 53 tys. — widoczne. Dokładny próg nieznany. Stan zwinięcia
+     w `$.state` przeżywa przeładowanie, więc każde otwarcie rysuje znowu to samo.
+  8. Na desktopie `Code` z `format: 'diff'` traci format (rysuje surowy tekst), a `Link` do `file:`
+     rysuje się jak zwykły tekst; to samo pokazuje drzewo z `plugin test`.
+  9. Klikać da się wyłącznie `Button`, `Link` i link w `Markdown` (`onLinkPress` + `pressableLinks`,
+     adres `https:`); `Box` nie ma `onPress`, `Svg` (także `isInteractive`) nie przyjmuje kliknięcia.
+  10. Walidator modułu odrzuca przekazanie `$` do funkcji, która nie jest zadeklarowana na górze
+      pliku — moduł się wtedy **w ogóle nie ładuje** (wszystkie hooki znikają).
+  11. Hot reload raz zostawił starszą wersję modułu mimo nowej kopii w folderze modów (log rysowania
+      pokazał stary limit) — dopiero kolejna tura wczytała nową.
+- **Obejście (7–11):** limit drzewa w kodzie (60 wierszy, 40 plików na folder, linia „… jeszcze N”),
+  foldery domyślnie zwinięte; diff rysowany wierszami z tłem, HTML pokazany jako źródło; nazwa
+  i chevron w drzewie jako link Markdown pod adresem `https://relai.invalid/…`; funkcje z `$` tylko na
+  górze pliku albo kod wprost w hooku; przy diagnozie na żywo — znacznik wersji w logu rysowania.
+- **Obejście (1–6):** nazwy z tekstu komórki po wycięciu `[\uE000-\uF8FF]`; parser ścisły (wiersz
+  nierozpoznany → nic nie jest zapisane); stawki bezwzględne per model z tabeli; znacznik zmian
+  z `turn.step` `toolUses`; pomiar znacznika na żywo w turze, która nie edytuje plików modu.
+- **Zasięg:** Claude Code 2.1.293 (mody „early access”), aplikacja desktopowa, Windows; strona
+  cennika w stanie z 2026-10-09 (kopia tabel: `core/panel/tests/fixtures/cennik-anthropic-2026-10-09.html`).
+
 ### P-022 — Silnik modów Claude Code: wysyłka komend z panelu i `/clear` · 2026-10-09 · AKTYWNA
 
 - **Objaw:** hook `command.run` wtyczki, który ma rozpoznać „to wysłał mój panel" po

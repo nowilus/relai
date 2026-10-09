@@ -54,6 +54,21 @@ export const THEME = Object.freeze({
   pressed: ROOT.musztarda, // the border of a card whose control was just pressed
 });
 
+/**
+ * A document's diff in the documents tab (E6, Aneks E), drawn row by row as code review draws it:
+ * an added line on sage, a removed one on clay, the line numbers in a quiet gutter. Text on its
+ * background reads at 4.5:1 or more (theme.test.js).
+ */
+export const DIFF = Object.freeze({
+  addBg: mix(ROOT.txt, ROOT.szalwia, 0.35),
+  delBg: mix(ROOT.txt, ROOT.glina, 0.32),
+  addText: mix(ROOT.szalwia, ROOT.kartka, 0.7),
+  delText: mix(ROOT.glina, ROOT.kartka, 0.65),
+  ctxText: THEME.body,
+  gutter: mix(ROOT['txt-3'], ROOT.kartka, 0.5),
+  hunk: THEME.mark,
+});
+
 /** @type {Readonly<Record<string, readonly [string, string]>>} Polish name and one-line purpose, in the order of FORMS. */
 export const NAMES = Object.freeze({
   'relai-stage': ['Etap planu', 'Uruchom następny etap aktywnego planu'],
@@ -108,6 +123,9 @@ export const HEADINGS = Object.freeze([
   { key: 'costs-stages', text: 'Etapy', size: 20, color: mix(ROOT.glina, ROOT.kartka, 0.25) },
   // The confirmation card (E5): above every tab while it waits for "Tak"
   { key: 'confirm', text: 'Do potwierdzenia', size: 22, color: ROOT.musztarda },
+  // The documents tab and the price list in the costs tab (E6)
+  { key: 'docs', text: 'Dokumenty projektu', size: 22, color: ROOT.musztarda },
+  { key: 'costs-pricing', text: 'Cennik', size: 20, color: mix(ROOT.glina, ROOT.kartka, 0.25) },
   // relai-progress's pane (E9, calibration 2026-10-09: the same motif as relai-panel's)
   { key: 'progress', text: 'Postęp etapu', size: 22, color: ROOT.musztarda },
   { key: 'agents', text: 'Agenci sesji', size: 22, color: ROOT.musztarda },
@@ -116,6 +134,9 @@ export const HEADINGS = Object.freeze([
 
 /** The characters a figure of the cost report may hold, drawn in Kalam at run time (E3). */
 export const NUMERAL_GLYPHS = '$0123456789.,<%~kM ';
+
+/** The letters of a document's type label on its icon (E6, Aneks E), drawn as Kalam outlines. */
+export const LABEL_GLYPHS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
 
 /** The four token categories of the cost report, each its own color of the motif (E3). */
 export const COST_COLORS = Object.freeze({

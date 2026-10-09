@@ -19,12 +19,12 @@
 
 | O4 | Tryb ciągły kosztuje turę przy każdym zdaniu — praca zwalnia i drożeje (plan OPTYMALIZATOR_PROMPTOW, ryzyko O4) | **Średni** (2026-09-14, przy akceptacji planu) | **OTWARTE** | Wyłącznik w `USTAWIENIA.md`, filtr pomija komendy; otwarte: rozrzut kosztu większy niż mierzona różnica. Historia: [MITYGACJE_2026-09-24](archiwum/ryzyka/MITYGACJE_2026-09-24.md). |
 | K3 | Nakładki rodzin modeli starzeją się szybciej niż wydania RelAI — dostawca zmienia wytyczne, a reguła z datą zostaje (plan PROWADZENIE_END_TO_END, ryzyko K3) | **Średni** (2026-09-24, przy zamknięciu planu) | **OTWARTE** | Każda reguła nakładki ma źródło i datę odczytu; hook startu mówi o nakładce starszej niż 30 dni; odświeżenie razem z `/relai-models`. |
-| C1 | API modów Claude Code („early access”) zmieni się między wydaniami i `relai-panel` przestanie się ładować (plan PANEL_CLAUDE, ryzyko R1) | **Wysoki** (2026-10-08, przy E1) | **OTWARTE** | Osobne pluginy; rachunki w `core/panel/` poza API modów; `plugin validate` i `plugin test` przed wydaniem — od E9 dla trzech pluginów (`relai-panel`, `relai-progress`, `relai-cache-keeper`, ten ostatni przejął rolę kanarka po `cache-keeper-pl`). Otwarte: minimalna wersja silnika niezmierzona (działa 2.1.293); trzy pluginy na tym samym API to trzy miejsca do poprawki przy zmianie. E5: zgoda na start etapu opiera się na zachowaniu silnika „wysyłka wtyczki omija jej własny hook `command.run`” (P-022) — gdy się zmieni, hook wytnie znacznik także z wysyłki panelu i start wróci do pytania w czacie (awaria w bezpieczną stronę); znacznik z klawiatury jest wycinany w obu wersjach (test modu). |
-| C3 | Desktop rysuje panel inaczej niż terminal (plan PANEL_CLAUDE, ryzyko R3) | **Niski** (2026-10-08 po E8; wcześniej średni dla panelu w terminalu) | **OTWARTE** | Pasek i panel zmierzone na żywo na desktopie (E1, E2, E8) i panel w terminalu 2.1.293 (E8: nagłówki tekstem, przyciski `[ … ]`); powierzchnię rozpoznaje `e.surface` (L-0138), test sprawdza odpowiednik tekstowy. E9: trzy paski nad promptem i panel `/relai-agents` zmierzone na desktopie i w terminalu 2.1.293 (segmenty Svg z podpowiedzią / znaki; terminal startowany z podfolderu — P-021); pasek cache w terminalu niewidoczny bez pierwszego zapytania (sesja niezalogowana), pokrywa go test. E4: zakładka „Mapa” zmierzona na desktopie i w terminalu 2.1.293 z `docs\plany` — pasek etapów Svg z kartą / znaki █, kwota w terminalu łamała się, aż komórka dostała `flexShrink={0}` (L-0152). E5: karta potwierdzenia i formularz `/relai-stage` zmierzone na desktopie i w terminalu 2.1.293 z `docs\plany` (zrzuty człowieka); test 40 kolumn złapał kartę na 42 kolumnach przed pokazaniem — wiersz faktów zawija się. Otwarte, bo E6 ma dwie powierzchnie do zmierzenia. |
+| C1 | API modów Claude Code („early access”) zmieni się między wydaniami i `relai-panel` przestanie się ładować (plan PANEL_CLAUDE, ryzyko R1) | **Wysoki** (2026-10-08, przy E1) | **OTWARTE** | Osobne pluginy; rachunki w `core/panel/` poza API modów; `plugin validate` i `plugin test` przed wydaniem — od E9 dla trzech pluginów (`relai-panel`, `relai-progress`, `relai-cache-keeper`, ten ostatni przejął rolę kanarka po `cache-keeper-pl`). Otwarte: minimalna wersja silnika niezmierzona (działa 2.1.293); trzy pluginy na tym samym API to trzy miejsca do poprawki przy zmianie. E5: zgoda na start etapu opiera się na zachowaniu silnika „wysyłka wtyczki omija jej własny hook `command.run`” (P-022) — gdy się zmieni, hook wytnie znacznik także z wysyłki panelu i start wróci do pytania w czacie (awaria w bezpieczną stronę); znacznik z klawiatury jest wycinany w obu wersjach (test modu). E6: desktop **bez komunikatu** nie pokazał panelu, gdy drzewo miało 726 węzłów, 121 Svg i 256 tys. znaków (`plugin test` przyjmuje takie drzewo); przy 209 / 27 / 53 tys. — widoczny; limit drzewa w kodzie (60 wierszy, 40 na folder), dokładny próg silnika nieznany (P-023). Hot reload raz zostawił starszą wersję modułu mimo nowej kopii — rozpoznane znacznikiem wersji w logu. |
+| C3 | Desktop rysuje panel inaczej niż terminal (plan PANEL_CLAUDE, ryzyko R3) | **Niski** (2026-10-08 po E8; wcześniej średni dla panelu w terminalu) | **OTWARTE** | Pasek i panel zmierzone na żywo na desktopie (E1, E2, E8) i panel w terminalu 2.1.293 (E8: nagłówki tekstem, przyciski `[ … ]`); powierzchnię rozpoznaje `e.surface` (L-0138), test sprawdza odpowiednik tekstowy. E9: trzy paski nad promptem i panel `/relai-agents` zmierzone na desktopie i w terminalu 2.1.293 (segmenty Svg z podpowiedzią / znaki; terminal startowany z podfolderu — P-021); pasek cache w terminalu niewidoczny bez pierwszego zapytania (sesja niezalogowana), pokrywa go test. E4: zakładka „Mapa” zmierzona na desktopie i w terminalu 2.1.293 z `docs\plany` — pasek etapów Svg z kartą / znaki █, kwota w terminalu łamała się, aż komórka dostała `flexShrink={0}` (L-0152). E5: karta potwierdzenia i formularz `/relai-stage` zmierzone na desktopie i w terminalu 2.1.293 z `docs\plany` (zrzuty człowieka); test 40 kolumn złapał kartę na 42 kolumnach przed pokazaniem — wiersz faktów zawija się. E6: cennik, karta w dwóch krokach i zakładka „Dokumenty” (kafle, drzewo, okno diffu) zmierzone na żywo na desktopie (zrzuty człowieka 1–5, 9–12); terminal zmierzony dla pierwszej wersji zakładki (zrzuty 6–8), drzewo w terminalu tylko testem (40 kolumn, `[MD]`) — człowiek panelu w terminalu nie używa. Na desktopie `Code` z `format: 'diff'` traci format, a `Link` do `file:` rysuje się jak tekst — diff rysowany wierszami, HTML jako źródło (P-023). Otwarte do E7 (wydanie: pomiar w czystej instalacji). |
 | C9 | Motyw RelAI i ikony komend nie zmieszczą się w elementach silnika modów — `Svg` tylko na desktopie, `Client` niezmierzony, terminal bez grafiki (plan PANEL_CLAUDE, Aneks A) | **Niski** (2026-10-08 po E8; wcześniej średni) | **ZAMKNIĘTE 2026-10-08** | Sonda E8: Svg z osadzonym fontem działa na desktopie, `Client` działa, `foreignObject` i interaktywne Svg odpadają, `plain` odwraca kolory (P-018); motyw zbudowany w tych granicach i przyjęty przez człowieka; terminal dostał odpowiednik tekstowy, zmierzony na żywo. |
 | C8 | Inny mod paska nad promptem rysuje bez `next` albo owija węzeł silnika w `Box` z `width` i pasek RelAI znika bez komunikatu (E1, P-017) | **Średni** (2026-10-08, przy E1) | **OTWARTE** | `relai-panel`, `relai-progress` i `relai-cache-keeper` zawsze wołają `next` i nie dokładają `width` do owijacza (test „engine kept beneath" w każdym); `savvy-progress` rysował bez `next` — wyłączony w E9, zastąpiony forkiem. Otwarte: cudze mody poza kontrolą — ostrzeżenie w README w E7. |
-| C10 | Pomiar kosztów niepełny albo podwójny — subagenci, kompakcja, wznowienie, `/clear`, wywołania poza pętlą (plan PANEL_CLAUDE, ryzyko R2) | **Niski** (2026-10-08 po E3; wcześniej wysoki) | **OTWARTE** | Klucz sesja + tura + indeks + agent, plik na sesję, kompakcja z `session.compact`, identyfikator sesji przy każdym zapisie; na żywo 117/117 kroków i 8/8 tur zgodnych z sondą co do kategorii; E9: koszt subagenta w `/relai-agents` = suma jego rekordów ($0,42, Opus), agent spoza cennika „brak ceny", nie „brak pomiaru". E4: rekord niesie etap w toku i zadanie załogi (`stage`, `task`); każdy rekord w dokładnie jednej pozycji (etap / „poza etapem” / „sprzed znacznika”), suma pozycji = suma sesji co do centa (test z kontrolą i na żywo $4,54 = $4,54). Otwarte: 9,16% przyrostu licznika silnika to wywołania spoza `turn.step` i kompakcji — raport mówi o nich słowami, bez rozbicia (P-020 pkt 6); zadanie załogi uruchomione jako osobna sesja `claude -p` jest przypisane tylko wtedy, gdy ta sesja ma `relai-panel` |
-| C11 | Pliki pomiarów puchną albo trafiają do gita (plan PANEL_CLAUDE, ryzyko R5) | **Niski** (2026-10-08 po E3) | **OTWARTE** | `.claude/relai/` poza gitem (sprawdzone `git check-ignore`), plik na sesję, rekord bez treści (~250 B); E4: plik scaleń `.claude/relai/panel/scalenia.json` też poza gitem (`git check-ignore`), rekord dłuższy o dwa pola; otwarte: sprzątanie starych plików nie istnieje — do E6/E7 |
+| C10 | Pomiar kosztów niepełny albo podwójny — subagenci, kompakcja, wznowienie, `/clear`, wywołania poza pętlą (plan PANEL_CLAUDE, ryzyko R2) | **Niski** (2026-10-08 po E3; wcześniej wysoki) | **OTWARTE** | Klucz sesja + tura + indeks + agent, plik na sesję, kompakcja z `session.compact`, identyfikator sesji przy każdym zapisie; na żywo 117/117 kroków i 8/8 tur zgodnych z sondą co do kategorii; E9: koszt subagenta w `/relai-agents` = suma jego rekordów ($0,42, Opus), agent spoza cennika „brak ceny", nie „brak pomiaru". E4: rekord niesie etap w toku i zadanie załogi (`stage`, `task`); każdy rekord w dokładnie jednej pozycji (etap / „poza etapem” / „sprzed znacznika”), suma pozycji = suma sesji co do centa (test z kontrolą i na żywo $4,54 = $4,54). Otwarte: 9,16% przyrostu licznika silnika to wywołania spoza `turn.step` i kompakcji — raport mówi o nich słowami, bez rozbicia (P-020 pkt 6); zadanie załogi uruchomione jako osobna sesja `claude -p` jest przypisane tylko wtedy, gdy ta sesja ma `relai-panel`. E6: model bez ceny nie znika w sumie częściowej — przypomnienie z liczbą rekordów i aktualizacja cennika z karty; stawki cache per model ze strony (odczyt 0,05× Opus/Sonnet 5.5 — wcześniej jedna stała), Sonnet 5.5 wyceniony na żywo ($0,24 za 4 rekordy) |
+| C11 | Pliki pomiarów puchną albo trafiają do gita (plan PANEL_CLAUDE, ryzyko R5) | **Niski** (2026-10-08 po E3) | **OTWARTE** | `.claude/relai/` poza gitem (sprawdzone `git check-ignore`), plik na sesję, rekord bez treści (~250 B); E4: plik scaleń `.claude/relai/panel/scalenia.json` też poza gitem (`git check-ignore`), rekord dłuższy o dwa pola; E6: `.claude/relai/panel/cennik.json` (wersje cennika) poza gitem (`git check-ignore`), jedna wersja na zapis z karty; otwarte: sprzątanie starych plików nie istnieje — do E7 |
 
 > Ryzyka zamknięte W1, U1, O1, O6 (4 pozycje) są w
 > [docs/archiwum/ryzyka/RYZYKA_2026-09-24.md](archiwum/ryzyka/RYZYKA_2026-09-24.md)
@@ -2904,5 +2904,181 @@ Autor: RelAI (Opus 5.5) + Lukasz
 - W E7, po wydaniu `relai` z nową procedurą: pomiar na żywo startu z karty bez drugiego pytania
   i `/relai-stage` bez znacznika (bramka w `STATUS.md`).
 - Uruchomić E6 w świeżej sesji na Opusie: `/relai-stage`.
+
+Autor: RelAI (Opus 5.5) + Lukasz
+
+### 2026-10-09 — E6 planu PANEL_CLAUDE: dokumenty i cennik
+
+**Zrobione:**
+
+- **Pytanie przed pracą (2026-10-09, jedno AskUserQuestion, wszystkie odpowiedzi rekomendowane):**
+  (a+b) cennik w `.claude/relai/panel/cennik.json` (poza gitem) jako datowane wersje nakładane na
+  `PRICING`, rekord wyceniany wersją obowiązującą w chwili pomiaru, próg starej daty 30 dni
+  w wierszu „Cennik panelu” `docs/USTAWIENIA.md`; (c) dokumenty warstwy startu sesji, fragment
+  i rozwinięcie do sekcji; (d) znacznik zmiany z `turn.step` `toolUses`; (e) strona cennika
+  w dokumentacji Claude (`platform.claude.com/docs/en/about-claude/pricing`), zgoda na jeden odczyt
+  w sondzie. Optymalizator promptów w tej sesji: „nie”.
+- **Sonda `relai-probe-e6`** (folder modów sesji `a72755a2-…`) → **P-023**: jeden odczyt komendą
+  człowieka `/relai-probe-e6-fetch` — 200, 939 564 znaków, 13 tabel; stawki cache per model, próg
+  Haiku 5.5; ikony strony jako znaki z obszaru prywatnego Unicode; `toolUses` z `file_path`, a
+  `tool.call` bez niego (kontrola pozytywna: krok Bash bez ścieżki, krok Write z pełną ścieżką).
+- **`core/panel/pricing.mjs`** (+13 testów, fixtura `core/panel/tests/fixtures/cennik-anthropic-2026-10-09.html`
+  — tabela „Batch” jako wabik i tabela modeli ze strony): parser ścisły z liczeniem wierszy
+  (20 modeli, 1 próg, 2 nagłówki, 1 sekcja, 0 odrzuconych; wiersz nierozpoznany albo brak progu →
+  nic do zapisu), stawki bezwzględne i próg długiego promptu, plik wersji, `listFor`/`priceAt`
+  (R6: policzona kwota trzyma stawki, „brak ceny” bierze pierwszą wersję, która zna model),
+  `unpricedModels`, `modelCosts`, `diffModels`, `staleDays`/`staleWarning`, `rate` (stawka bez
+  zaokrąglania), karta `pricingCard` → `pricingSecond`. **`core/panel/decisions.mjs`:** pole
+  `fetch` karty i `withSecond` (drugi krok budowany z odczytu). **`core/panel/documents.mjs`**
+  (+6 testów na realnych plikach repo): specyfikacje dokumentów, sekcje, ostatni wpis po dacie,
+  `changedPaths`.
+- **Panel (`relai-panel` 0.8.0, niewydany):** zakładka „Dokumenty” (✎ i „zmieniony w tej turze”,
+  rozwijanie, brak pliku słowem); w „Kosztach” sekcja „Cennik” (data i źródło, ostrzeżenie o starej
+  dacie, przypomnienie o modelu bez ceny z liczbą rekordów, modele z pomiarów projektu z kwotą,
+  „Zaktualizuj / Odśwież cennik”); jedna funkcja sieciowa `fetchPricingPage`; „Nie” wycisza
+  przypomnienie do zmiany daty cennika (`$.state`, klucz `muted`); nagłówki Kalamem „Dokumenty
+  projektu” i „Cennik” (38 nagłówków); kontrakt typów (`fetch`, `docs`, `muted`).
+- `docs/USTAWIENIA.md` — wiersz „Cennik panelu”; `docs/STATE.md` — obszar panelu po E6;
+  P-023; L-0155–L-0157 (zasady 4 i 15).
+
+**Zweryfikowane — jak dokładnie:**
+
+- **Testy repo:** przed — **236 testów** w osobnym `git worktree` HEAD-a w `%TEMP%`: 235 zaliczone,
+  1 pada wyłącznie w czystym klonie (test E5 czyta `.claude/relai/MODELE-claude-code.md` z
+  `.gitignore`, ENOENT — na drzewie roboczym zielony; L-0156); po — **255/255** (+13 `pricing`,
+  +6 `documents`), przebieg po ostatniej zmianie kodu.
+- `sync-panel-core.js --check` — zgodne (15 plików, trzy pluginy); `plugin validate` (2.1.293)
+  zaliczone dla `panel`, `progress`, `cache-keeper`; walidator wypisuje `$.http.fetch (via
+  fetchPricingPage)` jako jedyne wywołanie sieci; `validate-adapters.js` — exit 0.
+- `tsc` strict — 0 błędów; podłożony błąd (`planted.ts`) → 1 błąd TS2322.
+- `plugin test`: **66/66** `panel/` (53 przed, +13 `pricing.test.ts`), **16/16** `progress/`,
+  **19/19** `cache-keeper/`; dotychczasowe asercje nietknięte. Test E5 drugiego kroku **złapał
+  defekt**: karta zapisana w `$.state` przed E6 nie ma pola `fetch`, a `!== null` brał ją za kartę
+  odczytu — poprawka `typeof === 'string'`. Test 40 kolumn (obie powierzchnie, cennik, karta w obu
+  krokach, dokumenty) **złapał defekt**: pełny adres strony (56 znaków bez spacji) rozpychał kartę
+  do 60 kolumn — źródło słowami (`PRICING_SOURCE`); instrument z kontrolą na podłożonym przepełnieniu.
+- **R4 i Aneks D, dowód negatywny w teście modu:** przed „Tak” i po „Nie” zero wywołań `http.fetch`
+  i zero zapisu `cennik.json`; po pierwszym „Tak” jeden odczyt, adres = `PRICING_PAGE`, bez
+  `body`, `headers` i `auth`, zero zapisu; zapis dopiero po drugim „Tak”; brak sieci, status 503
+  i zmieniona strona — karta znika, komunikat „cennik nietknięty”, zero zapisów.
+- **R7 z jednym wyjątkiem:** w `panel/hooks`, `panel/types`, `progress/hooks`, `progress/types`
+  jedno trafienie wzorca (`$.http.fetch(PRICING_PAGE)` w `fetchPricingPage`), poza nim 0; kontrola
+  pozytywna 3/3 na podłożonym tekście. Pierwszy przebieg objął też `.claude-plugin/types/` —
+  dokumentację silnika z przykładami (133 trafienia); zawężone z tym powodem, kontrola E5 też
+  stała na kodzie modułów. Adres: wyłącznie `PRICING_PAGE` w `core/panel/pricing.mjs`.
+- **Bezpieczeństwo:** `grep -nE "sk-ant-|ANTHROPIC_API_KEY="` po 30 plikach z `git status --short`
+  — 0; próbka składana w czasie wykonania — 1.
+- **Chromium:** nagłówki „Dokumenty projektu” 210×32 px i „Cennik” 72×29 px w `iframe` 900 / 560 /
+  360 — bez przepełnienia, obraz załadowany; defekt podłożony (2000 px w 360) wykryty.
+- **Kryterium planu na żywo, desktop** (kopia w `dev-mods/a72755a2-…/relai-panel`, zrzuty
+  człowieka): „claude-sonnet-5-5 — 4 rekordy bez ceny” → karta → „Tak” → drugi krok z różnicą →
+  „Tak” → „✓ Zapisano: .claude/relai/panel/cennik.json” (`$.fs.write` sam założył katalog); suma
+  projektu $63,70 → $63,94. Człowiek: „nie widzę cennika sonneta po tej aktualizacji” — lista
+  modeli liczyła sesję (L-0155); po poprawce zrzut: „claude-sonnet-5-5 · 4 rekordy · $0.24”,
+  „claude-opus-5-5 · 557 rekordów · $65.50”. Ten sam zrzut drugiego kroku pokazał 19 wierszy stawek
+  i „$0.13” zamiast „$0.125” — poprawione (L-0157).
+
+**Świadomie odłożone:**
+
+- Przeliczenie kwot policzonych starymi stawkami „w karcie” (R6 dopuszcza) — nie zbudowane; nowa
+  stawka dotyczy pomiarów od zapisu i modeli dotąd bez ceny.
+- Wyciszenie przypomnienia żyje w `$.state` sesji — nowa sesja z tą samą datą cennika pokaże je
+  znowu.
+- Znacznik zmian widzi wyłącznie narzędzia zapisujące modelu (Edit, Write, MultiEdit,
+  NotebookEdit); zapis poleceniem powłoki i ręczny — nie, i zakładka mówi to wprost.
+- Test E5 na `.claude/relai/MODELE-claude-code.md` (plik spoza gita) — poprawka poza zakresem E6
+  (L-0156), do E7 razem z pełnymi testami wydania.
+- `panel/hooks/register.tsx` ma 1602 linie (próg 800) — podział przy E7, jak zapisano w E4 i E5.
+- Sprzątanie starych plików pomiarów (C11) — do E7 (pytanie 1 go nie objęło).
+- Rotacja `DZIENNIK.md` i `LEKCJE.md` (ponad progami) — do zamknięcia sesji, za zgodą.
+
+**Do zrobienia przez człowieka:**
+
+- Po zamknięciu tej sesji usunąć z folderu modów sesji `a72755a2-…` sondę `relai-probe-e6` i kopię
+  `relai-panel` 0.8.0 (albo za zgodą — asystent).
+
+Autor: RelAI (Opus 5.5) + Lukasz
+
+### 2026-10-09 — E6 planu PANEL_CLAUDE: Aneks E, kalibracje „Dokumentów” i zamknięcie etapu
+
+Wpis domyka E6 po wpisie wyżej (dziennik append-only): zakładka „Dokumenty” opisana tam to pierwsza
+wersja, odrzucona na żywo; obowiązuje to, co niżej.
+
+**Zrobione:**
+
+- **Aneks E (2026-10-09, `PLAN.html`, linia w `STATUS.md`):** zakładka „Dokumenty” w wersji
+  pierwszej (karty z fragmentami sekcji) odrzucona przez człowieka na zrzutach 6–8 („nieczytelne”);
+  cztery warianty, wybrany A „półka kafli”; diff od ostatniego commita (`git diff HEAD`, zamknięty
+  argv `NUMSTAT_ARGV` / `diffArgv` — tylko plik z listy dokumentów); zakres: wszystkie dokumenty
+  projektu (`CLAUDE.md`, `AGENTS.md`, `docs/`).
+- **`core/panel/documents.mjs` przepisany:** półka w grupach, `KINDS` (15 typów), ikona dokumentu
+  z etykietą typu konturami Kalam (`LABELS` z `build-panel-headings.js` / `panel-headings.py`,
+  zaokrąglone do 0,01 em), `diffView` / `diffRows` (diff rysowany wierszami z numerami, tłem
+  szałwii i gliny — `DIFF` w `theme.mjs`, kontrast w teście), `previewOf`, `edited`, `kb`;
+  drzewo jak eksplorator: `docTree`, `folderIcon` (otwarty / zamknięty, kropka przy zmianach),
+  `treeHref` / `treeTarget` (`https://relai.invalid/…`).
+- **Kalibracje na żywo (zrzuty 9–12):** filtr „Zmienione / Wszystkie” (zmienione na górze — najpierw
+  z tej tury, potem od commita); etykiety typu na ikonach; przełącznik „Kafle / Drzewo”; drzewo jak
+  VS Code — nazwy bez ścieżek, ikony folderów i plików 20 px, nazwa i chevron jako link Markdown
+  (`onLinkPress`), okno dokumentu pod wierszem; foldery domyślnie zwinięte w obu filtrach (prośba
+  człowieka). Cały wiersz klikalny — niemożliwe w 2.1.293 (`Box` bez `onPress`, P-023 pkt 9).
+- **Zgłoszenie „panel otwarty, a go nie ma”:** diagnoza tymczasowym logiem rysowania w katalogu
+  roboczym — kod rysował poprawnie (90–1189 ms), drzewo z rozwiniętym archiwum miało 726 węzłów,
+  121 Svg, 256 tys. znaków i desktop go nie pokazał bez komunikatu; limit 60 wierszy / 40 plików na
+  folder → 209 / 27 / 53 tys., panel widoczny (P-023 pkt 7, L-0158). Raz hot reload zostawił starą
+  wersję modułu — rozpoznane znacznikiem wersji w logu (L-0159). Diagnostyka usunięta z kodu.
+  Po drodze: wersja opakowania przekazująca `$` do funkcji wewnątrz `register` nie ładowała się
+  wcale (walidator, P-023 pkt 10) — cofnięta w tej samej turze.
+- Pytania człowieka w trakcie: licznik „7 z 9” paska planu jest poprawny (liczy statusy wierszy
+  tabeli, nie numery etapów — etapy z aneksów wliczone); `relai-progress` i `relai-cache-keeper`
+  nie są załadowane w tej sesji, bo ich kopie żyły w folderze modów sesji E9 — instalacja przy E7.
+- Dokumenty: `STATE.md` (akapit „Dokumenty i cennik”, liczby testów), ryzyka C1 i C3, P-023
+  pkt 7–11, L-0158–L-0159 (zasada 4), `STATUS.md`, `PROMPT_ETAP_7.md`, linia w `CLAUDE.md`.
+
+**Zweryfikowane — jak dokładnie:**
+
+- **Testy repo:** przed — 236 (FAKT, worktree HEAD-a, wpis wyżej); po — **263/263** (komenda
+  ze „Stanu wyjściowego” promptu E6), przebieg po ostatniej zmianie kodu.
+- `sync-panel-core.js --check` — zgodne (15 plików core i 14 ikon, trzy pluginy); `plugin validate`
+  2.1.293 — zaliczone dla `panel`, `progress`, `cache-keeper`.
+- `tsc` strict — 0 błędów; podłożony błąd złapany (1).
+- `plugin test`: **70/70** `panel/` (53 przed etapem), **16/16** `progress/`, **19/19**
+  `cache-keeper/`. Testy zapisu (karta załogi, cennik) **złapały** tymczasowy zapis logu
+  diagnostycznego — po usunięciu diagnostyki zielone. Test limitu drzewa (55 plików → 40 wierszy
+  i „jeszcze 15 pozycji”); instrument 40 kolumn rozszerzony o etykietę linku Markdown.
+- **R7 z jednym wyjątkiem:** jedno trafienie wzorca (`$.http.fetch(PRICING_PAGE)` w
+  `fetchPricingPage`, `panel/hooks/register.tsx`), poza nim 0; kontrola pozytywna 3/3; adres —
+  wyłącznie strona cennika Anthropic.
+- **Bezpieczeństwo:** wzorzec `sk-ant-|ANTHROPIC_API_KEY=` po 38 plikach z `git status --short` —
+  trafienia tylko w cytatach wzorca (`DZIENNIK.md`, `LEKCJE.md`, L-0134); kontrola pozytywna 1/1.
+- **Chromium:** 45 ikon dokumentów (15 typów × 48 / 32 / 24 px) — etykieta w odznace po
+  zaokrągleniu konturów, defekt podłożony złapany; 4 ikony folderów i 15 ikon plików w 20 px —
+  w obrysie przy 900 / 560 / 360 px, defekt złapany. Pierwszy miernik (bez `scale` transformacji)
+  dał fałszywe „poza” dla SVG — zastąpiony prostokątami ekranowymi.
+- **Na żywo, desktop (zrzuty człowieka 9–12 i log rysowania):** kafle z etykietami, drzewo,
+  okno diffu `PLAN.html` pod wierszem, linki nazw klikalne; panel widoczny po limicie
+  (`v=rows60`: 209 węzłów, 27 Svg, 53 361 znaków). Terminal: zmierzony dla pierwszej wersji
+  zakładki (zrzuty 6–8); drzewo w terminalu tylko testem — człowiek panelu w terminalu nie używa.
+- **Katalog roboczy** `.claude/relai/work/PANEL_CLAUDE/E6/` (1633 pliki, w tym `venv` z fontTools,
+  sonda, fixtury, strony kontrolne Chromium, log rysowania) i `panel/.claude/` (kopia szablonów
+  założona przez hook, gdy katalog sesji przeskoczył do `panel/` — leżała w źródle pluginu)
+  skasowane narzędziem `clean-work.js kasuj` po „tak”: **przed 32,4 MB, po 1,0 MB**. Poza
+  projektem: `dev-mods/a72755a2-…/relai-probe-e6` — narzędzie odmówiło (poza projektem i TEMP),
+  zostaje bramką; `dev-mods/a72755a2-…/relai-panel` 0.8.0 — zostaje do końca sesji (działa na nim
+  panel człowieka).
+
+**Świadomie odłożone:**
+
+- Klikalny cały wiersz drzewa i ikona — czeka na `onPress` w silniku.
+- Próg rozmiaru drzewa, przy którym desktop gubi panel — nieznany (między 53 a 256 tys. znaków);
+  limit w kodzie z zapasem.
+- `panel/hooks/register.tsx` ma 1845 linii (próg 800) — podział przy E7.
+- Pozostałe punkty „Świadomie odłożone” z wpisu wyżej bez zmian (R6 w karcie, wyciszenie w sesji,
+  test E5 na pliku spoza gita, sprzątanie pomiarów C11, rotacja dziennika i lekcji).
+
+**Do zrobienia przez człowieka:**
+
+- Po zamknięciu tej sesji usunąć z folderu modów sesji `a72755a2-…` sondę `relai-probe-e6` i kopię
+  `relai-panel` 0.8.0 (albo za zgodą — asystent w następnej sesji).
 
 Autor: RelAI (Opus 5.5) + Lukasz

@@ -1,6 +1,6 @@
 # STATUS — plan PANEL_CLAUDE
 
-[PLAN.html](PLAN.html) · utworzony 2026-10-08 · **ZAAKCEPTOWANY 2026-10-08** · Aneksy A, B (2026-10-08), C, D (2026-10-09) · model wykonawczy: Opus, w Claude Code (autor planu: Opus 5.5 — jednorazowy wyjątek od reguły „plany: Fable”, decyzja człowieka 2026-10-08)
+[PLAN.html](PLAN.html) · utworzony 2026-10-08 · **ZAAKCEPTOWANY 2026-10-08** · Aneksy A, B (2026-10-08), C, D, E (2026-10-09) · model wykonawczy: Opus, w Claude Code (autor planu: Opus 5.5 — jednorazowy wyjątek od reguły „plany: Fable”, decyzja człowieka 2026-10-08)
 
 | Etap | Nazwa | Status | Prompt | Uwagi |
 |---|---|---|---|---|
@@ -11,8 +11,8 @@
 | E9 | Postęp pracy i agenci na żywo | ZREALIZOWANY 2026-10-09 | [PROMPT_ETAP_9.md](PROMPT_ETAP_9.md) | Aneks B: po E3, przed E4; Aneks C: postęp i agenci w `relai-progress`, timer cache w `relai-cache-keeper` (pluginy w tym repo); styl pasków wg `STYL_PASKOW_CLAUDE.md` i 4 kalibracji |
 | E4 | Mapa przepływu i przypisanie pracy | ZREALIZOWANY 2026-10-09 | [PROMPT_ETAP_4.md](PROMPT_ETAP_4.md) | koszt etapu ze znacznika w rekordzie (pola `stage`, `task`), scalanie jako widok w `.claude/relai/panel/scalenia.json`, zakładka „Mapa” (decyzje człowieka 2026-10-09) |
 | E5 | Decyzje w panelu | ZREALIZOWANY 2026-10-09 | [PROMPT_ETAP_5.md](PROMPT_ETAP_5.md) | dostosowanie procedury `/relai-stage` w pluginie `relai`; zgoda znacznikiem `--zgoda-panelu`, skill Codeksa wygenerowany z komendy (decyzja człowieka); pomiar na żywo w E7 |
-| E6 | Dokumenty i cennik | GOTOWY DO STARTU | [PROMPT_ETAP_6.md](PROMPT_ETAP_6.md) | Aneks D: przypomnienie o modelu bez ceny (nazwa, liczba rekordów) z kartą potwierdzenia; ruch sieciowy do strony cennika Anthropic rozstrzygnięty 2026-10-09 — tylko po karcie |
-| E7 | Wydanie relai-panel | OCZEKUJE | — | publiczny marketplace czy lokalnie — przed E7 |
+| E6 | Dokumenty i cennik | ZREALIZOWANY 2026-10-09 | [PROMPT_ETAP_6.md](PROMPT_ETAP_6.md) | Aneks D: przypomnienie o modelu bez ceny (nazwa, liczba rekordów) z kartą potwierdzenia; ruch sieciowy do strony cennika Anthropic rozstrzygnięty 2026-10-09 — tylko po karcie; Aneks E: „Dokumenty” jako kafle i drzewo z diffem od commita |
+| E7 | Wydanie relai-panel | GOTOWY DO STARTU | [PROMPT_ETAP_7.md](PROMPT_ETAP_7.md) | publiczny marketplace czy lokalnie — przed E7 |
 
 ## Bramki manualne
 
@@ -51,6 +51,8 @@
   pokazuje kartę jak przed E5 (cytat do dziennika)** — odłożone do E7, po wydaniu pluginu `relai`
   z nową procedurą (sesja E5 miała zainstalowane 2.7.1) · źródło: wpis dziennika 2026-10-09 (E5),
   decyzja człowieka · **OTWARTA**
+- **Po zamknięciu sesji E6 usunąć z folderu modów sesji `a72755a2-…` sondę `relai-probe-e6`
+  i kopię `relai-panel` 0.8.0** · źródło: wpis dziennika 2026-10-09 (E6, domknięcie) · **OTWARTA**
 
 ## Dziennik wdrożenia
 
@@ -70,3 +72,6 @@
 - 2026-10-09 — E4 zrealizowany: zakładka „Mapa” w panelu (plany, etapy, odnogi, przebiegi załogi z falami, scalanie zadań jako widok), kolektor zapisuje etap w toku i zadanie załogi w rekordzie, koszt etapu i „poza etapem” słowem w mapie i w „Kosztach”; na żywo: 7 etapów `PROWADZENIE_END_TO_END` ✓, E4 $4,54 = suma sesji $4,54, terminal z `docs\plany`; wygenerowano `PROMPT_ETAP_5.md`.
 - 2026-10-09 — E5 rozpoczęty
 - 2026-10-09 — E5 zrealizowany: karta potwierdzenia w panelu (R4, opcjonalny drugi krok dla E6), start etapu z karty ze znacznikiem zgody `--zgoda-panelu` (procedura `/relai-stage` i wygenerowany z niej skill Codeksa), świeży czat i „Kopiuj prompt”, edycja składu załogi przed startem, listy `/relai-clean`, `/relai-update`, `/relai-models`; zrzuty człowieka: desktop i terminal; pomiar na żywo startu bez drugiego pytania odłożony do E7 (bramka); wygenerowano `PROMPT_ETAP_6.md`.
+- 2026-10-09 — E6 rozpoczęty
+- 2026-10-09 — Aneks E: zakładka „Dokumenty” jako półka kafli (wariant A z czterech) z diffem od ostatniego commita (`git diff HEAD` zamkniętym argv) i podglądem; zakres — dokumenty projektu RelAI (decyzje człowieka po kalibracji na żywo w E6).
+- 2026-10-09 — E6 zrealizowany: sekcja „Cennik” w „Kosztach” (przypomnienie o modelu bez ceny, karta w dwóch krokach z jednym odczytem strony cennika, wersje cennika wg R6) i zakładka „Dokumenty” (kafle i drzewo jak eksplorator, zmienione na górze, diff od commita rysowany wierszami, podgląd); na żywo na desktopie, limit drzewa po zniknięciu panelu przy 256 tys. znaków; wygenerowano `PROMPT_ETAP_7.md`.

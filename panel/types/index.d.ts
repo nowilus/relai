@@ -5,14 +5,16 @@ export type PanelFact = { label: string, value: string, tone?: 'ok' | 'warn' }
 export type PanelAction = { kind: 'clear' } | { kind: 'command', command: string, args: string } | { kind: 'submit', text: string }
   | { kind: 'write', path: string, text: string }
 export type PanelCard = { id: string, title: string, facts: PanelFact[], question: string,
-  second: { question: string, facts: PanelFact[] } | null, actions: PanelAction[], state: 'open' | 'second' | 'confirmed' | 'cancelled' }
+  second: { question: string, facts: PanelFact[] } | null, actions: PanelAction[], state: 'open' | 'second' | 'confirmed' | 'cancelled',
+  /** E6: the page the first "Tak" reads to build the second step (only the Anthropic pricing page); null for any other card. */
+  fetch: string | null }
 export type PanelCleanChoices = { groups: { id: string, name: string, bytes: number, count: number, question: string, isPicked: boolean }[],
   kept: { path: string, reason: string }[], error: string }
 export type PanelCrewDraft = { run: string, tasks: { id: string, title: string, files: string[], dependsOn: string[], role: string, runtime: string, model: string }[],
   isEditable: boolean, reason: string }
 
-/** Which tab of the pane shows: the command forms, the cheat sheet, the session phrases, the costs, the map. */
-export type PanelView = 'commands' | 'sheet' | 'phrases' | 'costs' | 'map'
+/** Which tab of the pane shows: the command forms, the cheat sheet, the session phrases, the costs, the map, the documents. */
+export type PanelView = 'commands' | 'sheet' | 'phrases' | 'costs' | 'map' | 'docs'
 
 declare module 'claude-code' {
   interface PluginState {
@@ -45,6 +47,18 @@ declare module 'claude-code' {
       cleanList: PanelCleanChoices | null
       /** Crew drafts being edited before the start, keyed by run. */
       drafts: Record<string, PanelCrewDraft>
+      /** E6, Aneks D: models whose "bez ceny" reminder the person turned down, keyed by model, with
+       * the date of the price list it was turned down under; a new list date shows it again. */
+      muted: Record<string, string>
+      /** E6, Aneks E: the document open under the shelf, "<group>|<path>" (the group it was opened
+       * from, so its window stands under that group); '' for none. */
+      docPick: string
+      /** What the open document shows: its changes since the last commit, or the document itself. */
+      docMode: 'diff' | 'preview'
+      /** "changed": the edited documents on top and every group folded; "all": the groups open. */
+      docFilter: 'changed' | 'all'
+      /** The shelf as tiles in RelAI groups, or as a file tree by folder. */
+      docLayout: 'tiles' | 'tree'
     }
   }
 }

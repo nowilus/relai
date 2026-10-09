@@ -171,3 +171,16 @@ test('a bar text too close to its background is reported (planted defect)', () =
   const bad = { ...theme.BAND, cache: { ...theme.BAND.cache, color: theme.mix(theme.BAND.cache.bg, '#ffffff', 0.1) } };
   assert.ok(barPairs(bad, theme.BAR).some((l) => l.startsWith('cache label:')));
 });
+
+// The documents tab's diff (E6, Aneks E): each row's text on its own background, the gutter too
+function diffPairs(d, cardOn) {
+  const pairs = [['add', d.addText, d.addBg], ['add gutter', d.gutter, d.addBg], ['del', d.delText, d.delBg], ['del gutter', d.gutter, d.delBg],
+    ['context', d.ctxText, cardOn], ['gutter', d.gutter, cardOn], ['hunk', d.hunk, cardOn]];
+  return pairs.filter(([, fg, bg]) => contrast(fg, bg) < 4.5).map(([n, fg, bg]) => `${n}: ${contrast(fg, bg).toFixed(2)}`);
+}
+
+test('every row of a diff reads on its background (WCAG AA, 4.5:1)', () => {
+  assert.deepEqual(diffPairs(theme.DIFF, theme.THEME.cardOn), []);
+  const bad = { ...theme.DIFF, addText: theme.mix(theme.DIFF.addBg, '#ffffff', 0.1) };
+  assert.ok(diffPairs(bad, theme.THEME.cardOn).some((l) => l.startsWith('add:')), 'planted defect');
+});

@@ -653,6 +653,17 @@ zostanie zmierzony. Gdy w sesji działa <code>cache-keeper-pl</code> (komenda <c
     <li><b>Przypadki brzegowe:</b> model nieobecny na stronie (np. model spoza Claude w załodze) — zostaje „brak ceny”, karta mówi to słowem, odmowa w karcie wycisza przypomnienie dla tego modelu do następnej zmiany daty cennika; brak sieci albo zmieniona strona (parser nie przechodzi) — zostaje stary cennik z datą i komunikatem, nic nie jest nadpisane (jak w sekcji 8); zapisane wyliczenia trzymają stawki, którymi je policzono (R6) — nowa stawka nie zmienia kosztu policzonego wcześniej, chyba że człowiek przeliczy go w karcie.</li>
     <li>Szacunek: E6 1–2 → 2–3 sesje SZACUNEK; plan razem 15–22 sesji SZACUNEK. Model: Opus.</li>
   </ul>
+
+  <h3>Aneks E — 2026-10-09 — zakładka „Dokumenty” jako półka kafli z diffem</h3>
+  <p><b>Powód:</b> kalibracja na żywo w E6 (2026-10-09) — zakładka „Dokumenty” w formie kart z kilkoma liniami treści i rozwijaniem sekcji: „nieczytelne, nikomu się nie będzie chciało tego sprawdzać w tej formie”. Człowiek chce przeglądu ikonami, a treści i zmian dopiero po wybraniu dokumentu, z diffem jak w code review. Panel w terminalu ma dla niego znaczenie drugorzędne (wystarczają paski nad promptem).</p>
+  <p><b>Treść (decyzje człowieka z 2026-10-09, wybór z czterech wariantów):</b></p>
+  <ul>
+    <li><b>Układ — „półka kafli” (wariant A):</b> na górze „Zmienione w tej turze”, niżej grupy (rdzeń, wiedza, plan aktywny, zasoby, archiwum zwinięte) jako kafle z ikoną dokumentu w motywie RelAI, nazwą z rozszerzeniem, rozmiarem i datą ostatniej edycji; dokument zmieniony w turze wyróżniony kolorem i liczbami dodanych / usuniętych linii. Wybór kafla otwiera pod półką okno dokumentu z przełącznikiem „Zmiany” (diff) / „Podgląd” (dokument wyrenderowany).</li>
+    <li><b>Diff od ostatniego commita:</b> <code>git diff HEAD -- &lt;plik&gt;</code> przez <code>$.process.run</code> z zamkniętym argv, wyłącznie dla pliku z listy dokumentów panelu (jak lista <code>/relai-clean</code> w E5); znacznik „zmieniony w tej turze” dalej z <code>toolUses</code> tury. Odczyt bez zmiany stanu — nie potrzebuje karty R4.</li>
+    <li><b>Zakres dokumentów:</b> <code>CLAUDE.md</code>, <code>AGENTS.md</code>, wszystkie <code>.md</code> z <code>docs/</code> poza archiwum, z aktywnego planu <code>STATUS.md</code>, prompty i <code>PLAN.html</code>, zasoby; archiwum zwinięte w jednej grupie. Zastępuje odpowiedź 1(c) z początku E6 (warstwa startu).</li>
+    <li><b>Kryterium E6 uzupełnione:</b> na żywo na desktopie — kafel dokumentu zmienionego w turze wyróżniony, po wybraniu diff dodane / usunięte i podgląd; zrzut człowieka zaakceptowany. Pozostałe kryteria E6 (cennik) bez zmian i już zmierzone.</li>
+    <li>Szacunek: E6 2–3 → 3–4 sesje SZACUNEK (bez zmiany sumy planu poza tym etapem). Model: Opus.</li>
+  </ul>
 </section>
 
 <footer>

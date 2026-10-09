@@ -86,4 +86,26 @@ def numerals(item):
             'font': subset_b64(f"{FONTS}/kalam-{weight}-latin.woff2", ''.join(c for c in chars if c != ' '))}
 
 
-json.dump([numerals(i) if 'glyphs' in i else draw(i) for i in json.load(sys.stdin)], sys.stdout, ensure_ascii=False)
+def outlines(item):
+    # Kalam's letters as outlines (E6, the type label on a document icon): no font and no <text>
+    # in the icon, each glyph's path in em with y up, and its advance, so the panel lays a label
+    # out from the font's own metrics and scales it into the badge.
+    from fontTools.pens.svgPathPen import SVGPathPen
+    fonts = faces(item.get('weight', 700))
+    upm = fonts[0]['head'].unitsPerEm
+    out = {}
+    for ch in item['outlines']:
+        for f in fonts:
+            g = f.getBestCmap().get(ord(ch))
+            if g:
+                pen = SVGPathPen(f.getGlyphSet(), lambda v: f"{v / upm:.4f}".rstrip('0').rstrip('.'))
+                f.getGlyphSet()[g].draw(pen)
+                out[ch] = {'d': pen.getCommands(), 'advance': round(f['hmtx'][g][0] / upm, 4)}
+                break
+        else:
+            raise SystemExit(f"Kalam has no glyph for {ch!r}")
+    cap = fonts[0]['OS/2'].sCapHeight / upm if hasattr(fonts[0]['OS/2'], 'sCapHeight') else 0.7
+    return {'key': item['key'], 'glyphs': out, 'capHeight': round(cap, 4)}
+
+
+json.dump([outlines(i) if 'outlines' in i else numerals(i) if 'glyphs' in i else draw(i) for i in json.load(sys.stdin)], sys.stdout, ensure_ascii=False)

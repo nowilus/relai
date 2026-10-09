@@ -25,6 +25,7 @@ Rejestr wyborów użytkownika dla tego projektu. Każdy wpis: data, czego dotycz
 | 2026-09-01 | Przegląd spraw człowieka | włączony · 30 dni |
 | 2026-09-03 | Artefakty robocze | włączone · 100 MB |
 | 2026-09-04 | Lista modeli | włączona · 7 dni |
+| 2026-10-09 | Cennik panelu | ostrzeżenie po 30 dni od daty cennika (`relai-panel`, zakładka „Koszty”; plan PANEL_CLAUDE, E6) |
 | 2026-09-14 | Model optymalizatora | Sonnet 5 · lista claude-code z dnia 2026-09-04 |
 | 2026-09-14 | Język promptu | język wejścia |
 | 2026-09-15 | Tryb ciągły | włączony — każdy prompt merytoryczny wraca najpierw z propozycją i oryginałem obok; filtr pomijania przepuszcza komendy, frazy sesji, krótkie potwierdzenia i pytania. Wartość spoza listy albo brak wiersza = wyłączony i cisza |

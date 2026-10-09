@@ -21,7 +21,9 @@ import { crewWaves } from './flow.mjs';
  *   | { kind: 'write', path: string, text: string }} Action  write: a path relative to the project root
  * @typedef {'open' | 'second' | 'confirmed' | 'cancelled'} CardState
  * @typedef {{ id: string, title: string, facts: Fact[], question: string, second: Step | null,
- *   actions: Action[], state: CardState }} Card
+ *   actions: Action[], state: CardState, fetch: string | null }} Card
+ *   fetch: a page the mod reads on the first "tak" to build the second step (E6, the price list);
+ *   such a card has no actions until withSecond gives it the ones its second "tak" runs
  * @typedef {{ kind: 'card', card: Card } | { kind: 'blocked', reason: string }} CardResult
  * @typedef {{ id: string, title: string, files: string[], dependsOn: string[], role: string, runtime: string, model: string }} DraftTask
  * @typedef {{ run: string, tasks: DraftTask[], isEditable: boolean, reason: string }} CrewDraft
@@ -68,13 +70,26 @@ export function count(n, one, few, many) {
  * A card in its first state. The id is the caller's (it has the clock and randomness); a bad id
  * or an empty action list is an error, because a card that cannot be told apart or sends nothing
  * must not be shown as a decision.
- * @param {{ id: string, title: string, facts: Fact[], question: string, actions: Action[], second?: Step | null }} c
+ * @param {{ id: string, title: string, facts: Fact[], question: string, actions: Action[], second?: Step | null, fetch?: string | null }} c
  * @returns {Card}
  */
 export function makeCard(c) {
   if (!CARD_ID.test(String(c.id))) throw new Error('karta: niepoprawne id ' + c.id);
-  if (!Array.isArray(c.actions) || c.actions.length === 0) throw new Error('karta bez działania');
-  return { id: c.id, title: c.title, facts: [...c.facts], question: c.question, second: c.second ?? null, actions: [...c.actions], state: 'open' };
+  const fetch = c.fetch ?? null;
+  if (fetch !== null && !c.second) throw new Error('karta z odczytem bez drugiego kroku');
+  if (!Array.isArray(c.actions) || (c.actions.length === 0 && fetch === null)) throw new Error('karta bez działania');
+  return { id: c.id, title: c.title, facts: [...c.facts], question: c.question, second: c.second ?? null, actions: [...c.actions], state: 'open', fetch };
+}
+
+/**
+ * A card in its second step with what that step shows and what its "tak" runs: the step a read
+ * of `fetch` produced. Only a card already in its second step moves; any other comes back as it was.
+ * @param {Card} card @param {Step} step @param {Action[]} actions
+ * @returns {Card}
+ */
+export function withSecond(card, step, actions) {
+  if (card.state !== 'second') return card;
+  return { ...card, second: { question: step.question, facts: [...step.facts] }, actions: [...actions] };
 }
 
 /**

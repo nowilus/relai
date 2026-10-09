@@ -1,6 +1,6 @@
 # STATE — RelAI
 
-Stan na: 2026-10-09 (E4 planu PANEL_CLAUDE — mapa przepływu i koszt etapu; wydanie publiczne nadal 2.7.1)
+Stan na: 2026-10-09 (E6 planu PANEL_CLAUDE — dokumenty i cennik w panelu; wydanie publiczne nadal 2.7.1)
 
 ## Gdzie jesteśmy
 
@@ -57,8 +57,8 @@ Opinii spoza projektu nadal nie ma — pilotaż z użytkownikami zamknięto prze
   i formularze), E8 (motyw, Aneks A), E3 (kolektor pomiarów i zakładka „Koszty"); 2026-10-09:
   **E9 (postęp i agenci, Aneksy B i C)** — rodzina trzech pluginów w tym repo (`relai-panel`,
   `relai-progress`, `relai-cache-keeper`), **E4 (mapa przepływu i koszt etapu)**, **E5 (decyzje
-  w panelu: karta potwierdzenia, start etapu ze zgodą z panelu)**. Następny: E6 „Dokumenty
-  i cennik".
+  w panelu: karta potwierdzenia, start etapu ze zgodą z panelu)**, **E6 (dokumenty i cennik,
+  Aneksy D i E)**. Następny: E7 „Wydanie relai-panel" — ostatni etap planu.
   Pluginy niewydane (wydanie i wpisy w `marketplace.json` to E7).
 
 ## Co dalej
@@ -116,13 +116,13 @@ tryb ciągły, baza reguł optymalizatora z nakładkami rodzin modeli (`claude`,
 instalator. **Adapter Codex**: natywny manifest, 14 skilli, router `AGENTS.md`, trzy hooki (start
 sesji kopiuje listę modeli).
 
-### Panel `relai-panel` i rodzina pluginów (plan PANEL_CLAUDE, po E5)
+### Panel `relai-panel` i rodzina pluginów (plan PANEL_CLAUDE, po E6)
 
 Trzy pluginy Claude Code Mods w tym repo (silnik 2.1.293, „early access”), każdy z kopią rdzenia
 `core/panel/` z `sync-panel-core.js`; nad promptem trzy paski cache → plan → postęp w stylu
 `docs/zasoby/PANEL_RELAI/STYL_PASKOW_CLAUDE.md` (miękkie tło, siatka etykieta | treść | liczba,
 `BAND`/`BAR` w `theme.mjs`). Korzeń projektu szukany w górę od katalogu sesji (P-021).
-**`panel/`** (`relai-panel` 0.7.0): pasek planu (plan, etap, status, koszt sesji z
+**`panel/`** (`relai-panel` 0.8.0): pasek planu (plan, etap, status, koszt sesji z
 `$.session.usage()` jako hipotetyczny koszt API, liczba etapów). **`progress/`** (`relai-progress`
 0.1.0, fork `savvy-progress` — MIT, johnnyvizz): pasek postępu etapu albo biegu `/relai-crew`
 z checkboxów promptu, pocięty na segmenty z podpowiedzią po najechaniu (Svg na desktopie, znaki
@@ -176,7 +176,25 @@ z listą grup z raportu (`$.process.run` z jednym zamkniętym argv, nic zaznaczo
 skład `/relai-crew` edytowalny przed startem przebiegu (zapis `zadania.json` po „Tak”). Nowa
 procedura `/relai-stage` czeka na wydanie `relai` w E7; pomiar na żywo startu bez drugiego
 pytania — bramka E7.
-`relai-panel` i `relai-progress` nie wołają modelu, nie dopisuje nic do kontekstu, nie używa sieci. Rachunki: `core/panel/*.mjs`
+**Dokumenty i cennik (E6, Aneksy D i E):** zakładka „Dokumenty” — wszystkie dokumenty projektu
+(`CLAUDE.md`, `AGENTS.md`, `docs/`) jako ikony z typem pliku (MD, HTML, PDF… konturami Kalam),
+filtr „Zmienione / Wszystkie” (zmienione na górze: najpierw z tej tury, potem od ostatniego
+commita z liczbą linii), układ „Kafle” (półka w grupach) albo „Drzewo” jak eksplorator VS Code
+(foldery otwarte/zamknięte, nazwy bez ścieżek, domyślnie zwinięte; limit 60 wierszy i 40 plików na
+folder — większe drzewo desktop gubi bez słowa, P-023); wybrany dokument otwiera okno pod sobą:
+„Zmiany” (`git diff HEAD` jednego pliku z listy, zamknięty argv, rysowany wierszami jak code review)
+albo „Podgląd” (Markdown, kod, PDF słowem) — `core/panel/documents.mjs`; znacznik „w tej turze” z
+`toolUses` kroków tury (Edit/Write/MultiEdit/NotebookEdit, także subagentów; zapisu poleceniem
+powłoki nie widzi i mówi to). W „Kosztach” sekcja „Cennik”: data i źródło, ostrzeżenie po progu
+z wiersza „Cennik panelu” w `docs/USTAWIENIA.md` (30 dni), przypomnienie o modelu bez ceny z liczbą
+rekordów, modele z pomiarów projektu z kwotą; „Zaktualizuj cennik” → karta → po „Tak” jeden odczyt
+strony cennika Anthropic (`fetchPricingPage`) → różnica stara–nowa → zapis datowanej wersji do
+`.claude/relai/panel/cennik.json` po drugim „Tak”; „Nie” wycisza przypomnienie do zmiany daty
+cennika. Parser strony ścisły (wiersz nierozpoznany → nic nie jest zapisane), stawki per model
+z cache i progiem długiego promptu; rekord wyceniany wersją obowiązującą w chwili pomiaru (R6),
+model dotąd bez ceny — pierwszą, która go zna. Zmierzone na żywo na desktopie 2026-10-09.
+`relai-panel` i `relai-progress` nie wołają modelu i nie dopisują nic do kontekstu; jedyny ruch
+sieciowy to odczyt strony cennika w `relai-panel` po „Tak” (wyjątek od R7, Aneks D). Rachunki: `core/panel/*.mjs`
 (ESM — silnik nie ładuje CommonJS ani importu spoza folderu pluginu); `panel/hooks/core/` to kopia
 bajt w bajt z `node core/tools/sync-panel-core.js` (też `progress/hooks/core/`,
 `cache-keeper/hooks/relai/`), pilnowana testem. Testy: `claude plugin test` w `panel/`, `progress/`
@@ -199,5 +217,5 @@ Backupy: `C:\Users\Lukasz\Backupy\RelAI` • [PRZENOSNOSC.md](PRZENOSNOSC.md) �
 Plany zamknięte: 9 (ostatni PROWADZENIE_END_TO_END, 2026-09-24) • Aktywny: PANEL_CLAUDE (E1, E2, E8, E3 i E9 zrealizowane, E4 gotowy do startu) • Start sesji:
 **88,6 KB / 100 KB** (bez aktywnego planu; po E6 98,2 KB) • Dziennik: **~200 KB / 150 KB** (rotacja należna) • Sekcja ryzyk: 12 otwartych, archiwum ryzyk: 4 pliki
 + 1 mitygacji • Lekcje: **59,4 KB / 50 KB** (rotacja należna), 37 w żywym pliku • Adaptery: 3 • Komendy: 14 •
-Testy rdzenia i adapterów: 201 (z `core/panel/`) + 67 testów pluginów (`relai-panel` 32, `relai-progress` 16, `relai-cache-keeper` 19) • Projekty na RelAI: 3 (RelAI, PolyFlow, JiraManager przed migracją) •
+Testy rdzenia i adapterów: 263 (z `core/panel/`) + 105 testów pluginów (`relai-panel` 70, `relai-progress` 16, `relai-cache-keeper` 19) • Projekty na RelAI: 3 (RelAI, PolyFlow, JiraManager przed migracją) •
 Modele, na których zmierzono proces: 6 (Fable, Opus, Sonnet, Haiku, Composer/auto, Grok 4.6).
