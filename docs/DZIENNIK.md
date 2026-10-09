@@ -2673,3 +2673,21 @@ Autor: RelAI (Opus 5.5) + Lukasz
 - Aneks D w `PLAN.html` po Aneksie C, sekcje 1–9 bez zmian (`git diff` dotyka tylko sekcji 10).
 
 Autor: RelAI (Opus 5.5) + Lukasz
+
+### 2026-10-09 — Sprzątanie po oryginale `cache-keeper-pl` (marketplace `lukasz-mods`)
+
+**Zrobione:**
+
+- Za zgodą człowieka: `claude plugin uninstall cache-keeper-pl@lukasz-mods`,
+  `claude plugin marketplace remove lukasz-mods`, usunięty osierocony cache instalacji
+  `~/.claude/plugins/cache/lukasz-mods/` (50 plików). Folder źródłowy na Pulpicie i folder modów
+  sesji `5e226e84-…` człowiek usunął wcześniej sam. Kopia cache (wersja 0.1.2) przed kasowaniem:
+  `Backupy/RelAI/cache-keeper-pl-0.1.2-cache-2026-10-09.zip` (670 KB).
+- Bramka z E9 w `STATUS.md` rozstrzygnięta; otwartych bramek planu PANEL_CLAUDE: 0.
+
+**Zweryfikowane:**
+
+- `settings.json`, `known_marketplaces.json`, `installed_plugins.json` — 0 wystąpień
+  `lukasz-mods` i `cache-keeper-pl`; katalog cache nie istnieje.
+
+Autor: RelAI (Opus 5.5) + Lukasz

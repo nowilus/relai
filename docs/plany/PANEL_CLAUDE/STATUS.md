@@ -28,7 +28,10 @@
 - **Usunąć folder `C:\Users\Lukasz\Desktop\cache-keeper-pl` i marketplace `lukasz-mods`
   (`/plugin marketplace remove lukasz-mods`), a z folderu modów sesji `5e226e84-…` mod
   `cache-keeper-pl`** — oryginał zastąpiony przez `relai-cache-keeper` (Aneks C), wyłączony
-  w `enabledPlugins` · źródło: wpis dziennika 2026-10-09 (E9) · **OTWARTA**
+  w `enabledPlugins` · źródło: wpis dziennika 2026-10-09 (E9) · **ROZSTRZYGNIĘTA 2026-10-09 —
+  folder na Pulpicie i folder modów `5e226e84-…` usunięte wcześniej przez człowieka; asystent za
+  zgodą odinstalował plugin, usunął marketplace i osierocony cache instalacji (kopia ZIP
+  w `Backupy\RelAI`)**
 - **Po zamknięciu sesji E9 usunąć z folderu modów sesji `3dcd2194-…` kopie `relai-panel`,
   `relai-progress` i `relai-cache-keeper`** · źródło: wpis dziennika 2026-10-09 (E9) ·
   **ROZSTRZYGNIĘTA 2026-10-09 — usunięte przez asystenta za zgodą człowieka, folder pusty**
