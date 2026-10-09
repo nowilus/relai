@@ -2649,3 +2649,27 @@ Autor: Codex + Lukasz
 - Uruchomić E4 w świeżej sesji na Opusie: `/relai-stage`.
 
 Autor: RelAI (Opus 5.5) + Lukasz
+
+### 2026-10-09 — Aneks D planu PANEL_CLAUDE: model bez ceny i zgoda na cennik z sieci
+
+**Zrobione:**
+
+- **Aneks D** (`PLAN.html`, sekcja 10; treść zatwierdzona przez człowieka przed zapisem): E6
+  rozszerzony o wykrywanie modeli bez ceny w pomiarach (przypomnienie z nazwą i liczbą rekordów)
+  i aktualizację cennika po potwierdzeniu w karcie (R4), z różnicą stara–nowa stawka i drugim
+  potwierdzeniem zapisu. Sprawa z sekcji 9 „zgoda na ruch sieciowy przy odświeżaniu cennika”
+  rozstrzygnięta: **tak, wyłącznie po karcie**, jedyny wyjątek od R7 w `relai-panel`. Dwa punkty
+  dopisane przez asystenta i przyjęte: wyciszenie przypomnienia po odmowie do zmiany daty cennika,
+  drugie potwierdzenie przed zapisem stawek.
+- `STATUS.md`: linia metryczna (Aneks D), uwaga przy E6, linia w dzienniku wdrożenia.
+  `PROMPT_ETAP_4.md` (etap niewykonany): granica zakresu wskazuje Aneks D, materiał
+  `PROMPT_ETAP_5.md` obejmuje kartę potwierdzenia dla cennika. `PROMPT_ETAP_6.md` nie powstaje na
+  zapas (D-34) — Aneks D trafia do niego przez uwagę przy E6 w `STATUS.md` i sekcję 10 planu.
+- Bramki z E9 rozstrzygnięte za zgodą człowieka: `savvy-progress@claude-kit` odinstalowany,
+  kopie trzech pluginów usunięte z folderu modów sesji `3dcd2194-…` (szczegóły w `STATUS.md`).
+
+**Zweryfikowane:**
+
+- Aneks D w `PLAN.html` po Aneksie C, sekcje 1–9 bez zmian (`git diff` dotyka tylko sekcji 10).
+
+Autor: RelAI (Opus 5.5) + Lukasz

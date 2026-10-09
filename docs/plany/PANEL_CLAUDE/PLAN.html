@@ -641,6 +641,18 @@ zostanie zmierzony. Gdy w sesji działa <code>cache-keeper-pl</code> (komenda <c
     <li>Oryginały <code>savvy-progress@claude-kit</code> i <code>cache-keeper-pl@lukasz-mods</code> wyłączone w <code>enabledPlugins</code> (nie odinstalowane) po pomiarze na żywo wersji <code>relai-*</code>; folder <code>C:\Users\Lukasz\Desktop\cache-keeper-pl</code> i marketplace <code>lukasz-mods</code> usuwa człowiek (bramka manualna).</li>
     <li>Szacunek E9 bez zmian: 2–3 sesje SZACUNEK. Model: Opus.</li>
   </ul>
+
+  <h3>Aneks D — 2026-10-09 — przypomnienie o modelu bez ceny i zgoda na pobranie cennika</h3>
+  <p><b>Powód:</b> pomiar agentów na żywo w E9 (2026-10-09) — subagent na Sonnecie 5.5 dostał w panelu „brak ceny”, choć miał 4 rekordy pomiaru; datowany cennik (<code>core/panel/pricing.mjs</code>) zna tylko Opusa 5.5. Człowiek chce, żeby panel sam zauważał model bez ceny i proponował aktualizację, zamiast cicho liczyć sumę częściową.</p>
+  <p><b>Treść (decyzje człowieka z 2026-10-09):</b></p>
+  <ul>
+    <li><b>Zakres E6 rozszerzony o wykrywanie braku ceny modelu:</b> panel porównuje modele z rekordów pomiarów (sesja i projekt) z <code>PRICING</code>; dla każdego modelu bez ceny pokazuje przypomnienie z nazwą modelu i liczbą rekordów („claude-sonnet-5-5 — 4 rekordy bez ceny”) oraz pytanie o aktualizację cennika w <b>karcie potwierdzenia</b> (mechanizm R4 z E5).</li>
+    <li><b>Aktualizacja rusza wyłącznie po „tak” w karcie.</b> Po pobraniu panel pokazuje różnicę stara–nowa stawka dla każdego zmienionego modelu i kategorii (model dotąd nieznany — oznaczony „nowy”); zapis nowej stawki dopiero po drugim potwierdzeniu.</li>
+    <li><b>Ostrzeżenie o starej dacie cennika</b> zostaje jak w sekcji 6; przypomnienie o modelu bez ceny działa obok niego, niezależnie od daty.</li>
+    <li><b>Rozstrzygnięcie sprawy z sekcji 9</b> („Zgoda na ruch sieciowy przy odświeżaniu cennika”): <b>tak, wyłącznie po potwierdzeniu w karcie</b>, tylko do strony cennika Anthropic; bez ruchu w tle i bez automatycznego odświeżania przy starcie sesji. To jedyny wyjątek od R7 („panel nie używa sieci”) — dotyczy tylko <code>relai-panel</code> i tylko tego wywołania; kontrola zakazanych wywołań w E6 wyłącza to jedno miejsce z nazwy, reszta zostaje na zero.</li>
+    <li><b>Przypadki brzegowe:</b> model nieobecny na stronie (np. model spoza Claude w załodze) — zostaje „brak ceny”, karta mówi to słowem, odmowa w karcie wycisza przypomnienie dla tego modelu do następnej zmiany daty cennika; brak sieci albo zmieniona strona (parser nie przechodzi) — zostaje stary cennik z datą i komunikatem, nic nie jest nadpisane (jak w sekcji 8); zapisane wyliczenia trzymają stawki, którymi je policzono (R6) — nowa stawka nie zmienia kosztu policzonego wcześniej, chyba że człowiek przeliczy go w karcie.</li>
+    <li>Szacunek: E6 1–2 → 2–3 sesje SZACUNEK; plan razem 15–22 sesji SZACUNEK. Model: Opus.</li>
+  </ul>
 </section>
 
 <footer>

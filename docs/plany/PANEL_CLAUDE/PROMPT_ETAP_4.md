@@ -1,6 +1,6 @@
 # PROMPT_ETAP_4 — Mapa przepływu i koszt etapu w panelu RelAI
 
-Plan: PANEL_CLAUDE • Etap: **E4 z E9** (kolejność wykonania E1, E2, E8, E3, E9, E4, E5, E6, E7 — Aneksy A i B) • Wygenerowano: 2026-10-09 (autor: Opus 5.5, w rytuale „Na koniec" etapu E9) • Wykonawca: **Opus** (STATUS: „model wykonawczy: Opus, w Claude Code"), `/effort high`
+Plan: PANEL_CLAUDE • Etap: **E4 z E9** (kolejność wykonania E1, E2, E8, E3, E9, E4, E5, E6, E7 — Aneksy A i B; Aneksy C i D w sekcji 10) • Wygenerowano: 2026-10-09 (autor: Opus 5.5, w rytuale „Na koniec" etapu E9) • Wykonawca: **Opus** (STATUS: „model wykonawczy: Opus, w Claude Code"), `/effort high`
 
 > **Kontrola modelu:** ten etap wykonuj wyłącznie na modelu klasy **strong**, w tym narzędziu:
 > **Opus 5.5** (lista modeli z dnia `2026-10-08`; D-85). Jeśli sesja działa na innym modelu —
@@ -52,7 +52,9 @@ Typy API modów: wczytaj skill `plugin-authoring` i przeszukaj `claude-code.d.ts
 - **Granica zakresu:** E4 = mapa (plany, etapy, odnogi, przebiegi załogi z zależnościami
   i równoległością), **przypisanie pomiarów do etapu i zadania**, ręczne scalanie zadań. Karta
   potwierdzenia `/relai-stage`, edycja załogi i listy wyboru — **E5**; podgląd dokumentów
-  i odświeżanie cennika z sieci — **E6**; README, wpisy `relai-progress` i `relai-cache-keeper`
+  i odświeżanie cennika z sieci — **E6**, w tym przypomnienie o modelu bez ceny i pobranie cennika
+  po karcie potwierdzenia (**Aneks D**, 2026-10-09 — w E4 brak ceny zostaje słowem, bez pytania
+  o aktualizację); README, wpisy `relai-progress` i `relai-cache-keeper`
   w `marketplace.json`, wydanie — **E7**. Doradca „wysłać / compact / nowa sesja" w
   `relai-cache-keeper` czeka na materiały człowieka — **poza zakresem E4**.
 
@@ -445,6 +447,7 @@ kodu z backslashem albo `\n` powstaje narzędziem Write, nie heredokiem (L-0148)
 5. **Wygeneruj `PROMPT_ETAP_5.md`** w tym folderze, ze specyfikacji promptu etapowego
    (`.claude/relai/templates/SPEC_PROMPT_ETAPU.md`): na bazie `PLAN.html` sekcja 6 (E5 — decyzje
    w panelu: karta potwierdzenia `/relai-stage` i dostosowanie procedury w pluginie `relai`, edycja
-   załogi, listy wyboru, „świeży czat" po potwierdzeniu), sekcja 7 (R4), realnego stanu po tym
-   etapie i lekcji z tego etapu.
+   załogi, listy wyboru, „świeży czat" po potwierdzeniu), sekcja 7 (R4), sekcja 10 (Aneks D —
+   karta potwierdzenia z E5 ma obsłużyć też pytanie o aktualizację cennika z E6: treść, „tak" /
+   „nie", drugie potwierdzenie zapisu), realnego stanu po tym etapie i lekcji z tego etapu.
 6. Commit — propozycja conventional message, po zgodzie człowieka.

@@ -1,6 +1,6 @@
 # STATUS — plan PANEL_CLAUDE
 
-[PLAN.html](PLAN.html) · utworzony 2026-10-08 · **ZAAKCEPTOWANY 2026-10-08** · Aneksy A, B (2026-10-08), C (2026-10-09) · model wykonawczy: Opus, w Claude Code (autor planu: Opus 5.5 — jednorazowy wyjątek od reguły „plany: Fable”, decyzja człowieka 2026-10-08)
+[PLAN.html](PLAN.html) · utworzony 2026-10-08 · **ZAAKCEPTOWANY 2026-10-08** · Aneksy A, B (2026-10-08), C, D (2026-10-09) · model wykonawczy: Opus, w Claude Code (autor planu: Opus 5.5 — jednorazowy wyjątek od reguły „plany: Fable”, decyzja człowieka 2026-10-08)
 
 | Etap | Nazwa | Status | Prompt | Uwagi |
 |---|---|---|---|---|
@@ -11,7 +11,7 @@
 | E9 | Postęp pracy i agenci na żywo | ZREALIZOWANY 2026-10-09 | [PROMPT_ETAP_9.md](PROMPT_ETAP_9.md) | Aneks B: po E3, przed E4; Aneks C: postęp i agenci w `relai-progress`, timer cache w `relai-cache-keeper` (pluginy w tym repo); styl pasków wg `STYL_PASKOW_CLAUDE.md` i 4 kalibracji |
 | E4 | Mapa przepływu i przypisanie pracy | GOTOWY DO STARTU | [PROMPT_ETAP_4.md](PROMPT_ETAP_4.md) | |
 | E5 | Decyzje w panelu | OCZEKUJE | — | dostosowanie procedury `/relai-stage` w pluginie `relai` |
-| E6 | Dokumenty i cennik | OCZEKUJE | — | zgoda na ruch sieciowy przy odświeżaniu cennika — przed E6 |
+| E6 | Dokumenty i cennik | OCZEKUJE | — | Aneks D: przypomnienie o modelu bez ceny (nazwa, liczba rekordów) z kartą potwierdzenia; ruch sieciowy do strony cennika Anthropic rozstrzygnięty 2026-10-09 — tylko po karcie |
 | E7 | Wydanie relai-panel | OCZEKUJE | — | publiczny marketplace czy lokalnie — przed E7 |
 
 ## Bramki manualne
@@ -30,9 +30,12 @@
   `cache-keeper-pl`** — oryginał zastąpiony przez `relai-cache-keeper` (Aneks C), wyłączony
   w `enabledPlugins` · źródło: wpis dziennika 2026-10-09 (E9) · **OTWARTA**
 - **Po zamknięciu sesji E9 usunąć z folderu modów sesji `3dcd2194-…` kopie `relai-panel`,
-  `relai-progress` i `relai-cache-keeper`** · źródło: wpis dziennika 2026-10-09 (E9) · **OTWARTA**
+  `relai-progress` i `relai-cache-keeper`** · źródło: wpis dziennika 2026-10-09 (E9) ·
+  **ROZSTRZYGNIĘTA 2026-10-09 — usunięte przez asystenta za zgodą człowieka, folder pusty**
 - **Zdecydować o `savvy-progress@claude-kit`** (wyłączony w E9; `relai-progress` go zastępuje):
-  zostawić wyłączony albo odinstalować · źródło: wpis dziennika 2026-10-09 (E9) · **OTWARTA**
+  zostawić wyłączony albo odinstalować · źródło: wpis dziennika 2026-10-09 (E9) ·
+  **ROZSTRZYGNIĘTA 2026-10-09 — odinstalowany (`claude plugin uninstall`, scope user) za zgodą
+  człowieka; marketplace `claude-kit` zostaje**
 
 ## Dziennik wdrożenia
 
@@ -47,3 +50,4 @@
 - 2026-10-09 — E9 rozpoczęty
 - 2026-10-09 — Aneks C: `relai-progress` i `relai-cache-keeper` jako pluginy w tym repozytorium zamiast `lukasz-mods`; postęp i agenci w `relai-progress`, timer cache tylko w `relai-cache-keeper` (decyzje człowieka na starcie E9).
 - 2026-10-09 — E9 zrealizowany: pluginy `relai-progress` (pasek postępu pocięty na segmenty z podpowiedzią, panel agentów z kosztem z pomiarów) i `relai-cache-keeper` (dawny `cache-keeper-pl`) w repo; trzy paski cache → plan → postęp w stylu `STYL_PASKOW_CLAUDE.md`; na żywo: koszt agenta Opus = suma jego rekordów ($0,42), punkt odhaczony z zewnątrz w ≤ 10 s, terminal z podfolderu; wygenerowano `PROMPT_ETAP_4.md`.
+- 2026-10-09 — Aneks D: E6 rozszerzony o przypomnienie o modelu bez ceny i aktualizację cennika po potwierdzeniu w karcie (różnica stara–nowa stawka); sprawa z sekcji 9 „ruch sieciowy przy odświeżaniu cennika” rozstrzygnięta — tak, wyłącznie po karcie (decyzja człowieka po pomiarze agentów w E9).
