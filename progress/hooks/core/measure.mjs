@@ -9,6 +9,12 @@
 // see one twice (a reload re-reading its file, a resumed session), the sums never do.
 // A missing measurement stays missing: null counts and a reason in words, never zeros (R2).
 //
+// Since E4 a record also says where the work belonged when it was measured: `stage` is the stage
+// in progress of the active plan ("PLAN/EN"), `task` the /relai-crew run and task ("run/task"),
+// each null when there was none (decision of 2026-10-09, E4: a tag written by the collector, not
+// a window of dates, which carry no hours). A record written before E4 has neither field; it reads
+// back as it was and is never given a stage it did not have.
+//
 // ESM without engine or Node API, for the same reason as cache-timer.mjs; the plugin carries a
 // byte-identical copy written by core/tools/sync-panel-core.js.
 
@@ -18,7 +24,7 @@ export const TOOL = 'claude-code';
 /** Every field of a record, and nothing else: the test holds records to this list. */
 export const RECORD_FIELDS = Object.freeze([
   'v', 'tool', 'session', 'turn', 'index', 'agent', 'kind', 'model', 'at',
-  'input', 'cacheRead', 'cacheWrite', 'output', 'missing',
+  'input', 'cacheRead', 'cacheWrite', 'output', 'missing', 'stage', 'task',
 ]);
 
 export const MAIN_LABEL = 'wątek główny';
@@ -28,8 +34,9 @@ export const MAIN_LABEL = 'wątek główny';
  *   v: 1, tool: string, session: string, turn: string, index: number,
  *   agent: string | null, kind: 'step' | 'compact', model: string | null, at: number,
  *   input: number | null, cacheRead: number | null, cacheWrite: number | null, output: number | null,
- *   missing: string | null
+ *   missing: string | null, stage?: string | null, task?: string | null
  * }} MeasureRecord
+ * @typedef {{ stage?: string | null, task?: string | null }} Tag  where the work belonged
  * @typedef {{
  *   input_tokens?: number, output_tokens?: number,
  *   cache_read_input_tokens?: number, cache_creation_input_tokens?: number, model?: string
@@ -50,7 +57,7 @@ export const MAIN_LABEL = 'wątek główny';
 const count = (/** @type {unknown} */ n) => (typeof n === 'number' && Number.isFinite(n) ? n : 0);
 
 /**
- * @param {{ session: string, turn: string, index: number, agent: string | null, kind: 'step' | 'compact', model: string | null, at: number }} id
+ * @param {{ session: string, turn: string, index: number, agent: string | null, kind: 'step' | 'compact', model: string | null, at: number } & Tag} id
  * @param {ApiUsage | null | undefined} usage
  * @param {string} reason  what a record without usage says
  * @returns {MeasureRecord}
@@ -60,17 +67,18 @@ function record(id, usage, reason) {
     v: /** @type {1} */ (SCHEMA), tool: TOOL, session: id.session, turn: id.turn, index: id.index,
     agent: id.agent ?? null, kind: id.kind, model: (usage && usage.model) || id.model || null, at: id.at,
   };
-  if (!usage) return { ...base, input: null, cacheRead: null, cacheWrite: null, output: null, missing: reason };
+  const tag = { stage: id.stage ?? null, task: id.task ?? null };
+  if (!usage) return { ...base, input: null, cacheRead: null, cacheWrite: null, output: null, missing: reason, ...tag };
   return {
     ...base,
     input: count(usage.input_tokens), cacheRead: count(usage.cache_read_input_tokens),
-    cacheWrite: count(usage.cache_creation_input_tokens), output: count(usage.output_tokens), missing: null,
+    cacheWrite: count(usage.cache_creation_input_tokens), output: count(usage.output_tokens), missing: null, ...tag,
   };
 }
 
 /**
  * One request of a loop (turn.step): the main loop's when agent is null, else a subagent's.
- * @param {{ session: string, turn: string, index: number, agent: string | null, model: string | null, at: number, usage: ApiUsage | null | undefined }} a
+ * @param {{ session: string, turn: string, index: number, agent: string | null, model: string | null, at: number, usage: ApiUsage | null | undefined } & Tag} a
  * @returns {MeasureRecord}
  */
 export function stepRecord(a) {
@@ -79,7 +87,7 @@ export function stepRecord(a) {
 
 /**
  * A compaction's own request (session.compact), which no turn.step carries; model: the loop's.
- * @param {{ session: string, agent: string | null, model: string | null, at: number, usage: ApiUsage | null | undefined }} a
+ * @param {{ session: string, agent: string | null, model: string | null, at: number, usage: ApiUsage | null | undefined } & Tag} a
  * @returns {MeasureRecord}
  */
 export function compactRecord(a) {

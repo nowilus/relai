@@ -99,6 +99,13 @@ export const HEADINGS = Object.freeze([
   { key: 'costs-turns', text: 'Wywołania w czasie', size: 20, color: mix(ROOT.glina, ROOT.kartka, 0.25) },
   { key: 'costs-agents', text: 'Agenci', size: 20, color: mix(ROOT.glina, ROOT.kartka, 0.25) },
   { key: 'costs-models', text: 'Modele', size: 20, color: mix(ROOT.glina, ROOT.kartka, 0.25) },
+  // The map tab (E4): one main heading, the rest a size down, as in the costs tab
+  { key: 'map', text: 'Mapa przepływu', size: 22, color: ROOT.musztarda },
+  { key: 'map-open', text: 'Inne plany', size: 20, color: mix(ROOT.glina, ROOT.kartka, 0.25) },
+  { key: 'map-crew', text: 'Przebiegi załogi', size: 20, color: mix(ROOT.glina, ROOT.kartka, 0.25) },
+  { key: 'map-outside', text: 'Poza etapem', size: 20, color: mix(ROOT.glina, ROOT.kartka, 0.25) },
+  { key: 'map-archive', text: 'Archiwum planów', size: 20, color: mix(ROOT.glina, ROOT.kartka, 0.25) },
+  { key: 'costs-stages', text: 'Etapy', size: 20, color: mix(ROOT.glina, ROOT.kartka, 0.25) },
   // relai-progress's pane (E9, calibration 2026-10-09: the same motif as relai-panel's)
   { key: 'progress', text: 'Postęp etapu', size: 22, color: ROOT.musztarda },
   { key: 'agents', text: 'Agenci sesji', size: 22, color: ROOT.musztarda },
@@ -153,6 +160,33 @@ export const BAR = Object.freeze({
     failed: mix('#df987a', '#262c27', 0.2),
     unknown: mix('#262c27', '#b8b0a3', 0.12),
   }),
+});
+
+/**
+ * How the map marks a state (E4): the sign and the color of the motif, so the state reads in the
+ * sign and the word, never in the color alone; `item` is the progress segment it draws as (BAR),
+ * the same language as the bar above the prompt. A status outside these lists is `unknown`.
+ */
+export const FLOW = Object.freeze({
+  stage: Object.freeze({
+    'ZREALIZOWANY': Object.freeze({ mark: '✓', color: THEME.ok, item: 'done' }),
+    'W TOKU': Object.freeze({ mark: '●', color: THEME.mark, item: 'running' }),
+    'GOTOWY DO STARTU': Object.freeze({ mark: '▶', color: THEME.accentText, item: 'pending' }),
+    'OCZEKUJE': Object.freeze({ mark: '○', color: THEME.body, item: 'pending' }),
+    'POMINIĘTY': Object.freeze({ mark: '–', color: THEME.body, item: 'unknown' }),
+  }),
+  task: Object.freeze({
+    done: Object.freeze({ mark: '✓', color: THEME.ok, word: 'gotowe' }),
+    running: Object.freeze({ mark: '●', color: THEME.mark, word: 'w toku' }),
+    failed: Object.freeze({ mark: '!', color: THEME.accentText, word: 'nieudane' }),
+    pending: Object.freeze({ mark: '○', color: THEME.body, word: 'czeka' }),
+  }),
+  branch: Object.freeze({
+    'OTWARTA': Object.freeze({ mark: '↳', color: THEME.mark }),
+    'ZAMKNIĘTA': Object.freeze({ mark: '↳', color: THEME.ok }),
+    'PRZENIESIONA': Object.freeze({ mark: '↳', color: THEME.body }),
+  }),
+  unknown: Object.freeze({ mark: '?', color: THEME.body, item: 'unknown' }),
 });
 
 /** Small line glyphs of the pane's own controls (tabs, phrase cards), 24×24, in one color. */

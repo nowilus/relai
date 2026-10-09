@@ -40,7 +40,7 @@ o kolejne `N` dni / rozstrzygnąć teraz. Sesja nieinteraktywna: sam raport, bez
 | Plan OPTYMALIZATOR_PROMPTOW — 5 etapów | **ZREALIZOWANY 2026-09-15** (5/5, Aneksy A i B, wydanie 2.2.0) | [archiwum planu](docs/archiwum/plany/OPTYMALIZATOR_PROMPTOW/STATUS.md) |
 | Odnogi i wątki samodzielne | 1 otwarta (`OPIS_REPO`, od 2026-09-24 wątek samodzielny w `docs/fixy/`); `ORKIESTRACJA` zamknięta 2026-09-06 (2.1.0 w repo), `PRECOMMIT_ESM` 2026-09-04 wydaniem 1.9.2, `CURSOR_1_9_1` tego samego dnia | [docs/STATE.md](docs/STATE.md) |
 
-Aktywny plan: [PANEL_CLAUDE](docs/plany/PANEL_CLAUDE/STATUS.md) — panel RelAI dla Claude Code jako osobny plugin `relai-panel`, **ZAAKCEPTOWANY** 2026-10-08, Aneksy A, B i C; E1, E2, E8 i E3 zrealizowane 2026-10-08, E9 2026-10-09 (pluginy `relai-progress` i `relai-cache-keeper` w repo), następny: E4 „Mapa przepływu i przypisanie pracy” (`/relai-stage`).
+Aktywny plan: [PANEL_CLAUDE](docs/plany/PANEL_CLAUDE/STATUS.md) — panel RelAI dla Claude Code jako osobny plugin `relai-panel`, **ZAAKCEPTOWANY** 2026-10-08, Aneksy A, B i C; E1, E2, E8 i E3 zrealizowane 2026-10-08, E9 i E4 2026-10-09 (pluginy `relai-progress` i `relai-cache-keeper` w repo; zakładka „Mapa” i koszt etapu), następny: E5 „Decyzje w panelu” (`/relai-stage`).
 
 ## Reguły procesu
 

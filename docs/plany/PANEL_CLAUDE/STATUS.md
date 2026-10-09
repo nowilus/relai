@@ -9,8 +9,8 @@
 | E8 | Motyw RelAI i ikony komend | ZREALIZOWANY 2026-10-08 | [PROMPT_ETAP_8.md](PROMPT_ETAP_8.md) | Aneks A: po E2, przed E3; wariant A z „Polecane” z C, przyciski natywne z sygnałem kliknięcia (decyzje człowieka) |
 | E3 | Kolektor pomiarów i raport kosztów | ZREALIZOWANY 2026-10-08 | [PROMPT_ETAP_3.md](PROMPT_ETAP_3.md) | schemat pomiaru ustala ten plan (pole `tool`, decyzja 2026-10-08); raport kosztów skalibrowany na żywo w 6 rundach |
 | E9 | Postęp pracy i agenci na żywo | ZREALIZOWANY 2026-10-09 | [PROMPT_ETAP_9.md](PROMPT_ETAP_9.md) | Aneks B: po E3, przed E4; Aneks C: postęp i agenci w `relai-progress`, timer cache w `relai-cache-keeper` (pluginy w tym repo); styl pasków wg `STYL_PASKOW_CLAUDE.md` i 4 kalibracji |
-| E4 | Mapa przepływu i przypisanie pracy | GOTOWY DO STARTU | [PROMPT_ETAP_4.md](PROMPT_ETAP_4.md) | |
-| E5 | Decyzje w panelu | OCZEKUJE | — | dostosowanie procedury `/relai-stage` w pluginie `relai` |
+| E4 | Mapa przepływu i przypisanie pracy | ZREALIZOWANY 2026-10-09 | [PROMPT_ETAP_4.md](PROMPT_ETAP_4.md) | koszt etapu ze znacznika w rekordzie (pola `stage`, `task`), scalanie jako widok w `.claude/relai/panel/scalenia.json`, zakładka „Mapa” (decyzje człowieka 2026-10-09) |
+| E5 | Decyzje w panelu | GOTOWY DO STARTU | [PROMPT_ETAP_5.md](PROMPT_ETAP_5.md) | dostosowanie procedury `/relai-stage` w pluginie `relai` |
 | E6 | Dokumenty i cennik | OCZEKUJE | — | Aneks D: przypomnienie o modelu bez ceny (nazwa, liczba rekordów) z kartą potwierdzenia; ruch sieciowy do strony cennika Anthropic rozstrzygnięty 2026-10-09 — tylko po karcie |
 | E7 | Wydanie relai-panel | OCZEKUJE | — | publiczny marketplace czy lokalnie — przed E7 |
 
@@ -40,6 +40,9 @@
   **ROZSTRZYGNIĘTA 2026-10-09 — odinstalowany (`claude plugin uninstall`, scope user) za zgodą
   człowieka; marketplace `claude-kit` zostaje**
 
+- **Po zamknięciu sesji E4 usunąć z folderu modów sesji `d87447e7-…` kopie `relai-panel`
+  i `relai-progress`** · źródło: wpis dziennika 2026-10-09 (E4) · **OTWARTA**
+
 ## Dziennik wdrożenia
 
 - 2026-10-08 — Plan utworzony na podstawie `docs/zasoby/PANEL_RELAI/WYWIAD.md` i trzech rund wywiadu w sesji Claude Code; prototyp wzorców API: prywatny mod `cache-keeper-pl` (poza repo). Czeka na akceptację.
@@ -54,3 +57,5 @@
 - 2026-10-09 — Aneks C: `relai-progress` i `relai-cache-keeper` jako pluginy w tym repozytorium zamiast `lukasz-mods`; postęp i agenci w `relai-progress`, timer cache tylko w `relai-cache-keeper` (decyzje człowieka na starcie E9).
 - 2026-10-09 — E9 zrealizowany: pluginy `relai-progress` (pasek postępu pocięty na segmenty z podpowiedzią, panel agentów z kosztem z pomiarów) i `relai-cache-keeper` (dawny `cache-keeper-pl`) w repo; trzy paski cache → plan → postęp w stylu `STYL_PASKOW_CLAUDE.md`; na żywo: koszt agenta Opus = suma jego rekordów ($0,42), punkt odhaczony z zewnątrz w ≤ 10 s, terminal z podfolderu; wygenerowano `PROMPT_ETAP_4.md`.
 - 2026-10-09 — Aneks D: E6 rozszerzony o przypomnienie o modelu bez ceny i aktualizację cennika po potwierdzeniu w karcie (różnica stara–nowa stawka); sprawa z sekcji 9 „ruch sieciowy przy odświeżaniu cennika” rozstrzygnięta — tak, wyłącznie po karcie (decyzja człowieka po pomiarze agentów w E9).
+- 2026-10-09 — E4 rozpoczęty
+- 2026-10-09 — E4 zrealizowany: zakładka „Mapa” w panelu (plany, etapy, odnogi, przebiegi załogi z falami, scalanie zadań jako widok), kolektor zapisuje etap w toku i zadanie załogi w rekordzie, koszt etapu i „poza etapem” słowem w mapie i w „Kosztach”; na żywo: 7 etapów `PROWADZENIE_END_TO_END` ✓, E4 $4,54 = suma sesji $4,54, terminal z `docs\plany`; wygenerowano `PROMPT_ETAP_5.md`.

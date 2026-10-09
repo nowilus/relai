@@ -41,8 +41,10 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
    (AskUserQuestion w `claude -p`) nie da się policzyć, a zero wygląda jak sukces. **Kryterium
    wyszukujące wzorzec nie przeszukuje plików, które ten wzorzec cytują** — prompt etapu łapie sam
    siebie. **Tekst, który tłumaczy liczbę, ma warunek prawdziwości i test dla stanu docelowego**,
-   nie tylko dla sesji pomiarowej, w której powstał (L-0144). (L-0017, L-0018,
-   L-0040, L-0051, L-0052, L-0063, L-0069, L-0082, L-0115, L-0117, L-0123, L-0134, L-0144)
+   nie tylko dla sesji pomiarowej, w której powstał (L-0144). **Test na realnym pliku, którego stan
+   zmienia proces (checkboxy, statusy), sam ustawia stan wyjściowy**, a licznik testów do dziennika
+   pochodzi z przebiegu po ostatniej zmianie przed commitem (L-0150). (L-0017, L-0018,
+   L-0040, L-0051, L-0052, L-0063, L-0069, L-0082, L-0115, L-0117, L-0123, L-0134, L-0144, L-0150)
 5. **Instrument pomiarowy sam bywa źródłem fałszu:** wyrażenia regularne trzymaj w pliku zapisanym
    narzędziem zapisu, nie w `node -e` ani w heredoku, a tekst z backslashem (także ścieżkę
    Windows) wstawiasz Edit/Write albo piszesz z `/` (L-0116, L-0119); **skrypt edycji kodu, który
@@ -122,10 +124,11 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
    **Instrument w środowisku bez `append` pisze plik na proces** — dwóch pisarzy jednego pliku
    kasuje sobie wiersze (L-0141). **Porównanie dwóch plików kasuje oba przed przebiegiem** i
    sprawdza, że oba powstały teraz — nieudany zapis wygląda jak zgodność ze starym wynikiem (L-0143).
-   (L-0032, L-0037, L-0095, L-0096, L-0105, L-0106, L-0107, L-0110, L-0111, L-0113,
+   **Stan „przed" mierzysz w osobnym `git worktree` HEAD-a**, nie po `git stash` — stash zostawia
+   pliki nieśledzone i daje drzewo mieszane (L-0151). (L-0032, L-0037, L-0095, L-0096, L-0105, L-0106, L-0107, L-0110, L-0111, L-0113,
    L-0097, L-0101, L-0102,
    L-0054, L-0055, L-0056, L-0064, L-0068, L-0071, L-0073, L-0083, L-0084, L-0086, L-0087, L-0088,
-   L-0090, L-0091, L-0124, L-0125, L-0130, L-0131, L-0135, L-0141, L-0143)
+   L-0090, L-0091, L-0124, L-0125, L-0130, L-0131, L-0135, L-0141, L-0143, L-0151)
 6. **Próg jest liczbą, którą ktoś liczy:** kalibruj go na zmierzonych plikach realnych projektów,
    zapisuj w jednostce mechanizmu kontrolnego wraz z komendą sprawdzającą i daj mu **jeden**
    wyzwalacz — wielkości pomocnicze wskazują przyczynę wewnątrz komunikatu, nie wywołują go.
@@ -252,8 +255,13 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
     `iframe`, kontrola na podłożonym defekcie) — test montażu widzi element, nie obraz (L-0142).
     **W raporcie liczb procenty i kwoty mają dwa miejsca po przecinku**; zaokrąglenie zmieniające
     odczyt jest błędem (L-0145). **Etykieta stanu nazywa stan słowem i znakiem** — zapis „x/y" tylko
-    tam, gdzie y jest celem; brak danych i brak ceny to dwa różne komunikaty (L-0147).
-    (L-0003, L-0006, L-0016, L-0019, L-0029, L-0094, L-0098, L-0137, L-0140, L-0142, L-0145, L-0147)
+    tam, gdzie y jest celem; brak danych i brak ceny to dwa różne komunikaty (L-0147). **Słowo, które
+    twierdzi fakt o przeszłości („sprzed znacznika", „zmierzono"), ma warunek prawdziwości na
+    danych** i test na materiale, gdzie warunek nie zachodzi (L-0149). **Komórka liczby w wierszu
+    ma `flexShrink={0}`** — ustępuje nazwa; test sprawdza tę właściwość, a zrzut z terminala jest
+    częścią pomiaru (L-0152).
+    (L-0003, L-0006, L-0016, L-0019, L-0029, L-0094, L-0098, L-0137, L-0140, L-0142, L-0145, L-0147,
+    L-0149, L-0152)
 
 **Wyprowadzone 2026-08-20 do `docs/PULAPKI.md`:** sześć pozycji, które były pułapkami
 narzędziowymi, a nie zasadami pracy — `tar` na `PATH` (L-0021), sesja pomiarowa `claude -p`
@@ -742,6 +750,51 @@ restart aplikacji po `plugin update` (L-0031), `git worktree` zamiast `git archi
 - **Zasada:** skrypt edycji kodu, który niesie `\n` albo ścieżkę Windows, powstaje narzędziem Write
   — bez wyjątku „tylko ten jeden raz"; heredok zostaje dla tekstu bez backslasha.
 - **Źródło:** E9 planu PANEL_CLAUDE; destylat: dopisane do zasady 5.
+
+### L-0149 — „sprzed znacznika" przy planie zamkniętym, zanim kolektor istniał · 2026-10-09 · AKTYWNA
+
+- **Trigger:** mapa w E4 opisała etapy archiwalnego `PROWADZENIE_END_TO_END` (zamknięte 2026-09-24)
+  jako „sprzed znacznika", z rozwinięciem „wywołania tego etapu zmierzono przed E4" — a kolektor
+  mierzy od 2026-10-08. Wyszło dopiero na zrzucie człowieka.
+- **Przyczyna:** słowo stanu wybrane po statusie etapu („zamknięty"), bez warunku na danych, który
+  czyni je prawdziwym; test sprawdzał tylko etap, dla którego słowo było prawdą.
+- **Zasada:** słowo, które twierdzi fakt o przeszłości („zmierzono", „sprzed znacznika"), ma warunek
+  prawdziwości na danych (data etapu wobec dnia pierwszego pomiaru) i test na materiale, gdzie
+  warunek **nie** zachodzi; w dniu granicznym tekst mówi „jeśli", nie „zmierzono".
+- **Źródło:** E4 planu PANEL_CLAUDE (zrzut na żywo); destylat: dopisane do zasady 15.
+
+### L-0150 — Dziennik E9 mówił 201/201, a test oblewał od commita E9 · 2026-10-09 · AKTYWNA
+
+- **Trigger:** na starcie weryfikacji E4 test `progress.test.js` („real material… a box ticked by
+  hand moves the percent") oblał na czystym HEAD: 200/201. Test odhaczał „pierwszy pusty checkbox"
+  `PROMPT_ETAP_9.md`, a zamknięcie E9 odhaczyło wszystkie 14 — liczba z dziennika powstała przed
+  ostatnią zmianą tego pliku.
+- **Przyczyna:** test na realnym materiale zakładał stan, który proces projektu z definicji usuwa;
+  licznik do dziennika zmierzony przed ostatnią edycją materiału.
+- **Zasada:** test na realnym pliku, którego stan zmienia proces (checkboxy, statusy), sam ustawia
+  stan wyjściowy i sprawdza, że go ma; licznik testów do dziennika pochodzi z przebiegu po
+  ostatniej zmianie przed commitem.
+- **Źródło:** E4 planu PANEL_CLAUDE; destylat: dopisane do zasady 4.
+
+### L-0151 — `git stash` jako „stan przed" zmierzył drzewo mieszane · 2026-10-09 · AKTYWNA
+
+- **Trigger:** pomiar liczby testów „przed etapem" przez `git stash` dał 220 testów i 5 błędów —
+  nowe, nieśledzone pliki etapu zostały na dysku obok starego kodu. Czysty pomiar w `git worktree`
+  dał 201 / 1 błąd.
+- **Przyczyna:** `stash` zdejmuje tylko zmiany śledzone; drzewo po nim nie jest HEAD-em.
+- **Zasada:** stan „przed" mierzysz w osobnym `git worktree add <katalog> HEAD`, a worktree
+  usuwasz po pomiarze; przebieg na mieszanym drzewie nie trafia do dziennika.
+- **Źródło:** E4 planu PANEL_CLAUDE; destylat: dopisane do zasady 5.
+
+### L-0152 — Kwota złamana w terminalu, choć test 40 kolumn był zielony · 2026-10-09 · AKTYWNA
+
+- **Trigger:** w terminalu koszt etapu „$4.54" rozpadł się na „$4.5" i „4"; test `minWidth`
+  przy 40 kolumnach przechodził.
+- **Przyczyna:** instrument liczy najdłuższe słowo każdego tekstu, a nie to, która komórka wiersza
+  ustępuje miejsca; komórka liczby kurczyła się przed nazwą z `truncate`.
+- **Zasada:** komórka liczby w wierszu ma `flexShrink={0}` (ustępuje nazwa) i test sprawdza tę
+  właściwość wprost; zrzut z terminala jest częścią pomiaru, nie formalnością po testach.
+- **Źródło:** E4 planu PANEL_CLAUDE (zrzut na żywo); destylat: dopisane do zasady 15.
 
 ## Lekcje zwinięte
 

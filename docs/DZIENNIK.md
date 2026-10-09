@@ -20,11 +20,11 @@
 | O4 | Tryb ciągły kosztuje turę przy każdym zdaniu — praca zwalnia i drożeje (plan OPTYMALIZATOR_PROMPTOW, ryzyko O4) | **Średni** (2026-09-14, przy akceptacji planu) | **OTWARTE** | Wyłącznik w `USTAWIENIA.md`, filtr pomija komendy; otwarte: rozrzut kosztu większy niż mierzona różnica. Historia: [MITYGACJE_2026-09-24](archiwum/ryzyka/MITYGACJE_2026-09-24.md). |
 | K3 | Nakładki rodzin modeli starzeją się szybciej niż wydania RelAI — dostawca zmienia wytyczne, a reguła z datą zostaje (plan PROWADZENIE_END_TO_END, ryzyko K3) | **Średni** (2026-09-24, przy zamknięciu planu) | **OTWARTE** | Każda reguła nakładki ma źródło i datę odczytu; hook startu mówi o nakładce starszej niż 30 dni; odświeżenie razem z `/relai-models`. |
 | C1 | API modów Claude Code („early access”) zmieni się między wydaniami i `relai-panel` przestanie się ładować (plan PANEL_CLAUDE, ryzyko R1) | **Wysoki** (2026-10-08, przy E1) | **OTWARTE** | Osobne pluginy; rachunki w `core/panel/` poza API modów; `plugin validate` i `plugin test` przed wydaniem — od E9 dla trzech pluginów (`relai-panel`, `relai-progress`, `relai-cache-keeper`, ten ostatni przejął rolę kanarka po `cache-keeper-pl`). Otwarte: minimalna wersja silnika niezmierzona (działa 2.1.293); trzy pluginy na tym samym API to trzy miejsca do poprawki przy zmianie. |
-| C3 | Desktop rysuje panel inaczej niż terminal (plan PANEL_CLAUDE, ryzyko R3) | **Niski** (2026-10-08 po E8; wcześniej średni dla panelu w terminalu) | **OTWARTE** | Pasek i panel zmierzone na żywo na desktopie (E1, E2, E8) i panel w terminalu 2.1.293 (E8: nagłówki tekstem, przyciski `[ … ]`); powierzchnię rozpoznaje `e.surface` (L-0138), test sprawdza odpowiednik tekstowy. E9: trzy paski nad promptem i panel `/relai-agents` zmierzone na desktopie i w terminalu 2.1.293 (segmenty Svg z podpowiedzią / znaki; terminal startowany z podfolderu — P-021); pasek cache w terminalu niewidoczny bez pierwszego zapytania (sesja niezalogowana), pokrywa go test. Otwarte, bo każdy nowy element panelu (E4–E6) ma dwie powierzchnie do zmierzenia. |
+| C3 | Desktop rysuje panel inaczej niż terminal (plan PANEL_CLAUDE, ryzyko R3) | **Niski** (2026-10-08 po E8; wcześniej średni dla panelu w terminalu) | **OTWARTE** | Pasek i panel zmierzone na żywo na desktopie (E1, E2, E8) i panel w terminalu 2.1.293 (E8: nagłówki tekstem, przyciski `[ … ]`); powierzchnię rozpoznaje `e.surface` (L-0138), test sprawdza odpowiednik tekstowy. E9: trzy paski nad promptem i panel `/relai-agents` zmierzone na desktopie i w terminalu 2.1.293 (segmenty Svg z podpowiedzią / znaki; terminal startowany z podfolderu — P-021); pasek cache w terminalu niewidoczny bez pierwszego zapytania (sesja niezalogowana), pokrywa go test. E4: zakładka „Mapa” zmierzona na desktopie i w terminalu 2.1.293 z `docs\plany` — pasek etapów Svg z kartą / znaki █, kwota w terminalu łamała się, aż komórka dostała `flexShrink={0}` (L-0152). Otwarte, bo E5–E6 mają dwie powierzchnie do zmierzenia. |
 | C9 | Motyw RelAI i ikony komend nie zmieszczą się w elementach silnika modów — `Svg` tylko na desktopie, `Client` niezmierzony, terminal bez grafiki (plan PANEL_CLAUDE, Aneks A) | **Niski** (2026-10-08 po E8; wcześniej średni) | **ZAMKNIĘTE 2026-10-08** | Sonda E8: Svg z osadzonym fontem działa na desktopie, `Client` działa, `foreignObject` i interaktywne Svg odpadają, `plain` odwraca kolory (P-018); motyw zbudowany w tych granicach i przyjęty przez człowieka; terminal dostał odpowiednik tekstowy, zmierzony na żywo. |
 | C8 | Inny mod paska nad promptem rysuje bez `next` albo owija węzeł silnika w `Box` z `width` i pasek RelAI znika bez komunikatu (E1, P-017) | **Średni** (2026-10-08, przy E1) | **OTWARTE** | `relai-panel`, `relai-progress` i `relai-cache-keeper` zawsze wołają `next` i nie dokładają `width` do owijacza (test „engine kept beneath" w każdym); `savvy-progress` rysował bez `next` — wyłączony w E9, zastąpiony forkiem. Otwarte: cudze mody poza kontrolą — ostrzeżenie w README w E7. |
-| C10 | Pomiar kosztów niepełny albo podwójny — subagenci, kompakcja, wznowienie, `/clear`, wywołania poza pętlą (plan PANEL_CLAUDE, ryzyko R2) | **Niski** (2026-10-08 po E3; wcześniej wysoki) | **OTWARTE** | Klucz sesja + tura + indeks + agent, plik na sesję, kompakcja z `session.compact`, identyfikator sesji przy każdym zapisie; na żywo 117/117 kroków i 8/8 tur zgodnych z sondą co do kategorii; E9: koszt subagenta w `/relai-agents` = suma jego rekordów ($0,42, Opus), agent spoza cennika „brak ceny", nie „brak pomiaru". Otwarte: 9,16% przyrostu licznika silnika to wywołania spoza `turn.step` i kompakcji — raport mówi o nich słowami, bez rozbicia (P-020 pkt 6) |
-| C11 | Pliki pomiarów puchną albo trafiają do gita (plan PANEL_CLAUDE, ryzyko R5) | **Niski** (2026-10-08 po E3) | **OTWARTE** | `.claude/relai/` poza gitem (sprawdzone `git check-ignore`), plik na sesję, rekord bez treści (~250 B); otwarte: sprzątanie starych plików nie istnieje — do E6/E7 |
+| C10 | Pomiar kosztów niepełny albo podwójny — subagenci, kompakcja, wznowienie, `/clear`, wywołania poza pętlą (plan PANEL_CLAUDE, ryzyko R2) | **Niski** (2026-10-08 po E3; wcześniej wysoki) | **OTWARTE** | Klucz sesja + tura + indeks + agent, plik na sesję, kompakcja z `session.compact`, identyfikator sesji przy każdym zapisie; na żywo 117/117 kroków i 8/8 tur zgodnych z sondą co do kategorii; E9: koszt subagenta w `/relai-agents` = suma jego rekordów ($0,42, Opus), agent spoza cennika „brak ceny", nie „brak pomiaru". E4: rekord niesie etap w toku i zadanie załogi (`stage`, `task`); każdy rekord w dokładnie jednej pozycji (etap / „poza etapem” / „sprzed znacznika”), suma pozycji = suma sesji co do centa (test z kontrolą i na żywo $4,54 = $4,54). Otwarte: 9,16% przyrostu licznika silnika to wywołania spoza `turn.step` i kompakcji — raport mówi o nich słowami, bez rozbicia (P-020 pkt 6); zadanie załogi uruchomione jako osobna sesja `claude -p` jest przypisane tylko wtedy, gdy ta sesja ma `relai-panel` |
+| C11 | Pliki pomiarów puchną albo trafiają do gita (plan PANEL_CLAUDE, ryzyko R5) | **Niski** (2026-10-08 po E3) | **OTWARTE** | `.claude/relai/` poza gitem (sprawdzone `git check-ignore`), plik na sesję, rekord bez treści (~250 B); E4: plik scaleń `.claude/relai/panel/scalenia.json` też poza gitem (`git check-ignore`), rekord dłuższy o dwa pola; otwarte: sprzątanie starych plików nie istnieje — do E6/E7 |
 
 > Ryzyka zamknięte W1, U1, O1, O6 (4 pozycje) są w
 > [docs/archiwum/ryzyka/RYZYKA_2026-09-24.md](archiwum/ryzyka/RYZYKA_2026-09-24.md)
@@ -2689,5 +2689,108 @@ Autor: RelAI (Opus 5.5) + Lukasz
 
 - `settings.json`, `known_marketplaces.json`, `installed_plugins.json` — 0 wystąpień
   `lukasz-mods` i `cache-keeper-pl`; katalog cache nie istnieje.
+
+Autor: RelAI (Opus 5.5) + Lukasz
+
+### 2026-10-09 — E4 planu PANEL_CLAUDE: mapa przepływu i koszt etapu
+
+**Zrobione:**
+
+- **Pytanie przed pracą (2026-10-09, jedno AskUserQuestion):** (a) koszt etapu ze **znacznika
+  w rekordzie**, nie z okna dat — daty w `STATUS.md` i dzienniku nie mają godzin, a 2026-10-08 niósł
+  cztery etapy (E1, E2, E8, E3); (b) ręczne scalanie = **widok z własnym plikiem panelu**
+  (`.claude/relai/panel/scalenia.json`), pliki przebiegu nietknięte; (c) **nowa zakładka „Mapa”**.
+  Na starcie człowiek zastrzegł: każda nowa rzecz w panelu ściśle w motywie, nie „raw”.
+  Optymalizator promptów w tej sesji: „nie”.
+- **Rekord pomiaru** (`core/panel/measure.mjs`): pola `stage` („PLAN/EN”, etap `W TOKU` w chwili
+  pomiaru) i `task` („przebieg/zadanie”), `null`, gdy nie ma; rekord sprzed E4 nie ma ich wcale
+  i tak zostaje odczytany. Schemat wspólny z panelem Codeksa — pola dodane, `v` bez zmian.
+- **Kolektor** (`panel/hooks/register.tsx`): plan czytany przy każdym wywołaniu (etap przechodzi
+  w `W TOKU` w środku tury), zadanie subagenta z linii `RelAI crew run: …, task: …` jego promptu
+  (`agent.spawn`, trzymane w `$.state` — przeżywa przeładowanie), zadanie wątku głównego
+  z `prompt.submit`.
+- **`core/panel/attribution.mjs`:** każdy rekord w dokładnie jednej pozycji — etap, „poza etapem”
+  (znacznik bez etapu), „sprzed znacznika” (rekord bez pól); zadanie przypisane na mapie liczy się
+  do swojego etapu; koszt zadań załogi; kontrola „pozycje = sesja co do centa”.
+- **`core/panel/flow.mjs`:** model mapy — plany (aktywny, otwarte, archiwum od ostatnio
+  zamkniętego), etapy z datą komórki statusu, odnogi w obu kształtach z repo (lista zawijana
+  i tabela; `źródło:` / `etap-źródło:` / `zrodlo:`; status spoza listy — `ANULOWANA` — zostaje
+  słowami jako nierozpoznany), fale załogi regułą `crew.js` (port, test krzyżowy), scalanie
+  i przypisanie jako operacje czyste.
+- **Zakładka „Mapa”** w motywie E8 (kalibracja na zrzutach człowieka): karta aktywnego planu
+  z kosztem cyfrą Kalam i paskiem segmentów etapów (te same kolory i karta podpowiedzi co pasek
+  postępu E9), etapy jako karty-wiersze ze znakiem i słowem stanu (`FLOW` w `theme.mjs`),
+  rozwinięcie z rozbiciem kosztu, odnogami i zadaniami; „Inne plany”, „Przebiegi załogi”
+  (fale, „równolegle”, „po: …”, zaznacz / scal / rozdziel / przypisz do etapu), „Poza etapem”,
+  „Archiwum planów”; sześć nagłówków Kalamem (`HEADINGS`). Zakładka „Koszty” dostała sekcję
+  „Etapy” z linią ✓/✗ „etapy i poza etapem = suma sesji”. Terminal: ten sam tekst w kolorach.
+- Dwie kalibracje człowieka: słowo „sprzed znacznika” zamiast „bez pomiaru” przy etapie
+  mierzonym bez znacznika; potem poprawka reguły (L-0149) — tylko etap zamknięty w dniu pierwszego
+  pomiaru albo później, plan zamknięty wcześniej zostaje „bez pomiaru”.
+- `relai-panel` 0.6.0 (niewydana), opis manifestu, typy `$.state` (`map`, `agentTasks`,
+  `unfolded`, `picks`). `progress.test.js`: test na realnym `PROMPT_ETAP_9.md` sam ustawia stan
+  wyjściowy (L-0150). L-0149–L-0152 (zasady 4, 5, 15); ryzyka C3, C10, C11 zaktualizowane, C1 i C8
+  bez zmian.
+
+**Zweryfikowane — jak dokładnie:**
+
+- **Testy repo:** czysty HEAD (osobny `git worktree`) — **201** testów, 200 zielonych, 1 czerwony
+  od commita E9 (`progress.test.js` odhaczał „pierwszy pusty checkbox” w prompcie, który zamknięcie
+  E9 odhaczyło całego; liczba 201/201 z wpisu E9 zmierzona przed tą zmianą). Po etapie: komenda ze
+  „Stanu wyjściowego” → **221/221** (+20: `flow` 12, `attribution` 7, `measure` 1). Pierwszy pomiar
+  „przed” przez `git stash` był fałszywy (220 / 5 błędów, drzewo mieszane) — odrzucony (L-0151).
+- **Kryterium planu:** test rdzenia na prawdziwym `docs/archiwum/plany/PROWADZENIE_END_TO_END/STATUS.md`
+  — 7 etapów `ZREALIZOWANY`, liczba wierszy tabeli = liczba etapów; kontrola mutacyjna (E3 → `W TOKU`
+  w kopii) oblewa. Wszystkie 11 planów repo bez odrzuconego wiersza. Na żywo: rozwinięty plan
+  w archiwum, 7 × ✓ (zrzut człowieka).
+- **Koszt etapu na żywo** (sesja `d87447e7-…`, kolektor z hot reload): zakładka „Koszty” → „Etapy”:
+  **PANEL_CLAUDE · E4 $4,54, 39 wywołań, 100,00% sesji**, linia **✓ $4,54 = suma sesji $4,54**;
+  mapa w tej chwili: E4 $4,54 (później $6,07 przy 457 wywołaniach projektu). Pierwszy rekord tej
+  sesji z `"stage":"PANEL_CLAUDE/E4"` sprawdzony w pliku. Tury sprzed włączenia hot reload — bez
+  pomiaru (kolektor załadował się w połowie sesji). Na realnym pliku E9: 227 rekordów „sprzed
+  znacznika” = $23,22 = suma sesji.
+- `sync-panel-core.js --check` — zgodne (13 plików, trzy pluginy). `plugin validate` — zaliczone
+  dla `panel`, `progress`, `cache-keeper`; `plugin test`: **41/41** (32 przed; +9 w `map.test.ts`),
+  16/16, 19/19. Test 40 kolumn: próg podłożony 10 oblewa; reguła daty: mutacja (bez warunku daty)
+  oblewa 2 testy.
+- `tsc` strict na typach silnika (trzy pluginy + rdzeń) — 0 błędów; podłożony błąd → 1.
+- W `panel/` i `progress/` zero `$.net`, `fetch(`, `$.model`, `prompt.compose`, `session.append`,
+  `$.tool.register`; kontrola wzorca na podłożonym tekście 6 z 6. `validate-adapters.js` — zaliczone.
+- **Chromium** (900 / 560 / 360 px, każdy rysunek w osobnym `iframe`): 6 nagłówków mapy i pasek
+  etapów dwóch planów — 24 rysunki, zero przepełnień i nakładek; defekt podłożony (tekst ponad
+  limit) wykryty. Pierwszy przebieg zgłosił „przepełnienia” na zdrowym materiale — instrument
+  (1 px nawisu glifu przy ostrej lewej krawędzi); tolerancja 2 px z powodem, defekt nadal łapany.
+- **Na żywo, desktop:** mapa, rozwinięcie E4, archiwum — przyjęte przez człowieka; zero szarych
+  linii `refused` / `threw`. **Terminal 2.1.293** (PowerShell, ścieżka MSIX, start z `docs\plany`,
+  `--plugin-dir panel`): mapa tekstem, segmenty █, kwota w jednym kawałku po `flexShrink={0}`
+  (L-0152); obserwacja: w wierszu E2 znak ✓ przylega do nazwy — zaokrąglenie układu, bez poprawki.
+- Bezpieczeństwo: `grep -rnE "sk-ant-|ANTHROPIC_API_KEY="` po plikach z `git status --short` —
+  0 trafień; próbka podłożona — 1.
+- Katalog roboczy `.claude/relai/work/PANEL_CLAUDE/E4/` (`clean-work.js raport` + `du`): przed
+  **34 MB** (venv z fontTools, strona i generator kontroli Chromium, tsconfig, `forbidden.sh`,
+  notatki, tekst planu), skasowany po „tak”, po **0 MB**; cały `work/` 0,6 MB. Poza katalogiem:
+  kopie `relai-panel` i `relai-progress` w `~/.claude/dev-mods/d87447e7-…/` (bramka).
+- Odstępstwo: jedna edycja `STATUS.md` szła skryptem Pythona z heredoku z backslashem
+  (`docs\plany`) wbrew L-0148 — wynik sprawdzony grepem stałego ciągu, poprawny; dalej tylko Edit.
+
+**Świadomie odłożone:**
+
+- Zapis pliku scaleń nie zmierzony na żywo — w repo nie ma przebiegów `/relai-crew`; pokrywa go
+  test modu (atrapa `$.fs`). Pierwszy realny przebieg załogi sprawdza też, czy `$.fs.write` sam
+  zakłada `.claude/relai/panel/` (dla `pomiary/` zrobił to w E3).
+- Zadanie załogi uruchomione przez `crew.js` jako osobna sesja `claude -p`: przypisane tylko, gdy
+  ta sesja ładuje `relai-panel`; w przeciwnym razie jego koszt jest poza zasięgiem kolektora.
+- `panel/hooks/register.tsx` ma 1173 linie (ponad 800): wszystko, co dostaje `$`, musi mieszkać
+  w module hooków (L-0136), logika wyniesiona do rdzenia; podział pliku — przy E7.
+- Panel Codeksa (PANEL_CODEX) musi przyjąć dwa nowe pola rekordu (`stage`, `task`) — do jego
+  planu.
+- Rotacja `DZIENNIK.md`, `LEKCJE.md`, `STATE.md` i synchronizacja `AGENTS.md` — nadal do
+  zamknięcia sesji, za zgodą.
+
+**Do zrobienia przez człowieka:**
+
+- Po zamknięciu tej sesji usunąć z folderu modów sesji `d87447e7-…` kopie `relai-panel`
+  i `relai-progress`.
+- Uruchomić E5 w świeżej sesji na Opusie: `/relai-stage`.
 
 Autor: RelAI (Opus 5.5) + Lukasz

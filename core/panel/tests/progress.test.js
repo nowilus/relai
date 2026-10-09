@@ -129,7 +129,11 @@ test('real material: every stage prompt of the active plan parses, and a box tic
     const c = p.checklist(fs.readFileSync(path.join(dir, n), 'utf8'));
     assert.ok(c.total >= 5, n + ': ' + c.total + ' boxes');
   }
-  const text = fs.readFileSync(path.join(dir, 'PROMPT_ETAP_9.md'), 'utf8');
+  // The base has one open box whatever state the real prompt is in: a closed stage ticks them all
+  // (E9 since its commit), and a test that ticks "the first open box" of it tests nothing (E4)
+  const real = fs.readFileSync(path.join(dir, 'PROMPT_ETAP_9.md'), 'utf8');
+  const text = real.includes('- [ ]') ? real : real.replace('- [x]', '- [ ]');
+  assert.ok(text.includes('- [ ]'), 'the base has a box to tick');
   const before = p.checklist(text);
   const ticked = p.checklist(text.replace('- [ ]', '- [x]'));
   assert.equal(ticked.done, before.done + 1);

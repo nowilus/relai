@@ -37,6 +37,26 @@ test('a step record carries the four categories, the model that answered and no 
   for (const forbidden of ['answer', 'text', 'prompt', 'messages', 'toolUses']) assert.ok(!(forbidden in r), forbidden + ' must not be recorded');
 });
 
+test('a record carries the stage in progress and the crew task it belongs to, null when none (E4)', () => {
+  const r = m.stepRecord({ session: 's', turn: 't', index: 0, agent: 'a1', model: 'claude-opus-5-5', at: 1, usage: usage(1, 2, 3, 4), stage: 'PANEL_CLAUDE/E4', task: '2026-10-09_120000/t2' });
+  assert.equal(r.stage, 'PANEL_CLAUDE/E4');
+  assert.equal(r.task, '2026-10-09_120000/t2');
+  const bare = m.stepRecord({ session: 's', turn: 't', index: 1, agent: null, model: 'claude-opus-5-5', at: 1, usage: usage(1, 2, 3, 4) });
+  assert.ok('stage' in bare && 'task' in bare, 'a new record always says it was tagged');
+  assert.equal(bare.stage, null);
+  assert.equal(bare.task, null);
+  const c = m.compactRecord({ session: 's', agent: null, model: 'claude-opus-5-5', at: 5, usage: usage(1, 2, 3, 4), stage: 'PANEL_CLAUDE/E4' });
+  assert.equal(c.stage, 'PANEL_CLAUDE/E4');
+  // A record written before E4 has neither field and still reads back as a record
+  const old = JSON.parse(JSON.stringify(bare));
+  delete old.stage;
+  delete old.task;
+  const back = m.parseRecords(JSON.stringify(old));
+  assert.equal(back.records.length, 1);
+  assert.equal(back.rejected, 0);
+  assert.ok(!('stage' in back.records[0]), 'an old record is not given a stage it never had');
+});
+
 test('a step without usage is recorded as missing, in words, never as zero', () => {
   const r = m.stepRecord({ session: 's', turn: 't', index: 0, agent: null, model: 'claude-opus-5-5', at: 1, usage: null });
   assert.equal(r.input, null);
