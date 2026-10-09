@@ -19,8 +19,8 @@
 
 | O4 | Tryb ciągły kosztuje turę przy każdym zdaniu — praca zwalnia i drożeje (plan OPTYMALIZATOR_PROMPTOW, ryzyko O4) | **Średni** (2026-09-14, przy akceptacji planu) | **OTWARTE** | Wyłącznik w `USTAWIENIA.md`, filtr pomija komendy; otwarte: rozrzut kosztu większy niż mierzona różnica. Historia: [MITYGACJE_2026-09-24](archiwum/ryzyka/MITYGACJE_2026-09-24.md). |
 | K3 | Nakładki rodzin modeli starzeją się szybciej niż wydania RelAI — dostawca zmienia wytyczne, a reguła z datą zostaje (plan PROWADZENIE_END_TO_END, ryzyko K3) | **Średni** (2026-09-24, przy zamknięciu planu) | **OTWARTE** | Każda reguła nakładki ma źródło i datę odczytu; hook startu mówi o nakładce starszej niż 30 dni; odświeżenie razem z `/relai-models`. |
-| C1 | API modów Claude Code („early access”) zmieni się między wydaniami i `relai-panel` przestanie się ładować (plan PANEL_CLAUDE, ryzyko R1) | **Wysoki** (2026-10-08, przy E1) | **OTWARTE** | Osobne pluginy; rachunki w `core/panel/` poza API modów; `plugin validate` i `plugin test` przed wydaniem — od E9 dla trzech pluginów (`relai-panel`, `relai-progress`, `relai-cache-keeper`, ten ostatni przejął rolę kanarka po `cache-keeper-pl`). Otwarte: minimalna wersja silnika niezmierzona (działa 2.1.293); trzy pluginy na tym samym API to trzy miejsca do poprawki przy zmianie. |
-| C3 | Desktop rysuje panel inaczej niż terminal (plan PANEL_CLAUDE, ryzyko R3) | **Niski** (2026-10-08 po E8; wcześniej średni dla panelu w terminalu) | **OTWARTE** | Pasek i panel zmierzone na żywo na desktopie (E1, E2, E8) i panel w terminalu 2.1.293 (E8: nagłówki tekstem, przyciski `[ … ]`); powierzchnię rozpoznaje `e.surface` (L-0138), test sprawdza odpowiednik tekstowy. E9: trzy paski nad promptem i panel `/relai-agents` zmierzone na desktopie i w terminalu 2.1.293 (segmenty Svg z podpowiedzią / znaki; terminal startowany z podfolderu — P-021); pasek cache w terminalu niewidoczny bez pierwszego zapytania (sesja niezalogowana), pokrywa go test. E4: zakładka „Mapa” zmierzona na desktopie i w terminalu 2.1.293 z `docs\plany` — pasek etapów Svg z kartą / znaki █, kwota w terminalu łamała się, aż komórka dostała `flexShrink={0}` (L-0152). Otwarte, bo E5–E6 mają dwie powierzchnie do zmierzenia. |
+| C1 | API modów Claude Code („early access”) zmieni się między wydaniami i `relai-panel` przestanie się ładować (plan PANEL_CLAUDE, ryzyko R1) | **Wysoki** (2026-10-08, przy E1) | **OTWARTE** | Osobne pluginy; rachunki w `core/panel/` poza API modów; `plugin validate` i `plugin test` przed wydaniem — od E9 dla trzech pluginów (`relai-panel`, `relai-progress`, `relai-cache-keeper`, ten ostatni przejął rolę kanarka po `cache-keeper-pl`). Otwarte: minimalna wersja silnika niezmierzona (działa 2.1.293); trzy pluginy na tym samym API to trzy miejsca do poprawki przy zmianie. E5: zgoda na start etapu opiera się na zachowaniu silnika „wysyłka wtyczki omija jej własny hook `command.run`” (P-022) — gdy się zmieni, hook wytnie znacznik także z wysyłki panelu i start wróci do pytania w czacie (awaria w bezpieczną stronę); znacznik z klawiatury jest wycinany w obu wersjach (test modu). |
+| C3 | Desktop rysuje panel inaczej niż terminal (plan PANEL_CLAUDE, ryzyko R3) | **Niski** (2026-10-08 po E8; wcześniej średni dla panelu w terminalu) | **OTWARTE** | Pasek i panel zmierzone na żywo na desktopie (E1, E2, E8) i panel w terminalu 2.1.293 (E8: nagłówki tekstem, przyciski `[ … ]`); powierzchnię rozpoznaje `e.surface` (L-0138), test sprawdza odpowiednik tekstowy. E9: trzy paski nad promptem i panel `/relai-agents` zmierzone na desktopie i w terminalu 2.1.293 (segmenty Svg z podpowiedzią / znaki; terminal startowany z podfolderu — P-021); pasek cache w terminalu niewidoczny bez pierwszego zapytania (sesja niezalogowana), pokrywa go test. E4: zakładka „Mapa” zmierzona na desktopie i w terminalu 2.1.293 z `docs\plany` — pasek etapów Svg z kartą / znaki █, kwota w terminalu łamała się, aż komórka dostała `flexShrink={0}` (L-0152). E5: karta potwierdzenia i formularz `/relai-stage` zmierzone na desktopie i w terminalu 2.1.293 z `docs\plany` (zrzuty człowieka); test 40 kolumn złapał kartę na 42 kolumnach przed pokazaniem — wiersz faktów zawija się. Otwarte, bo E6 ma dwie powierzchnie do zmierzenia. |
 | C9 | Motyw RelAI i ikony komend nie zmieszczą się w elementach silnika modów — `Svg` tylko na desktopie, `Client` niezmierzony, terminal bez grafiki (plan PANEL_CLAUDE, Aneks A) | **Niski** (2026-10-08 po E8; wcześniej średni) | **ZAMKNIĘTE 2026-10-08** | Sonda E8: Svg z osadzonym fontem działa na desktopie, `Client` działa, `foreignObject` i interaktywne Svg odpadają, `plain` odwraca kolory (P-018); motyw zbudowany w tych granicach i przyjęty przez człowieka; terminal dostał odpowiednik tekstowy, zmierzony na żywo. |
 | C8 | Inny mod paska nad promptem rysuje bez `next` albo owija węzeł silnika w `Box` z `width` i pasek RelAI znika bez komunikatu (E1, P-017) | **Średni** (2026-10-08, przy E1) | **OTWARTE** | `relai-panel`, `relai-progress` i `relai-cache-keeper` zawsze wołają `next` i nie dokładają `width` do owijacza (test „engine kept beneath" w każdym); `savvy-progress` rysował bez `next` — wyłączony w E9, zastąpiony forkiem. Otwarte: cudze mody poza kontrolą — ostrzeżenie w README w E7. |
 | C10 | Pomiar kosztów niepełny albo podwójny — subagenci, kompakcja, wznowienie, `/clear`, wywołania poza pętlą (plan PANEL_CLAUDE, ryzyko R2) | **Niski** (2026-10-08 po E3; wcześniej wysoki) | **OTWARTE** | Klucz sesja + tura + indeks + agent, plik na sesję, kompakcja z `session.compact`, identyfikator sesji przy każdym zapisie; na żywo 117/117 kroków i 8/8 tur zgodnych z sondą co do kategorii; E9: koszt subagenta w `/relai-agents` = suma jego rekordów ($0,42, Opus), agent spoza cennika „brak ceny", nie „brak pomiaru". E4: rekord niesie etap w toku i zadanie załogi (`stage`, `task`); każdy rekord w dokładnie jednej pozycji (etap / „poza etapem” / „sprzed znacznika”), suma pozycji = suma sesji co do centa (test z kontrolą i na żywo $4,54 = $4,54). Otwarte: 9,16% przyrostu licznika silnika to wywołania spoza `turn.step` i kompakcji — raport mówi o nich słowami, bez rozbicia (P-020 pkt 6); zadanie załogi uruchomione jako osobna sesja `claude -p` jest przypisane tylko wtedy, gdy ta sesja ma `relai-panel` |
@@ -2792,5 +2792,117 @@ Autor: RelAI (Opus 5.5) + Lukasz
 - Po zamknięciu tej sesji usunąć z folderu modów sesji `d87447e7-…` kopie `relai-panel`
   i `relai-progress`.
 - Uruchomić E5 w świeżej sesji na Opusie: `/relai-stage`.
+
+Autor: RelAI (Opus 5.5) + Lukasz
+
+### 2026-10-09 — E5 planu PANEL_CLAUDE: decyzje w panelu
+
+**Zrobione:**
+
+- **Pytanie przed pracą (2026-10-09, jedno AskUserQuestion, wszystkie odpowiedzi rekomendowane):**
+  (a) zgoda z panelu = znacznik `--zgoda-panelu <id karty>` w argumentach `/relai-stage`, wycinany
+  hookiem z każdego innego źródła; (b) zmiana tylko w adapterze Claude Code, skill Codeksa bez
+  zmian, wydanie pluginu `relai` razem z E7 — **odstępstwo niżej**; (c) panel edytuje szkic
+  `zadania.json` wyłącznie przed startem przebiegu (bez `manifest.json`), „Zatwierdź” przez kartę;
+  (d) `/relai-clean` przez `$.process.run` z jednym zamkniętym argv, `/relai-update`
+  i `/relai-models` ze stanu plików. Optymalizator promptów w obu sesjach etapu: „nie”.
+- **Sonda `relai-probe-e5`** (folder modów sesji `e25ca911-…`) → **P-022** w `docs/PULAPKI.md`:
+  wysyłka `$.command.run` z wtyczki omija jej własny hook `command.run` i dochodzi do komendy
+  markdown z argumentami nietkniętymi; `/clear` z panelu działa, zmienia id sesji, moduł się nie
+  przeładowuje, panel zostaje otwarty; `$.ui.copy` i `$.process.run` działają; potem w testach:
+  host odrzuca `$.prompt.submit` od „/”, testowy `$` nie ma `$.state`. Przycisk „clear” sondy
+  skasował sesję wykonawczą w połowie etapu (L-0153) — praca szła dalej z `notatki.md`
+  i `sonda.log` w sesji `679e3eed-…`.
+- **`core/panel/decisions.mjs`** (+ 15 testów): karta potwierdzenia (otwarta → drugi krok →
+  potwierdzona / anulowana, działania tylko po „tak”), znacznik zgody (`withConsent`,
+  `stripConsent`, `hasConsent`), karta etapu z realnych plików (model z linii metrycznej wobec
+  `$.session.model()`, „EN z EM”, katalog roboczy z promptu, liczba punktów Weryfikacji, świeży czat
+  = `clear` + komenda), szkic załogi (role i narzędzia z zamkniętych list, zapis wyłącznie do
+  `.claude/relai/work/CREW/<przebieg>/zadania.json`), lista sprzątania (nic zaznaczone, chronione
+  osobno, `CLEAN_ARGV` zamrożone), karty `/relai-update` i `/relai-models`.
+- **`adapters/claude-code/commands/relai-stage.md`:** znacznik odkładany przed Krokiem 1;
+  w Kroku 4 akapit „Zgoda z panelu” — czat nie pyta drugi raz, wyjątki: komenda wywołana przez
+  model sam, inny model niż wymagany, prompt dogenerowany w Kroku 3, znacznik bez wartości albo
+  z wieloma id; pytania Kroku 2 padają zawsze; zakaz w „Zakazach” doprecyzowany.
+- **Panel (`panel/hooks/register.tsx`):** hook wycinający znacznik; karta „Do potwierdzenia” nad
+  każdą zakładką; formularz `/relai-stage` z „Czat: świeży / bieżący”, „Przygotuj start”, „Kopiuj
+  prompt”; „Przygotuj” dla `/relai-update` i `/relai-models`; lista grup `/relai-clean`; „Edytuj
+  skład” na mapie. Nagłówek Kalamem „Do potwierdzenia” (36 nagłówków). `relai-panel` 0.7.0
+  (niewydana), kontrakt typów z kształtami kart wpisanymi wprost (walidator nie przyjmuje importu).
+- L-0153, L-0154 (zasady 13 i 4); ryzyka C1 i C3 zaktualizowane, C8, C10, C11 bez zmian.
+
+**Zweryfikowane — jak dokładnie:**
+
+- **Testy repo:** przed — **221/221** (osobny `git worktree` HEAD-a w `%TEMP%`; pierwszy pomiar
+  z worktree pod `work/` dał 220/221, bo `validate-adapters` kopiuje repo z filtrem `\work\` —
+  instrument, nie kod); po — **236/236** (+15 `decisions.test.js`), przebieg po ostatniej zmianie.
+  Po przestawieniu `STATUS.md` w rytuale (E5 → ZREALIZOWANY, E6 → GOTOWY DO STARTU) test karty
+  na realnym pliku oblał 1 raz — wybór bez wskazania wziął E6; testy na realnym `STATUS.md`
+  wskazują teraz etap wprost (`stage: 'E5'`, L-0150), mutacje ponownie 10/10.
+  Kontrola mutacyjna rdzenia: 10/10 mutacji złapanych (m.in. wysyłka bez „tak”, `/clear` w bieżącym
+  czacie, zaznaczenie grup na starcie, zgoda bez id), baza zielona.
+- **R4 i D-35, dowód negatywny w teście modu** (`panel/hooks/decisions.test.ts`, 12 testów): przed
+  „Tak” atrapy silnika nie dostały ani `/clear`, ani komendy etapu; „Nie” niczego nie wysyła;
+  po „Tak” kolejność `clear` → `relai:relai-stage PANEL_X E2 --zgoda-panelu karta-…`; znacznik
+  wpisany z zewnątrz wycięty, argumenty bez znacznika nietknięte (kontrola pozytywna); drugi krok
+  karty (stan podłożony hookiem `state.get`): jedno „Tak” nie wysyła, drugie wysyła; w `/relai-clean`
+  nic nie jest zaznaczone, jedyny proces = `CLEAN_ARGV`; załoga: `zadania.json` zapisany tylko po
+  „Tak”, przebieg z manifestem bez edycji.
+- **Procedura `/relai-stage`:** zdania „Milczenie nie jest zgodą. „Uruchom etap" w prompcie
+  użytkownika nie jest zgodą na start — kartę” i „pokazujesz mimo to.” — po jednym trafieniu,
+  pierwotne brzmienie; z dawnej treści zmienione dwie linie (wstęp karty, linia zakazu
+  rozszerzona); nagłówek YAML nietknięty (`commands.test` 7/7).
+- `plugin test`: **53/53** w `panel/` (41 przed; +12), **16/16** `progress/`, **19/19**
+  `cache-keeper/`. Jeden dawny test zmieniony z założenia etapu: „an invalid value…” sprawdzał
+  przycisk `send` formularza `/relai-stage` — teraz `prepare`, asercje tej samej siły i nowa:
+  `send` nieobecny. Test 40 kolumn (instrument `minWidth`, desktop i terminal): karta, lista,
+  edytor załogi; **złapał realny defekt** — karta 42 kolumny w terminalu, poprawka `flexWrap`
+  wiersza faktów; defekt podłożony (ścieżka 50 znaków) wykryty.
+- `plugin validate` — zaliczone dla `panel`, `progress`, `cache-keeper`; `tsc` strict (lib ES2022) —
+  0 błędów, podłożony błąd → 1; `sync-panel-core.js --check` — zgodne (14 plików, trzy pluginy);
+  `validate-adapters.js` — exit 0 (przed regeneracją skilla Codeksa: 1 problem, parytet).
+- W `panel/` i `progress/` zero `$.net`, `fetch(`, `$.model`, `prompt.compose`, `session.append`,
+  `$.tool.register`; próbka podłożona — 3 trafienia. `$.process.run` w module: jedno miejsce
+  (`CLEAN_ARGV`). Bezpieczeństwo: `grep -rnE "sk-ant-|ANTHROPIC_API_KEY="` po 22 plikach
+  z `git status --short` — 0; próbka składana w czasie wykonania — 1.
+- **Chromium:** nagłówek „Do potwierdzenia” 183×32 px w `iframe` 900 / 560 / 360 — bez
+  przepełnienia, obraz załadowany; defekt podłożony (2000 px w 360) wykryty.
+- **Na żywo, desktop** (kopia w `dev-mods/e25ca911-…`): karta etapu E5 — model „claude-opus-5-5 —
+  zgodny z planem (Opus)”, „⚠ E5 z E9 · W TOKU”, katalog roboczy, 13 punktów, czat świeży, uwaga
+  o etapie w toku; człowiek: „Wygląda całkiem nieźle”. **Terminal 2.1.293** (PowerShell, MSIX,
+  start z `docs\plany`, `--plugin-dir panel`): ta sama karta tekstem, model „claude-opus-5-5[1m]”
+  dopasowany (przypadek dopisany do testu), zero linii `refused` / `threw`; człowiek: „wygląda ok”.
+- Katalog roboczy `.claude/relai/work/PANEL_CLAUDE/E5/`: przed **33 MB** (venv z fontTools,
+  tsconfig, `mutacje.js`, `svg-page.mjs`, `svg-check.html`, `p6-head.md`, `p6-tail.md`,
+  `p6-build.js`, `notatki.md`, `sonda.log`), skasowany po „tak”, po **0 MB** (katalogu nie ma);
+  cały `work/` 0,6 MB. Poza katalogiem: sonda `relai-probe-e5` i kopia `relai-panel` 0.7.0
+  w `~/.claude/dev-mods/e25ca911-…/` — usunięte po „tak” człowieka, `dev-mods/` pusty.
+
+**Świadomie odłożone:**
+
+- **Kryterium planu na żywo** — start z karty bez drugiego pytania w świeżym czacie oraz
+  `/relai-stage` bez znacznika z cytatem karty: **odłożone do E7 decyzją człowieka** (sesja ma
+  zainstalowane `relai` 2.7.1, które znacznika nie zna; E5 `W TOKU` wywołałby pytanie Kroku 2;
+  „Tak” w świeżym czacie skasowałoby sesję wykonawczą) — bramka w `STATUS.md`.
+- **Odstępstwo od 1(b):** skill Codeksa `relai-stage` jest generowany 1:1 z komendy
+  (`adapters/codex/generate-skills.js`); człowiek zdecydował „regenerować” — Codex niesie ten sam
+  tekst, znacznik nigdy do niego nie przyjdzie (L-0154). Wersja pluginu `relai` bez podbicia.
+- Karta sprzątania wysyła `/relai-clean` z decyzją w argumencie; procedura `/relai-clean` nie była
+  w zakresie, więc model może mimo to dopytać w czacie o każdą grupę — do oceny po pierwszym
+  użyciu (ewentualna zmiana procedury przy E7).
+- Model mógłby uruchomić `/relai-stage` z tokenem narzędziem Skill — procedura każe wtedy pytać;
+  czy hook `command.run` widzi takie wywołanie, niezmierzone.
+- `panel/hooks/register.tsx` urósł do 1399 linii (próg 800): wszystko z `$` musi być w module
+  hooków (L-0136) — podział pliku przy E7, jak w E4.
+- Rotacja `DZIENNIK.md`, `LEKCJE.md`, `STATE.md` i synchronizacja `AGENTS.md` — nadal do
+  zamknięcia sesji, za zgodą.
+
+**Do zrobienia przez człowieka:**
+
+- ~~Usunąć z folderu modów sesji `e25ca911-…` sondę `relai-probe-e5` i kopię `relai-panel`~~ —
+  **rozstrzygnięte 2026-10-09:** usunięte przez asystenta za zgodą człowieka.
+- W E7, po wydaniu `relai` z nową procedurą: pomiar na żywo startu z karty bez drugiego pytania
+  i `/relai-stage` bez znacznika (bramka w `STATUS.md`).
+- Uruchomić E6 w świeżej sesji na Opusie: `/relai-stage`.
 
 Autor: RelAI (Opus 5.5) + Lukasz

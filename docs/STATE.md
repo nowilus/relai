@@ -56,8 +56,9 @@ Opinii spoza projektu nadal nie ma — pilotaż z użytkownikami zamknięto prze
   (GUI i telemetria kosztów w zakresie) wpisany. Zrealizowane 2026-10-08: E1 (pasek), E2 (panel
   i formularze), E8 (motyw, Aneks A), E3 (kolektor pomiarów i zakładka „Koszty"); 2026-10-09:
   **E9 (postęp i agenci, Aneksy B i C)** — rodzina trzech pluginów w tym repo (`relai-panel`,
-  `relai-progress`, `relai-cache-keeper`), **E4 (mapa przepływu i koszt etapu)**. Następny: E5
-  „Decyzje w panelu".
+  `relai-progress`, `relai-cache-keeper`), **E4 (mapa przepływu i koszt etapu)**, **E5 (decyzje
+  w panelu: karta potwierdzenia, start etapu ze zgodą z panelu)**. Następny: E6 „Dokumenty
+  i cennik".
   Pluginy niewydane (wydanie i wpisy w `marketplace.json` to E7).
 
 ## Co dalej
@@ -115,13 +116,13 @@ tryb ciągły, baza reguł optymalizatora z nakładkami rodzin modeli (`claude`,
 instalator. **Adapter Codex**: natywny manifest, 14 skilli, router `AGENTS.md`, trzy hooki (start
 sesji kopiuje listę modeli).
 
-### Panel `relai-panel` i rodzina pluginów (plan PANEL_CLAUDE, po E4)
+### Panel `relai-panel` i rodzina pluginów (plan PANEL_CLAUDE, po E5)
 
 Trzy pluginy Claude Code Mods w tym repo (silnik 2.1.293, „early access”), każdy z kopią rdzenia
 `core/panel/` z `sync-panel-core.js`; nad promptem trzy paski cache → plan → postęp w stylu
 `docs/zasoby/PANEL_RELAI/STYL_PASKOW_CLAUDE.md` (miękkie tło, siatka etykieta | treść | liczba,
 `BAND`/`BAR` w `theme.mjs`). Korzeń projektu szukany w górę od katalogu sesji (P-021).
-**`panel/`** (`relai-panel` 0.6.0): pasek planu (plan, etap, status, koszt sesji z
+**`panel/`** (`relai-panel` 0.7.0): pasek planu (plan, etap, status, koszt sesji z
 `$.session.usage()` jako hipotetyczny koszt API, liczba etapów). **`progress/`** (`relai-progress`
 0.1.0, fork `savvy-progress` — MIT, johnnyvizz): pasek postępu etapu albo biegu `/relai-crew`
 z checkboxów promptu, pocięty na segmenty z podpowiedzią po najechaniu (Svg na desktopie, znaki
@@ -163,6 +164,18 @@ kształtach, fale załogi regułą `crew.js`, scalanie). Zakładka „Mapa”: a
 segmentów etapów i kosztem, etapy rozwijane do rozbicia kosztu, odnóg i zadań, inne plany,
 przebiegi załogi (fale, zależności, scalanie i przypisanie do etapu jako widok w
 `.claude/relai/panel/scalenia.json` — pliki przebiegu nietknięte), „Poza etapem”, archiwum planów.
+**Decyzje w panelu (E5):** każde działanie zmieniające stan idzie przez kartę „Do potwierdzenia”
+(R4; rachunki w `core/panel/decisions.mjs`, opcjonalny drugi krok dla E6) — przed „Tak” nic nie
+idzie do czatu ani na dysk. `/relai-stage` z panelu: karta z modelem sesji wobec planu, etapem,
+katalogiem roboczym i liczbą punktów weryfikacji; „Tak” wysyła (w świeżym czacie po `/clear`)
+komendę ze znacznikiem `--zgoda-panelu <id>` — procedura `/relai-stage` (i wygenerowany z niej
+skill Codeksa) przyjmuje go jako zgodę D-35 i nie pyta drugi raz; hook panelu wycina znacznik
+z każdego wywołania, które widzi, a wysyłka samego panelu go omija (P-022). „Kopiuj prompt” do
+ręcznego otwarcia sesji. `/relai-update` i `/relai-models` z kartą stanu z plików; `/relai-clean`
+z listą grup z raportu (`$.process.run` z jednym zamkniętym argv, nic zaznaczone na starcie);
+skład `/relai-crew` edytowalny przed startem przebiegu (zapis `zadania.json` po „Tak”). Nowa
+procedura `/relai-stage` czeka na wydanie `relai` w E7; pomiar na żywo startu bez drugiego
+pytania — bramka E7.
 `relai-panel` i `relai-progress` nie wołają modelu, nie dopisuje nic do kontekstu, nie używa sieci. Rachunki: `core/panel/*.mjs`
 (ESM — silnik nie ładuje CommonJS ani importu spoza folderu pluginu); `panel/hooks/core/` to kopia
 bajt w bajt z `node core/tools/sync-panel-core.js` (też `progress/hooks/core/`,

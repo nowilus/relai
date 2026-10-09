@@ -106,6 +106,8 @@ export const HEADINGS = Object.freeze([
   { key: 'map-outside', text: 'Poza etapem', size: 20, color: mix(ROOT.glina, ROOT.kartka, 0.25) },
   { key: 'map-archive', text: 'Archiwum planów', size: 20, color: mix(ROOT.glina, ROOT.kartka, 0.25) },
   { key: 'costs-stages', text: 'Etapy', size: 20, color: mix(ROOT.glina, ROOT.kartka, 0.25) },
+  // The confirmation card (E5): above every tab while it waits for "Tak"
+  { key: 'confirm', text: 'Do potwierdzenia', size: 22, color: ROOT.musztarda },
   // relai-progress's pane (E9, calibration 2026-10-09: the same motif as relai-panel's)
   { key: 'progress', text: 'Postęp etapu', size: 22, color: ROOT.musztarda },
   { key: 'agents', text: 'Agenci sesji', size: 22, color: ROOT.musztarda },

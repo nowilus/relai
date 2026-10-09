@@ -8,6 +8,37 @@ Specyfikacja: `SPEC_PULAPKI.md`.
 
 ## Pułapki
 
+### P-022 — Silnik modów Claude Code: wysyłka komend z panelu i `/clear` · 2026-10-09 · AKTYWNA
+
+- **Objaw:** hook `command.run` wtyczki, który ma rozpoznać „to wysłał mój panel" po
+  `origin.kind === 'plugin'`, nigdy nie widzi tej gałęzi; przycisk „wyczyść" w panelu kasuje
+  rozmowę, w której trwała praca, razem z całym kontekstem modelu.
+- **Przyczyna (2.1.293, sonda `relai-probe-e5` w E5 planu PANEL_CLAUDE, desktop):**
+  1. `$.command.run` wysłane przez wtyczkę **nie przechodzi przez jej własny hook `command.run`**.
+     Komenda markdown innego pluginu (`/relai:relai-help`) uruchamia się w czacie z argumentami
+     nietkniętymi; komenda zarejestrowana przez tę samą wtyczkę dostaje odpowiedź silnika „no
+     command.run hook answered it". Tekst wpisany z klawiatury przechodzi przez hook
+     z `origin = { kind: 'composer' }` i hook może zmienić argumenty, zanim komenda ruszy.
+  2. `$.command.run({ command: 'clear' })` uruchamia wbudowane `/clear` (wynik `{ text: '' }`).
+     `$.session.id()` od razu zwraca nowe id, moduł się nie przeładowuje (pamięć modułu ciągła,
+     brak `session.start` — zgodnie z P-020 pkt 4), otwarty panel boczny zostaje i rysuje się
+     z nową sesją. Kontekst modelu z poprzedniej rozmowy przepada w całości.
+  3. `$.ui.copy({ text, surface })` z naciśnięcia przycisku → `{ isCopied: true }`.
+  4. `$.process.run([...argv], { cwd, timeoutMs })` uruchamia `node` z katalogu projektu
+     (`clean-work.js raport --json`: kod 0, pełny JSON na stdout).
+  5. `$.prompt.submit` z tekstem zaczynającym się od `/` jest odrzucane („a text beginning with /
+     would run a command as the user; run one with $.command.run"). Decyzja dla komendy idzie jej
+     argumentem przez `$.command.run`.
+  6. W `claude plugin test` testowy `$` nie ma `$.state`; stan wtyczki podkłada się hookiem
+     `state.get` pod wtyczką, z odpowiedzią `{ value: { value, version } }`.
+- **Obejście:** znacznik zgody z panelu wycinaj w hooku **zawsze, gdy go widzisz** — hook widzi
+  wyłącznie wpisy z klawiatury i wysyłki innych wtyczek, więc wysyłka własnego panelu przechodzi
+  sama; drugą blokadą jest jednorazowe id karty w `$.state`. `/clear` wyłącznie po „tak" na karcie,
+  a stan potrzebny po nim trzymaj w `$.state` albo w pliku, nie w kontekście modelu. Sondy nie
+  wyposażaj w przycisk `/clear` bez osobnego potwierdzenia — wynik sondy musi żyć w pliku logu.
+- **Zasięg:** Claude Code 2.1.293 (mody „early access"), aplikacja desktopowa, Windows; terminal
+  niezmierzony.
+
 ### P-021 — Silnik modów Claude Code: katalog sesji, klucze i interaktywne Svg · 2026-10-09 · AKTYWNA
 
 - **Objaw:** trzy mody RelAI nad promptem zamilkły w trakcie sesji, choć `plugin test` był zielony;

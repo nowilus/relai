@@ -1,5 +1,16 @@
 // relai-panel: the values its pane draws from, held by the host in $.state for the session.
 
+// Shapes of core/panel/decisions.mjs, written out: the contract must be self-contained (no import)
+export type PanelFact = { label: string, value: string, tone?: 'ok' | 'warn' }
+export type PanelAction = { kind: 'clear' } | { kind: 'command', command: string, args: string } | { kind: 'submit', text: string }
+  | { kind: 'write', path: string, text: string }
+export type PanelCard = { id: string, title: string, facts: PanelFact[], question: string,
+  second: { question: string, facts: PanelFact[] } | null, actions: PanelAction[], state: 'open' | 'second' | 'confirmed' | 'cancelled' }
+export type PanelCleanChoices = { groups: { id: string, name: string, bytes: number, count: number, question: string, isPicked: boolean }[],
+  kept: { path: string, reason: string }[], error: string }
+export type PanelCrewDraft = { run: string, tasks: { id: string, title: string, files: string[], dependsOn: string[], role: string, runtime: string, model: string }[],
+  isEditable: boolean, reason: string }
+
 /** Which tab of the pane shows: the command forms, the cheat sheet, the session phrases, the costs, the map. */
 export type PanelView = 'commands' | 'sheet' | 'phrases' | 'costs' | 'map'
 
@@ -26,6 +37,14 @@ declare module 'claude-code' {
       unfolded: Record<string, boolean>
       /** The crew tasks picked on the map to merge or to give a stage, "<run>/<task or group>". */
       picks: string[]
+      /** The confirmation card waiting for "Tak" / "Nie" (E5, R4); null when none. */
+      confirm: PanelCard | null
+      /** The chat a stage starts in from the pane: true = /clear after "Tak", then the stage. */
+      freshChat: boolean
+      /** /relai-clean's groups read from the clean report, with what the person picked; null until loaded. */
+      cleanList: PanelCleanChoices | null
+      /** Crew drafts being edited before the start, keyed by run. */
+      drafts: Record<string, PanelCrewDraft>
     }
   }
 }

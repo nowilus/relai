@@ -1,8 +1,8 @@
 {
   "name": "relai-panel",
-  "version": "0.6.0",
+  "version": "0.7.0",
   "author": { "name": "nowilus", "url": "https://github.com/nowilus" },
-  "description": "RelAI panel for Claude Code (early access mods): a card above the prompt with the active plan and stage and the session's hypothetical API cost (the prompt-cache timer is relai-cache-keeper's); /relai-panel opens a pane with forms for the 14 RelAI commands, the project's cheat sheet, the session phrases, the session's measured costs (main loop, subagents, compactions; per agent, model and stage, priced at a dated list) and a map of the plans, their stages and branches and the /relai-crew runs, with the cost of each stage. Measurements go to .claude/relai/pomiary/, a file per session, each tagged with the stage in progress and the crew task. Silent outside RelAI projects.",
+  "description": "RelAI panel for Claude Code (early access mods): a card above the prompt with the active plan and stage and the session's hypothetical API cost (the prompt-cache timer is relai-cache-keeper's); /relai-panel opens a pane with forms for the 14 RelAI commands, the project's cheat sheet, the session phrases, the session's measured costs (main loop, subagents, compactions; per agent, model and stage, priced at a dated list) and a map of the plans, their stages and branches and the /relai-crew runs, with the cost of each stage. Decisions go through a confirmation card in the pane: a stage starts from it in a fresh or the current chat with the person's consent, a crew is edited before its start, /relai-clean, /relai-update and /relai-models are prepared there; nothing is sent before \"Tak\". Measurements go to .claude/relai/pomiary/, a file per session, each tagged with the stage in progress and the crew task. Silent outside RelAI projects.",
   "homepage": "https://github.com/nowilus/relai",
   "repository": "https://github.com/nowilus/relai",
   "license": "MIT",

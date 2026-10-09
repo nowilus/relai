@@ -10,8 +10,8 @@
 | E3 | Kolektor pomiarów i raport kosztów | ZREALIZOWANY 2026-10-08 | [PROMPT_ETAP_3.md](PROMPT_ETAP_3.md) | schemat pomiaru ustala ten plan (pole `tool`, decyzja 2026-10-08); raport kosztów skalibrowany na żywo w 6 rundach |
 | E9 | Postęp pracy i agenci na żywo | ZREALIZOWANY 2026-10-09 | [PROMPT_ETAP_9.md](PROMPT_ETAP_9.md) | Aneks B: po E3, przed E4; Aneks C: postęp i agenci w `relai-progress`, timer cache w `relai-cache-keeper` (pluginy w tym repo); styl pasków wg `STYL_PASKOW_CLAUDE.md` i 4 kalibracji |
 | E4 | Mapa przepływu i przypisanie pracy | ZREALIZOWANY 2026-10-09 | [PROMPT_ETAP_4.md](PROMPT_ETAP_4.md) | koszt etapu ze znacznika w rekordzie (pola `stage`, `task`), scalanie jako widok w `.claude/relai/panel/scalenia.json`, zakładka „Mapa” (decyzje człowieka 2026-10-09) |
-| E5 | Decyzje w panelu | GOTOWY DO STARTU | [PROMPT_ETAP_5.md](PROMPT_ETAP_5.md) | dostosowanie procedury `/relai-stage` w pluginie `relai` |
-| E6 | Dokumenty i cennik | OCZEKUJE | — | Aneks D: przypomnienie o modelu bez ceny (nazwa, liczba rekordów) z kartą potwierdzenia; ruch sieciowy do strony cennika Anthropic rozstrzygnięty 2026-10-09 — tylko po karcie |
+| E5 | Decyzje w panelu | ZREALIZOWANY 2026-10-09 | [PROMPT_ETAP_5.md](PROMPT_ETAP_5.md) | dostosowanie procedury `/relai-stage` w pluginie `relai`; zgoda znacznikiem `--zgoda-panelu`, skill Codeksa wygenerowany z komendy (decyzja człowieka); pomiar na żywo w E7 |
+| E6 | Dokumenty i cennik | GOTOWY DO STARTU | [PROMPT_ETAP_6.md](PROMPT_ETAP_6.md) | Aneks D: przypomnienie o modelu bez ceny (nazwa, liczba rekordów) z kartą potwierdzenia; ruch sieciowy do strony cennika Anthropic rozstrzygnięty 2026-10-09 — tylko po karcie |
 | E7 | Wydanie relai-panel | OCZEKUJE | — | publiczny marketplace czy lokalnie — przed E7 |
 
 ## Bramki manualne
@@ -41,7 +41,16 @@
   człowieka; marketplace `claude-kit` zostaje**
 
 - **Po zamknięciu sesji E4 usunąć z folderu modów sesji `d87447e7-…` kopie `relai-panel`
-  i `relai-progress`** · źródło: wpis dziennika 2026-10-09 (E4) · **OTWARTA**
+  i `relai-progress`** · źródło: wpis dziennika 2026-10-09 (E4) · **ROZSTRZYGNIĘTA 2026-10-09 —
+  folderu nie ma (sprawdzone przy starcie i zamknięciu E5)**
+- **Po zamknięciu sesji E5 usunąć z folderu modów sesji `e25ca911-…` sondę `relai-probe-e5`
+  i kopię `relai-panel` 0.7.0** · źródło: wpis dziennika 2026-10-09 (E5) · **ROZSTRZYGNIĘTA
+  2026-10-09 — usunięte przez asystenta za zgodą człowieka, `dev-mods/` pusty**
+- **Pomiar na żywo kryterium planu dla E5: etap uruchomiony z karty w panelu startuje bez
+  powtórnego pytania w czacie (świeży czat, `/clear` po „Tak”), oraz `/relai-stage` bez znacznika
+  pokazuje kartę jak przed E5 (cytat do dziennika)** — odłożone do E7, po wydaniu pluginu `relai`
+  z nową procedurą (sesja E5 miała zainstalowane 2.7.1) · źródło: wpis dziennika 2026-10-09 (E5),
+  decyzja człowieka · **OTWARTA**
 
 ## Dziennik wdrożenia
 
@@ -59,3 +68,5 @@
 - 2026-10-09 — Aneks D: E6 rozszerzony o przypomnienie o modelu bez ceny i aktualizację cennika po potwierdzeniu w karcie (różnica stara–nowa stawka); sprawa z sekcji 9 „ruch sieciowy przy odświeżaniu cennika” rozstrzygnięta — tak, wyłącznie po karcie (decyzja człowieka po pomiarze agentów w E9).
 - 2026-10-09 — E4 rozpoczęty
 - 2026-10-09 — E4 zrealizowany: zakładka „Mapa” w panelu (plany, etapy, odnogi, przebiegi załogi z falami, scalanie zadań jako widok), kolektor zapisuje etap w toku i zadanie załogi w rekordzie, koszt etapu i „poza etapem” słowem w mapie i w „Kosztach”; na żywo: 7 etapów `PROWADZENIE_END_TO_END` ✓, E4 $4,54 = suma sesji $4,54, terminal z `docs\plany`; wygenerowano `PROMPT_ETAP_5.md`.
+- 2026-10-09 — E5 rozpoczęty
+- 2026-10-09 — E5 zrealizowany: karta potwierdzenia w panelu (R4, opcjonalny drugi krok dla E6), start etapu z karty ze znacznikiem zgody `--zgoda-panelu` (procedura `/relai-stage` i wygenerowany z niej skill Codeksa), świeży czat i „Kopiuj prompt”, edycja składu załogi przed startem, listy `/relai-clean`, `/relai-update`, `/relai-models`; zrzuty człowieka: desktop i terminal; pomiar na żywo startu bez drugiego pytania odłożony do E7 (bramka); wygenerowano `PROMPT_ETAP_6.md`.

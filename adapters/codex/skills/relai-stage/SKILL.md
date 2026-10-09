@@ -8,6 +8,10 @@ description: Uruchamia etap aktywnego planu RelAI — wykrywa plan i następny e
 
 Argumenty (oba opcjonalne): `$ARGUMENTS`
 
+Argumenty mogą nieść znacznik `--zgoda-panelu <id>` dopisany przez panel `relai-panel`. To nie jest
+ani temat, ani etap: przed Krokiem 1 odkładasz go na bok (znacznik i jego wartość), a jego znaczenie
+rozstrzyga Krok 4.
+
 Twoje zadanie: doprowadzić do **startu właściwego etapu we właściwym trybie** — i ani jednego kroku
 dalej, dopóki użytkownik nie potwierdzi. Wykonuj poniższe kroki po kolei.
 
@@ -66,7 +70,27 @@ Kolumna `Prompt` w `STATUS.md` wskazuje `PROMPT_ETAP_N.md`.
 
 ## Krok 4 — potwierdzenie (obowiązkowe, D-35)
 
-Pokaż użytkownikowi kartę potwierdzenia i **zatrzymaj się**:
+**Zgoda z panelu.** Znacznik `--zgoda-panelu <id>` znaczy, że człowiek potwierdził start tego etapu
+na karcie w panelu `relai-panel` (plan, etap, model, katalog roboczy, liczba punktów weryfikacji,
+świeży albo bieżący czat). Panel jest drugim miejscem tej samej karty, nie jej zniesieniem: czat
+**nie pyta drugi raz o ten sam start**. Kartę z listy niżej wypisujesz wtedy jako informację, bez
+pytania „Zaczynamy?", z dopisanym zdaniem „Zgoda z karty panelu `<id>`." — i przechodzisz do Kroku 5.
+
+Znacznik nie zastępuje pytania — pokazujesz kartę z pytaniem dokładnie jak bez niego — gdy:
+
+- komendę uruchomiłeś **sam** (np. narzędziem Skill), a nie człowiek ani panel: znacznik w takim
+  wywołaniu nie znaczy nic;
+- model sesji jest **inny niż wymagany** — karta panelu mogła to tylko ostrzec, przełączenie
+  proponujesz tutaj;
+- w Kroku 3 **dogenerowałeś** prompt etapu — karta panelu go nie widziała;
+- znacznik nie ma wartości albo stoi przy nim więcej niż jeden identyfikator.
+
+Pytania z tabeli Kroku 2 (etap `W TOKU`, `ZREALIZOWANY`, `OCZEKUJE`, `POMINIĘTY`) padają zawsze —
+znacznik dotyczy startu, nie tych rozstrzygnięć. Znacznik nie jest zgodą na nic poza startem tego
+jednego etapu.
+
+Bez znacznika — i w czterech przypadkach powyżej — pokaż użytkownikowi kartę potwierdzenia
+i **zatrzymaj się**:
 
 - **Plan** — temat + status planu.
 - **Etap** — `EN z EM` + tytuł.
@@ -152,7 +176,8 @@ punkty — pozycje „Do zrobienia przez człowieka" bez adnotacji o rozstrzygni
 
 ## Zakazy tej komendy
 
-- Nie zaczynasz pracy bez potwierdzenia — w żadnym wariancie wywołania.
+- Nie zaczynasz pracy bez potwierdzenia — w żadnym wariancie wywołania. Zgoda z karty panelu
+  (Krok 4) jest potwierdzeniem; znacznik, który dopisałeś albo przekazałeś sam, nim nie jest.
 - Nie zgadujesz planu, gdy jest ich więcej niż jeden.
 - Nie uruchamiasz subagenta samodzielnie.
 - Nie tworzysz promptów dla etapów dalszych niż uruchamiany.

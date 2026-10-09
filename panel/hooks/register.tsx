@@ -35,6 +35,9 @@ import { crewTag, stageCosts, stageTag, taskCosts } from './core/attribution.mjs
 import type { StageCosts } from './core/attribution.mjs'
 import { MERGE_FILE, assignPicked, crewRun, flowMap, mergePicked, parseMerges, serializeMerges, splitGroup, splitStage } from './core/flow.mjs'
 import type { Branch, CrewRun, MapStage, MapTask, Merges, PlanNode } from './core/flow.mjs'
+import { CLEAN_ARGV, ROLES, RUNTIMES, answer, cleanCard, cleanChoices, commandCard, copyText, crewCard, crewDraft, crewTasksPath, daysBetween, hasConsent, listDate, projectVersion, setTask, shown, togglePick, stageCard, stageToStart, stepsToRun, stripConsent } from './core/decisions.mjs'
+import { promptLink } from './core/progress.mjs'
+import type { Action, Card, CardResult, CleanChoices, CrewDraft, Fact } from './core/decisions.mjs'
 
 type $T = EngineInterface
 
@@ -300,6 +303,11 @@ const sent = atom({ plugin: 'relai-panel', key: 'sent' } as const, '')
 const pressed = atom({ plugin: 'relai-panel', key: 'pressed' } as const, '')
 const unfolded = atom({ plugin: 'relai-panel', key: 'unfolded' } as const, {} as Record<string, boolean>)
 const picks = atom({ plugin: 'relai-panel', key: 'picks' } as const, [] as string[])
+// Decisions (E5): the card waiting for "tak", the chat a stage starts in, the clean list, crew drafts
+const confirm = atom({ plugin: 'relai-panel', key: 'confirm' } as const, null as Card | null)
+const freshChat = atom({ plugin: 'relai-panel', key: 'freshChat' } as const, true)
+const cleanList = atom({ plugin: 'relai-panel', key: 'cleanList' } as const, null as CleanChoices | null)
+const drafts = atom({ plugin: 'relai-panel', key: 'drafts' } as const, {} as Record<string, CrewDraft>)
 
 // How long a press answers: the card of the pressed control flashes, a send says "Wysłano"
 const FLASH_MS = 900
@@ -379,9 +387,111 @@ async function sendPhrase($: $T, text: string) {
   }
 }
 
+// ---------- decisions (E5) ----------
+// R4: nothing that changes state leaves the pane before "tak" on a card. The core builds the card
+// and answers what may run (stepsToRun: nothing unless confirmed); the mod only draws and runs it.
+
+async function cardId($: $T): Promise<string> {
+  return `karta-${(await $.clock.now()).toString(36)}-${Math.random().toString(36).slice(2, 6)}`
+}
+
+async function offer($: $T, r: CardResult) {
+  if (r.kind === 'blocked') {
+    await update($, sent, () => `Nie przygotowano karty: ${r.reason}`)
+    return
+  }
+  await update($, sent, () => '')
+  await update($, confirm, () => r.card)
+}
+
+// One step of a confirmed card; a command goes by the name the session knows it under
+async function runStep($: $T, a: Action, names: Record<string, string | null>) {
+  if (a.kind === 'clear') return $.command.run({ command: 'clear' })
+  if (a.kind === 'command') return $.command.run({ command: names[a.command] ?? a.command, args: a.args })
+  if (a.kind === 'write') return $.fs.write(join(S.cwd, a.path), a.text)
+  return $.prompt.submit({ text: a.text, asUser: true })
+}
+
+// The answer to the card: "nie" sends nothing; "tak" moves to the second step or runs the steps
+// in order and stops at the first that fails, saying which
+async function decide($: $T, card: Card, said: 'tak' | 'nie', names: Record<string, string | null>) {
+  const next = answer(card, said)
+  if (next.state === 'cancelled') {
+    await update($, confirm, () => null)
+    await update($, sent, () => `Anulowano: ${card.title} — nic nie wysłano`)
+    return
+  }
+  if (next.state !== 'confirmed') {
+    await update($, confirm, () => next)
+    return
+  }
+  await update($, confirm, () => null)
+  for (const a of stepsToRun(next)) {
+    try {
+      await runStep($, a, names)
+    } catch (err) {
+      await update($, sent, () => `Nie wysłano (${card.title}, krok ${a.kind}): ${err instanceof Error ? err.message : String(err)}`)
+      return
+    }
+  }
+  await update($, sent, () => `Wysłano do czatu: ${card.title}`)
+}
+
+// The stage card from the plan the form names, else the active one
+async function prepareStage($: $T, topic: string, stage: string, isFresh: boolean) {
+  const statusPath = topic ? `docs/plany/${topic}/STATUS.md` : S.plan.kind === 'ok' ? S.plan.statusPath : null
+  if (statusPath === null) return offer($, { kind: 'blocked', reason: 'brak aktywnego planu — wpisz TEMAT planu' })
+  const statusMd = await readText($, join(S.cwd, statusPath))
+  if (statusMd === null) return offer($, { kind: 'blocked', reason: `nie można odczytać ${statusPath}` })
+  const id = stageToStart(statusMd, stage || null)
+  const link = id ? promptLink(statusMd, id, statusPath) : null
+  const promptText = link ? await readText($, join(S.cwd, link)) : null
+  const sessionModel = await $.session.model().catch(() => null)
+  return offer($, stageCard({ id: await cardId($), statusMd, statusPath, promptText, stage: stage || null, sessionModel, isFresh }))
+}
+
+// The clean report through the one fixed argv (CLEAN_ARGV); nothing from a form enters it
+async function loadClean($: $T) {
+  try {
+    const r = await $.process.run([...CLEAN_ARGV], { cwd: S.cwd, timeoutMs: 120_000 })
+    const list = cleanChoices(r.exitCode === 0 ? r.stdout : null)
+    await update($, cleanList, () => list)
+    await update($, sent, () => (list.error ? `Nie wczytano listy: ${list.error}${r.stderr ? ' — ' + r.stderr.slice(0, 120) : ''}` : ''))
+  } catch (err) {
+    await update($, sent, () => `Nie wczytano listy: ${err instanceof Error ? err.message : String(err)}`)
+  }
+}
+
+// What /relai-update and /relai-models show before the card: the state from the project's files
+async function commandFacts($: $T, command: 'relai-update' | 'relai-models'): Promise<Fact[]> {
+  if (command === 'relai-update') {
+    const v = projectVersion(await readText($, join(S.cwd, 'docs/USTAWIENIA.md')))
+    return [{ label: 'Projekt', value: v ? `RelAI ${v} (docs/USTAWIENIA.md)` : 'wersji nie odczytano z docs/USTAWIENIA.md', ...(v ? {} : { tone: 'warn' as const }) }]
+  }
+  const date = listDate(await readText($, join(S.cwd, '.claude/relai/MODELE-claude-code.md')))
+  const age = daysBetween(date, localDay(await $.clock.now()))
+  return [{ label: 'Lista modeli', value: date ? `z ${date}${age !== null ? ` · ${age} ${plural(age, 'dzień', 'dni', 'dni')} temu` : ''}` : 'brak listy .claude/relai/MODELE-claude-code.md', ...(date ? {} : { tone: 'warn' as const }) }]
+}
+
+// A crew run's draft: editable only while the run has no manifest.json (E5, 1c)
+async function editCrew($: $T, run: string) {
+  const dir = join(S.cwd, `${CREW_DIR}/${run}`)
+  const draft = crewDraft(run, await readText($, join(S.cwd, crewTasksPath(run))), await readText($, join(dir, 'manifest.json')))
+  if (!draft.isEditable) return update($, sent, () => `Skład przebiegu ${run} bez edycji: ${draft.reason}`)
+  await update($, sent, () => '')
+  return update($, drafts, (m) => ({ ...m, [run]: draft }))
+}
+
 // ---------- hooks ----------
 
 export const register: Register = (on) => {
+  // D-35 (E5): a consent token reaches /relai-stage only in the pane's own send, which this hook
+  // never sees (2.1.293, P-022). Typed text and other plugins' sends lose it here.
+  on('command.run', async ($, e, next) => {
+    if (e.command.endsWith('relai-stage') && hasConsent(e.args)) return next({ ...e, args: stripConsent(e.args) })
+    return next(e)
+  })
+
   on('session.start', async ($, e, next) => {
     const here = await $.session.cwd()
     const root = await relaiRoot($, here)
@@ -425,8 +535,9 @@ export const register: Register = (on) => {
     if (!isRelai) return <Box key="not-relai"><Text>{NOT_RELAI}</Text></Box>
     const d = data ?? (await loadData($, cwd))
     const width = Math.max(30, e.props.bodyColumns)
-    const [tab, picked, all, q, filled, last, flashed, folds, chosen] = await Promise.all([
+    const [tab, picked, all, q, filled, last, flashed, folds, chosen, pending, isFresh, clean, crewDrafts] = await Promise.all([
       read($, view), read($, selected), read($, values), read($, query), read($, fills), read($, sent), read($, pressed), read($, unfolded), read($, picks),
+      read($, confirm), read($, freshChat), read($, cleanList), read($, drafts),
     ])
     const pick = (c: string) => { void update($, selected, (s) => (s === c ? '' : c)) }
 
@@ -477,6 +588,32 @@ export const register: Register = (on) => {
       ? <Box key="sent"><Text color={last.startsWith('Wysłano') ? THEME.ok : THEME.accentText}>{(last.startsWith('Wysłano') ? '✓ ' : '✗ ') + last}</Text></Box>
       : null
 
+    // ---------- the confirmation card (E5, R4) ----------
+    // Above every tab while it waits: what will happen, in rows of facts, the question, "Tak" and
+    // "Nie". A warning row reads in the accent color; nothing goes out before "Tak".
+    const factRow = (key: string, f: Fact) => (
+      // Wraps: a long value (a working folder's path) drops under its label in a narrow pane
+      <Box key={key} flexDirection="row" flexWrap="wrap" columnGap={1}>
+        <Box key={`${key}-l`} flexShrink={0} width={16}><Text bold color={THEME.mark}>{f.label}</Text></Box>
+        <Box key={`${key}-v`} flexGrow={1} flexShrink={1}><Text color={f.tone === 'warn' ? THEME.accentText : f.tone === 'ok' ? THEME.ok : THEME.title}>{(f.tone === 'warn' ? '⚠ ' : '') + f.value}</Text></Box>
+      </Box>
+    )
+    const confirmCard = (c: Card) => {
+      const step = shown(c)
+      return section('confirm', 'confirm', c.state === 'second' ? 'Drugi krok — zapis dopiero po tym potwierdzeniu.' : 'Nic nie pójdzie do czatu bez „Tak”.', [
+        <Box key="confirm-card" flexDirection="column" gap={isGui ? 1 : 0} paddingX={isGui ? 2 : 1} paddingY={isGui ? 1 : 0}
+          borderStyle="round" borderColor={flashBorder('confirm-yes', THEME.accent)} backgroundColor={THEME.cardOn}>
+          <Text bold color={THEME.accentText} wrap="truncate">{c.title}</Text>
+          <Box key="confirm-facts" flexDirection="column">{step.facts.map((f, i) => factRow(`confirm-f-${i}`, f))}</Box>
+          <Text bold color={THEME.title}>{step.question}</Text>
+          <Box key="confirm-act" flexDirection="row" flexWrap="wrap" gap={1}>
+            {btn('confirm-yes', 'Tak', 'primary', () => { void decide($, c, 'tak', d.names) })}
+            {btn('confirm-no', 'Nie', 'secondary', () => { void decide($, c, 'nie', d.names) })}
+          </Box>
+        </Box>,
+      ])
+    }
+
     const TABS = [['commands', 'Komendy'], ['map', 'Mapa'], ['sheet', 'Ściąga'], ['phrases', 'Frazy'], ['costs', 'Koszty']] as const
     const tabs = (
       <Box key="tabs" flexDirection="row" flexWrap="wrap" gap={1}>
@@ -509,20 +646,72 @@ export const register: Register = (on) => {
       const built = buildCommand(form, current, name ?? form.command)
       const fields = form.fields.filter((f) => isShown(f, current)).map((f) => fieldEl(form, f, current))
       const canSend = built.isOk && name !== null
+      const c = form.command
+      // E5: these commands start work or change the project, so the drawer prepares a card
+      // instead of sending; /relai-clean keeps its report send and gains the list of groups
+      const isStage = c === 'relai-stage'
+      const isCarded = isStage || c === 'relai-update' || c === 'relai-models'
+      const copyWhat = isStage && !current.topic && !current.stage && S.plan.kind === 'ok' && S.plan.stage ? copyText(S.plan.statusPath, S.plan.stage.id) : built.text
+      const actions = isStage
+        ? [btn('prepare', 'Przygotuj start', 'primary', () => { void prepareStage($, current.topic ?? '', current.stage ?? '', isFresh) }),
+            btn('copy', 'Kopiuj prompt', 'secondary', () => { void $.ui.copy({ text: copyWhat, surface: e.surface }).then(() => update($, sent, () => `Wysłano do schowka: ${copyWhat}`)) }, '✓ Skopiowano')]
+        : isCarded
+          ? [btn('prepare', 'Przygotuj', 'primary', () => { void commandFacts($, c as 'relai-update' | 'relai-models').then(async (facts) => offer($, commandCard(await cardId($), c as 'relai-update' | 'relai-models', facts))) })]
+          : [btn('send', 'Wyślij do czatu', 'primary', () => { void sendCommand($, name ?? c, built.args, built.text) }, '✓ Wysłano')]
       return (
         <Box key="form" flexDirection="column" gap={isGui ? 1 : 0} paddingX={isGui ? 2 : 1} paddingY={isGui ? 1 : 0}
-          borderStyle="round" borderColor={flashBorder('send', THEME.accent)} backgroundColor={THEME.cardOn}>
-          {heading(`name-${form.command}`, THEME.accentText)}
-          {fields.length ? fields : [<Text key="no-options" color={THEME.body}>Ta komenda nie ma opcji — wystarczy ją wysłać.</Text>]}
-          <Box key="preview" flexDirection="column">{well('preview-well', built.text, true)}</Box>
+          borderStyle="round" borderColor={flashBorder(isCarded ? 'prepare' : 'send', THEME.accent)} backgroundColor={THEME.cardOn}>
+          {heading(`name-${c}`, THEME.accentText)}
+          {fields.length ? fields : [<Text key="no-options" color={THEME.body}>{isCarded ? 'Ta komenda nie ma opcji — przygotuj kartę i potwierdź.' : 'Ta komenda nie ma opcji — wystarczy ją wysłać.'}</Text>]}
+          {isStage ? [<Select key="f-chat" label="Czat: " value={isFresh ? 'fresh' : 'current'}
+            options={[{ value: 'fresh', label: 'świeży — /clear po „Tak”, potem etap' }, { value: 'current', label: 'bieżący — etap w tej rozmowie' }]}
+            onSelect={(v) => { void update($, freshChat, () => v === 'fresh') }} />] : []}
+          <Box key="preview" flexDirection="column">{well('preview-well', isCarded ? `${built.text} — po „Tak” na karcie` : built.text, true)}</Box>
           {built.errors.length ? [<Box key="errors"><Text color={THEME.accentText}>{'⚠ ' + built.errors.join(' · ')}</Text></Box>] : []}
           {canSend
             ? <Box key="actions" flexDirection="row" flexWrap="wrap" gap={1}>
-                {btn('send', 'Wyślij do czatu', 'primary', () => { void sendCommand($, name, built.args, built.text) }, '✓ Wysłano')}
-                {btn('close', 'Zamknij', 'secondary', () => pick(form.command))}
+                {actions}
+                {btn('close', 'Zamknij', 'secondary', () => pick(c))}
               </Box>
             : <Box key="no-send"><Text color={THEME.body}>{name === null ? 'Komenda niedostępna w tej sesji — nic nie zostanie wysłane.' : 'Popraw opcje, żeby wysłać.'}</Text></Box>}
+          {c === 'relai-clean' && name !== null ? [cleanBlock()] : []}
           {sentLine ? [sentLine] : []}
+        </Box>
+      )
+    }
+
+    // /relai-clean's groups: loaded through the one fixed process, none picked at the start, the
+    // protected ones apart with their reason; "Przygotuj sprzątanie" makes the card
+    const cleanBlock = () => {
+      if (clean === null) {
+        return (
+          <Box key="clean" flexDirection="column" gap={isGui ? 1 : 0}>
+            <Text color={THEME.body}>Lista grup do wyboru: raport narzędzia sprzątania, bez kasowania.</Text>
+            <Box key="clean-load" flexDirection="row">{btn('clean-load', 'Wczytaj listę', 'secondary', () => { void loadClean($) })}</Box>
+          </Box>
+        )
+      }
+      const nPicked = clean.groups.filter((g) => g.isPicked).length
+      return (
+        <Box key="clean" flexDirection="column" gap={isGui ? 1 : 0}>
+          <Text bold color={THEME.title}>{clean.groups.length ? `Grupy do wyboru · zaznaczone ${nPicked} z ${clean.groups.length}` : 'Raport pusty — nie ma czego sprzątać.'}</Text>
+          {clean.groups.map((g) => (
+            <Box key={`clean-${g.id}`} flexDirection="row" alignItems="center" columnGap={1} paddingX={1}
+              {...frame(g.isPicked)} borderColor={flashBorder(`clean-pick-${g.id}`, g.isPicked ? THEME.accent : THEME.line)} backgroundColor={g.isPicked ? THEME.cardOn : THEME.card}>
+              <Text bold color={g.isPicked ? THEME.accentText : THEME.body}>{g.isPicked ? '☒' : '☐'}</Text>
+              <Box key={`clean-t-${g.id}`} flexDirection="column" flexGrow={1} flexShrink={1}>
+                <Text color={THEME.title} wrap="truncate">{g.name}</Text>
+                <Text color={THEME.body} wrap="truncate">{`${g.count} poz. · ${(g.bytes / 1048576).toFixed(2).replace('.', ',')} MB`}</Text>
+              </Box>
+              {btn(`clean-pick-${g.id}`, g.isPicked ? 'Odznacz' : 'Zaznacz', g.isPicked ? 'primary' : 'secondary', () => { void update($, cleanList, (l) => (l ? togglePick(l, g.id) : l)) })}
+            </Box>
+          ))}
+          {clean.kept.length ? [<Text key="clean-kept-h" bold color={THEME.mark}>Chronione — poza wyborem</Text>,
+            ...clean.kept.map((k, i) => <Text key={`clean-kept-${i}`} color={THEME.body} wrap="truncate">{`🔒 ${k.path} · ${k.reason}`}</Text>)] : []}
+          <Box key="clean-act" flexDirection="row" flexWrap="wrap" gap={1}>
+            {nPicked ? btn('clean-prepare', 'Przygotuj sprzątanie', 'primary', () => { void cardId($).then((id) => offer($, cleanCard(id, clean))) }) : []}
+            {btn('clean-reload', 'Wczytaj ponownie', 'secondary', () => { void loadClean($) })}
+          </Box>
         </Box>
       )
     }
@@ -1047,7 +1236,43 @@ export const register: Register = (on) => {
         )),
         ...(run.conflicts.length ? [line(`run-conf-${run.run}`, `Wspólne pliki: ${run.conflicts.map((c) => `${c.second} czeka na ${c.first}`).join('; ')}`)] : []),
         ...[runActions(md, run)].filter((x) => x !== null),
+        crewEditor(run.run),
       ])
+    }
+
+    // The crew before "zaczynamy" (E5, 1c): role, tool and model of each task, from closed lists;
+    // the waves follow the draft. Only a run without manifest.json opens; "Zatwierdź" makes the card
+    const crewEditor = (run: string) => {
+      const draft = crewDrafts[run]
+      if (!draft) return <Box key={`crew-edit-${run}`} flexDirection="row">{btn(`crew-open-${run}`, 'Edytuj skład', 'secondary', () => { void editCrew($, run) })}</Box>
+      const change = (id: string, key: 'role' | 'runtime' | 'model', v: string) => {
+        const r = setTask(draft, id, key, v)
+        if (r.error) { void update($, sent, () => `Nie zmieniono ${id}: ${r.error}`); return }
+        void update($, drafts, (m) => ({ ...m, [run]: r.draft }))
+      }
+      return (
+        <Box key={`crew-edit-${run}`} flexDirection="column" gap={isGui ? 1 : 0} paddingX={1} borderStyle="round" borderColor={THEME.accent} backgroundColor={THEME.cardOn}>
+          <Text bold color={THEME.title}>{`Skład przed startem · ${nTasks(draft.tasks.length)}`}</Text>
+          {draft.tasks.map((t) => (
+            <Box key={`crew-t-${run}-${t.id}`} flexDirection="column">
+              <Text bold color={THEME.mark} wrap="truncate">{`${t.id} · ${t.title || 'bez tytułu'}`}</Text>
+              <Select key={`crew-role-${run}-${t.id}`} label="rola: " value={t.role || NONE}
+                options={[...(t.role ? [] : [{ value: NONE, label: '— wybierz —' }]), ...ROLES.map((x) => ({ value: x, label: x }))]}
+                onSelect={(v) => { if (v !== NONE) change(t.id, 'role', v) }} />
+              <Select key={`crew-rt-${run}-${t.id}`} label="narzędzie: " value={t.runtime || NONE}
+                options={[...(t.runtime ? [] : [{ value: NONE, label: '— wybierz —' }]), ...RUNTIMES.map((x) => ({ value: x, label: x }))]}
+                onSelect={(v) => { if (v !== NONE) change(t.id, 'runtime', v) }} />
+              <Input key={`crew-model-${run}-${t.id}`} label="model: " value={t.model} placeholder="np. opus, puste = domyślny"
+                onSubmit={(v) => change(t.id, 'model', v.trim())} />
+            </Box>
+          ))}
+          <Box key={`crew-act-${run}`} flexDirection="row" flexWrap="wrap" gap={1}>
+            {btn(`crew-ok-${run}`, 'Zatwierdź skład', 'primary', () => { void cardId($).then((id) => offer($, crewCard(id, draft))) })}
+            {btn(`crew-drop-${run}`, 'Porzuć zmiany', 'secondary', () => { void update($, drafts, (m) => Object.fromEntries(Object.entries(m).filter(([k]) => k !== run))) })}
+          </Box>
+          <Text color={THEME.body}>Plik zadania.json zapisze się dopiero po „Tak” na karcie.</Text>
+        </Box>
+      )
     }
 
     const mapView = (md: MapData) => {
@@ -1087,6 +1312,7 @@ export const register: Register = (on) => {
         </Box>
         {tabs}
         {d.hasRelai ? [] : [<Box key="no-relai"><Text color={THEME.mark}>{NO_RELAI}</Text></Box>]}
+        {pending ? [confirmCard(pending)] : []}
         <Box key="body" flexDirection="column" gap={isGui ? 2 : 1}>{body}</Box>
         {sentLine && !isSentInDrawer ? [sentLine] : []}
       </Box>

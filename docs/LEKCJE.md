@@ -43,8 +43,11 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
    siebie. **Tekst, który tłumaczy liczbę, ma warunek prawdziwości i test dla stanu docelowego**,
    nie tylko dla sesji pomiarowej, w której powstał (L-0144). **Test na realnym pliku, którego stan
    zmienia proces (checkboxy, statusy), sam ustawia stan wyjściowy**, a licznik testów do dziennika
-   pochodzi z przebiegu po ostatniej zmianie przed commitem (L-0150). (L-0017, L-0018,
-   L-0040, L-0051, L-0052, L-0063, L-0069, L-0082, L-0115, L-0117, L-0123, L-0134, L-0144, L-0150)
+   pochodzi z przebiegu po ostatniej zmianie przed commitem (L-0150). **Pytanie o zasięg zmiany
+   pliku stawiasz po sprawdzeniu, czy plik nie jest generowany z innego** — opcja, której kontrola
+   parytetu nie przepuści, nie trafia do pytania jako wykonalna (L-0154). (L-0017, L-0018,
+   L-0040, L-0051, L-0052, L-0063, L-0069, L-0082, L-0115, L-0117, L-0123, L-0134, L-0144, L-0150,
+   L-0154)
 5. **Instrument pomiarowy sam bywa źródłem fałszu:** wyrażenia regularne trzymaj w pliku zapisanym
    narzędziem zapisu, nie w `node -e` ani w heredoku, a tekst z backslashem (także ścieżkę
    Windows) wstawiasz Edit/Write albo piszesz z `/` (L-0116, L-0119); **skrypt edycji kodu, który
@@ -221,7 +224,10 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
     żywo — błąd czasu wykonania (nazwa fabryki JSX przesłonięta zmienną) przechodzi `validate`.
     **Kontekst sesji, który zmienia się w jej trakcie (katalog bieżący), nie jest stałą** — mod
     wyznacza korzeń projektu wejściem w górę od niego, a test ma przypadek sesji w podfolderze (L-0146).
-    (L-0041, L-0042, L-0044, L-0047, L-0092, L-0133, L-0136, L-0138, L-0139, L-0146)
+    **Sonda, która mierzy działanie niszczące (`/clear`, kasowanie), stoi w sesji, której utrata nic
+    nie kosztuje** — albo przycisk ma osobne potwierdzenie; stan etapu i wynik sondy są w pliku
+    przed każdym takim krokiem (L-0153).
+    (L-0041, L-0042, L-0044, L-0047, L-0092, L-0133, L-0136, L-0138, L-0139, L-0146, L-0153)
 14. **Najpierw zmiana w repozytorium, potem zdanie, które ją opisuje.** Weryfikację planuj tam,
     gdzie jest wykonalna; po pytaniu sprzątasz sam (martwy link nie jest poprawną wartością
     tymczasową); przy wyprowadzaniu pozycji jednostką inwentarza jest **sprawa**, nie linia.
@@ -795,6 +801,27 @@ restart aplikacji po `plugin update` (L-0031), `git worktree` zamiast `git archi
 - **Zasada:** komórka liczby w wierszu ma `flexShrink={0}` (ustępuje nazwa) i test sprawdza tę
   właściwość wprost; zrzut z terminala jest częścią pomiaru, nie formalnością po testach.
 - **Źródło:** E4 planu PANEL_CLAUDE (zrzut na żywo); destylat: dopisane do zasady 15.
+
+### L-0153 — Przycisk `/clear` w sondzie skasował sesję, która wykonywała etap · 2026-10-09 · AKTYWNA
+
+- **Trigger:** sonda `relai-probe-e5` miała przycisk „clear” obok przycisków pomiarowych; jego
+  naciśnięcie w sesji wykonującej E5 wyczyściło rozmowę — model stracił kontekst etapu w połowie.
+- **Przyczyna:** działanie niszczące mierzone w tej samej sesji, która niesie pracę, bez osobnego
+  potwierdzenia; przetrwało tylko to, co było w plikach (`notatki.md`, `sonda.log`).
+- **Zasada:** sonda działania niszczącego stoi w sesji, której utrata nic nie kosztuje, albo jej
+  przycisk ma osobne potwierdzenie; stan etapu i wynik sondy są w pliku przed każdym takim krokiem.
+- **Źródło:** E5 planu PANEL_CLAUDE (sesja `e25ca911-…` → `679e3eed-…`); destylat: zasada 13.
+
+### L-0154 — Odpowiedź „skill Codeksa bez zmian” przeczyła budowie repo · 2026-10-09 · AKTYWNA
+
+- **Trigger:** w pytaniu przed pracą E5 padła opcja „tylko adapter Claude Code, skill Codeksa bez
+  zmian” i człowiek ją wybrał; `validate-adapters.js` po zmianie komendy zgłosił rozjazd parytetu.
+- **Przyczyna:** `adapters/codex/skills/` jest generowany 1:1 z komend Claude Code
+  (`adapters/codex/generate-skills.js`), czego pytanie nie sprawdziło — opcja była niewykonalna bez
+  wyjątku w generatorze.
+- **Zasada:** pytanie o zasięg zmiany pliku stawiasz po sprawdzeniu, czy plik nie jest generowany
+  z innego; opcja, której kontrola parytetu nie przepuści, nie trafia do pytania jako wykonalna.
+- **Źródło:** E5 planu PANEL_CLAUDE (człowiek 2026-10-09: regenerować); destylat: zasada 4.
 
 ## Lekcje zwinięte
 
