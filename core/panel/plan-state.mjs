@@ -52,6 +52,24 @@ export function cells(row) {
 }
 
 /**
+ * The folder and each of its parents, nearest first, with forward slashes. The session's cwd
+ * follows every cd the model's shell makes (2.1.293, E9), so a mod looks for the RelAI marker
+ * upwards from it, as git looks for .git, instead of in the cwd alone.
+ * @param {string} dir
+ * @returns {string[]}
+ */
+export function ancestors(dir) {
+  const parts = String(dir).split(/[\\/]+/).filter((x, i) => x !== '' || i === 0);
+  /** @type {string[]} */
+  const out = [];
+  for (let n = parts.length; n > 0; n--) {
+    const path = parts.slice(0, n).join('/');
+    if (path !== '') out.push(path);
+  }
+  return out;
+}
+
+/**
  * The "Aktywny plan" line of CLAUDE.md: a plan link, "brak", or something unreadable.
  * @param {string} claudeMd
  * @returns {{ kind: 'none' } | { kind: 'unknown', reason: string } | { kind: 'plan', plan: string, statusPath: string }}

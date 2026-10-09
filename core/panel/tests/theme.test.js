@@ -143,3 +143,31 @@ test('a heading wider than its box and a stale heading text are reported (plante
   assert.ok(p.some((l) => l.startsWith('hero: text')), p.join('; '));
   assert.ok(p.some((l) => l.startsWith('featured: drawn')), p.join('; '));
 });
+
+// E9 bars above the prompt (STYL_PASKOW_CLAUDE.md): each label, text, muted text and tile text
+// reads on the background it is drawn on
+function barPairs(band, bar) {
+  const pairs = [];
+  for (const [k, c] of Object.entries(band)) {
+    pairs.push([k + ' label', c.color, c.bg], [k + ' text', bar.text, c.bg], [k + ' muted', bar.muted, c.bg]);
+  }
+  for (const [k, t] of Object.entries(bar.tile)) pairs.push(['tile ' + k, t.text, t.bg]);
+  return pairs.filter(([, fg, bg]) => contrast(fg, bg) < 4.5).map(([n, fg, bg]) => `${n}: ${contrast(fg, bg).toFixed(2)}`);
+}
+
+test('BAND: three bars, each labelled RelAI, with a label color and a background of its own', () => {
+  assert.deepEqual(Object.keys(theme.BAND), ['cache', 'panel', 'progress']); // the brief's order
+  const bars = Object.values(theme.BAND);
+  for (const b of bars) assert.match(b.label, /^RelAI · /);
+  assert.equal(new Set(bars.map((b) => b.bg)).size, 3, 'two bars share a background');
+  assert.equal(new Set(bars.map((b) => b.color)).size, 3, 'two bars share a label color');
+});
+
+test('every text of the bars reads on its background (WCAG AA, 4.5:1)', () => {
+  assert.deepEqual(barPairs(theme.BAND, theme.BAR), []);
+});
+
+test('a bar text too close to its background is reported (planted defect)', () => {
+  const bad = { ...theme.BAND, cache: { ...theme.BAND.cache, color: theme.mix(theme.BAND.cache.bg, '#ffffff', 0.1) } };
+  assert.ok(barPairs(bad, theme.BAR).some((l) => l.startsWith('cache label:')));
+});

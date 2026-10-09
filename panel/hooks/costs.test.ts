@@ -1,7 +1,7 @@
 import { describe, expect, mock, test, type TestBody } from 'claude-code/testing'
 import type { On, RenderElement, RenderNode, TurnStepResult } from 'claude-code'
 import { RECORD_FIELDS } from './core/measure.mjs'
-import { THEME } from './core/theme.mjs'
+import { BAND, THEME } from './core/theme.mjs'
 
 // The collector and the cost report of the RelAI panel (plan PANEL_CLAUDE, E3): every request of
 // the main loop and of subagents and each compaction to a file per session; sums without
@@ -324,17 +324,33 @@ describe('the cost report', () => {
 })
 
 describe('the band among the other mods above the prompt', () => {
-  test('is framed apart from what the plugins beneath draw, on terminal and desktop', async ($, on) => {
+  // STYL_PASKOW_CLAUDE.md (2026-10-09): set apart by a soft background of its own, not a colored
+  // frame; on the desktop a border in the background's color only rounds the corners
+  test('is set apart from what the plugins beneath draw by a background of its own, on terminal and desktop', async ($, on) => {
     world(on, BASE)
     await start($)
     for (const surface of ['terminal', 'desktop'] as const) {
       const ui = await $.ui.mount({ plugin: 'relai-panel', surface, component: 'AbovePrompt', props: { hasSurvey: false, isWorking: false, maxRows: 10, bodyColumns: 140, scroll: { offset: 0, bodyRows: 9 }, view: {} } })
       const frame = await ui.find({ key: 'relai-band-frame' })
-      expect((frame?.props as { borderStyle?: string } | undefined)?.borderStyle).toBe('round')
-      expect((frame?.props as { borderColor?: string } | undefined)?.borderColor).toBe(THEME.mark)
+      const props = frame?.props as { borderStyle?: string, borderColor?: string, backgroundColor?: string } | undefined
+      expect(props?.backgroundColor).toBe(BAND.panel.bg)
+      expect(props?.borderStyle).toBe(surface === 'desktop' ? 'round' : undefined)
+      if (surface === 'desktop') expect(props?.borderColor).toBe(BAND.panel.bg) // no colored frame
       expect(textOf(frame)).toContain('RelAI')
       expect(textOf(frame)).not.toContain('engine') // the mods beneath stay outside the frame
       expect(await ui.find({ key: 'engine' })).toBeDefined()
+      await ui.unmount()
+    }
+  })
+
+  test('is never wider than 40 columns, on terminal and desktop', async ($, on) => {
+    world(on, BASE)
+    await start($)
+    for (const surface of ['terminal', 'desktop'] as const) {
+      const ui = await $.ui.mount({ plugin: 'relai-panel', surface, component: 'AbovePrompt', props: { hasSurvey: false, isWorking: false, maxRows: 10, bodyColumns: 40, scroll: { offset: 0, bodyRows: 9 }, view: {} } })
+      const frame = await ui.find({ key: 'relai-band-frame' })
+      expect(frame).toBeDefined()
+      expect(minWidth(await ui.drawn())).toBeLessThanOrEqual(40)
       await ui.unmount()
     }
   })

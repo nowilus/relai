@@ -172,11 +172,18 @@ czyli liczba plików, nie liczba specyfikacji. Rejestr trzyma się stanu z dysku
 | Skille Codexa | `adapters/codex/skills/` | 1 | 2026-09-05 | 12 procedur wygenerowanych deterministycznie z komend Claude Code + 2 skille rdzeniowe | Jedno źródło treści, wykrywalny format Codexa i walidacja rozjazdu |
 | Instrukcja adaptera Codexa | `adapters/codex/README.md` | 2 | 2026-09-05 | 2026-09-06 (wersja 2): akapit o `relai-crew` — subagenci natywni Codeksa, delegacja w obie strony przez `codex exec` / `codex review` bez flag omijających sandbox, generator na 13 komend. Wersja 1: nowy artefakt; instalacja, D-86 i macierz dowodów | Użytkownik dostaje faktyczną ścieżkę instalacji, nie deklarację z manifestu |
 
+## Briefy stylistyczne projektu (1)
+
+| Artefakt | Plik | Wersja | Data | Co się zmieniło | Po co |
+|---|---|---|---|---|---|
+| Styl pasków dla Claude Code | `docs/zasoby/PANEL_RELAI/STYL_PASKOW_CLAUDE.md` | 1 | 2026-10-09 | Nowy brief: miękkie powierzchnie, kolumny i przyciski z „Liczby po prawej”, nazwane kafelki zadań z „Pola i segmenty”; tokeny, geometria, stany, ograniczenia API i kryteria odbioru | Przenosi wybór użytkownika z makiet do samowystarczalnej instrukcji dla wykonawcy E9; zapobiega odtwarzaniu indywidualnych stanów z samej sumy postępu |
+
 ## Poza rejestrem — świadomie
 
 - **Hooki, guardraile, walidator, `session-signals.js`** — kod wykonawczy, nie instrukcja czytana
   przez model. Ich historia mieszka w gicie i w dzienniku.
 - **Dokumenty tego projektu** (`docs/*.md`, plany, prompty etapowe, karty odnóg) — produkty procesu
-  RelAI, nie artefakty pluginu. Prompt etapowy jest jednorazowy i wersji nie ma.
+  RelAI, nie artefakty pluginu. Prompt etapowy jest jednorazowy i wersji nie ma. Dedykowany
+  brief stylistyczny jako instrukcja dla wykonawcy ma osobną kategorię rejestru powyżej.
 - **Manifesty i marketplace** (`.claude-plugin/`, `MANIFEST.json`) — metadane wydania; ich wersją
   jest wersja pluginu.

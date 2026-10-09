@@ -28,7 +28,7 @@
     {
       "name": "relai-panel",
       "source": "./panel",
-      "description": "RelAI panel for Claude Code (early access mods): active plan and stage, prompt-cache timer and session cost above the prompt",
+      "description": "RelAI panel for Claude Code (early access mods): active plan and stage and session cost above the prompt, a pane with the 14 RelAI commands and the session's measured costs",
       "category": "productivity",
       "homepage": "https://github.com/nowilus/relai",
       "repository": "https://github.com/nowilus/relai",
@@ -36,7 +36,7 @@
         "relai",
         "panel",
         "mods",
-        "prompt-cache"
+        "costs"
       ]
     }
   ]

@@ -8,6 +8,30 @@ Specyfikacja: `SPEC_PULAPKI.md`.
 
 ## Pułapki
 
+### P-021 — Silnik modów Claude Code: katalog sesji, klucze i interaktywne Svg · 2026-10-09 · AKTYWNA
+
+- **Objaw:** trzy mody RelAI nad promptem zamilkły w trakcie sesji, choć `plugin test` był zielony;
+  `ui.find({ key })` nie znajduje `Svg` ani `Text`, którym nadano klucz; pasek segmentów jako
+  interaktywne `Svg` rysuje się na ~380 px zamiast na całą szerokość karty.
+- **Przyczyna (2.1.293, E9 planu PANEL_CLAUDE, desktop i terminal):**
+  1. `$.session.cwd()` idzie za każdym `cd` narzędzia Bash: po `cd .claude/relai/work/...` mod pytający
+     o `docs/USTAWIENIA.md` w katalogu sesji uznał, że to nie jest projekt RelAI.
+  2. `key` przeżywa wyłącznie na `Box`; na `Text` i `Svg` znika z drzewa rysowanego, więc test
+     szuka go w owijającym `Box` albo chodzi po `ui.drawn()`.
+  3. `Svg` z `isInteractive` w wierszu (`flexDirection="row"`) obok tekstu dostaje domyślną
+     szerokość ramki (~380 px); we własnym wierszu kolumny bierze pełną szerokość.
+  4. Silnik nie ma tooltipa; działa karta w samym `Svg`: segment i jego karta jako rodzeństwo,
+     `.b:hover ~ .t { display: inline }`, tekst przycięty do liczby znaków liczonej z kolumn.
+  5. `Box position="absolute"` z `right`/`bottom` liczy w komórkach względem rodzica — tak przycisk
+     siedzi w rogu karty bez własnego wiersza.
+  6. Natywny `Button` na desktopie jest wyższy niż wiersz tekstu: przycisk w wierszu nad paskiem
+     dotyka paska bez `marginBottom`.
+- **Obejście:** korzeń projektu szukany **w górę** od `$.session.cwd()` (`ancestors` w
+  `core/panel/plan-state.mjs`), komendy szukają go ponownie, gdy `session.start` jeszcze nie skończył;
+  test na sesji stojącej w podfolderze. Klucze testowe na `Box`. Interaktywne `Svg` w osobnym wierszu.
+  Karty podpowiedzi w Svg (`hoverSegments` w `core/panel/charts.mjs`) mierzone w Chromium.
+- **Zasięg:** Claude Code 2.1.293 (mody „early access"), aplikacja desktopowa i terminal, Windows.
+
 ### P-020 — Silnik modów Claude Code: pomiar tokenów i wykresy w panelu · 2026-10-08 · AKTYWNA
 
 - **Objaw:** kolektor kosztów liczy „wszystko z `turn.step`", a suma i tak nie zgadza się z `/cost`;

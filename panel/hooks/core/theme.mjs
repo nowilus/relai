@@ -99,6 +99,9 @@ export const HEADINGS = Object.freeze([
   { key: 'costs-turns', text: 'Wywołania w czasie', size: 20, color: mix(ROOT.glina, ROOT.kartka, 0.25) },
   { key: 'costs-agents', text: 'Agenci', size: 20, color: mix(ROOT.glina, ROOT.kartka, 0.25) },
   { key: 'costs-models', text: 'Modele', size: 20, color: mix(ROOT.glina, ROOT.kartka, 0.25) },
+  // relai-progress's pane (E9, calibration 2026-10-09: the same motif as relai-panel's)
+  { key: 'progress', text: 'Postęp etapu', size: 22, color: ROOT.musztarda },
+  { key: 'agents', text: 'Agenci sesji', size: 22, color: ROOT.musztarda },
   ...Object.entries(NAMES).map(([c, [name]]) => ({ key: 'name-' + c, text: name, size: 26, color: mix(ROOT.glina, ROOT.kartka, 0.25) })),
 ]);
 
@@ -111,6 +114,45 @@ export const COST_COLORS = Object.freeze({
   cacheRead: mix(ROOT.szalwia, ROOT.kartka, 0.5),
   cacheWrite: ROOT.glina,
   output: ROOT.musztarda,
+});
+
+/**
+ * The bars above the prompt (E9, Aneks C; look: docs/zasoby/PANEL_RELAI/STYL_PASKOW_CLAUDE.md,
+ * chosen 2026-10-09): three calm bars, cache → plan → progress, set apart by a soft background of
+ * their own, a gap and a shared grid — the label column on the left, the figure on the right —
+ * instead of a colored frame (each element above the prompt visibly apart, rule of 2026-10-08).
+ * Colors are the brief's, verbatim: the dark reference of the accepted mock-ups. relai-panel,
+ * relai-progress and relai-cache-keeper read them from their synced copy of this file.
+ */
+export const BAND = Object.freeze({
+  cache: Object.freeze({ label: 'RelAI · cache', color: '#df987a', bg: '#2c2824' }),
+  panel: Object.freeze({ label: 'RelAI · plan', color: '#e1b85c', bg: '#2d2a23' }),
+  progress: Object.freeze({ label: 'RelAI · postęp', color: '#9cbea2', bg: '#262c27' }),
+});
+
+/** What every bar shares: its text, its grid in cells, the colors of a task tile by its state. */
+export const BAR = Object.freeze({
+  text: '#eee8dc',
+  muted: '#b8b0a3',
+  labelColumn: 16, // cells, the same in all three bars (brief: ~106–118 px)
+  figureColumn: 11, // cells, never shrunk at the figure's cost (brief: ~76–88 px)
+  narrow: 90, // below this many columns the label goes above the content
+  tile: Object.freeze({
+    done: Object.freeze({ bg: mix('#262c27', '#9cbea2', 0.3), text: '#eee8dc', mark: '✓' }),
+    pending: Object.freeze({ bg: mix('#262c27', '#464239', 0.6), text: '#b8b0a3', mark: '○' }),
+    running: Object.freeze({ bg: mix('#262c27', '#e1b85c', 0.25), text: '#eee8dc', mark: '●' }),
+    failed: Object.freeze({ bg: mix('#262c27', '#df987a', 0.25), text: '#eee8dc', mark: '!' }),
+    unknown: Object.freeze({ bg: mix('#262c27', '#464239', 0.6), text: '#b8b0a3', mark: '?' }),
+  }),
+  // One segment of the progress bar per item, by its state (calibration 2026-10-09: "Pola
+  // i segmenty", a bar cut into segments, not named tiles)
+  segment: Object.freeze({
+    done: mix('#9cbea2', '#262c27', 0.12),
+    pending: mix('#262c27', '#b8b0a3', 0.12),
+    running: mix('#e1b85c', '#262c27', 0.2),
+    failed: mix('#df987a', '#262c27', 0.2),
+    unknown: mix('#262c27', '#b8b0a3', 0.12),
+  }),
 });
 
 /** Small line glyphs of the pane's own controls (tabs, phrase cards), 24×24, in one color. */

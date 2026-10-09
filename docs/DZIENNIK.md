@@ -19,11 +19,11 @@
 
 | O4 | Tryb ciągły kosztuje turę przy każdym zdaniu — praca zwalnia i drożeje (plan OPTYMALIZATOR_PROMPTOW, ryzyko O4) | **Średni** (2026-09-14, przy akceptacji planu) | **OTWARTE** | Wyłącznik w `USTAWIENIA.md`, filtr pomija komendy; otwarte: rozrzut kosztu większy niż mierzona różnica. Historia: [MITYGACJE_2026-09-24](archiwum/ryzyka/MITYGACJE_2026-09-24.md). |
 | K3 | Nakładki rodzin modeli starzeją się szybciej niż wydania RelAI — dostawca zmienia wytyczne, a reguła z datą zostaje (plan PROWADZENIE_END_TO_END, ryzyko K3) | **Średni** (2026-09-24, przy zamknięciu planu) | **OTWARTE** | Każda reguła nakładki ma źródło i datę odczytu; hook startu mówi o nakładce starszej niż 30 dni; odświeżenie razem z `/relai-models`. |
-| C1 | API modów Claude Code („early access”) zmieni się między wydaniami i `relai-panel` przestanie się ładować (plan PANEL_CLAUDE, ryzyko R1) | **Wysoki** (2026-10-08, przy E1) | **OTWARTE** | Osobny plugin; rachunki w `core/panel/` poza API modów; `plugin validate` i `plugin test` przed wydaniem; `cache-keeper-pl` jako kanarek. Otwarte: minimalna wersja silnika niezmierzona (działa 2.1.293). |
-| C3 | Desktop rysuje panel inaczej niż terminal (plan PANEL_CLAUDE, ryzyko R3) | **Niski** (2026-10-08 po E8; wcześniej średni dla panelu w terminalu) | **OTWARTE** | Pasek i panel zmierzone na żywo na desktopie (E1, E2, E8) i panel w terminalu 2.1.293 (E8: nagłówki tekstem, przyciski `[ … ]`); powierzchnię rozpoznaje `e.surface` (L-0138), test sprawdza odpowiednik tekstowy. Otwarte, bo każdy nowy element panelu (E3–E6) ma dwie powierzchnie do zmierzenia. |
+| C1 | API modów Claude Code („early access”) zmieni się między wydaniami i `relai-panel` przestanie się ładować (plan PANEL_CLAUDE, ryzyko R1) | **Wysoki** (2026-10-08, przy E1) | **OTWARTE** | Osobne pluginy; rachunki w `core/panel/` poza API modów; `plugin validate` i `plugin test` przed wydaniem — od E9 dla trzech pluginów (`relai-panel`, `relai-progress`, `relai-cache-keeper`, ten ostatni przejął rolę kanarka po `cache-keeper-pl`). Otwarte: minimalna wersja silnika niezmierzona (działa 2.1.293); trzy pluginy na tym samym API to trzy miejsca do poprawki przy zmianie. |
+| C3 | Desktop rysuje panel inaczej niż terminal (plan PANEL_CLAUDE, ryzyko R3) | **Niski** (2026-10-08 po E8; wcześniej średni dla panelu w terminalu) | **OTWARTE** | Pasek i panel zmierzone na żywo na desktopie (E1, E2, E8) i panel w terminalu 2.1.293 (E8: nagłówki tekstem, przyciski `[ … ]`); powierzchnię rozpoznaje `e.surface` (L-0138), test sprawdza odpowiednik tekstowy. E9: trzy paski nad promptem i panel `/relai-agents` zmierzone na desktopie i w terminalu 2.1.293 (segmenty Svg z podpowiedzią / znaki; terminal startowany z podfolderu — P-021); pasek cache w terminalu niewidoczny bez pierwszego zapytania (sesja niezalogowana), pokrywa go test. Otwarte, bo każdy nowy element panelu (E4–E6) ma dwie powierzchnie do zmierzenia. |
 | C9 | Motyw RelAI i ikony komend nie zmieszczą się w elementach silnika modów — `Svg` tylko na desktopie, `Client` niezmierzony, terminal bez grafiki (plan PANEL_CLAUDE, Aneks A) | **Niski** (2026-10-08 po E8; wcześniej średni) | **ZAMKNIĘTE 2026-10-08** | Sonda E8: Svg z osadzonym fontem działa na desktopie, `Client` działa, `foreignObject` i interaktywne Svg odpadają, `plain` odwraca kolory (P-018); motyw zbudowany w tych granicach i przyjęty przez człowieka; terminal dostał odpowiednik tekstowy, zmierzony na żywo. |
-| C8 | Inny mod paska nad promptem rysuje bez `next` albo owija węzeł silnika w `Box` z `width` i pasek RelAI znika bez komunikatu (E1, P-017) | **Średni** (2026-10-08, przy E1) | **OTWARTE** | `relai-panel` zawsze woła `next` i nie dokłada `width` do owijacza; `cache-keeper-pl` 0.1.2 poprawiony tak samo. Otwarte: cudze mody poza kontrolą — ostrzeżenie w README w E7. |
-| C10 | Pomiar kosztów niepełny albo podwójny — subagenci, kompakcja, wznowienie, `/clear`, wywołania poza pętlą (plan PANEL_CLAUDE, ryzyko R2) | **Niski** (2026-10-08 po E3; wcześniej wysoki) | **OTWARTE** | Klucz sesja + tura + indeks + agent, plik na sesję, kompakcja z `session.compact`, identyfikator sesji przy każdym zapisie; na żywo 117/117 kroków i 8/8 tur zgodnych z sondą co do kategorii. Otwarte: 9,16% przyrostu licznika silnika to wywołania spoza `turn.step` i kompakcji — raport mówi o nich słowami, bez rozbicia (P-020 pkt 6) |
+| C8 | Inny mod paska nad promptem rysuje bez `next` albo owija węzeł silnika w `Box` z `width` i pasek RelAI znika bez komunikatu (E1, P-017) | **Średni** (2026-10-08, przy E1) | **OTWARTE** | `relai-panel`, `relai-progress` i `relai-cache-keeper` zawsze wołają `next` i nie dokładają `width` do owijacza (test „engine kept beneath" w każdym); `savvy-progress` rysował bez `next` — wyłączony w E9, zastąpiony forkiem. Otwarte: cudze mody poza kontrolą — ostrzeżenie w README w E7. |
+| C10 | Pomiar kosztów niepełny albo podwójny — subagenci, kompakcja, wznowienie, `/clear`, wywołania poza pętlą (plan PANEL_CLAUDE, ryzyko R2) | **Niski** (2026-10-08 po E3; wcześniej wysoki) | **OTWARTE** | Klucz sesja + tura + indeks + agent, plik na sesję, kompakcja z `session.compact`, identyfikator sesji przy każdym zapisie; na żywo 117/117 kroków i 8/8 tur zgodnych z sondą co do kategorii; E9: koszt subagenta w `/relai-agents` = suma jego rekordów ($0,42, Opus), agent spoza cennika „brak ceny", nie „brak pomiaru". Otwarte: 9,16% przyrostu licznika silnika to wywołania spoza `turn.step` i kompakcji — raport mówi o nich słowami, bez rozbicia (P-020 pkt 6) |
 | C11 | Pliki pomiarów puchną albo trafiają do gita (plan PANEL_CLAUDE, ryzyko R5) | **Niski** (2026-10-08 po E3) | **OTWARTE** | `.claude/relai/` poza gitem (sprawdzone `git check-ignore`), plik na sesję, rekord bez treści (~250 B); otwarte: sprzątanie starych plików nie istnieje — do E6/E7 |
 
 > Ryzyka zamknięte W1, U1, O1, O6 (4 pozycje) są w
@@ -2501,5 +2501,151 @@ Autor: RelAI (Opus 5.5) + Lukasz
 - Bramki z E2 (`relai-panel` w `cd13613d-…`) i E8 (`6916a9af-…`) nadal otwarte; bramka E1
   rozstrzygnięta (folder pusty).
 - Uruchomić E9 w świeżej sesji na Opusie: `/relai-stage`.
+
+Autor: RelAI (Opus 5.5) + Lukasz
+
+### 2026-10-09 — Brief stylistyczny trzech pasków dla wykonawcy E9 w Claude Code
+
+**Zrobione:**
+
+- W sesji Codeksa porównano cztery układy trzech pasków i cztery odmiany „Miękkich powierzchni”.
+  Użytkownik wybrał połączenie układu oraz przycisków „Liczby po prawej” z podziałem postępu
+  „Pola i segmenty”; doprecyzował kafelki: **krótka nazwa + status konkretnego zadania**.
+- Powstał `docs/zasoby/PANEL_RELAI/STYL_PASKOW_CLAUDE.md` (wersja 1), samowystarczalna instrukcja
+  dla sesji Claude Code prowadzącej E9: kolory, geometria, rozmieszczenie pól, przyciski,
+  kafelki, mała szerokość, ograniczenia P-017/P-018 i kryteria odbioru.
+- Rozpoznanie źródeł ujawniło, że `core/panel/progress.mjs` zwraca dziś agregat bez listy pozycji.
+  Brief wymaga zachowania konkretnych nazw i stanów, zgodności kafelków z agregatem oraz próby
+  na niekolejno odhaczonych punktach. Nieodhaczony punkt nie jest automatycznie „w toku”.
+- Brief wpisany do `docs/ARTEFAKTY.md` jako osobna instrukcja projektu. Kod pluginów, status E9
+  i zamrożony plan nie zostały zmienione w ramach tego zadania. Implementację wykonuje Claude Code.
+
+**Zweryfikowane:**
+
+- Opis porównany z `core/panel/progress.mjs`, rendererami trzech pluginów i P-017/P-018;
+  rozróżnia docelowe wymagania od już istniejących możliwości. Makiety wcześniejszej części
+  tej sesji sprawdzone w przeglądarce przy szerokościach 736 i 320 px.
+- W tej części powstały wyłącznie dokumenty; testów implementacji nowego stylu nie wykonywano.
+
+Autor: Codex + Lukasz
+
+### 2026-10-09 — E9 planu PANEL_CLAUDE: postęp pracy i agenci na żywo
+
+**Zrobione:**
+
+- **Pytanie przed pracą (trzy rundy, AskUserQuestion):** (a) źródło postępu wyłącznie
+  deterministyczne — bez `$.tool.register` (rekomendacja przyjęta); (b) mody człowieka mają być
+  **dodatkowymi pluginami w marketplace RelAI**, nie w `lukasz-mods`; (c) nazwy `relai-progress`
+  (fork `savvy-progress`) i `relai-cache-keeper` (dawny `cache-keeper-pl`); (d) ten sam marketplace
+  co RelAI. Runda 2: postęp i panel agentów w `relai-progress`, timer cache tylko
+  w `relai-cache-keeper`, kod w repo, wpisy w `marketplace.json` w E7, oryginały wyłączone.
+  Runda 3: R7 („panel nie woła modelu") obowiązuje `relai-panel` i `relai-progress`;
+  `relai-cache-keeper` zachowuje pingi podtrzymania i przekazanie — wyłącznie na żądanie. Wszystko
+  jako **Aneks C** (`PLAN.html`, sekcja 10). Optymalizator promptów w tej sesji: „nie".
+- **Sonda `relai-probe-e9`** (desktop, 2.1.293): `agent.spawn` zwraca `{ model, agentId }` po
+  `next`; `turn.step` i `turn.complete` subagenta niosą `agentId`; `$.agent.list()` zapomina agenta
+  w chwili zakończenia — historię trzyma mod. Kontrola pozytywna: `turn.complete` wątku głównego
+  (`agentId` null) w tym samym logu. Folder sondy usunięty z modów sesji po pomiarze.
+- **Rdzeń:** `core/panel/progress.mjs` (punkty z checkboxów promptu etapu, nazwy z wierszami
+  kontynuacji, procent bez „100%" przed ostatnim punktem, przebieg `/relai-crew`, praca poza planem
+  słowem), `core/panel/agents.mjs` (lista agentów, koszt z rekordów kolektora przez `aggregate`,
+  `agentsLabel` — atrybucja MIT `savvy-progress`), `ancestors` w `plan-state.mjs`, `BAND`/`BAR`
+  i nagłówki „Postęp etapu", „Agenci sesji" w `theme.mjs`, `segments` / `segmentText` /
+  `hoverSegments` w `charts.mjs`; `sync-panel-core.js` kopiuje rdzeń do trzech pluginów.
+- **`relai-progress` 0.1.0** (`progress/`, licencja MIT oryginału w `LICENSE-savvy-progress`):
+  pasek postępu nad promptem pocięty na segmenty (Svg z kartą podpowiedzi po najechaniu — nazwa
+  i opis punktu; bez najechania „Następny: …"; terminal znakami), odświeżanie po `Edit`/`Write`
+  i co 10 s, przycisk agentów ze stanami (`● 1 działa · ✓ 2 · ✗ 1`), przycisk „Panel RelAI"
+  w prawym dolnym rogu; panel `/relai-agents` w motywie `relai-panel` — punkty etapu z pełnymi
+  nazwami i agenci z modelem, kontekstem i kosztem.
+- **`relai-cache-keeper` 0.2.0** (`cache-keeper/`): `cache-keeper-pl` przeniesiony z
+  `C:\Users\Lukasz\Desktop\cache-keeper-pl` (lista sum SHA-1 oryginału w katalogu roboczym przed
+  przeróbką), przemianowany, przebudowany na styl pasków; testy oryginału zostają.
+- **`relai-panel` 0.5.0:** timer cache usunięty z paska (Aneks C), pasek planu w siatce
+  etykieta | treść | liczba; komendy szukają korzenia ponownie, gdy start nie skończył.
+- **Styl pasków** wg `docs/zasoby/PANEL_RELAI/STYL_PASKOW_CLAUDE.md` (brief z Codeksa) i czterech
+  kalibracji na zrzutach człowieka: kolorowe ramki odrzucone → miękkie tło; kafelki z nazwami
+  odrzucone → „Pola i segmenty"; podpowiedź na segmencie; liczba z jednostką w jednym wierszu;
+  przycisk panelu w rogu bez własnego wiersza. Po pomiarze agentów: panel `/relai-agents` w motywie
+  RelAI, margines pod wierszem przycisku agentów, etykieta stanów zamiast „0/2", „brak ceny" zamiast
+  „brak pomiaru" dla modelu spoza cennika.
+- Oryginały `savvy-progress@claude-kit` i `cache-keeper-pl@lukasz-mods` wyłączone
+  w `~/.claude/settings.json` za zgodą człowieka (kopia ustawień sprzed zmiany w katalogu roboczym).
+- P-021; L-0146–L-0148 (zasady 5, 13, 15); `docs/STATE.md`; pamięć asystenta „pasek nad promptem
+  oddzielony" przepisana na miękkie tło zamiast ramek.
+
+**Zweryfikowane — jak dokładnie:**
+
+- Testy repo: `node --test core/process/tests/*.test.js core/guardrails/tests/*.test.js adapters/codex/tests/*.test.js core/panel/tests/*.test.js`
+  → **201/201** (przed etapem 167; +34: `progress`, `agents`, `charts`, `theme`, `plan-state`,
+  `sync`).
+- Testy modów (binarka 2.1.293): `relai-panel` **32/32** — przed etapem 33: 4 testy timera usunięte
+  razem z timerem (Aneks C), dołożone „pasek bez timera", sesja w podfolderze, pasek przy 40
+  kolumnach; `relai-progress` **16/16**; `relai-cache-keeper` **19/19**. Poprawka korzenia
+  sprawdzona mutacyjnie — bez `ancestors` test podfolderu oblewa; test 40 kolumn mierzy
+  `ui.drawn()`, podłożony próg 10 oblewa.
+- `claude plugin validate` dla `panel`, `progress`, `cache-keeper` — zaliczone; `validate .`
+  identyczny z HEAD (9 / 9 linii po normalizacji ścieżek, podłożona różnica wykryta). Przy
+  zamknięciu pierwsze porównanie znowu było fałszywe: `sed` normalizujący padł na wyrażeniu
+  i `diff` porównał dwa puste wejścia — powtórzone normalizatorem w Pythonie, który odrzuca puste
+  wejście (L-0143 w praktyce). W `panel/` i `progress/` zero wywołań `$.net`, `fetch`, `$.model`,
+  `prompt.compose`, `session.append`, `$.tool.register` (kontrola wzorca na podłożonym tekście — 5
+  trafień).
+- `tsc` strict na typach silnika (trzy pluginy + rdzeń) — 0 błędów; podłożony błąd → 1.
+  `node core/tools/sync-panel-core.js --check` — zgodne; `validate-adapters.js` — zaliczone.
+- **Chromium** (900 / 560 / 360 px, każdy rysunek w osobnym `iframe`): segmenty — 14 w torze, zero
+  nakładek, wysokość 8 px, podłożony segment poza torem wykryty; podpowiedzi — 30 linii (spoczynek
+  + 14 kart) bez przepełnienia, defekt bez limitu znaków → 12 linii poza; realny hover kursorem
+  pokazał kartę punktu 5.
+- **Na żywo, desktop (hot reload `3dcd2194-…`):** trzy paski cache → plan → postęp przyjęte przez
+  człowieka (zrzut 11); **agenci** — dwa subagenty z tej sesji: Opus — panel **$0,42**, suma jego
+  3 rekordów w `.claude/relai/pomiary/2026-10-09-3dcd2194-….jsonl` funkcją `agentCost` = 0,423839;
+  Sonnet (4 rekordy, model spoza cennika) — „brak ceny dla claude-sonnet-5-5", suma agentów
+  częściowa; oba „zakończony", przycisk `Agenci ✓ 2`. **Postęp** — punkt odhaczony `sed`-em z powłoki
+  (bez hooka edycji) o 10:55:15; pasek pokazał 7 z 14 · 50.00% i zielony segment 8 (zrzut 14).
+- **Na żywo, terminal 2.1.293** (PowerShell człowieka, ścieżka MSIX — P-019, start z
+  `docs\plany`): pasek planu i pasek postępu (8 z 14 · 57.14%, segmenty znakami), przycisk
+  `[ Panel RelAI ]`, panel `/relai-agents` z nagłówkami tekstem, zero szarych linii `refused` /
+  `threw`, brak starego `cache-keeper-pl`. Pasek cache niewidoczny: chowa się przed pierwszym
+  zapytaniem (zachowanie oryginału), a sesja była niezalogowana — zaliczone decyzją człowieka;
+  rysunek po zapytaniu na terminalu pokrywa test `band.test.ts`.
+- Bezpieczeństwo: `grep -rnE "sk-ant-|ANTHROPIC_API_KEY="` po plikach z `git status --short`
+  (z katalogami `progress/` i `cache-keeper/`) — 0 trafień w kodzie; trafienia tylko w
+  `docs/DZIENNIK.md` i `PROMPT_ETAP_9.md`, które cytują wzorzec (L-0134); próbka podłożona — 1.
+- Katalog roboczy `.claude/relai/work/PANEL_CLAUDE/E9/` przejrzany (`clean-work.js raport` chronił
+  go jako etap w toku — rozmiar zmierzony `du`) i skasowany po „tak": przed **34 MB** (venv
+  z fontTools, skrypty edycji, strony Chromium, notatki, sumy SHA-1 oryginału keepera, wyjścia
+  `validate`), po **0 MB** (katalog nie istnieje); cały `work/` 0,6 MB. Kopia
+  `~/.claude/settings.json` sprzed wyłączenia oryginałów przeniesiona przed kasowaniem do
+  `C:\Users\Lukasz\Backupy\RelAI\settings.json.przed-E9-2026-10-09` (`cmp` zgodny). Poza katalogiem:
+  kopie trzech pluginów w `~/.claude/dev-mods/3dcd2194-…/` (bramka), sonda `relai-probe-e9` usunięta
+  z tego folderu po pomiarze. Przy okazji wykryty `work/PANEL_CLAUDE/E3/probe-pjvwm2.jsonl` (92 KB,
+  2026-10-08 23:56) — log sondy E3, który mimo wpisu E3 nadal leży; nie z tego etapu, zostawiony
+  do decyzji człowieka.
+
+**Świadomie odłożone:**
+
+- **Doradca w `relai-cache-keeper`** — ocena, czy wysłać kolejną wiadomość, zrobić compact czy
+  przejść do nowej sesji, bo koszt bieżącej rośnie (prośba człowieka 2026-10-09); czeka na
+  materiały i instrukcję od człowieka — wtedy pytanie: aneks, odnoga czy odłożone.
+- Cennik zna tylko Opus 5.5 — agent na Sonnecie/Haiku ma „brak ceny" (E6).
+- Wpisy `relai-progress` i `relai-cache-keeper` w `marketplace.json` (E7, Aneks C).
+- `/relai-stage` nie odhacza punktów weryfikacji w prompcie sam — pasek postępu rośnie tylko,
+  gdy wykonawca odhacza (E5 dostosowuje procedurę `/relai-stage`).
+- Wspólny `fmt.ts` dla trzech pluginów (dziś kopie); `core/panel/cache-timer.mjs` nieużywany przez
+  `relai-panel` po Aneksie C — do decyzji przy E7.
+- Rotacja `docs/DZIENNIK.md` (~200 KB / 150), `docs/LEKCJE.md` (59 KB / 50), `docs/STATE.md`
+  (13,2 KB / 12) i synchronizacja `AGENTS.md` z `CLAUDE.md` — do zamknięcia sesji, za zgodą.
+
+**Do zrobienia przez człowieka:**
+
+- Usunąć folder `C:\Users\Lukasz\Desktop\cache-keeper-pl`, marketplace `lukasz-mods`
+  (`/plugin marketplace remove lukasz-mods`) i mod `cache-keeper-pl` z folderu modów sesji
+  `5e226e84-…`.
+- Po zamknięciu tej sesji usunąć z folderu modów sesji `3dcd2194-…` kopie trzech pluginów.
+- Zdecydować o `savvy-progress@claude-kit`: zostawić wyłączony albo odinstalować.
+- Bramki z E2, E8 i E3 (foldery modów sesji `cd13613d-…`, `6916a9af-…`, `45c5daa1-…`) —
+  **rozstrzygnięte 2026-10-09**: foldery puste.
+- Uruchomić E4 w świeżej sesji na Opusie: `/relai-stage`.
 
 Autor: RelAI (Opus 5.5) + Lukasz

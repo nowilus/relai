@@ -1,6 +1,8 @@
 #!/usr/bin/env node
 'use strict';
-// RelAI core / narzedzie: sync-panel-core — kopia core/panel/*.mjs do pluginu relai-panel.
+// RelAI core / narzedzie: sync-panel-core — kopia core/panel/*.mjs do pluginow, ktore niosa
+// rdzen panelu: relai-panel (panel/), relai-progress (progress/) i relai-cache-keeper
+// (cache-keeper/, hooks/relai/) — E9 planu PANEL_CLAUDE, Aneks C.
 //
 // Po co: silnik modow Claude Code odmawia importu spoza folderu pluginu ("cannot import ...
 // it is outside the plugin's folder", 2.1.293, sprawdzone 2026-10-08), a marketplace ze
@@ -23,7 +25,10 @@ const path = require('path');
 
 const ROOT = path.resolve(__dirname, '..', '..');
 const SRC = path.join(ROOT, 'core', 'panel');
-const DST = path.join(ROOT, 'panel', 'hooks', 'core');
+// Plugin folders that carry the core, and where; one whose folder is absent is skipped.
+// relai-cache-keeper has a hooks/core.ts of its own, so its copy lives in hooks/relai/.
+const PLUGINS = [['panel', 'panel/hooks/core'], ['progress', 'progress/hooks/core'], ['cache-keeper', 'cache-keeper/hooks/relai']];
+const dests = () => PLUGINS.filter(([p]) => fs.existsSync(path.join(ROOT, p))).map(([, d]) => d);
 const ICONS = path.join(ROOT, 'docs', 'zasoby', 'branding', 'ikony');
 const ICONS_MODULE = 'icons.mjs';
 
@@ -49,32 +54,42 @@ function iconsModule() {
   ].join('\n');
 }
 
-function check() {
-  const want = sources();
+function checkOne(rel, want, icons) {
+  const DST = path.join(ROOT, ...rel.split('/'));
   const have = fs.existsSync(DST) ? fs.readdirSync(DST).filter((n) => n.endsWith('.mjs')).sort() : [];
   const problems = [];
   for (const n of want) {
     const dst = path.join(DST, n);
-    if (!fs.existsSync(dst)) problems.push('brak kopii panel/hooks/core/' + n);
-    else if (lf(fs.readFileSync(dst)) !== lf(fs.readFileSync(path.join(SRC, n)))) problems.push('kopia panel/hooks/core/' + n + ' rozni sie od core/panel/' + n);
+    if (!fs.existsSync(dst)) problems.push('brak kopii ' + rel + '/' + n);
+    else if (lf(fs.readFileSync(dst)) !== lf(fs.readFileSync(path.join(SRC, n)))) problems.push('kopia ' + rel + '/' + n + ' rozni sie od core/panel/' + n);
   }
-  const icons = iconsModule();
   if (icons !== null) {
     const dst = path.join(DST, ICONS_MODULE);
-    if (!fs.existsSync(dst)) problems.push('brak panel/hooks/core/' + ICONS_MODULE + ' (ikony komend)');
-    else if (lf(fs.readFileSync(dst)) !== icons) problems.push('panel/hooks/core/' + ICONS_MODULE + ' rozni sie od docs/zasoby/branding/ikony/');
+    if (!fs.existsSync(dst)) problems.push('brak ' + rel + '/' + ICONS_MODULE + ' (ikony komend)');
+    else if (lf(fs.readFileSync(dst)) !== icons) problems.push(rel + '/' + ICONS_MODULE + ' rozni sie od docs/zasoby/branding/ikony/');
   }
   const own = icons === null ? want : [...want, ICONS_MODULE];
-  for (const n of have) if (!own.includes(n)) problems.push('panel/hooks/core/' + n + ' nie ma zrodla w core/panel/');
+  for (const n of have) if (!own.includes(n)) problems.push(rel + '/' + n + ' nie ma zrodla w core/panel/');
+  return problems;
+}
+
+function check() {
+  const want = sources();
+  const icons = iconsModule();
+  const to = dests();
+  const problems = to.flatMap((rel) => checkOne(rel, want, icons));
   const iconCount = icons === null ? 0 : fs.readdirSync(ICONS).filter((n) => n.endsWith('.svg')).length;
-  return { files: want.length, icons: iconCount, problems };
+  return { files: want.length, icons: iconCount, dests: to, problems };
 }
 
 function sync() {
-  fs.mkdirSync(DST, { recursive: true });
-  for (const n of sources()) fs.copyFileSync(path.join(SRC, n), path.join(DST, n));
   const icons = iconsModule();
-  if (icons !== null) fs.writeFileSync(path.join(DST, ICONS_MODULE), icons);
+  for (const rel of dests()) {
+    const DST = path.join(ROOT, ...rel.split('/'));
+    fs.mkdirSync(DST, { recursive: true });
+    for (const n of sources()) fs.copyFileSync(path.join(SRC, n), path.join(DST, n));
+    if (icons !== null) fs.writeFileSync(path.join(DST, ICONS_MODULE), icons);
+  }
 }
 
 if (require.main === module) {
@@ -85,7 +100,7 @@ if (require.main === module) {
     process.stderr.write('[sync-panel-core] napraw: node core/tools/sync-panel-core.js\n');
     process.exit(1);
   }
-  process.stdout.write('[sync-panel-core] zgodne: ' + r.files + ' plikow core/panel i ' + r.icons + ' ikon -> panel/hooks/core\n');
+  process.stdout.write('[sync-panel-core] zgodne: ' + r.files + ' plikow core/panel i ' + r.icons + ' ikon -> ' + r.dests.join(', ') + '\n');
 }
 
 module.exports = { check, sync };

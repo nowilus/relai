@@ -45,7 +45,9 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
    L-0040, L-0051, L-0052, L-0063, L-0069, L-0082, L-0115, L-0117, L-0123, L-0134, L-0144)
 5. **Instrument pomiarowy sam bywa źródłem fałszu:** wyrażenia regularne trzymaj w pliku zapisanym
    narzędziem zapisu, nie w `node -e` ani w heredoku, a tekst z backslashem (także ścieżkę
-   Windows) wstawiasz Edit/Write albo piszesz z `/` (L-0116, L-0119); scenariusz „konfiguracji nie ma" mierz z podstawionym katalogiem domowym; dokładaj
+   Windows) wstawiasz Edit/Write albo piszesz z `/` (L-0116, L-0119); **skrypt edycji kodu, który
+   niesie `\n` albo ścieżkę Windows, powstaje narzędziem Write — heredok bez wyjątku „tylko ten
+   jeden raz"** (L-0148); scenariusz „konfiguracji nie ma" mierz z podstawionym katalogiem domowym; dokładaj
    przypadek, który **musi** trafić. Zero trafień przy niepustych zbiorach to defekt instrumentu,
    dopóki nie udowodnisz inaczej — porównanie identyfikatora wygenerowanego z zastanym ma obok
    siebie kontrolę „ile zastanych nie znalazło pary". Dzieląc wiersz po separatorze, który da się
@@ -214,7 +216,9 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
     sprawdza **obecność odpowiednika** na drugiej powierzchni, nie tylko brak grafiki. Każde
     drzewo trafia do `plugin test` z montażem i kliknięciem, **zanim** człowiek zobaczy je na
     żywo — błąd czasu wykonania (nazwa fabryki JSX przesłonięta zmienną) przechodzi `validate`.
-    (L-0041, L-0042, L-0044, L-0047, L-0092, L-0133, L-0136, L-0138, L-0139)
+    **Kontekst sesji, który zmienia się w jej trakcie (katalog bieżący), nie jest stałą** — mod
+    wyznacza korzeń projektu wejściem w górę od niego, a test ma przypadek sesji w podfolderze (L-0146).
+    (L-0041, L-0042, L-0044, L-0047, L-0092, L-0133, L-0136, L-0138, L-0139, L-0146)
 14. **Najpierw zmiana w repozytorium, potem zdanie, które ją opisuje.** Weryfikację planuj tam,
     gdzie jest wykonalna; po pytaniu sprzątasz sam (martwy link nie jest poprawną wartością
     tymczasową); przy wyprowadzaniu pozycji jednostką inwentarza jest **sprawa**, nie linia.
@@ -247,8 +251,9 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
     **Rysunek idzie do człowieka po renderze w Chromium z pomiarem prostokątów** (każdy w osobnym
     `iframe`, kontrola na podłożonym defekcie) — test montażu widzi element, nie obraz (L-0142).
     **W raporcie liczb procenty i kwoty mają dwa miejsca po przecinku**; zaokrąglenie zmieniające
-    odczyt jest błędem (L-0145).
-    (L-0003, L-0006, L-0016, L-0019, L-0029, L-0094, L-0098, L-0137, L-0140, L-0142, L-0145)
+    odczyt jest błędem (L-0145). **Etykieta stanu nazywa stan słowem i znakiem** — zapis „x/y" tylko
+    tam, gdzie y jest celem; brak danych i brak ceny to dwa różne komunikaty (L-0147).
+    (L-0003, L-0006, L-0016, L-0019, L-0029, L-0094, L-0098, L-0137, L-0140, L-0142, L-0145, L-0147)
 
 **Wyprowadzone 2026-08-20 do `docs/PULAPKI.md`:** sześć pozycji, które były pułapkami
 narzędziowymi, a nie zasadami pracy — `tar` na `PATH` (L-0021), sesja pomiarowa `claude -p`
@@ -702,6 +707,41 @@ restart aplikacji po `plugin update` (L-0031), `git worktree` zamiast `git archi
 - **Zasada:** w raporcie liczb procenty i kwoty mają **dwa miejsca po przecinku**; zaokrąglenie,
   które zmienia odczyt (99,53% → 100%), jest błędem, nie stylem — test pilnuje wzorca `\d.\d\d%`.
 - **Źródło:** E3 planu PANEL_CLAUDE; destylat: dopisane do zasady 15.
+
+### L-0146 — Trzy mody zamilkły, bo sesja zrobiła `cd` · 2026-10-09 · AKTYWNA
+
+- **Trigger:** w E9 paski relai-panel, relai-progress i relai-cache-keeper zniknęły w trakcie sesji;
+  testy, `validate` i `tsc` były zielone. Bash sesji zrobił `cd` do katalogu roboczego etapu, a mody
+  szukały `docs/USTAWIENIA.md` w `$.session.cwd()`.
+- **Przyczyna:** katalog sesji potraktowany jak stała ze startu; silnik podaje bieżący katalog
+  narzędzia Bash (P-021 pkt 1).
+- **Zasada:** mod wyznacza korzeń projektu **wejściem w górę** od katalogu sesji i powtarza to przy
+  komendzie, gdy start jeszcze nie skończył; test ma przypadek sesji stojącej w podfolderze, z
+  kontrolą mutacyjną (bez poprawki test oblewa).
+- **Źródło:** E9 planu PANEL_CLAUDE; destylat: dopisane do zasady 13; P-021.
+
+### L-0147 — „Agenci 0/2" przy dwóch agentach, którzy skończyli · 2026-10-09 · AKTYWNA
+
+- **Trigger:** przycisk pokazywał „działający / wszyscy", co człowiek przeczytał jako „0 z 2
+  zrobionych"; karta agenta na Sonnecie mówiła „brak pomiaru", choć plik miał 4 rekordy — brakowało
+  tylko ceny modelu.
+- **Przyczyna:** etykieta zbudowana z liczb wygodnych dla kodu, nie z pytania czytelnika; dwa różne
+  braki zlane w jeden komunikat.
+- **Zasada:** etykieta stanu nazywa każdy stan słowem i znakiem (`● 1 działa · ✓ 2 · ✗ 1`); „x/y"
+  tylko tam, gdzie y jest celem; „brak pomiaru" i „brak ceny dla <model>" to osobne gałęzie z testem.
+- **Źródło:** E9 planu PANEL_CLAUDE (pomiar agentów na żywo); destylat: dopisane do zasady 15.
+
+### L-0148 — Heredok zjadł backslash po raz kolejny, mimo zasady 5 · 2026-10-09 · AKTYWNA
+
+- **Trigger:** w E9 skrypty Pythona i JS pisane heredokiem kilka razy zgubiły `\n` i podwójny
+  backslash ścieżki testowej; za każdym razem poprawka szła przez Write. Zasada 5 i `CLAUDE.md`
+  już to zabraniały (L-0116, L-0135). Przy zamknięciu etapu skrypt tej lekcji też powstał
+  heredokiem — skasowany i zapisany ponownie narzędziem Write.
+- **Przyczyna:** reguła czytana jako „uważaj na backslash", a nie jako zakaz drogi; heredok wydaje
+  się szybszy przy krótkiej zmianie.
+- **Zasada:** skrypt edycji kodu, który niesie `\n` albo ścieżkę Windows, powstaje narzędziem Write
+  — bez wyjątku „tylko ten jeden raz"; heredok zostaje dla tekstu bez backslasha.
+- **Źródło:** E9 planu PANEL_CLAUDE; destylat: dopisane do zasady 5.
 
 ## Lekcje zwinięte
 

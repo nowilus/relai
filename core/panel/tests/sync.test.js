@@ -75,3 +75,25 @@ test('the icons module follows the icon files: a changed icon is reported (plant
   const gone = spawnSync(process.execPath, [tool, '--check'], { encoding: 'utf8' });
   assert.match(gone.stderr, /brak panel\/hooks\/core\/icons\.mjs/);
 });
+
+test('every plugin that carries the core is checked: a stale copy in progress/ is reported (planted defect)', (t) => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'relai-progress-sync-'));
+  t.after(() => fs.rmSync(root, { recursive: true, force: true }));
+  for (const d of [['core', 'tools'], ['core', 'panel'], ['panel', 'hooks', 'core'], ['progress', 'hooks', 'core']]) {
+    fs.mkdirSync(path.join(root, ...d), { recursive: true });
+  }
+  fs.copyFileSync(TOOL, path.join(root, 'core', 'tools', 'sync-panel-core.js'));
+  fs.writeFileSync(path.join(root, 'core', 'panel', 'a.mjs'), 'export const a = 1;\n');
+  const tool = path.join(root, 'core', 'tools', 'sync-panel-core.js');
+
+  const made = spawnSync(process.execPath, [tool], { encoding: 'utf8' });
+  assert.equal(made.status, 0, made.stderr);
+  assert.match(made.stdout, /panel\/hooks\/core, progress\/hooks\/core/);
+  assert.equal(fs.readFileSync(path.join(root, 'progress', 'hooks', 'core', 'a.mjs'), 'utf8'), 'export const a = 1;\n');
+
+  fs.writeFileSync(path.join(root, 'progress', 'hooks', 'core', 'a.mjs'), 'export const a = 2;\n');
+  const bad = spawnSync(process.execPath, [tool, '--check'], { encoding: 'utf8' });
+  assert.equal(bad.status, 1);
+  assert.match(bad.stderr, /kopia progress\/hooks\/core\/a\.mjs rozni sie/);
+  assert.doesNotMatch(bad.stderr, /panel\/hooks\/core\/a\.mjs/);
+});

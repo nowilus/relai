@@ -629,6 +629,18 @@ zostanie zmierzony. Gdy w sesji działa <code>cache-keeper-pl</code> (komenda <c
     <li>Szacunek: 2–3 sesje SZACUNEK; plan razem 14–21 sesji SZACUNEK.</li>
     <li>Model: Opus, jak pozostałe etapy.</li>
   </ul>
+  <h3>Aneks C — 2026-10-09 — rodzina pluginów RelAI zamiast <code>lukasz-mods</code></h3>
+  <p><b>Powód:</b> pytanie przed pracą w E9 (2026-10-09, AskUserQuestion, dwie rundy). Człowiek chce, żeby jego mody nad promptem — przerobiony <code>savvy-progress</code> i <code>cache-keeper-pl</code> — były częścią panelu RelAI, jako dodatkowe pluginy w marketplace RelAI, a nie w prywatnym <code>lukasz-mods</code>. Zmienia to Aneks B w trzech miejscach; cel E9 i wariant A planu (mod rysuje i wywołuje, rdzeń liczy) zostają.</p>
+  <p><b>Treść (decyzje człowieka z 2026-10-09):</b></p>
+  <ul>
+    <li><b>Źródło postępu wyłącznie deterministyczne</b> — punkty zakresu i weryfikacji z promptu etapu, <code>STATUS.md</code>, zdarzenia agentów, kolektor E3; bez <code>$.tool.register</code> (R7).</li>
+    <li><b><code>relai-progress</code></b> (folder <code>progress/</code> w tym repozytorium) — fork <code>savvy-progress</code> (johnnyvizz/claude-kit, MIT) przerobiony na RelAI: pasek postępu i panel agentów z kosztem czytanym z plików kolektora <code>relai-panel</code>, bez drugiego liczenia. Postęp i agenci mieszkają tu, nie w <code>relai-panel</code>; logika liczona w <code>core/panel/*.mjs</code>.</li>
+    <li><b><code>relai-cache-keeper</code></b> (folder <code>cache-keeper/</code>) — <code>cache-keeper-pl</code> przeniesiony i przemianowany. Timer cache mieszka wyłącznie tu: znika z paska <code>relai-panel</code> (zmiana zakresu E1), żeby nad promptem nie było tej samej informacji dwa razy. Zakres R7 (decyzja człowieka 2026-10-09): „panel nie woła modelu” obowiązuje <code>relai-panel</code> i <code>relai-progress</code>; <code>relai-cache-keeper</code> zachowuje pingi podtrzymujące cache (<code>$.model.fork</code>) i przekazanie do świeżego czatu (<code>$.prompt.submit</code>) — wyłącznie na wyraźne polecenie człowieka (<code>/keepwarm</code>, przycisk), opisane w manifeście.</li>
+    <li>Pasek nad promptem: jednolite karty modów (Aneks B) dla <code>relai-panel</code>, <code>relai-progress</code> i <code>relai-cache-keeper</code> — wszystkie trzy w tym repozytorium.</li>
+    <li><b>Publikacja:</b> kod obu pluginów w repozytorium (publiczny po wypchnięciu), wpisy w <code>.claude-plugin/marketplace.json</code> dopiero w E7, razem z decyzją „publicznie czy lokalnie”. Do E7 pomiar przez hot reload modów sesji.</li>
+    <li>Oryginały <code>savvy-progress@claude-kit</code> i <code>cache-keeper-pl@lukasz-mods</code> wyłączone w <code>enabledPlugins</code> (nie odinstalowane) po pomiarze na żywo wersji <code>relai-*</code>; folder <code>C:\Users\Lukasz\Desktop\cache-keeper-pl</code> i marketplace <code>lukasz-mods</code> usuwa człowiek (bramka manualna).</li>
+    <li>Szacunek E9 bez zmian: 2–3 sesje SZACUNEK. Model: Opus.</li>
+  </ul>
 </section>
 
 <footer>

@@ -1,5 +1,11 @@
 # PROMPT_ETAP_9 — Postęp pracy i agenci na żywo
 
+> **Aneks C (2026-10-09) zmienia ten prompt:** postęp i agenci w nowym pluginie `relai-progress`
+> (`progress/`, fork `savvy-progress`), `cache-keeper-pl` → `relai-cache-keeper` (`cache-keeper/`),
+> timer cache usunięty z paska `relai-panel`; oba pluginy w tym repozytorium, wpisy w marketplace
+> w E7; `lukasz-mods` porzucony. Tam, gdzie treść niżej mówi inaczej, wygrywa Aneks C
+> (`PLAN.html`, sekcja 10).
+
 Plan: PANEL_CLAUDE • Etap: **E9 z E9** (po E3, przed E4 — Aneks B) • Wygenerowano: 2026-10-08 (autor: Opus 5.5, w rytuale „Na koniec" etapu E3) • Wykonawca: **Opus** (STATUS: „model wykonawczy: Opus, w Claude Code"), `/effort high`
 
 > **Kontrola modelu:** ten etap wykonuj wyłącznie na modelu klasy **strong**, w tym narzędziu:
@@ -390,34 +396,34 @@ sonda zapisywała dalej po przeładowaniu.
 
 ## Weryfikacja (wszystkie punkty muszą przejść)
 
-- [ ] Odpowiedzi z punktu 1 zapisane w dzienniku z datą.
-- [ ] Testy repo — komenda ze „Stanu wyjściowego" kończy się bez błędu; liczba przed (167, FAKT)
+- [x] Odpowiedzi z punktu 1 zapisane w dzienniku z datą.
+- [x] Testy repo — komenda ze „Stanu wyjściowego" kończy się bez błędu; liczba przed (167, FAKT)
       i po w dzienniku.
-- [ ] `node core/tools/sync-panel-core.js --check` — zgodne.
-- [ ] `claude plugin validate panel` (binarka 2.1.293) — zaliczone; lista wywołań `$` bez `$.net`,
+- [x] `node core/tools/sync-panel-core.js --check` — zgodne.
+- [x] `claude plugin validate panel` (binarka 2.1.293) — zaliczone; lista wywołań `$` bez `$.net`,
       `fetch`, `$.model`, `prompt.compose`, `session.append` (kontrola pozytywna wzorca na
       podłożonym tekście); `$.tool.register` tylko wtedy, gdy punkt 1(a) go wybrał.
       `claude plugin validate .` — wynik identyczny jak przed etapem.
-- [ ] `tsc` strict na typach silnika — 0 błędów, z kontrolą pozytywną (podłożony błąd złapany);
+- [x] `tsc` strict na typach silnika — 0 błędów, z kontrolą pozytywną (podłożony błąd złapany);
       `claude plugin test panel` — wszystkie zielone, w tym 33 z E1, E2, E8 i E3.
-- [ ] `node core/tools/validate-adapters.js` — zaliczone.
-- [ ] `cache-keeper-pl` i fork: `claude plugin validate` i `claude plugin test` zielone w ich
+- [x] `node core/tools/validate-adapters.js` — zaliczone.
+- [x] `cache-keeper-pl` i fork: `claude plugin validate` i `claude plugin test` zielone w ich
       folderach; licencja MIT i autor `savvy-progress` obecne w forku i w `panel/`.
-- [ ] **Postęp na żywo:** w sesji desktopowej wykonującej punkty z podłożonego promptu pasek
+- [x] **Postęp na żywo:** w sesji desktopowej wykonującej punkty z podłożonego promptu pasek
       postępu rośnie z liczbą odhaczonych punktów, a przy braku źródła mówi słowem; kontrola
       pozytywna — punkt odhaczony ręcznie w podłożonym pliku zmienia procent.
-- [ ] **Agenci na żywo:** jeden subagent uruchomiony z sesji pojawia się w panelu jako działający,
+- [x] **Agenci na żywo:** jeden subagent uruchomiony z sesji pojawia się w panelu jako działający,
       potem zakończony, z modelem i kosztem równym sumie jego rekordów w pliku pomiaru.
-- [ ] **Pasek nad promptem na desktopie i w terminalu:** trzy karty, każda z etykietą moda
+- [x] **Pasek nad promptem na desktopie i w terminalu:** trzy karty, każda z etykietą moda
       i widoczną granicą, zero szarej linii `refused` / `threw`; zrzut zaakceptowany przez
       człowieka.
-- [ ] Każde nowe `Svg` sprawdzone w Chromium na szerokościach 900 / 560 / 360 px, z kontrolą na
+- [x] Każde nowe `Svg` sprawdzone w Chromium na szerokościach 900 / 560 / 360 px, z kontrolą na
       podłożonym defekcie (P-020, L-0142).
-- [ ] Bezpieczeństwo: `grep -rnE "sk-ant-|ANTHROPIC_API_KEY="` po plikach zmienionych w tym etapie
+- [x] Bezpieczeństwo: `grep -rnE "sk-ant-|ANTHROPIC_API_KEY="` po plikach zmienionych w tym etapie
       (lista z `git status --short` oraz zmiany w `cache-keeper-pl` i forku) nie zwraca nic poza
       dokumentami, które ten wzorzec cytują (L-0134); kontrola pozytywna na podłożonej próbce.
-- [ ] Wpis w `docs/DZIENNIK.md` dopisany na końcu sekcji „Wpisy", z podpisem.
-- [ ] Katalog roboczy `.claude/relai/work/PANEL_CLAUDE/E9/` przejrzany raportem
+- [x] Wpis w `docs/DZIENNIK.md` dopisany na końcu sekcji „Wpisy", z podpisem.
+- [x] Katalog roboczy `.claude/relai/work/PANEL_CLAUDE/E9/` przejrzany raportem
       (`node .claude/relai/tools/clean-work.js raport`) i skasowany po „tak"; liczby przed i po
       w sekcji „Zweryfikowane" wpisu. Artefakty poza tym katalogiem (folder modów sesji, sonda
       `relai-probe-e9`, zmiany w `cache-keeper-pl` i forku) wypisane z nazwy, z tym, co się z nimi

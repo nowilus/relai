@@ -1,5 +1,6 @@
 // relai-panel: the RelAI band above the prompt. Active plan and stage from CLAUDE.md and the
-// plan's STATUS.md, a prompt-cache timer, the session's hypothetical API cost. The /relai-panel
+// plan's STATUS.md and the session's hypothetical API cost, in one card of the RelAI cards above
+// the prompt (BAND, E9). The /relai-panel
 // command opens a side pane with the forms of the 14 RelAI commands, the cheat sheet and the
 // session phrases, drawn in the RelAI motif (E8): cards with the command icons, Kalam headings,
 // three recommended commands on top. A desktop draws the SVG; the terminal gets the same cards
@@ -10,22 +11,20 @@
 // core/tools/sync-panel-core.js, because the engine refuses imports from outside the plugin.
 //
 // Silent outside a RelAI project. Never calls a model, never adds to the system prompt (R7),
-// never reaches the network. When cache-keeper-pl runs in the session it owns the countdown,
-// so the band hides its own timer (plan, section 8).
+// never reaches the network. The prompt-cache timer is relai-cache-keeper's alone (E9, Aneks C):
+// the band no longer draws one, so the same countdown never shows twice above the prompt.
 
 import { atom, read, update } from 'claude-code'
 import type { EngineInterface, Register, RenderChildren } from 'claude-code'
-import { DEFAULT_WARN_MIN, MIN, UNMEASURED, applyVerdict, cacheState, dueWarning, effectiveTtl, judgeStep, msLeft, totalInput } from './core/cache-timer.mjs'
-import type { TtlState, Usage } from './core/cache-timer.mjs'
-import { planState } from './core/plan-state.mjs'
+import { ancestors, planState } from './core/plan-state.mjs'
 import type { PlanState } from './core/plan-state.mjs'
-import { clip, join, minutes, pct, tokens, usd } from './fmt'
+import { clip, join, pct, tokens, usd } from './fmt'
 import type { PanelView } from '../types'
 import { FORMS, buildCommand, formOf, isShown, resolveName, valueOf } from './core/commands.mjs'
 import type { Field, Form } from './core/commands.mjs'
 import { buildPhrase, parseSheet, searchSheet } from './core/phrases.mjs'
 import type { Phrase, Sheet } from './core/phrases.mjs'
-import { COST_COLORS, FEATURED, GROUPS, NAMES, THEME, glyph, iconName } from './core/theme.mjs'
+import { BAND, BAR, COST_COLORS, FEATURED, GROUPS, NAMES, THEME, glyph, iconName } from './core/theme.mjs'
 import { HEADING_ART } from './core/headings.mjs'
 import { ICONS } from './core/icons.mjs'
 import { aggregate, compactRecord, fileName, gapsInWords, isFileOf, mergeRecords, parseRecords, plural, projectSummary, requestSeries, serializeRecords, stepRecord, turnSeries } from './core/measure.mjs'
@@ -35,12 +34,8 @@ import { blocks, bucketRanges, figureArt, hoverColumns, hoverHeight, niceStep, s
 
 type $T = EngineInterface
 
-const TICK_MS = 30_000
+const MIN = 60_000
 const RELAI_MARKER = /Wersja RelAI|RelAI version/
-const KEEPER_COMMANDS = ['cache', 'ckp-cache']
-const WARN_MIN_TOKENS = 50_000 // below this a cache rewrite costs too little to interrupt anyone
-const SNAP_MAX_AGE = 2 * 60 * MIN
-const NARROW_COLUMNS = 100
 const LATE_MS = 2 * MIN // a collector that began this much after the session missed part of it
 
 type Session = {
@@ -48,32 +43,17 @@ type Session = {
   cwd: string
   isRelai: boolean
   plan: PlanState
-  hasKeeper: boolean
-  lastActivity: number // last main-loop request that read or wrote the cache
-  ttl: TtlState
-  ctx: number
   costUsd: number | null
   startedAt: number // when the session began, as the engine counts it ($.session.usage)
   loadedAt: number // when this module began collecting in it (a reload starts over)
-  justCompacted: boolean
-  announcedFor: number // the lastActivity the announced warnings belong to
-  announced: number[]
 }
 
-// The timer part is what survives a hot reload and a resume, through $.store
-type Snap = Pick<Session, 'id' | 'lastActivity' | 'ttl' | 'ctx' | 'costUsd' | 'announcedFor' | 'announced'> & { savedAt: number }
+const FRESH: Session = { id: '', cwd: '', isRelai: false, plan: { kind: 'none' }, costUsd: null, startedAt: 0, loadedAt: 0 }
 
-const FRESH: Session = {
-  id: '', cwd: '', isRelai: false, plan: { kind: 'none' }, hasKeeper: false, lastActivity: 0, ttl: UNMEASURED,
-  ctx: 0, costUsd: null, startedAt: 0, loadedAt: 0, justCompacted: false, announcedFor: 0, announced: [],
-}
-
-// Replaced, never mutated in place; a reload starts it over and session.start restores it
+// Replaced, never mutated in place; a reload starts it over and session.start sets it again
 let S: Session = FRESH
-let ticking = false
 
 const set = (patch: Partial<Session>) => { S = { ...S, ...patch } }
-const snapKey = () => 'snap:' + S.id
 
 async function readText($: $T, path: string): Promise<string | null> {
   try {
@@ -83,9 +63,15 @@ async function readText($: $T, path: string): Promise<string | null> {
   }
 }
 
-async function detectRelai($: $T, cwd: string): Promise<boolean> {
-  const text = await readText($, join(cwd, 'docs/USTAWIENIA.md'))
-  return text !== null && RELAI_MARKER.test(text)
+// The project root: the nearest folder, from the session's cwd upwards, whose docs/USTAWIENIA.md
+// carries the RelAI marker. The cwd follows every cd the model's shell makes (E9, P-021), so a
+// mod that looked in the cwd alone went silent the moment the shell left the project's root.
+async function relaiRoot($: $T, cwd: string): Promise<string | null> {
+  for (const dir of ancestors(cwd)) {
+    const text = await readText($, join(dir, 'docs/USTAWIENIA.md'))
+    if (text !== null && RELAI_MARKER.test(text)) return dir
+  }
+  return null
 }
 
 async function readPlan($: $T): Promise<PlanState> {
@@ -93,52 +79,14 @@ async function readPlan($: $T): Promise<PlanState> {
   return planState(claude, (rel) => readText($, join(S.cwd, rel)))
 }
 
-async function detectKeeper($: $T): Promise<boolean> {
-  const list = await $.command.list().catch(() => [])
-  return list.some((c) => KEEPER_COMMANDS.includes(c.name))
-}
-
-async function saveSnap($: $T, now: number) {
-  if (!S.id) return
-  const snap: Snap = { id: S.id, lastActivity: S.lastActivity, ttl: S.ttl, ctx: S.ctx, costUsd: S.costUsd, announcedFor: S.announcedFor, announced: S.announced, savedAt: now }
-  await $.store.set(snapKey(), snap).catch(() => undefined)
-}
-
-async function restoreSnap($: $T, now: number) {
-  const snap = (await $.store.get(snapKey()).catch(() => undefined)) as Snap | undefined
-  if (!snap || snap.id !== S.id || now - snap.savedAt > SNAP_MAX_AGE) return
-  const { savedAt: _saved, ...rest } = snap
-  set(rest)
-}
-
 // Refresh what the band reads from the project and the session after each turn
 async function refresh($: $T) {
-  const [plan, hasKeeper, usage] = await Promise.all([readPlan($), detectKeeper($), $.session.usage().catch(() => null)])
+  const [plan, usage] = await Promise.all([readPlan($), $.session.usage().catch(() => null)])
   set({
     plan,
-    hasKeeper,
-    ctx: usage?.context?.tokens || S.ctx,
     costUsd: usage?.cost ? usage.cost.usd : S.costUsd,
     startedAt: usage?.startedAt || S.startedAt,
   })
-}
-
-function warnStep($: $T, now: number) {
-  if (S.hasKeeper || S.ctx < WARN_MIN_TOKENS) return
-  const { ttlMin, isAssumed } = effectiveTtl(S.ttl)
-  const left = msLeft(S.lastActivity, ttlMin, now)
-  if (left === null) return
-  const announced = S.announcedFor === S.lastActivity ? S.announced : []
-  const due = dueWarning(left, DEFAULT_WARN_MIN, announced)
-  if (due === null) return
-  set({ announcedFor: S.lastActivity, announced: [...announced, ...DEFAULT_WARN_MIN.filter((m) => m >= due)] })
-  $.ui.toast(`RelAI: cache ${tokens(S.ctx)} tokenów wygaśnie za ~${minutes(left)}${isAssumed ? ' (TTL założony, nie zmierzony)' : ''}. Koniec odliczania to prognoza, nie dowód utraty cache.`, { timeoutMs: 15_000 })
-}
-
-async function tick($: $T) {
-  const now = await $.clock.now()
-  warnStep($, now)
-  $.ui.invalidate('ui.render')
 }
 
 // ---------- the collector ----------
@@ -211,38 +159,64 @@ async function costData($: $T): Promise<CostData> {
 // ---------- the band ----------
 // Keys sit on Box: the engine keeps a Box's key and drops a Text's (seen in plugin test, 2.1.293)
 
-function planText(isNarrow: boolean): string {
-  const p = S.plan
-  if (p.kind === 'none') return 'RelAI · brak aktywnego planu'
-  if (p.kind === 'unknown') return `RelAI · plan nieznany: ${p.reason}`
-  const progress = `${p.closed}/${p.stages}`
-  if (!p.stage) return `RelAI · ${p.plan} · ${p.planStatus ?? 'status nieznany'} · ${progress}`
-  const name = isNarrow ? '' : ` ${clip(p.stage.name, 40)}`
-  return `RelAI · ${p.plan} · ${p.stage.id} ${p.stage.status}${name} · ${progress}`
-}
+type Look = { label: string, color: string, bg: string }
+type Resolved = Parameters<$T['ui']['resolve']>[0]
 
-function band($: $T, e: Parameters<$T['ui']['resolve']>[0], columns: number, now: number) {
+// The shared grid of the RelAI bars above the prompt (BAND, BAR; docs/zasoby/PANEL_RELAI/
+// STYL_PASKOW_CLAUDE.md): the label column, the content, the figure on the right edge; a soft
+// background of the bar's own, no colored frame. Box has no corner radius (2.1.293): on the
+// desktop a border in the background's own color only rounds the corners; the terminal draws
+// none, each of its rows counts. Below BAR.narrow columns the label and the figure go on top.
+function barCard($: $T, e: Resolved, columns: number, key: string, look: Look, middle: RenderChildren, figure: readonly [string, string] | null) {
   const { Box, Text } = $.ui.resolve(e)
-  const isNarrow = columns < NARROW_COLUMNS
-  const parts = [<Box key="plan"><Text bold>{planText(isNarrow)}</Text></Box>]
-  if (!S.hasKeeper) {
-    const { ttlMin, isAssumed } = effectiveTtl(S.ttl)
-    const st = cacheState(S.lastActivity, ttlMin, now, DEFAULT_WARN_MIN)
-    const tilde = isAssumed ? '~' : ''
-    const timer =
-      st.kind === 'warm' ? <Box key="timer"><Text color="green">{` │ ● cache ciepły ${tilde}${minutes(st.left)}`}</Text></Box>
-      : st.kind === 'cooling' ? <Box key="timer"><Text color="yellow" bold>{` │ ◐ cache stygnie ${tilde}${minutes(st.left)}`}</Text></Box>
-      : st.kind === 'cold' ? <Box key="timer"><Text dimColor>{` │ ○ cache prawdopodobnie zimny od ${tilde}${minutes(-st.left)}`}</Text></Box>
-      : <Box key="timer"><Text dimColor>{' │ · cache nieznany'}</Text></Box>
-    parts.push(timer)
+  const isGui = e.surface !== 'terminal'
+  const frame = isGui ? { borderStyle: 'round' as const, borderColor: look.bg } : {}
+  const label = <Text bold color={look.color}>{look.label}</Text>
+  if (columns < BAR.narrow) {
+    return (
+      <Box key={key} flexDirection="column" backgroundColor={look.bg} paddingX={1} {...frame}>
+        <Box key="head" flexDirection="row" flexWrap="wrap" justifyContent="space-between" columnGap={2}>
+          <Box key="label">{label}</Box>
+          {figure ? <Box key="figure"><Text bold color={BAR.text}>{figure[0]}</Text><Text color={BAR.muted}>{' ' + figure[1]}</Text></Box> : null}
+        </Box>
+        <Box key="middle" flexDirection="column">{middle}</Box>
+      </Box>
+    )
   }
-  if (!isNarrow) parts.push(<Box key="cost"><Text dimColor>{` │ sesja ≈ ${usd(S.costUsd)} wg cennika API`}</Text></Box>)
-  // Framed, so the band reads as one mod's among the others above the prompt (rule of 2026-10-08)
   return (
-    <Box key="relai-band-frame" borderStyle="round" borderColor={THEME.mark} paddingX={1}>
-      <Box key="relai-band" flexDirection="row" width="100%">{parts}</Box>
+    <Box key={key} flexDirection="row" alignItems="center" columnGap={2} backgroundColor={look.bg} paddingX={1} {...frame}>
+      <Box key="label" width={BAR.labelColumn} flexShrink={0}>{label}</Box>
+      <Box key="middle" flexDirection="column" flexGrow={1} flexShrink={1}>{middle}</Box>
+      <Box key="figure" minWidth={BAR.figureColumn} flexShrink={0} flexDirection="row" justifyContent="flex-end">
+        {figure ? [<Text key="value" bold color={BAR.text}>{figure[0]}</Text>, <Text key="unit" color={BAR.muted}>{' ' + figure[1]}</Text>] : []}
+      </Box>
     </Box>
   )
+}
+
+// The plan bar: the plan and its stage with the stage's status, the stage's name and the session's
+// cost; on the right how many stages are closed. No plan, or one that cannot be read, in words.
+function band($: $T, e: Resolved, columns: number) {
+  const { Box, Text } = $.ui.resolve(e)
+  const p = S.plan
+  const cost = <Box key="cost"><Text color={BAR.muted} wrap="truncate">{`sesja ≈ ${usd(S.costUsd)} wg cennika API`}</Text></Box>
+  if (p.kind !== 'ok') {
+    const words = p.kind === 'none' ? 'brak aktywnego planu' : `plan nieznany: ${p.reason}`
+    return barCard($, e, columns, 'relai-band-frame', BAND.panel, [<Box key="plan"><Text bold color={BAR.text} wrap="truncate">{words}</Text></Box>, cost], null)
+  }
+  const title = p.stage ? `${p.plan} · ${p.stage.id}` : p.plan
+  const status = p.stage ? p.stage.status : (p.planStatus ?? 'status nieznany')
+  const middle = [
+    <Box key="plan" flexDirection="row" flexWrap="wrap" columnGap={2}>
+      <Text bold color={BAR.text}>{title}</Text>
+      <Text bold color={BAND.panel.color}>{status}</Text>
+    </Box>,
+    <Box key="detail" flexDirection="row" flexWrap="wrap" columnGap={3}>
+      {p.stage ? [<Text key="stage" color={BAR.muted} wrap="truncate">{clip(p.stage.name, 60)}</Text>] : []}
+      {cost}
+    </Box>,
+  ]
+  return barCard($, e, columns, 'relai-band-frame', BAND.panel, middle, [`${p.closed}/${p.stages}`, 'etapów'])
 }
 
 // ---------- the pane ----------
@@ -345,33 +319,26 @@ async function sendPhrase($: $T, text: string) {
 
 export const register: Register = (on) => {
   on('session.start', async ($, e, next) => {
-    const cwd = await $.session.cwd()
-    const isRelai = await detectRelai($, cwd)
+    const here = await $.session.cwd()
+    const root = await relaiRoot($, here)
+    const isRelai = root !== null
+    const cwd = root ?? here
     S = { ...FRESH, id: await $.session.id(), cwd, isRelai, loadedAt: await $.clock.now() }
     // Registered everywhere, so outside RelAI the command can say so in one sentence (plan, section 8)
     await $.command.register({ name: 'relai-panel', description: 'Panel RelAI: formularze komend, ściąga i frazy sesji' }).catch(() => undefined)
     if (!isRelai) return next(e)
-    await restoreSnap($, await $.clock.now())
     await refresh($)
-    if (!ticking) {
-      ticking = true
-      $.clock.every(TICK_MS, () => { tick($).catch(() => {}) })
-    }
     return next(e)
   })
-
-  // /clear, /resume and /branch start from an unknown cache under a new session id
-  on('classic.SessionStart', { source: ['clear', 'resume', 'fork'] }, async ($, e, next) => {
-    if (!S.isRelai) return next(e)
-    const id = await $.session.id().catch(() => S.id)
-    S = { ...FRESH, id, cwd: S.cwd, isRelai: true, plan: S.plan, hasKeeper: S.hasKeeper }
-    $.ui.invalidate('ui.render')
-    return next(e)
-  }).catch(($, e, next) => next(e))
 
   // The pane opens only from the command, the person's own act: it seats at any width and never
   // pops up by itself in a narrow terminal (plan, section 8)
   on('command.run', { command: 'relai-panel' }, async ($) => {
+    // Typed right after a reload, before session.start has found the root: look once more first
+    if (!S.isRelai) {
+      const root = await relaiRoot($, await $.session.cwd())
+      if (root !== null) set({ isRelai: true, cwd: root })
+    }
     if (!S.isRelai) return { text: NOT_RELAI }
     await loadData($, S.cwd)
     const opened = await $.ui.open({ id: PANE_ID, title: PANE_TITLE })
@@ -813,15 +780,8 @@ export const register: Register = (on) => {
     )
   })
 
-  on('session.end', async ($, e, next) => {
-    if (S.isRelai && S.id) await $.store.delete(snapKey()).catch(() => undefined)
-    return next(e)
-  })
-
-  // Each request, main loop and subagents, to the collector; the main loop's to the timer too:
-  // did it read the cache or write it again?
+  // Each request, main loop and subagents, to the collector
   on('turn.step', async function* ($, e, next) {
-    const startedAt = await $.clock.now()
     const result = yield* next(e)
     if (!S.isRelai) return result
     const at = await $.clock.now()
@@ -832,12 +792,6 @@ export const register: Register = (on) => {
       if (!e.agentId) lastModel = usage ? usage.model : e.model
       void collect($, (session) => stepRecord({ session, turn: e.turnId, index: e.index, agent: e.agentId ?? null, model: e.model, at, usage }))
     }
-    if (e.agentId || !result || !result.usage) return result
-    const now = at
-    const u = result.usage as Usage
-    const gap = S.lastActivity ? startedAt - S.lastActivity : 0
-    const verdict = judgeStep(u, gap, !!S.lastActivity, S.justCompacted, effectiveTtl(S.ttl).ttlMin)
-    set({ ttl: applyVerdict(S.ttl, verdict), ctx: totalInput(u), lastActivity: now, justCompacted: false })
     return result
   })
 
@@ -845,7 +799,6 @@ export const register: Register = (on) => {
     const r = await next(e)
     if (!S.isRelai || e.agentId) return r
     await refresh($)
-    await saveSnap($, await $.clock.now())
     $.ui.invalidate('ui.render')
     return r
   })
@@ -853,7 +806,6 @@ export const register: Register = (on) => {
   on('session.compact', async ($, e, next) => {
     const r = await next(e)
     if (!S.isRelai) return r
-    if (!e.agentId) set({ justCompacted: true })
     // Usage is absent when no request was made (a reused summary, a hook's own): nothing to measure
     const usage = r && 'usage' in r ? r.usage : undefined
     if (usage) {
@@ -865,22 +817,21 @@ export const register: Register = (on) => {
 
   on('session.measure', async ($, e, next) => {
     if (S.isRelai) {
-      if (e.context?.tokens) set({ ctx: e.context.tokens })
       if (e.cost) set({ costUsd: e.cost.usd })
     }
     return next(e)
   })
 
   // One band instance for every plugin: draw ours above whatever the plugins beneath draw
-  // (cache-keeper-pl's band among them), never instead of it
+  // (the other RelAI cards among them), never instead of it
   on('ui.render', { component: 'AbovePrompt' }, async ($, e, next) => {
     if (!S.isRelai || e.props.hasSurvey) return next(e)
     const below = await next(e)
-    const ours = band($, e, e.props.bodyColumns, await $.clock.now())
+    const ours = band($, e, e.props.bodyColumns)
     if (!below) return ours
     const { Box } = $.ui.resolve(e)
     // No width here: the engine refuses its own node under a Box with "width" and draws its own
     // instead, which drops every band (live, desktop, 2.1.293; plugin test does not see it)
-    return <Box key="relai-panel" flexDirection="column">{[ours, below]}</Box>
+    return <Box key="relai-panel" flexDirection="column" gap={e.surface === 'terminal' ? 0 : 1}>{[ours, below]}</Box>
   })
 }

@@ -94,3 +94,10 @@ test('real material: every STATUS.md of the repo parses, and no stage row is rej
     assert.notEqual(s.planStatus, null, 'plan status not recognised in ' + f);
   }
 });
+
+test('ancestors: the folder itself, then each parent up to the root, in either slash (E9: a cd must not hide the panel)', () => {
+  assert.deepEqual(p.ancestors('C:/proj/.claude/relai/work'), ['C:/proj/.claude/relai/work', 'C:/proj/.claude/relai', 'C:/proj/.claude', 'C:/proj', 'C:']);
+  assert.deepEqual(p.ancestors('C:\\proj\\docs\\'), ['C:/proj/docs', 'C:/proj', 'C:']);
+  assert.deepEqual(p.ancestors('/home/u/proj'), ['/home/u/proj', '/home/u', '/home']);
+  assert.deepEqual(p.ancestors(''), []);
+});

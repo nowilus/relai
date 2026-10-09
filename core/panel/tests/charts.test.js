@@ -148,3 +148,51 @@ test('the spark line: one character per value, the tallest is █, a gap a space
   assert.equal(c.spark([0, 7, null, 14]), '▁▅ █');
   assert.equal(c.spark([]), '');
 });
+
+// E9 (calibration 2026-10-09, "Pola i segmenty"): the progress as one bar cut into a segment per
+// item, each in the color of its own state, in source order
+test('segments: one rounded rect per item, in order, each in its own color, the markup with a width', () => {
+  const svg = c.segments(['#aaa', '#bbb', '#aaa'], 10);
+  const fills = [...svg.matchAll(/<rect [^>]*fill="(#[0-9a-f]+)"/g)].map((m) => m[1]);
+  assert.deepEqual(fills, ['#aaa', '#bbb', '#aaa']);
+  assert.match(svg, /^<svg [^>]*width="1000"/);
+  assert.match(svg, /preserveAspectRatio="none"/);
+  assert.equal(c.segments([], 10), null);
+});
+
+test('segmentText: the terminal\'s segments fill the width, one cell apart, never wider than it', () => {
+  const { runs, gap } = c.segmentText(['a', 'b', 'a', 'b'], 23);
+  assert.equal(runs.length, 4);
+  assert.equal(gap, 1);
+  assert.deepEqual(runs.map((r) => r.color), ['a', 'b', 'a', 'b']);
+  const width = runs.reduce((s, r) => s + r.text.length, 0) + gap * (runs.length - 1);
+  assert.ok(width <= 23 && width >= 20, 'width ' + width);
+  assert.ok(runs.every((r) => /^█+$/.test(r.text)));
+  const many = c.segmentText(Array(40).fill('x'), 20);
+  assert.equal(many.runs.length, 40, 'every item keeps a cell, even when the width is short (the row wraps)');
+  assert.equal(many.gap, 0);
+  assert.ok(many.runs.every((r) => r.text === '█'));
+});
+
+// E9 (calibration 2026-10-09): hovering a segment shows which item it is; the line under the bar
+// names the next item to tick while nothing is hovered
+test('hoverSegments: a hover target and a card per item, the card shown by its own segment\'s hover', () => {
+  const segs = [
+    { color: '#a1a1a1', head: '✓ 1/2 · ukończone — Testy', detail: 'Testy repo — komenda <bez> błędu' },
+    { color: '#b2b2b2', head: '○ 2/2 · oczekuje — Typy', detail: 'tsc strict' },
+  ];
+  const { svg, height } = c.hoverSegments(segs, { background: '#262c27', text: '#eee8dc', muted: '#b8b0a3', idle: ['Następny: Typy', 'tsc strict'] });
+  assert.ok(height >= 40 && height <= 56, 'height ' + height);
+  assert.match(svg, /^<svg [^>]*width="100%"/);
+  assert.deepEqual([...svg.matchAll(/class="c" [^>]*fill="(#[0-9a-f]+)"/g)].map((m) => m[1]), ['#a1a1a1', '#b2b2b2']);
+  assert.match(svg, /\.b0:hover~\.t0,\.b1:hover~\.t1\{display:inline\}/);
+  assert.match(svg, /\.b0:hover~\.d,\.b1:hover~\.d\{display:none\}/);
+  assert.ok(svg.includes('Testy repo — komenda &lt;bez> błędu'), 'the detail escaped (< as &lt;, as esc does)');
+  assert.ok(svg.includes('Następny: Typy'));
+  assert.equal(svg.indexOf('class="t t0"') > svg.indexOf('class="b b1"'), true, 'cards follow every segment, so ~ reaches them');
+  const long = c.hoverSegments([{ color: '#a1a1a1', head: 'x', detail: 'y'.repeat(400) }], { background: '#000000', text: '#ffffff', muted: '#cccccc', idle: ['', ''] });
+  assert.ok(!long.svg.includes('y'.repeat(200)), 'a long detail is clipped');
+  const narrow = c.hoverSegments([{ color: '#a1a1a1', head: 'x', detail: 'y'.repeat(400) }], { background: '#000000', text: '#ffffff', muted: '#cccccc', idle: ['', ''], chars: 40 });
+  assert.ok(narrow.svg.includes('y'.repeat(39) + '…') && !narrow.svg.includes('y'.repeat(40)), 'the line fits the slot it is given');
+  assert.equal(c.hoverSegments([], { background: '#000000', text: '#ffffff', muted: '#cccccc', idle: ['', ''] }), null);
+});

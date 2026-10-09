@@ -250,3 +250,69 @@ export function spark(values) {
   const max = Math.max(0, ...values.map((v) => v ?? 0));
   return values.map((v) => (v === null ? ' ' : SPARK[max ? Math.min(7, Math.round((v / max) * 7)) : 0])).join('');
 }
+
+/**
+ * The progress as one bar cut into a segment per item (E9, calibration 2026-10-09, "Pola
+ * i segmenty"), each in its own color, in order; as wide as its slot (the viewBox stretches,
+ * the markup carries a width: P-020). Null for no items: the caller says so in words.
+ * @param {readonly string[]} colors  one per item
+ * @param {number} height  in CSS pixels
+ * @returns {string | null}
+ */
+export function segments(colors, height) {
+  if (colors.length === 0) return null;
+  const W = 1000;
+  const gap = Math.min(8, (W * 0.4) / Math.max(1, colors.length - 1));
+  const w = (W - gap * (colors.length - 1)) / colors.length;
+  const rects = colors.map((color, i) => `<rect x="${(i * (w + gap)).toFixed(2)}" y="0" width="${w.toFixed(2)}" height="${height}" rx="2" ry="2" fill="${color}"/>`);
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${height}" preserveAspectRatio="none" width="${W}" height="${height}">${rects.join('')}</svg>`;
+}
+
+/**
+ * The same segments as text for the terminal: cells per segment filling `width`, one cell apart;
+ * when the items outnumber half the width, a cell each and no gap (the caller wraps the row).
+ * @param {readonly string[]} colors  one per item
+ * @param {number} width  cells
+ * @returns {{ runs: { text: string, color: string }[], gap: number }}
+ */
+export function segmentText(colors, width) {
+  const n = colors.length;
+  const gap = n > 0 && 2 * n - 1 <= width ? 1 : 0;
+  const cells = n > 0 ? Math.max(1, Math.floor((width - gap * (n - 1)) / n)) : 0;
+  return { runs: colors.map((color) => ({ text: '█'.repeat(cells), color })), gap };
+}
+
+/** The geometry of the hover segments, in CSS pixels. */
+const SEG = Object.freeze({ bar: 8, target: 16, line1: 30, line2: 46, height: 52, share: 0.94, detail: 140, font: 12 });
+
+/**
+ * The progress segments that answer the pointer (E9, calibration 2026-10-09): one per item, in
+ * order; hovering one lights it and shows its card — its head and its detail — in the two lines
+ * under the bar, where the `idle` lines stand while nothing is hovered (the next item to tick).
+ * Drawn with isInteractive: :hover and ~ work there, each frame's styles apart (P-020, 8);
+ * percent coordinates, so the text keeps its shape at any width. Null for no items.
+ * @param {readonly { color: string, head: string, detail: string }[]} segs
+ * @param {{ background: string, text: string, muted: string, idle: readonly [string, string] | string[], chars?: number }} o  chars: the most a line may hold (from the slot's width; SVG text does not wrap)
+ * @returns {{ svg: string, height: number } | null}
+ */
+export function hoverSegments(segs, o) {
+  if (segs.length === 0) return null;
+  const slot = 100 / segs.length;
+  const max = Math.max(12, Math.min(SEG.detail, o.chars ?? SEG.detail));
+  const clipText = (/** @type {string} */ t) => (t.length > max ? t.slice(0, max - 1) + '…' : t);
+  const lines = (/** @type {string} */ cls, /** @type {string} */ head, /** @type {string} */ detail) =>
+    `<g class="${cls}"><text x="0" y="${SEG.line1}" fill="${o.text}" font-weight="600">${esc(clipText(head))}</text>`
+    + `<text x="0" y="${SEG.line2}" fill="${o.muted}">${esc(clipText(detail))}</text></g>`;
+  const bars = segs.map((s, i) => `<svg class="b b${i}" x="${(i * slot).toFixed(3)}%" y="0" width="${(slot * SEG.share).toFixed(3)}%" height="${SEG.target}" overflow="visible">`
+    + `<rect width="100%" height="${SEG.target}" fill="transparent"/>`
+    + `<rect class="c" width="100%" height="${SEG.bar}" rx="2" ry="2" fill="${s.color}"/></svg>`);
+  const tips = segs.map((s, i) => lines(`t t${i}`, s.head, s.detail));
+  const css = `text{font-family:'Segoe UI',system-ui,sans-serif;font-size:${SEG.font}px}.t{display:none}`
+    + `.b:hover .c{filter:brightness(1.3);stroke:${o.text};stroke-width:1}`
+    + segs.map((_, i) => `.b${i}:hover~.t${i}`).join(',') + '{display:inline}'
+    + segs.map((_, i) => `.b${i}:hover~.d`).join(',') + '{display:none}';
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="${SEG.height}">`
+    + `<style>${css}</style><rect width="100%" height="100%" fill="${o.background}"/>`
+    + `${bars.join('')}${lines('d', o.idle[0] ?? '', o.idle[1] ?? '')}${tips.join('')}</svg>`;
+  return { svg, height: SEG.height };
+}
