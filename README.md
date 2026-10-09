@@ -3,7 +3,7 @@
 </p>
 
 <p align="center">
-  <em>Wersja 2.7.1 &nbsp;·&nbsp; licencja MIT &nbsp;·&nbsp; Claude Code, Cursor albo Codex, plus Node.js 14+ &nbsp;·&nbsp; zero zależności npm</em>
+  <em>Wersja 2.8.0 &nbsp;·&nbsp; licencja MIT &nbsp;·&nbsp; Claude Code, Cursor albo Codex, plus Node.js 14+ &nbsp;·&nbsp; zero zależności npm</em>
 </p>
 
 **RelAI zamienia rozmowę z agentem w prowadzony projekt.** Ustalenia, decyzje, stan prac i historia
@@ -68,6 +68,38 @@ akceptacji plan jest zamrożony, a `/relai-stage` uruchamia kolejny etap — zaw
 Czternaście komend `/relai-*` to skróty rzadszych operacji (backup, audyt, przekazanie projektu,
 optymalizator promptów…). Pełna lista: `/relai-help` albo [przewodnik](docs/PRZEWODNIK.md#komendy).
 W Claude Code komendy mają pełną nazwę `/relai:relai-<nazwa>`.
+
+## Panel w Claude Code (early access)
+
+Trzy osobne pluginy z tego samego marketplace rysują RelAI w oknie Claude Code. Działają na
+**modach**, czyli API Claude Code oznaczonym jako „early access”. To API może się zmienić bez
+zapowiedzi i wtedy panel przestanie się ładować. Zmierzone na wersji 2.1.293, na desktopie
+i w terminalu.
+
+| Plugin | Co pokazuje |
+|---|---|
+| `relai-panel` | nad promptem: aktywny plan, etap i koszt sesji; `/relai-panel` otwiera panel z formularzami czternastu komend, mapą planów i etapów, dokumentami projektu ze zmianami od commita i kosztami sesji |
+| `relai-progress` | nad promptem: postęp etapu w toku albo przebiegu `/relai-crew`; `/relai-agents` — subagenci sesji z kosztem |
+| `relai-cache-keeper` | nad promptem: odliczanie cache promptu, rozmiar kontekstu i koszt ponownego zapisu cache |
+
+Każda zmiana stanu z panelu (start etapu, sprzątanie, aktualizacja) idzie przez kartę „Tak / Nie”.
+Panel nie woła modelu. Jedyny ruch sieciowy w całej trójce to odczyt strony cennika Anthropic, i to
+dopiero po „Tak” na karcie aktualizacji cennika. Instalacja: po komendach z „Instalacji” powyżej,
+każdy plugin osobno:
+
+```bash
+claude plugin install relai-panel@relai
+```
+
+```bash
+claude plugin install relai-progress@relai
+```
+
+```bash
+claude plugin install relai-cache-keeper@relai
+```
+
+Potem uruchom aplikację ponownie. Poza projektem RelAI paski milczą.
 
 ## Zanim zaczniesz: jakość zależy od modelu
 

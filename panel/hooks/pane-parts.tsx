@@ -1,0 +1,168 @@
+// relai-panel: the parts every tab of the pane draws with — Kalam headings, icons, the surface's
+// own buttons with their flash, sections, cards, the well of the exact text, the confirmation card
+// and the tabs, and the figures, bars and legends the costs and the map share (E8, E3, E5).
+//
+// Split out of register.tsx in E7 without a change of behavior: the same elements, the same keys.
+// No `$` here (P-023 pkt 10: the engine refuses a module that hands `$` to a function from another
+// file): register.tsx resolves the element table and passes it with ready callbacks.
+
+import type { Elements, RenderChildren } from 'claude-code'
+import { pct, tokens, usd } from './fmt'
+import { COST_COLORS, NAMES, THEME, glyph, iconName } from './core/theme.mjs'
+import { HEADING_ART } from './core/headings.mjs'
+import { ICONS } from './core/icons.mjs'
+import { plural } from './core/measure.mjs'
+import type { Group } from './core/measure.mjs'
+import { blocks, figureArt, stackBar } from './core/charts.mjs'
+import { shown } from './core/decisions.mjs'
+import type { Card, Fact } from './core/decisions.mjs'
+import type { PanelView } from '../types'
+
+// The pane's tables: every surface but mobile (the pane answers mobile in one sentence)
+export type Table = Elements['terminal'] | Elements['desktop'] | Elements['vscode']
+export type SvgTag = Elements['desktop']['Svg']
+
+// What a tab is drawn with: the table, Svg on a desktop only, the pane's width, the control that
+// flashes now and the last sent line, and the one call a press makes on every control
+export type Ctx = { el: Table, Svg: SvgTag | null, isGui: boolean, width: number, flashed: string, last: string, flash: (key: string) => void }
+
+// The Select of a choice cannot hold an empty value: '' travels as this one
+export const NONE = '_'
+
+export const TABS =[['commands', 'Komendy'], ['map', 'Mapa'], ['docs', 'Dokumenty'], ['sheet', 'Ściąga'], ['phrases', 'Frazy'], ['costs', 'Koszty']] as const
+
+// The four categories of a request, in the costs' colors
+export const CATS = [
+  ['input', 'wejście', COST_COLORS.input], ['cacheRead', 'odczyt cache', COST_COLORS.cacheRead],
+  ['cacheWrite', 'zapis cache', COST_COLORS.cacheWrite], ['output', 'wyjście', COST_COLORS.output],
+] as const
+
+export function parts(c: Ctx) {
+  const { el, Svg, isGui, width, flashed, last } = c
+  const { Box, Text, Button } = el
+
+  // ---------- the pane's parts: one look for every tab and every later section ----------
+  const heading = (key: string, color: string = THEME.mark) => {
+    const art = HEADING_ART[key]
+    if (Svg && art) return <Svg key={`h-${key}`} source={art.svg} alt={art.text} width={art.width} height={art.height} />
+    return <Text bold color={color}>{art?.text ?? key}</Text>
+  }
+  const icon = (cmd: string, px: number) => {
+    const source = ICONS[iconName(cmd)]
+    if (Svg && source) return <Svg key={`icon-${cmd}`} source={source} alt={NAMES[cmd]?.[0] ?? cmd} width={px} height={px} />
+    return <Text color={THEME.accent}>●</Text>
+  }
+  const mark = (name: string, color: string, px: number, alt: string) => {
+    const source = glyph(name, color, px)
+    if (Svg && source) return <Svg key={`g-${name}-${px}`} source={source} alt={alt} width={px} height={px} />
+    return <Text color={color}>●</Text>
+  }
+  // Every control is the surface's own button (calibration 2026-10-08): a `plain` button in a
+  // painted box inverts under the pointer and that cannot be turned off, so the brand stays in
+  // the cards and the press answers by itself: the control's card flashes and, where a press
+  // sends something, the label says so for FLASH_MS.
+  const isFlash = (key: string) => flashed === key
+  const btn = (key: string, label: string, kind: 'primary' | 'secondary', onPress: () => void, doneLabel?: string) => (
+    <Button key={key} variant={kind} onPress={() => { onPress(); c.flash(key) }}>
+      {doneLabel && isFlash(key) ? doneLabel : label}
+    </Button>
+  )
+  const flashBorder = (key: string, rest: string) => (isFlash(key) ? THEME.pressed : rest)
+  // A section: Kalam heading, one line saying what it is for, then its cards
+  const section = (key: string, head: string, about: string, items: RenderChildren[]) => (
+    <Box key={key} flexDirection="column" gap={isGui ? 1 : 0}>
+      {heading(head)}
+      {about ? [<Text key={`${key}-about`} color={THEME.body}>{about}</Text>] : []}
+      {items}
+    </Box>
+  )
+  // A card: rounded and filled on a desktop; on the terminal only the selected one is framed
+  const frame = (isOn: boolean) => (isGui || isOn ? { borderStyle: 'round' } : {})
+  // The exact text that goes to the chat, in a well of its own
+  const well = (key: string, text: string, isOk: boolean) => (
+    <Box key={key} paddingX={1} {...frame(false)} borderColor={THEME.line} backgroundColor={THEME.card}>
+      <Text color={isOk ? THEME.title : THEME.accentText}>{isOk ? [<Text key={`${key}-l`} color={THEME.mark} bold>{'Do czatu pójdzie: '}</Text>, text] : text}</Text>
+    </Box>
+  )
+  const sentLine = last
+    ? <Box key="sent"><Text color={/^(Wysłano|Zapisano)/.test(last) ? THEME.ok : THEME.accentText}>{(/^(Wysłano|Zapisano)/.test(last) ? '✓ ' : '✗ ') + last}</Text></Box>
+    : null
+
+  // ---------- the confirmation card (E5, R4) ----------
+  // Above every tab while it waits: what will happen, in rows of facts, the question, "Tak" and
+  // "Nie". A warning row reads in the accent color; nothing goes out before "Tak".
+  const factRow = (key: string, f: Fact) => (
+    // Wraps: a long value (a working folder's path) drops under its label in a narrow pane
+    <Box key={key} flexDirection="row" flexWrap="wrap" columnGap={1}>
+      <Box key={`${key}-l`} flexShrink={0} width={16}><Text bold color={THEME.mark}>{f.label}</Text></Box>
+      <Box key={`${key}-v`} flexGrow={1} flexShrink={1}><Text color={f.tone === 'warn' ? THEME.accentText : f.tone === 'ok' ? THEME.ok : THEME.title}>{(f.tone === 'warn' ? '⚠ ' : '') + f.value}</Text></Box>
+    </Box>
+  )
+  const confirmCard = (card: Card, decide: (said: 'tak' | 'nie') => void) => {
+    const step = shown(card)
+    return section('confirm', 'confirm', card.state === 'second' ? 'Drugi krok — zapis dopiero po tym potwierdzeniu.' : 'Nic nie pójdzie do czatu bez „Tak”.', [
+      <Box key="confirm-card" flexDirection="column" gap={isGui ? 1 : 0} paddingX={isGui ? 2 : 1} paddingY={isGui ? 1 : 0}
+        borderStyle="round" borderColor={flashBorder('confirm-yes', THEME.accent)} backgroundColor={THEME.cardOn}>
+        <Text bold color={THEME.accentText} wrap="truncate">{card.title}</Text>
+        <Box key="confirm-facts" flexDirection="column">{step.facts.map((f, i) => factRow(`confirm-f-${i}`, f))}</Box>
+        <Text bold color={THEME.title}>{step.question}</Text>
+        <Box key="confirm-act" flexDirection="row" flexWrap="wrap" gap={1}>
+          {btn('confirm-yes', 'Tak', 'primary', () => decide('tak'))}
+          {btn('confirm-no', 'Nie', 'secondary', () => decide('nie'))}
+        </Box>
+      </Box>,
+    ])
+  }
+
+  const tabs = (tab: PanelView, choose: (v: PanelView) => void) => (
+    <Box key="tabs" flexDirection="row" flexWrap="wrap" gap={1}>
+      {TABS.map(([v, label]) => btn(`tab-${v}`, label, v === tab ? 'primary' : 'secondary', () => choose(v)))}
+    </Box>
+  )
+
+  // ---------- figures, bars and cards of the costs and the map ----------
+  // Drawings are geometry only (charts.mjs); every word stands in a box the surface lays out.
+  const barCols = Math.max(10, Math.min(width - 6, 60))
+  const figure = (key: string, text: string, size: number, color: string) => {
+    const art = Svg ? figureArt(text, size, color) : null
+    if (Svg && art) return <Svg key={key} source={art.svg} alt={text} width={art.width} height={art.height} />
+    return <Text key={key} bold color={color}>{text}</Text>
+  }
+  // A bar says in its alt what it draws: each slice's share, in words
+  const shares = (slices: { value: number, label: string }[]) => {
+    const sum = slices.reduce((s, x) => s + x.value, 0)
+    return slices.map((s) => `${s.label} ${pct(s.value, sum)}`).join(', ')
+  }
+  const bar = (key: string, slices: { value: number, color: string, label: string }[], height: number) => {
+    if (Svg) return <Svg key={key} source={stackBar(slices, THEME.lineOff, height)} alt={'udział: ' + shares(slices)} height={height} />
+    const runs = blocks(slices, barCols)
+    return <Box key={key} flexDirection="row">{runs.length ? runs.map((r, i) => <Text key={`${key}-${i}`} color={r.color}>{r.text}</Text>) : [<Text key={`${key}-0`} color={THEME.lineOff}>{'░'.repeat(barCols)}</Text>]}</Box>
+  }
+  const costBox = (key: string, items: RenderChildren[], isMain = false, grow = false) => (
+    <Box key={key} flexDirection="column" gap={isGui ? 1 : 0} paddingX={isGui ? 2 : 1} paddingY={isGui ? 1 : 0}
+      {...(grow ? { flexGrow: 1 } : {})}
+      {...frame(isMain)} borderColor={isMain ? THEME.mark : THEME.line} backgroundColor={isMain ? THEME.cardFeatured : THEME.card}>
+      {items}
+    </Box>
+  )
+  const line = (key: string, text: string, color: string = THEME.body, bold = false) => <Text key={key} color={color} bold={bold}>{text}</Text>
+  const money = (n: number | null) => (n === null ? 'brak ceny' : usd(n))
+  const nCalls = (n: number) => `${n} ${plural(n, 'wywołanie', 'wywołania', 'wywołań')}`
+
+  // The four categories of a group: a dot in its color, the name, tokens and dollars
+  const legend = (key: string, g: Group) => (
+    <Box key={key} flexDirection="row" flexWrap="wrap" columnGap={2}>
+      {CATS.map(([k, label, color]) => (
+        <Box key={`${key}-${k}`} flexDirection="row" columnGap={1}>
+          <Text color={color}>●</Text>
+          <Text color={THEME.title}>{label}</Text>
+          <Text color={THEME.body}>{`${tokens(g[k])} · ${usd(g.parts[k])}`}</Text>
+        </Box>
+      ))}
+    </Box>
+  )
+
+  return { heading, icon, mark, isFlash, btn, flashBorder, section, frame, well, sentLine, factRow, confirmCard, tabs, barCols, figure, bar, costBox, line, money, nCalls, legend }
+}
+
+export type Parts = ReturnType<typeof parts>

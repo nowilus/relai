@@ -1,6 +1,6 @@
 {
   "name": "relai-cache-keeper",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "author": { "name": "nowilus", "url": "https://github.com/nowilus" },
   "description": "RelAI cache keeper for Claude Code (early access mods): a card above the prompt with the prompt-cache countdown, the context size and the hypothetical cost of writing the cache again; a guard that asks before a cold send of a big context; keep-warm pings and a hand-off to a fresh chat (natively through the project documents in a RelAI project). It calls the model only on the person's explicit request: /keepwarm or the keep-warm button sends short pings, the hand-off sends its prompt as the person. Formerly cache-keeper-pl.",
   "homepage": "https://github.com/nowilus/relai",

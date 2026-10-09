@@ -291,9 +291,38 @@ const wersje = [];
 if (manifest) wersje.push(['core/MANIFEST.json', manifest.version]);
 if (plugin) wersje.push(['.claude-plugin/plugin.json', plugin.version]);
 if (codexPlugin) wersje.push(['.codex-plugin/plugin.json', codexPlugin.version]);
+// 5a) Pluginy panelu (E7 PANEL_CLAUDE) maja wlasne wersje: wpis marketplace ze zrodlem innym niz
+// "./" porownujesz z plugin.json SWOJEGO pluginu, nie z relai. Wpis bez wersji to blad — dzis
+// przechodzil po cichu (relai-panel od E1), a uzytkownik nie widzi, ktora wersje instaluje.
+let pluginyPanelu = 0;
 if (marketplace && Array.isArray(marketplace.plugins)) {
-  for (const p of marketplace.plugins) wersje.push(['.claude-plugin/marketplace.json (' + p.name + ')', p.version]);
+  for (const p of marketplace.plugins) {
+    if (typeof p.source !== 'string') {
+      bledy.push('.claude-plugin/marketplace.json (' + p.name + '): zrodlo spoza repozytorium — walidator zna tylko sciezki lokalne');
+      continue;
+    }
+    const zrodlo = p.source.replace(/^\.\//, '').replace(/\/$/, '');
+    if (zrodlo === '' || zrodlo === '.') {
+      wersje.push(['.claude-plugin/marketplace.json (' + p.name + ')', p.version]);
+      continue;
+    }
+    pluginyPanelu += 1;
+    const relManifest = zrodlo + '/.claude-plugin/plugin.json';
+    if (!p.version) {
+      bledy.push('.claude-plugin/marketplace.json (' + p.name + '): wpis bez pola "version" (porownaj z ' + relManifest + ')');
+      continue;
+    }
+    const wlasny = czytajJson(relManifest); // brak pliku zapisuje blad sam
+    if (!wlasny) {
+      continue;
+    } else if (wlasny.version !== p.version) {
+      bledy.push('.claude-plugin/marketplace.json (' + p.name + ') = ' + p.version + ', a ' + relManifest + ' = ' + wlasny.version);
+    } else if (wlasny.name !== p.name) {
+      bledy.push('.claude-plugin/marketplace.json: wpis "' + p.name + '" wskazuje ' + relManifest + ' z nazwa "' + wlasny.name + '"');
+    }
+  }
 }
+sprawdzone.push('wersje pluginow panelu w marketplace: ' + pluginyPanelu + ' (kazda z plugin.json swojego pluginu)');
 if (codexMarketplace && Array.isArray(codexMarketplace.plugins)) {
   for (const p of codexMarketplace.plugins) wersje.push(['.agents/plugins/marketplace.json (' + p.name + ')', p.version]);
 }

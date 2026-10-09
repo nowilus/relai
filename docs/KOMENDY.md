@@ -1,6 +1,6 @@
 # KOMENDY — RelAI
 
-RelAI 2.7.1
+RelAI 2.8.0
 
 Nic z tej listy nie jest obowiązkowe. RelAI działa w zwykłej rozmowie — piszesz normalnie,
 a struktura projektu nadąża. Komendy są skrótem do rzadszych operacji.
@@ -41,6 +41,24 @@ z podpowiedzi; skrócona forma działa tam, gdzie podpowiadacz ją rozwinie.
 | „coś nie działa — …" (np. „coś nie działa — npm test pada przy sumie koszyka, napraw to") | zanim RelAI dotknie kodu, odtwarza błąd komendą i pokazuje jej wynik, sprawdza po jednej hipotezie z dowodem, robi najmniejszą poprawkę i uruchamia tę samą komendę jeszcze raz; kończy raportem: odtworzenie, przyczyna, poprawka, dowód. Przyczyna, która jest dziwactwem narzędzia, trafia do `docs/PULAPKI.md`. Po trzech odrzuconych hipotezach zatrzymuje się i mówi, czego potrzebuje od Ciebie (od 2.7.0) |
 | „jutro wdrażamy … na produkcję" / „wdrażamy …" | **przed** pierwszym wdrożeniem środowiska: lista kontrolna w sześciu punktach — zmienne i sekrety, kopia danych, droga cofnięcia, kto ma dostęp, audyt zależności (`npm audit` i odpowiedniki), jak sprawdzić, że działa — każdy ze stanem OK / BRAK / NIE DOTYCZY; o wdrożeniu mimo braków decydujesz Ty. Opis środowiska z sekcją „co obserwować po wdrożeniu" powstaje dopiero po wdrożeniu (od 2.7.0) |
 | „przygotuj plan…" / „zaplanuj…" / „rozpisz to na etapy" | powstaje plan w `docs/plany/` z wariantami, ryzykami i etapami — albo krótki miniplan w dzienniku, jeśli zadanie jest drobne |
+
+## Panel w Claude Code (early access, od 2.8.0)
+
+Trzy osobne pluginy z marketplace RelAI, na modach Claude Code („early access”, zmierzone na 2.1.293),
+instalowane każdy własną komendą: `claude plugin install relai-panel@relai`,
+`claude plugin install relai-progress@relai`, `claude plugin install relai-cache-keeper@relai`,
+potem ponowne uruchomienie aplikacji.
+
+- **Nad promptem** — pasek planu (aktywny plan, etap, koszt sesji), pasek postępu etapu albo
+  przebiegu załogi i pasek cache promptu z odliczaniem.
+- **`/relai-panel`** — panel z zakładkami: Komendy (formularze czternastu komend), Mapa (plany,
+  etapy, odnogi, przebiegi załogi i koszt każdego etapu), Dokumenty (zmienione na górze, diff od
+  ostatniego commita, podgląd), Ściąga, Frazy, Koszty (koszt sesji w cenach API, z cennikiem i jego
+  datą).
+- **`/relai-agents`** — subagenci sesji: model, kontekst i koszt.
+- **Karta „Tak / Nie”** — start etapu, sprzątanie, aktualizacja, lista modeli i zmiana cennika idą
+  z panelu dopiero po Twoim „Tak”. Etap potwierdzony na karcie startuje bez drugiego pytania w czacie.
+- **Sieć** — jedyny odczyt to strona cennika Anthropic, po „Tak” na karcie aktualizacji cennika.
 
 ## Czego RelAI pilnuje bez proszenia
 

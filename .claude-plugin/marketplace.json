@@ -12,7 +12,7 @@
     {
       "name": "relai",
       "source": "./",
-      "version": "2.7.1",
+      "version": "2.8.0",
       "description": "Your project remembers everything — documentation-first process framework for Claude Code",
       "category": "productivity",
       "homepage": "https://github.com/nowilus/relai",
@@ -28,7 +28,8 @@
     {
       "name": "relai-panel",
       "source": "./panel",
-      "description": "RelAI panel for Claude Code (early access mods): active plan and stage and session cost above the prompt, a pane with the 14 RelAI commands and the session's measured costs",
+      "version": "0.9.0",
+      "description": "Early access — needs Claude Code with mods (measured on 2.1.293). RelAI panel: the active plan and stage and the session's cost above the prompt; /relai-panel opens forms for the 14 RelAI commands, a map of plans and stages, the project documents and the session's measured costs. Every change goes through a confirmation card. One network request only: the Anthropic pricing page, read after \"Tak\" on a card.",
       "category": "productivity",
       "homepage": "https://github.com/nowilus/relai",
       "repository": "https://github.com/nowilus/relai",
@@ -36,7 +37,38 @@
         "relai",
         "panel",
         "mods",
-        "costs"
+        "costs",
+        "early-access"
+      ]
+    },
+    {
+      "name": "relai-progress",
+      "source": "./progress",
+      "version": "0.2.0",
+      "description": "Early access — needs Claude Code with mods (measured on 2.1.293). RelAI progress above the prompt: the stage in progress, a /relai-crew run or work outside a plan, and /relai-agents with the session's subagents. Reads files only: no model call, no network. Based on savvy-progress by johnnyvizz (MIT).",
+      "category": "productivity",
+      "homepage": "https://github.com/nowilus/relai",
+      "repository": "https://github.com/nowilus/relai",
+      "keywords": [
+        "relai",
+        "progress",
+        "mods",
+        "early-access"
+      ]
+    },
+    {
+      "name": "relai-cache-keeper",
+      "source": "./cache-keeper",
+      "version": "0.3.0",
+      "description": "Early access — needs Claude Code with mods (measured on 2.1.293). The prompt-cache countdown, the context size and the cost of writing the cache again, above the prompt; asks before a cold send of a big context. Calls the model only on the person's request (keep-warm pings, hand-off to a fresh chat).",
+      "category": "productivity",
+      "homepage": "https://github.com/nowilus/relai",
+      "repository": "https://github.com/nowilus/relai",
+      "keywords": [
+        "relai",
+        "cache",
+        "mods",
+        "early-access"
       ]
     }
   ]

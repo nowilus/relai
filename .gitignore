@@ -21,3 +21,7 @@ docs/AUDYT_*.html
 # Pliki generowane przez silnik Claude Code przy ladowaniu modu z folderu (relai-panel)
 panel/.claude-plugin/types/
 panel/tsconfig.json
+progress/.claude-plugin/types/
+progress/tsconfig.json
+cache-keeper/.claude-plugin/types/
+cache-keeper/tsconfig.json

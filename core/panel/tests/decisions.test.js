@@ -224,7 +224,9 @@ test('aktualizacja i modele: wersja i data listy z realnych plikow', () => {
   const ust = fs.readFileSync(path.join(ROOT, 'docs/USTAWIENIA.md'), 'utf8');
   assert.match(d.projectVersion(ust), /^\d+\.\d+\.\d+$/);
   assert.equal(d.projectVersion('brak'), null);
-  const modele = fs.readFileSync(path.join(ROOT, '.claude/relai/MODELE-claude-code.md'), 'utf8');
+  // The list the plugin ships (tracked); the project's copy in .claude/relai/ is outside git and
+  // a clean clone has none (L-0156, E7)
+  const modele = fs.readFileSync(path.join(ROOT, 'adapters/claude-code/MODELE.md'), 'utf8');
   assert.match(d.listDate(modele), /^\d{4}-\d{2}-\d{2}$/);
   assert.equal(d.listDate('list-date is described here'), null);
   assert.equal(d.daysBetween('2026-10-08', '2026-10-09'), 1);

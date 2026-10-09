@@ -12,7 +12,7 @@
 | E4 | Mapa przepływu i przypisanie pracy | ZREALIZOWANY 2026-10-09 | [PROMPT_ETAP_4.md](PROMPT_ETAP_4.md) | koszt etapu ze znacznika w rekordzie (pola `stage`, `task`), scalanie jako widok w `.claude/relai/panel/scalenia.json`, zakładka „Mapa” (decyzje człowieka 2026-10-09) |
 | E5 | Decyzje w panelu | ZREALIZOWANY 2026-10-09 | [PROMPT_ETAP_5.md](PROMPT_ETAP_5.md) | dostosowanie procedury `/relai-stage` w pluginie `relai`; zgoda znacznikiem `--zgoda-panelu`, skill Codeksa wygenerowany z komendy (decyzja człowieka); pomiar na żywo w E7 |
 | E6 | Dokumenty i cennik | ZREALIZOWANY 2026-10-09 | [PROMPT_ETAP_6.md](PROMPT_ETAP_6.md) | Aneks D: przypomnienie o modelu bez ceny (nazwa, liczba rekordów) z kartą potwierdzenia; ruch sieciowy do strony cennika Anthropic rozstrzygnięty 2026-10-09 — tylko po karcie; Aneks E: „Dokumenty” jako kafle i drzewo z diffem od commita |
-| E7 | Wydanie relai-panel | GOTOWY DO STARTU | [PROMPT_ETAP_7.md](PROMPT_ETAP_7.md) | publiczny marketplace czy lokalnie — przed E7 |
+| E7 | Wydanie relai-panel | W TOKU | [PROMPT_ETAP_7.md](PROMPT_ETAP_7.md) | publiczny marketplace czy lokalnie — przed E7 |
 
 ## Bramki manualne
 
@@ -52,7 +52,9 @@
   z nową procedurą (sesja E5 miała zainstalowane 2.7.1) · źródło: wpis dziennika 2026-10-09 (E5),
   decyzja człowieka · **OTWARTA**
 - **Po zamknięciu sesji E6 usunąć z folderu modów sesji `a72755a2-…` sondę `relai-probe-e6`
-  i kopię `relai-panel` 0.8.0** · źródło: wpis dziennika 2026-10-09 (E6, domknięcie) · **OTWARTA**
+  i kopię `relai-panel` 0.8.0** · źródło: wpis dziennika 2026-10-09 (E6, domknięcie) ·
+  **ROZSTRZYGNIĘTA 2026-10-09 — folderu nie ma, `~/.claude/dev-mods/` nie istnieje (sprawdzone na
+  starcie E7)**
 
 ## Dziennik wdrożenia
 
@@ -75,3 +77,4 @@
 - 2026-10-09 — E6 rozpoczęty
 - 2026-10-09 — Aneks E: zakładka „Dokumenty” jako półka kafli (wariant A z czterech) z diffem od ostatniego commita (`git diff HEAD` zamkniętym argv) i podglądem; zakres — dokumenty projektu RelAI (decyzje człowieka po kalibracji na żywo w E6).
 - 2026-10-09 — E6 zrealizowany: sekcja „Cennik” w „Kosztach” (przypomnienie o modelu bez ceny, karta w dwóch krokach z jednym odczytem strony cennika, wersje cennika wg R6) i zakładka „Dokumenty” (kafle i drzewo jak eksplorator, zmienione na górze, diff od commita rysowany wierszami, podgląd); na żywo na desktopie, limit drzewa po zniknięciu panelu przy 256 tys. znaków; wygenerowano `PROMPT_ETAP_7.md`.
+- 2026-10-09 — E7 rozpoczęty

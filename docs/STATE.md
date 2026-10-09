@@ -1,12 +1,14 @@
 # STATE — RelAI
 
-Stan na: 2026-10-09 (E6 planu PANEL_CLAUDE — dokumenty i cennik w panelu; wydanie publiczne nadal 2.7.1)
+Stan na: 2026-10-09 (E7 planu PANEL_CLAUDE — wydanie 2.8.0 i rodziny pluginów panelu w toku; publicznie nadal 2.7.1)
 
 ## Gdzie jesteśmy
 
-RelAI ma w repozytorium **2.7.1** — poprawkę kopii narzędzi w projektach z `"type": "module"`
-(P-007), wydaną publicznie 2026-09-28 (tag `v2.7.1`, release Latest); w aplikacji działa po
-restarcie. Poprzednie wydanie, 2.7.0, zamknęło etapy E5–E7 planu PROWADZENIE_END_TO_END
+RelAI ma w repozytorium **2.8.0**: zgodę na start etapu z karty panelu (`/relai-stage
+--zgoda-panelu`, E5 planu PANEL_CLAUDE) i trzy pluginy panelu w marketplace RelAI, każdy z własną
+wersją i dopiskiem „early access”: `relai-panel` 0.9.0, `relai-progress` 0.2.0,
+`relai-cache-keeper` 0.3.0. Publicznie stoi jeszcze 2.7.1 (poprawka P-007, tag `v2.7.1` z
+2026-09-28) — wypchnięcie i tag 2.8.0 idą po zgodzie człowieka. Poprzednie duże wydanie, 2.7.0, zamknęło etapy E5–E7 planu PROWADZENIE_END_TO_END
 (2026-09-24, 7/7 etapów). Plugin działa w trzech narzędziach — Claude Code, Cursorze i Codeksie — na
 jednym rdzeniu procesu, z czternastoma komendami. Plan dał lżejszy start sesji, skille czytane
 na żądanie, prompty skrojone pod model, README od pierwszego kroku, procedury dla usterki i pierwszego
@@ -58,8 +60,11 @@ Opinii spoza projektu nadal nie ma — pilotaż z użytkownikami zamknięto prze
   **E9 (postęp i agenci, Aneksy B i C)** — rodzina trzech pluginów w tym repo (`relai-panel`,
   `relai-progress`, `relai-cache-keeper`), **E4 (mapa przepływu i koszt etapu)**, **E5 (decyzje
   w panelu: karta potwierdzenia, start etapu ze zgodą z panelu)**, **E6 (dokumenty i cennik,
-  Aneksy D i E)**. Następny: E7 „Wydanie relai-panel" — ostatni etap planu.
-  Pluginy niewydane (wydanie i wpisy w `marketplace.json` to E7).
+  Aneksy D i E)**. **E7 „Wydanie relai-panel” w toku** (ostatni etap planu): wpisy trzech
+  pluginów w `marketplace.json` z własnymi wersjami i dopiskiem „early access” (decyzja człowieka
+  2026-10-09), `relai` 2.8.0, walidator wersji pluginów panelu, `register.tsx` podzielony na pliki
+  poniżej 800 linii, sekcja o panelu w README i `KOMENDY.md`. Zostają wypchnięcie i pomiar
+  w czystej instalacji.
 
 ## Co dalej
 
@@ -100,11 +105,12 @@ Opinii spoza projektu nadal nie ma — pilotaż z użytkownikami zamknięto prze
 
 ### Wersja i instalacja
 
-Repozytorium i publicznie: **2.7.1** (tag `v2.7.1`, release Latest, 2026-09-28). Źródło instalacji: własny marketplace w tym repozytorium, scope `user`. Wydanie potwierdzasz
+Repozytorium: **2.8.0** (E7 planu PANEL_CLAUDE); publicznie **2.7.1** (tag `v2.7.1`, release Latest, 2026-09-28) do wypchnięcia 2.8.0. Źródło instalacji: własny marketplace w tym repozytorium, scope `user`; od 2.8.0 marketplace niesie cztery pluginy — `relai` i trzy pluginy panelu z własnymi wersjami. Wydanie potwierdzasz
 treścią plików z cache'u, nie komunikatem CLI (P-005): `claude plugin validate` → tag → push →
 release → `marketplace update` → `plugin update relai@relai` → suma plików po CRLF → LF. Walidator
 `core/tools/validate-adapters.js` sprawdza 7 źródeł wersji, w tym baner README i tę sekcję
-„Gdzie jesteśmy". Pre-commit tego repo: układ 1.9.2 (shim + dwa pliki `.cjs`).
+„Gdzie jesteśmy", a wpis marketplace każdego pluginu panelu porównuje z `plugin.json` tego
+pluginu (wpis bez wersji to błąd). Pre-commit tego repo: układ 1.9.2 (shim + dwa pliki `.cjs`).
 
 ### Zawartość pluginu
 
@@ -116,19 +122,21 @@ tryb ciągły, baza reguł optymalizatora z nakładkami rodzin modeli (`claude`,
 instalator. **Adapter Codex**: natywny manifest, 14 skilli, router `AGENTS.md`, trzy hooki (start
 sesji kopiuje listę modeli).
 
-### Panel `relai-panel` i rodzina pluginów (plan PANEL_CLAUDE, po E6)
+### Panel `relai-panel` i rodzina pluginów (plan PANEL_CLAUDE, E7)
 
 Trzy pluginy Claude Code Mods w tym repo (silnik 2.1.293, „early access”), każdy z kopią rdzenia
 `core/panel/` z `sync-panel-core.js`; nad promptem trzy paski cache → plan → postęp w stylu
 `docs/zasoby/PANEL_RELAI/STYL_PASKOW_CLAUDE.md` (miękkie tło, siatka etykieta | treść | liczba,
 `BAND`/`BAR` w `theme.mjs`). Korzeń projektu szukany w górę od katalogu sesji (P-021).
-**`panel/`** (`relai-panel` 0.8.0): pasek planu (plan, etap, status, koszt sesji z
+**`panel/`** (`relai-panel` 0.9.0; od E7 moduł hooków `register.tsx` trzyma stan, kolektor,
+odczyty i działania z `$`, a widoki rysują `band.tsx`, `pane-parts.tsx` i `pane-commands`, `-map`,
+`-docs`, `-costs.tsx` bez `$` — P-023 pkt 10): pasek planu (plan, etap, status, koszt sesji z
 `$.session.usage()` jako hipotetyczny koszt API, liczba etapów). **`progress/`** (`relai-progress`
-0.1.0, fork `savvy-progress` — MIT, johnnyvizz): pasek postępu etapu albo biegu `/relai-crew`
+0.2.0, fork `savvy-progress` — MIT, johnnyvizz): pasek postępu etapu albo biegu `/relai-crew`
 z checkboxów promptu, pocięty na segmenty z podpowiedzią po najechaniu (Svg na desktopie, znaki
 w terminalu), odświeżany po edycji i co 10 s; przycisk „Panel RelAI”; panel `/relai-agents` —
 punkty etapu i subagenci sesji z modelem, kontekstem i kosztem z pomiarów E3. **`cache-keeper/`**
-(`relai-cache-keeper` 0.2.0, dawny prywatny `cache-keeper-pl`): timer cache, podtrzymanie
+(`relai-cache-keeper` 0.3.0, dawny prywatny `cache-keeper-pl`): timer cache, podtrzymanie
 (`$.model.fork`) i przekazanie wyłącznie na żądanie człowieka — R7 („nie woła modelu”) dotyczy
 tylko dwóch pierwszych (Aneks C). Poza projektem RelAI wszystkie milczą; paski innych wtyczek
 zostają (owijacz woła `next`, bez `width` — P-017). Zmierzone na żywo na desktopie i w terminalu.
