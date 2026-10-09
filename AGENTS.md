@@ -1,6 +1,6 @@
 # RelAI — budowa pluginu (projekt dogfoodingowy)
 
-> Kopia `CLAUDE.md` dla Codeksa, zsynchronizowana 2026-10-08. **Źródłem prawdy jest `CLAUDE.md`** —
+> Kopia `CLAUDE.md` dla Codeksa, zsynchronizowana 2026-10-09. **Źródłem prawdy jest `CLAUDE.md`** —
 > zmianę robisz tam, a ten plik odświeżasz w tej samej turze.
 
 Ten folder to repo pluginu **RelAI** („Twój projekt pamięta wszystko") — frameworka dokumentacyjno-procesowego dla Codeksa. Projekt prowadzi się według zasad, które sam buduje. Trzymaj ten plik krótkim — szczegóły są w `docs/`.
@@ -43,7 +43,7 @@ o kolejne `N` dni / rozstrzygnąć teraz. Sesja nieinteraktywna: sam raport, bez
 | Plan OPTYMALIZATOR_PROMPTOW — 5 etapów | **ZREALIZOWANY 2026-09-15** (5/5, Aneksy A i B, wydanie 2.2.0) | [archiwum planu](docs/archiwum/plany/OPTYMALIZATOR_PROMPTOW/STATUS.md) |
 | Odnogi i wątki samodzielne | 1 otwarta (`OPIS_REPO`, od 2026-09-24 wątek samodzielny w `docs/fixy/`); `ORKIESTRACJA` zamknięta 2026-09-06 (2.1.0 w repo), `PRECOMMIT_ESM` 2026-09-04 wydaniem 1.9.2, `CURSOR_1_9_1` tego samego dnia | [docs/STATE.md](docs/STATE.md) |
 
-Aktywny plan: [PANEL_CLAUDE](docs/plany/PANEL_CLAUDE/STATUS.md) — panel RelAI dla Claude Code jako osobny plugin `relai-panel`, **ZAAKCEPTOWANY** 2026-10-08, Aneks A; E1 i E2 zrealizowane 2026-10-08, następny: E8 „Motyw RelAI i ikony komend” (przed E3, `/relai-stage`).
+Aktywny plan: [PANEL_CLAUDE](docs/plany/PANEL_CLAUDE/STATUS.md) — panel RelAI dla Claude Code jako osobny plugin `relai-panel`, **ZAAKCEPTOWANY** 2026-10-08, Aneksy A, B, C i D; E1, E2, E8 i E3 zrealizowane 2026-10-08, E9, E4 i E5 2026-10-09 (pluginy `relai-progress` i `relai-cache-keeper` w repo; zakładka „Mapa” i koszt etapu; karta potwierdzenia i start etapu ze zgodą z panelu), następny: E6 „Dokumenty i cennik” (`/relai-stage`).
 
 ## Reguły procesu
 
