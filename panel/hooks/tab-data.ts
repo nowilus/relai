@@ -18,6 +18,9 @@ import { crewProgress, pick as pickProgress, promptLink, stageProgress } from '.
 import type { CostData, DocsData, MapData, NowData, OpenDoc, PaneData, Prices } from './data'
 import { CREW_DIR, MEASURE_DIR, localDay, readRel } from './pane-io'
 import type { PaneIo } from './pane-io'
+import { branchProgress, cardPathOf, countedOf, isCardOpen } from './focus'
+import { parseStatus } from './core/plan-state.mjs'
+import type { FocusChoice } from './data'
 
 // The session's commands and the project's cheat sheet (register.tsx reads both, loadData)
 export function paneData(list: readonly { name: string, description?: string }[], text: string | null): PaneData {
@@ -145,8 +148,37 @@ export async function commandFacts(io: PaneIo, command: 'relai-update' | 'relai-
 // "Teraz" (brief v2 §6.2): the active plan and the progress from the files the progress bar reads —
 // the newest live crew run, else the stage prompt's boxes — with this plugin's own copy of the core
 // (./core/progress.mjs), no dependency on relai-progress. Read through remember (Z3), never per drawing.
+// What "Zmień" offers (Z12): the active plan's stages not closed yet (three at most), every thread
+// card still open, and outside any plan
+const CHOICE_STAGES = 3
+async function focusChoices(io: PaneIo): Promise<FocusChoice[]> {
+  const active = io.session().plan
+  const out: FocusChoice[] = []
+  if (active.kind === 'ok') {
+    const statusMd = await readRel(io, active.statusPath)
+    const open = statusMd === null ? [] : parseStatus(statusMd).stages.filter((st) => st.status !== 'ZREALIZOWANY' && st.status !== 'POMINIĘTY')
+    for (const st of open.slice(0, CHOICE_STAGES)) out.push({ key: `plan:${active.plan}:${st.id}`, label: `${active.plan} · ${st.id}`, target: { kind: 'plan', plan: active.plan, stage: st.id } })
+  }
+  for (const card of await io.folders('docs/fixy')) {
+    const text = await readRel(io, cardPathOf(card))
+    if (text !== null && isCardOpen(text)) out.push({ key: `branch:${card}`, label: `${card} (odnoga)`, target: { kind: 'branch', card } })
+  }
+  return [...out, { key: 'outside', label: 'poza planem', target: 'outside' }]
+}
+
 export async function nowData(io: PaneIo): Promise<NowData> {
-  const plan = io.session().plan
+  const work = io.session().work
+  const plan = work.plan
+  const choices = await focusChoices(io)
+  const run = (await io.folders(CREW_DIR)).at(-1)
+  const crew = run ? crewProgress(run, await readRel(io, `${CREW_DIR}/${run}/zadania.json`),
+    await readRel(io, `${CREW_DIR}/${run}/manifest.json`), await io.now()) : null
+  // A thread: its packets are the progress (Z12)
+  if (work.focus?.kind === 'branch' && !work.isAsking) {
+    const own = branchProgress(await readRel(io, cardPathOf(work.focus.card)))
+    const fallback = { kind: 'stage' as const, title: work.label, done: 0, total: 0, percent: null, items: [], words: 'karta bez paczek do odhaczenia' }
+    return { plan, work, choices, progress: pickProgress(crew, own ?? fallback) }
+  }
   let promptText: string | null = null
   let link: string | null = null
   if (plan.kind === 'ok' && plan.stage) {
@@ -154,8 +186,5 @@ export async function nowData(io: PaneIo): Promise<NowData> {
     link = statusMd === null ? null : promptLink(statusMd, plan.stage.id, plan.statusPath)
     promptText = link === null ? null : await readRel(io, link)
   }
-  const run = (await io.folders(CREW_DIR)).at(-1)
-  const crew = run ? crewProgress(run, await readRel(io, `${CREW_DIR}/${run}/zadania.json`),
-    await readRel(io, `${CREW_DIR}/${run}/manifest.json`), await io.now()) : null
-  return { plan, progress: pickProgress(crew, stageProgress(plan, promptText, link ?? 'prompt')) }
+  return { plan, work, choices, progress: pickProgress(crew, stageProgress(countedOf(work.focus, plan), promptText, link ?? 'prompt')) }
 }

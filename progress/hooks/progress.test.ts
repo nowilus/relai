@@ -49,7 +49,7 @@ const PANE = (bodyColumns = 100) => ({
   props: { title: 'Agenci RelAI', isFocused: true, bodyColumns, placement: 'dock' as const, scroll: { offset: 0, bodyRows: 40 }, view: {} },
 })
 
-function world(on: On, files: Record<string, string>, here = CWD) {
+function world(on: On, files: Record<string, string>, here = CWD, ids = { session: SESSION }) {
   const disk: Record<string, string> = { ...files }
   const key = (path: string) => path.replace(/\\/g, '/')
   const n = { read: 0, stat: 0 } // what the idle ticks cost (AUDYT_MODOW Z4)
@@ -57,7 +57,7 @@ function world(on: On, files: Record<string, string>, here = CWD) {
   mock.store(on, {})
   on('session.start', ($, e) => ({ cwd: e.cwd }))
   on('session.cwd', () => ({ value: here }))
-  on('session.id', () => ({ value: SESSION }))
+  on('session.id', () => ({ value: ids.session }))
   on('fs.exists', ($, e) => ({ value: key(e.path) in disk || Object.keys(disk).some((p) => p.startsWith(key(e.path) + '/')) }))
   on('fs.read', ($, e) => { n.read += 1; return key(e.path) in disk ? { value: disk[key(e.path)] ?? '' } : { deny: 'ENOENT ' + e.path } })
   // A file's time moves with its text: the same text, the same stamp
@@ -190,6 +190,40 @@ describe('the progress card above the prompt', () => {
       expect(await ui.find({ key: 'engine' })).toBeDefined()
       await ui.unmount()
     }
+  })
+
+  // AUDYT_MODOW Z12: the session runs a thread card (relai-panel wrote its focus): the bar counts
+  // the card's packets, not the active plan's stage
+  test('a session focused on a thread card counts its packets, "a/b paczek", the open one next', async ($, on) => {
+    const card = ['# ODNOGA', '', 'Status: **OTWARTA**', '', '1. **Z3 · Panel** — x', '2. **Z4 · Paski** — x', '3. **Z5 · Poprawność** — x', '',
+      '## Weryfikacja', '', '- [x] Z3: a', '- [ ] Z4: b', '- [x] Z4: c', '- [ ] Z5: d'].join('\n')
+    world(on, { ...FILES, [`${CWD}/docs/fixy/AUDYT_MODOW/ODNOGA.md`]: card,
+      [`${CWD}/.claude/relai/fokus/${SESSION}.json`]: JSON.stringify({ kind: 'branch', card: 'AUDYT_MODOW', source: 'auto', at: 1 }) })
+    await start($)
+    const ui = await $.ui.mount({ plugin: 'relai-progress', surface: 'desktop', ...BAND() })
+    expect((await ui.find({ key: 'figure' }))?.text).toBe('1/3 paczek')
+    expect(await segmentStates($, ui, 'desktop', 3)).toEqual(['done', 'running', 'pending'])
+    await ui.unmount()
+    // The next packet under the segments: words on the terminal, Svg on the desktop
+    const term = await $.ui.mount({ plugin: 'relai-progress', surface: 'terminal', ...BAND() })
+    expect(textOf(await term.drawn())).toContain('Z4 · Paski')
+    await term.unmount()
+  })
+
+  // Review of Z12: /clear changes the session id with no session.start; the bar reads the new
+  // session's focus at its next tick, not the old one's
+  test('after /clear the bar follows the new session’s focus at the next tick', async ($, on) => {
+    const card = ['# ODNOGA', '', 'Status: **OTWARTA**', '', '## Weryfikacja', '', '- [x] Z3: a', '- [ ] Z4: b'].join('\n')
+    const ids = { session: SESSION }
+    const { clock } = world(on, { ...FILES, [`${CWD}/docs/fixy/AUDYT_MODOW/ODNOGA.md`]: card,
+      [`${CWD}/.claude/relai/fokus/${SESSION}.json`]: JSON.stringify({ kind: 'branch', card: 'AUDYT_MODOW', source: 'auto', at: 1 }) }, CWD, ids)
+    await start($)
+    const ui = await $.ui.mount({ plugin: 'relai-progress', surface: 'desktop', ...BAND() })
+    expect((await ui.find({ key: 'figure' }))?.text).toBe('1/2 paczek')
+    ids.session = 'session-2' // no focus file: the active plan's stage again
+    await clock.advance(11_000)
+    expect((await ui.find({ key: 'figure' }))?.text).toBe('2/4 punktów')
+    await ui.unmount()
   })
 
   test('a box ticked by hand in the prompt file moves the count and its own segment at the next tick (positive control)', async ($, on) => {

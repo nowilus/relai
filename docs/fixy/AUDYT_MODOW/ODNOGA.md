@@ -4,8 +4,8 @@ Plan: brak (wątek samodzielny) · Etap-źródło: — · Utworzona: 2026-10-10 
 Wykonawca: **Opus 5.5** (decyzja Łukasza 2026-10-10: Opus do zadań optymalizacyjnych i rozpoznawczych;
 projekt UX/UI zamknięty przez Fable 5.1 w briefie v2)
 
-> **Aneks A (zaakceptowany 2026-10-10):** [ANEKS_A.md](ANEKS_A.md) — Z10 archiwum w drzewie,
-> Z11 pasek cache, Z12 fokus sesji.
+> **Aneks A (zaakceptowany 2026-10-10):** [ANEKS_A.md](ANEKS_A.md) — **Z10 · Archiwum w drzewie**,
+> **Z11 · Pasek cache**, **Z12 · Fokus sesji**.
 
 ## Cel
 
@@ -193,6 +193,15 @@ Kolejność: najpierw fundamenty (Z3–Z5), bo bez nich nowe paski będą migać
       GitHubie; `plugin marketplace update` + `plugin update` ×3 (0.9.0→0.10.0, 0.2.0→0.3.0,
       0.3.0→0.4.0); pliki w `~/.claude/plugins/cache/relai/<plugin>/<wersja>/` porównane sumą
       z repo — 0 rozjazdów. **Czeka: restart aplikacji i pomiar na żywo.**
+- [x] Z10: archiwum rozwija się i zwija w drzewie przy otwartych innych folderach; każdy klik
+      w wiersz dociera (sonda `tree-probe`, P-023 pkt 7a); foldery musztardowe — potwierdzone na
+      żywo przez Łukasza 2026-10-10 („Działa super”, „jest ok”); test na prawdziwej liście `docs/`.
+- [ ] Z12: sesja z promptem `PROMPT_ODNOGA` / `PROMPT_ETAP_N` / `ODNOGA.md` liczy się do swojej
+      pracy — pasek plan, pasek postęp (paczki), „Teraz” z „Zmień”, znacznik w pomiarach; bez
+      fokusu przy planie w Codeksie — „poza etapem” i pytanie; `/clear` przenosi fokus (testy
+      `focus.test.ts`, `focus-flow.test.ts`, progress „thread card”); korekta historii tej sesji po
+      „tak”; zrzut na żywo.
+- [ ] Z11: makieta paska cache od sesji Fable 5.1 zaakceptowana, wdrożona, zrzut Łukasza.
 - [x] `git diff` nie dotyka `core/panel/*.mjs` poza `theme.mjs` ani niczego w `adapters/codex/`.
       `git diff --stat ecb8282 HEAD -- core/panel adapters/codex docs/plany/PANEL_CODEX`: tylko
       `core/panel/theme.mjs` i dwa testy w `core/panel/tests/` (2026-10-10, po Z7).
@@ -324,6 +333,19 @@ Jedna linia na zamkniętą paczkę; pełny wpis do `docs/DZIENNIK.md` dopiero w 
   Z10. Nowy test na prawdziwej liście `docs/` z 2026-10-10 (każdy folder rozwinięty przyciskiem,
   archiwum zamyka się i otwiera). Testy: panel 108/108, `tsc` 0; podmiana lokalna w zainstalowanej
   kopii 0.10.0 za zgodą Łukasza (oryginały w katalogu roboczym).
+- **2026-10-10 · Z12 w repo (Aneks A, bez korekty historii)** — fokus sesji: `focus.ts` (ten sam
+  plik w panelu i postępie, test równości), plik `.claude/relai/fokus/<id>.json`; rozpoznanie
+  z promptu (`PROMPT_ETAP_N`, `PROMPT_ODNOGA`, `ODNOGA.md`), „Zmień” w „Teraz” (otwarte etapy
+  aktywnego planu, otwarte odnogi, poza planem; wybór ręczny wygrywa z promptem i przechodzi przez
+  `/clear`); pasek plan rysuje fokus i cicho wspomina aktywny plan z narzędziem z `STATUS.md`;
+  pasek postęp liczy paczki karty (bieżąca: pierwsza otwarta po ostatniej zamkniętej); znacznik
+  pomiarów z fokusu; bez fokusu przy planie w Codeksie — „poza etapem” i pytanie; karta zamknięta
+  albo zniknięta kończy fokus. Odchylenie: pakiety odnogi czytane z checkboxów „Zn:” w „Weryfikacji”
+  (nazwy z `**Zn · …**`), więc Z10–Z12 dopisane do karty. Przegląd kodu (subagent Opus): 1 HIGH
+  (postęp po `/clear` czytał stary fokus), 2 MEDIUM (pierwsza tura po `/clear` z własnej wysyłki
+  pluginu bez `prompt.submit`; przekazany fokus mógł trafić do obcej sesji), 2 LOW — poprawione
+  wszystkie poza dwoma przypadkami brzegowymi (karta bez paczek liczy 0/0; uszkodzony plik fokusu bez słowa w „Teraz”)
+  — świadomie odłożone. Testy: panel 122, postęp 31, cache-keeper 84, `node --test` 275, `tsc` 0.
 
 ## Wynik
 

@@ -5,7 +5,7 @@
 // confirmation card with the answer that runs it (AUDYT_MODOW Z1, brief v2).
 
 import type { Elements } from 'claude-code'
-import type { PlanState } from './core/plan-state.mjs'
+import type { Work } from './focus'
 import type { Card } from './core/decisions.mjs'
 import { BAND, BAR, CHIP } from './core/theme.mjs'
 import { barCard } from './bar-card'
@@ -24,24 +24,34 @@ type AnyTable = Elements[keyof Elements]
 // consent of its own and goes when the card is answered.
 export type Waiting = { card: Card, decide: (said: 'tak' | 'nie') => void }
 
-export function band(el: AnyTable, isGui: boolean, columns: number, p: PlanState, waiting: Waiting | null = null) {
+// What it draws is the session's work (Z12, Aneks A): its focus — a stage of a plan, a packet of a
+// thread card — else the active plan; when the active plan is another one, a quiet mention of it
+// stands last, and a session the active plan does not count as its own (its stages run in another
+// tool) says so instead of borrowing the plan.
+export function band(el: AnyTable, isGui: boolean, columns: number, w: Work, waiting: Waiting | null = null) {
   const { Box, Text } = el
+  const p = w.plan
   const second = waiting ? [cardRow(el, isGui, waiting)] : []
+  const mention = w.mention ? [<Text key="mention" color={BAR.muted} wrap="truncate">{w.mention}</Text>] : []
   if (p.kind !== 'ok') {
-    const words = p.kind === 'none' ? 'brak aktywnego planu' : `plan nieznany: ${p.reason}`
-    return barCard(el, BAR, isGui, columns, 'relai-band-frame', BAND.panel, [<Box key="plan"><Text bold color={BAR.text} wrap="truncate">{words}</Text></Box>, ...second], null)
+    const words = w.isAsking ? 'ta sesja: praca nie wybrana — „Zmień” w panelu, Teraz'
+      : w.focus?.kind === 'outside' ? 'ta sesja: poza planem'
+        : p.kind === 'none' ? 'brak aktywnego planu' : `plan nieznany: ${p.reason}`
+    return barCard(el, BAR, isGui, columns, 'relai-band-frame', BAND.panel, [<Box key="plan" flexDirection="row" columnGap={2}><Text bold color={BAR.text} wrap="truncate">{words}</Text>{mention}</Box>, ...second], null)
   }
+  const isBranch = w.unit === 'paczek'
   const title = p.stage ? `${p.plan} · ${p.stage.id}` : p.plan
-  const status = p.stage ? p.stage.status : (p.planStatus ?? 'status nieznany')
+  const status = isBranch ? 'ODNOGA' : p.stage ? p.stage.status : (p.planStatus ?? 'status nieznany')
   const middle = [
     <Box key="plan" flexDirection="row" columnGap={2}>
       <Text bold color={BAR.text}>{title}</Text>
       <Text bold color={BAND.panel.color}>{status}</Text>
       {p.stage ? [<Text key="stage" color={BAR.muted} wrap="truncate">{p.stage.name}</Text>] : []}
+      {mention}
     </Box>,
     ...second,
   ]
-  return barCard(el, BAR, isGui, columns, 'relai-band-frame', BAND.panel, middle, [`${p.closed}/${p.stages}`, 'etapów'])
+  return barCard(el, BAR, isGui, columns, 'relai-band-frame', BAND.panel, middle, [`${p.closed}/${p.stages}`, w.unit])
 }
 
 // The card's row: a chip with its title, "Tak" (primary) and "Nie", the one sentence of R4. It

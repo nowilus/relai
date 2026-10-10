@@ -3,6 +3,7 @@
 // files draw them. Types only: nothing here runs.
 
 import type { MeasureRecord, Report, TurnCost } from './core/measure.mjs'
+import type { FocusTarget, Work } from './focus'
 import type { cacheEffect, modelCosts } from './core/pricing.mjs'
 import type { Version } from './core/pricing.mjs'
 import type { projectSummary, requestSeries } from './core/measure.mjs'
@@ -37,4 +38,7 @@ export type DocsData = { changed: Doc[], edited: Doc[], groups: DocGroup[], tree
 
 // "Teraz" (brief v2 §6.2, AUDYT_MODOW Z2): the active plan and what the progress bar reads from the
 // same files — a live crew run, else the stage prompt's boxes (./core/progress.mjs, this plugin's copy)
-export type NowData = { plan: PlanState, progress: Progress }
+// The work of the session (Z12) and what "Zmień" offers: the active plan's open stages, the open
+// thread cards, outside any plan
+export type FocusChoice = { key: string, label: string, target: FocusTarget | 'outside' }
+export type NowData = { plan: PlanState, progress: Progress, work: Work, choices: FocusChoice[] }

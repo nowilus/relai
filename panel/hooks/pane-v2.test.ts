@@ -174,7 +174,8 @@ describe('the header and the "Teraz" bar (brief v2 §6.1–6.2)', () => {
       if (surface === 'desktop') expect([...walk(segs)].filter((n) => n.type === 'Svg').length).toBe(1)
       else expect(textOf(segs)).toMatch(/^█+/)
       const buttons = [...walk(now)].filter((n) => n.type === 'Button')
-      expect(buttons.map((b) => [props(b).label ?? textOf(b), props(b).variant])).toEqual([['Start etapu…', 'primary']])
+      // One main action; "Zmień" (Z12) is the focus row's own, secondary
+      expect(buttons.map((b) => [props(b).label ?? textOf(b), props(b).variant])).toEqual([['Zmień', 'secondary'], ['Start etapu…', 'primary']])
       await ui.unmount()
     }
   })
@@ -205,12 +206,12 @@ describe('the header and the "Teraz" bar (brief v2 §6.1–6.2)', () => {
     await ui.unmount()
   })
 
-  test('no active plan: "Teraz" says so in words and offers no action', async ($, on) => {
+  test('no active plan: "Teraz" says so in words and offers no action but the focus', async ($, on) => {
     world(on, { ...FILES, [`${CWD}/CLAUDE.md`]: '# CLAUDE\n\nAktywny plan: brak\n' })
     const ui = await open($)
     const now = await ui.find({ key: 'now' })
     expect(textOf(now)).toContain('brak aktywnego planu')
-    expect([...walk(now)].filter((n) => n.type === 'Button')).toEqual([])
+    expect([...walk(now)].filter((n) => n.type === 'Button').map((b) => props(b).label)).toEqual(['Zmień'])
     await ui.unmount()
   })
 })

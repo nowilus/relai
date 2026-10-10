@@ -37,7 +37,7 @@ import type { MeasureRecord } from './core/measure.mjs'
 import { PRICING_PAGE, pricingCard } from './core/pricing.mjs'
 import { MAX_DEPTH, NUMSTAT_ARGV, changedPaths, kindOf, parseNumstat, shelf } from './core/documents.mjs'
 import type { FileEntry } from './core/documents.mjs'
-import { crewTag, stageTag } from './core/attribution.mjs'
+import { crewTag } from './core/attribution.mjs'
 import { MERGE_FILE, serializeMerges } from './core/flow.mjs'
 import type { Merges } from './core/flow.mjs'
 import { CLEAN_ARGV, cleanCard, cleanChoices, commandCard, crewCard, crewDraft, crewTasksPath, hasConsent, togglePick, stageCard, stageToStart, stripConsent } from './core/decisions.mjs'
@@ -45,7 +45,9 @@ import { promptLink } from './core/progress.mjs'
 import type { Action, Card, CardResult, CleanChoices, CrewDraft } from './core/decisions.mjs'
 import type { DocsData, PaneData } from './data'
 import { bump, epochNow, forget, remember } from './memo'
-import { CREW_DIR, FRESH, MEASURE_DIR, forgetPlan, readPlan, relaiRoot } from './pane-io'
+import { CREW_DIR, FRESH, MEASURE_DIR, forgetPlan, readWork, relaiRoot } from './pane-io'
+import { focusOfPrompt, focusPath, isSameWork, parseFocus, serializeFocus } from './focus'
+import type { Focus, FocusTarget } from './focus'
 import type { Ledger, PaneIo, Session } from './pane-io'
 import { commandFacts, costData, docOpen, loadPrices, mapData, nowData, paneData, pricingState } from './tab-data'
 import type { Shelf } from './tab-data'
@@ -80,7 +82,8 @@ async function readText($: $T, path: string): Promise<string | null> {
 // The files a read went through and their times: null when one cannot be asked, which reads again
 async function stampOf($: $T, paths: readonly string[]): Promise<string | null> {
   try {
-    return (await Promise.all(paths.map((p) => $.fs.stat(p).then((s) => `${s.mtimeMs}:${s.size}`)))).join('|')
+    // A file not there has a time too ("-"): its appearing moves the stamp (Z12, the focus file)
+    return (await Promise.all(paths.map((p) => $.fs.stat(p).then((s) => `${s.mtimeMs}:${s.size}`, () => '-')))).join('|')
   } catch {
     return null
   }
@@ -103,9 +106,10 @@ function ioOf($: $T): PaneIo {
 
 // Refresh what the band reads from the project and the session after each turn
 async function refresh($: $T) {
-  const [plan, usage] = await Promise.all([readPlan(ioOf($), true), $.session.usage().catch(() => null)])
+  const [{ plan, work }, usage] = await Promise.all([readWork(ioOf($), true), $.session.usage().catch(() => null)])
   set({
     plan,
+    work,
     costUsd: usage?.cost ? usage.cost.usd : S.costUsd,
     startedAt: usage?.startedAt || S.startedAt,
   })
@@ -483,6 +487,56 @@ async function editCrew($: $T, run: string) {
   return update($, drafts, (m) => ({ ...m, [run]: draft }))
 }
 
+// ---------- the session's focus (Z12, Aneks A) ----------
+// One file a session (focus.ts, FOCUS_DIR), written here and read by this plugin and relai-progress.
+// A prompt that names a stage prompt or a thread card sets it (source "auto"); "Zmień" in "Teraz"
+// sets it by hand, and a hand-set focus is never overwritten by a prompt.
+
+// The focus of a session /clear replaced, handed to the session that follows (P-020 pkt 4: the id
+// changes, no session.start); module memory: a reload between the two loses it, the next prompt
+// that names a file sets it again
+let carried: { from: string, focus: Focus } | null = null
+
+async function writeFocus($: $T, f: Focus) {
+  const id = await syncSession($)
+  await $.fs.write(join(S.cwd, focusPath(id)), serializeFocus(f))
+  set(await readWork(ioOf($), true))
+  bump()
+  $.ui.invalidate('ui.render')
+}
+
+// The session the engine runs now: after /clear the id changes with no session.start, and its first
+// turn may come from the plugin's own send, which raises no prompt.submit here (P-022 pkt 1), so
+// every turn asks. A new id takes the focus /clear handed over (once, and only to the session that
+// followed the one it came from; a hand-set choice stays hand-set), and its files are read anew.
+async function syncSession($: $T): Promise<string> {
+  const id = await $.session.id()
+  if (id === S.id) return id
+  set({ id })
+  const handed = carried && carried.from !== id ? carried.focus : null
+  carried = null
+  if (handed && parseFocus(await readText($, join(S.cwd, focusPath(id)))) === null) {
+    await $.fs.write(join(S.cwd, focusPath(id)), serializeFocus({ ...handed, at: await $.clock.now() }))
+  }
+  set(await readWork(ioOf($), true))
+  bump()
+  $.ui.invalidate('ui.render')
+  return id
+}
+
+async function followFocus($: $T, target: FocusTarget | null) {
+  const id = await syncSession($)
+  if (target === null) return
+  const current = parseFocus(await readText($, join(S.cwd, focusPath(id))))
+  if (current?.source === 'manual' || isSameWork(current, target)) return
+  return writeFocus($, { ...target, source: 'auto', at: await $.clock.now() })
+}
+
+async function chooseFocus($: $T, target: FocusTarget | 'outside') {
+  const at = await $.clock.now()
+  return writeFocus($, target === 'outside' ? { kind: 'outside', source: 'manual', at } : { ...target, source: 'manual', at })
+}
+
 // ---------- hooks ----------
 
 export const register: Register = (on) => {
@@ -499,6 +553,7 @@ export const register: Register = (on) => {
     const isRelai = root !== null
     const cwd = root ?? here
     S = { ...FRESH, id: await $.session.id(), cwd, isRelai, loadedAt: await $.clock.now() }
+    carried = null
     forget()
     forgetPlan()
     bump()
@@ -608,9 +663,15 @@ export const register: Register = (on) => {
     })
     // On the commands tab "Teraz" stands under the header and a waiting card takes its place; on
     // the other tabs the card stands there alone (brief v2 §6.2)
-    const canStart = S.plan.kind === 'ok' && S.plan.stage !== null
+    // "Start etapu…" only for the active plan's own work: not while this session counts elsewhere (Z12)
+    const isActiveWork = !S.work.isAsking && (S.work.focus === null || (S.work.focus.kind === 'plan' && S.plan.kind === 'ok' && S.work.focus.plan === S.plan.plan))
+    const canStart = S.plan.kind === 'ok' && S.plan.stage !== null && isActiveWork
     const top = pending ? p.confirmCard(pending, (said) => { void decide($, pending, said, d.names) })
-      : now ? nowBar(c, p, now, canStart ? () => { void prepareStage($, '', '', isFresh) } : null) : null
+      : now ? nowBar(c, p, now, canStart ? () => { void prepareStage($, '', '', isFresh) } : null, {
+        isOpen: isUnfolded('now:focus', false),
+        toggle: () => fold('now:focus', false),
+        choose: (t) => { fold('now:focus', false); void chooseFocus($, t) },
+      }) : null
     const isSentInDrawer = tab === 'commands' && picked !== '' && formOf(picked) !== undefined
     return (
       <Box key="relai-pane" flexDirection="column" gap={1} paddingX={isGui ? 1 : 0}>
@@ -667,10 +728,12 @@ export const register: Register = (on) => {
     if (result && (result.usage || result.stopReason !== null)) {
       const usage = result.usage
       if (!e.agentId) lastModel = usage ? usage.model : e.model
-      const plan = await readPlan(ioOf($))
-      if (JSON.stringify(plan) !== JSON.stringify(S.plan)) bump() // the map and the shelf follow the active plan
-      set({ plan })
-      const stage = stageTag(plan)
+      await syncSession($)
+      const { plan, work } = await readWork(ioOf($))
+      if (JSON.stringify(plan) !== JSON.stringify(S.plan) || JSON.stringify(work) !== JSON.stringify(S.work)) bump() // the map and the shelf follow the plan
+      set({ plan, work })
+      // The stage this session works on (Z12): its focus, else the active plan's stage in progress
+      const stage = work.tag
       const task = e.agentId ? ((await read($, agentTasks))[e.agentId] ?? null) : mainTask
       void collect($, (session) => stepRecord({ session, turn: e.turnId, index: e.index, agent: e.agentId ?? null, model: e.model, at, usage, stage, task }))
     }
@@ -688,10 +751,21 @@ export const register: Register = (on) => {
     return r
   })
 
+  // The session's focus (Z12): the stage prompt or thread card a prompt names becomes this
+  // session's work, unless the person chose it by hand; after /clear the new session goes on with
+  // the focus of the one it replaced
   on('prompt.submit', async ($, e, next) => {
-    if (S.isRelai) mainTask = crewTag(e.text)
+    if (S.isRelai) {
+      mainTask = crewTag(e.text)
+      await followFocus($, focusOfPrompt(e.text)).catch(() => undefined)
+    }
     return next(e)
   })
+
+  on('session.end', async ($, e, next) => {
+    if (S.isRelai && e.reason === 'clear') carried = S.work.focus ? { from: S.id, focus: S.work.focus } : null
+    return next(e)
+  }).catch(($, e, next) => next(e))
 
   on('turn.complete', async ($, e, next) => {
     const r = await next(e)
@@ -703,7 +777,8 @@ export const register: Register = (on) => {
     }
     void flush($)
     // The plan if its files moved; the cost comes with session.measure, not asked again (Z4)
-    set({ plan: await readPlan(ioOf($)) })
+    await syncSession($)
+    set(await readWork(ioOf($)))
     bump()
     $.ui.invalidate('ui.render')
     return r
@@ -716,7 +791,7 @@ export const register: Register = (on) => {
     const usage = r && 'usage' in r ? r.usage : undefined
     if (usage) {
       const at = await $.clock.now()
-      const stage = stageTag(S.plan)
+      const stage = S.work.tag
       // A /compact outside a turn has no turn.complete after it: the costs read again on their own
       void collect($, (session) => compactRecord({ session, agent: e.agentId ?? null, model: lastModel, at, usage, stage, task: e.agentId ? null : mainTask })).then(() => flush($)).then(bump)
     }
@@ -746,7 +821,7 @@ export const register: Register = (on) => {
       card: pending,
       decide: (said: 'tak' | 'nie') => { void (async () => decide($, pending, said, (data ?? await loadData($, S.cwd)).names))() },
     } : null
-    const ours = band($.ui.resolve(e), e.surface !== 'terminal', e.props.bodyColumns, S.plan, waiting)
+    const ours = band($.ui.resolve(e), e.surface !== 'terminal', e.props.bodyColumns, S.work, waiting)
     if (!below) return ours
     const { Box } = $.ui.resolve(e)
     // No width here: the engine refuses its own node under a Box with "width" and draws its own

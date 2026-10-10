@@ -28,6 +28,7 @@ import { HEADING_ART } from './core/headings.mjs'
 import { clip, duration, join, tokens, usd } from './fmt'
 import { barCard } from './bar-card'
 import { SEGMENTS_HEIGHT, calmLine, itemLine, segmentArt } from './segments'
+import { branchProgress, cardPathOf, countedOf, executorTool, focusPath, isBranchProgress, parseFocus, statusPathOf, workOf } from './focus'
 
 type $T = EngineInterface
 
@@ -98,17 +99,32 @@ async function readProgress($: $T): Promise<Progress> {
   const paths: string[] = [join(cwd, CREW_DIR)]
   const text = (path: string) => { paths.push(path); return readText($, path) }
   const claude = await text(join(cwd, 'CLAUDE.md'))
-  const plan = await planState(claude, (rel) => text(join(cwd, rel)))
+  let activeStatus: string | null = null
+  const active = await planState(claude, async (rel) => { activeStatus = await text(join(cwd, rel)); return activeStatus })
+  // The session's focus (AUDYT_MODOW Z12): relai-panel writes it, this bar counts its work — a
+  // thread's packets, the stage its prompt named, else the active plan's stage as before
+  const id = await $.session.id().catch(() => '')
+  readFor = id
+  const focus = id ? parseFocus(await text(join(cwd, focusPath(id)))) : null
+  const focusText = focus?.kind === 'branch' ? await text(join(cwd, cardPathOf(focus.card)))
+    : focus?.kind === 'plan' ? await text(join(cwd, statusPathOf(focus.plan))) : null
+  const work = workOf({ focus, active, activeTool: executorTool(activeStatus), focusText })
+  const crew = await readCrew($, text)
+  if (focus?.kind === 'branch' && !work.isAsking) {
+    const own = branchProgress(focusText) ?? { kind: 'stage' as const, title: work.label, done: 0, total: 0, percent: null, items: [], words: 'karta bez paczek do odhaczenia' }
+    watched = [...new Set(paths)]
+    return pick(crew, own)
+  }
+  const plan = work.plan
   let promptText: string | null = null
   let link: string | null = null
   if (plan.kind === 'ok' && plan.stage) {
-    const statusMd = await text(join(cwd, plan.statusPath))
+    const statusMd = focus?.kind === 'plan' ? focusText : activeStatus
     link = statusMd === null ? null : promptLink(statusMd, plan.stage.id, plan.statusPath)
     promptText = link === null ? null : await text(join(cwd, link))
   }
-  const crew = await readCrew($, text)
   watched = [...new Set(paths)]
-  return pick(crew, stageProgress(plan, promptText, link ?? 'prompt'))
+  return pick(crew, stageProgress(countedOf(focus, plan), promptText, link ?? 'prompt'))
 }
 
 // Reads the files again when one moved (or always, when forced); writes the value only when it
@@ -138,8 +154,13 @@ async function expireTicked($: $T, clockNow: number) {
   if (t !== null && clockNow - t.at >= TICKED_MS) await update($, ticked, () => null)
 }
 
+// The session the last read was for (Z12): after /clear the id changes with no session.start and
+// the focus file is another one, so the first tick of the new session reads anew
+let readFor = ''
+
 async function refresh($: $T, isForced = false) {
   if (!isRelai) return
+  if ((await $.session.id().catch(() => readFor)) !== readFor) isForced = true
   const clockNow = await $.clock.now()
   await expireTicked($, clockNow)
   // The times are taken before the read: a file that moves during it is read again next time
@@ -241,7 +262,9 @@ const COLUMN_GAP = 2 // cells between the grid's columns (brief, 5)
 const MIN_SEGMENT_CELLS = 10 // below this the chip goes under the segments rather than beside
 
 // The unit after `a/b`, one format for all the bars (brief, 3): 1 punktu, 14 punktów; a crew's tasks
-const unitOf = (p: Progress) => (p.kind === 'crew' ? (p.total === 1 ? 'zadania' : 'zadań') : (p.total === 1 ? 'punktu' : 'punktów'))
+// and a thread's packets (Z12): 1 paczki, 9 paczek
+const unitOf = (p: Progress) => (p.kind === 'crew' ? (p.total === 1 ? 'zadania' : 'zadań')
+  : isBranchProgress(p) ? (p.total === 1 ? 'paczki' : 'paczek') : (p.total === 1 ? 'punktu' : 'punktów'))
 
 // The agents chip beside the segments (brief, 3): how many subagents the session ran, ● while one
 // runs and ✓ once none does, and what they cost by the pane's own sum ("≥" when it is partial)

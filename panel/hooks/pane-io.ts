@@ -7,18 +7,21 @@ import { ancestors, planState } from './core/plan-state.mjs'
 import type { PlanState } from './core/plan-state.mjs'
 import type { MeasureRecord } from './core/measure.mjs'
 import { join } from './fmt'
+import { cardPathOf, executorTool, focusPath, parseFocus, statusPathOf, workOf } from './focus'
+import type { Work } from './focus'
 
 export type Session = {
   id: string
   cwd: string
   isRelai: boolean
-  plan: PlanState
+  plan: PlanState // the active plan of CLAUDE.md
+  work: Work // what this session works on (Z12): its focus, else the active plan
   costUsd: number | null
   startedAt: number // when the session began, as the engine counts it ($.session.usage)
   loadedAt: number // when this module began collecting in it (a reload starts over)
 }
 
-export const FRESH: Session = { id: '', cwd: '', isRelai: false, plan: { kind: 'none' }, costUsd: null, startedAt: 0, loadedAt: 0 }
+export const FRESH: Session = { id: '', cwd: '', isRelai: false, plan: { kind: 'none' }, work: workOf({ focus: null, active: { kind: 'none' }, activeTool: null, focusText: null }), costUsd: null, startedAt: 0, loadedAt: 0 }
 
 // The collector's file of one session (register.tsx, "the collector")
 export type Ledger = { session: string, path: string, name: string, records: MeasureRecord[], bad: string[] }
@@ -55,22 +58,29 @@ export async function relaiRoot(io: PaneIo, cwd: string): Promise<string | null>
   return null
 }
 
-// The plan from CLAUDE.md and the plan's STATUS.md, read again only when one of them moved (Z4):
-// each model request asks their times, not their text
+// The plan from CLAUDE.md and the plan's STATUS.md, and the session's focus with the file it names
+// (Z12), read again only when one of them moved (Z4): each model request asks their times, not
+// their text
 let planWatch: { paths: string[], stamp: string | null } = { paths: [], stamp: null }
 
 // A new session watches from nothing
 export function forgetPlan() { planWatch = { paths: [], stamp: null } }
 
-export async function readPlan(io: PaneIo, isForced = false): Promise<PlanState> {
+export async function readWork(io: PaneIo, isForced = false): Promise<{ plan: PlanState, work: Work }> {
   // The times are taken before the read: a file that moves during it is read again next time
   const before = planWatch.paths.length ? await io.stamp(planWatch.paths) : null
-  if (!isForced && before !== null && before === planWatch.stamp) return io.session().plan
+  if (!isForced && before !== null && before === planWatch.stamp) return { plan: io.session().plan, work: io.session().work }
+  const { cwd, id } = io.session()
   const paths: string[] = []
   const text = (path: string) => { paths.push(path); return io.read(path) }
-  const claude = await text(join(io.session().cwd, 'CLAUDE.md'))
-  const plan = await planState(claude, (rel) => text(join(io.session().cwd, rel)))
+  const claude = await text(join(cwd, 'CLAUDE.md'))
+  let activeStatus: string | null = null
+  const plan = await planState(claude, async (rel) => { activeStatus = await text(join(cwd, rel)); return activeStatus })
+  const focus = id ? parseFocus(await text(join(cwd, focusPath(id)))) : null
+  const focusText = focus?.kind === 'branch' ? await text(join(cwd, cardPathOf(focus.card)))
+    : focus?.kind === 'plan' ? await text(join(cwd, statusPathOf(focus.plan))) : null
+  const work = workOf({ focus, active: plan, activeTool: executorTool(activeStatus), focusText })
   const isSame = paths.length === planWatch.paths.length && paths.every((p, i) => p === planWatch.paths[i])
   planWatch = { paths, stamp: isSame ? before : await io.stamp(paths) }
-  return plan
+  return { plan, work }
 }

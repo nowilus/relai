@@ -8,7 +8,8 @@
 import { BAND, BAR, THEME } from './core/theme.mjs'
 import { segmentText, segments } from './core/charts.mjs'
 import type { Item } from './core/progress.mjs'
-import type { NowData } from './data'
+import type { FocusChoice, NowData } from './data'
+import type { FocusTarget } from './focus'
 import type { Ctx, Parts } from './pane-parts'
 
 const SEG_PX = 8 // the segments' height on a desktop, as in the progress bar (brief v2 §3)
@@ -22,14 +23,37 @@ function nextWords(items: readonly Item[]): string {
   return parts.length ? parts.join(' · ') : 'wszystkie punkty odhaczone'
 }
 
-export function nowBar(c: Ctx, p: Parts, n: NowData, start: (() => void) | null) {
+// The session's work and how to change it (Z12): the row says what the bars and the costs count this
+// session under and where that came from; "Zmień" lists the choices, a press sets it by hand
+export type FocusUi = { isOpen: boolean, toggle: () => void, choose: (t: FocusTarget | 'outside') => void }
+
+function focusRow(c: Ctx, p: Parts, n: NowData, f: FocusUi) {
+  const { Box, Text } = c.el
+  const w = n.work
+  const how = w.focus ? (w.focus.source === 'manual' ? 'wybrane ręcznie' : 'rozpoznane z promptu')
+    : w.isAsking ? 'aktywny plan idzie w innym narzędziu' : 'aktywny plan'
+  const choices = f.isOpen ? [
+    <Box key="now-focus-list" flexDirection="row" flexWrap="wrap" gap={1}>
+      {n.choices.map((ch: FocusChoice) => p.btn(`focus-${ch.key}`, ch.label, 'secondary', () => f.choose(ch.target)))}
+    </Box>,
+  ] : []
+  return [
+    <Box key="now-focus" flexDirection="row" flexWrap="wrap" alignItems="center" columnGap={2}>
+      <Text color={w.isAsking ? THEME.accentText : THEME.body} wrap="truncate">{`Ta sesja: ${w.label} — ${how}${w.mention ? ' · ' + w.mention : ''}`}</Text>
+      {p.btn('now-focus-change', f.isOpen ? 'Zwiń' : 'Zmień', 'secondary', f.toggle)}
+    </Box>,
+    ...choices,
+  ]
+}
+
+export function nowBar(c: Ctx, p: Parts, n: NowData, start: (() => void) | null, f: FocusUi) {
   const { el, Svg, isGui, width } = c
   const { Box, Text } = el
   const plan = n.plan
   const pr = n.progress
   const title = plan.kind !== 'ok' ? '' : plan.stage ? `${plan.plan} · ${plan.stage.id}` : plan.plan
   const status = plan.kind !== 'ok' ? '' : plan.stage ? plan.stage.status : (plan.planStatus ?? '')
-  const words = plan.kind === 'none' ? 'brak aktywnego planu'
+  const words = plan.kind === 'none' ? (n.work.focus?.kind === 'outside' || n.work.isAsking ? 'ta sesja nie liczy się do żadnego planu' : 'brak aktywnego planu')
     : plan.kind !== 'ok' ? `plan nieznany: ${plan.reason}`
       : pr.items.length ? `${pr.kind === 'crew' ? pr.title + ' · ' : ''}${nextWords(pr.items)}` : pr.words
   const colors = pr.items.map((it) => BAR.segment[it.status] ?? BAR.segment.unknown)
@@ -53,6 +77,7 @@ export function nowBar(c: Ctx, p: Parts, n: NowData, start: (() => void) | null)
           </Box>,
         ] : []}
         <Box key="now-l2"><Text color={THEME.body} wrap="truncate">{words}</Text></Box>
+        {focusRow(c, p, n, f)}
       </Box>
       {start ? [<Box key="now-act" flexShrink={0}>{p.btn('now-start', 'Start etapu…', 'primary', start)}</Box>] : []}
     </Box>

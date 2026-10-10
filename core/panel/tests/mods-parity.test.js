@@ -44,3 +44,11 @@ test('a CRLF copy counts as the same (line endings are not a difference)', () =>
   assert.notEqual(crlf, text);
   assert.deepEqual(differing([{ plugin: 'a', text }, { plugin: 'b', text: normalize(crlf) }]), []);
 });
+
+// AUDYT_MODOW Z12: the session's focus is written by relai-panel and read by relai-progress — one
+// module, the same in both, or the two bars would count one session under two works
+test('focus.ts is the same in panel and progress', () => {
+  const copies = ['panel', 'progress'].map((plugin) => ({ plugin, text: read(plugin, 'focus.ts') }));
+  assert.ok(copies[0].text.includes('export function workOf'), 'focus.ts lost workOf');
+  assert.deepEqual(differing(copies), []);
+});
