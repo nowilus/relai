@@ -2,7 +2,7 @@ import { describe, expect, mock, test, type TestBody } from 'claude-code/testing
 import type { On, RenderElement, RenderNode, TurnStepResult } from 'claude-code'
 import { fileName, serializeRecords, stepRecord } from './core/measure.mjs'
 import type { MeasureRecord } from './core/measure.mjs'
-import { NUMSTAT_ARGV } from './core/documents.mjs'
+import { NUMSTAT_ARGV, treeHref } from './core/documents.mjs'
 
 // The pane without I/O in its drawing (AUDYT_MODOW Z3): a tab's data is read when the tab opens and
 // after a turn, then kept; a press that only redraws (a filter, a fold, the end of a flash) reads
@@ -14,9 +14,14 @@ type Engine = Parameters<TestBody>[0]
 const CWD = 'C:/proj'
 const NOW = new Date(2026, 9, 10, 12, 0).getTime()
 const SESSION = 'session-1'
-// The working threshold of the card (ODNOGA AUDYT_MODOW, Z3): between the tree seen drawn (53 k)
-// and the one that vanished (256 k), with room for what a later section adds
-const TREE_BUDGET = 200_000
+// The working thresholds (AUDYT_MODOW Z3, measured again in Z10 on 2026-10-10). Drawn on the
+// desktop: the costs tab at 139 k serialized with 20 Svg, the documents tree at 78 k with 36 Svg;
+// not drawn (the previous drawing stayed, a press seemed to do nothing): the tree at 85 k with
+// 41 Svg, and earlier 256 k with 121 Svg. What tells them apart is the count of Svg (each drawn in
+// a frame of its own), not the characters. The characters outside the Svg are held under the
+// engine's documented 100 k a tree (ClientElements) with room to spare.
+const TREE_BUDGET = 70_000
+const SVG_BUDGET = 32
 const BASE: Record<string, string> = {
   [`${CWD}/docs/USTAWIENIA.md`]: '# USTAWIENIA\n\nWersja RelAI: 2.7.1\n',
   [`${CWD}/CLAUDE.md`]: '# CLAUDE\n\nAktywny plan: [PANEL_X](docs/plany/PANEL_X/STATUS.md) — w toku.\n',
@@ -111,11 +116,18 @@ function* walk(node: RenderNode | undefined): Generator<RenderElement> {
 }
 const textOf = (node: RenderNode | undefined): string => node === undefined ? '' : typeof node === 'string' ? node
   : ((node as { children?: RenderNode[] }).children ?? []).map(textOf).join('')
-// What a drawing weighs: its serialized size, the measure P-023 pkt 7 was taken in, and its Svg
-const weight = (node: RenderNode | undefined) => ({
-  chars: JSON.stringify(node ?? null).length,
-  svgs: [...walk(node)].filter((x) => x.type === 'Svg').length,
-})
+// What a drawing weighs: its serialized size without the Svg markup (carried apart, as data), and
+// its Svg; `within` says both against the budgets in one line, so a failure names the two numbers
+const weight = (node: RenderNode | undefined) => {
+  const svgs = [...walk(node)].filter((x) => x.type === 'Svg')
+  const markup = svgs.reduce((n, x) => n + JSON.stringify(String((x.props as { source?: unknown }).source ?? '')).length, 0)
+  return { chars: JSON.stringify(node ?? null).length - markup, svgs: svgs.length }
+}
+const within = (node: RenderNode | undefined) => {
+  const w = weight(node)
+  return `${Math.min(w.chars, TREE_BUDGET - 1) === w.chars ? 'ok' : w.chars} znaków, ${Math.min(w.svgs, SVG_BUDGET) === w.svgs ? 'ok' : w.svgs} Svg`
+}
+const WITHIN = 'ok znaków, ok Svg'
 
 // A session with as many agents, stages and calls as a crew run holds, and other sessions besides
 function crewSession(agents: number, stages: number, calls: number): Record<string, string> {
@@ -197,29 +209,57 @@ describe('the drawn tree stays under its budget for the worst data (Z3)', () => 
     for (const g of ['resources', 'archive']) await ui.press({ key: `fold-docs:all:${g}` })
     await ui.press({ key: 'open-edited|docs/archiwum/plany/P0/D000.md' })
     const tree = await ui.drawn()
-    const w = weight(tree)
-    expect(`${w.chars} znaków, ${w.svgs} Svg`).toBe(`${Math.min(w.chars, TREE_BUDGET - 1)} znaków, ${w.svgs} Svg`)
+    expect(within(tree)).toBe(WITHIN)
     expect(textOf(tree)).toContain('… jeszcze') // the tiles past the limit, in words
-    expect(textOf(await ui.find({ key: 'doc-window' }))).toContain('Pokazano wiersze 1–200')
-    expect(String((await ui.find({ key: 'dw-more' }))?.props?.label)).toContain('Pokaż dalej (200 z 201 pozostałych)')
+    expect(textOf(await ui.find({ key: 'doc-window' }))).toContain('Pokazano wiersze 1–80')
+    expect(String((await ui.find({ key: 'dw-more' }))?.props?.label)).toContain('Pokaż dalej (80 z 321 pozostałych)')
     // The next page of the diff: the rows after the first page, the budget still held
     await ui.press({ key: 'dw-more' })
     const next = await ui.drawn()
-    // The hunk's header is the first row: page two holds the diff's lines 199–398
-    expect(textOf(next)).toContain('wiersz 398 dziennika')
-    expect(textOf(next)).not.toContain('wiersz 198 dziennika')
-    expect(textOf(await ui.find({ key: 'doc-window' }))).toContain('Pokazano wiersze 201–400')
-    expect(weight(next).chars).toBeLessThan(TREE_BUDGET)
+    // The hunk's header is the first row: page two holds the diff's lines 79–158
+    expect(textOf(next)).toContain('wiersz 158 dziennika')
+    expect(textOf(next)).not.toContain('wiersz 78 dziennika')
+    expect(textOf(await ui.find({ key: 'doc-window' }))).toContain('Pokazano wiersze 81–160')
+    expect(within(next)).toBe(WITHIN)
     // The document itself instead of its diff: as big as the journal, under the same budget
     await ui.press({ key: 'dw-preview-btn' })
     const preview = await ui.drawn()
     expect(textOf(preview)).toContain('Pokazano początek dokumentu')
-    expect(weight(preview).chars).toBeLessThan(TREE_BUDGET)
+    expect(within(preview)).toBe(WITHIN)
     // Closed: the tiles take their room again, the ones past the limit said in words
     await ui.press({ key: 'dw-close' })
     const shelf = await ui.drawn()
-    expect(weight(shelf).chars).toBeLessThan(TREE_BUDGET)
-    expect(textOf(shelf)).toContain('60 na zakładkę')
+    expect(within(shelf)).toBe(WITHIN)
+    expect(textOf(shelf)).toContain('24 na zakładkę')
+    await ui.unmount()
+  })
+
+  test('documents: the project’s own tree of 2026-10-10, every folder unfolded, presses that open and close', async ($, on) => {
+    // The list of docs/ on the day an unfolded archive stopped drawing (216 files, 128 in the archive)
+    const files: Record<string, string> = { ...BASE }
+    for (const p of REAL_DOCS) files[`${CWD}/${p}`] = '# x\n'
+    world(on, files)
+    const ui = await open($, 'docs')
+    await ui.press({ key: 'docs-l-tree' })
+    await ui.press({ key: 'docs-f-all' })
+    const folders = async () => (((await ui.find({ key: 'docs-tree' }))?.children ?? []) as RenderElement[])
+      .map((n) => String((n.props as { key?: unknown }).key)).filter((k) => k.startsWith('dir-')).map((k) => k.slice(4))
+    const press = (dir: string) => ui.press({ key: `dir-l-${dir}`, link: { href: treeHref('dir', dir) } })
+    // Every folder drawn unfolded, the deepest too, until the tree's rows run out
+    const done = new Set<string>()
+    for (let dir = (await folders())[0]; dir !== undefined; dir = (await folders()).find((d) => !done.has(d))) {
+      done.add(dir)
+      await press(dir)
+    }
+    const tree = await ui.drawn()
+    expect(within(tree)).toBe(WITHIN)
+    expect(await folders()).toContain('docs/archiwum/dziennik') // the archive unfolded is drawn
+    expect(textOf(tree)).toContain('… jeszcze') // and what the rows leave out is said
+    // A press folds what it unfolded: the archive closes, its folders leave the tree
+    await press('docs/archiwum')
+    expect(await folders()).not.toContain('docs/archiwum/dziennik')
+    await press('docs/archiwum')
+    expect(await folders()).toContain('docs/archiwum/dziennik')
     await ui.unmount()
   })
 
@@ -229,8 +269,7 @@ describe('the drawn tree stays under its budget for the worst data (Z3)', () => 
     // The worst drawing: every section unfolded (Z2 folds them by default, brief v2 §7)
     for (const s of ['stages', 'turns', 'agents', 'models', 'pricing']) await ui.press({ key: `fold-costs:${s}` })
     const tree = await ui.drawn()
-    const w = weight(tree)
-    expect(`${w.chars} znaków, ${w.svgs} Svg`).toBe(`${Math.min(w.chars, TREE_BUDGET - 1)} znaków, ${w.svgs} Svg`)
+    expect(within(tree)).toBe(WITHIN)
     const text = textOf(tree)
     expect(text).toContain('… jeszcze 2') // agents and stages past twelve, in one line each
     expect(text).toMatch(/✓ Etapy i „poza etapem” razem \$[\d.,]+ = suma sesji/) // the check still sums every stage
@@ -292,3 +331,159 @@ describe('the panel during a turn (Z4)', () => {
     await ui.unmount()
   })
 })
+
+// docs/ of this project on 2026-10-10 (Z10), less the files BASE gives
+const REAL_DOCS = [
+  "AGENTS.md", "docs/ARTEFAKTY.md", "docs/DECYZJE.md", "docs/DZIENNIK.md", "docs/INSTALACJA.md",
+  "docs/KOMENDY.md", "docs/LEKCJE.md", "docs/PRZENOSNOSC.md", "docs/PRZEWODNIK.md", "docs/PULAPKI.md",
+  "docs/archiwum/dziennik/DZIENNIK_2026-08-07_2026-08-09.md",
+  "docs/archiwum/dziennik/DZIENNIK_2026-08-10_2026-08-10.md",
+  "docs/archiwum/dziennik/DZIENNIK_2026-08-10_2026-08-12.md",
+  "docs/archiwum/dziennik/DZIENNIK_2026-08-12_2026-08-12.md",
+  "docs/archiwum/dziennik/DZIENNIK_2026-08-12_2026-08-17.md",
+  "docs/archiwum/dziennik/DZIENNIK_2026-08-17_2026-08-21.md",
+  "docs/archiwum/dziennik/DZIENNIK_2026-09-01_2026-09-03.md",
+  "docs/archiwum/dziennik/DZIENNIK_2026-09-03_2026-09-06.md",
+  "docs/archiwum/dziennik/DZIENNIK_2026-09-06_2026-09-14.md", "docs/archiwum/lekcje/LEKCJE_L-0001_L-0024.md",
+  "docs/archiwum/lekcje/LEKCJE_L-0025_L-0054.md", "docs/archiwum/lekcje/LEKCJE_L-0055_L-0069.md",
+  "docs/archiwum/lekcje/LEKCJE_L-0070_L-0078.md", "docs/archiwum/lekcje/LEKCJE_L-0079_L-0088.md",
+  "docs/archiwum/lekcje/LEKCJE_L-0089_L-0111.md", "docs/archiwum/plany/BUDOWA_RELAI/PLAN.html",
+  "docs/archiwum/plany/BUDOWA_RELAI/PROMPT_ETAP_1.md", "docs/archiwum/plany/BUDOWA_RELAI/PROMPT_ETAP_10.md",
+  "docs/archiwum/plany/BUDOWA_RELAI/PROMPT_ETAP_2.md", "docs/archiwum/plany/BUDOWA_RELAI/PROMPT_ETAP_3.md",
+  "docs/archiwum/plany/BUDOWA_RELAI/PROMPT_ETAP_4.md", "docs/archiwum/plany/BUDOWA_RELAI/PROMPT_ETAP_5.md",
+  "docs/archiwum/plany/BUDOWA_RELAI/PROMPT_ETAP_6.md", "docs/archiwum/plany/BUDOWA_RELAI/PROMPT_ETAP_7.md",
+  "docs/archiwum/plany/BUDOWA_RELAI/PROMPT_ETAP_8.md", "docs/archiwum/plany/BUDOWA_RELAI/PROMPT_ETAP_9.md",
+  "docs/archiwum/plany/BUDOWA_RELAI/STATUS.md", "docs/archiwum/plany/HIGIENA_DOKUMENTOW/PLAN.html",
+  "docs/archiwum/plany/HIGIENA_DOKUMENTOW/PROMPT_ETAP_1.md",
+  "docs/archiwum/plany/HIGIENA_DOKUMENTOW/PROMPT_ETAP_2.md",
+  "docs/archiwum/plany/HIGIENA_DOKUMENTOW/PROMPT_ETAP_3.md",
+  "docs/archiwum/plany/HIGIENA_DOKUMENTOW/PROMPT_ETAP_4.md",
+  "docs/archiwum/plany/HIGIENA_DOKUMENTOW/PROMPT_ETAP_5.md",
+  "docs/archiwum/plany/HIGIENA_DOKUMENTOW/PROMPT_ETAP_6.md",
+  "docs/archiwum/plany/HIGIENA_DOKUMENTOW/STATUS.md",
+  "docs/archiwum/plany/HIGIENA_DOKUMENTOW/odnogi/REJESTR_ARTEFAKTOW/ODNOGA.md",
+  "docs/archiwum/plany/HIGIENA_DOKUMENTOW/odnogi/REJESTR_ARTEFAKTOW/PROMPT_ODNOGA.md",
+  "docs/archiwum/plany/OPTYMALIZACJA_KONTEKSTU/PLAN.html",
+  "docs/archiwum/plany/OPTYMALIZACJA_KONTEKSTU/PROMPT_ETAP_1.md",
+  "docs/archiwum/plany/OPTYMALIZACJA_KONTEKSTU/PROMPT_ETAP_2.md",
+  "docs/archiwum/plany/OPTYMALIZACJA_KONTEKSTU/PROMPT_ETAP_3.md",
+  "docs/archiwum/plany/OPTYMALIZACJA_KONTEKSTU/PROMPT_ETAP_4.md",
+  "docs/archiwum/plany/OPTYMALIZACJA_KONTEKSTU/PROMPT_ETAP_5.md",
+  "docs/archiwum/plany/OPTYMALIZACJA_KONTEKSTU/STATUS.md",
+  "docs/archiwum/plany/OPTYMALIZATOR_PROMPTOW/PLAN.html",
+  "docs/archiwum/plany/OPTYMALIZATOR_PROMPTOW/PROMPT_ETAP_1.md",
+  "docs/archiwum/plany/OPTYMALIZATOR_PROMPTOW/PROMPT_ETAP_2.md",
+  "docs/archiwum/plany/OPTYMALIZATOR_PROMPTOW/PROMPT_ETAP_3.md",
+  "docs/archiwum/plany/OPTYMALIZATOR_PROMPTOW/PROMPT_ETAP_4.md",
+  "docs/archiwum/plany/OPTYMALIZATOR_PROMPTOW/PROMPT_ETAP_5.md",
+  "docs/archiwum/plany/OPTYMALIZATOR_PROMPTOW/STATUS.md", "docs/archiwum/plany/PANEL_CLAUDE/PLAN.html",
+  "docs/archiwum/plany/PANEL_CLAUDE/PROMPT_ETAP_1.md", "docs/archiwum/plany/PANEL_CLAUDE/PROMPT_ETAP_2.md",
+  "docs/archiwum/plany/PANEL_CLAUDE/PROMPT_ETAP_3.md", "docs/archiwum/plany/PANEL_CLAUDE/PROMPT_ETAP_4.md",
+  "docs/archiwum/plany/PANEL_CLAUDE/PROMPT_ETAP_5.md", "docs/archiwum/plany/PANEL_CLAUDE/PROMPT_ETAP_6.md",
+  "docs/archiwum/plany/PANEL_CLAUDE/PROMPT_ETAP_7.md", "docs/archiwum/plany/PANEL_CLAUDE/PROMPT_ETAP_8.md",
+  "docs/archiwum/plany/PANEL_CLAUDE/PROMPT_ETAP_9.md", "docs/archiwum/plany/PANEL_CLAUDE/STATUS.md",
+  "docs/archiwum/plany/PIERWSI_UZYTKOWNICY/DEMO.md", "docs/archiwum/plany/PIERWSI_UZYTKOWNICY/PLAN.html",
+  "docs/archiwum/plany/PIERWSI_UZYTKOWNICY/PROBY.md",
+  "docs/archiwum/plany/PIERWSI_UZYTKOWNICY/PROMPT_ETAP_1.md",
+  "docs/archiwum/plany/PIERWSI_UZYTKOWNICY/PROMPT_ETAP_2.md",
+  "docs/archiwum/plany/PIERWSI_UZYTKOWNICY/PROMPT_ETAP_3.md",
+  "docs/archiwum/plany/PIERWSI_UZYTKOWNICY/STATUS.md",
+  "docs/archiwum/plany/PIERWSI_UZYTKOWNICY/ZAPROSZENIE.md",
+  "docs/archiwum/plany/PIERWSI_UZYTKOWNICY/ZRODLA.md",
+  "docs/archiwum/plany/PIERWSI_UZYTKOWNICY/odnogi/HOOKI_KORZEN/ODNOGA.md",
+  "docs/archiwum/plany/PIERWSI_UZYTKOWNICY/odnogi/HOOKI_KORZEN/PROMPT_ODNOGA.md",
+  "docs/archiwum/plany/PIERWSI_UZYTKOWNICY/zapis/01-inicjalizacja.txt",
+  "docs/archiwum/plany/PIERWSI_UZYTKOWNICY/zapis/02-plan.txt",
+  "docs/archiwum/plany/PIERWSI_UZYTKOWNICY/zapis/03-akceptacja.txt",
+  "docs/archiwum/plany/PIERWSI_UZYTKOWNICY/zapis/04-swieza-sesja.txt",
+  "docs/archiwum/plany/PIERWSI_UZYTKOWNICY/zapis/05-karta-etapu.txt",
+  "docs/archiwum/plany/PIERWSI_UZYTKOWNICY/zapis/06-decyzja.txt",
+  "docs/archiwum/plany/PIERWSI_UZYTKOWNICY/zapis/07-decyzja-swieza-sesja.txt",
+  "docs/archiwum/plany/PIERWSI_UZYTKOWNICY/zapis/README.md",
+  "docs/archiwum/plany/PIERWSI_UZYTKOWNICY/zapis/plan-plan.md",
+  "docs/archiwum/plany/PIERWSI_UZYTKOWNICY/zapis/plan-status.md",
+  "docs/archiwum/plany/PIERWSI_UZYTKOWNICY/zapis/projekt-state.md",
+  "docs/archiwum/plany/PROWADZENIE_END_TO_END/PLAN.html",
+  "docs/archiwum/plany/PROWADZENIE_END_TO_END/PROMPT_ETAP_1.md",
+  "docs/archiwum/plany/PROWADZENIE_END_TO_END/PROMPT_ETAP_2.md",
+  "docs/archiwum/plany/PROWADZENIE_END_TO_END/PROMPT_ETAP_3.md",
+  "docs/archiwum/plany/PROWADZENIE_END_TO_END/PROMPT_ETAP_4.md",
+  "docs/archiwum/plany/PROWADZENIE_END_TO_END/PROMPT_ETAP_5.md",
+  "docs/archiwum/plany/PROWADZENIE_END_TO_END/PROMPT_ETAP_6.md",
+  "docs/archiwum/plany/PROWADZENIE_END_TO_END/PROMPT_ETAP_7.md",
+  "docs/archiwum/plany/PROWADZENIE_END_TO_END/REJESTR.md",
+  "docs/archiwum/plany/PROWADZENIE_END_TO_END/STATUS.md",
+  "docs/archiwum/plany/REKOMENDACJA_MODELU/PLAN.html",
+  "docs/archiwum/plany/REKOMENDACJA_MODELU/PROMPT_ETAP_1.md",
+  "docs/archiwum/plany/REKOMENDACJA_MODELU/PROMPT_ETAP_2.md",
+  "docs/archiwum/plany/REKOMENDACJA_MODELU/PROMPT_ETAP_3.md",
+  "docs/archiwum/plany/REKOMENDACJA_MODELU/PROMPT_ETAP_4.md",
+  "docs/archiwum/plany/REKOMENDACJA_MODELU/STATUS.md", "docs/archiwum/plany/ROZWOJ_PO_WYDANIU/E7-REPORT.md",
+  "docs/archiwum/plany/ROZWOJ_PO_WYDANIU/PLAN.html",
+  "docs/archiwum/plany/ROZWOJ_PO_WYDANIU/PLAN_WYDANIE_CODEX_1_10.md",
+  "docs/archiwum/plany/ROZWOJ_PO_WYDANIU/PROMPT_ETAP_1.md",
+  "docs/archiwum/plany/ROZWOJ_PO_WYDANIU/PROMPT_ETAP_2.md",
+  "docs/archiwum/plany/ROZWOJ_PO_WYDANIU/PROMPT_ETAP_3.md",
+  "docs/archiwum/plany/ROZWOJ_PO_WYDANIU/PROMPT_ETAP_4.md",
+  "docs/archiwum/plany/ROZWOJ_PO_WYDANIU/PROMPT_ETAP_5.md",
+  "docs/archiwum/plany/ROZWOJ_PO_WYDANIU/PROMPT_ETAP_6.md",
+  "docs/archiwum/plany/ROZWOJ_PO_WYDANIU/PROMPT_ETAP_7.md",
+  "docs/archiwum/plany/ROZWOJ_PO_WYDANIU/PROMPT_ETAP_8.md",
+  "docs/archiwum/plany/ROZWOJ_PO_WYDANIU/STATUS.md",
+  "docs/archiwum/plany/ROZWOJ_PO_WYDANIU/odnogi/GUARD_PO_SCIEZCE/ODNOGA.md",
+  "docs/archiwum/plany/ROZWOJ_PO_WYDANIU/odnogi/GUARD_PO_SCIEZCE/PROMPT_ODNOGA.md",
+  "docs/archiwum/plany/ROZWOJ_PO_WYDANIU/odnogi/POMIAR_ODNOG/ODNOGA.md",
+  "docs/archiwum/plany/ROZWOJ_PO_WYDANIU/odnogi/REKOMENDACJA_MODELU/ODNOGA.md",
+  "docs/archiwum/plany/ROZWOJ_PO_WYDANIU/odnogi/REKOMENDACJA_MODELU/PROMPT_ODNOGA.md",
+  "docs/archiwum/plany/SPRZATANIE_ARTEFAKTOW/PLAN.html",
+  "docs/archiwum/plany/SPRZATANIE_ARTEFAKTOW/PROMPT_ETAP_1.md",
+  "docs/archiwum/plany/SPRZATANIE_ARTEFAKTOW/PROMPT_ETAP_2.md",
+  "docs/archiwum/plany/SPRZATANIE_ARTEFAKTOW/PROMPT_ETAP_3.md",
+  "docs/archiwum/plany/SPRZATANIE_ARTEFAKTOW/PROMPT_ETAP_4.md",
+  "docs/archiwum/plany/SPRZATANIE_ARTEFAKTOW/STATUS.md", "docs/archiwum/ryzyka/MITYGACJE_2026-09-24.md",
+  "docs/archiwum/ryzyka/RYZYKA_2026-08-21.md", "docs/archiwum/ryzyka/RYZYKA_2026-09-04.md",
+  "docs/archiwum/ryzyka/RYZYKA_2026-09-14.md", "docs/archiwum/ryzyka/RYZYKA_2026-09-24.md",
+  "docs/fixy/AUDYT_MODOW/MAKIETY.html", "docs/fixy/AUDYT_MODOW/ODNOGA.md",
+  "docs/fixy/AUDYT_MODOW/PROMPT_ODNOGA.md", "docs/fixy/AUDYT_MODOW/RAPORT.html",
+  "docs/fixy/BLOKADA_ROTACJI/ODNOGA.md", "docs/fixy/BLOKADA_ROTACJI/PROMPT_ODNOGA.md",
+  "docs/fixy/CURSOR_1_9_1/ODNOGA.md", "docs/fixy/CURSOR_1_9_1/PROMPT_ODNOGA.md",
+  "docs/fixy/OPIS_REPO/ODNOGA.md", "docs/fixy/OPIS_REPO/PROMPT_ODNOGA.md",
+  "docs/fixy/ORKIESTRACJA/ODNOGA.md", "docs/fixy/PRECOMMIT_ESM/ODNOGA.md",
+  "docs/plany/PANEL_CODEX/PLAN.html", "docs/plany/PANEL_CODEX/PROMPT_ETAP_1.md",
+  "docs/plany/PANEL_CODEX/PROMPT_START.md", "docs/plany/PANEL_CODEX/PRZEJECIE.md",
+  "docs/plany/PANEL_CODEX/STATUS.md", "docs/zasoby/PANEL_RELAI/STYL_PASKOW_CLAUDE.md",
+  "docs/zasoby/PANEL_RELAI/WYWIAD.md", "docs/zasoby/branding/banner.svg", "docs/zasoby/branding/diagram.svg",
+  "docs/zasoby/branding/ikony/adopt.svg", "docs/zasoby/branding/ikony/audit.svg",
+  "docs/zasoby/branding/ikony/backup.svg", "docs/zasoby/branding/ikony/branch.svg",
+  "docs/zasoby/branding/ikony/changelog.svg", "docs/zasoby/branding/ikony/clean.svg",
+  "docs/zasoby/branding/ikony/crew.svg", "docs/zasoby/branding/ikony/handover.svg",
+  "docs/zasoby/branding/ikony/help.svg", "docs/zasoby/branding/ikony/models.svg",
+  "docs/zasoby/branding/ikony/prompt.svg", "docs/zasoby/branding/ikony/stage.svg",
+  "docs/zasoby/branding/ikony/tour.svg", "docs/zasoby/branding/ikony/update.svg",
+  "docs/zasoby/branding/logo.svg", "docs/zasoby/branding/zbuduj.js",
+  "docs/zasoby/branding/zrodla/banner.svg", "docs/zasoby/branding/zrodla/diagram.svg",
+  "docs/zasoby/branding/zrodla/logo.svg", "docs/zasoby/demo/README.md",
+  "docs/zasoby/demo/demo-relai-25s-en.gif", "docs/zasoby/demo/demo-relai-25s-pl.gif",
+  "docs/zasoby/demo/demo-relai-60s-en.mp4", "docs/zasoby/demo/demo-relai-60s-pl.mp4",
+  "docs/zasoby/demo/zrodla/gif.py", "docs/zasoby/demo/zrodla/glify.py",
+  "docs/zasoby/demo/zrodla/pokrycie.py", "docs/zasoby/demo/zrodla/render.js",
+  "docs/zasoby/demo/zrodla/sceny.js", "docs/zasoby/design-konkurs/README.md",
+  "docs/zasoby/design-konkurs/runda-1/propozycja-1.html",
+  "docs/zasoby/design-konkurs/runda-1/propozycja-2.html",
+  "docs/zasoby/design-konkurs/runda-1/propozycja-3.html",
+  "docs/zasoby/design-konkurs/runda-1/propozycja-4.html",
+  "docs/zasoby/design-konkurs/runda-1/propozycja-5.html",
+  "docs/zasoby/design-konkurs/runda-2/propozycja-1.html",
+  "docs/zasoby/design-konkurs/runda-2/propozycja-2.html",
+  "docs/zasoby/design-konkurs/runda-2/propozycja-3.html",
+  "docs/zasoby/design-konkurs/runda-2/propozycja-4.html",
+  "docs/zasoby/design-konkurs/runda-2/propozycja-5.html", "docs/zasoby/design-konkurs/runda-3/blend.html",
+  "docs/zasoby/fonts/LICENCJE.md", "docs/zasoby/fonts/caveat-latin-ext.woff2",
+  "docs/zasoby/fonts/caveat-latin.woff2", "docs/zasoby/fonts/fraunces-latin-ext-wonk.woff2",
+  "docs/zasoby/fonts/fraunces-latin-wonk.woff2", "docs/zasoby/fonts/hanken-grotesk-latin-ext.woff2",
+  "docs/zasoby/fonts/hanken-grotesk-latin.woff2", "docs/zasoby/fonts/instrument-sans-latin-ext.woff2",
+  "docs/zasoby/fonts/instrument-sans-latin.woff2", "docs/zasoby/fonts/jetbrains-mono-latin-ext.woff2",
+  "docs/zasoby/fonts/jetbrains-mono-latin.woff2", "docs/zasoby/fonts/kalam-400-latin-ext.woff2",
+  "docs/zasoby/fonts/kalam-400-latin.woff2", "docs/zasoby/fonts/kalam-700-latin-ext.woff2",
+  "docs/zasoby/fonts/kalam-700-latin.woff2",
+]

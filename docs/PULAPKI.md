@@ -32,6 +32,13 @@ Specyfikacja: `SPEC_PULAPKI.md`.
      odpowiada „otwarty”, a desktop nie pokazuje nic i nie ma szarej linii `refused`; `plugin test`
      takie drzewo przyjmuje. 209 / 27 / 53 tys. — widoczne. Dokładny próg nieznany. Stan zwinięcia
      w `$.state` przeżywa przeładowanie, więc każde otwarcie rysuje znowu to samo.
+     **Pomiar 2026-10-10 (AUDYT_MODOW Z10):** przy przerysowaniu otwartego panelu desktop nie znika,
+     tylko **zostawia poprzedni obraz** — klik w folder „nic nie robi”, a stan zwinięcia już się
+     zmienił, więc kolejne kliki rozjeżdżają się z obrazem. Rozstrzyga liczba `Svg` (każdy w osobnej
+     ramce), nie znaki: widoczne 20 Svg / 139 tys. (Koszty), 36 / 78 tys. (drzewo); niewidoczne
+     41 / 85 tys. Dokumentowany limit silnika: 20 000 węzłów, 32 poziomy, 100 000 znaków
+     serializowanych na drzewo (`ClientElements`). Budżet testów: ≤ 32 Svg i ≤ 70 tys. znaków poza
+     markupem Svg (`panel/hooks/redraw.test.ts`).
   8. Na desktopie `Code` z `format: 'diff'` traci format (rysuje surowy tekst), a `Link` do `file:`
      rysuje się jak zwykły tekst; to samo pokazuje drzewo z `plugin test`.
   9. Klikać da się wyłącznie `Button`, `Link` i link w `Markdown` (`onLinkPress` + `pressableLinks`,

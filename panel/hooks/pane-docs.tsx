@@ -4,7 +4,7 @@
 
 import { THEME, DIFF } from './core/theme.mjs'
 import { plural } from './core/measure.mjs'
-import { KINDS, diffRows, docIcon, edited, folderIcon, kb, treeHref } from './core/documents.mjs'
+import { KINDS, diffRows, docIcon, edited, kb, treeHref } from './core/documents.mjs'
 import type { DiffView, Doc, TreeNode } from './core/documents.mjs'
 import type { RenderChildren } from 'claude-code'
 import type { DocsData, OpenDoc } from './data'
@@ -35,11 +35,14 @@ export type DocsCtx = {
 // The bounds of one drawing (AUDYT_MODOW Z3, P-023 pkt 7: a tree too big vanishes from the desktop
 // without a word): tiles as the tree draws rows — TILES_PER_GROUP a group, TILES the tab, then a
 // line with how many are left — and the diff by pages of DIFF_PAGE rows. An open document takes
-// the room of the tiles (a page of its diff weighs ~120 k, a tile ~2.8 k): TILES_OPEN while it is.
-const TILES_PER_GROUP = 40
-const TILES = 60
-const TILES_OPEN = 16
-const DIFF_PAGE = 200
+// the room of the tiles (a diff row weighs ~0.6 k, a tile ~2.8 k): TILES_OPEN while it is.
+// Z10 (2026-10-10): the engine draws at most 100 000 characters serialized a tree (ClientElements);
+// the tab is held under 70 000 measured by the tests, with room for what the test does not see
+// (redraw.test.ts, TREE_BUDGET). The tree is the view for many documents; the tiles show a shelf.
+const TILES_PER_GROUP = 12
+const TILES = 24
+const TILES_OPEN = 4
+const DIFF_PAGE = 80
 
 export function docsView(c: Ctx, p: Parts, dd: DocsData, s: DocsCtx) {
   const { el, Svg, isGui } = c
@@ -104,10 +107,12 @@ export function docsView(c: Ctx, p: Parts, dd: DocsData, s: DocsCtx) {
     ]
   }
   // The file tree as an editor's explorer draws it (calibration 2026-10-09, "jak w VS Code"): a
-  // row is a chevron and a folder icon, open or closed, or a document's icon at tree size, then
-  // the name alone, as a link the panel answers (TREE_LINK): a folder unfolds, a document opens
-  // its window under its row. An edited name is bold, an edited folder carries a dot and a count.
-  const TREE_PX = 20
+  // folder's row is its chevron and name in one link the panel answers (TREE_LINK), so the whole
+  // label unfolds it; a document's row is its type in its color, then its name as a link that opens
+  // its window under the row. An edited name is bold, an edited folder carries a dot and a count.
+  // No Svg in a row (AUDYT_MODOW Z10, 2026-10-10): a desktop draws each Svg in a frame of its own,
+  // a row with two of them weighed ~1.7 k and an unfolded archive took the drawing past what the
+  // desktop shows — a press on a folder seemed to do nothing. A lean row weighs a third of that.
   const TREE_PER_DIR = 40
   const TREE_ROWS = 60
   const mdName = (s: string) => s.replace(/[\\`*_[\]<>]/g, (c) => '\\' + c)
@@ -115,17 +120,13 @@ export function docsView(c: Ctx, p: Parts, dd: DocsData, s: DocsCtx) {
     <Markdown key={key} text={isBold ? `**[${mdName(label)}](${href})**` : `[${mdName(label)}](${href})`}
       onLinkPress={() => onPress()} pressableLinks={[href]} />
   )
+  const tagColor = (d: Doc) => (d.isChanged ? THEME.accentText : d.added !== null ? THEME.mark : THEME.body)
   const folderRow = (n: TreeNode, depth: number, isOpen: boolean, foldKey: string, byDefault: boolean) => (
     <Box key={`dir-${n.dir}`} flexDirection="row" alignItems="center" columnGap={1} paddingLeft={depth * 2} paddingRight={1}
       hover={{ backgroundColor: THEME.cardOn }}>
-      {/* A row has no press of its own (2.1.293: Button, Link and a Markdown link only): the chevron is a link too */}
-      <Box key={`dir-c-${n.dir}`} flexShrink={0}>{treeLink(`dir-cl-${n.dir}`, isOpen ? '▾' : '▸', treeHref('dir', n.dir), false, () => fold(foldKey, byDefault))}</Box>
-      {Svg ? [<Box key={`dir-i-${n.dir}`} flexShrink={0}>
-        <Svg key={`dir-g-${n.dir}`} source={folderIcon(isOpen, { fill: n.edited ? THEME.mark : THEME.body, edge: THEME.line, dot: n.edited ? THEME.accent : null }, TREE_PX)}
-          alt={`folder ${n.name}${isOpen ? ', otwarty' : ''}`} width={Math.round((TREE_PX * 24) / 20)} height={TREE_PX} />
-      </Box>] : []}
-      <Box key={`dir-t-${n.dir}`} flexShrink={1}>{treeLink(`dir-l-${n.dir}`, Svg ? n.name : `${n.name}/`, treeHref('dir', n.dir), n.edited > 0, () => fold(foldKey, byDefault))}</Box>
-      {n.edited ? [<Text key={`dir-n-${n.dir}`} color={THEME.accentText}>{String(n.edited)}</Text>] : []}
+      {/* A row has no press of its own (2.1.293: Button, Link and a Markdown link only): chevron and name are one link */}
+      <Box key={`dir-t-${n.dir}`} flexShrink={1}>{treeLink(`dir-l-${n.dir}`, `${isOpen ? '▾' : '▸'} ${n.name}${Svg ? '' : '/'}`, treeHref('dir', n.dir), n.edited > 0, () => fold(foldKey, byDefault))}</Box>
+      {n.edited ? [<Text key={`dir-n-${n.dir}`} color={THEME.accentText}>{`● ${n.edited}`}</Text>] : []}
     </Box>
   )
   // A document's row; on top of the tree it says its folder too, the one word more it needs there
@@ -134,7 +135,7 @@ export function docsView(c: Ctx, p: Parts, dd: DocsData, s: DocsCtx) {
     return (
       <Box key={`${prefix}-${d.path}`} flexDirection="row" alignItems="center" columnGap={1} paddingLeft={depth * 2 + 2} paddingRight={1}
         {...(isOpen ? { backgroundColor: THEME.cardOn } : {})} hover={{ backgroundColor: THEME.cardOn }}>
-        <Box key={`${prefix}-i-${d.path}`} flexShrink={0}>{docGlyph(`${prefix}-g-${d.path}`, d, TREE_PX)}</Box>
+        <Box key={`${prefix}-i-${d.path}`} width={Svg ? 6 : 7} flexShrink={0}><Text bold color={tagColor(d)}>{Svg ? typeLabel(d) : `[${typeLabel(d)}]`}</Text></Box>
         <Box key={`${prefix}-t-${d.path}`} flexShrink={1}>{treeLink(`${prefix}-l-${d.path}`, d.name, treeHref('doc', d.path), d.isChanged || d.added !== null, () => openDoc(group, d))}</Box>
         {note ? [<Text key={`${prefix}-d-${d.path}`} color={THEME.body} wrap="truncate-middle">{note}</Text>] : []}
         {lines(`${prefix}-n-${d.path}`, d)}

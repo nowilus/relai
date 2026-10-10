@@ -4,6 +4,9 @@ Plan: brak (wątek samodzielny) · Etap-źródło: — · Utworzona: 2026-10-10 
 Wykonawca: **Opus 5.5** (decyzja Łukasza 2026-10-10: Opus do zadań optymalizacyjnych i rozpoznawczych;
 projekt UX/UI zamknięty przez Fable 5.1 w briefie v2)
 
+> **Aneks A (zaakceptowany 2026-10-10):** [ANEKS_A.md](ANEKS_A.md) — Z10 archiwum w drzewie,
+> Z11 pasek cache, Z12 fokus sesji.
+
 ## Cel
 
 Trzy mody RelAI (`relai-panel`, `relai-progress`, `relai-cache-keeper`) rysują nad promptem
@@ -312,6 +315,16 @@ Jedna linia na zamkniętą paczkę; pełny wpis do `docs/DZIENNIK.md` dopiero w 
   0.4.0 (`relai` zostaje 2.8.0); opisy w manifestach i marketplace, README i KOMENDY wg nowego
   zachowania; tag `relai-panel-v0.10.0` i release; aktualizacja lokalna sprawdzona treścią plików
   w cache. Pomiar na żywo po restarcie — czeka na Łukasza.
+- **2026-10-10 · Z10 zamknięta w repo (Aneks A)** — po wydaniu archiwum w drzewie nie rozwijało się,
+  a foldery rozwijały się opornie i nie chciały zwinąć; eksperyment Łukasza (zwinięte fixy, plany,
+  zasoby) obalił wagę w znakach jako przyczynę. Rozstrzyga liczba `Svg` w rysunku: widoczne 20/36,
+  niewidoczne 41 (P-023 pkt 7 uzupełniony). Wiersz drzewa bez `Svg`: typ pliku słowem w kolorze,
+  chevron i nazwa folderu jednym linkiem; kafle 24 na zakładkę, 12 na grupę, 4 przy otwartym
+  dokumencie; diff po 80 wierszy; podgląd 30 tys. znaków. Budżet testów: ≤ 32 Svg i ≤ 70 tys.
+  znaków poza markupem Svg; nowy test na prawdziwej liście `docs/` z 2026-10-10 (216 plików, każdy
+  folder rozwinięty, archiwum otwiera się i zamyka) — na starym kodzie daje 62 Svg. Sonda w
+  zainstalowanej kopii odrzucona przez klasyfikator trybu auto, kopia przywrócona bajt w bajt.
+  Testy: panel 108/108, `tsc` 0. Na żywo — po wydaniu albo podmianie lokalnej za zgodą.
 
 ## Wynik
 
