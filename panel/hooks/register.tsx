@@ -32,7 +32,7 @@ import { join } from './fmt'
 import type { PanelView } from '../types'
 import { formOf } from './core/commands.mjs'
 import { THEME } from './core/theme.mjs'
-import { compactRecord, fileName, isFileOf, mergeRecords, parseRecords, serializeRecords, stepRecord } from './core/measure.mjs'
+import { compactRecord, fileName, isFileOf, mergeRecords, parseRecords, recordKey, serializeRecords, stepRecord } from './core/measure.mjs'
 import type { MeasureRecord } from './core/measure.mjs'
 import { PRICING_PAGE, pricingCard } from './core/pricing.mjs'
 import { MAX_DEPTH, NUMSTAT_ARGV, changedPaths, kindOf, parseNumstat, shelf } from './core/documents.mjs'
@@ -156,12 +156,30 @@ let writeError = ''
 // A session left by /clear whose file could not be written yet: kept until a write succeeds
 let unwritten: Ledger[] = []
 
-async function writeOne($: $T, l: Ledger): Promise<boolean> {
+// A record's stage is set once, when it is made; one that differs in the file was corrected there
+// by hand (AUDYT_MODOW Z12c: a session's history moved to the work it really was), and the file's
+// word stands — the memory takes it instead of writing the old tag back over it
+async function withCorrections($: $T, l: Ledger): Promise<Ledger> {
+  const onDisk = parseRecords(await readText($, l.path)).records
+  const fixed = new Map(onDisk.map((r) => [recordKey(r), r.stage ?? null]))
+  let isMoved = false
+  const records = l.records.map((r) => {
+    const stage = fixed.get(recordKey(r))
+    if (stage === undefined || stage === (r.stage ?? null)) return r
+    isMoved = true
+    return { ...r, stage }
+  })
+  return isMoved ? { ...l, records } : l
+}
+
+async function writeOne($: $T, given: Ledger): Promise<boolean> {
   try {
+    const l = await withCorrections($, given)
+    if (ledger && ledger.path === l.path) ledger = l
     await $.fs.write(l.path, serializeRecords(l.records, l.bad))
     return true
   } catch (err) {
-    writeError = `${l.name}: ${err instanceof Error ? err.message : String(err)}`
+    writeError = `${given.name}: ${err instanceof Error ? err.message : String(err)}`
     return false
   }
 }

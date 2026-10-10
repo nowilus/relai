@@ -200,6 +200,20 @@ describe('the session focus, end to end (Z12)', () => {
     expect(disk[`${CWD}/.claude/relai/fokus/session-3.json`]).toBeUndefined()
   })
 
+  // Z12c: a session's history corrected in its file (the work it really was) is not written back
+  // over by the records the panel still holds in memory
+  test('a stage corrected in the measurement file stands through the next write', async ($, on) => {
+    const { disk } = world(on, FILES)
+    await $.session.start({ cwd: CWD, surface: 'desktop', isInteractive: true })
+    await turn($, 't1')
+    const file = Object.keys(disk).find((p) => p.includes('/.claude/relai/pomiary/'))!
+    expect(stagesIn(disk)).toEqual([null])
+    disk[file] = (disk[file] ?? '').replace('"stage":null', '"stage":"AUDYT_MODOW/Z3"')
+    await $.prompt.submit({ text: 'karta docs/fixy/AUDYT_MODOW/ODNOGA.md' } as never)
+    await turn($, 't2')
+    expect(stagesIn(disk)).toEqual(['AUDYT_MODOW/Z3', 'AUDYT_MODOW/Z4'])
+  })
+
   test('a focus on a card that was closed ends there: no packets, no tag, the bar asks', async ($, on) => {
     const closed = { ...FILES, [`${CWD}/docs/fixy/AUDYT_MODOW/ODNOGA.md`]: CARD.replace('**OTWARTA**', '**ZAMKNIĘTA**') }
     const { disk } = world(on, closed)
