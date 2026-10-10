@@ -14,10 +14,10 @@
 import { atom, read, update } from 'claude-code'
 import type { EngineInterface, Register, RenderChildren } from 'claude-code'
 import { crewProgress, pick, promptLink, stageProgress } from './core/progress.mjs'
-import { hoverSegments, segmentText } from './core/charts.mjs'
+import { segmentText } from './core/charts.mjs'
 import type { Progress } from './core/progress.mjs'
 import { ancestors, planState } from './core/plan-state.mjs'
-import { agentCost, agentsLabel, counts, finished, spawned, stepped } from './core/agents.mjs'
+import { agentCost, counts, finished, spawned, stepped } from './core/agents.mjs'
 import type { AgentRun } from './core/agents.mjs'
 import { isFileOf, parseRecords } from './core/measure.mjs'
 import type { MeasureRecord } from './core/measure.mjs'
@@ -26,6 +26,7 @@ import type { Version } from './core/pricing.mjs'
 import { BAND, BAR, THEME } from './core/theme.mjs'
 import { HEADING_ART } from './core/headings.mjs'
 import { clip, duration, join, tokens, usd } from './fmt'
+import { SEGMENTS_HEIGHT, calmLine, itemLine, segmentArt } from './segments'
 
 type $T = EngineInterface
 
@@ -40,6 +41,11 @@ const PANE_TITLE = 'Postęp i agenci RelAI'
 const agents = atom({ plugin: 'relai-progress', key: 'agents' } as const, [] as AgentRun[])
 const progress = atom({ plugin: 'relai-progress', key: 'progress' } as const, null as Progress | null)
 const isDoneCollapsed = atom({ plugin: 'relai-progress', key: 'isDoneCollapsed' } as const, false)
+// The box that just turned done (brief v2, 1): in $.state, so a reload of the mod keeps it, and
+// with its time, so it expires by the clock even when the timer that was to clear it is gone
+type Ticked = { id: string, index: number, total: number, name: string, at: number }
+const ticked = atom({ plugin: 'relai-progress', key: 'ticked' } as const, null as Ticked | null)
+const TICKED_MS = 10_000
 
 // The module's own; a reload starts them over and session.start sets them again
 let cwd = ''
@@ -111,9 +117,30 @@ async function readProgress($: $T): Promise<Progress> {
 const CREW_RECHECK_MS = 5 * 60_000
 let crewReadAt = 0
 
+// The last box of the new list that was not done in the old one and is now; null when none (or
+// when the list is another one: other ids)
+function justTicked(was: Progress | null, now: Progress, at: number): Ticked | null {
+  if (was === null) return null
+  const before = new Map(was.items.map((it) => [it.id, it.status]))
+  for (let i = now.items.length - 1; i >= 0; i--) {
+    const it = now.items[i]
+    const old = it ? before.get(it.id) : undefined
+    if (it && it.status === 'done' && old !== undefined && old !== 'done') return { id: it.id, index: i + 1, total: now.items.length, name: it.name, at }
+  }
+  return null
+}
+
+// Clears the ticked box past its time: called by the timer set when it appeared and by every tick
+// (a reload drops the timer, never the state)
+async function expireTicked($: $T, clockNow: number) {
+  const t = await read($, ticked)
+  if (t !== null && clockNow - t.at >= TICKED_MS) await update($, ticked, () => null)
+}
+
 async function refresh($: $T, isForced = false) {
   if (!isRelai) return
   const clockNow = await $.clock.now()
+  await expireTicked($, clockNow)
   // The times are taken before the read: a file that moves during it is read again next time
   const before = watched.length ? await stampOf($, watched) : ''
   const isCrewDue = crewReadAt > 0 && clockNow - crewReadAt >= CREW_RECHECK_MS
@@ -123,15 +150,13 @@ async function refresh($: $T, isForced = false) {
   seen = old.length === watched.length && old.every((p, i) => p === watched[i]) ? before : await stampOf($, watched)
   crewReadAt = now.kind === 'crew' ? clockNow : 0
   const was = await read($, progress)
-  if (JSON.stringify(was) !== JSON.stringify(now)) await update($, progress, () => now)
-}
-
-// Whether relai-panel runs in the session, asked once at the start and once more a moment later
-// (its command may register after ours), never while the bar draws (Z4)
-let hasPanel = false
-const PANEL_CHECK_MS = 2_000
-async function findPanel($: $T): Promise<boolean> {
-  return (await $.command.list().catch(() => [])).some((c) => c.name === 'relai-panel')
+  if (JSON.stringify(was) === JSON.stringify(now)) return
+  await update($, progress, () => now)
+  // The first read of a session is no news: boxes ticked before it are not "just ticked"
+  const tick = isForced ? null : justTicked(was, now, clockNow)
+  if (tick === null) return
+  await update($, ticked, () => tick)
+  $.clock.after(TICKED_MS, () => { $.clock.now().then((t) => expireTicked($, t)).catch(() => undefined) })
 }
 
 // This session's records of relai-panel's collector; [] when it does not measure this session
@@ -179,6 +204,20 @@ async function loadPrices($: $T): Promise<Prices> {
   return value
 }
 
+// What the agents cost, as the pane sums them: each agent from the collector's records with its
+// id, priced by the project's list; a sum missing an agent's records is partial
+type AgentCosts = { cost: (a: AgentRun) => ReturnType<typeof agentCost>, total: number | null, isPartial: boolean, records: MeasureRecord[] | null, pricing: Prices }
+async function agentCosts($: $T, list: readonly AgentRun[]): Promise<AgentCosts> {
+  const records = await sessionRecords($)
+  const pricing = await loadPrices($)
+  const price = (r: MeasureRecord) => priceAt(r, pricing.lists)
+  const cost = (a: AgentRun) => (records === null ? null : agentCost(records, a.id, price))
+  const costs = list.map(cost)
+  const known = costs.filter((c) => c !== null && c.usd !== null).map((c) => c?.usd ?? 0)
+  const total = known.length ? known.reduce((s, x) => s + x, 0) : null
+  return { cost, total, isPartial: costs.some((c) => c === null || c.isPartial), records, pricing }
+}
+
 async function togglePane($: $T): Promise<string> {
   if ((await $.ui.panes()).some((p) => p.id === PANE_ID)) {
     await $.ui.close({ id: PANE_ID })
@@ -192,14 +231,57 @@ type Look = { label: string, color: string, bg: string }
 type Resolved = Parameters<$T['ui']['resolve']>[0]
 type Children = Parameters<ReturnType<$T['ui']['resolve']>['Box']>[0]['children']
 
-// The progress bar (calibration 2026-10-09, "Pola i segmenty"): the label and the stage on the
-// first row; below, one bar cut into a segment per item, each in the color of its own state, and
-// the count with the percent at its end. A soft background of its own, no colored frame (BAND,
-// BAR; docs/zasoby/PANEL_RELAI/STYL_PASKOW_CLAUDE.md). The desktop draws the segments in Svg —
-// a Box is a whole text row high — and the terminal as cells of text.
+type Elements = ReturnType<$T['ui']['resolve']>
+
+// The progress bar (brief v2: docs/zasoby/PANEL_RELAI/STYL_PASKOW_CLAUDE.md, 3 and 5) in the shared
+// grid of the RelAI bars: the label column, the middle, the figure `a/b` + unit on the right. The
+// middle's first row holds the segments — one per item in the color of its state, Svg on the
+// desktop with the small line under them in the same drawing, cells of text in the terminal with
+// the line as text below — and beside them the agents chip; a second row only while a box has
+// just been ticked. No button: the agents pane opens with /relai-agents. A soft background of its
+// own, no colored frame; below BAR.narrow columns the label and the figure go on top.
 const CELL_PX = 8 // a desktop cell, about (savvy-progress reckons the same)
-const TEXT_PX = 6.8 // the mean advance of a 12 px Segoe UI character, about
-const PANEL_BUTTON_CELLS = 16 // "Panel RelAI" as a native button, and a gap
+const LINE_TEXT_PX = 6.6 // the mean advance of an 11.5 px Segoe UI character, about (6.8 at 12 px)
+const COLUMN_GAP = 2 // cells between the grid's columns (brief, 5)
+const MIN_SEGMENT_CELLS = 10 // below this the chip goes under the segments rather than beside
+
+function barCard(el: Elements, isGui: boolean, columns: number, middle: RenderChildren, figure: readonly [string, string] | null) {
+  const { Box, Text } = el
+  const frame = isGui ? { borderStyle: 'round' as const, borderColor: BAND.progress.bg } : {}
+  const label = <Text bold color={BAND.progress.color}>{BAND.progress.label}</Text>
+  const figureText = figure ? [<Text key="value" bold color={BAR.text}>{figure[0]}</Text>, <Text key="unit" color={BAR.muted}>{' ' + figure[1]}</Text>] : []
+  if (columns < BAR.narrow) {
+    return (
+      <Box key="relai-progress-card" flexDirection="column" backgroundColor={BAND.progress.bg} paddingX={1} {...frame}>
+        <Box key="head" flexDirection="row" flexWrap="wrap" justifyContent="space-between" columnGap={COLUMN_GAP}>
+          <Box key="label">{label}</Box>
+          {figure ? <Box key="figure" flexDirection="row">{figureText}</Box> : null}
+        </Box>
+        <Box key="middle" flexDirection="column">{middle}</Box>
+      </Box>
+    )
+  }
+  return (
+    <Box key="relai-progress-card" flexDirection="row" alignItems="flex-start" columnGap={COLUMN_GAP} backgroundColor={BAND.progress.bg} paddingX={1} {...frame}>
+      <Box key="label" width={BAR.labelColumn} flexShrink={0}>{label}</Box>
+      <Box key="middle" flexDirection="column" flexGrow={1} flexShrink={1}>{middle}</Box>
+      <Box key="figure" minWidth={BAR.figureColumn} flexShrink={0} flexDirection="row" justifyContent="flex-end">{figureText}</Box>
+    </Box>
+  )
+}
+
+// The unit after `a/b`, one format for all the bars (brief, 3): 1 punktu, 14 punktów; a crew's tasks
+const unitOf = (p: Progress) => (p.kind === 'crew' ? (p.total === 1 ? 'zadania' : 'zadań') : (p.total === 1 ? 'punktu' : 'punktów'))
+
+// The agents chip beside the segments (brief, 3): how many subagents the session ran, ● while one
+// runs and ✓ once none does, and what they cost by the pane's own sum ("≥" when it is partial)
+function agentsChip(list: readonly AgentRun[], c: AgentCosts) {
+  const { running } = counts(list)
+  const money = c.total === null ? 'brak pomiaru' : `${c.isPartial ? '≥ ' : ''}${usd(c.total)}`
+  const look = running ? { color: BAND.panel.color, bg: BAR.tile.running.bg } : { color: BAND.progress.color, bg: BAR.tile.done.bg }
+  const mark = running ? BAR.tile.running.mark : BAR.tile.done.mark
+  return { text: `${mark} ${list.length} ${list.length === 1 ? 'agent' : 'agentów'} · ${money}`, look }
+}
 
 const ITEM_WORD: Record<string, string> = { done: 'ukończone', pending: 'oczekuje', running: 'w toku', failed: 'błąd albo timeout', unknown: 'stan nieznany' }
 
@@ -219,10 +301,6 @@ export const register: Register = (on) => {
     await $.command.register({ name: 'relai-agents', description: 'Panel agentów RelAI: uruchomieni i zakończeni, model, kontekst i koszt' }).catch(() => undefined)
     if (!isRelai) return next(e)
     await refresh($, true)
-    hasPanel = await findPanel($)
-    $.clock.after(PANEL_CHECK_MS, () => {
-      findPanel($).then((x) => { if (x !== hasPanel) { hasPanel = x; $.ui.invalidate('ui.render') } }).catch(() => undefined)
-    })
     if (!ticking) {
       ticking = true
       $.clock.every(TICK_MS, () => { refresh($).catch(() => undefined) })
@@ -237,7 +315,6 @@ export const register: Register = (on) => {
       if (root !== null) {
         isRelai = true
         cwd = root
-        hasPanel = await findPanel($)
       }
     }
     if (!isRelai) return { text: 'Ten folder nie jest projektem RelAI, więc panel agentów nie ma czego pokazać.' }
@@ -298,16 +375,9 @@ export const register: Register = (on) => {
     const isGui = e.surface !== 'terminal'
     const list = await read($, agents)
     const folded = await read($, isDoneCollapsed)
-    const records = await sessionRecords($)
-    const pricing = await loadPrices($)
+    const { cost, total, isPartial, records, pricing } = await agentCosts($, list)
     const now = await $.clock.now()
     const { running, finished: done } = counts(list)
-    const price = (r: MeasureRecord) => priceAt(r, pricing.lists)
-    const cost = (a: AgentRun) => (records === null ? null : agentCost(records, a.id, price))
-    const costs = list.map(cost)
-    const known = costs.filter((c) => c !== null && c.usd !== null).map((c) => c?.usd ?? 0)
-    const total = known.length ? known.reduce((s, x) => s + x, 0) : null
-    const isPartial = costs.some((c) => c === null || c.isPartial)
 
     const heading = (key: string) => {
       const art = HEADING_ART[key]
@@ -402,59 +472,71 @@ export const register: Register = (on) => {
     if (p === null) return next(e)
     const below = await next(e)
     const ui = $.ui.resolve(e)
-    const { Box, Text, Button } = ui
+    const { Box, Text } = ui
     const Svg = (e.surface === 'desktop' || e.surface === 'vscode') && 'Svg' in ui ? ui.Svg : null
     const isGui = e.surface !== 'terminal'
+    const columns = e.props.bodyColumns
+    const isNarrow = columns < BAR.narrow
     const list = await read($, agents)
-    const { running } = counts(list)
-    // The side pane of RelAI is relai-panel's: its command opens it, when that plugin runs here
-    const openPanel = hasPanel
-      ? <Button key="open-panel" label="Panel RelAI" variant="secondary" onPress={() => { $.command.run({ command: 'relai-panel', args: '' }).catch(() => undefined) }} />
-      : null
-    const colors = p.items.map((it) => BAR.segment[it.status])
-    const count = p.percent === null ? p.words : `${p.done} z ${p.total} · ${p.percent.toFixed(2)}%`
-    const cells = Math.max(6, e.props.bodyColumns - 2 - (isGui ? 2 : 0))
-    // Hovering a segment shows its item; with none hovered, the next item to tick (calibration 2026-10-09)
-    const upcoming = p.items.find((it) => it.status !== 'done')
-    const idle = upcoming ? [`Następny: ${upcoming.label} · najedź na segment, żeby zobaczyć inny punkt`, upcoming.name] : ['Wszystkie punkty odhaczone', '']
-    const art = Svg ? hoverSegments(p.items.map((it, i) => ({
+    const tick = await read($, ticked)
+    const clockNow = await $.clock.now()
+    const chip = list.length ? agentsChip(list, await agentCosts($, list)) : null
+    const figure: [string, string] | null = p.items.length ? [`${p.done}/${p.total}`, unitOf(p)] : null
+
+    // The middle column's cells: the card's padding and corners, then the label and figure columns
+    // with their gaps when they stand beside it; the chip beside the segments takes its own
+    const middle = Math.max(MIN_SEGMENT_CELLS, columns - 2 - (isGui ? 2 : 0) - (isNarrow ? 0 : BAR.labelColumn + BAR.figureColumn + 2 * COLUMN_GAP))
+    const chipCells = chip ? chip.text.length + 2 + COLUMN_GAP : 0
+    const isChipBeside = chip !== null && middle - chipCells >= Math.max(MIN_SEGMENT_CELLS, p.items.length)
+    const cells = isChipBeside ? middle - chipCells : middle
+    const calm = calmLine(p.items)
+    const alt = `${p.title} · ${figure ? figure.join(' ') : p.words}: ${p.items.map((it) => `${BAR.tile[it.status].mark} ${it.name}`).join(', ')}`
+    const art = Svg ? segmentArt(p.items.map((it, i) => ({
       color: BAR.segment[it.status],
-      head: `${BAR.tile[it.status].mark} ${i + 1}/${p.items.length} · ${ITEM_WORD[it.status] ?? it.status} — ${it.label}`,
-      detail: it.name,
-    })), { background: BAND.progress.bg, text: BAR.text, muted: BAR.muted, idle, chars: Math.floor(((cells - (hasPanel ? PANEL_BUTTON_CELLS : 0)) * CELL_PX) / TEXT_PX) }) : null
-    const text = segmentText(colors, cells)
-    const bar = colors.length === 0 ? null
-      : Svg && art !== null
-        ? <Svg key="segments" isInteractive source={art.svg} alt={`${count}: ${p.items.map((it) => `${BAR.tile[it.status].mark} ${it.name}`).join(', ')}`} height={art.height} />
-        : <Box key="segments" flexDirection="row" flexWrap="wrap" columnGap={text.gap}>
-            {text.runs.map((r, i) => <Box key={`seg-${p.items[i]?.id ?? i}`}><Text color={r.color}>{r.text}</Text></Box>)}
-          </Box>
-    const controls = [
-      ...(list.length ? [<Button key="agents-btn" label={agentsLabel(list)} variant="secondary" onPress={() => { togglePane($).catch(() => undefined) }} />] : []),
-    ]
-    const frame = isGui ? { borderStyle: 'round' as const, borderColor: BAND.progress.bg } : {}
-    const ours = (
-      <Box key="relai-progress-card" flexDirection="column" backgroundColor={BAND.progress.bg} paddingX={1} {...frame}>
-        {/* A native button is taller than a line: a row of margin keeps "Agenci" off the bar (calibration 2026-10-09) */}
-        <Box key="head" flexDirection="row" flexWrap="wrap" justifyContent="space-between" alignItems="center" columnGap={2} {...(isGui ? { marginBottom: 1 } : {})}>
-          <Box key="title-row" flexDirection="row" flexWrap="wrap" columnGap={2} flexShrink={1}>
-            <Box key="label"><Text bold color={BAND.progress.color}>{BAND.progress.label}</Text></Box>
-            <Box key="title"><Text bold color={BAR.text} wrap="truncate">{clip(p.title, 80)}</Text></Box>
-          </Box>
-          <Box key="controls" flexDirection="row" alignItems="center" columnGap={2} flexShrink={0}>
-            {controls}
-            {openPanel && !(isGui && Svg && art !== null) ? openPanel : null}
-            <Box key="words"><Text color={BAR.muted}>{count}</Text></Box>
-          </Box>
+      hover: itemLine(BAR.tile[it.status].mark, i + 1, p.items.length, it.name),
+    })), { background: BAND.progress.bg, text: BAR.text, muted: BAR.muted, calm, chars: Math.floor((cells * CELL_PX) / LINE_TEXT_PX) }) : null
+
+    const chipBox = chip
+      ? <Box key="agents-chip" flexShrink={0} paddingX={1} backgroundColor={chip.look.bg}><Text color={chip.look.color}>{chip.text}</Text></Box>
+      : null
+    // Beside the segments when both fit, else on a row of its own under the line
+    const beside = isChipBeside ? chipBox : null
+    const rows: RenderChildren[] = []
+    if (p.items.length === 0) {
+      rows.push(<Box key="first" flexDirection="row" flexWrap="wrap" columnGap={COLUMN_GAP}>
+        <Box key="words" flexShrink={1}><Text color={BAR.muted} wrap="truncate">{p.words}</Text></Box>
+        {chipBox}
+      </Box>)
+    } else if (Svg && art !== null) {
+      // The Svg alone in a column of its own, the chip beside it (P-021 pkt 3: an interactive Svg
+      // in a row next to text shrinks to its frame's default width)
+      rows.push(<Box key="first" flexDirection="row" alignItems="flex-start" columnGap={COLUMN_GAP}>
+        <Box key="segments" flexDirection="column" flexGrow={1} flexShrink={1}>
+          <Svg isInteractive source={art} alt={alt} height={SEGMENTS_HEIGHT} />
         </Box>
-        <Box key="track" flexDirection="column">
-          {bar ? <Box key="bar" flexDirection="column">{bar}</Box> : null}
-          {/* On the desktop the button sits in the bottom-right corner over the bar's info lines,
-              not on a row of its own (calibration 2026-10-09); the lines are cut short of it */}
-          {openPanel && isGui && Svg && art !== null ? <Box key="foot" position="absolute" right={0} bottom={0}>{openPanel}</Box> : null}
+        {beside}
+      </Box>)
+    } else {
+      const text = segmentText(p.items.map((it) => BAR.segment[it.status]), cells)
+      rows.push(<Box key="first" flexDirection="row" columnGap={COLUMN_GAP}>
+        <Box key="segments" flexDirection="row" flexWrap="wrap" flexShrink={1} columnGap={text.gap}>
+          {text.runs.map((r, i) => <Box key={`seg-${p.items[i]?.id ?? i}`}><Text color={r.color}>{r.text}</Text></Box>)}
         </Box>
-      </Box>
-    )
+        {beside}
+      </Box>)
+      rows.push(<Box key="line"><Text color={BAR.muted} wrap="truncate">{calm}</Text></Box>)
+    }
+    if (p.items.length && chipBox && !isChipBeside) rows.push(<Box key="chip-row" flexDirection="row">{chipBox}</Box>)
+    // The second row, only while its reason lasts: the box just ticked, for TICKED_MS
+    if (tick !== null && clockNow - tick.at < TICKED_MS) {
+      rows.push(<Box key="ticked-row" flexDirection="row">
+        <Box key="ticked" flexShrink={1} paddingX={1} backgroundColor={BAR.tile.done.bg}>
+          <Text color={BAND.progress.color} wrap="truncate">{itemLine(BAR.tile.done.mark, tick.index, tick.total, tick.name)}</Text>
+        </Box>
+      </Box>)
+    }
+
+    const ours = barCard(ui, isGui, columns, rows, figure)
     if (!below) return ours
     return <Box key="relai-progress" flexDirection="column" gap={e.surface === 'terminal' ? 0 : 1}>{[ours, below]}</Box>
   })

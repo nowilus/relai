@@ -155,12 +155,60 @@ function barPairs(band, bar) {
   return pairs.filter(([, fg, bg]) => contrast(fg, bg) < 4.5).map(([n, fg, bg]) => `${n}: ${contrast(fg, bg).toFixed(2)}`);
 }
 
-test('BAND: three bars, each labelled RelAI, with a label color and a background of its own', () => {
+// Brief v2 (STYL_PASKOW_CLAUDE.md §2, §5, 2026-10-10): the label is the bar's own word, the brand
+// stays in its color; the label column is 14 cells, wide enough for each label
+test('BAND: three bars labelled plan, postęp and cache, with a label color and a background of their own', () => {
   assert.deepEqual(Object.keys(theme.BAND), ['cache', 'panel', 'progress']); // the brief's order
+  assert.deepEqual(Object.values(theme.BAND).map((b) => b.label), ['cache', 'plan', 'postęp']);
   const bars = Object.values(theme.BAND);
-  for (const b of bars) assert.match(b.label, /^RelAI · /);
+  for (const b of bars) assert.doesNotMatch(b.label, /RelAI/);
   assert.equal(new Set(bars.map((b) => b.bg)).size, 3, 'two bars share a background');
   assert.equal(new Set(bars.map((b) => b.color)).size, 3, 'two bars share a label color');
+});
+
+test('BAR: the label column is 14 cells and holds every label', () => {
+  assert.equal(theme.BAR.labelColumn, 14);
+  for (const b of Object.values(theme.BAND)) assert.ok(b.label.length <= theme.BAR.labelColumn, b.label);
+  assert.equal(theme.BAR.figureColumn, 11);
+});
+
+// Brief v2 §4: the rings of the cache bar and the colors of their thresholds
+test('RING: a 22 px ring, 3.2 px stroke, 4.4 px on hover, on a #1d1b18 track', () => {
+  assert.equal(theme.RING.diameter, 22);
+  assert.equal(theme.RING.stroke, 3.2);
+  assert.equal(theme.RING.hoverStroke, 4.4);
+  assert.equal(theme.RING.track, '#1d1b18');
+});
+
+test('usageColor: sage below 70 %, mustard from 70 %, clay from 90 % (69/70/89/90)', () => {
+  const sage = theme.BAR.segment.done;
+  const mustard = theme.BAND.panel.color;
+  const clay = theme.BAND.cache.color;
+  assert.deepEqual([0, 69, 69.9, 70, 89, 89.9, 90, 100, 130].map(theme.usageColor),
+    [sage, sage, sage, mustard, mustard, mustard, clay, clay, clay]);
+  assert.equal(new Set([sage, mustard, clay]).size, 3, 'two thresholds share a color');
+});
+
+test('cacheColor: sage while the cache is warm, mustard at 35 % of TTL left or less, clay at 15 % or less and when cold', () => {
+  const sage = theme.BAR.segment.done;
+  const mustard = theme.BAND.panel.color;
+  const clay = theme.BAND.cache.color;
+  assert.deepEqual([100, 36, 35.1, 35, 16, 15.1, 15, 1, 0].map((p) => theme.cacheColor(p)),
+    [sage, sage, sage, mustard, mustard, mustard, clay, clay, clay]);
+  assert.equal(theme.cacheColor(100, true), clay); // cold whatever the share says
+});
+
+test('a missing figure draws the bare track, never a pretend color (brief §4: brak danych)', () => {
+  for (const v of [null, undefined, Number.NaN, Infinity]) {
+    assert.equal(theme.usageColor(/** @type {any} */ (v)), theme.RING.track);
+    assert.equal(theme.cacheColor(/** @type {any} */ (v)), theme.RING.track);
+  }
+});
+
+test('CHIP: the second rows\' chips read on their background (WCAG AA, 4.5:1)', () => {
+  assert.deepEqual(Object.keys(theme.CHIP), ['warn', 'ok', 'run']);
+  const low = Object.entries(theme.CHIP).filter(([, c]) => contrast(c.color, c.bg) < 4.5).map(([k]) => k);
+  assert.deepEqual(low, []);
 });
 
 test('every text of the bars reads on its background (WCAG AA, 4.5:1)', () => {

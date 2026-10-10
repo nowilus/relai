@@ -65,7 +65,9 @@ describe('the RelAI band', () => {
     }
   })
 
-  test('shows its label, the active plan, its stage and the cost in a RelAI project, on terminal and desktop', async ($, on) => {
+  // Brief v2 §2 (AUDYT_MODOW Z1): one row, the label without "RelAI ·", the session's cost gone
+  // from this bar (it stands once, in the cache bar)
+  test('shows its label, the active plan, its stage and no cost in a RelAI project, on terminal and desktop', async ($, on) => {
     world(on, RELAI_FILES)
     await start($)
     for (const surface of ['terminal', 'desktop'] as const) {
@@ -75,8 +77,10 @@ describe('the RelAI band', () => {
       expect(plan?.text).toContain('W TOKU')
       expect((await ui.find({ key: 'figure' }))?.text).toContain('0/2')
       expect((await ui.find({ key: 'figure' }))?.text).toContain('etapów')
-      expect((await ui.find({ key: 'label' }))?.text).toBe('RelAI · plan')
-      expect((await ui.find({ key: 'cost' }))?.text).toContain('$1.25')
+      expect((await ui.find({ key: 'label' }))?.text).toBe('plan')
+      expect(await ui.find({ key: 'cost' })).toBeUndefined()
+      expect((await ui.find({ key: 'relai-band-frame' }))?.text).not.toContain('$1.25')
+      expect((await ui.find({ key: 'relai-band-frame' }))?.text).not.toContain('sesja')
       expect(await ui.find({ key: 'engine' })).toBeDefined()
       await ui.unmount()
     }
@@ -102,8 +106,8 @@ describe('the RelAI band', () => {
     await start($)
     const ui = await $.ui.mount({ plugin: 'relai-panel', surface: 'terminal', ...BAND(80) })
     expect((await ui.find({ key: 'plan' }))?.text).toContain('brak aktywnego planu')
-    expect((await ui.find({ key: 'head' }))?.text).toContain('RelAI · plan')
-    expect((await ui.find({ key: 'cost' }))?.text).toContain('sesja')
+    expect((await ui.find({ key: 'head' }))?.text).toBe('plan')
+    expect(await ui.find({ key: 'cost' })).toBeUndefined()
     await ui.unmount()
   })
 

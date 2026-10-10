@@ -34,6 +34,14 @@ export type ProgressState = {
   items: ItemState[]
 }
 
+export type TickedState = {
+  id: string
+  index: number
+  total: number
+  name: string
+  at: number
+}
+
 declare module 'claude-code' {
   interface PluginState {
     'relai-progress': {
@@ -43,6 +51,8 @@ declare module 'claude-code' {
       progress: ProgressState | null
       /** The finished agents folded away in the pane. */
       isDoneCollapsed: boolean
+      /** The box that just turned done: shown under the bar for 10 s from `at` (AUDYT_MODOW Z1). */
+      ticked: TickedState | null
     }
   }
 }

@@ -5,6 +5,8 @@ import { agentCost } from './core/agents.mjs'
 import { parseRecords } from './core/measure.mjs'
 import { parsePriceFile, priceAt, priceLists } from './core/pricing.mjs'
 import { usd } from './fmt'
+import { calmLine } from './segments'
+import type { Item } from './core/progress.mjs'
 
 type Engine = Parameters<TestBody>[0]
 
@@ -22,6 +24,7 @@ const STATUS = [
 ].join('\r\n')
 const PROMPT = '## Weryfikacja\n\n- [x] jeden\n- [x] dwa\n- [ ] trzy\n- [ ] cztery\n'
 const AGENT = 'a2cdd79804dae736c'
+const AGENT2 = 'b7e01f22c9d4a8e13'
 const SESSION = 'session-1'
 const MEASURE = `${CWD}/.claude/relai/pomiary/2026-10-09-${SESSION}.jsonl`
 
@@ -75,7 +78,8 @@ function world(on: On, files: Record<string, string>, here = CWD) {
   })
   on('ui.open', () => ({ value: { isPlaced: true as const } }))
   on('ui.panes', () => ({ value: [] }))
-  on('agent.spawn', () => ({ model: 'claude-opus-5-5', agentId: AGENT }))
+  let spawns = 0
+  on('agent.spawn', () => ({ model: 'claude-opus-5-5', agentId: spawns++ === 0 ? AGENT : AGENT2 }))
   on('turn.step', async function* ($, e) {
     const result: TurnStepResult = {
       turnId: e.turnId, index: e.index, answer: '', toolUses: [], stopReason: 'end_turn',
@@ -142,6 +146,10 @@ async function spawn($: Engine) {
   await $.agent.spawn({ subagentType: 'Explore', description: 'Sonda agenta', prompt: 'x' } as never).catch(() => undefined)
 }
 
+async function spawn2($: Engine) {
+  await $.agent.spawn({ subagentType: 'Explore', description: 'Druga sonda', prompt: 'y' } as never).catch(() => undefined)
+}
+
 async function agentStep($: Engine, index: number) {
   const s = $.turn.step({ turnId: 'ta', index, model: 'claude-opus-5-5', messageCount: 1, agentId: AGENT })
   for await (const _chunk of s) { /* the chunks are the engine's */ }
@@ -160,10 +168,10 @@ describe('the progress card above the prompt', () => {
     }
   })
 
-  // STYL_PASKOW_CLAUDE.md (2026-10-09): a soft background, the label column, a tile per box, the percent on the right
-  // Calibration 2026-10-09 ("Pola i segmenty"): one bar cut into a segment per box, in the color of
-  // its own state, the count and the percent at its end; a soft background, no colored frame
-  test('shows the stage as a bar of segments, one per box in its own state, the count and percent at its end, on both surfaces', async ($, on) => {
+  // Brief v2 (STYL_PASKOW_CLAUDE.md, 3 and 5): a soft background, the label column, the segments
+  // across the middle and `a/b` + unit on the right; the stage's name stands in the plan bar
+  // (brief 2), so this bar no longer repeats it, and no percent with hundredths
+  test('shows the stage as a bar of segments, one per box in its own state, and `a/b punktów` on the right, on both surfaces', async ($, on) => {
     world(on, FILES)
     await start($)
     for (const surface of ['terminal', 'desktop'] as const) {
@@ -173,24 +181,98 @@ describe('the progress card above the prompt', () => {
       expect(props.backgroundColor).toBe(LOOK.progress.bg)
       expect(props.borderStyle).toBe(surface === 'desktop' ? 'round' : undefined)
       if (surface === 'desktop') expect(props.borderColor).toBe(LOOK.progress.bg) // corners only, no colored frame
-      expect((await ui.find({ key: 'label' }))?.text).toBe('RelAI · postęp')
-      expect((await ui.find({ key: 'title' }))?.text).toBe('E9 · Postęp pracy i agenci na żywo')
-      expect((await ui.find({ key: 'words' }))?.text).toBe('2 z 4 · 50.00%')
+      expect((await ui.find({ key: 'label' }))?.text).toBe(LOOK.progress.label)
+      expect((await ui.find({ key: 'label' }))?.props.width).toBe(BAR.labelColumn)
+      expect(await ui.find({ key: 'title' })).toBeUndefined()
+      expect((await ui.find({ key: 'figure' }))?.text).toBe('2/4 punktów')
+      expect(textOf(await ui.drawn())).not.toContain('%')
       expect(await segmentStates($, ui, surface, 4)).toEqual(['done', 'done', 'pending', 'pending'])
       expect(await ui.find({ key: 'engine' })).toBeDefined()
       await ui.unmount()
     }
   })
 
-  test('a box ticked by hand in the prompt file moves the percent and its own segment at the next tick (positive control)', async ($, on) => {
+  test('a box ticked by hand in the prompt file moves the count and its own segment at the next tick (positive control)', async ($, on) => {
     const { disk, clock } = world(on, FILES)
     await start($)
     disk[`${CWD}/docs/plany/PANEL_CLAUDE/PROMPT_ETAP_9.md`] = PROMPT.replace('- [ ] trzy', '- [x] trzy')
     await clock.advance(11_000)
     const ui = await $.ui.mount({ plugin: 'relai-progress', surface: 'desktop', ...BAND() })
-    expect((await ui.find({ key: 'words' }))?.text).toBe('3 z 4 · 75.00%')
+    expect((await ui.find({ key: 'figure' }))?.text).toBe('3/4 punktów')
     expect(await segmentStates($, ui, 'desktop', 4)).toEqual(['done', 'done', 'done', 'pending'])
     await ui.unmount()
+  })
+
+  // Brief v2, 3: a small line under the segments in the same Svg — calm `następny: …` in BAR.muted,
+  // a hovered segment's `<mark> i/N · <name>` in BAR.text; the segments never hide under it
+  test('under the segments a constant small line: the next item in calm, the hovered item\'s mark, place and name', async ($, on) => {
+    world(on, FILES)
+    await start($)
+    const ui = await $.ui.mount({ plugin: 'relai-progress', surface: 'desktop', ...BAND() })
+    const svgs = [...walkNodes(await ui.drawn())].filter((x) => typeof x !== 'string' && x.type === 'Svg')
+    expect(svgs.length).toBe(1)
+    const props = ((svgs[0] as { props?: Record<string, unknown> }).props ?? {})
+    expect(props.isInteractive).toBe(true)
+    expect(props.height).toBe(26) // segments 8 px + gap 4 px + line 14 px
+    const source = String(props.source ?? '')
+    expect(source).toMatch(/^<svg [^>]*width="100%"[^>]*height="26"/) // a width in the markup (P-020, 7)
+    expect(source).toContain('font-size:11.5px')
+    // calm: one line in the muted color
+    expect(source).toContain(`<text class="d" x="0" y="23" fill="${BAR.muted}">następny: trzy</text>`)
+    // hover: one line per segment in the text color, hidden until its own segment is hovered
+    expect(source).toContain(`<text class="t t0" x="0" y="23" fill="${BAR.text}">✓ 1/4 · jeden</text>`)
+    expect(source).toContain(`<text class="t t3" x="0" y="23" fill="${BAR.text}">○ 4/4 · cztery</text>`)
+    expect(source).toContain('.b0:hover~.t0')
+    // what hover hides is the calm line alone, never a segment
+    const hidden = [...source.matchAll(/([^{}]+)\{display:none\}/g)].map((m) => m[1] ?? '')
+    expect(hidden.join(',').split(',').map((s) => s.trim()).filter((s) => s !== '.t' && !s.endsWith('~.d'))).toEqual([])
+    await ui.unmount()
+
+    // the terminal draws the calm line as text under the segments
+    const term = await $.ui.mount({ plugin: 'relai-progress', surface: 'terminal', ...BAND() })
+    expect((await term.find({ key: 'line' }))?.text).toBe('następny: trzy')
+    await term.unmount()
+  })
+
+  test('the figure is `a/b` and its unit for every count: one box is "punktu", a crew\'s tasks are "zadań"', async ($, on) => {
+    world(on, { ...FILES, [`${CWD}/docs/plany/PANEL_CLAUDE/PROMPT_ETAP_9.md`]: '- [ ] jedyny\n' })
+    await start($)
+    const ui = await $.ui.mount({ plugin: 'relai-progress', surface: 'terminal', ...BAND() })
+    expect((await ui.find({ key: 'figure' }))?.text).toBe('0/1 punktu')
+    await ui.unmount()
+  })
+
+  // Brief v2, 1: "punkt właśnie odhaczony" opens a second row under this bar alone, for 10 s
+  test('a box just ticked opens a second row `✓ i/N · name` for 10 s, then the row is gone', async ($, on) => {
+    const { disk, clock } = world(on, FILES)
+    await start($)
+    const ui = await $.ui.mount({ plugin: 'relai-progress', surface: 'desktop', ...BAND() })
+    expect(await ui.find({ key: 'ticked' })).toBeUndefined() // boxes ticked before the session are no news
+    disk[`${CWD}/docs/plany/PANEL_CLAUDE/PROMPT_ETAP_9.md`] = PROMPT.replace('- [ ] trzy', '- [x] trzy')
+    await clock.advance(11_000) // the tick at 10 s reads the file
+    expect((await ui.find({ key: 'ticked' }))?.text).toBe('✓ 3/4 · trzy')
+    const term = await $.ui.mount({ plugin: 'relai-progress', surface: 'terminal', ...BAND() })
+    expect((await term.find({ key: 'ticked' }))?.text).toBe('✓ 3/4 · trzy')
+    await term.unmount()
+    await clock.advance(8_000) // 19 s: still within its 10 s
+    expect(await ui.find({ key: 'ticked' })).toBeDefined()
+    await clock.advance(2_000) // 21 s: past them
+    expect(await ui.find({ key: 'ticked' })).toBeUndefined()
+    expect(await ui.find({ key: 'figure' })).toBeDefined() // the bar itself stays
+    await ui.unmount()
+  })
+
+  test('in calm the bar holds no button at all, with relai-panel running and with agents', async ($, on) => {
+    world(on, FILES)
+    on('command.list', () => ({ value: [{ name: 'relai-panel', description: 'Panel RelAI', source: 'plugin' as const }] }))
+    await start($)
+    await spawn($)
+    for (const surface of ['terminal', 'desktop'] as const) {
+      const ui = await $.ui.mount({ plugin: 'relai-progress', surface, ...BAND() })
+      expect(await ui.find({ key: 'figure' })).toBeDefined() // the bar is there at all
+      expect(await ui.findAll({ type: 'Button' })).toEqual([])
+      await ui.unmount()
+    }
   })
 
   test('without a source it says so in words and draws no bar', async ($, on) => {
@@ -206,6 +288,8 @@ describe('the progress card above the prompt', () => {
     }
   })
 
+  // The run's name is no longer a row of its own (one row in calm, brief v2): its unit says
+  // "zadań", and the Svg's description and the agents pane name the run
   test('a live /relai-crew run wins over the stage', async ($, on) => {
     world(on, {
       ...FILES,
@@ -214,18 +298,21 @@ describe('the progress card above the prompt', () => {
     })
     await start($)
     const ui = await $.ui.mount({ plugin: 'relai-progress', surface: 'terminal', ...BAND() })
-    expect((await ui.find({ key: 'title' }))?.text).toContain('załoga 2026-10-09_110000')
-    expect((await ui.find({ key: 'words' }))?.text).toBe('1 z 2 · 50.00%')
+    expect((await ui.find({ key: 'figure' }))?.text).toBe('1/2 zadań')
     expect(await ui.find({ key: 'seg-a' })).toBeDefined()
     expect(await ui.find({ key: 'seg-b' })).toBeDefined()
     await ui.unmount()
+    const desk = await $.ui.mount({ plugin: 'relai-progress', surface: 'desktop', ...BAND() })
+    const svg = [...walkNodes(await desk.drawn())].find((x) => typeof x !== 'string' && x.type === 'Svg')
+    expect(String(((svg as { props?: { alt?: string } } | undefined)?.props ?? {}).alt)).toContain('załoga 2026-10-09_110000')
+    await desk.unmount()
   })
 
   test('a session whose shell stands in a subfolder still finds the project root (E9, P-021)', async ($, on) => {
     world(on, FILES, `${CWD}/.claude/relai/work/PANEL_CLAUDE/E9`)
     await start($)
     const ui = await $.ui.mount({ plugin: 'relai-progress', surface: 'terminal', ...BAND() })
-    expect((await ui.find({ key: 'words' }))?.text).toBe('2 z 4 · 50.00%')
+    expect((await ui.find({ key: 'figure' }))?.text).toBe('2/4 punktów')
     await ui.unmount()
   })
 
@@ -236,7 +323,7 @@ describe('the progress card above the prompt', () => {
     const ui = await $.ui.mount({ plugin: 'relai-progress', surface: 'desktop', ...BAND() })
     const states = await segmentStates($, ui, 'desktop', 10)
     expect(states.flatMap((s, i) => (s === 'done' ? [i + 1] : []))).toEqual([2, 5, 9])
-    expect((await ui.find({ key: 'words' }))?.text).toBe('3 z 10 · 30.00%')
+    expect((await ui.find({ key: 'figure' }))?.text).toBe('3/10 punktów')
     await ui.unmount()
   })
 
@@ -246,34 +333,11 @@ describe('the progress card above the prompt', () => {
     await start($)
     const desk = await $.ui.mount({ plugin: 'relai-progress', surface: 'desktop', ...BAND(140) })
     expect((await segmentStates($, desk, 'desktop', 40)).length).toBe(40)
-    expect((await desk.find({ key: 'words' }))?.text).toBe('0 z 40 · 0.00%')
+    expect((await desk.find({ key: 'figure' }))?.text).toBe('0/40 punktów')
     await desk.unmount()
     const term = await $.ui.mount({ plugin: 'relai-progress', surface: 'terminal', ...BAND(40) })
     expect(await term.find({ key: 'seg-docs/plany/PANEL_CLAUDE/PROMPT_ETAP_9.md#40' })).toBeDefined()
     await term.unmount()
-  })
-
-  test('"Panel RelAI" in the bottom-right corner opens relai-panel\'s pane through its command, only when that plugin runs', async ($, on) => {
-    world(on, FILES)
-    const ran: string[] = []
-    on('command.list', () => ({ value: [{ name: 'relai-panel', description: 'Panel RelAI', source: 'plugin' as const }] }))
-    on('command.run', ($, e) => { ran.push(e.command); return { text: 'ok' } })
-    await start($)
-    const ui = await $.ui.mount({ plugin: 'relai-progress', surface: 'desktop', ...BAND() })
-    expect(await ui.find({ key: 'open-panel' })).toBeDefined()
-    await ui.press({ key: 'open-panel' })
-    expect(ran).toEqual(['relai-panel'])
-    await ui.unmount()
-  })
-
-  test('no "Panel RelAI" button when relai-panel does not run in the session', async ($, on) => {
-    world(on, FILES)
-    on('command.list', () => ({ value: [] }))
-    await start($)
-    const ui = await $.ui.mount({ plugin: 'relai-progress', surface: 'terminal', ...BAND() })
-    expect(await ui.find({ key: 'words' })).toBeDefined() // the bar is there at all
-    expect(await ui.find({ key: 'open-panel' })).toBeUndefined()
-    await ui.unmount()
   })
 
   test('a gap apart from the cards beneath on the desktop, none in the terminal (each row counts there)', async ($, on) => {
@@ -289,16 +353,22 @@ describe('the progress card above the prompt', () => {
     expect(await gapOf('terminal')).toBe(0)
   })
 
-  test('nothing is wider than 40 columns, with and without agents', async ($, on) => {
-    world(on, FILES)
+  test('nothing is wider than 40 columns, with and without agents, with a box just ticked', async ($, on) => {
+    const long = 'Bardzo długa nazwa punktu, który właśnie został odhaczony w prompcie etapu i nie mieści się w czterdziestu kolumnach'
+    const { disk, clock } = world(on, { ...FILES, [`${CWD}/docs/plany/PANEL_CLAUDE/PROMPT_ETAP_9.md`]: PROMPT.replace('trzy', long) })
     await start($)
     const ui = await $.ui.mount({ plugin: 'relai-progress', surface: 'terminal', ...BAND(40) })
     const card = await ui.find({ key: 'relai-progress-card' })
     expect(card).toBeDefined()
+    expect(minWidth(await ui.drawn())).toBeLessThanOrEqual(40)
     await ui.unmount()
     await spawn($)
+    disk[`${CWD}/docs/plany/PANEL_CLAUDE/PROMPT_ETAP_9.md`] = PROMPT.replace('- [ ] trzy', `- [x] ${long}`)
+    await clock.advance(11_000)
     for (const surface of ['terminal', 'desktop'] as const) {
       const narrow = await $.ui.mount({ plugin: 'relai-progress', surface, ...BAND(40) })
+      expect(await narrow.find({ key: 'agents-chip' })).toBeDefined()
+      expect(await narrow.find({ key: 'ticked' })).toBeDefined()
       const drawn = await narrow.drawn()
       expect(minWidth(drawn)).toBeLessThanOrEqual(40)
       await narrow.unmount()
@@ -315,19 +385,19 @@ describe('the agents pane', () => {
     await start($)
     await spawn($)
     await agentStep($, 0)
-    const band = await $.ui.mount({ plugin: 'relai-progress', surface: 'desktop', ...BAND() })
-    // States in words and marks, never "0/2" that reads as "none of two done" (calibration 2026-10-09)
-    expect((await band.find({ key: 'agents-btn' }))?.props.label).toBe('Agenci ● 1 działa')
-    await band.unmount()
-
-    // A row of margin between the head with "Agenci" and the segments on a desktop: a native button
-    // is taller than a line and touched the bar (calibration 2026-10-09); none on the terminal
-    const gui = await $.ui.mount({ plugin: 'relai-progress', surface: 'desktop', ...BAND() })
-    expect((await gui.find({ key: 'head' }))?.props.marginBottom).toBe(1)
-    await gui.unmount()
-    const term = await $.ui.mount({ plugin: 'relai-progress', surface: 'terminal', ...BAND() })
-    expect((await term.find({ key: 'head' }))?.props.marginBottom ?? 0).toBe(0)
-    await term.unmount()
+    // Brief v2, 3: a chip `● N agentów · $x` beside the segments instead of the "Agenci" button,
+    // its cost the pane's own sum (computed by hand below: $0.03)
+    for (const surface of ['terminal', 'desktop'] as const) {
+      const band = await $.ui.mount({ plugin: 'relai-progress', surface, ...BAND() })
+      expect((await band.find({ key: 'agents-chip' }))?.text).toBe('● 1 agent · $0.03')
+      expect(await band.find({ key: 'agents-btn' })).toBeUndefined()
+      await band.unmount()
+    }
+    await spawn2($)
+    const two = await $.ui.mount({ plugin: 'relai-progress', surface: 'desktop', ...BAND() })
+    // The second one has no records yet: the sum is partial and says so
+    expect((await two.find({ key: 'agents-chip' }))?.text).toBe('● 2 agentów · ≥ $0.03')
+    await two.unmount()
 
     const live = await $.ui.mount({ plugin: 'relai-progress', surface: 'desktop', ...PANE() })
     const card = await live.find({ key: `agent-${AGENT}` })
@@ -346,9 +416,39 @@ describe('the agents pane', () => {
     expect(done).toContain('$0.03')
     expect(textOf(await after.drawn())).toContain('1 zakończonych')
     await after.unmount()
+    await $.turn.complete({ answer: 'raport', durationMs: 5000, isAborted: false, turnId: 'tb', agentId: AGENT2, reason: 'answer' } as never)
+    // None runs any more: the chip keeps the count and the cost, its mark says they finished
     const ended = await $.ui.mount({ plugin: 'relai-progress', surface: 'desktop', ...BAND() })
-    expect((await ended.find({ key: 'agents-btn' }))?.props.label).toBe('Agenci ✓ 1')
+    expect((await ended.find({ key: 'agents-chip' }))?.text).toBe('✓ 2 agentów · ≥ $0.03')
     await ended.unmount()
+  })
+
+  // Measured in Chromium (2026-10-10): beside 14 segments in 40 columns the Svg is ~70 px wide and
+  // its line ran out of it; the chip goes on a row of its own instead, the segments keep the width
+  test('the chip stands beside the segments when both fit, on a row of its own under them when not', async ($, on) => {
+    const prompt = Array.from({ length: 14 }, (_, i) => `- [ ] Punkt ${i + 1}`).join('\n')
+    world(on, { ...FILES, [`${CWD}/docs/plany/PANEL_CLAUDE/PROMPT_ETAP_9.md`]: prompt })
+    await start($)
+    await spawn($)
+    for (const surface of ['terminal', 'desktop'] as const) {
+      const wide = await $.ui.mount({ plugin: 'relai-progress', surface, ...BAND(140) })
+      expect(await wide.find({ key: 'agents-chip' })).toBeDefined()
+      expect(await wide.find({ key: 'chip-row' })).toBeUndefined()
+      await wide.unmount()
+      const narrow = await $.ui.mount({ plugin: 'relai-progress', surface, ...BAND(40) })
+      expect((await narrow.find({ key: 'chip-row' }))?.text).toContain('1 agent')
+      expect(minWidth(await narrow.drawn())).toBeLessThanOrEqual(40)
+      await narrow.unmount()
+    }
+  })
+
+  test('no agents chip in a session without subagents', async ($, on) => {
+    world(on, FILES)
+    await start($)
+    const ui = await $.ui.mount({ plugin: 'relai-progress', surface: 'desktop', ...BAND() })
+    expect(await ui.find({ key: 'figure' })).toBeDefined()
+    expect(await ui.find({ key: 'agents-chip' })).toBeUndefined()
+    await ui.unmount()
   })
 
   test('no measurement file is "brak pomiaru", never $0', async ($, on) => {
@@ -467,22 +567,21 @@ describe('the progress mod idles quietly (AUDYT_MODOW Z4)', () => {
     on('command.list', () => { lists += 1; return { value: [{ name: 'relai-panel', description: 'Panel RelAI', source: 'plugin' as const }] } })
     await start($)
     const ui = await $.ui.mount({ plugin: 'relai-progress', surface: 'desktop', ...BAND() })
-    expect((await ui.find({ key: 'words' }))?.text).toBe('2 z 4 · 50.00%')
+    expect((await ui.find({ key: 'figure' }))?.text).toBe('2/4 punktów')
     const before = { read: n.read, lists }
     await clock.advance(5 * 60_000)
     expect(n.read - before.read).toBe(0)
-    // Drawing the bar again asks nothing of the session's commands (asked at the start and once
-    // a moment later, PANEL_CHECK_MS, outside any drawing)
-    expect(lists - before.lists).toBe(1)
     await ui.unmount()
+    // The bar no longer asks the session's commands at all: the "Panel RelAI" button that needed
+    // them left it (brief v2, 3), so neither the ticks nor a drawing call $.command.list()
     const again = await $.ui.mount({ plugin: 'relai-progress', surface: 'desktop', ...BAND() })
-    expect(await again.find({ key: 'open-panel' })).toBeDefined()
-    expect(lists - before.lists).toBe(1)
+    expect(await again.find({ key: 'figure' })).toBeDefined()
+    expect(lists).toBe(0)
     // Positive control on the same instrument: a box ticked by hand is read at the next tick
     disk[`${CWD}/docs/plany/PANEL_CLAUDE/PROMPT_ETAP_9.md`] = PROMPT.replace('- [ ] trzy', '- [x] trzy')
     await clock.advance(11_000)
     expect(n.read - before.read).toBeGreaterThan(0)
-    expect((await again.find({ key: 'words' }))?.text).toBe('3 z 4 · 75.00%')
+    expect((await again.find({ key: 'figure' }))?.text).toBe('3/4 punktów')
     await again.unmount()
   })
 
@@ -494,9 +593,9 @@ describe('the progress mod idles quietly (AUDYT_MODOW Z4)', () => {
     disk[`${CWD}/docs/plany/PANEL_CLAUDE/PROMPT_ETAP_9.md`] = PROMPT.replace('- [ ] trzy', '- [x] trzy')
     await $.tool.call({ tool: 'Edit', file_path: `${CWD}/x.md`, old_string: 'a', new_string: 'b' } as never)
     // The tool's answer came back before the progress was read: the bar still shows the old count
-    expect((await ui.find({ key: 'words' }))?.text).toBe('2 z 4 · 50.00%')
+    expect((await ui.find({ key: 'figure' }))?.text).toBe('2/4 punktów')
     await clock.settle()
-    expect((await ui.find({ key: 'words' }))?.text).toBe('3 z 4 · 75.00%')
+    expect((await ui.find({ key: 'figure' }))?.text).toBe('3/4 punktów')
     await ui.unmount()
   })
 })
@@ -511,9 +610,19 @@ describe('a crew run that went quiet leaves the bar (AUDYT_MODOW Z4, review)', (
     })
     await start($)
     const ui = await $.ui.mount({ plugin: 'relai-progress', surface: 'terminal', ...BAND() })
-    expect((await ui.find({ key: 'title' }))?.text).toContain('załoga')
+    expect((await ui.find({ key: 'figure' }))?.text).toBe('1/2 zadań')
     await clock.advance(20 * 60_000)
-    expect((await ui.find({ key: 'words' }))?.text).toBe('2 z 4 · 50.00%')
+    expect((await ui.find({ key: 'figure' }))?.text).toBe('2/4 punktów')
     await ui.unmount()
+  })
+})
+
+describe('the line under the segments says the item in progress and the next one (brief v2, 3)', () => {
+  const item = (status: Item['status'], name: string): Item => ({ id: name, label: name, name, status })
+  test('an item in progress leads; without one, only the next; with none left, words', () => {
+    expect(calmLine([item('done', 'a'), item('running', 'b'), item('pending', 'c')])).toBe('w toku: b · następny: c')
+    expect(calmLine([item('done', 'a'), item('pending', 'c'), item('pending', 'd')])).toBe('następny: c')
+    expect(calmLine([item('done', 'a'), item('running', 'b')])).toBe('w toku: b')
+    expect(calmLine([item('done', 'a')])).toBe('wszystkie punkty odhaczone')
   })
 })

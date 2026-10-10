@@ -336,7 +336,7 @@ describe('the band among the other mods above the prompt', () => {
       expect(props?.backgroundColor).toBe(BAND.panel.bg)
       expect(props?.borderStyle).toBe(surface === 'desktop' ? 'round' : undefined)
       if (surface === 'desktop') expect(props?.borderColor).toBe(BAND.panel.bg) // no colored frame
-      expect(textOf(frame)).toContain('RelAI')
+      expect(textOf(frame)).toMatch(/^plan/) // the label, without "RelAI ·" since brief v2
       expect(textOf(frame)).not.toContain('engine') // the mods beneath stay outside the frame
       expect(await ui.find({ key: 'engine' })).toBeDefined()
       await ui.unmount()

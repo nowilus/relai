@@ -1,6 +1,6 @@
 // relai-panel: the RelAI band above the prompt. Active plan and stage from CLAUDE.md and the
-// plan's STATUS.md and the session's hypothetical API cost, in one card of the RelAI cards above
-// the prompt (BAND, E9). The /relai-panel
+// plan's STATUS.md, in one card of the RelAI cards above the prompt (BAND, E9), with a second row
+// while a confirmation card waits (brief v2, AUDYT_MODOW Z1). The /relai-panel
 // command opens a side pane with the forms of the 14 RelAI commands, the cheat sheet and the
 // session phrases, drawn in the RelAI motif (E8): cards with the command icons, Kalam headings,
 // three recommended commands on top. A desktop draws the SVG; the terminal gets the same cards
@@ -894,11 +894,9 @@ export const register: Register = (on) => {
 
   on('session.measure', async ($, e, next) => {
     if (S.isRelai) {
-      // The band's cost comes from here, not from usage() after the turn (Z4): drawn again when it moved
-      if (e.cost && e.cost.usd !== S.costUsd) {
-        set({ costUsd: e.cost.usd })
-        $.ui.invalidate('ui.render')
-      }
+      // The costs tab's engine counter comes from here, not from usage() after the turn (Z4); the
+      // plan bar no longer shows a cost (Z1), so nothing above the prompt is drawn again for it
+      if (e.cost) set({ costUsd: e.cost.usd })
     }
     return next(e)
   })
@@ -908,7 +906,16 @@ export const register: Register = (on) => {
   on('ui.render', { component: 'AbovePrompt' }, async ($, e, next) => {
     if (!S.isRelai || e.props.hasSurvey) return next(e)
     const below = await next(e)
-    const ours = band($.ui.resolve(e), e.surface !== 'terminal', e.props.bodyColumns, S.plan, S.costUsd)
+    // A card waiting for "Tak" opens the bar's second row (brief v2 §1). Read here, the atom
+    // subscribes this drawing: the row comes and goes with the card, nobody invalidating. Its
+    // answer is the pane's own decide (R4, D-35); the commands' names are asked on the press,
+    // never in the drawing, when the pane has not loaded them since the module began.
+    const pending = await read($, confirm)
+    const waiting = pending ? {
+      card: pending,
+      decide: (said: 'tak' | 'nie') => { void (async () => decide($, pending, said, (data ?? await loadData($, S.cwd)).names))() },
+    } : null
+    const ours = band($.ui.resolve(e), e.surface !== 'terminal', e.props.bodyColumns, S.plan, waiting)
     if (!below) return ours
     const { Box } = $.ui.resolve(e)
     // No width here: the engine refuses its own node under a Box with "width" and draws its own

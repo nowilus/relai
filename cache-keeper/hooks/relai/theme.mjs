@@ -154,17 +154,18 @@ export const COST_COLORS = Object.freeze({
  * Colors are the brief's, verbatim: the dark reference of the accepted mock-ups. relai-panel,
  * relai-progress and relai-cache-keeper read them from their synced copy of this file.
  */
+// Brief v2 (2026-10-10, AUDYT_MODOW): the label is the bar's own word; the brand is in its color.
 export const BAND = Object.freeze({
-  cache: Object.freeze({ label: 'RelAI · cache', color: '#df987a', bg: '#2c2824' }),
-  panel: Object.freeze({ label: 'RelAI · plan', color: '#e1b85c', bg: '#2d2a23' }),
-  progress: Object.freeze({ label: 'RelAI · postęp', color: '#9cbea2', bg: '#262c27' }),
+  cache: Object.freeze({ label: 'cache', color: '#df987a', bg: '#2c2824' }),
+  panel: Object.freeze({ label: 'plan', color: '#e1b85c', bg: '#2d2a23' }),
+  progress: Object.freeze({ label: 'postęp', color: '#9cbea2', bg: '#262c27' }),
 });
 
 /** What every bar shares: its text, its grid in cells, the colors of a task tile by its state. */
 export const BAR = Object.freeze({
   text: '#eee8dc',
   muted: '#b8b0a3',
-  labelColumn: 16, // cells, the same in all three bars (brief: ~106–118 px)
+  labelColumn: 14, // cells, the same in all three bars (brief v2 §5; v1: 16 with "RelAI ·")
   figureColumn: 11, // cells, never shrunk at the figure's cost (brief: ~76–88 px)
   narrow: 90, // below this many columns the label goes above the content
   tile: Object.freeze({
@@ -183,6 +184,60 @@ export const BAR = Object.freeze({
     failed: mix('#df987a', '#262c27', 0.2),
     unknown: mix('#262c27', '#b8b0a3', 0.12),
   }),
+});
+
+/**
+ * The rings of the cache bar (brief v2 §4): geometry in px, the track under the fill, and the
+ * thresholds of the fill's color — of a limit used (5 h, week, context) in percent used, of the
+ * cache in percent of its TTL left.
+ */
+export const RING = Object.freeze({
+  diameter: 22,
+  stroke: 3.2,
+  hoverStroke: 4.4, // hover only thickens the ring: no tooltip, no overlay (brief v2 §4)
+  track: '#1d1b18',
+  warn: 70, // % used: mustard from here
+  alert: 90, // % used: clay from here
+  cacheWarn: 35, // % of TTL left: mustard at or below (the cache cools)
+  cacheAlert: 15, // % of TTL left: clay at or below, and when cold
+});
+
+const isFigure = (/** @type {unknown} */ v) => typeof v === 'number' && Number.isFinite(v);
+
+/**
+ * The fill of a limit's ring by the percent used: sage below 70, mustard from 70, clay from 90.
+ * A missing figure draws the bare track, never a pretend color (brief §4: "brak danych").
+ * @param {number} percent @returns {string}
+ */
+export function usageColor(percent) {
+  if (!isFigure(percent)) return RING.track;
+  if (percent >= RING.alert) return BAND.cache.color;
+  if (percent >= RING.warn) return BAND.panel.color;
+  return BAR.segment.done;
+}
+
+/**
+ * The fill of the cache ring, the other way round: sage while warm, mustard at 35 % of the TTL
+ * left or less, clay at 15 % or less and whenever the cache is cold. A missing figure: the track.
+ * @param {number} leftPercent @param {boolean} [isCold] @returns {string}
+ */
+export function cacheColor(leftPercent, isCold = false) {
+  if (isCold) return BAND.cache.color;
+  if (!isFigure(leftPercent)) return RING.track;
+  if (leftPercent <= RING.cacheAlert) return BAND.cache.color;
+  if (leftPercent <= RING.cacheWarn) return BAND.panel.color;
+  return BAR.segment.done;
+}
+
+/**
+ * The chip that opens a bar's second row (brief v2 §1; colors of MAKIETY.html v4): `warn` for
+ * what waits for the person (a card, a cooling cache), `ok` for what was just done (a ticked
+ * item), `run` for what goes on.
+ */
+export const CHIP = Object.freeze({
+  warn: Object.freeze({ color: BAND.cache.color, bg: '#3d2f28' }),
+  ok: Object.freeze({ color: BAND.progress.color, bg: '#2f3a31' }),
+  run: Object.freeze({ color: BAND.panel.color, bg: '#3a342b' }),
 });
 
 /**
