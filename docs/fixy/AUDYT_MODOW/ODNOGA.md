@@ -316,15 +316,14 @@ Jedna linia na zamkniętą paczkę; pełny wpis do `docs/DZIENNIK.md` dopiero w 
   zachowania; tag `relai-panel-v0.10.0` i release; aktualizacja lokalna sprawdzona treścią plików
   w cache. Pomiar na żywo po restarcie — czeka na Łukasza.
 - **2026-10-10 · Z10 zamknięta w repo (Aneks A)** — po wydaniu archiwum w drzewie nie rozwijało się,
-  a foldery rozwijały się opornie i nie chciały zwinąć; eksperyment Łukasza (zwinięte fixy, plany,
-  zasoby) obalił wagę w znakach jako przyczynę. Rozstrzyga liczba `Svg` w rysunku: widoczne 20/36,
-  niewidoczne 41 (P-023 pkt 7 uzupełniony). Wiersz drzewa bez `Svg`: typ pliku słowem w kolorze,
-  chevron i nazwa folderu jednym linkiem; kafle 24 na zakładkę, 12 na grupę, 4 przy otwartym
-  dokumencie; diff po 80 wierszy; podgląd 30 tys. znaków. Budżet testów: ≤ 32 Svg i ≤ 70 tys.
-  znaków poza markupem Svg; nowy test na prawdziwej liście `docs/` z 2026-10-10 (216 plików, każdy
-  folder rozwinięty, archiwum otwiera się i zamyka) — na starym kodzie daje 62 Svg. Sonda w
-  zainstalowanej kopii odrzucona przez klasyfikator trybu auto, kopia przywrócona bajt w bajt.
-  Testy: panel 108/108, `tsc` 0. Na żywo — po wydaniu albo podmianie lokalnej za zgodą.
+  foldery rozwijały się opornie i nie chciały zwinąć. Pierwsza poprawka (`5d1f9c4`: wiersze bez Svg,
+  budżet ≤ 32 Svg) oparta na złej hipotezie — opór został, ikony zniknęły; cofnięta. Sonda
+  `tree-probe` (mod deweloperski: pięć wariantów drzewa, log kliknięć do pliku) dała przyczynę:
+  na desktopie drugi klik w link `Markdown` nie dociera do pluginu, tylko ruch fokusu (P-023 pkt 7a);
+  `Button` dostaje każdy klik. Wiersz drzewa: ikona Svg i nazwa jako `Button plain`; limity sprzed
+  Z10. Nowy test na prawdziwej liście `docs/` z 2026-10-10 (każdy folder rozwinięty przyciskiem,
+  archiwum zamyka się i otwiera). Testy: panel 108/108, `tsc` 0; podmiana lokalna w zainstalowanej
+  kopii 0.10.0 za zgodą Łukasza (oryginały w katalogu roboczym).
 
 ## Wynik
 

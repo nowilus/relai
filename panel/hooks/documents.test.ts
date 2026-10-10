@@ -1,6 +1,6 @@
 import { describe, expect, mock, test, type TestBody } from 'claude-code/testing'
 import type { On, RenderElement, RenderNode, TurnStepResult } from 'claude-code'
-import { NUMSTAT_ARGV, treeHref } from './core/documents.mjs'
+import { NUMSTAT_ARGV } from './core/documents.mjs'
 import { DIFF as DIFF_LOOK } from './core/theme.mjs'
 
 // The documents tab of the RelAI panel (plan PANEL_CLAUDE, E6, Aneks E): a shelf of tiles, the
@@ -212,31 +212,36 @@ describe('the documents tab', () => {
     const top = await ui.find({ key: 'top-docs/STATE.md' })
     expect(textOf(top)).toContain('docs')
     expect(textOf(top)).toContain('+12')
-    const linkOf = async (key: string) => String(props([...walk(await ui.find({ key }))].filter((n) => n.type === 'Markdown').at(-1)!).text)
-    expect(await linkOf('top-docs/STATE.md')).toBe(`**[STATE.md](${treeHref('doc', 'docs/STATE.md')})**`)
+    // A row's name is a plain Button (Z10: a Markdown link took one click in two on a desktop); bold when edited
+    const nameOf = async (key: string) => { const b = [...walk(await ui.find({ key }))].find((n) => n.type === 'Button')!; const t = [...walk(b)].find((n) => n.type === 'Text')!; return `${props(t).bold ? '**' : ''}${textOf(t)}${props(t).bold ? '**' : ''}` }
+    expect(await nameOf('top-docs/STATE.md')).toBe('**STATE.md**')
     const tree = async () => (((await ui.find({ key: 'docs-tree' }))?.children ?? []) as RenderElement[]).map((n) => String(props(n).key))
     expect(await tree()).toEqual(['dir-docs', 'row-CLAUDE.md'])
-    // The folder: its chevron and name in one link, the edited count; a press on it opens it
-    expect(textOf(await ui.find({ key: 'dir-docs' }))).toBe('● 2')
-    expect(await linkOf('dir-docs')).toBe(`**[▸ docs](${treeHref('dir', 'docs')})**`)
-    await ui.press({ key: 'dir-l-docs', link: { href: treeHref('dir', 'docs') } })
-    expect(await linkOf('dir-docs')).toBe(`**[▾ docs](${treeHref('dir', 'docs')})**`)
+    // The folder: its icon closed, its chevron and name in one Button, the edited count; a press opens it
+    const folderSvg = async (dir: string) => [...walk(await ui.find({ key: `dir-${dir}` }))].find((n) => n.type === 'Svg')!
+    expect(textOf(await ui.find({ key: 'dir-docs' }))).toBe('▸ docs2') // the name, then the edited count
+    expect(await nameOf('dir-docs')).toBe('**▸ docs**')
+    const shut = String(props(await folderSvg('docs')).source)
+    await ui.press({ key: 'dir-l-docs' })
+    expect(await nameOf('dir-docs')).toBe('**▾ docs**')
+    expect(String(props(await folderSvg('docs')).source)).not.toBe(shut)
+    expect(String(props(await folderSvg('docs')).alt)).toBe('folder docs, otwarty')
     // Its subfolders first, then its documents, each by its own name and one level in
     expect(await tree()).toEqual(['dir-docs', 'dir-docs/archiwum', 'dir-docs/plany', 'dir-docs/zasoby',
       'row-docs/DZIENNIK.md', 'row-docs/LEKCJE.md', 'row-docs/STATE.md', 'row-docs/USTAWIENIA.md', 'row-CLAUDE.md'])
-    expect(await linkOf('dir-docs/plany')).toBe(`[▸ plany](${treeHref('dir', 'docs/plany')})`)
+    expect(await nameOf('dir-docs/plany')).toBe('▸ plany')
     expect(props((await ui.find({ key: 'row-docs/STATE.md' }))!).paddingLeft).toBe(4)
     expect(props((await ui.find({ key: 'dir-docs/plany' }))!).paddingLeft).toBe(2)
-    // A second press folds it again: a row has no press of its own (2.1.293), the link is the row's
-    await ui.press({ key: 'dir-l-docs/plany', link: { href: treeHref('dir', 'docs/plany') } })
+    // A second press on the same Button folds it again
+    await ui.press({ key: 'dir-l-docs/plany' })
     expect(await tree()).toContain('dir-docs/plany/PANEL_X')
-    await ui.press({ key: 'dir-l-docs/plany', link: { href: treeHref('dir', 'docs/plany') } })
+    await ui.press({ key: 'dir-l-docs/plany' })
     expect(await tree()).not.toContain('dir-docs/plany/PANEL_X')
     // A document's name opens its window right under its row; a second press closes it
-    await ui.press({ key: 'row-l-docs/STATE.md', link: { href: treeHref('doc', 'docs/STATE.md') } })
+    await ui.press({ key: 'row-l-docs/STATE.md' })
     const keys = await tree()
     expect(keys[keys.indexOf('row-docs/STATE.md') + 1]).toBe('doc-window')
-    await ui.press({ key: 'row-l-docs/STATE.md', link: { href: treeHref('doc', 'docs/STATE.md') } })
+    await ui.press({ key: 'row-l-docs/STATE.md' })
     expect(await ui.find({ key: 'doc-window' })).toBeUndefined()
     // "Wszystkie": every folder folded too until pressed (calibration 2026-10-09)
     await ui.press({ key: 'docs-f-all' })
@@ -252,27 +257,29 @@ describe('the documents tab', () => {
     const ui = await open($)
     await ui.press({ key: 'docs-l-tree' })
     await ui.press({ key: 'docs-f-all' })
-    await ui.press({ key: 'dir-l-docs', link: { href: treeHref('dir', 'docs') } })
-    await ui.press({ key: 'dir-l-docs/fixy', link: { href: treeHref('dir', 'docs/fixy') } })
+    await ui.press({ key: 'dir-l-docs' })
+    await ui.press({ key: 'dir-l-docs/fixy' })
     const keys = (((await ui.find({ key: 'docs-tree' }))?.children ?? []) as RenderElement[]).map((n) => String(props(n).key))
     expect(keys.filter((k) => k.startsWith('row-docs/fixy/')).length).toBe(40)
     expect(textOf(await ui.find({ key: 'more-docs/fixy' }))).toContain('jeszcze 15 pozycji')
     await ui.unmount()
   })
 
-  test('the tree’s rows are lean: a file by its type in words, a folder with a dot where something is edited, no Svg', async ($, on) => {
+  test('the tree’s icons: a file at tree size with its type, a folder with a dot where something is edited', async ($, on) => {
     world(on, FILES)
     await $.session.start({ cwd: CWD, surface: 'desktop', isInteractive: true })
     const ui = await open($)
     await ui.press({ key: 'docs-l-tree' })
     await ui.press({ key: 'docs-f-all' })
-    await ui.press({ key: 'dir-l-docs', link: { href: treeHref('dir', 'docs') } })
-    // Z10: an Svg is a frame of its own on a desktop; a tree of them stopped drawing past ~40
-    expect([...walk(await ui.find({ key: 'docs-tree' }))].some((n) => n.type === 'Svg')).toBe(false)
-    expect(textOf(await ui.find({ key: 'dir-docs/zasoby' }))).toBe('') // nothing edited in it
-    expect(textOf(await ui.find({ key: 'dir-docs' }))).toBe('● 2')
-    expect(textOf(await ui.find({ key: 'row-docs/STATE.md' }))).toContain('MD')
-    expect(textOf(await ui.find({ key: 'row-docs/zasoby/raport.pdf' }))).toBe('') // a folded folder draws none of its files
+    await ui.press({ key: 'dir-l-docs' })
+    const svg = async (key: string) => [...walk(await ui.find({ key }))].find((n) => n.type === 'Svg')!
+    const pdfFolder = await svg('dir-docs/zasoby')
+    expect(String(props(pdfFolder).source)).not.toContain('<circle') // nothing edited in it
+    expect(String(props(await svg('dir-docs')).source)).toContain('<circle')
+    expect([props(pdfFolder).width, props(pdfFolder).height]).toEqual([24, 20])
+    const md = await svg('row-docs/STATE.md')
+    expect([props(md).width, props(md).height]).toEqual([17, 20])
+    expect((String(props(md).source).match(/<path transform=/g) ?? []).length).toBe(2) // M, D
     await ui.unmount()
   })
 
@@ -289,8 +296,6 @@ describe('the documents tab', () => {
     const code = [...walk(await ui.find({ key: 'doc-window' }))].find((n) => n.type === 'Code')
     expect(String(props(code!).source)).toBe('<html>plan</html>')
     expect(textOf(await ui.find({ key: 'doc-window' }))).toContain('otwórz docs/plany/PANEL_X/PLAN.html w przeglądarce')
-    // An open document leaves room for few tiles (Z10): closed, the resources take theirs
-    await ui.press({ key: 'dw-close' })
     await ui.press({ key: 'fold-docs:all:resources' })
     await ui.press({ key: 'open-resources|docs/zasoby/raport.pdf' })
     expect(textOf(await ui.find({ key: 'doc-window' }))).toContain('Plik PDF — panel nie rysuje go w środku')

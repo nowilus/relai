@@ -112,10 +112,6 @@ export async function mapData(io: PaneIo): Promise<MapData> {
 
 export type Shelf = Omit<DocsData, 'now' | 'open'>
 
-// A document's preview within the tab's budget (Z10): the core's DRAW_CHARS (60 k) with the shelf
-// around it took the drawing past what a desktop shows (100 k serialized a tree)
-const PREVIEW_CHARS = 30_000
-
 // The document open under the shelf: only what its mode draws — its diff (one git) or its text
 // (one read), never both
 export async function docOpen(io: PaneIo, s: Shelf, pick: string, mode: 'diff' | 'preview'): Promise<OpenDoc | null> {
@@ -130,7 +126,7 @@ export async function docOpen(io: PaneIo, s: Shelf, pick: string, mode: 'diff' |
   }
   // A binary file (PDF) is neither read nor drawn: its window says so
   const text = KINDS[doc.ext]?.show === 'none' ? null : await readRel(io, doc.path)
-  return { group, doc, diff: null, diffError: '', preview: text === null ? null : previewOf(doc.path, text, PREVIEW_CHARS) }
+  return { group, doc, diff: null, diffError: '', preview: text === null ? null : previewOf(doc.path, text) }
 }
 
 // ---------- the commands tab ----------

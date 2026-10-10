@@ -36,15 +36,15 @@ ten aneks dostaje dopisek).
 | B. Lżejszy wiersz: ikona pliku jednym współdzielonym rysunkiem typu zamiast pełnego Svg na wiersz | więcej wierszy w tym samym budżecie | sama nie gwarantuje progu; zmienia wygląd skalibrowany 2026-10-09 | dołożony tylko, jeśli A obetnie drzewo poniżej 40 wierszy |
 | C. Stronicowanie drzewa („Pokaż dalej” jak w diffie) | przewidywalne | drzewo stronicowane jest obce eksploratorowi („jak w VS Code”) | odrzucony: łamie kalibrację |
 
-**Wynik eksperymentu (2026-10-10):** po zwinięciu fixy/plany/zasoby archiwum dalej się nie
-rozwija, a foldery w ogóle rozwijają się opornie i nie chcą zwinąć. Sama waga w znakach tego nie
-tłumaczy: zakładka Koszty z kadru waży 139 tys. i się rysuje. Tłumaczy to liczba `Svg` — desktop
-rysuje każdy w osobnej ramce: widoczne 20, 27 i 36 Svg, niewidoczne 41 i 121. Drzewo miało dwa Svg
-na folder i jeden na plik. Odchylenie od wariantu A: budżet liczony w Svg (≤ 32) i w znakach poza
-Svg (≤ 70 tys., dokumentowany limit silnika to 100 tys. na drzewo); wiersz drzewa bez Svg (typ pliku
-słowem w kolorze, chevron i nazwa folderu jednym linkiem — większe pole kliknięcia), kafle 24 na
-zakładkę i 12 na grupę (4 przy otwartym dokumencie), diff stronami po 80 wierszy, podgląd 30 tys.
-znaków. Wariant B (lżejszy wiersz) wszedł razem z A.
+**Wynik (2026-10-10, dwie próby):** pierwsza poprawka (wiersze bez Svg, budżet w liczbie Svg)
+była oparta na złej hipotezie — archiwum się rozwinęło, ale opór został, a ikony zniknęły; cofnięta.
+Sonda `tree-probe` (pięć wariantów drzewa w prawdziwym panelu, log zdarzeń do pliku) pokazała
+przyczynę: na desktopie drugi klik w link `Markdown` nie dociera do pluginu (dociera tylko ruch
+fokusu), dopóki nie kliknie się w tło, a póki takie linki są narysowane, gubią się też kliki
+w zakładki; `Button` dostaje każdy klik, przerysowanie ~3 ms. Waga rysunku nie była przyczyną.
+Wdrożone: wiersz drzewa to ikona `Svg` (jak w kalibracji 2026-10-09) i nazwa jako `Button plain`
+(folder z chevronem w tym samym przycisku); limity kafli, diffu i podglądu bez zmian (sprzed Z10).
+Wariant A (budżet wagi) i B (lżejszy wiersz) odrzucone — nie dotyczyły przyczyny.
 
 **Weryfikacja Z10:** test „drzewo i kafle z rozwiniętym archiwum mieszczą się w 60 tys. znaków
 na prawdziwej liście 216 plików”; test, że rozwinięcie folderu przy wyczerpanym budżecie daje linię
