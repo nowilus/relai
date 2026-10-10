@@ -1,20 +1,19 @@
 # STATE — RelAI
 
-Stan na: 2026-10-09 (E7 planu PANEL_CLAUDE — wydanie 2.8.0 i rodziny pluginów panelu w toku; publicznie nadal 2.7.1)
+Stan na: 2026-10-10 (plan PANEL_CLAUDE zamknięty; wydanie 2.8.0 publicznie z trzema pluginami panelu)
 
 ## Gdzie jesteśmy
 
-RelAI ma w repozytorium **2.8.0**: zgodę na start etapu z karty panelu (`/relai-stage
---zgoda-panelu`, E5 planu PANEL_CLAUDE) i trzy pluginy panelu w marketplace RelAI, każdy z własną
-wersją i dopiskiem „early access”: `relai-panel` 0.9.0, `relai-progress` 0.2.0,
-`relai-cache-keeper` 0.3.0. Publicznie stoi jeszcze 2.7.1 (poprawka P-007, tag `v2.7.1` z
-2026-09-28) — wypchnięcie i tag 2.8.0 idą po zgodzie człowieka. Poprzednie duże wydanie, 2.7.0, zamknęło etapy E5–E7 planu PROWADZENIE_END_TO_END
-(2026-09-24, 7/7 etapów). Plugin działa w trzech narzędziach — Claude Code, Cursorze i Codeksie — na
-jednym rdzeniu procesu, z czternastoma komendami. Plan dał lżejszy start sesji, skille czytane
-na żądanie, prompty skrojone pod model, README od pierwszego kroku, procedury dla usterki i pierwszego
-wdrożenia, a na koniec pilnowanie jakości: „gotowe" przychodzi z wynikiem testów, niedomknięty rytuał
-jest zgłaszany na starcie, a członek załogi nie kończy samym meldunkiem. Aktywny plan: PANEL_CLAUDE.
-Opinii spoza projektu nadal nie ma — pilotaż z użytkownikami zamknięto przed wysyłką zaproszeń.
+RelAI **2.8.0** jest w repozytorium i publicznie (tag `v2.8.0`, release Latest, wydane 2026-10-09).
+Plan PANEL_CLAUDE jest zamknięty 2026-10-10: 9/9 etapów, Aneksy A–E. Dał panel RelAI w oknie Claude
+Code jako trzy osobne pluginy w marketplace RelAI, „early access”, na modach Claude Code (zmierzone
+na 2.1.293): `relai-panel` 0.9.0 (pasek planu, `/relai-panel` z formularzami komend, mapą planów,
+dokumentami i kosztami sesji, karta „Tak / Nie” przed każdą zmianą), `relai-progress` 0.2.0 (postęp
+etapu, `/relai-agents`) i `relai-cache-keeper` 0.3.0 (licznik cache promptu). `/relai-stage`
+przyjmuje zgodę z karty panelu. Instalacja komendami z README jest zmierzona na żywo. Plugin `relai`
+działa w trzech narzędziach — Claude Code, Cursorze i Codeksie — na jednym rdzeniu procesu,
+z czternastoma komendami. Aktywny plan: PANEL_CODEX, czeka na akceptację. Opinii spoza projektu
+nadal nie ma.
 
 ## Co działa
 
@@ -42,39 +41,34 @@ Opinii spoza projektu nadal nie ma — pilotaż z użytkownikami zamknięto prze
   kandydatem nigdy.
 - Pytanie o model pokazuje nazwy z listy narzędzia; prompt przerobiony przez `/relai-prompt` jest
   skrojony pod model, który go wykona, według reguł dostawcy z datą odczytu.
+- **Panel RelAI w Claude Code** (plan [PANEL_CLAUDE](archiwum/plany/PANEL_CLAUDE/STATUS.md),
+  zamknięty 2026-10-10): trzy pluginy z marketplace RelAI, instalowane osobno — pasek planu,
+  postępu i cache nad promptem, `/relai-panel` (komendy, mapa, dokumenty, ściąga, frazy, koszty),
+  `/relai-agents`; każda zmiana stanu przez kartę „Tak / Nie”, jedyny ruch sieciowy to strona
+  cennika Anthropic po „Tak”. „Early access” — działa na modach Claude Code (2.1.293).
 - W folderze bez struktury RelAI hooki milczą; skill proponuje strukturę, a propozycję da się
   wyciszyć raz na maszynę.
 
 ## Nad czym pracujemy teraz
 
 - Plan Codeksa [PANEL_CODEX](plany/PANEL_CODEX/STATUS.md) przygotowany jako osobny HTML,
-  **DO AKCEPTACJI**, realizacja dopiero po pełnym zamknięciu PANEL_CLAUDE. Autor i wykonawca:
-  **gpt-6.1-sol w Codeksie**. Pełny zakres wywiadu zachowany; 8 etapów, checklist przejęcia
-  rdzenia i symulator API w planie. Żaden etap nie rozpoczęty, brak promptu E1 przed akceptacją.
-
-- Panel dla Claude Code ma osobny plan [PANEL_CLAUDE](plany/PANEL_CLAUDE/STATUS.md) (7 etapów,
-  **ZAAKCEPTOWANY** 2026-10-08): plugin `relai-panel` na Claude Code Mods, wspólny rdzeń
-  `core/panel/`. Autor: Opus 5.5 — wyjątek od reguły Fable, decyzja człowieka. Aneks do D-80
-  (GUI i telemetria kosztów w zakresie) wpisany. Zrealizowane 2026-10-08: E1 (pasek), E2 (panel
-  i formularze), E8 (motyw, Aneks A), E3 (kolektor pomiarów i zakładka „Koszty"); 2026-10-09:
-  **E9 (postęp i agenci, Aneksy B i C)** — rodzina trzech pluginów w tym repo (`relai-panel`,
-  `relai-progress`, `relai-cache-keeper`), **E4 (mapa przepływu i koszt etapu)**, **E5 (decyzje
-  w panelu: karta potwierdzenia, start etapu ze zgodą z panelu)**, **E6 (dokumenty i cennik,
-  Aneksy D i E)**. **E7 „Wydanie relai-panel” w toku** (ostatni etap planu): wpisy trzech
-  pluginów w `marketplace.json` z własnymi wersjami i dopiskiem „early access” (decyzja człowieka
-  2026-10-09), `relai` 2.8.0, walidator wersji pluginów panelu, `register.tsx` podzielony na pliki
-  poniżej 800 linii, sekcja o panelu w README i `KOMENDY.md`. Zostają wypchnięcie i pomiar
-  w czystej instalacji.
+  **DO AKCEPTACJI**; poprzednik PANEL_CLAUDE zamknięty 2026-10-10, więc zostają akceptacja planu
+  i zakres D-80 dla adaptera Codeksa. Autor i wykonawca: **gpt-6.1-sol w Codeksie**. 8 etapów,
+  checklist przejęcia rdzenia i symulator API w planie. Żaden etap nie rozpoczęty.
 
 ## Co dalej
 
 - Akceptacja [PANEL_CODEX](plany/PANEL_CODEX/PLAN.html) i zakresu adaptera Codeksa w D-80;
   wykonanie po pełnym zamknięciu PANEL_CLAUDE oraz przejęciu jego rdzenia i testów.
   PANEL_CLAUDE pozostaje aktywny.
-- **Restart aplikacji desktopowej**, żeby sesje ładowały 2.7.1 (P-005) — instalacja i cache
-  `relai/relai/2.7.1` już są, sumy plików zgodne z repo. Potem pierwszy start sesji
-  w ExpensesManager kładzie `package.json` przy kopiach narzędzi; obejście `.cjs` przestaje być
-  potrzebne.
+- **Bramka E5 planu PANEL_CLAUDE, pominięta decyzją człowieka 2026-10-10:** start etapu z karty
+  panelu bez drugiego pytania w czacie i `/relai-stage` bez znacznika z kartą jak przed E5 nie są
+  zmierzone na żywo (testy pokrywają oba przebiegi). Warunek wykonalności spełniony od wydania
+  2.8.0: projekt-sonda z etapem `GOTOWY DO STARTU`, karta w panelu, „Tak” w świeżym czacie.
+- Sprzątanie plików pomiarów `.claude/relai/pomiary/` (ryzyko C11) świadomie odłożone — wraca,
+  gdy folder przekroczy 10 MB.
+- Pierwszy start sesji w ExpensesManager pod 2.8.0 kładzie `package.json` przy kopiach narzędzi
+  (P-007); obejście `.cjs` przestaje wtedy być potrzebne — do sprawdzenia przy następnej sesji tam.
 - **Bramki świadomie otwarte przy zamknięciu planu** (po restarcie pod 2.7.0, w sesji
   interaktywnej): pierwszy prompt merytoryczny z trybem ciągłym, bez zgody i bez modelu, daje
   **jedno** okno pytań (Aneks F); zakończone zadanie w tle nie dostaje pytania o zgodę (Aneks H).
@@ -105,7 +99,7 @@ Opinii spoza projektu nadal nie ma — pilotaż z użytkownikami zamknięto prze
 
 ### Wersja i instalacja
 
-Repozytorium: **2.8.0** (E7 planu PANEL_CLAUDE); publicznie **2.7.1** (tag `v2.7.1`, release Latest, 2026-09-28) do wypchnięcia 2.8.0. Źródło instalacji: własny marketplace w tym repozytorium, scope `user`; od 2.8.0 marketplace niesie cztery pluginy — `relai` i trzy pluginy panelu z własnymi wersjami. Wydanie potwierdzasz
+Repozytorium i publicznie: **2.8.0** (tag `v2.8.0`, release Latest, 2026-10-09; E7 planu PANEL_CLAUDE); zainstalowane na koncie właściciela razem z trzema pluginami panelu, aplikacja po restarcie ładuje nowe wersje (znaczniki `.in_use` w cache). Źródło instalacji: własny marketplace w tym repozytorium, scope `user`; od 2.8.0 marketplace niesie cztery pluginy — `relai` i trzy pluginy panelu z własnymi wersjami. Wydanie potwierdzasz
 treścią plików z cache'u, nie komunikatem CLI (P-005): `claude plugin validate` → tag → push →
 release → `marketplace update` → `plugin update relai@relai` → suma plików po CRLF → LF. Walidator
 `core/tools/validate-adapters.js` sprawdza 7 źródeł wersji, w tym baner README i tę sekcję
@@ -122,7 +116,7 @@ tryb ciągły, baza reguł optymalizatora z nakładkami rodzin modeli (`claude`,
 instalator. **Adapter Codex**: natywny manifest, 14 skilli, router `AGENTS.md`, trzy hooki (start
 sesji kopiuje listę modeli).
 
-### Panel `relai-panel` i rodzina pluginów (plan PANEL_CLAUDE, E7)
+### Panel `relai-panel` i rodzina pluginów (plan PANEL_CLAUDE, zamknięty 2026-10-10)
 
 Trzy pluginy Claude Code Mods w tym repo (silnik 2.1.293, „early access”), każdy z kopią rdzenia
 `core/panel/` z `sync-panel-core.js`; nad promptem trzy paski cache → plan → postęp w stylu

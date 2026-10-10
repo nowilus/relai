@@ -135,10 +135,11 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
    kasuje sobie wiersze (L-0141). **Porównanie dwóch plików kasuje oba przed przebiegiem** i
    sprawdza, że oba powstały teraz — nieudany zapis wygląda jak zgodność ze starym wynikiem (L-0143).
    **Stan „przed" mierzysz w osobnym `git worktree` HEAD-a**, nie po `git stash` — stash zostawia
-   pliki nieśledzone i daje drzewo mieszane (L-0151). (L-0032, L-0037, L-0095, L-0096, L-0105, L-0106, L-0107, L-0110, L-0111, L-0113,
+   pliki nieśledzone i daje drzewo mieszane (L-0151). **Skrypt usuwający zakres linii sprawdza
+   cały blok, nie jego brzegi**, a po każdym cięciu idzie kompilator (L-0160). (L-0032, L-0037, L-0095, L-0096, L-0105, L-0106, L-0107, L-0110, L-0111, L-0113,
    L-0097, L-0101, L-0102,
    L-0054, L-0055, L-0056, L-0064, L-0068, L-0071, L-0073, L-0083, L-0084, L-0086, L-0087, L-0088,
-   L-0090, L-0091, L-0124, L-0125, L-0130, L-0131, L-0135, L-0141, L-0143, L-0151)
+   L-0090, L-0091, L-0124, L-0125, L-0130, L-0131, L-0135, L-0141, L-0143, L-0151, L-0160)
 6. **Próg jest liczbą, którą ktoś liczy:** kalibruj go na zmierzonych plikach realnych projektów,
    zapisuj w jednostce mechanizmu kontrolnego wraz z komendą sprawdzającą i daj mu **jeden**
    wyzwalacz — wielkości pomocnicze wskazują przyczynę wewnątrz komunikatu, nie wywołują go.
@@ -193,7 +194,10 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
     pod **inną nazwą** niż wersja z pluginu; kolizja nazw znaczy, że nie wiesz, którą treść
     zmierzyłeś. Cały plugin podkładasz `claude -p --plugin-dir <kopia>` z wyłączoną instalacją
     (`--settings` z `enabledPlugins` na `false`) i sprawdzasz ścieżkę pluginu w zdarzeniu `init`.
-    (L-0004, L-0008, L-0020, L-0061, L-0085, L-0118)
+    **Wydanie zestawia zmiany artefaktów od poprzedniego tagu z rejestrem `ARTEFAKTY.md`
+    i `git ls-files` pakietu z listą plików generowanych** — luka etapu wychodzi wtedy przy
+    wydaniu, nie po nim (L-0161).
+    (L-0004, L-0008, L-0020, L-0061, L-0085, L-0118, L-0161)
 11. **Końce linii są wariantem, nie szczegółem.** Sumy kontrolne porównuj po normalizacji
     CRLF → LF; w regexie nad pojedynczą linią nie zakotwiczaj końca, bo kropka nie obejmuje `\r`
     i wzorzec przestaje trafiać na repozytorium z `core.autocrlf=true`; mechanizm czytający
@@ -882,6 +886,29 @@ restart aplikacji po `plugin update` (L-0031), `git worktree` zamiast `git archi
 - **Zasada:** diagnoza na żywo zaczyna się od znacznika wersji w każdej linii logu; bez niego
   liczby z logu nie są dowodem zmiany.
 - **Źródło:** E6 planu PANEL_CLAUDE (render.log 2026-10-09, znacznik `v=rows60`); destylat: zasada 4.
+
+### L-0160 — Skrypt cięcia sprawdzał kotwice na końcach zakresu i wyciął linię ze środka · 2026-10-09 · AKTYWNA
+
+- **Trigger:** pierwsze cięcie `register.tsx` w E7: zakres 50–52 miał usunąć `MIN` i `LATE_MS`,
+  a zabrał też `RELAI_MARKER` z linii 51; złapał to dopiero `tsc` („Cannot find name”).
+- **Przyczyna:** instrument porównywał tylko pierwszą i ostatnią linię zakresu; środek był
+  założeniem, nie sprawdzeniem.
+- **Zasada:** skrypt usuwający zakres linii pokazuje (albo porównuje) **cały** usuwany blok, nie
+  jego brzegi; po każdym cięciu kompilator i walidator, zanim pójdzie następne.
+- **Źródło:** E7 planu PANEL_CLAUDE (`cut.mjs`, 2026-10-09); destylat: zasada 5.
+
+### L-0161 — Dwie luki poprzednich etapów wyszły dopiero przy wydaniu · 2026-10-09 · AKTYWNA
+
+- **Trigger:** w E7 `docs/ARTEFAKTY.md` pokazywał `/relai-stage` w wersji 3 z 2026-09-04, choć E5
+  zmienił komendę; `progress/tsconfig.json` i `cache-keeper/tsconfig.json` (generowane przez
+  silnik) leżały w gicie od E9, choć `panel/` miał je w `.gitignore` od E1.
+- **Przyczyna:** etapy sprawdzały swoje pliki, nie rejestr i nie listę śledzonych plików nowego
+  katalogu; reguła dodana dla jednego pluginu nie przeszła na kolejne.
+- **Zasada:** wydanie zestawia `git log <poprzedni tag>..HEAD` plików-artefaktów z wierszami
+  `ARTEFAKTY.md` i przepuszcza `git ls-files` każdego katalogu pakietu przez listę plików
+  generowanych; nowy katalog tego samego rodzaju dostaje reguły `.gitignore` poprzednika w tym
+  samym commicie.
+- **Źródło:** E7 planu PANEL_CLAUDE (wydanie 2.8.0, 2026-10-09); destylat: zasada 10.
 
 ## Lekcje zwinięte
 

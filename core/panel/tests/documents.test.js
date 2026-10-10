@@ -18,7 +18,8 @@ const TRACKED = git(['git', 'ls-files', '--', 'CLAUDE.md', 'AGENTS.md', 'docs'])
 const files = (paths) => paths.map((p, i) => ({ path: p, bytes: 1000 + i, mtimeMs: 0 }));
 
 test('the shelf: closed groups, the active plan apart, resources and archive folded', () => {
-  const s = doc.shelf(files(TRACKED), { planDir: 'docs/plany/PANEL_CLAUDE', changed: [], counts: new Map() });
+  // The plan folder is a tracked path that no longer moves (PANEL_CLAUDE archived 2026-10-10)
+  const s = doc.shelf(files(TRACKED), { planDir: 'docs/archiwum/plany/PANEL_CLAUDE', changed: [], counts: new Map() });
   const keys = s.groups.map((g) => g.key);
   assert.deepEqual(keys.slice(0, 3), ['core', 'knowledge', 'plan']);
   const core = s.groups.find((g) => g.key === 'core').docs.map((d) => d.path);

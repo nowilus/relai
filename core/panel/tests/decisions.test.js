@@ -13,9 +13,10 @@ const test = require('node:test');
 const d = require('../decisions.mjs');
 
 const ROOT = path.resolve(__dirname, '..', '..', '..');
-const STATUS_PATH = 'docs/plany/PANEL_CLAUDE/STATUS.md';
+// The plan is closed and archived (2026-10-10): the archive path no longer moves
+const STATUS_PATH = 'docs/archiwum/plany/PANEL_CLAUDE/STATUS.md';
 const REAL_STATUS = fs.readFileSync(path.join(ROOT, STATUS_PATH), 'utf8');
-const REAL_PROMPT = fs.readFileSync(path.join(ROOT, 'docs/plany/PANEL_CLAUDE/PROMPT_ETAP_5.md'), 'utf8');
+const REAL_PROMPT = fs.readFileSync(path.join(ROOT, 'docs/archiwum/plany/PANEL_CLAUDE/PROMPT_ETAP_5.md'), 'utf8');
 
 /** Real STATUS.md with E5 set to the given status (whatever it says today). */
 function statusWithE5(status) {
@@ -99,7 +100,7 @@ test('karta etapu na realnym STATUS.md i PROMPT_ETAP_5.md', () => {
   const f = Object.fromEntries(r.card.facts.map((x) => [x.label, x]));
   assert.match(f.Model.value, /zgodny z planem \(Opus\)/);
   assert.equal(f.Model.tone, 'ok');
-  assert.equal(f.Plan.value, 'PANEL_CLAUDE · ZAAKCEPTOWANY');
+  assert.equal(f.Plan.value, 'PANEL_CLAUDE · ZREALIZOWANY');
   assert.equal(f.Etap.value, 'E5 z E9 · Decyzje w panelu · GOTOWY DO STARTU');
   assert.equal(f['Katalog roboczy'].value, '.claude/relai/work/PANEL_CLAUDE/E5/');
   // The count on the material: boxes between "## Weryfikacja" and the next "## "
@@ -123,7 +124,8 @@ test('karta etapu: biezacy czat bez /clear, inny model ostrzega pierwszy, etap w
 });
 
 test('karta etapu: zablokowana, gdy komenda i tak by nie wystartowala', () => {
-  const pending = REAL_STATUS.replace(/\*\*ZAAKCEPTOWANY 2026-10-08\*\*/, '**DO AKCEPTACJI**');
+  // Whatever bold status the real metric line carries today (accepted, closed), it becomes pending
+  const pending = REAL_STATUS.replace(/\*\*(ZAAKCEPTOWANY|ZREALIZOWANY) \d{4}-\d{2}-\d{2}\*\*/, '**DO AKCEPTACJI**');
   assert.notEqual(pending, REAL_STATUS, 'kontrola: linia metryczna podmieniona');
   assert.equal(d.stageCard({ id: ID, statusMd: pending, statusPath: STATUS_PATH, promptText: null, sessionModel: null, isFresh: true }).kind, 'blocked');
   assert.equal(d.stageCard({ id: ID, statusMd: REAL_STATUS, statusPath: STATUS_PATH, promptText: null, stage: 'E42', sessionModel: null, isFresh: true }).kind, 'blocked');

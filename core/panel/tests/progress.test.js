@@ -122,7 +122,8 @@ test('pick: a live crew run wins over the stage, the stage over nothing, nothing
 });
 
 test('real material: every stage prompt of the active plan parses, and a box ticked by hand moves the percent', () => {
-  const dir = path.join(ROOT, 'docs', 'plany', 'PANEL_CLAUDE');
+  // The plan closed and archived on 2026-10-10: its prompts stay put there
+  const dir = path.join(ROOT, 'docs', 'archiwum', 'plany', 'PANEL_CLAUDE');
   const prompts = fs.readdirSync(dir).filter((n) => /^PROMPT_ETAP_\d+\.md$/.test(n));
   assert.ok(prompts.length >= 5);
   for (const n of prompts) {

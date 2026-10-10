@@ -2,8 +2,8 @@
 
 [PLAN.html](PLAN.html) · utworzony 2026-10-08 · **DO AKCEPTACJI** · model wykonawczy etapów: **gpt-6.1-sol w Codeksie** (wybór użytkownika 2026-10-08; także autor planu)
 
-**Kolejność:** po pełnym zamknięciu planu [PANEL_CLAUDE](../PANEL_CLAUDE/STATUS.md).
-PANEL_CLAUDE pozostaje aktywny. Akceptacja PANEL_CODEX nie omija tej zależności.
+**Kolejność:** po pełnym zamknięciu planu [PANEL_CLAUDE](../../archiwum/plany/PANEL_CLAUDE/STATUS.md) — zamknięty 2026-10-10.
+Akceptacja PANEL_CODEX nie omija tej zależności.
 Przed E1: potwierdzony status poprzednika ZREALIZOWANY, przejęty wynik i kontrakt core/panel,
 akceptacja PANEL_CODEX oraz rozstrzygnięcie zakresu D-80 dla adaptera Codeksa.
 Żaden etap nie jest GOTOWY DO STARTU przed spełnieniem bramek. Gdy poprzednik trafia do

@@ -44,6 +44,10 @@ Specyfikacja: `SPEC_PULAPKI.md`.
   foldery domyślnie zwinięte; diff rysowany wierszami z tłem, HTML pokazany jako źródło; nazwa
   i chevron w drzewie jako link Markdown pod adresem `https://relai.invalid/…`; funkcje z `$` tylko na
   górze pliku albo kod wprost w hooku; przy diagnozie na żywo — znacznik wersji w logu rysowania.
+  Moduł za duży na jeden plik (E7, `relai-panel` 0.9.0): widoki w osobnych plikach `.tsx` jako czyste
+  funkcje, które dostają tabelę elementów (`$.ui.resolve(e)`) i gotowe wywołania zwrotne
+  zamknięte nad `$` w module hooków. Silnik taki moduł ładuje, a raport `plugin validate` (hooki,
+  wywołania, klucze stanu) zostaje identyczny z wersją jednoplikową.
 - **Obejście (1–6):** nazwy z tekstu komórki po wycięciu `[\uE000-\uF8FF]`; parser ścisły (wiersz
   nierozpoznany → nic nie jest zapisane); stawki bezwzględne per model z tabeli; znacznik zmian
   z `turn.step` `toolUses`; pomiar znacznika na żywo w turze, która nie edytuje plików modu.
