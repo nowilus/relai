@@ -347,6 +347,13 @@ Jedna linia na zamkniętą paczkę; pełny wpis do `docs/DZIENNIK.md` dopiero w 
   wszystkie poza dwoma przypadkami brzegowymi (karta bez paczek liczy 0/0; uszkodzony plik fokusu bez słowa w „Teraz”)
   — świadomie odłożone. Testy: panel 122, postęp 31, cache-keeper 84, `node --test` 275, `tsc` 0.
 
+- **2026-10-10 · Z12c korekta historii** — po „tak” Łukasza: pomiary sesji `3b9fafea` (1100
+  wywołań, $98.35) przypisane do paczek AUDYT_MODOW według czasu commitów (Z3 $10.97, Z4 $9.82,
+  Z5 $6.54, Z9 $11.59, Z1 $10.39, Z2 $3.65, Z6+Z7 $10.41 — dwa subagenty równolegle, nierozdzielne,
+  Z8 $2.89, Z10 $16.72, Z12 $15.38); było: PANEL_CODEX · E1 $32.35, poza etapem $63.86. Kopia
+  pliku sprzed korekty w katalogu roboczym. Kolektor nadpisywał plik rekordami z pamięci — poprawka
+  `d61a86a` (stage poprawiony w pliku wygrywa); sprawdzone na żywo: po zapisie panelu korekta stoi,
+  nowe wywołania tej sesji idą do `AUDYT_MODOW/Z12` (fokus ustawiony ręcznie w „Teraz”).
 ## Wynik
 
 —
