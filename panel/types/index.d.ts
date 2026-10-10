@@ -59,6 +59,9 @@ declare module 'claude-code' {
       docFilter: 'changed' | 'all'
       /** The shelf as tiles in RelAI groups, or as a file tree by folder. */
       docLayout: 'tiles' | 'tree'
+      /** AUDYT_MODOW Z3: the page of the open document's diff, 0 for the first; back to 0 when
+       * another document opens. */
+      diffPage: number
     }
   }
 }

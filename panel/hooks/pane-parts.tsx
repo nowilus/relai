@@ -60,10 +60,12 @@ export function parts(c: Ctx) {
   // Every control is the surface's own button (calibration 2026-10-08): a `plain` button in a
   // painted box inverts under the pointer and that cannot be turned off, so the brand stays in
   // the cards and the press answers by itself: the control's card flashes and, where a press
-  // sends something, the label says so for FLASH_MS.
+  // sends something, the label says so for FLASH_MS. Only a control that shows the flash takes it
+  // (a send with its done label, a card that prepares or confirms one): a tab, a fold or a switch
+  // answers by its own change, and a flash there cost two more drawings (AUDYT_MODOW Z3).
   const isFlash = (key: string) => flashed === key
-  const btn = (key: string, label: string, kind: 'primary' | 'secondary', onPress: () => void, doneLabel?: string) => (
-    <Button key={key} variant={kind} onPress={() => { onPress(); c.flash(key) }}>
+  const btn = (key: string, label: string, kind: 'primary' | 'secondary', onPress: () => void, doneLabel?: string, isFlashing = doneLabel !== undefined) => (
+    <Button key={key} variant={kind} onPress={() => { onPress(); if (isFlashing) c.flash(key) }}>
       {doneLabel && isFlash(key) ? doneLabel : label}
     </Button>
   )
@@ -107,7 +109,7 @@ export function parts(c: Ctx) {
         <Box key="confirm-facts" flexDirection="column">{step.facts.map((f, i) => factRow(`confirm-f-${i}`, f))}</Box>
         <Text bold color={THEME.title}>{step.question}</Text>
         <Box key="confirm-act" flexDirection="row" flexWrap="wrap" gap={1}>
-          {btn('confirm-yes', 'Tak', 'primary', () => decide('tak'))}
+          {btn('confirm-yes', 'Tak', 'primary', () => decide('tak'), undefined, true)}
           {btn('confirm-no', 'Nie', 'secondary', () => decide('nie'))}
         </Box>
       </Box>,

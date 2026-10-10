@@ -21,6 +21,7 @@ export type DocsCtx = {
   mode: DocMode
   filter: DocFilter
   layout: DocLayout
+  page: number
   isUnfolded: (key: string, byDefault: boolean) => boolean
   fold: (key: string, byDefault: boolean) => void
   toggleDoc: (id: string) => void
@@ -28,7 +29,17 @@ export type DocsCtx = {
   setMode: (m: DocMode) => void
   setFilter: (f: DocFilter) => void
   setLayout: (l: DocLayout) => void
+  setPage: (n: number) => void
 }
+
+// The bounds of one drawing (AUDYT_MODOW Z3, P-023 pkt 7: a tree too big vanishes from the desktop
+// without a word): tiles as the tree draws rows — TILES_PER_GROUP a group, TILES the tab, then a
+// line with how many are left — and the diff by pages of DIFF_PAGE rows. An open document takes
+// the room of the tiles (a page of its diff weighs ~120 k, a tile ~2.8 k): TILES_OPEN while it is.
+const TILES_PER_GROUP = 40
+const TILES = 60
+const TILES_OPEN = 16
+const DIFF_PAGE = 200
 
 export function docsView(c: Ctx, p: Parts, dd: DocsData, s: DocsCtx) {
   const { el, Svg, isGui } = c
@@ -78,9 +89,20 @@ export function docsView(c: Ctx, p: Parts, dd: DocsData, s: DocsCtx) {
       </Box>
     )
   }
-  const shelfRow = (group: string, list: Doc[], pick: string) => (
-    <Box key={`shelf-${group}`} flexDirection="row" flexWrap="wrap" gap={1}>{list.map((d) => docTile(group, d, pick))}</Box>
-  )
+  // Bounded like the tree: the edited on top take their tiles first, the groups below what is left
+  const tileLimit = dd.open ? TILES_OPEN : TILES
+  let tilesLeft = tileLimit
+  const shelfRow = (group: string, list: Doc[], pick: string): RenderChildren[] => {
+    const shown = list.slice(0, Math.max(0, Math.min(TILES_PER_GROUP, tilesLeft)))
+    tilesLeft -= shown.length
+    const hidden = list.length - shown.length
+    return [
+      <Box key={`shelf-${group}`} flexDirection="row" flexWrap="wrap" gap={1}>{shown.map((d) => docTile(group, d, pick))}</Box>,
+      ...(hidden > 0 ? [<Box key={`more-${group}`}>
+        <Text color={THEME.body}>{`… jeszcze ${hidden} ${plural(hidden, 'dokument', 'dokumenty', 'dokumentów')} — panel rysuje ${TILES_PER_GROUP} kafli na grupę, ${tileLimit} na zakładkę${dd.open ? ' przy otwartym dokumencie' : ''}; zwiń inne grupy albo przełącz na Drzewo`}</Text>
+      </Box>] : []),
+    ]
+  }
   // The file tree as an editor's explorer draws it (calibration 2026-10-09, "jak w VS Code"): a
   // row is a chevron and a folder icon, open or closed, or a document's icon at tree size, then
   // the name alone, as a link the panel answers (TREE_LINK): a folder unfolds, a document opens
@@ -121,21 +143,29 @@ export function docsView(c: Ctx, p: Parts, dd: DocsData, s: DocsCtx) {
   }
   // The diff as code review draws it, row by row: old and new line numbers in a quiet gutter,
   // the marker, the text; an added row on sage, a removed one on clay (DIFF, contrast tested)
+  // By pages of DIFF_PAGE rows (Z3): "Pokaż dalej" draws the next page instead of a longer one
   const diffBlock = (v: DiffView, path: string) => {
-    const r = diffRows(v.source)
+    const from = s.page * DIFF_PAGE
+    const r = diffRows(v.source, from + DIFF_PAGE)
+    const rows = r.rows.slice(from)
     const num = (n: number | null) => (n === null ? '' : String(n)).padStart(4, ' ')
+    const paging = [
+      ...(r.hidden > 0 ? [btn('dw-more', `Pokaż dalej (${Math.min(DIFF_PAGE, r.hidden)} z ${r.hidden} pozostałych)`, 'secondary', () => s.setPage(s.page + 1))] : []),
+      ...(s.page > 0 ? [btn('dw-first', 'Od początku', 'secondary', () => s.setPage(0))] : []),
+    ]
     return [
       <Box key="dw-diff" flexDirection="column">
-        {r.rows.map((x, i) => (x.kind === 'hunk'
-          ? <Box key={`dr-${i}`} paddingX={1} marginTop={i ? 1 : 0}><Text color={DIFF.hunk} wrap="truncate">{x.text}</Text></Box>
+        {rows.map((x, j) => { const i = from + j; return (x.kind === 'hunk'
+          ? <Box key={`dr-${i}`} paddingX={1} marginTop={j ? 1 : 0}><Text color={DIFF.hunk} wrap="truncate">{x.text}</Text></Box>
           : <Box key={`dr-${i}`} flexDirection="row" columnGap={1} paddingX={1}
               {...(x.kind === 'add' ? { backgroundColor: DIFF.addBg } : x.kind === 'del' ? { backgroundColor: DIFF.delBg } : {})}>
               <Box key={`dr-g-${i}`} flexShrink={0}><Text color={DIFF.gutter}>{`${num(x.old)} ${num(x.new)}`}</Text></Box>
               <Box key={`dr-m-${i}`} flexShrink={0}><Text bold color={x.kind === 'add' ? DIFF.addText : x.kind === 'del' ? DIFF.delText : DIFF.gutter}>{x.kind === 'add' ? '+' : x.kind === 'del' ? '−' : ' '}</Text></Box>
               <Box key={`dr-t-${i}`} flexGrow={1} flexShrink={1}><Text color={x.kind === 'add' ? DIFF.addText : x.kind === 'del' ? DIFF.delText : DIFF.ctxText}>{x.text === '' ? ' ' : x.text}</Text></Box>
-            </Box>))}
+            </Box>) })}
       </Box>,
-      ...(r.hidden || v.shown < v.hunks ? [line('dw-cut', `Pokazano część zmian — całość: git diff HEAD -- ${path}`, THEME.mark)] : []),
+      ...(r.hidden || s.page > 0 || v.shown < v.hunks ? [line('dw-cut', `Pokazano ${rows.length ? `wiersze ${from + 1}–${from + rows.length}` : 'pustą stronę'} — całość: git diff HEAD -- ${path}`, THEME.mark)] : []),
+      ...(paging.length ? [<Box key="dw-paging" flexDirection="row" flexWrap="wrap" gap={1}>{paging}</Box>] : []),
     ]
   }
   // What "Podgląd" draws: Markdown drawn, text as code in its language, a binary file in words
@@ -215,10 +245,10 @@ export function docsView(c: Ctx, p: Parts, dd: DocsData, s: DocsCtx) {
       line('docs-turn-h', nEdited
         ? `Zmienione · ${nEdited}${nTurn ? ` · ${nTurn} w tej turze` : ''}`
         : 'Żaden dokument nie ma zmian od ostatniego commita', nEdited ? THEME.accentText : THEME.body, true),
-      ...(nEdited ? [layout === 'tiles' ? shelfRow('edited', dd.edited, pick)
-        : <Box key="docs-turn-rows" flexDirection="column">
-          {dd.edited.map((d) => fileRow('top', 'edited', d, 0, pick, d.path.includes('/') ? d.path.slice(0, d.path.lastIndexOf('/')) : ''))}
-        </Box>] : []),
+      ...(nEdited ? layout === 'tiles' ? shelfRow('edited', dd.edited, pick)
+        : [<Box key="docs-turn-rows" flexDirection="column">
+          {dd.edited.slice(0, TREE_PER_DIR).map((d) => fileRow('top', 'edited', d, 0, pick, d.path.includes('/') ? d.path.slice(0, d.path.lastIndexOf('/')) : ''))}
+        </Box>, ...(nEdited > TREE_PER_DIR ? [line('docs-turn-more', `… jeszcze ${nEdited - TREE_PER_DIR} ${plural(nEdited - TREE_PER_DIR, 'dokument', 'dokumenty', 'dokumentów')} ze zmianami — panel rysuje ${TREE_PER_DIR} wierszy na górze`)] : [])] : []),
       line('docs-turn-n', 'W tej turze: z narzędzi Edit i Write modelu (zapisu poleceniem powłoki nie widzi). Liczby linii: od ostatniego commita.'),
     ], nEdited > 0)
     // "Zmienione": every group folded under the edited ones; "Wszystkie": the groups as they come
@@ -230,7 +260,7 @@ export function docsView(c: Ctx, p: Parts, dd: DocsData, s: DocsCtx) {
         return [
           <Box key={`docs-g-${g.key}`} flexDirection="column" gap={isGui ? 1 : 0}>
             {foldHead(`docs:${filter}:${g.key}`, g.title, g.docs, isOpen, filter === 'all' && !g.isFolded)}
-            {isOpen ? [shelfRow(g.key, g.docs, pick)] : []}
+            {isOpen ? shelfRow(g.key, g.docs, pick) : []}
           </Box>,
           ...(isOpen ? under(g.key) : []),
         ]

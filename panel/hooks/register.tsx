@@ -42,7 +42,7 @@ import type { Merges } from './core/flow.mjs'
 import { CLEAN_ARGV, answer, cleanCard, cleanChoices, commandCard, crewCard, crewDraft, crewTasksPath, daysBetween, hasConsent, listDate, projectVersion, togglePick, stageCard, stageToStart, stepsToRun, stripConsent } from './core/decisions.mjs'
 import { promptLink } from './core/progress.mjs'
 import type { Action, Card, CardResult, CleanChoices, CrewDraft, Fact } from './core/decisions.mjs'
-import type { CostData, DocsData, MapData, PaneData, Prices } from './data'
+import type { CostData, DocsData, MapData, OpenDoc, PaneData, Prices } from './data'
 import { band } from './band'
 import { parts } from './pane-parts'
 import type { Ctx } from './pane-parts'
@@ -95,6 +95,29 @@ async function relaiRoot($: $T, cwd: string): Promise<string | null> {
 async function readPlan($: $T): Promise<PlanState> {
   const claude = await readText($, join(S.cwd, 'CLAUDE.md'))
   return planState(claude, (rel) => readText($, join(S.cwd, rel)))
+}
+
+// ---------- the tabs' data (AUDYT_MODOW Z3) ----------
+// A tab's data is read when the tab opens, after a turn and after the pane writes a file, and kept
+// here; drawing reads the memory. `epoch` moves on those events; a slot answers while its key
+// (the session's id, the epoch, what the slot depends on) is the same, so a press that only
+// redraws — a filter, a fold, the end of a flash — reads no file and starts no process.
+// Module memory: a reload starts it over and the first drawing reads again.
+
+let epoch = 0
+const bump = () => { epoch += 1 }
+
+type Slot = { key: string, value: Promise<unknown> }
+let memo: Record<string, Slot> = {} // replaced, never mutated in place
+
+function remember<T>(slot: string, key: string, load: () => Promise<T>): Promise<T> {
+  const hit = memo[slot]
+  if (hit && hit.key === key) return hit.value as Promise<T>
+  const value = load()
+  memo = { ...memo, [slot]: { key, value } }
+  // A failed read is not kept: the next drawing tries again
+  value.catch(() => { if (memo[slot]?.value === value) memo = Object.fromEntries(Object.entries(memo).filter(([k]) => k !== slot)) })
+  return value
 }
 
 // Refresh what the band reads from the project and the session after each turn
@@ -227,6 +250,7 @@ async function readMerges($: $T): Promise<Merges> {
 // The panel's own file; the files of a crew run are never written (decision of 2026-10-09)
 async function saveMerges($: $T, m: Merges) {
   await $.fs.write(join(S.cwd, MERGE_FILE), serializeMerges(m))
+  bump()
   $.ui.invalidate('ui.render')
 }
 
@@ -264,6 +288,8 @@ const docMode = atom({ plugin: 'relai-panel', key: 'docMode' } as const, 'diff' 
 // group open ("all"); tiles or a file tree
 const docFilter = atom({ plugin: 'relai-panel', key: 'docFilter' } as const, 'changed' as 'changed' | 'all')
 const docLayout = atom({ plugin: 'relai-panel', key: 'docLayout' } as const, 'tiles' as 'tiles' | 'tree')
+// The page of the open document's diff (AUDYT_MODOW Z3: DIFF_PAGE rows a drawing), 0 for the first
+const diffPage = atom({ plugin: 'relai-panel', key: 'diffPage' } as const, 0)
 
 
 async function walkDocs($: $T, rel: string, depth: number): Promise<FileEntry[]> {
@@ -277,32 +303,50 @@ async function walkDocs($: $T, rel: string, depth: number): Promise<FileEntry[]>
 }
 
 // git through a closed argv only; a failure is words, never a silent empty shelf
+// The timeout stays under the hook's own budget (10 s, HookBudget): a git that hangs is said in
+// words in the tab instead of taking the drawing down with it
 async function runGit($: $T, argv: readonly string[]): Promise<{ text: string, error: string }> {
   try {
-    const r = await $.process.run([...argv], { cwd: S.cwd, timeoutMs: 20_000 })
+    const r = await $.process.run([...argv], { cwd: S.cwd, timeoutMs: 8_000 })
     return r.exitCode === 0 ? { text: r.stdout, error: '' } : { text: '', error: `git zakończył się kodem ${r.exitCode}${r.stderr ? ': ' + r.stderr.split(/\r?\n/).filter((l) => !/^warning:/.test(l))[0] : ''}` }
   } catch (err) {
     return { text: '', error: `git niedostępny: ${err instanceof Error ? err.message : String(err)}` }
   }
 }
 
-async function docsData($: $T, pick: string): Promise<DocsData> {
+type Shelf = Omit<DocsData, 'now' | 'open'>
+
+// The shelf: the documents' listing and their line counts, one git
+async function docsShelf($: $T): Promise<Shelf> {
   const root = (await $.fs.list(S.cwd).catch(() => [])).filter((x) => x.kind === 'file' && (x.name === 'CLAUDE.md' || x.name === 'AGENTS.md'))
     .map((x) => ({ path: x.name, bytes: x.size, mtimeMs: x.mtimeMs }))
   const files = [...root, ...(await walkDocs($, 'docs', 1))]
   const counts = await runGit($, NUMSTAT_ARGV)
   const planDir = S.plan.kind === 'ok' && S.plan.statusPath.includes('/') ? S.plan.statusPath.slice(0, S.plan.statusPath.lastIndexOf('/')) : null
-  const s = shelf(files, { planDir, changed: turnChanges.paths, counts: parseNumstat(counts.text) })
-  const now = await $.clock.now()
+  return { ...shelf(files, { planDir, changed: turnChanges.paths, counts: parseNumstat(counts.text) }), gitError: counts.error }
+}
+
+// The document open under the shelf: only what its mode draws — its diff (one git) or its text
+// (one read), never both
+async function docOpen($: $T, s: Shelf, pick: string, mode: 'diff' | 'preview'): Promise<OpenDoc | null> {
   const [group = '', path = ''] = pick.split('|')
   const all = s.groups.flatMap((g) => g.docs)
   const doc = all.find((d) => d.path === path)
-  if (!doc) return { ...s, now, gitError: counts.error, open: null }
-  const argv = diffArgv(doc.path, all)
-  const diff = argv ? await runGit($, argv) : { text: '', error: 'ścieżka spoza listy dokumentów' }
+  if (!doc) return null
+  if (mode === 'diff') {
+    const argv = diffArgv(doc.path, all)
+    const diff = argv ? await runGit($, argv) : { text: '', error: 'ścieżka spoza listy dokumentów' }
+    return { group, doc, diff: diff.error ? null : diffView(diff.text), diffError: diff.error, preview: null }
+  }
   // A binary file (PDF) is neither read nor drawn: its window says so
   const text = KINDS[doc.ext]?.show === 'none' ? null : await readText($, join(S.cwd, doc.path))
-  return { ...s, now, gitError: counts.error, open: { group, doc, diff: diff.error ? null : diffView(diff.text), diffError: diff.error, preview: text === null ? null : previewOf(doc.path, text) } }
+  return { group, doc, diff: null, diffError: '', preview: text === null ? null : previewOf(doc.path, text) }
+}
+
+async function docsData($: $T, key: string, pick: string, mode: 'diff' | 'preview'): Promise<DocsData> {
+  const s = await remember('docs', key, () => docsShelf($))
+  const open = pick ? await remember('doc', `${key}|${pick}|${mode}`, () => docOpen($, s, pick, mode)) : null
+  return { ...s, now: await $.clock.now(), open }
 }
 
 // ---------- the price-list card (E6, Aneks D) ----------
@@ -496,6 +540,7 @@ async function decide($: $T, card: Card, said: 'tak' | 'nie', names: Record<stri
     }
   }
   const writes = next.actions.filter((a) => a.kind === 'write')
+  if (writes.length) bump() // a saved price list, a crew's tasks: the tabs read them again
   await update($, sent, () => (writes.length === next.actions.length ? `Zapisano: ${writes.map((a) => a.path).join(', ')}` : `Wysłano do czatu: ${card.title}`))
 }
 
@@ -560,6 +605,8 @@ export const register: Register = (on) => {
     const isRelai = root !== null
     const cwd = root ?? here
     S = { ...FRESH, id: await $.session.id(), cwd, isRelai, loadedAt: await $.clock.now() }
+    memo = {}
+    bump()
     // Registered everywhere, so outside RelAI the command can say so in one sentence (plan, section 8)
     await $.command.register({ name: 'relai-panel', description: 'Panel RelAI: formularze komend, ściąga i frazy sesji' }).catch(() => undefined)
     if (!isRelai) return next(e)
@@ -577,6 +624,8 @@ export const register: Register = (on) => {
     }
     if (!S.isRelai) return { text: NOT_RELAI }
     await loadData($, S.cwd)
+    bump() // the pane opened again shows the project as it is now
+    $.ui.invalidate('ui.render')
     const opened = await $.ui.open({ id: PANE_ID, title: PANE_TITLE })
     return { text: opened.isPlaced ? 'Panel RelAI otwarty.' : `Panel RelAI czeka na miejsce: ${opened.reason}` }
   })
@@ -629,13 +678,14 @@ export const register: Register = (on) => {
       setFill: (phrase, v) => { void update($, fills, (m) => ({ ...m, [phrase]: v })) },
     })
 
-    const costs = tab === 'costs' ? await costData($) : null
-    const map = tab === 'map' ? await mapData($) : null
-    const pickNow = tab === 'docs' ? await read($, docPick) : ''
-    const modeNow = tab === 'docs' ? await read($, docMode) : 'diff'
-    const filterNow = tab === 'docs' ? await read($, docFilter) : 'changed'
-    const layoutNow = tab === 'docs' ? await read($, docLayout) : 'tiles'
-    const docs = tab === 'docs' ? await docsData($, pickNow) : null
+    // The tab's data from memory (Z3): read again only when its key moves on
+    const key = tab === 'costs' || tab === 'map' || tab === 'docs' ? `${await $.session.id()}|${epoch}` : ''
+    const costs = tab === 'costs' ? await remember('costs', key, () => costData($)) : null
+    const map = tab === 'map' ? await remember('map', key, () => mapData($)) : null
+    const [pickNow, modeNow, filterNow, layoutNow, pageNow] = tab === 'docs'
+      ? await Promise.all([read($, docPick), read($, docMode), read($, docFilter), read($, docLayout), read($, diffPage)])
+      : ['', 'diff' as const, 'changed' as const, 'tiles' as const, 0]
+    const docs = tab === 'docs' ? await docsData($, key, pickNow, modeNow) : null
     const body = tab === 'commands' ? commandsEtc().commandsView() : tab === 'sheet' ? commandsEtc().sheetView() : costs ? costsView(c, p, costs, {
       session: S, muted: mutedNow, preparePricing: () => { void preparePricing($) },
     }) : map ? mapView(c, p, map, {
@@ -649,9 +699,10 @@ export const register: Register = (on) => {
       confirmCrew: (draft) => { void cardId($).then((id) => offer($, crewCard(id, draft))) },
       say: (text) => { void update($, sent, () => text) },
     }) : docs ? docsView(c, p, docs, {
-      pick: pickNow, mode: modeNow, filter: filterNow, layout: layoutNow, isUnfolded, fold,
-      toggleDoc: (id) => { void update($, docPick, (x) => (x === id ? '' : id)) },
-      closeDoc: () => { void update($, docPick, () => '') },
+      pick: pickNow, mode: modeNow, filter: filterNow, layout: layoutNow, page: pageNow, isUnfolded, fold,
+      toggleDoc: (id) => { void update($, diffPage, () => 0).then(() => update($, docPick, (x) => (x === id ? '' : id))) },
+      closeDoc: () => { void update($, diffPage, () => 0).then(() => update($, docPick, () => '')) },
+      setPage: (n) => { void update($, diffPage, () => n) },
       setMode: (m) => { void update($, docMode, () => m) },
       setFilter: (f) => { void update($, docFilter, () => f) },
       setLayout: (l) => { void update($, docLayout, () => l) },
@@ -663,11 +714,26 @@ export const register: Register = (on) => {
           {heading('hero', THEME.accent)}
           <Text dimColor>{`${FORMS.length} komend RelAI · kliknij komendę, żeby otworzyć jej formularz`}</Text>
         </Box>
-        {p.tabs(tab, (v) => { void update($, view, () => v) })}
+        {p.tabs(tab, (v) => { bump(); void update($, view, () => v) })}
         {d.hasRelai ? [] : [<Box key="no-relai"><Text color={THEME.mark}>{NO_RELAI}</Text></Box>]}
         {pending ? [p.confirmCard(pending, (said) => { void decide($, pending, said, d.names) })] : []}
         <Box key="body" flexDirection="column" gap={isGui ? 2 : 1}>{body}</Box>
         {sentLine && !isSentInDrawer ? [sentLine] : []}
+      </Box>
+    )
+  }).catch(async ($, e, next) => {
+    // A drawing that threw or overran its budget: the pane says so and keeps its tabs, so the
+    // person can leave the tab, instead of the engine closing the pane without a word (Z3)
+    if (e.surface === 'mobile') return next(e)
+    const el = $.ui.resolve(e)
+    const { Box, Text } = el
+    const why = next.error.kind === 'timeout' ? 'liczyła się dłużej niż pozwala silnik' : next.error.message ?? 'nieznany błąd'
+    const tab = await read($, view).catch(() => 'commands' as const)
+    const p = parts({ el, Svg: null, isGui: e.surface !== 'terminal', width: Math.max(30, e.props.bodyColumns), flashed: '', last: '', flash: () => undefined })
+    return (
+      <Box key="relai-pane" flexDirection="column" gap={1}>
+        {p.tabs(tab, (v) => { bump(); void update($, view, () => v) })}
+        <Box key="pane-error"><Text color={THEME.accentText}>{`⚠ Panel nie narysował tej zakładki: ${why}. Wybierz inną zakładkę albo otwórz /relai-panel ponownie.`}</Text></Box>
       </Box>
     )
   })
@@ -680,10 +746,14 @@ export const register: Register = (on) => {
     if (!S.isRelai) return result
     // Documents (E6): a main turn's first step starts the turn's set of changed files over; every
     // step, a subagent's too, adds the paths its writing tools name (probe relai-probe-e6)
-    if (!e.agentId && turnChanges.turn !== e.turnId) turnChanges = { turn: e.turnId, paths: [] }
+    if (!e.agentId && turnChanges.turn !== e.turnId) {
+      if (turnChanges.paths.length) bump() // the shelf's "w tej turze" belonged to the last turn
+      turnChanges = { turn: e.turnId, paths: [] }
+    }
     const named = result ? changedPaths(result.toolUses, S.cwd).filter((p) => !turnChanges.paths.includes(p)) : []
     if (named.length) {
       turnChanges = { ...turnChanges, paths: [...turnChanges.paths, ...named] }
+      bump()
       $.ui.invalidate('ui.render')
     }
     const at = await $.clock.now()
@@ -693,6 +763,7 @@ export const register: Register = (on) => {
       const usage = result.usage
       if (!e.agentId) lastModel = usage ? usage.model : e.model
       const plan = await readPlan($)
+      if (JSON.stringify(plan) !== JSON.stringify(S.plan)) bump() // the map and the shelf follow the active plan
       set({ plan })
       const stage = stageTag(plan)
       const task = e.agentId ? ((await read($, agentTasks))[e.agentId] ?? null) : mainTask
@@ -721,6 +792,7 @@ export const register: Register = (on) => {
     const r = await next(e)
     if (!S.isRelai || e.agentId) return r
     await refresh($)
+    bump()
     $.ui.invalidate('ui.render')
     return r
   })
@@ -733,7 +805,8 @@ export const register: Register = (on) => {
     if (usage) {
       const at = await $.clock.now()
       const stage = stageTag(S.plan)
-      void collect($, (session) => compactRecord({ session, agent: e.agentId ?? null, model: lastModel, at, usage, stage, task: e.agentId ? null : mainTask }))
+      // A /compact outside a turn has no turn.complete after it: the costs read again on their own
+      void collect($, (session) => compactRecord({ session, agent: e.agentId ?? null, model: lastModel, at, usage, stage, task: e.agentId ? null : mainTask })).then(bump)
     }
     return r
   }).catch(($, e, next) => next(e))

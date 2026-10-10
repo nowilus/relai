@@ -118,10 +118,18 @@ Kolejność: najpierw fundamenty (Z3–Z5), bo bez nich nowe paski będą migać
 
 ## Weryfikacja
 
-- [ ] Z3: test z licznikami dowodzi, że klik przycisku zakładki Koszty wykonuje 0 wywołań
+- [x] Z3: test z licznikami dowodzi, że klik przycisku zakładki Koszty wykonuje 0 wywołań
       `$.fs`/`$.process` (dane z pamięci), a otwarcie zakładki — jeden przebieg loadera.
+      Dowód: `panel/hooks/redraw.test.ts` — „costs: opening the tab reads its data once…”
+      (ponowne zamontowanie i koniec błysku: 0 wywołań; ponowny wybór zakładki: drugi przebieg)
+      i „documents: a filter, a layout and a fold redraw from memory…” (0 `git`, 0 listowań;
+      „Otwórz” = 1 `git diff` bez odczytu pliku, „Podgląd” = 1 odczyt bez `git`).
 - [ ] Z3: drzewo panelu dla archiwum 128 plików, diffu 400 wierszy i 12 agentów mieści się
       w budżecie (test), a desktop pokazuje panel (zrzut).
+      Test ✓ (`redraw.test.ts`, próg 200 000 znaków): Dokumenty z archiwum 128, wszystkimi
+      grupami i diffem 400 wierszy — 189 903 znaków / 19 Svg (przed: 1 515 831 / 417); Koszty
+      z 14 agentami, 14 etapami i 400 wywołaniami — 190 566 / 30 Svg (przed: 373 968 / 57).
+      **Zrzut z desktopu czeka** na pomiar na żywo (podłożenie `--plugin-dir` albo wydanie Z8).
 - [ ] Z4: w bezczynności przez 5 minut licznik `invalidate` trzech modów = liczba pełnych minut
       zmiany napisu cache (test ticka z zegarem atrapy); `$.command.list()` nie jest wołane
       w rysowaniu (test).
@@ -145,6 +153,31 @@ Kolejność: najpierw fundamenty (Z3–Z5), bo bez nich nowe paski będą migać
 - [ ] Katalog roboczy `.claude/relai/work/_fixy/AUDYT_MODOW/` przejrzany raportem
       (`node .claude/relai/tools/clean-work.js raport`) i skasowany po „tak”; liczby przed i po
       we wpisie dziennika; artefakty spoza katalogu z nazwy.
+
+## Dziennik wdrożenia
+
+Jedna linia na zamkniętą paczkę; pełny wpis do `docs/DZIENNIK.md` dopiero w rytuale zamknięcia.
+
+- **2026-10-10 · Z3 zamknięta** (Opus 5.5) — dane zakładek Koszty/Mapa/Dokumenty w pamięci
+  modułu z kluczem (id sesji, `epoch` podbijany na otwarciu zakładki, `/relai-panel`,
+  `turn.complete`, nowych ścieżkach w `turn.step`, zapisie scaleń i karty z zapisem, kompakcji,
+  zmianie planu w trakcie tury i pierwszym kroku nowej tury — trzy ostatnie po recenzji
+  `typescript-reviewer`); Dokumenty: półka osobno, otwarty dokument liczy diff **albo** podgląd;
+  błysk tylko z etykietą „✓…”, „Przygotuj” i „Tak”; `.catch` hooka Pane rysuje zakładki
+  i zdanie; kafle 40/grupę i 60/zakładkę, diff stronami
+  po 200 wierszy (atom `diffPage`), karty kosztów 12 najdroższych + wiersz reszty; `git` z limitem
+  8 s (pod budżetem hooka 10 s). Testy: `plugin test panel` 75/75 (+5 w `redraw.test.ts`), `tsc`
+  strict 0 błędów (kontrola pozytywna: podłożony błąd złapany), `node --test` 263/263.
+  **Odstępstwa od karty, z powodem:** (1) „jedna kopia fontu Kalam na zakładkę” jest
+  niewykonalna — każdy `Svg` rysuje się osobno (P-023 pkt 8: ramki izolowane), więc font nie
+  przechodzi między nimi; zamiast tego budżet 8 liczb Kalamem na rysunek (suma i kafle pierwsze,
+  dalsze pogrubionym tekstem w tym samym kolorze) — w zwykłej sesji wygląd bez zmian; (2) przy
+  otwartym dokumencie kafli 16, nie 60 — strona diffu (~120 tys. znaków) i 60 kafli (~167 tys.)
+  razem przekraczały próg; (3) wykres wywołań: kolumna na wywołanie do 60 wywołań jak dotąd,
+  powyżej najwyżej 40 kolumn zamiast 60 (−26 tys. znaków; słupek łączy więcej wywołań, opis to
+  mówi). Świadomie zostaje: liczby linii z `git` i `cennik.json` zmienione poza sesją (ręczny
+  commit) odświeżają się dopiero wyborem zakładki albo po turze. Zrzut z desktopu dla budżetu
+  drzewa czeka na pomiar na żywo.
 
 ## Wynik
 

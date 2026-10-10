@@ -11,7 +11,7 @@ import { gapsInWords, plural } from './core/measure.mjs'
 import type { Group, Report, TurnCost } from './core/measure.mjs'
 import { PRICE_FILE, unpricedWords } from './core/pricing.mjs'
 import type { cacheEffect } from './core/pricing.mjs'
-import { bucketRanges, hoverColumns, hoverHeight, niceStep, spark } from './core/charts.mjs'
+import { MAX_COLUMNS, bucketRanges, hoverColumns, hoverHeight, niceStep, spark } from './core/charts.mjs'
 import type { StageCosts } from './core/attribution.mjs'
 import type { CallCost, CostData, ProjectSum } from './data'
 import { CATS } from './pane-parts'
@@ -19,6 +19,24 @@ import type { Ctx, Parts } from './pane-parts'
 
 const MIN = 60_000
 const LATE_MS = 2 * MIN // a collector that began this much after the session missed part of it
+
+// The bounds of one drawing (AUDYT_MODOW Z3, P-023 pkt 7: a tree too big vanishes from the desktop
+// without a word). Agents, models and stages: the CARDS most expensive, in their own order, the
+// rest in one line with its sum. Figures in Kalam: each carries its own copy of the font (an Svg
+// is drawn apart from the others), so FIGURES a drawing — the sum and the tiles first, then the
+// rows in their order — and every one past them as bold text in the same color. The calls'
+// chart: a column per call up to MAX_COLUMNS calls, as before; past them CHART_COLUMNS at most
+// (a column's hover card weighs ~1.4 k), neighbours sharing one.
+const CARDS = 12
+const FIGURES = 8
+const CHART_COLUMNS = 40
+
+// The n most expensive of a list, kept in the list's order, and the rest
+function topOf<T>(items: readonly T[], usd: (x: T) => number | null, n = CARDS): { shown: T[], rest: T[] } {
+  if (items.length <= n) return { shown: [...items], rest: [] }
+  const kept = new Set([...items.keys()].sort((a, b) => (usd(items[b]!) ?? 0) - (usd(items[a]!) ?? 0)).slice(0, n))
+  return { shown: items.filter((_, i) => kept.has(i)), rest: items.filter((_, i) => !kept.has(i)) }
+}
 
 // What the tab needs of the session beyond its data: the engine's counter and when the session and
 // the collector began, the models muted on a price-list card's "Nie", and the press that makes it
@@ -31,9 +49,21 @@ export type CostsCtx = {
 export function costsView(c: Ctx, p: Parts, cd: CostData, s: CostsCtx) {
   const { el, Svg, isGui } = c
   const { Box, Text } = el
-  const { section, frame, barCols, figure, bar, costBox, line, money, nCalls, legend, btn } = p
+  const { section, frame, barCols, bar, costBox, line, money, nCalls, legend, btn } = p
   const S = s.session
   const mutedNow = s.muted
+  let figuresLeft = FIGURES
+  const figure = (key: string, text: string, size: number, color: string) => {
+    if (figuresLeft <= 0) return <Text key={key} bold color={color}>{text}</Text>
+    figuresLeft -= 1
+    return p.figure(key, text, size, color)
+  }
+  // The line under a bounded list: how many more and what they cost together
+  const restLine = (key: string, rest: { usd: number | null }[]) => {
+    const sum = rest.reduce((acc, g) => acc + (g.usd ?? 0), 0)
+    const isPartial = rest.some((g) => g.usd === null)
+    return line(key, `… jeszcze ${rest.length} razem ${usd(sum)}${isPartial ? ' (częściowo)' : ''} — panel rysuje ${CARDS} najdroższych`)
+  }
 
   const clock = (at: number) => { const d = new Date(at); return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}` }
   const day = (at: number) => { const d = new Date(at); return `${String(d.getDate()).padStart(2, '0')}.${String(d.getMonth() + 1).padStart(2, '0')}` }
@@ -95,7 +125,7 @@ export function costsView(c: Ctx, p: Parts, cd: CostData, s: CostsCtx) {
     const top = values.reduce<number>((best, v, i) => ((v ?? -1) > (values[best] ?? -1) ? i : best), 0)
     const peak = calls[top]
     // Past MAX_COLUMNS calls, neighbours share a column: its card sums them and says how many
-    const ranges = bucketRanges(calls.length)
+    const ranges = bucketRanges(calls.length, calls.length <= MAX_COLUMNS ? MAX_COLUMNS : CHART_COLUMNS)
     const perColumn = ranges.length ? Math.max(...ranges.map(([a, b]) => b - a + 1)) : 1
     const points = ranges.map(([a, b]) => {
       const group = calls.slice(a, b + 1)
@@ -134,7 +164,11 @@ export function costsView(c: Ctx, p: Parts, cd: CostData, s: CostsCtx) {
   }
 
   // Agents or models: a smaller card each, the same set as the sum — figure, share, bar, legend
-  const groupCards = (key: string, groups: Group[], total: number) => groups.map((g, i) => costBox(`${key}-${i}`, [
+  const groupCards = (key: string, groups: Group[], total: number) => {
+    const { shown, rest } = topOf(groups, (g) => g.usd)
+    return [...shown.map((g) => groupCard(key, g, groups.indexOf(g), total)), ...(rest.length ? [restLine(`${key}-more`, rest)] : [])]
+  }
+  const groupCard = (key: string, g: Group, i: number, total: number) => costBox(`${key}-${i}`, [
     <Box key={`${key}-${i}-head`} flexDirection="row" flexWrap="wrap" alignItems="center" columnGap={2}>
       {figure(`${key}-${i}-fig`, money(g.usd), 22, g.isPartial ? THEME.accentText : THEME.mark)}
       {line(`${key}-${i}-l`, g.label, THEME.title, true)}
@@ -142,7 +176,7 @@ export function costsView(c: Ctx, p: Parts, cd: CostData, s: CostsCtx) {
     </Box>,
     bar(`${key}-${i}-bar`, CATS.map(([k, label, color]) => ({ value: g.parts[k], color, label })), 6),
     legend(`${key}-${i}-legend`, g),
-  ]))
+  ])
 
   // The session by stage (E4): each row a figure, its share and its calls; the check that the rows
   // make the session to the cent stands under them in words, with its sign
@@ -152,15 +186,17 @@ export function costsView(c: Ctx, p: Parts, cd: CostData, s: CostsCtx) {
       ...sc.rows.map((r) => ({ key: r.tag, label: r.tag.replace('/', ' · '), g: r.group })),
       ...[sc.outside, sc.untagged].filter((b) => b.group.records > 0).map((b, i) => ({ key: `outside-${i}`, label: b.words, g: b.group })),
     ]
-    const sum = rows.reduce((acc, r) => acc + (r.g.usd ?? 0), 0)
+    const sum = rows.reduce((acc, r) => acc + (r.g.usd ?? 0), 0) // every row, the drawn and the rest
+    const { shown, rest } = topOf(rows, (r) => r.g.usd)
     return section('costs-stages', 'costs-stages', '', [costBox('cost-stages', [
-      ...rows.map((r) => (
+      ...shown.map((r) => (
         <Box key={`cs-${r.key}`} flexDirection="row" flexWrap="wrap" alignItems="center" columnGap={2}>
           {figure(`cs-fig-${r.key}`, money(r.g.usd), 20, r.g.isPartial ? THEME.accentText : THEME.mark)}
           {line(`cs-l-${r.key}`, r.label, THEME.title, true)}
           {line(`cs-v-${r.key}`, `${pct(r.g.usd ?? 0, total)} sesji · ${nCalls(r.g.records)}${r.g.isPartial ? ' · częściowo' : ''}`)}
         </Box>
       )),
+      ...(rest.length ? [restLine('cost-stages-more', rest.map((r) => r.g))] : []),
       line('cost-stages-check', sc.isWhole
         ? `✓ Etapy i „poza etapem” razem ${usd(sum)} = suma sesji ${usd(total)}`
         : `✗ Etapy i „poza etapem” razem ${usd(sum)} ≠ suma sesji ${usd(total)} — błąd przypisania`, sc.isWhole ? THEME.ok : THEME.accentText),

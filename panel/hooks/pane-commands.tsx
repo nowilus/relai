@@ -98,10 +98,10 @@ export function commandTabs(c: Ctx, parts: Parts, s: CommandsCtx) {
     const isCarded = isStage || c === 'relai-update' || c === 'relai-models'
     const copyWhat = isStage && !current.topic && !current.stage && s.plan.kind === 'ok' && s.plan.stage ? copyText(s.plan.statusPath, s.plan.stage.id) : built.text
     const actions = isStage
-      ? [btn('prepare', 'Przygotuj start', 'primary', () => s.prepareStage(current.topic ?? '', current.stage ?? '', isFresh)),
+      ? [btn('prepare', 'Przygotuj start', 'primary', () => s.prepareStage(current.topic ?? '', current.stage ?? '', isFresh), undefined, true),
           btn('copy', 'Kopiuj prompt', 'secondary', () => s.copy(copyWhat), '✓ Skopiowano')]
       : isCarded
-        ? [btn('prepare', 'Przygotuj', 'primary', () => s.prepareCommand(c as 'relai-update' | 'relai-models'))]
+        ? [btn('prepare', 'Przygotuj', 'primary', () => s.prepareCommand(c as 'relai-update' | 'relai-models'), undefined, true)]
         : [btn('send', 'Wyślij do czatu', 'primary', () => s.sendCommand(name ?? c, built.args, built.text), '✓ Wysłano')]
     return (
       <Box key="form" flexDirection="column" gap={isGui ? 1 : 0} paddingX={isGui ? 2 : 1} paddingY={isGui ? 1 : 0}
