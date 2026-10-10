@@ -66,23 +66,49 @@ describe('the cache card above the prompt', () => {
       expect(props.borderStyle).toBe(surface === 'desktop' ? 'round' : undefined)
       if (surface === 'desktop') expect(props.borderColor).toBe('#2c2824') // corners only, no colored frame
       expect((await ui.find({ key: 'label' }))?.text).toBe(THEME.cache.label)
-      expect((await ui.find({ key: 'state' }))?.text).toBe('Cache ciepły')
+      // Brief v2: the rings in the middle, `~60` + `min` on the right, no button in calm
+      expect(await ui.find({ key: 'cache-rings' })).toBeDefined()
       expect((await ui.find({ key: 'figure' }))?.text).toContain('60')
-      expect((await ui.find({ key: 'figure' }))?.text).toContain('min do końca')
-      expect((await ui.find({ key: 'cache-actions' }))?.text).toContain('Przekaż')
+      expect((await ui.find({ key: 'figure' }))?.text).toContain('min')
+      expect(await ui.findAll({ type: 'Button' })).toEqual([])
       expect(await ui.find({ key: 'engine' })).toBeDefined()
       await ui.unmount()
     }
   })
 
-  test('nothing is wider than 40 columns', async ($, on) => {
-    world(on)
+  // Brief v2 §9: calm, cooling (its second row with two buttons), kept and cold, each at 40 columns
+  test('nothing is wider than 40 columns, in calm and with each second row', async ($, on) => {
+    const clock = mock.clock(on, { now: 1_000_000 })
+    mock.store(on)
+    on('ui.toast', () => ({ value: undefined }) as never)
+    on('turn.step', async function* ($, e) {
+      const result: TurnStepResult = {
+        turnId: e.turnId, index: e.index, answer: '', toolUses: [], stopReason: 'end_turn',
+        usage: { input_tokens: 10, output_tokens: 200, cache_read_input_tokens: 180_000, cache_creation_input_tokens: 3_000, model: 'claude-opus-5-5' },
+      }
+      return result
+    })
+    on('ui.render', { component: 'AbovePrompt' }, ($, e) => {
+      const { Box, Text } = $.ui.resolve(e)
+      return Box({ key: 'engine', children: [Text({ children: ['engine'] })] })
+    })
     await mainStep($)
-    for (const surface of ['terminal', 'desktop'] as const) {
-      const ui = await $.ui.mount({ plugin: 'relai-cache-keeper', surface, ...BAND(40) })
-      expect(await ui.find({ key: 'relai-cache-card' })).toBeDefined()
-      expect(minWidth(await ui.drawn())).toBeLessThanOrEqual(40)
-      await ui.unmount()
+    const check = async (row: string | null) => {
+      for (const surface of ['terminal', 'desktop'] as const) {
+        const ui = await $.ui.mount({ plugin: 'relai-cache-keeper', surface, ...BAND(40) })
+        expect(await ui.find({ key: 'relai-cache-card' })).toBeDefined()
+        if (row) expect(await ui.find({ key: row })).toBeDefined()
+        expect(minWidth(await ui.drawn())).toBeLessThanOrEqual(40)
+        await ui.unmount()
+      }
     }
+    await check(null)
+    await clock.advance(51 * 60_000)
+    await check('cache-cooling')
+    await $.command.run({ command: 'keepwarm', args: '', origin: { kind: 'composer' }, presentation: { isFullscreen: false, columns: 40 } })
+    await check('cache-kept')
+    await $.command.run({ command: 'keepwarm', args: 'off', origin: { kind: 'composer' }, presentation: { isFullscreen: false, columns: 40 } })
+    await clock.advance(20 * 60_000)
+    await check(null)
   })
 })

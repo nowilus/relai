@@ -79,7 +79,8 @@ test('the band draws above the bands beneath it instead of hiding them, on termi
       component: 'AbovePrompt',
       props: { hasSurvey: false, isWorking: false, maxRows: 10, bodyColumns: 140, scroll: { offset: 0, bodyRows: 9 }, view: {} },
     })
-    expect(await ui.find({ key: 'handoff' })).toBeDefined()
+    // Z1: calm draws no button, so the card itself stands for the band (brief v2 §1)
+    expect(await ui.find({ key: 'relai-cache-card' })).toBeDefined()
     expect(await ui.find({ key: 'beneath' })).toBeDefined()
     await ui.unmount()
   }

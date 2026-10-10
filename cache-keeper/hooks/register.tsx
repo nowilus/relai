@@ -9,7 +9,8 @@
 import type { EngineInterface, Register } from 'claude-code'
 import { DEFAULT_SETTINGS, MIN, RELAI_MARKER, applySetting, cacheState, dueWarning, judgeStep, mergeSettings, msLeft, pingDue, pingMissed, type Settings } from './core'
 import { basename, clip, clock, fileStamp, limitsText, minutes, tokens, usd } from './fmt'
-import { BAND, BAR } from './relai/theme.mjs'
+import { BAND, BAR, CHIP } from './relai/theme.mjs'
+import { RINGS_HEIGHT, cacheRing, contextRing, glyphColor, limitRing, ringGlyph, ringRows, type Limit, type Ring } from './rings'
 import { ancestors } from './relai/plan-state.mjs'
 import { PLAIN_HANDOFF_PROMPT, RELAI_CONTINUE, RELAI_HANDOFF_PROMPT, continuePrompt, plainBody, relaiDone, relaiFreshPrompt } from './handoff'
 import { PRICE_FILE } from './relai/pricing.mjs'
@@ -18,11 +19,11 @@ import { handoffEconomics, type CacheTemp, type HandoffInput, type HandoffVerdic
 import { RITUAL_FILES, activePlanStatus, dateText, estimatedLayer, measuredLayer, startKey, type MeasuredStart } from './start-layer'
 
 type $T = EngineInterface
-type Limit = { kind: string; percentUsed: number }
 
 const TICK_MS = 30_000
 const STORE_SETTINGS = 'settings'
 const FIVE_HOUR = 'five_hour'
+const SEVEN_DAY = 'seven_day'
 const KEEP_TURNS = 5 // the mean output and the 5-hour pace come from this many recent main turns
 // "Zostań" holds until the context grows by a fifth: ctx · 5 ≥ dismissed · 6, in integers
 const STAY_GROWTH = { num: 6, den: 5 }
@@ -34,6 +35,7 @@ type Session = {
   isRelai: boolean
   lastActivity: number // last main-loop request or ping that touched the cache
   ctx: number
+  ctxWindow: number // the model's context window, tokens; 0 = not reported yet
   ttlMeasured: 0 | 5 | 60
   costUsd: number | null
   rateLimits: Limit[]
@@ -64,7 +66,7 @@ type Session = {
 type Handoff = { phase: 'idle' | 'running' | 'ready' | 'continuing'; notTurn: string; relai: boolean; body: string; path: string }
 
 const FRESH: Session = {
-  id: '', cwd: '', model: '', isRelai: false, lastActivity: 0, ctx: 0, ttlMeasured: 0, costUsd: null, rateLimits: [],
+  id: '', cwd: '', model: '', isRelai: false, lastActivity: 0, ctx: 0, ctxWindow: 0, ttlMeasured: 0, costUsd: null, rateLimits: [],
   working: false, turnId: '', keepWarm: false, keepWarmUntil: 0, pings: 0, pingUsd: 0, rewrites: 0, rewriteUsd: 0,
   announcedFor: 0, announced: [], justCompacted: false, shortTtlRewrites: 0,
   start: 0, startSource: '', startPending: false, turnOut: 0, outputs: [], limitBase: -1, limitTurns: [], stayCtx: 0, stayCold: false,
@@ -151,7 +153,7 @@ async function loadPrices($: $T) {
 // main turn measures S again (Z9); a /resume does not.
 function resetSession($: $T, id: string, isFresh: boolean) {
   stopKeepWarm($, 'nowa rozmowa')
-  S = { ...FRESH, id, cwd: S.cwd, model: S.model, isRelai: S.isRelai, rateLimits: S.rateLimits, start: S.start, startSource: S.startSource, startPending: isFresh }
+  S = { ...FRESH, id, cwd: S.cwd, model: S.model, isRelai: S.isRelai, rateLimits: S.rateLimits, ctxWindow: S.ctxWindow, start: S.start, startSource: S.startSource, startPending: isFresh }
   if (H.phase !== 'continuing') H = IDLE
   verdict = null
   $.ui.invalidate('ui.render')
@@ -327,16 +329,12 @@ function warnStep($: $T, now: number) {
   )
 }
 
-// The words the band shows: the state, the figure on the right, the context, the rewrite, the
-// limits, the session's cost, the pings of a kept cache and the handoff's phase. The tick redraws
-// only when they changed (Z4) — the countdown's minute, a cost or a limit that session.measure
-// moved — never the same words again.
+// The words the band shows are its stamp (bandView: the four rings' captions and fills, the
+// session's cost, the figure on the right, the one second row). The tick redraws only when they
+// changed (Z4) — the countdown's minute, a cost or a limit that session.measure moved — never the
+// same words again.
 let drawnStamp = ''
-const bandStamp = (now: number) => {
-  const st = state(now)
-  return JSON.stringify([st.kind, cacheFigure(st, ttlAssumed() ? '~' : ''), tokens(S.ctx), S.ctx >= settings.bigTokens, usd(rewriteAt(S.ctx)),
-    limitsText(S.rateLimits), usd(S.costUsd), S.pings, usd(S.pingUsd), H.phase, eventText(now)])
-}
+const bandStamp = (now: number) => JSON.stringify(bandView(now))
 
 async function tick($: $T) {
   await followSession($)
@@ -505,74 +503,134 @@ function cacheFigure(st: { kind: string, left: number }, tilde: string): readonl
   if (st.kind === 'unknown') return ['brak danych', 'czasu cache']
   if (st.kind === 'kept') return [clock(S.keepWarmUntil), 'koniec podtrzymania']
   if (st.kind === 'cold') return ['zimny', `od ${minutes(-st.left)}`]
-  if (st.left < MIN) return [`${tilde}${Math.max(1, Math.round(st.left / 1000))}`, 's do końca']
-  return [`${tilde}${Math.round(st.left / MIN)}`, 'min do końca']
+  if (st.left < MIN) return [`${tilde}${Math.max(1, Math.round(st.left / 1000))}`, 's']
+  return [`${tilde}${Math.round(st.left / MIN)}`, 'min']
 }
 
-function band($: $T, e: Resolved, columns: number, now: number) {
-  const { Box, Text, Button } = $.ui.resolve(e)
-  const st = state(now)
-  const big = S.ctx >= settings.bigTokens
-  const tilde = ttlAssumed() ? '~' : ''
-  const head =
-    st.kind === 'kept' ? <Text key="state" bold color={BAND.progress.color}>{`◆ Podtrzymywany · ${S.pings} pingów ${usd(S.pingUsd)}`}</Text>
-    : st.kind === 'warm' ? <Text key="state" bold color={BAND.progress.color}>Cache ciepły</Text>
-    : st.kind === 'cooling' ? <Text key="state" bold color={BAND.panel.color}>Cache stygnie</Text>
-    : st.kind === 'cold' ? <Text key="state" bold color={big ? BAND.cache.color : BAR.muted}>Cache zimny</Text>
-    : <Text key="state" color={BAR.muted}>Cache nieznany</Text>
-  const rewrite = usd(rewriteAt(S.ctx))
-  const meta = [
-    st.kind === 'cold' && big
-      ? <Text key="ctx" color={BAND.cache.color}>{`${tokens(S.ctx)} · następne wysłanie zapisze ponownie ≈ ${rewrite}`}</Text>
-      : <Text key="ctx" color={BAR.muted}>{`${tokens(S.ctx)} · zapis ≈ ${rewrite}`}</Text>,
-  ]
-  if (S.rateLimits.length) {
-    const top = Math.max(...S.rateLimits.map((l) => l.percentUsed || 0))
-    meta.push(<Text key="limits" color={top >= 95 ? BAND.cache.color : top >= 80 ? BAND.panel.color : BAR.muted}>{limitsText(S.rateLimits)}</Text>)
-  }
-  meta.push(<Text key="session" color={BAR.muted}>{`sesja ≈ ${usd(S.costUsd)}`}</Text>)
-  // Native buttons side by side (no plain: on a painted background it inverts under the cursor,
-  // P-018). No digit hotkey: a bare digit in an empty composer would press it (Z5); letters stay
-  const actions = []
-  if (st.kind === 'cooling' || (st.kind === 'warm' && big)) {
-    actions.push(<Button key="keepwarm" label="Podtrzymaj" variant="secondary" onPress={async () => {
-      const text = startKeepWarm($, await $.clock.now(), settings.keepWarmHours)
-      if (!S.keepWarm) $.ui.toast(text, { timeoutMs: 10_000 })
-      $.ui.invalidate('ui.render')
-    }} />)
-  } else if (st.kind === 'kept') {
-    actions.push(<Button key="keepwarm" label="Zatrzymaj" variant="secondary" onPress={() => { stopKeepWarm($, 'wyłączone ręcznie'); $.ui.invalidate('ui.render') }} />)
-  }
-  if (H.phase === 'ready') actions.push(<Button key="continue" label="Wyczyść i kontynuuj" hotkey="c" variant="secondary" onPress={() => clearAndContinue($)} />)
-  const label = H.phase === 'running' ? 'Przekazanie trwa' : H.phase === 'continuing' ? 'Czyszczę' : S.isRelai ? 'Przekaż (RelAI)' : 'Przekaż'
-  const handoff = <Button key="handoff" label={label} hotkey="h" variant="secondary" dimColor={H.phase !== 'idle'} onPress={() => startHandoff($)} />
-  // Z9: when a fresh session pays off, the one handoff button moves into the second row (hotkey h
-  // once in the band); "Zostań" dismisses the event for this context size
+// The cache bar's second row (brief v2 §1): only while its reason lasts, one at a time. A handoff
+// the person must answer first, then one under way; a cooling cache before the Z9 event (minutes
+// decide whether "Podtrzymaj" still helps, and its row offers Przekaż too); a kept cache last.
+type SecondKind = 'ready' | 'running' | 'cooling' | 'event' | 'kept'
+type Second = { kind: SecondKind, text: string }
+const CHIP_OF: Record<SecondKind, { color: string, bg: string }> = { ready: CHIP.ok, running: CHIP.run, cooling: CHIP.warn, event: CHIP.warn, kept: CHIP.run }
+
+const pingsText = (n: number) => {
+  const tens = n % 100
+  const word = n === 1 ? 'ping' : n % 10 >= 2 && n % 10 <= 4 && (tens < 12 || tens > 14) ? 'pingi' : 'pingów'
+  return `${n} ${word}`
+}
+
+function secondRow(now: number, kind: string): Second | null {
+  if (H.phase === 'ready') return { kind: 'ready', text: 'przekazanie gotowe' }
+  if (H.phase === 'running') return { kind: 'running', text: 'przekazanie trwa' }
+  if (H.phase === 'continuing') return { kind: 'running', text: 'czyszczę czat i kontynuuję' }
+  if (kind === 'cooling') return { kind: 'cooling', text: `stygnie · ponowny zapis ≈ ${usd(rewriteAt(S.ctx))}` }
   const event = eventText(now)
-  if (!event) actions.push(handoff)
-  const middle = [
-    <Box key="cache-state" flexDirection="row" flexWrap="wrap" alignItems="center" columnGap={3}>
-      <Box key="state">{head}</Box>
-      <Box key="cache-actions" flexDirection="row" flexWrap="wrap" columnGap={2}>{actions}</Box>
-    </Box>,
-    // A line apart from the state and its buttons on the desktop (calibration 2026-10-09)
-    <Box key="cache-meta" flexDirection="row" flexWrap="wrap" columnGap={3} marginTop={e.surface === 'terminal' ? 0 : 1}>{meta}</Box>,
+  if (event) return { kind: 'event', text: event }
+  if (kind === 'kept') return { kind: 'kept', text: `podtrzymany do ${clock(S.keepWarmUntil)} · ${pingsText(S.pings)} · ${usd(S.pingUsd)}` }
+  return null
+}
+
+// Everything the band draws, as data: the stamp of the tick (Z4) and the input of band()
+function bandView(now: number) {
+  const st = state(now)
+  const isAssumed = ttlAssumed()
+  const rings: Ring[] = [
+    cacheRing({ kind: st.kind, left: st.left, ttlMin: ttl(), isAssumed, rewrite: usd(rewriteAt(S.ctx)), keptUntil: S.keepWarmUntil }),
+    limitRing('five', '5 h', S.rateLimits.find((l) => l.kind === FIVE_HOUR), now),
+    limitRing('week', 'tydzień', S.rateLimits.find((l) => l.kind === SEVEN_DAY), now),
+    contextRing(S.ctx, S.ctxWindow),
   ]
-  if (event) {
+  const cost = S.costUsd === null ? 'sesja · brak danych' : `sesja ≈ ${usd(S.costUsd)}`
+  return { rings, cost, figure: cacheFigure(st, isAssumed ? '~' : ''), second: secondRow(now, st.kind) }
+}
+
+const CELL_PX = 8 // a desktop cell, about (relai-progress reckons the same)
+const COLUMN_GAP = 2 // cells between the grid's columns (brief v2 §5)
+
+// The middle column's pixels: the card's padding and rounded corners, and beside it the label and
+// figure columns with their gaps (below BAR.narrow they stand on top)
+const middlePx = (columns: number) =>
+  Math.max(10, columns - 2 - 2 - (columns < BAR.narrow ? 0 : BAR.labelColumn + BAR.figureColumn + 2 * COLUMN_GAP)) * CELL_PX
+
+// The cache bar (brief v2 §4): in calm one row — four rings with two-line captions and the
+// session's cost after them — and zero buttons; a second row only while its reason lasts.
+// Desktop: each Svg alone in its row (an interactive Svg beside text shrinks, P-021 pkt 3).
+// Terminal: a glyph and the two caption lines per ring, wrapping rather than overflowing.
+function band($: $T, e: Resolved, columns: number, now: number) {
+  const el = $.ui.resolve(e)
+  const { Box, Text } = el
+  const Svg = (e.surface === 'desktop' || e.surface === 'vscode') && 'Svg' in el ? el.Svg : null
+  const isGui = e.surface !== 'terminal'
+  const v = bandView(now)
+  const rings = Svg
+    ? (
+      <Box key="cache-rings" flexDirection="column">
+        {ringRows(v.rings, v.cost, middlePx(columns), BAND.cache.bg).map((row, i) => (
+          <Box key={`rings-${i}`} flexDirection="column"><Svg isInteractive source={row.svg} alt={row.alt} height={RINGS_HEIGHT} /></Box>
+        ))}
+      </Box>
+    )
+    : (
+      <Box key="cache-rings" flexDirection="row" flexWrap="wrap" columnGap={3}>
+        {[
+          ...v.rings.map((r) => (
+            <Box key={`ring-${r.name}`} flexDirection="row" flexWrap="wrap" columnGap={1}>
+              <Text color={glyphColor(r)}>{ringGlyph(r.fill)}</Text>
+              <Text color={BAR.text}>{r.a}</Text>
+              <Text color={BAR.muted}>{'· ' + r.b}</Text>
+            </Box>
+          )),
+          <Box key="session"><Text color={BAR.muted}>{v.cost}</Text></Box>,
+        ]}
+      </Box>
+    )
+  const middle = [rings]
+  if (v.second) {
+    const look = CHIP_OF[v.second.kind]
     middle.push(
-      <Box key="cache-event" flexDirection="row" flexWrap="wrap" alignItems="center" columnGap={3} marginTop={e.surface === 'terminal' ? 0 : 1}>
-        <Box key="event-text"><Text color={BAR.text}>{event}</Text></Box>
-        <Box key="event-actions" flexDirection="row" flexWrap="wrap" columnGap={2}>
-          {[handoff, <Button key="stay" label="Zostań" variant="secondary" onPress={async () => {
-            const at = await $.clock.now()
-            set({ stayCtx: S.ctx, stayCold: state(at).kind === 'cold' })
-            $.ui.invalidate('ui.render')
-          }} />]}
-        </Box>
+      <Box key={`cache-${v.second.kind}`} flexDirection="row" flexWrap="wrap" alignItems="center" columnGap={2} {...(isGui ? { marginTop: 1 } : {})}>
+        {[
+          <Box key="chip" flexShrink={1} paddingX={1} backgroundColor={look.bg}><Text color={look.color}>{v.second.text}</Text></Box>,
+          ...secondButtons($, e, v.second.kind),
+        ]}
       </Box>,
     )
   }
-  return barCard($, e, columns, 'relai-cache-card', BAND.cache, middle, cacheFigure(st, tilde))
+  return barCard($, e, columns, 'relai-cache-card', BAND.cache, middle, v.figure)
+}
+
+// The buttons of a second row: native (a plain one inverts on a painted background, P-018); no
+// digit hotkey (a bare digit typed into an empty composer pressed it, Z5); hotkey h at most once
+function secondButtons($: $T, e: Resolved, kind: SecondKind) {
+  const { Button } = $.ui.resolve(e)
+  const handoff = <Button key="handoff" label={S.isRelai ? 'Przekaż (RelAI)' : 'Przekaż'} hotkey="h" variant="secondary" onPress={() => startHandoff($)} />
+  if (kind === 'ready') {
+    return [
+      <Button key="continue" label="Wyczyść i kontynuuj" hotkey="c" variant="primary" onPress={() => clearAndContinue($)} />,
+      <Button key="stay-ready" label="Zostań" variant="secondary" onPress={() => { H = IDLE; $.ui.invalidate('ui.render') }} />,
+    ]
+  }
+  if (kind === 'cooling') {
+    return [
+      <Button key="keepwarm" label="Podtrzymaj" variant="secondary" onPress={async () => {
+        const text = startKeepWarm($, await $.clock.now(), settings.keepWarmHours)
+        if (!S.keepWarm) $.ui.toast(text, { timeoutMs: 10_000 })
+        $.ui.invalidate('ui.render')
+      }} />,
+      handoff,
+    ]
+  }
+  if (kind === 'event') {
+    // "Zostań" dismisses the event for this context size (Z9)
+    return [handoff, <Button key="stay" label="Zostań" variant="secondary" onPress={async () => {
+      const at = await $.clock.now()
+      set({ stayCtx: S.ctx, stayCold: state(at).kind === 'cold' })
+      $.ui.invalidate('ui.render')
+    }} />]
+  }
+  if (kind === 'kept') return [<Button key="stop" label="Zatrzymaj" variant="secondary" onPress={() => { stopKeepWarm($, 'wyłączone ręcznie'); $.ui.invalidate('ui.render') }} />]
+  return []
 }
 
 // ---------- hooks ----------
@@ -685,6 +743,7 @@ export const register: Register = (on) => {
     if (usage) {
       set({
         ctx: usage.context?.tokens || S.ctx,
+        ctxWindow: usage.context?.window || S.ctxWindow,
         costUsd: usage.cost ? usage.cost.usd : S.costUsd,
         rateLimits: usage.rateLimits?.length ? usage.rateLimits : S.rateLimits,
       })
@@ -708,6 +767,7 @@ export const register: Register = (on) => {
 
   on('session.measure', async ($, e, next) => {
     if (e.context?.tokens) set({ ctx: e.context.tokens })
+    if (e.context?.window) set({ ctxWindow: e.context.window })
     if (e.cost) set({ costUsd: e.cost.usd })
     if (e.rateLimits?.length) set({ rateLimits: e.rateLimits })
     reckon(await $.clock.now())

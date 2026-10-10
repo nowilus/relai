@@ -80,7 +80,8 @@ const mount = ($: Engine, surface: 'terminal' | 'desktop' = 'desktop') => $.ui.m
 
 describe('the cache bar second row: a fresh session pays off (Z9)', () => {
   // Before Z9: /cache had no reckoning ("Werdykt" absent) — the test failed on its last line
-  test('below the threshold: no second row, Przekaż stays in the state row, /cache says stay', async ($, on) => {
+  // Z1 (brief v2): calm has no button at all — Przekaż lives only in a second row, /handoff always
+  test('below the threshold: no second row, no button in calm, /cache says stay', async ($, on) => {
     const { w } = world(on, { store: MEASURED })
     await start($)
     // 100k warm: here = 100,000 × 0.2 / 1e6 + 0.04 = $0.06; saving = 70,000 × 0.2 / 1e6 = $0.014
@@ -89,7 +90,7 @@ describe('the cache bar second row: a fresh session pays off (Z9)', () => {
     for (const surface of ['terminal', 'desktop'] as const) {
       const ui = await mount($, surface)
       expect(await ui.find({ key: 'cache-event' })).toBeUndefined()
-      expect((await ui.find({ key: 'cache-actions' }))?.text).toContain('Przekaż')
+      expect(await ui.findAll({ type: 'Button' })).toEqual([])
       await ui.unmount()
     }
     expect(await cache($)).toContain('Werdykt: zostań — nie opłaca się, nowa sesja zwróciłaby się dopiero po 22 turach.')
@@ -114,7 +115,7 @@ describe('the cache bar second row: a fresh session pays off (Z9)', () => {
       // The handoff button moved into the row: hotkey h once in the whole band
       const buttons = await ui.findAll({ type: 'Button' })
       expect(buttons.filter((b) => b.props.hotkey === 'h').length).toBe(1)
-      expect((await ui.find({ key: 'cache-actions' }))?.text ?? '').not.toContain('Przekaż')
+      expect(buttons.map((b) => b.props.label)).toEqual(['Przekaż', 'Zostań'])
       await ui.unmount()
     }
   })
@@ -141,7 +142,7 @@ describe('the cache bar second row: a fresh session pays off (Z9)', () => {
     expect(await ui.find({ key: 'cache-event' })).toBeDefined()
     await ui.press({ key: 'stay' })
     expect(await ui.find({ key: 'cache-event' })).toBeUndefined()
-    expect((await ui.find({ key: 'cache-actions' }))?.text).toContain('Przekaż')
+    expect(await ui.findAll({ type: 'Button' })).toEqual([])
     // 900k: still N = ceil((0.18 + 0.04 + 0.24) / 0.174) = ceil(2.64) = 3, but 900k < 1.2 × 800k = 960k
     await turn($, w, 900_000)
     expect(await ui.find({ key: 'cache-event' })).toBeUndefined()
@@ -194,7 +195,7 @@ describe('/cache shows the reckoning or what is missing (Z9)', () => {
     expect(await cache($)).toContain('Nie liczę, czy nowa sesja się opłaca: brak rozmiaru warstwy startu.')
     const ui = await mount($)
     expect(await ui.find({ key: 'cache-event' })).toBeUndefined()
-    expect((await ui.find({ key: 'cache-actions' }))?.text).toContain('Przekaż')
+    expect(await ui.findAll({ type: 'Button' })).toEqual([])
     await ui.unmount()
   })
 })

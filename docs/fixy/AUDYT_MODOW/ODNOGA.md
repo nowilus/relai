@@ -152,6 +152,13 @@ Kolejność: najpierw fundamenty (Z3–Z5), bo bez nich nowe paski będą migać
       oznaczonym kontrolnym. **Pomiar na żywo, że `session.end` z `reason: 'clear'` odpala — czeka.**
 - [ ] Z1: trzy paski w spokoju bez przycisków, ≤ 160 px przy 1400 px (zrzut Łukasza); każdy
       stan z tabeli briefu otwiera drugi wiersz tylko pod swoim paskiem (testy); koszt sesji raz.
+      Testy ✓: `panel/hooks/band.test.ts` (7: wiersz planu bez kosztu, drugi wiersz tylko przy
+      karcie, „Nie”/„Tak” ścieżką `decide`), `progress.test.ts` (27: zero przycisków, chip agentów,
+      linia pod segmentami, `a/b punktów`, drugi wiersz 10 s po odhaczeniu), `cache-keeper`
+      `rings.test.ts` (14: cztery pierścienie z podpisami, progi 69/70/89/90 i 35/15 % TTL,
+      „brak danych”, koszt sesji raz, wiersze stygnięcia/przekazania/Z9/podtrzymania tylko w swoim
+      stanie), `core/panel/tests/theme.test.js` (progi kolorów). **Zrzut ≤ 160 px przy 1400 px
+      czeka** na pomiar na żywo (Łukasz).
 - [ ] Z2: 14 komend bez przewijania przy 900 px (zrzut), nazwa komendy obok polskiej, „Teraz”
       z jedną akcją główną, Koszty ze zwiniętymi sekcjami w `$.state`.
 - [ ] Z6: test równości trzech `fmt.ts` i dwóch `barCard`; `usd(11.73)` daje ten sam napis
@@ -244,6 +251,20 @@ Jedna linia na zamkniętą paczkę; pełny wpis do `docs/DZIENNIK.md` dopiero w 
   **Odstępstwa:** tempo 5 h odniesione do kontekstu tury na jej końcu (daje wprost proporcję
   S/ctx z karty); źródło S „pomiar po pierwszej turze” dodane przed „plikami rytuału” — raport
   hooka startu nie jest dostępny dla modu. Wygląd wiersza — do przestylowania w Z1 (pierścienie).
+- **2026-10-10 · Z1 zamknięta w kodzie** (trzech subagentów Opus 5.5: motyw + pasek planu,
+  pasek postępu, pierścienie cache; commity `46aad69` i następny) — wg briefu v2: etykiety
+  `plan`/`postęp`/`cache`, kolumna 14 komórek, `RING`, `usageColor`, `cacheColor`, `CHIP`
+  w motywie; pasek planu jednym wierszem bez kosztu, drugi wiersz z kartą „Tak/Nie”; pasek postępu
+  bez przycisków (chip agentów, linia pod segmentami w tym samym Svg, drugi wiersz po odhaczeniu
+  w `$.state`); pasek cache jako cztery pierścienie z podpisem dwuliniowym, `sesja ≈ $` raz,
+  jeden drugi wiersz naraz (priorytet: przekazanie gotowe > trwa > stygnie > zdarzenie Z9 >
+  podtrzymanie). **Rozjazd briefu i karty rozstrzygnięty na rzecz karty:** brief §1 daje
+  „Podtrzymaj (hotkey 1)”, karta Z5 każe usunąć skrót cyfrowy (połykał pierwszą cyfrę wiadomości)
+  — skrótu cyfrowego nie ma. **Dodane poza briefem:** wiersz „przekazanie trwa” (sam chip, bez
+  przycisków); format dat resetu (`reset HH:MM`, `jutro HH:MM`, `D.MM HH:MM`, `reset nieznany`).
+  Testy: panel 85, progress 27, cache-keeper 68, core 170. Do Z6: `fmt.tokens(999_999)` daje
+  `1000k`. **Czeka:** zrzut z desktopu (≤ 160 px przy 1400 px; czy Svg segmentów zajmuje całą
+  kolumnę obok chipa — P-021 pkt 3).
 
 ## Wynik
 
