@@ -1,27 +1,32 @@
-// The cache bar's four rings (AUDYT_MODOW Z1, docs/zasoby/PANEL_RELAI/STYL_PASKOW_CLAUDE.md §4):
-// cache, 5 h, week and context, each with a two-line caption. Pure: no `$` here (P-023 pkt 10),
-// so the band in register.tsx and the tests reach the same words.
+// The cache bar's five batteries (AUDYT_MODOW Z11, docs/zasoby/PANEL_RELAI/STYL_PASKOW_CLAUDE.md
+// §10): cache, limit 5 h, reset za, limit tygodnia, kontekst. On the bar a label and a value; the
+// full words — line a and line b — in a card shown while the pointer is on the battery's icon.
+// Pure: no `$` here (P-023 pkt 10), so the band in register.tsx and the tests reach the same words.
 //
-// A ring's fill comes from the very numbers its caption shows (the minutes left, the rounded
-// percent), so the band's stamp — these words — decides every redraw (Z4).
+// Like a phone's battery, a battery shows what is LEFT (1 % used → 99 % full), while the value
+// beside it says what the app counts (the percent used, the tokens used); the card says both.
+// A fill comes from the very numbers the words show (the minutes left, the rounded percent), so
+// the band's stamp — these words — decides every redraw (Z4).
 
-import { BAR, RING, cacheColor, usageColor } from './relai/theme.mjs'
+import { BAR, BATTERY, RING, leftColor } from './relai/theme.mjs'
 import { clock, minutes, tokens } from './fmt'
 
-export type RingName = 'cache' | 'five' | 'week' | 'ctx'
-// fill 0..1 of the ring drawn; 0 or null draws the bare track (an empty ring, never a seeming zero)
-export type Ring = { name: RingName, fill: number | null, color: string, a: string, b: string }
+export type MeasureName = 'cache' | 'five' | 'reset' | 'week' | 'ctx'
+// fill 0..1 of the battery drawn, the share left; null draws a bare outline (never a seeming zero)
+export type Measure = { name: MeasureName, fill: number | null, color: string, label: string, value: string, a: string, b: string }
 export type Limit = { kind: string, percentUsed: number, resetsAt?: string }
 export type CacheLook = { kind: string, left: number, ttlMin: number, isAssumed: boolean, rewrite: string, keptUntil: number }
 
 export const MISSING = 'brak danych'
 const MIN = 60_000
 const DAY = 24 * 60 * MIN
+const FIVE_HOURS = 5 * 60 * MIN
 
 const clamp = (v: number) => Math.max(0, Math.min(1, v))
 const two = (n: number) => String(n).padStart(2, '0')
+const missing = (name: MeasureName, label: string, a: string): Measure => ({ name, fill: null, color: RING.track, label, value: MISSING, a, b: MISSING })
 
-// The time left as the figure on the right shows it: seconds in the last minute, else minutes
+// The time left as the bar shows it: seconds in the last minute, else minutes
 function leftText(left: number, tilde: string): { text: string, ms: number } {
   if (left < MIN) {
     const s = Math.max(1, Math.round(left / 1000))
@@ -31,16 +36,18 @@ function leftText(left: number, tilde: string): { text: string, ms: number } {
   return { text: `${tilde}${m} min`, ms: m * MIN }
 }
 
-// Cache: the time left of the TTL, emptying; sage, mustard at 35 % left or less, clay at 15 % or
-// less and when cold (the theme's cacheColor). Line 2 names the TTL, or a cold cache's rewrite.
-export function cacheRing(c: CacheLook): Ring {
-  const ttlLine = `TTL ${c.ttlMin} min${c.isAssumed ? ' założony' : ''}`
-  if (c.kind === 'unknown') return { name: 'cache', fill: null, color: RING.track, a: 'cache', b: MISSING }
-  if (c.kind === 'cold') return { name: 'cache', fill: 0, color: cacheColor(0, true), a: `Zimny · od ${minutes(-c.left)}`, b: `zapis ≈ ${c.rewrite}` }
-  const shown = leftText(c.left, c.isAssumed ? '~' : '')
+// Cache: the time left of the TTL, emptying. The state's word stands inline only when it is news
+// (stygnie, zimny, podtrzymany); cold is always clay. The card names the TTL, or the rewrite.
+export function cacheMeasure(c: CacheLook): Measure {
+  if (c.kind === 'unknown') return missing('cache', 'cache', 'cache')
+  if (c.kind === 'cold') return { name: 'cache', fill: 0, color: leftColor(0, true), label: 'cache', value: 'zimny', a: `Zimny · od ${minutes(-c.left)}`, b: `zapis ≈ ${c.rewrite}` }
+  const shown = leftText(Math.max(0, c.left), c.isAssumed ? '~' : '')
   const percent = (shown.ms / (c.ttlMin * MIN)) * 100
-  const word = c.kind === 'kept' ? `Podtrzymany · do ${clock(c.keptUntil)}` : `${c.kind === 'cooling' ? 'Stygnie' : 'Ciepły'} · ${shown.text}`
-  return { name: 'cache', fill: clamp(percent / 100), color: cacheColor(percent), a: word, b: ttlLine }
+  const b = `TTL ${c.ttlMin} min${c.isAssumed ? ' założony' : ''}`
+  const look = { name: 'cache' as const, fill: clamp(percent / 100), color: leftColor(percent), label: 'cache', b }
+  if (c.kind === 'kept') return { ...look, value: `podtrzymany do ${clock(c.keptUntil)}`, a: `Podtrzymany · do ${clock(c.keptUntil)}` }
+  if (c.kind === 'cooling') return { ...look, value: `stygnie ${shown.text}`, a: `Stygnie · ${shown.text}` }
+  return { ...look, value: shown.text, a: `Ciepły · ${shown.text}` }
 }
 
 // When a window resets, in local time: today the hour, tomorrow "jutro", later the date
@@ -55,11 +62,30 @@ export function resetText(iso: string | undefined, now: number): string {
   return `reset ${d.getDate()}.${two(d.getMonth() + 1)} ${clock(at)}`
 }
 
-// A plan limit: the percent used, filling; the color by the theme's thresholds (70, 90)
-export function limitRing(name: 'five' | 'week', label: string, limit: Limit | undefined, now: number): Ring {
-  if (!limit || !Number.isFinite(limit.percentUsed)) return { name, fill: null, color: RING.track, a: label, b: MISSING }
-  const shown = Math.round(limit.percentUsed)
-  return { name, fill: clamp(shown / 100), color: usageColor(shown), a: `${shown} % · ${label}`, b: resetText(limit.resetsAt, now) }
+// A plan limit: the value is the percent used, the battery what is left of it
+export function limitMeasure(name: 'five' | 'week', label: string, window: string, limit: Limit | undefined, now: number): Measure {
+  if (!limit || !Number.isFinite(limit.percentUsed)) return missing(name, label, label)
+  const used = Math.round(limit.percentUsed)
+  const left = Math.max(0, 100 - used)
+  return {
+    name, fill: clamp(left / 100), color: leftColor(left), label, value: `${used} %`,
+    a: `${used} % · ${window}`, b: `zużyte ${used} % · zostało ${left} % · ${resetText(limit.resetsAt, now)}`,
+  }
+}
+
+// A span of time as the brief writes it: "12 min", "1 h 06 min"
+function span(ms: number): string {
+  const m = Math.max(1, Math.round(ms / MIN))
+  return m >= 60 ? `${Math.floor(m / 60)} h ${two(m % 60)} min` : `${m} min`
+}
+
+// The time to the 5-hour window's reset, draining over the window; always sage — a reset coming
+// is no alarm. No reset time, or one already past: an empty battery, never "0 min".
+export function resetMeasure(limit: Limit | undefined, now: number): Measure {
+  const at = limit?.resetsAt ? Date.parse(limit.resetsAt) : NaN
+  if (!Number.isFinite(at) || at <= now) return missing('reset', 'reset za', 'Reset limitu 5 h')
+  const left = span(at - now)
+  return { name: 'reset', fill: clamp((at - now) / FIVE_HOURS), color: BAR.segment.done, label: 'reset za', value: left, a: `Reset limitu 5 h za ${left}`, b: resetText(limit?.resetsAt, now) }
 }
 
 // A window in round units as the brief writes it: 1M, 200k
@@ -69,19 +95,20 @@ function windowText(n: number): string {
   return tokens(n)
 }
 
-// The context: its tokens of the model's window
-export function contextRing(used: number, window: number): Ring {
-  if (!(used > 0)) return { name: 'ctx', fill: null, color: RING.track, a: 'kontekst', b: MISSING }
-  const a = `${tokens(used)} · kontekst`
-  if (!(window > 0)) return { name: 'ctx', fill: null, color: RING.track, a, b: MISSING }
-  const percent = Math.round((used / window) * 100)
-  return { name: 'ctx', fill: clamp(percent / 100), color: usageColor(percent), a, b: `z ${windowText(window)} · ${percent} %` }
+// The context: the value is the tokens used, the battery the share of the window still free
+export function contextMeasure(used: number, window: number): Measure {
+  if (!(used > 0)) return missing('ctx', 'kontekst', 'kontekst')
+  const value = tokens(used)
+  const a = `${value} · kontekst`
+  if (!(window > 0)) return { name: 'ctx', fill: null, color: RING.track, label: 'kontekst', value, a, b: MISSING }
+  const free = Math.max(0, 100 - Math.round((used / window) * 100))
+  return { name: 'ctx', fill: clamp(free / 100), color: leftColor(free), label: 'kontekst', value, a, b: `zużyte ${value} z ${windowText(window)} · wolne ${free} %` }
 }
 
 // ---------- the terminal ----------
 
-// ◔ ◑ ◕ ● by the fill; ○ for an empty ring
-export function ringGlyph(fill: number | null): string {
+// ◔ ◑ ◕ ● by the share left; ○ for an empty battery
+export function measureGlyph(fill: number | null): string {
   if (!fill || fill <= 0) return '○'
   if (fill < 0.375) return '◔'
   if (fill < 0.625) return '◑'
@@ -89,85 +116,82 @@ export function ringGlyph(fill: number | null): string {
   return '●'
 }
 
-// The glyph's color: an empty ring's track would vanish on the bar, so it takes the muted text
-export const glyphColor = (r: Ring): string => (r.color === RING.track ? BAR.muted : r.color)
+// The glyph's color: an empty battery's track would vanish on the bar, so it takes the muted text
+export const glyphColor = (m: Measure): string => (m.color === RING.track ? BAR.muted : m.color)
 
-// ---------- the desktop: Svg rows ----------
-
-// Pixels of the drawing; the caption's advance is a generous mean of 11 px Segoe UI (no layout
-// engine in SVG: the estimate errs wide, so a caption never runs into the next ring)
-export const RINGS_HEIGHT = 26
-const CAPTION = { font: 11, char: 6.3, gap: 6, line1: 11, line2: 23 }
-const COST = { font: 12, char: 6.9, baseline: 17 }
-const ITEM_GAP = 18
+// ---------- the desktop: one interactive Svg per row ----------
 
 const esc = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
+const round = (n: number) => n.toFixed(2)
 
-type Item = { width: number, draw: (x: number) => string, alt: string }
-
-function ringItem(r: Ring): Item {
-  const d = RING.diameter
-  const width = d + CAPTION.gap + Math.max(r.a.length, r.b.length) * CAPTION.char
-  return {
-    width,
-    alt: `${r.a}, ${r.b}`,
-    draw: (x) => {
-      const cx = x + d / 2
-      const cy = RINGS_HEIGHT / 2
-      // the radius leaves room for the hover stroke inside the ring's box
-      const radius = (d - RING.hoverStroke) / 2
-      const round = (n: number) => n.toFixed(2)
-      const c = 2 * Math.PI * radius
-      const fill = r.fill && r.fill > 0
-        ? `<circle class="f" cx="${round(cx)}" cy="${cy}" r="${radius}" fill="none" stroke="${r.color}" stroke-width="${RING.stroke}" stroke-linecap="round" stroke-dasharray="${round(c)} ${round(c)}" stroke-dashoffset="${round(c * (1 - r.fill))}" transform="rotate(-90 ${round(cx)} ${cy})"/>`
-        : ''
-      const tx = round(x + d + CAPTION.gap)
-      return `<g class="r r-${r.name}"><rect x="${round(x)}" y="0" width="${round(width)}" height="${RINGS_HEIGHT}" fill="transparent"/>`
-        + `<circle class="k" cx="${round(cx)}" cy="${cy}" r="${radius}" fill="none" stroke="${RING.track}" stroke-width="${RING.stroke}"/>${fill}`
-        + `<text class="a" x="${tx}" y="${CAPTION.line1}">${esc(r.a)}</text><text class="b" x="${tx}" y="${CAPTION.line2}">${esc(r.b)}</text></g>`
-    },
-  }
+// The icon at (x, y): a body outlined in the muted text, a nub, the fill inside in the state's color
+function batteryIcon(x: number, y: number, m: Measure): string {
+  const { w, h } = BATTERY.icon
+  const body = w - 4
+  const inner = m.fill === null ? 0 : (body - 4) * clamp(m.fill)
+  return `<rect x="${round(x + 0.75)}" y="${round(y + 0.75)}" width="${body}" height="${h - 1.5}" rx="3" fill="none" stroke="${BAR.muted}" stroke-width="1.5"/>`
+    + `<rect x="${round(x + body + 1.5)}" y="${round(y + h / 2 - 2.5)}" width="2" height="5" rx="1" fill="${BAR.muted}"/>`
+    + (inner > 0 ? `<rect class="f" x="${round(x + 2.5)}" y="${round(y + 2.5)}" width="${round(inner)}" height="${h - 5}" rx="1.5" fill="${m.color}"/>` : '')
 }
 
-function costItem(text: string): Item {
-  return { width: text.length * COST.char, alt: text, draw: (x) => `<text class="s" x="${x.toFixed(2)}" y="${COST.baseline}">${esc(text)}</text>` }
-}
+const measureWidth = (m: Measure) => BATTERY.icon.w + BATTERY.icon.gap + (m.label.length + m.value.length) * BATTERY.char + BATTERY.spanGap
 
-// The rings left to right and the session's cost after them, packed into as few rows as the slot
-// of `maxPx` takes — one row at a usual width; each row one Svg with its width in the markup
-// (P-020 pkt 7), drawn with isInteractive so CSS :hover thickens a ring (P-020 pkt 8) and painted
-// with the bar's background (an interactive frame is white otherwise, P-018 pkt 2)
-export function ringRows(rings: readonly Ring[], cost: string, maxPx: number, background: string): { svg: string, alt: string }[] {
-  const items = [...rings.map(ringItem), costItem(cost)]
-  const rows: Item[][] = []
-  let row: Item[] = []
-  let width = 0
-  for (const item of items) {
-    const need = (row.length ? ITEM_GAP : 0) + item.width
-    if (row.length && width + need > maxPx) {
+type Placed = { x: number, m: Measure }
+
+// The measures left to right in as few rows as `maxPx` takes — one row at a usual width
+function pack(measures: readonly Measure[], maxPx: number): Placed[][] {
+  const rows: Placed[][] = []
+  let row: Placed[] = []
+  let x = 0
+  for (const m of measures) {
+    const w = measureWidth(m)
+    if (row.length && x + BATTERY.itemGap + w > maxPx) {
       rows.push(row)
       row = []
-      width = 0
+      x = 0
     }
-    width += (row.length ? ITEM_GAP : 0) + item.width
-    row.push(item)
+    if (row.length) x += BATTERY.itemGap
+    row.push({ x, m })
+    x += w
   }
   if (row.length) rows.push(row)
-  const css = `text{font-family:'Segoe UI',system-ui,sans-serif;font-size:${CAPTION.font}px}.a{fill:${BAR.text}}.b{fill:${BAR.muted}}`
-    + `.s{fill:${BAR.muted};font-size:${COST.font}px}.r:hover .k{stroke-width:${RING.hoverStroke}}.r:hover .f{stroke-width:${RING.hoverStroke}}`
-  return rows.map((items) => {
-    let x = 0
-    const parts = items.map((item, i) => {
-      if (i) x += ITEM_GAP
-      const drawn = item.draw(x)
-      x += item.width
-      return drawn
+  return rows
+}
+
+// A measure's card: lines a and b on a capsule, to the right of the icon, or to its left when the
+// right would run past the column; when neither fits, the side with more room — never over the
+// icon, which holds the pointer, so the card does not flicker (P-024 pkt 5). The width keeps the
+// slack of the calibrated probe: a separator's worth that covers the wider bold line a.
+function card(p: Placed, i: number, maxPx: number): string {
+  const C = BATTERY.card
+  const w = `${p.m.a}  ·  ${p.m.b}`.length * C.char + 2 * C.pad
+  const right = p.x + BATTERY.icon.w + C.gap
+  const left = p.x - C.gap - w
+  const x = right + w <= maxPx || (left < 0 && maxPx - right >= p.x - C.gap) ? right : left
+  const y = (BATTERY.height - C.h) / 2
+  return `<g class="t t${i}"><rect x="${round(x)}" y="${round(y)}" width="${round(w)}" height="${C.h}" rx="${C.h / 2}" fill="${C.bg}"/>`
+    + `<text x="${round(x + C.pad)}" y="${round(y + 15)}" font-size="${C.font}"><tspan class="a" fill="${BAR.text}" font-weight="600">${esc(p.m.a)}</tspan>`
+    + `<tspan class="b" dx="${C.lineGap}" fill="${BAR.muted}">${esc(p.m.b)}</tspan></text></g>`
+}
+
+// The rows of batteries, each one Svg of width="100%" — laid out from the column's left edge,
+// where a fixed width is centred in the interactive frame (P-024 pkt 1) — painted with the bar's
+// background (an interactive frame is white otherwise, P-018 pkt 2). Each icon is the hover
+// target of its card; the cards come after every measure, so a card paints over its neighbours.
+export function batteryRows(measures: readonly Measure[], maxPx: number, background: string): { svg: string, alt: string }[] {
+  return pack(measures, maxPx).map((placed) => {
+    const drawn = placed.map((p, i) => {
+      const tx = p.x + BATTERY.icon.w + BATTERY.icon.gap
+      return `<g class="i i${i} b-${p.m.name}"><rect x="${round(p.x - 3)}" y="0" width="${BATTERY.icon.w + 6}" height="${BATTERY.height}" fill="transparent"/>${batteryIcon(p.x, BATTERY.icon.y, p.m)}</g>`
+        + `<text class="w" x="${round(tx)}" y="${BATTERY.textY}" font-size="${BATTERY.font}"><tspan class="l" fill="${BAR.muted}">${esc(p.m.label)}</tspan>`
+        + `<tspan class="v" dx="${BATTERY.spanGap}" fill="${BAR.text}" font-weight="600">${esc(p.m.value)}</tspan></text>`
     })
-    const w = Math.ceil(x)
+    const css = `text{font-family:system-ui,'Segoe UI',sans-serif}.t{display:none;filter:drop-shadow(0 1px 2px rgba(0,0,0,.45))}`
+      + placed.map((_, i) => `.i${i}:hover~.t${i}{display:inline}`).join('')
     return {
-      svg: `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${RINGS_HEIGHT}" viewBox="0 0 ${w} ${RINGS_HEIGHT}">`
-        + `<style>${css}</style><rect width="100%" height="100%" fill="${background}"/>${parts.join('')}</svg>`,
-      alt: items.map((item) => item.alt).join('; '),
+      svg: `<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="${BATTERY.height}"><style>${css}</style>`
+        + `<rect width="100%" height="100%" fill="${background}"/>${drawn.join('')}${placed.map((p, i) => card(p, i, maxPx)).join('')}</svg>`,
+      alt: placed.map((p) => `${p.m.a}, ${p.m.b}`).join('; '),
     }
   })
 }

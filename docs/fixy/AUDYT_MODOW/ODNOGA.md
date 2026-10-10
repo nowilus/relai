@@ -203,9 +203,12 @@ Kolejność: najpierw fundamenty (Z3–Z5), bo bez nich nowe paski będą migać
       fokusu przy planie w Codeksie — „poza etapem” i pytanie; `/clear` przenosi fokus (testy
       `focus.test.ts`, `focus-flow.test.ts`, progress „thread card”); korekta historii tej sesji po
       „tak”; zrzut na żywo.
-- [ ] Z11: makieta paska cache od sesji Fable 5.1 zaakceptowana, wdrożona, zrzut Łukasza.
+- [x] Z11: makieta paska cache od sesji Fable 5.1 zaakceptowana, wdrożona, zrzut Łukasza.
       Kalibracja ✓ 2026-10-10 („Jest dobrze”): Aneks Z11 w briefie v3, prompt wdrożenia
-      `PROMPT_Z11_WDROZENIE.md`. **Wdrożenie czeka** (sesja Opus 5.5).
+      `PROMPT_Z11_WDROZENIE.md`. Wdrożenie ✓ 2026-10-11 (Opus 5.5): `rings.test.ts` „the calm
+      cache bar: five batteries…” (11 testów + 8 z pętli), `handoff-economics.test.ts` „the event
+      chip is CHIP.info…”, `theme.test.js` `CHIP.info`, `leftColor`, `BATTERY`; na starym kodzie
+      18 ✖; zrzuty Łukasza (pięć baterii, dymek 2. i 3. miary, zawijanie przy zwężaniu) — „jest ok”.
 - [ ] Z13: pasek plan bez fokusu ma przycisk `Wybierz pracę…`, który otwiera panel z rozwiniętym
       wyborem fokusu; po wyborze pasek wraca do jednego wiersza (testy `band.test.ts`,
       `pane-v2.test.ts`; zrzut). Aneks B.
@@ -377,6 +380,21 @@ Jedna linia na zamkniętą paczkę; pełny wpis do `docs/DZIENNIK.md` dopiero w 
   usterek paska cache odczytanych ze zrzutu (siatka, `~59 min` dwa razy, wiszący koszt sesji, drugi
   wiersz poza kolumnami, pigułka jak alarm, wysokość), ograniczenia nośnika, smak Łukasza, kroki
   pomiar → jeden wariant w prawdziwym nośniku → seria → aneks briefu v2 → prompt wdrożenia (Opus).
+- **2026-10-11 · Z11 zamknięta** (Opus 5.5) — `relai-cache-keeper` 0.5.0: pięć baterii w jednym
+  `Svg` `width="100%"` (`batteryRows` w `rings.ts`), etykieta i wartość na pasku, dymek z liniami
+  a·b po najechaniu na ikonę, bateria = zapas (`leftColor`, 30/10), `reset za` szałwią, koszt sesji
+  w kolumnie liczby, chip Z9 `CHIP.info` (prowadzenie pogrubione), terminal: glif, etykieta,
+  wartość, linia b. Motyw: `BATTERY`, `leftColor`, `CHIP.info` (+ synchronizacja kopii). Pomiar na
+  żywo w podmienionej kopii 0.4.0 za zgodą Łukasza (oryginały w katalogu roboczym): dymek
+  ostatniej baterii ucięty, a wiersz łamał się dopiero, gdy kontekst znikał z pierwszego wiersza —
+  przyczyna: 9,8 px z kalibracji to piksele zrzutu (~1,2 px CSS), komórka to ~8,2 px CSS;
+  `CELL_PX` 8, sprostowanie P-024 pkt 3 i briefu (v3.1). Przegląd `typescript-reviewer`: 12 uwag,
+  poprawione 2 (podwójne „brak danych” w terminalu, prowadzenie chipa pogrubione zawsze);
+  **świadomie odłożone:** limit po minionym resecie pokazuje stary procent (jak przed Z11), czas
+  cache inline i w chipie `stygnie`/`podtrzymany` (zgodnie z aneksem 10.4 i sekcją 1). Testy:
+  cache-keeper 90/90, panel 123/123, progress 31/31 (binarka 2.1.295), `validate` ×3, rdzeń
+  179/179, `sync-panel-core --check`; `tsc` — te same dwie klasy błędów co na HEAD (TS7016 `.mjs`,
+  TS2345 `Mounted` w testach). Sonda `cache-probe` wyniesiona z `dev-mods` do katalogu roboczego.
 ## Wynik
 
 —

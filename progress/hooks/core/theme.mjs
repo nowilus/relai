@@ -230,14 +230,48 @@ export function cacheColor(leftPercent, isCold = false) {
 }
 
 /**
+ * The batteries of the cache bar (Aneks Z11, brief v3 §10.3, calibrated in the app 2026-10-10):
+ * one row of 24 px, a 26 × 12 px icon, the label and value in 14.5 px, a card on hover. `char` is
+ * a generous mean advance of the font (no layout engine in SVG: an estimate that errs wide never
+ * runs into the next measure). A battery shows what is LEFT; its color comes from that share.
+ */
+export const BATTERY = Object.freeze({
+  height: 24,
+  font: 14.5,
+  char: 7.9,
+  textY: 17, // the text's baseline
+  spanGap: 7, // px from the label to the value
+  itemGap: 30, // px between measures
+  icon: Object.freeze({ w: 26, h: 12, y: 6, gap: 8 }), // gap: from the icon to its label
+  card: Object.freeze({ h: 22, pad: 11, gap: 6, font: 13, char: 7.1, lineGap: 9, bg: mix(BAND.cache.bg, BAR.text, 0.14) }),
+  warn: 30, // % left: mustard at or below
+  alert: 10, // % left: clay at or below
+});
+
+/**
+ * A battery's fill by the share LEFT, one rule for every battery: sage, mustard at 30 % left or
+ * less, clay at 10 % or less and whenever the cache is cold. A missing figure: the bare track.
+ * @param {number} leftPercent @param {boolean} [isCold] @returns {string}
+ */
+export function leftColor(leftPercent, isCold = false) {
+  if (isCold) return BAND.cache.color;
+  if (!isFigure(leftPercent)) return RING.track;
+  if (leftPercent <= BATTERY.alert) return BAND.cache.color;
+  if (leftPercent <= BATTERY.warn) return BAND.panel.color;
+  return BAR.segment.done;
+}
+
+/**
  * The chip that opens a bar's second row (brief v2 §1; colors of MAKIETY.html v4): `warn` for
  * what waits for the person (a card, a cooling cache), `ok` for what was just done (a ticked
- * item), `run` for what goes on.
+ * item), `run` for what goes on, `info` for news that asks nothing yet (the Z9 event, Aneks Z11:
+ * the cache bar's surface a shade lighter, its lead in the text color, the rest muted).
  */
 export const CHIP = Object.freeze({
   warn: Object.freeze({ color: BAND.cache.color, bg: '#3d2f28' }),
   ok: Object.freeze({ color: BAND.progress.color, bg: '#2f3a31' }),
   run: Object.freeze({ color: BAND.panel.color, bg: '#3a342b' }),
+  info: Object.freeze({ color: BAR.text, bg: mix(BAND.cache.bg, BAR.text, 0.1) }),
 });
 
 /**

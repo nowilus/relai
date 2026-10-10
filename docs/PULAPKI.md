@@ -21,9 +21,13 @@ Specyfikacja: `SPEC_PULAPKI.md`.
   2. **Obraz `Svg` (bez `isInteractive`) z pustym `alt=""` nie rysuje się w paśmie** — bez linii
      `refused`, tekst obok rysuje się normalnie. Ten sam element z niepustym `alt` rysuje się.
      W panelu bocznym (`tree-probe`, Z10) pusty `alt` uchodził; w paśmie nie.
-  3. **Komórka siatki na desktopie to ~9,8 px** przy oknie 1640 px (16 komórek etykiety i odstępu
-     paska = 157 px); kod pasków zakładał 8 px, więc `middlePx` zaniżało kolumnę o ~18 %
-     (wcześniejsze zawijanie, dymki przerzucane na lewo bez potrzeby).
+  3. **Komórka siatki na desktopie to ~8,2 px CSS** — tyle, w ilu rysuje `Svg`. Na zrzucie ekranu
+     16 komórek etykiety i odstępu ma 157 px (~9,8 px na komórkę), ale piksel zrzutu to ~1,2 px
+     CSS: bateria kontekstu narysowana na x = 766 stoi na zrzucie 919 px od początku kolumny.
+     **Sprostowanie 2026-10-11:** pierwsza wersja tego punktu (2026-10-10) podawała 9,8 px jako
+     komórkę i wdrożenie Z11 przyjęło `CELL_PX = 9.8` — wiersz baterii łamał się za późno,
+     piąta bateria i jej dymek ucinały się przy prawej krawędzi. Pomiar z obrazu przeliczaj na
+     piksele CSS znanym punktem rysunku, zanim wpiszesz go do kodu.
   4. **`claude` na PATH (`~/.local/bin/claude`) to 2.1.280**, a aplikacja wykonuje 2.1.295.
      Walidator 2.1.280 odrzuca `read($, atom)` / `update($, atom, …)` („$ is passed to "read",
      imported from "claude-code"") — także w wydanym `relai-progress`. Walidacja i testy modów:
@@ -37,7 +41,7 @@ Specyfikacja: `SPEC_PULAPKI.md`.
      (wiersz tekstu ~22 px, pasek ~48 px); `Box` nie ma promienia bez ramki, więc trzy paski
      w spokoju mają ≈ 172 px — kryterium 160 px z Z1 było nieosiągalne z ramką (Aneks Z11: 175).
 - **Obejście:** wiersz pierścieni/baterii jako `Svg` z `width="100%"`; każdy obraz `Svg` z opisowym
-  `alt`; `CELL_PX = 9.8` w `cache-keeper` (zmierzone, nie założone); walidacja i `plugin test`
+  `alt`; `CELL_PX = 8` w `cache-keeper` (~8,2 px CSS zmierzone, 8 zostawia mały zapas); walidacja i `plugin test`
   binarką 2.1.295; podpowiedzi jako karta w tym samym `Svg`.
 - **Zasięg:** Claude Code 2.1.295 (mody „early access”), aplikacja desktopowa, Windows; terminal
   niezmierzony. Zrzuty i decyzje: Aneks Z11 briefu `docs/zasoby/PANEL_RELAI/STYL_PASKOW_CLAUDE.md`.

@@ -1,6 +1,6 @@
 # Styl pasków i panelu RelAI dla Claude Code
 
-Wersja: **3** (v2 + Aneks Z11) · Data: **2026-10-10** · Zakres: trzy paski nad promptem **i panel boczny** `/relai-panel`
+Wersja: **3.1** (v2 + Aneks Z11, sprostowanie komórki 2026-10-11) · Data: **2026-10-10** · Zakres: trzy paski nad promptem **i panel boczny** `/relai-panel`
 (zakładki Komendy i Koszty) · Źródło decyzji: wątek [AUDYT_MODOW](../../fixy/AUDYT_MODOW/ODNOGA.md),
 makiety [MAKIETY.html](../../fixy/AUDYT_MODOW/MAKIETY.html) (wersja 4, kalibracja z Łukaszem
 w czterech rundach 2026-10-10).
@@ -162,6 +162,9 @@ Aneks zastępuje sekcję 4 i precyzuje sekcje 1 i 5 dla paska cache; reszta brie
    a prawą krawędzią, drugi wiersz pod przesuniętymi pierścieniami, pomarańczowy chip Z9 jak alarm.
 3. Komórka siatki na desktopie to **~9,8 px** przy oknie 1640 px (16 komórek etykiety i odstępu
    = 157 px), nie 8 px jak zakładał kod — `middlePx` zaniżało kolumnę o ~18 %.
+   **Sprostowanie 2026-10-11 (wdrożenie Z11):** 157 px to piksele zrzutu, ~1,2× piksele CSS,
+   w których rysuje `Svg`; komórka to ~8,2 px CSS i kod liczy 8 px (P-024 pkt 3). Z 9,8 px piąta
+   bateria i jej dymek ucinały się przed złamaniem wiersza. Wszędzie niżej „9,8 px” czytaj „8 px”.
 4. Jeden wiersz tekstu ma ~22 px, pasek z zaokrągloną ramką ~48 px: **ramka kosztuje ~26 px na
    pasek**, trzy paski w spokoju ≈ 172 px. Decyzja Łukasza: ramka zostaje, próg kryterium 160 → 175 px.
 

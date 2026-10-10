@@ -206,9 +206,38 @@ test('a missing figure draws the bare track, never a pretend color (brief §4: b
 });
 
 test('CHIP: the second rows\' chips read on their background (WCAG AA, 4.5:1)', () => {
-  assert.deepEqual(Object.keys(theme.CHIP), ['warn', 'ok', 'run']);
+  assert.deepEqual(Object.keys(theme.CHIP), ['warn', 'ok', 'run', 'info']);
   const low = Object.entries(theme.CHIP).filter(([, c]) => contrast(c.color, c.bg) < 4.5).map(([k]) => k);
   assert.deepEqual(low, []);
+});
+
+// Aneks Z11 (brief v3 §10.5): the Z9 event is information, not an alarm — the bar's own surface a
+// shade lighter, its lead in the text color and the rest muted, both readable
+test('CHIP.info: the cache bar\'s surface a tenth lighter, the text and the muted text read on it', () => {
+  assert.equal(theme.CHIP.info.bg, theme.mix(theme.BAND.cache.bg, theme.BAR.text, 0.1));
+  assert.equal(theme.CHIP.info.color, theme.BAR.text);
+  assert.ok(contrast(theme.BAR.muted, theme.CHIP.info.bg) >= 4.5);
+});
+
+// Aneks Z11 (brief v3 §10.3): a battery shows what is LEFT; one rule of color for every battery
+test('leftColor: sage above 30 % left, mustard at 30 % or less, clay at 10 % or less and when cold', () => {
+  const sage = theme.BAR.segment.done;
+  const mustard = theme.BAND.panel.color;
+  const clay = theme.BAND.cache.color;
+  assert.deepEqual([100, 31, 30.1, 30, 11, 10.1, 10, 1, 0].map((p) => theme.leftColor(p)),
+    [sage, sage, sage, mustard, mustard, mustard, clay, clay, clay]);
+  assert.equal(theme.leftColor(100, true), clay);
+  for (const v of [null, undefined, Number.NaN]) assert.equal(theme.leftColor(/** @type {any} */ (v)), theme.RING.track);
+});
+
+test('BATTERY: the geometry of §10.3 and a card whose two lines read on it', () => {
+  const b = theme.BATTERY;
+  assert.deepEqual([b.height, b.font, b.textY, b.spanGap, b.itemGap], [24, 14.5, 17, 7, 30]);
+  assert.deepEqual([b.icon.w, b.icon.h, b.icon.y, b.icon.gap], [26, 12, 6, 8]);
+  assert.deepEqual([b.card.h, b.card.pad, b.card.gap, b.card.font, b.card.lineGap], [22, 11, 6, 13, 9]);
+  assert.deepEqual([b.warn, b.alert], [30, 10]);
+  assert.equal(b.card.bg, theme.mix(theme.BAND.cache.bg, theme.BAR.text, 0.14));
+  for (const fg of [theme.BAR.text, theme.BAR.muted]) assert.ok(contrast(fg, b.card.bg) >= 4.5, fg);
 });
 
 test('every text of the bars reads on its background (WCAG AA, 4.5:1)', () => {

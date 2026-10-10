@@ -59,8 +59,8 @@
     {
       "name": "relai-cache-keeper",
       "source": "./cache-keeper",
-      "version": "0.4.0",
-      "description": "Early access — needs Claude Code with mods (measured on 2.1.293). Four rings above the prompt: the prompt cache's time left, the 5-hour and weekly limits and the context, with the session's cost once; asks before a cold send of a big context and says when a fresh session pays off (/cache shows the reckoning). Calls the model only on the person's request (keep-warm pings, hand-off to a fresh chat).",
+      "version": "0.5.0",
+      "description": "Early access — needs Claude Code with mods (measured on 2.1.295). Five batteries above the prompt — the prompt cache's time left, the 5-hour limit, the time to its reset, the weekly limit and the context — each showing what is left, with the full words on hover and the session's cost once, on the right; asks before a cold send of a big context and says when a fresh session pays off (/cache shows the reckoning). Calls the model only on the person's request (keep-warm pings, hand-off to a fresh chat).",
       "category": "productivity",
       "homepage": "https://github.com/nowilus/relai",
       "repository": "https://github.com/nowilus/relai",

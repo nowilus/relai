@@ -1,13 +1,14 @@
 import { describe, expect, mock, test, type TestBody } from 'claude-code/testing'
 import type { On, RenderNode, TurnStepResult } from 'claude-code'
-import { BAND, BAR, CHIP, RING } from './relai/theme.mjs'
+import { BAND, BAR, BATTERY, CHIP } from './relai/theme.mjs'
 
 type Engine = Parameters<TestBody>[0]
 type Mounted = Awaited<ReturnType<Engine['ui']['mount']>>
 
-// The cache bar after brief v2 (AUDYT_MODOW Z1, docs/zasoby/PANEL_RELAI/STYL_PASKOW_CLAUDE.md §1, §4):
-// in calm one row of four rings — cache, 5 h, week, context — each with a two-line caption, the
-// session's cost once, zero buttons; a second row only while its reason lasts, one at a time.
+// The cache bar after Aneks Z11 (AUDYT_MODOW, docs/zasoby/PANEL_RELAI/STYL_PASKOW_CLAUDE.md §1, §10):
+// in calm one row of five batteries — cache, limit 5 h, reset za, limit tygodnia, kontekst — each
+// a label and a value, the full words in a card on hover; the session's cost once, on the right;
+// zero buttons; a second row only while its reason lasts, one at a time.
 //
 // Opus 5.5 on the built-in list, TTL 60 min assumed: a cache write is $8/M, so 200k → $1.60.
 
@@ -89,32 +90,45 @@ const propsOf = (node: RenderNode) => ((node as { props?: Record<string, unknown
 async function svgs(ui: Mounted) {
   return [...walk(await ui.drawn())].filter((x) => typeof x !== 'string' && x.type === 'Svg').map(propsOf)
 }
+// A card is drawn in the same Svg as the batteries but hidden at rest (display:none): what the
+// person sees without pointing is the drawing without its cards
+const atRest = (source: string) => source.replace(/<g class="t t\d+">.*?<\/g>/g, '')
 
-// What the person sees: every Text's words and every Svg's drawing (never its alt)
+// What the person sees: every Text's words and every Svg's drawing at rest (never its alt)
 async function visible(ui: Mounted): Promise<string> {
   const drawn = await ui.drawn()
   const texts = [...walk(drawn)].filter((x) => typeof x !== 'string' && x.type === 'Text').map(textOf)
-  const sources = (await svgs(ui)).map((p) => String(p.source ?? ''))
+  const sources = (await svgs(ui)).map((p) => atRest(String(p.source ?? '')))
   return [...texts, ...sources].join('\n')
 }
 
-type RingView = { color: string | null, a: string, b: string }
+type BatteryView = { name: string, share: number | null, color: string | null, label: string, value: string, a: string, b: string, icon: number, card: { x: number, w: number } }
 
-// The rings as drawn on the desktop: each a <g class="r r-<name>"> with an optional fill circle
-// (class f, its stroke the fill color) and two caption lines (class a, class b)
-async function ringsOf(ui: Mounted): Promise<Record<string, RingView>> {
-  const source = (await svgs(ui)).map((p) => String(p.source ?? '')).join('')
-  const out: Record<string, RingView> = {}
-  for (const m of source.matchAll(/<g class="r r-(\w+)">(.*?)<\/g>/g)) {
-    const body = m[2] ?? ''
-    out[m[1] ?? ''] = {
-      color: body.match(/<circle class="f"[^>]*stroke="(#[0-9a-f]{6})"/)?.[1] ?? null,
-      a: body.match(/<text class="a"[^>]*>([^<]*)<\/text>/)?.[1] ?? '',
-      b: body.match(/<text class="b"[^>]*>([^<]*)<\/text>/)?.[1] ?? '',
+// The batteries as drawn on the desktop, in order: each icon a <g class="i iN b-<name>"> (its hover
+// target first, the fill of class f 18 px × the share left), then its words (label, value); each
+// card a <g class="t tN"> after every measure, with lines a and b
+async function batteriesOf(ui: Mounted): Promise<BatteryView[]> {
+  const out: BatteryView[] = []
+  for (const p of await svgs(ui)) {
+    const source = String(p.source ?? '')
+    const cards = new Map<string, { x: number, w: number, a: string, b: string }>()
+    for (const m of source.matchAll(/<g class="t t(\d+)"><rect x="(-?[\d.]+)" y="[\d.]+" width="([\d.]+)"[^>]*\/><text[^>]*><tspan class="a"[^>]*>([^<]*)<\/tspan><tspan class="b"[^>]*>([^<]*)<\/tspan><\/text><\/g>/g)) {
+      cards.set(m[1] ?? '', { x: Number(m[2]), w: Number(m[3]), a: m[4] ?? '', b: m[5] ?? '' })
+    }
+    for (const m of source.matchAll(/<g class="i i(\d+) b-(\w+)"><rect x="(-?[\d.]+)"[^>]*\/>(.*?)<\/g><text class="w"[^>]*><tspan[^>]*>([^<]*)<\/tspan><tspan[^>]*>([^<]*)<\/tspan><\/text>/g)) {
+      const fill = (m[4] ?? '').match(/<rect class="f"[^>]*width="([\d.]+)"[^>]*fill="(#[0-9a-f]{6})"/)
+      const card = cards.get(m[1] ?? '')
+      out.push({
+        name: m[2] ?? '', icon: Number(m[3]) + 3, share: fill ? Number(fill[1]) / 18 : null, color: fill?.[2] ?? null,
+        label: m[5] ?? '', value: m[6] ?? '', a: card?.a ?? '', b: card?.b ?? '', card: { x: card?.x ?? NaN, w: card?.w ?? NaN },
+      })
     }
   }
   return out
 }
+const byName = (list: BatteryView[]) => Object.fromEntries(list.map((x) => [x.name, x]))
+// A share in whole percent: the drawing rounds the fill's width to 0.01 px
+const pct = (share: number | null | undefined) => (share === null || share === undefined ? null : Math.round(share * 100))
 
 const two = (n: number) => String(n).padStart(2, '0')
 const hhmm = (ts: number) => `${two(new Date(ts).getHours())}:${two(new Date(ts).getMinutes())}`
@@ -133,149 +147,227 @@ const snap = (phase: string, lastActivity = NOW - MIN) => ({
   },
 })
 
-describe('the calm cache bar: four rings with two-line captions (brief v2 §4)', () => {
-  test('cache, 5 h, week and context left to right, each caption as the brief table; one Svg row, width in the markup', async ($, on) => {
-    const fiveReset = NOW + 60 * MIN
-    const weekReset = NOW + 24 * 60 * MIN
+const iso = (ts: number) => new Date(ts).toISOString()
+const FIVE_LEFT = 66 * MIN // 1 h 06 min to the 5-hour reset
+const DAY = 24 * 60 * MIN
+
+describe('the calm cache bar: five batteries, the session cost on the right (Aneks Z11, brief v3 §10)', () => {
+  test('cache, limit 5 h, reset za, limit tygodnia, kontekst: label and value on the bar, the full words in each card; one fluid Svg of 24 px', async ($, on) => {
+    const fiveReset = NOW + FIVE_LEFT
+    const weekReset = NOW + DAY
     world(on, {
-      ctx: 259_000, window: 1_000_000, cost: 1.5,
-      limits: [
-        { kind: 'five_hour', percentUsed: 11, resetsAt: new Date(fiveReset).toISOString() },
-        { kind: 'seven_day', percentUsed: 23, resetsAt: new Date(weekReset).toISOString() },
-      ],
+      ctx: 323_000, window: 1_000_000, cost: 14.93,
+      limits: [{ kind: 'five_hour', percentUsed: 64, resetsAt: iso(fiveReset) }, { kind: 'seven_day', percentUsed: 41, resetsAt: iso(weekReset) }],
     })
     await start($)
     await turn($)
-    const ui = await mount($)
+    const ui = await mount($, 'desktop', 200)
     const list = await svgs(ui)
     expect(list.length).toBe(1)
     const svg = list[0] ?? {}
     expect(svg.isInteractive).toBe(true)
-    expect(svg.width).toBeUndefined() // the markup's own width (P-020 pkt 7)
-    expect(String(svg.source)).toMatch(/^<svg [^>]*width="\d+(\.\d+)?" height="\d+"/)
-    expect(Number(svg.height)).toBeGreaterThanOrEqual(22)
-    expect(Number(svg.height)).toBeLessThanOrEqual(28)
+    expect(svg.height).toBe(24)
     const source = String(svg.source)
-    expect([...source.matchAll(/<g class="r r-(\w+)">/g)].map((m) => m[1])).toEqual(['cache', 'five', 'week', 'ctx'])
-    const r = await ringsOf(ui)
-    expect(r.cache).toEqual({ color: SAGE, a: 'Ciepły · ~60 min', b: 'TTL 60 min założony' })
-    expect(r.five).toEqual({ color: SAGE, a: '11 % · 5 h', b: `reset ${hhmm(fiveReset)}` })
-    expect(r.week).toEqual({ color: SAGE, a: '23 % · tydzień', b: `reset jutro ${hhmm(weekReset)}` })
-    expect(r.ctx).toEqual({ color: SAGE, a: '259k · kontekst', b: 'z 1M · 26 %' })
-    // The caption lines in their colors and about 11 px; rounded caps, the fill starting at the top
-    expect(source).toMatch(new RegExp(`\\.a\\{[^}]*fill:${BAR.text}`))
-    expect(source).toMatch(new RegExp(`\\.b\\{[^}]*fill:${BAR.muted}`))
-    expect(source).toContain('font-size:11px')
-    expect(source).toContain('stroke-linecap="round"')
-    expect(source).toContain('rotate(-90')
-    expect(source).toContain(`stroke="${RING.track}"`)
+    // width="100%": a fixed width is centred in the interactive frame (P-024 pkt 1)
+    expect(source).toMatch(/^<svg [^>]*width="100%" height="24">/)
+    expect(source).not.toContain('viewBox')
+    const b = await batteriesOf(ui)
+    expect(b.map((x) => [x.name, x.label, x.value])).toEqual([
+      ['cache', 'cache', '~60 min'], ['five', 'limit 5 h', '64 %'], ['reset', 'reset za', '1 h 06 min'],
+      ['week', 'limit tygodnia', '41 %'], ['ctx', 'kontekst', '323k'],
+    ])
+    expect(b.map((x) => [x.a, x.b])).toEqual([
+      ['Ciepły · ~60 min', 'TTL 60 min założony'],
+      ['64 % · 5 h', `zużyte 64 % · zostało 36 % · reset ${hhmm(fiveReset)}`],
+      ['Reset limitu 5 h za 1 h 06 min', `reset ${hhmm(fiveReset)}`],
+      ['41 % · tydzień', `zużyte 41 % · zostało 59 % · reset jutro ${hhmm(weekReset)}`],
+      ['323k · kontekst', 'zużyte 323k z 1M · wolne 68 %'],
+    ])
+    // The label muted, the value bold in the text color, 14.5 px
+    expect(source).toContain(`<tspan class="l" fill="${BAR.muted}">limit 5 h</tspan>`)
+    expect(source).toContain(`<tspan class="v" dx="7" fill="${BAR.text}" font-weight="600">64 %</tspan>`)
+    expect(source).toContain('font-size="14.5"')
     await ui.unmount()
   })
 
-  test('hover only thickens the ring: a :hover rule to the hover stroke, no tooltip, no overlay', async ($, on) => {
-    world(on, { window: 1_000_000 })
+  test('at rest only label and value: no TTL, window, reset hour, used or left; the cache time and the session cost once each', async ($, on) => {
+    world(on, {
+      ctx: 323_000, window: 1_000_000, cost: 14.93,
+      limits: [{ kind: 'five_hour', percentUsed: 64, resetsAt: iso(NOW + FIVE_LEFT) }, { kind: 'seven_day', percentUsed: 41, resetsAt: iso(NOW + DAY) }],
+    })
     await start($)
     await turn($)
-    const ui = await mount($)
-    const source = String((await svgs(ui))[0]?.source ?? '')
-    expect(source).toContain(`.r:hover .f{stroke-width:${RING.hoverStroke}}`)
-    expect(source).not.toContain('<title')
-    expect(source).not.toContain('display:none')
-    await ui.unmount()
+    for (const surface of ['desktop', 'terminal'] as const) {
+      const ui = await mount($, surface)
+      const words = await visible(ui)
+      if (surface === 'desktop') {
+        for (const detail of ['TTL', 'z 1M', 'zużyte', 'zostało', 'Ciepły', 'Reset limitu']) expect(words).not.toContain(detail)
+        expect(words).not.toMatch(/reset (jutro|\d)/)
+      }
+      expect(words.split('~60').length - 1).toBe(1)
+      expect(words.split('$14.93').length - 1).toBe(1)
+      const figure = (await ui.find({ key: 'figure' }))?.text ?? ''
+      expect(figure).toContain('$14.93')
+      expect(figure).toContain('sesja')
+      expect(figure).not.toContain('min')
+      expect(await ui.findAll({ type: 'Button' })).toEqual([])
+      expect(await secondRows(ui)).toEqual([])
+      await ui.unmount()
+    }
   })
 
-  for (const [percent, color] of [[69, SAGE], [70, MUSTARD], [89, MUSTARD], [90, CLAY]] as const) {
-    test(`the 5 h ring at ${percent} % is ${color === SAGE ? 'sage' : color === MUSTARD ? 'mustard' : 'clay'}`, async ($, on) => {
-      world(on, { window: 1_000_000, limits: [{ kind: 'five_hour', percentUsed: percent }] })
+  test('each card opens on its own icon only: .iN:hover~.tN, hidden at rest, drawn after every measure, never over its icon', async ($, on) => {
+    world(on, {
+      ctx: 323_000, window: 1_000_000, cost: 14.93,
+      limits: [{ kind: 'five_hour', percentUsed: 64, resetsAt: iso(NOW + FIVE_LEFT) }, { kind: 'seven_day', percentUsed: 41, resetsAt: iso(NOW + DAY) }],
+    })
+    await start($)
+    await turn($)
+    for (const columns of [200, 160, 130]) {
+      const ui = await mount($, 'desktop', columns)
+      for (const p of await svgs(ui)) {
+        const source = String(p.source ?? '')
+        const n = [...source.matchAll(/<g class="i i\d+ /g)].length
+        expect(source).toContain('.t{display:none;filter:drop-shadow(0 1px 2px rgba(0,0,0,.45))}')
+        for (let i = 0; i < n; i++) expect(source).toContain(`.i${i}:hover~.t${i}{display:inline}`)
+        expect(source.match(/:hover/g)?.length).toBe(n) // no other hover
+        expect(source.lastIndexOf('<g class="i ')).toBeLessThan(source.indexOf('<g class="t '))
+        expect(source).toContain(`fill="${BATTERY.card.bg}"`)
+        expect(source).toMatch(/^<svg [^>]*width="100%" height="24">/)
+      }
+      const b = await batteriesOf(ui)
+      expect(b.length).toBe(5)
+      for (const x of b) expect(x.card.x >= x.icon + 26 || x.card.x + x.card.w <= x.icon).toBe(true)
+      if (columns === 160) {
+        // 127 cells × 8 px = 1016 px of column, five batteries in one row (~902 px); the context's
+        // card would end at ~1175 px, so it opens on the left. At 9.8 px a cell (1245 px) it opened
+        // on the right and the app clipped it (zrzut 2026-10-10)
+        expect((await svgs(ui)).length).toBe(1)
+        const { ctx } = byName(b)
+        expect((ctx?.card.x ?? 0) + (ctx?.card.w ?? 0)).toBeLessThanOrEqual((ctx?.icon ?? 0) - 6)
+      }
+      if (columns === 130) {
+        // 776 px of column: four batteries in the first row, the week's card would run past it on
+        // the right, so it opens on the left; the context wraps to a second row
+        expect((await svgs(ui)).length).toBe(2)
+        const { cache, week } = byName(b)
+        expect(cache?.card.x).toBeGreaterThanOrEqual((cache?.icon ?? 0) + 26)
+        expect((week?.card.x ?? 0) + (week?.card.w ?? 0)).toBeLessThanOrEqual((week?.icon ?? 0) - 6)
+      }
+      await ui.unmount()
+    }
+  })
+
+  for (const [used, share, color] of [[1, 0.99, SAGE], [64, 0.36, SAGE], [99, 0.01, CLAY], [71, 0.29, MUSTARD], [90, 0.1, CLAY]] as const) {
+    test(`the limits at ${used} % used: the value "${used} %", the battery ${Math.round(share * 100)} % full, ${color === SAGE ? 'sage' : color === MUSTARD ? 'mustard' : 'clay'}`, async ($, on) => {
+      world(on, { window: 1_000_000, limits: [{ kind: 'five_hour', percentUsed: used }, { kind: 'seven_day', percentUsed: used }] })
       await start($)
       await turn($)
       const ui = await mount($)
-      const r = await ringsOf(ui)
-      expect(r.five?.color).toBe(color)
-      expect(r.five?.a).toBe(`${percent} % · 5 h`)
+      const b = byName(await batteriesOf(ui))
+      for (const name of ['five', 'week']) {
+        expect(b[name]?.value).toBe(`${used} %`)
+        expect(pct(b[name]?.share)).toBe(pct(share))
+        expect(b[name]?.color).toBe(color)
+      }
       await ui.unmount()
     })
   }
 
-  // TTL 60 min: 22 min left is 36.7 % (sage), 21 min 35 % (mustard), 10 min 16.7 % (mustard), 9 min 15 % (clay)
-  test('the cache ring empties with the TTL: mustard at 35 % left or less, clay at 15 % or less', async ($, on) => {
+  for (const [ctx, share, color] of [[323_000, 0.68, SAGE], [720_000, 0.28, MUSTARD], [950_000, 0.05, CLAY]] as const) {
+    test(`the context at ${ctx / 1000}k of 1M: the battery ${Math.round(share * 100)} % full`, async ($, on) => {
+      world(on, { ctx, window: 1_000_000 })
+      await start($)
+      await turn($)
+      const ui = await mount($)
+      const c = byName(await batteriesOf(ui)).ctx
+      expect(c?.value).toBe(`${ctx / 1000}k`)
+      expect(pct(c?.share)).toBe(pct(share))
+      expect(c?.color).toBe(color)
+      await ui.unmount()
+    })
+  }
+
+  test('reset za drains over the 5-hour window and stays sage at 5 % left, the limit beside it clay', async ($, on) => {
+    world(on, { window: 1_000_000, limits: [{ kind: 'five_hour', percentUsed: 95, resetsAt: iso(NOW + 15 * MIN) }] })
+    await start($)
+    await turn($)
+    const ui = await mount($)
+    const b = byName(await batteriesOf(ui))
+    expect(b.reset?.value).toBe('15 min')
+    expect(pct(b.reset?.share)).toBe(5)
+    expect(b.reset?.color).toBe(SAGE)
+    expect(b.reset?.a).toBe('Reset limitu 5 h za 15 min')
+    expect(b.five?.color).toBe(CLAY)
+    await ui.unmount()
+  })
+
+  // TTL 60 min: 19 min left is 31.7 % (sage), 18 min 30 % (mustard), 7 min 11.7 % (mustard), 6 min 10 % (clay)
+  test('the cache battery empties with the TTL: mustard at 30 % left or less, clay at 10 % or less; cold is an empty battery', async ($, on) => {
     const { clock } = world(on, { window: 1_000_000 })
     await start($)
     await turn($)
     const at = async (minutes: number) => {
       await clock.advance(minutes * MIN)
       const ui = await mount($)
-      const r = (await ringsOf(ui)).cache
+      const c = byName(await batteriesOf(ui)).cache
       await ui.unmount()
-      return r
+      return c
     }
-    expect((await at(38))?.color).toBe(SAGE)
+    const nineteen = await at(41)
+    expect([nineteen?.value, nineteen?.color]).toEqual(['~19 min', SAGE])
+    expect(pct(nineteen?.share)).toBe(32) // 19 of 60 min
     expect((await at(1))?.color).toBe(MUSTARD)
-    expect((await at(11))?.color).toBe(MUSTARD)
-    const nine = await at(1)
-    expect(nine?.color).toBe(CLAY)
-    expect(nine?.a).toBe('Stygnie · ~9 min')
-    const cold = await at(21) // 12 min past the TTL: an empty ring, the rewrite on line 2
-    expect(cold).toEqual({ color: null, a: 'Zimny · od 12 min', b: 'zapis ≈ $1.60' })
+    const seven = await at(11)
+    expect([seven?.value, seven?.color, seven?.a]).toEqual(['stygnie ~7 min', MUSTARD, 'Stygnie · ~7 min'])
+    expect((await at(1))?.color).toBe(CLAY)
+    const cold = await at(18) // 12 min past the TTL: an empty battery, the rewrite in the card
+    expect([cold?.value, cold?.share, cold?.a, cold?.b]).toEqual(['zimny', null, 'Zimny · od 12 min', 'zapis ≈ $1.60'])
   })
 
-  test('a missing number: an empty ring captioned "brak danych", never a seeming zero', async ($, on) => {
-    world(on, { cost: 1.5 }) // no limits reported, no window known
+  test('a missing number: an empty battery, "brak danych" and a card that says so, never a seeming zero', async ($, on) => {
+    world(on) // no limits reported, no window known, no cost
     await start($)
     await turn($)
     for (const surface of ['desktop', 'terminal'] as const) {
       const ui = await mount($, surface)
       if (surface === 'desktop') {
-        const r = await ringsOf(ui)
-        for (const name of ['five', 'week', 'ctx'] as const) {
-          expect(r[name]?.color).toBeNull()
-          expect(r[name]?.b).toBe('brak danych')
+        const b = byName(await batteriesOf(ui))
+        for (const name of ['five', 'reset', 'week']) {
+          expect(b[name]?.share).toBeNull()
+          expect(b[name]?.value).toBe('brak danych')
+          expect(b[name]?.b).toBe('brak danych')
         }
-        expect(r.five?.a).toBe('5 h')
-        expect(r.week?.a).toBe('tydzień')
-        expect(r.ctx?.a).toBe('200k · kontekst')
+        expect([b.five?.a, b.reset?.a, b.week?.a]).toEqual(['limit 5 h', 'Reset limitu 5 h', 'limit tygodnia'])
+        expect([b.ctx?.value, b.ctx?.share, b.ctx?.a, b.ctx?.b]).toEqual(['200k', null, '200k · kontekst', 'brak danych'])
       } else {
-        for (const key of ['ring-five', 'ring-week', 'ring-ctx']) {
+        for (const key of ['m-five', 'm-reset', 'm-week']) {
           const text = (await ui.find({ key }))?.text ?? ''
           expect(text).toContain('○')
-          expect(text).toContain('brak danych')
+          expect(text.split('brak danych').length - 1).toBe(1) // line b says no more than the value
         }
       }
+      const figure = (await ui.find({ key: 'figure' }))?.text ?? ''
+      expect(figure).toContain('brak danych')
+      expect(figure).toContain('kosztu')
       expect(await visible(ui)).not.toMatch(/(^|[^\d])0 %/)
       await ui.unmount()
     }
   })
 
-  test('the session cost exactly once above the prompt, in usd(); zero buttons in calm', async ($, on) => {
-    world(on, { ctx: 400_000, window: 1_000_000, cost: 1.5, limits: [{ kind: 'five_hour', percentUsed: 11 }] })
-    await start($)
-    await turn($)
-    for (const surface of ['desktop', 'terminal'] as const) {
-      const ui = await mount($, surface)
-      const words = await visible(ui)
-      expect(words.split('sesja ≈').length - 1).toBe(1)
-      expect(words).toContain('sesja ≈ $1.50')
-      expect(await ui.findAll({ type: 'Button' })).toEqual([])
-      expect(await secondRows(ui)).toEqual([])
-      const figure = (await ui.find({ key: 'figure' }))?.text ?? ''
-      expect(figure).toContain('~60')
-      expect(figure).toContain('min')
-      expect(figure).not.toContain('do końca')
-      await ui.unmount()
-    }
-  })
-
-  test('the terminal: a glyph and the two caption lines as one line per ring', async ($, on) => {
-    world(on, { ctx: 500_000, window: 1_000_000, limits: [{ kind: 'five_hour', percentUsed: 11 }, { kind: 'seven_day', percentUsed: 80 }] })
+  test('the terminal: per measure a glyph of what is left, label and value, then line b muted', async ($, on) => {
+    world(on, { ctx: 500_000, window: 1_000_000, cost: 1.5, limits: [{ kind: 'five_hour', percentUsed: 11 }, { kind: 'seven_day', percentUsed: 80 }] })
     await start($)
     await turn($)
     const ui = await mount($, 'terminal')
     expect(await svgs(ui)).toEqual([])
     const line = async (key: string) => (await ui.find({ key }))?.text ?? ''
-    expect(await line('ring-cache')).toMatch(/^●.*Ciepły · ~60 min.*TTL 60 min założony/)
-    expect(await line('ring-five')).toMatch(/^◔.*11 % · 5 h.*reset nieznany/)
-    expect(await line('ring-week')).toMatch(/^◕.*80 % · tydzień/)
-    expect(await line('ring-ctx')).toMatch(/^◑.*500k · kontekst.*z 1M · 50 %/)
+    expect(await line('m-cache')).toMatch(/^●.*cache.*~60 min.*TTL 60 min założony/)
+    expect(await line('m-five')).toMatch(/^●.*limit 5 h.*11 %.*zużyte 11 % · zostało 89 % · reset nieznany/)
+    expect(await line('m-reset')).toMatch(/^○.*reset za.*brak danych/)
+    expect(await line('m-week')).toMatch(/^◔.*limit tygodnia.*80 %.*zużyte 80 % · zostało 20 %/)
+    expect(await line('m-ctx')).toMatch(/^◑.*kontekst.*500k.*zużyte 500k z 1M · wolne 50 %/)
+    expect((await ui.find({ key: 'figure' }))?.text).toContain('$1.50')
     await ui.unmount()
   })
 })

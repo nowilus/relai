@@ -54,8 +54,8 @@ function minWidth(node: RenderNode): number {
 }
 
 describe('the cache card above the prompt', () => {
-  // STYL_PASKOW_CLAUDE.md (2026-10-09): a soft background, no colored frame, the time left on the right
-  test('after a request: a labelled bar on its own background, the time left on the right, the engine kept beneath', async ($, on) => {
+  // STYL_PASKOW_CLAUDE.md (2026-10-09, Aneks Z11): a soft background, no colored frame, the session's cost on the right
+  test('after a request: a labelled bar on its own background, the session cost on the right, the engine kept beneath', async ($, on) => {
     world(on)
     await mainStep($)
     for (const surface of ['terminal', 'desktop'] as const) {
@@ -66,10 +66,9 @@ describe('the cache card above the prompt', () => {
       expect(props.borderStyle).toBe(surface === 'desktop' ? 'round' : undefined)
       if (surface === 'desktop') expect(props.borderColor).toBe('#2c2824') // corners only, no colored frame
       expect((await ui.find({ key: 'label' }))?.text).toBe(THEME.cache.label)
-      // Brief v2: the rings in the middle, `~60` + `min` on the right, no button in calm
-      expect(await ui.find({ key: 'cache-rings' })).toBeDefined()
-      expect((await ui.find({ key: 'figure' }))?.text).toContain('60')
-      expect((await ui.find({ key: 'figure' }))?.text).toContain('min')
+      // Aneks Z11: the batteries in the middle, the session's cost on the right (none known here), no button in calm
+      expect(await ui.find({ key: 'cache-batteries' })).toBeDefined()
+      expect((await ui.find({ key: 'figure' }))?.text).toBe('brak danych kosztu')
       expect(await ui.findAll({ type: 'Button' })).toEqual([])
       expect(await ui.find({ key: 'engine' })).toBeDefined()
       await ui.unmount()

@@ -59,11 +59,13 @@ describe('the cache keeper idles quietly (Z4)', () => {
     await $.session.start({ cwd: 'C:/proj', surface: 'desktop', isInteractive: true })
     await mainTurn($)
     const ui = await $.ui.mount({ plugin: 'relai-cache-keeper', surface: 'desktop', ...BAND(140) })
-    expect((await ui.find({ key: 'figure' }))?.text).toContain('~60')
+    // The batteries' drawing (Aneks Z11): the cache time stands there, the figure on the right is the cost
+    const drawing = async () => (await ui.findAll({ type: 'Svg' })).map((s) => String((s.props as { source?: string }).source ?? '')).join('')
+    expect(await drawing()).toContain('>~60 min<')
     const before = { ...n }
     await clock.advance(5 * MIN)
-    // ~60 → ~55: the figure turned five times, the band was drawn five times, nothing was saved
-    expect((await ui.find({ key: 'figure' }))?.text).toContain('~55')
+    // ~60 → ~55: the cache battery's value turned five times, the band was drawn five times, nothing was saved
+    expect(await drawing()).toContain('>~55 min<')
     expect(n.invalidate - before.invalidate).toBe(5)
     expect(n.store - before.store).toBe(0)
     await ui.unmount()

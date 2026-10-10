@@ -10,8 +10,8 @@ import type { EngineInterface, Register } from 'claude-code'
 import { DEFAULT_SETTINGS, MIN, RELAI_MARKER, applySetting, cacheState, dueWarning, judgeStep, mergeSettings, msLeft, pingDue, pingMissed, type Settings } from './core'
 import { basename, clip, clock, fileStamp, limitsText, minutes, tokens, usd } from './fmt'
 import { barCard } from './bar-card'
-import { BAND, BAR, CHIP } from './relai/theme.mjs'
-import { RINGS_HEIGHT, cacheRing, contextRing, glyphColor, limitRing, ringGlyph, ringRows, type Limit, type Ring } from './rings'
+import { BAND, BAR, BATTERY, CHIP } from './relai/theme.mjs'
+import { batteryRows, cacheMeasure, contextMeasure, glyphColor, limitMeasure, measureGlyph, resetMeasure, type Limit, type Measure } from './rings'
 import { ancestors } from './relai/plan-state.mjs'
 import { PLAIN_HANDOFF_PROMPT, RELAI_CONTINUE, RELAI_HANDOFF_PROMPT, continuePrompt, plainBody, relaiDone, relaiFreshPrompt } from './handoff'
 import { PRICE_FILE } from './relai/pricing.mjs'
@@ -330,8 +330,8 @@ function warnStep($: $T, now: number) {
   )
 }
 
-// The words the band shows are its stamp (bandView: the four rings' captions and fills, the
-// session's cost, the figure on the right, the one second row). The tick redraws only when they
+// The words the band shows are its stamp (bandView: the five batteries' words and fills, the
+// session's cost on the right, the one second row). The tick redraws only when they
 // changed (Z4) — the countdown's minute, a cost or a limit that session.measure moved — never the
 // same words again.
 let drawnStamp = ''
@@ -468,21 +468,24 @@ type Resolved = Parameters<$T['ui']['resolve']>[0]
 // The card itself — label column, middle, figure, soft background — is the shared grid of the
 // three bars (bar-card.tsx, the same file in relai-panel and relai-progress, Z6).
 
-// The figure on the right: the time the cache has left, in its real unit; never a seeming zero
-function cacheFigure(st: { kind: string, left: number }, tilde: string): readonly [string, string] {
-  if (st.kind === 'unknown') return ['brak danych', 'czasu cache']
-  if (st.kind === 'kept') return [clock(S.keepWarmUntil), 'koniec podtrzymania']
-  if (st.kind === 'cold') return ['zimny', `od ${minutes(-st.left)}`]
-  if (st.left < MIN) return [`${tilde}${Math.max(1, Math.round(st.left / 1000))}`, 's']
-  return [`${tilde}${Math.round(st.left / MIN)}`, 'min']
-}
+// The figure on the right: the session's cost, the only place above the prompt it stands
+// (Aneks Z11, brief v3 §10.5); never a seeming zero
+const costFigure = (): readonly [string, string] => (S.costUsd === null ? ['brak danych', 'kosztu'] : [usd(S.costUsd), 'sesja'])
 
 // The cache bar's second row (brief v2 §1): only while its reason lasts, one at a time. A handoff
 // the person must answer first, then one under way; a cooling cache before the Z9 event (minutes
 // decide whether "Podtrzymaj" still helps, and its row offers Przekaż too); a kept cache last.
 type SecondKind = 'ready' | 'running' | 'cooling' | 'event' | 'kept'
-type Second = { kind: SecondKind, text: string }
-const CHIP_OF: Record<SecondKind, { color: string, bg: string }> = { ready: CHIP.ok, running: CHIP.run, cooling: CHIP.warn, event: CHIP.warn, kept: CHIP.run }
+// `rest` follows `text` muted: the Z9 event leads with its verdict in bold, its figures after
+type Second = { kind: SecondKind, text: string, rest: string }
+const CHIP_OF: Record<SecondKind, { color: string, bg: string }> = { ready: CHIP.ok, running: CHIP.run, cooling: CHIP.warn, event: CHIP.info, kept: CHIP.run }
+
+// The event's words split before its figures: "nowa sesja zwróci się po N turach" | " · ≈ $x → $y/turę …"
+const FIGURES = ' · ≈ '
+function eventRow(text: string): Second {
+  const at = text.indexOf(FIGURES)
+  return at < 0 ? { kind: 'event', text, rest: '' } : { kind: 'event', text: text.slice(0, at), rest: text.slice(at) }
+}
 
 const pingsText = (n: number) => {
   const tens = n % 100
@@ -491,13 +494,13 @@ const pingsText = (n: number) => {
 }
 
 function secondRow(now: number, kind: string): Second | null {
-  if (H.phase === 'ready') return { kind: 'ready', text: 'przekazanie gotowe' }
-  if (H.phase === 'running') return { kind: 'running', text: 'przekazanie trwa' }
-  if (H.phase === 'continuing') return { kind: 'running', text: 'czyszczę czat i kontynuuję' }
-  if (kind === 'cooling') return { kind: 'cooling', text: `stygnie · ponowny zapis ≈ ${usd(rewriteAt(S.ctx))}` }
+  if (H.phase === 'ready') return { kind: 'ready', text: 'przekazanie gotowe', rest: '' }
+  if (H.phase === 'running') return { kind: 'running', text: 'przekazanie trwa', rest: '' }
+  if (H.phase === 'continuing') return { kind: 'running', text: 'czyszczę czat i kontynuuję', rest: '' }
+  if (kind === 'cooling') return { kind: 'cooling', text: `stygnie · ponowny zapis ≈ ${usd(rewriteAt(S.ctx))}`, rest: '' }
   const event = eventText(now)
-  if (event) return { kind: 'event', text: event }
-  if (kind === 'kept') return { kind: 'kept', text: `podtrzymany do ${clock(S.keepWarmUntil)} · ${pingsText(S.pings)} · ${usd(S.pingUsd)}` }
+  if (event) return eventRow(event)
+  if (kind === 'kept') return { kind: 'kept', text: `podtrzymany do ${clock(S.keepWarmUntil)} · ${pingsText(S.pings)} · ${usd(S.pingUsd)}`, rest: '' }
   return null
 }
 
@@ -505,17 +508,23 @@ function secondRow(now: number, kind: string): Second | null {
 function bandView(now: number) {
   const st = state(now)
   const isAssumed = ttlAssumed()
-  const rings: Ring[] = [
-    cacheRing({ kind: st.kind, left: st.left, ttlMin: ttl(), isAssumed, rewrite: usd(rewriteAt(S.ctx)), keptUntil: S.keepWarmUntil }),
-    limitRing('five', '5 h', S.rateLimits.find((l) => l.kind === FIVE_HOUR), now),
-    limitRing('week', 'tydzień', S.rateLimits.find((l) => l.kind === SEVEN_DAY), now),
-    contextRing(S.ctx, S.ctxWindow),
+  const five: Limit | undefined = S.rateLimits.find((l) => l.kind === FIVE_HOUR)
+  // The order and the words of brief v3 §10.4
+  const measures: Measure[] = [
+    cacheMeasure({ kind: st.kind, left: st.left, ttlMin: ttl(), isAssumed, rewrite: usd(rewriteAt(S.ctx)), keptUntil: S.keepWarmUntil }),
+    limitMeasure('five', 'limit 5 h', '5 h', five, now),
+    resetMeasure(five, now),
+    limitMeasure('week', 'limit tygodnia', 'tydzień', S.rateLimits.find((l) => l.kind === SEVEN_DAY), now),
+    contextMeasure(S.ctx, S.ctxWindow),
   ]
-  const cost = S.costUsd === null ? 'sesja · brak danych' : `sesja ≈ ${usd(S.costUsd)}`
-  return { rings, cost, figure: cacheFigure(st, isAssumed ? '~' : ''), second: secondRow(now, st.kind) }
+  return { measures, figure: costFigure(), second: secondRow(now, st.kind) }
 }
 
-const CELL_PX = 8 // a desktop cell, about (relai-progress reckons the same)
+// A desktop cell in CSS px, the unit the Svg draws in: 16 cells of label and gap are 157 px on a
+// screenshot, which is ~1.2× the CSS px (the context's battery drawn at x = 766 stands 919 px into
+// the column on the shot, 2026-10-10), so ~8.2 px; 9.8 counted the shot's pixels and let a row
+// run past the column before it wrapped. 8 leaves a little room (P-024 pkt 3).
+const CELL_PX = 8
 const COLUMN_GAP = 2 // cells between the grid's columns (brief v2 §5)
 
 // The middle column's pixels: the card's padding and rounded corners, and beside it the label and
@@ -523,45 +532,46 @@ const COLUMN_GAP = 2 // cells between the grid's columns (brief v2 §5)
 const middlePx = (columns: number) =>
   Math.max(10, columns - 2 - 2 - (columns < BAR.narrow ? 0 : BAR.labelColumn + BAR.figureColumn + 2 * COLUMN_GAP)) * CELL_PX
 
-// The cache bar (brief v2 §4): in calm one row — four rings with two-line captions and the
-// session's cost after them — and zero buttons; a second row only while its reason lasts.
+// The cache bar (Aneks Z11, brief v3 §10): in calm one row of five batteries, the session's cost
+// on the right, zero buttons; a second row only while its reason lasts.
 // Desktop: each Svg alone in its row (an interactive Svg beside text shrinks, P-021 pkt 3).
-// Terminal: a glyph and the two caption lines per ring, wrapping rather than overflowing.
+// Terminal: no card to hover, so line b stays — a glyph, label, value, line b muted, wrapping.
 function band($: $T, e: Resolved, columns: number, now: number) {
   const el = $.ui.resolve(e)
   const { Box, Text } = el
   const Svg = (e.surface === 'desktop' || e.surface === 'vscode') && 'Svg' in el ? el.Svg : null
   const isGui = e.surface !== 'terminal'
   const v = bandView(now)
-  const rings = Svg
+  const batteries = Svg
     ? (
-      <Box key="cache-rings" flexDirection="column">
-        {ringRows(v.rings, v.cost, middlePx(columns), BAND.cache.bg).map((row, i) => (
-          <Box key={`rings-${i}`} flexDirection="column"><Svg isInteractive source={row.svg} alt={row.alt} height={RINGS_HEIGHT} /></Box>
+      <Box key="cache-batteries" flexDirection="column">
+        {batteryRows(v.measures, middlePx(columns), BAND.cache.bg).map((row, i) => (
+          <Box key={`batteries-${i}`} flexDirection="column"><Svg isInteractive source={row.svg} alt={row.alt} height={BATTERY.height} /></Box>
         ))}
       </Box>
     )
     : (
-      <Box key="cache-rings" flexDirection="row" flexWrap="wrap" columnGap={3}>
-        {[
-          ...v.rings.map((r) => (
-            <Box key={`ring-${r.name}`} flexDirection="row" flexWrap="wrap" columnGap={1}>
-              <Text color={glyphColor(r)}>{ringGlyph(r.fill)}</Text>
-              <Text color={BAR.text}>{r.a}</Text>
-              <Text color={BAR.muted}>{'· ' + r.b}</Text>
-            </Box>
-          )),
-          <Box key="session"><Text color={BAR.muted}>{v.cost}</Text></Box>,
-        ]}
+      <Box key="cache-batteries" flexDirection="row" flexWrap="wrap" columnGap={3}>
+        {v.measures.map((m) => (
+          <Box key={`m-${m.name}`} flexDirection="row" flexWrap="wrap" columnGap={1}>
+            <Text color={glyphColor(m)}>{measureGlyph(m.fill)}</Text>
+            <Text color={BAR.muted}>{m.label}</Text>
+            <Text bold color={BAR.text}>{m.value}</Text>
+            {m.b === m.value ? null : <Text color={BAR.muted}>{m.b}</Text>}
+          </Box>
+        ))}
       </Box>
     )
-  const middle = [rings]
+  const middle = [batteries]
   if (v.second) {
     const look = CHIP_OF[v.second.kind]
+    const words = v.second.kind === 'event'
+      ? [<Text key="lead" bold color={look.color}>{v.second.text}</Text>, ...(v.second.rest ? [<Text key="rest" color={BAR.muted}>{v.second.rest}</Text>] : [])]
+      : [<Text key="text" color={look.color}>{v.second.text}</Text>]
     middle.push(
       <Box key={`cache-${v.second.kind}`} flexDirection="row" flexWrap="wrap" alignItems="center" columnGap={2} {...(isGui ? { marginTop: 1 } : {})}>
         {[
-          <Box key="chip" flexShrink={1} paddingX={1} backgroundColor={look.bg}><Text color={look.color}>{v.second.text}</Text></Box>,
+          <Box key="chip" flexShrink={1} paddingX={1} flexDirection="row" backgroundColor={look.bg}>{words}</Box>,
           ...secondButtons($, e, v.second.kind),
         ]}
       </Box>,

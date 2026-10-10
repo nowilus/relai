@@ -51,7 +51,8 @@ potem ponowne uruchomienie aplikacji.
 
 - **Nad promptem** — trzy spokojne paski bez przycisków: plan (aktywny plan, etap, status),
   postęp (segmenty etapu albo przebiegu załogi, pod nimi następny punkt; chip agentów z kosztem)
-  i cache (cztery pierścienie: czas cache, limit 5 h, limit tygodniowy, kontekst; koszt sesji).
+  i cache (pięć baterii: czas cache, limit 5 h, reset za, limit tygodnia, kontekst — bateria
+  pokazuje, ile zostało, pełny opis w dymku po najechaniu na ikonę; koszt sesji po prawej).
   Drugi wiersz pod paskiem pojawia się tylko z powodu: karta decyzji czeka, punkt właśnie
   odhaczony, cache stygnie, przekazanie gotowe albo nowa sesja zwróci się w kilku turach.
 - **`/relai-panel`** — panel z paskiem „Teraz” (etap i następny punkt, jedna akcja główna)

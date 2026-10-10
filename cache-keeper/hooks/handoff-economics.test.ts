@@ -1,5 +1,6 @@
 import { describe, expect, mock, test, type TestBody } from 'claude-code/testing'
-import type { On, TurnStepResult } from 'claude-code'
+import type { On, RenderNode, TurnStepResult } from 'claude-code'
+import { BAR, CHIP } from './relai/theme.mjs'
 
 type Engine = Parameters<TestBody>[0]
 
@@ -118,6 +119,32 @@ describe('the cache bar second row: a fresh session pays off (Z9)', () => {
       expect(buttons.map((b) => b.props.label)).toEqual(['Przekaż', 'Zostań'])
       await ui.unmount()
     }
+  })
+
+  // Aneks Z11 (brief v3 §10.5): information, not an alarm — before it the chip was CHIP.warn, one Text
+  test('the event chip is CHIP.info: its lead bold in the text color, the rest muted', async ($, on) => {
+    const { w } = world(on, { store: MEASURED })
+    await start($)
+    await turn($, w, 800_000) // N = 3, the row shows
+    const ui = await mount($)
+    const nodes: RenderNode[] = []
+    const walk = (node: RenderNode) => {
+      if (typeof node === 'string') return
+      nodes.push(node)
+      for (const k of (node as { children?: RenderNode[] }).children ?? []) walk(k)
+    }
+    walk(await ui.drawn())
+    const props = (node: RenderNode) => ((node as { props?: Record<string, unknown> }).props ?? {})
+    const chip = nodes.find((x) => typeof x !== 'string' && x.type === 'Box' && props(x).backgroundColor === CHIP.info.bg)
+    expect(chip).toBeDefined()
+    const texts = ((chip as { children?: RenderNode[] }).children ?? []).map((t) => [
+      ((t as { children?: RenderNode[] }).children ?? []).join(''), props(t).bold ?? false, props(t).color,
+    ])
+    expect(texts).toEqual([
+      ['nowa sesja zwróci się po 3 turach', true, BAR.text],
+      [' · ≈ $0.20 → $0.05/turę', false, BAR.muted],
+    ])
+    await ui.unmount()
   })
 
   // Before Z9: no "cache-event" row — failed at its find
