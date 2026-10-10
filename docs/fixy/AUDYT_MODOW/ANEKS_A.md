@@ -68,7 +68,7 @@ Fable). Ta sesja przygotowuje brief i prompt; implementacja po akceptacji makiet
 | A. Brief → Fable: jeden wariant kalibracyjny w prawdziwym nośniku (mod z przełącznikiem), potem seria | zgodne z zasadą „najpierw jeden wariant do kalibracji smaku”; nośnik prawdziwy, bez rozjazdów SVG | dwie sesje | **wybrany** |
 | B. Makiety HTML od razu w tej sesji (Opus) | szybciej | sprzeczne z decyzją Łukasza o UX | odrzucony |
 
-**Brief dla sesji Fable (powstaje po akceptacji aneksu jako `PROMPT_Z11_FABLE.md`):** kadr
+**Brief dla sesji Fable — gotowy 2026-10-10: [PROMPT_Z11_FABLE.md](PROMPT_Z11_FABLE.md)** (zrzut: [zrzuty/2026-10-10-paski-po-z8.png](zrzuty/2026-10-10-paski-po-z8.png)). Treść w skrócie: kadr
 z 2026-10-10; wspólna siatka trzech pasków (`BAR.labelColumn` 14 w `core/panel/theme.mjs` —
 treść każdego paska zaczyna się w tej samej kolumnie); jedna informacja raz (czas cache albo
 w pierścieniu, albo po prawej); koszt sesji w stałym miejscu siatki; drugi wiersz pod kolumną

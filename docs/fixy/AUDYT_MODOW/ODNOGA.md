@@ -354,6 +354,10 @@ Jedna linia na zamkniętą paczkę; pełny wpis do `docs/DZIENNIK.md` dopiero w 
   pliku sprzed korekty w katalogu roboczym. Kolektor nadpisywał plik rekordami z pamięci — poprawka
   `d61a86a` (stage poprawiony w pliku wygrywa); sprawdzone na żywo: po zapisie panelu korekta stoi,
   nowe wywołania tej sesji idą do `AUDYT_MODOW/Z12` (fokus ustawiony ręcznie w „Teraz”).
+- **2026-10-10 · Z11 przekazana do Fable** — [PROMPT_Z11_FABLE.md](PROMPT_Z11_FABLE.md): sześć
+  usterek paska cache odczytanych ze zrzutu (siatka, `~59 min` dwa razy, wiszący koszt sesji, drugi
+  wiersz poza kolumnami, pigułka jak alarm, wysokość), ograniczenia nośnika, smak Łukasza, kroki
+  pomiar → jeden wariant w prawdziwym nośniku → seria → aneks briefu v2 → prompt wdrożenia (Opus).
 ## Wynik
 
 —
