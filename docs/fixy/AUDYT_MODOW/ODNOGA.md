@@ -185,7 +185,9 @@ Kolejność: najpierw fundamenty (Z3–Z5), bo bez nich nowe paski będą migać
       w `/cache`, brak S słowami, pomiar S po pierwszej turze, szacunek z plików rytuału).
 - [ ] Z8: `plugin validate` ×3, walidator adapterów, pomiar po restarcie treścią plików z cache
       (P-005); publikacja po „tak”.
-- [ ] `git diff` nie dotyka `core/panel/*.mjs` poza `theme.mjs` ani niczego w `adapters/codex/`.
+- [x] `git diff` nie dotyka `core/panel/*.mjs` poza `theme.mjs` ani niczego w `adapters/codex/`.
+      `git diff --stat ecb8282 HEAD -- core/panel adapters/codex docs/plany/PANEL_CODEX`: tylko
+      `core/panel/theme.mjs` i dwa testy w `core/panel/tests/` (2026-10-10, po Z7).
 - [ ] Katalog roboczy `.claude/relai/work/_fixy/AUDYT_MODOW/` przejrzany raportem
       (`node .claude/relai/tools/clean-work.js raport`) i skasowany po „tak”; liczby przed i po
       we wpisie dziennika; artefakty spoza katalogu z nazwy.
