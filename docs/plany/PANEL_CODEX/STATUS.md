@@ -29,3 +29,4 @@ archiwum, jego stan sprawdzamy również w docs/archiwum/plany/PANEL_CLAUDE/STAT
 ## Dziennik wdrożenia
 
 - 2026-10-08 — Plan przygotowany na podstawie pełnego WYWIAD.md; na dyspozycję człowieka oddzielony od PANEL_CLAUDE i ustawiony po jego zakończeniu. Model planowania i wykonania: gpt-6.1-sol w Codeksie. Czeka na akceptację i poprzednika.
+- 2026-10-10 — Po zamknięciu PANEL_CLAUDE przygotowano [PROMPT_START.md](PROMPT_START.md) — sesja startowa w Codeksie (gpt-6.1-sol): checklist przejęcia, uzgodnienie PLAN.html z wynikiem poprzednika, akceptacja i aneks D-80, potem PROMPT_ETAP_1; E1 w osobnej sesji (decyzja człowieka).

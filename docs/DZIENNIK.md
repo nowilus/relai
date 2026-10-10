@@ -3228,3 +3228,31 @@ Autor: RelAI (Opus 5.5) + Lukasz
   (`gpt-6.1-sol`).
 
 Autor: RelAI (Opus 5.5) + Lukasz
+
+### 2026-10-10 — Prompt startu planu PANEL_CODEX dla Codeksa
+
+**Zrobione:**
+
+- `docs/plany/PANEL_CODEX/PROMPT_START.md` — prompt pierwszej sesji Codeksa na gpt-6.1-sol:
+  przejście `PRZEJECIE.md` na realnym repo, uzgodnienie `PLAN.html` (jeszcze `DO AKCEPTACJI`)
+  z tym, co PANEL_CLAUDE dowiózł (2.8.0, kontrakt `core/panel/` z `SCHEMA = 1` i polem `tool`,
+  cennik tylko Anthropic, timer z heurystyką Claude, znacznik `--zgoda-panelu` bez strażnika
+  w Codeksie, walidator 5a tylko dla marketplace Claude Code), jedno pytanie o akceptację i aneks
+  D-80, a po „tak” — `PROMPT_ETAP_1.md` wg specyfikacji. Linia w dzienniku wdrożenia `STATUS.md`.
+- Decyzje człowieka (2026-10-10): sesja startowa bez E1 (E1 w świeżej sesji); prompt w repo obok
+  planu.
+
+**Zweryfikowane — jak dokładnie:**
+
+- Fakty promptu sprawdzone w repo: 15 modułów `core/panel/*.mjs` i 15 plików testów,
+  `RECORD_FIELDS` z `measure.mjs`, 0 trafień `gpt|openai` w `pricing.mjs`, znacznik
+  `--zgoda-panelu` w wygenerowanym skillu Codeksa `relai-stage`, `.agents/plugins/marketplace.json`
+  z jednym wpisem, lista modeli Codeksa z 2026-09-05 bez gpt-6.1-sol.
+
+**Świadomie odłożone:** —
+
+**Do zrobienia przez człowieka:**
+
+- Uruchomić sesję Codeksa na gpt-6.1-sol z `docs/plany/PANEL_CODEX/PROMPT_START.md`.
+
+Autor: RelAI (Opus 5.5) + Lukasz
