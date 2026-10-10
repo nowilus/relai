@@ -78,9 +78,9 @@ i w terminalu.
 
 | Plugin | Co pokazuje |
 |---|---|
-| `relai-panel` | nad promptem: aktywny plan, etap i koszt sesji; `/relai-panel` otwiera panel z formularzami czternastu komend, mapą planów i etapów, dokumentami projektu ze zmianami od commita i kosztami sesji |
-| `relai-progress` | nad promptem: postęp etapu w toku albo przebiegu `/relai-crew`; `/relai-agents` — subagenci sesji z kosztem |
-| `relai-cache-keeper` | nad promptem: odliczanie cache promptu, rozmiar kontekstu i koszt ponownego zapisu cache |
+| `relai-panel` | nad promptem: aktywny plan, etap i status, a wiersz „Tak / Nie” tylko, gdy karta decyzji czeka; `/relai-panel` otwiera panel z paskiem „Teraz”, formularzami czternastu komend, mapą planów i etapów, dokumentami projektu ze zmianami od commita i kosztami sesji |
+| `relai-progress` | nad promptem: segmenty etapu w toku albo przebiegu `/relai-crew` z następnym punktem pod nimi i chip agentów z kosztem; `/relai-agents` — subagenci sesji z kosztem |
+| `relai-cache-keeper` | nad promptem: cztery pierścienie — czas cache promptu, limity 5 h i tygodniowy, kontekst — i koszt sesji; podpowiada, kiedy nowa sesja się zwróci (`/cache` pokazuje rachunek) |
 
 Każda zmiana stanu z panelu (start etapu, sprzątanie, aktualizacja) idzie przez kartę „Tak / Nie”.
 Panel nie woła modelu. Jedyny ruch sieciowy w całej trójce to odczyt strony cennika Anthropic, i to

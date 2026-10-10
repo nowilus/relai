@@ -1,6 +1,6 @@
 {
   "name": "relai-progress",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "author": { "name": "nowilus", "url": "https://github.com/nowilus" },
   "description": "RelAI progress for Claude Code (early access mods): a card above the prompt with how far the work of the session is — the stage in progress of the active plan (the boxes of its prompt), a /relai-crew run, or work outside a plan said in words — and /relai-agents, a pane of the session's subagents: running and finished, model, context and cost from relai-panel's measurements. Deterministic: reads files, calls no model. Based on savvy-progress by johnnyvizz (MIT, see LICENSE-savvy-progress). Silent outside RelAI projects.",
   "homepage": "https://github.com/nowilus/relai",

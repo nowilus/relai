@@ -49,12 +49,18 @@ instalowane każdy własną komendą: `claude plugin install relai-panel@relai`,
 `claude plugin install relai-progress@relai`, `claude plugin install relai-cache-keeper@relai`,
 potem ponowne uruchomienie aplikacji.
 
-- **Nad promptem** — pasek planu (aktywny plan, etap, koszt sesji), pasek postępu etapu albo
-  przebiegu załogi i pasek cache promptu z odliczaniem.
-- **`/relai-panel`** — panel z zakładkami: Komendy (formularze czternastu komend), Mapa (plany,
-  etapy, odnogi, przebiegi załogi i koszt każdego etapu), Dokumenty (zmienione na górze, diff od
-  ostatniego commita, podgląd), Ściąga, Frazy, Koszty (koszt sesji w cenach API, z cennikiem i jego
-  datą).
+- **Nad promptem** — trzy spokojne paski bez przycisków: plan (aktywny plan, etap, status),
+  postęp (segmenty etapu albo przebiegu załogi, pod nimi następny punkt; chip agentów z kosztem)
+  i cache (cztery pierścienie: czas cache, limit 5 h, limit tygodniowy, kontekst; koszt sesji).
+  Drugi wiersz pod paskiem pojawia się tylko z powodu: karta decyzji czeka, punkt właśnie
+  odhaczony, cache stygnie, przekazanie gotowe albo nowa sesja zwróci się w kilku turach.
+- **`/relai-panel`** — panel z paskiem „Teraz” (etap i następny punkt, jedna akcja główna)
+  i zakładkami: Komendy (dwie polecane, dwanaście wierszy z nazwą komendy, formularz pod
+  wierszem), Koszty (sekcje zwinięte, rozwijane), Dokumenty (zmienione na górze, diff od ostatniego
+  commita, podgląd), Mapa (plany, etapy, odnogi, przebiegi załogi i koszt każdego etapu), Pomoc
+  (ściąga komend i frazy sesji).
+- **`/cache`** — stan cache, ustawienia i rachunek „kontynuować czy nowa sesja”; `/cache zwrot N`
+  ustawia próg w turach (domyślnie 5).
 - **`/relai-agents`** — subagenci sesji: model, kontekst i koszt.
 - **Karta „Tak / Nie”** — start etapu, sprzątanie, aktualizacja, lista modeli i zmiana cennika idą
   z panelu dopiero po Twoim „Tak”. Etap potwierdzony na karcie startuje bez drugiego pytania w czacie.
