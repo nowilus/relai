@@ -28,7 +28,7 @@
     {
       "name": "relai-panel",
       "source": "./panel",
-      "version": "0.10.0",
+      "version": "0.11.0",
       "description": "Early access — needs Claude Code with mods (measured on 2.1.293). RelAI panel: a calm bar above the prompt with the active plan, stage and status, and a Tak/Nie row only while a decision card waits; /relai-panel opens a pane with Teraz (the stage and its next item), forms for the 14 RelAI commands, a map of plans and stages, the project documents and the session's measured costs in folded sections. Every change goes through a confirmation card. One network request only: the Anthropic pricing page, read after \"Tak\" on a card.",
       "category": "productivity",
       "homepage": "https://github.com/nowilus/relai",
@@ -44,7 +44,7 @@
     {
       "name": "relai-progress",
       "source": "./progress",
-      "version": "0.3.0",
+      "version": "0.4.0",
       "description": "Early access — needs Claude Code with mods (measured on 2.1.293). RelAI progress above the prompt: segments of the stage in progress or a /relai-crew run with the next item under them, a chip with the session's agents and their cost, and /relai-agents with the session's subagents priced from the project's price list. Reads files only: no model call, no network. Based on savvy-progress by johnnyvizz (MIT).",
       "category": "productivity",
       "homepage": "https://github.com/nowilus/relai",

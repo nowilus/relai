@@ -395,6 +395,9 @@ Jedna linia na zamkniętą paczkę; pełny wpis do `docs/DZIENNIK.md` dopiero w 
   cache-keeper 90/90, panel 123/123, progress 31/31 (binarka 2.1.295), `validate` ×3, rdzeń
   179/179, `sync-panel-core --check`; `tsc` — te same dwie klasy błędów co na HEAD (TS7016 `.mjs`,
   TS2345 `Mounted` w testach). Sonda `cache-probe` wyniesiona z `dev-mods` do katalogu roboczego.
+- **2026-10-11 · wydanie po Z10–Z12** — po „tak” Łukasza: push `fb03bcc` (`relai-cache-keeper`
+  0.5.0), potem `relai-panel` 0.11.0 i `relai-progress` 0.4.0 — kod Z10 i Z12 był w repo bez
+  podbicia wersji, więc `plugin update` z marketplace go nie pobierał.
 ## Wynik
 
 —
