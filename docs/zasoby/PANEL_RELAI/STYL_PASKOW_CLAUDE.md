@@ -1,6 +1,6 @@
 # Styl pasków i panelu RelAI dla Claude Code
 
-Wersja: **2** · Data: **2026-10-10** · Zakres: trzy paski nad promptem **i panel boczny** `/relai-panel`
+Wersja: **3** (v2 + Aneks Z11) · Data: **2026-10-10** · Zakres: trzy paski nad promptem **i panel boczny** `/relai-panel`
 (zakładki Komendy i Koszty) · Źródło decyzji: wątek [AUDYT_MODOW](../../fixy/AUDYT_MODOW/ODNOGA.md),
 makiety [MAKIETY.html](../../fixy/AUDYT_MODOW/MAKIETY.html) (wersja 4, kalibracja z Łukaszem
 w czterech rundach 2026-10-10).
@@ -55,6 +55,10 @@ Po prawej `2/14` + `punktów` (jeden format liczby dla wszystkich pasków: `a/b`
 bez procentu z setnymi).
 
 ## 4. Pasek cache: cztery pierścienie z podpisem dwuliniowym
+
+> **Zastąpione Aneksem Z11 (2026-10-10, sekcja 10 niżej):** pasek cache rysuje pięć baterii w jednym
+> wierszu, koszt sesji stoi w kolumnie liczby, czas cache tylko w podpisie baterii. Sekcja 4 zostaje
+> jako zapis wariantu K2 + H3 i źródło słów dymka.
 
 Wariant „K2 · Pierścienie” + „H3 · podpis dwuliniowy, bez hovera”. Jeden wiersz Svg
 (wysokość ok. 24 px), w kolumnie środkowej od lewej:
@@ -126,14 +130,122 @@ małe linie (podpisy pierścieni, linia pod segmentami) rysuje Svg; karta hover 
 
 ## 9. Kryteria odbioru v2
 
-- [ ] Trzy paski w spokoju: 0 przycisków, wysokość ≤ 160 px na desktopie przy 1400 px
-      (dziś 197 px); zrzut człowieka.
+- [ ] Trzy paski w spokoju: 0 przycisków, wysokość ≤ 175 px na desktopie przy 1400 px
+      (dziś 197 px; Aneks Z11: próg 160 → 175, bo zaokrąglona ramka kosztuje zmierzone ~26 px na
+      pasek, a Łukasz wybrał ramkę); zrzut człowieka.
 - [ ] Każde zdarzenie z tabeli w sekcji 1 otwiera drugi wiersz **tylko** pod swoim paskiem
       i zamyka go, gdy powód znika (test modu na każdy stan).
 - [ ] Koszt sesji nad promptem dokładnie raz, w jednym formacie `usd()`.
 - [ ] Segmenty widoczne podczas najechania; linia pod nimi zmienia treść (zrzut).
-- [ ] Cztery pierścienie z dwiema liniami podpisu; kolory progów zmierzone testem na wartościach
-      69/70/89/90 %; brak danych słowami.
+- [ ] ~~Cztery pierścienie z dwiema liniami podpisu~~ → Aneks Z11: pięć baterii od lewej krawędzi
+      kolumny treści, słowa `etykieta · wartość`, dymek z pełnym opisem przy ikonie; kolory progów
+      zmierzone testem na wartościach 69/70/89/90 %; brak danych słowami.
 - [ ] Panel: „Teraz” z jedną akcją główną; 14 komend bez przewijania przy 900 px; nazwa komendy
       obok polskiej; formularz pod wierszem; Koszty ze zwiniętymi sekcjami pamiętanymi w `$.state`.
 - [ ] Terminal: odpowiednik tekstowy każdego elementu, test 40 kolumn.
+
+## 10. Aneks Z11 (2026-10-10) — pasek cache: pięć baterii, koszt po prawej, dymek przy ikonie
+
+Kalibracja w prawdziwym nośniku (sonda `cache-probe`, sesja Fable 5.1, 2026-10-10, siedem rund
+zrzutów Łukasza). Źródło: [PROMPT_Z11_FABLE.md](../../fixy/AUDYT_MODOW/PROMPT_Z11_FABLE.md),
+zrzut wejściowy [2026-10-10-paski-po-z8.png](../../fixy/AUDYT_MODOW/zrzuty/2026-10-10-paski-po-z8.png).
+Aneks zastępuje sekcję 4 i precyzuje sekcje 1 i 5 dla paska cache; reszta briefu bez zmian.
+
+### 10.1 Co było źle i dlaczego (pomiar, nie odczucie)
+
+1. **Pierścienie ok. 400 px od lewej, treść pozostałych pasków 213 px.** Etykieta i drugi wiersz
+   stały w siatce; przesunięty był wyłącznie `Svg` pierścieni: markup miał stałą szerokość
+   (~872 px), a ramka interaktywnego `Svg` bierze całą kolumnę środkową (1271 px) i **centruje**
+   rysunek: (1271 − 872) / 2 = 200 px. Pasek postępu rysuje segmenty z `width="100%"` i dlatego
+   trzyma lewą krawędź. Lekarstwo: markup `width="100%"` bez `viewBox`, elementy od `x = 0`.
+2. `~59 min` dwa razy (pierścień i kolumna liczby), `sesja ≈ $` zawieszone między pierścieniami
+   a prawą krawędzią, drugi wiersz pod przesuniętymi pierścieniami, pomarańczowy chip Z9 jak alarm.
+3. Komórka siatki na desktopie to **~9,8 px** przy oknie 1640 px (16 komórek etykiety i odstępu
+   = 157 px), nie 8 px jak zakładał kod — `middlePx` zaniżało kolumnę o ~18 %.
+4. Jeden wiersz tekstu ma ~22 px, pasek z zaokrągloną ramką ~48 px: **ramka kosztuje ~26 px na
+   pasek**, trzy paski w spokoju ≈ 172 px. Decyzja Łukasza: ramka zostaje, próg kryterium 160 → 175 px.
+
+### 10.2 Decyzje kalibracji (kolejno, każda „tak” Łukasza w czacie)
+
+| Runda | Pokazane | Wybór |
+|---|---|---|
+| 1 | pierścienie od lewej, koszt po prawej, chip Z9 neutralny | kierunek przyjęty: **koszt sesji w kolumnie liczby**, ramka zostaje, chip Z9 neutralny, odstęp nad drugim wierszem **tak** |
+| 2 | trzy języki: kapsuły, lampki (typografia), bateria z polami | **bateria**; odrzucone: zamiana napisu po najechaniu (nieintuicyjna), pola stojące *między* napisami (nie wiadomo, czyj napis) |
+| 3 | pięć wiązań napis–bateria: B1 napis nad polami, B2 pola pod napisem, B3 pola przed napisem, B4 ikona baterii, B5 kreska pod napisem | B1, B4, B5 w grze; za dużo słów |
+| 4 | gramatyki tekstu: pełny / zwięzły / minimalny, kreska B5 pogrubiona | **B4 w gramatyce minimalnej** |
+| 5 | B4 minimalny + dymek z pełnym opisem przy ikonie | przyjęty |
+| 6 | słowo „limit” w etykietach, piąta bateria „reset za” | **przyjęty jako ostateczny** („Jest dobrze”) |
+
+### 10.3 Wiersz baterii — geometria w liczbach
+
+Jeden interaktywny `Svg` (`isInteractive`, własny wiersz kolumny — P-021 pkt 3) o markupie
+`width="100%"` i wysokości **24 px**, tło `BAND.cache.bg`; wszystkie pięć miar w tym jednym
+rysunku (inaczej dymek nie przysłoni sąsiadów). Gdy suma szerokości miar przekracza szerokość
+kolumny (`middlePx`, komórka 9,8 px), miary łamią się na kolejne wiersze `Svg` tej samej budowy.
+
+| Element | Wartość |
+|---|---|
+| font | `system-ui, 'Segoe UI', sans-serif`, **14,5 px**; etykieta `BAR.muted`, wartość `BAR.text` **600** |
+| ikona baterii | 26 × 12 px, y = 6: korpus 22 × 10,5 (x 0,75, y 0,75, rx 3, `stroke` `BAR.muted` 1,5 px, bez wypełnienia), styk 2 × 5 (rx 1, `BAR.muted`), wypełnienie od (2,5; 2,5), wysokość 7, szerokość 18 × udział, rx 1,5, kolor stanu |
+| odstępy | ikona → tekst 8 px, etykieta → wartość 7 px, między miarami 30 px; linia bazowa tekstu y = 17 |
+| cel najechania | prostokąt ikony poszerzony o 3 px z każdej strony, pełna wysokość wiersza |
+| dymek | kapsuła 22 px (rx 11), padding 11, tło `mix(BAND.cache.bg, BAR.text, 0.14)`, cień `drop-shadow(0 1px 2px rgba(0,0,0,.45))`, font 13 px: linia a `BAR.text` 600, linia b `BAR.muted` 9 px dalej; 6 px na prawo od ikony, a gdy prawa krawędź wyszłaby poza kolumnę — 6 px na lewo od ikony; rysowany **po wszystkich miarach** (maluje się nad sąsiadami); CSS `.iN:hover ~ .tN { display: inline }`, `.t { display: none }` |
+| wskaźnik | dymek nigdy nie zakrywa ikony, więc kursor na ikonie trzyma dymek bez migania; **żadnego innego hovera** (pogrubienie ikony odrzucone razem z zamianą napisu) |
+| wypełnienie i kolor | **jak w telefonie: bateria pokazuje, ile ZOSTAŁO** (1 % zużycia → 99 % pełna, 99 % zużycia → 1 % pełna), a liczba obok mówi to, co liczy aplikacja (zużycie). Jedna reguła koloru dla wszystkich baterii, od tego, ile zostało: szałwia, **musztarda ≤ 30 %**, **glina ≤ 10 %** (`BATTERY.warn` / `BATTERY.alert` w motywie; zastępuje progi 70/90 zużycia i 35/15 cache). Wyjątek: `reset za` zawsze szałwia |
+
+### 10.4 Pięć miar — słowa, wypełnienie, kolor, dymek
+
+Gramatyka inline: **etykieta (przygaszona) · wartość (pogrubiona)** i nic więcej; szczegół
+wyłącznie w dymku. Dymek = dzisiejszy podpis pierścienia: linia a (pogrubiona) · linia b.
+
+| # | Etykieta | Wartość | Wypełnienie i kolor | Dymek (a · b) |
+|---|---|---|---|---|
+| 1 | `cache` | `~59 min` (tylda, gdy TTL założony) / `stygnie ~12 min` / `zimny` / `podtrzymany do 14:20` / `brak danych` | czas pozostały z TTL, opróżnia się; kolor od % TTL, który został (30/10), zimny zawsze glina | `Ciepły · ~59 min · TTL 60 min założony`; zimny: `Zimny · od 5 min · zapis ≈ $1.86` |
+| 2 | `limit 5 h` | `64 %` (zużycie, jak w `/usage`) | **100 − `percentUsed`** (36 % pełna), kolor od tego, ile zostało (30/10) | `64 % · 5 h · zużyte 64 % · zostało 36 % · reset jutro 00:20` |
+| 3 | `reset za` | `1 h 06 min` / `12 min` | czas do `resetsAt` okna 5 h podzielony przez 5 h, opróżnia się; **zawsze szałwia** (reset to nie alarm) | `Reset limitu 5 h za 1 h 06 min · reset jutro 00:20` |
+| 4 | `limit tygodnia` | `41 %` (zużycie) | **100 − `percentUsed`** (59 % pełna), kolor jak wyżej | `41 % · tydzień · zużyte 41 % · zostało 59 % · reset jutro 12:00` |
+| 5 | `kontekst` | `323k` (zużyte tokeny, jak liczy aplikacja) | **(okno − zużyte) / okno** (68 % pełna), kolor jak wyżej | `323k · kontekst · zużyte 323k z 1M · wolne 68 %` |
+
+Decyzja Łukasza 2026-10-10: „tekst obok to 300k, ale bateria na 70 % zapełnienia na zielono” — liczba
+niesie zużycie (to, co pokazuje aplikacja), bateria niesie zapas; dymek mówi obie strony.
+Słowo stanu cache pojawia się inline tylko, gdy jest nowiną (`stygnie`, `zimny`, `podtrzymany`);
+w spokoju sama liczba. Brak którejś liczby: bateria pusta (sam obrys), wartość `brak danych`,
+dymek `<nazwa> · brak danych` — nigdy pozorne zero. Format liczb jak dotąd: `tokens()`, procent
+całkowity ze spacją przed `%`, czas `h`/`min` z minutami dwucyfrowymi po godzinie.
+
+### 10.5 Kolumna liczby i drugi wiersz
+
+- Kolumna liczby: **`$14.93`** (pogrubione, `BAR.text`) + `sesja` (`BAR.muted`); bez kosztu:
+  `brak danych` + `kosztu`. Koszt sesji nad promptem stoi **tylko tu**; czas cache nie stoi po prawej.
+- Drugi wiersz (sekcja 1 bez zmian co do zdarzeń i priorytetu): `marginTop` 1 na desktopie, chip
+  + przyciski natywne w jednym wierszu od kolumny treści. Kolory chipa: `stygnie` `CHIP.warn`,
+  `przekazanie gotowe` `CHIP.ok`, `trwa`/`podtrzymany` `CHIP.run`, **zdarzenie Z9 — nowy token
+  `CHIP.info`**: tło `mix(BAND.cache.bg, BAR.text, 0.1)`, prowadzenie `nowa sesja zwróci się po N
+  turach` pogrubione `BAR.text`, reszta ` · ≈ $x → $y/turę` `BAR.muted`. Informacja, nie alarm.
+
+### 10.6 Terminal i wąska kolumna
+
+- Terminal: na miarę glif `○ ◔ ◑ ◕ ●` w kolorze stanu, potem `etykieta wartość` jak inline
+  (`◑ limit 5 h 64 %`), miary w jednym zawijanym wierszu rozdzielone trzema komórkami; dymka nie
+  ma, więc linia b **nie znika**: idzie po wartości przygaszona (`reset jutro 00:20`). Koszt sesji
+  w kolumnie liczby jak na desktopie.
+- Poniżej `BAR.narrow` (90 kolumn): etykieta i liczba nad treścią (jak dziś), wiersz baterii
+  łamie się na dwa–trzy `Svg`; dymek przerzuca się na lewo od ikony, gdy nie mieści się po prawej.
+
+### 10.7 Zakres wdrożenia i kryteria
+
+Zmiany wyłącznie w `cache-keeper/` (`register.tsx`: `band`, `bandView`, `cacheFigure`,
+`secondRow`; `rings.ts` → rysunek baterii; testy) i `core/panel/theme.mjs` (`CHIP.info`,
+`BATTERY` z geometrią i progami 30/10 zapasu, `leftColor(leftPercent, isCold)`; `usageColor`
+i `cacheColor` zostają dla panelu, pasek cache ich nie woła); `bar-card.tsx` bez zmian (siatka
+wspólna). Kryteria:
+
+- [ ] treść trzech pasków zaczyna się w tej samej kolumnie (zrzut przy 1400 i 1640 px);
+- [ ] czas cache narysowany raz, koszt sesji raz (testy);
+- [ ] bateria = zapas, liczba = zużycie: test na 1 % / 64 % / 99 % zużycia (99 % / 36 % / 1 % pełna,
+      szałwia / szałwia / glina) i na 29 % / 10 % zapasu (musztarda / glina); `reset za` szałwia przy 5 %;
+- [ ] pięć baterii, słowa z tabeli 10.4, dymek po najechaniu na ikonę 2. i 3. miary nad sąsiadami,
+      przerzut na lewo przy ostatniej miarze w wąskim oknie (zrzuty);
+- [ ] trzy paski w spokoju ≤ 175 px przy 1400 px;
+- [ ] od 900 do 1640 px bez rozjazdu (zrzut 900/1000 px);
+- [ ] terminal: test montażu z pięcioma miarami i linią b.

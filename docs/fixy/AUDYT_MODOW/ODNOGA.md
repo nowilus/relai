@@ -6,6 +6,8 @@ projekt UX/UI zamknięty przez Fable 5.1 w briefie v2)
 
 > **Aneks A (zaakceptowany 2026-10-10):** [ANEKS_A.md](ANEKS_A.md) — **Z10 · Archiwum w drzewie**,
 > **Z11 · Pasek cache**, **Z12 · Fokus sesji**.
+> **Aneks B (zaakceptowany 2026-10-10):** [ANEKS_B.md](ANEKS_B.md) — **Z13 · Pasek plan: przycisk
+> fokusu**, **Z14 · Mapa z fokusem i zwiniętymi sekcjami**; wykonawca Opus 5.5, po wdrożeniu Z11.
 
 ## Cel
 
@@ -202,6 +204,14 @@ Kolejność: najpierw fundamenty (Z3–Z5), bo bez nich nowe paski będą migać
       `focus.test.ts`, `focus-flow.test.ts`, progress „thread card”); korekta historii tej sesji po
       „tak”; zrzut na żywo.
 - [ ] Z11: makieta paska cache od sesji Fable 5.1 zaakceptowana, wdrożona, zrzut Łukasza.
+      Kalibracja ✓ 2026-10-10 („Jest dobrze”): Aneks Z11 w briefie v3, prompt wdrożenia
+      `PROMPT_Z11_WDROZENIE.md`. **Wdrożenie czeka** (sesja Opus 5.5).
+- [ ] Z13: pasek plan bez fokusu ma przycisk `Wybierz pracę…`, który otwiera panel z rozwiniętym
+      wyborem fokusu; po wyborze pasek wraca do jednego wiersza (testy `band.test.ts`,
+      `pane-v2.test.ts`; zrzut). Aneks B.
+- [ ] Z14: Mapa zaczyna się od „Ta sesja” (fokus z paczkami/etapem i kosztem), inne plany
+      i archiwum zwinięte do jednej linii z liczbą, stan w `$.state`; waga zwiniętej mapy
+      w teście; zrzut przy fokusie na odnodze. Aneks B.
 - [x] `git diff` nie dotyka `core/panel/*.mjs` poza `theme.mjs` ani niczego w `adapters/codex/`.
       `git diff --stat ecb8282 HEAD -- core/panel adapters/codex docs/plany/PANEL_CODEX`: tylko
       `core/panel/theme.mjs` i dwa testy w `core/panel/tests/` (2026-10-10, po Z7).
@@ -354,6 +364,15 @@ Jedna linia na zamkniętą paczkę; pełny wpis do `docs/DZIENNIK.md` dopiero w 
   pliku sprzed korekty w katalogu roboczym. Kolektor nadpisywał plik rekordami z pamięci — poprawka
   `d61a86a` (stage poprawiony w pliku wygrywa); sprawdzone na żywo: po zapisie panelu korekta stoi,
   nowe wywołania tej sesji idą do `AUDYT_MODOW/Z12` (fokus ustawiony ręcznie w „Teraz”).
+- **2026-10-10 · Z11 skalibrowana** (Fable 5.1, sonda `cache-probe` w `~/.claude/dev-mods/a6c6108f-0e83-427f-a501-72bd152c6057/`,
+  **zostaje do wdrożenia jako żywy wzorzec**) — przyczyna rozjazdu zmierzona: ramka interaktywnego
+  `Svg` centruje rysunek o stałej szerokości (1271 − 872) / 2 = 200 px, komórka desktopu ~9,8 px,
+  ramka paska ~26 px (P-024). Siedem rund zrzutów: koszt sesji w kolumnie liczby, pierścienie od
+  lewej → trzy języki (kapsuły, lampki, bateria) → bateria bez hovera w pięciu wiązaniach → gramatyka
+  minimalna → dymek z pełnym opisem przy ikonie → „limit” w etykietach i piąta bateria „reset za”.
+  Wynik: [Aneks Z11 briefu (v3)](../../zasoby/PANEL_RELAI/STYL_PASKOW_CLAUDE.md#10-aneks-z11-2026-10-10--pasek-cache-pięć-baterii-koszt-po-prawej-dymek-przy-ikonie),
+  [PROMPT_Z11_WDROZENIE.md](PROMPT_Z11_WDROZENIE.md); próg wysokości 160 → 175 px decyzją Łukasza
+  (ramka zostaje). Testy sondy 4/4, `validate` i `plugin test` binarką 2.1.295 (PATH ma 2.1.280).
 - **2026-10-10 · Z11 przekazana do Fable** — [PROMPT_Z11_FABLE.md](PROMPT_Z11_FABLE.md): sześć
   usterek paska cache odczytanych ze zrzutu (siatka, `~59 min` dwa razy, wiszący koszt sesji, drugi
   wiersz poza kolumnami, pigułka jak alarm, wysokość), ograniczenia nośnika, smak Łukasza, kroki

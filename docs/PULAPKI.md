@@ -8,6 +8,40 @@ Specyfikacja: `SPEC_PULAPKI.md`.
 
 ## Pułapki
 
+### P-024 — Silnik modów Claude Code 2.1.295: Svg w paśmie nad promptem, komórka 9,8 px, binarka na PATH · 2026-10-10 · AKTYWNA
+
+- **Objaw:** pierścienie paska cache rysują się ~200 px na prawo od treści pozostałych pasków;
+  mały obraz `Svg` (ikona baterii) przed tekstem nie pojawia się wcale; `claude plugin validate`
+  odrzuca moduł, który aplikacja ładuje i uruchamia bez zarzutu.
+- **Przyczyna (2.1.295, sonda `cache-probe` w Z11 wątku AUDYT_MODOW, aplikacja desktopowa):**
+  1. **Interaktywny `Svg` o stałej szerokości markupu jest centrowany w swojej ramce.** Ramka
+     bierze całą szerokość slotu (P-021 pkt 3), rysunek o `width="872"` staje w środku:
+     (1271 − 872) / 2 = 200 px przesunięcia. Markup `width="100%"` (bez `viewBox`, elementy od
+     `x = 0`) układa się od lewej — tak rysuje segmenty pasek postępu.
+  2. **Obraz `Svg` (bez `isInteractive`) z pustym `alt=""` nie rysuje się w paśmie** — bez linii
+     `refused`, tekst obok rysuje się normalnie. Ten sam element z niepustym `alt` rysuje się.
+     W panelu bocznym (`tree-probe`, Z10) pusty `alt` uchodził; w paśmie nie.
+  3. **Komórka siatki na desktopie to ~9,8 px** przy oknie 1640 px (16 komórek etykiety i odstępu
+     paska = 157 px); kod pasków zakładał 8 px, więc `middlePx` zaniżało kolumnę o ~18 %
+     (wcześniejsze zawijanie, dymki przerzucane na lewo bez potrzeby).
+  4. **`claude` na PATH (`~/.local/bin/claude`) to 2.1.280**, a aplikacja wykonuje 2.1.295.
+     Walidator 2.1.280 odrzuca `read($, atom)` / `update($, atom, …)` („$ is passed to "read",
+     imported from "claude-code"") — także w wydanym `relai-progress`. Walidacja i testy modów:
+     binarką aplikacji `%APPDATA%\Claude\claude-code\2.1.295\<hash>\claude.exe` (z Bash sesji;
+     poza aplikacją ścieżka fizyczna z P-019).
+  5. **Dymek bez dymka:** karta w tym samym interaktywnym `Svg`, rysowana po wszystkich miarach
+     (maluje się nad sąsiadami), odsłaniana `.iN:hover ~ .tN { display: inline }`, stawiana obok
+     celu najechania, nigdy na nim — kursor zostaje na celu, karta nie miga. `filter: drop-shadow`
+     w CSS ramki działa.
+  6. **Zaokrąglona ramka paska (`borderStyle: 'round'`) kosztuje ~26 px wysokości** na pasek
+     (wiersz tekstu ~22 px, pasek ~48 px); `Box` nie ma promienia bez ramki, więc trzy paski
+     w spokoju mają ≈ 172 px — kryterium 160 px z Z1 było nieosiągalne z ramką (Aneks Z11: 175).
+- **Obejście:** wiersz pierścieni/baterii jako `Svg` z `width="100%"`; każdy obraz `Svg` z opisowym
+  `alt`; `CELL_PX = 9.8` w `cache-keeper` (zmierzone, nie założone); walidacja i `plugin test`
+  binarką 2.1.295; podpowiedzi jako karta w tym samym `Svg`.
+- **Zasięg:** Claude Code 2.1.295 (mody „early access”), aplikacja desktopowa, Windows; terminal
+  niezmierzony. Zrzuty i decyzje: Aneks Z11 briefu `docs/zasoby/PANEL_RELAI/STYL_PASKOW_CLAUDE.md`.
+
 ### P-023 — Silnik modów i strona cennika Anthropic: `$.http.fetch`, `toolUses`, znaki ikon · 2026-10-09 · AKTYWNA
 
 - **Objaw:** parser strony cennika odrzucał 4 z 20 wierszy modeli, choć nazwy wyglądały poprawnie;
