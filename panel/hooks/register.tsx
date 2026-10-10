@@ -21,29 +21,36 @@
 // Split in E7 without a change of behavior: this file keeps the state, the collector, the reads
 // and the presses, everything that takes `$` (P-023 pkt 10); band.tsx draws the plan bar,
 // pane-parts.tsx the parts of every tab, pane-commands / -now / -help / -map / -docs / -costs.tsx the tabs.
+// Split again in Z6 (AUDYT_MODOW), the same rule: what makes no `$` call of its own went out and
+// acts through closures made here (ioOf, actsOf) — pane-io.ts the session, the root and the plan,
+// tab-data.ts the tabs' data, card-answer.ts the answer to a card, memo.ts the tabs' memory. The
+// $.state atoms stay here: the validator reads them only from this file.
 
 import { atom, read, update } from 'claude-code'
 import type { EngineInterface, Register } from 'claude-code'
-import { ancestors, planState } from './core/plan-state.mjs'
-import type { PlanState } from './core/plan-state.mjs'
 import { join } from './fmt'
 import type { PanelView } from '../types'
-import { FORMS, formOf, resolveName } from './core/commands.mjs'
-import { parseSheet } from './core/phrases.mjs'
+import { formOf } from './core/commands.mjs'
 import { THEME } from './core/theme.mjs'
-import { aggregate, compactRecord, fileName, isFileOf, mergeRecords, parseRecords, plural, projectSummary, requestSeries, serializeRecords, stepRecord, turnSeries } from './core/measure.mjs'
+import { compactRecord, fileName, isFileOf, mergeRecords, parseRecords, serializeRecords, stepRecord } from './core/measure.mjs'
 import type { MeasureRecord } from './core/measure.mjs'
-import { PRICE_FILE, PRICING_PAGE, cacheEffect, listFor, modelCosts, newest, parsePriceFile, priceAt, priceLists, pricingCard, pricingSecond, staleDays, staleWarning, unpricedModels } from './core/pricing.mjs'
-import type { Version } from './core/pricing.mjs'
-import { KINDS, MAX_DEPTH, NUMSTAT_ARGV, changedPaths, diffArgv, diffView, kindOf, parseNumstat, previewOf, shelf } from './core/documents.mjs'
+import { PRICING_PAGE, pricingCard } from './core/pricing.mjs'
+import { MAX_DEPTH, NUMSTAT_ARGV, changedPaths, kindOf, parseNumstat, shelf } from './core/documents.mjs'
 import type { FileEntry } from './core/documents.mjs'
-import { crewTag, stageCosts, stageTag, taskCosts } from './core/attribution.mjs'
-import { MERGE_FILE, crewRun, flowMap, parseMerges, serializeMerges } from './core/flow.mjs'
+import { crewTag, stageTag } from './core/attribution.mjs'
+import { MERGE_FILE, serializeMerges } from './core/flow.mjs'
 import type { Merges } from './core/flow.mjs'
-import { CLEAN_ARGV, answer, cleanCard, cleanChoices, commandCard, crewCard, crewDraft, crewTasksPath, daysBetween, hasConsent, listDate, projectVersion, togglePick, stageCard, stageToStart, stepsToRun, stripConsent } from './core/decisions.mjs'
-import { crewProgress, pick as pickProgress, promptLink, stageProgress } from './core/progress.mjs'
-import type { Action, Card, CardResult, CleanChoices, CrewDraft, Fact } from './core/decisions.mjs'
-import type { CostData, DocsData, MapData, NowData, OpenDoc, PaneData, Prices } from './data'
+import { CLEAN_ARGV, cleanCard, cleanChoices, commandCard, crewCard, crewDraft, crewTasksPath, hasConsent, togglePick, stageCard, stageToStart, stripConsent } from './core/decisions.mjs'
+import { promptLink } from './core/progress.mjs'
+import type { Action, Card, CardResult, CleanChoices, CrewDraft } from './core/decisions.mjs'
+import type { DocsData, PaneData } from './data'
+import { bump, epochNow, forget, remember } from './memo'
+import { CREW_DIR, FRESH, MEASURE_DIR, forgetPlan, readPlan, relaiRoot } from './pane-io'
+import type { Ledger, PaneIo, Session } from './pane-io'
+import { commandFacts, costData, docOpen, loadPrices, mapData, nowData, paneData, pricingState } from './tab-data'
+import type { Shelf } from './tab-data'
+import { answerCard } from './card-answer'
+import type { Acts } from './card-answer'
 import { band } from './band'
 import { failure, isPassing, parts, tabOf } from './pane-parts'
 import type { Ctx } from './pane-parts'
@@ -55,21 +62,6 @@ import { helpView } from './pane-help'
 import { nowBar } from './pane-now'
 
 type $T = EngineInterface
-
-const RELAI_MARKER = /Wersja RelAI|RelAI version/
-
-
-type Session = {
-  id: string
-  cwd: string
-  isRelai: boolean
-  plan: PlanState
-  costUsd: number | null
-  startedAt: number // when the session began, as the engine counts it ($.session.usage)
-  loadedAt: number // when this module began collecting in it (a reload starts over)
-}
-
-const FRESH: Session = { id: '', cwd: '', isRelai: false, plan: { kind: 'none' }, costUsd: null, startedAt: 0, loadedAt: 0 }
 
 // Replaced, never mutated in place; a reload starts it over and session.start sets it again
 let S: Session = FRESH
@@ -94,60 +86,24 @@ async function stampOf($: $T, paths: readonly string[]): Promise<string | null> 
   }
 }
 
-// The project root: the nearest folder, from the session's cwd upwards, whose docs/USTAWIENIA.md
-// carries the RelAI marker. The cwd follows every cd the model's shell makes (E9, P-021), so a
-// mod that looked in the cwd alone went silent the moment the shell left the project's root.
-async function relaiRoot($: $T, cwd: string): Promise<string | null> {
-  for (const dir of ancestors(cwd)) {
-    const text = await readText($, join(dir, 'docs/USTAWIENIA.md'))
-    if (text !== null && RELAI_MARKER.test(text)) return dir
+// The reads the moved readers make (pane-io.ts, tab-data.ts, Z6), as closures over `$` made here:
+// the callee never receives `$` itself (P-023 pkt 10). The session is read at each call, as before.
+function ioOf($: $T): PaneIo {
+  return {
+    session: () => S,
+    read: (path) => readText($, path),
+    stamp: (paths) => stampOf($, paths),
+    folders: (rel) => folders($, rel),
+    records: () => projectRecords($),
+    git: (argv) => runGit($, argv),
+    now: () => $.clock.now(),
+    writeError: () => writeError,
   }
-  return null
-}
-
-// The plan from CLAUDE.md and the plan's STATUS.md, read again only when one of them moved (Z4):
-// each model request asks their times, not their text
-let planWatch: { paths: string[], stamp: string | null } = { paths: [], stamp: null }
-
-async function readPlan($: $T, isForced = false): Promise<PlanState> {
-  // The times are taken before the read: a file that moves during it is read again next time
-  const before = planWatch.paths.length ? await stampOf($, planWatch.paths) : null
-  if (!isForced && before !== null && before === planWatch.stamp) return S.plan
-  const paths: string[] = []
-  const text = (path: string) => { paths.push(path); return readText($, path) }
-  const claude = await text(join(S.cwd, 'CLAUDE.md'))
-  const plan = await planState(claude, (rel) => text(join(S.cwd, rel)))
-  const isSame = paths.length === planWatch.paths.length && paths.every((p, i) => p === planWatch.paths[i])
-  planWatch = { paths, stamp: isSame ? before : await stampOf($, paths) }
-  return plan
-}
-
-// ---------- the tabs' data (AUDYT_MODOW Z3) ----------
-// A tab's data is read when the tab opens, after a turn and after the pane writes a file, and kept
-// here; drawing reads the memory. `epoch` moves on those events; a slot answers while its key
-// (the session's id, the epoch, what the slot depends on) is the same, so a press that only
-// redraws — a filter, a fold, the end of a flash — reads no file and starts no process.
-// Module memory: a reload starts it over and the first drawing reads again.
-
-let epoch = 0
-const bump = () => { epoch += 1 }
-
-type Slot = { key: string, value: Promise<unknown> }
-let memo: Record<string, Slot> = {} // replaced, never mutated in place
-
-function remember<T>(slot: string, key: string, load: () => Promise<T>): Promise<T> {
-  const hit = memo[slot]
-  if (hit && hit.key === key) return hit.value as Promise<T>
-  const value = load()
-  memo = { ...memo, [slot]: { key, value } }
-  // A failed read is not kept: the next drawing tries again
-  value.catch(() => { if (memo[slot]?.value === value) memo = Object.fromEntries(Object.entries(memo).filter(([k]) => k !== slot)) })
-  return value
 }
 
 // Refresh what the band reads from the project and the session after each turn
 async function refresh($: $T) {
-  const [plan, usage] = await Promise.all([readPlan($, true), $.session.usage().catch(() => null)])
+  const [plan, usage] = await Promise.all([readPlan(ioOf($), true), $.session.usage().catch(() => null)])
   set({
     plan,
     costUsd: usage?.cost ? usage.cost.usd : S.costUsd,
@@ -162,10 +118,6 @@ async function refresh($: $T) {
 // $.fs has no append: the session's records are held here and the file is written whole, by
 // one writer, in order. The session id is asked at each write: /clear changes it within the
 // process and raises no session.start (probe). A reload or a resume reads the file back first.
-
-const MEASURE_DIR = '.claude/relai/pomiary'
-
-type Ledger = { session: string, path: string, name: string, records: MeasureRecord[], bad: string[] }
 
 let ledger: Ledger | null = null // replaced, never mutated in place
 let writes: Promise<void> = Promise.resolve()
@@ -245,23 +197,6 @@ function collect($: $T, make: (session: string) => MeasureRecord): Promise<void>
   return writes
 }
 
-
-// ---------- the price list (E6, Aneks D) ----------
-// PRICING from the code, with the versions saved in the project's .claude/relai/panel/cennik.json
-// laid over it; each record priced by the version in force when it was measured (R6). Read when a
-// tab draws: a save from the card shows at once.
-
-
-async function loadPrices($: $T): Promise<Prices> {
-  const file = parsePriceFile(await readText($, join(S.cwd, PRICE_FILE)))
-  const lists = priceLists(file.versions)
-  const top = newest(lists)
-  const days = staleDays(await readText($, join(S.cwd, 'docs/USTAWIENIA.md')))
-  return { lists, error: file.error, date: top.date, source: top.source, saved: file.versions.length, warning: staleWarning(top.date, localDay(await $.clock.now()), days) }
-}
-
-const priceWith = (lists: Version[]) => (r: MeasureRecord) => priceAt(r, lists)
-
 // This session's records from the collector's memory, every other session's read back from its file
 // A tab that reads the measurements opened: the session's file is written first, so the file holds
 // what the tab shows
@@ -274,49 +209,10 @@ async function projectRecords($: $T): Promise<{ current: Ledger, others: Measure
   return { current, others: await Promise.all(others.map(async (x) => parseRecords(await readText($, join(dir, x.name))).records)) }
 }
 
-// What the costs tab draws: this session from the collector's own records, the project from
-// every session file in the measurements folder (this one's from memory, the rest read back)
-async function costData($: $T): Promise<CostData> {
-  const { current, others: read } = await projectRecords($)
-  const prices = await loadPrices($)
-  const price = priceWith(prices.lists)
-  const now = new Date(await $.clock.now())
-  const isToday = (at: number) => { const d = new Date(at); return d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth() && d.getDate() === now.getDate() }
-  return {
-    report: aggregate(current.records, price),
-    records: current.records,
-    series: turnSeries(current.records, price),
-    calls: requestSeries(current.records, price),
-    effect: cacheEffect(current.records, (r) => listFor(r, prices.lists)),
-    project: projectSummary([current.records, ...read], price, isToday),
-    file: `${MEASURE_DIR}/${current.name}`,
-    stages: stageCosts(current.records, price, await readMerges($)),
-    prices,
-    unpriced: unpricedModels([current.records, ...read].flat(), prices.lists),
-    models: modelCosts([current.records, ...read].flat(), prices.lists),
-    writeError,
-  }
-}
-
-// ---------- the map (E4) ----------
-// Plans from docs/plany/ and docs/archiwum/plany/, crew runs from .claude/relai/work/CREW/, the
-// person's merges from the panel's own file; the cost of each stage over every measured session
-// of the project. All of it read when the map draws: the files change while the work goes on.
-
-const PLAN_DIRS = [['docs/plany', 'open'], ['docs/archiwum/plany', 'archive']] as const
-const CREW_DIR = '.claude/relai/work/CREW'
-
-
-const localDay = (at: number) => { const d = new Date(at); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}` }
-
 async function folders($: $T, rel: string): Promise<string[]> {
   const dir = join(S.cwd, rel)
   const entries = (await $.fs.exists(dir).catch(() => false)) ? await $.fs.list(dir).catch(() => []) : []
   return entries.filter((x) => x.kind === 'dir').map((x) => x.name).sort()
-}
-
-async function readMerges($: $T): Promise<Merges> {
-  return parseMerges(await readText($, join(S.cwd, MERGE_FILE)))
 }
 
 // The panel's own file; the files of a crew run are never written (decision of 2026-10-09)
@@ -324,24 +220,6 @@ async function saveMerges($: $T, m: Merges) {
   await $.fs.write(join(S.cwd, MERGE_FILE), serializeMerges(m))
   bump()
   $.ui.invalidate('ui.render')
-}
-
-async function mapData($: $T): Promise<MapData> {
-  const plans = (await Promise.all(PLAN_DIRS.map(async ([dir, place]) => Promise.all((await folders($, dir)).map(async (name) => {
-    const statusMd = await readText($, join(S.cwd, `${dir}/${name}/STATUS.md`))
-    return statusMd === null ? null : { name, place, statusMd }
-  }))))).flat().filter((p): p is { name: string, place: 'open' | 'archive', statusMd: string } => p !== null)
-  const active = S.plan.kind === 'ok' ? S.plan.plan : null
-  const merges = await readMerges($)
-  const runs = await Promise.all((await folders($, CREW_DIR)).map(async (run) => crewRun(run,
-    await readText($, join(S.cwd, `${CREW_DIR}/${run}/zadania.json`)), await readText($, join(S.cwd, `${CREW_DIR}/${run}/manifest.json`)), merges)))
-  const { current, others } = await projectRecords($)
-  const all = [current.records, ...others].flat()
-  const untagged = all.filter((r) => !('stage' in r)).map((r) => r.at)
-  const untaggedSince = untagged.length ? localDay(Math.min(...untagged)) : null
-  const prices = await loadPrices($)
-  const price = priceWith(prices.lists)
-  return { nodes: flowMap(active, plans), runs: runs.reverse(), merges, cost: stageCosts(all, price, merges), tasks: taskCosts(all, price, merges), active, untaggedSince, prices }
 }
 
 // ---------- documents (E6, Aneks E) ----------
@@ -388,8 +266,6 @@ async function runGit($: $T, argv: readonly string[]): Promise<{ text: string, e
   }
 }
 
-type Shelf = Omit<DocsData, 'now' | 'open'>
-
 // The shelf: the documents' listing and their line counts, one git
 async function docsShelf($: $T, changed: readonly string[]): Promise<Shelf> {
   const root = (await $.fs.list(S.cwd).catch(() => [])).filter((x) => x.kind === 'file' && (x.name === 'CLAUDE.md' || x.name === 'AGENTS.md'))
@@ -400,26 +276,9 @@ async function docsShelf($: $T, changed: readonly string[]): Promise<Shelf> {
   return { ...shelf(files, { planDir, changed: [...changed], counts: parseNumstat(counts.text) }), gitError: counts.error }
 }
 
-// The document open under the shelf: only what its mode draws — its diff (one git) or its text
-// (one read), never both
-async function docOpen($: $T, s: Shelf, pick: string, mode: 'diff' | 'preview'): Promise<OpenDoc | null> {
-  const [group = '', path = ''] = pick.split('|')
-  const all = s.groups.flatMap((g) => g.docs)
-  const doc = all.find((d) => d.path === path)
-  if (!doc) return null
-  if (mode === 'diff') {
-    const argv = diffArgv(doc.path, all)
-    const diff = argv ? await runGit($, argv) : { text: '', error: 'ścieżka spoza listy dokumentów' }
-    return { group, doc, diff: diff.error ? null : diffView(diff.text), diffError: diff.error, preview: null }
-  }
-  // A binary file (PDF) is neither read nor drawn: its window says so
-  const text = KINDS[doc.ext]?.show === 'none' ? null : await readText($, join(S.cwd, doc.path))
-  return { group, doc, diff: null, diffError: '', preview: text === null ? null : previewOf(doc.path, text) }
-}
-
 async function docsData($: $T, key: string, pick: string, mode: 'diff' | 'preview', changed: readonly string[]): Promise<DocsData> {
   const s = await remember('docs', key, () => docsShelf($, changed))
-  const open = pick ? await remember('doc', `${key}|${pick}|${mode}`, () => docOpen($, s, pick, mode)) : null
+  const open = pick ? await remember('doc', `${key}|${pick}|${mode}`, () => docOpen(ioOf($), s, pick, mode)) : null
   return { ...s, now: await $.clock.now(), open }
 }
 
@@ -444,36 +303,14 @@ const muted = atom({ plugin: 'relai-panel', key: 'muted' } as const, {} as Recor
 // The models the open price-list card asked about: muted on its "Nie"
 let pricingAsked: string[] = []
 
-async function pricingState($: $T) {
-  const prices = await loadPrices($)
-  const { current, others } = await projectRecords($)
-  const all = [current.records, ...others].flat()
-  return { prices, unpriced: unpricedModels(all, prices.lists), measured: [...new Set(all.map((r) => r.model).filter((m): m is string => m !== null))] }
-}
-
 async function preparePricing($: $T) {
-  const { prices, unpriced } = await pricingState($)
+  const { prices, unpriced } = await pricingState(ioOf($))
   pricingAsked = unpriced.map((u) => u.model)
   return offer($, pricingCard(await cardId($), { unpriced, date: prices.date, warning: prices.warning }))
 }
 
-// The read after the first "Tak": the card's second step, or the reason in words and no card
-async function readPricing($: $T, card: Card) {
-  // The card names the page; the panel reads only its own constant, whatever a card would say
-  const response = card.fetch === PRICING_PAGE ? await fetchPricingPage($) : { error: 'karta wskazuje inną stronę' }
-  const { prices, unpriced, measured } = await pricingState($)
-  const now = await $.clock.now()
-  const r = pricingSecond(card, response, { versions: prices.lists.slice(1), unpriced, measured, now, today: localDay(now) })
-  if (r.kind === 'blocked') {
-    await update($, confirm, () => null)
-    await say($, failure('Spróbuj później przyciskiem w sekcji Cennik.', `Nie zaktualizowano cennika: ${r.reason}`))
-    return
-  }
-  await update($, confirm, () => r.card)
-}
-
 async function mutePricing($: $T) {
-  const date = (await loadPrices($)).date
+  const date = (await loadPrices(ioOf($))).date
   const asked = pricingAsked
   await update($, muted, (m) => ({ ...m, ...Object.fromEntries(asked.map((x) => [x, date])) }))
 }
@@ -540,13 +377,6 @@ let data: PaneData | null = null
 
 async function loadData($: $T, cwd: string): Promise<PaneData> {
   const list = await $.command.list().catch(() => [])
-  const names: Record<string, string | null> = {}
-  const descriptions: Record<string, string> = {}
-  for (const f of FORMS) {
-    const name = resolveName(f.command, list)
-    names[f.command] = name
-    descriptions[f.command] = list.find((c) => c.name === name)?.description ?? ''
-  }
   let text: string | null = null
   try {
     const path = join(cwd, 'docs/KOMENDY.md')
@@ -554,7 +384,7 @@ async function loadData($: $T, cwd: string): Promise<PaneData> {
   } catch {
     text = null
   }
-  data = { names, descriptions, hasRelai: Object.values(names).some((n) => n !== null), sheet: parseSheet(text) }
+  data = paneData(list, text)
   return data
 }
 
@@ -601,40 +431,20 @@ async function runStep($: $T, a: Action, names: Record<string, string | null>) {
   return $.prompt.submit({ text: a.text, asUser: true })
 }
 
-// The answer to the card: "nie" sends nothing; "tak" moves to the second step or runs the steps
-// in order and stops at the first that fails, saying which
+// The answer to the card (card-answer.ts, Z6): its effects as closures over `$` made here
+function actsOf($: $T): Acts {
+  return {
+    io: ioOf($),
+    setCard: (card) => update($, confirm, () => card),
+    say: (text) => say($, text),
+    mutePricing: () => mutePricing($),
+    fetchPricingPage: () => fetchPricingPage($),
+    runStep: (a, names) => runStep($, a, names),
+  }
+}
+
 async function decide($: $T, card: Card, said: 'tak' | 'nie', names: Record<string, string | null>) {
-  const next = answer(card, said)
-  // A card kept in $.state from before E6 has no `fetch` at all: it reads nothing, as it did then
-  const isRead = typeof card.fetch === 'string'
-  if (next.state === 'cancelled') {
-    if (isRead) await mutePricing($)
-    await update($, confirm, () => null)
-    await say($, `Anulowano: ${card.title} — ${isRead ? 'cennik nietknięty, przypomnienie wyciszone do zmiany daty cennika' : 'nic nie wysłano'}`)
-    return
-  }
-  // A card that reads a page: the first "Tak" shows "reading", then the step the read produced
-  if (next.state === 'second' && card.state === 'open' && isRead) {
-    await update($, confirm, () => next)
-    await readPricing($, next)
-    return
-  }
-  if (next.state !== 'confirmed') {
-    await update($, confirm, () => next)
-    return
-  }
-  await update($, confirm, () => null)
-  for (const a of stepsToRun(next)) {
-    try {
-      await runStep($, a, names)
-    } catch (err) {
-      await say($, failure('Sprawdź stan projektu i przygotuj kartę ponownie.', `Nie wysłano (${card.title}, krok ${a.kind})`, err))
-      return
-    }
-  }
-  const writes = next.actions.filter((a) => a.kind === 'write')
-  if (writes.length) bump() // a saved price list, a crew's tasks: the tabs read them again
-  await say($, writes.length === next.actions.length ? `Zapisano: ${writes.map((a) => a.path).join(', ')}` : `Wysłano do czatu: ${card.title}`)
+  return answerCard(actsOf($), card, said, names)
 }
 
 // The stage card from the plan the form names, else the active one
@@ -664,17 +474,6 @@ async function loadClean($: $T) {
   }
 }
 
-// What /relai-update and /relai-models show before the card: the state from the project's files
-async function commandFacts($: $T, command: 'relai-update' | 'relai-models'): Promise<Fact[]> {
-  if (command === 'relai-update') {
-    const v = projectVersion(await readText($, join(S.cwd, 'docs/USTAWIENIA.md')))
-    return [{ label: 'Projekt', value: v ? `RelAI ${v} (docs/USTAWIENIA.md)` : 'wersji nie odczytano z docs/USTAWIENIA.md', ...(v ? {} : { tone: 'warn' as const }) }]
-  }
-  const date = listDate(await readText($, join(S.cwd, '.claude/relai/MODELE-claude-code.md')))
-  const age = daysBetween(date, localDay(await $.clock.now()))
-  return [{ label: 'Lista modeli', value: date ? `z ${date}${age !== null ? ` · ${age} ${plural(age, 'dzień', 'dni', 'dni')} temu` : ''}` : 'brak listy .claude/relai/MODELE-claude-code.md', ...(date ? {} : { tone: 'warn' as const }) }]
-}
-
 // A crew run's draft: editable only while the run has no manifest.json (E5, 1c)
 async function editCrew($: $T, run: string) {
   const dir = join(S.cwd, `${CREW_DIR}/${run}`)
@@ -682,24 +481,6 @@ async function editCrew($: $T, run: string) {
   if (!draft.isEditable) return say($, failure('Skład zmienisz tylko przed startem przebiegu.', `Skład przebiegu ${run} bez edycji: ${draft.reason}`))
   await unsay($)
   return update($, drafts, (m) => ({ ...m, [run]: draft }))
-}
-
-// "Teraz" (brief v2 §6.2): the active plan and the progress from the files the progress bar reads —
-// the newest live crew run, else the stage prompt's boxes — with this plugin's own copy of the core
-// (./core/progress.mjs), no dependency on relai-progress. Read through remember (Z3), never per drawing.
-async function nowData($: $T): Promise<NowData> {
-  const plan = S.plan
-  let promptText: string | null = null
-  let link: string | null = null
-  if (plan.kind === 'ok' && plan.stage) {
-    const statusMd = await readText($, join(S.cwd, plan.statusPath))
-    link = statusMd === null ? null : promptLink(statusMd, plan.stage.id, plan.statusPath)
-    promptText = link === null ? null : await readText($, join(S.cwd, link))
-  }
-  const run = (await folders($, CREW_DIR)).at(-1)
-  const crew = run ? crewProgress(run, await readText($, join(S.cwd, `${CREW_DIR}/${run}/zadania.json`)),
-    await readText($, join(S.cwd, `${CREW_DIR}/${run}/manifest.json`)), await $.clock.now()) : null
-  return { plan, progress: pickProgress(crew, stageProgress(plan, promptText, link ?? 'prompt')) }
 }
 
 // ---------- hooks ----------
@@ -714,12 +495,12 @@ export const register: Register = (on) => {
 
   on('session.start', async ($, e, next) => {
     const here = await $.session.cwd()
-    const root = await relaiRoot($, here)
+    const root = await relaiRoot(ioOf($), here)
     const isRelai = root !== null
     const cwd = root ?? here
     S = { ...FRESH, id: await $.session.id(), cwd, isRelai, loadedAt: await $.clock.now() }
-    memo = {}
-    planWatch = { paths: [], stamp: null }
+    forget()
+    forgetPlan()
     bump()
     // Registered everywhere, so outside RelAI the command can say so in one sentence (plan, section 8)
     await $.command.register({ name: 'relai-panel', description: 'Panel RelAI: formularze komend, ściąga i frazy sesji' }).catch(() => undefined)
@@ -733,7 +514,7 @@ export const register: Register = (on) => {
   on('command.run', { command: 'relai-panel' }, async ($) => {
     // Typed right after a reload, before session.start has found the root: look once more first
     if (!S.isRelai) {
-      const root = await relaiRoot($, await $.session.cwd())
+      const root = await relaiRoot(ioOf($), await $.session.cwd())
       if (root !== null) set({ isRelai: true, cwd: root })
     }
     if (!S.isRelai) return { text: NOT_RELAI }
@@ -779,10 +560,10 @@ export const register: Register = (on) => {
     const fold = (key: string, byDefault: boolean) => { void update($, unfolded, (m) => ({ ...m, [key]: !(m[key] ?? byDefault) })) }
 
     // The tab's data from memory (Z3): read again only when its key moves on
-    const key = tab === 'help' ? '' : `${await $.session.id()}|${epoch}`
-    const now = tab === 'commands' ? await remember('now', key, () => nowData($)) : null
-    const costs = tab === 'costs' ? await remember('costs', key, () => costData($)) : null
-    const map = tab === 'map' ? await remember('map', key, () => mapData($)) : null
+    const key = tab === 'help' ? '' : `${await $.session.id()}|${epochNow()}`
+    const now = tab === 'commands' ? await remember('now', key, () => nowData(ioOf($))) : null
+    const costs = tab === 'costs' ? await remember('costs', key, () => costData(ioOf($))) : null
+    const map = tab === 'map' ? await remember('map', key, () => mapData(ioOf($))) : null
     const [pickNow, modeNow, filterNow, layoutNow, pageNow, changedNow] = tab === 'docs'
       ? await Promise.all([read($, docPick), read($, docMode), read($, docFilter), read($, docLayout), read($, diffPage), read($, turnChanged)])
       : ['', 'diff' as const, 'changed' as const, 'tiles' as const, 0, { turn: '', paths: [] as string[] }]
@@ -793,7 +574,7 @@ export const register: Register = (on) => {
       setFresh: (x) => { void update($, freshChat, () => x) },
       prepareStage: (topic, stage, fresh) => { void prepareStage($, topic, stage, fresh) },
       copy: (text) => { void $.ui.copy({ text, surface: e.surface }).then(() => say($, `Wysłano do schowka: ${text}`), (err) => say($, failure('Zaznacz tekst w podglądzie i skopiuj go ręcznie.', 'Nie skopiowano', err))) },
-      prepareCommand: (command) => { void commandFacts($, command).then(async (facts) => offer($, commandCard(await cardId($), command, facts))) },
+      prepareCommand: (command) => { void commandFacts(ioOf($), command).then(async (facts) => offer($, commandCard(await cardId($), command, facts))) },
       sendCommand: (name, args, text) => { void sendCommand($, name, args, text) },
       loadClean: () => { void loadClean($) },
       toggleClean: (id) => { void update($, cleanList, (l) => (l ? togglePick(l, id) : l)) },
@@ -886,7 +667,7 @@ export const register: Register = (on) => {
     if (result && (result.usage || result.stopReason !== null)) {
       const usage = result.usage
       if (!e.agentId) lastModel = usage ? usage.model : e.model
-      const plan = await readPlan($)
+      const plan = await readPlan(ioOf($))
       if (JSON.stringify(plan) !== JSON.stringify(S.plan)) bump() // the map and the shelf follow the active plan
       set({ plan })
       const stage = stageTag(plan)
@@ -922,7 +703,7 @@ export const register: Register = (on) => {
     }
     void flush($)
     // The plan if its files moved; the cost comes with session.measure, not asked again (Z4)
-    set({ plan: await readPlan($) })
+    set({ plan: await readPlan(ioOf($)) })
     bump()
     $.ui.invalidate('ui.render')
     return r

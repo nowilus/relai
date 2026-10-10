@@ -26,6 +26,7 @@ import type { Version } from './core/pricing.mjs'
 import { BAND, BAR, THEME } from './core/theme.mjs'
 import { HEADING_ART } from './core/headings.mjs'
 import { clip, duration, join, tokens, usd } from './fmt'
+import { barCard } from './bar-card'
 import { SEGMENTS_HEIGHT, calmLine, itemLine, segmentArt } from './segments'
 
 type $T = EngineInterface
@@ -227,48 +228,17 @@ async function togglePane($: $T): Promise<string> {
   return opened.isPlaced ? 'Panel agentów otwarty.' : `Panel agentów czeka na miejsce: ${opened.reason}`
 }
 
-type Look = { label: string, color: string, bg: string }
-type Resolved = Parameters<$T['ui']['resolve']>[0]
-type Children = Parameters<ReturnType<$T['ui']['resolve']>['Box']>[0]['children']
-
-type Elements = ReturnType<$T['ui']['resolve']>
-
 // The progress bar (brief v2: docs/zasoby/PANEL_RELAI/STYL_PASKOW_CLAUDE.md, 3 and 5) in the shared
-// grid of the RelAI bars: the label column, the middle, the figure `a/b` + unit on the right. The
-// middle's first row holds the segments — one per item in the color of its state, Svg on the
-// desktop with the small line under them in the same drawing, cells of text in the terminal with
-// the line as text below — and beside them the agents chip; a second row only while a box has
-// just been ticked. No button: the agents pane opens with /relai-agents. A soft background of its
-// own, no colored frame; below BAR.narrow columns the label and the figure go on top.
+// grid of the RelAI bars (bar-card.tsx, the same file in the three plugins, Z6): the label
+// column, the middle, the figure `a/b` + unit on the right, label and figure at the top of the
+// middle. The middle's first row holds the segments — one per item in the color of its state, Svg
+// on the desktop with the small line under them in the same drawing, cells of text in the
+// terminal with the line as text below — and beside them the agents chip; a second row only while
+// a box has just been ticked. No button: the agents pane opens with /relai-agents.
 const CELL_PX = 8 // a desktop cell, about (savvy-progress reckons the same)
 const LINE_TEXT_PX = 6.6 // the mean advance of an 11.5 px Segoe UI character, about (6.8 at 12 px)
 const COLUMN_GAP = 2 // cells between the grid's columns (brief, 5)
 const MIN_SEGMENT_CELLS = 10 // below this the chip goes under the segments rather than beside
-
-function barCard(el: Elements, isGui: boolean, columns: number, middle: RenderChildren, figure: readonly [string, string] | null) {
-  const { Box, Text } = el
-  const frame = isGui ? { borderStyle: 'round' as const, borderColor: BAND.progress.bg } : {}
-  const label = <Text bold color={BAND.progress.color}>{BAND.progress.label}</Text>
-  const figureText = figure ? [<Text key="value" bold color={BAR.text}>{figure[0]}</Text>, <Text key="unit" color={BAR.muted}>{' ' + figure[1]}</Text>] : []
-  if (columns < BAR.narrow) {
-    return (
-      <Box key="relai-progress-card" flexDirection="column" backgroundColor={BAND.progress.bg} paddingX={1} {...frame}>
-        <Box key="head" flexDirection="row" flexWrap="wrap" justifyContent="space-between" columnGap={COLUMN_GAP}>
-          <Box key="label">{label}</Box>
-          {figure ? <Box key="figure" flexDirection="row">{figureText}</Box> : null}
-        </Box>
-        <Box key="middle" flexDirection="column">{middle}</Box>
-      </Box>
-    )
-  }
-  return (
-    <Box key="relai-progress-card" flexDirection="row" alignItems="flex-start" columnGap={COLUMN_GAP} backgroundColor={BAND.progress.bg} paddingX={1} {...frame}>
-      <Box key="label" width={BAR.labelColumn} flexShrink={0}>{label}</Box>
-      <Box key="middle" flexDirection="column" flexGrow={1} flexShrink={1}>{middle}</Box>
-      <Box key="figure" minWidth={BAR.figureColumn} flexShrink={0} flexDirection="row" justifyContent="flex-end">{figureText}</Box>
-    </Box>
-  )
-}
 
 // The unit after `a/b`, one format for all the bars (brief, 3): 1 punktu, 14 punktów; a crew's tasks
 const unitOf = (p: Progress) => (p.kind === 'crew' ? (p.total === 1 ? 'zadania' : 'zadań') : (p.total === 1 ? 'punktu' : 'punktów'))
@@ -536,7 +506,7 @@ export const register: Register = (on) => {
       </Box>)
     }
 
-    const ours = barCard(ui, isGui, columns, rows, figure)
+    const ours = barCard(ui, BAR, isGui, columns, 'relai-progress-card', BAND.progress, rows, figure, 'flex-start')
     if (!below) return ours
     return <Box key="relai-progress" flexDirection="column" gap={e.surface === 'terminal' ? 0 : 1}>{[ours, below]}</Box>
   })

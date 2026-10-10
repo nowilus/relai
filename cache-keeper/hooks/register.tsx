@@ -9,6 +9,7 @@
 import type { EngineInterface, Register } from 'claude-code'
 import { DEFAULT_SETTINGS, MIN, RELAI_MARKER, applySetting, cacheState, dueWarning, judgeStep, mergeSettings, msLeft, pingDue, pingMissed, type Settings } from './core'
 import { basename, clip, clock, fileStamp, limitsText, minutes, tokens, usd } from './fmt'
+import { barCard } from './bar-card'
 import { BAND, BAR, CHIP } from './relai/theme.mjs'
 import { RINGS_HEIGHT, cacheRing, contextRing, glyphColor, limitRing, ringGlyph, ringRows, type Limit, type Ring } from './rings'
 import { ancestors } from './relai/plan-state.mjs'
@@ -463,40 +464,9 @@ function statusText(now: number): string {
 // ---------- the band above the prompt ----------
 
 type Resolved = Parameters<$T['ui']['resolve']>[0]
-type Children = Parameters<ReturnType<$T['ui']['resolve']>['Box']>[0]['children']
-type Look = { label: string, color: string, bg: string }
 
-// The shared grid of the RelAI bars above the prompt (BAND, BAR; docs/zasoby/PANEL_RELAI/
-// STYL_PASKOW_CLAUDE.md), the same as relai-panel's and relai-progress's: the label column, the
-// content, the figure on the right edge; a soft background, no colored frame. Box has no corner
-// radius (2.1.293): on the desktop a border in the background's own color only rounds the
-// corners; the terminal draws none. Below BAR.narrow columns the label and the figure go on top.
-function barCard($: $T, e: Resolved, columns: number, key: string, look: Look, middle: Children, figure: readonly [string, string] | null) {
-  const { Box, Text } = $.ui.resolve(e)
-  const isGui = e.surface !== 'terminal'
-  const frame = isGui ? { borderStyle: 'round' as const, borderColor: look.bg } : {}
-  const label = <Text bold color={look.color}>{look.label}</Text>
-  if (columns < BAR.narrow) {
-    return (
-      <Box key={key} flexDirection="column" backgroundColor={look.bg} paddingX={1} {...frame}>
-        <Box key="head" flexDirection="row" flexWrap="wrap" justifyContent="space-between" columnGap={2}>
-          <Box key="label">{label}</Box>
-          {figure ? <Box key="figure"><Text bold color={BAR.text}>{figure[0]}</Text><Text color={BAR.muted}>{' ' + figure[1]}</Text></Box> : null}
-        </Box>
-        <Box key="middle" flexDirection="column">{middle}</Box>
-      </Box>
-    )
-  }
-  return (
-    <Box key={key} flexDirection="row" alignItems="center" columnGap={2} backgroundColor={look.bg} paddingX={1} {...frame}>
-      <Box key="label" width={BAR.labelColumn} flexShrink={0}>{label}</Box>
-      <Box key="middle" flexDirection="column" flexGrow={1} flexShrink={1}>{middle}</Box>
-      <Box key="figure" minWidth={BAR.figureColumn} flexShrink={0} flexDirection="row" justifyContent="flex-end">
-        {figure ? [<Text key="value" bold color={BAR.text}>{figure[0]}</Text>, <Text key="unit" color={BAR.muted}>{' ' + figure[1]}</Text>] : []}
-      </Box>
-    </Box>
-  )
-}
+// The card itself — label column, middle, figure, soft background — is the shared grid of the
+// three bars (bar-card.tsx, the same file in relai-panel and relai-progress, Z6).
 
 // The figure on the right: the time the cache has left, in its real unit; never a seeming zero
 function cacheFigure(st: { kind: string, left: number }, tilde: string): readonly [string, string] {
@@ -597,7 +567,7 @@ function band($: $T, e: Resolved, columns: number, now: number) {
       </Box>,
     )
   }
-  return barCard($, e, columns, 'relai-cache-card', BAND.cache, middle, v.figure)
+  return barCard(el, BAR, isGui, columns, 'relai-cache-card', BAND.cache, middle, v.figure)
 }
 
 // The buttons of a second row: native (a plain one inverts on a painted background, P-018); no
