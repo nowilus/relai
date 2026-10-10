@@ -165,9 +165,15 @@ Kolejność: najpierw fundamenty (Z3–Z5), bo bez nich nowe paski będą migać
       zdania o 14 komendach, „Teraz” z jedną akcją, wiersze z nazwą komendy, formularz pod wierszem,
       Koszty zwinięte w `unfolded`, `sent` wygasa po 10 s; szacunek wysokości Komend 865 px przy
       budżecie 900). **Zrzut przy 900 px czeka** na pomiar na żywo.
-- [ ] Z6: test równości trzech `fmt.ts` i dwóch `barCard`; `usd(11.73)` daje ten sam napis
+- [x] Z6: test równości trzech `fmt.ts` i dwóch `barCard`; `usd(11.73)` daje ten sam napis
       w trzech modach.
-- [ ] Z7: `claude plugin test` ×3 zielone; nowe testy wymienione z nazwy we wpisie dziennika.
+      Dowód: `core/panel/tests/mods-parity.test.js` (5: trzy `fmt.ts` i trzy `bar-card.tsx`
+      równe po CRLF→LF, kontrola na podłożonej różnicy; przed zmianą 4 padały) i
+      `cache-keeper/hooks/fmt-shared.test.ts` (9: `usd(11.73)` = `$11.73` wszędzie — pasek cache
+      pokazywał `$12`; `tokens(999_999)` = `1.0M`, nie `1000k`).
+- [x] Z7: `claude plugin test` ×3 zielone; nowe testy wymienione z nazwy we wpisie dziennika.
+      `plugin test`: panel 107/107, progress 29/29, cache-keeper 84/84; nowe pliki
+      `promises.test.ts` ×3 (nazwy w linii Z7 dziennika wdrożenia niżej).
 - [x] Z9: test funkcji na trzech przypadkach z liczbami policzonymi ręcznie w teście (cache
       ciepły z małym kontekstem → „nie opłaca się”, cache ciepły 800k → N ≤ 5, cache zimny
       z `ctx > 2·S` → zdarzenie); drugi wiersz paska pojawia się tylko po przekroczeniu progu
@@ -277,6 +283,24 @@ Jedna linia na zamkniętą paczkę; pełny wpis do `docs/DZIENNIK.md` dopiero w 
   procenty całkowite (`<1 %` powyżej zera); linia `sent` wygasa po 10 s, czyszczona przy zmianie
   zakładki i formularza, błąd zaczyna się zdaniem „co zrobić”. Testy panel 103/103, `tsc` 0,
   `validate`. **Do Z6:** `register.tsx` ma 975 linii (> 800) — podział do zrobienia.
+- **2026-10-10 · Z6 zamknięta** (dwóch subagentów Opus 5.5) — jeden `fmt.ts` i jeden
+  `bar-card.tsx`, bajt w bajt w trzech pluginach (siatka paska bez `$`, `BAR` podawany z
+  zewnątrz, bo motyw leży pod różnymi ścieżkami); `usd` zawsze z centami, `usd(null)` = „cena
+  nieznana”, `tokens` z jedną jednostką po zaokrągleniu. Martwy kod usunięty: `percentText`,
+  `bar` (progress/fmt), lokalne `barCard`/`Look`/typy w trzech modach. `panel/hooks/register.tsx`
+  975 → 756 linii: `pane-io.ts`, `tab-data.ts`, `card-answer.ts`, `memo.ts` — `$` nie wychodzi
+  z pliku (obiekty domknięć `ioOf($)`, `actsOf($)`); raport `plugin validate` przed i po
+  identyczny. Atomów `$.state` nie da się wynieść — walidator przyjmuje `update` tylko na atomie
+  z tego samego pliku. Testy: panel 107, progress 29, cache-keeper 84, `node --test` 274/274,
+  `tsc` 0. `cache-keeper/hooks/register.tsx` ma równo 800 linii — na granicy reguły.
+- **2026-10-10 · Z7 zamknięta** (subagent Opus 5.5) — trzy pliki `promises.test.ts`, każdy licznik
+  z kontrolą pozytywną: panel — znak w polu formularza i w wyszukiwarce Pomocy bez I/O, „Wyślij do
+  czatu” i koniec błysku bez odczytu, Mapa: jeden przebieg loadera, zwinięcie bez odczytu;
+  progress — krok agenta nieznanego i wątku głównego nie pisze stanu, przerysowanie panelu agentów
+  bez ponownego odczytu niezmienionego pliku; cache-keeper — ping tuż przed TTL (51:30 nie, 52:00
+  tak), zatrzymanie na limicie 5 h (89/90/85 % przy progach 90/90/80), ping, który zapisał zamiast
+  odczytać, przekazanie `/handoff` → znacznik → `/handoff dalej` (`/clear`, potem
+  „kontynuujemy pracę”) i brak przekazania bez znacznika. Żaden test nie znalazł błędu.
 
 ## Wynik
 
