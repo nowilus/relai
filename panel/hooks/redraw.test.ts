@@ -1,5 +1,5 @@
 import { describe, expect, mock, test, type TestBody } from 'claude-code/testing'
-import type { On, RenderElement, RenderNode } from 'claude-code'
+import type { On, RenderElement, RenderNode, TurnStepResult } from 'claude-code'
 import { fileName, serializeRecords, stepRecord } from './core/measure.mjs'
 import type { MeasureRecord } from './core/measure.mjs'
 import { NUMSTAT_ARGV } from './core/documents.mjs'
@@ -24,11 +24,12 @@ const BASE: Record<string, string> = {
   [`${CWD}/docs/plany/PANEL_X/STATUS.md`]: '# STATUS\n\n| Etap | Nazwa | Status | Prompt | Uwagi |\n|---|---|---|---|---|\n| E1 | A | W TOKU | — | |\n',
 }
 
-type Counts = { fs: number, process: number, prices: number, read: string[] }
+type Counts = { fs: number, process: number, prices: number, read: string[], written: string[], invalidate: number }
+type Uses = Record<string, { name: string, input: unknown }[]>
 
-function world(on: On, files: Record<string, string>, git: { numstat: string, diff: string } = { numstat: '', diff: '' }) {
-  const n: Counts = { fs: 0, process: 0, prices: 0, read: [] }
-  const broken = { session: false } // set: the engine stops answering the session's id
+function world(on: On, files: Record<string, string>, git: { numstat: string, diff: string } = { numstat: '', diff: '' }, uses: Uses = {}) {
+  const n: Counts = { fs: 0, process: 0, prices: 0, read: [], written: [], invalidate: 0 }
+  const broken = { session: false, write: false } // set: the engine stops answering the session's id / writing the measurements
   const disk: Record<string, string> = { ...files }
   const key = (path: string) => path.replace(/\\/g, '/')
   const clock = mock.clock(on, { now: NOW })
@@ -38,15 +39,36 @@ function world(on: On, files: Record<string, string>, git: { numstat: string, di
   on('session.id', () => { if (broken.session) throw new Error('silnik nie odpowiada'); return { value: SESSION } })
   on('fs.exists', ($, e) => {
     n.fs += 1
-    if (key(e.path).endsWith('/.claude/relai/panel/cennik.json')) n.prices += 1 // one per price-list read
     return { value: key(e.path) in disk || Object.keys(disk).some((p) => p.startsWith(key(e.path) + '/')) }
   })
   on('fs.read', ($, e) => {
     n.fs += 1
     n.read.push(key(e.path))
+    if (key(e.path).endsWith('/.claude/relai/panel/cennik.json')) n.prices += 1 // one per price-list read
     return key(e.path) in disk ? { value: disk[key(e.path)] ?? '' } : { deny: 'ENOENT ' + e.path }
   })
-  on('fs.write', ($, e) => { n.fs += 1; disk[key(e.path)] = e.text; return { value: undefined } })
+  on('fs.write', ($, e) => {
+    n.fs += 1
+    if (broken.write && key(e.path).includes('/pomiary/')) return { deny: 'EACCES ' + e.path }
+    n.written.push(key(e.path))
+    disk[key(e.path)] = e.text
+    return { value: undefined }
+  })
+  // A file's time moves with its text: the same text, the same stamp
+  const stampOf = (text: string) => [...text].reduce((h, c) => (h * 31 + c.charCodeAt(0)) >>> 0, 7)
+  on('fs.stat', ($, e) => {
+    const k = key(e.path)
+    return k in disk ? { value: { kind: 'file' as const, size: (disk[k] ?? '').length, mtimeMs: stampOf(disk[k] ?? ''), isLink: false } } : { deny: 'ENOENT ' + e.path }
+  })
+  on('ui.invalidate', ($, e, next) => { n.invalidate += 1; return next(e) })
+  on('turn.step', async function* ($, e) {
+    const result: TurnStepResult = {
+      turnId: e.turnId, index: e.index, answer: '', toolUses: uses[`${e.turnId}:${e.index}`] ?? [], stopReason: 'end_turn',
+      usage: { input_tokens: 3, cache_read_input_tokens: 40_000, cache_creation_input_tokens: 2_000, output_tokens: 300, model: 'claude-opus-5-5' },
+    }
+    return result
+  })
+  on('turn.complete', ($, e) => ({ text: e.answer }))
   on('fs.list', ($, e) => {
     n.fs += 1
     const dir = key(e.path ?? '') + '/'
@@ -66,7 +88,7 @@ function world(on: On, files: Record<string, string>, git: { numstat: string, di
   on('command.list', () => ({ value: [] }))
   on('session.usage', () => ({ value: { startedAt: NOW, context: { tokens: 1000 } as never, rateLimits: [], cost: { usd: 1 } } }))
   on('ui.open', () => ({ value: { isPlaced: true as const } }))
-  return { n, clock, broken }
+  return { n, clock, broken, disk }
 }
 
 const pane = (columns: number) => ({
@@ -210,6 +232,61 @@ describe('the drawn tree stays under its budget for the worst data (Z3)', () => 
     const text = textOf(tree)
     expect(text).toContain('… jeszcze 2') // agents and stages past twelve, in one line each
     expect(text).toMatch(/✓ Etapy i „poza etapem” razem \$[\d.,]+ = suma sesji/) // the check still sums every stage
+    await ui.unmount()
+  })
+})
+
+async function step($: Engine, turnId: string, index: number) {
+  const s = $.turn.step({ turnId, index, model: 'claude-opus-5-5', messageCount: 1 })
+  for await (const _chunk of s) { /* the chunks are the engine's */ }
+  await s.result
+}
+
+describe('the panel during a turn (Z4)', () => {
+  test('twenty steps: no band-wide redraw, the plan read only when its file moved, the measurements written once at the end', async ($, on) => {
+    const STATUS = `${CWD}/docs/plany/PANEL_X/STATUS.md`
+    const uses: Uses = { 't1:3': [{ name: 'Write', input: { file_path: `${CWD}/docs/STATE.md`, content: 'x' } }] }
+    const { n, disk, clock } = world(on, BASE, { numstat: '', diff: '' }, uses)
+    const ui = await open($, 'docs')
+    const before = { invalidate: n.invalidate, status: n.read.filter((p) => p === STATUS).length, written: n.written.length }
+    for (let i = 0; i < 20; i++) await step($, 't1', i)
+    // The documents tab hears of the turn's write through its own state, the bands above the
+    // prompt are not drawn again for it
+    expect(n.invalidate - before.invalidate).toBe(0)
+    expect(textOf(await ui.find({ key: 'docs-turn' }))).toContain('w tej turze')
+    expect(n.read.filter((p) => p === STATUS).length - before.status).toBe(0)
+    expect(n.written.length - before.written).toBe(0)
+    // A stage turned mid-turn: its file moved, the next step reads it
+    disk[STATUS] = (disk[STATUS] ?? '').replace('W TOKU', 'ZREALIZOWANY 2026-10-10')
+    await step($, 't1', 20)
+    expect(n.read.filter((p) => p === STATUS).length - before.status).toBe(1)
+    await $.turn.complete({ answer: 'ok', durationMs: 1000, isAborted: false, turnId: 't1', reason: 'answer' } as never)
+    await clock.settle()
+    const measured = n.written.filter((p) => p.includes('/.claude/relai/pomiary/'))
+    expect(measured.length).toBe(1)
+    expect((disk[measured[0]!] ?? '').trim().split('\n').length).toBe(21)
+    await ui.unmount()
+  })
+
+  test('a reload mid-turn loses at most the last moments: the records are written a few seconds after the last step', async ($, on) => {
+    const { n, clock } = world(on, BASE)
+    await $.session.start({ cwd: CWD, surface: 'desktop', isInteractive: true })
+    for (let i = 0; i < 3; i++) await step($, 't1', i)
+    expect(n.written.filter((p) => p.includes('/pomiary/')).length).toBe(0)
+    await clock.advance(10_000)
+    expect(n.written.filter((p) => p.includes('/pomiary/')).length).toBe(1)
+  })
+
+  test('a write of the measurements that fails is said in the costs tab, never swallowed', async ($, on) => {
+    const { broken } = world(on, BASE)
+    broken.write = true
+    await $.session.start({ cwd: CWD, surface: 'desktop', isInteractive: true })
+    await step($, 't1', 0)
+    await $.command.run({ command: 'relai-panel' } as never)
+    const ui = await $.ui.mount({ plugin: 'relai-panel', surface: 'desktop', ...pane(100) })
+    await ui.press({ key: 'tab-costs' })
+    expect(textOf(await ui.drawn())).toContain('Nie zapisano pomiarów')
+    expect(textOf(await ui.drawn())).toContain('EACCES')
     await ui.unmount()
   })
 })

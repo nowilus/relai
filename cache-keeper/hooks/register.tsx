@@ -70,8 +70,20 @@ const snapKey = () => 'snap:' + S.id
 const state = (now: number) => cacheState(S.lastActivity, ttl(), now, S.keepWarm, settings.warnMin)
 const later = ($: $T, fn: () => Promise<unknown>) => $.clock.after(50, () => { fn().catch(() => {}) })
 
+// Saved when the state changed (AUDYT_MODOW Z4), not at every tick; and at least once within
+// SNAP_FRESH_MS, so restoreSnap's two-hour guard keeps accepting the snapshot of an idle session
+const SNAP_FRESH_MS = 60 * MIN
+let savedSnap = ''
+let savedAt = 0
+
 async function saveSnap($: $T, now: number) {
-  if (S.id) await $.store.set(snapKey(), { ...S, savedAt: now, handoff: H.phase === 'continuing' ? IDLE : H })
+  if (!S.id) return
+  const snap = { ...S, handoff: H.phase === 'continuing' ? IDLE : H }
+  const text = JSON.stringify([snapKey(), snap])
+  if (text === savedSnap && now - savedAt < SNAP_FRESH_MS) return
+  await $.store.set(snapKey(), { ...snap, savedAt: now })
+  savedSnap = text
+  savedAt = now
 }
 
 async function restoreSnap($: $T, now: number) {
@@ -173,11 +185,25 @@ function warnStep($: $T, now: number) {
   )
 }
 
+// The words the band shows: the state, the figure on the right, the context, the rewrite, the
+// limits, the session's cost, the pings of a kept cache and the handoff's phase. The tick redraws
+// only when they changed (Z4) — the countdown's minute, a cost or a limit that session.measure
+// moved — never the same words again.
+let drawnStamp = ''
+const bandStamp = (now: number) => {
+  const st = state(now)
+  return JSON.stringify([st.kind, cacheFigure(st, ttlAssumed() ? '~' : ''), tokens(S.ctx), S.ctx >= settings.bigTokens, usd(rewriteCost(S.ctx, S.model, ttl())),
+    limitsText(S.rateLimits), usd(S.costUsd), S.pings, usd(S.pingUsd), H.phase])
+}
+
 async function tick($: $T) {
   const now = await $.clock.now()
   await keepWarmStep($, now)
   warnStep($, now)
   await saveSnap($, now)
+  const stamp = bandStamp(now)
+  if (stamp === drawnStamp) return
+  drawnStamp = stamp
   $.ui.invalidate('ui.render')
 }
 
@@ -535,7 +561,9 @@ export const register: Register = (on) => {
     if (e.props.hasSurvey) return next(e)
     if (!S.lastActivity && !S.keepWarm && H.phase === 'idle') return next(e)
     const below = await next(e)
-    const ours = band($, e, e.props.bodyColumns, await $.clock.now())
+    const now = await $.clock.now()
+    drawnStamp = bandStamp(now)
+    const ours = band($, e, e.props.bodyColumns, now)
     if (!below) return ours
     const { Box } = $.ui.resolve(e)
     // No width here: the engine refuses its own node under a Box with "width" and draws its own

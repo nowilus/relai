@@ -263,6 +263,7 @@ export function costsView(c: Ctx, p: Parts, cd: CostData, s: CostsCtx) {
     ] : []),
     ...(pricing.needs ? [] : [pricing.node]),
     <Box key="cost-notes" flexDirection="column">
+      {cd.writeError ? [<Box key="write-error"><Text color={THEME.accentText}>{`⚠ Nie zapisano pomiarów do ${cd.writeError} — kolejna próba przy następnym zapisie; kwoty tej sesji są w pamięci panelu`}</Text></Box>] : []}
       {gaps.map((w, i) => <Box key={`gap-${i}`}><Text color={THEME.accentText}>{'⚠ ' + w}</Text></Box>)}
       <Box key="cost-foot"><Text dimColor>{`Ceny API z ${cd.prices.date} (${cd.prices.source}).`}</Text></Box>
     </Box>,

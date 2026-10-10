@@ -73,9 +73,19 @@ let S: Session = FRESH
 
 const set = (patch: Partial<Session>) => { S = { ...S, ...patch } }
 
+// One call: a file that is not there rejects the read (AUDYT_MODOW Z4, was exists + read)
 async function readText($: $T, path: string): Promise<string | null> {
   try {
-    return (await $.fs.exists(path)) ? await $.fs.read(path) : null
+    return await $.fs.read(path)
+  } catch {
+    return null
+  }
+}
+
+// The files a read went through and their times: null when one cannot be asked, which reads again
+async function stampOf($: $T, paths: readonly string[]): Promise<string | null> {
+  try {
+    return (await Promise.all(paths.map((p) => $.fs.stat(p).then((s) => `${s.mtimeMs}:${s.size}`)))).join('|')
   } catch {
     return null
   }
@@ -92,9 +102,21 @@ async function relaiRoot($: $T, cwd: string): Promise<string | null> {
   return null
 }
 
-async function readPlan($: $T): Promise<PlanState> {
-  const claude = await readText($, join(S.cwd, 'CLAUDE.md'))
-  return planState(claude, (rel) => readText($, join(S.cwd, rel)))
+// The plan from CLAUDE.md and the plan's STATUS.md, read again only when one of them moved (Z4):
+// each model request asks their times, not their text
+let planWatch: { paths: string[], stamp: string | null } = { paths: [], stamp: null }
+
+async function readPlan($: $T, isForced = false): Promise<PlanState> {
+  // The times are taken before the read: a file that moves during it is read again next time
+  const before = planWatch.paths.length ? await stampOf($, planWatch.paths) : null
+  if (!isForced && before !== null && before === planWatch.stamp) return S.plan
+  const paths: string[] = []
+  const text = (path: string) => { paths.push(path); return readText($, path) }
+  const claude = await text(join(S.cwd, 'CLAUDE.md'))
+  const plan = await planState(claude, (rel) => text(join(S.cwd, rel)))
+  const isSame = paths.length === planWatch.paths.length && paths.every((p, i) => p === planWatch.paths[i])
+  planWatch = { paths, stamp: isSame ? before : await stampOf($, paths) }
+  return plan
 }
 
 // ---------- the tabs' data (AUDYT_MODOW Z3) ----------
@@ -122,7 +144,7 @@ function remember<T>(slot: string, key: string, load: () => Promise<T>): Promise
 
 // Refresh what the band reads from the project and the session after each turn
 async function refresh($: $T) {
-  const [plan, usage] = await Promise.all([readPlan($), $.session.usage().catch(() => null)])
+  const [plan, usage] = await Promise.all([readPlan($, true), $.session.usage().catch(() => null)])
   set({
     plan,
     costUsd: usage?.cost ? usage.cost.usd : S.costUsd,
@@ -164,15 +186,59 @@ async function ledgerFor($: $T, session: string): Promise<Ledger> {
   return ledger
 }
 
+// Z4: the records are kept here and the file written at the end of a turn, after a compaction and
+// FLUSH_MS after a record nothing wrote yet — never at each request. A reload mid-turn loses at most
+// those last seconds. A write that fails is said in the costs tab and tried again at the next flush.
+const FLUSH_MS = 5_000
+let isDirty = false
+let isFlushQueued = false
+let writeError = ''
+
+// A session left by /clear whose file could not be written yet: kept until a write succeeds
+let unwritten: Ledger[] = []
+
+async function writeOne($: $T, l: Ledger): Promise<boolean> {
+  try {
+    await $.fs.write(l.path, serializeRecords(l.records, l.bad))
+    return true
+  } catch (err) {
+    writeError = `${l.name}: ${err instanceof Error ? err.message : String(err)}`
+    return false
+  }
+}
+
+async function writeLedger($: $T) {
+  const left: Ledger[] = []
+  for (const l of unwritten) if (!(await writeOne($, l))) left.push(l)
+  unwritten = left
+  if (ledger && isDirty && (await writeOne($, ledger))) isDirty = false
+  if (!unwritten.length && !isDirty) writeError = ''
+}
+
+function flush($: $T): Promise<void> {
+  writes = writes.then(() => writeLedger($)).catch(() => undefined)
+  return writes
+}
+
 function collect($: $T, make: (session: string) => MeasureRecord): Promise<void> {
   writes = writes.then(async () => {
     const session = await $.session.id()
+    // /clear changed the session: the old one's records go to their own file first
+    if (ledger && ledger.session !== session) {
+      await writeLedger($)
+      if (isDirty) unwritten = [...unwritten, ledger]
+      isDirty = false
+    }
     const current = await ledgerFor($, session)
     const records = mergeRecords(current.records, [make(session)])
     if (records.length === current.records.length) return
     ledger = { ...current, records }
-    await $.fs.write(current.path, serializeRecords(records, current.bad))
+    isDirty = true
   }).catch(() => undefined)
+  if (!isFlushQueued) {
+    $.clock.after(FLUSH_MS, () => { isFlushQueued = false; void flush($) })
+    isFlushQueued = true
+  }
   return writes
 }
 
@@ -194,8 +260,10 @@ async function loadPrices($: $T): Promise<Prices> {
 const priceWith = (lists: Version[]) => (r: MeasureRecord) => priceAt(r, lists)
 
 // This session's records from the collector's memory, every other session's read back from its file
+// A tab that reads the measurements opened: the session's file is written first, so the file holds
+// what the tab shows
 async function projectRecords($: $T): Promise<{ current: Ledger, others: MeasureRecord[][] }> {
-  await writes
+  await flush($)
   const current = await ledgerFor($, await $.session.id().catch(() => S.id))
   const dir = join(S.cwd, MEASURE_DIR)
   const entries = (await $.fs.exists(dir).catch(() => false)) ? await $.fs.list(dir).catch(() => []) : []
@@ -223,6 +291,7 @@ async function costData($: $T): Promise<CostData> {
     prices,
     unpriced: unpricedModels([current.records, ...read].flat(), prices.lists),
     models: modelCosts([current.records, ...read].flat(), prices.lists),
+    writeError,
   }
 }
 
@@ -279,7 +348,9 @@ async function mapData($: $T): Promise<MapData> {
 // turn to the next. Lines changed since the last commit and a chosen document's diff come from
 // git through the two closed argv of the core (NUMSTAT_ARGV, diffArgv): a read, no card needed.
 
-let turnChanges: { turn: string, paths: string[] } = { turn: '', paths: [] } // replaced, never mutated
+// Kept by the host in $.state (Z4): the documents tab reads it and is drawn again when it moves,
+// nothing else is; a reload keeps the turn's set
+const turnChanged = atom({ plugin: 'relai-panel', key: 'turnChanged' } as const, { turn: '', paths: [] as string[] })
 
 // The document open under the shelf: "<group>|<path>", the group it was opened from; '' for none
 const docPick = atom({ plugin: 'relai-panel', key: 'docPick' } as const, '')
@@ -317,13 +388,13 @@ async function runGit($: $T, argv: readonly string[]): Promise<{ text: string, e
 type Shelf = Omit<DocsData, 'now' | 'open'>
 
 // The shelf: the documents' listing and their line counts, one git
-async function docsShelf($: $T): Promise<Shelf> {
+async function docsShelf($: $T, changed: readonly string[]): Promise<Shelf> {
   const root = (await $.fs.list(S.cwd).catch(() => [])).filter((x) => x.kind === 'file' && (x.name === 'CLAUDE.md' || x.name === 'AGENTS.md'))
     .map((x) => ({ path: x.name, bytes: x.size, mtimeMs: x.mtimeMs }))
   const files = [...root, ...(await walkDocs($, 'docs', 1))]
   const counts = await runGit($, NUMSTAT_ARGV)
   const planDir = S.plan.kind === 'ok' && S.plan.statusPath.includes('/') ? S.plan.statusPath.slice(0, S.plan.statusPath.lastIndexOf('/')) : null
-  return { ...shelf(files, { planDir, changed: turnChanges.paths, counts: parseNumstat(counts.text) }), gitError: counts.error }
+  return { ...shelf(files, { planDir, changed: [...changed], counts: parseNumstat(counts.text) }), gitError: counts.error }
 }
 
 // The document open under the shelf: only what its mode draws — its diff (one git) or its text
@@ -343,8 +414,8 @@ async function docOpen($: $T, s: Shelf, pick: string, mode: 'diff' | 'preview'):
   return { group, doc, diff: null, diffError: '', preview: text === null ? null : previewOf(doc.path, text) }
 }
 
-async function docsData($: $T, key: string, pick: string, mode: 'diff' | 'preview'): Promise<DocsData> {
-  const s = await remember('docs', key, () => docsShelf($))
+async function docsData($: $T, key: string, pick: string, mode: 'diff' | 'preview', changed: readonly string[]): Promise<DocsData> {
+  const s = await remember('docs', key, () => docsShelf($, changed))
   const open = pick ? await remember('doc', `${key}|${pick}|${mode}`, () => docOpen($, s, pick, mode)) : null
   return { ...s, now: await $.clock.now(), open }
 }
@@ -606,6 +677,7 @@ export const register: Register = (on) => {
     const cwd = root ?? here
     S = { ...FRESH, id: await $.session.id(), cwd, isRelai, loadedAt: await $.clock.now() }
     memo = {}
+    planWatch = { paths: [], stamp: null }
     bump()
     // Registered everywhere, so outside RelAI the command can say so in one sentence (plan, section 8)
     await $.command.register({ name: 'relai-panel', description: 'Panel RelAI: formularze komend, ściąga i frazy sesji' }).catch(() => undefined)
@@ -682,10 +754,10 @@ export const register: Register = (on) => {
     const key = tab === 'costs' || tab === 'map' || tab === 'docs' ? `${await $.session.id()}|${epoch}` : ''
     const costs = tab === 'costs' ? await remember('costs', key, () => costData($)) : null
     const map = tab === 'map' ? await remember('map', key, () => mapData($)) : null
-    const [pickNow, modeNow, filterNow, layoutNow, pageNow] = tab === 'docs'
-      ? await Promise.all([read($, docPick), read($, docMode), read($, docFilter), read($, docLayout), read($, diffPage)])
-      : ['', 'diff' as const, 'changed' as const, 'tiles' as const, 0]
-    const docs = tab === 'docs' ? await docsData($, key, pickNow, modeNow) : null
+    const [pickNow, modeNow, filterNow, layoutNow, pageNow, changedNow] = tab === 'docs'
+      ? await Promise.all([read($, docPick), read($, docMode), read($, docFilter), read($, docLayout), read($, diffPage), read($, turnChanged)])
+      : ['', 'diff' as const, 'changed' as const, 'tiles' as const, 0, { turn: '', paths: [] as string[] }]
+    const docs = tab === 'docs' ? await docsData($, key, pickNow, modeNow, changedNow.paths) : null
     const body = tab === 'commands' ? commandsEtc().commandsView() : tab === 'sheet' ? commandsEtc().sheetView() : costs ? costsView(c, p, costs, {
       session: S, muted: mutedNow, preparePricing: () => { void preparePricing($) },
     }) : map ? mapView(c, p, map, {
@@ -746,16 +818,18 @@ export const register: Register = (on) => {
     if (!S.isRelai) return result
     // Documents (E6): a main turn's first step starts the turn's set of changed files over; every
     // step, a subagent's too, adds the paths its writing tools name (probe relai-probe-e6)
-    if (!e.agentId && turnChanges.turn !== e.turnId) {
-      if (turnChanges.paths.length) bump() // the shelf's "w tej turze" belonged to the last turn
-      turnChanges = { turn: e.turnId, paths: [] }
-    }
-    const named = result ? changedPaths(result.toolUses, S.cwd).filter((p) => !turnChanges.paths.includes(p)) : []
-    if (named.length) {
-      turnChanges = { ...turnChanges, paths: [...turnChanges.paths, ...named] }
-      bump()
-      $.ui.invalidate('ui.render')
-    }
+    // (Z4: a write of its own state draws the documents tab again, never the bands above the prompt)
+    // Reckoned inside the update, on the value as it stands: two agents' steps never lose a path
+    const toolPaths = result ? changedPaths(result.toolUses, S.cwd) : []
+    let isMoved = false
+    await update($, turnChanged, (was) => {
+      const base = !e.agentId && was.turn !== e.turnId ? { turn: e.turnId, paths: [] as string[] } : was
+      const named = toolPaths.filter((p) => !base.paths.includes(p))
+      if (base === was && !named.length) return was
+      isMoved = was.paths.length > 0 || named.length > 0
+      return { ...base, paths: [...base.paths, ...named] }
+    })
+    if (isMoved) bump() // the shelf's "w tej turze" moved
     const at = await $.clock.now()
     // No response at all (stopReason null): no request reached the API, nothing to measure.
     // A response without usage is a measurement missing, recorded as such.
@@ -790,8 +864,15 @@ export const register: Register = (on) => {
 
   on('turn.complete', async ($, e, next) => {
     const r = await next(e)
-    if (!S.isRelai || e.agentId) return r
-    await refresh($)
+    if (!S.isRelai) return r
+    // A subagent's turn too, before it returns: relai-progress reads its cost from the file
+    if (e.agentId) {
+      await flush($)
+      return r
+    }
+    void flush($)
+    // The plan if its files moved; the cost comes with session.measure, not asked again (Z4)
+    set({ plan: await readPlan($) })
     bump()
     $.ui.invalidate('ui.render')
     return r
@@ -806,14 +887,18 @@ export const register: Register = (on) => {
       const at = await $.clock.now()
       const stage = stageTag(S.plan)
       // A /compact outside a turn has no turn.complete after it: the costs read again on their own
-      void collect($, (session) => compactRecord({ session, agent: e.agentId ?? null, model: lastModel, at, usage, stage, task: e.agentId ? null : mainTask })).then(bump)
+      void collect($, (session) => compactRecord({ session, agent: e.agentId ?? null, model: lastModel, at, usage, stage, task: e.agentId ? null : mainTask })).then(() => flush($)).then(bump)
     }
     return r
   }).catch(($, e, next) => next(e))
 
   on('session.measure', async ($, e, next) => {
     if (S.isRelai) {
-      if (e.cost) set({ costUsd: e.cost.usd })
+      // The band's cost comes from here, not from usage() after the turn (Z4): drawn again when it moved
+      if (e.cost && e.cost.usd !== S.costUsd) {
+        set({ costUsd: e.cost.usd })
+        $.ui.invalidate('ui.render')
+      }
     }
     return next(e)
   })

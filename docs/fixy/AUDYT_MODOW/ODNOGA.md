@@ -130,9 +130,16 @@ Kolejność: najpierw fundamenty (Z3–Z5), bo bez nich nowe paski będą migać
       grupami i diffem 400 wierszy — 189 903 znaków / 19 Svg (przed: 1 515 831 / 417); Koszty
       z 14 agentami, 14 etapami i 400 wywołaniami — 190 566 / 30 Svg (przed: 373 968 / 57).
       **Zrzut z desktopu czeka** na pomiar na żywo (podłożenie `--plugin-dir` albo wydanie Z8).
-- [ ] Z4: w bezczynności przez 5 minut licznik `invalidate` trzech modów = liczba pełnych minut
+- [x] Z4: w bezczynności przez 5 minut licznik `invalidate` trzech modów = liczba pełnych minut
       zmiany napisu cache (test ticka z zegarem atrapy); `$.command.list()` nie jest wołane
       w rysowaniu (test).
+      Dowód: `cache-keeper/hooks/tick.test.ts` — 5 minut bezczynności: 5 `invalidate` (~60 → ~55;
+      przed zmianą zmierzone 10) i 0 zapisów `$.store`; 30 minut zimnego cache: 30 `invalidate`
+      (przed: 60); 90 minut bezczynności: 3 zapisy stanu — tura i dwa ostrzeżenia. `progress/hooks/progress.test.ts` „five idle minutes…”: 0 odczytów plików
+      (przed: 120), `command.list` poza rysowaniem; kontrola pozytywna w tym samym teście —
+      odhaczony punkt czytany przy następnym ticku. Panel nie ma ticka; `redraw.test.ts` „twenty
+      steps…”: 20 kroków tury z zapisem pliku — 0 `invalidate`, 0 odczytów `STATUS.md`, 0 zapisów
+      pliku pomiarów do końca tury.
 - [ ] Z5: `/clear` zeruje stan cache-keepera (test `session.end` z `reason: 'clear'`); Esc
       w strażniku nic nie wysyła; koszt agenta w `/relai-agents` = kwota tej samej pozycji
       w zakładce Koszty (test na wspólnych danych).
@@ -178,6 +185,26 @@ Jedna linia na zamkniętą paczkę; pełny wpis do `docs/DZIENNIK.md` dopiero w 
   mówi). Świadomie zostaje: liczby linii z `git` i `cennik.json` zmienione poza sesją (ręczny
   commit) odświeżają się dopiero wyborem zakładki albo po turze. Zrzut z desktopu dla budżetu
   drzewa czeka na pomiar na żywo.
+- **2026-10-10 · Z4 zamknięta** (Opus 5.5) — cache-keeper: tick przerysowuje pasek tylko, gdy
+  zmieniły się jego słowa (stempel: stan, liczba po prawej, kontekst, zapis, limity, koszt sesji,
+  pingi, przekazanie), stan zapisuje tylko po zmianie i co najmniej raz na 60 min (strażnik 2 h
+  w `restoreSnap`). progress: tick pyta o czasy (`$.fs.stat`) plików ostatniego odczytu i czyta je
+  tylko po zmianie; przebieg załogi czytany ponownie co 5 min, żeby po swoim oknie zszedł z paska;
+  `hasPanel` na starcie i raz po 2 s, nie w rysowaniu; `tool.call` oddaje wynik narzędzia od razu
+  (`$.clock.after(0)`); atom `agents` tylko po zmianie rysowanego; plik pomiarów parsowany
+  w panelu agentów tylko po zmianie. panel: `readText` jednym `$.fs.read`; plan w `turn.step`
+  czytany tylko po zmianie czasu `CLAUDE.md`/`STATUS.md` (stempel brany przed odczytem);
+  „zmienione w tej turze” w atomie `turnChanged` czytanym tylko przez zakładkę Dokumenty, bez
+  `invalidate` pasków; koszt z `session.measure` (przerysowanie, gdy się zmienił), bez
+  `$.session.usage()` po turze; kolektor w pamięci, plik zapisywany po turze (też subagenta —
+  przed jej zwrotem), po kompakcji, przy otwarciu zakładki z pomiarami i 5 s po ostatnim rekordzie;
+  sesja zostawiona przez `/clear` czeka na udany zapis; błąd zapisu słowami w Kosztach. Po recenzji
+  `typescript-reviewer` poprawione 9 z 10 uwag (dziesiąta: nazwa testu). Testy: `plugin test`
+  panel 78/78, progress 19/19, cache-keeper 21/21 (+ 8 testów Z9 jeszcze poza commitem), `tsc`
+  0 błędów, `validate` ×3, `node --test` 263/263; kontrola pozytywna testu wygasania załogi —
+  przy wyłączonym ponownym odczycie test pada. **Świadomie zostaje:** koszt działającego agenta
+  w panelu agentów spóźnia się do 5 s; cache-keeper nadal pyta `$.session.usage()` po turze
+  (karta wymieniała tylko panel).
 
 ## Wynik
 

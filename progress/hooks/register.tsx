@@ -64,36 +64,73 @@ async function relaiRoot($: $T, cwd: string): Promise<string | null> {
   return null
 }
 
+// The files the last read went through, and their times then (AUDYT_MODOW Z4): a tick asks the
+// times first and reads the files only when one moved, so an idle session reads nothing
+let watched: string[] = []
+let seen = ''
+
+async function stampOf($: $T, paths: readonly string[]): Promise<string> {
+  const marks = await Promise.all(paths.map((p) => $.fs.stat(p).then((s) => `${s.mtimeMs}:${s.size}`, () => '-')))
+  return marks.join('|')
+}
+
 // The newest /relai-crew run (run ids sort by time), if any is live
-async function readCrew($: $T): Promise<Progress | null> {
+async function readCrew($: $T, text: (path: string) => Promise<string | null>): Promise<Progress | null> {
   const dir = join(cwd, CREW_DIR)
   if (!(await $.fs.exists(dir).catch(() => false))) return null
   const runs = (await $.fs.list(dir).catch(() => [])).filter((x) => x.kind === 'dir').map((x) => x.name).sort()
   const run = runs[runs.length - 1]
   if (!run) return null
-  const [tasks, manifest] = await Promise.all([readText($, join(dir, `${run}/zadania.json`)), readText($, join(dir, `${run}/manifest.json`))])
+  const [tasks, manifest] = await Promise.all([text(join(dir, `${run}/zadania.json`)), text(join(dir, `${run}/manifest.json`))])
   return crewProgress(run, tasks, manifest, await $.clock.now())
 }
 
 async function readProgress($: $T): Promise<Progress> {
-  const claude = await readText($, join(cwd, 'CLAUDE.md'))
-  const plan = await planState(claude, (rel) => readText($, join(cwd, rel)))
+  // The crew folder itself is watched: a new run moves its time
+  const paths: string[] = [join(cwd, CREW_DIR)]
+  const text = (path: string) => { paths.push(path); return readText($, path) }
+  const claude = await text(join(cwd, 'CLAUDE.md'))
+  const plan = await planState(claude, (rel) => text(join(cwd, rel)))
   let promptText: string | null = null
   let link: string | null = null
   if (plan.kind === 'ok' && plan.stage) {
-    const statusMd = await readText($, join(cwd, plan.statusPath))
+    const statusMd = await text(join(cwd, plan.statusPath))
     link = statusMd === null ? null : promptLink(statusMd, plan.stage.id, plan.statusPath)
-    promptText = link === null ? null : await readText($, join(cwd, link))
+    promptText = link === null ? null : await text(join(cwd, link))
   }
-  return pick(await readCrew($), stageProgress(plan, promptText, link ?? 'prompt'))
+  const crew = await readCrew($, text)
+  watched = [...new Set(paths)]
+  return pick(crew, stageProgress(plan, promptText, link ?? 'prompt'))
 }
 
-// Reads the files again; writes the value only when it changed, so an idle tick redraws nothing
-async function refresh($: $T) {
+// Reads the files again when one moved (or always, when forced); writes the value only when it
+// changed, so an idle tick redraws nothing
+// A crew run is live for a window of time (crewProgress): shown, it is read again every
+// CREW_RECHECK_MS even when no file moved, so a run that died leaves the bar
+const CREW_RECHECK_MS = 5 * 60_000
+let crewReadAt = 0
+
+async function refresh($: $T, isForced = false) {
   if (!isRelai) return
+  const clockNow = await $.clock.now()
+  // The times are taken before the read: a file that moves during it is read again next time
+  const before = watched.length ? await stampOf($, watched) : ''
+  const isCrewDue = crewReadAt > 0 && clockNow - crewReadAt >= CREW_RECHECK_MS
+  if (!isForced && !isCrewDue && watched.length && before === seen) return
+  const old = watched
   const now = await readProgress($)
+  seen = old.length === watched.length && old.every((p, i) => p === watched[i]) ? before : await stampOf($, watched)
+  crewReadAt = now.kind === 'crew' ? clockNow : 0
   const was = await read($, progress)
   if (JSON.stringify(was) !== JSON.stringify(now)) await update($, progress, () => now)
+}
+
+// Whether relai-panel runs in the session, asked once at the start and once more a moment later
+// (its command may register after ours), never while the bar draws (Z4)
+let hasPanel = false
+const PANEL_CHECK_MS = 2_000
+async function findPanel($: $T): Promise<boolean> {
+  return (await $.command.list().catch(() => [])).some((c) => c.name === 'relai-panel')
 }
 
 // This session's records of relai-panel's collector; [] when it does not measure this session
@@ -103,8 +140,14 @@ async function sessionRecords($: $T): Promise<MeasureRecord[] | null> {
   const session = await $.session.id().catch(() => '')
   const file = (await $.fs.list(dir).catch(() => [])).find((x) => x.kind === 'file' && isFileOf(x.name, session))
   if (!file) return null
-  return parseRecords(await readText($, join(dir, file.name))).records
+  // Parsed again only when the file moved (Z4): the pane draws after each agent's step
+  const key = `${file.name}|${file.size}|${file.mtimeMs}`
+  if (parsed && parsed.key === key) return parsed.records
+  const records = parseRecords(await readText($, join(dir, file.name))).records
+  parsed = { key, records }
+  return records
 }
+let parsed: { key: string, records: MeasureRecord[] } | null = null
 
 async function togglePane($: $T): Promise<string> {
   if ((await $.ui.panes()).some((p) => p.id === PANE_ID)) {
@@ -130,6 +173,9 @@ const PANEL_BUTTON_CELLS = 16 // "Panel RelAI" as a native button, and a gap
 
 const ITEM_WORD: Record<string, string> = { done: 'ukończone', pending: 'oczekuje', running: 'w toku', failed: 'błąd albo timeout', unknown: 'stan nieznany' }
 
+// What the pane and the chip draw of an agent, as drawn: its context in the band's own words
+const drawnOf = (a: AgentRun) => [a.id, a.status, a.steps, tokens(a.context), a.model, a.endedAt ?? null]
+
 const STATUS_WORD: Record<AgentRun['status'], string> = { running: '● działa', done: '✓ zakończony', stopped: '■ przerwany', failed: '✗ błąd' }
 const STATUS_COLOR: Record<AgentRun['status'], string> = { running: THEME.mark, done: THEME.ok, stopped: THEME.body, failed: THEME.accentText }
 
@@ -142,7 +188,11 @@ export const register: Register = (on) => {
     // Registered everywhere, so outside RelAI the command can say so in one sentence
     await $.command.register({ name: 'relai-agents', description: 'Panel agentów RelAI: uruchomieni i zakończeni, model, kontekst i koszt' }).catch(() => undefined)
     if (!isRelai) return next(e)
-    await refresh($)
+    await refresh($, true)
+    hasPanel = await findPanel($)
+    $.clock.after(PANEL_CHECK_MS, () => {
+      findPanel($).then((x) => { if (x !== hasPanel) { hasPanel = x; $.ui.invalidate('ui.render') } }).catch(() => undefined)
+    })
     if (!ticking) {
       ticking = true
       $.clock.every(TICK_MS, () => { refresh($).catch(() => undefined) })
@@ -157,16 +207,18 @@ export const register: Register = (on) => {
       if (root !== null) {
         isRelai = true
         cwd = root
+        hasPanel = await findPanel($)
       }
     }
     if (!isRelai) return { text: 'Ten folder nie jest projektem RelAI, więc panel agentów nie ma czego pokazać.' }
     return { text: await togglePane($) }
   })
 
-  // A box ticked by an edit shows at once, not at the next tick
+  // A box ticked by an edit shows at once, not at the next tick — after the tool's answer has gone
+  // back, never holding it (Z4)
   on('tool.call', { tool: EDIT_TOOLS }, async ($, e, next) => {
     const r = await next(e)
-    if (isRelai) await refresh($).catch(() => undefined)
+    if (isRelai) $.clock.after(0, () => { refresh($).catch(() => undefined) })
     return r
   }).catch(($, e, next) => next(e))
 
@@ -184,7 +236,10 @@ export const register: Register = (on) => {
     const id = e.agentId
     if (!isRelai || !id || !result || !result.usage) return result
     const usage = result.usage
-    await update($, agents, (list) => [...stepped(list, id, usage)])
+    // Written only when something drawn moved (Z4): the pane's and the chip's words, not each token
+    const list = await read($, agents)
+    const after = stepped(list, id, usage)
+    if (JSON.stringify(after.map(drawnOf)) !== JSON.stringify(list.map(drawnOf))) await update($, agents, () => [...after])
     return result
   })
 
@@ -195,6 +250,8 @@ export const register: Register = (on) => {
     if (id) {
       const at = await $.clock.now()
       await update($, agents, (list) => [...finished(list, id, e.reason, at)])
+      // relai-panel writes the agent's measurements when its turn ends: the pane reads them again
+      $.clock.after(1_000, () => { $.ui.invalidate('ui.render') })
     } else {
       await refresh($)
     }
@@ -318,7 +375,6 @@ export const register: Register = (on) => {
     const list = await read($, agents)
     const { running } = counts(list)
     // The side pane of RelAI is relai-panel's: its command opens it, when that plugin runs here
-    const hasPanel = (await $.command.list().catch(() => [])).some((c) => c.name === 'relai-panel')
     const openPanel = hasPanel
       ? <Button key="open-panel" label="Panel RelAI" variant="secondary" onPress={() => { $.command.run({ command: 'relai-panel', args: '' }).catch(() => undefined) }} />
       : null

@@ -45,13 +45,24 @@ const PANE = (bodyColumns = 100) => ({
 function world(on: On, files: Record<string, string>, here = CWD) {
   const disk: Record<string, string> = { ...files }
   const key = (path: string) => path.replace(/\\/g, '/')
+  const n = { read: 0, stat: 0 } // what the idle ticks cost (AUDYT_MODOW Z4)
   const clock = mock.clock(on, { now: NOW })
   mock.store(on, {})
   on('session.start', ($, e) => ({ cwd: e.cwd }))
   on('session.cwd', () => ({ value: here }))
   on('session.id', () => ({ value: SESSION }))
   on('fs.exists', ($, e) => ({ value: key(e.path) in disk || Object.keys(disk).some((p) => p.startsWith(key(e.path) + '/')) }))
-  on('fs.read', ($, e) => (key(e.path) in disk ? { value: disk[key(e.path)] ?? '' } : { deny: 'ENOENT ' + e.path }))
+  on('fs.read', ($, e) => { n.read += 1; return key(e.path) in disk ? { value: disk[key(e.path)] ?? '' } : { deny: 'ENOENT ' + e.path } })
+  // A file's time moves with its text: the same text, the same stamp
+  const stampOf = (text: string) => [...text].reduce((h, c) => (h * 31 + c.charCodeAt(0)) >>> 0, 7)
+  on('fs.stat', ($, e) => {
+    n.stat += 1
+    const k = key(e.path)
+    if (k in disk) return { value: { kind: 'file' as const, size: (disk[k] ?? '').length, mtimeMs: stampOf(disk[k] ?? ''), isLink: false } }
+    const below = Object.keys(disk).filter((p) => p.startsWith(k + '/'))
+    if (below.length) return { value: { kind: 'dir' as const, size: 0, mtimeMs: stampOf(below.join('|')), isLink: false } }
+    return { deny: 'ENOENT ' + e.path }
+  })
   on('fs.list', ($, e) => {
     const dir = key(e.path ?? '') + '/'
     const below = Object.keys(disk).filter((p) => p.startsWith(dir)).map((p) => p.slice(dir.length))
@@ -73,7 +84,7 @@ function world(on: On, files: Record<string, string>, here = CWD) {
     const { Box, Text } = $.ui.resolve(e)
     return Box({ key: 'engine', children: [Text({ children: ['engine'] })] })
   })
-  return { disk, clock }
+  return { disk, clock, n }
 }
 
 async function start($: Engine) {
@@ -376,5 +387,63 @@ describe('the agents pane', () => {
     expect(card?.props.borderStyle).toBe('round')
     expect(await gui.find({ key: 'tasks-card' })).toBeDefined()
     await gui.unmount()
+  })
+})
+
+describe('the progress mod idles quietly (AUDYT_MODOW Z4)', () => {
+  test('five idle minutes: the ticks look at the files\' times and read nothing; a changed file is read at the next tick', async ($, on) => {
+    const { disk, clock, n } = world(on, FILES)
+    let lists = 0
+    on('command.list', () => { lists += 1; return { value: [{ name: 'relai-panel', description: 'Panel RelAI', source: 'plugin' as const }] } })
+    await start($)
+    const ui = await $.ui.mount({ plugin: 'relai-progress', surface: 'desktop', ...BAND() })
+    expect((await ui.find({ key: 'words' }))?.text).toBe('2 z 4 · 50.00%')
+    const before = { read: n.read, lists }
+    await clock.advance(5 * 60_000)
+    expect(n.read - before.read).toBe(0)
+    // Drawing the bar again asks nothing of the session's commands (asked at the start and once
+    // a moment later, PANEL_CHECK_MS, outside any drawing)
+    expect(lists - before.lists).toBe(1)
+    await ui.unmount()
+    const again = await $.ui.mount({ plugin: 'relai-progress', surface: 'desktop', ...BAND() })
+    expect(await again.find({ key: 'open-panel' })).toBeDefined()
+    expect(lists - before.lists).toBe(1)
+    // Positive control on the same instrument: a box ticked by hand is read at the next tick
+    disk[`${CWD}/docs/plany/PANEL_CLAUDE/PROMPT_ETAP_9.md`] = PROMPT.replace('- [ ] trzy', '- [x] trzy')
+    await clock.advance(11_000)
+    expect(n.read - before.read).toBeGreaterThan(0)
+    expect((await again.find({ key: 'words' }))?.text).toBe('3 z 4 · 75.00%')
+    await again.unmount()
+  })
+
+  test('an edit does not wait for the progress: the tool returns first, the bar follows', async ($, on) => {
+    const { disk, clock } = world(on, FILES)
+    on('tool.call', { tool: 'Edit' }, () => ({ result: 'ok' }) as never)
+    await start($)
+    const ui = await $.ui.mount({ plugin: 'relai-progress', surface: 'terminal', ...BAND() })
+    disk[`${CWD}/docs/plany/PANEL_CLAUDE/PROMPT_ETAP_9.md`] = PROMPT.replace('- [ ] trzy', '- [x] trzy')
+    await $.tool.call({ tool: 'Edit', file_path: `${CWD}/x.md`, old_string: 'a', new_string: 'b' } as never)
+    // The tool's answer came back before the progress was read: the bar still shows the old count
+    expect((await ui.find({ key: 'words' }))?.text).toBe('2 z 4 · 50.00%')
+    await clock.settle()
+    expect((await ui.find({ key: 'words' }))?.text).toBe('3 z 4 · 75.00%')
+    await ui.unmount()
+  })
+})
+
+describe('a crew run that went quiet leaves the bar (AUDYT_MODOW Z4, review)', () => {
+  test('no file moves, yet past its window the run is read again and the stage returns', async ($, on) => {
+    const updated = new Date(NOW - (12 * 60 - 10) * 60_000).toISOString() // ten minutes before the window closes
+    const { clock } = world(on, {
+      ...FILES,
+      [`${CWD}/.claude/relai/work/CREW/2026-10-09_000000/zadania.json`]: JSON.stringify([{ id: 'a' }, { id: 'b' }]),
+      [`${CWD}/.claude/relai/work/CREW/2026-10-09_000000/manifest.json`]: JSON.stringify({ updatedAt: updated, tasks: [{ id: 'a', status: 'done' }] }),
+    })
+    await start($)
+    const ui = await $.ui.mount({ plugin: 'relai-progress', surface: 'terminal', ...BAND() })
+    expect((await ui.find({ key: 'title' }))?.text).toContain('załoga')
+    await clock.advance(20 * 60_000)
+    expect((await ui.find({ key: 'words' }))?.text).toBe('2 z 4 · 50.00%')
+    await ui.unmount()
   })
 })

@@ -17,7 +17,7 @@ export type Unpriced = { model: string, records: number }
 
 export type Prices = { lists: Version[], error: string, date: string, source: string, saved: number, warning: string }
 
-export type CostData = { report: Report, records: MeasureRecord[], series: TurnCost[], calls: CallCost[], effect: ReturnType<typeof cacheEffect>, project: ProjectSum, file: string, stages: StageCosts, prices: Prices, unpriced: Unpriced[], models: ReturnType<typeof modelCosts> }
+export type CostData = { report: Report, records: MeasureRecord[], series: TurnCost[], calls: CallCost[], effect: ReturnType<typeof cacheEffect>, project: ProjectSum, file: string, stages: StageCosts, prices: Prices, unpriced: Unpriced[], models: ReturnType<typeof modelCosts>, writeError: string }
 
 // untaggedSince: the local day ("YYYY-MM-DD") of the first measurement without a stage tag, if any
 export type MapData = { nodes: PlanNode[], runs: CrewRun[], merges: Merges, cost: StageCosts, tasks: ReturnType<typeof taskCosts>, active: string | null, untaggedSince: string | null, prices: Prices }

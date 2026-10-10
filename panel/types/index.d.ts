@@ -62,6 +62,9 @@ declare module 'claude-code' {
       /** AUDYT_MODOW Z3: the page of the open document's diff, 0 for the first; back to 0 when
        * another document opens. */
       diffPage: number
+      /** AUDYT_MODOW Z4: the paths the writing tools of the main turn named (subagents' too), with
+       * the turn they belong to; only the documents tab reads it. */
+      turnChanged: { turn: string, paths: string[] }
     }
   }
 }
