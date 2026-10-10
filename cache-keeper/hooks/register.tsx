@@ -12,7 +12,8 @@ import { basename, clip, clock, fileStamp, limitsText, minutes, tokens, usd } fr
 import { BAND, BAR } from './relai/theme.mjs'
 import { ancestors } from './relai/plan-state.mjs'
 import { PLAIN_HANDOFF_PROMPT, RELAI_CONTINUE, RELAI_HANDOFF_PROMPT, continuePrompt, plainBody, relaiDone, relaiFreshPrompt } from './handoff'
-import { PRICE_SOURCE, requestCost, rewriteCost, totalInput, type Usage } from './pricing'
+import { PRICE_FILE } from './relai/pricing.mjs'
+import { BUILT_IN, priceSource, pricesFrom, requestCost, rewriteCost, totalInput, type Prices, type Usage } from './pricing'
 
 type $T = EngineInterface
 type Limit = { kind: string; percentUsed: number }
@@ -61,8 +62,10 @@ let home = ''
 let names = { cache: 'cache', keepwarm: 'keepwarm', handoff: 'handoff' }
 let pinging = false // one fork at a time, however long it takes
 let skipPingUntil = 0 // after a reload the turn state is unknown for one tick
+let prices: Prices = BUILT_IN // the core's list laid over by the project's cennik.json (Z5)
 
 const set = (patch: Partial<Session>) => { S = { ...S, ...patch } }
+const rewriteAt = (tokens: number) => rewriteCost(tokens, S.model, ttl(), prices)
 const setH = (patch: Partial<Handoff>) => { H = { ...H, ...patch } }
 const ttl = () => settings.ttlMin || S.ttlMeasured || 60
 const ttlAssumed = () => !settings.ttlMin && !S.ttlMeasured
@@ -110,6 +113,40 @@ async function detectRelai($: $T, cwd: string): Promise<boolean> {
   } catch {
     return false
   }
+}
+
+// The project's saved price list (Z5), read from the project root at session.start and on /cache;
+// outside a RelAI project, without the file or when it cannot be read: the built-in list
+async function loadPrices($: $T) {
+  if (!S.isRelai || !S.cwd) {
+    prices = BUILT_IN
+    return
+  }
+  const path = `${S.cwd}/${PRICE_FILE}`.replace(/\\/g, '/')
+  const text = await $.fs.exists(path).then((isThere) => (isThere ? $.fs.read(path) : null)).catch(() => null)
+  prices = pricesFrom(text)
+}
+
+// A /clear ends the conversation the state measured; the process goes on under a new id and no
+// session.start fires (P-020 point 4). FRESH under that id, keeping what belongs to the process;
+// a handoff clearing on purpose goes on. A kept cache stops: it belonged to the old conversation.
+function resetSession($: $T, id: string) {
+  stopKeepWarm($, 'nowa rozmowa')
+  S = { ...FRESH, id, cwd: S.cwd, model: S.model, isRelai: S.isRelai, rateLimits: S.rateLimits }
+  if (H.phase !== 'continuing') H = IDLE
+  $.ui.invalidate('ui.render')
+}
+
+// The guard where the state is used: an id that changed under the keeper (a /clear session.end
+// did not report, a /resume) resets it before anything reads the old conversation's figures
+async function followSession($: $T) {
+  const id = await $.session.id().catch(() => '')
+  if (!id || id === S.id) return
+  if (!S.id) {
+    set({ id })
+    return
+  }
+  resetSession($, id)
 }
 
 async function registerCommand($: $T, name: string, description: string, argumentHint: string): Promise<string> {
@@ -160,7 +197,7 @@ async function keepWarmStep($: $T, now: number) {
     const reply = await $.model.fork({ prompt: 'relai-cache-keeper keep-alive ping. Reply with only: ok' }).catch(() => null)
     if (!reply || !reply.isAnswered || !reply.usage) return stopKeepWarm($, 'ping bez odpowiedzi, cache mógł już wygasnąć')
     const u = reply.usage as Usage
-    set({ pings: S.pings + 1, pingUsd: S.pingUsd + (requestCost(u, S.model, ttl()) ?? 0) })
+    set({ pings: S.pings + 1, pingUsd: S.pingUsd + (requestCost(u, S.model, ttl(), prices) ?? 0) })
     if (pingMissed(u)) return stopKeepWarm($, `ping zapisał ${tokens(u.cache_creation_input_tokens || 0)} tokenów zamiast odczytać cache`)
     set({ lastActivity: await $.clock.now() })
   } finally {
@@ -180,7 +217,7 @@ function warnStep($: $T, now: number) {
   set({ announcedFor: S.lastActivity, announced: [...announced, ...settings.warnMin.filter((m) => m >= due)] })
   const assumed = ttlAssumed() ? ' (TTL założony, nie zmierzony)' : ''
   $.ui.toast(
-    `Cache ${tokens(S.ctx)} tokenów wygaśnie za ~${minutes(left)}${assumed}. Ponowny zapis ≈ ${usd(rewriteCost(S.ctx, S.model, ttl()))}. /${names.keepwarm} albo klawisz 1 na pasku podtrzyma go.`,
+    `Cache ${tokens(S.ctx)} tokenów wygaśnie za ~${minutes(left)}${assumed}. Ponowny zapis ≈ ${usd(rewriteAt(S.ctx))}. /${names.keepwarm} albo przycisk „Podtrzymaj” na pasku podtrzyma go.`,
     { timeoutMs: 15_000 },
   )
 }
@@ -192,11 +229,12 @@ function warnStep($: $T, now: number) {
 let drawnStamp = ''
 const bandStamp = (now: number) => {
   const st = state(now)
-  return JSON.stringify([st.kind, cacheFigure(st, ttlAssumed() ? '~' : ''), tokens(S.ctx), S.ctx >= settings.bigTokens, usd(rewriteCost(S.ctx, S.model, ttl())),
+  return JSON.stringify([st.kind, cacheFigure(st, ttlAssumed() ? '~' : ''), tokens(S.ctx), S.ctx >= settings.bigTokens, usd(rewriteAt(S.ctx)),
     limitsText(S.rateLimits), usd(S.costUsd), S.pings, usd(S.pingUsd), H.phase])
 }
 
 async function tick($: $T) {
+  await followSession($)
   const now = await $.clock.now()
   await keepWarmStep($, now)
   warnStep($, now)
@@ -279,6 +317,25 @@ async function clearAndContinue($: $T, text?: string) {
   $.ui.invalidate('ui.render')
 }
 
+// "Najpierw compact, potem wyślij" (Z5): a vetoed compaction resolves { skip }, a refused one
+// rejects; either way sending would write the whole context again, so nothing is sent
+async function compactThenSend($: $T, text: string) {
+  const failed = await $.session.compact().then(
+    (r) => ('skip' in r && r.skip ? r.skip : ''),
+    (err) => String((err as Error)?.message || err) || 'błąd kompakcji',
+  )
+  if (failed) {
+    $.ui.toast(`Kompakcja nie powiodła się (${clip(failed, 100)}) — nic nie wysłano.`, { timeoutMs: 10_000 })
+    return
+  }
+  try {
+    await $.prompt.submit({ text, asUser: true })
+  } catch {
+    const filled = await $.prompt.fill({ text }).then((r) => !!r.isFilled, () => false)
+    $.ui.toast(filled ? 'Kompakcja gotowa. Wiadomość czeka w polu — naciśnij Enter.' : 'Kompakcja gotowa, ale wiadomości nie udało się wysłać.', { timeoutMs: 10_000 })
+  }
+}
+
 // ---------- texts ----------
 
 function statusText(now: number): string {
@@ -288,13 +345,13 @@ function statusText(now: number): string {
   ]
   if (st.kind === 'unknown') lines.push('W tej sesji nie było jeszcze zapytania, stan cache nieznany.')
   if (st.kind === 'warm' || st.kind === 'cooling') lines.push(`Cache ciepły jeszcze ~${minutes(st.left)}.`)
-  if (st.kind === 'cold') lines.push(`Cache prawdopodobnie zimny od ${minutes(-st.left)}. Następna wiadomość zapisze go ponownie za ≈ ${usd(rewriteCost(S.ctx, S.model, ttl()))}.`)
+  if (st.kind === 'cold') lines.push(`Cache prawdopodobnie zimny od ${minutes(-st.left)}. Następna wiadomość zapisze go ponownie za ≈ ${usd(rewriteAt(S.ctx))}.`)
   if (S.keepWarm) lines.push(`Podtrzymanie do ${clock(S.keepWarmUntil)}: ${S.pings} pingów, ${usd(S.pingUsd)}.`)
   if (S.rateLimits.length) lines.push(`Limity planu: ${limitsText(S.rateLimits)}.`)
   lines.push(`Sesja ≈ ${usd(S.costUsd)} (hipotetycznie wg cennika API). Ponowne zapisy cache: ${S.rewrites} (${usd(S.rewriteUsd)}).`)
   lines.push(`Strażnik: ${settings.guard ? 'on' : 'off'} od ${tokens(settings.bigTokens)}. Alerty: ${settings.alerts ? 'on' : 'off'} od ${tokens(settings.alertTokens)}, progi ${settings.warnMin.join(' i ')} min. Projekt RelAI: ${S.isRelai ? 'tak' : 'nie'}.`)
   lines.push(`Ustawienia: /${names.cache} ttl 5|60|auto · straznik on|off · prog 150k · alerty on|off · progi 10,5 · godziny 4 · limit 90`)
-  lines.push(`Cennik: ${PRICE_SOURCE}. Koniec odliczania nie dowodzi utraty cache — to prognoza z TTL.`)
+  lines.push(`Cennik: ${priceSource(prices)}. Koniec odliczania nie dowodzi utraty cache — to prognoza z TTL.`)
   return lines.join('\n')
 }
 
@@ -356,7 +413,7 @@ function band($: $T, e: Resolved, columns: number, now: number) {
     : st.kind === 'cooling' ? <Text key="state" bold color={BAND.panel.color}>Cache stygnie</Text>
     : st.kind === 'cold' ? <Text key="state" bold color={big ? BAND.cache.color : BAR.muted}>Cache zimny</Text>
     : <Text key="state" color={BAR.muted}>Cache nieznany</Text>
-  const rewrite = usd(rewriteCost(S.ctx, S.model, ttl()))
+  const rewrite = usd(rewriteAt(S.ctx))
   const meta = [
     st.kind === 'cold' && big
       ? <Text key="ctx" color={BAND.cache.color}>{`${tokens(S.ctx)} · następne wysłanie zapisze ponownie ≈ ${rewrite}`}</Text>
@@ -368,16 +425,16 @@ function band($: $T, e: Resolved, columns: number, now: number) {
   }
   meta.push(<Text key="session" color={BAR.muted}>{`sesja ≈ ${usd(S.costUsd)}`}</Text>)
   // Native buttons side by side (no plain: on a painted background it inverts under the cursor,
-  // P-018); what each one does, its hotkey and its states are unchanged
+  // P-018). No digit hotkey: a bare digit in an empty composer would press it (Z5); letters stay
   const actions = []
   if (st.kind === 'cooling' || (st.kind === 'warm' && big)) {
-    actions.push(<Button key="keepwarm" label="Podtrzymaj" hotkey="1" variant="secondary" onPress={async () => {
+    actions.push(<Button key="keepwarm" label="Podtrzymaj" variant="secondary" onPress={async () => {
       const text = startKeepWarm($, await $.clock.now(), settings.keepWarmHours)
       if (!S.keepWarm) $.ui.toast(text, { timeoutMs: 10_000 })
       $.ui.invalidate('ui.render')
     }} />)
   } else if (st.kind === 'kept') {
-    actions.push(<Button key="keepwarm" label="Zatrzymaj" hotkey="1" variant="secondary" onPress={() => { stopKeepWarm($, 'wyłączone ręcznie'); $.ui.invalidate('ui.render') }} />)
+    actions.push(<Button key="keepwarm" label="Zatrzymaj" variant="secondary" onPress={() => { stopKeepWarm($, 'wyłączone ręcznie'); $.ui.invalidate('ui.render') }} />)
   }
   if (H.phase === 'ready') actions.push(<Button key="continue" label="Wyczyść i kontynuuj" hotkey="c" variant="secondary" onPress={() => clearAndContinue($)} />)
   const label = H.phase === 'running' ? 'Przekazanie trwa' : H.phase === 'continuing' ? 'Czyszczę' : S.isRelai ? 'Przekaż (RelAI)' : 'Przekaż'
@@ -403,6 +460,7 @@ export const register: Register = (on) => {
     const root = await relaiRoot($, here)
     S = { ...FRESH, id: await $.session.id(), cwd: root ?? here, model: await $.session.model(), isRelai: root !== null }
     settings = mergeSettings(await $.store.get(STORE_SETTINGS))
+    await loadPrices($)
     await restoreSnap($, now)
     names = {
       cache: await registerCommand($, 'cache', 'Stan cache promptu i ustawienia relai-cache-keeper', '[ttl 5|60|auto] [straznik on|off] [prog 150k] [alerty on|off] [progi 10,5]'),
@@ -413,21 +471,20 @@ export const register: Register = (on) => {
     return next(e)
   })
 
-  // /clear, /resume and /branch start from an unknown cache under a new session id
-  on('classic.SessionStart', { source: ['clear', 'resume', 'fork'] }, async ($, e, next) => {
-    const id = await $.session.id().catch(() => S.id)
-    S = { ...FRESH, id, cwd: S.cwd, model: S.model, isRelai: S.isRelai, rateLimits: S.rateLimits }
-    if (H.phase !== 'continuing') H = IDLE
-    $.ui.invalidate('ui.render')
-    return next(e)
-  })
-
+  // The ending conversation's snapshot goes; a /clear starts the keeper afresh (Z5). The new id
+  // may not answer yet: then the next followSession adopts it without another reset
   on('session.end', async ($, e, next) => {
-    if (S.id) await $.store.delete(snapKey())
+    const ending = e.sessionId || S.id
+    if (ending) await $.store.delete('snap:' + ending).catch(() => {})
+    if (e.reason === 'clear') {
+      const id = await $.session.id().catch(() => '')
+      resetSession($, id !== ending ? id : '')
+    }
     return next(e)
   })
 
   on('prompt.submit', async ($, e, next) => {
+    await followSession($)
     const fromUser = e.origin.kind === 'composer' || e.origin.kind === 'bridge'
     // A new typed message makes a waiting handoff out of date
     if (fromUser && H.phase === 'ready' && !e.text.trim().startsWith('/')) {
@@ -438,17 +495,22 @@ export const register: Register = (on) => {
     const left = msLeft(S.lastActivity, ttl(), now)
     const isCold = left !== null && left <= 0 && !S.keepWarm
     if (!settings.guard || !fromUser || !isCold || S.ctx < settings.bigTokens || e.turnId || e.text.trim().startsWith('/')) return next(e)
-    const cost = usd(rewriteCost(S.ctx, S.model, ttl()))
+    const cost = usd(rewriteAt(S.ctx))
     const fresh = 'Świeży czat RelAI (/clear + „kontynuujemy pracę”)'
-    const options = ['Wyślij mimo to', 'Najpierw compact, potem wyślij', ...(S.isRelai ? [fresh] : []), 'Anuluj']
+    const compactFirst = 'Najpierw compact, potem wyślij'
+    const options = ['Wyślij mimo to', compactFirst, ...(S.isRelai ? [fresh] : []), 'Anuluj']
+    // A dismissed question (Esc) rejects the ask: it means "Anuluj", never a paid rewrite (Z5)
     const answer = await $.ui.ask(
       `Cache prawdopodobnie wygasł ${minutes(-(left ?? 0))} temu. Wysłanie zapisze ponownie ${tokens(S.ctx)} tokenów kontekstu (≈ ${cost} wg cennika API). Co zrobić?`,
       options,
-    ).catch(() => 'Wyślij mimo to')
+    ).catch(() => 'Anuluj')
     if (answer === 'Wyślij mimo to') return next(e)
-    if (answer === 'Najpierw compact, potem wyślij') {
-      await $.session.compact().catch(() => undefined)
-      return next(e)
+    if (answer === compactFirst) {
+      // The engine refuses $.session.compact inside prompt.submit (it would wait on the turn this
+      // hook holds; 2.1.295): the message waits, the compaction runs after, then it is sent
+      later($, () => compactThenSend($, e.text))
+      $.ui.toast('Najpierw kompakcja, potem wyślę tę wiadomość.', { timeoutMs: 8000 })
+      return { drop: 'relai-cache-keeper: wiadomość wyślę po kompakcji' }
     }
     if (answer === fresh) {
       later($, () => clearAndContinue($, relaiFreshPrompt(e.text)))
@@ -465,6 +527,7 @@ export const register: Register = (on) => {
 
   // Each main-loop request: did it read the cache or rewrite it?
   on('turn.step', async function* ($, e, next) {
+    if (!e.agentId) await followSession($)
     const startedAt = await $.clock.now()
     const result = yield* next(e)
     if (e.agentId || !result || !result.usage) return result
@@ -473,7 +536,7 @@ export const register: Register = (on) => {
     const gap = S.lastActivity ? startedAt - S.lastActivity : 0
     const verdict = judgeStep(u, gap, !!S.lastActivity, S.justCompacted, ttl())
     if (verdict.kind === 'rewrite') {
-      set({ rewrites: S.rewrites + 1, rewriteUsd: S.rewriteUsd + (rewriteCost(u.cache_creation_input_tokens || 0, S.model, ttl()) ?? 0) })
+      set({ rewrites: S.rewrites + 1, rewriteUsd: S.rewriteUsd + (rewriteAt(u.cache_creation_input_tokens || 0) ?? 0) })
     }
     if (verdict.ttlMeasured === 60) set({ ttlMeasured: 60, shortTtlRewrites: 0 })
     if (verdict.ttlMeasured === 5) {
@@ -532,6 +595,7 @@ export const register: Register = (on) => {
   on('command.run', { command: ['cache', 'ckp-cache'] }, async ($, e) => {
     const now = await $.clock.now()
     const [key, ...rest] = String(e.args || '').trim().split(/\s+/).filter(Boolean)
+    await loadPrices($)
     if (!key) return { text: statusText(now) }
     const result = applySetting(settings, key, rest.join(' '))
     if (result.error) return { text: `${result.error}\n\n${statusText(now)}` }

@@ -1,35 +1,20 @@
-// Hypothetical Claude API prices, USD per million tokens.
-// Source: platform.claude.com/docs/en/about-claude/pricing, read 2026-10-08.
-// A cache write costs 1.25x input on the 5-minute TTL and 2x input on the 1-hour TTL.
-// On a subscription these figures are an API-equivalent estimate, never a bill.
+// Hypothetical Claude API prices, USD per million tokens, from the core's list (AUDYT_MODOW Z5):
+// the plugin's copy of core/panel/pricing.mjs (PRICING) laid over by the project's saved
+// versions in .claude/relai/panel/cennik.json, so the bar's "zapis ≈ $" and the panel's Costs tab
+// price with the same rates. Outside a RelAI project, or without the file, PRICING alone prices.
+// A model without a price is null ("cena nieznana"), never zero and never guessed from a similar
+// name. On a subscription these figures are an API-equivalent estimate, never a bill.
 
-export const PRICE_SOURCE = 'platform.claude.com/docs/en/about-claude/pricing, odczyt 2026-10-08'
+import { PRICING, modelPrice, newest, parsePriceFile, priceLists } from './relai/pricing.mjs'
 
-export type Price = { id: string; input: number; output: number; read: number }
+type PriceList = typeof PRICING
+type ModelPrice = NonNullable<ReturnType<typeof modelPrice>>
 
-type Row = { input: number; output: number; read: number; longAbove?: number; long?: Omit<Row, 'longAbove' | 'long'> }
+// The list the keeper prices with now: the newest rates of each model, the core's multipliers,
+// the date and source of the newest version, and the file's error in words ('' when none)
+export type Prices = { list: PriceList, date: string, source: string, error: string }
 
-const TABLE: Record<string, Row> = {
-  'fable-5-1': { input: 10, output: 50, read: 0.25 },
-  'mythos-5-1': { input: 10, output: 50, read: 0.25 },
-  'fable-5': { input: 10, output: 50, read: 1 },
-  'mythos-5': { input: 10, output: 50, read: 1 },
-  'opus-5-5': { input: 4, output: 20, read: 0.2 },
-  'opus-5': { input: 5, output: 25, read: 0.5 },
-  'opus-4-8': { input: 5, output: 25, read: 0.5 },
-  'opus-4-7': { input: 5, output: 25, read: 0.5 },
-  'opus-4-6': { input: 5, output: 25, read: 0.5 },
-  'opus-4-5': { input: 5, output: 25, read: 0.5 },
-  'sonnet-5-5': { input: 2, output: 10, read: 0.1 },
-  'sonnet-5': { input: 2, output: 10, read: 0.2 },
-  'sonnet-4-6': { input: 3, output: 15, read: 0.3 },
-  'sonnet-4-5': { input: 3, output: 15, read: 0.3 },
-  'haiku-5-5': { input: 0.1, output: 0.5, read: 0.01, longAbove: 100_000, long: { input: 0.5, output: 2.5, read: 0.05 } },
-  'haiku-4-5': { input: 1, output: 5, read: 0.1 },
-}
-
-// Longest first, so 'opus-5' never swallows 'opus-5-5'
-const KEYS = Object.keys(TABLE).sort((a, b) => b.length - a.length)
+export type Rates = { input: number, read: number, write: number, output: number }
 
 export type Usage = {
   input_tokens?: number
@@ -38,23 +23,27 @@ export type Usage = {
   cache_creation_input_tokens?: number
 }
 
-export function normalizeModel(model: string | undefined): string {
-  return String(model || '')
-    .toLowerCase()
-    .replace(/^claude-/, '')
-    .replace(/\[.*?\]/g, '')
-    .replace(/-\d{8}$/, '')
-    .trim()
+const PER_MILLION = 1e6
+
+// The price file's text (null: no file) as the list the keeper prices with
+export function pricesFrom(text: string | null): Prices {
+  const { versions, error } = parsePriceFile(text)
+  const top = newest(priceLists(versions))
+  return { list: { ...PRICING, models: top.models }, date: top.date, source: top.source, error }
 }
 
-// Unknown model: null. A missing price is never guessed and never zero.
-export function priceFor(model: string | undefined, promptTokens = 0): Price | null {
-  const id = normalizeModel(model)
-  const key = KEYS.find((k) => id === k || id.startsWith(k + '-') || id.startsWith(k))
-  const row = key ? TABLE[key] : undefined
-  if (!key || !row) return null
-  const base = row.long && row.longAbove && promptTokens > row.longAbove ? row.long : row
-  return { id: key, input: base.input, output: base.output, read: base.read }
+export const BUILT_IN: Prices = pricesFrom(null)
+
+// The words /cache shows: the list's date and source, and why the file was not used
+export function priceSource(prices: Prices): string {
+  const tail = prices.error ? ` (${prices.error} — liczę wbudowanym cennikiem)` : ''
+  return `cennik z ${prices.date}, ${prices.source}${tail}`
+}
+
+// "claude-opus-5-5[1m]", "Claude-Opus-5-5-20261001", "opus-5-5" → "claude-opus-5-5"
+export function normalizeModel(model: string | undefined): string {
+  const bare = String(model || '').toLowerCase().trim().replace(/\[.*?\]/g, '').replace(/-\d{8}$/, '')
+  return bare && !bare.startsWith('claude-') ? 'claude-' + bare : bare
 }
 
 export function totalInput(u: Usage | undefined): number {
@@ -62,29 +51,42 @@ export function totalInput(u: Usage | undefined): number {
   return (u.input_tokens || 0) + (u.cache_read_input_tokens || 0) + (u.cache_creation_input_tokens || 0)
 }
 
-function writeRate(p: Price, ttlMin: number): number {
-  return p.input * (ttlMin >= 60 ? 2 : 1.25)
+// USD per million tokens a request of this prompt length pays on this TTL, by the core's rules:
+// the "over" tier past its boundary, the model's own cache rates or the list's multipliers
+export function ratesFor(model: string | undefined, ttlMin: number, promptTokens: number, prices: Prices = BUILT_IN): Rates | null {
+  const id = normalizeModel(model)
+  const price: ModelPrice | null = id ? modelPrice(id, prices.list) : null
+  if (!price) return null
+  const tier = price.over && promptTokens > price.over.above ? price.over : price
+  const ttl = ttlMin >= 60 ? '1h' : '5m'
+  const write = ttl === '1h' ? tier.write1h : tier.write5m
+  return {
+    input: tier.input,
+    read: tier.read ?? tier.input * prices.list.readMult,
+    write: write ?? tier.input * prices.list.writeMult[ttl],
+    output: tier.output,
+  }
 }
 
-export function requestCost(u: Usage | undefined, model: string | undefined, ttlMin: number): number | null {
+export function requestCost(u: Usage | undefined, model: string | undefined, ttlMin: number, prices: Prices = BUILT_IN): number | null {
   if (!u) return 0
-  const p = priceFor(model, totalInput(u))
-  if (!p) return null
+  const k = ratesFor(model, ttlMin, totalInput(u), prices)
+  if (!k) return null
   return (
-    ((u.input_tokens || 0) * p.input +
-      (u.cache_read_input_tokens || 0) * p.read +
-      (u.cache_creation_input_tokens || 0) * writeRate(p, ttlMin) +
-      (u.output_tokens || 0) * p.output) /
-    1e6
+    ((u.input_tokens || 0) * k.input +
+      (u.cache_read_input_tokens || 0) * k.read +
+      (u.cache_creation_input_tokens || 0) * k.write +
+      (u.output_tokens || 0) * k.output) /
+    PER_MILLION
   )
 }
 
-export function rewriteCost(tokens: number, model: string | undefined, ttlMin: number): number | null {
-  const p = priceFor(model, tokens)
-  return p ? (tokens * writeRate(p, ttlMin)) / 1e6 : null
+export function rewriteCost(tokens: number, model: string | undefined, ttlMin: number, prices: Prices = BUILT_IN): number | null {
+  const k = ratesFor(model, ttlMin, tokens, prices)
+  return k ? (tokens * k.write) / PER_MILLION : null
 }
 
-export function readCost(tokens: number, model: string | undefined): number | null {
-  const p = priceFor(model, tokens)
-  return p ? (tokens * p.read) / 1e6 : null
+export function readCost(tokens: number, model: string | undefined, prices: Prices = BUILT_IN): number | null {
+  const k = ratesFor(model, 60, tokens, prices)
+  return k ? (tokens * k.read) / PER_MILLION : null
 }

@@ -140,9 +140,16 @@ Kolejność: najpierw fundamenty (Z3–Z5), bo bez nich nowe paski będą migać
       odhaczony punkt czytany przy następnym ticku. Panel nie ma ticka; `redraw.test.ts` „twenty
       steps…”: 20 kroków tury z zapisem pliku — 0 `invalidate`, 0 odczytów `STATUS.md`, 0 zapisów
       pliku pomiarów do końca tury.
-- [ ] Z5: `/clear` zeruje stan cache-keepera (test `session.end` z `reason: 'clear'`); Esc
+- [x] Z5: `/clear` zeruje stan cache-keepera (test `session.end` z `reason: 'clear'`); Esc
       w strażniku nic nie wysyła; koszt agenta w `/relai-agents` = kwota tej samej pozycji
       w zakładce Koszty (test na wspólnych danych).
+      Dowód: `cache-keeper/hooks/correctness.test.ts` (7 testów: `/clear` przez `session.end`,
+      zmiana id bez `session.end`, Esc = „Anuluj”, kompakcja zawetowana i rzucająca — nic nie
+      wysłane, brak skrótu cyfrowego, model tylko w `cennik.json`, model spoza list) i
+      `pricing.test.ts` (6, ta sama kwota co `priceAt` rdzenia); `progress.test.ts` „an agent on a
+      model only cennik.json prices costs what the Costs tab counts…” ($1.82, policzone ręcznie
+      w teście; przed zmianą „brak ceny”). Każdy nowy test padał na starym kodzie poza jednym
+      oznaczonym kontrolnym. **Pomiar na żywo, że `session.end` z `reason: 'clear'` odpala — czeka.**
 - [ ] Z1: trzy paski w spokoju bez przycisków, ≤ 160 px przy 1400 px (zrzut Łukasza); każdy
       stan z tabeli briefu otwiera drugi wiersz tylko pod swoim paskiem (testy); koszt sesji raz.
 - [ ] Z2: 14 komend bez przewijania przy 900 px (zrzut), nazwa komendy obok polskiej, „Teraz”
@@ -205,6 +212,21 @@ Jedna linia na zamkniętą paczkę; pełny wpis do `docs/DZIENNIK.md` dopiero w 
   przy wyłączonym ponownym odczycie test pada. **Świadomie zostaje:** koszt działającego agenta
   w panelu agentów spóźnia się do 5 s; cache-keeper nadal pyta `$.session.usage()` po turze
   (karta wymieniała tylko panel).
+- **2026-10-10 · Z5 zamknięta** (Opus 5.5 + dwóch subagentów Opus 5.5 równolegle: cache-keeper
+  i progress) — cache-keeper: reset po `/clear` przez `session.end` (`reason: 'clear'`) i
+  porównanie `$.session.id()` przy użyciu stanu, `classic.SessionStart` usunięty; Esc w strażniku =
+  „Anuluj”; skrót `1` usunięty, teksty mówią „przycisk Podtrzymaj”; ceny z kopii `pricing.mjs`
+  rdzenia + `cennik.json` projektu (własna tabela 16 modeli usunięta; `ratesFor` dla Z9).
+  **Odstępstwo z powodu silnika:** 2.1.295 odrzuca `$.session.compact()` wewnątrz `prompt.submit`
+  (stara ścieżka „compact, potem wyślij” nigdy nie działała — połykała odmowę i wysyłała z pełnym
+  zapisem); teraz wiadomość jest wstrzymana, kompakcja idzie po hooku, wiadomość wraca po udanej,
+  a przy nieudanej toast „nic nie wysłano” (załączniki pierwotnej wiadomości nie wracają).
+  progress: koszt agenta `priceAt` + `cennik.json` (pamięć po czasie pliku), podpis z datą listy,
+  błąd pliku słowami. Testy: panel 78/78, progress 22/22, cache-keeper 36/36 (+8 Z9 poza
+  commitem), `tsc` 0, `validate` ×3, `sync-panel-core --check` zgodne, `node --test` 263/263.
+  **Do decyzji człowieka:** poza projektem z zapisanym `cennik.json` cache-keeper wycenia tylko
+  Opus 5.5 (wbudowany cennik rdzenia) — inne modele mają „cena nieznana” zamiast dawnych stawek
+  z własnej tabeli. Import `pricing.mjs` ciągnie do cache-keepera `decisions.mjs`.
 
 ## Wynik
 

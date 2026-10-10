@@ -1,6 +1,10 @@
 import { describe, expect, mock, test, type TestBody } from 'claude-code/testing'
 import type { On, RenderNode, TurnStepResult } from 'claude-code'
 import { BAND as LOOK, BAR, THEME } from './core/theme.mjs'
+import { agentCost } from './core/agents.mjs'
+import { parseRecords } from './core/measure.mjs'
+import { parsePriceFile, priceAt, priceLists } from './core/pricing.mjs'
+import { usd } from './fmt'
 
 type Engine = Parameters<TestBody>[0]
 
@@ -369,6 +373,72 @@ describe('the agents pane', () => {
     expect(card).toContain('brak ceny')
     expect(card).not.toContain('brak pomiaru')
     expect(card).not.toContain('$0')
+    await ui.unmount()
+  })
+
+  // AUDYT_MODOW Z5 (CODE-01, CODE-11): the agents pane prices with the project's saved price list,
+  // the same way the Costs tab of relai-panel does (priceAt over priceLists of cennik.json)
+  test('an agent on a model only cennik.json prices costs what the Costs tab counts for it, with the list\'s date in the caption', async ($, on) => {
+    // Rates per million tokens; the file's own cache rates, so no multiplier is involved
+    const PRICES = JSON.stringify({ v: 1, versions: [{
+      date: '2026-10-09', source: 'test', from: NOW - 60_000,
+      models: { 'claude-sonnet-5-5': { input: 3, output: 15, read: 0.3, write5m: 3.75, write1h: 6 } },
+    }] })
+    const sonnet = (index: number) => rec(AGENT, index, 200_000, 20_000).replace('claude-opus-5-5', 'claude-sonnet-5-5')
+    const measured = [sonnet(0), sonnet(1)].join('\n') + '\n'
+    const { n } = world(on, { ...FILES, [MEASURE]: measured, [`${CWD}/.claude/relai/panel/cennik.json`]: PRICES })
+    await start($)
+    await spawn($)
+    // What the Costs tab computes for the same records (panel/hooks/register.tsx, priceWith)
+    const lists = priceLists(parsePriceFile(PRICES).versions)
+    const expected = agentCost(parseRecords(measured).records, AGENT, (r) => priceAt(r, lists))
+    // By hand, a subagent's write lives 5 minutes: input 400 000 x $3 + read 20 000 x $0.3
+    // + write 4 000 x $3.75 + output 40 000 x $15 = 1 200 000 + 6 000 + 15 000 + 600 000
+    // = 1 821 000 per million = $1.821 → "$1.82"
+    expect(Math.abs((expected?.usd ?? 0) - 1.821)).toBeLessThan(1e-9)
+    for (const surface of ['terminal', 'desktop'] as const) {
+      const ui = await $.ui.mount({ plugin: 'relai-progress', surface, ...PANE() })
+      const card = (await ui.find({ key: `agent-${AGENT}` }))?.text ?? ''
+      expect(card).toContain(usd(expected?.usd ?? null))
+      expect(card).toContain('$1.82')
+      expect(card).not.toContain('brak ceny')
+      expect(textOf(await ui.drawn())).toContain('cennik z 2026-10-09')
+      await ui.unmount()
+    }
+    // A redraw does not read the price file again: its stamp has not moved
+    const reads = n.read
+    const again = await $.ui.mount({ plugin: 'relai-progress', surface: 'terminal', ...PANE() })
+    expect(((await again.find({ key: `agent-${AGENT}` }))?.text ?? '')).toContain('$1.82')
+    expect(n.read).toBe(reads)
+    await again.unmount()
+  })
+
+  test('with cennik.json saved, a model in neither list stays "brak ceny dla …"', async ($, on) => {
+    const PRICES = JSON.stringify({ v: 1, versions: [{
+      date: '2026-10-09', source: 'test', from: NOW - 60_000,
+      models: { 'claude-sonnet-5-5': { input: 3, output: 15 } },
+    }] })
+    const unknown = (index: number) => rec(AGENT, index, 100, 50).replace('claude-opus-5-5', 'claude-nowy-9-9')
+    world(on, { ...FILES, [MEASURE]: [unknown(0), unknown(1)].join('\n') + '\n', [`${CWD}/.claude/relai/panel/cennik.json`]: PRICES })
+    await start($)
+    await spawn($)
+    const ui = await $.ui.mount({ plugin: 'relai-progress', surface: 'terminal', ...PANE() })
+    const card = (await ui.find({ key: `agent-${AGENT}` }))?.text ?? ''
+    expect(card).toContain('brak ceny dla')
+    expect(card).not.toContain('$')
+    await ui.unmount()
+  })
+
+  test('an unreadable cennik.json prices with the built-in list and says the error in words', async ($, on) => {
+    world(on, { ...FILES, [MEASURE]: rec(AGENT, 0, 100, 50) + '\n', [`${CWD}/.claude/relai/panel/cennik.json`]: '{ to nie json' })
+    await start($)
+    await spawn($)
+    const ui = await $.ui.mount({ plugin: 'relai-progress', surface: 'terminal', ...PANE() })
+    const text = textOf(await ui.drawn())
+    expect(text).toContain('.claude/relai/panel/cennik.json nie jest JSON-em')
+    expect(text).toContain('cennik z 2026-10-08')
+    // opus 5.5 is in the built-in list: 100 x 4 + 10 000 x 0.2 + 2 000 x 5 + 50 x 20 = 13 400 per million
+    expect(((await ui.find({ key: `agent-${AGENT}` }))?.text ?? '')).toContain('$0.01')
     await ui.unmount()
   })
 

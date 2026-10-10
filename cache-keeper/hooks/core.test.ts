@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'claude-code/testing'
 import { DEFAULT_SETTINGS, MIN, applySetting, cacheState, dueWarning, judgeStep, parseTokens, pingDue, pingMissed } from './core'
 import { relaiDone, relaiFreshPrompt, plainBody, RELAI_DONE } from './handoff'
-import { priceFor, rewriteCost, requestCost } from './pricing'
+import { ratesFor, rewriteCost, requestCost } from './pricing'
 
 describe('cache state', () => {
   test('unknown before any request, warm, cooling at the first threshold, cold after the TTL', async () => {
@@ -54,17 +54,15 @@ describe('request verdicts', () => {
 
 describe('pricing', () => {
   test('Opus 5.5 rewrite on the 1-hour TTL costs 2x input; unknown model has no price', async () => {
-    expect(priceFor('claude-opus-5-5[1m]')?.id).toBe('opus-5-5')
-    expect(priceFor('claude-opus-5')?.id).toBe('opus-5')
+    expect(ratesFor('claude-opus-5-5[1m]', 60, 0)?.input).toBe(4)
     expect(rewriteCost(1_000_000, 'claude-opus-5-5', 60)).toBe(8)
     expect(rewriteCost(1_000_000, 'claude-opus-5-5', 5)).toBe(5)
     expect(rewriteCost(1000, 'gpt-6-sol', 60)).toBe(null)
   })
 
-  test('Sonnet 5.5 reads at 0.05x input and Haiku 5.5 switches price above 100k', async () => {
-    expect(requestCost({ cache_read_input_tokens: 1_000_000 }, 'claude-sonnet-5-5', 60)).toBe(0.1)
-    expect(priceFor('claude-haiku-5-5', 50_000)?.input).toBe(0.1)
-    expect(priceFor('claude-haiku-5-5', 150_000)?.input).toBe(0.5)
+  // Sonnet and Haiku rates come from the project's price file now: pricing.test.ts
+  test('Opus 5.5 reads at 0.05x input from the built-in list', async () => {
+    expect(requestCost({ cache_read_input_tokens: 1_000_000 }, 'claude-opus-5-5', 60)).toBe(0.2)
   })
 })
 

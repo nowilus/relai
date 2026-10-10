@@ -21,7 +21,8 @@ import { agentCost, agentsLabel, counts, finished, spawned, stepped } from './co
 import type { AgentRun } from './core/agents.mjs'
 import { isFileOf, parseRecords } from './core/measure.mjs'
 import type { MeasureRecord } from './core/measure.mjs'
-import { PRICING, priceRecord } from './core/pricing.mjs'
+import { PRICE_FILE, newest, parsePriceFile, priceAt, priceLists } from './core/pricing.mjs'
+import type { Version } from './core/pricing.mjs'
 import { BAND, BAR, THEME } from './core/theme.mjs'
 import { HEADING_ART } from './core/headings.mjs'
 import { clip, duration, join, tokens, usd } from './fmt'
@@ -149,6 +150,35 @@ async function sessionRecords($: $T): Promise<MeasureRecord[] | null> {
 }
 let parsed: { key: string, records: MeasureRecord[] } | null = null
 
+// The project's price list, as relai-panel's Costs tab prices the same records (AUDYT_MODOW Z5):
+// PRICING with the versions saved in cennik.json laid over it, each record by its own list (R6).
+// Read again only when the file's time or size moved; a file that cannot be read prices with
+// PRICING alone and its error goes to the pane in words.
+type Prices = { lists: Version[], date: string, error: string }
+let prices: { key: string, value: Prices } | null = null
+
+async function loadPrices($: $T): Promise<Prices> {
+  const path = join(cwd, PRICE_FILE)
+  const stat = await $.fs.stat(path).catch(() => null)
+  const key = stat === null ? `${path}|none` : `${path}|${stat.mtimeMs}|${stat.size}`
+  if (prices && prices.key === key) return prices.value
+  let text: string | null = null
+  if (stat !== null) {
+    try {
+      text = await $.fs.read(path)
+    } catch (err) {
+      // Not remembered: a read that failed once is tried again at the next drawing
+      const lists = priceLists([])
+      return { lists, date: newest(lists).date, error: `${PRICE_FILE}: odczyt nieudany (${err instanceof Error ? err.message : String(err)})` }
+    }
+  }
+  const file = parsePriceFile(text)
+  const lists = priceLists(file.versions)
+  const value = { lists, date: newest(lists).date, error: file.error }
+  prices = { key, value }
+  return value
+}
+
 async function togglePane($: $T): Promise<string> {
   if ((await $.ui.panes()).some((p) => p.id === PANE_ID)) {
     await $.ui.close({ id: PANE_ID })
@@ -269,9 +299,11 @@ export const register: Register = (on) => {
     const list = await read($, agents)
     const folded = await read($, isDoneCollapsed)
     const records = await sessionRecords($)
+    const pricing = await loadPrices($)
     const now = await $.clock.now()
     const { running, finished: done } = counts(list)
-    const cost = (a: AgentRun) => (records === null ? null : agentCost(records, a.id, priceRecord))
+    const price = (r: MeasureRecord) => priceAt(r, pricing.lists)
+    const cost = (a: AgentRun) => (records === null ? null : agentCost(records, a.id, price))
     const costs = list.map(cost)
     const known = costs.filter((c) => c !== null && c.usd !== null).map((c) => c?.usd ?? 0)
     const total = known.length ? known.reduce((s, x) => s + x, 0) : null
@@ -351,8 +383,9 @@ export const register: Register = (on) => {
       agentItems.push(<Box key="fold" flexDirection="row"><Button key="fold-btn" variant="secondary" label={`${folded ? '▸' : '▾'} Zakończeni · ${ended.length}`} onPress={() => update($, isDoneCollapsed, (x) => !x)} /></Box>)
       if (!folded) agentItems.push(...ended.map(card))
     }
-    const about = `${running} działa, ${done} zakończonych · koszt ${sum} — z pomiarów relai-panel, cennik z ${PRICING.date}.`
+    const about = `${running} działa, ${done} zakończonych · koszt ${sum} — z pomiarów relai-panel, cennik z ${pricing.date}.`
       + (records === null ? ' Brak pliku pomiarów tej sesji: relai-panel jej nie mierzy.' : '')
+      + (pricing.error ? ` Cennik projektu pominięty — ${pricing.error}; liczę cennikiem wbudowanym.` : '')
     return (
       <Box key="relai-agents" flexDirection="column" gap={isGui ? 2 : 1}>
         {tasks ? [tasks] : []}
