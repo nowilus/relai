@@ -7,9 +7,11 @@ Stan na: 2026-10-10 (plan PANEL_CLAUDE zamknięty; wydanie 2.8.0 publicznie z tr
 RelAI **2.8.0** jest w repozytorium i publicznie (tag `v2.8.0`, release Latest, wydane 2026-10-09).
 Plan PANEL_CLAUDE jest zamknięty 2026-10-10: 9/9 etapów, Aneksy A–E. Dał panel RelAI w oknie Claude
 Code jako trzy osobne pluginy w marketplace RelAI, „early access”, na modach Claude Code (zmierzone
-na 2.1.293): `relai-panel` 0.9.0 (pasek planu, `/relai-panel` z formularzami komend, mapą planów,
-dokumentami i kosztami sesji, karta „Tak / Nie” przed każdą zmianą), `relai-progress` 0.2.0 (postęp
-etapu, `/relai-agents`) i `relai-cache-keeper` 0.3.0 (licznik cache promptu). `/relai-stage`
+na 2.1.293). Po audycie AUDYT_MODOW wydane 2026-10-11 (zmierzone na 2.1.295): `relai-panel` 0.11.0
+(pasek planu z fokusem sesji, `/relai-panel` z formularzami komend, mapą planów, dokumentami
+i kosztami sesji, karta „Tak / Nie” przed każdą zmianą), `relai-progress` 0.4.0 (postęp etapu albo
+paczek odnogi, `/relai-agents`) i `relai-cache-keeper` 0.5.0 (pięć baterii: cache, limit 5 h, reset
+za, limit tygodnia, kontekst; koszt sesji po prawej). `/relai-stage`
 przyjmuje zgodę z karty panelu. Instalacja komendami z README jest zmierzona na żywo. Plugin `relai`
 działa w trzech narzędziach — Claude Code, Cursorze i Codeksie — na jednym rdzeniu procesu,
 z czternastoma komendami. Aktywny plan: PANEL_CODEX, zaakceptowany 2026-10-10; E1 W TOKU. Aneks A zaakceptowany; natywny widok i wiadomość do bieżącego czatu potwierdzone sondą 0.0.7. Minimalny pakiet 0.1.0 działa w sondzie 0.0.8 w czacie kontrolnym; układ zaakceptowany; sonda 0.0.9 z poprawką fontów gotowa, pomiar po restarcie i świeży szkic czekają. Opinii spoza projektu
@@ -101,7 +103,9 @@ nadal nie ma.
 - **Wątek `AUDYT_MODOW` w `docs/fixy/` (od 2026-10-10)** — mody Claude Code po audycie: dziewięć
   paczek (panel bez I/O w rysowaniu, paski bez pustych przerysowań, poprawność `/clear` i wyceny,
   funkcja „kontynuować czy nowa sesja”, paski i panel wg briefu v2, jedno źródło formatów i cen,
-  testy liczące rysowania, wydanie 0.10.0 / 0.3.0 / 0.4.0). Audyt: 94 ustalenia z werdyktami
+  testy liczące rysowania, wydanie 0.10.0 / 0.3.0 / 0.4.0) i Aneksy A–B (Z10 drzewo dokumentów,
+  Z11 pasek cache jako pięć baterii, Z12 fokus sesji — wydane 2026-10-11 jako 0.11.0 / 0.4.0 /
+  0.5.0; czekają zrzut Z12 na żywo oraz Z13 i Z14 z Aneksu B). Audyt: 94 ustalenia z werdyktami
   w [RAPORT.html](fixy/AUDYT_MODOW/RAPORT.html); decyzje wizualne po czterech rundach makiet
   ([MAKIETY.html](fixy/AUDYT_MODOW/MAKIETY.html)) zamrożone w briefie v2
   ([STYL_PASKOW_CLAUDE.md](zasoby/PANEL_RELAI/STYL_PASKOW_CLAUDE.md)). Wykonawca: Opus 5.5 ze
@@ -158,11 +162,12 @@ Trzy pluginy Claude Code Mods w tym repo (silnik 2.1.293, „early access”), k
 odczyty i działania z `$`, a widoki rysują `band.tsx`, `pane-parts.tsx` i `pane-commands`, `-map`,
 `-docs`, `-costs.tsx` bez `$` — P-023 pkt 10): pasek planu (plan, etap, status, koszt sesji z
 `$.session.usage()` jako hipotetyczny koszt API, liczba etapów). **`progress/`** (`relai-progress`
-0.2.0, fork `savvy-progress` — MIT, johnnyvizz): pasek postępu etapu albo biegu `/relai-crew`
+0.4.0, fork `savvy-progress` — MIT, johnnyvizz): pasek postępu etapu albo biegu `/relai-crew`
 z checkboxów promptu, pocięty na segmenty z podpowiedzią po najechaniu (Svg na desktopie, znaki
 w terminalu), odświeżany po edycji i co 10 s; przycisk „Panel RelAI”; panel `/relai-agents` —
 punkty etapu i subagenci sesji z modelem, kontekstem i kosztem z pomiarów E3. **`cache-keeper/`**
-(`relai-cache-keeper` 0.3.0, dawny prywatny `cache-keeper-pl`): timer cache, podtrzymanie
+(`relai-cache-keeper` 0.5.0, dawny prywatny `cache-keeper-pl`): pięć baterii nad promptem
+(bateria = zapas, liczba = zużycie, pełny opis w dymku), timer cache, podtrzymanie
 (`$.model.fork`) i przekazanie wyłącznie na żądanie człowieka — R7 („nie woła modelu”) dotyczy
 tylko dwóch pierwszych (Aneks C). Poza projektem RelAI wszystkie milczą; paski innych wtyczek
 zostają (owijacz woła `next`, bez `width` — P-017). Zmierzone na żywo na desktopie i w terminalu.
@@ -232,7 +237,7 @@ sieciowy to odczyt strony cennika w `relai-panel` po „Tak” (wyjątek od R7, 
 (ESM — silnik nie ładuje CommonJS ani importu spoza folderu pluginu); `panel/hooks/core/` to kopia
 bajt w bajt z `node core/tools/sync-panel-core.js` (też `progress/hooks/core/`,
 `cache-keeper/hooks/relai/`), pilnowana testem. Testy: `claude plugin test` w `panel/`, `progress/`
-i `cache-keeper/` (binarka 2.1.293) i `core/panel/tests/`.
+i `cache-keeper/` (binarka aplikacji 2.1.295 — `claude` na PATH to 2.1.280, P-024) i `core/panel/tests/`.
 
 ### Wymagania
 
@@ -249,7 +254,7 @@ Backupy: `C:\Users\Lukasz\Backupy\RelAI` • [PRZENOSNOSC.md](PRZENOSNOSC.md) �
 ### Liczby
 
 Plany zamknięte: 10 (ostatni PANEL_CLAUDE, 2026-10-10) • Aktywny: PANEL_CODEX (ZAAKCEPTOWANY 2026-10-10, E1 W TOKU) • Start sesji:
-**88,6 KB / 100 KB** (bez aktywnego planu; po E6 98,2 KB) • Dziennik: **~200 KB / 150 KB** (rotacja należna) • Sekcja ryzyk: 12 otwartych, archiwum ryzyk: 4 pliki
-+ 1 mitygacji • Lekcje: **59,4 KB / 50 KB** (rotacja należna), 37 w żywym pliku • Adaptery: 3 • Komendy: 14 •
-Testy rdzenia i adapterów: 263 (z `core/panel/`) + 13 testów pakietu panelu Codeksa + 105 testów pluginów (`relai-panel` 70, `relai-progress` 16, `relai-cache-keeper` 19) • Projekty na RelAI: 3 (RelAI, PolyFlow, JiraManager przed migracją) •
+**88,6 KB / 100 KB** (bez aktywnego planu; po E6 98,2 KB) • Dziennik: **~93 KB / 150 KB** (rotacja 2026-10-11) • Sekcja ryzyk: 12 otwartych, archiwum ryzyk: 4 pliki
++ 1 mitygacji • Lekcje: **44,3 KB / 50 KB** (rotacja 2026-10-11), 20 w żywym pliku • Adaptery: 3 • Komendy: 14 •
+Testy rdzenia i adapterów: 263 (z `core/panel/`) + 13 testów pakietu panelu Codeksa + 244 testy pluginów (`relai-panel` 123, `relai-progress` 31, `relai-cache-keeper` 90) • Projekty na RelAI: 3 (RelAI, PolyFlow, JiraManager przed migracją) •
 Modele, na których zmierzono proces: 6 (Fable, Opus, Sonnet, Haiku, Composer/auto, Grok 4.6).
