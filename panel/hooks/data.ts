@@ -10,6 +10,8 @@ import type { StageCosts, taskCosts } from './core/attribution.mjs'
 import type { CrewRun, Merges, PlanNode } from './core/flow.mjs'
 import type { DiffView, Doc, Group as DocGroup, TreeNode, previewOf } from './core/documents.mjs'
 import type { Sheet } from './core/phrases.mjs'
+import type { PlanState } from './core/plan-state.mjs'
+import type { Progress } from './core/progress.mjs'
 
 export type ProjectSum = ReturnType<typeof projectSummary>
 export type CallCost = ReturnType<typeof requestSeries>[number]
@@ -32,3 +34,7 @@ export type PaneData = {
 
 export type OpenDoc ={ group: string, doc: Doc, diff: DiffView | null, diffError: string, preview: ReturnType<typeof previewOf> | null }
 export type DocsData = { changed: Doc[], edited: Doc[], groups: DocGroup[], tree: TreeNode, now: number, gitError: string, open: OpenDoc | null }
+
+// "Teraz" (brief v2 §6.2, AUDYT_MODOW Z2): the active plan and what the progress bar reads from the
+// same files — a live crew run, else the stage prompt's boxes (./core/progress.mjs, this plugin's copy)
+export type NowData = { plan: PlanState, progress: Progress }

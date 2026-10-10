@@ -1,10 +1,14 @@
 // relai-panel: the costs tab (E3, E4, E6). The session's measured requests, priced: a hypothetical
 // API cost, never the subscription's bill (plan, section 3). A gap is said in words and the sum
 // called partial, never a zero. Kept short (calibration 2026-10-08): figures first, one line of
-// words where one is needed, the details of each call in the tooltips of the columns.
+// words where one is needed, the details of each call in the tooltips of the columns. Brief v2 §7
+// (AUDYT_MODOW Z2, P3): the tiles stay; the sections under them are folded rows — a Kalam heading,
+// one line with the section's key number, "▸ Rozwiń" — all folded by default, the fold kept in
+// $.state (`unfolded`, "costs:<section>"); an unfolded section draws as before, in the Z3 bounds.
 //
 // Split out of register.tsx in E7 without a change of behavior; no `$` here (P-023 pkt 10).
 
+import type { RenderChildren } from 'claude-code'
 import { pct, tokens, usd } from './fmt'
 import { COST_COLORS, THEME } from './core/theme.mjs'
 import { gapsInWords, plural } from './core/measure.mjs'
@@ -44,12 +48,14 @@ export type CostsCtx = {
   session: { costUsd: number | null, startedAt: number, loadedAt: number }
   muted: Record<string, string>
   preparePricing: () => void
+  isUnfolded: (key: string, byDefault: boolean) => boolean
+  fold: (key: string, byDefault: boolean) => void
 }
 
 export function costsView(c: Ctx, p: Parts, cd: CostData, s: CostsCtx) {
   const { el, Svg, isGui } = c
   const { Box, Text } = el
-  const { section, frame, barCols, bar, costBox, line, money, nCalls, legend, btn } = p
+  const { section, frame, barCols, bar, costBox, line, money, nCalls, legend, btn, heading } = p
   const S = s.session
   const mutedNow = s.muted
   let figuresLeft = FIGURES
@@ -63,6 +69,23 @@ export function costsView(c: Ctx, p: Parts, cd: CostData, s: CostsCtx) {
     const sum = rest.reduce((acc, g) => acc + (g.usd ?? 0), 0)
     const isPartial = rest.some((g) => g.usd === null)
     return line(key, `… jeszcze ${rest.length} razem ${usd(sum)}${isPartial ? ' (częściowo)' : ''} — panel rysuje ${CARDS} najdroższych`)
+  }
+
+  // A section as a folded row (P3): its Kalam heading, one line with its key number, the switch;
+  // unfolded, its content under the row as before
+  const folded = (id: string, summary: string, content: () => RenderChildren[], isAlert = false) => {
+    const isOpen = s.isUnfolded(`costs:${id}`, false)
+    return (
+      <Box key={`costs-${id}`} flexDirection="column" gap={isGui ? 1 : 0}>
+        <Box key={`costs-${id}-row`} flexDirection="row" flexWrap="wrap" alignItems="center" columnGap={2} paddingX={1}
+          {...frame(false)} borderColor={isAlert ? THEME.accent : THEME.line} backgroundColor={THEME.card}>
+          {heading(`costs-${id}`)}
+          <Box key={`costs-${id}-sum`} flexGrow={1} flexShrink={1}><Text color={isAlert ? THEME.accentText : THEME.body} wrap="truncate">{summary}</Text></Box>
+          {btn(`fold-costs:${id}`, isOpen ? '▾ Zwiń' : '▸ Rozwiń', 'secondary', () => s.fold(`costs:${id}`, false))}
+        </Box>
+        {isOpen ? content() : []}
+      </Box>
+    )
   }
 
   const clock = (at: number) => { const d = new Date(at); return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}` }
@@ -154,13 +177,13 @@ export function costsView(c: Ctx, p: Parts, cd: CostData, s: CostsCtx) {
         {Svg || !calls.length ? [] : [<Text key="cost-turns-axis" color={THEME.body}>{`${clock((calls[Math.max(0, calls.length - barCols)] ?? calls[0])!.at)} → ${clock(calls[calls.length - 1]!.at)} · najwyższy słupek ${money(peak?.usd ?? null)}`}</Text>]}
       </Box>
     )
-    return section('costs-turns', 'costs-turns', '', [costBox('cost-turns', [
+    return costBox('cost-turns', [
       chart,
       line('cost-turns-peak', peak
         ? `Najwyższe ${money(peak.usd)} o ${clock(peak.at)} (${who(peak)})${Svg ? ' · najedź na słupek po szczegóły' : ''}`
         : 'Brak wywołań.'),
       line('cost-turns-last', `${nCalls(calls.length)} w ${series.length} ${plural(series.length, 'turze', 'turach', 'turach')}${Svg && perColumn > 1 ? ` · jeden słupek to do ${perColumn} kolejnych wywołań` : ''}.`),
-    ])])
+    ])
   }
 
   // Agents or models: a smaller card each, the same set as the sum — figure, share, bar, legend
@@ -188,7 +211,7 @@ export function costsView(c: Ctx, p: Parts, cd: CostData, s: CostsCtx) {
     ]
     const sum = rows.reduce((acc, r) => acc + (r.g.usd ?? 0), 0) // every row, the drawn and the rest
     const { shown, rest } = topOf(rows, (r) => r.g.usd)
-    return section('costs-stages', 'costs-stages', '', [costBox('cost-stages', [
+    return costBox('cost-stages', [
       ...shown.map((r) => (
         <Box key={`cs-${r.key}`} flexDirection="row" flexWrap="wrap" alignItems="center" columnGap={2}>
           {figure(`cs-fig-${r.key}`, money(r.g.usd), 20, r.g.isPartial ? THEME.accentText : THEME.mark)}
@@ -200,7 +223,7 @@ export function costsView(c: Ctx, p: Parts, cd: CostData, s: CostsCtx) {
       line('cost-stages-check', sc.isWhole
         ? `✓ Etapy i „poza etapem” razem ${usd(sum)} = suma sesji ${usd(total)}`
         : `✗ Etapy i „poza etapem” razem ${usd(sum)} ≠ suma sesji ${usd(total)} — błąd przypisania`, sc.isWhole ? THEME.ok : THEME.accentText),
-    ])])
+    ])
   }
 
   // The price list (E6, R6, Aneks D): its date and source; the warning of an old list and the
@@ -211,7 +234,7 @@ export function costsView(c: Ctx, p: Parts, cd: CostData, s: CostsCtx) {
     const shownModels = data.unpriced.filter((u) => mutedNow[u.model] !== pr.date)
     const quiet = data.unpriced.length - shownModels.length
     const needs = shownModels.length > 0 || pr.warning !== ''
-    const node = section('costs-pricing', 'costs-pricing', '', [costBox('cost-pricing', [
+    const node = costBox('cost-pricing', [
       line('pr-date', `Cennik z ${pr.date} · ${pr.source}`, THEME.title, true),
       line('pr-how', pr.saved
         ? `Każde wywołanie liczone cennikiem obowiązującym w chwili pomiaru (${pr.saved + 1} ${plural(pr.saved + 1, 'wersja', 'wersje', 'wersji')}); nowa stawka nie zmienia kwot policzonych wcześniej.`
@@ -238,8 +261,27 @@ export function costsView(c: Ctx, p: Parts, cd: CostData, s: CostsCtx) {
         {btn('pr-update', shownModels.length ? 'Zaktualizuj cennik' : 'Odśwież cennik', needs ? 'primary' : 'secondary', () => s.preparePricing())}
       </Box>,
       line('pr-net', 'Jedyny odczyt sieciowy panelu: strona cennika Anthropic, dopiero po „Tak” na karcie; zapis po drugim „Tak”.'),
-    ], needs)])
-    return { node, needs }
+    ], needs)
+    // The folded row says what needs the person: the models without a price, an old list
+    const summary = [`z ${pr.date} · ${pr.source}`, ...(shownModels.length ? [`⚠ ${shownModels.length} ${plural(shownModels.length, 'model', 'modele', 'modeli')} bez ceny`] : []), ...(pr.warning ? ['⚠ cennik stary'] : [])].join(' · ')
+    return { node, needs, summary }
+  }
+
+  // The one line of each folded section: its key number (P3)
+  const stagesSummary = (sc: StageCosts) => {
+    const rows = [...sc.rows.map((r) => ({ label: r.tag.replace('/', ' · '), g: r.group })), ...[sc.outside, sc.untagged].filter((b) => b.group.records > 0).map((b) => ({ label: b.words, g: b.group }))]
+    const top = topOf(rows, (r) => r.g.usd, 1).shown[0]
+    const total = sc.total.usd ?? 0
+    const head = top ? `${top.label} — ${money(top.g.usd)} (${pct(top.g.usd ?? 0, total)} sesji)` : 'brak etapów'
+    return `${head}${rows.length > 1 ? ` · ${rows.length} pozycji` : ''} · ${sc.isWhole ? 'suma zgodna' : 'suma niezgodna'}`
+  }
+  const callsSummary = (series: TurnCost[], calls: CallCost[]) => {
+    const peak = calls.reduce<CallCost | undefined>((best, x) => ((x.usd ?? -1) > (best?.usd ?? -1) ? x : best), undefined)
+    return `${nCalls(calls.length)} w ${series.length} ${plural(series.length, 'turze', 'turach', 'turach')}${peak ? ` · najwyższe ${money(peak.usd)} o ${clock(peak.at)} (${who(peak)})` : ''}`
+  }
+  const groupsSummary = (groups: Group[], total: number) => {
+    const top = topOf(groups, (g) => g.usd, 2).shown
+    return [...top.map((g) => `${g.label} ${money(g.usd)} (${pct(g.usd ?? 0, total)})`), ...(groups.length > top.length ? [`+${groups.length - top.length}`] : [])].join(' · ')
   }
 
   const { report: rep, series, calls, effect, project } = cd
@@ -254,14 +296,14 @@ export function costsView(c: Ctx, p: Parts, cd: CostData, s: CostsCtx) {
         {[engineTile(rep, since), ...(rep.records ? [cacheTile(effect)] : []), projectTile(project)]}
       </Box>,
     ]),
-    ...(pricing.needs ? [pricing.node] : []),
+    // Etapy, Wywołania w czasie, Agenci, Modele, Cennik (brief v2 §7), folded
     ...(rep.records ? [
-      stagesSection(cd.stages),
-      callsSection(series, calls),
-      section('costs-agents', 'costs-agents', '', groupCards('cost-agents', rep.byAgent, total)),
-      section('costs-models', 'costs-models', '', groupCards('cost-models', rep.byModel, total)),
+      folded('stages', stagesSummary(cd.stages), () => [stagesSection(cd.stages)], !cd.stages.isWhole),
+      folded('turns', callsSummary(series, calls), () => [callsSection(series, calls)]),
+      folded('agents', groupsSummary(rep.byAgent, total), () => groupCards('cost-agents', rep.byAgent, total)),
+      folded('models', groupsSummary(rep.byModel, total), () => groupCards('cost-models', rep.byModel, total)),
     ] : []),
-    ...(pricing.needs ? [] : [pricing.node]),
+    folded('pricing', pricing.summary, () => [pricing.node], pricing.needs),
     <Box key="cost-notes" flexDirection="column">
       {cd.writeError ? [<Box key="write-error"><Text color={THEME.accentText}>{`⚠ Nie zapisano pomiarów do ${cd.writeError} — kolejna próba przy następnym zapisie; kwoty tej sesji są w pamięci panelu`}</Text></Box>] : []}
       {gaps.map((w, i) => <Box key={`gap-${i}`}><Text color={THEME.accentText}>{'⚠ ' + w}</Text></Box>)}

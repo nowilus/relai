@@ -79,6 +79,17 @@ async function settle($: Engine) {
   await ui.unmount()
 }
 
+// Brief v2 §7 (AUDYT_MODOW Z2): the sections under the tiles are folded by default and the fold is
+// kept in $.state. The report's tests read every section, as before Z2: each folded one is
+// unfolded (a press only where the button still says "Rozwiń", so a second mount keeps them open)
+type Mounted = { find: (q: { key: string }) => Promise<RenderNode | undefined>, press: (q: { key: string }) => Promise<unknown> }
+async function unfoldAll(ui: Mounted) {
+  for (const s of ['stages', 'turns', 'agents', 'models', 'pricing']) {
+    const b = await ui.find({ key: `fold-costs:${s}` })
+    if (b && typeof b !== 'string' && String((b.props as { label?: string }).label).startsWith('▸')) await ui.press({ key: `fold-costs:${s}` })
+  }
+}
+
 const lines = (text: string | undefined) => String(text ?? '').split('\n').filter(Boolean).map((l) => JSON.parse(l) as Record<string, unknown>)
 
 function pane(columns: number) {
@@ -154,6 +165,7 @@ describe('the cost report', () => {
     await $.command.run({ command: 'relai-panel' } as never)
     const ui = await $.ui.mount({ plugin: 'relai-panel', surface, ...pane(columns) })
     await ui.press({ key: 'tab-costs' })
+    await unfoldAll(ui)
     return ui
   }
 
@@ -222,9 +234,10 @@ describe('the cost report', () => {
       expect(engine).not.toContain('sprzed')
       const cache = textOf(await ui.find({ key: 'cost-cache' }))
       expect(cache).toMatch(/Zapłacone \$\d\.\d\d zamiast \$\d\.\d\d bez cache — oszczędność \$/)
-      // two decimals: a share near the top is not rounded up to 100% (calibration 2026-10-08)
-      if (surface === 'terminal') expect(cache).toMatch(/^\d{1,3}\.\d\d%wejścia z cache/)
-      expect(textOf(await ui.find({ key: 'cost-agents-0' }))).toMatch(/\d{1,3}\.\d\d% sesji/)
+      // Whole percents since brief v2 §7 ("96 %"); a share short of the whole never reads 100 %
+      // (calibration 2026-10-08, held by fmt.pct and its test in pane-v2.test.ts)
+      if (surface === 'terminal') expect(cache).toMatch(/^(\d{1,3}|<1) %wejścia z cache/)
+      expect(textOf(await ui.find({ key: 'cost-agents-0' }))).toMatch(/(\d{1,3}|<1) % sesji/)
       const turns = textOf(await ui.find({ key: 'cost-turns' }))
       expect(turns).toContain('Najwyższe $')
       expect(turns).toContain('3 wywołania w 3 turach')

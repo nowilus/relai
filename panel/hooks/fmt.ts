@@ -8,9 +8,13 @@ export function usd(n: number | null): string {
   return '$' + n.toFixed(2) // cents always: "$190" hid what "$11" against "$190" was made of
 }
 
-// A share in percent with two decimals: 99.61% is not 100% (calibration 2026-10-08)
+// A share in whole percent, "96 %" (brief v2 §7, AUDYT_MODOW Z2). What calibration 2026-10-08
+// asked of the two decimals stays: a share short of the whole never reads 100 %, and a share above
+// nothing never reads 0 %.
 export function pct(part: number, whole: number): string {
-  return (whole > 0 ? (part / whole) * 100 : 0).toFixed(2) + '%'
+  const p = whole > 0 ? (part / whole) * 100 : 0
+  if (p > 0 && p < 1) return '<1 %'
+  return `${p < 100 ? Math.min(99, Math.round(p)) : Math.round(p)} %`
 }
 
 export function minutes(ms: number): string {

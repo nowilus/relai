@@ -243,7 +243,7 @@ export function mapView(c: Ctx, p: Parts, md: MapData, s: MapCtx) {
     if (!draft) return <Box key={`crew-edit-${run}`} flexDirection="row">{btn(`crew-open-${run}`, 'Edytuj skład', 'secondary', () => s.editCrew(run))}</Box>
     const change = (id: string, key: 'role' | 'runtime' | 'model', v: string) => {
       const r = setTask(draft, id, key, v)
-      if (r.error) { s.say(`Nie zmieniono ${id}: ${r.error}`); return }
+      if (r.error) { s.say(`Wybierz inną wartość z listy. Nie zmieniono ${id}: ${r.error}`); return }
       s.setDraft(run, r.draft)
     }
     return (

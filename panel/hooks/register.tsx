@@ -2,9 +2,10 @@
 // plan's STATUS.md, in one card of the RelAI cards above the prompt (BAND, E9), with a second row
 // while a confirmation card waits (brief v2, AUDYT_MODOW Z1). The /relai-panel
 // command opens a side pane with the forms of the 14 RelAI commands, the cheat sheet and the
-// session phrases, drawn in the RelAI motif (E8): cards with the command icons, Kalam headings,
-// three recommended commands on top. A desktop draws the SVG; the terminal gets the same cards
-// as text, in the same colors.
+// session phrases, drawn in the RelAI motif (E8): cards with the command icons, Kalam headings.
+// Brief v2 (AUDYT_MODOW Z2): the title and the tabs in one row, "Teraz" with one main action, two
+// recommended cards and twelve one-line rows, the costs' sections folded, "Pomoc" for the sheet
+// and the phrases. A desktop draws the SVG; the terminal gets the same as text, in the same colors.
 //
 // The mod draws and calls; the core counts (plan PANEL_CLAUDE, section 5). Everything the band
 // reckons with lives in ./core/*.mjs: a byte-identical copy of core/panel/ written by
@@ -19,7 +20,7 @@
 //
 // Split in E7 without a change of behavior: this file keeps the state, the collector, the reads
 // and the presses, everything that takes `$` (P-023 pkt 10); band.tsx draws the plan bar,
-// pane-parts.tsx the parts of every tab, pane-commands / -map / -docs / -costs.tsx the tabs.
+// pane-parts.tsx the parts of every tab, pane-commands / -now / -help / -map / -docs / -costs.tsx the tabs.
 
 import { atom, read, update } from 'claude-code'
 import type { EngineInterface, Register } from 'claude-code'
@@ -40,16 +41,18 @@ import { crewTag, stageCosts, stageTag, taskCosts } from './core/attribution.mjs
 import { MERGE_FILE, crewRun, flowMap, parseMerges, serializeMerges } from './core/flow.mjs'
 import type { Merges } from './core/flow.mjs'
 import { CLEAN_ARGV, answer, cleanCard, cleanChoices, commandCard, crewCard, crewDraft, crewTasksPath, daysBetween, hasConsent, listDate, projectVersion, togglePick, stageCard, stageToStart, stepsToRun, stripConsent } from './core/decisions.mjs'
-import { promptLink } from './core/progress.mjs'
+import { crewProgress, pick as pickProgress, promptLink, stageProgress } from './core/progress.mjs'
 import type { Action, Card, CardResult, CleanChoices, CrewDraft, Fact } from './core/decisions.mjs'
-import type { CostData, DocsData, MapData, OpenDoc, PaneData, Prices } from './data'
+import type { CostData, DocsData, MapData, NowData, OpenDoc, PaneData, Prices } from './data'
 import { band } from './band'
-import { parts } from './pane-parts'
+import { failure, isPassing, parts, tabOf } from './pane-parts'
 import type { Ctx } from './pane-parts'
 import { costsView } from './pane-costs'
 import { mapView } from './pane-map'
 import { docsView } from './pane-docs'
 import { commandTabs } from './pane-commands'
+import { helpView } from './pane-help'
+import { nowBar } from './pane-now'
 
 type $T = EngineInterface
 
@@ -463,7 +466,7 @@ async function readPricing($: $T, card: Card) {
   const r = pricingSecond(card, response, { versions: prices.lists.slice(1), unpriced, measured, now, today: localDay(now) })
   if (r.kind === 'blocked') {
     await update($, confirm, () => null)
-    await update($, sent, () => `Nie zaktualizowano cennika: ${r.reason}`)
+    await say($, failure('Spróbuj później przyciskiem w sekcji Cennik.', `Nie zaktualizowano cennika: ${r.reason}`))
     return
   }
   await update($, confirm, () => r.card)
@@ -509,6 +512,25 @@ function flash($: $T, key: string) {
   $.clock.after(FLASH_MS, () => { void update($, pressed, (k) => (k === key ? '' : k)) })
 }
 
+// The sent line (AUDYT_MODOW Z2, UX-16): a success goes after SENT_MS unless something newer took
+// its place (compared before it is cleared, as the flash is); a failure stays until the next
+// action. A tab chosen or a form opened or closed clears either. A reload cancels the wait and
+// keeps the line in $.state: the next action clears it then.
+const SENT_MS = 10_000
+let saidSeq = 0 // module memory: which say the timer belongs to
+
+async function say($: $T, text: string) {
+  saidSeq += 1
+  const seq = saidSeq
+  await update($, sent, () => text)
+  if (text && isPassing(text)) $.clock.after(SENT_MS, () => { if (seq === saidSeq) void update($, sent, (t) => (t === text ? '' : t)) })
+}
+
+function unsay($: $T) {
+  saidSeq += 1
+  return update($, sent, (t) => (t ? '' : t))
+}
+
 const NO_RELAI = 'Plugin relai nie jest zainstalowany w tej sesji — panel pokazuje formularze, ale niczego nie wyśle.'
 const NOT_RELAI = 'Ten folder nie jest projektem RelAI, więc panel nie ma czego pokazać — napisz „zacznijmy projekt”, żeby go zainicjować.'
 
@@ -539,18 +561,18 @@ async function loadData($: $T, cwd: string): Promise<PaneData> {
 async function sendCommand($: $T, name: string, args: string, text: string) {
   try {
     await $.command.run({ command: name, args })
-    await update($, sent, () => `Wysłano do czatu: ${text}`)
+    await say($, `Wysłano do czatu: ${text}`)
   } catch (err) {
-    await update($, sent, () => `Nie wysłano ${text}: ${err instanceof Error ? err.message : String(err)}`)
+    await say($, failure('Spróbuj ponownie albo wpisz komendę w czacie.', `Nie wysłano ${text}`, err))
   }
 }
 
 async function sendPhrase($: $T, text: string) {
   try {
     await $.prompt.submit({ text, asUser: true })
-    await update($, sent, () => `Wysłano do czatu: ${text}`)
+    await say($, `Wysłano do czatu: ${text}`)
   } catch (err) {
-    await update($, sent, () => `Nie wysłano „${text}”: ${err instanceof Error ? err.message : String(err)}`)
+    await say($, failure('Spróbuj ponownie albo napisz frazę w czacie.', `Nie wysłano „${text}”`, err))
   }
 }
 
@@ -564,10 +586,10 @@ async function cardId($: $T): Promise<string> {
 
 async function offer($: $T, r: CardResult) {
   if (r.kind === 'blocked') {
-    await update($, sent, () => `Nie przygotowano karty: ${r.reason}`)
+    await say($, failure('Popraw formularz albo plan i przygotuj kartę ponownie.', `Nie przygotowano karty: ${r.reason}`))
     return
   }
-  await update($, sent, () => '')
+  await unsay($)
   await update($, confirm, () => r.card)
 }
 
@@ -588,7 +610,7 @@ async function decide($: $T, card: Card, said: 'tak' | 'nie', names: Record<stri
   if (next.state === 'cancelled') {
     if (isRead) await mutePricing($)
     await update($, confirm, () => null)
-    await update($, sent, () => `Anulowano: ${card.title} — ${isRead ? 'cennik nietknięty, przypomnienie wyciszone do zmiany daty cennika' : 'nic nie wysłano'}`)
+    await say($, `Anulowano: ${card.title} — ${isRead ? 'cennik nietknięty, przypomnienie wyciszone do zmiany daty cennika' : 'nic nie wysłano'}`)
     return
   }
   // A card that reads a page: the first "Tak" shows "reading", then the step the read produced
@@ -606,13 +628,13 @@ async function decide($: $T, card: Card, said: 'tak' | 'nie', names: Record<stri
     try {
       await runStep($, a, names)
     } catch (err) {
-      await update($, sent, () => `Nie wysłano (${card.title}, krok ${a.kind}): ${err instanceof Error ? err.message : String(err)}`)
+      await say($, failure('Sprawdź stan projektu i przygotuj kartę ponownie.', `Nie wysłano (${card.title}, krok ${a.kind})`, err))
       return
     }
   }
   const writes = next.actions.filter((a) => a.kind === 'write')
   if (writes.length) bump() // a saved price list, a crew's tasks: the tabs read them again
-  await update($, sent, () => (writes.length === next.actions.length ? `Zapisano: ${writes.map((a) => a.path).join(', ')}` : `Wysłano do czatu: ${card.title}`))
+  await say($, writes.length === next.actions.length ? `Zapisano: ${writes.map((a) => a.path).join(', ')}` : `Wysłano do czatu: ${card.title}`)
 }
 
 // The stage card from the plan the form names, else the active one
@@ -628,15 +650,17 @@ async function prepareStage($: $T, topic: string, stage: string, isFresh: boolea
   return offer($, stageCard({ id: await cardId($), statusMd, statusPath, promptText, stage: stage || null, sessionModel, isFresh }))
 }
 
+const CLEAN_TODO = 'Spróbuj „Wczytaj ponownie” albo wpisz /relai-clean w czacie.'
+
 // The clean report through the one fixed argv (CLEAN_ARGV); nothing from a form enters it
 async function loadClean($: $T) {
   try {
     const r = await $.process.run([...CLEAN_ARGV], { cwd: S.cwd, timeoutMs: 120_000 })
     const list = cleanChoices(r.exitCode === 0 ? r.stdout : null)
     await update($, cleanList, () => list)
-    await update($, sent, () => (list.error ? `Nie wczytano listy: ${list.error}${r.stderr ? ' — ' + r.stderr.slice(0, 120) : ''}` : ''))
+    await say($, list.error ? failure(CLEAN_TODO, `Nie wczytano listy: ${list.error}${r.stderr ? ' — ' + r.stderr.slice(0, 120) : ''}`) : '')
   } catch (err) {
-    await update($, sent, () => `Nie wczytano listy: ${err instanceof Error ? err.message : String(err)}`)
+    await say($, failure(CLEAN_TODO, 'Nie wczytano listy', err))
   }
 }
 
@@ -655,9 +679,27 @@ async function commandFacts($: $T, command: 'relai-update' | 'relai-models'): Pr
 async function editCrew($: $T, run: string) {
   const dir = join(S.cwd, `${CREW_DIR}/${run}`)
   const draft = crewDraft(run, await readText($, join(S.cwd, crewTasksPath(run))), await readText($, join(dir, 'manifest.json')))
-  if (!draft.isEditable) return update($, sent, () => `Skład przebiegu ${run} bez edycji: ${draft.reason}`)
-  await update($, sent, () => '')
+  if (!draft.isEditable) return say($, failure('Skład zmienisz tylko przed startem przebiegu.', `Skład przebiegu ${run} bez edycji: ${draft.reason}`))
+  await unsay($)
   return update($, drafts, (m) => ({ ...m, [run]: draft }))
+}
+
+// "Teraz" (brief v2 §6.2): the active plan and the progress from the files the progress bar reads —
+// the newest live crew run, else the stage prompt's boxes — with this plugin's own copy of the core
+// (./core/progress.mjs), no dependency on relai-progress. Read through remember (Z3), never per drawing.
+async function nowData($: $T): Promise<NowData> {
+  const plan = S.plan
+  let promptText: string | null = null
+  let link: string | null = null
+  if (plan.kind === 'ok' && plan.stage) {
+    const statusMd = await readText($, join(S.cwd, plan.statusPath))
+    link = statusMd === null ? null : promptLink(statusMd, plan.stage.id, plan.statusPath)
+    promptText = link === null ? null : await readText($, join(S.cwd, link))
+  }
+  const run = (await folders($, CREW_DIR)).at(-1)
+  const crew = run ? crewProgress(run, await readText($, join(S.cwd, `${CREW_DIR}/${run}/zadania.json`)),
+    await readText($, join(S.cwd, `${CREW_DIR}/${run}/manifest.json`)), await $.clock.now()) : null
+  return { plan, progress: pickProgress(crew, stageProgress(plan, promptText, link ?? 'prompt')) }
 }
 
 // ---------- hooks ----------
@@ -718,48 +760,46 @@ export const register: Register = (on) => {
     if (!isRelai) return <Box key="not-relai"><Text>{NOT_RELAI}</Text></Box>
     const d = data ?? (await loadData($, cwd))
     const width = Math.max(30, e.props.bodyColumns)
-    const [tab, picked, all, q, filled, last, flashed, folds, chosen, pending, isFresh, clean, crewDrafts, mutedNow] = await Promise.all([
+    const [kept, picked, all, q, filled, last, flashed, folds, chosen, pending, isFresh, clean, crewDrafts, mutedNow] = await Promise.all([
       read($, view), read($, selected), read($, values), read($, query), read($, fills), read($, sent), read($, pressed), read($, unfolded), read($, picks),
       read($, confirm), read($, freshChat), read($, cleanList), read($, drafts), read($, muted),
     ])
-    const pick = (c: string) => { void update($, selected, (s) => (s === c ? '' : c)) }
+    const tab = tabOf(kept)
+    // Opening or closing a form, or choosing a tab, clears the sent line: it spoke of the last one (UX-16)
+    const pick = (c: string) => { void unsay($).then(() => update($, selected, (s) => (s === c ? '' : c))) }
+    const choose = (v: PanelView) => { bump(); void unsay($).then(() => update($, view, () => v)) }
 
     // The tabs are drawn by pane-*.tsx, which never see `$` (P-023 pkt 10, E7): each gets the
     // element table and the pane's parts (pane-parts.tsx), its data, and callbacks made here
     const c: Ctx = { el, Svg, isGui, width, flashed, last, flash: (key) => flash($, key) }
     const p = parts(c)
     const { heading, sentLine } = p
-    // Folds: the map's plans and stages, the documents' groups and folders
+    // Folds: the map's plans and stages, the documents' groups and folders, the costs' sections
     const isUnfolded = (key: string, byDefault: boolean) => folds[key] ?? byDefault
     const fold = (key: string, byDefault: boolean) => { void update($, unfolded, (m) => ({ ...m, [key]: !(m[key] ?? byDefault) })) }
 
-    const commandsEtc = () => commandTabs(c, p, {
-      data: d, plan: S.plan, picked, values: all, query: q, fills: filled, isFresh, clean, pick,
-      setValue: (k, v) => { void update($, values, (m) => ({ ...m, [k]: v })) },
-      setFresh: (x) => { void update($, freshChat, () => x) },
-      prepareStage: (topic, stage, fresh) => { void prepareStage($, topic, stage, fresh) },
-      copy: (text) => { void $.ui.copy({ text, surface: e.surface }).then(() => update($, sent, () => `Wysłano do schowka: ${text}`)) },
-      prepareCommand: (command) => { void commandFacts($, command).then(async (facts) => offer($, commandCard(await cardId($), command, facts))) },
-      sendCommand: (name, args, text) => { void sendCommand($, name, args, text) },
-      loadClean: () => { void loadClean($) },
-      toggleClean: (id) => { void update($, cleanList, (l) => (l ? togglePick(l, id) : l)) },
-      prepareClean: (list) => { void cardId($).then((id) => offer($, cleanCard(id, list))) },
-      openForm: (command) => { void update($, selected, () => command).then(() => update($, view, () => 'commands' as const)) },
-      setQuery: (x) => { void update($, query, () => x) },
-      sendPhrase: (text) => { void sendPhrase($, text) },
-      setFill: (phrase, v) => { void update($, fills, (m) => ({ ...m, [phrase]: v })) },
-    })
-
     // The tab's data from memory (Z3): read again only when its key moves on
-    const key = tab === 'costs' || tab === 'map' || tab === 'docs' ? `${await $.session.id()}|${epoch}` : ''
+    const key = tab === 'help' ? '' : `${await $.session.id()}|${epoch}`
+    const now = tab === 'commands' ? await remember('now', key, () => nowData($)) : null
     const costs = tab === 'costs' ? await remember('costs', key, () => costData($)) : null
     const map = tab === 'map' ? await remember('map', key, () => mapData($)) : null
     const [pickNow, modeNow, filterNow, layoutNow, pageNow, changedNow] = tab === 'docs'
       ? await Promise.all([read($, docPick), read($, docMode), read($, docFilter), read($, docLayout), read($, diffPage), read($, turnChanged)])
       : ['', 'diff' as const, 'changed' as const, 'tiles' as const, 0, { turn: '', paths: [] as string[] }]
     const docs = tab === 'docs' ? await docsData($, key, pickNow, modeNow, changedNow.paths) : null
-    const body = tab === 'commands' ? commandsEtc().commandsView() : tab === 'sheet' ? commandsEtc().sheetView() : costs ? costsView(c, p, costs, {
-      session: S, muted: mutedNow, preparePricing: () => { void preparePricing($) },
+    const body = now ? commandTabs(c, p, {
+      data: d, plan: S.plan, picked, values: all, isFresh, clean, pick,
+      setValue: (k, v) => { void update($, values, (m) => ({ ...m, [k]: v })) },
+      setFresh: (x) => { void update($, freshChat, () => x) },
+      prepareStage: (topic, stage, fresh) => { void prepareStage($, topic, stage, fresh) },
+      copy: (text) => { void $.ui.copy({ text, surface: e.surface }).then(() => say($, `Wysłano do schowka: ${text}`), (err) => say($, failure('Zaznacz tekst w podglądzie i skopiuj go ręcznie.', 'Nie skopiowano', err))) },
+      prepareCommand: (command) => { void commandFacts($, command).then(async (facts) => offer($, commandCard(await cardId($), command, facts))) },
+      sendCommand: (name, args, text) => { void sendCommand($, name, args, text) },
+      loadClean: () => { void loadClean($) },
+      toggleClean: (id) => { void update($, cleanList, (l) => (l ? togglePick(l, id) : l)) },
+      prepareClean: (list) => { void cardId($).then((id) => offer($, cleanCard(id, list))) },
+    }).commandsView() : costs ? costsView(c, p, costs, {
+      session: S, muted: mutedNow, preparePricing: () => { void preparePricing($) }, isUnfolded, fold,
     }) : map ? mapView(c, p, map, {
       isUnfolded, fold, chosen, drafts: crewDrafts,
       togglePick: (id) => { void update($, picks, (x) => (x.includes(id) ? x.filter((y) => y !== id) : [...x, id])) },
@@ -769,7 +809,7 @@ export const register: Register = (on) => {
       setDraft: (run, draft) => { void update($, drafts, (m) => ({ ...m, [run]: draft })) },
       dropDraft: (run) => { void update($, drafts, (m) => Object.fromEntries(Object.entries(m).filter(([k]) => k !== run))) },
       confirmCrew: (draft) => { void cardId($).then((id) => offer($, crewCard(id, draft))) },
-      say: (text) => { void update($, sent, () => text) },
+      say: (text) => { void say($, text) },
     }) : docs ? docsView(c, p, docs, {
       pick: pickNow, mode: modeNow, filter: filterNow, layout: layoutNow, page: pageNow, isUnfolded, fold,
       toggleDoc: (id) => { void update($, diffPage, () => 0).then(() => update($, docPick, (x) => (x === id ? '' : id))) },
@@ -778,18 +818,28 @@ export const register: Register = (on) => {
       setMode: (m) => { void update($, docMode, () => m) },
       setFilter: (f) => { void update($, docFilter, () => f) },
       setLayout: (l) => { void update($, docLayout, () => l) },
-    }) : commandsEtc().phrasesView()
+    }) : helpView(c, p, {
+      data: d, query: q, fills: filled,
+      setQuery: (x) => { void update($, query, () => x) },
+      sendPhrase: (text) => { void sendPhrase($, text) },
+      setFill: (phrase, v) => { void update($, fills, (m) => ({ ...m, [phrase]: v })) },
+      openForm: (command) => { bump(); void unsay($).then(() => update($, selected, () => command)).then(() => update($, view, () => 'commands' as const)) },
+    })
+    // On the commands tab "Teraz" stands under the header and a waiting card takes its place; on
+    // the other tabs the card stands there alone (brief v2 §6.2)
+    const canStart = S.plan.kind === 'ok' && S.plan.stage !== null
+    const top = pending ? p.confirmCard(pending, (said) => { void decide($, pending, said, d.names) })
+      : now ? nowBar(c, p, now, canStart ? () => { void prepareStage($, '', '', isFresh) } : null) : null
     const isSentInDrawer = tab === 'commands' && picked !== '' && formOf(picked) !== undefined
     return (
       <Box key="relai-pane" flexDirection="column" gap={1} paddingX={isGui ? 1 : 0}>
-        <Box key="hero" flexDirection="column">
+        <Box key="pane-head" flexDirection="row" flexWrap="wrap" alignItems="center" columnGap={2}>
           {heading('hero', THEME.accent)}
-          <Text dimColor>{`${FORMS.length} komend RelAI · kliknij komendę, żeby otworzyć jej formularz`}</Text>
+          {p.tabs(tab, choose)}
         </Box>
-        {p.tabs(tab, (v) => { bump(); void update($, view, () => v) })}
         {d.hasRelai ? [] : [<Box key="no-relai"><Text color={THEME.mark}>{NO_RELAI}</Text></Box>]}
-        {pending ? [p.confirmCard(pending, (said) => { void decide($, pending, said, d.names) })] : []}
-        <Box key="body" flexDirection="column" gap={isGui ? 2 : 1}>{body}</Box>
+        {top ? [top] : []}
+        <Box key="body" flexDirection="column" gap={1}>{body}</Box>
         {sentLine && !isSentInDrawer ? [sentLine] : []}
       </Box>
     )
@@ -800,7 +850,7 @@ export const register: Register = (on) => {
     const el = $.ui.resolve(e)
     const { Box, Text } = el
     const why = next.error.kind === 'timeout' ? 'liczyła się dłużej niż pozwala silnik' : next.error.message ?? 'nieznany błąd'
-    const tab = await read($, view).catch(() => 'commands' as const)
+    const tab = tabOf(await read($, view).catch(() => 'commands'))
     const p = parts({ el, Svg: null, isGui: e.surface !== 'terminal', width: Math.max(30, e.props.bodyColumns), flashed: '', last: '', flash: () => undefined })
     return (
       <Box key="relai-pane" flexDirection="column" gap={1}>

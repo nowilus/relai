@@ -1,15 +1,12 @@
-// relai-panel: the commands, cheat sheet and phrases tabs (E2, E8, E5). The forms and the sheet are
-// reckoned in ./core (commands.mjs, phrases.mjs); this file draws. Nothing reaches the chat but on a
-// press of "Wyślij" or of a phrase, and register.tsx does the send (plan, section 5).
+// relai-panel: the commands tab (E2, E8, E5; brief v2 §6, AUDYT_MODOW Z2). The forms are reckoned
+// in ./core/commands.mjs; this file draws. Nothing reaches the chat but on a press of "Wyślij", and
+// register.tsx does the send (plan, section 5). "Pomoc" (the sheet and the phrases): pane-help.tsx.
 //
 // Split out of register.tsx in E7 without a change of behavior; no `$` here (P-023 pkt 10).
 
-import { clip } from './fmt'
 import { FEATURED, GROUPS, NAMES, THEME } from './core/theme.mjs'
 import { buildCommand, formOf, isShown, valueOf } from './core/commands.mjs'
 import type { Field, Form } from './core/commands.mjs'
-import { buildPhrase, searchSheet } from './core/phrases.mjs'
-import type { Phrase } from './core/phrases.mjs'
 import type { PlanState } from './core/plan-state.mjs'
 import { copyText } from './core/decisions.mjs'
 import type { CleanChoices } from './core/decisions.mjs'
@@ -34,15 +31,13 @@ function stageHint(plan: PlanState): string {
   return plan.stage ? `${plan.plan} · ${plan.stage.id} ${plan.stage.name}` : `${plan.plan} · wszystkie etapy zamknięte`
 }
 
-// What the three tabs need beyond the parts: the session's commands and sheet, the active plan, the
-// pane's state, and the presses that send or change it (register.tsx holds `$` and does each)
+// What the tab needs beyond the parts: the session's commands, the active plan, the pane's state,
+// and the presses that send or change it (register.tsx holds `$` and does each)
 export type CommandsCtx = {
   data: PaneData
   plan: PlanState
   picked: string
   values: Record<string, string>
-  query: string
-  fills: Record<string, string>
   isFresh: boolean
   clean: CleanChoices | null
   pick: (command: string) => void
@@ -55,17 +50,13 @@ export type CommandsCtx = {
   loadClean: () => void
   toggleClean: (id: string) => void
   prepareClean: (list: CleanChoices) => void
-  openForm: (command: string) => void
-  setQuery: (q: string) => void
-  sendPhrase: (text: string) => void
-  setFill: (phrase: string, v: string) => void
 }
 
 export function commandTabs(c: Ctx, parts: Parts, s: CommandsCtx) {
-  const { el, isGui, width } = c
+  const { el, isGui } = c
   const { Box, Text, Input, Select } = el
-  const { heading, icon, mark, btn, flashBorder, section, frame, well, sentLine } = parts
-  const { data: d, picked, values: all, query: q, fills: filled, isFresh, clean, pick } = s
+  const { heading, icon, btn, flashBorder, section, frame, well, sentLine } = parts
+  const { data: d, picked, values: all, isFresh, clean, pick } = s
 
   const fieldEl = (form: Form, f: Field, current: Record<string, string>) => {
     const k = fieldKey(form.command, f.key)
@@ -161,122 +152,56 @@ export function commandTabs(c: Ctx, parts: Parts, s: CommandsCtx) {
     )
   }
 
+  // P1 (brief v2 §6.3–6.5): the two recommended commands as cards with a 44 px icon; every other
+  // command one row of one line — a 24 px icon, the Polish name in bold with the command beside it
+  // and its purpose — and "Otwórz" on the right. A command the session lacks: dimmed, "—" (pressed,
+  // its form still shows what it would send and why it cannot). The form opens under its row and
+  // the row's button turns "Zamknij".
   const card = (c: string, isFeatured: boolean) => {
     const name = d.names[c] ?? null
     const isOn = c === picked
+    const isOff = name === null
     const [title, purpose] = NAMES[c] ?? [c, '']
     const hint = isFeatured && c === 'relai-stage' ? stageHint(s.plan) : ''
-    const border = isOn ? THEME.accent : name === null ? THEME.lineOff : isFeatured ? THEME.mark : THEME.line
+    const border = isOn ? THEME.accent : isOff ? THEME.lineOff : isFeatured ? THEME.mark : THEME.line
     const form = isOn ? formOf(c) : undefined
+    const what = isOff ? 'niedostępna w tej sesji' : purpose
+    const command = <Text key={`cn-${c}`} color={THEME.body}>{' /' + c}</Text>
+    const text = isFeatured
+      ? <Box key={`text-${c}`} flexDirection="column" flexGrow={1} flexShrink={1}>
+          <Text wrap="truncate" dimColor={isOff}>{[<Text key={`nm-${c}`} bold color={THEME.mark}>{title}</Text>, command]}</Text>
+          <Text color={THEME.body} wrap="truncate">{what}</Text>
+          {hint ? [<Text key={`hint-${c}`} color={THEME.accentText} wrap="truncate">{hint}</Text>] : []}
+        </Box>
+      : <Box key={`text-${c}`} flexGrow={1} flexShrink={1}>
+          <Text wrap="truncate" dimColor={isOff}>{[<Text key={`nm-${c}`} bold color={THEME.title}>{title}</Text>, command, <Text key={`pu-${c}`} color={THEME.body}>{' · ' + what}</Text>]}</Text>
+        </Box>
     return (
       <Box key={`card-${c}`} flexDirection="column">
-        <Box key={`row-${c}`} flexDirection="row" alignItems="center" gap={isGui ? 2 : 1}
-          paddingX={isFeatured && isGui ? 2 : 1} paddingY={isGui ? 1 : 0} {...frame(isOn)} borderColor={flashBorder(`cmd-${c}`, border)}
+        <Box key={`row-${c}`} flexDirection="row" alignItems="center" columnGap={isGui ? 2 : 1}
+          paddingX={isFeatured && isGui ? 2 : 1} {...frame(isOn)} borderColor={flashBorder(`cmd-${c}`, border)}
           backgroundColor={isOn ? THEME.cardOn : isFeatured ? THEME.cardFeatured : THEME.card} hover={{ borderColor: THEME.accent }}>
-          {icon(c, isFeatured ? 48 : 36)}
-          <Box key={`text-${c}`} flexDirection="column" flexGrow={1} flexShrink={1}>
-            <Text bold color={isFeatured ? THEME.mark : THEME.title} wrap="truncate">{title}</Text>
-            <Text color={THEME.body} wrap="truncate">{name === null ? 'niedostępna w tej sesji' : purpose}</Text>
-            {hint ? [<Text key={`hint-${c}`} color={THEME.accentText} wrap="truncate">{hint}</Text>] : []}
-          </Box>
-          {btn(`cmd-${c}`, '/' + c, isOn || isFeatured ? 'primary' : 'secondary', () => pick(c))}
+          {icon(c, isFeatured ? 44 : 24)}
+          {text}
+          {btn(`cmd-${c}`, isOn ? 'Zamknij' : isOff ? '—' : 'Otwórz', 'secondary', () => pick(c))}
         </Box>
         {form ? [drawer(form)] : []}
       </Box>
     )
   }
 
+  // Two recommended (brief v2 §6.3); the third of FEATURED, the tour, goes down to the first group
+  const featured = FEATURED.slice(0, 2)
+  const groups = GROUPS.map((g, i) => (i === 0 ? { ...g, commands: [...g.commands, ...FEATURED.slice(2)] } : g))
   const commandsView = () => [
-    section('featured', 'featured', '', FEATURED.map((c) => card(c, true))),
-    ...GROUPS.map((g) => section(`group-${g.id}`, `group-${g.id}`, '', g.commands.map((c) => card(c, false)))),
+    section('featured', 'featured', '', featured.map((c) => card(c, true))),
+    ...groups.map((g) => (
+      <Box key={`group-${g.id}`} flexDirection="column">
+        {heading(`group-${g.id}`)}
+        {g.commands.map((c) => card(c, false))}
+      </Box>
+    )),
   ]
 
-  // ---------- cheat sheet ----------
-  const sheetView = () => {
-    if (d.sheet.reason) return [<Box key="sheet-reason"><Text color={THEME.body}>{d.sheet.reason}</Text></Box>]
-    const hit = searchSheet(d.sheet, q)
-    const commands = hit.commands.map((r) => (
-      <Box key={`sheet-${r.command}`} flexDirection="row" alignItems="center" gap={isGui ? 2 : 1}
-        paddingX={1} paddingY={isGui ? 1 : 0} {...frame(false)} borderColor={THEME.line} backgroundColor={THEME.card} hover={{ borderColor: THEME.accent }}>
-        {icon(r.command, 32)}
-        <Box key={`sheet-text-${r.command}`} flexDirection="column" flexGrow={1} flexShrink={1}>
-          <Text bold color={THEME.title}>{r.forms.join(' · ')}</Text>
-          <Text color={THEME.body}>{clip(r.what, width * 2)}</Text>
-        </Box>
-        {btn(`open-${r.command}`, 'Formularz', 'secondary',
-          () => s.openForm(r.command))}
-      </Box>
-    ))
-    const phrases = hit.phrases.map((p, i) => (
-      <Box key={`sheet-ph-${i}`} flexDirection="row" alignItems="center" gap={isGui ? 2 : 1}
-        paddingX={1} paddingY={isGui ? 1 : 0} {...frame(false)} borderColor={THEME.line} backgroundColor={THEME.card}>
-        {mark('phrases', THEME.mark, 28, 'fraza')}
-        <Box key={`sheet-ph-text-${i}`} flexDirection="column" flexGrow={1} flexShrink={1}>
-          <Text bold color={THEME.mark}>{p.phrases.map((x) => `„${x}”`).join(' / ')}</Text>
-          <Text color={THEME.body}>{clip(p.effect, width * 2)}</Text>
-        </Box>
-      </Box>
-    ))
-    const none = hit.commands.length + hit.phrases.length === 0 ? [<Box key="sheet-none"><Text color={THEME.body}>Nic nie pasuje.</Text></Box>] : []
-    return [
-      section('sheet', 'sheet', 'Komendy i frazy z docs/KOMENDY.md — wpisz słowo, żeby zawęzić.', [
-        <Input key="search" label="Szukaj: " value={q} placeholder="np. backup"
-          onInput={(v) => s.setQuery(v)} onSubmit={(v) => s.setQuery(v)} />,
-        ...commands, ...phrases, ...none,
-      ]),
-    ]
-  }
-
-  // ---------- phrases ----------
-  // One click: the phrase is the button; its effect under it, the bubble on the left
-  const readyCard = (p: Phrase, i: number) => {
-    const canSend = buildPhrase(p, '').isOk && d.hasRelai
-    return (
-      <Box key={`ph-${i}`} flexDirection="row" alignItems="center" gap={isGui ? 2 : 1} paddingX={isGui ? 2 : 1} paddingY={isGui ? 1 : 0}
-        {...frame(false)} borderColor={flashBorder(`phrase-${i}`, THEME.line)} backgroundColor={THEME.card} hover={{ borderColor: THEME.accent }}>
-        {mark('phrases', THEME.mark, 32, 'fraza')}
-        <Box key={`ph-body-${i}`} flexDirection="column" gap={isGui ? 1 : 0} flexGrow={1} flexShrink={1} alignItems="flex-start">
-          {canSend
-            ? btn(`phrase-${i}`, p.phrase, 'primary', () => s.sendPhrase(p.phrase), '✓ ' + p.phrase)
-            : <Text key={`phrase-text-${i}`} bold color={THEME.title}>{`„${p.phrase}”`}</Text>}
-          <Text color={THEME.body}>{clip(p.effect, width * 2)}</Text>
-        </Box>
-      </Box>
-    )
-  }
-  // To complete: the same order as a command form — what it does, the field, the exact text, send
-  const fillCard = (p: Phrase, i: number) => {
-    const built = buildPhrase(p, filled[p.phrase] ?? '')
-    const canSend = built.isOk && d.hasRelai
-    return (
-      <Box key={`ph-${i}`} flexDirection="column" gap={isGui ? 1 : 0} paddingX={isGui ? 2 : 1} paddingY={isGui ? 1 : 0}
-        {...frame(false)} borderColor={flashBorder(`phrase-${i}`, THEME.line)} backgroundColor={THEME.card}>
-        <Box key={`ph-head-${i}`} flexDirection="row" alignItems="center" gap={isGui ? 2 : 1}>
-          {mark('fill', THEME.accentText, 32, 'fraza do uzupełnienia')}
-          <Box key={`ph-title-${i}`} flexDirection="column" flexGrow={1} flexShrink={1}>
-            <Text bold color={THEME.title}>{`„${p.phrase}”`}</Text>
-            <Text color={THEME.body}>{clip(p.effect, width * 2)}</Text>
-          </Box>
-        </Box>
-        <Input key={`fill-${i}`} label="Uzupełnij: " value={filled[p.phrase] ?? ''} placeholder="w miejsce „…”"
-          onInput={(v) => s.setFill(p.phrase, v)}
-          onSubmit={(v) => s.setFill(p.phrase, v)} />
-        <Box key={`ph-prev-${i}`} flexDirection="column">{well(`ph-well-${i}`, built.isOk ? built.text : (built.error ?? ''), built.isOk)}</Box>
-        {canSend ? [<Box key={`ph-act-${i}`} flexDirection="row">{btn(`phrase-${i}`, 'Wyślij do czatu', 'primary', () => s.sendPhrase(built.text), '✓ Wysłano')}</Box>] : []}
-      </Box>
-    )
-  }
-  const phrasesView = () => {
-    if (d.sheet.reason) return [<Box key="sheet-reason"><Text color={THEME.body}>{d.sheet.reason}</Text></Box>]
-    const indexed = d.sheet.phrases.map((p, i) => [p, i] as const)
-    const ready = indexed.filter(([p]) => !p.isTemplate).map(([p, i]) => readyCard(p, i))
-    const toFill = indexed.filter(([p]) => p.isTemplate).map(([p, i]) => fillCard(p, i))
-    return [
-      heading('phrases'),
-      ...(ready.length ? [section('phrases-ready', 'phrases-ready', 'Kliknij frazę — pójdzie do czatu tak, jakbyś ją napisał.', ready)] : []),
-      ...(toFill.length ? [section('phrases-fill', 'phrases-fill', 'Wpisz brakującą część, sprawdź podgląd i wyślij.', toFill)] : []),
-    ]
-  }
-
-  return { commandsView, sheetView, phrasesView }
+  return { commandsView }
 }

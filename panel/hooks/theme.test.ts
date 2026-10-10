@@ -109,14 +109,13 @@ describe('the RelAI motif of the pane', () => {
         await measure(f.command)
         await ui.press({ key: `cmd-${f.command}` })
       }
-      await ui.press({ key: 'tab-sheet' })
-      await measure('sheet')
-      await ui.press({ key: 'tab-phrases' })
-      await measure('phrases')
+      // Z2: the sheet and the phrases are one tab, "Pomoc"; the 40 columns are held there
+      await ui.press({ key: 'tab-help' })
+      await measure('help')
       await ui.press({ key: 'tab-commands' })
       await ui.unmount()
       expect(widths.filter((w) => Number(w.split(': ')[1]) > 40)).toEqual([])
-      expect(widths.length).toBe(FORMS.length + 3)
+      expect(widths.length).toBe(FORMS.length + 2)
     }
   })
 

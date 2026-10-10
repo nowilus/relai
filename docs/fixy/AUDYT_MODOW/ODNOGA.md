@@ -161,6 +161,10 @@ Kolejność: najpierw fundamenty (Z3–Z5), bo bez nich nowe paski będą migać
       czeka** na pomiar na żywo (Łukasz).
 - [ ] Z2: 14 komend bez przewijania przy 900 px (zrzut), nazwa komendy obok polskiej, „Teraz”
       z jedną akcją główną, Koszty ze zwiniętymi sekcjami w `$.state`.
+      Testy ✓: `panel/hooks/pane-v2.test.ts` (19: nagłówek z zakładkami w jednym wierszu, bez
+      zdania o 14 komendach, „Teraz” z jedną akcją, wiersze z nazwą komendy, formularz pod wierszem,
+      Koszty zwinięte w `unfolded`, `sent` wygasa po 10 s; szacunek wysokości Komend 865 px przy
+      budżecie 900). **Zrzut przy 900 px czeka** na pomiar na żywo.
 - [ ] Z6: test równości trzech `fmt.ts` i dwóch `barCard`; `usd(11.73)` daje ten sam napis
       w trzech modach.
 - [ ] Z7: `claude plugin test` ×3 zielone; nowe testy wymienione z nazwy we wpisie dziennika.
@@ -265,6 +269,14 @@ Jedna linia na zamkniętą paczkę; pełny wpis do `docs/DZIENNIK.md` dopiero w 
   Testy: panel 85, progress 27, cache-keeper 68, core 170. Do Z6: `fmt.tokens(999_999)` daje
   `1000k`. **Czeka:** zrzut z desktopu (≤ 160 px przy 1400 px; czy Svg segmentów zajmuje całą
   kolumnę obok chipa — P-021 pkt 3).
+- **2026-10-10 · Z2 zamknięta w kodzie** (subagent Opus 5.5) — nagłówek „Panel RelAI” z zakładkami
+  `Komendy · Koszty · Dokumenty · Mapa · Pomoc` (Ściąga + Frazy jako Pomoc, stare nazwy w `$.state`
+  otwierają Pomoc); „Teraz” (`pane-now.tsx`) z planu i przebiegu załogi przez kopię
+  `progress.mjs`, pamięć `remember`, jedna akcja „Start etapu…”; Komendy: dwie karty polecane
+  i 12 wierszy z nazwą komendy, formularz pod wierszem; Koszty: sekcje zwinięte z podsumowaniem,
+  procenty całkowite (`<1 %` powyżej zera); linia `sent` wygasa po 10 s, czyszczona przy zmianie
+  zakładki i formularza, błąd zaczyna się zdaniem „co zrobić”. Testy panel 103/103, `tsc` 0,
+  `validate`. **Do Z6:** `register.tsx` ma 975 linii (> 800) — podział do zrobienia.
 
 ## Wynik
 

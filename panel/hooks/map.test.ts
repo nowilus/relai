@@ -266,6 +266,7 @@ describe('the map tab', () => {
     expect(out).toContain('pomiary sprzed znacznika etapu')
     expect(out).toContain('1 wywołanie · wszystkie sesje projektu')
     await ui.press({ key: 'tab-costs' })
+    await ui.press({ key: 'fold-costs:stages' }) // folded by default since brief v2 §7 (Z2)
     const check = textOf(await ui.find({ key: 'cost-stages' }))
     expect(check).toContain('PANEL_X · E2')
     expect(check).toContain('✓ Etapy i „poza etapem” razem $')

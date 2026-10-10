@@ -29,7 +29,23 @@ export type Ctx = { el: Table, Svg: SvgTag | null, isGui: boolean, width: number
 // The Select of a choice cannot hold an empty value: '' travels as this one
 export const NONE = '_'
 
-export const TABS =[['commands', 'Komendy'], ['map', 'Mapa'], ['docs', 'Dokumenty'], ['sheet', 'Ściąga'], ['phrases', 'Frazy'], ['costs', 'Koszty']] as const
+// In the order of use (brief v2 §6.1): the cheat sheet and the phrases are one tab, "Pomoc"
+export const TABS = [['commands', 'Komendy'], ['costs', 'Koszty'], ['docs', 'Dokumenty'], ['map', 'Mapa'], ['help', 'Pomoc']] as const
+
+// The tab kept in $.state: a value from before Z2 ('sheet', 'phrases') opens "Pomoc"
+export function tabOf(v: string): PanelView {
+  return TABS.some(([t]) => t === v) ? v as PanelView : v === 'sheet' || v === 'phrases' ? 'help' : 'commands'
+}
+
+// The sent line (UX-16): a success or a cancel says what happened and goes after a while; anything
+// else is a failure, which starts with what to do and keeps the engine's words after it
+const DONE = /^(Wysłano|Zapisano)/
+const NOTE = /^Anulowano/
+export const isPassing = (text: string) => DONE.test(text) || NOTE.test(text)
+export function failure(todo: string, what: string, err?: unknown): string {
+  const why = err === undefined ? '' : `: ${err instanceof Error ? err.message : String(err)}`
+  return `${todo} ${what}${why}`
+}
 
 // The four categories of a request, in the costs' colors
 export const CATS = [
@@ -87,7 +103,7 @@ export function parts(c: Ctx) {
     </Box>
   )
   const sentLine = last
-    ? <Box key="sent"><Text color={/^(Wysłano|Zapisano)/.test(last) ? THEME.ok : THEME.accentText}>{(/^(Wysłano|Zapisano)/.test(last) ? '✓ ' : '✗ ') + last}</Text></Box>
+    ? <Box key="sent"><Text color={DONE.test(last) ? THEME.ok : NOTE.test(last) ? THEME.body : THEME.accentText}>{(DONE.test(last) ? '✓ ' : NOTE.test(last) ? '' : '✗ ') + last}</Text></Box>
     : null
 
   // ---------- the confirmation card (E5, R4) ----------

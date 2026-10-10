@@ -88,6 +88,15 @@ async function open($: Engine, tab: string, surface: 'terminal' | 'desktop' = 'd
   await $.command.run({ command: 'relai-panel' })
   const ui = await $.ui.mount({ plugin: 'relai-panel', surface, ...pane(columns) })
   await ui.press({ key: 'tab-' + tab })
+  // Brief v2 §7 (AUDYT_MODOW Z2): the price list is a folded section of the costs tab; these tests
+  // read it, and the models whose figures it changes, unfolded (a press only where it is still
+  // folded: the fold is kept in $.state across the mounts of one test)
+  if (tab === 'costs') {
+    for (const s of ['pricing', 'models']) {
+      const b = await ui.find({ key: `fold-costs:${s}` })
+      if (b && String((b.props as { label?: string }).label).startsWith('▸')) await ui.press({ key: `fold-costs:${s}` })
+    }
+  }
   return ui
 }
 

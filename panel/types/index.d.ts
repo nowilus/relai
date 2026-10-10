@@ -13,8 +13,10 @@ export type PanelCleanChoices = { groups: { id: string, name: string, bytes: num
 export type PanelCrewDraft = { run: string, tasks: { id: string, title: string, files: string[], dependsOn: string[], role: string, runtime: string, model: string }[],
   isEditable: boolean, reason: string }
 
-/** Which tab of the pane shows: the command forms, the cheat sheet, the session phrases, the costs, the map, the documents. */
-export type PanelView = 'commands' | 'sheet' | 'phrases' | 'costs' | 'map' | 'docs'
+/** Which tab of the pane shows (brief v2, AUDYT_MODOW Z2): the command forms with "Teraz", the costs,
+ * the documents, the map, and "Pomoc" — the cheat sheet and the session phrases in one tab. A value
+ * kept from before Z2 ('sheet', 'phrases') is read as 'help'. */
+export type PanelView = 'commands' | 'costs' | 'docs' | 'map' | 'help'
 
 declare module 'claude-code' {
   interface PluginState {
@@ -28,14 +30,16 @@ declare module 'claude-code' {
       query: string
       /** What the person typed into a phrase template, keyed by the phrase. */
       fills: Record<string, string>
-      /** The last thing the pane sent, or why it could not: shown under the forms. */
+      /** The last thing the pane sent, or why it could not: shown under the forms. A success goes
+       * after 10 s, anything goes on a tab change or a form opened or closed (AUDYT_MODOW Z2). */
       sent: string
       /** The control pressed in the last moment (FLASH_MS): its card flashes; '' for none. */
       pressed: string
       /** Each subagent's crew task, "run/task", keyed by agent id (E4: the collector's tag). */
       agentTasks: Record<string, string>
       /** What the map shows unfolded: "plan:<name>" and "stage:<plan>/<EN>"; a plan absent from it
-       * takes its default (the active plan open, the rest folded). */
+       * takes its default (the active plan open, the rest folded). Also the documents' groups and
+       * the costs' sections, "costs:<section>", folded by default (brief v2 §7). */
       unfolded: Record<string, boolean>
       /** The crew tasks picked on the map to merge or to give a stage, "<run>/<task or group>". */
       picks: string[]

@@ -226,6 +226,8 @@ describe('the drawn tree stays under its budget for the worst data (Z3)', () => 
   test('costs: a crew session of 14 agents, 14 stages and 400 calls', async ($, on) => {
     world(on, { ...BASE, ...crewSession(14, 14, 400) })
     const ui = await open($, 'costs')
+    // The worst drawing: every section unfolded (Z2 folds them by default, brief v2 §7)
+    for (const s of ['stages', 'turns', 'agents', 'models', 'pricing']) await ui.press({ key: `fold-costs:${s}` })
     const tree = await ui.drawn()
     const w = weight(tree)
     expect(`${w.chars} znaków, ${w.svgs} Svg`).toBe(`${Math.min(w.chars, TREE_BUDGET - 1)} znaków, ${w.svgs} Svg`)
