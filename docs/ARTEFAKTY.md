@@ -177,8 +177,19 @@ czyli liczba plików, nie liczba specyfikacji. Rejestr trzyma się stanu z dysku
 | Artefakt | Plik | Wersja | Data | Co się zmieniło | Po co |
 |---|---|---|---|---|---|
 | Styl pasków dla Claude Code | `docs/zasoby/PANEL_RELAI/STYL_PASKOW_CLAUDE.md` | 1 | 2026-10-09 | Nowy brief: miękkie powierzchnie, kolumny i przyciski z „Liczby po prawej”, nazwane kafelki zadań z „Pola i segmenty”; tokeny, geometria, stany, ograniczenia API i kryteria odbioru | Przenosi wybór użytkownika z makiet do samowystarczalnej instrukcji dla wykonawcy E9; zapobiega odtwarzaniu indywidualnych stanów z samej sumy postępu |
+| Styl pasków i panelu dla Claude Code | `docs/zasoby/PANEL_RELAI/STYL_PASKOW_CLAUDE.md` | 2 | 2026-10-10 | Zasada „pasek spokojny, pasek mówiący” (drugi wiersz tylko przy zdarzeniu, zero przycisków na stałe), pasek postępu z linią pod segmentami, pasek cache jako cztery pierścienie z podpisem dwuliniowym (K2 + H3), koszt sesji raz; panel: pasek „Teraz”, komendy jako wiersze z nazwą komendy, Koszty ze zwiniętymi sekcjami; v1 w historii gita | Audyt modów (wątek AUDYT_MODOW): paski zajmowały 22 % okna i mówiły cały czas, więc nic nie było sygnałem; brief v2 przenosi cztery rundy kalibracji z makiet do instrukcji dla sesji wdrożeniowej |
 
 ## Poza rejestrem — świadomie
+
+### Jawna korekta promptu E1 PANEL_CODEX (2026-10-10)
+
+Wyjątek dla tej korekty, zgodnie z dyspozycją człowieka i zaakceptowanym Aneksem A:
+
+| Artefakt | Plik | Wersja | Data | Co się zmieniło | Po co |
+|---|---|---|---|---|---|
+| Prompt E1 PANEL_CODEX | `docs/plany/PANEL_CODEX/PROMPT_ETAP_1.md` | 2 | 2026-10-10 | Jawna korekta liczby pól 17 → 16 w stanie wyjściowym i kryterium odbioru; lista oraz schemat nietknięte, wersja 1 w historii Git | Kryterium odbioru ma odpowiadać rzeczywistemu eksportowi RECORD_FIELDS; ślad wersji wymagany przy zaakceptowanej korekcie |
+
+Pozostałe wyłączenia rejestru:
 
 - **Hooki, guardraile, walidator, `session-signals.js`** — kod wykonawczy, nie instrukcja czytana
   przez model. Ich historia mieszka w gicie i w dzienniku.

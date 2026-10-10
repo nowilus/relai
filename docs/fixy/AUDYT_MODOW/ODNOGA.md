@@ -1,0 +1,151 @@
+# ODNOGA — mody Claude Code po audycie: spokojne paski, szybki panel, zero błysków
+
+Plan: brak (wątek samodzielny) · Etap-źródło: — · Utworzona: 2026-10-10 · Status: **OTWARTA** ·
+Wykonawca: **Opus 5.5** (decyzja Łukasza 2026-10-10: Opus do zadań optymalizacyjnych i rozpoznawczych;
+projekt UX/UI zamknięty przez Fable 5.1 w briefie v2)
+
+## Cel
+
+Trzy mody RelAI (`relai-panel`, `relai-progress`, `relai-cache-keeper`) rysują nad promptem
+w spokoju trzy wiersze bez żadnego przycisku, a drugi wiersz tylko wtedy, gdy jest powód; panel
+`/relai-panel` otwiera się i reaguje na klik bez powtarzania I/O (żadnego spawnu `git`, żadnego
+parsowania pomiarów na błysk przycisku) i nigdy nie znika bez słowa; żaden pasek nie przerysowuje
+się, gdy nic na nim się nie zmieniło; liczby o pieniądzach i cache pochodzą z jednego źródła
+i jednego formatu. Po czym poznać: kryteria odbioru w [briefie v2](../../zasoby/PANEL_RELAI/STYL_PASKOW_CLAUDE.md#9-kryteria-odbioru-v2)
+i sekcja „Weryfikacja” niżej.
+
+## Skąd się wzięła
+
+Po wydaniu 2.8.0 (plan PANEL_CLAUDE zamknięty 2026-10-10) Łukasz zgłosił, że paski zabierają
+za dużo miejsca (22 % okna), migoczą i przeładowują się bez powodu, a panel „ma aż nadto
+informacji — przeładowanie danych zabija jego cel”. Audyt w tej sesji (trzy soczewki równolegle:
+best practices modów, wydajność/re-render, kod i logika UX; potem sceptycy na Opus) dał
+**101 ustaleń** (94 po deduplikacji: 80 potwierdzonych, 11 prawdopodobnych, 3 obalone; pełna lista z werdyktami: [RAPORT.html](RAPORT.html)).
+Projekt wizualny przeszedł cztery rundy kalibracji na makietach ([MAKIETY.html](MAKIETY.html))
+i jest zamrożony w briefie v2. Plan PANEL_CODEX (E1 w toku w Codeksie) dzieli z tym wątkiem
+rdzeń `core/panel/` — dlatego rdzeń poza `theme.mjs` jest tu nietykalny.
+
+## Zakres
+
+Osiem paczek; każda ma własne checkboxy w „Weryfikacji” i da się zamknąć w jednej sesji.
+Kolejność: najpierw fundamenty (Z3–Z5), bo bez nich nowe paski będą migać tak samo.
+
+1. **Z3 · Panel bez I/O w rysowaniu** — `panel/hooks/register.tsx` (hook `ui.render` Pane, loadery
+   `costData`/`mapData`/`docsData`), `panel/hooks/pane-parts.tsx` (`btn`/`flash`): dane zakładki
+   liczone na zdarzeniach (otwarcie zakładki, `turn.complete`, zapis karty) i trzymane w pamięci
+   modułu z kluczem unieważnienia (id sesji, `turnId`, mtime z `$.fs.list`, data cennika); rysowanie
+   czyta pamięć. Błysk `pressed` tylko dla kontrolek, które go pokazują (karty wysyłki), nigdy dla
+   zakładek, zwijania i przełączników; drugi zapis po 900 ms nie uruchamia loaderów. Otwarty
+   dokument liczy **albo** diff **albo** podgląd. Hook Pane z `.catch`, który rysuje zdanie zamiast
+   zamykać panel. Limity i budżet rysunku: kafle dokumentów (jak drzewo: 40 na grupę + „… jeszcze N”),
+   diff (200 wierszy + „pokaż dalej”), karty kosztów (agenci/modele/etapy po 12 + zwijanie), jedna
+   kopia fontu Kalam na zakładkę zamiast osobnej w każdym Svg liczby — z testem sumującym rozmiar
+   drzewa dla najgorszych danych (próg roboczy 200 tys. znaków, P-023 pkt 7).
+2. **Z4 · Paski bez pustych przerysowań** — `cache-keeper/hooks/register.tsx`: tick liczy czas
+   następnej zmiany napisu (pełna minuta, próg stygnięcia) i tylko wtedy woła `invalidate`;
+   `saveSnap` po zmianie stanu, nie co 30 s. `progress/hooks/register.tsx`: `hasPanel` ustalane raz
+   (w `session.start` i po `command.register`), nie przez `$.command.list()` w każdym rysowaniu;
+   tick 10 s najpierw porównuje `mtimeMs` z `$.fs.list` katalogu planu i promptu, czyta pliki tylko
+   po zmianie; atom `agents` zapisywany tylko, gdy zmieniło się coś rysowanego (status, kroki,
+   kontekst zaokrąglony do 1k); `tool.call` nie blokuje zwrotu narzędzia (refresh przez
+   `$.clock.after(0)`). `panel/hooks/register.tsx`: `turn.step` czyta plan tylko po zmianie
+   mtime `STATUS.md`; znacznik „zmienione w tej turze” w atomie `$.state` (rysuje go tylko zakładka
+   Dokumenty) zamiast `invalidate('ui.render')` dla wszystkich pasków; `$.session.usage()` w
+   `turn.complete` zastąpione wartościami z `session.measure`; `readText` jako jedno `$.fs.read`
+   z `catch`. Kolektor: rekordy w pamięci, zapis pliku na `turn.complete` i `session.compact`
+   (nie na każdy krok), błąd zapisu słowami w panelu.
+3. **Z5 · Poprawność** — `cache-keeper/hooks/register.tsx`: reset stanu po `/clear` przez
+   `session.end` z `reason === 'clear'` i porównanie `$.session.id()` przy użyciu (P-020 pkt 4),
+   `classic.SessionStart` usunięty; odrzucenie `ui.ask` (Esc) = „Anuluj”, nie „Wyślij mimo to”;
+   nieudany `compact` **nie** wysyła wiadomości; hotkey cyfrowy `1` usunięty (litery zostają).
+   `progress/hooks/register.tsx`: koszt agenta z zapisanej listy cen (`priceAt` z kopii
+   `pricing.mjs` + `cennik.json`), ta sama kwota co w zakładce Koszty. `cache-keeper/hooks/pricing.ts`:
+   stawki z kopii `relai/pricing.mjs` zamiast własnej tabeli.
+4. **Z1 · Paski wg briefu v2** — `panel/hooks/band.tsx` (pasek planu: jeden wiersz, bez kosztu,
+   etykieta `plan`, drugi wiersz karty decyzji), `progress/hooks/register.tsx` (segmenty + linia
+   pod nimi w jednym Svg, chip agentów zamiast przycisku, bez „Panel RelAI”, drugi wiersz
+   „odhaczony punkt” na 10 s), `cache-keeper/hooks/register.tsx` (cztery pierścienie z podpisem
+   dwuliniowym, koszt sesji raz, drugi wiersz stygnięcia/przekazania), `core/panel/theme.mjs`
+   (tokeny pierścieni i progów kolorów; etykieta 14 komórek). Odpowiednik terminalowy każdego
+   elementu.
+5. **Z2 · Panel wg briefu v2** — `panel/hooks/register.tsx` i `pane-parts.tsx` (nagłówek z
+   zakładkami w jednym wierszu, bez zdania o 14 komendach, pasek „Teraz” z jedną akcją główną,
+   zakładki `Komendy · Koszty · Dokumenty · Mapa · Pomoc`), `pane-commands.tsx` (dwie karty
+   polecane, 12 wierszy z nazwą komendy, formularz pod wierszem), `pane-costs.tsx` (sekcje
+   zwinięte z podsumowaniem, procenty bez setnych), linia `sent` wygasająca po 10 s i bez surowych
+   błędów silnika.
+6. **Z6 · Jedno źródło, jeden format** — trzy `fmt.ts` identyczne (test równości jak dla kopii
+   rdzenia) albo jedna wersja w każdym modzie z `usd`/`tokens` o tym samym wyniku; jeden cennik
+   dla trzech modów (kopia `pricing.mjs` + `cennik.json`); `barCard` w jednej postaci w `band.tsx`
+   i cache-keeperze (ten sam kod, test równości). Martwy kod i nieaktualne komentarze z listy
+   CODE-18/CODE-19 raportu.
+7. **Z7 · Testy pilnujące obietnic** — test liczący rysowania i wywołania `$` na klik, znak
+   i tick (atrapa `$` z licznikami) dla każdego modu; test budżetu drzewa dla najgorszych danych
+   (archiwum 128 plików, diff 400 wierszy, sesja załogi z 12 agentami); testy hooków cache-keepera
+   (strażnik, ping, przekazanie, `/clear`) na atrapie `$`; testy `fmt`.
+8. **Z9 · Ekonomika przekazania: kontynuować czy nowa sesja** (prośba Łukasza 2026-10-10) —
+   `cache-keeper/hooks/economics.ts` (czysta funkcja, testowana) + `register.tsx` (pasek, `/cache`):
+   dla bieżącej sesji liczy **koszt następnej tury tu** (odczyt cache całego kontekstu `ctx` po
+   stawce odczytu modelu; przy cache zimnym — ponowny zapis `ctx` po stawce zapisu; plus średnie
+   wyjście tury z pomiarów sesji) i **koszt po przekazaniu** (jedna tura przekazania z obecnym
+   kontekstem + zapis warstwy startu projektu `S` — rozmiar z raportu hooka startu albo z sumy
+   plików rytuału — potem tury na kontekście `S`), stąd **liczbę tur, po których nowa sesja się
+   zwraca**: `(koszt_przekazania + S·zapis) / ((ctx − S)·odczyt)`. Druga waluta: **zmierzone tempo
+   limitu 5 h na turę** — różnice `rateLimits.percentUsed` z `session.measure` między kolejnymi
+   `turn.complete`, średnia z ostatnich 5 tur, odniesiona do tokenów tury; prognoza po
+   przekazaniu proporcjonalnie do `S/ctx`. Wynik słowami: „nowa sesja zwróci się po N turach
+   (≈ $x/turę teraz vs ≈ $y po; 0,8 % limitu 5 h/turę vs 0,2 %)”. **Próg:** zdarzenie w drugim
+   wierszu paska cache („nowa sesja zwróci się po N turach · Przekaż”), gdy N ≤ 5 **albo** cache
+   zimny i `ctx > 2·S`; próg zmienny `/cache zwrot 5`. Pełny rachunek z założeniami (stawki, TTL
+   założony/zmierzony, S) w odpowiedzi `/cache`. Brak którejkolwiek liczby — zdanie o braku,
+   nie pozorna rekomendacja.
+9. **Z8 · Wydanie** — `relai-panel` 0.10.0, `relai-progress` 0.3.0, `relai-cache-keeper` 0.4.0;
+   `claude plugin validate` + `plugin test` ×3, `core/tools/validate-adapters.js`, sekwencja P-005
+   (marketplace, tag, release, update, restart, pomiar na żywo zrzutem człowieka). **Publikacja
+   wyłącznie po „tak” Łukasza.**
+
+## Poza zakresem
+
+- `core/panel/*.mjs` poza `theme.mjs` — kontrakt planu PANEL_CODEX (16 pól rekordu, eksporty).
+  Ustalenia oznaczone w raporcie `outOfScope` (m.in. odchudzenie kopii rdzenia per plugin
+  w `core/tools/sync-panel-core.js`, 254 KB `headings.mjs` w progress i cache-keeperze) czekają na
+  osobną decyzję — są spisane, nie zrobione.
+- Wariant B „jedna listwa” (zależności między pluginami) — kandydat na plan, nie na wątek.
+- Przebudowa zakładek Mapa i Dokumenty poza limitami rozmiaru (UX-12, UX-13 raportu).
+- `userConfig` dla ustawień cache-keepera (BP-09) i przedrostek `relai-` dla jego komend (CODE-20).
+- Adapter Codeksa i panel natywny Codeksa.
+- Rotacja dokumentów projektu (dziennik 273 KB, lekcje, ryzyka) — osobna czynność rytuału sesji.
+
+## Weryfikacja
+
+- [ ] Z3: test z licznikami dowodzi, że klik przycisku zakładki Koszty wykonuje 0 wywołań
+      `$.fs`/`$.process` (dane z pamięci), a otwarcie zakładki — jeden przebieg loadera.
+- [ ] Z3: drzewo panelu dla archiwum 128 plików, diffu 400 wierszy i 12 agentów mieści się
+      w budżecie (test), a desktop pokazuje panel (zrzut).
+- [ ] Z4: w bezczynności przez 5 minut licznik `invalidate` trzech modów = liczba pełnych minut
+      zmiany napisu cache (test ticka z zegarem atrapy); `$.command.list()` nie jest wołane
+      w rysowaniu (test).
+- [ ] Z5: `/clear` zeruje stan cache-keepera (test `session.end` z `reason: 'clear'`); Esc
+      w strażniku nic nie wysyła; koszt agenta w `/relai-agents` = kwota tej samej pozycji
+      w zakładce Koszty (test na wspólnych danych).
+- [ ] Z1: trzy paski w spokoju bez przycisków, ≤ 160 px przy 1400 px (zrzut Łukasza); każdy
+      stan z tabeli briefu otwiera drugi wiersz tylko pod swoim paskiem (testy); koszt sesji raz.
+- [ ] Z2: 14 komend bez przewijania przy 900 px (zrzut), nazwa komendy obok polskiej, „Teraz”
+      z jedną akcją główną, Koszty ze zwiniętymi sekcjami w `$.state`.
+- [ ] Z6: test równości trzech `fmt.ts` i dwóch `barCard`; `usd(11.73)` daje ten sam napis
+      w trzech modach.
+- [ ] Z7: `claude plugin test` ×3 zielone; nowe testy wymienione z nazwy we wpisie dziennika.
+- [ ] Z9: test funkcji na trzech przypadkach z liczbami policzonymi ręcznie w teście (cache
+      ciepły z małym kontekstem → „nie opłaca się”, cache ciepły 800k → N ≤ 5, cache zimny
+      z `ctx > 2·S` → zdarzenie); drugi wiersz paska pojawia się tylko po przekroczeniu progu
+      (test modu); `/cache` pokazuje rachunek z założeniami; brak danych słowami.
+- [ ] Z8: `plugin validate` ×3, walidator adapterów, pomiar po restarcie treścią plików z cache
+      (P-005); publikacja po „tak”.
+- [ ] `git diff` nie dotyka `core/panel/*.mjs` poza `theme.mjs` ani niczego w `adapters/codex/`.
+- [ ] Katalog roboczy `.claude/relai/work/_fixy/AUDYT_MODOW/` przejrzany raportem
+      (`node .claude/relai/tools/clean-work.js raport`) i skasowany po „tak”; liczby przed i po
+      we wpisie dziennika; artefakty spoza katalogu z nazwy.
+
+## Wynik
+
+—

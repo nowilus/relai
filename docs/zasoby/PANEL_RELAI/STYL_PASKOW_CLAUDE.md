@@ -1,212 +1,139 @@
-# Styl pasków RelAI dla Claude Code
+# Styl pasków i panelu RelAI dla Claude Code
 
-Wersja: **1** · Data: **2026-10-09** · Zakres: trzy paski nad promptem, plan PANEL_CLAUDE / E9.
+Wersja: **2** · Data: **2026-10-10** · Zakres: trzy paski nad promptem **i panel boczny** `/relai-panel`
+(zakładki Komendy i Koszty) · Źródło decyzji: wątek [AUDYT_MODOW](../../fixy/AUDYT_MODOW/ODNOGA.md),
+makiety [MAKIETY.html](../../fixy/AUDYT_MODOW/MAKIETY.html) (wersja 4, kalibracja z Łukaszem
+w czterech rundach 2026-10-10).
 
-Brief do implementacji w Claude Code. Powstał po wyborze użytkownika: delikatne tła
-„Miękkich powierzchni”, rozmieszczenie i przyciski z „Liczby po prawej”, postęp z „Pola
-i segmenty” rozwinięty do **kafelków konkretnych zadań z krótką nazwą i statusem**.
-W tej sesji powstaje opis, implementację wykonuje sesja Claude Code prowadząca E9.
+Wersja 1 (2026-10-09, brief do E9 planu PANEL_CLAUDE) jest w historii gita tego pliku. Co zostaje
+z wersji 1: tokeny kolorów (`BAND`, `BAR`, `THEME` w `core/panel/theme.mjs`), siatka etykieta |
+treść | liczba, miękkie tła bez kolorowych ramek, natywne przyciski z błyskiem, reguła
+„agregat i segmenty z jednej listy”. Co zmienia wersja 2: **ile paski mówią w spokoju** i **jak
+mówią, gdy coś się dzieje**.
 
-## 1. Efekt docelowy
+## 1. Zasada nadrzędna: pasek spokojny, pasek mówiący
 
-Trzy niezależne, spokojne paski: **cache → plan → postęp**. Każdy mod zachowuje własne miejsce.
-Oddzielenie zapewniają delikatnie różne tła, odstępy i wyrównanie, zamiast kolorowego obrysu.
-Wrażenie: porządek i elegancja narzędzia do pracy, z kolorystyką RelAI.
+Pasek nad promptem ma odpowiadać na cztery pytania bez klikania i bez czytania zdań:
+**nad czym pracuję** (plan · etap · status), **jak daleko** (segmenty postępu), **czy cache
+żyje** (czas do wygaśnięcia), **ile limitu zostało** (5 h, tydzień, kontekst). Wszystko inne —
+przyciski, koszt ponownego zapisu, nazwa odhaczonego punktu, karta decyzji — pojawia się **tylko
+wtedy, gdy ma powód**, jako drugi wiersz pod tym paskiem, którego zdarzenie dotyczy, i znika razem
+z powodem. Wariant „C · Spokojny pasek” z makiet.
 
-Przy szerokim oknie nazwa sekcji stoi po lewej, informacje w środku, najważniejsza liczba
-po prawej. Liczby trzech pasków mają wspólną prawą krawędź. Postęp pokazuje osobne małe
-kafelki zadań; **nie rysujemy dodatkowo dużego ciągłego paska, który je dubluje**.
+Zdarzenia, które otwierają drugi wiersz (każde ma źródło w pliku albo w `$.state`, więc
+przeładowanie modu niczego nie gubi — P-023 pkt 6):
 
-## 2. Układ wspólny
-
-| Element | Docelowa geometria desktopowa |
-|---|---|
-| Odstęp pomiędzy paskami | 8 px |
-| Padding paska | 10 px w pionie, 13 px w poziomie |
-| Rogi paska | subtelne, około 7 px |
-| Lewa kolumna etykiety | około 106–118 px; jednakowa we wszystkich trzech paskach |
-| Środkowa kolumna | elastyczna; mieści tytuł, metadane, przyciski albo zadania |
-| Prawa kolumna liczby | około 76–88 px; nie kurczy się kosztem liczby |
-| Odstępy między kolumnami | około 14 px |
-| Wysokość cache i planu | zwykle 52–64 px, zależnie od szerokości i zawijania |
-| Wysokość postępu | wynika z liczby rzędów kafelków; bez pustej przestrzeni |
-
-Wartości w pikselach opisują wygląd referencyjny. Silnik modów liczy część geometrii w komórkach:
-dobierz odpowiadające im właściwości i skalibruj efekt na żywo, zamiast przepisywać CSS makiety.
-Przy szerokim oknie i jednym rzędzie zadań celuj w wysokość całości zbliżoną do obecnych pasków.
-Jeśli zadania wymagają zawinięcia, czytelność ma pierwszeństwo przed sztuczną stałą wysokością.
-
-## 3. Kolory i typografia
-
-Źródło marki: `core/panel/theme.mjs`, paleta `ROOT`. Poniższe kolory są referencją ciemnego
-widoku zaakceptowanych makiet, do zapisania we wspólnych tokenach pasków i ich zsynchronizowania.
-
-| Rola | Kolor referencyjny |
-|---|---|
-| Otoczenie pasków | `#21211f`, w aplikacji wykorzystaj jej istniejące tło |
-| Tło cache | `#2c2824`, delikatnie gliniane |
-| Tło planu | `#2d2a23`, delikatnie musztardowe |
-| Tło postępu | `#262c27`, delikatnie szałwiowe |
-| Główny tekst | `#eee8dc` |
-| Tekst pomocniczy | `#b8b0a3` |
-| Etykieta cache | `#df987a` |
-| Etykieta planu / potwierdzony stan „W toku” | `#e1b85c` |
-| Etykieta postępu / ukończone zadanie | `#9cbea2` |
-| Spokojne tło kontrolki | `#3a342b` |
-| Neutralna linia kontrolki, jeśli potrzebna | `#464239` |
-
-Kolor określa tożsamość sekcji i rzeczywisty stan zadania. Duże powierzchnie pozostają ciemne
-i przygaszone. Bez glow, gradientów, ciężkiego cienia i kolorowej ramki wokół całego paska.
-
-Typografia systemowa, jak w aplikacji. Referencja: treść 14 px, metadane 12 px,
-etykiety 12 px / semibold, prawa liczba 19 px / semibold, jednostka pod nią 11–12 px.
-W liczbach użyj cyfr o jednakowej szerokości, jeśli renderer to obsługuje.
-Kontrast tekstu do jego tła co najmniej 4,5:1; znaczenie stanu widoczne także w symbolu i słowie.
-
-## 4. Pasek cache
-
-**Lewa kolumna:** `RelAI · cache` w kolorze gliny.
-
-**Środek, pierwszy wiersz:** stan, np. `Cache ciepły`, oraz zwarta grupa dwóch przycisków
-`Podtrzymaj` i `Przekaż`. Grupa stoi obok stanu, nie na skrajnym prawym końcu paska.
-
-**Środek, drugi wiersz:** kontekst, koszt ponownego zapisu, limity i koszt sesji.
-Przykład układu: `405k · zapis ≈ $3.24`, `5 h: 19% · tydzień: 35%`, `sesja ≈ $17`.
-To przykładowe wartości ze zrzutu, nie stałe do wpisania do programu.
-
-**Prawa kolumna:** duże `~54`, pod nim małe `min do końca`.
-Przy mniej niż minucie pokaż rzeczywistą jednostkę; przy braku pomiaru tekst `brak danych`,
-zamiast pozornego zera. Nie powtarzaj dużego czasu w środku paska.
-
-## 5. Pasek planu
-
-**Lewa kolumna:** `RelAI · plan` w kolorze musztardy.
-
-**Środek, pierwszy wiersz:** `PANEL_CLAUDE · E9` i mały tekst statusu `W TOKU`.
-**Drugi wiersz:** nazwa etapu i koszt sesji z jawną kwalifikacją `wg cennika API`.
-
-**Prawa kolumna:** `4/9`, pod spodem `etapów`.
-Licznik etapów planu pozostaje odrębny od licznika zadań bieżącego etapu.
-Brak planu albo nieznany stan pokazuj słowami, zgodnie z istniejącym modelem.
-
-## 6. Pasek postępu: małe kafelki na zadanie
-
-**Lewa kolumna:** `RelAI · postęp` w kolorze szałwii.
-**Środek, pierwszy wiersz:** identyfikator etapu i jego nazwa.
-**Poniżej:** kompaktowa lista kafelków. Jeden kafelek = jeden rzeczywisty punkt checklisty
-albo jedno zadanie załogi, w kolejności ze źródła.
-**Pod kafelkami:** pomocniczy licznik `6 z 14 punktów` albo `6 z 14 zadań`, zależnie od źródła.
-**Prawa kolumna:** `42.85`, pod nim `procent`. Zachowaj istniejącą regułę wyliczania i formatowania.
-
-### Geometria kafelków
-
-- Wysokość referencyjna 22–26 px; padding poziomy 6–8 px; odstęp 4–6 px.
-- Rogi około 3–4 px. To małe komórki statusu, nie duże karty z opisem.
-- Szerokość wynika z krótkiej nazwy; zwykle 60–120 px. Symbol statusu zawsze zostaje widoczny.
-- Bez pełnego opisu, kosztu, modelu i dat w każdym kafelku. Pełna nazwa należy do szczegółów.
-- Nazwa źródłowa pozostaje dostępna w danych. Przy długiej nazwie skróć ją deterministycznie
-  przez ograniczenie długości i wielokropek; nie wołaj modelu do tworzenia etykiet.
-- Jeśli renderer obsługuje podpowiedź, udostępnij pełną nazwę na hover i fokus. Jeśli nie,
-  kliknięcie natywnej kontrolki pokazuje pełną nazwę i stan w szczegółach sekcji postępu,
-  przez rozszerzenie istniejącego panelu `relai-progress` o listę zadań.
-- Informacja o zadaniu jest dostępna także w terminalu, bez uzależnienia jej od hover.
-
-### Wygląd stanów
-
-| Stan źródłowy | Etykieta przykładowa | Wygląd |
+| Pasek | Zdarzenie | Drugi wiersz |
 |---|---|---|
-| Ukończone | `✓ Testy` | delikatne szałwiowe wypełnienie, czytelny jasny tekst |
-| Oczekuje / nieodhaczone | `○ Dokumenty` | neutralne ciemne wypełnienie, spokojny tekst |
-| W toku, tylko gdy źródło to potwierdza | `● Weryfikacja` | delikatna musztarda, symbol i jawny stan w szczegółach |
-| Błąd / timeout, jeśli dostępne | `! Publikacja` | przygaszona glina; słowo „błąd” lub „timeout” w szczegółach |
-| Stan nieznany | `? Zadanie` | neutralny wygląd i jawna informacja o braku stanu |
+| plan | karta decyzji czeka na „Tak” (E5, R4) | tytuł karty jako chip, `Tak` (primary), `Nie`, zdanie „nic nie idzie do czatu bez „Tak”” |
+| postęp | punkt właśnie odhaczony | chip `✓ 3/14 · <nazwa>` na 10 s, potem wiersz znika |
+| cache | cache stygnie (`cooling`) | chip `stygnie · ponowny zapis ≈ $x`, `Podtrzymaj` (hotkey 1), `Przekaż` (hotkey h) |
+| cache | przekazanie gotowe (`H.phase === 'ready'`) | chip `przekazanie gotowe`, `Wyczyść i kontynuuj` (primary, hotkey c), `Zostań` |
+| cache | nowa sesja się opłaca (Z9: zwrot w ≤ 5 turach albo cache zimny i kontekst > 2× warstwa startu) | chip `nowa sesja zwróci się po N turach · ≈ $x → $y/turę · 0,8 % → 0,2 % limitu 5 h`, `Przekaż` (hotkey h), `Zostań`; pełny rachunek w `/cache` |
 
-Przykładowe nazwy powyżej służą objaśnieniu stylu; faktyczna lista pochodzi z danych projektu.
-Zwykła nieodhaczona pozycja Markdown nie dowodzi, że zadanie właśnie trwa.
-Nie oznaczaj automatycznie kolejnego kafelka musztardą.
+W spokoju: **zero przycisków na stałe**, trzy wiersze tekstu w sumie (po jednym na pasek)
+plus linia pod segmentami postępu i drugi wiersz podpisów pierścieni (sekcje 3 i 4). Kolejność
+pasków jak dziś: plan → postęp → cache.
 
-### Wymaganie dla modelu danych
+## 2. Pasek planu
 
-Obecny `core/panel/progress.mjs` zwraca agregat `done/total/percent/words`, bez listy pozycji.
-Aby kafelki odpowiadały zadaniom, zachowaj obok agregatu ich stabilne identyfikatory,
-nazwy źródłowe, krótkie etykiety, kolejność i dostępne statusy.
-Checklistę czytaj z istniejącego promptu etapu, zadania załogi z istniejących plików
-`zadania.json` i `manifest.json`. Nie dodawaj nowego narzędzia postępu ani nowego źródła ręcznych wpisów.
+Jeden wiersz: `PANEL_CODEX · E1` (pogrubione, `BAR.text`) · `W TOKU` (pogrubione, `BAND.panel.color`)
+· nazwa etapu (`BAR.muted`, obcinana wielokropkiem przed kolumną liczby). Po prawej `0/8` +
+`etapów`. **Koszt sesji znika z tego paska** — stoi raz, w pasku cache. Etykieta kolumny lewej:
+`plan` (bez „RelAI ·”; marka jest w kolorze). Brak planu albo plan nieczytelny — słowami jak dziś.
 
-Agregat i kafelki muszą wynikać z tej samej listy. Szczególnie ważny przypadek:
-ukończone są pozycje 2, 5 i 9, więc szałwiowe są właśnie one, a licznik wynosi 3/N.
-**Nie wolno wypełnić pierwszych trzech kafelków na podstawie samej sumy.**
-Identyfikatory nie zależą od statusu. Dla Markdown wykorzystaj tożsamość źródła i pozycję
-punktu w tym źródle, a dla załogi jej identyfikatory zadań. Ten brief nie wymaga śledzenia
-tożsamości pozycji po przebudowie całej checklisty.
+## 3. Pasek postępu
 
-## 7. Przyciski: układ z „Liczby po prawej”
+Wiersz pierwszy: segmenty (Svg na desktopie, znaki w terminalu) na całą szerokość kolumny
+środkowej, obok chip `● N agentów · $x` gdy sesja ma subagentów (zamiast przycisku „Agenci”;
+panel agentów otwiera się komendą `/relai-agents`). Przycisk „Panel RelAI” **znika z paska**.
+Pod segmentami **stała mała linia** (font Svg ok. 11,5 px, `BAR.muted`): w spokoju
+`w toku: <punkt ●> · następny: <punkt ○>` (albo tylko `następny: …`, gdy nic nie jest w toku);
+po najechaniu na segment — `<znak> i/N · <nazwa punktu>` w `BAR.text`. Segmenty **nigdy** nie
+znikają pod podpowiedzią. Wysokość Svg: dwie linie (segmenty 8 px + odstęp 4 px + linia 14 px).
+Po prawej `2/14` + `punktów` (jeden format liczby dla wszystkich pasków: `a/b` + jednostka,
+bez procentu z setnymi).
 
-`Podtrzymaj` i `Przekaż` tworzą jedną zwartą grupę, bez wielkiej ramki wokół niej.
-Pierwszy przycisk ma spokojne wypełnienie `#3a342b`, drugi nieco ciemniejsze `#322e28`.
-Zewnętrzne rogi około 5 px, wewnętrzne prawie proste; pomiędzy kontrolkami szczelina 2 px.
-Referencja: tekst 12 px, padding 5 px / 8 px. Nazwy pozostają widoczne.
+## 4. Pasek cache: cztery pierścienie z podpisem dwuliniowym
 
-Zachowaj obecne działania, skróty i stany: `Podtrzymaj` / `Zatrzymaj`, `Przekaż`,
-trwające przekazanie oraz `Wyczyść i kontynuuj`, jeśli występują w danym stanie.
-Nie zmieniaj logiki przycisków w ramach stylizacji. Klawisze mogą mieć mniejszą, pomocniczą
-etykietę; nie wolno usuwać ich działania tylko dlatego, że makieta pomija widoczny skrót.
-Przycisk agentów używa tej samej rodziny kontrolek, w obrębie sekcji postępu.
+Wariant „K2 · Pierścienie” + „H3 · podpis dwuliniowy, bez hovera”. Jeden wiersz Svg
+(wysokość ok. 24 px), w kolumnie środkowej od lewej:
 
-Hover: mała zmiana jasności. Fokus: czytelny natywny. Stan niedostępny i stan oczekiwania
-mają zachować znaczenie. Nie udawaj kliknięcia sukcesem, zanim istniejąca operacja się powiedzie.
-W silniku 2.1.293 unikaj `plain` na malowanym tle: P-018 opisuje niekontrolowane odwracanie kolorów.
-Jeśli API nie pozwala odtworzyć połączonych rogów, zastosuj dwa sąsiadujące natywne przyciski.
-Zachowanie i hierarchia są ważniejsze od identycznego promienia.
+| Pierścień | Linia 1 (`BAR.text`, ok. 11 px) | Linia 2 (`BAR.muted`, ok. 11 px) | Wypełnienie |
+|---|---|---|---|
+| cache | `Ciepły · ~60 min` / `Stygnie · ~4 min` / `Zimny · od 12 min` | `TTL 60 min` (+ „założony”, gdy TTL nie zmierzony) / w stanie zimnym `zapis ≈ $x` | czas pozostały z TTL, opróżnia się |
+| 5 h | `11 % · 5 h` | `reset 17:20` | zużycie limitu 5 h |
+| tydzień | `23 % · tydzień` | `reset jutro 10:00` | zużycie limitu tygodniowego (wszystkie modele) |
+| kontekst | `259k · kontekst` | `z 1M · 26 %` | tokeny kontekstu z okna modelu |
 
-## 8. Mała szerokość i przypadki brzegowe
+Po pierścieniach `sesja ≈ $11.73` (`BAR.muted`; jedyne miejsce kosztu sesji nad promptem).
+Po prawej `~60` + `min` (jak dziś; tylda, gdy TTL założony).
 
-- Najpierw zawijaj metadane i kafelki; nie zmniejszaj tekstu do nieczytelnego rozmiaru.
-- Poniżej szerokości pozwalającej na trzy kolumny przenieś etykietę nad środek i prawą liczbę.
-  Przyciski mogą wejść w kolejny wiersz, ale pozostają we własnym pasku.
-- Kafelki zawijają się do następnych rzędów. Nie ściskaj wszystkich zadań w jedną cienką kreskę.
-- Przy dużej liczbie pozycji pokaż do dwóch rzędów w podglądzie; resztę udostępnij kontrolką
-  `Wszystkie zadania · N`, otwierającą listę zadań w rozszerzonym panelu `relai-progress`.
-  Licznik nadal obejmuje całą listę.
-  Nie usuwaj nadmiarowych zadań ze źródła i nie chowaj ich bez informacji.
-- Przy braku źródła pokaż komunikat słowny; bez pustej listy imitującej 0%.
-- 0/N: wszystkie kafelki oczekują, 0%. N/N: wszystkie ukończone, 100%.
-  Zachowaj istniejące pierwszeństwo źródeł i reguły zakończenia pracy załogi.
-- Zadania zakończone błędem nie powiększają licznika ukończonych.
-- Terminal: te same nazwy i stany w zwartej postaci tekstowej; brak grafik nie oznacza braku treści.
+Geometria pierścienia: średnica 22 px, grubość 3,2 px, tor `#1d1b18`, zaokrąglone końce,
+start od góry. Kolor wypełnienia mówi o stanie: szałwia (`BAR.segment.done`) do 70 %, musztarda
+(`BAND.panel.color`) od 70 %, glina (`BAND.cache.color`) od 90 %; dla cache odwrotnie — pełny
+tor szałwią, musztarda gdy zostaje ≤ 35 % TTL (stan `cooling`), glina gdy ≤ 15 % albo zimny.
+Hover: wyłącznie pogrubienie pierścienia (4,4 px); **żadnego dymka ani nakładki** (H2 i nakładka
+z v3 odrzucone 2026-10-10). Terminal: `◔ ◑ ◕ ●` + te same dwie linie tekstem w jednej.
 
-## 9. Miejsca implementacji i ograniczenia silnika
+Źródła liczb: `$.session.usage()` (`rateLimits` z `percentUsed` i czasem resetu, `context.tokens`
+i okno modelu, `cost.usd`), `cacheState` z `cache-keeper/hooks/core.ts` (stan i `left`), TTL jak dziś.
+Brak którejś liczby — pierścień pusty z podpisem `brak danych`, nie pozorne zero.
 
-Przed zmianą sprawdź aktualne źródła, ponieważ E9 jest w toku:
+## 5. Wspólna geometria pasków (bez zmian wobec v1, przypomnienie)
 
-- `core/panel/theme.mjs`: wspólne tokeny wyglądu pasków.
-- `core/panel/progress.mjs`: zachowanie indywidualnych pozycji obok agregatu.
-- `panel/hooks/register.tsx`: wygląd paska planu.
-- `cache-keeper/hooks/register.tsx`: wygląd cache i grupy istniejących przycisków.
-- `progress/hooks/register.tsx`: kafelki zadań, licznik, dostęp do szczegółów.
-- `core/tools/sync-panel-core.js`: generowanie kopii rdzenia do pluginów; kopii nie edytuj ręcznie.
+Etykieta 14 komórek (v1: 16 — krótsza, bo bez „RelAI ·”), kolumna liczby 11 komórek, odstęp
+między kolumnami 2 komórki, padding 1 komórka w poziomie; poniżej `BAR.narrow` kolumn etykieta
+i liczba idą nad treść. Tła `BAND.*.bg`, ramka `round` w kolorze tła dla zaokrąglenia. Odstęp
+między paskami 1 wiersz na desktopie, 0 w terminalu. Owijacz z `next(e)` bez `width` (P-017).
 
-To natywny renderer Claude Code Mods, nie strona WWW. Ograniczenia udokumentowano w
-`docs/PULAPKI.md`, P-017 i P-018. `Text` nie udostępnia rozmiaru fontu; przyjmij natywną
-typografię, a większe liczby, jeśli wykonalne, rysuj istniejącą metodą SVG na desktopie.
-SVG jest prezentacją, nie zamiennikiem klikalnego `Button`. Nie używaj `foreignObject`.
-Kod z `$` pozostaje w module hooków; owijacz zawierający wynik `next(e)` nie dostaje `width`.
-Wszystkie trzy mody zachowują przekazanie wyniku `next(e)` i nie zasłaniają innych pasków.
+## 6. Panel boczny `/relai-panel` — zakładka Komendy (wariant P1)
 
-Wybór wyglądu w tym briefie aktualizuje wcześniejszą preferencję pełnych kolorowych ramek.
-Przy implementacji odnotuj go zgodnie z zasadami aktywnego etapu; tego dokumentu nie traktuj
-jako uruchomienia E9 w Codeksie ani polecenia zmiany zamrożonego planu bez datowanego aneksu.
+1. **Nagłówek**: „Panel RelAI” (Svg Kalam, jak dziś) i w tym samym wierszu zakładki jako natywne
+   przyciski: `Komendy · Koszty · Dokumenty · Mapa · Pomoc` (Ściąga i Frazy razem jako „Pomoc”;
+   kolejność według użycia). Zdanie „14 komend RelAI · kliknij komendę…” **znika**.
+2. **Pasek „Teraz”** (karta `THEME.cardFeatured` z ramką `THEME.mark`): wiersz 1 — `PANEL_CODEX · E1`,
+   `W TOKU`, segmenty postępu (Svg), `2/14`; wiersz 2 — `następny: <punkt> · cache ciepły ~60 min ·
+   3 agentów działa`; po prawej **jedna akcja główna** (`primary`): `Start etapu…` (otwiera kartę
+   decyzji w tym samym miejscu), a gdy karta czeka — karta „Tak / Nie” zamiast paska.
+   Liczy się z tych samych plików co paski (kopia `progress.mjs` w `relai-panel`), bez zależności
+   między pluginami.
+3. **Polecane teraz**: dwie karty (etap planu, optymalizator promptu) z ikoną 44 px — wycieczka
+   schodzi do wierszy.
+4. **Pozostałe 12 komend jako wiersze** w trzech grupach jak dziś: ikona 24 px, nazwa polska
+   pogrubiona **i obok nazwa komendy** w `THEME.body` (np. `Etap planu /relai-stage`), cel jednym
+   zdaniem w tej samej linii, przycisk `Otwórz` po prawej. Komenda niedostępna w sesji: wiersz
+   przygaszony, przycisk `—`.
+5. **Formularz otwiera się pod wierszem** (karta `THEME.cardOn`), nie wewnątrz karty; wiersz
+   zostaje na miejscu. Przycisk wiersza zmienia się na `Zamknij`.
 
-## 10. Kryteria odbioru
+## 7. Panel boczny — zakładka Koszty (wariant P3)
 
-- Trzy osobne paski, delikatne tła, żadnych pełnych kolorowych ramek wokół nich.
-- Wspólna lewa kolumna etykiet i wspólna prawa krawędź liczb; przyciski w środku paska cache.
-- Postęp reprezentowany małymi, nazwanymi kafelkami z rzeczywistymi stanami konkretnych zadań.
-- Przykład z niekolejno ukończonymi pozycjami pokazuje poprawne kafelki i poprawny licznik.
-- Nie zmieniają się działania przycisków, rachunki, źródła postępu ani wykrywanie projektu.
-- Brak obciętych liczb, nachodzących kontrolek i znikających innych modów przy szerokim oknie
-  oraz przy 90 i 40 kolumnach; nadmiarowe zadania mają dostępną pełną listę.
-- Testy rdzenia i modów dotyczące zmienianych miejsc, synchronizacja rdzenia, kontrola typów
-  i walidacja pluginów przechodzą; desktop i terminal sprawdzone na żywo.
-- Pokaż użytkownikowi rzeczywisty zrzut trzech pasków oraz listę ograniczeń API, które wpłynęły
-  na odwzorowanie stylu. Domknij dokumentację zgodnie z rytuałem E9.
+Kafle zostają jak dziś (suma sesji z paskiem kategorii i legendą; licznik Claude Code; wejścia
+z cache; cały projekt), procenty **bez setnych** (`96 %`). Sekcje poniżej — Etapy, Wywołania
+w czasie, Agenci, Modele, Cennik — jako **zwinięte wiersze** (`THEME.card`): nagłówek Kalamem,
+jednolinijkowe podsumowanie z najważniejszą liczbą sekcji, przycisk `▸ Rozwiń` / `▾ Zwiń`.
+Stan rozwinięcia w `$.state` (`unfolded`), domyślnie wszystko zwinięte. Treść rozwiniętej sekcji
+bez zmian wobec dziś.
+
+## 8. Ograniczenia silnika (2.1.293) obowiązujące w tej wersji
+
+P-017, P-018, P-020, P-021, P-023 bez zmian. Dla v2 najważniejsze: tekst w `Text` bez rozmiaru —
+małe linie (podpisy pierścieni, linia pod segmentami) rysuje Svg; karta hover tylko wewnątrz Svg
+(stąd brak dymków); klik tylko na `Button`; interaktywne Svg we własnym wierszu kolumny
+(P-021 pkt 3) — do zmierzenia przy pierwszym uruchomieniu; natywny `Button` wyższy od wiersza
+(P-021 pkt 6) — drugi wiersz zdarzenia z `marginTop`.
+
+## 9. Kryteria odbioru v2
+
+- [ ] Trzy paski w spokoju: 0 przycisków, wysokość ≤ 160 px na desktopie przy 1400 px
+      (dziś 197 px); zrzut człowieka.
+- [ ] Każde zdarzenie z tabeli w sekcji 1 otwiera drugi wiersz **tylko** pod swoim paskiem
+      i zamyka go, gdy powód znika (test modu na każdy stan).
+- [ ] Koszt sesji nad promptem dokładnie raz, w jednym formacie `usd()`.
+- [ ] Segmenty widoczne podczas najechania; linia pod nimi zmienia treść (zrzut).
+- [ ] Cztery pierścienie z dwiema liniami podpisu; kolory progów zmierzone testem na wartościach
+      69/70/89/90 %; brak danych słowami.
+- [ ] Panel: „Teraz” z jedną akcją główną; 14 komend bez przewijania przy 900 px; nazwa komendy
+      obok polskiej; formularz pod wierszem; Koszty ze zwiniętymi sekcjami pamiętanymi w `$.state`.
+- [ ] Terminal: odpowiednik tekstowy każdego elementu, test 40 kolumn.

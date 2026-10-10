@@ -12,7 +12,7 @@ dokumentami i kosztami sesji, karta „Tak / Nie” przed każdą zmianą), `rel
 etapu, `/relai-agents`) i `relai-cache-keeper` 0.3.0 (licznik cache promptu). `/relai-stage`
 przyjmuje zgodę z karty panelu. Instalacja komendami z README jest zmierzona na żywo. Plugin `relai`
 działa w trzech narzędziach — Claude Code, Cursorze i Codeksie — na jednym rdzeniu procesu,
-z czternastoma komendami. Aktywny plan: PANEL_CODEX, zaakceptowany 2026-10-10; E1 gotowy do startu w świeżej sesji. Opinii spoza projektu
+z czternastoma komendami. Aktywny plan: PANEL_CODEX, zaakceptowany 2026-10-10; E1 W TOKU. Aneks A zaakceptowany; natywny widok i wiadomość do bieżącego czatu potwierdzone sondą 0.0.7. Minimalny pakiet 0.1.0 działa w sondzie 0.0.8 w czacie kontrolnym; układ zaakceptowany; sonda 0.0.9 z poprawką fontów gotowa, pomiar po restarcie i świeży szkic czekają. Opinii spoza projektu
 nadal nie ma.
 
 ## Co działa
@@ -56,12 +56,34 @@ nadal nie ma.
   i aneks D-80 dla adaptera Codeksa zapisany po jawnej akceptacji człowieka. Autor i wykonawca: **gpt-6.1-sol w Codeksie**. 8 etapów;
   plan uzgodniony 2026-10-10 z istniejącym rdzeniem, schematem pomiarów i ograniczeniami Claude;
   przejęcie zweryfikowane (263 testy repo i 70/16/19 testów pluginów). Prompt E1 wygenerowany, etap
-  **GOTOWY DO STARTU** w świeżej sesji. Żaden etap nie rozpoczęty.
+  **W TOKU** po karcie relai-stage i odpowiedzi „tak” w świeżym czacie 01a1254c-f7af-7ce3-bb44-6029ad615eb0.
+  Sonda 0.0.7/PID 62300 działa w rzeczywistym rendererze chatgpt 26.1007.21434;
+  kliknięcie statusu dało relai-e1-active w właściwym macierzystym czacie RelAI.
+  Minimalny pakiet adapters/codex/panel/ 0.1.0 przechodzi build/check:build,
+  13/13 testów i audyt (0 podatności). Repo: 263/263; walidator i kopie exit 0,
+  core/panel i pluginy Claude nietknięte. Sonda 0.0.8 bundluje ten sam pakiet;
+  w czacie kontrolnym 01a12590-0b6d-7d40-affe-7e54f80313da, PID 38988,
+  najnowsza karta 3 pokazuje RelAI, PANEL_CODEX/E1 W TOKU. Starsze karty 1/2
+  nie zawierały nowego kształtu stanu — nie były wynikiem aktualnego wywołania.
+  Geometria 780/320 px z kontrolą pozytywną przeszła; układ zaakceptowany przez Łukasza.
+  Natywny odczyt fontów ujawnił font zastępczy; lokalna kontrola pozytywna poprawna.
+  Sonda 0.0.9 deklaruje osadzone zasoby data:, ustawia font main i zapisuje dowód ładowania.
+  Build, kontrola MCP i 13/13 przeszły; natywne fonty po poprawce jeszcze niepotwierdzone.
+  Szkic 0.0.7 odrzucony przez helper SDK przed gospodarzem; 0.0.8 używa bazowego API.
+  W macierzystym czacie nadal 0.0.7, więc rzeczywista próba nowego szkicu i przycisków
+  pakietu czeka na przeładowanie. Dalsza diagnostyka w czacie kontrolnym zatwierdzona,
+  bez mostków wysyłających wiadomości, nowych czatów ani zmian repo przez ten czat.
+  Kontrakt i ograniczenia:
+  [README adaptera](../adapters/codex/panel/README.md). Eksport RECORD_FIELDS ma 16 pól,
+  przy błędnej liczbie 17 w pierwotnym planie; **Aneks A zaakceptowany 2026-10-10**
+  i zapisany w PLAN.html, PRZEJECIE oraz prompcie E1 v2. Sekcje 1–9 planu nietknięte.
 
 ## Co dalej
 
-- Start E1 [PANEL_CODEX](plany/PANEL_CODEX/PROMPT_ETAP_1.md) w świeżej sesji Codeksa na
-  gpt-6.1-sol, effort high, przez relai-stage; bramki akceptacji i D-80 rozstrzygnięte.
+- Kontynuacja E1 [PANEL_CODEX](plany/PANEL_CODEX/PROMPT_ETAP_1.md): przeładować
+  macierzystego klienta MCP (nadal 0.0.7), otworzyć sondę 0.0.9 i zmierzyć jej
+  fonty, przyciski oraz świeży szkic z właściwym projektem. Układ zaakceptowany,
+  Aneks A rozstrzygnięty; E2 OCZEKUJE, brak promptu E2 zamierzony do odbioru E1.
 - **Bramka E5 planu PANEL_CLAUDE, pominięta decyzją człowieka 2026-10-10:** start etapu z karty
   panelu bez drugiego pytania w czacie i `/relai-stage` bez znacznika z kartą jak przed E5 nie są
   zmierzone na żywo (testy pokrywają oba przebiegi). Warunek wykonalności spełniony od wydania
@@ -76,6 +98,15 @@ nadal nie ma.
 - Odświeżenie listy modeli Codeksa w sesji Codeksa (`/relai-models`): lista ma nazwy z 2026-09-05,
   odczyt z 2026-09-24 wskazywał gpt-6-astra, gpt-6-sol i gpt-6-luna; do tego czasu nakładka `openai` nie ma
   reguł z nazwą modelu, a przydział modeli poza Claude Code jest sprawą człowieka.
+- **Wątek `AUDYT_MODOW` w `docs/fixy/` (od 2026-10-10)** — mody Claude Code po audycie: dziewięć
+  paczek (panel bez I/O w rysowaniu, paski bez pustych przerysowań, poprawność `/clear` i wyceny,
+  funkcja „kontynuować czy nowa sesja”, paski i panel wg briefu v2, jedno źródło formatów i cen,
+  testy liczące rysowania, wydanie 0.10.0 / 0.3.0 / 0.4.0). Audyt: 94 ustalenia z werdyktami
+  w [RAPORT.html](fixy/AUDYT_MODOW/RAPORT.html); decyzje wizualne po czterech rundach makiet
+  ([MAKIETY.html](fixy/AUDYT_MODOW/MAKIETY.html)) zamrożone w briefie v2
+  ([STYL_PASKOW_CLAUDE.md](zasoby/PANEL_RELAI/STYL_PASKOW_CLAUDE.md)). Wykonawca: Opus 5.5 ze
+  świeżej sesji ([PROMPT_ODNOGA.md](fixy/AUDYT_MODOW/PROMPT_ODNOGA.md)); zakres: adapter Claude
+  i `core/panel/theme.mjs`, rdzeń nietykalny (kontrakt PANEL_CODEX).
 - Wątek `OPIS_REPO` w `docs/fixy/` — opis i tematy repozytorium na GitHubie; opis manifestu nadal
   mówi o jednym narzędziu.
 - Projekty z pre-commitem sprzed 1.9.3 (PolyFlow, JiraManager) wymagają ponownej instalacji hooka.
@@ -217,8 +248,8 @@ Backupy: `C:\Users\Lukasz\Backupy\RelAI` • [PRZENOSNOSC.md](PRZENOSNOSC.md) �
 
 ### Liczby
 
-Plany zamknięte: 10 (ostatni PANEL_CLAUDE, 2026-10-10) • Aktywny: PANEL_CODEX (ZAAKCEPTOWANY 2026-10-10, E1 GOTOWY DO STARTU) • Start sesji:
+Plany zamknięte: 10 (ostatni PANEL_CLAUDE, 2026-10-10) • Aktywny: PANEL_CODEX (ZAAKCEPTOWANY 2026-10-10, E1 W TOKU) • Start sesji:
 **88,6 KB / 100 KB** (bez aktywnego planu; po E6 98,2 KB) • Dziennik: **~200 KB / 150 KB** (rotacja należna) • Sekcja ryzyk: 12 otwartych, archiwum ryzyk: 4 pliki
 + 1 mitygacji • Lekcje: **59,4 KB / 50 KB** (rotacja należna), 37 w żywym pliku • Adaptery: 3 • Komendy: 14 •
-Testy rdzenia i adapterów: 263 (z `core/panel/`) + 105 testów pluginów (`relai-panel` 70, `relai-progress` 16, `relai-cache-keeper` 19) • Projekty na RelAI: 3 (RelAI, PolyFlow, JiraManager przed migracją) •
+Testy rdzenia i adapterów: 263 (z `core/panel/`) + 13 testów pakietu panelu Codeksa + 105 testów pluginów (`relai-panel` 70, `relai-progress` 16, `relai-cache-keeper` 19) • Projekty na RelAI: 3 (RelAI, PolyFlow, JiraManager przed migracją) •
 Modele, na których zmierzono proces: 6 (Fable, Opus, Sonnet, Haiku, Composer/auto, Grok 4.6).

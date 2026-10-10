@@ -43,6 +43,10 @@
 > — przeniesione 2026-08-21, suma kontrolna `4b370c3e2b31c6ba`.
 
 ## Czeka na człowieka
+- ~~**PANEL_CODEX E1 — korekta liczby pól kontraktu**~~ *(rozstrzygnięte 2026-10-10 — Łukasz zaakceptował Aneks A, zapisany w planie; 16 pól, bez zmiany schematu)* · 2026-10-10 · [wpis 2026-10-10 — Aneks A i start sondy](#2026-10-10--panel_codex-e1-aneks-a-i-naprawa-startu-sondy)
+- ~~**PANEL_CODEX E1 — otwarcie lokalnej sondy**~~ *(rozstrzygnięte 2026-10-10 — natywny widok 0.0.7 i wiadomość bieżąca potwierdzone; pakiet w sondzie 0.0.8 pokazuje właściwy stan, wygląd zaakceptowany)* · 2026-10-10 · [wpis — Panel i mostek](#2026-10-10--panel_codex-e1-natywny-widok-minimalny-pakiet-i-mostek-bieżącego-czatu)
+- **PANEL_CODEX E1 — próba przycisków minimalnego pakietu i świeżego kontekstu** — w macierzystym czacie nadal proces 0.0.7/PID 62300; po restarcie sprawdzić sondę 0.0.9 (także fonty), nowy szkic i jego rzeczywisty projekt/kontekst. Wygląd już zaakceptowany · 2026-10-10 · [wpis — Panel i mostek](#2026-10-10--panel_codex-e1-natywny-widok-minimalny-pakiet-i-mostek-bieżącego-czatu)
+
 - **Powiadomienie w tle bez bramki zgody** — po wydaniu sprawdzić w sesji interaktywnej, że
   zakończone zadanie w tle nie dostaje pytania o zgodę (Aneks H) · 2026-09-24 · [wpis 2026-09-24 — E6](#2026-09-24--e6-planu-prowadzenie_end_to_end-krańce-drogi-bez-wydania)
 
@@ -3402,3 +3406,408 @@ Autor: RelAI (gpt-6.1-sol) + Lukasz
 effort high, przez relai-stage albo zdanie „uruchom etap E1 planu PANEL_CODEX”.
 
 Autor: RelAI (gpt-6.1-sol) + Lukasz
+
+### 2026-10-10 — PANEL_CODEX E1: sonda gospodarza i rozjazd liczby pól
+
+**Zrobione:**
+
+- E1 uruchomiony przez relai-stage po karcie i odpowiedzi Łukasza „tak”; nowy czat
+  01a1254c-f7af-7ce3-bb44-6029ad615eb0, gpt-6.1-sol, effort xhigh (zalecany high).
+  STATUS W TOKU i wpis startu zapisane przed wykonaniem. E2 nadal OCZEKUJE.
+- Przejęcie opisane w adapters/codex/panel/README.md: tożsamość wywołań/uczestników,
+  kumulacyjne snapshoty i deduplikacja, mapowanie OpenAI, braki, ceny i profil cache.
+  Nie zbudowano kolektora ani produkcyjnego panelu; kod rdzenia i gospodarza Claude bez zmian.
+- W katalogu .claude/relai/work/PANEL_CODEX/E1/ powstała lokalna sonda MCP:
+  probe-build/ ze źródłami i lockfile, marketplace/ z paczką i zasobem HTML,
+  kopie specyfikacji oraz dowody protokołu, instalacji, audytu, kontraktu i źródła.
+- Zarejestrowano marketplace relai-e1-probe i zainstalowano wyłącznie sondę
+  relai-codex-probe@relai-e1-probe 0.0.2. Artefakty poza katalogiem E1:
+  C:/Users/Lukasz/.codex/plugins/cache/relai-e1-probe/relai-codex-probe/0.0.1/
+  oraz 0.0.2/ i rejestracja marketplace w konfiguracji Codeksa.
+  Pozostają do pomiaru i późniejszego cofnięcia; nie edytowano cache ręcznie.
+- Rzeczywisty eksport RECORD_FIELDS ma **16 pól**, przy tej samej liście opisanej jako 17
+  w planie, PRZEJECIE i prompcie E1. Schemat nietknięty. Propozycja datowanego Aneksu A
+  zapisana w katalogu E1; pytanie o akceptację zadane, dalsza implementacja zatrzymana.
+- Pułapka rozbieżności CLI i silnika desktopu zapisana jako P-024 w PULAPKI.md;
+  wyniki każdego z 14 punktów odbioru w WERYFIKACJA_E1.md w katalogu E1.
+
+**Zweryfikowane — jak dokładnie:**
+
+- Gospodarz z procesu: OpenAI.Codex 26.1007.2314.0; jego codex.exe --version:
+  **0.162.0-alpha.17.2**. codex z PATH: **0.155.1**. Instalację sondy wykonano
+  binarką desktopu, nie CLI z PATH. Node 24.13.1, npm 11.8.0; niższy runtime GUI
+  niezmierzony, globalnego wymagania tekstowego RelAI nie zmieniono.
+- Sonda: przypięte MCP SDK 1.32.1, ext-apps 1.7.5, OpenAI MCP Extensions 0.1.0,
+  zod 4.4.3, esbuild 0.28.2. npm run build i node verify-probe.mjs → exit 0:
+  dwa narzędzia, zasób text/html;profile=mcp-app, STATUS z E1 W TOKU, stderr pusty.
+  Pierwszy instrument wybrał zły korzeń (Desktop zamiast RelAI); poprawiono go na odczyt
+  kanonicznego korzenia z konfiguracji i powtórzono próbę. Zielony wynik pochodzi po poprawce.
+- Instalator plugin add → wersja 0.0.2 i ścieżka cache. SHA-256 serwera z paczki i cache:
+  zgodne (2A2923C5A782AE76A2EBB3ADAB676A33FE6D61117942AD55E36C446351CCF9B6).
+  To dowód instalacji i protokołu, **nie** montażu UI ani mostka do czatu.
+- npm audit --omit=dev: początkowy SDK 1.29.0 miał 1 wysoką podatność
+  GHSA-6qxp-vccf-f47h; podniesiono SDK do 1.32.1 i odbudowano sondę.
+  Ponowny audyt → **0 podatności**, exit 0. Wersja 0.0.1 nie była użyta do próby UI.
+- node --test core/process/tests/*.test.js core/guardrails/tests/*.test.js
+  adapters/codex/tests/*.test.js core/panel/tests/*.test.js → **263/263**, exit 0.
+  node core/tools/validate-adapters.js i node core/tools/sync-panel-core.js --check → exit 0.
+  Testów Mods nie powtarzano: brak zmian core/panel i panel/progress/cache-keeper.
+- Odczyt eksportu SCHEMA/RECORD_FIELDS → wersja 1, count 16 i pełna lista;
+  dowód probe-contract.json. Odczyt wybranych metadanych bieżącego JSONL → model i identyfikatory
+  oraz last/total usage bez treści rozmowy; probe-source.json. Próbka last input 227783,
+  cacheRead 217856, cacheWrite 0, output 1079 (reasoning 516 w output): input bez cache 9927.
+- Narzędzia sondy nie wystąpiły jeszcze w zestawie tej rozmowy po instalacji.
+  Wybrany backend Codex MCP Apps zwrócił pustą listę otwartych kart.
+  Montaż widoku, ui/message do bieżącego czatu, target=new i czas życia procesu w aktywnej
+  sesji pozostają **NIEZMIERZONE**. Nie stwierdzono na tej podstawie braku wsparcia gospodarza.
+
+**Świadomie odłożone:**
+
+- Rotacja dokumentów i odświeżenie modeli — osobne zadania, zgodnie z poprzednią sesją.
+- E2–E8 bez zmian. Promptu E2 nie wygenerowano: E1 nie spełnia jeszcze całej weryfikacji.
+- Materiał sondy zachowany do kontynuacji; bez sprzątania, commita, pushu i publikacji.
+  Inwentarz E1: 4376 plików, 38666541 bajtów (38,7 MB); pomiar nie obejmuje zewnętrznego cache.
+
+**Do zrobienia przez człowieka:**
+
+- Rozstrzygnąć propozycję Aneksu A (16 zamiast 17 pól, bez zmiany schematu).
+- Wybrać lokalny plugin „RelAI — sonda E1” w bieżącym czacie i otworzyć sondę;
+  następnie można zmierzyć widok i oba mostki. Jeśli pluginu nie ma w menu @, podać ten fakt.
+
+Autor: RelAI (gpt-6.1-sol) + Lukasz
+
+### 2026-10-10 — PANEL_CODEX E1: Aneks A i naprawa startu sondy
+
+**Zrobione:**
+
+- Łukasz zaakceptował Aneks A i wskazał plugin w wiadomości „otwórz sondę E1”.
+  Datowany Aneks A dopisany do PLAN.html; PRZEJECIE oraz prompt E1 skorygowane
+  do 16 pól. Prompt ma jawną wersję 2 i wpis w ARTEFAKTY; wersja 1 w historii Git.
+- Zdiagnozowano rzeczywisty błąd uruchomienia sondy 0.0.2: PLUGIN_ROOT w args
+  przekazany dosłownie. Instalacja była poprawna, ale serwer nie uruchomił się.
+  Poprzedni test używał własnej pełnej ścieżki, więc nie sprawdzał drogi z manifestu.
+- Sonda **0.0.4** ma args=["dist/server.mjs"], cwd="." i MCP server key relai_probe.
+  Gospodarz rozwiązuje cwd wobec cache pluginu; zgodne z odczytanym kodem
+  codex-mcp/src/plugin_config.rs. P-025 zapisuje tę pułapkę i poprawny instrument.
+  Pośrednia wersja 0.0.3 z CLAUDE_PLUGIN_ROOT odrzucona przed próbą UI:
+  brak dowodu wsparcia tego makra; nie stanowi rozwiązania.
+- Ponowiono build i instalację przez binarkę desktopu; źródła poprawiane wyłącznie
+  w katalogu E1, cache nieedytowany. Artefakty poza E1: dodatkowe cache 0.0.3/ i 0.0.4/
+  w C:/Users/Lukasz/.codex/plugins/cache/relai-e1-probe/relai-codex-probe/; pozostają
+  do kontynuacji i późniejszego cofnięcia razem z wcześniejszymi wersjami.
+
+**Zweryfikowane — jak dokładnie:**
+
+- Log logs_2.sqlite z rzeczywistego desktopu, 2026-10-10: node szukał dosłownego
+  PLUGIN_ROOT pod katalogiem binarki; initialize zakończone connection closed,
+  has_cached_tools=false. To przyczyna braku narzędzi, nie brak obsługi MCP App.
+- npm run build i poprawiony node verify-probe.mjs → exit 0. Instrument bierze
+  command/args/cwd z mcp list binarki desktopu: cwd wskazuje cache 0.0.4,
+  oba narzędzia, zasób HTML i STATUS W TOKU odczytane; stderr pusty.
+- node probe-desktop-startup.mjs → exit 0: osobny app-server z binarki desktopu
+  0.162.0-alpha.17.2, initialize oraz mcpServerStatus/list dla relai_probe.
+  Wynik: serverInfo 0.0.4, relai_probe_open i relai_probe_record, zasób HTML,
+  toolsError=null. **Bez tworzenia czatu, wywołania modelu ani próby zastąpienia mostka.**
+  Proces kontrolny zakończono; dowód probe-desktop-startup.json w E1.
+- node verify-addendum.mjs → exit 0 po poprawce ścieżki instrumentu: sekcje 1–9
+  i style planu identyczne z HEAD po CRLF → LF, Aneks A istnieje, eksport ma 16 pól,
+  prompt v2 i PRZEJECIE zgodne. Dowód addendum-verification.json.
+- Walidator i sync-panel-core --check → exit 0; git diff --check czysty.
+  Testów repo 263/263 i audytu 0 podatności nie powtarzano: zmieniono wyłącznie
+  dokumenty i konfigurację/start sondy, bez zmiany zależności lub rdzenia.
+- W tej rozmowie narzędzia nadal nie są dostępne po aktualizacji w trakcie tury.
+  Otwarcie natywnego widoku i oba mostki pozostają NIEZMIERZONE. E1 W TOKU, E2 OCZEKUJE.
+
+**Świadomie odłożone:** E2–E8, sprzątanie materiału i publikacja; bez commita i pushu.
+
+**Do zrobienia przez człowieka:** ponowić „otwórz sondę E1” z wybranym pluginem
+w bieżącym czacie, żeby gospodarz podjął próbę uruchomienia poprawionej konfiguracji.
+Nie jest to druga zgoda na start E1 ani ponowna akceptacja Aneksu A.
+
+Autor: RelAI (gpt-6.1-sol) + Lukasz
+
+### 2026-10-10 — PANEL_CODEX E1: ponowienie sondy w istniejącym czacie
+
+**Zrobione:** Łukasz ponownie wskazał plugin relai-codex-probe@relai-e1-probe.
+Sprawdzono dostępność narzędzi, zapis sondy, log MCP i otwarte karty.
+Nie kontynuowano budowy produkcyjnego panelu przed bramką UI.
+
+**Zweryfikowane — jak dokładnie:**
+
+- plugin list: sonda 0.0.4 installed=true/enabled=true. native-probe.jsonl:
+  process-start 2026-10-10 11:14:19 UTC; log MCP: poprawny initialize i serverInfo 0.0.4.
+- Zestaw narzędzi udostępniony tej rozmowie nie zawiera narzędzi sondy (sprawdzono
+  metadane i obiekt tools); Codex MCP Apps tabs.list → []. Brak otwarcia widoku,
+  brak próby kliknięcia, brak dowodu któregokolwiek mostka.
+- features list binarki przy konfiguracji projektu: apps/plugins=true,
+  enable_mcp_apps=false jako funkcja under development. To odczyt CLI, nie dowód
+  efektywnego przełącznika renderera desktopu; niczego nie przełączono.
+- Testy 263/263, walidacja, zgodność kopii i audyt pozostają ostatnim punktem odbioru;
+  bez nowych zmian kodu/dependencji nie powtarzano ich.
+
+**Świadomie odłożone:** dalsza implementacja i E2–E8; bez nowych czatów,
+bez restartu aplikacji, bez zmiany konfiguracji, bez commita i publikacji.
+
+**Do zrobienia przez człowieka:** zdecydować o świeżym czacie kontrolnym z sondą,
+restarcie aplikacji albo odłożeniu próby. Propozycja nowego czatu jest testem
+udostępnienia narzędzi, nie obietnicą naprawy i nie zastępuje pomiaru mostków z UI.
+Stan E1 W TOKU zachowany; kolejna próba ma kontynuować, nie rozpoczynać od nowa.
+
+Autor: RelAI (gpt-6.1-sol) + Lukasz
+
+### 2026-10-10 — PANEL_CODEX E1: czat kontrolny i pusty panel
+
+**Zrobione:**
+
+- Po jawnej zgodzie Łukasza utworzono czat **RelAI — próba sondy E1** w projekcie RelAI,
+  lokalnie: 01a12590-0b6d-7d40-affe-7e54f80313da. Wyłącznie próba odkrycia narzędzia
+  i montażu, bez rozpoczynania E1 od nowa. Wynik odebrany przez wait_threads;
+  czat kontrolny nie zmienił repo ani konfiguracji i nie kliknął mostków.
+- Pokazano czat w aplikacji. Łukasz potwierdził: brak interaktywnej karty i przycisków;
+  panel boczny otworzył się, lecz jest pusty. To pomiar nieprzechodzący bramki E1.
+- Sonda 0.0.5 dodaje rejestrowanie odczytu HTML (resource-read, pid, URI, liczba bajtów)
+  do istniejącego logu. Build i instalacja przez binarkę desktopu; cache 0.0.5 poza E1
+  w C:/Users/Lukasz/.codex/plugins/cache/relai-e1-probe/relai-codex-probe/.
+  Nie zmieniono UI, zależności, logiki rdzenia ani konfiguracji globalnej.
+
+**Zweryfikowane — jak dokładnie:**
+
+- W nowym czacie narzędzie mcp__relai_probe__relai_probe_open dostępne; wywołanie
+  exec-128f2512-c7a1-49d7-be93-d3661a158733 → completed, bez błędu.
+  Rzeczywisty zapis sesji ItemCompleted/McpToolCall niesie
+  mcpAppResourceUri=ui://relai-codex-probe/view; status zwrócony jako W TOKU.
+- Backend MCP Apps w czacie kontrolnym → tabs=[]. Pusta lista nie wyklucza widoku
+  inline, więc nie uznano jej samej za brak UI. Dopiero obserwacja człowieka
+  potwierdziła brak treści zarówno w rozmowie, jak i otwartym panelu.
+- probe-control-result.json w E1 zachowuje ograniczony dowód wywołania i wynik człowieka.
+  Instrument początkowo szukał starego event_msg/mcp_tool_call_end i dawał zero;
+  po sprawdzeniu typów w realnym pliku poprawiono go na item_completed/McpToolCall,
+  a kontrola znalazła dokładnie jedno wywołanie sondy wraz z rozpoznanym URI.
+- Sonda 0.0.5: npm run build, instalacja i node verify-probe.mjs → exit 0.
+  Kontrola pozytywna odczytała HTML i zapisała resource-read, pid 4172,
+  URI widoku, 762194 bajty; wpis z 2026-10-10 11:35:39 UTC.
+  To dowód działania instrumentu, nie pobrania przez UI. W 0.0.4 odczytu nie rejestrowano,
+  dlatego na podstawie starego logu nie wolno twierdzić, że gospodarz go nie wykonał.
+- Testy repo 263/263, audyt 0 podatności i zgodność kopii pozostają punktem odbioru;
+  nie powtarzano po zmianie wyłącznie instrumentacji tymczasowej sondy i dokumentacji.
+
+**Świadomie odłożone:** produkcyjny panel do pomyślnej bramki gospodarza, mostki,
+E2–E8, sprzątanie i publikacja; bez commita/pushu, bez nowych zmian zamrożonego planu.
+
+**Do zrobienia przez człowieka:** zgoda na dalsze wiadomości diagnostyczne
+do utworzonego czatu kontrolnego. Pytanie zadane; dalsza próba ma rozstrzygnąć
+pobranie HTML kontra render, bez wysyłania z UI i bez nowych czatów.
+
+Autor: RelAI (gpt-6.1-sol) + Lukasz
+
+### 2026-10-10 — PANEL_CODEX E1: restart, transport i naprawa HTML
+
+**Zrobione:**
+
+- Łukasz zatwierdził dalsze wiadomości diagnostyczne do czatu
+  01a12590-0b6d-7d40-affe-7e54f80313da. Zgoda obejmuje otwarcie i diagnostykę HTML,
+  bez mostków wysyłających wiadomości, nowych czatów oraz zmian repo/konfiguracji
+  przez czat kontrolny. **Ta zgoda pozostaje ważna; nie pytać ponownie o te wiadomości.**
+- Próba 0.0.5 trafiła do starego procesu 0.0.4/PID 43588. Potwierdzono jego nazwę node,
+  polecenie dist/server.mjs i czas startu zgodny z logiem, następnie zatrzymano wyłącznie
+  ten proces. Następna pojedyncza próba w czacie kontrolnym: Transport closed,
+  bez wersji i PID-u. Nie uznano tego za wynik pomiaru 0.0.6 ani braku pobrania HTML.
+- Sonda 0.0.6 dodała wersję/PID w odpowiedzi i wersję w logu; build i kontrola MCP
+  przeszły. Łukasz wykonał restart desktopu i zgłosił „restart gotowy”.
+- Wygenerowany HTML zawierał uszkodzony JS: string replacement interpretował dolary
+  biblioteki. Sonda 0.0.7 naprawia osadzanie przez callback; build odtąd waliduje
+  finalny moduł. Test dotyczy rzeczywistego końcowego pliku, nie samego wyniku bundlera.
+- 0.0.6/ i 0.0.7/ w cache sondy poza katalogiem E1 pozostają do kontynuacji i późniejszego
+  cofnięcia. Cache nieedytowany ręcznie; P-026/P-027 zapisują defekt i zachowanie gospodarza.
+
+**Zweryfikowane — jak dokładnie:**
+
+- Po restarcie narzędzie mcp__relai_probe__relai_probe_open dostępne w macierzystym czacie.
+  Wynik: probeVersion 0.0.6, pid 59344, root RelAI i expectedThread zgodny z tym czatem.
+- Native-probe.jsonl: open 12:24:23.816 UTC, następnie resource-read 12:24:23.875 UTC,
+  wersja 0.0.6, ten sam PID 59344, 763117 B. W tej próbie nie uruchamiano klienta ani
+  osobnego app-servera — to odczyt przez gospodarza. connected brak, lista kart MCP Apps pusta.
+- check-html.mjs na 0.0.6 → 1 nieoczekiwany marker APP_SCRIPT i błąd składni JS
+  Unexpected "]". npm run build wcześniej przechodziło, bo sprawdzało moduł przed
+  osadzeniem. To rzeczywisty defekt sondy, nie dowód nieobsługiwania UI przez gospodarza.
+- Po poprawce 0.0.7: npm run build → exit 0; check-html → 0 markerów, poprawna składnia;
+  końcowy HTML 744204 B. Instalacja i verify-probe → exit 0, zgodna wersja/PID i odczyt HTML.
+- Następne rzeczywiste wywołanie po instalacji 0.0.7 nadal zwróciło 0.0.6/PID 59344.
+  Nie zaliczono renderu poprawki. Potrzebne odświeżenie procesu gospodarza (P-027).
+- Testy repo 263/263, audyt 0 podatności i zgodność kopii pozostają punktem odbioru.
+  Brak zmian core/panel i pluginów Claude; nie powtarzano testów tych konsumentów.
+
+**Świadomie odłożone:** pełny panel do pomyślnego renderu sondy; E2–E8, mostki,
+sprzątanie, commit i publikacja. E1 W TOKU; promptu E2 nie generujemy przed odbiorem.
+
+**Do zrobienia przez człowieka:** odświeżyć gospodarza, aby wczytał 0.0.7, i wrócić
+do pomiaru w tym samym czacie. Zgoda na start E1 i diagnostykę pozostaje; bez nowych czatów.
+
+Autor: RelAI (gpt-6.1-sol) + Lukasz
+
+### 2026-10-10 — PANEL_CODEX E1: natywny widok, minimalny pakiet i mostek bieżącego czatu
+
+**Zrobione:**
+
+- Odczytano wiadomość aplikacji relai-e1-active jako dane próby, bez rozszerzenia
+  autoryzacji. Potwierdzono odbiorcę: macierzysty czat 01a1254c-f7af-7ce3-bb44-6029ad615eb0,
+  projekt RelAI, PANEL_CODEX/E1 W TOKU. Powstał dowód montażu i bieżącego mostka sondy 0.0.7.
+- Po pomyślnej sondzie zbudowano adapters/codex/panel/ 0.1.0: lokalny serwer stdio,
+  manifest, lockfile, bundlowany wspólny plan-state, widok ROOT/FLOW z fontami Kalam/Hanken
+  i ikoną etapu. Przycisk statusu czyta świeży stan; drugi daje próbę nowego szkicu.
+  Korzeń przypisany konfiguracją, brak domyślnego dostępu do katalogu cache pluginu.
+- Szkic 0.0.7 odrzucony przez helper SDK przed gospodarzem (send musi być true).
+  Pakiet używa bazowego App.sendMessage, zachowując target=new/send=false i sprawdzając
+  reklamowaną możliwość draft. Nie zamieniono szkicu na automatyczne wysłanie.
+- Sonda 0.0.8 podkłada ten sam pakiet; zainstalowana przez natywny instalator.
+  W czacie „RelAI — próba sondy E1” najnowsza karta 3 ma właściwy stan i przyciski.
+  Pierwszy meldunek dotyczył starej karty 2; odczyt wszystkich kart rozstrzygnął rozjazd.
+  **Łukasz zaakceptował wygląd** w odpowiedzi na kartę kalibracji.
+- STATUS/STATE/CLAUDE/AGENTS zsynchronizowane; README opisuje faktyczne granice i instalację.
+  P-028/P-029 zapisują ograniczenie helpera i rozróżnianie starych kart.
+
+**Zweryfikowane — jak dokładnie:**
+
+- Natywny log 0.0.7: resource-read PID 62300, 744204 B; connected 15:08:16.728 UTC,
+  hostName chatgpt, hostVersion 26.1007.21434. active-message 15:08:22.829 UTC;
+  wiadomość aplikacji dotarła do właściwego czatu. Ponowne wywołanie 15:12:15.656 UTC
+  zwróciło 0.0.7/PID 62300 i natywny DOM z właściwym korzeniem. Zrzut probe-native-007.jpg.
+- npm ci --ignore-scripts, npm run build i npm run check:build w pakiecie → exit 0.
+  Końcowy HTML z walidacją osadzonego JS, źródła rdzenia i wyniki bundli w build-origin.json.
+- npm test → **13/13, exit 0**: odczyt LF/CRLF, brakujące/puste dokumenty, obcy korzeń,
+  niedozwolone linki i symlink na zewnątrz, wiadomości/szkic/capability oraz rzeczywisty
+  protokół bundlowanego serwera. Fixture protokołu niezależny od stanu roboczego planu.
+- node --test core/process/tests/*.test.js core/guardrails/tests/*.test.js
+  adapters/codex/tests/*.test.js core/panel/tests/*.test.js → **263/263, exit 0**,
+  repo-after-panel.log. npm audit --omit=dev → **0 podatności, exit 0**.
+- validate-adapters i sync-panel-core --check → exit 0; git diff core/panel, panel,
+  progress i cache-keeper pusty. Testy Mods warunkowo niedotyczące. verify-addendum:
+  sekcje 1–9 zamrożonego planu nietknięte, 16 pól, Aneks A i prompt E1 v2 zgodne.
+- Natywny instalator: relai-codex-probe@relai-e1-probe 0.0.8;
+  verify-probe według mcp list → exit 0, trzy narzędzia, HTML 528518 B i E1 W TOKU.
+  Rzeczywisty czat kontrolny: 0.0.8/PID 38988, binding=configured, RelAI/PANEL_CODEX/E1.
+  Najnowsza karta 3 ma dane i przyciski; dowód ograniczony w native-data-008.json.
+- Chromium: sześć osobnych iframe z tą samą warstwą widoku. Pięć poprawnych stanów
+  przy 780/320 px bez wyjścia poza rodzica; celowo poszerzony project-root wykryty
+  przez identyczny instrument. panel-geometry.json, panel-preview-780.jpg.
+- Po instalacji 0.0.8 macierzyste narzędzie nadal zwróciło 0.0.7/PID 62300.
+  Tego wyniku nie uznano za próbę nowego pakietu. Świeży szkic pozostaje niezmierzony.
+
+**Świadomie odłożone:** kolektor E2, ceny/timer E3, formularze i strażnik zgody E4,
+pozostałe funkcje E5–E8; rotacja dokumentów i /relai-models jako odrębne zadania.
+E1 W TOKU, E2 OCZEKUJE; prompt E2 i rytuał domknięcia po dowodzie świeżego kontekstu.
+Bez commita, pushu i publikacji. Materiał roboczy oraz cache sondy 0.0.1–0.0.8
+pozostają do odbioru i zatwierdzonego sprzątania; lokalny serwer renderu zostaje zatrzymany
+po pomiarze, pliki dowodów pozostają.
+
+**Do zrobienia przez człowieka:** restart desktopu, żeby macierzysty klient wczytał 0.0.8;
+potem pomiar przycisków pakietu i projektu/osobnego kontekstu nowego szkicu.
+Kalibracja wyglądu rozstrzygnięta; nie pytać o nią ani start E1 ponownie.
+Diagnostyka czatu kontrolnego nadal w zatwierdzonym zakresie bez mostków i zmian repo przez ten czat.
+
+Autor: RelAI (gpt-6.1-sol) + Lukasz
+
+### 2026-10-10 — PANEL_CODEX E1: natywna geometria i poprawka deklaracji fontów
+
+**Zrobione:** układ zaakceptowany przez Łukasza pozostaje. Natywny pomiar fontów
+ujawnił font zastępczy; sonda 0.0.9 deklaruje zasoby data: dla osadzonych fontów,
+pozostawiając connectDomains puste, ustawia font main i zapisuje wynik fonts.load/check
+do ograniczonego logu diagnostycznego. P-030 dokumentuje warunek gospodarza.
+Sonda zainstalowana bez ręcznej edycji cache; stany i README skorygowane.
+
+**Zweryfikowane — jak dokładnie:**
+
+- Czat kontrolny, karta 3, 0.0.8: 780 × 1004 px; 27 elementów HTML wobec rodzica,
+  tolerancja 1 px, brak przepełnień. Font check na 700/36 Kalam i 400/14 Hanken
+  zwrócił false; body/main używały fontu systemowego. Ten sam instrument w poprawnym
+  lokalnym Chromium dał true/true. panel-native-geometry-008.json zachowuje wynik.
+- Próba natywnego zrzutu CUA dwukrotnie przekroczyła limit; nie zapisano obrazu ani
+  nie uznano tego za awarię działającego widoku. Zrzut lokalnego układu pozostaje.
+- Domyślny font-src w specyfikacji MCP Apps nie obejmuje data:. To podstawa poprawki
+  deklaracji; rezultat w rzeczywistym gospodarzu trzeba jeszcze sprawdzić.
+- Po poprawce: npm run build, npm run check:build i npm test → exit 0, **13/13**.
+  Instalator potwierdził cache 0.0.9; verify-probe według mcp list → exit 0,
+  trzy narzędzia, HTML 528791 B, E1 W TOKU. Kontrola protokołu nie dowodzi jeszcze fontów GUI.
+- Audyt 0 podatności i 263/263 pozostają aktualne: brak nowych zależności, zmian rdzenia
+  lub pluginów Claude po tych przebiegach. Skan 17 nowych plików pakietu i diffu:
+  brak sekretów; git diff --check bez błędów. Równoległe docs/fixy/AUDYT_MODOW pozostawiono
+  nietknięte i poza zakresem odbioru E1.
+- Końcowy pomiar po poprawce: ponownie pięć poprawnych stanów 780/320 px i wykryta
+  kontrola pozytywna; panel-geometry.json z kandydatem 0.0.9. Pomocnicza karta IAB zamknięta,
+  serwer renderu zatrzymany Ctrl+C (zakończona własna sesja 38949). Przywrócono macierzysty czat.
+- Generowane adapters/codex/panel/node_modules i dist należą do lokalnego builda
+  własnego pakietu; poza katalogiem E1, poza gitem. Wymienione do późniejszego sprzątania,
+  dist jest artefaktem paczki. Cache sondy 0.0.1–0.0.9 zachowany do odbioru; materiał E1 zachowany.
+
+**Świadomie odłożone:** funkcje E2–E8, commit, publikacja, rotacja dokumentów i /relai-models.
+E1 nadal W TOKU; jego prompt E2 i sprzątanie po spełnieniu pozostałych punktów.
+
+**Do zrobienia przez człowieka:** restart desktopu i powrót do macierzystego czatu;
+sprawdzenie 0.0.9, natywnych fontów, obu przycisków i projektu/osobnego kontekstu nowego szkicu.
+Nie ponawiać pytań o start E1, wygląd ani zatwierdzoną diagnostykę czatu kontrolnego.
+
+Autor: RelAI (gpt-6.1-sol) + Lukasz
+
+### 2026-10-10 — Audyt modów Claude Code: wątek AUDYT_MODOW, brief v2 i makiety
+
+**Zrobione:**
+
+- Audyt trzech modów (`relai-panel` 0.9.0, `relai-progress` 0.2.0, `relai-cache-keeper` 0.3.0)
+  po wydaniu 2.8.0, na prośbę Łukasza: best practices modów (skill `plugin-authoring`, typy
+  silnika), wydajność/re-render/I-O, jakość kodu i logika UX — trzy soczewki równolegle (Fable 5.1,
+  limit 3 agentów naraz), potem sceptycy obalający każde ustalenie (Opus 5.5, partiami po 3;
+  przełączenie modelu weryfikacji w trakcie na życzenie Łukasza, wyniki audytu z cache przebiegu).
+  Wynik: 101 ustaleń, 94 po deduplikacji, 80 potwierdzonych, 11 prawdopodobnych, 3 obalone (21 agentów, 0 błędów, 44 min) —
+  [docs/fixy/AUDYT_MODOW/RAPORT.html](fixy/AUDYT_MODOW/RAPORT.html) (tabela z filtrami, werdykty,
+  29 reguł best practices ze statusem, dane pomiarowe audytu statycznego).
+- Przegląd UI/UX z nośnika (pięć zrzutów Łukasza) i cztery rundy kalibracji na makietach
+  [MAKIETY.html](fixy/AUDYT_MODOW/MAKIETY.html) (v4; samowystarczalny HTML, Kalam osadzony, kontrola
+  przepełnień: 0 z 112 elementów w 48 kombinacjach stanów i wariantów przy 1400 i 1000 px).
+  Decyzje: paski wg wariantu C „spokojny pasek” (drugi wiersz tylko przy zdarzeniu, zero
+  przycisków na stałe), pasek postępu z linią pod segmentami, pasek cache jako cztery pierścienie
+  z podpisem dwuliniowym bez hovera (K2 + H3; dymek H2 i nakładka odrzucone), Kalam tylko
+  w panelu, panel P1 („Teraz” + wiersze komend z nazwą komendy) i P3 (Koszty ze zwiniętymi
+  sekcjami). Odrzucone: B (jedna listwa — zależności między pluginami), P2 (siatka), K1, K3.
+- Brief [STYL_PASKOW_CLAUDE.md](zasoby/PANEL_RELAI/STYL_PASKOW_CLAUDE.md) podbity do wersji 2
+  (rejestr `ARTEFAKTY.md`; v1 w historii gita): zasada „pasek spokojny, pasek mówiący”, tabela
+  zdarzeń, geometria pierścieni i progi kolorów, panel P1/P3, kryteria odbioru v2.
+- Wątek samodzielny `docs/fixy/AUDYT_MODOW/` — [ODNOGA.md](fixy/AUDYT_MODOW/ODNOGA.md)
+  (dziewięć paczek Z1–Z9, poza zakresem, weryfikacja) i
+  [PROMPT_ODNOGA.md](fixy/AUDYT_MODOW/PROMPT_ODNOGA.md) (wykonawca Opus 5.5, `/effort high`,
+  kolejność Z3 → Z4 → Z5 → Z9 → Z1 → Z2 → Z6 → Z7 → Z8, zasady aktywne w całości). Zakres zmian
+  ograniczony decyzją Łukasza do adaptera Claude i `core/panel/theme.mjs` — rdzeń jest kontraktem
+  planu PANEL_CODEX. Z9 (prośba Łukasza): funkcja „kontynuować czy nowa sesja” — koszt tury teraz
+  wobec kosztu po przekazaniu, zwrot w turach, dwie waluty ($ wg cennika, zmierzone % limitu 5 h
+  na turę), próg zwrotu ≤ 5 tur, wynik w drugim wierszu paska cache i w `/cache`.
+- Pamięć sesji: podział modeli (Opus 5.5 do zadań optymalizacyjnych i rozpoznawczych, propozycje
+  UX/UI tylko od Fable 5.1).
+
+**Zweryfikowane — jak dokładnie:**
+
+- Makiety: skrypt kontroli przepełnień w pliku (prostokąty liści tekstowych wobec karty) — 0 z 112
+  przy 1400 px i 0 z 71–88 przy 1000 px dla wszystkich wariantów i stanów (A, B, C, K1–K3,
+  H1–H3/H2+H3, P1–P3; stany spokój / cache stygnie / limity wysokie / kontekst prawie pełny /
+  odhaczony punkt / przekazanie / karta / wąskie okno); zero błędów JS; hover segmentu i podpisy
+  pierścieni sprawdzone zdarzeniami `mouseenter`.
+- Raport: zbudowany z dziennika przebiegu workflow `wf_fa01b690-67d` (dedup plik:linia:obszar jak
+  w skrypcie przebiegu; werdykty dopasowane po id ustalenia — id kolidują między soczewkami
+  (PERF-01, CODE-01…), więc ustalenie-bliźniak może nieść werdykt drugiego; każdy wiersz
+  niesie własny dowód z linią; po ostatniej partii żadne ustalenie nie zostało bez werdyktu).
+- Prompt wątku: podstawienie „Zasad aktywnych” funkcją, nie napisem — pierwsza próba
+  `String.replace` z tekstem zawierającym `` $` `` wstawiła 13 KB promptu drugi raz (ten sam rodzaj
+  pułapki co P-026; kontrola: `grep -c` zdania otwierającego = 1, `{{` = 0).
+- Kod modów nietknięty: `git status` pokazuje wyłącznie dokumenty tego wątku, brief, rejestr
+  artefaktów i dziennik; w drzewie roboczym leżą też niezacommitowane pliki sesji Codeksa (E1
+  planu PANEL_CODEX: `adapters/codex/panel/`, dokumenty planu) — nie ruszane.
+
+**Świadomie odłożone:** wdrożenie Z1–Z9 (świeża sesja Opus z `PROMPT_ODNOGA.md`); ustalenia
+`outOfScope` (odchudzenie kopii rdzenia per plugin, `headings.mjs` 254 KB w dwóch modach,
+% limitu per etap w rdzeniu) — spisane w raporcie, czekają na decyzję; rotacja dziennika
+(273 KB), lekcji i ryzyk zgłoszona przez hook startu — do rytuału zamknięcia sesji; wariant B
+jako kandydat na plan.
+
+**Do zrobienia przez człowieka:** uruchomić wątek w świeżej sesji Opus 5.5 (`PROMPT_ODNOGA.md`);
+zdecydować o ustaleniach poza zakresem (5 pozycji w raporcie); commit dokumentów tego wątku
+(osobno od pracy sesji Codeksa).
+
+Autor: RelAI (Fable 5.1) + Lukasz
