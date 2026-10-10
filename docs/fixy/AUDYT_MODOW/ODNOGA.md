@@ -185,6 +185,11 @@ Kolejność: najpierw fundamenty (Z3–Z5), bo bez nich nowe paski będą migać
       w `/cache`, brak S słowami, pomiar S po pierwszej turze, szacunek z plików rytuału).
 - [ ] Z8: `plugin validate` ×3, walidator adapterów, pomiar po restarcie treścią plików z cache
       (P-005); publikacja po „tak”.
+      ✓ „tak” Łukasza 2026-10-10; `plugin validate` ×3 i repo, walidator adapterów, testy
+      107/29/84 i `node --test` 274/274; commit `52d0f70`, tag `relai-panel-v0.10.0`, release na
+      GitHubie; `plugin marketplace update` + `plugin update` ×3 (0.9.0→0.10.0, 0.2.0→0.3.0,
+      0.3.0→0.4.0); pliki w `~/.claude/plugins/cache/relai/<plugin>/<wersja>/` porównane sumą
+      z repo — 0 rozjazdów. **Czeka: restart aplikacji i pomiar na żywo.**
 - [x] `git diff` nie dotyka `core/panel/*.mjs` poza `theme.mjs` ani niczego w `adapters/codex/`.
       `git diff --stat ecb8282 HEAD -- core/panel adapters/codex docs/plany/PANEL_CODEX`: tylko
       `core/panel/theme.mjs` i dwa testy w `core/panel/tests/` (2026-10-10, po Z7).
@@ -303,6 +308,10 @@ Jedna linia na zamkniętą paczkę; pełny wpis do `docs/DZIENNIK.md` dopiero w 
   tak), zatrzymanie na limicie 5 h (89/90/85 % przy progach 90/90/80), ping, który zapisał zamiast
   odczytać, przekazanie `/handoff` → znacznik → `/handoff dalej` (`/clear`, potem
   „kontynuujemy pracę”) i brak przekazania bez znacznika. Żaden test nie znalazł błędu.
+- **2026-10-10 · Z8 wydana** — `relai-panel` 0.10.0, `relai-progress` 0.3.0, `relai-cache-keeper`
+  0.4.0 (`relai` zostaje 2.8.0); opisy w manifestach i marketplace, README i KOMENDY wg nowego
+  zachowania; tag `relai-panel-v0.10.0` i release; aktualizacja lokalna sprawdzona treścią plików
+  w cache. Pomiar na żywo po restarcie — czeka na Łukasza.
 
 ## Wynik
 
