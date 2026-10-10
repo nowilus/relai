@@ -13,13 +13,19 @@ import { BAND, BAR } from './relai/theme.mjs'
 import { ancestors } from './relai/plan-state.mjs'
 import { PLAIN_HANDOFF_PROMPT, RELAI_CONTINUE, RELAI_HANDOFF_PROMPT, continuePrompt, plainBody, relaiDone, relaiFreshPrompt } from './handoff'
 import { PRICE_FILE } from './relai/pricing.mjs'
-import { BUILT_IN, priceSource, pricesFrom, requestCost, rewriteCost, totalInput, type Prices, type Usage } from './pricing'
+import { BUILT_IN, priceSource, pricesFrom, ratesFor, requestCost, rewriteCost, totalInput, type Prices, type Usage } from './pricing'
+import { handoffEconomics, type CacheTemp, type HandoffInput, type HandoffVerdict, type LimitTurn } from './economics'
+import { RITUAL_FILES, activePlanStatus, dateText, estimatedLayer, measuredLayer, startKey, type MeasuredStart } from './start-layer'
 
 type $T = EngineInterface
 type Limit = { kind: string; percentUsed: number }
 
 const TICK_MS = 30_000
 const STORE_SETTINGS = 'settings'
+const FIVE_HOUR = 'five_hour'
+const KEEP_TURNS = 5 // the mean output and the 5-hour pace come from this many recent main turns
+// "Zostań" holds until the context grows by a fifth: ctx · 5 ≥ dismissed · 6, in integers
+const STAY_GROWTH = { num: 6, den: 5 }
 
 type Session = {
   id: string
@@ -43,6 +49,16 @@ type Session = {
   announced: number[]
   justCompacted: boolean
   shortTtlRewrites: number // rewrites that look like a 5-minute TTL; one alone proves nothing
+  // The handoff reckoning (Z9), kept here so a hot reload restores it with the snapshot (P-023 pkt 6)
+  start: number // S, tokens of the project's start layer; 0 = unknown
+  startSource: string // where S came from, in words
+  startPending: boolean // a fresh conversation: its first main turn measures S
+  turnOut: number // output tokens of the running main turn's steps
+  outputs: number[] // output tokens of the last main turns
+  limitBase: number // the 5-hour window's percentUsed at the previous main turn; -1 = none yet
+  limitTurns: LimitTurn[] // the 5-hour pace of the last main turns
+  stayCtx: number // "Zostań" pressed at this context; 0 = not dismissed
+  stayCold: boolean // the cache was cold when it was pressed
 }
 
 type Handoff = { phase: 'idle' | 'running' | 'ready' | 'continuing'; notTurn: string; relai: boolean; body: string; path: string }
@@ -51,6 +67,7 @@ const FRESH: Session = {
   id: '', cwd: '', model: '', isRelai: false, lastActivity: 0, ctx: 0, ttlMeasured: 0, costUsd: null, rateLimits: [],
   working: false, turnId: '', keepWarm: false, keepWarmUntil: 0, pings: 0, pingUsd: 0, rewrites: 0, rewriteUsd: 0,
   announcedFor: 0, announced: [], justCompacted: false, shortTtlRewrites: 0,
+  start: 0, startSource: '', startPending: false, turnOut: 0, outputs: [], limitBase: -1, limitTurns: [], stayCtx: 0, stayCold: false,
 }
 const IDLE: Handoff = { phase: 'idle', notTurn: '', relai: false, body: '', path: '' }
 
@@ -130,10 +147,13 @@ async function loadPrices($: $T) {
 // A /clear ends the conversation the state measured; the process goes on under a new id and no
 // session.start fires (P-020 point 4). FRESH under that id, keeping what belongs to the process;
 // a handoff clearing on purpose goes on. A kept cache stops: it belonged to the old conversation.
-function resetSession($: $T, id: string) {
+// The project's start layer stays; a /clear (isFresh) has an empty conversation, so its first
+// main turn measures S again (Z9); a /resume does not.
+function resetSession($: $T, id: string, isFresh: boolean) {
   stopKeepWarm($, 'nowa rozmowa')
-  S = { ...FRESH, id, cwd: S.cwd, model: S.model, isRelai: S.isRelai, rateLimits: S.rateLimits }
+  S = { ...FRESH, id, cwd: S.cwd, model: S.model, isRelai: S.isRelai, rateLimits: S.rateLimits, start: S.start, startSource: S.startSource, startPending: isFresh }
   if (H.phase !== 'continuing') H = IDLE
+  verdict = null
   $.ui.invalidate('ui.render')
 }
 
@@ -146,7 +166,92 @@ async function followSession($: $T) {
     set({ id })
     return
   }
-  resetSession($, id)
+  resetSession($, id, false)
+}
+
+// ---------- the handoff reckoning (Z9) ----------
+
+// S for this project: what a fresh session's first turn measured (the store, per project root),
+// else in a RelAI project the ritual files' bytes ÷ 4; read once at session.start
+async function loadStartLayer($: $T) {
+  const saved = (await $.store.get(startKey(S.cwd)).catch(() => undefined)) as MeasuredStart | undefined
+  if (saved && Number(saved.tokens) > 0) {
+    const layer = measuredLayer(saved)
+    return set({ start: layer.tokens, startSource: layer.source })
+  }
+  if (!S.isRelai || !S.cwd) return set({ start: 0, startSource: '' })
+  const read = async (rel: string) => {
+    const path = `${S.cwd}/${rel}`.replace(/\\/g, '/')
+    return $.fs.exists(path).then((isThere) => (isThere ? $.fs.read(path) : null)).catch(() => null)
+  }
+  const files: { path: string; text: string | null }[] = []
+  for (const path of RITUAL_FILES) files.push({ path, text: await read(path) })
+  const plan = activePlanStatus(files[0]?.text ?? '')
+  if (plan) files.push({ path: plan, text: await read(plan) })
+  const layer = estimatedLayer(files)
+  set(layer ? { start: layer.tokens, startSource: layer.source } : { start: 0, startSource: '' })
+}
+
+// The first main turn of a fresh conversation (for a RelAI project: the start ritual) is S
+async function measureStart($: $T, now: number, isAnswer: boolean) {
+  if (!S.startPending) return
+  set({ startPending: false })
+  if (!isAnswer || !(S.ctx > 0)) return
+  const measured: MeasuredStart = { tokens: S.ctx, date: dateText(now) }
+  await $.store.set(startKey(S.cwd), measured).catch(() => {})
+  const layer = measuredLayer(measured)
+  set({ start: layer.tokens, startSource: layer.source })
+}
+
+// A main turn ended: its output, and the 5-hour window's move since the previous one against
+// this turn's context (so the forecast after a handoff is the pace × S / ctx); a reset window
+// (a negative move) only sets the new base
+function recordTurn() {
+  if (S.turnOut <= 0) return
+  const outputs = [...S.outputs, S.turnOut].slice(-KEEP_TURNS)
+  const five = S.rateLimits.find((l) => l.kind === FIVE_HOUR)
+  if (!five) return set({ outputs, turnOut: 0 })
+  const move = five.percentUsed - S.limitBase
+  const limitTurns = S.limitBase >= 0 && move >= 0 && S.ctx > 0 ? [...S.limitTurns, { percent: move, tokens: S.ctx }].slice(-KEEP_TURNS) : S.limitTurns
+  set({ outputs, turnOut: 0, limitTurns, limitBase: five.percentUsed })
+}
+
+const cacheTemp = (kind: string): CacheTemp => (kind === 'unknown' ? 'unknown' : kind === 'cold' ? 'cold' : 'warm')
+
+function economicsInput(now: number): HandoffInput {
+  const k = ratesFor(S.model, ttl(), S.ctx, prices)
+  return {
+    ctx: S.ctx > 0 ? S.ctx : null,
+    start: S.start > 0 ? S.start : null,
+    startSource: S.startSource,
+    cache: cacheTemp(state(now).kind),
+    ttlMin: ttl(),
+    ttlMeasured: !settings.ttlMin && S.ttlMeasured !== 0,
+    rates: { read: k?.read ?? null, write: k?.write ?? null, output: k?.output ?? null },
+    meanOutput: S.outputs.length ? S.outputs.reduce((a, b) => a + b, 0) / S.outputs.length : null,
+    limitTurns: S.limitTurns,
+    threshold: settings.paybackTurns,
+  }
+}
+
+// Reckoned on a main turn's end, on session.measure, on /cache and when the tick sees the cache
+// state change; a cheap pure call
+let verdict: HandoffVerdict | null = null
+let reckonedKind = ''
+function reckon(now: number): HandoffVerdict {
+  verdict = handoffEconomics(economicsInput(now))
+  reckonedKind = state(now).kind
+  return verdict
+}
+
+// The cache bar's second row, '' when none: a handoff pays off, none is under way, and "Zostań"
+// was not pressed at about this context (it holds until ctx grows 20 % or the cache goes cold)
+function eventText(now: number): string {
+  const v = verdict ?? reckon(now)
+  if (v.kind !== 'handoff' || H.phase !== 'idle') return ''
+  const isCold = state(now).kind === 'cold'
+  const isDismissed = S.stayCtx > 0 && S.ctx * STAY_GROWTH.den < S.stayCtx * STAY_GROWTH.num && !(isCold && !S.stayCold)
+  return isDismissed ? '' : v.bar
 }
 
 async function registerCommand($: $T, name: string, description: string, argumentHint: string): Promise<string> {
@@ -230,7 +335,7 @@ let drawnStamp = ''
 const bandStamp = (now: number) => {
   const st = state(now)
   return JSON.stringify([st.kind, cacheFigure(st, ttlAssumed() ? '~' : ''), tokens(S.ctx), S.ctx >= settings.bigTokens, usd(rewriteAt(S.ctx)),
-    limitsText(S.rateLimits), usd(S.costUsd), S.pings, usd(S.pingUsd), H.phase])
+    limitsText(S.rateLimits), usd(S.costUsd), S.pings, usd(S.pingUsd), H.phase, eventText(now)])
 }
 
 async function tick($: $T) {
@@ -238,6 +343,7 @@ async function tick($: $T) {
   const now = await $.clock.now()
   await keepWarmStep($, now)
   warnStep($, now)
+  if (state(now).kind !== reckonedKind) reckon(now)
   await saveSnap($, now)
   const stamp = bandStamp(now)
   if (stamp === drawnStamp) return
@@ -350,8 +456,9 @@ function statusText(now: number): string {
   if (S.rateLimits.length) lines.push(`Limity planu: ${limitsText(S.rateLimits)}.`)
   lines.push(`Sesja ≈ ${usd(S.costUsd)} (hipotetycznie wg cennika API). Ponowne zapisy cache: ${S.rewrites} (${usd(S.rewriteUsd)}).`)
   lines.push(`Strażnik: ${settings.guard ? 'on' : 'off'} od ${tokens(settings.bigTokens)}. Alerty: ${settings.alerts ? 'on' : 'off'} od ${tokens(settings.alertTokens)}, progi ${settings.warnMin.join(' i ')} min. Projekt RelAI: ${S.isRelai ? 'tak' : 'nie'}.`)
-  lines.push(`Ustawienia: /${names.cache} ttl 5|60|auto · straznik on|off · prog 150k · alerty on|off · progi 10,5 · godziny 4 · limit 90`)
+  lines.push(`Ustawienia: /${names.cache} ttl 5|60|auto · straznik on|off · prog 150k · alerty on|off · progi 10,5 · godziny 4 · limit 90 · zwrot ${settings.paybackTurns} (1–50 tur)`)
   lines.push(`Cennik: ${priceSource(prices)}. Koniec odliczania nie dowodzi utraty cache — to prognoza z TTL.`)
+  lines.push('', reckon(now).report)
   return lines.join('\n')
 }
 
@@ -438,7 +545,11 @@ function band($: $T, e: Resolved, columns: number, now: number) {
   }
   if (H.phase === 'ready') actions.push(<Button key="continue" label="Wyczyść i kontynuuj" hotkey="c" variant="secondary" onPress={() => clearAndContinue($)} />)
   const label = H.phase === 'running' ? 'Przekazanie trwa' : H.phase === 'continuing' ? 'Czyszczę' : S.isRelai ? 'Przekaż (RelAI)' : 'Przekaż'
-  actions.push(<Button key="handoff" label={label} hotkey="h" variant="secondary" dimColor={H.phase !== 'idle'} onPress={() => startHandoff($)} />)
+  const handoff = <Button key="handoff" label={label} hotkey="h" variant="secondary" dimColor={H.phase !== 'idle'} onPress={() => startHandoff($)} />
+  // Z9: when a fresh session pays off, the one handoff button moves into the second row (hotkey h
+  // once in the band); "Zostań" dismisses the event for this context size
+  const event = eventText(now)
+  if (!event) actions.push(handoff)
   const middle = [
     <Box key="cache-state" flexDirection="row" flexWrap="wrap" alignItems="center" columnGap={3}>
       <Box key="state">{head}</Box>
@@ -447,6 +558,20 @@ function band($: $T, e: Resolved, columns: number, now: number) {
     // A line apart from the state and its buttons on the desktop (calibration 2026-10-09)
     <Box key="cache-meta" flexDirection="row" flexWrap="wrap" columnGap={3} marginTop={e.surface === 'terminal' ? 0 : 1}>{meta}</Box>,
   ]
+  if (event) {
+    middle.push(
+      <Box key="cache-event" flexDirection="row" flexWrap="wrap" alignItems="center" columnGap={3} marginTop={e.surface === 'terminal' ? 0 : 1}>
+        <Box key="event-text"><Text color={BAR.text}>{event}</Text></Box>
+        <Box key="event-actions" flexDirection="row" flexWrap="wrap" columnGap={2}>
+          {[handoff, <Button key="stay" label="Zostań" variant="secondary" onPress={async () => {
+            const at = await $.clock.now()
+            set({ stayCtx: S.ctx, stayCold: state(at).kind === 'cold' })
+            $.ui.invalidate('ui.render')
+          }} />]}
+        </Box>
+      </Box>,
+    )
+  }
   return barCard($, e, columns, 'relai-cache-card', BAND.cache, middle, cacheFigure(st, tilde))
 }
 
@@ -458,12 +583,16 @@ export const register: Register = (on) => {
     home = (await $.env.get('USERPROFILE')) || (await $.env.get('HOME')) || ''
     const here = await $.session.cwd()
     const root = await relaiRoot($, here)
-    S = { ...FRESH, id: await $.session.id(), cwd: root ?? here, model: await $.session.model(), isRelai: root !== null }
+    // No user turn in the transcript yet: a fresh session, not a resume or a reload (Z9)
+    const isFresh = (await $.session.turns().catch(() => 1)) === 0
+    S = { ...FRESH, id: await $.session.id(), cwd: root ?? here, model: await $.session.model(), isRelai: root !== null, startPending: isFresh }
     settings = mergeSettings(await $.store.get(STORE_SETTINGS))
     await loadPrices($)
     await restoreSnap($, now)
+    await loadStartLayer($)
+    verdict = null
     names = {
-      cache: await registerCommand($, 'cache', 'Stan cache promptu i ustawienia relai-cache-keeper', '[ttl 5|60|auto] [straznik on|off] [prog 150k] [alerty on|off] [progi 10,5]'),
+      cache: await registerCommand($, 'cache', 'Stan cache promptu i ustawienia relai-cache-keeper', '[ttl 5|60|auto] [straznik on|off] [prog 150k] [alerty on|off] [progi 10,5] [zwrot 5]'),
       keepwarm: await registerCommand($, 'keepwarm', 'Podtrzymuj cache tej sesji (domyślnie 4 h) albo /keepwarm off', '[godziny|off]'),
       handoff: await registerCommand($, 'handoff', 'Przekazanie do świeżego czatu (w projekcie RelAI przez dokumenty); /handoff dalej kończy', '[dalej]'),
     }
@@ -478,7 +607,7 @@ export const register: Register = (on) => {
     if (ending) await $.store.delete('snap:' + ending).catch(() => {})
     if (e.reason === 'clear') {
       const id = await $.session.id().catch(() => '')
-      resetSession($, id !== ending ? id : '')
+      resetSession($, id !== ending ? id : '', true)
     }
     return next(e)
   })
@@ -543,7 +672,7 @@ export const register: Register = (on) => {
       const seen = S.shortTtlRewrites + 1
       set({ shortTtlRewrites: seen, ...(seen >= 2 ? { ttlMeasured: 5 as const } : {}) })
     }
-    set({ ctx: totalInput(u), lastActivity: now, justCompacted: false })
+    set({ ctx: totalInput(u), lastActivity: now, justCompacted: false, turnOut: S.turnOut + (u.output_tokens || 0) })
     return result
   })
 
@@ -560,6 +689,9 @@ export const register: Register = (on) => {
         rateLimits: usage.rateLimits?.length ? usage.rateLimits : S.rateLimits,
       })
     }
+    recordTurn()
+    await measureStart($, now, e.reason === 'answer')
+    reckon(now)
     if (H.phase === 'running' && e.turnId !== H.notTurn) {
       await captureHandoff($, e.reason === 'answer' ? e.answer : '', now)
     }
@@ -578,6 +710,7 @@ export const register: Register = (on) => {
     if (e.context?.tokens) set({ ctx: e.context.tokens })
     if (e.cost) set({ costUsd: e.cost.usd })
     if (e.rateLimits?.length) set({ rateLimits: e.rateLimits })
+    reckon(await $.clock.now())
     return next(e)
   })
 

@@ -1,5 +1,6 @@
 import { describe, expect, mock, test, type TestBody } from 'claude-code/testing'
 import type { On, RenderNode, TurnStepResult } from 'claude-code'
+import { BAND as THEME } from './relai/theme.mjs'
 
 type Engine = Parameters<TestBody>[0]
 
@@ -64,7 +65,7 @@ describe('the cache card above the prompt', () => {
       expect(props.backgroundColor).toBe('#2c2824')
       expect(props.borderStyle).toBe(surface === 'desktop' ? 'round' : undefined)
       if (surface === 'desktop') expect(props.borderColor).toBe('#2c2824') // corners only, no colored frame
-      expect((await ui.find({ key: 'label' }))?.text).toBe('RelAI · cache')
+      expect((await ui.find({ key: 'label' }))?.text).toBe(THEME.cache.label)
       expect((await ui.find({ key: 'state' }))?.text).toBe('Cache ciepły')
       expect((await ui.find({ key: 'figure' }))?.text).toContain('60')
       expect((await ui.find({ key: 'figure' }))?.text).toContain('min do końca')

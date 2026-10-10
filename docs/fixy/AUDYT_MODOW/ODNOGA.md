@@ -157,10 +157,15 @@ Kolejność: najpierw fundamenty (Z3–Z5), bo bez nich nowe paski będą migać
 - [ ] Z6: test równości trzech `fmt.ts` i dwóch `barCard`; `usd(11.73)` daje ten sam napis
       w trzech modach.
 - [ ] Z7: `claude plugin test` ×3 zielone; nowe testy wymienione z nazwy we wpisie dziennika.
-- [ ] Z9: test funkcji na trzech przypadkach z liczbami policzonymi ręcznie w teście (cache
+- [x] Z9: test funkcji na trzech przypadkach z liczbami policzonymi ręcznie w teście (cache
       ciepły z małym kontekstem → „nie opłaca się”, cache ciepły 800k → N ≤ 5, cache zimny
       z `ctx > 2·S` → zdarzenie); drugi wiersz paska pojawia się tylko po przekroczeniu progu
       (test modu); `/cache` pokazuje rachunek z założeniami; brak danych słowami.
+      Dowód: `cache-keeper/hooks/economics.test.ts` (8 testów; trzy przypadki karty z liczbami
+      w teście: 100k ciepły → N = 22, „zostań”; 800k ciepły → N = 3, zdarzenie; 200k zimny przy
+      S = 30k → zdarzenie z powodu „cache zimny”) i `handoff-economics.test.ts` (10: drugi wiersz
+      tylko ponad progiem, `Zostań` do wzrostu kontekstu o 20 %, `/cache zwrot 2`, rachunek
+      w `/cache`, brak S słowami, pomiar S po pierwszej turze, szacunek z plików rytuału).
 - [ ] Z8: `plugin validate` ×3, walidator adapterów, pomiar po restarcie treścią plików z cache
       (P-005); publikacja po „tak”.
 - [ ] `git diff` nie dotyka `core/panel/*.mjs` poza `theme.mjs` ani niczego w `adapters/codex/`.
@@ -227,6 +232,18 @@ Jedna linia na zamkniętą paczkę; pełny wpis do `docs/DZIENNIK.md` dopiero w 
   **Do decyzji człowieka:** poza projektem z zapisanym `cennik.json` cache-keeper wycenia tylko
   Opus 5.5 (wbudowany cennik rdzenia) — inne modele mają „cena nieznana” zamiast dawnych stawek
   z własnej tabeli. Import `pricing.mjs` ciągnie do cache-keepera `decisions.mjs`.
+- **2026-10-10 · Z9 zamknięta** (dwóch subagentów Opus 5.5: czysta funkcja, potem podpięcie) —
+  `economics.ts` liczy koszt następnej tury tu i po przekazaniu, liczbę tur zwrotu
+  `(przekazanie + S·zapis) / ((ctx − S)·odczyt)`, tempo limitu 5 h (średnia 5 tur) i prognozę
+  po przekazaniu; brak liczby = zdanie o braku. Podpięcie w `register.tsx`: średnie wyjście
+  i tempo 5 h z ostatnich 5 tur; **S mierzone** — kontekst po pierwszej turze świeżej sesji
+  (też po `/clear`), zapisany w `$.store` dla projektu z datą; zapas: pliki rytuału ÷ 4
+  (dziennik — pierwsze 12 KB), opisany jako szacunek; poza RelAI bez pomiaru — brak S słowami.
+  Drugi wiersz paska cache z `Przekaż` (przeniesiony, `h` raz) i `Zostań`; `/cache zwrot N`
+  (1–50, domyślnie 5); pełny rachunek w `/cache`. Testy: cache-keeper 54/54, `tsc` 0, `validate`.
+  **Odstępstwa:** tempo 5 h odniesione do kontekstu tury na jej końcu (daje wprost proporcję
+  S/ctx z karty); źródło S „pomiar po pierwszej turze” dodane przed „plikami rytuału” — raport
+  hooka startu nie jest dostępny dla modu. Wygląd wiersza — do przestylowania w Z1 (pierścienie).
 
 ## Wynik
 

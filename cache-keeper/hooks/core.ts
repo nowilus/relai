@@ -1,5 +1,6 @@
 // Pure logic: cache state, warnings, keep-warm decisions, settings. No `$` here, so tests reach it directly.
 
+import { DEFAULT_PAYBACK_TURNS } from './economics'
 import { totalInput, type Usage } from './pricing'
 
 export const MIN = 60_000
@@ -13,6 +14,7 @@ export type Settings = {
   warnMin: number[] // minutes before expiry, descending
   keepWarmHours: number
   maxLimitPercent: number // keep-warm stops at this plan-limit usage
+  paybackTurns: number // a fresh session paying off within this many turns opens the cache bar's event (Z9)
 }
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -24,7 +26,10 @@ export const DEFAULT_SETTINGS: Settings = {
   warnMin: [10, 5],
   keepWarmHours: 4,
   maxLimitPercent: 90,
+  paybackTurns: DEFAULT_PAYBACK_TURNS,
 }
+
+export const MAX_PAYBACK_TURNS = 50
 
 export type CacheKind = 'unknown' | 'kept' | 'warm' | 'cooling' | 'cold'
 
@@ -132,6 +137,12 @@ export function applySetting(s: Settings, rawKey: string, rawValue: string): { s
   if (key === 'limit') {
     const n = Number(value)
     return n > 0 && n <= 100 ? { settings: { ...s, maxLimitPercent: n } } : fail('limit: procent 1–100')
+  }
+  if (key === 'zwrot' || key === 'payback') {
+    const n = Number(value)
+    return Number.isInteger(n) && n >= 1 && n <= MAX_PAYBACK_TURNS
+      ? { settings: { ...s, paybackTurns: n } }
+      : fail(`zwrot: liczba tur od 1 do ${MAX_PAYBACK_TURNS}`)
   }
   return fail(`nieznane ustawienie: ${rawKey}`)
 }
