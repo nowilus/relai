@@ -12,7 +12,7 @@ dokumentami i kosztami sesji, karta „Tak / Nie” przed każdą zmianą), `rel
 etapu, `/relai-agents`) i `relai-cache-keeper` 0.3.0 (licznik cache promptu). `/relai-stage`
 przyjmuje zgodę z karty panelu. Instalacja komendami z README jest zmierzona na żywo. Plugin `relai`
 działa w trzech narzędziach — Claude Code, Cursorze i Codeksie — na jednym rdzeniu procesu,
-z czternastoma komendami. Aktywny plan: PANEL_CODEX, czeka na akceptację. Opinii spoza projektu
+z czternastoma komendami. Aktywny plan: PANEL_CODEX, zaakceptowany 2026-10-10; E1 gotowy do startu w świeżej sesji. Opinii spoza projektu
 nadal nie ma.
 
 ## Co działa
@@ -52,15 +52,16 @@ nadal nie ma.
 ## Nad czym pracujemy teraz
 
 - Plan Codeksa [PANEL_CODEX](plany/PANEL_CODEX/STATUS.md) przygotowany jako osobny HTML,
-  **DO AKCEPTACJI**; poprzednik PANEL_CLAUDE zamknięty 2026-10-10, więc zostają akceptacja planu
-  i zakres D-80 dla adaptera Codeksa. Autor i wykonawca: **gpt-6.1-sol w Codeksie**. 8 etapów,
-  checklist przejęcia rdzenia i symulator API w planie. Żaden etap nie rozpoczęty.
+  **ZAAKCEPTOWANY 2026-10-10**; poprzednik PANEL_CLAUDE zamknięty, przejęcie sprawdzone
+  i aneks D-80 dla adaptera Codeksa zapisany po jawnej akceptacji człowieka. Autor i wykonawca: **gpt-6.1-sol w Codeksie**. 8 etapów;
+  plan uzgodniony 2026-10-10 z istniejącym rdzeniem, schematem pomiarów i ograniczeniami Claude;
+  przejęcie zweryfikowane (263 testy repo i 70/16/19 testów pluginów). Prompt E1 wygenerowany, etap
+  **GOTOWY DO STARTU** w świeżej sesji. Żaden etap nie rozpoczęty.
 
 ## Co dalej
 
-- Akceptacja [PANEL_CODEX](plany/PANEL_CODEX/PLAN.html) i zakresu adaptera Codeksa w D-80;
-  wykonanie po pełnym zamknięciu PANEL_CLAUDE oraz przejęciu jego rdzenia i testów.
-  PANEL_CLAUDE pozostaje aktywny.
+- Start E1 [PANEL_CODEX](plany/PANEL_CODEX/PROMPT_ETAP_1.md) w świeżej sesji Codeksa na
+  gpt-6.1-sol, effort high, przez relai-stage; bramki akceptacji i D-80 rozstrzygnięte.
 - **Bramka E5 planu PANEL_CLAUDE, pominięta decyzją człowieka 2026-10-10:** start etapu z karty
   panelu bez drugiego pytania w czacie i `/relai-stage` bez znacznika z kartą jak przed E5 nie są
   zmierzone na żywo (testy pokrywają oba przebiegi). Warunek wykonalności spełniony od wydania
@@ -216,7 +217,7 @@ Backupy: `C:\Users\Lukasz\Backupy\RelAI` • [PRZENOSNOSC.md](PRZENOSNOSC.md) �
 
 ### Liczby
 
-Plany zamknięte: 9 (ostatni PROWADZENIE_END_TO_END, 2026-09-24) • Aktywny: PANEL_CLAUDE (E1, E2, E8, E3 i E9 zrealizowane, E4 gotowy do startu) • Start sesji:
+Plany zamknięte: 10 (ostatni PANEL_CLAUDE, 2026-10-10) • Aktywny: PANEL_CODEX (ZAAKCEPTOWANY 2026-10-10, E1 GOTOWY DO STARTU) • Start sesji:
 **88,6 KB / 100 KB** (bez aktywnego planu; po E6 98,2 KB) • Dziennik: **~200 KB / 150 KB** (rotacja należna) • Sekcja ryzyk: 12 otwartych, archiwum ryzyk: 4 pliki
 + 1 mitygacji • Lekcje: **59,4 KB / 50 KB** (rotacja należna), 37 w żywym pliku • Adaptery: 3 • Komendy: 14 •
 Testy rdzenia i adapterów: 263 (z `core/panel/`) + 105 testów pluginów (`relai-panel` 70, `relai-progress` 16, `relai-cache-keeper` 19) • Projekty na RelAI: 3 (RelAI, PolyFlow, JiraManager przed migracją) •

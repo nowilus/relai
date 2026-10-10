@@ -30,7 +30,7 @@ o kolejne `N` dni / rozstrzygnąć teraz. Sesja nieinteraktywna: sam raport, bez
 
 | Co | Status | Gdzie |
 |---|---|---|
-| Plan PANEL_CODEX | DO AKCEPTACJI; poprzednik PANEL_CLAUDE zamknięty 2026-10-10 | [status](docs/plany/PANEL_CODEX/STATUS.md) |
+| Plan PANEL_CODEX | ZAAKCEPTOWANY 2026-10-10; E1 GOTOWY DO STARTU w świeżej sesji Codeksa | [status](docs/plany/PANEL_CODEX/STATUS.md) |
 | Plugin RelAI — wydany, trzy adaptery | DZIAŁA (2.8.0 w repo i publicznie, wydane 2026-10-09; w marketplace także trzy pluginy panelu „early access”) | [docs/STATE.md](docs/STATE.md) |
 | Plan PANEL_CLAUDE — 9 etapów | **ZREALIZOWANY 2026-10-10** (9/9, Aneksy A–E, wydanie 2.8.0; pomiar bramki E5 pominięty decyzją człowieka) | [archiwum planu](docs/archiwum/plany/PANEL_CLAUDE/STATUS.md) |
 | Plan BUDOWA_RELAI — 10 etapów | ZAMKNIĘTY 2026-08-10 | [archiwum planu](docs/archiwum/plany/BUDOWA_RELAI/STATUS.md) |
@@ -44,7 +44,7 @@ o kolejne `N` dni / rozstrzygnąć teraz. Sesja nieinteraktywna: sam raport, bez
 | Plan OPTYMALIZATOR_PROMPTOW — 5 etapów | **ZREALIZOWANY 2026-09-15** (5/5, Aneksy A i B, wydanie 2.2.0) | [archiwum planu](docs/archiwum/plany/OPTYMALIZATOR_PROMPTOW/STATUS.md) |
 | Odnogi i wątki samodzielne | 1 otwarta (`OPIS_REPO`, od 2026-09-24 wątek samodzielny w `docs/fixy/`); `ORKIESTRACJA` zamknięta 2026-09-06 (2.1.0 w repo), `PRECOMMIT_ESM` 2026-09-04 wydaniem 1.9.2, `CURSOR_1_9_1` tego samego dnia | [docs/STATE.md](docs/STATE.md) |
 
-Aktywny plan: [PANEL_CODEX](docs/plany/PANEL_CODEX/STATUS.md) — panel RelAI dla Codeksa, **DO AKCEPTACJI**; autor i wykonawca `gpt-6.1-sol` w Codeksie; E1 czeka na akceptację planu i zakres D-80 dla adaptera Codeksa (poprzednik PANEL_CLAUDE zamknięty 2026-10-10).
+Aktywny plan: [PANEL_CODEX](docs/plany/PANEL_CODEX/STATUS.md) — panel RelAI dla Codeksa, **ZAAKCEPTOWANY 2026-10-10**; E1 **GOTOWY DO STARTU** z `PROMPT_ETAP_1.md` w świeżej sesji; autor i wykonawca `gpt-6.1-sol` w Codeksie, effort high; D-80 rozszerzona na adapter Codeksa (poprzednik PANEL_CLAUDE zamknięty 2026-10-10).
 
 ## Reguły procesu
 

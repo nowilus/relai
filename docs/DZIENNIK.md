@@ -3254,5 +3254,151 @@ Autor: RelAI (Opus 5.5) + Lukasz
 **Do zrobienia przez człowieka:**
 
 - Uruchomić sesję Codeksa na gpt-6.1-sol z `docs/plany/PANEL_CODEX/PROMPT_START.md`.
+  *(rozstrzygnięte 2026-10-10 — sesja startowa Codeksa wykonana; plan i D-80 zaakceptowane,
+  prompt E1 wygenerowany)*
 
 Autor: RelAI (Opus 5.5) + Lukasz
+
+### 2026-10-10 — PANEL_CODEX: przejęcie rdzenia i plan do akceptacji
+
+**Zrobione:**
+
+- Wykonano część przygotowawczą `PROMPT_START.md` w Codeksie na **gpt-6.1-sol**;
+  metadane bieżącej sesji potwierdzają model i wysiłek **xhigh** (prompt zaleca high).
+  Lista `.claude/relai/MODELE-codex.md` z 2026-09-05 nie zna tego modelu — przypadek spoza
+  listy nazwany, zaproponowano `/relai-models` jako osobny krok, bez odświeżania listy.
+- `PRZEJECIE.md`: dowody zamknięcia poprzednika, publicznego wydania, kontraktu, źródeł
+  Codeksa, normalizacji, profilu cache, kopii rdzenia i punktu porównania testów. Otwarte
+  pozostają akceptacja planu/D-80 oraz następująca po niej lazy-generacja promptu E1.
+  Nie są to niepowodzenia techniczne przejęcia; E1 nadal **OCZEKUJE**.
+- `PLAN.html` uzgodniony ze stanem 2.8.0: zamknięty poprzednik, 15 istniejących modułów,
+  SCHEMA=1 i 17 pól, fabryki rekordów z tool=claude-code, normalizacja OpenAI w E2, stawki
+  OpenAI i osobny profil cache w E3, strażnik `--zgoda-panelu` w E4, marketplace Codeksa
+  i rozszerzenie walidatora 5a w E8. Testy obu konsumentów obowiązkowe przy zmianie rdzenia.
+  Linki poprzednika wskazują archiwum. Cele, wariant A, zakres oraz szacunki etapów bez zmian.
+- `STATUS.md` i `STATE.md` opisują sprawdzone przejęcie i pozostałe bramki; usunięto stare
+  zdanie o aktywnym PANEL_CLAUDE i poprawiono licznik zamkniętych planów na 10.
+  E1 nie uruchomiono, prompt E1 jeszcze nie powstał, D-80 jeszcze nierozszerzona.
+
+**Zweryfikowane — jak dokładnie:**
+
+- Punkt przejęcia: HEAD `6b502fea5135541bd50ef564a96b6a4898f1b6c5`, tag v2.8.0
+  `32851152598eebe0e15d0f831fb7642a7d03f0cb`; `gh release view v2.8.0` i endpoint
+  `releases/latest` — publiczne Latest, 2026-10-09, bez draft/prerelease.
+- `node --test core/process/tests/*.test.js core/guardrails/tests/*.test.js
+  adapters/codex/tests/*.test.js core/panel/tests/*.test.js` — **263/263**, exit 0.
+- `claude plugin test .` w panel/, progress/ i cache-keeper/ na fizycznej binarce
+  Claude Code **2.1.293**, z `CLAUDE_CODE_ENABLE_FUNCTION_HOOKS=1`: **70/70, 16/16, 19/19**,
+  exit 0. CLI w PATH jest starsze (2.1.280); przed przebiegiem wybrano binarkę wg P-019.
+- `node core/tools/validate-adapters.js` i `node core/tools/sync-panel-core.js --check`
+  — exit 0, 15 modułów i 14 ikon zgodnych w trzech pluginach.
+- Stare brzmienia planu (2.7.1, „implementacja trwa”, „pozostaje aktywny”, link poza
+  archiwum) — usunięte; kontrola pozytywna na wersji HEAD ma trafienia. CSS, osadzone fonty
+  i skrypt symulatora identyczne z HEAD; builder powtórzony, brak niewypełnionych znaczników.
+- Playwright w Chromium (zainstalowany Edge, bez instalacji zależności): 10 sekcji,
+  rozwijanie kliknięciem i Enter, aria-expanded/inert zgodne; symulator 0,0287744 USD,
+  po wyzerowaniu odczytu cache 0,125568 USD, błędne wejście daje jawny błąd; 3 linki lokalne
+  istnieją; 0 błędów JS i 0 żądań sieciowych. Szerokości 1440 i 375 px bez przewijania
+  strony w poziomie; kontrola pozytywna z podłożonym przepełnieniem zaliczona.
+- Przeliczenie tabeli etapów w przeglądarce: **75–120 h** (SZACUNEK z sumy zakresów).
+  Błędną roboczą korektę do 75–128 h cofnięto przed przekazaniem do akceptacji.
+- `git diff --check` — exit 0; zmieniono wyłącznie dokumenty. Raport
+  `node .claude/relai/tools/clean-work.js raport` przejrzany: START chroniony jako trwająca
+  sesja, oczekuje decyzji o sprzątaniu; poza katalogiem tej sesji niczego nie kasowano.
+
+**Świadomie odłożone:**
+
+- Rotacja dziennika, lekcji i zamkniętych ryzyk — zaproponowana przy starcie, bez zgody
+  nieuruchomiona; nie należy do uzgodnienia planu.
+- Odświeżenie listy modeli; implementacja E1 w świeżej sesji; publikacja dopiero po osobnej
+  zgodzie w E8. Pliki robocze w `.claude/relai/work/PANEL_CODEX/START/` pozostają do zamknięcia
+  sesji i zgody na ich usunięcie.
+
+**Do zrobienia przez człowieka:**
+
+- **(a)** Akceptacja uzgodnionego `PLAN.html` i **(b)** aneksu D-80: GUI i telemetria obejmują
+  także adapter Codeksa dla panelu RelAI, z lokalnymi pomiarami i wspólnym `core/panel/`;
+  pozostałe wykluczenia bez zmian. Po obu zgodach: zamrożenie planu, D-80, prompt E1 i sync
+  dokumentów, bez wykonania E1 w tej sesji.
+  *(rozstrzygnięte 2026-10-10 — jawna odpowiedź człowieka: „Tak — akceptuję (a) plan i (b)
+  aneks D-80”; plan zamrożony, aneks zapisany i prompt E1 wygenerowany)*
+
+Autor: RelAI (gpt-6.1-sol) + Lukasz
+
+### 2026-10-10 — PANEL_CODEX zaakceptowany; E1 gotowy do świeżej sesji
+
+**Zrobione:**
+
+- Jawna odpowiedź Łukasza: **„Tak — akceptuję (a) plan i (b) aneks D-80”**. Plan zamrożony
+  jako ZAAKCEPTOWANY 2026-10-10, obie bramki w STATUS rozstrzygnięte; zgoda na publikację
+  pozostaje otwarta dla E8. W DECYZJE dopisano aneks D-80 obejmujący adapter Codeksa,
+  lokalne pomiary i wspólny rdzeń; wcześniejszych decyzji nie przepisano.
+- `PROMPT_ETAP_1.md`: dziewięć elementów specyfikacji w kolejności, rzeczywisty stan 2.8.0
+  i kontrakt przejętego rdzenia, granica wyłącznie E1, katalog pracy E1, model gpt-6.1-sol
+  w Codeksie, zalecany effort high, komplet aktywnych zasad oraz rytuał zamknięcia z promptem E2.
+  Przy wejściu przez relai-stage prompt nie powtarza uzyskanej już zgody na start.
+- E1 → **GOTOWY DO STARTU**, link do istniejącego promptu; PRZEJECIE **11/11**.
+  STATE, źródłowy CLAUDE i kopia AGENTS zsynchronizowane. **E1 nie rozpoczęty.**
+
+**Zweryfikowane — jak dokładnie:**
+
+- Kontrola struktury promptu: tytuł, metryka, kontrola modelu i sześć sekcji w stałej kolejności
+  dają dziewięć elementów; katalog pracy literalnie w zakresie; brak niewypełnionych znaczników.
+  Odpis aktywnych zasad: **26136 znaków**, równy treści źródła po normalizacji końców linii;
+  zmieniona kopia daje różnicę (kontrola pozytywna). Początkowe podstawienie String.replace
+  rozwijało literalne znaki dolara z Markdown; poprawione na funkcję zwracającą treść przed
+  zaliczeniem kontroli, prompt sprawdzony po naprawie.
+- Dokładnie jeden etap GOTOWY DO STARTU (E1), żaden W TOKU; prompt E2 nie wygenerowany.
+  CLAUDE/AGENTS zgodne od pierwszej sekcji; sekcja niemutowalna bez zmian.
+- Po zapisaniu akceptacji i promptu ponownie: testy repo **263/263**, testy pluginów Claude
+  **70/70, 16/16, 19/19**, wszystkie exit 0; walidator i sync-panel-core --check — exit 0.
+- HTML po zmianie metadanych akceptacji: render Chromium, symulator, klawiatura, inert,
+  10 sekcji, 3 linki, 0 żądań sieciowych i błędów JS; brak poziomego przewijania na 1440/375 px,
+  kontrola pozytywna przepełnienia zaliczona. CSS i skrypt bez zmian.
+- `git diff --check` — exit 0; zakres: dziewięć dokumentów (w tym nowy prompt), zero zmian
+  w core/, adapters/, panel/, progress/ i cache-keeper/. Raport sprzątania ponowiony:
+  START zawiera dziewięć plików tej sesji, **3686115 bajtów**, chroniony przez mechanizm jako
+  katalog bez karty etapu; usunięcie wyłącznie po odrębnej zgodzie na ten konkretny katalog.
+
+**Świadomie odłożone:**
+
+- E1 do świeżej sesji Codeksa; publikacja do E8 i osobnej zgody. Rotacja i odświeżenie modeli
+  pozostają propozycjami spoza zakresu tej sesji.
+
+**Do zrobienia przez człowieka:**
+
+- Usunięcie wyłącznie `.claude/relai/work/PANEL_CODEX/START/` po przejrzanym raporcie.
+  *(rozstrzygnięte 2026-10-10 — po jawnym „tak” usunięto dziewięć plików i pusty katalog;
+  przed 3686115 bajtów, po 0 bajtów, brak katalogu sprawdzony)*
+- Commit dziewięciu dokumentów: `docs: prepare PANEL_CODEX stage one` — po zgodzie, bez pushu.
+  *(rozstrzygnięte 2026-10-10 — Łukasz jawnie zgodził się na commit tej paczki, bez pushu)*
+
+Autor: RelAI (gpt-6.1-sol) + Lukasz
+
+### 2026-10-10 — PANEL_CODEX: sprzątanie START i zgoda na commit
+
+**Zrobione:**
+
+- Jawna dyspozycja Łukasza: usunąć START i wykonać `docs: prepare PANEL_CODEX stage one`,
+  bez pushu. Sprzątnięto wyłącznie dziewięć plików tej sesji i pusty katalog
+  `.claude/relai/work/PANEL_CODEX/START/`; pozostałe katalogi robocze pozostają nietknięte.
+- Paczka commita obejmuje dziewięć dokumentów: CLAUDE/AGENTS, DECYZJE/DZIENNIK/STATE oraz
+  PLAN, STATUS, PRZEJECIE i PROMPT_ETAP_1 planu PANEL_CODEX. Plan zaakceptowany,
+  aneks D-80 zapisany; E1 nadal GOTOWY DO STARTU w świeżej sesji.
+
+**Zweryfikowane — jak dokładnie:**
+
+- Przed kasowaniem: rozwiązana pełna ścieżka celu zgodna z katalogiem START tego repo,
+  brak dowiązań, dokładnie zatwierdzone dziewięć nazw i 3686115 bajtów. Usunięto wskazane
+  pliki przez PowerShell, potem pusty folder; `Test-Path` celu → false. **Przed 3,7 MB,
+  po 0 bajtów**. Bez rekursywnego kasowania innych katalogów.
+- Testy i walidacja dokumentów z poprzedniego wpisu pozostają punktem odbioru: 263/263
+  oraz 70/16/19 testów pluginów, bez zmian kodu. W tej turze wyłącznie sprzątanie plików
+  ignorowanych i domknięcie wpisów dziennika; E1 nie uruchomiono.
+
+**Świadomie odłożone:** publikacja do E8, rotacja i odświeżenie modeli jako osobne zadania.
+
+**Do zrobienia przez człowieka:** uruchomić E1 w świeżej sesji Codeksa na gpt-6.1-sol,
+effort high, przez relai-stage albo zdanie „uruchom etap E1 planu PANEL_CODEX”.
+
+Autor: RelAI (gpt-6.1-sol) + Lukasz

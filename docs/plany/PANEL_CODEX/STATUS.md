@@ -1,6 +1,6 @@
 # STATUS — plan PANEL_CODEX
 
-[PLAN.html](PLAN.html) · utworzony 2026-10-08 · **DO AKCEPTACJI** · model wykonawczy etapów: **gpt-6.1-sol w Codeksie** (wybór użytkownika 2026-10-08; także autor planu)
+[PLAN.html](PLAN.html) · utworzony 2026-10-08 · **ZAAKCEPTOWANY 2026-10-10** · model wykonawczy etapów: **gpt-6.1-sol w Codeksie** (wybór użytkownika 2026-10-08; także autor planu)
 
 **Kolejność:** po pełnym zamknięciu planu [PANEL_CLAUDE](../../archiwum/plany/PANEL_CLAUDE/STATUS.md) — zamknięty 2026-10-10.
 Akceptacja PANEL_CODEX nie omija tej zależności.
@@ -11,7 +11,7 @@ archiwum, jego stan sprawdzamy również w docs/archiwum/plany/PANEL_CLAUDE/STAT
 
 | Etap | Nazwa | Status | Prompt | Uwagi |
 |---|---|---|---|---|
-| E1 | Przejęcie rdzenia i natywny panel | OCZEKUJE | — | blokada: PANEL_CLAUDE, akceptacja i D-80; zalecany effort high |
+| E1 | Przejęcie rdzenia i natywny panel | GOTOWY DO STARTU | [PROMPT_ETAP_1.md](PROMPT_ETAP_1.md) | poprzednik i przejęcie sprawdzone, plan i D-80 zaakceptowane 2026-10-10; świeża sesja; effort high |
 | E2 | Pomiary Codeksa i uczestników załogi | OCZEKUJE | — | zalecany effort high |
 | E3 | Koszty API i profile cache | OCZEKUJE | — | zalecany effort high |
 | E4 | Etap, prompt, odnoga i działania sesji | OCZEKUJE | — | zalecany effort high |
@@ -22,11 +22,13 @@ archiwum, jego stan sprawdzamy również w docs/archiwum/plany/PANEL_CLAUDE/STAT
 
 ## Bramki manualne
 
-- **Akceptacja PANEL_CODEX** · źródło: przygotowanie planu 2026-10-08 · **OTWARTA**
-- **Aneks D-80 dla adaptera Codeksa** · źródło: sekcja 9 PLAN.html · **OTWARTA**
+- **Akceptacja PANEL_CODEX** · źródło: przygotowanie planu 2026-10-08 · **ROZSTRZYGNIĘTA 2026-10-10 — Łukasz zaakceptował uzgodniony plan (a)**
+- **Aneks D-80 dla adaptera Codeksa** · źródło: sekcja 9 PLAN.html · **ROZSTRZYGNIĘTA 2026-10-10 — Łukasz zaakceptował (b), aneks zapisany w DECYZJE.md**
 - **Zgoda na publikację gotowej paczki** · źródło: sekcja 9 PLAN.html · **OTWARTA** — przed wydaniem E8
 
 ## Dziennik wdrożenia
 
 - 2026-10-08 — Plan przygotowany na podstawie pełnego WYWIAD.md; na dyspozycję człowieka oddzielony od PANEL_CLAUDE i ustawiony po jego zakończeniu. Model planowania i wykonania: gpt-6.1-sol w Codeksie. Czeka na akceptację i poprzednika.
 - 2026-10-10 — Po zamknięciu PANEL_CLAUDE przygotowano [PROMPT_START.md](PROMPT_START.md) — sesja startowa w Codeksie (gpt-6.1-sol): checklist przejęcia, uzgodnienie PLAN.html z wynikiem poprzednika, akceptacja i aneks D-80, potem PROMPT_ETAP_1; E1 w osobnej sesji (decyzja człowieka).
+- 2026-10-10 — Przejęcie rdzenia i testów zweryfikowane, PLAN uzgodniony z wydaniem 2.8.0; czeka na akceptację planu i aneksu D-80, E1 nadal OCZEKUJE.
+- 2026-10-10 — Plan zaakceptowany i zamrożony, aneks D-80 zapisany; wygenerowano PROMPT_ETAP_1, E1 GOTOWY DO STARTU w świeżej sesji Codeksa.
