@@ -80,7 +80,7 @@ i w terminalu.
 |---|---|
 | `relai-panel` | nad promptem: aktywny plan, etap i status, a wiersz „Tak / Nie” tylko, gdy karta decyzji czeka; `/relai-panel` otwiera panel z paskiem „Teraz”, formularzami czternastu komend, mapą planów i etapów, dokumentami projektu ze zmianami od commita i kosztami sesji |
 | `relai-progress` | nad promptem: segmenty etapu w toku albo przebiegu `/relai-crew` z następnym punktem pod nimi i chip agentów z kosztem; `/relai-agents` — subagenci sesji z kosztem |
-| `relai-cache-keeper` | nad promptem: pięć baterii — czas cache promptu, limit 5 h, czas do jego resetu, limit tygodniowy, kontekst — i koszt sesji; podpowiada, kiedy nowa sesja się zwróci (`/cache` pokazuje rachunek) |
+| `relai-cache-keeper` | nad promptem: pięć baterii — czas cache promptu, limit 5 h, czas do jego resetu, limit tygodniowy, kontekst — i koszt sesji; podpowiada, kiedy nowa sesja się zwróci (`/cache` pokazuje rachunek). Limit planu: progi 5 h (90 %) i tygodnia (98 %) z podpisem pod baterią, karta „pracuję dalej / zapisz pracę” po turze ponad progiem, a po resecie „Wznów pracę” — czysty czat od pliku wznowienia. Progi zmieniasz w panelu, zakładka Koszty |
 
 Każda zmiana stanu z panelu (start etapu, sprzątanie, aktualizacja) idzie przez kartę „Tak / Nie”.
 Panel nie woła modelu. Jedyny ruch sieciowy w całej trójce to odczyt strony cennika Anthropic, i to

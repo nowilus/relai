@@ -36,9 +36,9 @@ z podpowiedzi; skrócona forma działa tam, gdzie podpowiadacz ją rozwinie.
 | Powiesz | Co się stanie |
 |---|---|
 | „kończymy na dziś" / „wrapping up" | RelAI domyka dokumenty, zapisuje wpis w dzienniku, aktualizuje ryzyka, proponuje commit i podsumowuje sesję |
-| „kontynuujemy pracę" / „let's continue" | RelAI odtwarza kontekst z dokumentów, mówi, gdzie jesteśmy, i proponuje najbliższy krok |
+| „kontynuujemy pracę" / „let's continue" | RelAI odtwarza kontekst z dokumentów, mówi, gdzie jesteśmy, i proponuje najbliższy krok. Gdy w projekcie czeka plik wznowienia (po „zapisz pracę”), zaczyna od niego: mówi, ile commitów doszło od zapisu, proponuje pierwszy krok z jego listy „co dalej” i raz pyta, czy plik skasować |
 | „sprawdź status" / „status check" | krótki raport: stan projektu, plany i etapy, otwarte ryzyka, zaległości w dokumentach |
-| „zapisz pracę" / „save my work" | gdy limit planu się kończy: RelAI uruchamia testy, robi commit lokalny tego, co działa (bez pusha), domyka dokumenty i zostawia plik wznowienia z listą „co dalej” — następna sesja zaczyna od niego. W Claude Code to samo robi przycisk „Zapisz pracę teraz” na karcie limitu, a kliknięcie jest zgodą na commit; wpisana ręcznie fraza pyta o commit. Na pasku zostaje „zapis gotowy · reset GG:MM” albo „zapis niepełny” |
+| „zapisz pracę" / „save my work" | gdy limit planu się kończy: RelAI uruchamia testy, robi commit lokalny tego, co działa (bez pusha), domyka dokumenty i zostawia plik wznowienia z listą „co dalej” — następna sesja zaczyna od niego. W Claude Code to samo robi przycisk „Zapisz pracę teraz” na karcie limitu, a kliknięcie jest zgodą na commit; wpisana ręcznie fraza pyta o commit. Na pasku zostaje „zapis gotowy · reset GG:MM” albo „zapis niepełny”; po resecie limitu — „Wznów pracę” (czysty czat, który zaczyna od pliku wznowienia) i „Odrzuć” (prośba do Claude o skasowanie pliku) |
 | „coś nie działa — …" (np. „coś nie działa — npm test pada przy sumie koszyka, napraw to") | zanim RelAI dotknie kodu, odtwarza błąd komendą i pokazuje jej wynik, sprawdza po jednej hipotezie z dowodem, robi najmniejszą poprawkę i uruchamia tę samą komendę jeszcze raz; kończy raportem: odtworzenie, przyczyna, poprawka, dowód. Przyczyna, która jest dziwactwem narzędzia, trafia do `docs/PULAPKI.md`. Po trzech odrzuconych hipotezach zatrzymuje się i mówi, czego potrzebuje od Ciebie (od 2.7.0) |
 | „jutro wdrażamy … na produkcję" / „wdrażamy …" | **przed** pierwszym wdrożeniem środowiska: lista kontrolna w sześciu punktach — zmienne i sekrety, kopia danych, droga cofnięcia, kto ma dostęp, audyt zależności (`npm audit` i odpowiedniki), jak sprawdzić, że działa — każdy ze stanem OK / BRAK / NIE DOTYCZY; o wdrożeniu mimo braków decydujesz Ty. Opis środowiska z sekcją „co obserwować po wdrożeniu" powstaje dopiero po wdrożeniu (od 2.7.0) |
 | „przygotuj plan…" / „zaplanuj…" / „rozpisz to na etapy" | powstaje plan w `docs/plany/` z wariantami, ryzykami i etapami — albo krótki miniplan w dzienniku, jeśli zadanie jest drobne |
@@ -54,15 +54,21 @@ potem ponowne uruchomienie aplikacji.
   postęp (segmenty etapu albo przebiegu załogi, pod nimi następny punkt; chip agentów z kosztem)
   i cache (pięć baterii: czas cache, limit 5 h, reset za, limit tygodnia, kontekst — bateria
   pokazuje, ile zostało, pełny opis w dymku po najechaniu na ikonę; koszt sesji po prawej).
+  Bateria limitu 5 h czerwienieje od progu limitu (domyślnie 90 %), bateria tygodnia od progu
+  tygodnia (domyślnie 98 %); gdy nie jest spokojna, pod nią stoi „próg N % · skąd ten próg”.
+  Po turze ponad progiem, przy pracy w toku, przychodzi karta: pracuję dalej / zapisz pracę.
   Drugi wiersz pod paskiem pojawia się tylko z powodu: karta decyzji czeka, punkt właśnie
   odhaczony, cache stygnie, przekazanie gotowe albo nowa sesja zwróci się w kilku turach.
 - **`/relai-panel`** — panel z paskiem „Teraz” (etap i następny punkt, jedna akcja główna)
   i zakładkami: Komendy (dwie polecane, dwanaście wierszy z nazwą komendy, formularz pod
-  wierszem), Koszty (sekcje zwinięte, rozwijane), Dokumenty (zmienione na górze, diff od ostatniego
+  wierszem), Koszty (sekcje zwinięte, rozwijane; karta „Próg limitu” — próg 5 h i tygodnia
+  ze źródłem, „Zmień” pyta o wartość, potem o zasięg: ta sesja / ten projekt / wszystkie
+  projekty / nie zapisuj), Dokumenty (zmienione na górze, diff od ostatniego
   commita, podgląd), Mapa (plany, etapy, odnogi, przebiegi załogi i koszt każdego etapu), Pomoc
   (ściąga komend i frazy sesji).
 - **`/cache`** — stan cache, ustawienia i rachunek „kontynuować czy nowa sesja”; `/cache zwrot N`
-  ustawia próg w turach (domyślnie 5).
+  ustawia próg w turach (domyślnie 5); `/cache limit-warn [N]` i `/cache limit-warn-week [N]` to
+  zapasowa droga do tych samych kart progu co „Zmień” w Kosztach.
 - **`/relai-agents`** — subagenci sesji: model, kontekst i koszt.
 - **Karta „Tak / Nie”** — start etapu, sprzątanie, aktualizacja, lista modeli i zmiana cennika idą
   z panelu dopiero po Twoim „Tak”. Etap potwierdzony na karcie startuje bez drugiego pytania w czacie.

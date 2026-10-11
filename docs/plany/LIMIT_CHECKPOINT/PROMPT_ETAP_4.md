@@ -444,9 +444,9 @@ zaraz po jego sprawdzeniu, nie na końcu etapu; punkt, który nie przeszedł, zo
       bez pliku — brak przycisku; poza RelAI — treść przekazania.
 - [x] Hook startu: zdanie o pliku z liczbą commitów od hasha (0, N, hash nieznany) — test pada bez
       zmiany w `resume.js`/`session-context.js`.
-- [ ] Propozycja UX Fable 5.1 zaakceptowana przez Łukasza **przed** kodem UI progu (zdanie
+- [x] Propozycja UX Fable 5.1 zaakceptowana przez Łukasza **przed** kodem UI progu (zdanie
       akceptacji we wpisie); zrzut z renderu w Chromium z pomiarem prostokątów (zasada 15).
-- [ ] Na żywo (Łukasz, desktop 2.1.295, kopia plików do zainstalowanej wersji i przeładowanie):
+- [x] Na żywo (Łukasz, desktop 2.1.295, kopia plików do zainstalowanej wersji i przeładowanie):
       zmiana progu **wyłącznie z UI**, karta przy progu testowym 5 h, zapis, a po resecie (albo
       symulacji `resetsAt` w przeszłości — opisanej we wpisie) „Wznów pracę” → nowa sesja od listy
       „Co dalej”; zrzuty do `docs/zasoby/PANEL_RELAI/zrzuty/`; na końcu progi z powrotem 90 / 98.

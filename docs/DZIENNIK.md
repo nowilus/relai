@@ -1801,6 +1801,29 @@ przy progu 5 h ustawionym kartą na 1 % dla tej sesji — krok 3 pomiaru na żyw
   Render w Chromium (skrypt w katalogu roboczym): podpis równo z etykietą, dół 34,4 px w wierszu
   36 px, ≥ 40 px do następnej ikony; szerokość znaku poprawiona z 6,1 na 5,3 (zmierzone 4,9).
   Brief pasków **v3.4**, `ARTEFAKTY.md`, Aneks D w `PLAN.html` i `STATUS.md`.
+- **Pomiar na żywo po przeładowaniu (Łukasz, desktop 2.1.295, ok. 17:50):** pasek „zapis gotowy ·
+  reset 19:10” po zapisie z karty; pod glinianą baterią 5 h podpis „próg 1 % · ta sesja”, wiersz
+  wyższy, inne baterie bez podpisu; hook startu z zainstalowanej kopii: „Od zapisu doszedł
+  1 commit (HEAD zapisu 68e9bce)” — to commit Aneksu D. Zrzuty:
+  `docs/zasoby/PANEL_RELAI/zrzuty/LIMIT_CHECKPOINT_E4_karta-progu.png` (karta „Próg limitu” w Kosztach,
+  „od 1 % · ta sesja”) i `LIMIT_CHECKPOINT_E4_podpis-progu.png`. Łukasz: „działa, nie musisz nic
+  symulować” — reset nie symulowany. Potem dwie karty progu 5 h z UI: plik sesji `"prog":98`
+  i wiersz projektu `Próg limitu | 98` w `docs/USTAWIENIA.md` (próg **5 h**, nie tygodnia).
+  Decyzje Łukasza: próg 5 h **zostaje 98** (świadomie, zamiast powrotu do 90 z instrukcji
+  pomiaru); punkt „Na żywo” w `PROMPT_ETAP_4.md` odhaczony **bez pomiaru wznowienia po resecie** —
+  „Wznów pracę” / „Odrzuć” i nowa sesja od „Co dalej” zweryfikowane wyłącznie testami (11 testów
+  „the resume (E4)”), na żywo niezmierzone.
+- **Karta „Próg limitu” — render z pomiarem prostokątów:** karta to `Box`/`Text`, więc odwzorowana
+  w HTML tymi samymi własnościami flex (`flexWrap`, `minWidth` 15 i 9 kolumn, `flexShrink` 0 dla
+  wartości i przycisku; kolumna 8 px) — skrypt `render-karta-progu.mjs` w katalogu roboczym.
+  Chromium: kontrola pozytywna złapała podłożone przepełnienie; 300 / 360 / 480 / 760 px —
+  **0 przepełnień**, nic ucięte; poniżej 480 px wiersze zawijają się na dwie linie, przy 360 px
+  w wierszu 5 h sam „Zmień” schodzi pod nazwę (nierówno, bez przepełnienia; panel na żywo ma
+  > 1000 px). Zrzut z aplikacji: `LIMIT_CHECKPOINT_E4_karta-progu.png`. Odwzorowanie, nie render
+  silnika — zaznaczone. Punkt Weryfikacji odhaczony.
+- `docs/KOMENDY.md` (frazy „kontynuujemy pracę” i „zapisz pracę”, pasek cache, karta progu
+  w Kosztach, `/cache limit-warn[-week]`) i README (wiersz `relai-cache-keeper`) — opis tego, co
+  zmierzone na żywo, plus wznowienie przyjęte przez Łukasza bez pomiaru.
 
 **Świadomie odłożone:** kroki 4 i 5 pomiaru (reset i „Wznów pracę”, progi z powrotem 90/98),
 wydanie, kasowanie katalogu roboczego E4 i kopii `backup-installed/`, zamknięcie planu.
