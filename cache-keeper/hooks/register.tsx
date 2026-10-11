@@ -12,13 +12,16 @@ import { basename, clip, clock, fileStamp, limitsText, minutes, tokens, usd } fr
 import { barCard } from './bar-card'
 import { BAND, BAR, BATTERY, CHIP } from './relai/theme.mjs'
 import { batteryRows, cacheMeasure, contextMeasure, glyphColor, limitMeasure, measureGlyph, resetMeasure, type Limit, type Measure } from './rings'
-import { ancestors } from './relai/plan-state.mjs'
+import { ancestors, parseStatus } from './relai/plan-state.mjs'
 import { PLAIN_HANDOFF_PROMPT, RELAI_CONTINUE, RELAI_HANDOFF_PROMPT, continuePrompt, plainBody, relaiDone, relaiFreshPrompt } from './handoff'
 import { PRICE_FILE } from './relai/pricing.mjs'
 import { BUILT_IN, priceSource, pricesFrom, ratesFor, requestCost, rewriteCost, totalInput, type Prices, type Usage } from './pricing'
-import { handoffEconomics, type CacheTemp, type HandoffInput, type HandoffVerdict, type LimitTurn } from './economics'
+import { handoffEconomics, limitPace, type CacheTemp, type HandoffInput, type HandoffVerdict, type LimitTurn } from './economics'
 import { RITUAL_FILES, activePlanStatus, dateText, estimatedLayer, measuredLayer, startKey, type MeasuredStart } from './start-layer'
-import { DEFAULT_THRESHOLD, rememberThreshold, thresholdOf, thresholdText, type LimitIO, type Threshold } from './limit'
+import {
+  CARD_OPTIONS, DEFAULT_THRESHOLD, GO_ON, MUTE, SAVE, SCOPE_OPTIONS, THRESHOLD_OPTIONS, cardDue, focusDocPath, focusFilePath, focusRef, focusStatus,
+  isWorkGoing, nextSessionThreshold, rememberThreshold, thresholdAnswer, thresholdOf, thresholdText, type CardInput, type LimitIO, type Threshold,
+} from './limit'
 
 type $T = EngineInterface
 
@@ -63,6 +66,10 @@ type Session = {
   limitTurns: LimitTurn[] // the 5-hour pace of the last main turns
   stayCtx: number // "Zostań" pressed at this context; 0 = not dismissed
   stayCold: boolean // the cache was cold when it was pressed
+  // The limit card (LIMIT_CHECKPOINT E2), here so a hot reload keeps it with the snapshot
+  limitAskedAt: number // the threshold the last card came at; 0 = none yet
+  limitMuted: boolean // "Nie pytaj w tej sesji"
+  limitFirstDone: boolean // the first card's threshold and scope questions were asked
 }
 
 type Handoff = { phase: 'idle' | 'running' | 'ready' | 'continuing'; notTurn: string; relai: boolean; body: string; path: string }
@@ -72,6 +79,7 @@ const FRESH: Session = {
   working: false, turnId: '', keepWarm: false, keepWarmUntil: 0, pings: 0, pingUsd: 0, rewrites: 0, rewriteUsd: 0,
   announcedFor: 0, announced: [], justCompacted: false, shortTtlRewrites: 0,
   start: 0, startSource: '', startPending: false, turnOut: 0, outputs: [], limitBase: -1, limitTurns: [], stayCtx: 0, stayCold: false,
+  limitAskedAt: 0, limitMuted: false, limitFirstDone: false,
 }
 const IDLE: Handoff = { phase: 'idle', notTurn: '', relai: false, body: '', path: '' }
 
@@ -184,6 +192,7 @@ async function followSession($: $T) {
     return
   }
   resetSession($, id, false)
+  await loadThreshold($) // the threshold file is per session: the old one's raised value goes with it
 }
 
 // ---------- the handoff reckoning (Z9) ----------
@@ -453,6 +462,112 @@ async function compactThenSend($: $T, text: string) {
     const filled = await $.prompt.fill({ text }).then((r) => !!r.isFilled, () => false)
     $.ui.toast(filled ? 'Kompakcja gotowa. Wiadomość czeka w polu — naciśnij Enter.' : 'Kompakcja gotowa, ale wiadomości nie udało się wysłać.', { timeoutMs: 10_000 })
   }
+}
+
+// ---------- the limit card (LIMIT_CHECKPOINT E2) ----------
+
+const GIT_TIMEOUT_MS = 3000 // a slow disk or a huge tree must not hold the card (plan, L8)
+const GIT_STATUS: readonly string[] = ['git', '--no-optional-locks', 'status', '--short']
+let carding = false // one card at a time, however long the person takes to answer
+
+// The session's focus (written by relai-panel) points at a stage or thread in progress; a focus
+// that cannot be read or parsed is no focus
+async function focusGoing($: $T): Promise<boolean> {
+  try {
+    const file = focusFilePath(S.cwd, S.id)
+    if (!file) return false
+    const io = limitIO($)
+    const ref = focusRef(await io.read(file))
+    if (!ref) return false
+    const status = focusStatus(ref, await io.read(focusDocPath(S.cwd, ref)), (md) => parseStatus(md).stages)
+    return isWorkGoing(status, null)
+  } catch {
+    return false
+  }
+}
+
+// `git status --short` by its argument vector, no shell, without the index lock (it must not collide
+// with the person's own git); null when it fails, times out or is no repo
+async function gitChanges($: $T): Promise<string | null> {
+  try {
+    const r = await $.process.run(GIT_STATUS, { ...(S.cwd ? { cwd: S.cwd } : {}), timeoutMs: GIT_TIMEOUT_MS })
+    return r.exitCode === 0 ? r.stdout : null
+  } catch {
+    return null
+  }
+}
+
+const workGoing = async ($: $T) => (await focusGoing($)) || isWorkGoing(null, await gitChanges($))
+
+function cardInput(now: number, isWorking: boolean): CardInput {
+  return {
+    limits: S.rateLimits, threshold: threshold.value, askedAt: S.limitAskedAt, isMuted: S.limitMuted, isWorking,
+    perTurn: limitPace(S.limitTurns, S.ctx > 0 ? S.ctx : 1)?.now ?? null, now,
+    saveWords: S.isRelai ? 'uruchomi przekazanie /handoff: synchronizacja dokumentów projektu, potem świeży czat' : 'uruchomi przekazanie /handoff: Claude spisze stan sesji, potem świeży czat',
+  }
+}
+
+// The first card of a session asks first from what percent to ask, and where to keep it.
+// A dismissed question, or a number outside 1–99, keeps the threshold as it is.
+async function chooseThreshold($: $T, now: number) {
+  const typed = await $.ui.ask(
+    `Pierwsza karta limitu w tej sesji. Od ilu procent zużycia pytać o zapis pracy? Teraz ${thresholdText(threshold)}; własną liczbę 1–99 wpisz w polu „Inne”.`,
+    { header: 'Próg limitu', options: THRESHOLD_OPTIONS },
+  ).catch(() => '')
+  if (!typed) return
+  const value = thresholdAnswer(typed)
+  if (value === null) {
+    $.ui.toast(`Próg limitu: liczba całkowita od 1 do 99 — zostaje ${threshold.value} %.`, { timeoutMs: 10_000 })
+    return
+  }
+  const scopes = SCOPE_OPTIONS.filter((s) => S.isRelai || s.scope !== 'projekt')
+  const where = await $.ui.ask(`Gdzie zapamiętać próg ${value} %?`, { header: 'Zasięg', options: scopes.map((s) => s.label) }).catch(() => '')
+  const scope = scopes.find((s) => s.label === where)?.scope
+  if (!scope) return
+  const saved = await rememberThreshold(limitIO($), limitWhere(), value, scope, dateText(now)).catch(() => ({ error: 'próg limitu: zapis nie powiódł się' }))
+  if (saved.error) $.ui.toast(saved.error, { timeoutMs: 10_000 })
+  await loadThreshold($)
+}
+
+// After a main turn: past the threshold and with work going on, one card for this threshold.
+// Cheap checks first; git runs only when a card would otherwise be due. An answer that comes
+// after a /clear or /resume belongs to the conversation that asked, so it is dropped.
+async function limitCheckpoint($: $T) {
+  if (carding || H.phase !== 'idle') return
+  await loadThreshold($)
+  if (!cardDue(cardInput(await $.clock.now(), true))) return
+  carding = true
+  const id = S.id
+  let isSaving = false
+  try {
+    if (!(await workGoing($))) return
+    if (!S.limitFirstDone) {
+      set({ limitFirstDone: true })
+      await chooseThreshold($, await $.clock.now())
+      if (S.id !== id) return
+    }
+    const now = await $.clock.now()
+    const card = cardDue(cardInput(now, true))
+    if (!card) return
+    set({ limitAskedAt: threshold.value })
+    const answer = await $.ui.ask(card.question, { header: 'Limit planu', options: CARD_OPTIONS }).catch(() => '')
+    if (S.id !== id) return
+    if (answer === GO_ON) {
+      const next = nextSessionThreshold(threshold.value)
+      const saved = await rememberThreshold(limitIO($), limitWhere(), next, 'sesja', dateText(now)).catch(() => ({ error: 'próg limitu: nie udało się zapisać pliku sesji' }))
+      await loadThreshold($)
+      $.ui.toast(saved.error ? saved.error : `Pracujemy dalej. Następna karta po przekroczeniu ${threshold.value} %.`, { timeoutMs: 8000 })
+    } else if (answer === SAVE) {
+      isSaving = true
+    } else if (answer === MUTE) {
+      set({ limitMuted: true })
+    }
+  } finally {
+    carding = false
+    await saveSnap($, await $.clock.now())
+    $.ui.invalidate('ui.render')
+  }
+  if (isSaving) await startHandoff($)
 }
 
 // ---------- texts ----------
@@ -752,6 +867,8 @@ export const register: Register = (on) => {
     }
     await saveSnap($, now)
     $.ui.invalidate('ui.render')
+    // The limit card waits for the turn's end and never stops it (plan, section 8)
+    $.clock.after(300, () => { limitCheckpoint($).catch(() => {}) })
     return r
   })
 

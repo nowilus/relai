@@ -23,7 +23,8 @@
 | C8 | Inny mod paska nad promptem rysuje bez `next` albo owija węzeł silnika w `Box` z `width` i pasek RelAI znika bez komunikatu (E1, P-017) | **Średni** (2026-10-08, przy E1) | **OTWARTE** | `relai-panel`, `relai-progress` i `relai-cache-keeper` zawsze wołają `next` i nie dokładają `width` do owijacza (test „engine kept beneath" w każdym); `savvy-progress` rysował bez `next` — wyłączony w E9, zastąpiony forkiem. Otwarte: cudze mody poza kontrolą — ostrzeżenie w README w E7. |
 | C10 | Pomiar kosztów niepełny albo podwójny — subagenci, kompakcja, wznowienie, `/clear`, wywołania poza pętlą (plan PANEL_CLAUDE, ryzyko R2) | **Niski** (2026-10-08 po E3; wcześniej wysoki) | **OTWARTE** | Klucz sesja + tura + indeks + agent, plik na sesję, kompakcja z `session.compact`, identyfikator sesji przy każdym zapisie; na żywo 117/117 kroków i 8/8 tur zgodnych z sondą co do kategorii; E9: koszt subagenta w `/relai-agents` = suma jego rekordów ($0,42, Opus), agent spoza cennika „brak ceny", nie „brak pomiaru". E4: rekord niesie etap w toku i zadanie załogi (`stage`, `task`); każdy rekord w dokładnie jednej pozycji (etap / „poza etapem” / „sprzed znacznika”), suma pozycji = suma sesji co do centa (test z kontrolą i na żywo $4,54 = $4,54). Otwarte: 9,16% przyrostu licznika silnika to wywołania spoza `turn.step` i kompakcji — raport mówi o nich słowami, bez rozbicia (P-020 pkt 6); zadanie załogi uruchomione jako osobna sesja `claude -p` jest przypisane tylko wtedy, gdy ta sesja ma `relai-panel`. E6: model bez ceny nie znika w sumie częściowej — przypomnienie z liczbą rekordów i aktualizacja cennika z karty; stawki cache per model ze strony (odczyt 0,05× Opus/Sonnet 5.5 — wcześniej jedna stała), Sonnet 5.5 wyceniony na żywo ($0,24 za 4 rekordy) E7: bez zmian w liczeniu (podział pliku bez zmiany zachowania); otwarte trwale na 9,16% wywołań spoza pętli, opisanych słowami. |
 | C11 | Pliki pomiarów puchną albo trafiają do gita (plan PANEL_CLAUDE, ryzyko R5) | **Niski** (2026-10-08 po E3) | **OTWARTE ŚWIADOMIE** | `.claude/relai/` poza gitem (sprawdzone `git check-ignore`), plik na sesję, rekord bez treści (~250 B); E4: plik scaleń `.claude/relai/panel/scalenia.json` też poza gitem (`git check-ignore`), rekord dłuższy o dwa pola; E6: `.claude/relai/panel/cennik.json` (wersje cennika) poza gitem (`git check-ignore`), jedna wersja na zapis z karty; otwarte: sprzątanie starych plików nie istnieje — do E7 E7 (decyzja człowieka 2026-10-09): sprzątanie świadomie odłożone — zmierzone 5 plików, 260 KB po dwóch dniach intensywnej pracy; „Koszty projektu” sumują wszystkie pliki, więc kasowanie zmieniłoby sumę. Próg powrotu: folder `.claude/relai/pomiary/` powyżej 10 MB. |
-| L1 | `percentUsed` limitu odświeża się tylko z odpowiedzią API — długa tura subagentów przekroczy próg, a karta przyjdzie po fakcie (plan LIMIT_CHECKPOINT, ryzyko L1) | **Wysoki** (2026-10-11, przy akceptacji planu) | **OTWARTE** | E2 czyta też `turn.step` i `session.measure` w trakcie tury i ustawia kolor baterii od razu; karta po turze podaje realny procent; test: próg przekroczony w środku tury → kolor natychmiast, karta po `turn.complete`. |
+| L1 | `percentUsed` limitu odświeża się tylko z odpowiedzią API — długa tura subagentów przekroczy próg, a karta przyjdzie po fakcie (plan LIMIT_CHECKPOINT, ryzyko L1) | **Średni** (2026-10-11 po E2; wcześniej wysoki) | **OTWARTE** | E2: `session.measure` w trakcie tury przestawia kolor baterii od razu, karta przychodzi po `turn.complete` z procentem odczytanym po turze (test „past the threshold in the middle of a turn”); otwarte, bo procent nadal przychodzi tylko z odpowiedzią API, więc długa tura może przekroczyć próg o kilka punktów, zanim karta padnie. |
+| L3 | Fałszywe karty: próg przekroczony, ale praca nie trwa (czytanie, pytania) — szum łamie brief „pasek spokojny” (plan LIMIT_CHECKPOINT, ryzyko L3) | **Średni** (2026-10-11 po E2) | **OTWARTE** | E2: warunek „praca trwa” (fokus `W TOKU`/`OTWARTA` albo niepusty `git status`), jedna karta na próg, „Nie pytaj w tej sesji”; test ciszy bez pracy z kontrolą pozytywną. Otwarte: w repo z niezacommitowanymi zmianami karta przyjdzie także przy samym czytaniu. |
 | L2 | Zapis pracy sam zużywa tury — przy progu 95 % może nie zdążyć (plan LIMIT_CHECKPOINT, ryzyko L2) | **Wysoki** (2026-10-11, przy akceptacji planu) | **OTWARTE** | Karta pokazuje „ile tur zostało” z tempa sesji i ostrzega poniżej 3 tur (SZACUNEK); domyślne 90 % zostawia 10 % budżetu; procedura E3 w kolejności „najpierw commit tego, co przechodzi testy, potem dokumenty”, żeby urwany zapis zostawił choć commit. |
 
 > Ryzyka zamknięte C3, C9 (2 pozycje) są w
@@ -1438,6 +1439,86 @@ Autor: RelAI (Fable 5.1) + Lukasz
 lokalna kopia `.claude/relai/templates/SPEC_USTAWIENIA.md` zostaje do `/relai-update` (kopia
 instalacyjna, nie źródło); zainstalowany `relai-cache-keeper` 0.5.0 zostaje z łatką E1 do wydania
 0.6.0 w E4.
+
+**Do zrobienia przez człowieka:** —
+
+Autor: RelAI (Opus 5.5) + Lukasz
+
+### 2026-10-11 — LIMIT_CHECKPOINT E2: karta po turze — „pracuję dalej / zapisz pracę”
+
+**Zrobione:**
+
+- Pytanie startowe etapu rozstrzygnięte przez Łukasza: „Zapisz pracę teraz” do czasu E3 uruchamia
+  istniejące przekazanie (`startHandoff`, jak `/handoff`) i karta mówi to wprost.
+- `cache-keeper/hooks/limit.ts` (nadal bez importów — parytet z `threshold.js` zielony): odczyt
+  fokusu sesji (`focusFilePath`, `focusRef` — nazwy planu i karty tylko `[A-Za-z0-9_-]`, etap
+  `E\d+`), `focusStatus` (wiersz etapu w `STATUS.md` albo `Status: **…**` karty odnogi),
+  `isWorkGoing` (`W TOKU`/`OTWARTA` albo niepusty `git status`; `null` = „nie wiem”), `cardDue`
+  (próg przekroczony ściśle, oba okna w jednej karcie, reset z okna późniejszego, zapas tur z tempa
+  5 h z etykietą SZACUNEK, ostrzeżenie poniżej 3 tur, cisza przy wyciszeniu, braku pracy, braku
+  limitów, progu 99 i karcie już pokazanej przy tym progu), `nextSessionThreshold`,
+  `thresholdAnswer` (własny próg 1–99).
+- `cache-keeper/hooks/register.tsx`: `limitCheckpoint` odpalany `$.clock.after(300)` po
+  `turn.complete` tury głównej (subagent — bez karty); najpierw tani `cardDue`, dopiero potem
+  fokus i `git --no-optional-locks status --short` przez `$.process.run` (tablica argumentów,
+  `timeoutMs` 3000, błąd = tylko fokus). Pierwsza karta w sesji: pytanie o próg (85 / 90 / 95 /
+  własny) i zasięg (sesja / projekt — tylko w projekcie RelAI / globalnie) przez
+  `rememberThreshold`. „Pracuję dalej” → plik sesji z progiem +5; „Nie pytaj w tej sesji” → stan
+  `S` w snapshocie; „Zapisz” → `startHandoff` po zwolnieniu karty. Odpowiedź porzucana, gdy w czasie
+  pytania zmieniła się sesja; próg przeładowywany na starcie karty i po zmianie sesji.
+- `cache-keeper/hooks/checkpoint.test.ts` (nowy): 21 testów — 16 przez silnik, 5 czystej logiki.
+- Przegląd kodu subagentem `typescript-reviewer` (bez zmian w plikach): 4 uwagi średnie, 5 niskich;
+  poprawione: tożsamość sesji po `$.ui.ask`, próg po `/clear`, `--no-optional-locks`, `try` wokół
+  fokusu, karta zwalniana przed przekazaniem, świeży zegar przed kartą.
+- Aneks A do planu (zgłoszenie Łukasza w trakcie etapu): pasek „postęp” stał na 0/10, bo nikt nie
+  odhacza pól Weryfikacji; odhaczanie na bieżąco wchodzi do zakresu E3 (`relai-stage.md`,
+  `SPEC_PROMPT_ETAPU.md`). W tym etapie pola odhaczone ręcznie po sprawdzeniu.
+- Lekcje L-0165 i L-0166, destylat: zasady 4 i 13. Ryzyko L1 obniżone do średniego, L3 w tabeli.
+
+**Zweryfikowane — jak dokładnie:**
+
+- `claude plugin test cache-keeper` binarką 2.1.295: przed etapem 107/107; po **128/128**
+  (107 + 21). Kontrola „przed” w `git worktree` HEAD (`%TEMP%/relai-e2-before`, usunięty):
+  (a) kod E1 w całości → 107 ✔, plik `checkpoint.test.ts` się nie wczytał (brak `cardDue`);
+  (b) kod E1 z podłożonym tylko nowym `limit.ts` → **16 ✖** (każdy test zachowania osobno),
+  5 ✔ (czysta logika). Liczby z przebiegu po ostatniej zmianie testów.
+- Rdzeń: `node --test core/process/tests/*.test.js core/guardrails/tests/*.test.js core/panel/tests/*.test.js adapters/codex/tests/*.test.js`
+  → **283/283**, w tym parytet `limit.ts` ↔ `threshold.js`.
+- Cisza bez pracy: 91 %, brak fokusu, `git` pusty → `ui.ask` = 0, bateria 5 h glina; w tym samym
+  teście zmieniony plik → 1 karta (kontrola pozytywna).
+- Jedna karta na próg: dwie tury przy 91 % → 1; po „dalej” plik sesji `prog` 95, tury 92–95 % → 1,
+  96 % → 2. Przy 99 karta nie wraca; „Nie pytaj” trzyma po przeładowaniu; brak limitów → cisza
+  i git nie jest wołany; błąd gita → decyduje fokus; oba okna → jedna karta, reset tygodnia;
+  próg w środku tury → glina od razu, karta po `turn.complete`; tura subagenta → bez karty.
+- Dowód negatywny: `git diff -U0 register.tsx` — hunki w importach, typie `Session`, `FRESH`,
+  `followSession`, nowej sekcji karty i na końcu `turn.complete`; żaden w `keepWarmStep`
+  (`maxLimitPercent`) ani w strażniku `prompt.submit`; `correctness.test.ts` zielony.
+- `validate-adapters.js` exit 0; `sync-panel-core.js --check` zgodny (15 plików, 14 ikon);
+  `claude plugin validate cache-keeper` → „Validation passed”.
+- Bezpieczeństwo: `$.process.run` z tablicą argumentów, bez powłoki; `../etc` jako id sesji i `../../x`
+  jako plan nie składają ścieżki (test); próg spoza 1–99 odrzucany przed zapisem (test); `grep -nE
+  "sk-|api_key"` po trzech zmienionych plikach (zwykły `grep`, bo `git grep` nie widzi nowego pliku)
+  — brak; `cache-keeper/package.json` nie istnieje — audyt zależności nie dotyczy.
+- Na żywo (Łukasz, desktop 2.1.295): `limit.ts` i `register.tsx` skopiowane do zainstalowanej
+  `relai-cache-keeper/0.5.0/hooks/` (pozostałe pliki równe `HEAD` po normalizacji CRLF). Pierwsza
+  próba bez przeładowania — brak karty, plik sesji bez zmian; po przeładowaniu `/cache limit-warn 1`
+  → „1 % (sesja)”, po turze pytanie o próg (pominięte), potem karta „Limit planu ponad progiem 1 %:
+  5 h 72,00 %. Reset 14:10. Zapas tur: brak pomiaru tempa sesji. …”
+  ([LIMIT_CHECKPOINT_E2_karta.png](zasoby/PANEL_RELAI/zrzuty/LIMIT_CHECKPOINT_E2_karta.png));
+  „Pracuję dalej” → `/cache` „Próg limitu: 6 % (sesja)”; kolejne „dalej” → 11 % w pliku sesji.
+  Na końcu `/cache limit-warn 90` → „90 % (sesja)”; potem Łukasz ustawił własny próg 97 % (sesja
+  i `limitWarn` w `$.store`) — jego wybór, nie pozostałość pomiaru.
+- Katalog roboczy `.claude/relai/work/LIMIT_CHECKPOINT/E2/`: raport `clean-work.js` (7 plików),
+  skasowany po „tak” narzędziem `kasuj` — **przed 0,1 MB, po 0,0 MB**. Spoza katalogu:
+  `%TEMP%/relai-e2-before` (worktree, usunięty `git worktree remove`) i
+  `%TEMP%/relai-e2-clean-list.json` (lista kasowania). Kopia zapasowa plików instalacji skasowana
+  z katalogiem — cofnięcie łatki to `plugin update` albo wydanie 0.6.0 (E4).
+
+**Świadomie odłożone:** „Nie pytaj” i „karta już była” żyją w snapshocie rozmowy — `/clear` (nowa
+rozmowa) i snapshot starszy niż 2 h zaczynają od nowa, a plik progu sesji też jest per
+rozmowa (faza „czeka” po `/clear` to E3); Esc na pytaniu o próg nie wraca w tej rozmowie;
+„Zapas tur” po przeładowaniu mówi „brak pomiaru”, dopóki dwie tury nie zmierzą tempa 5 h;
+zainstalowany 0.5.0 zostaje z łatką E1 + E2 do wydania 0.6.0 w E4.
 
 **Do zrobienia przez człowieka:** —
 

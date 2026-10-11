@@ -64,7 +64,10 @@ zaakceptowany, E1 trwa po stronie Codeksa. Opinii spoza projektu nadal nie ma.
   lokalny za zgodą z karty, plik wznowienia) i przycisk „Wznów pracę” na pasku po resecie. Stan:
   **E1 ZREALIZOWANY 2026-10-11** (próg `/cache limit-warn`, odczyt sesja → projekt → globalnie,
   kolor baterii od progu, `core/process/threshold.js` z parytetem; na żywo potwierdzone),
-  **E2 GOTOWY DO STARTU** (karta po turze); przepięcie `prompt-mode.js` świadomie odłożone.
+  **E2 ZREALIZOWANY 2026-10-11** (karta po turze przy pracy w toku: „dalej” +5 pkt, „Zapisz” =
+  `/handoff` do E3, „Nie pytaj”; na żywo potwierdzone), **E3 GOTOWY DO STARTU** (procedura „zapisz
+  pracę” + Aneks A: odhaczanie pól Weryfikacji na bieżąco); przepięcie `prompt-mode.js` świadomie
+  odłożone.
 
 ## Co dalej
 

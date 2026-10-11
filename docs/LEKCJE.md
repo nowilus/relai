@@ -52,9 +52,11 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
    **Widok rysowany z danych projektu mierzysz na prawdziwych danych w najgorszym stanie** (wszystko
    rozwinięte) i ograniczasz go w kodzie — harness przyjmuje drzewo, które desktop gubi bez słowa
    (L-0158). **Diagnozę na żywo zaczynasz od znacznika wersji w logu** — przeładowanie potrafi
-   zostawić starą wersję i każdy wniosek z niej jest fałszywy (L-0159).
+   zostawić starą wersję i każdy wniosek z niej jest fałszywy (L-0159). **Kontrola „przed” idzie
+   w dwóch przebiegach** — stary kod w całości i stary kod z podłożoną tylko nową czystą logiką;
+   „plik testów się nie wczytał” nie dowodzi żadnego testu z osobna (L-0165).
    (L-0017, L-0018, L-0040, L-0051, L-0052, L-0063, L-0069, L-0082, L-0115, L-0117, L-0123, L-0134,
-   L-0144, L-0150, L-0154, L-0155, L-0156, L-0158, L-0159)
+   L-0144, L-0150, L-0154, L-0155, L-0156, L-0158, L-0159, L-0165)
 5. **Instrument pomiarowy sam bywa źródłem fałszu:** wyrażenia regularne trzymaj w pliku zapisanym
    narzędziem zapisu, nie w `node -e` ani w heredoku, a tekst z backslashem (także ścieżkę
    Windows) wstawiasz Edit/Write albo piszesz z `/` (L-0116, L-0119); **skrypt edycji kodu, który
@@ -240,8 +242,10 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
     wyznacza korzeń projektu wejściem w górę od niego, a test ma przypadek sesji w podfolderze (L-0146).
     **Sonda, która mierzy działanie niszczące (`/clear`, kasowanie), stoi w sesji, której utrata nic
     nie kosztuje** — albo przycisk ma osobne potwierdzenie; stan etapu i wynik sondy są w pliku
-    przed każdym takim krokiem (L-0153).
-    (L-0041, L-0042, L-0044, L-0047, L-0092, L-0133, L-0136, L-0138, L-0139, L-0146, L-0153)
+    przed każdym takim krokiem (L-0153). **Funkcja moda czekająca na człowieka (`$.ui.ask`)
+    zapamiętuje identyfikator sesji przed pytaniem i porzuca odpowiedź, gdy po powrocie jest inny**;
+    zegar i próg czyta ponownie po każdym takim `await` (L-0166).
+    (L-0041, L-0042, L-0044, L-0047, L-0092, L-0133, L-0136, L-0138, L-0139, L-0146, L-0153, L-0166)
 14. **Najpierw zmiana w repozytorium, potem zdanie, które ją opisuje.** Weryfikację planuj tam,
     gdzie jest wykonalna; po pytaniu sprzątasz sam (martwy link nie jest poprawną wartością
     tymczasową); przy wyprowadzaniu pozycji jednostką inwentarza jest **sprawa**, nie linia.
@@ -575,6 +579,33 @@ restart aplikacji po `plugin update` (L-0031), `git worktree` zamiast `git archi
   raz) i porównujesz wklejony blok bajtowo ze źródłem; dowodem jest obecność i jednokrotność
   treści, nie brak markera.
 - **Źródło:** LIMIT_CHECKPOINT E1 (naprawa 623 → 460 linii, 2026-10-11); destylat: zasada 5.
+
+### L-0165 — „Nowe testy padają na starym kodzie” dowiodło tylko, że plik się nie wczytał · 2026-10-11 · AKTYWNA
+
+- **Trigger:** kontrola „przed” E2: nowy plik testów na kodzie E1 dał „107 pass, 1 fail” — jeden
+  wiersz „the file did not load” (brak eksportu `cardDue`). Wynik wyglądał jak kontrola pozytywna,
+  a nie mówił nic o żadnym z 21 testów z osobna.
+- **Przyczyna:** plik testów importował nową czystą logikę razem z testami zachowania; błąd importu
+  przewrócił cały plik naraz, więc test, który przeszedłby na starym kodzie, schował się za
+  tym samym „✖”.
+- **Zasada:** kontrolę „przed” robisz w dwóch przebiegach: (a) stary kod w całości; (b) stary kod
+  z podłożoną **tylko nową czystą logiką** — wtedy każdy test zachowania musi paść osobno, a testy
+  samej logiki przejść. Do wpisu idą obie liczby; „plik się nie wczytał” nie jest kontrolą pozytywną.
+- **Źródło:** LIMIT_CHECKPOINT E2 (przebieg b: 16 ✖ zachowania, 5 ✔ logiki, 2026-10-11);
+  destylat: zasada 4.
+
+### L-0166 — Odpowiedź z okna, które czeka na człowieka, wylądowałaby w innej rozmowie · 2026-10-11 · AKTYWNA
+
+- **Trigger:** przegląd kodu E2 (subagent `typescript-reviewer`): karta limitu czeka w `$.ui.ask`
+  dowolnie długo; `/clear` albo `/resume` w tym czasie podmienia stan sesji, a odpowiedź zapisałaby
+  próg, „nie pytaj” i snapshot pod nowy identyfikator. Testy były zielone, bo żaden nie zmieniał
+  sesji w trakcie pytania.
+- **Przyczyna:** stan moda jest per rozmowa, a `await` na człowieku jest jedynym miejscem, gdzie
+  rozmowa może się zmienić w środku funkcji; kod czytał `S` po powrocie jak przed pytaniem.
+- **Zasada:** funkcja moda, która czeka na człowieka (`$.ui.ask`, karta), zapamiętuje identyfikator
+  sesji przed pytaniem i po powrocie porzuca odpowiedź, gdy się zmienił; wartości zależne od czasu
+  (zegar, próg z pliku) czyta ponownie po każdym takim `await`.
+- **Źródło:** LIMIT_CHECKPOINT E2 (poprawka w `limitCheckpoint`, 2026-10-11); destylat: zasada 13.
 
 ## Lekcje zwinięte
 

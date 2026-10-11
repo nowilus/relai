@@ -405,31 +405,31 @@ wpisujesz do wpisu dziennika **z nazwy**, a jego nazwę zaczynasz od slugu proje
 
 ## Weryfikacja — wszystkie punkty muszą przejść
 
-- [ ] `claude plugin test cache-keeper` binarką 2.1.295: wszystkie zielone; liczba ≥ 107 + 10 nowych
+- [x] `claude plugin test cache-keeper` binarką 2.1.295: wszystkie zielone; liczba ≥ 107 + 10 nowych
       (SZACUNEK progu z listy w punkcie 3); wynik „przed” (nowe ✖ na kodzie E1) i „po” we wpisie.
-- [ ] `node --test` rdzenia (komenda ze „Stanu wyjściowego”): 283/283 bez zmian — E2 nie dotyka
+- [x] `node --test` rdzenia (komenda ze „Stanu wyjściowego”): 283/283 bez zmian — E2 nie dotyka
       `core/`; `threshold.test.js` z parytetem nadal zielony.
-- [ ] Cisza bez pracy udowodniona testem: 91 %, brak fokusu, `git` pusty → zero wywołań
+- [x] Cisza bez pracy udowodniona testem: 91 %, brak fokusu, `git` pusty → zero wywołań
       `ui.ask` (licznik w atrapie = 0), kolor baterii glina.
-- [ ] Jedna karta na próg: dwie kolejne tury przy 91 % z pracą → licznik `ui.ask` = 1; po „dalej”
+- [x] Jedna karta na próg: dwie kolejne tury przy 91 % z pracą → licznik `ui.ask` = 1; po „dalej”
       tury przy 92–95 % → nadal 1, przy 96 % → 2; plik sesji ma `prog` 95.
-- [ ] Dowód negatywny: `keepWarmStep` i `maxLimitPercent` bez zmian (`git diff register.tsx` nie
+- [x] Dowód negatywny: `keepWarmStep` i `maxLimitPercent` bez zmian (`git diff register.tsx` nie
       ma hunku w tych funkcjach); `prompt.submit` strażnika (`:669-692`) bez zmian; test
       podtrzymania z `correctness.test.ts` zielony.
-- [ ] Na żywo (Łukasz, desktop 2.1.295, kopia plików do zainstalowanej 0.5.0 i przeładowanie):
+- [x] Na żywo (Łukasz, desktop 2.1.295, kopia plików do zainstalowanej 0.5.0 i przeładowanie):
       `/cache limit-warn 1` przy etapie `W TOKU` w fokusie → po turze karta z liczbami; „Pracuję
       dalej” → `/cache` pokazuje próg 6 % (sesja); zrzut karty do `docs/zasoby/PANEL_RELAI/zrzuty/`
       z nazwą etapu; na końcu `/cache limit-warn 90`.
-- [ ] `node core/tools/validate-adapters.js` exit 0; `node core/tools/sync-panel-core.js --check`
+- [x] `node core/tools/validate-adapters.js` exit 0; `node core/tools/sync-panel-core.js --check`
       zgodny; `claude plugin validate cache-keeper` exit 0.
-- [ ] Podstawy bezpieczeństwa na zmianie etapu: `$.process.run` z tablicą argumentów
+- [x] Podstawy bezpieczeństwa na zmianie etapu: `$.process.run` z tablicą argumentów
       (`['git', 'status', '--short']`), bez powłoki i bez sklejania tekstu; identyfikator sesji do
       ścieżki fokusu przez `focusPath` / walidację (test na `../`); wybór „własny próg” walidowany
       1–99 przed zapisem (test); `git grep -nE "sk-|api_key"` w zmienionych plikach nic nie
       zwraca. `cache-keeper/package.json` nie istnieje w dniu generacji — sprawdź `ls`; nadal brak
       → zapisz we wpisie, audyt zależności nie dotyczy; istnieje → `npm audit --omit=dev` do wpisu.
-- [ ] Wpis w `docs/DZIENNIK.md` na końcu sekcji „Wpisy”, podpis `Autor: RelAI (Opus 5.5) + Lukasz`.
-- [ ] Katalog roboczy `.claude/relai/work/LIMIT_CHECKPOINT/E2/`: **(a)** przejrzany raportem
+- [x] Wpis w `docs/DZIENNIK.md` na końcu sekcji „Wpisy”, podpis `Autor: RelAI (Opus 5.5) + Lukasz`.
+- [x] Katalog roboczy `.claude/relai/work/LIMIT_CHECKPOINT/E2/`: **(a)** przejrzany raportem
       (`node .claude/relai/tools/clean-work.js raport`) i skasowany po „tak”, liczby przed i po we
       wpisie; **(b)** artefakty spoza katalogu wypisane z nazwy razem z tym, co się z nimi stało.
 
