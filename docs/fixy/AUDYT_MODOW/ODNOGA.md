@@ -465,8 +465,10 @@ zdarzeniu — karta, brak fokusu, Z9, stygnięcie), pasek cache jako pięć bate
 (paski, „Teraz”, pomiary i mapa liczą pracę tej sesji, nie cudzy aktywny plan), panel bez I/O
 w rysowaniu i z drzewem w budżecie (Dokumenty 189 903 znaków zamiast 1 515 831; zwinięta Mapa
 43 755 / 7 Svg), jedno źródło liczb i formatu pieniędzy, testy modów 135 / 31 / 90 na 2.1.295.
-Zmierzone na żywo przez Łukasza: Z1, Z2 (kryterium 1100 px), Z3, Z10–Z14; Z5 (`/clear`) czeka na
-jedno słowo z sesji następnej. Poza zakresem, spisane: ustalenia `outOfScope` raportu (kopie
+Zmierzone na żywo przez Łukasza: Z1, Z2 (kryterium 1100 px), Z3, Z10–Z14; Z5 (`/clear`)
+potwierdzone 2026-10-11 w sesji następnej — koszt od zera, fokus przeniesiony, przycisk
+`Wybierz pracę…` (paski widoczne od pierwszego promptu: pasek cache celowo, pasek plan do
+sprawdzenia zrzutem pustego czatu). Poza zakresem, spisane: ustalenia `outOfScope` raportu (kopie
 rdzenia per plugin, `headings.mjs` w progress i cache-keeperze, % limitu per etap), wariant B
 „jedna listwa” jako kandydat na plan, `userConfig` cache-keepera, przedrostek `relai-` jego komend.
 Wzorzec wykonania Z13–Z14 (Opus 5.5 jako subagent sesji Fable z promptem wdrożenia zamiast świeżej

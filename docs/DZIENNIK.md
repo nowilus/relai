@@ -20,11 +20,13 @@
 | O4 | Tryb ciągły kosztuje turę przy każdym zdaniu — praca zwalnia i drożeje (plan OPTYMALIZATOR_PROMPTOW, ryzyko O4) | **Średni** (2026-09-14, przy akceptacji planu) | **OTWARTE** | Wyłącznik w `USTAWIENIA.md`, filtr pomija komendy; otwarte: rozrzut kosztu większy niż mierzona różnica. Historia: [MITYGACJE_2026-09-24](archiwum/ryzyka/MITYGACJE_2026-09-24.md). |
 | K3 | Nakładki rodzin modeli starzeją się szybciej niż wydania RelAI — dostawca zmienia wytyczne, a reguła z datą zostaje (plan PROWADZENIE_END_TO_END, ryzyko K3) | **Średni** (2026-09-24, przy zamknięciu planu) | **OTWARTE** | Każda reguła nakładki ma źródło i datę odczytu; hook startu mówi o nakładce starszej niż 30 dni; odświeżenie razem z `/relai-models`. |
 | C1 | API modów Claude Code („early access”) zmieni się między wydaniami i `relai-panel` przestanie się ładować (plan PANEL_CLAUDE, ryzyko R1) | **Wysoki** (2026-10-08, przy E1) | **OTWARTE** | Osobne pluginy; rachunki w `core/panel/` poza API modów; `plugin validate` i `plugin test` przed wydaniem — od E9 dla trzech pluginów (`relai-panel`, `relai-progress`, `relai-cache-keeper`, ten ostatni przejął rolę kanarka po `cache-keeper-pl`). Otwarte: minimalna wersja silnika niezmierzona (działa 2.1.293); trzy pluginy na tym samym API to trzy miejsca do poprawki przy zmianie. E5: zgoda na start etapu opiera się na zachowaniu silnika „wysyłka wtyczki omija jej własny hook `command.run`” (P-022) — gdy się zmieni, hook wytnie znacznik także z wysyłki panelu i start wróci do pytania w czacie (awaria w bezpieczną stronę); znacznik z klawiatury jest wycinany w obu wersjach (test modu). E6: desktop **bez komunikatu** nie pokazał panelu, gdy drzewo miało 726 węzłów, 121 Svg i 256 tys. znaków (`plugin test` przyjmuje takie drzewo); przy 209 / 27 / 53 tys. — widoczny; limit drzewa w kodzie (60 wierszy, 40 na folder), dokładny próg silnika nieznany (P-023). Hot reload raz zostawił starszą wersję modułu mimo nowej kopii — rozpoznane znacznikiem wersji w logu. E7 (2026-10-09): trzy pluginy wydane publicznie jako „early access” (2.8.0; `relai-panel` 0.9.0, `relai-progress` 0.2.0, `relai-cache-keeper` 0.3.0) — opis w README i w marketplace mówi o ryzyku wprost; `register.tsx` podzielony na pliki widoków bez `$`, raport `plugin validate` identyczny z wersją jednoplikową (P-023). Instalacja z marketplace zmierzona na żywo w aplikacji 2.1.293. Otwarte trwale: minimalna wersja silnika niezmierzona. |
-| C3 | Desktop rysuje panel inaczej niż terminal (plan PANEL_CLAUDE, ryzyko R3) | **Niski** (2026-10-08 po E8; wcześniej średni dla panelu w terminalu) | **ZAMKNIĘTE 2026-10-10** | Pasek i panel zmierzone na żywo na desktopie (E1, E2, E8) i panel w terminalu 2.1.293 (E8: nagłówki tekstem, przyciski `[ … ]`); powierzchnię rozpoznaje `e.surface` (L-0138), test sprawdza odpowiednik tekstowy. E9: trzy paski nad promptem i panel `/relai-agents` zmierzone na desktopie i w terminalu 2.1.293 (segmenty Svg z podpowiedzią / znaki; terminal startowany z podfolderu — P-021); pasek cache w terminalu niewidoczny bez pierwszego zapytania (sesja niezalogowana), pokrywa go test. E4: zakładka „Mapa” zmierzona na desktopie i w terminalu 2.1.293 z `docs\plany` — pasek etapów Svg z kartą / znaki █, kwota w terminalu łamała się, aż komórka dostała `flexShrink={0}` (L-0152). E5: karta potwierdzenia i formularz `/relai-stage` zmierzone na desktopie i w terminalu 2.1.293 z `docs\plany` (zrzuty człowieka); test 40 kolumn złapał kartę na 42 kolumnach przed pokazaniem — wiersz faktów zawija się. E6: cennik, karta w dwóch krokach i zakładka „Dokumenty” (kafle, drzewo, okno diffu) zmierzone na żywo na desktopie (zrzuty człowieka 1–5, 9–12); terminal zmierzony dla pierwszej wersji zakładki (zrzuty 6–8), drzewo w terminalu tylko testem (40 kolumn, `[MD]`) — człowiek panelu w terminalu nie używa. Na desktopie `Code` z `format: 'diff'` traci format, a `Link` do `file:` rysuje się jak tekst — diff rysowany wierszami, HTML jako źródło (P-023). Otwarte do E7 (wydanie: pomiar w czystej instalacji). Zamknięte przy zamknięciu planu: wszystkie widoki zmierzone na desktopie, terminal testem 40 kolumn i zrzutami E8–E6; po wydaniu 2.8.0 paski i panel z instalacji marketplace widoczne na desktopie (zrzut człowieka 2026-10-10). |
-| C9 | Motyw RelAI i ikony komend nie zmieszczą się w elementach silnika modów — `Svg` tylko na desktopie, `Client` niezmierzony, terminal bez grafiki (plan PANEL_CLAUDE, Aneks A) | **Niski** (2026-10-08 po E8; wcześniej średni) | **ZAMKNIĘTE 2026-10-08** | Sonda E8: Svg z osadzonym fontem działa na desktopie, `Client` działa, `foreignObject` i interaktywne Svg odpadają, `plain` odwraca kolory (P-018); motyw zbudowany w tych granicach i przyjęty przez człowieka; terminal dostał odpowiednik tekstowy, zmierzony na żywo. |
 | C8 | Inny mod paska nad promptem rysuje bez `next` albo owija węzeł silnika w `Box` z `width` i pasek RelAI znika bez komunikatu (E1, P-017) | **Średni** (2026-10-08, przy E1) | **OTWARTE** | `relai-panel`, `relai-progress` i `relai-cache-keeper` zawsze wołają `next` i nie dokładają `width` do owijacza (test „engine kept beneath" w każdym); `savvy-progress` rysował bez `next` — wyłączony w E9, zastąpiony forkiem. Otwarte: cudze mody poza kontrolą — ostrzeżenie w README w E7. |
 | C10 | Pomiar kosztów niepełny albo podwójny — subagenci, kompakcja, wznowienie, `/clear`, wywołania poza pętlą (plan PANEL_CLAUDE, ryzyko R2) | **Niski** (2026-10-08 po E3; wcześniej wysoki) | **OTWARTE** | Klucz sesja + tura + indeks + agent, plik na sesję, kompakcja z `session.compact`, identyfikator sesji przy każdym zapisie; na żywo 117/117 kroków i 8/8 tur zgodnych z sondą co do kategorii; E9: koszt subagenta w `/relai-agents` = suma jego rekordów ($0,42, Opus), agent spoza cennika „brak ceny", nie „brak pomiaru". E4: rekord niesie etap w toku i zadanie załogi (`stage`, `task`); każdy rekord w dokładnie jednej pozycji (etap / „poza etapem” / „sprzed znacznika”), suma pozycji = suma sesji co do centa (test z kontrolą i na żywo $4,54 = $4,54). Otwarte: 9,16% przyrostu licznika silnika to wywołania spoza `turn.step` i kompakcji — raport mówi o nich słowami, bez rozbicia (P-020 pkt 6); zadanie załogi uruchomione jako osobna sesja `claude -p` jest przypisane tylko wtedy, gdy ta sesja ma `relai-panel`. E6: model bez ceny nie znika w sumie częściowej — przypomnienie z liczbą rekordów i aktualizacja cennika z karty; stawki cache per model ze strony (odczyt 0,05× Opus/Sonnet 5.5 — wcześniej jedna stała), Sonnet 5.5 wyceniony na żywo ($0,24 za 4 rekordy) E7: bez zmian w liczeniu (podział pliku bez zmiany zachowania); otwarte trwale na 9,16% wywołań spoza pętli, opisanych słowami. |
 | C11 | Pliki pomiarów puchną albo trafiają do gita (plan PANEL_CLAUDE, ryzyko R5) | **Niski** (2026-10-08 po E3) | **OTWARTE ŚWIADOMIE** | `.claude/relai/` poza gitem (sprawdzone `git check-ignore`), plik na sesję, rekord bez treści (~250 B); E4: plik scaleń `.claude/relai/panel/scalenia.json` też poza gitem (`git check-ignore`), rekord dłuższy o dwa pola; E6: `.claude/relai/panel/cennik.json` (wersje cennika) poza gitem (`git check-ignore`), jedna wersja na zapis z karty; otwarte: sprzątanie starych plików nie istnieje — do E7 E7 (decyzja człowieka 2026-10-09): sprzątanie świadomie odłożone — zmierzone 5 plików, 260 KB po dwóch dniach intensywnej pracy; „Koszty projektu” sumują wszystkie pliki, więc kasowanie zmieniłoby sumę. Próg powrotu: folder `.claude/relai/pomiary/` powyżej 10 MB. |
+
+> Ryzyka zamknięte C3, C9 (2 pozycje) są w
+> [docs/archiwum/ryzyka/RYZYKA_2026-10-11.md](archiwum/ryzyka/RYZYKA_2026-10-11.md)
+> — przeniesione 2026-10-11, suma kontrolna `3d1c7384436e320c`.
 
 > Ryzyka zamknięte W1, U1, O1, O6 (4 pozycje) są w
 > [docs/archiwum/ryzyka/RYZYKA_2026-09-24.md](archiwum/ryzyka/RYZYKA_2026-09-24.md)
@@ -43,7 +45,7 @@
 > — przeniesione 2026-08-21, suma kontrolna `4b370c3e2b31c6ba`.
 
 ## Czeka na człowieka
-- **AUDYT_MODOW Z5 — pomiar `/clear` na żywo** — po `/clear` kończącym sesję 2026-10-11 pasek cache ma zacząć od zera (koszt sesji, baterie „brak danych” do pierwszej tury), a fokus AUDYT_MODOW przejść do nowej sesji; jedno słowo „ok” albo zrzut w następnej sesji · 2026-10-11 · [wpis 2026-10-11 — Z13, Z14 i zamknięcie odnogi](#2026-10-11--audyt_modow-z13-i-z14-wydanie-0120-i-zamknięcie-odnogi)
+- ~~**AUDYT_MODOW Z5 — pomiar `/clear` na żywo**~~ *(rozstrzygnięte 2026-10-11 — Łukasz: koszt sesji na pasku cache od zera, pasek plan z przyciskiem `Wybierz pracę…`; paski pojawiły się dopiero po pierwszym prompcie, co jest zamierzone)* — po `/clear` kończącym sesję 2026-10-11 pasek cache ma zacząć od zera (koszt sesji, baterie „brak danych” do pierwszej tury), a fokus AUDYT_MODOW przejść do nowej sesji; jedno słowo „ok” albo zrzut w następnej sesji · 2026-10-11 · [wpis 2026-10-11 — Z13, Z14 i zamknięcie odnogi](#2026-10-11--audyt_modow-z13-i-z14-wydanie-0120-i-zamknięcie-odnogi)
 - **AUDYT_MODOW — ustalenia poza zakresem (5 pozycji `outOfScope` raportu)** — odchudzenie kopii rdzenia per plugin (`sync-panel-core`), `headings.mjs` 254 KB w progress i cache-keeperze, % limitu per etap w rdzeniu, `userConfig` cache-keepera, przedrostek `relai-` jego komend; plus wariant B „jedna listwa” jako kandydat na plan — decyzja: plan, odnoga albo odrzucić · 2026-10-11 · [wpis 2026-10-11 — Z13, Z14 i zamknięcie odnogi](#2026-10-11--audyt_modow-z13-i-z14-wydanie-0120-i-zamknięcie-odnogi)
 - ~~**PANEL_CODEX E1 — korekta liczby pól kontraktu**~~ *(rozstrzygnięte 2026-10-10 — Łukasz zaakceptował Aneks A, zapisany w planie; 16 pól, bez zmiany schematu)* · 2026-10-10 · [wpis 2026-10-10 — Aneks A i start sondy](#2026-10-10--panel_codex-e1-aneks-a-i-naprawa-startu-sondy)
 - ~~**PANEL_CODEX E1 — otwarcie lokalnej sondy**~~ *(rozstrzygnięte 2026-10-10 — natywny widok 0.0.7 i wiadomość bieżąca potwierdzone; pakiet w sondzie 0.0.8 pokazuje właściwy stan, wygląd zaakceptowany)* · 2026-10-10 · [wpis — Panel i mostek](#2026-10-10--panel_codex-e1-natywny-widok-minimalny-pakiet-i-mostek-bieżącego-czatu)
@@ -1217,3 +1219,54 @@ w następnej (Z5); decyzja o ustaleniach poza zakresem; ewentualny `/relai-clean
 `relai-*` w TEMP.
 
 Autor: RelAI (Fable 5.1, wykonanie Opus 5.5) + Lukasz
+
+### 2026-10-11 — AUDYT_MODOW Z5 potwierdzone na żywo po `/clear`
+
+**Zrobione:**
+
+- Z5 (`/clear`) zmierzone przez Łukasza w pierwszej sesji po `/clear` kończącym sesję poprzednią
+  (`relai-panel` 0.12.0, `relai-cache-keeper` 0.5.0, 2.1.295): koszt sesji na pasku cache od
+  zera; pasek plan z chipem „praca nie wybrana” i przyciskiem `Wybierz pracę…` (fokus
+  AUDYT_MODOW przeszedł do nowej sesji, karta zamknięta → pytanie, `workOf` w `focus.ts`);
+  zamknięta odnoga nie figuruje w liście wyboru, bo `focusChoices` (`tab-data.ts`) podaje tylko
+  otwarte karty. Pozycja Z5 w „Czeka na człowieka” zamknięta; sekcja „Wynik” karty odnogi i STATE
+  uzupełnione.
+- Spostrzeżenie z pomiaru: po `/clear` nic nie pojawiło się nad promptem do czasu pierwszej
+  wiadomości („ok”). Pasek cache robi to celowo — bez pierwszej tury nie ma aktywności i gate
+  w `cache-keeper/hooks/register.tsx` oddaje rysowanie niżej, tak samo jak przy zwykłym starcie.
+  Pasek plan nie ma takiego gate'u; czy przed pierwszym promptem pustego czatu gospodarz w ogóle
+  rysuje `AbovePrompt`, nie da się rozstrzygnąć z kodu pluginu — zapisane jako świadomie odłożone.
+- Rytuał startu: zgoda optymalizatora „nie” (plik sesji); budżet startu 122,8 KB przy 100 KB
+  zgłoszony (STATE 21,5 KB, ryzyka 29,5 KB, sekcja ryzyk 12,5 KB przy progu 12 KB).
+- **Rotacja ryzyk** (za zgodą Łukasza, procedura dwufazowa `document-rotation.md`): wiersze
+  `ZAMKNIĘTE` C3 i C9 (2 pozycje, 2 424 B) → [RYZYKA_2026-10-11.md](archiwum/ryzyka/RYZYKA_2026-10-11.md),
+  suma kontrolna `3d1c7384436e320c` zgodna po odczycie z dysku; sekcja „Stan otwartych ryzyk”
+  12 782 → 10 553 B (próg 12 KB), linia-odsyłacz pod tabelą. Pierwszy przebieg fazy 1 zatrzymał
+  się na niezgodnej sumie (skrypt szukał separatora z pustą linią, której sam nie zapisał) —
+  kopia skasowana, skrypt poprawiony, przebieg powtórzony; żywy plik do fazy 2 nietknięty.
+  Rotacja dziennika **nie zaszła**: 99 KB przy progu 150 KB (19 wpisów, 9 rotowalnych) — poniżej
+  progu cisza. Kompresja komórek „Mitygacja” bez kandydata (C1 i C10 ponad 800 znaków, ale
+  `OTWARTE`). STATE 264 linie przy progu 300 — przepisania nie wyzwala; 22 KB przy celu 12 KB
+  zostaje jedyną pozycją budżetu do odchudzenia ręką.
+- **STATE przepisany** na prośbę Łukasza: 21,5 KB / 264 linie → **9,3 KB / 141 linii** (cel 12 KB
+  z `SPEC_STATE.md`). Co wypadło i gdzie stoi: przebieg E1 PANEL_CODEX (sondy 0.0.7–0.0.9, czaty,
+  PID-y, liczby testów) — wpisy 2026-10-10 tego dziennika; opis implementacji pluginów panelu
+  (E3–E8: kolektor, cennik, Mapa, decyzje, Dokumenty, wygląd, limity drzewa) — wpisy E3–E8 w tym
+  dzienniku i w [DZIENNIK_2026-09-14_2026-10-09](archiwum/dziennik/DZIENNIK_2026-09-14_2026-10-09.md),
+  Aneksy A–E planu PANEL_CLAUDE, brief v3.2 i `PULAPKI.md` P-017–P-024; opis odnogi AUDYT_MODOW —
+  karta `ODNOGA.md`. Sekcje „Nad czym pracujemy teraz” sprowadzona do jednej pozycji (E1), „Co
+  dalej” i „Szczegóły techniczne” do wskaźników. Walidator wersji po przepisaniu: 7 źródeł `2.8.0`,
+  exit 0. Pełne brzmienie sprzed przepisania: commit `95f0633`.
+
+**Zweryfikowane — jak dokładnie:** słowo Łukasza i opis ekranu (koszt wyzerowany, przycisk
+`Wybierz pracę…`, lista bez zamkniętej odnogi); gate paska cache odczytany z kodu
+(`!S.lastActivity && !S.keepWarm && H.phase === 'idle'` → `next(e)`), `lastActivity` ustawiane
+dopiero z użycia tury.
+
+**Świadomie odłożone:** pasek plan przed pierwszym promptem po `/clear` — rozstrzygnąć przy
+następnym pomiarze na żywo (zrzut pustego czatu zaraz po `/clear`).
+
+**Do zrobienia przez człowieka:** decyzja o ustaleniach poza zakresem audytu (pozycja
+w „Czeka na człowieka”).
+
+Autor: RelAI (Fable 5.1) + Lukasz
