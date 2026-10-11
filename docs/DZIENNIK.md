@@ -1846,3 +1846,37 @@ przy progu 5 h ustawionym kartą na 1 % dla tej sesji — krok 3 pomiaru na żyw
 wydanie, kasowanie katalogu roboczego E4 i kopii `backup-installed/`, zamknięcie planu.
 
 Autor: RelAI (Opus 5.5) + Lukasz
+
+### 2026-10-11 — wydanie RelAI 2.9.0, relai-cache-keeper 0.6.0, relai-panel 0.13.0 (LIMIT_CHECKPOINT E4)
+
+Sesja Opus 5.5, ta sama co wpisy wyżej. Łukasz: „dobra działa, commituj pushuj wydaj oficjalnie”.
+
+**Zrobione:**
+
+- Commit Aneksu E (`56b73ce`), potem commit wydania: numery w siedmiu źródłach wersji `relai`
+  (manifesty, marketplace'y, `core/MANIFEST.json`, baner README, „Gdzie jesteśmy” w STATE),
+  `relai-cache-keeper` 0.6.0 i `relai-panel` 0.13.0 w `plugin.json` i marketplace (opisy
+  z limitem planu i linijką progu), `/relai-update` z wersją docelową 2.9.0 i czwartą frazą
+  sesji, nagłówki skilli, marker nowego projektu, wpis 2.9.0 w `history.md`, kopie Codeksa
+  generatorem, README Cursora, marker `docs/USTAWIENIA.md` i nagłówek `KOMENDY.md`.
+  `ARTEFAKTY.md`: `/relai-update` 18, `relai-core` 25, `relai-planning` 11, `new-project.md` 6,
+  `history.md` 4.
+- `relai-progress` **bez podbicia** (0.4.0): od 0.4.0 dostał przez `sync-panel-core` jedynie
+  nieużywany plik `limit-threshold.mjs` — zachowanie bez zmian.
+
+**Zweryfikowane — jak dokładnie:**
+
+- `claude plugin test`: cache-keeper **174/174**, panel **148/148**, progress **31/31**;
+  `claude plugin validate` × 3 i repo (ostrzeżenie o root `CLAUDE.md` — świadome, zasada 15);
+  rdzeń `node --test …` **295/295**; `validate-adapters.js` exit 0 („numery wersji: 7 źródeł,
+  2.9.0”, wersje pluginów panelu z ich `plugin.json`); `generate-skills.js --verify` spójne;
+  `sync-panel-core.js --check` zgodne.
+- `grep -r` po `2.8.0`, `relai-cache-keeper 0.5.0`, `relai-panel 0.12.0`: zostały wyłącznie
+  zapisy historyczne (zamrożone prompty E1–E4, prompt odnogi NOWA_SESJA, dziennik, archiwum,
+  `history.md`, nagłówek „od 2.8.0” sekcji panelu w KOMENDY) — każde trafienie rozstrzygnięte
+  jako historia. Rejestr: każdy artefakt zmieniony od tagu `v2.8.0` ma wpis z 2026-10-11.
+
+**Świadomie odłożone:** rytuał „Na koniec” E4 i zamknięcie planu (bramka „aneks dla panelu
+Codeksa”), skasowanie katalogu roboczego E4 i `backup-installed/` — po „tak” Łukasza.
+
+Autor: RelAI (Opus 5.5) + Lukasz

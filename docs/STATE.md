@@ -4,12 +4,12 @@ Stan na: 2026-10-11 (Z5 audytu modów potwierdzone, rotacja ryzyk, STATE przepis
 
 ## Gdzie jesteśmy
 
-RelAI **2.8.0** jest w repozytorium i publicznie (tag `v2.8.0`, release Latest, 2026-10-09). Plugin
-`relai` działa w trzech narzędziach — Claude Code, Cursorze i Codeksie — na jednym rdzeniu procesu,
-z czternastoma komendami. Panel RelAI w oknie Claude Code to trzy osobne pluginy „early access”
-z marketplace tego repozytorium: `relai-panel` 0.12.0, `relai-progress` 0.4.0, `relai-cache-keeper`
-0.5.0 (plan PANEL_CLAUDE zamknięty 2026-10-10, odnoga AUDYT_MODOW zamknięta 2026-10-11, wszystkie
-paczki zmierzone na żywo na 2.1.295). Aktywny plan PANEL_CODEX — panel dla Codeksa — jest
+RelAI **2.9.0** jest w repozytorium i publicznie (tag `v2.9.0`, 2026-10-11: zapis pracy przed
+limitem planu, plan LIMIT_CHECKPOINT). Plugin `relai` działa w trzech narzędziach — Claude Code,
+Cursorze i Codeksie — na jednym rdzeniu procesu, z czternastoma komendami. Panel RelAI w oknie
+Claude Code to trzy osobne pluginy „early access” z marketplace tego repozytorium: `relai-panel`
+0.13.0, `relai-progress` 0.4.0, `relai-cache-keeper` 0.6.0 (plan PANEL_CLAUDE zamknięty
+2026-10-10, odnoga AUDYT_MODOW zamknięta 2026-10-11, wszystkie paczki zmierzone na żywo na 2.1.295). Aktywny plan PANEL_CODEX — panel dla Codeksa — jest
 zaakceptowany, E1 trwa po stronie Codeksa. Opinii spoza projektu nadal nie ma.
 
 ## Co działa
@@ -69,14 +69,14 @@ zaakceptowany, E1 trwa po stronie Codeksa. Opinii spoza projektu nadal nie ma.
   `relai-core/limit-checkpoint.md`, `SPEC_WZNOWIENIE.md`, `resume.js` ze zdaniem hooka startu,
   faza zapisu na pasku cache „zapis gotowy · reset …” / „zapis niepełny”, Aneks A; testy 140/140
   i 289/289; na żywo: zapis z karty → commity `7f11491`, `10cabb4` → pasek potwierdzony),
-  **E4 W TOKU** (2026-10-11, kod i testy gotowe: cache-keeper 170/170, panel 141/141, rdzeń
-  295/295; kod zacommitowany `562c375`) — dwa progi (5 h 90 %, tydzień 98 %) z kartą zasięgu,
-  karta „Próg limitu” w zakładce Koszty panelu, „Wznów pracę” / „Odrzuć” po resecie, zapis gaśnie,
-  gdy pliku wznowienia nie ma, hook startu z liczbą commitów od zapisu. **Pomiar na żywo w toku**:
-  kroki 1–3 zrobione (kod E4 wgrany do zainstalowanych 0.5.0 / 0.12.0 / 2.8.0, próg 5 h 1 %
-  z karty, zapis z karty limitu); dalej krok 4 — reset i „Wznów pracę” — oraz krok 5, progi
-  z powrotem 90/98. Potem wydania `relai` 2.9.0 / `relai-cache-keeper` 0.6.0 / `relai-panel`
-  0.13.0 i zamknięcie planu. Przepięcie `prompt-mode.js` świadomie odłożone.
+  **E4 W TOKU** (2026-10-11; testy cache-keeper 174/174, panel 148/148, rdzeń 295/295) — dwa
+  progi (5 h, tydzień 98 %) z kartą zasięgu, „Wznów pracę” / „Odrzuć” po resecie, zapis gaśnie bez
+  pliku wznowienia, hook startu z liczbą commitów od zapisu; Aneks D (podpis progu pod baterią),
+  Aneks E (karta „Próg limitu” w Kosztach: linijka i przyciski wartości). Pomiar na żywo
+  potwierdzony przez Łukasza (wznowienie po resecie przyjęte bez pomiaru, z testów); **wydane
+  2026-10-11** jako `relai` 2.9.0 / `relai-cache-keeper` 0.6.0 / `relai-panel` 0.13.0. Zostało:
+  rytuał „Na koniec” E4, zamknięcie planu (bramka „aneks dla panelu Codeksa”), katalog roboczy E4.
+  Przepięcie `prompt-mode.js` świadomie odłożone.
 
 ## Co dalej
 
@@ -121,8 +121,8 @@ zaakceptowany, E1 trwa po stronie Codeksa. Opinii spoza projektu nadal nie ma.
 
 ### Wersja i instalacja
 
-Repo i publicznie **2.8.0**; marketplace w tym repozytorium (scope `user`) niesie cztery pluginy:
-`relai` i trzy pluginy panelu z własnymi wersjami i tagami (`relai-panel-v0.12.0`). Wydanie
+Repo i publicznie **2.9.0**; marketplace w tym repozytorium (scope `user`) niesie cztery pluginy:
+`relai` i trzy pluginy panelu z własnymi wersjami i tagami (`relai-panel-v0.13.0`). Wydanie
 potwierdzasz treścią plików z cache'u, nie komunikatem CLI (P-005): `claude plugin validate` → tag
 → push → release → `marketplace update` → `plugin update` → suma plików po CRLF → LF. Walidator
 `core/tools/validate-adapters.js` sprawdza 7 źródeł wersji (w tym baner README i „Gdzie jesteśmy”)

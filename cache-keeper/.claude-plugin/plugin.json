@@ -1,8 +1,8 @@
 {
   "name": "relai-cache-keeper",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "author": { "name": "nowilus", "url": "https://github.com/nowilus" },
-  "description": "RelAI cache keeper for Claude Code (early access mods): five batteries above the prompt — the prompt cache's time left, the 5-hour limit, the time to its reset, the weekly limit and the context — each showing what is left, the full words on hover, with the session's hypothetical cost once, on the right, and a second row only when the cache cools, a hand-off is ready or a fresh session pays off (/cache shows the reckoning); a guard that asks before a cold send of a big context; keep-warm pings and a hand-off to a fresh chat (natively through the project documents in a RelAI project). It calls the model only on the person's explicit request: /keepwarm or the keep-warm button sends short pings, the hand-off sends its prompt as the person. Formerly cache-keeper-pl.",
+  "description": "RelAI cache keeper for Claude Code (early access mods): five batteries above the prompt — the prompt cache's time left, the 5-hour limit, the time to its reset, the weekly limit and the context — each showing what is left, the full words on hover, with the session's hypothetical cost once, on the right, and a second row only when the cache cools, a hand-off is ready or a fresh session pays off (/cache shows the reckoning); a guard that asks before a cold send of a big context; plan-limit thresholds for the 5-hour (90 %) and the weekly (98 %) window, each set per session, project or everywhere, a card after a turn past a threshold that offers to save the work, and Wznów pracę after the reset; keep-warm pings and a hand-off to a fresh chat (natively through the project documents in a RelAI project). It calls the model only on the person's explicit request: /keepwarm or the keep-warm button sends short pings, the hand-off sends its prompt as the person. Formerly cache-keeper-pl.",
   "homepage": "https://github.com/nowilus/relai",
   "repository": "https://github.com/nowilus/relai",
   "license": "MIT"

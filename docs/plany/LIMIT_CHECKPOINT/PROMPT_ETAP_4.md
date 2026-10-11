@@ -452,7 +452,7 @@ zaraz po jego sprawdzeniu, nie na końcu etapu; punkt, który nie przeszedł, zo
       „Co dalej”; zrzuty do `docs/zasoby/PANEL_RELAI/zrzuty/`; na końcu progi z powrotem 90 / 98.
 - [x] `node core/tools/validate-adapters.js` exit 0; `generate-skills.js --verify` bez rozjazdu;
       `sync-panel-core.js --check` zgodny; `claude plugin validate cache-keeper` exit 0.
-- [ ] Wydanie: numery 0.6.0 / 2.9.0 we wszystkich źródłach (`validate-adapters`), `grep -r`
+- [x] Wydanie: numery 0.6.0 / 2.9.0 we wszystkich źródłach (`validate-adapters`), `grep -r`
       po `2.8.0` i `0.5.0` z rozstrzygnięciem każdego trafienia; `ARTEFAKTY.md` zgodny ze zmianami
       od tagu; publikacja tylko po „tak” Łukasza.
 - [x] Podstawy bezpieczeństwa: ścieżka wznowienia tylko ze slugu `[A-Za-z0-9_-]`; hash z pliku

@@ -12,7 +12,7 @@
     {
       "name": "relai",
       "source": "./",
-      "version": "2.8.0",
+      "version": "2.9.0",
       "description": "Your project remembers everything — documentation-first process framework for Claude Code",
       "category": "productivity",
       "homepage": "https://github.com/nowilus/relai",
@@ -28,8 +28,8 @@
     {
       "name": "relai-panel",
       "source": "./panel",
-      "version": "0.12.0",
-      "description": "Early access — needs Claude Code with mods (measured on 2.1.295). RelAI panel: a calm bar above the prompt with the session's work (a plan stage or a thread card and its packets), its status, and a second row only while a decision card waits or the work is not chosen (then a Wybierz pracę… button opens the pane on the choice); /relai-panel opens a pane with Teraz (the work, its next item, Zmień to pick it), forms for the 14 RelAI commands, a map that starts with Ta sesja (the focus with its packets and cost) over folded sections of plans, crew runs and the archive, the project documents and the session's measured costs in folded sections. Every change goes through a confirmation card. One network request only: the Anthropic pricing page, read after \"Tak\" on a card.",
+      "version": "0.13.0",
+      "description": "Early access — needs Claude Code with mods (measured on 2.1.295). RelAI panel: a calm bar above the prompt with the session's work (a plan stage or a thread card and its packets), its status, and a second row only while a decision card waits or the work is not chosen (then a Wybierz pracę… button opens the pane on the choice); /relai-panel opens a pane with Teraz (the work, its next item, Zmień to pick it), forms for the 14 RelAI commands, a map that starts with Ta sesja (the focus with its packets and cost) over folded sections of plans, crew runs and the archive, the project documents and the session's measured costs in folded sections, with the plan-limit thresholds as rulers (used now, the threshold, the room left) and value buttons. Every change goes through a confirmation card. One network request only: the Anthropic pricing page, read after \"Tak\" on a card.",
       "category": "productivity",
       "homepage": "https://github.com/nowilus/relai",
       "repository": "https://github.com/nowilus/relai",
@@ -59,8 +59,8 @@
     {
       "name": "relai-cache-keeper",
       "source": "./cache-keeper",
-      "version": "0.5.0",
-      "description": "Early access — needs Claude Code with mods (measured on 2.1.295). Five batteries above the prompt — the prompt cache's time left, the 5-hour limit, the time to its reset, the weekly limit and the context — each showing what is left, with the full words on hover and the session's cost once, on the right; asks before a cold send of a big context and says when a fresh session pays off (/cache shows the reckoning). Calls the model only on the person's request (keep-warm pings, hand-off to a fresh chat).",
+      "version": "0.6.0",
+      "description": "Early access — needs Claude Code with mods (measured on 2.1.295). Five batteries above the prompt — the prompt cache's time left, the 5-hour limit, the time to its reset, the weekly limit and the context — each showing what is left, with the full words on hover and the session's cost once, on the right; asks before a cold send of a big context and says when a fresh session pays off (/cache shows the reckoning). Plan limits: a 5-hour threshold (90 %) and a weekly one (98 %), each set per session, project or everywhere; past a threshold a card after the turn offers to save the work (tests, a local commit, the docs, a resume file) and, after the reset, Wznów pracę starts a fresh chat from that file. Calls the model only on the person's request (keep-warm pings, hand-off, save and resume).",
       "category": "productivity",
       "homepage": "https://github.com/nowilus/relai",
       "repository": "https://github.com/nowilus/relai",
