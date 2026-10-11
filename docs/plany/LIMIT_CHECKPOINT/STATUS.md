@@ -8,7 +8,7 @@ Plan: [PLAN.html](PLAN.html) · Utworzony: 2026-10-11 · Status planu: **ZAAKCEP
 |---|---|---|---|---|
 | E1 | Próg i trzy poziomy zapisu | ZREALIZOWANY 2026-10-11 | [PROMPT_ETAP_1.md](PROMPT_ETAP_1.md) | zalecany effort medium; bramka o przepięciu `prompt-mode.js` rozstrzygana jednym pytaniem na starcie sesji |
 | E2 | Karta po turze | ZREALIZOWANY 2026-10-11 | [PROMPT_ETAP_2.md](PROMPT_ETAP_2.md) | zalecany effort high; warunek „praca trwa” i licznik tur |
-| E3 | Procedura „zapisz pracę” w rdzeniu | GOTOWY DO STARTU | [PROMPT_ETAP_3.md](PROMPT_ETAP_3.md) | zalecany effort high; + Aneks A (odhaczanie pól Weryfikacji na bieżąco); „Zapisz” na karcie = zgoda na commit lokalny (rozstrzygnięte) |
+| E3 | Procedura „zapisz pracę” w rdzeniu | W TOKU | [PROMPT_ETAP_3.md](PROMPT_ETAP_3.md) | zalecany effort high; + Aneks A (odhaczanie pól Weryfikacji na bieżąco); „Zapisz” na karcie = zgoda na commit lokalny (rozstrzygnięte) |
 | E4 | Wznowienie i wydanie | OCZEKUJE | — | zalecany effort medium; + Aneks B (zasięg progu przy `/cache limit-warn`); pomiar na żywo z progiem testowym |
 
 ## Bramki manualne
@@ -31,3 +31,5 @@ Plan: [PLAN.html](PLAN.html) · Utworzony: 2026-10-11 · Status planu: **ZAAKCEP
 - 2026-10-11 — Aneks A (zgłoszenie Łukasza w trakcie E2): odhaczanie punktów Weryfikacji promptu etapu na bieżąco — `relai-stage.md` i `SPEC_PROMPT_ETAPU.md` w zakresie E3.
 - 2026-10-11 — E2 ZREALIZOWANY: karta po turze w `relai-cache-keeper` (warunek „praca trwa” z fokusu albo `git status`, jedna karta na próg, „dalej” +5 pkt do 99, „Nie pytaj”, pierwsza karta z progiem i zasięgiem, „Zapisz” = `/handoff` do E3); testy 128/128 i 283/283, pomiar na żywo potwierdzony przez Łukasza. E3 GOTOWY DO STARTU.
 - 2026-10-11 — Aneks B (uwaga Łukasza po E2): `/cache limit-warn N` pyta o zasięg (sesja / projekt / globalnie / nie zapisuj), `limitWarn` w `$.store` przestaje być poziomem odczytu, próg ustawiany też z UI paneli; „Pracuję dalej” zostaje w sesji — w zakresie E4.
+- 2026-10-11 — E3 rozpoczęty
+- 2026-10-11 — E3 przerwany zapisem przed limitem (pomiar na żywo procedury); wznowienie: .claude/relai/wznowienie/relai.md

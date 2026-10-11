@@ -409,29 +409,29 @@ wpisujesz do wpisu dziennika **z nazwy**, a jego nazwę zaczynasz od slugu proje
 
 Odhaczasz każde pole zaraz po sprawdzeniu (Aneks A) — punkt, który nie przeszedł, zostaje pusty.
 
-- [ ] `claude plugin test cache-keeper` binarką 2.1.295: wszystkie zielone; liczba ≥ 128 + 6 nowych
+- [x] `claude plugin test cache-keeper` binarką 2.1.295: wszystkie zielone; liczba ≥ 128 + 6 nowych
       (SZACUNEK); kontrola „przed” w dwóch przebiegach (kod E2 w całości; kod E2 z nową czystą
       logiką) i „po” we wpisie.
-- [ ] `node --test` rdzenia (komenda ze „Stanu wyjściowego”) zielony; liczba przed i po we wpisie;
+- [x] `node --test` rdzenia (komenda ze „Stanu wyjściowego”) zielony; liczba przed i po we wpisie;
       nowy test hooka startu pada bez zmiany w `session-context.js`.
-- [ ] Kolejność procedury dowiedziona na treści `limit-checkpoint.md`: commit przed dokumentami,
+- [x] Kolejność procedury dowiedziona na treści `limit-checkpoint.md`: commit przed dokumentami,
       plik wznowienia przed znacznikiem (grep numerów kroków); znacznik `ZAPIS GOTOWY` w procedurze
       i w `handoff.ts`/stałej moda — ten sam ciąg (grep stałego ciągu w obu).
-- [ ] Mod: odpowiedź ze znacznikiem → faza `czeka` i wiersz „zapis gotowy · reset HH:MM”; bez
+- [x] Mod: odpowiedź ze znacznikiem → faza `czeka` i wiersz „zapis gotowy · reset HH:MM”; bez
       znacznika → `przerwany` i „zapis niepełny”; poza RelAI → wariant ogólny (testy).
-- [ ] Dowód negatywny: `keepWarmStep`, strażnik `prompt.submit` i warunek karty E2 (`cardDue`,
+- [x] Dowód negatywny: `keepWarmStep`, strażnik `prompt.submit` i warunek karty E2 (`cardDue`,
       `isWorkGoing`) bez zmian — `git diff` bez hunków w tych funkcjach; testy E2 zielone.
 - [ ] Na żywo (Łukasz, desktop 2.1.295, kopia plików do zainstalowanej 0.5.0 i przeładowanie):
       `/cache limit-warn 1` → karta → „Zapisz pracę teraz” → procedura w czacie → commit lokalny,
       plik `.claude/relai/wznowienie/relai.md`, pasek „zapis gotowy · reset …”; zrzut paska do
       `docs/zasoby/PANEL_RELAI/zrzuty/`; na końcu `/cache limit-warn 90`. Commit pomiarowy
       opisany we wpisie (zostaje albo cofnięty — decyzja Łukasza).
-- [ ] Aneks A: zdanie o odhaczaniu w `relai-stage.md`, `SPEC_PROMPT_ETAPU.md` i kopii Codeksa
+- [x] Aneks A: zdanie o odhaczaniu w `relai-stage.md`, `SPEC_PROMPT_ETAPU.md` i kopii Codeksa
       (grep stałego ciągu w trzech plikach); pola tego promptu odhaczone na bieżąco.
-- [ ] `node core/tools/validate-adapters.js` exit 0; `node adapters/codex/generate-skills.js` z
+- [x] `node core/tools/validate-adapters.js` exit 0; `node adapters/codex/generate-skills.js` z
       weryfikacją bez rozjazdu; `node core/tools/sync-panel-core.js --check` zgodny;
       `claude plugin validate cache-keeper` exit 0.
-- [ ] Podstawy bezpieczeństwa na zmianie etapu: slug pliku wznowienia z nazwy katalogu walidowany
+- [x] Podstawy bezpieczeństwa na zmianie etapu: slug pliku wznowienia z nazwy katalogu walidowany
       `[A-Za-z0-9_-]` (test na `../`); treść odpowiedzi modelu nie trafia do ścieżki; `grep -nE
       "sk-|api_key"` (zwykły `grep`, nie `git grep` — nowe pliki) w zmienionych plikach nic nie
       zwraca; `cache-keeper/package.json` nie istnieje — sprawdź `ls`; nadal brak → audyt

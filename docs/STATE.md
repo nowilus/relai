@@ -65,9 +65,11 @@ zaakceptowany, E1 trwa po stronie Codeksa. Opinii spoza projektu nadal nie ma.
   **E1 ZREALIZOWANY 2026-10-11** (próg `/cache limit-warn`, odczyt sesja → projekt → globalnie,
   kolor baterii od progu, `core/process/threshold.js` z parytetem; na żywo potwierdzone),
   **E2 ZREALIZOWANY 2026-10-11** (karta po turze przy pracy w toku: „dalej” +5 pkt, „Zapisz” =
-  `/handoff` do E3, „Nie pytaj”; na żywo potwierdzone), **E3 GOTOWY DO STARTU** (procedura „zapisz
-  pracę” + Aneks A: odhaczanie pól Weryfikacji na bieżąco); przepięcie `prompt-mode.js` świadomie
-  odłożone.
+  `/handoff` do E3, „Nie pytaj”; na żywo potwierdzone), **E3 W TOKU** — kod gotowy i w commicie
+  `7f11491` (procedura `relai-core/limit-checkpoint.md`, `SPEC_WZNOWIENIE.md`, `resume.js` ze
+  zdaniem hooka startu, faza zapisu na pasku cache, Aneks A; testy 140/140 i 289/289); trwa pomiar
+  na żywo — ta sesja wykonuje zapis z karty limitu; zostały: zrzut paska, `/cache limit-warn 90`,
+  rytuał „Na koniec” E3 i `PROMPT_ETAP_4`; przepięcie `prompt-mode.js` świadomie odłożone.
 
 ## Co dalej
 

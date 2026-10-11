@@ -1547,3 +1547,26 @@ E4 razem z Łukaszem.
 **Do zrobienia przez człowieka:** —
 
 Autor: RelAI (Opus 5.5) + Lukasz
+
+### 2026-10-11 — LIMIT_CHECKPOINT E3: pomiar na żywo procedury — zapis przed limitem
+
+**Zrobione:**
+
+- Pomiar na żywo E3: Łukasz przeładował aplikację z łatką 0.5.0, ustawił `/cache limit-warn 1`,
+  karta limitu → „Zapisz pracę teraz”; mod wysłał frazę „zapisz pracę” ze zgodą na commit
+  i ścieżką `.claude/relai/wznowienie/relai.md`.
+- Procedura `limit-checkpoint.md` wykonana: testy, commit kodu E3 `7f11491` (wip, bez pusha),
+  STATE, ten wpis, linia w STATUS planu, plik wznowienia.
+
+**Zweryfikowane — jak dokładnie:**
+
+- `claude plugin test cache-keeper` (binarka 2.1.295) → 140/140; rdzeń `node --test …` → 289/289,
+  oba uruchomione w kroku 1 procedury.
+
+**Świadomie odłożone:** rytuał „Na koniec” E3 (wpis zamykający etap, ARTEFAKTY, lekcje,
+`PROMPT_ETAP_4`) — po potwierdzeniu paska „zapis gotowy · reset …” przez Łukasza.
+
+**Do zrobienia przez człowieka:** zrzut paska do `docs/zasoby/PANEL_RELAI/zrzuty/`, potem
+`/cache limit-warn 90`; decyzja: commity pomiarowe zostają czy cofnięte.
+
+Autor: RelAI (Opus 5.5) + Lukasz
