@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="pl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Research: nowa sesja Claude Code z przycisku panelu — 2026-10-11</title>
+<style>
+:root{--page:#181816;--card:#262523;--text:#eee8dc;--muted:#b8b0a3;--plan:#e1b85c;--cache:#df987a;--prog:#9cbea2;--mark:#d9a134;--line:#343230}
+*{box-sizing:border-box}body{margin:0;background:var(--page);color:var(--text);font:14px/1.5 "Segoe UI",system-ui,sans-serif;padding:0 0 60px}
+.wrap{max-width:1180px;margin:0 auto;padding:28px 24px}h1,h2,h3{font-weight:700;margin:0;letter-spacing:.01em}h1{font-size:30px;color:var(--cache)}h2{font-size:21px;color:var(--plan);margin:30px 0 10px}h3{font-size:15px;color:var(--prog);margin:14px 0 6px}
+.lead{color:var(--muted);max-width:90ch}code{font-family:Consolas,"Cascadia Mono",monospace;font-size:12.5px;color:#d9d2c4;background:#1e1b18;padding:1px 4px;border-radius:4px}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin:16px 0}.k{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:10px 12px}.k .n{font-size:24px;font-weight:700;color:var(--plan)}.k .l{color:var(--muted);font-size:12px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin:10px 0}.card p{margin:6px 0;color:#d9d2c4}
+table{border-collapse:collapse;width:100%;font-size:13px;margin:8px 0}th,td{text-align:left;padding:8px;border-bottom:1px solid var(--line);vertical-align:top}th{color:var(--muted);font-weight:600}
+.tag{display:inline-block;padding:1px 8px;border-radius:999px;font-size:11px;font-weight:600;white-space:nowrap}.ok{background:#2f3a31;color:var(--prog)}.mid{background:#3a3524;color:var(--plan)}.bad{background:#3a2a24;color:var(--cache)}.gray{background:#2d2b29;color:var(--muted)}
+details{margin:8px 0}details summary{cursor:pointer;color:var(--plan);font-weight:600}details div{padding:6px 0 0 4px}
+.src a{color:var(--prog)}ul{margin:6px 0 6px 18px}li{margin:3px 0}
+.flow{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;margin:10px 0}.step{background:#1e1b18;border:1px solid var(--line);border-radius:10px;padding:10px 12px}.step b{color:var(--plan)}.step small{color:var(--muted)}
+</style></head><body><div class="wrap">
+<h1>Nowa sesja Claude Code z przycisku panelu</h1>
+<p class="lead">Research 2026-10-11 · odnoga <code>NOWA_SESJA</code> · RelAI 2.8.0, <code>relai-panel</code> 0.12.0, Claude Code 2.1.295, aplikacja desktopowa 2.31226.1.0 (Windows 11) · autor: RelAI (Fable 5.1, rozpoznanie Opus 5.5) + Lukasz.
+Cel: po „Tak” na karcie etapu nowa sesja Claude Code w aplikacji startuje etap — zamiast <code>/clear</code> w oknie, w którym człowiek pracował. Każda liczba ma etykietę: <b>FAKT</b> (zmierzone, odczytane) albo <b>SZACUNEK</b>.</p>
+
+<div class="kpis">
+<div class="k"><div class="n">3</div><div class="l">pomiary na żywo (deep link A, B2; łańcuch C niezmierzony)</div></div>
+<div class="k"><div class="n">7</div><div class="l">mechanizmów ocenionych</div></div>
+<div class="k"><div class="n">1</div><div class="l">ruch człowieka w wariancie wybranym (Enter)</div></div>
+<div class="k"><div class="n">0</div><div class="l">ruchów po otwarciu flagi <code>sideSessions</code></div></div>
+</div>
+
+<h2>1. Wniosek</h2>
+<div class="card">
+<p><b>Pełnego automatu nie ma dziś w żadnym narzędziu</b>: deep link Claude wpisuje prompt i czeka na Enter (FAKT, dokumentacja i pomiar), Codex otwiera szkic w nowym wątku i czeka na „wyślij” (FAKT, E1 PANEL_CODEX). Jedyny mechanizm bez ruchu człowieka — narzędzie <code>mcp__ccd_session__start_session</code> z własną kartą zgody aplikacji — istnieje w paczce aplikacji, ale jest za flagą funkcji i w tej instalacji go nie ma (FAKT).</p>
+<p><b>Wybór Łukasza (2026-10-11):</b> wdrożyć deep link teraz (jeden Enter, nowa sesja w aplikacji, stare okno nietknięte) z kodem gotowym na <code>start_session</code>, gdy flaga się otworzy. Wariant „Windows Terminal z CLI” odrzucony. Realizacja: odnoga <a href="ODNOGA.md"><code>NOWA_SESJA</code></a>, paczki N0–N4, Opus 5.5 jako subagent sesji Fable.</p>
+</div>
+
+<h2>2. Pomiar na żywo (2026-10-11, Łukasz)</h2>
+<table><thead><tr><th>Próba</th><th>Co wysłano</th><th>Co zobaczył człowiek</th><th>Werdykt</th></tr></thead><tbody>
+<tr><td>A</td><td><code>claude://code/new?folder=C:\Users\Lukasz\Desktop\RelAI&amp;q=Pomiar deep linku…</code> przez <code>rundll32 url.dll,FileProtocolHandler</code></td><td>Nowa sesja w <b>tym samym oknie</b> (nowa pozycja w sidebarze), tekst <b>wpisany, nie wysłany</b>; kilka pytań o zaufanie do workspace; aplikacja przejęła fokus</td><td><span class="tag mid">działa, 1 Enter</span></td></tr>
+<tr><td>B2</td><td>to samo z <code>q=/relai-stage</code></td><td>Nowa sesja, <code>/relai-stage</code> wpisane, nie wysłane — walidator <b>nie</b> odrzucił tekstu od <code>/</code></td><td><span class="tag mid">działa, 1 Enter</span></td></tr>
+<tr><td>C</td><td><code>claude -p --session-id U "…"</code> potem <code>claude --desktop --resume U</code></td><td>Nic — użyta binarka <code>claude.exe</code> z katalogu aplikacji to sama aplikacja (wersja 2.31226.1), nie CLI; <code>claude</code> na PATH to 2.1.280 bez <code>--desktop</code> (od 2.1.285)</td><td><span class="tag gray">niezmierzone → N0</span></td></tr>
+<tr><td>—</td><td><code>mcp__ccd_session_mgmt__list_sessions</code> po A i B2</td><td>Żadnej nowej sesji na liście do czasu Entera — sesja powstaje dopiero z pierwszą turą</td><td><span class="tag ok">FAKT</span></td></tr>
+</tbody></table>
+<p class="lead">Dwie pułapki z samego pomiaru: tekst z backslashem przez <code>node -e</code> w bashu zjadł ścieżkę (<code>C%3AUsersLukasz…</code>) — L-0116 raz jeszcze; argument zaczynający się od <code>/</code> w Git Bash został zamieniony na ścieżkę <code>C:/Program Files/Git/relai-stage</code> (MSYS) — potrzebne <code>MSYS_NO_PATHCONV=1</code> albo skrypt zapisany narzędziem Write.</p>
+
+<h2>3. Mechanizmy</h2>
+<table><thead><tr><th>Mechanizm</th><th>Nowa sesja w GUI</th><th>Ruch człowieka</th><th>Niesie komendę</th><th>Źródło</th><th>Werdykt</th></tr></thead><tbody>
+<tr><td><code>claude://code/new?folder=…&amp;q=…</code> (alias <code>prompt</code>, też <code>file</code>, <code>ssh_host</code>); z moda <code>$.process.run</code> bez powłoki: Windows <code>rundll32 url.dll,FileProtocolHandler</code>, macOS <code>open</code>, Linux <code>xdg-open</code></td><td>tak, w tym samym oknie</td><td>Enter + pytania o zaufanie (powtarzają się)</td><td>tak, wpisana; limit ~14 000 znaków (FAKT, docs)</td><td>docs deep-links; paczka aplikacji (<code>claudeURLHandler</code>, trasy <code>code/new</code>, <code>code/continue</code>, <code>code/needs-input</code>, <code>resume?session=</code>); pomiar A/B2</td><td><span class="tag ok">WYBRANY teraz</span></td></tr>
+<tr><td><code>mcp__ccd_session__start_session</code> (z <code>hand_off_to_session</code>, <code>list_start_targets</code>); z moda <code>$.mcp.call</code> / <code>$.tool.call</code></td><td>tak, z promptem</td><td>karta zgody aplikacji („Claude wants to start a session in this project”)</td><td>tak</td><td>paczka aplikacji: serwer <code>ccd_session</code>, flaga <code>sideSessions</code> (gate <code>2371478310</code>); opisy <code>open_session_in</code>, <code>detach_session</code> odwołują się do niego; issue #100913 (2026-10-09)</td><td><span class="tag ok">DOCELOWY, gdy flaga</span></td></tr>
+<tr><td>Łańcuch: <code>claude -p --session-id U "/relai-stage …"</code> → <code>claude --desktop --resume U</code> albo <code>claude://resume?session=U</code></td><td>tak (import sesji CLI)</td><td>brak — człowiek odpowiada „tak” już w nowej sesji</td><td>tak, już wykonana w <code>-p</code></td><td>cli-reference (<code>--desktop</code> od 2.1.285, „takes no prompt”); paczka: <code>importCliSession</code></td><td><span class="tag mid">do pomiaru (N0)</span>: koszt tury <code>-p</code>, skille w <code>-p</code>, mody w importowanej sesji</td></tr>
+<tr><td><code>mcp__ccd_session__spawn_task</code> (chip zadania)</td><td>tak, osobny worktree</td><td>klik w chip</td><td>tak</td><td>docs desktop; narzędzie dostępne w tej sesji</td><td><span class="tag gray">zapas</span>: worktree nie pasuje do etapu w tym repo</td></tr>
+<tr><td>Rutyna ad hoc (<code>create_scheduled_task</code> + <code>run_scheduled_task</code>)</td><td>jako przebieg rutyny</td><td>brak</td><td>tak</td><td>narzędzia scheduled-tasks; #100913 opisuje obejście</td><td><span class="tag gray">zapas</span>: sesja tylko pod Routines, bez przenoszenia</td></tr>
+<tr><td><code>wt.exe -w 0 nt -d &lt;cwd&gt; claude "/relai-stage"</code> (pozycyjny prompt CLI wysyła się sam)</td><td>nie — terminal</td><td>brak</td><td>tak</td><td>cli-reference</td><td><span class="tag bad">ODRZUCONY</span> (Łukasz): poza aplikacją, bez panelu</td></tr>
+<tr><td><code>claude-cli://open?cwd=…&amp;q=…</code> (handler <code>claude.exe --handle-uri</code>), <code>vscode://anthropic.claude-code/open?prompt=…</code></td><td>nie — terminal / VS Code</td><td>Enter</td><td>tak, wpisana z ostrzeżeniem „Prompt from an external link”</td><td>docs deep-links; rejestr <code>HKCU\Software\Classes\claude-cli</code></td><td><span class="tag bad">ODRZUCONY</span>: inna powierzchnia</td></tr>
+<tr><td><code>$.session.send</code> / <code>send_message</code> do istniejącej sesji; <code>hookSpecificOutput.initialUserMessage</code> z SessionStart</td><td>nie tworzy sesji</td><td>—</td><td>tylko do istniejącej / tylko <code>-p</code></td><td>typy modów; docs hooks</td><td><span class="tag gray">pomocnicze</span>: ewentualnie pierwsza tura po imporcie (N0)</td></tr>
+</tbody></table>
+
+<h2>4. Jak to ma działać (wariant wybrany)</h2>
+<div class="flow">
+<div class="step"><b>1 · Karta</b><br>„Tak” na karcie etapu (panel albo pasek), tryb „nowa sesja” domyślny; obok nadal „świeży (/clear)” i „bieżący”.<br><small>R4: bez „Tak” nic nie rusza</small></div>
+<div class="step"><b>2 · Zgoda i fokus plikiem</b><br>Panel zapisuje <code>.claude/relai/zgoda-etapu/&lt;TEMAT&gt;-&lt;EN&gt;.json</code> (10 min, jednorazowy) i <code>.claude/relai/fokus/przekazanie.json</code>.<br><small>znacznik <code>--zgoda-panelu</code> zostałby wycięty przez hook nowej sesji (P-022)</small></div>
+<div class="step"><b>3 · Uruchomienie</b><br>Jest <code>start_session</code>? → <code>$.mcp.call</code>, aplikacja pokazuje swoją kartę. Nie ma → <code>$.process.run([rundll32|open|xdg-open, claude://code/new?folder=&lt;cwd&gt;&amp;q=/relai-stage TEMAT EN])</code>.<br><small>bez powłoki, bez backslashy w argv</small></div>
+<div class="step"><b>4 · Nowa sesja</b><br>Prompt w polu; człowiek: Enter (i zaufanie workspace, dopóki aplikacja pyta). <code>/relai-stage</code> czyta plik zgody jak znacznik — bez drugiego pytania. Fokus sesji = etap.<br><small>stare okno zostaje przy swojej rozmowie</small></div>
+</div>
+
+<h2>5. Co Codex robi naprawdę</h2>
+<div class="card"><p>Panel Codeksa (E1 PANEL_CODEX, worktree <code>codex/panel-codex</code>) wysyła <code>ui/message</code> z <code>_meta['openai/message'] = { target: 'new', send: false }</code> — <b>szkic</b> w nowym wątku, który człowiek wysyła ręcznie (sonda 0.0.9, FAKT). Helper <code>@openai/mcp-extensions</code> 0.1.0 odrzuca <code>send:false</code> (P-028 worktree), więc pakiet woła bazowe <code>App.sendMessage</code>. Dokumentacja <code>codex://new?prompt=…</code> też mówi, że prompt nie jest wysyłany automatycznie. Przewaga Codeksa jest gdzie indziej: udokumentowany <code>codex app-server</code> (JSON-RPC <code>thread/start</code>, <code>turn/start</code>) pozwala utworzyć wątek z pierwszym wejściem programowo — odpowiednikiem w Claude jest łańcuch <code>-p</code> + import (N0).</p></div>
+
+<h2>6. Co jest nieaktualne po tym researchu</h2>
+<ul>
+<li>Plan PANEL_CLAUDE, FAKT „Otwieranie nowego okna czatu — API modów tego nie daje” (<code>PLAN.html:316, :333, :474</code>) — mod nie ma własnego API, ale ma <code>$.process.run</code> i deep link aplikacji; plan jest zamknięty i zarchiwizowany, więc dostaje adnotację w dzienniku, nie edycję.</li>
+<li><code>panel/.claude-plugin/types/claude-code-mcp/index.d.ts</code> nie zawiera narzędzi <code>mcp__ccd_*</code> — migawka z chwili ostatniego ładowania moda; w sesji desktopowej model je widzi, a <code>$.tool.list()</code> ma je pokazać (do sprawdzenia w N3).</li>
+</ul>
+
+<h2>7. Otwarte pytania (rozstrzyga N0–N3)</h2>
+<ul>
+<li>Czy pytania o zaufanie do workspace padają przy każdym deep linku dla już zaufanego folderu (pomiar A: „kilka razy”).</li>
+<li>Czy <code>claude --desktop --resume U</code> z binarki 2.1.295 wywołane z wnętrza sesji desktopowej importuje sesję <code>-p</code> jako zwykłą pozycję sidebaru, w tym samym projekcie; koszt i czas pierwszej tury <code>-p</code>; czy skille pluginu rozwijają się w <code>-p</code>.</li>
+<li>Czy <code>SessionStart</code> z <code>initialUserMessage</code> działa w sesji desktopowej (dokumentacja: tylko <code>-p</code>) — pozwoliłoby ominąć Enter.</li>
+<li>Kiedy flaga <code>sideSessions</code> się otworzy — sonda w N3 sprawdza listę narzędzi przy każdym starcie sesji.</li>
+</ul>
+
+<h2>8. Źródła</h2>
+<div class="src"><ul>
+<li>Typy API modów: <code>claude-code.d.ts</code> 2.1.295 (21 320 linii): <code>$.process.run/spawn</code>, <code>$.command.run</code>, <code>$.tool.call/list</code>, <code>$.mcp.call</code>, <code>$.session.send</code>, <code>SessionResume</code>, <code>ExitReason</code>.</li>
+<li>Paczka aplikacji <code>app.asar</code> 2.31226.1.0: trasy <code>claude://code/new|continue|needs-input</code>, <code>claude://resume?session=</code>, parser <code>q|prompt|folder|file</code>, serwer <code>ccd_session</code> z <code>start_session</code> (82 wystąpienia), teksty karty zgody, flaga <code>sideSessions</code>.</li>
+<li>Rejestr Windows: <code>claude</code> → <code>Claude.exe "%1"</code>; <code>claude-cli</code> → <code>claude.exe --handle-uri "%1"</code>.</li>
+<li><a href="https://code.claude.com/docs/en/deep-links">code.claude.com/docs/en/deep-links</a> · <a href="https://code.claude.com/docs/en/desktop">…/desktop</a> · <a href="https://code.claude.com/docs/en/cli-reference">…/cli-reference</a> (<code>--desktop</code>) · <a href="https://code.claude.com/docs/en/hooks">…/hooks</a> (<code>initialUserMessage</code>) · <a href="https://support.claude.com/en/articles/14729294-open-claude-desktop-with-a-link">support.claude.com 14729294</a>.</li>
+<li>Issues anthropics/claude-code: <a href="https://github.com/anthropics/claude-code/issues/100913">#100913</a> (brak <code>start_session</code>, 2026-10-09), <a href="https://github.com/anthropics/claude-code/issues/54614">#54614</a> (<code>claude://code/new</code>), <a href="https://github.com/anthropics/claude-code/issues/52743">#52743</a> (<code>--desktop</code> z promptem), <a href="https://github.com/anthropics/claude-code/issues/100135">#100135</a>.</li>
+<li>Codex: <a href="https://developers.openai.com/codex/app-server">app-server</a>, <a href="https://learn.chatgpt.com/docs/reference/commands">commands</a>; repo RelAI: worktree <code>codex/panel-codex</code>, <code>adapters/codex/panel/README.md</code>, wpisy dziennika E1 z 2026-10-10.</li>
+<li>Repo RelAI: <code>core/panel/decisions.mjs</code>, <code>panel/hooks/register.tsx</code>, <code>focus.ts</code>, <code>pane-commands.tsx</code>, <code>docs/PULAPKI.md</code> P-017…P-024, <code>docs/archiwum/plany/PANEL_CLAUDE/PLAN.html</code>, <code>PROMPT_ETAP_5.md</code>, L-0153.</li>
+</ul></div>
+</div></body></html>

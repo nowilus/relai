@@ -56,8 +56,24 @@ zaakceptowany, E1 trwa po stronie Codeksa. Opinii spoza projektu nadal nie ma.
   macierzystego procesu (nadal 0.0.7). Dalsza diagnostyka w czacie kontrolnym, bez mostków przez
   czat macierzysty; kontrakt w [README adaptera](../adapters/codex/panel/README.md). Tabela
   STATUS planu pokazuje jeszcze `GOTOWY DO STARTU` — do wyprostowania na `W TOKU`.
+- **LIMIT_CHECKPOINT — zapis pracy przed wyczerpaniem limitu** (plan
+  [LIMIT_CHECKPOINT](plany/LIMIT_CHECKPOINT/STATUS.md), **DO AKCEPTACJI** od 2026-10-11, 4 etapy,
+  Opus 5.5 w świeżych sesjach). Po co: koniec limitu 5 h albo tygodniowego ma być kamieniem
+  milowym, nie wypadkiem — próg (domyślnie 90 %, pamiętany jak zgoda optymalizatora), karta po
+  turze „pracuję dalej / zapisz pracę”, procedura zapisu w rdzeniu (dokumenty, testy, commit
+  lokalny, plik wznowienia) i przycisk „Wznów pracę” na pasku po resecie. Stan: plan i STATUS
+  gotowe, czeka na akceptację i dwie decyzje z sekcji 9 planu.
 
 ## Co dalej
+
+- Odnoga [NOWA_SESJA](fixy/NOWA_SESJA/ODNOGA.md) (OTWARTA): przycisk panelu otwiera nową sesję
+  Claude Code deep linkiem `claude://code/new` (zmierzone 2026-10-11: prompt wpisany, nie wysłany,
+  jeden Enter), `start_session` gdy aplikacja otworzy flagę; paczki N0–N4, Opus jako subagent.
+  Research: [RESEARCH.html](fixy/NOWA_SESJA/RESEARCH.html).
+- Odnoga [AUDYT_SKILLI](fixy/AUDYT_SKILLI/ODNOGA.md) (OTWARTA): skille wg praktyk Agent Skills —
+  53 wiersze luk (14 zgodne, 21 częściowo, 11 brak), paczki S1–S7 (strażnik w walidatorze,
+  odchudzenie SKILL.md, historia poza instrukcje, `rotate.js`, ewaluacje, `disable-model-invocation`,
+  przegląd cudzego kodu). Raport: [RAPORT.html](fixy/AUDYT_SKILLI/RAPORT.html).
 
 - E1: przeładować klienta MCP, zmierzyć sondę 0.0.9 (fonty, przyciski, świeży szkic z właściwym
   projektem); prompt E2 powstaje dopiero po odbiorze E1.

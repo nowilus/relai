@@ -8,6 +8,23 @@ Specyfikacja: `SPEC_PULAPKI.md`.
 
 ## Pułapki
 
+### P-025 — Git Bash zamienia argument od `/` na ścieżkę, a `claude.exe` w katalogu aplikacji to aplikacja · 2026-10-11 · AKTYWNA
+
+- **Objaw:** (1) `node skrypt.mjs "/relai-stage"` w Git Bashu dostaje argument
+  `C:/Program Files/Git/relai-stage` — deep link `claude://code/new?q=…` poszedł z komendą zamienioną
+  na ścieżkę. (2) `"C:\Program Files\WindowsApps\Claude_…\app\claude.exe" -p …` kończy się kodem 0,
+  wypisuje tylko błędy GPU i nie tworzy sesji; `--version` zwraca `2.31226.1`, czyli wersję aplikacji.
+- **Przyczyna:** (1) MSYS konwertuje argumenty wyglądające na ścieżki POSIX na ścieżki Windows,
+  zanim trafią do programu. (2) Plik `claude.exe` obok `Claude.exe` w pakiecie MSIX to alias
+  aplikacji desktopowej, nie CLI Claude Code; CLI na PATH (`~/.local/bin/claude.exe`) ma własną
+  wersję (2.1.280 w dniu pomiaru), a binarkę 2.1.295 trzeba wskazać pełną ścieżką (P-024).
+- **Obejście:** (1) `MSYS_NO_PATHCONV=1` przed poleceniem albo argumenty podstawiane w skrypcie
+  zapisanym narzędziem Write (jak w L-0116 dla backslasha). (2) Przed pomiarem CLI sprawdź
+  `claude --version` tej binarki, której używasz — wersja aplikacji zamiast `2.1.x` znaczy, że to
+  nie CLI.
+- **Zasięg:** Git Bash na Windows; aplikacja desktopowa Claude 2.31226.1.0. Źródło: research
+  NOWA_SESJA 2026-10-11 (`docs/fixy/NOWA_SESJA/RESEARCH.html`).
+
 ### P-024 — Silnik modów Claude Code 2.1.295: Svg w paśmie nad promptem, komórka 9,8 px, binarka na PATH · 2026-10-10 · AKTYWNA
 
 - **Objaw:** pierścienie paska cache rysują się ~200 px na prawo od treści pozostałych pasków;

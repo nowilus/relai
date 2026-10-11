@@ -46,6 +46,9 @@
 
 ## Czeka na człowieka
 - ~~**AUDYT_MODOW Z5 — pomiar `/clear` na żywo**~~ *(rozstrzygnięte 2026-10-11 — Łukasz: koszt sesji na pasku cache od zera, pasek plan z przyciskiem `Wybierz pracę…`; paski pojawiły się dopiero po pierwszym prompcie, co jest zamierzone)* — po `/clear` kończącym sesję 2026-10-11 pasek cache ma zacząć od zera (koszt sesji, baterie „brak danych” do pierwszej tury), a fokus AUDYT_MODOW przejść do nowej sesji; jedno słowo „ok” albo zrzut w następnej sesji · 2026-10-11 · [wpis 2026-10-11 — Z13, Z14 i zamknięcie odnogi](#2026-10-11--audyt_modow-z13-i-z14-wydanie-0120-i-zamknięcie-odnogi)
+- **Akceptacja planu LIMIT_CHECKPOINT** — plan DO AKCEPTACJI (4 etapy); razem z nim dwie decyzje z sekcji 9: czy „Zapisz pracę teraz” na karcie jest zgodą na commit lokalny, i potwierdzenie progu domyślnego 90 % · 2026-10-11 · [wpis 2026-10-11 — research, audyt, plan](#2026-10-11--research-nowej-sesji-audyt-skilli-i-plan-limit_checkpoint)
+- ~~**Linia „Aktywny plan” w `CLAUDE.md` przy dwóch planach**~~ *(rozstrzygnięte 2026-10-11 — Łukasz: LIMIT_CHECKPOINT od razu; PANEL_CODEX wymieniony w tej samej linii jako drugi plan niezamknięty)* — PANEL_CODEX (E1 w Codeksie) czy LIMIT_CHECKPOINT (po akceptacji, Claude Code); `CLAUDE.md` ma jedną linię (D-30) · 2026-10-11 · [wpis 2026-10-11 — research, audyt, plan](#2026-10-11--research-nowej-sesji-audyt-skilli-i-plan-limit_checkpoint)
+- **Jeden katalog `skills/` w standardzie Agent Skills dla trzech narzędzi** — zdjąłby kopię Codeksa (~4300 linii) i generator, ale zmienia zamrożoną D-89 i kształt adapterów; plan, odnoga czy odrzucić (audyt AUDYT_SKILLI, wiersz 50 raportu) · 2026-10-11 · [wpis 2026-10-11 — research, audyt, plan](#2026-10-11--research-nowej-sesji-audyt-skilli-i-plan-limit_checkpoint)
 - **AUDYT_MODOW — ustalenia poza zakresem (5 pozycji `outOfScope` raportu)** — odchudzenie kopii rdzenia per plugin (`sync-panel-core`), `headings.mjs` 254 KB w progress i cache-keeperze, % limitu per etap w rdzeniu, `userConfig` cache-keepera, przedrostek `relai-` jego komend; plus wariant B „jedna listwa” jako kandydat na plan — decyzja: plan, odnoga albo odrzucić · 2026-10-11 · [wpis 2026-10-11 — Z13, Z14 i zamknięcie odnogi](#2026-10-11--audyt_modow-z13-i-z14-wydanie-0120-i-zamknięcie-odnogi)
 - ~~**PANEL_CODEX E1 — korekta liczby pól kontraktu**~~ *(rozstrzygnięte 2026-10-10 — Łukasz zaakceptował Aneks A, zapisany w planie; 16 pól, bez zmiany schematu)* · 2026-10-10 · [wpis 2026-10-10 — Aneks A i start sondy](#2026-10-10--panel_codex-e1-aneks-a-i-naprawa-startu-sondy)
 - ~~**PANEL_CODEX E1 — otwarcie lokalnej sondy**~~ *(rozstrzygnięte 2026-10-10 — natywny widok 0.0.7 i wiadomość bieżąca potwierdzone; pakiet w sondzie 0.0.8 pokazuje właściwy stan, wygląd zaakceptowany)* · 2026-10-10 · [wpis — Panel i mostek](#2026-10-10--panel_codex-e1-natywny-widok-minimalny-pakiet-i-mostek-bieżącego-czatu)
@@ -1257,6 +1260,12 @@ Autor: RelAI (Fable 5.1, wykonanie Opus 5.5) + Lukasz
   karta `ODNOGA.md`. Sekcje „Nad czym pracujemy teraz” sprowadzona do jednej pozycji (E1), „Co
   dalej” i „Szczegóły techniczne” do wskaźników. Walidator wersji po przepisaniu: 7 źródeł `2.8.0`,
   exit 0. Pełne brzmienie sprzed przepisania: commit `95f0633`.
+- Commit `9e3ce1e` (Z5, rotacja ryzyk, STATE) wypchnięty na `origin/main` za zgodą Łukasza.
+- Rytuał zamknięcia: „Zasady aktywne” 15 pozycji (limit 15); artefakty robocze zmierzone
+  `clean-work.js raport` — 2,4 MB w repo (katalogi `types` trzech pluginów) i 42 pozycje
+  `relai-*` w TEMP po 0,0 MB, poniżej progu 100 MB, bez katalogów zamkniętych etapów → bez pytań;
+  24 pozycje chronione. Rotacja wykonana wcześniej w tej sesji (ryzyka), dziennik 98,7 KB / 150 KB,
+  lekcje 44,3 KB / 50 KB — bez dalszych przesunięć.
 
 **Zweryfikowane — jak dokładnie:** słowo Łukasza i opis ekranu (koszt wyzerowany, przycisk
 `Wybierz pracę…`, lista bez zamkniętej odnogi); gate paska cache odczytany z kodu
@@ -1270,3 +1279,53 @@ następnym pomiarze na żywo (zrzut pustego czatu zaraz po `/clear`).
 w „Czeka na człowieka”).
 
 Autor: RelAI (Fable 5.1) + Lukasz
+
+### 2026-10-11 — Research nowej sesji, audyt skilli i plan LIMIT_CHECKPOINT
+
+**Zrobione:**
+
+- **Research „przycisk otwiera nową sesję”** (prośba Łukasza; wywiad AskUserQuestion: pomiar
+  teraz, deep link + `start_session` gdy flaga, odnoga, Opus jako subagent). Źródła: typy API
+  modów 2.1.295, paczka aplikacji 2.31226.1.0 (trasy `claude://code/new|continue|needs-input`,
+  `claude://resume?session=`, serwer `ccd_session` z `start_session` za flagą `sideSessions`),
+  rejestr schematów URL, dokumentacja deep linków/CLI/hooków, issues #100913/#54614/#52743,
+  kod panelu i worktree Codeksa (dwa agenty Opus 5.5). Pomiar na żywo: deep link z `folder` i `q`
+  tworzy nową sesję w tym samym oknie z promptem wpisanym, nie wysłanym (także `/relai-stage`),
+  pytania o zaufanie, kradzież fokusu; łańcuch `-p` → `--desktop --resume` niezmierzony (zła
+  binarka, P-025). Wynik: [RESEARCH.html](fixy/NOWA_SESJA/RESEARCH.html); odnoga
+  [NOWA_SESJA](fixy/NOWA_SESJA/ODNOGA.md) (karta + `PROMPT_ODNOGA.md`, paczki N0–N4).
+- **Audyt skilli wobec praktyk Agent Skills** (overview + best practices Anthropic, odczyt
+  2026-10-11): cztery soczewki równolegle na Opus 5.5 (struktura, treść, ewaluacja, dystrybucja);
+  złożone w [RAPORT.html](fixy/AUDYT_SKILLI/RAPORT.html): 53 wiersze luk — 14 ZGODNE,
+  21 CZĘŚCIOWO, 11 BRAK, 7 „wyprzedza”; odnoga [AUDYT_SKILLI](fixy/AUDYT_SKILLI/ODNOGA.md)
+  z paczkami S1–S7 (strażnik w walidatorze, odchudzenie SKILL.md do ≤ 5k tokenów, historia poza
+  instrukcje, `rotate.js`, ewaluacje wyzwalania z negatywami, `disable-model-invocation`
+  i `$ARGUMENTS` w Codeksie, przegląd cudzego kodu).
+- **Plan LIMIT_CHECKPOINT** (wybór Łukasza: mały plan; zakres cache-keeper + rytuał w rdzeniu;
+  karta po turze; wznowienie przyciskiem po resecie): rozpoznanie cache-keepera (Opus 5.5:
+  `rateLimits` z `session.measure`, `maxLimitPercent` tylko dla podtrzymania, `/handoff` jako
+  budulec, zgoda trójpoziomowa optymalizatora jako wzór), [PLAN.html](plany/LIMIT_CHECKPOINT/PLAN.html)
+  z szablonu HTML_PLAN (builder exit 0, 219 KB, 10 sekcji, 4 warianty, 8 ryzyk, 8 przypadków
+  brzegowych, 4 sprawy dla człowieka) i [STATUS.md](plany/LIMIT_CHECKPOINT/STATUS.md)
+  DO AKCEPTACJI; CLAUDE.md (tabela), STATE, „Czeka na człowieka” (akceptacja, linia aktywnego
+  planu, jeden katalog `skills/`).
+- P-025 w `docs/PULAPKI.md` (MSYS zamienia argument od `/`; `claude.exe` w katalogu aplikacji
+  to aplikacja). Skrypty tymczasowe (`.claude/relai/tmp-*`) skasowane po użyciu.
+
+**Zweryfikowane — jak dokładnie:** deep link — słowo Łukasza po dwóch próbach i `list_sessions`
+przed/po (brak nowej sesji do Entera); fakty z paczki aplikacji — odczyt ciągów z `app.asar`
+skryptem indexOf (trasy, nazwy narzędzi, teksty kart zgody); API modów — grep typów 2.1.295;
+ustalenia audytu — cztery raporty z `file:line`, zdeduplikowane ręcznie; plan — `zbuduj.js`
+exit 0, 0 znaczników `{{`, podgląd w przeglądarce (nagłówek, pasek sekcji, status); prompty odnóg —
+15 zasad aktywnych wklejonych skryptem (27 383 B każdy). Nie weryfikowano: łańcuch `-p` → desktop
+(N0), obecność `mcp__ccd_*` w `$.tool.list()` moda (N3).
+
+**Świadomie odłożone:** deep link `claude://resume?session=` wystrzelony po nieudanej próbie C bez
+obserwacji wyniku; pytania o zaufanie do workspace przy każdym deep linku — do N0/N1; ewaluacje
+zachowania 14 komend, `/relai-feedback`, zmiana nazwy `relai-core` — poza odnogą AUDYT_SKILLI.
+
+**Do zrobienia przez człowieka:** akceptacja planu LIMIT_CHECKPOINT z dwiema decyzjami sekcji 9;
+linia „Aktywny plan” przy dwóch planach; decyzja o jednym katalogu `skills/` (D-89); start odnóg
+NOWA_SESJA i AUDYT_SKILLI (kolejność).
+
+Autor: RelAI (Fable 5.1, rozpoznanie i audyt Opus 5.5) + Lukasz
