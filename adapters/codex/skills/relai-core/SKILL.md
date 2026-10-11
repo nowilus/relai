@@ -410,10 +410,19 @@ tak samo.
 ### „kontynuujemy pracę" / „let's continue"
 
 1. Wykonaj **rytuał startu sesji** (kolejność czytania jak wyżej), nawet jeśli sesja trwa już
-   jakiś czas — użytkownik prosi o odtworzenie kontekstu.
-2. Napisz akapit „gdzie jesteśmy".
-3. Dodaj **jedno zdanie z propozycją najbliższego kroku** wziętą z `STATE.md` („Nad czym pracujemy
-   teraz") albo z aktywnego planu — i zapytaj, czy zaczynamy od tego.
+   jakiś czas — użytkownik prosi o odtworzenie kontekstu. **Plik wznowienia** — wskazany we frazie
+   („kontynuujemy pracę — plik wznowienia: <ścieżka>”) albo zgłoszony zdaniem hooka startu —
+   czytasz **jako pierwsze źródło** „gdzie jesteśmy”, przed `STATE.md`.
+2. Napisz akapit „gdzie jesteśmy". Hook podał, że od zapisu doszły commity albo że hash jest
+   nieznany → powiedz to w akapicie: lista „Co dalej” mogła się zestarzeć.
+3. Dodaj **jedno zdanie z propozycją najbliższego kroku** — z pliku wznowienia: krok 1 jego listy
+   „Co dalej”; bez pliku: z `STATE.md` („Nad czym pracujemy teraz") albo z aktywnego planu — i
+   zapytaj, czy zaczynamy od tego.
+4. Fraza niesie linię zgody na skasowanie pliku wznowienia (karta „Wznów pracę” paska cache) →
+   po przeczytaniu skasuj ten jeden plik i powiedz to jednym zdaniem. Bez tej linii, przy
+   istniejącym pliku, **zapytaj raz** po akapicie, czy go skasować: „tak” → kasujesz, inna
+   odpowiedź → zostaje (`SPEC_WZNOWIENIE.md`). Plik, który zostaje, pasek cache po resecie limitu
+   proponuje wznowić jeszcze raz.
 
 ### „sprawdź status" / „status check"
 

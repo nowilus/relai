@@ -15,6 +15,7 @@ import { COST_COLORS, THEME } from './core/theme.mjs'
 import { gapsInWords, plural } from './core/measure.mjs'
 import type { Group, Report, TurnCost } from './core/measure.mjs'
 import { PRICE_FILE, unpricedWords } from './core/pricing.mjs'
+import { SOURCE_WORDS } from './core/limit-threshold.mjs'
 import type { cacheEffect } from './core/pricing.mjs'
 import { MAX_COLUMNS, bucketRanges, hoverColumns, hoverHeight, niceStep, spark } from './core/charts.mjs'
 import type { StageCosts } from './core/attribution.mjs'
@@ -49,7 +50,14 @@ export type CostsCtx = {
   session: { costUsd: number | null, startedAt: number, loadedAt: number }
   muted: Record<string, string>
   preparePricing: () => void
+  limits: LimitRows | null // the plan-limit thresholds (LIMIT_CHECKPOINT E4); null when they cannot be read
+  changeLimit: (window: LimitWindow) => void
 }
+
+// The two thresholds as the panel core reads them (./core/limit-threshold.mjs)
+export type LimitWindow = 'five' | 'week'
+export type LimitRows = Readonly<Record<LimitWindow, { value: number, source: keyof typeof SOURCE_WORDS }>>
+const LIMIT_LABEL: Readonly<Record<LimitWindow, string>> = { five: 'limit 5 h', week: 'limit tygodnia' }
 
 export function costsView(c: Ctx, p: Parts, cd: CostData, s: CostsCtx) {
   const { el, Svg, isGui } = c
@@ -126,6 +134,22 @@ export function costsView(c: Ctx, p: Parts, cd: CostData, s: CostsCtx) {
     ? tile('cost-project', '~', THEME.title, 'cały projekt', 'Brak pomiarów w tym projekcie.')
     : tile('cost-project', money(pr.usd), THEME.title, 'cały projekt',
       `${pr.sessions} ${plural(pr.sessions, 'sesja', 'sesje', 'sesji')} z pomiarem${pr.since ? ` od ${day(pr.since)}` : ''}; dziś ${money(pr.todayUsd)}.`)
+
+  // The plan-limit thresholds (LIMIT_CHECKPOINT E4, Aneks B; Fable 5.1's proposal, accepted by
+  // Łukasz 2026-10-11): a row per window — from what percent and where that came from — and
+  // "Zmień", which runs relai-cache-keeper's /cache limit-warn: its cards ask the number, then the
+  // scope, and write nothing before. No hint line (Łukasz: "bez podpowiedzi").
+  const limitCard = (t: LimitRows) => costBox('cost-limit', [
+    line('cost-limit-h', 'Próg limitu', THEME.title, true),
+    ...(['five', 'week'] as const).map((w) => (
+      <Box key={`cost-limit-${w}`} flexDirection="row" flexWrap="wrap" alignItems="center" columnGap={2}>
+        <Box key={`cost-limit-${w}-name`} minWidth={15} flexShrink={1}><Text color={THEME.body} wrap="truncate">{LIMIT_LABEL[w]}</Text></Box>
+        <Box key={`cost-limit-${w}-value`} minWidth={9} flexShrink={0}><Text bold color={THEME.title}>{`od ${t[w].value} %`}</Text></Box>
+        <Box key={`cost-limit-${w}-source`} flexGrow={1} flexShrink={1}><Text color={THEME.body} wrap="truncate">{SOURCE_WORDS[t[w].source]}</Text></Box>
+        <Box key={`cost-limit-${w}-act`} flexShrink={0}>{btn(`limit-change-${w}`, 'Zmień', 'secondary', () => s.changeLimit(w))}</Box>
+      </Box>
+    )),
+  ])
 
   // One column per model request, the scale in grid lines, a card of the call under the pointer
   const callsSection = (series: TurnCost[], calls: CallCost[]) => {
@@ -280,6 +304,7 @@ export function costsView(c: Ctx, p: Parts, cd: CostData, s: CostsCtx) {
       <Box key="cost-tiles" flexDirection="row" flexWrap="wrap" gap={1}>
         {[engineTile(rep, since), ...(rep.records ? [cacheTile(effect)] : []), projectTile(project)]}
       </Box>,
+      ...(s.limits ? [limitCard(s.limits)] : []),
     ]),
     // Etapy, Wywołania w czasie, Agenci, Modele, Cennik (brief v2 §7), folded
     ...(rep.records ? [

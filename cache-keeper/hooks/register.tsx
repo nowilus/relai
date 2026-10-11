@@ -7,21 +7,21 @@
 // API TTL) the next message writes the whole context again at 1.25x-2x input.
 
 import type { EngineInterface, Register } from 'claude-code'
-import { DEFAULT_SETTINGS, LIMIT_WARN_KEYS, MIN, RELAI_MARKER, applySetting, cacheState, dueWarning, judgeStep, mergeSettings, msLeft, pingDue, pingMissed, type Settings } from './core'
+import { DEFAULT_SETTINGS, MIN, RELAI_MARKER, applySetting, cacheState, dueWarning, judgeStep, mergeSettings, msLeft, pingDue, pingMissed, type Settings } from './core'
 import { basename, clip, clock, fileStamp, limitsText, minutes, tokens, usd } from './fmt'
 import { barCard } from './bar-card'
 import { BAND, BAR, BATTERY, CHIP } from './relai/theme.mjs'
 import { batteryRows, cacheMeasure, contextMeasure, glyphColor, limitMeasure, measureGlyph, resetMeasure, type Limit, type Measure } from './rings'
 import { ancestors, parseStatus } from './relai/plan-state.mjs'
-import { PLAIN_HANDOFF_PROMPT, RELAI_CONTINUE, RELAI_HANDOFF_PROMPT, continuePrompt, plainBody, relaiDone, relaiFreshPrompt, relaiSavePrompt, saveDone } from './handoff'
+import { PLAIN_HANDOFF_PROMPT, RELAI_CONTINUE, RELAI_HANDOFF_PROMPT, continuePrompt, plainBody, relaiDiscardPrompt, relaiDone, relaiFreshPrompt, relaiResumePrompt, relaiSavePrompt, saveDone } from './handoff'
 import { PRICE_FILE } from './relai/pricing.mjs'
 import { BUILT_IN, priceSource, pricesFrom, ratesFor, requestCost, rewriteCost, totalInput, type Prices, type Usage } from './pricing'
 import { handoffEconomics, limitPace, type CacheTemp, type HandoffInput, type HandoffVerdict, type LimitTurn } from './economics'
 import { RITUAL_FILES, activePlanStatus, dateText, estimatedLayer, measuredLayer, startKey, type MeasuredStart } from './start-layer'
 import {
-  CARD_OPTIONS, DEFAULT_THRESHOLD, GO_ON, MUTE, SAVE, SCOPE_OPTIONS, THRESHOLD_OPTIONS, cardDue, focusDocPath, focusFilePath, focusRef, focusStatus,
-  isWorkGoing, nextSessionThreshold, rememberThreshold, resumePath, saveRowText, thresholdAnswer, thresholdOf, thresholdText, type CardInput, type LimitIO,
-  type SavePhase, type Threshold,
+  CARD_OPTIONS, DEFAULTS, GO_ON, MUTE, NO_SCOPE, SAVE, SCOPE_OPTIONS, THRESHOLD_CHOICES, THRESHOLD_HEADER, WINDOW_NAME, WINDOW_OF, cardDue, focusDocPath, focusFilePath, focusRef,
+  focusStatus, isWorkGoing, limitWarnWindow, nextSessionThreshold, rememberThreshold, resumeDue, resumePath, saveRowText, thresholdAnswer, thresholdText,
+  thresholdsOf, type CardInput, type LimitIO, type LimitWindow, type SavePhase, type Thresholds,
 } from './limit'
 
 type $T = EngineInterface
@@ -68,7 +68,7 @@ type Session = {
   stayCtx: number // "Zostań" pressed at this context; 0 = not dismissed
   stayCold: boolean // the cache was cold when it was pressed
   // The limit card (LIMIT_CHECKPOINT E2), here so a hot reload keeps it with the snapshot
-  limitAskedAt: number // the threshold the last card came at; 0 = none yet
+  limitAsked: { five: number, week: number } // per window, the threshold the last card came at; 0 = none yet
   limitMuted: boolean // "Nie pytaj w tej sesji"
   limitFirstDone: boolean // the first card's threshold and scope questions were asked
 }
@@ -80,7 +80,7 @@ const FRESH: Session = {
   working: false, turnId: '', keepWarm: false, keepWarmUntil: 0, pings: 0, pingUsd: 0, rewrites: 0, rewriteUsd: 0,
   announcedFor: 0, announced: [], justCompacted: false, shortTtlRewrites: 0,
   start: 0, startSource: '', startPending: false, turnOut: 0, outputs: [], limitBase: -1, limitTurns: [], stayCtx: 0, stayCold: false,
-  limitAskedAt: 0, limitMuted: false, limitFirstDone: false,
+  limitAsked: { five: 0, week: 0 }, limitMuted: false, limitFirstDone: false,
 }
 const IDLE: Handoff = { phase: 'idle', notTurn: '', relai: false, body: '', path: '' }
 
@@ -89,7 +89,7 @@ const IDLE: Handoff = { phase: 'idle', notTurn: '', relai: false, body: '', path
 // sessionId and startedAt belong to "running": only the conversation that asked takes the answer.
 type Save = { phase: SavePhase; notTurn: string; relai: boolean; resetAt: number | null; path: string; sessionId: string; startedAt: number }
 const NO_SAVE: Save = { phase: 'idle', notTurn: '', relai: false, resetAt: null, path: '', sessionId: '', startedAt: 0 }
-const SAVE_PHASES: readonly SavePhase[] = ['idle', 'running', 'czeka', 'przerwany']
+const SAVE_PHASES: readonly SavePhase[] = ['idle', 'running', 'czeka', 'przerwany', 'resuming']
 const SAVE_STALE_MS = 30 * MIN // a save still "running" this long after it was sent lost its turn
 
 // Module state is replaced, never mutated in place; a hot reload restores it from the store
@@ -102,7 +102,9 @@ let names = { cache: 'cache', keepwarm: 'keepwarm', handoff: 'handoff' }
 let pinging = false // one fork at a time, however long it takes
 let skipPingUntil = 0 // after a reload the turn state is unknown for one tick
 let prices: Prices = BUILT_IN // the core's list laid over by the project's cennik.json (Z5)
-let threshold: Threshold = { value: DEFAULT_THRESHOLD, source: 'domyślny' } // the limit batteries warn from here (LIMIT_CHECKPOINT E1)
+// The limit batteries warn from here, each window from its own (LIMIT_CHECKPOINT E1, Aneks C)
+let thresholds: Thresholds = { five: { value: DEFAULTS.five, source: 'domyślny' }, week: { value: DEFAULTS.week, source: 'domyślny' } }
+let hasResumeFile = false // the save's resume file (or, outside RelAI, its handoff file) is still there (E4)
 
 const set = (patch: Partial<Session>) => { S = { ...S, ...patch } }
 const rewriteAt = (tokens: number) => rewriteCost(tokens, S.model, ttl(), prices)
@@ -167,16 +169,19 @@ async function loadPrices($: $T) {
   prices = pricesFrom(text)
 }
 
-// The threshold's files through the engine: a missing or unreadable file reads as null
+// The threshold's files through the engine: a missing file reads as null; a file there that
+// cannot be read rejects, so the caller keeps what it had instead of falling back to a default
+// (an editor or a sync tool holding the file for a moment must not turn the battery's colour)
 const limitIO = ($: $T): LimitIO => ({
-  read: (path) => $.fs.exists(path).then((isThere) => (isThere ? $.fs.read(path).then(String) : null)).catch(() => null),
+  read: async (path) => ((await $.fs.exists(path)) ? String(await $.fs.read(path)) : null),
   write: (path, text) => $.fs.write(path, text),
 })
 const limitWhere = () => ({ root: S.cwd, home, sessionId: S.id })
 
-// Read at session.start, on /cache and on session.measure: a row edited by hand counts from then on
+// Read at session.start, on /cache, on session.measure and at every tick: a row edited by hand or
+// a threshold the panel changed counts from the next tick on
 async function loadThreshold($: $T) {
-  threshold = await thresholdOf(limitIO($), limitWhere(), settings.limitWarn)
+  thresholds = await thresholdsOf(limitIO($), limitWhere()).catch(() => thresholds)
 }
 
 // A /clear ends the conversation the state measured; the process goes on under a new id and no
@@ -377,6 +382,8 @@ async function tick($: $T) {
   const now = await $.clock.now()
   await keepWarmStep($, now)
   warnStep($, now)
+  await loadThreshold($)
+  await checkResumeFile($)
   if (state(now).kind !== reckonedKind) reckon(now)
   await saveSnap($, now)
   const stamp = bandStamp(now)
@@ -442,11 +449,12 @@ async function offerContinue($: $T) {
   if (answer === 'Wyczyść i kontynuuj') await clearAndContinue($)
 }
 
-async function clearAndContinue($: $T, text?: string) {
+// True when the chat was cleared and the first prompt went (or waits in the composer)
+async function clearAndContinue($: $T, text?: string): Promise<boolean> {
   const first = text ?? (H.relai ? RELAI_CONTINUE : continuePrompt(H.body, H.path))
   if (S.working) {
     $.ui.toast('Claude jeszcze pracuje — wyczyść i kontynuuj po zakończeniu tury.', { timeoutMs: 8000 })
-    return
+    return false
   }
   setH({ phase: 'continuing' })
   $.ui.invalidate('ui.render')
@@ -455,16 +463,18 @@ async function clearAndContinue($: $T, text?: string) {
   } catch (err) {
     setH({ phase: text ? 'idle' : 'ready' })
     $.ui.toast('Nie udało się uruchomić /clear: ' + clip(String((err as Error)?.message || err), 100), { timeoutMs: 10_000 })
-    return
+    return false
   }
   H = IDLE
+  let isSent = true
   try {
     await $.prompt.submit({ text: first, asUser: true })
   } catch {
-    const filled = await $.prompt.fill({ text: first }).then((r) => !!r.isFilled, () => false)
-    $.ui.toast(filled ? 'Czat wyczyszczony. Pierwszy prompt czeka w polu — naciśnij Enter.' : 'Czat wyczyszczony, ale pierwszego promptu nie udało się wysłać.', { timeoutMs: 10_000 })
+    isSent = await $.prompt.fill({ text: first }).then((r) => !!r.isFilled, () => false)
+    $.ui.toast(isSent ? 'Czat wyczyszczony. Pierwszy prompt czeka w polu — naciśnij Enter.' : 'Czat wyczyszczony, ale pierwszego promptu nie udało się wysłać.', { timeoutMs: 10_000 })
   }
   $.ui.invalidate('ui.render')
+  return isSent
 }
 
 // ---------- the save (LIMIT_CHECKPOINT E3) ----------
@@ -473,6 +483,7 @@ const saveKey = () => 'save:' + S.cwd
 
 async function keepSave($: $T, next: Save) {
   V = next
+  if (V.phase !== 'czeka') hasResumeFile = false // only a waiting save offers the resume
   await $.store.set(saveKey(), V).catch(() => {})
   $.ui.invalidate('ui.render')
 }
@@ -483,6 +494,8 @@ async function loadSave($: $T, now: number) {
   const v = (await $.store.get(saveKey()).catch(() => undefined)) as Save | undefined
   V = v && SAVE_PHASES.includes(v.phase) ? { ...NO_SAVE, ...v } : NO_SAVE
   if (V.phase === 'running' && (V.sessionId !== S.id || now - V.startedAt > SAVE_STALE_MS)) await keepSave($, { ...V, phase: 'przerwany' })
+  // A resume whose turn this process never saw end (a reload, a crash): back to waiting, the file decides
+  if (V.phase === 'resuming' && now - V.startedAt > SAVE_STALE_MS) await keepSave($, { ...V, phase: 'czeka' })
 }
 
 // In a RelAI project the phrase of relai-core's limit-checkpoint.md with the card's consent to a
@@ -510,13 +523,119 @@ async function captureSave($: $T, answer: string, now: number) {
   if (V.relai) {
     const isDone = saveDone(answer)
     await keepSave($, { ...V, phase: isDone ? 'czeka' : 'przerwany' })
+    await checkResumeFile($)
     if (!isDone) $.ui.toast('Zapis pracy nie potwierdził zakończenia — sprawdź commit i dokumenty.', { timeoutMs: 10_000 })
     return
   }
   const body = plainBody(answer)
   const path = body ? await writeHandoff($, body, now) : ''
   await keepSave($, { ...V, phase: path ? 'czeka' : 'przerwany', path })
+  await checkResumeFile($)
   if (!path) $.ui.toast('Tura zakończyła się bez przekazania — zapis niepełny.', { timeoutMs: 10_000 })
+}
+
+// ---------- the resume (LIMIT_CHECKPOINT E4) ----------
+
+// The file "Wznów pracę" resumes from: in RelAI the project's resume file, elsewhere the handoff
+// file the save wrote. Paths come from the folder's slug or the clock, never from an answer.
+const resumeFile = (): string | null => {
+  if (!V.relai) return V.path || null
+  const rel = resumePath(S.cwd)
+  return rel ? `${S.cwd}/${rel}`.replace(/\\/g, '/') : null
+}
+
+// An error keeps what the bar shows: the next tick asks again. The file is the save: once it is
+// gone (resumed by hand and deleted, deleted on request, never written) nothing waits any more.
+async function checkResumeFile($: $T) {
+  const file = V.phase === 'czeka' ? resumeFile() : null
+  const isThere = file ? await $.fs.exists(file).catch(() => null) : false
+  if (isThere === null) return
+  if (file && !isThere) return keepSave($, NO_SAVE)
+  if (isThere !== hasResumeFile) {
+    hasResumeFile = isThere
+    $.ui.invalidate('ui.render')
+  }
+}
+
+// "Wznów pracę": a card, then a fresh chat that starts from the resume file. In RelAI the phrase
+// carries the card's consent to delete the file once the work is resumed; elsewhere the handoff's
+// text goes as the first prompt. The phase ends when that turn does.
+// One resume card at a time: a second press while it waits opens nothing
+let resumeAsking = false
+// After the card: nothing else may have started meanwhile (a handoff, a turn, another conversation)
+const canAct = (id: string) => S.id === id && V.phase === 'czeka' && H.phase === 'idle' && !S.working
+
+async function resumeWork($: $T) {
+  if (V.phase !== 'czeka' || resumeAsking) return
+  resumeAsking = true
+  try {
+    await resumeAfterCard($)
+  } finally {
+    resumeAsking = false
+  }
+}
+
+async function resumeAfterCard($: $T) {
+  const file = resumeFile()
+  const rel = V.relai ? resumePath(S.cwd) : null
+  if (!file || (V.relai && !rel)) return
+  const id = S.id
+  const question = V.relai
+    ? `Wznowić pracę? Wyczyszczę ten czat i wyślę „${RELAI_CONTINUE} — plik wznowienia: ${rel}”. Claude zacznie od listy „Co dalej”, a po wznowieniu skasuje plik.`
+    : `Wznowić pracę? Wyczyszczę ten czat i wyślę przekazanie zapisane w ${file}.`
+  const answer = await $.ui.ask(question, { header: 'Wznów pracę', options: ['Wznów', 'Nie teraz'] }).catch(() => '')
+  if (answer !== 'Wznów') return
+  if (!canAct(id)) {
+    $.ui.toast('W międzyczasie coś się zaczęło — wznów pracę, gdy czat będzie wolny.', { timeoutMs: 8000 })
+    return
+  }
+  const text = V.relai && rel ? relaiResumePrompt(rel) : await $.fs.read(file).then((body) => continuePrompt(String(body), file), () => '')
+  if (!text) {
+    $.ui.toast(`Nie udało się przeczytać ${file} — nic nie wysłano.`, { timeoutMs: 10_000 })
+    return
+  }
+  const before = V
+  await keepSave($, { ...V, phase: 'resuming', sessionId: '', startedAt: await $.clock.now() })
+  if (!(await clearAndContinue($, text))) return keepSave($, before)
+  // The resume belongs to the fresh conversation: only its turns end it, not another window's
+  await keepSave($, { ...V, sessionId: await $.session.id().catch(() => '') })
+}
+
+// "Odrzuć": the saved work is not resumed. A mod cannot delete a file, so in RelAI Claude is asked
+// to (Łukasz 2026-10-11); the handoff file outside RelAI stays in the keeper's archive.
+async function discardSave($: $T) {
+  if (V.phase !== 'czeka' || resumeAsking) return
+  resumeAsking = true
+  try {
+    await discardAfterCard($)
+  } finally {
+    resumeAsking = false
+  }
+}
+
+async function discardAfterCard($: $T) {
+  const rel = V.relai ? resumePath(S.cwd) : null
+  const id = S.id
+  // The request is one turn in this chat: after a long wait its cache is likely cold (said on the card)
+  const question = rel
+    ? `Odrzucić zapisaną pracę? Wyślę do tego czatu krótką prośbę o skasowanie ${rel} (jedna tura; po długiej przerwie cache może być zimny). Commity i dokumenty zostają, fraza wznowienia nie pójdzie.`
+    : 'Odrzucić zapisaną pracę? Przekazanie zostaje w archiwum relai-cache-keeper, przycisk „Wznów pracę” zniknie.'
+  const answer = await $.ui.ask(question, { header: 'Odrzuć', options: ['Odrzuć', 'Zostaw'] }).catch(() => '')
+  if (answer !== 'Odrzuć') return
+  if (!canAct(id)) {
+    $.ui.toast('W międzyczasie coś się zaczęło — odrzuć, gdy czat będzie wolny.', { timeoutMs: 8000 })
+    return
+  }
+  if (rel) {
+    try {
+      await $.prompt.submit({ text: relaiDiscardPrompt(rel), asUser: true })
+    } catch (err) {
+      $.ui.toast('Nie udało się wysłać prośby o skasowanie: ' + clip(String((err as Error)?.message || err), 100), { timeoutMs: 10_000 })
+      return
+    }
+  }
+  hasResumeFile = false
+  await keepSave($, NO_SAVE)
 }
 
 // "Najpierw compact, potem wyślij" (Z5): a vetoed compaction resolves { skip }, a refused one
@@ -575,7 +694,7 @@ const workGoing = async ($: $T) => (await focusGoing($)) || isWorkGoing(null, aw
 
 function cardInput(now: number, isWorking: boolean): CardInput {
   return {
-    limits: S.rateLimits, threshold: threshold.value, askedAt: S.limitAskedAt, isMuted: S.limitMuted, isWorking,
+    limits: S.rateLimits, thresholds: { five: thresholds.five.value, week: thresholds.week.value }, asked: S.limitAsked, isMuted: S.limitMuted, isWorking,
     perTurn: limitPace(S.limitTurns, S.ctx > 0 ? S.ctx : 1)?.now ?? null, now,
     saveWords: S.isRelai && resumePath(S.cwd)
       ? 'wyśle frazę „zapisz pracę”: testy, commit lokalny (zgoda z tej karty, bez pusha), dokumenty projektu i plik wznowienia'
@@ -583,57 +702,98 @@ function cardInput(now: number, isWorking: boolean): CardInput {
   }
 }
 
-// The first card of a session asks first from what percent to ask, and where to keep it.
-// A dismissed question, or a number outside 1–99, keeps the threshold as it is.
-async function chooseThreshold($: $T, now: number) {
-  const typed = await $.ui.ask(
-    `Pierwsza karta limitu w tej sesji. Od ilu procent zużycia pytać o zapis pracy? Teraz ${thresholdText(threshold)}; własną liczbę 1–99 wpisz w polu „Inne”.`,
-    { header: 'Próg limitu', options: THRESHOLD_OPTIONS },
-  ).catch(() => '')
-  if (!typed) return
-  const value = thresholdAnswer(typed)
-  if (value === null) {
-    $.ui.toast(`Próg limitu: liczba całkowita od 1 do 99 — zostaje ${threshold.value} %.`, { timeoutMs: 10_000 })
+// One window's threshold, then where to keep it (Aneks B): the first card of a session, and
+// `/cache limit-warn[-week] [N]` — the panel's "Zmień" sends that command without N. Esc, a
+// dismissed card, "Nie zapisuj" or a number outside 1–99 keep the threshold as it is.
+// The answers belong to the conversation that asked: the place to write (this session's file
+// among them) is taken before the first card, and an id that moved meanwhile drops the answer.
+let choosing = false // one series of threshold cards at a time
+async function chooseThreshold($: $T, window: LimitWindow, opts: { first?: boolean, value?: number, fromCard?: boolean } = {}) {
+  if (choosing || (carding && !opts.fromCard)) {
+    $.ui.toast('Karta limitu już czeka na odpowiedź — próg zmienisz po niej.', { timeoutMs: 8000 })
     return
   }
-  const scopes = SCOPE_OPTIONS.filter((s) => S.isRelai || s.scope !== 'projekt')
-  const where = await $.ui.ask(`Gdzie zapamiętać próg ${value} %?`, { header: 'Zasięg', options: scopes.map((s) => s.label) }).catch(() => '')
-  const scope = scopes.find((s) => s.label === where)?.scope
-  if (!scope) return
-  const saved = await rememberThreshold(limitIO($), limitWhere(), value, scope, dateText(now)).catch(() => ({ error: 'próg limitu: zapis nie powiódł się' }))
-  if (saved.error) $.ui.toast(saved.error, { timeoutMs: 10_000 })
-  await loadThreshold($)
+  choosing = true
+  // The engine's id, asked again after each card: a /clear may come before the keeper hears of it
+  const sessionNow = () => $.session.id().catch(() => '')
+  const id = (await sessionNow()) || S.id
+  const where = { ...limitWhere(), sessionId: id }
+  try {
+    await loadThreshold($)
+    const current = thresholds[window]
+    let value = opts.value ?? null
+    if (value === null) {
+      const lead = opts.first
+        ? `Pierwsza karta limitu w tej sesji. Od ilu procent zużycia ${WINDOW_OF[window]} pytać o zapis pracy?`
+        : `Od ilu procent zużycia ${WINDOW_OF[window]} bateria ma zmienić kolor, a po turze przyjść karta?`
+      const typed = await $.ui.ask(`${lead} Teraz ${thresholdText(current)}; własną liczbę 1–99 wpisz w polu „Inne”.`,
+        { header: THRESHOLD_HEADER[window], options: THRESHOLD_CHOICES[window] }).catch(() => '')
+      if (!typed || (await sessionNow()) !== id) return
+      value = thresholdAnswer(typed)
+      if (value === null) {
+        $.ui.toast(`Próg ${WINDOW_OF[window]}: liczba całkowita od 1 do 99 — zostaje ${current.value} %.`, { timeoutMs: 10_000 })
+        return
+      }
+    }
+    const scopes = SCOPE_OPTIONS.filter((s) => S.isRelai || s.scope !== 'projekt')
+    const answer = await $.ui.ask(`Gdzie zapamiętać próg ${WINDOW_OF[window]} ${value} %?`,
+      { header: 'Zasięg', options: [...scopes.map((s) => s.label), NO_SCOPE] }).catch(() => '')
+    const scope = scopes.find((s) => s.label === answer)?.scope
+    if (!scope || (await sessionNow()) !== id) return
+    const today = dateText(await $.clock.now())
+    const saved = await rememberThreshold(limitIO($), where, value, scope, today, window).catch(() => ({ error: 'próg limitu: zapis nie powiódł się' }))
+    await loadThreshold($)
+    $.ui.invalidate('ui.render')
+    if (saved.error) return $.ui.toast(saved.error, { timeoutMs: 10_000 })
+    const after = thresholds[window]
+    // The session file outranks the project's and the global row: say when it still decides
+    const held = after.value !== value ? ` Obowiązuje nadal ${thresholdText(after)} — ma pierwszeństwo.` : ''
+    $.ui.toast(`Próg ${WINDOW_OF[window]}: ${value} % (${SCOPE_OPTIONS.find((s) => s.scope === scope)?.label.toLowerCase()}).${held}`, { timeoutMs: 8000 })
+  } finally {
+    choosing = false
+  }
 }
 
 // After a main turn: past the threshold and with work going on, one card for this threshold.
 // Cheap checks first; git runs only when a card would otherwise be due. An answer that comes
 // after a /clear or /resume belongs to the conversation that asked, so it is dropped.
 async function limitCheckpoint($: $T) {
-  if (carding || H.phase !== 'idle' || V.phase === 'running') return
-  await loadThreshold($)
-  if (!cardDue(cardInput(await $.clock.now(), true))) return
-  carding = true
+  if (carding || choosing || H.phase !== 'idle' || V.phase === 'running' || V.phase === 'resuming') return
+  carding = true // set before the first await: two turns ending close together bring one card
   const id = S.id
+  const where = limitWhere()
   let isSaving = false
+  let isDue = false // nothing due: no snapshot and no redraw (Z4, a quiet tick stays quiet)
   let resetAt: number | null = null
   try {
+    await loadThreshold($)
+    const due = cardDue(cardInput(await $.clock.now(), true))
+    if (!due) return
+    isDue = true
     if (!(await workGoing($))) return
     if (!S.limitFirstDone) {
       set({ limitFirstDone: true })
-      await chooseThreshold($, await $.clock.now())
+      // The first card asks for the threshold of the window it is about (the 5-hour one first)
+      await chooseThreshold($, due.windows[0] ?? 'five', { first: true, fromCard: true })
       if (S.id !== id) return
     }
     const now = await $.clock.now()
     const card = cardDue(cardInput(now, true))
-    if (!card) return
-    set({ limitAskedAt: threshold.value })
+    if (!card || S.id !== id) return
+    set({ limitAsked: { ...S.limitAsked, ...Object.fromEntries(card.windows.map((w) => [w, thresholds[w].value])) } })
     const answer = await $.ui.ask(card.question, { header: 'Limit planu', options: CARD_OPTIONS }).catch(() => '')
     if (S.id !== id) return
     if (answer === GO_ON) {
-      const next = nextSessionThreshold(threshold.value)
-      const saved = await rememberThreshold(limitIO($), limitWhere(), next, 'sesja', dateText(now)).catch(() => ({ error: 'próg limitu: nie udało się zapisać pliku sesji' }))
+      // Each window past its threshold goes 5 points up in this session only (plan, section 8)
+      let error = ''
+      for (const w of card.windows) {
+        const saved = await rememberThreshold(limitIO($), where, nextSessionThreshold(thresholds[w].value), 'sesja', dateText(now), w)
+          .catch(() => ({ error: 'próg limitu: nie udało się zapisać pliku sesji' }))
+        error ||= saved.error ?? ''
+      }
       await loadThreshold($)
-      $.ui.toast(saved.error ? saved.error : `Pracujemy dalej. Następna karta po przekroczeniu ${threshold.value} %.`, { timeoutMs: 8000 })
+      const nextAt = card.windows.length > 1 ? card.windows.map((w) => `${WINDOW_NAME[w]} ${thresholds[w].value} %`).join(' · ') : `${thresholds[card.windows[0] ?? 'five'].value} %`
+      $.ui.toast(error || `Pracujemy dalej. Następna karta po przekroczeniu ${nextAt}.`, { timeoutMs: 8000 })
     } else if (answer === SAVE) {
       isSaving = true
       resetAt = card.resetAt
@@ -642,8 +802,10 @@ async function limitCheckpoint($: $T) {
     }
   } finally {
     carding = false
-    await saveSnap($, await $.clock.now())
-    $.ui.invalidate('ui.render')
+    if (isDue) {
+      await saveSnap($, await $.clock.now())
+      $.ui.invalidate('ui.render')
+    }
   }
   if (isSaving) await startSave($, resetAt)
 }
@@ -660,10 +822,10 @@ function statusText(now: number): string {
   if (st.kind === 'cold') lines.push(`Cache prawdopodobnie zimny od ${minutes(-st.left)}. Następna wiadomość zapisze go ponownie za ≈ ${usd(rewriteAt(S.ctx))}.`)
   if (S.keepWarm) lines.push(`Podtrzymanie do ${clock(S.keepWarmUntil)}: ${S.pings} pingów, ${usd(S.pingUsd)}.`)
   if (S.rateLimits.length) lines.push(`Limity planu: ${limitsText(S.rateLimits)}.`)
-  lines.push(`Próg limitu: ${thresholdText(threshold)} — od niego bateria limitu ostrzega kolorem.`)
+  lines.push(`Próg limitu: 5 h ${thresholdText(thresholds.five)} · tydzień ${thresholdText(thresholds.week)} — od niego bateria limitu ostrzega kolorem, a po turze przychodzi karta.`)
   lines.push(`Sesja ≈ ${usd(S.costUsd)} (hipotetycznie wg cennika API). Ponowne zapisy cache: ${S.rewrites} (${usd(S.rewriteUsd)}).`)
   lines.push(`Strażnik: ${settings.guard ? 'on' : 'off'} od ${tokens(settings.bigTokens)}. Alerty: ${settings.alerts ? 'on' : 'off'} od ${tokens(settings.alertTokens)}, progi ${settings.warnMin.join(' i ')} min. Projekt RelAI: ${S.isRelai ? 'tak' : 'nie'}.`)
-  lines.push(`Ustawienia: /${names.cache} ttl 5|60|auto · straznik on|off · prog 150k · alerty on|off · progi 10,5 · godziny 4 · limit 90 · limit-warn 85|90|95 · zwrot ${settings.paybackTurns} (1–50 tur)`)
+  lines.push(`Ustawienia: /${names.cache} ttl 5|60|auto · straznik on|off · prog 150k · alerty on|off · progi 10,5 · godziny 4 · limit 90 · limit-warn 85|90|95 · limit-warn-week 95|98|99 · zwrot ${settings.paybackTurns} (1–50 tur)`)
   lines.push(`Cennik: ${priceSource(prices)}. Koniec odliczania nie dowodzi utraty cache — to prognoza z TTL.`)
   lines.push('', reckon(now).report)
   return lines.join('\n')
@@ -683,11 +845,11 @@ const costFigure = (): readonly [string, string] => (S.costUsd === null ? ['brak
 // The cache bar's second row (brief v2 §1): only while its reason lasts, one at a time. A handoff
 // the person must answer first, then one under way; a cooling cache before the Z9 event (minutes
 // decide whether "Podtrzymaj" still helps, and its row offers Przekaż too); a kept cache last.
-type SecondKind = 'ready' | 'running' | 'saved' | 'broken' | 'cooling' | 'event' | 'kept'
+type SecondKind = 'ready' | 'running' | 'saved' | 'resume' | 'broken' | 'cooling' | 'event' | 'kept'
 // `rest` follows `text` muted: the Z9 event leads with its verdict in bold, its figures after
 type Second = { kind: SecondKind, text: string, rest: string }
 const CHIP_OF: Record<SecondKind, { color: string, bg: string }> = {
-  ready: CHIP.ok, running: CHIP.run, saved: CHIP.ok, broken: CHIP.warn, cooling: CHIP.warn, event: CHIP.info, kept: CHIP.run,
+  ready: CHIP.ok, running: CHIP.run, saved: CHIP.ok, resume: CHIP.ok, broken: CHIP.warn, cooling: CHIP.warn, event: CHIP.info, kept: CHIP.run,
 }
 
 // The event's words split before its figures: "nowa sesja zwróci się po N turach" | " · ≈ $x → $y/turę …"
@@ -707,9 +869,15 @@ function secondRow(now: number, kind: string): Second | null {
   if (H.phase === 'ready') return { kind: 'ready', text: 'przekazanie gotowe', rest: '' }
   if (H.phase === 'running') return { kind: 'running', text: 'przekazanie trwa', rest: '' }
   if (H.phase === 'continuing') return { kind: 'running', text: 'czyszczę czat i kontynuuję', rest: '' }
-  // The save (E3): under way, then waiting for the limit's reset, or cut short
-  const save = saveRowText(V.phase, V.resetAt, now)
-  if (save) return { kind: V.phase === 'running' ? 'running' : V.phase === 'czeka' ? 'saved' : 'broken', text: save, rest: '' }
+  // The save (E3): under way, then waiting for the limit's reset, or cut short; after the reset,
+  // with the resume file still there, "Wznów pracę" (E4)
+  const save = saveRowText(V.phase, V.resetAt, now, hasResumeFile)
+  if (save) {
+    const kind: SecondKind = V.phase === 'running' || V.phase === 'resuming' ? 'running'
+      : V.phase === 'przerwany' ? 'broken'
+      : resumeDue(V.phase, V.resetAt, now, hasResumeFile) ? 'resume' : 'saved'
+    return { kind, text: save, rest: '' }
+  }
   if (kind === 'cooling') return { kind: 'cooling', text: `stygnie · ponowny zapis ≈ ${usd(rewriteAt(S.ctx))}`, rest: '' }
   const event = eventText(now)
   if (event) return eventRow(event)
@@ -725,9 +893,9 @@ function bandView(now: number) {
   // The order and the words of brief v3 §10.4
   const measures: Measure[] = [
     cacheMeasure({ kind: st.kind, left: st.left, ttlMin: ttl(), isAssumed, rewrite: usd(rewriteAt(S.ctx)), keptUntil: S.keepWarmUntil }),
-    limitMeasure('five', 'limit 5 h', '5 h', five, now, threshold.value),
+    limitMeasure('five', 'limit 5 h', '5 h', five, now, thresholds.five.value),
     resetMeasure(five, now),
-    limitMeasure('week', 'limit tygodnia', 'tydzień', S.rateLimits.find((l) => l.kind === SEVEN_DAY), now, threshold.value),
+    limitMeasure('week', 'limit tygodnia', 'tydzień', S.rateLimits.find((l) => l.kind === SEVEN_DAY), now, thresholds.week.value),
     contextMeasure(S.ctx, S.ctxWindow),
   ]
   return { measures, figure: costFigure(), second: secondRow(now, st.kind) }
@@ -823,6 +991,15 @@ function secondButtons($: $T, e: Resolved, kind: SecondKind) {
     }} />]
   }
   if (kind === 'kept') return [<Button key="stop" label="Zatrzymaj" variant="secondary" onPress={() => { stopKeepWarm($, 'wyłączone ręcznie'); $.ui.invalidate('ui.render') }} />]
+  // After the limit's reset (E4): resume from the file, or let it go; each asks on a card first
+  if (kind === 'resume') {
+    return [
+      <Button key="resume" label="Wznów pracę" variant="primary" onPress={() => resumeWork($)} />,
+      <Button key="discard" label="Odrzuć" variant="secondary" onPress={() => discardSave($)} />,
+    ]
+  }
+  // A save cut short stays until a new save or until it is closed here (E4)
+  if (kind === 'broken') return [<Button key="close-broken" label="Zamknij" variant="secondary" onPress={() => keepSave($, NO_SAVE)} />]
   return []
 }
 
@@ -842,10 +1019,11 @@ export const register: Register = (on) => {
     await loadPrices($)
     await restoreSnap($, now)
     await loadSave($, now)
+    await checkResumeFile($)
     await loadStartLayer($)
     verdict = null
     names = {
-      cache: await registerCommand($, 'cache', 'Stan cache promptu i ustawienia relai-cache-keeper', '[ttl 5|60|auto] [straznik on|off] [prog 150k] [alerty on|off] [progi 10,5] [limit-warn 90] [zwrot 5]'),
+      cache: await registerCommand($, 'cache', 'Stan cache promptu i ustawienia relai-cache-keeper', '[ttl 5|60|auto] [straznik on|off] [prog 150k] [alerty on|off] [progi 10,5] [limit-warn 90] [limit-warn-week 98] [zwrot 5]'),
       keepwarm: await registerCommand($, 'keepwarm', 'Podtrzymuj cache tej sesji (domyślnie 4 h) albo /keepwarm off', '[godziny|off]'),
       handoff: await registerCommand($, 'handoff', 'Przekazanie do świeżego czatu (w projekcie RelAI przez dokumenty); /handoff dalej kończy', '[dalej]'),
     }
@@ -952,6 +1130,15 @@ export const register: Register = (on) => {
     if (V.phase === 'running' && V.sessionId === S.id && e.turnId !== V.notTurn) {
       await captureSave($, e.reason === 'answer' ? e.answer : '', now)
     }
+    // The resume's turn (E4): answered, the work is resumed and the bar lets go (Claude deletes the
+    // file with the card's consent); cut off, the save waits again and the file decides
+    // Only the conversation the resume went to ends it ('' = sent this moment, the id not yet known)
+    if (V.phase === 'resuming' && (V.sessionId === '' || V.sessionId === S.id)) {
+      const isResumed = e.reason === 'answer'
+      hasResumeFile = false
+      await keepSave($, isResumed ? NO_SAVE : { ...V, phase: 'czeka' })
+      if (!isResumed) $.ui.toast('Wznowienie nie dokończyło tury — plik wznowienia zostaje, przycisk wróci.', { timeoutMs: 10_000 })
+    }
     await saveSnap($, now)
     $.ui.invalidate('ui.render')
     // The limit card waits for the turn's end and never stops it (plan, section 8)
@@ -992,17 +1179,22 @@ export const register: Register = (on) => {
     await loadPrices($)
     await loadThreshold($)
     if (!key) return { text: statusText(now) }
+    // A threshold (Aneks B): the number now or on a card, then the scope on a card; nothing is
+    // written before the scope is chosen. The panel's "Zmień" sends this without a number.
+    const window = limitWarnWindow(key)
+    if (window) {
+      const raw = rest.join(' ').trim()
+      const value = raw ? thresholdAnswer(raw) : null
+      if (raw && value === null) {
+        return { text: `${key.toLowerCase()}: liczba całkowita od 1 do 99, np. ${THRESHOLD_CHOICES[window].map((c) => c.replace(' %', '')).join(', ')}\n\n${statusText(now)}` }
+      }
+      later($, () => chooseThreshold($, window, value === null ? {} : { value }))
+      return { text: value === null ? `Próg ${WINDOW_OF[window]}: wybierz wartość i zasięg na kartach.` : `Próg ${WINDOW_OF[window]} ${value} %: wybierz na karcie, gdzie go zapamiętać.` }
+    }
     const result = applySetting(settings, key, rest.join(' '))
     if (result.error) return { text: `${result.error}\n\n${statusText(now)}` }
     settings = result.settings
     await $.store.set(STORE_SETTINGS, settings)
-    if (LIMIT_WARN_KEYS.includes(key.toLowerCase())) {
-      // The command speaks for this session: its file outranks the project's and the global row
-      const saved = await rememberThreshold(limitIO($), limitWhere(), settings.limitWarn, 'sesja', dateText(now))
-        .catch(() => ({ error: 'próg limitu: nie udało się zapisać pliku sesji' }))
-      await loadThreshold($)
-      if (saved.error) return { text: `${saved.error}\n\n${statusText(now)}` }
-    }
     $.ui.invalidate('ui.render')
     return { text: statusText(now) }
   })

@@ -1,34 +1,14 @@
 {
-  "wszystkie-trzy": {
-    "value": 85,
-    "source": "sesja"
-  },
-  "bez-sesji": {
-    "value": 95,
-    "source": "projekt"
-  },
-  "tylko-globalnie": {
-    "value": 80,
-    "source": "globalnie"
-  },
-  "nic": {
-    "value": 90,
-    "source": "domyślny"
-  },
-  "zle-wartosci": {
-    "value": 90,
-    "source": "domyślny"
-  },
-  "inna-sesja": {
-    "value": 90,
-    "source": "domyślny"
-  },
-  "wycofany-i-opis": {
-    "value": 85,
-    "source": "globalnie"
-  },
-  "nazwa-podobna": {
-    "value": 95,
-    "source": "globalnie"
-  }
+  "wszystkie-trzy": { "five": { "value": 85, "source": "sesja" }, "week": { "value": 98, "source": "domyślny" } },
+  "bez-sesji": { "five": { "value": 95, "source": "projekt" }, "week": { "value": 98, "source": "domyślny" } },
+  "tylko-globalnie": { "five": { "value": 80, "source": "globalnie" }, "week": { "value": 98, "source": "domyślny" } },
+  "nic": { "five": { "value": 90, "source": "domyślny" }, "week": { "value": 98, "source": "domyślny" } },
+  "zle-wartosci": { "five": { "value": 90, "source": "domyślny" }, "week": { "value": 98, "source": "domyślny" } },
+  "inna-sesja": { "five": { "value": 90, "source": "domyślny" }, "week": { "value": 98, "source": "domyślny" } },
+  "wycofany-i-opis": { "five": { "value": 85, "source": "globalnie" }, "week": { "value": 98, "source": "domyślny" } },
+  "nazwa-podobna": { "five": { "value": 95, "source": "globalnie" }, "week": { "value": 98, "source": "domyślny" } },
+  "tydzien-sesja": { "five": { "value": 85, "source": "sesja" }, "week": { "value": 97, "source": "sesja" } },
+  "tydzien-projekt": { "five": { "value": 92, "source": "projekt" }, "week": { "value": 96, "source": "projekt" } },
+  "tydzien-globalnie": { "five": { "value": 88, "source": "projekt" }, "week": { "value": 95, "source": "globalnie" } },
+  "tydzien-wycofany": { "five": { "value": 90, "source": "domyślny" }, "week": { "value": 98, "source": "domyślny" } }
 }

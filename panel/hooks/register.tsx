@@ -42,6 +42,8 @@ import { MERGE_FILE, serializeMerges } from './core/flow.mjs'
 import type { Merges } from './core/flow.mjs'
 import { CLEAN_ARGV, cleanCard, cleanChoices, commandCard, crewCard, crewDraft, crewTasksPath, hasConsent, togglePick, stageCard, stageToStart, stripConsent } from './core/decisions.mjs'
 import { promptLink } from './core/progress.mjs'
+import { globalPath, projectPath, sessionPath, thresholdsOf } from './core/limit-threshold.mjs'
+import type { LimitRows, LimitWindow } from './pane-costs'
 import type { Action, Card, CardResult, CleanChoices, CrewDraft } from './core/decisions.mjs'
 import type { DocsData, PaneData } from './data'
 import { bump, epochNow, forget, remember } from './memo'
@@ -439,6 +441,64 @@ async function sendCommand($: $T, name: string, args: string, text: string) {
   }
 }
 
+// ---------- the plan-limit thresholds (LIMIT_CHECKPOINT E4, Aneks B) ----------
+// The Koszty tab shows both thresholds as relai-cache-keeper reads them (the same core reader) and
+// changes them through the keeper's own command: its cards ask the number and the scope, and the
+// keeper writes the files. A command another plugin registered runs through its hook (P-022 pkt 1).
+
+const LIMIT_ARGS: Readonly<Record<LimitWindow, string>> = { five: 'limit-warn', week: 'limit-warn-week' }
+const LIMIT_WATCH_MS = 2000 // after "Zmień", how often the tab looks whether a threshold file moved
+const LIMIT_WATCH_FOR_MS = 3 * 60_000 // and for how long: the person answers two cards
+
+async function homeDir($: $T): Promise<string> {
+  return (await $.env.get('USERPROFILE').catch(() => '')) || (await $.env.get('HOME').catch(() => '')) || ''
+}
+
+async function limitFiles($: $T): Promise<string[]> {
+  const sessionFile = sessionPath(S.cwd, await $.session.id().catch(() => ''))
+  return [...(sessionFile ? [sessionFile] : []), projectPath(S.cwd), globalPath(await homeDir($))]
+}
+
+// Read when the tab opens (Z3: a redraw reads no file); after "Zmień" the watch below moves the
+// memory on. A failed read rejects, so the memory keeps no failure and the next opening reads again.
+async function limitRows($: $T): Promise<LimitRows> {
+  const where = { root: S.cwd, home: await homeDir($), sessionId: await $.session.id().catch(() => '') }
+  return thresholdsOf({ read: (path: string) => readText($, path) }, where)
+}
+
+let limitWatch = 0 // the watch after the latest "Zmień"; an older one stops
+
+async function changeLimit($: $T, window: LimitWindow) {
+  const before = await stampOf($, await limitFiles($))
+  let isRun = false
+  // The keeper registers /cache, or /ckp-cache when another plugin holds the name
+  for (const command of ['cache', 'ckp-cache']) {
+    try {
+      await $.command.run({ command, args: LIMIT_ARGS[window] })
+      isRun = true
+      break
+    } catch {
+      // not this name: the next one
+    }
+  }
+  if (!isRun) {
+    await say($, 'Próg limitu zmienia plugin relai-cache-keeper — zainstaluj go albo wpisz /cache limit-warn w czacie.')
+    return
+  }
+  // The cards answer later: redraw the tab once a threshold file has moved
+  const started = await $.clock.now()
+  const watch = ++limitWatch
+  const look = async () => {
+    if (watch !== limitWatch) return
+    if ((await stampOf($, await limitFiles($))) !== before) {
+      bump() // the tab's memory (Z3) moves on, so the next draw reads the thresholds again
+      return $.ui.invalidate('ui.render')
+    }
+    if ((await $.clock.now()) - started < LIMIT_WATCH_FOR_MS) $.clock.after(LIMIT_WATCH_MS, () => { void look() })
+  }
+  $.clock.after(LIMIT_WATCH_MS, () => { void look() })
+}
+
 async function sendPhrase($: $T, text: string) {
   try {
     await $.prompt.submit({ text, asUser: true })
@@ -671,6 +731,7 @@ export const register: Register = (on) => {
       prepareClean: (list) => { void cardId($).then((id) => offer($, cleanCard(id, list))) },
     }).commandsView() : costs ? costsView(c, p, costs, {
       session: S, muted: mutedNow, preparePricing: () => { void preparePricing($) },
+      limits: await remember('limits', key, () => limitRows($)).catch(() => null), changeLimit: (w) => { void changeLimit($, w) },
     }) : map ? mapView(c, p, map, {
       isUnfolded, fold, chosen, drafts: crewDrafts,
       togglePick: (id) => { void update($, picks, (x) => (x.includes(id) ? x.filter((y) => y !== id) : [...x, id])) },

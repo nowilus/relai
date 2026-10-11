@@ -6,6 +6,7 @@
 //
 // Ten sam slug liczy cache-keeper/hooks/limit.ts (resumeSlug) — parytet pilnuje test.
 
+const childProcess = require('child_process');
 const fs = require('fs');
 const path = require('path');
 
@@ -41,6 +42,37 @@ function dataZapisu(txt, plik) {
   return d.getFullYear() + '-' + dwa(d.getMonth() + 1) + '-' + dwa(d.getDate());
 }
 
+// Hash HEAD z linii "Zapisano: … · HEAD: <hash>" (SPEC_WZNOWIENIE.md). Tylko male litery
+// szesnastkowe, 4–40 znakow: wartosc idzie do argumentu gita, wiec nic innego nie przechodzi.
+const HASH = /^[0-9a-f]{4,40}$/;
+
+function hashZapisu(txt) {
+  const m = /^Zapisano:.*·\s*HEAD:\s*(\S+)/m.exec(txt);
+  const h = m ? m[1].replace(/[`*]/g, '') : '';
+  return HASH.test(h) ? h : null;
+}
+
+// Ile commitow doszlo od hasha z pliku (L5 planu), tablica argumentow, bez powloki:
+// `git rev-parse --verify --quiet <hash>^{commit}` rozroznia hash nieznany w repozytorium (kod 1
+// → 'nieznany') od braku gita, repozytorium albo przekroczonego czasu (→ null, zdanie bez liczby);
+// dopiero znany hash idzie do `git rev-list --count <hash>..HEAD`.
+const GIT_TIMEOUT_MS = 2000;
+const gitOpts = (root) => ({ cwd: root, encoding: 'utf8', timeout: GIT_TIMEOUT_MS, stdio: ['ignore', 'pipe', 'ignore'], windowsHide: true });
+function commitowOdZapisu(root, hash) {
+  if (!HASH.test(String(hash || ''))) return null;
+  try {
+    childProcess.execFileSync('git', ['rev-parse', '--verify', '--quiet', hash + '^{commit}'], gitOpts(root));
+  } catch (e) {
+    return e && e.status === 1 ? 'nieznany' : null;
+  }
+  try {
+    const n = Number(String(childProcess.execFileSync('git', ['rev-list', '--count', hash + '..HEAD'], gitOpts(root))).trim());
+    return Number.isInteger(n) && n >= 0 ? n : null;
+  } catch (_) {
+    return null;
+  }
+}
+
 function plikWznowienia(root) {
   const rel = sciezkaWznowienia(root);
   if (!rel) return null;
@@ -51,14 +83,33 @@ function plikWznowienia(root) {
   } catch (_) {
     return null;
   }
-  return { rel, data: dataZapisu(txt, plik) };
+  const head = hashZapisu(txt);
+  return { rel, data: dataZapisu(txt, plik), head, commitow: head ? commitowOdZapisu(root, head) : null };
+}
+
+// "doszedl 1 commit", "doszly 3 commity", "doszlo 5 commitow" (ASCII: komunikaty hookow)
+const polskaLiczba = (n) => {
+  const d = n % 100;
+  if (n === 1) return 'doszedl 1 commit';
+  return n % 10 >= 2 && n % 10 <= 4 && (d < 12 || d > 14) ? 'doszly ' + n + ' commity' : 'doszlo ' + n + ' commitow';
+};
+
+// Zdanie o commitach od zapisu: 0, N albo hash nieznany; bez hasha w pliku albo bez mozliwosci
+// sprawdzenia (brak gita, czas) — nic, zeby nie twierdzic czegos, czego nie sprawdzono.
+function zdanieCommitow(stan) {
+  if (!stan.head || stan.commitow === null || stan.commitow === undefined) return '';
+  if (stan.commitow === 'nieznany') {
+    return ' Hash HEAD zapisu ' + stan.head + ' jest nieznany w tym repozytorium: lista "Co dalej" moze byc nieaktualna - powiedz to, zanim zaproponujesz krok.';
+  }
+  if (stan.commitow === 0) return ' Od zapisu nie doszedl zaden commit (HEAD zapisu ' + stan.head + ').';
+  return ' Od zapisu ' + polskaLiczba(stan.commitow) + ' (HEAD zapisu ' + stan.head + '): lista "Co dalej" moze byc nieaktualna - powiedz to, zanim zaproponujesz krok.';
 }
 
 function wznowienieReport(stan) {
   if (!stan) return [];
-  return ['Plik wznowienia pracy: ' + stan.rel + ' (zapisany ' + stan.data + '). Na "kontynuujemy prace" ' +
-    'przeczytaj go jako pierwsze zrodlo "gdzie jestesmy" i zaproponuj pierwszy krok z jego listy "Co dalej"; ' +
-    'nie kasuj go sam.'];
+  return ['Plik wznowienia pracy: ' + stan.rel + ' (zapisany ' + stan.data + ').' + zdanieCommitow(stan) +
+    ' Na "kontynuujemy prace" przeczytaj go jako pierwsze zrodlo "gdzie jestesmy" i zaproponuj pierwszy krok ' +
+    'z jego listy "Co dalej"; kasujesz go tylko z linia zgody z karty "Wznow prace" albo na prosbe czlowieka.'];
 }
 
-module.exports = { KATALOG, slugProjektu, sciezkaWznowienia, plikWznowienia, wznowienieReport };
+module.exports = { KATALOG, slugProjektu, sciezkaWznowienia, hashZapisu, commitowOdZapisu, plikWznowienia, wznowienieReport };

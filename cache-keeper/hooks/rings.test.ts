@@ -181,7 +181,7 @@ describe('the calm cache bar: five batteries, the session cost on the right (Ane
       ['Ciepły · ~60 min', 'TTL 60 min założony'],
       ['64 % · 5 h', `zużyte 64 % · zostało 36 % · reset ${hhmm(fiveReset)} · próg 90 %`],
       ['Reset limitu 5 h za 1 h 06 min', `reset ${hhmm(fiveReset)}`],
-      ['41 % · tydzień', `zużyte 41 % · zostało 59 % · reset jutro ${hhmm(weekReset)} · próg 90 %`],
+      ['41 % · tydzień', `zużyte 41 % · zostało 59 % · reset jutro ${hhmm(weekReset)} · próg 98 %`],
       ['323k · kontekst', 'zużyte 323k z 1M · wolne 68 %'],
     ])
     // The label muted, the value bold in the text color, 14.5 px

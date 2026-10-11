@@ -233,7 +233,12 @@ finish a larger chunk of work:
 ## 5. Session phrases
 
 - "kontynuujemy pracę" / "let's continue" → run the start ritual again, write "where we are", add
-  one sentence proposing the nearest step and ask whether to start with it.
+  one sentence proposing the nearest step and ask whether to start with it. A resume file
+  `.claude/relai/wznowienie/<slug>.md` (named in the phrase or present in the project) is read
+  **first**: "where we are" starts from it, the proposed step is step 1 of its "Co dalej" list,
+  and new commits since the `HEAD:` hash of its metric line are said aloud (`git rev-list
+  --count <hash>..HEAD`). Delete it only on the person's consent — never on your own: after
+  "where we are" ask once whether to delete it ("tak" deletes, any other answer keeps it).
 - "sprawdź status" / "status check" → a short report: state, plans, open risks, documentation debt
   (is `STATE.md` older than the last journal entry, are there uncommitted changes), then one
   question about the nearest step. No work is performed.

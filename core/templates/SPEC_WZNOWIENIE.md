@@ -41,8 +41,16 @@ Każdy zapis nadpisuje plik w całości. Starego nie dopisujesz pod spodem: dwie
 w jednym pliku to dwie odpowiedzi na jedno pytanie.
 
 **Nikt nie kasuje pliku sam.** Znika po udanym wznowieniu albo po „Odrzuć” — oba za zgodą
-człowieka (przycisk na pasku, E4 planu LIMIT_CHECKPOINT). Do tego czasu hook startu wspomina
-o nim jednym zdaniem w każdej nowej sesji projektu.
+człowieka (przyciski na pasku cache, E4 planu LIMIT_CHECKPOINT). Mod nie umie kasować plików,
+więc robi to model: „Wznów pracę” wysyła frazę „kontynuujemy pracę — plik wznowienia: <ścieżka>”
+z linią `Zgoda na skasowanie pliku wznowienia po wznowieniu: tak (karta „Wznów pracę”).` —
+model czyta plik, proponuje krok 1 i dopiero wtedy go kasuje; „Odrzuć” wysyła wyłącznie prośbę
+o skasowanie, bez wznawiania. Fraza „kontynuujemy pracę” wpisana ręcznie, bez linii zgody, przy
+istniejącym pliku → model po akapicie „gdzie jesteśmy” **pyta raz**, czy skasować plik; „tak”
+kasuje, każda inna odpowiedź go zostawia. Do tego czasu hook startu wspomina o pliku jednym
+zdaniem w każdej nowej sesji projektu, razem z liczbą commitów, które doszły od hasha `HEAD`
+z linii metrycznej (albo z ostrzeżeniem, że hash jest w repozytorium nieznany). Pasek cache
+traktuje plik jako sam zapis: gdy go nie ma, wiersz „zapis gotowy” znika.
 
 ## Struktura pliku — siedem elementów w stałej kolejności
 
@@ -83,7 +91,9 @@ stoi ścieżka łatki z tym fragmentem, a w „Co dalej” krok, który do niego
 ## Zakazy
 
 - Nie commitujesz pliku wznowienia i nie przenosisz go do `docs/`.
-- Nie kasujesz go w procedurze zapisu ani na starcie sesji — tylko na zgodę człowieka.
+- Nie kasujesz go w procedurze zapisu ani na starcie sesji — tylko na zgodę człowieka: linia
+  zgody z karty „Wznów pracę” we frazie, prośba z karty „Odrzuć”, prośba wpisana w czacie albo
+  „tak” na jedno pytanie po ręcznym „kontynuujemy pracę”.
 - Nie zmieniasz nazwy katalogu `wznowienie/` przy projekcie w innym języku.
 
 ## Przykład (projekt polski, katalog `Sklep`, przerwany etap planu)

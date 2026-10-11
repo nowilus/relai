@@ -1,8 +1,8 @@
 import { describe, expect, mock, test, type TestBody } from 'claude-code/testing'
 import type { On, RenderNode, TurnStepResult } from 'claude-code'
 import { BAND } from './relai/theme.mjs'
-import { cardDue, focusFilePath, focusRef, focusStatus, isWorkGoing, nextSessionThreshold, resumePath, saveRowText, thresholdAnswer, type CardInput } from './limit'
-import { SAVE_CONSENT, SAVE_DONE, relaiSavePrompt, saveDone } from './handoff'
+import { blockingReset, cardDue, focusFilePath, overLimits, focusRef, focusStatus, isWorkGoing, nextSessionThreshold, resumeDue, resumePath, saveRowText, thresholdAnswer, type CardInput } from './limit'
+import { RESUME_CONSENT, SAVE_CONSENT, SAVE_DONE, relaiDiscardPrompt, relaiResumePrompt, relaiSavePrompt, saveDone } from './handoff'
 
 type Engine = Parameters<TestBody>[0]
 
@@ -28,6 +28,7 @@ type World = {
   limits: Limit[], git: string | Error | null, gitCalls: { argv: readonly string[], timeoutMs?: number }[],
   asked: string[], toasts: string[], sent: string[], disk: Record<string, string>,
   card: Answer, threshold: Answer, scope: Answer, id: string,
+  resume: Answer, discard: Answer, commands: string[], existsFails: boolean,
 }
 
 const DISMISS = new Error('dismissed') // Esc on the dialog rejects the ask
@@ -35,12 +36,18 @@ const settingsFile = '# USTAWIENIA\n\nWersja RelAI: 2.8.0\n\n| Data | Czego doty
 const statusFile = (e2: string) => `# STATUS\n\nPlan: [PLAN.html](PLAN.html) · Status planu: **ZAAKCEPTOWANY**\n\n| Etap | Nazwa | Status | Prompt | Uwagi |\n|---|---|---|---|---|\n| E1 | Jeden | ZREALIZOWANY 2026-10-10 | — | — |\n| E2 | Dwa | ${e2} | — | — |\n`
 const focusFile = (stage: string) => JSON.stringify({ kind: 'plan', plan: 'PLAN_X', stage, source: 'auto', at: NOW })
 const five = (percentUsed: number, resetIn = 60 * MIN): Limit => ({ kind: 'five_hour', percentUsed, resetsAt: new Date(NOW + resetIn).toISOString() })
+const WEEK_RESET = NOW + 3 * 24 * 60 * MIN
+const week = (percentUsed: number): Limit => ({ kind: 'seven_day', percentUsed, resetsAt: new Date(WEEK_RESET).toISOString() })
+const two = (n: number) => String(n).padStart(2, '0')
+const hhmm = (at: number) => `${two(new Date(at).getHours())}:${two(new Date(at).getMinutes())}`
+const dayAndTime = (at: number) => `${new Date(at).getDate()}.${two(new Date(at).getMonth() + 1)} ${hhmm(at)}`
 
 function world(on: On, options: { git?: string | Error | null, focus?: string, relai?: boolean } = {}) {
   const w: World = {
     limits: [], git: options.git ?? '', gitCalls: [], asked: [], toasts: [], sent: [],
     disk: { ...(options.relai === false ? {} : { [SETTINGS]: settingsFile }), [STATUS]: statusFile('W TOKU'), ...(options.focus ? { [FOCUS]: options.focus } : {}) },
     card: DISMISS, threshold: DISMISS, scope: DISMISS, id: 's1',
+    resume: DISMISS, discard: DISMISS, commands: [], existsFails: false,
   }
   const clock = mock.clock(on, { now: NOW })
   const kept = new Map<string, unknown>()
@@ -50,7 +57,7 @@ function world(on: On, options: { git?: string | Error | null, focus?: string, r
   mock.env(on, {})
   // Paths in the system's form (P-017): compared with forward slashes
   const key = (p: string) => p.replace(/\\/g, '/')
-  on('fs.exists', ($, e) => ({ value: key(e.path) in w.disk }))
+  on('fs.exists', ($, e) => (w.existsFails ? { deny: 'EBUSY ' + e.path } : { value: key(e.path) in w.disk }))
   on('fs.read', ($, e) => (key(e.path) in w.disk ? { value: w.disk[key(e.path)] ?? '' } : { deny: 'ENOENT ' + e.path }))
   on('fs.write', ($, e) => { w.disk[key(e.path)] = e.text; return { value: undefined } })
   on('session.start', ($, e) => ({ cwd: e.cwd }))
@@ -64,6 +71,8 @@ function world(on: On, options: { git?: string | Error | null, focus?: string, r
   on('session.measure', ($, e) => ({ changed: e.changed }))
   on('turn.complete', ($, e) => ({ text: e.answer }))
   on('ui.toast', ($, e) => { w.toasts.push(e.text); return { value: undefined } as never })
+  // Beneath the keeper: the built-in /clear its resume runs (E4)
+  on('command.run', ($, e) => { w.commands.push('/' + e.command); return { text: '' } })
   on('prompt.submit', ($, e) => { w.sent.push(e.text); return { text: e.text } })
   on('process.run', ($, e) => {
     w.gitCalls.push({ argv: e.argv, timeoutMs: e.init?.timeoutMs })
@@ -75,7 +84,8 @@ function world(on: On, options: { git?: string | Error | null, focus?: string, r
     const questions = (e as unknown as { questions: { question: string }[] }).questions
     const q = questions[0]?.question ?? ''
     w.asked.push(q)
-    const answer = q.startsWith(CARD) ? w.card : q.startsWith('Pierwsza karta') ? w.threshold : w.scope
+    const answer = q.startsWith(CARD) ? w.card : q.startsWith('Pierwsza karta') ? w.threshold
+      : q.startsWith('Wznowić') ? w.resume : q.startsWith('Odrzucić') ? w.discard : w.scope
     if (answer instanceof Error) throw answer
     return { result: { questions, answers: { [q]: answer } } } as never
   })
@@ -107,15 +117,16 @@ async function turn($: Engine, clock: { advance: (ms: number) => Promise<void> }
 const start = ($: Engine) => $.session.start({ cwd: ROOT, surface: 'desktop', isInteractive: true })
 const cards = (w: World) => w.asked.filter((q) => q.startsWith(CARD))
 
-// The colour of the 5-hour battery as the desktop draws it
-async function fiveColor($: Engine): Promise<string | null> {
+// The colour of a limit battery as the desktop draws it
+async function batteryColor($: Engine, name: 'five' | 'week'): Promise<string | null> {
   const ui = await $.ui.mount({ plugin: 'relai-cache-keeper', surface: 'desktop', component: 'AbovePrompt',
     props: { hasSurvey: false, isWorking: false, maxRows: 10, bodyColumns: 140, scroll: { offset: 0, bodyRows: 9 }, view: {} } })
   const walk = (n: RenderNode): string[] => (typeof n === 'string' ? [] : [String((n as { props?: { source?: unknown } }).props?.source ?? ''), ...((n as { children?: RenderNode[] }).children ?? []).flatMap(walk)])
   const source = walk(await ui.drawn()).join('')
   await ui.unmount()
-  return source.match(/b-five">.*?<rect class="f"[^>]*fill="(#[0-9a-f]{6})"/)?.[1] ?? null
+  return source.match(new RegExp(`b-${name}">.*?<rect class="f"[^>]*fill="(#[0-9a-f]{6})"`))?.[1] ?? null
 }
+const fiveColor = ($: Engine) => batteryColor($, 'five')
 
 describe('when the card comes', () => {
   test('91 % with no focus and a clean tree: no card and the battery clay; uncommitted changes then bring one', async ($, on) => {
@@ -200,18 +211,51 @@ describe('when the card comes', () => {
     expect(cards(w).length).toBe(1)
   })
 
-  test('both windows past the threshold: one card about both, with the later reset', async ($, on) => {
+  test('Aneks C: 5 h past 90 and the week at 93 (under its 98): the card is about 5 h, with the 5-hour reset', async ($, on) => {
     const { w, clock } = world(on, { git: ' M a.ts\n' })
-    const weekReset = NOW + 3 * 24 * 60 * MIN
-    w.limits = [five(91, 30 * MIN), { kind: 'seven_day', percentUsed: 93, resetsAt: new Date(weekReset).toISOString() }]
+    w.limits = [five(91, 30 * MIN), week(93)]
     await start($)
     await turn($, clock)
     expect(cards(w).length).toBe(1)
     const q = cards(w)[0] ?? ''
-    expect(q).toContain('5 h 91,00 % · tydzień 93,00 %')
-    const d = new Date(weekReset)
-    const two = (n: number) => String(n).padStart(2, '0')
-    expect(q).toContain(`Reset ${d.getDate()}.${two(d.getMonth() + 1)} ${two(d.getHours())}:${two(d.getMinutes())} — okno, które odnawia się później.`)
+    expect(q).toContain('Limit planu ponad progiem 90 %: 5 h 91,00 %.')
+    expect(q).not.toContain('tydzień')
+    expect(q).toContain(`Reset ${hhmm(NOW + 30 * MIN)}.`)
+  })
+
+  test('Aneks C: the week at 99 (past its 98) with 5 h: one card about both, the week\'s reset blocks', async ($, on) => {
+    const { w, clock } = world(on, { git: ' M a.ts\n' })
+    w.limits = [five(91, 30 * MIN), week(99)]
+    await start($)
+    await turn($, clock)
+    expect(cards(w).length).toBe(1)
+    const q = cards(w)[0] ?? ''
+    expect(q).toContain('5 h 91,00 % (próg 90 %) · tydzień 99,00 % (próg 98 %)')
+    expect(q).toContain(`Reset ${dayAndTime(WEEK_RESET)} — blokuje limit tygodnia.`)
+  })
+
+  test('Aneks C: the week alone past 98, 5 h calm: a card about the week, with the week\'s reset', async ($, on) => {
+    const { w, clock } = world(on, { git: ' M a.ts\n' })
+    w.limits = [five(40, 30 * MIN), week(99)]
+    await start($)
+    await turn($, clock)
+    expect(cards(w).length).toBe(1)
+    expect(cards(w)[0]).toContain('Limit planu ponad progiem 98 %: tydzień 99,00 %.')
+    expect(cards(w)[0]).toContain(`Reset ${dayAndTime(WEEK_RESET)}.`)
+  })
+
+  test('Aneks C: the week threshold from the project row; the week battery colours from it, the 5-hour one from its own', async ($, on) => {
+    const { w, clock } = world(on, { git: '' })
+    w.disk[SETTINGS] = settingsFile + '| 2026-10-11 | Próg limitu tygodnia | 50 |\n'
+    w.limits = [five(60), week(60)]
+    await start($)
+    await turn($, clock)
+    expect(await batteryColor($, 'week')).toBe(CLAY) // 40 % left is sage without the week's threshold
+    expect(await batteryColor($, 'five')).not.toBe(CLAY)
+    // Positive control: the same 60 % on 5 h turns clay once its own threshold is 50
+    w.disk[SETTINGS] += '| 2026-10-11 | Próg limitu | 50 |\n'
+    await clock.advance(30_000)
+    expect(await batteryColor($, 'five')).toBe(CLAY)
   })
 
   test('past the threshold in the middle of a turn: the battery turns clay at once, the card waits for the turn to end', async ($, on) => {
@@ -310,7 +354,7 @@ describe('what the answers do', () => {
     await start($)
     await turn($, clock)
     expect(w.asked[0]).toContain('Pierwsza karta limitu')
-    expect(w.asked[1]).toBe('Gdzie zapamiętać próg 85 %?')
+    expect(w.asked[1]).toBe('Gdzie zapamiętać próg limitu 5 h 85 %?')
     expect(w.disk[SETTINGS]).toContain('| 2026-10-11 | Próg limitu | 85 |')
     expect(w.disk[SESSION]).toBeUndefined()
     expect(cards(w).length).toBe(1)
@@ -338,13 +382,13 @@ describe('what the answers do', () => {
 })
 
 describe('the card logic alone', () => {
-  const base: CardInput = { limits: [five(91)], threshold: 90, askedAt: 0, isMuted: false, isWorking: true, perTurn: 2, now: NOW, saveWords: 'x' }
+  const base: CardInput = { limits: [five(91)], thresholds: { five: 90, week: 98 }, asked: { five: 0, week: 0 }, isMuted: false, isWorking: true, perTurn: 2, now: NOW, saveWords: 'x' }
 
   test('turns left from the session pace, marked SZACUNEK; a warning under 3 turns', () => {
     expect(cardDue(base)?.turnsLeft).toBe(4) // (100 − 91) / 2
     expect(cardDue(base)?.question).toContain('Zapas: ok. 4 tury przy tempie tej sesji (SZACUNEK).')
     expect(cardDue(base)?.question).not.toContain('Uwaga')
-    const near = cardDue({ ...base, limits: [five(96)], threshold: 95 })
+    const near = cardDue({ ...base, limits: [five(96)], thresholds: { five: 95, week: 98 } })
     expect(near?.turnsLeft).toBe(2)
     expect(near?.question).toContain('Uwaga: mniej niż 3 tury')
     expect(cardDue({ ...base, perTurn: null })?.question).toContain('brak pomiaru tempa')
@@ -352,12 +396,27 @@ describe('the card logic alone', () => {
 
   test('the threshold is crossed strictly; the same threshold asks once', () => {
     expect(cardDue({ ...base, limits: [five(90)] })).toBe(null)
-    expect(cardDue({ ...base, askedAt: 90 })).toBe(null)
+    expect(cardDue({ ...base, asked: { five: 90, week: 0 } })).toBe(null)
     expect(cardDue({ ...base, isMuted: true })).toBe(null)
     expect(cardDue({ ...base, isWorking: false })).toBe(null)
     expect(cardDue({ ...base, limits: [] })).toBe(null)
     expect(cardDue(base)).not.toBe(null)
     expect([nextSessionThreshold(90), nextSessionThreshold(96), nextSessionThreshold(99)]).toEqual([95, 99, 99])
+  })
+
+  test('Aneks C alone: each window against its own threshold, asked per window; the week\'s reset only when the week is over', () => {
+    const t = { five: 90, week: 98 }
+    expect(overLimits([five(91), week(97)], t).map((l) => l.kind)).toEqual(['five_hour'])
+    expect(overLimits([five(80), week(99)], t).map((l) => l.kind)).toEqual(['seven_day'])
+    expect(overLimits([five(91), week(99)], { five: 90, week: 99 }).map((l) => l.kind)).toEqual(['five_hour']) // 99 asks no more
+    expect(overLimits([{ kind: 'seven_day_opus', percentUsed: 100 }], t)).toEqual([])
+    expect(blockingReset([five(91, 30 * MIN)])).toBe(NOW + 30 * MIN)
+    expect(blockingReset([five(91, 30 * MIN), week(99)])).toBe(WEEK_RESET)
+    expect(blockingReset([week(99)])).toBe(WEEK_RESET)
+    // Asked at 5 h's threshold, the week crossing its own still brings a card about both
+    const both = cardDue({ ...base, limits: [five(91), week(99)], asked: { five: 90, week: 0 } })
+    expect(both?.windows).toEqual(['five', 'week'])
+    expect(cardDue({ ...base, limits: [five(91), week(99)], asked: { five: 90, week: 98 } })).toBe(null)
   })
 
   test('the focus and the session id never leave their folders', () => {
@@ -416,15 +475,16 @@ async function barWords($: Engine): Promise<string> {
   return text
 }
 
-const hhmm = (at: number) => `${String(new Date(at).getHours()).padStart(2, '0')}:${String(new Date(at).getMinutes()).padStart(2, '0')}`
 
-async function savedWorld($: Engine, on: On, answer: string, options: { relai?: boolean } = {}) {
+// In RelAI the procedure writes the resume file before its marker (file: false — it did not)
+async function savedWorld($: Engine, on: On, answer: string, options: { relai?: boolean, file?: boolean } = {}) {
   const { w, clock } = world(on, { git: ' M a.ts\n', ...options })
   w.card = 'Zapisz pracę teraz'
   w.limits = [five(91, 90 * MIN)]
   await start($)
   await turn($, clock)
   await clock.advance(100)
+  if (options.file !== false && options.relai !== false) w.disk[RESUME_FILE] = RESUME_TEXT
   await answered($, clock, answer)
   return { w, clock }
 }
@@ -472,6 +532,7 @@ describe('the save (E3)', () => {
     await clock.advance(100)
     await start($) // a hot reload in the middle of the save's turn
     expect(await barWords($)).toContain('zapis pracy trwa')
+    w.disk[RESUME_FILE] = RESUME_TEXT
     await answered($, clock, SAVED)
     expect(await barWords($)).toContain('zapis gotowy · reset')
   })
@@ -555,5 +616,201 @@ describe('the save alone', () => {
     expect(saveRowText('przerwany', null, NOW)).toBe('zapis niepełny')
     expect(saveRowText('czeka', null, NOW)).toBe('zapis gotowy · reset nieznany')
     expect(saveRowText('czeka', NOW + 30 * MIN, NOW)).toBe(`zapis gotowy · reset ${hhmm(NOW + 30 * MIN)}`)
+  })
+})
+
+// ---------- the resume (LIMIT_CHECKPOINT E4) ----------
+// After the blocking window's reset and while the resume file is there: "Wznów pracę" (a card,
+// then /clear and the start phrase with the file and the consent to delete it) and "Odrzuć" (a
+// card, then Claude is asked to delete the file; the resume phrase never goes). Before the reset,
+// or with no file, the bar only waits.
+
+const RESUME_REL = '.claude/relai/wznowienie/proj.md'
+const RESUME_FILE = `${ROOT}/${RESUME_REL}`
+const RESUME_TEXT = '# Wznowienie pracy\n\nZapisano: 2026-10-11 12:00 · HEAD: abc1234\n\n## Co dalej\n\n1. Test sumy.\n'
+
+const bar = ($: Engine) => $.ui.mount({ plugin: 'relai-cache-keeper', surface: 'desktop', component: 'AbovePrompt',
+  props: { hasSurvey: false, isWorking: false, maxRows: 10, bodyColumns: 140, scroll: { offset: 0, bodyRows: 9 }, view: {} } })
+
+async function buttons($: Engine): Promise<string[]> {
+  const ui = await bar($)
+  const labels = (await ui.findAll({ type: 'Button' })).map((b) => String(b.props.label))
+  await ui.unmount()
+  return labels
+}
+
+async function press($: Engine, key: string) {
+  const ui = await bar($)
+  await ui.press({ key })
+  await ui.unmount()
+}
+
+// Saved with the 5-hour reset 90 minutes on, the resume file written by the procedure
+async function waiting($: Engine, on: On, options: { relai?: boolean, file?: boolean } = {}) {
+  const r = await savedWorld($, on, options.relai === false ? PLAIN : SAVED, options)
+  await r.clock.advance(30_000) // a tick looks for the file
+  return r
+}
+const afterReset = (clock: { advance: (ms: number) => Promise<void> }) => clock.advance(91 * MIN)
+
+describe('the resume (E4)', () => {
+  test('before the reset no button; after it, with the file, "Wznów pracę" and "Odrzuć"; the file gone, none', async ($, on) => {
+    const { w, clock } = await waiting($, on)
+    expect(await buttons($)).toEqual([])
+    expect(await barWords($)).toContain('zapis gotowy · reset')
+    await afterReset(clock)
+    expect(await buttons($)).toEqual(['Wznów pracę', 'Odrzuć'])
+    expect(await barWords($)).toContain('limit odnowiony · praca czeka na wznowienie')
+    delete w.disk[RESUME_FILE]
+    await clock.advance(30_000)
+    // The cold cache's own row (Z9) may stand there once the save is gone; the resume's buttons may not
+    expect(await buttons($)).not.toContain('Wznów pracę')
+    expect(await buttons($)).not.toContain('Odrzuć')
+    expect(await barWords($)).not.toContain('zapis')
+  })
+
+  // The file is the save: resumed by hand and deleted, or deleted on request, the work waits no more.
+  // A stale "zapis gotowy · reset …" stood for days otherwise (Łukasz 2026-10-11, E3's measurement).
+  test('the resume file deleted before the reset: the bar lets go of the save (positive control: kept, it stays)', async ($, on) => {
+    const { w, clock } = await waiting($, on)
+    await clock.advance(30_000)
+    expect(await barWords($)).toContain('zapis gotowy · reset')
+    delete w.disk[RESUME_FILE]
+    await clock.advance(30_000)
+    expect(await barWords($)).not.toContain('zapis')
+    w.disk[RESUME_FILE] = RESUME_TEXT // a file that comes back brings no save back
+    await afterReset(clock)
+    expect(await buttons($)).not.toContain('Wznów pracę')
+  })
+
+  test('a save whose resume file never appeared: nothing to resume, the bar lets go', async ($, on) => {
+    const { clock } = await waiting($, on, { file: false })
+    expect(await barWords($)).not.toContain('zapis')
+    await afterReset(clock)
+    expect(await buttons($)).not.toContain('Wznów pracę')
+  })
+
+  test('a passing read error keeps the waiting save', async ($, on) => {
+    const { w, clock } = await waiting($, on)
+    w.existsFails = true
+    await clock.advance(30_000)
+    expect(await barWords($)).toContain('zapis gotowy · reset')
+  })
+
+  test('"Wznów pracę": the card, /clear, the phrase with the file and the consent; the answered turn lets go', async ($, on) => {
+    const { w, clock } = await waiting($, on)
+    w.resume = 'Wznów'
+    await afterReset(clock)
+    const sentBefore = w.sent.length
+    await press($, 'resume')
+    await clock.advance(500)
+    expect(w.asked.filter((q) => q.startsWith('Wznowić')).length).toBe(1)
+    expect(w.asked.find((q) => q.startsWith('Wznowić'))).toContain(`kontynuujemy pracę — plik wznowienia: ${RESUME_REL}`)
+    expect(w.commands).toContain('/clear')
+    expect(w.sent.slice(sentBefore)).toEqual([relaiResumePrompt(RESUME_REL)])
+    expect(w.sent[w.sent.length - 1]).toContain(RESUME_CONSENT)
+    expect(await barWords($)).toContain('wznawiam pracę')
+    await answered($, clock, 'Gdzie jesteśmy: … Krok 1: test sumy.')
+    // The cache went cold over the wait, so the Z9 event may stand there; the resume's buttons may not
+    expect(await buttons($)).not.toContain('Wznów pracę')
+    expect(await barWords($)).not.toContain('zapis')
+    // The mod deletes nothing itself: the file is Claude's to delete, with the card's consent
+    expect(w.disk[RESUME_FILE]).toBe(RESUME_TEXT)
+  })
+
+  test('"Nie teraz" or Esc on the card: nothing sent, no /clear, the button stays', async ($, on) => {
+    const { w, clock } = await waiting($, on)
+    await afterReset(clock)
+    const sentBefore = w.sent.length
+    for (const answer of ['Nie teraz', DISMISS]) {
+      w.resume = answer
+      await press($, 'resume')
+      await clock.advance(500)
+    }
+    expect(w.asked.filter((q) => q.startsWith('Wznowić')).length).toBe(2)
+    expect(w.sent.length).toBe(sentBefore)
+    expect(w.commands).not.toContain('/clear')
+    expect(await buttons($)).toEqual(['Wznów pracę', 'Odrzuć'])
+  })
+
+  test('a resume turn that does not end in an answer: back to waiting, the button returns', async ($, on) => {
+    const { w, clock } = await waiting($, on)
+    w.resume = 'Wznów'
+    await afterReset(clock)
+    await press($, 'resume')
+    await clock.advance(500)
+    expect(await barWords($)).toContain('wznawiam pracę')
+    const id = 'k' + ++turnNo
+    await $.turn.complete({ answer: '', durationMs: 100, isAborted: true, turnId: id, reason: 'aborted' } as never)
+    await clock.advance(30_000)
+    expect(await buttons($)).toEqual(['Wznów pracę', 'Odrzuć'])
+    expect(w.toasts.join('\n')).toContain('plik wznowienia zostaje')
+  })
+
+  test('"Odrzuć": Claude is asked to delete the file; the resume phrase never goes; the bar lets go', async ($, on) => {
+    const { w, clock } = await waiting($, on)
+    w.discard = 'Odrzuć'
+    await afterReset(clock)
+    const sentBefore = w.sent.length
+    await press($, 'discard')
+    await clock.advance(500)
+    expect(w.asked.find((q) => q.startsWith('Odrzucić'))).toContain(RESUME_REL)
+    expect(w.sent.slice(sentBefore)).toEqual([relaiDiscardPrompt(RESUME_REL)])
+    expect(w.sent.some((t) => t.includes('kontynuujemy pracę'))).toBe(false)
+    expect(w.commands).not.toContain('/clear')
+    expect(await buttons($)).not.toContain('Wznów pracę')
+    expect(await barWords($)).not.toContain('zapis')
+  })
+
+  test('"Zostaw" on the discard card: nothing sent, the button stays', async ($, on) => {
+    const { w, clock } = await waiting($, on)
+    w.discard = 'Zostaw'
+    await afterReset(clock)
+    const sentBefore = w.sent.length
+    await press($, 'discard')
+    await clock.advance(500)
+    expect(w.asked.filter((q) => q.startsWith('Odrzucić')).length).toBe(1)
+    expect(w.sent.length).toBe(sentBefore)
+    expect(await buttons($)).toEqual(['Wznów pracę', 'Odrzuć'])
+  })
+
+  test('outside a RelAI project: "Wznów pracę" sends the handoff the save wrote, from its file', async ($, on) => {
+    const { w, clock } = await waiting($, on, { relai: false })
+    w.resume = 'Wznów'
+    await afterReset(clock)
+    expect(await buttons($)).toEqual(['Wznów pracę', 'Odrzuć'])
+    await press($, 'resume')
+    await clock.advance(500)
+    const last = w.sent[w.sent.length - 1] ?? ''
+    expect(last.startsWith('Przekazanie z poprzedniej sesji (zapisane w ')).toBe(true)
+    expect(last).toContain('Cel: dokończyć koszyk.')
+    expect(last).not.toContain('plik wznowienia')
+  })
+
+  test('a save cut short: "Zamknij" closes its row', async ($, on) => {
+    const { clock } = await savedWorld($, on, 'Testy padły.')
+    expect(await buttons($)).toEqual(['Zamknij'])
+    await press($, 'close-broken')
+    await clock.advance(100)
+    expect(await barWords($)).not.toContain('zapis niepełny')
+  })
+})
+
+describe('the resume alone', () => {
+  test('the button only after the reset (or with no known reset) and only with the file', () => {
+    expect(resumeDue('czeka', NOW + MIN, NOW, true)).toBe(false)
+    expect(resumeDue('czeka', NOW, NOW, true)).toBe(true)
+    expect(resumeDue('czeka', null, NOW, true)).toBe(true)
+    expect(resumeDue('czeka', NOW - MIN, NOW, false)).toBe(false)
+    for (const phase of ['idle', 'running', 'przerwany', 'resuming'] as const) expect(resumeDue(phase, NOW - MIN, NOW, true)).toBe(false)
+    expect(saveRowText('czeka', NOW - MIN, NOW, true)).toBe('limit odnowiony · praca czeka na wznowienie')
+    expect(saveRowText('resuming', null, NOW)).toBe('wznawiam pracę')
+  })
+
+  test('the prompts: the start phrase with the path and the consent; the discard asks only to delete', () => {
+    expect(relaiResumePrompt(RESUME_REL)).toBe(`kontynuujemy pracę — plik wznowienia: ${RESUME_REL}\n${RESUME_CONSENT}`)
+    const discard = relaiDiscardPrompt(RESUME_REL)
+    expect(discard).toContain(`Skasuj plik wznowienia ${RESUME_REL}`)
+    expect(discard).not.toContain('kontynuujemy pracę')
   })
 })

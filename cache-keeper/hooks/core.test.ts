@@ -2,6 +2,7 @@ import { describe, expect, test } from 'claude-code/testing'
 import { DEFAULT_SETTINGS, MIN, applySetting, cacheState, dueWarning, judgeStep, parseTokens, pingDue, pingMissed } from './core'
 import { relaiDone, relaiFreshPrompt, plainBody, RELAI_DONE } from './handoff'
 import { ratesFor, rewriteCost, requestCost } from './pricing'
+import { limitWarnWindow } from './limit'
 
 describe('cache state', () => {
   test('unknown before any request, warm, cooling at the first threshold, cold after the TTL', async () => {
@@ -77,18 +78,13 @@ describe('settings', () => {
     expect(parseTokens('1,5m')).toBe(1_500_000)
   })
 
-  test('limit-warn takes a whole number 1–99, explains anything else in Polish, and leaves the keep-warm stop alone', async () => {
-    expect(DEFAULT_SETTINGS.limitWarn).toBe(90)
-    for (const bad of ['101', 'abc', '0', '85.5', '-5', '']) {
-      const r = applySetting(DEFAULT_SETTINGS, 'limit-warn', bad)
-      expect(r.error).toBe('limit-warn: liczba całkowita od 1 do 99, np. 85, 90 albo 95')
-      expect(r.settings).toBe(DEFAULT_SETTINGS)
-    }
-    const r = applySetting(DEFAULT_SETTINGS, 'limit-warn', '85')
-    expect(r.settings.limitWarn).toBe(85)
-    expect(r.settings.maxLimitPercent).toBe(90)
-    expect(applySetting(DEFAULT_SETTINGS, 'próg-limitu', '95').settings.limitWarn).toBe(95)
-    expect(applySetting(DEFAULT_SETTINGS, 'limit', '80').settings.limitWarn).toBe(90)
+  test('the limit threshold is no plugin setting (Aneks B): its keys go to the threshold cards, per window', async () => {
+    expect('limitWarn' in DEFAULT_SETTINGS).toBe(false)
+    expect(applySetting(DEFAULT_SETTINGS, 'limit-warn', '85').error).toBe('nieznane ustawienie: limit-warn')
+    expect(['limit-warn', 'próg-limitu', 'PROG-LIMITU'].map(limitWarnWindow)).toEqual(['five', 'five', 'five'])
+    expect(['limit-warn-week', 'prog-tygodnia', 'próg-tygodnia'].map(limitWarnWindow)).toEqual(['week', 'week', 'week'])
+    expect(limitWarnWindow('limit')).toBe(null)
+    expect(applySetting(DEFAULT_SETTINGS, 'limit', '80').settings.maxLimitPercent).toBe(80)
   })
 })
 

@@ -41,6 +41,23 @@ export function relaiSavePrompt(resumePath: string): string {
   ].join('\n')
 }
 
+// "Wznów pracę" after the limit's reset (LIMIT_CHECKPOINT E4): the start ritual's phrase with the
+// resume file (relai-core reads it first and proposes step 1 of its "Co dalej") and the card's
+// consent to delete the file once the work is resumed — nothing deletes it on its own (plan, section 8)
+export const RESUME_CONSENT = 'Zgoda na skasowanie pliku wznowienia po wznowieniu: tak (karta „Wznów pracę”).'
+
+export function relaiResumePrompt(resumePath: string): string {
+  return [`${RELAI_CONTINUE} — plik wznowienia: ${resumePath}`, RESUME_CONSENT].join('\n')
+}
+
+// "Odrzuć": the engine gives a mod no way to delete a file, so Claude deletes it (Łukasz 2026-10-11)
+export function relaiDiscardPrompt(resumePath: string): string {
+  return [
+    `Skasuj plik wznowienia ${resumePath} (relai-cache-keeper, karta „Odrzuć”).`,
+    'Bez wznawiania pracy, bez czytania go i bez innych zmian; potwierdź jednym zdaniem.',
+  ].join('\n')
+}
+
 // The marker stands on a line of its own (bold or code marks around it allowed): a sentence that
 // only mentions it, quoting the prompt, is no finished save
 export function saveDone(answer: string): boolean {
