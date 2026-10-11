@@ -1523,3 +1523,27 @@ zainstalowany 0.5.0 zostaje z łatką E1 + E2 do wydania 0.6.0 w E4.
 **Do zrobienia przez człowieka:** —
 
 Autor: RelAI (Opus 5.5) + Lukasz
+
+### 2026-10-11 — LIMIT_CHECKPOINT: Aneks B — zasięg progu przy `/cache limit-warn`
+
+**Zrobione:**
+
+- Uwaga Łukasza po E2: próg ustawiany komendą powinien dać wybór zasięgu jak zgoda
+  optymalizatora. Rozstrzygnięcia (AskUserQuestion): `/cache limit-warn N` pyta kartą
+  o zasięg (sesja / projekt / globalnie / nie zapisuj); „Pracuję dalej” zostaje wyłącznie
+  w sesji; realizacja w E4.
+- [PLAN.html](plany/LIMIT_CHECKPOINT/PLAN.html) sekcja 10: Aneks B (`limitWarn` w `$.store`
+  przestaje być ukrytym poziomem odczytu, parytet z `threshold.js` idzie za tym; próg ustawiany także z UI paneli — pasek cache albo `relai-panel`, miejsce proponuje Fable 5.1 — bez wymogu komendy; +1 sesja
+  SZACUNEK); [STATUS.md](plany/LIMIT_CHECKPOINT/STATUS.md): uwaga przy E4 i linia w dzienniku
+  wdrożenia; [PROMPT_ETAP_3.md](plany/LIMIT_CHECKPOINT/PROMPT_ETAP_3.md), rytuał pkt 5: materiał
+  do `PROMPT_ETAP_4` obejmuje Aneks B.
+
+**Zweryfikowane — jak dokładnie:** zmiana tylko w dokumentach planu; sekcje 1–9 planu nietknięte
+(`git diff` PLAN.html — jeden hunk w sekcji 10).
+
+**Świadomie odłożone:** migracja zastanego `limitWarn` (dziś 97 u Łukasza) — rozstrzyga wykonawca
+E4 razem z Łukaszem.
+
+**Do zrobienia przez człowieka:** —
+
+Autor: RelAI (Opus 5.5) + Lukasz

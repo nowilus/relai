@@ -455,7 +455,7 @@ Odhaczasz każde pole zaraz po sprawdzeniu (Aneks A) — punkt, który nie przes
 4. **`docs/STATE.md`** (pozycja LIMIT_CHECKPOINT: E3 zamknięty, E4 gotowy), `CLAUDE.md` (tabela
    „Stan prac”, linia „Aktywny plan”), `docs/ARTEFAKTY.md` (nowe artefakty).
 5. **Wygeneruj `PROMPT_ETAP_4.md`** wg `.claude/relai/templates/SPEC_PROMPT_ETAPU.md` — z sekcji 5
-   (akapit „Wznowienie”), 6 (wiersz E4), 7 (L5, L7) i 8 („Plik wznowienia istnieje…”, „/clear po
-   zapisie”) planu, z realnego stanu repo po E3 i lekcji z E3. Po wklejeniu zasad aktywnych policz
+   (akapit „Wznowienie”), 6 (wiersz E4), 7 (L5, L7), 8 („Plik wznowienia istnieje…”, „/clear po
+   zapisie”) i 10 (**Aneks B** — zasięg progu przy `/cache limit-warn`) planu, z realnego stanu repo po E3 i lekcji z E3. Po wklejeniu zasad aktywnych policz
    każdy nagłówek sekcji (dokładnie raz) i porównaj wklejony blok z rejestrem (L-0164).
 6. **Commit** — propozycja, conventional (EN), bez wydania.
