@@ -143,7 +143,10 @@ a nie po cichu do zakresu.
 ### 8. Weryfikacja
 
 **Sekcja obowiązkowa zawsze** (D-25), także przy etapie mechanicznym. Lista checkboxów `- [ ]`,
-nagłówek mówi wprost: **wszystkie punkty muszą przejść**.
+nagłówek mówi wprost: **wszystkie punkty muszą przejść**. Pod nagłówkiem stoi zdanie dla
+wykonawcy: Każdy punkt Weryfikacji, który przeszedł, odhaczasz w `PROMPT_ETAP_N.md` (`- [ ]` → `- [x]`)
+zaraz po jego sprawdzeniu, nie na końcu etapu; punkt, który nie przeszedł, zostaje pusty. Pasek
+postępu (`relai-progress`) liczy właśnie te pola — prompt bez odhaczeń pokazuje 0/N przez cały etap.
 
 Zasady:
 
@@ -298,6 +301,9 @@ poza projektem, wpisujesz do wpisu dziennika z nazwy.
    wtedy, gdy zmienia się sposób uruchomienia.
 
 ## Weryfikacja (wszystkie punkty muszą przejść)
+
+Każdy punkt Weryfikacji, który przeszedł, odhaczasz w `PROMPT_ETAP_N.md` (`- [ ]` → `- [x]`)
+zaraz po jego sprawdzeniu, nie na końcu etapu; punkt, który nie przeszedł, zostaje pusty.
 
 - [ ] `npm test` i `npm run test:int` kończą się bez błędów; nowe testy webhooka przechodzą.
 - [ ] Zdarzenie `checkout.session.completed` wysłane przez `stripe trigger` przestawia zamówienie

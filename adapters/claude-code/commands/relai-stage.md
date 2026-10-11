@@ -148,6 +148,8 @@ Po zgodzie, w tej kolejności:
 2. Wykonujesz prompt etapowy **dosłownie**: czytasz to, co każe przeczytać, w podanej kolejności;
    respektujesz sekcję „Decyzje już podjęte"; realizujesz zakres; przechodzisz sekcję Weryfikacja
    punkt po punkcie i **piszesz wynik każdego** — także wtedy, gdy punkt nie przeszedł.
+   Każdy punkt Weryfikacji, który przeszedł, odhaczasz w `PROMPT_ETAP_N.md` (`- [ ]` → `- [x]`)
+   zaraz po jego sprawdzeniu, nie na końcu etapu; punkt, który nie przeszedł, zostaje pusty.
 3. Zamykasz etap rytuałem „Na koniec". **Zanim go zaczniesz, wczytaj skill `relai-planning`**
    (narzędzie Skill) — komenda wywołana wprost nie ładuje go sama, a pełna treść rytuału i sekwencji
    zamknięcia planu mieszka tam, nie tutaj. Rytuał zawiera **wygenerowanie `PROMPT_ETAP_N+1.md`** —

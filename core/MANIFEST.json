@@ -63,6 +63,12 @@
       "description": "Tryb ciagly optymalizatora promptow: przelacznik `Tryb ciagly` z ustawien czytany maszynowo (wlaczony / wylaczony / nie wiadomo), filtr pomijania (komendy, frazy sesji, krotkie potwierdzenia, pytania) i tresc reguly wstrzykiwanej do tury. Bez wiedzy o protokole hookow."
     },
     {
+      "id": "resume",
+      "file": "./process/resume.js",
+      "kind": "biblioteka",
+      "description": "Plik wznowienia pracy (.claude/relai/wznowienie/<slug>.md, LIMIT_CHECKPOINT): slug z nazwy katalogu projektu ograniczony do [A-Za-z0-9_-], odczyt daty zapisu i zdanie dla hooka startu. Ten sam slug liczy cache-keeper/hooks/limit.ts (test parytetu). Bez wiedzy o protokole hookow."
+    },
+    {
       "id": "work-artifacts",
       "file": "./process/work-artifacts.js",
       "kind": "biblioteka+CLI",
@@ -95,6 +101,7 @@
         "./guardrails/secret-scan.js",
         "./process/session-signals.js",
         "./process/prompt-mode.js",
+        "./process/resume.js",
         "./process/work-artifacts.js",
         "./process/crew.js"
       ]

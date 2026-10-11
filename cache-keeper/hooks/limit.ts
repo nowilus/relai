@@ -245,3 +245,36 @@ export function cardDue(i: CardInput): Card | null {
   parts.push(`„${SAVE}” ${i.saveWords}.`, 'Pracować dalej czy zapisać pracę teraz?')
   return { over, resetAt, turnsLeft, question: parts.join(' ') }
 }
+
+// ---------- the save (LIMIT_CHECKPOINT E3) ----------
+
+// The resume file is per project (plan, L7): .claude/relai/wznowienie/<slug>.md. The slug is the
+// project folder's name in lower case, every run outside [a-z0-9_-] one hyphen, edges trimmed;
+// '.', '..' or nothing left → null, no path. core/process/resume.js holds the same rule (parity test).
+export const RESUME_DIR = '.claude/relai/wznowienie'
+const SLUG = /^[A-Za-z0-9_-]+$/
+
+export function resumeSlug(root: string): string | null {
+  const parts = String(root || '').replace(/\\/g, '/').split('/').filter(Boolean)
+  const name = parts.length ? parts[parts.length - 1] ?? '' : ''
+  if (name === '.' || name === '..') return null
+  const slug = name.toLowerCase().replace(/[^a-z0-9_-]+/g, '-').replace(/^-+|-+$/g, '')
+  return SLUG.test(slug) ? slug : null
+}
+
+export function resumePath(root: string): string | null {
+  const slug = resumeSlug(root)
+  return slug ? `${RESUME_DIR}/${slug}.md` : null
+}
+
+// The save's phase: running while Claude saves; "czeka" once the answer ended with the marker
+// (the work is saved, the limit's reset is awaited); "przerwany" when the turn ended without it
+export type SavePhase = 'idle' | 'running' | 'czeka' | 'przerwany'
+
+// The cache bar's second row for the save, null when it has none
+export function saveRowText(phase: SavePhase, resetAt: number | null, now: number): string | null {
+  if (phase === 'running') return 'zapis pracy trwa'
+  if (phase === 'przerwany') return 'zapis niepełny'
+  if (phase !== 'czeka') return null
+  return resetAt === null ? 'zapis gotowy · reset nieznany' : `zapis gotowy · reset ${whenText(resetAt, now)}`
+}

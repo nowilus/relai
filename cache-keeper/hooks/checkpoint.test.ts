@@ -1,7 +1,8 @@
 import { describe, expect, mock, test, type TestBody } from 'claude-code/testing'
 import type { On, RenderNode, TurnStepResult } from 'claude-code'
 import { BAND } from './relai/theme.mjs'
-import { cardDue, focusFilePath, focusRef, focusStatus, isWorkGoing, nextSessionThreshold, thresholdAnswer, type CardInput } from './limit'
+import { cardDue, focusFilePath, focusRef, focusStatus, isWorkGoing, nextSessionThreshold, resumePath, saveRowText, thresholdAnswer, type CardInput } from './limit'
+import { SAVE_CONSENT, SAVE_DONE, relaiSavePrompt, saveDone } from './handoff'
 
 type Engine = Parameters<TestBody>[0]
 
@@ -26,7 +27,7 @@ type Answer = string | Error
 type World = {
   limits: Limit[], git: string | Error | null, gitCalls: { argv: readonly string[], timeoutMs?: number }[],
   asked: string[], toasts: string[], sent: string[], disk: Record<string, string>,
-  card: Answer, threshold: Answer, scope: Answer,
+  card: Answer, threshold: Answer, scope: Answer, id: string,
 }
 
 const DISMISS = new Error('dismissed') // Esc on the dialog rejects the ask
@@ -35,11 +36,11 @@ const statusFile = (e2: string) => `# STATUS\n\nPlan: [PLAN.html](PLAN.html) · 
 const focusFile = (stage: string) => JSON.stringify({ kind: 'plan', plan: 'PLAN_X', stage, source: 'auto', at: NOW })
 const five = (percentUsed: number, resetIn = 60 * MIN): Limit => ({ kind: 'five_hour', percentUsed, resetsAt: new Date(NOW + resetIn).toISOString() })
 
-function world(on: On, options: { git?: string | Error | null, focus?: string } = {}) {
+function world(on: On, options: { git?: string | Error | null, focus?: string, relai?: boolean } = {}) {
   const w: World = {
     limits: [], git: options.git ?? '', gitCalls: [], asked: [], toasts: [], sent: [],
-    disk: { [SETTINGS]: settingsFile, [STATUS]: statusFile('W TOKU'), ...(options.focus ? { [FOCUS]: options.focus } : {}) },
-    card: DISMISS, threshold: DISMISS, scope: DISMISS,
+    disk: { ...(options.relai === false ? {} : { [SETTINGS]: settingsFile }), [STATUS]: statusFile('W TOKU'), ...(options.focus ? { [FOCUS]: options.focus } : {}) },
+    card: DISMISS, threshold: DISMISS, scope: DISMISS, id: 's1',
   }
   const clock = mock.clock(on, { now: NOW })
   const kept = new Map<string, unknown>()
@@ -53,8 +54,9 @@ function world(on: On, options: { git?: string | Error | null, focus?: string } 
   on('fs.read', ($, e) => (key(e.path) in w.disk ? { value: w.disk[key(e.path)] ?? '' } : { deny: 'ENOENT ' + e.path }))
   on('fs.write', ($, e) => { w.disk[key(e.path)] = e.text; return { value: undefined } })
   on('session.start', ($, e) => ({ cwd: e.cwd }))
+  on('session.end', ($, e) => ({ sessionId: e.sessionId }))
   on('session.cwd', () => ({ value: ROOT }))
-  on('session.id', () => ({ value: 's1' }))
+  on('session.id', () => ({ value: w.id }))
   on('session.model', () => ({ value: 'claude-opus-5-5' }))
   on('session.turns', () => ({ value: 5 }))
   on('session.usage', () => ({ value: { startedAt: NOW, context: { tokens: 183_010 } as never, rateLimits: w.limits as never, cost: { usd: 1 } } }))
@@ -288,16 +290,16 @@ describe('what the answers do', () => {
     expect(cards(w).length).toBe(1)
   })
 
-  test('"Zapisz pracę teraz" starts the handoff and says so on the card', async ($, on) => {
+  test('"Zapisz pracę teraz" in a RelAI project sends the save phrase with the card\'s consent and says so on the card (E3)', async ($, on) => {
     const { w, clock } = world(on, { git: ' M a.ts\n' })
     w.card = 'Zapisz pracę teraz'
     w.limits = [five(91)]
     await start($)
     await turn($, clock)
-    expect(cards(w)[0]).toContain('uruchomi przekazanie /handoff')
+    expect(cards(w)[0]).toContain('wyśle frazę „zapisz pracę”')
     await clock.advance(100)
-    expect(w.sent.length).toBe(1)
-    expect(w.sent[0]).toContain('Przekazanie do świeżego czatu (relai-cache-keeper).')
+    expect(w.sent).toEqual([relaiSavePrompt('.claude/relai/wznowienie/proj.md')])
+    expect(w.sent[0]).toContain(SAVE_CONSENT)
   })
 
   test('the first card saves the chosen threshold in the chosen scope, then asks against it', async ($, on) => {
@@ -383,5 +385,175 @@ describe('the card logic alone', () => {
     expect(isWorkGoing(null, '  \n')).toBe(false)
     expect(isWorkGoing(null, null)).toBe(false)
     expect([thresholdAnswer('85'), thresholdAnswer('85 %'), thresholdAnswer('0'), thresholdAnswer('150'), thresholdAnswer('dużo')]).toEqual([85, 85, null, null, null])
+  })
+})
+
+// The save (LIMIT_CHECKPOINT E3): "Zapisz pracę teraz" sends the save; the answer's own line
+// ZAPIS GOTOWY puts the bar into "czeka" with the later window's reset, an answer without it into
+// "przerwany". The phase is kept per project, so a reload and a /clear keep it.
+
+const SAVED = `Testy zielone, commit lokalny abc1234, dokumenty i plik wznowienia gotowe.\n\n**${SAVE_DONE}**`
+const PLAIN = '# Przekazanie sesji\n\n' + 'Cel: dokończyć koszyk. Zrobione: suma i rabaty. Stan: gałąź main, dwa pliki zmienione. Otwarte: zaokrąglenia. Następny krok: test sumy przy rabacie 100 %. '.repeat(2)
+
+// A main turn with this answer: the save's own turn
+async function answered($: Engine, clock: { advance: (ms: number) => Promise<void> }, answer: string) {
+  const id = 'k' + ++turnNo
+  await $.turn.start({ turnId: id } as never)
+  const s = $.turn.step({ turnId: id, index: 0, model: 'claude-opus-5-5', messageCount: 1 } as never)
+  for await (const _chunk of s) { /* the chunks are the engine's */ }
+  await s.result
+  await $.turn.complete({ answer, durationMs: 5000, isAborted: false, turnId: id, reason: 'answer' } as never)
+  await clock.advance(500)
+}
+
+// The words the cache bar draws in its Text nodes, on the desktop
+async function barWords($: Engine): Promise<string> {
+  const ui = await $.ui.mount({ plugin: 'relai-cache-keeper', surface: 'desktop', component: 'AbovePrompt',
+    props: { hasSurvey: false, isWorking: false, maxRows: 10, bodyColumns: 140, scroll: { offset: 0, bodyRows: 9 }, view: {} } })
+  const words = (n: RenderNode): string[] => (typeof n === 'string' ? [n] : ((n as { children?: RenderNode[] }).children ?? []).flatMap(words))
+  const text = words(await ui.drawn()).join(' ')
+  await ui.unmount()
+  return text
+}
+
+const hhmm = (at: number) => `${String(new Date(at).getHours()).padStart(2, '0')}:${String(new Date(at).getMinutes()).padStart(2, '0')}`
+
+async function savedWorld($: Engine, on: On, answer: string, options: { relai?: boolean } = {}) {
+  const { w, clock } = world(on, { git: ' M a.ts\n', ...options })
+  w.card = 'Zapisz pracę teraz'
+  w.limits = [five(91, 90 * MIN)]
+  await start($)
+  await turn($, clock)
+  await clock.advance(100)
+  await answered($, clock, answer)
+  return { w, clock }
+}
+
+describe('the save (E3)', () => {
+  test('an answer ending with ZAPIS GOTOWY: the bar says the save is ready and when the limit resets', async ($, on) => {
+    await savedWorld($, on, SAVED)
+    const words = await barWords($)
+    expect(words).toContain(`zapis gotowy · reset ${hhmm(NOW + 90 * MIN)}`)
+    expect(words).not.toContain('zapis niepełny')
+  })
+
+  test('an answer without the marker: the bar says the save is incomplete', async ($, on) => {
+    await savedWorld($, on, 'Testy padły, przerwałem. Commit lokalny abc1234 zrobiony.')
+    const words = await barWords($)
+    expect(words).toContain('zapis niepełny')
+    expect(words).not.toContain('zapis gotowy')
+  })
+
+  test('the phase outlives a reload and a /clear', async ($, on) => {
+    const { w } = await savedWorld($, on, SAVED)
+    await start($) // a hot reload
+    expect(await barWords($)).toContain('zapis gotowy · reset')
+    w.id = 's2'
+    await $.session.end({ reason: 'clear', sessionId: 's1', resume: {} } as never)
+    expect(await barWords($)).toContain('zapis gotowy · reset')
+  })
+
+  test('outside a RelAI project: the general handoff, said so on the card, saved to a file; then the bar waits', async ($, on) => {
+    const { w } = await savedWorld($, on, PLAIN, { relai: false })
+    expect(cards(w)[0]).toContain('projekt bez RelAI')
+    expect(w.sent.length).toBe(1)
+    expect(w.sent[0]).toContain('Przekazanie do świeżego czatu (relai-cache-keeper).')
+    expect(w.sent[0]).not.toContain('zapisz pracę')
+    expect(Object.keys(w.disk).some((k) => k.includes('/handoffs/') && k.endsWith('-proj.md'))).toBe(true)
+    expect(await barWords($)).toContain('zapis gotowy · reset')
+  })
+
+  test('a reload while the save runs: the same conversation still takes the answer', async ($, on) => {
+    const { w, clock } = world(on, { git: ' M a.ts\n' })
+    w.card = 'Zapisz pracę teraz'
+    w.limits = [five(91)]
+    await start($)
+    await turn($, clock)
+    await clock.advance(100)
+    await start($) // a hot reload in the middle of the save's turn
+    expect(await barWords($)).toContain('zapis pracy trwa')
+    await answered($, clock, SAVED)
+    expect(await barWords($)).toContain('zapis gotowy · reset')
+  })
+
+  test('a running save another conversation finds, or a /clear under it, reads as cut short — never running forever', async ($, on) => {
+    const { w, clock } = world(on, { git: ' M a.ts\n' })
+    w.card = 'Zapisz pracę teraz'
+    w.limits = [five(91)]
+    await start($)
+    await turn($, clock)
+    await clock.advance(100)
+    w.id = 's2'
+    await start($) // a new conversation of the same project
+    expect(await barWords($)).toContain('zapis niepełny')
+    w.card = DISMISS // the new conversation's own card, dismissed
+    await answered($, clock, SAVED) // its own turn is no answer to the other one's save
+    expect(await barWords($)).toContain('zapis niepełny')
+  })
+
+  test('a /clear while the save runs: cut short', async ($, on) => {
+    const { w, clock } = world(on, { git: ' M a.ts\n' })
+    w.card = 'Zapisz pracę teraz'
+    w.limits = [five(91)]
+    await start($)
+    await turn($, clock)
+    await clock.advance(100)
+    w.id = 's2'
+    await $.session.end({ reason: 'clear', sessionId: 's1', resume: {} } as never)
+    await clock.advance(100)
+    expect(await barWords($)).toContain('zapis niepełny')
+  })
+
+  test('a handoff waits while the save runs', async ($, on) => {
+    const { w, clock } = world(on, { git: ' M a.ts\n' })
+    w.card = 'Zapisz pracę teraz'
+    w.limits = [five(91)]
+    await start($)
+    await turn($, clock)
+    await clock.advance(100)
+    await $.command.run({ command: 'handoff', args: '', origin: { kind: 'composer' }, presentation: { isFullscreen: false, columns: 120 } } as never)
+    await clock.advance(100)
+    expect(w.sent.length).toBe(1)
+    expect(w.toasts.some((t) => t.startsWith('Trwa zapis pracy'))).toBe(true)
+  })
+
+  test('while the save runs, the bar says it is under way', async ($, on) => {
+    const { w, clock } = world(on, { git: ' M a.ts\n' })
+    w.card = 'Zapisz pracę teraz'
+    w.limits = [five(91)]
+    await start($)
+    await turn($, clock)
+    await clock.advance(100)
+    expect(w.sent.length).toBe(1)
+    expect(await barWords($)).toContain('zapis pracy trwa')
+  })
+})
+
+describe('the save alone', () => {
+  test('the marker counts on a line of its own, bold or not; a mention inside a sentence does not', () => {
+    expect(saveDone(`ok\n${SAVE_DONE}`)).toBe(true)
+    expect(saveDone(`ok\n**${SAVE_DONE}**\n`)).toBe(true)
+    expect(saveDone(`ok\r\n${SAVE_DONE}\r\n`)).toBe(true)
+    expect(saveDone(`Na końcu napiszę ${SAVE_DONE}, gdy skończę.`)).toBe(false)
+    expect(saveDone('')).toBe(false)
+  })
+
+  test('the save prompt: the phrase first, the consent, the resume file, the marker', () => {
+    const text = relaiSavePrompt('.claude/relai/wznowienie/sklep.md')
+    expect(text.startsWith('zapisz pracę')).toBe(true)
+    expect(text).toContain(SAVE_CONSENT)
+    expect(text).toContain('Plik wznowienia: .claude/relai/wznowienie/sklep.md')
+    expect(text).toContain(`dokładnie: ${SAVE_DONE}`)
+  })
+
+  test('the resume path never leaves its folder; the row words per phase', () => {
+    expect(resumePath('C:/proj')).toBe('.claude/relai/wznowienie/proj.md')
+    expect(resumePath('C:/x/..')).toBe(null)
+    expect(resumePath('../')).toBe(null)
+    expect(saveRowText('idle', null, NOW)).toBe(null)
+    expect(saveRowText('running', null, NOW)).toBe('zapis pracy trwa')
+    expect(saveRowText('przerwany', null, NOW)).toBe('zapis niepełny')
+    expect(saveRowText('czeka', null, NOW)).toBe('zapis gotowy · reset nieznany')
+    expect(saveRowText('czeka', NOW + 30 * MIN, NOW)).toBe(`zapis gotowy · reset ${hhmm(NOW + 30 * MIN)}`)
   })
 })

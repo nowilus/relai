@@ -22,6 +22,31 @@ export const PLAIN_HANDOFF_PROMPT = [
   'Samowystarczalne — czytelnik nie zna tej rozmowy. Bez wstępu przed nagłówkiem.',
 ].join('\n')
 
+// "Zapisz pracę teraz" on the limit card (LIMIT_CHECKPOINT E3). In a RelAI project it sends the
+// phrase of relai-core's limit-checkpoint.md with the card's consent to a local commit; the
+// answer's last line SAVE_DONE puts the bar into "czeka". The marker is the same string as in the
+// procedure (adapters/claude-code/skills/relai-core/limit-checkpoint.md).
+export const SAVE_DONE = 'ZAPIS GOTOWY'
+export const SAVE_CONSENT = 'Zgoda na commit lokalny: tak (karta limitu „Zapisz pracę teraz”).'
+
+export function relaiSavePrompt(resumePath: string): string {
+  return [
+    'zapisz pracę',
+    '',
+    'Zapis pracy przed wyczerpaniem limitu planu (relai-cache-keeper).',
+    'Wykonaj procedurę z pliku limit-checkpoint.md skilla relai-core, krok po kroku, bez pytań poza commitem.',
+    SAVE_CONSENT,
+    `Plik wznowienia: ${resumePath}`,
+    `Na końcu odpowiedzi napisz w osobnej linii dokładnie: ${SAVE_DONE}`,
+  ].join('\n')
+}
+
+// The marker stands on a line of its own (bold or code marks around it allowed): a sentence that
+// only mentions it, quoting the prompt, is no finished save
+export function saveDone(answer: string): boolean {
+  return String(answer || '').split('\n').some((line) => line.replace(/[*`_]/g, '').trim() === SAVE_DONE)
+}
+
 export function relaiDone(answer: string): boolean {
   return String(answer || '').includes(RELAI_DONE)
 }

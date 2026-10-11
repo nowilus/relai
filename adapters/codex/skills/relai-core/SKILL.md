@@ -8,10 +8,10 @@ description: >
   without this check the session works without the project's memory, rules and open risks.
   Trigger phrases (Polish): "zacznijmy projekt", "nowy projekt", "zaczynam projekt", "zainicjuj
   projekt", "dodaj RelAI", "dołącz RelAI", "zaadoptuj projekt", "co to za projekt", "kończymy na
-  dziś", "kontynuujemy pracę", "sprawdź status", "jak stoimy". English: "start project", "new
-  project", "init project", "set up RelAI", "adopt this project", "wrapping up", "let's continue",
-  "status check". Also covers guest mode, attach, the closing ritual with journal rotation, lessons
-  after user corrections and profile rules. Plans: relai-planning.
+  dziś", "kontynuujemy pracę", "sprawdź status", "jak stoimy", "zapisz pracę". English: "start
+  project", "new project", "init project", "set up RelAI", "adopt this project", "wrapping up",
+  "let's continue", "status check", "save my work". Also covers guest mode, attach, the closing
+  ritual with rotation, lessons after user corrections and profile rules. Plans: relai-planning.
 ---
 
 # relai-core — struktura projektu, pamięć i rytuały sesji
@@ -21,7 +21,7 @@ Aktualny stan dystrybucyjny: RelAI 2.8.0. Historia zmian wersji: `history.md`.
 Zakres tego skilla: **rozpoznanie stanu folderu + inicjalizacja + tryb
 gościa + niedestrukcyjne dołączenie + rytuały sesji + rotacja dokumentów przy zamknięciu sesji +
 siatka brakujących promptów etapowych + siatka rozjazdu stanu + rejestr decyzji po adopcji +
-rejestry LEKCJE/DECYZJE + trzy frazy naturalne + warstwa ustawień globalnych + reguły warunkowe
+rejestry LEKCJE/DECYZJE + cztery frazy naturalne + warstwa ustawień globalnych + reguły warunkowe
 profilu projektu + pliki lokalne i marker „zachowaj" (od 1.8.0)**. Od 0.5.0 działa też zestaw hooków (sekrety, ochrona konfiguracji, przypomnienia,
 kontekst sesji, a od 0.8.0 reguły profilu) — pilnują twardych granic niezależnie od tego skilla.
 Od 0.9.0 działa **pełna adopcja zastanego projektu** — wyłącznie na jawne wywołanie `/relai-adopt`
@@ -58,6 +58,7 @@ gdy zachodzi jego wyzwalacz, i czytasz go w całości przed pierwszym krokiem pr
 | `profiles.md` | zachodzi zdarzenie profilu, człowiek zmienia profil albo inicjalizujesz projekt |
 | `debugging.md` | coś nie działa: „nie działa", „błąd", „sypie się", „it's broken", „doesn't work", test albo komenda pada bez jasnej przyczyny |
 | `done-check.md` | zaczynasz zadanie, które zmieni kod — kroki (testy projektu, przegląd diffu) wykonujesz **przed** zgłoszeniem „gotowe" |
+| `limit-checkpoint.md` | prompt zaczyna się od „zapisz pracę" / „save my work" — z karty limitu na pasku albo wpisany ręcznie; procedura kończy się linią `ZAPIS GOTOWY` |
 | `first-deploy.md` | **przed** pierwszym wdrożeniem środowiska: „wdrażamy", „deploy", pierwsza konfiguracja wdrożeniowa |
 | `waiting-migration.md` | dziennik projektu 1.6.0+ nie ma sekcji „Czeka na człowieka" i człowiek zgodził się ją założyć |
 | `history.md` | pytanie dotyczy tego, co zmieniło się w konkretnej wersji pluginu |
@@ -394,7 +395,7 @@ sprzątamy").
 
 ## Frazy naturalne (D-05)
 
-Trzy frazy działają w tej wersji, w wariancie polskim i angielskim. Rozpoznajesz **intencję**, nie
+Cztery frazy działają w tej wersji, w wariancie polskim i angielskim. Rozpoznajesz **intencję**, nie
 dosłowne brzmienie: „kończymy", „na dziś wystarczy", „that's it for today" to ta sama fraza.
 
 ### „kończymy na dziś" / „wrapping up"
@@ -427,7 +428,13 @@ Zwięzły raport, bez wykonywania pracy. Kolejno:
    rozstrzygnięte.
 5. Zakończ pytaniem o najbliższy krok — jednym zdaniem.
 
-Wszystkie trzy frazy są opisane w wygenerowanym `docs/KOMENDY.md`. Obsługujesz i zapowiadasz
+### „zapisz pracę" / „save my work"
+
+Otwórz **`limit-checkpoint.md`** i wykonaj procedurę zapisu krok po kroku: testy, commit kodu,
+dokumenty, plik wznowienia, znacznik `ZAPIS GOTOWY`. Fraza z karty limitu niesie zgodę na commit
+lokalny; wpisana ręcznie — pytasz o commit raz.
+
+Wszystkie cztery frazy są opisane w wygenerowanym `docs/KOMENDY.md`. Obsługujesz i zapowiadasz
 wyłącznie frazy z tej listy.
 
 ---

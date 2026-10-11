@@ -13,14 +13,15 @@ import { barCard } from './bar-card'
 import { BAND, BAR, BATTERY, CHIP } from './relai/theme.mjs'
 import { batteryRows, cacheMeasure, contextMeasure, glyphColor, limitMeasure, measureGlyph, resetMeasure, type Limit, type Measure } from './rings'
 import { ancestors, parseStatus } from './relai/plan-state.mjs'
-import { PLAIN_HANDOFF_PROMPT, RELAI_CONTINUE, RELAI_HANDOFF_PROMPT, continuePrompt, plainBody, relaiDone, relaiFreshPrompt } from './handoff'
+import { PLAIN_HANDOFF_PROMPT, RELAI_CONTINUE, RELAI_HANDOFF_PROMPT, continuePrompt, plainBody, relaiDone, relaiFreshPrompt, relaiSavePrompt, saveDone } from './handoff'
 import { PRICE_FILE } from './relai/pricing.mjs'
 import { BUILT_IN, priceSource, pricesFrom, ratesFor, requestCost, rewriteCost, totalInput, type Prices, type Usage } from './pricing'
 import { handoffEconomics, limitPace, type CacheTemp, type HandoffInput, type HandoffVerdict, type LimitTurn } from './economics'
 import { RITUAL_FILES, activePlanStatus, dateText, estimatedLayer, measuredLayer, startKey, type MeasuredStart } from './start-layer'
 import {
   CARD_OPTIONS, DEFAULT_THRESHOLD, GO_ON, MUTE, SAVE, SCOPE_OPTIONS, THRESHOLD_OPTIONS, cardDue, focusDocPath, focusFilePath, focusRef, focusStatus,
-  isWorkGoing, nextSessionThreshold, rememberThreshold, thresholdAnswer, thresholdOf, thresholdText, type CardInput, type LimitIO, type Threshold,
+  isWorkGoing, nextSessionThreshold, rememberThreshold, resumePath, saveRowText, thresholdAnswer, thresholdOf, thresholdText, type CardInput, type LimitIO,
+  type SavePhase, type Threshold,
 } from './limit'
 
 type $T = EngineInterface
@@ -83,9 +84,18 @@ const FRESH: Session = {
 }
 const IDLE: Handoff = { phase: 'idle', notTurn: '', relai: false, body: '', path: '' }
 
+// The save from the limit card (LIMIT_CHECKPOINT E3). Kept per project in the store, not in the
+// conversation's snapshot: "czeka" outlives a reload and a /clear (plan, section 8).
+// sessionId and startedAt belong to "running": only the conversation that asked takes the answer.
+type Save = { phase: SavePhase; notTurn: string; relai: boolean; resetAt: number | null; path: string; sessionId: string; startedAt: number }
+const NO_SAVE: Save = { phase: 'idle', notTurn: '', relai: false, resetAt: null, path: '', sessionId: '', startedAt: 0 }
+const SAVE_PHASES: readonly SavePhase[] = ['idle', 'running', 'czeka', 'przerwany']
+const SAVE_STALE_MS = 30 * MIN // a save still "running" this long after it was sent lost its turn
+
 // Module state is replaced, never mutated in place; a hot reload restores it from the store
 let S: Session = FRESH
 let H: Handoff = IDLE
+let V: Save = NO_SAVE
 let settings: Settings = DEFAULT_SETTINGS
 let home = ''
 let names = { cache: 'cache', keepwarm: 'keepwarm', handoff: 'handoff' }
@@ -178,6 +188,8 @@ function resetSession($: $T, id: string, isFresh: boolean) {
   stopKeepWarm($, 'nowa rozmowa')
   S = { ...FRESH, id, cwd: S.cwd, model: S.model, isRelai: S.isRelai, rateLimits: S.rateLimits, ctxWindow: S.ctxWindow, start: S.start, startSource: S.startSource, startPending: isFresh }
   if (H.phase !== 'continuing') H = IDLE
+  // A save still running belonged to the ended conversation: its answer will not come
+  if (V.phase === 'running') later($, () => keepSave($, { ...V, phase: 'przerwany' }))
   verdict = null
   $.ui.invalidate('ui.render')
 }
@@ -376,6 +388,10 @@ async function tick($: $T) {
 // ---------- handoff ----------
 
 async function startHandoff($: $T) {
+  if (V.phase === 'running') {
+    $.ui.toast('Trwa zapis pracy — przekazanie po jego zakończeniu.')
+    return
+  }
   if (H.phase !== 'idle') {
     $.ui.toast(H.phase === 'ready' ? `Przekazanie gotowe: /${names.handoff} dalej albo klawisz c na pasku.` : 'Przekazanie już trwa.')
     return
@@ -407,12 +423,18 @@ async function captureHandoff($: $T, answer: string, now: number) {
       $.ui.toast('Tura zakończyła się bez przekazania — nic nie zapisano.', { timeoutMs: 10_000 })
       return
     }
-    const path = `${home || '.'}/.claude/mods-data/relai-cache-keeper/handoffs/${fileStamp(now)}-${basename(S.cwd).replace(/[^A-Za-z0-9-]+/g, '-')}.md`.replace(/\\/g, '/')
-    const saved = await $.fs.write(path, body + '\n').then(() => path, () => '')
+    const saved = await writeHandoff($, body, now)
     setH({ phase: 'ready', body, path: saved })
   }
   $.ui.invalidate('ui.render')
   $.clock.after(300, () => { offerContinue($).catch(() => {}) })
+}
+
+// The general handoff's file; its name comes from the clock and the folder, never from the answer.
+// '' when it could not be written.
+async function writeHandoff($: $T, body: string, now: number): Promise<string> {
+  const path = `${home || '.'}/.claude/mods-data/relai-cache-keeper/handoffs/${fileStamp(now)}-${basename(S.cwd).replace(/[^A-Za-z0-9-]+/g, '-')}.md`.replace(/\\/g, '/')
+  return $.fs.write(path, body + '\n').then(() => path, () => '')
 }
 
 async function offerContinue($: $T) {
@@ -443,6 +465,58 @@ async function clearAndContinue($: $T, text?: string) {
     $.ui.toast(filled ? 'Czat wyczyszczony. Pierwszy prompt czeka w polu — naciśnij Enter.' : 'Czat wyczyszczony, ale pierwszego promptu nie udało się wysłać.', { timeoutMs: 10_000 })
   }
   $.ui.invalidate('ui.render')
+}
+
+// ---------- the save (LIMIT_CHECKPOINT E3) ----------
+
+const saveKey = () => 'save:' + S.cwd
+
+async function keepSave($: $T, next: Save) {
+  V = next
+  await $.store.set(saveKey(), V).catch(() => {})
+  $.ui.invalidate('ui.render')
+}
+
+// A stored save of an unknown shape is no save. A "running" one that another conversation sent,
+// or that waited past SAVE_STALE_MS, lost its turn: it reads as cut short, never as running forever.
+async function loadSave($: $T, now: number) {
+  const v = (await $.store.get(saveKey()).catch(() => undefined)) as Save | undefined
+  V = v && SAVE_PHASES.includes(v.phase) ? { ...NO_SAVE, ...v } : NO_SAVE
+  if (V.phase === 'running' && (V.sessionId !== S.id || now - V.startedAt > SAVE_STALE_MS)) await keepSave($, { ...V, phase: 'przerwany' })
+}
+
+// In a RelAI project the phrase of relai-core's limit-checkpoint.md with the card's consent to a
+// local commit; elsewhere (or a folder name that gives no resume path) the general handoff
+async function startSave($: $T, resetAt: number | null) {
+  if (V.phase === 'running' || H.phase !== 'idle') {
+    $.ui.toast(V.phase === 'running' ? 'Zapis pracy już trwa.' : 'Najpierw zakończ przekazanie — zapis pracy poczeka.')
+    return
+  }
+  const before = V
+  const path = S.isRelai ? resumePath(S.cwd) : null
+  await keepSave($, { ...NO_SAVE, phase: 'running', relai: path !== null, resetAt, notTurn: S.working ? S.turnId : '', sessionId: S.id, startedAt: await $.clock.now() })
+  $.ui.toast(path ? 'Zapis pracy: testy, commit lokalny, dokumenty i plik wznowienia.' : 'Zapis pracy: Claude spisze przekazanie sesji do pliku.')
+  try {
+    await $.prompt.submit({ text: path ? relaiSavePrompt(path) : PLAIN_HANDOFF_PROMPT, asUser: true })
+  } catch (err) {
+    await keepSave($, before)
+    $.ui.toast('Nie udało się wysłać prośby o zapis pracy: ' + clip(String((err as Error)?.message || err), 100), { timeoutMs: 10_000 })
+  }
+}
+
+// The save's turn ended: its marker (RelAI) or a handoff body (elsewhere) means "czeka";
+// anything else, a cut-off turn among them, means "przerwany"
+async function captureSave($: $T, answer: string, now: number) {
+  if (V.relai) {
+    const isDone = saveDone(answer)
+    await keepSave($, { ...V, phase: isDone ? 'czeka' : 'przerwany' })
+    if (!isDone) $.ui.toast('Zapis pracy nie potwierdził zakończenia — sprawdź commit i dokumenty.', { timeoutMs: 10_000 })
+    return
+  }
+  const body = plainBody(answer)
+  const path = body ? await writeHandoff($, body, now) : ''
+  await keepSave($, { ...V, phase: path ? 'czeka' : 'przerwany', path })
+  if (!path) $.ui.toast('Tura zakończyła się bez przekazania — zapis niepełny.', { timeoutMs: 10_000 })
 }
 
 // "Najpierw compact, potem wyślij" (Z5): a vetoed compaction resolves { skip }, a refused one
@@ -503,7 +577,9 @@ function cardInput(now: number, isWorking: boolean): CardInput {
   return {
     limits: S.rateLimits, threshold: threshold.value, askedAt: S.limitAskedAt, isMuted: S.limitMuted, isWorking,
     perTurn: limitPace(S.limitTurns, S.ctx > 0 ? S.ctx : 1)?.now ?? null, now,
-    saveWords: S.isRelai ? 'uruchomi przekazanie /handoff: synchronizacja dokumentów projektu, potem świeży czat' : 'uruchomi przekazanie /handoff: Claude spisze stan sesji, potem świeży czat',
+    saveWords: S.isRelai && resumePath(S.cwd)
+      ? 'wyśle frazę „zapisz pracę”: testy, commit lokalny (zgoda z tej karty, bez pusha), dokumenty projektu i plik wznowienia'
+      : 'spisze przekazanie sesji do pliku (projekt bez RelAI — wariant ogólny, jak /handoff)',
   }
 }
 
@@ -533,12 +609,13 @@ async function chooseThreshold($: $T, now: number) {
 // Cheap checks first; git runs only when a card would otherwise be due. An answer that comes
 // after a /clear or /resume belongs to the conversation that asked, so it is dropped.
 async function limitCheckpoint($: $T) {
-  if (carding || H.phase !== 'idle') return
+  if (carding || H.phase !== 'idle' || V.phase === 'running') return
   await loadThreshold($)
   if (!cardDue(cardInput(await $.clock.now(), true))) return
   carding = true
   const id = S.id
   let isSaving = false
+  let resetAt: number | null = null
   try {
     if (!(await workGoing($))) return
     if (!S.limitFirstDone) {
@@ -559,6 +636,7 @@ async function limitCheckpoint($: $T) {
       $.ui.toast(saved.error ? saved.error : `Pracujemy dalej. Następna karta po przekroczeniu ${threshold.value} %.`, { timeoutMs: 8000 })
     } else if (answer === SAVE) {
       isSaving = true
+      resetAt = card.resetAt
     } else if (answer === MUTE) {
       set({ limitMuted: true })
     }
@@ -567,7 +645,7 @@ async function limitCheckpoint($: $T) {
     await saveSnap($, await $.clock.now())
     $.ui.invalidate('ui.render')
   }
-  if (isSaving) await startHandoff($)
+  if (isSaving) await startSave($, resetAt)
 }
 
 // ---------- texts ----------
@@ -605,10 +683,12 @@ const costFigure = (): readonly [string, string] => (S.costUsd === null ? ['brak
 // The cache bar's second row (brief v2 §1): only while its reason lasts, one at a time. A handoff
 // the person must answer first, then one under way; a cooling cache before the Z9 event (minutes
 // decide whether "Podtrzymaj" still helps, and its row offers Przekaż too); a kept cache last.
-type SecondKind = 'ready' | 'running' | 'cooling' | 'event' | 'kept'
+type SecondKind = 'ready' | 'running' | 'saved' | 'broken' | 'cooling' | 'event' | 'kept'
 // `rest` follows `text` muted: the Z9 event leads with its verdict in bold, its figures after
 type Second = { kind: SecondKind, text: string, rest: string }
-const CHIP_OF: Record<SecondKind, { color: string, bg: string }> = { ready: CHIP.ok, running: CHIP.run, cooling: CHIP.warn, event: CHIP.info, kept: CHIP.run }
+const CHIP_OF: Record<SecondKind, { color: string, bg: string }> = {
+  ready: CHIP.ok, running: CHIP.run, saved: CHIP.ok, broken: CHIP.warn, cooling: CHIP.warn, event: CHIP.info, kept: CHIP.run,
+}
 
 // The event's words split before its figures: "nowa sesja zwróci się po N turach" | " · ≈ $x → $y/turę …"
 const FIGURES = ' · ≈ '
@@ -627,6 +707,9 @@ function secondRow(now: number, kind: string): Second | null {
   if (H.phase === 'ready') return { kind: 'ready', text: 'przekazanie gotowe', rest: '' }
   if (H.phase === 'running') return { kind: 'running', text: 'przekazanie trwa', rest: '' }
   if (H.phase === 'continuing') return { kind: 'running', text: 'czyszczę czat i kontynuuję', rest: '' }
+  // The save (E3): under way, then waiting for the limit's reset, or cut short
+  const save = saveRowText(V.phase, V.resetAt, now)
+  if (save) return { kind: V.phase === 'running' ? 'running' : V.phase === 'czeka' ? 'saved' : 'broken', text: save, rest: '' }
   if (kind === 'cooling') return { kind: 'cooling', text: `stygnie · ponowny zapis ≈ ${usd(rewriteAt(S.ctx))}`, rest: '' }
   const event = eventText(now)
   if (event) return eventRow(event)
@@ -758,6 +841,7 @@ export const register: Register = (on) => {
     await loadThreshold($)
     await loadPrices($)
     await restoreSnap($, now)
+    await loadSave($, now)
     await loadStartLayer($)
     verdict = null
     names = {
@@ -865,6 +949,9 @@ export const register: Register = (on) => {
     if (H.phase === 'running' && e.turnId !== H.notTurn) {
       await captureHandoff($, e.reason === 'answer' ? e.answer : '', now)
     }
+    if (V.phase === 'running' && V.sessionId === S.id && e.turnId !== V.notTurn) {
+      await captureSave($, e.reason === 'answer' ? e.answer : '', now)
+    }
     await saveSnap($, now)
     $.ui.invalidate('ui.render')
     // The limit card waits for the turn's end and never stops it (plan, section 8)
@@ -938,7 +1025,7 @@ export const register: Register = (on) => {
   // (the RelAI panel's band among them), never instead of it
   on('ui.render', { component: 'AbovePrompt' }, async ($, e, next) => {
     if (e.props.hasSurvey) return next(e)
-    if (!S.lastActivity && !S.keepWarm && H.phase === 'idle') return next(e)
+    if (!S.lastActivity && !S.keepWarm && H.phase === 'idle' && V.phase === 'idle') return next(e)
     const below = await next(e)
     const now = await $.clock.now()
     drawnStamp = bandStamp(now)

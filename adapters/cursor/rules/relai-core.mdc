@@ -238,6 +238,18 @@ finish a larger chunk of work:
   (is `STATE.md` older than the last journal entry, are there uncommitted changes), then one
   question about the nearest step. No work is performed.
 - "kończymy na dziś" / "wrapping up" → the close ritual above.
+- "zapisz pracę" / "save my work" → save the work before the plan limit runs out, in this order,
+  never rearranged: (1) run the project's tests and read `git status --short` and `git diff`;
+  (2) bring the code to "tests pass" — a half-done fragment you cannot finish in 1–2 turns is
+  reverted, but only after `git diff -- <files> > .claude/relai/wznowienie/<slug>.patch`;
+  (3) commit the code that passes (ask once first — Cursor has no limit card that carries the
+  consent), no push; (4) `STATE.md`, a journal entry titled "— zapis przed limitem", a line in the
+  active plan's `STATUS.md` log (the stage stays `W TOKU`), then commit the documents under the
+  same consent; (5) write the resume file `.claude/relai/wznowienie/<slug>.md` following
+  `.claude/relai/templates/SPEC_WZNOWIENIE.md` (slug: the project folder's name in lower case,
+  every run outside `a-z0-9_-` one hyphen), with `HEAD` from `git rev-parse --short HEAD` taken
+  after the commits — never committed; (6) the last line of the answer, alone: `ZAPIS GOTOWY`,
+  only when steps 1–5 went through. A step that failed is said in one sentence, without the line.
 
 Phrases that are not on this list you do not handle and do not announce.
 

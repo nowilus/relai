@@ -45,6 +45,14 @@ try {
 } catch (_) {
   process.exit(0);
 }
+// Plik wznowienia (LIMIT_CHECKPOINT E3) laduje sie osobno: jego brak (instalacja niepelna)
+// wycisza wylacznie to jedno zdanie, nie caly hook startu.
+let wznowienie = { plikWznowienia: () => null, wznowienieReport: () => [] };
+try {
+  wznowienie = require(path.join(PLUGIN_ROOT, 'core', 'process', 'resume.js'));
+} catch (_) {
+  // zostaje zaslepka: zero znakow
+}
 
 // Marker trybu goscia w adapterze Claude Code to wylacznie .claude/relai.json.
 const MARKERY_GOSCIA = ['.claude/relai.json'];
@@ -176,6 +184,14 @@ function onSessionStart(input) {
   // bo jest stanem projektu, a nie zadaniem: czlowiek ma wiedziec, czemu jego zdania wracaja
   // z propozycja, zanim zobaczy pierwsza z nich.
   for (const linia of trybPromptu.trybCiaglyReport(trybPromptu.trybCiaglyProjektu(cwd))) {
+    out.push(linia);
+  }
+
+  // Plik wznowienia pracy (LIMIT_CHECKPOINT E3, L7): per projekt, wiec zdanie pada w kazdej
+  // nowej sesji, dopoki plik istnieje — przycisk "Wznow" na pasku cache jest wygoda, nie
+  // jedyna droga. Brak pliku = zero znakow. Korzen projektu to katalog nad docs/ markera.
+  for (const linia of wznowienie.wznowienieReport(
+    wznowienie.plikWznowienia(path.dirname(path.dirname(markerFile))))) {
     out.push(linia);
   }
 

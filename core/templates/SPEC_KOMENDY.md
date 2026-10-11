@@ -106,7 +106,11 @@ nie wyborem. Sekcja o zachowaniach automatycznych nie rośnie. Działa:
 - rejestr lekcji: wpis po każdej korekcie bez pytania, propozycja graduacji przy powtórzeniu,
 - rejestr decyzji: propozycja zamrożenia powracającego tematu, przechwytywanie fraz zamykających,
 - dziedziczenie preferencji globalnych między projektami,
-- trzy frazy rytualne (poniżej) w wariancie polskim i angielskim,
+- trzy frazy rytualne (poniżej) w wariancie polskim i angielskim, a od 2.9.0 czwarta — „zapisz
+  pracę" / „save my work": zapis pracy przed wyczerpaniem limitu planu (testy, commit lokalny,
+  dokumenty, plik wznowienia `.claude/relai/wznowienie/<slug>.md`); w Claude Code wysyła ją też
+  przycisk „Zapisz pracę teraz" na karcie limitu paska `relai-cache-keeper`, razem ze zgodą na
+  commit lokalny — wpisana ręcznie pyta o commit,
 - **„coś nie działa" (nowe w 2.7.0):** zgłoszenie usterki („nie działa", „błąd", „sypie się",
   „it's broken") uruchamia procedurę: odtworzenie komendą z wynikiem, jedna hipoteza naraz
   sprawdzana dowodem, najmniejsza poprawka, dowód na tym samym odtworzeniu, wpis do
@@ -262,6 +266,7 @@ oraz tabelę fraz naturalnych:
 | „kończymy na dziś" / „wrapping up" | rytuał zamknięcia: sync dokumentów, wpis w dzienniku, aktualizacja ryzyk, propozycja commita, podsumowanie |
 | „kontynuujemy pracę" / „let's continue" | odtworzenie kontekstu z dokumentów + akapit „gdzie jesteśmy" + propozycja najbliższego kroku |
 | „sprawdź status" / „status check" | raport: stan, plany i etapy, otwarte ryzyka, zaległości dokumentacyjne |
+| „zapisz pracę" / „save my work" | zapis przed wyczerpaniem limitu: testy, commit lokalny (zgoda z karty limitu albo pytanie), STATE, wpis w dzienniku, STATUS planu, plik wznowienia, linia `ZAPIS GOTOWY` |
 | „przygotuj plan …" / „zaplanuj …" / „rozpisz to na etapy" / „make a plan" | plan w strukturze projektu: pełny PLAN z etapami albo miniplan w dzienniku — po jednym pytaniu o rodzaj, format i model |
 
 ## Zakazy
