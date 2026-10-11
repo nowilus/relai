@@ -25,7 +25,9 @@
 | C11 | Pliki pomiarów puchną albo trafiają do gita (plan PANEL_CLAUDE, ryzyko R5) | **Niski** (2026-10-08 po E3) | **OTWARTE ŚWIADOMIE** | `.claude/relai/` poza gitem (sprawdzone `git check-ignore`), plik na sesję, rekord bez treści (~250 B); E4: plik scaleń `.claude/relai/panel/scalenia.json` też poza gitem (`git check-ignore`), rekord dłuższy o dwa pola; E6: `.claude/relai/panel/cennik.json` (wersje cennika) poza gitem (`git check-ignore`), jedna wersja na zapis z karty; otwarte: sprzątanie starych plików nie istnieje — do E7 E7 (decyzja człowieka 2026-10-09): sprzątanie świadomie odłożone — zmierzone 5 plików, 260 KB po dwóch dniach intensywnej pracy; „Koszty projektu” sumują wszystkie pliki, więc kasowanie zmieniłoby sumę. Próg powrotu: folder `.claude/relai/pomiary/` powyżej 10 MB. |
 | L1 | `percentUsed` limitu odświeża się tylko z odpowiedzią API — długa tura subagentów przekroczy próg, a karta przyjdzie po fakcie (plan LIMIT_CHECKPOINT, ryzyko L1) | **Średni** (2026-10-11 po E2; wcześniej wysoki) | **OTWARTE** | E2: `session.measure` w trakcie tury przestawia kolor baterii od razu, karta przychodzi po `turn.complete` z procentem odczytanym po turze (test „past the threshold in the middle of a turn”); otwarte, bo procent nadal przychodzi tylko z odpowiedzią API, więc długa tura może przekroczyć próg o kilka punktów, zanim karta padnie. |
 | L3 | Fałszywe karty: próg przekroczony, ale praca nie trwa (czytanie, pytania) — szum łamie brief „pasek spokojny” (plan LIMIT_CHECKPOINT, ryzyko L3) | **Średni** (2026-10-11 po E2) | **OTWARTE** | E2: warunek „praca trwa” (fokus `W TOKU`/`OTWARTA` albo niepusty `git status`), jedna karta na próg, „Nie pytaj w tej sesji”; test ciszy bez pracy z kontrolą pozytywną. Otwarte: w repo z niezacommitowanymi zmianami karta przyjdzie także przy samym czytaniu. |
-| L2 | Zapis pracy sam zużywa tury — przy progu 95 % może nie zdążyć (plan LIMIT_CHECKPOINT, ryzyko L2) | **Wysoki** (2026-10-11, przy akceptacji planu) | **OTWARTE** | Karta pokazuje „ile tur zostało” z tempa sesji i ostrzega poniżej 3 tur (SZACUNEK); domyślne 90 % zostawia 10 % budżetu; procedura E3 w kolejności „najpierw commit tego, co przechodzi testy, potem dokumenty”, żeby urwany zapis zostawił choć commit. |
+| L2 | Zapis pracy sam zużywa tury — przy progu 95 % może nie zdążyć (plan LIMIT_CHECKPOINT, ryzyko L2) | **Średni** (2026-10-11 po E3; wcześniej wysoki) | **OTWARTE** | Karta pokazuje „ile tur zostało” z tempa sesji i ostrzega poniżej 3 tur (SZACUNEK); domyślne 90 % zostawia 10 % budżetu. E3: procedura `limit-checkpoint.md` idzie „testy → commit kodu → dokumenty (+ commit) → plik wznowienia → `ZAPIS GOTOWY`”; brak znacznika = pasek „zapis niepełny”. Zmierzone na żywo 2026-10-11: zapis w jednej turze (commity `7f11491`, `10cabb4`). Zostaje: zapis przy realnie małym zapasie tur nie był mierzony. |
+| L5 | Plik wznowienia starzeje się — praca w innym narzędziu po zapisie, lista „co dalej” kłamie (plan LIMIT_CHECKPOINT, ryzyko L5) | **Średni** (2026-10-11 po E3) | **OTWARTE** | E3: plik niesie hash `HEAD` z chwili zapisu (`SPEC_WZNOWIENIE.md`, linia metryczna); porównanie z bieżącym `HEAD` i komunikat „od zapisu doszły N commitów” — E4. |
+| L6 | Fraza z moda w sesji bez pluginu `relai` trafia w pustkę (plan LIMIT_CHECKPOINT, ryzyko L6) | **Niski** (2026-10-11 po E3) | **OTWARTE** | E3: poza projektem RelAI (albo przy folderze bez poprawnego slugu) „Zapisz” wysyła wariant ogólny — przekazanie do pliku w `~/.claude/mods-data/relai-cache-keeper/handoffs/`; karta mówi, który wariant pójdzie (test). Pomiar na żywo poza RelAI — nie wykonany. |
 
 > Ryzyka zamknięte C3, C9 (2 pozycje) są w
 > [docs/archiwum/ryzyka/RYZYKA_2026-10-11.md](archiwum/ryzyka/RYZYKA_2026-10-11.md)
@@ -1568,5 +1570,87 @@ Autor: RelAI (Opus 5.5) + Lukasz
 
 **Do zrobienia przez człowieka:** zrzut paska do `docs/zasoby/PANEL_RELAI/zrzuty/`, potem
 `/cache limit-warn 90`; decyzja: commity pomiarowe zostają czy cofnięte.
+
+Autor: RelAI (Opus 5.5) + Lukasz
+
+### 2026-10-11 — LIMIT_CHECKPOINT E3: procedura „zapisz pracę” w rdzeniu i faza „czeka” na pasku
+
+**Zrobione:**
+
+- `adapters/claude-code/skills/relai-core/limit-checkpoint.md` (nowy): procedura w sześciu krokach
+  — testy i diff → kod do zielonych (rozgrzebane wycofane wyłącznie z łatką `.patch`) → commit
+  kodu → dokumenty + ich commit → plik wznowienia → linia `ZAPIS GOTOWY`; zgoda na commit z linii
+  karty, przy frazie wpisanej ręcznie — pytanie (D-35). Wiersz w tabeli plików doczytywanych
+  i fraza „zapisz pracę” / „save my work” w `SKILL.md` (opis skilla 1018 znaków, limit 1024).
+- `core/templates/SPEC_WZNOWIENIE.md` (nowy): siedem elementów, linia `Zapisano: … · HEAD: …`,
+  slug, „nic nie kasuje się samo”, realny przykład.
+- `core/process/resume.js` (nowy, w `MANIFEST.json`): slug `[A-Za-z0-9_-]`, data zapisu, zdanie
+  hooka; `session-context.js` mówi o pliku wznowienia na starcie (ładowane osobno — brak pliku
+  wycisza tylko to zdanie).
+- `cache-keeper/hooks/`: „Zapisz pracę teraz” wysyła `relaiSavePrompt` (fraza, zgoda, ścieżka
+  wznowienia) albo poza RelAI wariant ogólny; `turn.complete` łapie `ZAPIS GOTOWY` (linia sama
+  w wierszu) → `czeka`, brak → `przerwany`; drugi wiersz paska „zapis pracy trwa” / „zapis gotowy ·
+  reset GG:MM” / „zapis niepełny”; stan w `$.store` pod `save:<cwd>` (przeżywa przeładowanie
+  i `/clear`); przekazanie i zapis wzajemnie się wykluczają.
+- Aneks A: zdanie o odhaczaniu pól Weryfikacji w `relai-stage.md` (Krok 5) i `SPEC_PROMPT_ETAPU.md`
+  (element 8 + przykład); kopie Codeksa generatorem (skill `relai-core` Codeksa jest **generowany**
+  — `limit-checkpoint.md` doszedł sam), fraza w regule Cursora.
+- `docs/KOMENDY.md` i `SPEC_KOMENDY.md` — fraza „zapisz pracę”.
+- Przegląd kodu subagentem `typescript-reviewer`: 4 uwagi średnie, 5 niskich; poprawione:
+  tożsamość sesji i czas startu w zapisie („running” z innej rozmowy, po `/clear` albo starszy niż
+  30 min → „przerwany”), blokada przekazanie ↔ zapis, przywrócenie poprzedniego stanu przy
+  nieudanym wysłaniu, `try` w `resume.js`, osobne ładowanie w hooku, testy CRLF i `C:\`.
+- Aneks C (uwaga Łukasza po pomiarze): 5 h funkcją podstawową, tydzień z osobnym progiem 98 % —
+  do E4. Lekcje L-0167, L-0168; destylat: zasady 6 i 13. Ryzyka L2 (wysoki → średni), L5, L6
+  w tabeli. `PROMPT_ETAP_4.md` wygenerowany (nagłówki po jednym, blok zasad równy rejestrowi).
+
+**Zweryfikowane — jak dokładnie:**
+
+- `claude plugin test cache-keeper` binarką 2.1.295: przed etapem 128/128; po **140/140**
+  (21 → 33 testów w `checkpoint.test.ts`; test „Zapisz uruchamia przekazanie” z E2 świadomie
+  zastąpiony testem frazy zapisu — zmiana zachowania z zakresu). Kontrola „przed” w `git worktree`
+  HEAD, liczby z przebiegu po ostatniej zmianie testów: (a) kod E2 w całości → 107 ✔, plik testów
+  się nie wczytał (`resumePath` not found); (b) kod E2 z podłożonymi nowymi `limit.ts`
+  i `handoff.ts` → **10 ✖** (każdy test zachowania osobno), 130 ✔.
+- Rdzeń: `node --test core/process/tests/*.test.js core/guardrails/tests/*.test.js core/panel/tests/*.test.js adapters/codex/tests/*.test.js`
+  → przed 283/283, po **289/289**; test hooka startu w worktree HEAD z nowym `resume.js`, ale
+  starym `session-context.js` → ✖ (pozostałe 5 ✔).
+- Kolejność procedury: `grep` numerów kroków — commit (3) przed dokumentami (4), plik wznowienia
+  (5) przed znacznikiem (6); `ZAPIS GOTOWY` w procedurze, kopii Codeksa i `SAVE_DONE` w
+  `handoff.ts` — ten sam ciąg.
+- Dowód negatywny: `git diff -U0` — hunki `register.tsx` poza `keepWarmStep` i strażnikiem
+  `prompt.submit`; w `limit.ts` wyłącznie dopisek za końcem `cardDue`.
+- `validate-adapters.js` exit 0 (8 odwołań adaptera claude-code, w tym `resume.js`);
+  `generate-skills.js --verify` bez rozjazdu (28 plików); `sync-panel-core.js --check` zgodny;
+  `claude plugin validate cache-keeper` → „Validation passed”.
+- Aneks A: zdanie w `relai-stage.md`, `SPEC_PROMPT_ETAPU.md` i kopii Codeksa (grep stałego ciągu,
+  1/2/1); pola `PROMPT_ETAP_3.md` odhaczane na bieżąco — 11/11.
+- Bezpieczeństwo: slug — test `../`, `/p/..`, `C:/`; ścieżki z zegara i nazwy katalogu, nigdy
+  z odpowiedzi modelu; `grep -nE "sk-|api_key"` po zmienionych plikach — jedyne trafienie to
+  prompt cytujący wzorzec; `cache-keeper/package.json` nie istnieje — audyt zależności nie dotyczy.
+- Na żywo (Łukasz, desktop 2.1.295; `limit.ts`, `register.tsx`, `handoff.ts` skopiowane do
+  zainstalowanej 0.5.0, `limit-checkpoint.md` i `SPEC_WZNOWIENIE.md` do zainstalowanego 2.8.0,
+  przeładowanie): `/cache limit-warn 1` → karta → „Zapisz pracę teraz” → fraza z linią zgody →
+  procedura w czacie → commity `7f11491` (kod) i `10cabb4` (dokumenty) bez pytania → plik
+  `.claude/relai/wznowienie/relai.md` (HEAD `10cabb4`) → `ZAPIS GOTOWY` → pasek „zapis gotowy ·
+  reset 18.10 12:00” ([LIMIT_CHECKPOINT_E3_zapis.png](zasoby/PANEL_RELAI/zrzuty/LIMIT_CHECKPOINT_E3_zapis.png)).
+  Reset tygodnia zamiast 5 h — zgodnie z sekcją 8 planu przy progu 1 % (oba okna ponad progiem);
+  Łukasz uznał to za błąd założenia → Aneks C. Na końcu `/cache limit-warn 90` → plik sesji
+  `prog: 90`. Commity pomiarowe zostają (decyzja Łukasza).
+- Katalog roboczy `.claude/relai/work/LIMIT_CHECKPOINT/E3/` (w toku etapu chroniony przed
+  raportem `clean-work.js`): przed **156 KB, 8 plików** (wyniki przebiegów testów, skrypt wklejania
+  zasad, kopia oryginałów 0.5.0), po „mozesz kasowac” — **0**. Spoza katalogu:
+  `%TEMP%/relai-e3-before` i `%TEMP%/relai-e3-hook` (worktree, usunięte `git worktree remove`),
+  katalogi `%TEMP%/relai-e3-wzn-*` z testów (sprzątane przez test; `ls` — 0). Cofnięcie łatki
+  w instalacji: `plugin update` albo wydanie w E4.
+
+**Świadomie odłożone:** faza „czeka” i „przerwany” nie wygasają (do E4 — przycisk „Wznów”,
+„Odrzuć”); zdanie hooka o ostatnim commicie przy zapisie niepełnym (sekcja 8) — nie zrobione,
+do rozważenia w E4; pomiar „poza RelAI” i przy realnie małym zapasie tur — tylko testy;
+heredoc znów zjadł backslash w regeksie `limit.ts` (zasada 5 — złapane testem parytetu, poprawione
+Edit); zainstalowane 0.5.0 / 2.8.0 z ręczną łatką E3 do wydań E4.
+
+**Do zrobienia przez człowieka:** bramka „aneks dla panelu Codeksa” — odroczona do zamknięcia
+planu (*rozstrzygnięte 2026-10-11 — odroczenie, termin: zamknięcie LIMIT_CHECKPOINT*).
 
 Autor: RelAI (Opus 5.5) + Lukasz

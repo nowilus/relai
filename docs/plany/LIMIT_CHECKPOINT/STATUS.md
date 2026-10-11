@@ -8,8 +8,8 @@ Plan: [PLAN.html](PLAN.html) · Utworzony: 2026-10-11 · Status planu: **ZAAKCEP
 |---|---|---|---|---|
 | E1 | Próg i trzy poziomy zapisu | ZREALIZOWANY 2026-10-11 | [PROMPT_ETAP_1.md](PROMPT_ETAP_1.md) | zalecany effort medium; bramka o przepięciu `prompt-mode.js` rozstrzygana jednym pytaniem na starcie sesji |
 | E2 | Karta po turze | ZREALIZOWANY 2026-10-11 | [PROMPT_ETAP_2.md](PROMPT_ETAP_2.md) | zalecany effort high; warunek „praca trwa” i licznik tur |
-| E3 | Procedura „zapisz pracę” w rdzeniu | W TOKU | [PROMPT_ETAP_3.md](PROMPT_ETAP_3.md) | zalecany effort high; + Aneks A (odhaczanie pól Weryfikacji na bieżąco); „Zapisz” na karcie = zgoda na commit lokalny (rozstrzygnięte) |
-| E4 | Wznowienie i wydanie | OCZEKUJE | — | zalecany effort medium; + Aneks B (zasięg progu przy `/cache limit-warn`); pomiar na żywo z progiem testowym |
+| E3 | Procedura „zapisz pracę” w rdzeniu | ZREALIZOWANY 2026-10-11 | [PROMPT_ETAP_3.md](PROMPT_ETAP_3.md) | zalecany effort high; + Aneks A (odhaczanie pól Weryfikacji na bieżąco); „Zapisz” na karcie = zgoda na commit lokalny (rozstrzygnięte) |
+| E4 | Wznowienie i wydanie | GOTOWY DO STARTU | [PROMPT_ETAP_4.md](PROMPT_ETAP_4.md) | zalecany effort medium; + Aneks B (zasięg progu przy `/cache limit-warn`) + Aneks C (5 h podstawowe, próg tygodnia 98 %); pomiar na żywo z progiem testowym |
 
 ## Bramki manualne
 
@@ -17,7 +17,7 @@ Plan: [PLAN.html](PLAN.html) · Utworzony: 2026-10-11 · Status planu: **ZAAKCEP
 - **Zgoda na commit lokalny z karty „Zapisz pracę teraz” (sekcja 9 planu)** · źródło: przygotowanie planu 2026-10-11 · ROZSTRZYGNIĘTA 2026-10-11 — „Zapisz” na karcie jest zgodą na commit lokalny (bez pusha)
 - **Próg domyślny 90 % — potwierdzenie** · źródło: przygotowanie planu 2026-10-11 · ROZSTRZYGNIĘTA 2026-10-11 — 90 % zostaje
 - **Czy wspólna funkcja trójpoziomowego odczytu ma od razu przepiąć zgodę optymalizatora (sekcja 9, L4)** · źródło: przygotowanie planu 2026-10-11 · ROZSTRZYGNIĘTA 2026-10-11 — „tylko gotowa”: `threshold.js` z testami parytetu, przepięcie `prompt-mode.js` świadomie odłożone
-- **Czy panel Codeksa dostaje tę funkcję aneksem do PANEL_CODEX (sekcja 9)** · źródło: przygotowanie planu 2026-10-11 · **OTWARTA** — po E3
+- **Czy panel Codeksa dostaje tę funkcję aneksem do PANEL_CODEX (sekcja 9)** · źródło: przygotowanie planu 2026-10-11 · **OTWARTA** — odroczona 2026-10-11 decyzją Łukasza do zamknięcia planu (po E4)
 
 ## Dziennik wdrożenia
 
@@ -33,3 +33,5 @@ Plan: [PLAN.html](PLAN.html) · Utworzony: 2026-10-11 · Status planu: **ZAAKCEP
 - 2026-10-11 — Aneks B (uwaga Łukasza po E2): `/cache limit-warn N` pyta o zasięg (sesja / projekt / globalnie / nie zapisuj), `limitWarn` w `$.store` przestaje być poziomem odczytu, próg ustawiany też z UI paneli; „Pracuję dalej” zostaje w sesji — w zakresie E4.
 - 2026-10-11 — E3 rozpoczęty
 - 2026-10-11 — E3 przerwany zapisem przed limitem (pomiar na żywo procedury); wznowienie: .claude/relai/wznowienie/relai.md
+- 2026-10-11 — Aneks C (uwaga Łukasza po pomiarze E3): limit 5 h funkcją podstawową, tydzień z osobnym progiem domyślnie 98 %; reset na pasku z okna, które przekroczyło swój próg — w zakresie E4.
+- 2026-10-11 — E3 ZREALIZOWANY: procedura `limit-checkpoint.md`, `SPEC_WZNOWIENIE.md`, `resume.js` ze zdaniem hooka, faza zapisu na pasku (czeka / przerwany), Aneks A; testy 140/140 i 289/289; pomiar na żywo: zapis z karty → `ZAPIS GOTOWY` → „zapis gotowy · reset …” (commity `7f11491`, `10cabb4` zostają). E4 GOTOWY DO STARTU (+ Aneksy B i C).

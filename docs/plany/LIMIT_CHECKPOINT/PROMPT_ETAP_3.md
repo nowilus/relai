@@ -421,7 +421,7 @@ Odhaczasz każde pole zaraz po sprawdzeniu (Aneks A) — punkt, który nie przes
       znacznika → `przerwany` i „zapis niepełny”; poza RelAI → wariant ogólny (testy).
 - [x] Dowód negatywny: `keepWarmStep`, strażnik `prompt.submit` i warunek karty E2 (`cardDue`,
       `isWorkGoing`) bez zmian — `git diff` bez hunków w tych funkcjach; testy E2 zielone.
-- [ ] Na żywo (Łukasz, desktop 2.1.295, kopia plików do zainstalowanej 0.5.0 i przeładowanie):
+- [x] Na żywo (Łukasz, desktop 2.1.295, kopia plików do zainstalowanej 0.5.0 i przeładowanie):
       `/cache limit-warn 1` → karta → „Zapisz pracę teraz” → procedura w czacie → commit lokalny,
       plik `.claude/relai/wznowienie/relai.md`, pasek „zapis gotowy · reset …”; zrzut paska do
       `docs/zasoby/PANEL_RELAI/zrzuty/`; na końcu `/cache limit-warn 90`. Commit pomiarowy
@@ -436,8 +436,8 @@ Odhaczasz każde pole zaraz po sprawdzeniu (Aneks A) — punkt, który nie przes
       "sk-|api_key"` (zwykły `grep`, nie `git grep` — nowe pliki) w zmienionych plikach nic nie
       zwraca; `cache-keeper/package.json` nie istnieje — sprawdź `ls`; nadal brak → audyt
       zależności nie dotyczy, zapisz to we wpisie.
-- [ ] Wpis w `docs/DZIENNIK.md` na końcu sekcji „Wpisy”, podpis `Autor: RelAI (Opus 5.5) + Lukasz`.
-- [ ] Katalog roboczy `.claude/relai/work/LIMIT_CHECKPOINT/E3/`: **(a)** przejrzany raportem
+- [x] Wpis w `docs/DZIENNIK.md` na końcu sekcji „Wpisy”, podpis `Autor: RelAI (Opus 5.5) + Lukasz`.
+- [x] Katalog roboczy `.claude/relai/work/LIMIT_CHECKPOINT/E3/`: **(a)** przejrzany raportem
       (`node .claude/relai/tools/clean-work.js raport`) i skasowany po „tak”, liczby przed i po we
       wpisie; **(b)** artefakty spoza katalogu wypisane z nazwy razem z tym, co się z nimi stało.
 

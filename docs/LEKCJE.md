@@ -159,7 +159,9 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
    zanim na niej oprzesz liczbę** — różnica ujemna albo rozjeżdżająca się znaczy, że nie ma czego
    odejmować; zostaje liczba surowa i różnica między wariantami mierzonymi w tych samych warunkach,
    gdzie narzut skraca się sam. Wynik oparty na nierzetelnym odjęciu **oznaczasz** jako nierzetelny,
-   a nie usuwasz. (L-0034, L-0049, L-0053, L-0060, L-0065, L-0099, L-0104)
+   a nie usuwasz. **Próg wspólny dla kilku wielkości sprawdzasz na każdej z osobna** — 90 % okna
+   5 h i 90 % tygodnia to różne sytuacje; pomiar z progiem testowym mówi, które gałęzie uruchomi
+   (L-0167). (L-0034, L-0049, L-0053, L-0060, L-0065, L-0099, L-0104, L-0167)
 7. **Wartość czytana maszynowo ma kotwicę i zamkniętą listę brzmień:** dopasowanie od początku
    komórki, wybór linii po niesionej wartości (nie po kolejności), wartość nierozpoznana znaczy
    cisza. **Rdzeń słowa w języku z diakrytykami łapiesz klasą znaków tego języka, nie `\w`** —
@@ -244,8 +246,10 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
     nie kosztuje** — albo przycisk ma osobne potwierdzenie; stan etapu i wynik sondy są w pliku
     przed każdym takim krokiem (L-0153). **Funkcja moda czekająca na człowieka (`$.ui.ask`)
     zapamiętuje identyfikator sesji przed pytaniem i porzuca odpowiedź, gdy po powrocie jest inny**;
-    zegar i próg czyta ponownie po każdym takim `await` (L-0166).
-    (L-0041, L-0042, L-0044, L-0047, L-0092, L-0133, L-0136, L-0138, L-0139, L-0146, L-0153, L-0166)
+    zegar i próg czyta ponownie po każdym takim `await` (L-0166). **Test wielu rozmów ustawia
+    odpowiedzi atrap per rozmowa**, a wydruk diagnostyczny zbiera stan po sprawdzanym kroku (L-0168).
+    (L-0041, L-0042, L-0044, L-0047, L-0092, L-0133, L-0136, L-0138, L-0139, L-0146, L-0153, L-0166,
+    L-0168)
 14. **Najpierw zmiana w repozytorium, potem zdanie, które ją opisuje.** Weryfikację planuj tam,
     gdzie jest wykonalna; po pytaniu sprzątasz sam (martwy link nie jest poprawną wartością
     tymczasową); przy wyprowadzaniu pozycji jednostką inwentarza jest **sprawa**, nie linia.
@@ -606,6 +610,32 @@ restart aplikacji po `plugin update` (L-0031), `git worktree` zamiast `git archi
   sesji przed pytaniem i po powrocie porzuca odpowiedź, gdy się zmienił; wartości zależne od czasu
   (zegar, próg z pliku) czyta ponownie po każdym takim `await`.
 - **Źródło:** LIMIT_CHECKPOINT E2 (poprawka w `limitCheckpoint`, 2026-10-11); destylat: zasada 13.
+
+### L-0167 — Próg testowy 1 % przełączył pomiar na gałąź „oba okna” i ujawnił reset tygodnia · 2026-10-11 · AKTYWNA
+
+- **Trigger:** pomiar na żywo E3 LIMIT_CHECKPOINT: `/cache limit-warn 1`, zapis z karty, pasek
+  „zapis gotowy · reset 18.10 12:00” — reset tygodnia, bo tydzień (2 %) też był „ponad progiem”.
+  Łukasz: funkcja dotyczy limitu 5 h; tydzień ma osobny próg. Skończyło się Aneksem C.
+- **Przyczyna:** plan dał jeden próg dwóm oknom o zupełnie różnej skali, a reguła „oba naraz →
+  reset późniejszy” wyglądała na brzeg, choć przy jednym progu jest drogą typową. Próg testowy
+  obniża **wszystkie** okna naraz, więc pomiar zmierzył gałąź, której nikt nie uważał za podstawową.
+- **Zasada:** próg, który ma stosować się do kilku wielkości, sprawdzasz na każdej z osobna przy
+  pisaniu planu („czy 90 % tygodnia znaczy to samo co 90 % z 5 h?”); pomiar z progiem testowym
+  opisuje w prompcie, **które** gałęzie uruchomi, i zestawia ich wynik z intencją człowieka.
+- **Źródło:** LIMIT_CHECKPOINT E3 (pomiar na żywo, Aneks C, 2026-10-11); destylat: zasada 6.
+
+### L-0168 — Atrapa odpowiadająca tak samo w nowej rozmowie udawała, że stan wrócił · 2026-10-11 · AKTYWNA
+
+- **Trigger:** test „zapis widziany z innej rozmowy czyta się jako przerwany” padał: pasek mówił
+  „zapis pracy trwa”. Diagnostyka pokazała, że `loadSave` działał — to nowa rozmowa dostała własną
+  kartę limitu, a atrapa znów kliknęła „Zapisz”. Pierwsza próba diagnozy dodała asercję, która
+  pada zawsze, i przesłoniła właściwe miejsce błędu.
+- **Przyczyna:** odpowiedzi atrap (`w.card`) były ustawione na cały test, a scenariusz miał dwie
+  rozmowy; zachowanie poprawne (nowa karta w nowej rozmowie) wyglądało jak usterka.
+- **Zasada:** test wielu rozmów ustawia odpowiedzi atrap **per rozmowa** (po zmianie
+  identyfikatora — od nowa); wydruk diagnostyczny zbiera stan **po** kroku, który ma sprawdzić,
+  i nie zastępuje asercji, za którą stoi.
+- **Źródło:** LIMIT_CHECKPOINT E3 (`checkpoint.test.ts`, 2026-10-11); destylat: zasada 13.
 
 ## Lekcje zwinięte
 
