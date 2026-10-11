@@ -76,6 +76,20 @@ describe('settings', () => {
     expect(applySetting(DEFAULT_SETTINGS, 'ttl', '7').error).toBeDefined()
     expect(parseTokens('1,5m')).toBe(1_500_000)
   })
+
+  test('limit-warn takes a whole number 1–99, explains anything else in Polish, and leaves the keep-warm stop alone', async () => {
+    expect(DEFAULT_SETTINGS.limitWarn).toBe(90)
+    for (const bad of ['101', 'abc', '0', '85.5', '-5', '']) {
+      const r = applySetting(DEFAULT_SETTINGS, 'limit-warn', bad)
+      expect(r.error).toBe('limit-warn: liczba całkowita od 1 do 99, np. 85, 90 albo 95')
+      expect(r.settings).toBe(DEFAULT_SETTINGS)
+    }
+    const r = applySetting(DEFAULT_SETTINGS, 'limit-warn', '85')
+    expect(r.settings.limitWarn).toBe(85)
+    expect(r.settings.maxLimitPercent).toBe(90)
+    expect(applySetting(DEFAULT_SETTINGS, 'próg-limitu', '95').settings.limitWarn).toBe(95)
+    expect(applySetting(DEFAULT_SETTINGS, 'limit', '80').settings.limitWarn).toBe(90)
+  })
 })
 
 describe('handoff', () => {

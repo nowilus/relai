@@ -8,8 +8,9 @@
 // A fill comes from the very numbers the words show (the minutes left, the rounded percent), so
 // the band's stamp — these words — decides every redraw (Z4).
 
-import { BAR, BATTERY, RING, leftColor } from './relai/theme.mjs'
+import { BAND, BAR, BATTERY, RING, leftColor } from './relai/theme.mjs'
 import { clock, minutes, tokens } from './fmt'
+import { DEFAULT_THRESHOLD } from './limit'
 
 export type MeasureName = 'cache' | 'five' | 'reset' | 'week' | 'ctx'
 // fill 0..1 of the battery drawn, the share left; null draws a bare outline (never a seeming zero)
@@ -62,14 +63,15 @@ export function resetText(iso: string | undefined, now: number): string {
   return `reset ${d.getDate()}.${two(d.getMonth() + 1)} ${clock(at)}`
 }
 
-// A plan limit: the value is the percent used, the battery what is left of it
-export function limitMeasure(name: 'five' | 'week', label: string, window: string, limit: Limit | undefined, now: number): Measure {
+// A plan limit: the value is the percent used, the battery what is left of it. From the threshold
+// up (limit.ts, LIMIT_CHECKPOINT E1) the fill is clay whatever is left; a missing figure stays bare.
+export function limitMeasure(name: 'five' | 'week', label: string, window: string, limit: Limit | undefined, now: number, threshold: number = DEFAULT_THRESHOLD): Measure {
   if (!limit || !Number.isFinite(limit.percentUsed)) return missing(name, label, label)
   const used = Math.round(limit.percentUsed)
   const left = Math.max(0, 100 - used)
   return {
-    name, fill: clamp(left / 100), color: leftColor(left), label, value: `${used} %`,
-    a: `${used} % · ${window}`, b: `zużyte ${used} % · zostało ${left} % · ${resetText(limit.resetsAt, now)}`,
+    name, fill: clamp(left / 100), color: used >= threshold ? BAND.cache.color : leftColor(left), label, value: `${used} %`,
+    a: `${used} % · ${window}`, b: `zużyte ${used} % · zostało ${left} % · ${resetText(limit.resetsAt, now)} · próg ${threshold} %`,
   }
 }
 

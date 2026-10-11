@@ -89,7 +89,7 @@ sesji, zanim skrócisz wiersz.
 
 ### Wiersze czytane maszynowo — tej reguły nie dotyczą
 
-Sześć wierszy ma **zamknięty format** opisany niżej w tej specyfikacji i jest parsowanych przez hooki:
+Osiem wierszy ma **zamknięty format** opisany niżej w tej specyfikacji i jest parsowanych przez hooki:
 
 | Wiersz | Czyta go |
 |---|---|
@@ -100,12 +100,13 @@ Sześć wierszy ma **zamknięty format** opisany niżej w tej specyfikacji i jes
 | `Artefakty robocze` | raport artefaktów w hooku startu sesji i krok 2a rytuału zamknięcia |
 | `Lista modeli` | przypomnienie o wieku listy modeli w hooku startu sesji (od 1.9.0) |
 | `Tryb ciągły` | hook `prompt-mode` (`UserPromptSubmit`) i zdanie o trybie w hooku startu sesji (od 2.2.0) |
+| `Próg limitu` | pasek cache `relai-cache-keeper` (`hooks/limit.ts`) i `core/process/threshold.js` (od 2.9.0, wiersz opcjonalny) |
 
 **Ich nie skracasz.** Człony rozdzielone `·` wyglądają jak rozwlekłość, a są składnią: usunięcie
 członu zmienia próg na domyślny, a przeredagowanie kotwicy na początku komórki **wycisza mechanizm
 w ciszy** (L-0025). Skrócenie, które wyłącza pomiar albo rotację, jest defektem, nie oszczędnością.
 
-**Nie schodzą też do archiwum** (od 1.7.0) — te siedem oraz **`Język projektu`**, razem osiem
+**Nie schodzą też do archiwum** (od 1.7.0) — te osiem oraz **`Język projektu`**, razem dziewięć
 wierszy wypisanych z nazwy w sekcji „Rotacja ustawień". `Język projektu` nie jest parsowany przez
 żaden hook, ale rozstrzyga, w jakim języku powstają dokumenty i pliki archiwum; jego nieobecność
 kończy się tym samym co brak wiersza czytanego maszynowo — mechanizm robi coś innego, niż projekt
@@ -472,10 +473,57 @@ nie wycisza komendy, a komenda wywołana wprost działa niezależnie od wartośc
 **Od 2.3.0 włączony wiersz nie wystarcza.** Mówi on, że tryb jest w tym projekcie **dostępny** —
 o tym, czy ma działać w tej sesji, decyduje bramka zgody opisana niżej.
 
+## Wiersz `Próg limitu` (od 2.9.0)
+
+Pasek cache (`relai-cache-keeper`) pokazuje zużycie limitu 5 h i tygodniowego. Ten wiersz mówi,
+**od ilu procent zużycia** bateria limitu zmienia kolor na ostrzegawczy (glina) — niezależnie od
+tego, ile jeszcze zostało.
+
+**Wartość domyślna: 90.** Wiersz jest **opcjonalny**: nie powstaje przy inicjalizacji ani przy
+`/relai-update`. Dopisujesz go tylko wtedy, gdy człowiek wybierze inny próg dla projektu — 90 nie
+trafia do tabeli na zapas.
+
+```
+| 2026-10-11 | Próg limitu | 85 |
+```
+
+| Człon | Dozwolone wartości | Znaczenie |
+|---|---|---|
+| próg (**pierwszy, obowiązkowy**) | liczba całkowita **1–99**, opcjonalnie ze znakiem `%` (`85`, `85 %`) | od tego procentu zużycia bateria limitu ostrzega; typowe wybory to 85 / 90 / 95 |
+
+Dalsza część komórki po `·` jest **opisem dla człowieka** i mechanizm jej nie czyta.
+
+**Nazwa w komórce `Czego dotyczy` jest całą komórką**, nie jej początkiem: `Próg limitu` (EN:
+`Limit threshold`). Wiersz „Próg limitu dla API" nie jest tym wierszem i nic go nie czyta.
+
+**Kolejność odczytu — pierwszy poziom z poprawną wartością wygrywa:**
+
+1. plik tej sesji `.claude/relai/limit/<id sesji>.json` — `{"prog": 85, "data": "RRRR-MM-DD", "zrodlo": "sesja"}`;
+   zapisuje go komenda `/cache limit-warn N`; plik innej sesji nie jest czytany,
+2. ten wiersz w `docs/USTAWIENIA.md` projektu,
+3. ten sam wiersz w `~/.claude/relai/USTAWIENIA.md` (warstwa globalna, niżej),
+4. ustawienie `limitWarn` pluginu `relai-cache-keeper` (`$.store`), gdy różni się od 90,
+5. **90**.
+
+Kolejność jest ta sama co przy zgodzie optymalizatora (sesja → projekt → globalnie). `/cache` pokazuje
+próg razem ze **źródłem**: `85 % (sesja)`, `95 % (projekt)`, `90 % (domyślny)`.
+
+**Wartość spoza 1–99, ułamek albo nieliczba → poziom pomijany**, rozstrzyga następny. Wiersz pod
+nagłówkiem „Ustawienia wycofane" nie rozstrzyga nigdy. Brak danych limitów (klucz API, konto bez
+subskrypcji, pierwsza tura) → bateria „brak danych" bez koloru ostrzegawczego, bez względu na próg.
+
+**Ten wiersz jest niezależny od ustawienia `/cache limit N`** (`maxLimitPercent`): tamto zatrzymuje
+podtrzymanie cache, ten ostrzega o pracy. Oba mają domyślnie 90 i żaden nie zmienia drugiego.
+
+Czytają go: pasek cache (`cache-keeper/hooks/limit.ts`) przy starcie sesji, przy `/cache` i przy
+każdym pomiarze limitów, oraz hooki pluginu `relai` przez `core/process/threshold.js` — test parytetu
+trzyma obie implementacje przy tych samych fixturach.
+
 ## Wiersze warstwy globalnej (od 2.3.0)
 
 Dwa wiersze mieszkają **wyłącznie** w `~/.claude/relai/USTAWIENIA.md`, bo dotyczą człowieka i jego
-maszyny, a nie projektu. Nie powstają przy inicjalizacji ani przy `/relai-update` — zapisuje je
+maszyny, a nie projektu. Trzeci, `Próg limitu` (od 2.9.0), ma tu swój odpowiednik globalny obok
+wiersza projektowego — opis na końcu tej sekcji. Nie powstają przy inicjalizacji ani przy `/relai-update` — zapisuje je
 odpowiedź na pytanie zadane w momencie, w którym sprawa jest realna. Brak wiersza jest
 **normalnym stanem**, nie brakiem do uzupełnienia.
 
@@ -521,6 +569,20 @@ człowieka, a nie literówki w pliku ustawień. Wiersz **nie dotyka** projektów
 `Wersja RelAI`: tam rytuał startu sesji działa bez zmian. Pytanie o niego pada raz — po odmowie
 inicjalizacji, razem z markerem trybu gościa.
 
+### `Próg limitu` (warstwa globalna, od 2.9.0)
+
+Ten sam wiersz, ta sama komórka i te same reguły co w sekcji „Wiersz `Próg limitu`" wyżej — tylko
+zasięg inny: próg obowiązuje w **każdym** projekcie na tej maszynie, który nie ma własnego wiersza
+ani pliku sesji. W kolejności odczytu stoi **po** wierszu projektowym.
+
+```
+| 2026-10-11 | Próg limitu | 90 |
+```
+
+Brak wiersza jest normalnym stanem. Zapis z wyboru człowieka w zasięgu „globalnie" tworzy plik
+`~/.claude/relai/USTAWIENIA.md` z tabelą, gdy pliku jeszcze nie ma; istniejący wiersz jest
+przepisywany w miejscu z nową datą, nie dublowany.
+
 ## Rotacja ustawień (od 1.7.0)
 
 Do 1.6.1 ten plik nie miał **żadnej** drogi wyjścia: polityka jest append-only, a sekcja
@@ -545,7 +607,7 @@ sesji. Rotacja ustawień nie jest trzecim wejściem i **nie dokłada własnego k
 `docs/archiwum/ustawienia/USTAWIENIA_<data-rotacji>.md`, bajt w bajt, procedurą dwufazową z sumą
 kontrolną. Pod tabelą sekcji zostaje **jedna** linia-odsyłacz na rotację.
 
-**Czego nie ruszasz nigdy — osiem wierszy, z nazwy:**
+**Czego nie ruszasz nigdy — dziewięć wierszy, z nazwy:**
 
 | Wiersz | Dlaczego zostaje |
 |---|---|
@@ -556,6 +618,7 @@ kontrolną. Pod tabelą sekcji zostaje **jedna** linia-odsyłacz na rotację.
 | `Artefakty robocze` | czyta go raport startu sesji i krok 2a rytuału zamknięcia |
 | `Lista modeli` | czyta go przypomnienie o wieku listy modeli w hooku startu sesji |
 | `Tryb ciągły` | czyta go hook `prompt-mode` przy KAŻDYM prompcie sesji |
+| `Próg limitu` | czyta go pasek cache przy starcie sesji, przy `/cache` i przy każdym pomiarze limitów |
 | `Język projektu` | rozstrzyga język dokumentów i nazwy plików archiwum |
 
 Zostają **niezależnie od wieku** i niezależnie od tego, czy ktoś przeniósł je do sekcji „Ustawienia
@@ -609,6 +672,7 @@ zmienić — osobny plik byłby drugim miejscem do zapomnienia.
 | wiek sprawy „Czeka na człowieka" | 30 dni | wiersz `Przegląd spraw człowieka` (ta specyfikacja) | hook startu sesji (`sprawyPrzeterminowane`) | wymuszone pytanie partiami po cztery | **jest** — hook startu, własny blok i własny wyzwalacz |
 | suma artefaktów roboczych (katalog roboczy + pliki tymczasowe) | 100 MB | wiersz `Artefakty robocze` (ta specyfikacja) | hook startu sesji (`artefaktyRobocze`) **i krok 2a rytuału zamknięcia** | jedna linia `[RelAI artefakty robocze]` z propozycją `/relai-clean`; w kroku 2a pytanie o grupy i kasowanie po „tak" | **jest** — hook startu, własny blok i własny wyzwalacz; drugi adres to krok 2a rytuału zamknięcia |
 | wiek listy modeli narzędzia (`list-date` w `.claude/relai/MODELE-<narzędzie>.md`) | 7 dni | wiersz `Lista modeli` (ta specyfikacja) | hook startu sesji (`wiekListyModeli`) | jedna linia `[RelAI lista modeli]` z propozycją `/relai-models`; nigdy połączenie sieciowe | **jest** — hook startu, własny blok i własny wyzwalacz |
+| zużycie limitu planu (5 h i tygodniowego) | 90 % | wiersz `Próg limitu` (ta specyfikacja; projekt, warstwa globalna, plik sesji) | pasek cache `relai-cache-keeper` (`limit.ts`) i `core/process/threshold.js` (od 2.9.0) | bateria limitu w kolorze ostrzegawczym (glina) | **jest** — pasek cache, przy każdym pomiarze limitów |
 | propozycja kompresji lekcji | 25 wpisów `AKTYWNA`, 30 KB pliku albo kwartał | `SPEC_LEKCJE.md`, sekcja „Kompresja" | model przy rytuale zamknięcia | propozycja kompresji tematycznej, nigdy wykonanie po cichu | **brak automatu** — propozycja modelu |
 | cel rotacji (nie próg) | 60% progu, liczone na wadze całkowitej żywego pliku (D-88) | `SPEC_ARCHIWUM.md` | rotacja | ile pozycji zabrać w jednym przebiegu | nie dotyczy — to cel, nie warunek odezwania się |
 
@@ -664,7 +728,7 @@ zgody na wyjątki od reguł domyślnych, wybrany kierunek designu.
   środowiskowej i miejsce, gdzie trzymany jest sekret, nigdy wartość.
 - Nie usuwasz wierszy z tabeli. Rotacja ustawień usunięciem nie jest: przenosi wiersze **wycofane**
   bajt w bajt i zostawia po nich linię-odsyłacz z sumą kontrolną.
-- Nie przenosisz do archiwum pięciu wierszy wypisanych z nazwy w sekcji „Rotacja ustawień" — także
+- Nie przenosisz do archiwum dziewięciu wierszy wypisanych z nazwy w sekcji „Rotacja ustawień" — także
   wtedy, gdy stoją w „Ustawieniach wycofanych".
 - Nie zmieniasz brzmienia linii `Wersja RelAI:` — jest wykrywana dosłownie.
 

@@ -62,8 +62,9 @@ zaakceptowany, E1 trwa po stronie Codeksa. Opinii spoza projektu nadal nie ma.
   milowym, nie wypadkiem — próg (domyślnie 90 %, pamiętany jak zgoda optymalizatora), karta po
   turze „pracuję dalej / zapisz pracę”, procedura zapisu w rdzeniu (dokumenty, testy, commit
   lokalny za zgodą z karty, plik wznowienia) i przycisk „Wznów pracę” na pasku po resecie. Stan:
-  **E1 GOTOWY DO STARTU** (prompt wygenerowany); bramka otwarta: przepięcie `prompt-mode.js`
-  na wspólny odczyt progu — pytanie na starcie E1.
+  **E1 ZREALIZOWANY 2026-10-11** (próg `/cache limit-warn`, odczyt sesja → projekt → globalnie,
+  kolor baterii od progu, `core/process/threshold.js` z parytetem; na żywo potwierdzone),
+  **E2 GOTOWY DO STARTU** (karta po turze); przepięcie `prompt-mode.js` świadomie odłożone.
 
 ## Co dalej
 
@@ -153,6 +154,6 @@ Plany zamknięte: 10 (ostatni PANEL_CLAUDE, 2026-10-10) • Aktywny: PANEL_CODEX
 Start sesji: **122,8 KB / 100 KB** (2026-10-11, z aktywnym planem; ryzyka 29,5 KB i STATE ponad
 progami cząstkowymi) • Dziennik: **~98 KB / 150 KB** • Ryzyka: 16 otwartych, archiwum 5 plików
 + 1 mitygacji • Lekcje: **44,3 KB / 50 KB**, 20 w żywym pliku • Adaptery: 3 • Komendy: 14 •
-Testy: 263 rdzeń i adaptery + 13 pakietu panelu Codeksa + 256 pluginów panelu (135 / 31 / 90) •
+Testy: 283 rdzeń, panel i adaptery (`node --test`, 4 katalogi) + 273 pluginów panelu (135 / 31 / 107) •
 Projekty na RelAI: 3 (RelAI, PolyFlow, JiraManager przed migracją) • Modele, na których zmierzono
 proces: 6 (Fable, Opus, Sonnet, Haiku, Composer/auto, Grok 4.6).

@@ -1,6 +1,7 @@
 import { describe, expect, mock, test, type TestBody } from 'claude-code/testing'
 import type { On, RenderNode, TurnStepResult } from 'claude-code'
 import { BAND, BAR, BATTERY, CHIP } from './relai/theme.mjs'
+import { limitMeasure } from './rings'
 
 type Engine = Parameters<TestBody>[0]
 type Mounted = Awaited<ReturnType<Engine['ui']['mount']>>
@@ -178,9 +179,9 @@ describe('the calm cache bar: five batteries, the session cost on the right (Ane
     ])
     expect(b.map((x) => [x.a, x.b])).toEqual([
       ['Ciepły · ~60 min', 'TTL 60 min założony'],
-      ['64 % · 5 h', `zużyte 64 % · zostało 36 % · reset ${hhmm(fiveReset)}`],
+      ['64 % · 5 h', `zużyte 64 % · zostało 36 % · reset ${hhmm(fiveReset)} · próg 90 %`],
       ['Reset limitu 5 h za 1 h 06 min', `reset ${hhmm(fiveReset)}`],
-      ['41 % · tydzień', `zużyte 41 % · zostało 59 % · reset jutro ${hhmm(weekReset)}`],
+      ['41 % · tydzień', `zużyte 41 % · zostało 59 % · reset jutro ${hhmm(weekReset)} · próg 90 %`],
       ['323k · kontekst', 'zużyte 323k z 1M · wolne 68 %'],
     ])
     // The label muted, the value bold in the text color, 14.5 px
@@ -439,5 +440,38 @@ describe('the cache bar second row: one at a time, only while its reason lasts (
     const chip = await ui.find({ key: 'chip' })
     expect((chip?.props as { backgroundColor?: string }).backgroundColor).toBe(CHIP.warn.bg)
     await ui.unmount()
+  })
+})
+
+// LIMIT_CHECKPOINT E1: from the threshold up a limit battery is clay, whatever is left of it
+describe('the limit battery from the threshold up', () => {
+  const five = (percentUsed: number) => limitMeasure('five', 'limit 5 h', '5 h', { kind: 'five_hour', percentUsed }, NOW, 80)
+
+  test('below the threshold the usual colour by what is left; at and above it clay', async () => {
+    expect(five(50).color).toBe(SAGE)
+    expect(five(75).color).toBe(MUSTARD) // 25 % left: the usual mustard, still below 80
+    expect(five(79.4).color).toBe(MUSTARD) // rounds to 79
+    expect(five(80).color).toBe(CLAY) // 20 % left would be mustard without the threshold
+    expect(five(79.6).color).toBe(CLAY) // rounds to 80, the number the bar shows
+    expect(five(85).color).toBe(CLAY)
+  })
+
+  test('a low threshold turns a nearly full battery clay; line b names the threshold', async () => {
+    const m = limitMeasure('week', 'limit tygodnia', 'tydzień', { kind: 'seven_day', percentUsed: 3 }, NOW, 1)
+    expect(m.color).toBe(CLAY)
+    expect(m.fill).toBe(0.97)
+    expect(m.b).toMatch(/· próg 1 %$/)
+    expect(limitMeasure('week', 'limit tygodnia', 'tydzień', { kind: 'seven_day', percentUsed: 3 }, NOW).b).toMatch(/· próg 90 %$/)
+  })
+
+  test('no limit data: a bare battery, never the warning colour, whatever the threshold', async () => {
+    // The same threshold with data warns at once: the threshold is live, the bare battery is not
+    expect(limitMeasure('five', 'limit 5 h', '5 h', { kind: 'five_hour', percentUsed: 2 }, NOW, 1).color).toBe(CLAY)
+    for (const limit of [undefined, { kind: 'five_hour', percentUsed: Number.NaN }]) {
+      const m = limitMeasure('five', 'limit 5 h', '5 h', limit, NOW, 1)
+      expect(m.color).not.toBe(CLAY)
+      expect(m.fill).toBe(null)
+      expect(m.value).toBe('brak danych')
+    }
   })
 })

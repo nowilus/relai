@@ -7,7 +7,7 @@
 // API TTL) the next message writes the whole context again at 1.25x-2x input.
 
 import type { EngineInterface, Register } from 'claude-code'
-import { DEFAULT_SETTINGS, MIN, RELAI_MARKER, applySetting, cacheState, dueWarning, judgeStep, mergeSettings, msLeft, pingDue, pingMissed, type Settings } from './core'
+import { DEFAULT_SETTINGS, LIMIT_WARN_KEYS, MIN, RELAI_MARKER, applySetting, cacheState, dueWarning, judgeStep, mergeSettings, msLeft, pingDue, pingMissed, type Settings } from './core'
 import { basename, clip, clock, fileStamp, limitsText, minutes, tokens, usd } from './fmt'
 import { barCard } from './bar-card'
 import { BAND, BAR, BATTERY, CHIP } from './relai/theme.mjs'
@@ -18,6 +18,7 @@ import { PRICE_FILE } from './relai/pricing.mjs'
 import { BUILT_IN, priceSource, pricesFrom, ratesFor, requestCost, rewriteCost, totalInput, type Prices, type Usage } from './pricing'
 import { handoffEconomics, type CacheTemp, type HandoffInput, type HandoffVerdict, type LimitTurn } from './economics'
 import { RITUAL_FILES, activePlanStatus, dateText, estimatedLayer, measuredLayer, startKey, type MeasuredStart } from './start-layer'
+import { DEFAULT_THRESHOLD, rememberThreshold, thresholdOf, thresholdText, type LimitIO, type Threshold } from './limit'
 
 type $T = EngineInterface
 
@@ -83,6 +84,7 @@ let names = { cache: 'cache', keepwarm: 'keepwarm', handoff: 'handoff' }
 let pinging = false // one fork at a time, however long it takes
 let skipPingUntil = 0 // after a reload the turn state is unknown for one tick
 let prices: Prices = BUILT_IN // the core's list laid over by the project's cennik.json (Z5)
+let threshold: Threshold = { value: DEFAULT_THRESHOLD, source: 'domyślny' } // the limit batteries warn from here (LIMIT_CHECKPOINT E1)
 
 const set = (patch: Partial<Session>) => { S = { ...S, ...patch } }
 const rewriteAt = (tokens: number) => rewriteCost(tokens, S.model, ttl(), prices)
@@ -145,6 +147,18 @@ async function loadPrices($: $T) {
   const path = `${S.cwd}/${PRICE_FILE}`.replace(/\\/g, '/')
   const text = await $.fs.exists(path).then((isThere) => (isThere ? $.fs.read(path) : null)).catch(() => null)
   prices = pricesFrom(text)
+}
+
+// The threshold's files through the engine: a missing or unreadable file reads as null
+const limitIO = ($: $T): LimitIO => ({
+  read: (path) => $.fs.exists(path).then((isThere) => (isThere ? $.fs.read(path).then(String) : null)).catch(() => null),
+  write: (path, text) => $.fs.write(path, text),
+})
+const limitWhere = () => ({ root: S.cwd, home, sessionId: S.id })
+
+// Read at session.start, on /cache and on session.measure: a row edited by hand counts from then on
+async function loadThreshold($: $T) {
+  threshold = await thresholdOf(limitIO($), limitWhere(), settings.limitWarn)
 }
 
 // A /clear ends the conversation the state measured; the process goes on under a new id and no
@@ -453,9 +467,10 @@ function statusText(now: number): string {
   if (st.kind === 'cold') lines.push(`Cache prawdopodobnie zimny od ${minutes(-st.left)}. Następna wiadomość zapisze go ponownie za ≈ ${usd(rewriteAt(S.ctx))}.`)
   if (S.keepWarm) lines.push(`Podtrzymanie do ${clock(S.keepWarmUntil)}: ${S.pings} pingów, ${usd(S.pingUsd)}.`)
   if (S.rateLimits.length) lines.push(`Limity planu: ${limitsText(S.rateLimits)}.`)
+  lines.push(`Próg limitu: ${thresholdText(threshold)} — od niego bateria limitu ostrzega kolorem.`)
   lines.push(`Sesja ≈ ${usd(S.costUsd)} (hipotetycznie wg cennika API). Ponowne zapisy cache: ${S.rewrites} (${usd(S.rewriteUsd)}).`)
   lines.push(`Strażnik: ${settings.guard ? 'on' : 'off'} od ${tokens(settings.bigTokens)}. Alerty: ${settings.alerts ? 'on' : 'off'} od ${tokens(settings.alertTokens)}, progi ${settings.warnMin.join(' i ')} min. Projekt RelAI: ${S.isRelai ? 'tak' : 'nie'}.`)
-  lines.push(`Ustawienia: /${names.cache} ttl 5|60|auto · straznik on|off · prog 150k · alerty on|off · progi 10,5 · godziny 4 · limit 90 · zwrot ${settings.paybackTurns} (1–50 tur)`)
+  lines.push(`Ustawienia: /${names.cache} ttl 5|60|auto · straznik on|off · prog 150k · alerty on|off · progi 10,5 · godziny 4 · limit 90 · limit-warn 85|90|95 · zwrot ${settings.paybackTurns} (1–50 tur)`)
   lines.push(`Cennik: ${priceSource(prices)}. Koniec odliczania nie dowodzi utraty cache — to prognoza z TTL.`)
   lines.push('', reckon(now).report)
   return lines.join('\n')
@@ -512,9 +527,9 @@ function bandView(now: number) {
   // The order and the words of brief v3 §10.4
   const measures: Measure[] = [
     cacheMeasure({ kind: st.kind, left: st.left, ttlMin: ttl(), isAssumed, rewrite: usd(rewriteAt(S.ctx)), keptUntil: S.keepWarmUntil }),
-    limitMeasure('five', 'limit 5 h', '5 h', five, now),
+    limitMeasure('five', 'limit 5 h', '5 h', five, now, threshold.value),
     resetMeasure(five, now),
-    limitMeasure('week', 'limit tygodnia', 'tydzień', S.rateLimits.find((l) => l.kind === SEVEN_DAY), now),
+    limitMeasure('week', 'limit tygodnia', 'tydzień', S.rateLimits.find((l) => l.kind === SEVEN_DAY), now, threshold.value),
     contextMeasure(S.ctx, S.ctxWindow),
   ]
   return { measures, figure: costFigure(), second: secondRow(now, st.kind) }
@@ -625,12 +640,13 @@ export const register: Register = (on) => {
     const isFresh = (await $.session.turns().catch(() => 1)) === 0
     S = { ...FRESH, id: await $.session.id(), cwd: root ?? here, model: await $.session.model(), isRelai: root !== null, startPending: isFresh }
     settings = mergeSettings(await $.store.get(STORE_SETTINGS))
+    await loadThreshold($)
     await loadPrices($)
     await restoreSnap($, now)
     await loadStartLayer($)
     verdict = null
     names = {
-      cache: await registerCommand($, 'cache', 'Stan cache promptu i ustawienia relai-cache-keeper', '[ttl 5|60|auto] [straznik on|off] [prog 150k] [alerty on|off] [progi 10,5] [zwrot 5]'),
+      cache: await registerCommand($, 'cache', 'Stan cache promptu i ustawienia relai-cache-keeper', '[ttl 5|60|auto] [straznik on|off] [prog 150k] [alerty on|off] [progi 10,5] [limit-warn 90] [zwrot 5]'),
       keepwarm: await registerCommand($, 'keepwarm', 'Podtrzymuj cache tej sesji (domyślnie 4 h) albo /keepwarm off', '[godziny|off]'),
       handoff: await registerCommand($, 'handoff', 'Przekazanie do świeżego czatu (w projekcie RelAI przez dokumenty); /handoff dalej kończy', '[dalej]'),
     }
@@ -750,6 +766,7 @@ export const register: Register = (on) => {
     if (e.context?.window) set({ ctxWindow: e.context.window })
     if (e.cost) set({ costUsd: e.cost.usd })
     if (e.rateLimits?.length) set({ rateLimits: e.rateLimits })
+    await loadThreshold($)
     reckon(await $.clock.now())
     return next(e)
   })
@@ -769,11 +786,19 @@ export const register: Register = (on) => {
     const now = await $.clock.now()
     const [key, ...rest] = String(e.args || '').trim().split(/\s+/).filter(Boolean)
     await loadPrices($)
+    await loadThreshold($)
     if (!key) return { text: statusText(now) }
     const result = applySetting(settings, key, rest.join(' '))
     if (result.error) return { text: `${result.error}\n\n${statusText(now)}` }
     settings = result.settings
     await $.store.set(STORE_SETTINGS, settings)
+    if (LIMIT_WARN_KEYS.includes(key.toLowerCase())) {
+      // The command speaks for this session: its file outranks the project's and the global row
+      const saved = await rememberThreshold(limitIO($), limitWhere(), settings.limitWarn, 'sesja', dateText(now))
+        .catch(() => ({ error: 'próg limitu: nie udało się zapisać pliku sesji' }))
+      await loadThreshold($)
+      if (saved.error) return { text: `${saved.error}\n\n${statusText(now)}` }
+    }
     $.ui.invalidate('ui.render')
     return { text: statusText(now) }
   })

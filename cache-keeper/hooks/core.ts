@@ -1,6 +1,7 @@
 // Pure logic: cache state, warnings, keep-warm decisions, settings. No `$` here, so tests reach it directly.
 
 import { DEFAULT_PAYBACK_TURNS } from './economics'
+import { DEFAULT_THRESHOLD, isThreshold } from './limit'
 import { totalInput, type Usage } from './pricing'
 
 export const MIN = 60_000
@@ -14,6 +15,7 @@ export type Settings = {
   warnMin: number[] // minutes before expiry, descending
   keepWarmHours: number
   maxLimitPercent: number // keep-warm stops at this plan-limit usage
+  limitWarn: number // a limit battery warns from this percent used (LIMIT_CHECKPOINT E1); not the keep-warm stop above
   paybackTurns: number // a fresh session paying off within this many turns opens the cache bar's event (Z9)
 }
 
@@ -26,6 +28,7 @@ export const DEFAULT_SETTINGS: Settings = {
   warnMin: [10, 5],
   keepWarmHours: 4,
   maxLimitPercent: 90,
+  limitWarn: DEFAULT_THRESHOLD,
   paybackTurns: DEFAULT_PAYBACK_TURNS,
 }
 
@@ -104,6 +107,9 @@ function onOff(value: string): boolean | null {
   return null
 }
 
+// `/cache limit-warn N` — the keys register.tsx also saves to this session's threshold file
+export const LIMIT_WARN_KEYS: readonly string[] = ['limit-warn', 'prog-limitu', 'próg-limitu']
+
 // `/cache <key> <value>`, Polish and English keys. Returns a new object, never mutates.
 export function applySetting(s: Settings, rawKey: string, rawValue: string): { settings: Settings; error?: string } {
   const key = rawKey.toLowerCase()
@@ -137,6 +143,10 @@ export function applySetting(s: Settings, rawKey: string, rawValue: string): { s
   if (key === 'limit') {
     const n = Number(value)
     return n > 0 && n <= 100 ? { settings: { ...s, maxLimitPercent: n } } : fail('limit: procent 1–100')
+  }
+  if (LIMIT_WARN_KEYS.includes(key)) {
+    const n = /^\d{1,3}$/.test(value) ? Number(value) : NaN
+    return isThreshold(n) ? { settings: { ...s, limitWarn: n } } : fail('limit-warn: liczba całkowita od 1 do 99, np. 85, 90 albo 95')
   }
   if (key === 'zwrot' || key === 'payback') {
     const n = Number(value)

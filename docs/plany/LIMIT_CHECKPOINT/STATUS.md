@@ -6,8 +6,8 @@ Plan: [PLAN.html](PLAN.html) · Utworzony: 2026-10-11 · Status planu: **ZAAKCEP
 
 | Etap | Nazwa | Status | Prompt | Uwagi |
 |---|---|---|---|---|
-| E1 | Próg i trzy poziomy zapisu | GOTOWY DO STARTU | [PROMPT_ETAP_1.md](PROMPT_ETAP_1.md) | zalecany effort medium; bramka o przepięciu `prompt-mode.js` rozstrzygana jednym pytaniem na starcie sesji |
-| E2 | Karta po turze | OCZEKUJE | — | zalecany effort high; warunek „praca trwa” i licznik tur |
+| E1 | Próg i trzy poziomy zapisu | ZREALIZOWANY 2026-10-11 | [PROMPT_ETAP_1.md](PROMPT_ETAP_1.md) | zalecany effort medium; bramka o przepięciu `prompt-mode.js` rozstrzygana jednym pytaniem na starcie sesji |
+| E2 | Karta po turze | GOTOWY DO STARTU | [PROMPT_ETAP_2.md](PROMPT_ETAP_2.md) | zalecany effort high; warunek „praca trwa” i licznik tur |
 | E3 | Procedura „zapisz pracę” w rdzeniu | OCZEKUJE | — | zalecany effort high; „Zapisz” na karcie = zgoda na commit lokalny (rozstrzygnięte) |
 | E4 | Wznowienie i wydanie | OCZEKUJE | — | zalecany effort medium; pomiar na żywo z progiem testowym |
 
@@ -16,7 +16,7 @@ Plan: [PLAN.html](PLAN.html) · Utworzony: 2026-10-11 · Status planu: **ZAAKCEP
 - **Akceptacja planu LIMIT_CHECKPOINT** · źródło: przygotowanie planu 2026-10-11 · ROZSTRZYGNIĘTA 2026-10-11 — Łukasz zaakceptował plan bez zmian treści
 - **Zgoda na commit lokalny z karty „Zapisz pracę teraz” (sekcja 9 planu)** · źródło: przygotowanie planu 2026-10-11 · ROZSTRZYGNIĘTA 2026-10-11 — „Zapisz” na karcie jest zgodą na commit lokalny (bez pusha)
 - **Próg domyślny 90 % — potwierdzenie** · źródło: przygotowanie planu 2026-10-11 · ROZSTRZYGNIĘTA 2026-10-11 — 90 % zostaje
-- **Czy wspólna funkcja trójpoziomowego odczytu ma od razu przepiąć zgodę optymalizatora (sekcja 9, L4)** · źródło: przygotowanie planu 2026-10-11 · **OTWARTA** — pytanie na starcie E1; domyślnie „tylko gotowa”
+- **Czy wspólna funkcja trójpoziomowego odczytu ma od razu przepiąć zgodę optymalizatora (sekcja 9, L4)** · źródło: przygotowanie planu 2026-10-11 · ROZSTRZYGNIĘTA 2026-10-11 — „tylko gotowa”: `threshold.js` z testami parytetu, przepięcie `prompt-mode.js` świadomie odłożone
 - **Czy panel Codeksa dostaje tę funkcję aneksem do PANEL_CODEX (sekcja 9)** · źródło: przygotowanie planu 2026-10-11 · **OTWARTA** — po E3
 
 ## Dziennik wdrożenia
@@ -24,3 +24,6 @@ Plan: [PLAN.html](PLAN.html) · Utworzony: 2026-10-11 · Status planu: **ZAAKCEP
 - 2026-10-11 — Plan przygotowany po wywiadzie (zakres: cache-keeper + rytuał w rdzeniu; karta po turze; wznowienie przyciskiem po resecie) i rozpoznaniu kodu cache-keepera; czeka na akceptację. Równolegle aktywny plan PANEL_CODEX (Codex) — linia „Aktywny plan” w `CLAUDE.md` do rozstrzygnięcia przez człowieka.
 - 2026-10-11 — Linia „Aktywny plan” wskazuje LIMIT_CHECKPOINT (decyzja Łukasza); PANEL_CODEX wymieniony w tej samej linii jako drugi plan niezamknięty.
 - 2026-10-11 — Plan ZAAKCEPTOWANY bez zmian treści; decyzje sekcji 9: próg 90 % zostaje, „Zapisz” na karcie = zgoda na commit lokalny. Wygenerowano PROMPT_ETAP_1; E1 GOTOWY DO STARTU w świeżej sesji Opus 5.5.
+- 2026-10-11 — Naprawa PROMPT_ETAP_1 przed startem (zgoda Łukasza na karcie startu): sklejenie z commitu `58115ce` potroiło nagłówek (kontrola modelu, „Co przeczytać”, „Decyzje”, „Stan wyjściowy”) i ucięło zasadę 13 w pół zdania; odbudowa = prompt do zasady 13 + zasady 13–15 z `docs/LEKCJE.md` + prompt od „Wyprowadzone”; zasady 1–12 sprawdzone jako identyczne z rejestrem; 623 → 460 linii, każda sekcja raz. Treść zakresu i weryfikacji bez zmian.
+- 2026-10-11 — E1 rozpoczęty
+- 2026-10-11 — E1 ZREALIZOWANY: `limitWarn` i `/cache limit-warn`, `limit.ts` (sesja → projekt → globalnie → ustawienie → 90), kolor baterii od progu, `core/process/threshold.js` z testem parytetu, wiersz `Próg limitu` w SPEC_USTAWIENIA (wersja 11); testy 107/107 i 283/283, pomiar na żywo potwierdzony przez Łukasza. E2 GOTOWY DO STARTU.

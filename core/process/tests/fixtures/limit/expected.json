@@ -1,0 +1,34 @@
+{
+  "wszystkie-trzy": {
+    "value": 85,
+    "source": "sesja"
+  },
+  "bez-sesji": {
+    "value": 95,
+    "source": "projekt"
+  },
+  "tylko-globalnie": {
+    "value": 80,
+    "source": "globalnie"
+  },
+  "nic": {
+    "value": 90,
+    "source": "domyślny"
+  },
+  "zle-wartosci": {
+    "value": 90,
+    "source": "domyślny"
+  },
+  "inna-sesja": {
+    "value": 90,
+    "source": "domyślny"
+  },
+  "wycofany-i-opis": {
+    "value": 85,
+    "source": "globalnie"
+  },
+  "nazwa-podobna": {
+    "value": 95,
+    "source": "globalnie"
+  }
+}

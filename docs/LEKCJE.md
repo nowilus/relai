@@ -136,10 +136,13 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
    sprawdza, że oba powstały teraz — nieudany zapis wygląda jak zgodność ze starym wynikiem (L-0143).
    **Stan „przed" mierzysz w osobnym `git worktree` HEAD-a**, nie po `git stash` — stash zostawia
    pliki nieśledzone i daje drzewo mieszane (L-0151). **Skrypt usuwający zakres linii sprawdza
-   cały blok, nie jego brzegi**, a po każdym cięciu idzie kompilator (L-0160). (L-0032, L-0037, L-0095, L-0096, L-0105, L-0106, L-0107, L-0110, L-0111, L-0113,
+   cały blok, nie jego brzegi**, a po każdym cięciu idzie kompilator (L-0160). **Skrypt wklejający
+   blok do dokumentu dowodzi wyniku licznikiem nagłówków** — każda sekcja dokładnie raz — i
+   porównaniem wklejonego bloku ze źródłem; „marker zniknął” nie znaczy, że treść powstała raz
+   (L-0164). (L-0032, L-0037, L-0095, L-0096, L-0105, L-0106, L-0107, L-0110, L-0111, L-0113,
    L-0097, L-0101, L-0102,
    L-0054, L-0055, L-0056, L-0064, L-0068, L-0071, L-0073, L-0083, L-0084, L-0086, L-0087, L-0088,
-   L-0090, L-0091, L-0124, L-0125, L-0130, L-0131, L-0135, L-0141, L-0143, L-0151, L-0160)
+   L-0090, L-0091, L-0124, L-0125, L-0130, L-0131, L-0135, L-0141, L-0143, L-0151, L-0160, L-0164)
 6. **Próg jest liczbą, którą ktoś liczy:** kalibruj go na zmierzonych plikach realnych projektów,
    zapisuj w jednostce mechanizmu kontrolnego wraz z komendą sprawdzającą i daj mu **jeden**
    wyzwalacz — wielkości pomocnicze wskazują przyczynę wewnątrz komunikatu, nie wywołują go.
@@ -560,6 +563,18 @@ restart aplikacji po `plugin update` (L-0031), `git worktree` zamiast `git archi
   zmieniają; każda z nich uruchamia pomiar kryterium ponownie, a test szacunku bierze dane
   z najbogatszym stanem elementu (tu: fokus ustawiony, wzmianka o aktywnym planie).
 - **Źródło:** AUDYT_MODOW Z2 / Z12 / Z14 (pomiar 2026-10-11, decyzja: próg 1100 px).
+
+### L-0164 — Prompt etapu sklejony skryptem miał trzy nagłówki i uciętą zasadę · 2026-10-11 · AKTYWNA
+
+- **Trigger:** `PROMPT_ETAP_1.md` planu LIMIT_CHECKPOINT (commit `58115ce`) miał trzykrotnie
+  kontrolę modelu, „Co przeczytać”, „Decyzje” i „Stan wyjściowy”, a zasada 13 urywała się w pół
+  zdania; wpis akceptacji poświadczał „grep markera = 0”. Wyszło dopiero na karcie startu E1.
+- **Przyczyna:** skrypt wklejania zasad aktywnych sprawdzał tylko, że marker zniknął; kotwica
+  wstawki trafiła kilka razy i nikt nie policzył sekcji wyniku.
+- **Zasada:** po każdej wstawce skryptem liczysz wystąpienia każdego nagłówka sekcji (dokładnie
+  raz) i porównujesz wklejony blok bajtowo ze źródłem; dowodem jest obecność i jednokrotność
+  treści, nie brak markera.
+- **Źródło:** LIMIT_CHECKPOINT E1 (naprawa 623 → 460 linii, 2026-10-11); destylat: zasada 5.
 
 ## Lekcje zwinięte
 

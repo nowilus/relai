@@ -1362,3 +1362,83 @@ weryfikowano niczego w kodzie — etap nie ruszył.
 (karta panelu albo komenda), odpowiedzieć na pytanie o przepięcie na starcie.
 
 Autor: RelAI (Fable 5.1) + Lukasz
+
+### 2026-10-11 — LIMIT_CHECKPOINT E1: próg limitu z trzema poziomami zapisu i kolor baterii od progu
+
+**Zrobione:**
+
+- Przed startem naprawiony [PROMPT_ETAP_1.md](plany/LIMIT_CHECKPOINT/PROMPT_ETAP_1.md) (zgoda
+  Łukasza na karcie startu): sklejenie z `58115ce` potroiło nagłówek i ucięło zasadę 13 w pół
+  zdania — poprzedni wpis sprawdzał tylko, że marker zasad zniknął, nie że treść powstała raz.
+  Odbudowa: prompt do zasady 13 + zasady 13–15 z `docs/LEKCJE.md` + prompt od „Wyprowadzone”;
+  623 → 460 linii, każda sekcja raz, zasady 1–12 identyczne z rejestrem.
+- Bramka „przepięcie `prompt-mode.js`” rozstrzygnięta: **tylko gotowa** — przepięcie świadomie
+  odłożone.
+- `cache-keeper/hooks/limit.ts` (nowy, bez importów): `thresholdOf` — plik sesji
+  `.claude/relai/limit/<id>.json` → wiersz `Próg limitu` projektu → globalny → `limitWarn` → 90,
+  wynik `{ value, source }`; wartości spoza 1–99 pomijane; nazwa wiersza jako cała komórka;
+  wiersze pod „Ustawienia wycofane” nie rozstrzygają; identyfikator sesji walidowany jak
+  w `prompt-mode.js`; `rememberThreshold` w zasięgach sesja / projekt / globalnie.
+- `core.ts`: `Settings.limitWarn` (90), `/cache limit-warn N` (klucze `limit-warn`, `prog-limitu`,
+  `próg-limitu`), walidacja liczby całkowitej 1–99 przed zapisem do `$.store`.
+- `rings.ts`: `limitMeasure` z progiem — od progu w górę glina (`BAND.cache.color`, istniejąca
+  paleta), linia `b` kończy się „· próg N %”.
+- `register.tsx`: próg czytany przy `session.start`, `/cache` i `session.measure`; przekazany do
+  obu baterii limitu; `/cache limit-warn` zapisuje plik sesji; `/cache` pokazuje „Próg limitu:
+  85 % (sesja)”. Podtrzymanie (`maxLimitPercent`, `keepWarmStep`) nietknięte.
+- `core/process/threshold.js` (nowy, CommonJS, bez zależności) — ta sama kolejność dla hooków
+  pluginu `relai`; fixtury `core/process/tests/fixtures/limit/` (8 przypadków + `expected.json`);
+  `threshold.test.js` z testem parytetu, który importuje `limit.ts` wprost (Node 24 wczytuje `.ts`).
+- `SPEC_USTAWIENIA.md`: sekcja „Wiersz `Próg limitu` (od 2.9.0)” i odpowiednik w warstwie globalnej,
+  pozycje w tabeli czytanych maszynowo, na liście nietykalnych i w katalogu progów; liczebniki
+  list poprawione do stanu faktycznego. `docs/ARTEFAKTY.md`: wersja 11.
+
+**Zweryfikowane — jak dokładnie:**
+
+- `claude plugin test cache-keeper` binarką 2.1.295 (`%APPDATA%/Claude/claude-code/2.1.295/d2e29494ec83/claude.exe`):
+  przed etapem 90/90; nowe testy na starym kodzie (źródła z `HEAD`, `limit.ts` usunięty):
+  **8 ✖** — plik `limit.test.ts` się nie wczytał (11 testów), 3 testy baterii, 1 `core`, 2 komendy
+  i 1 zaktualizowane oczekiwanie linii `b`; po zmianie **107/107** (90 + 17 nowych). Pierwsza wersja
+  dwóch testów baterii przechodziła na starym kodzie (przy progu 90 stara reguła i tak daje glinę) —
+  przestawione na próg 80 i kontrast „z danymi przy progu 1”.
+- Rdzeń: `node --test core/process/tests/*.test.js core/guardrails/tests/*.test.js core/panel/tests/*.test.js adapters/codex/tests/*.test.js`
+  → 278/278 przed, **283/283** po (+5 `threshold.test.js`). Prompt podawał „komendę z
+  `package.json`” i 263 — `package.json` w korzeniu nie istnieje, a liczba urosła wcześniej.
+- Kontrola pozytywna parytetu: `limit.ts` z dawną kotwicą `\b` → test parytetu ✖ na przypadku
+  `nazwa-podobna`; plik przywrócony (porównanie bajtowe).
+- Kolejność odczytu na fixturach: 85 (sesja) / 95 (projekt) / 80 (globalnie) / zapas 70
+  („ustawienie”) / 90 („domyślny”) — w obu implementacjach.
+- `/cache limit-warn 101|abc|0` → „limit-warn: liczba całkowita od 1 do 99…”, `$.store` bez zmian;
+  `/cache limit-warn 85` → `limitWarn` 85, plik sesji, „Próg limitu: 85 % (sesja)” mimo wiersza
+  projektu 95 (testy komend).
+- Dowód negatywny: `git diff register.tsx` — żaden hunk nie dotyka `keepWarmStep`
+  ani `maxLimitPercent`; `ui.ask|prompt.submit` — 7 wystąpień przed i po, linie 378, 410, 431, 451,
+  669, 686, 692 sprzed etapu; test podtrzymania (`correctness.test.ts`) zielony.
+- `validate-adapters.js` exit 0; `sync-panel-core.js --check` zgodny (15 plików, 14 ikon);
+  `claude plugin validate cache-keeper` → „Validation passed”.
+- Bezpieczeństwo: wejście `/cache` parsowane `^\d{1,3}$` + 1–99 przed `$.store`; wiersz czytany
+  wzorcem; `../etc` i `a/b` nie składają ścieżki (testy w obu implementacjach); wzorce `sk-`
+  i `api_key` w zmienionych plikach — brak; `cache-keeper/package.json` nie istnieje — audyt
+  zależności nie dotyczy.
+- Pomiar na żywo (Łukasz, desktop 2.1.295): cztery pliki źródłowe skopiowane do zainstalowanej
+  `~/.claude/plugins/cache/relai/relai-cache-keeper/0.5.0/hooks/` (0.5.0 była równa `HEAD` po
+  normalizacji CRLF). Przed przeładowaniem `/cache limit-warn 1` → „nieznane ustawienie” (stara
+  wersja); po przeładowaniu → „Próg limitu: 1 % (sesja)”; po turze limity wróciły (5 h 67 %),
+  `/cache limit-warn 90` → „90 % (sesja)”. Łukasz potwierdził „działa” (glina przy 1 %, zwykły
+  kolor przy 90). Zrzut stanu 90 % z kartą „… · próg 90 %”:
+  [LIMIT_CHECKPOINT_E1_prog90.png](zasoby/PANEL_RELAI/zrzuty/LIMIT_CHECKPOINT_E1_prog90.png);
+  stanu 1 % zrzut nie powstał — kolor potwierdzony słowem.
+- Katalog roboczy `.claude/relai/work/LIMIT_CHECKPOINT/E1/`: raport `clean-work.js` (47 plików,
+  0,7 MB), skasowany po „tak” — **przed 0,7 MB, po 0,0 MB**. Spoza katalogu: `%TEMP%/relai-e1-edit.mjs`
+  (skrypt edycji `register.tsx`) i `%TEMP%/relai-e1-clean-list.json` — skasowane tym samym przebiegiem.
+  Kopia zapasowa `0.5.0/hooks` skasowana razem z katalogiem — cofnięcie łatki to `plugin update`
+  albo wydanie 0.6.0 (E4).
+
+**Świadomie odłożone:** przepięcie `prompt-mode.js` na `threshold.js` (bramka E1, „tylko gotowa”);
+lokalna kopia `.claude/relai/templates/SPEC_USTAWIENIA.md` zostaje do `/relai-update` (kopia
+instalacyjna, nie źródło); zainstalowany `relai-cache-keeper` 0.5.0 zostaje z łatką E1 do wydania
+0.6.0 w E4.
+
+**Do zrobienia przez człowieka:** —
+
+Autor: RelAI (Opus 5.5) + Lukasz

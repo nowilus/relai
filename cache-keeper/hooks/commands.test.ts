@@ -85,3 +85,49 @@ test('the band draws above the bands beneath it instead of hiding them, on termi
     await ui.unmount()
   }
 })
+
+// LIMIT_CHECKPOINT E1: `/cache limit-warn N` — a whole number 1–99 saved in the store and in this
+// session's threshold file, which outranks the project's row; anything else refused in Polish
+function project(on: On, files: Record<string, string>) {
+  mock.clock(on, { now: Date.UTC(2026, 9, 11, 10) })
+  const kept = new Map<string, unknown>()
+  on('store.get', ($, e) => ({ value: kept.get(e.key) as never }))
+  on('store.set', ($, e) => { kept.set(e.key, e.value); return { value: undefined } })
+  mock.env(on, { USERPROFILE: 'C:/home' })
+  const disk: Record<string, string> = { 'C:/proj/docs/USTAWIENIA.md': 'Wersja RelAI: 2.8.0\n\n| Data | Czego dotyczy | Decyzja |\n|---|---|---|\n', ...files }
+  on('session.start', ($, e) => ({ cwd: e.cwd }))
+  on('session.cwd', () => ({ value: 'C:/proj' }))
+  on('session.id', () => ({ value: 's1' }))
+  on('session.model', () => ({ value: 'claude-opus-5-5' }))
+  on('session.turns', () => ({ value: 3 }))
+  // Paths in the system's form (P-017): compared with forward slashes
+  const key = (p: string) => p.split(String.fromCharCode(92)).join('/')
+  on('fs.exists', ($, e) => ({ value: key(e.path) in disk }))
+  on('fs.read', ($, e) => (key(e.path) in disk ? { value: disk[key(e.path)] ?? '' } : { deny: 'ENOENT ' + e.path }))
+  on('fs.write', ($, e) => { disk[key(e.path)] = e.text; return { value: undefined } })
+  return { kept, disk }
+}
+
+test('/cache limit-warn refuses 101, abc and 0 in Polish and keeps the default', async ($, on) => {
+  const { kept, disk } = project(on, {})
+  await $.session.start({ cwd: 'C:/proj', surface: 'terminal', isInteractive: true })
+  expect(await run($, 'cache')).toContain('Próg limitu: 90 % (domyślny)')
+  for (const bad of ['101', 'abc', '0']) {
+    const answer = await run($, 'cache', `limit-warn ${bad}`)
+    expect(answer).toContain('limit-warn: liczba całkowita od 1 do 99')
+    expect(answer).toContain('Próg limitu: 90 % (domyślny)')
+  }
+  expect(kept.get('settings')).toBeUndefined()
+  expect(Object.keys(disk).some((p) => p.includes('/limit/'))).toBe(false)
+})
+
+test('/cache limit-warn 85 saves 85 and this session\'s file, which wins over the project row', async ($, on) => {
+  const { kept, disk } = project(on, { 'C:/proj/docs/USTAWIENIA.md': 'Wersja RelAI: 2.8.0\n\n| Data | Czego dotyczy | Decyzja |\n|---|---|---|\n| 2026-10-11 | Próg limitu | 95 |\n' })
+  await $.session.start({ cwd: 'C:/proj', surface: 'terminal', isInteractive: true })
+  expect(await run($, 'cache')).toContain('Próg limitu: 95 % (projekt)')
+  expect(await run($, 'cache', 'limit-warn 85')).toContain('Próg limitu: 85 % (sesja)')
+  expect((kept.get('settings') as { limitWarn: number, maxLimitPercent: number }).limitWarn).toBe(85)
+  expect((kept.get('settings') as { maxLimitPercent: number }).maxLimitPercent).toBe(90)
+  expect(JSON.parse(disk['C:/proj/.claude/relai/limit/s1.json'] ?? '{}')).toEqual({ prog: 85, data: '2026-10-11', zrodlo: 'sesja' })
+  expect(await run($, 'cache')).toContain('Próg limitu: 85 % (sesja)')
+})
