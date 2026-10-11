@@ -10,7 +10,7 @@ import type { EngineInterface, Register } from 'claude-code'
 import { DEFAULT_SETTINGS, MIN, RELAI_MARKER, applySetting, cacheState, dueWarning, judgeStep, mergeSettings, msLeft, pingDue, pingMissed, type Settings } from './core'
 import { basename, clip, clock, fileStamp, limitsText, minutes, tokens, usd } from './fmt'
 import { barCard } from './bar-card'
-import { BAND, BAR, BATTERY, CHIP } from './relai/theme.mjs'
+import { BAND, BAR, CHIP } from './relai/theme.mjs'
 import { batteryRows, cacheMeasure, contextMeasure, glyphColor, limitMeasure, measureGlyph, resetMeasure, type Limit, type Measure } from './rings'
 import { ancestors, parseStatus } from './relai/plan-state.mjs'
 import { PLAIN_HANDOFF_PROMPT, RELAI_CONTINUE, RELAI_HANDOFF_PROMPT, continuePrompt, plainBody, relaiDiscardPrompt, relaiDone, relaiFreshPrompt, relaiResumePrompt, relaiSavePrompt, saveDone } from './handoff'
@@ -893,9 +893,9 @@ function bandView(now: number) {
   // The order and the words of brief v3 §10.4
   const measures: Measure[] = [
     cacheMeasure({ kind: st.kind, left: st.left, ttlMin: ttl(), isAssumed, rewrite: usd(rewriteAt(S.ctx)), keptUntil: S.keepWarmUntil }),
-    limitMeasure('five', 'limit 5 h', '5 h', five, now, thresholds.five.value),
+    limitMeasure('five', 'limit 5 h', '5 h', five, now, thresholds.five.value, thresholds.five.source),
     resetMeasure(five, now),
-    limitMeasure('week', 'limit tygodnia', 'tydzień', S.rateLimits.find((l) => l.kind === SEVEN_DAY), now, thresholds.week.value),
+    limitMeasure('week', 'limit tygodnia', 'tydzień', S.rateLimits.find((l) => l.kind === SEVEN_DAY), now, thresholds.week.value, thresholds.week.source),
     contextMeasure(S.ctx, S.ctxWindow),
   ]
   return { measures, figure: costFigure(), second: secondRow(now, st.kind) }
@@ -927,7 +927,7 @@ function band($: $T, e: Resolved, columns: number, now: number) {
     ? (
       <Box key="cache-batteries" flexDirection="column">
         {batteryRows(v.measures, middlePx(columns), BAND.cache.bg).map((row, i) => (
-          <Box key={`batteries-${i}`} flexDirection="column"><Svg isInteractive source={row.svg} alt={row.alt} height={BATTERY.height} /></Box>
+          <Box key={`batteries-${i}`} flexDirection="column"><Svg isInteractive source={row.svg} alt={row.alt} height={row.height} /></Box>
         ))}
       </Box>
     )

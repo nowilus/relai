@@ -1794,6 +1794,14 @@ przy progu 5 h ustawionym kartą na 1 % dla tej sesji — krok 3 pomiaru na żyw
   **31/31**; rdzeń `node --test …` **295/295** — uruchomione w tej turze przed commitem.
 - `git diff` przejrzany pod resztki diagnostyczne i sekrety — bez trafień.
 
+- **Po zapisie — Aneks D** (prośba Łukasza przy pomiarze): pod baterią limitu, która nie jest
+  spokojna, podpis `próg N % · <źródło>`. Makieta czterech wariantów (Fable 5.1, zlecona przed
+  odwołaniem wymogu Fable — od teraz UX/UI robi bieżąca sesja Opus 5.5), Łukasz wybrał W3 i aneks.
+  Test najpierw: 4 ✖ na kodzie bez zmiany, potem `claude plugin test cache-keeper` **174/174**.
+  Render w Chromium (skrypt w katalogu roboczym): podpis równo z etykietą, dół 34,4 px w wierszu
+  36 px, ≥ 40 px do następnej ikony; szerokość znaku poprawiona z 6,1 na 5,3 (zmierzone 4,9).
+  Brief pasków **v3.4**, `ARTEFAKTY.md`, Aneks D w `PLAN.html` i `STATUS.md`.
+
 **Świadomie odłożone:** kroki 4 i 5 pomiaru (reset i „Wznów pracę”, progi z powrotem 90/98),
 wydanie, kasowanie katalogu roboczego E4 i kopii `backup-installed/`, zamknięcie planu.
 

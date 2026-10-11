@@ -1,7 +1,8 @@
 import { describe, expect, mock, test, type TestBody } from 'claude-code/testing'
 import type { On, RenderNode, TurnStepResult } from 'claude-code'
 import { BAND, BAR, BATTERY, CHIP } from './relai/theme.mjs'
-import { limitMeasure } from './rings'
+import { batteryRows, limitMeasure } from './rings'
+import type { ThresholdSource } from './limit'
 
 type Engine = Parameters<TestBody>[0]
 type Mounted = Awaited<ReturnType<Engine['ui']['mount']>>
@@ -473,5 +474,61 @@ describe('the limit battery from the threshold up', () => {
       expect(m.fill).toBe(null)
       expect(m.value).toBe('brak danych')
     }
+  })
+})
+
+// LIMIT_CHECKPOINT Aneks D: a limit battery that is not calm (mustard or clay) says under its label
+// from which threshold and whose: "próg 90 % · ta sesja". Calm or without data it says nothing.
+describe('Aneks D: the threshold and its source under a limit battery that is not calm', () => {
+  const at = (percentUsed: number, threshold = 90, source?: ThresholdSource) =>
+    limitMeasure('five', 'limit 5 h', '5 h', { kind: 'five_hour', percentUsed }, NOW, threshold, source)
+
+  test('calm: no note; mustard and clay: the threshold and its source; no data: none', () => {
+    expect(at(50).color).toBe(SAGE)
+    expect(at(50).note).toBeUndefined()
+    expect(at(78).color).toBe(MUSTARD)
+    expect(at(78).note).toBe('próg 90 % · domyślny')
+    expect(at(92, 90, 'sesja').color).toBe(CLAY)
+    expect(at(92, 90, 'sesja').note).toBe('próg 90 % · ta sesja')
+    expect(at(14, 1, 'sesja').note).toBe('próg 1 % · ta sesja')
+    expect(at(92, 85, 'projekt').note).toBe('próg 85 % · ten projekt')
+    expect(at(92, 95, 'globalnie').note).toBe('próg 95 % · wszystkie projekty')
+    const week = limitMeasure('week', 'limit tygodnia', 'tydzień', { kind: 'seven_day', percentUsed: 93 }, NOW, 98)
+    expect(week.color).toBe(CLAY) // 7 % left: clay before its threshold, and the note says which one
+    expect(week.note).toBe('próg 98 % · domyślny')
+    expect(limitMeasure('five', 'limit 5 h', '5 h', undefined, NOW, 1, 'sesja').note).toBeUndefined()
+  })
+
+  test('the row grows to 36 px only with a note; the note stands under the label, 11 px, muted', () => {
+    const calm = batteryRows([at(50)], 1200, '#000000')[0]
+    expect(calm?.height).toBe(24)
+    expect(calm?.svg).toMatch(/^<svg [^>]*height="24">/)
+    expect(calm?.svg).not.toContain('class="n"')
+    const row = batteryRows([at(92, 90, 'sesja')], 1200, '#000000')[0]
+    expect(row?.height).toBe(36)
+    expect(row?.svg).toMatch(/^<svg [^>]*height="36">/)
+    const label = row?.svg.match(/<text class="w" x="([\d.]+)"/)?.[1]
+    expect(row?.svg).toContain(`<text class="n" x="${label}" y="32" font-size="11" fill="${BAR.muted}">próg 90 % · ta sesja</text>`)
+  })
+
+  test('a note wider than its words widens the measure: the next one moves right', () => {
+    const nextX = (first: ReturnType<typeof at>) => Number(batteryRows([first, at(50)], 1200, '#000000')[0]?.svg.match(/<g class="i i1 b-five"><rect x="(-?[\d.]+)"/)?.[1])
+    expect(nextX(at(92, 95, 'globalnie'))).toBeGreaterThan(nextX(at(55)) + 40)
+  })
+
+  test('on the bar: clay at 95 % brings the note and a 36 px row; calm at 50 % neither', async ($, on) => {
+    const { w } = world(on, { limits: [{ kind: 'five_hour', percentUsed: 95, resetsAt: iso(NOW + FIVE_LEFT) }] })
+    await start($)
+    await turn($)
+    let ui = await mount($)
+    expect((await svgs(ui))[0]?.height).toBe(36)
+    expect(await visible(ui)).toContain('próg 90 % · domyślny')
+    await ui.unmount()
+    w.limits = [{ kind: 'five_hour', percentUsed: 50, resetsAt: iso(NOW + FIVE_LEFT) }]
+    await turn($)
+    ui = await mount($)
+    expect((await svgs(ui))[0]?.height).toBe(24)
+    expect(await visible(ui)).not.toContain('próg 90 % ·')
+    await ui.unmount()
   })
 })

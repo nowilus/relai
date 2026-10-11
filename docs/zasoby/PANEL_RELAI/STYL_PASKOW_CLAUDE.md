@@ -1,6 +1,6 @@
 # Styl pasków i panelu RelAI dla Claude Code
 
-Wersja: **3.3** (v3.2 + sekcja 11: limit planu — dwa progi, zapis i wznowienie, karta progu w Kosztach; LIMIT_CHECKPOINT E4, 2026-10-11) · Data: **2026-10-10** · Zakres: trzy paski nad promptem **i panel boczny** `/relai-panel`
+Wersja: **3.4** (v3.3 + 11.1: podpis „próg N % · źródło” pod baterią limitu, która nie jest spokojna; Aneks D, 2026-10-11; v3.3 — sekcja 11: limit planu — dwa progi, zapis i wznowienie, karta progu w Kosztach; LIMIT_CHECKPOINT E4, 2026-10-11) · Data: **2026-10-10** · Zakres: trzy paski nad promptem **i panel boczny** `/relai-panel`
 (zakładki Komendy i Koszty) · Źródło decyzji: wątek [AUDYT_MODOW](../../fixy/AUDYT_MODOW/ODNOGA.md),
 makiety [MAKIETY.html](../../fixy/AUDYT_MODOW/MAKIETY.html) (wersja 4, kalibracja z Łukaszem
 w czterech rundach 2026-10-10).
@@ -271,6 +271,13 @@ podpowiedzi”).
   w linii b po wartości.
 - `reset za` pokazuje dalej reset okna 5 h. Reset tygodnia trafia na kartę i do drugiego wiersza
   wyłącznie wtedy, gdy przekroczony jest próg tygodnia.
+- **Podpis pod baterią (v3.4, Aneks D, wariant W3 z makiety czterech wariantów):** bateria limitu,
+  która **nie jest spokojna** (musztarda albo glina), dostaje pod etykietą, od jej lewej krawędzi,
+  drugą linię 11 px w `BAR.muted`: `próg N % · <źródło>` — „ta sesja” / „ten projekt” /
+  „wszystkie projekty” / „domyślny”. Spokojna albo bez danych — nic; inne miary — nigdy. Wiersz
+  baterii ma wtedy 36 px zamiast 24 (tylko wiersz z podpisem); miara z podpisem szerszym od napisu
+  poszerza się (szerokość znaku 5,3 px — zmierzone 4,9 w Chromium), więc sąsiedzi się przesuwają.
+  Dymek bez zmian. Terminal bez zmian — linia b ma już `próg N %`.
 
 ### 11.2 Drugi wiersz paska cache przy zapisie pracy
 

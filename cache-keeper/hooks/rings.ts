@@ -10,11 +10,12 @@
 
 import { BAND, BAR, BATTERY, RING, leftColor } from './relai/theme.mjs'
 import { clock, minutes, tokens } from './fmt'
-import { DEFAULT_THRESHOLD } from './limit'
+import { DEFAULT_THRESHOLD, SOURCE_WORDS, type ThresholdSource } from './limit'
 
 export type MeasureName = 'cache' | 'five' | 'reset' | 'week' | 'ctx'
-// fill 0..1 of the battery drawn, the share left; null draws a bare outline (never a seeming zero)
-export type Measure = { name: MeasureName, fill: number | null, color: string, label: string, value: string, a: string, b: string }
+// fill 0..1 of the battery drawn, the share left; null draws a bare outline (never a seeming zero).
+// note: a small second line under the label (Aneks D), only on a limit battery that is not calm
+export type Measure = { name: MeasureName, fill: number | null, color: string, label: string, value: string, a: string, b: string, note?: string }
 export type Limit = { kind: string, percentUsed: number, resetsAt?: string }
 export type CacheLook = { kind: string, left: number, ttlMin: number, isAssumed: boolean, rewrite: string, keptUntil: number }
 
@@ -65,13 +66,17 @@ export function resetText(iso: string | undefined, now: number): string {
 
 // A plan limit: the value is the percent used, the battery what is left of it. From the threshold
 // up (limit.ts, LIMIT_CHECKPOINT E1) the fill is clay whatever is left; a missing figure stays bare.
-export function limitMeasure(name: 'five' | 'week', label: string, window: string, limit: Limit | undefined, now: number, threshold: number = DEFAULT_THRESHOLD): Measure {
+// A battery that is not calm (mustard or clay) says under its label from which threshold, and whose
+// (Aneks D: "próg 90 % · ta sesja"); a calm one says nothing there.
+export function limitMeasure(name: 'five' | 'week', label: string, window: string, limit: Limit | undefined, now: number, threshold: number = DEFAULT_THRESHOLD, source: ThresholdSource = 'domyślny'): Measure {
   if (!limit || !Number.isFinite(limit.percentUsed)) return missing(name, label, label)
   const used = Math.round(limit.percentUsed)
   const left = Math.max(0, 100 - used)
+  const color = used >= threshold ? BAND.cache.color : leftColor(left)
   return {
-    name, fill: clamp(left / 100), color: used >= threshold ? BAND.cache.color : leftColor(left), label, value: `${used} %`,
+    name, fill: clamp(left / 100), color, label, value: `${used} %`,
     a: `${used} % · ${window}`, b: `zużyte ${used} % · zostało ${left} % · ${resetText(limit.resetsAt, now)} · próg ${threshold} %`,
+    ...(color === BAR.segment.done ? {} : { note: `próg ${threshold} % · ${SOURCE_WORDS[source]}` }),
   }
 }
 
@@ -136,7 +141,14 @@ function batteryIcon(x: number, y: number, m: Measure): string {
     + (inner > 0 ? `<rect class="f" x="${round(x + 2.5)}" y="${round(y + 2.5)}" width="${round(inner)}" height="${h - 5}" rx="1.5" fill="${m.color}"/>` : '')
 }
 
-const measureWidth = (m: Measure) => BATTERY.icon.w + BATTERY.icon.gap + (m.label.length + m.value.length) * BATTERY.char + BATTERY.spanGap
+// The note under a label (Aneks D): 11 px, a width per character that errs wide; a row with a note
+// is this tall, a row without one keeps BATTERY.height
+const NOTE = { font: 11, char: 5.3, y: 32, rowHeight: 36 } as const // char: 4.9 px measured in Chromium
+
+const measureWidth = (m: Measure) => {
+  const words = (m.label.length + m.value.length) * BATTERY.char + BATTERY.spanGap
+  return BATTERY.icon.w + BATTERY.icon.gap + Math.max(words, (m.note?.length ?? 0) * NOTE.char)
+}
 
 type Placed = { x: number, m: Measure }
 
@@ -180,20 +192,23 @@ function card(p: Placed, i: number, maxPx: number): string {
 // where a fixed width is centred in the interactive frame (P-024 pkt 1) — painted with the bar's
 // background (an interactive frame is white otherwise, P-018 pkt 2). Each icon is the hover
 // target of its card; the cards come after every measure, so a card paints over its neighbours.
-export function batteryRows(measures: readonly Measure[], maxPx: number, background: string): { svg: string, alt: string }[] {
+export function batteryRows(measures: readonly Measure[], maxPx: number, background: string): { svg: string, alt: string, height: number }[] {
   return pack(measures, maxPx).map((placed) => {
+    const height = placed.some((p) => p.m.note) ? NOTE.rowHeight : BATTERY.height
     const drawn = placed.map((p, i) => {
       const tx = p.x + BATTERY.icon.w + BATTERY.icon.gap
-      return `<g class="i i${i} b-${p.m.name}"><rect x="${round(p.x - 3)}" y="0" width="${BATTERY.icon.w + 6}" height="${BATTERY.height}" fill="transparent"/>${batteryIcon(p.x, BATTERY.icon.y, p.m)}</g>`
+      return `<g class="i i${i} b-${p.m.name}"><rect x="${round(p.x - 3)}" y="0" width="${BATTERY.icon.w + 6}" height="${height}" fill="transparent"/>${batteryIcon(p.x, BATTERY.icon.y, p.m)}</g>`
         + `<text class="w" x="${round(tx)}" y="${BATTERY.textY}" font-size="${BATTERY.font}"><tspan class="l" fill="${BAR.muted}">${esc(p.m.label)}</tspan>`
         + `<tspan class="v" dx="${BATTERY.spanGap}" fill="${BAR.text}" font-weight="600">${esc(p.m.value)}</tspan></text>`
+        + (p.m.note ? `<text class="n" x="${round(tx)}" y="${NOTE.y}" font-size="${NOTE.font}" fill="${BAR.muted}">${esc(p.m.note)}</text>` : '')
     })
     const css = `text{font-family:system-ui,'Segoe UI',sans-serif}.t{display:none;filter:drop-shadow(0 1px 2px rgba(0,0,0,.45))}`
       + placed.map((_, i) => `.i${i}:hover~.t${i}{display:inline}`).join('')
     return {
-      svg: `<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="${BATTERY.height}"><style>${css}</style>`
+      svg: `<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="${height}"><style>${css}</style>`
         + `<rect width="100%" height="100%" fill="${background}"/>${drawn.join('')}${placed.map((p, i) => card(p, i, maxPx)).join('')}</svg>`,
-      alt: placed.map((p) => `${p.m.a}, ${p.m.b}`).join('; '),
+      alt: placed.map((p) => `${p.m.a}, ${p.m.b}${p.m.note ? `, ${p.m.note}` : ''}`).join('; '),
+      height,
     }
   })
 }
