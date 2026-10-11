@@ -3,6 +3,9 @@
 // a stage's segment in the colors of the progress bar above the prompt (BAR), a cost as in the costs
 // tab.
 //
+// AUDYT_MODOW Z14 (Aneks B): "Ta sesja" on top — the session's own work and its cost — and every
+// other section folded to one line with its number, as in the costs tab (pane-parts.tsx `folded`).
+//
 // Split out of register.tsx in E7 without a change of behavior; no `$` here (P-023 pkt 10).
 
 import { clip } from './fmt'
@@ -13,7 +16,9 @@ import { assignPicked, mergePicked, splitGroup, splitStage } from './core/flow.m
 import type { Branch, CrewRun, MapStage, MapTask, Merges, PlanNode } from './core/flow.mjs'
 import { ROLES, RUNTIMES, setTask } from './core/decisions.mjs'
 import type { CrewDraft } from './core/decisions.mjs'
-import type { MapData } from './data'
+import type { MapData, MapSession } from './data'
+import { sumCost } from './data'
+import type { Packet } from './focus'
 import { CATS, NONE } from './pane-parts'
 import type { Ctx, Parts } from './pane-parts'
 
@@ -34,10 +39,24 @@ export type MapCtx = {
   say: (text: string) => void
 }
 
+// "Ta sesja" while the session's work is not chosen: where to choose it (Z13 on the bar, Z12 in "Teraz")
+const ASKING = 'Praca tej sesji nie wybrana — „Wybierz pracę…” na pasku plan albo „Zmień” w Teraz.'
+
+// The line of facts under the session card's name: a thread's status, its packets closed and the one
+// in progress; a stage's status and name; outside, where its calls are counted
+function sessionFacts(ms: Exclude<MapSession, { kind: 'asking' | 'unknown' }>): string {
+  if (ms.kind === 'outside') return 'praca spoza planu — jej wywołania są w sekcji „Poza etapem”'
+  if (ms.kind === 'plan') return ms.stage ? [ms.stage.status, ms.stage.name].filter(Boolean).join(' · ') : 'bez etapu w toku'
+  const done = ms.packets.filter((pk) => pk.isDone).length
+  const count = ms.packets.length ? `zamknięte ${done} z ${ms.packets.length} paczek` : 'karta bez paczek do odhaczenia'
+  const now = ms.now ? `w toku: ${ms.now.id}${ms.now.name ? ` · ${ms.now.name}` : ''}` : ''
+  return [ms.status ?? 'bez statusu', count, now].filter(Boolean).join(' · ')
+}
+
 export function mapView(c: Ctx, p: Parts, md: MapData, s: MapCtx) {
   const { el, Svg, isGui, width } = c
   const { Box, Text, Input, Select } = el
-  const { btn, flashBorder, section, frame, figure, bar, costBox, line, money, nCalls, legend } = p
+  const { btn, flashBorder, section, folded, frame, figure, bar, costBox, line, money, nCalls, legend } = p
   const { isUnfolded, fold } = s
   const chosen = s.chosen
   const crewDrafts = s.drafts
@@ -54,29 +73,65 @@ export function mapView(c: Ctx, p: Parts, md: MapData, s: MapCtx) {
   // closed before the collector existed was never measured (live, 2026-10-09: PROWADZENIE_END_TO_END)
   const isPreTag = (md: MapData, s: MapStage) => md.untaggedSince !== null
     && (s.status === 'W TOKU' || (['ZREALIZOWANY', 'POMINIĘTY'].includes(s.status) && s.date !== null && s.date >= md.untaggedSince))
-  const sumCost = (list: Cost[]): Cost | undefined => (list.length === 0 ? undefined : {
-    usd: list.some((c) => c.usd !== null) ? list.reduce((s, c) => s + (c.usd ?? 0), 0) : null,
-    isPartial: list.some((c) => c.isPartial), records: list.reduce((s, c) => s + c.records, 0),
-  })
   const nTasks = (n: number) => `${n} ${plural(n, 'zadanie', 'zadania', 'zadań')}`
+  const closedOf = (node: PlanNode) => node.stages.filter((s) => s.status === 'ZREALIZOWANY' || s.status === 'POMINIĘTY').length
 
-  // The stages of a plan as one bar of segments; hovering one shows its id, status and name
-  const strip = (key: string, node: PlanNode, bg: string) => {
-    const looks = node.stages.map((s) => stageLook(s.status))
-    const colors = looks.map((l) => BAR.segment[l.item as keyof typeof BAR.segment])
+  // One bar of segments, a stage of a plan or a packet of a thread each (Z14 shares it); hovering one
+  // shows its head and its name, the idle lines stand under the bar while nothing is hovered
+  type Seg = { item: string, head: string, alt: string, detail: string }
+  const segBar = (key: string, segs: readonly Seg[], idle: string[], bg: string) => {
+    const colors = segs.map((s) => BAR.segment[s.item as keyof typeof BAR.segment] ?? BAR.segment.unknown)
     if (!colors.length) return null
-    const now = node.stages.find((s) => s.status === 'W TOKU') ?? node.stages.find((s) => s.status === 'GOTOWY DO STARTU')
-    const n = node.stages.length
-    const idle = [now ? `Teraz: ${now.id} · ${now.name}` : `${n} ${plural(n, 'etap', 'etapy', 'etapów')}`, 'najedź na segment, żeby zobaczyć etap']
-    const art = Svg ? hoverSegments(node.stages.map((s, i) => ({ color: colors[i] ?? BAR.segment.unknown, head: `${looks[i]?.mark ?? '?'} ${s.id} · ${s.status}`, detail: s.name })),
+    const art = Svg ? hoverSegments(segs.map((s, i) => ({ color: colors[i] ?? BAR.segment.unknown, head: s.head, detail: s.detail })),
       { background: bg, text: THEME.title, muted: THEME.body, idle, chars: Math.floor(((width - 8) * 8) / 6.8) }) : null
-    if (Svg && art) return <Svg key={key} isInteractive source={art.svg} alt={node.stages.map((s, i) => `${looks[i]?.mark ?? '?'} ${s.id} ${s.status}`).join(', ')} height={art.height} />
+    if (Svg && art) return <Svg key={key} isInteractive source={art.svg} alt={segs.map((s) => s.alt).join(', ')} height={art.height} />
     const t = segmentText(colors, Math.max(6, width - 8))
     return (
       <Box key={key} flexDirection="row" flexWrap="wrap" columnGap={t.gap}>
         {t.runs.map((r, i) => <Box key={`${key}-${i}`}><Text color={r.color}>{r.text}</Text></Box>)}
       </Box>
     )
+  }
+
+  // The stages of a plan as one bar of segments; hovering one shows its id, status and name
+  const strip = (key: string, node: PlanNode, bg: string) => {
+    const now = node.stages.find((s) => s.status === 'W TOKU') ?? node.stages.find((s) => s.status === 'GOTOWY DO STARTU')
+    const n = node.stages.length
+    const idle = [now ? `Teraz: ${now.id} · ${now.name}` : `${n} ${plural(n, 'etap', 'etapy', 'etapów')}`, 'najedź na segment, żeby zobaczyć etap']
+    return segBar(key, node.stages.map((s) => {
+      const look = stageLook(s.status)
+      return { item: look.item, head: `${look.mark} ${s.id} · ${s.status}`, alt: `${look.mark} ${s.id} ${s.status}`, detail: s.name }
+    }), idle, bg)
+  }
+
+  // The packets of a thread as the stages of a plan (Z14): closed, the one in progress, waiting
+  const packetBar = (key: string, packets: readonly Packet[], now: Packet | null, bg: string) => {
+    const idle = [now ? `Teraz: ${now.id}${now.name ? ` · ${now.name}` : ''}` : 'wszystkie paczki zamknięte', 'najedź na segment, żeby zobaczyć paczkę']
+    return segBar(key, packets.map((pk) => {
+      const state = pk.isDone ? 'done' : pk.id === now?.id ? 'running' : 'pending'
+      const look = FLOW.task[state]
+      return { item: state, head: `${look.mark} ${pk.id} · ${look.word}`, alt: `${look.mark} ${pk.id} ${look.word}`, detail: pk.name }
+    }), idle, bg)
+  }
+
+  // "Ta sesja" (Z14, Aneks B): the session's work in one card in the active plan's look, always
+  // unfolded — its name, one line of facts, a thread's packets as a bar, the cost of its tagged
+  // measurements in Kalam. Never the plan's stages: the plan's own card below has them.
+  const sessionCard = (ms: MapSession) => {
+    if (ms.kind === 'asking') return costBox('session-card', [line('session-ask', ASKING, THEME.accentText)], true)
+    if (ms.kind === 'unknown') return costBox('session-card', [line('session-unknown', `Nie odczytano pracy tej sesji: ${ms.reason}.`, THEME.accentText)], true)
+    const title = ms.kind === 'branch' ? `${ms.card} (odnoga)` : ms.kind === 'plan' ? (ms.stage ? `${ms.plan} · ${ms.stage.id}` : ms.plan) : 'poza planem'
+    const packets = ms.kind === 'branch' ? packetBar('session-packets', ms.packets, ms.now, THEME.cardFeatured) : null
+    return costBox('session-card', [
+      <Box key="session-head" flexDirection="row" flexWrap="wrap" alignItems="center" columnGap={2}>
+        <Box key="session-name" flexDirection="column" flexGrow={1} flexShrink={1}>
+          <Text bold color={THEME.mark} wrap="truncate">{title}</Text>
+          <Text color={THEME.body}>{sessionFacts(ms)}</Text>
+        </Box>
+        <Box key="session-fig" flexShrink={0}>{costFig('session-cost', ms.cost, 26)}</Box>
+      </Box>,
+      ...(packets ? [packets] : []),
+    ], true)
   }
 
   const branchLine = (key: string, b: Branch) => {
@@ -138,7 +193,7 @@ export function mapView(c: Ctx, p: Parts, md: MapData, s: MapCtx) {
     const isMain = node.place === 'active'
     const key = 'plan:' + node.name
     const isOpen = isUnfolded(key, isMain)
-    const closed = node.stages.filter((s) => s.status === 'ZREALIZOWANY' || s.status === 'POMINIĘTY').length
+    const closed = closedOf(node)
     const c = sumCost(md.cost.rows.filter((r) => splitStage(r.tag)?.plan === node.name).map((r) => r.group))
     const bg = isMain ? THEME.cardFeatured : THEME.card
     const loose = node.branches.filter((b) => !node.stages.some((s) => s.id === b.source))
@@ -151,7 +206,7 @@ export function mapView(c: Ctx, p: Parts, md: MapData, s: MapCtx) {
             <Text bold color={isMain ? THEME.mark : THEME.title} wrap="truncate">{node.name}</Text>
             <Text color={THEME.body} wrap="truncate">{`${status} · zamknięte ${closed} z ${node.stages.length} etapów`}</Text>
           </Box>
-          {c ? costFig(`plan-cost-${node.name}`, c, isMain ? 26 : 20) : []}
+          {c.records > 0 ? costFig(`plan-cost-${node.name}`, c, isMain ? 26 : 20) : []}
           {btn(`fold-${key}`, isOpen ? 'Zwiń' : 'Rozwiń', isMain ? 'primary' : 'secondary', () => fold(key, isMain))}
         </Box>
         {strip(`strip-${node.name}`, node, bg)}
@@ -271,27 +326,50 @@ export function mapView(c: Ctx, p: Parts, md: MapData, s: MapCtx) {
     )
   }
 
+  // ---------- the folded sections (Z14): one line with a number each, as in the costs tab ----------
+  const plansCost = (nodes: readonly PlanNode[]) => sumCost(md.cost.rows.filter((r) => nodes.some((n) => splitStage(r.tag)?.plan === n.name)).map((r) => r.group))
+  // A sum with a call priced by no list reads "(częściowo)", as in the costs tab
+  const moneyOf = (c: Cost) => `${money(c.usd)}${c.isPartial ? ' (częściowo)' : ''}`
+  const withCost = (words: string, c: Cost) => `${words} · ${c.records > 0 ? moneyOf(c) : 'bez pomiaru'}`
+  const activeWords = (node: PlanNode) => {
+    const now = node.stages.find((s) => s.status === 'W TOKU') ?? node.stages.find((s) => s.status === 'GOTOWY DO STARTU')
+    return withCost(`${node.name} · ${now ? now.status : (node.planStatus ?? 'status nieznany')} · zamknięte ${closedOf(node)} z ${node.stages.length} etapów`, plansCost([node]))
+  }
+  const outsideBox = (b: { group: Cost, words: string }, i: number) => costBox(`out-${i}`, [
+    <Box key={`out-row-${i}`} flexDirection="row" flexWrap="wrap" alignItems="center" columnGap={2}>
+      {costFig(`out-fig-${i}`, b.group, 22)}
+      <Box key={`out-text-${i}`} flexDirection="column" flexShrink={1}>
+        {line(`out-t-${i}`, b.words, THEME.title, true)}
+        {line(`out-n-${i}`, `${nCalls(b.group.records)} · wszystkie sesje projektu`)}
+      </Box>
+    </Box>,
+  ])
+
+  // "Ta sesja" on top, always unfolded; every other section folded by default, its cards drawn only
+  // when the person unfolds it ("map:<id>" in $.state); a plan's own fold inside stays as it was
   const draw = (md: MapData) => {
     const active = md.nodes.filter((n) => n.place === 'active')
     const others = md.nodes.filter((n) => n.place === 'open')
     const archive = md.nodes.filter((n) => n.place === 'archive')
     const outside = [md.cost.outside, md.cost.untagged].filter((b) => b.group.records > 0)
+    const outsideSum = sumCost(outside.map((b) => b.group))
+    const runs = md.runs.length
     return [
-      section('map', 'map', `Plany, etapy i odnogi z plików STATUS.md; koszt etapu ze wszystkich zmierzonych sesji projektu (${nCalls(md.cost.total.records)}).`,
-        active.length ? active.map((n) => planCard(md, n)) : [costBox('map-none', [line('map-none-t', 'Brak aktywnego planu — linia „Aktywny plan” w CLAUDE.md mówi „brak” albo jej nie ma.')])]),
-      ...(others.length ? [section('map-open', 'map-open', '', others.map((n) => planCard(md, n)))] : []),
-      section('map-crew', 'map-crew', md.runs.length ? 'Fale i zależności z zadania.json, stan z manifest.json. Zaznacz zadania, żeby je scalić albo przypisać do etapu.' : '',
-        md.runs.length ? md.runs.map((r) => runCard(md, r)) : [costBox('crew-none', [line('crew-none-t', 'Brak przebiegów /relai-crew w tym projekcie — pojawią się tu z .claude/relai/work/CREW/.')])]),
-      ...(outside.length ? [section('map-outside', 'map-outside', 'Każde wywołanie policzone; żadne nie trafia po cichu do najbliższego etapu.', outside.map((b, i) => costBox(`out-${i}`, [
-        <Box key={`out-row-${i}`} flexDirection="row" flexWrap="wrap" alignItems="center" columnGap={2}>
-          {costFig(`out-fig-${i}`, b.group, 22)}
-          <Box key={`out-text-${i}`} flexDirection="column" flexShrink={1}>
-            {line(`out-t-${i}`, b.words, THEME.title, true)}
-            {line(`out-n-${i}`, `${nCalls(b.group.records)} · wszystkie sesje projektu`)}
-          </Box>
-        </Box>,
-      ])))] : []),
-      ...(archive.length ? [section('map-archive', 'map-archive', `${archive.length} ${plural(archive.length, 'plan zamknięty', 'plany zamknięte', 'planów zamkniętych')}, ostatnio zamknięty na górze.`, archive.map((n) => planCard(md, n)))] : []),
+      ...(md.session ? [section('map-session', 'map-session', '', [sessionCard(md.session)])] : []),
+      folded('map', 'active', active.length ? active.map(activeWords).join(' · ') : 'brak aktywnego planu', () => [
+        line('map-about', `Plany, etapy i odnogi z plików STATUS.md; koszt etapu ze wszystkich zmierzonych sesji projektu (${nCalls(md.cost.total.records)}).`),
+        ...(active.length ? active.map((n) => planCard(md, n)) : [costBox('map-none', [line('map-none-t', 'Brak aktywnego planu — linia „Aktywny plan” w CLAUDE.md mówi „brak” albo jej nie ma.')])]),
+      ]),
+      ...(others.length ? [folded('map', 'open', withCost(`${others.length} ${plural(others.length, 'plan', 'plany', 'planów')}`, plansCost(others)), () => others.map((n) => planCard(md, n)))] : []),
+      folded('map', 'crew', runs ? `${runs} ${plural(runs, 'przebieg', 'przebiegi', 'przebiegów')}` : 'brak przebiegów', () => (runs
+        ? [line('crew-about', 'Fale i zależności z zadania.json, stan z manifest.json. Zaznacz zadania, żeby je scalić albo przypisać do etapu.'), ...md.runs.map((r) => runCard(md, r))]
+        : [costBox('crew-none', [line('crew-none-t', 'Brak przebiegów /relai-crew w tym projekcie — pojawią się tu z .claude/relai/work/CREW/.')])])),
+      ...(outside.length ? [folded('map', 'outside', `${moneyOf(outsideSum)} · ${nCalls(outsideSum.records)}`, () => [
+        line('outside-about', 'Każde wywołanie policzone; żadne nie trafia po cichu do najbliższego etapu.'), ...outside.map(outsideBox),
+      ])] : []),
+      ...(archive.length ? [folded('map', 'archive', withCost(`${archive.length} ${plural(archive.length, 'plan zamknięty', 'plany zamknięte', 'planów zamkniętych')}`, plansCost(archive)), () => [
+        line('archive-about', 'Ostatnio zamknięty na górze.'), ...archive.map((n) => planCard(md, n)),
+      ])] : []),
       <Box key="map-foot"><Text dimColor>{`Ceny API z ${md.prices.date} (${md.prices.source}). Pomiary sprzed E4 nie mają znacznika etapu.`}</Text></Box>,
     ]
   }

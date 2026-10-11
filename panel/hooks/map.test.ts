@@ -1,5 +1,10 @@
 import { describe, expect, mock, test, type TestBody } from 'claude-code/testing'
 import type { On, RenderElement, RenderNode, TurnStepResult } from 'claude-code'
+import { serializeRecords, stepRecord } from './core/measure.mjs'
+import type { MeasureRecord } from './core/measure.mjs'
+import { priceRecord } from './core/pricing.mjs'
+import { HEADING_ART } from './core/headings.mjs'
+import { usd } from './fmt'
 
 // The map tab of the RelAI panel (plan PANEL_CLAUDE, E4): plans, stages, branches, crew runs with
 // their waves; the cost of each stage from the collector's tag; merging crew tasks as a view, in
@@ -141,6 +146,11 @@ async function openMap($: Engine, surface: 'terminal' | 'desktop', columns = 100
   return ui
 }
 
+// Z14: every section but "Ta sesja" is folded by default; a test that reads cards unfolds theirs
+async function unfold(ui: Awaited<ReturnType<typeof openMap>>, ...ids: string[]) {
+  for (const id of ids) await ui.press({ key: `fold-map:${id}` })
+}
+
 const lines = (text: string | undefined) => String(text ?? '').split('\n').filter(Boolean).map((l) => JSON.parse(l) as Record<string, unknown>)
 
 describe('the collector tags each record with where the work belonged (E4)', () => {
@@ -172,6 +182,7 @@ describe('the map tab', () => {
       await start($)
       await step($, 'main-1')
       const ui = await openMap($, surface)
+      await unfold(ui, 'active', 'archive')
       const plan = textOf(await ui.find({ key: 'plan-PANEL_X' }))
       expect(plan).toContain('ZAAKCEPTOWANY 2026-10-08 · zamknięte 1 z 3 etapów')
       const now = textOf(await ui.find({ key: 'st-PANEL_X/E2' }))
@@ -214,6 +225,7 @@ describe('the map tab', () => {
     world(on, BASE)
     await start($)
     const ui = await openMap($, 'terminal')
+    await unfold(ui, 'active')
     expect(textOf(await ui.find({ key: 'st-PANEL_X/E2' }))).toContain('1 odnoga')
     await ui.press({ key: 'fold-stage:PANEL_X/E2' })
     const more = textOf(await ui.find({ key: 'st-more-PANEL_X/E2' }))
@@ -225,6 +237,7 @@ describe('the map tab', () => {
     world(on, BASE)
     await start($)
     const ui = await openMap($, 'terminal')
+    await unfold(ui, 'crew')
     const run = textOf(await ui.find({ key: `run-${RUN}` }))
     expect(run).toContain('3 zadania · 2 fale')
     expect(run).toContain('Fala 1 · równolegle')
@@ -237,6 +250,7 @@ describe('the map tab', () => {
     const disk = world(on, BASE)
     await start($)
     const ui = await openMap($, 'terminal')
+    await unfold(ui, 'crew')
     await ui.press({ key: `pick-${RUN}/t1` })
     await ui.press({ key: `pick-${RUN}/t2` })
     await ui.press({ key: `merge-${RUN}` })
@@ -262,6 +276,7 @@ describe('the map tab', () => {
     await start($)
     await step($, 'main-1')
     const ui = await openMap($, 'terminal')
+    await unfold(ui, 'outside')
     const out = textOf(await ui.find({ key: 'map-outside' }))
     expect(out).toContain('pomiary sprzed znacznika etapu')
     expect(out).toContain('1 wywołanie · wszystkie sesje projektu')
@@ -277,10 +292,150 @@ describe('the map tab', () => {
     await start($)
     await step($, 'main-1')
     const ui = await openMap($, 'terminal', 40)
+    await unfold(ui, 'active', 'crew', 'outside', 'archive')
     await ui.press({ key: 'fold-stage:PANEL_X/E2' })
     await ui.press({ key: `pick-${RUN}/t1` })
     const drawn = await ui.drawn()
     expect(drawn).toBeDefined()
     expect(minWidth(drawn as RenderNode)).toBeLessThanOrEqual(40)
+  })
+})
+
+// AUDYT_MODOW Z14 (Aneks B): the map starts with the session's own work — a thread with its packets,
+// a stage of a plan, outside any plan, or the choice still to make — and its cost; every other
+// section is folded to one line with its number, as in the costs tab, and kept so in $.state.
+const FOCUS = `${CWD}/.claude/relai/fokus/session-1.json`
+const OTHER = `${DIR}/2026-10-09-other.jsonl`
+const CARD_X = [
+  '# ODNOGA — X', '', 'Plan: brak · Status: **OTWARTA** ·', '',
+  '1. **Z1 · Pierwsza** — a', '2. **Z2 · Druga** — b', '3. **Z3 · Trzecia** — c', '4. **Z4 · Czwarta** — d', '',
+  '## Weryfikacja', '', '- [x] Z1: a', '- [x] Z2: b', '- [ ] Z3: c', '- [ ] Z4: d',
+].join('\n')
+const PANEL_Y = ['# STATUS — plan PANEL_Y', '', '**ZAAKCEPTOWANY 2026-10-01**', '',
+  '| Etap | Nazwa | Status | Prompt | Uwagi |', '|---|---|---|---|---|', '| E1 | Jeden | OCZEKUJE | — | |'].join('\n')
+const USE = { input_tokens: 3, cache_read_input_tokens: 40_000, cache_creation_input_tokens: 2_000, output_tokens: 300, model: 'claude-opus-5-5' }
+
+// Records of another session of the project, one per stage given; undefined writes no tag at all
+function tagged(stages: (string | null | undefined)[]): MeasureRecord[] {
+  return stages.map((stage, i) => {
+    const r = stepRecord({ session: 'other', turn: `o${i}`, index: 0, agent: null, model: 'claude-opus-5-5', at: NOW - (i + 1) * 1_000,
+      usage: { ...USE, output_tokens: 300 + i }, stage: stage ?? null, task: null })
+    if (stage !== undefined) return r
+    const { stage: _dropped, ...untagged } = r
+    return untagged as MeasureRecord
+  })
+}
+// The cost the card must show, summed here record by record (the map sums through stageCosts)
+const sumOf = (records: MeasureRecord[]) => records.reduce((s, r) => s + (priceRecord(r).usd ?? 0), 0)
+const focusOn = (f: Record<string, string>) => ({ [FOCUS]: JSON.stringify({ ...f, source: 'manual', at: 1 }) })
+const keyOf = (node: RenderNode | undefined) => (node && typeof node !== 'string' ? String((node.props as { key?: string } | undefined)?.key ?? '') : '')
+const firstOfBody = async (ui: Awaited<ReturnType<typeof openMap>>) => keyOf(((await ui.find({ key: 'body' })) as { children?: RenderNode[] } | undefined)?.children?.[0])
+
+// What a drawing weighs (the instrument of redraw.test.ts, verbatim) and its budget there
+const TREE_BUDGET = 200_000
+const weight = (node: RenderNode | undefined) => ({
+  chars: JSON.stringify(node ?? null).length,
+  svgs: [...walk(node)].filter((x) => x.type === 'Svg').length,
+})
+
+describe('the map tab, focused (Z14)', () => {
+  test('a focus on a thread: "Ta sesja" first, the thread with its packets and its own cost', async ($, on) => {
+    const records = tagged(['X/Z1', 'X/Z3', 'X/Z3', 'XY/Z1', 'PANEL_X/E2', 'X'])
+    const own = records.filter((r) => r.stage === 'X' || String(r.stage).startsWith('X/'))
+    expect(own.length).toBe(4) // positive control: XY/Z1 and PANEL_X/E2 are not the thread's
+    world(on, { ...BASE, ...focusOn({ kind: 'branch', card: 'X' }), [`${CWD}/docs/fixy/X/ODNOGA.md`]: CARD_X, [OTHER]: serializeRecords(records) })
+    await start($)
+    for (const surface of ['terminal', 'desktop'] as const) {
+      const ui = await openMap($, surface)
+      expect(await firstOfBody(ui)).toBe('map-session')
+      const card = await ui.find({ key: 'map-session' })
+      expect(textOf(card)).toContain('X (odnoga)')
+      expect(textOf(card)).toContain('OTWARTA · zamknięte 2 z 4 paczek')
+      expect(textOf(card)).toContain('w toku: Z3 · Trzecia')
+      expect([...walk(card)].filter((n) => n.type === 'Button')).toEqual([]) // always unfolded
+      const svgs = [...walk(card)].filter((n) => n.type === 'Svg').map((n) => String((n.props as { alt?: string }).alt ?? ''))
+      if (surface === 'desktop') {
+        expect(svgs).toContain(usd(sumOf(own))) // the cost in Kalam, its alt the amount
+        expect(svgs.some((a) => a.includes('✓ Z1') && a.includes('● Z3') && a.includes('○ Z4'))).toBe(true) // the packets' bar
+      } else expect(textOf(card)).toContain(usd(sumOf(own)))
+      await ui.unmount()
+    }
+  })
+
+  test('a focus on a stage of a plan: the stage and its own cost', async ($, on) => {
+    const records = tagged(['PANEL_X/E2', 'PANEL_X/E2', 'PANEL_X/E1', 'X/Z1'])
+    const own = records.filter((r) => r.stage === 'PANEL_X/E2')
+    world(on, { ...BASE, ...focusOn({ kind: 'plan', plan: 'PANEL_X', stage: 'E2' }), [OTHER]: serializeRecords(records) })
+    await start($)
+    const ui = await openMap($, 'terminal')
+    expect(await firstOfBody(ui)).toBe('map-session')
+    const card = textOf(await ui.find({ key: 'map-session' }))
+    expect(card).toContain('PANEL_X · E2')
+    expect(card).toContain('W TOKU · Mapa przepływu')
+    expect(card).toContain(usd(sumOf(own)))
+    expect(card).not.toContain('E1 · Szkielet') // the plan's stages stay in its own card, folded below
+  })
+
+  test('no focus while the active plan runs in Codex: the card asks, pointing at "Wybierz pracę…"', async ($, on) => {
+    world(on, { ...BASE, [`${CWD}/docs/plany/PANEL_X/STATUS.md`]: ACTIVE.replace('model: Opus', 'model wykonawczy etapów: **gpt-6.1-sol w Codeksie**') })
+    await start($)
+    const ui = await openMap($, 'terminal')
+    const card = textOf(await ui.find({ key: 'map-session' }))
+    expect(card).toContain('Praca tej sesji nie wybrana — „Wybierz pracę…” na pasku plan albo „Zmień” w Teraz.')
+    expect(card).not.toMatch(/\$\d/)
+  })
+
+  test('the five sections folded by default, a line with a number each; an unfolded one kept in $.state', async ($, on) => {
+    const archived = tagged(['PROWADZENIE_END_TO_END/E3', 'PROWADZENIE_END_TO_END/E5'])
+    world(on, { ...BASE, [`${CWD}/docs/plany/PANEL_Y/STATUS.md`]: PANEL_Y, [OTHER]: serializeRecords(archived) })
+    await start($)
+    const ui = await openMap($, 'desktop')
+    const content: Record<string, string> = { active: 'plan-PANEL_X', open: 'plan-PANEL_Y', crew: `run-${RUN}`, outside: 'out-0', archive: 'plan-PROWADZENIE_END_TO_END' }
+    for (const [id, inside] of Object.entries(content)) {
+      expect((await ui.find({ key: `fold-map:${id}` }))?.text).toBe('▸ Rozwiń')
+      expect(await ui.find({ key: inside })).toBeUndefined()
+      expect([...walk(await ui.find({ key: `map-${id}-row` }))].some((n) => n.type === 'Svg')).toBe(true) // the Kalam heading
+    }
+    expect(textOf(await ui.find({ key: 'map-active-sum' }))).toContain('PANEL_X · W TOKU · zamknięte 1 z 3 etapów')
+    expect(textOf(await ui.find({ key: 'map-open-sum' }))).toContain('1 plan')
+    expect(textOf(await ui.find({ key: 'map-crew-sum' }))).toBe('1 przebieg')
+    expect(textOf(await ui.find({ key: 'map-outside-sum' }))).toContain('1 wywołanie')
+    expect(textOf(await ui.find({ key: 'map-archive-sum' }))).toBe(`1 plan zamknięty · ${usd(sumOf(archived))}`)
+    await ui.press({ key: 'fold-map:archive' })
+    expect((await ui.find({ key: 'fold-map:archive' }))?.text).toBe('▾ Zwiń')
+    expect(await ui.find({ key: 'plan-PROWADZENIE_END_TO_END' })).toBeDefined()
+    await ui.unmount()
+    // Kept by the host: the pane mounted again shows it unfolded
+    const again = await $.ui.mount({ plugin: 'relai-panel', surface: 'desktop', ...pane(100) })
+    expect(await again.find({ key: 'plan-PROWADZENIE_END_TO_END' })).toBeDefined()
+    expect(await again.find({ key: 'plan-PANEL_X' })).toBeUndefined()
+    await again.unmount()
+  })
+
+  test('weight: twelve archived plans of nine stages, three crew runs and 400 calls, folded', async ($, on) => {
+    const archive = Object.fromEntries(Array.from({ length: 12 }, (_, p) => {
+      const name = `A${String(p + 1).padStart(2, '0')}`
+      const rows = Array.from({ length: 9 }, (_, i) => `| E${i + 1} | Etap numer ${i + 1} planu ${name} | ZREALIZOWANY 2026-09-${String(p + 10)} | — | |`)
+      return [`${CWD}/docs/archiwum/plany/${name}/STATUS.md`, [`# STATUS — plan ${name}`, '', `Status: **ZREALIZOWANY 2026-09-${p + 10}**`, '',
+        '| Etap | Nazwa | Status | Prompt | Uwagi |', '|---|---|---|---|---|', ...rows].join('\n')]
+    }))
+    const runs = Object.fromEntries(['2026-10-01_100000', '2026-10-02_100000', '2026-10-03_100000'].flatMap((run) => [
+      [`${CWD}/.claude/relai/work/CREW/${run}/zadania.json`, TASKS], [`${CWD}/.claude/relai/work/CREW/${run}/manifest.json`, MANIFEST]]))
+    const calls = tagged(Array.from({ length: 400 }, (_, i) => [`X/Z${(i % 4) + 1}`, `A${String((i % 12) + 1).padStart(2, '0')}/E${(i % 9) + 1}`, null, undefined][i % 4]))
+    world(on, { ...BASE, ...archive, ...runs, ...focusOn({ kind: 'branch', card: 'X' }), [`${CWD}/docs/fixy/X/ODNOGA.md`]: CARD_X, [OTHER]: serializeRecords(calls) })
+    await start($)
+    const ui = await openMap($, 'desktop')
+    const folded = weight(await ui.drawn())
+    // The Svg of a folded map: the pane's title, the five headings, the packets' bar and the cost.
+    // Measured 2026-10-11: 43 755 znaków, 7 Svg — "Ta sesja" still a word, its Kalam art not
+    // generated yet (+1 Svg once it is); under the 53 k the desktop was seen drawing (P-023 pkt 7)
+    const headings = ['hero', 'map-session', 'map-active', 'map-crew', 'map-outside', 'map-archive'].filter((k) => k in HEADING_ART).length
+    expect(folded.svgs).toBe(headings + 2)
+    expect(`${folded.chars} znaków, ${folded.svgs} Svg`).toBe(`${Math.min(folded.chars, 53_000)} znaków, ${headings + 2} Svg`)
+    await ui.press({ key: 'fold-map:archive' })
+    const unfolded = weight(await ui.drawn())
+    expect(unfolded.chars).toBeGreaterThan(folded.chars) // positive control: the archive drew
+    expect(`${unfolded.chars} znaków, ${unfolded.svgs} Svg`).toBe(`${Math.min(unfolded.chars, TREE_BUDGET - 1)} znaków, ${unfolded.svgs} Svg`)
+    await ui.unmount()
   })
 })

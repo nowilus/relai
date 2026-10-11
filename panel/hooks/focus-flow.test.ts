@@ -153,7 +153,8 @@ describe('the session focus, end to end (Z12)', () => {
     await turn($, 't1')
     expect(stagesIn(disk)).toEqual([null])
     const band = await $.ui.mount({ plugin: 'relai-panel', surface: 'desktop', ...BAND })
-    expect(textOf(await band.find({ key: 'plan' }))).toContain('ta sesja: praca nie wybrana')
+    // Z13: the sentence stands on the chip of the bar's second row, beside "Wybierz pracę…"
+    expect(textOf(await band.find({ key: 'relai-band-frame' }))).toContain('ta sesja: praca nie wybrana')
     await band.unmount()
   })
 
@@ -222,7 +223,8 @@ describe('the session focus, end to end (Z12)', () => {
     await turn($, 't1')
     expect(stagesIn(disk)).toEqual([null])
     const band = await $.ui.mount({ plugin: 'relai-panel', surface: 'desktop', ...BAND })
-    expect(textOf(await band.find({ key: 'plan' }))).toContain('ta sesja: praca nie wybrana')
+    // Z13: the sentence stands on the chip of the bar's second row, beside "Wybierz pracę…"
+    expect(textOf(await band.find({ key: 'relai-band-frame' }))).toContain('ta sesja: praca nie wybrana')
     await band.unmount()
   })
 })

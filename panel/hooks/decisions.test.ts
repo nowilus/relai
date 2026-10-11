@@ -244,6 +244,7 @@ describe('decisions in the RelAI panel', () => {
     const calls = world(on, { ...FILES, [`${RUN_DIR}/zadania.json`]: TASKS, [`${CWD}/.claude/relai/work/CREW/started/zadania.json`]: TASKS, [`${CWD}/.claude/relai/work/CREW/started/manifest.json`]: '{"tasks":[]}' })
     const ui = await open($)
     await ui.press({ key: 'tab-map' })
+    await ui.press({ key: 'fold-map:crew' }) // folded by default since Z14
     await ui.press({ key: 'crew-open-started' })
     expect(await ui.find({ key: 'crew-ok-started' })).toBeUndefined()
     expect((await ui.find({ key: 'sent' }))?.text).toContain('przebieg wystartował')
@@ -276,6 +277,7 @@ describe('decisions in the RelAI panel', () => {
       await measure('stage card')
       await ui.press({ key: 'confirm-no' })
       await ui.press({ key: 'tab-map' })
+      await ui.press({ key: 'fold-map:crew' }) // folded by default since Z14
       await ui.press({ key: `crew-open-${RUN}` })
       expect(await ui.find({ key: `crew-ok-${RUN}` })).toBeDefined()
       await measure('crew editor')

@@ -30,10 +30,11 @@ const FILES: Record<string, string> = {
   [`${CWD}/docs/plany/PANEL_X/PROMPT_ETAP_2.md`]: PROMPT,
 }
 
-type Calls = { commands: { command: string, args: string }[], prompts: string[] }
+type Calls = { commands: { command: string, args: string }[], prompts: string[], opens: string[] }
 
-function world(on: On): Calls {
-  const calls: Calls = { commands: [], prompts: [] }
+function world(on: On, files: Record<string, string> = FILES): Calls {
+  const calls: Calls = { commands: [], prompts: [], opens: [] }
+  const disk: Record<string, string> = { ...files }
   const key = (path: string) => path.replace(/\\/g, '/')
   mock.clock(on, { now: new Date(2026, 9, 10, 12, 0).getTime() })
   mock.store(on, {})
@@ -41,14 +42,15 @@ function world(on: On): Calls {
   on('session.cwd', () => ({ value: CWD }))
   on('session.id', () => ({ value: 'session-1' }))
   on('session.model', () => ({ value: 'claude-opus-5-5' }))
-  on('fs.exists', ($, e) => ({ value: key(e.path) in FILES }))
-  on('fs.read', ($, e) => (key(e.path) in FILES ? { value: FILES[key(e.path)] ?? '' } : { deny: 'ENOENT ' + e.path }))
+  on('fs.exists', ($, e) => ({ value: key(e.path) in disk }))
+  on('fs.read', ($, e) => (key(e.path) in disk ? { value: disk[key(e.path)] ?? '' } : { deny: 'ENOENT ' + e.path }))
+  on('fs.write', ($, e) => { disk[key(e.path)] = e.text; return { value: undefined } })
   on('fs.list', () => ({ value: [] }))
   on('command.list', () => ({ value: FORMS.map((f) => ({ name: 'relai:' + f.command, description: 'opis', source: 'plugin' as const })) }))
   on('session.usage', () => ({ value: { startedAt: 0, context: { tokens: 1000 } as never, rateLimits: [], cost: { usd: 3.5 } } }))
   on('command.run', ($, e) => { calls.commands.push({ command: e.command, args: e.args }); return { text: 'ok' } })
   on('prompt.submit', ($, e) => { calls.prompts.push(e.text); return { text: e.text } })
-  on('ui.open', () => ({ value: { isPlaced: true as const } }))
+  on('ui.open', ($, e) => { calls.opens.push(e.id); return { value: { isPlaced: true as const } } })
   // The engine's own band beneath the plugin: what it draws must stay
   on('ui.render', { component: 'AbovePrompt' }, ($, e) => {
     const { Box, Text } = $.ui.resolve(e)
@@ -229,6 +231,129 @@ describe('the plan bar, a card waiting for "Tak"', () => {
     }
     await paneUi.unmount()
     expect(widths.length).toBe(4)
+    expect(widths.filter((w) => Number(w.split(': ')[1]) > 40)).toEqual([])
+  })
+})
+
+// AUDYT_MODOW Z13 (Aneks B, decided 2026-10-11: always the button): a session with no work chosen
+// while the active plan runs in another tool gets a second row on the plan bar — the sentence on an
+// info chip and a native "Wybierz pracę…" that opens the pane on "Teraz" with the choice unfolded.
+// The row goes when the work is chosen; a card waiting for "Tak" keeps the one second row.
+const IN_CODEX = STATUS.replace('model wykonawczy: Opus, w Claude Code', 'model wykonawczy etapów: **gpt-6.1-sol w Codeksie**')
+const ASKING: Record<string, string> = { ...FILES, [`${CWD}/docs/plany/PANEL_X/STATUS.md`]: IN_CODEX }
+const FOCUS_FILE = `${CWD}/.claude/relai/fokus/session-1.json`
+
+type Writes = { unfolded: Record<string, boolean>[], view: string[] }
+
+// What the panel wrote to $.state, recorded on its way to the store (registered before world)
+function stateWrites(on: On): Writes {
+  const w: Writes = { unfolded: [], view: [] }
+  on('state.set', ($, e, next) => {
+    const x = e as { plugin?: string, key?: string, value?: unknown }
+    if (x.plugin === 'relai-panel' && x.key === 'unfolded') w.unfolded.push(x.value as Record<string, boolean>)
+    if (x.plugin === 'relai-panel' && x.key === 'view') w.view.push(String(x.value))
+    return next(e)
+  })
+  return w
+}
+
+describe('the plan bar, the session\'s work not chosen (Z13)', () => {
+  test('a second row: the sentence on an info chip and "Wybierz pracę…"; the first row stays one line', async ($, on) => {
+    world(on, ASKING)
+    await start($)
+    for (const surface of ['terminal', 'desktop'] as const) {
+      const ui = await $.ui.mount({ plugin: 'relai-panel', surface, ...bar() })
+      const row = await ui.find({ key: 'band-focus' })
+      expect(row?.text).toContain('ta sesja: praca nie wybrana')
+      expect(row?.text).not.toContain('Zmień')
+      const chip = await ui.find({ key: 'band-focus-chip' })
+      expect((chip?.props as { backgroundColor?: string } | undefined)?.backgroundColor).toBe(CHIP.info.bg)
+      const pick = await ui.find({ key: 'band-pick' })
+      expect(pick?.type).toBe('Button')
+      expect(pick?.text).toBe('Wybierz pracę…')
+      expect((pick?.props as { variant?: string } | undefined)?.variant).toBe('secondary')
+      expect((row?.props as { flexWrap?: string, marginTop?: number } | undefined)?.flexWrap).toBe('wrap')
+      expect((row?.props as { marginTop?: number } | undefined)?.marginTop).toBe(surface === 'desktop' ? 1 : undefined)
+      const first = await ui.find({ key: 'plan' })
+      expect(first?.text).toContain('aktywny plan: PANEL_X (Codex)')
+      expect(first?.text).not.toContain('Wybierz')
+      expect((first?.props as { flexWrap?: string } | undefined)?.flexWrap).toBeUndefined()
+      await ui.unmount()
+    }
+  })
+
+  test('"Wybierz pracę…" opens the pane once, on "Teraz" with the choice unfolded', async ($, on) => {
+    const writes = stateWrites(on)
+    const calls = world(on, ASKING)
+    await start($)
+    const ui = await $.ui.mount({ plugin: 'relai-panel', surface: 'desktop', ...bar() })
+    expect(calls.opens).toEqual([]) // positive control: nothing opened before the press
+    await ui.press({ key: 'band-pick' })
+    expect(calls.opens).toEqual(['relai-panel'])
+    expect(writes.unfolded.at(-1)?.['now:focus']).toBe(true)
+    expect(writes.view.at(-1)).toBe('commands')
+    const paneUi = await $.ui.mount({ plugin: 'relai-panel', surface: 'desktop', ...pane })
+    expect(await paneUi.find({ key: 'now-focus-list' })).toBeDefined()
+    expect(sent(calls)).toEqual([]) // it opens the pane and chooses nothing by itself
+    await paneUi.unmount()
+    await ui.unmount()
+  })
+
+  test('the work chosen in the pane: the bar is back to one row, no button', async ($, on) => {
+    world(on, ASKING)
+    await start($)
+    const ui = await $.ui.mount({ plugin: 'relai-panel', surface: 'desktop', ...bar() })
+    await ui.press({ key: 'band-pick' })
+    const paneUi = await $.ui.mount({ plugin: 'relai-panel', surface: 'desktop', ...pane })
+    await paneUi.press({ key: 'focus-plan:PANEL_X:E2' })
+    await paneUi.unmount()
+    await ui.unmount()
+    const again = await $.ui.mount({ plugin: 'relai-panel', surface: 'desktop', ...bar() })
+    expect(await again.find({ key: 'band-focus' })).toBeUndefined()
+    expect((await again.find({ key: 'plan' }))?.text).toContain('PANEL_X · E2')
+    expect(JSON.stringify(await again.drawn())).not.toContain('"Button"')
+    await again.unmount()
+  })
+
+  test('a focus set from the start: no button, no second row', async ($, on) => {
+    const focus = JSON.stringify({ kind: 'plan', plan: 'PANEL_X', stage: 'E2', source: 'manual', at: 1 })
+    world(on, { ...ASKING, [FOCUS_FILE]: focus })
+    await start($)
+    for (const surface of ['terminal', 'desktop'] as const) {
+      const ui = await $.ui.mount({ plugin: 'relai-panel', surface, ...bar() })
+      expect((await ui.find({ key: 'plan' }))?.text).toContain('PANEL_X · E2')
+      expect(await ui.find({ key: 'band-focus' })).toBeUndefined()
+      expect(await ui.find({ key: 'band-pick' })).toBeUndefined()
+      await ui.unmount()
+    }
+  })
+
+  test('a card waiting while the work is not chosen: one second row, the card\'s', async ($, on) => {
+    world(on, ASKING)
+    await start($)
+    await prepareStage($)
+    for (const surface of ['terminal', 'desktop'] as const) {
+      const ui = await $.ui.mount({ plugin: 'relai-panel', surface, ...bar() })
+      expect(await ui.find({ key: 'band-confirm' })).toBeDefined()
+      expect(await ui.find({ key: 'band-focus' })).toBeUndefined()
+      expect(await ui.find({ key: 'band-pick' })).toBeUndefined()
+      // The sentence is not lost while the card holds the row: the first row says it
+      expect((await ui.find({ key: 'plan' }))?.text).toContain('ta sesja: praca nie wybrana')
+      await ui.unmount()
+    }
+  })
+
+  test('nothing is wider than 40 columns with the work not chosen, on terminal and desktop', async ($, on) => {
+    world(on, ASKING)
+    await start($)
+    const widths: string[] = []
+    for (const surface of ['terminal', 'desktop'] as const) {
+      const ui = await $.ui.mount({ plugin: 'relai-panel', surface, ...bar(40) })
+      expect(await ui.find({ key: 'band-pick' })).toBeDefined() // the instrument measures the new row
+      widths.push(`${surface} asking: ${minWidth(await ui.drawn())}`)
+      await ui.unmount()
+    }
+    expect(widths.length).toBe(2)
     expect(widths.filter((w) => Number(w.split(': ')[1]) > 40)).toEqual([])
   })
 })

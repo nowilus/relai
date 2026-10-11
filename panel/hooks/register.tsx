@@ -410,6 +410,26 @@ async function loadData($: $T, cwd: string): Promise<PaneData> {
   return data
 }
 
+// The pane opened by the person's act — /relai-panel, or "Wybierz pracę…" on the plan bar (Z13):
+// the commands read again, the tabs' memory moved on, the pane placed (an open one is only raised)
+async function openPane($: $T) {
+  await loadData($, S.cwd)
+  bump() // the pane opened again shows the project as it is now
+  $.ui.invalidate('ui.render')
+  return $.ui.open({ id: PANE_ID, title: PANE_TITLE })
+}
+
+// "Wybierz pracę…" (AUDYT_MODOW Z13, Aneks B): "Teraz" with the focus choice unfolded — the same
+// fold "Zmień" turns — on the commands tab, then the pane; nothing is chosen by the press itself
+// Both writes at once, then the pane: one drawing for the press, not three (Z13 review)
+async function pickWork($: $T) {
+  await Promise.all([
+    update($, unfolded, (m) => ({ ...m, 'now:focus': true })),
+    update($, view, () => 'commands' as const),
+  ])
+  await openPane($)
+}
+
 async function sendCommand($: $T, name: string, args: string, text: string) {
   try {
     await $.command.run({ command: name, args })
@@ -591,10 +611,7 @@ export const register: Register = (on) => {
       if (root !== null) set({ isRelai: true, cwd: root })
     }
     if (!S.isRelai) return { text: NOT_RELAI }
-    await loadData($, S.cwd)
-    bump() // the pane opened again shows the project as it is now
-    $.ui.invalidate('ui.render')
-    const opened = await $.ui.open({ id: PANE_ID, title: PANE_TITLE })
+    const opened = await openPane($)
     return { text: opened.isPlaced ? 'Panel RelAI otwarty.' : `Panel RelAI czeka na miejsce: ${opened.reason}` }
   })
 
@@ -625,12 +642,12 @@ export const register: Register = (on) => {
 
     // The tabs are drawn by pane-*.tsx, which never see `$` (P-023 pkt 10, E7): each gets the
     // element table and the pane's parts (pane-parts.tsx), its data, and callbacks made here
-    const c: Ctx = { el, Svg, isGui, width, flashed, last, flash: (key) => flash($, key) }
-    const p = parts(c)
-    const { heading, sentLine } = p
-    // Folds: the map's plans and stages, the documents' groups and folders, the costs' sections
+    // Folds: the map's sections, plans and stages, the documents' groups and folders, the costs' sections
     const isUnfolded = (key: string, byDefault: boolean) => folds[key] ?? byDefault
     const fold = (key: string, byDefault: boolean) => { void update($, unfolded, (m) => ({ ...m, [key]: !(m[key] ?? byDefault) })) }
+    const c: Ctx = { el, Svg, isGui, width, flashed, last, flash: (key) => flash($, key), isUnfolded, fold }
+    const p = parts(c)
+    const { heading, sentLine } = p
 
     // The tab's data from memory (Z3): read again only when its key moves on
     const key = tab === 'help' ? '' : `${await $.session.id()}|${epochNow()}`
@@ -653,7 +670,7 @@ export const register: Register = (on) => {
       toggleClean: (id) => { void update($, cleanList, (l) => (l ? togglePick(l, id) : l)) },
       prepareClean: (list) => { void cardId($).then((id) => offer($, cleanCard(id, list))) },
     }).commandsView() : costs ? costsView(c, p, costs, {
-      session: S, muted: mutedNow, preparePricing: () => { void preparePricing($) }, isUnfolded, fold,
+      session: S, muted: mutedNow, preparePricing: () => { void preparePricing($) },
     }) : map ? mapView(c, p, map, {
       isUnfolded, fold, chosen, drafts: crewDrafts,
       togglePick: (id) => { void update($, picks, (x) => (x.includes(id) ? x.filter((y) => y !== id) : [...x, id])) },
@@ -711,7 +728,8 @@ export const register: Register = (on) => {
     const { Box, Text } = el
     const why = next.error.kind === 'timeout' ? 'liczyła się dłużej niż pozwala silnik' : next.error.message ?? 'nieznany błąd'
     const tab = tabOf(await read($, view).catch(() => 'commands'))
-    const p = parts({ el, Svg: null, isGui: e.surface !== 'terminal', width: Math.max(30, e.props.bodyColumns), flashed: '', last: '', flash: () => undefined })
+    const p = parts({ el, Svg: null, isGui: e.surface !== 'terminal', width: Math.max(30, e.props.bodyColumns), flashed: '', last: '', flash: () => undefined,
+      isUnfolded: (_key, byDefault) => byDefault, fold: () => undefined })
     return (
       <Box key="relai-pane" flexDirection="column" gap={1}>
         {p.tabs(tab, (v) => { bump(); void update($, view, () => v) })}
@@ -839,7 +857,12 @@ export const register: Register = (on) => {
       card: pending,
       decide: (said: 'tak' | 'nie') => { void (async () => decide($, pending, said, (data ?? await loadData($, S.cwd)).names))() },
     } : null
-    const ours = band($.ui.resolve(e), e.surface !== 'terminal', e.props.bodyColumns, S.work, waiting)
+    // No work chosen (Z13): the bar's "Wybierz pracę…" opens the pane on the choice
+    // A failure is said in the pane's sent line, as every other action says it (UX-16)
+    const pick = S.work.isAsking ? () => {
+      void pickWork($).catch((err) => say($, failure('Otwórz panel komendą /relai-panel i wybierz pracę w „Teraz”.', 'Nie otwarto panelu', err)))
+    } : null
+    const ours = band($.ui.resolve(e), e.surface !== 'terminal', e.props.bodyColumns, S.work, waiting, pick)
     if (!below) return ours
     const { Box } = $.ui.resolve(e)
     // No width here: the engine refuses its own node under a Box with "width" and draws its own

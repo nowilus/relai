@@ -216,6 +216,31 @@ describe('the header and the "Teraz" bar (brief v2 §6.1–6.2)', () => {
   })
 })
 
+// AUDYT_MODOW Z13: "Wybierz pracę…" on the plan bar opens the pane with the focus choice unfolded
+describe('"Teraz" opened from the plan bar (Z13)', () => {
+  const inCodex = { ...FILES, [`${CWD}/docs/plany/PANEL_X/STATUS.md`]: STATUS.replace('model wykonawczy: Opus, w Claude Code', 'model wykonawczy etapów: **gpt-6.1-sol w Codeksie**') }
+  const band = { component: 'AbovePrompt' as const, props: { hasSurvey: false, isWorking: false, maxRows: 10, bodyColumns: 140, scroll: { offset: 0, bodyRows: 9 }, view: {} } }
+
+  test('the choice shows without a press on "Zmień", whose button says "Zwiń"', async ($, on) => {
+    world(on, inCodex)
+    // The engine's own band beneath the plugin
+    on('ui.render', { component: 'AbovePrompt' }, ($, e) => {
+      const { Box, Text } = $.ui.resolve(e)
+      return Box({ key: 'engine', children: [Text({ children: ['engine'] })] })
+    })
+    await $.session.start({ cwd: CWD, surface: 'desktop', isInteractive: true })
+    const bar = await $.ui.mount({ plugin: 'relai-panel', surface: 'desktop', ...band })
+    await bar.press({ key: 'band-pick' })
+    await bar.unmount()
+    const ui = await $.ui.mount({ plugin: 'relai-panel', surface: 'desktop', ...pane(100) })
+    const keys = [...walk(await ui.find({ key: 'now-focus-list' }))].filter((n) => n.type === 'Button').map((b) => String(props(b).key ?? ''))
+    expect(keys).toEqual(['focus-plan:PANEL_X:E2', 'focus-outside'])
+    expect(props(await ui.find({ key: 'now-focus-change' })).label).toBe('Zwiń')
+    expect(props(await ui.find({ key: 'tab-commands' })).variant).toBe('primary')
+    await ui.unmount()
+  })
+})
+
 describe('the commands tab (brief v2 §6.3–6.5, P1)', () => {
   test('two recommended cards with 44 px icons; twelve rows of one line: 24 px icon, name, command, purpose, "Otwórz"', async ($, on) => {
     world(on)

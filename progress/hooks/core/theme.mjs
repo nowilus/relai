@@ -115,11 +115,13 @@ export const HEADINGS = Object.freeze([
   { key: 'costs-agents', text: 'Agenci', size: 20, color: mix(ROOT.glina, ROOT.kartka, 0.25) },
   { key: 'costs-models', text: 'Modele', size: 20, color: mix(ROOT.glina, ROOT.kartka, 0.25) },
   // The map tab (E4): one main heading, the rest a size down, as in the costs tab
-  { key: 'map', text: 'Mapa przepływu', size: 22, color: ROOT.musztarda },
+  { key: 'map-active', text: 'Aktywny plan', size: 20, color: mix(ROOT.glina, ROOT.kartka, 0.25) },
   { key: 'map-open', text: 'Inne plany', size: 20, color: mix(ROOT.glina, ROOT.kartka, 0.25) },
   { key: 'map-crew', text: 'Przebiegi załogi', size: 20, color: mix(ROOT.glina, ROOT.kartka, 0.25) },
   { key: 'map-outside', text: 'Poza etapem', size: 20, color: mix(ROOT.glina, ROOT.kartka, 0.25) },
   { key: 'map-archive', text: 'Archiwum planów', size: 20, color: mix(ROOT.glina, ROOT.kartka, 0.25) },
+  // The session's own work on top of the map (AUDYT_MODOW Z14, Aneks B)
+  { key: 'map-session', text: 'Ta sesja', size: 20, color: mix(ROOT.glina, ROOT.kartka, 0.25) },
   { key: 'costs-stages', text: 'Etapy', size: 20, color: mix(ROOT.glina, ROOT.kartka, 0.25) },
   // The confirmation card (E5): above every tab while it waits for "Tak"
   { key: 'confirm', text: 'Do potwierdzenia', size: 22, color: ROOT.musztarda },

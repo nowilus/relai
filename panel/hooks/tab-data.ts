@@ -10,15 +10,17 @@ import { PRICE_FILE, cacheEffect, listFor, modelCosts, newest, parsePriceFile, p
 import type { Version } from './core/pricing.mjs'
 import { KINDS, diffArgv, diffView, previewOf } from './core/documents.mjs'
 import { stageCosts, taskCosts } from './core/attribution.mjs'
-import { MERGE_FILE, crewRun, flowMap, parseMerges } from './core/flow.mjs'
+import type { StageCosts } from './core/attribution.mjs'
+import { MERGE_FILE, crewRun, flowMap, parseMerges, splitStage } from './core/flow.mjs'
 import type { Merges } from './core/flow.mjs'
 import { daysBetween, listDate, projectVersion } from './core/decisions.mjs'
 import type { Fact } from './core/decisions.mjs'
 import { crewProgress, pick as pickProgress, promptLink, stageProgress } from './core/progress.mjs'
-import type { CostData, DocsData, MapData, NowData, OpenDoc, PaneData, Prices } from './data'
+import type { CostData, DocsData, MapData, MapSession, NowData, OpenDoc, PaneData, Prices } from './data'
+import { sumCost } from './data'
 import { CREW_DIR, MEASURE_DIR, localDay, readRel } from './pane-io'
 import type { PaneIo } from './pane-io'
-import { branchProgress, cardPathOf, countedOf, isCardOpen } from './focus'
+import { branchProgress, cardPackets, cardPathOf, cardStatus, countedOf, isCardOpen, packetNow } from './focus'
 import { parseStatus } from './core/plan-state.mjs'
 import type { FocusChoice } from './data'
 
@@ -108,7 +110,30 @@ export async function mapData(io: PaneIo): Promise<MapData> {
   const untaggedSince = untagged.length ? localDay(Math.min(...untagged)) : null
   const prices = await loadPrices(io)
   const price = priceWith(prices.lists)
-  return { nodes: flowMap(active, plans), runs: runs.reverse(), merges, cost: stageCosts(all, price, merges), tasks: taskCosts(all, price, merges), active, untaggedSince, prices }
+  const cost = stageCosts(all, price, merges)
+  return { nodes: flowMap(active, plans), runs: runs.reverse(), merges, cost, tasks: taskCosts(all, price, merges), active, untaggedSince, prices, session: await sessionOf(io, cost) }
+}
+
+// "Ta sesja" (AUDYT_MODOW Z14): the session's work from the focus the bars draw (Z12) and its cost
+// from the rows the measurements' tags made — a thread's every packet ("CARD/Zn") and the card's own
+// tag, a stage's row (a plan with no stage in progress: all its rows), outside "poza etapem". The
+// thread's card is the one read this adds, made when the tab opens (Z3), never when it draws.
+async function sessionOf(io: PaneIo, cost: StageCosts): Promise<MapSession | null> {
+  const w = io.session().work
+  if (w.isAsking) return { kind: 'asking' }
+  const rows = (isOwn: (tag: string) => boolean) => sumCost(cost.rows.filter((r) => isOwn(r.tag)).map((r) => r.group))
+  if (w.focus?.kind === 'branch') {
+    const card = w.focus.card
+    const text = await readRel(io, cardPathOf(card))
+    const packets = cardPackets(text ?? '')
+    return { kind: 'branch', card, status: text === null ? null : cardStatus(text), packets, now: packetNow(packets), cost: rows((t) => t === card || t.startsWith(`${card}/`)) }
+  }
+  if (w.focus?.kind === 'outside') return { kind: 'outside', cost: sumCost([cost.outside.group]) }
+  // A plan that cannot be read says why, never a section that vanishes (Z14 review)
+  if (w.plan.kind === 'unknown') return { kind: 'unknown', reason: w.plan.reason }
+  if (w.plan.kind !== 'ok') return null
+  const { plan, stage } = w.plan
+  return { kind: 'plan', plan, stage, cost: rows((t) => (stage ? t === `${plan}/${stage.id}` : splitStage(t)?.plan === plan)) }
 }
 
 // ---------- documents (E6, Aneks E) ----------

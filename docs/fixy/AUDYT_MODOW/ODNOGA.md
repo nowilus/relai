@@ -194,27 +194,46 @@ Kolejność: najpierw fundamenty (Z3–Z5), bo bez nich nowe paski będą migać
       107/29/84 i `node --test` 274/274; commit `52d0f70`, tag `relai-panel-v0.10.0`, release na
       GitHubie; `plugin marketplace update` + `plugin update` ×3 (0.9.0→0.10.0, 0.2.0→0.3.0,
       0.3.0→0.4.0); pliki w `~/.claude/plugins/cache/relai/<plugin>/<wersja>/` porównane sumą
-      z repo — 0 rozjazdów. **Czeka: restart aplikacji i pomiar na żywo.**
+      z repo — 0 rozjazdów. Restart i pomiar na żywo ✓ przy Z10–Z11 (2026-10-10/11: drzewo,
+      pięć baterii i zrzuty Łukasza po `plugin update`).
 - [x] Z10: archiwum rozwija się i zwija w drzewie przy otwartych innych folderach; każdy klik
       w wiersz dociera (sonda `tree-probe`, P-023 pkt 7a); foldery musztardowe — potwierdzone na
       żywo przez Łukasza 2026-10-10 („Działa super”, „jest ok”); test na prawdziwej liście `docs/`.
-- [ ] Z12: sesja z promptem `PROMPT_ODNOGA` / `PROMPT_ETAP_N` / `ODNOGA.md` liczy się do swojej
+- [x] Z12: sesja z promptem `PROMPT_ODNOGA` / `PROMPT_ETAP_N` / `ODNOGA.md` liczy się do swojej
       pracy — pasek plan, pasek postęp (paczki), „Teraz” z „Zmień”, znacznik w pomiarach; bez
       fokusu przy planie w Codeksie — „poza etapem” i pytanie; `/clear` przenosi fokus (testy
       `focus.test.ts`, `focus-flow.test.ts`, progress „thread card”); korekta historii tej sesji po
       „tak”; zrzut na żywo.
+      Zrzut ✓ 2026-10-11 (przy pomiarze Z13): pasek plan „AUDYT_MODOW · Z13 ODNOGA · aktywny plan:
+      PANEL_CODEX (Codex) · 7/14 paczek”, pasek postępu z paczkami „w toku: Z13 · następny: Z3”;
+      bez fokusu — „Ta sesja: nie wybrano — aktywny plan idzie w innym narzędziu” w „Teraz”.
 - [x] Z11: makieta paska cache od sesji Fable 5.1 zaakceptowana, wdrożona, zrzut Łukasza.
       Kalibracja ✓ 2026-10-10 („Jest dobrze”): Aneks Z11 w briefie v3, prompt wdrożenia
       `PROMPT_Z11_WDROZENIE.md`. Wdrożenie ✓ 2026-10-11 (Opus 5.5): `rings.test.ts` „the calm
       cache bar: five batteries…” (11 testów + 8 z pętli), `handoff-economics.test.ts` „the event
       chip is CHIP.info…”, `theme.test.js` `CHIP.info`, `leftColor`, `BATTERY`; na starym kodzie
       18 ✖; zrzuty Łukasza (pięć baterii, dymek 2. i 3. miary, zawijanie przy zwężaniu) — „jest ok”.
-- [ ] Z13: pasek plan bez fokusu ma przycisk `Wybierz pracę…`, który otwiera panel z rozwiniętym
+- [x] Z13: pasek plan bez fokusu ma przycisk `Wybierz pracę…`, który otwiera panel z rozwiniętym
       wyborem fokusu; po wyborze pasek wraca do jednego wiersza (testy `band.test.ts`,
       `pane-v2.test.ts`; zrzut). Aneks B.
-- [ ] Z14: Mapa zaczyna się od „Ta sesja” (fokus z paczkami/etapem i kosztem), inne plany
+      Dowód ✓ 2026-10-11 (Opus 5.5, subagent sesji Fable): `band.test.ts` — 6 nowych testów
+      (drugi wiersz z chipem `CHIP.info` i przyciskiem tylko w `isAsking`; naciśnięcie = jeden
+      `$.ui.open`, `unfolded['now:focus']`, zakładka Komendy; po wyborze jeden wiersz; karta
+      czekająca ma pierwszeństwo), `pane-v2.test.ts` — panel otwarty z `now:focus` pokazuje listę
+      bez kliknięcia. Na żywo (Łukasz, 2.1.295): sesja bez fokusu przy PANEL_CODEX w Codeksie —
+      wiersz 1 wzmianka, wiersz 2 chip + `Wybierz pracę…`; klik otworzył panel na Komendach
+      z rozwiniętym wyborem; po wyborze AUDYT_MODOW pasek wrócił do jednego wiersza.
+- [x] Z14: Mapa zaczyna się od „Ta sesja” (fokus z paczkami/etapem i kosztem), inne plany
       i archiwum zwinięte do jednej linii z liczbą, stan w `$.state`; waga zwiniętej mapy
       w teście; zrzut przy fokusie na odnodze. Aneks B.
+      Dowód ✓ 2026-10-11: `map.test.ts` — 5 nowych testów („the map tab, focused (Z14)”: karta
+      odnogi z `zamknięte 2 z 4 paczek` i kosztem policzonym ręcznie, karta etapu, stan `asking`,
+      pięć sekcji zwiniętych z pamięcią po przeładowaniu, waga: 12 planów × 9 etapów, 3 przebiegi,
+      400 wywołań — zwinięta 43 755 znaków / 7 Svg, z archiwum 133 370 / 23). Nagłówki Kalamem
+      `map-session` „Ta sesja” i `map-active` „Aktywny plan” (fontTools zainstalowany za zgodą,
+      `headings.mjs` przebudowany). Na żywo (Łukasz): „Ta sesja” z AUDYT_MODOW, 7 z 14 paczek,
+      $129.45, pasek paczek z dymkiem; pięć wierszy zwiniętych; Archiwum rozwinięte zostało
+      rozwinięte po ponownym `/relai-panel` — „jest ok”.
 - [x] `git diff` nie dotyka `core/panel/*.mjs` poza `theme.mjs` ani niczego w `adapters/codex/`.
       `git diff --stat ecb8282 HEAD -- core/panel adapters/codex docs/plany/PANEL_CODEX`: tylko
       `core/panel/theme.mjs` i dwa testy w `core/panel/tests/` (2026-10-10, po Z7).
@@ -398,6 +417,28 @@ Jedna linia na zamkniętą paczkę; pełny wpis do `docs/DZIENNIK.md` dopiero w 
 - **2026-10-11 · wydanie po Z10–Z12** — po „tak” Łukasza: push `fb03bcc` (`relai-cache-keeper`
   0.5.0), potem `relai-panel` 0.11.0 i `relai-progress` 0.4.0 — kod Z10 i Z12 był w repo bez
   podbicia wersji, więc `plugin update` z marketplace go nie pobierał.
+- **2026-10-11 · Z13 i Z14 zamknięte** (Opus 5.5 jako subagent sesji Fable 5.1; prompt
+  [PROMPT_Z13_Z14_WDROZENIE.md](PROMPT_Z13_Z14_WDROZENIE.md); rozstrzygnięcie Łukasza: zawsze
+  przycisk, wariant B odrzucony) — `band.tsx`: drugi wiersz `isAsking` z chipem `CHIP.info`
+  i natywnym `Wybierz pracę…`, pierwszy wiersz niesie wzmiankę (zdanie nigdy dwa razy);
+  `register.tsx`: `openPane($)` wspólne dla komendy i przycisku, `pickWork($)` zapisuje
+  `now:focus` i zakładkę jednym `Promise.all`, błąd otwarcia słowami w panelu; `pane-parts.tsx`:
+  `folded` wspólne dla Kosztów i Mapy, `isUnfolded`/`fold` w `Ctx`; `pane-map.tsx`: sekcja
+  „Ta sesja” (karta odnogi/etapu/poza planem/`asking`/`unknown`, paczki jako segmenty, koszt
+  Kalamem), pięć sekcji zwiniętych z podsumowaniem i „(częściowo)”; `data.ts`: `MapSession`,
+  jeden `sumCost`; `tab-data.ts`: `sessionOf` (jeden odczyt karty na otwarcie zakładki);
+  `theme.mjs`: nagłówki `map-session`, `map-active` (zamiast `map`), `headings.mjs` przebudowany
+  (fontTools 4.66.1 zainstalowany za zgodą). Kontrola pozytywna: 21 ✖ na starym kodzie (10 nowych
+  + 11 liczących na rozwinięte sekcje). Przegląd `typescript-reviewer` (Opus): 0 CRITICAL/HIGH,
+  4 MEDIUM i 9 LOW — 6 poprawionych (nieobsłużona promisa, trzy przerysowania na klik, fokus
+  planu z nieczytelnym STATUS.md znikał bez słowa, „(częściowo)”, etykieta zamkniętej karty,
+  duplikat `sumCost`); odłożone: sekcja `asking` wskazuje przycisk paska także w terminalu
+  (pasek tam też jest, tylko tekstowy), `sessionOf` czyta kartę mimo `branchState` w `Work`.
+  Testy: panel 135/135, progress 31/31, cache-keeper 90/90 (2.1.295), rdzeń 179/179,
+  `validate` ×3, `sync-panel-core --check`. Pomiar na żywo w podmienionej kopii 0.11.0 (oryginały
+  w katalogu roboczym) — „jest ok”. **Świadomie odłożone:** `PROMPT_ETAP_N`/`PROMPT_ODNOGA`
+  wykonawca w świeżej sesji zastąpiony subagentem — do oceny, czy wzorzec zostaje (D-85 mówi
+  o świeżych sesjach Opus).
 ## Wynik
 
 —

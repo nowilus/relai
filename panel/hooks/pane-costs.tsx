@@ -5,6 +5,7 @@
 // (AUDYT_MODOW Z2, P3): the tiles stay; the sections under them are folded rows — a Kalam heading,
 // one line with the section's key number, "▸ Rozwiń" — all folded by default, the fold kept in
 // $.state (`unfolded`, "costs:<section>"); an unfolded section draws as before, in the Z3 bounds.
+// The folded row is pane-parts.tsx's since Z14, the map's sections fold the same way.
 //
 // Split out of register.tsx in E7 without a change of behavior; no `$` here (P-023 pkt 10).
 
@@ -48,14 +49,12 @@ export type CostsCtx = {
   session: { costUsd: number | null, startedAt: number, loadedAt: number }
   muted: Record<string, string>
   preparePricing: () => void
-  isUnfolded: (key: string, byDefault: boolean) => boolean
-  fold: (key: string, byDefault: boolean) => void
 }
 
 export function costsView(c: Ctx, p: Parts, cd: CostData, s: CostsCtx) {
   const { el, Svg, isGui } = c
   const { Box, Text } = el
-  const { section, frame, barCols, bar, costBox, line, money, nCalls, legend, btn, heading } = p
+  const { section, frame, barCols, bar, costBox, line, money, nCalls, legend, btn } = p
   const S = s.session
   const mutedNow = s.muted
   let figuresLeft = FIGURES
@@ -71,22 +70,8 @@ export function costsView(c: Ctx, p: Parts, cd: CostData, s: CostsCtx) {
     return line(key, `… jeszcze ${rest.length} razem ${usd(sum)}${isPartial ? ' (częściowo)' : ''} — panel rysuje ${CARDS} najdroższych`)
   }
 
-  // A section as a folded row (P3): its Kalam heading, one line with its key number, the switch;
-  // unfolded, its content under the row as before
-  const folded = (id: string, summary: string, content: () => RenderChildren[], isAlert = false) => {
-    const isOpen = s.isUnfolded(`costs:${id}`, false)
-    return (
-      <Box key={`costs-${id}`} flexDirection="column" gap={isGui ? 1 : 0}>
-        <Box key={`costs-${id}-row`} flexDirection="row" flexWrap="wrap" alignItems="center" columnGap={2} paddingX={1}
-          {...frame(false)} borderColor={isAlert ? THEME.accent : THEME.line} backgroundColor={THEME.card}>
-          {heading(`costs-${id}`)}
-          <Box key={`costs-${id}-sum`} flexGrow={1} flexShrink={1}><Text color={isAlert ? THEME.accentText : THEME.body} wrap="truncate">{summary}</Text></Box>
-          {btn(`fold-costs:${id}`, isOpen ? '▾ Zwiń' : '▸ Rozwiń', 'secondary', () => s.fold(`costs:${id}`, false))}
-        </Box>
-        {isOpen ? content() : []}
-      </Box>
-    )
-  }
+  // A section as a folded row (P3), the pane's shared part since Z14: "costs:<section>" in $.state
+  const folded = (id: string, summary: string, content: () => RenderChildren[], isAlert = false) => p.folded('costs', id, summary, content, isAlert)
 
   const clock = (at: number) => { const d = new Date(at); return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}` }
   const day = (at: number) => { const d = new Date(at); return `${String(d.getDate()).padStart(2, '0')}.${String(d.getMonth() + 1).padStart(2, '0')}` }

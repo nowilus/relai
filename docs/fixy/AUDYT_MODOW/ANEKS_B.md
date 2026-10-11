@@ -69,5 +69,13 @@ pamiętane po przeładowaniu; liczba Svg i znaków zwiniętej mapy w teście.
 
 ## Do rozstrzygnięcia przez człowieka (przed startem Z13)
 
-- Wariant B Z13 (wybór wprost na pasku przy ≤ 3 pozycjach) — zgoda na decyzję wykonawcy po
-  pomiarze czy zawsze przycisk `Wybierz pracę…`?
+- ~~Wariant B Z13 (wybór wprost na pasku przy ≤ 3 pozycjach) — zgoda na decyzję wykonawcy po
+  pomiarze czy zawsze przycisk `Wybierz pracę…`?~~ *(rozstrzygnięte 2026-10-11, Łukasz: **zawsze
+  przycisk `Wybierz pracę…`** — jeden wzorzec, pasek nigdy nie rośnie, wybór w „Teraz”; wariant B
+  odrzucony na stałe)*
+
+## Wykonanie (2026-10-11)
+
+Z13 i Z14 wykonuje **Opus 5.5 jako subagent sesji Fable 5.1** (decyzja Łukasza 2026-10-11; Fable
+orkiestruje: prompt, przegląd kodu, pomiar z Łukaszem, rytuał zamknięcia). Prompt wdrożenia:
+[PROMPT_Z13_Z14_WDROZENIE.md](PROMPT_Z13_Z14_WDROZENIE.md).

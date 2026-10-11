@@ -196,6 +196,7 @@ describe('the map tab loads once and folds from memory (Z7)', () => {
     const passes = () => n.read.filter((p) => p === TASKS).length - opened
     await ui.press({ key: 'tab-map' })
     expect(passes()).toBe(1)
+    await ui.press({ key: 'fold-map:active' }) // folded by default since Z14
     const before = { fs: n.fs, process: n.process, draws: n.draws }
     await ui.press({ key: 'fold-stage:PANEL_X/E2' })
     await ui.press({ key: 'fold-plan:PANEL_X' })

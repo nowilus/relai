@@ -8,7 +8,7 @@
 
 import type { Elements, RenderChildren } from 'claude-code'
 import { pct, tokens, usd } from './fmt'
-import { COST_COLORS, NAMES, THEME, glyph, iconName } from './core/theme.mjs'
+import { COST_COLORS, HEADINGS, NAMES, THEME, glyph, iconName } from './core/theme.mjs'
 import { HEADING_ART } from './core/headings.mjs'
 import { ICONS } from './core/icons.mjs'
 import { plural } from './core/measure.mjs'
@@ -23,8 +23,13 @@ export type Table = Elements['terminal'] | Elements['desktop'] | Elements['vscod
 export type SvgTag = Elements['desktop']['Svg']
 
 // What a tab is drawn with: the table, Svg on a desktop only, the pane's width, the control that
-// flashes now and the last sent line, and the one call a press makes on every control
-export type Ctx = { el: Table, Svg: SvgTag | null, isGui: boolean, width: number, flashed: string, last: string, flash: (key: string) => void }
+// flashes now and the last sent line, the one call a press makes on every control, and the folds
+// kept in $.state (`unfolded`) with the press that turns one (AUDYT_MODOW Z14: the folded sections)
+export type Ctx = {
+  el: Table, Svg: SvgTag | null, isGui: boolean, width: number, flashed: string, last: string, flash: (key: string) => void
+  isUnfolded: (key: string, byDefault: boolean) => boolean
+  fold: (key: string, byDefault: boolean) => void
+}
 
 // The Select of a choice cannot hold an empty value: '' travels as this one
 export const NONE = '_'
@@ -58,10 +63,11 @@ export function parts(c: Ctx) {
   const { Box, Text, Button } = el
 
   // ---------- the pane's parts: one look for every tab and every later section ----------
+  // A heading in HEADINGS whose Kalam art is not generated yet reads as its words, never its key
   const heading = (key: string, color: string = THEME.mark) => {
     const art = HEADING_ART[key]
     if (Svg && art) return <Svg key={`h-${key}`} source={art.svg} alt={art.text} width={art.width} height={art.height} />
-    return <Text bold color={color}>{art?.text ?? key}</Text>
+    return <Text bold color={color}>{art?.text ?? HEADINGS.find((h) => h.key === key)?.text ?? key}</Text>
   }
   const icon = (cmd: string, px: number) => {
     const source = ICONS[iconName(cmd)]
@@ -96,6 +102,25 @@ export function parts(c: Ctx) {
   )
   // A card: rounded and filled on a desktop; on the terminal only the selected one is framed
   const frame = (isOn: boolean) => (isGui || isOn ? { borderStyle: 'round' } : {})
+  // A section folded to one row (brief v2 §7): its Kalam heading, one line with its key number,
+  // "▸ Rozwiń" / "▾ Zwiń"; unfolded, its content under the row. Folded by default and kept in
+  // $.state as "<prefix>:<id>". Shared by the costs (Z2) and the map (AUDYT_MODOW Z14): a folded
+  // section draws none of its content, which keeps the tree light (P-023 pkt 7).
+  const folded = (prefix: string, id: string, summary: string, content: () => RenderChildren[], isAlert = false) => {
+    const head = `${prefix}-${id}`
+    const isOpen = c.isUnfolded(`${prefix}:${id}`, false)
+    return (
+      <Box key={`${prefix}-${id}`} flexDirection="column" gap={isGui ? 1 : 0}>
+        <Box key={`${prefix}-${id}-row`} flexDirection="row" flexWrap="wrap" alignItems="center" columnGap={2} paddingX={1}
+          {...frame(false)} borderColor={isAlert ? THEME.accent : THEME.line} backgroundColor={THEME.card}>
+          {heading(head)}
+          <Box key={`${prefix}-${id}-sum`} flexGrow={1} flexShrink={1}><Text color={isAlert ? THEME.accentText : THEME.body} wrap="truncate">{summary}</Text></Box>
+          {btn(`fold-${prefix}:${id}`, isOpen ? '▾ Zwiń' : '▸ Rozwiń', 'secondary', () => c.fold(`${prefix}:${id}`, false))}
+        </Box>
+        {isOpen ? content() : []}
+      </Box>
+    )
+  }
   // The exact text that goes to the chat, in a well of its own
   const well = (key: string, text: string, isOk: boolean) => (
     <Box key={key} paddingX={1} {...frame(false)} borderColor={THEME.line} backgroundColor={THEME.card}>
@@ -180,7 +205,7 @@ export function parts(c: Ctx) {
     </Box>
   )
 
-  return { heading, icon, mark, isFlash, btn, flashBorder, section, frame, well, sentLine, factRow, confirmCard, tabs, barCols, figure, bar, costBox, line, money, nCalls, legend }
+  return { heading, icon, mark, isFlash, btn, flashBorder, section, frame, folded, well, sentLine, factRow, confirmCard, tabs, barCols, figure, bar, costBox, line, money, nCalls, legend }
 }
 
 export type Parts = ReturnType<typeof parts>
