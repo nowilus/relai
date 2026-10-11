@@ -57,12 +57,13 @@ zaakceptowany, E1 trwa po stronie Codeksa. Opinii spoza projektu nadal nie ma.
   czat macierzysty; kontrakt w [README adaptera](../adapters/codex/panel/README.md). Tabela
   STATUS planu pokazuje jeszcze `GOTOWY DO STARTU` — do wyprostowania na `W TOKU`.
 - **LIMIT_CHECKPOINT — zapis pracy przed wyczerpaniem limitu** (plan
-  [LIMIT_CHECKPOINT](plany/LIMIT_CHECKPOINT/STATUS.md), **DO AKCEPTACJI** od 2026-10-11, 4 etapy,
+  [LIMIT_CHECKPOINT](plany/LIMIT_CHECKPOINT/STATUS.md), **ZAAKCEPTOWANY 2026-10-11**, 4 etapy,
   Opus 5.5 w świeżych sesjach). Po co: koniec limitu 5 h albo tygodniowego ma być kamieniem
   milowym, nie wypadkiem — próg (domyślnie 90 %, pamiętany jak zgoda optymalizatora), karta po
   turze „pracuję dalej / zapisz pracę”, procedura zapisu w rdzeniu (dokumenty, testy, commit
-  lokalny, plik wznowienia) i przycisk „Wznów pracę” na pasku po resecie. Stan: plan i STATUS
-  gotowe, czeka na akceptację i dwie decyzje z sekcji 9 planu.
+  lokalny za zgodą z karty, plik wznowienia) i przycisk „Wznów pracę” na pasku po resecie. Stan:
+  **E1 GOTOWY DO STARTU** (prompt wygenerowany); bramka otwarta: przepięcie `prompt-mode.js`
+  na wspólny odczyt progu — pytanie na starcie E1.
 
 ## Co dalej
 

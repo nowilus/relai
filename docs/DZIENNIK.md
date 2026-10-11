@@ -23,6 +23,8 @@
 | C8 | Inny mod paska nad promptem rysuje bez `next` albo owija węzeł silnika w `Box` z `width` i pasek RelAI znika bez komunikatu (E1, P-017) | **Średni** (2026-10-08, przy E1) | **OTWARTE** | `relai-panel`, `relai-progress` i `relai-cache-keeper` zawsze wołają `next` i nie dokładają `width` do owijacza (test „engine kept beneath" w każdym); `savvy-progress` rysował bez `next` — wyłączony w E9, zastąpiony forkiem. Otwarte: cudze mody poza kontrolą — ostrzeżenie w README w E7. |
 | C10 | Pomiar kosztów niepełny albo podwójny — subagenci, kompakcja, wznowienie, `/clear`, wywołania poza pętlą (plan PANEL_CLAUDE, ryzyko R2) | **Niski** (2026-10-08 po E3; wcześniej wysoki) | **OTWARTE** | Klucz sesja + tura + indeks + agent, plik na sesję, kompakcja z `session.compact`, identyfikator sesji przy każdym zapisie; na żywo 117/117 kroków i 8/8 tur zgodnych z sondą co do kategorii; E9: koszt subagenta w `/relai-agents` = suma jego rekordów ($0,42, Opus), agent spoza cennika „brak ceny", nie „brak pomiaru". E4: rekord niesie etap w toku i zadanie załogi (`stage`, `task`); każdy rekord w dokładnie jednej pozycji (etap / „poza etapem” / „sprzed znacznika”), suma pozycji = suma sesji co do centa (test z kontrolą i na żywo $4,54 = $4,54). Otwarte: 9,16% przyrostu licznika silnika to wywołania spoza `turn.step` i kompakcji — raport mówi o nich słowami, bez rozbicia (P-020 pkt 6); zadanie załogi uruchomione jako osobna sesja `claude -p` jest przypisane tylko wtedy, gdy ta sesja ma `relai-panel`. E6: model bez ceny nie znika w sumie częściowej — przypomnienie z liczbą rekordów i aktualizacja cennika z karty; stawki cache per model ze strony (odczyt 0,05× Opus/Sonnet 5.5 — wcześniej jedna stała), Sonnet 5.5 wyceniony na żywo ($0,24 za 4 rekordy) E7: bez zmian w liczeniu (podział pliku bez zmiany zachowania); otwarte trwale na 9,16% wywołań spoza pętli, opisanych słowami. |
 | C11 | Pliki pomiarów puchną albo trafiają do gita (plan PANEL_CLAUDE, ryzyko R5) | **Niski** (2026-10-08 po E3) | **OTWARTE ŚWIADOMIE** | `.claude/relai/` poza gitem (sprawdzone `git check-ignore`), plik na sesję, rekord bez treści (~250 B); E4: plik scaleń `.claude/relai/panel/scalenia.json` też poza gitem (`git check-ignore`), rekord dłuższy o dwa pola; E6: `.claude/relai/panel/cennik.json` (wersje cennika) poza gitem (`git check-ignore`), jedna wersja na zapis z karty; otwarte: sprzątanie starych plików nie istnieje — do E7 E7 (decyzja człowieka 2026-10-09): sprzątanie świadomie odłożone — zmierzone 5 plików, 260 KB po dwóch dniach intensywnej pracy; „Koszty projektu” sumują wszystkie pliki, więc kasowanie zmieniłoby sumę. Próg powrotu: folder `.claude/relai/pomiary/` powyżej 10 MB. |
+| L1 | `percentUsed` limitu odświeża się tylko z odpowiedzią API — długa tura subagentów przekroczy próg, a karta przyjdzie po fakcie (plan LIMIT_CHECKPOINT, ryzyko L1) | **Wysoki** (2026-10-11, przy akceptacji planu) | **OTWARTE** | E2 czyta też `turn.step` i `session.measure` w trakcie tury i ustawia kolor baterii od razu; karta po turze podaje realny procent; test: próg przekroczony w środku tury → kolor natychmiast, karta po `turn.complete`. |
+| L2 | Zapis pracy sam zużywa tury — przy progu 95 % może nie zdążyć (plan LIMIT_CHECKPOINT, ryzyko L2) | **Wysoki** (2026-10-11, przy akceptacji planu) | **OTWARTE** | Karta pokazuje „ile tur zostało” z tempa sesji i ostrzega poniżej 3 tur (SZACUNEK); domyślne 90 % zostawia 10 % budżetu; procedura E3 w kolejności „najpierw commit tego, co przechodzi testy, potem dokumenty”, żeby urwany zapis zostawił choć commit. |
 
 > Ryzyka zamknięte C3, C9 (2 pozycje) są w
 > [docs/archiwum/ryzyka/RYZYKA_2026-10-11.md](archiwum/ryzyka/RYZYKA_2026-10-11.md)
@@ -46,7 +48,7 @@
 
 ## Czeka na człowieka
 - ~~**AUDYT_MODOW Z5 — pomiar `/clear` na żywo**~~ *(rozstrzygnięte 2026-10-11 — Łukasz: koszt sesji na pasku cache od zera, pasek plan z przyciskiem `Wybierz pracę…`; paski pojawiły się dopiero po pierwszym prompcie, co jest zamierzone)* — po `/clear` kończącym sesję 2026-10-11 pasek cache ma zacząć od zera (koszt sesji, baterie „brak danych” do pierwszej tury), a fokus AUDYT_MODOW przejść do nowej sesji; jedno słowo „ok” albo zrzut w następnej sesji · 2026-10-11 · [wpis 2026-10-11 — Z13, Z14 i zamknięcie odnogi](#2026-10-11--audyt_modow-z13-i-z14-wydanie-0120-i-zamknięcie-odnogi)
-- **Akceptacja planu LIMIT_CHECKPOINT** — plan DO AKCEPTACJI (4 etapy); razem z nim dwie decyzje z sekcji 9: czy „Zapisz pracę teraz” na karcie jest zgodą na commit lokalny, i potwierdzenie progu domyślnego 90 % · 2026-10-11 · [wpis 2026-10-11 — research, audyt, plan](#2026-10-11--research-nowej-sesji-audyt-skilli-i-plan-limit_checkpoint)
+- ~~**Akceptacja planu LIMIT_CHECKPOINT**~~ *(rozstrzygnięte 2026-10-11 — Łukasz zaakceptował plan; 90 % zostaje; „Zapisz” na karcie jest zgodą na commit lokalny; PROMPT_ETAP_1 wygenerowany)* — plan DO AKCEPTACJI (4 etapy); razem z nim dwie decyzje z sekcji 9: czy „Zapisz pracę teraz” na karcie jest zgodą na commit lokalny, i potwierdzenie progu domyślnego 90 % · 2026-10-11 · [wpis 2026-10-11 — research, audyt, plan](#2026-10-11--research-nowej-sesji-audyt-skilli-i-plan-limit_checkpoint)
 - ~~**Linia „Aktywny plan” w `CLAUDE.md` przy dwóch planach**~~ *(rozstrzygnięte 2026-10-11 — Łukasz: LIMIT_CHECKPOINT od razu; PANEL_CODEX wymieniony w tej samej linii jako drugi plan niezamknięty)* — PANEL_CODEX (E1 w Codeksie) czy LIMIT_CHECKPOINT (po akceptacji, Claude Code); `CLAUDE.md` ma jedną linię (D-30) · 2026-10-11 · [wpis 2026-10-11 — research, audyt, plan](#2026-10-11--research-nowej-sesji-audyt-skilli-i-plan-limit_checkpoint)
 - **Jeden katalog `skills/` w standardzie Agent Skills dla trzech narzędzi** — zdjąłby kopię Codeksa (~4300 linii) i generator, ale zmienia zamrożoną D-89 i kształt adapterów; plan, odnoga czy odrzucić (audyt AUDYT_SKILLI, wiersz 50 raportu) · 2026-10-11 · [wpis 2026-10-11 — research, audyt, plan](#2026-10-11--research-nowej-sesji-audyt-skilli-i-plan-limit_checkpoint)
 - **AUDYT_MODOW — ustalenia poza zakresem (5 pozycji `outOfScope` raportu)** — odchudzenie kopii rdzenia per plugin (`sync-panel-core`), `headings.mjs` 254 KB w progress i cache-keeperze, % limitu per etap w rdzeniu, `userConfig` cache-keepera, przedrostek `relai-` jego komend; plus wariant B „jedna listwa” jako kandydat na plan — decyzja: plan, odnoga albo odrzucić · 2026-10-11 · [wpis 2026-10-11 — Z13, Z14 i zamknięcie odnogi](#2026-10-11--audyt_modow-z13-i-z14-wydanie-0120-i-zamknięcie-odnogi)
@@ -1329,3 +1331,34 @@ linia „Aktywny plan” przy dwóch planach; decyzja o jednym katalogu `skills/
 NOWA_SESJA i AUDYT_SKILLI (kolejność).
 
 Autor: RelAI (Fable 5.1, rozpoznanie i audyt Opus 5.5) + Lukasz
+
+### 2026-10-11 — Plan LIMIT_CHECKPOINT zaakceptowany; E1 gotowy do świeżej sesji
+
+**Zrobione:**
+
+- Akceptacja planu bez zmian treści (Łukasz: „akceptuję plan, 90 % zostaje, zapisz na karcie to
+  zgoda na commit”). Sekcje 1–9 `PLAN.html` zamrożone (D-33). Trzy bramki ROZSTRZYGNIĘTE
+  w [STATUS.md](plany/LIMIT_CHECKPOINT/STATUS.md); dwie zostają OTWARTE: przepięcie
+  `prompt-mode.js` na wspólny odczyt trójpoziomowy (pytanie na starcie E1, domyślnie „tylko
+  gotowa”) i aneks dla panelu Codeksa (po E3).
+- Ryzyka L1 i L2 planu w tabeli „Stan otwartych ryzyk” (OTWARTE, wysokie), zgodnie z sekcją 7.
+- [PROMPT_ETAP_1.md](plany/LIMIT_CHECKPOINT/PROMPT_ETAP_1.md) wg `SPEC_PROMPT_ETAPU.md`: dziewięć
+  elementów, Opus 5.5 `/effort medium`, zakres E1 (ustawienie `limitWarn` i `/cache limit-warn`,
+  `limit.ts` z odczytem sesja → projekt → globalnie → 90, kolor baterii od progu,
+  `core/process/threshold.js` z testem parytetu, wiersz `Próg limitu` w `SPEC_USTAWIENIA.md`),
+  weryfikacja z dowodami negatywnymi (podtrzymanie i brak karty nietknięte) i punktami
+  bezpieczeństwa (walidacja wejścia `/cache`, identyfikator sesji, brak `package.json` w pluginie),
+  15 zasad aktywnych wklejonych skryptem. E1 `GOTOWY DO STARTU`.
+- `CLAUDE.md` (linia aktywnego planu i tabela) i `docs/STATE.md` zaktualizowane; pozycja
+  akceptacji w „Czeka na człowieka” zamknięta.
+
+**Zweryfikowane — jak dokładnie:** `STATUS.md` ma dokładnie jeden etap `GOTOWY DO STARTU` z linkiem
+do istniejącego pliku; prompt ma marker zasad zastąpiony treścią (grep markera = 0); nie
+weryfikowano niczego w kodzie — etap nie ruszył.
+
+**Świadomie odłożone:** przepięcie `prompt-mode.js` (bramka E1); decyzja o aneksie dla Codeksa.
+
+**Do zrobienia przez człowieka:** uruchomić E1 w świeżej sesji Opus 5.5 przez `/relai-stage`
+(karta panelu albo komenda), odpowiedzieć na pytanie o przepięcie na starcie.
+
+Autor: RelAI (Fable 5.1) + Lukasz
