@@ -9,7 +9,7 @@ Plan: [PLAN.html](PLAN.html) · Utworzony: 2026-10-11 · Status planu: **ZAAKCEP
 | E1 | Próg i trzy poziomy zapisu | ZREALIZOWANY 2026-10-11 | [PROMPT_ETAP_1.md](PROMPT_ETAP_1.md) | zalecany effort medium; bramka o przepięciu `prompt-mode.js` rozstrzygana jednym pytaniem na starcie sesji |
 | E2 | Karta po turze | ZREALIZOWANY 2026-10-11 | [PROMPT_ETAP_2.md](PROMPT_ETAP_2.md) | zalecany effort high; warunek „praca trwa” i licznik tur |
 | E3 | Procedura „zapisz pracę” w rdzeniu | ZREALIZOWANY 2026-10-11 | [PROMPT_ETAP_3.md](PROMPT_ETAP_3.md) | zalecany effort high; + Aneks A (odhaczanie pól Weryfikacji na bieżąco); „Zapisz” na karcie = zgoda na commit lokalny (rozstrzygnięte) |
-| E4 | Wznowienie i wydanie | W TOKU | [PROMPT_ETAP_4.md](PROMPT_ETAP_4.md) | zalecany effort medium; + Aneks B (zasięg progu przy `/cache limit-warn`) + Aneks C (5 h podstawowe, próg tygodnia 98 %) + Aneks D (próg i źródło pod baterią); pomiar na żywo z progiem testowym |
+| E4 | Wznowienie i wydanie | W TOKU | [PROMPT_ETAP_4.md](PROMPT_ETAP_4.md) | zalecany effort medium; + Aneks B (zasięg progu przy `/cache limit-warn`) + Aneks C (5 h podstawowe, próg tygodnia 98 %) + Aneks D (próg i źródło pod baterią) + Aneks E (karta progu: linijka i przyciski wartości); pomiar na żywo z progiem testowym |
 
 ## Bramki manualne
 
@@ -39,6 +39,7 @@ Plan: [PLAN.html](PLAN.html) · Utworzony: 2026-10-11 · Status planu: **ZAAKCEP
 - 2026-10-11 — E4 W TOKU, kod i testy gotowe (cache-keeper 168/168, panel 141/141, rdzeń 295/295; 9 z 13 punktów Weryfikacji): dwa progi (5 h 90, tydzień 98), karta zasięgu z „Nie zapisuj”, `limitWarn` usunięty, karta „Próg limitu” w Kosztach panelu (propozycja Fable 5.1, akceptacja Łukasza), „Wznów pracę” / „Odrzuć” (kasuje model — decyzja Łukasza), hook startu z liczbą commitów. Czeka na człowieka: pomiar na żywo, wydanie, kasowanie katalogu roboczego — niżej.
 - 2026-10-11 — E4 przerwany zapisem przed limitem; wznowienie: .claude/relai/wznowienie/relai.md (zapis z karty limitu jako krok 3 pomiaru na żywo, próg testowy 1 %; kod `562c375`)
 - 2026-10-11 — Aneks D (prośba Łukasza w pomiarze na żywo): pod baterią limitu, gdy nie jest spokojna, podpis „próg N % · <źródło>” (wariant W3 z makiety czterech wariantów) — w zakresie E4.
+- 2026-10-11 — Aneks E (prośba Łukasza po pomiarze): karta „Próg limitu” w Kosztach jako linijka z progiem (zużycie, kreska progu, odległość) i przyciski wartości zamiast „Zmień” (hybryda W1+W3 z makiety trzech wariantów) — w zakresie E4.
 
 ## Pomiar na żywo E4 — instrukcja (Łukasz, desktop 2.1.295)
 

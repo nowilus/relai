@@ -1824,6 +1824,23 @@ przy progu 5 h ustawionym kartą na 1 % dla tej sesji — krok 3 pomiaru na żyw
 - `docs/KOMENDY.md` (frazy „kontynuujemy pracę” i „zapisz pracę”, pasek cache, karta progu
   w Kosztach, `/cache limit-warn[-week]`) i README (wiersz `relai-cache-keeper`) — opis tego, co
   zmierzone na żywo, plus wznowienie przyjęte przez Łukasza bez pomiaru.
+- **Aneks E — karta „Próg limitu” od nowa** (prośba Łukasza: „lepsze przedstawienie graficzne”):
+  makieta trzech wariantów przygotowana przez Opus 5.5 w tej sesji (wymóg Fable odwołany) —
+  W1 linijka z progiem, W2 dwa kafle, W3 przyciski wartości; pierwszy pomiar makiety złapał trzy
+  przepełnienia (podpis i napis progu poza linijką, kreska poza paskiem), poprawione przed
+  pokazaniem. Łukasz wybrał **W1 z przyciskami wartości z W3** i aneks w E4. Nowy moduł
+  `panel/hooks/limit-ruler.ts` (linijka, kolor jak bateria, słowa, przyciski), karta w
+  `pane-costs.tsx`, zużycie z `session.measure` / `usage().rateLimits` (`Session.rateLimits`),
+  `changeLimit(w, N)` → `/cache limit-warn[-week] N`. Test najpierw: 7 ✖ na starej karcie, potem
+  `claude plugin test panel` **148/148**, `plugin validate panel` przechodzi. Render prawdziwego
+  SVG linijki w Chromium (`render-aneksE.mjs`): pierwszy pomiar — oba napisy wystają poza
+  linijkę (2,8 px u góry, 1,2 px u dołu); geometria poprawiona (46 px, linie bazowe 13 i 42),
+  potem przy 420 / 760 / 1180 px w trzech scenach (zwykła, blisko i ponad, próg 1 % i brak
+  danych): 0 przepełnień, 0 napisów poza linijką, 0 kolizji, kreska progu nie wchodzi na słowa;
+  kontrola pozytywna złapana. Pliki wgrane do zainstalowanego `relai-panel` 0.12.0 (oryginał
+  `pane-io.ts` w `backup-installed/`). Brief **v3.5**, `ARTEFAKTY.md`, Aneks E w planie i STATUS.
+  Na żywo: Łukasz po przeładowaniu — „dobra działa”; `docs/KOMENDY.md` opisuje teraz linijkę
+  i przyciski wartości zamiast „Zmień”.
 
 **Świadomie odłożone:** kroki 4 i 5 pomiaru (reset i „Wznów pracę”, progi z powrotem 90/98),
 wydanie, kasowanie katalogu roboczego E4 i kopii `backup-installed/`, zamknięcie planu.

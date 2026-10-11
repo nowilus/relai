@@ -1,6 +1,6 @@
 # Styl pasków i panelu RelAI dla Claude Code
 
-Wersja: **3.4** (v3.3 + 11.1: podpis „próg N % · źródło” pod baterią limitu, która nie jest spokojna; Aneks D, 2026-10-11; v3.3 — sekcja 11: limit planu — dwa progi, zapis i wznowienie, karta progu w Kosztach; LIMIT_CHECKPOINT E4, 2026-10-11) · Data: **2026-10-10** · Zakres: trzy paski nad promptem **i panel boczny** `/relai-panel`
+Wersja: **3.5** (v3.4 + 11.3: karta „Próg limitu” jako linijka z progiem i przyciski wartości; Aneks E, 2026-10-11; v3.4 — 11.1: podpis „próg N % · źródło” pod baterią limitu, która nie jest spokojna; Aneks D, 2026-10-11; v3.3 — sekcja 11: limit planu — dwa progi, zapis i wznowienie, karta progu w Kosztach; LIMIT_CHECKPOINT E4, 2026-10-11) · Data: **2026-10-10** · Zakres: trzy paski nad promptem **i panel boczny** `/relai-panel`
 (zakładki Komendy i Koszty) · Źródło decyzji: wątek [AUDYT_MODOW](../../fixy/AUDYT_MODOW/ODNOGA.md),
 makiety [MAKIETY.html](../../fixy/AUDYT_MODOW/MAKIETY.html) (wersja 4, kalibracja z Łukaszem
 w czterech rundach 2026-10-10).
@@ -299,14 +299,26 @@ o skasowanie pliku). Bez hotkeyów (cyfra w pustym polu naciskała przycisk, Z5)
 ### 11.3 Karta „Próg limitu” w panelu, zakładka Koszty
 
 - Miejsce: pod trzema kaflami, nad sekcjami zwiniętymi; karta `costBox` (`THEME.card`).
-- Treść: nagłówek `Próg limitu` (`THEME.title`, pogrubiony), **bez linii podpowiedzi**, dwa wiersze
-  `limit 5 h · od 90 % · domyślny · [Zmień]` i `limit tygodnia · od 98 % · domyślny · [Zmień]`.
-  Kolumny: nazwa (min. 16 komórek, ustępuje), wartość (min. 9, `flexShrink={0}`, pogrubiona),
-  źródło (`ta sesja` / `ten projekt` / `wszystkie projekty` / `domyślny`), przycisk po prawej.
-- `Zmień` (secondary, bez hotkeya) uruchamia `/cache limit-warn` albo `/cache limit-warn-week`
-  pluginu `relai-cache-keeper`: karta wartości (5 h: `85 / 90 / 95 %`, tydzień: `95 / 98 / 99 %`,
-  pole „Inne”), potem karta zasięgu (`Ta sesja` / `Ten projekt` / `Wszystkie projekty` /
-  `Nie zapisuj`). Nagłówek karty ma najwyżej 12 znaków (`Próg 5 h`, `Próg tydzień`, P-026).
+- Treść (v3.5, Aneks E — hybryda W1 „linijka z progiem” + przyciski wartości z W3, wybór Łukasza
+  z makiety trzech wariantów): nagłówek `Próg limitu` (`THEME.title`, pogrubiony), **bez linii
+  podpowiedzi**, wiersz na okno w trzech częściach, `flexWrap`:
+  - **nazwa** (min. 15 komórek, `flexShrink={0}`): `limit 5 h` pogrubione, pod nim `próg: <źródło>`
+    (`ta sesja` / `ten projekt` / `wszystkie projekty` / `domyślny`) w `THEME.body`;
+  - **linijka** (`flexGrow`, min. 20 komórek): jedno `Svg isInteractive` szerokości 100 %, 46 px —
+    tor 0–100 % (`THEME.lineOff`), wypełnienie do zużycia teraz w kolorze reguły baterii
+    (szałwia, musztarda ≤ 30 % zapasu, glina od progu albo ≤ 10 %), pionowa kreska progu
+    (`THEME.title`) z napisem `próg N %` po stronie z miejscem (próg ≥ 50 — z lewej), pod torem
+    `zużyte X % · do progu Y pkt` / `zużyte X % · ponad progiem` / `brak danych o zużyciu`.
+    Linie bazowe 13 i 42 px zmierzone w Chromium (pudełko linii 12 px: 12,8 nad, 3,2 pod).
+    Terminal: zamiast linijki tekst `próg N % · <słowa>`;
+  - **przyciski wartości** (`flexShrink={0}`, zawijają się): 5 h `85 % · 90 % · 95 %`, tydzień
+    `95 % · 98 % · 99 %`, plus wartość bieżąca spoza listy w kolejności; bieżąca `primary`,
+    reszta `secondary`; na końcu `Inna…`.
+- Wartość uruchamia `/cache limit-warn N` albo `/cache limit-warn-week N` pluginu
+  `relai-cache-keeper` — od razu karta zasięgu (`Ta sesja` / `Ten projekt` / `Wszystkie projekty` /
+  `Nie zapisuj`); `Inna…` — komenda bez liczby: karta wartości, potem zasięgu. Nagłówek karty ma
+  najwyżej 12 znaków (`Próg 5 h`, `Próg tydzień`, P-026). Zużycie z `session.measure`
+  (`rateLimits`) i `$.session.usage()` na starcie.
 - Pasek nad promptem w spokoju **bez zmian**: zero przycisków progu.
 
 ### 11.4 Kryteria

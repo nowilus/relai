@@ -16,6 +16,7 @@ import { gapsInWords, plural } from './core/measure.mjs'
 import type { Group, Report, TurnCost } from './core/measure.mjs'
 import { PRICE_FILE, unpricedWords } from './core/pricing.mjs'
 import { SOURCE_WORDS } from './core/limit-threshold.mjs'
+import { RULER_HEIGHT, presetsFor, rulerSvg, usedWords, type LimitWindow } from './limit-ruler'
 import type { cacheEffect } from './core/pricing.mjs'
 import { MAX_COLUMNS, bucketRanges, hoverColumns, hoverHeight, niceStep, spark } from './core/charts.mjs'
 import type { StageCosts } from './core/attribution.mjs'
@@ -51,11 +52,12 @@ export type CostsCtx = {
   muted: Record<string, string>
   preparePricing: () => void
   limits: LimitRows | null // the plan-limit thresholds (LIMIT_CHECKPOINT E4); null when they cannot be read
-  changeLimit: (window: LimitWindow) => void
+  used: Readonly<Record<LimitWindow, number | null>> // what each window has used now, in whole percent; null: no data
+  changeLimit: (window: LimitWindow, value?: number) => void // no value: the keeper asks the number
 }
 
 // The two thresholds as the panel core reads them (./core/limit-threshold.mjs)
-export type LimitWindow = 'five' | 'week'
+export type { LimitWindow }
 export type LimitRows = Readonly<Record<LimitWindow, { value: number, source: keyof typeof SOURCE_WORDS }>>
 const LIMIT_LABEL: Readonly<Record<LimitWindow, string>> = { five: 'limit 5 h', week: 'limit tygodnia' }
 
@@ -135,20 +137,35 @@ export function costsView(c: Ctx, p: Parts, cd: CostData, s: CostsCtx) {
     : tile('cost-project', money(pr.usd), THEME.title, 'cały projekt',
       `${pr.sessions} ${plural(pr.sessions, 'sesja', 'sesje', 'sesji')} z pomiarem${pr.since ? ` od ${day(pr.since)}` : ''}; dziś ${money(pr.todayUsd)}.`)
 
-  // The plan-limit thresholds (LIMIT_CHECKPOINT E4, Aneks B; Fable 5.1's proposal, accepted by
-  // Łukasz 2026-10-11): a row per window — from what percent and where that came from — and
-  // "Zmień", which runs relai-cache-keeper's /cache limit-warn: its cards ask the number, then the
-  // scope, and write nothing before. No hint line (Łukasz: "bez podpowiedzi").
+  // The plan-limit thresholds (LIMIT_CHECKPOINT E4, Aneks B; Aneks E, Łukasz's choice 2026-10-11):
+  // a row per window — its name and where the threshold came from, a ruler of what is used now
+  // with the threshold as a notch (words on the terminal), and buttons of values, the current one
+  // lit. A value runs relai-cache-keeper's /cache limit-warn[-week] N, whose card asks the scope;
+  // "Inna…" runs it without a number. Nothing is written before the keeper's scope card.
   const limitCard = (t: LimitRows) => costBox('cost-limit', [
     line('cost-limit-h', 'Próg limitu', THEME.title, true),
-    ...(['five', 'week'] as const).map((w) => (
-      <Box key={`cost-limit-${w}`} flexDirection="row" flexWrap="wrap" alignItems="center" columnGap={2}>
-        <Box key={`cost-limit-${w}-name`} minWidth={15} flexShrink={1}><Text color={THEME.body} wrap="truncate">{LIMIT_LABEL[w]}</Text></Box>
-        <Box key={`cost-limit-${w}-value`} minWidth={9} flexShrink={0}><Text bold color={THEME.title}>{`od ${t[w].value} %`}</Text></Box>
-        <Box key={`cost-limit-${w}-source`} flexGrow={1} flexShrink={1}><Text color={THEME.body} wrap="truncate">{SOURCE_WORDS[t[w].source]}</Text></Box>
-        <Box key={`cost-limit-${w}-act`} flexShrink={0}>{btn(`limit-change-${w}`, 'Zmień', 'secondary', () => s.changeLimit(w))}</Box>
-      </Box>
-    )),
+    ...(['five', 'week'] as const).map((w) => {
+      const current = t[w].value
+      const used = s.used[w]
+      const words = usedWords(used, current)
+      return (
+        <Box key={`cost-limit-${w}`} flexDirection="row" flexWrap="wrap" alignItems="center" columnGap={2}>
+          <Box key={`cost-limit-${w}-name`} minWidth={15} flexShrink={0} flexDirection="column">
+            <Text bold color={THEME.title} wrap="truncate">{LIMIT_LABEL[w]}</Text>
+            <Text color={THEME.body} wrap="truncate">{`próg: ${SOURCE_WORDS[t[w].source]}`}</Text>
+          </Box>
+          <Box key={`cost-limit-${w}-gauge`} flexGrow={1} flexShrink={1} minWidth={20} flexDirection="column">
+            {Svg
+              ? <Svg key={`cost-limit-${w}-ruler`} isInteractive height={RULER_HEIGHT} alt={`${LIMIT_LABEL[w]}: próg ${current} %, ${words}`} source={rulerSvg(used, current)} />
+              : <Text key={`cost-limit-${w}-words`} color={THEME.body}>{`próg ${current} % · ${words}`}</Text>}
+          </Box>
+          <Box key={`cost-limit-${w}-act`} flexDirection="row" flexWrap="wrap" columnGap={1} flexShrink={0}>
+            {presetsFor(w, current).map((v) => btn(`limit-set-${w}-${v}`, `${v} %`, v === current ? 'primary' : 'secondary', () => s.changeLimit(w, v)))}
+            {btn(`limit-change-${w}`, 'Inna…', 'secondary', () => s.changeLimit(w))}
+          </Box>
+        </Box>
+      )
+    }),
   ])
 
   // One column per model request, the scale in grid lines, a card of the call under the pointer

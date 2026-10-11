@@ -114,6 +114,7 @@ async function refresh($: $T) {
     work,
     costUsd: usage?.cost ? usage.cost.usd : S.costUsd,
     startedAt: usage?.startedAt || S.startedAt,
+    rateLimits: usage?.rateLimits?.length ? usage.rateLimits : S.rateLimits,
   })
 }
 
@@ -466,15 +467,27 @@ async function limitRows($: $T): Promise<LimitRows> {
   return thresholdsOf({ read: (path: string) => readText($, path) }, where)
 }
 
+// What each window has used, as the engine last reported (Aneks E's ruler); null: no figure
+const LIMIT_KIND: Readonly<Record<LimitWindow, string>> = { five: 'five_hour', week: 'seven_day' }
+function limitsUsed(limits: Session['rateLimits']): Record<LimitWindow, number | null> {
+  const used = (w: LimitWindow) => {
+    const p = limits.find((l) => l.kind === LIMIT_KIND[w])?.percentUsed
+    return typeof p === 'number' && Number.isFinite(p) ? Math.round(p) : null
+  }
+  return { five: used('five'), week: used('week') }
+}
+
 let limitWatch = 0 // the watch after the latest "Zmień"; an older one stops
 
-async function changeLimit($: $T, window: LimitWindow) {
+// A value button (Aneks E) passes its number: the keeper skips its value card and asks the scope
+async function changeLimit($: $T, window: LimitWindow, value?: number) {
   const before = await stampOf($, await limitFiles($))
+  const args = value === undefined ? LIMIT_ARGS[window] : `${LIMIT_ARGS[window]} ${value}`
   let isRun = false
   // The keeper registers /cache, or /ckp-cache when another plugin holds the name
   for (const command of ['cache', 'ckp-cache']) {
     try {
-      await $.command.run({ command, args: LIMIT_ARGS[window] })
+      await $.command.run({ command, args })
       isRun = true
       break
     } catch {
@@ -731,7 +744,8 @@ export const register: Register = (on) => {
       prepareClean: (list) => { void cardId($).then((id) => offer($, cleanCard(id, list))) },
     }).commandsView() : costs ? costsView(c, p, costs, {
       session: S, muted: mutedNow, preparePricing: () => { void preparePricing($) },
-      limits: await remember('limits', key, () => limitRows($)).catch(() => null), changeLimit: (w) => { void changeLimit($, w) },
+      limits: await remember('limits', key, () => limitRows($)).catch(() => null), used: limitsUsed(S.rateLimits),
+      changeLimit: (w, v) => { void changeLimit($, w, v) },
     }) : map ? mapView(c, p, map, {
       isUnfolded, fold, chosen, drafts: crewDrafts,
       togglePick: (id) => { void update($, picks, (x) => (x.includes(id) ? x.filter((y) => y !== id) : [...x, id])) },
@@ -900,6 +914,8 @@ export const register: Register = (on) => {
       // The costs tab's engine counter comes from here, not from usage() after the turn (Z4); the
       // plan bar no longer shows a cost (Z1), so nothing above the prompt is drawn again for it
       if (e.cost) set({ costUsd: e.cost.usd })
+      // The Koszty tab's ruler (Aneks E): a window moved a whole point; drawn with the next redraw
+      if (e.rateLimits?.length) set({ rateLimits: e.rateLimits })
     }
     return next(e)
   })

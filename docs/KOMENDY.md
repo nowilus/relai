@@ -61,14 +61,15 @@ potem ponowne uruchomienie aplikacji.
   odhaczony, cache stygnie, przekazanie gotowe albo nowa sesja zwróci się w kilku turach.
 - **`/relai-panel`** — panel z paskiem „Teraz” (etap i następny punkt, jedna akcja główna)
   i zakładkami: Komendy (dwie polecane, dwanaście wierszy z nazwą komendy, formularz pod
-  wierszem), Koszty (sekcje zwinięte, rozwijane; karta „Próg limitu” — próg 5 h i tygodnia
-  ze źródłem, „Zmień” pyta o wartość, potem o zasięg: ta sesja / ten projekt / wszystkie
-  projekty / nie zapisuj), Dokumenty (zmienione na górze, diff od ostatniego
+  wierszem), Koszty (sekcje zwinięte, rozwijane; karta „Próg limitu” — dla 5 h i tygodnia
+  linijka: ile zużyte, kreska progu i ile do niego zostało, skąd próg; przyciski wartości
+  — klik pyta o zasięg: ta sesja / ten projekt / wszystkie projekty / nie zapisuj; „Inna…”
+  najpierw o liczbę), Dokumenty (zmienione na górze, diff od ostatniego
   commita, podgląd), Mapa (plany, etapy, odnogi, przebiegi załogi i koszt każdego etapu), Pomoc
   (ściąga komend i frazy sesji).
 - **`/cache`** — stan cache, ustawienia i rachunek „kontynuować czy nowa sesja”; `/cache zwrot N`
   ustawia próg w turach (domyślnie 5); `/cache limit-warn [N]` i `/cache limit-warn-week [N]` to
-  zapasowa droga do tych samych kart progu co „Zmień” w Kosztach.
+  zapasowa droga do tych samych kart progu co przyciski w Kosztach.
 - **`/relai-agents`** — subagenci sesji: model, kontekst i koszt.
 - **Karta „Tak / Nie”** — start etapu, sprzątanie, aktualizacja, lista modeli i zmiana cennika idą
   z panelu dopiero po Twoim „Tak”. Etap potwierdzony na karcie startuje bez drugiego pytania w czacie.

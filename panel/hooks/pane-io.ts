@@ -19,9 +19,10 @@ export type Session = {
   costUsd: number | null
   startedAt: number // when the session began, as the engine counts it ($.session.usage)
   loadedAt: number // when this module began collecting in it (a reload starts over)
+  rateLimits: readonly { kind: string, percentUsed: number }[] // the plan limits as last reported (Aneks E's ruler)
 }
 
-export const FRESH: Session = { id: '', cwd: '', isRelai: false, plan: { kind: 'none' }, work: workOf({ focus: null, active: { kind: 'none' }, activeTool: null, focusText: null }), costUsd: null, startedAt: 0, loadedAt: 0 }
+export const FRESH: Session = { id: '', cwd: '', isRelai: false, plan: { kind: 'none' }, work: workOf({ focus: null, active: { kind: 'none' }, activeTool: null, focusText: null }), costUsd: null, startedAt: 0, loadedAt: 0, rateLimits: [] }
 
 // The collector's file of one session (register.tsx, "the collector")
 export type Ledger = { session: string, path: string, name: string, records: MeasureRecord[], bad: string[] }
