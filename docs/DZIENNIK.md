@@ -1875,6 +1875,13 @@ Sesja Opus 5.5, ta sama co wpisy wyżej. Łukasz: „dobra działa, commituj pus
   zapisy historyczne (zamrożone prompty E1–E4, prompt odnogi NOWA_SESJA, dziennik, archiwum,
   `history.md`, nagłówek „od 2.8.0” sekcji panelu w KOMENDY) — każde trafienie rozstrzygnięte
   jako historia. Rejestr: każdy artefakt zmieniony od tagu `v2.8.0` ma wpis z 2026-10-11.
+- Publikacja: skan sekretów po diffie `origin/main..HEAD` (97 plików) — bez trafień; tagi
+  `v2.9.0` i `relai-panel-v0.13.0`, push `main` (`58115ce..a09e7f7`), wydania GitHub „RelAI 2.9.0”
+  (Latest) i „Panel plugins: relai-panel 0.13.0 · relai-progress 0.4.0 · relai-cache-keeper 0.6.0”;
+  `claude plugin marketplace update relai`, `plugin update` → relai 2.8.0→2.9.0, cache-keeper
+  0.5.0→0.6.0, panel 0.12.0→0.13.0, progress bez zmian. Treść cache'u porównana z repo po
+  CRLF → LF (P-005): **76 plików, 0 rozjazdów**. Ręczne kopie E4 w katalogach 0.5.0 / 0.12.0 /
+  2.8.0 zostają nieużywane (instalacja wskazuje nowe wersje).
 
 **Świadomie odłożone:** rytuał „Na koniec” E4 i zamknięcie planu (bramka „aneks dla panelu
 Codeksa”), skasowanie katalogu roboczego E4 i `backup-installed/` — po „tak” Łukasza.
