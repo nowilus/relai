@@ -73,7 +73,7 @@ W Claude Code komendy mają pełną nazwę `/relai:relai-<nazwa>`.
 
 Trzy osobne pluginy z tego samego marketplace rysują RelAI w oknie Claude Code. Działają na
 **modach**, czyli API Claude Code oznaczonym jako „early access”. To API może się zmienić bez
-zapowiedzi i wtedy panel przestanie się ładować. Zmierzone na wersji 2.1.293, na desktopie
+zapowiedzi i wtedy panel przestanie się ładować. Zmierzone na wersjach 2.1.293–2.1.295, na desktopie
 i w terminalu.
 
 | Plugin | Co pokazuje |

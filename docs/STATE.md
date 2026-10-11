@@ -1,15 +1,17 @@
 # STATE — RelAI
 
-Stan na: 2026-10-10 (plan PANEL_CLAUDE zamknięty; wydanie 2.8.0 publicznie z trzema pluginami panelu)
+Stan na: 2026-10-11 (odnoga AUDYT_MODOW zamknięta; `relai-panel` 0.12.0 publicznie)
 
 ## Gdzie jesteśmy
 
 RelAI **2.8.0** jest w repozytorium i publicznie (tag `v2.8.0`, release Latest, wydane 2026-10-09).
 Plan PANEL_CLAUDE jest zamknięty 2026-10-10: 9/9 etapów, Aneksy A–E. Dał panel RelAI w oknie Claude
 Code jako trzy osobne pluginy w marketplace RelAI, „early access”, na modach Claude Code (zmierzone
-na 2.1.293). Po audycie AUDYT_MODOW wydane 2026-10-11 (zmierzone na 2.1.295): `relai-panel` 0.11.0
-(pasek planu z fokusem sesji, `/relai-panel` z formularzami komend, mapą planów, dokumentami
-i kosztami sesji, karta „Tak / Nie” przed każdą zmianą), `relai-progress` 0.4.0 (postęp etapu albo
+na 2.1.293). Po audycie AUDYT_MODOW (odnoga **zamknięta 2026-10-11**, 14 paczek) wydane 2026-10-11
+(zmierzone na 2.1.295): `relai-panel` 0.12.0 (pasek planu z fokusem sesji i przyciskiem
+`Wybierz pracę…`, gdy pracy nie wybrano; `/relai-panel` z formularzami komend, mapą zaczynającą się
+od „Ta sesja” nad zwiniętymi sekcjami, dokumentami i kosztami sesji, karta „Tak / Nie” przed każdą
+zmianą), `relai-progress` 0.4.0 (postęp etapu albo
 paczek odnogi, `/relai-agents`) i `relai-cache-keeper` 0.5.0 (pięć baterii: cache, limit 5 h, reset
 za, limit tygodnia, kontekst; koszt sesji po prawej). `/relai-stage`
 przyjmuje zgodę z karty panelu. Instalacja komendami z README jest zmierzona na żywo. Plugin `relai`
@@ -100,12 +102,13 @@ nadal nie ma.
 - Odświeżenie listy modeli Codeksa w sesji Codeksa (`/relai-models`): lista ma nazwy z 2026-09-05,
   odczyt z 2026-09-24 wskazywał gpt-6-astra, gpt-6-sol i gpt-6-luna; do tego czasu nakładka `openai` nie ma
   reguł z nazwą modelu, a przydział modeli poza Claude Code jest sprawą człowieka.
-- **Wątek `AUDYT_MODOW` w `docs/fixy/` (od 2026-10-10)** — mody Claude Code po audycie: dziewięć
-  paczek (panel bez I/O w rysowaniu, paski bez pustych przerysowań, poprawność `/clear` i wyceny,
-  funkcja „kontynuować czy nowa sesja”, paski i panel wg briefu v2, jedno źródło formatów i cen,
-  testy liczące rysowania, wydanie 0.10.0 / 0.3.0 / 0.4.0) i Aneksy A–B (Z10 drzewo dokumentów,
-  Z11 pasek cache jako pięć baterii, Z12 fokus sesji — wydane 2026-10-11 jako 0.11.0 / 0.4.0 /
-  0.5.0; czekają zrzut Z12 na żywo oraz Z13 i Z14 z Aneksu B). Audyt: 94 ustalenia z werdyktami
+- **Wątek `AUDYT_MODOW` w `docs/fixy/` (2026-10-10 → ZAMKNIĘTY 2026-10-11)** — mody Claude Code
+  po audycie: dziewięć paczek (panel bez I/O w rysowaniu, paski bez pustych przerysowań, poprawność
+  `/clear` i wyceny, funkcja „kontynuować czy nowa sesja”, paski i panel wg briefu v2, jedno źródło
+  formatów i cen, testy liczące rysowania, wydanie 0.10.0 / 0.3.0 / 0.4.0) i Aneksy A–B (Z10 drzewo
+  dokumentów, Z11 pasek cache jako pięć baterii, Z12 fokus sesji — 0.11.0 / 0.4.0 / 0.5.0; Z13
+  przycisk `Wybierz pracę…` na pasku plan, Z14 Mapa od „Ta sesja” ze zwiniętymi sekcjami — 0.12.0).
+  Zmierzone na żywo poza Z5 (`/clear`, czeka na słowo z następnej sesji). Audyt: 94 ustalenia z werdyktami
   w [RAPORT.html](fixy/AUDYT_MODOW/RAPORT.html); decyzje wizualne po czterech rundach makiet
   ([MAKIETY.html](fixy/AUDYT_MODOW/MAKIETY.html)) zamrożone w briefie v2
   ([STYL_PASKOW_CLAUDE.md](zasoby/PANEL_RELAI/STYL_PASKOW_CLAUDE.md)). Wykonawca: Opus 5.5 ze

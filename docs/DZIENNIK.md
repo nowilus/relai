@@ -43,6 +43,8 @@
 > — przeniesione 2026-08-21, suma kontrolna `4b370c3e2b31c6ba`.
 
 ## Czeka na człowieka
+- **AUDYT_MODOW Z5 — pomiar `/clear` na żywo** — po `/clear` kończącym sesję 2026-10-11 pasek cache ma zacząć od zera (koszt sesji, baterie „brak danych” do pierwszej tury), a fokus AUDYT_MODOW przejść do nowej sesji; jedno słowo „ok” albo zrzut w następnej sesji · 2026-10-11 · [wpis 2026-10-11 — Z13, Z14 i zamknięcie odnogi](#2026-10-11--audyt_modow-z13-i-z14-wydanie-0120-i-zamknięcie-odnogi)
+- **AUDYT_MODOW — ustalenia poza zakresem (5 pozycji `outOfScope` raportu)** — odchudzenie kopii rdzenia per plugin (`sync-panel-core`), `headings.mjs` 254 KB w progress i cache-keeperze, % limitu per etap w rdzeniu, `userConfig` cache-keepera, przedrostek `relai-` jego komend; plus wariant B „jedna listwa” jako kandydat na plan — decyzja: plan, odnoga albo odrzucić · 2026-10-11 · [wpis 2026-10-11 — Z13, Z14 i zamknięcie odnogi](#2026-10-11--audyt_modow-z13-i-z14-wydanie-0120-i-zamknięcie-odnogi)
 - ~~**PANEL_CODEX E1 — korekta liczby pól kontraktu**~~ *(rozstrzygnięte 2026-10-10 — Łukasz zaakceptował Aneks A, zapisany w planie; 16 pól, bez zmiany schematu)* · 2026-10-10 · [wpis 2026-10-10 — Aneks A i start sondy](#2026-10-10--panel_codex-e1-aneks-a-i-naprawa-startu-sondy)
 - ~~**PANEL_CODEX E1 — otwarcie lokalnej sondy**~~ *(rozstrzygnięte 2026-10-10 — natywny widok 0.0.7 i wiadomość bieżąca potwierdzone; pakiet w sondzie 0.0.8 pokazuje właściwy stan, wygląd zaakceptowany)* · 2026-10-10 · [wpis — Panel i mostek](#2026-10-10--panel_codex-e1-natywny-widok-minimalny-pakiet-i-mostek-bieżącego-czatu)
 - **PANEL_CODEX E1 — próba przycisków minimalnego pakietu i świeżego kontekstu** — w macierzystym czacie nadal proces 0.0.7/PID 62300; po restarcie sprawdzić sondę 0.0.9 (także fonty), nowy szkic i jego rzeczywisty projekt/kontekst. Wygląd już zaakceptowany · 2026-10-10 · [wpis — Panel i mostek](#2026-10-10--panel_codex-e1-natywny-widok-minimalny-pakiet-i-mostek-bieżącego-czatu)
@@ -1152,3 +1154,66 @@ i `relai-progress` w marketplace nadal mówią „measured on 2.1.293” i nie w
 restart aplikacji, żeby załadować 0.11.0 / 0.4.0 / 0.5.0.
 
 Autor: RelAI (Opus 5.5) + Lukasz
+
+### 2026-10-11 — AUDYT_MODOW Z13 i Z14, wydanie 0.12.0 i zamknięcie odnogi
+
+**Zrobione:**
+
+- Z13 i Z14 (Aneks B) wdrożone według [PROMPT_Z13_Z14_WDROZENIE.md](fixy/AUDYT_MODOW/PROMPT_Z13_Z14_WDROZENIE.md)
+  przez **Opus 5.5 jako subagenta sesji Fable 5.1** (decyzja Łukasza; Fable orkiestrował: prompt,
+  przegląd, pomiar, rytuał). Rozstrzygnięcie przed startem: zawsze przycisk `Wybierz pracę…`,
+  wariant B (pozycje wprost na pasku) odrzucony na stałe. Z13: pasek plan bez fokusu ma drugi
+  wiersz — chip `CHIP.info` „ta sesja: praca nie wybrana” i natywny przycisk, który otwiera panel
+  na Komendach z rozwiniętym wyborem w „Teraz” (`openPane` wspólne z komendą, `pickWork` zapisuje
+  stan jednym `Promise.all`, błąd słowami w panelu). Z14: Mapa zaczyna się od „Ta sesja” (karta
+  odnogi z paczkami jako segmentami i kosztem z pomiarów, etapu planu, „poza planem”, pytania albo
+  błędu odczytu), a pięć sekcji pod nią zwija się do wiersza z liczbą i kwotą wspólnym `folded`
+  z `pane-parts.tsx` (ten sam co Koszty), domyślnie zwinięte, pamiętane w `$.state`. Nagłówki
+  Kalamem `map-session` i `map-active` („Aktywny plan” zamiast „Mapa przepływu” — poprawka
+  Fable po pomiarze); fontTools 4.66.1 zainstalowany za zgodą, `headings.mjs` przebudowany.
+  Szczegóły: karta [ODNOGA.md](fixy/AUDYT_MODOW/ODNOGA.md), wpis „Z13 i Z14 zamknięte”.
+- Przegląd kodu `typescript-reviewer` (Opus): 0 CRITICAL/HIGH, 4 MEDIUM, 9 LOW — 6 poprawionych
+  w tej samej turze (lista w karcie), reszta spisana jako odłożone.
+- Wydanie po „jest ok”: commit `5cea349`, tag `relai-panel-v0.12.0`,
+  [release](https://github.com/nowilus/relai/releases/tag/relai-panel-v0.12.0) z notatką za
+  0.11.0–0.12.0 / 0.4.0 / 0.5.0, marketplace odświeżony, `relai-panel` 0.11.0 → 0.12.0
+  zainstalowany (kopia zgodna z repo po CRLF→LF), oryginały 0.11.0 przywrócone.
+- Zaległe pomiary na żywo (0.12.0): Z1 ✓ (146 px CSS przy ~1356 px), Z3 ✓ (archiwum w drzewie,
+  podgląd otwarty, panel na ekranie), Z2 — 1046 px CSS: „Teraz” ma po Z12 trzecią linię; decyzja
+  Łukasza: linia zostaje, kryterium 900 → 1100 px (brief v3.2, `ARTEFAKTY.md`), Z2 ✓. Z12 ✓
+  zrzutem paska „AUDYT_MODOW · Z13 ODNOGA · 7/14 paczek”. Z8 ✓ (pomiary po `plugin update` przy
+  Z10–Z11). Z5 (`/clear`) — ostatni krok tej sesji, potwierdzenie w następnej.
+- Odnoga **ZAMKNIĘTA**: sekcja „Wynik” w karcie, STATE, tabela w CLAUDE.md, README (2.1.293–2.1.295).
+  Katalog roboczy skasowany narzędziem po „tak”: 152 pliki, 4,9 MB → 0,0 MB; 7 zrzutów sesji
+  w `docs/fixy/AUDYT_MODOW/zrzuty/`.
+- Rytuał startu: zgoda optymalizatora „nie” (plik sesji); sprawa przeterminowana „Weryfikacja ośmiu
+  rozstrzygnięć E2” odroczona (odroczeń: 2); budżet startu 120,2 KB przy 100 KB zgłoszony — rotacja
+  ryzyk niemożliwa (brak ZAMKNIĘTYCH), STATE 21 KB do odchudzenia przy następnym rytuale.
+- Lekcje: L-0162 (pomiar elementu warunkowego zaczyna się od ustawienia stanu), L-0163 (kryterium
+  liczbowe zależne od treści nosi listę paczek, które ją zmieniają).
+
+**Zweryfikowane — jak dokładnie:**
+
+- Kontrola pozytywna: 21 testów ✖ na starym kodzie (10 z 12 nowych + 11 liczących na rozwinięte
+  sekcje mapy); po zmianie `plugin test` binarką 2.1.295: panel 135/135, progress 31/31,
+  cache-keeper 90/90; `validate` ×3; rdzeń `node --test` 179/179 (po wygenerowaniu nagłówków;
+  przed: 178/179 „map-session: not drawn”); `sync-panel-core --check` zgodny. Waga zwiniętej mapy
+  w teście: 43 755 znaków / 7 Svg (z rozwiniętym archiwum 133 370 / 23, próg 200 000).
+- Na żywo (Łukasz, 2.1.295, podmieniona kopia 0.11.0, potem 0.12.0 z marketplace): przycisk
+  dopiero po skasowaniu pliku fokusu `outside` tej sesji (L-0162); klik → panel na Komendach
+  z listą wyboru; po wyborze pasek w jednym wierszu; Mapa „Ta sesja” 7 z 14 paczek, $129.45,
+  Archiwum pamiętane po ponownym otwarciu; „jest ok”.
+- Wymiary zrzutów policzone PIL-em: paski 1627 × 227, Komendy 1387 × 1255, Dokumenty 1392 × 1305
+  px ekranu; przelicznik 1,2 px ekranu na px CSS z P-024.
+
+**Świadomie odłożone:** uwagi LOW przeglądu — zdanie `asking` w Mapie wskazuje przycisk paska
+także w terminalu (pasek tekstowy tam jest), `sessionOf` czyta kartę mimo `branchState` w `Work`;
+opisy `relai-progress` i `relai-cache-keeper` w marketplace nadal „measured on 2.1.293”; wzorzec
+„Opus jako subagent zamiast świeżej sesji” do oceny wobec D-85; pięć ustaleń `outOfScope`
+i wariant B — w „Czeka na człowieka”.
+
+**Do zrobienia przez człowieka:** `/clear` na koniec tej sesji i jedno słowo o pasku cache
+w następnej (Z5); decyzja o ustaleniach poza zakresem; ewentualny `/relai-clean` dla 41 katalogów
+`relai-*` w TEMP.
+
+Autor: RelAI (Fable 5.1, wykonanie Opus 5.5) + Lukasz

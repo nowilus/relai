@@ -535,6 +535,32 @@ restart aplikacji po `plugin update` (L-0031), `git worktree` zamiast `git archi
   samym commicie.
 - **Źródło:** E7 planu PANEL_CLAUDE (wydanie 2.8.0, 2026-10-09); destylat: zasada 10.
 
+### L-0162 — „Nie ma żadnych przycisków”: pomiar stanu, którego sesja nie miała · 2026-10-11 · AKTYWNA
+
+- **Trigger:** po podmianie kopii pluginu Łukasz zgłosił brak przycisku `Wybierz pracę…` (Z13).
+  Pasek był poprawny — sesja miała fokus `outside` wybrany ręcznie chwilę wcześniej, a przycisk
+  rysuje się tylko bez fokusu. Instrukcja pomiaru nie mówiła, w jakim stanie sesja musi być.
+- **Przyczyna:** element zależny od stanu sesji (plik fokusu, karta, zdarzenie) dostał instrukcję
+  „sprawdź, czy jest”, bez kroku „ustaw stan, w którym ma być” i bez nazwania stanu, w którym go
+  **nie** będzie.
+- **Zasada:** instrukcja pomiaru elementu warunkowego zaczyna się od stanu: co ustawić (albo który
+  plik skasować), po czym poznać, że stan jest, i jak wygląda element w stanie przeciwnym — tak,
+  żeby „nie ma” dało się odróżnić od „nie powinno być” bez pytania modelu.
+- **Źródło:** AUDYT_MODOW Z13 (pomiar na żywo 2026-10-11).
+
+### L-0163 — Kryterium zmierzone przed paczką, która dołożyła treść · 2026-10-11 · AKTYWNA
+
+- **Trigger:** Z2 szacowało Komendy na 865 px przy budżecie 900 i odhaczono testem; Z12 dołożyła
+  do „Teraz” trzecią linię (fokus sesji, „Zmień”), a pomiar na żywo po Z14 dał 1046 px — kryterium
+  padło, choć nikt go nie łamał świadomie.
+- **Przyczyna:** próg wysokości zależał od zawartości elementu, który inna paczka miała prawo
+  zmienić; test szacunku nie był uruchamiany ponownie przy zmianie „Teraz”, bo mierzył stały
+  zestaw danych bez wiersza fokusu.
+- **Zasada:** kryterium liczbowe zależne od treści elementu nosi listę paczek, które tę treść
+  zmieniają; każda z nich uruchamia pomiar kryterium ponownie, a test szacunku bierze dane
+  z najbogatszym stanem elementu (tu: fokus ustawiony, wzmianka o aktywnym planie).
+- **Źródło:** AUDYT_MODOW Z2 / Z12 / Z14 (pomiar 2026-10-11, decyzja: próg 1100 px).
+
 ## Lekcje zwinięte
 
 Pełne wpisy lekcji, których zasady żyją w destylacie „Zasady aktywne" (kompresja 2026-08-20).

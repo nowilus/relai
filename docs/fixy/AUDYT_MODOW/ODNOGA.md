@@ -1,6 +1,6 @@
 # ODNOGA — mody Claude Code po audycie: spokojne paski, szybki panel, zero błysków
 
-Plan: brak (wątek samodzielny) · Etap-źródło: — · Utworzona: 2026-10-10 · Status: **OTWARTA** ·
+Plan: brak (wątek samodzielny) · Etap-źródło: — · Utworzona: 2026-10-10 · Status: **ZAMKNIĘTA 2026-10-11** ·
 Wykonawca: **Opus 5.5** (decyzja Łukasza 2026-10-10: Opus do zadań optymalizacyjnych i rozpoznawczych;
 projekt UX/UI zamknięty przez Fable 5.1 w briefie v2)
 
@@ -129,8 +129,11 @@ Kolejność: najpierw fundamenty (Z3–Z5), bo bez nich nowe paski będą migać
       (ponowne zamontowanie i koniec błysku: 0 wywołań; ponowny wybór zakładki: drugi przebieg)
       i „documents: a filter, a layout and a fold redraw from memory…” (0 `git`, 0 listowań;
       „Otwórz” = 1 `git diff` bez odczytu pliku, „Podgląd” = 1 odczyt bez `git`).
-- [ ] Z3: drzewo panelu dla archiwum 128 plików, diffu 400 wierszy i 12 agentów mieści się
+- [x] Z3: drzewo panelu dla archiwum 128 plików, diffu 400 wierszy i 12 agentów mieści się
       w budżecie (test), a desktop pokazuje panel (zrzut).
+      Zrzut ✓ 2026-10-11 (0.12.0): Dokumenty w drzewie z rozwiniętym archiwum (ryzyka, lekcje,
+      dziennik, plany) i otwartym podglądem pliku — panel na ekranie
+      ([zrzut](zrzuty/2026-10-11-z3-dokumenty-archiwum.png)); diff 400 wierszy dowodem testowym.
       Test ✓ (`redraw.test.ts`, próg 200 000 znaków): Dokumenty z archiwum 128, wszystkimi
       grupami i diffem 400 wierszy — 189 903 znaków / 19 Svg (przed: 1 515 831 / 417); Koszty
       z 14 agentami, 14 etapami i 400 wywołaniami — 190 566 / 30 Svg (przed: 373 968 / 57).
@@ -154,22 +157,30 @@ Kolejność: najpierw fundamenty (Z3–Z5), bo bez nich nowe paski będą migać
       `pricing.test.ts` (6, ta sama kwota co `priceAt` rdzenia); `progress.test.ts` „an agent on a
       model only cennik.json prices costs what the Costs tab counts…” ($1.82, policzone ręcznie
       w teście; przed zmianą „brak ceny”). Każdy nowy test padał na starym kodzie poza jednym
-      oznaczonym kontrolnym. **Pomiar na żywo, że `session.end` z `reason: 'clear'` odpala — czeka.**
-- [ ] Z1: trzy paski w spokoju bez przycisków, ≤ 160 px przy 1400 px (zrzut Łukasza); każdy
+      oznaczonym kontrolnym. Pomiar na żywo `session.end` z `reason: 'clear'`: `/clear` jako
+      ostatni krok sesji zamykającej 2026-10-11 — wynik (pasek cache od zera, fokus przeniesiony)
+      do potwierdzenia jednym słowem w sesji następnej; pozycja w „Czeka na człowieka”.
+- [x] Z1: trzy paski w spokoju bez przycisków, ≤ 160 px przy 1400 px (zrzut Łukasza); każdy
       stan z tabeli briefu otwiera drugi wiersz tylko pod swoim paskiem (testy); koszt sesji raz.
       Testy ✓: `panel/hooks/band.test.ts` (7: wiersz planu bez kosztu, drugi wiersz tylko przy
       karcie, „Nie”/„Tak” ścieżką `decide`), `progress.test.ts` (27: zero przycisków, chip agentów,
       linia pod segmentami, `a/b punktów`, drugi wiersz 10 s po odhaczeniu), `cache-keeper`
       `rings.test.ts` (14: cztery pierścienie z podpisami, progi 69/70/89/90 i 35/15 % TTL,
       „brak danych”, koszt sesji raz, wiersze stygnięcia/przekazania/Z9/podtrzymania tylko w swoim
-      stanie), `core/panel/tests/theme.test.js` (progi kolorów). **Zrzut ≤ 160 px przy 1400 px
-      czeka** na pomiar na żywo (Łukasz).
-- [ ] Z2: 14 komend bez przewijania przy 900 px (zrzut), nazwa komendy obok polskiej, „Teraz”
+      stanie), `core/panel/tests/theme.test.js` (progi kolorów). Zrzut ✓ 2026-10-11 (0.12.0,
+      fokus AUDYT_MODOW): trzy paski bez przycisków, zrzut 1627 × 227 px ekranu (≈ 1356 px CSS
+      szerokości), paski ≈ 175 px ekranu ≈ **146 px CSS** — poniżej 160
+      ([zrzut](zrzuty/2026-10-11-z1-trzy-paski-0.12.0.png)).
+- [x] Z2: 14 komend bez przewijania przy 900 px (zrzut), nazwa komendy obok polskiej, „Teraz”
       z jedną akcją główną, Koszty ze zwiniętymi sekcjami w `$.state`.
       Testy ✓: `panel/hooks/pane-v2.test.ts` (19: nagłówek z zakładkami w jednym wierszu, bez
       zdania o 14 komendach, „Teraz” z jedną akcją, wiersze z nazwą komendy, formularz pod wierszem,
       Koszty zwinięte w `unfolded`, `sent` wygasa po 10 s; szacunek wysokości Komend 865 px przy
-      budżecie 900). **Zrzut przy 900 px czeka** na pomiar na żywo.
+      budżecie 900). Zrzut ✓ 2026-10-11 (0.12.0): zakładka Komendy 1387 × 1255 px ekranu
+      ≈ **1046 px CSS** treści — „Teraz” ma po Z12 trzecią linię (fokus sesji i „Zmień”), której
+      pomiar 865 px nie znał; przy oknie 900 px dwa ostatnie wiersze idą pod przewijanie.
+      Decyzja Łukasza 2026-10-11: linia fokusu zostaje, **kryterium poluzowane do 1100 px**
+      (brief v3.2, §9) — zmierzone i spełnione ([zrzut](zrzuty/2026-10-11-z2-komendy-0.12.0.png)).
 - [x] Z6: test równości trzech `fmt.ts` i dwóch `barCard`; `usd(11.73)` daje ten sam napis
       w trzech modach.
       Dowód: `core/panel/tests/mods-parity.test.js` (5: trzy `fmt.ts` i trzy `bar-card.tsx`
@@ -237,9 +248,14 @@ Kolejność: najpierw fundamenty (Z3–Z5), bo bez nich nowe paski będą migać
 - [x] `git diff` nie dotyka `core/panel/*.mjs` poza `theme.mjs` ani niczego w `adapters/codex/`.
       `git diff --stat ecb8282 HEAD -- core/panel adapters/codex docs/plany/PANEL_CODEX`: tylko
       `core/panel/theme.mjs` i dwa testy w `core/panel/tests/` (2026-10-10, po Z7).
-- [ ] Katalog roboczy `.claude/relai/work/_fixy/AUDYT_MODOW/` przejrzany raportem
+- [x] Katalog roboczy `.claude/relai/work/_fixy/AUDYT_MODOW/` przejrzany raportem
       (`node .claude/relai/tools/clean-work.js raport`) i skasowany po „tak”; liczby przed i po
       we wpisie dziennika; artefakty spoza katalogu z nazwy.
+      ✓ 2026-10-11: raport (katalog chroniony do zamknięcia karty), „tak” Łukasza na całość,
+      `clean-work.js kasuj` — 152 pliki, 4,9 MB → 0,0 MB (sondy `cache-probe`/`tree-probe`, kopie
+      zainstalowanych 0.10.0/0.3.0/0.4.0/0.11.0, skrypty z11-*, kopia pomiarów sprzed korekty
+      Z12c). Poza katalogiem: zrzuty tej sesji skopiowane do `zrzuty/` (7 plików, 2026-10-11-*),
+      `~/.claude/dev-mods/` bez sond RelAI.
 
 ## Dziennik wdrożenia
 
@@ -441,4 +457,17 @@ Jedna linia na zamkniętą paczkę; pełny wpis do `docs/DZIENNIK.md` dopiero w 
   o świeżych sesjach Opus).
 ## Wynik
 
-—
+Zamknięta 2026-10-11, 14 paczek (Z1–Z9 z karty, Z10–Z12 z Aneksu A, Z13–Z14 z Aneksu B), wydania
+`relai-panel` 0.10.0 → 0.11.0 → **0.12.0**, `relai-progress` 0.3.0 → 0.4.0, `relai-cache-keeper`
+0.4.0 → 0.5.0 (ostatnie: [release relai-panel-v0.12.0](https://github.com/nowilus/relai/releases/tag/relai-panel-v0.12.0)).
+Co dała: trzy paski w spokoju (146 px CSS przy ~1356 px, bez przycisków; drugi wiersz tylko przy
+zdarzeniu — karta, brak fokusu, Z9, stygnięcie), pasek cache jako pięć baterii, fokus sesji
+(paski, „Teraz”, pomiary i mapa liczą pracę tej sesji, nie cudzy aktywny plan), panel bez I/O
+w rysowaniu i z drzewem w budżecie (Dokumenty 189 903 znaków zamiast 1 515 831; zwinięta Mapa
+43 755 / 7 Svg), jedno źródło liczb i formatu pieniędzy, testy modów 135 / 31 / 90 na 2.1.295.
+Zmierzone na żywo przez Łukasza: Z1, Z2 (kryterium 1100 px), Z3, Z10–Z14; Z5 (`/clear`) czeka na
+jedno słowo z sesji następnej. Poza zakresem, spisane: ustalenia `outOfScope` raportu (kopie
+rdzenia per plugin, `headings.mjs` w progress i cache-keeperze, % limitu per etap), wariant B
+„jedna listwa” jako kandydat na plan, `userConfig` cache-keepera, przedrostek `relai-` jego komend.
+Wzorzec wykonania Z13–Z14 (Opus 5.5 jako subagent sesji Fable z promptem wdrożenia zamiast świeżej
+sesji) zadziałał — do oceny wobec D-85 przy następnej odnodze.

@@ -1,6 +1,6 @@
 # Styl pasków i panelu RelAI dla Claude Code
 
-Wersja: **3.1** (v2 + Aneks Z11, sprostowanie komórki 2026-10-11) · Data: **2026-10-10** · Zakres: trzy paski nad promptem **i panel boczny** `/relai-panel`
+Wersja: **3.2** (v2 + Aneks Z11, sprostowanie komórki i kryterium Komend 1100 px 2026-10-11) · Data: **2026-10-10** · Zakres: trzy paski nad promptem **i panel boczny** `/relai-panel`
 (zakładki Komendy i Koszty) · Źródło decyzji: wątek [AUDYT_MODOW](../../fixy/AUDYT_MODOW/ODNOGA.md),
 makiety [MAKIETY.html](../../fixy/AUDYT_MODOW/MAKIETY.html) (wersja 4, kalibracja z Łukaszem
 w czterech rundach 2026-10-10).
@@ -140,8 +140,10 @@ małe linie (podpisy pierścieni, linia pod segmentami) rysuje Svg; karta hover 
 - [ ] ~~Cztery pierścienie z dwiema liniami podpisu~~ → Aneks Z11: pięć baterii od lewej krawędzi
       kolumny treści, słowa `etykieta · wartość`, dymek z pełnym opisem przy ikonie; kolory progów
       zmierzone testem na wartościach 69/70/89/90 %; brak danych słowami.
-- [ ] Panel: „Teraz” z jedną akcją główną; 14 komend bez przewijania przy 900 px; nazwa komendy
-      obok polskiej; formularz pod wierszem; Koszty ze zwiniętymi sekcjami pamiętanymi w `$.state`.
+- [x] Panel: „Teraz” z jedną akcją główną; 14 komend bez przewijania przy ~~900 px~~ **1100 px**
+      (2026-10-11, decyzja Łukasza: „Teraz” dostało po Z12 trzecią linię z fokusem sesji i „Zmień”,
+      zmierzone 1046 px CSS — linia zostaje, próg rośnie); nazwa komendy obok polskiej; formularz
+      pod wierszem; Koszty ze zwiniętymi sekcjami pamiętanymi w `$.state`.
 - [ ] Terminal: odpowiednik tekstowy każdego elementu, test 40 kolumn.
 
 ## 10. Aneks Z11 (2026-10-10) — pasek cache: pięć baterii, koszt po prawej, dymek przy ikonie
