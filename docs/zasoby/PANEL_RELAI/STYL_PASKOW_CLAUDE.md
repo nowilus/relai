@@ -1,6 +1,6 @@
 # Styl pasków i panelu RelAI dla Claude Code
 
-Wersja: **3.2** (v2 + Aneks Z11, sprostowanie komórki i kryterium Komend 1100 px 2026-10-11) · Data: **2026-10-10** · Zakres: trzy paski nad promptem **i panel boczny** `/relai-panel`
+Wersja: **3.3** (v3.2 + sekcja 11: limit planu — dwa progi, zapis i wznowienie, karta progu w Kosztach; LIMIT_CHECKPOINT E4, 2026-10-11) · Data: **2026-10-10** · Zakres: trzy paski nad promptem **i panel boczny** `/relai-panel`
 (zakładki Komendy i Koszty) · Źródło decyzji: wątek [AUDYT_MODOW](../../fixy/AUDYT_MODOW/ODNOGA.md),
 makiety [MAKIETY.html](../../fixy/AUDYT_MODOW/MAKIETY.html) (wersja 4, kalibracja z Łukaszem
 w czterech rundach 2026-10-10).
@@ -29,6 +29,7 @@ przeładowanie modu niczego nie gubi — P-023 pkt 6):
 | postęp | punkt właśnie odhaczony | chip `✓ 3/14 · <nazwa>` na 10 s, potem wiersz znika |
 | cache | cache stygnie (`cooling`) | chip `stygnie · ponowny zapis ≈ $x`, `Podtrzymaj` (hotkey 1), `Przekaż` (hotkey h) |
 | cache | przekazanie gotowe (`H.phase === 'ready'`) | chip `przekazanie gotowe`, `Wyczyść i kontynuuj` (primary, hotkey c), `Zostań` |
+| cache | zapis pracy przed limitem (LIMIT_CHECKPOINT, sekcja 11) | chip `zapis pracy trwa` / `zapis gotowy · reset GG:MM` / `zapis niepełny` + `Zamknij`; po resecie i z plikiem wznowienia `limit odnowiony · praca czeka na wznowienie` + `Wznów pracę` (primary), `Odrzuć` |
 | cache | nowa sesja się opłaca (Z9: zwrot w ≤ 5 turach albo cache zimny i kontekst > 2× warstwa startu) | chip `nowa sesja zwróci się po N turach · ≈ $x → $y/turę · 0,8 % → 0,2 % limitu 5 h`, `Przekaż` (hotkey h), `Zostań`; pełny rachunek w `/cache` |
 
 W spokoju: **zero przycisków na stałe**, trzy wiersze tekstu w sumie (po jednym na pasek)
@@ -254,3 +255,57 @@ wspólna). Kryteria:
 - [ ] trzy paski w spokoju ≤ 175 px przy 1400 px;
 - [ ] od 900 do 1640 px bez rozjazdu (zrzut 900/1000 px);
 - [ ] terminal: test montażu z pięcioma miarami i linią b.
+
+## 11. Limit planu: dwa progi, zapis i wznowienie (v3.3, LIMIT_CHECKPOINT E4, 2026-10-11)
+
+Źródło: plan [LIMIT_CHECKPOINT](../../plany/LIMIT_CHECKPOINT/STATUS.md), Aneksy B i C; miejsce
+ustawienia progu zaproponował Fable 5.1, Łukasz przyjął 2026-10-11 („Panel → Koszty, bez
+podpowiedzi”).
+
+### 11.1 Kolor baterii limitu od progu
+
+- **Dwa progi, każdy dla swojej baterii:** `limit 5 h` od `Próg limitu` (domyślnie 90 %),
+  `limit tygodnia` od `Próg limitu tygodnia` (domyślnie 98 %). Od progu bateria jest **glina**
+  bez względu na to, ile zostało; poniżej — reguła 10.3 (30/10 zapasu).
+- Dymek baterii kończy linię b członem `· próg N %` — próg **tej** baterii. Terminal: to samo
+  w linii b po wartości.
+- `reset za` pokazuje dalej reset okna 5 h. Reset tygodnia trafia na kartę i do drugiego wiersza
+  wyłącznie wtedy, gdy przekroczony jest próg tygodnia.
+
+### 11.2 Drugi wiersz paska cache przy zapisie pracy
+
+Drugi wiersz w tej kolejności priorytetów: przekazanie (sekcja 1) → zapis pracy → stygnie →
+zdarzenie Z9 → podtrzymany.
+
+| Stan | Chip | Kolor chipa | Przyciski |
+|---|---|---|---|
+| zapis trwa | `zapis pracy trwa` | `CHIP.run` | — |
+| zapis gotowy, przed resetem | `zapis gotowy · reset GG:MM` (inny dzień: `DD.MM GG:MM`; bez czasu: `reset nieznany`) | `CHIP.ok` | — |
+| po resecie, plik wznowienia jest | `limit odnowiony · praca czeka na wznowienie` | `CHIP.ok` | `Wznów pracę` (primary), `Odrzuć` (secondary) |
+| wznawianie | `wznawiam pracę` | `CHIP.run` | — |
+| zapis niepełny | `zapis niepełny` | `CHIP.warn` | `Zamknij` (secondary) |
+
+Każdy przycisk otwiera kartę `$.ui.ask` przed działaniem: `Wznów pracę` → „Wznów / Nie teraz”
+(potem `/clear` i fraza wznowienia), `Odrzuć` → „Odrzuć / Zostaw” (potem prośba do czatu
+o skasowanie pliku). Bez hotkeyów (cyfra w pustym polu naciskała przycisk, Z5).
+
+### 11.3 Karta „Próg limitu” w panelu, zakładka Koszty
+
+- Miejsce: pod trzema kaflami, nad sekcjami zwiniętymi; karta `costBox` (`THEME.card`).
+- Treść: nagłówek `Próg limitu` (`THEME.title`, pogrubiony), **bez linii podpowiedzi**, dwa wiersze
+  `limit 5 h · od 90 % · domyślny · [Zmień]` i `limit tygodnia · od 98 % · domyślny · [Zmień]`.
+  Kolumny: nazwa (min. 16 komórek, ustępuje), wartość (min. 9, `flexShrink={0}`, pogrubiona),
+  źródło (`ta sesja` / `ten projekt` / `wszystkie projekty` / `domyślny`), przycisk po prawej.
+- `Zmień` (secondary, bez hotkeya) uruchamia `/cache limit-warn` albo `/cache limit-warn-week`
+  pluginu `relai-cache-keeper`: karta wartości (5 h: `85 / 90 / 95 %`, tydzień: `95 / 98 / 99 %`,
+  pole „Inne”), potem karta zasięgu (`Ta sesja` / `Ten projekt` / `Wszystkie projekty` /
+  `Nie zapisuj`). Nagłówek karty ma najwyżej 12 znaków (`Próg 5 h`, `Próg tydzień`, P-026).
+- Pasek nad promptem w spokoju **bez zmian**: zero przycisków progu.
+
+### 11.4 Kryteria
+
+- [ ] bateria tygodnia od progu tygodnia, bateria 5 h od swojego (test);
+- [ ] drugi wiersz: przed resetem bez przycisków, po resecie z plikiem `Wznów pracę` i `Odrzuć`,
+      bez pliku — bez przycisków (testy);
+- [ ] karta `Próg limitu` w Kosztach w 40 kolumnach bez rozjazdu; zrzut na żywo z desktopu.
+

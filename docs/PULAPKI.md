@@ -8,6 +8,26 @@ Specyfikacja: `SPEC_PULAPKI.md`.
 
 ## Pułapki
 
+### P-026 — Silnik modów Claude Code 2.1.295: nagłówek karty 12 znaków, brak kasowania plików, id sesji po `/clear` · 2026-10-11 · AKTYWNA
+
+- **Objaw:** karta `$.ui.ask` z nagłówkiem „Próg limitu tygodnia” odpowiada pod nagłówkiem
+  „Próg limitu ” i atrapa testu nie rozpoznaje karty; przycisk „Odrzuć” nie ma czym skasować
+  pliku wznowienia; odpowiedź na kartę po `/clear` zapisuje plik sesji poprzedniej rozmowy.
+- **Przyczyna (2.1.295, LIMIT_CHECKPOINT E4, `claude plugin test` i typy silnika):**
+  1. **Nagłówek karty (`header`) jest ucinany do 12 znaków** — ten sam limit co w AskUserQuestion.
+     Dłuższy nagłówek nie daje błędu, tylko cicho traci koniec.
+  2. **`$.fs` ma `read`, `write`, `list`, `exists`, `stat` — nie ma `delete` ani `rename`.** Mod nie
+     skasuje pliku sam.
+  3. **Stan sesji w module (`S.id`) zmienia się dopiero w hooku**, który ją zauważy
+     (`session.end`, `followSession`); `$.session.id()` zwraca nowe id od razu po `/clear`.
+- **Obejście:** (1) nagłówki kart ≤ 12 znaków (`Próg 5 h`, `Próg tydzień`), w kodzie stała
+  z komentarzem; (2) kasowanie robi model na prośbę z karty („Odrzuć”) albo z linią zgody we
+  frazie („Wznów pracę”) — decyzja Łukasza 2026-10-11; (3) funkcja czekająca na kartę bierze id
+  z `$.session.id()` przed pytaniem i pyta o nie ponownie po każdej odpowiedzi (L-0166), a miejsce
+  zapisu (plik sesji) liczy z id sprzed pytania.
+- **Zasięg:** Claude Code 2.1.295, mody „early access”; punkt 1 zmierzony w `plugin test`,
+  punkt 2 z typów silnika (`cache-keeper/.claude-plugin/types/claude-code/index.d.ts`).
+
 ### P-025 — Git Bash zamienia argument od `/` na ścieżkę, a `claude.exe` w katalogu aplikacji to aplikacja · 2026-10-11 · AKTYWNA
 
 - **Objaw:** (1) `node skrypt.mjs "/relai-stage"` w Git Bashu dostaje argument

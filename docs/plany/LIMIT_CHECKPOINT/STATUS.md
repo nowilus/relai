@@ -9,7 +9,7 @@ Plan: [PLAN.html](PLAN.html) · Utworzony: 2026-10-11 · Status planu: **ZAAKCEP
 | E1 | Próg i trzy poziomy zapisu | ZREALIZOWANY 2026-10-11 | [PROMPT_ETAP_1.md](PROMPT_ETAP_1.md) | zalecany effort medium; bramka o przepięciu `prompt-mode.js` rozstrzygana jednym pytaniem na starcie sesji |
 | E2 | Karta po turze | ZREALIZOWANY 2026-10-11 | [PROMPT_ETAP_2.md](PROMPT_ETAP_2.md) | zalecany effort high; warunek „praca trwa” i licznik tur |
 | E3 | Procedura „zapisz pracę” w rdzeniu | ZREALIZOWANY 2026-10-11 | [PROMPT_ETAP_3.md](PROMPT_ETAP_3.md) | zalecany effort high; + Aneks A (odhaczanie pól Weryfikacji na bieżąco); „Zapisz” na karcie = zgoda na commit lokalny (rozstrzygnięte) |
-| E4 | Wznowienie i wydanie | GOTOWY DO STARTU | [PROMPT_ETAP_4.md](PROMPT_ETAP_4.md) | zalecany effort medium; + Aneks B (zasięg progu przy `/cache limit-warn`) + Aneks C (5 h podstawowe, próg tygodnia 98 %); pomiar na żywo z progiem testowym |
+| E4 | Wznowienie i wydanie | W TOKU | [PROMPT_ETAP_4.md](PROMPT_ETAP_4.md) | zalecany effort medium; + Aneks B (zasięg progu przy `/cache limit-warn`) + Aneks C (5 h podstawowe, próg tygodnia 98 %); pomiar na żywo z progiem testowym |
 
 ## Bramki manualne
 
@@ -35,3 +35,14 @@ Plan: [PLAN.html](PLAN.html) · Utworzony: 2026-10-11 · Status planu: **ZAAKCEP
 - 2026-10-11 — E3 przerwany zapisem przed limitem (pomiar na żywo procedury); wznowienie: .claude/relai/wznowienie/relai.md
 - 2026-10-11 — Aneks C (uwaga Łukasza po pomiarze E3): limit 5 h funkcją podstawową, tydzień z osobnym progiem domyślnie 98 %; reset na pasku z okna, które przekroczyło swój próg — w zakresie E4.
 - 2026-10-11 — E3 ZREALIZOWANY: procedura `limit-checkpoint.md`, `SPEC_WZNOWIENIE.md`, `resume.js` ze zdaniem hooka, faza zapisu na pasku (czeka / przerwany), Aneks A; testy 140/140 i 289/289; pomiar na żywo: zapis z karty → `ZAPIS GOTOWY` → „zapis gotowy · reset …” (commity `7f11491`, `10cabb4` zostają). E4 GOTOWY DO STARTU (+ Aneksy B i C).
+- 2026-10-11 — E4 rozpoczęty (baza: commit `1cfff6f` z rytuałem E3)
+- 2026-10-11 — E4 W TOKU, kod i testy gotowe (cache-keeper 168/168, panel 141/141, rdzeń 295/295; 9 z 13 punktów Weryfikacji): dwa progi (5 h 90, tydzień 98), karta zasięgu z „Nie zapisuj”, `limitWarn` usunięty, karta „Próg limitu” w Kosztach panelu (propozycja Fable 5.1, akceptacja Łukasza), „Wznów pracę” / „Odrzuć” (kasuje model — decyzja Łukasza), hook startu z liczbą commitów. Czeka na człowieka: pomiar na żywo, wydanie, kasowanie katalogu roboczego — niżej.
+- 2026-10-11 — E4 przerwany zapisem przed limitem; wznowienie: .claude/relai/wznowienie/relai.md (zapis z karty limitu jako krok 3 pomiaru na żywo, próg testowy 1 %; kod `562c375`)
+
+## Pomiar na żywo E4 — instrukcja (Łukasz, desktop 2.1.295)
+
+1. Skopiuj do zainstalowanych wersji (bez wydania): `cache-keeper/hooks/{limit.ts,handoff.ts,core.ts,register.tsx}` i `cache-keeper/hooks/relai/limit-threshold.mjs` → `~/.claude/plugins/cache/relai/relai-cache-keeper/0.5.0/hooks/` (te same ścieżki); `panel/hooks/{pane-costs.tsx,register.tsx}` i `panel/hooks/core/limit-threshold.mjs` → katalog zainstalowanego `relai-panel` 0.12.0; `core/process/resume.js`, `core/process/threshold.js`, `adapters/claude-code/hooks/session-context.js`, `adapters/claude-code/skills/relai-core/{SKILL.md,limit-checkpoint.md}` → zainstalowany `relai` 2.8.0 (bez `session-context.js` hook nie woła `resume.js`). **Zrobione 2026-10-11** na prośbę Łukasza; oryginały w `.claude/relai/work/LIMIT_CHECKPOINT/E4/backup-installed/`. Przeładuj aplikację i sprawdź znacznik wersji w logu (L-0159).
+2. `/relai-panel` → Koszty: karta „Próg limitu” (5 h od 90 %, tydzień od 98 %). `Zmień` przy 5 h → wartość „Inne: 1” → „Ta sesja” — próg ustawiony **wyłącznie z UI**; zrzut.
+3. Przy trwającej pracy (zmieniony plik) po turze: karta limitu → „Zapisz pracę teraz” → `ZAPIS GOTOWY` → pasek „zapis gotowy · reset …”.
+4. Reset: zaczekaj na reset 5 h albo zasymuluj — w `$.store` pluginu (`save:<katalog>`) ustaw `resetAt` w przeszłości; opisz sposób we wpisie. Po ticku (≤ 30 s): „limit odnowiony · praca czeka na wznowienie” + `Wznów pracę` → „Wznów” → nowy czat od listy „Co dalej” z plikiem wznowienia; zrzuty do `docs/zasoby/PANEL_RELAI/zrzuty/`.
+5. Na końcu progi z powrotem: `Zmień` → 90 (5 h) i 98 (tydzień), zasięg „Ta sesja” albo usuń plik sesji.

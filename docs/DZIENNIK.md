@@ -26,7 +26,7 @@
 | L1 | `percentUsed` limitu odświeża się tylko z odpowiedzią API — długa tura subagentów przekroczy próg, a karta przyjdzie po fakcie (plan LIMIT_CHECKPOINT, ryzyko L1) | **Średni** (2026-10-11 po E2; wcześniej wysoki) | **OTWARTE** | E2: `session.measure` w trakcie tury przestawia kolor baterii od razu, karta przychodzi po `turn.complete` z procentem odczytanym po turze (test „past the threshold in the middle of a turn”); otwarte, bo procent nadal przychodzi tylko z odpowiedzią API, więc długa tura może przekroczyć próg o kilka punktów, zanim karta padnie. |
 | L3 | Fałszywe karty: próg przekroczony, ale praca nie trwa (czytanie, pytania) — szum łamie brief „pasek spokojny” (plan LIMIT_CHECKPOINT, ryzyko L3) | **Średni** (2026-10-11 po E2) | **OTWARTE** | E2: warunek „praca trwa” (fokus `W TOKU`/`OTWARTA` albo niepusty `git status`), jedna karta na próg, „Nie pytaj w tej sesji”; test ciszy bez pracy z kontrolą pozytywną. Otwarte: w repo z niezacommitowanymi zmianami karta przyjdzie także przy samym czytaniu. |
 | L2 | Zapis pracy sam zużywa tury — przy progu 95 % może nie zdążyć (plan LIMIT_CHECKPOINT, ryzyko L2) | **Średni** (2026-10-11 po E3; wcześniej wysoki) | **OTWARTE** | Karta pokazuje „ile tur zostało” z tempa sesji i ostrzega poniżej 3 tur (SZACUNEK); domyślne 90 % zostawia 10 % budżetu. E3: procedura `limit-checkpoint.md` idzie „testy → commit kodu → dokumenty (+ commit) → plik wznowienia → `ZAPIS GOTOWY`”; brak znacznika = pasek „zapis niepełny”. Zmierzone na żywo 2026-10-11: zapis w jednej turze (commity `7f11491`, `10cabb4`). Zostaje: zapis przy realnie małym zapasie tur nie był mierzony. |
-| L5 | Plik wznowienia starzeje się — praca w innym narzędziu po zapisie, lista „co dalej” kłamie (plan LIMIT_CHECKPOINT, ryzyko L5) | **Średni** (2026-10-11 po E3) | **OTWARTE** | E3: plik niesie hash `HEAD` z chwili zapisu (`SPEC_WZNOWIENIE.md`, linia metryczna); porównanie z bieżącym `HEAD` i komunikat „od zapisu doszły N commitów” — E4. |
+| L5 | Plik wznowienia starzeje się — praca w innym narzędziu po zapisie, lista „co dalej” kłamie (plan LIMIT_CHECKPOINT, ryzyko L5) | **Średni** (2026-10-11 po E3) | **OTWARTE** | E3: plik niesie hash `HEAD` z chwili zapisu (`SPEC_WZNOWIENIE.md`, linia metryczna); porównanie z bieżącym `HEAD` i komunikat „od zapisu doszły N commitów” — E4. E4 (2026-10-11): hook startu liczy commity od hasha (`git rev-parse --verify` + `rev-list --count`), mówi o hashu nieznanym, bez gita milczy; „kontynuujemy pracę” każe to powiedzieć przed krokiem 1 (testy na prawdziwym repozytorium). Otwarte do pomiaru na żywo E4. |
 | L6 | Fraza z moda w sesji bez pluginu `relai` trafia w pustkę (plan LIMIT_CHECKPOINT, ryzyko L6) | **Niski** (2026-10-11 po E3) | **OTWARTE** | E3: poza projektem RelAI (albo przy folderze bez poprawnego slugu) „Zapisz” wysyła wariant ogólny — przekazanie do pliku w `~/.claude/mods-data/relai-cache-keeper/handoffs/`; karta mówi, który wariant pójdzie (test). Pomiar na żywo poza RelAI — nie wykonany. |
 
 > Ryzyka zamknięte C3, C9 (2 pozycje) są w
@@ -50,6 +50,7 @@
 > — przeniesione 2026-08-21, suma kontrolna `4b370c3e2b31c6ba`.
 
 ## Czeka na człowieka
+- **LIMIT_CHECKPOINT E4 — pomiar na żywo, wydanie, katalog roboczy** — kod i testy gotowe (168/141/295); czeka: pomiar na desktopie 2.1.295 wg `STATUS.md` planu, „tak” na wydanie `relai` 2.9.0 / `relai-cache-keeper` 0.6.0 / `relai-panel` 0.13.0, „tak” na skasowanie `.claude/relai/work/LIMIT_CHECKPOINT/E4/` · 2026-10-11 · [wpis 2026-10-11 — E4 W TOKU](#2026-10-11--limit_checkpoint-e4-w-toku-dwa-progi-karta-zasięgu-wznów-pracę-i-karta-progu-w-kosztach--przed-pomiarem-na-żywo)
 - ~~**AUDYT_MODOW Z5 — pomiar `/clear` na żywo**~~ *(rozstrzygnięte 2026-10-11 — Łukasz: koszt sesji na pasku cache od zera, pasek plan z przyciskiem `Wybierz pracę…`; paski pojawiły się dopiero po pierwszym prompcie, co jest zamierzone)* — po `/clear` kończącym sesję 2026-10-11 pasek cache ma zacząć od zera (koszt sesji, baterie „brak danych” do pierwszej tury), a fokus AUDYT_MODOW przejść do nowej sesji; jedno słowo „ok” albo zrzut w następnej sesji · 2026-10-11 · [wpis 2026-10-11 — Z13, Z14 i zamknięcie odnogi](#2026-10-11--audyt_modow-z13-i-z14-wydanie-0120-i-zamknięcie-odnogi)
 - ~~**Akceptacja planu LIMIT_CHECKPOINT**~~ *(rozstrzygnięte 2026-10-11 — Łukasz zaakceptował plan; 90 % zostaje; „Zapisz” na karcie jest zgodą na commit lokalny; PROMPT_ETAP_1 wygenerowany)* — plan DO AKCEPTACJI (4 etapy); razem z nim dwie decyzje z sekcji 9: czy „Zapisz pracę teraz” na karcie jest zgodą na commit lokalny, i potwierdzenie progu domyślnego 90 % · 2026-10-11 · [wpis 2026-10-11 — research, audyt, plan](#2026-10-11--research-nowej-sesji-audyt-skilli-i-plan-limit_checkpoint)
 - ~~**Linia „Aktywny plan” w `CLAUDE.md` przy dwóch planach**~~ *(rozstrzygnięte 2026-10-11 — Łukasz: LIMIT_CHECKPOINT od razu; PANEL_CODEX wymieniony w tej samej linii jako drugi plan niezamknięty)* — PANEL_CODEX (E1 w Codeksie) czy LIMIT_CHECKPOINT (po akceptacji, Claude Code); `CLAUDE.md` ma jedną linię (D-30) · 2026-10-11 · [wpis 2026-10-11 — research, audyt, plan](#2026-10-11--research-nowej-sesji-audyt-skilli-i-plan-limit_checkpoint)
@@ -1652,5 +1653,148 @@ Edit); zainstalowane 0.5.0 / 2.8.0 z ręczną łatką E3 do wydań E4.
 
 **Do zrobienia przez człowieka:** bramka „aneks dla panelu Codeksa” — odroczona do zamknięcia
 planu (*rozstrzygnięte 2026-10-11 — odroczenie, termin: zamknięcie LIMIT_CHECKPOINT*).
+
+Autor: RelAI (Opus 5.5) + Lukasz
+
+### 2026-10-11 — LIMIT_CHECKPOINT E4 (W TOKU): dwa progi, karta zasięgu, „Wznów pracę” i karta progu w Kosztach — przed pomiarem na żywo
+
+Sesja Opus 5.5 (`/relai-stage`). Łukasz w trakcie odszedł od komputera z poleceniem „dokończ to sam
+bez mojej ingerencji” — zrobione wszystko, co nie wymaga człowieka; pomiar na żywo, wydanie
+i skasowanie katalogu roboczego czekają.
+
+**Zrobione:**
+
+- Commit rytuału E3 (`1cfff6f`) jako baza etapu — wskazany na karcie startu i przyjęty.
+- **Dwa progi (Aneks C):** czytnik przeniesiony do rdzenia paneli `core/panel/limit-threshold.mjs`
+  (kopie `sync-panel-core` w cache-keeperze, panelu i postępie; jeden czytnik dla dwóch modów),
+  `limit.ts` go reeksportuje i pisze pliki; okno `five` (90) i `week` (98), klucz `progTydzien`
+  w pliku sesji, wiersz `Próg limitu tygodnia`; `threshold.js` z opcją `okno` i błędem przy oknie
+  nieznanym; `cardDue` liczy każde okno z jego progiem i pyta per okno (`asked`), reset z tygodnia
+  tylko przy przekroczonym tygodniu (`blockingReset`); bateria tygodnia od progu tygodnia.
+- **Zasięg i UI progu (Aneks B):** `/cache limit-warn [N]` i `/cache limit-warn-week [N]` — bez N
+  karta wartości (5 h: 85/90/95, tydzień: 95/98/99, decyzja Łukasza), potem karta zasięgu z „Nie
+  zapisuj”; nic nie jest zapisywane przed zasięgiem. `limitWarn` usunięty z ustawień pluginu
+  w całości (Łukasz: „nikt tego jeszcze nie ma … traktujemy to jako nową funkcję” — bez migracji
+  i bez komunikatu). Propozycja UX od **Fable 5.1** (subagent `fable`): karta „Próg limitu”
+  w zakładce Koszty panelu, pasek bez nowego przycisku; **Łukasz zaakceptował ją przed kodem UI**
+  („Panel → Koszty, bez podpowiedzi”). Panel: dwa wiersze (wartość, źródło, `Zmień`), `Zmień`
+  uruchamia komendę cache-keepera (`/cache`, potem `/ckp-cache`), karta czytana przy otwarciu
+  zakładki (Z3) i odświeżana po ruchu pliku progu.
+- **Wznowienie:** faza `resuming`; po resecie okna blokującego i przy istniejącym pliku drugi
+  wiersz „limit odnowiony · praca czeka na wznowienie” z `Wznów pracę` (karta → `/clear` →
+  „kontynuujemy pracę — plik wznowienia: …” z linią zgody na skasowanie) i `Odrzuć` (karta →
+  prośba do czatu o skasowanie pliku); `Zamknij` przy zapisie niepełnym. Poza RelAI „Wznów” wysyła
+  treść przekazania z jego pliku. **Kasowanie robi model** — silnik nie ma `$.fs.delete`; Łukasz
+  wybrał „zawsze prosić Claude w czacie” po wyjaśnieniu, czym jest „Odrzuć”.
+- **Hook startu (L5):** `resume.js` czyta hash `HEAD` z pliku (`^[0-9a-f]{4,40}$`), sprawdza go
+  `git rev-parse --verify` i liczy `git rev-list --count <hash>..HEAD` (tablica argumentów, 2 s);
+  zdanie mówi „nie doszedł żaden commit” / „doszły N commity” / „hash nieznany”, a bez gita milczy.
+- `SKILL.md` relai-core („kontynuujemy pracę” od pliku wznowienia), kopia Codeksa generatorem,
+  reguła Cursora, `SPEC_WZNOWIENIE.md` (wersja 2), `SPEC_USTAWIENIA.md` (wersja 12), brief pasków
+  **v3.3** (sekcja 11), `PULAPKI.md` **P-026** (nagłówek karty ucinany do 12 znaków, brak
+  kasowania plików w `$.fs`, `S.id` po `/clear`), `ARTEFAKTY.md`.
+- Przegląd kodu subagentem `typescript-reviewer`: 2 HIGH, 5 MEDIUM, 5 LOW. Poprawione: id sesji
+  brane z silnika przed kartą i sprawdzane po każdej odpowiedzi (zapis do pliku sesji sprzed karty),
+  `resuming` należy do rozmowy, do której poszło wznowienie, ponowne sprawdzenie przekazania i tury
+  po karcie wznowienia, jedna karta wznowienia naraz, koszt jednej tury na karcie „Odrzuć”,
+  `carding` przed pierwszym `await`, chwilowy błąd odczytu pliku progu zachowuje poprzedni próg
+  (dotąd spadał do domyślnego), hash „nieznany” odróżniony od „nie da się sprawdzić”, jeden
+  obserwator po `Zmień`, nieudany odczyt progów w panelu niezapamiętywany. Świadomie bez zmiany:
+  „Pracuję dalej” podnosi każde okno ponad progiem (także już pytane) — tak brzmi decyzja z sekcji 8.
+
+**Zweryfikowane — jak dokładnie:**
+
+- `claude plugin test cache-keeper` binarką 2.1.295: przed **140**, po **168/168** (13 plików).
+  Kontrola „przed” w `git worktree` HEAD `1cfff6f` z nowymi testami: (a) kod E3 w całości — trzy
+  pliki testów się nie wczytują (`blockingReset`, `limitWarnWindow`, `thresholdsOf` not found),
+  81 ✔ / 13 ✖; (b) kod E3 z podłożoną nową czystą logiką (`limit.ts`, `handoff.ts`,
+  `limit-threshold.mjs`, plus jednolinijkowa podkładka importu `THRESHOLD_OPTIONS` tylko
+  w worktree) — **86 ✖**, każdy test zachowania osobno, 80 ✔. Wyniki w katalogu roboczym.
+- `claude plugin test panel`: przed **135**, po **141/141**; nowe testy karty progu na kodzie HEAD:
+  4 ✖ (przed testem szerokości). `relai-progress` 31/31.
+- Rdzeń: `node --test core/process/tests/*.test.js core/guardrails/tests/*.test.js core/panel/tests/*.test.js adapters/codex/tests/*.test.js`
+  → przed **289**, po **295/295**; parytet `threshold.js` ↔ `limit.ts` na 12 fixturach śledzonych
+  przez gita, **24 porównania** (oba okna), nowe fixtury `tydzien-*` sprawdzone `git check-ignore`
+  (nieignorowane).
+- Aneks C w testach: 5 h 91 % + tydzień 93 % → karta o 5 h i reset 5 h; tydzień 99 % (sam i z 5 h)
+  → reset tygodnia „blokuje limit tygodnia”; próg tygodnia z pliku sesji, projektu, globalnie,
+  domyślny; bateria tygodnia glina od progu 50 przy 60 %, bateria 5 h nie (kontrola pozytywna
+  w tym samym przebiegu).
+- Aneks B w testach: każdy zasięg zapisuje swój plik (trzy testy), „Nie zapisuj” i Esc nie
+  zapisują nic (dowód negatywny na trzech plikach), `limitWarn: 70` w `$.store` nie zmienia progu
+  (kontrola pozytywna: wiersz projektu go zmienia), odpowiedź po `/clear` porzucona (kontrola:
+  bez `/clear` zapis do pliku nowej sesji), chwilowy błąd odczytu zachowuje próg.
+- Wznowienie w testach: przed resetem brak przycisku; po resecie z plikiem — `Wznów pracę`
+  i `Odrzuć`; bez pliku — brak (kontrola: plik go przywraca); „Wznów” → `/clear` + fraza ze
+  ścieżką i linią zgody, tura z odpowiedzią zwalnia pasek, mod nie kasuje pliku; „Nie teraz”/Esc
+  nic nie wysyłają; tura przerwana → przycisk wraca; „Odrzuć” → prośba o skasowanie, bez frazy
+  wznowienia; „Zostaw” nic; poza RelAI — treść przekazania z pliku; „Zamknij” przy zapisie
+  niepełnym. **Odstępstwo od punktu promptu** „Odrzuć kasuje bez wysyłki”: decyzja Łukasza
+  2026-10-11 (silnik nie kasuje plików) — „Odrzuć” wysyła prośbę o skasowanie, nigdy frazy
+  wznowienia.
+- Hook startu: prawdziwe repozytorium w `%TEMP%` — 0 commitów, 2 commity, hash `deadbeef`
+  nieznany; katalog bez gita → cisza (`null`); linia ASCII. Na kodzie HEAD ten test pada.
+- `validate-adapters.js` exit 0; `generate-skills.js --verify` spójne (14 plików); `sync-panel-core.js --check`
+  zgodny (16 plików); `claude plugin validate` cache-keeper, panel, progress → „Validation passed”.
+- Bezpieczeństwo: ścieżki wznowienia tylko ze slugu (testy E3), hash walidowany przed gitem,
+  argv bez powłoki, treść odpowiedzi modelu nie trafia do ścieżki (przegląd potwierdził);
+  `grep -nE "sk-|api_key"` po zmienionych plikach — bez trafień; `cache-keeper/package.json`
+  nie istnieje — audyt zależności nie dotyczy.
+- **Nie zweryfikowane:** pomiar na żywo (desktop 2.1.295: zmiana progu wyłącznie z UI, karta,
+  zapis, „Wznów pracę” → nowa sesja od „Co dalej”, zrzuty, progi z powrotem 90/98); zrzut karty
+  progu z renderu (karta to `Box`/`Text`, bez `Svg` — zrzut z desktopu przy pomiarze na żywo);
+  wydanie.
+- **Usterka zgłoszona przez Łukasza po etapie:** pasek cache stale pokazywał „zapis gotowy · reset
+  18.10 12:00”. Przyczyna: zapis z pomiaru E3 (13:54, próg testowy 1 % — stąd reset tygodnia)
+  został w `$.store` w fazie `czeka`, a faza nie miała wyjścia innego niż „Wznów pracę” po resecie;
+  praca wznowiona ręcznie zostawiła plik `.claude/relai/wznowienie/relai.md`, a skasowany plik
+  i tak nie gasił wiersza. Poprawka w `checkResumeFile`: `czeka` bez pliku wznowienia (potwierdzony
+  brak, nie błąd odczytu) → zapis znika z paska. Test najpierw: 3 ✖ na kodzie E4 bez poprawki,
+  potem `claude plugin test cache-keeper` **170/170**; panel 141/141, progress 31/31, rdzeń 295/295.
+  Decyzje Łukasza: stary plik `relai.md` z pomiaru E3 skasowany; ręczne „kontynuujemy pracę” przy
+  istniejącym pliku → model pyta raz, czy go skasować (`SKILL.md`, kopia Codeksa generatorem,
+  reguła Cursora, `SPEC_WZNOWIENIE.md` — w bieżących, niewydanych wersjach rejestru).
+- **Krok 1 pomiaru na żywo** (prośba Łukasza): kod E4 skopiowany do zainstalowanych
+  `relai-cache-keeper` 0.5.0, `relai-panel` 0.12.0 i `relai` 2.8.0, 13 plików, każdy sprawdzony
+  `cmp`; oryginały w `.claude/relai/work/LIMIT_CHECKPOINT/E4/backup-installed/`. Instrukcja
+  w STATUS uzupełniona o `session-context.js` (bez niego hook startu nie woła `resume.js`)
+  i `limit-checkpoint.md` (już był w instalacji z pomiaru E3, treść ta sama). Hook startu z kopii zainstalowanej: exit 0,
+  3511 B — tyle samo co z repo.
+
+**Świadomie odłożone:** wydanie (numery `relai` 2.9.0, `relai-cache-keeper` 0.6.0, `relai-panel`
+0.13.0, `grep -r` po starych numerach, `ARTEFAKTY` od tagu 2.8.0) — po pomiarze na żywo, bo pomiar
+może jeszcze zmienić kod (L-0161); `docs/KOMENDY.md` i README (sekcja `relai-cache-keeper`) —
+po pomiarze, zasada 2 („w dokumencie użytkownika tylko to, co zmierzone”); `relai-progress`
+dostał kopię `limit-threshold.mjs` przez `sync-panel-core` (nieużywaną) — podbicie wersji do
+rozstrzygnięcia przy wydaniu; heredoc po raz czwarty zjadł `\n` w literale testu (zasada 5) —
+złapane przez parser testów, poprawione narzędziem Edit.
+
+**Do zrobienia przez człowieka:** pomiar na żywo E4 (instrukcja w `STATUS.md`); „tak” na wydanie
+2.9.0 / 0.6.0 / 0.13.0; „tak” na skasowanie `.claude/relai/work/LIMIT_CHECKPOINT/E4/`; bramka
+„aneks dla panelu Codeksa” przy zamknięciu planu.
+
+Autor: RelAI (Opus 5.5) + Lukasz
+
+### 2026-10-11 — LIMIT_CHECKPOINT E4 (W TOKU): pomiar na żywo, krok 3 — zapis przed limitem
+
+Sesja Opus 5.5, ta sama co wpis wyżej. Zapis wysłany przez kartę limitu („Zapisz pracę teraz”)
+przy progu 5 h ustawionym kartą na 1 % dla tej sesji — krok 3 pomiaru na żywo E4.
+
+**Zrobione:**
+
+- Krok 1 pomiaru: kod E4 wgrany do zainstalowanych pluginów (wpis wyżej). Krok 2: próg 5 h
+  1 % z karty wartości i zasięgu „Ta sesja” — plik `.claude/relai/limit/<id-sesji>.json`
+  z `"prog":1`, bez wiersza w `docs/USTAWIENIA.md` i w ustawieniach globalnych.
+- Krok 3: karta limitu po turze przyszła; „Zapisz pracę teraz” → procedura `limit-checkpoint.md`.
+  Kod E4 zacommitowany `562c375` pod zgodą z karty (bez pusha).
+
+**Zweryfikowane — jak dokładnie:**
+
+- `claude plugin test` binarką 2.1.295: cache-keeper **170/170**, panel **141/141**, progress
+  **31/31**; rdzeń `node --test …` **295/295** — uruchomione w tej turze przed commitem.
+- `git diff` przejrzany pod resztki diagnostyczne i sekrety — bez trafień.
+
+**Świadomie odłożone:** kroki 4 i 5 pomiaru (reset i „Wznów pracę”, progi z powrotem 90/98),
+wydanie, kasowanie katalogu roboczego E4 i kopii `backup-installed/`, zamknięcie planu.
 
 Autor: RelAI (Opus 5.5) + Lukasz

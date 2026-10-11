@@ -430,19 +430,19 @@ wpisujesz do wpisu dziennika **z nazwy**, a jego nazwę zaczynasz od slugu proje
 Każdy punkt Weryfikacji, który przeszedł, odhaczasz w `PROMPT_ETAP_N.md` (`- [ ]` → `- [x]`)
 zaraz po jego sprawdzeniu, nie na końcu etapu; punkt, który nie przeszedł, zostaje pusty.
 
-- [ ] `claude plugin test cache-keeper` binarką 2.1.295: wszystkie zielone; liczba ≥ 140 + nowe;
+- [x] `claude plugin test cache-keeper` binarką 2.1.295: wszystkie zielone; liczba ≥ 140 + nowe;
       kontrola „przed” w dwóch przebiegach w `git worktree` HEAD (kod E3 w całości; kod E3
       z podłożoną nową czystą logiką) i „po” we wpisie (L-0165, L-0151).
-- [ ] `node --test` rdzenia zielony; liczba przed (289) i po; parytet `threshold.js` ↔ `limit.ts`
+- [x] `node --test` rdzenia zielony; liczba przed (289) i po; parytet `threshold.js` ↔ `limit.ts`
       dla obu progów na fixturach śledzonych przez gita.
-- [ ] Aneks C w testach: 5 h ponad progiem i tydzień poniżej 98 % → karta i reset z 5 h; tydzień
+- [x] Aneks C w testach: 5 h ponad progiem i tydzień poniżej 98 % → karta i reset z 5 h; tydzień
       ≥ 98 % → reset tygodnia; próg tygodnia z każdego poziomu; bateria tygodnia od progu tygodnia.
-- [ ] Aneks B w testach: każdy zasięg zapisuje swój plik; „Nie zapisuj” i Esc nie zapisują nic;
+- [x] Aneks B w testach: każdy zasięg zapisuje swój plik; „Nie zapisuj” i Esc nie zapisują nic;
       `limitWarn` z `$.store` nie zmienia odczytanego progu (dowód negatywny).
-- [ ] Wznowienie w testach: przed resetem brak przycisku; po resecie i z plikiem — przycisk;
+- [x] Wznowienie w testach: przed resetem brak przycisku; po resecie i z plikiem — przycisk;
       „Wznów” wysyła frazę ze ścieżką i (po sukcesie) kasuje plik; „Odrzuć” kasuje bez wysyłki;
       bez pliku — brak przycisku; poza RelAI — treść przekazania.
-- [ ] Hook startu: zdanie o pliku z liczbą commitów od hasha (0, N, hash nieznany) — test pada bez
+- [x] Hook startu: zdanie o pliku z liczbą commitów od hasha (0, N, hash nieznany) — test pada bez
       zmiany w `resume.js`/`session-context.js`.
 - [ ] Propozycja UX Fable 5.1 zaakceptowana przez Łukasza **przed** kodem UI progu (zdanie
       akceptacji we wpisie); zrzut z renderu w Chromium z pomiarem prostokątów (zasada 15).
@@ -450,17 +450,17 @@ zaraz po jego sprawdzeniu, nie na końcu etapu; punkt, który nie przeszedł, zo
       zmiana progu **wyłącznie z UI**, karta przy progu testowym 5 h, zapis, a po resecie (albo
       symulacji `resetsAt` w przeszłości — opisanej we wpisie) „Wznów pracę” → nowa sesja od listy
       „Co dalej”; zrzuty do `docs/zasoby/PANEL_RELAI/zrzuty/`; na końcu progi z powrotem 90 / 98.
-- [ ] `node core/tools/validate-adapters.js` exit 0; `generate-skills.js --verify` bez rozjazdu;
+- [x] `node core/tools/validate-adapters.js` exit 0; `generate-skills.js --verify` bez rozjazdu;
       `sync-panel-core.js --check` zgodny; `claude plugin validate cache-keeper` exit 0.
 - [ ] Wydanie: numery 0.6.0 / 2.9.0 we wszystkich źródłach (`validate-adapters`), `grep -r`
       po `2.8.0` i `0.5.0` z rozstrzygnięciem każdego trafienia; `ARTEFAKTY.md` zgodny ze zmianami
       od tagu; publikacja tylko po „tak” Łukasza.
-- [ ] Podstawy bezpieczeństwa: ścieżka wznowienia tylko ze slugu `[A-Za-z0-9_-]`; hash z pliku
+- [x] Podstawy bezpieczeństwa: ścieżka wznowienia tylko ze slugu `[A-Za-z0-9_-]`; hash z pliku
       walidowany `^[0-9a-f]{4,40}$` przed `git rev-list` (tablica argumentów, bez powłoki); treść
       odpowiedzi modelu nie trafia do ścieżki; `grep -nE "sk-|api_key"` (zwykły `grep`) po
       zmienionych plikach — trafienia tylko w cytatach wzorca; `cache-keeper/package.json` nie
       istnieje → audyt zależności nie dotyczy (zapis we wpisie).
-- [ ] Wpis w `docs/DZIENNIK.md` na końcu sekcji „Wpisy”, podpis `Autor: RelAI (Opus 5.5) + Lukasz`.
+- [x] Wpis w `docs/DZIENNIK.md` na końcu sekcji „Wpisy”, podpis `Autor: RelAI (Opus 5.5) + Lukasz`.
 - [ ] Katalog roboczy `.claude/relai/work/LIMIT_CHECKPOINT/E4/`: **(a)** przejrzany raportem
       (`node .claude/relai/tools/clean-work.js raport`) i skasowany po „tak”, liczby przed i po we
       wpisie; **(b)** artefakty spoza katalogu wypisane z nazwy razem z tym, co się z nimi stało.

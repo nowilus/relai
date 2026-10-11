@@ -69,9 +69,14 @@ zaakceptowany, E1 trwa po stronie Codeksa. Opinii spoza projektu nadal nie ma.
   `relai-core/limit-checkpoint.md`, `SPEC_WZNOWIENIE.md`, `resume.js` ze zdaniem hooka startu,
   faza zapisu na pasku cache „zapis gotowy · reset …” / „zapis niepełny”, Aneks A; testy 140/140
   i 289/289; na żywo: zapis z karty → commity `7f11491`, `10cabb4` → pasek potwierdzony),
-  **E4 GOTOWY DO STARTU** — przycisk „Wznów pracę”, porównanie HEAD, Aneks B (zasięg i UI progu),
-  **Aneks C** (5 h funkcją podstawową, próg tygodnia osobno, domyślnie 98 %), wydania 0.6.0 / 2.9.0;
-  przepięcie `prompt-mode.js` świadomie odłożone. Zainstalowane 0.5.0 / 2.8.0 mają ręczną łatkę E3.
+  **E4 W TOKU** (2026-10-11, kod i testy gotowe: cache-keeper 170/170, panel 141/141, rdzeń
+  295/295; kod zacommitowany `562c375`) — dwa progi (5 h 90 %, tydzień 98 %) z kartą zasięgu,
+  karta „Próg limitu” w zakładce Koszty panelu, „Wznów pracę” / „Odrzuć” po resecie, zapis gaśnie,
+  gdy pliku wznowienia nie ma, hook startu z liczbą commitów od zapisu. **Pomiar na żywo w toku**:
+  kroki 1–3 zrobione (kod E4 wgrany do zainstalowanych 0.5.0 / 0.12.0 / 2.8.0, próg 5 h 1 %
+  z karty, zapis z karty limitu); dalej krok 4 — reset i „Wznów pracę” — oraz krok 5, progi
+  z powrotem 90/98. Potem wydania `relai` 2.9.0 / `relai-cache-keeper` 0.6.0 / `relai-panel`
+  0.13.0 i zamknięcie planu. Przepięcie `prompt-mode.js` świadomie odłożone.
 
 ## Co dalej
 
