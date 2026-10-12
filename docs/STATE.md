@@ -81,6 +81,10 @@ zaakceptowany, E1 trwa po stronie Codeksa. Opinii spoza projektu nadal nie ma.
   (bramka zamknięcia LIMIT_CHECKPOINT, decyzja Łukasza 2026-10-12). Przepięcie `prompt-mode.js`
   na `threshold.js` nadal świadomie odłożone.
 - **Następny krok: RelAI 3.0.0** — odnoga AUDYT_SKILLI zamknięta 2026-10-12 (commit bez wydania).
+  Plan [FILM_PREZENTACYJNY](plany/FILM_PREZENTACYJNY/STATUS.md) **ZAAKCEPTOWANY 2026-10-12**, aktywny;
+  E1 gotowy do startu w świeżej sesji Opus 5.5 (`/relai-stage`, `/effort high`):
+  6 etapów, 6–8 sesji (SZACUNEK) — klatka wzorcowa i 10 s ruchu, animatik, sceny, wersja EN
+  i pętla do README, wydanie 3.0.0 z filmem.
 - **Potem RelAI 3.0.0** (decyzja Łukasza 2026-10-12): jedno wydanie zbierające mody i panel
   Claude Code, start etapu w nowej sesji, audyt skilli i `/relai-stage` v6 — razem z **filmem
   prezentacyjnym (Remotion)** do README na GitHubie i do wysyłki ludziom: pełny przegląd RelAI

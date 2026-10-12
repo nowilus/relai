@@ -1270,3 +1270,61 @@ czy nieodhaczona kontrola zmiany S5 wystarcza, czy zestaw ma dostać powtórzeni
 S5 przyjęta tak, jak jest (Łukasz: „przyjmij tak jak jest”) — bez powtórzeń przed 3.0.0.
 
 Autor: RelAI (Opus 5.5) + Lukasz
+
+### 2026-10-12 — Plan FILM_PREZENTACYJNY: film o RelAI w Remotion i wydanie 3.0.0 (do akceptacji)
+
+Ta sama sesja Opus 5.5. Łukasz: następny krok to RelAI 3.0.0 z filmem prezentacyjnym — „zaskocz
+mnie, pokaż wszystkie swoje możliwości”. Próg planu przekroczony (kilka sesji, nowa zależność,
+wiele plików, wydanie) → pełny plan; format HTML i model Opus z `USTAWIENIA.md`.
+
+**Zrobione:**
+
+- Dwie rundy wywiadu. Ustalenia Łukasza: film główny ok. 2 min do wysyłki + pętla 25 s do README;
+  interfejs odtworzony w Remotion z prawdziwych danych (nie nagrania ekranu); bez lektora, napisy
+  PL i EN; plan obejmuje film i wydanie 3.0.0; licencja Remotion — osoba prywatna / firma ≤ 3 osób
+  (Free License, warunki odczytane z remotion.dev 2026-10-12); kierunek „Warsztat z wigorem”; GIF
+  w repo, MP4 w zasobach wydania.
+- [PLAN.html](plany/FILM_PREZENTACYJNY/PLAN.html): trzy warianty (A Remotion z danych — wybrany;
+  nagrania ekranu i własny renderer — odrzucone z powodem), scenariusz sześciu scen, 6 etapów
+  MVP-first (E1 kończy się 10 s gotowego filmu do oceny smaku), 7 ryzyk, 10 przypadków
+  brzegowych, 5 spraw dla człowieka, symulator rytmu filmu i wagi pętli GIF.
+  [STATUS.md](plany/FILM_PREZENTACYJNY/STATUS.md) ze statusem DO AKCEPTACJI.
+- Wiersz planu w tabeli „Stan prac” `CLAUDE.md` i w „Co dalej” `STATE.md`. Linia „Aktywny plan”
+  bez zmian — wybór między PANEL_CODEX a tym planem należy do Łukasza.
+
+**Zweryfikowane — jak dokładnie:** builder szablonu exit 0 (6 reguł `@font-face`, 220 KB, 0
+niewypełnionych znaczników); w pliku zero adresów `http(s)`; w przeglądarce: symulator liczy
+(120 s, pętla 1,6 MB; przy 1080 px 3,5 MB i czerwona karta budżetu), notatki zwijają się
+i rozwijają, strona bez przewijania w poziomie przy 1280 i 375 px (wystają tylko linki
+nawigacji przewijanej we własnym pasku).
+
+**Do zrobienia przez człowieka:** akceptacja planu albo poprawki; który plan jest aktywny
+w `CLAUDE.md` (PANEL_CODEX czy FILM_PREZENTACYJNY); zgoda na instalację Remotion przed E1.
+
+Autor: RelAI (Opus 5.5) + Lukasz
+
+### 2026-10-12 — Plan FILM_PREZENTACYJNY zaakceptowany, aktywny; prompt E1
+
+Ta sama sesja Opus 5.5. Łukasz: „akceptuję, przepnij aktywny plan, commit i push”.
+
+**Zrobione:**
+
+- `STATUS.md`: plan ZAAKCEPTOWANY 2026-10-12, E1 GOTOWY DO STARTU z linkiem do promptu; nagłówek
+  `PLAN.html` z tym samym statusem (sekcje 1–10 bez zmian — od teraz zamrożone, zmiany aneksami).
+- [PROMPT_ETAP_1.md](plany/FILM_PREZENTACYJNY/PROMPT_ETAP_1.md) wg `SPEC_PROMPT_ETAPU`: klatka
+  wzorcowa i 10 s sceny „Trzy paski” w Remotion, zgoda na instalację przed `npm install`, dane
+  pasków z `core/panel`, kalibracja z Łukaszem do trzech rund, 16 punktów weryfikacji; zasady
+  aktywne wklejone skryptem.
+- `CLAUDE.md`: linia „Aktywny plan” wskazuje FILM_PREZENTACYJNY, PANEL_CODEX wymieniony obok jako
+  plan trwający po stronie Codeksa; wiersz planu w „Stan prac”. `STATE.md` — to samo.
+
+**Zweryfikowane — jak dokładnie:** blok zasad w prompcie równy źródłu (porównanie skryptem), 15
+zasad, zero niewypełnionych znaczników; dokładnie jeden etap GOTOWY DO STARTU; link w kolumnie
+`Prompt` wskazuje istniejący plik.
+
+**Do zrobienia przez człowieka:** start E1 w świeżej sesji Opus 5.5 (`/relai-stage`,
+`/effort high`); zgoda na instalację Remotion padnie na starcie etapu.
+*(Pozycja „Akceptacja planu FILM_PREZENTACYJNY i wybór aktywnego planu” z poprzedniego wpisu —
+rozstrzygnięte 2026-10-12: zaakceptowany, aktywny.)*
+
+Autor: RelAI (Opus 5.5) + Lukasz
