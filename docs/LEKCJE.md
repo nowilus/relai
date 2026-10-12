@@ -325,86 +325,9 @@ restart aplikacji po `plugin update` (L-0031), `git worktree` zamiast `git archi
 > [docs/archiwum/lekcje/LEKCJE_L-0112_L-0141.md](archiwum/lekcje/LEKCJE_L-0112_L-0141.md)
 > — przeniesione 2026-10-11, suma kontrolna `0a886eda882814a8`.
 
-### L-0142 — Wykres zielony w testach montażu i pusty na desktopie · 2026-10-08 · AKTYWNA
-
-- **Trigger:** zakładka „Koszty" przeszła `plugin test` (element `Svg` na miejscu), a na żywo żaden
-  wykres się nie narysował — markup miał `viewBox` bez `width`. Dwie rundy później oś X nie
-  narysowała się wcale, a kwoty osi Y stały na słupkach — człowiek zobaczył to przed mną.
-- **Przyczyna:** test montażu sprawdza drzewo elementów, nie obraz; o tym, co się narysuje, decyduje
-  markup i przeglądarka.
-- **Zasada:** rysunek oddawany człowiekowi przechodzi najpierw **render w Chromium** (wbudowana
-  przeglądarka, każdy rysunek w osobnym `iframe`, jak w aplikacji) z pomiarem prostokątów: tekst
-  poza obszarem danych, nic poza kartą, nic na siebie — z kontrolą pozytywną na podłożonym defekcie.
-  Asercja na markupie (`width` obecny, opis w `alt`) zostaje w teście modu jako siatka.
-- **Źródło:** E3 planu PANEL_CLAUDE (trzy rundy kalibracji wykresu); destylat: dopisane do zasady 15;
-  P-020 pkt 7–8.
-
-### L-0143 — Porównanie z plikiem, którego zapis się nie udał · 2026-10-08 · AKTYWNA
-
-- **Trigger:** `plugin validate .` z HEAD nie zapisało wyniku (zła ścieżka względna w podpowłoce), a
-  `diff` porównał nowy wynik ze starym plikiem z poprzedniego przebiegu i ogłosił „IDENTICAL".
-- **Przyczyna:** instrument nie kasował wyników sprzed przebiegu; porażka zapisu wyglądała jak
-  zgodność.
-- **Zasada:** instrument porównujący dwa pliki **kasuje oba przed przebiegiem**, pisze je ścieżką
-  bezwzględną i sprawdza, że oba powstały w tym przebiegu; kontrola pozytywna (podłożona różnica)
-  w tym samym przebiegu.
-- **Źródło:** zamknięcie E3 planu PANEL_CLAUDE; destylat: dopisane do zasady 5.
-
-### L-0144 — Tekst raportu zaszyty pod sesję testową · 2026-10-08 · AKTYWNA
-
-- **Trigger:** kafel licznika silnika mówił „$X to wcześniejsze tury" — prawdziwe tylko w sesji,
-  w której mod załadowano w trakcie. W docelowej instalacji kolektor działa od startu, a różnica
-  z `/cost` to wywołania poza rozmową. Człowiek zapytał wprost, które teksty są „na sztywno".
-- **Przyczyna:** tekst powstał z obserwacji jednej sesji pomiarowej, bez warunku, kiedy jest prawdziwy.
-- **Zasada:** każdy tekst raportu, który tłumaczy liczbę, ma **warunek prawdziwości i test dla stanu
-  docelowego** (instalacja od startu), nie tylko dla sesji, w której powstał; wariant „pomiar
-  włączony w trakcie" jest osobną gałęzią z własnym warunkiem.
-- **Źródło:** E3 planu PANEL_CLAUDE; destylat: dopisane do zasady 4.
-
-### L-0145 — „100%" i „$190" w raporcie kosztów · 2026-10-08 · AKTYWNA
-
-- **Trigger:** kafel cache pokazał „100% wejścia z cache", a kwoty od $10 bez groszy („$11 zamiast
-  $190"); realnie 99,53% i $11,75 zamiast $198,78.
-- **Przyczyna:** formatowanie dobrane do paska nad promptem (krótko) przeniesione do raportu, który
-  ma odpowiadać na pytanie „ile dokładnie".
-- **Zasada:** w raporcie liczb procenty i kwoty mają **dwa miejsca po przecinku**; zaokrąglenie,
-  które zmienia odczyt (99,53% → 100%), jest błędem, nie stylem — test pilnuje wzorca `\d.\d\d%`.
-- **Źródło:** E3 planu PANEL_CLAUDE; destylat: dopisane do zasady 15.
-
-### L-0146 — Trzy mody zamilkły, bo sesja zrobiła `cd` · 2026-10-09 · AKTYWNA
-
-- **Trigger:** w E9 paski relai-panel, relai-progress i relai-cache-keeper zniknęły w trakcie sesji;
-  testy, `validate` i `tsc` były zielone. Bash sesji zrobił `cd` do katalogu roboczego etapu, a mody
-  szukały `docs/USTAWIENIA.md` w `$.session.cwd()`.
-- **Przyczyna:** katalog sesji potraktowany jak stała ze startu; silnik podaje bieżący katalog
-  narzędzia Bash (P-021 pkt 1).
-- **Zasada:** mod wyznacza korzeń projektu **wejściem w górę** od katalogu sesji i powtarza to przy
-  komendzie, gdy start jeszcze nie skończył; test ma przypadek sesji stojącej w podfolderze, z
-  kontrolą mutacyjną (bez poprawki test oblewa).
-- **Źródło:** E9 planu PANEL_CLAUDE; destylat: dopisane do zasady 13; P-021.
-
-### L-0147 — „Agenci 0/2" przy dwóch agentach, którzy skończyli · 2026-10-09 · AKTYWNA
-
-- **Trigger:** przycisk pokazywał „działający / wszyscy", co człowiek przeczytał jako „0 z 2
-  zrobionych"; karta agenta na Sonnecie mówiła „brak pomiaru", choć plik miał 4 rekordy — brakowało
-  tylko ceny modelu.
-- **Przyczyna:** etykieta zbudowana z liczb wygodnych dla kodu, nie z pytania czytelnika; dwa różne
-  braki zlane w jeden komunikat.
-- **Zasada:** etykieta stanu nazywa każdy stan słowem i znakiem (`● 1 działa · ✓ 2 · ✗ 1`); „x/y"
-  tylko tam, gdzie y jest celem; „brak pomiaru" i „brak ceny dla <model>" to osobne gałęzie z testem.
-- **Źródło:** E9 planu PANEL_CLAUDE (pomiar agentów na żywo); destylat: dopisane do zasady 15.
-
-### L-0148 — Heredok zjadł backslash po raz kolejny, mimo zasady 5 · 2026-10-09 · AKTYWNA
-
-- **Trigger:** w E9 skrypty Pythona i JS pisane heredokiem kilka razy zgubiły `\n` i podwójny
-  backslash ścieżki testowej; za każdym razem poprawka szła przez Write. Zasada 5 i `CLAUDE.md`
-  już to zabraniały (L-0116, L-0135). Przy zamknięciu etapu skrypt tej lekcji też powstał
-  heredokiem — skasowany i zapisany ponownie narzędziem Write.
-- **Przyczyna:** reguła czytana jako „uważaj na backslash", a nie jako zakaz drogi; heredok wydaje
-  się szybszy przy krótkiej zmianie.
-- **Zasada:** skrypt edycji kodu, który niesie `\n` albo ścieżkę Windows, powstaje narzędziem Write
-  — bez wyjątku „tylko ten jeden raz"; heredok zostaje dla tekstu bez backslasha.
-- **Źródło:** E9 planu PANEL_CLAUDE; destylat: dopisane do zasady 5.
+> Lekcje L-0142 … L-0148 (7 pozycji) są w
+> [docs/archiwum/lekcje/LEKCJE_L-0142_L-0148.md](archiwum/lekcje/LEKCJE_L-0142_L-0148.md)
+> — przeniesione 2026-10-12, suma kontrolna `73c03313088f3f18`.
 
 ### L-0149 — „sprzed znacznika" przy planie zamkniętym, zanim kolektor istniał · 2026-10-09 · AKTYWNA
 

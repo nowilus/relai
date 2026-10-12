@@ -1,6 +1,6 @@
 # STATUS — plan LIMIT_CHECKPOINT
 
-Plan: [PLAN.html](PLAN.html) · Utworzony: 2026-10-11 · Status planu: **ZAAKCEPTOWANY 2026-10-11** · Model wykonawczy etapów: **Opus 5.5 w świeżych sesjach** (D-85; wybór Łukasza 2026-10-11 „mały plan RelAI”, ustalony w Claude Code; lista modeli z 2026-10-08)
+Plan: [PLAN.html](PLAN.html) · Utworzony: 2026-10-11 · Status planu: **ZREALIZOWANY 2026-10-12** (zaakceptowany 2026-10-11) · Model wykonawczy etapów: **Opus 5.5 w świeżych sesjach** (D-85; wybór Łukasza 2026-10-11 „mały plan RelAI”, ustalony w Claude Code; lista modeli z 2026-10-08)
 
 ## Tabela etapów
 
@@ -9,7 +9,7 @@ Plan: [PLAN.html](PLAN.html) · Utworzony: 2026-10-11 · Status planu: **ZAAKCEP
 | E1 | Próg i trzy poziomy zapisu | ZREALIZOWANY 2026-10-11 | [PROMPT_ETAP_1.md](PROMPT_ETAP_1.md) | zalecany effort medium; bramka o przepięciu `prompt-mode.js` rozstrzygana jednym pytaniem na starcie sesji |
 | E2 | Karta po turze | ZREALIZOWANY 2026-10-11 | [PROMPT_ETAP_2.md](PROMPT_ETAP_2.md) | zalecany effort high; warunek „praca trwa” i licznik tur |
 | E3 | Procedura „zapisz pracę” w rdzeniu | ZREALIZOWANY 2026-10-11 | [PROMPT_ETAP_3.md](PROMPT_ETAP_3.md) | zalecany effort high; + Aneks A (odhaczanie pól Weryfikacji na bieżąco); „Zapisz” na karcie = zgoda na commit lokalny (rozstrzygnięte) |
-| E4 | Wznowienie i wydanie | W TOKU | [PROMPT_ETAP_4.md](PROMPT_ETAP_4.md) | zalecany effort medium; + Aneks B (zasięg progu przy `/cache limit-warn`) + Aneks C (5 h podstawowe, próg tygodnia 98 %) + Aneks D (próg i źródło pod baterią) + Aneks E (karta progu: linijka i przyciski wartości); pomiar na żywo z progiem testowym |
+| E4 | Wznowienie i wydanie | ZREALIZOWANY 2026-10-12 | [PROMPT_ETAP_4.md](PROMPT_ETAP_4.md) | zalecany effort medium; + Aneks B (zasięg progu przy `/cache limit-warn`) + Aneks C (5 h podstawowe, próg tygodnia 98 %) + Aneks D (próg i źródło pod baterią) + Aneks E (karta progu: linijka i przyciski wartości); pomiar na żywo z progiem testowym |
 
 ## Bramki manualne
 
@@ -17,7 +17,7 @@ Plan: [PLAN.html](PLAN.html) · Utworzony: 2026-10-11 · Status planu: **ZAAKCEP
 - **Zgoda na commit lokalny z karty „Zapisz pracę teraz” (sekcja 9 planu)** · źródło: przygotowanie planu 2026-10-11 · ROZSTRZYGNIĘTA 2026-10-11 — „Zapisz” na karcie jest zgodą na commit lokalny (bez pusha)
 - **Próg domyślny 90 % — potwierdzenie** · źródło: przygotowanie planu 2026-10-11 · ROZSTRZYGNIĘTA 2026-10-11 — 90 % zostaje
 - **Czy wspólna funkcja trójpoziomowego odczytu ma od razu przepiąć zgodę optymalizatora (sekcja 9, L4)** · źródło: przygotowanie planu 2026-10-11 · ROZSTRZYGNIĘTA 2026-10-11 — „tylko gotowa”: `threshold.js` z testami parytetu, przepięcie `prompt-mode.js` świadomie odłożone
-- **Czy panel Codeksa dostaje tę funkcję aneksem do PANEL_CODEX (sekcja 9)** · źródło: przygotowanie planu 2026-10-11 · **OTWARTA** — odroczona 2026-10-11 decyzją Łukasza do zamknięcia planu (po E4)
+- **Czy panel Codeksa dostaje tę funkcję aneksem do PANEL_CODEX (sekcja 9)** · źródło: przygotowanie planu 2026-10-11 · ROZSTRZYGNIĘTA 2026-10-12 — aneks do PANEL_CODEX później, gdy domknie się E1 PANEL_CODEX; do tego czasu pozycja „Co dalej” w `docs/STATE.md`
 
 ## Dziennik wdrożenia
 
@@ -40,6 +40,8 @@ Plan: [PLAN.html](PLAN.html) · Utworzony: 2026-10-11 · Status planu: **ZAAKCEP
 - 2026-10-11 — E4 przerwany zapisem przed limitem; wznowienie: .claude/relai/wznowienie/relai.md (zapis z karty limitu jako krok 3 pomiaru na żywo, próg testowy 1 %; kod `562c375`)
 - 2026-10-11 — Aneks D (prośba Łukasza w pomiarze na żywo): pod baterią limitu, gdy nie jest spokojna, podpis „próg N % · <źródło>” (wariant W3 z makiety czterech wariantów) — w zakresie E4.
 - 2026-10-11 — Aneks E (prośba Łukasza po pomiarze): karta „Próg limitu” w Kosztach jako linijka z progiem (zużycie, kreska progu, odległość) i przyciski wartości zamiast „Zmień” (hybryda W1+W3 z makiety trzech wariantów) — w zakresie E4.
+- 2026-10-12 — E4 ZREALIZOWANY: punkt Weryfikacji „katalog roboczy” domknięty (54 pliki, 861 KB → katalog skasowany po „tak” Łukasza); 13/13 punktów.
+- 2026-10-12 — Plan ZREALIZOWANY: 4/4 etapy, Aneksy A–E; wydanie `relai` 2.9.0, `relai-cache-keeper` 0.6.0, `relai-panel` 0.13.0 (2026-10-11); ryzyka L2, L3, L5, L6 zamknięte, L1 zmitygowane; folder przeniesiony do `docs/archiwum/plany/LIMIT_CHECKPOINT/`.
 
 ## Pomiar na żywo E4 — instrukcja (Łukasz, desktop 2.1.295)
 

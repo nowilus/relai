@@ -258,7 +258,7 @@ wspólna). Kryteria:
 
 ## 11. Limit planu: dwa progi, zapis i wznowienie (v3.3, LIMIT_CHECKPOINT E4, 2026-10-11)
 
-Źródło: plan [LIMIT_CHECKPOINT](../../plany/LIMIT_CHECKPOINT/STATUS.md), Aneksy B i C; miejsce
+Źródło: plan [LIMIT_CHECKPOINT](../../archiwum/plany/LIMIT_CHECKPOINT/STATUS.md), Aneksy B i C; miejsce
 ustawienia progu zaproponował Fable 5.1, Łukasz przyjął 2026-10-11 („Panel → Koszty, bez
 podpowiedzi”).
 

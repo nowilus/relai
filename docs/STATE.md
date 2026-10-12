@@ -1,6 +1,6 @@
 # STATE — RelAI
 
-Stan na: 2026-10-11 (Z5 audytu modów potwierdzone, rotacja ryzyk, STATE przepisany do progu)
+Stan na: 2026-10-12 (plan LIMIT_CHECKPOINT zamknięty; rotacja lekcji, ryzyk i dziennika)
 
 ## Gdzie jesteśmy
 
@@ -41,6 +41,12 @@ zaakceptowany, E1 trwa po stronie Codeksa. Opinii spoza projektu nadal nie ma.
   (kafle albo drzewo, podgląd i diff), ściągą, frazami i Kosztami z cennikiem; `/relai-agents`.
   Każda zmiana stanu przez kartę „Tak / Nie”; `/relai-stage` przyjmuje zgodę z karty; jedyny ruch
   sieciowy to strona cennika Anthropic po „Tak”. Poza projektem RelAI paski milczą.
+- **Zapis pracy przed limitem:** progi limitu 5 h (90 %) i tygodniowego (98 %) ustawiane z karty
+  „Próg limitu” w Kosztach z zasięgiem sesja / projekt / globalnie; po przekroczeniu karta po turze
+  „pracuję dalej / zapisz pracę”, zapis = testy, commit lokalny, dokumenty i plik wznowienia;
+  po resecie przycisk „Wznów pracę” otwiera nową rozmowę od listy „Co dalej”, a start sesji mówi,
+  ile commitów doszło od zapisu (plan [LIMIT_CHECKPOINT](archiwum/plany/LIMIT_CHECKPOINT/STATUS.md),
+  zamknięty 2026-10-12).
 - W folderze bez struktury RelAI hooki milczą; skill proponuje strukturę, a propozycję da się
   wyciszyć raz na maszynę.
 
@@ -56,30 +62,12 @@ zaakceptowany, E1 trwa po stronie Codeksa. Opinii spoza projektu nadal nie ma.
   macierzystego procesu (nadal 0.0.7). Dalsza diagnostyka w czacie kontrolnym, bez mostków przez
   czat macierzysty; kontrakt w [README adaptera](../adapters/codex/panel/README.md). Tabela
   STATUS planu pokazuje jeszcze `GOTOWY DO STARTU` — do wyprostowania na `W TOKU`.
-- **LIMIT_CHECKPOINT — zapis pracy przed wyczerpaniem limitu** (plan
-  [LIMIT_CHECKPOINT](plany/LIMIT_CHECKPOINT/STATUS.md), **ZAAKCEPTOWANY 2026-10-11**, 4 etapy,
-  Opus 5.5 w świeżych sesjach). Po co: koniec limitu 5 h albo tygodniowego ma być kamieniem
-  milowym, nie wypadkiem — próg (domyślnie 90 %, pamiętany jak zgoda optymalizatora), karta po
-  turze „pracuję dalej / zapisz pracę”, procedura zapisu w rdzeniu (dokumenty, testy, commit
-  lokalny za zgodą z karty, plik wznowienia) i przycisk „Wznów pracę” na pasku po resecie. Stan:
-  **E1 ZREALIZOWANY 2026-10-11** (próg `/cache limit-warn`, odczyt sesja → projekt → globalnie,
-  kolor baterii od progu, `core/process/threshold.js` z parytetem; na żywo potwierdzone),
-  **E2 ZREALIZOWANY 2026-10-11** (karta po turze przy pracy w toku: „dalej” +5 pkt, „Zapisz” =
-  `/handoff` do E3, „Nie pytaj”; na żywo potwierdzone), **E3 ZREALIZOWANY 2026-10-11** (procedura
-  `relai-core/limit-checkpoint.md`, `SPEC_WZNOWIENIE.md`, `resume.js` ze zdaniem hooka startu,
-  faza zapisu na pasku cache „zapis gotowy · reset …” / „zapis niepełny”, Aneks A; testy 140/140
-  i 289/289; na żywo: zapis z karty → commity `7f11491`, `10cabb4` → pasek potwierdzony),
-  **E4 W TOKU** (2026-10-11; testy cache-keeper 174/174, panel 148/148, rdzeń 295/295) — dwa
-  progi (5 h, tydzień 98 %) z kartą zasięgu, „Wznów pracę” / „Odrzuć” po resecie, zapis gaśnie bez
-  pliku wznowienia, hook startu z liczbą commitów od zapisu; Aneks D (podpis progu pod baterią),
-  Aneks E (karta „Próg limitu” w Kosztach: linijka i przyciski wartości). Pomiar na żywo
-  potwierdzony przez Łukasza (wznowienie po resecie przyjęte bez pomiaru, z testów); **wydane
-  2026-10-11** jako `relai` 2.9.0 / `relai-cache-keeper` 0.6.0 / `relai-panel` 0.13.0. Zostało:
-  rytuał „Na koniec” E4, zamknięcie planu (bramka „aneks dla panelu Codeksa”), katalog roboczy E4.
-  Przepięcie `prompt-mode.js` świadomie odłożone.
 
 ## Co dalej
 
+- Aneks do PANEL_CODEX z zapisem pracy przed limitem dla panelu Codeksa — po domknięciu jego E1
+  (bramka zamknięcia LIMIT_CHECKPOINT, decyzja Łukasza 2026-10-12). Przepięcie `prompt-mode.js`
+  na `threshold.js` nadal świadomie odłożone.
 - Odnoga [NOWA_SESJA](fixy/NOWA_SESJA/ODNOGA.md) (OTWARTA): przycisk panelu otwiera nową sesję
   Claude Code deep linkiem `claude://code/new` (zmierzone 2026-10-11: prompt wpisany, nie wysłany,
   jeden Enter), `start_session` gdy aplikacja otworzy flagę; paczki N0–N4, Opus jako subagent.
@@ -162,10 +150,10 @@ Backupy: `C:\Users\Lukasz\Backupy\RelAI` • [PRZENOSNOSC.md](PRZENOSNOSC.md) �
 
 ### Liczby
 
-Plany zamknięte: 10 (ostatni PANEL_CLAUDE, 2026-10-10) • Aktywny: PANEL_CODEX (E1 W TOKU) •
-Start sesji: **122,8 KB / 100 KB** (2026-10-11, z aktywnym planem; ryzyka 29,5 KB i STATE ponad
-progami cząstkowymi) • Dziennik: **~98 KB / 150 KB** • Ryzyka: 16 otwartych, archiwum 5 plików
-+ 1 mitygacji • Lekcje: **44,3 KB / 50 KB**, 20 w żywym pliku • Adaptery: 3 • Komendy: 14 •
-Testy: 283 rdzeń, panel i adaptery (`node --test`, 4 katalogi) + 273 pluginów panelu (135 / 31 / 107) •
+Plany zamknięte: 11 (ostatni LIMIT_CHECKPOINT, 2026-10-12) • Aktywny: PANEL_CODEX (E1 W TOKU) •
+Start sesji: **123,2 KB / 100 KB** (2026-10-12 przed rotacją) • Dziennik: **~90 KB / 150 KB**
+(po rotacji 2026-10-12) • Ryzyka: 17 w tabeli, archiwum 6 plików + 1 mitygacji • Lekcje:
+**46,9 KB / 50 KB**, 20 w żywym pliku • Adaptery: 3 • Komendy: 14 •
+Testy: 295 rdzeń, panel i adaptery (`node --test`, 4 katalogi) + 353 pluginów panelu (148 / 31 / 174) •
 Projekty na RelAI: 3 (RelAI, PolyFlow, JiraManager przed migracją) • Modele, na których zmierzono
 proces: 6 (Fable, Opus, Sonnet, Haiku, Composer/auto, Grok 4.6).

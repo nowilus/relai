@@ -461,7 +461,7 @@ zaraz po jego sprawdzeniu, nie na końcu etapu; punkt, który nie przeszedł, zo
       zmienionych plikach — trafienia tylko w cytatach wzorca; `cache-keeper/package.json` nie
       istnieje → audyt zależności nie dotyczy (zapis we wpisie).
 - [x] Wpis w `docs/DZIENNIK.md` na końcu sekcji „Wpisy”, podpis `Autor: RelAI (Opus 5.5) + Lukasz`.
-- [ ] Katalog roboczy `.claude/relai/work/LIMIT_CHECKPOINT/E4/`: **(a)** przejrzany raportem
+- [x] Katalog roboczy `.claude/relai/work/LIMIT_CHECKPOINT/E4/`: **(a)** przejrzany raportem
       (`node .claude/relai/tools/clean-work.js raport`) i skasowany po „tak”, liczby przed i po we
       wpisie; **(b)** artefakty spoza katalogu wypisane z nazwy razem z tym, co się z nimi stało.
 
