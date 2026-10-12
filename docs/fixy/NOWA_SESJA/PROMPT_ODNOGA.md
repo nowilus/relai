@@ -1,14 +1,15 @@
 # PROMPT_ODNOGA — przycisk panelu otwiera nową sesję Claude Code i startuje w niej etap
 
-Odnoga: NOWA_SESJA • Plan-rodzic: brak (wątek samodzielny w `docs/fixy/`) • Wygenerowano: 2026-10-11
-(autor: Fable 5.1) • Wykonawca: **Opus 5.5 jako subagent sesji Fable 5.1**, `/effort high`
+Odnoga: NOWA_SESJA • Plan-rodzic: brak (wątek samodzielny w `docs/fixy/`) • Wygenerowano: 2026-10-12
+(autor: Opus 5.5; przebudowa promptu z 2026-10-11, autor pierwotny Fable 5.1) • Wykonawca:
+**Opus 5.5 w świeżej sesji**, `/effort high`
 
 > **Kontrola modelu:** ten wątek wykonuj wyłącznie na modelu klasy **najsilniejszy**, w tym narzędziu:
-> **Opus 5.5** (lista modeli Claude Code z dnia `2026-10-08`), jako subagent uruchomiony przez sesję
-> Fable 5.1 z tego promptu (wzorzec Z13–Z14 odnogi AUDYT_MODOW: Fable pisze prompt paczki, przegląda,
-> mierzy na żywo i prowadzi rytuał). Jeśli sesja działa na innym modelu — zatrzymaj się i poproś
-> o przełączenie, zanim cokolwiek zrobisz. Zalecany poziom `/effort`: `high` — wątek dotyka trzech
-> warstw (karta, uruchomienie procesu, przeniesienie zgody plikiem) i ma pomiar na żywo w aplikacji.
+> **Opus 5.5** (lista modeli Claude Code z dnia `2026-10-08`), w świeżej sesji uruchomionej z tego
+> promptu. Jeśli sesja działa na innym modelu — zatrzymaj się i poproś o przełączenie, zanim
+> cokolwiek zrobisz. Zalecany poziom `/effort`: `high` — wątek dotyka trzech warstw (karta,
+> uruchomienie procesu systemowego, przeniesienie zgody plikiem między procesami) i ma pomiar na żywo
+> w aplikacji.
 
 ## Co przeczytać na start (w tej kolejności, nic więcej)
 
@@ -18,7 +19,7 @@ Odnoga: NOWA_SESJA • Plan-rodzic: brak (wątek samodzielny w `docs/fixy/`) •
 | `docs/fixy/NOWA_SESJA/ODNOGA.md` | cel, zakres N0–N4 i weryfikacja — karta jest źródłem, ten prompt tylko ją wykonuje |
 | `docs/fixy/NOWA_SESJA/RESEARCH.html` | fakty z pomiaru 2026-10-11, warianty, co odrzucono i dlaczego (sekcje „Mechanizmy” i „Pomiar na żywo”) |
 | `docs/PULAPKI.md` — P-017…P-024 | granice silnika modów: `next`, `width`, `$.prompt.submit` z `/`, własny hook `command.run`, binarka testów |
-| `core/panel/decisions.mjs` | rodzaje kroków karty (`clear`, `command`, `write`, `prompt`), `withConsent`, `stepsToRun` |
+| `core/panel/decisions.mjs` | rodzaje kroków karty (`clear`, `command`, `submit`, `write`), `stageCard`, `withConsent` / `stripConsent` / `hasConsent`, `stepsToRun` |
 | `panel/hooks/register.tsx` | `prepareStage`, `offer`, `decide`, `runStep`, strażnik znacznika zgody (`command.run`), `syncSession`, `session.end` z `reason: 'clear'` |
 | `panel/hooks/focus.ts`, `panel/hooks/focus-flow.test.ts` | przekazanie fokusu po `/clear` wewnątrz procesu — wzór dla przekazania plikiem między procesami |
 | `panel/hooks/pane-commands.tsx` | formularz `relai-stage` z wyborem czatu „świeży / bieżący” |
@@ -38,28 +39,37 @@ Odnoga: NOWA_SESJA • Plan-rodzic: brak (wątek samodzielny w `docs/fixy/`) •
 - **R7 (panel nie woła modelu) bez zmian** — otwarcie sesji to proces systemowy, nie wywołanie modelu.
 - **Rdzeń `core/panel/` poza `decisions.mjs` jest nietykalny** — kontrakt planu PANEL_CODEX; kopie
   rdzenia w pluginach synchronizuje `node core/tools/sync-panel-core.js`.
-- **D-85 / wybór Łukasza:** wykonawca Opus 5.5 jako subagent; propozycje UX (tekst karty, kolejność
-  opcji wyboru czatu) przedstawia Fable, Opus ich nie wymyśla sam.
+- **Wykonawca i UX (Łukasz, 2026-10-11 i 2026-10-12):** wątek wykonuje Opus 5.5 w świeżej sesji;
+  wymóg Fable 5.1 jest odwołany. Propozycję UX (tekst karty startu, kolejność opcji wyboru czatu)
+  przygotowujesz sam i pokazujesz Łukaszowi **przed** kodem UI — zgodnie z jego gustem z pamięci
+  projektu; kod UI piszesz dopiero po akceptacji.
+- **Wydanie:** `relai-panel` 0.13.0 jest już publiczne (2026-10-11, plan LIMIT_CHECKPOINT) — ta
+  odnoga wydaje **0.14.0**.
 - **Wątek jest samodzielny** — w żadnym `STATUS.md` niczego nie zapisujesz; planu PANEL_CODEX
   (`docs/plany/PANEL_CODEX/`) nie dotykasz.
 
 ## Stan wyjściowy — co realnie zastajesz
 
-`relai-panel` 0.12.0 (zmierzony na 2.1.295) ma kartę etapu z dwoma trybami: „świeży — /clear po
-„Tak”, potem etap” i „bieżący”. „Tak” wykonuje kolejno `['clear', 'relai:relai-stage']` przez
-`$.command.run`; własna wysyłka panelu omija jego hook, więc znacznik `--zgoda-panelu` dociera do
-procedury. Fokus sesji przechodzi po `/clear` wewnątrz tego samego procesu (`carried` w `session.end`,
-`syncSession` w pierwszej turze). Testy: panel 135, progress 31, cache-keeper 90 (FAKT, 2026-10-11).
+`relai-panel` 0.13.0 (wydany 2026-10-11, zmierzony na 2.1.295) ma kartę etapu z dwoma trybami:
+„świeży — /clear po „Tak”, potem etap” i „bieżący”. `stageCard` składa akcje
+`[{ kind: 'clear' }, { kind: 'command', command: 'relai-stage', args }]` (bez `clear` w trybie
+bieżącym), a „Tak” wykonuje je kolejno przez `$.command.run`; własna wysyłka panelu omija jego hook,
+więc znacznik `--zgoda-panelu` dociera do procedury. Fokus sesji przechodzi po `/clear` wewnątrz tego
+samego procesu (`carried` w `session.end`, `syncSession` w pierwszej turze). Od 2026-10-11
+`register.tsx` niesie też kartę „Próg limitu” i obsługę progów limitu (LIMIT_CHECKPOINT E4, Aneksy
+D–E) — tych ścieżek ta odnoga nie zmienia. Testy przy wydaniu 2.9.0: panel 148, progress 31,
+cache-keeper 174, rdzeń `node --test` 295 (FAKT, 2026-10-11).
 
 ```
-core/panel/decisions.mjs            # stageCard, withConsent, stepsToRun — kroki: clear | command | write | prompt
-panel/hooks/register.tsx            # prepareStage, offer, decide, runStep, hook command.run (wycina znacznik), syncSession
+core/panel/decisions.mjs            # stageCard, withConsent/stripConsent/hasConsent, stepsToRun — kroki: clear | command | submit | write
+panel/hooks/register.tsx            # prepareStage, offer, decide, runStep, hook command.run (wycina znacznik), syncSession, karta progu limitu
 panel/hooks/card-answer.ts          # answerCard: kroki po kolei, stop na pierwszym błędzie
 panel/hooks/focus.ts                # focusPath(.claude/relai/fokus/<id>.json), workOf, przekazanie fokusu
 panel/hooks/pane-commands.tsx       # formularz relai-stage: „Przygotuj start”, „Kopiuj prompt”, wybór czatu
 panel/hooks/decisions.test.ts       # kolejność ['clear','relai:relai-stage'], brak /clear w trybie bieżącym
 panel/hooks/band.test.ts            # „Tak” z paska idzie tą samą drogą co z panelu
 panel/hooks/focus-flow.test.ts      # fokus przekazany raz, do sesji następnej
+panel/.claude-plugin/plugin.json    # "version": "0.13.0"
 adapters/claude-code/commands/relai-stage.md   # znacznik zgody jako zgoda D-35
 docs/fixy/NOWA_SESJA/RESEARCH.html  # wynik researchu i pomiaru 2026-10-11
 ```
@@ -77,7 +87,8 @@ deep link; pliku zgody i przekazania fokusu między procesami; odczytu pliku zgo
 `/relai-stage`; sondy obecności `start_session`; pułapki w `docs/PULAPKI.md`; wyniku łańcucha
 `-p` → desktop (próba z 2026-10-11 użyła złej binarki i nic nie zmierzyła).
 
-**Zasady aktywne z `docs/LEKCJE.md`, obowiązujące w tym wątku** (przepisane w całości):
+**Zasady aktywne z `docs/LEKCJE.md`, obowiązujące w tym wątku** (przepisane w całości, stan
+2026-10-12):
 
 1. **Specyfikacja dokumentu jest kompletna albo martwa:** kończy się realnym przykładem, wypisuje
    wymaganą strukturę w treści (odesłanie nie wystarcza) i ma zapisaną ścieżkę „pytam zamiast
@@ -127,9 +138,11 @@ deep link; pliku zgody i przekazania fokusu między procesami; odczytu pliku zgo
    **Widok rysowany z danych projektu mierzysz na prawdziwych danych w najgorszym stanie** (wszystko
    rozwinięte) i ograniczasz go w kodzie — harness przyjmuje drzewo, które desktop gubi bez słowa
    (L-0158). **Diagnozę na żywo zaczynasz od znacznika wersji w logu** — przeładowanie potrafi
-   zostawić starą wersję i każdy wniosek z niej jest fałszywy (L-0159).
+   zostawić starą wersję i każdy wniosek z niej jest fałszywy (L-0159). **Kontrola „przed” idzie
+   w dwóch przebiegach** — stary kod w całości i stary kod z podłożoną tylko nową czystą logiką;
+   „plik testów się nie wczytał” nie dowodzi żadnego testu z osobna (L-0165).
    (L-0017, L-0018, L-0040, L-0051, L-0052, L-0063, L-0069, L-0082, L-0115, L-0117, L-0123, L-0134,
-   L-0144, L-0150, L-0154, L-0155, L-0156, L-0158, L-0159)
+   L-0144, L-0150, L-0154, L-0155, L-0156, L-0158, L-0159, L-0165)
 5. **Instrument pomiarowy sam bywa źródłem fałszu:** wyrażenia regularne trzymaj w pliku zapisanym
    narzędziem zapisu, nie w `node -e` ani w heredoku, a tekst z backslashem (także ścieżkę
    Windows) wstawiasz Edit/Write albo piszesz z `/` (L-0116, L-0119); **skrypt edycji kodu, który
@@ -211,10 +224,13 @@ deep link; pliku zgody i przekazania fokusu między procesami; odczytu pliku zgo
    sprawdza, że oba powstały teraz — nieudany zapis wygląda jak zgodność ze starym wynikiem (L-0143).
    **Stan „przed" mierzysz w osobnym `git worktree` HEAD-a**, nie po `git stash` — stash zostawia
    pliki nieśledzone i daje drzewo mieszane (L-0151). **Skrypt usuwający zakres linii sprawdza
-   cały blok, nie jego brzegi**, a po każdym cięciu idzie kompilator (L-0160). (L-0032, L-0037, L-0095, L-0096, L-0105, L-0106, L-0107, L-0110, L-0111, L-0113,
+   cały blok, nie jego brzegi**, a po każdym cięciu idzie kompilator (L-0160). **Skrypt wklejający
+   blok do dokumentu dowodzi wyniku licznikiem nagłówków** — każda sekcja dokładnie raz — i
+   porównaniem wklejonego bloku ze źródłem; „marker zniknął” nie znaczy, że treść powstała raz
+   (L-0164). (L-0032, L-0037, L-0095, L-0096, L-0105, L-0106, L-0107, L-0110, L-0111, L-0113,
    L-0097, L-0101, L-0102,
    L-0054, L-0055, L-0056, L-0064, L-0068, L-0071, L-0073, L-0083, L-0084, L-0086, L-0087, L-0088,
-   L-0090, L-0091, L-0124, L-0125, L-0130, L-0131, L-0135, L-0141, L-0143, L-0151, L-0160)
+   L-0090, L-0091, L-0124, L-0125, L-0130, L-0131, L-0135, L-0141, L-0143, L-0151, L-0160, L-0164)
 6. **Próg jest liczbą, którą ktoś liczy:** kalibruj go na zmierzonych plikach realnych projektów,
    zapisuj w jednostce mechanizmu kontrolnego wraz z komendą sprawdzającą i daj mu **jeden**
    wyzwalacz — wielkości pomocnicze wskazują przyczynę wewnątrz komunikatu, nie wywołują go.
@@ -229,7 +245,9 @@ deep link; pliku zgody i przekazania fokusu między procesami; odczytu pliku zgo
    zanim na niej oprzesz liczbę** — różnica ujemna albo rozjeżdżająca się znaczy, że nie ma czego
    odejmować; zostaje liczba surowa i różnica między wariantami mierzonymi w tych samych warunkach,
    gdzie narzut skraca się sam. Wynik oparty na nierzetelnym odjęciu **oznaczasz** jako nierzetelny,
-   a nie usuwasz. (L-0034, L-0049, L-0053, L-0060, L-0065, L-0099, L-0104)
+   a nie usuwasz. **Próg wspólny dla kilku wielkości sprawdzasz na każdej z osobna** — 90 % okna
+   5 h i 90 % tygodnia to różne sytuacje; pomiar z progiem testowym mówi, które gałęzie uruchomi
+   (L-0167). (L-0034, L-0049, L-0053, L-0060, L-0065, L-0099, L-0104, L-0167)
 7. **Wartość czytana maszynowo ma kotwicę i zamkniętą listę brzmień:** dopasowanie od początku
    komórki, wybór linii po niesionej wartości (nie po kolejności), wartość nierozpoznana znaczy
    cisza. **Rdzeń słowa w języku z diakrytykami łapiesz klasą znaków tego języka, nie `\w`** —
@@ -300,170 +318,8 @@ deep link; pliku zgody i przekazania fokusu między procesami; odczytu pliku zgo
     (`<narzędzie> validate`, `<narzędzie> list`, okno ustawień) — zna schemat, którego nie
     odtworzysz z obserwacji, a cisza w logu nie jest dowodem poprawności. **Zielony walidator, typy
     i testy modu nie dowodzą zachowania w łańcuchu wtyczek** — to mierzysz na żywo, a ciszę na żywo
-    najpierw sondą (licznik wywołań hooka, wynik `next`) (P-017). **Wszystko, co dostaje `# PROMPT_ODNOGA — przycisk panelu otwiera nową sesję Claude Code i startuje w niej etap
-
-Odnoga: NOWA_SESJA • Plan-rodzic: brak (wątek samodzielny w `docs/fixy/`) • Wygenerowano: 2026-10-11
-(autor: Fable 5.1) • Wykonawca: **Opus 5.5 jako subagent sesji Fable 5.1**, `/effort high`
-
-> **Kontrola modelu:** ten wątek wykonuj wyłącznie na modelu klasy **najsilniejszy**, w tym narzędziu:
-> **Opus 5.5** (lista modeli Claude Code z dnia `2026-10-08`), jako subagent uruchomiony przez sesję
-> Fable 5.1 z tego promptu (wzorzec Z13–Z14 odnogi AUDYT_MODOW: Fable pisze prompt paczki, przegląda,
-> mierzy na żywo i prowadzi rytuał). Jeśli sesja działa na innym modelu — zatrzymaj się i poproś
-> o przełączenie, zanim cokolwiek zrobisz. Zalecany poziom `/effort`: `high` — wątek dotyka trzech
-> warstw (karta, uruchomienie procesu, przeniesienie zgody plikiem) i ma pomiar na żywo w aplikacji.
-
-## Co przeczytać na start (w tej kolejności, nic więcej)
-
-| Plik | Po co |
-|---|---|
-| `CLAUDE.md` | reguły procesu, definicja ukończenia, sekcja niemutowalna |
-| `docs/fixy/NOWA_SESJA/ODNOGA.md` | cel, zakres N0–N4 i weryfikacja — karta jest źródłem, ten prompt tylko ją wykonuje |
-| `docs/fixy/NOWA_SESJA/RESEARCH.html` | fakty z pomiaru 2026-10-11, warianty, co odrzucono i dlaczego (sekcje „Mechanizmy” i „Pomiar na żywo”) |
-| `docs/PULAPKI.md` — P-017…P-024 | granice silnika modów: `next`, `width`, `$.prompt.submit` z `/`, własny hook `command.run`, binarka testów |
-| `core/panel/decisions.mjs` | rodzaje kroków karty (`clear`, `command`, `write`, `prompt`), `withConsent`, `stepsToRun` |
-| `panel/hooks/register.tsx` | `prepareStage`, `offer`, `decide`, `runStep`, strażnik znacznika zgody (`command.run`), `syncSession`, `session.end` z `reason: 'clear'` |
-| `panel/hooks/focus.ts`, `panel/hooks/focus-flow.test.ts` | przekazanie fokusu po `/clear` wewnątrz procesu — wzór dla przekazania plikiem między procesami |
-| `panel/hooks/pane-commands.tsx` | formularz `relai-stage` z wyborem czatu „świeży / bieżący” |
-| `adapters/claude-code/commands/relai-stage.md` | jak procedura przyjmuje znacznik `--zgoda-panelu` (D-35) — tu wejdzie odczyt pliku zgody |
-
-## Decyzje już podjęte — nie otwierasz ich ponownie
-
-- **Mechanizm docelowy:** deep link `claude://code/new?folder=<cwd>&q=<komenda>` otwierany przez
-  `$.process.run` bez powłoki; `start_session` z `ccd_session` jako droga pierwsza, gdy narzędzie jest
-  na liście `$.tool.list()` (Łukasz, 2026-10-11). Wariant „Windows Terminal + CLI” odrzucony.
-- **Jeden ruch człowieka jest akceptowany:** deep link wpisuje prompt, nie wysyła (FAKT, dokumentacja
-  i pomiar 2026-10-11). Nie symulujesz klawiszy, nie wysyłasz nic w imieniu człowieka w nowej sesji.
-- **Zgoda z karty (D-35) nie jedzie znacznikiem w komendzie** — hook `command.run` nowej sesji by go
-  wyciął (P-022 pkt 1). Jedzie plikiem jednorazowym z czasem ważności; procedura `/relai-stage` czyta
-  go tak samo, jak dziś czyta znacznik. Sama bramka zgody zostaje: bez „Tak” na karcie nic nie rusza
-  (R4 planu PANEL_CLAUDE).
-- **R7 (panel nie woła modelu) bez zmian** — otwarcie sesji to proces systemowy, nie wywołanie modelu.
-- **Rdzeń `core/panel/` poza `decisions.mjs` jest nietykalny** — kontrakt planu PANEL_CODEX; kopie
-  rdzenia w pluginach synchronizuje `node core/tools/sync-panel-core.js`.
-- **D-85 / wybór Łukasza:** wykonawca Opus 5.5 jako subagent; propozycje UX (tekst karty, kolejność
-  opcji wyboru czatu) przedstawia Fable, Opus ich nie wymyśla sam.
-- **Wątek jest samodzielny** — w żadnym `STATUS.md` niczego nie zapisujesz; planu PANEL_CODEX
-  (`docs/plany/PANEL_CODEX/`) nie dotykasz.
-
-## Stan wyjściowy — co realnie zastajesz
-
-`relai-panel` 0.12.0 (zmierzony na 2.1.295) ma kartę etapu z dwoma trybami: „świeży — /clear po
-„Tak”, potem etap” i „bieżący”. „Tak” wykonuje kolejno `['clear', 'relai:relai-stage']` przez
-`$.command.run`; własna wysyłka panelu omija jego hook, więc znacznik `--zgoda-panelu` dociera do
-procedury. Fokus sesji przechodzi po `/clear` wewnątrz tego samego procesu (`carried` w `session.end`,
-`syncSession` w pierwszej turze). Testy: panel 135, progress 31, cache-keeper 90 (FAKT, 2026-10-11).
-
-```
-core/panel/decisions.mjs            # stageCard, withConsent, stepsToRun — kroki: clear | command | write | prompt
-panel/hooks/register.tsx            # prepareStage, offer, decide, runStep, hook command.run (wycina znacznik), syncSession
-panel/hooks/card-answer.ts          # answerCard: kroki po kolei, stop na pierwszym błędzie
-panel/hooks/focus.ts                # focusPath(.claude/relai/fokus/<id>.json), workOf, przekazanie fokusu
-panel/hooks/pane-commands.tsx       # formularz relai-stage: „Przygotuj start”, „Kopiuj prompt”, wybór czatu
-panel/hooks/decisions.test.ts       # kolejność ['clear','relai:relai-stage'], brak /clear w trybie bieżącym
-panel/hooks/band.test.ts            # „Tak” z paska idzie tą samą drogą co z panelu
-panel/hooks/focus-flow.test.ts      # fokus przekazany raz, do sesji następnej
-adapters/claude-code/commands/relai-stage.md   # znacznik zgody jako zgoda D-35
-docs/fixy/NOWA_SESJA/RESEARCH.html  # wynik researchu i pomiaru 2026-10-11
-```
-
-Fakty z pomiaru 2026-10-11 (Łukasz, aplikacja 2.31226.1.0, Windows 11): deep link z `folder` i `q`
-tworzy nową sesję **w tym samym oknie** (nowa pozycja w sidebarze), prompt **wpisany, nie wysłany** —
-także tekst zaczynający się od `/`; kilka pytań o zaufanie do workspace; aplikacja przejmuje fokus
-z sesji, która link otworzyła; w `list_sessions` sesja nie istnieje do pierwszego Entera. Paczka
-aplikacji rejestruje `mcp__ccd_session__start_session`, `hand_off_to_session`, `list_start_targets`
-za flagą `sideSessions` — w tej instalacji narzędzi nie ma. `claude` na PATH to 2.1.280 (bez
-`--desktop`), `claude.exe` w katalogu aplikacji to sama aplikacja, nie CLI.
-
-**Czego jeszcze nie ma:** rodzaju kroku `newSession` w `decisions.mjs`; modułu uruchamiającego
-deep link; pliku zgody i przekazania fokusu między procesami; odczytu pliku zgody w procedurze
-`/relai-stage`; sondy obecności `start_session`; pułapki w `docs/PULAPKI.md`; wyniku łańcucha
-`-p` → desktop (próba z 2026-10-11 użyła złej binarki i nic nie zmierzyła).
-
-**Zasady aktywne z `docs/LEKCJE.md`, obowiązujące w tym wątku** (przepisane w całości):
-
- albo
-    `on`, mieszka w pliku modułu hooków** — walidator modów nie śledzi `# PROMPT_ODNOGA — przycisk panelu otwiera nową sesję Claude Code i startuje w niej etap
-
-Odnoga: NOWA_SESJA • Plan-rodzic: brak (wątek samodzielny w `docs/fixy/`) • Wygenerowano: 2026-10-11
-(autor: Fable 5.1) • Wykonawca: **Opus 5.5 jako subagent sesji Fable 5.1**, `/effort high`
-
-> **Kontrola modelu:** ten wątek wykonuj wyłącznie na modelu klasy **najsilniejszy**, w tym narzędziu:
-> **Opus 5.5** (lista modeli Claude Code z dnia `2026-10-08`), jako subagent uruchomiony przez sesję
-> Fable 5.1 z tego promptu (wzorzec Z13–Z14 odnogi AUDYT_MODOW: Fable pisze prompt paczki, przegląda,
-> mierzy na żywo i prowadzi rytuał). Jeśli sesja działa na innym modelu — zatrzymaj się i poproś
-> o przełączenie, zanim cokolwiek zrobisz. Zalecany poziom `/effort`: `high` — wątek dotyka trzech
-> warstw (karta, uruchomienie procesu, przeniesienie zgody plikiem) i ma pomiar na żywo w aplikacji.
-
-## Co przeczytać na start (w tej kolejności, nic więcej)
-
-| Plik | Po co |
-|---|---|
-| `CLAUDE.md` | reguły procesu, definicja ukończenia, sekcja niemutowalna |
-| `docs/fixy/NOWA_SESJA/ODNOGA.md` | cel, zakres N0–N4 i weryfikacja — karta jest źródłem, ten prompt tylko ją wykonuje |
-| `docs/fixy/NOWA_SESJA/RESEARCH.html` | fakty z pomiaru 2026-10-11, warianty, co odrzucono i dlaczego (sekcje „Mechanizmy” i „Pomiar na żywo”) |
-| `docs/PULAPKI.md` — P-017…P-024 | granice silnika modów: `next`, `width`, `$.prompt.submit` z `/`, własny hook `command.run`, binarka testów |
-| `core/panel/decisions.mjs` | rodzaje kroków karty (`clear`, `command`, `write`, `prompt`), `withConsent`, `stepsToRun` |
-| `panel/hooks/register.tsx` | `prepareStage`, `offer`, `decide`, `runStep`, strażnik znacznika zgody (`command.run`), `syncSession`, `session.end` z `reason: 'clear'` |
-| `panel/hooks/focus.ts`, `panel/hooks/focus-flow.test.ts` | przekazanie fokusu po `/clear` wewnątrz procesu — wzór dla przekazania plikiem między procesami |
-| `panel/hooks/pane-commands.tsx` | formularz `relai-stage` z wyborem czatu „świeży / bieżący” |
-| `adapters/claude-code/commands/relai-stage.md` | jak procedura przyjmuje znacznik `--zgoda-panelu` (D-35) — tu wejdzie odczyt pliku zgody |
-
-## Decyzje już podjęte — nie otwierasz ich ponownie
-
-- **Mechanizm docelowy:** deep link `claude://code/new?folder=<cwd>&q=<komenda>` otwierany przez
-  `$.process.run` bez powłoki; `start_session` z `ccd_session` jako droga pierwsza, gdy narzędzie jest
-  na liście `$.tool.list()` (Łukasz, 2026-10-11). Wariant „Windows Terminal + CLI” odrzucony.
-- **Jeden ruch człowieka jest akceptowany:** deep link wpisuje prompt, nie wysyła (FAKT, dokumentacja
-  i pomiar 2026-10-11). Nie symulujesz klawiszy, nie wysyłasz nic w imieniu człowieka w nowej sesji.
-- **Zgoda z karty (D-35) nie jedzie znacznikiem w komendzie** — hook `command.run` nowej sesji by go
-  wyciął (P-022 pkt 1). Jedzie plikiem jednorazowym z czasem ważności; procedura `/relai-stage` czyta
-  go tak samo, jak dziś czyta znacznik. Sama bramka zgody zostaje: bez „Tak” na karcie nic nie rusza
-  (R4 planu PANEL_CLAUDE).
-- **R7 (panel nie woła modelu) bez zmian** — otwarcie sesji to proces systemowy, nie wywołanie modelu.
-- **Rdzeń `core/panel/` poza `decisions.mjs` jest nietykalny** — kontrakt planu PANEL_CODEX; kopie
-  rdzenia w pluginach synchronizuje `node core/tools/sync-panel-core.js`.
-- **D-85 / wybór Łukasza:** wykonawca Opus 5.5 jako subagent; propozycje UX (tekst karty, kolejność
-  opcji wyboru czatu) przedstawia Fable, Opus ich nie wymyśla sam.
-- **Wątek jest samodzielny** — w żadnym `STATUS.md` niczego nie zapisujesz; planu PANEL_CODEX
-  (`docs/plany/PANEL_CODEX/`) nie dotykasz.
-
-## Stan wyjściowy — co realnie zastajesz
-
-`relai-panel` 0.12.0 (zmierzony na 2.1.295) ma kartę etapu z dwoma trybami: „świeży — /clear po
-„Tak”, potem etap” i „bieżący”. „Tak” wykonuje kolejno `['clear', 'relai:relai-stage']` przez
-`$.command.run`; własna wysyłka panelu omija jego hook, więc znacznik `--zgoda-panelu` dociera do
-procedury. Fokus sesji przechodzi po `/clear` wewnątrz tego samego procesu (`carried` w `session.end`,
-`syncSession` w pierwszej turze). Testy: panel 135, progress 31, cache-keeper 90 (FAKT, 2026-10-11).
-
-```
-core/panel/decisions.mjs            # stageCard, withConsent, stepsToRun — kroki: clear | command | write | prompt
-panel/hooks/register.tsx            # prepareStage, offer, decide, runStep, hook command.run (wycina znacznik), syncSession
-panel/hooks/card-answer.ts          # answerCard: kroki po kolei, stop na pierwszym błędzie
-panel/hooks/focus.ts                # focusPath(.claude/relai/fokus/<id>.json), workOf, przekazanie fokusu
-panel/hooks/pane-commands.tsx       # formularz relai-stage: „Przygotuj start”, „Kopiuj prompt”, wybór czatu
-panel/hooks/decisions.test.ts       # kolejność ['clear','relai:relai-stage'], brak /clear w trybie bieżącym
-panel/hooks/band.test.ts            # „Tak” z paska idzie tą samą drogą co z panelu
-panel/hooks/focus-flow.test.ts      # fokus przekazany raz, do sesji następnej
-adapters/claude-code/commands/relai-stage.md   # znacznik zgody jako zgoda D-35
-docs/fixy/NOWA_SESJA/RESEARCH.html  # wynik researchu i pomiaru 2026-10-11
-```
-
-Fakty z pomiaru 2026-10-11 (Łukasz, aplikacja 2.31226.1.0, Windows 11): deep link z `folder` i `q`
-tworzy nową sesję **w tym samym oknie** (nowa pozycja w sidebarze), prompt **wpisany, nie wysłany** —
-także tekst zaczynający się od `/`; kilka pytań o zaufanie do workspace; aplikacja przejmuje fokus
-z sesji, która link otworzyła; w `list_sessions` sesja nie istnieje do pierwszego Entera. Paczka
-aplikacji rejestruje `mcp__ccd_session__start_session`, `hand_off_to_session`, `list_start_targets`
-za flagą `sideSessions` — w tej instalacji narzędzi nie ma. `claude` na PATH to 2.1.280 (bez
-`--desktop`), `claude.exe` w katalogu aplikacji to sama aplikacja, nie CLI.
-
-**Czego jeszcze nie ma:** rodzaju kroku `newSession` w `decisions.mjs`; modułu uruchamiającego
-deep link; pliku zgody i przekazania fokusu między procesami; odczytu pliku zgody w procedurze
-`/relai-stage`; sondy obecności `start_session`; pułapki w `docs/PULAPKI.md`; wyniku łańcucha
-`-p` → desktop (próba z 2026-10-11 użyła złej binarki i nic nie zmierzyła).
-
-**Zasady aktywne z `docs/LEKCJE.md`, obowiązujące w tym wątku** (przepisane w całości):
-
- przez import; na zewnątrz
+    najpierw sondą (licznik wywołań hooka, wynik `next`) (P-017). **Wszystko, co dostaje `$` albo
+    `on`, mieszka w pliku modułu hooków** — walidator modów nie śledzi `$` przez import; na zewnątrz
     wynosisz tylko czystą logikę, a `plugin validate` puszczasz zaraz po podziale pliku.
     **Typy silnika mówią, co powierzchnia przyjmie, nie co tabela elementów niesie w czasie
     wykonania** — gałąź „desktop / terminal" rozstrzygasz polem powierzchni z wejścia, a test
@@ -474,8 +330,12 @@ deep link; pliku zgody i przekazania fokusu między procesami; odczytu pliku zgo
     wyznacza korzeń projektu wejściem w górę od niego, a test ma przypadek sesji w podfolderze (L-0146).
     **Sonda, która mierzy działanie niszczące (`/clear`, kasowanie), stoi w sesji, której utrata nic
     nie kosztuje** — albo przycisk ma osobne potwierdzenie; stan etapu i wynik sondy są w pliku
-    przed każdym takim krokiem (L-0153).
-    (L-0041, L-0042, L-0044, L-0047, L-0092, L-0133, L-0136, L-0138, L-0139, L-0146, L-0153)
+    przed każdym takim krokiem (L-0153). **Funkcja moda czekająca na człowieka (`$.ui.ask`)
+    zapamiętuje identyfikator sesji przed pytaniem i porzuca odpowiedź, gdy po powrocie jest inny**;
+    zegar i próg czyta ponownie po każdym takim `await` (L-0166). **Test wielu rozmów ustawia
+    odpowiedzi atrap per rozmowa**, a wydruk diagnostyczny zbiera stan po sprawdzanym kroku (L-0168).
+    (L-0041, L-0042, L-0044, L-0047, L-0092, L-0133, L-0136, L-0138, L-0139, L-0146, L-0153, L-0166,
+    L-0168)
 14. **Najpierw zmiana w repozytorium, potem zdanie, które ją opisuje.** Weryfikację planuj tam,
     gdzie jest wykonalna; po pytaniu sprzątasz sam (martwy link nie jest poprawną wartością
     tymczasową); przy wyprowadzaniu pozycji jednostką inwentarza jest **sprawa**, nie linia.
@@ -536,10 +396,11 @@ Zakres: paczki **N0–N4** dokładnie w brzmieniu sekcji „Zakres” karty `ODN
 N1 → N2 → N3 → N4. Każda paczka kończy się testami (`claude plugin test panel` binarką aplikacji,
 P-024) i przeglądem diffu; paczki N1 i N2 mają pomiar na żywo przez Łukasza przed przejściem dalej.
 
-Weryfikacja: checkboxy z sekcji „Weryfikacja” karty — wszystkie muszą przejść; wśród nich zawsze:
-**(a)** katalog roboczy przejrzany raportem (`node .claude/relai/tools/clean-work.js raport`)
-i skasowany po „tak”, liczby przed i po do wpisu dziennika; **(b)** artefakty spoza katalogu
-wypisane z nazwy. Wyłączony wiersz `Artefakty robocze` w `docs/USTAWIENIA.md` tego punktu nie wycisza.
+Weryfikacja: checkboxy z sekcji „Weryfikacja” karty — wszystkie muszą przejść; odhaczasz je w karcie
+(`- [ ]` → `- [x]`) zaraz po sprawdzeniu. Wśród nich zawsze: **(a)** katalog roboczy przejrzany
+raportem (`node .claude/relai/tools/clean-work.js raport`) i skasowany po „tak”, liczby przed i po
+do wpisu dziennika; **(b)** artefakty spoza katalogu wypisane z nazwy. Wyłączony wiersz
+`Artefakty robocze` w `docs/USTAWIENIA.md` tego punktu nie wycisza.
 
 ## Na koniec (rytuał obowiązkowy — bez niego odnoga nie jest zamknięta)
 
@@ -551,7 +412,7 @@ wypisane z nazwy. Wyłączony wiersz `Artefakty robocze` w `docs/USTAWIENIA.md` 
    i po do wpisu z punktu 3; artefakty spoza katalogu z nazwy.
 3. `docs/DZIENNIK.md`: wpis wg `SPEC_DZIENNIK.md` (Zrobione / Zweryfikowane — jak dokładnie /
    Świadomie odłożone / Do zrobienia przez człowieka) na końcu sekcji „Wpisy”, podpis
-   `Autor: RelAI (Fable 5.1, wykonanie Opus 5.5) + Lukasz`.
+   `Autor: RelAI (Opus 5.5) + Lukasz`.
 4. `docs/STATE.md` — akapit o panelu w „Co działa” (start etapu w nowej sesji) i wiersz w tabeli
    „Stan prac” `CLAUDE.md` dla odnogi; `README.md` tylko przy zmianie sposobu uruchomienia.
-5. Commit (conventional, EN) i wydanie `relai-panel` 0.13.0 — propozycja, nie wykonanie bez zgody.
+5. Commit (conventional, EN) i wydanie `relai-panel` 0.14.0 — propozycja, nie wykonanie bez zgody.

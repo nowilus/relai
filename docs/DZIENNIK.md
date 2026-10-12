@@ -1047,3 +1047,29 @@ Testy kodu nie uruchamiane — zmiany wyłącznie w dokumentach.
 **Do zrobienia przez człowieka:** —
 
 Autor: RelAI (Opus 5.5) + Lukasz
+
+### 2026-10-12 — NOWA_SESJA: prompt odnogi przebudowany przed startem
+
+Sesja Opus 5.5 (ta sama co wpis wyżej). Łukasz wybrał odnogę NOWA_SESJA do realizacji; wykonanie
+— świeża sesja Opus 5.5 z gotowego promptu.
+
+**Zrobione:**
+
+- [PROMPT_ODNOGA.md](fixy/NOWA_SESJA/PROMPT_ODNOGA.md) przebudowany: wersja z 2026-10-11 była
+  sklejona trzykrotnie (nagłówek od linii 1, 306 i 388, druga kopia ucięta w środku zasady; 557
+  linii — ta sama wada co L-0164), opisywała `relai-panel` 0.12.0 i kazała wydać 0.13.0, które
+  wyszło 2026-10-11. Teraz: jedna kopia (418 linii, jeden nagłówek `#`, pięć sekcji `##`), stan
+  wyjściowy po 2.9.0 (kroki `clear | command | submit | write`, testy 148 / 31 / 174 / 295),
+  wydanie `relai-panel` **0.14.0**, wykonawca Opus 5.5 w świeżej sesji, propozycje UX od
+  wykonawcy z akceptacją Łukasza przed kodem UI. „Zasady aktywne” (15) wklejone skryptem
+  dosłownie z `docs/LEKCJE.md`.
+- [ODNOGA.md](fixy/NOWA_SESJA/ODNOGA.md): linia wykonawcy (wymóg Fable odwołany 2026-10-11) i numer
+  wydania 0.13.0 → 0.14.0 w N4 i w Weryfikacji; zakres N0–N4 bez zmian.
+
+**Zweryfikowane — jak dokładnie:** skrypt budujący sprawdził jeden znacznik wstawienia, obecność
+całej sekcji „Zasady aktywne” w wyniku i 15 pozycji numerowanych; `grep -c "PROMPT_ODNOGA —"` = 1;
+pliki z listy „Stan wyjściowy” istnieją (`ls`), wersja w `panel/.claude-plugin/plugin.json` = 0.13.0.
+
+**Do zrobienia przez człowieka:** start odnogi w świeżej sesji Opus 5.5 (`/effort high`).
+
+Autor: RelAI (Opus 5.5) + Lukasz

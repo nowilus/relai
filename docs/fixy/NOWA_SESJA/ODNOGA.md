@@ -1,8 +1,8 @@
 # ODNOGA — przycisk panelu otwiera nową sesję Claude Code i startuje w niej etap
 
 Plan: brak (wątek samodzielny) · Etap-źródło: — · Utworzona: 2026-10-11 · Status: **OTWARTA** ·
-Wykonawca: **Opus 5.5 jako subagent sesji Fable 5.1** (decyzja Łukasza 2026-10-11, wzorzec Z13–Z14
-odnogi AUDYT_MODOW: Fable pisze prompt wdrożenia, przegląda, mierzy i prowadzi rytuał)
+Wykonawca: **Opus 5.5 w świeżej sesji** (decyzja Łukasza 2026-10-12; pierwotnie 2026-10-11 Opus 5.5
+jako subagent sesji Fable 5.1 — wymóg Fable odwołany 2026-10-11, propozycje UX przygotowuje wykonawca)
 
 ## Cel
 
@@ -57,7 +57,8 @@ Pięć paczek N0–N4, każda z własnymi checkboxami; N0 jest pomiarem i rozstr
    pytania o zaufanie; fokus; `q` z `/` przechodzi; sesja nie istnieje do Entera; `claude.exe`
    w katalogu aplikacji to aplikacja), `docs/zasoby/PANEL_RELAI/STYL_PASKOW_CLAUDE.md` (wiersz
    o karcie startu), `README.md` (sekcja panelu), `panel/.claude-plugin/plugin.json` i
-   `.claude-plugin/marketplace.json` → `relai-panel` 0.13.0, nota wydania; w `docs/archiwum/plany/PANEL_CLAUDE/`
+   `.claude-plugin/marketplace.json` → `relai-panel` 0.14.0 (0.13.0 wydane 2026-10-11 w planie
+   LIMIT_CHECKPOINT), nota wydania; w `docs/archiwum/plany/PANEL_CLAUDE/`
    nic nie edytujesz — nieaktualny FAKT dostaje adnotację w `docs/DZIENNIK.md` i tu w „Wyniku”.
 
 ## Poza zakresem
@@ -89,7 +90,7 @@ Pięć paczek N0–N4, każda z własnymi checkboxami; N0 jest pomiarem i rozstr
       `$.mcp.call('ccd_session','start_session', …)` i nie otwiera deep linku; bez niego odwrotnie.
 - [ ] N4: `claude plugin validate panel`, `claude plugin test panel` binarką 2.1.295 — wszystkie
       testy zielone; `node core/tools/validate-adapters.js` exit 0; `sync-panel-core --check` zgodny;
-      wpis marketplace 0.13.0 = `plugin.json`.
+      wpis marketplace 0.14.0 = `plugin.json`.
 - [ ] Katalog roboczy `.claude/relai/work/_fixy/NOWA_SESJA/` przejrzany raportem i skasowany po
       „tak”; liczby przed i po we wpisie dziennika, artefakty spoza niego z nazwy.
 
