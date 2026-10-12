@@ -98,10 +98,13 @@ E1 po stronie Codeksa. Opinii spoza projektu nadal nie ma.
   klatek, `npm run film`): scena 4 z kartą startu E4 liczoną `stageCard()` na plikach z commitu
   startu, scena 5 bez liczb sesji (karta limitu, zapis, „Wznów pracę” ze słów kodu), finał
   z manifestu; dane `sceny.json` ze źródłami, plansze usunięte; przyjęte w pierwszej rundzie,
-  wzorce `kalibracja/E4-scena4–6.png`. Przed E6 — odnoga z poprawką parsera modelu na karcie
-  startu etapu (`requiredModel()` wymaga etykiety, której `SPEC_STATUS` nie ma). E5 (wersja EN,
-  pętla, kontrola jakości) gotowy do startu w świeżej sesji Opus 5.5 (`/relai-stage`,
-  `/effort medium`).
+  wzorce `kalibracja/E4-scena4–6.png`. Przed wydaniem — odnoga z poprawką parsera modelu na
+  karcie startu etapu (`requiredModel()` wymaga etykiety, której `SPEC_STATUS` nie ma).
+  **Aneks A (2026-10-12):** nowa scena 4 „Komendy” po „Panelu” — 14 komend po 2,5 s, rekwizyty na
+  biurku, nazwa + slogan przyjęty przez Łukasza, kolejność cyklu życia projektu; film 155 s
+  SZACUNEK; plan ma teraz 7 etapów. E5 „Scena komend” gotowy do startu w świeżej sesji Opus 5.5
+  (`/relai-stage`, `/effort high`, kalibracja na jednej komendzie przed resztą); dalej E6 (wersja
+  EN, pętla, kontrola jakości) i E7 (wydanie 3.0.0).
 - **Potem RelAI 3.0.0** (decyzja Łukasza 2026-10-12): jedno wydanie zbierające mody i panel
   Claude Code, start etapu w nowej sesji, audyt skilli i `/relai-stage` v6 — razem z **filmem
   prezentacyjnym (Remotion)** do README na GitHubie i do wysyłki ludziom: pełny przegląd RelAI

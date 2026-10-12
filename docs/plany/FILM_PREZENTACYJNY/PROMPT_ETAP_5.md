@@ -1,77 +1,99 @@
-# PROMPT_ETAP_5 — Wersja EN, pętla 25 s do README i cztery kontrole jakości
+# PROMPT_ETAP_5 — Scena „Komendy”: czternaście komend w obrazach, po 2,5 s
 
-Plan: FILM_PREZENTACYJNY • Etap: **E5 z E6** • Wygenerowano: 2026-10-12 (autor: Opus 5.5, w rytuale „Na koniec” E4) • Wykonawca: **Opus 5.5 w Claude Code** (ustawienia projektu, D-85), `/effort medium`
+Plan: FILM_PREZENTACYJNY • Etap: **E5 z E7** • Wygenerowano: 2026-10-12 (autor: Opus 5.5, przy Aneksie A, po rytuale „Na koniec” E4) • Wykonawca: **Opus 5.5 w Claude Code** (ustawienia projektu, D-85), `/effort high`
 
 > **Kontrola modelu:** ten etap wykonuj wyłącznie na modelu klasy **strong**, w tym narzędziu:
 > **Opus 5.5** (lista modeli z dnia `2026-10-08`). Jeśli sesja działa na innym modelu — zatrzymaj
 > się i poproś użytkownika o przełączenie, zanim cokolwiek zrobisz. Zalecany poziom `/effort`:
-> `medium` (sceny i kierunek są przyjęte; etap tłumaczy, przycina i mierzy — smak wraca tylko
-> przy pętli i przy zestawieniu ze zrzutami).
+> `high` (czternaście obrazowych metafor w tempie 2,5 s każda: smak, ruch i czytelność bez napisu).
 
 ## Co przeczytać na start (w tej kolejności, nic więcej)
 
 | Plik | Po co |
 |---|---|
 | `CLAUDE.md` | reguły procesu, linia „Aktywny plan”, sekcja niemutowalna |
-| `docs/DZIENNIK.md` | sekcja „Stan otwartych ryzyk” + wpis „FILM_PREZENTACYJNY E4” z 2026-10-12 (co powstało, decyzje Łukasza o scenach 4–5, „Świadomie odłożone”) |
-| `docs/plany/FILM_PREZENTACYJNY/STATUS.md` | bramki manualne — dwie `OTWARTA` (start E5, odnoga parsera modelu przed E6) |
-| `docs/plany/FILM_PREZENTACYJNY/PLAN.html` | sekcje 2 (cele 1, 2 i 4), 5 (zdanie o pętli pod tabelą scen, schemat „Cztery kontrole”), 6 (E5), 7 (ryzyka 2 i 4), 8 (przypadki „Tekst EN dłuższy niż PL”, „Dawne demo”, „MP4 za duży do gita”, „README w ciemnym i jasnym motywie”, „Muzyka nie dotrze przed E5”), 9 (muzyka — do rozstrzygnięcia przed E5) |
-| `docs/zasoby/film/README.md` | komendy renderu (`npm run film`), skąd słowa i liczby każdej sceny, wierność panelu |
-| `docs/zasoby/film/zrodla/src/teksty.ts`, `src/fakty.ts`, `src/scenariusz.ts` | słownik PL do przetłumaczenia (bez cyfr, znaczniki faktów), `wstaw()`, czasy scen |
-| `docs/zasoby/film/zrodla/src/Root.tsx`, `src/sceny/Animatik.tsx` | kompozycje: jak sceny wchodzą do filmu i gdzie wpiąć język oraz pętlę |
-| `docs/zasoby/film/zrodla/testy/fakty.test.mjs`, `testy/wiernosc.test.mjs` | testy, które mają objąć oba języki |
-| `docs/zasoby/demo/README.md`, `docs/zasoby/demo/zrodla/glify.py`, `gif.py` | dawne demo do archiwum; instrument czytelności na telefonie i jego próg |
-| `README.md` | sekcja „Zobacz, jak to działa” — tu wchodzi nowa pętla |
+| `docs/DZIENNIK.md` | sekcja „Stan otwartych ryzyk” + wpisy z 2026-10-12: „FILM_PREZENTACYJNY E4” (co powstało, decyzje o scenach 4–5) i „Aneks A” (skąd scena komend, dwie rundy sloganów) |
+| `docs/plany/FILM_PREZENTACYJNY/STATUS.md` | tabela etapów po Aneksie A (E5–E7), bramki `OTWARTA` |
+| `docs/plany/FILM_PREZENTACYJNY/PLAN.html` | sekcja 10 — **Aneks A** w całości (scena, slogany, storyboard, ryzyka); sekcje 5 (sceny i czasy sprzed aneksu), 8 (przypadki „Ruch kamery i błyski”, „Render na Windows”) |
+| `docs/zasoby/film/README.md` | komendy renderu (`npm run film`), skąd słowa i liczby w kadrze, wierność panelu |
+| `docs/zasoby/film/zrodla/src/scenariusz.ts`, `src/teksty.ts`, `src/fakty.ts` | kolejność i czasy scen, słownik PL (bez cyfr), znaczniki faktów |
+| `docs/zasoby/film/zrodla/src/sceny/Animatik.tsx`, `src/Root.tsx` | jak sceny wchodzą do filmu i jak dobierane są przejścia (`wejscie(i)` — po indeksie) |
+| `docs/zasoby/film/zrodla/src/sceny/PaskiDalej.tsx`, `src/kamera.ts`, `src/tokeny.ts` | kamera (`camera()`, `offsetWithin()`), paleta i fonty kierunku, P-035 (warstwa po ruchu bez transformacji 3D) |
+| `docs/zasoby/film/zrodla/src/sceny/Karteczka.tsx`, `Petla.tsx`, `Strzalka.tsx`, `Kursor.tsx`, `Biurko.tsx`, `Okno.tsx` | klocki języka filmu do ponownego użycia w rekwizytach |
+| `docs/zasoby/film/zrodla/src/komendy.ts`, `skrypty/znak.mjs`, `testy/wiernosc.test.mjs`, `testy/fakty.test.mjs` | układ komend sceny 3, kopia 14 ikon do `public/znak/`, testy do rozszerzenia |
+| `docs/zasoby/branding/ikony/*.svg` (tylko odczyt), `core/panel/theme.mjs` (`NAMES`), `core/panel/commands.mjs` (`FORMS`) | ikona, polska nazwa i lista komend — jedyne źródła tożsamości komendy w kadrze |
 | `docs/USTAWIENIA.md` | wiersze „Kierunek filmu”, „Poziom animacji” |
 
 ## Decyzje już podjęte — nie otwierasz ich ponownie
 
-- **Remotion, interfejs odtworzony z prawdziwych danych**; PL i EN z jednego źródła — **różni je
-  tylko słownik** (plan, sekcja 4, wariant A). Słowa produktu w kadrze (karty, panel, przyciski
-  z `sceny.json` i `panel.json`) zostają takie, jak rysuje je produkt — po polsku także w filmie EN;
-  tłumaczysz wyłącznie słowa filmu (`teksty.ts`). Gdy to zdanie okaże się dla Łukasza problemem,
-  to jest aneks do planu, nie poprawka w tym etapie.
-- **Kierunek „Warsztat z wigorem”** (E1; wzorce `docs/zasoby/film/kalibracja/E1-klatka.png`,
-  `E3-scena1.png`, `E3-scena3.png`, `E4-scena4.png`, `E4-scena5.png`, `E4-scena6.png`). Cztery
-  kierunki odrzucone na stałe — terminal / monospace-konsola, panel administracyjny, blueprint,
-  plakat brutalistyczno-szwajcarski — ani jako wariant, ani jako inspiracja (D-61a).
-- **Sceny 1–6 i cały film PL przyjęte przez Łukasza** (E3 runda 2, E4 runda 1: „Przyjmuję sceny
-  4–6 i cały film”). Kadrów scen nie przerysowujesz; zmiana kadru sceny wymaga pokazania klatki
-  sprzed i po.
-- **Scena 4:** wiersz Model w stanie zgodnym, linia metryczna z dopisaną etykietą w `sceny.mjs`
-  (decyzja Łukasza, E4). Poprawka parsera `requiredModel()` to **odnoga przed E6**, nie ten etap.
-- **Scena 5 bez liczb sesji** (decyzja Łukasza, E4): próg domyślny 90 %, wiersz zapisu z jedynego
-  zrzutu prawdziwego zapisu. Liczb nie dokładasz.
-- **Zasada filmu:** na ekranie nie ma liczby, której nie da się wskazać w repozytorium albo
-  w zapisie prawdziwej sesji. Słownik EN — tak jak PL — nie ma ani jednej cyfry; liczba wchodzi
-  znacznikiem przez `wstaw()`.
-- **Pętla do README to skrót scen 2 i 3 w pionie 720×900**, bez napisów dłuższych niż jedna linia
-  (plan, sekcja 5); próg czytelności: mediana wysokości glifów ≥ 7 px po przeskalowaniu do 375 px,
-  instrument `docs/zasoby/demo/zrodla/glify.py` (plan, cel 2). Budżet GIF 3 MB to SZACUNEK
-  z planu — parametry dobierasz pomiarem.
-- **Przejścia:** przenikanie przez papier biurka albo odsłona, bez błysków częstszych niż 3/s.
-- **`core/panel/*.mjs`, `panel/hooks/*`, `cache-keeper/hooks/*` tylko do odczytu.** Film importuje
-  wyłącznie `core/panel` (przez `src/rdzen.ts`), `core/process/resume.js` i teksty plików
-  pluginów czytane w skryptach danych. Fonty i znak wyłącznie z `docs/zasoby/`; zero adresów
-  sieciowych w `src/`.
-- **Dawne demo nie znika** (D-18): przenosisz je do `docs/archiwum/demo/` razem ze źródłami
-  renderu i README z adnotacją (plan, sekcja 8).
-- **Granica zakresu:** E5 to słownik EN, film EN, pętla PL i EN, cztery kontrole, zestawienie
-  klatek ze zrzutami, archiwum dawnego demo i README. Numery wersji, historia zmian, ostatni
-  render ze świeżym manifestem, skan sekretów, tag i wydanie GitHub z MP4 to **E6**. Odnoga
-  parsera modelu — osobna sesja. Plik MP4 do gita nie wchodzi (plan: MP4 tylko w zasobach
-  wydania).
+- **Aneks A (2026-10-12):** nowa **scena 4 „Komendy”**, 35 s SZACUNEK (14 × 2,5 s = 75 klatek na
+  komendę), zaraz po scenie 3 „Panel”; dawne sceny 4–6 stają się scenami 5–7; film 155 s
+  SZACUNEK (4650 klatek). Pętla do README bez zmian (sceny 2 i 3) — to E6.
+- **Język sceny** (wybory Łukasza, Aneks A): rekwizyty na biurku — ikona komendy
+  z `docs/zasoby/branding/ikony/` ożywa w mini-historię z papierowych rekwizytów kierunku;
+  tekst: **polska nazwa z `NAMES`** (`core/panel/theme.mjs`) **i slogan**; ruch: **jedna panorama
+  po biurku**, kamera przeskakuje sprężyną od rekwizytu do rekwizytu, bez cięć i bez błysków;
+  kolejność: **cykl życia projektu** (tabela niżej).
+- **Slogany przyjęte przez Łukasza po dwóch rundach — dosłownie, w tej kolejności:**
 
-## Stan wyjściowy (co realnie zastajesz po E4)
+  | # | Komenda (`FORMS`) | Nazwa (`NAMES`) | Slogan |
+  |---|---|---|---|
+  | 1 | `relai-adopt` | Adopcja projektu | RelAI w projekcie, który już masz |
+  | 2 | `relai-prompt` | Optymalizator promptu | Z luźnego zdania — precyzyjne polecenie |
+  | 3 | `relai-stage` | Etap planu | Kolejny etap planu jednym kliknięciem |
+  | 4 | `relai-crew` | Załoga agentów | Większe zadanie podzielone między agentów |
+  | 5 | `relai-branch` | Odnoga planu | Poboczny pomysł czeka na swoją kolej |
+  | 6 | `relai-audit` | Przegląd projektu | Szybka kontrola stanu dokumentacji |
+  | 7 | `relai-clean` | Sprzątanie | Usuwa zbędne pliki robocze |
+  | 8 | `relai-backup` | Kopia zapasowa | Cały projekt w ZIP-ie, bez sekretów |
+  | 9 | `relai-changelog` | Lista zmian | Co się zmieniło — prosto z dziennika |
+  | 10 | `relai-update` | Aktualizacja | Aktualizacja do najnowszej wersji RelAI |
+  | 11 | `relai-models` | Lista modeli | Zawsze aktualna lista modeli |
+  | 12 | `relai-help` | Ściąga projektu | Wszystkie komendy w jednym miejscu |
+  | 13 | `relai-tour` | Wycieczka po projekcie | Szybkie wprowadzenie do projektu |
+  | 14 | `relai-handover` | Pakiet przekazania | Cały projekt do przekazania w jednym pliku |
+
+  Slogan 3 („jednym kliknięciem”) Łukasz wybrał świadomie, choć w panelu start etapu to
+  „Start etapu…” i „Tak” — nie poprawiasz go. Slogan skracasz **wyłącznie za zgodą Łukasza**
+  (ryzyko z Aneksu A: dłuższy niż czytelny w 2,5 s).
+- **Obrazy z tabeli Aneksu A to storyboard do kalibracji**, nie zamrożony: metaforę wolno
+  zmienić, gdy na klatce nie czyta się bez napisu — mówisz to Łukaszowi przy pokazie.
+- **Kierunek „Warsztat z wigorem”** (E1; wzorce `docs/zasoby/film/kalibracja/E1-klatka.png`,
+  `E3-scena1.png`, `E3-scena3.png`, `E4-scena4.png`, `E4-scena5.png`, `E4-scena6.png`; tokeny
+  `src/tokeny.ts`). Cztery kierunki odrzucone na stałe — terminal / monospace-konsola, panel
+  administracyjny, blueprint, plakat brutalistyczno-szwajcarski — ani jako wariant, ani jako
+  inspiracja (D-61a).
+- **Sceny 1–3 i dawne 4–6 (po aneksie 5–7) przyjęte przez Łukasza** (E3 runda 2, E4 runda 1).
+  Ich kodu nie przerysowujesz; zmiana ich kadru wymaga klatki sprzed i po. **Przejścia przyjętych
+  scen zostają takie, jak w E4** — „Etap w nowej sesji” wchodzi przenikaniem, „Praca wraca”
+  odsłoną, „Finał” przenikaniem; `wejscie(i)` liczy dziś po indeksie, więc wstawienie sceny
+  przestawiłoby je — wybór przejścia idzie po scenie, nie po indeksie.
+- **Zasada filmu:** na ekranie nie ma liczby, której nie da się wskazać w repozytorium albo
+  w zapisie prawdziwej sesji. Slogany i nazwy nie mają cyfr; liczebniki słowne przechodzą licznik
+  szeroki testu faktów („kilka”, „kilku” są zakazane; „jednym”, „jednej” licznik pomija). Jeśli
+  rekwizyt pokazuje liczbę (np. różnice „+/−” w Aktualizacji), to znak bez cyfry albo fakt
+  z manifestu.
+- **Przejścia i ruch:** przenikanie przez papier biurka albo odsłona; bez błysków częstszych niż
+  3/s (plan, przypadek b7); kamera po ruchu nie zostawia warstwy z transformacją 3D ani filtrem
+  (P-035, L-0171); liczby i nazwy krojem rozróżniającym „1” i „I” (L-0174).
+- **`core/panel/*.mjs`, `panel/hooks/*`, `cache-keeper/hooks/*`, `docs/zasoby/branding/*` tylko do
+  odczytu.** Film importuje `core/panel` wyłącznie przez `src/rdzen.ts`; ikony trafiają do
+  `public/znak/` przez `skrypty/znak.mjs` z kontrolą bajtową; fonty przez `skrypty/fonty.mjs`;
+  zero adresów sieciowych w `src/`; kolory wyłącznie z `src/tokeny.ts` albo `core/panel`.
+- **Granica zakresu:** E5 to scena „Komendy” w pełnej jakości w kompozycji `Animatik` i cały film
+  PL po aneksie. Słownik EN (także sceny komend), pętla, cztery kontrole, zestawienie ze zrzutami,
+  dawne demo i README — **E6**; numery wersji i wydanie — **E7**; poprawka parsera modelu na karcie
+  startu etapu — osobna odnoga przed wydaniem. Nic z tego nie robisz „przy okazji”.
+
+## Stan wyjściowy (co realnie zastajesz po E4 i Aneksie A)
 
 RelAI 2.9.0 w repo i publicznie; pluginy panelu relai-panel 0.14.0, relai-progress 0.4.0,
-relai-cache-keeper 0.6.0 (FAKT). E4 zamknięty 2026-10-12: **cały film PL** — 3600 klatek,
-120,000 s, 1920×1080, 30 kl./s (FAKT z `ffprobe`), przyjęty w pierwszej rundzie. Zależności
-w `docs/zasoby/film/zrodla/node_modules/` (poza gitem), bez nowych pakietów w E2–E4. Python
-z PIL i numpy jest na maszynie (FAKT, sprawdzone 2026-10-12) — `glify.py` da się uruchomić.
-PANEL_CODEX (Codex, `gpt-6.1-sol`) trwa obok — jego pliki (`docs/plany/PANEL_CODEX/`,
-`docs/zasoby/PANEL_RELAI/makiety/`) mogą być niezacommitowane: **nie dotykasz ich i nie dodajesz
-do commita**. Node 24.13.1 (FAKT).
+relai-cache-keeper 0.6.0 (FAKT). E4 zamknięty i wypchnięty 2026-10-12 (commit `cbe0f29`): cały
+film PL — 3600 klatek, 120,000 s, 1920×1080, 30 kl./s (FAKT z `ffprobe`), przyjęty w pierwszej
+rundzie. Aneks A dopisany tego samego dnia. Zależności w `docs/zasoby/film/zrodla/node_modules/`
+(poza gitem), bez nowych pakietów w E2–E4. PANEL_CODEX (Codex, `gpt-6.1-sol`) trwa obok — jego
+pliki (`docs/plany/PANEL_CODEX/`, `docs/zasoby/PANEL_RELAI/makiety/`) mogą być niezacommitowane:
+**nie dotykasz ich i nie dodajesz do commita**. Node 24.13.1 (FAKT).
 
 Komendy (FAKT, 2026-10-12):
 
@@ -79,49 +101,47 @@ Komendy (FAKT, 2026-10-12):
   `node --test core/process/tests/*.test.js core/guardrails/tests/*.test.js core/panel/tests/*.test.js adapters/codex/tests/*.test.js`
   → 331/331;
 - testy filmu `cd docs/zasoby/film/zrodla && npm run przygotuj && npm test` → 22/22 (5 pasków,
-  10 faktów, 7 wierności). `przygotuj` = dane → panel → sceny → manifest (manifest sam uruchamia
+  10 faktów, 7 wierności). `przygotuj` = dane → panel → sceny → manifest (manifest uruchamia
   testy rdzenia, ok. 35–45 s) → fonty → znak; `npm test` danych nie odświeża (P-036);
-- `npm run film` → `out/film.mp4` (cały film PL, ok. 4 min renderu, 12,6 MB — FAKT z E4);
-  `npm run minuta` → sceny 1–3; `npm run animatik` → cały film w skali 0,5;
+- `npm run film` → `out/film.mp4` (cały film, ok. 4 min renderu dla 3600 klatek, 12,6 MB — FAKT
+  z E4); `npm run minuta` → sceny 1–3 (`--frames=0-1949`, granica zostaje ważna po aneksie);
 - klatki w trakcie pracy: `npx remotion bundle --out-dir=<katalog roboczy>/bundle`, potem
   `npx remotion still <bundle> <Kompozycja> <plik>.png --frame=<n> --scale=0.5`;
+  krótki ruch do kalibracji: `npx remotion render <bundle> <Kompozycja> <plik>.mp4 --frames=<a>-<b>`;
 - klatki z gotowego MP4: `npx remotion ffmpeg -v error -ss <n/30> -i <mp4> -frames:v 1 <plik>.png`;
-  ostatnia klatka: `-sseof -0.05`; liczba klatek: `npx remotion ffprobe -v error -count_frames
+  ostatnia klatka `-sseof -0.05`; liczba klatek `npx remotion ffprobe -v error -count_frames
   -select_streams v:0 -show_entries stream=nb_read_frames …`;
 - binarka do `plugin validate`: aplikacji 2.1.295 pod `%APPDATA%\Claude\claude-code\2.1.295\<hash>\claude.exe`,
   szukana `find`, nie `ls` (P-024).
 
 ```
 docs/zasoby/film/zrodla/
-  src/scenariusz.ts        # SCENY: 12/23/30/20/20/15 s; dlugosc(fps) = 3600
-  src/teksty.ts            # PL (jedyny słownik): pamiec, paski, panel, nowaSesja, pracaWraca, final — bez cyfr
+  src/scenariusz.ts        # SCENY: pamiec 12, paski 23, panel 30, nowaSesja 20, pracaWraca 20, final 15 s; dlugosc(fps) = 3600
+  src/teksty.ts            # PL: pamiec, paski, panel, nowaSesja, pracaWraca, final — bez cyfr; sekcji „komendy” jeszcze nie ma
   src/fakty.ts             # wstaw(tekst, fakty): {komendy}, {progLimitu}, {oknoLimitu}, {narzedziaNazwy}, {wersja}
-  src/rdzen.ts             # jedyne drzwi do core/panel (ROOT, BAND, BAR, BATTERY, THEME, CHIP, …)
-  src/dane/manifest.json   # 10 faktów { wartosc, zrodlo }
-  src/dane/paski.json      # plan i postęp z bieżącego STATUS/promptu (żywe) + bateria ze zrzutu z1
-  src/dane/panel.json      # sceny 3: etapy z STATUS.md, liczby ze zrzutów 03–07, cytat diffu
-  src/dane/sceny.json      # scen 4–5: karta E4 z stageCard() na commicie 0dcadef, słowa kart limitu, zapisu, wznowienia
+  src/komendy.ts           # układ zakładki Komendy sceny 3 (POLECANE, ukladKomend, wszystkie) — bez importów
+  src/rdzen.ts             # jedyne drzwi do core/panel: ROOT, BAND, BAR, BATTERY, THEME, CHIP, NAMES, FEATURED, GROUPS, iconName…
+  src/kamera.ts            # camera(focus, anchor, zoom, k), offsetWithin(el, ancestor)
+  src/dane/                # manifest.json (10 faktów), paski.json, panel.json, sceny.json — każdy liść { wartosc, zrodlo }
   src/Root.tsx             # kompozycje robocze Pamiec, Paski, PaskiDalej, Panel, NowaSesja, PracaWraca, Final + Animatik (3600 kl.)
-  src/sceny/Animatik.tsx   # sześć scen w kolejności; Wejdz (przenikanie / odsłona); nazwa kompozycji „Animatik”
-  src/sceny/Pamiec.tsx, Paski.tsx + PaskiDalej.tsx, Panel.tsx + panel/*.tsx, NowaSesja.tsx, PracaWraca.tsx, Final.tsx
+  src/sceny/Animatik.tsx   # scena(id) → komponent; wejscie(i): 0 cięcie, nieparzyste przenikanie, parzyste odsłona; OVERLAP 18
+  src/sceny/Panel.tsx + panel/*.tsx   # scena 3 (panel/Komendy.tsx to zakładka panelu — nowa scena potrzebuje innej nazwy pliku)
+  src/sceny/NowaSesja.tsx, PracaWraca.tsx, Final.tsx   # dawne sceny 4–6
   src/sceny/Okno.tsx, Karteczka.tsx, Petla.tsx, Strzalka.tsx, Napis.tsx, Biurko.tsx, Kursor.tsx   # klocki
-  skrypty/                 # dane.mjs, panel.mjs, sceny.mjs, manifest.mjs, fonty.mjs, znak.mjs
+  public/znak/             # logo.svg + ikona-<komenda>.svg ×14 (kopie z branding/ przez znak.mjs; poza gitem)
   testy/                   # paski.test.mjs (5), fakty.test.mjs (10), wiernosc.test.mjs (7)
-docs/zasoby/film/kalibracja/      # E1-klatka, E3-scena1, E3-scena3, E4-scena4, E4-scena5, E4-scena6 (.png)
-docs/zasoby/demo/                 # dawne demo 2.1.3: dwa GIF-y 720×900 (PL 1,56 MB, EN 1,46 MB), dwa MP4 60 s, zrodla/ (Playwright + ffmpeg, glify.py, pokrycie.py)
-README.md                         # „Zobacz, jak to działa” osadza docs/zasoby/demo/demo-relai-25s-pl.gif
+docs/zasoby/branding/ikony/   # 14 ikon 48×48, kreska 2,6, kolory motywu (szary #8a7f70 + glina #c4643c)
+docs/zasoby/film/kalibracja/  # E1-klatka, E3-scena1, E3-scena3, E4-scena4, E4-scena5, E4-scena6 (.png)
 ```
 
-Napisy kadru są w `Napis.tsx` jedną linią (`whiteSpace: 'nowrap'`, `maxWidth: 1560`) —
-dłuższy tekst EN wyjdzie poza pigułkę, a nie złamie się; kontrola przepełnień ma to złapać.
-Odmiana „{komendy} komend” jest poprawna dla 14, nie dla każdej liczby (odłożone z E2 do E5).
-Scena 3 łączy etapy planu liczone na żywo z kosztami ze zrzutów z 2026-10-12 („bez pomiaru” dla
-E4–E6) — odłożone z E3 do zestawienia w E5 albo do E6.
+Test faktów sprawdza dziś `SCENY` jako sześć identyfikatorów w kolejności — po aneksie siedem.
+Wierność trzyma zakładki i komendy sceny 3 przy `TABS` i `FORMS`; nowa scena dostaje swoje kontrole.
 
-**Czego jeszcze nie ma (to jest zakres tego etapu):** decyzji Łukasza o muzyce; słownika EN
-i filmu EN; kompozycji pętli 720×900 i jej GIF-ów PL i EN; czterech kontroli (fakty, przepełnienia,
-telefon, prywatność) w obu językach; zestawienia klatek filmu ze zrzutami wersji wydawanej;
-dawnego demo w archiwum; nowej pętli w `README.md`.
+**Czego jeszcze nie ma (to jest zakres tego etapu):** sceny „Komendy” (kompozycja, czternaście
+rekwizytów, panorama kamery), jej słownika (nazwy z `NAMES`, slogany z tabeli wyżej), kolejności
+cyklu życia jako stałej sprawdzanej testem, sceny w filmie (scenariusz siedmiu scen, przejścia
+po scenie), kalibracji smaku na jednej komendzie, renderu całego filmu PL 155 s i decyzji
+Łukasza o jego jakości.
 
 **Zasady aktywne z `docs/LEKCJE.md` (przepisane w całości, stan 2026-10-12):**
 
@@ -448,94 +468,92 @@ restart aplikacji po `plugin update` (L-0031), `git worktree` zamiast `git archi
 ## Zakres etapu
 
 **Katalog roboczy tego etapu: `.claude/relai/work/FILM_PREZENTACYJNY/E5/`.** Wszystko tymczasowe —
-paczki Remotion, klatki do oceny, wyjścia `glify.py`, skrypty pomiarowe i edycji — powstaje tam.
-Artefakt, który z natury musi leżeć **poza** projektem (`%TEMP%`, katalog domowy), wpisujesz do
-wpisu dziennika **z nazwy**, a jego nazwę zaczynasz od slugu projektu, gdy ją wybierasz.
+paczki Remotion, klatki do oceny, krótkie MP4 kalibracji, skrypty pomiarowe i edycji — powstaje
+tam. Artefakt, który z natury musi leżeć **poza** projektem (`%TEMP%`, katalog domowy), wpisujesz
+do wpisu dziennika **z nazwy**, a jego nazwę zaczynasz od slugu projektu, gdy ją wybierasz.
 
-1. **Na start:** pytanie do Łukasza o muzykę (plan, sekcja 9: brak albo plik z licencją od niego).
-   Odpowiedź do wpisu. Bez pliku film zostaje bez dźwięku — to stan domyślny, nie brak.
-2. **`docs/zasoby/film/zrodla/src/teksty.ts`** — słownik `EN` o **tych samych kluczach** co `PL`
-   (test parytetu kluczy z kontrolą pozytywną na kopii z brakującym kluczem); zero cyfr;
-   znaczniki faktów w obu. Odmiana „{komendy} komend” (E2) rozstrzygnięta w obu językach —
-   brzmienie poprawne dla wartości z manifestu i nie fałszywe dla innych (np. słowo bez liczebnika
-   albo forma liczona z wartości). Lista faktów z nazwami (`narzedziaNazwy`) łączona po angielsku
-   („a, b and c”) — `src/fakty.ts` dostaje język.
-3. **Film EN** — sceny czytają słownik wybranego języka (props kompozycji albo kontekst), film PL
-   pozostaje bajt w bajt tym samym obrazem: dowód pikselowy klatek kontrolnych PL sprzed i po
-   zmianie. Skrypty w `package.json` dla filmu EN (np. `npm run film:en` → `out/film-en.mp4`).
-4. **Pętla 25 s** — kompozycja pionowa 720×900 (np. `src/sceny/Petla25.tsx` albo
-   `src/petla/…`) jako skrót scen 2 i 3, PL i EN, napisy w jednej linii; GIF-y renderem Remotion
-   albo `ffmpeg` z palety, nieprzezroczyste tło (README w obu motywach GitHuba). Parametry
-   (klatki/s, szerokość, kolory palety) dobrane pomiarem wagi wobec budżetu 3 MB (SZACUNEK)
-   i czytelności. Pliki docelowe: `docs/zasoby/film/relai-petla-25s-pl.gif`,
-   `docs/zasoby/film/relai-petla-25s-en.gif` (nazwy możesz poprawić, wtedy wszędzie).
-5. **Cztery kontrole** w obu językach:
-   - **fakty** — `testy/fakty.test.mjs` obejmuje słownik EN i teksty pętli;
-   - **przepełnienia** — pomiar prostokątów w Chromium (zasada 15): żaden napis, karteczka ani
-     wiersz karty nie wychodzi poza swój kontener, w filmie i w pętli, PL i EN; kontrola
-     pozytywna na podłożonym przepełnieniu;
-   - **telefon** — `glify.py` na obu GIF-ach pętli: każda linia tekstu z medianą ≥ 7 px przy
-     375 px, wyłącznie klatki ustalone, oba kierunki kontrastu (jasny tekst na ciemnym oknie
-     też — sprawdź, czy instrument go widzi, zanim uznasz wynik; zasada 5 i 15); cały zbiór linii
-     do wpisu;
-   - **prywatność** — test obejmuje słownik EN i teksty pętli.
-6. **Zestawienie klatek ze zrzutami wersji wydawanej** — klatki scen 3–5 obok zrzutów
-   `docs/zasoby/PANEL_RELAI/zrzuty/` (01–09, LIMIT_CHECKPOINT) w jednym arkuszu (HTML albo PNG
-   w katalogu roboczym) dla Łukasza; jego słowa do wpisu. Rozstrzygnij z nim koszty sceny 3
-   („bez pomiaru” dla E4–E6 przy renderze w E6: świeże zrzuty, koszty na żywo albo zostaje).
-7. **Dawne demo do archiwum** — `git mv docs/zasoby/demo docs/archiwum/demo`, README demo
-   z adnotacją (data, powód, następca: `docs/zasoby/film/`); każde łącze do starej ścieżki
-   w plikach śledzonych poprawione albo świadomie zostawione (wpisy dziennika są historią —
-   nie przepisujesz ich). Instrument `glify.py` przenosi się razem z demo — prompt i README filmu
-   wskazują nową ścieżkę.
-8. **`README.md`** — sekcja „Zobacz, jak to działa”: nowa pętla PL, `alt` opisujący, co widać,
-   link do pętli EN i do filmu (MP4 będą w wydaniu v3.0.0 — do tego czasu zdanie bez martwego
-   linku; zasada 14). Obejrzane w obu motywach (zrzut albo render strony w Chromium).
-9. **Pokaz Łukaszowi:** film EN, obie pętle, arkusz zestawienia. Do trzech rund poprawek; każda
-   runda: co pokazane, co powiedział, co zmienione. Klatki przyjęte do
-   `docs/zasoby/film/kalibracja/` (`E5-petla-pl.png`, `E5-petla-en.png`, `E5-film-en.png`).
-10. **`docs/zasoby/film/README.md`** — stan na E5, komendy renderu EN i pętli, cztery kontrole
-    i jak je uruchomić, nowa ścieżka instrumentu czytelności.
+1. **`src/scenariusz.ts`** — scena `komendy` (35 s) po `panel`; `IdSceny` rozszerzony;
+   `dlugosc(30)` = 4650. Test faktów: lista siedmiu scen (zmiana testu z powodem: Aneks A).
+2. **`src/teksty.ts`** — sekcja `komendy`: tytuł sceny (jeśli scena go pokazuje) i slogany
+   kluczowane identyfikatorem komendy (`relai-adopt` …), dosłownie z tabeli; zero cyfr. Nazw
+   komend słownik **nie** powiela — scena bierze je z `NAMES` przez `src/rdzen.ts`.
+3. **`src/komendy.ts`** — stała `CYKL` (czternaście identyfikatorów w kolejności z tabeli), bez
+   importów. Test wierności: `CYKL` zawiera każdą komendę z `FORMS` dokładnie raz, każda ma
+   `NAMES`, slogan w słowniku i ikonę w `public/znak/` po `npm run znak`; kontrola pozytywna na
+   kopii z brakującą i z podwójną komendą (wzorzec testu sceny 3).
+4. **Kalibracja na jednej komendzie — przed resztą.** Wybierz komendę o najprostszej metaforze
+   (propozycja: Kopia zapasowa) i zbuduj ją w pełnej jakości: rekwizyt, ruch, nazwa, slogan,
+   wejście i wyjście kamery. Pokaż Łukaszowi klatkę i 2,5 s ruchu (MP4 z katalogu roboczego).
+   Do trzech rund; pierwsze, o co pytasz: czy obraz czyta się **bez napisu** (pokaz z zasłoniętym
+   tekstem) i czy slogan jest czytelny w 2,5 s. Przyjęta klatka →
+   `docs/zasoby/film/kalibracja/E5-komenda.png`. Reszta nie rusza bez tej akceptacji.
+5. **Scena** — plik nowej sceny (np. `src/sceny/ScenaKomend.tsx`; nazwa `Komendy.tsx` jest zajęta
+   przez zakładkę panelu w `src/sceny/panel/`) i rekwizyty (np. `src/sceny/komendy/*.tsx`, jeden
+   komponent na komendę albo wspólna rama + czternaście rysunków). Panorama: czternaście
+   rekwizytów leży obok siebie na biurku, kamera (`camera()` z `kamera.ts`) przeskakuje sprężyną;
+   75 klatek na komendę (wejście, jeden ruch obrazu, nazwa i slogan, wyjście). Układ tekstu
+   w warstwie, która liczy układ (flex/grid), ręczne współrzędne tylko dla geometrii rekwizytów
+   (zasada 15). Ikona komendy z `public/znak/ikona-<…>.svg` jest punktem wyjścia rekwizytu.
+6. **`src/sceny/Animatik.tsx`** — scena w filmie po `panel`; przejście wybierane po scenie, nie po
+   indeksie, tak że dawne sceny 4–6 zachowują przejścia z E4 (pkt „Decyzje”). `src/Root.tsx` —
+   kompozycja robocza nowej sceny.
+7. **Dane i testy** — slogany i nazwy w testach faktów (licznik wąski i szeroki) i prywatności;
+   gdy rekwizyt pokazuje tekst z produktu (np. nazwę pliku), ten tekst wchodzi do danych ze
+   źródłem albo do testu jako cytat — zasada filmu bez wyjątków.
+8. **Render całego filmu** `npm run film` → `out/film.mp4` (4650 klatek przy niezmienionych
+   czasach). Przed pokazem obejrzyj własne klatki: każda komenda w środku swojego okna, środek
+   przejść 3→4 i 4→5, klatka największego zbliżenia kamery w nowej scenie, ostatnia klatka filmu;
+   dawne sceny 5–7 porównane pikselowo z renderem E4 na odpowiadających klatkach (przesunięcie
+   o 1050 klatek).
+9. **Pokaz Łukaszowi:** MP4 całego filmu i klatki scen komend. Do trzech rund poprawek smaku; każda
+   runda: co pokazane, co powiedział, co zmienione. Klatki przyjęte →
+   `docs/zasoby/film/kalibracja/` (`E5-komendy-1.png`, `E5-komendy-2.png` — dwie klatki
+   z różnych komend; `E5-komenda.png` z punktu 4 już jest).
+10. **`docs/zasoby/film/README.md`** — stan na E5, scena komend (skąd nazwy, slogany i ikony),
+    długość filmu po aneksie.
 
 Elementy zamykające etap, które łatwo pominąć: `npm run typy` bez błędów; gdy etap dodaje pakiet —
 najpierw zgoda Łukasza z wielkością **na dysku** (L-0172) i audyt zależności; `claude plugin
-validate .` dalej przechodzi; GIF-y pętli wchodzą do gita (plan), MP4 — nie.
+validate .` dalej przechodzi; skrypty edycji kodu z `\n` albo ścieżką Windows — wyłącznie
+narzędziem Write (zasada 5; E4 złamał ją trzy razy).
 
 ## Weryfikacja (wszystkie punkty muszą przejść)
 
 Każdy punkt Weryfikacji, który przeszedł, odhaczasz w `PROMPT_ETAP_5.md` (`- [ ]` → `- [x]`)
 zaraz po jego sprawdzeniu, nie na końcu etapu; punkt, który nie przeszedł, zostaje pusty.
 
-- [ ] Pytanie o muzykę padło na starcie; odpowiedź Łukasza we wpisie.
-- [ ] Słownik EN: te same klucze co PL (test parytetu z kontrolą pozytywną), zero cyfr w obu
-      słownikach; odmiana „{komendy}” rozstrzygnięta i opisana we wpisie.
-- [ ] Film PL nietknięty: klatki kontrolne PL (co najmniej jedna z każdej sceny) sprzed i po
-      zmianie — 0 różnych pikseli, porównanie z kontrolą pozytywną.
-- [ ] Film EN wyrenderowany 1920×1080, 30 kl./s: `ffprobe` z pliku — 3600 klatek, 120 s ± 1
-      klatka; własne klatki obejrzane (każda scena, środek każdego przejścia, ostatnia).
-- [ ] Pętle PL i EN: 720×900, długość 25 s ± 1 klatka (z pliku), waga każdej do wpisu wobec
-      budżetu 3 MB (SZACUNEK); nieprzezroczyste tło.
-- [ ] Kontrola faktów: `npm test` — wszystkie testy (22 z E1–E4 + nowe, minus świadomie zmienione
-      z powodem we wpisie), przebieg po `npm run przygotuj` po ostatniej zmianie promptu; liczniki
-      wąski i szeroki dla obu języków do wpisu; wartości kontroli pozytywnych sprawdzone wobec
-      zbioru dozwolonego (L-0173).
-- [ ] Kontrola przepełnień: 0 elementów poza kontenerem w filmie i pętli, PL i EN; kontrola
-      pozytywna na podłożonym przepełnieniu trafiona.
-- [ ] Kontrola telefonu: `glify.py` na obu pętlach — każda linia tekstu z medianą ≥ 7 px przy
-      375 px; cały zbiór linii i odsiew do wpisu; instrument sprawdzony na jasnym tekście na
-      ciemnym tle (kontrola pozytywna na klatce, w której taki tekst na pewno jest).
-- [ ] Kontrola prywatności: test obejmuje słownik EN i teksty pętli, przechodzi; trzy podłożone
-      linie trafione.
+- [ ] Kalibracja na jednej komendzie przyjęta przez Łukasza **przed** budową pozostałych (jego
+      słowa we wpisie, w tym odpowiedź o czytelności bez napisu); `kalibracja/E5-komenda.png`.
+- [ ] `npx remotion compositions` pokazuje `Animatik` o długości `dlugosc(fps)` = 4650 klatek
+      (155 s) i kompozycję roboczą nowej sceny 1050 klatek.
+- [ ] Wierność komend: `CYKL` = każda komenda `FORMS` dokładnie raz, w kolejności z tabeli;
+      nazwa w kadrze = `NAMES[komenda][0]`; slogan = tabela (dosłownie); ikona w `public/znak/`;
+      kontrole pozytywne (brakująca i podwójna komenda, inny slogan) kończą test błędem.
+- [ ] `testy/fakty.test.mjs` przechodzi z nową sceną: zero cyfr w słowniku, liczniki wąski
+      i szeroki do wpisu; wartość każdej nowej kontroli pozytywnej sprawdzona wobec zbioru
+      dozwolonego (L-0173).
+- [ ] `npm test` w `docs/zasoby/film/zrodla/` — wszystkie testy (22 z E1–E4 + nowe, minus
+      świadomie zmienione z powodem we wpisie), przebieg po `npm run przygotuj` po ostatniej
+      zmianie promptu; liczba do wpisu.
+- [ ] Render całego filmu 1920×1080, 30 kl./s: liczba klatek i czas odczytane `ffprobe` z pliku,
+      równe 4650 klatek i 155 s ± 1 klatka.
+- [ ] Sceny przyjęte nietknięte: `git diff --stat` na plikach scen 1–3 i dawnych 4–6
+      (`Pamiec.tsx`, `Paski.tsx`, `PaskiDalej.tsx`, `Panel.tsx`, `panel/*.tsx`, `NowaSesja.tsx`,
+      `PracaWraca.tsx`, `Final.tsx`, `Pasek.tsx`, `PasekCache.tsx`, `Adnotacja.tsx`, `Pytania.tsx`)
+      pusty **albo** klatka sprzed i po pokazana Łukaszowi; klatki dawnych scen 5–7 z nowego MP4
+      porównane pikselowo z odpowiadającymi klatkami renderu E4 (przesunięcie 1050) — różnice
+      tylko tam, gdzie zmieniły się dane żywe (pasek planu), opisane we wpisie.
+- [ ] Przejścia 3→4 i 4→5: klatka ze środka obejrzana — jeden obraz albo czysty papier, bez
+      błysku; przejścia dawnych scen 5–7 tego samego rodzaju co w E4.
+- [ ] Czytelność w tempie: każda z czternastu komend ma w swoim oknie co najmniej 1 s, w której
+      nazwa i slogan stoją nieruchomo i w całości w kadrze (pomiar z klatek albo z osi czasu
+      w kodzie, do wpisu).
 - [ ] Kolory i sieć: `grep -rnE '#[0-9a-fA-F]{3,8}' src/sceny/` i `grep -rnE "https?://" src` —
       pusto, każdy z kontrolą pozytywną na podłożonym pliku w katalogu roboczym.
-- [ ] Zestawienie klatek ze zrzutami przejrzane przez Łukasza (jego słowa we wpisie); decyzja
-      o kosztach sceny 3 we wpisie albo jako bramka w `STATUS.md`.
-- [ ] Dawne demo w `docs/archiwum/demo/` (`git mv`, historia zachowana), README demo
-      z adnotacją; `grep -rn "zasoby/demo"` w plikach śledzonych poza dziennikiem i archiwum —
-      każde trafienie rozstrzygnięte we wpisie.
-- [ ] `README.md` osadza nową pętlę PL, link do EN; żadnego martwego linku (`git ls-files` na
-      każdą ścieżkę z sekcji); obejrzane w jasnym i ciemnym motywie.
-- [ ] Łukasz przyjął film EN i obie pętle (jego słowa we wpisie), klatki wzorcowe
+- [ ] Prywatność kadru: test prywatności obejmuje słowa nowej sceny i przechodzi.
+- [ ] Obejrzane własne klatki przed pokazem (lista z punktu 8 zakresu); poprawki z przeglądu
+      wymienione we wpisie.
+- [ ] Łukasz przyjął scenę komend i cały film PL (jego słowa we wpisie), klatki wzorcowe
       w `docs/zasoby/film/kalibracja/` **albo** po trzech rundach coś zostaje otwarte — wtedy etap
       zostaje `W TOKU`, a wpis mówi, co zostało do rozstrzygnięcia.
 - [ ] `npm run typy` bez błędów; gdy etap dodał pakiet — `npm audit --omit=dev` zero wysokich
@@ -563,12 +581,14 @@ zaraz po jego sprawdzeniu, nie na końcu etapu; punkt, który nie przeszedł, zo
    ryzyk; lekcje z etapu do `docs/LEKCJE.md` i odśwież „Zasady aktywne” (limit 15,
    `node core/tools/count-rules.js docs/LEKCJE.md`).
 3. Bramki manualne w `STATUS.md` z sekcji „Do zrobienia przez człowieka” tego wpisu.
-4. `docs/STATE.md` — stan planu filmu (dwa filmy i pętle gotowe do wydania); linie planu
+4. `docs/STATE.md` — stan planu filmu (pełny film PL po aneksie, 155 s); linie planu
    w `CLAUDE.md` („Stan prac”, „Aktywny plan”); `docs/ARTEFAKTY.md` tylko wtedy, gdy etap zmienił
    artefakt z rejestru.
 5. **Wygeneruj `PROMPT_ETAP_6.md`** w tym folderze, ze specyfikacji promptu etapowego
-   (`.claude/relai/templates/SPEC_PROMPT_ETAPU.md`): na bazie `PLAN.html` sekcje 2 (cel 5), 6 (E6),
-   8 (MP4 w zasobach wydania), 9 (numery pluginów panelu w 3.0.0, zgoda na publikację), procedury
-   wydania 2.9.0 (siedem źródeł wersji, walidator, testy pluginów, skan sekretów), realnego stanu
-   po tym etapie (stan odnogi parsera modelu — bramka przed E6) i lekcji z tego etapu.
+   (`.claude/relai/templates/SPEC_PROMPT_ETAPU.md`): na bazie `PLAN.html` sekcje 2 (cel 2: pętla
+   czytelna na telefonie), 6 (dawny E5 — po Aneksie A to E6), 8 (tekst EN, dawne demo, README
+   w obu motywach) i 10 (Aneks A: słownik EN obejmuje scenę komend), realnego stanu po tym etapie
+   i lekcji z tego etapu. Materiał pomocniczy: prompt EN i pętli napisany w rytuale E4, zanim
+   powstał aneks — `git show cbe0f29:docs/plany/FILM_PREZENTACYJNY/PROMPT_ETAP_5.md` (stan
+   wyjściowy w nim jest sprzed sceny komend; numery etapów przesunięte o jeden).
 6. Commit (conventional, EN) i push — propozycja; wyłącznie za zgodą Łukasza, bez plików PANEL_CODEX.

@@ -1949,3 +1949,63 @@ Sesja Opus 5.5 w Claude Code, `/relai-stage` z kartą potwierdzenia („tak”).
   z wierszem Model w stanie zgodnym, decyzja Łukasza.)*
 
 Autor: RelAI (Opus 5.5) + Lukasz
+
+### 2026-10-12 — FILM_PREZENTACYJNY: Aneks A — scena „Komendy”, nowy E5
+
+Ta sama sesja, po commicie E4 (`cbe0f29`, wypchnięty na `main` po zgodzie Łukasza). Optymalizator
+promptów w tej sesji wyłączony decyzją Łukasza (bramka zgody: „Nie, nie w tej sesji”).
+
+**Zrobione:**
+
+- **Prośba Łukasza:** w filmie głównym ma być scena 30–40 s, w której każda komenda trwa najwyżej
+  2–2,5 s. Esencję mają pokazywać obrazy, a tekst ograniczyć się do sloganu. To zmienia zamrożony
+  plan (scenariusz, długość, etapy), więc najpierw padły dwie rundy wywiadu.
+  - **Runda 1:** aneks do planu, scena po „Panelu”, nowy etap przed EN i pętlą, 2,5 s na komendę.
+  - **Runda 2:** rekwizyty na biurku, nazwa + slogan, kamera po biurku, kolejność cyklu życia
+    projektu.
+
+  Wszystkie wybory Łukasza zgodne z rekomendacjami.
+- **Slogany** w trzech rundach poprawek:
+  - Łukasz odrzucił 2, 3, 7, 10, 12 i 13 jako nienaturalne po polsku. Przy 10 dodał: „powinno być
+    coś o aktualizacji do najnowszej wersji RelAI po prostu”.
+  - Wybrał 2a, 3c, 10a, 12a, 13a, a dla 7 nowy zestaw i z niego 7b.
+  - Przy 3c („jednym kliknięciem”) powiedziałem, że w panelu start etapu to dwa kliknięcia. Łukasz:
+    „zostaw to 3 jak wybrałem”.
+- **Aneks A** w sekcji 10 [PLAN.html](plany/FILM_PREZENTACYJNY/PLAN.html), dopisany skryptem
+  z kontrolą, że sekcje 1–9 są bajt w bajt bez zmian:
+  - nowa scena 4 „Komendy”, 35 s SZACUNEK; dawne sceny 4–6 przesunięte na 5–7; film 155 s
+    SZACUNEK;
+  - tabela 14 komend: nazwa, slogan i obraz-storyboard do kalibracji;
+  - nowy E5 „Scena komend”; dawne E5–E6 przesunięte na E6–E7;
+  - trzy ryzyka z mitygacją.
+- **[STATUS.md](plany/FILM_PREZENTACYJNY/STATUS.md):**
+  - linia metryczna z Aneksem A;
+  - tabela etapów E5–E7;
+  - bramka „Start E5” z nowym `/effort high`;
+  - bramka odnogi parsera przesunięta na „przed wydaniem (E7)”;
+  - linia aneksu w dzienniku wdrożenia.
+- **[PROMPT_ETAP_5.md](plany/FILM_PREZENTACYJNY/PROMPT_ETAP_5.md)** napisany od nowa dla sceny
+  komend wg `SPEC_PROMPT_ETAPU`:
+  - dziewięć elementów, nagłówki po razie, 18 punktów weryfikacji;
+  - „Zasady aktywne” wklejone skryptem i zgodne ze źródłem linia po linii (313 linii, 15 zasad).
+  - Poprzednia treść (EN, pętla, kontrole) nie była wykonana. Zostaje w historii gita, commit
+    `cbe0f29`, jako wskazany materiał dla `PROMPT_ETAP_6.md`, który powstanie w rytuale E5
+    (generacja lazy, D-34).
+
+**Zweryfikowane — jak dokładnie:**
+
+- Skrypt aneksu porównał wszystko przed `<section id="s10">` przed i po zapisie: identyczne.
+  Nagłówek „Aneks A” występuje 1 raz, wierszy tabeli 14.
+- Prompt E5: marker zasad zastąpiony 1 raz, blok identyczny ze źródłem, sześć nagłówków sekcji
+  po 1, nagłówek `# PROMPT_ETAP_5` 1, checkboxów 18.
+
+**Świadomie odłożone:**
+
+- Odnoga parsera modelu — bez zmian, przed wydaniem.
+
+**Do zrobienia przez człowieka:**
+
+- Start E5 (scena komend) w świeżej sesji Opus 5.5 (`/relai-stage`, `/effort high`); kalibracja
+  na jednej komendzie przed resztą.
+
+Autor: RelAI (Opus 5.5) + Lukasz
