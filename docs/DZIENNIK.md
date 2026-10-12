@@ -50,22 +50,12 @@
 > — przeniesione 2026-08-21, suma kontrolna `4b370c3e2b31c6ba`.
 
 ## Czeka na człowieka
-- ~~**LIMIT_CHECKPOINT E4 — pomiar na żywo, wydanie, katalog roboczy**~~ *(rozstrzygnięte 2026-10-12 — pomiar potwierdzony i wydanie 2026-10-11; katalog roboczy skasowany po „tak”; plan zamknięty)* — kod i testy gotowe (168/141/295); czeka: pomiar na desktopie 2.1.295 wg `STATUS.md` planu, „tak” na wydanie `relai` 2.9.0 / `relai-cache-keeper` 0.6.0 / `relai-panel` 0.13.0, „tak” na skasowanie `.claude/relai/work/LIMIT_CHECKPOINT/E4/` · 2026-10-11 · [wpis 2026-10-11 — E4 W TOKU](#2026-10-11--limit_checkpoint-e4-w-toku-dwa-progi-karta-zasięgu-wznów-pracę-i-karta-progu-w-kosztach--przed-pomiarem-na-żywo)
-- ~~**AUDYT_MODOW Z5 — pomiar `/clear` na żywo**~~ *(rozstrzygnięte 2026-10-11 — Łukasz: koszt sesji na pasku cache od zera, pasek plan z przyciskiem `Wybierz pracę…`; paski pojawiły się dopiero po pierwszym prompcie, co jest zamierzone)* — po `/clear` kończącym sesję 2026-10-11 pasek cache ma zacząć od zera (koszt sesji, baterie „brak danych” do pierwszej tury), a fokus AUDYT_MODOW przejść do nowej sesji; jedno słowo „ok” albo zrzut w następnej sesji · 2026-10-11 · [wpis 2026-10-11 — Z13, Z14 i zamknięcie odnogi](#2026-10-11--audyt_modow-z13-i-z14-wydanie-0120-i-zamknięcie-odnogi)
-- ~~**Akceptacja planu LIMIT_CHECKPOINT**~~ *(rozstrzygnięte 2026-10-11 — Łukasz zaakceptował plan; 90 % zostaje; „Zapisz” na karcie jest zgodą na commit lokalny; PROMPT_ETAP_1 wygenerowany)* — plan DO AKCEPTACJI (4 etapy); razem z nim dwie decyzje z sekcji 9: czy „Zapisz pracę teraz” na karcie jest zgodą na commit lokalny, i potwierdzenie progu domyślnego 90 % · 2026-10-11 · [wpis 2026-10-11 — research, audyt, plan](#2026-10-11--research-nowej-sesji-audyt-skilli-i-plan-limit_checkpoint)
-- ~~**Linia „Aktywny plan” w `CLAUDE.md` przy dwóch planach**~~ *(rozstrzygnięte 2026-10-11 — Łukasz: LIMIT_CHECKPOINT od razu; PANEL_CODEX wymieniony w tej samej linii jako drugi plan niezamknięty)* — PANEL_CODEX (E1 w Codeksie) czy LIMIT_CHECKPOINT (po akceptacji, Claude Code); `CLAUDE.md` ma jedną linię (D-30) · 2026-10-11 · [wpis 2026-10-11 — research, audyt, plan](#2026-10-11--research-nowej-sesji-audyt-skilli-i-plan-limit_checkpoint)
 - **Jeden katalog `skills/` w standardzie Agent Skills dla trzech narzędzi** — zdjąłby kopię Codeksa (~4300 linii) i generator, ale zmienia zamrożoną D-89 i kształt adapterów; plan, odnoga czy odrzucić (audyt AUDYT_SKILLI, wiersz 50 raportu) · 2026-10-11 · [wpis 2026-10-11 — research, audyt, plan](#2026-10-11--research-nowej-sesji-audyt-skilli-i-plan-limit_checkpoint)
 - **AUDYT_MODOW — ustalenia poza zakresem (5 pozycji `outOfScope` raportu)** — odchudzenie kopii rdzenia per plugin (`sync-panel-core`), `headings.mjs` 254 KB w progress i cache-keeperze, % limitu per etap w rdzeniu, `userConfig` cache-keepera, przedrostek `relai-` jego komend; plus wariant B „jedna listwa” jako kandydat na plan — decyzja: plan, odnoga albo odrzucić · 2026-10-11 · [wpis 2026-10-11 — Z13, Z14 i zamknięcie odnogi](#2026-10-11--audyt_modow-z13-i-z14-wydanie-0120-i-zamknięcie-odnogi)
-- ~~**PANEL_CODEX E1 — korekta liczby pól kontraktu**~~ *(rozstrzygnięte 2026-10-10 — Łukasz zaakceptował Aneks A, zapisany w planie; 16 pól, bez zmiany schematu)* · 2026-10-10 · [wpis 2026-10-10 — Aneks A i start sondy](archiwum/dziennik/DZIENNIK_2026-10-09_2026-10-10.md#2026-10-10--panel_codex-e1-aneks-a-i-naprawa-startu-sondy)
-- ~~**PANEL_CODEX E1 — otwarcie lokalnej sondy**~~ *(rozstrzygnięte 2026-10-10 — natywny widok 0.0.7 i wiadomość bieżąca potwierdzone; pakiet w sondzie 0.0.8 pokazuje właściwy stan, wygląd zaakceptowany)* · 2026-10-10 · [wpis — Panel i mostek](archiwum/dziennik/DZIENNIK_2026-10-09_2026-10-10.md#2026-10-10--panel_codex-e1-natywny-widok-minimalny-pakiet-i-mostek-bieżącego-czatu)
 - **PANEL_CODEX E1 — próba przycisków minimalnego pakietu i świeżego kontekstu** — w macierzystym czacie nadal proces 0.0.7/PID 62300; po restarcie sprawdzić sondę 0.0.9 (także fonty), nowy szkic i jego rzeczywisty projekt/kontekst. Wygląd już zaakceptowany · 2026-10-10 · [wpis — Panel i mostek](archiwum/dziennik/DZIENNIK_2026-10-09_2026-10-10.md#2026-10-10--panel_codex-e1-natywny-widok-minimalny-pakiet-i-mostek-bieżącego-czatu)
 
 - **Powiadomienie w tle bez bramki zgody** — po wydaniu sprawdzić w sesji interaktywnej, że
   zakończone zadanie w tle nie dostaje pytania o zgodę (Aneks H) · 2026-09-24 · [wpis 2026-09-24 — E6](archiwum/dziennik/DZIENNIK_2026-09-14_2026-10-09.md#2026-09-24--e6-planu-prowadzenie_end_to_end-krańce-drogi-bez-wydania)
-
-- ~~**Graduacja L-0127 do `CLAUDE.md`**~~ *(rozstrzygnięte 2026-09-24 — dopisane do „Reguł procesu"
-  po trzecim powtórzeniu, L-0130)* — tekst z backslashem nie idzie przez powłokę (powtórzenie
-  L-0119) · 2026-09-24 · [wpis 2026-09-24 — E6](archiwum/dziennik/DZIENNIK_2026-09-14_2026-10-09.md#2026-09-24--e6-planu-prowadzenie_end_to_end-krańce-drogi-bez-wydania)
 
 - **Jedno okno pytań na starcie w sesji interaktywnej** — po wydaniu przy zamknięciu planu
   PROWADZENIE_END_TO_END sprawdzić, że bramka trybu ciągłego pyta o zgodę i model w jednym oknie
@@ -80,21 +70,6 @@
 - **Odpowiedź testerowi: czy po odmowie pytanie o RelAI wróciło w tym samym folderze** — jeśli tak,
   defekt jest w markerze trybu gościa, a nie w zakresie instalacji · 2026-09-15 ·
   [wpis 2026-09-15 — Zgłoszenie testera](archiwum/dziennik/DZIENNIK_2026-09-14_2026-10-09.md#2026-09-15--zgłoszenie-testera-plugin-pyta-o-relai-w-cudzym-folderze-dwie-bramki-zgody-i-wydanie-230)
-
-- ~~**Akceptacja planu PIERWSI_UZYTKOWNICY**~~ *(rozstrzygnięte 2026-09-12 — plan zaakceptowany i zamrożony; E1 i E2 zamknięte)* · 2026-09-12 · [wpis 2026-09-12 — Plan pierwszych użytkowników](archiwum/dziennik/DZIENNIK_2026-09-06_2026-09-14.md#2026-09-12--plan-pierwszych-użytkowników)
-
-- ~~**Akceptacja planu OPTYMALIZATOR_PROMPTOW**~~ *(rozstrzygnięte 2026-09-14 — Łukasz zaakceptował
-  plan bez uwag; plan zamrożony, `PROMPT_ETAP_1.md` wygenerowany, E1 gotowy do startu)* · 2026-09-14 ·
-  [wpis 2026-09-14 — Nowy plan OPTYMALIZATOR_PROMPTOW](archiwum/dziennik/DZIENNIK_2026-09-06_2026-09-14.md#2026-09-14--nowy-plan-optymalizator_promptow-pilotaż-wstrzymany-na-wniosek-właściciela)
-
-- ~~**Gdzie wchodzi prowizjonowanie `core/prompt/` do projektu użytkownika**~~ *(rozstrzygnięte
-  2026-09-14 — **E5, razem z sekwencją wydania**; do tego czasu komenda w cudzym projekcie pracuje
-  na rdzeniu reguł niesionym w samej komendzie i jest to stan zamierzony)* · 2026-09-14 ·
-  [wpis 2026-09-14 — E1 optymalizatora](archiwum/dziennik/DZIENNIK_2026-09-14_2026-10-09.md#2026-09-14--e1-optymalizatora-baza-reguł-czternasta-komenda-i-nota-licencyjna-w-jednym-commicie)
-
-- ~~**Nazwa komendy optymalizatora**~~ *(rozstrzygnięte 2026-09-14 — `/relai-prompt`, zgodnie
-  z konwencją rodziny komend)* · 2026-09-14 ·
-  [wpis 2026-09-14 — Nowy plan OPTYMALIZATOR_PROMPTOW](archiwum/dziennik/DZIENNIK_2026-09-06_2026-09-14.md#2026-09-14--nowy-plan-optymalizator_promptow-pilotaż-wstrzymany-na-wniosek-właściciela)
 
 - **Który model zostaje domyślny, jeśli pomiar E2 wyjdzie nierozstrzygający** — na przykład gdy
   Haiku pokryje siedem wymiarów na dziewięć i wypadnie na wybiórczym czytaniu decyzji. Wybór między
@@ -1153,5 +1128,40 @@ kopii w cache'u po CRLF → LF. Podłożony kod w cache'u 0.13.0 przestał być 
 
 **Do zrobienia przez człowieka:** restart aplikacji (nowa wersja ładuje się po nim, P-005);
 zmiana `relai-stage.md` wyjdzie z najbliższym wydaniem `relai`.
+
+Autor: RelAI (Opus 5.5) + Lukasz
+
+### 2026-10-12 — Porządek przed AUDYT_SKILLI: „Czeka na człowieka”, prompt odnogi, kurs na 3.0.0
+
+Ta sama sesja Opus 5.5. Łukasz: następna odnoga AUDYT_SKILLI w nowej sesji, potem RelAI 3.0.0
+z filmem Remotion; prompt przebudować teraz, rotacja teraz, wydania zbiorczo w 3.0.0.
+
+**Zrobione:**
+
+- „Czeka na człowieka”: 11 pozycji rozstrzygniętych usunięte z sekcji (wymóg `SPEC_DZIENNIK`) —
+  LIMIT_CHECKPOINT E4 (pomiar, wydanie, katalog); AUDYT_MODOW Z5; akceptacja LIMIT_CHECKPOINT; linia
+  „Aktywny plan” przy dwóch planach; PANEL_CODEX E1 — pola kontraktu i lokalna sonda; graduacja
+  L-0127; akceptacje PIERWSI_UZYTKOWNICY i OPTYMALIZATOR_PROMPTOW; prowizjonowanie `core/prompt/`;
+  nazwa komendy optymalizatora. Rozstrzygnięcia stoją w ich wpisach źródłowych. Zostało 21 spraw
+  otwartych, żadna ponad 30 dni (najstarsza 29). Rotacja starych wpisów dziennika — nie: budżet
+  startu liczy tylko ostatni wpis, plik ma 96 KB przy progu 150 KB.
+- [PROMPT_ODNOGA.md](fixy/AUDYT_SKILLI/PROMPT_ODNOGA.md) AUDYT_SKILLI przebudowany: był sklejony
+  (trzy kopie początku, 566 linii), opisywał 2.8.0, kazał wydać 2.9.0, zakładał wzorzec Fable. Teraz
+  441 linii, stan z pomiaru 2026-10-12, Opus 5.5 w świeżej sesji, bez wydania, zasady wklejone
+  skryptem dosłownie.
+- [ODNOGA.md](fixy/AUDYT_SKILLI/ODNOGA.md): kryterium S1 („exit 0 na bieżącym repo”) było
+  nieosiągalne — `relai-core/SKILL.md` ma 510 linii (limit S1: 500), opis `relai-planning` ma `<`;
+  decyzja Łukasza: lista wyjątków w walidatorze, opróżniana w S2 (nowy punkt Weryfikacji S2).
+- `STATE.md` „Co dalej”: AUDYT_SKILLI, potem 3.0.0 z filmem prezentacyjnym.
+
+**Zweryfikowane — jak dokładnie:** lista spraw z datą dla 32/32 pozycji (pierwszy przebieg
+instrumentu nie znalazł 16 dat — kropka na końcu linii; poprawiony), po zmianie 21 pozycji, 0
+przekreślonych, diff sekcji samymi usunięciami; pozycja budżetu „ryzyka” 32,2 → 28,0 KB przed tym
+wpisem. Prompt: skrypt sprawdził jeden znacznik, równość wklejonego bloku ze źródłem (pierwszy
+przebieg zatrzymał `$` w zasadach rozwinięte przez `String.replace` — poprawione), jeden `#`, pięć
+sekcji, 15 zasad; fragmenty z `$` 1/1 i 2/2. Opisy skilli mierzone po złączeniu bloku `>`
+(kontrola: `relai-planning` 997 znaków jak w raporcie). `validate-adapters` exit 0.
+
+**Do zrobienia przez człowieka:** start AUDYT_SKILLI w świeżej sesji Opus 5.5 (`/effort high`).
 
 Autor: RelAI (Opus 5.5) + Lukasz

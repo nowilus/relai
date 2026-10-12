@@ -72,8 +72,14 @@ zaakceptowany, E1 trwa po stronie Codeksa. Opinii spoza projektu nadal nie ma.
 - Aneks do PANEL_CODEX z zapisem pracy przed limitem dla panelu Codeksa — po domknięciu jego E1
   (bramka zamknięcia LIMIT_CHECKPOINT, decyzja Łukasza 2026-10-12). Przepięcie `prompt-mode.js`
   na `threshold.js` nadal świadomie odłożone.
-- `relai-stage.md` wersja 6 (kasowanie pliku zgody po starcie, odnoga NOWA_SESJA) wyjdzie
-  z najbliższym wydaniem `relai`; `relai-panel` 0.14.0 wydany 2026-10-12.
+- **Następny krok: odnoga AUDYT_SKILLI** w świeżej sesji Opus 5.5 z
+  [PROMPT_ODNOGA.md](fixy/AUDYT_SKILLI/PROMPT_ODNOGA.md) (przebudowany 2026-10-12; S1 z listą
+  wyjątków do S2). Kończy się commitem **bez wydania**.
+- **Potem RelAI 3.0.0** (decyzja Łukasza 2026-10-12): jedno wydanie zbierające mody i panel
+  Claude Code, start etapu w nowej sesji, audyt skilli i `/relai-stage` v6 — razem z **filmem
+  prezentacyjnym (Remotion)** do README na GitHubie i do wysyłki ludziom: pełny przegląd RelAI
+  w Claude Code — paski nad promptem, otwieranie panelu, zakładki i co w nich sprawdzić lub zrobić.
+  Film powstaje dopiero po zamknięciu AUDYT_SKILLI, na dopracowanym produkcie.
 - Odnoga [AUDYT_SKILLI](fixy/AUDYT_SKILLI/ODNOGA.md) (OTWARTA): skille wg praktyk Agent Skills —
   53 wiersze luk (14 zgodne, 21 częściowo, 11 brak), paczki S1–S7 (strażnik w walidatorze,
   odchudzenie SKILL.md, historia poza instrukcje, `rotate.js`, ewaluacje, `disable-model-invocation`,

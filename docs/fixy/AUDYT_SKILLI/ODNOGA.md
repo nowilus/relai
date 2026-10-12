@@ -1,8 +1,9 @@
 # ODNOGA — skille RelAI według praktyk Agent Skills: lżejsze, mierzone, bez historii w instrukcjach
 
 Plan: brak (wątek samodzielny) · Etap-źródło: — · Utworzona: 2026-10-11 · Status: **OTWARTA** ·
-Wykonawca: **Opus 5.5** (D-85; dopuszczony wzorzec „Opus jako subagent sesji Fable 5.1” jak
-w Z13–Z14 odnogi AUDYT_MODOW — wybór przy starcie każdej paczki)
+Wykonawca: **Opus 5.5 w świeżej sesji** (D-85; wzorzec „subagent sesji Fable 5.1” odwołany
+2026-10-11). Zmiana 2026-10-12 (Łukasz): S1 startuje z jawną listą wyjątków dla naruszeń, które
+naprawia dopiero S2; odnoga kończy się commitem bez wydania — wszystko wchodzi do RelAI 3.0.0.
 
 ## Cel
 
@@ -38,6 +39,9 @@ generator Codeksa (`adapters/codex/generate-skills.js`), którego parytet pilnuj
    „I/You/MUST BE USED”, treść `SKILL.md` ≤ 500 linii (ostrzeżenie od 480) i ≤ 20 KB (ostrzeżenie),
    spójność `description`/wersji między `plugin.json` każdego pluginu a obydwoma marketplace’ami,
    zgodność listy kroków rytuału „Na koniec” między `relai-planning/SKILL.md` a `SPEC_PROMPT_ETAPU.md` §9.
+   Naruszenia zastane, które naprawia S2 (2026-10-12: `relai-core/SKILL.md` 510 linii, `<` w opisie
+   `relai-planning`), stoją na jawnej liście wyjątków w walidatorze — każda pozycja z plikiem,
+   kontrolą i zmierzoną wartością; walidator wypisuje je jako ostrzeżenie, a S2 listę opróżnia.
 2. **S2 · Odchudzenie obu `SKILL.md`** — `adapters/claude-code/skills/relai-core/SKILL.md`
    i `relai-planning/SKILL.md`: akapity zakresu i historii (`:19–46`) i numer wersji usunięte; sekcje
    warunkowe do nowych plików doczytywanych (core: siatki bezpieczeństwa, przegląd spraw
@@ -90,12 +94,14 @@ generator Codeksa (`adapters/codex/generate-skills.js`), którego parytet pilnuj
 ## Weryfikacja
 
 - [ ] S1: `node core/tools/validate-adapters.js` wypisuje nowe kontrole i kończy exit 0 na bieżącym
-      repo; kontrola pozytywna na podłożonym defekcie: opis z `<X>`, 1030 znaków, 501 linii, rozjazd
-      „Na koniec” — każdy osobno daje exit 1 z nazwą pliku.
+      repo, z listą wyjątków dokładnie dwóch naruszeń zastanych (wypisanych jako ostrzeżenie);
+      kontrola pozytywna na podłożonym defekcie: opis z `<X>`, 1030 znaków, 501 linii, rozjazd
+      „Na koniec” — każdy osobno daje exit 1 z nazwą pliku (w pliku spoza listy wyjątków).
 - [ ] S2: `wc -l` i rozmiar obu `SKILL.md` ≤ 300 linii / ≤ 15 KB (SZACUNEK ≈ 4–5k tokenów), opisy
       ≤ 800 znaków bez `<`; budżet startu sesji z hooka spada o co najmniej 10 KB wobec 122,8 KB
       z 2026-10-11; pliki doczytywane wymienione w tabeli SKILL.md z wyzwalaczem; `history.md`
-      zaktualizowany; parytet Codeksa (`validate-adapters`) exit 0.
+      zaktualizowany; parytet Codeksa (`validate-adapters`) exit 0; lista wyjątków z S1 pusta (kod
+      listy usunięty albo pusty, walidator nie wypisuje już ostrzeżeń o tych dwóch plikach).
 - [ ] S3: `grep -n "do 1\.[0-9]\.[0-9]\|zmieniła adres\|Do 1\.5" core/templates adapters/claude-code/skills`
       zwraca wyłącznie linie w sekcjach „Dawniej” / `history.md`; każdy plik > 100 linii zaczyna się
       listą „Zawartość”; `SPEC_PROMPT_ETAPU.md` §9 i skill dają tę samą liczbę kroków (test z S1).

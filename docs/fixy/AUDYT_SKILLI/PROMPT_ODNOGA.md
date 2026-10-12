@@ -1,29 +1,29 @@
 # PROMPT_ODNOGA — skille RelAI według praktyk Agent Skills: lżejsze, mierzone, bez historii w instrukcjach
 
-Odnoga: AUDYT_SKILLI • Plan-rodzic: brak (wątek samodzielny w `docs/fixy/`) • Wygenerowano: 2026-10-11
-(autor: Fable 5.1) • Wykonawca: **Opus 5.5**, `/effort high`
+Odnoga: AUDYT_SKILLI • Plan-rodzic: brak (wątek samodzielny w `docs/fixy/`) • Wygenerowano: 2026-10-12
+(autor: Opus 5.5; przebudowa promptu z 2026-10-11, autor pierwotny Fable 5.1) • Wykonawca:
+**Opus 5.5 w świeżej sesji**, `/effort high`
 
 > **Kontrola modelu:** ten wątek wykonuj wyłącznie na modelu klasy **najsilniejszy**, w tym narzędziu:
-> **Opus 5.5** (lista modeli Claude Code z dnia `2026-10-08`) — w świeżej sesji (D-85) albo jako
-> subagent sesji Fable 5.1 (wzorzec Z13–Z14 odnogi AUDYT_MODOW; wybór przy starcie paczki). Jeśli
-> sesja działa na innym modelu — zatrzymaj się i poproś o przełączenie, zanim cokolwiek zrobisz.
-> Zalecany poziom `/effort`: `high` — paczki S2 i S3 przepisują dokumenty czytane w każdej sesji
-> każdego projektu RelAI; błąd tu kosztuje w cudzych repozytoriach.
+> **Opus 5.5** (lista modeli Claude Code z dnia `2026-10-08`), w świeżej sesji uruchomionej z tego
+> promptu (D-85). Jeśli sesja działa na innym modelu — zatrzymaj się i poproś o przełączenie, zanim
+> cokolwiek zrobisz. Zalecany poziom `/effort`: `high` — paczki S2 i S3 przepisują dokumenty czytane
+> w każdej sesji każdego projektu RelAI; błąd tu kosztuje w cudzych repozytoriach.
 
 ## Co przeczytać na start (w tej kolejności, nic więcej)
 
 | Plik | Po co |
 |---|---|
 | `CLAUDE.md` | reguły procesu, definicja ukończenia, reguły profilu (rejestr artefaktów, wersje) |
-| `docs/fixy/AUDYT_SKILLI/ODNOGA.md` | cel, zakres S1–S7 i weryfikacja — karta jest źródłem |
+| `docs/fixy/AUDYT_SKILLI/ODNOGA.md` | cel, zakres S1–S7 i weryfikacja — karta jest źródłem, ten prompt tylko ją wykonuje |
 | `docs/fixy/AUDYT_SKILLI/RAPORT.html` | tabela luk z czterech soczewek, ranking zmian, sekcja „Czego nie ruszać” |
-| `docs/ARTEFAKTY.md` | wersje artefaktów (relai-core v22, relai-planning v10) — każda zmiana podbija wersję z „co” i „po co” |
+| `docs/ARTEFAKTY.md` | wersje artefaktów (`relai-core` v25, `relai-planning` v11, `/relai-stage` v6) — każda zmiana podbija wersję z „co” i „po co” |
 | `adapters/claude-code/skills/relai-core/SKILL.md` i pliki obok | źródło skilla sesji; pliki doczytywane i tabela wyzwalaczy |
 | `adapters/claude-code/skills/relai-planning/SKILL.md`, `html-plan.md`, `plan-closing.md` | źródło skilla planów |
-| `core/tools/validate-adapters.js` | kontrole 1–8 walidatora i parytet Codeksa — tu wchodzą nowe kontrole |
+| `core/tools/validate-adapters.js` | kontrole walidatora i parytet Codeksa — tu wchodzą nowe kontrole (S1, S7) |
 | `adapters/codex/generate-skills.js` | generator skilli Codeksa z komend Claude Code (`$ARGUMENTS`, frontmatter) |
 | `core/templates/SPEC_ARCHIWUM.md`, `SPEC_DZIENNIK.md`, `SPEC_STATE.md`, `SPEC_PROMPT_ETAPU.md` | miejsca z historią w toku instrukcji (S3) |
-| `docs/PULAPKI.md` P-002, P-005, P-011, P-012 | cache pluginu, restart, `plugin validate`, nagłówki komend |
+| `docs/PULAPKI.md` P-002, P-005, P-011, P-012 | sesja pomiarowa `-p`, restart po `plugin update`, `plugin validate`, nagłówki komend |
 
 ## Decyzje już podjęte — nie otwierasz ich ponownie
 
@@ -35,51 +35,70 @@ Odnoga: AUDYT_SKILLI • Plan-rodzic: brak (wątek samodzielny w `docs/fixy/`) �
   gdy” przy plikach doczytywanych, zasada „jeden problem, jeden komunikat” (L-0036, L-0049), stałe
   z pochodzeniem FAKT/SZACUNEK, wersjonowanie artefaktów, D-90 (modele flagowe jako kryterium odbioru).
 - **Adapter Claude Code jest źródłem, Codex kopią przez generator** (D-89 zamrożona); jednego
-  katalogu `skills/` w standardzie Agent Skills nie wprowadzasz — to pytanie dla człowieka, nie paczka.
+  katalogu `skills/` w standardzie Agent Skills nie wprowadzasz — to pytanie dla człowieka, nie paczka
+  (stoi w „Czeka na człowieka”).
 - **Historia nie znika** (D-18): zdania o dawnych regułach idą do sekcji „Dawniej” na końcu pliku
   albo do `history.md`, nie do kosza.
 - **Treść decyzji i lekcji nie zmienia się przy porządkach** — zmieniasz formę instrukcji, nie reguły;
   reguła, której brzmienie musisz zmienić merytorycznie, wraca do człowieka jako pytanie.
-- **Model wykonawczy Opus 5.5** (D-85); kryterium odbioru ewaluacji: modele `strong` i `balanced` z listy
-  2026-10-08 (D-90).
-- **Wątek jest samodzielny** — w żadnym `STATUS.md` niczego nie zapisujesz; planu PANEL_CODEX nie
-  dotykasz.
+- **Model wykonawczy Opus 5.5 w świeżej sesji** (D-85; wzorzec „subagent sesji Fable 5.1” odwołany
+  2026-10-11); kryterium odbioru ewaluacji: modele `strong` i `balanced` z listy 2026-10-08 (D-90).
+- **S1 z listą wyjątków (Łukasz, 2026-10-12):** naruszenia zastane, które naprawia S2, stoją na jawnej
+  liście w walidatorze (plik, kontrola, zmierzona wartość) i dają ostrzeżenie, nie exit 1; S2 tę listę
+  opróżnia. Brzmienie w karcie, sekcje „Zakres” i „Weryfikacja”.
+- **Bez wydania (Łukasz, 2026-10-12):** odnoga kończy się commitem i pushem; wszystko — także
+  `/relai-stage` v6 z odnogi NOWA_SESJA — wchodzi do **RelAI 3.0.0**, wydawanego po tej odnodze razem
+  z filmem prezentacyjnym. Numeru wersji w repo nie podbijasz.
+- **Wątek jest samodzielny** — w żadnym `STATUS.md` niczego nie zapisujesz; planu PANEL_CODEX
+  (`docs/plany/PANEL_CODEX/`, praca Codeksa — także jego niezacommitowane pliki) nie dotykasz.
 
 ## Stan wyjściowy — co realnie zastajesz
 
-RelAI 2.8.0 w repo i publicznie. Dwa skille adaptera Claude Code: `relai-core/SKILL.md` (494 linie,
-29 775 B, opis 994 znaki, 9 plików doczytywanych płasko obok) i `relai-planning/SKILL.md` (457 linii,
-28 320 B, opis 997 znaków, 2 pliki doczytywane); 14 komend z `description` i `argument-hint`, bez
-`allowed-tools` i bez `disable-model-invocation`; 4 agenci. Codex: 16 katalogów skilli generowanych
-z komend (12 z dosłownym `$ARGUMENTS`). Walidator ma 8 kontroli (nagłówki komend P-012, parytet
-Codeksa, 7 źródeł wersji, listy modeli, nakładki) — żadnej na długość opisu, znaki `<…>`, liczbę
-linii ani spójność rytuału „Na koniec”. Testy: 28 plików `*.test.js` kodu, 0 ewaluacji skilli.
-Rotacja dokumentów to ręczna procedura dwufazowa wykonywana przez model (dziś 2026-10-11 pierwszy
-przebieg fazy 1 padł na defekcie skryptu ad hoc i został powtórzony — dowód na potrzebę S4).
-Hook `session-context` wymusza `relai-core` przy pierwszym prompcie każdej sesji; budżet startu
-tego repo 2026-10-11: 122,8 KB przy 100 KB (skill 29,6 KB, zasady 26,8 KB). Wszystko FAKT z raportu
-i z sesji 2026-10-11.
+RelAI **2.9.0** w repo i publicznie (2026-10-11); panel: `relai-panel` 0.14.0 (wydany 2026-10-12,
+odnoga NOWA_SESJA), `relai-progress` 0.4.0, `relai-cache-keeper` 0.6.0. W repo, niewydane:
+`/relai-stage` v6. Pomiar 2026-10-12 (FAKT, ta sama metoda co raport):
+
+| Co | 2026-10-11 (raport) | 2026-10-12 |
+|---|---|---|
+| `relai-core/SKILL.md` | 494 linie, 29 775 B, opis 994 znaki, 9 plików obok | **510 linii**, 31 146 B, opis **1 018 znaków**, 10 plików obok (doszedł `limit-checkpoint.md`) |
+| `relai-planning/SKILL.md` | 457 linii, 28 320 B, opis 997 znaków (z `<TOPIC>`) | bez zmian: 457 linii, 28 320 B, 997 znaków, `<` w opisie |
+| komendy | 14, bez `allowed-tools` i `disable-model-invocation` | bez zmian (0 i 0) |
+| skille Codeksa | 16, 12 z dosłownym `$ARGUMENTS` | bez zmian |
+| walidator | 8 kontroli, żadnej na metadane skilli | 16 linii kontroli w raporcie (doszły: wersje pluginów panelu w marketplace, parytet 28 plików), nadal żadnej na metadane skilli |
+| testy rdzenia | 28 plików `*.test.js`, 0 ewaluacji | 27 plików w `core/*/tests/` (299 testów), 0 ewaluacji, brak `core/evals/` |
+| budżet startu (hook) | 122,8 KB przy 100 KB | 118,2 KB przy 100 KB (skill `relai-core` 30,9 KB, zasady 27,8 KB, pozycja „ryzyka” 32,2 KB → po sprzątaniu „Czeka na człowieka” 2026-10-12 ok. 28 KB) |
+
+Opis `relai-core` ma **6 znaków zapasu** do limitu 1024 — każde dopisanie frazy wyzwalającej przed
+S2 go przekroczy. Kolejność metadanych w obu `SKILL.md`: `description: >` (blok złożony) — mierz
+długość po złączeniu linii, nie po pierwszej linii (pierwszy pomiar 2026-10-12 dał „1 znak” na
+pierwszej linii bloku i był defektem instrumentu).
+
+Rotacja dokumentów to nadal ręczna procedura dwufazowa wykonywana przez model; 2026-10-12 sekcja
+„Czeka na człowieka” straciła 11 pozycji rozstrzygniętych, które łamały `SPEC_DZIENNIK` (jednorazowy
+skrypt w katalogu roboczym — dowód na potrzebę S4). Do przeglądu przez człowieka czeka 21 spraw
+otwartych; kilkanaście przekroczy 30 dni w najbliższych dniach i start sesji o nie zapyta.
 
 ```
-adapters/claude-code/skills/relai-core/SKILL.md            # 494 linie; sekcje warunkowe inline
-adapters/claude-code/skills/relai-core/{session-close,document-rotation,new-project,profiles,debugging,done-check,first-deploy,waiting-migration,history}.md
+adapters/claude-code/skills/relai-core/SKILL.md            # 510 linii; sekcje warunkowe inline
+adapters/claude-code/skills/relai-core/{session-close,document-rotation,new-project,profiles,debugging,done-check,first-deploy,waiting-migration,history,limit-checkpoint}.md
 adapters/claude-code/skills/relai-planning/SKILL.md        # 457 linii; prompty etapowe i „Na koniec” inline
 adapters/claude-code/skills/relai-planning/{html-plan,plan-closing}.md
 adapters/claude-code/commands/*.md                         # 14 komend, frontmatter description + argument-hint
 adapters/codex/generate-skills.js, adapters/codex/skills/  # generator i 16 kopii
-core/tools/validate-adapters.js                            # kontrole 1–8
+core/tools/validate-adapters.js                            # kontrole walidatora
 core/templates/SPEC_*.md                                   # specyfikacje kopiowane do .claude/relai/templates/
 core/process/session-signals.js                            # budżet startu (startCost)
 docs/ARTEFAKTY.md                                          # rejestr wersji artefaktów
 docs/fixy/AUDYT_SKILLI/RAPORT.html                         # tabela luk i ranking
 ```
 
-**Czego jeszcze nie ma:** kontroli metadanych skilli w walidatorze; plików doczytywanych dla sekcji
-warunkowych obu skilli; sekcji „Dawniej” w SPEC-ach; spisów „Zawartość”; `rotate.js` i `count-rules.js`;
-`core/evals/`; `disable-model-invocation` w komendach D-70; zamiany `$ARGUMENTS` w generatorze;
-specyfikacji przyjęcia cudzego kodu.
+**Czego jeszcze nie ma:** kontroli metadanych skilli w walidatorze (i listy wyjątków S1); plików
+doczytywanych dla sekcji warunkowych obu skilli; sekcji „Dawniej” w SPEC-ach; spisów „Zawartość”;
+`rotate.js` i `count-rules.js`; `core/evals/`; `disable-model-invocation` w komendach D-70; zamiany
+`$ARGUMENTS` w generatorze; specyfikacji przyjęcia cudzego kodu.
 
-**Zasady aktywne z `docs/LEKCJE.md`, obowiązujące w tym wątku** (przepisane w całości):
+**Zasady aktywne z `docs/LEKCJE.md`, obowiązujące w tym wątku** (przepisane w całości, stan
+2026-10-12):
 
 1. **Specyfikacja dokumentu jest kompletna albo martwa:** kończy się realnym przykładem, wypisuje
    wymaganą strukturę w treści (odesłanie nie wystarcza) i ma zapisaną ścieżkę „pytam zamiast
@@ -129,9 +148,11 @@ specyfikacji przyjęcia cudzego kodu.
    **Widok rysowany z danych projektu mierzysz na prawdziwych danych w najgorszym stanie** (wszystko
    rozwinięte) i ograniczasz go w kodzie — harness przyjmuje drzewo, które desktop gubi bez słowa
    (L-0158). **Diagnozę na żywo zaczynasz od znacznika wersji w logu** — przeładowanie potrafi
-   zostawić starą wersję i każdy wniosek z niej jest fałszywy (L-0159).
+   zostawić starą wersję i każdy wniosek z niej jest fałszywy (L-0159). **Kontrola „przed” idzie
+   w dwóch przebiegach** — stary kod w całości i stary kod z podłożoną tylko nową czystą logiką;
+   „plik testów się nie wczytał” nie dowodzi żadnego testu z osobna (L-0165).
    (L-0017, L-0018, L-0040, L-0051, L-0052, L-0063, L-0069, L-0082, L-0115, L-0117, L-0123, L-0134,
-   L-0144, L-0150, L-0154, L-0155, L-0156, L-0158, L-0159)
+   L-0144, L-0150, L-0154, L-0155, L-0156, L-0158, L-0159, L-0165)
 5. **Instrument pomiarowy sam bywa źródłem fałszu:** wyrażenia regularne trzymaj w pliku zapisanym
    narzędziem zapisu, nie w `node -e` ani w heredoku, a tekst z backslashem (także ścieżkę
    Windows) wstawiasz Edit/Write albo piszesz z `/` (L-0116, L-0119); **skrypt edycji kodu, który
@@ -213,10 +234,13 @@ specyfikacji przyjęcia cudzego kodu.
    sprawdza, że oba powstały teraz — nieudany zapis wygląda jak zgodność ze starym wynikiem (L-0143).
    **Stan „przed" mierzysz w osobnym `git worktree` HEAD-a**, nie po `git stash` — stash zostawia
    pliki nieśledzone i daje drzewo mieszane (L-0151). **Skrypt usuwający zakres linii sprawdza
-   cały blok, nie jego brzegi**, a po każdym cięciu idzie kompilator (L-0160). (L-0032, L-0037, L-0095, L-0096, L-0105, L-0106, L-0107, L-0110, L-0111, L-0113,
+   cały blok, nie jego brzegi**, a po każdym cięciu idzie kompilator (L-0160). **Skrypt wklejający
+   blok do dokumentu dowodzi wyniku licznikiem nagłówków** — każda sekcja dokładnie raz — i
+   porównaniem wklejonego bloku ze źródłem; „marker zniknął” nie znaczy, że treść powstała raz
+   (L-0164). (L-0032, L-0037, L-0095, L-0096, L-0105, L-0106, L-0107, L-0110, L-0111, L-0113,
    L-0097, L-0101, L-0102,
    L-0054, L-0055, L-0056, L-0064, L-0068, L-0071, L-0073, L-0083, L-0084, L-0086, L-0087, L-0088,
-   L-0090, L-0091, L-0124, L-0125, L-0130, L-0131, L-0135, L-0141, L-0143, L-0151, L-0160)
+   L-0090, L-0091, L-0124, L-0125, L-0130, L-0131, L-0135, L-0141, L-0143, L-0151, L-0160, L-0164)
 6. **Próg jest liczbą, którą ktoś liczy:** kalibruj go na zmierzonych plikach realnych projektów,
    zapisuj w jednostce mechanizmu kontrolnego wraz z komendą sprawdzającą i daj mu **jeden**
    wyzwalacz — wielkości pomocnicze wskazują przyczynę wewnątrz komunikatu, nie wywołują go.
@@ -231,7 +255,9 @@ specyfikacji przyjęcia cudzego kodu.
    zanim na niej oprzesz liczbę** — różnica ujemna albo rozjeżdżająca się znaczy, że nie ma czego
    odejmować; zostaje liczba surowa i różnica między wariantami mierzonymi w tych samych warunkach,
    gdzie narzut skraca się sam. Wynik oparty na nierzetelnym odjęciu **oznaczasz** jako nierzetelny,
-   a nie usuwasz. (L-0034, L-0049, L-0053, L-0060, L-0065, L-0099, L-0104)
+   a nie usuwasz. **Próg wspólny dla kilku wielkości sprawdzasz na każdej z osobna** — 90 % okna
+   5 h i 90 % tygodnia to różne sytuacje; pomiar z progiem testowym mówi, które gałęzie uruchomi
+   (L-0167). (L-0034, L-0049, L-0053, L-0060, L-0065, L-0099, L-0104, L-0167)
 7. **Wartość czytana maszynowo ma kotwicę i zamkniętą listę brzmień:** dopasowanie od początku
    komórki, wybór linii po niesionej wartości (nie po kolejności), wartość nierozpoznana znaczy
    cisza. **Rdzeń słowa w języku z diakrytykami łapiesz klasą znaków tego języka, nie `\w`** —
@@ -302,174 +328,8 @@ specyfikacji przyjęcia cudzego kodu.
     (`<narzędzie> validate`, `<narzędzie> list`, okno ustawień) — zna schemat, którego nie
     odtworzysz z obserwacji, a cisza w logu nie jest dowodem poprawności. **Zielony walidator, typy
     i testy modu nie dowodzą zachowania w łańcuchu wtyczek** — to mierzysz na żywo, a ciszę na żywo
-    najpierw sondą (licznik wywołań hooka, wynik `next`) (P-017). **Wszystko, co dostaje `# PROMPT_ODNOGA — skille RelAI według praktyk Agent Skills: lżejsze, mierzone, bez historii w instrukcjach
-
-Odnoga: AUDYT_SKILLI • Plan-rodzic: brak (wątek samodzielny w `docs/fixy/`) • Wygenerowano: 2026-10-11
-(autor: Fable 5.1) • Wykonawca: **Opus 5.5**, `/effort high`
-
-> **Kontrola modelu:** ten wątek wykonuj wyłącznie na modelu klasy **najsilniejszy**, w tym narzędziu:
-> **Opus 5.5** (lista modeli Claude Code z dnia `2026-10-08`) — w świeżej sesji (D-85) albo jako
-> subagent sesji Fable 5.1 (wzorzec Z13–Z14 odnogi AUDYT_MODOW; wybór przy starcie paczki). Jeśli
-> sesja działa na innym modelu — zatrzymaj się i poproś o przełączenie, zanim cokolwiek zrobisz.
-> Zalecany poziom `/effort`: `high` — paczki S2 i S3 przepisują dokumenty czytane w każdej sesji
-> każdego projektu RelAI; błąd tu kosztuje w cudzych repozytoriach.
-
-## Co przeczytać na start (w tej kolejności, nic więcej)
-
-| Plik | Po co |
-|---|---|
-| `CLAUDE.md` | reguły procesu, definicja ukończenia, reguły profilu (rejestr artefaktów, wersje) |
-| `docs/fixy/AUDYT_SKILLI/ODNOGA.md` | cel, zakres S1–S7 i weryfikacja — karta jest źródłem |
-| `docs/fixy/AUDYT_SKILLI/RAPORT.html` | tabela luk z czterech soczewek, ranking zmian, sekcja „Czego nie ruszać” |
-| `docs/ARTEFAKTY.md` | wersje artefaktów (relai-core v22, relai-planning v10) — każda zmiana podbija wersję z „co” i „po co” |
-| `adapters/claude-code/skills/relai-core/SKILL.md` i pliki obok | źródło skilla sesji; pliki doczytywane i tabela wyzwalaczy |
-| `adapters/claude-code/skills/relai-planning/SKILL.md`, `html-plan.md`, `plan-closing.md` | źródło skilla planów |
-| `core/tools/validate-adapters.js` | kontrole 1–8 walidatora i parytet Codeksa — tu wchodzą nowe kontrole |
-| `adapters/codex/generate-skills.js` | generator skilli Codeksa z komend Claude Code (`$ARGUMENTS`, frontmatter) |
-| `core/templates/SPEC_ARCHIWUM.md`, `SPEC_DZIENNIK.md`, `SPEC_STATE.md`, `SPEC_PROMPT_ETAPU.md` | miejsca z historią w toku instrukcji (S3) |
-| `docs/PULAPKI.md` P-002, P-005, P-011, P-012 | cache pluginu, restart, `plugin validate`, nagłówki komend |
-
-## Decyzje już podjęte — nie otwierasz ich ponownie
-
-- **Źródłem praktyk są dwa dokumenty Anthropic** (overview i best practices Agent Skills, odczyt
-  2026-10-11) oraz `code.claude.com/docs/en/skills` dla pól Claude Code; praktyki spoza nich nie są
-  podstawą zmian — gdy je stosujesz, piszesz, skąd pochodzą.
-- **Co RelAI robi lepiej niż dokument, zostaje** (sekcja „Czego nie ruszać” raportu): hook
-  `session-context` jako warstwa nośna niezależna od wyzwolenia skilla (L-0030), tabela „otwierasz go,
-  gdy” przy plikach doczytywanych, zasada „jeden problem, jeden komunikat” (L-0036, L-0049), stałe
-  z pochodzeniem FAKT/SZACUNEK, wersjonowanie artefaktów, D-90 (modele flagowe jako kryterium odbioru).
-- **Adapter Claude Code jest źródłem, Codex kopią przez generator** (D-89 zamrożona); jednego
-  katalogu `skills/` w standardzie Agent Skills nie wprowadzasz — to pytanie dla człowieka, nie paczka.
-- **Historia nie znika** (D-18): zdania o dawnych regułach idą do sekcji „Dawniej” na końcu pliku
-  albo do `history.md`, nie do kosza.
-- **Treść decyzji i lekcji nie zmienia się przy porządkach** — zmieniasz formę instrukcji, nie reguły;
-  reguła, której brzmienie musisz zmienić merytorycznie, wraca do człowieka jako pytanie.
-- **Model wykonawczy Opus 5.5** (D-85); kryterium odbioru ewaluacji: modele `strong` i `balanced` z listy
-  2026-10-08 (D-90).
-- **Wątek jest samodzielny** — w żadnym `STATUS.md` niczego nie zapisujesz; planu PANEL_CODEX nie
-  dotykasz.
-
-## Stan wyjściowy — co realnie zastajesz
-
-RelAI 2.8.0 w repo i publicznie. Dwa skille adaptera Claude Code: `relai-core/SKILL.md` (494 linie,
-29 775 B, opis 994 znaki, 9 plików doczytywanych płasko obok) i `relai-planning/SKILL.md` (457 linii,
-28 320 B, opis 997 znaków, 2 pliki doczytywane); 14 komend z `description` i `argument-hint`, bez
-`allowed-tools` i bez `disable-model-invocation`; 4 agenci. Codex: 16 katalogów skilli generowanych
-z komend (12 z dosłownym `$ARGUMENTS`). Walidator ma 8 kontroli (nagłówki komend P-012, parytet
-Codeksa, 7 źródeł wersji, listy modeli, nakładki) — żadnej na długość opisu, znaki `<…>`, liczbę
-linii ani spójność rytuału „Na koniec”. Testy: 28 plików `*.test.js` kodu, 0 ewaluacji skilli.
-Rotacja dokumentów to ręczna procedura dwufazowa wykonywana przez model (dziś 2026-10-11 pierwszy
-przebieg fazy 1 padł na defekcie skryptu ad hoc i został powtórzony — dowód na potrzebę S4).
-Hook `session-context` wymusza `relai-core` przy pierwszym prompcie każdej sesji; budżet startu
-tego repo 2026-10-11: 122,8 KB przy 100 KB (skill 29,6 KB, zasady 26,8 KB). Wszystko FAKT z raportu
-i z sesji 2026-10-11.
-
-```
-adapters/claude-code/skills/relai-core/SKILL.md            # 494 linie; sekcje warunkowe inline
-adapters/claude-code/skills/relai-core/{session-close,document-rotation,new-project,profiles,debugging,done-check,first-deploy,waiting-migration,history}.md
-adapters/claude-code/skills/relai-planning/SKILL.md        # 457 linii; prompty etapowe i „Na koniec” inline
-adapters/claude-code/skills/relai-planning/{html-plan,plan-closing}.md
-adapters/claude-code/commands/*.md                         # 14 komend, frontmatter description + argument-hint
-adapters/codex/generate-skills.js, adapters/codex/skills/  # generator i 16 kopii
-core/tools/validate-adapters.js                            # kontrole 1–8
-core/templates/SPEC_*.md                                   # specyfikacje kopiowane do .claude/relai/templates/
-core/process/session-signals.js                            # budżet startu (startCost)
-docs/ARTEFAKTY.md                                          # rejestr wersji artefaktów
-docs/fixy/AUDYT_SKILLI/RAPORT.html                         # tabela luk i ranking
-```
-
-**Czego jeszcze nie ma:** kontroli metadanych skilli w walidatorze; plików doczytywanych dla sekcji
-warunkowych obu skilli; sekcji „Dawniej” w SPEC-ach; spisów „Zawartość”; `rotate.js` i `count-rules.js`;
-`core/evals/`; `disable-model-invocation` w komendach D-70; zamiany `$ARGUMENTS` w generatorze;
-specyfikacji przyjęcia cudzego kodu.
-
-**Zasady aktywne z `docs/LEKCJE.md`, obowiązujące w tym wątku** (przepisane w całości):
-
- albo
-    `on`, mieszka w pliku modułu hooków** — walidator modów nie śledzi `# PROMPT_ODNOGA — skille RelAI według praktyk Agent Skills: lżejsze, mierzone, bez historii w instrukcjach
-
-Odnoga: AUDYT_SKILLI • Plan-rodzic: brak (wątek samodzielny w `docs/fixy/`) • Wygenerowano: 2026-10-11
-(autor: Fable 5.1) • Wykonawca: **Opus 5.5**, `/effort high`
-
-> **Kontrola modelu:** ten wątek wykonuj wyłącznie na modelu klasy **najsilniejszy**, w tym narzędziu:
-> **Opus 5.5** (lista modeli Claude Code z dnia `2026-10-08`) — w świeżej sesji (D-85) albo jako
-> subagent sesji Fable 5.1 (wzorzec Z13–Z14 odnogi AUDYT_MODOW; wybór przy starcie paczki). Jeśli
-> sesja działa na innym modelu — zatrzymaj się i poproś o przełączenie, zanim cokolwiek zrobisz.
-> Zalecany poziom `/effort`: `high` — paczki S2 i S3 przepisują dokumenty czytane w każdej sesji
-> każdego projektu RelAI; błąd tu kosztuje w cudzych repozytoriach.
-
-## Co przeczytać na start (w tej kolejności, nic więcej)
-
-| Plik | Po co |
-|---|---|
-| `CLAUDE.md` | reguły procesu, definicja ukończenia, reguły profilu (rejestr artefaktów, wersje) |
-| `docs/fixy/AUDYT_SKILLI/ODNOGA.md` | cel, zakres S1–S7 i weryfikacja — karta jest źródłem |
-| `docs/fixy/AUDYT_SKILLI/RAPORT.html` | tabela luk z czterech soczewek, ranking zmian, sekcja „Czego nie ruszać” |
-| `docs/ARTEFAKTY.md` | wersje artefaktów (relai-core v22, relai-planning v10) — każda zmiana podbija wersję z „co” i „po co” |
-| `adapters/claude-code/skills/relai-core/SKILL.md` i pliki obok | źródło skilla sesji; pliki doczytywane i tabela wyzwalaczy |
-| `adapters/claude-code/skills/relai-planning/SKILL.md`, `html-plan.md`, `plan-closing.md` | źródło skilla planów |
-| `core/tools/validate-adapters.js` | kontrole 1–8 walidatora i parytet Codeksa — tu wchodzą nowe kontrole |
-| `adapters/codex/generate-skills.js` | generator skilli Codeksa z komend Claude Code (`$ARGUMENTS`, frontmatter) |
-| `core/templates/SPEC_ARCHIWUM.md`, `SPEC_DZIENNIK.md`, `SPEC_STATE.md`, `SPEC_PROMPT_ETAPU.md` | miejsca z historią w toku instrukcji (S3) |
-| `docs/PULAPKI.md` P-002, P-005, P-011, P-012 | cache pluginu, restart, `plugin validate`, nagłówki komend |
-
-## Decyzje już podjęte — nie otwierasz ich ponownie
-
-- **Źródłem praktyk są dwa dokumenty Anthropic** (overview i best practices Agent Skills, odczyt
-  2026-10-11) oraz `code.claude.com/docs/en/skills` dla pól Claude Code; praktyki spoza nich nie są
-  podstawą zmian — gdy je stosujesz, piszesz, skąd pochodzą.
-- **Co RelAI robi lepiej niż dokument, zostaje** (sekcja „Czego nie ruszać” raportu): hook
-  `session-context` jako warstwa nośna niezależna od wyzwolenia skilla (L-0030), tabela „otwierasz go,
-  gdy” przy plikach doczytywanych, zasada „jeden problem, jeden komunikat” (L-0036, L-0049), stałe
-  z pochodzeniem FAKT/SZACUNEK, wersjonowanie artefaktów, D-90 (modele flagowe jako kryterium odbioru).
-- **Adapter Claude Code jest źródłem, Codex kopią przez generator** (D-89 zamrożona); jednego
-  katalogu `skills/` w standardzie Agent Skills nie wprowadzasz — to pytanie dla człowieka, nie paczka.
-- **Historia nie znika** (D-18): zdania o dawnych regułach idą do sekcji „Dawniej” na końcu pliku
-  albo do `history.md`, nie do kosza.
-- **Treść decyzji i lekcji nie zmienia się przy porządkach** — zmieniasz formę instrukcji, nie reguły;
-  reguła, której brzmienie musisz zmienić merytorycznie, wraca do człowieka jako pytanie.
-- **Model wykonawczy Opus 5.5** (D-85); kryterium odbioru ewaluacji: modele `strong` i `balanced` z listy
-  2026-10-08 (D-90).
-- **Wątek jest samodzielny** — w żadnym `STATUS.md` niczego nie zapisujesz; planu PANEL_CODEX nie
-  dotykasz.
-
-## Stan wyjściowy — co realnie zastajesz
-
-RelAI 2.8.0 w repo i publicznie. Dwa skille adaptera Claude Code: `relai-core/SKILL.md` (494 linie,
-29 775 B, opis 994 znaki, 9 plików doczytywanych płasko obok) i `relai-planning/SKILL.md` (457 linii,
-28 320 B, opis 997 znaków, 2 pliki doczytywane); 14 komend z `description` i `argument-hint`, bez
-`allowed-tools` i bez `disable-model-invocation`; 4 agenci. Codex: 16 katalogów skilli generowanych
-z komend (12 z dosłownym `$ARGUMENTS`). Walidator ma 8 kontroli (nagłówki komend P-012, parytet
-Codeksa, 7 źródeł wersji, listy modeli, nakładki) — żadnej na długość opisu, znaki `<…>`, liczbę
-linii ani spójność rytuału „Na koniec”. Testy: 28 plików `*.test.js` kodu, 0 ewaluacji skilli.
-Rotacja dokumentów to ręczna procedura dwufazowa wykonywana przez model (dziś 2026-10-11 pierwszy
-przebieg fazy 1 padł na defekcie skryptu ad hoc i został powtórzony — dowód na potrzebę S4).
-Hook `session-context` wymusza `relai-core` przy pierwszym prompcie każdej sesji; budżet startu
-tego repo 2026-10-11: 122,8 KB przy 100 KB (skill 29,6 KB, zasady 26,8 KB). Wszystko FAKT z raportu
-i z sesji 2026-10-11.
-
-```
-adapters/claude-code/skills/relai-core/SKILL.md            # 494 linie; sekcje warunkowe inline
-adapters/claude-code/skills/relai-core/{session-close,document-rotation,new-project,profiles,debugging,done-check,first-deploy,waiting-migration,history}.md
-adapters/claude-code/skills/relai-planning/SKILL.md        # 457 linii; prompty etapowe i „Na koniec” inline
-adapters/claude-code/skills/relai-planning/{html-plan,plan-closing}.md
-adapters/claude-code/commands/*.md                         # 14 komend, frontmatter description + argument-hint
-adapters/codex/generate-skills.js, adapters/codex/skills/  # generator i 16 kopii
-core/tools/validate-adapters.js                            # kontrole 1–8
-core/templates/SPEC_*.md                                   # specyfikacje kopiowane do .claude/relai/templates/
-core/process/session-signals.js                            # budżet startu (startCost)
-docs/ARTEFAKTY.md                                          # rejestr wersji artefaktów
-docs/fixy/AUDYT_SKILLI/RAPORT.html                         # tabela luk i ranking
-```
-
-**Czego jeszcze nie ma:** kontroli metadanych skilli w walidatorze; plików doczytywanych dla sekcji
-warunkowych obu skilli; sekcji „Dawniej” w SPEC-ach; spisów „Zawartość”; `rotate.js` i `count-rules.js`;
-`core/evals/`; `disable-model-invocation` w komendach D-70; zamiany `$ARGUMENTS` w generatorze;
-specyfikacji przyjęcia cudzego kodu.
-
-**Zasady aktywne z `docs/LEKCJE.md`, obowiązujące w tym wątku** (przepisane w całości):
-
- przez import; na zewnątrz
+    najpierw sondą (licznik wywołań hooka, wynik `next`) (P-017). **Wszystko, co dostaje `$` albo
+    `on`, mieszka w pliku modułu hooków** — walidator modów nie śledzi `$` przez import; na zewnątrz
     wynosisz tylko czystą logikę, a `plugin validate` puszczasz zaraz po podziale pliku.
     **Typy silnika mówią, co powierzchnia przyjmie, nie co tabela elementów niesie w czasie
     wykonania** — gałąź „desktop / terminal" rozstrzygasz polem powierzchni z wejścia, a test
@@ -480,8 +340,12 @@ specyfikacji przyjęcia cudzego kodu.
     wyznacza korzeń projektu wejściem w górę od niego, a test ma przypadek sesji w podfolderze (L-0146).
     **Sonda, która mierzy działanie niszczące (`/clear`, kasowanie), stoi w sesji, której utrata nic
     nie kosztuje** — albo przycisk ma osobne potwierdzenie; stan etapu i wynik sondy są w pliku
-    przed każdym takim krokiem (L-0153).
-    (L-0041, L-0042, L-0044, L-0047, L-0092, L-0133, L-0136, L-0138, L-0139, L-0146, L-0153)
+    przed każdym takim krokiem (L-0153). **Funkcja moda czekająca na człowieka (`$.ui.ask`)
+    zapamiętuje identyfikator sesji przed pytaniem i porzuca odpowiedź, gdy po powrocie jest inny**;
+    zegar i próg czyta ponownie po każdym takim `await` (L-0166). **Test wielu rozmów ustawia
+    odpowiedzi atrap per rozmowa**, a wydruk diagnostyczny zbiera stan po sprawdzanym kroku (L-0168).
+    (L-0041, L-0042, L-0044, L-0047, L-0092, L-0133, L-0136, L-0138, L-0139, L-0146, L-0153, L-0166,
+    L-0168)
 14. **Najpierw zmiana w repozytorium, potem zdanie, które ją opisuje.** Weryfikację planuj tam,
     gdzie jest wykonalna; po pytaniu sprzątasz sam (martwy link nie jest poprawną wartością
     tymczasową); przy wyprowadzaniu pozycji jednostką inwentarza jest **sprawa**, nie linia.
@@ -531,6 +395,12 @@ narzędziowymi, a nie zasadami pracy — `tar` na `PATH` (L-0021), sesja pomiaro
 restart aplikacji po `plugin update` (L-0031), `git worktree` zamiast `git archive | tar`
 (L-0039). Obowiązują dalej — czytasz je z rejestru pułapek, na żądanie.
 
+**Wyprowadzone 2026-08-20 do `docs/PULAPKI.md`:** sześć pozycji, które były pułapkami
+narzędziowymi, a nie zasadami pracy — `tar` na `PATH` (L-0021), sesja pomiarowa `claude -p`
+(L-0024), PowerShell 5.1 i UTF-8 (L-0027), `--allowedTools` przy `acceptEdits` (L-0028),
+restart aplikacji po `plugin update` (L-0031), `git worktree` zamiast `git archive | tar`
+(L-0039). Obowiązują dalej — czytasz je z rejestru pułapek, na żądanie.
+
 ## Zakres i weryfikacja
 
 **Katalog roboczy tej odnogi: `.claude/relai/work/_fixy/AUDYT_SKILLI/`.** Wszystko tymczasowe
@@ -541,14 +411,18 @@ projektu.
 Zakres: paczki **S1–S7** dokładnie w brzmieniu sekcji „Zakres” karty `ODNOGA.md` — karta jest
 źródłem; rozbieżność między kartą a tym promptem jest błędem promptu. Kolejność S1 → S2 → S3 → S6 →
 S4 → S5 → S7 (strażnik przed treścią, treść przed narzędziami, ewaluacje na odchudzonych opisach).
-Każda paczka: testy repo (`node --test` zakres z `package.json`), `node core/tools/validate-adapters.js`,
-`claude plugin validate .`, przegląd diffu, podbicie wersji w `docs/ARTEFAKTY.md`, wpis w dzienniku.
-Po S2 — pomiar budżetu startu w świeżej sesji (hook) i porównanie z 122,8 KB.
+Każda paczka: testy rdzenia
+`node --test core/process/tests/*.test.js core/guardrails/tests/*.test.js core/panel/tests/*.test.js adapters/codex/tests/*.test.js`
+(299 zielonych na starcie), `node core/tools/validate-adapters.js`, `claude plugin validate .`
+binarką aplikacji (P-024), przegląd diffu, podbicie wersji w `docs/ARTEFAKTY.md`, wpis w dzienniku.
+Po S2 — pomiar budżetu startu w świeżej sesji (hook) i porównanie z 122,8 KB (karta) oraz
+z 118,2 KB (2026-10-12).
 
-Weryfikacja: checkboxy z sekcji „Weryfikacja” karty — wszystkie muszą przejść; wśród nich zawsze:
-**(a)** katalog roboczy przejrzany raportem (`node .claude/relai/tools/clean-work.js raport`)
-i skasowany po „tak”, liczby przed i po do wpisu dziennika; **(b)** artefakty spoza katalogu
-wypisane z nazwy. Wyłączony wiersz `Artefakty robocze` w `docs/USTAWIENIA.md` tego punktu nie wycisza.
+Weryfikacja: checkboxy z sekcji „Weryfikacja” karty — wszystkie muszą przejść; odhaczasz je w karcie
+(`- [ ]` → `- [x]`) zaraz po sprawdzeniu. Wśród nich zawsze: **(a)** katalog roboczy przejrzany
+raportem (`node .claude/relai/tools/clean-work.js raport`) i skasowany po „tak”, liczby przed i po do
+wpisu dziennika; **(b)** artefakty spoza katalogu wypisane z nazwy. Wyłączony wiersz
+`Artefakty robocze` w `docs/USTAWIENIA.md` tego punktu nie wycisza.
 
 ## Na koniec (rytuał obowiązkowy — bez niego odnoga nie jest zamknięta)
 
@@ -559,8 +433,8 @@ wypisane z nazwy. Wyłączony wiersz `Artefakty robocze` w `docs/USTAWIENIA.md` 
 2a. Katalog roboczy `.claude/relai/work/_fixy/AUDYT_SKILLI/` — raport, „tak”, kasowanie; liczby
    przed i po do wpisu z punktu 3; artefakty spoza katalogu z nazwy.
 3. `docs/DZIENNIK.md`: wpis wg `SPEC_DZIENNIK.md` na końcu sekcji „Wpisy”, podpis
-   `Autor: RelAI (Opus 5.5) + Lukasz` (albo `Fable 5.1, wykonanie Opus 5.5` przy wzorcu subagenta);
-   lekcje z paczek → `docs/LEKCJE.md`.
+   `Autor: RelAI (Opus 5.5) + Lukasz`; lekcje z paczek → `docs/LEKCJE.md`.
 4. `docs/STATE.md` — „Co działa” (walidator pilnuje metadanych skilli; ewaluacje wyzwalania) i tabela
    „Stan prac” `CLAUDE.md`; `README.md` przy zmianie opisu dystrybucji (S6).
-5. Commit (conventional, EN) i wydanie `relai` 2.9.0 — propozycja, nie wykonanie bez zgody.
+5. Commit (conventional, EN) i push — propozycja, nie wykonanie bez zgody. **Bez wydania:** następny
+   krok to RelAI 3.0.0 z filmem prezentacyjnym (pozycja „Co dalej” w `docs/STATE.md`).
