@@ -1,6 +1,6 @@
 # Styl pasków i panelu RelAI dla Claude Code
 
-Wersja: **3.5** (v3.4 + 11.3: karta „Próg limitu” jako linijka z progiem i przyciski wartości; Aneks E, 2026-10-11; v3.4 — 11.1: podpis „próg N % · źródło” pod baterią limitu, która nie jest spokojna; Aneks D, 2026-10-11; v3.3 — sekcja 11: limit planu — dwa progi, zapis i wznowienie, karta progu w Kosztach; LIMIT_CHECKPOINT E4, 2026-10-11) · Data: **2026-10-10** · Zakres: trzy paski nad promptem **i panel boczny** `/relai-panel`
+Wersja: **3.6** (v3.5 + §6 pkt 6: karta startu etapu z wyborem „nowa sesja”; odnoga NOWA_SESJA, 2026-10-12; v3.5 — 11.3: karta „Próg limitu” jako linijka z progiem i przyciski wartości; Aneks E, 2026-10-11; v3.4 — 11.1: podpis „próg N % · źródło” pod baterią limitu, która nie jest spokojna; Aneks D, 2026-10-11; v3.3 — sekcja 11: limit planu — dwa progi, zapis i wznowienie, karta progu w Kosztach; LIMIT_CHECKPOINT E4, 2026-10-11) · Data: **2026-10-10** · Zakres: trzy paski nad promptem **i panel boczny** `/relai-panel`
 (zakładki Komendy i Koszty) · Źródło decyzji: wątek [AUDYT_MODOW](../../fixy/AUDYT_MODOW/ODNOGA.md),
 makiety [MAKIETY.html](../../fixy/AUDYT_MODOW/MAKIETY.html) (wersja 4, kalibracja z Łukaszem
 w czterech rundach 2026-10-10).
@@ -111,6 +111,14 @@ między paskami 1 wiersz na desktopie, 0 w terminalu. Owijacz z `next(e)` bez `w
    przygaszony, przycisk `—`.
 5. **Formularz otwiera się pod wierszem** (karta `THEME.cardOn`), nie wewnątrz karty; wiersz
    zostaje na miejscu. Przycisk wiersza zmienia się na `Zamknij`.
+6. **Karta startu etapu — wybór czatu** (odnoga NOWA_SESJA, tekst zaakceptowany przez Łukasza
+   2026-10-12). Pole `Czat:` w formularzu `/relai-stage`, w tej kolejności: `nowa sesja — otwiera się
+   obok, Enter tam startuje etap` (domyślna, **tylko na desktopie**), `świeży — /clear po „Tak”, potem
+   etap`, `bieżący — etap w tej rozmowie`; w terminalu i VS Code dwie ostatnie, domyślnie `świeży`.
+   Fakt `Czat` na karcie: `nowa sesja w aplikacji — komenda czeka w polu, Enter tam; ta rozmowa
+   zostaje; zgoda ważna 10 min` (przy `start_session`: `… — aplikacja pokaże swoją kartę zgody; ta
+   rozmowa zostaje`). Linia po „Tak”: `Otwarto nową sesję z /relai:relai-stage PLAN EN — naciśnij
+   w niej Enter (zgoda ważna 10 min).`
 
 ## 7. Panel boczny — zakładka Koszty (wariant P3)
 

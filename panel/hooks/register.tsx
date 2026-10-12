@@ -40,7 +40,9 @@ import type { FileEntry } from './core/documents.mjs'
 import { crewTag } from './core/attribution.mjs'
 import { MERGE_FILE, serializeMerges } from './core/flow.mjs'
 import type { Merges } from './core/flow.mjs'
-import { CLEAN_ARGV, cleanCard, cleanChoices, commandCard, crewCard, crewDraft, crewTasksPath, hasConsent, togglePick, stageCard, stageToStart, stripConsent } from './core/decisions.mjs'
+import { CLEAN_ARGV, cleanCard, cleanChoices, commandCard, consentFile, consentOf, consentPath, crewCard, crewDraft, crewTasksPath, hasConsent, stageArgs, togglePick, stageCard, stageToStart, stripConsent, usedConsent, withConsent } from './core/decisions.mjs'
+import { HANDOFF_PATH, START_SERVER, START_TOOL, chatOf, deepLink, handoffFile, handoffOf, hasStartSession, linkedStage, openArgv, platformOf, startSessionArgs, usedHandoff } from './launch'
+import type { ChatMode } from './launch'
 import { promptLink } from './core/progress.mjs'
 import { globalPath, projectPath, sessionPath, thresholdsOf } from './core/limit-threshold.mjs'
 import type { LimitRows, LimitWindow } from './pane-costs'
@@ -362,7 +364,9 @@ const unfolded = atom({ plugin: 'relai-panel', key: 'unfolded' } as const, {} as
 const picks = atom({ plugin: 'relai-panel', key: 'picks' } as const, [] as string[])
 // Decisions (E5): the card waiting for "tak", the chat a stage starts in, the clean list, crew drafts
 const confirm = atom({ plugin: 'relai-panel', key: 'confirm' } as const, null as Card | null)
-const freshChat = atom({ plugin: 'relai-panel', key: 'freshChat' } as const, true)
+// The chat a stage starts in (NOWA_SESJA): '' until the person picks, then chatOf takes the default
+// of the surface — a new session on the desktop, /clear elsewhere
+const chatKept = atom({ plugin: 'relai-panel', key: 'chat' } as const, '' as '' | ChatMode)
 const cleanList = atom({ plugin: 'relai-panel', key: 'cleanList' } as const, null as CleanChoices | null)
 const drafts = atom({ plugin: 'relai-panel', key: 'drafts' } as const, {} as Record<string, CrewDraft>)
 
@@ -543,6 +547,7 @@ async function runStep($: $T, a: Action, names: Record<string, string | null>) {
   if (a.kind === 'clear') return $.command.run({ command: 'clear' })
   if (a.kind === 'command') return $.command.run({ command: names[a.command] ?? a.command, args: a.args })
   if (a.kind === 'write') return $.fs.write(join(S.cwd, a.path), a.text)
+  if (a.kind === 'newSession') return openSession($, a, names[a.command] ?? a.command)
   return $.prompt.submit({ text: a.text, asUser: true })
 }
 
@@ -562,8 +567,112 @@ async function decide($: $T, card: Card, said: 'tak' | 'nie', names: Record<stri
   return answerCard(actsOf($), card, said, names)
 }
 
+// ---------- a stage in a new session (NOWA_SESJA) ----------
+// The card's one step: the consent file and the focus handoff first (the new session's panel reads
+// them), then the session itself — the app's start_session when the session offers it, else the
+// deep link through the system's URL handler, no shell. The window of "Tak" keeps its conversation.
+
+// What the last look at the tools found, for the Koszty tab's line; null before the first look
+let launchVia: 'link' | 'app' | null = null
+
+async function offersStart($: $T): Promise<boolean> {
+  const tools = await $.tool.list().catch(() => [])
+  launchVia = hasStartSession(tools.map((t) => t.name)) ? 'app' : 'link'
+  return launchVia === 'app'
+}
+
+async function platform($: $T) {
+  const os = await $.env.get('OS').catch(() => undefined)
+  if (os === 'Windows_NT') return platformOf(os, null)
+  const r = await $.process.run(['uname', '-s'], { timeoutMs: 5_000 }).catch(() => null)
+  return platformOf(os, r && r.exitCode === 0 ? r.stdout : null)
+}
+
+// name: the command as this session knows it (relai:relai-stage), so the new session's text is
+// the one the form's preview shows
+async function openSession($: $T, a: Extract<Action, { kind: 'newSession' }>, name: string): Promise<'link' | 'app'> {
+  const at = await $.clock.now()
+  const consent = join(S.cwd, consentPath(a.topic, a.stage))
+  const file = consentFile({ card: a.card, topic: a.topic, stage: a.stage, cwd: S.cwd, at })
+  await $.fs.write(consent, file)
+  // The focus is a label, not a condition of the start: a failed write never stops it. Both ids of
+  // this session — the live one and the module's, which lags after /clear (P-026 pkt 3) — are
+  // excluded from taking it
+  const from = [...new Set([await $.session.id(), S.id])]
+  await $.fs.write(join(S.cwd, HANDOFF_PATH), handoffFile({ focus: { kind: 'plan', plan: a.topic, stage: a.stage }, from, cwd: S.cwd, at })).catch(() => undefined)
+  try {
+    return await launch($, a, `/${name} ${a.args}`)
+  } catch (err) {
+    // Nothing opened (or the app declined): the consent must not outlive the card (review)
+    await $.fs.write(consent, usedConsent(file, await $.clock.now())).catch(() => undefined)
+    throw err
+  }
+}
+
+async function launch($: $T, a: Extract<Action, { kind: 'newSession' }>, text: string): Promise<'link' | 'app'> {
+  if (await offersStart($)) {
+    const r = await $.mcp.call(START_SERVER, START_TOOL, startSessionArgs(a.topic, a.stage, text))
+    if (r.isError) throw new Error(r.content.map((b) => ('text' in b ? String(b.text) : '')).join(' ').trim() || 'aplikacja odmówiła startu sesji')
+    return 'app'
+  }
+  const os = await platform($)
+  if (os === null) throw new Error('nie rozpoznano systemu, więc nie ma czym otworzyć linku')
+  const r = await $.process.run(openArgv(os, deepLink(S.cwd, text)), { timeoutMs: 15_000 })
+  if (r.exitCode !== 0) throw new Error(`otwarcie linku zakończyło się kodem ${r.exitCode}${r.stderr ? ': ' + r.stderr.slice(0, 120) : ''}`)
+  return 'link'
+}
+
+// The command typed in the new session passes this session's hook (origin composer): a consent file
+// for exactly this stage, in this folder, ten minutes old at most and never used, gives it the token
+// the procedure reads (D-35 unchanged). The file is marked used before the command runs.
+async function fileConsent($: $T, args: string): Promise<string | null> {
+  const st = stageArgs(args)
+  if (st === null) return null
+  if (!S.isRelai) {
+    const root = await relaiRoot(ioOf($), await $.session.cwd())
+    if (root === null) return null
+    set({ isRelai: true, cwd: root })
+  }
+  const path = join(S.cwd, consentPath(st.topic, st.stage))
+  const text = await readText($, path)
+  const now = await $.clock.now()
+  const c = consentOf(text, { now, cwd: S.cwd, topic: st.topic, stage: st.stage })
+  if (!c.ok || text === null) return null
+  await $.fs.write(path, usedConsent(text, now))
+  return c.card
+}
+
+// The person's Enter on the text the link typed: with a valid consent file the command goes as the
+// panel's own send, which carries the token past every command.run hook (P-022 pkt 1), as the
+// fresh chat's does; the prompt itself is dropped with a line saying so. Null: not such a prompt.
+async function stageFromLink($: $T, text: string): Promise<string | null> {
+  const args = linkedStage(text)
+  if (args === null) return null
+  const card = await fileConsent($, args)
+  if (card === null) return null
+  const name = (data ?? await loadData($, S.cwd)).names['relai-stage'] ?? 'relai:relai-stage'
+  // After this hook answered: the dropped prompt leaves the session idle for the command
+  $.clock.after(1, () => {
+    void $.command.run({ command: name, args: withConsent(args, card) })
+      .catch((err) => say($, failure('Wpisz /relai-stage w czacie — procedura zapyta o zgodę.', `Nie uruchomiono ${args}`, err)))
+  })
+  return `Start etapu ${args} z karty panelu (zgoda ${card}).`
+}
+
+// At session.start: the focus a card handed to the session it opened, taken once
+async function takeHandoff($: $T) {
+  const path = join(S.cwd, HANDOFF_PATH)
+  const text = await readText($, path)
+  const now = await $.clock.now()
+  const target = handoffOf(text, { now, cwd: S.cwd, session: S.id })
+  if (target === null || text === null) return
+  await $.fs.write(path, usedHandoff(text, now))
+  const own = join(S.cwd, focusPath(S.id))
+  if (parseFocus(await readText($, own)) === null) await $.fs.write(own, serializeFocus({ ...target, source: 'auto', at: now }))
+}
+
 // The stage card from the plan the form names, else the active one
-async function prepareStage($: $T, topic: string, stage: string, isFresh: boolean) {
+async function prepareStage($: $T, topic: string, stage: string, chat: ChatMode) {
   const statusPath = topic ? `docs/plany/${topic}/STATUS.md` : S.plan.kind === 'ok' ? S.plan.statusPath : null
   if (statusPath === null) return offer($, { kind: 'blocked', reason: 'brak aktywnego planu — wpisz TEMAT planu' })
   const statusMd = await readText($, join(S.cwd, statusPath))
@@ -572,7 +681,9 @@ async function prepareStage($: $T, topic: string, stage: string, isFresh: boolea
   const link = id ? promptLink(statusMd, id, statusPath) : null
   const promptText = link ? await readText($, join(S.cwd, link)) : null
   const sessionModel = await $.session.model().catch(() => null)
-  return offer($, stageCard({ id: await cardId($), statusMd, statusPath, promptText, stage: stage || null, sessionModel, isFresh }))
+  const isNew = chat === 'new'
+  const via = isNew && (await offersStart($)) ? 'app' : 'link'
+  return offer($, stageCard({ id: await cardId($), statusMd, statusPath, promptText, stage: stage || null, sessionModel, isFresh: chat === 'fresh', isNew, via }))
 }
 
 const CLEAN_TODO = 'Spróbuj „Wczytaj ponownie” albo wpisz /relai-clean w czacie.'
@@ -652,10 +763,15 @@ async function chooseFocus($: $T, target: FocusTarget | 'outside') {
 
 export const register: Register = (on) => {
   // D-35 (E5): a consent token reaches /relai-stage only in the pane's own send, which this hook
-  // never sees (2.1.293, P-022). Typed text and other plugins' sends lose it here.
+  // never sees (2.1.293, P-022). Typed text and other plugins' sends lose it here — and only a
+  // card's consent file (NOWA_SESJA) gives the command typed in a new session its token back.
   on('command.run', async ($, e, next) => {
-    if (e.command.endsWith('relai-stage') && hasConsent(e.args)) return next({ ...e, args: stripConsent(e.args) })
-    return next(e)
+    if (!e.command.endsWith('relai-stage')) return next(e)
+    const args = hasConsent(e.args) ? stripConsent(e.args) : e.args
+    // Only the person's own Enter: never the bridge, the SDK, a trigger or another plugin (review)
+    const card = e.origin?.kind === 'composer' ? await fileConsent($, args).catch(() => null) : null
+    if (card !== null) return next({ ...e, args: withConsent(args, card) })
+    return args === e.args ? next(e) : next({ ...e, args })
   })
 
   on('session.start', async ($, e, next) => {
@@ -671,6 +787,9 @@ export const register: Register = (on) => {
     // Registered everywhere, so outside RelAI the command can say so in one sentence (plan, section 8)
     await $.command.register({ name: 'relai-panel', description: 'Panel RelAI: formularze komend, ściąga i frazy sesji' }).catch(() => undefined)
     if (!isRelai) return next(e)
+    // NOWA_SESJA: the focus of a session a card opened, and a look at the app's start_session
+    await takeHandoff($).catch(() => undefined)
+    await offersStart($).catch(() => undefined)
     await refresh($)
     return next(e)
   })
@@ -704,10 +823,12 @@ export const register: Register = (on) => {
     if (!isRelai) return <Box key="not-relai"><Text>{NOT_RELAI}</Text></Box>
     const d = data ?? (await loadData($, cwd))
     const width = Math.max(30, e.props.bodyColumns)
-    const [kept, picked, all, q, filled, last, flashed, folds, chosen, pending, isFresh, clean, crewDrafts, mutedNow] = await Promise.all([
+    const [kept, picked, all, q, filled, last, flashed, folds, chosen, pending, chatNow, clean, crewDrafts, mutedNow] = await Promise.all([
       read($, view), read($, selected), read($, values), read($, query), read($, fills), read($, sent), read($, pressed), read($, unfolded), read($, picks),
-      read($, confirm), read($, freshChat), read($, cleanList), read($, drafts), read($, muted),
+      read($, confirm), read($, chatKept), read($, cleanList), read($, drafts), read($, muted),
     ])
+    const canNew = e.surface === 'desktop'
+    const chat = chatOf(chatNow, canNew)
     const tab = tabOf(kept)
     // Opening or closing a form, or choosing a tab, clears the sent line: it spoke of the last one (UX-16)
     const pick = (c: string) => { void unsay($).then(() => update($, selected, (s) => (s === c ? '' : c))) }
@@ -732,10 +853,10 @@ export const register: Register = (on) => {
       : ['', 'diff' as const, 'changed' as const, 'tiles' as const, 0, { turn: '', paths: [] as string[] }]
     const docs = tab === 'docs' ? await docsData($, key, pickNow, modeNow, changedNow.paths) : null
     const body = now ? commandTabs(c, p, {
-      data: d, plan: S.plan, picked, values: all, isFresh, clean, pick,
+      data: d, plan: S.plan, picked, values: all, chat, canNew, clean, pick,
       setValue: (k, v) => { void update($, values, (m) => ({ ...m, [k]: v })) },
-      setFresh: (x) => { void update($, freshChat, () => x) },
-      prepareStage: (topic, stage, fresh) => { void prepareStage($, topic, stage, fresh) },
+      setChat: (x) => { void update($, chatKept, () => x) },
+      prepareStage: (topic, stage, mode) => { void prepareStage($, topic, stage, mode) },
       copy: (text) => { void $.ui.copy({ text, surface: e.surface }).then(() => say($, `Wysłano do schowka: ${text}`), (err) => say($, failure('Zaznacz tekst w podglądzie i skopiuj go ręcznie.', 'Nie skopiowano', err))) },
       prepareCommand: (command) => { void commandFacts(ioOf($), command).then(async (facts) => offer($, commandCard(await cardId($), command, facts))) },
       sendCommand: (name, args, text) => { void sendCommand($, name, args, text) },
@@ -743,7 +864,7 @@ export const register: Register = (on) => {
       toggleClean: (id) => { void update($, cleanList, (l) => (l ? togglePick(l, id) : l)) },
       prepareClean: (list) => { void cardId($).then((id) => offer($, cleanCard(id, list))) },
     }).commandsView() : costs ? costsView(c, p, costs, {
-      session: S, muted: mutedNow, preparePricing: () => { void preparePricing($) },
+      session: S, muted: mutedNow, launchVia, preparePricing: () => { void preparePricing($) },
       limits: await remember('limits', key, () => limitRows($)).catch(() => null), used: limitsUsed(S.rateLimits),
       changeLimit: (w, v) => { void changeLimit($, w, v) },
     }) : map ? mapView(c, p, map, {
@@ -777,7 +898,7 @@ export const register: Register = (on) => {
     const isActiveWork = !S.work.isAsking && (S.work.focus === null || (S.work.focus.kind === 'plan' && S.plan.kind === 'ok' && S.work.focus.plan === S.plan.plan))
     const canStart = S.plan.kind === 'ok' && S.plan.stage !== null && isActiveWork
     const top = pending ? p.confirmCard(pending, (said) => { void decide($, pending, said, d.names) })
-      : now ? nowBar(c, p, now, canStart ? () => { void prepareStage($, '', '', isFresh) } : null, {
+      : now ? nowBar(c, p, now, canStart ? () => { void prepareStage($, '', '', chat) } : null, {
         isOpen: isUnfolded('now:focus', false),
         toggle: () => fold('now:focus', false),
         choose: (t) => { fold('now:focus', false); void chooseFocus($, t) },
@@ -866,6 +987,10 @@ export const register: Register = (on) => {
   // session's work, unless the person chose it by hand; after /clear the new session goes on with
   // the focus of the one it replaced
   on('prompt.submit', async ($, e, next) => {
+    // NOWA_SESJA: the stage command a card's link typed arrives as text (the app's U+FF0F); with the
+    // card's consent file the panel runs it as its own send, else it goes on as typed (fail-safe)
+    const started = e.origin?.kind === 'composer' ? await stageFromLink($, e.text).catch(() => null) : null
+    if (started !== null) return { drop: started }
     if (S.isRelai) {
       mainTask = crewTag(e.text)
       await followFocus($, focusOfPrompt(e.text)).catch(() => undefined)

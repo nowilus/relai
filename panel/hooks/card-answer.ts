@@ -7,6 +7,7 @@
 import { PRICING_PAGE, pricingSecond } from './core/pricing.mjs'
 import { answer, stepsToRun } from './core/decisions.mjs'
 import type { Action, Card } from './core/decisions.mjs'
+import { openedWords } from './launch'
 import { bump } from './memo'
 import { failure } from './pane-parts'
 import { localDay } from './pane-io'
@@ -60,15 +61,18 @@ export async function answerCard(acts: Acts, card: Card, said: 'tak' | 'nie', na
     return
   }
   await acts.setCard(null)
+  let opened = '' // NOWA_SESJA: what the new session's step says, when the card had one
   for (const a of stepsToRun(next)) {
     try {
-      await acts.runStep(a, names)
+      const r = await acts.runStep(a, names)
+      if (a.kind === 'newSession') opened = openedWords(`/${names[a.command] ?? a.command} ${a.args}`, r === 'app' ? 'app' : 'link')
     } catch (err) {
-      await acts.say(failure('Sprawdź stan projektu i przygotuj kartę ponownie.', `Nie wysłano (${card.title}, krok ${a.kind})`, err))
+      await acts.say(failure(a.kind === 'newSession' ? 'Skopiuj prompt i otwórz nową sesję ręcznie albo wybierz czat „świeży”.' : 'Sprawdź stan projektu i przygotuj kartę ponownie.',
+        `Nie wysłano (${card.title}, krok ${a.kind})`, err))
       return
     }
   }
   const writes = next.actions.filter((a) => a.kind === 'write')
   if (writes.length) bump() // a saved price list, a crew's tasks: the tabs read them again
-  await acts.say(writes.length === next.actions.length ? `Zapisano: ${writes.map((a) => a.path).join(', ')}` : `Wysłano do czatu: ${card.title}`)
+  await acts.say(opened || (writes.length === next.actions.length ? `Zapisano: ${writes.map((a) => a.path).join(', ')}` : `Wysłano do czatu: ${card.title}`))
 }

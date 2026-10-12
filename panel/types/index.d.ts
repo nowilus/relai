@@ -45,8 +45,9 @@ declare module 'claude-code' {
       picks: string[]
       /** The confirmation card waiting for "Tak" / "Nie" (E5, R4); null when none. */
       confirm: PanelCard | null
-      /** The chat a stage starts in from the pane: true = /clear after "Tak", then the stage. */
-      freshChat: boolean
+      /** The chat a stage starts in from the pane (NOWA_SESJA): 'new' a new desktop session, 'fresh'
+       * /clear after "Tak", 'current' this conversation; '' until picked, the surface's default. */
+      chat: '' | 'new' | 'fresh' | 'current'
       /** /relai-clean's groups read from the clean report, with what the person picked; null until loaded. */
       cleanList: PanelCleanChoices | null
       /** Crew drafts being edited before the start, keyed by run. */

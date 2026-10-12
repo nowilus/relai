@@ -142,6 +142,58 @@ test('karta etapu: prompt bez katalogu roboczego i brak promptu mowione wprost',
   assert.equal(d.copyText(STATUS_PATH, 'E5'), '/relai-stage PANEL_CLAUDE E5', 'kopia promptu bez zgody');
 });
 
+// NOWA_SESJA N1: the card's one step opens a new session; no /clear, no token in the command typed
+// there (that session's hook would cut it), the consent goes by the file
+test('karta etapu w nowej sesji: dokladnie jeden krok newSession, bez /clear i bez tokenu', () => {
+  for (const via of ['link', 'app']) {
+    const r = d.stageCard({ id: ID, statusMd: statusWithE5('GOTOWY DO STARTU'), statusPath: STATUS_PATH, stage: 'E5', promptText: REAL_PROMPT, sessionModel: 'claude-opus-5-5', isFresh: true, isNew: true, via });
+    assert.equal(r.kind, 'card');
+    assert.deepEqual(r.card.actions.map((a) => a.kind), ['newSession']);
+    assert.deepEqual(r.card.actions[0], { kind: 'newSession', command: 'relai-stage', args: 'PANEL_CLAUDE E5', topic: 'PANEL_CLAUDE', stage: 'E5', card: ID });
+    assert.equal(d.hasConsent(r.card.actions[0].args), false);
+    const chat = r.card.facts.find((x) => x.label === 'Czat').value;
+    assert.match(chat, via === 'app' ? /aplikacja pokaże swoją kartę zgody/ : /Enter tam; ta rozmowa zostaje; zgoda ważna 10 min/);
+    assert.deepEqual(d.stepsToRun(r.card), [], 'R4: nic przed "tak"');
+  }
+});
+
+test('karta etapu w nowej sesji: temat, ktorego plik zgody nie uniesie, blokuje karte przed "tak"', () => {
+  const x = { id: ID, statusMd: statusWithE5('GOTOWY DO STARTU'), statusPath: 'docs/plany/PLAN.X/STATUS.md', stage: 'E5', promptText: null, sessionModel: null, isFresh: false };
+  const r = d.stageCard({ ...x, isNew: true });
+  assert.equal(r.kind, 'blocked');
+  assert.match(r.reason, /wybierz czat „świeży”/);
+  assert.equal(d.stageCard(x).kind, 'card', 'kontrola: ten sam plan bez nowej sesji daje karte');
+});
+
+const AT = Date.UTC(2026, 9, 12, 10, 0);
+const HERE = 'C:\\Users\\Lukasz\\Desktop\\RelAI';
+const WANT = { now: AT + 60_000, cwd: 'c:/Users/Lukasz/Desktop/RelAI/', topic: 'PANEL_X', stage: 'E2' };
+
+test('plik zgody: liczy sie tylko ten etap, ten folder, w 10 min, raz', () => {
+  const FILE = d.consentFile({ card: ID, topic: 'PANEL_X', stage: 'E2', cwd: HERE, at: AT });
+  assert.equal(d.consentPath('PANEL_X', 'E2'), '.claude/relai/zgoda-etapu/PANEL_X-E2.json');
+  assert.throws(() => d.consentPath('../X', 'E2'), 'temat ze sciezka to blad');
+  assert.deepEqual(d.consentOf(FILE, WANT), { ok: true, card: ID }, 'kontrola pozytywna: ta sama sciezka zapisana inaczej');
+  assert.deepEqual(d.consentOf(FILE, { ...WANT, now: AT + d.CONSENT_TTL_MS }), { ok: true, card: ID }, 'granica 10 min wlacznie');
+  assert.equal(d.consentOf(FILE, { ...WANT, now: AT + d.CONSENT_TTL_MS + 1 }).reason, 'zgoda wygasła');
+  assert.equal(d.consentOf(FILE, { ...WANT, now: AT - 1 }).reason, 'zgoda wygasła', 'czas z przyszlosci nie jest zgoda');
+  assert.equal(d.consentOf(FILE, { ...WANT, cwd: 'C:/Users/Lukasz/Desktop/Inny' }).reason, 'zgoda z innego folderu');
+  assert.equal(d.consentOf(FILE, { ...WANT, stage: 'E3' }).reason, 'zgoda na inny etap');
+  assert.equal(d.consentOf(d.usedConsent(FILE, AT + 1000), WANT).reason, 'zgoda już użyta');
+  assert.equal(d.consentOf(null, WANT).reason, 'brak pliku zgody');
+  assert.equal(d.consentOf('{', WANT).reason, 'plik zgody nieczytelny');
+  assert.equal(d.consentOf(FILE.replace(ID, 'X'), WANT).reason, 'plik zgody nieczytelny', 'id karty spoza wzorca');
+});
+
+test('komenda nowej sesji: plik zgody obsluguje wylacznie "TEMAT EN"', () => {
+  assert.deepEqual(d.stageArgs('PANEL_X E2'), { topic: 'PANEL_X', stage: 'E2' });
+  assert.deepEqual(d.stageArgs('  PANEL_X   E2 '), { topic: 'PANEL_X', stage: 'E2' });
+  assert.equal(d.stageArgs('E2'), null);
+  assert.equal(d.stageArgs(''), null);
+  assert.equal(d.stageArgs('PANEL_X E2 cos'), null);
+  assert.equal(d.stageArgs('PANEL_X krok'), null);
+});
+
 const TASKS = JSON.stringify([
   { id: 'a', title: 'Kod', files: ['src/a.js'], dependsOn: [], role: 'coder', runtime: 'claude-code', model: 'opus' },
   { id: 'b', title: 'Testy', files: ['src/a.js', 'test/a.test.js'], dependsOn: [], role: 'tester', runtime: 'codex', model: '' },

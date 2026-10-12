@@ -10,6 +10,7 @@ import type { Field, Form } from './core/commands.mjs'
 import type { PlanState } from './core/plan-state.mjs'
 import { copyText } from './core/decisions.mjs'
 import type { CleanChoices } from './core/decisions.mjs'
+import type { ChatMode } from './launch'
 import type { PaneData } from './data'
 import { NONE } from './pane-parts'
 import type { Ctx, Parts } from './pane-parts'
@@ -38,12 +39,13 @@ export type CommandsCtx = {
   plan: PlanState
   picked: string
   values: Record<string, string>
-  isFresh: boolean
+  chat: ChatMode
+  canNew: boolean // a new session only where the desktop app draws the pane (NOWA_SESJA)
   clean: CleanChoices | null
   pick: (command: string) => void
   setValue: (key: string, v: string) => void
-  setFresh: (isFresh: boolean) => void
-  prepareStage: (topic: string, stage: string, isFresh: boolean) => void
+  setChat: (chat: ChatMode) => void
+  prepareStage: (topic: string, stage: string, chat: ChatMode) => void
   copy: (text: string) => void
   prepareCommand: (command: 'relai-update' | 'relai-models') => void
   sendCommand: (name: string, args: string, text: string) => void
@@ -56,7 +58,13 @@ export function commandTabs(c: Ctx, parts: Parts, s: CommandsCtx) {
   const { el, isGui } = c
   const { Box, Text, Input, Select } = el
   const { heading, icon, btn, flashBorder, section, frame, well, sentLine } = parts
-  const { data: d, picked, values: all, isFresh, clean, pick } = s
+  const { data: d, picked, values: all, chat, canNew, clean, pick } = s
+  // UX accepted 2026-10-12: the new session first and the default on the desktop
+  const chats: { value: ChatMode, label: string }[] = [
+    ...(canNew ? [{ value: 'new' as const, label: 'nowa sesja — otwiera się obok, Enter tam startuje etap' }] : []),
+    { value: 'fresh', label: 'świeży — /clear po „Tak”, potem etap' },
+    { value: 'current', label: 'bieżący — etap w tej rozmowie' },
+  ]
 
   const fieldEl = (form: Form, f: Field, current: Record<string, string>) => {
     const k = fieldKey(form.command, f.key)
@@ -89,7 +97,7 @@ export function commandTabs(c: Ctx, parts: Parts, s: CommandsCtx) {
     const isCarded = isStage || c === 'relai-update' || c === 'relai-models'
     const copyWhat = isStage && !current.topic && !current.stage && s.plan.kind === 'ok' && s.plan.stage ? copyText(s.plan.statusPath, s.plan.stage.id) : built.text
     const actions = isStage
-      ? [btn('prepare', 'Przygotuj start', 'primary', () => s.prepareStage(current.topic ?? '', current.stage ?? '', isFresh), undefined, true),
+      ? [btn('prepare', 'Przygotuj start', 'primary', () => s.prepareStage(current.topic ?? '', current.stage ?? '', chat), undefined, true),
           btn('copy', 'Kopiuj prompt', 'secondary', () => s.copy(copyWhat), '✓ Skopiowano')]
       : isCarded
         ? [btn('prepare', 'Przygotuj', 'primary', () => s.prepareCommand(c as 'relai-update' | 'relai-models'), undefined, true)]
@@ -99,9 +107,8 @@ export function commandTabs(c: Ctx, parts: Parts, s: CommandsCtx) {
         borderStyle="round" borderColor={flashBorder(isCarded ? 'prepare' : 'send', THEME.accent)} backgroundColor={THEME.cardOn}>
         {heading(`name-${c}`, THEME.accentText)}
         {fields.length ? fields : [<Text key="no-options" color={THEME.body}>{isCarded ? 'Ta komenda nie ma opcji — przygotuj kartę i potwierdź.' : 'Ta komenda nie ma opcji — wystarczy ją wysłać.'}</Text>]}
-        {isStage ? [<Select key="f-chat" label="Czat: " value={isFresh ? 'fresh' : 'current'}
-          options={[{ value: 'fresh', label: 'świeży — /clear po „Tak”, potem etap' }, { value: 'current', label: 'bieżący — etap w tej rozmowie' }]}
-          onSelect={(v) => s.setFresh(v === 'fresh')} />] : []}
+        {isStage ? [<Select key="f-chat" label="Czat: " value={chat} options={chats}
+          onSelect={(v) => s.setChat(chats.find((o) => o.value === v)?.value ?? 'fresh')} />] : []}
         <Box key="preview" flexDirection="column">{well('preview-well', isCarded ? `${built.text} — po „Tak” na karcie` : built.text, true)}</Box>
         {built.errors.length ? [<Box key="errors"><Text color={THEME.accentText}>{'⚠ ' + built.errors.join(' · ')}</Text></Box>] : []}
         {canSend

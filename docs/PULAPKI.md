@@ -8,6 +8,53 @@ Specyfikacja: `SPEC_PULAPKI.md`.
 
 ## Pułapki
 
+### P-033 — Deep link `claude://code/new` wpisuje prompt, a `/` na jego początku zamienia na `／` · 2026-10-12 · AKTYWNA
+
+- **Objaw:** karta panelu otwiera nową sesję linkiem `claude://code/new?folder=…&q=/relai:relai-stage
+  TEMAT EN`; w polu stoi komenda, Enter ją wysyła, ale hook `command.run` jej nie widzi, znacznik
+  zgody nie powstaje, a model sam woła skill `relai-stage` i procedura pyta „Zaczynamy?”.
+- **Przyczyna (aplikacja 2.31226.1.0, Claude Code 2.1.295, Windows 11; pomiar odnogi NOWA_SESJA
+  2026-10-11 i 2026-10-12):**
+  1. Link tworzy nową sesję **w tym samym oknie** (pozycja w sidebarze) z promptem **wpisanym, nie
+     wysłanym**; aplikacja przejmuje fokus. Stara rozmowa zostaje nietknięta.
+  2. **Początkowe `/` w `q` aplikacja zamienia na ukośnik pełnej szerokości U+FF0F (`／`).** Na ekranie
+     wygląda tak samo; pierwsza wiadomość nowej sesji w transkrypcie zaczyna się od U+FF0F. Enter
+     wysyła więc tekst (hook `prompt.submit`, `origin` `composer`), nie komendę. Pomiar B2
+     z 2026-10-11 („`/relai-stage` wpisane”) tego nie wychwycił — patrzył na ekran, nie na kod znaku.
+  3. Przy każdym otwarciu linku aplikacja pyta o zaufanie do folderu (dwa pomiary 2026-10-12,
+     folder dawno zaufany).
+  4. Sesja nie istnieje do pierwszego Entera: nie ma jej w `list_sessions` ani pliku transkryptu,
+     a `session.start` moda w nowej sesji przychodzi dopiero z Enterem.
+  5. Nowa sesja startuje na modelu wybranym w aplikacji, nie na modelu sesji, z której kliknięto.
+- **Obejście:** hook `prompt.submit` panelu rozpoznaje tekst `／relai-stage TEMAT EN` (albo z `/`
+  i z `relai:`) wpisany z klawiatury i — przy ważnym pliku zgody karty — uruchamia komendę własną
+  wysyłką `$.command.run` ze znacznikiem, a prompt odrzuca (`drop`); bez pliku tekst idzie dalej
+  i procedura pyta. Pytanie o zaufanie i Enter to jedyne ruchy człowieka. Niezmierzone: czy
+  `rundll32 url.dll,FileProtocolHandler` zwraca błąd, gdy schemat `claude://` nie ma obsługi
+  (przegląd kodu sugeruje kod 0 — wtedy panel mówi „Otwarto…”, a zgoda wygasa po 10 min).
+- **Zasięg:** aplikacja desktopowa 2.31226.1.0, Claude Code 2.1.295, Windows 11; macOS i Linux
+  (`open`, `xdg-open`) tylko w testach. `claude.exe` w katalogu aplikacji to aplikacja — P-025.
+
+### P-032 — `claude -p` uruchomione z sesji aplikacji desktopowej nie jest zalogowane · 2026-10-12 · AKTYWNA
+
+- **Objaw:** `claude -p --session-id U "/relai-stage NIEMA E1"` binarką 2.1.295 z Basha sesji
+  w aplikacji kończy się kodem 1 po 7 s z odpowiedzią „Failed to authenticate: OAuth session expired
+  and could not be refreshed”; plik sesji U powstaje (prompt i ta odpowiedź), tura modelu nie rusza.
+  Łańcuch `-p` → `claude --desktop --resume U` / `claude://resume?session=U` nie ma więc czego
+  przenieść do aplikacji.
+- **Przyczyna:** sesję aplikacji uwierzytelnia host (`CLAUDE_CODE_SDK_HAS_HOST_AUTH_REFRESH=1`,
+  `CLAUDE_CODE_ENTRYPOINT=claude-desktop`), a proces potomny tego logowania nie dziedziczy:
+  `claude auth status` daje `"loggedIn": false` zarówno dla `claude` na PATH (2.1.280), jak i dla
+  binarki aplikacji 2.1.295 (`%APPDATA%\Claude\claude-code\2.1.295\<hash>\claude.exe`).
+- **Obejście:** nowej sesji z gotową rozmową bez Entera ten łańcuch nie daje — **nie działa, bo
+  CLI wołane z wnętrza aplikacji (Bash sesji, `$.process.run` moda) nie ma logowania aplikacji**,
+  a osobne `claude auth login` musiałby zrobić każdy użytkownik. Panel startuje etap w nowej sesji
+  deep linkiem `claude://code/new` (jeden Enter człowieka), a bez Entera — dopiero narzędziem
+  `start_session`, gdy aplikacja je odda (odnoga NOWA_SESJA, N1 i N3). Import samej sesji
+  (`--desktop --resume`) nie był mierzony: decyzja Łukasza 2026-10-12 — liczy się desktop.
+- **Zasięg:** Claude Code 2.1.295 i 2.1.280, aplikacja desktopowa 2.31226.1.0, Windows 11; pomiar
+  N0 odnogi NOWA_SESJA, 2026-10-12. Numer P-032, bo gałąź `codex/panel-codex` zajęła P-024…P-031.
+
 ### P-026 — Silnik modów Claude Code 2.1.295: nagłówek karty 12 znaków, brak kasowania plików, id sesji po `/clear` · 2026-10-11 · AKTYWNA
 
 - **Objaw:** karta `$.ui.ask` z nagłówkiem „Próg limitu tygodnia” odpowiada pod nagłówkiem

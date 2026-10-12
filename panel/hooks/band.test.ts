@@ -30,10 +30,10 @@ const FILES: Record<string, string> = {
   [`${CWD}/docs/plany/PANEL_X/PROMPT_ETAP_2.md`]: PROMPT,
 }
 
-type Calls = { commands: { command: string, args: string }[], prompts: string[], opens: string[] }
+type Calls = { commands: { command: string, args: string }[], prompts: string[], opens: string[], processes: string[][] }
 
 function world(on: On, files: Record<string, string> = FILES): Calls {
-  const calls: Calls = { commands: [], prompts: [], opens: [] }
+  const calls: Calls = { commands: [], prompts: [], opens: [], processes: [] }
   const disk: Record<string, string> = { ...files }
   const key = (path: string) => path.replace(/\\/g, '/')
   mock.clock(on, { now: new Date(2026, 9, 10, 12, 0).getTime() })
@@ -51,6 +51,10 @@ function world(on: On, files: Record<string, string> = FILES): Calls {
   on('command.run', ($, e) => { calls.commands.push({ command: e.command, args: e.args }); return { text: 'ok' } })
   on('prompt.submit', ($, e) => { calls.prompts.push(e.text); return { text: e.text } })
   on('ui.open', ($, e) => { calls.opens.push(e.id); return { value: { isPlaced: true as const } } })
+  // NOWA_SESJA: a Windows host without the app's start_session; what the new-session step runs
+  on('env.get', ($, e) => ({ value: e.name === 'OS' ? 'Windows_NT' : undefined }))
+  on('tool.list', () => ({ value: [] }))
+  on('process.run', ($, e) => { calls.processes.push([...e.argv]); return { value: { exitCode: 0, stdout: '', stderr: '', isStdoutTruncated: false, isStderrTruncated: false } as never } })
   // The engine's own band beneath the plugin: what it draws must stay
   on('ui.render', { component: 'AbovePrompt' }, ($, e) => {
     const { Box, Text } = $.ui.resolve(e)
@@ -72,11 +76,14 @@ async function start($: Engine) {
   await $.session.start({ cwd: CWD, surface: 'terminal', isInteractive: true })
 }
 
-// The stage card, prepared in the pane exactly as a person does (E5): nothing is sent by it
-async function prepareStage($: Engine) {
+// The stage card, prepared in the pane exactly as a person does (E5): nothing is sent by it.
+// The chat as picked in the form: /clear by default here (the bar's tests of E5), a new session
+// in the tests of NOWA_SESJA
+async function prepareStage($: Engine, chat: 'fresh' | 'new' = 'fresh') {
   await $.command.run({ command: 'relai-panel' })
   const ui = await $.ui.mount({ plugin: 'relai-panel', surface: 'desktop', ...pane })
   await ui.press({ key: 'cmd-relai-stage' })
+  await ui.select({ key: 'f-chat', value: chat })
   await ui.press({ key: 'prepare' })
   return ui
 }
@@ -192,6 +199,21 @@ describe('the plan bar, a card waiting for "Tak"', () => {
     expect(out[1]?.args).toMatch(/^PANEL_X E2 --zgoda-panelu karta-[a-z0-9]+-[a-z0-9]+$/)
     expect(await ui.find({ key: 'band-confirm' })).toBeUndefined()
     expect(await paneUi.find({ key: 'confirm-card' })).toBeUndefined()
+    await ui.unmount()
+    await paneUi.unmount()
+  })
+
+  test('"Tak" on the bar with a new session goes the pane\'s way: the link opened, nothing sent to this chat', async ($, on) => {
+    const calls = world(on)
+    await start($)
+    const paneUi = await prepareStage($, 'new')
+    const ui = await $.ui.mount({ plugin: 'relai-panel', surface: 'desktop', ...bar() })
+    expect(calls.processes).toEqual([]) // positive control: nothing opened before "Tak"
+    await ui.press({ key: 'band-yes' })
+    expect(sent(calls)).toEqual([])
+    expect(calls.processes.map((a) => a.slice(0, 2))).toEqual([['rundll32', 'url.dll,FileProtocolHandler']])
+    expect(new URL(String(calls.processes[0]?.[2])).searchParams.get('q')).toBe('/relai:relai-stage PANEL_X E2')
+    expect(await ui.find({ key: 'band-confirm' })).toBeUndefined()
     await ui.unmount()
     await paneUi.unmount()
   })

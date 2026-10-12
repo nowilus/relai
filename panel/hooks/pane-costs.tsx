@@ -50,6 +50,8 @@ function topOf<T>(items: readonly T[], usd: (x: T) => number | null, n = CARDS):
 export type CostsCtx = {
   session: { costUsd: number | null, startedAt: number, loadedAt: number }
   muted: Record<string, string>
+  // NOWA_SESJA N3: how a card opens a new session here, from the session's look at its tools
+  launchVia: 'link' | 'app' | null
   preparePricing: () => void
   limits: LimitRows | null // the plan-limit thresholds (LIMIT_CHECKPOINT E4); null when they cannot be read
   used: Readonly<Record<LimitWindow, number | null>> // what each window has used now, in whole percent; null: no data
@@ -335,6 +337,9 @@ export function costsView(c: Ctx, p: Parts, cd: CostData, s: CostsCtx) {
       {cd.writeError ? [<Box key="write-error"><Text color={THEME.accentText}>{`⚠ Nie zapisano pomiarów do ${cd.writeError} — kolejna próba przy następnym zapisie; kwoty tej sesji są w pamięci panelu`}</Text></Box>] : []}
       {gaps.map((w, i) => <Box key={`gap-${i}`}><Text color={THEME.accentText}>{'⚠ ' + w}</Text></Box>)}
       <Box key="cost-foot"><Text dimColor>{`Ceny API z ${cd.prices.date} (${cd.prices.source}).`}</Text></Box>
+      {s.launchVia ? [<Box key="env-launch"><Text dimColor>{s.launchVia === 'app'
+        ? 'Środowisko: nowa sesja z karty przez start_session aplikacji.'
+        : 'Środowisko: nowa sesja z karty przez deep link — aplikacja nie udostępnia start_session.'}</Text></Box>] : []}
     </Box>,
   ]
 }

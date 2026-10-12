@@ -41,6 +41,10 @@ zaakceptowany, E1 trwa po stronie Codeksa. Opinii spoza projektu nadal nie ma.
   (kafle albo drzewo, podgląd i diff), ściągą, frazami i Kosztami z cennikiem; `/relai-agents`.
   Każda zmiana stanu przez kartę „Tak / Nie”; `/relai-stage` przyjmuje zgodę z karty; jedyny ruch
   sieciowy to strona cennika Anthropic po „Tak”. Poza projektem RelAI paski milczą.
+  **Start etapu w nowej sesji** (odnoga NOWA_SESJA, `relai-panel` 0.14.0 w repo, zmierzone na żywo
+  2026-10-12): na desktopie „Tak” otwiera nową sesję aplikacji z komendą w polu, Enter tam startuje
+  etap bez drugiego pytania o zgodę (plik zgody ważny 10 min), stara rozmowa zostaje; gdy aplikacja
+  odda `start_session`, karta użyje go zamiast linku (P-032, P-033).
 - **Zapis pracy przed limitem:** progi limitu 5 h (90 %) i tygodniowego (98 %) ustawiane z karty
   „Próg limitu” w Kosztach z zasięgiem sesja / projekt / globalnie; po przekroczeniu karta po turze
   „pracuję dalej / zapisz pracę”, zapis = testy, commit lokalny, dokumenty i plik wznowienia;
@@ -68,10 +72,9 @@ zaakceptowany, E1 trwa po stronie Codeksa. Opinii spoza projektu nadal nie ma.
 - Aneks do PANEL_CODEX z zapisem pracy przed limitem dla panelu Codeksa — po domknięciu jego E1
   (bramka zamknięcia LIMIT_CHECKPOINT, decyzja Łukasza 2026-10-12). Przepięcie `prompt-mode.js`
   na `threshold.js` nadal świadomie odłożone.
-- Odnoga [NOWA_SESJA](fixy/NOWA_SESJA/ODNOGA.md) (OTWARTA): przycisk panelu otwiera nową sesję
-  Claude Code deep linkiem `claude://code/new` (zmierzone 2026-10-11: prompt wpisany, nie wysłany,
-  jeden Enter), `start_session` gdy aplikacja otworzy flagę; paczki N0–N4, Opus jako subagent.
-  Research: [RESEARCH.html](fixy/NOWA_SESJA/RESEARCH.html).
+- Wydanie `relai-panel` **0.14.0** (odnoga [NOWA_SESJA](fixy/NOWA_SESJA/ODNOGA.md) zamknięta
+  2026-10-12, kod i wersja w repo, publicznie nadal 0.13.0) — tag, push, release, `marketplace
+  update`, `plugin update`; `relai-stage.md` wersja 6 wyjdzie z najbliższym wydaniem `relai`.
 - Odnoga [AUDYT_SKILLI](fixy/AUDYT_SKILLI/ODNOGA.md) (OTWARTA): skille wg praktyk Agent Skills —
   53 wiersze luk (14 zgodne, 21 częściowo, 11 brak), paczki S1–S7 (strażnik w walidatorze,
   odchudzenie SKILL.md, historia poza instrukcje, `rotate.js`, ewaluacje, `disable-model-invocation`,

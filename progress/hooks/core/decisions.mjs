@@ -6,6 +6,9 @@
 // its own command.run hook (2.1.293, P-022), so the hook strips the token from everything it sees:
 // typed text and other plugins' sends never carry a consent, the panel's send carries it whole.
 // Aneks D: a card may have a second step (E6 asks again before writing the price list).
+// NOWA_SESJA (2026-10-12): a stage may start in a new desktop session (step `newSession`). The
+// command typed there passes that session's own hook, which cuts any token, so the consent goes
+// by a file instead: one per stage, valid ten minutes, in this folder, once (consentOf).
 //
 // Pure logic only; the mod draws the card and runs the steps. Same ESM rule and same copy as
 // plan-state.mjs (source here, synced copies in the plugins' hooks/core/).
@@ -18,7 +21,10 @@ import { crewWaves } from './flow.mjs';
  * @typedef {{ label: string, value: string, tone?: 'ok' | 'warn' }} Fact
  * @typedef {{ question: string, facts: Fact[] }} Step
  * @typedef {{ kind: 'clear' } | { kind: 'command', command: string, args: string } | { kind: 'submit', text: string }
- *   | { kind: 'write', path: string, text: string }} Action  write: a path relative to the project root
+ *   | { kind: 'write', path: string, text: string }
+ *   | { kind: 'newSession', command: string, args: string, topic: string, stage: string, card: string }} Action
+ *   write: a path relative to the project root; newSession: a new desktop session with the command
+ *   ready in it, the card's consent left in consentPath(topic, stage)
  * @typedef {'open' | 'second' | 'confirmed' | 'cancelled'} CardState
  * @typedef {{ id: string, title: string, facts: Fact[], question: string, second: Step | null,
  *   actions: Action[], state: CardState, fetch: string | null }} Card
@@ -146,6 +152,77 @@ export function hasConsent(args) {
   return String(args).split(/\s+/).some((w) => w === CONSENT_FLAG || w.startsWith(CONSENT_FLAG + '='));
 }
 
+// ---------- the consent file (NOWA_SESJA) ----------
+
+/** Where a card leaves its consent for a stage started in a new session. */
+export const CONSENT_DIR = '.claude/relai/zgoda-etapu';
+
+/** How long such a consent counts: the person presses Enter in the new session within it. */
+export const CONSENT_TTL_MS = 10 * 60_000;
+
+const TOPIC = /^[A-Za-z0-9_-]+$/;
+const STAGE = /^E\d+$/;
+
+/** The consent file of one stage, relative to the project root. @param {string} topic @param {string} stage */
+export function consentPath(topic, stage) {
+  if (!TOPIC.test(topic) || !STAGE.test(stage)) throw new Error(`zgoda: niepoprawny etap ${topic} ${stage}`);
+  return `${CONSENT_DIR}/${topic}-${stage}.json`;
+}
+
+/**
+ * A folder as one spelling: slashes forward, no trailing one, a Windows drive path in lower case.
+ * @param {string} p
+ */
+export function samePath(p) {
+  const s = String(p).replace(/\\/g, '/').replace(/\/+$/, '');
+  return /^[A-Za-z]:\//.test(s) ? s.toLowerCase() : s;
+}
+
+/**
+ * The file's text: the card that gave the consent, the stage, the folder and the time.
+ * @param {{ card: string, topic: string, stage: string, cwd: string, at: number }} c
+ */
+export function consentFile(c) {
+  if (!CARD_ID.test(c.card)) throw new Error('zgoda: niepoprawne id ' + c.card);
+  consentPath(c.topic, c.stage);
+  return JSON.stringify({ card: c.card, topic: c.topic, stage: c.stage, cwd: c.cwd, at: c.at }) + '\n';
+}
+
+/**
+ * Does the file give the consent for this stage now? Only when it parses, names this stage and
+ * this folder, is not older than CONSENT_TTL_MS (nor from the future) and was never used.
+ * @param {string | null} text @param {{ now: number, cwd: string, topic: string, stage: string }} w
+ * @returns {{ ok: true, card: string } | { ok: false, reason: string }}
+ */
+export function consentOf(text, w) {
+  if (text === null) return { ok: false, reason: 'brak pliku zgody' };
+  /** @type {any} */
+  let v;
+  try { v = JSON.parse(text); } catch { return { ok: false, reason: 'plik zgody nieczytelny' }; }
+  if (!v || typeof v !== 'object' || typeof v.card !== 'string' || !CARD_ID.test(v.card) || typeof v.at !== 'number') return { ok: false, reason: 'plik zgody nieczytelny' };
+  if (v.topic !== w.topic || v.stage !== w.stage) return { ok: false, reason: 'zgoda na inny etap' };
+  if (typeof v.cwd !== 'string' || samePath(v.cwd) !== samePath(w.cwd)) return { ok: false, reason: 'zgoda z innego folderu' };
+  if (v.usedAt !== undefined) return { ok: false, reason: 'zgoda już użyta' };
+  const age = w.now - v.at;
+  if (!(age >= 0 && age <= CONSENT_TTL_MS)) return { ok: false, reason: 'zgoda wygasła' };
+  return { ok: true, card: v.card };
+}
+
+/** The file after its one use: the same consent with the time it was used. @param {string} text @param {number} at */
+export function usedConsent(text, at) {
+  return JSON.stringify({ ...JSON.parse(text), usedAt: at }) + '\n';
+}
+
+/**
+ * The topic and stage of a /relai-stage typed as the new session has it ("TEMAT EN"); null for any
+ * other shape, which no consent file may serve.
+ * @param {string} args
+ */
+export function stageArgs(args) {
+  const w = String(args).split(/\s+/).filter((x) => x !== '');
+  return w.length === 2 && TOPIC.test(w[0] ?? '') && STAGE.test(w[1] ?? '') ? { topic: w[0] ?? '', stage: w[1] ?? '' } : null;
+}
+
 // ---------- the stage card ----------
 
 /**
@@ -224,10 +301,25 @@ export function verificationCount(promptText) {
 }
 
 /**
+ * What the card says of the chat. A new session is opened by the app's own start_session when the
+ * app offers it ('app'), else by a deep link the person sends with Enter ('link').
+ * @param {boolean} isFresh @param {boolean} isNew @param {'link' | 'app'} via
+ */
+function chatWords(isFresh, isNew, via) {
+  if (isNew) {
+    return via === 'app'
+      ? 'nowa sesja w aplikacji — aplikacja pokaże swoją kartę zgody; ta rozmowa zostaje'
+      : 'nowa sesja w aplikacji — komenda czeka w polu, Enter tam; ta rozmowa zostaje; zgoda ważna 10 min';
+  }
+  return isFresh ? 'świeży — /clear, potem komenda etapu' : 'bieżący — komenda w tej rozmowie';
+}
+
+/**
  * The /relai-stage card from real files. Blocked, with the reason, when the command would not
  * start a stage anyway: plan waiting for acceptance, no stage to start, the asked stage absent.
+ * isNew (NOWA_SESJA): the card's one step opens a new session; isFresh then means nothing.
  * @param {{ id: string, statusMd: string, statusPath: string, promptText: string | null,
- *   stage?: string | null, sessionModel: string | null, isFresh: boolean }} x
+ *   stage?: string | null, sessionModel: string | null, isFresh: boolean, isNew?: boolean, via?: 'link' | 'app' }} x
  * @returns {CardResult}
  */
 export function stageCard(x) {
@@ -236,6 +328,8 @@ export function stageCard(x) {
   if (planStatus === 'DO AKCEPTACJI') return { kind: 'blocked', reason: `plan ${topic} czeka na akceptację — żaden etap nie startuje` };
   const s = stageOf(stages, x.stage ?? null);
   if (!s) return { kind: 'blocked', reason: x.stage ? `w planie ${topic} nie ma etapu ${x.stage}` : `plan ${topic} nie ma etapu do startu` };
+  // The consent file is named by them: a name it cannot carry is said now, not after "Tak" (review)
+  if (x.isNew === true && !(TOPIC.test(topic) && STAGE.test(s.id))) return { kind: 'blocked', reason: `nowa sesja nie przyjmie ${topic} ${s.id} — wybierz czat „świeży”` };
   const required = requiredModel(x.statusMd);
   const match = modelMatch(required, x.sessionModel);
   const dir = workDir(x.promptText, topic, s.id);
@@ -252,12 +346,14 @@ export function stageCard(x) {
     { label: 'Etap', value: `${ofAll(stages, s.id)} · ${s.name} · ${s.status}`, ...(s.status === 'GOTOWY DO STARTU' ? {} : { tone: /** @type {const} */ ('warn') }) },
     { label: 'Katalog roboczy', value: dir.isDerived ? `${dir.path} (prompt go nie podaje)` : dir.path },
     { label: 'Weryfikacja', value: checks === null ? 'brak promptu etapu — komenda go wygeneruje' : count(checks, 'punkt', 'punkty', 'punktów') },
-    { label: 'Czat', value: x.isFresh ? 'świeży — /clear, potem komenda etapu' : 'bieżący — komenda w tej rozmowie' },
+    { label: 'Czat', value: chatWords(x.isFresh, x.isNew === true, x.via ?? 'link') },
   ];
   if (s.status === 'W TOKU') facts.push({ label: 'Uwaga', value: 'etap w toku — komenda zapyta: dokończyć czy od nowa', tone: 'warn' });
   const args = withConsent(`${topic} ${s.id}`, x.id);
   /** @type {Action[]} */
-  const actions = [...(x.isFresh ? [/** @type {Action} */ ({ kind: 'clear' })] : []), { kind: 'command', command: 'relai-stage', args }];
+  const actions = x.isNew === true
+    ? [{ kind: 'newSession', command: 'relai-stage', args: `${topic} ${s.id}`, topic, stage: s.id, card: x.id }]
+    : [...(x.isFresh ? [/** @type {Action} */ ({ kind: 'clear' })] : []), { kind: 'command', command: 'relai-stage', args }];
   return { kind: 'card', card: makeCard({ id: x.id, title: `Start etapu ${s.id}${prompt ? '' : ' (bez promptu)'}`, facts, question: 'Zaczynamy?', actions }) };
 }
 

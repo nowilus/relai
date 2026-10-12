@@ -9,7 +9,9 @@ Argumenty (oba opcjonalne): `$ARGUMENTS`
 
 Argumenty mogą nieść znacznik `--zgoda-panelu <id>` dopisany przez panel `relai-panel`. To nie jest
 ani temat, ani etap: przed Krokiem 1 odkładasz go na bok (znacznik i jego wartość), a jego znaczenie
-rozstrzyga Krok 4.
+rozstrzyga Krok 4. Znacznik dopisuje także panel **nowej sesji**, którą karta otworzyła: z pliku
+`.claude/relai/zgoda-etapu/<TEMAT>-<EN>.json` zostawionego przez kartę (ważny 10 minut, w tym
+folderze, jednorazowy — sprawdza go panel, nie Ty). Pliku nie czytasz i nie oceniasz sam.
 
 Twoje zadanie: doprowadzić do **startu właściwego etapu we właściwym trybie** — i ani jednego kroku
 dalej, dopóki użytkownik nie potwierdzi. Wykonuj poniższe kroki po kolei.
@@ -144,7 +146,8 @@ wyłącznie na wyraźną prośbę użytkownika.
 Po zgodzie, w tej kolejności:
 
 1. `STATUS.md`: status etapu → `W TOKU`, linia w dzienniku wdrożenia (`- <data> — E<N> rozpoczęty`).
-   Dzięki temu sesja przerwana w połowie zostawia ślad, a nie zagadkę.
+   Dzięki temu sesja przerwana w połowie zostawia ślad, a nie zagadkę. Istnieje plik
+   `.claude/relai/zgoda-etapu/<TEMAT>-<EN>.json` tego etapu → kasujesz go (zgoda jest zużyta).
 2. Wykonujesz prompt etapowy **dosłownie**: czytasz to, co każe przeczytać, w podanej kolejności;
    respektujesz sekcję „Decyzje już podjęte"; realizujesz zakres; przechodzisz sekcję Weryfikacja
    punkt po punkcie i **piszesz wynik każdego** — także wtedy, gdy punkt nie przeszedł.

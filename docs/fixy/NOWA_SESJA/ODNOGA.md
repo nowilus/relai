@@ -1,6 +1,6 @@
 # ODNOGA — przycisk panelu otwiera nową sesję Claude Code i startuje w niej etap
 
-Plan: brak (wątek samodzielny) · Etap-źródło: — · Utworzona: 2026-10-11 · Status: **OTWARTA** ·
+Plan: brak (wątek samodzielny) · Etap-źródło: — · Utworzona: 2026-10-11 · Status: **ZAMKNIĘTA 2026-10-12** ·
 Wykonawca: **Opus 5.5 w świeżej sesji** (decyzja Łukasza 2026-10-12; pierwotnie 2026-10-11 Opus 5.5
 jako subagent sesji Fable 5.1 — wymóg Fable odwołany 2026-10-11, propozycje UX przygotowuje wykonawca)
 
@@ -74,26 +74,48 @@ Pięć paczek N0–N4, każda z własnymi checkboxami; N0 jest pomiarem i rozstr
 
 ## Weryfikacja
 
-- [ ] N0: wynik łańcucha `-p` → desktop zapisany w `docs/PULAPKI.md` z wersją CLI i datą; jedno
+- [x] N0: wynik łańcucha `-p` → desktop zapisany w `docs/PULAPKI.md` z wersją CLI i datą; jedno
       z dwóch zdań: „nowa sesja z gotową rozmową bez Entera” albo „nie działa, bo …”.
-- [ ] N1: testy `panel/hooks/decisions.test.ts` i `band.test.ts` — karta etapu w trybie „nowa sesja”
+- [x] N1: testy `panel/hooks/decisions.test.ts` i `band.test.ts` — karta etapu w trybie „nowa sesja”
       wykonuje dokładnie `['newSession']` (żadnego `clear`), a `launch.ts` buduje URL z `folder`
       równym `cwd` sesji i `q` równym komendzie (test na trzech systemach, atrapa `$.process.run`
       sprawdza argv bez powłoki). Kontrola pozytywna: testy padają na starym kodzie.
-- [ ] N1 na żywo (Łukasz, 2.1.295, desktop): „Tak” na karcie etapu → nowa sesja w sidebarze
+- [x] N1 na żywo (Łukasz, 2.1.295, desktop): „Tak” na karcie etapu → nowa sesja w sidebarze
       z `/relai-stage TEMAT EN` w polu; Enter → procedura etapu rusza bez drugiego pytania o zgodę
       (N2); okno, w którym padło „Tak”, zostaje przy swojej rozmowie.
-- [ ] N2: test — plik zgody starszy niż 10 min albo z innym cwd nie liczy się jako zgoda; drugi
+- [x] N2: test — plik zgody starszy niż 10 min albo z innym cwd nie liczy się jako zgoda; drugi
       odczyt tego samego pliku nie liczy się (plik skasowany po użyciu); fokus trafia wyłącznie do
       pierwszej sesji startującej w tym cwd po przekazaniu (`focus-flow.test.ts`).
-- [ ] N3: test z atrapą `$.tool.list()` — z `mcp__ccd_session__start_session` karta woła
+- [x] N3: test z atrapą `$.tool.list()` — z `mcp__ccd_session__start_session` karta woła
       `$.mcp.call('ccd_session','start_session', …)` i nie otwiera deep linku; bez niego odwrotnie.
-- [ ] N4: `claude plugin validate panel`, `claude plugin test panel` binarką 2.1.295 — wszystkie
+- [x] N4: `claude plugin validate panel`, `claude plugin test panel` binarką 2.1.295 — wszystkie
       testy zielone; `node core/tools/validate-adapters.js` exit 0; `sync-panel-core --check` zgodny;
       wpis marketplace 0.14.0 = `plugin.json`.
-- [ ] Katalog roboczy `.claude/relai/work/_fixy/NOWA_SESJA/` przejrzany raportem i skasowany po
+- [x] Katalog roboczy `.claude/relai/work/_fixy/NOWA_SESJA/` przejrzany raportem i skasowany po
       „tak”; liczby przed i po we wpisie dziennika, artefakty spoza niego z nazwy.
 
 ## Wynik
 
-—
+Zamknięta 2026-10-12 (Opus 5.5, ta sama sesja co start; wpis w
+[DZIENNIK.md](../../DZIENNIK.md) z tego dnia, „NOWA_SESJA zamknięta”).
+
+- **Powstało:** krok karty `newSession` (`core/panel/decisions.mjs`), `panel/hooks/launch.ts` (deep link
+  i argv na trzy systemy, argumenty `start_session` ze schematu aplikacji 2.31226.1.0, przekazanie
+  fokusu, rozpoznanie tekstu z linku), plik zgody `.claude/relai/zgoda-etapu/<TEMAT>-<EN>.json`
+  sprawdzany przez panel nowej sesji (10 min, ten folder, ten etap, jednorazowy, tylko Enter
+  człowieka), przekazanie fokusu `.claude/relai/fokus/przekazanie.json`, wybór czatu „nowa sesja”
+  (domyślny na desktopie), linia „Środowisko” w Kosztach, `relai-panel` **0.14.0** w repo.
+- **Pomiar na żywo (Łukasz, 2.1.295, desktop):** nowa sesja w sidebarze z komendą w polu; Enter →
+  komenda ze znacznikiem `karta-mv4yo2su-tvuc`, fokus nowej sesji = etap, stara rozmowa nietknięta.
+  Pierwsza próba odkryła, że aplikacja zamienia początkowe `/` w linku na `／` (U+FF0F) — poprawione
+  w tej samej odnodze hookiem `prompt.submit` (P-033).
+- **Inaczej niż w karcie:** N0 bez pomiaru importu (`--desktop --resume`) — CLI wołane z aplikacji
+  nie jest zalogowane, decyzja Łukasza „liczy się desktop” (P-032); zgodę sprawdza panel, nie
+  procedura (decyzja Łukasza 2026-10-12, mod nie kasuje plików — procedura kasuje plik po starcie);
+  przekazanie fokusu w `launch.ts`, nie w `focus.ts` (parytet z `relai-progress`).
+- **Czego nie ma:** start bez Entera — dopiero gdy aplikacja odda `start_session` (kod gotowy,
+  przetestowany na atrapie; pochodzenie promptu z `start_session` niezmierzone, więc procedura
+  może tam zapytać jeszcze raz). Zmiana `relai-stage.md` (wersja 6) czeka na wydanie `relai`.
+- **Nieaktualny FAKT:** „mody nie otwierają nowego okna” z planu PANEL_CLAUDE (archiwum, PLAN.html)
+  jest nieaktualny od tej odnogi — mod otwiera nową sesję aplikacji deep linkiem; plan zostaje
+  nietknięty, adnotacja w dzienniku.

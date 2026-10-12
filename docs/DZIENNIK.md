@@ -1073,3 +1073,81 @@ pliki z listy „Stan wyjściowy” istnieją (`ls`), wersja w `panel/.claude-pl
 **Do zrobienia przez człowieka:** start odnogi w świeżej sesji Opus 5.5 (`/effort high`).
 
 Autor: RelAI (Opus 5.5) + Lukasz
+
+### 2026-10-12 — NOWA_SESJA zamknięta: start etapu w nowej sesji aplikacji, `relai-panel` 0.14.0 w repo
+
+Świeża sesja Opus 5.5 wg [PROMPT_ODNOGA.md](fixy/NOWA_SESJA/PROMPT_ODNOGA.md); model zgodny z promptem.
+Optymalizator promptów w tej sesji wyłączony (decyzja Łukasza). Karta:
+[ODNOGA.md](fixy/NOWA_SESJA/ODNOGA.md) — **ZAMKNIĘTA 2026-10-12**, 7/7 punktów Weryfikacji.
+
+**Zrobione:**
+
+- **N0** — `claude -p --session-id U "/relai-stage NIEMA E1"` binarką 2.1.295 z Basha sesji: kod 1,
+  „Failed to authenticate: OAuth session expired”; `claude auth status` → `loggedIn: false` dla
+  2.1.280 i 2.1.295 — CLI wołane z aplikacji nie ma jej logowania. Werdykt „nie działa, bo …” w
+  [P-032](PULAPKI.md); import (`--desktop --resume`) niemierzony — Łukasz: liczy się desktop.
+  Numer P-032, bo gałąź `codex/panel-codex` zajęła P-024…P-031 (kolizja P-024…P-026 sprzed tej
+  sesji zostaje do scalenia gałęzi).
+- **N1** — krok karty `newSession` w `core/panel/decisions.mjs` (karta: dokładnie ten jeden krok,
+  bez `/clear` i bez znacznika), `panel/hooks/launch.ts` (deep link `claude://code/new`, argv bez
+  powłoki: `rundll32 url.dll,FileProtocolHandler` / `open` / `xdg-open`, system z `OS` albo
+  `uname -s`), wybór czatu w formularzu: `nowa sesja` pierwsza i domyślna na desktopie, w terminalu
+  i VS Code dwie dawne opcje — tekst karty zaakceptowany przez Łukasza przed kodem UI
+  (brief [STYL_PASKOW_CLAUDE.md](zasoby/PANEL_RELAI/STYL_PASKOW_CLAUDE.md) 3.6, §6 pkt 6).
+- **N2** — zgoda plikiem `.claude/relai/zgoda-etapu/<TEMAT>-<EN>.json`; sprawdza ją hook panelu
+  nowej sesji (decyzja Łukasza: panel, nie procedura — mod nie kasuje plików, model słabo liczy
+  czas): ten etap, ten folder, ≤ 10 min, nieużyty (`usedAt`), tylko Enter człowieka (`composer`).
+  Fokus: `.claude/relai/fokus/przekazanie.json`, brany przy `session.start` raz, nigdy przez sesję,
+  która go zapisała (oba jej id). `relai-stage.md` wersja 6 (kasowanie pliku po starcie; czeka na
+  wydanie `relai`), skill Codeksa przegenerowany.
+- **N3** — schemat `start_session` odczytany z paczki aplikacji 2.31226.1.0 (`initiation`,
+  `title`, `prompt`, `context`, `background` ≥ 80 znaków, `use_worktree`); z narzędziem na liście
+  karta woła `$.mcp.call('ccd_session','start_session', …)`, bez niego deep link. Linia
+  „Środowisko” w Kosztach mówi, którą drogą panel otworzy sesję.
+- **Przegląd kodu (agent):** bez CRITICAL/HIGH; trzy MEDIUM poprawione — zgoda z pliku tylko dla
+  `origin: composer`; nieudane otwarcie unieważnia zgodę od razu; przekazanie odrzuca też stare id
+  sesji po `/clear`; LOW — etap spoza wzorca blokuje kartę przed „Tak”.
+- **Pomiar na żywo (Łukasz, 2.1.295, desktop, plan tymczasowy `POMIAR_NOWA_SESJA` — skasowany):**
+  pierwsza próba — nowa sesja w sidebarze, pytanie o zaufanie folderu, ale znacznik nie powstał:
+  **aplikacja zamienia początkowe `/` w `q` na `／` (U+FF0F)**, więc Enter wysyła tekst, model sam
+  woła skill, a procedura pyta „Zaczynamy?” (bezpiecznie). Poprawka: hook `prompt.submit`
+  rozpoznaje ten tekst i przy ważnym pliku uruchamia komendę własną wysyłką panelu ze znacznikiem
+  ([P-033](PULAPKI.md)); do nowej sesji idzie pełna nazwa `/relai:relai-stage` jak w podglądzie
+  (uwaga Łukasza). Druga próba: komenda `… --zgoda-panelu karta-mv4yo2su-tvuc`, `usedAt` w pliku,
+  fokus nowej sesji = `POMIAR_NOWA_SESJA/E1`, stara rozmowa nietknięta; pytanie o model padło, bo
+  Łukasz przełączył nową sesję na Sonnet — bramka modelu zadziałała zgodnie z Krokiem 4.
+- **N4** — `relai-panel` 0.14.0 w `plugin.json` i w marketplace (opisy z nową sesją), README
+  (wiersz panelu), P-032 i P-033, brief 3.6, rejestr artefaktów.
+- **Adnotacja:** FAKT „mody nie otwierają nowego okna” planu PANEL_CLAUDE (archiwum, `PLAN.html`) jest
+  nieaktualny od tej odnogi — mod otwiera nową sesję aplikacji deep linkiem; plan nietknięty.
+
+**Zweryfikowane — jak dokładnie:** `claude plugin validate panel` ✔; `claude plugin test` binarką
+2.1.295: panel **177/177** (było 148), progress 31/31, cache-keeper 174/174; rdzeń `node --test`
+(process, guardrails, panel, codex) **299/299** (było 295); `validate-adapters` exit 0;
+`sync-panel-core --check` zgodny. Kontrola pozytywna w osobnym `git worktree` HEAD (L-0151):
+stary kod — 12 nowych testów panelu ✖, stary kod z podłożoną nową czystą logiką — te same 12 ✖
+(L-0165); stary rdzeń — 3 nowe testy ✖ (pierwszy przebieg nie wczytał pliku testów; poprawione,
+żeby każdy test padał osobno); test kształtu U+FF0F ✖ na kodzie sprzed poprawki. `tsc`: 398 błędów
+wobec 397 na HEAD — różnica to jeden TS7016 (import `.mjs` w `launch.ts`), ta sama klasa co cała
+baza. Na żywo: pliki w zainstalowanym `relai-panel` 0.13.0 podmienione (kopia zapasowa, `cmp`),
+transkrypty nowych sesji i pliki zgody/przekazania czytane po każdej próbie, kod znaku U+FF0F
+odczytany z transkryptu.
+
+**Katalog roboczy:** `.claude/relai/work/_fixy/NOWA_SESJA/` przed: 683 pliki, 34,8 MB (worktree
+HEAD, kopie zapasowe instalacji, pomiar N0 i N3); po „tak” Łukasza skasowany razem z rejestracją
+worktree, po: 0. **Poza projektem:** transkrypt pomiaru N0
+`~/.claude/projects/C--Users-Lukasz-Desktop-RelAI/954c5590-318e-4f6c-a390-b4d66768fe04.jsonl` (zostaje,
+decyzja Łukasza); dwie sesje pomiarowe w sidebarze aplikacji (`de8a1cae…`, `dc499594…`);
+zainstalowany `relai-panel` 0.13.0 w cache'u pluginów niesie kod 0.14.0 do czasu wydania.
+
+**Świadomie odłożone:** pochodzenie promptu przy `start_session` niezmierzone (flaga zamknięta) —
+procedura może tam zapytać drugi raz; `rundll32` przy braku obsługi `claude://` (prawdopodobnie kod
+0 → „Otwarto…”, zgoda wygasa po 10 min); porównanie ścieżek UNC w `samePath` (pada w bezpieczną
+stronę); pytanie o zaufanie folderu przy każdym linku — zachowanie aplikacji; `AGENTS.md` rozjechany
+z `CLAUDE.md` sprzed tej sesji.
+
+**Do zrobienia przez człowieka:** wydanie `relai-panel` 0.14.0 (tag, push, release,
+`marketplace update`, `plugin update`) — propozycja w czacie; zmiana `relai-stage.md` wyjdzie
+z najbliższym wydaniem `relai`.
+
+Autor: RelAI (Opus 5.5) + Lukasz

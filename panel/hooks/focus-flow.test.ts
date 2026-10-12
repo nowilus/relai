@@ -201,6 +201,39 @@ describe('the session focus, end to end (Z12)', () => {
     expect(disk[`${CWD}/.claude/relai/fokus/session-3.json`]).toBeUndefined()
   })
 
+  // NOWA_SESJA N2: a card that opened a new desktop session left the stage as the focus to hand
+  // over; the new process reads it at its session.start — the first session starting in this
+  // folder after the handoff takes it, once; the session that wrote it never does
+  const HANDOFF = `${CWD}/.claude/relai/fokus/przekazanie.json`
+  const handoff = (extra: Record<string, unknown> = {}) => JSON.stringify({ focus: { kind: 'plan', plan: 'PANEL_CODEX', stage: 'E1' }, from: 'session-1', cwd: 'C:\\proj', at: NOW - 60_000, ...extra }) + '\n'
+
+  test('a handed focus goes to the first session that starts in this folder, once', async ($, on) => {
+    const { disk, ids } = world(on, { ...FILES, [HANDOFF]: handoff() })
+    await $.session.start({ cwd: CWD, surface: 'desktop', isInteractive: true }) // the writer reloads: nothing taken
+    expect(disk[`${CWD}/.claude/relai/fokus/session-1.json`]).toBeUndefined()
+    ids.session = 'session-2'
+    await $.session.start({ cwd: CWD, surface: 'desktop', isInteractive: true })
+    expect(JSON.parse(disk[`${CWD}/.claude/relai/fokus/session-2.json`] ?? '{}')).toMatchObject({ kind: 'plan', plan: 'PANEL_CODEX', stage: 'E1', source: 'auto' })
+    await turn($, 't1')
+    expect(stagesIn(disk).at(-1)).toBe('PANEL_CODEX/E1')
+    ids.session = 'session-3'
+    await $.session.start({ cwd: CWD, surface: 'desktop', isInteractive: true })
+    expect(disk[`${CWD}/.claude/relai/fokus/session-3.json`]).toBeUndefined()
+  })
+
+  for (const [why, file] of [
+    ['older than ten minutes', handoff({ at: NOW - 10 * 60_000 - 1 })],
+    ['from another folder', handoff({ cwd: 'D:/inny' })],
+    // The writer after /clear: a new live id, the module's old one also listed (review, P-026 pkt 3)
+    ['to the writer under its other id', handoff({ from: ['session-1', 'session-2'] })],
+  ] as const) test(`a handoff ${why} gives no focus`, async ($, on) => {
+    const { disk, ids } = world(on, { ...FILES, [HANDOFF]: file })
+    ids.session = 'session-2'
+    await $.session.start({ cwd: CWD, surface: 'desktop', isInteractive: true })
+    expect(disk[`${CWD}/.claude/relai/fokus/session-2.json`]).toBeUndefined()
+    expect(disk[HANDOFF]).toBe(file)
+  })
+
   // Z12c: a session's history corrected in its file (the work it really was) is not written back
   // over by the records the panel still holds in memory
   test('a stage corrected in the measurement file stands through the next write', async ($, on) => {
