@@ -8,7 +8,10 @@ Stan na E1 (2026-10-12): gotowa scena 2 „Trzy paski” — 10 s ruchu i klatka
 [kalibracja/E1-klatka.png](kalibracja/E1-klatka.png), kierunek przyjęty przez Łukasza po dwóch
 rundach (wiersz „Kierunek filmu” w [USTAWIENIA.md](../../USTAWIENIA.md)). Stan na E2 (2026-10-12):
 animatik całego filmu — sześć scen, 120 s, kolejność, czasy i słownik PL przyjęte przez Łukasza.
-Pełna jakość scen 1 i 3–6, wersja EN, pętla do README i wydanie — kolejne etapy planu.
+Stan na E3 (2026-10-12): pierwsza minuta w pełnej jakości — scena 1 „Pamięć”, scena 2 w całości
+(10 s z E1 i dalsza część `PaskiDalej` od tego samego kadru), scena 3 „Panel” odtworzona z kodu
+`relai-panel` 0.14 i zrzutów Łukasza; klatki wzorcowe w `kalibracja/E3-scena1.png` i
+`kalibracja/E3-scena3.png`. Sceny 4–6 dalej planszami (E4); wersja EN, pętla i wydanie — E5–E6.
 
 ## Co gdzie leży
 
@@ -18,10 +21,12 @@ Pełna jakość scen 1 i 3–6, wersja EN, pętla do README i wydanie — kolejn
 | `zrodla/src/tokeny.ts` | paleta i miary kierunku „Warsztat z wigorem” — jedyne miejsce kolorów spoza `core/panel` | tak |
 | `zrodla/src/rdzen.ts` | import `core/panel/*.mjs` tylko do odczytu — film liczy tym samym kodem co panel | tak |
 | `zrodla/src/dane/paski.json` | dane sceny 2, wygenerowane skryptem; każda wartość ma pole `zrodlo` | tak |
-| `zrodla/skrypty/` | `dane.mjs` (dane z repo i ze zrzutu), `fonty.mjs` (kopia fontów z kontrolą bajtową) | tak |
-| `zrodla/testy/` | testy danych: zgodność z `core/panel`, źródła, piksele zrzutu | tak |
+| `zrodla/src/dane/panel.json` | dane sceny 3: etapy planu z `STATUS.md` i liczby sesji przepisane ze zrzutów 0.14, każda z polem `zrodlo` | tak |
+| `zrodla/src/komendy.ts` | układ zakładki Komendy (polecane i grupy) — ta sama funkcja dla sceny i testu wierności | tak |
+| `zrodla/skrypty/` | `dane.mjs` (sceny 2), `panel.mjs` (sceny 3), `manifest.mjs`, `fonty.mjs` i `znak.mjs` (kopie fontów, logo i ikon komend z kontrolą bajtową) | tak |
+| `zrodla/testy/` | testy danych: zgodność z `core/panel`, źródła, piksele zrzutu, fakty w kadrze, wierność nazw panelu | tak |
 | `kalibracja/` | klatki zaakceptowane przez człowieka | tak |
-| `zrodla/node_modules/`, `zrodla/out/`, `zrodla/public/fonty/` | zależności, rendery, kopie fontów | nie |
+| `zrodla/node_modules/`, `zrodla/out/`, `zrodla/public/fonty/`, `zrodla/public/znak/` | zależności, rendery, kopie fontów i znaku | nie |
 
 ## Jak wyrenderować
 
@@ -51,7 +56,14 @@ ich czasów) do `zrodla/out/animatik.mp4` — scena 2 gotowa, reszta jako plansz
 cd docs/zasoby/film/zrodla && npm run animatik
 ```
 
-Wszystkie komendy renderu najpierw odświeżają dane, manifest i fonty (`npm run przygotuj`; manifest
+Pierwsza minuta filmu w pełnej jakości (MP4 1920×1080, 30 kl./s, sceny 1–3, 1950 klatek) do
+`zrodla/out/minuta.mp4`:
+
+```bash
+cd docs/zasoby/film/zrodla && npm run minuta
+```
+
+Wszystkie komendy renderu najpierw odświeżają dane, manifest, fonty i znak (`npm run przygotuj`; manifest
 uruchamia testy rdzenia, ok. 35–45 s). Podgląd na żywo: `npm run studio`. Testy (po
 `npm run przygotuj`): `npm test`; typy: `npm run typy`.
 
@@ -68,6 +80,12 @@ prawdziwej sesji. Dlatego:
   [`docs/fixy/AUDYT_MODOW/zrzuty/2026-10-11-z1-trzy-paski-0.12.0.png`](../../fixy/AUDYT_MODOW/zrzuty/2026-10-11-z1-trzy-paski-0.12.0.png);
   wypełnienie każdej baterii test porównuje z pikselami tego zrzutu;
 - każda wartość w `paski.json` niesie pole `zrodlo`; test kończy się błędem na wartości bez niego;
+- **liczby sceny 3** (koszty sesji, etapów i projektu, wywołania, kafle dokumentów, cennik) też nie
+  leżą w repozytorium: `skrypty/panel.mjs` przepisuje je słowo w słowo ze zrzutów `relai-panel`
+  0.14 z 2026-10-12 i zapisuje do `src/dane/panel.json` ze zrzutem jako źródłem; etapy planu liczy
+  `core/panel/plan-state.mjs` z bieżącego `STATUS.md`, a linię o odczycie sieciowym cennika skrypt
+  czyta z `panel/hooks/pane-costs.tsx`; wiersze diffu w Dokumentach są cytatem `STATUS.md` ze
+  zrzutu, nie faktami filmu;
 - **liczby pozostałych scen** (wersja, komendy, zamknięte plany, testy rdzenia, narzędzia, próg
   limitu, linie instalacji) liczy `skrypty/manifest.mjs` ze źródeł w repozytorium i zapisuje do
   `src/dane/manifest.json` w tym samym kształcie `{ wartosc, zrodlo }`; okno „5 h” bierze z etykiety
@@ -80,6 +98,17 @@ prawdziwej sesji. Dlatego:
   słowne i znak `%` bez liczby. Test generuje manifest ponownie i porównuje z zapisanym, a na
   zmienionych kopiach źródeł pokazuje, że fakt się zmienia. Pilnuje też prywatności kadru:
   ścieżki domowej, e-maila, identyfikatora sesji.
+
+## Wierność panelu
+
+Scena 3 pokazuje panel tak, jak rysuje go `relai-panel` 0.14: kolory, nazwy i opisy komend, grupy
+i polecane bierze z `core/panel` (przez `src/rdzen.ts`), słowa powierzchni ze zrzutów 01–07
+w [`docs/zasoby/PANEL_RELAI/zrzuty/`](../PANEL_RELAI/zrzuty/) (2026-10-12). Test
+`testy/wiernosc.test.mjs` trzyma zakładki słownika przy `TABS` z `panel/hooks/pane-parts.tsx` —
+czytanych z tekstu pliku, nazwy i kolejność — a komendy sceny przy `FORMS` z
+`core/panel/commands.mjs`; każda z tych kontroli ma kontrolę pozytywną (kopia z inną kolejnością
+zakładek, grupa bez komendy). Zmiana zakładek panelu wywraca test, zanim film rozjedzie się
+z produktem.
 
 ## Fonty i sieć
 

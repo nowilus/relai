@@ -8,6 +8,19 @@ Specyfikacja: `SPEC_PULAPKI.md`.
 
 ## Pułapki
 
+### P-038 — SVG: `pathLength` z `vector-effect="non-scaling-stroke"` tnie kreskę na kawałki · 2026-10-12 · AKTYWNA
+
+- **Objaw:** podkreślenie rysowane animacją `strokeDasharray="1 1"` i `strokeDashoffset` na ścieżce
+  z `pathLength={1}` i `vectorEffect="non-scaling-stroke"` w SVG rozciągniętym `preserveAspectRatio="none"`
+  wychodzi jako rząd kresek pod słowami, nie jedna linia rysowana od lewej.
+- **Przyczyna:** `non-scaling-stroke` liczy kreskę w przestrzeni ekranu, a `pathLength` normalizuje
+  długość w przestrzeni użytkownika; po rozciągnięciu SVG wzór kreskowania przestaje odpowiadać
+  długości ścieżki.
+- **Obejście:** linię w rozciąganym SVG odsłaniasz przycięciem (`clipPath: inset(-50% <reszta>% -50% 0)`),
+  jak pytania sceny 2 (`Pytania.tsx`); `pathLength` z kreskowaniem zostawiasz dla SVG bez
+  `non-scaling-stroke` (pętle, strzałki).
+- **Źródło:** FILM_PREZENTACYJNY E3, 2026-10-12 (scena 1 i nagłówek panelu w scenie 3).
+
 ### P-037 — `node --test` uruchomiony z wnętrza `node --test` nie drukuje podsumowania · 2026-10-12 · AKTYWNA
 
 - **Objaw:** test filmu, który odpala zestaw testów rdzenia przez `spawnSync`, czytał z wyjścia

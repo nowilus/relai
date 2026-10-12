@@ -54,9 +54,11 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
    (L-0158). **Diagnozę na żywo zaczynasz od znacznika wersji w logu** — przeładowanie potrafi
    zostawić starą wersję i każdy wniosek z niej jest fałszywy (L-0159). **Kontrola „przed” idzie
    w dwóch przebiegach** — stary kod w całości i stary kod z podłożoną tylko nową czystą logiką;
-   „plik testów się nie wczytał” nie dowodzi żadnego testu z osobna (L-0165).
+   „plik testów się nie wczytał” nie dowodzi żadnego testu z osobna (L-0165). **Element animowany
+   z danych procesu sprawdzasz na stanie pośrednim z lukami**, nie tylko na stanie z chwili pisania
+   — punkty odhacza się w kolejności pracy, nie numeracji (L-0175).
    (L-0017, L-0018, L-0040, L-0051, L-0052, L-0063, L-0069, L-0082, L-0115, L-0117, L-0123, L-0134,
-   L-0144, L-0150, L-0154, L-0155, L-0156, L-0158, L-0159, L-0165)
+   L-0144, L-0150, L-0154, L-0155, L-0156, L-0158, L-0159, L-0165, L-0175)
 5. **Instrument pomiarowy sam bywa źródłem fałszu:** wyrażenia regularne trzymaj w pliku zapisanym
    narzędziem zapisu, nie w `node -e` ani w heredoku, a tekst z backslashem (także ścieżkę
    Windows) wstawiasz Edit/Write albo piszesz z `/` (L-0116, L-0119); **skrypt edycji kodu, który
@@ -301,9 +303,10 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
     transformacji 3D ani filtra warstwowego**: kamera powiększa wtedy bitmapę, nie tekst. Przegląd
     klatek obejmuje klatkę największego zbliżenia (L-0171). **Przejście między ekranami tej samej
     siatki idzie przez wspólne tło, nie przez nałożenie**, a liczby w kadrze piszesz krojem
-    rozróżniającym „1” i „I” (L-0174).
+    rozróżniającym „1” i „I” (L-0174). **Adnotacja przy liczbie mówi wartość wyliczoną**, nie
+    pytanie, na które liczba odpowiada (L-0176).
     (L-0003, L-0006, L-0016, L-0019, L-0029, L-0094, L-0098, L-0137, L-0140, L-0142, L-0145, L-0147,
-    L-0149, L-0152, L-0157, L-0171, L-0174)
+    L-0149, L-0152, L-0157, L-0171, L-0174, L-0176)
 
 **Wyprowadzone 2026-08-20 do `docs/PULAPKI.md`:** sześć pozycji, które były pułapkami
 narzędziowymi, a nie zasadami pracy — `tar` na `PATH` (L-0021), sesja pomiarowa `claude -p`
@@ -652,6 +655,34 @@ restart aplikacji po `plugin update` (L-0031), `git worktree` zamiast `git archi
   przejście nie przeszło przez czerń. Liczby i czasy w kadrze piszesz krojem, który rozróżnia „1”
   i „I”. Klatkę ze środka każdego przejścia oglądasz przed pokazem.
 - **Źródło:** FILM_PREZENTACYJNY E2, 2026-10-12; destylat: zasada 15.
+
+### L-0175 — Animacja „punkt po punkcie” założyła kolejność, której dane nie mają · 2026-10-12 · AKTYWNA
+
+- **Trigger:** scena 2 filmu prowadzi znacznik po segmentach postępu i stawia ✓ nad każdym punktem
+  odhaczonym; znacznik zatrzymywał się na pierwszym punkcie nieodhaczonym. Przy danych 0/16 z chwili
+  pisania wyglądało to dobrze. Przy realnych 10/16 punkt 1 (pytanie rozstrzygane wpisem na końcu
+  etapu) był otwarty, więc znacznik stanął na pierwszym segmencie i nie pojawił się ani jeden ✓.
+- **Przyczyna:** animacja zakładała, że punkty odhacza się po kolei. Prompt etapu tego nie
+  gwarantuje — kolejność odhaczania wyznacza praca, nie numeracja. Stan „zero” i stan „wszystko”
+  tego nie pokazują; pokazuje go dopiero stan pośredni.
+- **Zasada:** element animowany z danych procesu sprawdzasz na danych w stanie pośrednim, z lukami
+  (część zrobiona, nie od początku), a nie tylko w stanie z chwili pisania i w stanie skrajnym.
+  Animacja przechodzi cały zbiór i oznacza elementy po ich stanie; nie zatrzymuje się na
+  „pierwszym otwartym”, chyba że stan naprawdę jest kolejką.
+- **Źródło:** FILM_PREZENTACYJNY E3, 2026-10-12 (render rundy 2, klatka 950); destylat: zasada 4.
+
+### L-0176 — Karteczka z pytaniem retorycznym przy liczbie zamiast liczby wyliczonej · 2026-10-12 · AKTYWNA
+
+- **Trigger:** w scenie 2 trzy karteczki odpowiadały trzem pytaniom spod tytułu; przy liczniku
+  „0/16 punktów” stała karteczka „jak daleko”. Łukasz (runda 1 E3): „to zupełnie nie pasuje tutaj
+  do kontekstu”, przy postępie powinien stać wyliczony postęp.
+- **Przyczyna:** karteczka powielała hasło konstrukcji sceny (pytanie z tytułu), a nie mówiła, co
+  liczba znaczy. Karteczka baterii z E1, przyjęta, robi to drugie: tytuł i dwie linie z danymi.
+- **Zasada:** adnotacja przy liczbie w interfejsie mówi wartość wyliczoną z tych samych danych
+  („odhaczone 10 z 16 punktów”, „plan: 2 z 6 etapów”), nie pytanie, na które liczba odpowiada.
+  Hasło konstrukcyjne sceny (pytania pod tytułem) zmieniasz razem z nią, żeby para pytanie–karteczka
+  dalej się zgadzała.
+- **Źródło:** FILM_PREZENTACYJNY E3, 2026-10-12, korekta Łukasza w rundzie 1; destylat: zasada 15.
 
 ## Lekcje zwinięte
 

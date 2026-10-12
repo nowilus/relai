@@ -1586,3 +1586,195 @@ Edit.
   E2 wykonany w świeżej sesji z kartą `/relai-stage`.)*
 
 Autor: RelAI (Opus 5.5) + Lukasz
+
+### 2026-10-12 — FILM_PREZENTACYJNY E3: sceny 1–3 w pełnej jakości, pierwsza minuta filmu przyjęta
+
+Sesja Opus 5.5 w Claude Code, `/relai-stage` z kartą potwierdzenia („tak”). Optymalizator promptów
+w tej sesji wyłączony decyzją Łukasza (bramka zgody: „Nie, nie w tej sesji”).
+
+**Zrobione:**
+
+- **Bramka zrzutów 0.14** — pytanie padło na starcie. Łukasz: „Zrobię zrzuty teraz”, a po liście
+  tego, co potrzebne: „wszystkie screeny gotowe i zapisane”. Dziewięć zrzutów w
+  [docs/zasoby/PANEL_RELAI/zrzuty/](zasoby/PANEL_RELAI/zrzuty/) (01–07 do sceny 3, 08–09 do E4);
+  bramka w `STATUS.md` rozstrzygnięta.
+- **Scena 1 „Pamięć”** — [src/sceny/Pamiec.tsx](zasoby/film/zrodla/src/sceny/Pamiec.tsx), 12 s:
+  - puste okno „nowa sesja” z polem promptu;
+  - karteczka „a gdyby projekt pamiętał?” z ręcznym podkreśleniem;
+  - okno schodzi na biurko, wpina się kartka-znak z `docs/zasoby/branding/logo.svg` (przycięta do
+    kartki), pod nią hasło słowo po słowie.
+
+  Znak i 14 ikon komend kopiuje do `public/znak/` nowy skrypt
+  [skrypty/znak.mjs](zasoby/film/zrodla/skrypty/znak.mjs) z kontrolą bajtową, jak fonty.
+- **Scena 2 do pełnych 23 s** — [src/sceny/PaskiDalej.tsx](zasoby/film/zrodla/src/sceny/PaskiDalej.tsx)
+  zaczyna dokładnie od kadru, na którym kończą się 10 s z E1, i łączy się z nimi zwykłym cięciem:
+  - kamera jedzie na pasek planu (pętla, karteczka „nad czym pracuję”);
+  - potem na postęp: znacznik przechodzi cały rząd segmentów i stawia ✓ nad każdym punktem
+    odhaczonym, pętla obejmuje licznik, a karteczka „postęp etapu” niesie wyliczony postęp;
+  - na koniec odjazd na trzy paski z trzema karteczkami.
+
+  `Paski.tsx`, `Pasek.tsx`, `PasekCache.tsx`, `Adnotacja.tsx` zostały użyte bez zmian.
+- **Scena 3 „Panel”** — [src/sceny/Panel.tsx](zasoby/film/zrodla/src/sceny/Panel.tsx) i
+  `src/sceny/panel/` (Czesci, Komendy, Mapa, Dokumenty, Koszty), 30 s:
+  - okno panelu z zakładkami w kolejności `TABS`; kursor przechodzi Komendy → Mapa → Dokumenty →
+    Koszty, kliknięcie przełącza zakładkę od razu, jak w panelu;
+  - Komendy: karta „Teraz”, polecane, 14 komend w grupach z przewijaniem;
+  - Mapa: pętla wokół „Ta sesja”;
+  - Dokumenty: kafle i otwarcie STATUS.md z diffem;
+  - Koszty: suma z paskiem kategorii, kafle, cennik z pętlą wokół „dopiero po »Tak« na karcie”.
+
+  Nazwy, opisy, grupy, polecane i kolory pochodzą z `core/panel` przez `src/rdzen.ts`
+  (rozszerzony o `THEME`, `DIFF`, `NAMES`, `FEATURED`, `GROUPS`, `COST_COLORS`, `FLOW`,
+  `iconName`). Układ komend liczy czysta funkcja [src/komendy.ts](zasoby/film/zrodla/src/komendy.ts).
+- **Dane sceny 3** — [skrypty/panel.mjs](zasoby/film/zrodla/skrypty/panel.mjs) zapisuje
+  `src/dane/panel.json`:
+  - etapy planu na żywo z `STATUS.md` przez `core/panel/plan-state.mjs`;
+  - koszty, wywołania, kafle dokumentów i cennik przepisane słowo w słowo ze zrzutów 03–07, ze
+    zrzutem jako źródłem;
+  - linia o odczycie sieciowym cennika czytana z `panel/hooks/pane-costs.tsx`;
+  - wiersze diffu oznaczone jako cytat.
+- **Słownik** [src/teksty.ts](zasoby/film/zrodla/src/teksty.ts):
+  - zakładki „Teraz / Mapa / Dokumenty / Koszty” → **Komendy · Koszty · Dokumenty · Mapa · Pomoc**,
+    jak w prawdziwym panelu (powiedziane Łukaszowi przy pokazie);
+  - doszły słowa powierzchni panelu ze zrzutów i karteczka postępu;
+  - zniknęły słowa plansz scen 1–3;
+  - drugie pytanie pod tytułem sceny 2 zmienione z „jak daleko” na „ile zrobione” — decyzja
+    Łukasza w rundzie 1.
+- [src/sceny/Animatik.tsx](zasoby/film/zrodla/src/sceny/Animatik.tsx): sceny 1–3 zamiast plansz,
+  sceny 4–6 dalej planszami. Nazwa kompozycji zostaje `Animatik`. `Root.tsx` ma też kompozycje
+  robocze pojedynczych scen do klatek kontrolnych. Wspólne klocki: `Okno.tsx`, `Karteczka.tsx`,
+  `Petla.tsx` (pętla omija narożniki pola), `Strzalka.tsx`.
+- Test [testy/wiernosc.test.mjs](zasoby/film/zrodla/testy/wiernosc.test.mjs), cztery przypadki:
+  - zakładki = `TABS` czytane z tekstu `pane-parts.tsx`;
+  - kontrola pozytywna: kopia z zamienioną kolejnością i kopia ze zmienioną nazwą;
+  - komendy sceny = `FORMS`, każda raz, z kontrolą na grupie bez komendy i z komendą podwójną;
+  - reguła układu = linia `FEATURED.slice(0, 2)` z `pane-commands.tsx`.
+- Test faktów rozszerzony: `panel.json` = ponowny przebieg skryptu, każdy fakt ma `zrodlo`.
+  Liczby `panel.json` i nazwy z `core/panel` idą do licznika wąskiego i do prywatności, a wiersze
+  diffu do prywatności jako cytat. Wartości kontroli pozytywnych sprawdzane wobec zbioru
+  dozwolonego (L-0173).
+- `package.json`: skrypty `panel`, `znak`, `minuta` (render pierwszej minuty), `przygotuj` z nimi.
+  `.gitignore` filmu: `public/znak/`. README filmu: stan na E3, render minuty, wierność panelu,
+  skąd liczby sceny 3.
+- **Pokaz Łukaszowi:**
+  - **Runda 1** — MP4 pierwszej minuty i klatki scen 1 i 3. Łukasz: „Przyjmuję te sceny, natomiast
+    […] ta jedna notatka, która sprawdza właśnie stan 0/16, jest tam napisane jak daleko […] nie
+    pasuje tam. […] powinienem mieć […] wyliczony postęp […]. Poza tym wygląda to całkiem
+    nieźle.”
+  - Dopytanie o kształt poprawki. Łukasz wybrał karteczkę „postęp etapu / odhaczone N z M punktów
+    / plan: N z M etapów” i zmianę pytania pod tytułem na „ile zrobione”.
+  - **Runda 2** — Łukasz: „Przyjmuję sceny 1–3”.
+  - Klatki wzorcowe: [kalibracja/E3-scena1.png](zasoby/film/kalibracja/E3-scena1.png) (klatka 330)
+    i [kalibracja/E3-scena3.png](zasoby/film/kalibracja/E3-scena3.png) (klatka 1350), wycięte
+    z MP4 rundy 2.
+- Lekcje L-0175 (animacja z danych na stanie pośrednim) i L-0176 (adnotacja przy liczbie mówi
+  wartość wyliczoną), destylat zasad 4 i 15; pułapka P-038 (`pathLength` z `non-scaling-stroke`).
+
+**Zweryfikowane — jak dokładnie:**
+
+- **Długość:** `npx remotion compositions` → `Animatik 30 1920x1080 3600 (120.00 sec)`; sceny 4–6
+  planszami.
+- **Render pierwszej minuty** (`--frames=0-1949`, 1920×1080), odczyt `npx remotion ffprobe`
+  z pliku rundy 2: 1920×1080, 30/1, `nb_read_frames` 1950, czas 65,000000 s = suma scen 1–3
+  (12 + 23 + 30 s).
+- **Cięcie w scenie 2:** klatka 299 `Paski` i klatka 0 `PaskiDalej` porównane piksel po pikselu
+  (`porownaj.mjs`, próg 24) → 0 różnych pikseli na 2 073 600, największa różnica 0. Kontrola
+  pozytywna: klatka 299 kontra klatka 60 `PaskiDalej` → 79,95 % pikseli różnych.
+- **Pierwsze 300 klatek sceny 2:** `git diff --stat` na `Paski.tsx`, `Pasek.tsx`, `PasekCache.tsx`,
+  `Adnotacja.tsx`, `Pytania.tsx`, `Biurko.tsx`, `Napis.tsx` → pusty. Słowo pod tytułem zmienione
+  w słowniku decyzją Łukasza:
+  - klatka 280 sprzed i po zmianie → 0 różnych pikseli;
+  - klatka 60 → 0,28 % różnych pikseli, tylko słowo „ile zrobione”.
+
+  Obie pary klatek pokazane Łukaszowi w rundzie 2.
+- **Testy filmu:** `npm test` → 18/18 (5 pasków, 9 faktów, 4 wierności) po `npm run przygotuj`
+  po ostatniej zmianie promptu etapu.
+  - Licznik wąski: 119 liczb w 255 tekstach kadru, wszystkie są faktami; cyfry w słowniku: 0
+    (przebieg końcowy; `paski.json` niesie już stan „E4 GOTOWY DO STARTU, 0/0”, a render rundy 2
+    pokazywał 10/16 z chwili renderu).
+  - Licznik szeroki: 3 trafienia, wszystkie fakty („Trzy”, „trzy”, „%” przy 90).
+  - Wartości kontrolne 2500 i 7 nieobecne w zbiorze dozwolonym (asercja w teście).
+- **Wierność:** `tabs: Komendy · Koszty · Dokumenty · Mapa · Pomoc`, `commands: 14 of FORMS 14`;
+  kopie z inną kolejnością, nazwą i składem grup kończą sprawdzenie błędem.
+- **Kolory i sieć:** `grep -rnE '#[0-9a-fA-F]{3,8}' src/sceny/` → 0 (także `src/sceny/panel/`);
+  `grep -rnE "https?://" src` → 0; podłożony plik w katalogu roboczym trafiony przez obie kontrole
+  (1 i 1).
+- **Prywatność:** test obejmuje słownik, `panel.json` (z cytatem diffu) i nazwy z `core/panel` → 0;
+  trzy podłożone linie trafione każda własnym wzorcem. Na zrzutach 01–07 nie ma e-maila, ścieżki
+  domowej ani identyfikatora sesji (obejrzane).
+- **Własny przegląd przed pokazem:** trzy serie klatek kontrolnych i 12 klatek z MP4 (każda scena,
+  środek przejścia 1→2 — czysty papier, cięcie 2, odsłona 2→3, klatka 760 największego zbliżenia
+  — ostra). Poprawki:
+  - podkreślenia rwane na kreski (P-038);
+  - kwadrat tła logo;
+  - nachodzące karteczki planu i postępu;
+  - pętle przecinające rogi napisów;
+  - pusta zakładka Komendy przed pierwszym kliknięciem;
+  - pętla postępu przez licznik „0/16”;
+  - przewinięta Mapa pod napisem o „Ta sesja” (przewijanie zdjęte, w zamian pętla);
+  - po danych 10/16 znacznik bez ✓ (L-0175);
+  - karteczka zasłaniająca „2/6”.
+- **Typy i zależności:** `npm run typy` bez błędów. Pakietów nie dodano: `git diff` na
+  `package-lock.json` pusty, w `package.json` tylko skrypty `panel`, `znak`, `minuta`
+  i `przygotuj`.
+- **Rdzeń:** testy 331/331; `node core/tools/validate-adapters.js` → „spojne”, exit 0 (jedno
+  zastane ostrzeżenie); `claude plugin validate .` binarką 2.1.295 → exit 0 ze znanym ostrzeżeniem
+  dogfoodingu o root `CLAUDE.md`.
+- **PANEL_CODEX nietknięty:** `git diff --stat`, `git status --short` oraz sha256 plików
+  `docs/plany/PANEL_CODEX/` i `docs/zasoby/PANEL_RELAI/makiety/` przed i po etapie — `diff` pusty
+  (14 linii). Pliki poza commitem etapu.
+- **Katalog roboczy** `.claude/relai/work/FILM_PREZENTACYJNY/E3/`, raport `clean-work.js`:
+  - przed: 160,8 MB (421 plików, 1 pozycja — paczki Remotion, `minuta.mp4`, klatki, skrypty
+    pomiarowe);
+  - skasowany po „tak” razem z pustym katalogiem tematu; po: 0,0 MB, pozycji etapu brak w raporcie.
+
+  W `%TEMP%` nie ma żadnego katalogu `remotion*`. Render `minuta.mp4` odtwarza `npm run minuta`
+  do `zrodla/out/` (poza gitem).
+- [PROMPT_ETAP_4.md](plany/FILM_PREZENTACYJNY/PROMPT_ETAP_4.md) wg `SPEC_PROMPT_ETAPU`: dziewięć
+  elementów, siedem nagłówków każdy dokładnie raz, 16 punktów weryfikacji. Blok „Zasady aktywne”
+  (309 linii, 15 zasad) wklejony skryptem zapisanym narzędziem Write, z zamianą przez funkcję
+  (L-0164), i porównany ze źródłem linia po linii — zgodny. Skrypt powstał w
+  `.claude/relai/work/FILM_PREZENTACYJNY/E3prompt/` po sprzątaniu katalogu etapu; skasowany zaraz
+  po użyciu razem z katalogiem tematu.
+
+**Odstępstwa od promptu:**
+
+- Liczby sceny 3 mieszkają w `src/dane/panel.json` (skrypt `panel.mjs`), a nie w `manifest.mjs`,
+  jak wymienia prompt. To ten sam kształt `{ wartosc, zrodlo }` co `paski.json` — precedens danych
+  przepisanych ze zrzutu. Intencja promptu: każda liczba ma źródło i test.
+- Zrzuty 0.14 leżą w `docs/zasoby/PANEL_RELAI/zrzuty/` (tam zapisał je Łukasz), obok zrzutów
+  LIMIT_CHECKPOINT — nie w `makiety/` PANEL_CODEX.
+- Skrypty edycji kodu z `\n` dwa razy napisałem heredokiem zamiast narzędziem Write (zasada 5,
+  L-0148). Wynik sprawdzony grepem stałego ciągu: zero dosłownych `\n`, typy czyste. Raz też
+  wywołałem `python -` w Git Bashu (P-036); komenda zawisła i została zatrzymana, zanim cokolwiek
+  zmieniła.
+
+**Świadomie odłożone:**
+
+- Scena 3 łączy dane żywe (etapy z `STATUS.md`, pasek „Teraz”) z liczbami zrzutów z 2026-10-12
+  (koszty etapów E1–E3, „bez pomiaru” dla reszty). Przy renderze w E6, gdy E4–E6 będą zrobione,
+  „bez pomiaru” przestanie być prawdą — ostatni render potrzebuje świeżych zrzutów Mapy i Kosztów
+  albo kosztów etapów liczonych na żywo. Do rozstrzygnięcia w E5 (zestawienie ze zrzutami wersji
+  wydawanej) albo w E6.
+- Okno sceny 1 jest celowo proste („nowa sesja” i pole promptu), bez odtwarzania wyglądu okna
+  Claude, którego nie mamy na zrzucie.
+- Zrzut 08 (karta startu E3 w panelu 0.14) pokazuje „⚠ plan nie wskazuje modelu”, choć linia
+  metryczna `STATUS.md` planu filmu niesie „Opus 5.5 w Claude Code (ustawienia projektu, D-85)”.
+  Wygląda to na rozjazd odczytu modelu w panelu — usterka produktu, poza zakresem filmu. Do
+  rozstrzygnięcia przez Łukasza: odnoga przed E4 albo film pokazuje kartę z modelem po poprawce.
+  Zrzut 09: próg limitu 5 h tego projektu to 98 % („próg: ten projekt”), a film mówi o domyślnych
+  90 % (odłożone już w E2).
+- Odmiana „{komendy} komend” i reszta z wpisu E2 — dalej E5.
+- Rotacja `docs/LEKCJE.md` (58,1 KB przy progu 50 KB) i dziennika — sygnał hooka startu, poza
+  zakresem etapu.
+
+**Do zrobienia przez człowieka:**
+
+- Start E4 w świeżej sesji Opus 5.5 (`/relai-stage`, `/effort high`).
+- Decyzja przed sceną 4: „⚠ plan nie wskazuje modelu” na karcie startu etapu (zrzut 08) —
+  odnoga z poprawką panelu przed E4 albo scena 4 bez wiersza modelu.
+  *(Pozycja „Zrzuty referencyjne panelu 0.14” z wpisu E1 i E2 — rozstrzygnięte 2026-10-12:
+  dziewięć zrzutów w `docs/zasoby/PANEL_RELAI/zrzuty/`. Pozycja „Start E3 w świeżej sesji Opus 5.5”
+  — rozstrzygnięte 2026-10-12: E3 wykonany w świeżej sesji z kartą `/relai-stage`.)*
+
+Autor: RelAI (Opus 5.5) + Lukasz

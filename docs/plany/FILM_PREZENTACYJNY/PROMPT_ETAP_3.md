@@ -469,41 +469,41 @@ dalej przechodzi.
 Każdy punkt Weryfikacji, który przeszedł, odhaczasz w `PROMPT_ETAP_3.md` (`- [ ]` → `- [x]`)
 zaraz po jego sprawdzeniu, nie na końcu etapu; punkt, który nie przeszedł, zostaje pusty.
 
-- [ ] Pytanie o zrzuty panelu 0.14 padło na starcie; odpowiedź Łukasza we wpisie, bramka w
+- [x] Pytanie o zrzuty panelu 0.14 padło na starcie; odpowiedź Łukasza we wpisie, bramka w
       `STATUS.md` rozstrzygnięta albo dalej `OTWARTA` z powodem.
-- [ ] Sceny 1, 2 i 3 w kompozycji filmu zamiast plansz; `npx remotion compositions` pokazuje długość
+- [x] Sceny 1, 2 i 3 w kompozycji filmu zamiast plansz; `npx remotion compositions` pokazuje długość
       równą `dlugosc(fps)` (3600 klatek przy niezmienionych czasach), sceny 4–6 dalej planszami.
-- [ ] `testy/wiernosc.test.mjs` przechodzi: zakładki = `TABS` (nazwy i kolejność), komendy = `FORMS`;
+- [x] `testy/wiernosc.test.mjs` przechodzi: zakładki = `TABS` (nazwy i kolejność), komendy = `FORMS`;
       kontrola pozytywna na kopii `pane-parts.tsx` z inną kolejnością kończy test błędem.
-- [ ] `testy/fakty.test.mjs` przechodzi po zmianach słownika i scen; każdy nowy fakt ma `zrodlo`;
+- [x] `testy/fakty.test.mjs` przechodzi po zmianach słownika i scen; każdy nowy fakt ma `zrodlo`;
       liczby obu liczników do wpisu. Wartość każdej nowej kontroli pozytywnej sprawdzona wobec zbioru
       dozwolonego (L-0173).
-- [ ] `npm test` w `docs/zasoby/film/zrodla/` — wszystkie testy (13 z E1–E2 + nowe), przebieg po
+- [x] `npm test` w `docs/zasoby/film/zrodla/` — wszystkie testy (13 z E1–E2 + nowe), przebieg po
       `npm run przygotuj` po ostatniej zmianie promptu; liczba do wpisu.
-- [ ] Render pierwszej minuty 1920×1080, 30 kl./s: liczba klatek i czas odczytane `npx remotion ffprobe`
+- [x] Render pierwszej minuty 1920×1080, 30 kl./s: liczba klatek i czas odczytane `npx remotion ffprobe`
       z pliku, równe sumie scen 1–3 ± 1 klatka.
-- [ ] Pierwsze 300 klatek sceny 2 nietknięte (`git diff --stat` na `Paski.tsx`, `Pasek.tsx`,
+- [x] Pierwsze 300 klatek sceny 2 nietknięte (`git diff --stat` na `Paski.tsx`, `Pasek.tsx`,
       `PasekCache.tsx`, `Adnotacja.tsx`, `Pytania.tsx` pusty) **albo** klatka 280 sprzed i po zmianie
       pokazana Łukaszowi i różniąca się tylko danymi postępu.
-- [ ] Kolory i sieć: `grep -rnE '#[0-9a-fA-F]{3,8}' src/sceny/` i `grep -rnE "https?://" src` — pusto,
+- [x] Kolory i sieć: `grep -rnE '#[0-9a-fA-F]{3,8}' src/sceny/` i `grep -rnE "https?://" src` — pusto,
       każdy z kontrolą pozytywną na podłożonym pliku w katalogu roboczym.
-- [ ] Prywatność kadru: test prywatności w `fakty.test.mjs` obejmuje nowe teksty scen 1–3 (ścieżka
+- [x] Prywatność kadru: test prywatności w `fakty.test.mjs` obejmuje nowe teksty scen 1–3 (ścieżka
       domowa, e-mail, identyfikator sesji) i przechodzi.
-- [ ] Obejrzane własne klatki przed pokazem: co najmniej jedna z każdej sceny, środek każdego
+- [x] Obejrzane własne klatki przed pokazem: co najmniej jedna z każdej sceny, środek każdego
       przejścia, klatka największego zbliżenia; poprawki z przeglądu wymienione we wpisie.
-- [ ] Łukasz przyjął sceny 1–3 (jego słowa we wpisie), klatki wzorcowe w `docs/zasoby/film/kalibracja/`
+- [x] Łukasz przyjął sceny 1–3 (jego słowa we wpisie), klatki wzorcowe w `docs/zasoby/film/kalibracja/`
       **albo** po trzech rundach coś zostaje otwarte — wtedy etap zostaje `W TOKU`, a wpis mówi, co
       zostało do rozstrzygnięcia.
-- [ ] `npm run typy` bez błędów; gdy etap dodał pakiet — `npm audit --omit=dev` zero wysokich
+- [x] `npm run typy` bez błędów; gdy etap dodał pakiet — `npm audit --omit=dev` zero wysokich
       i krytycznych (liczby do wpisu); gdy nie dodał — zdanie o tym we wpisie z `git diff` na
       `package.json`.
-- [ ] Testy rdzenia 331/331 (komenda ze „Stanu wyjściowego”); `node core/tools/validate-adapters.js`
+- [x] Testy rdzenia 331/331 (komenda ze „Stanu wyjściowego”); `node core/tools/validate-adapters.js`
       spójne; `claude plugin validate .` binarką aplikacji — exit 0.
-- [ ] Pliki PANEL_CODEX (`docs/plany/PANEL_CODEX/`, `docs/zasoby/PANEL_RELAI/makiety/`) nietknięte:
+- [x] Pliki PANEL_CODEX (`docs/plany/PANEL_CODEX/`, `docs/zasoby/PANEL_RELAI/makiety/`) nietknięte:
       stdout `git diff --stat` i `git status --short` na nich identyczny z tym sprzed etapu, poza
       commitem etapu.
-- [ ] Wpis w `docs/DZIENNIK.md` na końcu sekcji „Wpisy”, z podpisem `Autor: RelAI (Opus 5.5) + Lukasz`.
-- [ ] Katalog roboczy `.claude/relai/work/FILM_PREZENTACYJNY/E3/` przejrzany raportem
+- [x] Wpis w `docs/DZIENNIK.md` na końcu sekcji „Wpisy”, z podpisem `Autor: RelAI (Opus 5.5) + Lukasz`.
+- [x] Katalog roboczy `.claude/relai/work/FILM_PREZENTACYJNY/E3/` przejrzany raportem
       (`node .claude/relai/tools/clean-work.js raport`) i skasowany po „tak”; liczby przed i po
       w sekcji „Zweryfikowane” wpisu. Artefakty poza nim (pliki `%TEMP%` renderu, jeśli powstały)
       wypisane z nazwy, z tym, co się z nimi stało.

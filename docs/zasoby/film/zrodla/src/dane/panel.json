@@ -1,0 +1,289 @@
+{
+  "mapa": {
+    "plan": {
+      "wartosc": "FILM_PREZENTACYJNY",
+      "zrodlo": "docs/plany/FILM_PREZENTACYJNY/STATUS.md przez core/panel/plan-state.mjs"
+    },
+    "statusPlanu": {
+      "wartosc": "ZAAKCEPTOWANY",
+      "zrodlo": "docs/plany/FILM_PREZENTACYJNY/STATUS.md przez core/panel/plan-state.mjs"
+    },
+    "etapy": {
+      "wartosc": [
+        {
+          "id": "E1",
+          "nazwa": "Klatka wzorcowa i 10 s ruchu",
+          "status": "ZREALIZOWANY"
+        },
+        {
+          "id": "E2",
+          "nazwa": "Scenariusz i animatik",
+          "status": "ZREALIZOWANY"
+        },
+        {
+          "id": "E3",
+          "nazwa": "Sceny 1–3",
+          "status": "ZREALIZOWANY"
+        },
+        {
+          "id": "E4",
+          "nazwa": "Sceny 4–6",
+          "status": "GOTOWY DO STARTU"
+        },
+        {
+          "id": "E5",
+          "nazwa": "Wersja EN, pętla, kontrola jakości",
+          "status": "OCZEKUJE"
+        },
+        {
+          "id": "E6",
+          "nazwa": "Wydanie RelAI 3.0.0",
+          "status": "OCZEKUJE"
+        }
+      ],
+      "zrodlo": "docs/plany/FILM_PREZENTACYJNY/STATUS.md przez core/panel/plan-state.mjs"
+    },
+    "kosztyEtapow": {
+      "wartosc": {
+        "E1": "$10.95",
+        "E2": "$4.96",
+        "E3": "$1.41"
+      },
+      "zrodlo": "docs/zasoby/PANEL_RELAI/zrzuty/03-mapa.png (relai-panel 0.14.0, zrzut Łukasza z 2026-10-12)"
+    },
+    "kosztSesji": {
+      "wartosc": "$1.41",
+      "zrodlo": "docs/zasoby/PANEL_RELAI/zrzuty/03-mapa.png (relai-panel 0.14.0, zrzut Łukasza z 2026-10-12)"
+    },
+    "kosztPlanu": {
+      "wartosc": "$17.32",
+      "zrodlo": "docs/zasoby/PANEL_RELAI/zrzuty/03-mapa.png (relai-panel 0.14.0, zrzut Łukasza z 2026-10-12)"
+    },
+    "zwiniete": {
+      "wartosc": [
+        [
+          "Inne plany",
+          "1 plan · $87.23"
+        ],
+        [
+          "Przebiegi załogi",
+          "brak przebiegów"
+        ],
+        [
+          "Poza etapem",
+          "$171.03 · 1446 wywołań"
+        ],
+        [
+          "Archiwum planów",
+          "11 planów zamkniętych · $124.81 (częściowo)"
+        ]
+      ],
+      "zrodlo": "docs/zasoby/PANEL_RELAI/zrzuty/03-mapa.png (relai-panel 0.14.0, zrzut Łukasza z 2026-10-12)"
+    }
+  },
+  "dokumenty": {
+    "naglowek": {
+      "wartosc": "Zmienione · 3 · 1 w tej turze",
+      "zrodlo": "docs/zasoby/PANEL_RELAI/zrzuty/04-dokumenty-kafle.png (relai-panel 0.14.0, zrzut Łukasza z 2026-10-12)"
+    },
+    "kafle": {
+      "wartosc": [
+        {
+          "nazwa": "STATUS.md",
+          "typ": "MD",
+          "opis": "2,4 KB · dziś 16:53",
+          "plus": "+2",
+          "minus": "−1",
+          "turaTa": true
+        },
+        {
+          "nazwa": "PLAN.html",
+          "typ": "HTML",
+          "opis": "230,4 KB · dziś 08:15",
+          "plus": "+1",
+          "minus": "−1",
+          "turaTa": false
+        },
+        {
+          "nazwa": "STATUS.md",
+          "typ": "MD",
+          "opis": "3,1 KB · dziś 08:15",
+          "plus": "+1",
+          "minus": "−0",
+          "turaTa": false
+        }
+      ],
+      "zrodlo": "docs/zasoby/PANEL_RELAI/zrzuty/04-dokumenty-kafle.png (relai-panel 0.14.0, zrzut Łukasza z 2026-10-12)"
+    },
+    "grupy": {
+      "wartosc": [
+        [
+          "Rdzeń",
+          "5 dokumentów"
+        ],
+        [
+          "Wiedza projektu",
+          "5 dokumentów"
+        ],
+        [
+          "Plan aktywny",
+          "5 dokumentów · 1 ze zmianami"
+        ],
+        [
+          "Pozostałe",
+          "26 dokumentów"
+        ]
+      ],
+      "zrodlo": "docs/zasoby/PANEL_RELAI/zrzuty/04-dokumenty-kafle.png (relai-panel 0.14.0, zrzut Łukasza z 2026-10-12)"
+    },
+    "sciezka": {
+      "wartosc": "docs/plany/FILM_PREZENTACYJNY/STATUS.md",
+      "zrodlo": "docs/zasoby/PANEL_RELAI/zrzuty/05-dokumenty-podglad.png (relai-panel 0.14.0, zrzut Łukasza z 2026-10-12)"
+    },
+    "opis": {
+      "wartosc": "2,4 KB · edytowany dziś 16:53 · zmieniony w tej turze",
+      "zrodlo": "docs/zasoby/PANEL_RELAI/zrzuty/05-dokumenty-podglad.png (relai-panel 0.14.0, zrzut Łukasza z 2026-10-12)"
+    },
+    "cytat": {
+      "wartosc": [
+        {
+          "rodzaj": "hunk",
+          "a": "",
+          "b": "",
+          "tekst": "@@ -6,7 +6,7 @@"
+        },
+        {
+          "rodzaj": "ctx",
+          "a": "8",
+          "b": "8",
+          "tekst": "| E2 | Scenariusz i animatik | ZREALIZOWANY 2026-10-12 | [PROMPT_ETAP_2.md](PROMPT_ETAP_2.md) | `/effort medium` |"
+        },
+        {
+          "rodzaj": "del",
+          "a": "9",
+          "b": "",
+          "tekst": "| E3 | Sceny 1–3 | GOTOWY DO STARTU | [PROMPT_ETAP_3.md](PROMPT_ETAP_3.md) | `/effort high`; zrzuty referencyjne panelu 0.14 od Łukasza |"
+        },
+        {
+          "rodzaj": "add",
+          "a": "",
+          "b": "9",
+          "tekst": "| E3 | Sceny 1–3 | W TOKU | [PROMPT_ETAP_3.md](PROMPT_ETAP_3.md) | `/effort high`; zrzuty referencyjne panelu 0.14 od Łukasza |"
+        },
+        {
+          "rodzaj": "ctx",
+          "a": "10",
+          "b": "10",
+          "tekst": "| E4 | Sceny 4–6 | OCZEKUJE | — | `/effort high` |"
+        },
+        {
+          "rodzaj": "hunk",
+          "a": "",
+          "b": "",
+          "tekst": "@@ -23,3 +23,4 @@"
+        },
+        {
+          "rodzaj": "ctx",
+          "a": "25",
+          "b": "25",
+          "tekst": "- 2026-10-12 — E2 zrealizowany: słownik PL sześciu scen bez cyfr, `scenariusz.ts` (120 s), manifest 10 faktów ze skryptu…"
+        },
+        {
+          "rodzaj": "add",
+          "a": "",
+          "b": "26",
+          "tekst": "- 2026-10-12 — E3 rozpoczęty"
+        }
+      ],
+      "zrodlo": "docs/zasoby/PANEL_RELAI/zrzuty/05-dokumenty-podglad.png (relai-panel 0.14.0, zrzut Łukasza z 2026-10-12)"
+    }
+  },
+  "koszty": {
+    "suma": {
+      "wartosc": "$2.40",
+      "zrodlo": "docs/zasoby/PANEL_RELAI/zrzuty/06-koszty.png (relai-panel 0.14.0, zrzut Łukasza z 2026-10-12)"
+    },
+    "sumaOpis": {
+      "wartosc": "Suma sesji · 23 wywołania · 2 tury",
+      "zrodlo": "docs/zasoby/PANEL_RELAI/zrzuty/06-koszty.png (relai-panel 0.14.0, zrzut Łukasza z 2026-10-12)"
+    },
+    "podpis": {
+      "wartosc": "hipotetyczny koszt w cenach API, nie rachunek abonamentu",
+      "zrodlo": "docs/zasoby/PANEL_RELAI/zrzuty/06-koszty.png (relai-panel 0.14.0, zrzut Łukasza z 2026-10-12)"
+    },
+    "udzialy": {
+      "wartosc": [
+        {
+          "klucz": "input",
+          "nazwa": "wejście",
+          "opis": "46 · <$0.01",
+          "dolary": 0.01
+        },
+        {
+          "klucz": "cacheRead",
+          "nazwa": "odczyt cache",
+          "opis": "3.8M · $0.76",
+          "dolary": 0.76
+        },
+        {
+          "klucz": "cacheWrite",
+          "nazwa": "zapis cache",
+          "opis": "182k · $1.46",
+          "dolary": 1.46
+        },
+        {
+          "klucz": "output",
+          "nazwa": "wyjście",
+          "opis": "9.0k · $0.18",
+          "dolary": 0.18
+        }
+      ],
+      "zrodlo": "docs/zasoby/PANEL_RELAI/zrzuty/06-koszty.png (relai-panel 0.14.0, zrzut Łukasza z 2026-10-12)"
+    },
+    "kafle": {
+      "wartosc": [
+        {
+          "liczba": "$2.51",
+          "nazwa": "licznik Claude Code"
+        },
+        {
+          "liczba": "95 %",
+          "nazwa": "wejścia z cache"
+        },
+        {
+          "liczba": "$586.23",
+          "nazwa": "cały projekt"
+        }
+      ],
+      "zrodlo": "docs/zasoby/PANEL_RELAI/zrzuty/06-koszty.png (relai-panel 0.14.0, zrzut Łukasza z 2026-10-12)"
+    },
+    "cennik": {
+      "wartosc": "Cennik z 2026-10-09 · strona cennika Anthropic (platform.claude.com), odczyt 2026-10-09",
+      "zrodlo": "docs/zasoby/PANEL_RELAI/zrzuty/07-koszty-cennik.png (relai-panel 0.14.0, zrzut Łukasza z 2026-10-12)"
+    },
+    "modele": {
+      "wartosc": [
+        {
+          "id": "claude-opus-5-5",
+          "rekordy": "4854 rekordy",
+          "koszt": "$461.70"
+        },
+        {
+          "id": "claude-fable-5-1",
+          "rekordy": "429 rekordów",
+          "koszt": "$104.50"
+        },
+        {
+          "id": "claude-sonnet-5-5",
+          "rekordy": "440 rekordów",
+          "koszt": "$20.04"
+        }
+      ],
+      "zrodlo": "docs/zasoby/PANEL_RELAI/zrzuty/07-koszty-cennik.png (relai-panel 0.14.0, zrzut Łukasza z 2026-10-12)"
+    },
+    "siec": {
+      "wartosc": "Jedyny odczyt sieciowy panelu: strona cennika Anthropic, dopiero po „Tak” na karcie; zapis po drugim „Tak”.",
+      "zrodlo": "panel/hooks/pane-costs.tsx, linia 'pr-net'"
+    }
+  }
+}

@@ -1,4 +1,5 @@
 node_modules/
 out/
-# copies made by skrypty/fonty.mjs from docs/zasoby/fonts/ before every render
+# copies made before every render: skrypty/fonty.mjs (docs/zasoby/fonts/), skrypty/znak.mjs (docs/zasoby/branding/)
 public/fonty/
+public/znak/

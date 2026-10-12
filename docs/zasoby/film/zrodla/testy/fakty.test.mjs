@@ -2,7 +2,8 @@
 // gathers every text the animatic puts in a frame — the dictionary with its markers filled, the
 // figures of the finale, the boards' lengths, the data of scene 2 — and fails on each figure that
 // is in neither src/dane/manifest.json nor src/dane/paski.json (the boards' lengths come from
-// scenariusz.ts: they belong to the animatic and leave with it). Two counters: a narrow one for
+// scenariusz.ts: they belong to the animatic and leave with it). Since E3 also the data of scene 3
+// (src/dane/panel.json) and the names it quotes from core/panel. Two counters: a narrow one for
 // digits and a wide one for numbers in words and percent signs. Each has its positive control,
 // the wide one also a control against counting too much on material with no figures.
 // Run after `npm run przygotuj` (npm test does not regenerate the files: that would test nothing).
@@ -14,9 +15,12 @@ import { wstaw, tekstFaktu, znaczniki } from '../src/fakty.ts';
 import { SCENY, dlugosc, odcinki } from '../src/scenariusz.ts';
 import { manifest, fromRepo, dirLister, OUT as MANIFEST } from '../skrypty/manifest.mjs';
 import { repoReader, OUT as PASKI } from '../skrypty/dane.mjs';
+import { fromRepo as panelFromRepo, OUT as PANEL } from '../skrypty/panel.mjs';
+import { NAMES, GROUPS } from '../../../../../core/panel/theme.mjs';
 
 const F = JSON.parse(readFileSync(MANIFEST, 'utf8'));
 const P = JSON.parse(readFileSync(PASKI, 'utf8'));
+const PN = JSON.parse(readFileSync(PANEL, 'utf8'));
 const FPS = 30;
 
 // ---------- what the frame shows ----------
@@ -53,14 +57,28 @@ function authoredTexts(pl, f) {
 const { punkty: _quoted, ...postep } = P.postep;
 const P_FACTS = { ...P, postep };
 
-/** Everything the animatic writes in a frame besides the quoted point names. */
-const frameTexts = (pl, f) => [...authoredTexts(pl, f), ...values(P_FACTS)];
+/**
+ * The data of scene 3 (E3) but the diff's lines: those quote STATUS.md as the screenshot shows it
+ * (line numbers, dates, counts of another file), a quotation as the point names are.
+ */
+const { cytat: _diff, ...dokumenty } = PN.dokumenty;
+const PN_FACTS = { ...PN, dokumenty };
+
+/**
+ * What scene 3 quotes from core/panel itself: the commands' Polish names and purposes and the
+ * groups' headings. Held to digits and privacy like the rest; the wide counter stays on the film's
+ * own words (a purpose such as "kilku agentów" is the product's wording, not the film's claim).
+ */
+const productTexts = () => [...Object.values(NAMES).flat(), ...GROUPS.map((g) => g.title)];
+
+/** Everything the film writes in a frame besides the quoted point names and diff lines. */
+const frameTexts = (pl, f) => [...authoredTexts(pl, f), ...values(P_FACTS), ...values(PN_FACTS), ...productTexts()];
 
 // ---------- the narrow counter: digits ----------
 
 const NUMBER = /\d+(?:[.,]\d+)*/g;
 const numbersIn = (t) => t.match(NUMBER) ?? [];
-const allowed = new Set([...values(F), ...values(P_FACTS), ...SCENY.map((s) => String(s.sekundy))].flatMap(numbersIn));
+const allowed = new Set([...values(F), ...values(P_FACTS), ...values(PN_FACTS), ...SCENY.map((s) => String(s.sekundy))].flatMap(numbersIn));
 
 /** The figures of the texts that are not facts, with the text they stand in. */
 const strays = (texts) => texts.flatMap((t) => numbersIn(t).filter((n) => !allowed.has(n)).map((n) => `${n} in "${t}"`));
@@ -162,7 +180,22 @@ test('every marker of the dictionary has a fact', () => {
   assert.throws(() => wstaw('{nieMa}', F), /no fact for the marker/);
 });
 
+test('panel.json equals the data computed again; each of its facts carries a source', () => {
+  assert.deepEqual(panelFromRepo(), PN);
+  let facts = 0;
+  for (const [group, entries] of Object.entries(PN)) {
+    for (const [k, f] of Object.entries(entries)) {
+      assert.deepEqual(Object.keys(f).sort(), ['wartosc', 'zrodlo'], `${group}.${k}`);
+      assert.ok(typeof f.zrodlo === 'string' && f.zrodlo.trim() !== '', `${group}.${k} has no source`);
+      facts++;
+    }
+  }
+  assert.ok(facts > 0);
+});
+
 test('narrow counter: every figure in the frame is a fact; a planted figure fails', (t) => {
+  // the planted values must not be facts already, or their controls test nothing (L-0173)
+  for (const v of ['2500', '7']) assert.ok(!allowed.has(v), `${v} is already in the allowed set`);
   const texts = frameTexts(PL, F);
   assert.deepEqual(strays(texts), []);
   const dictionaryDigits = digitCount(strings(PL));
@@ -194,7 +227,7 @@ const PRIVATE = Object.freeze({
 const privateHits = (texts) => texts.flatMap((t) => Object.entries(PRIVATE).filter(([, re]) => re.test(t)).map(([k]) => `${k} in "${t}"`));
 
 test('no home path, e-mail or session id in the frame or in the data files', () => {
-  const texts = [...frameTexts(PL, F), ...strings(F), ...strings(P)];
+  const texts = [...frameTexts(PL, F), ...strings(F), ...strings(P), ...strings(PN)];
   assert.deepEqual(privateHits(texts), []);
   // positive control: one planted line per pattern, each caught by its own pattern
   const planted = ['C:\\Users\\kto\\projekt', 'pisz na kto@example.com', 'sesja 475a19e0-e205-4319-8479-866bc33a0e1e'];

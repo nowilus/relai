@@ -1,6 +1,6 @@
 // The animatic of the whole film (plan FILM_PREZENTACYJNY, E2): the six scenes of scenariusz.ts in
-// their order and length — scene 2 is the finished "Paski", followed by a board for the rest of its
-// time; every other scene is a raw board. Each scene comes in over the end of the one before it,
+// their order and length — scenes 1–3 built in full since E3 ("Pamiec", "Paski" + "PaskiDalej",
+// "Panel"), scenes 4–6 raw boards until E4. Each scene comes in over the end of the one before it,
 // by a crossfade or a reveal from the left, so the film's length stays the sum of its scenes.
 // Opacity and clip only: no flash, no jump of brightness (case b7 of the plan).
 import type { ReactNode } from 'react';
@@ -15,6 +15,9 @@ import manifest from '../dane/manifest.json';
 import dane from '../dane/paski.json';
 import type { DanePaskow } from '../dane/typy';
 import { Paski } from './Paski';
+import { PaskiDalej } from './PaskiDalej';
+import { Pamiec } from './Pamiec';
+import { Panel } from './Panel';
 import { Biurko } from './Biurko';
 import { Kafle, Liczba, Plansza } from './Plansza';
 
@@ -56,24 +59,16 @@ const Wejdz = ({ jak, wyjscie = null, children }: { jak: Wejscie | null, wyjscie
 
 const napisy = (lista: readonly string[]) => lista.map((t) => wstaw(t, F));
 
-/** The board of each scene but the finished part of scene 2. */
-function plansza(id: IdSceny, sekundy: number): ReactNode {
+/** What a scene shows: the scene itself once built (1–3), a board until then (4–6). */
+function scena(id: IdSceny, sekundy: number): ReactNode {
   switch (id) {
+    // scenes 1–3 are built in full (E3); their boards are gone
     case 'pamiec':
-      return (
-        <Plansza tytul={PL.pamiec.tytul} ekran={PL.pamiec.ekran} napisy={napisy(PL.pamiec.napisy)} sekundy={sekundy}>
-          <div style={{ fontFamily: FONT.handBold, fontWeight: 700, fontSize: 56, color: INK.note }}>{PL.pamiec.notatka}</div>
-          <div style={{ fontFamily: FONT.serif, fontWeight: 600, fontSize: 84, color: INK.captionBg, textAlign: 'center' }}>{PL.pamiec.haslo}</div>
-        </Plansza>
-      );
+      return <Pamiec />;
     case 'paski':
-      return <Plansza tytul={PL.paski.tytul} ekran={PL.paski.ciagDalszy} napisy={napisy(PL.paski.napisy)} sekundy={sekundy} />;
+      return <PaskiDalej />;
     case 'panel':
-      return (
-        <Plansza tytul={PL.panel.tytul} ekran={PL.panel.ekran} napisy={napisy(PL.panel.napisy)} sekundy={sekundy}>
-          <Kafle slowa={PL.panel.zakladki} duze />
-        </Plansza>
-      );
+      return <Panel />;
     case 'nowaSesja':
       return (
         <Plansza tytul={PL.nowaSesja.tytul} ekran={PL.nowaSesja.ekran} napisy={napisy(PL.nowaSesja.napisy)} sekundy={sekundy}>
@@ -112,19 +107,22 @@ function plansza(id: IdSceny, sekundy: number): ReactNode {
 /** How scene `i` comes in: the first cuts in, then crossfade and reveal by turns. */
 const wejscie = (i: number): Wejscie | null => (i === 0 ? null : i % 2 === 1 ? 'przenikanie' : 'odslona');
 
-/** Scene 2: the finished bars for their length, then a board for the rest of the scene's time. */
+/**
+ * Scene 2: the bars of E1 for their ten seconds, then "PaskiDalej" for the rest of the scene. The
+ * second starts on the very shot the first ends on, so they meet by a plain cut: no overlap.
+ */
 function scenaPaskow(o: Odcinek, jak: Wejscie | null, dalej: Wejscie | null): ReactNode {
   const gotowe = Math.min(FILM.paskiFrames, o.klatki);
   const reszta = o.klatki - gotowe;
   const ostatnia = dalej === null;
   return (
     <>
-      <Sequence from={o.od} durationInFrames={gotowe + (reszta > 0 || !ostatnia ? OVERLAP : 0)} name="paski (gotowe)">
-        <Wejdz jak={jak} wyjscie={reszta > 0 ? gotowe : dalej === 'przenikanie' ? gotowe : null}><Paski /></Wejdz>
+      <Sequence from={o.od} durationInFrames={gotowe + (reszta > 0 || ostatnia ? 0 : OVERLAP)} name="paski (E1)">
+        <Wejdz jak={jak} wyjscie={reszta === 0 && dalej === 'przenikanie' ? gotowe : null}><Paski /></Wejdz>
       </Sequence>
       {reszta > 0 ? (
-        <Sequence from={o.od + gotowe} durationInFrames={reszta + (ostatnia ? 0 : OVERLAP)} name="paski (plansza)">
-          <Wejdz jak="przenikanie" wyjscie={dalej === 'przenikanie' ? reszta : null}>{plansza('paski', o.scena.sekundy)}</Wejdz>
+        <Sequence from={o.od + gotowe} durationInFrames={reszta + (ostatnia ? 0 : OVERLAP)} name="paski (dalej)">
+          <Wejdz jak={null} wyjscie={dalej === 'przenikanie' ? reszta : null}>{scena('paski', o.scena.sekundy)}</Wejdz>
         </Sequence>
       ) : null}
     </>
@@ -143,7 +141,7 @@ export const Animatik = () => {
         if (o.scena.id === 'paski') return <AbsoluteFill key={o.scena.id}>{scenaPaskow(o, jak, dalej)}</AbsoluteFill>;
         return (
           <Sequence key={o.scena.id} from={o.od} durationInFrames={o.klatki + (dalej === null ? 0 : OVERLAP)} name={o.scena.tytul}>
-            <Wejdz jak={jak} wyjscie={dalej === 'przenikanie' ? o.klatki : null}>{plansza(o.scena.id, o.scena.sekundy)}</Wejdz>
+            <Wejdz jak={jak} wyjscie={dalej === 'przenikanie' ? o.klatki : null}>{scena(o.scena.id, o.scena.sekundy)}</Wejdz>
           </Sequence>
         );
       })}
