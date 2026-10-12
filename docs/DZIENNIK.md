@@ -2145,3 +2145,80 @@ Sesja Opus 5.5 w Claude Code, `/relai-stage` ze zgodą z karty panelu (`karta-mv
   w świeżej sesji ze zgodą z karty panelu.)*
 
 Autor: RelAI (Opus 5.5) + Lukasz
+
+### 2026-10-12 — FILM_PREZENTACYJNY E6 (W TOKU): słownik EN, film EN, pętla, kontrola przepełnień
+
+Sesja Opus 5.5 w Claude Code, `/relai-stage` z kartą potwierdzenia w czacie. Etap przerwany na
+prośbę Łukasza („chcę już kończyć na dzisiaj”) — zostaje `W TOKU`.
+
+**Zrobione:**
+
+- **Pytanie startowe (pkt 1 zakresu):** nazwy komend w filmie EN → Łukasz: „Angielskie nazwy
+  (Rekomendowane)”; listy nazw i 14 sloganów EN → „przyjmuję obie listy” (pierwsza runda; podgląd
+  w AskUserQuestion się nie wyświetlił, tabele pokazane w czacie). Po pierwszym renderze slogan
+  handover łamał się na dwie linie → wybór Łukasza: „The whole project in one handover file”.
+  **Aneks D** w `PLAN.html` (wyjątek od reguły słów produktu tylko dla nazw w scenie komend).
+- **Słownik EN** (`src/teksty.ts`, `EN: Slownik`): te same klucze co PL; słowa produktu (zakładki,
+  przyciski, słowa pasków, karty, `limit`, „Gdzie jesteśmy”, rekwizyty) w EN takie jak w PL.
+  `komendy.nazwy` w obu słownikach (PL = `NAMES`, test).
+- **Odmiana „{komendy} komend” rozstrzygnięta:** znacznik liczebnika `{fakt|forma1|forma2|forma3}`
+  w `src/fakty.ts` (`forma()`: PL 1 / 2–4 bez 12–14 / reszta; EN 1 / reszta); użyty w napisie
+  panelu i w podpisach liczb finału. Lista nazw łączona po angielsku („a, b and c”).
+- **Język w scenach:** kontekst `src/jezyk.tsx` (`useT`, `useJezyk`), kompozycja `FilmEN`
+  (`Animatik` z `jezyk: 'en'`). Sceny dostały opcjonalne propsy dla pętli (`napisy`, `naglowek`,
+  `okno` panelu) — domyślne = film przyjęty.
+- **Pętla 25 s** `src/sceny/PetlaReadme.tsx` (`PetlaPL`, `PetlaEN`, 720×900): kamera nad sceną
+  „Trzy paski” (bez jej tytułu i napisów) i „Panel” w wąskim oknie, tytuł nad każdą częścią,
+  napisy jednolinijkowe (`petla` w słowniku). GIF-y `docs/zasoby/film/relai-petla-25s-{pl,en}.gif`
+  przez `skrypty/petla.mjs` + `skrypty/gif.py` (jedna paleta 128 kolorów, co 4. klatka = 7,5 kl./s,
+  czasy co do setnej, razem 25 000 ms). GIF Remotion odrzucony: 6,7 MB.
+- **Kontrola przepełnień:** `src/kontrola.tsx` (prop `kontrola`) + `skrypty/kontrola.mjs`
+  (`renderFrames` bez zrzutów, log przeglądarki). Mierzy tekst poza pudełkiem, tekst ucięty bez
+  wielokropka, tytuł pętli poza kadrem.
+- **Testy:** nowy `testy/jezyki.test.mjs` (parytet kluczy, słowa produktu, liczebniki, listy);
+  `wiernosc` — tabela Aneksu D; `fakty` — oba słowniki, licznik szeroki EN.
+
+**Zweryfikowane — jak dokładnie:**
+
+- Film PL nietknięty: 14 klatek z siedmiu scen (200, 1100, 1600, 2100, 2300, 2420, 2500, 2600,
+  2750, 3000, 3700, 4300, 4900, 5069) przed i po zmianie — 0 różnych pikseli; kontrola pozytywna
+  (1 zmieniony piksel → 1).
+- `npm test` po `npm run przygotuj` po ostatniej zmianie promptu → **35/35** (29 z E1–E5 + 4
+  `jezyki` + 1 wierności EN + 1 licznik szeroki EN; testy faktów rozszerzone na EN bez zmiany
+  starych asercji). Licznik wąski: PL i EN po 143 liczby w 333 tekstach kadru, wszystkie fakty,
+  0 cyfr w słownikach; licznik szeroki PL 4 trafienia, EN 8 (w tym „one” = fakt 1, „pick one”).
+  Wartości kontrolne `2500`, `9` sprawdzone wobec zbioru dozwolonego.
+- `npm run typy` → 0 błędów. Pakietów nie dodano (skrypty używają `@remotion/bundler`
+  i `@remotion/renderer` przyniesionych przez `@remotion/cli`).
+- Przepełnienia (przebieg przed ostatnią zmianą zoomu pętli): FilmEN i film PL po 845 klatek
+  (co 6.) — 0; PetlaPL i PetlaEN po 250 klatek (co 3.) — 0. Kontrola pozytywna: 4 rodzaje
+  podłożonych wad — 4 trafienia. Dwie poprawki instrumentu z powodem: etykieta „MD”/„HTML” ikony
+  dokumentu wystaje o 4 px poza obrys strony z rysunku panelu (tekst mierzony względem własnego
+  pudełka); etykieta progu stoi nad cienką linijką limitu (pudełko niższe od tekstu nie jest
+  kontenerem).
+- Pętle z pliku: 720×900, 25 000 ms, bez przezroczystości; PL 2,54 MB, EN 2,68 MB (budżet 3 MB).
+
+**Stan kontroli telefonu (niedokończone):** `glify.py` z demo nie przechodzi na pętli. Rozbiór
+składowych: (1) szary tekst na ciemnym oknie niewidoczny dla obu masek, (2) ciemny tekst na
+karteczce leżącej na ciemnym oknie odrzucany jako „szczelina”, (3) ziarno biurka i kreski
+segmentów jako „linie”. Panel i paski powiększone (zoom 1,6). Wariant instrumentu
+`skrypty/telefon.py` (trzy poprawki z powodem, oryginał wołany obok) — pierwszy przebieg na PL:
+261 linii, odsiew 8 (ziarno, maks. 2 px), minimum 3,0 px (klatka 132, y=223) — do rozbioru.
+
+**Do zrobienia w E6 (kolejność):** rozbiór linii < 7 px i kontrole pozytywne `telefon.py`;
+przebieg przepełnień po zoomie pętli; render `film:en` (skrypt w `package.json`) i `ffprobe`;
+klatki EN do obejrzenia; zestawienie klatek ze zrzutami + decyzja o kosztach „Panelu”; dawne demo
+do `docs/archiwum/demo/` (`git mv`, razem z `glify.py`); `README.md`; pokaz Łukaszowi; README filmu;
+kolory/sieć; rdzeń 331, walidator, `plugin validate`; PANEL_CODEX nietknięty; katalog roboczy.
+
+**Odstępstwa od promptu:** skrypty edycji z `\n` kilka razy heredokiem Pythona (zasada 5) — każdy
+wynik sprawdzony `grep -cF '\n'` → 0. Instrument czytelności: wariant zamiast samego `glify.py`
+(z powodem wyżej; decyzja do potwierdzenia przy pokazie).
+
+**Świadomie odłożone:** rotacja `DZIENNIK.md` i `LEKCJE.md` (sygnał hooka startu).
+
+**Do zrobienia przez człowieka:**
+
+- Dokończenie E6 w świeżej sesji Opus 5.5 (`/relai-stage FILM_PREZENTACYJNY E6` → „dokończyć”).
+
+Autor: RelAI (Opus 5.5) + Lukasz

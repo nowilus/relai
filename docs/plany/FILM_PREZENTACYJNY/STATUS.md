@@ -1,6 +1,6 @@
 # STATUS — plan FILM_PREZENTACYJNY
 
-[PLAN.html](PLAN.html) · utworzony 2026-10-12 · **ZAAKCEPTOWANY 2026-10-12** · Aneks A (2026-10-12) · Aneks B (2026-10-12) · Aneks C (2026-10-12) · Opus 5.5 w Claude Code (ustawienia projektu, D-85)
+[PLAN.html](PLAN.html) · utworzony 2026-10-12 · **ZAAKCEPTOWANY 2026-10-12** · Aneks A (2026-10-12) · Aneks B (2026-10-12) · Aneks C (2026-10-12) · Aneks D (2026-10-12) · Opus 5.5 w Claude Code (ustawienia projektu, D-85)
 
 | Etap | Nazwa | Status | Prompt | Uwagi |
 |---|---|---|---|---|
@@ -9,7 +9,7 @@
 | E3 | Sceny 1–3 | ZREALIZOWANY 2026-10-12 | [PROMPT_ETAP_3.md](PROMPT_ETAP_3.md) | `/effort high`; zrzuty referencyjne panelu 0.14 od Łukasza |
 | E4 | Sceny 4–6 | ZREALIZOWANY 2026-10-12 | [PROMPT_ETAP_4.md](PROMPT_ETAP_4.md) | `/effort high`; zrzuty 08–09 (karta nowej sesji, karta progu) już są |
 | E5 | Scena komend | ZREALIZOWANY 2026-10-12 | [PROMPT_ETAP_5.md](PROMPT_ETAP_5.md) | Aneksy A–C; `/effort high`; scena 2 (wstęp), 3,5 s na komendę, film 169 s z muzyką „daylight hour” (CC BY 4.0) |
-| E6 | Wersja EN, pętla, kontrola jakości | GOTOWY DO STARTU | [PROMPT_ETAP_6.md](PROMPT_ETAP_6.md) | `/effort medium`; dawny E5 (Aneks A), obejmuje słownik EN sceny komend i muzykę w EN i w pętli (Aneks B) |
+| E6 | Wersja EN, pętla, kontrola jakości | W TOKU | [PROMPT_ETAP_6.md](PROMPT_ETAP_6.md) | `/effort medium`; dawny E5 (Aneks A), obejmuje słownik EN sceny komend i muzykę w EN i w pętli (Aneks B) |
 | E7 | Wydanie RelAI 3.0.0 | OCZEKUJE | — | `/effort medium`; dawny E6 (Aneks A); publikacja po zgodzie |
 
 ## Bramki manualne
@@ -37,3 +37,6 @@
 - 2026-10-12 — Aneks B (w trakcie E5, runda 1 pokazu): scena komend jako wstęp zaraz po „Pamięci”, 3,5 s na komendę (scena 49 s, film 169 s), nazwy duże na górze kadru, muzyka skomponowana w kodzie (`skrypty/muzyka.mjs`, takt = komenda)
 - 2026-10-12 — Aneks C (w trakcie E5, runda 2 pokazu): muzyka syntetyzowana odrzucona; ścieżką filmu „daylight hour” — snoozy beats (CC BY 4.0), wybór Łukasza, plik z kartą źródła w `docs/zasoby/film/muzyka/`
 - 2026-10-12 — E5 zrealizowany: scena „Komendy” jako wstęp po „Pamięci” (14 rekwizytów, 3,5 s na komendę, nazwy na górze kadru), cały film PL 5070 klatek / 169 s z muzyką, przyjęty przez Łukasza w trzeciej rundzie (poziom muzyki −30 %); E6 gotowy do startu
+- 2026-10-12 — E6 rozpoczęty
+- 2026-10-12 — Aneks D (start E6): angielskie nazwy komend w scenie komend filmu EN (wyjątek od reguły słów produktu, tylko ta scena); nazwy i slogany EN przyjęte przez Łukasza w pierwszej rundzie
+- 2026-10-12 — E6 przerwany na koniec dnia (W TOKU): słownik i film EN, pętla PL/EN 720×900 (GIF ≤ 2,7 MB), kontrola przepełnień 0; zostały: kontrola telefonu, render EN, zestawienie ze zrzutami, archiwum demo, README, pokaz

@@ -530,12 +530,12 @@ osiem razy); dłuższy wpis do dziennika też przez Write (heredok z backtickami
 Każdy punkt Weryfikacji, który przeszedł, odhaczasz w `PROMPT_ETAP_6.md` (`- [ ]` → `- [x]`)
 zaraz po jego sprawdzeniu, nie na końcu etapu; punkt, który nie przeszedł, zostaje pusty.
 
-- [ ] Pytanie o nazwy komend w filmie EN i slogany EN padło na starcie; odpowiedzi Łukasza we
+- [x] Pytanie o nazwy komend w filmie EN i slogany EN padło na starcie; odpowiedzi Łukasza we
       wpisie; gdy zmienia regułę słów produktu — Aneks D w `PLAN.html` przed renderem.
-- [ ] Słownik EN: te same klucze co PL (test parytetu z kontrolą pozytywną), zero cyfr w obu
+- [x] Słownik EN: te same klucze co PL (test parytetu z kontrolą pozytywną), zero cyfr w obu
       słownikach; slogany EN równe przyjętym (test wierności); odmiana „{komendy}” rozstrzygnięta
       i opisana we wpisie.
-- [ ] Film PL nietknięty: klatki kontrolne PL (co najmniej jedna z każdej z siedmiu scen) sprzed
+- [x] Film PL nietknięty: klatki kontrolne PL (co najmniej jedna z każdej z siedmiu scen) sprzed
       i po zmianie — 0 różnych pikseli, porównanie z kontrolą pozytywną.
 - [ ] Film EN wyrenderowany 1920×1080, 30 kl./s, z muzyką: `ffprobe` z pliku — 5070 klatek,
       169 s ± 1 klatka, strumień audio obecny; własne klatki obejrzane (każda scena, środek

@@ -20,6 +20,10 @@ import { NowaSesja } from './NowaSesja';
 import { PracaWraca } from './PracaWraca';
 import { Final } from './Final';
 import { Biurko } from './Biurko';
+import { ZJezykiem } from '../jezyk';
+import type { Jezyk } from '../fakty';
+import { KontrolaUkladu } from '../kontrola';
+import type { Kontrola } from '../kontrola';
 
 const OVERLAP = 18; // frames a scene comes in over the one before it
 type Wejscie = 'przenikanie' | 'odslona';
@@ -116,9 +120,11 @@ function scenaPaskow(o: Odcinek, jak: Wejscie | null, dalej: Wejscie | null): Re
   );
 }
 
-export const Animatik = () => {
+/** The whole film in one language (E6): Polish by default, English for the composition FilmEN. */
+export const Animatik = ({ jezyk = 'pl', kontrola = false }: { jezyk?: Jezyk, kontrola?: Kontrola }) => {
   const lista = odcinki(FILM.fps);
   return (
+    <ZJezykiem jezyk={jezyk}>
     <AbsoluteFill>
       {/* the paper under every scene: a crossfade goes through it, never through black */}
       <Biurko />
@@ -134,6 +140,8 @@ export const Animatik = () => {
           </Sequence>
         );
       })}
+      {kontrola ? <KontrolaUkladu tryb={kontrola} /> : null}
     </AbsoluteFill>
+    </ZJezykiem>
   );
 };

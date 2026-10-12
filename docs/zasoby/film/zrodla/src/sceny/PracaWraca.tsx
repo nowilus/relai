@@ -13,7 +13,7 @@ import { fontsReady } from '../fonty';
 import { offsetWithin } from '../kamera';
 import type { Punkt } from '../kamera';
 import { FONT, SCALE, WINDOW } from '../tokeny';
-import { PL } from '../teksty';
+import { useJezyk, useT } from '../jezyk';
 import { wstaw } from '../fakty';
 import type { Fakty } from '../fakty';
 import manifest from '../dane/manifest.json';
@@ -76,15 +76,17 @@ const Wyslane = ({ children, k }: { children: ReactNode, k: number }) => (
 
 /** The 5-hour limit: the battery of what is left, its label, a ruler of what is used with the threshold. */
 const Limit = ({ used }: { used: number }) => {
+  const slowa = useT();
+  const jezyk = useJezyk();
   const prog = W.prog.wartosc / 100;
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: 16 * SCALE, whiteSpace: 'nowrap' }}>
       <div style={{ zoom: 1.7, display: 'flex' }}><Bateria fill={1 - used} color={leftColor((1 - used) * 100)} /></div>
-      <span style={{ color: BAR.muted }}>{wstaw(PL.pracaWraca.limit, F)}</span>
+      <span style={{ color: BAR.muted }}>{wstaw(slowa.pracaWraca.limit, F, jezyk)}</span>
       <div style={{ position: 'relative', width: TRACK, height: 10, borderRadius: 5, background: THEME.lineOff, marginLeft: 14, marginTop: 30 }}>
         <div style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: `${used * 100}%`, borderRadius: 5, background: used > prog ? BAND.cache.color : BAR.segment.done }} />
         <div style={{ position: 'absolute', left: `${prog * 100}%`, top: -8, width: 3, height: 26, marginLeft: -1.5, borderRadius: 2, background: BAR.text }} />
-        <div style={{ position: 'absolute', left: `${prog * 100}%`, bottom: 18, transform: 'translateX(-60%)', ...body(24, BAR.text, 700) }}>{`${PL.pracaWraca.prog} ${W.prog.wartosc} %`}</div>
+        <div style={{ position: 'absolute', left: `${prog * 100}%`, bottom: 18, transform: 'translateX(-60%)', ...body(24, BAR.text, 700) }}>{`${slowa.pracaWraca.prog} ${W.prog.wartosc} %`}</div>
       </div>
     </div>
   );
@@ -101,6 +103,8 @@ const Krok = ({ children, k, rowRef }: { children: ReactNode, k: number, rowRef?
 type Miary = { save: Punkt, resume: Punkt };
 
 export const PracaWraca = () => {
+  const slowa = useT();
+  const jezyk = useJezyk();
   const f = useCurrentFrame();
   const stage = useRef<HTMLDivElement>(null);
   const saveRef = useRef<HTMLDivElement>(null);
@@ -176,7 +180,7 @@ export const PracaWraca = () => {
             <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', gap: 24 }}>
               <Wyslane k={ease(f, T.resume, T.resume + 12)}>{W.wznow.wartosc}</Wyslane>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 10, ...rise(ease(f, T.where, T.where + 12)) }}>
-                <div style={{ fontFamily: FONT.serif, fontWeight: 600, fontSize: 44, color: BAR.text }}>{PL.pracaWraca.gdzie}</div>
+                <div style={{ fontFamily: FONT.serif, fontWeight: 600, fontSize: 44, color: BAR.text }}>{slowa.pracaWraca.gdzie}</div>
                 <div style={body(30)}>
                   <b style={{ fontWeight: 700 }}>{`${PLAN.plan} · ${PLAN.etap}`}</b>
                   <span style={{ color: BAND.panel.color, fontWeight: 700 }}>{`  ${PLAN.status}  `}</span>
@@ -208,7 +212,7 @@ export const PracaWraca = () => {
         {m ? <Kursor at={pointer} click={Math.max(savePress, resumePress)} opacity={pointerOpacity} /> : null}
       </div>
       {T.captions.map(([a, b], i) => (
-        <Napis key={i} text={wstaw(PL.pracaWraca.napisy[i] ?? '', F)} from={a ?? 0} to={b ?? 0} />
+        <Napis key={i} text={wstaw(slowa.pracaWraca.napisy[i] ?? '', F, jezyk)} from={a ?? 0} to={b ?? 0} />
       ))}
     </AbsoluteFill>
   );

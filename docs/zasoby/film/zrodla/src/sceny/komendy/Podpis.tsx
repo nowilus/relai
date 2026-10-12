@@ -1,12 +1,13 @@
-// The words of a prop in scene 2 "Komendy": the command's icon and Polish name at the top of the
-// frame (NAMES of core/panel, the real icon file — large, calibration round 1 of E5: "nazwy na
+// The words of a prop in scene 2 "Komendy": the command's icon and name at the top of the frame
+// (the dictionary's komendy.nazwy — NAMES of core/panel in Polish, Annex D's names in English — and
+// the real icon file — large, calibration round 1 of E5: "nazwy na
 // górze ekranu, widoczne") and its slogan under the prop. Laid out by the browser. They rise once
 // the camera has landed, stand still, and leave before it moves on (Annex B: 3.5 s a command).
 import { Img, interpolate, staticFile } from 'remotion';
 import type { CSSProperties } from 'react';
 import { FONT, PROP } from '../../tokeny';
-import { NAMES } from '../../rdzen';
-import { PL } from '../../teksty';
+import { useT } from '../../jezyk';
+import type { Slownik } from '../../teksty';
 import type { IdKomendy } from '../../komendy';
 
 /** The beats of the words, in frames of the command's window (105 frames). */
@@ -27,8 +28,8 @@ const ease = (t: number, a: number, b: number) => interpolate(t, [a, b], [0, 1],
 const rise = (k: number, by: number): CSSProperties => ({ opacity: k, transform: k < 1 ? `translateY(${(1 - k) * by}px)` : undefined });
 
 export const ikona = (id: IdKomendy): string => staticFile(`znak/ikona-${id.replace(/^relai-/, '')}.svg`);
-export const nazwa = (id: IdKomendy): string => NAMES[id]?.[0] ?? '';
-export const slogan = (id: IdKomendy): string => PL.komendy.slogany[id];
+export const nazwa = (slowa: Slownik, id: IdKomendy): string => slowa.komendy.nazwy[id];
+export const slogan = (slowa: Slownik, id: IdKomendy): string => slowa.komendy.slogany[id];
 
 interface PodpisProps { id: IdKomendy, t: number, ostatni: boolean }
 
@@ -38,13 +39,14 @@ const wyjdz = (leave: number): CSSProperties => (leave > 0 ? { opacity: 1 - leav
 
 /** The icon and the name, large, at the top of the frame. */
 export const Nazwa = ({ id, t, ostatni }: PodpisProps) => {
+  const slowa = useT();
   const leave = odejscie(t, ostatni);
   if (t < PODPIS.name || leave >= 1) return null;
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: 26, ...wyjdz(leave) }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 26, ...rise(ease(t, PODPIS.name, PODPIS.name + RISE), 24) }}>
         <Img src={ikona(id)} style={{ width: 96, height: 96, flexShrink: 0 }} />
-        <div style={{ fontFamily: FONT.handBold, fontWeight: 700, fontSize: 84, lineHeight: 1.1, color: PROP.name, whiteSpace: 'nowrap' }}>{nazwa(id)}</div>
+        <div style={{ fontFamily: FONT.handBold, fontWeight: 700, fontSize: 84, lineHeight: 1.1, color: PROP.name, whiteSpace: 'nowrap' }}>{nazwa(slowa, id)}</div>
       </div>
     </div>
   );
@@ -52,9 +54,10 @@ export const Nazwa = ({ id, t, ostatni }: PodpisProps) => {
 
 /** The slogan under the prop, its words rising one after another. */
 export const Slogan = ({ id, t, ostatni }: PodpisProps) => {
+  const slowa = useT();
   const leave = odejscie(t, ostatni);
   if (t < PODPIS.words || leave >= 1) return null;
-  const words = slogan(id).split(' ');
+  const words = slogan(slowa, id).split(' ');
   return (
     <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '0 0.26em', maxWidth: 1640, fontFamily: FONT.serif, fontWeight: 600, fontSize: 72, lineHeight: 1.08, letterSpacing: -0.8, color: PROP.slogan, ...wyjdz(leave) }}>
       {words.map((w, i) => {

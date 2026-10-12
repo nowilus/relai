@@ -12,7 +12,7 @@ import { fontsReady } from '../fonty';
 import { camera, offsetWithin } from '../kamera';
 import type { Punkt } from '../kamera';
 import { FILM, FONT, GLASS, NOTE, SCALE } from '../tokeny';
-import { PL } from '../teksty';
+import { useT } from '../jezyk';
 import dane from '../dane/paski.json';
 import type { DanePaskow } from '../dane/typy';
 import { Biurko } from './Biurko';
@@ -92,7 +92,9 @@ const between = (a: Shot, b: Shot, k: number): Shot => ({
   zoom: a.zoom + (b.zoom - a.zoom) * k,
 });
 
-export const PaskiDalej = () => {
+/** `napisy` serves the README loop (E6): the scene without its subtitles; the film keeps them. */
+export const PaskiDalej = ({ napisy = true }: { napisy?: boolean }) => {
+  const slowa = useT();
   const f = useCurrentFrame();
   const { fps } = useVideoConfig();
   const stage = useRef<HTMLDivElement>(null);
@@ -185,12 +187,12 @@ export const PaskiDalej = () => {
               boxShadow: `inset 0 1px 0 ${GLASS.highlight}`,
             }}
           >
-            <Pasek band={BAND.panel} figure={<Liczba value={`${D.plan.zamkniete.wartosc}/${D.plan.etapy.wartosc}`} unit={PL.paski.etapy} />} style={bar(k1 - k2 + k3)}>
+            <Pasek band={BAND.panel} figure={<Liczba value={`${D.plan.zamkniete.wartosc}/${D.plan.etapy.wartosc}`} unit={slowa.paski.etapy} />} style={bar(k1 - k2 + k3)}>
               <div ref={planText} style={{ width: 'fit-content', maxWidth: '100%' }}>
                 <TrescPlanu plan={D.plan} statusColor={BAND.panel.color} />
               </div>
             </Pasek>
-            <Pasek band={BAND.progress} figure={D.postep.razem.wartosc > 0 ? <span ref={count}><Liczba value={`${D.postep.zrobione.wartosc}/${D.postep.razem.wartosc}`} unit={PL.paski.punkty} /></span> : null} style={bar(k2 + k3)}>
+            <Pasek band={BAND.progress} figure={D.postep.razem.wartosc > 0 ? <span ref={count}><Liczba value={`${D.postep.zrobione.wartosc}/${D.postep.razem.wartosc}`} unit={slowa.paski.punkty} /></span> : null} style={bar(k2 + k3)}>
               <div ref={segments}>
                 <Segmenty items={items} words={D.postep.slowa.wartosc} appear={() => 1} />
               </div>
@@ -226,7 +228,7 @@ export const PaskiDalej = () => {
           </>
         ) : null}
         <Karteczka noteRef={planNote} land={spring({ frame: f - T.planNote, fps, config: { damping: 13, mass: 0.9 } })} angle={-2} size={30 * S} style={{ left: planNoteAt.x, top: planNoteAt.y }}>
-          {PL.paski.pytania[0]}
+          {slowa.paski.pytania[0]}
         </Karteczka>
 
         {seg ? (
@@ -247,20 +249,20 @@ export const PaskiDalej = () => {
         ) : null}
         {/* the progress, counted: laid out as the battery's note (calibration round 1 of E3) */}
         <Karteczka noteRef={progressNote} land={spring({ frame: f - T.progressNote, fps, config: { damping: 13, mass: 0.9 } })} angle={1.8} size={28 * S} style={{ left: progressNoteAt.x, top: progressNoteAt.y }}>
-          <div>{PL.paski.postep.tytul}</div>
+          <div>{slowa.paski.postep.tytul}</div>
           <div style={{ marginTop: 6 * S, fontSize: 17.5 * S, lineHeight: 1.3, color: NOTE.ink }}>
             {D.postep.razem.wartosc > 0 ? (
-              <><span style={{ color: NOTE.inkSoft }}>{PL.paski.postep.odhaczone}</span> <Cyfra>{D.postep.zrobione.wartosc}</Cyfra> {PL.paski.postep.z} <Cyfra>{D.postep.razem.wartosc}</Cyfra> {PL.paski.punkty}</>
+              <><span style={{ color: NOTE.inkSoft }}>{slowa.paski.postep.odhaczone}</span> <Cyfra>{D.postep.zrobione.wartosc}</Cyfra> {slowa.paski.postep.z} <Cyfra>{D.postep.razem.wartosc}</Cyfra> {slowa.paski.postep.punkty}</>
             ) : <span style={{ color: NOTE.inkSoft }}>{D.postep.slowa.wartosc}</span>}
           </div>
           <div style={{ fontSize: 17.5 * S, lineHeight: 1.3, color: NOTE.ink }}>
-            <span style={{ color: NOTE.inkSoft }}>{PL.paski.postep.plan}</span> <Cyfra>{D.plan.zamkniete.wartosc}</Cyfra> {PL.paski.postep.z} <Cyfra>{D.plan.etapy.wartosc}</Cyfra> {PL.paski.etapy}
+            <span style={{ color: NOTE.inkSoft }}>{slowa.paski.postep.plan}</span> <Cyfra>{D.plan.zamkniete.wartosc}</Cyfra> {slowa.paski.postep.z} <Cyfra>{D.plan.etapy.wartosc}</Cyfra> {slowa.paski.postep.etapy}
           </div>
         </Karteczka>
       </div>
-      <Napis text={PL.paski.napis2} from={T.napis2[0] ?? 0} to={T.napis2[1] ?? 0} />
-      <Napis text={PL.paski.napisy[1] ?? ''} from={T.caption1[0] ?? 0} to={T.caption1[1] ?? 0} />
-      <Napis text={PL.paski.napisy[0] ?? ''} from={T.caption2[0] ?? 0} to={T.caption2[1] ?? 0} />
+      {napisy && <Napis text={slowa.paski.napis2} from={T.napis2[0] ?? 0} to={T.napis2[1] ?? 0} />}
+      {napisy && <Napis text={slowa.paski.napisy[1] ?? ''} from={T.caption1[0] ?? 0} to={T.caption1[1] ?? 0} />}
+      {napisy && <Napis text={slowa.paski.napisy[0] ?? ''} from={T.caption2[0] ?? 0} to={T.caption2[1] ?? 0} />}
     </AbsoluteFill>
   );
 };

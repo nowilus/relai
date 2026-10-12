@@ -8,6 +8,7 @@ import { NowaSesja } from './sceny/NowaSesja';
 import { PracaWraca } from './sceny/PracaWraca';
 import { Final } from './sceny/Final';
 import { Animatik } from './sceny/Animatik';
+import { PETLA, PetlaReadme } from './sceny/PetlaReadme';
 import { SCENY, dlugosc } from './scenariusz';
 import type { IdSceny } from './scenariusz';
 import { FILM } from './tokeny';
@@ -27,5 +28,10 @@ export const Root = () => (
     <Composition id="PracaWraca" component={PracaWraca} {...common} durationInFrames={klatki('pracaWraca')} />
     <Composition id="Final" component={Final} {...common} durationInFrames={klatki('final')} />
     <Composition id="Animatik" component={Animatik} {...common} durationInFrames={dlugosc(FILM.fps)} />
+    {/* the English film (E6): the same scenes, the dictionary EN */}
+    <Composition id="FilmEN" component={Animatik} {...common} durationInFrames={dlugosc(FILM.fps)} defaultProps={{ jezyk: 'en' as const }} />
+    {/* the README loop (E6): 720×900, 25 s, Polish and English */}
+    <Composition id="PetlaPL" component={PetlaReadme} width={PETLA.width} height={PETLA.height} fps={PETLA.fps} durationInFrames={PETLA.frames} defaultProps={{ jezyk: 'pl' as const }} />
+    <Composition id="PetlaEN" component={PetlaReadme} width={PETLA.width} height={PETLA.height} fps={PETLA.fps} durationInFrames={PETLA.frames} defaultProps={{ jezyk: 'en' as const }} />
   </>
 );

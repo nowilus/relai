@@ -11,7 +11,7 @@ import { fontsReady } from '../fonty';
 import { offsetWithin } from '../kamera';
 import type { Punkt } from '../kamera';
 import { FONT, WINDOW } from '../tokeny';
-import { PL } from '../teksty';
+import { useT } from '../jezyk';
 import sceny from '../dane/sceny.json';
 import type { DaneScen, DanePaskow, FaktKarty } from '../dane/typy';
 import { Biurko } from './Biurko';
@@ -71,6 +71,7 @@ const Wiersz = ({ f, k }: { f: FaktKarty, k: number }) => (
 );
 
 export const NowaSesja = () => {
+  const slowa = useT();
   const f = useCurrentFrame();
   const { fps } = useVideoConfig();
   const stage = useRef<HTMLDivElement>(null);
@@ -116,9 +117,9 @@ export const NowaSesja = () => {
         <div style={{ position: 'absolute', inset: 0, transform: back > 0 ? `translate(${dx}px, ${dy}px) scale(${scale})` : undefined, transformOrigin: '0 0' }}>
           <Okno left={WIN.left} top={WIN.top} width={WIN.width} height={WIN.height} padding={`${WIN.pad}px ${WIN.pad + 8}px`} entry={1} style={{ display: 'flex', flexDirection: 'column', gap: 20 * U }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 34 * U }}>
-              <div style={{ fontFamily: FONT.handBold, fontWeight: 700, fontSize: 44 * U, lineHeight: 1.1, color: THEME.accent, whiteSpace: 'nowrap' }}>{PL.panel.tytul}</div>
+              <div style={{ fontFamily: FONT.handBold, fontWeight: 700, fontSize: 44 * U, lineHeight: 1.1, color: THEME.accent, whiteSpace: 'nowrap' }}>{slowa.panel.tytul}</div>
               <div style={{ display: 'flex', gap: 10 * U }}>
-                {PL.panel.zakladki.map((t, i) => <Przycisk key={t} primary={i === 0} size={17}>{t}</Przycisk>)}
+                {slowa.panel.zakladki.map((t, i) => <Przycisk key={t} primary={i === 0} size={17}>{t}</Przycisk>)}
               </div>
             </div>
             <Naglowek>{S.naglowek.wartosc}</Naglowek>
@@ -143,8 +144,8 @@ export const NowaSesja = () => {
                 </div>
                 <div style={{ ...tekst(TEXT + 2, THEME.title, 700), opacity: ease(f, T.rows + 40, T.rows + 52) }}>{S.pytanie.wartosc}</div>
                 <div style={{ display: 'flex', gap: 10 * U, opacity: ease(f, T.rows + 46, T.rows + 58) }}>
-                  <div ref={yesRef}><Przycisk primary pressed={press > 0 ? 1 - Math.abs(press * 2 - 1) : 0} size={TEXT}>{PL.nowaSesja.tak}</Przycisk></div>
-                  <Przycisk size={TEXT}>{PL.nowaSesja.nie}</Przycisk>
+                  <div ref={yesRef}><Przycisk primary pressed={press > 0 ? 1 - Math.abs(press * 2 - 1) : 0} size={TEXT}>{slowa.nowaSesja.tak}</Przycisk></div>
+                  <Przycisk size={TEXT}>{slowa.nowaSesja.nie}</Przycisk>
                 </div>
               </div>
               {/* after "Tak": the panel's line that the session is open */}
@@ -161,7 +162,7 @@ export const NowaSesja = () => {
         {/* the new session: the command waits in its field; Enter sends it and the stage starts */}
         {f >= T.newIn - 2 ? (
           <Okno left={NEW.left} top={NEW.top} width={NEW.width} height={NEW.height} entry={newIn} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-            <div style={{ fontFamily: FONT.ui, fontWeight: 600, fontSize: 28, color: BAR.muted, letterSpacing: 0.2 }}>{PL.nowaSesja.okno}</div>
+            <div style={{ fontFamily: FONT.ui, fontWeight: 600, fontSize: 28, color: BAR.muted, letterSpacing: 0.2 }}>{slowa.nowaSesja.okno}</div>
             <div style={{ flex: 1, minHeight: 0, display: 'flex', justifyContent: 'flex-end', alignItems: 'flex-start' }}>
               <div style={{ padding: '14px 24px', borderRadius: 18, background: WINDOW.promptBg, border: `1px solid ${WINDOW.promptEdge}`, color: BAR.text, fontFamily: FONT.ui, fontWeight: 600, fontSize: 30, whiteSpace: 'nowrap', opacity: sent, transform: `translateY(${(1 - sent) * 60}px)` }}>
                 {S.komenda.wartosc}
@@ -169,7 +170,7 @@ export const NowaSesja = () => {
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
               <div style={bar(planIn)}>
-                <Pasek band={BAND.panel} figure={<Liczba value={`${PLAN.zamkniete.wartosc}/${PLAN.etapy.wartosc}`} unit={PL.paski.etapy} />}>
+                <Pasek band={BAND.panel} figure={<Liczba value={`${PLAN.zamkniete.wartosc}/${PLAN.etapy.wartosc}`} unit={slowa.paski.etapy} />}>
                   <TrescPlanu plan={PLAN} statusColor={BAND.panel.color} />
                 </Pasek>
               </div>
@@ -184,7 +185,7 @@ export const NowaSesja = () => {
         {yes ? <Kursor at={pointer} click={press} opacity={pointerOpacity} /> : null}
       </div>
       {T.captions.map(([a, b], i) => (
-        <Napis key={i} text={PL.nowaSesja.napisy[i] ?? ''} from={a ?? 0} to={b ?? 0} />
+        <Napis key={i} text={slowa.nowaSesja.napisy[i] ?? ''} from={a ?? 0} to={b ?? 0} />
       ))}
     </AbsoluteFill>
   );

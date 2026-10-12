@@ -14,6 +14,7 @@ import { offsetWithin } from '../kamera';
 import type { Punkt } from '../kamera';
 import { FONT } from '../tokeny';
 import { PL } from '../teksty';
+import { useJezyk, useT } from '../jezyk';
 import { wstaw } from '../fakty';
 import type { Fakty } from '../fakty';
 import manifest from '../dane/manifest.json';
@@ -53,7 +54,7 @@ const T = Object.freeze({
   pointerOut: [700, 724],
   captions: [[18, 210], [230, 434], [456, 656], [678, 888]],
 });
-const WIN = Object.freeze({ left: 130, top: 46, width: 1660, height: 880, pad: 34 });
+const WIN_FILMU = Object.freeze({ left: 130, top: 46, width: 1660, height: 880, pad: 34 });
 const RISE = 9; // frames a view rises in after its tab is clicked
 
 const clamp = { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' } as const;
@@ -88,7 +89,16 @@ const Kursor = ({ at, click, opacity }: { at: Punkt, click: number, opacity: num
   </div>
 );
 
-export const Panel = () => {
+/**
+ * `napisy` and `okno` serve the README loop (E6): the scene without its own subtitles, in a window
+ * of another size; the defaults are the film's scene as it was accepted.
+ */
+type PanelProps = { napisy?: boolean, okno?: Readonly<{ left: number, top: number, width: number, height: number, pad: number }> };
+
+export const Panel = ({ napisy = true, okno }: PanelProps) => {
+  const WIN = okno ?? WIN_FILMU;
+  const slowa = useT();
+  const jezyk = useJezyk();
   const f = useCurrentFrame();
   const stage = useRef<HTMLDivElement>(null);
   const viewport = useRef<HTMLDivElement>(null);
@@ -142,10 +152,11 @@ export const Panel = () => {
 
   // the pointer's way: in over the list, to each tab and to the tile, a click on each
   const press = (at: number) => (f >= at && f < at + 14 ? (f - at) / 14 : 0);
-  let pointer: Punkt = { x: 1500, y: 640 };
+  const start: Punkt = okno ? { x: okno.left + okno.width * 0.8, y: okno.top + okno.height * 0.7 } : { x: 1500, y: 640 };
+  let pointer: Punkt = start;
   if (m) {
     const stops: [number, Punkt][] = [
-      [T.pointerIn, { x: 1500, y: 640 }],
+      [T.pointerIn, start],
       [T.clickMapa - 8, m.tabs.Mapa ?? pointer],
       [T.clickDokumenty - 30, m.tabs.Mapa ?? pointer],
       [T.clickDokumenty - 8, m.tabs.Dokumenty ?? pointer],
@@ -191,14 +202,14 @@ export const Panel = () => {
       <Biurko />
       <div ref={stage} style={{ position: 'absolute', inset: 0 }}>
         <Okno left={WIN.left} top={WIN.top} width={WIN.width} height={WIN.height} padding={`${WIN.pad}px ${WIN.pad + 8}px`} entry={1} style={{ display: 'flex', flexDirection: 'column', gap: 20 * U }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 34 * U }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 34 * U, flexWrap: okno ? 'wrap' : undefined, rowGap: okno ? 12 * U : undefined }}>
             <div style={{ position: 'relative', fontFamily: FONT.handBold, fontWeight: 700, fontSize: 44 * U, lineHeight: 1.1, color: THEME.accent, whiteSpace: 'nowrap' }}>
-              {PL.panel.tytul}
+              {slowa.panel.tytul}
               <svg viewBox="0 0 100 10" preserveAspectRatio="none" style={{ position: 'absolute', left: -4, right: -4, bottom: -8 * U, width: 'calc(100% + 8px)', height: 10 * U, overflow: 'visible', clipPath: `inset(-50% ${(1 - titleLine) * 100}% -50% 0)` }}>
                 <path d="M 1 7 C 30 4, 70 4, 99 6" fill="none" stroke={THEME.mark} strokeWidth={4} strokeLinecap="round" vectorEffect="non-scaling-stroke" opacity={titleLine > 0 ? 1 : 0} />
               </svg>
             </div>
-            <div style={{ display: 'flex', gap: 10 * U }}>
+            <div style={{ display: 'flex', gap: 10 * U, flexWrap: okno ? 'wrap' : undefined }}>
               {TABS.map((t, i) => {
                 const k = ease(f, T.tabsIn + i * 3, T.tabsIn + 12 + i * 3);
                 const at = t === 'Mapa' ? T.clickMapa : t === 'Dokumenty' ? T.clickDokumenty : t === 'Koszty' ? T.clickKoszty : -99;
@@ -231,8 +242,8 @@ export const Panel = () => {
         </Okno>
         {m ? <Kursor at={pointer} click={click} opacity={pointerOpacity} /> : null}
       </div>
-      {T.captions.map(([a, b], i) => (
-        <Napis key={i} text={wstaw(PL.panel.napisy[i] ?? '', F)} from={a ?? 0} to={b ?? 0} />
+      {napisy && T.captions.map(([a, b], i) => (
+        <Napis key={i} text={wstaw(slowa.panel.napisy[i] ?? '', F, jezyk)} from={a ?? 0} to={b ?? 0} />
       ))}
     </AbsoluteFill>
   );

@@ -7,7 +7,7 @@
 import { AbsoluteFill, Img, interpolate, spring, staticFile, useCurrentFrame, useVideoConfig } from 'remotion';
 import { BAND, BAR } from '../rdzen';
 import { DESK, FONT, INK, NOTE, WINDOW } from '../tokeny';
-import { PL } from '../teksty';
+import { useJezyk, useT } from '../jezyk';
 import { tekstFaktu, wstaw } from '../fakty';
 import type { Fakty } from '../fakty';
 import manifest from '../dane/manifest.json';
@@ -43,12 +43,14 @@ const fakt = (k: string): string => {
 };
 
 export const Final = () => {
+  const slowa = useT();
+  const jezyk = useJezyk();
   const f = useCurrentFrame();
   const { fps } = useVideoConfig();
   const markIn = spring({ frame: f - T.mark, fps, config: { damping: 13, mass: 0.9 } });
   const markSettled = Math.abs(1 - markIn) < 0.001;
-  const words = PL.final.tytul.split(' ');
-  const L = PL.final.liczby;
+  const words = slowa.final.tytul.split(' ');
+  const L = slowa.final.liczby;
 
   return (
     <AbsoluteFill>
@@ -74,7 +76,7 @@ export const Final = () => {
                 return <span key={i} style={{ display: 'inline-block', ...rise(k, 30) }}>{w}</span>;
               })}
             </div>
-            <div style={{ fontFamily: FONT.ui, fontWeight: 700, fontSize: 40, color: INK.margin, ...rise(ease(f, T.line + 30, T.line + 46)) }}>{wstaw(PL.final.wersja, F)}</div>
+            <div style={{ fontFamily: FONT.ui, fontWeight: 700, fontSize: 40, color: INK.margin, ...rise(ease(f, T.line + 30, T.line + 46)) }}>{wstaw(slowa.final.wersja, F, jezyk)}</div>
           </div>
         </div>
 
@@ -83,7 +85,7 @@ export const Final = () => {
           {(Object.keys(L) as (keyof typeof L)[]).map((k, i) => (
             <div key={k} style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 4, minWidth: 0, ...rise(ease(f, T.figures + i * FIGURE_STEP, T.figures + 16 + i * FIGURE_STEP)) }}>
               <div style={{ fontFamily: FONT.ui, fontWeight: 800, fontSize: 120, lineHeight: 1, color: INK.title, letterSpacing: -2 }}>{fakt(k)}</div>
-              <div style={{ fontFamily: FONT.ui, fontWeight: 600, fontSize: 36, color: INK.lead, whiteSpace: 'nowrap' }}>{L[k]}</div>
+              <div style={{ fontFamily: FONT.ui, fontWeight: 600, fontSize: 36, color: INK.lead, whiteSpace: 'nowrap' }}>{wstaw(L[k], F, jezyk)}</div>
             </div>
           ))}
         </div>
@@ -91,20 +93,20 @@ export const Final = () => {
         {/* how to install it, and the plan that made this film */}
         <div style={{ display: 'flex', alignItems: 'stretch', gap: 40 }}>
           <div style={{ flexShrink: 0, display: 'flex', flexDirection: 'column', gap: 8, padding: '20px 30px', borderRadius: 16, background: NOTE.paper, border: `1px solid ${NOTE.edge}`, boxShadow: INK.captionShadow, ...rise(ease(f, T.install, T.install + 14)) }}>
-            <div style={{ fontFamily: FONT.handBold, fontWeight: 700, fontSize: 34, color: NOTE.accent }}>{PL.final.instalacja}</div>
+            <div style={{ fontFamily: FONT.handBold, fontWeight: 700, fontSize: 34, color: NOTE.accent }}>{slowa.final.instalacja}</div>
             {(F.instalacja?.wartosc as readonly string[]).map((l) => (
               <div key={l} style={{ fontFamily: FONT.ui, fontWeight: 600, fontSize: 30, color: NOTE.ink, whiteSpace: 'nowrap' }}>{l}</div>
             ))}
           </div>
           <div style={{ flex: 1, minWidth: 0, display: 'flex', alignItems: 'center', padding: '0 24px', borderRadius: WINDOW.radius, background: WINDOW.surface, border: `1px solid ${WINDOW.edge}`, boxShadow: DESK.shadow, ...rise(ease(f, T.plan, T.plan + 14)) }}>
-            <Pasek band={BAND.panel} figure={<Liczba value={`${D.plan.zamkniete.wartosc}/${D.plan.etapy.wartosc}`} unit={PL.paski.etapy} />} style={{ flex: 1, minWidth: 0, color: BAR.text, fontSize: 30 }}>
+            <Pasek band={BAND.panel} figure={<Liczba value={`${D.plan.zamkniete.wartosc}/${D.plan.etapy.wartosc}`} unit={slowa.paski.etapy} />} style={{ flex: 1, minWidth: 0, color: BAR.text, fontSize: 30 }}>
               <TrescPlanu plan={D.plan} statusColor={BAND.panel.color} />
             </Pasek>
           </div>
         </div>
       </AbsoluteFill>
       {T.captions.map(([a, b], i) => (
-        <Napis key={i} text={wstaw(PL.final.napisy[i] ?? '', F)} from={a ?? 0} to={b ?? 0} />
+        <Napis key={i} text={wstaw(slowa.final.napisy[i] ?? '', F, jezyk)} from={a ?? 0} to={b ?? 0} />
       ))}
     </AbsoluteFill>
   );

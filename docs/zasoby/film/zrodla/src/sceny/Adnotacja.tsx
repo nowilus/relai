@@ -4,7 +4,7 @@
 // the words are laid out by the browser, never placed glyph by glyph.
 import type { Ref } from 'react';
 import { FONT, INK, NOTE, SCALE } from '../tokeny';
-import { PL } from '../teksty';
+import { useT } from '../jezyk';
 
 const S = SCALE;
 export const PAD_X = 20 * S;
@@ -43,6 +43,7 @@ interface AdnotacjaProps {
 }
 
 export const Adnotacja = ({ box, ring, arrow, note, used, left, noteRef }: AdnotacjaProps) => {
+  const slowa = useT();
   const w = box.w + PAD_X * 2;
   const h = box.h + PAD_Y * 2;
   const stroke = { fill: 'none', stroke: INK.note, strokeLinecap: 'round' as const, strokeLinejoin: 'round' as const };
@@ -92,12 +93,12 @@ export const Adnotacja = ({ box, ring, arrow, note, used, left, noteRef }: Adnot
             transform: 'rotate(3deg)',
           }}
         />
-        <div style={{ fontSize: 28 * S, lineHeight: 1.05, color: NOTE.accent }}>{PL.paski.notatka}</div>
+        <div style={{ fontSize: 28 * S, lineHeight: 1.05, color: NOTE.accent }}>{slowa.paski.notatka}</div>
         <div style={{ marginTop: 6 * S, fontSize: 17.5 * S, lineHeight: 1.3 }}>
-          <span style={{ color: NOTE.inkSoft }}>{PL.paski.zuzyte}</span> {used}
+          <span style={{ color: NOTE.inkSoft }}>{slowa.paski.zuzyte}</span> {used}
         </div>
         <div style={{ fontSize: 17.5 * S, lineHeight: 1.3 }}>
-          <span style={{ color: NOTE.inkSoft }}>{PL.paski.pelna}</span> {Math.round(left)} %
+          <span style={{ color: NOTE.inkSoft }}>{slowa.paski.pelna}</span> {Math.round(left)} %
         </div>
       </div>
     </>

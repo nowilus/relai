@@ -8,7 +8,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { PL } from '../src/teksty.ts';
+import { PL, EN } from '../src/teksty.ts';
 import { CYKL, POLECANE, ukladKomend, wszystkie } from '../src/komendy.ts';
 import { createHash } from 'node:crypto';
 import { existsSync } from 'node:fs';
@@ -148,13 +148,40 @@ function checkCykl(cykl, forms = FORMS.map((f) => f.command)) {
   assert.deepEqual([...cykl], ANEKS_A.map(([c]) => c), 'the order of Annex A');
 }
 
-/** Fails unless each command's name (NAMES) and slogan (the dictionary) are those of Annex A. */
-function checkSlowa(slogany = PL.komendy.slogany, names = NAMES) {
-  for (const [c, name, slogan] of ANEKS_A) {
-    assert.equal(names[c]?.[0], name, `${c}: the name in the frame is NAMES[${c}][0]`);
-    assert.equal(slogany[c], slogan, `${c}: the slogan word for word`);
+/**
+ * The English names and slogans Łukasz accepted at the start of E6 (Annex D): command, name,
+ * slogan. The handover slogan was shortened after the first render (it broke into two lines).
+ */
+const ANEKS_D = Object.freeze([
+  ['relai-adopt', 'Project adoption', 'RelAI in the project you already have'],
+  ['relai-prompt', 'Prompt optimizer', 'From a loose sentence to a precise prompt'],
+  ['relai-stage', 'Plan stage', "The plan's next stage in one click"],
+  ['relai-crew', 'Agent crew', 'A bigger task shared among agents'],
+  ['relai-branch', 'Plan branch', 'A side idea waits for its turn'],
+  ['relai-audit', 'Project review', 'A quick health check of your docs'],
+  ['relai-clean', 'Cleanup', 'Clears away leftover working files'],
+  ['relai-backup', 'Backup', 'The whole project in a ZIP, no secrets'],
+  ['relai-changelog', 'Changelog', 'What changed — straight from the journal'],
+  ['relai-update', 'Update', 'Up to the latest version of RelAI'],
+  ['relai-models', 'Model list', 'An always up-to-date list of models'],
+  ['relai-help', 'Project cheat sheet', 'Every command in one place'],
+  ['relai-tour', 'Project tour', 'A quick introduction to the project'],
+  ['relai-handover', 'Handover package', 'The whole project in one handover file'],
+]);
+
+/**
+ * Fails unless each command's name and slogan in the dictionary are those of the accepted table —
+ * Annex A for Polish, where the name is also NAMES[command][0] of core/panel; Annex D for English.
+ */
+function checkSlowa(slowa = PL, tabela = ANEKS_A, names = NAMES) {
+  for (const [c, name, slogan] of tabela) {
+    assert.equal(slowa.komendy.nazwy[c], name, `${c}: the name in the frame word for word`);
+    if (tabela === ANEKS_A) assert.equal(names[c]?.[0], name, `${c}: the Polish name is NAMES[${c}][0]`);
+    assert.equal(slowa.komendy.slogany[c], slogan, `${c}: the slogan word for word`);
   }
-  assert.deepEqual(Object.keys(slogany).sort(), ANEKS_A.map(([c]) => c).sort(), 'no slogan of a command not in the scene');
+  const ids = tabela.map(([c]) => c).sort();
+  assert.deepEqual(Object.keys(slowa.komendy.slogany).sort(), ids, 'no slogan of a command not in the scene');
+  assert.deepEqual(Object.keys(slowa.komendy.nazwy).sort(), ids, 'no name of a command not in the scene');
 }
 
 test('scene 4: CYKL is each command of FORMS once, in the order of Annex A', (t) => {
@@ -169,8 +196,18 @@ test('scene 4: CYKL is each command of FORMS once, in the order of Annex A', (t)
 test('scene 4: each name is NAMES[command][0] and each slogan is the accepted one, word for word', () => {
   checkSlowa();
   // positive controls: another slogan, and a renamed command in NAMES, fail the check
-  assert.throws(() => checkSlowa({ ...PL.komendy.slogany, 'relai-clean': 'Sprząta pliki robocze' }));
-  assert.throws(() => checkSlowa(PL.komendy.slogany, { ...NAMES, 'relai-help': ['Pomoc', ''] }));
+  const zSloganem = (s, c, v) => ({ ...s, komendy: { ...s.komendy, slogany: { ...s.komendy.slogany, [c]: v } } });
+  assert.throws(() => checkSlowa(zSloganem(PL, 'relai-clean', 'Sprząta pliki robocze')));
+  assert.throws(() => checkSlowa(PL, ANEKS_A, { ...NAMES, 'relai-help': ['Pomoc', ''] }));
+});
+
+test('scene 2 in English: each name and slogan is the one of Annex D, word for word', () => {
+  checkSlowa(EN, ANEKS_D);
+  // positive controls: the slogan before its shortening, and a name left in Polish, fail the check
+  const zSloganem = (s, c, v) => ({ ...s, komendy: { ...s.komendy, slogany: { ...s.komendy.slogany, [c]: v } } });
+  assert.throws(() => checkSlowa(zSloganem(EN, 'relai-handover', 'The whole project, ready to hand over, in one file'), ANEKS_D));
+  const zNazwa = { ...EN, komendy: { ...EN.komendy, nazwy: { ...EN.komendy.nazwy, 'relai-backup': 'Kopia zapasowa' } } };
+  assert.throws(() => checkSlowa(zNazwa, ANEKS_D));
 });
 
 test('scene 4: each command has its icon in public/znak/, byte for byte the branding file', () => {

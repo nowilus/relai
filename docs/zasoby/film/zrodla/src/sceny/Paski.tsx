@@ -9,7 +9,7 @@ import { fontsReady } from '../fonty';
 import { camera, offsetWithin } from '../kamera';
 import type { Punkt } from '../kamera';
 import { FILM, FONT, GLASS, INK, SCALE, WINDOW, DESK } from '../tokeny';
-import { PL } from '../teksty';
+import { useT } from '../jezyk';
 import dane from '../dane/paski.json';
 import type { DanePaskow } from '../dane/typy';
 import { Biurko } from './Biurko';
@@ -52,7 +52,9 @@ type Shot = { focus: Punkt, zoom: number };
 const ease = (frame: number, from: number, to: number) =>
   interpolate(frame, [from, to], [0, 1], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp', easing: (t) => 1 - Math.pow(1 - t, 3) });
 
-export const Paski = () => {
+/** `napisy` and `naglowek` serve the README loop (E6): without its subtitles and its title; the film keeps both. */
+export const Paski = ({ napisy = true, naglowek = true }: { napisy?: boolean, naglowek?: boolean }) => {
+  const slowa = useT();
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
   const stage = useRef<HTMLDivElement>(null);
@@ -121,11 +123,11 @@ export const Paski = () => {
     <AbsoluteFill>
       <Biurko />
       <div ref={stage} style={{ position: 'absolute', inset: 0, transformOrigin: '0 0', transform }}>
-        <div style={{ position: 'absolute', left: 130, top: 78, opacity: titleIn * (1 - titleOut), transform: `translateY(${(1 - titleIn) * 24 - titleOut * 60}px)` }}>
-          <div style={{ fontFamily: FONT.handBold, fontWeight: 700, fontSize: 40, color: INK.margin, transform: 'rotate(-2deg)', transformOrigin: 'left center' }}>{PL.paski.nadpis}</div>
-          <div style={{ fontFamily: FONT.serif, fontWeight: 600, fontSize: 88, lineHeight: 1.04, color: INK.title, letterSpacing: -1, marginTop: 4 }}>{PL.paski.tytul}</div>
+        <div style={{ position: 'absolute', left: 130, top: 78, display: naglowek ? undefined : 'none', opacity: titleIn * (1 - titleOut), transform: `translateY(${(1 - titleIn) * 24 - titleOut * 60}px)` }}>
+          <div style={{ fontFamily: FONT.handBold, fontWeight: 700, fontSize: 40, color: INK.margin, transform: 'rotate(-2deg)', transformOrigin: 'left center' }}>{slowa.paski.nadpis}</div>
+          <div style={{ fontFamily: FONT.serif, fontWeight: 600, fontSize: 88, lineHeight: 1.04, color: INK.title, letterSpacing: -1, marginTop: 4 }}>{slowa.paski.tytul}</div>
           <div style={{ marginTop: 18 }}>
-            <Pytania questions={PL.paski.pytania} drawn={underline} />
+            <Pytania questions={slowa.paski.pytania} drawn={underline} />
           </div>
         </div>
 
@@ -160,10 +162,10 @@ export const Paski = () => {
               boxShadow: `inset 0 1px 0 ${GLASS.highlight}`,
             }}
           >
-            <Pasek band={BAND.panel} figure={<Liczba value={`${D.plan.zamkniete.wartosc}/${D.plan.etapy.wartosc}`} unit={PL.paski.etapy} />} style={barStyle(0, false)}>
+            <Pasek band={BAND.panel} figure={<Liczba value={`${D.plan.zamkniete.wartosc}/${D.plan.etapy.wartosc}`} unit={slowa.paski.etapy} />} style={barStyle(0, false)}>
               <TrescPlanu plan={D.plan} statusColor={BAND.panel.color} />
             </Pasek>
-            <Pasek band={BAND.progress} figure={D.postep.razem.wartosc > 0 ? <Liczba value={`${D.postep.zrobione.wartosc}/${D.postep.razem.wartosc}`} unit={PL.paski.punkty} /> : null} style={barStyle(1, false)}>
+            <Pasek band={BAND.progress} figure={D.postep.razem.wartosc > 0 ? <Liczba value={`${D.postep.zrobione.wartosc}/${D.postep.razem.wartosc}`} unit={slowa.paski.punkty} /> : null} style={barStyle(1, false)}>
               <Segmenty items={D.postep.punkty.wartosc} words={D.postep.slowa.wartosc} appear={(i) => ease(frame, T.segments + i * 1.6, T.segments + 8 + i * 1.6)} />
             </Pasek>
             <Pasek band={BAND.cache} figure={<Liczba value={D.cache.koszt.wartosc} unit={D.cache.kosztJednostka.wartosc} />} style={barStyle(2, true)}>
@@ -203,8 +205,8 @@ export const Paski = () => {
           </div>
         </div>
       </div>
-      <Napis text={PL.paski.napis1} from={T.caption1[0] ?? 0} to={T.caption1[1] ?? 0} />
-      <Napis text={PL.paski.napis2} from={T.caption2[0] ?? 0} to={T.caption2[1] ?? 0} />
+      {napisy && <Napis text={slowa.paski.napis1} from={T.caption1[0] ?? 0} to={T.caption1[1] ?? 0} />}
+      {napisy && <Napis text={slowa.paski.napis2} from={T.caption2[0] ?? 0} to={T.caption2[1] ?? 0} />}
     </AbsoluteFill>
   );
 };
