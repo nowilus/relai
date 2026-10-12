@@ -144,11 +144,13 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
    (L-0164). **Operacja na zakresie dokumentu normalizuje tylko styk zakresu**, a test dowodzi, że
    fragment poza zakresem wyszedł nietknięty (L-0169). **Fixtura ewaluacji niesie środowisko,
    które czytają hooki** (tożsamość gita, pliki domowe) — inaczej siatka hooka odpowiada na
-   maszynę mierzącego, nie na prompt (L-0170). (L-0032, L-0037, L-0095, L-0096, L-0105, L-0106, L-0107, L-0110, L-0111, L-0113,
+   maszynę mierzącego, nie na prompt (L-0170). **Wartość podkładaną w kontroli pozytywnej
+   sprawdzasz wobec zbioru dozwolonego, zanim na niej oprzesz kontrolę**, a tekst cytowany
+   dosłownie wyłączasz z tego zbioru jawnie (L-0173). (L-0032, L-0037, L-0095, L-0096, L-0105, L-0106, L-0107, L-0110, L-0111, L-0113,
    L-0097, L-0101, L-0102,
    L-0054, L-0055, L-0056, L-0064, L-0068, L-0071, L-0073, L-0083, L-0084, L-0086, L-0087, L-0088,
    L-0090, L-0091, L-0124, L-0125, L-0130, L-0131, L-0135, L-0141, L-0143, L-0151, L-0160, L-0164,
-   L-0169, L-0170)
+   L-0169, L-0170, L-0173)
 6. **Próg jest liczbą, którą ktoś liczy:** kalibruj go na zmierzonych plikach realnych projektów,
    zapisuj w jednostce mechanizmu kontrolnego wraz z komendą sprawdzającą i daj mu **jeden**
    wyzwalacz — wielkości pomocnicze wskazują przyczynę wewnątrz komunikatu, nie wywołują go.
@@ -297,9 +299,11 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
     dla człowieka**, resztę jednym wierszem z liczbą i nazwami; stawka nie jest kwotą — ma tyle
     miejsc, ile ma źródło (L-0157). **W nośniku z kamerą element trwały nie niesie po ruchu
     transformacji 3D ani filtra warstwowego**: kamera powiększa wtedy bitmapę, nie tekst. Przegląd
-    klatek obejmuje klatkę największego zbliżenia (L-0171).
+    klatek obejmuje klatkę największego zbliżenia (L-0171). **Przejście między ekranami tej samej
+    siatki idzie przez wspólne tło, nie przez nałożenie**, a liczby w kadrze piszesz krojem
+    rozróżniającym „1” i „I” (L-0174).
     (L-0003, L-0006, L-0016, L-0019, L-0029, L-0094, L-0098, L-0137, L-0140, L-0142, L-0145, L-0147,
-    L-0149, L-0152, L-0157, L-0171)
+    L-0149, L-0152, L-0157, L-0171, L-0174)
 
 **Wyprowadzone 2026-08-20 do `docs/PULAPKI.md`:** sześć pozycji, które były pułapkami
 narzędziowymi, a nie zasadami pracy — `tar` na `PATH` (L-0021), sesja pomiarowa `claude -p`
@@ -621,6 +625,33 @@ restart aplikacji po `plugin update` (L-0031), `git worktree` zamiast `git archi
   rozpakowania. Rozjazd zmierzony po instalacji zgłaszasz od razu, przy pierwszym raporcie, a nie
   dopiero we wpisie zamykającym.
 - **Źródło:** FILM_PREZENTACYJNY E1, 2026-10-12; destylat: zasada 6.
+
+### L-0173 — Kontrola pozytywna przeszła na liczbie, którą zbiór dozwolony już miał · 2026-10-12 · AKTYWNA
+
+- **Trigger:** test „liczba w kadrze = fakt” budował zbiór liczb dozwolonych ze wszystkich wartości
+  `paski.json`, razem z nazwami punktów weryfikacji etapu, które pasek postępu cytuje dosłownie.
+  Kontrola pozytywna licznika szerokiego podłożyła „Pięć narzędzi” i oczekiwała błędu. Błędu nie
+  było, bo 5 już było w zbiorze (okno „5 h”).
+- **Przyczyna:** zbiór dozwolony wciągnął liczby z cytatów (prompt etapu niesie „331/331”, „± 1”,
+  „5 z E1”). Kontrola wybrała wartość na oko, bez sprawdzenia, że w zbiorze jej nie ma.
+- **Zasada:** zbiór wartości dozwolonych budujesz z pól faktów, a tekst cytowany dosłownie
+  wyłączasz z niego jawnie, z powodem. Wartość podkładaną w kontroli pozytywnej najpierw
+  sprawdzasz wobec tego zbioru: wypisz zbiór i pokaż, że wartości w nim nie ma. Kontrola na
+  wartości już dozwolonej sprawdza tylko to, że instrument nie zgłasza fałszywych błędów.
+- **Źródło:** FILM_PREZENTACYJNY E2, 2026-10-12; destylat: zasada 5.
+
+### L-0174 — Przenikanie dwóch plansz o tym samym układzie dawało podwójny tytuł · 2026-10-12 · AKTYWNA
+
+- **Trigger:** animatik przechodził między planszami przenikaniem (nowa scena nad starą,
+  przezroczystość 0→1 w 18 klatek). W połowie przejścia oba tytuły stały w tym samym miejscu jeden
+  na drugim, nieczytelne. Czas „15 s” pisany Kalamem czytał się jak „IS s”.
+- **Przyczyna:** przenikanie dobrze wygląda między obrazami o różnym układzie. Przy wspólnej siatce
+  nakłada tekst na tekst. Odręczny font ma cyfrę „1” w kształcie litery „I”.
+- **Zasada:** przejście między ekranami o tej samej siatce idzie przez tło: stary obraz gaśnie do
+  papieru w pierwszej połowie, nowy wschodzi w drugiej. Pod scenami leży wspólne tło, żeby
+  przejście nie przeszło przez czerń. Liczby i czasy w kadrze piszesz krojem, który rozróżnia „1”
+  i „I”. Klatkę ze środka każdego przejścia oglądasz przed pokazem.
+- **Źródło:** FILM_PREZENTACYJNY E2, 2026-10-12; destylat: zasada 15.
 
 ## Lekcje zwinięte
 

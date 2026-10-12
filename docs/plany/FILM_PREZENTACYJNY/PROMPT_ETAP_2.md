@@ -441,42 +441,42 @@ przechodzi.
 Każdy punkt Weryfikacji, który przeszedł, odhaczasz w `PROMPT_ETAP_2.md` (`- [ ]` → `- [x]`)
 zaraz po jego sprawdzeniu, nie na końcu etapu; punkt, który nie przeszedł, zostaje pusty.
 
-- [ ] `scenariusz.ts` ma sześć scen w kolejności planu; długość kompozycji `Animatik` jest sumą
+- [x] `scenariusz.ts` ma sześć scen w kolejności planu; długość kompozycji `Animatik` jest sumą
       czasów scen (test albo `npx remotion compositions` porównany z sumą), nie liczbą wpisaną ręcznie.
-- [ ] Słownik PL obejmuje wszystkie sześć scen; `grep -nE "[0-9]" src/teksty.ts` zwraca wyłącznie
+- [x] Słownik PL obejmuje wszystkie sześć scen; `grep -nE "[0-9]" src/teksty.ts` zwraca wyłącznie
       linie bez cyfr w tekście kadru (komentarze i znaczniki rozstrzygnięte we wpisie) — kontrola
       pozytywna wzorca na podłożonej linii z cyfrą.
-- [ ] Każdy fakt `manifest.json` ma niepuste `zrodlo`; test generuje manifest ponownie i porównuje
+- [x] Każdy fakt `manifest.json` ma niepuste `zrodlo`; test generuje manifest ponownie i porównuje
       z zapisanym (zgodność), a fakt liczony z pliku zmienia się, gdy test poda zmienioną kopię źródła.
-- [ ] `testy/fakty.test.mjs` przechodzi na bieżącym słowniku; **kontrola pozytywna** — słownik
+- [x] `testy/fakty.test.mjs` przechodzi na bieżącym słowniku; **kontrola pozytywna** — słownik
       z podłożoną liczbą spoza manifestu kończy test błędem; licznik szeroki ma kontrolę przeciw
       zawyżeniu na materiale bez liczb. Liczby obu liczników do wpisu.
-- [ ] `npm test` w `docs/zasoby/film/zrodla/` — wszystkie testy (5 z E1 + nowe), przebieg po
+- [x] `npm test` w `docs/zasoby/film/zrodla/` — wszystkie testy (5 z E1 + nowe), przebieg po
       `npm run przygotuj` po ostatniej zmianie promptu; liczba do wpisu.
-- [ ] Render animatiku: długość równa sumie czasów scen ± 1 klatka, 30 kl./s, odczytane
+- [x] Render animatiku: długość równa sumie czasów scen ± 1 klatka, 30 kl./s, odczytane
       `npx remotion ffprobe` z pliku, nie z komunikatu renderu.
-- [ ] Scena 2 nietknięta: `git diff --stat` na `src/sceny/Paski.tsx`, `Pasek.tsx`, `PasekCache.tsx`,
+- [x] Scena 2 nietknięta: `git diff --stat` na `src/sceny/Paski.tsx`, `Pasek.tsx`, `PasekCache.tsx`,
       `Adnotacja.tsx`, `Pytania.tsx`, `Biurko.tsx` pusty (wyjątek: przeniesienie tekstu do słownika
       bez zmiany brzmienia — wtedy dowód: klatka 280 `Paski` sprzed i po zmianie różni się tylko
       danymi postępu).
-- [ ] Kolory i sieć: `grep -rnE '#[0-9a-fA-F]{3,8}' src/sceny/` i `grep -rnE "https?://" src` — pusto,
+- [x] Kolory i sieć: `grep -rnE '#[0-9a-fA-F]{3,8}' src/sceny/` i `grep -rnE "https?://" src` — pusto,
       każdy z kontrolą pozytywną na podłożonym pliku w katalogu roboczym.
-- [ ] Prywatność kadru: słownik, `manifest.json` i teksty plansz bez ścieżki domowej, e-maila
+- [x] Prywatność kadru: słownik, `manifest.json` i teksty plansz bez ścieżki domowej, e-maila
       i identyfikatora sesji — trzy wzorce w pliku zapisanym narzędziem Write, z kontrolą pozytywną
       (L-0116).
-- [ ] Obejrzane własne klatki (co najmniej jedna z każdej sceny i każde przejście) przed pokazaniem
+- [x] Obejrzane własne klatki (co najmniej jedna z każdej sceny i każde przejście) przed pokazaniem
       Łukaszowi; poprawki z tego przeglądu wymienione we wpisie.
-- [ ] Łukasz przyjął kolejność, czasy i tekst (jego słowa we wpisie) **albo** po dwóch rundach coś
+- [x] Łukasz przyjął kolejność, czasy i tekst (jego słowa we wpisie) **albo** po dwóch rundach coś
       zostaje otwarte — wtedy etap zostaje `W TOKU`, a wpis mówi, co zostało do rozstrzygnięcia.
-- [ ] `npm run typy` bez błędów; gdy etap dodał pakiet — `npm audit --omit=dev` zero wysokich
+- [x] `npm run typy` bez błędów; gdy etap dodał pakiet — `npm audit --omit=dev` zero wysokich
       i krytycznych (liczby do wpisu); gdy nie dodał — zdanie o tym we wpisie z `git diff` na
       `package.json`.
-- [ ] Testy rdzenia 331/331 (komenda ze „Stanu wyjściowego”); `node core/tools/validate-adapters.js`
+- [x] Testy rdzenia 331/331 (komenda ze „Stanu wyjściowego”); `node core/tools/validate-adapters.js`
       spójne; `claude plugin validate .` binarką aplikacji — exit 0.
-- [ ] Pliki PANEL_CODEX (`docs/plany/PANEL_CODEX/`, `docs/zasoby/PANEL_RELAI/makiety/`) nietknięte:
+- [x] Pliki PANEL_CODEX (`docs/plany/PANEL_CODEX/`, `docs/zasoby/PANEL_RELAI/makiety/`) nietknięte:
       `git diff --stat` i `git status` na nich identyczne z tym sprzed etapu i poza commitem etapu.
-- [ ] Wpis w `docs/DZIENNIK.md` na końcu sekcji „Wpisy”, z podpisem `Autor: RelAI (Opus 5.5) + Lukasz`.
-- [ ] Katalog roboczy `.claude/relai/work/FILM_PREZENTACYJNY/E2/` przejrzany raportem
+- [x] Wpis w `docs/DZIENNIK.md` na końcu sekcji „Wpisy”, z podpisem `Autor: RelAI (Opus 5.5) + Lukasz`.
+- [x] Katalog roboczy `.claude/relai/work/FILM_PREZENTACYJNY/E2/` przejrzany raportem
       (`node .claude/relai/tools/clean-work.js raport`) i skasowany po „tak”; liczby przed i po
       w sekcji „Zweryfikowane” wpisu. Artefakty poza nim (pliki `%TEMP%` renderu, jeśli powstały)
       wypisane z nazwy, z tym, co się z nimi stało.

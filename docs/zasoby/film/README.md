@@ -6,8 +6,9 @@ trzymał demo 2.1.3: kto zmieni panel, przerenderuje film jedną komendą. Plan:
 
 Stan na E1 (2026-10-12): gotowa scena 2 „Trzy paski” — 10 s ruchu i klatka wzorcowa
 [kalibracja/E1-klatka.png](kalibracja/E1-klatka.png), kierunek przyjęty przez Łukasza po dwóch
-rundach (wiersz „Kierunek filmu” w [USTAWIENIA.md](../../USTAWIENIA.md)). Reszta scen, wersja EN,
-pętla do README i wydanie — kolejne etapy planu.
+rundach (wiersz „Kierunek filmu” w [USTAWIENIA.md](../../USTAWIENIA.md)). Stan na E2 (2026-10-12):
+animatik całego filmu — sześć scen, 120 s, kolejność, czasy i słownik PL przyjęte przez Łukasza.
+Pełna jakość scen 1 i 3–6, wersja EN, pętla do README i wydanie — kolejne etapy planu.
 
 ## Co gdzie leży
 
@@ -43,8 +44,16 @@ Scena 2 w ruchu (MP4 1920×1080, 30 kl./s, 10 s) do `zrodla/out/paski-10s.mp4`:
 cd docs/zasoby/film/zrodla && npm run paski
 ```
 
-Obie komendy najpierw odświeżają dane i fonty (`npm run przygotuj`). Podgląd na żywo: `npm run studio`.
-Testy danych (po `npm run dane`): `npm test`; typy: `npm run typy`.
+Animatik całego filmu (MP4 960×540, 30 kl./s, sześć scen z `src/scenariusz.ts`, długość = suma
+ich czasów) do `zrodla/out/animatik.mp4` — scena 2 gotowa, reszta jako plansze surowe:
+
+```bash
+cd docs/zasoby/film/zrodla && npm run animatik
+```
+
+Wszystkie komendy renderu najpierw odświeżają dane, manifest i fonty (`npm run przygotuj`; manifest
+uruchamia testy rdzenia, ok. 35–45 s). Podgląd na żywo: `npm run studio`. Testy (po
+`npm run przygotuj`): `npm test`; typy: `npm run typy`.
 
 ## Skąd liczby w kadrze
 
@@ -58,7 +67,19 @@ prawdziwej sesji. Dlatego:
   są przepisane ze zrzutu prawdziwych pasków
   [`docs/fixy/AUDYT_MODOW/zrzuty/2026-10-11-z1-trzy-paski-0.12.0.png`](../../fixy/AUDYT_MODOW/zrzuty/2026-10-11-z1-trzy-paski-0.12.0.png);
   wypełnienie każdej baterii test porównuje z pikselami tego zrzutu;
-- każda wartość w `paski.json` niesie pole `zrodlo`; test kończy się błędem na wartości bez niego.
+- każda wartość w `paski.json` niesie pole `zrodlo`; test kończy się błędem na wartości bez niego;
+- **liczby pozostałych scen** (wersja, komendy, zamknięte plany, testy rdzenia, narzędzia, próg
+  limitu, linie instalacji) liczy `skrypty/manifest.mjs` ze źródeł w repozytorium i zapisuje do
+  `src/dane/manifest.json` w tym samym kształcie `{ wartosc, zrodlo }`; okno „5 h” bierze z etykiety
+  zrzutu przez `paski.json`;
+- **słownik** `src/teksty.ts` nie ma ani jednej cyfry w tekście kadru: liczba wchodzi znacznikiem
+  (`{komendy}`), który `src/fakty.ts` wypełnia z manifestu;
+- **test faktów** `testy/fakty.test.mjs` zbiera wszystkie teksty kadru (słownik po podstawieniu,
+  finał, czasy plansz, dane sceny 2) i kończy się błędem na każdej liczbie spoza `manifest.json`
+  i `paski.json` (czasy plansz należą do animatiku i odchodzą z nim). Drugi licznik łapie liczebniki
+  słowne i znak `%` bez liczby. Test generuje manifest ponownie i porównuje z zapisanym, a na
+  zmienionych kopiach źródeł pokazuje, że fakt się zmienia. Pilnuje też prywatności kadru:
+  ścieżki domowej, e-maila, identyfikatora sesji.
 
 ## Fonty i sieć
 

@@ -1454,3 +1454,135 @@ leży w `core/tools/count-rules.js` — uruchomione stamtąd: zasady aktywne 15 
   E1 wykonany i zamknięty w tej sesji.)*
 
 Autor: RelAI (Opus 5.5) + Lukasz
+
+### 2026-10-12 — FILM_PREZENTACYJNY E2: scenariusz, manifest faktów z testem i animatik całego filmu
+
+Sesja Opus 5.5 w Claude Code, `/relai-stage` z kartą potwierdzenia („tak”). Optymalizator promptów
+w tej sesji wyłączony decyzją Łukasza (bramka zgody: „Nie, nie w tej sesji”).
+
+**Zrobione:**
+
+- [src/scenariusz.ts](zasoby/film/zrodla/src/scenariusz.ts) — sześć scen planu w kolejności
+  (12 / 23 / 30 / 20 / 20 / 15 s). Długość filmu liczy `dlugosc()` jako sumę klatek scen, a nie
+  stałą wpisaną ręcznie. Plik nie ma importów, więc Node wczytuje go wprost w testach.
+- [src/teksty.ts](zasoby/film/zrodla/src/teksty.ts) — słownik PL wszystkich sześciu scen, bez
+  ani jednej cyfry w tekście kadru. Teksty sceny 2 zostały w brzmieniu z E1.
+  [src/fakty.ts](zasoby/film/zrodla/src/fakty.ts) wypełnia znaczniki (`{komendy}`, `{progLimitu}`,
+  `{oknoLimitu}`, `{narzedziaNazwy}`, `{wersja}`) z manifestu. Ta sama funkcja służy scenom i testowi.
+- [skrypty/manifest.mjs](zasoby/film/zrodla/skrypty/manifest.mjs) → `src/dane/manifest.json`,
+  10 faktów `{ wartosc, zrodlo }`, każdy liczony ze źródła:
+  - wersja 2.9.0 z `plugin.json`;
+  - 14 komend: pliki `commands/*.md`, zgodność z `FORMS` w `core/panel/commands.mjs` sprawdzana;
+  - 11 zamkniętych planów z `docs/archiwum/plany/*/STATUS.md`;
+  - 331 testów rdzenia — wynik przebiegu `node --test`, nie liczba wpisana;
+  - 3 narzędzia z nazwami z `adapters/*/`;
+  - 3 pasma `BAND`;
+  - próg 90 % z `DEFAULT_THRESHOLD`;
+  - okno „5 h” z etykiety zrzutu z1 przez `paski.json`;
+  - dwie linie instalacji z README.
+
+  Skrypt zatrzymuje się na niezgodności, zamiast ją pominąć: komendy kontra formularze,
+  zarchiwizowany plan bez statusu zamknięcia, adapter bez nazwy narzędzia. `npm run przygotuj` =
+  dane → manifest → fonty.
+- [testy/fakty.test.mjs](zasoby/film/zrodla/testy/fakty.test.mjs), osiem testów:
+  - scenariusz i suma czasów;
+  - pole źródła;
+  - zgodność manifestu z ponownym przebiegiem;
+  - zmieniona kopia źródła;
+  - znaczniki;
+  - licznik wąski (cyfry);
+  - licznik szeroki (liczebniki słowne i `%`);
+  - prywatność kadru (trzy wzorce w pliku zapisanym narzędziem Write).
+- [src/sceny/Plansza.tsx](zasoby/film/zrodla/src/sceny/Plansza.tsx) i
+  [src/sceny/Animatik.tsx](zasoby/film/zrodla/src/sceny/Animatik.tsx), kompozycja `Animatik`
+  w `src/Root.tsx`:
+  - plansza surowa = biurko, tytuł, prostokąt „tu będzie: …”, czas sceny, napisy w rytmie sceny,
+    a w środku słowa interfejsu (zakładki, Tak / Nie, przyciski, liczby finału);
+  - scena 2 to gotowe `Paski` (300 klatek) i plansza kontynuacji na resztę z 23 s;
+  - przejścia: przenikanie przez papier biurka na zmianę z odsłoną od lewej, 18 klatek, bez błysków.
+- `package.json`: skrypty `manifest` i `animatik` (`--scale=0.5`), `przygotuj` z manifestem; bez
+  nowych pakietów. README filmu: komenda animatiku, skąd manifest, jak działa test faktów.
+- Pokaz Łukaszowi, runda 1: MP4 animatiku i tabela scen (scena, czas, napisy). Łukasz: „przyjmuję
+  kolejność, czasy i tekst, kontynuuj etap”. Druga runda nie była potrzebna.
+- Lekcje L-0173 (kontrola pozytywna na wartości, którą zbiór dozwolony już miał) i L-0174
+  (przenikanie plansz o tej samej siatce, krój cyfr), destylat zasad 5 i 15. Pułapka P-037
+  (`node --test` z wnętrza `node --test`).
+
+**Zweryfikowane — jak dokładnie:**
+
+- **Długość:** `npx remotion compositions` → `Animatik 30 1920x1080 3600 (120.00 sec)` przy sumie
+  scen 120 s; test sumy z kontrolą (+1 s sceny = +30 klatek). Render `npm run animatik`, odczyt
+  `npx remotion ffprobe` z pliku: h264, 960×540 (skala 0,5, powiedziane Łukaszowi), 30/1,
+  `nb_read_frames` 3600, czas 120,000000 s.
+- **Słownik bez cyfr:** `grep -nE "[0-9]" src/teksty.ts` → 2 linie, obie to nazwy kluczy `napis1`
+  i `napis2`, a nie tekst kadru. Czyta je `Paski.tsx`, którego zmieniać nie wolno, więc zostają.
+  Test liczy cyfry w samych tekstach słownika: 0. Kontrola wzorca na podłożonej linii
+  `'Mamy 7 planów'` → 1 trafienie.
+- **Test faktów:**
+  - licznik wąski: 35 liczb w 100 tekstach kadru, wszystkie są faktami; podłożone „2500” w napisie
+    panelu wywraca test dokładnie jednym trafieniem;
+  - licznik szeroki: 3 trafienia — „Trzy” i „trzy” (3 = pasma `BAND`) oraz „%” przy 90; kontrola
+    pozytywna łapie „kilkanaście”, „%” bez liczby i „Siedem”; kontrola przeciw zawyżeniu na
+    zdaniach z „Trzymaj”, „stoją”, „dwory”, „pięknie”, „siedzi”, „Setny”, „procesy” → 0 trafień;
+  - zmieniona kopia `plugin.json` daje inną wersję, plan dopisany w archiwum daje +1, plan
+    w archiwum bez statusu zamknięcia zatrzymuje skrypt.
+- **Pierwszy przebieg wywrócił dwa instrumenty, nie dane:**
+  - zagnieżdżony `node --test` nie drukował podsumowania (`pass NaN`; P-037) — poprawione
+    środowiskiem bez `NODE_TEST_CONTEXT`;
+  - kontrola „Pięć” przechodziła, bo 5 było w zbiorze dozwolonym, a zbiór wciągał liczby
+    z cytowanych nazw punktów weryfikacji (L-0173) — zbiór zawężony do pól faktów, wartość
+    kontrolna zmieniona na 7, nieobecną w wypisanym zbiorze.
+- **`npm test`** w `docs/zasoby/film/zrodla/` → 13/13 (5 z E1 + 8 nowych) po `npm run przygotuj`
+  po ostatniej zmianie promptu etapu.
+- **Scena 2 nietknięta:** `git diff --stat` na `Paski.tsx`, `Pasek.tsx`, `PasekCache.tsx`,
+  `Adnotacja.tsx`, `Pytania.tsx`, `Biurko.tsx`, `Napis.tsx` → pusty. Klucze sceny 2 w `teksty.ts`
+  mają brzmienie bez zmian (diff słownika nie dotyka żadnego z nich). Pasek postępu w animatiku
+  pokazuje bieżący stan E2 — dane, nie zmiana sceny.
+- **Kolory i sieć:** `grep -rnE '#[0-9a-fA-F]{3,8}' src/sceny/` → 0, kontrola na podłożonym pliku
+  → 1; `grep -rnE "https?://" src` → 0, kontrola → 1.
+- **Prywatność:** 0 trafień w tekstach kadru, w `manifest.json` i w `paski.json`; podłożone trzy
+  linie (ścieżka `Users`, e-mail, UUID) trafione każda własnym wzorcem.
+- **Własny przegląd przed pokazem:** 13 klatek serii 1 (każda scena i środek każdego przejścia)
+  oraz klatki po poprawkach. Poprawki:
+  - czas „15 s” Kalamem czytał się „IS s”, przeniesiony na Hanken;
+  - wersja i linie instalacji w finale łamały się w jednym rzędzie, teraz osobne rzędy;
+  - przenikanie nakładało dwa tytuły plansz w tym samym miejscu, zastąpione przejściem przez
+    papier biurka.
+- **Typy i zależności:** `npm run typy` bez błędów. Pakietów nie dodano: `git diff` na
+  `package.json` pokazuje tylko trzy linie skryptów, `package-lock.json` bez zmian.
+- **Rdzeń:** testy 331/331; `node core/tools/validate-adapters.js` → „spojne”, exit 0 (jedno
+  zastane ostrzeżenie o rozmiarze `relai-prompt.md`, nie z tego etapu); `claude plugin validate .`
+  binarką 2.1.295 → exit 0 ze znanym ostrzeżeniem dogfoodingu o root `CLAUDE.md`.
+- **PANEL_CODEX nietknięty:** stdout `git status --short` i `git diff --stat` na
+  `docs/plany/PANEL_CODEX/` i `docs/zasoby/PANEL_RELAI/makiety/` przed i po etapie identyczne
+  (`diff` pusty; pierwszy `diff` pokazał tylko ostrzeżenia CRLF ze stderr). Pliki poza commitem
+  etapu.
+- **Katalog roboczy:** `.claude/relai/work/FILM_PREZENTACYJNY/E2/` — raport `clean-work.js`: przed
+  7,5 MB (34 pliki, 1 pozycja), skasowany po „tak”, po 0,0 MB. Poza nim: render
+  `docs/zasoby/film/zrodla/out/animatik.mp4` (poza gitem, odtwarzalny `npm run animatik`) oraz
+  plik listy kasowania `%TEMP%/relai-film-e2-kasuj.json`, usunięty zaraz po użyciu.
+- [PROMPT_ETAP_3.md](plany/FILM_PREZENTACYJNY/PROMPT_ETAP_3.md) wg `SPEC_PROMPT_ETAPU`.
+
+**Odstępstwo od promptu:** w jednym kroku wywołałem `python -` w Git Bashu, mimo pułapki P-036.
+Komenda zawisła i została zatrzymana, zanim cokolwiek zmieniła; edycję zrobiłem potem narzędziem
+Edit.
+
+**Świadomie odłożone:**
+
+- Linia pod segmentami postępu nadal pokazuje pełną nazwę punktu weryfikacji, tak jak prawdziwy
+  pasek. Scena 2 jest zamrożona, a pełna jakość reszty sceny to E3.
+- Odmiana „{komendy} komend” jest poprawna dla 14, ale nie dla każdej liczby (np. 22 → „komendy”).
+  Rozstrzyga to E5 razem ze słownikiem EN.
+- Próg limitu w scenie 5 to domyślne 90 % z `core/panel`. Wiersz „Próg limitu” w ustawieniach
+  projektu mógłby go zmienić, a film pokazuje wartość domyślną produktu.
+- Rotacja `docs/LEKCJE.md` (51,6 KB przy progu 50 KB, sygnał hooka startu) — poza zakresem etapu.
+
+**Do zrobienia przez człowieka:**
+
+- Zrzuty referencyjne panelu 0.14 z desktopu (zakładki Teraz, Koszty, Dokumenty, karta nowej sesji,
+  karta progu limitu) — przed E3, bramka z planu (OTWARTA).
+- Start E3 w świeżej sesji Opus 5.5 (`/relai-stage`, `/effort high`).
+  *(Pozycja „Start E2 w świeżej sesji Opus 5.5” z poprzedniego wpisu — rozstrzygnięte 2026-10-12:
+  E2 wykonany w świeżej sesji z kartą `/relai-stage`.)*
+
+Autor: RelAI (Opus 5.5) + Lukasz

@@ -5,7 +5,7 @@
       "zrodlo": "CLAUDE.md + docs/plany/FILM_PREZENTACYJNY/STATUS.md przez core/panel/plan-state.mjs"
     },
     "etap": {
-      "wartosc": "E2",
+      "wartosc": "E3",
       "zrodlo": "CLAUDE.md + docs/plany/FILM_PREZENTACYJNY/STATUS.md przez core/panel/plan-state.mjs"
     },
     "status": {
@@ -13,11 +13,11 @@
       "zrodlo": "CLAUDE.md + docs/plany/FILM_PREZENTACYJNY/STATUS.md przez core/panel/plan-state.mjs"
     },
     "nazwa": {
-      "wartosc": "Scenariusz i animatik",
+      "wartosc": "Sceny 1–3",
       "zrodlo": "CLAUDE.md + docs/plany/FILM_PREZENTACYJNY/STATUS.md przez core/panel/plan-state.mjs"
     },
     "zamkniete": {
-      "wartosc": 1,
+      "wartosc": 2,
       "zrodlo": "CLAUDE.md + docs/plany/FILM_PREZENTACYJNY/STATUS.md przez core/panel/plan-state.mjs"
     },
     "etapy": {
@@ -28,19 +28,19 @@
   "postep": {
     "zrobione": {
       "wartosc": 0,
-      "zrodlo": "docs/plany/FILM_PREZENTACYJNY/PROMPT_ETAP_2.md przez core/panel/progress.mjs"
+      "zrodlo": "docs/plany/FILM_PREZENTACYJNY/PROMPT_ETAP_3.md przez core/panel/progress.mjs"
     },
     "razem": {
       "wartosc": 0,
-      "zrodlo": "docs/plany/FILM_PREZENTACYJNY/PROMPT_ETAP_2.md przez core/panel/progress.mjs"
+      "zrodlo": "docs/plany/FILM_PREZENTACYJNY/PROMPT_ETAP_3.md przez core/panel/progress.mjs"
     },
     "slowa": {
       "wartosc": "etap gotowy do startu",
-      "zrodlo": "docs/plany/FILM_PREZENTACYJNY/PROMPT_ETAP_2.md przez core/panel/progress.mjs"
+      "zrodlo": "docs/plany/FILM_PREZENTACYJNY/PROMPT_ETAP_3.md przez core/panel/progress.mjs"
     },
     "punkty": {
       "wartosc": [],
-      "zrodlo": "docs/plany/FILM_PREZENTACYJNY/PROMPT_ETAP_2.md przez core/panel/progress.mjs"
+      "zrodlo": "docs/plany/FILM_PREZENTACYJNY/PROMPT_ETAP_3.md przez core/panel/progress.mjs"
     }
   },
   "cache": {

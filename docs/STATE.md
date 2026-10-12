@@ -10,7 +10,7 @@ Cursorze i Codeksie — na jednym rdzeniu procesu, z czternastoma komendami. Pan
 Claude Code to trzy osobne pluginy „early access” z marketplace tego repozytorium: `relai-panel`
 0.14.0, `relai-progress` 0.4.0, `relai-cache-keeper` 0.6.0 (plan PANEL_CLAUDE zamknięty
 2026-10-10, odnoga AUDYT_MODOW zamknięta 2026-10-11, wszystkie paczki zmierzone na żywo na 2.1.295). Aktywny plan to FILM_PREZENTACYJNY (film o RelAI
-w Remotion i wydanie 3.0.0, E1 zrealizowany 2026-10-12); obok trwa PANEL_CODEX — panel dla Codeksa,
+w Remotion i wydanie 3.0.0, E1 i E2 zrealizowane 2026-10-12); obok trwa PANEL_CODEX — panel dla Codeksa,
 E1 po stronie Codeksa. Opinii spoza projektu nadal nie ma.
 
 ## Co działa
@@ -87,8 +87,11 @@ E1 po stronie Codeksa. Opinii spoza projektu nadal nie ma.
   w `docs/zasoby/film/zrodla/` (wersje przypięte, dane z `core/panel` i zrzutu z1, test pikseli),
   scena „Trzy paski” 10 s, kierunek „Warsztat z wigorem” przyjęty po dwóch rundach — wiersz
   „Kierunek filmu” w `USTAWIENIA.md`, wzorzec `docs/zasoby/film/kalibracja/E1-klatka.png`.
-  E2 (scenariusz, manifest faktów z testem, animatik) gotowy do startu w świeżej sesji Opus 5.5
-  (`/relai-stage`, `/effort medium`); przed E3 zrzuty panelu 0.14 od Łukasza.
+  **E2 zrealizowany 2026-10-12**: słownik PL sześciu scen bez cyfr, `scenariusz.ts` (120 s),
+  manifest 10 faktów liczonych skryptem (`npm run przygotuj`), test „liczba w kadrze = fakt”,
+  animatik całego filmu — kolejność, czasy i tekst przyjęte przez Łukasza. E3 (sceny 1–3 w pełnej
+  jakości) gotowy do startu w świeżej sesji Opus 5.5 (`/relai-stage`, `/effort high`); przed nim
+  zrzuty panelu 0.14 od Łukasza.
 - **Potem RelAI 3.0.0** (decyzja Łukasza 2026-10-12): jedno wydanie zbierające mody i panel
   Claude Code, start etapu w nowej sesji, audyt skilli i `/relai-stage` v6 — razem z **filmem
   prezentacyjnym (Remotion)** do README na GitHubie i do wysyłki ludziom: pełny przegląd RelAI

@@ -1,0 +1,49 @@
+{
+  "wersja": {
+    "wartosc": "2.9.0",
+    "zrodlo": ".claude-plugin/plugin.json, pole version"
+  },
+  "komendy": {
+    "wartosc": 14,
+    "zrodlo": "adapters/claude-code/commands/*.md, liczba plików (zgodna z FORMS w core/panel/commands.mjs)"
+  },
+  "planyZamkniete": {
+    "wartosc": 11,
+    "zrodlo": "docs/archiwum/plany/*/STATUS.md ze statusem ZREALIZOWANY, CZĘŚCIOWO ZREALIZOWANY albo ZAMKNIĘTY"
+  },
+  "testyRdzenia": {
+    "wartosc": 331,
+    "zrodlo": "node --test core/process/tests/*.test.js core/guardrails/tests/*.test.js core/panel/tests/*.test.js adapters/codex/tests/*.test.js, liczba testów zaliczonych przy zerze niezaliczonych"
+  },
+  "narzedzia": {
+    "wartosc": 3,
+    "zrodlo": "adapters/*/, liczba adapterów"
+  },
+  "narzedziaNazwy": {
+    "wartosc": [
+      "Claude Code",
+      "Codex",
+      "Cursor"
+    ],
+    "zrodlo": "adapters/*/, nazwy narzędzi adapterów"
+  },
+  "paski": {
+    "wartosc": 3,
+    "zrodlo": "core/panel/theme.mjs, liczba pasm BAND"
+  },
+  "progLimitu": {
+    "wartosc": 90,
+    "zrodlo": "core/panel/limit-threshold.mjs, DEFAULT_THRESHOLD (próg domyślny okna 5 h)"
+  },
+  "oknoLimitu": {
+    "wartosc": "5 h",
+    "zrodlo": "docs/fixy/AUDYT_MODOW/zrzuty/2026-10-11-z1-trzy-paski-0.12.0.png, etykieta „limit 5 h” przez paski.json"
+  },
+  "instalacja": {
+    "wartosc": [
+      "claude plugin marketplace add nowilus/relai",
+      "claude plugin install relai@relai"
+    ],
+    "zrodlo": "README.md, linie instalacji"
+  }
+}

@@ -8,6 +8,17 @@ Specyfikacja: `SPEC_PULAPKI.md`.
 
 ## Pułapki
 
+### P-037 — `node --test` uruchomiony z wnętrza `node --test` nie drukuje podsumowania · 2026-10-12 · AKTYWNA
+
+- **Objaw:** test filmu, który odpala zestaw testów rdzenia przez `spawnSync`, czytał z wyjścia
+  liczby `ℹ pass` i `ℹ fail` i dostawał `NaN`. Proces potomny kończył się kodem 0.
+- **Przyczyna:** proces potomny dziedziczy zmienną `NODE_TEST_CONTEXT` rodzica i raportuje do jego
+  runnera protokołem wewnętrznym, zamiast drukować własne podsumowanie.
+- **Obejście:** potomka uruchamiasz ze środowiskiem bez `NODE_TEST_CONTEXT` i z jawnym
+  `--test-reporter=spec` (`skrypty/manifest.mjs` filmu, `runCoreTests`). Liczby czytasz
+  z podsumowania i zatrzymujesz się na `NaN`, nie na samym kodzie wyjścia.
+- **Źródło:** FILM_PREZENTACYJNY E2, 2026-10-12.
+
 ### P-036 — `node --test <katalog>/` w Node 24 i `python -` w Git Bash · 2026-10-12 · AKTYWNA
 
 - **Objaw:** `node --test testy/` kończy się `MODULE_NOT_FOUND` i raportem „tests 1, fail 1” bez
