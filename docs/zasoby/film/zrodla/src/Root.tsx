@@ -3,6 +3,7 @@ import { Pamiec } from './sceny/Pamiec';
 import { Paski } from './sceny/Paski';
 import { PaskiDalej } from './sceny/PaskiDalej';
 import { Panel } from './sceny/Panel';
+import { ScenaKomend } from './sceny/ScenaKomend';
 import { NowaSesja } from './sceny/NowaSesja';
 import { PracaWraca } from './sceny/PracaWraca';
 import { Final } from './sceny/Final';
@@ -21,6 +22,7 @@ export const Root = () => (
     <Composition id="Paski" component={Paski} {...common} durationInFrames={FILM.paskiFrames} />
     <Composition id="PaskiDalej" component={PaskiDalej} {...common} durationInFrames={klatki('paski') - FILM.paskiFrames} />
     <Composition id="Panel" component={Panel} {...common} durationInFrames={klatki('panel')} />
+    <Composition id="Komendy" component={ScenaKomend} {...common} durationInFrames={klatki('komendy')} defaultProps={{ napisy: true }} />
     <Composition id="NowaSesja" component={NowaSesja} {...common} durationInFrames={klatki('nowaSesja')} />
     <Composition id="PracaWraca" component={PracaWraca} {...common} durationInFrames={klatki('pracaWraca')} />
     <Composition id="Final" component={Final} {...common} durationInFrames={klatki('final')} />

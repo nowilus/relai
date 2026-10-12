@@ -8,6 +8,21 @@ Specyfikacja: `SPEC_PULAPKI.md`.
 
 ## Pułapki
 
+### P-039 — `String.replace(wzorzec, napis)` czyta `$`` i `$'` w napisie zastępczym · 2026-10-12 · AKTYWNA
+
+- **Objaw:** skrypt wklejał „Zasady aktywne” z `docs/LEKCJE.md` w miejsce znacznika promptu etapu
+  przez `prompt.replace(MARKER, blok)`. Znacznik zniknął, ale nagłówki promptu wystąpiły po trzy
+  razy, a wklejonego bloku nie dało się znaleźć w pliku.
+- **Przyczyna:** w napisie zastępczym `replace` traktuje `` $` `` jako „tekst przed dopasowaniem”,
+  `$'` jako „tekst po”, `$&` jako „dopasowanie”. Zasada 13 rejestru lekcji zawiera `` `$` `` —
+  w miejscu każdego wystąpienia wkleił się cały początek pliku.
+- **Obejście:** wklejaj cudzy tekst sklejaniem (`pre + blok + post`) albo funkcją
+  (`replace(MARKER, () => blok)`), nigdy napisem. Dowód wyniku: każdy nagłówek dokładnie raz
+  i blok obecny dokładnie raz, porównany ze źródłem (zasada 5, L-0164).
+- **Zasięg:** JavaScript (`String.prototype.replace` i `replaceAll`); ten sam mechanizm ma `sed`
+  (`&`, `\1`) i `re.sub` w Pythonie (`\g<0>`). Źródło: FILM_PREZENTACYJNY E5, generacja
+  `PROMPT_ETAP_6.md`.
+
 ### P-038 — SVG: `pathLength` z `vector-effect="non-scaling-stroke"` tnie kreskę na kawałki · 2026-10-12 · AKTYWNA
 
 - **Objaw:** podkreślenie rysowane animacją `strokeDasharray="1 1"` i `strokeDashoffset` na ścieżce

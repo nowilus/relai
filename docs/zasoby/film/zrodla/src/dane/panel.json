@@ -32,11 +32,16 @@
         },
         {
           "id": "E5",
+          "nazwa": "Scena komend",
+          "status": "ZREALIZOWANY"
+        },
+        {
+          "id": "E6",
           "nazwa": "Wersja EN, pętla, kontrola jakości",
           "status": "GOTOWY DO STARTU"
         },
         {
-          "id": "E6",
+          "id": "E7",
           "nazwa": "Wydanie RelAI 3.0.0",
           "status": "OCZEKUJE"
         }

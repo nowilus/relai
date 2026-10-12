@@ -10,7 +10,7 @@ Cursorze i Codeksie — na jednym rdzeniu procesu, z czternastoma komendami. Pan
 Claude Code to trzy osobne pluginy „early access” z marketplace tego repozytorium: `relai-panel`
 0.14.0, `relai-progress` 0.4.0, `relai-cache-keeper` 0.6.0 (plan PANEL_CLAUDE zamknięty
 2026-10-10, odnoga AUDYT_MODOW zamknięta 2026-10-11, wszystkie paczki zmierzone na żywo na 2.1.295). Aktywny plan to FILM_PREZENTACYJNY (film o RelAI
-w Remotion i wydanie 3.0.0, E1–E4 zrealizowane 2026-10-12 — cały film PL gotowy); obok trwa PANEL_CODEX — panel dla Codeksa,
+w Remotion i wydanie 3.0.0, E1–E5 zrealizowane 2026-10-12 — cały film PL 169 s z muzyką gotowy); obok trwa PANEL_CODEX — panel dla Codeksa,
 E1 po stronie Codeksa. Opinii spoza projektu nadal nie ma.
 
 ## Co działa
@@ -102,9 +102,13 @@ E1 po stronie Codeksa. Opinii spoza projektu nadal nie ma.
   karcie startu etapu (`requiredModel()` wymaga etykiety, której `SPEC_STATUS` nie ma).
   **Aneks A (2026-10-12):** nowa scena 4 „Komendy” po „Panelu” — 14 komend po 2,5 s, rekwizyty na
   biurku, nazwa + slogan przyjęty przez Łukasza, kolejność cyklu życia projektu; film 155 s
-  SZACUNEK; plan ma teraz 7 etapów. E5 „Scena komend” gotowy do startu w świeżej sesji Opus 5.5
-  (`/relai-stage`, `/effort high`, kalibracja na jednej komendzie przed resztą); dalej E6 (wersja
-  EN, pętla, kontrola jakości) i E7 (wydanie 3.0.0).
+  SZACUNEK; plan ma teraz 7 etapów. **E5 zrealizowany 2026-10-12** (Aneksy B i C w trakcie):
+  „Komendy” są sceną 2, wstępem zaraz po „Pamięci” — 14 papierowych rekwizytów, 3,5 s na komendę,
+  ikona i nazwa duże na górze kadru; **cały film PL 169 s (5070 klatek) z muzyką** „daylight hour”
+  (snoozy beats, CC BY 4.0 — kredyt w `docs/zasoby/film/muzyka/ZRODLO.md`, do opisu wydania w E7);
+  przyjęty w trzeciej rundzie, wzorce `kalibracja/E5-komenda.png`, `E5-komendy-1–2.png`. E6
+  (wersja EN, pętla, kontrola jakości) gotowy do startu w świeżej sesji Opus 5.5
+  (`/relai-stage`, `/effort medium`); potem E7 (wydanie 3.0.0).
 - **Potem RelAI 3.0.0** (decyzja Łukasza 2026-10-12): jedno wydanie zbierające mody i panel
   Claude Code, start etapu w nowej sesji, audyt skilli i `/relai-stage` v6 — razem z **filmem
   prezentacyjnym (Remotion)** do README na GitHubie i do wysyłki ludziom: pełny przegląd RelAI

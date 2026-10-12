@@ -9,7 +9,9 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { PL } from '../src/teksty.ts';
-import { POLECANE, ukladKomend, wszystkie } from '../src/komendy.ts';
+import { CYKL, POLECANE, ukladKomend, wszystkie } from '../src/komendy.ts';
+import { createHash } from 'node:crypto';
+import { existsSync } from 'node:fs';
 import { FEATURED, GROUPS, NAMES } from '../../../../../core/panel/theme.mjs';
 import { FORMS } from '../../../../../core/panel/commands.mjs';
 import { REPO, repoReader } from '../skrypty/dane.mjs';
@@ -115,4 +117,85 @@ test('positive control: a plugin file without a word scene 5 reads stops the dat
   assert.throws(() => sceny({ readText: without('cache-keeper/hooks/limit.ts', "export const GO_ON = 'Pracuję dalej'", "export const GO_ON2 = 'x'"), statusAtStart, promptAtStart, repoRoot: REPO }), /GO_ON/);
   assert.throws(() => sceny({ readText: without('cache-keeper/hooks/register.tsx', 'label="Odrzuć"', 'label="Usuń"'), statusAtStart, promptAtStart, repoRoot: REPO }), /Odrzuć/);
   assert.throws(() => sceny({ readText: read, statusAtStart: statusAtStart.replace('· Opus 5.5 w Claude Code', '· Opus 6'), promptAtStart, repoRoot: REPO }), /metric line/);
+});
+
+// ---------- scene 4 "Komendy" (E5, Annex A) ----------
+// Each command of the scene is held to the panel's own data (FORMS, NAMES, the icon files) and to
+// the table Łukasz accepted in Annex A: order, Polish name, slogan word for word.
+
+/** The table of Annex A (PROMPT_ETAP_5.md, "Decyzje już podjęte"): command, name, slogan. */
+const ANEKS_A = Object.freeze([
+  ['relai-adopt', 'Adopcja projektu', 'RelAI w projekcie, który już masz'],
+  ['relai-prompt', 'Optymalizator promptu', 'Z luźnego zdania — precyzyjne polecenie'],
+  ['relai-stage', 'Etap planu', 'Kolejny etap planu jednym kliknięciem'],
+  ['relai-crew', 'Załoga agentów', 'Większe zadanie podzielone między agentów'],
+  ['relai-branch', 'Odnoga planu', 'Poboczny pomysł czeka na swoją kolej'],
+  ['relai-audit', 'Przegląd projektu', 'Szybka kontrola stanu dokumentacji'],
+  ['relai-clean', 'Sprzątanie', 'Usuwa zbędne pliki robocze'],
+  ['relai-backup', 'Kopia zapasowa', 'Cały projekt w ZIP-ie, bez sekretów'],
+  ['relai-changelog', 'Lista zmian', 'Co się zmieniło — prosto z dziennika'],
+  ['relai-update', 'Aktualizacja', 'Aktualizacja do najnowszej wersji RelAI'],
+  ['relai-models', 'Lista modeli', 'Zawsze aktualna lista modeli'],
+  ['relai-help', 'Ściąga projektu', 'Wszystkie komendy w jednym miejscu'],
+  ['relai-tour', 'Wycieczka po projekcie', 'Szybkie wprowadzenie do projektu'],
+  ['relai-handover', 'Pakiet przekazania', 'Cały projekt do przekazania w jednym pliku'],
+]);
+
+/** Fails unless the cycle holds each command of FORMS once, in the order of Annex A. */
+function checkCykl(cykl, forms = FORMS.map((f) => f.command)) {
+  assert.equal(new Set(cykl).size, cykl.length, 'no command twice');
+  assert.deepEqual([...cykl].sort(), [...forms].sort(), 'the commands of FORMS, none missing');
+  assert.deepEqual([...cykl], ANEKS_A.map(([c]) => c), 'the order of Annex A');
+}
+
+/** Fails unless each command's name (NAMES) and slogan (the dictionary) are those of Annex A. */
+function checkSlowa(slogany = PL.komendy.slogany, names = NAMES) {
+  for (const [c, name, slogan] of ANEKS_A) {
+    assert.equal(names[c]?.[0], name, `${c}: the name in the frame is NAMES[${c}][0]`);
+    assert.equal(slogany[c], slogan, `${c}: the slogan word for word`);
+  }
+  assert.deepEqual(Object.keys(slogany).sort(), ANEKS_A.map(([c]) => c).sort(), 'no slogan of a command not in the scene');
+}
+
+test('scene 4: CYKL is each command of FORMS once, in the order of Annex A', (t) => {
+  checkCykl(CYKL);
+  t.diagnostic(`cycle: ${CYKL.length} commands of FORMS ${FORMS.length}`);
+  // positive controls: a cycle missing a command, with one doubled, or in another order
+  assert.throws(() => checkCykl(CYKL.slice(1)));
+  assert.throws(() => checkCykl([...CYKL.slice(0, -1), 'relai-stage']));
+  assert.throws(() => checkCykl([CYKL[1], CYKL[0], ...CYKL.slice(2)]));
+});
+
+test('scene 4: each name is NAMES[command][0] and each slogan is the accepted one, word for word', () => {
+  checkSlowa();
+  // positive controls: another slogan, and a renamed command in NAMES, fail the check
+  assert.throws(() => checkSlowa({ ...PL.komendy.slogany, 'relai-clean': 'Sprząta pliki robocze' }));
+  assert.throws(() => checkSlowa(PL.komendy.slogany, { ...NAMES, 'relai-help': ['Pomoc', ''] }));
+});
+
+test('scene 4: each command has its icon in public/znak/, byte for byte the branding file', () => {
+  const sha = (p) => createHash('sha256').update(readFileSync(p)).digest('hex');
+  const icon = (c) => c.replace(/^relai-/, '');
+  const missing = (c) => !existsSync(join(REPO, 'docs/zasoby/film/zrodla/public/znak', `ikona-${icon(c)}.svg`));
+  for (const c of CYKL) {
+    assert.ok(!missing(c), `${c}: public/znak/ikona-${icon(c)}.svg (run npm run znak)`);
+    assert.equal(sha(join(REPO, 'docs/zasoby/film/zrodla/public/znak', `ikona-${icon(c)}.svg`)), sha(join(REPO, 'docs/zasoby/branding/ikony', `${icon(c)}.svg`)), c);
+  }
+  // positive control: a command with no icon is caught
+  assert.ok(missing('relai-nieistnieje'));
+});
+
+/** The words written on the props, each with the command file it quotes. */
+const SLOWA_REKWIZYTOW = Object.freeze({
+  zip: 'adapters/claude-code/commands/relai-backup.md',
+  env: 'adapters/claude-code/commands/relai-backup.md',
+});
+
+test('scene 4: every word written on a prop is the product\'s word, quoted from its command file', () => {
+  const R = PL.komendy.rekwizyty;
+  assert.deepEqual(Object.keys(R).sort(), Object.keys(SLOWA_REKWIZYTOW).sort(), 'each word has its source');
+  const quoted = (word, file) => readFileSync(join(REPO, file), 'utf8').includes(word);
+  for (const [k, file] of Object.entries(SLOWA_REKWIZYTOW)) assert.ok(quoted(R[k], file), `${R[k]} in ${file}`);
+  // positive control: a word the file does not hold is not found
+  assert.ok(!quoted('.envrc-film', SLOWA_REKWIZYTOW.env));
 });

@@ -14,8 +14,13 @@ Stan na E3 (2026-10-12): pierwsza minuta w pełnej jakości — scena 1 „Pami�
 `kalibracja/E3-scena3.png`. Stan na E4 (2026-10-12): cały film PL bez plansz — scena 4 „Etap
 w nowej sesji” (karta startu etapu z `stageCard()` rdzenia panelu, nowa sesja z komendą w polu),
 scena 5 „Praca wraca” (karta progu limitu, „zapisz pracę”, „Wznów pracę”), scena 6 „Finał”
-(liczby z manifestu, instalacja, znak, pasek planu, który zrobił film). Wersja EN, pętla
-i wydanie — E5–E6.
+(liczby z manifestu, instalacja, znak, pasek planu, który zrobił film). Stan na E5
+(2026-10-12, Aneksy A–C): **film ma siedem scen i 169 s** — zaraz po „Pamięci” idzie wstęp
+„Komendy” (49 s): czternaście komend RelAI jako papierowe rekwizyty na jednym długim biurku,
+3,5 s na komendę, kamera przeskakuje sprężyną od rekwizytu do rekwizytu; u góry ikona i polska
+nazwa komendy, pod rekwizytem slogan. Potem trzy paski, panel, nowa sesja, praca wraca, finał.
+Pod całym filmem gra muzyka (niżej). Klatki wzorcowe: `kalibracja/E5-komenda.png`,
+`E5-komendy-1.png`, `E5-komendy-2.png`. Wersja EN, pętla i wydanie — E6–E7.
 
 ## Co gdzie leży
 
@@ -27,11 +32,12 @@ i wydanie — E5–E6.
 | `zrodla/src/dane/paski.json` | dane sceny 2, wygenerowane skryptem; każda wartość ma pole `zrodlo` | tak |
 | `zrodla/src/dane/panel.json` | dane sceny 3: etapy planu z `STATUS.md` i liczby sesji przepisane ze zrzutów 0.14, każda z polem `zrodlo` | tak |
 | `zrodla/src/dane/sceny.json` | dane scen 4–5: karta startu E4 policzona `stageCard()`, słowa karty limitu, zapisu i wznowienia czytane z kodu `relai-cache-keeper` i `relai-core`, każde z polem `zrodlo` | tak |
-| `zrodla/src/komendy.ts` | układ zakładki Komendy (polecane i grupy) — ta sama funkcja dla sceny i testu wierności | tak |
-| `zrodla/skrypty/` | `dane.mjs` (sceny 2), `panel.mjs` (sceny 3), `sceny.mjs` (scen 4–5), `manifest.mjs`, `fonty.mjs` i `znak.mjs` (kopie fontów, logo i ikon komend z kontrolą bajtową) | tak |
+| `zrodla/src/komendy.ts` | układ zakładki Komendy (polecane i grupy) — ta sama funkcja dla sceny i testu wierności; `CYKL` — kolejność komend sceny „Komendy” | tak |
+| `zrodla/skrypty/` | `dane.mjs` (sceny 2), `panel.mjs` (sceny 3), `sceny.mjs` (scen 4–5), `manifest.mjs`, `fonty.mjs` i `znak.mjs` (kopie fontów, logo i ikon komend z kontrolą bajtową), `muzyka.mjs` (ścieżka dźwiękowa z `muzyka/`) | tak |
 | `zrodla/testy/` | testy danych: zgodność z `core/panel`, źródła, piksele zrzutu, fakty w kadrze, wierność nazw panelu | tak |
 | `kalibracja/` | klatki zaakceptowane przez człowieka | tak |
-| `zrodla/node_modules/`, `zrodla/out/`, `zrodla/public/fonty/`, `zrodla/public/znak/` | zależności, rendery, kopie fontów i znaku | nie |
+| `muzyka/` | utwór filmu (CC BY 4.0) i `ZRODLO.md` — źródło, suma, licencja, kredyt | tak |
+| `zrodla/node_modules/`, `zrodla/out/`, `zrodla/public/fonty/`, `zrodla/public/znak/`, `zrodla/public/muzyka/` | zależności, rendery, kopie fontów i znaku, ścieżka dźwiękowa przycięta do filmu | nie |
 
 ## Jak wyrenderować
 
@@ -42,20 +48,20 @@ Headless Shell do `zrodla/node_modules/.remotion/`, 283 MB na dysku — zmierzon
 cd docs/zasoby/film/zrodla && npm ci
 ```
 
-Klatka wzorcowa sceny 2 (PNG 1920×1080, klatka 280) do `zrodla/out/paski-klatka.png`:
+Klatka wzorcowa sceny „Trzy paski” (PNG 1920×1080, klatka 280) do `zrodla/out/paski-klatka.png`:
 
 ```bash
 cd docs/zasoby/film/zrodla && npm run klatka
 ```
 
-Scena 2 w ruchu (MP4 1920×1080, 30 kl./s, 10 s) do `zrodla/out/paski-10s.mp4`:
+Scena „Trzy paski” w ruchu, jej pierwsze 10 s (MP4 1920×1080, 30 kl./s, 10 s) do `zrodla/out/paski-10s.mp4`:
 
 ```bash
 cd docs/zasoby/film/zrodla && npm run paski
 ```
 
-Cały film PL w pełnej jakości (MP4 1920×1080, 30 kl./s, sześć scen z `src/scenariusz.ts`, 3600
-klatek = suma ich czasów) do `zrodla/out/film.mp4`:
+Cały film PL w pełnej jakości (MP4 1920×1080, 30 kl./s, z muzyką, siedem scen z `src/scenariusz.ts`,
+5070 klatek = 169 s = suma ich czasów) do `zrodla/out/film.mp4`:
 
 ```bash
 cd docs/zasoby/film/zrodla && npm run film
@@ -67,14 +73,14 @@ Ten sam film w skali 0,5 (MP4 960×540) do `zrodla/out/animatik.mp4` — szybki 
 cd docs/zasoby/film/zrodla && npm run animatik
 ```
 
-Pierwsza minuta filmu w pełnej jakości (MP4 1920×1080, 30 kl./s, sceny 1–3, 1950 klatek) do
+Pierwsza minuta filmu w pełnej jakości (MP4 1920×1080, 30 kl./s, „Pamięć” i „Komendy”, 1830 klatek) do
 `zrodla/out/minuta.mp4`:
 
 ```bash
 cd docs/zasoby/film/zrodla && npm run minuta
 ```
 
-Wszystkie komendy renderu najpierw odświeżają dane, manifest, fonty i znak (`npm run przygotuj`; manifest
+Wszystkie komendy renderu najpierw odświeżają dane, manifest, fonty, znak i muzykę (`npm run przygotuj`; manifest
 uruchamia testy rdzenia, ok. 35–45 s). Podgląd na żywo: `npm run studio`. Testy (po
 `npm run przygotuj`): `npm test`; typy: `npm run typy`.
 
@@ -131,6 +137,32 @@ czytanych z tekstu pliku, nazwy i kolejność — a komendy sceny przy `FORMS` z
 `core/panel/commands.mjs`; każda z tych kontroli ma kontrolę pozytywną (kopia z inną kolejnością
 zakładek, grupa bez komendy). Zmiana zakładek panelu wywraca test, zanim film rozjedzie się
 z produktem.
+
+## Scena komend
+
+Kolejność komend to cykl życia projektu (`CYKL` w `src/komendy.ts`): adopcja, praca, opieka nad
+projektem, wiedza o nim, przekazanie. Nazwa w kadrze to `NAMES[komenda][0]` z `core/panel`, ikona
+to plik z [`docs/zasoby/branding/ikony/`](../branding/ikony/) (kopia bajtowa w `public/znak/`),
+slogan — przyjęty przez Łukasza w Aneksie A — stoi w słowniku `src/teksty.ts`. Każdy rekwizyt
+ma własny plik w `src/sceny/komendy/` i rysuje się w języku ikon (ciepła szara kreska, glina
+dla tego, co działa, szałwia dla tego, co zrobione); jedyne słowa na rekwizytach („ZIP”, „.env”,
+stempel „Tak”) są słowami produktu, a test wierności szuka ich w plikach, z których pochodzą.
+`testy/wiernosc.test.mjs` trzyma też `CYKL` przy `FORMS` (każda komenda raz, kolejność z Aneksu
+A), nazwy przy `NAMES`, slogany słowo w słowo i ikony bajt w bajt.
+
+## Muzyka
+
+„daylight hour” — snoozy beats, licencja **CC BY 4.0**; wybór Łukasza, plik
+[`muzyka/daylight-hour.mp3`](muzyka/ZRODLO.md) ze źródłem, sumą sha256 i warunkami licencji
+w `muzyka/ZRODLO.md`. Kredyt, o który prosi autor:
+
+> 🎵(free) lofi type beat "daylight hour" by snoozy beats
+
+`skrypty/muzyka.mjs` (w `npm run przygotuj`) dekoduje plik i dopasowuje go do długości filmu: gra
+od początku do wejścia wyciszenia (93,738 s), w tym samym miejscu taktu przechodzi na początek
+części rytmicznej (9,895 s), poziom 0,42 (0,6 obniżone o 30 % decyzją Łukasza), ostatnie 4 s wyciszone. Wynik `public/muzyka/relai.wav`
+jest poza gitem; `testy/muzyka.test.mjs` pilnuje sumy pliku źródłowego, kredytu, długości co do
+próbki i powtarzalności bajtów.
 
 ## Fonty i sieć
 

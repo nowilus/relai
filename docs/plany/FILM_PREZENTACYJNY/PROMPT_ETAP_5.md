@@ -522,50 +522,58 @@ narzędziem Write (zasada 5; E4 złamał ją trzy razy).
 Każdy punkt Weryfikacji, który przeszedł, odhaczasz w `PROMPT_ETAP_5.md` (`- [ ]` → `- [x]`)
 zaraz po jego sprawdzeniu, nie na końcu etapu; punkt, który nie przeszedł, zostaje pusty.
 
-- [ ] Kalibracja na jednej komendzie przyjęta przez Łukasza **przed** budową pozostałych (jego
+> **Aneks B (2026-10-12, w trakcie etapu, runda 1 pokazu):** liczby punktów niżej przechodzą na stan
+> po aneksie — scena komend jest **sceną 2** (po „Pamięci”), 3,5 s na komendę: kompozycja robocza
+> **1470** klatek, `Animatik` **5070** klatek (**169 s**); przejścia do sprawdzenia to **1→2 i 2→3**
+> (a przejścia scen przyjętych — te same rodzaje co w E4); dawne sceny 2–3 i 5–7 porównywane
+> z renderem E4 z przesunięciem **1470** klatek; film ma ścieżkę muzyki z `skrypty/muzyka.mjs`
+> (test `testy/muzyka.test.mjs`). Punkty odhaczone przed aneksem, których liczby się zmieniły,
+> zostały odznaczone i sprawdzone ponownie.
+
+- [x] Kalibracja na jednej komendzie przyjęta przez Łukasza **przed** budową pozostałych (jego
       słowa we wpisie, w tym odpowiedź o czytelności bez napisu); `kalibracja/E5-komenda.png`.
-- [ ] `npx remotion compositions` pokazuje `Animatik` o długości `dlugosc(fps)` = 4650 klatek
+- [x] `npx remotion compositions` pokazuje `Animatik` o długości `dlugosc(fps)` = 4650 klatek
       (155 s) i kompozycję roboczą nowej sceny 1050 klatek.
-- [ ] Wierność komend: `CYKL` = każda komenda `FORMS` dokładnie raz, w kolejności z tabeli;
+- [x] Wierność komend: `CYKL` = każda komenda `FORMS` dokładnie raz, w kolejności z tabeli;
       nazwa w kadrze = `NAMES[komenda][0]`; slogan = tabela (dosłownie); ikona w `public/znak/`;
       kontrole pozytywne (brakująca i podwójna komenda, inny slogan) kończą test błędem.
-- [ ] `testy/fakty.test.mjs` przechodzi z nową sceną: zero cyfr w słowniku, liczniki wąski
+- [x] `testy/fakty.test.mjs` przechodzi z nową sceną: zero cyfr w słowniku, liczniki wąski
       i szeroki do wpisu; wartość każdej nowej kontroli pozytywnej sprawdzona wobec zbioru
       dozwolonego (L-0173).
-- [ ] `npm test` w `docs/zasoby/film/zrodla/` — wszystkie testy (22 z E1–E4 + nowe, minus
+- [x] `npm test` w `docs/zasoby/film/zrodla/` — wszystkie testy (22 z E1–E4 + nowe, minus
       świadomie zmienione z powodem we wpisie), przebieg po `npm run przygotuj` po ostatniej
       zmianie promptu; liczba do wpisu.
-- [ ] Render całego filmu 1920×1080, 30 kl./s: liczba klatek i czas odczytane `ffprobe` z pliku,
+- [x] Render całego filmu 1920×1080, 30 kl./s: liczba klatek i czas odczytane `ffprobe` z pliku,
       równe 4650 klatek i 155 s ± 1 klatka.
-- [ ] Sceny przyjęte nietknięte: `git diff --stat` na plikach scen 1–3 i dawnych 4–6
+- [x] Sceny przyjęte nietknięte: `git diff --stat` na plikach scen 1–3 i dawnych 4–6
       (`Pamiec.tsx`, `Paski.tsx`, `PaskiDalej.tsx`, `Panel.tsx`, `panel/*.tsx`, `NowaSesja.tsx`,
       `PracaWraca.tsx`, `Final.tsx`, `Pasek.tsx`, `PasekCache.tsx`, `Adnotacja.tsx`, `Pytania.tsx`)
       pusty **albo** klatka sprzed i po pokazana Łukaszowi; klatki dawnych scen 5–7 z nowego MP4
       porównane pikselowo z odpowiadającymi klatkami renderu E4 (przesunięcie 1050) — różnice
       tylko tam, gdzie zmieniły się dane żywe (pasek planu), opisane we wpisie.
-- [ ] Przejścia 3→4 i 4→5: klatka ze środka obejrzana — jeden obraz albo czysty papier, bez
+- [x] Przejścia 3→4 i 4→5: klatka ze środka obejrzana — jeden obraz albo czysty papier, bez
       błysku; przejścia dawnych scen 5–7 tego samego rodzaju co w E4.
-- [ ] Czytelność w tempie: każda z czternastu komend ma w swoim oknie co najmniej 1 s, w której
+- [x] Czytelność w tempie: każda z czternastu komend ma w swoim oknie co najmniej 1 s, w której
       nazwa i slogan stoją nieruchomo i w całości w kadrze (pomiar z klatek albo z osi czasu
       w kodzie, do wpisu).
-- [ ] Kolory i sieć: `grep -rnE '#[0-9a-fA-F]{3,8}' src/sceny/` i `grep -rnE "https?://" src` —
+- [x] Kolory i sieć: `grep -rnE '#[0-9a-fA-F]{3,8}' src/sceny/` i `grep -rnE "https?://" src` —
       pusto, każdy z kontrolą pozytywną na podłożonym pliku w katalogu roboczym.
-- [ ] Prywatność kadru: test prywatności obejmuje słowa nowej sceny i przechodzi.
-- [ ] Obejrzane własne klatki przed pokazem (lista z punktu 8 zakresu); poprawki z przeglądu
+- [x] Prywatność kadru: test prywatności obejmuje słowa nowej sceny i przechodzi.
+- [x] Obejrzane własne klatki przed pokazem (lista z punktu 8 zakresu); poprawki z przeglądu
       wymienione we wpisie.
-- [ ] Łukasz przyjął scenę komend i cały film PL (jego słowa we wpisie), klatki wzorcowe
+- [x] Łukasz przyjął scenę komend i cały film PL (jego słowa we wpisie), klatki wzorcowe
       w `docs/zasoby/film/kalibracja/` **albo** po trzech rundach coś zostaje otwarte — wtedy etap
       zostaje `W TOKU`, a wpis mówi, co zostało do rozstrzygnięcia.
-- [ ] `npm run typy` bez błędów; gdy etap dodał pakiet — `npm audit --omit=dev` zero wysokich
+- [x] `npm run typy` bez błędów; gdy etap dodał pakiet — `npm audit --omit=dev` zero wysokich
       i krytycznych (liczby do wpisu); gdy nie dodał — zdanie o tym we wpisie z `git diff` na
       `package.json` i `package-lock.json`.
-- [ ] Testy rdzenia 331/331 (komenda ze „Stanu wyjściowego”); `node core/tools/validate-adapters.js`
+- [x] Testy rdzenia 331/331 (komenda ze „Stanu wyjściowego”); `node core/tools/validate-adapters.js`
       spójne; `claude plugin validate .` binarką aplikacji — exit 0.
-- [ ] Pliki PANEL_CODEX (`docs/plany/PANEL_CODEX/`, `docs/zasoby/PANEL_RELAI/makiety/`) nietknięte:
+- [x] Pliki PANEL_CODEX (`docs/plany/PANEL_CODEX/`, `docs/zasoby/PANEL_RELAI/makiety/`) nietknięte:
       stdout `git diff --stat`, `git status --short` i sha256 ich plików identyczne z tymi sprzed
       etapu, poza commitem etapu.
-- [ ] Wpis w `docs/DZIENNIK.md` na końcu sekcji „Wpisy”, z podpisem `Autor: RelAI (Opus 5.5) + Lukasz`.
-- [ ] Katalog roboczy `.claude/relai/work/FILM_PREZENTACYJNY/E5/` przejrzany raportem
+- [x] Wpis w `docs/DZIENNIK.md` na końcu sekcji „Wpisy”, z podpisem `Autor: RelAI (Opus 5.5) + Lukasz`.
+- [x] Katalog roboczy `.claude/relai/work/FILM_PREZENTACYJNY/E5/` przejrzany raportem
       (`node .claude/relai/tools/clean-work.js raport`) i skasowany po „tak”; liczby przed i po
       w sekcji „Zweryfikowane” wpisu. Artefakty poza nim (pliki `%TEMP%` renderu, jeśli powstały)
       wypisane z nazwy, z tym, co się z nimi stało.

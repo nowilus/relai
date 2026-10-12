@@ -17,3 +17,30 @@ export function ukladKomend(featured: readonly string[], groups: readonly Grupa[
 
 /** Every command the tab shows, top to bottom. */
 export const wszystkie = (u: UkladKomend): string[] => [...u.polecane, ...u.grupy.flatMap((g) => g.commands)];
+
+/**
+ * Scene 2 "Komendy" (Annexes A and B): the fourteen commands in the order of a project's life — come in,
+ * work, look after the project, learn it, hand it over. Each command of FORMS once
+ * (wiernosc.test.mjs).
+ */
+export const CYKL = Object.freeze([
+  'relai-adopt',
+  'relai-prompt',
+  'relai-stage',
+  'relai-crew',
+  'relai-branch',
+  'relai-audit',
+  'relai-clean',
+  'relai-backup',
+  'relai-changelog',
+  'relai-update',
+  'relai-models',
+  'relai-help',
+  'relai-tour',
+  'relai-handover',
+] as const);
+
+export type IdKomendy = typeof CYKL[number];
+
+/** Seconds a command stays on screen (Annex B). */
+export const SEKUNDY_NA_KOMENDE = 3.5;

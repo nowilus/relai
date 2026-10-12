@@ -1,14 +1,18 @@
-// The order and the length of the film's six scenes (plan FILM_PREZENTACYJNY, section 5). The
-// seconds are the plan's estimate, set in E2; the film's length is their sum, never a number of its
-// own. No imports: Node loads this file as is (type stripping) for the tests of the film.
+// The order and the length of the film's seven scenes (plan FILM_PREZENTACYJNY, section 5 and
+// Annexes A and B: scene 2 "Komendy" right after "Pamięć", the film's introduction). The seconds
+// are the plan's estimate, set in E2 and in the annexes; the film's length is their sum, never a
+// number of its own. No imports: Node loads this file as is (type stripping) for the tests of the
+// film.
 
-export type IdSceny = 'pamiec' | 'paski' | 'panel' | 'nowaSesja' | 'pracaWraca' | 'final';
+export type IdSceny = 'pamiec' | 'komendy' | 'paski' | 'panel' | 'nowaSesja' | 'pracaWraca' | 'final';
 
 export type Scena = Readonly<{ id: IdSceny, tytul: string, sekundy: number }>;
 
 /** Working titles: what the scene is called in the plan; the words on screen live in teksty.ts. */
 export const SCENY: readonly Scena[] = Object.freeze([
   Object.freeze({ id: 'pamiec', tytul: 'Pamięć', sekundy: 12 }),
+  // Annex B: fourteen commands, 3.5 s each
+  Object.freeze({ id: 'komendy', tytul: 'Komendy', sekundy: 49 }),
   Object.freeze({ id: 'paski', tytul: 'Trzy paski', sekundy: 23 }),
   Object.freeze({ id: 'panel', tytul: 'Panel', sekundy: 30 }),
   Object.freeze({ id: 'nowaSesja', tytul: 'Etap w nowej sesji', sekundy: 20 }),

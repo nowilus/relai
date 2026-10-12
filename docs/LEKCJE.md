@@ -308,9 +308,13 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
     rozróżniającym „1” i „I” (L-0174). **Adnotacja przy liczbie mówi wartość wyliczoną**, nie
     pytanie, na które liczba odpowiada (L-0176). **Decyzja „tego nie pokazujemy” dotyczy treści,
     nie elementu** — jej brzmienia szukasz we wszystkich tekstach kadru, także w cytatach
-    wyłączonych z testu faktów (L-0178).
+    wyłączonych z testu faktów (L-0178). **Materiał, którego nie umiesz odebrać zmysłem (dźwięk),
+    bierzesz z gotowych źródeł i dajesz człowiekowi próbki do wyboru przed integracją** — liczby
+    mówią o poziomie, nie o smaku (L-0179). **Licencję cudzego materiału czytasz na stronie
+    utworu** i mówisz jej skutki dla wydania (NC, SA, kredyt); plik wchodzi z kartą źródła i testem
+    sumy i kredytu (L-0180).
     (L-0003, L-0006, L-0016, L-0019, L-0029, L-0094, L-0098, L-0137, L-0140, L-0142, L-0145, L-0147,
-    L-0149, L-0152, L-0157, L-0171, L-0174, L-0176, L-0178)
+    L-0149, L-0152, L-0157, L-0171, L-0174, L-0176, L-0178, L-0179, L-0180)
 
 **Wyprowadzone 2026-08-20 do `docs/PULAPKI.md`:** sześć pozycji, które były pułapkami
 narzędziowymi, a nie zasadami pracy — `tar` na `PATH` (L-0021), sesja pomiarowa `claude -p`
@@ -715,6 +719,34 @@ restart aplikacji po `plugin update` (L-0031), `git worktree` zamiast `git archi
   trafienie rozstrzygasz: usuwasz element albo pytasz. Zdjęcie elementu zgłaszasz człowiekowi przy
   pokazie.
 - **Źródło:** FILM_PREZENTACYJNY E4, 2026-10-12, własny przegląd klatek; destylat: zasada 15.
+
+### L-0179 — Muzyka skomponowana na ślepo poszła do pełnego renderu i została odrzucona w całości · 2026-10-12 · AKTYWNA
+
+- **Trigger:** Łukasz poprosił o muzykę „bez licencji, darmową — ogarnij sam”. Napisałem syntezę
+  w kodzie (pad z detuningiem i wibrato, struny Karplusa–Stronga, pogłos), sprawdziłem ją tylko
+  liczbami (RMS, szczyt, długość) i od razu wpiąłem pod cały film. Pokaz: „psychodeliczna dziwna
+  muzyka… zupełnie nieakceptowalne”, prośba o minimum cztery warianty prawdziwych nagrań.
+- **Przyczyna:** w medium, którego nie umiem odebrać (dźwięk), liczby mówią o poziomie, nie
+  o smaku. Pominąłem zasadę „jeden wariant do kalibracji przed serią” i wybrałem drogę, której
+  wyniku nie mogłem ocenić, zamiast pokazać człowiekowi gotowe nagrania do wyboru.
+- **Zasada:** materiał, którego nie potrafię odebrać zmysłem, na który działa (dźwięk, głos),
+  biorę z gotowych źródeł z licencją sprawdzoną na stronie utworu i daję człowiekowi **próbki do
+  wyboru przed integracją**; synteza najwyżej jako jedna z opcji, z uprzedzeniem, że jej nie
+  słyszę. Ograniczenie mówię wprost razem z pytaniem, nie po odrzuceniu.
+- **Źródło:** FILM_PREZENTACYJNY E5, 2026-10-12, runda 2 pokazu; destylat: zasada 15.
+
+### L-0180 — „Darmowa muzyka” wybrana przez człowieka miała licencję NC-SA · 2026-10-12 · AKTYWNA
+
+- **Trigger:** Łukasz sam wskazał dwa utwory z Free Music Archive. Na stronie utworu: „daylight
+  hour” — CC BY 4.0 (przypisanie, krótszy od filmu), „Die Mit Dem Kontrabass” — CC BY-NC-SA 3.0,
+  czyli tylko niekomercyjnie i z obowiązkiem wydania filmu na tej samej licencji.
+- **Przyczyna:** „darmowe do pobrania” w serwisie z muzyką nie znaczy „wolne do użycia w produkcie”;
+  licencja jest cechą utworu, nie serwisu, a filtr wyszukiwarki łączy kilka licencji naraz.
+- **Zasada:** zanim cudzy materiał wejdzie do artefaktu, czytasz licencję **na stronie tego
+  utworu** (link do creativecommons.org) i mówisz człowiekowi jej skutki dla wydania — NC, SA,
+  wymóg kredytu, długość wobec potrzeby. Plik wchodzi do repo z kartą źródła (adres, suma sha256,
+  licencja, tekst kredytu), a test pilnuje sumy i kredytu w dokumentach, które licencja wskazuje.
+- **Źródło:** FILM_PREZENTACYJNY E5, 2026-10-12, Aneks C; destylat: zasada 15.
 
 ## Lekcje zwinięte
 

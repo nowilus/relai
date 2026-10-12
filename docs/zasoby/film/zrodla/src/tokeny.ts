@@ -70,6 +70,28 @@ export const NOTE = Object.freeze({
   shadow: `0 2px 3px ${alpha(BLACK, 0.25)}, 0 18px 40px ${alpha(BLACK, 0.45)}`,
 });
 
+/**
+ * The props of scene 2 "Komendy": paper things on the desk drawn in the commands' icon language —
+ * a warm grey stroke, clay for what acts, sage for what is done (docs/zasoby/branding/ikony/).
+ */
+export const PROP = Object.freeze({
+  ink: mix(ROOT['txt-2'], ROOT['txt-3'], 0.45),
+  inkSoft: ROOT['txt-3'],
+  paper: ROOT.kartka,
+  paper2: ROOT['kartka-2'],
+  line: ROOT['linia-2'],
+  clay: ROOT.glina,
+  clayDark: ROOT['glina-2'],
+  mustard: ROOT.musztarda,
+  sage: ROOT.szalwia,
+  shadow: alpha(ROOT.txt, 0.13),
+  // the alarm behind a prop when something is stopped: one soft pulse of clay, never a flash
+  alarm: alpha(ROOT.glina, 0.5),
+  alarmEdge: alpha(ROOT.glina, 0),
+  name: ROOT['glina-2'],
+  slogan: ROOT.txt,
+});
+
 /** The underline drawn under each question of the subtitle, in the darker twin of its bar's color. */
 export const QUESTION = Object.freeze([ROOT.musztarda, ROOT.szalwia, ROOT.glina]);
 

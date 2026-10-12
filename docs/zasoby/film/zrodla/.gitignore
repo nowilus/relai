@@ -3,3 +3,5 @@ out/
 # copies made before every render: skrypty/fonty.mjs (docs/zasoby/fonts/), skrypty/znak.mjs (docs/zasoby/branding/)
 public/fonty/
 public/znak/
+# the film's music, cut from docs/zasoby/film/muzyka/ by skrypty/muzyka.mjs before every render (Annex C)
+public/muzyka/

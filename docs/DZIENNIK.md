@@ -2009,3 +2009,139 @@ promptów w tej sesji wyłączony decyzją Łukasza (bramka zgody: „Nie, nie w
   na jednej komendzie przed resztą.
 
 Autor: RelAI (Opus 5.5) + Lukasz
+
+### 2026-10-12 — FILM_PREZENTACYJNY E5: scena „Komendy” jako wstęp, cały film PL 169 s z muzyką (Aneksy B i C)
+
+Sesja Opus 5.5 w Claude Code, `/relai-stage` ze zgodą z karty panelu (`karta-mv5lm972-4ezp`).
+
+**Zrobione:**
+
+- **Kalibracja na „Kopii zapasowej”** (przed resztą komend):
+  - kartki wpadają do pudełka, zamek się zasuwa, stempel „ZIP”; kłódka z przywieszką „.env” skacze
+    nad otwór i odpada;
+  - runda 1 — Łukasz: obraz czyta się, slogan czytelny, „Przyjmuję kalibrację”, z jedną prośbą
+    o wyraźny bloker przy próbie wejścia `.env`: „efekt zapalenia jakby alarmu na backgroundzie”;
+  - dodane: jeden miękki puls gliny za całym rekwizytem (pojedynczy — w granicy ≤ 3 błysków/s),
+    znak zakazu wjazdu nad otworem, drżenie kłódki. Klatka:
+    [kalibracja/E5-komenda.png](zasoby/film/kalibracja/E5-komenda.png).
+- **Czternaście rekwizytów** — po pliku w `src/sceny/komendy/` (Adopcja, Optymalizator, Etap,
+  Załoga, Odnoga, Przegląd, Sprzątanie, Kopia, Lista zmian, Aktualizacja, Modele, Ściąga, Wycieczka,
+  Pakiet) na wspólnym zestawie `rysunek.tsx` (kartka, cień, ptaszek, wykrzyknik, pinezka). Odstępstwa
+  od storyboardu Aneksu A powiedziane przy pokazie: Sprzątanie — dymek „?” zmienia się w ✓ (bez
+  napisu „tak?”), Etap — stempel „Tak” z karty panelu, Adopcja — karteczka z logo RelAI zamiast
+  pinezki, Pakiet — dłoń z boku zamiast od dołu.
+- **Scena** [ScenaKomend.tsx](zasoby/film/zrodla/src/sceny/ScenaKomend.tsx): jeden długi pas
+  biurka (ziarno jedzie z kamerą — `Biurko` dostał opcję `ziarno`, wynik domyślny bez zmian),
+  kamera `camera()` przeskakuje sprężyną (lekkie odbicie), u góry ikona i nazwa z `NAMES`, pod
+  rekwizytem slogan; `CYKL` w `src/komendy.ts`, slogany w `teksty.ts` (`komendy.slogany`), słowa
+  rekwizytów (`ZIP`, `.env`) w `komendy.rekwizyty`.
+- **Przejścia po scenie, nie po indeksie:** `WEJSCIE` w `Animatik.tsx`; przyjęte sceny wchodzą
+  tak jak w E4, „Komendy” przenikaniem przez papier.
+- **Pokaz rundy 1** (film 155 s, komendy po „Panelu”, 2,5 s). Łukasz: „lekko za szybko… minimum
+  sekunda dłużej”, nazwy „za mała czcionka… może po prostu na górze ekranu”, komendy „na samym
+  początku jako wstęp opowiadający czym jest RelAI”, „brakuje odpowiedniej muzyki”. Pytania:
+  miejsce → „Po »Pamięci«”, tempo → „3,5 s”, muzyka → „zaproponuj coś bez licencji, darmowego,
+  i sam to ogarnij”. **Aneks B** w `PLAN.html`: scena 2, 3,5 s na komendę (scena 49 s, film 169 s),
+  nazwy na górze, muzyka.
+- **Pokaz rundy 2** (muzyka skomponowana w kodzie). Łukasz: obraz „jest lepiej i może być”, muzyka
+  „psychodeliczna… zupełnie nieakceptowalna”, prośba o minimum cztery warianty prawdziwych nagrań.
+  Zaproponowane cztery utwory CC0 z archive.org (FreePD zamknięty w 2025); Łukasz wybrał sam dwa
+  z Free Music Archive. Licencje sprawdzone na stronach utworów: „daylight hour” (snoozy beats) —
+  CC BY 4.0, „Die Mit Dem Kontrabass” (Phillip Gross) — CC BY-NC-SA 3.0. Łukasz: „Tylko »daylight
+  hour«, ja pobieram”. **Aneks C**: utwór CC BY zamiast syntezy; plik w
+  [docs/zasoby/film/muzyka/](zasoby/film/muzyka/ZRODLO.md) z kartą źródła (adres, sha256, licencja,
+  kredyt). [skrypty/muzyka.mjs](zasoby/film/zrodla/skrypty/muzyka.mjs) dekoduje go ffmpegiem
+  Remotion i tnie na długość filmu: 0–93,738 s, potem od 9,895 s (to samo miejsce taktu, analiza
+  uderzeń 91,6 BPM), wyciszenie 4 s; synteza usunięta.
+- **Pokaz rundy 3:** Łukasz: „Przyjmuję, ale obniż proszę domyślną głośność o jakieś 30%” —
+  poziom 0,6 → 0,42. Klatki wzorcowe z finalnego MP4:
+  [E5-komendy-1.png](zasoby/film/kalibracja/E5-komendy-1.png) (Załoga agentów, klatka 750) i
+  [E5-komendy-2.png](zasoby/film/kalibracja/E5-komendy-2.png) (Ściąga projektu, klatka 1590).
+- **Testy:** wierność +4 (CYKL = FORMS w kolejności Aneksu A, nazwy = `NAMES`, slogany słowo
+  w słowo, ikony bajt w bajt, słowa rekwizytów cytowane z `relai-backup.md`, każda z kontrolą
+  pozytywną); fakty — siedem scen w nowej kolejności, 49 s sceny komend; nowy `muzyka.test.mjs`
+  (3: suma pliku i kredyt w `ZRODLO.md` i README, długość co do próbki, te same bajty).
+- **README filmu:** stan na E5, sekcje „Scena komend” i „Muzyka” z kredytem; `npm run minuta` =
+  „Pamięć” i „Komendy” (klatki 0–1829).
+- Lekcje L-0179 (muzyka na ślepo) i L-0180 (licencja „darmowej” muzyki); destylat zasady 15,
+  liczba zasad 15 / 15.
+- **[PROMPT_ETAP_6.md](plany/FILM_PREZENTACYJNY/PROMPT_ETAP_6.md)** wg `SPEC_PROMPT_ETAPU`
+  z materiału E5-sprzed-aneksu (`cbe0f29`) i stanu po E5: dziewięć elementów, nagłówki po razie,
+  19 punktów weryfikacji, „Zasady aktywne” zgodne ze źródłem linia w linię (317 linii, 15 zasad).
+  Pierwsze wklejenie zasad zepsuło plik — `String.replace` przeczytał `` $` `` z zasady 13 jako
+  wzorzec; wykryte licznikiem nagłówków, plik odbudowany sklejaniem. Pułapka P-039 w
+  [PULAPKI.md](PULAPKI.md).
+
+**Zweryfikowane — jak dokładnie:**
+
+- **Kompozycje:** `npx remotion compositions` → `Komendy 1470 (49.00 sec)`,
+  `Animatik 5070 (169.00 sec)`.
+- **Render** (`npm run film`, odczyt `npx remotion ffprobe -count_frames` z pliku po rundzie 3):
+  1920×1080, 30/1, `nb_read_frames` 5070, 169,000000 s; dźwięk AAC 48 kHz stereo 169,003 s.
+- **Testy filmu:** `npm test` → 29/29 po `npm run przygotuj` po ostatniej zmianie promptu
+  (22 z E1–E4 z jedną zmianą z powodem + 4 wierności + 3 muzyki).
+  - Zmiana testu faktów z powodem: lista scen (Aneksy A i B) i wartość kontrolna `7` → `9` —
+    kontrola L-0173 zgłosiła, że po Aneksie A plan ma siedem etapów, więc „7” stało się faktem.
+  - Licznik wąski: 143 liczby w 317 tekstach kadru, wszystkie są faktami; cyfry w słowniku: 0.
+    Licznik szeroki: 4 trafienia, wszystkie fakty (slogany nie dodały żadnego).
+- **Czytelność** (oś czasu z kodu, skrypt pomiarowy): nazwa i slogan stoją nieruchomo i w całości
+  od 2,17 s (Lista zmian, siedem słów) do 2,50 s (Pakiet, ostatni); sprężyna kamery przy
+  zatrzymaniu w klatce 22 jest 1 px od celu, odbicie maks. 41 px.
+- **Sceny przyjęte nietknięte:** `git diff --stat` na plikach scen 1–3 i dawnych 4–6 (`Pamiec.tsx`,
+  `Paski.tsx`, `PaskiDalej.tsx`, `Panel.tsx`, `panel/`, `NowaSesja.tsx`, `PracaWraca.tsx`,
+  `Final.tsx`, `Pasek.tsx`, `PasekCache.tsx`, `Adnotacja.tsx`, `Pytania.tsx`) → pusty.
+  - Porównanie pikselowe z renderem E4 (przesunięcie 1470 dla scen po „Pamięci”): klatki 300
+    i 4770 — 0,00 %; 2970, 3510, 3870, 4360, 4625 i ostatnia — ≤ 0,04 % (szum kodeka);
+  - 2370 (scena paski) — 3,30 %, wyłącznie dane żywe: pasek planu E5 W TOKU 4/7 i karteczka
+    postępu 11/18, szersza o cyfrę.
+- **Przejścia** (klatki z MP4): 369 (środek 1→2) i 1839 (środek 2→3) — czysty papier, bez błysku;
+  przejścia przyjętych scen tego samego rodzaju co w E4.
+- **Kolory i sieć:** `grep -rnE '#[0-9a-fA-F]{3,8}' src/sceny/` → 0, `grep -rnE "https?://" src`
+  → 0; plik podłożony w katalogu roboczym trafiony przez obie kontrole (1 i 1).
+- **Prywatność:** test obejmuje słowa sceny komend → 0 trafień, trzy podłożone linie trafione.
+- **Muzyka:** dwa przebiegi `muzyka.mjs` → ta sama suma pliku; ostatnia próbka 0.
+- **Typy i zależności:** `npm run typy` bez błędów. Pakietów nie dodano: `git diff` na
+  `package-lock.json` pusty, w `package.json` tylko skrypty `muzyka`, `przygotuj` i `minuta`.
+- **Rdzeń:** testy 331/331; `node core/tools/validate-adapters.js` → „spojne.” (jedno zastane
+  ostrzeżenie); `claude plugin validate .` binarką 2.1.295 → exit 0, ze znanym ostrzeżeniem
+  dogfoodingu o root `CLAUDE.md`.
+- **PANEL_CODEX nietknięty:** `git diff --stat`, `git status --short` i sha256 plików
+  `docs/plany/PANEL_CODEX/` i `docs/zasoby/PANEL_RELAI/makiety/` przed i po etapie identyczne
+  (13 linii migawki). Pliki poza commitem etapu.
+- **Katalog roboczy** `.claude/relai/work/FILM_PREZENTACYJNY/E5/`:
+  - przed: 146 MB, 218 plików (paczka Remotion, klatki i siatki, MP4 kalibracji, kopia renderu
+    E4, kopia mp3 i WAV, skrypty pomiarowe, migawki PANEL_CODEX);
+  - skasowany po „tak” razem z pustym katalogiem tematu; po: pozycji tematu brak w raporcie
+    `clean-work.js`.
+
+  W `%TEMP%` nie ma katalogów `remotion*`. Render `film.mp4` (27,4 MB) zostaje w `zrodla/out/` poza
+  gitem; odtwarza go `npm run film`.
+- **Ryzyka:** tabela „Stan otwartych ryzyk” przejrzana — film nie ma tam pozycji (ryzyka filmu,
+  w tym kredyt CC BY, żyją w Aneksie C), etap nie otworzył nowego ryzyka projektu.
+
+**Odstępstwa od promptu:**
+
+- Aneksy B i C powstały w trakcie etapu na wyraźne decyzje Łukasza (rundy 1 i 2); punkty
+  Weryfikacji z liczbami sprzed Aneksu B zostały odznaczone i sprawdzone ponownie (nota w prompcie).
+- Skrypty edycji z `\n` cztery razy szły heredokiem Pythona albo `printf` zamiast narzędziem Write
+  (zasada 5, L-0148 — piąty raz w tym planie). Każdy wynik sprawdzony `grep -F` stałym ciągiem → 0
+  dosłownych `\n`, typy czyste. Pierwsza kontrola wzorcem regex dała fałszywe 26 trafień —
+  instrument, nie plik. Wpis do dziennika heredokiem nie sparsował się w ogóle; poszedł przez Write.
+
+**Świadomie odłożone:**
+
+- Poprawka parsera modelu na karcie startu etapu — bez zmian, odnoga przed wydaniem (E7).
+- Kredyt „daylight hour” w opisie wydania — E7 (Aneks C).
+- Pętla do README a muzyka (pętla niema albo wycinek ścieżki) — decyzja w E6 (Aneks B).
+- `Panel.tsx` z własną kopią kursora obok `Kursor.tsx` — bez zmian (dowód pikselowy scen 1–3).
+- Rotacja `docs/DZIENNIK.md` (ponad 150 KB) i `docs/LEKCJE.md` (ponad 50 KB) — sygnał hooka startu,
+  poza zakresem etapu.
+
+**Do zrobienia przez człowieka:**
+
+- Start E6 w świeżej sesji Opus 5.5 (`/relai-stage`, `/effort medium`).
+- Odnoga z poprawką parsera modelu — przed wydaniem 3.0.0 (bez zmian, z wpisu E4).
+  *(Pozycja z wpisu E4 „Start E5 w świeżej sesji Opus 5.5” rozstrzygnięta 2026-10-12: E5 wykonany
+  w świeżej sesji ze zgodą z karty panelu.)*
+
+Autor: RelAI (Opus 5.5) + Lukasz

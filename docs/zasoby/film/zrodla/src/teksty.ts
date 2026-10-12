@@ -94,7 +94,34 @@ export const PL = Object.freeze({
       'Koszty sesji i etapów, liczone z cennika.',
     ]),
   }),
-  // scene 4: the card's own words (title, rows, question) come from core/panel through sceny.json;
+  // scene 2 "Komendy" (Annexes A and B): each command's name comes from NAMES of core/panel, never from
+  // here; its slogan is the one Łukasz accepted after two rounds, word for word (wiernosc.test.mjs)
+  komendy: Object.freeze({
+    tytul: 'Komendy',
+    slogany: Object.freeze({
+      'relai-adopt': 'RelAI w projekcie, który już masz',
+      'relai-prompt': 'Z luźnego zdania — precyzyjne polecenie',
+      'relai-stage': 'Kolejny etap planu jednym kliknięciem',
+      'relai-crew': 'Większe zadanie podzielone między agentów',
+      'relai-branch': 'Poboczny pomysł czeka na swoją kolej',
+      'relai-audit': 'Szybka kontrola stanu dokumentacji',
+      'relai-clean': 'Usuwa zbędne pliki robocze',
+      'relai-backup': 'Cały projekt w ZIP-ie, bez sekretów',
+      'relai-changelog': 'Co się zmieniło — prosto z dziennika',
+      'relai-update': 'Aktualizacja do najnowszej wersji RelAI',
+      'relai-models': 'Zawsze aktualna lista modeli',
+      'relai-help': 'Wszystkie komendy w jednym miejscu',
+      'relai-tour': 'Szybkie wprowadzenie do projektu',
+      'relai-handover': 'Cały projekt do przekazania w jednym pliku',
+    }),
+    // words written on the props: each is the product's own word, quoted from the command file
+    // named beside it in wiernosc.test.mjs
+    rekwizyty: Object.freeze({
+      zip: 'ZIP',
+      env: '.env',
+    }),
+  }),
+  // scene 5: the card's own words (title, rows, question) come from core/panel through sceny.json;
   // "Tak" and "Nie" are the card's buttons in pane-parts.tsx (wiernosc.test.mjs)
   nowaSesja: Object.freeze({
     tytul: 'Etap w nowej sesji',

@@ -131,8 +131,11 @@ function wide(texts) {
 
 // ---------- the tests ----------
 
-test('scenariusz.ts holds the six scenes of the plan in order, and the film is their sum', () => {
-  assert.deepEqual(SCENY.map((s) => s.id), ['pamiec', 'paski', 'panel', 'nowaSesja', 'pracaWraca', 'final']);
+// seven scenes since Annex A (2026-10-12); Annex B (the same day, round 1 of E5): "komendy" right
+// after "pamiec", 3.5 s a command
+test('scenariusz.ts holds the seven scenes of the plan in order, and the film is their sum', () => {
+  assert.deepEqual(SCENY.map((s) => s.id), ['pamiec', 'komendy', 'paski', 'panel', 'nowaSesja', 'pracaWraca', 'final']);
+  assert.equal(SCENY.find((s) => s.id === 'komendy')?.sekundy, 49, 'Annex B: fourteen commands, 3.5 s each');
   const sum = SCENY.reduce((a, s) => a + s.sekundy, 0);
   assert.equal(dlugosc(FPS), sum * FPS);
   const parts = odcinki(FPS);
@@ -218,7 +221,8 @@ test('sceny.json equals the data computed again; each of its facts carries a sou
 
 test('narrow counter: every figure in the frame is a fact; a planted figure fails', (t) => {
   // the planted values must not be facts already, or their controls test nothing (L-0173)
-  for (const v of ['2500', '7']) assert.ok(!allowed.has(v), `${v} is already in the allowed set`);
+  // '9', not '7' since Annex A: the plan has seven stages now, so 7 became a fact of paski.json
+  for (const v of ['2500', '9']) assert.ok(!allowed.has(v), `${v} is already in the allowed set`);
   const texts = frameTexts(PL, F);
   assert.deepEqual(strays(texts), []);
   const dictionaryDigits = digitCount(strings(PL));
@@ -234,8 +238,8 @@ test('wide counter: number words and percent signs stand for facts; it does not 
   assert.deepEqual(bad, []);
   t.diagnostic(`wide: ${hits.length} hits, all facts — ${hits.join('; ')}`);
   // positive control: a vague quantity and a percent with no figure are caught
-  const caught = wide(['Mamy kilkanaście planów.', 'Oszczędzasz sporo % czasu.', 'Siedem narzędzi w pudełku.']);
-  assert.deepEqual(caught.bad, ['kilkanaście in "Mamy kilkanaście planów."', '% without a figure in "Oszczędzasz sporo % czasu."', 'Siedem in "Siedem narzędzi w pudełku."']);
+  const caught = wide(['Mamy kilkanaście planów.', 'Oszczędzasz sporo % czasu.', 'Dziewięć narzędzi w pudełku.']);
+  assert.deepEqual(caught.bad, ['kilkanaście in "Mamy kilkanaście planów."', '% without a figure in "Oszczędzasz sporo % czasu."', 'Dziewięć in "Dziewięć narzędzi w pudełku."']);
   // control against counting too much: words that look like numbers but are not
   const none = wide(['Trzymaj kurs, stoją dwory, pięknie się tu siedzi.', 'Setny raz? Nie — sedno, procesy i kilometry pracy.']);
   assert.deepEqual(none.hits, []);
