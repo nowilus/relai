@@ -11,7 +11,11 @@ animatik całego filmu — sześć scen, 120 s, kolejność, czasy i słownik PL
 Stan na E3 (2026-10-12): pierwsza minuta w pełnej jakości — scena 1 „Pamięć”, scena 2 w całości
 (10 s z E1 i dalsza część `PaskiDalej` od tego samego kadru), scena 3 „Panel” odtworzona z kodu
 `relai-panel` 0.14 i zrzutów Łukasza; klatki wzorcowe w `kalibracja/E3-scena1.png` i
-`kalibracja/E3-scena3.png`. Sceny 4–6 dalej planszami (E4); wersja EN, pętla i wydanie — E5–E6.
+`kalibracja/E3-scena3.png`. Stan na E4 (2026-10-12): cały film PL bez plansz — scena 4 „Etap
+w nowej sesji” (karta startu etapu z `stageCard()` rdzenia panelu, nowa sesja z komendą w polu),
+scena 5 „Praca wraca” (karta progu limitu, „zapisz pracę”, „Wznów pracę”), scena 6 „Finał”
+(liczby z manifestu, instalacja, znak, pasek planu, który zrobił film). Wersja EN, pętla
+i wydanie — E5–E6.
 
 ## Co gdzie leży
 
@@ -22,8 +26,9 @@ Stan na E3 (2026-10-12): pierwsza minuta w pełnej jakości — scena 1 „Pami�
 | `zrodla/src/rdzen.ts` | import `core/panel/*.mjs` tylko do odczytu — film liczy tym samym kodem co panel | tak |
 | `zrodla/src/dane/paski.json` | dane sceny 2, wygenerowane skryptem; każda wartość ma pole `zrodlo` | tak |
 | `zrodla/src/dane/panel.json` | dane sceny 3: etapy planu z `STATUS.md` i liczby sesji przepisane ze zrzutów 0.14, każda z polem `zrodlo` | tak |
+| `zrodla/src/dane/sceny.json` | dane scen 4–5: karta startu E4 policzona `stageCard()`, słowa karty limitu, zapisu i wznowienia czytane z kodu `relai-cache-keeper` i `relai-core`, każde z polem `zrodlo` | tak |
 | `zrodla/src/komendy.ts` | układ zakładki Komendy (polecane i grupy) — ta sama funkcja dla sceny i testu wierności | tak |
-| `zrodla/skrypty/` | `dane.mjs` (sceny 2), `panel.mjs` (sceny 3), `manifest.mjs`, `fonty.mjs` i `znak.mjs` (kopie fontów, logo i ikon komend z kontrolą bajtową) | tak |
+| `zrodla/skrypty/` | `dane.mjs` (sceny 2), `panel.mjs` (sceny 3), `sceny.mjs` (scen 4–5), `manifest.mjs`, `fonty.mjs` i `znak.mjs` (kopie fontów, logo i ikon komend z kontrolą bajtową) | tak |
 | `zrodla/testy/` | testy danych: zgodność z `core/panel`, źródła, piksele zrzutu, fakty w kadrze, wierność nazw panelu | tak |
 | `kalibracja/` | klatki zaakceptowane przez człowieka | tak |
 | `zrodla/node_modules/`, `zrodla/out/`, `zrodla/public/fonty/`, `zrodla/public/znak/` | zależności, rendery, kopie fontów i znaku | nie |
@@ -49,8 +54,14 @@ Scena 2 w ruchu (MP4 1920×1080, 30 kl./s, 10 s) do `zrodla/out/paski-10s.mp4`:
 cd docs/zasoby/film/zrodla && npm run paski
 ```
 
-Animatik całego filmu (MP4 960×540, 30 kl./s, sześć scen z `src/scenariusz.ts`, długość = suma
-ich czasów) do `zrodla/out/animatik.mp4` — scena 2 gotowa, reszta jako plansze surowe:
+Cały film PL w pełnej jakości (MP4 1920×1080, 30 kl./s, sześć scen z `src/scenariusz.ts`, 3600
+klatek = suma ich czasów) do `zrodla/out/film.mp4`:
+
+```bash
+cd docs/zasoby/film/zrodla && npm run film
+```
+
+Ten sam film w skali 0,5 (MP4 960×540) do `zrodla/out/animatik.mp4` — szybki podgląd całości:
 
 ```bash
 cd docs/zasoby/film/zrodla && npm run animatik
@@ -90,11 +101,22 @@ prawdziwej sesji. Dlatego:
   limitu, linie instalacji) liczy `skrypty/manifest.mjs` ze źródeł w repozytorium i zapisuje do
   `src/dane/manifest.json` w tym samym kształcie `{ wartosc, zrodlo }`; okno „5 h” bierze z etykiety
   zrzutu przez `paski.json`;
+- **sceny 4 i 5** (`skrypty/sceny.mjs` → `src/dane/sceny.json`): kartę startu E4 liczy
+  `stageCard()` z `core/panel/decisions.mjs` na `STATUS.md` i `PROMPT_ETAP_4.md` z commitu
+  `0dcadef` (stan w chwili startu E4). Jedna zmiana wejścia, decyzją Łukasza z 2026-10-12: linia
+  metryczna dostaje etykietę „model wykonawczy:”, której wymaga parser panelu, a nie
+  `SPEC_STATUS` — film pokazuje wiersz Model tak, jak karta napisze go po poprawce parsera;
+  test wierności pilnuje, że reszta wierszy jest słowo w słowo kartą na żywo. Scena 5 nie ma
+  żadnej liczby sesji (decyzja Łukasza): zdanie i przyciski karty limitu czyta skrypt
+  z `cache-keeper/hooks/limit.ts`, kroki zapisu z `limit-checkpoint.md` skilla `relai-core`,
+  ścieżkę pliku wznowienia liczy `core/process/resume.js`, próg 90 % to wartość domyślna
+  `core/panel/limit-threshold.mjs`, a wiersz „zapis gotowy · reset 18.10 12:00” pochodzi z jedynego
+  zrzutu prawdziwego zapisu (`LIMIT_CHECKPOINT_E3_zapis.png`);
 - **słownik** `src/teksty.ts` nie ma ani jednej cyfry w tekście kadru: liczba wchodzi znacznikiem
   (`{komendy}`), który `src/fakty.ts` wypełnia z manifestu;
 - **test faktów** `testy/fakty.test.mjs` zbiera wszystkie teksty kadru (słownik po podstawieniu,
-  finał, czasy plansz, dane sceny 2) i kończy się błędem na każdej liczbie spoza `manifest.json`
-  i `paski.json` (czasy plansz należą do animatiku i odchodzą z nim). Drugi licznik łapie liczebniki
+  finał, dane scen 2–5) i kończy się błędem na każdej liczbie spoza `manifest.json`, `paski.json`,
+  `panel.json` i `sceny.json` (czasy plansz odeszły z planszami w E4). Drugi licznik łapie liczebniki
   słowne i znak `%` bez liczby. Test generuje manifest ponownie i porównuje z zapisanym, a na
   zmienionych kopiach źródeł pokazuje, że fakt się zmienia. Pilnuje też prywatności kadru:
   ścieżki domowej, e-maila, identyfikatora sesji.

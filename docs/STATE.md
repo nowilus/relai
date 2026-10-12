@@ -10,7 +10,7 @@ Cursorze i Codeksie — na jednym rdzeniu procesu, z czternastoma komendami. Pan
 Claude Code to trzy osobne pluginy „early access” z marketplace tego repozytorium: `relai-panel`
 0.14.0, `relai-progress` 0.4.0, `relai-cache-keeper` 0.6.0 (plan PANEL_CLAUDE zamknięty
 2026-10-10, odnoga AUDYT_MODOW zamknięta 2026-10-11, wszystkie paczki zmierzone na żywo na 2.1.295). Aktywny plan to FILM_PREZENTACYJNY (film o RelAI
-w Remotion i wydanie 3.0.0, E1–E3 zrealizowane 2026-10-12 — pierwsza minuta filmu gotowa); obok trwa PANEL_CODEX — panel dla Codeksa,
+w Remotion i wydanie 3.0.0, E1–E4 zrealizowane 2026-10-12 — cały film PL gotowy); obok trwa PANEL_CODEX — panel dla Codeksa,
 E1 po stronie Codeksa. Opinii spoza projektu nadal nie ma.
 
 ## Co działa
@@ -94,8 +94,14 @@ E1 po stronie Codeksa. Opinii spoza projektu nadal nie ma.
   szwu; Panel z kodu `relai-panel` 0.14 i dziewięciu zrzutów Łukasza w
   `docs/zasoby/PANEL_RELAI/zrzuty/`), zakładki słownika = `TABS` panelu (test wierności), render
   pierwszej minuty `npm run minuta`; przyjęte w drugiej rundzie, wzorce `kalibracja/E3-scena1.png`
-  i `E3-scena3.png`. E4 (sceny 4–6) gotowy do startu w świeżej sesji Opus 5.5 (`/relai-stage`,
-  `/effort high`).
+  i `E3-scena3.png`. **E4 zrealizowany 2026-10-12 — kamień milowy: pełny film PL** (120 s, 3600
+  klatek, `npm run film`): scena 4 z kartą startu E4 liczoną `stageCard()` na plikach z commitu
+  startu, scena 5 bez liczb sesji (karta limitu, zapis, „Wznów pracę” ze słów kodu), finał
+  z manifestu; dane `sceny.json` ze źródłami, plansze usunięte; przyjęte w pierwszej rundzie,
+  wzorce `kalibracja/E4-scena4–6.png`. Przed E6 — odnoga z poprawką parsera modelu na karcie
+  startu etapu (`requiredModel()` wymaga etykiety, której `SPEC_STATUS` nie ma). E5 (wersja EN,
+  pętla, kontrola jakości) gotowy do startu w świeżej sesji Opus 5.5 (`/relai-stage`,
+  `/effort medium`).
 - **Potem RelAI 3.0.0** (decyzja Łukasza 2026-10-12): jedno wydanie zbierające mody i panel
   Claude Code, start etapu w nowej sesji, audyt skilli i `/relai-stage` v6 — razem z **filmem
   prezentacyjnym (Remotion)** do README na GitHubie i do wysyłki ludziom: pełny przegląd RelAI

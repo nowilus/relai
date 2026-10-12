@@ -1,0 +1,140 @@
+{
+  "nowaSesja": {
+    "naglowek": {
+      "wartosc": "Do potwierdzenia",
+      "zrodlo": "core/panel/theme.mjs HEADINGS, klucz confirm"
+    },
+    "podpis": {
+      "wartosc": "Nic nie pójdzie do czatu bez „Tak”.",
+      "zrodlo": "panel/hooks/pane-parts.tsx, sekcja confirm"
+    },
+    "tytul": {
+      "wartosc": "Start etapu E4",
+      "zrodlo": "core/panel/decisions.mjs stageCard() na docs/plany/FILM_PREZENTACYJNY/STATUS.md i docs/plany/FILM_PREZENTACYJNY/PROMPT_ETAP_4.md z commitu 0dcadef (start E4), sesja Opus 5.5, nowa sesja przez link; linia metryczna z etykietą „model wykonawczy:” (decyzja Łukasza 2026-10-12, poprawka parsera w odnodze)"
+    },
+    "fakty": {
+      "wartosc": [
+        {
+          "etykieta": "Model",
+          "wartosc": "Opus 5.5 — zgodny z planem (Opus 5.5)",
+          "ton": "ok"
+        },
+        {
+          "etykieta": "Plan",
+          "wartosc": "FILM_PREZENTACYJNY · ZAAKCEPTOWANY",
+          "ton": "zwykly"
+        },
+        {
+          "etykieta": "Etap",
+          "wartosc": "E4 z E6 · Sceny 4–6 · GOTOWY DO STARTU",
+          "ton": "zwykly"
+        },
+        {
+          "etykieta": "Katalog roboczy",
+          "wartosc": ".claude/relai/work/FILM_PREZENTACYJNY/E4/",
+          "ton": "zwykly"
+        },
+        {
+          "etykieta": "Weryfikacja",
+          "wartosc": "16 punktów",
+          "ton": "zwykly"
+        },
+        {
+          "etykieta": "Czat",
+          "wartosc": "nowa sesja w aplikacji — komenda czeka w polu, Enter tam; ta rozmowa zostaje; zgoda ważna 10 min",
+          "ton": "zwykly"
+        }
+      ],
+      "zrodlo": "core/panel/decisions.mjs stageCard() na docs/plany/FILM_PREZENTACYJNY/STATUS.md i docs/plany/FILM_PREZENTACYJNY/PROMPT_ETAP_4.md z commitu 0dcadef (start E4), sesja Opus 5.5, nowa sesja przez link; linia metryczna z etykietą „model wykonawczy:” (decyzja Łukasza 2026-10-12, poprawka parsera w odnodze)"
+    },
+    "pytanie": {
+      "wartosc": "Zaczynamy?",
+      "zrodlo": "core/panel/decisions.mjs stageCard() na docs/plany/FILM_PREZENTACYJNY/STATUS.md i docs/plany/FILM_PREZENTACYJNY/PROMPT_ETAP_4.md z commitu 0dcadef (start E4), sesja Opus 5.5, nowa sesja przez link; linia metryczna z etykietą „model wykonawczy:” (decyzja Łukasza 2026-10-12, poprawka parsera w odnodze)"
+    },
+    "komenda": {
+      "wartosc": "/relai-stage FILM_PREZENTACYJNY E4",
+      "zrodlo": "core/panel/decisions.mjs stageCard() na docs/plany/FILM_PREZENTACYJNY/STATUS.md i docs/plany/FILM_PREZENTACYJNY/PROMPT_ETAP_4.md z commitu 0dcadef (start E4), sesja Opus 5.5, nowa sesja przez link; linia metryczna z etykietą „model wykonawczy:” (decyzja Łukasza 2026-10-12, poprawka parsera w odnodze); działanie newSession"
+    },
+    "otwarto": {
+      "wartosc": "Otwarto nową sesję z /relai-stage FILM_PREZENTACYJNY E4 — naciśnij w niej Enter (zgoda ważna 10 min).",
+      "zrodlo": "panel/hooks/launch.ts openedWords(), gałąź link"
+    },
+    "zostaje": {
+      "wartosc": "ta rozmowa zostaje",
+      "zrodlo": "core/panel/decisions.mjs stageCard() na docs/plany/FILM_PREZENTACYJNY/STATUS.md i docs/plany/FILM_PREZENTACYJNY/PROMPT_ETAP_4.md z commitu 0dcadef (start E4), sesja Opus 5.5, nowa sesja przez link; linia metryczna z etykietą „model wykonawczy:” (decyzja Łukasza 2026-10-12, poprawka parsera w odnodze); wiersz Czat"
+    },
+    "plan": {
+      "wartosc": {
+        "plan": "FILM_PREZENTACYJNY",
+        "etap": "E4",
+        "status": "W TOKU",
+        "nazwa": "Sceny 4–6",
+        "zamkniete": 3,
+        "etapy": 6
+      },
+      "zrodlo": "docs/plany/FILM_PREZENTACYJNY/STATUS.md i docs/plany/FILM_PREZENTACYJNY/PROMPT_ETAP_4.md z commitu 0dcadef przez core/panel/plan-state.mjs, status W TOKU ustawiany przez /relai-stage w Kroku 5"
+    }
+  },
+  "pracaWraca": {
+    "pytanie": {
+      "wartosc": "Limit planu ponad progiem 90 %.",
+      "zrodlo": "cache-keeper/hooks/limit.ts cardDue(), początek pierwszego zdania; próg core/panel/limit-threshold.mjs DEFAULT_THRESHOLD; bez liczb sesji (decyzja Łukasza 2026-10-12)"
+    },
+    "dalej": {
+      "wartosc": "Pracować dalej czy zapisać pracę teraz?",
+      "zrodlo": "cache-keeper/hooks/limit.ts cardDue(), ostatnie zdanie karty"
+    },
+    "opcje": {
+      "wartosc": [
+        "Pracuję dalej",
+        "Zapisz pracę teraz",
+        "Nie pytaj w tej sesji"
+      ],
+      "zrodlo": "cache-keeper/hooks/limit.ts CARD_OPTIONS"
+    },
+    "prog": {
+      "wartosc": 90,
+      "zrodlo": "core/panel/limit-threshold.mjs DEFAULT_THRESHOLD"
+    },
+    "fraza": {
+      "wartosc": "zapisz pracę",
+      "zrodlo": "cache-keeper/hooks/handoff.ts relaiSavePrompt(), pierwsza linia"
+    },
+    "kroki": {
+      "wartosc": [
+        "Testy i przegląd diffu",
+        "Commit kodu",
+        "Dokumenty",
+        "Plik wznowienia"
+      ],
+      "zrodlo": "adapters/claude-code/skills/relai-core/limit-checkpoint.md, sekcja „Kroki”"
+    },
+    "plikWznowienia": {
+      "wartosc": ".claude/relai/wznowienie/relai.md",
+      "zrodlo": "core/process/resume.js sciezkaWznowienia(korzeń repozytorium)"
+    },
+    "gotowe": {
+      "wartosc": "ZAPIS GOTOWY",
+      "zrodlo": "cache-keeper/hooks/handoff.ts SAVE_DONE"
+    },
+    "zapis": {
+      "wartosc": "zapis gotowy · reset 18.10 12:00",
+      "zrodlo": "docs/zasoby/PANEL_RELAI/zrzuty/LIMIT_CHECKPOINT_E3_zapis.png (zapis LIMIT_CHECKPOINT E3, 2026-10-11)"
+    },
+    "odnowiony": {
+      "wartosc": "limit odnowiony · praca czeka na wznowienie",
+      "zrodlo": "cache-keeper/hooks/limit.ts saveRowText(), po resecie z plikiem wznowienia"
+    },
+    "przyciski": {
+      "wartosc": [
+        "Wznów pracę",
+        "Odrzuć"
+      ],
+      "zrodlo": "cache-keeper/hooks/register.tsx, przyciski paska cache"
+    },
+    "wznow": {
+      "wartosc": "kontynuujemy pracę — plik wznowienia: .claude/relai/wznowienie/relai.md",
+      "zrodlo": "cache-keeper/hooks/handoff.ts relaiResumePrompt(), pierwsza linia"
+    }
+  }
+}

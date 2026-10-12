@@ -94,23 +94,26 @@ export const PL = Object.freeze({
       'Koszty sesji i etapów, liczone z cennika.',
     ]),
   }),
+  // scene 4: the card's own words (title, rows, question) come from core/panel through sceny.json;
+  // "Tak" and "Nie" are the card's buttons in pane-parts.tsx (wiernosc.test.mjs)
   nowaSesja: Object.freeze({
     tytul: 'Etap w nowej sesji',
-    pytanie: 'Zaczynamy?',
     tak: 'Tak',
     nie: 'Nie',
-    ekran: 'karta „Tak / Nie”, nowa sesja z komendą w polu, start etapu',
+    okno: 'nowa sesja',
     napisy: Object.freeze([
       'Karta pyta, zanim cokolwiek ruszy.',
       'Etap startuje w nowej sesji z gotową komendą.',
       'Stara rozmowa zostaje — nic nie ginie.',
     ]),
   }),
+  // scene 5: the card, the save phrase, its steps, the bar's rows and buttons come from
+  // relai-cache-keeper and relai-core through sceny.json; here only the film's own labels
   pracaWraca: Object.freeze({
     tytul: 'Praca wraca',
-    zapisz: 'zapisz pracę',
-    wznow: 'Wznów pracę',
-    ekran: 'karta progu limitu, zapis pracy, po resecie „Wznów pracę”',
+    limit: 'limit {oknoLimitu}',
+    prog: 'próg',
+    gdzie: 'Gdzie jesteśmy',
     napisy: Object.freeze([
       'Przy {progLimitu} % limitu {oknoLimitu} RelAI proponuje zapis pracy.',
       'Testy, commit i plik wznowienia — przed końcem limitu.',
@@ -127,15 +130,9 @@ export const PL = Object.freeze({
     }),
     instalacja: 'instalacja',
     wersja: 'RelAI {wersja}',
-    ekran: 'liczby projektu, instalacja, pasek planu, który zrobił ten film',
     napisy: Object.freeze([
       'Działa w {narzedziaNazwy}.',
       'Ten film powstał według planu z paska.',
     ]),
-  }),
-  // the words of the animatic's boards, gone once a scene is built in full
-  plansza: Object.freeze({
-    ekran: 'tu będzie',
-    sekundy: 's',
   }),
 });

@@ -1778,3 +1778,174 @@ w tej sesji wyłączony decyzją Łukasza (bramka zgody: „Nie, nie w tej sesji
   — rozstrzygnięte 2026-10-12: E3 wykonany w świeżej sesji z kartą `/relai-stage`.)*
 
 Autor: RelAI (Opus 5.5) + Lukasz
+
+### 2026-10-12 — FILM_PREZENTACYJNY E4: sceny 4–6 w pełnej jakości, cały film PL przyjęty
+
+Sesja Opus 5.5 w Claude Code, `/relai-stage` z kartą potwierdzenia („tak”).
+
+**Zrobione:**
+
+- **Bramka „⚠ plan nie wskazuje modelu”**: pytanie padło na starcie, razem z przyczyną.
+  `requiredModel()` w `core/panel/decisions.mjs` szuka dosłownie `model wykonawczy:`. Linia
+  metryczna planu filmu („· Opus 5.5 w Claude Code (…)”) tej etykiety nie ma, a `SPEC_STATUS` jej
+  nie wymaga. Parser nie łapie nawet przykładu z samej specyfikacji („Model wykonawczy etapów:”).
+  Łukasz wybrał „Scena bez ostrzeżenia”: scena 4 pokazuje wiersz Model w stanie zgodnym,
+  a poprawka parsera idzie odnogą po E4, przed wydaniem 3.0.0. Bramka w `STATUS.md`
+  rozstrzygnięta.
+- **Liczby sceny 5**: w repo nie ma zapisu prawdziwej sesji z kartą limitu przy progu 90 %.
+  Jedyny zrzut karty (LIMIT_CHECKPOINT E2) ma próg testowy 1 % i 72 %. Łukasz wybrał „Bez liczb
+  sesji”:
+  - zdanie i przyciski karty pochodzą z kodu;
+  - bateria i linijka pokazują udział bez procentu;
+  - wiersz zapisu pochodzi z jedynego zrzutu prawdziwego zapisu.
+- **Dane scen 4–5**: [skrypty/sceny.mjs](zasoby/film/zrodla/skrypty/sceny.mjs) zapisuje
+  `src/dane/sceny.json` ({ wartosc, zrodlo }).
+  - **Karta startu E4** — liczy ją `stageCard()` rdzenia panelu na `STATUS.md` i `PROMPT_ETAP_4.md`
+    z commitu `0dcadef`, czyli ze stanu w chwili startu E4 (`git show`). Jedyna zmiana wejścia:
+    etykieta „model wykonawczy:” dopisana do linii metrycznej, ze źródłem mówiącym to wprost.
+  - **Panel** — nagłówek „Do potwierdzenia” z `HEADINGS`, podpis z `pane-parts.tsx`, linia
+    „Otwarto nową sesję z … (zgoda ważna 10 min).” z `launch.ts`.
+  - **Karta limitu** — zdanie i przyciski z `cache-keeper/hooks/limit.ts`; próg domyślny 90 %
+    z `core/panel/limit-threshold.mjs`.
+  - **Zapis i wznowienie** — fraza „zapisz pracę” i `ZAPIS GOTOWY` z `handoff.ts`; cztery kroki
+    zapisu z `limit-checkpoint.md`; ścieżka pliku wznowienia z `core/process/resume.js`;
+    „limit odnowiony · praca czeka na wznowienie” z `saveRowText`; „Wznów pracę” i „Odrzuć”
+    z `register.tsx`; zapis „zapis gotowy · reset 18.10 12:00” ze zrzutu
+    `LIMIT_CHECKPOINT_E3_zapis.png`.
+- **Scena 4 „Etap w nowej sesji”** — [NowaSesja.tsx](zasoby/film/zrodla/src/sceny/NowaSesja.tsx),
+  20 s:
+  - karta „Do potwierdzenia”, wiersze pojawiają się kolejno, kursor klika „Tak”;
+  - panel pisze „✓ Otwarto nową sesję…”, a jego okno odsuwa się w róg jako „stara rozmowa”;
+  - wjeżdża nowa sesja z „/relai-stage FILM_PREZENTACYJNY E4” w polu; po Enter komenda idzie
+    dymkiem, a pasek planu pokazuje E4 W TOKU;
+  - na końcu karteczka „ta rozmowa zostaje” (słowa z wiersza Czat karty).
+- **Scena 5 „Praca wraca”** — [PracaWraca.tsx](zasoby/film/zrodla/src/sceny/PracaWraca.tsx),
+  20 s:
+  - limit 5 h przekracza kreskę „próg 90 %”; pojawia się karta i trzy przyciski;
+  - „Zapisz pracę teraz” wysyła „zapisz pracę”; cztery kroki odhaczają się i pada „ZAPIS GOTOWY”;
+  - na pasku cache pojawia się wiersz zapisu; po resecie limit się odnawia i wychodzą przyciski
+    „Wznów pracę” / „Odrzuć”;
+  - świeży czat startuje z „kontynuujemy pracę — plik wznowienia: …” i pokazuje „Gdzie jesteśmy”
+    z planem E4.
+- **Scena 6 „Finał”** — [Final.tsx](zasoby/film/zrodla/src/sceny/Final.tsx), 15 s:
+  - znak z `logo.svg`, hasło, „RelAI 2.9.0”;
+  - cztery liczby z manifestu krojem Hanken (bez odliczania przez liczby, których nie ma
+    w żadnym źródle);
+  - dwie linie instalacji na papierze i pasek planu z `paski.json`.
+- **Słownik** — w `src/teksty.ts` zniknęły słowa plansz (`plansza`, `ekran`) oraz słowa karty
+  i przycisków, które teraz pochodzą z kodu produktu (`pytanie`, `zapisz`, `wznow`). Doszły
+  `nowaSesja.okno`, `pracaWraca.limit` (`limit {oknoLimitu}`, bez cyfry), `prog` i `gdzie`.
+  Napisy wszystkich trzech scen bez zmian.
+- **Animatik i Root** — [Animatik.tsx](zasoby/film/zrodla/src/sceny/Animatik.tsx) ma sześć
+  gotowych scen, `Plansza.tsx` usunięty. `Root.tsx` dostał kompozycje robocze `NowaSesja`,
+  `PracaWraca` i `Final`. Kursor sceny 3 skopiowany do `Kursor.tsx` (z `droga()` i `klik()`),
+  żeby nie ruszać przyjętego `Panel.tsx`.
+- **Testy**:
+  - test faktów obejmuje `sceny.json`: ponowne wyliczenie, źródła, liczniki, prywatność; czasy
+    plansz zdjęte z testu razem z planszami;
+  - wierność: przyciski karty = `pane-parts.tsx`; wiersz Model to gałąź „match” `stageCard()`,
+    a linia w obecnym brzmieniu dalej daje ostrzeżenie (test zacznie padać po poprawce parsera
+    — sygnał do zdjęcia etykiety); pozostałe wiersze karty są słowo w słowo kartą na żywo;
+  - kontrola pozytywna: `limit.ts` bez `GO_ON`, `register.tsx` bez „Odrzuć” i linia metryczna
+    bez modelu zatrzymują skrypt danych.
+- **Skrypty i README**: `package.json` dostał `sceny` (w `przygotuj`) i `film` (render całości
+  do `out/film.mp4`). README filmu: stan na E4, komenda renderu całości, skąd słowa i liczby
+  scen 4–5.
+- **Pokaz Łukaszowi**:
+  - **Runda 1** — MP4 całego filmu i klatki wzorcowe scen 4–6. Zmiany wobec słownika
+    powiedziane przy pokazie: wiersz Model, zdjęty pasek postępu sceny 4, brak liczb sesji
+    w scenie 5. Łukasz: „Przyjmuję sceny 4–6 i cały film”.
+  - Klatki wzorcowe wycięte z MP4 rundy 1:
+    [kalibracja/E4-scena4.png](zasoby/film/kalibracja/E4-scena4.png) (klatka 2040),
+    [E4-scena5.png](zasoby/film/kalibracja/E4-scena5.png) (klatka 2890) i
+    [E4-scena6.png](zasoby/film/kalibracja/E4-scena6.png) (klatka 3599).
+- Lekcje L-0177 (chwila z przeszłości liczona z plików przypiętych do commitu) i L-0178 (decyzja
+  „tego nie pokazujemy” dotyczy treści, także cytatów). Destylat zasad 4 i 15, liczba zasad
+  15 / 15.
+
+**Zweryfikowane — jak dokładnie:**
+
+- **Długość:** `npx remotion compositions` → `Animatik 30 1920x1080 3600 (120.00 sec)`;
+  `NowaSesja` 600, `PracaWraca` 600, `Final` 450. W `src/` nie ma żadnego trafienia `Plansza`
+  ani `plansza`.
+- **Render całego filmu** (`npm run film`), odczyt `npx remotion ffprobe -count_frames` z pliku
+  rundy 1: 1920×1080, 30/1, `nb_read_frames` 3600, czas 120,000000 s, 12,6 MB.
+- **Testy filmu:** `npm test` → 22/22, po `npm run przygotuj` po ostatniej zmianie promptu.
+  - Skład: 5 pasków, 10 faktów (+1: `sceny.json`), 7 wierności (+3: przyciski, wiersz Model,
+    kontrola pozytywna skryptu).
+  - Licznik wąski: 140 liczb w 297 tekstach kadru, wszystkie są faktami; cyfry w słowniku: 0.
+  - Licznik szeroki: 4 trafienia, wszystkie fakty („Trzy”, „trzy”, „%” przy 90 dwa razy).
+  - Wartości kontrolne 2500 i 7 nieobecne w zbiorze dozwolonym (asercja). Render rundy 1 miał
+    w danych E4 W TOKU; po zamknięciu E4 `paski.json` niesie E5 GOTOWY DO STARTU.
+- **Sceny 1–3 nietknięte:** `git diff --stat` na `Pamiec.tsx`, `Paski.tsx`, `PaskiDalej.tsx`,
+  `Panel.tsx`, `panel/`, `Pasek.tsx`, `PasekCache.tsx`, `Adnotacja.tsx`, `Pytania.tsx` → pusty.
+- **Przejścia** (klatki z MP4):
+  - 1955, środek 3→4: obraz sceny 3 gaśnie do papieru;
+  - 2559, środek 4→5: odsłona, ostra granica, bez błysku;
+  - 3155, środek 5→6: gaśnie do papieru;
+  - 760, największe zbliżenie sceny 2: ostra;
+  - 3599, ostatnia: finał w całości, bez napisu.
+- **Kolory i sieć:** `grep -rnE '#[0-9a-fA-F]{3,8}' src/sceny/` → 0; `grep -rnE "https?://" src`
+  → 0. Plik podłożony w katalogu roboczym trafiony przez obie kontrole (1 i 1).
+- **Prywatność:** test obejmuje `sceny.json` i nowe słowa słownika → 0 trafień. Trzy podłożone
+  linie trafione każda własnym wzorcem. Ścieżki w kadrze to wyłącznie ścieżki repo
+  (`.claude/relai/…`).
+- **Własny przegląd przed pokazem** (dwie serie klatek kontrolnych i 10 klatek z MP4). Poprawki:
+  - karta sceny 4 za drobna — tekst 20 px panelu × U zamiast 16;
+  - linia „Otwarto…” widoczna za krótko w pełnej skali — odsunięcie okna przesunięte o 20 klatek;
+  - karteczka „ta rozmowa zostaje” schowana pod nowym oknem — przeniesiona na biurko;
+  - pasek postępu sceny 4 cytował punkt z „⚠ plan nie wskazuje modelu” — zdjęty (L-0178),
+    a z nim dane postępu w `sceny.json`;
+  - pasek cache sceny 5 i pasek planu finału za drobne — powiększone.
+- **Typy i zależności:** `npm run typy` bez błędów. Pakietów nie dodano: `git diff` na
+  `package-lock.json` pusty, w `package.json` tylko skrypty `sceny` i `film`.
+- **Rdzeń:** testy 331/331; `node core/tools/validate-adapters.js` → „spojne.”, exit 0 (jedno
+  zastane ostrzeżenie); `claude plugin validate .` binarką 2.1.295 → exit 0, ze znanym
+  ostrzeżeniem dogfoodingu o root `CLAUDE.md`.
+- **PANEL_CODEX nietknięty:** `git diff --stat`, `git status --short` oraz sha256 plików
+  `docs/plany/PANEL_CODEX/` i `docs/zasoby/PANEL_RELAI/makiety/` przed i po etapie zgodne
+  (3, 3 i 7 linii). Pliki poza commitem etapu.
+- **Katalog roboczy** `.claude/relai/work/FILM_PREZENTACYJNY/E4/`, raport `clean-work.js`:
+  - przed: 31,0 MB (106 plików, 1 pozycja — paczka Remotion, klatki kontrolne, skrypty edycji
+    i pomiarów, migawki PANEL_CODEX, log renderu);
+  - skasowany po „tak” razem z pustym katalogiem tematu; po: pozycji tematu brak w raporcie.
+
+  W `%TEMP%` nie ma żadnego katalogu `remotion*`. Render `film.mp4` (17,6 MB katalogu `out/`
+  razem z `minuta.mp4`) zostaje w `zrodla/out/` poza gitem; odtwarza go `npm run film`.
+- **Ryzyka:** tabela „Stan otwartych ryzyk” przejrzana. Film nie ma w niej pozycji (ryzyka filmu
+  żyją w planie), etap nie otworzył nowego ryzyka projektu.
+
+**Odstępstwa od promptu:**
+
+- Dane scen 4–5 mieszkają w nowym pliku `src/dane/sceny.json` (skrypt `sceny.mjs`), nie
+  w `panel.json`. Prompt dopuszcza oba warianty; to ten sam kształt.
+- Scena 4 nie ma paska postępu, choć opis sceny w planie mówi tylko o starcie etapu. Powód:
+  L-0178, powiedziane Łukaszowi przy pokazie.
+- Skrypty edycji kodu z `\n` trzy razy napisałem heredokiem zamiast narzędziem Write (zasada 5,
+  L-0148; czwarty raz w tym planie). Każdy wynik sprawdzony grepem stałego ciągu: 0 dosłownych
+  `\n` w plikach docelowych, typy czyste. Dwa ostatnie skrypty (`popraw2`, README, STATUS) już
+  narzędziem Write.
+
+**Świadomie odłożone:**
+
+- **Poprawka parsera modelu** (`requiredModel()`, `core/panel/decisions.mjs` i jego trzy kopie
+  w pluginach): przyjmować linię metryczną bez etykiety i z „Model wykonawczy etapów:” ze
+  specyfikacji. Odnoga przed E6. Po poprawce test wierności sceny 4 padnie celowo — wtedy zdjąć
+  etykietę dopisywaną w `sceny.mjs`.
+- `Panel.tsx` ma własną kopię kursora obok `Kursor.tsx` — scalenie wymaga dowodu pikselowego
+  scen 1–3. E5 albo nigdy.
+- Scena 5 pokazuje próg domyślny 90 %, a ten projekt ma próg 98 % (zrzut 09). Film mówi
+  o domyślnym — świadomie, od E2.
+- Scena 3: koszty etapów „bez pomiaru” przy renderze w E6 (z wpisu E3) — dalej E5/E6.
+- Rotacja `docs/LEKCJE.md` i dziennika (sygnał hooka startu) — poza zakresem etapu.
+
+**Do zrobienia przez człowieka:**
+
+- Start E5 w świeżej sesji Opus 5.5 (`/relai-stage`, `/effort medium`).
+- Odnoga z poprawką parsera modelu na karcie startu etapu — założyć i wykonać przed E6 (decyzja
+  z tego etapu: poprawka przed wydaniem 3.0.0).
+  *(Pozycje z wpisu E3 — „Start E4 w świeżej sesji Opus 5.5” i „Decyzja przed sceną 4” —
+  rozstrzygnięte 2026-10-12: E4 wykonany w świeżej sesji z kartą `/relai-stage`; scena 4
+  z wierszem Model w stanie zgodnym, decyzja Łukasza.)*
+
+Autor: RelAI (Opus 5.5) + Lukasz

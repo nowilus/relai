@@ -1,28 +1,23 @@
 // The animatic of the whole film (plan FILM_PREZENTACYJNY, E2): the six scenes of scenariusz.ts in
 // their order and length — scenes 1–3 built in full since E3 ("Pamiec", "Paski" + "PaskiDalej",
-// "Panel"), scenes 4–6 raw boards until E4. Each scene comes in over the end of the one before it,
-// by a crossfade or a reveal from the left, so the film's length stays the sum of its scenes.
+// "Panel"), scenes 4–6 since E4 ("NowaSesja", "PracaWraca", "Final"); the composition keeps its
+// name. Each scene comes in over the end of the one before it, by a crossfade or a reveal from the
+// left, so the film's length stays the sum of its scenes.
 // Opacity and clip only: no flash, no jump of brightness (case b7 of the plan).
 import type { ReactNode } from 'react';
 import { AbsoluteFill, Sequence, interpolate, useCurrentFrame } from 'remotion';
-import { FILM, FONT, INK } from '../tokeny';
-import { PL } from '../teksty';
+import { FILM } from '../tokeny';
 import { odcinki } from '../scenariusz';
 import type { IdSceny, Odcinek } from '../scenariusz';
-import { tekstFaktu, wstaw } from '../fakty';
-import type { Fakty } from '../fakty';
-import manifest from '../dane/manifest.json';
-import dane from '../dane/paski.json';
-import type { DanePaskow } from '../dane/typy';
 import { Paski } from './Paski';
 import { PaskiDalej } from './PaskiDalej';
 import { Pamiec } from './Pamiec';
 import { Panel } from './Panel';
+import { NowaSesja } from './NowaSesja';
+import { PracaWraca } from './PracaWraca';
+import { Final } from './Final';
 import { Biurko } from './Biurko';
-import { Kafle, Liczba, Plansza } from './Plansza';
 
-const F = manifest as unknown as Fakty;
-const D = dane as DanePaskow;
 const OVERLAP = 18; // frames a scene comes in over the one before it
 type Wejscie = 'przenikanie' | 'odslona';
 
@@ -57,12 +52,10 @@ const Wejdz = ({ jak, wyjscie = null, children }: { jak: Wejscie | null, wyjscie
   );
 };
 
-const napisy = (lista: readonly string[]) => lista.map((t) => wstaw(t, F));
-
-/** What a scene shows: the scene itself once built (1–3), a board until then (4–6). */
-function scena(id: IdSceny, sekundy: number): ReactNode {
+/** What a scene shows: each of the six is built in full (scenes 1–3 in E3, 4–6 in E4). */
+function scena(id: IdSceny): ReactNode {
   switch (id) {
-    // scenes 1–3 are built in full (E3); their boards are gone
+    // the boards of the animatic are gone: scenes 1–3 since E3, 4–6 since E4
     case 'pamiec':
       return <Pamiec />;
     case 'paski':
@@ -70,37 +63,11 @@ function scena(id: IdSceny, sekundy: number): ReactNode {
     case 'panel':
       return <Panel />;
     case 'nowaSesja':
-      return (
-        <Plansza tytul={PL.nowaSesja.tytul} ekran={PL.nowaSesja.ekran} napisy={napisy(PL.nowaSesja.napisy)} sekundy={sekundy}>
-          <div style={{ fontFamily: FONT.serif, fontWeight: 600, fontSize: 72, color: INK.captionBg }}>{PL.nowaSesja.pytanie}</div>
-          <Kafle slowa={[PL.nowaSesja.tak, PL.nowaSesja.nie]} duze />
-        </Plansza>
-      );
+      return <NowaSesja />;
     case 'pracaWraca':
-      return (
-        <Plansza tytul={PL.pracaWraca.tytul} ekran={PL.pracaWraca.ekran} napisy={napisy(PL.pracaWraca.napisy)} sekundy={sekundy}>
-          <Kafle slowa={[PL.pracaWraca.zapisz, PL.pracaWraca.wznow]} duze />
-        </Plansza>
-      );
-    case 'final': {
-      const L = PL.final.liczby;
-      const pasek = [D.plan.plan.wartosc, D.plan.etap.wartosc, D.plan.status.wartosc].join(' · ');
-      return (
-        <Plansza tytul={PL.final.tytul} ekran={PL.final.ekran} napisy={napisy(PL.final.napisy)} sekundy={sekundy}>
-          <div style={{ display: 'flex', justifyContent: 'center', gap: 90 }}>
-            {(Object.keys(L) as (keyof typeof L)[]).map((k) => {
-              const fakt = F[k];
-              if (!fakt) throw new Error(`the manifest has no fact ${k}`);
-              return <Liczba key={k} wartosc={tekstFaktu(fakt)} slowa={L[k]} />;
-            })}
-          </div>
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 14 }}>
-            <Kafle slowa={F.instalacja?.wartosc as readonly string[]} />
-            <Kafle slowa={[wstaw(PL.final.wersja, F), pasek]} />
-          </div>
-        </Plansza>
-      );
-    }
+      return <PracaWraca />;
+    case 'final':
+      return <Final />;
   }
 }
 
@@ -122,7 +89,7 @@ function scenaPaskow(o: Odcinek, jak: Wejscie | null, dalej: Wejscie | null): Re
       </Sequence>
       {reszta > 0 ? (
         <Sequence from={o.od + gotowe} durationInFrames={reszta + (ostatnia ? 0 : OVERLAP)} name="paski (dalej)">
-          <Wejdz jak={null} wyjscie={dalej === 'przenikanie' ? reszta : null}>{scena('paski', o.scena.sekundy)}</Wejdz>
+          <Wejdz jak={null} wyjscie={dalej === 'przenikanie' ? reszta : null}>{scena('paski')}</Wejdz>
         </Sequence>
       ) : null}
     </>
@@ -141,7 +108,7 @@ export const Animatik = () => {
         if (o.scena.id === 'paski') return <AbsoluteFill key={o.scena.id}>{scenaPaskow(o, jak, dalej)}</AbsoluteFill>;
         return (
           <Sequence key={o.scena.id} from={o.od} durationInFrames={o.klatki + (dalej === null ? 0 : OVERLAP)} name={o.scena.tytul}>
-            <Wejdz jak={jak} wyjscie={dalej === 'przenikanie' ? o.klatki : null}>{scena(o.scena.id, o.scena.sekundy)}</Wejdz>
+            <Wejdz jak={jak} wyjscie={dalej === 'przenikanie' ? o.klatki : null}>{scena(o.scena.id)}</Wejdz>
           </Sequence>
         );
       })}

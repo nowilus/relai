@@ -12,7 +12,12 @@ import { PL } from '../src/teksty.ts';
 import { POLECANE, ukladKomend, wszystkie } from '../src/komendy.ts';
 import { FEATURED, GROUPS, NAMES } from '../../../../../core/panel/theme.mjs';
 import { FORMS } from '../../../../../core/panel/commands.mjs';
-import { REPO } from '../skrypty/dane.mjs';
+import { REPO, repoReader } from '../skrypty/dane.mjs';
+import { sceny, atCommit, START } from '../skrypty/sceny.mjs';
+import { stageCard } from '../../../../../core/panel/decisions.mjs';
+import sc from '../src/dane/sceny.json' with { type: 'json' };
+
+const SC = sc;
 
 const PANE_PARTS = join(REPO, 'panel/hooks/pane-parts.tsx');
 const PANE_COMMANDS = join(REPO, 'panel/hooks/pane-commands.tsx');
@@ -69,4 +74,45 @@ test('the layout rule of the scene is the one pane-commands.tsx states', () => {
   assert.match(text, new RegExp(`\\.\\.\\.FEATURED\\.slice\\(${POLECANE}\\)`));
   // positive control: another number of recommended would not match the pane's line
   assert.doesNotMatch(text, new RegExp(`const featured = FEATURED\\.slice\\(0, ${POLECANE + 1}\\)`));
+});
+
+// ---------- scenes 4 and 5 (E4) ----------
+// The card of scene 4 is stageCard()'s own output and the words of scene 5 are read from the
+// plugins' files (skrypty/sceny.mjs); these checks hold the parts the film draws itself — the
+// card's buttons — and the one change to the card's input, the label of the model.
+
+test('the buttons of scene 4\'s card are those of the panel\'s confirmation card', () => {
+  const text = readFileSync(PANE_PARTS, 'utf8');
+  assert.ok(text.includes(`btn('confirm-yes', '${PL.nowaSesja.tak}'`), 'Tak');
+  assert.ok(text.includes(`btn('confirm-no', '${PL.nowaSesja.nie}'`), 'Nie');
+  // positive control: another word would not be found
+  assert.ok(!text.includes("btn('confirm-yes', 'Dalej'"));
+});
+
+test('scene 4\'s model row is the card\'s "match" row; the line as written still warns (parser branch open)', (t) => {
+  const statusAtStart = atCommit(START, 'docs/plany/FILM_PREZENTACYJNY/STATUS.md');
+  const prompt = atCommit(START, 'docs/plany/FILM_PREZENTACYJNY/PROMPT_ETAP_4.md');
+  const card = (statusMd) => stageCard({ id: 'film-kontrola', statusMd, statusPath: 'docs/plany/FILM_PREZENTACYJNY/STATUS.md', promptText: prompt, stage: 'E4', sessionModel: 'Opus 5.5', isFresh: false, isNew: true, via: 'link' });
+  const model = (c) => c.card.facts.find((f) => f.label === 'Model');
+  const shown = SC.nowaSesja.fakty.wartosc.find((f) => f.etykieta === 'Model');
+  assert.equal(shown.ton, 'ok');
+  assert.equal(shown.wartosc, 'Opus 5.5 — zgodny z planem (Opus 5.5)');
+  // as written, the metric line gives the warning of screenshot 08: when this fails, the parser
+  // is fixed — drop the label added in sceny.mjs and this half of the test
+  const asWritten = model(card(statusAtStart));
+  assert.equal(asWritten.value, 'plan nie wskazuje modelu');
+  t.diagnostic(`model row: film "${shown.wartosc}", live today "${asWritten.value}"`);
+  // every other row of the film's card is the live card's row, word for word
+  const live = card(statusAtStart).card.facts.filter((f) => f.label !== 'Model').map((f) => f.value);
+  assert.deepEqual(SC.nowaSesja.fakty.wartosc.filter((f) => f.etykieta !== 'Model').map((f) => f.wartosc), live);
+});
+
+test('positive control: a plugin file without a word scene 5 reads stops the data script', () => {
+  const read = repoReader();
+  const statusAtStart = atCommit(START, 'docs/plany/FILM_PREZENTACYJNY/STATUS.md');
+  const promptAtStart = atCommit(START, 'docs/plany/FILM_PREZENTACYJNY/PROMPT_ETAP_4.md');
+  const without = (file, from, to) => (p) => (p === file ? String(read(p)).replace(from, to) : read(p));
+  assert.throws(() => sceny({ readText: without('cache-keeper/hooks/limit.ts', "export const GO_ON = 'Pracuję dalej'", "export const GO_ON2 = 'x'"), statusAtStart, promptAtStart, repoRoot: REPO }), /GO_ON/);
+  assert.throws(() => sceny({ readText: without('cache-keeper/hooks/register.tsx', 'label="Odrzuć"', 'label="Usuń"'), statusAtStart, promptAtStart, repoRoot: REPO }), /Odrzuć/);
+  assert.throws(() => sceny({ readText: read, statusAtStart: statusAtStart.replace('· Opus 5.5 w Claude Code', '· Opus 6'), promptAtStart, repoRoot: REPO }), /metric line/);
 });

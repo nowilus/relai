@@ -46,3 +46,20 @@ export type DanePaskow = {
   },
   cache: { miary: Miara[], koszt: Fakt<string>, kosztJednostka: Fakt<string> },
 };
+
+/** The shape of src/dane/sceny.json, written by skrypty/sceny.mjs (scenes 4 and 5, E4). */
+export type FaktKarty = { etykieta: string, wartosc: string, ton: 'ok' | 'warn' | 'zwykly' };
+export type DaneScen = {
+  nowaSesja: {
+    naglowek: Fakt<string>, podpis: Fakt<string>, tytul: Fakt<string>,
+    fakty: Fakt<FaktKarty[]>, pytanie: Fakt<string>,
+    komenda: Fakt<string>, otwarto: Fakt<string>, zostaje: Fakt<string>,
+    plan: Fakt<{ plan: string, etap: string, status: string, nazwa: string, zamkniete: number, etapy: number }>,
+  },
+  pracaWraca: {
+    pytanie: Fakt<string>, dalej: Fakt<string>, opcje: Fakt<string[]>, prog: Fakt<number>,
+    fraza: Fakt<string>, kroki: Fakt<string[]>,
+    plikWznowienia: Fakt<string>, gotowe: Fakt<string>, zapis: Fakt<string>, odnowiony: Fakt<string>,
+    przyciski: Fakt<string[]>, wznow: Fakt<string>,
+  },
+};

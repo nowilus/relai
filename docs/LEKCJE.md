@@ -56,9 +56,11 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
    w dwóch przebiegach** — stary kod w całości i stary kod z podłożoną tylko nową czystą logiką;
    „plik testów się nie wczytał” nie dowodzi żadnego testu z osobna (L-0165). **Element animowany
    z danych procesu sprawdzasz na stanie pośrednim z lukami**, nie tylko na stanie z chwili pisania
-   — punkty odhacza się w kolejności pracy, nie numeracji (L-0175).
+   — punkty odhacza się w kolejności pracy, nie numeracji (L-0175). **Chwilę z przeszłości liczysz
+   kodem produktu z plików przypiętych do jej commitu** (`git show`), nie z danych żywych, które
+   do dnia wydania pokażą inny stan (L-0177).
    (L-0017, L-0018, L-0040, L-0051, L-0052, L-0063, L-0069, L-0082, L-0115, L-0117, L-0123, L-0134,
-   L-0144, L-0150, L-0154, L-0155, L-0156, L-0158, L-0159, L-0165, L-0175)
+   L-0144, L-0150, L-0154, L-0155, L-0156, L-0158, L-0159, L-0165, L-0175, L-0177)
 5. **Instrument pomiarowy sam bywa źródłem fałszu:** wyrażenia regularne trzymaj w pliku zapisanym
    narzędziem zapisu, nie w `node -e` ani w heredoku, a tekst z backslashem (także ścieżkę
    Windows) wstawiasz Edit/Write albo piszesz z `/` (L-0116, L-0119); **skrypt edycji kodu, który
@@ -304,9 +306,11 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
     klatek obejmuje klatkę największego zbliżenia (L-0171). **Przejście między ekranami tej samej
     siatki idzie przez wspólne tło, nie przez nałożenie**, a liczby w kadrze piszesz krojem
     rozróżniającym „1” i „I” (L-0174). **Adnotacja przy liczbie mówi wartość wyliczoną**, nie
-    pytanie, na które liczba odpowiada (L-0176).
+    pytanie, na które liczba odpowiada (L-0176). **Decyzja „tego nie pokazujemy” dotyczy treści,
+    nie elementu** — jej brzmienia szukasz we wszystkich tekstach kadru, także w cytatach
+    wyłączonych z testu faktów (L-0178).
     (L-0003, L-0006, L-0016, L-0019, L-0029, L-0094, L-0098, L-0137, L-0140, L-0142, L-0145, L-0147,
-    L-0149, L-0152, L-0157, L-0171, L-0174, L-0176)
+    L-0149, L-0152, L-0157, L-0171, L-0174, L-0176, L-0178)
 
 **Wyprowadzone 2026-08-20 do `docs/PULAPKI.md`:** sześć pozycji, które były pułapkami
 narzędziowymi, a nie zasadami pracy — `tar` na `PATH` (L-0021), sesja pomiarowa `claude -p`
@@ -683,6 +687,34 @@ restart aplikacji po `plugin update` (L-0031), `git worktree` zamiast `git archi
   Hasło konstrukcyjne sceny (pytania pod tytułem) zmieniasz razem z nią, żeby para pytanie–karteczka
   dalej się zgadzała.
 - **Źródło:** FILM_PREZENTACYJNY E3, 2026-10-12, korekta Łukasza w rundzie 1; destylat: zasada 15.
+
+### L-0177 — Scena chwili z przeszłości liczona z danych żywych pokazywałaby inny etap w dniu wydania · 2026-10-12 · AKTYWNA
+
+- **Trigger:** scena 4 pokazuje kartę startu E4, ze statusem „GOTOWY DO STARTU” i 16 punktami
+  weryfikacji. Ta sama karta policzona z bieżącego `STATUS.md` w chwili pisania sceny pokazywała
+  już „W TOKU” z ostrzeżeniem, a w dniu renderu wydania (E6) pokazałaby „ZREALIZOWANY”.
+- **Przyczyna:** scena 2 i finał mają pokazywać plan „w stanie z dnia renderu”. Scena 4 opowiada
+  jedną chwilę z przeszłości. Ten sam mechanizm danych żywych daje w niej fałsz, który narasta
+  z każdym etapem.
+- **Zasada:** dane sceny dzielisz na „stan dziś” i „chwilę z przeszłości”. Chwilę liczysz tym samym
+  kodem produktu, ale z plików przypiętych do commitu tej chwili (`git show <commit>:<plik>`),
+  z commitem w polu `zrodlo`. Status ustawiany przez proces po tej chwili (`W TOKU` po starcie)
+  wpisujesz jawnie, ze wskazaniem kroku procesu, który go ustawia.
+- **Źródło:** FILM_PREZENTACYJNY E4, 2026-10-12; destylat: zasada 4.
+
+### L-0178 — Słowo wycofane decyzją człowieka wracało do kadru cytatem · 2026-10-12 · AKTYWNA
+
+- **Trigger:** Łukasz zdecydował, że karta w scenie 4 nie pokazuje „⚠ plan nie wskazuje modelu”.
+  Wiersz Model poprawiłem, ale pasek postępu w tej samej scenie cytował pierwszy punkt promptu E4:
+  „Pytanie o kartę »⚠ plan nie wskazuje modelu« padło na starcie…”. Wyszło to dopiero na klatce
+  kontrolnej.
+- **Przyczyna:** decyzję zastosowałem do miejsca, o które pytałem, a nie do słowa. Cytat
+  (nazwy punktów, wiersze diffu) z założenia wymyka się testowi faktów, więc nic go nie pilnowało.
+- **Zasada:** decyzja „tego nie pokazujemy” dotyczy treści, nie elementu. Po takiej decyzji szukasz
+  jej brzmienia we wszystkich tekstach kadru, także w cytatach wyłączonych z testu faktów, i każde
+  trafienie rozstrzygasz: usuwasz element albo pytasz. Zdjęcie elementu zgłaszasz człowiekowi przy
+  pokazie.
+- **Źródło:** FILM_PREZENTACYJNY E4, 2026-10-12, własny przegląd klatek; destylat: zasada 15.
 
 ## Lekcje zwinięte
 

@@ -7,15 +7,17 @@
   "scripts": {
     "dane": "node skrypty/dane.mjs",
     "panel": "node skrypty/panel.mjs",
+    "sceny": "node skrypty/sceny.mjs",
     "fonty": "node skrypty/fonty.mjs",
     "znak": "node skrypty/znak.mjs",
     "manifest": "node skrypty/manifest.mjs",
-    "przygotuj": "npm run dane && npm run panel && npm run manifest && npm run fonty && npm run znak",
+    "przygotuj": "npm run dane && npm run panel && npm run sceny && npm run manifest && npm run fonty && npm run znak",
     "studio": "npm run przygotuj && remotion studio",
     "klatka": "npm run przygotuj && remotion still Paski out/paski-klatka.png --frame=280",
     "paski": "npm run przygotuj && remotion render Paski out/paski-10s.mp4",
     "animatik": "npm run przygotuj && remotion render Animatik out/animatik.mp4 --scale=0.5",
     "minuta": "npm run przygotuj && remotion render Animatik out/minuta.mp4 --frames=0-1949",
+    "film": "npm run przygotuj && remotion render Animatik out/film.mp4",
     "typy": "tsc --noEmit",
     "test": "node --test testy/*.test.mjs"
   },

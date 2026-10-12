@@ -1,9 +1,10 @@
 // "A figure in the frame is a fact" (plan FILM_PREZENTACYJNY, section 1, goal 3; E2). The test
-// gathers every text the animatic puts in a frame — the dictionary with its markers filled, the
-// figures of the finale, the boards' lengths, the data of scene 2 — and fails on each figure that
-// is in neither src/dane/manifest.json nor src/dane/paski.json (the boards' lengths come from
-// scenariusz.ts: they belong to the animatic and leave with it). Since E3 also the data of scene 3
-// (src/dane/panel.json) and the names it quotes from core/panel. Two counters: a narrow one for
+// gathers every text the film puts in a frame — the dictionary with its markers filled, the
+// figures of the finale, the data of scene 2 — and fails on each figure that is in neither
+// src/dane/manifest.json nor src/dane/paski.json. Since E3 also the data of scene 3
+// (src/dane/panel.json) and the names it quotes from core/panel; since E4 the data of scenes 4
+// and 5 (src/dane/sceny.json). The boards' lengths ("20 s") left with the boards in E4: they were
+// the only figures the animatic took from scenariusz.ts. Two counters: a narrow one for
 // digits and a wide one for numbers in words and percent signs. Each has its positive control,
 // the wide one also a control against counting too much on material with no figures.
 // Run after `npm run przygotuj` (npm test does not regenerate the files: that would test nothing).
@@ -16,11 +17,13 @@ import { SCENY, dlugosc, odcinki } from '../src/scenariusz.ts';
 import { manifest, fromRepo, dirLister, OUT as MANIFEST } from '../skrypty/manifest.mjs';
 import { repoReader, OUT as PASKI } from '../skrypty/dane.mjs';
 import { fromRepo as panelFromRepo, OUT as PANEL } from '../skrypty/panel.mjs';
+import { fromRepo as scenyFromRepo, OUT as SCENY_DATA } from '../skrypty/sceny.mjs';
 import { NAMES, GROUPS } from '../../../../../core/panel/theme.mjs';
 
 const F = JSON.parse(readFileSync(MANIFEST, 'utf8'));
 const P = JSON.parse(readFileSync(PASKI, 'utf8'));
 const PN = JSON.parse(readFileSync(PANEL, 'utf8'));
+const SC = JSON.parse(readFileSync(SCENY_DATA, 'utf8'));
 const FPS = 30;
 
 // ---------- what the frame shows ----------
@@ -38,14 +41,18 @@ function values(node) {
   return typeof node === 'string' || typeof node === 'number' ? [String(node)] : [];
 }
 
-/** The texts the film writes itself: the dictionary filled, the finale, the boards' lengths. */
+/** The texts the film writes itself: the dictionary filled, the finale, the figures it composes. */
 function authoredTexts(pl, f) {
+  const s4 = SC.nowaSesja;
   return [
     ...strings(pl).map((t) => wstaw(t, f)),
     ...Object.keys(pl.final.liczby).map((k) => tekstFaktu(f[k])),
     ...f.instalacja.wartosc,
-    ...SCENY.map((s) => `${s.sekundy} ${pl.plansza.sekundy}`),
     [P.plan.plan.wartosc, P.plan.etap.wartosc, P.plan.status.wartosc].join(' · '),
+    // what scenes 4–6 put together from their facts: the bars' figures, the threshold's label
+    `${P.plan.zamkniete.wartosc}/${P.plan.etapy.wartosc}`,
+    `${s4.plan.wartosc.zamkniete}/${s4.plan.wartosc.etapy}`,
+    `${pl.pracaWraca.prog} ${SC.pracaWraca.prog.wartosc} %`,
   ];
 }
 
@@ -71,14 +78,17 @@ const PN_FACTS = { ...PN, dokumenty };
  */
 const productTexts = () => [...Object.values(NAMES).flat(), ...GROUPS.map((g) => g.title)];
 
+/** The data of scenes 4 and 5 (E4): facts only, nothing quoted. */
+const SC_FACTS = SC;
+
 /** Everything the film writes in a frame besides the quoted point names and diff lines. */
-const frameTexts = (pl, f) => [...authoredTexts(pl, f), ...values(P_FACTS), ...values(PN_FACTS), ...productTexts()];
+const frameTexts = (pl, f) => [...authoredTexts(pl, f), ...values(P_FACTS), ...values(PN_FACTS), ...values(SC_FACTS), ...productTexts()];
 
 // ---------- the narrow counter: digits ----------
 
 const NUMBER = /\d+(?:[.,]\d+)*/g;
 const numbersIn = (t) => t.match(NUMBER) ?? [];
-const allowed = new Set([...values(F), ...values(P_FACTS), ...values(PN_FACTS), ...SCENY.map((s) => String(s.sekundy))].flatMap(numbersIn));
+const allowed = new Set([...values(F), ...values(P_FACTS), ...values(PN_FACTS), ...values(SC_FACTS)].flatMap(numbersIn));
 
 /** The figures of the texts that are not facts, with the text they stand in. */
 const strays = (texts) => texts.flatMap((t) => numbersIn(t).filter((n) => !allowed.has(n)).map((n) => `${n} in "${t}"`));
@@ -193,6 +203,19 @@ test('panel.json equals the data computed again; each of its facts carries a sou
   assert.ok(facts > 0);
 });
 
+test('sceny.json equals the data computed again; each of its facts carries a source', () => {
+  assert.deepEqual(scenyFromRepo(), SC);
+  let facts = 0;
+  for (const [scene, entries] of Object.entries(SC)) {
+    for (const [k, f] of Object.entries(entries)) {
+      assert.deepEqual(Object.keys(f).sort(), ['wartosc', 'zrodlo'], `${scene}.${k}`);
+      assert.ok(typeof f.zrodlo === 'string' && f.zrodlo.trim() !== '', `${scene}.${k} has no source`);
+      facts++;
+    }
+  }
+  assert.ok(facts > 0);
+});
+
 test('narrow counter: every figure in the frame is a fact; a planted figure fails', (t) => {
   // the planted values must not be facts already, or their controls test nothing (L-0173)
   for (const v of ['2500', '7']) assert.ok(!allowed.has(v), `${v} is already in the allowed set`);
@@ -227,7 +250,7 @@ const PRIVATE = Object.freeze({
 const privateHits = (texts) => texts.flatMap((t) => Object.entries(PRIVATE).filter(([, re]) => re.test(t)).map(([k]) => `${k} in "${t}"`));
 
 test('no home path, e-mail or session id in the frame or in the data files', () => {
-  const texts = [...frameTexts(PL, F), ...strings(F), ...strings(P), ...strings(PN)];
+  const texts = [...frameTexts(PL, F), ...strings(F), ...strings(P), ...strings(PN), ...strings(SC)];
   assert.deepEqual(privateHits(texts), []);
   // positive control: one planted line per pattern, each caught by its own pattern
   const planted = ['C:\\Users\\kto\\projekt', 'pisz na kto@example.com', 'sesja 475a19e0-e205-4319-8479-866bc33a0e1e'];
