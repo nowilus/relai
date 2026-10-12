@@ -51,7 +51,6 @@
 
 ## Czeka na człowieka
 - **Jeden katalog `skills/` w standardzie Agent Skills dla trzech narzędzi** — zdjąłby kopię Codeksa (~4300 linii) i generator, ale zmienia zamrożoną D-89 i kształt adapterów; plan, odnoga czy odrzucić (audyt AUDYT_SKILLI, wiersz 50 raportu) · 2026-10-11 · [wpis 2026-10-11 — research, audyt, plan](#2026-10-11--research-nowej-sesji-audyt-skilli-i-plan-limit_checkpoint)
-- **AUDYT_SKILLI S5 — kontrola zmiany opisu w granicach szumu** — stary opis planning wyzwolił się na „jak to ugryźć” 1 raz na 6 sesji, nowy 0 na 6; przyjąć tak, czy przed 3.0.0 puścić zestaw z powtórzeniami (n > 1, ~1–3 USD) · 2026-10-12 · [wpis 2026-10-12 — AUDYT_SKILLI zamknięta](#2026-10-12--audyt_skilli-zamknięta-skille-według-praktyk-agent-skills-bez-wydania)
 - **AUDYT_MODOW — ustalenia poza zakresem (5 pozycji `outOfScope` raportu)** — odchudzenie kopii rdzenia per plugin (`sync-panel-core`), `headings.mjs` 254 KB w progress i cache-keeperze, % limitu per etap w rdzeniu, `userConfig` cache-keepera, przedrostek `relai-` jego komend; plus wariant B „jedna listwa” jako kandydat na plan — decyzja: plan, odnoga albo odrzucić · 2026-10-11 · [wpis 2026-10-11 — Z13, Z14 i zamknięcie odnogi](#2026-10-11--audyt_modow-z13-i-z14-wydanie-0120-i-zamknięcie-odnogi)
 - **PANEL_CODEX E1 — próba przycisków minimalnego pakietu i świeżego kontekstu** — w macierzystym czacie nadal proces 0.0.7/PID 62300; po restarcie sprawdzić sondę 0.0.9 (także fonty), nowy szkic i jego rzeczywisty projekt/kontekst. Wygląd już zaakceptowany · 2026-10-10 · [wpis — Panel i mostek](archiwum/dziennik/DZIENNIK_2026-10-09_2026-10-10.md#2026-10-10--panel_codex-e1-natywny-widok-minimalny-pakiet-i-mostek-bieżącego-czatu)
 
@@ -1267,5 +1266,7 @@ i `/relai-feedback` — poza zakresem karty.
 
 **Do zrobienia przez człowieka:** akceptacja commita (propozycja w czacie, bez wydania); decyzja,
 czy nieodhaczona kontrola zmiany S5 wystarcza, czy zestaw ma dostać powtórzenia (n > 1) przed 3.0.0.
+**Rozstrzygnięte tego samego dnia:** commit `2c41a07` wypchnięty za zgodą Łukasza; kontrola zmiany
+S5 przyjęta tak, jak jest (Łukasz: „przyjmij tak jak jest”) — bez powtórzeń przed 3.0.0.
 
 Autor: RelAI (Opus 5.5) + Lukasz

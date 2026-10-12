@@ -86,7 +86,7 @@ zaakceptowany, E1 trwa po stronie Codeksa. Opinii spoza projektu nadal nie ma.
   prezentacyjnym (Remotion)** do README na GitHubie i do wysyłki ludziom: pełny przegląd RelAI
   w Claude Code — paski nad promptem, otwieranie panelu, zakładki i co w nich sprawdzić lub zrobić.
   Film powstaje na dopracowanym produkcie, po zamknięciu AUDYT_SKILLI.
-- Po AUDYT_SKILLI: decyzja o powtórzeniach ewaluacji wyzwalania (kontrola zmiany opisu w szumie);
+- Po AUDYT_SKILLI (kontrola zmiany opisu w S5 przyjęta bez powtórzeń, Łukasz 2026-10-12):
   ewaluacje zachowania komend i `/relai-feedback` poza zakresem odnogi; `relai-prompt.md` ponad 20 KB.
 
 - E1: przeładować klienta MCP, zmierzyć sondę 0.0.9 (fonty, przyciski, świeży szkic z właściwym

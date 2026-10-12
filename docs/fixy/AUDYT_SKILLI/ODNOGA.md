@@ -115,7 +115,8 @@ generator Codeksa (`adapters/codex/generate-skills.js`), którego parytet pilnuj
       **Nieodhaczone świadomie:** wszystko poza ostatnim zdaniem spełnione (14 pozycji, 7 na skill,
       36/36 `ok` na obu modelach, link w `ARTEFAKTY.md`); kontrola zmiany dała 1 wyzwolenie na
       6 sesji starego opisu („jak to ugryźć”, Sonnet 5.5) wobec 0 na 6 nowego — kierunek zgodny,
-      różnica w granicach szumu, więc zmiana opisu nie jest tym dowiedziona.
+      różnica w granicach szumu, więc zmiana opisu nie jest tym dowiedziona. Przyjęte tak, jak jest
+      (Łukasz 2026-10-12) — bez powtórzeń przed 3.0.0.
 - [x] S6: `grep -L "disable-model-invocation: true"` na pięciu komendach — pusto; `grep -r '\$ARGUMENTS'
       adapters/codex/skills` — pusto; `claude plugin validate .` exit 0; README i INSTALACJA mają akapit
       o granicach.
