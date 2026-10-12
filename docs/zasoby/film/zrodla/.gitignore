@@ -1,0 +1,4 @@
+node_modules/
+out/
+# copies made by skrypty/fonty.mjs from docs/zasoby/fonts/ before every render
+public/fonty/

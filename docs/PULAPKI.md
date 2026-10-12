@@ -8,6 +8,31 @@ Specyfikacja: `SPEC_PULAPKI.md`.
 
 ## Pułapki
 
+### P-036 — `node --test <katalog>/` w Node 24 i `python -` w Git Bash · 2026-10-12 · AKTYWNA
+
+- **Objaw:** `node --test testy/` kończy się `MODULE_NOT_FOUND` i raportem „tests 1, fail 1” bez
+  żadnego testu z pliku; `python - <<'EOF'` w Bashu sesji wisi do limitu czasu narzędzia.
+- **Przyczyna:** Node 24.13.1 bierze katalog podany wprost jako moduł do uruchomienia, nie jako
+  miejsce wyszukiwania testów. `python` na tej maszynie to alias sklepu Windows, który czeka na
+  wejście zamiast uruchomić interpreter.
+- **Obejście:** testy wskazuj wzorcem pliku (`node --test testy/*.test.mjs`) i patrz na liczbę
+  testów w raporcie, nie na sam kod wyjścia. Skrypty piszesz w Node narzędziem Write; Pythona nie
+  wołasz z heredoku.
+- **Źródło:** FILM_PREZENTACYJNY E1, 2026-10-12.
+
+### P-035 — Remotion / Chromium: tekst rozmyty przy najeździe kamery · 2026-10-12 · AKTYWNA
+
+- **Objaw:** w klatce zbliżenia (`scale` 2–3 na warstwie sceny) tekst pasków jest miękki jak
+  powiększone zdjęcie, choć klatka bez zbliżenia jest ostra.
+- **Przyczyna:** element w środku powiększanej warstwy z transformacją 3D (`perspective`,
+  `rotateX`) albo z `backdrop-filter` dostaje własną warstwę kompozycji, rasteryzowaną w skali 1;
+  kamera powiększa jej bitmapę, a nie przelicza tekstu. Zwykła transformacja 2D na warstwie
+  kamery (`translate` + `scale`, bez `will-change`) jest rasteryzowana w skali docelowej.
+- **Obejście:** po zakończeniu ruchu element nie niesie żadnej transformacji (`transform: 'none'`,
+  także po sprężynie z przeregulowaniem — warunek na `|1 − k| < 0,001`, nie na `k < 1`); szkło bez
+  `backdrop-filter`. Ostrość sprawdzasz na klatce największego zbliżenia (`remotion still --frame`).
+- **Źródło:** FILM_PREZENTACYJNY E1, 2026-10-12 (klatka 165, zoom 2,8); lekcja L-0171.
+
 ### P-034 — Skill się nie wyzwolił albo wyzwala się za często · 2026-10-12 · AKTYWNA
 
 - **Objaw:** sesja nie zrobiła rytuału, nie otworzyła planu albo nie zaproponowała procedury, choć

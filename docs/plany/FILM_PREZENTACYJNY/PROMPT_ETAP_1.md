@@ -434,38 +434,38 @@ Elementy zamykające etap, które łatwo pominąć: wiersz w `docs/USTAWIENIA.md
 Każdy punkt Weryfikacji, który przeszedł, odhaczasz w `PROMPT_ETAP_1.md` (`- [ ]` → `- [x]`)
 zaraz po jego sprawdzeniu, nie na końcu etapu; punkt, który nie przeszedł, zostaje pusty.
 
-- [ ] Zgoda Łukasza na instalację padła w czacie **przed** `npm install`; lista pakietów, wersji
+- [x] Zgoda Łukasza na instalację padła w czacie **przed** `npm install`; lista pakietów, wersji
       i rozmiarów (FAKT z `npm view`) oraz przeglądarka do renderu — w sekcji „Zweryfikowane” wpisu.
-- [ ] `package.json` w `docs/zasoby/film/zrodla/` nie ma ani jednej wersji z `^` ani `~`; lockfile
+- [x] `package.json` w `docs/zasoby/film/zrodla/` nie ma ani jednej wersji z `^` ani `~`; lockfile
       jest w gicie; `git check-ignore` potwierdza, że `node_modules/` i `out/` są poza gitem.
-- [ ] Render daje MP4 1920×1080, 30 kl./s, 10,0 s — odczytane `npx remotion ffprobe` (albo
+- [x] Render daje MP4 1920×1080, 30 kl./s, 10,0 s — odczytane `npx remotion ffprobe` (albo
       równoważnie z metadanych pliku), nie z komunikatu renderu; still PNG ma 1920×1080.
-- [ ] Wartości pasków plan i postęp w `src/dane/paski.json` są równe wynikowi `core/panel` na
+- [x] Wartości pasków plan i postęp w `src/dane/paski.json` są równe wynikowi `core/panel` na
       bieżącym repo (test node porównuje oba); **kontrola pozytywna:** ten sam test na kopii
       `STATUS.md` z podmienionym statusem etapu daje inną wartość i test ją wykrywa.
-- [ ] Każda wartość paska cache w `paski.json` ma źródło (`2026-10-11-z1-trzy-paski-0.12.0.png`)
+- [x] Każda wartość paska cache w `paski.json` ma źródło (`2026-10-11-z1-trzy-paski-0.12.0.png`)
       i jest równa wartości widocznej na tym zrzucie.
-- [ ] Kolory sceny pochodzą z `core/panel/theme.mjs` albo z `src/tokeny.ts`: `grep` literałów
+- [x] Kolory sceny pochodzą z `core/panel/theme.mjs` albo z `src/tokeny.ts`: `grep` literałów
       `#[0-9a-fA-F]{3,8}` w `src/sceny/` zwraca zero trafień.
-- [ ] Zero adresów sieciowych w źródłach filmu: `grep -rnE "https?://" docs/zasoby/film/zrodla/src`
+- [x] Zero adresów sieciowych w źródłach filmu: `grep -rnE "https?://" docs/zasoby/film/zrodla/src`
       — pusto (kontrola pozytywna wzorca: plik z adresem podłożony w katalogu roboczym trafia).
-- [ ] Prywatność kadru: teksty sceny i `paski.json` bez ścieżki domowej, e-maila i identyfikatora
+- [x] Prywatność kadru: teksty sceny i `paski.json` bez ścieżki domowej, e-maila i identyfikatora
       sesji — `grep -E` po trzech wzorcach (katalog `Users`, adres z `@` i domeną, UUID) pusto;
       wzorzec w pliku zapisanym narzędziem Write i sprawdzony kontrolą pozytywną (L-0116).
-- [ ] Obejrzane własne klatki (co najmniej cztery chwile ruchu) przed pokazaniem Łukaszowi;
+- [x] Obejrzane własne klatki (co najmniej cztery chwile ruchu) przed pokazaniem Łukaszowi;
       poprawki z tego przeglądu wymienione we wpisie.
-- [ ] Łukasz zaakceptował kierunek (jego słowa we wpisie) **albo** po trzech rundach kierunek nie
+- [x] Łukasz zaakceptował kierunek (jego słowa we wpisie) **albo** po trzech rundach kierunek nie
       jest przyjęty — wtedy etap zostaje `W TOKU`, a wpis mówi, co zostało do rozstrzygnięcia.
-- [ ] `docs/zasoby/film/kalibracja/E1-klatka.png` to klatka zaakceptowana; wiersz „Kierunek filmu”
+- [x] `docs/zasoby/film/kalibracja/E1-klatka.png` to klatka zaakceptowana; wiersz „Kierunek filmu”
       w `docs/USTAWIENIA.md` z datą 2026-10-12 lub późniejszą.
-- [ ] `npm audit --omit=dev` w `docs/zasoby/film/zrodla/` — zero podatności wysokich i krytycznych
+- [x] `npm audit --omit=dev` w `docs/zasoby/film/zrodla/` — zero podatności wysokich i krytycznych
       (liczby do wpisu; zastane w narzędziach budowy idą do tabeli ryzyk z oceną, czy dotykają renderu).
-- [ ] Testy rdzenia 331/331 (komenda ze „Stanu wyjściowego”); `node core/tools/validate-adapters.js`
+- [x] Testy rdzenia 331/331 (komenda ze „Stanu wyjściowego”); `node core/tools/validate-adapters.js`
       spójne; `claude plugin validate .` binarką aplikacji — exit 0 z nowym katalogiem w repo.
-- [ ] Pliki PANEL_CODEX (`docs/plany/PANEL_CODEX/`, `docs/zasoby/PANEL_RELAI/makiety/`) nietknięte:
+- [x] Pliki PANEL_CODEX (`docs/plany/PANEL_CODEX/`, `docs/zasoby/PANEL_RELAI/makiety/`) nietknięte:
       `git diff --stat` na nich identyczny z tym sprzed etapu i poza commitem etapu.
-- [ ] Wpis w `docs/DZIENNIK.md` na końcu sekcji „Wpisy”, z podpisem `Autor: RelAI (Opus 5.5) + Lukasz`.
-- [ ] Katalog roboczy `.claude/relai/work/FILM_PREZENTACYJNY/E1/` przejrzany raportem
+- [x] Wpis w `docs/DZIENNIK.md` na końcu sekcji „Wpisy”, z podpisem `Autor: RelAI (Opus 5.5) + Lukasz`.
+- [x] Katalog roboczy `.claude/relai/work/FILM_PREZENTACYJNY/E1/` przejrzany raportem
       (`node .claude/relai/tools/clean-work.js raport`) i skasowany po „tak”; liczby przed i po
       w sekcji „Zweryfikowane” wpisu. Artefakty poza nim (przeglądarka do renderu Remotion w katalogu
       domowym, pliki `%TEMP%` renderu) wypisane z nazwy, z tym, co się z nimi stało.

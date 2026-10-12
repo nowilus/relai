@@ -1,0 +1,27 @@
+{
+  "name": "relai-film",
+  "version": "0.1.0",
+  "private": true,
+  "description": "RelAI presentation film, rendered with Remotion from the repository's own data (plan FILM_PREZENTACYJNY).",
+  "type": "module",
+  "scripts": {
+    "dane": "node skrypty/dane.mjs",
+    "fonty": "node skrypty/fonty.mjs",
+    "przygotuj": "npm run dane && npm run fonty",
+    "studio": "npm run przygotuj && remotion studio",
+    "klatka": "npm run przygotuj && remotion still Paski out/paski-klatka.png --frame=280",
+    "paski": "npm run przygotuj && remotion render Paski out/paski-10s.mp4",
+    "typy": "tsc --noEmit",
+    "test": "node --test testy/*.test.mjs"
+  },
+  "dependencies": {
+    "@remotion/cli": "4.0.535",
+    "react": "19.3.0",
+    "react-dom": "19.3.0",
+    "remotion": "4.0.535"
+  },
+  "devDependencies": {
+    "@types/react": "19.3.0",
+    "typescript": "5.9.3"
+  }
+}

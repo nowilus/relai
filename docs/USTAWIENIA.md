@@ -16,6 +16,7 @@ Rejestr wyborów użytkownika dla tego projektu. Każdy wpis: data, czego dotycz
 | 2026-08-07 | Gust designowy (konkurs E6) | Cztery kierunki z rundy 1 odrzucone **na stałe**, „Redakcja" zachowana jako baza — oczekiwania i lista zakazów: D-61a i D-61b |
 | 2026-08-08 | **Kierunek designu (wynik konkursu E6)** | Blend „Warsztat" — wzorzec w `docs/zasoby/design-konkurs/runda-3/blend.html`; skład palety i ograniczenia ruchu opisuje wpis dziennika 2026-08-08 (E6) |
 | 2026-08-07 | Fonty w plikach HTML | Osadzone w base64, zero CDN |
+| 2026-10-12 | **Kierunek filmu** (plan FILM_PREZENTACYJNY, E1) | „Warsztat z wigorem” przyjęty przez Łukasza po dwóch rundach („przyjmuję kierunek”): ciemne okno aplikacji z prawdziwymi paskami na kremowym papierze z ziarnem; Fraunces w tytule, Kalam w nadpisie i na papierowej karteczce z taśmą (ciemny atrament — czytelność), Hanken Grotesk 42/600 w napisach na papierowej pigułce; ruch: okno w przechyle 3D, paski „wycierką” od lewej, ręczne podkreślenia pytań w kolorze paska, najazd kamery z przygaszeniem reszty, pętla rysowana kreską, słowa napisów kolejno. Wzorzec: `docs/zasoby/film/kalibracja/E1-klatka.png`, tokeny `docs/zasoby/film/zrodla/src/tokeny.ts` |
 | 2026-08-07 | Baza kolorystyczna propozycji E6 | Mieszanka jasnych i ciemnych, żeby wybór był świadomy |
 | 2026-08-07 | Poziom animacji | Wyraźny, ale służebny — bez animacji dekoracyjnych w pętli |
 | 2026-08-07 | Instalacja pluginu w trakcie budowy | Zainstalowany na stałe (scope `user`); po każdej zmianie obowiązuje sekwencja wydania — [PULAPKI.md](PULAPKI.md) P-005 |

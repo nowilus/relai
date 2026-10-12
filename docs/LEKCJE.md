@@ -165,7 +165,9 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
    gdzie narzut skraca się sam. Wynik oparty na nierzetelnym odjęciu **oznaczasz** jako nierzetelny,
    a nie usuwasz. **Próg wspólny dla kilku wielkości sprawdzasz na każdej z osobna** — 90 % okna
    5 h i 90 % tygodnia to różne sytuacje; pomiar z progiem testowym mówi, które gałęzie uruchomi
-   (L-0167). (L-0034, L-0049, L-0053, L-0060, L-0065, L-0099, L-0104, L-0167)
+   (L-0167). **Karta zgody na zależność podaje wielkość na dysku**, nie pobrania. Składnik
+   niezmierzony ma mnożnik rozpakowania, a rozjazd po instalacji idzie do człowieka od razu
+   (L-0172). (L-0034, L-0049, L-0053, L-0060, L-0065, L-0099, L-0104, L-0167, L-0172)
 7. **Wartość czytana maszynowo ma kotwicę i zamkniętą listę brzmień:** dopasowanie od początku
    komórki, wybór linii po niesionej wartości (nie po kolejności), wartość nierozpoznana znaczy
    cisza. **Rdzeń słowa w języku z diakrytykami łapiesz klasą znaków tego języka, nie `\w`** —
@@ -293,9 +295,11 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
     ma `flexShrink={0}`** — ustępuje nazwa; test sprawdza tę właściwość, a zrzut z terminala jest
     częścią pomiaru (L-0152). **Karta decyzji pokazuje w całości tylko pozycje, które decyzja zmienia
     dla człowieka**, resztę jednym wierszem z liczbą i nazwami; stawka nie jest kwotą — ma tyle
-    miejsc, ile ma źródło (L-0157).
+    miejsc, ile ma źródło (L-0157). **W nośniku z kamerą element trwały nie niesie po ruchu
+    transformacji 3D ani filtra warstwowego**: kamera powiększa wtedy bitmapę, nie tekst. Przegląd
+    klatek obejmuje klatkę największego zbliżenia (L-0171).
     (L-0003, L-0006, L-0016, L-0019, L-0029, L-0094, L-0098, L-0137, L-0140, L-0142, L-0145, L-0147,
-    L-0149, L-0152, L-0157)
+    L-0149, L-0152, L-0157, L-0171)
 
 **Wyprowadzone 2026-08-20 do `docs/PULAPKI.md`:** sześć pozycji, które były pułapkami
 narzędziowymi, a nie zasadami pracy — `tar` na `PATH` (L-0021), sesja pomiarowa `claude -p`
@@ -591,6 +595,32 @@ restart aplikacji po `plugin update` (L-0031), `git worktree` zamiast `git archi
   domowe, ustawienia); poprawkę izolacji sprawdzasz testem na **tym samym detektorze**, którego
   używa hook, i jedną pozycją kontroli pozytywnej, zanim puścisz pełny, płatny przebieg.
 - **Źródło:** AUDYT_SKILLI S5, 2026-10-12; destylat: zasada 5.
+
+### L-0171 — Kamera powiększała bitmapę warstwy, a nie tekst · 2026-10-12 · AKTYWNA
+
+- **Trigger:** klatka 165 sceny „Trzy paski” (najazd kamery, zoom 2,8) miała rozmyty tekst pasków,
+  klatka 270 tej samej sceny była ostra; pierwszy podgląd wyglądał jak wada kodeka.
+- **Przyczyna:** okno sceny niosło po wejściu `perspective(…) rotateX(0)`, a szkło pod paskami
+  `backdrop-filter` — obie rzeczy robią z elementu osobną warstwę rasteryzowaną w skali 1, którą
+  kamera tylko rozciąga (P-035). Przegląd klatek z samego planu ogólnego tego nie pokazał.
+- **Zasada:** w nośniku z kamerą element trwały nie niesie po zakończeniu ruchu transformacji 3D ani
+  filtra warstwowego; przegląd własnych klatek obejmuje **klatkę największego zbliżenia**, a nie
+  tylko początek i koniec ruchu.
+- **Źródło:** FILM_PREZENTACYJNY E1, 2026-10-12; destylat: zasada 15.
+
+### L-0172 — Zgoda na instalację stała na szacunku pobrania, a dysk wyszedł prawie dwa razy większy · 2026-10-12 · AKTYWNA
+
+- **Trigger:** karta zgody podała 244,59 MB rozpakowanych pakietów (FAKT z rejestru) i przeglądarkę
+  do renderu „100–150 MB” (SZACUNEK). Razem „ok. 400 MB”. Po instalacji: przeglądarka 283 MB na
+  dysku, `node_modules` 714 MB.
+- **Przyczyna:** szacunek przeglądarki mówił o archiwum do pobrania, a człowiek zgadzał się na
+  miejsce na dysku. Pakiety policzone z pola `unpackedSize` nie obejmują binarek, które pakiety
+  dociągają same po instalacji.
+- **Zasada:** karta zgody na zależność podaje wielkość **na dysku** w tej samej jednostce, w której
+  człowiek ją odczuje. Składnik niezmierzony przed instalacją oznaczasz jako SZACUNEK z mnożnikiem
+  rozpakowania. Rozjazd zmierzony po instalacji zgłaszasz od razu, przy pierwszym raporcie, a nie
+  dopiero we wpisie zamykającym.
+- **Źródło:** FILM_PREZENTACYJNY E1, 2026-10-12; destylat: zasada 6.
 
 ## Lekcje zwinięte
 

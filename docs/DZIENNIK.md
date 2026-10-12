@@ -1328,3 +1328,129 @@ zasad, zero niewypełnionych znaczników; dokładnie jeden etap GOTOWY DO STARTU
 rozstrzygnięte 2026-10-12: zaakceptowany, aktywny.)*
 
 Autor: RelAI (Opus 5.5) + Lukasz
+
+### 2026-10-12 — FILM_PREZENTACYJNY E1: klatka wzorcowa i 10 s sceny „Trzy paski”, kierunek przyjęty
+
+Sesja Opus 5.5 w Claude Code, `/relai-stage` z kartą potwierdzenia („zaczynamy”). Optymalizator
+promptów w tej sesji wyłączony decyzją Łukasza.
+
+**Zrobione:**
+
+- Projekt Remotion w [docs/zasoby/film/zrodla/](zasoby/film/zrodla/) z wersjami przypiętymi
+  dokładnie (remotion i @remotion/cli 4.0.535, react i react-dom 19.3.0, typescript 5.9.3,
+  @types/react 19.3.0), lockfile w gicie, `node_modules/`, `out/` i `public/fonty/` poza gitem;
+  kompozycja `Paski` 1920×1080, 30 kl./s, 300 klatek.
+- Dane sceny: [skrypty/dane.mjs](zasoby/film/zrodla/skrypty/dane.mjs) zapisuje
+  `src/dane/paski.json`, w którym każda wartość ma pole `zrodlo`. Paski plan i postęp liczy
+  `core/panel/plan-state.mjs` i `progress.mjs`, importowane tylko do odczytu, bez kopii. Pasek
+  cache jest przepisany ze zrzutu `2026-10-11-z1-trzy-paski-0.12.0.png` (~56 min, 19 %, 4 h 01 min,
+  45 %, 268k, $22.95); okno kontekstu 1M ustalone z pikseli baterii na tym zrzucie.
+- Scena [src/sceny/Paski.tsx](zasoby/film/zrodla/src/sceny/Paski.tsx) z komponentami obok:
+  - trzy paski w geometrii i kolorach panelu (`BAND`, `BAR`, `BATTERY`, `leftColor`) na kremowym
+    papierze kierunku „Warsztat”;
+  - kamera dojeżdża najpierw do baterii „limit 5 h”, potem przesuwa kadr na sumę pętli i karteczki
+    zmierzoną z układu;
+  - odręczna pętla i strzałka rysowane kreską;
+  - napisy PL wchodzą słowo po słowie.
+
+  Paleta mieszka w `src/tokeny.ts`, a fonty kopiuje `skrypty/fonty.mjs` z kontrolą bajtową.
+- Kalibracja w dwóch rundach:
+  - **Runda 1** (MP4 + klatka) — Łukasz: „Kierunek dobry, dodaj więcej efektu wow. Skup się na
+    czytelności napisów, które dodajesz, ale ogólne przedstawienie pasków jest dobre. Dodaj lepsze
+    efekty przejścia”.
+  - **Runda 2** — zmienione:
+    - czytelność: notatka przeniesiona na papierową karteczkę z taśmą (ciemny Kalam 700), napisy
+      42/600, nadpis Kalam 40;
+    - wow: trzy pytania pod tytułem podkreślane ręcznie w kolorze swojego paska, przygaszenie reszty
+      przy najeździe;
+    - przejścia: okno w przechyle 3D, paski „wycierką” od lewej, tytuł odpływa przy ruszeniu kamery.
+
+    Łukasz: „przyjmuję kierunek, kontynuuj etap”.
+- Zapis kierunku: [kalibracja/E1-klatka.png](zasoby/film/kalibracja/E1-klatka.png) (klatka 280
+  rundy 2), wiersz „Kierunek filmu” w `USTAWIENIA.md`,
+  [docs/zasoby/film/README.md](zasoby/film/README.md) (komendy, źródła danych, licencja).
+- Testy filmu [testy/paski.test.mjs](zasoby/film/zrodla/testy/paski.test.mjs), pięć:
+  - zgodność z `core/panel` plus kontrola pozytywna na kopii `STATUS.md` z innym statusem etapu;
+  - pole źródła plus kontrola pozytywna z usuniętym źródłem i gołą wartością;
+  - słowa paska cache;
+  - udziały wypełnienia baterii zmierzone na pikselach zrzutu, niezależnie od skali, plus kontrola
+    pozytywna na fałszywej wartości kontekstu.
+- Lekcje L-0171 (kamera powiększa bitmapę warstwy) i L-0172 (zgoda na instalację stała na szacunku
+  pobrania), destylat zasad 6 i 15. Pułapki P-035 (rozmycie przy zbliżeniu w Remotion/Chromium)
+  i P-036 (`node --test <katalog>/`, `python -` w Git Bash).
+
+**Zweryfikowane — jak dokładnie:**
+
+- **Zgoda na instalację** padła przed `npm install` (AskUserQuestion: „Tak, instaluj”).
+  - Na karcie, FAKT z `npm view`: remotion 1,90 MB, @remotion/cli 0,52 MB, react 0,18 MB,
+    react-dom 8,06 MB, typescript 23,63 MB, @types/react 0,41 MB. Drzewo z
+    `npm install --package-lock-only`: 259 pakietów, 244,59 MB rozpakowanych; 8 starych pakietów
+    bez pola rozmiaru liczonych jako 0.
+  - Przeglądarka na karcie: Chrome Headless Shell do `node_modules/.remotion/` (dokumentacja
+    Remotion, odczyt 2026-10-12), SZACUNEK 100–150 MB.
+  - Instalacja: 254 pakiety. Przeglądarka po pobraniu: Chrome Headless Shell 157.0.8080.0, 283 MB
+    na dysku. Całe `node_modules` zajmuje 714 MB przy szacunku z karty „ok. 400 MB” — rozjazd
+    zgłoszony Łukaszowi przy pierwszym pokazie, lekcja L-0172.
+- **Wersje przypięte:** `package.json` ma 0 wersji z `^` albo `~`; lockfile w indeksie gita;
+  `git check-ignore -v` potwierdza `node_modules/`, `out/`, `public/fonty/`. `npm ci` z README
+  uruchomiony dosłownie odtworzył instalację.
+- **Render** dosłownym `npm run paski`, odczyt `npx remotion ffprobe`: h264, 1920×1080, 30/1,
+  `nb_frames` 300, czas 10,000000 s. `npm run klatka` daje PNG 1920×1080 (nagłówek IHDR).
+  `E1-klatka.png` ma 1920×1080, a sha256 jest zgodny z klatką pokazaną Łukaszowi (`fa10c5d1…`).
+- **Testy filmu:** `npm test` → 5/5, przebieg po `npm run dane` po ostatniej zmianie promptu.
+- **Kolory:** `grep -rcE '#[0-9a-fA-F]{3,8}' src/sceny/` → 0; kontrola na `src/tokeny.ts` → 2.
+- **Adresy sieciowe:** `grep -rnE "https?://" src` → 0; kontrola na podłożonym pliku → 1.
+- **Prywatność:** trzy wzorce (ścieżka `Users`, e-mail, UUID) w pliku zapisanym narzędziem Write.
+  Na `src/` i `paski.json` → 0; na podłożonym pliku trafione 3 z 3 linii.
+- **Własny przegląd przed pokazem:** 19 klatek w trzech seriach, plus 8 klatek przed rundą 2.
+  Poprawki:
+  - notatka ucięta na krawędzi;
+  - kropka końcówki kreski przed startem rysowania;
+  - pusty kadr w połowie najazdu;
+  - rozmycie tekstu przy zbliżeniu (P-035);
+  - za wysokie pole promptu;
+  - techniczny nadpis „scena 2”;
+  - podpis przecinający krawędź okna;
+  - za duże pismo karteczki (−18 %).
+- **Audyt zależności:** `npm audit --omit=dev` i pełny `npm audit` → 0 podatności (0 wysokich,
+  0 krytycznych).
+- **Rdzeń:** testy 331/331 (komenda ze „Stanu wyjściowego”). `node core/tools/validate-adapters.js`
+  → „spojne”, exit 0. `claude plugin validate .` binarką aplikacji 2.1.295 → exit 0, z jednym
+  znanym ostrzeżeniem dogfoodingu o root `CLAUDE.md`.
+- **PANEL_CODEX nietknięty:** `git diff --stat`, `git status` makiet i sha256 diffu przed i po etapie
+  identyczne (`diff` pusty); pliki PANEL_CODEX poza commitem etapu.
+- **Katalog roboczy:** `.claude/relai/work/FILM_PREZENTACYJNY/E1/` — raport `clean-work.js`: przed
+  21,6 MB (46 plików, 1 pozycja), skasowany po „tak”, po 0,0 MB; pusty katalog tematu usunięty.
+  Poza katalogiem roboczym zostają, bo są potrzebne do renderu:
+  - przeglądarka do renderu w `docs/zasoby/film/zrodla/node_modules/.remotion/` (poza gitem);
+  - świeże rendery w `docs/zasoby/film/zrodla/out/` (poza gitem).
+
+  W katalogu domowym i w `%TEMP%` nic nie powstało.
+
+- [PROMPT_ETAP_2.md](plany/FILM_PREZENTACYJNY/PROMPT_ETAP_2.md) wg `SPEC_PROMPT_ETAPU`: dziewięć elementów,
+  każdy nagłówek dokładnie raz, 16 punktów weryfikacji, zero znaczników. Blok „Zasady aktywne” (302 linie, 15 zasad)
+  równy źródłu — porównanie skryptem linia po linii. Pierwsze wklejenie przez `String.replace` z tekstem
+  zamiany zniekształciło blok: `$` + backtick w zasadzie 13 to wzorzec specjalny „tekst przed dopasowaniem”.
+  Rozjazd wykryło właśnie to porównanie (L-0164); plik odbudowany z prefiksu i sufiksu, porównanie powtórzone — zgodne.
+
+- Po zamknięciu E1 test kontroli pozytywnej podmieniał status na ten, który etap już miał (E2 `GOTOWY DO STARTU`) — teraz sam wybiera status inny niż bieżący (L-0150). Ten sam przebieg pokazał, że scena przy etapie bez punktów pisała „wszystkie punkty odhaczone”; prawdziwy `relai-progress` pokazuje wtedy słowa z `core/panel` i pustą kolumnę liczby — `paski.json` niesie teraz `postep.slowa`, scena robi to samo (klatka 95 przy E2: „etap gotowy do startu”). Testy filmu po poprawce 5/5, typy bez błędów, grep kolorów i adresów w `src/` — 0.
+
+**Odstępstwo od promptu:** prompt wskazywał `node .claude/relai/tools/count-rules.js`, a narzędzie
+leży w `core/tools/count-rules.js` — uruchomione stamtąd: zasady aktywne 15 / limit 15.
+
+**Świadomie odłożone:**
+
+- Linia pod segmentami postępu pokazuje pełną nazwę punktu weryfikacji z promptu etapu, tak jak
+  prawdziwy pasek. Co ta linia ma mówić w filmie, rozstrzyga scenariusz w E2.
+- `paski.json` utrwala stan z chwili commita, a klatka wzorcowa — stan z dnia kalibracji
+  (0/16 punktów). Ostatni render z bieżącym stanem należy do E6.
+
+**Do zrobienia przez człowieka:**
+
+- Zrzuty referencyjne panelu 0.14 z desktopu (zakładki Teraz, Koszty, Dokumenty, karta nowej sesji,
+  karta progu limitu) — przed E3, bramka z planu.
+- Start E2 w świeżej sesji Opus 5.5 (`/relai-stage`, `/effort medium`).
+  *(Pozycja „start E1 w świeżej sesji Opus 5.5” z poprzedniego wpisu — rozstrzygnięte 2026-10-12:
+  E1 wykonany i zamknięty w tej sesji.)*
+
+Autor: RelAI (Opus 5.5) + Lukasz

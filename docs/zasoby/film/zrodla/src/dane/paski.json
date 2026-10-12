@@ -1,0 +1,133 @@
+{
+  "plan": {
+    "plan": {
+      "wartosc": "FILM_PREZENTACYJNY",
+      "zrodlo": "CLAUDE.md + docs/plany/FILM_PREZENTACYJNY/STATUS.md przez core/panel/plan-state.mjs"
+    },
+    "etap": {
+      "wartosc": "E2",
+      "zrodlo": "CLAUDE.md + docs/plany/FILM_PREZENTACYJNY/STATUS.md przez core/panel/plan-state.mjs"
+    },
+    "status": {
+      "wartosc": "GOTOWY DO STARTU",
+      "zrodlo": "CLAUDE.md + docs/plany/FILM_PREZENTACYJNY/STATUS.md przez core/panel/plan-state.mjs"
+    },
+    "nazwa": {
+      "wartosc": "Scenariusz i animatik",
+      "zrodlo": "CLAUDE.md + docs/plany/FILM_PREZENTACYJNY/STATUS.md przez core/panel/plan-state.mjs"
+    },
+    "zamkniete": {
+      "wartosc": 1,
+      "zrodlo": "CLAUDE.md + docs/plany/FILM_PREZENTACYJNY/STATUS.md przez core/panel/plan-state.mjs"
+    },
+    "etapy": {
+      "wartosc": 6,
+      "zrodlo": "CLAUDE.md + docs/plany/FILM_PREZENTACYJNY/STATUS.md przez core/panel/plan-state.mjs"
+    }
+  },
+  "postep": {
+    "zrobione": {
+      "wartosc": 0,
+      "zrodlo": "docs/plany/FILM_PREZENTACYJNY/PROMPT_ETAP_2.md przez core/panel/progress.mjs"
+    },
+    "razem": {
+      "wartosc": 0,
+      "zrodlo": "docs/plany/FILM_PREZENTACYJNY/PROMPT_ETAP_2.md przez core/panel/progress.mjs"
+    },
+    "slowa": {
+      "wartosc": "etap gotowy do startu",
+      "zrodlo": "docs/plany/FILM_PREZENTACYJNY/PROMPT_ETAP_2.md przez core/panel/progress.mjs"
+    },
+    "punkty": {
+      "wartosc": [],
+      "zrodlo": "docs/plany/FILM_PREZENTACYJNY/PROMPT_ETAP_2.md przez core/panel/progress.mjs"
+    }
+  },
+  "cache": {
+    "miary": [
+      {
+        "etykieta": {
+          "wartosc": "cache",
+          "zrodlo": "docs/fixy/AUDYT_MODOW/zrzuty/2026-10-11-z1-trzy-paski-0.12.0.png"
+        },
+        "wartosc": {
+          "wartosc": "~56 min",
+          "zrodlo": "docs/fixy/AUDYT_MODOW/zrzuty/2026-10-11-z1-trzy-paski-0.12.0.png"
+        },
+        "zostalo": {
+          "wartosc": 93.33,
+          "zrodlo": "docs/fixy/AUDYT_MODOW/zrzuty/2026-10-11-z1-trzy-paski-0.12.0.png; TTL 60 min założony (tylda na zrzucie); 56 z 60 min"
+        },
+        "klucz": "cache"
+      },
+      {
+        "etykieta": {
+          "wartosc": "limit 5 h",
+          "zrodlo": "docs/fixy/AUDYT_MODOW/zrzuty/2026-10-11-z1-trzy-paski-0.12.0.png"
+        },
+        "wartosc": {
+          "wartosc": "19 %",
+          "zrodlo": "docs/fixy/AUDYT_MODOW/zrzuty/2026-10-11-z1-trzy-paski-0.12.0.png"
+        },
+        "zostalo": {
+          "wartosc": 81,
+          "zrodlo": "docs/fixy/AUDYT_MODOW/zrzuty/2026-10-11-z1-trzy-paski-0.12.0.png; zostało = 100 − zużycie"
+        },
+        "klucz": "limit5h"
+      },
+      {
+        "etykieta": {
+          "wartosc": "reset za",
+          "zrodlo": "docs/fixy/AUDYT_MODOW/zrzuty/2026-10-11-z1-trzy-paski-0.12.0.png"
+        },
+        "wartosc": {
+          "wartosc": "4 h 01 min",
+          "zrodlo": "docs/fixy/AUDYT_MODOW/zrzuty/2026-10-11-z1-trzy-paski-0.12.0.png"
+        },
+        "zostalo": {
+          "wartosc": 80.33,
+          "zrodlo": "docs/fixy/AUDYT_MODOW/zrzuty/2026-10-11-z1-trzy-paski-0.12.0.png; 241 z 300 min okna 5 h"
+        },
+        "klucz": "reset"
+      },
+      {
+        "etykieta": {
+          "wartosc": "limit tygodnia",
+          "zrodlo": "docs/fixy/AUDYT_MODOW/zrzuty/2026-10-11-z1-trzy-paski-0.12.0.png"
+        },
+        "wartosc": {
+          "wartosc": "45 %",
+          "zrodlo": "docs/fixy/AUDYT_MODOW/zrzuty/2026-10-11-z1-trzy-paski-0.12.0.png"
+        },
+        "zostalo": {
+          "wartosc": 55,
+          "zrodlo": "docs/fixy/AUDYT_MODOW/zrzuty/2026-10-11-z1-trzy-paski-0.12.0.png; zostało = 100 − zużycie"
+        },
+        "klucz": "tydzien"
+      },
+      {
+        "etykieta": {
+          "wartosc": "kontekst",
+          "zrodlo": "docs/fixy/AUDYT_MODOW/zrzuty/2026-10-11-z1-trzy-paski-0.12.0.png"
+        },
+        "wartosc": {
+          "wartosc": "268k",
+          "zrodlo": "docs/fixy/AUDYT_MODOW/zrzuty/2026-10-11-z1-trzy-paski-0.12.0.png"
+        },
+        "zostalo": {
+          "wartosc": 73.2,
+          "zrodlo": "docs/fixy/AUDYT_MODOW/zrzuty/2026-10-11-z1-trzy-paski-0.12.0.png; okno 1M: wypełnienie baterii zmierzone z pikseli zrzutu = 0,730 (kontrola na czterech pozostałych bateriach, rozjazd ≤ 0,01)"
+        },
+        "klucz": "kontekst"
+      }
+    ],
+    "koszt": {
+      "wartosc": "$22.95",
+      "zrodlo": "docs/fixy/AUDYT_MODOW/zrzuty/2026-10-11-z1-trzy-paski-0.12.0.png"
+    },
+    "kosztJednostka": {
+      "wartosc": "sesja",
+      "zrodlo": "docs/fixy/AUDYT_MODOW/zrzuty/2026-10-11-z1-trzy-paski-0.12.0.png"
+    }
+  }
+}
