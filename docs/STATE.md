@@ -8,7 +8,7 @@ RelAI **2.9.0** jest w repozytorium i publicznie (tag `v2.9.0`, 2026-10-11: zapi
 limitem planu, plan LIMIT_CHECKPOINT). Plugin `relai` działa w trzech narzędziach — Claude Code,
 Cursorze i Codeksie — na jednym rdzeniu procesu, z czternastoma komendami. Panel RelAI w oknie
 Claude Code to trzy osobne pluginy „early access” z marketplace tego repozytorium: `relai-panel`
-0.13.0, `relai-progress` 0.4.0, `relai-cache-keeper` 0.6.0 (plan PANEL_CLAUDE zamknięty
+0.14.0, `relai-progress` 0.4.0, `relai-cache-keeper` 0.6.0 (plan PANEL_CLAUDE zamknięty
 2026-10-10, odnoga AUDYT_MODOW zamknięta 2026-10-11, wszystkie paczki zmierzone na żywo na 2.1.295). Aktywny plan PANEL_CODEX — panel dla Codeksa — jest
 zaakceptowany, E1 trwa po stronie Codeksa. Opinii spoza projektu nadal nie ma.
 
@@ -72,9 +72,8 @@ zaakceptowany, E1 trwa po stronie Codeksa. Opinii spoza projektu nadal nie ma.
 - Aneks do PANEL_CODEX z zapisem pracy przed limitem dla panelu Codeksa — po domknięciu jego E1
   (bramka zamknięcia LIMIT_CHECKPOINT, decyzja Łukasza 2026-10-12). Przepięcie `prompt-mode.js`
   na `threshold.js` nadal świadomie odłożone.
-- Wydanie `relai-panel` **0.14.0** (odnoga [NOWA_SESJA](fixy/NOWA_SESJA/ODNOGA.md) zamknięta
-  2026-10-12, kod i wersja w repo, publicznie nadal 0.13.0) — tag, push, release, `marketplace
-  update`, `plugin update`; `relai-stage.md` wersja 6 wyjdzie z najbliższym wydaniem `relai`.
+- `relai-stage.md` wersja 6 (kasowanie pliku zgody po starcie, odnoga NOWA_SESJA) wyjdzie
+  z najbliższym wydaniem `relai`; `relai-panel` 0.14.0 wydany 2026-10-12.
 - Odnoga [AUDYT_SKILLI](fixy/AUDYT_SKILLI/ODNOGA.md) (OTWARTA): skille wg praktyk Agent Skills —
   53 wiersze luk (14 zgodne, 21 częściowo, 11 brak), paczki S1–S7 (strażnik w walidatorze,
   odchudzenie SKILL.md, historia poza instrukcje, `rotate.js`, ewaluacje, `disable-model-invocation`,
@@ -113,7 +112,7 @@ zaakceptowany, E1 trwa po stronie Codeksa. Opinii spoza projektu nadal nie ma.
 ### Wersja i instalacja
 
 Repo i publicznie **2.9.0**; marketplace w tym repozytorium (scope `user`) niesie cztery pluginy:
-`relai` i trzy pluginy panelu z własnymi wersjami i tagami (`relai-panel-v0.13.0`). Wydanie
+`relai` i trzy pluginy panelu z własnymi wersjami i tagami (`relai-panel-v0.14.0`). Wydanie
 potwierdzasz treścią plików z cache'u, nie komunikatem CLI (P-005): `claude plugin validate` → tag
 → push → release → `marketplace update` → `plugin update` → suma plików po CRLF → LF. Walidator
 `core/tools/validate-adapters.js` sprawdza 7 źródeł wersji (w tym baner README i „Gdzie jesteśmy”)

@@ -1146,8 +1146,12 @@ procedura może tam zapytać drugi raz; `rundll32` przy braku obsługi `claude:/
 stronę); pytanie o zaufanie folderu przy każdym linku — zachowanie aplikacji; `AGENTS.md` rozjechany
 z `CLAUDE.md` sprzed tej sesji.
 
-**Do zrobienia przez człowieka:** wydanie `relai-panel` 0.14.0 (tag, push, release,
-`marketplace update`, `plugin update`) — propozycja w czacie; zmiana `relai-stage.md` wyjdzie
-z najbliższym wydaniem `relai`.
+**Wydanie (zgoda Łukasza „tak, commituj, wypchnij i wydaj”):** commit `f64f2e6`, tag
+`relai-panel-v0.14.0`, push, release na GitHubie (nie „Latest”), `marketplace update` i `plugin
+update` binarką 2.1.295 → zainstalowany `relai-panel` 0.14.0; 54/54 pliki śledzone `panel/` równe
+kopii w cache'u po CRLF → LF. Podłożony kod w cache'u 0.13.0 przestał być używany.
+
+**Do zrobienia przez człowieka:** restart aplikacji (nowa wersja ładuje się po nim, P-005);
+zmiana `relai-stage.md` wyjdzie z najbliższym wydaniem `relai`.
 
 Autor: RelAI (Opus 5.5) + Lukasz
