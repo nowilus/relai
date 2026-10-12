@@ -1,5 +1,7 @@
 # SPEC — `docs/plany/<TEMAT>/PROMPT_ETAP_N.md`
 
+Zawartość: Rola · Odbiorca · Kiedy powstaje (generacja LAZY — D-34) · Struktura pliku — dziewięć elementów w stałej kolejności · Zasady wspólne · Zakazy · Przykład (projekt polski, plan PLATNOSCI, etap E2 z E4).
+
 Specyfikacja dla LLM (D-60). Nie kopiuj tego pliku. Wygeneruj `PROMPT_ETAP_N.md` **w języku
 projektu** (nazwa pliku stała: `PROMPT_ETAP_N.md`, gdzie `N` to numer etapu bez zer wiodących —
 `PROMPT_ETAP_1.md`, `PROMPT_ETAP_10.md`), obok `PLAN.md` i `STATUS.md` w folderze planu.
@@ -154,8 +156,8 @@ Zasady:
   punktem weryfikacji; „`npm test` kończy się bez błędu" jest.
 - Sprawdzenie zachowania typu „tego nie wolno" wymaga **dowodu negatywnego**: pokaż, że chroniony
   fragment ma nadal pierwotne brzmienie, nie tylko że nowy artefakt powstał.
-- **Bezpieczeństwo — gdy etap dotyka kodu z zależnościami albo wejściem od użytkownika** (od
-  2.7.0, D-80: wskazanie komendy ekosystemu, nie własny skaner). Taki prompt dostaje dwa punkty:
+- **Bezpieczeństwo — gdy etap dotyka kodu z zależnościami albo wejściem od użytkownika**
+  (D-80: wskazanie komendy ekosystemu, nie własny skaner). Taki prompt dostaje dwa punkty:
   - **audyt zależności** komendą wykrytą z plików projektu, z wynikiem do wpisu dziennika:
     `package.json` → `npm audit --omit=dev` (albo `pnpm audit` / `yarn npm audit` przy ich pliku
     blokady), `requirements.txt` / `pyproject.toml` → `pip-audit`, `Gemfile.lock` →
@@ -187,8 +189,21 @@ Zasady:
 
 ### 9. Na koniec (rytuał obowiązkowy)
 
-Numerowana lista zamykająca etap, zawsze w tej kolejności: `STATUS.md` → wpis w dzienniku (+ lekcje,
-+ ryzyka) → aktualizacja dokumentów projektu → **wygenerowanie `PROMPT_ETAP_N+1.md`** → commit.
+Numerowana lista zamykająca etap — **te same kroki i ta sama numeracja co lista rytuału
+w skillu `relai-planning`** (plik `stage-closing.md`); tam stoi pełna treść każdego
+kroku, tutaj jego skrót. Walidator RelAI porównuje numerację tej listy, listy skilla i przykładu
+na końcu tego pliku. W prompcie każdy krok niesie konkret etapu — ścieżki, numery, nazwę
+katalogu roboczego:
+
+1. `STATUS.md` — etap N → `ZREALIZOWANY <data>`, etap N+1 → `GOTOWY DO STARTU`, linia
+   w dzienniku wdrożenia; link w kolumnie `Prompt` przy N+1 zaraz po kroku 5.
+1a. Katalog roboczy etapu — raport, „tak”, kasowanie; liczby przed i po do wpisu z kroku 2,
+   artefakty spoza katalogu z nazwy.
+2. Wpis w dzienniku (+ lekcje, + ryzyka), podpis z członem użytkownika.
+3. Bramki manualne w `STATUS.md` z sekcji „Do zrobienia przez człowieka” tego wpisu.
+4. `docs/STATE.md` i pozostałe dokumenty projektu, których dotknął etap.
+5. **Wygenerowanie `PROMPT_ETAP_N+1.md`**.
+6. Commit — propozycja.
 
 Nagłówek zawiera zdanie: **bez tego rytuału etap nie jest ukończony**.
 
@@ -330,14 +345,19 @@ zaraz po jego sprawdzeniu, nie na końcu etapu; punkt, który nie przeszedł, zo
 
 ## Na koniec (rytuał obowiązkowy — bez niego etap nie jest ukończony)
 
-1. `docs/plany/PLATNOSCI/STATUS.md`: E2 → ZREALIZOWANY (data), E3 → GOTOWY DO STARTU, link do
-   `PROMPT_ETAP_3.md` w kolumnie `Prompt`, linia w dzienniku wdrożenia.
+1. `docs/plany/PLATNOSCI/STATUS.md`: E2 → ZREALIZOWANY (data), E3 → GOTOWY DO STARTU, linia
+   w dzienniku wdrożenia; link do `PROMPT_ETAP_3.md` w kolumnie `Prompt` po kroku 5.
+1a. Katalog roboczy `.claude/relai/work/PLATNOSCI/E2/` — raport, „tak”, kasowanie; liczby przed
+   i po do wpisu z kroku 2, `%TEMP%/platnosci-stripe-cli/` z nazwy.
 2. `docs/DZIENNIK.md`: wpis wg szablonu (Zrobione / Zweryfikowane — jak dokładnie / Świadomie
-   odłożone / Do zrobienia przez człowieka), na końcu sekcji „Wpisy". Zaktualizuj tabelę ryzyk;
-   dopisz lekcje z etapu do `docs/LEKCJE.md` i odśwież „Zasady aktywne".
-3. `docs/STATE.md` — nadpisz stan obszaru płatności.
-4. **Wygeneruj `PROMPT_ETAP_3.md`** w tym folderze, ze specyfikacji promptu etapowego: na bazie
+   odłożone / Do zrobienia przez człowieka), na końcu sekcji „Wpisy", podpis
+   `Autor: RelAI (<model>) + <użytkownik>`. Zaktualizuj tabelę ryzyk; dopisz lekcje z etapu do
+   `docs/LEKCJE.md` i odśwież „Zasady aktywne".
+3. Bramki manualne: pozycje „Do zrobienia przez człowieka” z wpisu → sekcja „Bramki manualne”
+   `STATUS.md`, status `OTWARTA`.
+4. `docs/STATE.md` — nadpisz stan obszaru płatności.
+5. **Wygeneruj `PROMPT_ETAP_3.md`** w tym folderze, ze specyfikacji promptu etapowego: na bazie
    `PLAN.md` sekcja 6 (E3 — faktury PDF i wysyłka), realnego stanu po tym etapie i lekcji z tego
    etapu.
-5. Commit + push.
+6. Commit — propozycja, conventional message.
 ```

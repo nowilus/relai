@@ -1,5 +1,7 @@
 # SPEC — `docs/archiwum/dziennik/`, `docs/archiwum/lekcje/`, `docs/archiwum/ryzyka/` i `docs/archiwum/ustawienia/`
 
+Zawartość: Rola · Odbiorca · Kiedy powstaje · Próg liczony ponad nietykalnymi · Ścieżki i nazewnictwo · Struktura pliku archiwum · Linia-odsyłacz w żywym pliku · Suma kontrolna — jak liczona · Wybór treści — co wolno przenieść · Przebieg — dwie fazy, w tej kolejności · Komunikat zablokowanej rotacji · STATE — inny tryb, bez archiwum · Przypadki brzegowe · Zakazy · Przykład — plik archiwum dziennika · Przykład — plik archiwum lekcji · Przykład — plik archiwum ryzyk · Przykład — plik archiwum mitygacji · Przykład — plik archiwum ustawień · Dawniej.
+
 Specyfikacja dla LLM (D-60). Nie kopiuj tego pliku. Pliki archiwum powstają **w języku projektu**
 (`docs/archiwum/journal/JOURNAL_<od>_<do>.md`, `docs/archiwum/lessons/LESSONS_<od>_<do>.md`,
 `docs/archiwum/risks/RISKS_<data>.md`, `docs/archiwum/risks/MITIGATIONS_<data>.md`
@@ -30,7 +32,7 @@ z `docs/USTAWIENIA.md`. Poniżej progu nie dzieje się nic i nie pada ani jedno 
 archiwum też wtedy nie powstaje. Rotacja nie jest osobną komendą i nie przypomina o swoim
 istnieniu.
 
-**Wejście 2 — start sesji** (od 1.6.0), gdy spełnione są **wszystkie trzy** warunki:
+**Wejście 2 — start sesji**, gdy spełnione są **wszystkie trzy** warunki:
 
 1. pomiar warstwy startowej pokazał **przekroczenie budżetu** (wiersz `Budżet startu sesji`
    w `docs/USTAWIENIA.md`, mechanizm z `SPEC_USTAWIENIA.md`),
@@ -64,32 +66,26 @@ Progi domyślne (`SZACUNEK` — skalibrowane 2026-08-12 na zmierzonych projektac
 | `docs/DZIENNIK.md` | **150 KB** | najstarsze wpisy → `docs/archiwum/dziennik/` |
 | `docs/LEKCJE.md` | **40 lekcji albo 50 KB** (co nastąpi wcześniej) | pełne wpisy najstarszych lekcji → `docs/archiwum/lekcje/` |
 | sekcja „Stan otwartych ryzyk" | **próg cząstkowy `ryzyka`** z wiersza `Budżet startu sesji` (domyślnie 12 KB) | wiersze ryzyk `ZAMKNIĘTE` → `docs/archiwum/ryzyka/` |
-| komórka „Mitygacja" ryzyka `ZMITYGOWANE` / `PRZYJĘTE ŚWIADOMIE` (od 1.7.0) | **800 znaków**, przy sekcji ryzyk ponad jej progiem | historia komórki → `docs/archiwum/ryzyka/MITYGACJE_<data>.md`; **wiersz zostaje** |
-| `docs/USTAWIENIA.md` (od 1.7.0) | **próg cząstkowy `ustawienia`** z wiersza `Budżet startu sesji` (domyślnie 6 KB) | wiersze sekcji „Ustawienia wycofane" → `docs/archiwum/ustawienia/` |
+| komórka „Mitygacja" ryzyka `ZMITYGOWANE` / `PRZYJĘTE ŚWIADOMIE` | **800 znaków**, przy sekcji ryzyk ponad jej progiem | historia komórki → `docs/archiwum/ryzyka/MITYGACJE_<data>.md`; **wiersz zostaje** |
+| `docs/USTAWIENIA.md` | **próg cząstkowy `ustawienia`** z wiersza `Budżet startu sesji` (domyślnie 6 KB) | wiersze sekcji „Ustawienia wycofane" → `docs/archiwum/ustawienia/` |
 | `docs/STATE.md` | **300 linii** | **nie jest archiwizowany** — patrz sekcja „STATE" |
 
 Wiersz ryzyk **nie dokłada trzeciego wejścia ani własnego komunikatu** (L-0049): rotacja ryzyk
 dzieje się w tych samych dwóch momentach co pozostałe, a próg cząstkowy mówi jedynie, **czy jest
-co brać** — patrz „Ryzyka" w sekcji „Wybór treści". **To samo dotyczy dwóch wierszy dołożonych
-w 1.7.0** — kompresji komórek „Mitygacja" i rotacji ustawień: to nie są nowe wejścia rotacji ani
+co brać** — patrz „Ryzyka" w sekcji „Wybór treści". **To samo dotyczy dwóch
+kolejnych wierszy** — kompresji komórek „Mitygacja" i rotacji ustawień: to nie są nowe wejścia rotacji ani
 nowe komunikaty, tylko kolejne rzeczy, które **te same dwa wejścia** robią po drodze. Jeden
 problem, jeden komunikat.
 
-**Od 1.7.0 te progi mają adres także na starcie sesji.** Hook mierzy te dokumenty i sekcje wprost
-i wypisuje linię `[RelAI progi dokumentow]` z nazwą procedury odchudzającej — dotąd raport startu
-patrzył wyłącznie na sumę warstwy startowej, więc dokument ponad własnym progiem mógł nie odezwać
-się ani razu. Raport **mówi, nie rotuje**: wykonanie zostaje przy dwóch wejściach wyżej. Wykaz
+**Te progi mają adres także na starcie sesji.** Hook mierzy te dokumenty i sekcje wprost
+i wypisuje linię `[RelAI progi dokumentow]` z nazwą procedury odchudzającej — niezależnie od
+sumy warstwy startowej. Raport **mówi, nie rotuje**: wykonanie zostaje przy dwóch wejściach wyżej. Wykaz
 wszystkich progów RelAI wraz z ich adresami egzekwowania: „Katalog progów" w `SPEC_USTAWIENIA.md`.
 
-## Próg liczony ponad nietykalnymi (od 1.7.0)
+## Próg liczony ponad nietykalnymi
 
-Do 1.6.1 próg porównywał się do **całego** żywego pliku, a cel rotacji brzmiał „zejdź poniżej 60%
-progu". Obie liczby dotyczyły wielkości, której mechanizm **nie kontroluje w całości**: dziesięciu
-najnowszych wpisów nie ruszy nigdy. Skutek: plik, w którym same pozycje nietykalne ważą tyle co
-próg, wyglądał na zatkany bez powodu, a rotacja nie miała jak zameldować, że zrobiła wszystko,
-co mogła.
-
-Od 1.7.0 dokument ma **trzy wagi** i każdy raport podaje je razem z progiem — cztery liczby obok
+Sam próg porównany z całym plikiem nie mówi, czy rotacja ma co zabrać: dziesięciu najnowszych
+wpisów nie ruszy nigdy. Dlatego dokument ma **trzy wagi** i każdy raport podaje je razem z progiem — cztery liczby obok
 siebie, zawsze w tej kolejności:
 
 | Liczba | Co znaczy | Jak liczona (dziennik) |
@@ -104,17 +100,14 @@ Co się przez to zmienia, a co zostaje:
 - **Wyzwalacz zostaje na wadze całkowitej.** Powyżej progu mechanizm działa i mówi; poniżej —
   cisza, nienaruszalna. Przeniesienie wyzwalacza na część rotowalną wyciszyłoby dokładnie ten
   przypadek, dla którego ta sekcja powstała: gruby plik, którego rotacja nie ma jak odchudzić.
-- **Cel stoi na wadze całkowitej (D-88, od E2 planu PROWADZENIE_END_TO_END).** Bierzesz najstarsze
+- **Cel stoi na wadze całkowitej (D-88).** Bierzesz najstarsze
   pozycje, aż **waga całkowita** żywego pliku zejdzie poniżej **60% progu**. Ciąg kończy się
   wcześniej wyłącznie wtedy, gdy wyczerpie część rotowalną albo trafi na pozycję nietykalną —
   wtedy plik zostaje, ile waży, i jeśli nadal przekracza **próg**, pada komunikat zablokowanej
   rotacji (sekcja niżej). Cel nieosiągalny nie jest porażką: mechanizm, który zabrał wszystko, co
   mógł, mówi to czterema liczbami.
-- **Czego już nie robisz:** do 2.3.1 cel brzmiał „część rotowalna poniżej 60% progu". Zmierzone
-  dwa razy (2026-09-04 i 2026-09-14) `FAKT`: w dokumencie o grubej dolnej granicy ten cel był
-  spełniony, **zanim** rotacja cokolwiek wzięła — dziennik zostałby na 164,8 KB przy progu 150,
-  a z lekcji nie zeszłaby ani jedna pozycja, podczas gdy cel na całym pliku dawał 87,3 KB
-  i 42,6 KB. Cel liczony od wielkości, która może już być mała, zatrzymuje mechanizm na starcie.
+- **Cel nie stoi na części rotowalnej** — w dokumencie o grubej dolnej granicy byłby spełniony,
+  **zanim** rotacja cokolwiek weźmie (pomiary w sekcji „Dawniej”).
 - **Nietykalność nadal liczy się w sztukach** — dziesięć najnowszych wpisów, dwadzieścia
   najnowszych lekcji. Trzy wagi zostają, bo mówią, **ile da się zabrać** i gdzie leży dno — nie
   są już celem.
@@ -234,29 +227,17 @@ kolejność wpisów jest własnością projektu i mechanizm ją czyta, a nie nar
 
 - sekcja **„Stan otwartych ryzyk"** (nie jest wpisem, więc do archiwum dziennika nie trafia nigdy;
   ma własną drogę opisaną niżej),
-- sekcja **„Czeka na człowieka"** (od 1.6.0 — tak samo nie jest wpisem i nie rotuje),
+- sekcja **„Czeka na człowieka"** (tak samo nie jest wpisem i nie rotuje),
 - **dziesięć najnowszych wpisów** `SZACUNEK`.
 
-**Wpis linkowany z otwartej pozycji „Czeka na człowieka" nietykalny nie jest** — od 1.7.0. Wchodzi
+**Wpis linkowany z otwartej pozycji „Czeka na człowieka" nietykalny nie jest.** Wchodzi
 do zakresu jak każdy inny, a jego link zostaje przepięty; sekcja niżej mówi, jak i kiedy.
 
-### Sprawa człowieka a rotacja: blokada zmieniła adres w 1.6.0 i zniknęła w 1.7.0
+### Sprawa człowieka a rotacja: link przepinany, wpis nie blokuje
 
-Do 1.5.2 blokowała **własna** sekcja wpisu: wpis z nierozstrzygniętą pozycją „Do zrobienia przez
-człowieka" zostawał w żywym pliku na zawsze. Skutek był mierzalny i odwrotny do zamierzonego —
-w dwóch żywych projektach (JiraManager 1,00 MB, PolyFlow 571 KB) rotacja **nigdy nie ruszyła**,
-bo blokował ją **pierwszy** wpis dziennika, a zakres jest ciągły od najstarszej pozycji `FAKT`.
-
-Od 1.6.0 adres blokady był jeden — wpisy linkowane z otwartych pozycji sekcji „Czeka na człowieka".
-**Od 1.7.0 blokady nie ma wcale**, bo przeniesienie zamiast niej dostało bezpiecznik.
-
-Powód jest ten sam, co poprzednio: mierzalny. Przeniesienie adresu blokady nie odetkało mechanizmu,
-tylko przesunęło korek — pozycja linkowała do **najstarszego** wystąpienia sprawy, a zakres jest
-ciągły od najstarszej pozycji, więc chroniony wpis dalej stał dokładnie tam, gdzie kosztował
-najwięcej. Zmierzone na dzienniku PolyFlow sprzed rotacji `FAKT`: zakres 0 wpisów ze 127
-(2026-09-01) i 6 wpisów z 92 (2026-08-21).
-
-Reguła obowiązująca:
+Wpis chroniony dlatego, że prowadzi do niego sprawa człowieka, zatyka rotację: pozycja linkuje do
+**najstarszego** wystąpienia sprawy, a zakres jest ciągły od najstarszej pozycji (pomiary
+w sekcji „Dawniej”). Dlatego blokady nie ma, a przeniesienie ma bezpiecznik:
 
 - **Żaden wpis nie jest chroniony dlatego, że prowadzi do niego link z pozycji „Czeka na
   człowieka".** Wchodzi do zakresu jak każdy inny.
@@ -268,14 +249,14 @@ Reguła obowiązująca:
 - **Wpis z pozycją wyprowadzoną jest przenoszalny** — także wtedy, gdy jego własna sekcja „Do
   zrobienia przez człowieka" wygląda na otwartą. Adnotacja `*(wyprowadzone RRRR-MM-DD → sekcja
   „Czeka na człowieka")*` znaczy, że sprawa ma inny dom (`SPEC_DZIENNIK.md`).
-- **Wpis z pozycją rozstrzygniętą jest przenoszalny** — bez zmian wobec 1.5.2, patrz sekcja niżej.
+- **Wpis z pozycją rozstrzygniętą jest przenoszalny** — patrz sekcja niżej.
 - Sekcja z treścią „—" jest pusta i niczego nie blokuje.
 
 Sprawa człowieka nadal nie może zniknąć — ale trzyma ją przy życiu **pozycja**, nie wpis. Sekcja
 „Czeka na człowieka" nie rotuje nigdy, a po przepięciu prowadzi do tej samej treści pod adresem
 archiwum. Wpisu, do którego nikt nie zajrzy, nie trzeba w tym celu trzymać w żywym pliku.
 
-### Jak poznać pozycję rozstrzygniętą (od 1.5.2)
+### Jak poznać pozycję rozstrzygniętą
 
 Pozycja jest rozstrzygnięta, gdy ma adnotację złożoną z **rdzenia z zamkniętej listy** i **daty
 `RRRR-MM-DD`**. Forma gramatyczna jest dowolna (rodzaj, liczba, przypadek) — liczy się rdzeń:
@@ -290,7 +271,7 @@ Pozycja jest rozstrzygnięta, gdy ma adnotację złożoną z **rdzenia z zamkni�
 | `anulowan` | *(anulowane 2026-09-01 — powód)* |
 
 **Nie są rozstrzygnięciem** — nawet z datą: `czeka`, `w toku`, `odłożone`, **`odroczone`**,
-`zaplanowane`, `przypomnieć`, `do sprawdzenia`. Rdzeń `odroczo` niesie od 1.7.0 adnotację
+`zaplanowane`, `przypomnieć`, `do sprawdzenia`. Rdzeń `odroczo` niesie adnotację
 odroczenia z licznikiem (`SPEC_DZIENNIK.md`, sekcja „Czeka na człowieka") i jest tu wymieniony
 wprost: sprawa odroczona jest **otwarta**, a rozpoznanie jej jako zamkniętej schowałoby sprawę
 człowieka w archiwum. Lista rdzeni jest **zamknięta**: dopisek spoza niej znaczy
@@ -321,7 +302,7 @@ wpisów, które dziennik musi oddać do celu. Zmierzone na tym repozytorium 2026
 dolna granica dziennika 104,5 KB przy sekcji ryzyk 24,2 KB — cel 90 KB był nieosiągalny przed
 rotacją ryzyk i osiągalny po niej.
 
-### Ryzyka (od 1.6.0)
+### Ryzyka
 
 **Co schodzi:** wiersze tabeli „Stan otwartych ryzyk" ze statusem `ZAMKNIĘTE` — **wszystkie naraz**,
 bez względu na datę zamknięcia i bez względu na to, czy tworzą ciągły zakres numerów. Ryzyko
@@ -349,7 +330,7 @@ pozostają dwa wejścia rotacji opisane wyżej, a rotacja ryzyk nie dokłada ani
 **Ile zabrać:** wszystkie zamknięte, jednym przebiegiem. Reguła „poniżej 60% progu" **nie
 obowiązuje** — zbiór jest wyznaczony statusem, a nie objętością, więc nie ma czego dozować.
 
-### Historia komórek „Mitygacja" (od 1.7.0)
+### Historia komórek „Mitygacja"
 
 **Co schodzi:** treść komórek „Mitygacja" tych ryzyk, które spełniają **wszystkie trzy** warunki
 opisane w `SPEC_DZIENNIK.md` (sekcja ryzyk ponad progiem, komórka ponad 800 znaków, status
@@ -383,7 +364,7 @@ drugi: `Historia: [MITYGACJE_…](…)`). Drugiej linii pod tabelą nie dokłada
 z pięciu komórek zyskałaby wtedy linię, której nikt nie czyta, a każda komórka i tak wskazuje
 swoją historię.
 
-### Wycofane wiersze ustawień (od 1.7.0)
+### Wycofane wiersze ustawień
 
 **Co schodzi:** wiersze tabeli z sekcji **„Ustawienia wycofane"** pliku `docs/USTAWIENIA.md` —
 wszystkie naraz, bez względu na datę. Wiersz wycofany przestał obowiązywać; trzyma go w pliku
@@ -461,7 +442,7 @@ usunięcie wierszy. Krok 7 (przepięcie linków) dotyczy **wyłącznie** rotacji
 przebiegi w jednej sesji dają cztery pliki archiwum i cztery sumy — nigdy jednego pliku
 zbiorczego.
 
-## Komunikat zablokowanej rotacji (od 1.7.0)
+## Komunikat zablokowanej rotacji
 
 **Kiedy pada:** waga całkowita dokumentu przekracza próg **i** rotacja nie zabrała wszystkiego,
 co mogła — bo część zakresu blokują pozycje, bo część rotowalna jest pusta albo bo sama dolna
@@ -489,20 +470,20 @@ swoim adresie w kroku 1.
 wpisu, w którym pozycja stoi. Pozycja bez żadnej daty (dokument po adopcji) idzie do listy **bez**
 wieku; nie zgadujesz go i nie pomijasz pozycji.
 
-**Co dokładnie blokuje po 1.7.0** — wypisujesz **realne** powody, nie historyczne:
+**Co dokładnie blokuje** — wypisujesz **realne** powody, nie historyczne:
 
 | Powód | Kogo dotyczy |
 |---|---|
 | Dziesięć najnowszych wpisów jest nietykalnych | każdego projektu — to jest dolna granica, nie blokada |
-| Wpis z **otwartą** pozycją „Do zrobienia przez człowieka", bez adnotacji o wyprowadzeniu, w projekcie **bez** sekcji „Czeka na człowieka" | projekt sprzed 1.6.0, dopóki nie przejdzie procedury wyprowadzenia |
+| Wpis z **otwartą** pozycją „Do zrobienia przez człowieka", bez adnotacji o wyprowadzeniu, w projekcie **bez** sekcji „Czeka na człowieka" | projekt, którego dziennik nie ma sekcji „Czeka na człowieka", dopóki nie przejdzie procedury wyprowadzenia |
 | Wpis bez daty w nagłówku | dokument po adopcji — zakres nazwy pliku musi wynikać z dat (L-0025) |
 
-**Czego nie wypisujesz:** wpisu linkowanego z otwartej pozycji „Czeka na człowieka". Od 1.7.0
+**Czego nie wypisujesz:** wpisu linkowanego z otwartej pozycji „Czeka na człowieka" —
 **nie blokuje** — jego link jest przepinany w fazie 2. Wymienienie go w komunikacie kazałoby
 człowiekowi zamykać sprawy, które niczego nie trzymają.
 
-**Przykład brzmienia** — wygenerowany z dziennika PolyFlow sprzed migracji do 1.6.1 (`396e243^`,
-97 wpisów, projekt sprzed 1.6.0) `FAKT`, próg 150 KB:
+**Przykład brzmienia** — wygenerowany z dziennika PolyFlow w stanie `396e243^`
+(97 wpisów, dziennik bez sekcji „Czeka na człowieka") `FAKT`, próg 150 KB:
 
 ```
 Rotacja dziennika przenosi 2 z 87 wpisów rotowalnych; 85 nie przechodzi (453,8 KB).
@@ -551,12 +532,12 @@ a nie porządkowaniem.
 | Rotacja wyłączona w `USTAWIENIA.md` | Progu nawet nie sprawdzasz; cisza |
 | Powyżej progu, ale **cały** zakres nietykalny (same świeże wpisy) | Nie rotujesz i piszesz **komunikat zablokowanej rotacji** (sekcja wyżej): część rotowalna 0 KB, dolna granica osiągalna równa wadze całkowitej, obok próg. Cisza jest zarezerwowana dla stanu poniżej progu — powyżej progu milczenie ukryłoby zatkany mechanizm |
 | Powyżej progu, rotacja zabrała wszystko, co mogła, ale **sama dolna granica przekracza próg** | Nie jest to porażka mechanizmu i nie nazywasz jej porażką. Komunikat podaje cztery liczby i mówi wprost, że plik odchudzi **zwięzłość wpisów**, a podniesienie progu jest decyzją człowieka. Milczenie byłoby tu najgorszą opcją: wyglądałoby na sukces |
-| **Wpis linkowany z otwartej pozycji „Czeka na człowieka" wjeżdża do archiwum** | Wjeżdża normalnie — od 1.7.0 nie jest z tego powodu nietykalny. Link pozycji zostaje **przepięty** na plik archiwum wraz z kotwicą, w **fazie 2**, w tym samym przebiegu, w którym wpis się przenosi. Rozjazd sum kontrolnych → **STOP przed fazą 2**: żywy plik nietknięty **i link nietknięty**, bo pozycja wskazywałaby wtedy plik, którego treści nikt nie potwierdził. Pozycja nigdy nie zostaje z martwym linkiem: liczba pozycji z linkiem do nieistniejącej kotwicy po rotacji ma wynosić **zero** i tę liczbę wypisuje wpis dziennika |
+| **Wpis linkowany z otwartej pozycji „Czeka na człowieka" wjeżdża do archiwum** | Wjeżdża normalnie — nie jest z tego powodu nietykalny. Link pozycji zostaje **przepięty** na plik archiwum wraz z kotwicą, w **fazie 2**, w tym samym przebiegu, w którym wpis się przenosi. Rozjazd sum kontrolnych → **STOP przed fazą 2**: żywy plik nietknięty **i link nietknięty**, bo pozycja wskazywałaby wtedy plik, którego treści nikt nie potwierdził. Pozycja nigdy nie zostaje z martwym linkiem: liczba pozycji z linkiem do nieistniejącej kotwicy po rotacji ma wynosić **zero** i tę liczbę wypisuje wpis dziennika |
 | Kilka pozycji linkuje do **tego samego** przenoszonego wpisu | Przepinasz **każdą** z nich — jednostką operacji jest pozycja, nie wpis. Liczba przepiętych linków bywa większa niż liczba przeniesionych wpisów i to nie jest błąd |
 | Pozycja linkuje do wpisu, którego **w żywym pliku już nie ma** (link prowadzi do archiwum po wcześniejszej rotacji) | Nic nie robisz — link jest już przepięty i jest poprawny. Ponownego przepięcia nie wykonujesz i drugiej ścieżki do niego nie doklejasz |
 | Dziennik ponad progiem, ale wpisów jest **mniej niż dziesięć** | Nie rotujesz — dziesięć najnowszych wpisów jest nietykalne niezależnie od rozmiaru pliku. Komunikat ma **ten sam kształt** co wyżej: część rotowalna 0 KB, dolna granica obok progu, i zdanie, że problemem są długie wpisy, a nie ich liczba — rozwiązuje go zwięzłość, nie archiwum |
 | Sesja nieinteraktywna, budżet przekroczony | Wejście 2 (start sesji) nie rusza; raport pomiaru pada, propozycja rotacji nie. Wejście 1 (zamknięcie sesji) działa bez zmian |
-| Wpis ma otwartą pozycję „Do zrobienia przez człowieka", ale **bez** adnotacji o wyprowadzeniu, a sekcji „Czeka na człowieka" w pliku nie ma (projekt sprzed 1.6.0) | Blokuje jak dotąd — reguła 1.5.2 obowiązuje, dopóki projekt nie przejdzie procedury wyprowadzenia (skill `relai-core`). Nie rotujesz „na zapas" i nie zakładasz sekcji przy okazji rotacji. **To jest jedyny przypadek, w którym komunikat wypisuje pary „pozycja → wpis"** — w projekcie z sekcją „Czeka na człowieka" takich blokerów nie ma |
+| Wpis ma otwartą pozycję „Do zrobienia przez człowieka", ale **bez** adnotacji o wyprowadzeniu, a sekcji „Czeka na człowieka" w pliku nie ma | Blokuje — wpis zostaje w żywym pliku, dopóki projekt nie przejdzie procedury wyprowadzenia (skill `relai-core`, `waiting-migration.md`). Nie rotujesz „na zapas" i nie zakładasz sekcji przy okazji rotacji. **To jest jedyny przypadek, w którym komunikat wypisuje pary „pozycja → wpis"** — w projekcie z sekcją „Czeka na człowieka" takich blokerów nie ma |
 | Rotacja przerwana między fazą 1 a 2 | Oryginał nietknięty; osierocony plik archiwum **nadpisujesz** przy następnej rotacji tego samego zakresu. Nie tworzysz drugiego pliku o tej samej nazwie z sufiksem |
 | Plik archiwum o tej nazwie już istnieje, a zakres jest **inny** | Nazwa kolizyjna znaczy, że coś poszło nie tak z wyznaczeniem zakresu → **STOP**, żywy plik nietknięty, pytanie do człowieka |
 | Wpis dziennika bez daty w nagłówku (dokument sprzed RelAI, po adopcji) | Nie podlega rotacji — zakres nazwy pliku musi wynikać z dat, a nie ze zgadywania (L-0025) |
@@ -604,8 +585,8 @@ a nie porządkowaniem.
 - Nie podajesz progu bez pozostałych trzech liczb. Cel rotacji stoi na **wadze całkowitej**
   (60% progu, D-88); część rotowalna mówi, ile rotacja **może** jeszcze wziąć, a nie kiedy ma
   przestać.
-- Nie wymieniasz wśród blokerów wpisu linkowanego z otwartej pozycji „Czeka na człowieka": od
-  1.7.0 nie blokuje, a wpisanie go na listę kazałoby człowiekowi zamykać sprawy bez skutku.
+- Nie wymieniasz wśród blokerów wpisu linkowanego z otwartej pozycji „Czeka na człowieka": nie
+  blokuje, a wpisanie go na listę kazałoby człowiekowi zamykać sprawy bez skutku.
 - Nie czytasz archiwum w rytuale startu sesji.
 
 ## Przykład — plik archiwum dziennika
@@ -803,3 +784,31 @@ nie zostało streszczone ani zmienione (D-18).
 > [docs/archiwum/ustawienia/USTAWIENIA_2026-08-21.md](archiwum/ustawienia/USTAWIENIA_2026-08-21.md)
 > — przeniesione 2026-08-21, suma kontrolna `9b04ce7712af3d68`.
 ```
+
+## Dawniej
+
+Historia reguł tej specyfikacji — dla czytelnika, który pyta, skąd się wzięły. Instrukcją jest
+treść wyżej; nic z tej sekcji nie stosujesz.
+
+- **Drugie wejście rotacji (start sesji)** doszło w 1.6.0; kompresja komórek „Mitygacja",
+  rotacja wycofanych ustawień i linia `[RelAI progi dokumentow]` na starcie sesji — w 1.7.0.
+  Wcześniej raport startu patrzył wyłącznie na sumę warstwy startowej, więc dokument ponad
+  własnym progiem mógł nie odezwać się ani razu.
+- **Trzy wagi (1.7.0).** Do 1.6.1 próg porównywał się do całego żywego pliku, a cel rotacji
+  brzmiał „zejdź poniżej 60% progu" — obie liczby dotyczyły wielkości, której mechanizm nie
+  kontroluje w całości; plik, w którym same pozycje nietykalne ważą tyle co próg, wyglądał na
+  zatkany bez powodu.
+- **Cel na wadze całkowitej (D-88, E2 planu PROWADZENIE_END_TO_END, wydanie 2.4.0).** Do 2.3.1
+  cel brzmiał „część rotowalna poniżej 60% progu". Zmierzone dwa razy (2026-09-04 i 2026-09-14)
+  `FAKT`: ten cel był spełniony, zanim rotacja cokolwiek wzięła — dziennik zostałby na 164,8 KB
+  przy progu 150, a z lekcji nie zeszłaby ani jedna pozycja, podczas gdy cel na całym pliku dawał
+  87,3 KB i 42,6 KB.
+- **Sprawa człowieka a rotacja.** Do 1.5.2 blokowała własna sekcja wpisu: wpis z nierozstrzygniętą
+  pozycją „Do zrobienia przez człowieka" zostawał w żywym pliku na zawsze — w JiraManagerze
+  (1,00 MB) i PolyFlow (571 KB) rotacja nigdy nie ruszyła, bo blokował ją pierwszy wpis dziennika
+  `FAKT`. W 1.6.0 blokada zmieniła adres na wpisy linkowane z otwartych pozycji sekcji „Czeka na
+  człowieka", co przesunęło korek, zamiast go usunąć: dziennik PolyFlow sprzed rotacji dawał zakres
+  0 wpisów ze 127 (2026-09-01) i 6 z 92 (2026-08-21) `FAKT`. W 1.7.0 blokada zniknęła, a
+  przeniesienie dostało bezpiecznik (przepięcie linku w fazie 2, STOP przy rozjeździe sum).
+  Rozpoznanie pozycji rozstrzygniętej po rdzeniu i dacie działa od 1.5.2; rdzeń `odroczo` jako
+  adnotacja odroczenia z licznikiem — od 1.7.0.

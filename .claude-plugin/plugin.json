@@ -1,7 +1,7 @@
 {
   "name": "relai",
   "version": "2.9.0",
-  "description": "Your project remembers everything — documentation-first process framework for Claude Code",
+  "description": "Your project remembers everything — documentation-first process framework for Claude Code, Cursor and Codex",
   "author": {
     "name": "nowilus",
     "url": "https://github.com/nowilus"
@@ -14,7 +14,10 @@
     "project-memory",
     "planning",
     "workflow",
-    "onboarding"
+    "onboarding",
+    "codex",
+    "cursor",
+    "agent-skills"
   ],
   "skills": [
     "./adapters/claude-code/skills/"

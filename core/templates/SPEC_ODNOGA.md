@@ -1,5 +1,7 @@
 # SPEC — `ODNOGA.md` i `PROMPT_ODNOGA.md`
 
+Zawartość: Rola · Odbiorca · Czego odnoga nie robi · `ODNOGA.md` — struktura · Statusy odnogi · `PROMPT_ODNOGA.md` — struktura · Zakazy · Przykład — `ODNOGA.md` (projekt polski, plan PLATNOSCI, odnoga z etapu E2) · Przykład — `PROMPT_ODNOGA.md` (ta sama odnoga, fragmenty kluczowych sekcji).
+
 Specyfikacja dla LLM (D-60). Nie kopiuj tego pliku. Wygeneruj oba pliki **w języku projektu**
 (nazwy plików stałe: `ODNOGA.md`, `PROMPT_ODNOGA.md`).
 

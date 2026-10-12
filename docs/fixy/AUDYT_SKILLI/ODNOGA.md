@@ -1,6 +1,6 @@
 # ODNOGA — skille RelAI według praktyk Agent Skills: lżejsze, mierzone, bez historii w instrukcjach
 
-Plan: brak (wątek samodzielny) · Etap-źródło: — · Utworzona: 2026-10-11 · Status: **OTWARTA** ·
+Plan: brak (wątek samodzielny) · Etap-źródło: — · Utworzona: 2026-10-11 · Status: **ZAMKNIĘTA 2026-10-12** ·
 Wykonawca: **Opus 5.5 w świeżej sesji** (D-85; wzorzec „subagent sesji Fable 5.1” odwołany
 2026-10-11). Zmiana 2026-10-12 (Łukasz): S1 startuje z jawną listą wyjątków dla naruszeń, które
 naprawia dopiero S2; odnoga kończy się commitem bez wydania — wszystko wchodzi do RelAI 3.0.0.
@@ -93,33 +93,88 @@ generator Codeksa (`adapters/codex/generate-skills.js`), którego parytet pilnuj
 
 ## Weryfikacja
 
-- [ ] S1: `node core/tools/validate-adapters.js` wypisuje nowe kontrole i kończy exit 0 na bieżącym
+- [x] S1: `node core/tools/validate-adapters.js` wypisuje nowe kontrole i kończy exit 0 na bieżącym
       repo, z listą wyjątków dokładnie dwóch naruszeń zastanych (wypisanych jako ostrzeżenie);
       kontrola pozytywna na podłożonym defekcie: opis z `<X>`, 1030 znaków, 501 linii, rozjazd
       „Na koniec” — każdy osobno daje exit 1 z nazwą pliku (w pliku spoza listy wyjątków).
-- [ ] S2: `wc -l` i rozmiar obu `SKILL.md` ≤ 300 linii / ≤ 15 KB (SZACUNEK ≈ 4–5k tokenów), opisy
+- [x] S2: `wc -l` i rozmiar obu `SKILL.md` ≤ 300 linii / ≤ 15 KB (SZACUNEK ≈ 4–5k tokenów), opisy
       ≤ 800 znaków bez `<`; budżet startu sesji z hooka spada o co najmniej 10 KB wobec 122,8 KB
       z 2026-10-11; pliki doczytywane wymienione w tabeli SKILL.md z wyzwalaczem; `history.md`
       zaktualizowany; parytet Codeksa (`validate-adapters`) exit 0; lista wyjątków z S1 pusta (kod
       listy usunięty albo pusty, walidator nie wypisuje już ostrzeżeń o tych dwóch plikach).
-- [ ] S3: `grep -n "do 1\.[0-9]\.[0-9]\|zmieniła adres\|Do 1\.5" core/templates adapters/claude-code/skills`
+- [x] S3: `grep -n "do 1\.[0-9]\.[0-9]\|zmieniła adres\|Do 1\.5" core/templates adapters/claude-code/skills`
       zwraca wyłącznie linie w sekcjach „Dawniej” / `history.md`; każdy plik > 100 linii zaczyna się
       listą „Zawartość”; `SPEC_PROMPT_ETAPU.md` §9 i skill dają tę samą liczbę kroków (test z S1).
-- [ ] S4: `rotate.js plan` na kopii dzisiejszego `docs/DZIENNIK.md` wypisuje zakres i trzy wagi;
+- [x] S4: `rotate.js plan` na kopii dzisiejszego `docs/DZIENNIK.md` wypisuje zakres i trzy wagi;
       `sprawdz` porównuje sumy; `wykonaj` odtwarza dzisiejszą rotację ryzyk C3/C9 bajt w bajt
       (suma `3d1c7384436e320c`); przebieg z podłożoną niezgodną sumą zatrzymuje się przed fazą 2.
 - [ ] S5: zestaw ≥ 6 pozycji na skill; przebieg na Opus 5.5 i Sonnet 5.5 (D-90) z wynikiem
       zapisanym w `docs/archiwum/pomiary/` i linkiem w `ARTEFAKTY.md`; co najmniej jedna fraza
       negatywna, która na starym opisie wyzwalała skill, po S2 go nie wyzwala (kontrola pozytywna
       zmiany).
-- [ ] S6: `grep -L "disable-model-invocation: true"` na pięciu komendach — pusto; `grep -r '\$ARGUMENTS'
+      **Nieodhaczone świadomie:** wszystko poza ostatnim zdaniem spełnione (14 pozycji, 7 na skill,
+      36/36 `ok` na obu modelach, link w `ARTEFAKTY.md`); kontrola zmiany dała 1 wyzwolenie na
+      6 sesji starego opisu („jak to ugryźć”, Sonnet 5.5) wobec 0 na 6 nowego — kierunek zgodny,
+      różnica w granicach szumu, więc zmiana opisu nie jest tym dowiedziona.
+- [x] S6: `grep -L "disable-model-invocation: true"` na pięciu komendach — pusto; `grep -r '\$ARGUMENTS'
       adapters/codex/skills` — pusto; `claude plugin validate .` exit 0; README i INSTALACJA mają akapit
       o granicach.
-- [ ] S7: walidator zgłasza wywołanie sieciowe w module spoza listy (test na podłożonym pliku);
+- [x] S7: walidator zgłasza wywołanie sieciowe w module spoza listy (test na podłożonym pliku);
       przegląd `progress/` według listy zapisany w dzienniku z werdyktem.
-- [ ] Katalog roboczy `.claude/relai/work/_fixy/AUDYT_SKILLI/` przejrzany raportem i skasowany po
+- [x] Katalog roboczy `.claude/relai/work/_fixy/AUDYT_SKILLI/` przejrzany raportem i skasowany po
       „tak”; liczby przed i po we wpisie dziennika, artefakty spoza niego z nazwy.
 
 ## Wynik
 
-—
+Zamknięta 2026-10-12 w jednej sesji Opus 5.5 (`/effort high`), paczki w kolejności S1 → S2 → S3 →
+S6 → S4 → S5 → S7, **bez wydania** — wszystko wchodzi do RelAI 3.0.0. Sześć z siedmiu paczek
+spełnia kryterium Weryfikacji w całości; S5 bez ostatniego zdania (kontrola zmiany w granicach
+szumu, powód przy punkcie). Przebieg i liczby: wpis dziennika „AUDYT_SKILLI zamknięta” z tego dnia;
+ewaluacje: [EVAL_TRIGGERS_2026-10-12](../../archiwum/pomiary/EVAL_TRIGGERS_2026-10-12.md).
+
+Najważniejsze liczby (FAKT): `relai-core/SKILL.md` 510 → 247 linii, 31 146 → 15 109 B, opis
+1 018 → 773 znaków; `relai-planning/SKILL.md` 457 → 224 linii, 28 320 → 13 218 B, opis 997 → 797;
+warstwa startu sesji 112 047 → 96 010 B (tym samym instrumentem), 122,8 KB z 2026-10-11 → 93,8 KB;
+testy rdzenia 299 → 331; ewaluacje 36/36 `ok` na Opus 5.5 i Sonnet 5.5.
+
+Wiersze BRAK / CZĘŚCIOWO z [RAPORT.html](RAPORT.html) — rozstrzygnięcie każdego:
+
+| # | Luka | Rozstrzygnięcie |
+|---|---|---|
+| 2 | opis ≤ 1024 bez tagów | zrobione (S1 kontrola, S2 `TOPIC`, opisy 773 / 797) |
+| 4 | opis bez ogólników | zrobione (S2: „od czego zacząć”, „jak to ugryźć” poza opisem planning); pomiar S5: fałszywe wyzwolenie rzadkie także na starym opisie |
+| 5 | treść nie powtarza opisu | zrobione (S2: akapity zakresu i historii do `history.md`) |
+| 6 | strażnik 500 linii | zrobione (S1: błąd > 500, ostrzeżenie od 480) |
+| 7 | Level 2 < ~5k tokenów | zrobione (S2: 15,1 / 13,2 KB; tokeny SZACUNEK — przelicznika w repo nie ma) |
+| 8 | SKILL.md jako spis | zrobione (S2: tabela „plik → kiedy” w planning) |
+| 9 | odwołania jeden poziom | częściowo: rotacja idzie skryptem z komendą sumy w `document-rotation.md` (S4), więc procedura nie schodzi do SPEC-ów; nazw sekcji SPEC w tabeli SKILL.md nie dodano — przy skrypcie zbędne |
+| 10 | spis w plikach > 100 linii | zrobione (S3: linia „Zawartość” w 28 plikach) |
+| 11 | bez treści zależnej od czasu | zrobione (S2 numer wersji poza treść, S3 sekcje „Dawniej”) |
+| 13 | skrypty zamiast generowania | zrobione (S4: `rotate.js`, `count-rules.js`) |
+| 15 | lista do skopiowania | zrobione (S3/S4: zamknięcie sesji, „Na koniec”, zamknięcie planu) |
+| 18 | nazwa opisowa | odrzucone (karta: zmiana nazwy łamie wywołania i hooki) |
+| 19 | zwięzłość | zrobione (S2: uzasadnienia pomiarowe poza skill) |
+| 20 | historia poza tokiem | zrobione (S3: grep karty trafia wyłącznie w „Dawniej” / `history.md`) |
+| 21 | terminologia „karta” | zrobione (S3: karta startu / panelu / odnogi) |
+| 22 | jedno źródło „Na koniec” | zrobione (S1 kontrola zgodności trzech list, S3 SPEC §9 odsyła do skilla) |
+| 23 | bez powtórzeń | zrobione (S2: jeden blok „Zasady każdej siatki”) |
+| 24 | plan-validate-execute | zrobione (S4: `plan` / `sprawdz` / `wykonaj`, STOP przed fazą 2) |
+| 27 | zakazy z alternatywą | częściowo: w core 13 zakazów → 8 „Granic” (S2); 13 „Nie…” w `relai-crew.md` zostaje — to granice bezpieczeństwa orkiestracji (zgoda, role, zapis), nie dublety |
+| 28 | tylko kontekst nieznany modelowi | częściowo odrzucone: odwołań D-/L- 27 → 15 (core) i 34 → 20 (planning); reszta zostaje jako pochodzenie reguły („Czego nie ruszać”) |
+| 29 | brak `node` | zrobione (S4: jedno zdanie w core i `session-close.md`) |
+| 31 | ewaluacje ≥ 3 na skill | zrobione (S5: 7 na skill, w repo) |
+| 33 | fałszywe wyzwolenie | zrobione (S5: 7 negatywów, 2 jako kontrola starego opisu) |
+| 34 | ewaluacje zachowania | poza zakresem (karta) — kandydat po 3.0.0 |
+| 36 | obserwacja nawigacji | zrobione (S5: log odczytów plików skilla i licznik rytuału) |
+| 37 | opis chroniony walidatorem | zrobione (S1) |
+| 39 | procedura „nie wyzwolił się” | zrobione (S5: P-034 w `PULAPKI.md`) |
+| 42 | opinie użytkowników | poza zakresem (karta: `/relai-feedback`) |
+| 44 | przegląd cudzego kodu | zrobione (S7: `SPEC_PRZYJECIE_KODU.md`, kontrola sieci w walidatorze, przegląd `progress/` — PRZYJĘTY) |
+| 47 | opis „co + kiedy” komend | zrobione (S6: 14 opisów) |
+| 48 | `disable-model-invocation` | zrobione (S6: 5 komend + `agents/openai.yaml` w Codeksie) |
+| 49 | `$ARGUMENTS` w Codeksie | zrobione (S6: generator, 0 trafień) |
+| 50 | jeden format skilli | poza zakresem — zmienia D-89; pytanie w „Czeka na człowieka” |
+| 52 | granice dystrybucji | zrobione (S6 akapit i `keywords`, S1 spójność opisów) |
+
+Świadomie odłożone: generator Codeksa nie składa `description: >` (żadna komenda tego zapisu nie
+używa); `relai-prompt.md` 30,1 KB — ostrzeżenie walidatora (> 20 KB), bez zmiany w tej odnodze.

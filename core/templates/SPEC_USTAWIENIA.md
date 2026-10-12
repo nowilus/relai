@@ -1,5 +1,7 @@
 # SPEC — `docs/USTAWIENIA.md`
 
+Zawartość: Rola · Odbiorca · Warstwy ustawień (D-23) · Struktura pliku · Wiersz to jedna decyzja, jednym zdaniem (od 1.6.0) · Wpisy tworzone przy inicjalizacji · Wiersz `Rotacja dokumentów` (od 1.2.0) · Wiersz `Budżet startu sesji` (od 1.6.0) · Wiersz `Przegląd spraw człowieka` (od 1.7.0) · Wiersz `Artefakty robocze` (od 1.8.0) · Wiersz `Lista modeli` (od 1.9.0) · Wiersz `Tryb ciągły` (od 2.2.0) · Wiersze `Próg limitu` i `Próg limitu tygodnia` (od 2.9.0) · Wiersze warstwy globalnej (od 2.3.0) · Rotacja ustawień (od 1.7.0) · Katalog progów (od 1.7.0) · Polityka aktualizacji · Co tu trafia, a co nie · Zakazy · Przykład (projekt polski).
+
 Specyfikacja dla LLM (D-60). Nie kopiuj tego pliku. Wygeneruj `docs/USTAWIENIA.md` **w języku
 projektu** (`docs/SETTINGS.md` dla projektu angielskiego).
 
@@ -705,7 +707,7 @@ zmienić — osobny plik byłby drugim miejscem do zapomnienia.
 dwadzieścia najnowszych lekcji) — nic ich nie „przekracza", więc nie są progiem, tylko dolną
 granicą osiągalną; liczb orientacyjnych z innych specyfikacji („typowo 5–10 pozycji", „typowo 3–6
 pozycji") — te nie mają mechanizmu i mieć nie mają; wartości historycznych, opisanych jako
-zastąpione (limit `CLAUDE.md` brzmiał do 1.5.2 „60 linii").
+zastąpione (dawny limit `CLAUDE.md` w liniach — sekcja „Dawniej" w `SPEC_CLAUDE_MD.md`).
 
 **Czego katalog nie robi:** nie dokłada ani jednego nowego progu i nie zmienia żadnej wartości.
 Kolumna „Adres egzekwowania" ma być jedynym miejscem, gdzie widać, że próg istnieje, ale nikt go

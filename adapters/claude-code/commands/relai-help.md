@@ -1,5 +1,5 @@
 ---
-description: Pokazuje ściągę projektu — komendy, frazy i zachowania automatyczne — prezentując zawartość docs/KOMENDY.md
+description: "Shows the project cheat sheet — commands, phrases and automatic behaviours — by presenting docs/KOMENDY.md. Use when the person asks what RelAI can do here — „pomoc”, „jakie są komendy”, „ściąga”, „help”."
 argument-hint: "[fraza] — opcjonalnie filtruje ściągę do pozycji zawierających podany tekst"
 ---
 

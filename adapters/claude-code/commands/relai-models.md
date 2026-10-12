@@ -1,5 +1,5 @@
 ---
-description: Odświeża listę modeli narzędzia w projekcie — pyta o zgodę na ruch sieciowy przy każdym wywołaniu, czyta dokumentację dostawcy albo pyta człowieka, pokazuje różnicę stara–nowa i zapisuje dopiero po potwierdzeniu
+description: "Refreshes the tool model list in the project — asks for consent to network traffic on every run, reads the vendor documentation or asks the person, shows the old and new list side by side and saves only after confirmation. Use when the list is old or a new model appeared — „odśwież listę modeli”, „nowy model”, „refresh the models”."
 argument-hint: ""
 ---
 
@@ -148,6 +148,12 @@ planowania.
 Trzy zdania: co się zmieniło na liście, skąd pochodzą nowe pozycje (adres albo „podane przez
 człowieka"), z jakiego dnia jest teraz lista. Pozycje `<TO BE FILLED IN: …>`, które zostały,
 wymieniasz z nazwy klasy.
+
+Lista dostała nową nazwę w klasie `strong` albo `balanced`, a projekt ma zestaw ewaluacji
+wyzwalania (`core/evals/triggers.json`, repozytorium RelAI) → czwarte zdanie proponuje jego
+przebieg na nowym modelu: `node core/tools/eval-triggers.js --model <alias>` (D-90: kryterium
+odbioru to modele flagowe). Przebieg uruchamiasz dopiero po „tak” — kosztuje sesje modelu.
+Pliku zestawu nie ma → tego zdania nie piszesz.
 
 ---
 

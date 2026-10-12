@@ -1,5 +1,7 @@
 # SPEC — `docs/DZIENNIK.md`
 
+Zawartość: Rola · Odbiorca · Polityka aktualizacji: APPEND, nigdy edycja wstecz · Struktura pliku · Sekcja „Czeka na człowieka" · Komórka „Mitygacja" — stan bieżący, nie kronika · Kompresja komórki „Mitygacja" · Szablon wpisu (obowiązkowy, D-14) · Linia autora — jeden format, bez wariantów (D-63) · Wpis typu MINIPLAN (D-31) · Rotacja (D-14) · Zakazy · Przykład · Dawniej.
+
 Specyfikacja dla LLM (D-60). Nie kopiuj tego pliku. Wygeneruj `docs/DZIENNIK.md` **w języku
 projektu** (nazwa pliku też podąża za językiem: `JOURNAL.md` dla projektu angielskiego).
 
@@ -31,13 +33,13 @@ Agent w kolejnej sesji (główny) oraz zespół.
    statusem `ZAMKNIĘTE` i datą, a przy rotacji schodzi do `docs/archiwum/ryzyka/`
    (`SPEC_ARCHIWUM.md`). Poziomy: wysoki / średni / niski. Kształt komórki „Mitygacja" opisuje
    sekcja niżej.
-3. **Sekcja „Czeka na człowieka"** (od 1.6.0) — stała, tuż pod ryzykami, **nadpisywana**. Sekcja
+3. **Sekcja „Czeka na człowieka"** — stała, tuż pod ryzykami, **nadpisywana**. Sekcja
    niżej.
 4. **Sekcja „Wpisy"** — chronologicznie, najstarszy u góry. To jest **domyślna** kolejność
    projektu zakładanego przez RelAI, nie warunek działania mechanizmów: kolejność wpisów jest
    własnością projektu i mechanizmy mają ją **czytać** (sekcja „Rotacja"), nie narzucać.
 
-## Sekcja „Czeka na człowieka" (od 1.6.0)
+## Sekcja „Czeka na człowieka"
 
 Sprawy, których agent zrobić nie może — decyzja biznesowa, dostęp, zakup, akceptacja — mieszkają
 **tutaj**, a nie rozsypane po wpisach sprzed miesięcy. Powód jest mierzalny: warstwa czytana przy
@@ -58,13 +60,11 @@ OPTYMALIZACJA_KONTEKSTU, mechanizm 2).
   działać (L-0013). Sprawa powtórzona w kilku wpisach dostaje link do **najnowszego**
   wystąpienia — tam jest stan sprawy na dziś, a starsze wystąpienia dojdziesz z niego wstecz.
 
-  **Dlaczego do najnowszego, a nie do najstarszego.** Do 1.6.1 reguła wskazywała wpis
-  **najstarszy** i to zatykało rotację z definicji: rotacja bierze ciągły zakres **od
-  najstarszej** pozycji, a wpis linkowany z otwartej sprawy **był wtedy chroniony** — więc blokada
-  siadała dokładnie tam, gdzie kosztowała najwięcej. Od 1.7.0 chroniony nie jest (sekcja
-  „Rotacja"); bezpiecznikiem jest przepięcie linku opisane niżej. Zmierzone na dzienniku PolyFlow sprzed
-  rotacji `FAKT` (2026-09-01, 127 wpisów): starą regułą zakres obejmował **0 wpisów**, nową —
-  **117**. Na przekroju z 2026-08-21 (92 wpisy): **6** wobec **82**.
+  **Dlaczego do najnowszego, a nie do najstarszego.** Rotacja bierze ciągły zakres **od
+  najstarszej** pozycji; link do najstarszego wystąpienia stawiałby sprawę dokładnie tam, gdzie
+  rotacja zaczyna. Wpis linkowany z otwartej sprawy nie jest chroniony (sekcja „Rotacja");
+  bezpiecznikiem jest przepięcie linku opisane niżej. Pomiar, który to rozstrzygnął: sekcja
+  „Dawniej”.
 
   **Adnotacja po przepięciu na archiwum.** Wpis, do którego prowadzi link, może wjechać do
   archiwum — wtedy link zostaje **przepięty** na plik archiwum razem z kotwicą, w fazie 2
@@ -78,7 +78,7 @@ OPTYMALIZACJA_KONTEKSTU, mechanizm 2).
   nietknięte. Pozycja nigdy nie zostaje z martwym linkiem, a wpis nigdy nie blokuje rotacji
   tylko dlatego, że ktoś na niego wskazuje.
 
-**Adnotacja odroczenia (od 1.7.0).** Sprawa starsza niż `N` dni (wiersz `Przegląd spraw człowieka`
+**Adnotacja odroczenia.** Sprawa starsza niż `N` dni (wiersz `Przegląd spraw człowieka`
 w `SPEC_USTAWIENIA.md`, domyślnie **30 dni**, wyłącznik **osobny od rotacji**) wymusza na starcie
 sesji decyzję. Pytanie idzie **partiami po cztery sprawy** i daje trzy wybory: zamknąć, odroczyć
 o kolejne `N` dni, rozstrzygnąć teraz. Odpowiedź „zostawiam" przesuwa sprawę o kolejne `N` dni
@@ -122,20 +122,20 @@ przecinek, licznik. Nie parafrazujesz go i nie poszerzasz listy o warianty. Zasa
   pozycji.
 - **Sekcja pusta ma jawne brzmienie „—" i nie znika z pliku** — brak treści jest informacją,
   a znikający nagłówek zmusza kolejną sesję do zgadywania, czy sekcji nie ma, bo nic nie czeka,
-  czy dlatego, że projekt jest sprzed 1.6.0.
+  czy dlatego, że dziennik jeszcze jej nie dostał.
 - **Sekcja nie jest listą zadań agenta.** Rzecz, którą agent może zrobić sam, tu nie wchodzi —
   od tego jest plan albo odnoga.
 
 **Skąd biorą się pozycje:** z sekcji „Do zrobienia przez człowieka" wpisów. Procedura zebrania
-zastanych pozycji przy przejściu projektu na 1.6.0 mieszka w skillu `relai-core`.
+zastanych pozycji w dzienniku bez tej sekcji mieszka w skillu `relai-core` (`waiting-migration.md`).
 
-## Komórka „Mitygacja" — stan bieżący, nie kronika (od 1.6.0)
+## Komórka „Mitygacja" — stan bieżący, nie kronika
 
 Komórka mówi, **jak z tym ryzykiem jest dzisiaj** i **skąd to wiadomo**. Nie jest zapisem przebiegu
 prac nad ryzykiem — od przebiegu są wpisy, do których prowadzą odsyłacze.
 
-Powód jest mierzalny. Do 1.5.2 komórka rosła o akapit „**data (etap):** …" przy każdym pomiarze,
-bo dopisanie było zawsze łatwiejsze niż przepisanie. Zmierzone 2026-08-21 na trzech projektach
+Powód jest mierzalny. Komórka prowadzona jako kronika rośnie o akapit „**data (etap):** …" przy
+każdym pomiarze, bo dopisanie jest łatwiejsze niż przepisanie. Zmierzone 2026-08-21 na trzech projektach
 `FAKT`: 85 komórek, w tym pojedyncze na **5586**, **2576** i **1881** znaków; w tym repozytorium
 suma samych komórek „Mitygacja" dawała 17,9 KB z 21,4 KB całej sekcji. Sekcja ryzyk jest czytana
 przy **każdym** starcie sesji, więc płaci się za nią w każdej sesji — a osiem historycznych
@@ -192,11 +192,10 @@ skąd przyszła, a w komórce zostaje odsyłacz. Kolejność jest jedna i nieneg
 `OTWARTE` musi po skróceniu nadal odpowiadać na pytanie „dlaczego jeszcze nie zamknięte" — to jest
 jedyna informacja, której nikt nie odtworzy z wpisów bez ich przeczytania.
 
-## Kompresja komórki „Mitygacja" (od 1.7.0)
+## Kompresja komórki „Mitygacja"
 
-Sekcja wyżej mówi, **jak komórka ma wyglądać**, i daje komendę, która liczy znaki. Do 1.6.1 na tym
-się kończyło: limit 800 znaków miał sprawdzenie i nie miał **żadnego mechanizmu**, więc komórka
-raz zapuszczona rosła dalej. Ta sekcja jest jego adresem egzekwowania — historia z komórki schodzi
+Sekcja wyżej mówi, **jak komórka ma wyglądać**, i daje komendę, która liczy znaki. Limit bez
+mechanizmu nie zatrzymuje komórki raz zapuszczonej. Ta sekcja jest jego adresem egzekwowania — historia z komórki schodzi
 do `docs/archiwum/ryzyka/`, a ryzyko **zostaje otwarte i widoczne przy każdym starcie**. To nie
 jest rotacja wiersza: wiersz nie rusza się z tabeli.
 
@@ -295,7 +294,7 @@ informacja.
   **Forma dopiska jest czytana maszynowo** — po niej rotacja poznaje wpis, którego nie wolno
   ruszyć (`SPEC_ARCHIWUM.md`), a zamknięcie planu poznaje otwartą bramkę (`SPEC_STATUS.md`,
   sekcja „Bramki manualne"). Kanoniczne słowo to **rozstrzygnięte**; równoważnie rozpoznawane są
-  **zrobione** i **wykonane** — tak podpisywano pozycje przed 1.3.0 i te wpisy mają dalej liczyć
+  **zrobione** i **wykonane** — tak podpisywano pozycje w starszych wpisach i te wpisy mają dalej liczyć
   się jako zamknięte. Dopisek bez żadnego z tych słów znaczy **pozycja otwarta**: mechanizm nie
   zgaduje intencji (L-0025). Piszesz nowy dopisek → pisz „rozstrzygnięte".
 
@@ -303,7 +302,7 @@ informacja.
   RRRR-MM-DD — nieaktualne, powód)*". Ciche pozostawienie jej otwartej blokuje rotację wpisu
   i zamknięcie planu bez końca.
 
-  **Wyprowadzenie do sekcji „Czeka na człowieka" (od 1.6.0).** Pozycja otwarta nie mieszka w
+  **Wyprowadzenie do sekcji „Czeka na człowieka".** Pozycja otwarta nie mieszka w
   jednym miejscu wiecznie: przenosi się do sekcji „Czeka na człowieka" na górze pliku, gdzie widzi
   ją każda sesja. We wpisie **zostaje** — z adnotacją o przeprowadzce, bo historia nie kłamie
   o tym, co wtedy było otwarte (D-18):
@@ -343,7 +342,7 @@ gubi jedyny ślad tego, kto przy tej pracy był — a na nim opiera się sygnał
 który porównuje `user.name` z podpisami. Zmierzone w pilotażu 1.0.0: dwa wpisy podpisane
 `RelAI (Haiku)` bez członu użytkownika wystarczyły, żeby projekt zaczął wyglądać na cudzy.
 
-Dlatego od 1.3.0 podpis jest **sprawdzany maszynowo**: hook `journal-signature` czyta ostatni wpis
+Dlatego podpis jest **sprawdzany maszynowo**: hook `journal-signature` czyta ostatni wpis
 po każdym zapisie dziennika i ostrzega, gdy przy skonfigurowanym gicie w linii autora nie ma członu
 `+ <użytkownik>`. Ostrzega — nigdy nie blokuje i nigdy nie poprawia wpisu za Ciebie; poprawka
 należy do tej samej tury co ostrzeżenie. Hook milczy, gdy podpis jest poprawny albo gdy gita nie
@@ -386,7 +385,7 @@ Autor: RelAI (Opus) + Łukasz
 wierszy zgodna z licznikiem na liście.
 ```
 
-## Rotacja (D-14, mechanizm od 1.2.0)
+## Rotacja (D-14)
 
 Rotacja dzieje się **sama**, w rytuale zamknięcia sesji, gdy plik przekracza próg
 z `docs/USTAWIENIA.md` (domyślnie **150 KB**). Poniżej progu nie dzieje się nic i nie pada ani
@@ -402,11 +401,9 @@ opisuje `SPEC_ARCHIWUM.md`; tutaj obowiązuje to, czego rotacja nie ma prawa nar
 - **dziesięć najnowszych wpisów** `SZACUNEK` — najnowszych **wg dat w nagłówkach**, nie wg pozycji
   w pliku.
 
-**Czego rotacja nie zatrzymuje (zmiana w 1.7.0):** wpis **nie** jest chroniony dlatego, że prowadzi
+**Czego rotacja nie zatrzymuje:** wpis **nie** jest chroniony dlatego, że prowadzi
 do niego link z otwartej pozycji „Czeka na człowieka". Taki wpis wchodzi do zakresu normalnie,
-a jego **link jest przepinany** na plik archiwum w fazie 2 (`SPEC_ARCHIWUM.md`). Do 1.6.1 był
-nietykalny — i to była ta jedna reguła, przez którą rotacja w dwóch żywych projektach nie ruszyła
-z miejsca. Sprawa człowieka nie znika przy tym z oczu, bo nie znika **pozycja**: sekcja „Czeka na
+a jego **link jest przepinany** na plik archiwum w fazie 2 (`SPEC_ARCHIWUM.md`). Sprawa człowieka nie znika przy tym z oczu, bo nie znika **pozycja**: sekcja „Czeka na
 człowieka" nie rotuje nigdy, a po przepięciu prowadzi do tej samej treści pod adresem archiwum.
 
 Wpis, którego pozycje zostały wyprowadzone albo rozstrzygnięte, jest przenoszalny tak samo — jego
@@ -416,14 +413,13 @@ własna sekcja „Do zrobienia przez człowieka" niczego nie blokuje.
 nie streszczasz i nie skracasz — pierwszy wpis nietykalny kończy zakres.
 
 **Co zostaje po nich:** jedna **linia-odsyłacz** na początku sekcji „Wpisy", z zakresem dat, liczbą
-wpisów, linkiem do pliku archiwum i sumą kontrolną. Streszczenia okresu **nie piszesz** — dawna
-reguła „jednoakapitowe streszczenie" jest w 1.2.0 wycofana, bo streszczenie milczy o tym, czego nie
-zmieściło, a od pełnej treści jest archiwum (D-18).
+wpisów, linkiem do pliku archiwum i sumą kontrolną. Streszczenia okresu **nie piszesz** —
+streszczenie milczy o tym, czego nie zmieściło, a od pełnej treści jest archiwum (D-18).
 
 Format wpisu jest przy tym nienaruszalny: treść w archiwum ma te same cztery sekcje i tę samą linię
 autora co przed przeniesieniem.
 
-**Kolejność wpisów w pliku jest własnością projektu (od 1.7.0).** RelAI dopisuje na końcu sekcji
+**Kolejność wpisów w pliku jest własnością projektu.** RelAI dopisuje na końcu sekcji
 „Wpisy", więc w projekcie założonym przez RelAI najstarszy wpis stoi u góry — ale projekt
 zaadoptowany albo prowadzony wcześniej ręcznie bywa odwrotny, a bywa i mieszany. **Mechanizm nie
 narzuca kolejności: ustala ją z dat w nagłówkach `### RRRR-MM-DD`, nie z pozycji w pliku.** Dotyczy
@@ -516,3 +512,21 @@ W tym przykładzie widać obie reguły linku naraz:
 
 Pozycja i wpis stoją przy tym w dwóch miejscach i to jest zamierzone: w sekcji „Czeka na człowieka"
 jako **sprawa otwarta widoczna na starcie**, we wpisie jako **ślad historii** z adnotacją.
+
+## Dawniej
+
+Historia reguł tej specyfikacji — dla czytelnika, który pyta, skąd się wzięły. Instrukcją jest
+treść wyżej; nic z tej sekcji nie stosujesz.
+
+- **Rotacja dziennika** działa od 1.2.0; wtedy też wycofano regułę „jednoakapitowe streszczenie
+  okresu". Maszynowe sprawdzanie podpisu (hook `journal-signature`) — od 1.3.0.
+- **Sekcja „Czeka na człowieka"** i komórka „Mitygacja" jako stan bieżący — od 1.6.0. Do 1.5.2
+  komórka rosła o akapit „data (etap)" przy każdym pomiarze.
+- **Link pozycji do najnowszego wystąpienia (1.7.0).** Do 1.6.1 reguła wskazywała wpis najstarszy,
+  a wpis linkowany z otwartej sprawy był chroniony — blokada siadała tam, gdzie kosztowała
+  najwięcej, i przez tę jedną regułę rotacja w dwóch żywych projektach nie ruszyła z miejsca.
+  Zmierzone na dzienniku PolyFlow sprzed rotacji `FAKT` (2026-09-01, 127 wpisów): starą regułą
+  zakres obejmował **0 wpisów**, nową — **117**; na przekroju z 2026-08-21 (92 wpisy): **6** wobec
+  **82**. W tym samym wydaniu: adnotacja odroczenia z licznikiem, kompresja komórki „Mitygacja"
+  (do 1.6.1 limit 800 znaków miał sprawdzenie, ale nie mechanizm) i kolejność wpisów ustalana
+  z dat zamiast z pozycji w pliku.

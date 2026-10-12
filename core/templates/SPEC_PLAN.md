@@ -1,5 +1,7 @@
 # SPEC — `docs/plany/<TEMAT>/PLAN.md`
 
+Zawartość: Rola · Odbiorca · Zasady nadrzędne · Struktura sekcji (kolejność obowiązkowa) · Polityka aktualizacji · Zakazy · Przykład (projekt polski, plan średniej wielkości).
+
 Specyfikacja dla LLM (D-60). Nie kopiuj tego pliku. Wygeneruj `PLAN.md` **w języku projektu**
 (nazwa pliku stała: `PLAN.md`, folder `<TEMAT>` w języku projektu — CAPS_SNAKE, bez dat i wersji).
 

@@ -1,12 +1,12 @@
 ---
 name: relai-crew
-description: "Załoga — model, który wywołał komendę, zostaje orkiestratorem celu: wywiad o role i modele, plan fal bez konfliktów plików, delegacja do subagentów gospodarza albo do drugiego narzędzia (Claude Code, Codex, Cursor), przegląd krzyżowy i rytuał zamknięcia; bez drugiego zalogowanego narzędzia płynnie przechodzi w tryb basic"
+description: "Crew — the model that ran the command becomes the orchestrator of one goal: an interview about roles and models, waves without file conflicts, delegation to host subagents or to a second tool (Claude Code, Codex, Cursor), cross review and a closing ritual; without a second signed-in tool it falls back to basic mode. Use when the person wants several agents on one goal — „załoga”, „puść agentów”, „run a crew”."
 ---
 
 
 # /relai-crew — załoga: orkiestracja wielu agentów i przegląd krzyżowy
 
-Argumenty (opcjonalne): `$ARGUMENTS`
+Argumenty (opcjonalne): tekst podany przez użytkownika po nazwie skilla w wiadomości, która go wywołała (brak tekstu = brak argumentu)
 
 Twoje zadanie: doprowadzić **cel** do końca rękami subagentów, a samemu zostać
 **orkiestratorem** — analiza, plan fal, delegacja, monitorowanie, przegląd krzyżowy, rytuał

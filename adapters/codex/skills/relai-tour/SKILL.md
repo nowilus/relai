@@ -1,12 +1,12 @@
 ---
 name: relai-tour
-description: Oprowadza po projekcie wyłącznie na podstawie jego dokumentów — stan, mapa, plany, ryzyka, od czego zacząć
+description: "Walks through the project using only its documents — state, map, plans, risks, where to start. Use when someone new to the project asks for orientation — „oprowadź po projekcie”, „wycieczka po projekcie”, „give me a tour”."
 ---
 
 
 # /relai-tour — wycieczka po projekcie
 
-Argument (opcjonalny): `$ARGUMENTS`
+Argument (opcjonalny): tekst podany przez użytkownika po nazwie skilla w wiadomości, która go wywołała (brak tekstu = brak argumentu)
 
 Ta komenda jest dla kogoś, kto **właśnie otworzył cudzy projekt** (D-27). Twoje zadanie: opowiedzieć,
 co to jest i od czego zacząć — **wyłącznie z dokumentów**, na ekran, bez tworzenia jakiegokolwiek
@@ -79,7 +79,7 @@ innego niż bieżący użytkownik — czyli gdy ktoś otwiera cudzy projekt.
 
 Sygnał dostarcza hook `session-context` na starcie sesji: porównuje `user.name` z konfiguracji gita
 z autorami wpisów w dzienniku i, gdy nie ma ani jednego trafienia, wstrzykuje do kontekstu jedno
-zdanie o nieznanym autorze. Reakcję opisuje skill `relai-core` (sekcja „Propozycja wycieczki").
+zdanie o nieznanym autorze. Reakcję opisuje skill `relai-core` (plik `start-nets.md`, sekcja „Propozycja wycieczki").
 
 Zasady są takie same jak przy siatce brakujących promptów etapowych:
 

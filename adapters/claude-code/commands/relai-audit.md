@@ -1,5 +1,5 @@
 ---
-description: Raport o stanie dokumentacji projektu — porządki i zdrowie — zakończony listą propozycji do zatwierdzenia; niczego nie zmienia sam
+description: "Reports on the state of the project documentation — housekeeping and health — and ends with a list of proposals to approve; changes nothing by itself. Use when the person asks for a documentation review — „przegląd dokumentacji”, „zrób audyt”, „porządki w dokumentach”, „audit the docs”."
 argument-hint: "[porzadki|zdrowie] — opcjonalne zawężenie do jednej części raportu"
 ---
 

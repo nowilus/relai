@@ -1,5 +1,7 @@
 # SPEC_PLAN_HTML — jak wygenerować plan główny w HTML
 
+Zawartość: Szablon jest repertuarem, nie rusztowaniem · Skąd wziąć szablon · Procedura generowania · Kierunek wizualny „Warsztat" (D-61a, wybrany 2026-08-08) · Zakazy · Dostępność — wymagania, nie sugestie · Nadpisanie lokalne · Waga pliku · Przykład.
+
 Dotyczy dokumentu: **`docs/plany/<TEMAT>/PLAN.html`**, gdy `docs/USTAWIENIA.md` (albo warstwa
 globalna) mówi, że plany główne powstają w HTML.
 

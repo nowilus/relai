@@ -86,6 +86,34 @@
       "id": "validate-adapters",
       "file": "./tools/validate-adapters.js",
       "description": "Sprawdza spojnosc rdzenia z adapterami: istnienie plikow, zgodnosc wersji, martwe odwolania."
+    },
+    {
+      "id": "skill-metadata",
+      "file": "./tools/skill-metadata.js",
+      "description": "Czysta logika kontroli metadanych skilli i komend wg praktyk Agent Skills: name, description (dlugosc po zlozeniu bloku, znaki < >, trzecia osoba), linie i rozmiar, lista wyjatkow zastanych, kroki rytualu Na koniec. Wola ja validate-adapters.js."
+    },
+    {
+      "id": "rotate",
+      "file": "./tools/rotate.js",
+      "kind": "biblioteka+CLI",
+      "description": "Rotacja dziennika i ryzyk zamknietych wg SPEC_ARCHIWUM.md: plan (zakres, trzy wagi), sprawdz (suma fragmentu kontra archiwum), wykonaj (faza 1 z odczytem z dysku, STOP przy rozjezdzie sum, faza 2 z odsylaczem i przepieciem linkow, liczba martwych kotwic). Kopia w projekcie: .claude/relai/tools/rotate.js."
+    },
+    {
+      "id": "network-calls",
+      "file": "./tools/network-calls.js",
+      "description": "Czysta logika kontroli wywolan sieciowych w kodzie pluginow (require http/https/net/tls/dgram, fetch, $.http): plik spoza listy dozwolonych i nieaktualna pozycja listy to bledy. Wola ja validate-adapters.js; procedura przegladu: SPEC_PRZYJECIE_KODU.md."
+    },
+    {
+      "id": "eval-triggers",
+      "file": "./tools/eval-triggers.js",
+      "kind": "CLI",
+      "description": "Ewaluacje wyzwalania skilli: zestaw core/evals/triggers.json przez swieze sesje claude -p w kopiach fixtur (ustawienia i pluginy uzytkownika wylaczone), werdykt ok / blad / nie zmierzono, --baseline bez pluginu, --plugin-dir do porownania wersji opisu. Uruchamiany recznie w repozytorium RelAI."
+    },
+    {
+      "id": "count-rules",
+      "file": "./tools/count-rules.js",
+      "kind": "CLI",
+      "description": "Liczba pozycji sekcji Zasady aktywne w docs/LEKCJE.md wobec limitu 15 — krok 1 rytualu zamkniecia sesji. Kopia w projekcie: .claude/relai/tools/count-rules.js."
     }
   ],
   "adapters": [

@@ -1,12 +1,12 @@
 ---
 name: relai-backup
-description: Pakuje projekt do archiwum ZIP w centralnym folderze backupów — z wykluczeniem sekretów i katalogów runtime — i zapisuje wpis w dzienniku
+description: "Packs the project into a ZIP archive in the central backup folder, without secrets and runtime folders, and writes a journal entry. Use when the person asks for a backup — „zrób backup”, „kopia zapasowa”, „back up the project”."
 ---
 
 
 # /relai-backup — kopia zapasowa projektu
 
-Argument (opcjonalny): `$ARGUMENTS`
+Argument (opcjonalny): tekst podany przez użytkownika po nazwie skilla w wiadomości, która go wywołała (brak tekstu = brak argumentu)
 
 Twoje zadanie: zostawić na dysku **jeden działający plik ZIP** z projektem, bez ani jednego sekretu
 w środku, i odnotować to w dzienniku. Kroki wykonujesz po kolei.

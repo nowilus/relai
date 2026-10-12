@@ -1,5 +1,7 @@
 # relai-core — folder bez struktury RelAI: inicjalizacja albo cztery drogi
 
+Zawartość: Stan PUSTY — zgoda, trzy pytania, generacja · Stan Z ZAWARTOŚCIĄ — cztery drogi, wybiera użytkownik.
+
 Plik doczytywany skilla `relai-core`. Otwierasz go, gdy Krok 0 skilla rozpoznał stan PUSTY albo Z ZAWARTOŚCIĄ i propozycja nie jest wyciszona globalnie, albo gdy użytkownik sam prosi o RelAI („dodaj RelAI", „zainicjuj projekt").
 
 ## Stan PUSTY — zgoda, trzy pytania, generacja

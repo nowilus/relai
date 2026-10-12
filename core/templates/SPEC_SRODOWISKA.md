@@ -1,5 +1,7 @@
 # SPEC — `docs/srodowiska/<NAZWA>.md`
 
+Zawartość: Rola · Jeden plik na środowisko · Twardy zakaz: wartości sekretów (D-42) · Kiedy powstaje i jak się aktualizuje · Struktura sekcji · Zakazy · Przykład (projekt polski, `docs/srodowiska/PRODUKCJA.md`).
+
 Specyfikacja dla LLM (D-60). Nie kopiuj tego pliku. Wygeneruj `docs/srodowiska/<NAZWA>.md`
 **w języku projektu**; dla projektu angielskiego: `docs/environments/<NAME>.md`.
 

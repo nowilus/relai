@@ -1,12 +1,12 @@
 ---
 name: relai-audit
-description: Raport o stanie dokumentacji projektu — porządki i zdrowie — zakończony listą propozycji do zatwierdzenia; niczego nie zmienia sam
+description: "Reports on the state of the project documentation — housekeeping and health — and ends with a list of proposals to approve; changes nothing by itself. Use when the person asks for a documentation review — „przegląd dokumentacji”, „zrób audyt”, „porządki w dokumentach”, „audit the docs”."
 ---
 
 
 # /relai-audit — przegląd porządków i zdrowia projektu
 
-Argument (opcjonalny): `$ARGUMENTS`
+Argument (opcjonalny): tekst podany przez użytkownika po nazwie skilla w wiadomości, która go wywołała (brak tekstu = brak argumentu)
 
 Twoje zadanie: **napisać raport**. Nie posprzątać. Komenda kończy się listą propozycji, a każda
 zmiana czeka na „tak" od człowieka (D-45).

@@ -1,5 +1,7 @@
 # SPEC — `docs/LEKCJE.md`
 
+Zawartość: Rola · Odbiorca · Polityka aktualizacji: APPEND bez pytania · Struktura pliku (kolejność obowiązkowa) · Format wpisu (obowiązkowy) · Kiedy powstaje wpis, a kiedy nie · Wyprowadzenie pułapki do `docs/PULAPKI.md` · Graduacja — z lekcji do reguły w `CLAUDE.md` · Kompresja — zwijanie lekcji do destylatu · Rotacja — pełne lekcje do archiwum · Jak ten plik jest czytany · Zakazy · Przykład (projekt polski) · Dawniej.
+
 Specyfikacja dla LLM (D-60). Nie kopiuj tego pliku. Wygeneruj `docs/LEKCJE.md` **w języku projektu**
 (nazwa pliku też podąża za językiem: `LESSONS.md` dla projektu angielskiego).
 
@@ -52,9 +54,8 @@ Sekcja „Zasady aktywne" ma **twardy limit: 15 pozycji**
 `CLAUDE.md`, połączona albo — jeśli okaże się pułapką narzędziową, a nie zasadą pracy — wyprowadzona
 do `docs/PULAPKI.md` (sekcja niżej).
 
-**Adres egzekwowania — jeden, od 1.6.0.** Do 1.5.2 limit był regułą bez miejsca, w którym ktokolwiek
-by go sprawdził, i dlatego był łamany kilkunastokrotnie `FAKT` (2026-08-20: 930 linii w projekcie po
-adopcji). Od 1.6.0 pozycje liczy się **w kroku 1 rytuału zamknięcia sesji** — komendą, nie okiem.
+**Adres egzekwowania — jeden.** Limit bez miejsca, w którym ktokolwiek by go sprawdził, jest
+łamany (sekcja „Dawniej”). Pozycje liczy się **w kroku 1 rytuału zamknięcia sesji** — komendą, nie okiem.
 Powyżej limitu pada **jedno** zdanie w podsumowaniu sesji; w limicie — cisza.
 
 Drugiego adresu **nie dokładasz** (L-0036, L-0049). W szczególności limit **nie** wchodzi do raportu
@@ -106,7 +107,7 @@ powstają.
 - rozstrzyga wybór produktowy → to `DECYZJE.md`,
 - odpowiada na Twoje pytanie o preferencję → to `USTAWIENIA.md`.
 
-## Wyprowadzenie pułapki do `docs/PULAPKI.md` (od 1.6.0)
+## Wyprowadzenie pułapki do `docs/PULAPKI.md`
 
 Część wpisów tego rejestru to nie korekty zachowania, tylko **fakty o świecie**: narzędzie zachowuje
 się nieoczywiście, kolejność kroków ma znaczenie, środowisko czegoś wymaga i o tym nie mówi. Takie
@@ -165,7 +166,7 @@ Procedura:
 
 1. Grupujesz aktywne lekcje tematycznie i zapisujesz każdą grupę jako **jedno zdanie** w „Zasadach
    aktywnych", z numerami źródłowymi w nawiasie.
-Próg **30 KB dla samej sekcji „Lekcje zwinięte"** jest od 1.7.0 **czytany maszynowo** przez hook
+Próg **30 KB dla samej sekcji „Lekcje zwinięte"** jest **czytany maszynowo** przez hook
 startu sesji: sekcja ponad progiem wchodzi do linii `[RelAI progi dokumentow]` razem z nazwą
 procedury (przeniesienie do archiwum lekcji). Do tego dnia próg istniał i nikt go nie liczył —
 w tym repozytorium sekcja ważyła 35 787 B `FAKT`. Pełny wykaz progów: „Katalog progów"
@@ -181,7 +182,7 @@ w `SPEC_USTAWIENIA.md`.
 Kompresję **proponujesz**, nie wykonujesz po cichu: to jedyna operacja na tym pliku, która zmienia
 treść wstecz.
 
-## Rotacja — pełne lekcje do archiwum (od 1.2.0)
+## Rotacja — pełne lekcje do archiwum
 
 Kompresja i rotacja to **dwie różne operacje** i nie wolno ich mylić:
 
@@ -276,3 +277,12 @@ Rejestr korekt zamienionych w zasady. Start sesji czyta wyłącznie „Zasady ak
   za zgodą Łukasza.
 - **Źródło:** „znowu paczka; wpisz to sobie na stałe".
 ```
+
+## Dawniej
+
+Historia reguł tej specyfikacji. Instrukcją jest treść wyżej.
+
+- **Adres egzekwowania limitu „Zasad aktywnych" (1.6.0).** Do 1.5.2 limit był regułą bez miejsca,
+  w którym ktokolwiek by go sprawdził, i był łamany kilkunastokrotnie `FAKT` (2026-08-20: 930 linii
+  w projekcie po adopcji). Wyprowadzenie pułapek do `PULAPKI.md` — od 1.6.0; rotacja pełnych lekcji
+  — od 1.2.0; próg sekcji „Lekcje zwinięte" czytany przez hook — od 1.7.0.

@@ -1,5 +1,7 @@
 # SPEC — `docs/DESIGN.md`
 
+Zawartość: Rola · Odbiorca · Jedno pytanie przy powstaniu (D-51) · Polityka aktualizacji · Struktura sekcji · Zakazy · Przykład (projekt polski, pierwsza wersja po pierwszym UI).
+
 Specyfikacja dla LLM (D-60). Nie kopiuj tego pliku. Wygeneruj `docs/DESIGN.md` **w języku projektu**
 (nazwa pliku zostaje `DESIGN.md` w obu językach).
 

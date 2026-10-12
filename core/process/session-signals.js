@@ -179,6 +179,9 @@ function copyTree(src, dest) {
 const NARZEDZIA = [
   { zrodlo: 'work-artifacts.js', cel: 'clean-work.js' },
   { zrodlo: 'crew.js', cel: 'crew.js' }, // 2.1.0: /relai-crew — tak samo samowystarczalny
+  // AUDYT_SKILLI S4: rotacja i liczenie "Zasad aktywnych" jako skrypty, nie reczna procedura
+  { zrodlo: path.join('..', 'tools', 'rotate.js'), cel: 'rotate.js' },
+  { zrodlo: path.join('..', 'tools', 'count-rules.js'), cel: 'count-rules.js' },
 ];
 
 function provisionTools(destRoot, opcje) {
@@ -1609,8 +1612,8 @@ function sprawyPrzeterminowaneReport(miara, opcje) {
   out.push('ZADANIE: przed akapitem "gdzie jestesmy" zadaj pytanie o te sprawy PARTIAMI PO CZTERY, ' +
     'az do wyczerpania listy. Kazda sprawa ma trzy realne wybory: zamknac (adnotacja ' +
     'rozstrzygniecia), odroczyc o kolejne ' + miara.N + ' dni (adnotacja odroczenia z licznikiem) ' +
-    'albo rozstrzygnac teraz. Procedura: skill relai-core, sekcja "Przeglad spraw ' +
-    'przeterminowanych". Wylacznik i wartosc N: wiersz "Przeglad spraw czlowieka" w ' +
+    'albo rozstrzygnac teraz. Procedura: plik overdue-review.md skilla relai-core. ' +
+    'Wylacznik i wartosc N: wiersz "Przeglad spraw czlowieka" w ' +
     'docs/USTAWIENIA.md — osobny od rotacji.');
   return out;
 }

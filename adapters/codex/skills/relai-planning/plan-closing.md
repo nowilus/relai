@@ -5,7 +5,13 @@ Plik doczytywany skilla `relai-planning`. Otwierasz go, gdy ostatni etap planu d
 ## Zamknięcie planu (D-36)
 
 Gdy ostatni etap dostaje status ZREALIZOWANY, zamknięcie wykonujesz **sam, w tej samej turze**,
-w tej kolejności:
+w tej kolejności. Skopiuj listę do odpowiedzi i odhaczaj:
+
+```
+Zamknięcie planu: [ ] 1 bramki (blokuje)  [ ] 2 odnogi (blokuje)  [ ] 3 STATE  [ ] 4 wpis
+                  [ ] 5 STATUS  [ ] 6 ryzyka  [ ] 7 archiwum  [ ] 8 CLAUDE.md  [ ] 9 podsumowanie
+```
+
 
 **Dwa punkty blokujące idą pierwsze** (1 i 2). Dopiero po nich wolno napisać gdziekolwiek, że plan
 jest zrealizowany: zdanie „plan ZREALIZOWANY", postawione przed rozstrzygnięciem bramek i odnóg,

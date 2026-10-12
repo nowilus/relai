@@ -1,5 +1,7 @@
 # SPEC — `docs/PULAPKI.md`
 
+Zawartość: Rola · Odbiorca · Kiedy dokument powstaje — przy pierwszej pułapce, nigdy na zapas · Kto go czyta — na żądanie, nie na starcie · Czym pułapka jest, a czym nie jest · Polityka aktualizacji: APPEND, sekcja „Nieaktualne" zamiast kasowania · Struktura pliku · Format wpisu (obowiązkowy) · Zakazy · Przykład (projekt polski).
+
 Specyfikacja dla LLM (D-60). Nie kopiuj tego pliku. Wygeneruj `docs/PULAPKI.md` **w języku
 projektu** (nazwa pliku też podąża za językiem: `PITFALLS.md` dla projektu angielskiego).
 

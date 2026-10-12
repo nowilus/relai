@@ -1,5 +1,7 @@
 # SPEC — `CLAUDE.md` projektu
 
+Zawartość: Rola · Odbiorca · Twardy limit objętości: 10 KB · Zakaz treści odtwarzalnej z repozytorium · Linia odsyłacza do `docs/PULAPKI.md` (element warunkowy) · Struktura sekcji (kolejność obowiązkowa) · Linia fraz sesji · Linia przeglądu spraw człowieka · Reguła sygnału odchylenia · Reguła rejestru decyzji po adopcji · Sekcja „Reguły profilu" · Sekcja niemutowalna · Polityka aktualizacji · Przykład (fragment, projekt polski, profil `app`) · Dawniej.
+
 Specyfikacja dla LLM (D-60). Nie kopiuj tego pliku do projektu. Wygeneruj `CLAUDE.md` **w języku
 projektu**, według poniższej struktury i zasad.
 
@@ -14,16 +16,14 @@ trzymać i gdzie mam zajrzeć po resztę"*. Wszystko, co da się przenieść do 
 Agent (Claude Code) — pierwszy i najważniejszy. Człowiek czyta go rzadko, głównie przy przejmowaniu
 projektu.
 
-## Twardy limit objętości: 10 KB (od 1.6.0)
+## Twardy limit objętości: 10 KB
 
 **Maksimum 10 KB.** Przekroczenie oznacza, że coś trzeba przenieść do `docs/`. Zero opisu
 funkcjonalności, zero historii, zero list zrobionych rzeczy — te miejsca to `README.md`, `STATE.md`
 i `DZIENNIK.md`.
 
-**Jednostką jest rozmiar, nie liczba linii.** Do 1.5.2 limit brzmiał „maksimum 60 linii" i był
-martwy w każdym zmierzonym projekcie — jeden po adopcji miał 1249 linii `FAKT`. Powód porażki jest
-mechaniczny: linii nikt nie liczył, a kosztu kontekstu one i tak nie mierzą (jedna linia tabeli
-bywa cięższa od pięciu linii listy). Od 1.6.0 limitem jest **próg cząstkowy `CLAUDE` z wiersza
+**Jednostką jest rozmiar, nie liczba linii** — linie nie mierzą kosztu kontekstu (jedna linia
+tabeli bywa cięższa od pięciu linii listy). Limitem jest **próg cząstkowy `CLAUDE` z wiersza
 `Budżet startu sesji`** w `docs/USTAWIENIA.md`, domyślnie **10 KB** — dokładnie ta sama liczba,
 którą przy każdym starcie sesji mierzy hook. Sprawdzasz komendą, nie okiem:
 
@@ -35,7 +35,7 @@ node -e "console.log((require('fs').statSync('CLAUDE.md').size/1024).toFixed(1)+
 `USTAWIENIA.md` pracuje na swojej liczbie, a `/relai-update` jej nie nadpisuje. Progi cząstkowe
 nie sumują się do budżetu startu i nie mają się sumować: 10 KB to sufit tej pozycji, nie przydział.
 
-## Zakaz treści odtwarzalnej z repozytorium (od 1.6.0)
+## Zakaz treści odtwarzalnej z repozytorium
 
 Treści, którą da się odtworzyć, patrząc na repozytorium, w `CLAUDE.md` **nie ma** — znika **bez
 zastępnika**. Repozytorium jest swoją własną mapą, a każda linia tego pliku jest opłacana tokenami
@@ -66,7 +66,7 @@ każdego prompta `FAKT`.
 Granica jest jedna: **czy sesja odtworzy tę informację, patrząc na repozytorium?** Odtworzy →
 zdanie wypada. Nie odtworzy → zostaje.
 
-## Linia odsyłacza do `docs/PULAPKI.md` (element warunkowy, od 1.6.0)
+## Linia odsyłacza do `docs/PULAPKI.md` (element warunkowy)
 
 Rejestr pułapek — rzeczy, które zaskoczyły i zaskoczą znowu — ma **własny dokument** czytany na
 żądanie, nie przy starcie sesji: `docs/PULAPKI.md` (`SPEC_PULAPKI.md`). W `CLAUDE.md` zostaje
@@ -89,7 +89,7 @@ zakłada dokument i **w tej samej turze** dokłada tę linię.
    pełnotekstowo". `docs/DECYZJE.md` **nie jest** czytany na starcie — sięgasz po niego, gdy temat
    tego wymaga; w regułach procesu zostaje sama zasada „decyzji stamtąd się nie proponuje ponownie".
    Listę zamyka **jedna linia z trzema frazami sesji** (D-05) — patrz sekcja „Linia fraz sesji" —
-   oraz **jedna linia o sprawach przeterminowanych** (od 1.7.0), patrz sekcja niżej.
+   oraz **jedna linia o sprawach przeterminowanych**, patrz sekcja niżej.
 3. **Stan prac** — tabela `Co | Status | Gdzie` z maksymalnie pięcioma wierszami najwyższego
    poziomu. Szczegóły są w `STATE.md`; tu tylko drogowskazy.
 4. **Aktywny plan** — dokładnie **jedna** linia w formacie `Aktywny plan: [<TEMAT>](docs/plany/<TEMAT>/STATUS.md)`,
@@ -137,7 +137,7 @@ propozycją. Dlatego w linii ma stać wyróżniony.
 Linia liczy się do limitu 10 KB. Jeśli plik go przekracza, skracasz „Stan prac" albo „Reguły
 procesu" — nie tę linię i nie sekcję profilu.
 
-## Linia przeglądu spraw człowieka (od 1.7.0)
+## Linia przeglądu spraw człowieka
 
 Jedna linia zaraz pod linią fraz sesji. Powód jest ten sam: wymuszone pytanie o sprawę
 przeterminowaną opisane wyłącznie w skillu działa tylko wtedy, gdy skill się wyzwoli — a wyzwala
@@ -302,3 +302,12 @@ Nazwy modeli tego narzędzia są w `.claude/relai/MODELE-<narzędzie>.md` (data 
 - **Surgical changes**: zmieniaj minimum konieczne; nie refaktoryzuj przy okazji.
 - **Goal-driven**: każda zmiana mapuje się na cel zadania; poza zakresem → do DZIENNIKA.
 ```
+
+## Dawniej
+
+Historia reguł tej specyfikacji. Instrukcją jest treść wyżej.
+
+- **Limit objętości (1.6.0).** Do 1.5.2 limit brzmiał „maksimum 60 linii" i był martwy w każdym
+  zmierzonym projekcie — jeden po adopcji miał 1249 linii `FAKT`; linii nikt nie liczył. W tym
+  samym wydaniu: zakaz treści odtwarzalnej z repozytorium i linia odsyłacza do `PULAPKI.md`.
+  Linia przeglądu spraw człowieka — od 1.7.0.

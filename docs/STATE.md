@@ -1,6 +1,6 @@
 # STATE — RelAI
 
-Stan na: 2026-10-12 (plan LIMIT_CHECKPOINT zamknięty; rotacja lekcji, ryzyk i dziennika)
+Stan na: 2026-10-12 (odnoga AUDYT_SKILLI zamknięta, bez wydania)
 
 ## Gdzie jesteśmy
 
@@ -53,6 +53,14 @@ zaakceptowany, E1 trwa po stronie Codeksa. Opinii spoza projektu nadal nie ma.
   zamknięty 2026-10-12).
 - W folderze bez struktury RelAI hooki milczą; skill proponuje strukturę, a propozycję da się
   wyciszyć raz na maszynę.
+- **Skille według praktyk Agent Skills** (odnoga [AUDYT_SKILLI](fixy/AUDYT_SKILLI/ODNOGA.md),
+  zamknięta 2026-10-12, bez wydania — wchodzi do 3.0.0): oba `SKILL.md` o połowę lżejsze, reszta
+  w plikach doczytywanych; walidator pilnuje metadanych skilli i komend, jednej listy „Na koniec”,
+  opisów pluginów w marketplace’ach i wywołań sieciowych spoza listy; rotacja i liczenie zasad to
+  skrypty z fazą planu i sprawdzenia; ewaluacje wyzwalania skilli z negatywami
+  (`core/evals/triggers.json`, wynik w [pomiarach](archiwum/pomiary/EVAL_TRIGGERS_2026-10-12.md));
+  pięć komend z efektem ubocznym rusza tylko na jawne wywołanie, także w Codeksie; cudzy kod
+  przechodzi listę kontrolną przyjęcia.
 
 ## Nad czym pracujemy teraz
 
@@ -72,18 +80,14 @@ zaakceptowany, E1 trwa po stronie Codeksa. Opinii spoza projektu nadal nie ma.
 - Aneks do PANEL_CODEX z zapisem pracy przed limitem dla panelu Codeksa — po domknięciu jego E1
   (bramka zamknięcia LIMIT_CHECKPOINT, decyzja Łukasza 2026-10-12). Przepięcie `prompt-mode.js`
   na `threshold.js` nadal świadomie odłożone.
-- **Następny krok: odnoga AUDYT_SKILLI** w świeżej sesji Opus 5.5 z
-  [PROMPT_ODNOGA.md](fixy/AUDYT_SKILLI/PROMPT_ODNOGA.md) (przebudowany 2026-10-12; S1 z listą
-  wyjątków do S2). Kończy się commitem **bez wydania**.
+- **Następny krok: RelAI 3.0.0** — odnoga AUDYT_SKILLI zamknięta 2026-10-12 (commit bez wydania).
 - **Potem RelAI 3.0.0** (decyzja Łukasza 2026-10-12): jedno wydanie zbierające mody i panel
   Claude Code, start etapu w nowej sesji, audyt skilli i `/relai-stage` v6 — razem z **filmem
   prezentacyjnym (Remotion)** do README na GitHubie i do wysyłki ludziom: pełny przegląd RelAI
   w Claude Code — paski nad promptem, otwieranie panelu, zakładki i co w nich sprawdzić lub zrobić.
-  Film powstaje dopiero po zamknięciu AUDYT_SKILLI, na dopracowanym produkcie.
-- Odnoga [AUDYT_SKILLI](fixy/AUDYT_SKILLI/ODNOGA.md) (OTWARTA): skille wg praktyk Agent Skills —
-  53 wiersze luk (14 zgodne, 21 częściowo, 11 brak), paczki S1–S7 (strażnik w walidatorze,
-  odchudzenie SKILL.md, historia poza instrukcje, `rotate.js`, ewaluacje, `disable-model-invocation`,
-  przegląd cudzego kodu). Raport: [RAPORT.html](fixy/AUDYT_SKILLI/RAPORT.html).
+  Film powstaje na dopracowanym produkcie, po zamknięciu AUDYT_SKILLI.
+- Po AUDYT_SKILLI: decyzja o powtórzeniach ewaluacji wyzwalania (kontrola zmiany opisu w szumie);
+  ewaluacje zachowania komend i `/relai-feedback` poza zakresem odnogi; `relai-prompt.md` ponad 20 KB.
 
 - E1: przeładować klienta MCP, zmierzyć sondę 0.0.9 (fonty, przyciski, świeży szkic z właściwym
   projektem); prompt E2 powstaje dopiero po odbiorze E1.
@@ -159,9 +163,9 @@ Backupy: `C:\Users\Lukasz\Backupy\RelAI` • [PRZENOSNOSC.md](PRZENOSNOSC.md) �
 ### Liczby
 
 Plany zamknięte: 11 (ostatni LIMIT_CHECKPOINT, 2026-10-12) • Aktywny: PANEL_CODEX (E1 W TOKU) •
-Start sesji: **123,2 KB / 100 KB** (2026-10-12 przed rotacją) • Dziennik: **~90 KB / 150 KB**
-(po rotacji 2026-10-12) • Ryzyka: 17 w tabeli, archiwum 6 plików + 1 mitygacji • Lekcje:
+Start sesji: **93,8 KB / 100 KB** ze skillem z repo (`startCost` 2026-10-12; zainstalowany 2.9.0 daje 109,9 KB do wydania 3.0.0) • Dziennik: **~104 KB / 150 KB**
+(2026-10-12) • Ryzyka: 17 w tabeli, archiwum 6 plików + 1 mitygacji • Lekcje:
 **46,9 KB / 50 KB**, 20 w żywym pliku • Adaptery: 3 • Komendy: 14 •
-Testy: 295 rdzeń, panel i adaptery (`node --test`, 4 katalogi) + 353 pluginów panelu (148 / 31 / 174) •
+Testy: 331 rdzeń, panel i adaptery (`node --test`, 4 katalogi) + 353 pluginów panelu (148 / 31 / 174) •
 Projekty na RelAI: 3 (RelAI, PolyFlow, JiraManager przed migracją) • Modele, na których zmierzono
 proces: 6 (Fable, Opus, Sonnet, Haiku, Composer/auto, Grok 4.6).

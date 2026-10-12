@@ -39,6 +39,10 @@ folderze na koncie, ale pliki powstają wyłącznie tam, gdzie się zgodzisz.
 **Cursor i Codex** instalują się inaczej (adapter per projekt, plugin z repozytorium) — instrukcja
 krok po kroku i aktualizacja dla wszystkich trzech narzędzi: [docs/INSTALACJA.md](docs/INSTALACJA.md).
 
+**Gdzie RelAI nie działa:** w claude.ai (czat w przeglądarce i w aplikacji) ani przez API Claude.
+Pamięć projektu stoi na hookach, komendach i plikach w folderze projektu — tego tam nie ma, także
+gdy skill wgrasz ręcznie jako Agent Skill.
+
 **Masz już projekt?** `/relai-adopt` przenosi go na strukturę RelAI: najpierw pełny backup, potem
 plan zmian do Twojej zgody; kod zostaje nietknięty.
 

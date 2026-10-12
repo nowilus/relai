@@ -1,6 +1,7 @@
 ---
-description: Pokazuje raport artefaktów roboczych pogrupowany po źródle, z listą chronionych i powodem ochrony — kasuje wyłącznie po potwierdzeniu każdej grupy i zapisuje wpis w dzienniku
+description: "Shows a report of working artifacts grouped by source, with the protected ones and the reason for protection; deletes only after a yes for each group and writes a journal entry. Use when the person asks to clean up working files — „posprzątaj artefakty”, „wyczyść pliki robocze”, „clean up”."
 argument-hint: "[raport] — sam raport, bez pytań i bez kasowania"
+disable-model-invocation: true
 ---
 
 # /relai-clean — sprzątanie artefaktów roboczych

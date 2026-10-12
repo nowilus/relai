@@ -1,6 +1,7 @@
 ---
-description: Pakuje projekt do archiwum ZIP w centralnym folderze backupów — z wykluczeniem sekretów i katalogów runtime — i zapisuje wpis w dzienniku
+description: "Packs the project into a ZIP archive in the central backup folder, without secrets and runtime folders, and writes a journal entry. Use when the person asks for a backup — „zrób backup”, „kopia zapasowa”, „back up the project”."
 argument-hint: "[ŚCIEŻKA] — opcjonalna, jednorazowa lokalizacja docelowa dla tego jednego backupu"
+disable-model-invocation: true
 ---
 
 # /relai-backup — kopia zapasowa projektu

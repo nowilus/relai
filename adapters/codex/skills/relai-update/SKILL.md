@@ -1,6 +1,6 @@
 ---
 name: relai-update
-description: Aktualizuje projekt RelAI do wersji zainstalowanego pluginu — pokazuje różnice, zmienia wyłącznie za zgodą, szanuje lokalne nadpisania i kończy wpisem w dzienniku
+description: "Updates a RelAI project to the version of the installed plugin — shows the differences, changes only with consent, respects local overrides and ends with a journal entry. Use when the person asks to update the project — „zaktualizuj RelAI”, „aktualizacja projektu”, „update RelAI”."
 ---
 
 

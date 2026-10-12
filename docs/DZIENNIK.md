@@ -51,6 +51,7 @@
 
 ## Czeka na człowieka
 - **Jeden katalog `skills/` w standardzie Agent Skills dla trzech narzędzi** — zdjąłby kopię Codeksa (~4300 linii) i generator, ale zmienia zamrożoną D-89 i kształt adapterów; plan, odnoga czy odrzucić (audyt AUDYT_SKILLI, wiersz 50 raportu) · 2026-10-11 · [wpis 2026-10-11 — research, audyt, plan](#2026-10-11--research-nowej-sesji-audyt-skilli-i-plan-limit_checkpoint)
+- **AUDYT_SKILLI S5 — kontrola zmiany opisu w granicach szumu** — stary opis planning wyzwolił się na „jak to ugryźć” 1 raz na 6 sesji, nowy 0 na 6; przyjąć tak, czy przed 3.0.0 puścić zestaw z powtórzeniami (n > 1, ~1–3 USD) · 2026-10-12 · [wpis 2026-10-12 — AUDYT_SKILLI zamknięta](#2026-10-12--audyt_skilli-zamknięta-skille-według-praktyk-agent-skills-bez-wydania)
 - **AUDYT_MODOW — ustalenia poza zakresem (5 pozycji `outOfScope` raportu)** — odchudzenie kopii rdzenia per plugin (`sync-panel-core`), `headings.mjs` 254 KB w progress i cache-keeperze, % limitu per etap w rdzeniu, `userConfig` cache-keepera, przedrostek `relai-` jego komend; plus wariant B „jedna listwa” jako kandydat na plan — decyzja: plan, odnoga albo odrzucić · 2026-10-11 · [wpis 2026-10-11 — Z13, Z14 i zamknięcie odnogi](#2026-10-11--audyt_modow-z13-i-z14-wydanie-0120-i-zamknięcie-odnogi)
 - **PANEL_CODEX E1 — próba przycisków minimalnego pakietu i świeżego kontekstu** — w macierzystym czacie nadal proces 0.0.7/PID 62300; po restarcie sprawdzić sondę 0.0.9 (także fonty), nowy szkic i jego rzeczywisty projekt/kontekst. Wygląd już zaakceptowany · 2026-10-10 · [wpis — Panel i mostek](archiwum/dziennik/DZIENNIK_2026-10-09_2026-10-10.md#2026-10-10--panel_codex-e1-natywny-widok-minimalny-pakiet-i-mostek-bieżącego-czatu)
 
@@ -1163,5 +1164,108 @@ sekcji, 15 zasad; fragmenty z `$` 1/1 i 2/2. Opisy skilli mierzone po złączeni
 (kontrola: `relai-planning` 997 znaków jak w raporcie). `validate-adapters` exit 0.
 
 **Do zrobienia przez człowieka:** start AUDYT_SKILLI w świeżej sesji Opus 5.5 (`/effort high`).
+
+Autor: RelAI (Opus 5.5) + Lukasz
+
+### 2026-10-12 — AUDYT_SKILLI zamknięta: skille według praktyk Agent Skills, bez wydania
+
+Świeża sesja Opus 5.5 (`/effort high`) według [PROMPT_ODNOGA.md](fixy/AUDYT_SKILLI/PROMPT_ODNOGA.md),
+paczki S1 → S2 → S3 → S6 → S4 → S5 → S7. Bez wydania i bez podbicia wersji repo — całość wchodzi
+do RelAI 3.0.0. Optymalizator promptu: „nie w tej sesji” (zapis zgody sesji). Karta:
+[ODNOGA.md](fixy/AUDYT_SKILLI/ODNOGA.md), sekcja „Wynik” rozstrzyga 34 wiersze BRAK / CZĘŚCIOWO
+raportu.
+
+**Zrobione:**
+
+- **S1 — strażnik metadanych.** `core/tools/skill-metadata.js` + punkty 9–11 walidatora: nazwa,
+  opis ≤ 1024 bez `<>` i bez „I/You/MUST BE USED”, linie (błąd > 500, ostrzeżenie od 480), rozmiar
+  (ostrzeżenie > 20 KB); jedna lista „Na koniec” w trzech miejscach (kroki 1, 1a, 2–6); opis
+  każdego `plugin.json` równy obu marketplace’om (5 par). Pierwszy przebieg znalazł 5 naruszeń
+  zastanych poza dwoma wyjątkami z karty — naprawione w S1 (SPEC §9 jako lista; opisy panelu,
+  progress, cache-keeper i Codeksa wzięte z marketplace’u), więc lista wyjątków miała dokładnie dwie
+  pozycje.
+- **S2 — odchudzenie skilli.** `relai-core/SKILL.md` 510 → 247 linii, 31 146 → 15 109 B, opis
+  1 018 → 773; `relai-planning/SKILL.md` 457 → 224, 28 320 → 13 218 B, opis 997 → 797, `TOPIC`
+  zamiast `<TOPIC>`. Osiem nowych plików doczytywanych (siatki startu, przegląd spraw, ustawienia
+  globalne, rejestry po adopcji; prompty etapowe, „Na koniec” z listą, odchylenie i odnogi, aneksy).
+  Lista wyjątków walidatora pusta.
+- **S3 — instrukcje bez historii.** Sekcje „Dawniej” w siedmiu SPEC-ach i plikach skilli; linia
+  „Zawartość” w 28 plikach > 100 linii; „karta startu / panelu / odnogi”; listy do skopiowania przy
+  zamknięciu sesji, „Na koniec” i zamknięciu planu.
+- **S6 — kontrola wywołania.** `disable-model-invocation: true` w adopt, backup, clean, crew,
+  update; generator Codeksa kładzie dla nich `agents/openai.yaml` (`allow_implicit_invocation:
+  false` — format potwierdzony w codex-cli 0.155.1), zamienia `$ARGUMENTS` na zdanie o argumencie
+  i kasuje osierocone katalogi. 14 opisów komend „co + Use when…”; akapit „Gdzie RelAI nie działa”
+  w README i INSTALACJI; opis i `keywords` pluginu z Cursorem i Codeksem.
+- **S4 — skrypty zamiast ręcznej rotacji.** `core/tools/rotate.js` (`plan` / `sprawdz` /
+  `wykonaj`, dziennik i ryzyka) i `count-rules.js`, kopiowane przez hook do `.claude/relai/tools/`;
+  `document-rotation.md` i `session-close.md` mówią „uruchom”. Lekcje, mitygacje i ustawienia —
+  świadomie ręcznie według SPEC (z komendą sumy).
+- **S5 — ewaluacje wyzwalania.** `core/evals/triggers.json` (14 pozycji, 7 na skill, fixtury
+  „relai” i „obcy”), `core/tools/eval-triggers.js` (świeża sesja `claude -p` na pozycję, ustawienia
+  użytkownika wyłączone, log odczytów plików skilla, licznik rytuału, `--baseline`, wariant starego
+  opisu z worktree). Negatywy relai-core mierzą procedurę, nie wywołanie (decyzja Łukasza: opis
+  core każe wyzwalać się w każdym folderze). P-034 w `PULAPKI.md`; `/relai-models` proponuje
+  przebieg po nowej nazwie modelu. Wynik:
+  [EVAL_TRIGGERS_2026-10-12](archiwum/pomiary/EVAL_TRIGGERS_2026-10-12.md).
+- **S7 — cudzy kod.** `SPEC_PRZYJECIE_KODU.md` (siedem punktów z dowodem, trzy werdykty),
+  `core/tools/network-calls.js` + punkt 12 walidatora (lista dozwolonych: `panel/hooks/register.tsx`,
+  cennik po „Tak”). Przegląd `progress/` (commit f64f2e6): 28 plików; sieć 0 (kontrola: panel 1);
+  9 odczytów w katalogu sesji, 0 zapisów; procesy 0 w kodzie wykonywanym (41 trafień wzorca to
+  `RegExp.exec`, typy JSDoc i `$.agent.spawn` w dwóch testach); brak `package.json`; MIT,
+  `LICENSE-savvy-progress` zachowany. **Werdykt: PRZYJĘTY.**
+- Przegląd kodu (subagent, Opus 5.5): 0 HIGH, 2 MEDIUM, 4 LOW — wszystkie poprawione z testami;
+  najważniejsze: `rotate.js` zwijał podwójne puste linie w całym żywym pliku zamiast na styku
+  cięcia (L-0169), `eval-triggers.js` ignorował `is_error`.
+
+**Zweryfikowane — jak dokładnie:**
+
+- Testy rdzenia, panelu i adapterów (`node --test`, 4 katalogi): 299 → **331/331**. Walidator
+  spójny po każdej paczce (jedno ostrzeżenie: `relai-prompt.md` 30,1 KB); `claude plugin validate`
+  binarką 2.1.295 exit 0 dla korzenia i trzech pluginów panelu.
+- S1: kontrola pozytywna w worktree — `<X>`, 1 030 znaków, 501 linii, rozjazd „Na koniec”, każdy
+  osobno exit 1 z nazwą pliku; baza exit 0.
+- S2: budżet startu tym samym instrumentem (`startCost`): 112 047 → **96 010 B** (−15,7 KB; wobec
+  122,8 KB z karty −29,0 KB); świeża sesja `--plugin-dir`: hook obecny (kontrola pozytywna), linia
+  budżetu milczy. Tokeny: SZACUNEK (przelicznika w repo nie ma).
+- S3: grep z karty trafia wyłącznie w sekcje „Dawniej” i `history.md`.
+- S4: rotacja ryzyk C3/C9 z 2026-10-11 odtworzona z materiału z gita **bajt w bajt** (`cmp`,
+  suma `3d1c7384436e320c`, sekcja ryzyk identyczna); podłożona zła suma zatrzymuje przed fazą 2,
+  żywy plik nietknięty. Pierwszy licznik martwych kotwic („22 z 27”) był defektem instrumentu —
+  w kopii nie było plików archiwum; brak pliku jest teraz osobnym stanem.
+- S5: **pierwszy pełny przebieg odrzucony** — 0 z 3 pozytywów planning na obu modelach, bo kopia
+  fixtury nie była repozytorium i hook D-27 czytał `~/.gitconfig` mierzącego; pierwsza poprawka
+  (`GIT_CONFIG_GLOBAL`) nie zadziałała (hook czyta pliki wprost), wyszło na kontroli jednej
+  pozycji (L-0170). Po poprawce (kopia = repo z `user.name = tester`): **36/36 `ok`** na Opus 5.5
+  i Sonnet 5.5, `nie zmierzono` 0, w każdej sesji `init` ze ścieżką mierzonego pluginu. Kontrola
+  zmiany: „jak to ugryźć: chcę schudnąć 5 kg” wyzwoliła planning na starym opisie 1 raz na 6 sesji
+  Sonnetu, na nowym 0 na 6; Opus 0 na 2 — kierunek zgodny, różnica w szumie, **punkt karty
+  świadomie nieodhaczony**. Koszt wg CLI: ~6,0 + 6,5 USD (dwa pełne przebiegi) + 1,4 USD
+  (powtórzenia) + próby dymne.
+- S6: `grep -L` na pięciu komendach pusto, `$ARGUMENTS` w skillach Codeksa 0 trafień; testy
+  generatora czerwone przed (3), zielone po.
+- S7: podłożony `require('https')` w `progress/` daje exit 1 z plikiem i linią; repo z pustą listą
+  dozwolonych — dokładnie 1 trafienie (kontrola wzorca na materiale).
+
+**Sprzątanie:** katalog roboczy `.claude/relai/work/_fixy/AUDYT_SKILLI/` — przed: 32,7 MB, 1 pozycja
+raportu (z worktree `s5/stary` z HEAD 37af50f); po „tak” Łukasza: worktree usunięty
+(`git worktree remove --force`), katalog skasowany, raport bez tej pozycji. Artefakty spoza katalogu:
+`/tmp/relai-s1-out.txt` (skasowany w S1); katalogi tymczasowe `relai-eval-*`, `relai-rotate-*`
+i testów — kasowane przez narzędzia i testy po każdym przebiegu.
+
+**Ryzyka:** przegląd tabeli — żadne otwarte nie zmienia poziomu; P2 (wyzwalanie w Cursorze
+i Codeksie) zostaje: S6 dał Codeksowi politykę jawnego wywołania, ale wyzwolenia w Codeksie nikt
+nie mierzył.
+
+**Lekcje:** L-0169 (operacja na zakresie dokumentu normalizuje tylko styk), L-0170 (fixtura
+ewaluacji niesie środowisko czytane przez hooki); obie w destylacie zasady 5, „Zasady aktywne”
+nadal 15/15.
+
+**Świadomie odłożone:** generator Codeksa nie składa `description: >` (żadna komenda go nie używa);
+`relai-prompt.md` ponad 20 KB (ostrzeżenie walidatora); ewaluacje zachowania 14 komend
+i `/relai-feedback` — poza zakresem karty.
+
+**Do zrobienia przez człowieka:** akceptacja commita (propozycja w czacie, bez wydania); decyzja,
+czy nieodhaczona kontrola zmiany S5 wystarcza, czy zestaw ma dostać powtórzenia (n > 1) przed 3.0.0.
 
 Autor: RelAI (Opus 5.5) + Lukasz

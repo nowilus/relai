@@ -1,18 +1,15 @@
 # relai-core — jednorazowe wyprowadzenie spraw czekających na człowieka
 
-Plik doczytywany skilla `relai-core`. Otwierasz go, gdy projekt z wersją 1.6.0 lub nowszą nie ma w dzienniku sekcji „Czeka na człowieka" i człowiek zgodził się ją założyć (albo sam o to poprosił).
+Plik doczytywany skilla `relai-core`. Otwierasz go, gdy dziennik projektu nie ma sekcji „Czeka na człowieka" i człowiek zgodził się ją założyć (albo sam o to poprosił).
 
-## Wyprowadzenie spraw czekających na człowieka (jednorazowo, od 1.6.0)
+## Wyprowadzenie spraw czekających na człowieka (jednorazowo)
 
-Do 1.5.2 sprawy człowieka mieszkały w sekcjach „Do zrobienia przez człowieka" pojedynczych wpisów.
-Skutek był odwrotny do zamierzonego: sprawa sprzed czterech miesięcy była niewidoczna dla sesji,
-a jej wpis blokował rotację całego dziennika, bo zakres rotacji jest ciągły od najstarszej pozycji.
-Od 1.6.0 sprawy mają jeden dom — sekcję **„Czeka na człowieka"** na górze dziennika
+Sprawa człowieka zostawiona w sekcji „Do zrobienia przez człowieka" pojedynczego wpisu jest
+niewidoczna dla sesji po kilku tygodniach. Sprawy mają jeden dom — sekcję **„Czeka na człowieka"** na górze dziennika
 (`SPEC_DZIENNIK.md`).
 
 Projekt, który tej sekcji jeszcze nie ma, przechodzi **jednorazową** procedurę. Wykonujesz ją na
-prośbę użytkownika albo po jego zgodzie, gdy zauważysz brak sekcji w projekcie z wersją 1.6.0 lub
-nowszą. Nigdy „przy okazji" rotacji.
+prośbę użytkownika albo po jego zgodzie, gdy zauważysz brak sekcji. Nigdy „przy okazji" rotacji.
 
 **Krok 1 — inwentarz.** Przejrzyj **wszystkie** wpisy dziennika, także te już zarchiwizowane
 (`docs/archiwum/dziennik/`), i wypisz każdą **otwartą** pozycję sekcji „Do zrobienia przez
@@ -32,8 +29,8 @@ domysłem, nie robisz — pytasz człowieka (L-0025).
 
 **Krok 4 — sekcja.** Załóż „Czeka na człowieka" tuż pod „Stanem otwartych ryzyk" i wpisz sprawy
 otwarte w formacie ze specyfikacji: treść · data pierwszego wystąpienia · link do **najnowszego**
-wystąpienia sprawy (od 1.7.0 — link do najstarszego zatykał rotację z definicji, bo zakres jest
-ciągły od najstarszej pozycji; data przy pozycji nadal jest datą **pierwszego** wystąpienia). **Pozycja bez daty** (wpis po adopcji, nagłówek bez daty) dostaje datę
+wystąpienia sprawy (link do najstarszego zatykałby rotację, bo zakres jest ciągły od najstarszej
+pozycji; data przy pozycji nadal jest datą **pierwszego** wystąpienia). **Pozycja bez daty** (wpis po adopcji, nagłówek bez daty) dostaje datę
 **wyprowadzenia** i jawny dopisek `(data pierwotna nieznana)` — nie zgadujesz jej i nie pomijasz
 pozycji.
 
@@ -55,3 +52,10 @@ w przenosinach — wtedy **STOP** i pytanie do człowieka, nie „pewnie tak mia
 **Czego nie robisz:** nie kasujesz linii źródłowych (D-18), nie streszczasz treści pozycji, nie
 wpisujesz do sekcji rzeczy, które agent może zrobić sam, i nie rotujesz w tej samej turze —
 rotacja czyta wynik wyprowadzenia, więc idzie po nim, nie razem z nim.
+
+## Dawniej
+
+Do 1.5.2 sprawy człowieka mieszkały wyłącznie w sekcjach „Do zrobienia przez człowieka"
+pojedynczych wpisów: sprawa sprzed czterech miesięcy była niewidoczna dla sesji, a jej wpis
+blokował rotację całego dziennika. Sekcja „Czeka na człowieka" i ta procedura weszły w 1.6.0;
+link do najnowszego wystąpienia zamiast najstarszego — w 1.7.0.

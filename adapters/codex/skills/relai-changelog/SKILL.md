@@ -1,12 +1,12 @@
 ---
 name: relai-changelog
-description: Destyluje dziennik projektu do listy zmian — na ekran, a do pliku dopiero na życzenie
+description: "Distils the project journal into a list of changes — on screen, and into a file only on request. Use when the person asks what has changed — „lista zmian”, „co się zmieniło”, „changelog”."
 ---
 
 
 # /relai-changelog — lista zmian z dziennika
 
-Argument (opcjonalny): `$ARGUMENTS`
+Argument (opcjonalny): tekst podany przez użytkownika po nazwie skilla w wiadomości, która go wywołała (brak tekstu = brak argumentu)
 
 CHANGELOG w RelAI **nie jest prowadzony osobno** (D-17). Powstaje tutaj, z destylacji
 `docs/DZIENNIK.md`, na żądanie. Twoje zadanie: zamienić zapis pracy w listę zmian, którą rozumie

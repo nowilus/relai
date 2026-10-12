@@ -1,5 +1,7 @@
 # SPEC — `docs/KOMENDY.md`
 
+Zawartość: Rola · Odbiorca · Zasada nadrzędna: generowany ze stanu faktycznego · Struktura sekcji · Polityka aktualizacji · Zakres wersji 1.8.0 — co realnie działa · Zakazy · Przykład dla wersji 1.8.0 (projekt polski, profil `app`).
+
 Specyfikacja dla LLM (D-60). Nie kopiuj tego pliku. Wygeneruj `docs/KOMENDY.md` **w języku
 projektu** (`docs/COMMANDS.md` dla projektu angielskiego).
 

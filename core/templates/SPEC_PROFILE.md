@@ -1,5 +1,7 @@
 # SPEC — profile projektów
 
+Zawartość: Rola · Cztery profile · Auto-detekcja · Zasada nadrzędna: warunkowe znaczy warunkowe · Co dokłada każdy profil · Trzy warstwy nośne reguły warunkowej · Profil `app` (D-51) · Profile `agent-voice` i `flow` (D-52) · Profil `prompty` · Reguły profilu w `CLAUDE.md` projektu · Zmiana profilu · Zakazy · Przykład — sekcja „Reguły profilu" dla każdego z czterech profili.
+
 Specyfikacja dla LLM (D-60). Ten plik **nie generuje jednego dokumentu** — jest źródłem prawdy
 o czterech profilach RelAI: czym są, po czym się je poznaje, jakie dokumenty warunkowe dokładają,
 jakie zdarzenie każdy z nich wyzwala i jak brzmi sekcja reguł profilu w `CLAUDE.md` projektu.

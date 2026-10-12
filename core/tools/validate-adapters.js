@@ -483,7 +483,128 @@ if (manifest) {
   sprawdzone.push('nakladki rodzin: ' + plikow + ' plikow, ' + regul + ' regul, ' + zeZrodlem + ' ze zrodlem i data');
 }
 
+// 9) Metadane skilli i komend (AUDYT_SKILLI S1): name, description (dlugosc po zlozeniu bloku,
+// znaki < >, trzecia osoba), liczba linii i rozmiar. Komenda wchodzi tu jako przyszly skill
+// Codeksa — generator przepisuje jej description i bierze nazwe z pliku. Kopii w
+// adapters/codex/skills nie sprawdzamy osobno: parytet wyzej pilnuje, ze sa bajt w bajt.
+const ostrzezenia = [];
+{
+  const meta = require('./skill-metadata.js');
+  // Naruszenia zastane: pozycja { plik, kontrola, wartosc } daje ostrzezenie zamiast bledu, ale
+  // tylko przy tej zmierzonej wartosci (decyzja Lukasza 2026-10-12). Lista oprozniona w S2
+  // (relai-core 510 linii, "<TOPIC>" w opisie relai-planning — oba naprawione).
+  const WYJATKI = [];
+  const pozycje = [];
+  const katalogSkilli = path.join(ROOT, 'adapters', 'claude-code', 'skills');
+  let skilli = 0;
+  try {
+    for (const s of fs.readdirSync(katalogSkilli)) {
+      const rel = 'adapters/claude-code/skills/' + s + '/SKILL.md';
+      if (!jest(rel)) continue;
+      skilli++;
+      pozycje.push({ rel, tekst: fs.readFileSync(path.resolve(ROOT, rel), 'utf8') });
+    }
+  } catch (_) { /* brak katalogu zglasza punkt 3 */ }
+  let komend = 0;
+  try {
+    for (const n of fs.readdirSync(path.join(ROOT, 'adapters', 'claude-code', 'commands')).filter((x) => x.endsWith('.md'))) {
+      komend++;
+      const rel = 'adapters/claude-code/commands/' + n;
+      pozycje.push({ rel, nazwa: n.replace(/\.md$/, ''), tekst: fs.readFileSync(path.resolve(ROOT, rel), 'utf8') });
+    }
+  } catch (_) { /* jw. */ }
+  if (!skilli) bledy.push('metadane skilli: nie znaleziono ani jednego SKILL.md w adapters/claude-code/skills');
+  let surowe = [];
+  for (const p of pozycje) {
+    const wynik = meta.sprawdz(p);
+    surowe = surowe.concat(wynik.bledy);
+    for (const o of wynik.ostrzezenia) ostrzezenia.push(o.rel + ': ' + o.opis);
+  }
+  const { bledy: zostaja, pokryte } = meta.zastosujWyjatki(surowe, WYJATKI);
+  for (const b of zostaja) bledy.push('metadane skilla "' + b.rel + '": ' + b.opis);
+  for (const b of pokryte) ostrzezenia.push(b.rel + ': ' + b.opis + ' (wyjatek zastany do S2)');
+  sprawdzone.push('metadane skilli i komend: ' + skilli + ' skilli + ' + komend + ' komend, '
+    + zostaja.length + ' bledow, ' + pokryte.length + ' wyjatkow zastanych');
+
+  // 10) Rytual "Na koniec": te same kroki w skillu relai-planning i w SPEC_PROMPT_ETAPU.md —
+  // w sekcji 9 i w przykladzie. Dwa zrodla jednej listy rozjechaly sie po cichu (raport
+  // AUDYT_SKILLI, wiersz 22: skill 1-6 z 1a, SPEC 5 punktow bez bramek).
+  const zrodla = [
+    ['adapters/claude-code/skills/relai-planning/stage-closing.md', /^## Rytuał „Na koniec" etapu/],
+    ['core/templates/SPEC_PROMPT_ETAPU.md', /^### 9\. Na koniec/],
+    ['core/templates/SPEC_PROMPT_ETAPU.md', /^## Na koniec \(rytuał obowiązkowy/],
+  ];
+  const listy = [];
+  for (const [rel, wzorzec] of zrodla) {
+    let txt = '';
+    try { txt = fs.readFileSync(path.resolve(ROOT, rel), 'utf8'); } catch (e) {
+      bledy.push('rytual "Na koniec": nie moge odczytac ' + rel + ' (' + e.message + ')');
+      continue;
+    }
+    const kroki = meta.krokiSekcji(txt, wzorzec);
+    if (!kroki || !kroki.length) {
+      bledy.push('rytual "Na koniec": ' + rel + ' nie ma sekcji ' + wzorzec.source + ' z lista numerowana');
+      continue;
+    }
+    listy.push([rel, kroki.join(',')]);
+  }
+  if (listy.length === zrodla.length) {
+    const wzor = listy[0][1];
+    for (const [rel, kroki] of listy.slice(1)) {
+      if (kroki !== wzor) {
+        bledy.push('rytual "Na koniec" rozjechal sie: ' + listy[0][0] + ' = [' + wzor + '], a ' + rel + ' = [' + kroki + ']');
+      }
+    }
+    sprawdzone.push('rytual "Na koniec": ' + listy.length + ' list, kroki [' + wzor + ']');
+  }
+}
+
+// 11) Opis i wersja kazdego pluginu: wpis w marketplace Claude Code i w marketplace Codeksa
+// niesie to samo description co plugin.json pluginu, ktory wskazuje (raport AUDYT_SKILLI,
+// wiersz 52). Wersje porownuje punkt 5; tu opis, ktory dotad rozjezdzal sie po cichu.
+{
+  let par = 0;
+  const porownaj = (etykieta, wpis, relManifest) => {
+    const wlasny = czytajJson(relManifest);
+    if (!wlasny) return;
+    par++;
+    if (wpis.description !== wlasny.description) {
+      bledy.push(etykieta + ' (' + wpis.name + '): description inne niz w ' + relManifest);
+    }
+  };
+  if (marketplace && Array.isArray(marketplace.plugins)) {
+    for (const p of marketplace.plugins) {
+      if (typeof p.source !== 'string') continue; // zgloszone w punkcie 5
+      const zrodlo = p.source.replace(/^\.\//, '').replace(/\/$/, '');
+      const rel = (zrodlo === '' || zrodlo === '.') ? '.claude-plugin/plugin.json' : zrodlo + '/.claude-plugin/plugin.json';
+      porownaj('.claude-plugin/marketplace.json', p, rel);
+    }
+  }
+  if (codexMarketplace && Array.isArray(codexMarketplace.plugins)) {
+    for (const p of codexMarketplace.plugins) porownaj('.agents/plugins/marketplace.json', p, '.codex-plugin/plugin.json');
+  }
+  sprawdzone.push('opisy pluginow w obu marketplace: ' + par + ' par');
+}
+
+// 12) Wywolania sieciowe w kodzie pluginow (AUDYT_SKILLI S7): tylko moduly z listy dozwolonych,
+// kazdy z powodem. RelAI obiecuje jeden ruch sieciowy; drugi — wlasny albo w kodzie przyjetym
+// z zewnatrz (SPEC_PRZYJECIE_KODU.md) — ma wyjsc tutaj, a nie u uzytkownika.
+{
+  const siec = require('./network-calls.js');
+  const DOZWOLONE_SIEC = [
+    { plik: 'panel/hooks/register.tsx', poCo: 'odczyt strony cennika Anthropic po "Tak" na karcie panelu (jedyny ruch sieciowy panelu)' },
+  ];
+  const wynik = siec.sprawdz(ROOT, DOZWOLONE_SIEC);
+  for (const b of wynik.bledy) bledy.push('siec: ' + b);
+  sprawdzone.push('wywolania sieciowe: ' + wynik.plikow + ' plikow kodu, ' + wynik.dozwolonych + ' z listy dozwolonych, '
+    + wynik.bledy.length + ' poza lista');
+}
+
 // --- wynik -----------------------------------------------------------------
+if (ostrzezenia.length) {
+  process.stdout.write('RelAI validate-adapters: ostrzezenia (' + ostrzezenia.length + ')\n');
+  for (const o of ostrzezenia) process.stdout.write('  ! ' + o + '\n');
+}
 if (bledy.length) {
   process.stderr.write('RelAI validate-adapters: ZNALEZIONO ' + bledy.length + ' problemow\n');
   for (const b of bledy) process.stderr.write('  - ' + b + '\n');

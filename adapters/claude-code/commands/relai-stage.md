@@ -1,5 +1,5 @@
 ---
-description: Uruchamia etap aktywnego planu RelAI — wykrywa plan i następny etap, pokazuje potwierdzenie i czeka na zgodę
+description: "Starts a stage of the active RelAI plan — detects the plan and the next stage, shows the start card and waits for consent. Use when the person starts plan work — „wykonaj etap”, „uruchom etap”, „następny etap”, „run the stage”."
 argument-hint: "[TEMAT] [EN] — oba opcjonalne, np. /relai-stage albo /relai-stage E5 albo /relai-stage PLATNOSCI E2"
 ---
 
@@ -9,8 +9,8 @@ Argumenty (oba opcjonalne): `$ARGUMENTS`
 
 Argumenty mogą nieść znacznik `--zgoda-panelu <id>` dopisany przez panel `relai-panel`. To nie jest
 ani temat, ani etap: przed Krokiem 1 odkładasz go na bok (znacznik i jego wartość), a jego znaczenie
-rozstrzyga Krok 4. Znacznik dopisuje także panel **nowej sesji**, którą karta otworzyła: z pliku
-`.claude/relai/zgoda-etapu/<TEMAT>-<EN>.json` zostawionego przez kartę (ważny 10 minut, w tym
+rozstrzyga Krok 4. Znacznik dopisuje także panel **nowej sesji**, którą karta panelu otworzyła: z pliku
+`.claude/relai/zgoda-etapu/<TEMAT>-<EN>.json` zostawionego przez kartę panelu (ważny 10 minut, w tym
 folderze, jednorazowy — sprawdza go panel, nie Ty). Pliku nie czytasz i nie oceniasz sam.
 
 Twoje zadanie: doprowadzić do **startu właściwego etapu we właściwym trybie** — i ani jednego kroku
@@ -73,11 +73,11 @@ Kolumna `Prompt` w `STATUS.md` wskazuje `PROMPT_ETAP_N.md`.
 
 **Zgoda z panelu.** Znacznik `--zgoda-panelu <id>` znaczy, że człowiek potwierdził start tego etapu
 na karcie w panelu `relai-panel` (plan, etap, model, katalog roboczy, liczba punktów weryfikacji,
-świeży albo bieżący czat). Panel jest drugim miejscem tej samej karty, nie jej zniesieniem: czat
+świeży albo bieżący czat). Karta panelu jest drugim miejscem karty startu, nie jej zniesieniem: czat
 **nie pyta drugi raz o ten sam start**. Kartę z listy niżej wypisujesz wtedy jako informację, bez
 pytania „Zaczynamy?", z dopisanym zdaniem „Zgoda z karty panelu `<id>`." — i przechodzisz do Kroku 5.
 
-Znacznik nie zastępuje pytania — pokazujesz kartę z pytaniem dokładnie jak bez niego — gdy:
+Znacznik nie zastępuje pytania — pokazujesz kartę startu z pytaniem dokładnie jak bez niego — gdy:
 
 - komendę uruchomiłeś **sam** (np. narzędziem Skill), a nie człowiek ani panel: znacznik w takim
   wywołaniu nie znaczy nic;
@@ -90,21 +90,21 @@ Pytania z tabeli Kroku 2 (etap `W TOKU`, `ZREALIZOWANY`, `OCZEKUJE`, `POMINIĘTY
 znacznik dotyczy startu, nie tych rozstrzygnięć. Znacznik nie jest zgodą na nic poza startem tego
 jednego etapu.
 
-Bez znacznika — i w czterech przypadkach powyżej — pokaż użytkownikowi kartę potwierdzenia
+Bez znacznika — i w czterech przypadkach powyżej — pokaż użytkownikowi kartę startu
 i **zatrzymaj się**:
 
 - **Plan** — temat + status planu.
 - **Etap** — `EN z EM` + tytuł.
 - **Model wykonawczy** — z `STATUS.md`, w trzech przypadkach:
   - **zgodny** — jedno zdanie, że model sesji odpowiada wymaganemu;
-  - **inny niż wymagany** — napisz to wprost jako pierwszą rzecz karty i zaproponuj przełączenie
+  - **inny niż wymagany** — napisz to wprost jako pierwszą rzecz karty startu i zaproponuj przełączenie
     przed startem;
   - **spoza listy** — model bieżącej sesji **nie występuje** na liście modeli narzędzia. Karta pisze
     wtedy nazwę modelu sesji, klasę wymaganą przez plan i **datę listy**, i **nie blokuje startu** —
     lista mówi, co jest, a nie kto ma prawo pracować; decyzja należy do człowieka. Nazwę pliku listy
     (`.claude/relai/MODELE-<narzędzie>.md`) bierzesz **ze zdania hooka startu**, nigdy z własnego
     rozpoznania narzędzia; listy nie ma albo zdanie nie padło → zostajesz przy dwóch pierwszych
-    przypadkach i o liście nie mówisz nic. Przypomnienia o starej liście karta **nie powtarza** —
+    przypadkach i o liście nie mówisz nic. Przypomnienia o starej liście karta startu **nie powtarza** —
     to należy do hooka startu (L-0036).
 - **Katalog roboczy** — ścieżka `.claude/relai/work/<TEMAT>/E<N>/`, przepisana z linii otwierającej
   sekcję „Zakres etapu" promptu. Karta jest miejscem, w którym człowiek widzi, **gdzie powstaną
@@ -120,7 +120,7 @@ i **zatrzymaj się**:
 **jednym wyjątkiem**: uzupełnieniem luki z Kroku 3, czyli dogenerowanym `PROMPT_ETAP_N.md` wraz
 z linkiem do niego w kolumnie `Prompt`. Bez tego nie ma czego potwierdzać, i jest to zapowiedziane
 osobnym zdaniem. **Statusu etapu nie zmieniasz** — `W TOKU` ustawiasz dopiero po zgodzie (Krok 5).
-Milczenie nie jest zgodą. „Uruchom etap" w prompcie użytkownika nie jest zgodą na start — kartę
+Milczenie nie jest zgodą. „Uruchom etap" w prompcie użytkownika nie jest zgodą na start — kartę startu
 pokazujesz mimo to.
 
 ### Rekomendacja subagenta (D-35) — kiedy ją dopisujesz
@@ -161,7 +161,7 @@ Po zgodzie, w tej kolejności:
 Zakres promptu jest granicą. Rzecz potrzebna, ale spoza zakresu → **sygnał odchylenia**: zatrzymaj
 się i zadaj jedno ustrukturyzowane pytanie (AskUserQuestion) — odnoga (`/relai-branch`) / aneks do
 planu / świadomie odłożone do wpisu w dzienniku. Nigdy „przy okazji". Procedura i rozstrzygnięcia:
-skill `relai-planning`, sekcja „Sygnał odchylenia".
+skill `relai-planning`, plik `deviation-and-branches.md`.
 
 ## Krok 6 — ostatni etap planu
 

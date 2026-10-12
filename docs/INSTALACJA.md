@@ -11,6 +11,10 @@ Claude Code stoi na górze [README](../README.md).
   czytaj [Cursor bez Node.js](#cursor-bez-nodejs),
 - git (opcjonalnie, ale bez niego znika siatka bezpieczeństwa historii zmian).
 
+**Gdzie RelAI nie działa:** w claude.ai (czat w przeglądarce i w aplikacji) ani przez API Claude.
+Pamięć projektu stoi na hookach, komendach i plikach w folderze projektu — tego tam nie ma, także
+gdy skill wgrasz ręcznie jako Agent Skill.
+
 ## Instalacja
 
 RelAI działa w trzech narzędziach i instaluje się w nich **inaczej**. Wybierz swoją ścieżkę —

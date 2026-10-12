@@ -1,5 +1,7 @@
 # SPEC — `.claude/relai/wznowienie/<slug-projektu>.md`
 
+Zawartość: Rola · Odbiorca · Gdzie leży i jak się nazywa · Polityka aktualizacji: NADPISYWANY · Struktura pliku — siedem elementów w stałej kolejności · Zasady wspólne · Zakazy · Przykład (projekt polski, katalog `Sklep`, przerwany etap planu).
+
 Specyfikacja dla LLM (D-60). Nie kopiuj tego pliku. Plik wznowienia powstaje w projekcie
 **w języku projektu** — nazwa katalogu `wznowienie/` jest stała we wszystkich językach, bo czyta
 ją kod (hook startu sesji, pasek `relai-cache-keeper`).

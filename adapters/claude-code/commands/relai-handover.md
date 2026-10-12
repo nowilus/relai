@@ -1,5 +1,5 @@
 ---
-description: Składa pakiet przekazania projektu w jednym pliku HTML — stan, mapa dokumentów, plany i etapy, otwarte ryzyka, od czego zacząć
+description: "Assembles a project handover package in one HTML file — state, document map, plans and stages, open risks, where to start. Use when the project goes to someone else — „przekazanie projektu”, „pakiet przekazania”, „handover”."
 argument-hint: "[ŚCIEŻKA] — opcjonalna, gdzie zapisać plik; domyślnie docs/zasoby/"
 ---
 

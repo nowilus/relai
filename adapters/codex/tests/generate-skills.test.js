@@ -59,6 +59,56 @@ test('detects drift and orphans among the reference files of a core skill', (t) 
   assert.equal(fs.existsSync(orphan), false);
 });
 
+// AUDYT_SKILLI S6: $ARGUMENTS is substituted only by Claude Code; in Codex it would stay a dead
+// symbol. Commands with disable-model-invocation get the Codex equivalent in agents/openai.yaml.
+const EXPLICIT_ONLY = ['relai-adopt', 'relai-backup', 'relai-clean', 'relai-crew', 'relai-update'];
+
+test('replaces $ARGUMENTS with a sentence about the argument from the invoking message', (t) => {
+  const output = fixture(t);
+  const { files } = generator.generate({ output });
+  const skills = files.filter((file) => file.endsWith('SKILL.md'));
+  for (const file of skills) assert.doesNotMatch(fs.readFileSync(file, 'utf8'), /\$ARGUMENTS/, file);
+  assert.match(fs.readFileSync(path.join(output, 'relai-audit', 'SKILL.md'), 'utf8'),
+    /Argument \(opcjonalny\): tekst podany przez użytkownika po nazwie skilla/);
+});
+
+test('marks commands with side effects as explicit-only in agents/openai.yaml', (t) => {
+  const output = fixture(t);
+  generator.generate({ output });
+  const names = fs.readdirSync(output).filter((name) => fs.existsSync(path.join(output, name, 'agents', 'openai.yaml')));
+  assert.deepEqual(names.sort(), EXPLICIT_ONLY);
+  for (const name of names) {
+    assert.match(fs.readFileSync(path.join(output, name, 'agents', 'openai.yaml'), 'utf8'),
+      /^policy:\n {2}allow_implicit_invocation: false\n$/m);
+  }
+});
+
+test('detects an orphaned agents/openai.yaml in a command skill', (t) => {
+  const output = fixture(t);
+  generator.generate({ output });
+  const orphan = path.join(output, 'relai-audit', 'agents', 'openai.yaml');
+  fs.mkdirSync(path.dirname(orphan), { recursive: true });
+  fs.writeFileSync(orphan, 'policy:\n  allow_implicit_invocation: false\n');
+
+  assert.deepEqual(generator.verify({ output }), [orphan]);
+  generator.generate({ output });
+  assert.equal(fs.existsSync(orphan), false);
+});
+
+test('detects and removes a skill directory left after a command was renamed', (t) => {
+  const output = fixture(t);
+  generator.generate({ output });
+  const stale = path.join(output, 'relai-old-name', 'SKILL.md');
+  const policy = path.join(output, 'relai-old-name', 'agents', 'openai.yaml');
+  fs.mkdirSync(path.dirname(policy), { recursive: true });
+  fs.writeFileSync(stale, '---\nname: relai-old-name\n---\n');
+  fs.writeFileSync(policy, 'policy:\n  allow_implicit_invocation: false\n');
+
+  assert.deepEqual(generator.verify({ output }).sort(), [policy, stale].sort());
+  generator.generate({ output });
+  assert.equal(fs.existsSync(path.join(output, 'relai-old-name')), false);
+});
+
 test('detects a generated skill that no longer matches its Claude Code source', (t) => {
   const output = fixture(t);
   generator.generate({ output });

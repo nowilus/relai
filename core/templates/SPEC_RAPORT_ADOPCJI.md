@@ -1,5 +1,7 @@
 # SPEC — `docs/RAPORT_ADOPCJI.md`
 
+Zawartość: Rola · Odbiorca · Polityka aktualizacji: PISANY RAZ · Struktura sekcji (kolejność obowiązkowa) · Zakazy · Przykład (projekt polski).
+
 Specyfikacja dla LLM (D-60). Nie kopiuj tego pliku. Wygeneruj `docs/RAPORT_ADOPCJI.md` **w języku
 projektu** (`docs/ADOPTION_REPORT.md` dla projektu angielskiego) — wyłącznie podczas adopcji
 zastanego projektu komendą `/relai-adopt` (D-70).

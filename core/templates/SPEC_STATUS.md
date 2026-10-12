@@ -1,5 +1,7 @@
 # SPEC — `docs/plany/<TEMAT>/STATUS.md`
 
+Zawartość: Rola · Odbiorca · Struktura pliku · Statusy · Kolumna `Prompt` · Sekcja „Odnogi" · Sekcja „Bramki manualne" (od 1.3.0) · Dziennik wdrożenia — jedna linia na etap (od 1.6.0) · Polityka aktualizacji · Zakazy · Przykład (projekt polski).
+
 Specyfikacja dla LLM (D-60). Nie kopiuj tego pliku. Wygeneruj `STATUS.md` **w języku projektu**
 (nazwa pliku stała: `STATUS.md`, obok `PLAN.md` w folderze planu).
 

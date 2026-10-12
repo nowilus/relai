@@ -1,5 +1,7 @@
 # SPEC — `docs/ARCHITEKTURA.md`
 
+Zawartość: Rola · Odbiorca · Kiedy powstaje i jak się aktualizuje · Struktura sekcji · Zakazy · Przykład (projekt polski, profil `app`, pierwsza wersja po pierwszym kodzie).
+
 Specyfikacja dla LLM (D-60). Nie kopiuj tego pliku. Wygeneruj `docs/ARCHITEKTURA.md` **w języku
 projektu** (`docs/ARCHITECTURE.md` dla projektu angielskiego).
 

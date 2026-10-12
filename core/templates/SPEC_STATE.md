@@ -1,5 +1,7 @@
 # SPEC — `docs/STATE.md`
 
+Zawartość: Rola · Odbiorca — dwie warstwy (D-13) · Polityka aktualizacji: NADPISYWANY · Struktura sekcji · Twardy kształt sekcji „Nad czym pracujemy teraz" · Zakazy · Przykład (projekt polski, profil `app`) · Dawniej.
+
 Specyfikacja dla LLM (D-60). Nie kopiuj tego pliku. Wygeneruj `docs/STATE.md` **w języku projektu**.
 
 ## Rola
@@ -28,10 +30,10 @@ ukończenia zadania (D-44), nie osobne zadanie „do zrobienia później".
 
 Datę aktualizacji bierzesz z kontekstu sesji, nigdy z pamięci modelu.
 
-**Próg zwięzłości (od 1.2.0, kryterium docelowe od 1.6.0).** Wyzwalaczem jest **liczba linii**:
+**Próg zwięzłości.** Wyzwalaczem jest **liczba linii**:
 plik dłuższy niż próg z wiersza `Rotacja dokumentów` w `docs/USTAWIENIA.md` (domyślnie **300 linii**)
-przepisujesz w rytuale zamknięcia sesji zwięźlej. Do 1.5.2 celem tego przepisania był „jeden
-ekran" — ocena, której nie da się sprawdzić, więc reguła nie działała w żadnym projekcie.
+przepisujesz w rytuale zamknięcia sesji zwięźlej. Cel jest liczbą, bo ocena („jeden ekran")
+nie daje się sprawdzić i reguła oparta na niej nie działała w żadnym projekcie.
 
 **Celem jest liczba:** przepisujesz tak długo, aż plik zejdzie **poniżej progu cząstkowego `STATE`
 z wiersza `Budżet startu sesji`** (domyślnie **12 KB**). To jest ten sam próg, który mierzy hook
@@ -83,7 +85,7 @@ dokumencie, **przepisujesz do wpisu dziennika tej sesji** — inaczej skrócenie
 Sekcje bez treści usuwasz, zamiast zostawiać puste nagłówki. Wyjątek: „Co blokuje" — ta zostaje
 zawsze.
 
-## Twardy kształt sekcji „Nad czym pracujemy teraz" (od 1.6.0)
+## Twardy kształt sekcji „Nad czym pracujemy teraz"
 
 Ta jedna sekcja odpowiada za większość rozrostu pliku i powód jest mechaniczny: każdy zamknięty
 etap **dopisywał** do niej akapit, zamiast podmieniać poprzedni. Zmierzone 2026-08-20: w projekcie
@@ -183,3 +185,11 @@ Repo: github.com/firma/parkly • Zadania: Jira PARK
 
 Pokrycie testami: 71% • Użytkownicy testowi: 5
 ```
+
+## Dawniej
+
+Historia reguł tej specyfikacji. Instrukcją jest treść wyżej.
+
+- Próg zwięzłości liczony w liniach działa od 1.2.0; do 1.5.2 celem przepisania był „jeden
+  ekran", od 1.6.0 — liczba z progu cząstkowego `STATE`. Twardy kształt sekcji „Nad czym
+  pracujemy teraz" — od 1.6.0.

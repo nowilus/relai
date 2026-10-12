@@ -1,6 +1,7 @@
 ---
-description: Adoptuje zastany projekt do struktury RelAI — pełny backup jako bramka, analiza kodu i historii, struktura wygenerowana z zastanego stanu, raport zmian z przetestowaną ścieżką pełnego cofnięcia
+description: "Adopts an existing project into the RelAI structure: a full backup as the gate, analysis of the code and history, documents generated from the existing state and a change report with a tested full rollback. Use when the person explicitly asks to adopt a project — „zaadoptuj projekt”, „adopt this project”."
 argument-hint: "[ŚCIEŻKA_BACKUPU] — opcjonalna, jednorazowa lokalizacja archiwum dla tego backupu"
+disable-model-invocation: true
 ---
 
 # /relai-adopt — adopcja zastanego projektu

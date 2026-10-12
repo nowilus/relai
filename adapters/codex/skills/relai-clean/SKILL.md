@@ -1,12 +1,12 @@
 ---
 name: relai-clean
-description: Pokazuje raport artefaktów roboczych pogrupowany po źródle, z listą chronionych i powodem ochrony — kasuje wyłącznie po potwierdzeniu każdej grupy i zapisuje wpis w dzienniku
+description: "Shows a report of working artifacts grouped by source, with the protected ones and the reason for protection; deletes only after a yes for each group and writes a journal entry. Use when the person asks to clean up working files — „posprzątaj artefakty”, „wyczyść pliki robocze”, „clean up”."
 ---
 
 
 # /relai-clean — sprzątanie artefaktów roboczych
 
-Argument (opcjonalny): `$ARGUMENTS`
+Argument (opcjonalny): tekst podany przez użytkownika po nazwie skilla w wiadomości, która go wywołała (brak tekstu = brak argumentu)
 
 Twoje zadanie: pokazać, **co realnie leży** po zamkniętych etapach — w katalogu roboczym projektu,
 w `%TEMP%` i wśród plików nieśledzonych — a potem skasować **wyłącznie to, na co człowiek powiedział

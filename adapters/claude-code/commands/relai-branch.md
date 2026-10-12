@@ -1,5 +1,5 @@
 ---
-description: Zakłada odnogę — boczny wątek z etapu dostaje własną kartę i samowystarczalny prompt świeżej sesji, bez ruszania zamrożonego planu
+description: "Opens a branch — a side thread from a stage gets its own branch card and a self-contained prompt for a fresh session, without touching the frozen plan. Use when a thread outside the stage scope should be parked — „odnoga”, „boczny wątek”, „odłóż to na potem”, „branch this off”."
 argument-hint: "[NAZWA] [cel w jednym zdaniu] — oba opcjonalne, np. /relai-branch albo /relai-branch OPIS_REPO opis repozytorium na GitHubie"
 ---
 
@@ -7,7 +7,7 @@ argument-hint: "[NAZWA] [cel w jednym zdaniu] — oba opcjonalne, np. /relai-bra
 
 Argumenty (oba opcjonalne): `$ARGUMENTS`
 
-Twoje zadanie: **wątek, który urodził się nie w porę, ma dostać własne miejsce** — kartę i gotowy
+Twoje zadanie: **wątek, który urodził się nie w porę, ma dostać własne miejsce** — kartę odnogi i gotowy
 prompt dla świeżej sesji — a bieżąca praca ma wrócić do swojego zakresu. Nie wykonujesz tego wątku
 teraz. Wykonuj poniższe kroki po kolei.
 
@@ -69,13 +69,13 @@ Brak kopii → powiedz o tym i poproś o `--add-dir` na katalog pluginu, zamiast
 Powstają **dwa pliki, zawsze w parze**, w `docs/plany/<TEMAT>/odnogi/<NAZWA>/` albo
 w `docs/fixy/<NAZWA>/`:
 
-1. **`ODNOGA.md`** — karta: nagłówek, linia metryczna (plan, etap-źródło, data, status `OTWARTA`,
+1. **`ODNOGA.md`** — karta odnogi: nagłówek, linia metryczna (plan, etap-źródło, data, status `OTWARTA`,
    wykonawca), cel, „Skąd się wzięła", zakres ze ścieżkami plików, „Poza zakresem", weryfikacja
    w checkboxach, pusta sekcja „Wynik".
 2. **`PROMPT_ODNOGA.md`** — osiem sekcji wg specyfikacji: nagłówek, linia metryczna z **planem-
    rodzicem**, kontrola modelu, co przeczytać na start, decyzje już podjęte (ostatni punkt zawsze
    „Nie ruszasz planu głównego"), stan wyjściowy z **realnego stanu repozytorium** i z „Zasadami
-   aktywnymi" przepisanymi w całości z `docs/LEKCJE.md`, zakres i weryfikacja z karty, rytuał
+   aktywnymi" przepisanymi w całości z `docs/LEKCJE.md`, zakres i weryfikacja z karty odnogi, rytuał
    zamknięcia odnogi.
 
 Stan wyjściowy **sprawdzasz w repozytorium**, nie zakładasz. Prompt opisujący pliki, których nie
@@ -103,7 +103,7 @@ Trzy–cztery zdania, nie więcej:
 - **katalog roboczy tej odnogi** — `.claude/relai/work/<TEMAT>/<NAZWA>/` (wariant samodzielny:
   `.claude/relai/work/_fixy/<NAZWA>/`); to jest miejsce, w którym sesja wykonawcza ma trzymać
   wszystko tymczasowe, i człowiek widzi je **zanim cokolwiek tam powstanie**,
-- jak to uruchomić: **świeża sesja** na modelu z karty, wklejony `PROMPT_ODNOGA.md`,
+- jak to uruchomić: **świeża sesja** na modelu z karty odnogi, wklejony `PROMPT_ODNOGA.md`,
 - że bieżąca praca wraca do swojego zakresu — wątek jest odłożony, nie porzucony,
 - w wariancie samodzielnym: że w żadnym planie nic się nie zmieniło, bo nie ma czego zmieniać.
 

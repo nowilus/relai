@@ -1,0 +1,23 @@
+{
+  "opis": "Ewaluacje wyzwalania skilli RelAI (odnoga AUDYT_SKILLI, S5). Kazda pozycja to jedna swieza sesja `claude -p` w kopii folderu z fixtures/. expect: trigger = skill wywolany albo jego plik przeczytany; none = brak wywolania i brak odczytu. miara: procedura (tylko relai-core, decyzja Lukasza 2026-10-12) = samo wywolanie skilla dozwolone, porazka to odczyt pliku doczytywanego skilla albo slowo RelAI w odpowiedzi — opis relai-core kaze wyzwalac go na pierwszym prompcie w kazdym folderze. Pozycje z flag: kontrola_zmiany sa puszczane takze na starym opisie (worktree sprzed S2).",
+  "fixtures": {
+    "relai": "core/evals/fixtures/relai",
+    "obcy": "core/evals/fixtures/obcy"
+  },
+  "pozycje": [
+    { "id": "core-p1", "skill": "relai-core", "folder": "relai", "expect": "trigger", "prompt": "kontynuujemy pracę" },
+    { "id": "core-p2", "skill": "relai-core", "folder": "relai", "expect": "trigger", "prompt": "sprawdź status" },
+    { "id": "core-p3", "skill": "relai-core", "folder": "relai", "expect": "trigger", "prompt": "kończymy na dziś" },
+    { "id": "core-p4", "skill": "relai-core", "folder": "obcy", "expect": "trigger", "prompt": "zacznijmy projekt" },
+    { "id": "core-n1", "skill": "relai-core", "folder": "obcy", "expect": "none", "miara": "procedura", "prompt": "sprawdź status zamówienia 1234 w sklepie internetowym — co znaczy status „w realizacji”?" },
+    { "id": "core-n2", "skill": "relai-core", "folder": "obcy", "expect": "none", "miara": "procedura", "prompt": "Popraw funkcję odwroc w lista.py tak, żeby naprawdę odwracała listę. Pokaż sam kod, niczego nie zapisuj." },
+    { "id": "core-n3", "skill": "relai-core", "folder": "obcy", "expect": "none", "miara": "procedura", "prompt": "zaplanuj mi spotkanie na jutro o 10 z Anią — jakie trzy punkty agendy proponujesz?" },
+    { "id": "plan-p1", "skill": "relai-planning", "folder": "relai", "expect": "trigger", "prompt": "przygotuj plan migracji bazy danych tego projektu na PostgreSQL" },
+    { "id": "plan-p2", "skill": "relai-planning", "folder": "relai", "expect": "trigger", "prompt": "rozpisz na etapy przepisanie logowania w tym projekcie na OAuth" },
+    { "id": "plan-p3", "skill": "relai-planning", "folder": "relai", "expect": "trigger", "prompt": "zaplanujmy koszyk i płatności w tym sklepie" },
+    { "id": "plan-n1", "skill": "relai-planning", "folder": "relai", "expect": "none", "kontrola_zmiany": true, "prompt": "zaplanuj mi spotkanie na jutro o 10 z Anią — jakie trzy punkty agendy proponujesz?" },
+    { "id": "plan-n2", "skill": "relai-planning", "folder": "obcy", "expect": "none", "kontrola_zmiany": true, "prompt": "sprawdź status zamówienia 1234 w sklepie internetowym — co znaczy status „w realizacji”?" },
+    { "id": "plan-n3", "skill": "relai-planning", "folder": "obcy", "expect": "none", "kontrola_zmiany": true, "prompt": "od czego zacząć naukę hiszpańskiego?" },
+    { "id": "plan-n4", "skill": "relai-planning", "folder": "obcy", "expect": "none", "kontrola_zmiany": true, "prompt": "jak to ugryźć: chcę schudnąć 5 kg do wakacji" }
+  ]
+}

@@ -13,7 +13,7 @@
       "name": "relai",
       "source": "./",
       "version": "2.9.0",
-      "description": "Your project remembers everything — documentation-first process framework for Claude Code",
+      "description": "Your project remembers everything — documentation-first process framework for Claude Code, Cursor and Codex",
       "category": "productivity",
       "homepage": "https://github.com/nowilus/relai",
       "repository": "https://github.com/nowilus/relai",
@@ -22,7 +22,10 @@
         "process",
         "project-memory",
         "planning",
-        "workflow"
+        "workflow",
+        "codex",
+        "cursor",
+        "agent-skills"
       ]
     },
     {

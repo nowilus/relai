@@ -1,12 +1,12 @@
 ---
 name: relai-handover
-description: Składa pakiet przekazania projektu w jednym pliku HTML — stan, mapa dokumentów, plany i etapy, otwarte ryzyka, od czego zacząć
+description: "Assembles a project handover package in one HTML file — state, document map, plans and stages, open risks, where to start. Use when the project goes to someone else — „przekazanie projektu”, „pakiet przekazania”, „handover”."
 ---
 
 
 # /relai-handover — pakiet przekazania projektu
 
-Argument (opcjonalny): `$ARGUMENTS`
+Argument (opcjonalny): tekst podany przez użytkownika po nazwie skilla w wiadomości, która go wywołała (brak tekstu = brak argumentu)
 
 Odbiorcą jest **człowiek**, który dostaje projekt i nie zna go — nowy programista, klient,
 współpracownik na zastępstwie. Twoje zadanie: zostawić jeden plik HTML, który otwiera się

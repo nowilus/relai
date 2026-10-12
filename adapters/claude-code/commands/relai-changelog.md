@@ -1,5 +1,5 @@
 ---
-description: Destyluje dziennik projektu do listy zmian — na ekran, a do pliku dopiero na życzenie
+description: "Distils the project journal into a list of changes — on screen, and into a file only on request. Use when the person asks what has changed — „lista zmian”, „co się zmieniło”, „changelog”."
 argument-hint: "[od 2026-07-01] [od 0.5.0] [ostatnie 10] — zakres opcjonalny, domyślnie cały dziennik"
 ---
 

@@ -1,12 +1,12 @@
 ---
 name: relai-help
-description: Pokazuje ściągę projektu — komendy, frazy i zachowania automatyczne — prezentując zawartość docs/KOMENDY.md
+description: "Shows the project cheat sheet — commands, phrases and automatic behaviours — by presenting docs/KOMENDY.md. Use when the person asks what RelAI can do here — „pomoc”, „jakie są komendy”, „ściąga”, „help”."
 ---
 
 
 # /relai-help — ściąga projektu
 
-Argument (opcjonalny): `$ARGUMENTS`
+Argument (opcjonalny): tekst podany przez użytkownika po nazwie skilla w wiadomości, która go wywołała (brak tekstu = brak argumentu)
 
 Ta komenda **niczego nie wie o komendach**. Jedynym źródłem prawdy jest `docs/KOMENDY.md` tego
 projektu (D-07) — plik generowany ze stanu faktycznego zainstalowanej wersji pluginu. Twoje zadanie

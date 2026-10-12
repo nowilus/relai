@@ -1,12 +1,12 @@
 ---
 name: relai-adopt
-description: Adoptuje zastany projekt do struktury RelAI — pełny backup jako bramka, analiza kodu i historii, struktura wygenerowana z zastanego stanu, raport zmian z przetestowaną ścieżką pełnego cofnięcia
+description: "Adopts an existing project into the RelAI structure: a full backup as the gate, analysis of the code and history, documents generated from the existing state and a change report with a tested full rollback. Use when the person explicitly asks to adopt a project — „zaadoptuj projekt”, „adopt this project”."
 ---
 
 
 # /relai-adopt — adopcja zastanego projektu
 
-Argument (opcjonalny): `$ARGUMENTS`
+Argument (opcjonalny): tekst podany przez użytkownika po nazwie skilla w wiadomości, która go wywołała (brak tekstu = brak argumentu)
 
 Twoje zadanie: przenieść istniejący, żywy projekt na strukturę RelAI **bez utraty czegokolwiek**
 i tak, żeby dało się to w całości cofnąć. To jedyna operacja RelAI, która dotyka cudzego projektu
@@ -41,7 +41,7 @@ z dwiema różnicami wynikającymi z tego, że projekt **nie jest jeszcze** proj
 - krok 6 (wpis w dzienniku) pomijasz — dziennik jeszcze nie istnieje; backup opiszą wpis zerowy
   dziennika i raport adopcji po generacji.
 
-Argument tej komendy (`$ARGUMENTS`) przekazujesz procedurze backupu jako jednorazową lokalizację
+Argument tej komendy (tekst podany przez użytkownika po nazwie skilla w wiadomości, która go wywołała (brak tekstu = brak argumentu)) przekazujesz procedurze backupu jako jednorazową lokalizację
 docelową.
 
 **Bramka.** Backup, którego nie da się utworzyć (brak lokalizacji i brak odpowiedzi, odmowa

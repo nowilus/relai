@@ -1,5 +1,7 @@
 # templates — specyfikacje dokumentów
 
+Zawartość: Wyjątek od reguły „specyfikacja, nie szablon": `HTML_PLAN/` · Zasady wspólne dla wszystkich generacji.
+
 Pliki w tym folderze **nie są szablonami do skopiowania**. To specyfikacje-instrukcje dla LLM
 (D-60): opisują rolę dokumentu, odbiorcę, strukturę sekcji, politykę aktualizacji i pokazują
 przykład. Dokument w projekcie użytkownika powstaje przez **generację w języku projektu**, a nie
@@ -42,6 +44,12 @@ Jedna specyfikacja opisuje dokument, który powstaje **przy pierwszym zdarzeniu,
 | Specyfikacja | Generuje | Polityka |
 |---|---|---|
 | [SPEC_PULAPKI.md](SPEC_PULAPKI.md) | `docs/PULAPKI.md` | warunkowy — powstaje przy pierwszej pułapce razem z jedną linią odsyłacza w `CLAUDE.md`; append, najnowsze u góry; poza budżetem startu sesji |
+
+Jedna specyfikacja opisuje procedurę, a nie dokument — jej wynik ląduje we wpisie dziennika:
+
+| Specyfikacja | Generuje | Polityka |
+|---|---|---|
+| [SPEC_PRZYJECIE_KODU.md](SPEC_PRZYJECIE_KODU.md) | wpis w `docs/DZIENNIK.md` z werdyktem przeglądu | przed przyjęciem cudzego kodu (fork, kopia, plugin z zewnątrz): siedem punktów z dowodem, werdykt z zamkniętej listy |
 
 Jedna specyfikacja opisuje dokument jednorazowy, który powstaje wyłącznie przy adopcji zastanego
 projektu komendą `/relai-adopt` (D-70, D-71):

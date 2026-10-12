@@ -1,19 +1,23 @@
 # relai-core — rotacja dokumentów
 
-Plik doczytywany skilla `relai-core`. Otwierasz go przed każdą rotacją: w kroku 2 rytuału zamknięcia (`session-close.md`) oraz na starcie sesji po zgodzie człowieka na rotację zaproponowaną z raportu hooka.
+Zawartość: Kiedy i co · Czego nie ruszasz nigdy · Przebieg skryptem — dziennik i ryzyka · Przebieg ręczny — lekcje, mitygacje, ustawienia · Trzy wagi i cel · Komunikat zablokowanej rotacji · Dawniej.
 
-### Rotacja dokumentów (krok 2 rytuału zamknięcia, od 1.2.0)
+Plik doczytywany skilla `relai-core`. Otwierasz go przed każdą rotacją: w kroku 2 rytuału
+zamknięcia (`session-close.md`) oraz na starcie sesji po zgodzie człowieka na rotację
+zaproponowaną z raportu hooka (`start-nets.md`). Oba wejścia uruchamiają **tę samą** procedurę.
+
+## Kiedy i co
 
 Żywe dokumenty rosną, a każda sesja czyta je od nowa. Rotacja przenosi najstarszą historię do
-`docs/archiwum/`, **bajt w bajt**, i zostawia po niej linię-odsyłacz. Dzieje się sama i **nie
-pyta o zgodę** — bo niczego nie kasuje ani nie streszcza. Pełna specyfikacja:
+`docs/archiwum/`, **bajt w bajt**, i zostawia po niej linię-odsyłacz. W rytuale zamknięcia dzieje
+się sama i **nie pyta o zgodę** — bo niczego nie kasuje ani nie streszcza. Pełna specyfikacja:
 `SPEC_ARCHIWUM.md` (czytasz ją z `.claude/relai/templates/` **przed** rotacją, nie z pamięci);
 poniżej jest to, co obowiązuje zawsze.
 
 **Warunek — wiersz `Rotacja dokumentów` w `docs/USTAWIENIA.md`.** Kotwica na początku komórki
 `Decyzja`: `wyłączona` (EN `off`) → **kończysz ten krok natychmiast**, bez sprawdzania progów
-i bez słowa. Wartość nierozpoznana albo brak wiersza w projekcie z wersją 1.2.0 lub nowszą → traktujesz jak
-`wyłączona` i mówisz o tym jednym zdaniem. Progi domyślne, gdy wiersz ich nie podaje:
+i bez słowa. Wartość nierozpoznana albo brak wiersza → traktujesz jak `wyłączona` i mówisz o tym
+jednym zdaniem. Progi domyślne, gdy wiersz ich nie podaje:
 
 | Dokument | Próg | Działanie po przekroczeniu |
 |---|---|---|
@@ -24,108 +28,118 @@ i bez słowa. Wartość nierozpoznana albo brak wiersza w projekcie z wersją 1.
 | `docs/USTAWIENIA.md` | próg cząstkowy `ustawienia` z wiersza `Budżet startu sesji` (6 KB) | wiersze sekcji „Ustawienia wycofane" → `docs/archiwum/ustawienia/USTAWIENIA_<data>.md` |
 | `docs/STATE.md` | 300 linii | **bez archiwum** — przepisujesz zwięźlej w kroku 1; fakt, który znika, a nie stoi nigdzie indziej, idzie do wpisu dziennika |
 
-**Poniżej progu: cisza.** Zero komunikatów, zero pytań, katalog `docs/archiwum/dziennik/` nie
-powstaje. Rotacja nie przypomina o swoim istnieniu.
+**Poniżej progu: cisza.** Zero komunikatów, zero pytań, katalog archiwum nie powstaje.
+Gdy rotują i ryzyka, i dziennik, **ryzyka idą pierwsze**: ich sekcja należy do dolnej granicy
+dziennika.
 
-**Czego nie ruszasz nigdy:** sekcji „Czeka na człowieka" w dzienniku, sekcji „Zasady aktywne"
-w lekcjach, dziesięciu najnowszych wpisów ani dwudziestu najnowszych lekcji. Zakres jest ciągły:
-pierwsza pozycja nietykalna kończy zakres, nie przeskakujesz jej. **Najstarsza i najnowsza pozycja
-to daty w nagłówkach, nie miejsca w pliku** — kolejność wpisów jest własnością projektu i mechanizm
-ją czyta, a nie narzuca (`SPEC_DZIENNIK.md`).
+## Czego nie ruszasz nigdy
 
-**Ryzyka (od 1.6.0) są jedynym wyjątkiem od ciągłości.** Sekcja „Stan otwartych ryzyk" nie jest
-wpisem i do archiwum dziennika nie trafia nigdy — ma własny przebieg: schodzą z niej **wiersze
-ryzyk `ZAMKNIĘTE`**, wszystkie naraz, bez względu na kolejność numerów. Bierzesz się za nie tylko
-wtedy, gdy pozycja `ryzyka` przekracza swój próg cząstkowy **i** jest choć jedno ryzyko zamknięte;
-status inny niż `ZAMKNIĘTE` (`ZMITYGOWANE`, `PRZYJĘTE ŚWIADOMIE`, `ZAWĘŻONE`) znaczy „zostaje"
-i nie zgadujesz intencji. Nagłówek sekcji i wiersz nagłówkowy tabeli zostają zawsze, a pod tabelą
-staje **jedna** linia-odsyłacz z numerami — po niej widać, że numer jest zajęty na zawsze.
-To **nie jest** trzeci komunikat: rotacja ryzyk melduje się tylko we wpisie dziennika tej sesji,
-tak jak pozostałe (L-0049).
+Sekcji „Czeka na człowieka" w dzienniku, sekcji „Zasady aktywne" w lekcjach, dziesięciu
+najnowszych wpisów ani dwudziestu najnowszych lekcji. Zakres jest ciągły: pierwsza pozycja
+nietykalna kończy zakres, nie przeskakujesz jej. **Najstarsza i najnowsza pozycja to daty
+w nagłówkach, nie miejsca w pliku** (`SPEC_DZIENNIK.md`).
 
-**Kompresja komórki „Mitygacja" (od 1.7.0) — wiersz zostaje, historia schodzi.** Gdy sekcja ryzyk
-jest ponad swoim progiem, komórka „Mitygacja" ma **ponad 800 znaków**, a status ryzyka niesie
-rdzeń `zmitygowan` albo `przyj`/`zaakceptowan` **razem z** `świadom` — cała dzisiejsza treść
-komórki idzie do `docs/archiwum/ryzyka/MITYGACJE_<data>.md` (tabela `| # | Mitygacja |`), a w żywej
-komórce zostają **dwa człony**: **dosłowny cytat ostatniego zdania** sprzed `Zmierzone:` oraz
-`Historia: [MITYGACJE_…](…)` i niezmieniony człon `Zmierzone:`. Trzy warunki są koniunkcją;
-**wiek komórki warunkiem nie jest**. Zdanie napisane od siebie zamiast cytatu jest defektem.
-Ryzyka `OTWARTE` nie ruszasz — jego komórka niesie powód, dla którego nie jest zamknięte.
-Komórka po kompresji nadal ponad 800 znaków → **STOP** i pytanie do człowieka, żywa tabela
-nietknięta. Pełna procedura: `SPEC_DZIENNIK.md`, sekcja „Kompresja komórki »Mitygacja«".
+**Ryzyka są jedynym wyjątkiem od ciągłości:** schodzą z tabeli **wszystkie wiersze `ZAMKNIĘTE`**
+naraz, bez względu na kolejność numerów, i tylko wtedy, gdy sekcja przekracza swój próg
+cząstkowy. Status inny niż `ZAMKNIĘTE` znaczy „zostaje". Nagłówek tabeli zostaje zawsze, a pod
+tabelą staje **jedna** linia-odsyłacz z numerami.
 
-**Rotacja ustawień (od 1.7.0).** Gdy `docs/USTAWIENIA.md` przekracza swój próg cząstkowy
-(`ustawienia`, 6 KB) **i** sekcja „Ustawienia wycofane" ma wiersze do wzięcia — schodzą **wszystkie
-naraz** do `docs/archiwum/ustawienia/USTAWIENIA_<data>.md`, a pod tabelą sekcji staje jedna
-linia-odsyłacz. **Nigdy nie schodzi pięć wierszy wypisanych z nazwy:** `Język projektu`,
-`Profil projektu`, `Rotacja dokumentów`, `Budżet startu sesji`, `Przegląd spraw człowieka` — także
-gdy stoją w „Ustawieniach wycofanych"; ich nieobecność wycisza mechanizmy, które je czytają.
-Wierszy **żywej** tabeli nie ruszasz: niosą decyzję obowiązującą. Plik ponad progiem bez sekcji
-„Ustawienia wycofane" → nie rotujesz; odchudza go zwięzłość komórki `Decyzja`.
+**Wpis, do którego prowadzi link z otwartej pozycji „Czeka na człowieka", jest przenoszalny** —
+zamiast blokady działa **przepięcie linku** na plik archiwum w fazie 2. Wpis z pozycją
+opatrzoną adnotacją `*(wyprowadzone RRRR-MM-DD → sekcja „Czeka na człowieka")*` też jest
+przenoszalny. Dziennik bez sekcji „Czeka na człowieka" → najpierw `waiting-migration.md`; do tego
+czasu blokuje własna sekcja „Do zrobienia przez człowieka" wpisu.
 
-Obie operacje idą **tą samą** procedurą dwufazową, każda z własną sumą kontrolną i własnym plikiem
-archiwum, i **żadna nie dokłada własnego komunikatu** — meldują się we wpisie dziennika tej sesji,
-jak rotacja ryzyk (L-0049).
+## Przebieg skryptem — dziennik i ryzyka
 
-**Blokada zmieniła adres w 1.6.0, a w 1.7.0 zniknęła.** Wpis z pozycją opatrzoną adnotacją
-`*(wyprowadzone RRRR-MM-DD → sekcja „Czeka na człowieka")*` **jest przenoszalny**, mimo że jego
-własna sekcja „Do zrobienia przez człowieka" wygląda na otwartą. **Wpis, do którego prowadzi link
-z otwartej pozycji „Czeka na człowieka", też jest przenoszalny** — od 1.7.0 nie jest z tego powodu
-nietykalny; zamiast blokady działa **przepięcie linku** na plik archiwum (opis w fazie 2 niżej).
-Powód jest zmierzony: reguła linkowania do najstarszego wystąpienia w mechanizmie idącym od
-najstarszego zatykała go z definicji — na dzienniku PolyFlow sprzed rotacji `FAKT` zakres wynosił
-0 wpisów ze 127, a bez tej blokady wynosi 117. Projekt, który nie ma jeszcze sekcji „Czeka na
-człowieka", działa po staremu — blokuje własna sekcja wpisu, dopóki nie przejdzie procedury
-wyprowadzenia (`waiting-migration.md`).
+Rotację dziennika i ryzyk wykonuje skrypt — **uruchamiasz go, nie odtwarzasz jego kroków**.
+Kopię kładzie hook startu w `.claude/relai/tools/`; nie kopiujesz go ręcznie z katalogu pluginu.
 
-**Przebieg jest dwufazowy** i kolejność jest tu całym zabezpieczeniem:
+```
+node .claude/relai/tools/rotate.js plan ryzyka --prog <KB z ustawień>
+node .claude/relai/tools/rotate.js wykonaj ryzyka --prog <KB z ustawień>
+node .claude/relai/tools/rotate.js plan dziennik --prog <KB z ustawień>
+node .claude/relai/tools/rotate.js wykonaj dziennik --prog <KB z ustawień>
+```
 
-1. **Faza 1 — kopia i dowód.** Wyznacz ciągły zakres najstarszych pozycji (tyle, żeby żywy plik
-   zszedł poniżej 60% progu). Policz sumę kontrolną tego fragmentu w żywym pliku. Zapisz plik
-   archiwum. Odczytaj go **z dysku**, policz sumę treści spod separatora i porównaj. Suma:
-   SHA-256 z treści znormalizowanej do LF (L-0033), pierwsze 16 znaków hex.
-2. **Sumy różne → STOP.** Żywy plik zostaje nietknięty, mówisz o tym jednym zdaniem. Niczego nie
-   naprawiasz po cichu.
-3. **Faza 2 — przycięcie**, dopiero po zgodności sum: usuń fragment z żywego pliku, wstaw
-   linię-odsyłacz na początku sekcji („Wpisy" / „Lekcje"), **przepnij linki pozycji „Czeka na
-   człowieka" prowadzące do przeniesionych wpisów** (przed kotwicą staje ścieżka pliku archiwum;
-   tekst linku, treść pozycji i data zostają nietknięte), zapisz. Przepięcie dotyczy wyłącznie
-   rotacji dziennika i idzie **przed** zapisem. Policz przy tym pozycje z linkiem do nieistniejącej
-   kotwicy — ma ich być **zero**.
-4. **Ślad w dzienniku** — do wpisu tej sesji (krok 3 rytuału): co przeniesiono, dokąd, ile
-   pozycji, suma kontrolna, rozmiar przed i po, ile linków przepięto.
+1. **`plan`** — zakres, trzy wagi, próg i cel, nazwa pliku archiwum i suma fragmentu. Nic nie
+   zapisuje. „ponizej progu” → koniec, cisza.
+2. **`wykonaj`** — faza 1: zapis archiwum, odczyt **z dysku**, porównanie sum (SHA-256 z treści
+   znormalizowanej do LF, 16 znaków hex); faza 2 dopiero po zgodności: przycięcie żywego pliku,
+   linia-odsyłacz, przepięcie linków „Czeka na człowieka” do przeniesionych wpisów.
+3. **Kod 3 („STOP: suma fragmentu …”)** → żywy plik jest nietknięty; mówisz o tym jednym zdaniem
+   i niczego nie naprawiasz po cichu. **Kod 2** (brak pliku, kolejność wpisów mieszana, dziennik
+   bez „Czeka na człowieka”, archiwum o tej nazwie z inną treścią) → przebieg ręczny wg
+   `SPEC_ARCHIWUM.md`.
+4. **Ślad w dzienniku** — do wpisu tej sesji przepisujesz z ostatniej linii wyjścia: co
+   przeniesiono, dokąd, ile pozycji, sumę, rozmiar przed i po, ile linków przepięto i liczbę
+   martwych kotwic (ma być zero; „UWAGA” w wyjściu → sprawdzasz linki i wpisujesz obie liczby).
 
-**Próg liczony ponad nietykalnymi (od 1.7.0).** Dokument ma trzy wagi i podajesz je **zawsze razem
-z progiem**, w tej kolejności: **waga całkowita** (cały plik, końce linii do LF) = **część
-rotowalna** + **dolna granica osiągalna**. Dolna granica dziennika to sekcje, które nie rotują
-nigdy („Stan otwartych ryzyk", „Czeka na człowieka", nagłówki, linie-odsyłacze), dziesięć
-najnowszych wpisów i wpisy bez daty w nagłówku. **Wyzwalacz zostaje na wadze całkowitej** — poniżej
-progu cisza. **Cel stoi na wadze całkowitej (D-88)**: bierzesz najstarsze pozycje, aż **cały żywy
-plik** zejdzie poniżej 60% progu; ciąg kończy się wcześniej tylko na pozycji nietykalnej albo po
-wyczerpaniu części rotowalnej — trzy wagi mówią, ile da się wziąć, nie kiedy przestać. Gdy rotują
-i ryzyka, i dziennik, **ryzyka idą pierwsze**: ich sekcja należy do dolnej granicy dziennika.
+`node .claude/relai/tools/rotate.js sprawdz <dziennik|ryzyka> --archiwum <plik>` porównuje sumę
+fragmentu z żywego pliku z sumą istniejącego archiwum — np. po rotacji przerwanej między fazami.
 
-**Powyżej progu, gdy rotacja nie zabrała wszystkiego, co mogła → komunikat zablokowanej rotacji**
-w podsumowaniu sesji. Cztery części, zawsze w tej kolejności:
+**Brak `node`** → mówisz o tym jednym zdaniem i rotujesz ręcznie wg `SPEC_ARCHIWUM.md`, sekcja
+„Przebieg — dwie fazy”.
+
+## Przebieg ręczny — lekcje, mitygacje, ustawienia
+
+Te trzy rotacje skrypt pomija; idą **tą samą** procedurą dwufazową z `SPEC_ARCHIWUM.md`, każda
+z własną sumą i własnym plikiem archiwum, i **żadna nie dokłada własnego komunikatu** — meldują
+się we wpisie dziennika tej sesji (L-0049). Sumę fragmentu i treści archiwum liczysz komendą,
+nie okiem — fragment zapisany do pliku w katalogu roboczym:
+
+```
+node -e "const fs=require('fs'),c=require('crypto');const t=fs.readFileSync(process.argv[1],'utf8').replace(/\r\n/g,'\n');console.log(c.createHash('sha256').update(t,'utf8').digest('hex').slice(0,16))" plik.md
+```
+
+- **Lekcje:** najstarsze pełne wpisy `L-NNNN` ponad dwudziestoma najnowszymi; odsyłacz na
+  początku sekcji „Lekcje”.
+- **Kompresja komórki „Mitygacja” — wiersz zostaje, historia schodzi.** Warunki (koniunkcja):
+  sekcja ryzyk ponad progiem, komórka **ponad 800 znaków**, status z rdzeniem `zmitygowan` albo
+  `przyj`/`zaakceptowan` **razem z** `świadom`. Cała treść komórki → `MITYGACJE_<data>.md` (tabela
+  `| # | Mitygacja |`), w żywej komórce zostają **dosłowny cytat ostatniego zdania** sprzed
+  `Zmierzone:`, `Historia: [MITYGACJE_…](…)` i niezmieniony człon `Zmierzone:`. Zdanie napisane od
+  siebie zamiast cytatu jest defektem; komórka po kompresji nadal ponad 800 znaków → **STOP**
+  i pytanie do człowieka. Ryzyka `OTWARTE` nie ruszasz. Pełna procedura: `SPEC_DZIENNIK.md`,
+  sekcja „Kompresja komórki »Mitygacja«”.
+- **Ustawienia:** plik ponad progiem cząstkowym **i** wiersze w „Ustawieniach wycofanych” →
+  schodzą wszystkie naraz, pod tabelą sekcji jedna linia-odsyłacz. **Nigdy nie schodzi pięć
+  wierszy:** `Język projektu`, `Profil projektu`, `Rotacja dokumentów`, `Budżet startu sesji`,
+  `Przegląd spraw człowieka` — ich nieobecność wycisza mechanizmy, które je czytają. Wierszy żywej
+  tabeli nie ruszasz.
+
+## Trzy wagi i cel
+
+Dokument ma trzy wagi i podajesz je **zawsze razem z progiem**: **waga całkowita** (cały plik,
+końce linii do LF) = **część rotowalna** + **dolna granica osiągalna** (sekcje, które nie rotują,
+dziesięć najnowszych wpisów, wpisy bez daty). **Wyzwalacz stoi na wadze całkowitej** — poniżej
+progu cisza. **Cel też (D-88)**: najstarsze pozycje schodzą, aż cały żywy plik zejdzie poniżej
+60% progu; ciąg kończy się wcześniej tylko na pozycji nietykalnej albo po wyczerpaniu części
+rotowalnej. `rotate.js plan` wypisuje wszystkie cztery liczby.
+
+## Komunikat zablokowanej rotacji
+
+Powyżej progu, gdy rotacja nie zabrała wszystkiego, co mogła — komunikat w podsumowaniu sesji,
+cztery części w tej kolejności:
 
 1. ile wpisów przechodzi z ilu rotowalnych, ile nie przechodzi i ile ważą;
 2. cztery liczby: waga całkowita = część rotowalna + dolna granica; obok próg;
-3. powód i pary **„pozycja → wpis"** — treść pozycji, nagłówek blokowanego wpisu, **wiek pozycji
-   w dniach** i **ile wpisów przepuści jej zamknięcie**; najwyżej **pięć** blokerów po **dwie**
-   pozycje, reszta jako „i N dalszych blokerów tej samej natury";
+3. powód i pary **„pozycja → wpis"** — wyłącznie w dzienniku **bez** sekcji „Czeka na człowieka”:
+   treść pozycji, nagłówek blokowanego wpisu, wiek pozycji w dniach i ile wpisów przepuści jej
+   zamknięcie; najwyżej pięć blokerów po dwie pozycje, reszta jako „i N dalszych”;
 4. ile odblokowuje zamknięcie pierwszej pozycji, a ile zamknięcie wszystkich.
 
-Pary wypisujesz **tylko** w projekcie **bez** sekcji „Czeka na człowieka" — tam blokuje własna
-sekcja wpisu. Wpisu linkowanego z otwartej pozycji „Czeka na człowieka" **nie wymieniasz**: od
-1.7.0 nie blokuje. Gdy blokerów nie ma, a **część rotowalna jest pusta** (mniej niż dziesięć
-wpisów albo same świeże) — ten sam kształt bez punktu 3, ze zdaniem, że plik odchudza zwięzłość
-wpisów, nie archiwum, a podniesienie progu jest decyzją człowieka. Tak samo, gdy sama **dolna
-granica przekracza próg**: to nie jest porażka mechanizmu i nie nazywasz jej porażką.
+Gdy blokerów nie ma, a część rotowalna jest pusta (mniej niż dziesięć wpisów albo same świeże) —
+ten sam kształt bez punktu 3, ze zdaniem, że plik odchudza zwięzłość wpisów, a podniesienie progu
+jest decyzją człowieka. Tak samo, gdy sama dolna granica przekracza próg — to nie jest porażka
+mechanizmu. Komunikat piszesz **ty**, w rytuale zamknięcia; to nadal **jeden** komunikat
+(L-0036, L-0049).
 
-Cisza obowiązuje **poniżej progu** i jest nienaruszalna; powyżej progu milczenie ukryłoby zatkany
-mechanizm. Komunikat piszesz **ty**, w rytuale zamknięcia — hook startu go nie produkuje. To nadal
-**jeden** komunikat: rotacja ryzyk nie dokłada własnego, a limit „Zasad aktywnych" zostaje przy
-swoim adresie w kroku 1 (L-0036, L-0049).
+## Dawniej
 
-**To jest krok 2 rytuału zamknięcia, czyli wejście pierwsze.** Wejście drugie — start sesji — jest
-w `SKILL.md`, sekcja „Rotacja na starcie sesji (od 1.6.0)", i uruchamia **dokładnie tę samą** procedurę.
+Rotacja działa od 1.2.0; ryzyka rotują od 1.6.0; kompresja komórek „Mitygacja”, rotacja ustawień,
+trzy wagi i przepięcie linków zamiast blokady — od 1.7.0. Blokada wpisu linkowanego ze sprawy
+człowieka zmieniła adres w 1.6.0 i zniknęła w 1.7.0: reguła linkowania do najstarszego wystąpienia
+zatykała mechanizm idący od najstarszego — na dzienniku PolyFlow sprzed rotacji `FAKT` zakres
+wynosił 0 wpisów ze 127, a bez tej blokady 117. Do 2.9.0 fazy rotacji wykonywał model ręcznie;
+`rotate.js` przejął dziennik i ryzyka w odnodze AUDYT_SKILLI (S4).

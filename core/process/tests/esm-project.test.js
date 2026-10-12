@@ -77,6 +77,22 @@ for (const [nazwa, typ] of PROBKI) {
     assert.equal(typeof JSON.parse(r.stdout), 'object');
   });
 
+  // AUDYT_SKILLI S4: rotacja i liczenie zasad jako narzedzia w kopii projektu, ta sama droga.
+  test('tools/rotate.js plan and tools/count-rules.js run in a project with ' + nazwa, (t) => {
+    const cwd = projekt(typ);
+    t.after(() => fs.rmSync(cwd, { recursive: true, force: true }));
+    fs.mkdirSync(path.join(cwd, 'docs'));
+    fs.writeFileSync(path.join(cwd, 'docs', 'DZIENNIK.md'), '# DZIENNIK — probka\n\n## Stan otwartych ryzyk\n\n'
+      + '| # | Ryzyko | Poziom | Status | Mitygacja |\n|---|---|---|---|---|\n| R1 | x | Niski | ZAMKNIĘTE | — |\n');
+    fs.writeFileSync(path.join(cwd, 'docs', 'LEKCJE.md'), '# LEKCJE\n\n## Zasady aktywne\n\n1. Jedna.\n2. Druga.\n\n## Lekcje\n');
+    const r = uruchom(cwd, 'tools/rotate.js', ['plan', 'ryzyka']);
+    assert.equal(r.status, 0, opis(r));
+    assert.match(r.stdout, /zamknietych 1 \(R1\)/);
+    const c = uruchom(cwd, 'tools/count-rules.js', []);
+    assert.equal(c.status, 0, opis(c));
+    assert.equal(c.stdout.trim(), 'zasady aktywne: 2 / limit 15');
+  });
+
   test('templates/HTML_PLAN/zbuduj.js embeds fonts in a project with ' + nazwa, (t) => {
     const cwd = projekt(typ);
     t.after(() => fs.rmSync(cwd, { recursive: true, force: true }));

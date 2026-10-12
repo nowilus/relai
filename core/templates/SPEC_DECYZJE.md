@@ -1,5 +1,7 @@
 # SPEC — `docs/DECYZJE.md`
 
+Zawartość: Rola · Odbiorca · Polityka aktualizacji: APPEND, zamrożenie po zapisie · Struktura pliku · Format wpisu · Wykrywanie powracającego tematu i propozycja zamrożenia (D-16) · Automatyczne przechwytywanie fraz · Projekt po adopcji (od 1.3.0) · Zmiana decyzji · Zakazy · Przykład (projekt polski).
+
 Specyfikacja dla LLM (D-60). Nie kopiuj tego pliku. Wygeneruj `docs/DECYZJE.md` **w języku projektu**
 (nazwa pliku też podąża za językiem: `DECISIONS.md` dla projektu angielskiego).
 

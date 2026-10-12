@@ -1,5 +1,7 @@
 # SPEC — `docs/snapshoty/<data>/`
 
+Zawartość: Rola · Zasada nadrzędna: snapshot jest bramką, nie zaleceniem · Co jest „konfiguracją produkcyjną" · Struktura katalogu · Procedura · Zmiana skryptem migracyjnym, nie ręczną edycją · Retencja · Zakazy · Przykład — `docs/snapshoty/2026-08-09/OPIS.md` (projekt polski, profil `agent-voice`).
+
 Specyfikacja dla LLM (D-60). Nie kopiuj tego pliku. Katalog `docs/snapshoty/` powstaje w projekcie
 **w języku projektu**; dla projektu angielskiego: `docs/snapshots/`.
 

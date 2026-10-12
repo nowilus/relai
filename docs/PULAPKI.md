@@ -8,6 +8,35 @@ Specyfikacja: `SPEC_PULAPKI.md`.
 
 ## Pułapki
 
+### P-034 — Skill się nie wyzwolił albo wyzwala się za często · 2026-10-12 · AKTYWNA
+
+- **Objaw:** sesja nie zrobiła rytuału, nie otworzyła planu albo nie zaproponowała procedury, choć
+  fraza pasuje do opisu skilla; albo odwrotnie — skill planów rusza przy „zaplanuj mi spotkanie”.
+  Wniosek „opis jest zły” pada zwykle za wcześnie, bo wyzwolenie zależy od kilku warstw naraz.
+- **Przyczyna:** wyzwolenie skilla jest decyzją modelu na podstawie opisu (do 1 024 znaków, trzecia
+  osoba, L-0114) — warstwą zawodną; to, co ma działać zawsze, niesie hook albo `CLAUDE.md` (L-0030).
+  Pomiar sam bywa źródłem fałszu: zła wersja pluginu (P-005), prompt obcięty powłoką (P-002), limit
+  tur kończący sesję przed mierzonym krokiem (L-0113), brak logowania CLI w procesie potomnym
+  aplikacji (P-032), siatka hooka odpowiadająca na tożsamość gita mierzącego zamiast na prompt
+  (L-0170 — narzędzie zakłada w kopii fixtury repozytorium z `user.name = tester`).
+- **Obejście — w tej kolejności:**
+  1. **Wersja:** którą treść skilla sesja wykonała — ścieżka pluginu w zdarzeniu `init`
+     (`--output-format stream-json --verbose`), nie komunikat CLI (P-005, L-0085).
+  2. **Logowanie:** `claude -p` z Basha sesji aplikacji kończy się „Failed to authenticate” —
+     przebieg wymaga `claude auth login` w zwykłym terminalu (P-032). Kod wyjścia każdej sesji
+     czytasz, zanim policzysz wynik.
+  3. **Warstwa:** zachowanie, które ma działać zawsze, sprawdzasz w hooku i `CLAUDE.md`, nie w opisie
+     skilla (L-0030); cisza hooka bez kontroli pozytywnej w tym samym przebiegu nic nie dowodzi.
+  4. **Pomiar:** `node core/tools/eval-triggers.js --model <alias>` na zestawie
+     `core/evals/triggers.json` (prompt przez stdin — P-002; ustawienia i pluginy użytkownika
+     wyłączone; limit tur na cały łańcuch — L-0113); `--baseline` daje zachowanie bez pluginu,
+     `--plugin-dir <worktree>` — starą wersję opisu do porównania w jednym przebiegu.
+  5. **Poprawka opisu:** fraza pozytywna, której brakuje, albo zawężenie frazy ogólnej do projektu
+     RelAI; opis ≤ 800 znaków, bez `<` `>` (walidator); po zmianie — ten sam zestaw na modelach
+     `strong` i `balanced` z listy (D-90), wynik do `docs/archiwum/pomiary/`.
+- **Zasięg:** Claude Code (skille `relai-core`, `relai-planning`); Codex czyta te same opisy przez
+  generator. Źródło: odnoga AUDYT_SKILLI (S5), lekcje L-0030, L-0085, L-0113, L-0114.
+
 ### P-033 — Deep link `claude://code/new` wpisuje prompt, a `/` na jego początku zamienia na `／` · 2026-10-12 · AKTYWNA
 
 - **Objaw:** karta panelu otwiera nową sesję linkiem `claude://code/new?folder=…&q=/relai:relai-stage

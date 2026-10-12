@@ -141,10 +141,14 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
    cały blok, nie jego brzegi**, a po każdym cięciu idzie kompilator (L-0160). **Skrypt wklejający
    blok do dokumentu dowodzi wyniku licznikiem nagłówków** — każda sekcja dokładnie raz — i
    porównaniem wklejonego bloku ze źródłem; „marker zniknął” nie znaczy, że treść powstała raz
-   (L-0164). (L-0032, L-0037, L-0095, L-0096, L-0105, L-0106, L-0107, L-0110, L-0111, L-0113,
+   (L-0164). **Operacja na zakresie dokumentu normalizuje tylko styk zakresu**, a test dowodzi, że
+   fragment poza zakresem wyszedł nietknięty (L-0169). **Fixtura ewaluacji niesie środowisko,
+   które czytają hooki** (tożsamość gita, pliki domowe) — inaczej siatka hooka odpowiada na
+   maszynę mierzącego, nie na prompt (L-0170). (L-0032, L-0037, L-0095, L-0096, L-0105, L-0106, L-0107, L-0110, L-0111, L-0113,
    L-0097, L-0101, L-0102,
    L-0054, L-0055, L-0056, L-0064, L-0068, L-0071, L-0073, L-0083, L-0084, L-0086, L-0087, L-0088,
-   L-0090, L-0091, L-0124, L-0125, L-0130, L-0131, L-0135, L-0141, L-0143, L-0151, L-0160, L-0164)
+   L-0090, L-0091, L-0124, L-0125, L-0130, L-0131, L-0135, L-0141, L-0143, L-0151, L-0160, L-0164,
+   L-0169, L-0170)
 6. **Próg jest liczbą, którą ktoś liczy:** kalibruj go na zmierzonych plikach realnych projektów,
    zapisuj w jednostce mechanizmu kontrolnego wraz z komendą sprawdzającą i daj mu **jeden**
    wyzwalacz — wielkości pomocnicze wskazują przyczynę wewnątrz komunikatu, nie wywołują go.
@@ -559,6 +563,34 @@ restart aplikacji po `plugin update` (L-0031), `git worktree` zamiast `git archi
   identyfikatora — od nowa); wydruk diagnostyczny zbiera stan **po** kroku, który ma sprawdzić,
   i nie zastępuje asercji, za którą stoi.
 - **Źródło:** LIMIT_CHECKPOINT E3 (`checkpoint.test.ts`, 2026-10-11); destylat: zasada 13.
+
+### L-0169 — Narzędzie „bajt w bajt” zwijało puste linie w całym pliku, nie tylko przy cięciu · 2026-10-12 · AKTYWNA
+
+- **Trigger:** `rotate.js` odtworzył rotację C3/C9 bajt w bajt i przeszedł sześć testów, a przegląd
+  kodu znalazł, że przycięcie dziennika zwija każdą podwójną pustą linię w żywym pliku — także
+  w bloku kodu wpisu, który zostaje.
+- **Przyczyna:** porządkowanie odstępów („bez dwóch pustych linii po wycięciu”) napisane jako
+  operacja na całym pliku; materiał testów i realny dziennik nie miały podwójnych pustych linii
+  poza zakresem, więc żaden przebieg tego nie pokazał.
+- **Zasada:** operacja na zakresie dokumentu normalizuje **wyłącznie styk** zakresu; test ma
+  zachowany fragment z formatowaniem, którego normalizacja by dotknęła (dwie puste linie, CRLF,
+  blok kodu), i dowodzi, że ten fragment wyszedł nietknięty.
+- **Źródło:** AUDYT_SKILLI S4, przegląd kodu 2026-10-12; destylat: zasada 5.
+
+### L-0170 — Ewaluacja w kopii fixtury mierzyła tożsamość mierzącego, nie opis skilla · 2026-10-12 · AKTYWNA
+
+- **Trigger:** pierwszy pełny przebieg ewaluacji wyzwalania dał 0 z 3 pozytywów relai-planning na
+  Sonnecie 5.5 i Opusie 5.5; każda odpowiedź zaczynała się od propozycji wycieczki po „cudzym
+  projekcie”.
+- **Przyczyna:** kopia fixtury w katalogu tymczasowym nie była repozytorium; hook czytał
+  `user.name` z `~/.gitconfig` mierzącego („Lukasz”), dziennik fixtury podpisał „tester”, więc
+  siatka D-27 zatrzymała model pytaniem, zanim doszedł do planowania. Pierwsza poprawka
+  (`GIT_CONFIG_GLOBAL`) nie zadziałała, bo hook czyta pliki konfiguracji wprost, nie przez gita —
+  wyszło na kontroli pozytywnej jednej pozycji przed ponownym pełnym przebiegiem.
+- **Zasada:** fixtura ewaluacji niesie środowisko, które czytają hooki (tożsamość gita, pliki
+  domowe, ustawienia); poprawkę izolacji sprawdzasz testem na **tym samym detektorze**, którego
+  używa hook, i jedną pozycją kontroli pozytywnej, zanim puścisz pełny, płatny przebieg.
+- **Źródło:** AUDYT_SKILLI S5, 2026-10-12; destylat: zasada 5.
 
 ## Lekcje zwinięte
 
