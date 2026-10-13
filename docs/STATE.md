@@ -86,8 +86,8 @@ E1 po stronie Codeksa; FILM_PREZENTACYJNY zamknięty 2026-10-13 wydaniem 3.0.0. 
   (bramka zamknięcia LIMIT_CHECKPOINT, decyzja Łukasza 2026-10-12). Przepięcie `prompt-mode.js`
   na `threshold.js` nadal świadomie odłożone.
 - Plan FILM_PREZENTACYJNY **ZREALIZOWANY 2026-10-13** (7/7, Aneksy A–F, wydanie 3.0.0 z filmem;
-  `relai-panel` 0.14.1 z poprawką parsera modelu karty etapu). Następne: rotacja `DZIENNIK.md`
-  i `LEKCJE.md` (oba ponad progiem — sygnał hooka startu), potem PANEL_CODEX po stronie Codeksa.
+  `relai-panel` 0.14.1 z poprawką parsera modelu karty etapu). Rotacja dziennika i lekcji zrobiona
+  2026-10-13; następne: PANEL_CODEX po stronie Codeksa.
   Po restarcie aplikacji (RelAI 3.0.0, `relai-panel` 0.14.1) — rzut oka na wiersz Model karty startu etapu.
 - Po AUDYT_SKILLI (kontrola zmiany opisu w S5 przyjęta bez powtórzeń, Łukasz 2026-10-12):
   ewaluacje zachowania komend i `/relai-feedback` poza zakresem odnogi; `relai-prompt.md` ponad 20 KB.
@@ -166,9 +166,9 @@ Backupy: `C:\Users\Lukasz\Backupy\RelAI` • [PRZENOSNOSC.md](PRZENOSNOSC.md) �
 ### Liczby
 
 Plany zamknięte: 12 (ostatni FILM_PREZENTACYJNY, 2026-10-13) • Aktywny: PANEL_CODEX (E1 W TOKU) •
-Start sesji: **93,8 KB / 100 KB** ze skillem z repo (`startCost` 2026-10-12) • Dziennik: **177,5 KB / 150 KB**
-(2026-10-13, rotacja należna) • Ryzyka: 17 w tabeli, archiwum 6 plików + 1 mitygacji • Lekcje:
-**67,2 KB / 50 KB**, 36 w żywym pliku (rotacja należna) • Adaptery: 3 • Komendy: 14 •
+Start sesji: **93,8 KB / 100 KB** ze skillem z repo (`startCost` 2026-10-12) • Dziennik: **106 KB / 150 KB**
+(2026-10-13, po rotacji) • Ryzyka: 17 w tabeli, archiwum 6 plików + 1 mitygacji • Lekcje:
+**54,4 KB / 50 KB**, 20 w żywym pliku (po rotacji; ponad progiem przez „Zasady aktywne”, 31 KB) • Adaptery: 3 • Komendy: 14 •
 Testy: 333 rdzeń, panel i adaptery (`node --test`, 4 katalogi) + 382 pluginów panelu (177 / 31 / 174) + 36 filmu •
 Projekty na RelAI: 3 (RelAI, PolyFlow, JiraManager przed migracją) • Modele, na których zmierzono
 proces: 6 (Fable, Opus, Sonnet, Haiku, Composer/auto, Grok 4.6).
