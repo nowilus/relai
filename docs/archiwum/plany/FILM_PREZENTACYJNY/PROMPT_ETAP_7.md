@@ -502,7 +502,7 @@ zaraz po jego sprawdzeniu, nie na końcu etapu; punkt, który nie przeszedł, zo
       padły w jednym pytaniu; odpowiedzi we wpisie.
 - [x] `node core/tools/validate-adapters.js` → exit 0 i raport „numery wersji: 7 zrodel, wartosc
       "3.0.0"”; `generate-skills.js --verify` i `sync-panel-core.js --check` zielone.
-- [ ] `grep -r "2\.9\.0"` (i stare numery pluginów, gdy się zmieniły) po repo poza `.git`,
+- [x] `grep -r "2\.9\.0"` (i stare numery pluginów, gdy się zmieniły) po repo poza `.git`,
       `node_modules` i `docs/archiwum/` — każde trafienie rozstrzygnięte we wpisie (historyczne /
       podbite); kontrola pozytywna: podłożony plik w katalogu roboczym trafiony.
 - [x] `history.md` (obie kopie) ma wpis 3.0.0; `docs/ARTEFAKTY.md` — każdy artefakt z rejestru
@@ -512,29 +512,29 @@ zaraz po jego sprawdzeniu, nie na końcu etapu; punkt, który nie przeszedł, zo
 - [x] Pętle PL i EN wyrenderowane po podbiciu: 720×900, 25 000 ms, waga do wpisu wobec 3 MB
       (SZACUNEK); kontrola telefonu (tekst ≥ 7 px, linie poniżej progu obejrzane na wycinkach)
       i przepełnień (0, kontrola pozytywna trafiona) na nowych plikach.
-- [ ] `npm test` filmu po `npm run przygotuj` po ostatniej zmianie promptu — wszystkie (36 z E6
+- [x] `npm test` filmu po `npm run przygotuj` po ostatniej zmianie promptu — wszystkie (36 z E6
       + nowe, minus świadomie zmienione z powodem); `npm run typy` bez błędów.
 - [x] Testy rdzenia — wszystkie zielone (331 z E6 + nowe, liczba do wpisu); `plugin test` trzech
       pluginów binarką aplikacji — liczby do wpisu; `plugin validate` repo i trzech pluginów —
       exit 0 (ostrzeżenie o root `CLAUDE.md` świadome).
-- [ ] Skan sekretów na plikach diffu `origin/main..HEAD` — zero trafień; kontrola pozytywna
+- [x] Skan sekretów na plikach diffu `origin/main..HEAD` — zero trafień; kontrola pozytywna
       (próbka sekretu złożona w czasie wykonania w pliku katalogu roboczego) trafiona.
-- [ ] Szkic notatek wydania przejrzany przez Łukasza (jego słowa we wpisie); kredyt muzyki
+- [x] Szkic notatek wydania przejrzany przez Łukasza (jego słowa we wpisie); kredyt muzyki
       w notatkach równy `ZRODLO.md` (porównanie stałego ciągu).
-- [ ] Publikacja po zgodzie: `git ls-remote --tags origin v3.0.0` zwraca tag; `gh release view
+- [x] Publikacja po zgodzie: `git ls-remote --tags origin v3.0.0` zwraca tag; `gh release view
       v3.0.0` pokazuje dwa zasoby MP4; `README.md` linkuje do istniejącego zasobu (adres sprawdzony
       `gh release view --json assets`) — **albo** brak zgody i etap kończy się lokalnym commitem,
       opisane we wpisie, bramka publikacji `OTWARTA` w `STATUS.md`.
-- [ ] Po publikacji: cache pluginu po `plugin update` równy repo po CRLF → LF (liczba plików
+- [x] Po publikacji: cache pluginu po `plugin update` równy repo po CRLF → LF (liczba plików
       i rozjazdów do wpisu) — **albo** zdanie, że publikacji nie było.
-- [ ] Pliki PANEL_CODEX (`docs/plany/PANEL_CODEX/`, `docs/zasoby/PANEL_RELAI/makiety/`) nietknięte:
+- [x] Pliki PANEL_CODEX (`docs/plany/PANEL_CODEX/`, `docs/zasoby/PANEL_RELAI/makiety/`) nietknięte:
       `git diff --stat`, `git status --short` i sha256 ich plików identyczne z zapisem sprzed
       etapu; żaden w commitach etapu.
-- [ ] Sekwencja zamknięcia planu (D-36) wykonana w całości: bramki i odnogi rozstrzygnięte, plan
+- [x] Sekwencja zamknięcia planu (D-36) wykonana w całości: bramki i odnogi rozstrzygnięte, plan
       `ZREALIZOWANY`, folder w `docs/archiwum/plany/`, linia „Aktywny plan” w `CLAUDE.md`
       wskazuje istniejący plik albo brzmi `Aktywny plan: brak`.
-- [ ] Wpis w `docs/DZIENNIK.md` na końcu sekcji „Wpisy”, z podpisem `Autor: RelAI (Opus 5.5) + Lukasz`.
-- [ ] Katalog roboczy `.claude/relai/work/FILM_PREZENTACYJNY/E7/` przejrzany raportem
+- [x] Wpis w `docs/DZIENNIK.md` na końcu sekcji „Wpisy”, z podpisem `Autor: RelAI (Opus 5.5) + Lukasz`.
+- [x] Katalog roboczy `.claude/relai/work/FILM_PREZENTACYJNY/E7/` przejrzany raportem
       (`node .claude/relai/tools/clean-work.js raport`) i skasowany po „tak”; liczby przed i po
       w sekcji „Zweryfikowane” wpisu. Artefakty poza nim (pliki `%TEMP%` renderu, jeśli powstały)
       wypisane z nazwy, z tym, co się z nimi stało.

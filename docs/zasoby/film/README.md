@@ -2,7 +2,7 @@
 
 Ten katalog trzyma film prezentacyjny RelAI razem z jego źródłami, tak jak dawne demo 2.1.3
 (dziś w [`docs/archiwum/demo/`](../../archiwum/demo/)): kto zmieni panel, przerenderuje film jedną komendą. Plan:
-[FILM_PREZENTACYJNY](../../plany/FILM_PREZENTACYJNY/STATUS.md) (zaakceptowany 2026-10-12).
+[FILM_PREZENTACYJNY](../../archiwum/plany/FILM_PREZENTACYJNY/STATUS.md) (zaakceptowany 2026-10-12, zrealizowany 2026-10-13).
 
 Stan na E1 (2026-10-12): gotowa scena 2 „Trzy paski” — 10 s ruchu i klatka wzorcowa
 [kalibracja/E1-klatka.png](kalibracja/E1-klatka.png), kierunek przyjęty przez Łukasza po dwóch

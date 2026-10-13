@@ -1,18 +1,17 @@
 # STATE — RelAI
 
-Stan na: 2026-10-12 (odnoga AUDYT_SKILLI zamknięta, bez wydania)
+Stan na: 2026-10-13 (wydanie 3.0.0, plan FILM_PREZENTACYJNY zamknięty)
 
 ## Gdzie jesteśmy
 
-RelAI **3.0.0** jest w repozytorium (E7 planu FILM_PREZENTACYJNY, 2026-10-13: film
-prezentacyjny, start etapu w nowej sesji, skille wg praktyk Agent Skills); publicznie do
-wydania `v3.0.0` jest 2.9.0. Plugin `relai` działa w trzech narzędziach — Claude Code,
+RelAI **3.0.0** jest w repozytorium i publicznie (tag `v3.0.0`, 2026-10-13: film
+prezentacyjny, start etapu w nowej sesji, skille wg praktyk Agent Skills; plan
+FILM_PREZENTACYJNY). Plugin `relai` działa w trzech narzędziach — Claude Code,
 Cursorze i Codeksie — na jednym rdzeniu procesu, z czternastoma komendami. Panel RelAI w oknie
 Claude Code to trzy osobne pluginy „early access” z marketplace tego repozytorium: `relai-panel`
 0.14.1 (poprawka parsera modelu karty etapu, Aneks F), `relai-progress` 0.4.0, `relai-cache-keeper` 0.6.0 (plan PANEL_CLAUDE zamknięty
-2026-10-10, odnoga AUDYT_MODOW zamknięta 2026-10-11, wszystkie paczki zmierzone na żywo na 2.1.295). Aktywny plan to FILM_PREZENTACYJNY (film o RelAI
-w Remotion i wydanie 3.0.0, E1–E6 zrealizowane do 2026-10-13 — film PL i EN 169 s z muzyką i pętla do README gotowe do wydania); obok trwa PANEL_CODEX — panel dla Codeksa,
-E1 po stronie Codeksa. Opinii spoza projektu nadal nie ma.
+2026-10-10, odnoga AUDYT_MODOW zamknięta 2026-10-11, wszystkie paczki zmierzone na żywo na 2.1.295). Aktywny plan to PANEL_CODEX — panel dla Codeksa,
+E1 po stronie Codeksa; FILM_PREZENTACYJNY zamknięty 2026-10-13 wydaniem 3.0.0. Opinii spoza projektu nadal nie ma.
 
 ## Co działa
 
@@ -63,6 +62,10 @@ E1 po stronie Codeksa. Opinii spoza projektu nadal nie ma.
   (`core/evals/triggers.json`, wynik w [pomiarach](archiwum/pomiary/EVAL_TRIGGERS_2026-10-12.md));
   pięć komend z efektem ubocznym rusza tylko na jawne wywołanie, także w Codeksie; cudzy kod
   przechodzi listę kontrolną przyjęcia.
+- **Film prezentacyjny** (plan [FILM_PREZENTACYJNY](archiwum/plany/FILM_PREZENTACYJNY/STATUS.md),
+  zamknięty 2026-10-13): film PL 2 min 49 s z muzyką w zasobach wydania `v3.0.0`, wersja EN jako
+  dodatek, pętla 25 s w `README.md`; interfejs odtworzony kodem pluginów, liczby z manifestu
+  faktów; źródła i cztery kontrole w `docs/zasoby/film/`.
 
 ## Nad czym pracujemy teraz
 
@@ -82,44 +85,10 @@ E1 po stronie Codeksa. Opinii spoza projektu nadal nie ma.
 - Aneks do PANEL_CODEX z zapisem pracy przed limitem dla panelu Codeksa — po domknięciu jego E1
   (bramka zamknięcia LIMIT_CHECKPOINT, decyzja Łukasza 2026-10-12). Przepięcie `prompt-mode.js`
   na `threshold.js` nadal świadomie odłożone.
-- **Następny krok: RelAI 3.0.0** — odnoga AUDYT_SKILLI zamknięta 2026-10-12 (commit bez wydania).
-  Plan [FILM_PREZENTACYJNY](plany/FILM_PREZENTACYJNY/STATUS.md) **ZAAKCEPTOWANY 2026-10-12**, aktywny;
-  6 etapów, 6–8 sesji (SZACUNEK). **E1 zrealizowany 2026-10-12**: projekt Remotion
-  w `docs/zasoby/film/zrodla/` (wersje przypięte, dane z `core/panel` i zrzutu z1, test pikseli),
-  scena „Trzy paski” 10 s, kierunek „Warsztat z wigorem” przyjęty po dwóch rundach — wiersz
-  „Kierunek filmu” w `USTAWIENIA.md`, wzorzec `docs/zasoby/film/kalibracja/E1-klatka.png`.
-  **E2 zrealizowany 2026-10-12**: słownik PL sześciu scen bez cyfr, `scenariusz.ts` (120 s),
-  manifest 10 faktów liczonych skryptem (`npm run przygotuj`), test „liczba w kadrze = fakt”,
-  animatik całego filmu — kolejność, czasy i tekst przyjęte przez Łukasza.
-  **E3 zrealizowany 2026-10-12**: sceny 1–3 w pełnej jakości (Pamięć; Trzy paski 23 s z cięciem bez
-  szwu; Panel z kodu `relai-panel` 0.14 i dziewięciu zrzutów Łukasza w
-  `docs/zasoby/PANEL_RELAI/zrzuty/`), zakładki słownika = `TABS` panelu (test wierności), render
-  pierwszej minuty `npm run minuta`; przyjęte w drugiej rundzie, wzorce `kalibracja/E3-scena1.png`
-  i `E3-scena3.png`. **E4 zrealizowany 2026-10-12 — kamień milowy: pełny film PL** (120 s, 3600
-  klatek, `npm run film`): scena 4 z kartą startu E4 liczoną `stageCard()` na plikach z commitu
-  startu, scena 5 bez liczb sesji (karta limitu, zapis, „Wznów pracę” ze słów kodu), finał
-  z manifestu; dane `sceny.json` ze źródłami, plansze usunięte; przyjęte w pierwszej rundzie,
-  wzorce `kalibracja/E4-scena4–6.png`. Przed wydaniem — odnoga z poprawką parsera modelu na
-  karcie startu etapu (`requiredModel()` wymaga etykiety, której `SPEC_STATUS` nie ma).
-  **Aneks A (2026-10-12):** nowa scena 4 „Komendy” po „Panelu” — 14 komend po 2,5 s, rekwizyty na
-  biurku, nazwa + slogan przyjęty przez Łukasza, kolejność cyklu życia projektu; film 155 s
-  SZACUNEK; plan ma teraz 7 etapów. **E5 zrealizowany 2026-10-12** (Aneksy B i C w trakcie):
-  „Komendy” są sceną 2, wstępem zaraz po „Pamięci” — 14 papierowych rekwizytów, 3,5 s na komendę,
-  ikona i nazwa duże na górze kadru; **cały film PL 169 s (5070 klatek) z muzyką** „daylight hour”
-  (snoozy beats, CC BY 4.0 — kredyt w `docs/zasoby/film/muzyka/ZRODLO.md`, do opisu wydania w E7);
-  przyjęty w trzeciej rundzie, wzorce `kalibracja/E5-komenda.png`, `E5-komendy-1–2.png`. **E6
-  zrealizowany 2026-10-13** (Aneksy D i E): film EN (5070 klatek, z muzyką; nazwy komend i pieczątka
-  „Yes” w scenie komend po angielsku, reszta słów produktu po polsku) — **w roli zapasu i dodatku do
-  wydania** (Aneks E: interfejs RelAI jest tylko po polsku); pętla 25 s 720×900 PL i EN
-  (`docs/zasoby/film/relai-petla-25s-*.gif`, 2,55 / 2,58 MB), PL osadzona w `README.md`; cztery
-  kontrole (fakty, przepełnienia, telefon, prywatność) w obu językach; dawne demo w
-  `docs/archiwum/demo/`. E7 (wydanie 3.0.0) gotowy do startu w świeżej sesji Opus 5.5
-  (`/relai-stage`, `/effort medium`); przed wydaniem odnoga z poprawką parsera modelu.
-- **Potem RelAI 3.0.0** (decyzja Łukasza 2026-10-12): jedno wydanie zbierające mody i panel
-  Claude Code, start etapu w nowej sesji, audyt skilli i `/relai-stage` v6 — razem z **filmem
-  prezentacyjnym (Remotion)** do README na GitHubie i do wysyłki ludziom: pełny przegląd RelAI
-  w Claude Code — paski nad promptem, otwieranie panelu, zakładki i co w nich sprawdzić lub zrobić.
-  Film powstaje na dopracowanym produkcie, po zamknięciu AUDYT_SKILLI.
+- Plan FILM_PREZENTACYJNY **ZREALIZOWANY 2026-10-13** (7/7, Aneksy A–F, wydanie 3.0.0 z filmem;
+  `relai-panel` 0.14.1 z poprawką parsera modelu karty etapu). Następne: rotacja `DZIENNIK.md`
+  i `LEKCJE.md` (oba ponad progiem — sygnał hooka startu), potem PANEL_CODEX po stronie Codeksa.
+  Po restarcie aplikacji (RelAI 3.0.0, `relai-panel` 0.14.1) — rzut oka na wiersz Model karty startu etapu.
 - Po AUDYT_SKILLI (kontrola zmiany opisu w S5 przyjęta bez powtórzeń, Łukasz 2026-10-12):
   ewaluacje zachowania komend i `/relai-feedback` poza zakresem odnogi; `relai-prompt.md` ponad 20 KB.
 
@@ -155,8 +124,8 @@ E1 po stronie Codeksa. Opinii spoza projektu nadal nie ma.
 
 ### Wersja i instalacja
 
-Repo **3.0.0**, publicznie 2.9.0 do wydania `v3.0.0`; marketplace w tym repozytorium (scope `user`) niesie cztery pluginy:
-`relai` i trzy pluginy panelu z własnymi wersjami i tagami (`relai-panel-v0.14.0`). Wydanie
+Repo i publicznie **3.0.0**; marketplace w tym repozytorium (scope `user`) niesie cztery pluginy:
+`relai` i trzy pluginy panelu z własnymi wersjami i tagami (`relai-panel-v0.14.1`). Wydanie
 potwierdzasz treścią plików z cache'u, nie komunikatem CLI (P-005): `claude plugin validate` → tag
 → push → release → `marketplace update` → `plugin update` → suma plików po CRLF → LF. Walidator
 `core/tools/validate-adapters.js` sprawdza 7 źródeł wersji (w tym baner README i „Gdzie jesteśmy”)
@@ -196,10 +165,10 @@ Backupy: `C:\Users\Lukasz\Backupy\RelAI` • [PRZENOSNOSC.md](PRZENOSNOSC.md) �
 
 ### Liczby
 
-Plany zamknięte: 11 (ostatni LIMIT_CHECKPOINT, 2026-10-12) • Aktywny: PANEL_CODEX (E1 W TOKU) •
-Start sesji: **93,8 KB / 100 KB** ze skillem z repo (`startCost` 2026-10-12; zainstalowany 2.9.0 daje 109,9 KB do wydania 3.0.0) • Dziennik: **~104 KB / 150 KB**
-(2026-10-12) • Ryzyka: 17 w tabeli, archiwum 6 plików + 1 mitygacji • Lekcje:
-**46,9 KB / 50 KB**, 20 w żywym pliku • Adaptery: 3 • Komendy: 14 •
-Testy: 331 rdzeń, panel i adaptery (`node --test`, 4 katalogi) + 353 pluginów panelu (148 / 31 / 174) •
+Plany zamknięte: 12 (ostatni FILM_PREZENTACYJNY, 2026-10-13) • Aktywny: PANEL_CODEX (E1 W TOKU) •
+Start sesji: **93,8 KB / 100 KB** ze skillem z repo (`startCost` 2026-10-12) • Dziennik: **177,5 KB / 150 KB**
+(2026-10-13, rotacja należna) • Ryzyka: 17 w tabeli, archiwum 6 plików + 1 mitygacji • Lekcje:
+**67,2 KB / 50 KB**, 36 w żywym pliku (rotacja należna) • Adaptery: 3 • Komendy: 14 •
+Testy: 333 rdzeń, panel i adaptery (`node --test`, 4 katalogi) + 382 pluginów panelu (177 / 31 / 174) + 36 filmu •
 Projekty na RelAI: 3 (RelAI, PolyFlow, JiraManager przed migracją) • Modele, na których zmierzono
 proces: 6 (Fable, Opus, Sonnet, Haiku, Composer/auto, Grok 4.6).

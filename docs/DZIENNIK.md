@@ -19,7 +19,7 @@
 
 | O4 | Tryb ciągły kosztuje turę przy każdym zdaniu — praca zwalnia i drożeje (plan OPTYMALIZATOR_PROMPTOW, ryzyko O4) | **Średni** (2026-09-14, przy akceptacji planu) | **OTWARTE** | Wyłącznik w `USTAWIENIA.md`, filtr pomija komendy; otwarte: rozrzut kosztu większy niż mierzona różnica. Historia: [MITYGACJE_2026-09-24](archiwum/ryzyka/MITYGACJE_2026-09-24.md). |
 | K3 | Nakładki rodzin modeli starzeją się szybciej niż wydania RelAI — dostawca zmienia wytyczne, a reguła z datą zostaje (plan PROWADZENIE_END_TO_END, ryzyko K3) | **Średni** (2026-09-24, przy zamknięciu planu) | **OTWARTE** | Każda reguła nakładki ma źródło i datę odczytu; hook startu mówi o nakładce starszej niż 30 dni; odświeżenie razem z `/relai-models`. |
-| C1 | API modów Claude Code („early access”) zmieni się między wydaniami i `relai-panel` przestanie się ładować (plan PANEL_CLAUDE, ryzyko R1) | **Wysoki** (2026-10-08, przy E1) | **OTWARTE** | Osobne pluginy; rachunki w `core/panel/` poza API modów; `plugin validate` i `plugin test` przed wydaniem — od E9 dla trzech pluginów (`relai-panel`, `relai-progress`, `relai-cache-keeper`, ten ostatni przejął rolę kanarka po `cache-keeper-pl`). Otwarte: minimalna wersja silnika niezmierzona (działa 2.1.293); trzy pluginy na tym samym API to trzy miejsca do poprawki przy zmianie. E5: zgoda na start etapu opiera się na zachowaniu silnika „wysyłka wtyczki omija jej własny hook `command.run`” (P-022) — gdy się zmieni, hook wytnie znacznik także z wysyłki panelu i start wróci do pytania w czacie (awaria w bezpieczną stronę); znacznik z klawiatury jest wycinany w obu wersjach (test modu). E6: desktop **bez komunikatu** nie pokazał panelu, gdy drzewo miało 726 węzłów, 121 Svg i 256 tys. znaków (`plugin test` przyjmuje takie drzewo); przy 209 / 27 / 53 tys. — widoczny; limit drzewa w kodzie (60 wierszy, 40 na folder), dokładny próg silnika nieznany (P-023). Hot reload raz zostawił starszą wersję modułu mimo nowej kopii — rozpoznane znacznikiem wersji w logu. E7 (2026-10-09): trzy pluginy wydane publicznie jako „early access” (2.8.0; `relai-panel` 0.9.0, `relai-progress` 0.2.0, `relai-cache-keeper` 0.3.0) — opis w README i w marketplace mówi o ryzyku wprost; `register.tsx` podzielony na pliki widoków bez `$`, raport `plugin validate` identyczny z wersją jednoplikową (P-023). Instalacja z marketplace zmierzona na żywo w aplikacji 2.1.293. Otwarte trwale: minimalna wersja silnika niezmierzona. |
+| C1 | API modów Claude Code („early access”) zmieni się między wydaniami i `relai-panel` przestanie się ładować (plan PANEL_CLAUDE, ryzyko R1) | **Wysoki** (2026-10-08, przy E1) | **OTWARTE** | Osobne pluginy; rachunki w `core/panel/` poza API modów; `plugin validate` i `plugin test` przed wydaniem — od E9 dla trzech pluginów (`relai-panel`, `relai-progress`, `relai-cache-keeper`, ten ostatni przejął rolę kanarka po `cache-keeper-pl`). Otwarte: minimalna wersja silnika niezmierzona (działa 2.1.293); trzy pluginy na tym samym API to trzy miejsca do poprawki przy zmianie. E5: zgoda na start etapu opiera się na zachowaniu silnika „wysyłka wtyczki omija jej własny hook `command.run`” (P-022) — gdy się zmieni, hook wytnie znacznik także z wysyłki panelu i start wróci do pytania w czacie (awaria w bezpieczną stronę); znacznik z klawiatury jest wycinany w obu wersjach (test modu). E6: desktop **bez komunikatu** nie pokazał panelu, gdy drzewo miało 726 węzłów, 121 Svg i 256 tys. znaków (`plugin test` przyjmuje takie drzewo); przy 209 / 27 / 53 tys. — widoczny; limit drzewa w kodzie (60 wierszy, 40 na folder), dokładny próg silnika nieznany (P-023). Hot reload raz zostawił starszą wersję modułu mimo nowej kopii — rozpoznane znacznikiem wersji w logu. E7 (2026-10-09): trzy pluginy wydane publicznie jako „early access” (2.8.0; `relai-panel` 0.9.0, `relai-progress` 0.2.0, `relai-cache-keeper` 0.3.0) — opis w README i w marketplace mówi o ryzyku wprost; `register.tsx` podzielony na pliki widoków bez `$`, raport `plugin validate` identyczny z wersją jednoplikową (P-023). Instalacja z marketplace zmierzona na żywo w aplikacji 2.1.293. Otwarte trwale: minimalna wersja silnika niezmierzona. FILM_PREZENTACYJNY E7 (2026-10-13): wydanie 3.0.0 zostawia „early access” (decyzja Łukasza), `relai-panel` 0.14.1 (parser modelu, Aneks F); `plugin test` 177 / 31 / 174 i `plugin validate` na 2.1.295. |
 | C8 | Inny mod paska nad promptem rysuje bez `next` albo owija węzeł silnika w `Box` z `width` i pasek RelAI znika bez komunikatu (E1, P-017) | **Średni** (2026-10-08, przy E1) | **OTWARTE** | `relai-panel`, `relai-progress` i `relai-cache-keeper` zawsze wołają `next` i nie dokładają `width` do owijacza (test „engine kept beneath" w każdym); `savvy-progress` rysował bez `next` — wyłączony w E9, zastąpiony forkiem. Otwarte: cudze mody poza kontrolą — ostrzeżenie w README w E7. |
 | C10 | Pomiar kosztów niepełny albo podwójny — subagenci, kompakcja, wznowienie, `/clear`, wywołania poza pętlą (plan PANEL_CLAUDE, ryzyko R2) | **Niski** (2026-10-08 po E3; wcześniej wysoki) | **OTWARTE** | Klucz sesja + tura + indeks + agent, plik na sesję, kompakcja z `session.compact`, identyfikator sesji przy każdym zapisie; na żywo 117/117 kroków i 8/8 tur zgodnych z sondą co do kategorii; E9: koszt subagenta w `/relai-agents` = suma jego rekordów ($0,42, Opus), agent spoza cennika „brak ceny", nie „brak pomiaru". E4: rekord niesie etap w toku i zadanie załogi (`stage`, `task`); każdy rekord w dokładnie jednej pozycji (etap / „poza etapem” / „sprzed znacznika”), suma pozycji = suma sesji co do centa (test z kontrolą i na żywo $4,54 = $4,54). Otwarte: 9,16% przyrostu licznika silnika to wywołania spoza `turn.step` i kompakcji — raport mówi o nich słowami, bez rozbicia (P-020 pkt 6); zadanie załogi uruchomione jako osobna sesja `claude -p` jest przypisane tylko wtedy, gdy ta sesja ma `relai-panel`. E6: model bez ceny nie znika w sumie częściowej — przypomnienie z liczbą rekordów i aktualizacja cennika z karty; stawki cache per model ze strony (odczyt 0,05× Opus/Sonnet 5.5 — wcześniej jedna stała), Sonnet 5.5 wyceniony na żywo ($0,24 za 4 rekordy) E7: bez zmian w liczeniu (podział pliku bez zmiany zachowania); otwarte trwale na 9,16% wywołań spoza pętli, opisanych słowami. |
 | C11 | Pliki pomiarów puchną albo trafiają do gita (plan PANEL_CLAUDE, ryzyko R5) | **Niski** (2026-10-08 po E3) | **OTWARTE ŚWIADOMIE** | `.claude/relai/` poza gitem (sprawdzone `git check-ignore`), plik na sesję, rekord bez treści (~250 B); E4: plik scaleń `.claude/relai/panel/scalenia.json` też poza gitem (`git check-ignore`), rekord dłuższy o dwa pola; E6: `.claude/relai/panel/cennik.json` (wersje cennika) poza gitem (`git check-ignore`), jedna wersja na zapis z karty; otwarte: sprzątanie starych plików nie istnieje — do E7 E7 (decyzja człowieka 2026-10-09): sprzątanie świadomie odłożone — zmierzone 5 plików, 260 KB po dwóch dniach intensywnej pracy; „Koszty projektu” sumują wszystkie pliki, więc kasowanie zmieniłoby sumę. Próg powrotu: folder `.claude/relai/pomiary/` powyżej 10 MB. |
@@ -1942,6 +1942,7 @@ Sesja Opus 5.5 w Claude Code, `/relai-stage` z kartą potwierdzenia („tak”).
 **Do zrobienia przez człowieka:**
 
 - Start E5 w świeżej sesji Opus 5.5 (`/relai-stage`, `/effort medium`).
+  *(Pozycja „Start E5” rozstrzygnięta 2026-10-12: E5 wykonany w świeżej sesji; odnoga parsera — Aneks F, 2026-10-13.)*
 - Odnoga z poprawką parsera modelu na karcie startu etapu — założyć i wykonać przed E6 (decyzja
   z tego etapu: poprawka przed wydaniem 3.0.0).
   *(Pozycje z wpisu E3 — „Start E4 w świeżej sesji Opus 5.5” i „Decyzja przed sceną 4” —
@@ -2007,6 +2008,7 @@ promptów w tej sesji wyłączony decyzją Łukasza (bramka zgody: „Nie, nie w
 
 - Start E5 (scena komend) w świeżej sesji Opus 5.5 (`/relai-stage`, `/effort high`); kalibracja
   na jednej komendzie przed resztą.
+  *(Rozstrzygnięte 2026-10-12: E5 wykonany w świeżej sesji Opus 5.5 ze zgodą z karty panelu.)*
 
 Autor: RelAI (Opus 5.5) + Lukasz
 
@@ -2333,5 +2335,134 @@ progiem). Pełna wersja angielska interfejsu (panel, paski) — Aneks E mówi, �
 - Start E7 w świeżej sesji Opus 5.5 (`/relai-stage`, `/effort medium`).
 - Odnoga z poprawką parsera modelu na karcie startu etapu — przed wydaniem (bramka OTWARTA
   od 2026-10-12, bez zmian).
+  *(Rozstrzygnięte 2026-10-13: E7 wykonany w świeżej sesji Opus 5.5 z kartą `/relai-stage`; odnoga parsera zastąpiona Aneksem F — poprawka w E7, decyzja Łukasza „zrób to teraz w tej sesji (…) bez żadnych dodatkowych odnóg”, `relai-panel` 0.14.1.)*
+
+Autor: RelAI (Opus 5.5) + Lukasz
+
+### 2026-10-13 — FILM_PREZENTACYJNY E7: wydanie RelAI 3.0.0 z filmem, poprawka parsera modelu (Aneks F), plan zamknięty
+
+Świeża sesja Opus 5.5 w Claude Code, `/relai-stage` z kartą w czacie → „tak, zaczynamy”. Ostatni
+etap planu; zamknięcie planu (D-36) w tej samej sesji.
+
+**Zrobione:**
+
+- **Decyzje na starcie** (jedno pytanie z trzema sprawami + jedno dopytanie wynikłe z odpowiedzi):
+  bramka parsera — Łukasz: „tą poprawkę to możesz wprowadzić w sumie jeszcze tutaj przed wydaniem
+  wersji 3.0 i zrobić to w tej sesji tutaj. Teraz, bez żadnych dodatkowych odnóg (…) zrób to jako,
+  nie wiem, czy aneks, czy coś” → **Aneks F**; pluginy panelu — „Numery bez zmian, early access”;
+  publikacja — „Tak, po przeglądzie notatek”. Dopytanie (poprawka zmienia kod `relai-panel`, więc
+  stary numer nie dotarłby do instalacji): „0.14.1, reszta bez zmian”.
+- **Aneks F** w `PLAN.html` (rozszerza zakres E7, sekcja 6) i linia w `STATUS.md`; bramka parsera
+  ROZSTRZYGNIĘTA.
+- **Parser modelu** — `requiredModel()` w `core/panel/decisions.mjs`: segmenty linii metrycznej
+  (`·` / `•`), etykiety `model wykonawczy`, `model wykonawczy etapów`, `modele` bez względu na
+  wielkość liter, segment bez etykiety zaczynający się nazwą modelu, akapit łamany na wiersze
+  sklejany; zamknięta lista nazw (Opus/Sonnet/Haiku/Fable z numerem, `gpt-…`), po nazwie dozwolone
+  tylko „w <narzędzie>”; kilka modeli → `null`. Test najpierw (czerwony), dwa nowe testy na liniach
+  z repo i przykładzie `SPEC_STATUS` (+ CRLF). Kopie przez `sync-panel-core.js` w trzech pluginach.
+  Film: obejście z dopisywaną etykietą usunięte ze `skrypty/sceny.mjs` — wskazał to sam test
+  wierności, który padł dokładnie po poprawce; test teraz porównuje całą kartę z kartą na żywo.
+- **Numery** — 3.0.0 w siedmiu źródłach walidatora i w `relai-update.md` (wersja docelowa, stan
+  docelowy, nagłówek `KOMENDY.md`, marker, commit), `new-project.md`, `adapters/cursor/README.md`,
+  fixturze ewaluacji, `docs/KOMENDY.md`, `docs/USTAWIENIA.md`; `relai-panel` 0.14.1 w `plugin.json`
+  i marketplace. Skrypt podmian stałych ciągów z liczbą trafień; kopie Codeksa przez
+  `generate-skills.js`.
+- **Historia i rejestr** — `history.md`: akapit „Zmiany po 2.9.0” → wpis „Wersja 3.0.0” (film,
+  NOWA_SESJA, Aneks F, AUDYT_SKILLI); `ARTEFAKTY.md`: `/relai-update` v20, `new-project.md` v8,
+  `history.md` v6.
+- **Render ze świeżym manifestem** — film PL i EN (`npm run film`, `film:en`), pętle PL i EN.
+- **Wydanie** — commit `073a8c6`, push `main`, tagi adnotowane `v3.0.0` i `relai-panel-v0.14.1`,
+  wydanie GitHub „RelAI 3.0.0” (Latest) z `relai-film-pl.mp4` (27 303 042 B) i `relai-film-en.mp4`
+  (27 421 471 B) — nazwy wpisane do README filmu; wydanie „Panel plugins: relai-panel 0.14.1 ·
+  relai-progress 0.4.0 · relai-cache-keeper 0.6.0” bez zasobów. Notatki po angielsku jak 2.9.0,
+  z linią „Checks:” i kredytem muzyki; szkic przejrzany przez Łukasza: „Notatki OK, publikuj”.
+- **Po publikacji** — link do filmu PL (i EN jako dodatku) w `README.md`, „Zobacz, jak to działa”;
+  `claude plugin marketplace update relai`, `plugin update relai@relai` (2.9.0 → 3.0.0)
+  i `relai-panel@relai` (0.14.0 → 0.14.1).
+- **Zamknięcie planu (D-36)** — bramki i pozycje „Do zrobienia przez człowieka” rozstrzygnięte
+  faktami (adnotacje przy wpisach E4, E5, E6), odnóg plan nie miał; `STATE.md`, `CLAUDE.md`
+  (wiersz planu, wiersz pluginu, „Aktywny plan” → PANEL_CODEX), `AGENTS.md` (wiersz pluginu),
+  README filmu; ryzyko C1 z adnotacją E7; folder planu → `docs/archiwum/plany/FILM_PREZENTACYJNY/`.
+- **Dowiezione vs plan** (sekcja 2, cele po Aneksach A–F): film główny PL ~2 min → **169 s**
+  z muzyką i sceną komend (Aneksy A–C; dłuższy o 49 s decyzją Łukasza); UI odtworzone kodem
+  produktu i danymi repo — **tak** (testy wierności i faktów); pętla do README — **tak**, PL;
+  wersja EN — **zeszła do roli zapasu** (Aneks E), w wydaniu jako dodatek; wydanie 3.0.0 z MP4
+  w zasobach i kredytem — **tak**; poza planem, a dowiezione: poprawka parsera modelu (Aneks F,
+  zamiast odnogi). Z celów nic nie przepadło; wersja pionowa 9:16 i klipy — poza planem od
+  początku.
+
+**Zweryfikowane — jak dokładnie:**
+
+- Parser na wszystkich 13 realnych `STATUS.md` (2 aktywne + 11 w archiwum), stary i nowy kod
+  w jednym przebiegu (stary z `git worktree` HEAD-a w `%TEMP%/relai-e7-head`, usunięty): stary
+  1/13 rozpoznany, nowy 12/13; jedyny `null` — ROZWOJ_PO_WYDANIU z „Modele: Opus; E7: gpt-…”
+  (kilka modeli, cisza zamierzona). `decisions.test.js` 21/21 (czerwony przed implementacją;
+  potem 5 porażek po pierwszej wersji z cięciem na `;` i przecinku, potem 1 na linii łamanej —
+  każdy przypadek najpierw w teście).
+- `validate-adapters.js` → exit 0, „numery wersji: 7 zrodel, wartosc "3.0.0"”;
+  `generate-skills.js --verify` i `sync-panel-core.js --check` zielone (na końcu ponownie).
+- Testy rdzenia 333/333 (331 z E6 + 2 nowe), na końcu ponownie 333/333. `plugin test` binarką
+  aplikacji 2.1.295: panel 177, progress 31, cache-keeper 174 — 0 porażek. `plugin validate` repo
+  i trzech pluginów — exit 0; repo z jednym świadomym ostrzeżeniem o root `CLAUDE.md`.
+- `grep -r` po `2.9.0` i `0.14.0` poza `.git`, `node_modules`, `docs/archiwum/` — kontrola
+  pozytywna (plik w katalogu roboczym) trafiona. Trafienia historyczne: „od / do 2.9.0”
+  w `SPEC_KOMENDY`, `SPEC_USTAWIENIA` (i kopii w `.claude/relai/templates/`), `relai-update.md`
+  („od 2.9.0 także »zapisz pracę«”), `document-rotation.md`, `session-close.md`, `count-rules.js`,
+  `rotate.js` (z kopiami Codeksa); `history.md` (wpis 2.9.0); `ARTEFAKTY.md`, `DZIENNIK.md`, karty
+  i prompty odnóg `docs/fixy/`; `CLAUDE.md` (wiersze LIMIT_CHECKPOINT i odnóg — wydania 2.9.0
+  i 0.14.0); `STATE.md` (NOWA_SESJA 0.14.0); dane filmu `panel.json`/`panel.mjs` (źródła zrzutów
+  0.14.0) i `paski.json` (treść punktów promptu E7). Podbite — wszystkie pozostałe (lista
+  w „Zrobione”).
+- `ARTEFAKTY.md` wobec `git diff --name-only v2.9.0`: 96 wierszy z plikiem, 63 zmienione od tagu,
+  59 z wpisem po 2026-10-11; 4 bez — `adapters/codex/skills/` (katalog generowany) i trzy starsze
+  wiersze `STYL_PASKOW_CLAUDE.md`, przy których stoi nowszy wiersz z wpisem.
+- Film PL i EN po podbiciu: `ffprobe` (z `@remotion/compositor-win32-x64-msvc`; w PATH go nie ma)
+  — po 5070 klatek, 169,000 s, 1920×1080, audio AAC 169,003 s; ostatnia klatka obu obejrzana:
+  `RelAI 3.0.0`, 11 planów zamkniętych, 14 komend, 333 testy rdzenia, 3 narzędzia, pasek
+  „FILM_PREZENTACYJNY · E7 W TOKU 6/7 etapów” (stan z chwili renderu).
+- Pętle PL i EN: 720×900, 159 klatek, 25 000 ms (suma czasów klatek z PIL), 2,54 / 2,61 MB wobec
+  3 MB (SZACUNEK). Telefon: obie kończą się kodem 1 z jedną linią poniżej 7 px — klatka 132, y=223,
+  3,0 px; wycinek obejrzany: kursor myszy na dolnej krawędzi zakładek „Mapa / Pomoc”, nie tekst
+  (ta sama linia co w E6); pozostałe linie 7,0–33,0 px. Przepełnienia (`kontrola.mjs --co=6`):
+  `Animatik` (film PL) i `FilmEN` po 845 klatek, `PetlaPL` i `PetlaEN` po 125 — 0 wad; kontrola
+  pozytywna `PetlaPL --podloz` — exit 1, trzy podłożone wady w 125 klatkach.
+- Testy filmu: 36/36 po `npm run przygotuj` przed commitem wydania i ponownie po zamknięciu planu;
+  `npm run typy` bez błędów; `package.json` i `package-lock.json` bez zmian. Jeden test zmieniony
+  świadomie: wierność sceny 4 (powód wyżej).
+- Skan sekretów na plikach `origin/main..HEAD` (36): 34 tekstowe bez trafień, 2 GIF pominięte;
+  kontrola pozytywna — token złożony w czasie wykonania w pliku katalogu roboczego trafiony
+  (exit 1), plik usunięty. Pre-commit repo przepuścił commit.
+- Publikacja: `git ls-remote --tags origin` zwraca `v3.0.0` i `relai-panel-v0.14.1`;
+  `gh release view v3.0.0 --json assets` — dwa MP4, rozmiary równe plikom `out/`; linki w README
+  odpowiadają HTTP 200; kredyt muzyki w opublikowanych notatkach równy `ZRODLO.md` (stały ciąg,
+  1 trafienie).
+- Cache po `plugin update` wobec repo po CRLF → LF: `relai` 3.0.0 — 765 plików, 757 zgodnych,
+  4 różne od drzewa roboczego (README z linkiem, odhaczony prompt, dwa niezacommitowane pliki
+  PANEL_CODEX), każdy równy wersji z commitu wydania; 4 znaczniki `.in_use` aplikacji;
+  `relai-panel` 0.14.1 — 54 zgodne, 0 rozjazdów. Kontrola: cache 2.9.0 wobec repo — 110 rozjazdów.
+- PANEL_CODEX: `git status --short`, `git diff --stat` i sha256 plików `docs/plany/PANEL_CODEX/`
+  i `docs/zasoby/PANEL_RELAI/makiety/` identyczne przed i po etapie; żaden w commitach etapu.
+- Katalog roboczy `.claude/relai/work/FILM_PREZENTACYJNY/E7/` — raport: 40 plików, przed 1,6 MB;
+  po „tak” Łukasza skasowany narzędziem (`clean-work.js kasuj`), po 0,0 MB. Poza nim: kopie
+  `%TEMP%/relai-film-pl.mp4` i `relai-film-en.mp4` (do wgrania pod nazwą wydania) — skasowane
+  po tym samym „tak”; `%TEMP%/relai-e7-head` (worktree pomiaru) — usunięty `git worktree remove`.
+
+**Świadomie odłożone:**
+
+- Dane filmu (`src/dane/*.json`) zostają w stanie z commitu wydania — zgodne z wyrenderowanymi
+  MP4 i GIF. `npm run przygotuj` po zamknięciu planu przełącza pasek planu na PANEL_CODEX
+  (z jego niezacommitowanych plików), więc dane przywrócone `git checkout HEAD`. Test `paski`
+  porównuje dane z bieżącym repo i bez `przygotuj` pokaże rozjazd; przypięcie go do commitu (jak
+  scena 4) — przy następnej pracy nad filmem.
+- Rotacja `DZIENNIK.md` (177,5 KB / 150) i `LEKCJE.md` (67,2 KB / 50) — sygnał hooka startu,
+  poza zakresem etapu.
+- `ARTEFAKTY.md`, wiersz „Skille Codexa” mówi o 12 procedurach (jest 14) — poza zakresem.
+- Plik `%TEMP%/relai-film-plan.txt` — nie z tej sesji, nietknięty.
+
+**Do zrobienia przez człowieka:**
+
+- Restart aplikacji desktopowej, żeby załadować RelAI 3.0.0 i `relai-panel` 0.14.1 (P-019);
+  karta startu etapu powinna pokazać wiersz Model jako zgodny na każdym planie Claude Code bez
+  etykiety modelu.
 
 Autor: RelAI (Opus 5.5) + Lukasz

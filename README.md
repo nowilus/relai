@@ -54,8 +54,11 @@ plan zmian do Twojej zgody; kod zostaje nietknięty.
 
 Trzy paski nad promptem pokazują plan, postęp etapu i to, ile zostało z limitu; panel w aplikacji
 zamienia komendy w przyciski. Interfejs jest odtworzony z kodu wtyczek i z danych tego
-repozytorium, nie narysowany na pokaz. Pełny film (2 min 49 s) trafi do zasobów wydania 3.0.0;
-jak powstaje: [docs/zasoby/film/](docs/zasoby/film/).
+repozytorium, nie narysowany na pokaz. Pełny film (2 min 49 s, z muzyką):
+[relai-film-pl.mp4](https://github.com/nowilus/relai/releases/download/v3.0.0/relai-film-pl.mp4)
+w zasobach wydania 3.0.0; obok wersja z angielskimi napisami jako dodatek
+([relai-film-en.mp4](https://github.com/nowilus/relai/releases/download/v3.0.0/relai-film-en.mp4)).
+Jak powstaje: [docs/zasoby/film/](docs/zasoby/film/).
 
 ## Na co dzień
 

@@ -28,7 +28,7 @@ o kolejne `N` dni / rozstrzygnąć teraz. Sesja nieinteraktywna: sam raport, bez
 | Co | Status | Gdzie |
 |---|---|---|
 | Plan PANEL_CODEX | ZAAKCEPTOWANY 2026-10-10; E1 W TOKU — natywny widok i mostek bieżącego czatu potwierdzone; układ zaakceptowany; sonda 0.0.9 z poprawką fontów gotowa; pomiar po restarcie i świeży szkic czekają | [status](docs/plany/PANEL_CODEX/STATUS.md) |
-| Plugin RelAI — wydany, trzy adaptery | DZIAŁA (2.9.0 w repo i publicznie, wydane 2026-10-11; w marketplace także trzy pluginy panelu „early access”: relai-panel 0.13.0, relai-progress 0.4.0, relai-cache-keeper 0.6.0) | [docs/STATE.md](docs/STATE.md) |
+| Plugin RelAI — wydany, trzy adaptery | DZIAŁA (3.0.0 w repo i publicznie, wydane 2026-10-13; w marketplace także trzy pluginy panelu „early access”: relai-panel 0.14.1, relai-progress 0.4.0, relai-cache-keeper 0.6.0) | [docs/STATE.md](docs/STATE.md) |
 | Plan PANEL_CLAUDE — 9 etapów | **ZREALIZOWANY 2026-10-10** (9/9, Aneksy A–E, wydanie 2.8.0; pomiar bramki E5 pominięty decyzją człowieka) | [archiwum planu](docs/archiwum/plany/PANEL_CLAUDE/STATUS.md) |
 | Plan BUDOWA_RELAI — 10 etapów | ZAMKNIĘTY 2026-08-10 | [archiwum planu](docs/archiwum/plany/BUDOWA_RELAI/STATUS.md) |
 | Plan ROZWOJ_PO_WYDANIU — 8 etapów | **ZREALIZOWANY 2026-09-05**; wydania 1.10.0 i 2.0.0 opublikowane | [archiwum planu](docs/archiwum/plany/ROZWOJ_PO_WYDANIU/STATUS.md) |

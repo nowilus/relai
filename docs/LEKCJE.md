@@ -60,9 +60,11 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
    kodem produktu z plików przypiętych do jej commitu** (`git show`), nie z danych żywych, które
    do dnia wydania pokażą inny stan (L-0177). **Artefakt, na którym stawiasz punkt weryfikacji,
    renderujesz od nowa z bieżącego kodu** — wszystkie warianty w jednym przebiegu; plik zastany po
-   przerwanej sesji bywa sprzed ostatniej zmiany (L-0182).
+   przerwanej sesji bywa sprzed ostatniej zmiany (L-0182). **Parser pola opisanego w specyfikacji
+   prozą sprawdzasz na każdym zapisie tej rodziny dokumentów w repo i na przykładzie specyfikacji**
+   — stary i nowy kod na tych samych plikach, rozpoznane obok wszystkich (L-0184).
    (L-0017, L-0018, L-0040, L-0051, L-0052, L-0063, L-0069, L-0082, L-0115, L-0117, L-0123, L-0134,
-   L-0144, L-0150, L-0154, L-0155, L-0156, L-0158, L-0159, L-0165, L-0175, L-0177, L-0182)
+   L-0144, L-0150, L-0154, L-0155, L-0156, L-0158, L-0159, L-0165, L-0175, L-0177, L-0182, L-0184)
 5. **Instrument pomiarowy sam bywa źródłem fałszu:** wyrażenia regularne trzymaj w pliku zapisanym
    narzędziem zapisu, nie w `node -e` ani w heredoku, a tekst z backslashem (także ścieżkę
    Windows) wstawiasz Edit/Write albo piszesz z `/` (L-0116, L-0119); **skrypt edycji kodu, który
@@ -791,6 +793,23 @@ restart aplikacji po `plugin update` (L-0031), `git worktree` zamiast `git archi
   do człowieka **jedną klatką z interfejsem** przed pracą nad słownikiem — z pytaniem, dla kogo jest
   i czy nie wystarczy wersja podstawowa; reguła tłumaczenia jest drugim pytaniem, nie pierwszym.
 - **Źródło:** FILM_PREZENTACYJNY E6, 2026-10-13, Aneks E; destylat: zasada 15.
+
+### L-0184 — Parser pola, którego specyfikacja nie nazywa etykietą, czytał jeden zapis z pięciu · 2026-10-13 · AKTYWNA
+
+- **Trigger:** karta startu etapu w panelu pokazywała „⚠ plan nie wskazuje modelu” na planie,
+  który model ma. `requiredModel()` rozpoznawał model w 1 z 13 realnych `STATUS.md`; repo trzyma
+  pięć zapisów (bez etykiety, `Model wykonawczy etapów:`, `model wykonawczy etapów:`, `Modele:`,
+  linia łamana na kilka wierszy — tak wygląda też przykład w `SPEC_STATUS`).
+- **Przyczyna:** parser powstał na jednym pliku (PANEL_CLAUDE) i jego teście; `SPEC_STATUS` opisuje
+  pole prozą („model wykonawczy etapów — dosłownie tak, jak odpowiedział użytkownik”), bez
+  etykiety do dopasowania. Usterka czekała dwa etapy na odnogę, a film miał w tym czasie
+  dopisywaną etykietę jako obejście.
+- **Zasada:** parser pola, które specyfikacja opisuje prozą, ma test na **każdym zapisie tej
+  rodziny dokumentów w repo** (przebieg starego i nowego kodu na tych samych plikach, liczba
+  rozpoznanych obok liczby wszystkich) i na przykładzie z samej specyfikacji; zapis
+  niejednoznaczny daje ciszę. Obejście w konsumencie niesie w teście warunek, który sam wskaże
+  chwilę jego usunięcia — test filmu padł dokładnie po poprawce i powiedział, co zdjąć.
+- **Źródło:** FILM_PREZENTACYJNY E7, 2026-10-13, Aneks F; destylat: zasada 4.
 
 ## Lekcje zwinięte
 
