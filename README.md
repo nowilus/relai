@@ -92,7 +92,9 @@ i w terminalu.
 
 Każda zmiana stanu z panelu (start etapu, sprzątanie, aktualizacja) idzie przez kartę „Tak / Nie”.
 Panel nie woła modelu. Jedyny ruch sieciowy w całej trójce to odczyt strony cennika Anthropic, i to
-dopiero po „Tak” na karcie aktualizacji cennika. Instalacja: po komendach z „Instalacji” powyżej,
+dopiero po „Tak” na karcie aktualizacji cennika. W podziale okna aplikacja rysuje paski tylko
+w lewym panelu — równoległe projekty otwieraj w osobnych oknach (menu sesji w pasku bocznym),
+każde ma wtedy swoje paski. Instalacja: po komendach z „Instalacji” powyżej,
 każdy plugin osobno:
 
 ```bash

@@ -8,6 +8,30 @@ Specyfikacja: `SPEC_PULAPKI.md`.
 
 ## Pułapki
 
+### P-040 — Aplikacja desktopowa: w podziale okna paski modów rysuje tylko lewy panel · 2026-10-13 · AKTYWNA
+
+- **Objaw:** dwie sesje Code w podziale okna (split view). Paski RelAI (plan, postęp, cache) widać
+  tylko w lewym panelu; w prawym nie ma żadnego, także paska cache, który działa w każdym folderze.
+  Przeniesienie sesji na lewą stronę przenosi paski razem z nią; aktywny (focused) prawy panel też
+  jest pusty.
+- **Przyczyna:** mody działają w każdej sesji osobno — `relai-panel` pisał pomiar kosztów sesji
+  z prawego panelu co turę (`.claude/relai/pomiary/<data>-<sesja>.jsonl`). Proces aplikacji
+  (`app.asar` 2.31226.1.0) obsługuje każdą sesję (`servesUiSurface`, zdolność `ui_surface_v1`)
+  i rysuje jej paski na prośbę strony: `EngineSurface.uiRender(sessionId, …)` przez IPC. Stronę
+  zakładki Code aplikacja wczytuje z claude.ai i to ona prosi o paski tylko dla pierwszego panelu
+  podziału. API modów nie mówi modowi, w którym panelu stoi jego sesja — mod nie ma czym tego
+  obejść.
+- **Obejście:** równoległe projekty trzymaj w **osobnych oknach** (pop-out z menu sesji
+  w pasku bocznym) — każde okno rysuje paski swojej sesji (zmierzone: trzy paski w oknie
+  pop-out). W podziale okna sesja z paskami RelAI stoi w lewym panelu. Poprawka należy do
+  Anthropic: zgłoszenie anthropics/claude-code#99265 (otwarte od 2026-10-11; warunek strony
+  `isPanelActive`, prawdziwy tylko dla lewego panelu; nasz pomiar 2.31226.1.0 dopisany w komentarzu
+  2026-10-13). `Pane` z `$.ui.open` gaśnie tak samo. W każdym panelu rysuje się według zgłoszenia
+  element stopki `SessionMode`, a `$.ui.status` — rozbieżnie (Linux tak, macOS nie); na Windows
+  niezmierzone — odnoga `PASKI_W_STOPCE`.
+- **Zasięg:** aplikacja desktopowa 2.31226.1.0, Claude Code 2.1.295, Windows 11; pomiar Łukasza
+  2026-10-13 (zamiana paneli, okno pop-out). Terminal i VS Code niezmierzone.
+
 ### P-039 — `String.replace(wzorzec, napis)` czyta `$`` i `$'` w napisie zastępczym · 2026-10-12 · AKTYWNA
 
 - **Objaw:** skrypt wklejał „Zasady aktywne” z `docs/LEKCJE.md` w miejsce znacznika promptu etapu

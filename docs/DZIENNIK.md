@@ -1412,3 +1412,49 @@ Ta sama sesja Opus 5.5 co E7, po zamknięciu planu FILM_PREZENTACYJNY; fraza „
 - Decyzja o „Zasadach aktywnych” (31 KB): kompresja tematyczna albo graduacja części do `CLAUDE.md`.
 
 Autor: RelAI (Opus 5.5) + Lukasz
+
+### 2026-10-13 — Paski modów w podziale okna: tylko lewy panel (P-040)
+
+Ta sama sesja, po zamknięciu dnia; zgłoszenie Łukasza: paski RelAI widać tylko w jednym panelu
+podziału okna.
+
+**Zrobione:**
+
+- Diagnoza wg `debugging.md`. H1 „mody nie są załadowane w prawej sesji” — odrzucona: pomiar
+  kosztów tej sesji (`.claude/relai/pomiary/2026-10-13-f13e3b81-….jsonl`) rósł co turę. Lewa sesja
+  (TargiKielce) nie jest projektem RelAI — sam pasek cache jest tam zachowaniem zgodnym
+  z projektem. H2 „aplikacja rysuje paski tylko w jednym panelu” — potwierdzona pomiarem Łukasza.
+- Analiza `app.asar` 2.31226.1.0: proces aplikacji obsługuje każdą sesję (`servesUiSurface`,
+  `ui_surface_v1`), paski rysuje na prośbę strony przez `EngineSurface.uiRender(sessionId, …)`;
+  strona zakładki Code przychodzi z claude.ai i prosi tylko o pierwszy panel. API modów nie zna
+  panelu — po stronie RelAI nie ma czego naprawić.
+- Zgłoszenie już istniało: anthropics/claude-code#99265 (otwarte 2026-10-11, osiem komentarzy
+  z Windows, macOS i Linuksa, cytat warunku `isPanelActive` z kodu strony). Za zgodą Łukasza
+  dopisany komentarz z naszym pomiarem na 2.31226.1.0 z konta `nowilus` (`gh issue comment`,
+  issuecomment-6142442791) zamiast nowego zgłoszenia i zamiast `/feedback` (komendy
+  interaktywnej sesja nie wywoła; CLI z sesji nie jest zalogowane, P-032).
+- Odnoga samodzielna `docs/fixy/PASKI_W_STOPCE/` (karta + prompt): skrót pasków w stopce każdej
+  sesji (`SessionMode` / `$.ui.status`), bo według #99265 stopka rysuje się w każdej rozmowie.
+  Samodzielna, nie pod PANEL_CODEX — inny wątek i inna sesja.
+- `docs/PULAPKI.md` — P-040 z obejściem; `README.md`, sekcja „Panel w Claude Code” — jedno zdanie
+  o oknach osobnych.
+
+**Zweryfikowane — jak dokładnie:**
+
+- Układ okna narzędziem aplikacji (`get_window_layout`): panel 0 TargiKielce, panel 1 ta sesja
+  (aktywna) — paski tylko w panelu 0.
+- Łukasz zamienił panele: trzy paski przeszły z tą sesją na lewo, a pasek cache zniknął
+  z TargiKielce; po powrocie TargiKielce na lewo — pasek cache znów widoczny.
+- Ta sesja otwarta w oknie pop-out (`open_session_in`, `window`): wszystkie trzy paski widoczne
+  (Łukasz).
+
+**Świadomie odłożone:**
+
+- Terminal i VS Code w układzie kilku sesji — niezmierzone.
+
+**Do zrobienia przez człowieka:**
+
+- Odnoga [PASKI_W_STOPCE](fixy/PASKI_W_STOPCE/ODNOGA.md) — świeża sesja Opus 5.5 po restarcie
+  aplikacji (sonda `SessionMode` / `$.ui.status` w prawym panelu, potem decyzja).
+
+Autor: RelAI (Opus 5.5) + Lukasz
