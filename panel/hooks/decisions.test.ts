@@ -256,6 +256,18 @@ describe('decisions in the RelAI panel', () => {
     await ui.unmount()
   })
 
+  // PASKI_W_STOPCE: the footer line relai-cache-keeper builds reads this session's work from here
+  test('the footer words: the session\'s work written to its own file, once while it stays the same', async ($, on) => {
+    const calls = world(on, FILES)
+    const ui = await open($)
+    const footer = `${CWD}/.claude/relai/stopka/session-1.txt`
+    expect(calls.writes[footer]).toBe('PANEL_X · E2 1/2 etapów\n')
+    delete calls.writes[footer]
+    await ui.press({ key: 'tab-map' })
+    expect(footer in calls.writes).toBe(false)
+    await ui.unmount()
+  })
+
   test('crew: edited before the start, written only after "Tak"; a started run stays untouched', async ($, on) => {
     const calls = world(on, { ...FILES, [`${RUN_DIR}/zadania.json`]: TASKS, [`${CWD}/.claude/relai/work/CREW/started/zadania.json`]: TASKS, [`${CWD}/.claude/relai/work/CREW/started/manifest.json`]: '{"tasks":[]}' })
     const ui = await open($)
@@ -268,10 +280,12 @@ describe('decisions in the RelAI panel', () => {
     await ui.select({ key: `crew-role-${RUN}-b`, value: 'reviewer' })
     await ui.press({ key: `crew-ok-${RUN}` })
     expect((await ui.find({ key: 'confirm-card' }))?.text).toContain('b @claude-code/reviewer')
-    expect(calls.writes).toEqual({})
+    // The session's footer words (PASKI_W_STOPCE) are its own file, written when the work is read
+    const ownWrites = () => Object.keys(calls.writes).filter((p) => !p.includes('/.claude/relai/stopka/'))
+    expect(ownWrites()).toEqual([])
     expect(calls.prompts).toEqual([])
     await ui.press({ key: 'confirm-yes' })
-    expect(Object.keys(calls.writes)).toEqual([`${RUN_DIR}/zadania.json`])
+    expect(ownWrites()).toEqual([`${RUN_DIR}/zadania.json`])
     expect(JSON.parse(calls.writes[`${RUN_DIR}/zadania.json`] ?? '[]')[1].role).toBe('reviewer')
     expect(calls.prompts[0]).toContain(`przebieg ${RUN}`)
     await ui.unmount()

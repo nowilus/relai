@@ -26,11 +26,28 @@ Specyfikacja: `SPEC_PULAPKI.md`.
   pop-out). W podziale okna sesja z paskami RelAI stoi w lewym panelu. Poprawka należy do
   Anthropic: zgłoszenie anthropics/claude-code#99265 (otwarte od 2026-10-11; warunek strony
   `isPanelActive`, prawdziwy tylko dla lewego panelu; nasz pomiar 2.31226.1.0 dopisany w komentarzu
-  2026-10-13). `Pane` z `$.ui.open` gaśnie tak samo. W każdym panelu rysuje się według zgłoszenia
-  element stopki `SessionMode`, a `$.ui.status` — rozbieżnie (Linux tak, macOS nie); na Windows
-  niezmierzone — odnoga `PASKI_W_STOPCE`.
+  2026-10-13). `Pane` z `$.ui.open` gaśnie tak samo.
+- **Sonda Windows (odnoga `PASKI_W_STOPCE`, 2026-10-13, mod `relai-paski-sonda` z licznikami):**
+  1. Paski rysuje tylko **pierwszy** panel podziału — przy trzech panelach środkowy jest pusty jak
+     prawy.
+  2. **`$.ui.status` rysuje się wszędzie:** w pierwszym i prawym panelu, w oknie pop-out; odświeża
+     się w prawym panelu (licznik `#2` → `#3`). To jedyna powierzchnia RelAI w prawym panelu.
+  3. `SessionMode`: hook wołany (2–5 razy na turę), dopisana etykieta **nie rysuje się nigdzie**;
+     `PromptHint`: hook ani razu nie wołany. Wbrew zgłoszeniu #99265 obie odpadają na Windows.
+  4. Prośby o `AbovePrompt` przychodzą w każdym położeniu (pierwszy panel 12, prawy 6, pop-out
+     z prawym naraz 9 na turę) — mod **nie odróżni** panelu po prośbach o paski.
+  5. Stopka pokazuje linie statusu kilku pluginów w kolejności wczytania, każdą z szarą nazwą
+     pluginu przed tekstem (silnik, nie do zmiany); nadmiar ponad szerokość panelu ucina albo
+     chowa pod „+N” (okienko „Plugin status lines” po najechaniu).
+  6. Linia statusu przeżywa przeładowanie moda: mod, który ją ustawił i przestał, zostawia starą
+     — trzeba ją wyczyścić `$.ui.status(undefined)`. `session.start` nie odpalił przy hot reload.
+- **Rozwiązanie RelAI (`relai-cache-keeper` 0.7.0 / `relai-panel` 0.15.0):** jedna linia
+  statusu w stopce każdej sesji — `<praca sesji a/b etapów> · cache … · 5 h … % · tydz. … % ·
+  kontekst …`. Składa ją `relai-cache-keeper` (jeden plugin, bo widać jedną linię), plan bierze
+  z pliku `.claude/relai/stopka/<sesja>.txt`, który pisze `relai-panel`; tekst w `core/panel/footer.mjs`.
+  W pierwszym panelu i w pop-oucie linia powtarza część pasków — świadoma decyzja Łukasza.
 - **Zasięg:** aplikacja desktopowa 2.31226.1.0, Claude Code 2.1.295, Windows 11; pomiar Łukasza
-  2026-10-13 (zamiana paneli, okno pop-out). Terminal i VS Code niezmierzone.
+  2026-10-13 (zamiana paneli, okno pop-out, trzy panele). Terminal i VS Code niezmierzone.
 
 ### P-039 — `String.replace(wzorzec, napis)` czyta `$`` i `$'` w napisie zastępczym · 2026-10-12 · AKTYWNA
 

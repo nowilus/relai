@@ -336,3 +336,35 @@ o skasowanie pliku). Bez hotkeyów (cyfra w pustym polu naciskała przycisk, Z5)
       bez pliku — bez przycisków (testy);
 - [ ] karta `Próg limitu` w Kosztach w 40 kolumnach bez rozjazdu; zrzut na żywo z desktopu.
 
+## 12. Linia w stopce (odnoga PASKI_W_STOPCE, 2026-10-13)
+
+Powód: w podziale okna aplikacja rysuje paski tylko w pierwszym panelu (P-040). Linia statusu
+pluginu (`$.ui.status`) rysuje się w każdym panelu i w oknie pop-out — to jedyna powierzchnia
+RelAI w pozostałych panelach.
+
+### 12.1 Decyzje kalibracji (słowa Łukasza w czacie)
+
+- **Linia zawsze**, także w pierwszym panelu i w pop-oucie, gdzie powtarza część pasków — mod nie
+  odróżni panelu (P-040 pkt 4); wybór „Linia zawsze (Rekomendowane)”.
+- **Treść:** plan + cache + limity (wybór z trzech wariantów); po zrzucie z linią na żywo
+  dołożone: „postęp planu przynajmniej (…) 3 na 15” i kontekst. Zrzut z pełną linią: „ok, tekst
+  pasuje”.
+- **Właściciel:** `relai-cache-keeper` — stopka pokazuje jedną linię, druga chowa się pod „+1”.
+
+### 12.2 Brzmienie
+
+`<praca> · cache <czas> · 5 h <n> % · tydz. <n> % · kontekst <n>k`
+
+- `<praca>` — etykieta pracy sesji z paska planu (`PANEL_CODEX · E1`, `PASKI_W_STOPCE (odnoga)`,
+  `poza planem`, `praca nie wybrana`) i licznik `a/b etapów` albo `a/b paczek`; karta bez paczek
+  bez „0/0”. Poza projektem RelAI tej części nie ma.
+- `cache`, `5 h`, `tydz.`, `kontekst` — wartość z baterii (te same słowa: `~59 min`, `zimny`,
+  `stygnie 3 min`, `podtrzymany do 14:05`); brak danych — część pominięta, nigdy zero.
+- Przedrostka „RelAI” nie ma: szarą nazwę pluginu przed linią dopisuje silnik.
+- Bez kolorów i ikon — linia statusu to sam tekst.
+
+### 12.3 Kryteria
+
+- [x] linia w prawym panelu na żywo (zrzut 2026-10-13, aplikacja 2.31226.1.0);
+- [x] tekst i kolejność w teście rdzenia (`core/panel/tests/footer.test.js`) i pluginu
+      (`cache-keeper/hooks/footer.test.ts`); ten sam tekst nie idzie drugi raz.

@@ -93,8 +93,11 @@ i w terminalu.
 Każda zmiana stanu z panelu (start etapu, sprzątanie, aktualizacja) idzie przez kartę „Tak / Nie”.
 Panel nie woła modelu. Jedyny ruch sieciowy w całej trójce to odczyt strony cennika Anthropic, i to
 dopiero po „Tak” na karcie aktualizacji cennika. W podziale okna aplikacja rysuje paski tylko
-w lewym panelu — równoległe projekty otwieraj w osobnych oknach (menu sesji w pasku bocznym),
-każde ma wtedy swoje paski. Instalacja: po komendach z „Instalacji” powyżej,
+w pierwszym panelu. W każdym panelu zostaje skrót w stopce pod promptem — jedna linia
+`relai-cache-keeper`: praca sesji z postępem, cache, limit 5 h, limit tygodnia i kontekst, np.
+`PANEL_CODEX · E1 3/15 etapów · cache ~59 min · 5 h 14 % · tydz. 30 % · kontekst 306k` (plan
+w niej, gdy zainstalowany jest też `relai-panel`). Pełne paski w każdym projekcie dają osobne
+okna (menu sesji w pasku bocznym). Instalacja: po komendach z „Instalacji” powyżej,
 każdy plugin osobno:
 
 ```bash

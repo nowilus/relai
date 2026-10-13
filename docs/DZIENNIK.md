@@ -1458,3 +1458,63 @@ podziału okna.
   aplikacji (sonda `SessionMode` / `$.ui.status` w prawym panelu, potem decyzja).
 
 Autor: RelAI (Opus 5.5) + Lukasz
+
+### 2026-10-13 — Odnoga PASKI_W_STOPCE: linia w stopce każdej sesji, wydanie `relai-cache-keeper` 0.7.0 / `relai-panel` 0.15.0
+
+Wykonawca: Opus 5.5 (Claude Code, aplikacja desktopowa 2.31226.1.0, Claude Code 2.1.295, Windows 11).
+
+**Zrobione:**
+
+- Sonda `relai-paski-sonda` (mod sesji, hot reload) — `SessionMode`, `PromptHint`, `$.ui.status`
+  i licznik próśb o `AbovePrompt`, zapis liczników do pliku w katalogu roboczym. Wynik w P-040:
+  `$.ui.status` rysuje się w pierwszym, prawym i środkowym panelu oraz w oknie pop-out;
+  `SessionMode` — hook wołany, etykieta nierysowana; `PromptHint` — hook niewołany; prośby
+  o `AbovePrompt` przychodzą w każdym położeniu (12 / 6 / 9 na turę), więc mod nie odróżni panelu.
+- Druga sonda `relai-paski-cache`: dwie linie statusu — przy wąskim panelu druga chowa się pod
+  „+1”, przy szerokim stoją obok siebie, nadmiar ucięty. Stąd jeden plugin na całą linię.
+- `core/panel/footer.mjs` (nowy, czysta logika: `footerLine`, `footerPlan`, `footerPath`,
+  `readFooterPlan`) + kopie `sync-panel-core` w trzech pluginach; test `core/panel/tests/footer.test.js`.
+- `relai-panel` 0.15.0: słowa pracy sesji z licznikiem (`a/b etapów`, `a/b paczek`, bez „0/0”)
+  do `.claude/relai/stopka/<sesja>.txt`, zapis tylko przy zmianie (`publishFooter`).
+- `relai-cache-keeper` 0.7.0: `pushFooter` — `$.ui.status` z linią `<praca> · cache … · 5 h … % ·
+  tydz. … % · kontekst …` na `session.start`, `session.measure` i co 30 s; te same słowa nie idą
+  drugi raz. Test `cache-keeper/hooks/footer.test.ts` (4 przypadki).
+- Dwa testy `relai-panel` (`decisions.test.ts` crew, `pricing.test.ts` cennik) pomijają teraz plik
+  stopki w liście zapisów — nowy zapis jest zamierzony, sprawdzane zapisy bez zmian.
+- Dokumenty: P-040 (sonda Windows i rozwiązanie), `README.md` „Panel w Claude Code”, brief
+  `STYL_PASKOW_CLAUDE.md` §12, karta odnogi zamknięta, `STATE.md`, `CLAUDE.md`, `AGENTS.md`
+  (numery wersji), manifesty i `marketplace.json`.
+
+**Decyzje Łukasza (jego słowa):** „Linia zawsze (Rekomendowane)”; treść „Plan + cache + limity”;
+właściciel „cache-keeper (Rekomendowane)”; po zrzucie na żywo: „dopisali jeszcze kontekst albo
+postęp planu przynajmniej (…) 3 na 15”; po drugim zrzucie: „ok, tekst pasuje, rób dokumenty”;
+wydanie: „Wydaj (Rekomendowane)”; sprzątanie: „Tak, oba”.
+
+**Zweryfikowane — jak dokładnie:**
+
+- Kontrola pozytywna sondy (P-017): plik liczników po każdej turze; `$.ui.status` widoczny
+  z numerem rosnącym `#2` → `#3` w prawym panelu (zrzut Łukasza).
+- Linia na żywo z kopii repo (mody `relai-cache-keeper-dev`, `relai-panel-dev`) w prawym panelu:
+  `PASKI_W_STOPCE (odnoga) · cache ~60 min · 5 h 14 % · tydz. 30 % · kontekst 321k` (zrzut).
+- `plugin validate` binarką 2.1.295: `relai-panel`, `relai-progress`, `relai-cache-keeper` — zielone.
+- `plugin test`: `relai-panel` 178/178, `relai-progress` 31/31, `relai-cache-keeper` 178/178.
+- Rdzeń: `node --test core/process/tests/*.test.js core/guardrails/tests/*.test.js core/panel/tests/*.test.js adapters/codex/tests/*.test.js` — 340/340 (było 333, +7 stopki).
+- `node core/tools/sync-panel-core.js --check` zgodne (17 plików); `validate-adapters.js` kod 0.
+- `grep -r` po starych numerach (0.14.1, 0.6.0): deklaracje stanu poprawione (`CLAUDE.md`,
+  `AGENTS.md`, `STATE.md`); trafienia w promptach odnóg i historii — wzmianki historyczne.
+- Katalog roboczy: przed — 1 plik (`sonda-87c07777.json`, 558 B), po — katalog usunięty. Poza
+  projektem usunięty folder modów tej sesji `~/.claude/dev-mods/87c07777-2e36-4975-83e4-1ebb83af8ee1/`
+  (4 mody, 6,4 MB). Plik `.claude/relai/stopka/87c07777-….txt` zostaje — to stan pluginu.
+
+**Świadomie odłożone:**
+
+- Terminal i VS Code: linia statusu niezmierzona na żywo.
+- „Bez dublowania w lewym panelu” z karty — niewykonalne (mod nie zna panelu); linia stoi zawsze.
+- Pliki `.claude/relai/stopka/<sesja>.txt` przybywają jak pliki fokusu — bez sprzątania.
+
+**Do zrobienia przez człowieka:**
+
+- Po wydaniu: `claude plugin marketplace update relai`, `claude plugin update relai-cache-keeper@relai`
+  i `relai-panel@relai`, restart aplikacji; rzut oka na stopkę w prawym panelu.
+
+Autor: RelAI (Opus 5.5) + Lukasz

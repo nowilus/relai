@@ -44,6 +44,7 @@ import { CLEAN_ARGV, cleanCard, cleanChoices, commandCard, consentFile, consentO
 import { HANDOFF_PATH, START_SERVER, START_TOOL, chatOf, deepLink, handoffFile, handoffOf, hasStartSession, linkedStage, openArgv, platformOf, startSessionArgs, usedHandoff } from './launch'
 import type { ChatMode } from './launch'
 import { promptLink } from './core/progress.mjs'
+import { footerPath, footerPlan } from './core/footer.mjs'
 import { globalPath, projectPath, sessionPath, thresholdsOf } from './core/limit-threshold.mjs'
 import type { LimitRows, LimitWindow } from './pane-costs'
 import type { Action, Card, CardResult, CleanChoices, CrewDraft } from './core/decisions.mjs'
@@ -118,6 +119,19 @@ async function refresh($: $T) {
     startedAt: usage?.startedAt || S.startedAt,
     rateLimits: usage?.rateLimits?.length ? usage.rateLimits : S.rateLimits,
   })
+  await publishFooter($)
+}
+
+// The plan words of the footer line (PASKI_W_STOPCE): relai-cache-keeper builds the one status line
+// every split panel shows (P-040) and reads this session's work from this file. Written only when
+// the words move; a failed write leaves the line without its plan part, never the bar without work.
+let footerWritten = ''
+async function publishFooter($: $T) {
+  if (!S.isRelai || !S.id) return
+  const words = footerPlan(S.work) ?? ''
+  const key = `${S.id}\n${words}`
+  if (key === footerWritten) return
+  await $.fs.write(join(S.cwd, footerPath(S.id)), words + '\n').then(() => { footerWritten = key }, () => undefined)
 }
 
 // ---------- the collector ----------
@@ -723,6 +737,7 @@ async function writeFocus($: $T, f: Focus) {
   const id = await syncSession($)
   await $.fs.write(join(S.cwd, focusPath(id)), serializeFocus(f))
   set(await readWork(ioOf($), true))
+  await publishFooter($)
   bump()
   $.ui.invalidate('ui.render')
 }
@@ -741,6 +756,7 @@ async function syncSession($: $T): Promise<string> {
     await $.fs.write(join(S.cwd, focusPath(id)), serializeFocus({ ...handed, at: await $.clock.now() }))
   }
   set(await readWork(ioOf($), true))
+  await publishFooter($)
   bump()
   $.ui.invalidate('ui.render')
   return id
@@ -964,6 +980,7 @@ export const register: Register = (on) => {
       const { plan, work } = await readWork(ioOf($))
       if (JSON.stringify(plan) !== JSON.stringify(S.plan) || JSON.stringify(work) !== JSON.stringify(S.work)) bump() // the map and the shelf follow the plan
       set({ plan, work })
+      await publishFooter($)
       // The stage this session works on (Z12): its focus, else the active plan's stage in progress
       const stage = work.tag
       const task = e.agentId ? ((await read($, agentTasks))[e.agentId] ?? null) : mainTask

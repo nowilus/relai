@@ -11,7 +11,8 @@ import { DEFAULT_SETTINGS, MIN, RELAI_MARKER, applySetting, cacheState, dueWarni
 import { basename, clip, clock, fileStamp, limitsText, minutes, tokens, usd } from './fmt'
 import { barCard } from './bar-card'
 import { BAND, BAR, CHIP } from './relai/theme.mjs'
-import { batteryRows, cacheMeasure, contextMeasure, glyphColor, limitMeasure, measureGlyph, resetMeasure, type Limit, type Measure } from './rings'
+import { MISSING, batteryRows, cacheMeasure, contextMeasure, glyphColor, limitMeasure, measureGlyph, resetMeasure, type Limit, type Measure } from './rings'
+import { footerLine, footerPath, readFooterPlan } from './relai/footer.mjs'
 import { ancestors, parseStatus } from './relai/plan-state.mjs'
 import { PLAIN_HANDOFF_PROMPT, RELAI_CONTINUE, RELAI_HANDOFF_PROMPT, continuePrompt, plainBody, relaiDiscardPrompt, relaiDone, relaiFreshPrompt, relaiResumePrompt, relaiSavePrompt, saveDone } from './handoff'
 import { PRICE_FILE } from './relai/pricing.mjs'
@@ -377,6 +378,25 @@ function warnStep($: $T, now: number) {
 let drawnStamp = ''
 const bandStamp = (now: number) => JSON.stringify(bandView(now))
 
+// ---------- the footer line (PASKI_W_STOPCE) ----------
+// In a split window only the first panel draws the bars (P-040); a status line stands in every
+// panel and in a pop-out. The footer shows one plugin's line, so this one carries it all: the
+// session's work as relai-panel wrote it (core footer.mjs), then the cache, 5 h and week batteries'
+// own words. Set only when the words change; the tick moves the cache's minute.
+let footerShown: string | undefined
+async function pushFooter($: $T, now: number) {
+  const planText = S.isRelai && S.id ? await $.fs.read(`${S.cwd}/${footerPath(S.id)}`.replace(/\\/g, '/')).catch(() => null) : null
+  const m = bandView(now).measures
+  const words = (name: string) => {
+    const found = m.find((x) => x.name === name)
+    return found && found.value !== MISSING ? found.value : null
+  }
+  const line = footerLine({ plan: readFooterPlan(planText), cache: words('cache'), five: words('five'), week: words('week'), ctx: words('ctx') })
+  if (line === footerShown) return
+  footerShown = line
+  $.ui.status(line)
+}
+
 async function tick($: $T) {
   await followSession($)
   const now = await $.clock.now()
@@ -386,6 +406,7 @@ async function tick($: $T) {
   await checkResumeFile($)
   if (state(now).kind !== reckonedKind) reckon(now)
   await saveSnap($, now)
+  await pushFooter($, now)
   const stamp = bandStamp(now)
   if (stamp === drawnStamp) return
   drawnStamp = stamp
@@ -1028,6 +1049,7 @@ export const register: Register = (on) => {
       handoff: await registerCommand($, 'handoff', 'Przekazanie do świeżego czatu (w projekcie RelAI przez dokumenty); /handoff dalej kończy', '[dalej]'),
     }
     $.clock.every(TICK_MS, () => { tick($).catch(() => {}) })
+    await pushFooter($, now).catch(() => {})
     return next(e)
   })
 
@@ -1158,7 +1180,9 @@ export const register: Register = (on) => {
     if (e.cost) set({ costUsd: e.cost.usd })
     if (e.rateLimits?.length) set({ rateLimits: e.rateLimits })
     await loadThreshold($)
-    reckon(await $.clock.now())
+    const measured = await $.clock.now()
+    reckon(measured)
+    await pushFooter($, measured)
     return next(e)
   })
 

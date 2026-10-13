@@ -1,6 +1,6 @@
 # ODNOGA — skrót pasków RelAI w stopce każdej sesji, także w prawym panelu podziału okna
 
-Plan: brak (wątek samodzielny) · Etap-źródło: — · Utworzona: 2026-10-13 · Status: **OTWARTA** ·
+Plan: brak (wątek samodzielny) · Etap-źródło: — · Utworzona: 2026-10-13 · Status: **ZAMKNIĘTA 2026-10-13** ·
 Wykonawca: **Opus 5.5 w świeżej sesji** (reguła z `CLAUDE.md`: etapy i odnogi — Opus, D-85)
 
 ## Cel
@@ -42,17 +42,26 @@ rozbieżnie (Linux tak, macOS nie). Łukasz pracuje na kilku projektach naraz i 
 
 ## Weryfikacja
 
-- [ ] Sonda zmierzona na żywo: dla `SessionMode` i `$.ui.status` osobno — lewy panel, prawy panel,
+- [x] Sonda zmierzona na żywo: dla `SessionMode` i `$.ui.status` osobno — lewy panel, prawy panel,
       okno pop-out; wersje aplikacji i Claude Code do wpisu; licznik wywołań hooka jako kontrola
       pozytywna (P-017).
-- [ ] Decyzja Łukasza o powierzchni i tekście — jego słowa we wpisie.
-- [ ] Gdy wdrożenie: linia w stopce prawego panelu widoczna na żywo (zrzut), w lewym panelu bez
+- [x] Decyzja Łukasza o powierzchni i tekście — jego słowa we wpisie.
+- [x] Gdy wdrożenie: linia w stopce prawego panelu widoczna na żywo (zrzut), w lewym panelu bez
       dublowania stanu pasków; `plugin test` i `plugin validate` zmienionych pluginów zielone;
-      testy rdzenia zielone.
-- [ ] Gdy sonda negatywna: P-040 uzupełniona wynikiem, bez zmian w kodzie pluginów.
-- [ ] Katalog roboczy `.claude/relai/work/_fixy/PASKI_W_STOPCE/` przejrzany raportem i skasowany
+      testy rdzenia zielone. **Odstępstwo:** „bez dublowania” niewykonalne — mod nie odróżni panelu
+      (P-040 pkt 4); Łukasz wybrał „Linia zawsze”.
+- [ ] Gdy sonda negatywna: nie dotyczy (sonda pozytywna dla `$.ui.status`).
+- [x] Katalog roboczy `.claude/relai/work/_fixy/PASKI_W_STOPCE/` przejrzany raportem i skasowany
       po „tak”; liczby przed i po we wpisie; artefakty spoza niego wypisane z nazwy.
 
 ## Wynik
 
-—
+Sonda na Windows (aplikacja 2.31226.1.0, Claude Code 2.1.295): `$.ui.status` rysuje się w każdym
+panelu podziału i w oknie pop-out; `SessionMode` — hook wołany, etykieta nierysowana; `PromptHint`
+— hook niewołany; paski tylko w **pierwszym** panelu (przy trzech panelach środkowy też pusty);
+stopka pokazuje linie kilku pluginów obok siebie, nadmiar ucina albo chowa pod „+N” (P-040).
+
+Wdrożenie: jedna linia w stopce każdej sesji, składana przez `relai-cache-keeper` 0.7.0 —
+`<praca a/b etapów> · cache … · 5 h … % · tydz. … % · kontekst …`; słowa pracy pisze `relai-panel`
+0.15.0 do `.claude/relai/stopka/<sesja>.txt`; tekst w `core/panel/footer.mjs`. Brief:
+`docs/zasoby/PANEL_RELAI/STYL_PASKOW_CLAUDE.md` §12. Wpis w dzienniku 2026-10-13.

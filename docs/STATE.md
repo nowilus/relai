@@ -9,7 +9,8 @@ prezentacyjny, start etapu w nowej sesji, skille wg praktyk Agent Skills; plan
 FILM_PREZENTACYJNY). Plugin `relai` działa w trzech narzędziach — Claude Code,
 Cursorze i Codeksie — na jednym rdzeniu procesu, z czternastoma komendami. Panel RelAI w oknie
 Claude Code to trzy osobne pluginy „early access” z marketplace tego repozytorium: `relai-panel`
-0.14.1 (poprawka parsera modelu karty etapu, Aneks F), `relai-progress` 0.4.0, `relai-cache-keeper` 0.6.0 (plan PANEL_CLAUDE zamknięty
+0.15.0, `relai-progress` 0.4.0, `relai-cache-keeper` 0.7.0 — od 2026-10-13 z linią w stopce każdej
+sesji, widoczną też w prawym panelu podziału okna (odnoga PASKI_W_STOPCE, P-040) (plan PANEL_CLAUDE zamknięty
 2026-10-10, odnoga AUDYT_MODOW zamknięta 2026-10-11, wszystkie paczki zmierzone na żywo na 2.1.295). Aktywny plan to PANEL_CODEX — panel dla Codeksa,
 E1 po stronie Codeksa; FILM_PREZENTACYJNY zamknięty 2026-10-13 wydaniem 3.0.0. Opinii spoza projektu nadal nie ma.
 
@@ -125,7 +126,7 @@ E1 po stronie Codeksa; FILM_PREZENTACYJNY zamknięty 2026-10-13 wydaniem 3.0.0. 
 ### Wersja i instalacja
 
 Repo i publicznie **3.0.0**; marketplace w tym repozytorium (scope `user`) niesie cztery pluginy:
-`relai` i trzy pluginy panelu z własnymi wersjami i tagami (`relai-panel-v0.14.1`). Wydanie
+`relai` i trzy pluginy panelu z własnymi wersjami i tagami (`relai-panel-v0.15.0`). Wydanie
 potwierdzasz treścią plików z cache'u, nie komunikatem CLI (P-005): `claude plugin validate` → tag
 → push → release → `marketplace update` → `plugin update` → suma plików po CRLF → LF. Walidator
 `core/tools/validate-adapters.js` sprawdza 7 źródeł wersji (w tym baner README i „Gdzie jesteśmy”)
