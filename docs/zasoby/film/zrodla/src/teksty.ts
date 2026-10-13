@@ -146,6 +146,9 @@ export const PL = Object.freeze({
       zip: 'ZIP',
       env: '.env',
     }),
+    // the stamp on the stage card of /relai-stage: the confirmation card's own "Tak" in Polish,
+    // translated in English with the names (Annex E; wiernosc.test.mjs)
+    pieczatka: 'Tak',
   }),
   // scene 5: the card's own words (title, rows, question) come from core/panel through sceny.json;
   // "Tak" and "Nie" are the card's buttons in pane-parts.tsx (wiernosc.test.mjs)
@@ -294,6 +297,7 @@ export const EN: Slownik = Object.freeze({
       'relai-handover': 'The whole project in one handover file',
     }),
     rekwizyty: PL.komendy.rekwizyty,
+    pieczatka: 'Yes',
   }),
   nowaSesja: Object.freeze({
     tytul: 'Stage in a new session',

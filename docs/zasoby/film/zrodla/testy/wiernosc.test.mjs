@@ -210,6 +210,14 @@ test('scene 2 in English: each name and slogan is the one of Annex D, word for w
   assert.throws(() => checkSlowa(zNazwa, ANEKS_D));
 });
 
+test('the stamp on the stage card: the card\'s own "Tak" in Polish, "Yes" in English (Annex E)', () => {
+  const stamp = (s) => s.komendy.pieczatka;
+  assert.equal(stamp(PL), PL.nowaSesja.tak);
+  assert.equal(stamp(EN), 'Yes');
+  // positive control: a stamp that stayed Polish in the English film is not the accepted word
+  assert.notEqual(stamp({ ...EN, komendy: { ...EN.komendy, pieczatka: PL.nowaSesja.tak } }), 'Yes');
+});
+
 test('scene 4: each command has its icon in public/znak/, byte for byte the branding file', () => {
   const sha = (p) => createHash('sha256').update(readFileSync(p)).digest('hex');
   const icon = (c) => c.replace(/^relai-/, '');

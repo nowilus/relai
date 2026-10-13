@@ -1,7 +1,7 @@
 # Film prezentacyjny RelAI — źródła i kalibracja
 
-Ten katalog trzyma film prezentacyjny RelAI razem z jego źródłami, tak jak `docs/zasoby/demo/`
-trzymał demo 2.1.3: kto zmieni panel, przerenderuje film jedną komendą. Plan:
+Ten katalog trzyma film prezentacyjny RelAI razem z jego źródłami, tak jak dawne demo 2.1.3
+(dziś w [`docs/archiwum/demo/`](../../archiwum/demo/)): kto zmieni panel, przerenderuje film jedną komendą. Plan:
 [FILM_PREZENTACYJNY](../../plany/FILM_PREZENTACYJNY/STATUS.md) (zaakceptowany 2026-10-12).
 
 Stan na E1 (2026-10-12): gotowa scena 2 „Trzy paski” — 10 s ruchu i klatka wzorcowa
@@ -20,7 +20,12 @@ scena 5 „Praca wraca” (karta progu limitu, „zapisz pracę”, „Wznów pr
 3,5 s na komendę, kamera przeskakuje sprężyną od rekwizytu do rekwizytu; u góry ikona i polska
 nazwa komendy, pod rekwizytem slogan. Potem trzy paski, panel, nowa sesja, praca wraca, finał.
 Pod całym filmem gra muzyka (niżej). Klatki wzorcowe: `kalibracja/E5-komenda.png`,
-`E5-komendy-1.png`, `E5-komendy-2.png`. Wersja EN, pętla i wydanie — E6–E7.
+`E5-komendy-1.png`, `E5-komendy-2.png`. Stan na E6 (2026-10-13, Aneksy D–E): **pętla do README**
+— 25 s w pionie 720×900, skrót scen „Trzy paski” i „Panel”, GIF bez dźwięku w wersji PL
+(`relai-petla-25s-pl.gif`, osadzona w `README.md`) i EN (`relai-petla-25s-en.gif`); **film EN** —
+ten sam film z angielskim słownikiem (napisy, slogany i nazwy w scenie komend; reszta słów
+produktu po polsku, jak rysuje je produkt). Wersja EN jest zapasem i alternatywą (Aneks E):
+README pokazuje tylko PL, MP4 EN idzie do wydania jako dodatek. Wydanie — E7.
 
 ## Co gdzie leży
 
@@ -78,6 +83,20 @@ Pierwsza minuta filmu w pełnej jakości (MP4 1920×1080, 30 kl./s, „Pamięć�
 
 ```bash
 cd docs/zasoby/film/zrodla && npm run minuta
+```
+
+Film EN (ten sam film, kompozycja `FilmEN`, ta sama muzyka) do `zrodla/out/film-en.mp4`:
+
+```bash
+cd docs/zasoby/film/zrodla && npm run film:en
+```
+
+Pętla do README jako GIF (kompozycje `PetlaPL` i `PetlaEN`, co 4. klatka = 7,5 kl./s, jedna paleta
+128 kolorów przez `skrypty/gif.py`) do `docs/zasoby/film/relai-petla-25s-<pl|en>.gif`; dane muszą
+być świeże, więc najpierw `npm run przygotuj`:
+
+```bash
+cd docs/zasoby/film/zrodla && node skrypty/petla.mjs pl
 ```
 
 Wszystkie komendy renderu najpierw odświeżają dane, manifest, fonty, znak i muzykę (`npm run przygotuj`; manifest
@@ -146,9 +165,35 @@ to plik z [`docs/zasoby/branding/ikony/`](../branding/ikony/) (kopia bajtowa w `
 slogan — przyjęty przez Łukasza w Aneksie A — stoi w słowniku `src/teksty.ts`. Każdy rekwizyt
 ma własny plik w `src/sceny/komendy/` i rysuje się w języku ikon (ciepła szara kreska, glina
 dla tego, co działa, szałwia dla tego, co zrobione); jedyne słowa na rekwizytach („ZIP”, „.env”,
-stempel „Tak”) są słowami produktu, a test wierności szuka ich w plikach, z których pochodzą.
+stempel „Tak”, w filmie EN „Yes” — Aneks E) są słowami produktu, a test wierności szuka ich w plikach, z których pochodzą.
 `testy/wiernosc.test.mjs` trzyma też `CYKL` przy `FORMS` (każda komenda raz, kolejność z Aneksu
 A), nazwy przy `NAMES`, slogany słowo w słowo i ikony bajt w bajt.
+
+## Cztery kontrole
+
+Każda działa w obu językach i ma kontrolę pozytywną na podłożonym defekcie:
+
+- **fakty i prywatność** — `npm test` po `npm run przygotuj` (`testy/fakty.test.mjs` bierze oba
+  słowniki z tekstami pętli; `testy/jezyki.test.mjs` pilnuje tych samych kluczy w PL i EN);
+- **przepełnienia** — Chromium układa każdą klatkę i mierzy prostokąty (`src/kontrola.tsx`): tekst
+  poza pudełkiem, tekst ucięty bez wielokropka, tytuł pętli poza kadrem; `--podloz` podkłada
+  cztery wady, które muszą wyjść:
+
+  ```bash
+  cd docs/zasoby/film/zrodla && node skrypty/kontrola.mjs FilmEN --co=6
+  ```
+
+- **telefon** — mediana wysokości glifów w każdej linii tekstu ≥ 7 px po przeskalowaniu klatki
+  do 375 px, tylko klatki ustalone. `skrypty/telefon.py` woła instrument dawnego demo
+  [`docs/archiwum/demo/zrodla/glify.py`](../../archiwum/demo/zrodla/glify.py) i poprawia go w trzech
+  miejscach, których tamten materiał nie miał (szary tekst na ciemnym oknie, ciemny tekst na
+  karteczce leżącej na oknie, ziarno biurka); `--kontrola <klatka>` mierzy klatkę i tę samą
+  klatkę w 1/3 wielkości. Linie poniżej progu ogląda się na wycinkach: w E6 były to wyłącznie
+  pasy cienia okna i kursor, nie tekst.
+
+  ```bash
+  cd docs/zasoby/film/zrodla && python skrypty/telefon.py ../../../archiwum/demo/zrodla/glify.py ../relai-petla-25s-pl.gif
+  ```
 
 ## Muzyka
 

@@ -1,5 +1,11 @@
 # Materiał demo RelAI
 
+> **Archiwum (2026-10-13, E6 planu FILM_PREZENTACYJNY).** Następcą jest film prezentacyjny
+> i jego pętla do README w [`docs/zasoby/film/`](../../zasoby/film/). Katalog przeniesiono
+> z `docs/zasoby/demo/` (`git mv`, historia zachowana); niczego tu nie poprawiamy. Instrument
+> czytelności na telefonie [`zrodla/glify.py`](zrodla/glify.py) jest nadal w użyciu — woła go
+> `docs/zasoby/film/zrodla/skrypty/telefon.py`. Ścieżki w komendach niżej wskazują nowe miejsce.
+
 Zaakceptowane pliki demonstracyjne i dokumentacja materiału. Od 2026-09-24 (E5 planu
 PROWADZENIE_END_TO_END) GIF-y są renderem pod telefon, a źródła renderu mieszkają obok
 w [`zrodla/`](zrodla/) — poprzednie źródła zniknęły razem z katalogiem roboczym i materiału nie
@@ -27,7 +33,7 @@ gotowy do startu i z którego pliku to wie**. Materiał jest odtworzeniem prawdz
 każda pokazana odpowiedź i każda ścieżka pochodzą z zapisu realnych sesji, nie z inscenizacji —
 wersje narzędzia i modelu oraz tabela pokrycia klatek są w
 [dokumentacji materiału](../../archiwum/plany/PIERWSI_UZYTKOWNICY/DEMO.md). Dłuższa wersja i napisy
-angielskie: [`docs/zasoby/demo/`](./).
+angielskie: [`docs/archiwum/demo/`](./).
 
 Przebieg (RelAI 2.1.3, Claude Code, Opus 5, 2026-09-12) i jego zapis krok po kroku zostają
 w archiwum planu PIERWSI_UZYTKOWNICY: [`zapis/`](../../archiwum/plany/PIERWSI_UZYTKOWNICY/zapis/)
@@ -73,27 +79,27 @@ Playwrighta (albo zmienna `RELAI_CHROME`), Python z Pillow i numpy. Wynik pośre
 `.claude/relai/work/demo/` (poza gitem; inny katalog: `RELAI_DEMO_OUT`).
 
 ```bash
-node docs/zasoby/demo/zrodla/sceny.js
+node docs/archiwum/demo/zrodla/sceny.js
 ```
 
 ```bash
-node docs/zasoby/demo/zrodla/render.js pl uklad
+node docs/archiwum/demo/zrodla/render.js pl uklad
 ```
 
 ```bash
-node docs/zasoby/demo/zrodla/render.js pl klatki
+node docs/archiwum/demo/zrodla/render.js pl klatki
 ```
 
 ```bash
-python docs/zasoby/demo/zrodla/gif.py pl docs/zasoby/demo/demo-relai-25s-pl.gif
+python docs/archiwum/demo/zrodla/gif.py pl docs/archiwum/demo/demo-relai-25s-pl.gif
 ```
 
 ```bash
-python docs/zasoby/demo/zrodla/glify.py docs/zasoby/demo/demo-relai-25s-pl.gif 1
+python docs/archiwum/demo/zrodla/glify.py docs/archiwum/demo/demo-relai-25s-pl.gif 1
 ```
 
 ```bash
-python docs/zasoby/demo/zrodla/pokrycie.py
+python docs/archiwum/demo/zrodla/pokrycie.py
 ```
 
 To samo dla `en`. Treść scen i tokeny (paleta, skala typograficzna, promienie) mieszkają

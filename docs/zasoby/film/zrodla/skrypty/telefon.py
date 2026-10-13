@@ -105,7 +105,11 @@ def main():
         im.seek(i)
         fr = im.convert('RGB')
         duze, _ = linie(fr)
-        male, _ = linie(fr.resize((fr.width // 3, fr.height // 3), Image.LANCZOS).resize(fr.size, Image.NEAREST))
+        # the frame shrunk to a third and laid on a canvas of the frame's size in the colour of its
+        # corner: the text is really a third as tall (resizing it back up would restore the height)
+        plotno = Image.new('RGB', fr.size, fr.getpixel((0, 0)))
+        plotno.paste(fr.resize((fr.width // 3, fr.height // 3), Image.LANCZOS), (0, 0))
+        male, _ = linie(plotno)
         print(f'kontrola klatka {i}: oryginal glify.py {[round(l["mediana"], 1) for l in g.linie(fr)]}')
         print(f'  ten instrument: {[(l["y"], round(l["mediana"], 1)) for l in duze]}')
         print(f'  ta sama klatka w 1/3 wielkosci: minimum {min(l["mediana"] for l in male):.1f} px' if male else '  1/3: zero linii')

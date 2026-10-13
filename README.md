@@ -49,12 +49,13 @@ plan zmian do Twojej zgody; kod zostaje nietknięty.
 ## Zobacz, jak to działa
 
 <p align="center">
-  <img src="docs/zasoby/demo/demo-relai-25s-pl.gif" alt="RelAI: plan jako dokument, etapy, świeża sesja wracająca do pracy" width="420">
+  <img src="docs/zasoby/film/relai-petla-25s-pl.gif" alt="RelAI w Claude Code: trzy paski nad promptem — plan z etapem, postęp etapu i cache z baterią limitu — a potem panel RelAI, w którym każda komenda ma swój przycisk, a mapa zaczyna od tego, co robi bieżąca sesja" width="420">
 </p>
 
-Plan jako osobny dokument, etapy ze statusami, a po przerwie świeża sesja mówi, który etap jest
-gotowy do startu i z którego pliku to wie. Materiał odtwarza zapis prawdziwych sesji; opis,
-wersja angielska i dłuższe cięcie: [docs/zasoby/demo/](docs/zasoby/demo/).
+Trzy paski nad promptem pokazują plan, postęp etapu i to, ile zostało z limitu; panel w aplikacji
+zamienia komendy w przyciski. Interfejs jest odtworzony z kodu wtyczek i z danych tego
+repozytorium, nie narysowany na pokaz. Pełny film (2 min 49 s) trafi do zasobów wydania 3.0.0;
+jak powstaje: [docs/zasoby/film/](docs/zasoby/film/).
 
 ## Na co dzień
 

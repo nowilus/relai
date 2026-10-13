@@ -537,44 +537,44 @@ zaraz po jego sprawdzeniu, nie na końcu etapu; punkt, który nie przeszedł, zo
       i opisana we wpisie.
 - [x] Film PL nietknięty: klatki kontrolne PL (co najmniej jedna z każdej z siedmiu scen) sprzed
       i po zmianie — 0 różnych pikseli, porównanie z kontrolą pozytywną.
-- [ ] Film EN wyrenderowany 1920×1080, 30 kl./s, z muzyką: `ffprobe` z pliku — 5070 klatek,
+- [x] Film EN wyrenderowany 1920×1080, 30 kl./s, z muzyką: `ffprobe` z pliku — 5070 klatek,
       169 s ± 1 klatka, strumień audio obecny; własne klatki obejrzane (każda scena, środek
       każdego przejścia, ostatnia).
-- [ ] Pętle PL i EN: 720×900, długość 25 s ± 1 klatka (z pliku), waga każdej do wpisu wobec
+- [x] Pętle PL i EN: 720×900, długość 25 s ± 1 klatka (z pliku), waga każdej do wpisu wobec
       budżetu 3 MB (SZACUNEK); nieprzezroczyste tło.
-- [ ] Kontrola faktów: `npm test` — wszystkie testy (29 z E1–E5 + nowe, minus świadomie zmienione
+- [x] Kontrola faktów: `npm test` — wszystkie testy (29 z E1–E5 + nowe, minus świadomie zmienione
       z powodem we wpisie), przebieg po `npm run przygotuj` po ostatniej zmianie promptu; liczniki
       wąski i szeroki dla obu języków do wpisu; wartości kontroli pozytywnych sprawdzone wobec
       zbioru dozwolonego (L-0173).
-- [ ] Kontrola przepełnień: 0 elementów poza kontenerem w filmie i pętli, PL i EN (także slogany
+- [x] Kontrola przepełnień: 0 elementów poza kontenerem w filmie i pętli, PL i EN (także slogany
       sceny komend); kontrola pozytywna na podłożonym przepełnieniu trafiona.
-- [ ] Kontrola telefonu: `glify.py` na obu pętlach — każda linia tekstu z medianą ≥ 7 px przy
+- [x] Kontrola telefonu: `glify.py` na obu pętlach — każda linia tekstu z medianą ≥ 7 px przy
       375 px; cały zbiór linii i odsiew do wpisu; instrument sprawdzony na jasnym tekście na
       ciemnym tle (kontrola pozytywna na klatce, w której taki tekst na pewno jest).
-- [ ] Kontrola prywatności: test obejmuje słownik EN i teksty pętli, przechodzi; trzy podłożone
+- [x] Kontrola prywatności: test obejmuje słownik EN i teksty pętli, przechodzi; trzy podłożone
       linie trafione.
-- [ ] Kolory i sieć: `grep -rnE '#[0-9a-fA-F]{3,8}' src/sceny/` i `grep -rnE "https?://" src` —
+- [x] Kolory i sieć: `grep -rnE '#[0-9a-fA-F]{3,8}' src/sceny/` i `grep -rnE "https?://" src` —
       pusto, każdy z kontrolą pozytywną na podłożonym pliku w katalogu roboczym.
-- [ ] Zestawienie klatek ze zrzutami przejrzane przez Łukasza (jego słowa we wpisie); decyzja
+- [x] Zestawienie klatek ze zrzutami przejrzane przez Łukasza (jego słowa we wpisie); decyzja
       o kosztach sceny „Panel” we wpisie albo jako bramka w `STATUS.md`.
-- [ ] Dawne demo w `docs/archiwum/demo/` (`git mv`, historia zachowana), README demo
+- [x] Dawne demo w `docs/archiwum/demo/` (`git mv`, historia zachowana), README demo
       z adnotacją; `grep -rn "zasoby/demo"` w plikach śledzonych poza dziennikiem i archiwum —
       każde trafienie rozstrzygnięte we wpisie.
-- [ ] `README.md` osadza nową pętlę PL, link do EN; żadnego martwego linku (`git ls-files` na
+- [x] `README.md` osadza nową pętlę PL, link do EN; żadnego martwego linku (`git ls-files` na
       każdą ścieżkę z sekcji); obejrzane w jasnym i ciemnym motywie.
-- [ ] Łukasz przyjął film EN i obie pętle (jego słowa we wpisie), klatki wzorcowe
+- [x] Łukasz przyjął film EN i obie pętle (jego słowa we wpisie), klatki wzorcowe
       w `docs/zasoby/film/kalibracja/` **albo** po trzech rundach coś zostaje otwarte — wtedy etap
       zostaje `W TOKU`, a wpis mówi, co zostało do rozstrzygnięcia.
-- [ ] `npm run typy` bez błędów; gdy etap dodał pakiet — `npm audit --omit=dev` zero wysokich
+- [x] `npm run typy` bez błędów; gdy etap dodał pakiet — `npm audit --omit=dev` zero wysokich
       i krytycznych (liczby do wpisu); gdy nie dodał — zdanie o tym we wpisie z `git diff` na
       `package.json` i `package-lock.json`.
-- [ ] Testy rdzenia 331/331 (komenda ze „Stanu wyjściowego”); `node core/tools/validate-adapters.js`
+- [x] Testy rdzenia 331/331 (komenda ze „Stanu wyjściowego”); `node core/tools/validate-adapters.js`
       spójne; `claude plugin validate .` binarką aplikacji — exit 0.
-- [ ] Pliki PANEL_CODEX (`docs/plany/PANEL_CODEX/`, `docs/zasoby/PANEL_RELAI/makiety/`) nietknięte:
+- [x] Pliki PANEL_CODEX (`docs/plany/PANEL_CODEX/`, `docs/zasoby/PANEL_RELAI/makiety/`) nietknięte:
       stdout `git diff --stat`, `git status --short` i sha256 ich plików identyczne z tymi sprzed
       etapu, poza commitem etapu.
-- [ ] Wpis w `docs/DZIENNIK.md` na końcu sekcji „Wpisy”, z podpisem `Autor: RelAI (Opus 5.5) + Lukasz`.
-- [ ] Katalog roboczy `.claude/relai/work/FILM_PREZENTACYJNY/E6/` przejrzany raportem
+- [x] Wpis w `docs/DZIENNIK.md` na końcu sekcji „Wpisy”, z podpisem `Autor: RelAI (Opus 5.5) + Lukasz`.
+- [x] Katalog roboczy `.claude/relai/work/FILM_PREZENTACYJNY/E6/` przejrzany raportem
       (`node .claude/relai/tools/clean-work.js raport`) i skasowany po „tak”; liczby przed i po
       w sekcji „Zweryfikowane” wpisu. Artefakty poza nim (pliki `%TEMP%` renderu, jeśli powstały)
       wypisane z nazwy, z tym, co się z nimi stało.

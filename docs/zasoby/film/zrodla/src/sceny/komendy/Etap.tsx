@@ -1,9 +1,9 @@
 // Prop of "Etap planu" (relai-stage), from its icon — a card and the clay play button. The plan's
 // stages lie on a tape; the start card gets its stamp "Tak" (the confirmation card's own button,
-// pane-parts.tsx — wiernosc.test.mjs), the stage done gets its tick and the marker jumps on to the
+// pane-parts.tsx — wiernosc.test.mjs; "Yes" in the English film, Annex E), the stage done gets its tick and the marker jumps on to the
 // next stage, which lights up as the one in progress.
 import { PROP } from '../../tokeny';
-import { PL } from '../../teksty';
+import { useT } from '../../jezyk';
 import { Cien, H, NapisNaRekwizycie, Ptaszek, STROKE, W, arc, ease, glide, kreska, pop } from './rysunek';
 
 const T = Object.freeze({ card: [0, 8], stamp: [10, 17], done: 20, jump: [26, 38], lit: 36 });
@@ -12,6 +12,7 @@ const TAPE_Y = 350;
 const CARD = Object.freeze({ x: 380, y: 120, w: 300, h: 140 });
 
 export const Etap = ({ t }: { t: number }) => {
+  const slowa = useT();
   const card = ease(t, T.card[0] ?? 0, T.card[1] ?? 0);
   const stamp = ease(t, T.stamp[0] ?? 0, T.stamp[1] ?? 0);
   const jump = glide(t, T.jump[0] ?? 0, T.jump[1] ?? 0);
@@ -55,7 +56,7 @@ export const Etap = ({ t }: { t: number }) => {
           color={PROP.clay}
           style={{ border: `5px solid ${PROP.clay}`, borderRadius: 12, opacity: stamp, transform: `rotate(-8deg) scale(${1.5 - 0.5 * stamp})` }}
         >
-          {PL.nowaSesja.tak}
+          {slowa.komendy.pieczatka}
         </NapisNaRekwizycie>
       ) : null}
     </div>

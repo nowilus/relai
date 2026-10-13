@@ -38,12 +38,12 @@
         {
           "id": "E6",
           "nazwa": "Wersja EN, pętla, kontrola jakości",
-          "status": "W TOKU"
+          "status": "ZREALIZOWANY"
         },
         {
           "id": "E7",
           "nazwa": "Wydanie RelAI 3.0.0",
-          "status": "OCZEKUJE"
+          "status": "GOTOWY DO STARTU"
         }
       ],
       "zrodlo": "docs/plany/FILM_PREZENTACYJNY/STATUS.md przez core/panel/plan-state.mjs"

@@ -10,7 +10,7 @@ Cursorze i Codeksie — na jednym rdzeniu procesu, z czternastoma komendami. Pan
 Claude Code to trzy osobne pluginy „early access” z marketplace tego repozytorium: `relai-panel`
 0.14.0, `relai-progress` 0.4.0, `relai-cache-keeper` 0.6.0 (plan PANEL_CLAUDE zamknięty
 2026-10-10, odnoga AUDYT_MODOW zamknięta 2026-10-11, wszystkie paczki zmierzone na żywo na 2.1.295). Aktywny plan to FILM_PREZENTACYJNY (film o RelAI
-w Remotion i wydanie 3.0.0, E1–E5 zrealizowane 2026-10-12 — cały film PL 169 s z muzyką gotowy); obok trwa PANEL_CODEX — panel dla Codeksa,
+w Remotion i wydanie 3.0.0, E1–E6 zrealizowane do 2026-10-13 — film PL i EN 169 s z muzyką i pętla do README gotowe do wydania); obok trwa PANEL_CODEX — panel dla Codeksa,
 E1 po stronie Codeksa. Opinii spoza projektu nadal nie ma.
 
 ## Co działa
@@ -106,9 +106,14 @@ E1 po stronie Codeksa. Opinii spoza projektu nadal nie ma.
   „Komendy” są sceną 2, wstępem zaraz po „Pamięci” — 14 papierowych rekwizytów, 3,5 s na komendę,
   ikona i nazwa duże na górze kadru; **cały film PL 169 s (5070 klatek) z muzyką** „daylight hour”
   (snoozy beats, CC BY 4.0 — kredyt w `docs/zasoby/film/muzyka/ZRODLO.md`, do opisu wydania w E7);
-  przyjęty w trzeciej rundzie, wzorce `kalibracja/E5-komenda.png`, `E5-komendy-1–2.png`. E6
-  (wersja EN, pętla, kontrola jakości) gotowy do startu w świeżej sesji Opus 5.5
-  (`/relai-stage`, `/effort medium`); potem E7 (wydanie 3.0.0).
+  przyjęty w trzeciej rundzie, wzorce `kalibracja/E5-komenda.png`, `E5-komendy-1–2.png`. **E6
+  zrealizowany 2026-10-13** (Aneksy D i E): film EN (5070 klatek, z muzyką; nazwy komend i pieczątka
+  „Yes” w scenie komend po angielsku, reszta słów produktu po polsku) — **w roli zapasu i dodatku do
+  wydania** (Aneks E: interfejs RelAI jest tylko po polsku); pętla 25 s 720×900 PL i EN
+  (`docs/zasoby/film/relai-petla-25s-*.gif`, 2,55 / 2,58 MB), PL osadzona w `README.md`; cztery
+  kontrole (fakty, przepełnienia, telefon, prywatność) w obu językach; dawne demo w
+  `docs/archiwum/demo/`. E7 (wydanie 3.0.0) gotowy do startu w świeżej sesji Opus 5.5
+  (`/relai-stage`, `/effort medium`); przed wydaniem odnoga z poprawką parsera modelu.
 - **Potem RelAI 3.0.0** (decyzja Łukasza 2026-10-12): jedno wydanie zbierające mody i panel
   Claude Code, start etapu w nowej sesji, audyt skilli i `/relai-stage` v6 — razem z **filmem
   prezentacyjnym (Remotion)** do README na GitHubie i do wysyłki ludziom: pełny przegląd RelAI

@@ -19,6 +19,7 @@
     "animatik": "npm run przygotuj && remotion render Animatik out/animatik.mp4 --scale=0.5",
     "minuta": "npm run przygotuj && remotion render Animatik out/minuta.mp4 --frames=0-1829",
     "film": "npm run przygotuj && remotion render Animatik out/film.mp4",
+    "film:en": "npm run przygotuj && remotion render FilmEN out/film-en.mp4",
     "typy": "tsc --noEmit",
     "test": "node --test testy/*.test.mjs"
   },

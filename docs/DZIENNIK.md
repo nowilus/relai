@@ -2220,5 +2220,118 @@ wynik sprawdzony `grep -cF '\n'` → 0. Instrument czytelności: wariant zamiast
 **Do zrobienia przez człowieka:**
 
 - Dokończenie E6 w świeżej sesji Opus 5.5 (`/relai-stage FILM_PREZENTACYJNY E6` → „dokończyć”).
+  — **rozstrzygnięte 2026-10-13: E6 dokończony, wpis niżej.**
+
+Autor: RelAI (Opus 5.5) + Lukasz
+
+### 2026-10-13 — FILM_PREZENTACYJNY E6: film EN, pętla do README, cztery kontrole, dawne demo w archiwum (Aneks E)
+
+Świeża sesja Opus 5.5 w Claude Code, `/relai-stage` z kartą w czacie → „Dokończyć (Rekomendowane)”.
+Ciąg dalszy wpisu z 2026-10-12 (E6 W TOKU); tamte punkty zostają tam, tu jest reszta i zamknięcie.
+
+**Zrobione:**
+
+- **Film EN** — skrypt `npm run film:en` (`package.json`, kompozycja `FilmEN`) → `out/film-en.mp4`.
+  Render dwa razy: przed pokazem i po poprawce pieczątki.
+- **Pętle od nowa** — GIF EN pochodził sprzed powiększenia panelu (23:21 wobec 23:29 PL); obie
+  pętle wyrenderowane ponownie `node skrypty/petla.mjs pl|en` z bieżącego kodu (L-0182).
+- **Kontrola telefonu** — `skrypty/telefon.py` (wariant `glify.py` z trzema poprawkami z wpisu
+  2026-10-12) przyjęty przez Łukasza. Naprawiona kontrola negatywna: klatka zmniejszona do 1/3 była
+  powiększana z powrotem, więc nie zmieniała wysokości glifów; teraz leży na płótnie tej samej
+  wielkości (L-0181).
+- **Dawne demo do archiwum** — `git mv docs/zasoby/demo docs/archiwum/demo` (10 plików, historia
+  zachowana); README demo z adnotacją (data, powód, następca `docs/zasoby/film/`, instrument
+  `glify.py` nadal w użyciu); ścieżki w jego komendach przepięte na nowe miejsce, linki względne
+  `../../archiwum/plany/…` działają z nowego miejsca bez zmian.
+- **`README.md`** — sekcja „Zobacz, jak to działa” osadza `docs/zasoby/film/relai-petla-25s-pl.gif`
+  z `alt` opisującym paski i panel; zdanie o pełnym filmie w zasobach wydania 3.0.0 bez martwego
+  linku. Po Aneksie E bez linku do pętli EN.
+- **README filmu** — stan na E6, komendy `film:en` i pętli, sekcja „Cztery kontrole” z komendami
+  (każda uruchomiona dosłownie z tej ścieżki), nowa ścieżka `glify.py`, pieczątka „Yes”.
+- **Pokaz, runda 1** (film EN, pętle, arkusz zestawienia). Łukasz: „Na plan stage mamy animacje
+  z tekstem po polsku »Tak«, do poprawy to jest” — i pytanie, po co wersja angielska, skoro cała
+  aplikacja i panele są po polsku: „trochę się to i tak mija z celem … ten film angielski trzymajmy
+  na razie … jako backup, jako alternatywę”. Doprecyzowanie: pieczątka „Yes” w EN; „EN w repo,
+  README tylko PL”. → **Aneks E** w `PLAN.html` (wersja EN jako zapas, MP4 EN dodatkiem w wydaniu,
+  pieczątka „Yes” jako rozszerzenie wyjątku Aneksu D). Kod: klucz `komendy.pieczatka` (PL „Tak”,
+  EN „Yes”), `komendy/Etap.tsx` czyta słownik języka (`useT`), test wierności z kontrolą pozytywną.
+- **Koszty sceny „Panel”** — Łukasz: „Zostaje (Rekomendowane)”: kwoty ze zrzutów 2026-10-12
+  i „bez pomiaru” przy późniejszych etapach zostają w E7 bez zmian.
+- **Pokaz, runda 2** — Łukasz: „Przyjmuję” (film EN z „Yes” w roli zapasu i obie pętle);
+  zestawienie: „Zgodne, bez uwag”. Klatki wzorcowe: `kalibracja/E6-film-en.png` (rekwizyt „Plan
+  stage” z „Yes”), `E6-petla-pl.png`, `E6-petla-en.png` (klatka 130 pętli).
+- **Muzyka w pętli** — GIF nie ma dźwięku, więc pętla jest niema (rozstrzyga pytanie z Aneksu B).
+
+**Zweryfikowane — jak dokładnie:**
+
+- Film EN z pliku (`remotion ffprobe -count_frames`): 1920×1080, 30/1, **5070 klatek, 169,000 s**,
+  AAC 169,003 s, 27,5 MB — po obu renderach. Obejrzane klatki MP4: środek każdej z siedmiu scen,
+  środek sześciu przejść, ostatnia; puste pigułki na finale to przenikanie napisów, identyczne jak
+  w przyjętym PL; tytuł finału EN łamie się na dwie linie (pokazane, przyjęte).
+- Film PL po zmianie pieczątki: klatki 600, 640, 665 z paczki sprzed E6 i bieżącej — **0 różnych
+  pikseli** w każdej; kontrola pozytywna (1 bit zmieniony) → 1.
+- Pętle z pliku (PIL): 720×900, 159 klatek, **25 000 ms**, bez przezroczystości; **PL 2,55 MB,
+  EN 2,58 MB** wobec budżetu 3 MB (SZACUNEK). Pierwsza klatka to puste biurko przez 130 ms (szew
+  pętli) — zostaje.
+- Telefon (`telefon.py` z `docs/archiwum/demo/zrodla/glify.py`, klatki ustalone 35 z 159): PL 263
+  linie, odsiew 14 (klatki 56–62 y≈332 i 82–88 y=253, wysokość maks. 2–3 px — ziarno i kreski); EN
+  261 linii, odsiew 0. **Wszystkie linie tekstu ≥ 7,0 px** (rozkład 7,0–33,0). Poniżej progu cztery
+  linie, obejrzane na wycinkach ×2 i uznane za nie tekst (przyjęte przez Łukasza): PL klatka 55 y=332
+  (2,5 px) i 62 y=337 (2,0 px) — pasy cienia okna na biurku w palecie GIF; PL i EN klatka 132 y=223
+  (3,0 px) — kursor myszy z dolnymi brzegami zakładek. Skrypt kończy się więc kodem 1 („NIE
+  PRZESZEDŁ”) — decyzja należy do wycinków, opisane w README filmu. Kontrola pozytywna jasnego tekstu
+  na ciemnym oknie: klatka 132 — oryginał `glify.py` 7 linii, wariant 9 (linie w oknie 157–436);
+  klatka 100 — 6 wobec 11. Kontrola negatywna po naprawie, klatki 100 i 132: PL 3,0 / 3,0 px,
+  EN 2,5 / 2,5 px (przed naprawą klatka 100 dawała 7,5 px).
+- Przepełnienia po powiększeniu pętli (`skrypty/kontrola.mjs`): Animatik i FilmEN po 845 klatek (co
+  6.) — **0**; PetlaPL i PetlaEN po 250 klatek (co 3.) — **0**; `--podloz` na obu pętlach — 4 rodzaje
+  wad, 60 trafień (15 klatek × 4), exit 1.
+- `npm test` po `npm run przygotuj` po ostatniej zmianie promptu → **36/36** (35 z wpisu 2026-10-12
+  + 1 pieczątki). Licznik wąski PL i EN: po 143 liczby w 341 tekstach kadru, wszystkie fakty, 0 cyfr
+  w słownikach; szeroki PL 5 trafień, EN 9 — wszystkie fakty („one” w sloganach i napisach to fakt 1).
+  Prywatność: test bierze `strings()` obu słowników (z sekcją `petla`) — 0, trzy podłożone linie
+  trafione. Przebieg z `npm test` przed `przygotuj`: 35/36 (test pasków porównuje dane z bieżącym
+  promptem — P-036), po `przygotuj` 36/36.
+- Kolory i sieć: `grep -rnE '#[0-9a-fA-F]{3,8}' src/sceny/` → 0, `grep -rnE "https?://" src` → 0;
+  podłożony plik w katalogu roboczym → 1 i 1.
+- `grep -rn "zasoby/demo"` w plikach śledzonych (poza dziennikiem i archiwum), każde trafienie:
+  `README.md` — zmieniony; `docs/zasoby/film/README.md` — zmieniony; `PLAN.html` (sekcje 5, 6, 8)
+  i `PROMPT_ETAP_1/2/6.md` — zostają (plan zamrożony, prompty to historia etapów);
+  `src/dane/paski.json` — cytat nazwy punktu weryfikacji, generowany; `panel/hooks/redraw.test.ts` —
+  zastygła lista ścieżek jako fixtura testu, pliku nie czyta, katalog tylko do odczytu — zostaje.
+- `git ls-files --error-unmatch` na każdą ścieżkę sekcji README — OK; kontrola na nieistniejącym
+  pliku → brak. README obejrzane w Chromium (Chrome Headless Shell z Remotion) na tle jasnym
+  `#ffffff` i ciemnym `#0d1117` — GIF ma własne nieprzezroczyste tło, w obu motywach ten sam.
+- `npm run typy` → 0 błędów. Pakietów nie dodano: `git diff` na `package.json` — jedna linia
+  (`film:en`), `package-lock.json` bez zmian.
+- Rdzeń: `node --test core/process/tests/*.test.js core/guardrails/tests/*.test.js
+  core/panel/tests/*.test.js adapters/codex/tests/*.test.js` → **331/331**;
+  `node core/tools/validate-adapters.js` → exit 0; `claude plugin validate .` (binarka aplikacji
+  2.1.295) → „Validation passed with warnings” (świadome ostrzeżenie o root `CLAUDE.md`), exit 0.
+- PANEL_CODEX: `git diff --stat` i `git status --short` dla `docs/plany/PANEL_CODEX/`
+  i `docs/zasoby/PANEL_RELAI/makiety/` identyczne z zapisem sprzed etapu; sha256 siedmiu plików
+  identyczne po wyrównaniu formatu wyjścia (` *` → `  `); kontrola z jednym zmienionym znakiem →
+  różnica wykryta.
+- Katalog roboczy: `clean-work.js raport` po zmianie statusu E6 — `.claude/relai/work/FILM_PREZENTACYJNY/E6`
+  **369,4 MB, 585 plików** (du: 371 MB) → skasowany po „Tak, skasuj” → **0** (katalog nie istnieje).
+  Foldery `%TEMP%` renderu pętli i kontroli (`relai-film-petla-*`, `relai-film-kontrola-*`) skrypty
+  kasują same — raport nie pokazał żadnego. Rendery w `zrodla/out/` (`film.mp4`, `film-en.mp4`,
+  poza gitem) zostają do E7.
+- Ryzyka: tabela „Stan otwartych ryzyk” przejrzana — film nie ma w niej pozycji; ryzyka planu
+  w `PLAN.html` (sekcja 7 i aneksy) bez zmian poza Aneksem E.
+- Lekcje L-0181, L-0182, L-0183; zasady aktywne 4, 5 i 15 uzupełnione; `count-rules.js` → 15 / 15.
+
+**Odstępstwa od promptu:** zestawienie ze zrzutami zrobione z klatek MP4 PL (słowa produktu są
+w obu wersjach te same). Edycje odhaczeń i `STATUS.md` krótkimi skryptami Pythona z heredoku —
+bez `\n` i ścieżek Windows w treści, każda z asercją „dokładnie jedno trafienie”.
+
+**Świadomie odłożone:** rotacja `DZIENNIK.md` i `LEKCJE.md` (sygnał hooka startu, oba ponad
+progiem). Pełna wersja angielska interfejsu (panel, paski) — Aneks E mówi, że to nie ten plan.
+
+**Do zrobienia przez człowieka:**
+
+- Start E7 w świeżej sesji Opus 5.5 (`/relai-stage`, `/effort medium`).
+- Odnoga z poprawką parsera modelu na karcie startu etapu — przed wydaniem (bramka OTWARTA
+  od 2026-10-12, bez zmian).
 
 Autor: RelAI (Opus 5.5) + Lukasz

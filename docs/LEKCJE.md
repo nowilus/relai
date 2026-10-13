@@ -58,9 +58,11 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
    z danych procesu sprawdzasz na stanie pośrednim z lukami**, nie tylko na stanie z chwili pisania
    — punkty odhacza się w kolejności pracy, nie numeracji (L-0175). **Chwilę z przeszłości liczysz
    kodem produktu z plików przypiętych do jej commitu** (`git show`), nie z danych żywych, które
-   do dnia wydania pokażą inny stan (L-0177).
+   do dnia wydania pokażą inny stan (L-0177). **Artefakt, na którym stawiasz punkt weryfikacji,
+   renderujesz od nowa z bieżącego kodu** — wszystkie warianty w jednym przebiegu; plik zastany po
+   przerwanej sesji bywa sprzed ostatniej zmiany (L-0182).
    (L-0017, L-0018, L-0040, L-0051, L-0052, L-0063, L-0069, L-0082, L-0115, L-0117, L-0123, L-0134,
-   L-0144, L-0150, L-0154, L-0155, L-0156, L-0158, L-0159, L-0165, L-0175, L-0177)
+   L-0144, L-0150, L-0154, L-0155, L-0156, L-0158, L-0159, L-0165, L-0175, L-0177, L-0182)
 5. **Instrument pomiarowy sam bywa źródłem fałszu:** wyrażenia regularne trzymaj w pliku zapisanym
    narzędziem zapisu, nie w `node -e` ani w heredoku, a tekst z backslashem (także ścieżkę
    Windows) wstawiasz Edit/Write albo piszesz z `/` (L-0116, L-0119); **skrypt edycji kodu, który
@@ -150,11 +152,14 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
    które czytają hooki** (tożsamość gita, pliki domowe) — inaczej siatka hooka odpowiada na
    maszynę mierzącego, nie na prompt (L-0170). **Wartość podkładaną w kontroli pozytywnej
    sprawdzasz wobec zbioru dozwolonego, zanim na niej oprzesz kontrolę**, a tekst cytowany
-   dosłownie wyłączasz z tego zbioru jawnie (L-0173). (L-0032, L-0037, L-0095, L-0096, L-0105, L-0106, L-0107, L-0110, L-0111, L-0113,
+   dosłownie wyłączasz z tego zbioru jawnie (L-0173). **Kontrola negatywna zmienia mierzoną
+   wielkość, nie jej obraz** — materiał zmniejszony i powiększony z powrotem ma te same wysokości;
+   wynik kontroli porównujesz z liczbą, którą defekt musi dać, na dwóch klatkach różnej treści
+   (L-0181). (L-0032, L-0037, L-0095, L-0096, L-0105, L-0106, L-0107, L-0110, L-0111, L-0113,
    L-0097, L-0101, L-0102,
    L-0054, L-0055, L-0056, L-0064, L-0068, L-0071, L-0073, L-0083, L-0084, L-0086, L-0087, L-0088,
    L-0090, L-0091, L-0124, L-0125, L-0130, L-0131, L-0135, L-0141, L-0143, L-0151, L-0160, L-0164,
-   L-0169, L-0170, L-0173)
+   L-0169, L-0170, L-0173, L-0181)
 6. **Próg jest liczbą, którą ktoś liczy:** kalibruj go na zmierzonych plikach realnych projektów,
    zapisuj w jednostce mechanizmu kontrolnego wraz z komendą sprawdzającą i daj mu **jeden**
    wyzwalacz — wielkości pomocnicze wskazują przyczynę wewnątrz komunikatu, nie wywołują go.
@@ -312,9 +317,11 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
     bierzesz z gotowych źródeł i dajesz człowiekowi próbki do wyboru przed integracją** — liczby
     mówią o poziomie, nie o smaku (L-0179). **Licencję cudzego materiału czytasz na stronie
     utworu** i mówisz jej skutki dla wydania (NC, SA, kredyt); plik wchodzi z kartą źródła i testem
-    sumy i kredytu (L-0180).
+    sumy i kredytu (L-0180). **Drugi język materiału o produkcie w jednym języku zaczyna się od
+    jednej klatki z interfejsem i pytania, dla kogo jest** — reguła tłumaczenia jest drugim
+    pytaniem (L-0183).
     (L-0003, L-0006, L-0016, L-0019, L-0029, L-0094, L-0098, L-0137, L-0140, L-0142, L-0145, L-0147,
-    L-0149, L-0152, L-0157, L-0171, L-0174, L-0176, L-0178, L-0179, L-0180)
+    L-0149, L-0152, L-0157, L-0171, L-0174, L-0176, L-0178, L-0179, L-0180, L-0183)
 
 **Wyprowadzone 2026-08-20 do `docs/PULAPKI.md`:** sześć pozycji, które były pułapkami
 narzędziowymi, a nie zasadami pracy — `tar` na `PATH` (L-0021), sesja pomiarowa `claude -p`
@@ -747,6 +754,43 @@ restart aplikacji po `plugin update` (L-0031), `git worktree` zamiast `git archi
   wymóg kredytu, długość wobec potrzeby. Plik wchodzi do repo z kartą źródła (adres, suma sha256,
   licencja, tekst kredytu), a test pilnuje sumy i kredytu w dokumentach, które licencja wskazuje.
 - **Źródło:** FILM_PREZENTACYJNY E5, 2026-10-12, Aneks C; destylat: zasada 15.
+
+### L-0181 — Kontrola negatywna instrumentu czytelności nie mogła się nie udać · 2026-10-13 · AKTYWNA
+
+- **Trigger:** `telefon.py --kontrola` miał pokazać, że ta sama klatka w 1/3 wielkości nie przechodzi
+  progu 7 px. Na klatce 100 pętli dał minimum 7,5 px — „klatka trzy razy mniejsza przechodzi”.
+- **Przyczyna:** kontrola zmniejszała klatkę do 1/3 i powiększała ją z powrotem (`NEAREST`) do tej
+  samej wielkości, więc glify miały tę samą wysokość, tylko w kratkę. Na klatce 132 kontrola
+  „trafiała” wyłącznie dzięki kursorowi, który był linią poniżej progu w obu wersjach.
+- **Zasada:** kontrola negatywna zmienia **mierzoną wielkość**, nie jej obraz — zmniejszony materiał
+  kładziesz na płótnie tej samej wielkości, a wynik kontroli porównujesz z liczbą, jaką defekt
+  musi dać (1/3 z 7 px → ok. 2–3 px), nie z samym „nie przeszło”. Kontrolę sprawdzasz na co najmniej
+  dwóch klatkach różnej treści, bo jedna klatka może trafić z innego powodu.
+- **Źródło:** FILM_PREZENTACYJNY E6, 2026-10-13; destylat: zasada 5.
+
+### L-0182 — Pomiar na artefakcie wyrenderowanym przed ostatnią zmianą kodu · 2026-10-13 · AKTYWNA
+
+- **Trigger:** kontrola telefonu na pętli EN dała 2,0 px i siedem linii poniżej progu; na pętli PL
+  — jedną. GIF EN był z 23:21, PL z 23:29, a powiększenie panelu (zoom 1,6) weszło między nimi.
+- **Przyczyna:** przerwana sesja zostawiła dwa pliki wyjściowe z różnych wersji kodu; wpis
+  dziennika mówił „pętle gotowe”, a pomiar wziął plik, który był, nie plik z bieżącego kodu.
+- **Zasada:** artefakt wyjściowy, na którym stawiasz punkt weryfikacji, renderujesz od nowa
+  w tej sesji z bieżącego kodu (albo porównujesz jego czas z ostatnią zmianą źródeł) — wszystkie
+  warianty językowe w jednym przebiegu, zanim zaczniesz rozbierać wynik.
+- **Źródło:** FILM_PREZENTACYJNY E6, 2026-10-13; destylat: zasada 4.
+
+### L-0183 — Wersja językowa materiału o produkcie w jednym języku zakwestionowana na pokazie · 2026-10-13 · AKTYWNA
+
+- **Trigger:** na pokazie filmu EN Łukasz zapytał, po co wersja angielska, skoro panel, paski
+  i wszystkie zrzuty są po polsku — napisy EN nad polskim interfejsem „mijają się z celem”. Wersja
+  EN zeszła do roli zapasu (Aneks E) po trzech etapach pracy nad słownikiem, testami i renderem.
+- **Przyczyna:** plan przyjął PL i EN jako cel wprost, a reguła „słowa produktu bez tłumaczenia”
+  rozstrzygnęła, jak wersja EN ma wyglądać, nie czy ma sens dla widza; pierwszy kadr EN człowiek
+  zobaczył dopiero po renderze.
+- **Zasada:** materiał w drugim języku o produkcie, którego interfejs jest tylko w jednym, idzie
+  do człowieka **jedną klatką z interfejsem** przed pracą nad słownikiem — z pytaniem, dla kogo jest
+  i czy nie wystarczy wersja podstawowa; reguła tłumaczenia jest drugim pytaniem, nie pierwszym.
+- **Źródło:** FILM_PREZENTACYJNY E6, 2026-10-13, Aneks E; destylat: zasada 15.
 
 ## Lekcje zwinięte
 
