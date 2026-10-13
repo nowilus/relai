@@ -3,11 +3,9 @@
 //
 // Scene 4's card is computed by the real panel's own function, stageCard() of core/panel/
 // decisions.mjs, on STATUS.md and PROMPT_ETAP_4.md as they stood when E4 started (commit START):
-// the card Łukasz said "tak" to. One change, by Łukasz's decision of 2026-10-12: the plan's metric
-// line carries its model without the label "model wykonawczy:", which requiredModel() demands and
-// SPEC_STATUS does not, so the live card warns "plan nie wskazuje modelu". The film shows the row as
-// the card writes it once the parser is fixed (a branch before 3.0.0): the label is added to the
-// metric line before stageCard() reads it, and the source says so.
+// the card Łukasz said "tak" to, unchanged. The plan's metric line carries its model without a
+// label; until Aneks F (E7, 2026-10-13) requiredModel() could not read it and the script added the
+// label "model wykonawczy:" — the parser reads the line as written now, so the card is the live one.
 //
 // Scene 5 carries no figure of a session (Łukasz, 2026-10-12): the card's words and buttons are
 // read from relai-cache-keeper's code, the threshold is core/panel's default, the save row is the
@@ -40,9 +38,8 @@ const STATUS = `docs/plany/${TOPIC}/STATUS.md`;
 const PROMPT = `docs/plany/${TOPIC}/PROMPT_ETAP_4.md`;
 const SESSION_MODEL = 'Opus 5.5'; // the model of the session that started E4, as /model names it
 const CARD_ID = 'film-scena-cztery'; // any id the card accepts; the frame never shows it
-// the model member of the metric line as the plan writes it, and as requiredModel() can read it
+// the model member of the metric line as the plan writes it: the card's Model row comes from it
 const MODEL_AS_WRITTEN = '· Opus 5.5 w Claude Code';
-const MODEL_AS_READ = '· model wykonawczy: Opus 5.5, w Claude Code';
 
 const SAVE_SHOT = 'docs/zasoby/PANEL_RELAI/zrzuty/LIMIT_CHECKPOINT_E3_zapis.png';
 const SAVE_ROW = 'zapis gotowy · reset 18.10 12:00';
@@ -77,14 +74,13 @@ const constOf = (text, name, file) => one(text, new RegExp(`export const ${name}
  */
 export function sceny({ readText, statusAtStart, promptAtStart, repoRoot }) {
   if (!statusAtStart.includes(MODEL_AS_WRITTEN)) throw new Error(`${STATUS}@${START}: no "${MODEL_AS_WRITTEN}" in the metric line`);
-  const statusMd = statusAtStart.replace(MODEL_AS_WRITTEN, MODEL_AS_READ);
-  const result = stageCard({ id: CARD_ID, statusMd, statusPath: STATUS, promptText: promptAtStart, stage: STAGE, sessionModel: SESSION_MODEL, isFresh: false, isNew: true, via: 'link' });
+  const result = stageCard({ id: CARD_ID, statusMd: statusAtStart, statusPath: STATUS, promptText: promptAtStart, stage: STAGE, sessionModel: SESSION_MODEL, isFresh: false, isNew: true, via: 'link' });
   if (result.kind !== 'card') throw new Error(`stageCard gave no card: ${JSON.stringify(result)}`);
   const card = result.card;
   const action = card.actions[0];
   if (!action || action.kind !== 'newSession') throw new Error('the card does not open a new session');
   const command = `/${action.command} ${action.args}`;
-  const fromCard = `core/panel/decisions.mjs stageCard() na ${STATUS} i ${PROMPT} z commitu ${START} (start E4), sesja ${SESSION_MODEL}, nowa sesja przez link; linia metryczna z etykietą „model wykonawczy:” (decyzja Łukasza 2026-10-12, poprawka parsera w odnodze)`;
+  const fromCard = `core/panel/decisions.mjs stageCard() na ${STATUS} i ${PROMPT} z commitu ${START} (start E4), sesja ${SESSION_MODEL}, nowa sesja przez link; linia metryczna bez zmian (parser modelu po Aneksie F, 2026-10-13)`;
 
   const chat = card.facts.find((f) => f.label === 'Czat')?.value ?? '';
   const stays = chat.split('; ').find((p) => p.includes('rozmowa zostaje'));

@@ -94,6 +94,35 @@ test('model: zgodny, inny, nieznany', () => {
   assert.equal(d.modelMatch('Opus', ''), 'unknown');
 });
 
+// SPEC_STATUS does not require a label before the model (FILM_PREZENTACYJNY, Aneks F): metric
+// lines copied from the plans in this repository on 2026-10-13, every wording that exists there
+test('model: kazdy zapis linii metrycznej z planow repo', () => {
+  const line = (m) => `# STATUS — plan X\n\n${m}\n\n| Etap | Nazwa | Status | Prompt | Uwagi |`;
+  const cases = [
+    ['[PLAN.html](PLAN.html) · utworzony 2026-10-12 · **ZAAKCEPTOWANY 2026-10-12** · Aneks E (2026-10-13) · Opus 5.5 w Claude Code (ustawienia projektu, D-85)', 'Opus 5.5'],
+    ['[PLAN.html](PLAN.html) · utworzony 2026-10-08 · **ZAAKCEPTOWANY 2026-10-10** · model wykonawczy etapów: **gpt-6.1-sol w Codeksie** (wybór użytkownika 2026-10-08; także autor planu)', 'gpt-6.1-sol'],
+    ['Plan: [PLAN.html](PLAN.html) • Utworzony: 2026-08-07 • Status planu: **ZREALIZOWANY 2026-08-10** • Model wykonawczy: **Opus** (D-85)', 'Opus'],
+    ['Plan: [PLAN.html](PLAN.html) · Utworzony: 2026-10-11 · Status planu: **ZREALIZOWANY 2026-10-12** (zaakceptowany 2026-10-11) · Model wykonawczy etapów: **Opus 5.5 w świeżych sesjach** (D-85; wybór Łukasza)', 'Opus 5.5'],
+    ['[PLAN.html](PLAN.html) · utworzony 2026-10-08 · **ZREALIZOWANY 2026-10-10** · model wykonawczy: Opus, w Claude Code (autor planu: Opus 5.5)', 'Opus'],
+    ['Plan: [PLAN.md](PLAN.md) · Utworzony: 2026-08-12 · Status planu: **ZAAKCEPTOWANY 2026-08-13** · Model wykonawczy etapów: Fable 5.1', 'Fable 5.1'],
+  ];
+  for (const [m, want] of cases) assert.equal(d.requiredModel(line(m)), want, m);
+  // The metric line wrapped in Markdown, label broken too (SPRZATANIE_ARTEFAKTOW, SPEC_STATUS example)
+  const wrapped = 'Plan: [PLAN.html](PLAN.html) · Utworzony: 2026-09-03 · Status planu: **ZREALIZOWANY 2026-09-03** · Model\nwykonawczy etapów: Opus (D-85; z ustawień projektu — architektura i plany: Fable)';
+  assert.equal(d.requiredModel(line(wrapped)), 'Opus');
+  assert.equal(d.requiredModel(line(wrapped.replace(/\n/g, '\r\n'))), 'Opus', 'CRLF');
+});
+
+test('model: kilka modeli albo brak modelu to cisza, nie zgadywanie', () => {
+  const line = (m) => `# STATUS — plan X\n\n${m}\n`;
+  // Several models in one line: the card cannot know which stage it is for
+  assert.equal(d.requiredModel(line('Plan: [PLAN.md](PLAN.md) · Utworzony: 2026-08-12 · Model wykonawczy etapów: Opus dla E2–E3, Haiku dla reszty (wybór użytkownika)')), null);
+  assert.equal(d.requiredModel(line('Plan: [PLAN.html](PLAN.html) · Utworzony: 2026-08-12 · Status: **ZREALIZOWANY 2026-09-05 (A–C)** · Modele: Opus; **E7: gpt-5.6-terra/high w Codeksie**')), null);
+  assert.equal(d.requiredModel(line('Plan: [PLAN.html](PLAN.html) · Utworzony: 2026-09-01 · Status planu: **ZREALIZOWANY 2026-09-01**')), null);
+  // A model name inside another segment is not the executing model
+  assert.equal(d.requiredModel(line('[PLAN.html](PLAN.html) · utworzony 2026-10-12 · Aneks A (autor: Opus 5.5)')), null);
+});
+
 test('karta etapu na realnym STATUS.md i PROMPT_ETAP_5.md', () => {
   const r = d.stageCard({ id: ID, statusMd: statusWithE5('GOTOWY DO STARTU'), statusPath: STATUS_PATH, stage: 'E5', promptText: REAL_PROMPT, sessionModel: 'claude-opus-5-5', isFresh: true });
   assert.equal(r.kind, 'card');

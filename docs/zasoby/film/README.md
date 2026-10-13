@@ -25,7 +25,12 @@ Pod całym filmem gra muzyka (niżej). Klatki wzorcowe: `kalibracja/E5-komenda.p
 (`relai-petla-25s-pl.gif`, osadzona w `README.md`) i EN (`relai-petla-25s-en.gif`); **film EN** —
 ten sam film z angielskim słownikiem (napisy, slogany i nazwy w scenie komend; reszta słów
 produktu po polsku, jak rysuje je produkt). Wersja EN jest zapasem i alternatywą (Aneks E):
-README pokazuje tylko PL, MP4 EN idzie do wydania jako dodatek. Wydanie — E7.
+README pokazuje tylko PL, MP4 EN idzie do wydania jako dodatek. Stan na E7 (2026-10-13, Aneks F):
+oba filmy i obie pętle wyrenderowane po podbiciu do RelAI 3.0.0 (finał pokazuje `RelAI 3.0.0`
+i liczby z manifestu tego dnia); MP4 do gita nie wchodzą — są zasobami wydania `v3.0.0` pod
+nazwami `relai-film-pl.mp4` (film główny, kopia `zrodla/out/film.mp4`) i `relai-film-en.mp4`
+(dodatek, kopia `zrodla/out/film-en.mp4`). Scena 4 bierze kartę startu etapu wprost z linii
+metrycznej planu — po poprawce parsera modelu (Aneks F) bez dopisywanej etykiety.
 
 ## Co gdzie leży
 
@@ -128,10 +133,9 @@ prawdziwej sesji. Dlatego:
   zrzutu przez `paski.json`;
 - **sceny 4 i 5** (`skrypty/sceny.mjs` → `src/dane/sceny.json`): kartę startu E4 liczy
   `stageCard()` z `core/panel/decisions.mjs` na `STATUS.md` i `PROMPT_ETAP_4.md` z commitu
-  `0dcadef` (stan w chwili startu E4). Jedna zmiana wejścia, decyzją Łukasza z 2026-10-12: linia
-  metryczna dostaje etykietę „model wykonawczy:”, której wymaga parser panelu, a nie
-  `SPEC_STATUS` — film pokazuje wiersz Model tak, jak karta napisze go po poprawce parsera;
-  test wierności pilnuje, że reszta wierszy jest słowo w słowo kartą na żywo. Scena 5 nie ma
+  `0dcadef` (stan w chwili startu E4), bez zmian wejścia — do Aneksu F (E7) skrypt dopisywał
+  linii metrycznej etykietę „model wykonawczy:”, bo parser panelu czytał tylko ją; test wierności
+  pilnuje, że każdy wiersz karty filmu jest słowo w słowo kartą na żywo. Scena 5 nie ma
   żadnej liczby sesji (decyzja Łukasza): zdanie i przyciski karty limitu czyta skrypt
   z `cache-keeper/hooks/limit.ts`, kroki zapisu z `limit-checkpoint.md` skilla `relai-core`,
   ścieżkę pliku wznowienia liczy `core/process/resume.js`, próg 90 % to wartość domyślna

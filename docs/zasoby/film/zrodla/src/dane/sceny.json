@@ -10,7 +10,7 @@
     },
     "tytul": {
       "wartosc": "Start etapu E4",
-      "zrodlo": "core/panel/decisions.mjs stageCard() na docs/plany/FILM_PREZENTACYJNY/STATUS.md i docs/plany/FILM_PREZENTACYJNY/PROMPT_ETAP_4.md z commitu 0dcadef (start E4), sesja Opus 5.5, nowa sesja przez link; linia metryczna z etykietą „model wykonawczy:” (decyzja Łukasza 2026-10-12, poprawka parsera w odnodze)"
+      "zrodlo": "core/panel/decisions.mjs stageCard() na docs/plany/FILM_PREZENTACYJNY/STATUS.md i docs/plany/FILM_PREZENTACYJNY/PROMPT_ETAP_4.md z commitu 0dcadef (start E4), sesja Opus 5.5, nowa sesja przez link; linia metryczna bez zmian (parser modelu po Aneksie F, 2026-10-13)"
     },
     "fakty": {
       "wartosc": [
@@ -45,15 +45,15 @@
           "ton": "zwykly"
         }
       ],
-      "zrodlo": "core/panel/decisions.mjs stageCard() na docs/plany/FILM_PREZENTACYJNY/STATUS.md i docs/plany/FILM_PREZENTACYJNY/PROMPT_ETAP_4.md z commitu 0dcadef (start E4), sesja Opus 5.5, nowa sesja przez link; linia metryczna z etykietą „model wykonawczy:” (decyzja Łukasza 2026-10-12, poprawka parsera w odnodze)"
+      "zrodlo": "core/panel/decisions.mjs stageCard() na docs/plany/FILM_PREZENTACYJNY/STATUS.md i docs/plany/FILM_PREZENTACYJNY/PROMPT_ETAP_4.md z commitu 0dcadef (start E4), sesja Opus 5.5, nowa sesja przez link; linia metryczna bez zmian (parser modelu po Aneksie F, 2026-10-13)"
     },
     "pytanie": {
       "wartosc": "Zaczynamy?",
-      "zrodlo": "core/panel/decisions.mjs stageCard() na docs/plany/FILM_PREZENTACYJNY/STATUS.md i docs/plany/FILM_PREZENTACYJNY/PROMPT_ETAP_4.md z commitu 0dcadef (start E4), sesja Opus 5.5, nowa sesja przez link; linia metryczna z etykietą „model wykonawczy:” (decyzja Łukasza 2026-10-12, poprawka parsera w odnodze)"
+      "zrodlo": "core/panel/decisions.mjs stageCard() na docs/plany/FILM_PREZENTACYJNY/STATUS.md i docs/plany/FILM_PREZENTACYJNY/PROMPT_ETAP_4.md z commitu 0dcadef (start E4), sesja Opus 5.5, nowa sesja przez link; linia metryczna bez zmian (parser modelu po Aneksie F, 2026-10-13)"
     },
     "komenda": {
       "wartosc": "/relai-stage FILM_PREZENTACYJNY E4",
-      "zrodlo": "core/panel/decisions.mjs stageCard() na docs/plany/FILM_PREZENTACYJNY/STATUS.md i docs/plany/FILM_PREZENTACYJNY/PROMPT_ETAP_4.md z commitu 0dcadef (start E4), sesja Opus 5.5, nowa sesja przez link; linia metryczna z etykietą „model wykonawczy:” (decyzja Łukasza 2026-10-12, poprawka parsera w odnodze); działanie newSession"
+      "zrodlo": "core/panel/decisions.mjs stageCard() na docs/plany/FILM_PREZENTACYJNY/STATUS.md i docs/plany/FILM_PREZENTACYJNY/PROMPT_ETAP_4.md z commitu 0dcadef (start E4), sesja Opus 5.5, nowa sesja przez link; linia metryczna bez zmian (parser modelu po Aneksie F, 2026-10-13); działanie newSession"
     },
     "otwarto": {
       "wartosc": "Otwarto nową sesję z /relai-stage FILM_PREZENTACYJNY E4 — naciśnij w niej Enter (zgoda ważna 10 min).",
@@ -61,7 +61,7 @@
     },
     "zostaje": {
       "wartosc": "ta rozmowa zostaje",
-      "zrodlo": "core/panel/decisions.mjs stageCard() na docs/plany/FILM_PREZENTACYJNY/STATUS.md i docs/plany/FILM_PREZENTACYJNY/PROMPT_ETAP_4.md z commitu 0dcadef (start E4), sesja Opus 5.5, nowa sesja przez link; linia metryczna z etykietą „model wykonawczy:” (decyzja Łukasza 2026-10-12, poprawka parsera w odnodze); wiersz Czat"
+      "zrodlo": "core/panel/decisions.mjs stageCard() na docs/plany/FILM_PREZENTACYJNY/STATUS.md i docs/plany/FILM_PREZENTACYJNY/PROMPT_ETAP_4.md z commitu 0dcadef (start E4), sesja Opus 5.5, nowa sesja przez link; linia metryczna bez zmian (parser modelu po Aneksie F, 2026-10-13); wiersz Czat"
     },
     "plan": {
       "wartosc": {

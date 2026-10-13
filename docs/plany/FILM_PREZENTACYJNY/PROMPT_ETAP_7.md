@@ -496,25 +496,25 @@ Write (zasada 5); dłuższy wpis do dziennika też przez Write albo Edit.
 Każdy punkt Weryfikacji, który przeszedł, odhaczasz w `PROMPT_ETAP_7.md` (`- [ ]` → `- [x]`)
 zaraz po jego sprawdzeniu, nie na końcu etapu; punkt, który nie przeszedł, zostaje pusty.
 
-- [ ] Bramka odnogi parsera rozstrzygnięta przed zmianą numerów: odnoga `ZAMKNIĘTA` albo decyzja
+- [x] Bramka odnogi parsera rozstrzygnięta przed zmianą numerów: odnoga `ZAMKNIĘTA` albo decyzja
       Łukasza jego słowami we wpisie i w `STATUS.md`.
-- [ ] Decyzje z sekcji 9 planu (numery i „early access” pluginów panelu, zgoda na publikację)
+- [x] Decyzje z sekcji 9 planu (numery i „early access” pluginów panelu, zgoda na publikację)
       padły w jednym pytaniu; odpowiedzi we wpisie.
-- [ ] `node core/tools/validate-adapters.js` → exit 0 i raport „numery wersji: 7 zrodel, wartosc
+- [x] `node core/tools/validate-adapters.js` → exit 0 i raport „numery wersji: 7 zrodel, wartosc
       "3.0.0"”; `generate-skills.js --verify` i `sync-panel-core.js --check` zielone.
 - [ ] `grep -r "2\.9\.0"` (i stare numery pluginów, gdy się zmieniły) po repo poza `.git`,
       `node_modules` i `docs/archiwum/` — każde trafienie rozstrzygnięte we wpisie (historyczne /
       podbite); kontrola pozytywna: podłożony plik w katalogu roboczym trafiony.
-- [ ] `history.md` (obie kopie) ma wpis 3.0.0; `docs/ARTEFAKTY.md` — każdy artefakt z rejestru
+- [x] `history.md` (obie kopie) ma wpis 3.0.0; `docs/ARTEFAKTY.md` — każdy artefakt z rejestru
       zmieniony od `v2.9.0` ma wpis (lista z `git diff --stat v2.9.0..HEAD` obok rejestru we wpisie).
-- [ ] Film PL i EN wyrenderowane po podbiciu: `ffprobe` z pliku — po 5070 klatek, 169 s ± 1
+- [x] Film PL i EN wyrenderowane po podbiciu: `ffprobe` z pliku — po 5070 klatek, 169 s ± 1
       klatka, audio obecne; ostatnia klatka obu pokazuje `RelAI 3.0.0` (obejrzana).
-- [ ] Pętle PL i EN wyrenderowane po podbiciu: 720×900, 25 000 ms, waga do wpisu wobec 3 MB
+- [x] Pętle PL i EN wyrenderowane po podbiciu: 720×900, 25 000 ms, waga do wpisu wobec 3 MB
       (SZACUNEK); kontrola telefonu (tekst ≥ 7 px, linie poniżej progu obejrzane na wycinkach)
       i przepełnień (0, kontrola pozytywna trafiona) na nowych plikach.
 - [ ] `npm test` filmu po `npm run przygotuj` po ostatniej zmianie promptu — wszystkie (36 z E6
       + nowe, minus świadomie zmienione z powodem); `npm run typy` bez błędów.
-- [ ] Testy rdzenia — wszystkie zielone (331 z E6 + nowe, liczba do wpisu); `plugin test` trzech
+- [x] Testy rdzenia — wszystkie zielone (331 z E6 + nowe, liczba do wpisu); `plugin test` trzech
       pluginów binarką aplikacji — liczby do wpisu; `plugin validate` repo i trzech pluginów —
       exit 0 (ostrzeżenie o root `CLAUDE.md` świadome).
 - [ ] Skan sekretów na plikach diffu `origin/main..HEAD` — zero trafień; kontrola pozytywna

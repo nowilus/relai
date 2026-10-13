@@ -43,7 +43,7 @@
         {
           "id": "E7",
           "nazwa": "Wydanie RelAI 3.0.0",
-          "status": "GOTOWY DO STARTU"
+          "status": "W TOKU"
         }
       ],
       "zrodlo": "docs/plany/FILM_PREZENTACYJNY/STATUS.md przez core/panel/plan-state.mjs"

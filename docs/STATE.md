@@ -4,11 +4,12 @@ Stan na: 2026-10-12 (odnoga AUDYT_SKILLI zamknięta, bez wydania)
 
 ## Gdzie jesteśmy
 
-RelAI **2.9.0** jest w repozytorium i publicznie (tag `v2.9.0`, 2026-10-11: zapis pracy przed
-limitem planu, plan LIMIT_CHECKPOINT). Plugin `relai` działa w trzech narzędziach — Claude Code,
+RelAI **3.0.0** jest w repozytorium (E7 planu FILM_PREZENTACYJNY, 2026-10-13: film
+prezentacyjny, start etapu w nowej sesji, skille wg praktyk Agent Skills); publicznie do
+wydania `v3.0.0` jest 2.9.0. Plugin `relai` działa w trzech narzędziach — Claude Code,
 Cursorze i Codeksie — na jednym rdzeniu procesu, z czternastoma komendami. Panel RelAI w oknie
 Claude Code to trzy osobne pluginy „early access” z marketplace tego repozytorium: `relai-panel`
-0.14.0, `relai-progress` 0.4.0, `relai-cache-keeper` 0.6.0 (plan PANEL_CLAUDE zamknięty
+0.14.1 (poprawka parsera modelu karty etapu, Aneks F), `relai-progress` 0.4.0, `relai-cache-keeper` 0.6.0 (plan PANEL_CLAUDE zamknięty
 2026-10-10, odnoga AUDYT_MODOW zamknięta 2026-10-11, wszystkie paczki zmierzone na żywo na 2.1.295). Aktywny plan to FILM_PREZENTACYJNY (film o RelAI
 w Remotion i wydanie 3.0.0, E1–E6 zrealizowane do 2026-10-13 — film PL i EN 169 s z muzyką i pętla do README gotowe do wydania); obok trwa PANEL_CODEX — panel dla Codeksa,
 E1 po stronie Codeksa. Opinii spoza projektu nadal nie ma.
@@ -154,7 +155,7 @@ E1 po stronie Codeksa. Opinii spoza projektu nadal nie ma.
 
 ### Wersja i instalacja
 
-Repo i publicznie **2.9.0**; marketplace w tym repozytorium (scope `user`) niesie cztery pluginy:
+Repo **3.0.0**, publicznie 2.9.0 do wydania `v3.0.0`; marketplace w tym repozytorium (scope `user`) niesie cztery pluginy:
 `relai` i trzy pluginy panelu z własnymi wersjami i tagami (`relai-panel-v0.14.0`). Wydanie
 potwierdzasz treścią plików z cache'u, nie komunikatem CLI (P-005): `claude plugin validate` → tag
 → push → release → `marketplace update` → `plugin update` → suma plików po CRLF → LF. Walidator

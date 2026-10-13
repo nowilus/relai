@@ -1,6 +1,6 @@
 {
   "wersja": {
-    "wartosc": "2.9.0",
+    "wartosc": "3.0.0",
     "zrodlo": ".claude-plugin/plugin.json, pole version"
   },
   "komendy": {
@@ -12,7 +12,7 @@
     "zrodlo": "docs/archiwum/plany/*/STATUS.md ze statusem ZREALIZOWANY, CZĘŚCIOWO ZREALIZOWANY albo ZAMKNIĘTY"
   },
   "testyRdzenia": {
-    "wartosc": 331,
+    "wartosc": 333,
     "zrodlo": "node --test core/process/tests/*.test.js core/guardrails/tests/*.test.js core/panel/tests/*.test.js adapters/codex/tests/*.test.js, liczba testów zaliczonych przy zerze niezaliczonych"
   },
   "narzedzia": {

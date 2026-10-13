@@ -91,7 +91,7 @@ test('the buttons of scene 4\'s card are those of the panel\'s confirmation card
   assert.ok(!text.includes("btn('confirm-yes', 'Dalej'"));
 });
 
-test('scene 4\'s model row is the card\'s "match" row; the line as written still warns (parser branch open)', (t) => {
+test('scene 4\'s card is the live card on the metric line as written, model row "match" (Aneks F)', (t) => {
   const statusAtStart = atCommit(START, 'docs/plany/FILM_PREZENTACYJNY/STATUS.md');
   const prompt = atCommit(START, 'docs/plany/FILM_PREZENTACYJNY/PROMPT_ETAP_4.md');
   const card = (statusMd) => stageCard({ id: 'film-kontrola', statusMd, statusPath: 'docs/plany/FILM_PREZENTACYJNY/STATUS.md', promptText: prompt, stage: 'E4', sessionModel: 'Opus 5.5', isFresh: false, isNew: true, via: 'link' });
@@ -99,14 +99,13 @@ test('scene 4\'s model row is the card\'s "match" row; the line as written still
   const shown = SC.nowaSesja.fakty.wartosc.find((f) => f.etykieta === 'Model');
   assert.equal(shown.ton, 'ok');
   assert.equal(shown.wartosc, 'Opus 5.5 — zgodny z planem (Opus 5.5)');
-  // as written, the metric line gives the warning of screenshot 08: when this fails, the parser
-  // is fixed — drop the label added in sceny.mjs and this half of the test
+  // the metric line as written: before Aneks F the parser read no model here (screenshot 08 warned)
   const asWritten = model(card(statusAtStart));
-  assert.equal(asWritten.value, 'plan nie wskazuje modelu');
+  assert.equal(asWritten.value, shown.wartosc);
   t.diagnostic(`model row: film "${shown.wartosc}", live today "${asWritten.value}"`);
-  // every other row of the film's card is the live card's row, word for word
-  const live = card(statusAtStart).card.facts.filter((f) => f.label !== 'Model').map((f) => f.value);
-  assert.deepEqual(SC.nowaSesja.fakty.wartosc.filter((f) => f.etykieta !== 'Model').map((f) => f.wartosc), live);
+  // every row of the film's card is the live card's row, word for word
+  const live = card(statusAtStart).card.facts.map((f) => f.value);
+  assert.deepEqual(SC.nowaSesja.fakty.wartosc.map((f) => f.wartosc), live);
 });
 
 test('positive control: a plugin file without a word scene 5 reads stops the data script', () => {

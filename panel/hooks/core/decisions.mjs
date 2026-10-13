@@ -225,16 +225,32 @@ export function stageArgs(args) {
 
 // ---------- the stage card ----------
 
+// SPEC_STATUS names no label for the model, so the plans write it many ways (Aneks F of
+// FILM_PREZENTACYJNY): labelled segments, and a bare segment that starts with the model name
+const MODEL_LABEL = /^(?:model wykonawczy(?: etapów)?|modele)\s*:\s*/i;
+const MODEL_NAME = /^((?:Opus|Sonnet|Haiku|Fable)(?:\s+\d+(?:\.\d+)*)?|gpt-\d[\w.-]*)(?=[\s,]|$)/i;
+
 /**
- * The executing model from STATUS.md's metric line ("model wykonawczy: Opus, w Claude Code"),
- * cut before the first comma, bracket or middle dot; null when the line does not say it.
+ * The executing model from STATUS.md's metric line: "model wykonawczy: Opus, w Claude Code",
+ * "Model wykonawczy etapów: **Opus 5.5 w świeżych sesjach**" or a bare "Opus 5.5 w Claude Code".
+ * A segment of the line (split on "·" or "•") is cut before its first bracket; what stays must be
+ * one model name of a closed list, optionally followed by "w <tool>" (comma allowed). Several
+ * models, an unknown name or no such segment — null, never a guess.
  * @param {string} statusMd
+ * @returns {string | null}
  */
 export function requiredModel(statusMd) {
-  const metric = String(statusMd).split(/\r?\n/).find((l) => l.includes('PLAN.html')) ?? '';
-  const m = metric.match(/model wykonawczy:\s*([^,(·]+)/);
-  const v = m && m[1] ? m[1].replace(/\*\*/g, '').trim() : '';
-  return v === '' ? null : v;
+  // The metric line may be wrapped in Markdown: its whole paragraph, joined
+  const metric = String(statusMd).split(/\r?\n\s*\r?\n/).find((p) => /PLAN\.(?:html|md)/.test(p))?.replace(/\s*\r?\n\s*/g, ' ') ?? '';
+  const segments = metric.split(/[·•]/).map((s) => s.replace(/\*\*/g, '').trim());
+  const labelled = segments.filter((s) => MODEL_LABEL.test(s));
+  const candidates = labelled.length > 0 ? labelled.map((s) => s.replace(MODEL_LABEL, '')) : segments;
+  for (const c of candidates) {
+    const v = (c.split('(')[0] ?? '').trim();
+    const m = v.match(MODEL_NAME);
+    if (m && m[1] && /^(?:,?\s+w\s[^,;]*)?$/.test(v.slice(m[1].length))) return m[1];
+  }
+  return null;
 }
 
 /** @param {string} s */

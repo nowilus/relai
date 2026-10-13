@@ -1,6 +1,6 @@
 # STATUS — plan FILM_PREZENTACYJNY
 
-[PLAN.html](PLAN.html) · utworzony 2026-10-12 · **ZAAKCEPTOWANY 2026-10-12** · Aneks A (2026-10-12) · Aneks B (2026-10-12) · Aneks C (2026-10-12) · Aneks D (2026-10-12) · Aneks E (2026-10-13) · Opus 5.5 w Claude Code (ustawienia projektu, D-85)
+[PLAN.html](PLAN.html) · utworzony 2026-10-12 · **ZAAKCEPTOWANY 2026-10-12** · Aneks A (2026-10-12) · Aneks B (2026-10-12) · Aneks C (2026-10-12) · Aneks D (2026-10-12) · Aneks E (2026-10-13) · Aneks F (2026-10-13) · Opus 5.5 w Claude Code (ustawienia projektu, D-85)
 
 | Etap | Nazwa | Status | Prompt | Uwagi |
 |---|---|---|---|---|
@@ -10,7 +10,7 @@
 | E4 | Sceny 4–6 | ZREALIZOWANY 2026-10-12 | [PROMPT_ETAP_4.md](PROMPT_ETAP_4.md) | `/effort high`; zrzuty 08–09 (karta nowej sesji, karta progu) już są |
 | E5 | Scena komend | ZREALIZOWANY 2026-10-12 | [PROMPT_ETAP_5.md](PROMPT_ETAP_5.md) | Aneksy A–C; `/effort high`; scena 2 (wstęp), 3,5 s na komendę, film 169 s z muzyką „daylight hour” (CC BY 4.0) |
 | E6 | Wersja EN, pętla, kontrola jakości | ZREALIZOWANY 2026-10-13 | [PROMPT_ETAP_6.md](PROMPT_ETAP_6.md) | `/effort medium`; dawny E5 (Aneks A), obejmuje słownik EN sceny komend i muzykę w EN i w pętli (Aneks B) |
-| E7 | Wydanie RelAI 3.0.0 | GOTOWY DO STARTU | [PROMPT_ETAP_7.md](PROMPT_ETAP_7.md) | `/effort medium`; dawny E6 (Aneks A); publikacja po zgodzie |
+| E7 | Wydanie RelAI 3.0.0 | W TOKU | [PROMPT_ETAP_7.md](PROMPT_ETAP_7.md) | `/effort medium`; dawny E6 (Aneks A); publikacja po zgodzie |
 
 ## Bramki manualne
 
@@ -22,7 +22,7 @@
 - **Start E5 w świeżej sesji Opus 5.5** (`/relai-stage`; po Aneksie A to scena komend, `/effort high`) · źródło: wpis dziennika 2026-10-12 (E4) · **ROZSTRZYGNIĘTA 2026-10-12 — E5 wykonany w świeżej sesji Opus 5.5 ze zgodą z karty panelu**
 - **Start E6 w świeżej sesji Opus 5.5** (`/relai-stage`, `/effort medium`) · źródło: wpis dziennika 2026-10-12 (E5) · **ROZSTRZYGNIĘTA 2026-10-13 — E6 zaczęty 2026-10-12 i dokończony 2026-10-13 w świeżych sesjach Opus 5.5 z kartą `/relai-stage`**
 - **Start E7 w świeżej sesji Opus 5.5** (`/relai-stage`, `/effort medium`) · źródło: wpis dziennika 2026-10-13 (E6) · **OTWARTA**
-- **Odnoga z poprawką parsera modelu na karcie startu etapu** (`requiredModel()` w `core/panel/decisions.mjs` i kopiach pluginów) — przed wydaniem (po Aneksie A: E7) · źródło: wpis dziennika 2026-10-12 (E4) · **OTWARTA**
+- **Odnoga z poprawką parsera modelu na karcie startu etapu** (`requiredModel()` w `core/panel/decisions.mjs` i kopiach pluginów) — przed wydaniem (po Aneksie A: E7) · źródło: wpis dziennika 2026-10-12 (E4) · **ROZSTRZYGNIĘTA 2026-10-13 — Aneks F: Łukasz „zrób to teraz w tej sesji (…) bez żadnych dodatkowych odnóg”; poprawka w E7, `relai-panel` 0.14.1**
 
 ## Dziennik wdrożenia
 
@@ -44,3 +44,5 @@
 - 2026-10-13 — E6 wznowiony (świeża sesja Opus 5.5, `/relai-stage` → „dokończyć”)
 - 2026-10-13 — Aneks E (pokaz rundy 1 w E6): wersja EN jako zapas — README tylko z pętlą PL, MP4 EN dodatkiem w wydaniu; pieczątka „Yes” na karcie rekwizytu `/relai-stage` w filmie EN
 - 2026-10-13 — E6 zrealizowany: film EN 5070 klatek / 169 s z muzyką (pieczątka „Yes”, Aneks E), pętle PL i EN 720×900 / 25 s (2,55 i 2,58 MB), cztery kontrole w obu językach (fakty 36/36, przepełnienia 0, telefon — tekst ≥ 7 px, prywatność), zestawienie z 11 zrzutami bez uwag, dawne demo w `docs/archiwum/demo/`, README z pętlą PL; przyjęte przez Łukasza w drugiej rundzie; E7 gotowy do startu
+- 2026-10-13 — E7 rozpoczęty
+- 2026-10-13 — Aneks F (start E7): poprawka parsera modelu karty startu etapu w E7 zamiast odnogi; `relai-panel` 0.14.1, pozostałe pluginy bez zmian numerów, „early access” zostaje, publikacja po przeglądzie notatek
