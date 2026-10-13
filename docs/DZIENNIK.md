@@ -1518,3 +1518,44 @@ wydanie: „Wydaj (Rekomendowane)”; sprzątanie: „Tak, oba”.
   i `relai-panel@relai`, restart aplikacji; rzut oka na stopkę w prawym panelu.
 
 Autor: RelAI (Opus 5.5) + Lukasz
+
+### 2026-10-13 — Linia w stopce po restarcie; kompresja „Zasad aktywnych” w `LEKCJE.md`
+
+Wykonawca: Opus 5.5 (Claude Code, aplikacja desktopowa po restarcie).
+
+**Zrobione:**
+
+- Po restarcie aplikacji wydane `relai-cache-keeper` 0.7.0 i `relai-panel` 0.15.0 działają:
+  `relai-panel` zapisał słowa pracy dla 4 otwartych sesji (`.claude/relai/stopka/`), linia stoi
+  w stopce sesji RelAI i sesji spoza RelAI (sama część cache).
+- Rotacja lekcji **zablokowana**: waga 55 712 B przy progu 51 200 B, część rotowalna 0 B (w sekcji
+  „Lekcje” dokładnie 20 wpisów — dolna granica), dolna granica 55 712 B, cel 30 720 B nieosiągalny.
+  Przyczyna: „Zasady aktywne” 31 697 B.
+- Decyzja Łukasza: „Kompresja zasad (Rekomendowane)”. „Zasady aktywne” przepisane krócej — te same
+  15 reguł, reguły 4, 5, 13 i 15 podzielone na punkty z nagłówkami; trzy szczegóły zgubione
+  w pierwszym szkicu dopisane po porównaniu z oryginałem. Poprzednia wersja — w historii gita.
+
+**Zweryfikowane — jak dokładnie:**
+
+- Linia na żywo: zrzut Łukasza — `relai-cache-keeper praca nie wybrana · cache ~52 min · 5 h 16 % ·
+  tydz. 31 % · kontekst 380k` (ta sesja, karta odnogi zamknięta → wybór pracy) i `relai-cache-keeper
+  cache ~54 min · 5 h 17 % · tydz. 31 % · kontekst 533k` (sesja spoza RelAI).
+- `docs/LEKCJE.md`: 55 712 B → 39 122 B; „Zasady aktywne” 31 697 B → ~15,2 KB.
+- Numery lekcji w sekcji: 173 przed, 173 po, różnica w obie strony pusta (`comm`); odsyłacz P-017
+  zachowany.
+- Reszta pliku nietknięta: SHA-256 sekcji od „## Lekcje” do końca z HEAD i po zmianie identyczne
+  (`66012071…`, po CRLF → LF); liczba nagłówków `## ` bez zmian (kontrola w skrypcie wklejki).
+- `node .claude/relai/tools/count-rules.js` → „zasady aktywne: 15 / limit 15”.
+- Katalog roboczy `.claude/relai/work/kompresja-zasad/` (2 pliki: szkic i skrypt wklejki) usunięty
+  po commicie.
+
+**Świadomie odłożone:**
+
+- Budżet startu sesji: pozostałe pozycje ponad progiem cząstkowym (ryzyka 25,4 KB przy 12 KB,
+  `STATE.md` 12,4 KB przy 12 KB) — rotacja ryzyk i dziennika w osobnej sesji.
+
+**Do zrobienia przez człowieka:**
+
+- Brak.
+
+Autor: RelAI (Opus 5.5) + Lukasz
