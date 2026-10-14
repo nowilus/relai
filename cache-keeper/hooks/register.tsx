@@ -7,7 +7,7 @@
 // API TTL) the next message writes the whole context again at 1.25x-2x input.
 
 import type { EngineInterface, Register } from 'claude-code'
-import { DEFAULT_SETTINGS, MIN, RELAI_MARKER, applySetting, cacheState, dueWarning, judgeStep, mergeSettings, msLeft, pingDue, pingMissed, type Settings } from './core'
+import { DEFAULT_SETTINGS, MAX_PAYBACK_TURNS, MIN, RELAI_MARKER, applySetting, cacheState, dueWarning, judgeStep, mergeSettings, msLeft, pingDue, pingMissed, type Settings } from './core'
 import { basename, clip, clock, fileStamp, limitsText, minutes, tokens, usd } from './fmt'
 import { barCard } from './bar-card'
 import { BAND, BAR, CHIP } from './relai/theme.mjs'
@@ -17,7 +17,7 @@ import { ancestors, parseStatus } from './relai/plan-state.mjs'
 import { PLAIN_HANDOFF_PROMPT, RELAI_CONTINUE, RELAI_HANDOFF_PROMPT, continuePrompt, plainBody, relaiDiscardPrompt, relaiDone, relaiFreshPrompt, relaiResumePrompt, relaiSavePrompt, saveDone } from './handoff'
 import { PRICE_FILE } from './relai/pricing.mjs'
 import { BUILT_IN, priceSource, pricesFrom, ratesFor, requestCost, rewriteCost, totalInput, type Prices, type Usage } from './pricing'
-import { handoffEconomics, limitPace, type CacheTemp, type HandoffInput, type HandoffVerdict, type LimitTurn } from './economics'
+import { handoffEconomics, limitPace, type BarSegment, type CacheTemp, type HandoffInput, type HandoffVerdict, type LimitTurn } from './economics'
 import { RITUAL_FILES, activePlanStatus, dateText, estimatedLayer, measuredLayer, startKey, type MeasuredStart } from './start-layer'
 import {
   CARD_OPTIONS, DEFAULTS, GO_ON, MUTE, NO_SCOPE, SAVE, SCOPE_OPTIONS, THRESHOLD_CHOICES, THRESHOLD_HEADER, WINDOW_NAME, WINDOW_OF, cardDue, focusDocPath, focusFilePath, focusRef,
@@ -67,7 +67,6 @@ type Session = {
   limitBase: number // the 5-hour window's percentUsed at the previous main turn; -1 = none yet
   limitTurns: LimitTurn[] // the 5-hour pace of the last main turns
   stayCtx: number // "Zostań" pressed at this context; 0 = not dismissed
-  stayCold: boolean // the cache was cold when it was pressed
   // The limit card (LIMIT_CHECKPOINT E2), here so a hot reload keeps it with the snapshot
   limitAsked: { five: number, week: number } // per window, the threshold the last card came at; 0 = none yet
   limitMuted: boolean // "Nie pytaj w tej sesji"
@@ -80,7 +79,7 @@ const FRESH: Session = {
   id: '', cwd: '', model: '', isRelai: false, lastActivity: 0, ctx: 0, ctxWindow: 0, ttlMeasured: 0, costUsd: null, rateLimits: [],
   working: false, turnId: '', keepWarm: false, keepWarmUntil: 0, pings: 0, pingUsd: 0, rewrites: 0, rewriteUsd: 0,
   announcedFor: 0, announced: [], justCompacted: false, shortTtlRewrites: 0,
-  start: 0, startSource: '', startPending: false, turnOut: 0, outputs: [], limitBase: -1, limitTurns: [], stayCtx: 0, stayCold: false,
+  start: 0, startSource: '', startPending: false, turnOut: 0, outputs: [], limitBase: -1, limitTurns: [], stayCtx: 0,
   limitAsked: { five: 0, week: 0 }, limitMuted: false, limitFirstDone: false,
 }
 const IDLE: Handoff = { phase: 'idle', notTurn: '', relai: false, body: '', path: '' }
@@ -289,12 +288,12 @@ function reckon(now: number): HandoffVerdict {
 }
 
 // The cache bar's second row, '' when none: a handoff pays off, none is under way, and "Zostań"
-// was not pressed at about this context (it holds until ctx grows 20 % or the cache goes cold)
+// was not pressed at about this context (it holds until ctx grows 20 %; a cold cache moves no
+// verdict since KOMUNIKAT_ZWROTU, so it no longer brings the row back)
 function eventText(now: number): string {
   const v = verdict ?? reckon(now)
   if (v.kind !== 'handoff' || H.phase !== 'idle') return ''
-  const isCold = state(now).kind === 'cold'
-  const isDismissed = S.stayCtx > 0 && S.ctx * STAY_GROWTH.den < S.stayCtx * STAY_GROWTH.num && !(isCold && !S.stayCold)
+  const isDismissed = S.stayCtx > 0 && S.ctx * STAY_GROWTH.den < S.stayCtx * STAY_GROWTH.num
   return isDismissed ? '' : v.bar
 }
 
@@ -846,7 +845,7 @@ function statusText(now: number): string {
   lines.push(`Próg limitu: 5 h ${thresholdText(thresholds.five)} · tydzień ${thresholdText(thresholds.week)} — od niego bateria limitu ostrzega kolorem, a po turze przychodzi karta.`)
   lines.push(`Sesja ≈ ${usd(S.costUsd)} (hipotetycznie wg cennika API). Ponowne zapisy cache: ${S.rewrites} (${usd(S.rewriteUsd)}).`)
   lines.push(`Strażnik: ${settings.guard ? 'on' : 'off'} od ${tokens(settings.bigTokens)}. Alerty: ${settings.alerts ? 'on' : 'off'} od ${tokens(settings.alertTokens)}, progi ${settings.warnMin.join(' i ')} min. Projekt RelAI: ${S.isRelai ? 'tak' : 'nie'}.`)
-  lines.push(`Ustawienia: /${names.cache} ttl 5|60|auto · straznik on|off · prog 150k · alerty on|off · progi 10,5 · godziny 4 · limit 90 · limit-warn 85|90|95 · limit-warn-week 95|98|99 · zwrot ${settings.paybackTurns} (1–50 tur)`)
+  lines.push(`Ustawienia: /${names.cache} ttl 5|60|auto · straznik on|off · prog 150k · alerty on|off · progi 10,5 · godziny 4 · limit 90 · limit-warn 85|90|95 · limit-warn-week 95|98|99 · zwrot ${settings.paybackTurns} (1–${MAX_PAYBACK_TURNS} wiadomości)`)
   lines.push(`Cennik: ${priceSource(prices)}. Koniec odliczania nie dowodzi utraty cache — to prognoza z TTL.`)
   lines.push('', reckon(now).report)
   return lines.join('\n')
@@ -865,19 +864,18 @@ const costFigure = (): readonly [string, string] => (S.costUsd === null ? ['brak
 
 // The cache bar's second row (brief v2 §1): only while its reason lasts, one at a time. A handoff
 // the person must answer first, then one under way; a cooling cache before the Z9 event (minutes
-// decide whether "Podtrzymaj" still helps, and its row offers Przekaż too); a kept cache last.
+// decide whether "Podtrzymaj" still helps, and its row offers Nowa sesja too); a kept cache last.
 type SecondKind = 'ready' | 'running' | 'saved' | 'resume' | 'broken' | 'cooling' | 'event' | 'kept'
-// `rest` follows `text` muted: the Z9 event leads with its verdict in bold, its figures after
-type Second = { kind: SecondKind, text: string, rest: string }
+// The Z9 event carries `lines`: two lines of segments,
+// strong ones bold, the rest muted, with no chip background (calibration 2026-10-14)
+type Second = { kind: SecondKind, text: string, lines?: BarSegment[][] }
 const CHIP_OF: Record<SecondKind, { color: string, bg: string }> = {
   ready: CHIP.ok, running: CHIP.run, saved: CHIP.ok, resume: CHIP.ok, broken: CHIP.warn, cooling: CHIP.warn, event: CHIP.info, kept: CHIP.run,
 }
 
-// The event's words split before its figures: "nowa sesja zwróci się po N turach" | " · ≈ $x → $y/turę …"
-const FIGURES = ' · ≈ '
+// The event's two lines: "przejdź do nowej sesji — …" | "wiadomość … → … limitu 5 h · przekazanie …"
 function eventRow(text: string): Second {
-  const at = text.indexOf(FIGURES)
-  return at < 0 ? { kind: 'event', text, rest: '' } : { kind: 'event', text: text.slice(0, at), rest: text.slice(at) }
+  return { kind: 'event', text, lines: verdict?.kind === 'handoff' ? verdict.lines : [[{ text, strong: true }]] }
 }
 
 const pingsText = (n: number) => {
@@ -887,9 +885,9 @@ const pingsText = (n: number) => {
 }
 
 function secondRow(now: number, kind: string): Second | null {
-  if (H.phase === 'ready') return { kind: 'ready', text: 'przekazanie gotowe', rest: '' }
-  if (H.phase === 'running') return { kind: 'running', text: 'przekazanie trwa', rest: '' }
-  if (H.phase === 'continuing') return { kind: 'running', text: 'czyszczę czat i kontynuuję', rest: '' }
+  if (H.phase === 'ready') return { kind: 'ready', text: 'przekazanie gotowe' }
+  if (H.phase === 'running') return { kind: 'running', text: 'przekazanie trwa' }
+  if (H.phase === 'continuing') return { kind: 'running', text: 'czyszczę czat i kontynuuję' }
   // The save (E3): under way, then waiting for the limit's reset, or cut short; after the reset,
   // with the resume file still there, "Wznów pracę" (E4)
   const save = saveRowText(V.phase, V.resetAt, now, hasResumeFile)
@@ -897,12 +895,12 @@ function secondRow(now: number, kind: string): Second | null {
     const kind: SecondKind = V.phase === 'running' || V.phase === 'resuming' ? 'running'
       : V.phase === 'przerwany' ? 'broken'
       : resumeDue(V.phase, V.resetAt, now, hasResumeFile) ? 'resume' : 'saved'
-    return { kind, text: save, rest: '' }
+    return { kind, text: save }
   }
-  if (kind === 'cooling') return { kind: 'cooling', text: `stygnie · ponowny zapis ≈ ${usd(rewriteAt(S.ctx))}`, rest: '' }
+  if (kind === 'cooling') return { kind: 'cooling', text: `stygnie · ponowny zapis ≈ ${usd(rewriteAt(S.ctx))}` }
   const event = eventText(now)
   if (event) return eventRow(event)
-  if (kind === 'kept') return { kind: 'kept', text: `podtrzymany do ${clock(S.keepWarmUntil)} · ${pingsText(S.pings)} · ${usd(S.pingUsd)}`, rest: '' }
+  if (kind === 'kept') return { kind: 'kept', text: `podtrzymany do ${clock(S.keepWarmUntil)} · ${pingsText(S.pings)} · ${usd(S.pingUsd)}` }
   return null
 }
 
@@ -967,15 +965,25 @@ function band($: $T, e: Resolved, columns: number, now: number) {
   const middle = [batteries]
   if (v.second) {
     const look = CHIP_OF[v.second.kind]
-    const words = v.second.kind === 'event'
-      ? [<Text key="lead" bold color={look.color}>{v.second.text}</Text>, ...(v.second.rest ? [<Text key="rest" color={BAR.muted}>{v.second.rest}</Text>] : [])]
-      : [<Text key="text" color={look.color}>{v.second.text}</Text>]
+    const lead = v.second.lines
+      ? (
+        <Box key="lines" flexShrink={1} flexDirection="column">
+          {v.second.lines.map((line, i) => (
+            <Box key={`line-${i}`} flexDirection="row" flexWrap="wrap">
+              {line.map((seg, j) => <Text key={`s-${j}`} bold={seg.strong} color={seg.strong ? BAR.text : BAR.muted}>{seg.text}</Text>)}
+            </Box>
+          ))}
+        </Box>
+      )
+      : <Box key="chip" flexShrink={1} paddingX={1} flexDirection="row" backgroundColor={look.bg}><Text key="text" color={look.color}>{v.second.text}</Text></Box>
+    // The event never wraps its buttons under the text (calibration 2026-10-14, a narrow window):
+    // the lines shrink and wrap in their own column, the buttons keep their width on the right
+    const buttons = secondButtons($, e, v.second.kind)
     middle.push(
-      <Box key={`cache-${v.second.kind}`} flexDirection="row" flexWrap="wrap" alignItems="center" columnGap={2} {...(isGui ? { marginTop: 1 } : {})}>
-        {[
-          <Box key="chip" flexShrink={1} paddingX={1} flexDirection="row" backgroundColor={look.bg}>{words}</Box>,
-          ...secondButtons($, e, v.second.kind),
-        ]}
+      <Box key={`cache-${v.second.kind}`} flexDirection="row" flexWrap={v.second.lines ? 'nowrap' : 'wrap'} alignItems="center" columnGap={2} {...(isGui ? { marginTop: 1 } : {})}>
+        {v.second.lines
+          ? [lead, <Box key="buttons" flexShrink={0} flexDirection="row" columnGap={2}>{buttons}</Box>]
+          : [lead, ...buttons]}
       </Box>,
     )
   }
@@ -986,7 +994,7 @@ function band($: $T, e: Resolved, columns: number, now: number) {
 // digit hotkey (a bare digit typed into an empty composer pressed it, Z5); hotkey h at most once
 function secondButtons($: $T, e: Resolved, kind: SecondKind) {
   const { Button } = $.ui.resolve(e)
-  const handoff = <Button key="handoff" label={S.isRelai ? 'Przekaż (RelAI)' : 'Przekaż'} hotkey="h" variant="secondary" onPress={() => startHandoff($)} />
+  const handoff = <Button key="handoff" label="Nowa sesja" hotkey="h" variant="secondary" onPress={() => startHandoff($)} />
   if (kind === 'ready') {
     return [
       <Button key="continue" label="Wyczyść i kontynuuj" hotkey="c" variant="primary" onPress={() => clearAndContinue($)} />,
@@ -1005,9 +1013,8 @@ function secondButtons($: $T, e: Resolved, kind: SecondKind) {
   }
   if (kind === 'event') {
     // "Zostań" dismisses the event for this context size (Z9)
-    return [handoff, <Button key="stay" label="Zostań" variant="secondary" onPress={async () => {
-      const at = await $.clock.now()
-      set({ stayCtx: S.ctx, stayCold: state(at).kind === 'cold' })
+    return [handoff, <Button key="stay" label="Zostań" variant="secondary" onPress={() => {
+      set({ stayCtx: S.ctx })
       $.ui.invalidate('ui.render')
     }} />]
   }
@@ -1044,7 +1051,7 @@ export const register: Register = (on) => {
     await loadStartLayer($)
     verdict = null
     names = {
-      cache: await registerCommand($, 'cache', 'Stan cache promptu i ustawienia relai-cache-keeper', '[ttl 5|60|auto] [straznik on|off] [prog 150k] [alerty on|off] [progi 10,5] [limit-warn 90] [limit-warn-week 98] [zwrot 5]'),
+      cache: await registerCommand($, 'cache', 'Stan cache promptu i ustawienia relai-cache-keeper', '[ttl 5|60|auto] [straznik on|off] [prog 150k] [alerty on|off] [progi 10,5] [limit-warn 90] [limit-warn-week 98] [zwrot 20]'),
       keepwarm: await registerCommand($, 'keepwarm', 'Podtrzymuj cache tej sesji (domyślnie 4 h) albo /keepwarm off', '[godziny|off]'),
       handoff: await registerCommand($, 'handoff', 'Przekazanie do świeżego czatu (w projekcie RelAI przez dokumenty); /handoff dalej kończy', '[dalej]'),
     }

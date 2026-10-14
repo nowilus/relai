@@ -8,6 +8,17 @@ Specyfikacja: `SPEC_PULAPKI.md`.
 
 ## Pułapki
 
+### P-041 — Aplikacja desktopowa: pole „następny krok” z przyciskami zasłania paski modów · 2026-10-14 · AKTYWNA
+
+- **Objaw:** sesja kończy turę polem „następny krok” z pytaniem i przyciskami (narzędzie `wrap_up`
+  z `ask`/`actions`), a człowiek ma właśnie zrobić zrzut pasków nad promptem — paski RelAI znikają
+  z widoku, dopóki pole stoi (Łukasz, odnoga KOMUNIKAT_ZWROTU, 2026-10-14: „jak dajesz te swoje nowe
+  okno z możliwością kliknięcia w przyciski … to znikają moje panele z podglądu”).
+- **Przyczyna:** pole i paski modów (`AbovePrompt`) zajmują to samo miejsce nad polem wpisywania.
+- **Obejście:** przy pomiarze na żywo pasków turę kończysz zwykłym tekstem, bez pola z pytaniem;
+  pytanie zadajesz w treści odpowiedzi albo dopiero po zrzucie.
+- **Zasięg:** aplikacja desktopowa 2.37337.1.0, zakładka Code.
+
 ### P-040 — Aplikacja desktopowa: w podziale okna paski modów rysuje tylko lewy panel · 2026-10-13 · AKTYWNA
 
 - **Objaw:** dwie sesje Code w podziale okna (split view). Paski RelAI (plan, postęp, cache) widać

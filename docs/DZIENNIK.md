@@ -1095,3 +1095,75 @@ Autor: RelAI (Opus 5.5) + Lukasz
 **Do zrobienia przez człowieka:** —
 
 Autor: RelAI (Opus 5.5) + Lukasz
+
+### 2026-10-14 — KOMUNIKAT_ZWROTU: pasek cache mówi uczciwie, kiedy nowa sesja się opłaca; `relai-cache-keeper` 0.8.0
+
+**Zrobione:**
+
+- `cache-keeper/hooks/economics.ts`: jeden wyzwalacz — przekazanie (wiadomość przekazania + zapis
+  warstwy startu) odrobione oszczędnością na wiadomości w ≤ progu. Reguła „cache zimny i kontekst
+  > 2× warstwa startu” usunięta: ponowny zapis zimnego kontekstu płaci się w obu drogach (następna
+  wiadomość tu albo wiadomość przekazania), więc niczego nie rozstrzyga — `/cache` mówi to linią
+  „Cache zimny: … płacisz raz w obu drogach”. Procenty limitu 5 h z tych samych kwot jednym
+  współczynnikiem (% na $1); bez pomiaru tempa — krotność. Słowa „tura/zwrot” → „wiadomość/odrobisz”
+  na pasku, w `/cache`, w linii ustawień i w błędzie `zwrot`.
+- Próg domyślny 5 → **20 wiadomości** (decyzja Łukasza): przy warstwie startu 115k próg 5 wymagałby
+  kontekstu ~1,3–1,6 mln tokenów — wiersz nie pokazałby się w tym projekcie nigdy; przy 20 od ~430k.
+- `register.tsx`: wiersz w dwóch liniach bez chipa `CHIP.info`, gramatyka baterii (rekomendacja
+  i liczby pogrubione, słowa przygaszone), linia ≤ 70 znaków (`BAR_LINE_MAX`), przyciski w `Box`
+  o `flexShrink` 0 obok tekstu, wiersz bez zawijania; przycisk „Nowa sesja” zamiast „Przekaż
+  (RelAI)” (także w wierszu „stygnie”); „Zostań” nie wraca już przy wystygnięciu cache.
+- Testy: `economics.test.ts` (przypadek ze zrzutu jako fixtura, zgodność % z werdyktem, brak tempa,
+  zakazane słowa, długość linii), `handoff-economics.test.ts`, `rings.test.ts`.
+- Dokumenty: `STYL_PASKOW_CLAUDE.md` v3.7 (§1, §10.5), `KOMENDY.md`, `ARTEFAKTY.md`, P-041 (pole
+  „następny krok” zasłania paski), L-0192 (napis z `\n` przez literał Pythona — drugi raz ta sama
+  klasa błędu co L-0116, więc lekcja). Wersja `relai-cache-keeper` 0.7.1 → 0.8.0 w `plugin.json`
+  i `marketplace.json`.
+
+**Zweryfikowane — jak dokładnie:**
+
+- Przypadek ze zrzutu, obie wersje w jednym przebiegu (skrypt porównujący `git show HEAD` z drzewem
+  roboczym; wejścia odtworzone z kwot paska: wyjście 1 750 tokenów, S 120k — stary kod odtworzył
+  zrzut co do znaku):
+  - STARY, 497k zimny: `cache zimny · nowa sesja zwróci się po 66 turach · ≈ $4.01 → $0.06/turę`;
+    ten sam przypadek ciepły — STARY milczy (N = 15): liczba przeczyła rekomendacji, a zimny i ciepły
+    dawały różne werdykty.
+  - NOWY, zimny i ciepły jednakowo: `przejdź do nowej sesji · tu wiadomość 2,3× droższa` /
+    `przekazanie odrobisz po 15 wiadomościach` (próg 20); przy progu 5 milczy.
+- Grep starych słów (`zwróci się|zwróciłaby|po N turach|/turę|turnsWord`): HEAD — `economics.ts` 6,
+  `register.tsx` 1 (kontrola pozytywna); nowy kod — 0 w źródle, 2 trafienia w komentarzach testów
+  cytujących stare brzmienie. Test `banned()` sprawdza każdy wiersz z testów na „zwróci, zwrot,
+  tur, warstw, $”.
+- `claude plugin validate .` i `claude plugin test .` w `cache-keeper/`: 181/181 na 2.1.295
+  (binarka aplikacji) i na 2.1.299 (PATH); `panel` 178/178 i `progress` 31/31 na 2.1.299; testy
+  rdzenia `node --test core/{guardrails,panel,process}/tests/*.test.js` 393/393; walidacja
+  marketplace z korzenia — zielona z ostrzeżeniem o `CLAUDE.md` (dogfooding).
+- Na żywo (kod podłożony do zainstalowanego 0.7.1, kopie oryginałów w katalogu roboczym; sonda
+  limitu progu 100 w zainstalowanym `core.ts` do pomiaru, cofnięta): cztery rundy. (1) jedna linia
+  140 znaków — „Zostań” spadało do drugiej linii; (2) dwie linie z chipem — Łukasz: „Po co te całe
+  tło?”; (3) bez chipa — wąskie okno: „sie zlewa wszystko, przyciski i tekst … trzeba to jakoś
+  skrócić”; tokeny w treści: „czytając … od razu chce tam iść, co jest nieintuicyjne”; (4) sam koszt,
+  „Nowa sesja”, bez zawijania — „No jest lepiej”, wąskie okno: „tak wygląda wąskie okno, sam oceń”
+  (ocena: układ trzyma się, karta piętrowa, przyciski obok obu linii, nic nie przycięte).
+- Katalog roboczy: `clean-work.js raport` → `_fixy/KOMUNIKAT_ZWROTU` 148 KB, 13 plików; po „tak”
+  `clean-work.js kasuj` — przed 1,1 MB (z `%TEMP%\relai-cc-changelog.md`), po 0,0 MB. Poza katalogiem
+  zostaje `%TEMP%\relai-kz-kasuj.json` (lista do kasowania) i podmienione pliki w zainstalowanym
+  `~/.claude/plugins/cache/relai/relai-cache-keeper/0.7.1/hooks/` (`economics.ts`, `register.tsx`,
+  `core.ts` = stan repo) — znikną przy aktualizacji do 0.8.0.
+
+**Świadomie odłożone:**
+
+- Wąskie okno: baterie pierwszego wiersza łamią się na trzy linie, pasek rośnie (`rings.ts`) — poza
+  zakresem odnogi.
+- Wątek SPLIT_VIEW (paski w każdym panelu po zamknięciu anthropics/claude-code#99265, wycofanie
+  linii w stopce P-040) i plan typografii modów (`Text size/weight/tabular`, rozbicie
+  `register.tsx`, porządki P-023) — decyzja Łukasza: odnoga zaraz po tej, plan gdy aplikacja dostanie
+  Claude Code ≥ 2.1.299 (dziś 2.37337.1 z 2.1.295).
+- Warstwa startu RelAI 115k tokenów — co czyta rytuał startu i czy da się go odchudzić.
+
+**Do zrobienia przez człowieka:** po wydaniu — `/plugin` aktualizacja `relai-cache-keeper` do 0.8.0
+i restart aplikacji (P-005); `/cache zwrot 20` już ustawione.
+
+- Ryzyka: tabela „Stan otwartych ryzyk” przejrzana — odnoga nie otworzyła ryzyka projektu.
+
+Autor: RelAI (Opus 5.5) + Lukasz

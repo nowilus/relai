@@ -59,7 +59,9 @@ potem ponowne uruchomienie aplikacji.
   tygodnia (domyślnie 98 %); gdy nie jest spokojna, pod nią stoi „próg N % · skąd ten próg”.
   Po turze ponad progiem, przy pracy w toku, przychodzi karta: pracuję dalej / zapisz pracę.
   Drugi wiersz pod paskiem pojawia się tylko z powodu: karta decyzji czeka, punkt właśnie
-  odhaczony, cache stygnie, przekazanie gotowe albo nowa sesja zwróci się w kilku turach.
+  odhaczony, cache stygnie, przekazanie gotowe albo przejście do nowej sesji się opłaca (pasek
+  mówi, ile kosztuje wiadomość tu i tam, i po ilu wiadomościach odrobisz przekazanie; przycisk
+  „Nowa sesja”).
 - **`/relai-panel`** — panel z paskiem „Teraz” (etap i następny punkt, jedna akcja główna)
   i zakładkami: Komendy (dwie polecane, dwanaście wierszy z nazwą komendy, formularz pod
   wierszem), Koszty (sekcje zwinięte, rozwijane; karta „Próg limitu” — dla 5 h i tygodnia
@@ -69,7 +71,7 @@ potem ponowne uruchomienie aplikacji.
   commita, podgląd), Mapa (plany, etapy, odnogi, przebiegi załogi i koszt każdego etapu), Pomoc
   (ściąga komend i frazy sesji).
 - **`/cache`** — stan cache, ustawienia i rachunek „kontynuować czy nowa sesja”; `/cache zwrot N`
-  ustawia próg w turach (domyślnie 5); `/cache limit-warn [N]` i `/cache limit-warn-week [N]` to
+  ustawia próg w wiadomościach (domyślnie 20, od 1 do 50); `/cache limit-warn [N]` i `/cache limit-warn-week [N]` to
   zapasowa droga do tych samych kart progu co przyciski w Kosztach.
 - **`/relai-agents`** — subagenci sesji: model, kontekst i koszt.
 - **Karta „Tak / Nie”** — start etapu, sprzątanie, aktualizacja, lista modeli i zmiana cennika idą

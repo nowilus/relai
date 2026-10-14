@@ -375,7 +375,7 @@ describe('the calm cache bar: five batteries, the session cost on the right (Ane
 })
 
 describe('the cache bar second row: one at a time, only while its reason lasts (brief v2 §1)', () => {
-  test('cooling: the chip with the rewrite, Podtrzymaj (no hotkey) and Przekaż (h); kept: the pings and Zatrzymaj; cold: none', async ($, on) => {
+  test('cooling: the chip with the rewrite, Podtrzymaj (no hotkey) and Nowa sesja (h); kept: the pings and Zatrzymaj; cold: none', async ($, on) => {
     const { clock } = world(on, { window: 1_000_000 })
     await start($)
     await turn($)
@@ -386,7 +386,7 @@ describe('the cache bar second row: one at a time, only while its reason lasts (
       const row = await ui.find({ key: 'cache-cooling' })
       expect(row?.text).toContain('stygnie · ponowny zapis ≈ $1.60')
       const buttons = await ui.findAll({ type: 'Button' })
-      expect(buttons.map((b) => b.props.label)).toEqual(['Podtrzymaj', 'Przekaż'])
+      expect(buttons.map((b) => b.props.label)).toEqual(['Podtrzymaj', 'Nowa sesja'])
       expect(buttons.map((b) => b.props.hotkey ?? null)).toEqual([null, 'h'])
       // The native Button is taller than a line: the row keeps one cell off the rings (P-021 pkt 6)
       expect((row?.props as { marginTop?: number }).marginTop ?? 0).toBe(surface === 'desktop' ? 1 : 0)

@@ -1,6 +1,6 @@
 # ODNOGA — komunikat o nowej sesji na pasku cache jako decyzja w % limitu
 
-Plan: brak (wątek samodzielny) · Etap-źródło: — · Utworzona: 2026-10-14 · Status: **OTWARTA** ·
+Plan: brak (wątek samodzielny) · Etap-źródło: — · Utworzona: 2026-10-14 · Status: **ZAMKNIĘTA 2026-10-14** ·
 Wykonawca: Opus 5.5 w świeżej sesji
 
 ## Cel
@@ -65,22 +65,37 @@ przekazania.
 
 ## Weryfikacja
 
-- [ ] Przypadek ze zrzutu (kontekst 497k, cache zimny, liczby z 2026-10-14) policzony nowym kodem:
+- [x] Przypadek ze zrzutu (kontekst 497k, cache zimny, liczby z 2026-10-14) policzony nowym kodem:
       albo pasek milczy, albo jego liczba i rekomendacja mówią to samo — wynik w dzienniku obok
       starego brzmienia (obie wersje w jednym przebiegu).
-- [ ] Żadne brzmienie paska nie zawiera „zwróci się”, „tur” ani „warstwy startu” (grep po
+- [x] Żadne brzmienie paska nie zawiera „zwróci się”, „tur” ani „warstwy startu” (grep po
       `cache-keeper/hooks/*.ts*` z kontrolą pozytywną na starym kodzie).
-- [ ] Brak pomiaru tempa limitu ma własne, zaakceptowane zachowanie i test.
-- [ ] Brzmienie wiersza zaakceptowane przez Łukasza na zrzucie z moda na żywo, przed wydaniem —
+- [x] Brak pomiaru tempa limitu ma własne, zaakceptowane zachowanie i test.
+- [x] Brzmienie wiersza zaakceptowane przez Łukasza na zrzucie z moda na żywo, przed wydaniem —
       jego słowa we wpisie.
-- [ ] `claude plugin test .` i `claude plugin validate .` w `cache-keeper/` zielone; testy rdzenia
+- [x] `claude plugin test .` i `claude plugin validate .` w `cache-keeper/` zielone; testy rdzenia
       zielone (komendy jak w `docs/PULAPKI.md` P-024).
-- [ ] `STYL_PASKOW_CLAUDE.md` i `KOMENDY.md` opisują nowe zachowanie; `grep -r` po starym numerze
+- [x] `STYL_PASKOW_CLAUDE.md` i `KOMENDY.md` opisują nowe zachowanie; `grep -r` po starym numerze
       wersji rozstrzygnięty.
-- [ ] Katalog roboczy `.claude/relai/work/_fixy/KOMUNIKAT_ZWROTU/` przejrzany raportem
+- [x] Katalog roboczy `.claude/relai/work/_fixy/KOMUNIKAT_ZWROTU/` przejrzany raportem
       (`node .claude/relai/tools/clean-work.js raport`) i skasowany po „tak”; liczby przed i po we
       wpisie dziennika, artefakty spoza niego wypisane z nazwy.
 
 ## Wynik
 
-—
+Zamknięta 2026-10-14 wydaniem `relai-cache-keeper` 0.8.0.
+
+- **Reguła** (`economics.ts`): jeden wyzwalacz — koszt przekazania (wiadomość przekazania + zapis
+  warstwy startu) odrobiony oszczędnością na wiadomości w ≤ progu wiadomości. Zimny cache nie
+  zmienia werdyktu: ponowny zapis płaci się w obu drogach i `/cache` mówi to wprost. Procenty
+  limitu 5 h liczone z tych samych kwot jednym współczynnikiem (% na $1), więc liczba nie przeczy
+  werdyktowi (test zgodności). Bez pomiaru tempa — porównanie krotnością (test).
+- **Próg domyślny 20 wiadomości** (był 5) — decyzja Łukasza w kalibracji: przy warstwie startu
+  115k próg 5 wymagałby kontekstu ~1,3–1,6 mln tokenów, więc wiersz w tym projekcie nie pokazałby
+  się nigdy; przy 20 — od ok. 430k.
+- **Wiersz** (`register.tsx`): dwie linie bez chipa, gramatyka baterii, sam koszt bez liczb tokenów
+  („czyta 115k zamiast 325k” podsuwało „zawsze idź”), linia ≤ 70 znaków, przyciski obok bez
+  zawijania; przycisk „Nowa sesja” zamiast „Przekaż (RelAI)”, także w wierszu „stygnie”.
+  Brzmienie: `przejdź do nowej sesji · tu wiadomość 0,34 %, tam 0,16 % limitu 5 h` /
+  `przekazanie odrobisz po 20 wiadomościach`.
+- Cztery rundy kalibracji na żywo; zapis w `docs/DZIENNIK.md` (wpis 2026-10-14 KOMUNIKAT_ZWROTU).

@@ -1,6 +1,6 @@
 # Styl pasków i panelu RelAI dla Claude Code
 
-Wersja: **3.6** (v3.5 + §6 pkt 6: karta startu etapu z wyborem „nowa sesja”; odnoga NOWA_SESJA, 2026-10-12; v3.5 — 11.3: karta „Próg limitu” jako linijka z progiem i przyciski wartości; Aneks E, 2026-10-11; v3.4 — 11.1: podpis „próg N % · źródło” pod baterią limitu, która nie jest spokojna; Aneks D, 2026-10-11; v3.3 — sekcja 11: limit planu — dwa progi, zapis i wznowienie, karta progu w Kosztach; LIMIT_CHECKPOINT E4, 2026-10-11) · Data: **2026-10-10** · Zakres: trzy paski nad promptem **i panel boczny** `/relai-panel`
+Wersja: **3.7** (v3.6 + §1 i §10.5: zdarzenie „nowa sesja się opłaca” w dwóch liniach bez chipa, sam koszt, przycisk „Nowa sesja”; odnoga KOMUNIKAT_ZWROTU, 2026-10-14; v3.6 — §6 pkt 6: karta startu etapu z wyborem „nowa sesja”; odnoga NOWA_SESJA, 2026-10-12; v3.5 — 11.3: karta „Próg limitu” jako linijka z progiem i przyciski wartości; Aneks E, 2026-10-11; v3.4 — 11.1: podpis „próg N % · źródło” pod baterią limitu, która nie jest spokojna; Aneks D, 2026-10-11; v3.3 — sekcja 11: limit planu — dwa progi, zapis i wznowienie, karta progu w Kosztach; LIMIT_CHECKPOINT E4, 2026-10-11) · Data: **2026-10-10** · Zakres: trzy paski nad promptem **i panel boczny** `/relai-panel`
 (zakładki Komendy i Koszty) · Źródło decyzji: wątek [AUDYT_MODOW](../../fixy/AUDYT_MODOW/ODNOGA.md),
 makiety [MAKIETY.html](../../fixy/AUDYT_MODOW/MAKIETY.html) (wersja 4, kalibracja z Łukaszem
 w czterech rundach 2026-10-10).
@@ -27,10 +27,10 @@ przeładowanie modu niczego nie gubi — P-023 pkt 6):
 |---|---|---|
 | plan | karta decyzji czeka na „Tak” (E5, R4) | tytuł karty jako chip, `Tak` (primary), `Nie`, zdanie „nic nie idzie do czatu bez „Tak”” |
 | postęp | punkt właśnie odhaczony | chip `✓ 3/14 · <nazwa>` na 10 s, potem wiersz znika |
-| cache | cache stygnie (`cooling`) | chip `stygnie · ponowny zapis ≈ $x`, `Podtrzymaj` (hotkey 1), `Przekaż` (hotkey h) |
+| cache | cache stygnie (`cooling`) | chip `stygnie · ponowny zapis ≈ $x`, `Podtrzymaj` (hotkey 1), `Nowa sesja` (hotkey h) |
 | cache | przekazanie gotowe (`H.phase === 'ready'`) | chip `przekazanie gotowe`, `Wyczyść i kontynuuj` (primary, hotkey c), `Zostań` |
 | cache | zapis pracy przed limitem (LIMIT_CHECKPOINT, sekcja 11) | chip `zapis pracy trwa` / `zapis gotowy · reset GG:MM` / `zapis niepełny` + `Zamknij`; po resecie i z plikiem wznowienia `limit odnowiony · praca czeka na wznowienie` + `Wznów pracę` (primary), `Odrzuć` |
-| cache | nowa sesja się opłaca (Z9: zwrot w ≤ 5 turach albo cache zimny i kontekst > 2× warstwa startu) | chip `nowa sesja zwróci się po N turach · ≈ $x → $y/turę · 0,8 % → 0,2 % limitu 5 h`, `Przekaż` (hotkey h), `Zostań`; pełny rachunek w `/cache` |
+| cache | nowa sesja się opłaca (KOMUNIKAT_ZWROTU: jeden wyzwalacz — koszt przekazania, czyli wiadomość przekazania i zapis warstwy startu, odrobiony w ≤ 20 wiadomościach; zimny cache niczego nie zmienia, bo ponowny zapis płaci się w obu drogach) | dwie linie bez chipa: `przejdź do nowej sesji · tu wiadomość 0,34 %, tam 0,16 % limitu 5 h` (bez pomiaru limitu: `tu wiadomość 2,2× droższa`) i `przekazanie odrobisz po N wiadomościach`; `Nowa sesja` (hotkey h), `Zostań`; pełny rachunek w dolarach w `/cache` |
 
 W spokoju: **zero przycisków na stałe**, trzy wiersze tekstu w sumie (po jednym na pasek)
 plus linia pod segmentami postępu i drugi wiersz podpisów pierścieni (sekcje 3 i 4). Kolejność
@@ -233,9 +233,14 @@ całkowity ze spacją przed `%`, czas `h`/`min` z minutami dwucyfrowymi po godzi
   `brak danych` + `kosztu`. Koszt sesji nad promptem stoi **tylko tu**; czas cache nie stoi po prawej.
 - Drugi wiersz (sekcja 1 bez zmian co do zdarzeń i priorytetu): `marginTop` 1 na desktopie, chip
   + przyciski natywne w jednym wierszu od kolumny treści. Kolory chipa: `stygnie` `CHIP.warn`,
-  `przekazanie gotowe` `CHIP.ok`, `trwa`/`podtrzymany` `CHIP.run`, **zdarzenie Z9 — nowy token
-  `CHIP.info`**: tło `mix(BAND.cache.bg, BAR.text, 0.1)`, prowadzenie `nowa sesja zwróci się po N
-  turach` pogrubione `BAR.text`, reszta ` · ≈ $x → $y/turę` `BAR.muted`. Informacja, nie alarm.
+  `przekazanie gotowe` `CHIP.ok`, `trwa`/`podtrzymany` `CHIP.run`. **Zdarzenie Z9 nie ma chipa**
+  (KOMUNIKAT_ZWROTU, 2026-10-14; wcześniej `CHIP.info`): gramatyka baterii — rekomendacja i liczby
+  pogrubione `BAR.text`, słowa `BAR.muted`, dwie linie w kolumnie (`flexShrink` 1), przyciski obok
+  w `Box` o `flexShrink` 0, wiersz bez zawijania (`flexWrap: 'nowrap'`), żeby w wąskim oknie
+  przyciski nie spadały pod tekst. Linia ma najwyżej 70 znaków (`BAR_LINE_MAX`, test). Bez liczb
+  tokenów: „czyta 115k zamiast 325k” podsuwało „zawsze idź”, a odczyt jest tani, wyjście kosztuje
+  tyle samo w obu sesjach. Kalibracja na żywo (Łukasz): „Po co te całe tło?”, „No jest lepiej”,
+  wąskie okno — „sam oceń”. `CHIP.info` zostaje w `theme.mjs` — nosi go chip pytania w pasku planu (`panel/hooks/band.tsx`).
 
 ### 10.6 Terminal i wąska kolumna
 

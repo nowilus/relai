@@ -5,7 +5,7 @@ import { BAR, CHIP } from './relai/theme.mjs'
 type Engine = Parameters<TestBody>[0]
 
 // The handoff reckoning wired into the keeper (AUDYT_MODOW Z9): the cache bar's second row
-// appears only when a fresh session pays off, `Zostań` hides it until the context grows by a
+// appears only when a fresh session pays off (a cold cache alone no longer opens it), `Zostań` hides it until the context grows by a
 // fifth, `/cache zwrot N` moves the threshold, and `/cache` shows the whole reckoning — or says
 // which number is missing.
 //
@@ -13,7 +13,7 @@ type Engine = Parameters<TestBody>[0]
 // assumed: read 4 × 0.05 = $0.2/M, write 4 × 2 = $8/M, output $20/M. Each turn below is one main
 // step writing 2,000 output tokens: the output part of a turn = 2,000 × 20 / 1e6 = $0.04.
 // S = 30k: the start-layer write = 30,000 × 8 / 1e6 = $0.24; a turn after = 30,000 × 0.2 / 1e6
-// + 0.04 = $0.046 → "$0.05/turę".
+// + 0.04 = $0.046.
 
 const NOW = Date.UTC(2026, 9, 10, 12) // the measured date reads 2026-10-10 in any time zone
 const MIN = 60_000
@@ -86,7 +86,7 @@ describe('the cache bar second row: a fresh session pays off (Z9)', () => {
     const { w } = world(on, { store: MEASURED })
     await start($)
     // 100k warm: here = 100,000 × 0.2 / 1e6 + 0.04 = $0.06; saving = 70,000 × 0.2 / 1e6 = $0.014
-    // N = ceil((0.06 + 0.24) / 0.014) = ceil(21.43) = 22 > 5 → stay
+    // N = ceil((0.06 + 0.24) / 0.014) = ceil(21.43) = 22 > 20 (the default threshold) → stay
     await turn($, w, 100_000)
     for (const surface of ['terminal', 'desktop'] as const) {
       const ui = await mount($, surface)
@@ -94,35 +94,38 @@ describe('the cache bar second row: a fresh session pays off (Z9)', () => {
       expect(await ui.findAll({ type: 'Button' })).toEqual([])
       await ui.unmount()
     }
-    expect(await cache($)).toContain('Werdykt: zostań — nie opłaca się, nowa sesja zwróciłaby się dopiero po 22 turach.')
+    expect(await cache($)).toContain('Werdykt: zostań — nie opłaca się, przekazanie odrobiłoby się dopiero po 22 wiadomościach.')
   })
 
   // Before Z9: no "cache-event" row — failed at its first find
-  test('above the threshold: the row with the verdict words, the measured 5-hour pace and the one Przekaż', async ($, on) => {
+  test('above the threshold: the row with the verdict words, the measured 5-hour pace and the one Nowa sesja button', async ($, on) => {
     const { w } = world(on, { store: MEASURED })
     await start($)
     // Turn one sets the 5-hour base (10 %); turn two moves it to 10.8 %: one measured turn,
-    // 0.8 % on an 800k context → after = 0.8 / 800,000 × 30,000 = 0.03 %
+    // 0.8 % on an 800k context → 0.8 / 0.20 = 4 % per dollar; after = 0.046 × 4 = 0.184 % → "0,18 %",
+    // the handoff = (0.20 + 0.24) × 4 = 1.76 %
     await turn($, w, 800_000, 10)
     await turn($, w, 800_000, 10.8)
     // 800k warm: here = 0.16 + 0.04 = $0.20; saving = 770,000 × 0.2 / 1e6 = $0.154
-    // N = ceil((0.20 + 0.24) / 0.154) = ceil(2.857) = 3 ≤ 5 → hand off
+    // N = ceil((0.20 + 0.24) / 0.154) = ceil(2.857) = 3 ≤ 20 → hand off
     for (const surface of ['terminal', 'desktop'] as const) {
       const ui = await mount($, surface)
       const row = await ui.find({ key: 'cache-event' })
-      expect(row?.text).toContain('nowa sesja zwróci się po 3 turach · ≈ $0.20 → $0.05/turę · 0,80 % → 0,03 % limitu 5 h')
-      expect(row?.text).toContain('Przekaż')
+      expect(row?.text).toContain('przejdź do nowej sesji · tu wiadomość 0,80 %, tam 0,18 % limitu 5 h')
+      expect(row?.text).toContain('przekazanie odrobisz po 3 wiadomościach')
+      expect(row?.text).toContain('Nowa sesja')
       expect(row?.text).toContain('Zostań')
       // The handoff button moved into the row: hotkey h once in the whole band
       const buttons = await ui.findAll({ type: 'Button' })
       expect(buttons.filter((b) => b.props.hotkey === 'h').length).toBe(1)
-      expect(buttons.map((b) => b.props.label)).toEqual(['Przekaż', 'Zostań'])
+      expect(buttons.map((b) => b.props.label)).toEqual(['Nowa sesja', 'Zostań'])
       await ui.unmount()
     }
   })
 
-  // Aneks Z11 (brief v3 §10.5): information, not an alarm — before it the chip was CHIP.warn, one Text
-  test('the event chip is CHIP.info: its lead bold in the text color, the rest muted', async ($, on) => {
+  // Calibration 2026-10-14 (KOMUNIKAT_ZWROTU): the CHIP.info background of Aneks Z11 is gone — the
+  // grammar of the batteries instead, words muted and figures bold; before it the test found the chip
+  test('the event: two lines with no background, the advice and the figures bold, the words muted', async ($, on) => {
     const { w } = world(on, { store: MEASURED })
     await start($)
     await turn($, w, 800_000) // N = 3, the row shows
@@ -135,29 +138,42 @@ describe('the cache bar second row: a fresh session pays off (Z9)', () => {
     }
     walk(await ui.drawn())
     const props = (node: RenderNode) => ((node as { props?: Record<string, unknown> }).props ?? {})
-    const chip = nodes.find((x) => typeof x !== 'string' && x.type === 'Box' && props(x).backgroundColor === CHIP.info.bg)
-    expect(chip).toBeDefined()
-    const texts = ((chip as { children?: RenderNode[] }).children ?? []).map((t) => [
-      ((t as { children?: RenderNode[] }).children ?? []).join(''), props(t).bold ?? false, props(t).color,
+    const kids = (node: RenderNode) => (node as { children?: RenderNode[] }).children ?? []
+    expect(nodes.some((x) => typeof x !== 'string' && props(x).backgroundColor === CHIP.info.bg)).toBe(false)
+    const box = nodes.find((x) => typeof x !== 'string' && x.type === 'Box' && props(x).flexDirection === 'column' && kids(x).length === 2
+      && kids(x).every((l) => typeof l !== 'string' && l.type === 'Box' && props(l).flexDirection === 'row'))
+    expect(box).toBeDefined()
+    const lines = kids(box as RenderNode).map((line) => kids(line).map((t) => [kids(t).join(''), props(t).bold === true, props(t).color]))
+    const B = BAR.text
+    const m = BAR.muted
+    expect(lines).toEqual([
+      [['przejdź do nowej sesji', true, B], [' · tu wiadomość ', false, m], ['4,3×', true, B], [' droższa', false, m]],
+      [['przekazanie odrobisz po ', false, m], ['3', true, B], [' wiadomościach', false, m]],
     ])
-    expect(texts).toEqual([
-      ['nowa sesja zwróci się po 3 turach', true, BAR.text],
-      [' · ≈ $0.20 → $0.05/turę', false, BAR.muted],
-    ])
+    // A narrow window (calibration 2026-10-14): the row never wraps, the buttons keep their width beside the lines
+    const row = nodes.find((x) => typeof x !== 'string' && props(x).key === 'cache-event')
+    expect(props(row as RenderNode).flexWrap).toBe('nowrap')
+    const buttons = nodes.find((x) => typeof x !== 'string' && props(x).key === 'buttons')
+    expect(props(buttons as RenderNode).flexShrink).toBe(0)
+    expect(props(box as RenderNode).flexShrink).toBe(1)
     await ui.unmount()
   })
 
-  // Before Z9: no "cache-event" row — failed at its find
-  test('a cold cache with ctx > 2·S: the row even though the payback is long', async ($, on) => {
-    const { w, clock } = world(on, { store: MEASURED })
+  // KOMUNIKAT_ZWROTU: before it a cold 200k opened the row ("cache zimny · … po 56 turach"), the
+  // number saying "not worth it" under a button saying "hand off" — failed at the first find
+  test('a cold cache alone opens no row: the rewrite is paid on either path, /cache says so', async ($, on) => {
+    const { w, clock } = world(on, { store: { ...MEASURED, settings: { paybackTurns: 5 } } })
     await start($)
     await turn($, w, 200_000)
     await clock.advance(61 * MIN) // the tick sees the cache go cold and reckons again
-    // Cold: here = 200,000 × 8 / 1e6 + 0.04 = $1.64; saving = 170,000 × 0.2 / 1e6 = $0.034
-    // N = ceil((1.64 + 0.24) / 0.034) = ceil(55.29) = 56 > 5, but cold and 200k > 2 × 30k → row
+    // Cold: rewrite = 200,000 × (8 − 0.2) / 1e6 = $1.56 on either path; here (warm part) = $0.08
+    // N = ceil((0.08 + 0.24) / 0.034) = ceil(9.41) = 10 > 5 (threshold set to 5 here) → no row
     const ui = await mount($)
-    expect((await ui.find({ key: 'cache-event' }))?.text).toContain('cache zimny · nowa sesja zwróci się po 56 turach · ≈ $1.64 → $0.05/turę')
+    expect(await ui.find({ key: 'cache-event' })).toBeUndefined()
     await ui.unmount()
+    const status = await cache($)
+    expect(status).toContain('Cache zimny: ponowny zapis 200k po $8/M ≈ $1.56 płacisz raz w obu drogach')
+    expect(status).toContain('przekazanie odrobiłoby się dopiero po 10 wiadomościach')
   })
 
   // Before Z9: no "stay" button to press — failed at the press
@@ -173,10 +189,10 @@ describe('the cache bar second row: a fresh session pays off (Z9)', () => {
     // 900k: still N = ceil((0.18 + 0.04 + 0.24) / 0.174) = ceil(2.64) = 3, but 900k < 1.2 × 800k = 960k
     await turn($, w, 900_000)
     expect(await ui.find({ key: 'cache-event' })).toBeUndefined()
-    // 960k = 1.2 × 800k: here = 0.192 + 0.04 = $0.232 → "$0.23"; saving = 930,000 × 0.2 / 1e6 = $0.186
+    // 960k = 1.2 × 800k: here = 0.192 + 0.04 = $0.232; 0.232 / 0.046 = 5.04 → "5,0×"; saving = 930,000 × 0.2 / 1e6 = $0.186
     // N = ceil((0.232 + 0.24) / 0.186) = ceil(2.54) = 3 → the row is back
     await turn($, w, 960_000)
-    expect((await ui.find({ key: 'cache-event' }))?.text).toContain('nowa sesja zwróci się po 3 turach · ≈ $0.23 → $0.05/turę')
+    expect((await ui.find({ key: 'cache-event' }))?.text).toContain('tu wiadomość 5,0× droższa')
     await ui.unmount()
   })
 
@@ -186,14 +202,14 @@ describe('the cache bar second row: a fresh session pays off (Z9)', () => {
     await start($)
     await turn($, w, 800_000)
     const answer = await cache($, 'zwrot 2')
-    expect(answer).toContain('N = 3 (próg 2)')
+    expect(answer).toContain('po 3 wiadomościach (próg 2)')
     expect(answer).toContain('Werdykt: zostań')
     expect(answer).toContain('zwrot 2')
     const ui = await mount($)
     expect(await ui.find({ key: 'cache-event' })).toBeUndefined()
     await ui.unmount()
-    expect(await cache($, 'zwrot 51')).toContain('zwrot: liczba tur od 1 do 50')
-    expect(await cache($)).toContain('N = 3 (próg 2)')
+    expect(await cache($, 'zwrot 51')).toContain('zwrot: liczba wiadomości od 1 do 50')
+    expect(await cache($)).toContain('po 3 wiadomościach (próg 2)')
     expect(w.store.get('settings')).toMatchObject({ paybackTurns: 2 })
   })
 })
@@ -208,7 +224,7 @@ describe('/cache shows the reckoning or what is missing (Z9)', () => {
     expect(status).toContain('Kontynuować czy nowa sesja')
     expect(status).toContain('odczyt 100k z cache po $0.2/M + wyjście 2.0k po $20/M')
     // (0.06 + 0.24) / 0.014 → 22
-    expect(status).toContain('Zwrot: ($0.060 + $0.24) / $0.014 oszczędności na turze → N = 22 (próg 5).')
+    expect(status).toContain('Opłacalność: ($0.060 + $0.24) / $0.014 oszczędności na wiadomości → przekazanie odrobione po 22 wiadomościach (próg 20).')
     expect(status).toContain('TTL 60 min założony')
     expect(status).toContain('warstwa startu 30.0k (zmierzona po pierwszej turze sesji 2026-10-09)')
     expect(status).toContain('Limit 5 h: brak pomiaru')
@@ -265,7 +281,7 @@ describe('the start layer S: measured first, estimated as a fallback (Z9)', () =
     const status = await cache($)
     expect(status).toContain('warstwa startu 6.0k (szacunek z plików rytuału startu: 24000 B ÷ 4, z dziennika pierwsze 12 KB)')
     // 100k warm against S = 6k: saving = 94,000 × 0.2 / 1e6 = $0.0188; start write = 6,000 × 8 / 1e6 = $0.048
-    // N = ceil((0.06 + 0.048) / 0.0188) = ceil(5.74) = 6 > 5 → stay
-    expect(status).toContain('N = 6 (próg 5)')
+    // N = ceil((0.06 + 0.048) / 0.0188) = ceil(5.74) = 6 ≤ 20 → hand off
+    expect(status).toContain('po 6 wiadomościach (próg 20)')
   })
 })

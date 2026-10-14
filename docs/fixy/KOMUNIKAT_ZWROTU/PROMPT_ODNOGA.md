@@ -271,19 +271,19 @@ zaczynasz od slugu projektu.
 
 **Weryfikacja** (wszystkie punkty muszą przejść):
 
-- [ ] Przypadek ze zrzutu (kontekst 497k, cache zimny, liczby z 2026-10-14) policzony nowym kodem:
+- [x] Przypadek ze zrzutu (kontekst 497k, cache zimny, liczby z 2026-10-14) policzony nowym kodem:
       albo pasek milczy, albo jego liczba i rekomendacja mówią to samo — wynik w dzienniku obok
       starego brzmienia (obie wersje w jednym przebiegu).
-- [ ] Żadne brzmienie paska nie zawiera „zwróci się”, „tur” ani „warstwy startu” (grep po
+- [x] Żadne brzmienie paska nie zawiera „zwróci się”, „tur” ani „warstwy startu” (grep po
       `cache-keeper/hooks/*.ts*` z kontrolą pozytywną na starym kodzie).
-- [ ] Brak pomiaru tempa limitu ma własne, zaakceptowane zachowanie i test.
-- [ ] Brzmienie wiersza zaakceptowane przez Łukasza na zrzucie z moda na żywo, przed wydaniem —
+- [x] Brak pomiaru tempa limitu ma własne, zaakceptowane zachowanie i test.
+- [x] Brzmienie wiersza zaakceptowane przez Łukasza na zrzucie z moda na żywo, przed wydaniem —
       jego słowa we wpisie.
-- [ ] `claude plugin test .` i `claude plugin validate .` w `cache-keeper/` zielone; testy rdzenia
+- [x] `claude plugin test .` i `claude plugin validate .` w `cache-keeper/` zielone; testy rdzenia
       zielone (komendy jak w `docs/PULAPKI.md` P-024).
-- [ ] `STYL_PASKOW_CLAUDE.md` i `KOMENDY.md` opisują nowe zachowanie; `grep -r` po starym numerze
+- [x] `STYL_PASKOW_CLAUDE.md` i `KOMENDY.md` opisują nowe zachowanie; `grep -r` po starym numerze
       wersji rozstrzygnięty.
-- [ ] Katalog roboczy `.claude/relai/work/_fixy/KOMUNIKAT_ZWROTU/` przejrzany raportem
+- [x] Katalog roboczy `.claude/relai/work/_fixy/KOMUNIKAT_ZWROTU/` przejrzany raportem
       (`node .claude/relai/tools/clean-work.js raport`) i skasowany po „tak”; liczby przed i po we
       wpisie dziennika, artefakty spoza niego wypisane z nazwy.
 

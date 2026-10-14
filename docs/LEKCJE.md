@@ -48,8 +48,9 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
 5. **Instrument pomiarowy sam bywa źródłem fałszu.**
    - **Backslash:** wyrażenia regularne i ścieżki Windows tylko w pliku pisanym Write/Edit albo
      z `/`; skrypt edycji niosący `\n`, backtick lub ścieżkę — Write, heredok bez wyjątku, także
-     jednolinijkowa podmiana przez `node -e`; dokumenty — tylko Edit (L-0116, L-0119, L-0135, L-0148,
-     L-0188); znaki łączące — `\p{M}` z flagą `u`; wynik sprawdzasz grepem stałego ciągu.
+     jednolinijkowa podmiana przez `node -e`; dokumenty — tylko Edit; napis z `\n` w kodzie albo
+     teście — tylko Edit, także obok podmian bez ucieczek (L-0116, L-0119, L-0135, L-0148,
+     L-0188, L-0192); znaki łączące — `\p{M}` z flagą `u`; wynik sprawdzasz grepem stałego ciągu.
    - **Kontrola pozytywna:** zero trafień przy niepustych zbiorach to defekt instrumentu do czasu
      dowodu, a trafienie na materiale dotąd zdrowym sprawdzasz najpierw na instrumencie; scenariusz
      „konfiguracji nie ma” mierzysz z podstawionym katalogiem domowym; dokładasz przypadek, który **musi** trafić, na **tym samym wejściu**, którego mechanizm
@@ -585,6 +586,18 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
   stara wersja na tym materiale, potem nowa, w jednym przebiegu. Kryterium „spadek o połowę” liczysz
   na materiale przed pracą i przy małej liczbie zdarzeń wracasz z pytaniem o materiał albo licznik,
   zanim puścisz przebiegi.
+
+### L-0192 — Oczekiwany tekst z `\n` w teście przeszedł przez literał Pythona · 2026-10-14 · AKTYWNA
+
+- **Trigger:** odnoga KOMUNIKAT_ZWROTU. Podmiana oczekiwanych napisów w `economics.test.ts` skryptem
+  Pythona z heredoku: `\n` w napisie zastępczym trafił do pliku jako prawdziwy znak nowej linii,
+  literał TypeScriptu się rozerwał, a `claude plugin test` zgłosił „the file did not load —
+  Unterminated string literal”. Poprawka narzędziem Edit.
+- **Przyczyna:** reguła już była (zasada 5, „Backslash”: skrypt edycji niosący `\n` — tylko
+  Write/Edit), a sesja jej nie zastosowała, bo podmiana „wyglądała na zwykłe napisy”.
+- **Zasada:** napis z sekwencją ucieczki (`\n`, `\t`, `\\`) w pliku kodu albo testu zmieniasz
+  wyłącznie narzędziem Edit — także wtedy, gdy obok idą podmiany bez ucieczek; skrypt podmian bierze
+  tylko napisy bez backslasha. Po każdej zbiorczej podmianie uruchamiasz testy, zanim pójdziesz dalej.
 
 ## Lekcje zwinięte
 

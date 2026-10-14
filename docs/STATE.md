@@ -8,7 +8,8 @@ RelAI **3.1.0** jest w repozytorium i publicznie (tag `v3.1.0`, 2026-10-14: huma
 piętnasta komenda `/relai-humanize`, tryb ciągły w Claude Code; plan HUMANIZACJA zamknięty). Plugin `relai` działa
 w trzech narzędziach — Claude Code, Cursorze i Codeksie — na jednym rdzeniu procesu, z piętnastoma
 komendami. Panel RelAI w oknie Claude Code to trzy osobne pluginy „early access” z marketplace tego
-repozytorium: `relai-panel` 0.16.0, `relai-progress` 0.4.1, `relai-cache-keeper` 0.7.1, z linią
+repozytorium: `relai-panel` 0.16.0, `relai-progress` 0.4.1, `relai-cache-keeper` 0.8.0 (2026-10-14:
+pasek mówi uczciwie, kiedy nowa sesja się opłaca — odnoga KOMUNIKAT_ZWROTU), z linią
 w stopce każdej sesji, widoczną też w prawym panelu podziału okna (odnoga PASKI_W_STOPCE, P-040).
 Aktywny plan: PANEL_CODEX w Codeksie (E1 po stronie Codeksa); HUMANIZACJA zamknięty 2026-10-14
 wydaniem 3.1.0. Opinii spoza projektu nadal nie ma.

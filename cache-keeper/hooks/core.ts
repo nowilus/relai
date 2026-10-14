@@ -142,7 +142,7 @@ export function applySetting(s: Settings, rawKey: string, rawValue: string): { s
     const n = Number(value)
     return Number.isInteger(n) && n >= 1 && n <= MAX_PAYBACK_TURNS
       ? { settings: { ...s, paybackTurns: n } }
-      : fail(`zwrot: liczba tur od 1 do ${MAX_PAYBACK_TURNS}`)
+      : fail(`zwrot: liczba wiadomości od 1 do ${MAX_PAYBACK_TURNS}`)
   }
   return fail(`nieznane ustawienie: ${rawKey}`)
 }

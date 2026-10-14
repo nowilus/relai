@@ -1,9 +1,13 @@
-// Pure logic: continue here or hand off to a fresh session (AUDYT_MODOW Z9). No `$`, no I/O;
-// the caller passes every number, prices included, so tests reach it directly.
+// Pure logic: continue here or hand off to a fresh session (AUDYT_MODOW Z9, KOMUNIKAT_ZWROTU).
+// No `$`, no I/O; the caller passes every number, prices included, so tests reach it directly.
+//
+// One trigger: the handoff's own cost (its message + writing the start layer) is earned back by the
+// cheaper messages after it within `threshold` messages. A cold cache rewrites the context once on
+// either path (the next message here, or the handoff message), so it moves no verdict.
 
 import { tokens, usd } from './fmt'
 
-export const DEFAULT_PAYBACK_TURNS = 5
+export const DEFAULT_PAYBACK_TURNS = 20
 const M = 1e6 // rates are USD per million tokens
 const LIMIT_WINDOW = 5 // the 5-hour limit pace is the mean of this many recent turns
 
@@ -25,20 +29,26 @@ export type HandoffInput = {
   rates: Rates
   meanOutput: number | null // the session's mean output tokens per turn
   limitTurns: readonly LimitTurn[] | null
-  threshold?: number // payback in at most this many turns opens the event
+  threshold?: number // the handoff earned back within at most this many messages opens the event
 }
 
 export type MissingField = 'ctx' | 'start' | 'cache' | 'read' | 'write' | 'output' | 'meanOutput'
 
 export type LimitPace = { now: number; after: number; turns: number }
 
-export type Costs = { here: number; handoff: number; startWrite: number; after: number }
+// The same costs in percent of the 5-hour limit: `perUsd` percent per dollar, measured
+export type LimitShare = { here: number; after: number; handoff: number; perUsd: number; turns: number }
+
+// here: a message here on a warm cache; rewrite: the cold cache's one-off rewrite (0 when warm),
+// paid on either path; handoff: the handoff message as billed; startWrite: the start layer's
+// write; after: a message after the handoff; extra: what handing off costs over staying
+export type Costs = { here: number; rewrite: number; handoff: number; startWrite: number; after: number; extra: number }
 
 export type HandoffVerdict =
   | { kind: 'missing'; missing: MissingField[]; bar: null; report: string }
-  | { kind: 'never'; costs: Costs; limit: LimitPace | null; bar: null; report: string }
-  | { kind: 'stay'; turns: number; costs: Costs; limit: LimitPace | null; bar: null; report: string }
-  | { kind: 'handoff'; turns: number; reason: 'payback' | 'cold'; costs: Costs; limit: LimitPace | null; bar: string; report: string }
+  | { kind: 'never'; costs: Costs; limit: LimitShare | null; bar: null; report: string }
+  | { kind: 'stay'; turns: number; costs: Costs; limit: LimitShare | null; bar: null; report: string }
+  | { kind: 'handoff'; turns: number; costs: Costs; limit: LimitShare | null; bar: string; lines: BarSegment[][]; report: string }
 
 const MISSING_LABEL: Record<MissingField, string> = {
   ctx: 'rozmiaru kontekstu',
@@ -47,7 +57,7 @@ const MISSING_LABEL: Record<MissingField, string> = {
   read: 'stawki odczytu cache',
   write: 'stawki zapisu cache',
   output: 'stawki wyjścia',
-  meanOutput: 'średniego wyjścia tury',
+  meanOutput: 'średniego wyjścia wiadomości',
 }
 
 const usable = (n: number | null, positive: boolean): n is number =>
@@ -56,9 +66,11 @@ const usable = (n: number | null, positive: boolean): n is number =>
 // Two decimals, Polish comma (house rule for percents)
 export const pct = (n: number): string => n.toFixed(2).replace('.', ',') + ' %'
 const rate = (n: number): string => `$${n}/M`
-// As `usd`, but sub-dime sums keep a third decimal, so the payback division reads true
+// As `usd`, but sub-dime sums keep a third decimal, so the division reads true
 const money = (n: number): string => (n > 0 && n < 0.1 ? '$' + n.toFixed(3) : usd(n))
-const turnsWord = (n: number): string => (n === 1 ? 'po 1 turze' : `po ${n} turach`)
+const messagesWord = (n: number): string => (n === 1 ? 'po 1 wiadomości' : `po ${n} wiadomościach`)
+const decimal = (n: number): string => n.toFixed(1).replace('.', ',')
+const times = (n: number): string => decimal(n) + '×'
 
 function missingFields(i: HandoffInput): MissingField[] {
   const out: MissingField[] = []
@@ -81,6 +93,15 @@ export function limitPace(turns: readonly LimitTurn[] | null, start: number): Li
   return { now: percent / last.length, after: (percent / tokenSum) * start, turns: last.length }
 }
 
+// The measured pace per token, applied to ctx, is a message here; the dollar costs scaled by the
+// same factor give the rest, so a percent never disagrees with the verdict reckoned in dollars
+function limitShare(turns: readonly LimitTurn[] | null, ctx: number, c: Costs): LimitShare | null {
+  const pace = limitPace(turns, ctx)
+  if (!pace || !(pace.after > 0) || !(c.here > 0)) return null
+  const perUsd = pace.after / c.here
+  return { here: pace.after, after: c.after * perUsd, handoff: c.extra * perUsd, perUsd, turns: pace.turns }
+}
+
 export function handoffEconomics(input: HandoffInput): HandoffVerdict {
   const missing = missingFields(input)
   if (missing.length) {
@@ -96,56 +117,75 @@ export function handoffEconomics(input: HandoffInput): HandoffVerdict {
   const threshold = input.threshold ?? DEFAULT_PAYBACK_TURNS
   const cold = input.cache === 'cold'
 
-  // Warm: the turn reads ctx from the cache; cold: it writes ctx again
-  const here = (ctx * (cold ? write : read)) / M + outputCost
-  const costs: Costs = { here, handoff: here, startWrite: (S * write) / M, after: (S * read) / M + outputCost }
-  const limit = limitPace(input.limitTurns, S)
+  const here = (ctx * read) / M + outputCost
+  const rewrite = cold ? (ctx * Math.max(0, write - read)) / M : 0
+  const startWrite = (S * write) / M
+  const costs: Costs = { here, rewrite, handoff: here + rewrite, startWrite, after: (S * read) / M + outputCost, extra: here + startWrite }
+  const limit = limitShare(input.limitTurns, ctx, costs)
   const saving = ((ctx - S) * read) / M
   const lines = reckoning(input, costs, limit)
 
   if (saving <= 0) {
     const why = ctx <= S ? `kontekst (${tokens(ctx)}) nie jest większy od warstwy startu (${tokens(S)})` : 'odczyt cache nic nie kosztuje'
-    return { kind: 'never', costs, limit, bar: null, report: [...lines, `Werdykt: zostań — nowa sesja się nie zwróci, bo ${why}.`].join('\n') }
+    return { kind: 'never', costs, limit, bar: null, report: [...lines, `Werdykt: zostań — nowa sesja się nie opłaci, bo ${why}.`].join('\n') }
   }
 
-  // The card's formula: (handoff turn + S·write) / ((ctx − S)·read), rounded up; the epsilon absorbs float noise
-  const turns = Math.max(1, Math.ceil((costs.handoff + costs.startWrite) / saving - 1e-9))
-  const payback = turns <= threshold
-  const coldBig = cold && ctx > 2 * S
-  const formula = `Zwrot: (${money(costs.handoff)} + ${money(costs.startWrite)}) / ${money(saving)} oszczędności na turze → N = ${turns} (próg ${threshold}).`
-  if (!payback && !coldBig) {
-    return { kind: 'stay', turns, costs, limit, bar: null, report: [...lines, formula, `Werdykt: zostań — nie opłaca się, nowa sesja zwróciłaby się dopiero ${turnsWord(turns)}.`].join('\n') }
+  // (handoff message + S·write) / ((ctx − S)·read), rounded up; the epsilon absorbs float noise
+  const turns = Math.max(1, Math.ceil(costs.extra / saving - 1e-9))
+  const formula = `Opłacalność: (${money(here)} + ${money(startWrite)}) / ${money(saving)} oszczędności na wiadomości → przekazanie odrobione ${messagesWord(turns)} (próg ${threshold}).`
+  if (turns > threshold) {
+    return { kind: 'stay', turns, costs, limit, bar: null, report: [...lines, formula, `Werdykt: zostań — nie opłaca się, przekazanie odrobiłoby się dopiero ${messagesWord(turns)}.`].join('\n') }
   }
-  const reason = payback ? 'payback' : 'cold'
-  const why = payback ? `zwrot w ≤ ${threshold} turach` : `cache zimny i kontekst > 2× warstwa startu`
   return {
-    kind: 'handoff', turns, reason, costs, limit,
-    bar: barText(turns, costs, limit, reason),
-    report: [...lines, formula, `Werdykt: przekaż — ${why}; nowa sesja zwróci się ${turnsWord(turns)}.`].join('\n'),
+    kind: 'handoff', turns, costs, limit,
+    bar: barText(ctx, S, turns, costs, limit),
+    lines: barLines(ctx, S, turns, costs, limit),
+    report: [...lines, formula, `Werdykt: przekaż — przekazanie odrobione ${messagesWord(turns)}.`].join('\n'),
   }
 }
 
-// The cache bar's second row
-function barText(turns: number, c: Costs, limit: LimitPace | null, reason: 'payback' | 'cold'): string {
-  const parts = [`nowa sesja zwróci się ${turnsWord(turns)}`, `≈ ${usd(c.here)} → ${usd(c.after)}/turę`]
-  if (limit) parts.push(`${pct(limit.now)} → ${pct(limit.after)} limitu 5 h`)
-  return (reason === 'cold' ? 'cache zimny · ' : '') + parts.join(' · ')
+// The cache bar's second row, two lines split at BAR_BREAK: what to do and why, then what it gains
+// with the handoff's own cost. Percent of the 5-hour limit first; with no measured pace the same
+// comparison as ratios. Each line stays within BAR_LINE_MAX characters, so the row's buttons keep
+// their place beside it. `barLines` are the same words as segments: register.tsx draws a strong one
+// bold and the rest muted, with no background (the grammar of the batteries, calibration 2026-10-14).
+export const BAR_BREAK = '\n'
+export const BAR_LINE_MAX = 70
+export type BarSegment = { text: string; strong: boolean }
+const strong = (text: string): BarSegment => ({ text, strong: true })
+const plain = (text: string): BarSegment => ({ text, strong: false })
+
+function barLines(ctx: number, S: number, turns: number, c: Costs, limit: LimitShare | null): BarSegment[][] {
+  // Calibration 2026-10-14, round 4: cost only, never token counts — "czyta 115k zamiast 325k" read
+  // as "always go", while reading is cheap and the output costs the same in both sessions.
+  // The second line carries the handoff's own cost; its split stays in `/cache`
+  const why = limit
+    ? [strong('przejdź do nowej sesji'), plain(' · tu wiadomość '), strong(pct(limit.here)), plain(', tam '), strong(pct(limit.after)), plain(' limitu 5 h')]
+    : [strong('przejdź do nowej sesji'), plain(' · tu wiadomość '), strong(times(c.here / c.after)), plain(' droższa')]
+  const back = [plain('przekazanie odrobisz po '), strong(String(turns)), plain(turns === 1 ? ' wiadomości' : ' wiadomościach')]
+  return [why, back]
 }
 
-// The `/cache` reckoning with its assumptions, one line each
-function reckoning(i: HandoffInput, c: Costs, limit: LimitPace | null): string[] {
+function barText(ctx: number, S: number, turns: number, c: Costs, limit: LimitShare | null): string {
+  return barLines(ctx, S, turns, c, limit).map((line) => line.map((s) => s.text).join('')).join(BAR_BREAK)
+}
+
+// The `/cache` reckoning with its assumptions, one line each; dollars here, never on the bar
+function reckoning(i: HandoffInput, c: Costs, limit: LimitShare | null): string[] {
   const ctx = i.ctx as number
   const S = i.start as number
   const { read, write, output } = i.rates as { read: number; write: number; output: number }
-  const turn = i.cache === 'cold' ? `ponowny zapis ${tokens(ctx)} po ${rate(write)}` : `odczyt ${tokens(ctx)} z cache po ${rate(read)}`
   const out = `wyjście ${tokens(i.meanOutput as number)} po ${rate(output)}`
-  return [
-    'Kontynuować czy nowa sesja',
-    `Następna tura tu: ≈ ${usd(c.here)} (${turn} + ${out}).`,
-    `Po przekazaniu: tura przekazania ≈ ${usd(c.handoff)} + zapis warstwy startu ${tokens(S)} po ${rate(write)} ≈ ${usd(c.startWrite)}, potem ≈ ${usd(c.after)}/turę.`,
+  const lines = ['Kontynuować czy nowa sesja', `Wiadomość tu: ≈ ${usd(c.here)} (odczyt ${tokens(ctx)} z cache po ${rate(read)} + ${out}).`]
+  if (c.rewrite > 0) {
+    lines.push(`Cache zimny: ponowny zapis ${tokens(ctx)} po ${rate(write)} ≈ ${usd(c.rewrite)} płacisz raz w obu drogach — następną wiadomością tu albo wiadomością przekazania; werdyktu nie zmienia.`)
+  }
+  lines.push(
+    `Po przekazaniu: wiadomość przekazania ≈ ${usd(c.handoff)} + zapis warstwy startu ${tokens(S)} po ${rate(write)} ≈ ${usd(c.startWrite)}, potem ≈ ${usd(c.after)} za wiadomość.`,
     limit
-      ? `Limit 5 h: ${pct(limit.now)}/turę teraz → ${pct(limit.after)} po (średnia z ${limit.turns} tur).`
-      : 'Limit 5 h: brak pomiaru tempa — żadna tura sesji nie ma zmierzonej różnicy.',
-    `Założenia: TTL ${i.ttlMin} min ${i.ttlMeasured ? 'zmierzony' : 'założony'}; warstwa startu ${tokens(S)} (${i.startSource}); stawki to ekwiwalent cennika API, nie rachunek.`,
-  ]
+      ? `Limit 5 h: wiadomość tu ≈ ${pct(limit.here)}, po przekazaniu ≈ ${pct(limit.after)}, przekazanie ≈ ${pct(limit.handoff)} (${pct(limit.perUsd)} na $1, tempo z ostatnich ${limit.turns} wiadomości).`
+      : 'Limit 5 h: brak pomiaru tempa — żadna wiadomość sesji nie ma zmierzonej różnicy.',
+    `Założenia: TTL ${i.ttlMin} min ${i.ttlMeasured ? 'zmierzony' : 'założony'}; warstwa startu ${tokens(S)} (${i.startSource}); stawki to ekwiwalent cennika API, nie rachunek; limit liczony proporcjonalnie do tych stawek.`,
+  )
+  return lines
 }
