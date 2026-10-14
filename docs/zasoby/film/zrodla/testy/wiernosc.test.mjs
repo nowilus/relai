@@ -140,10 +140,21 @@ const ANEKS_A = Object.freeze([
   ['relai-handover', 'Pakiet przekazania', 'Cały projekt do przekazania w jednym pliku'],
 ]);
 
-/** Fails unless the cycle holds each command of FORMS once, in the order of Annex A. */
-function checkCykl(cykl, forms = FORMS.map((f) => f.command)) {
+/**
+ * The commands of FORMS at the 3.0.0 release, which the film shows. A command added after the
+ * release (relai-humanize, plan HUMANIZACJA E1) is not in the released film: Łukasz decided on
+ * 2026-10-14 that the film stays 3.0.0. Each name must still be a command of FORMS.
+ */
+const FORMS_3_0_0 = Object.freeze(['relai-stage', 'relai-prompt', 'relai-crew', 'relai-branch', 'relai-backup',
+  'relai-audit', 'relai-changelog', 'relai-handover', 'relai-tour', 'relai-help', 'relai-adopt', 'relai-update',
+  'relai-models', 'relai-clean']);
+
+/** Fails unless the cycle holds each command of FORMS at 3.0.0 once, in the order of Annex A. */
+function checkCykl(cykl, forms = FORMS_3_0_0) {
+  const biezace = FORMS.map((f) => f.command);
+  assert.deepEqual(forms.filter((c) => !biezace.includes(c)), [], 'each command of 3.0.0 is still in FORMS');
   assert.equal(new Set(cykl).size, cykl.length, 'no command twice');
-  assert.deepEqual([...cykl].sort(), [...forms].sort(), 'the commands of FORMS, none missing');
+  assert.deepEqual([...cykl].sort(), [...forms].sort(), 'the commands of FORMS at 3.0.0, none missing');
   assert.deepEqual([...cykl], ANEKS_A.map(([c]) => c), 'the order of Annex A');
 }
 
@@ -183,13 +194,15 @@ function checkSlowa(slowa = PL, tabela = ANEKS_A, names = NAMES) {
   assert.deepEqual(Object.keys(slowa.komendy.nazwy).sort(), ids, 'no name of a command not in the scene');
 }
 
-test('scene 4: CYKL is each command of FORMS once, in the order of Annex A', (t) => {
+test('scene 4: CYKL is each command of FORMS at 3.0.0 once, in the order of Annex A', (t) => {
   checkCykl(CYKL);
-  t.diagnostic(`cycle: ${CYKL.length} commands of FORMS ${FORMS.length}`);
-  // positive controls: a cycle missing a command, with one doubled, or in another order
+  t.diagnostic(`cycle: ${CYKL.length} commands of FORMS at 3.0.0 ${FORMS_3_0_0.length}, FORMS now ${FORMS.length}`);
+  // positive controls: a cycle missing a command, with one doubled, or in another order,
+  // and a 3.0.0 command that is gone from FORMS
   assert.throws(() => checkCykl(CYKL.slice(1)));
   assert.throws(() => checkCykl([...CYKL.slice(0, -1), 'relai-stage']));
   assert.throws(() => checkCykl([CYKL[1], CYKL[0], ...CYKL.slice(2)]));
+  assert.throws(() => checkCykl(CYKL, [...FORMS_3_0_0.slice(0, -1), 'relai-nieistnieje']));
 });
 
 test('scene 4: each name is NAMES[command][0] and each slogan is the accepted one, word for word', () => {

@@ -49,6 +49,26 @@
       "description": "Reguly optymalizatora dla modelu docelowego z family: openai — cel i kontrakt wyjscia bez krokow, zacheta do dzialania, pierwszenstwo polecenia nad skillem. Bez nazw modeli do odswiezenia listy Codeksa."
     }
   ],
+  "humanize": [
+    {
+      "id": "humanize-reguly",
+      "file": "./humanize/REGULY.md",
+      "kind": "baza regul",
+      "description": "Reguly humanizacji tekstu: 26 wzorcow pisarskich nawykow AI w szesciu grupach z polskimi nazwami wyswietlanymi, procedura (zaznacz, szkic, sprawdz, wersja koncowa), elementy chronione, zakaz dodawania faktow, kiedy nie dzialac. Zrodlo: Humanizer 3.1.0 (MIT), naglowek z wersja i data odczytu."
+    },
+    {
+      "id": "humanize-pl",
+      "file": "./humanize/jezyki/pl.md",
+      "kind": "nakladka jezykowa",
+      "description": "Nakladka polska: nadpisania wzorcow 8, 10, 18, 20, 21 (polpauza i cudzyslow „…” poprawne), polskie odpowiedniki wzorcow, przyklady przed/po i ton zalezny od rodzaju tekstu (formalny, roboczy, czat, na zewnatrz)."
+    },
+    {
+      "id": "humanize-licencja",
+      "file": "./humanize/LICENSE-humanizer.md",
+      "kind": "nota licencyjna",
+      "description": "Nota MIT Humanizera (Siqi Chen) z pelnym tekstem licencji i lista plikow, ktore korzystaja z jego tresci."
+    }
+  ],
   "process": [
     {
       "id": "session-signals",
@@ -79,6 +99,12 @@
       "file": "./process/crew.js",
       "kind": "biblioteka+CLI",
       "description": "Orkiestracja /relai-crew: rozpoznanie narzedzi i logowania (bez czytania sekretow), fale zadan bez konfliktow plikow, delegacja jednego zadania do Claude Code / Codex / Cursor w trybie read-only albo write, przeglad krzyzowy, status przebiegow. Nigdy nie decyduje sam, kto co robi."
+    },
+    {
+      "id": "humanize-facts",
+      "file": "./process/humanize-facts.js",
+      "kind": "narzedzie",
+      "description": "Straznik faktow humanizacji: porownuje oryginal z wersja poprawiona (bloki kodu, backticki, URL, cele linkow, sciezki, daty, liczby) i zwraca JSON { zgubione, dopisane }; kod wyjscia 1 przy roznicy. Teksty z plikow albo ze stdin (heredoc), bez plikow tymczasowych. Samowystarczalny, kopiowany do .claude/relai/tools/ projektu."
     }
   ],
   "tools": [
@@ -126,12 +152,14 @@
       "uses": [
         "./templates/",
         "./prompt/",
+        "./humanize/",
         "./guardrails/secret-scan.js",
         "./process/session-signals.js",
         "./process/prompt-mode.js",
         "./process/resume.js",
         "./process/work-artifacts.js",
-        "./process/crew.js"
+        "./process/crew.js",
+        "./process/humanize-facts.js"
       ]
     },
     {
@@ -145,7 +173,8 @@
         "./guardrails/secret-scan.js",
         "./process/session-signals.js",
         "./process/work-artifacts.js",
-        "./process/crew.js"
+        "./process/crew.js",
+        "./process/humanize-facts.js"
       ]
     },
     {
@@ -159,7 +188,8 @@
         "./guardrails/secret-scan.js",
         "./process/session-signals.js",
         "./process/work-artifacts.js",
-        "./process/crew.js"
+        "./process/crew.js",
+        "./process/humanize-facts.js"
       ]
     }
   ]

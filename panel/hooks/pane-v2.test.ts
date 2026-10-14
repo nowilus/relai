@@ -242,7 +242,7 @@ describe('"Teraz" opened from the plan bar (Z13)', () => {
 })
 
 describe('the commands tab (brief v2 §6.3–6.5, P1)', () => {
-  test('two recommended cards with 44 px icons; twelve rows of one line: 24 px icon, name, command, purpose, "Otwórz"', async ($, on) => {
+  test('two recommended cards with 44 px icons; thirteen rows of one line: 24 px icon, name, command, purpose, "Otwórz"', async ($, on) => {
     world(on)
     const ui = await open($)
     for (const c of FEATURED_V2) {
@@ -251,7 +251,7 @@ describe('the commands tab (brief v2 §6.3–6.5, P1)', () => {
       expect(textOf(card)).toContain('/' + c)
     }
     expect(await ui.find({ key: 'row-relai-tour' })).toBeDefined() // the tour went down to the rows
-    expect(ROWS.length).toBe(12)
+    expect(ROWS.length).toBe(13) // 15 commands since HUMANIZACJA E1 (relai-humanize), two of them cards
     for (const c of ROWS) {
       const row = await ui.find({ key: `row-${c}` })
       expect([...walk(row)].find((n) => n.type === 'Svg')?.props?.width).toBe(24)
@@ -293,12 +293,13 @@ describe('the commands tab (brief v2 §6.3–6.5, P1)', () => {
     await ui.unmount()
   })
 
-  test('the 14 commands, "Teraz" and the header fit 900 px of a desktop without scrolling', async ($, on) => {
+  test('the 15 commands, "Teraz" and the header fit 925 px of a desktop (900 px until HUMANIZACJA E1)', async ($, on) => {
     world(on)
     const ui = await open($)
     const tree = await ui.drawn()
     const px = height(tree as RenderNode)
-    expect(`${px} px`).toBe(`${Math.min(px, 900)} px`)
+    // TEMPORARY (HUMANIZACJA E1, decision 2026-10-14): the 15th row costs 25 px; E4 brings back 900 px
+    expect(`${px} px`).toBe(`${Math.min(px, 925)} px`)
     for (const c of ROWS) expect(height((await ui.find({ key: `row-${c}` })) as RenderNode)).toBeLessThanOrEqual(PX.button + 2 * PX.border)
     await ui.unmount()
   })

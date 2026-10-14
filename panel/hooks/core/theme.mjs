@@ -73,6 +73,7 @@ export const DIFF = Object.freeze({
 export const NAMES = Object.freeze({
   'relai-stage': ['Etap planu', 'Uruchom następny etap aktywnego planu'],
   'relai-prompt': ['Optymalizator promptu', 'Zamień zdanie w precyzyjny prompt'],
+  'relai-humanize': ['Humanizacja tekstu', 'Usuń z tekstu nawyki pisarskie AI'],
   'relai-crew': ['Załoga agentów', 'Rozdziel cel między kilku agentów'],
   'relai-branch': ['Odnoga planu', 'Odłóż boczny wątek na osobną kartę'],
   'relai-backup': ['Kopia zapasowa', 'Spakuj projekt do archiwum ZIP'],
@@ -92,7 +93,7 @@ export const FEATURED = Object.freeze(['relai-stage', 'relai-prompt', 'relai-tou
 
 /** The rest, in groups under a heading each; a featured command is not repeated here. */
 export const GROUPS = Object.freeze([
-  { id: 'work', title: 'Prowadzenie pracy', commands: ['relai-crew', 'relai-branch'] },
+  { id: 'work', title: 'Prowadzenie pracy', commands: ['relai-crew', 'relai-branch', 'relai-humanize'] },
   { id: 'know', title: 'Wiedza o projekcie', commands: ['relai-help', 'relai-audit', 'relai-changelog', 'relai-handover'] },
   { id: 'care', title: 'Porządek i bezpieczeństwo', commands: ['relai-backup', 'relai-clean', 'relai-update', 'relai-models', 'relai-adopt'] },
 ]);

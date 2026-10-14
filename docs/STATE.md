@@ -1,6 +1,6 @@
 # STATE — RelAI
 
-Stan na: 2026-10-13 (wydanie 3.0.0, plan FILM_PREZENTACYJNY zamknięty)
+Stan na: 2026-10-14 (HUMANIZACJA E1 zrealizowany; wydanie 3.0.0)
 
 ## Gdzie jesteśmy
 
@@ -11,8 +11,8 @@ Cursorze i Codeksie — na jednym rdzeniu procesu, z czternastoma komendami. Pan
 Claude Code to trzy osobne pluginy „early access” z marketplace tego repozytorium: `relai-panel`
 0.15.0, `relai-progress` 0.4.0, `relai-cache-keeper` 0.7.0 — od 2026-10-13 z linią w stopce każdej
 sesji, widoczną też w prawym panelu podziału okna (odnoga PASKI_W_STOPCE, P-040) (plan PANEL_CLAUDE zamknięty
-2026-10-10, odnoga AUDYT_MODOW zamknięta 2026-10-11, wszystkie paczki zmierzone na żywo na 2.1.295). Aktywny plan to PANEL_CODEX — panel dla Codeksa,
-E1 po stronie Codeksa; FILM_PREZENTACYJNY zamknięty 2026-10-13 wydaniem 3.0.0. Opinii spoza projektu nadal nie ma.
+2026-10-10, odnoga AUDYT_MODOW zamknięta 2026-10-11, wszystkie paczki zmierzone na żywo na 2.1.295). Aktywne plany: HUMANIZACJA w Claude Code
+(E1 zrealizowany 2026-10-14, E2 gotowy do startu) i PANEL_CODEX w Codeksie (E1 po stronie Codeksa); FILM_PREZENTACYJNY zamknięty 2026-10-13 wydaniem 3.0.0. Opinii spoza projektu nadal nie ma.
 
 ## Co działa
 
@@ -25,6 +25,10 @@ E1 po stronie Codeksa; FILM_PREZENTACYJNY zamknięty 2026-10-13 wydaniem 3.0.0. 
   ściąga, adopcja, aktualizacja, sprzątanie, lista modeli, załoga, optymalizator promptu.
 - Podyktowane zdanie może wrócić poprawione, zanim ruszy w robotę — na żądanie albo w trybie
   ciągłym, o który sesja pyta raz; oryginał stoi obok propozycji.
+- W repozytorium, niewydane (do 3.1.0): piętnasta komenda `/relai-humanize` zwraca tekst bez
+  nawyków pisarskich AI obok oryginału, z listą usuniętych wzorców po polsku, a strażnik faktów
+  pilnuje liczb, dat, linków i kodu; plik zmienia się dopiero po „tak”, archiwum, zamrożone plany
+  i rejestr decyzji są poza zasięgiem.
 - Załoga deleguje zadania do trzech narzędzi; recenzent bez prawa zapisu, dwa zadania nie piszą
   naraz do jednego pliku, meldunek bez dowodu dostaje najwyżej dwie kontynuacje.
 - Zadanie z kodem kończy się testami projektu i przeglądem diffu w trzech liniach; „coś nie
@@ -81,8 +85,12 @@ E1 po stronie Codeksa; FILM_PREZENTACYJNY zamknięty 2026-10-13 wydaniem 3.0.0. 
   czat macierzysty; kontrakt w [README adaptera](../adapters/codex/panel/README.md). Tabela
   STATUS planu pokazuje jeszcze `GOTOWY DO STARTU` — do wyprostowania na `W TOKU`.
 
-- **Plan HUMANIZACJA — ZAAKCEPTOWANY 2026-10-14, aktywny w Claude Code; E1 GOTOWY DO STARTU**
-  ([status](plany/HUMANIZACJA/STATUS.md), 5 etapów, Opus 5.5, prompt E1 gotowy). Po co: komenda
+- **Plan HUMANIZACJA — aktywny w Claude Code; E1 ZREALIZOWANY 2026-10-14, E2 GOTOWY DO STARTU**
+  ([status](plany/HUMANIZACJA/STATUS.md), 5 etapów, Opus 5.5, prompt E2 gotowy). E1 dowiózł bazę
+  reguł `core/humanize/`, strażnika faktów i komendę zarejestrowaną w panelu i Codeksie; zakładka
+  komend panelu ma tymczasowo 925 px zamiast 900 px (powrót w E4); otwarta odnoga
+  [FILM_TESTY_V3](plany/HUMANIZACJA/odnogi/FILM_TESTY_V3/ODNOGA.md) (testy filmu na stanie
+  `v3.0.0`). Po co: komenda
   `/relai-humanize` pokazuje oryginał obok wersji bez nawyków pisarskich AI (reguły z pluginu
   Humanizer, MIT, z nakładką polską); przy pierwszym użyciu wywiad na próbce, tryb ciągły tylko
   w zakresach wybranych przez użytkownika. Aneks A: ton zależy od rodzaju tekstu (dokumenty
@@ -174,10 +182,10 @@ Backupy: `C:\Users\Lukasz\Backupy\RelAI` • [PRZENOSNOSC.md](PRZENOSNOSC.md) �
 
 ### Liczby
 
-Plany zamknięte: 12 (ostatni FILM_PREZENTACYJNY, 2026-10-13) • Aktywny: PANEL_CODEX (E1 W TOKU) •
+Plany zamknięte: 12 (ostatni FILM_PREZENTACYJNY, 2026-10-13) • Aktywne: HUMANIZACJA (E2 GOTOWY DO STARTU), PANEL_CODEX (E1 W TOKU) •
 Start sesji: **93,8 KB / 100 KB** ze skillem z repo (`startCost` 2026-10-12) • Dziennik: **106 KB / 150 KB**
 (2026-10-13, po rotacji) • Ryzyka: 17 w tabeli, archiwum 6 plików + 1 mitygacji • Lekcje:
-**54,4 KB / 50 KB**, 20 w żywym pliku (po rotacji; ponad progiem przez „Zasady aktywne”, 31 KB) • Adaptery: 3 • Komendy: 14 •
+**54,4 KB / 50 KB**, 20 w żywym pliku (po rotacji; ponad progiem przez „Zasady aktywne”, 31 KB) • Adaptery: 3 • Komendy: 14 wydane, 15 w repo •
 Testy: 333 rdzeń, panel i adaptery (`node --test`, 4 katalogi) + 382 pluginów panelu (177 / 31 / 174) + 36 filmu •
 Projekty na RelAI: 3 (RelAI, PolyFlow, JiraManager przed migracją) • Modele, na których zmierzono
 proces: 6 (Fable, Opus, Sonnet, Haiku, Composer/auto, Grok 4.6).

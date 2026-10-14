@@ -32,7 +32,8 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
    - **Materiał:** test na realnym pliku zmienianym przez proces sam ustawia stan wyjściowy,
      licznik do dziennika z przebiegu po ostatniej zmianie (L-0150); plik śledzony albo własna
      fixtura, nigdy z `.gitignore` (L-0156); przed pytaniem o zasięg sprawdzasz, czy plik nie jest
-     generowany (L-0154); zmianę dowodzisz na widoku, który obejmuje jej rekordy (L-0155).
+     generowany (L-0154); zmianę dowodzisz na widoku, który obejmuje jej rekordy (L-0155); test
+     wydanego artefaktu czyta stan wydania (tag, worktree), nie drzewo robocze (L-0186).
    - **Na żywo:** widok z danych projektu mierzysz w najgorszym stanie i ograniczasz w kodzie
      (L-0158); diagnoza zaczyna się od znacznika wersji w logu (L-0159); „przed” w dwóch
      przebiegach — stary kod i stary kod z nową czystą logiką (L-0165); animacja z danych procesu
@@ -41,7 +42,8 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
      opisanego prozą — na każdym zapisie rodziny i przykładzie specyfikacji, stary i nowy kod
      obok siebie (L-0184).
    (L-0017, L-0018, L-0040, L-0051, L-0052, L-0063, L-0069, L-0082, L-0115, L-0117, L-0123, L-0134,
-   L-0144, L-0150, L-0154, L-0155, L-0156, L-0158, L-0159, L-0165, L-0175, L-0177, L-0182, L-0184)
+   L-0144, L-0150, L-0154, L-0155, L-0156, L-0158, L-0159, L-0165, L-0175, L-0177, L-0182, L-0184,
+   L-0186)
 5. **Instrument pomiarowy sam bywa źródłem fałszu.**
    - **Backslash:** wyrażenia regularne i ścieżki Windows tylko w pliku pisanym Write/Edit albo
      z `/`; skrypt edycji niosący `\n` lub ścieżkę — Write, heredok bez wyjątku (L-0116, L-0119,
@@ -132,9 +134,11 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
       zmiennego cwd, test w podfolderze (L-0146).
     - **Sesje:** sonda działania niszczącego w sesji bez wartości, stan w pliku przed krokiem
       (L-0153); funkcja czekająca na `$.ui.ask` zapamiętuje id sesji i porzuca odpowiedź po zmianie,
-      zegar i próg czyta po każdym `await` (L-0166); test wielu rozmów — atrapy per rozmowa (L-0168).
+      zegar i próg czyta po każdym `await` (L-0166); test wielu rozmów — atrapy per rozmowa (L-0168);
+      narzędzie wołane w komendzie nie pisze plików tymczasowych pod `.claude/` (ścieżka wrażliwa
+      harnessu) — tekst na stdin heredokiem, jedno polecenie (L-0185).
     (L-0041, L-0042, L-0044, L-0047, L-0092, L-0133, L-0136, L-0138, L-0139, L-0146, L-0153, L-0166,
-    L-0168)
+    L-0168, L-0185)
 14. **Najpierw zmiana w repozytorium, potem zdanie, które ją opisuje.** Weryfikację planujesz tam,
     gdzie wykonalna; po pytaniu sprzątasz sam; jednostką inwentarza jest sprawa, nie linia; wstawkę
     kotwiczysz do elementu, który przeżyje operację, i dowodzisz **obecności** nowej treści. Gdy
@@ -474,6 +478,30 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
   niejednoznaczny daje ciszę. Obejście w konsumencie niesie w teście warunek, który sam wskaże
   chwilę jego usunięcia — test filmu padł dokładnie po poprawce i powiedział, co zdjąć.
 - **Źródło:** FILM_PREZENTACYJNY E7, 2026-10-13, Aneks F; destylat: zasada 4.
+
+### L-0185 — Komenda zakładała pliki tymczasowe pod `.claude/`, a harness tam nie pisze · 2026-10-14 · AKTYWNA
+
+- **Trigger:** pomiar E1 HUMANIZACJA w świeżych sesjach `claude -p`: w trzech z trzech przebiegów
+  z wersją poprawioną zapis `.claude/relai/work/humanize/<id>-oryginal.md` został odrzucony jako
+  edycja ścieżki wrażliwej, mimo `Write` na liście dozwolonych. Strażnik faktów nie ruszył; model
+  porównał teksty czytaniem i powiedział to wprost.
+- **Przyczyna:** procedura komendy zakładała, że katalog roboczy RelAI jest zwykłym miejscem zapisu
+  dla modelu. Dla harnessu `.claude/` jest konfiguracją: w `-p` zapis pada, w sesji interaktywnej
+  pytałby o zgodę przy każdym wywołaniu.
+- **Zasada:** narzędzie wołane przez model w trakcie komendy nie dostaje plików tymczasowych pod
+  `.claude/` — tekst idzie na stdin heredokiem z terminatorem w cudzysłowie, jednym poleceniem bez
+  doklejonych części. Przebieg „strażnik bez różnic” liczy się tylko z wynikiem skryptu
+  w transkrypcie, nie ze zdaniem modelu.
+
+### L-0186 — Testy wydanego filmu czytały bieżące repo i czerwieniały po każdej zmianie · 2026-10-14 · AKTYWNA
+
+- **Trigger:** pomiar bazowy E1 HUMANIZACJA: 5 z 36 testów filmu 3.0.0 padało już przed etapem
+  (więcej testów rdzenia, plan filmu w archiwum), a dodanie piętnastej komendy przewróciło szósty.
+- **Przyczyna:** testy wierności porównują dane filmu z danymi przeliczonymi na drzewie roboczym.
+  Dzień po wydaniu każda zmiana repo, także niezwiązana z filmem, wygląda jak usterka filmu.
+- **Zasada:** test wydanego artefaktu liczy dane ze stanu wydania (tag, worktree) albo przypina
+  zbiór wydany stałą listą z kontrolą, że jej elementy nadal istnieją; bieżące repo jest wejściem
+  tylko dla artefaktu w toku (odnoga FILM_TESTY_V3, scena 4 przypięta w E1).
 
 ## Lekcje zwinięte
 

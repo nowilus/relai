@@ -56,6 +56,14 @@ export const FORMS = Object.freeze([
     ],
   },
   {
+    // HUMANIZACJA E1 (Aneks A6): the minimal form, mode "przerób tekst" only; settings modes come in E4.
+    command: 'relai-humanize',
+    argumentHint: '[tekst albo ścieżka pliku]',
+    fields: [
+      { kind: 'text', key: 'text', label: 'tekst albo ścieżka pliku', isRequired: true },
+    ],
+  },
+  {
     command: 'relai-crew',
     argumentHint: '[cel] | setup | status | review [--base GAŁĄŹ] | rescue <zadanie>',
     fields: [

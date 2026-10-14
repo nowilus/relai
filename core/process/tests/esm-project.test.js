@@ -93,6 +93,17 @@ for (const [nazwa, typ] of PROBKI) {
     assert.equal(c.stdout.trim(), 'zasady aktywne: 2 / limit 15');
   });
 
+  // HUMANIZACJA E1: straznik faktow wolany przez /relai-humanize z kopii projektu.
+  test('tools/humanize-facts.js compares two texts in a project with ' + nazwa, (t) => {
+    const cwd = projekt(typ);
+    t.after(() => fs.rmSync(cwd, { recursive: true, force: true }));
+    fs.writeFileSync(path.join(cwd, 'a.md'), 'Wydanie 3.0.0 z 2026-10-13.');
+    fs.writeFileSync(path.join(cwd, 'b.md'), 'Wydanie 3.0.0, opisane prościej.');
+    const r = uruchom(cwd, 'tools/humanize-facts.js', ['a.md', 'b.md']);
+    assert.equal(r.status, 1, opis(r));
+    assert.deepEqual(JSON.parse(r.stdout).zgubione, [{ rodzaj: 'data', wartosc: '2026-10-13' }]);
+  });
+
   test('templates/HTML_PLAN/zbuduj.js embeds fonts in a project with ' + nazwa, (t) => {
     const cwd = projekt(typ);
     t.after(() => fs.rmSync(cwd, { recursive: true, force: true }));

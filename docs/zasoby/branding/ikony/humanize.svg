@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48" role="img" aria-label="Humanizacja tekstu">
+  <title>Humanizacja tekstu</title>
+  <g fill="none" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M7 12h24" stroke="#8a7f70"/>
+    <path d="M7 20h16" stroke="#8a7f70" stroke-width="2.2"/>
+    <path d="M7 36c3-7 6-7 7.5 0s4.5 7 7.5 0 4.5-7 7.5 0" stroke="#c4643c"/>
+    <path d="M32 37l1.2-5.4 8.6-12.8 4 2.7-8.6 12.8z" stroke="#8a7f70"/>
+    <path d="M39.4 22.4l4 2.7" stroke="#8a7f70" stroke-width="2.2"/>
+  </g>
+</svg>

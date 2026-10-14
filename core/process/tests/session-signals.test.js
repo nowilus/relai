@@ -43,3 +43,30 @@ test('propozycjaPozaProjektemReport speaks only on an explicit "nie proponuj"', 
   assert.match(linie[0], /USTAWIENIA\.md/);
   assert.ok(!/[ąćęłńóśźżĄĆĘŁŃÓŚŹŻ]/.test(linie[0]), 'linia ma byc w ASCII (L-0016)');
 });
+
+// HUMANIZACJA E1: baza regul humanizacji w kopii projektu, ta sama droga co baza optymalizatora.
+// Dowod efektem: kazdy plik core/humanize/ ma w .claude/relai/humanize/ kopie o tej samej sumie
+// (po CRLF -> LF), a kopia nadpisuje zmieniony plik przy nastepnym starcie.
+test('provisionTemplates copies core/humanize to .claude/relai/humanize with equal sums', (t) => {
+  const fs = require('node:fs');
+  const os = require('node:os');
+  const path = require('node:path');
+  const crypto = require('node:crypto');
+  const cwd = fs.mkdtempSync(path.join(os.tmpdir(), 'relai-humanize-provision-'));
+  t.after(() => fs.rmSync(cwd, { recursive: true, force: true }));
+  const zrodlo = path.join(__dirname, '..', '..', 'humanize');
+  const cel = path.join(cwd, '.claude', 'relai', 'humanize');
+  const suma = (p) => crypto.createHash('sha256').update(fs.readFileSync(p, 'utf8').replace(/\r\n/g, '\n')).digest('hex');
+  const pliki = (dir, pre = '') => fs.readdirSync(dir, { withFileTypes: true })
+    .flatMap((w) => (w.isDirectory() ? pliki(path.join(dir, w.name), pre + w.name + '/') : [pre + w.name]));
+
+  assert.ok(core.provisionTemplates(cwd) > 0);
+  const lista = pliki(zrodlo);
+  assert.deepEqual(lista.sort(), ['LICENSE-humanizer.md', 'REGULY.md', 'jezyki/pl.md']);
+  for (const rel of lista) assert.equal(suma(path.join(cel, rel)), suma(path.join(zrodlo, rel)), rel);
+  assert.ok(fs.existsSync(path.join(cwd, '.claude', 'relai', 'tools', 'humanize-facts.js')));
+
+  fs.writeFileSync(path.join(cel, 'REGULY.md'), 'stara kopia\n');
+  core.provisionTemplates(cwd);
+  assert.equal(suma(path.join(cel, 'REGULY.md')), suma(path.join(zrodlo, 'REGULY.md')), 'next start overwrites the copy');
+});

@@ -182,6 +182,8 @@ const NARZEDZIA = [
   // AUDYT_SKILLI S4: rotacja i liczenie "Zasad aktywnych" jako skrypty, nie reczna procedura
   { zrodlo: path.join('..', 'tools', 'rotate.js'), cel: 'rotate.js' },
   { zrodlo: path.join('..', 'tools', 'count-rules.js'), cel: 'count-rules.js' },
+  // HUMANIZACJA E1: straznik faktow, ktory /relai-humanize wola przed pokazaniem wyniku
+  { zrodlo: 'humanize-facts.js', cel: 'humanize-facts.js' },
 ];
 
 function provisionTools(destRoot, opcje) {
@@ -234,6 +236,18 @@ function provisionPrompt(destRoot, opcje) {
   return copyTree(src, dest);
 }
 
+// Baza regul humanizacji (E1 planu HUMANIZACJA) — ta sama droga i ten sam powod co provisionPrompt:
+// /relai-humanize w cudzym projekcie nie widzi katalogu pluginu, a kopia nadpisywana przy kazdym
+// starcie dowozi poprawke regul bez recznego kasowania. Start sesji nie dostaje nowego zdania.
+function provisionHumanize(destRoot, opcje) {
+  const o = opcje || {};
+  const src = o.coreHumanize || path.resolve(__dirname, '..', 'humanize');
+  if (!fs.existsSync(src)) return 0;
+  const dest = path.join(destRoot, 'humanize');
+  try { fs.mkdirSync(dest, { recursive: true }); } catch (_) { return 0; }
+  return copyTree(src, dest);
+}
+
 // Kopiuje core/templates/ do <cwd>/<destRel>/templates/. destRel domyslnie ".claude/relai"
 // — ta sama sciezka w obu adapterach, zeby komendy i skille mowily o jednym miejscu.
 // Zwraca liczbe skopiowanych plikow (0 = awaria albo brak zrodla — adapter milczy).
@@ -247,7 +261,8 @@ function provisionTemplates(cwd, opcje) {
     fs.mkdirSync(dest, { recursive: true });
     // .gitignore z "*" — lokalna kopia to cache narzedzia, nie zawartosc repo
     try { fs.writeFileSync(path.join(destRoot, '.gitignore'), '*\n'); } catch (_) { /* cisza */ }
-    const n = copyTree(src, dest) + provisionTools(destRoot, o) + provisionPrompt(destRoot, o);
+    const n = copyTree(src, dest) + provisionTools(destRoot, o) + provisionPrompt(destRoot, o)
+      + provisionHumanize(destRoot, o);
     markCommonJs(destRoot);
     return n;
   } catch (_) {
@@ -1755,6 +1770,7 @@ module.exports = {
   projectVersion,
   provisionTemplates,
   provisionPrompt, // baza regul optymalizatora — kopia nadpisywana, jak specyfikacje (2.2.0)
+  provisionHumanize, // baza regul humanizacji — ta sama droga (HUMANIZACJA E1)
   provisionModelList, // lista modeli narzedzia — kopia trwala, nie nadpisywana (1.9.0)
   dataListyModeli, // eksportowana, zeby dalo sie sprawdzic testem kotwice i format daty
   wiekListyModeli, // prog swiezosci listy — wylacznik, prog w dniach, cisza ponizej (1.9.0)
