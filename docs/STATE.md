@@ -8,9 +8,9 @@ RelAI **3.1.0** jest w repozytorium i publicznie (tag `v3.1.0`, 2026-10-14: huma
 piętnasta komenda `/relai-humanize`, tryb ciągły w Claude Code; plan HUMANIZACJA zamknięty). Plugin `relai` działa
 w trzech narzędziach — Claude Code, Cursorze i Codeksie — na jednym rdzeniu procesu, z piętnastoma
 komendami. Panel RelAI w oknie Claude Code to trzy osobne pluginy „early access” z marketplace tego
-repozytorium: `relai-panel` 0.16.0, `relai-progress` 0.4.1, `relai-cache-keeper` 0.8.0 (2026-10-14:
-pasek mówi uczciwie, kiedy nowa sesja się opłaca — odnoga KOMUNIKAT_ZWROTU), z linią
-w stopce każdej sesji, widoczną też w prawym panelu podziału okna (odnoga PASKI_W_STOPCE, P-040).
+repozytorium: `relai-panel` 0.17.0, `relai-progress` 0.4.2, `relai-cache-keeper` 0.9.0 (2026-10-14:
+pasek mówi uczciwie, kiedy nowa sesja się opłaca — odnoga KOMUNIKAT_ZWROTU; paski i panel w każdym
+panelu podziału okna, linia w stopce wycofana — odnoga SPLIT_VIEW, P-040 rozwiązana).
 Aktywny plan: PANEL_CODEX w Codeksie (E1 po stronie Codeksa); HUMANIZACJA zamknięty 2026-10-14
 wydaniem 3.1.0. Opinii spoza projektu nadal nie ma.
 
@@ -107,7 +107,10 @@ wydaniem 3.1.0. Opinii spoza projektu nadal nie ma.
 - Plan FILM_PREZENTACYJNY **ZREALIZOWANY 2026-10-13** (7/7, Aneksy A–F, wydanie 3.0.0 z filmem;
   `relai-panel` 0.14.1 z poprawką parsera modelu karty etapu). Rotacja dziennika i lekcji zrobiona
   2026-10-13; następne: PANEL_CODEX po stronie Codeksa.
-  Po restarcie aplikacji (RelAI 3.1.0, `relai-panel` 0.16.0) — rzut oka na wiersz Model karty startu etapu.
+  Po restarcie aplikacji (RelAI 3.1.0, `relai-panel` 0.17.0) — rzut oka na wiersz Model karty startu etapu.
+- Panel RelAI w wąskim panelu podziału okna rozjeżdża się (tekst i „Otwórz” poza kaflami, kafle
+  bez odstępów) — decyzja o formie (plan albo odnoga w nowej sesji); typografia modów czeka na
+  Claude Code ≥ 2.1.299 w aplikacji (2026-10-14 nadal 2.1.295). Rotacja lekcji należna (50,2 KB).
 - Po AUDYT_SKILLI (kontrola zmiany opisu w S5 przyjęta bez powtórzeń, Łukasz 2026-10-12):
   ewaluacje zachowania komend i `/relai-feedback` poza zakresem odnogi; `relai-prompt.md` ponad 20 KB.
 
@@ -144,7 +147,7 @@ wydaniem 3.1.0. Opinii spoza projektu nadal nie ma.
 ### Wersja i instalacja
 
 Repo i publicznie **3.1.0**; marketplace w tym repozytorium (scope `user`) niesie cztery pluginy:
-`relai` i trzy pluginy panelu z własnymi wersjami i tagami (`relai-panel-v0.16.0`). Wydanie
+`relai` i trzy pluginy panelu z własnymi wersjami i tagami (`relai-panel-v0.17.0`). Wydanie
 potwierdzasz treścią plików z cache'u, nie komunikatem CLI (P-005): `claude plugin validate` → tag
 → push → release → `marketplace update` → `plugin update` → suma plików po CRLF → LF. Walidator
 `core/tools/validate-adapters.js` sprawdza 7 źródeł wersji (w tym baner README i „Gdzie jesteśmy”)
@@ -187,7 +190,7 @@ Backupy: `C:\Users\Lukasz\Backupy\RelAI` • [PRZENOSNOSC.md](PRZENOSNOSC.md) �
 Plany zamknięte: 13 (ostatni HUMANIZACJA, 2026-10-14) • Aktywne: PANEL_CODEX (E1 W TOKU) •
 Start sesji: **93,8 KB / 100 KB** ze skillem z repo (`startCost` 2026-10-12) • Dziennik: **ok. 87 KB / 150 KB**
 (2026-10-14 po rotacji: 168,0 → 86,0 KB, archiwum `DZIENNIK_2026-10-12_2026-10-13.md`) • Ryzyka: 18 w tabeli, archiwum 6 plików + 1 mitygacji • Lekcje:
-**48,4 KB / 50 KB**, 27 w żywym pliku (2026-10-14, `wc -c`) • Adaptery: 3 • Komendy: 15 •
-Testy: 408 rdzeń, panel i adaptery (`node --test`, 4 katalogi, 2026-10-14) + 387 pluginów panelu (178 / 31 / 178) + 36 filmu •
+**50,2 KB / 50 KB** (ponad budżet — rotacja należna), 29 w żywym pliku (2026-10-14, `wc -c`) • Adaptery: 3 • Komendy: 15 •
+Testy: 401 rdzeń, panel i adaptery (`node --test`, 4 katalogi, 2026-10-14) + 388 pluginów panelu (178 / 31 / 179) + 36 filmu •
 Projekty na RelAI: 3 (RelAI, PolyFlow, JiraManager przed migracją) • Modele, na których zmierzono
 proces: 6 (Fable, Opus, Sonnet, Haiku, Composer/auto, Grok 4.6).

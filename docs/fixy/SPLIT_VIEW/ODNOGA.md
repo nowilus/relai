@@ -1,6 +1,6 @@
 # ODNOGA — paski i panel RelAI w każdym panelu podziału okna, bez linii w stopce
 
-Plan: brak (wątek samodzielny) · Etap-źródło: — · Utworzona: 2026-10-14 · Status: **OTWARTA** ·
+Plan: brak (wątek samodzielny) · Etap-źródło: — · Utworzona: 2026-10-14 · Status: **ZAMKNIĘTA 2026-10-14** ·
 Wykonawca: Opus 5.5 w świeżej sesji (start po zamknięciu KOMUNIKAT_ZWROTU — zamknięta 2026-10-14)
 
 ## Cel
@@ -55,21 +55,29 @@ przyszłego planu.
 
 ## Weryfikacja
 
-- [ ] Pomiar na żywo: każdy układ z punktu 1 zakresu ma zapisany wynik (paski / `Pane` /
+- [x] Pomiar na żywo: każdy układ z punktu 1 zakresu ma zapisany wynik (paski / `Pane` /
       `$.ui.status` per panel), wersję aplikacji i Claude Code; zrzuty w repo. Panel bez pasków →
       odnoga zatrzymuje punkt 2 i pyta Łukasza.
-- [ ] Po wycofaniu: `grep -rn "pushFooter\|footerPath\|footerPlan\|stopka/" panel progress
+- [x] Po wycofaniu: `grep -rn "pushFooter\|footerPath\|footerPlan\|stopka/" panel progress
       cache-keeper core` → 0 trafień w kodzie (kontrola pozytywna na HEAD przed zmianą); stara linia
       znika z otwartej sesji po przeładowaniu — zrzut.
-- [ ] `claude plugin validate .` i `claude plugin test .` w `panel/`, `progress/`, `cache-keeper/`
+- [x] `claude plugin validate .` i `claude plugin test .` w `panel/`, `progress/`, `cache-keeper/`
       zielone binarką aplikacji (P-024 pkt 4); testy rdzenia `node --test
       core/{guardrails,panel,process}/tests/*.test.js` zielone, w tym parytet kopii rdzenia.
-- [ ] P-040, STYL §12, README, KOMENDY i karta PASKI_W_STOPCE opisują nowy stan; `grep -r` po
+- [x] P-040, STYL §12, README, KOMENDY i karta PASKI_W_STOPCE opisują nowy stan; `grep -r` po
       starych numerach wersji trzech pluginów rozstrzygnięty.
-- [ ] Katalog roboczy `.claude/relai/work/_fixy/SPLIT_VIEW/` przejrzany raportem
+- [x] Katalog roboczy `.claude/relai/work/_fixy/SPLIT_VIEW/` przejrzany raportem
       (`node .claude/relai/tools/clean-work.js raport`) i skasowany po „tak”; liczby przed i po we
       wpisie dziennika, artefakty spoza niego wypisane z nazwy.
 
 ## Wynik
 
-—
+Pomiar na żywo (aplikacja 2.37337.1.0, Claude Code 2.1.295 — te same wersje co przy błędzie, więc
+poprawka po stronie strony zakładki Code): dwa panele obok siebie, dwa jeden nad drugim, trzy obok
+siebie — w każdym panelu paski; sesja RelAI w prawym panelu ma plan, postęp i cache, `/relai-panel`
+otwiera tam `Pane`. Linia w stopce wycofana: `relai-cache-keeper` 0.9.0 jej nie ustawia i raz czyści
+starą, `relai-panel` 0.17.0 nie pisze `.claude/relai/stopka/`, `core/panel/footer.mjs` z kopiami
+usunięty; po aktualizacji i restarcie stopka obu paneli pusta. Wydanie `relai-panel-v0.17.0`
+(z `relai-progress` 0.4.2), commit `b4e96a7`. P-040 rozwiązana, STYL v3.8 (§12 wycofany), README
+z pracą etapami w podziale okna. Zrzuty `docs/zasoby/PANEL_RELAI/zrzuty/SPLIT_VIEW_1…5`.
+Wpis w dzienniku 2026-10-14.

@@ -599,6 +599,16 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
   wyłącznie narzędziem Edit — także wtedy, gdy obok idą podmiany bez ucieczek; skrypt podmian bierze
   tylko napisy bez backslasha. Po każdej zbiorczej podmianie uruchamiasz testy, zanim pójdziesz dalej.
 
+### L-0193 — Opcja „nowa odnoga” zaproponowana z wnętrza odnogi · 2026-10-14 · AKTYWNA
+
+- **Trigger:** odnoga SPLIT_VIEW. Wątek spoza zakresu (panel RelAI rozjechany w wąskim panelu
+  podziału) dostał pytanie z opcją „Nowa odnoga (Rekomendowane)”; Łukasz ją wybrał, a `/relai-branch`
+  odmówił w Kroku 1 — odnoga od odnogi jest zakazana.
+- **Przyczyna:** pytanie „odnoga / aneks / odłożone” z `CLAUDE.md` zadane bez sprawdzenia, w czym
+  sesja pracuje.
+- **Zasada:** w sesji odnogi wątek spoza zakresu ma do wyboru plan, wpis „świadomie odłożone” albo
+  odnogę otwartą **po** zamknięciu bieżącej, w nowej sesji — nigdy odnogę z tej sesji.
+
 ## Lekcje zwinięte
 
 Pełne wpisy lekcji, których zasady żyją w destylacie „Zasady aktywne" (kompresja 2026-08-20).

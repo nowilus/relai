@@ -1167,3 +1167,57 @@ i restart aplikacji (P-005); `/cache zwrot 20` już ustawione.
 - Ryzyka: tabela „Stan otwartych ryzyk” przejrzana — odnoga nie otworzyła ryzyka projektu.
 
 Autor: RelAI (Opus 5.5) + Lukasz
+
+### 2026-10-14 — SPLIT_VIEW: paski w każdym panelu podziału, linia w stopce wycofana; `relai-panel` 0.17.0 / `relai-cache-keeper` 0.9.0
+
+**Zrobione:**
+
+- Pomiar na żywo z Łukaszem (aplikacja 2.37337.1.0, Claude Code 2.1.295): dwa panele obok siebie,
+  dwa jeden nad drugim, trzy obok siebie, sesja RelAI w prawym panelu z `/relai-panel`. Paski
+  w każdym panelu, `Pane` w prawym. Wersje aplikacji i CLI te same co przy błędzie — poprawka po
+  stronie strony zakładki Code (claude.ai) po zamknięciu anthropics/claude-code#99265.
+- Linia w stopce wycofana: `cache-keeper/hooks/register.tsx` bez `pushFooter`, zamiast niej
+  jednorazowe `$.ui.status(undefined)` (stara linia przeżywa przeładowanie, P-040 pkt 6);
+  `panel/hooks/register.tsx` bez `publishFooter` (4 wywołania); `core/panel/footer.mjs` i trzy kopie
+  usunięte, test parytetu zgodny (16 plików rdzenia). Testy: `footer.test.ts` sprawdza jedno
+  czyszczenie i brak nowej linii; testy panelu — brak zapisu do `stopka/`.
+- Dokumenty: P-040 → ROZWIĄZANA, STYL v3.8 (§12 wycofany, historia zostaje), README (każda sesja
+  w podziale ma własne paski i panel; etap w nowej sesji obok bieżącej), dopisek w karcie
+  PASKI_W_STOPCE, `ARTEFAKTY.md`, L-0193. KOMENDY nie wspominały linii — bez zmian.
+- Wydanie `relai-panel-v0.17.0` (commit `b4e96a7`): `relai-panel` 0.17.0, `relai-progress` 0.4.2,
+  `relai-cache-keeper` 0.9.0 (notatka obejmuje też niewydane osobno 0.8.0).
+
+**Zweryfikowane — jak dokładnie:**
+
+- Kontrola pozytywna na HEAD przed zmianą: `pushFooter|footerPath|footerPlan|stopka/` w kodzie
+  `panel progress cache-keeper core` — trafienia w 10 plikach; po zmianie 0 (trzy trafienia w testach
+  panelu usunięte razem z filtrami).
+- `claude plugin validate .` i `claude plugin test .` binarką aplikacji 2.1.295: cache-keeper
+  179/179 (4 testy linii → 2 testy wycofania), panel 178/178, progress 31/31; rdzeń `node --test`
+  386/386; adaptery 15/15; `validate-adapters.js` kod 0; `sync-panel-core.js --check` zgodne.
+- Po `plugin update`: `register.tsx` w `~/.claude/plugins/cache/relai/relai-cache-keeper/0.9.0`
+  i `relai-panel/0.17.0` — suma po CRLF → LF równa repo, 0 trafień `pushFooter|publishFooter`.
+- Po restarcie aplikacji: stopka obu paneli pusta (zrzut `SPLIT_VIEW_5_stopka-pusta-po-0.9.0.webp`).
+- Katalog roboczy: raport — `_fixy/SPLIT_VIEW` chroniony (odnoga otwarta), 1 plik 4 KB; po „tak”
+  `clean-work.js kasuj` razem z `.claude/relai/stopka/` (17 plików, 25 KB) — przed 29 KB, po 0.
+  Poza projektem: `%TEMP%\relai-split-kasuj.json` (lista do kasowania).
+
+**Świadomie odłożone:**
+
+- Panel RelAI w wąskim panelu podziału: tekst i przyciski „Otwórz” wychodzą poza kafle, kafle bez
+  odstępów, ramki nachodzą na siebie (zrzut Łukasza 2026-10-14). Odnoga z wnętrza SPLIT_VIEW
+  zakazana (L-0193) — decyzja o formie po zamknięciu.
+- Typografia modów (`Text size/weight/mono/tabular`), rozbicie `register.tsx`, porządki P-023 —
+  plan, gdy aplikacja dostanie Claude Code ≥ 2.1.299. Stan 2026-10-14: aplikacja 2.37337.1.0
+  „najnowsza” w sprawdzaniu aktualizacji, nadal z 2.1.295; `claude update` aktualizuje tylko CLI
+  w terminalu (2.1.299), nie kopię aplikacji.
+- P-040 pkt 3 (`SessionMode`, `PromptHint`) niezmierzony ponownie.
+- `docs/LEKCJE.md` 50,2 KB — ponad budżet 50 KB po L-0193; rotacja lekcji należna.
+
+**Do zrobienia przez człowieka:** brak — pluginy zaktualizowane i aplikacja zrestartowana.
+
+- Ryzyka: tabela „Stan otwartych ryzyk” przejrzana — odnoga nie otworzyła ryzyka projektu.
+- Uwaga z sesji: część odpowiedzi poszła po angielsku mimo rozmowy po polsku — błąd sesji, nie
+  aktualizacji; poprawione w trakcie.
+
+Autor: RelAI (Opus 5.5) + Lukasz
