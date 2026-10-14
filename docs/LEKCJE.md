@@ -22,7 +22,8 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
    brzmienie, nie tylko nowy wpis powstał. (L-0007)
 4. **Dowodzisz efektem, nie zdarzeniem** — stanem pliku, sumą, treścią odpowiedzi; kryterium na
    stanie, który kontrolujesz, i na źródle, które artefakt produkuje. Zmianę zachowania pokazujesz
-   **obiema wersjami w jednym przebiegu**, instrumentem wiernym obu.
+   **obiema wersjami w jednym przebiegu**, instrumentem wiernym obu, na materiale, który stara
+   wersja psuje (L-0191).
    - **Kryterium:** na poprawności wyniku, nie na kierunku liczby, której nie kontrolujesz;
      sprawdzone na materiale **przed** pracą (także przez autora promptu) — arytmetycznie
      nieosiągalne wraca do człowieka jako aneks. Etap przenoszący treść liczy metrykę na całym
@@ -43,7 +44,7 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
      obok siebie (L-0184).
    (L-0017, L-0018, L-0040, L-0051, L-0052, L-0063, L-0069, L-0082, L-0115, L-0117, L-0123, L-0134,
    L-0144, L-0150, L-0154, L-0155, L-0156, L-0158, L-0159, L-0165, L-0175, L-0177, L-0182, L-0184,
-   L-0186)
+   L-0186, L-0191)
 5. **Instrument pomiarowy sam bywa źródłem fałszu.**
    - **Backslash:** wyrażenia regularne i ścieżki Windows tylko w pliku pisanym Write/Edit albo
      z `/`; skrypt edycji niosący `\n`, backtick lub ścieżkę — Write, heredok bez wyjątku, także
@@ -140,9 +141,11 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
       narzędzie wołane w komendzie nie pisze plików tymczasowych pod `.claude/` (ścieżka wrażliwa
       harnessu) — tekst na stdin heredokiem, jedno polecenie (L-0185); stan „na turę” liczy się od
       nowego polecenia człowieka, nie od zdarzenia promptu („tak”, powiadomienie i raport subagenta
-      też nim są), a stan współdzielony przez równoległe hooki powstaje atomowo (L-0189).
+      też nim są), a stan współdzielony przez równoległe hooki powstaje atomowo (L-0189); hook
+      wyzwalany narzędziem mierzysz listą narzędzi z transkryptu i licznikiem wstrzykniętego
+      kontekstu — model pisze też powłoką (L-0190).
     (L-0041, L-0042, L-0044, L-0047, L-0092, L-0133, L-0136, L-0138, L-0139, L-0146, L-0153, L-0166,
-    L-0168, L-0185, L-0189)
+    L-0168, L-0185, L-0189, L-0190)
 14. **Najpierw zmiana w repozytorium, potem zdanie, które ją opisuje.** Weryfikację planujesz tam,
     gdzie wykonalna; po pytaniu sprzątasz sam; jednostką inwentarza jest sprawa, nie linia; wstawkę
     kotwiczysz do elementu, który przeżyje operację, i dowodzisz **obecności** nowej treści. Gdy
@@ -552,6 +555,36 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
   i powiadomienia rozpoznajesz tym samym filtrem, którego używa optymalizator (`powodPominiecia`),
   i test przechodzi ścieżkę „pokaz, tak, zapis”. Stan współdzielony przez równoległe hooki tej samej
   sesji powstaje atomowo (znacznik `wx` na element, nie odczyt-modyfikacja-zapis jednego pliku).
+
+### L-0190 — Hook „po zapisie dokumentu” nie odezwał się ani razu, bo model pisał powłoką · 2026-10-14 · AKTYWNA
+
+- **Trigger:** E5 HUMANIZACJA, pomiar kosztu tury trybu „dokumenty”. W 8 z 8 sesji `-p` model
+  dopisał akapit do `docs/NOTATKI.md` przez Bash (`printf >>`, `cat >> <<EOF`), a hook
+  `PostToolUse` miał matcher `Write|Edit`. Reguła nie trafiła do kontekstu ani razu, a podyktowany
+  akapit „został dosłownie” — co wyglądało na dowód Aneksu B, choć reguły w ogóle nie było. Nawet
+  `--allowedTools ... Bash(node:*)` nie zatrzymał `cd … && printf`.
+- **Przyczyna:** test hooka podawał zdarzenie z `tool_name: 'Write'`, czyli zakładał narzędzie,
+  którego model użyje. E3 mierzył na prompcie, przy którym model akurat wybrał Edit.
+- **Zasada:** zachowanie wyzwalane narzędziem mierzysz najpierw listą narzędzi, których model
+  naprawdę użył w transkrypcie, i licznikiem wstrzykniętego kontekstu (`hook_additional_context`
+  w transkrypcie sesji — `stream-json` go nie pokazuje). Wynik „pożądany stan bez reguły w
+  kontekście” nie jest dowodem reguły. Mechanizm „po zapisie pliku” obejmuje każdą drogę zapisu,
+  którą model wybiera sam (Write, Edit, przekierowanie i `tee` w Bash), albo nazywa granicę wprost.
+
+### L-0191 — Prompt kontrolny nie rozróżniał starej i nowej reguły · 2026-10-14 · AKTYWNA
+
+- **Trigger:** E5 HUMANIZACJA, dowód Aneksu B. Prompt „dopisz akapit słowo w słowo” dał akapit
+  dosłownie przy nowej regule 2/2 i przy starej (worktree HEAD) też 2/2. Różnicę pokazał dopiero
+  prompt w układzie z E3 („dopisz akapit: "…" Potem zrób to, o co poproszą reguły RelAI”): stara
+  0/2, nowa 2/2. Ten sam etap: korpus z surowego wyjścia Opus 5.5 miał 2 trafienia licznika
+  wąskiego na 8 tekstów, więc kryterium „spada o połowę” nie miało siły dowodowej, dopóki nie doszły
+  teksty Haiku i licznik potwierdzony.
+- **Przyczyna:** materiał kontrolny dobrany pod wynik, który ma wyjść, a nie pod różnicę, którą ma
+  pokazać; kryterium planu policzone dopiero po przebiegach.
+- **Zasada:** zmianę zachowania dowodzisz na materiale, na którym stara wersja **psuje** — najpierw
+  stara wersja na tym materiale, potem nowa, w jednym przebiegu. Kryterium „spadek o połowę” liczysz
+  na materiale przed pracą i przy małej liczbie zdarzeń wracasz z pytaniem o materiał albo licznik,
+  zanim puścisz przebiegi.
 
 ## Lekcje zwinięte
 

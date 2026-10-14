@@ -1,6 +1,6 @@
 # STATUS — plan HUMANIZACJA
 
-[PLAN.html](PLAN.html) · utworzony 2026-10-14 · **ZAAKCEPTOWANY 2026-10-14** (z Aneksem A; Aneksy B i C 2026-10-14 przy E5) · model wykonawczy etapów: **Opus 5.5** w świeżych sesjach (autor planu: Opus 5.5, D-84 po aneksie 2026-10-14) · sugerowany effort: high dla E1–E3 i E5, medium dla E4
+[PLAN.html](PLAN.html) · utworzony 2026-10-14 · **ZREALIZOWANY 2026-10-14** (zaakceptowany 2026-10-14 z Aneksem A; Aneksy B i C 2026-10-14 przy E5; wydanie 3.1.0) · model wykonawczy etapów: **Opus 5.5** w świeżych sesjach (autor planu: Opus 5.5, D-84 po aneksie 2026-10-14) · sugerowany effort: high dla E1–E3 i E5, medium dla E4
 
 **Kolejność:** równolegle z PANEL_CODEX (decyzja Łukasza 2026-10-14) — PANEL_CODEX idzie w Codeksie,
 HUMANIZACJA w Claude Code. Wspólny punkt to `core/panel/` (E1 rejestracja minimalna, E4) i wydania:
@@ -12,17 +12,17 @@ wydania po kolei, nigdy dwa naraz.
 | E2 | Wywiad i ustawienia | ZREALIZOWANY 2026-10-14 | [PROMPT_ETAP_2.md](PROMPT_ETAP_2.md) | dwa okna pytań, ton per rodzaj tekstu, profil stylu z logów PolyFlow (Aneks A1–A5) |
 | E3 | Tryb ciągły | ZREALIZOWANY 2026-10-14 | [PROMPT_ETAP_3.md](PROMPT_ETAP_3.md) | hook `humanize-continuous` (`UserPromptSubmit` + `PostToolUse`), `SKROT.md`; wiersz „Humanizacja” w tym repo wyłączony decyzją Łukasza |
 | E4 | Panel i trzy narzędzia | ZREALIZOWANY 2026-10-14 | [PROMPT_ETAP_4.md](PROMPT_ETAP_4.md) | formularz z trybami `on` / `off` / `ustawienia`, zakładka komend 885 px (decyzja: „Polecane teraz” bez odstępów), 15 komend w dokumentach, nota MIT w walidatorze |
-| E5 | Pomiar i wydanie 3.1.0 | W TOKU | [PROMPT_ETAP_5.md](PROMPT_ETAP_5.md) | wymaga zgody na publikację; effort high |
+| E5 | Pomiar i wydanie 3.1.0 | ZREALIZOWANY 2026-10-14 | [PROMPT_ETAP_5.md](PROMPT_ETAP_5.md) | korpus 8 tekstów, Aneksy B i C, wydanie 3.1.0 / `relai-panel` 0.16.0 opublikowane |
 
 ## Odnogi
 
-- **FILM_TESTY_V3** — testy faktów i pasków filmu 3.0.0 liczą dane z worktree `v3.0.0`, nie z bieżącego repo · źródło: E1 · [karta](odnogi/FILM_TESTY_V3/ODNOGA.md) · **OTWARTA**
+- **FILM_TESTY_V3** — testy faktów i pasków filmu 3.0.0 liczą dane z worktree `v3.0.0`, nie z bieżącego repo · źródło: E1 · [karta](../../../fixy/FILM_TESTY_V3/ODNOGA.md) · **PRZENIESIONA 2026-10-14 → docs/fixy/FILM_TESTY_V3/** (decyzja Łukasza przy zamknięciu planu)
 
 ## Bramki manualne
 
 - **Akceptacja planu HUMANIZACJA** · źródło: przygotowanie planu 2026-10-14 · **ROZSTRZYGNIĘTA 2026-10-14 — Łukasz: „Akceptuję plan, aktywny HUMANIZACJA”**
 - **Próbka głosu w repozytorium czy lokalnie** · źródło: sekcja 9 PLAN.html · **ROZSTRZYGNIĘTA 2026-10-14 — Aneks A3: profil stylu globalnie w `~/.claude/relai/STYL.md`, poza repozytorium**
-- **Rzut oka na ikonę i wiersz „Humanizacja tekstu” w panelu** · źródło: wpis dziennika E1 2026-10-14 · **OTWARTA** — po najbliższej instalacji panelu z repo, najpóźniej przy E5 (w E4 panel nie był instalowany z repo; od E4 także formularz z trybami `on` / `off` / `ustawienia`)
+- **Rzut oka na ikonę i wiersz „Humanizacja tekstu” w panelu** · źródło: wpis dziennika E1 2026-10-14 · **ROZSTRZYGNIĘTA 2026-10-14 — Łukasz: „Już sprawdziłem, OK”** (przy zamknięciu planu, po instalacji `relai-panel` 0.16.0; ikona, wiersz i formularz z trybami `on` / `off` / `ustawienia`)
 - **Zgoda na publikację wydania 3.1.0** · źródło: sekcja 9 PLAN.html · **ROZSTRZYGNIĘTA 2026-10-14 — Łukasz: „Tak, po szkicu”** (publikacja po drugim „tak” po obejrzeniu szkicu notatek wydania)
 - **Czy tryb ciągły „dokumenty” ma poprawiać także tekst, który polecenie każe wpisać dosłownie?** (w pomiarze E3 model w trybie `notka` przeredagował podyktowany akapit i powiedział o tym; dziś reguła obejmuje całą prozę pliku) · źródło: wpis dziennika E3 2026-10-14 · **ROZSTRZYGNIĘTA 2026-10-14 — Łukasz: „Nie, dosłowny zostaje”; wprowadzenie: „Aneks B, poprawka w E5”** ([Aneks B](PLAN.html#s10))
 - **Numery pluginów panelu w wydaniu 3.1.0** · źródło: PROMPT_ETAP_5, punkt 1 zakresu · **ROZSTRZYGNIĘTA 2026-10-14 — Łukasz: „0.16.0 / 0.4.1 / 0.7.1”** (`relai-panel` 0.16.0, `relai-progress` 0.4.1, `relai-cache-keeper` 0.7.1)
@@ -41,3 +41,5 @@ wydania po kolei, nigdy dwa naraz.
 - 2026-10-14 — E4 rozpoczęty (Opus 5.5, zgoda w czacie; `core/panel/` bez zmian PANEL_CODEX w drzewie roboczym).
 - 2026-10-14 — E4 zrealizowany: formularz `relai-humanize` z trybami i `argument-hint` komendy v3 (test trybów wobec Kroku 0a); zakładka komend 925 → 885 px (decyzja Łukasza: „Polecane teraz” z odstępami jak grupy), test na 900 px; 15 komend w README, PRZEWODNIK, INSTALACJA, STATE, README Cursora i opisie `relai-panel`; wiersz w `KOMENDY.md`, `SPEC_KOMENDY.md` v11; walidator, punkt 13: nota MIT (4 pliki, kontrola na czterech podłożonych defektach); 403 testy rdzenia, plugin test 178/31/178; recenzja APPROVE. E5 GOTOWY DO STARTU.
 - 2026-10-14 — E5 rozpoczęty (Opus 5.5, zgoda w czacie: „zaczynamy, rotacja na koniec”; stan plików PANEL_CODEX zapisany przed etapem).
+- 2026-10-14 — E5 zrealizowany: korpus 8 tekstów (PL potwierdzone 10 → 2, wąski 2 → 1; strażnik 8/8 bez różnic; H4 zachowane), H5 (reguła czatu ~200 tokenów, poniżej szumu), Krok 9 zapisu po „tak”; Aneks B (tekst dosłowny: stara reguła 0/2, nowa 2/2) i Aneks C (zapis powłoką w trybie „dokumenty”, płotek bloku wyniku); 408 testów rdzenia, plugin test 178/31/178; wydanie 3.1.0 i `relai-panel` 0.16.0 / `relai-progress` 0.4.1 / `relai-cache-keeper` 0.7.1 opublikowane, cache równy tagowi, świeża sesja na 3.1.0 wykonała `/relai-humanize`.
+- 2026-10-14 — Plan zamknięty (D-36): bramka panelu rozstrzygnięta, odnoga FILM_TESTY_V3 przeniesiona do `docs/fixy/`; folder planu w `docs/archiwum/plany/HUMANIZACJA/`.

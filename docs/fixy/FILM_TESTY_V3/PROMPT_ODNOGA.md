@@ -12,7 +12,7 @@ Odnoga: FILM_TESTY_V3 • Plan-rodzic: HUMANIZACJA, etap E1 • Wygenerowano: 20
 | Plik | Po co |
 |---|---|
 | `CLAUDE.md` | reguły procesu, sekcja niemutowalna |
-| `docs/plany/HUMANIZACJA/odnogi/FILM_TESTY_V3/ODNOGA.md` | cel, zakres i weryfikacja — karta jest źródłem, ten prompt ją wykonuje |
+| `docs/fixy/FILM_TESTY_V3/ODNOGA.md` | cel, zakres i weryfikacja — karta jest źródłem, ten prompt ją wykonuje |
 | `docs/zasoby/film/zrodla/testy/fakty.test.mjs`, `testy/paski.test.mjs` | testy do przypięcia |
 | `docs/zasoby/film/zrodla/skrypty/dane.mjs` (`REPO`, `repoReader`), `skrypty/sceny.mjs` (`atCommit`) | jak testy dziś czytają repozytorium; `atCommit` to gotowy wzór odczytu z commitu |
 | `docs/PULAPKI.md` | zanim uznasz, że coś jest zepsute |
@@ -237,7 +237,7 @@ zakładającego oraz sprzątającego worktree.
 ## Na koniec — rytuał zamknięcia odnogi (bez niego odnoga nie jest zamknięta)
 
 1. **`ODNOGA.md`** — status → `ZAMKNIĘTA <data>`, sekcja „Wynik” wypełniona.
-2. **`docs/plany/HUMANIZACJA/STATUS.md`** — linia tej odnogi w sekcji „Odnogi” → `ZAMKNIĘTA <data>`. Tabeli etapów i dziennika wdrożenia nie ruszasz.
+2. **`CLAUDE.md`** — wiersz „Odnogi i wątki samodzielne”: `FILM_TESTY_V3` z listy otwartych → zamknięta z datą i linkiem do karty (plan HUMANIZACJA jest w archiwum od 2026-10-14; jego `STATUS.md` zostaje bez zmian).
 2a. **Katalog roboczy odnogi** — raport `clean-work.js`, kasowanie po „tak”, liczby przed i po do wpisu z punktu 3; artefakty spoza katalogu z nazwy.
 3. **`docs/DZIENNIK.md`** — wpis wg `SPEC_DZIENNIK.md` (Zrobione / Zweryfikowane — jak dokładnie / Świadomie odłożone / Do zrobienia przez człowieka), na końcu sekcji „Wpisy”, podpis `Autor: RelAI (Opus 5.5) + Lukasz`.
 4. **`docs/STATE.md`** — tylko jeśli odnoga zmieniła stan widoczny na tym poziomie.

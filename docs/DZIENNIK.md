@@ -24,6 +24,7 @@
 | C10 | Pomiar kosztów niepełny albo podwójny — subagenci, kompakcja, wznowienie, `/clear`, wywołania poza pętlą (plan PANEL_CLAUDE, ryzyko R2) | **Niski** (2026-10-08 po E3; wcześniej wysoki) | **OTWARTE** | Klucz sesja + tura + indeks + agent, plik na sesję, kompakcja z `session.compact`, identyfikator sesji przy każdym zapisie; na żywo 117/117 kroków i 8/8 tur zgodnych z sondą co do kategorii; E9: koszt subagenta w `/relai-agents` = suma jego rekordów ($0,42, Opus), agent spoza cennika „brak ceny", nie „brak pomiaru". E4: rekord niesie etap w toku i zadanie załogi (`stage`, `task`); każdy rekord w dokładnie jednej pozycji (etap / „poza etapem” / „sprzed znacznika”), suma pozycji = suma sesji co do centa (test z kontrolą i na żywo $4,54 = $4,54). Otwarte: 9,16% przyrostu licznika silnika to wywołania spoza `turn.step` i kompakcji — raport mówi o nich słowami, bez rozbicia (P-020 pkt 6); zadanie załogi uruchomione jako osobna sesja `claude -p` jest przypisane tylko wtedy, gdy ta sesja ma `relai-panel`. E6: model bez ceny nie znika w sumie częściowej — przypomnienie z liczbą rekordów i aktualizacja cennika z karty; stawki cache per model ze strony (odczyt 0,05× Opus/Sonnet 5.5 — wcześniej jedna stała), Sonnet 5.5 wyceniony na żywo ($0,24 za 4 rekordy) E7: bez zmian w liczeniu (podział pliku bez zmiany zachowania); otwarte trwale na 9,16% wywołań spoza pętli, opisanych słowami. |
 | C11 | Pliki pomiarów puchną albo trafiają do gita (plan PANEL_CLAUDE, ryzyko R5) | **Niski** (2026-10-08 po E3) | **OTWARTE ŚWIADOMIE** | `.claude/relai/` poza gitem (sprawdzone `git check-ignore`), plik na sesję, rekord bez treści (~250 B); E4: plik scaleń `.claude/relai/panel/scalenia.json` też poza gitem (`git check-ignore`), rekord dłuższy o dwa pola; E6: `.claude/relai/panel/cennik.json` (wersje cennika) poza gitem (`git check-ignore`), jedna wersja na zapis z karty; otwarte: sprzątanie starych plików nie istnieje — do E7 E7 (decyzja człowieka 2026-10-09): sprzątanie świadomie odłożone — zmierzone 5 plików, 260 KB po dwóch dniach intensywnej pracy; „Koszty projektu” sumują wszystkie pliki, więc kasowanie zmieniłoby sumę. Próg powrotu: folder `.claude/relai/pomiary/` powyżej 10 MB. |
 | L1 | `percentUsed` limitu odświeża się tylko z odpowiedzią API — długa tura subagentów przekroczy próg, a karta przyjdzie po fakcie (plan LIMIT_CHECKPOINT, ryzyko L1) | **Średni** (2026-10-11 po E2; wcześniej wysoki) | **ZMITYGOWANE 2026-10-12** (zamknięcie planu; ograniczenie silnika — procent tylko z odpowiedzią API) | E2: `session.measure` w trakcie tury przestawia kolor baterii od razu, karta przychodzi po `turn.complete` z procentem odczytanym po turze (test „past the threshold in the middle of a turn”); otwarte, bo procent nadal przychodzi tylko z odpowiedzią API, więc długa tura może przekroczyć próg o kilka punktów, zanim karta padnie. |
+| H9 | Tryb ciągły „dokumenty” nie widzi zapisu, którego nie rozpozna — `sed -i`, skrypt, podproces, `>(tee …)` — i dokument zostaje bez humanizacji (plan HUMANIZACJA, pomiar E5) | **Niski** (2026-10-14, przy zamknięciu planu) | **OTWARTE ŚWIADOMIE** | Aneks C: hook po Write/Edit i po Bash z przekierowaniem `>` / `>>` albo `tee`; w pomiarze E5 model pisał wyłącznie tymi drogami (8/8 przed poprawką, 2/2 po niej z regułą). Pominięcie kończy się ciszą, nigdy złą regułą; komenda `/relai-humanize` na pliku działa niezależnie od trybu ciągłego. |
 
 > Ryzyka zamknięte L3, L2, L5, L6 (4 pozycje) są w
 > [docs/archiwum/ryzyka/RYZYKA_2026-10-12.md](archiwum/ryzyka/RYZYKA_2026-10-12.md)
@@ -1778,8 +1779,10 @@ Wykonawca: Opus 5.5 (Claude Code, aplikacja desktopowa), `/relai-stage`, zgoda w
 **Do zrobienia przez człowieka:**
 
 - Rzut oka na ikonę i wiersz „Humanizacja tekstu” w panelu po najbliższej instalacji z repo albo
-  przy E4.
+  przy E4. *(rozstrzygnięte 2026-10-14 przy zamknięciu planu: Łukasz — „Już sprawdziłem, OK”)*
 - Start odnogi FILM_TESTY_V3 w świeżej sesji (prompt w karcie), kiedy zechcesz.
+  *(rozstrzygnięte 2026-10-14 przy zamknięciu planu: odnoga przeniesiona do `docs/fixy/FILM_TESTY_V3/`
+  jako wątek samodzielny, start nadal czeka)*
 - Start E2 w świeżej sesji Opus 5.5 (`/effort high`) komendą `/relai-stage`.
 
 Autor: RelAI (Opus 5.5) + Lukasz
@@ -2106,7 +2109,139 @@ Wykonawca: Opus 5.5 (Claude Code, aplikacja desktopowa), `/relai-stage`, zgoda w
 
 - Rzut oka na ikonę, wiersz „Humanizacja tekstu” i nowy formularz z trybami w panelu, po
   najbliższej instalacji panelu z repo (najpóźniej przy E5).
+  *(rozstrzygnięte 2026-10-14 przy zamknięciu planu: Łukasz — „Już sprawdziłem, OK”)*
 - Start E5 w świeżej sesji Opus 5.5 (`/effort high`) komendą `/relai-stage`. Przed startem zgoda
   na publikację 3.1.0 i rozstrzygnięcie bramki „tekst podyktowany dosłownie”.
+
+Autor: RelAI (Opus 5.5) + Lukasz
+
+### 2026-10-14 — HUMANIZACJA E5: korpus, Aneksy B i C, wydanie RelAI 3.1.0; plan zamknięty
+
+Wykonawca: Opus 5.5 (Claude Code, aplikacja desktopowa), `/relai-stage`, zgoda w czacie
+(„zaczynamy, rotacja na koniec”).
+
+**Zrobione:**
+
+- Decyzje na starcie (jedno okno): publikacja „Tak, po szkicu”, tekst podyktowany dosłownie „Nie,
+  dosłowny zostaje”, numery panelu „0.16.0 / 0.4.1 / 0.7.1”; bramka optymalizatora — „Nie w tej sesji”.
+- **Aneks B** (decyzja „Aneks B, poprawka w E5”): reguła po zapisie dokumentu dostała zdanie
+  „Tekst, który polecenie kazało wpisać dosłownie (cytat, akapit podyktowany), zostaje bajt w bajt”
+  (+97 B, 757 → 854 B), test w obu trybach pokazywania.
+- **Korpus** `core/process/tests/fixtures/humanize/korpus/` — 8 tekstów (5 PL, 3 EN) z surowego
+  wyjścia modeli bez humanizacji: k1, k4–k8 od Opus 5.5, k2–k3 od Haiku 5.5. Dwa fragmenty repo
+  z pierwszej wersji korpusu wypadły decyzją Łukasza („Gęstszy materiał”), bo licznik wąski dawał
+  na całym korpusie 2 trafienia.
+- **Aneks C** (decyzje „Aneks C, poprawka w E5” ×2): (C1) tryb ciągły „dokumenty” widzi zapis
+  powłoką — osobna grupa `PostToolUse` `^Bash$` w `hooks.json`, w rdzeniu `celeZapisuPowloki`
+  (przekierowania `>` / `>>` / `>|`, `tee`, `cd`; pomija heredoki, cudzysłowy z ucieczką, komentarze,
+  `<<<`, `2>`, `&>`, `>&`, `/dev/null`), ten sam filtr ścieżek i „raz na plik w turze”; (C2) Krok 8
+  komendy: płotek bloku wyniku dłuższy niż każdy w tekście (`/relai-humanize` v4). Recenzja
+  (`code-reviewer`): APPROVE, 0 CRITICAL / 0 HIGH, 2 MEDIUM (`<<<`, `\"` w cudzysłowie) i 2 LOW
+  (komentarz, `>|`) poprawione w etapie z testami; regresja z backslashem ścieżki Windows w `"…"`
+  złapana testem i poprawiona.
+- **Wydanie 3.1.0**: numery w 7 źródłach, pluginy panelu 0.16.0 / 0.4.1 / 0.7.1, `/relai-update`
+  v21 (stan docelowy 3.1.0, 15 komend, wiersz `Humanizacja` „nie dopisujesz”), `new-project.md` v9,
+  `history.md` v7 z wpisem 3.1.0 (obie kopie), Cursor, fikstura ewaluacji, `KOMENDY.md`, marker
+  w `USTAWIENIA.md`, baner README. `ARTEFAKTY.md`: cztery wiersze podbite i brakujący wiersz v3.7
+  briefu stylu pasków (sekcja 12 z odnogi PASKI_W_STOPCE weszła po `v3.0.0` bez wpisu). Commit
+  `b12fda4`, tagi `v3.1.0` i `relai-panel-v0.16.0`, dwa wydania GitHub (latest = `v3.1.0`),
+  `marketplace update` i `plugin update` czterech pluginów.
+- **Zamknięcie planu (D-36):** bramka panelu rozstrzygnięta („Już sprawdziłem, OK”), odnoga
+  FILM_TESTY_V3 przeniesiona do `docs/fixy/FILM_TESTY_V3/` (karta i prompt z nowymi ścieżkami),
+  STATUS → ZREALIZOWANY, folder planu w `docs/archiwum/plany/HUMANIZACJA/`, linia „Aktywny plan”
+  → PANEL_CODEX, `STATE.md` nadpisany, ryzyko H9 dopisane, lekcje L-0190 i L-0191.
+- **Dowiezione vs plan:** plan obiecał komendę z oryginałem obok wersji, wywiad, tryb ciągły
+  w wybranych zakresach, strażnika faktów, formularz panelu i wydanie 3.1.0 po pomiarze na korpusie
+  8 tekstów — wszystko dowiezione. Ponad plan: Aneks B (tekst dosłowny) i Aneks C (zapis powłoką,
+  płotki). Nie dowiezione: kryterium na automatycznym liczniku szerokim (PL 15 → 9 przy progu ≤ 7);
+  plan liczy na licznikach wąskim i potwierdzonym, wybranych przez Łukasza. Przepadło: nic.
+
+**Zweryfikowane — jak dokładnie:**
+
+- Licznik wzorców (skrypt w katalogu roboczym): kontrola pozytywna 19/19 podłożonych wzorców,
+  przeciw zawyżeniu 0/0 na elementach chronionych. Wyniki przed → po:
+
+  | Tekst | Komenda | Wąski | Szeroki | Potwierdzone | Koszt USD |
+  |---|---|---|---|---|---|
+  | k1-pl-formalny | nic do zmiany | 1→1 | 2→2 | 1→1 | 0,44 |
+  | k2-pl-roboczy | wersja | 0→0 | 1→2 | 1→0 | 0,44 |
+  | k3-pl-formalny | wersja | 1→0 | 5→0 | 5→0 | 0,49 |
+  | k4-pl-czat | wersja | 0→0 | 3→1 | 2→0 | 0,48 |
+  | k5-pl-zewnetrzny | nic do zmiany | 0→0 | 4→4 | 1→1 | 0,42 |
+  | k6-en-formal | nic do zmiany | 1→1 | 3→3 | 1→1 | 0,39 |
+  | k7-en-chat | nic do zmiany | 0→0 | 4→4 | 0→0 | 0,38 |
+  | k8-en-external | wersja | 0→0 | 5→5 | 5→5 | 0,43 |
+
+  PL: wąski 2 → 1, potwierdzony 10 → 2 (kryterium „co najmniej o połowę” spełnione na obu);
+  szeroki 15 → 9 — 7 z 9 trafień „po” to sygnały wyłączone przez REGULY (trzy realne pozycje,
+  kontrast prostujący przekonanie, powitanie, krótkie zdania z faktem, pozycja listy). EN 6 → 6:
+  komenda zostawiła pogrubione etykiety notatek wydania celowo. Sporne trafienia liczone jako
+  potwierdzone, ta sama reguła przed i po. Koszt korpusu 3,46 USD.
+- Strażnik faktów na 8/8 parach `{"zgubione":[],"dopisane":[]}` (4 z wersją, 4 „nic do zmiany”);
+  kontrola pozytywna: „8 tekstów” → „9” w k3 daje `zgubione 8, dopisane 9`, kod 1.
+- H4: półpauzy i „ zachowane w każdym tekście PL (k2 „ 3→3, k3 1→1, k4 –/— 2→2 i „ 4→4; k1 i k5 bez
+  zmian); k3 zostawił bezosobowe „przewidziano” celowo (tekst formalny).
+- H5 (dwa przebiegi na wariant): czat — reguła 349 B w transkrypcie tylko przy `włączona`; wejście
+  pierwszego wywołania off 31 252 / 34 420, on 31 451 / 31 575 tokenów; w parze z tym samym kontekstem
+  startu +199, poniżej szumu wariantu (3 168); koszt sesji 0,337 / 0,322 vs 0,337 / 0,328 USD.
+  Dokumenty (zapis Edit): off 103 938 / 103 622, on 178 697 / 107 256 tokenów wejścia sesji; drugi
+  przebieg +3 476 (+3,4%), pierwszy +75 tys. przez dodatkową turę ze strażnikiem — koszt zależy od
+  pracy zleconej przez regułę.
+- Odkrycie w H5 (L-0190): w 8 z 8 pierwszych sesji „dokumenty” model pisał przez Bash i reguła nie
+  trafiła do kontekstu ani razu (transkrypty sesji, `hook_additional_context`). Po Aneksie C
+  oryginalny prompt: reguła 854 B w 2/2 sesjach, zapis nadal przez Bash.
+- Aneks B na obu wersjach w jednym przebiegu (L-0191): prompt w układzie E3 — nowa reguła akapit
+  bajt w bajt 2/2, stara (worktree HEAD `f240069`, reguła 757 B bez zdania) przeredagowała 2/2;
+  prompt „słowo w słowo” nie rozróżniał (stara też 2/2). 1,89 USD.
+- Krok 9: `--resume` sesji k3 z „tak” — Write, `git diff --stat` 3+/3−, strażnik stdin kontra plik
+  bez różnic, plik = wersja z pierwszej tury, `docs/USTAWIENIA.md` obok SHA-256 `065f7023…` przed
+  i po; 0,60 USD.
+- C2: ponowny przebieg k8 — blok „Oryginał” w ```` ```` ```` z wewnętrznym ```` ```bash ````; tym razem
+  komenda dała „nic do zmiany” (wcześniej usunęła jedną puentę — wynik komendy bywa zmienny).
+- Testy rdzenia 408/408 (`node --test` 4 katalogi; nowy plik `humanize-command.test.js`, kontrola
+  negatywna przez `git stash` komendy — test pada); `claude plugin test` binarką 2.1.295: 178 / 31 /
+  178; `claude plugin validate` repo (ostrzeżenie o root `CLAUDE.md`, dopuszczalne) i trzech pluginów
+  — passed; `validate-adapters.js` exit 0, „numery wersji: 7 zrodel, wartosc "3.1.0"”, nota MIT 4/4,
+  ostrzeżenie zastane `relai-prompt.md` 30 106 B; generator Codeksa i `sync-panel-core --check` spójne.
+- Skan sekretów: 103 pliki diffu `origin/main` → 0 trafień; próbka `sk-ant-api03-…` złożona
+  w czasie wykonania → trafiona.
+- Numery: `grep -r "3\.0\.0"` i stare numery panelu poza `.git` — podbite: 7 źródeł, komendy
+  i skille, Cursor, fikstura ewaluacji, KOMENDY, USTAWIENIA, `CLAUDE.md`, `STATE.md`; historyczne,
+  zostają: archiwum, dziennik, lekcje, P-040 w `PULAPKI.md`, starsze wpisy `history.md`, linki
+  i dane filmu `v3.0.0`, dane testów, prompty E1–E5, karty odnóg, `SPEC_KOMENDY.md` (historia
+  wersji).
+- Publikacja: `git ls-remote --tags` → `v3.1.0` `6e32e4f`, `relai-panel-v0.16.0` `56fa901`;
+  `gh release view v3.1.0` opublikowane 2026-10-14T13:20:12Z. Cache po `plugin update` równy tagowi
+  po CRLF → LF: relai 815/815, panel 55/55, progress 29/29, cache-keeper 44/44, 0 rozjazdów. Świeża
+  sesja bez `--plugin-dir`: `init` z `relai/3.1.0`, `relai-panel/0.16.0`, `relai-progress/0.4.1`,
+  `relai-cache-keeper/0.7.1`; `/relai-humanize` na k3 dał cztery części (0,76 USD).
+- PANEL_CODEX: `git status`, `git diff --stat`, sumy makiet i suma diffu identyczne z zapisem sprzed
+  etapu; żaden plik w commitach `cb55958..HEAD`.
+- Katalog roboczy `.claude/relai/work/HUMANIZACJA/E5/`: przed 146 plików, 2,6 MB; po „tak” 0,
+  katalog usunięty. Poza nim (z nazwy): 34 fikstury `%TEMP%/RelAI-hum-e5-*` (korpus, H5, Aneks B,
+  próba po instalacji) i worktree `%TEMP%/RelAI-e5-head` — skasowane po tym samym „tak”;
+  transkrypty sesji `-p` w `~/.claude/projects/C--Users-Lukasz-AppData-Local-Temp-RelAI-hum-e5-*`
+  zostają. Koszt sesji `-p` etapu łącznie 13,36 USD (FAKT — suma `total_cost_usd`: generacja 0,64,
+  korpus 3,46, Krok 9 0,60, H5 2,52 + 1,05 + 1,00, stara reguła 0,51, Aneks B 1,89, Bash po C1 0,55,
+  k8 po C2 0,38, próba po instalacji 0,76).
+- Ryzyka: H1 (fakty) i H4 (polszczyzna) zmierzone na korpusie bez przypadku negatywnego; H5 poniżej
+  szumu dla czatu. Nowe H9 (zapis nierozpoznany omija tryb „dokumenty”), niski, otwarte świadomie.
+  O4 bez zmian.
+
+**Świadomie odłożone:**
+
+- Rotacja dziennika (157 KB przy progu 150 KB) — decyzja Łukasza: na koniec dnia.
+- `AGENTS.md` rozjeżdża się z `CLAUDE.md` od przed etapu (linia aktywnego planu i wiersze prowadzi
+  sesja Codeksa); nie synchronizowałem, żeby nie nadpisać jej treści.
+- Licznik szeroki i heurystyki strukturalne zostały w katalogu roboczym (skasowane); korpus jest
+  w repo, licznik do odtworzenia z opisu, gdy wróci potrzeba.
+- Rozpoznanie zapisu `sed -i`, skryptem i w podprocesie (H9) — granica Aneksu C.
+- Kolejność sprawdzeń w hooku po Bash (tryb przed parsowaniem) — uwaga LOW recenzji, koszt
+  mikrosekund.
+
+**Do zrobienia przez człowieka:**
+
+- Restart aplikacji, żeby desktop załadował RelAI 3.1.0 i panel 0.16.0 (P-005).
+- Start wątku FILM_TESTY_V3 w świeżej sesji promptem z karty, kiedy zechcesz.
 
 Autor: RelAI (Opus 5.5) + Lukasz

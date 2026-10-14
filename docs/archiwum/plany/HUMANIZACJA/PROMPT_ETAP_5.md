@@ -334,11 +334,11 @@ zaraz po jego sprawdzeniu, nie na końcu etapu; punkt, który nie przeszedł, zo
 - [x] `history.md` (obie kopie) ma wpis 3.1.0; `docs/ARTEFAKTY.md` — każdy artefakt z rejestru zmieniony od `v3.0.0` ma wpis (lista z `git diff --stat v3.0.0..HEAD` do wpisu).
 - [x] Testy rdzenia zielone (403 + nowe, liczba do wpisu); `plugin test` panel / progress / cache-keeper zielone (178 / 31 / 178 przed); `plugin validate` repo i trzech pluginów — `✔ Validation passed` (ostrzeżenie o root `CLAUDE.md` dopuszczalne, zasada 15).
 - [x] Skan sekretów na plikach diffu `origin/main..HEAD` — zero trafień; kontrola pozytywna (próbka złożona w czasie wykonania) trafiona.
-- [ ] Publikacja po zgodzie: `git ls-remote --tags origin v3.1.0` zwraca tag, `gh release view v3.1.0` istnieje, cache pluginu po `plugin update` i restarcie równy repo po CRLF → LF (liczba plików i rozjazdów do wpisu), świeża sesja na 3.1.0 wykonała `/relai-humanize` — **albo** brak zgody i etap kończy się lokalnym commitem, bramka publikacji `OTWARTA`.
-- [ ] Pliki PANEL_CODEX nietknięte: `git status --short` i `git diff --stat` na `docs/plany/PANEL_CODEX/` i `docs/zasoby/PANEL_RELAI/makiety/` identyczne z zapisem sprzed etapu; żaden w commitach etapu.
-- [ ] Sekwencja zamknięcia planu (D-36) wykonana w całości: bramki i odnoga FILM_TESTY_V3 rozstrzygnięte z Łukaszem, plan `ZREALIZOWANY`, folder w `docs/archiwum/plany/`, linia „Aktywny plan” w `CLAUDE.md` wskazuje istniejący plik albo brzmi `Aktywny plan: brak`.
-- [ ] Wpis w `docs/DZIENNIK.md` na końcu sekcji „Wpisy”, z podpisem `Autor: RelAI (Opus 5.5) + Lukasz`; `docs/STATE.md` nadpisany.
-- [ ] Katalog roboczy `.claude/relai/work/HUMANIZACJA/E5/` przejrzany raportem (`node .claude/relai/tools/clean-work.js raport`) i skasowany po „tak”; liczby przed i po w sekcji „Zweryfikowane” wpisu. Artefakty poza nim (fikstury `%TEMP%/relai-e5-*`, transkrypty sesji `-p`) wypisane z nazwy razem z tym, co się z nimi stało.
+- [x] Publikacja po zgodzie: `git ls-remote --tags origin v3.1.0` zwraca tag, `gh release view v3.1.0` istnieje, cache pluginu po `plugin update` i restarcie równy repo po CRLF → LF (liczba plików i rozjazdów do wpisu), świeża sesja na 3.1.0 wykonała `/relai-humanize` — **albo** brak zgody i etap kończy się lokalnym commitem, bramka publikacji `OTWARTA`.
+- [x] Pliki PANEL_CODEX nietknięte: `git status --short` i `git diff --stat` na `docs/plany/PANEL_CODEX/` i `docs/zasoby/PANEL_RELAI/makiety/` identyczne z zapisem sprzed etapu; żaden w commitach etapu.
+- [x] Sekwencja zamknięcia planu (D-36) wykonana w całości: bramki i odnoga FILM_TESTY_V3 rozstrzygnięte z Łukaszem, plan `ZREALIZOWANY`, folder w `docs/archiwum/plany/`, linia „Aktywny plan” w `CLAUDE.md` wskazuje istniejący plik albo brzmi `Aktywny plan: brak`.
+- [x] Wpis w `docs/DZIENNIK.md` na końcu sekcji „Wpisy”, z podpisem `Autor: RelAI (Opus 5.5) + Lukasz`; `docs/STATE.md` nadpisany.
+- [x] Katalog roboczy `.claude/relai/work/HUMANIZACJA/E5/` przejrzany raportem (`node .claude/relai/tools/clean-work.js raport`) i skasowany po „tak”; liczby przed i po w sekcji „Zweryfikowane” wpisu. Artefakty poza nim (fikstury `%TEMP%/relai-e5-*`, transkrypty sesji `-p`) wypisane z nazwy razem z tym, co się z nimi stało.
 
 ## Na koniec (rytuał obowiązkowy — bez niego etap nie jest ukończony)
 

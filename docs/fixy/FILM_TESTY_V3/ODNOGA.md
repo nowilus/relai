@@ -1,7 +1,7 @@
 # ODNOGA — testy faktów i pasków filmu 3.0.0 przypięte do commitu wydania
 
-Plan: [HUMANIZACJA](../../STATUS.md) · Etap-źródło: E1 — Komenda na żądanie · Utworzona: 2026-10-14 ·
-Status: **OTWARTA** · Wykonawca: Opus 5.5 w świeżej sesji
+Plan: [HUMANIZACJA](../../archiwum/plany/HUMANIZACJA/STATUS.md) · Etap-źródło: E1 — Komenda na żądanie · Utworzona: 2026-10-14 ·
+Status: **OTWARTA** (wątek samodzielny od 2026-10-14 — przeniesiona z planu przy jego zamknięciu, decyzja Łukasza) · Wykonawca: Opus 5.5 w świeżej sesji
 
 ## Cel
 
