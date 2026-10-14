@@ -85,6 +85,13 @@ wydaniem 3.1.0. Opinii spoza projektu nadal nie ma.
 
 ## Nad czym pracujemy teraz
 
+- **Plan WYGLAD_PANELU — ZAAKCEPTOWANY 2026-10-14 z Aneksem A, E1 GOTOWY DO STARTU** (aktywny
+  plan; [status](plany/WYGLAD_PANELU/STATUS.md); Aneks A: sonda obowiązkowa i trzy warianty do
+  oceny Łukasza w E1–E3, rundy poprawek;
+  4 etapy, Opus 5.5): paski nad promptem w kluczach motywu narzędzia (czytelne w jasnym i ciemnym),
+  panel RelAI w dzisiejszej szacie ciemnej i nowej jasnej z palety Warsztat, pasek postępu jako
+  lista kroków wg makiety. E1 zaczyna się od sondy nośnika; E3 rusza po zamknięciu odnogi
+  [PANEL_WASKI](fixy/PANEL_WASKI/ODNOGA.md), która równolegle naprawia układ panelu.
 - **PANEL_CODEX, E1 — przejęcie rdzenia i natywny panel w Codeksie** (plan
   [PANEL_CODEX](plany/PANEL_CODEX/STATUS.md), ZAAKCEPTOWANY 2026-10-10, 8 etapów, autor
   i wykonawca `gpt-6.1-sol` w Codeksie, Aneks A — 16 pól kontraktu — zaakceptowany). Po co: ten sam

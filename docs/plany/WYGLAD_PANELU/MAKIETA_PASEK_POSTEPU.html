@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<title>PASEK_POSTEPU — makieta kalibracyjna (wariant 1)</title>
+<style>
+  /* Tokens: core/panel/theme.mjs (BAND.progress, BAR) — verbatim */
+  :root {
+    --bg-app: #1f1e1c;
+    --band-bg: #262c27;
+    --band-color: #9cbea2;
+    --text: #eee8dc;
+    --muted: #b8b0a3;
+    --seg-done: #8fae95;
+    --seg-pending: #36392f;
+    --seg-running: #c39f53;
+    --tile-done: #3d4a40;
+    --tile-running: #4b4430;
+    --tile-pending: #3a3a32;
+    --running: #e1b85c;
+    --radius: 10px;
+    --gap: 8px;
+    font-family: 'Segoe UI', system-ui, sans-serif;
+  }
+  body { margin: 0; padding: 24px; background: var(--bg-app); color: var(--text); }
+  h1 { font-size: 18px; font-weight: 600; margin: 0 0 4px; }
+  p.note { color: var(--muted); font-size: 13px; margin: 0 0 20px; max-width: 900px; line-height: 1.5; }
+  .stage { display: grid; gap: 28px; }
+  .frame { container-type: inline-size; border: 1px dashed #3a3832; border-radius: 12px; padding: 12px; }
+  .frame > .cap { color: var(--muted); font-size: 12px; margin-bottom: 8px; }
+  .w900 { width: 900px; } .w560 { width: 560px; } .w380 { width: 380px; }
+
+  /* The card: label column | middle | figure (bar-card.tsx), soft background, no colored frame */
+  .card { display: grid; grid-template-columns: 112px minmax(0, 1fr) auto; column-gap: 16px;
+          align-items: start; background: var(--band-bg); border-radius: var(--radius);
+          padding: 10px 14px; overflow: hidden; }
+  .label { color: var(--band-color); font-weight: 700; font-size: 14px; line-height: 22px; }
+  .figure { font-size: 14px; line-height: 22px; white-space: nowrap; }
+  .figure b { color: var(--text); } .figure span { color: var(--muted); }
+  @container (max-width: 640px) {
+    .card { grid-template-columns: minmax(0, 1fr) auto; row-gap: 6px; }
+    .label { grid-column: 1; grid-row: 1; }
+    .figure { grid-column: 2; grid-row: 1; }
+    .middle { grid-column: 1 / -1; grid-row: 2; }
+  }
+  .middle { min-width: 0; display: grid; gap: 6px; }
+
+  /* Overview hairline: the accepted "bar cut into segments", now 4 px above the line */
+  .segs { display: flex; gap: 3px; height: 4px; }
+  .segs i { flex: 1 1 0; border-radius: 2px; background: var(--seg-pending); }
+  .segs i.done { background: var(--seg-done); }
+  .segs i.running { background: var(--seg-running); }
+
+  /* Collapsed: one line — spinner, the item in progress, next, agents, the toggle */
+  .line { display: flex; align-items: center; gap: 10px; min-width: 0; font-size: 13.5px; line-height: 22px; }
+  .line .now { color: var(--text); font-weight: 600; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1 1 auto; }
+  .line .next { color: var(--muted); min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 0 1 40%; }
+  .line .sum { color: var(--muted); min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1 1 auto; }
+  .chip { flex: 0 0 auto; color: var(--running); background: var(--tile-running); border-radius: 6px; padding: 0 8px; font-size: 12.5px; white-space: nowrap; }
+  .toggle { flex: 0 0 auto; font: inherit; font-size: 12.5px; color: var(--text); background: #3a3f37;
+            border: 0; border-radius: 6px; padding: 2px 10px; cursor: pointer; white-space: nowrap; }
+  .toggle:hover { background: #474d43; }
+  .toggle:active { transform: translateY(1px); background: #525a4d; }
+  @container (max-width: 760px) { .line .next { display: none; } }
+
+  .mark { width: 16px; height: 16px; flex: 0 0 16px; display: block; }
+
+  /* Expanded: the window around the current item */
+  .list { display: grid; gap: 2px; margin-top: 2px; }
+  .row { display: grid; grid-template-columns: 16px minmax(0, 1fr) auto; column-gap: 10px; align-items: start;
+         padding: 3px 8px; border-radius: 6px; font-size: 13.5px; line-height: 20px; }
+  .row .name { min-width: 0; overflow-wrap: anywhere; }
+  .row .meta { color: var(--muted); font-size: 12px; white-space: nowrap; }
+  .row.done .name { color: var(--muted); }
+  .row.running { background: var(--tile-running); }
+  .row.running .name { color: var(--text); font-weight: 600; }
+  .row.pending .name { color: var(--muted); }
+  .row.fold { cursor: pointer; } .row.fold:hover { background: #2f3630; }
+  .row.fold .name, .row.more .name { color: var(--muted); font-style: italic; }
+
+  /* Tick: the row flashes once and its mark fills — no second row any more */
+  .row.just { animation: flash 1.4s ease-out 1; }
+  @keyframes flash { 0% { background: #55705a; } 100% { background: transparent; } }
+</style>
+</head>
+<body>
+<h1>Pasek postępu — makieta kalibracyjna, wariant 1</h1>
+<p class="note">Jeden wariant do oceny smaku. Kolory i siatka z obecnego paska (theme.mjs). Dane przykładowe: etap z 14 punktami weryfikacji, 5 odhaczonych, szósty w toku. Każda szerokość pokazuje stan zwinięty i rozwinięty. Przycisk „Odhacz” symuluje odhaczenie punktu: wiersz błyska raz, znaczek się wypełnia.</p>
+<div class="stage" id="stage"></div>
+
+<template id="spinner">
+  <svg class="mark" viewBox="0 0 16 16" aria-label="w toku"><circle cx="8" cy="8" r="6" fill="none" stroke="#5a5136" stroke-width="2"/><path d="M8 2 A6 6 0 0 1 14 8" fill="none" stroke="#e1b85c" stroke-width="2" stroke-linecap="round"><animateTransform attributeName="transform" type="rotate" from="0 8 8" to="360 8 8" dur="1.1s" repeatCount="indefinite"/></path></svg>
+</template>
+
+<script>
+const ITEMS = [
+  'Pomiar na żywo: trzy układy okna z zapisaną wersją aplikacji',
+  'Kontrola pozytywna grepu na HEAD przed zmianą',
+  'Wycofanie linii w stopce z cache-keepera',
+  'Usunięcie zapisu stopka/ z relai-panel',
+  'Parytet kopii rdzenia po usunięciu footer.mjs',
+  'claude plugin test w trzech pluginach binarką aplikacji (cache-keeper, panel, progress) — zielone',
+  'Testy rdzenia node --test w trzech katalogach',
+  'P-040 jako rozwiązana z wersją aplikacji',
+  'STYL §12 oznaczony jako wycofany',
+  'README i KOMENDY bez wzmianki o stopce',
+  'Karta PASKI_W_STOPCE z dopiskiem w Wynik',
+  'grep po starych numerach wersji rozstrzygnięty',
+  'Raport katalogu roboczego i kasowanie po tak',
+  'Wpis w dzienniku z liczbami przed i po',
+];
+const NS = 'http://www.w3.org/2000/svg';
+const doneMark = (fresh) => `<svg class="mark" viewBox="0 0 16 16"><circle cx="8" cy="8" r="7" fill="#8fae95"${fresh ? '><animate attributeName="r" from="2" to="7" dur="0.35s" fill="freeze"/></circle>' : '/>'}<path d="M4.6 8.3 7 10.6 11.4 5.8" fill="none" stroke="#1f2a22" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+const pendMark = '<svg class="mark" viewBox="0 0 16 16"><circle cx="8" cy="8" r="6" fill="none" stroke="#6b665b" stroke-width="1.6" stroke-dasharray="2.4 2"/></svg>';
+const foldMark = '<svg class="mark" viewBox="0 0 16 16"><path d="M5 6.5 8 9.5 11 6.5" fill="none" stroke="#b8b0a3" stroke-width="1.6" stroke-linecap="round"/></svg>';
+const spin = () => document.getElementById('spinner').innerHTML;
+
+function render(frame, s) {
+  const done = s.done, total = ITEMS.length, cur = done;
+  const segs = ITEMS.map((_, i) => `<i class="${i < done ? 'done' : i === cur ? 'running' : ''}"></i>`).join('');
+  const head = s.open
+    ? `<span class="sum">${done} zrobionych · 1 w toku · ${total - done - 1} czeka</span>`
+    : `${spin()}<span class="now">${ITEMS[cur]}</span><span class="next">następny: ${ITEMS[cur + 1] ?? '—'}</span>`;
+  const line = `<div class="line">${head}<span class="chip">● 2 agentów</span><button class="toggle" data-act="toggle">${s.open ? 'Zwiń' : 'Rozwiń'}</button></div>`;
+  let list = '';
+  if (s.open) {
+    const rows = [];
+    if (done > 0) rows.push(`<div class="row done fold" data-act="fold">${s.showDone ? foldMark : doneMark(false)}<span class="name">${s.showDone ? 'Zwiń zrobione' : `${done} zrobionych`}</span><span class="meta"></span></div>`);
+    if (s.showDone) ITEMS.slice(0, done).forEach((n, i) => rows.push(`<div class="row done${s.just === i ? ' just' : ''}">${doneMark(s.just === i)}<span class="name">${n}</span><span class="meta"></span></div>`));
+    else if (s.just === done - 1) rows.push(`<div class="row done just">${doneMark(true)}<span class="name">${ITEMS[done - 1]}</span><span class="meta">przed chwilą</span></div>`);
+    rows.push(`<div class="row running">${spin()}<span class="name">${ITEMS[cur]}</span><span class="meta">w toku</span></div>`);
+    ITEMS.slice(cur + 1, cur + 4).forEach((n) => rows.push(`<div class="row pending">${pendMark}<span class="name">${n}</span><span class="meta"></span></div>`));
+    const rest = total - (cur + 4);
+    if (rest > 0) rows.push(`<div class="row more">${pendMark}<span class="name">+${rest} czekają</span><span class="meta"></span></div>`);
+    list = `<div class="list">${rows.join('')}</div>`;
+  }
+  frame.querySelector('.slot').innerHTML = `<div class="card"><div class="label">postęp</div><div class="middle"><div class="segs">${segs}</div>${line}${list}</div><div class="figure"><b>${done}/${total}</b> <span>punktów</span></div></div>`;
+}
+
+for (const [w, cap] of [['w900', 'pełne okno — ok. 900 px'], ['w560', 'dwa panele obok siebie — ok. 560 px'], ['w380', 'wąski panel (trzy obok siebie) — ok. 380 px']]) {
+  for (const open of [false, true]) {
+    const f = document.createElement('div');
+    f.className = `frame ${w}`;
+    f.innerHTML = `<div class="cap">${cap} · ${open ? 'rozwinięty' : 'zwinięty'} <button class="toggle" data-act="tick" style="margin-left:8px">Odhacz</button></div><div class="slot"></div>`;
+    const s = { done: 5, open, showDone: false, just: -1 };
+    f.addEventListener('click', (ev) => {
+      const act = ev.target.closest('[data-act]')?.dataset.act;
+      if (act === 'toggle') s.open = !s.open;
+      else if (act === 'fold') s.showDone = !s.showDone;
+      else if (act === 'tick' && s.done < ITEMS.length - 1) { s.done += 1; s.just = s.done - 1; }
+      else return;
+      render(f, s);
+    });
+    render(f, s);
+    document.getElementById('stage').appendChild(f);
+  }
+}
+</script>
+</body>
+</html>

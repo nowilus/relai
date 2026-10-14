@@ -1221,3 +1221,68 @@ Autor: RelAI (Opus 5.5) + Lukasz
   aktualizacji; poprawione w trakcie.
 
 Autor: RelAI (Opus 5.5) + Lukasz
+
+### 2026-10-14 — Plan WYGLAD_PANELU utworzony (do akceptacji)
+
+**Zrobione:**
+
+- Wywiad w dwóch rundach: pasek postępu jako lista kroków (zwinięta + „Rozwiń”, okno wokół
+  bieżącego punktu, spinner + odhaczenie, chip agentów skrócony), potem kierunek kolorów — paski
+  w kluczach motywu narzędzia, panel RelAI w dzisiejszej szacie ciemnej plus pełna szata jasna
+  dostrajana do wybranego motywu, jeden plan na całość.
+- Makieta kalibracyjna `docs/plany/WYGLAD_PANELU/MAKIETA_PASEK_POSTEPU.html` (wariant 1, trzy
+  szerokości × zwinięty/rozwinięty); kierunek przyjęty przez Łukasza.
+- `PLAN.html` (4 etapy: sonda nośnika i paski w kolorach narzędzia → pasek postępu jako lista →
+  panel w szacie jasnej → odbiór i wydanie; 6–9 sesji, SZACUNEK) i `STATUS.md`; wiersz w tabeli
+  „Stan prac” w `CLAUDE.md`, akapit w `STATE.md`.
+
+**Zweryfikowane — jak dokładnie:**
+
+- Makieta: 6 kart, 0 elementów poza kartą; kontrola pozytywna (podłożony chip o 90 znakach) — 2
+  trafienia w tym samym przebiegu; po poprawce progu nagłówka (640 px) nazwa punktu w toku ma 342 px
+  przy 560 px zamiast 109 px.
+- `PLAN.html`: builder bez niewypełnionych znaczników (kod 0, 211 KB); 12/12 bloków zwijalnych
+  przełącza się; brak przewijania w poziomie przy 1200 i 420 px; tabele w swoich ramkach (po
+  zdjęciu klasy `id` z pierwszej kolumny sekcji 9); napisy diagramu w swoich kartkach.
+- Fakty planu z repo: 50 wartości szesnastkowych w `core/panel/theme.mjs`, 1 poza nim; 23 klucze
+  motywu w typach 2.1.295; testy 178 / 31 / 179 + rdzeń 386.
+
+**Świadomie odłożone:**
+
+- Odnoga PANEL_WASKI miała wejść do planu jako E3 — w trakcie pisania planu okazało się, że jest
+  już wykonywana w osobnej sesji (`panel/hooks/narrow.test.ts`); decyzja Łukasza: odnoga kończy,
+  plan ma 4 etapy, szata jasna (E3) startuje po jej zamknięciu.
+- Linia „Aktywny plan” w `CLAUDE.md` wskazuje dalej PANEL_CODEX — wybór przy akceptacji (sekcja 9
+  planu).
+
+**Do zrobienia przez człowieka:** akceptacja planu WYGLAD_PANELU i wybór planu w linii „Aktywny
+plan”.
+
+- Ryzyka: tabela „Stan otwartych ryzyk” przejrzana — ryzyka planu mieszkają w jego sekcji 7.
+
+Autor: RelAI (Opus 5.5) + Lukasz
+
+### 2026-10-14 — Plan WYGLAD_PANELU zaakceptowany z Aneksem A
+
+**Zrobione:**
+
+- Akceptacja Łukasza z warunkiem: „będzie potrzeba przeprowadzenia tej sondy i przygotowania mi
+  kilku wariantów tych wyglądów do mojej oceny i poprawy, jeśli będą uwagi” → Aneks A w sekcji 10
+  planu: sonda E1 obowiązkowa i pokazana przed wariantami, po trzy warianty w prawdziwym nośniku
+  w E1–E3 (motyw jasny i ciemny), rundy poprawek do zapisanej akceptacji; koszt do +1 sesji na etap
+  (suma 6–12 sesji, SZACUNEK).
+- `STATUS.md`: ZAAKCEPTOWANY 2026-10-14 (Aneks A), E1 GOTOWY DO STARTU z `PROMPT_ETAP_1.md`.
+- Linia „Aktywny plan” w `CLAUDE.md` → WYGLAD_PANELU (prowadzony w Claude Code); PANEL_CODEX
+  zostaje w tabeli i idzie dalej w Codeksie.
+
+**Zweryfikowane — jak dokładnie:**
+
+- `PLAN.html` przebudowany z Aneksem A: builder kod 0, 212 KB, bez niewypełnionych znaczników.
+- `PROMPT_ETAP_1.md`: „Zasady aktywne” wklejone skryptem z `docs/LEKCJE.md` bajt w bajt — 15
+  zasad numerowanych, tyle co w rejestrze; 0 pozostałych znaczników `{{`.
+
+**Świadomie odłożone:** —
+
+**Do zrobienia przez człowieka:** start E1 w świeżej sesji (`/relai-stage`) na Opus 5.5.
+
+Autor: RelAI (Opus 5.5) + Lukasz
