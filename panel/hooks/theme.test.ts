@@ -3,7 +3,7 @@ import type { On, RenderElement, RenderNode } from 'claude-code'
 import { FORMS } from './core/commands.mjs'
 import { NAMES, THEME } from './core/theme.mjs'
 
-// The RelAI motif of the pane (plan PANEL_CLAUDE, E8): icons for the 14 commands on a desktop,
+// The RelAI motif of the pane (plan PANEL_CLAUDE, E8): icons for the 15 commands on a desktop,
 // text in the same colors on the terminal, and nothing wider than the pane.
 
 type Engine = Parameters<TestBody>[0]
@@ -78,7 +78,7 @@ export function minWidth(node: RenderNode): number {
 }
 
 describe('the RelAI motif of the pane', () => {
-  test('a desktop draws an icon for each of the 14 commands; the terminal draws none and keeps the cards', async ($, on) => {
+  test('a desktop draws an icon for each of the 15 commands; the terminal draws none and keeps the cards', async ($, on) => {
     world(on)
     await open($)
     const desk = await $.ui.mount({ plugin: 'relai-panel', surface: 'desktop', ...pane(100) })

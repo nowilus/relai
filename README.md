@@ -73,8 +73,8 @@ Trzy zdania wystarczą do większości pracy:
 „Przygotuj plan…" daje plan jako osobny dokument: warianty, ryzyka, etapy, przypadki brzegowe. Po
 akceptacji plan jest zamrożony, a `/relai-stage` uruchamia kolejny etap — zawsze po Twoim „tak".
 
-Czternaście komend `/relai-*` to skróty rzadszych operacji (backup, audyt, przekazanie projektu,
-optymalizator promptów…). Pełna lista: `/relai-help` albo [przewodnik](docs/PRZEWODNIK.md#komendy).
+Piętnaście komend `/relai-*` to skróty rzadszych operacji (backup, audyt, przekazanie projektu,
+optymalizator promptów, humanizacja tekstu…). Pełna lista: `/relai-help` albo [przewodnik](docs/PRZEWODNIK.md#komendy).
 W Claude Code komendy mają pełną nazwę `/relai:relai-<nazwa>`.
 
 ## Panel w Claude Code (early access)
@@ -86,7 +86,7 @@ i w terminalu.
 
 | Plugin | Co pokazuje |
 |---|---|
-| `relai-panel` | nad promptem: aktywny plan, etap i status, a wiersz „Tak / Nie” tylko, gdy karta decyzji czeka; `/relai-panel` otwiera panel z paskiem „Teraz”, formularzami czternastu komend, mapą planów i etapów, dokumentami projektu ze zmianami od commita i kosztami sesji. Na desktopie start etapu z karty otwiera nową sesję aplikacji z komendą w polu — jeden Enter, a rozmowa, w której kliknąłeś, zostaje |
+| `relai-panel` | nad promptem: aktywny plan, etap i status, a wiersz „Tak / Nie” tylko, gdy karta decyzji czeka; `/relai-panel` otwiera panel z paskiem „Teraz”, formularzami piętnastu komend, mapą planów i etapów, dokumentami projektu ze zmianami od commita i kosztami sesji. Na desktopie start etapu z karty otwiera nową sesję aplikacji z komendą w polu — jeden Enter, a rozmowa, w której kliknąłeś, zostaje |
 | `relai-progress` | nad promptem: segmenty etapu w toku albo przebiegu `/relai-crew` z następnym punktem pod nimi i chip agentów z kosztem; `/relai-agents` — subagenci sesji z kosztem |
 | `relai-cache-keeper` | nad promptem: pięć baterii — czas cache promptu, limit 5 h, czas do jego resetu, limit tygodniowy, kontekst — i koszt sesji; podpowiada, kiedy nowa sesja się zwróci (`/cache` pokazuje rachunek). Limit planu: progi 5 h (90 %) i tygodnia (98 %) z podpisem pod baterią, karta „pracuję dalej / zapisz pracę” po turze ponad progiem, a po resecie „Wznów pracę” — czysty czat od pliku wznowienia. Progi zmieniasz w panelu, zakładka Koszty |
 
@@ -194,3 +194,6 @@ model, na którym pracowałeś, oraz to, co miało się stać i co się stało z
 
 MIT — patrz [LICENSE](LICENSE). Używaj, zmieniaj, wdrażaj u siebie, także komercyjnie. Bez żadnej
 gwarancji.
+
+Reguły `/relai-humanize` pochodzą z pluginu Humanizer (Siqi Chen, licencja MIT) — pliki, które
+z nich korzystają, i pełny tekst licencji źródła: [nota](core/humanize/LICENSE-humanizer.md).

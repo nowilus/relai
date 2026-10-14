@@ -1,6 +1,6 @@
 ---
 description: "Rewrites text so it loses AI writing habits without changing what it says — shows the original next to the rewrite, lists the removed patterns, checks that numbers, dates, links and code survived, and changes a file only after a yes. Use when the person asks to humanize text — „zhumanizuj”, „usuń AI-owe zwroty”, „humanize this”."
-argument-hint: "[tekst albo ścieżka pliku]"
+argument-hint: "[tekst albo ścieżka pliku] | on | off | ustawienia"
 ---
 
 # /relai-humanize — text without AI writing habits

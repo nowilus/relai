@@ -301,18 +301,18 @@ w README, potwierdzenia, że komenda trafia do Cursora instalatorem i że skill 
 Każdy punkt Weryfikacji, który przeszedł, odhaczasz w `PROMPT_ETAP_4.md` (`- [ ]` → `- [x]`)
 zaraz po jego sprawdzeniu, nie na końcu etapu; punkt, który nie przeszedł, zostaje pusty.
 
-- [ ] `node --test core/process/tests/*.test.js core/guardrails/tests/*.test.js core/panel/tests/*.test.js adapters/codex/tests/*.test.js` — zero błędów; liczba testów przed (402 — FAKT) i po do wpisu.
-- [ ] `node core/tools/validate-adapters.js` — zero błędów, parytet skilli Codeksa 0 rozjazdów, nowa kontrola noty MIT widoczna w wyniku i czerwona na podłożonym braku (kontrola pozytywna, potem przywrócenie); ostrzeżenia wypisane we wpisie.
-- [ ] `claude plugin test` binarką aplikacji dla `panel/`, `progress/`, `cache-keeper/` — wszystkie zielone; liczby przed (178 / 31 / 178) i po do wpisu.
-- [ ] Test zakładki komend w `pane-v2.test.ts` sprawdza **900 px** (nie 925), komentarz „TEMPORARY” usunięty, test zielony.
-- [ ] Formularz `relai-humanize`: każdy tryb składa argument zgodny z Krokiem 0a komendy (test w `core/panel/tests/` albo `panel/hooks/*.test.ts`), a test parowania formularza z `argument-hint` przechodzi.
-- [ ] `git grep -niE "czternaście komend|14 komend|14 RelAI commands|czternaście skrótów"` — każde trafienie wypisane we wpisie jako „poprawione” albo „historyczne, zostaje”.
-- [ ] `docs/KOMENDY.md` i `SPEC_KOMENDY.md` mają wpis `/relai-humanize` (dowód obecności `grep -c` > 0); formy wywołania w nich są dosłownie tymi z komendy.
-- [ ] Instalator Cursora na fiksturze kopiuje `relai-humanize.md` (plik w `.cursor/commands/` z tą samą sumą co źródło).
-- [ ] `git grep -nE "sk-ant-[a-z0-9]+-[A-Za-z0-9_-]{20,}|sk_(test|live)_[A-Za-z0-9]{10,}"` — 0 trafień, z kontrolą pozytywną na próbce złożonej w czasie wykonania.
-- [ ] `docs/ARTEFAKTY.md` ma podbite wpisy; `git status --short` nie pokazuje plików spoza zakresu (zastane zmiany PANEL_CODEX i `docs/zasoby/PANEL_RELAI/makiety/` — nietknięte).
-- [ ] Wpis w `docs/DZIENNIK.md` na końcu sekcji „Wpisy”, z autorem; `docs/STATE.md` nadpisany.
-- [ ] Katalog roboczy `.claude/relai/work/HUMANIZACJA/E4/` przejrzany raportem (`node .claude/relai/tools/clean-work.js raport`) i skasowany po „tak”; liczby przed i po w sekcji „Zweryfikowane” wpisu. Artefakty poza tym katalogiem (fikstury w `%TEMP%`, render w Chromium) wypisane z nazwy razem z tym, co się z nimi stało.
+- [x] `node --test core/process/tests/*.test.js core/guardrails/tests/*.test.js core/panel/tests/*.test.js adapters/codex/tests/*.test.js` — zero błędów; liczba testów przed (402 — FAKT) i po do wpisu.
+- [x] `node core/tools/validate-adapters.js` — zero błędów, parytet skilli Codeksa 0 rozjazdów, nowa kontrola noty MIT widoczna w wyniku i czerwona na podłożonym braku (kontrola pozytywna, potem przywrócenie); ostrzeżenia wypisane we wpisie.
+- [x] `claude plugin test` binarką aplikacji dla `panel/`, `progress/`, `cache-keeper/` — wszystkie zielone; liczby przed (178 / 31 / 178) i po do wpisu.
+- [x] Test zakładki komend w `pane-v2.test.ts` sprawdza **900 px** (nie 925), komentarz „TEMPORARY” usunięty, test zielony.
+- [x] Formularz `relai-humanize`: każdy tryb składa argument zgodny z Krokiem 0a komendy (test w `core/panel/tests/` albo `panel/hooks/*.test.ts`), a test parowania formularza z `argument-hint` przechodzi.
+- [x] `git grep -niE "czternaście komend|14 komend|14 RelAI commands|czternaście skrótów"` — każde trafienie wypisane we wpisie jako „poprawione” albo „historyczne, zostaje”.
+- [x] `docs/KOMENDY.md` i `SPEC_KOMENDY.md` mają wpis `/relai-humanize` (dowód obecności `grep -c` > 0); formy wywołania w nich są dosłownie tymi z komendy.
+- [x] Instalator Cursora na fiksturze kopiuje `relai-humanize.md` (plik w `.cursor/commands/` z tą samą sumą co źródło).
+- [x] `git grep -nE "sk-ant-[a-z0-9]+-[A-Za-z0-9_-]{20,}|sk_(test|live)_[A-Za-z0-9]{10,}"` — 0 trafień, z kontrolą pozytywną na próbce złożonej w czasie wykonania.
+- [x] `docs/ARTEFAKTY.md` ma podbite wpisy; `git status --short` nie pokazuje plików spoza zakresu (zastane zmiany PANEL_CODEX i `docs/zasoby/PANEL_RELAI/makiety/` — nietknięte).
+- [x] Wpis w `docs/DZIENNIK.md` na końcu sekcji „Wpisy”, z autorem; `docs/STATE.md` nadpisany.
+- [x] Katalog roboczy `.claude/relai/work/HUMANIZACJA/E4/` przejrzany raportem (`node .claude/relai/tools/clean-work.js raport`) i skasowany po „tak”; liczby przed i po w sekcji „Zweryfikowane” wpisu. Artefakty poza tym katalogiem (fikstury w `%TEMP%`, render w Chromium) wypisane z nazwy razem z tym, co się z nimi stało.
 
 ## Na koniec (rytuał obowiązkowy — bez niego etap nie jest ukończony)
 

@@ -27,6 +27,7 @@ a struktura projektu nadąża. Komendy są skrótem do rzadszych operacji.
 model, który go wykona** (od 2.6.0): domyślnie model tej sesji, przy etapie planu — model etapu,
 a `--dla gpt-6-astra` wskazuje go jednorazowo; reguły dostawcy dla rodziny tego modelu (Claude,
 OpenAI) biorą się z listy modeli, a pod propozycją stoi linia `target:` z modelem i nakładką. Pokazuje Twój oryginał obok propozycji i zatrzymuje się — niczego nie wykonuje | gdy dyktujesz polecenie szybko i wolisz zobaczyć poprawioną wersję, zanim agent zacznie pracować |
+| `/relai-humanize <tekst>` · `/relai-humanize docs/notka.md` · `/relai-humanize on` · `/relai-humanize off` · `/relai-humanize ustawienia` | usuwa z tekstu albo pliku nawyki pisarskie AI bez zmiany treści: pokazuje oryginał obok wersji poprawionej, wypisuje usunięte wzorce i sprawdza, czy liczby, daty, linki i kod przetrwały; plik zmienia dopiero po Twoim „tak". Pierwsze wywołanie pyta krótko o ton i zakresy. `on` / `off` przełączają tryb ciągły, który w **Claude Code** poprawia na bieżąco wybrane zakresy (dokumenty, czat, teksty na zewnątrz); w Cursorze i Codeksie komenda działa na żądanie. `ustawienia` powtarza wywiad | gdy tekst do wysłania albo dokument brzmi jak napisany przez AI |
 
 Pełna nazwa każdej z nich to `/relai:relai-…` (np. `/relai:relai-backup`) — wpisz `/relai` i wybierz
 z podpowiedzi; skrócona forma działa tam, gdzie podpowiadacz ją rozwinie.

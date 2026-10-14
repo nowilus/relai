@@ -1,6 +1,6 @@
 # STATE — RelAI
 
-Stan na: 2026-10-14 (HUMANIZACJA E3 zrealizowany; wydanie 3.0.0)
+Stan na: 2026-10-14 (HUMANIZACJA E4 zrealizowany; wydanie 3.0.0)
 
 ## Gdzie jesteśmy
 
@@ -12,7 +12,7 @@ Claude Code to trzy osobne pluginy „early access” z marketplace tego repozyt
 0.15.0, `relai-progress` 0.4.0, `relai-cache-keeper` 0.7.0 — od 2026-10-13 z linią w stopce każdej
 sesji, widoczną też w prawym panelu podziału okna (odnoga PASKI_W_STOPCE, P-040) (plan PANEL_CLAUDE zamknięty
 2026-10-10, odnoga AUDYT_MODOW zamknięta 2026-10-11, wszystkie paczki zmierzone na żywo na 2.1.295). Aktywne plany: HUMANIZACJA w Claude Code
-(E1–E3 zrealizowane 2026-10-14, E4 gotowy do startu) i PANEL_CODEX w Codeksie (E1 po stronie Codeksa); FILM_PREZENTACYJNY zamknięty 2026-10-13 wydaniem 3.0.0. Opinii spoza projektu nadal nie ma.
+(E1–E4 zrealizowane 2026-10-14, E5 — pomiar i wydanie 3.1.0 — gotowy do startu) i PANEL_CODEX w Codeksie (E1 po stronie Codeksa); FILM_PREZENTACYJNY zamknięty 2026-10-13 wydaniem 3.0.0. Opinii spoza projektu nadal nie ma.
 
 ## Co działa
 
@@ -21,8 +21,9 @@ sesji, widoczną też w prawym panelu podziału okna (odnoga PASKI_W_STOPCE, P-0
 - Ustalenia, decyzje i korekty zapisują się w trakcie pracy, a nowa sesja zaczyna od stanu.
 - Plany powstają jako osobny dokument z wariantami i ryzykami (dla odbiorcy nietechnicznego jako
   HTML bez internetu); boczny wątek dostaje własną kartę bez ruszania zamrożonego planu.
-- Czternaście skrótów: etap, odnoga, kopia zapasowa, przegląd, lista zmian, przekazanie, wycieczka,
-  ściąga, adopcja, aktualizacja, sprzątanie, lista modeli, załoga, optymalizator promptu.
+- Piętnaście skrótów: etap, odnoga, kopia zapasowa, przegląd, lista zmian, przekazanie, wycieczka,
+  ściąga, adopcja, aktualizacja, sprzątanie, lista modeli, załoga, optymalizator promptu,
+  humanizacja tekstu.
 - Podyktowane zdanie może wrócić poprawione, zanim ruszy w robotę — na żądanie albo w trybie
   ciągłym, o który sesja pyta raz; oryginał stoi obok propozycji.
 - W repozytorium, niewydane (do 3.1.0): piętnasta komenda `/relai-humanize` zwraca tekst bez
@@ -93,8 +94,12 @@ sesji, widoczną też w prawym panelu podziału okna (odnoga PASKI_W_STOPCE, P-0
   czat macierzysty; kontrakt w [README adaptera](../adapters/codex/panel/README.md). Tabela
   STATUS planu pokazuje jeszcze `GOTOWY DO STARTU` — do wyprostowania na `W TOKU`.
 
-- **Plan HUMANIZACJA — aktywny w Claude Code; E1–E3 ZREALIZOWANE 2026-10-14, E4 GOTOWY DO STARTU**
-  ([status](plany/HUMANIZACJA/STATUS.md), 5 etapów, Opus 5.5, prompt E4 gotowy). E3 dowiózł tryb
+- **Plan HUMANIZACJA — aktywny w Claude Code; E1–E4 ZREALIZOWANE 2026-10-14, E5 GOTOWY DO STARTU**
+  ([status](plany/HUMANIZACJA/STATUS.md), 5 etapów, Opus 5.5, prompt E5 gotowy; E5 wymaga zgody na
+  publikację 3.1.0). E4 dowiózł formularz panelu z trybami `on` / `off` / `ustawienia`, zakładkę
+  komend z powrotem w 900 px (885 px: „Polecane teraz” z odstępami jak grupy, decyzja Łukasza),
+  liczbę 15 w dokumentach i opisie `relai-panel`, wiersz w `KOMENDY.md` i `SPEC_KOMENDY.md` oraz
+  kontrolę noty MIT w walidatorze. E3 dowiózł tryb
   ciągły: `core/process/humanize-continuous.js`, hook `humanize-continuous` (reguła przed odpowiedzią
   349–549 B, reguła po zapisie dokumentu raz na plik w turze, wyłączenia w hooku), ściągę
   `core/humanize/SKROT.md`; wiersz „Humanizacja” w tym repo wyłączony decyzją Łukasza; bramka
@@ -102,7 +107,7 @@ sesji, widoczną też w prawym panelu podziału okna (odnoga PASKI_W_STOPCE, P-0
   ustawienia w trzech warstwach (`core/process/humanize-mode.js`), wywiad w komendzie, procedurę
   profilu stylu i pierwszy profil Łukasza z logów PolyFlow. E1 dowiózł bazę
   reguł `core/humanize/`, strażnika faktów i komendę zarejestrowaną w panelu i Codeksie; zakładka
-  komend panelu ma tymczasowo 925 px zamiast 900 px (powrót w E4); otwarta odnoga
+  komend panelu miała po E1 tymczasowo 925 px (wróciła do 900 px w E4); otwarta odnoga
   [FILM_TESTY_V3](plany/HUMANIZACJA/odnogi/FILM_TESTY_V3/ODNOGA.md) (testy filmu na stanie
   `v3.0.0`). Po co: komenda
   `/relai-humanize` pokazuje oryginał obok wersji bez nawyków pisarskich AI (reguły z pluginu
@@ -168,8 +173,8 @@ i wpis marketplace każdego pluginu panelu z jego `plugin.json`. Pre-commit repo
 sesji, artefakty robocze, załoga, tryb ciągły, baza reguł optymalizatora z nakładkami `claude`
 i `openai`, walidator, rdzeń panelu `core/panel/*.mjs` (pomiar kosztów, cennik, atrybucja, mapa,
 decyzje, dokumenty, motyw, nagłówki Kalamem). **Adapter Claude Code**: dwa skille z plikami
-doczytywanymi, 14 komend, 4 agenci, 11 hooków, lista modeli. **Adapter Cursor**: trzy reguły
-`.mdc`, dwa hooki, instalator. **Adapter Codex**: manifest, 14 skilli, router `AGENTS.md`, trzy
+doczytywanymi, 15 komend, 4 agenci, 12 hooków, lista modeli. **Adapter Cursor**: trzy reguły
+`.mdc`, dwa hooki, instalator. **Adapter Codex**: manifest, 15 skilli komend i 2 rdzeniowe, router `AGENTS.md`, trzy
 hooki; pakiet panelu `adapters/codex/panel/` w budowie (E1).
 
 ### Pluginy panelu (Claude Code Mods, „early access”, zmierzone na 2.1.295)
@@ -196,10 +201,10 @@ Backupy: `C:\Users\Lukasz\Backupy\RelAI` • [PRZENOSNOSC.md](PRZENOSNOSC.md) �
 
 ### Liczby
 
-Plany zamknięte: 12 (ostatni FILM_PREZENTACYJNY, 2026-10-13) • Aktywne: HUMANIZACJA (E4 GOTOWY DO STARTU), PANEL_CODEX (E1 W TOKU) •
-Start sesji: **93,8 KB / 100 KB** ze skillem z repo (`startCost` 2026-10-12) • Dziennik: **106 KB / 150 KB**
-(2026-10-13, po rotacji) • Ryzyka: 17 w tabeli, archiwum 6 plików + 1 mitygacji • Lekcje:
+Plany zamknięte: 12 (ostatni FILM_PREZENTACYJNY, 2026-10-13) • Aktywne: HUMANIZACJA (E5 GOTOWY DO STARTU), PANEL_CODEX (E1 W TOKU) •
+Start sesji: **93,8 KB / 100 KB** ze skillem z repo (`startCost` 2026-10-12) • Dziennik: **ponad 150 KB / 150 KB**
+(2026-10-14, hook startu: 150,1 KB przed wpisem E4 — rotacja do zrobienia) • Ryzyka: 17 w tabeli, archiwum 6 plików + 1 mitygacji • Lekcje:
 **54,4 KB / 50 KB**, 20 w żywym pliku (po rotacji; ponad progiem przez „Zasady aktywne”, 31 KB) • Adaptery: 3 • Komendy: 14 wydane, 15 w repo •
-Testy: 333 rdzeń, panel i adaptery (`node --test`, 4 katalogi) + 382 pluginów panelu (177 / 31 / 174) + 36 filmu •
+Testy: 403 rdzeń, panel i adaptery (`node --test`, 4 katalogi, 2026-10-14) + 387 pluginów panelu (178 / 31 / 178) + 36 filmu •
 Projekty na RelAI: 3 (RelAI, PolyFlow, JiraManager przed migracją) • Modele, na których zmierzono
 proces: 6 (Fable, Opus, Sonnet, Haiku, Composer/auto, Grok 4.6).

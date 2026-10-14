@@ -1,4 +1,4 @@
-// RelAI core / panel: commands — the form of each of the 14 RelAI commands and the exact text it sends.
+// RelAI core / panel: commands — the form of each of the 15 RelAI commands and the exact text it sends.
 //
 // Each form is written from the command's YAML header (adapters/claude-code/commands/*.md,
 // `argument-hint`) and from the command table of docs/zasoby/PANEL_RELAI/WYWIAD.md. A form carries
@@ -56,11 +56,17 @@ export const FORMS = Object.freeze([
     ],
   },
   {
-    // HUMANIZACJA E1 (Aneks A6): the minimal form, mode "przerób tekst" only; settings modes come in E4.
+    // HUMANIZACJA E4: "przerób tekst" plus the three settings words of the command's Step 0a.
     command: 'relai-humanize',
-    argumentHint: '[tekst albo ścieżka pliku]',
+    argumentHint: '[tekst albo ścieżka pliku] | on | off | ustawienia',
     fields: [
-      { kind: 'text', key: 'text', label: 'tekst albo ścieżka pliku', isRequired: true },
+      { kind: 'choice', key: 'mode', label: 'tryb', emit: true, options: [
+        { value: '', label: 'przerób tekst' },
+        { value: 'on', label: 'on — włącz tryb ciągły' },
+        { value: 'off', label: 'off — wyłącz tryb ciągły' },
+        { value: 'ustawienia', label: 'ustawienia — wywiad od nowa' },
+      ] },
+      { kind: 'text', key: 'text', label: 'tekst albo ścieżka pliku', isRequired: true, when: { key: 'mode', values: [''] } },
     ],
   },
   {

@@ -100,7 +100,7 @@ mkdir C:/Users/<Ty>/Desktop/MojProjekt
 node C:/Narzedzia/relai/adapters/cursor/install.js C:/Users/<Ty>/Desktop/MojProjekt
 ```
 
-Instalator wypisze, co położył: trzy reguły `.cursor/rules/relai-*.mdc`, czternaście komend
+Instalator wypisze, co położył: trzy reguły `.cursor/rules/relai-*.mdc`, piętnaście komend
 `/relai-*`, dwa skille, specyfikacje dokumentów w `.claude/relai/templates/` i dwa wpisy
 w `.cursor/hooks.json`. Cudze wpisy w `hooks.json` zostają nietknięte.
 

@@ -83,7 +83,7 @@ wywołanie — nigdy sama z siebie.
 
 ## Komendy
 
-Czternaście skrótów dla operacji, które w rozmowie byłyby uciążliwe do opisania.
+Piętnaście skrótów dla operacji, które w rozmowie byłyby uciążliwe do opisania.
 
 | Komenda | Co robi |
 |---|---|
@@ -101,6 +101,7 @@ Czternaście skrótów dla operacji, które w rozmowie byłyby uciążliwe do op
 | <img src="zasoby/branding/ikony/models.svg" width="24" align="absmiddle"> `/relai-models` | odświeża listę modeli narzędzia: zgoda na sieć, źródło albo pytanie do Ciebie, różnica przed zapisem |
 | <img src="zasoby/branding/ikony/crew.svg" width="24" align="absmiddle"> `/relai-crew` | zamienia sesję w orkiestratora: fale zadań bez konfliktów plików, delegacja i przegląd krzyżowy |
 | <img src="zasoby/branding/ikony/prompt.svg" width="24" align="absmiddle"> `/relai-prompt` | zamienia podyktowane zdanie w precyzyjny prompt: oryginał obok propozycji, każde dopowiedzenie oznaczone, wykonanie czeka na zgodę. Tryb ciągły robi to z każdym promptem — ale najpierw pyta raz na sesję, czy ma działać (`on` / `off` / `off --globalnie` przestawiają go bez edycji pliku) |
+| <img src="zasoby/branding/ikony/humanize.svg" width="24" align="absmiddle"> `/relai-humanize` | usuwa z tekstu albo pliku nawyki pisarskie AI: oryginał obok wersji poprawionej, lista usuniętych wzorców, liczby, daty, linki i kod pilnowane, plik zmieniony dopiero po „tak". `on` / `off` przełączają tryb ciągły (w Claude Code), `ustawienia` powtarza wywiad |
 
 Claude Code rejestruje komendy pluginu pod pełną nazwą `/relai:relai-<nazwa>`. Skrócona forma
 (`/relai-backup`) działa tam, gdzie podpowiadacz ją rozwija.
@@ -233,8 +234,9 @@ relai/
 ├── adapters/
 │   ├── claude-code/             # ADAPTER Claude Code
 │   │   ├── skills/              #   relai-core (rytuały, rejestry), relai-planning (plany, etapy)
-│   │   ├── commands/            #   czternaście komend: stage, branch, backup, audit, changelog,
-│   │   │                        #     handover, tour, help, adopt, update, clean, models, crew, prompt
+│   │   ├── commands/            #   piętnaście komend: stage, branch, backup, audit, changelog,
+│   │   │                        #     handover, tour, help, adopt, update, clean, models, crew, prompt,
+│   │   │                        #     humanize
 │   │   ├── agents/              #   czterej subagenci: trzej załogi + relai-prompt-optimizer
 │   │   └── hooks/
 │   │       ├── hooks.json       #   rejestracja jedenastu hooków (zdarzenia i matchery)

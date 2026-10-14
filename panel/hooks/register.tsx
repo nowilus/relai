@@ -1,7 +1,7 @@
 // relai-panel: the RelAI band above the prompt. Active plan and stage from CLAUDE.md and the
 // plan's STATUS.md, in one card of the RelAI cards above the prompt (BAND, E9), with a second row
 // while a confirmation card waits (brief v2, AUDYT_MODOW Z1). The /relai-panel
-// command opens a side pane with the forms of the 14 RelAI commands, the cheat sheet and the
+// command opens a side pane with the forms of the 15 RelAI commands, the cheat sheet and the
 // session phrases, drawn in the RelAI motif (E8): cards with the command icons, Kalam headings.
 // Brief v2 (AUDYT_MODOW Z2): the title and the tabs in one row, "Teraz" with one main action, two
 // recommended cards and twelve one-line rows, the costs' sections folded, "Pomoc" for the sheet

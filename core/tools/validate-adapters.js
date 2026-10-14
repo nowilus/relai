@@ -600,6 +600,36 @@ const ostrzezenia = [];
     + wynik.bledy.length + ' poza lista');
 }
 
+// 13) Nota MIT Humanizera (HUMANIZACJA E4, ryzyko H8): core/humanize/LICENSE-humanizer.md
+// istnieje, niesie licencje MIT z linia praw autora i wymienia kazdy plik korzystajacy z tresci
+// Humanizera. Lista: kazdy *.md pod core/humanize/ (z podkatalogami) poza sama nota
+// i PROFIL_STYLU.md (wlasna specyfikacja RelAI, bez tresci Humanizera) oraz komenda,
+// ktora wykonuje procedure bazy. Nowy plik w core/humanize/ bez wpisu w nocie to blad.
+{
+  const NOTA = 'core/humanize/LICENSE-humanizer.md';
+  const POZA_NOTA = new Set(['core/humanize/LICENSE-humanizer.md', 'core/humanize/PROFIL_STYLU.md']);
+  const STALE = ['adapters/claude-code/commands/relai-humanize.md'];
+  const zbierz = (rel) => {
+    let wpisy = [];
+    try { wpisy = fs.readdirSync(path.resolve(ROOT, rel), { withFileTypes: true }); } catch (_) { return []; }
+    return wpisy.flatMap((w) => (w.isDirectory() ? zbierz(rel + '/' + w.name)
+      : /\.md$/i.test(w.name) ? [rel + '/' + w.name] : []));
+  };
+  const wymagane = zbierz('core/humanize').filter((r) => !POZA_NOTA.has(r)).concat(STALE);
+  let tekst = null;
+  try { tekst = fs.readFileSync(path.resolve(ROOT, NOTA), 'utf8'); } catch (_) {
+    bledy.push('nota MIT: brak pliku ' + NOTA);
+  }
+  if (tekst !== null) {
+    if (!/^MIT License\s*$/m.test(tekst)) bledy.push('nota MIT: ' + NOTA + ' nie zawiera linii "MIT License"');
+    if (!/^Copyright \(c\) \d{4} \S.*$/m.test(tekst)) bledy.push('nota MIT: ' + NOTA + ' nie zawiera linii praw autora "Copyright (c) <rok> <autor>"');
+    const brak = wymagane.filter((r) => !tekst.includes('`' + r + '`'));
+    for (const r of brak) bledy.push('nota MIT: ' + NOTA + ' nie wymienia pliku ' + r);
+    sprawdzone.push('nota MIT Humanizera: ' + wymagane.length + ' plikow wymaganych, '
+      + (wymagane.length - brak.length) + ' wymienionych');
+  }
+}
+
 // --- wynik -----------------------------------------------------------------
 if (ostrzezenia.length) {
   process.stdout.write('RelAI validate-adapters: ostrzezenia (' + ostrzezenia.length + ')\n');

@@ -2009,3 +2009,104 @@ Wykonawca: Opus 5.5 (Claude Code, aplikacja desktopowa), `/relai-stage`, zgoda w
   oka na stan PANEL_CODEX (wspólne `core/panel/`).
 
 Autor: RelAI (Opus 5.5) + Lukasz
+
+### 2026-10-14 — HUMANIZACJA E4: tryby ustawień w formularzu panelu, 15 komend w 900 px i nota MIT w walidatorze
+
+Wykonawca: Opus 5.5 (Claude Code, aplikacja desktopowa), `/relai-stage`, zgoda w czacie.
+
+**Zrobione:**
+
+- Przed pierwszą zmianą w `core/panel/`: w drzewie roboczym nie było zmian PANEL_CODEX w tym
+  katalogu (`git status`, `git log -5 -- core/panel panel`), a w jego `STATUS.md` E1 ma stan
+  `GOTOWY DO STARTU`. Zastane zmiany `docs/plany/PANEL_CODEX/*` i `makiety/` zostały nietknięte.
+- Formularz `relai-humanize` w `core/panel/commands.mjs`: pole `tryb` (`przerób tekst`, `on`, `off`,
+  `ustawienia`), pole tekstu tylko w trybie „przerób tekst”. `argumentHint` i `argument-hint`
+  komendy zmienione razem na `[tekst albo ścieżka pliku] | on | off | ustawienia` (komenda v3).
+  Kopie rdzenia odświeżone `sync-panel-core.js`. Generator Codeksa spójny, a skill nie niesie
+  podpowiedzi, więc się nie zmienił.
+- Zakładka komend wróciła do 900 px. Decyzja Łukasza (jedno pytanie, cztery warianty): sekcja
+  „Polecane teraz” dostała odstępy jak grupy pod nią, czyli bez 20 px między nagłówkiem a kartami
+  i między kartami (`pane-commands.tsx`, zwykły `Box` zamiast `section()`, która rysowała tylko
+  kolumnę z odstępem). Test wrócił do 900 px, komentarz „TEMPORARY” usunięty, a nowa asercja pilnuje
+  braku odstępu w `featured`.
+- Liczba 15 w każdej deklaracji stanu: `README.md` (dwa miejsca), `docs/PRZEWODNIK.md` (zdanie,
+  drzewo katalogów i nowy wiersz `/relai-humanize` w tabeli komend, której dotąd brakowało),
+  `docs/INSTALACJA.md`, `adapters/cursor/README.md`, `docs/STATE.md` (skróty, szczegóły adapterów:
+  15 komend, 12 hooków, 15 skilli komend Codeksa), opis `relai-panel` w `plugin.json` i w marketplace
+  Claude Code, komentarze `register.tsx`, `commands.mjs`, `sync-panel-core.js` i nazwy trzech testów
+  panelu. Wersji pluginów nie podbijałem.
+- `docs/KOMENDY.md`: wiersz `/relai-humanize` z pięcioma formami wywołania i jednym zdaniem o trybie
+  ciągłym. `SPEC_KOMENDY.md` v11: zakres 3.1.0 w historii wersji i punkt „humanizacja tekstu”.
+- Walidator, punkt 13: nota MIT istnieje, ma `MIT License` i linię `Copyright (c) <rok> <autor>`,
+  wymienia każdy `*.md` pod `core/humanize/` (z podkatalogami) poza samą notą i `PROFIL_STYLU.md`,
+  do tego komendę. Lista jest liczona z katalogu, więc nowy plik bez wpisu w nocie jest błędem.
+  `README.md`: zdanie o źródle reguł z linkiem do noty.
+- `core/panel/tests/commands.test.js`: test trybów humanizacji. Tekst wysyła tekst, a każdy tryb
+  ustawień wysyła słowo, które Krok 0a komendy wymienia w backtickach. Kontrola negatywna: słowo
+  spoza Kroku 0a.
+- `docs/ARTEFAKTY.md`: `/relai-humanize` v3, `SPEC_KOMENDY.md` v11.
+
+**Zweryfikowane — jak dokładnie:**
+
+- Testy: `node --test core/process/tests/*.test.js core/guardrails/tests/*.test.js
+  core/panel/tests/*.test.js adapters/codex/tests/*.test.js` → **403 / 403** (przed etapem 402, FAKT).
+  Test parowania przed zmianą nagłówka komendy był czerwony („rejected 1 of 15 headers”), co
+  posłużyło za kontrolę pozytywną.
+- `node core/tools/validate-adapters.js` spójny: parytet Codeksa 42 pliki / 0 rozjazdów, nagłówki
+  15 komend, „nota MIT Humanizera: 4 plików wymaganych, 4 wymienionych”. Ostrzeżenie zastane jedno
+  (`relai-prompt.md` 30 106 B). Kontrola pozytywna na podłożonych defektach, każdy kod 1 i jeden
+  błąd: nota bez `SKROT.md`, bez linii praw autora, brak noty, nowy `jezyki/zz-probe.md`. Nota
+  przywrócona z sumą SHA-256 identyczną jak przed.
+- `claude plugin test` binarką 2.1.295: panel 178 / progress 31 / cache-keeper 178, przed i po bez
+  zmiany liczby.
+- Wysokość zakładki komend według instrumentu testu: przed **925 px**, po **885 px**. „Po”
+  potwierdzone kontrolą: z granicą 884 px test jest czerwony z „Received: 885 px”, potem granica
+  wróciła na 900. Rozkład przed: nagłówek 57, „Teraz” 72, polecane 184 (w tym 40 px odstępów),
+  trzy grupy 160 + 160 + 192, odstępy body 60. Zrzutu na żywo nie robiłem, bo zmiana zabiera tylko
+  odstępy.
+- `git grep -niE "czternaście komend|14 komend|14 RelAI commands|czternaście skrótów"`:
+  - poprawione: `README.md:76`, `adapters/cursor/README.md:32`, `docs/PRZEWODNIK.md:86` i `:236`,
+    `docs/STATE.md:24` i `:171`, `docs/INSTALACJA.md:103`, opis `panel/.claude-plugin/plugin.json`
+    i `.claude-plugin/marketplace.json` (bez wpisu w `.agents/plugins/marketplace.json`);
+  - historyczne, zostają: `docs/DZIENNIK.md`, `docs/archiwum/**`, `docs/fixy/AUDYT_MODOW/**`
+    i `AUDYT_SKILLI/**`, `docs/plany/PANEL_CODEX/PLAN.html` (plan zamrożony, cudzy),
+    `docs/plany/HUMANIZACJA/PROMPT_ETAP_1.md` i `_4.md`, karta odnogi FILM_TESTY_V3,
+    `docs/zasoby/PANEL_RELAI/STYL_PASKOW_CLAUDE.md` i `WYWIAD.md`, film 3.0.0
+    (`docs/zasoby/film/**`, testy w zakresie odnogi FILM_TESTY_V3), `SPEC_KOMENDY.md:89`
+    („czternasta komenda” w 2.2.0) i nazwa testu `pane-v2.test.ts:142` (zdanie, które zniknęło).
+- `grep -c relai-humanize` → `docs/KOMENDY.md` 1, `SPEC_KOMENDY.md` 2. Formy wywołania są wzięte
+  z nagłówka komendy. `on`, `off`, `ustawienia`, pusty argument i tekst przeszły na żywo w E2,
+  ścieżka pliku w E1.
+- Instalator Cursora na fiksturze `%TEMP%/relai-e4-cursor` (z gitem): 15 plików w `.cursor/commands/`,
+  `relai-humanize.md` z tą samą sumą SHA-256 co źródło (`0184b245…`).
+- Sekrety: `git grep -nE "sk-ant-[a-z0-9]+-[A-Za-z0-9_-]{20,}|sk_(test|live)_[A-Za-z0-9]{10,}"` → 0,
+  kontrola pozytywna na próbce złożonej w locie → 1.
+- Recenzja kodu (agent `code-reviewer`): APPROVE, 0 defektów. Jedna uwaga LOW: czy `section()`
+  robiła coś poza odstępem. Sprawdzone w `pane-parts.tsx:96`: kolumna, nagłówek, opcjonalne zdanie
+  i nic więcej.
+- Katalog roboczy `.claude/relai/work/HUMANIZACJA/E4/`: przed 2 pliki, 2,9 KB (skrypt kontroli noty
+  i kopia noty). Po „tak” 0, katalog usunięty. Poza nim była fikstura `%TEMP%/relai-e4-cursor`
+  (1,1 MB), skasowana po tym samym „tak”.
+- `git status --short`: zastane zmiany `docs/plany/PANEL_CODEX/*` (diff 2 linie, jak na starcie)
+  i `docs/zasoby/PANEL_RELAI/makiety/` nietknięte.
+- Ryzyka: tabela „Stan otwartych ryzyk” przejrzana, etap nie otworzył nowego ryzyka. Ryzyko planu H8
+  (licencja) ma mitygację w walidatorze. H1, H4 i H5 zostają do E5.
+
+**Świadomie odłożone:**
+
+- `/relai-update` i jego kopia w Codeksie opisują stan docelowy `KOMENDY.md` 3.0.0 („tabela
+  **czternastu** komend”). Zmieniam to w E5 razem z wersją docelową 3.1.0, bo dziś byłaby to
+  deklaracja stanu wydania, którego nie ma.
+- `docs/DZIENNIK.md` ma 150,1 KB przy progu 150 KB (hook startu). Rotacja to osobna czynność, do
+  zrobienia przed E5 albo w rytuale „kończymy na dziś”.
+- Bramka zgody optymalizatora znów odezwała się na raporcie subagenta. Pytania nie zadałem (ta sama
+  sprawa co we wpisie E3).
+
+**Do zrobienia przez człowieka:**
+
+- Rzut oka na ikonę, wiersz „Humanizacja tekstu” i nowy formularz z trybami w panelu, po
+  najbliższej instalacji panelu z repo (najpóźniej przy E5).
+- Start E5 w świeżej sesji Opus 5.5 (`/effort high`) komendą `/relai-stage`. Przed startem zgoda
+  na publikację 3.1.0 i rozstrzygnięcie bramki „tekst podyktowany dosłownie”.
+
+Autor: RelAI (Opus 5.5) + Lukasz

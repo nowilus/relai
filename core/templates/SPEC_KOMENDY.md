@@ -97,7 +97,12 @@ wywołanie bez pytania, a bez flagi i bez wiersza `Model optymalizatora` z czło
 komenda pyta o model i o zasięg wyboru — `ten prompt` (nic nie zapisuje), `ta sesja` (wybór żyje
 w rozmowie, bez pliku), `ten projekt` (wiersz w `docs/USTAWIENIA.md`), `wszystkie projekty`
 (wiersz w `~/.claude/relai/USTAWIENIA.md`). Wiersz bez członu `· nie pytaj` jest podpowiedzią,
-nie wyborem. Sekcja o zachowaniach automatycznych nie rośnie. Działa:
+nie wyborem. Sekcja o zachowaniach automatycznych nie rośnie. W 3.1.0 dochodzi **humanizacja
+tekstu**: piętnasta komenda `/relai-humanize` w tabeli, z formami wywołania `<tekst>`, ścieżka
+pliku, `on`, `off` i `ustawienia` — zapisanymi dosłownie tak, jak w nagłówku komendy. W wierszu
+tabeli jedno zdanie o trybie ciągłym: działa w **Claude Code** w zakresach wybranych w wywiadzie,
+a w Cursorze i Codeksie komenda działa na żądanie. Sekcja o zachowaniach automatycznych nie rośnie:
+tryb ciągły włącza wyłącznie człowiek, komendą albo w wywiadzie. Działa:
 
 - inicjalizacja struktury projektu (zgoda → trzy pytania → osiem dokumentów),
 - rozpoznanie folderu, który już jest projektem RelAI,
@@ -236,6 +241,11 @@ nie wyborem. Sekcja o zachowaniach automatycznych nie rośnie. Działa:
   dokumentów. Argumenty `setup`, `status`, `review`, `rescue` dają natywne odpowiedniki funkcji
   pluginu Codex. Opisujesz **efekt i granice** (nic nie startuje bez zgody, recenzent nie pisze,
   bez drugiego narzędzia tryb basic), nie mechanikę narzędzia,
+- **humanizacja tekstu (nowe w 3.1.0):** `/relai-humanize` usuwa z tekstu albo pliku nawyki
+  pisarskie AI bez zmiany treści — oryginał obok wersji poprawionej, lista usuniętych wzorców,
+  kontrola liczb, dat, linków i kodu, zapis pliku dopiero po „tak"; pierwsze wywołanie pyta
+  o ton i zakresy, `ustawienia` powtarza wywiad, `on` / `off` przełączają tryb ciągły. Opisujesz
+  **efekt i granice** (tryb ciągły tylko w Claude Code, plik nigdy bez zgody), nie nazwy hooków,
 - **artefakty robocze (nowe w 1.8.0), do sekcji „Czego RelAI pilnuje bez proszenia":** gdy pliki
   robocze przekroczą próg z wiersza `Artefakty robocze` w `USTAWIENIA.md` (domyślnie 100 MB),
   start sesji mówi o tym **jednym zdaniem** — waga, liczba pozycji, trzy najcięższe z pochodzeniem

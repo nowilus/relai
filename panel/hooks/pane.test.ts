@@ -80,7 +80,7 @@ describe('the /relai-panel pane', () => {
     expect(calls.opened).toEqual([])
   })
 
-  test('every one of the 14 commands has a form with a preview, on terminal and desktop', async ($, on) => {
+  test('every one of the 15 commands has a form with a preview, on terminal and desktop', async ($, on) => {
     const calls = world(on, RELAI_FILES, RELAI_COMMANDS)
     const r = await openPanel($)
     expect(r.text).toContain('Panel RelAI otwarty')

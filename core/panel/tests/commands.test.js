@@ -1,6 +1,6 @@
 'use strict';
 
-// Formularze 14 komend RelAI w panelu (plan PANEL_CLAUDE, E2).
+// Formularze 15 komend RelAI w panelu (plan PANEL_CLAUDE, E2).
 // Kontrola na realnym materiale: naglowki YAML wszystkich komend w adapters/claude-code/commands/
 // paruja sie z formularzami jeden do jednego; liczby w komunikatach sa liczone, nie wpisane.
 // Druga strona: podlozony rozjazd argument-hint i komenda bez formularza sa odrzucane.
@@ -80,6 +80,22 @@ test('conditional fields: crew modes, prompt on/off, changelog ranges, branch go
   const branch = /** @type {any} */ (c.formOf('relai-branch'));
   assert.equal(c.buildCommand(branch, { goal: 'bez nazwy' }).text, '/relai-branch');
   assert.equal(c.buildCommand(branch, { name: 'OPIS_REPO', goal: 'opis repo' }).text, '/relai-branch OPIS_REPO opis repo');
+});
+
+test('humanize: text mode sends the text, each settings mode sends a word of the command Step 0a', () => {
+  const form = /** @type {any} */ (c.formOf('relai-humanize'));
+  assert.equal(c.buildCommand(form, { text: 'docs/notka.md' }).text, '/relai-humanize docs/notka.md');
+  assert.deepEqual(c.buildCommand(form, {}).errors, ['tekst albo ścieżka pliku: wymagane']);
+  const md = fs.readFileSync(path.join(COMMANDS, 'relai-humanize.md'), 'utf8');
+  const step0a = md.slice(md.indexOf('## Step 0a'), md.indexOf('## Step 0 '));
+  assert.ok(step0a.length > 0, 'Step 0a not found in relai-humanize.md: the check would pass on nothing');
+  const modes = form.fields[0].options.map((/** @type {any} */ o) => o.value).filter(Boolean);
+  assert.deepEqual(modes, ['on', 'off', 'ustawienia']);
+  for (const mode of modes) {
+    assert.equal(c.buildCommand(form, { mode, text: 'ukryte' }).text, `/relai-humanize ${mode}`);
+    assert.ok(step0a.includes('`' + mode + '`'), `Step 0a does not name \`${mode}\``);
+  }
+  assert.equal(step0a.includes('`wlacz`'), false, 'positive control: a word the command does not know');
 });
 
 test('invalid values are not built: outside the list, bad format, a line break', () => {

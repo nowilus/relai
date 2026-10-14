@@ -57,7 +57,7 @@ export type CommandsCtx = {
 export function commandTabs(c: Ctx, parts: Parts, s: CommandsCtx) {
   const { el, isGui } = c
   const { Box, Text, Input, Select } = el
-  const { heading, icon, btn, flashBorder, section, frame, well, sentLine } = parts
+  const { heading, icon, btn, flashBorder, frame, well, sentLine } = parts
   const { data: d, picked, values: all, chat, canNew, clean, pick } = s
   // UX accepted 2026-10-12: the new session first and the default on the desktop
   const chats: { value: ChatMode, label: string }[] = [
@@ -200,8 +200,13 @@ export function commandTabs(c: Ctx, parts: Parts, s: CommandsCtx) {
   // Two recommended (brief v2 §6.3); the third of FEATURED, the tour, goes down to the first group
   const featured = FEATURED.slice(0, 2)
   const groups = GROUPS.map((g, i) => (i === 0 ? { ...g, commands: [...g.commands, ...FEATURED.slice(2)] } : g))
+  // HUMANIZACJA E4 (decision 2026-10-14): "Polecane teraz" spaced like the groups below it, without
+  // the gaps of section(), so the 15 commands, "Teraz" and the header fit 900 px of a desktop
   const commandsView = () => [
-    section('featured', 'featured', '', featured.map((c) => card(c, true))),
+    <Box key="featured" flexDirection="column">
+      {heading('featured')}
+      {featured.map((c) => card(c, true))}
+    </Box>,
     ...groups.map((g) => (
       <Box key={`group-${g.id}`} flexDirection="column">
         {heading(`group-${g.id}`)}

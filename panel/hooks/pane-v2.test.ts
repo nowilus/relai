@@ -7,7 +7,7 @@ import { pct } from './fmt'
 
 // The side pane after brief v2 (AUDYT_MODOW Z2, docs/zasoby/PANEL_RELAI/STYL_PASKOW_CLAUDE.md
 // §6, §7): the header with the tabs in one row, the "Teraz" bar with one main action, the
-// commands as two cards and twelve one-line rows with the form under its row, the costs with
+// commands as two cards and thirteen one-line rows with the form under its row, the costs with
 // folded sections, and a `sent` line that does not outlive what it says.
 
 type Engine = Parameters<TestBody>[0]
@@ -293,13 +293,14 @@ describe('the commands tab (brief v2 §6.3–6.5, P1)', () => {
     await ui.unmount()
   })
 
-  test('the 15 commands, "Teraz" and the header fit 925 px of a desktop (900 px until HUMANIZACJA E1)', async ($, on) => {
+  test('the 15 commands, "Teraz" and the header fit 900 px of a desktop', async ($, on) => {
     world(on)
     const ui = await open($)
     const tree = await ui.drawn()
     const px = height(tree as RenderNode)
-    // TEMPORARY (HUMANIZACJA E1, decision 2026-10-14): the 15th row costs 25 px; E4 brings back 900 px
-    expect(`${px} px`).toBe(`${Math.min(px, 925)} px`)
+    // HUMANIZACJA E4: "Polecane teraz" spaced like the groups (no gaps) pays for the 15th row
+    expect(`${px} px`).toBe(`${Math.min(px, 900)} px`)
+    expect(props(await ui.find({ key: 'featured' })).gap).toBeUndefined()
     for (const c of ROWS) expect(height((await ui.find({ key: `row-${c}` })) as RenderNode)).toBeLessThanOrEqual(PX.button + 2 * PX.border)
     await ui.unmount()
   })
