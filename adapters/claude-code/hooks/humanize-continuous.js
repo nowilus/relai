@@ -7,7 +7,8 @@
 //                      potwierdzenie i powiadomienie systemowe tury nie zaczynaja) i, przy
 //                      zakresach `czat` / `zewnętrzne`, regula przed odpowiedzia;
 //   PostToolUse      — po zapisie dokumentu w docs/ przy zakresie `dokumenty`: regula
-//                      "popraw proze tego pliku", raz na plik w turze.
+//                      "popraw proze tego pliku", raz na plik w turze; zapis to Write/Edit
+//                      albo przekierowanie / tee w poleceniu Bash (Aneks C).
 //
 // Warunki ciszy (kod 0, zero bajtow): nie projekt RelAI, tryb goscia, wiersz
 // `Humanizacja` nieobecny / `wyłączona` / spoza listy, zakres nie obejmuje zdarzenia,
@@ -54,14 +55,30 @@ function przedOdpowiedzia(input, cwd, opcje) {
   return tryb.regulaPrzedOdpowiedzia(w, { profil: tryb.sciezkaProfilu(cwd, opcje.home) });
 }
 
+// Pliki zapisane przez narzedzie: Write/Edit niosa file_path, Bash — polecenie, z ktorego
+// rdzen wyczytuje przekierowania i tee (Aneks C, pomiar E5).
+function zapisanePliki(input, cwd) {
+  const narzedzie = String(input.tool_name || '');
+  const wejscie = input.tool_input || {};
+  if (NARZEDZIA_ZAPISU.has(narzedzie)) return [wejscie.file_path];
+  if (narzedzie !== 'Bash' || typeof wejscie.command !== 'string' || !/>|\btee\b/.test(wejscie.command)) return [];
+  return tryb.celeZapisuPowloki(wejscie.command, cwd);
+}
+
 function poZapisie(input, cwd, opcje) {
-  if (!NARZEDZIA_ZAPISU.has(String(input.tool_name || ''))) return '';
+  const pliki = zapisanePliki(input, cwd);
+  if (!pliki.length) return '';
   const w = tryb.wlaczone(opcje);
   if (!w || !tryb.maZakres(w, 'dokumenty')) return '';
-  const rel = tryb.sciezkaWzgledna(cwd, (input.tool_input || {}).file_path);
-  if (tryb.powodPominieciaPliku(rel, cwd) !== null) return '';
-  if (!tryb.pierwszyZapisWTurze(cwd, input.session_id, rel)) return '';
-  return tryb.regulaPoZapisie(rel, w, { profil: tryb.sciezkaProfilu(cwd, opcje.home) });
+  const profil = tryb.sciezkaProfilu(cwd, opcje.home);
+  const reguly = [];
+  for (const plik of pliki) {
+    const rel = tryb.sciezkaWzgledna(cwd, plik);
+    if (tryb.powodPominieciaPliku(rel, cwd) !== null) continue;
+    if (!tryb.pierwszyZapisWTurze(cwd, input.session_id, rel)) continue;
+    reguly.push(tryb.regulaPoZapisie(rel, w, { profil }));
+  }
+  return reguly.join('\n');
 }
 
 function main(input) {

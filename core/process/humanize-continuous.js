@@ -150,10 +150,146 @@ function regulaPoZapisie(rel, w, opcje) {
   return '[RelAI humanizacja] Zapisales ' + rel + ' (tryb ciagly, zakres dokumenty). Gdy skonczysz ' +
     'zmiany tego pliku w tej turze, popraw jego proze wg ' + SKROT + ', rodzaj ' + rodzaj + ', ton ' + ton +
     '.' + profil + ' Tylko proza akapitow i punktow listy; tabele, naglowki, adnotacje *(...)*, kod, ' +
-    'sciezki i wiersze czytane maszynowo bajt w bajt; nie dodawaj faktow. Przed zapisem straznik: node ' +
+    'sciezki i wiersze czytane maszynowo bajt w bajt; nie dodawaj faktow. Tekst, ktory polecenie kazalo ' +
+    'wpisac doslownie (cytat, akapit podyktowany), zostaje bajt w bajt. Przed zapisem straznik: node ' +
     STRAZNIK + " '" + rel + "' - z wersja na stdin (heredok jak w /relai-humanize, Krok 7); roznica = " +
     'plik zostaje bez zmian. ' + pokaz + ' Nic do zmiany = nic nie zapisujesz i nic nie piszesz. Zapis ' +
     'tej poprawki albo wersji zaakceptowanej nie wymaga kolejnej.';
+}
+
+// --- zapis powloka (Aneks C) -------------------------------------------------------------
+// Pomiar E5: model dopisywal dokumenty przez Bash (`printf >>`, `cat >> <<EOF`), wiec hook
+// po Write/Edit nie widzial zapisu. Tu: pliki, do ktorych polecenie powloki pisze —
+// przekierowania `>` / `>>` i argumenty `tee`, z katalogiem po `cd`. Tresc heredokow
+// i napisy w cudzyslowie nie sa poleceniem; `2>`, `&>`, `>&` i /dev/null nie sa zapisem dokumentu.
+// Rozpoznanie jest celowo waskie: zapis spoza tej listy (sed -i, skrypt) hook przepuszcza.
+
+// Koniec napisu w cudzyslowie od pozycji otwarcia: w '...' bez ucieczek, w "..." znak po `\`
+// nie zamyka. Brak zamkniecia = koniec tekstu.
+function koniecNapisu(tekst, i) {
+  const c = tekst[i];
+  let k = i + 1;
+  while (k < tekst.length && tekst[k] !== c) k += c === '"' && tekst[k] === '\\' ? 2 : 1;
+  return Math.min(k, tekst.length);
+}
+
+// Heredoki otwarte w linii: `<<EOF`, `<<-'EOF'` poza cudzyslowem i komentarzem; `<<<` to
+// here-string, nie heredok.
+function heredokiWLinii(linia) {
+  const wynik = [];
+  for (let i = 0; i < linia.length; i++) {
+    const c = linia[i];
+    if (c === "'" || c === '"') { i = koniecNapisu(linia, i); continue; }
+    if (c === '#' && (i === 0 || /\s/.test(linia[i - 1]))) break;
+    if (c === '<' && linia[i + 1] === '<') {
+      if (linia[i + 2] === '<') { i += 2; continue; }
+      const m = /^<<(-?)\s*(['"]?)([A-Za-z_][A-Za-z0-9_]*)\2/.exec(linia.slice(i));
+      if (m) { wynik.push({ nazwa: m[3], tab: m[1] === '-' }); i += m[0].length - 1; }
+    }
+  }
+  return wynik;
+}
+
+// Tresc heredokow wycieta: linie po `<<EOF` / `<<-'EOF'` az do terminatora.
+function bezHeredokow(polecenie) {
+  const linie = String(polecenie).split('\n');
+  const wynik = [];
+  let terminatory = [];
+  for (const linia of linie) {
+    if (terminatory.length) {
+      const t = terminatory[0];
+      if (linia.trim() === t.nazwa || (t.tab && linia.replace(/^\t+/, '') === t.nazwa)) terminatory = terminatory.slice(1);
+      continue;
+    }
+    wynik.push(linia);
+    terminatory = terminatory.concat(heredokiWLinii(linia));
+  }
+  return wynik.join('\n');
+}
+
+// Slowa i operatory z uwzglednieniem cudzyslowow. Operator: { op } (>, >>, &&, ||, ;, |, \n),
+// przekierowanie strumienia innego niz stdout oznaczone { op: 'fd' }.
+function tokeny(tekst) {
+  const out = [];
+  let slowo = null;
+  let i = 0;
+  const domknij = () => { if (slowo !== null) { out.push({ w: slowo }); slowo = null; } };
+  while (i < tekst.length) {
+    const c = tekst[i];
+    if (c === "'" || c === '"') {
+      const koniec = koniecNapisu(tekst, i);
+      const srodek = tekst.slice(i + 1, koniec);
+      // w "..." bash zdejmuje `\` tylko przed $ ` " \ i nowa linia; sciezka C:\Users zostaje
+      slowo = (slowo || '') + (c === '"' ? srodek.replace(/\\([$`"\\\n])/g, '$1') : srodek);
+      i = koniec + 1;
+    } else if (c === '#' && slowo === null) {
+      while (i < tekst.length && tekst[i] !== '\n') i++;
+    } else if (c === '\\' && i + 1 < tekst.length) {
+      slowo = (slowo || '') + tekst[i + 1]; i += 2;
+    } else if (c === ' ' || c === '\t') {
+      domknij(); i++;
+    } else if (c === '\n' || c === ';') {
+      domknij(); out.push({ op: ';' }); i++;
+    } else if (c === '&' && tekst[i + 1] === '&') {
+      domknij(); out.push({ op: ';' }); i += 2;
+    } else if (c === '|') {
+      domknij(); out.push({ op: tekst[i + 1] === '|' ? ';' : '|' }); i += tekst[i + 1] === '|' ? 2 : 1;
+    } else if (c === '&' && tekst[i + 1] === '>') {
+      domknij(); out.push({ op: 'fd' }); i += tekst[i + 2] === '>' ? 3 : 2;
+    } else if (c === '>') {
+      const fd = slowo !== null && /^\d+$/.test(slowo) ? slowo : null;
+      if (fd !== null) slowo = null; else domknij();
+      const dwa = tekst[i + 1] === '>';
+      i += dwa ? 2 : 1;
+      if (tekst[i] === '&') { out.push({ op: 'fd' }); i++; continue; }
+      if (!dwa && tekst[i] === '|') i++; // >| — zapis mimo noclobber
+      out.push({ op: fd !== null && fd !== '1' ? 'fd' : '>' });
+    } else if (c === '<') {
+      domknij(); i += tekst[i + 1] === '<' ? 2 : 1; out.push({ op: '<' });
+    } else {
+      slowo = (slowo || '') + c; i++;
+    }
+  }
+  domknij();
+  return out;
+}
+
+// Sciezka z powloki Git Bash (/c/Users/...) na sciezke Windows; inne bez zmian.
+function sciezkaPowloki(s) {
+  const m = /^\/([a-zA-Z])\/(.*)$/.exec(s);
+  return process.platform === 'win32' && m ? m[1].toUpperCase() + ':/' + m[2] : s;
+}
+
+// Lista sciezek bezwzglednych, do ktorych polecenie pisze (kolejnosc wystapienia, bez powtorzen).
+function celeZapisuPowloki(polecenie, cwd) {
+  const t = tokeny(bezHeredokow(polecenie));
+  let katalog = path.resolve(cwd || '.');
+  const cele = [];
+  const dodaj = (s) => {
+    if (!s || s === '/dev/null' || s.startsWith('&')) return;
+    const p = path.resolve(katalog, sciezkaPowloki(s));
+    if (!cele.includes(p)) cele.push(p);
+  };
+  let segment = [];
+  const zamknijSegment = () => {
+    const slowa = segment.filter((x) => x.w !== undefined).map((x) => x.w);
+    if (slowa[0] === 'cd' && slowa[1]) katalog = path.resolve(katalog, sciezkaPowloki(slowa[1]));
+    if (slowa[0] === 'tee') slowa.slice(1).filter((s) => !s.startsWith('-')).forEach(dodaj);
+    segment = [];
+  };
+  for (let i = 0; i < t.length; i++) {
+    const x = t[i];
+    if (x.op === ';' || x.op === '|') { zamknijSegment(); continue; }
+    if (x.op === '>' || x.op === 'fd' || x.op === '<') {
+      const cel = t[i + 1] && t[i + 1].w;
+      if (cel !== undefined) i++;
+      if (x.op === '>') dodaj(cel);
+      continue;
+    }
+    segment.push(x);
+  }
+  zamknijSegment();
+  return cele;
 }
 
 // --- prompt a tura ----------------------------------------------------------------------
@@ -211,5 +347,5 @@ function pierwszyZapisWTurze(cwd, sesja, rel) {
 module.exports = {
   wlaczone, maZakres, sciezkaProfilu, regulaPrzedOdpowiedzia, sciezkaWzgledna,
   powodPominieciaPliku, rodzajDokumentu, regulaPoZapisie, zaczynaTure, wymagaReguly,
-  katalogTury, nowaTura, pierwszyZapisWTurze, SKROT,
+  katalogTury, nowaTura, pierwszyZapisWTurze, celeZapisuPowloki, SKROT,
 };

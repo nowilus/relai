@@ -92,6 +92,15 @@ test('profile appears only when the file exists and the kind is listed in profil
   assert.ok(tryb.regulaPoZapisie('docs/DZIENNIK.md', { ...w, profilW: ['robocze'] }, { profil: 'x' }).includes('Profil stylu x'));
 });
 
+test('rule after a document write keeps dictated text verbatim in both display modes (annex B)', () => {
+  const w = { stan: 'włączona', zakresy: ['dokumenty'], pokaz: 'notka', ton: {}, profil: false, profilW: [] };
+  for (const pokaz of ['notka', 'dwie wersje']) {
+    const regula = tryb.regulaPoZapisie('docs/PRZEWODNIK.md', { ...w, pokaz });
+    assert.ok(regula.includes('Tekst, ktory polecenie kazalo wpisac doslownie'), 'pokaz: ' + pokaz);
+    assert.ok(regula.indexOf('doslownie') < regula.indexOf('Przed zapisem straznik'), 'pokaz: ' + pokaz);
+  }
+});
+
 // --- hook przed odpowiedzia: cisza z kontrola pozytywna -----------------------------------
 
 test('UserPromptSubmit: zero bytes without the row, when off and when unrecognized; rule when on', (t) => {
@@ -226,6 +235,55 @@ test('PostToolUse: silent without the documents scope, for read tools and withou
   });
   assert.equal(r.stdout, '');
   assert.notEqual(zapis(p, 'docs/STATE.md', 'Edit'), '', 'kontrola pozytywna z identyfikatorem sesji');
+});
+
+// --- zapis powloka (Aneks C): pomiar E5 — model dopisywal dokumenty przez Bash -----------
+
+test('shell write targets: redirections, tee and cd; quotes, heredoc bodies and stderr ignored (annex C)', () => {
+  const cwd = path.resolve(os.tmpdir(), 'relai-c');
+  const cele = (polecenie) => tryb.celeZapisuPowloki(polecenie, cwd).map((p) => path.relative(cwd, p).split(path.sep).join('/'));
+  // przypadki z pomiaru E5, doslownie w ksztalcie
+  assert.deepEqual(cele("printf '\\nWarto podkreslic.\\n' >> docs/NOTATKI.md"), ['docs/NOTATKI.md']);
+  assert.deepEqual(cele('cd "' + cwd + '" && cat >> docs/NOTATKI.md <<\'EOF\'\n\n> cytat > docs/X.md\nEOF'), ['docs/NOTATKI.md']);
+  assert.deepEqual(cele('echo x > out.txt; cd docs && echo y >> C.md'), ['out.txt', 'docs/C.md']);
+  assert.deepEqual(cele('echo a | tee -a docs/B.md docs/D.md'), ['docs/B.md', 'docs/D.md']);
+  assert.deepEqual(cele('echo a>docs/E.md'), ['docs/E.md']);
+  assert.deepEqual(cele("cat <<-EOF > 'docs/F G.md'\n\tx\n\tEOF"), ['docs/F G.md']);
+  // kontrola negatywna: znak ">" w cudzyslowie, w strumieniu bledow, w porownaniu i /dev/null
+  for (const cicho of ['echo "a > b"', "printf 'x >> docs/A.md'", 'node x.js 2> err.log', 'node x.js 2>&1', 'ls > /dev/null',
+    'node x.js &> log.txt', 'git diff --stat docs/A.md', 'node -e "1"', 'cat docs/A.md', 'echo x >&2']) {
+    assert.deepEqual(cele(cicho), [], cicho);
+  }
+  // poprawki po recenzji: here-string, \" w cudzyslowie, komentarz, >|
+  assert.deepEqual(cele('cat <<< "tekst"\necho y > docs/X.md'), ['docs/X.md']);
+  assert.deepEqual(cele('echo "it is <<EOF"\necho y > docs/X.md'), ['docs/X.md']);
+  assert.deepEqual(cele('printf "He said \\"hi\\"\\n" >> docs/X.md'), ['docs/X.md']);
+  assert.deepEqual(cele("echo a > docs/X.md; # it's done\necho b > docs/Y.md"), ['docs/X.md', 'docs/Y.md']);
+  assert.deepEqual(cele('echo hi # > docs/X.md'), []);
+  assert.deepEqual(cele('echo a#b > docs/Z.md'), ['docs/Z.md'], '# w srodku slowa to nie komentarz');
+  assert.deepEqual(cele('echo a >| docs/X.md'), ['docs/X.md']);
+  if (process.platform === 'win32') assert.deepEqual(cele('echo x >> /c/proj/docs/H.md').map((p) => p.toLowerCase()), [path.relative(cwd, 'C:/proj/docs/H.md').split(path.sep).join('/').toLowerCase()]);
+});
+
+test('PostToolUse after Bash: a shell write to a document speaks once per file, other commands stay silent (annex C)', (t) => {
+  const p = projekt(t, 'włączona · zakresy: dokumenty · pokaz: notka · profil: nie');
+  const bash = (polecenie) => kontekst(hook(HOOK, p, { hook_event_name: 'PostToolUse', tool_name: 'Bash', tool_input: { command: polecenie } }));
+  assert.equal(bash('git status --short'), '');
+  assert.equal(bash("printf 'x' >> docs/archiwum/STARY.md"), '', 'filtr H3 obowiazuje takze dla powloki');
+  const r = bash('cd "' + p.cwd + '" && cat >> docs/NOTATKI.md <<\'EOF\'\nAkapit.\nEOF');
+  assert.ok(r.includes('Zapisales docs/NOTATKI.md'), r);
+  assert.equal(bash("printf 'y' >> docs/NOTATKI.md"), '', 'raz na plik w turze');
+  assert.equal(kontekst(zapis(p, 'docs/NOTATKI.md', 'Edit')), '', 'Edit tego samego pliku w tej turze tez milczy');
+  const wyl = projekt(t, 'wyłączona · zakresy: dokumenty · pokaz: notka · profil: nie');
+  assert.equal(hook(HOOK, wyl, { hook_event_name: 'PostToolUse', tool_name: 'Bash', tool_input: { command: "printf 'x' >> docs/N.md" } }), '');
+});
+
+test('hooks.json registers humanize-continuous alone on PostToolUse Bash (annex C)', () => {
+  const h = JSON.parse(fs.readFileSync(path.join(HOOKI, 'hooks.json'), 'utf8')).hooks.PostToolUse;
+  const grupa = h.find((g) => new RegExp(g.matcher).test('Bash'));
+  assert.ok(grupa, 'grupa PostToolUse dla Bash');
+  assert.deepEqual(grupa.hooks.map((x) => path.basename(x.command.replace(/"$/, ''))), ['humanize-continuous.js']);
+  assert.ok(!new RegExp(grupa.matcher).test('Write'), 'grupa Bash nie dubluje grupy zapisu');
 });
 
 // --- raz na plik w turze ------------------------------------------------------------------

@@ -323,17 +323,17 @@ wydaje w tym czasie, pytasz o kolejność; dokumenty tylko przez Edit (zasada 5)
 Każdy punkt Weryfikacji, który przeszedł, odhaczasz w `PROMPT_ETAP_5.md` (`- [ ]` → `- [x]`)
 zaraz po jego sprawdzeniu, nie na końcu etapu; punkt, który nie przeszedł, zostaje pusty.
 
-- [ ] Decyzje z punktu 1 (publikacja, tekst podyktowany dosłownie, numery pluginów) zapisane w `STATUS.md` jako bramki `ROZSTRZYGNIĘTA` z datą i słowami Łukasza.
-- [ ] Korpus: 8 fikstur (5 PL, 3 EN) w repo; licznik wzorców ma kontrolę pozytywną (podłożony wzorzec trafiony) i wynik per tekst przed/po do wpisu; suma po ≤ połowa sumy przed — **albo** kryterium nieosiągalne pokazane na materiale przed pracą i pytanie do Łukasza (aneks), bez cichego obniżenia progu.
-- [ ] Strażnik faktów na wszystkich 8 parach: `{"zgubione":[],"dopisane":[]}`; kontrola pozytywna na parze z podłożoną zmianą liczby → różnica wykryta.
-- [ ] H4: w tekstach PL po humanizacji półpauza i cudzysłów „…” zachowane (`grep -c` przed i po), dowód na każdym tekście PL.
-- [ ] H5: różnica tokenów wejścia tury z trybem ciągłym i bez niego zmierzona dwoma przebiegami każdego wariantu; wynik i szum do wpisu.
-- [ ] Zapis pliku po „tak”: `git diff` fikstury pokazuje zmianę wyłącznie w prozie, plik obok nietknięty (suma przed i po).
-- [ ] `node core/tools/validate-adapters.js` → exit 0, „numery wersji: 7 zrodel, wartosc "3.1.0"”, nota MIT 4/4; ostrzeżenia wypisane we wpisie.
-- [ ] `grep -r "3\.0\.0"` i stare numery pluginów panelu po repo poza `.git` — każde trafienie wypisane jako „podbite” albo „historyczne, zostaje”.
-- [ ] `history.md` (obie kopie) ma wpis 3.1.0; `docs/ARTEFAKTY.md` — każdy artefakt z rejestru zmieniony od `v3.0.0` ma wpis (lista z `git diff --stat v3.0.0..HEAD` do wpisu).
-- [ ] Testy rdzenia zielone (403 + nowe, liczba do wpisu); `plugin test` panel / progress / cache-keeper zielone (178 / 31 / 178 przed); `plugin validate` repo i trzech pluginów — `✔ Validation passed` (ostrzeżenie o root `CLAUDE.md` dopuszczalne, zasada 15).
-- [ ] Skan sekretów na plikach diffu `origin/main..HEAD` — zero trafień; kontrola pozytywna (próbka złożona w czasie wykonania) trafiona.
+- [x] Decyzje z punktu 1 (publikacja, tekst podyktowany dosłownie, numery pluginów) zapisane w `STATUS.md` jako bramki `ROZSTRZYGNIĘTA` z datą i słowami Łukasza.
+- [x] Korpus: 8 fikstur (5 PL, 3 EN) w repo; licznik wzorców ma kontrolę pozytywną (podłożony wzorzec trafiony) i wynik per tekst przed/po do wpisu; suma po ≤ połowa sumy przed — **albo** kryterium nieosiągalne pokazane na materiale przed pracą i pytanie do Łukasza (aneks), bez cichego obniżenia progu.
+- [x] Strażnik faktów na wszystkich 8 parach: `{"zgubione":[],"dopisane":[]}`; kontrola pozytywna na parze z podłożoną zmianą liczby → różnica wykryta.
+- [x] H4: w tekstach PL po humanizacji półpauza i cudzysłów „…” zachowane (`grep -c` przed i po), dowód na każdym tekście PL.
+- [x] H5: różnica tokenów wejścia tury z trybem ciągłym i bez niego zmierzona dwoma przebiegami każdego wariantu; wynik i szum do wpisu.
+- [x] Zapis pliku po „tak”: `git diff` fikstury pokazuje zmianę wyłącznie w prozie, plik obok nietknięty (suma przed i po).
+- [x] `node core/tools/validate-adapters.js` → exit 0, „numery wersji: 7 zrodel, wartosc "3.1.0"”, nota MIT 4/4; ostrzeżenia wypisane we wpisie.
+- [x] `grep -r "3\.0\.0"` i stare numery pluginów panelu po repo poza `.git` — każde trafienie wypisane jako „podbite” albo „historyczne, zostaje”.
+- [x] `history.md` (obie kopie) ma wpis 3.1.0; `docs/ARTEFAKTY.md` — każdy artefakt z rejestru zmieniony od `v3.0.0` ma wpis (lista z `git diff --stat v3.0.0..HEAD` do wpisu).
+- [x] Testy rdzenia zielone (403 + nowe, liczba do wpisu); `plugin test` panel / progress / cache-keeper zielone (178 / 31 / 178 przed); `plugin validate` repo i trzech pluginów — `✔ Validation passed` (ostrzeżenie o root `CLAUDE.md` dopuszczalne, zasada 15).
+- [x] Skan sekretów na plikach diffu `origin/main..HEAD` — zero trafień; kontrola pozytywna (próbka złożona w czasie wykonania) trafiona.
 - [ ] Publikacja po zgodzie: `git ls-remote --tags origin v3.1.0` zwraca tag, `gh release view v3.1.0` istnieje, cache pluginu po `plugin update` i restarcie równy repo po CRLF → LF (liczba plików i rozjazdów do wpisu), świeża sesja na 3.1.0 wykonała `/relai-humanize` — **albo** brak zgody i etap kończy się lokalnym commitem, bramka publikacji `OTWARTA`.
 - [ ] Pliki PANEL_CODEX nietknięte: `git status --short` i `git diff --stat` na `docs/plany/PANEL_CODEX/` i `docs/zasoby/PANEL_RELAI/makiety/` identyczne z zapisem sprzed etapu; żaden w commitach etapu.
 - [ ] Sekwencja zamknięcia planu (D-36) wykonana w całości: bramki i odnoga FILM_TESTY_V3 rozstrzygnięte z Łukaszem, plan `ZREALIZOWANY`, folder w `docs/archiwum/plany/`, linia „Aktywny plan” w `CLAUDE.md` wskazuje istniejący plik albo brzmi `Aktywny plan: brak`.

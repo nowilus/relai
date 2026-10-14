@@ -612,7 +612,7 @@ footer .pis{font-family:var(--pis); font-size:1.2rem; color:var(--glina); margin
 
 <section id="s10">
   <svg class="pinezka" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="9" r="7" fill="#5f8a68"/><circle cx="9.5" cy="6.5" r="2.2" fill="rgba(255,255,255,.5)"/><path d="M12 16v6" stroke="#456338" stroke-width="2" stroke-linecap="round"/></svg>
-  <div class="tyt-sek"><span class="nr">10</span><h2>Aneksy</h2><span class="szept">Aneks A — ton i profil stylu</span></div>
+  <div class="tyt-sek"><span class="nr">10</span><h2>Aneksy</h2><span class="szept">Aneks A — ton i profil stylu · Aneks B — tekst dosłowny · Aneks C — zapis powłoką i płotki</span></div>
   <p>Po akceptacji sekcje 1–9 są zamrożone. Zmiany wyłącznie tutaj, jako datowane aneksy. Zmiana celu albo wybranego wariantu oznacza status CZĘŚCIOWO ZREALIZOWANY i nowy plan z linkiem do tego.</p>
 <div class="notka otw">
   <button type="button" aria-expanded="true" aria-controls="aA">
@@ -632,6 +632,27 @@ footer .pis{font-family:var(--pis); font-size:1.2rem; color:var(--glina); margin
     <p><b>A4. Wywiad ma dwa okna.</b> Pierwsze: zakresy trybu ciągłego, sposób pokazywania, zasięg. Drugie: ton dla każdego rodzaju tekstu oraz profil stylu (budować czy nie, z jakiego źródła, w których rodzajach tekstu). Pokaz na próbce przed pierwszym oknem zostaje.</p>
     <p><b>A5. Pierwszy profil powstaje z logów PolyFlow Łukasza (E2).</b> To pierwszy przypadek źródła „logi dyktowania”. Logi czytane są lokalnie i nic z nich nie trafia do repozytorium. Z RelAI wychodzi ogólny mechanizm „wskaż pliki”, bez zależności od PolyFlow.</p>
     <p><b>A6. Minimalna rejestracja komendy już w E1.</b> Testy parowania komend z formularzami i ikonami oraz generator skilli Codeksa (z liczbą 14 na sztywno) nie przepuszczą piętnastej komendy. Dlatego E1 dodaje formularz trybu „przerób tekst”, nazwę, ikonę i grupę w panelu oraz podbija liczbę w generatorze Codeksa do 15. E4 dopisuje tryby ustawień w formularzu, liczby w opisach i dokumenty użytkownika.</p>
+  </div></div></div>
+</div>
+<div class="notka otw">
+  <button type="button" aria-expanded="true" aria-controls="aB">
+    <svg class="spinacz" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    <span class="tyt">Aneks B · 2026-10-14 · tekst podyktowany dosłownie (E5)</span><span class="prawo"><span class="naklejka n-tak">przyjęty</span></span>
+  </button>
+  <div class="rulon" id="aB"><div><div class="tresc">
+    <p><b>B1. Tekst, który polecenie każe wpisać dosłownie, zostaje bajt w bajt.</b> W pomiarze E3 tryb ciągły „dokumenty” przeredagował akapit podyktowany przez użytkownika. Łukasz rozstrzygnął bramkę przy starcie E5: dosłowny tekst zostaje. Reguła po zapisie dokumentu dostaje jedno zdanie wyłączenia: cytat albo akapit podyktowany słowo w słowo nie podlega poprawce, a poprawka obejmuje tylko resztę prozy pliku.</p>
+    <p><b>B2. Zmiana idzie w E5 i w wydaniu 3.1.0.</b> Zakres to zdanie w <code>regulaPoZapisie</code> (<code>core/process/humanize-continuous.js</code>), test obecności zdania i jedna sesja <code>-p</code> na fiksturze z podyktowanym akapitem. Koszt reguły po zapisie rośnie o mniej niż 100 B. Pomiar H5 w E5 mierzy regułę już po tej zmianie.</p>
+  </div></div></div>
+</div>
+<div class="notka otw">
+  <button type="button" aria-expanded="true" aria-controls="aC">
+    <svg class="spinacz" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    <span class="tyt">Aneks C · 2026-10-14 · dwie usterki z pomiaru E5</span><span class="prawo"><span class="naklejka n-tak">przyjęty</span></span>
+  </button>
+  <div class="rulon" id="aC"><div><div class="tresc">
+    <p><b>C1. Tryb ciągły „dokumenty” widzi także zapis powłoką.</b> W pomiarze kosztu tury model we wszystkich ośmiu sesjach dopisał akapit do dokumentu przez Bash (<code>printf &gt;&gt;</code>, <code>cat &gt;&gt; &lt;&lt;EOF</code>). Hook po zapisie reagował tylko na Write i Edit, więc reguła nie zadziałała ani razu. Hook <code>humanize-continuous</code> dostaje osobną grupę <code>PostToolUse</code> dla Bash. Rdzeń wyczytuje z polecenia pliki zapisane przekierowaniem <code>&gt;</code> / <code>&gt;&gt;</code> albo przez <code>tee</code>, z katalogiem po <code>cd</code>. Treść heredoków, napisy w cudzysłowie, <code>2&gt;</code>, <code>&amp;&gt;</code> i <code>/dev/null</code> nie liczą się jako zapis dokumentu. Dalej obowiązuje ten sam filtr ścieżek i zasada „raz na plik w turze”. Inne sposoby zapisu (<code>sed -i</code>, skrypt) hook nadal przepuszcza; to granica świadoma.</p>
+    <p><b>C2. Blok wyniku <code>/relai-humanize</code> ma płotek dłuższy niż każdy w tekście.</b> Przy notatkach wydania z blokiem <code>```bash</code> komenda zagnieździła go w bloku z tym samym płotkiem. Wyrenderowana „wersja gotowa do wklejenia” kończyła się na wewnętrznym płotku. Krok 8 dostaje zdanie o długości płotka i test obecności tego zdania.</p>
+    <p><b>C3. Obie zmiany idą w E5 i w wydaniu 3.1.0</b>, z testami i sesjami <code>-p</code>: zapis przez Bash z oryginalnym promptem i k8 z korpusu.</p>
   </div></div></div>
 </div>
 </section>

@@ -270,6 +270,10 @@ of text with its tone, whether the profile was used, where the rules came from
    puenta na końcu akapitu ×1". Weak tells left on purpose may follow in one line.
 4. **Strażnik faktów** — "bez różnic", or the lists "zginęłoby: …" and "doszłoby: …".
 
+**Fences.** The fence around parts 1 and 2 is longer than any run of backticks at the start of a line
+inside the text: a text with ```` ``` ```` gets ````` ```` `````, a text with ```` ```` ```` gets five. A fence
+of the same length closes the block at the first inner fence and cuts the version ready to paste.
+
 When there is nothing to change: part 1, then "nic do zmiany" in place of part 2, an empty part 3
 and "nie dotyczy" in part 4.
 
