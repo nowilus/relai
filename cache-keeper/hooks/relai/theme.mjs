@@ -304,6 +304,80 @@ export const FLOW = Object.freeze({
   unknown: Object.freeze({ mark: '?', color: THEME.body, item: 'unknown' }),
 });
 
+/**
+ * The bars above the prompt in the tool's own colors (plan WYGLAD_PANELU, E1, Aneks B; P-042).
+ * Box and Text paint with theme keys, which the desktop repaints with the app's appearance; a mod
+ * cannot read that appearance, so the marks drawn in Svg carry two palettes in CSS and switch by
+ * `prefers-color-scheme`. The look Łukasz accepted on 2026-10-14: variant 3b — no surface, no
+ * frame, a hairline fading at both ends above each bar — the light marks of tuning A, the rule L2.
+ * `inverseText` is left out: on the light appearance it is white on white.
+ */
+export const KEY = Object.freeze({
+  text: 'text', // a value, a title
+  muted: 'inactive', // a label, a unit, a calm line
+  done: 'success',
+  running: 'warning',
+  failed: 'error',
+  accent: 'claude', // what goes on (a chip of a handoff or a kept cache)
+});
+
+/**
+ * The marks' raw colors by meaning: dark by default, light under the media query. Dark: what the
+ * desktop draws for the keys (sampled from the probe's pane, WYGLAD_PANELU_E1_sonda_2); light:
+ * tuning A (fresher green and amber than the keys' own) and the rule L2.
+ */
+export const INK = Object.freeze({
+  dark: Object.freeze({ text: '#f0efec', muted: '#c3c2b8', rule: '#636260', track: '#484847', done: '#4ca129', running: '#ce932a', failed: '#db8080', accent: '#b76345', card: '#3a3936' }),
+  light: Object.freeze({ text: '#0b0b0b', muted: '#52514e', rule: '#9a988f', track: '#d3d1cb', done: '#4d9c45', running: '#c48a2c', failed: '#c0504d', accent: '#b76345', card: '#ffffff' }),
+});
+
+/**
+ * The CSS that paints a mark by its class: `f-<ink>` fills, `s-<ink>` strokes, `c-<ink>` a
+ * gradient stop; the light palette under `@media (prefers-color-scheme: light)`.
+ * @returns {string}
+ */
+export function inkCss() {
+  const rules = (/** @type {Readonly<Record<string, string>>} */ p) => Object.keys(p)
+    .map((k) => `.f-${k}{fill:${p[k]}}.s-${k}{stroke:${p[k]}}.c-${k}{stop-color:${p[k]}}`).join('');
+  return rules(INK.dark) + `@media (prefers-color-scheme: light){${rules(INK.light)}}`;
+}
+
+/** The ink a state color of the bars (BAR.segment, BAND, RING) draws as; any other: muted. @param {string} color @returns {string} */
+export function inkOf(color) {
+  if (color === BAR.segment.done) return 'done';
+  if (color === BAND.panel.color) return 'running';
+  if (color === BAND.cache.color) return 'failed';
+  if (color === RING.track) return 'track';
+  return 'muted';
+}
+
+/** The ink of a progress item by its state (BAR.tile keys). */
+export const SEGMENT_INK = Object.freeze({ done: 'done', pending: 'track', running: 'running', failed: 'failed', unknown: 'track' });
+
+/** The rule above each bar (variant 3b): 22 px of air, a 1 px line fading over its first and last 12 %. */
+export const RULE = Object.freeze({
+  height: 22,
+  alt: 'linia oddzielająca paski RelAI',
+  svg: '<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="22"><style>'
+    + `.c-rule{stop-color:${INK.dark.rule}}@media (prefers-color-scheme: light){.c-rule{stop-color:${INK.light.rule}}}</style>`
+    + '<defs><linearGradient id="g"><stop offset="0" class="c-rule" stop-opacity="0"/><stop offset="0.12" class="c-rule"/>'
+    + '<stop offset="0.88" class="c-rule"/><stop offset="1" class="c-rule" stop-opacity="0"/></linearGradient></defs>'
+    + '<rect x="0" y="11" width="100%" height="1" fill="url(#g)"/></svg>',
+});
+
+/** What bar-card.tsx takes: the grid of BAR, the text in theme keys, the rule above the card. */
+export const BAR_LOOK = Object.freeze({
+  labelColumn: BAR.labelColumn,
+  figureColumn: BAR.figureColumn,
+  narrow: BAR.narrow,
+  text: KEY.text,
+  muted: KEY.muted,
+  rule: RULE,
+});
+
+/** A chip of a second row in theme keys: its words in the state's color, no surface of its own. */
+export const CHIP_KEY = Object.freeze({ warn: KEY.running, ok: KEY.done, run: KEY.accent, info: KEY.text });
+
 /** Small line glyphs of the pane's own controls (tabs, phrase cards), 24×24, in one color. */
 const GLYPH_PATHS = Object.freeze({
   commands: '<rect x="3.5" y="3.5" width="7" height="7" rx="2"/><rect x="13.5" y="3.5" width="7" height="7" rx="2"/><rect x="3.5" y="13.5" width="7" height="7" rx="2"/><rect x="13.5" y="13.5" width="7" height="7" rx="3.5"/>',

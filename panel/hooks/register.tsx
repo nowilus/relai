@@ -31,7 +31,8 @@ import type { EngineInterface, Register } from 'claude-code'
 import { join } from './fmt'
 import type { PanelView } from '../types'
 import { formOf } from './core/commands.mjs'
-import { THEME } from './core/theme.mjs'
+import { BAR_LOOK, THEME } from './core/theme.mjs'
+import { barRule } from './bar-card'
 import { compactRecord, fileName, isFileOf, mergeRecords, parseRecords, recordKey, serializeRecords, stepRecord } from './core/measure.mjs'
 import type { MeasureRecord } from './core/measure.mjs'
 import { PRICING_PAGE, pricingCard } from './core/pricing.mjs'
@@ -1069,6 +1070,7 @@ export const register: Register = (on) => {
     const { Box } = $.ui.resolve(e)
     // No width here: the engine refuses its own node under a Box with "width" and draws its own
     // instead, which drops every band (live, desktop, 2.1.293; plugin test does not see it)
-    return <Box key="relai-panel" flexDirection="column" gap={e.surface === 'terminal' ? 0 : 1}>{[ours, below]}</Box>
+    // No gap: on the desktop the rule under the card brings the air (WYGLAD_PANELU E1, variant 3b)
+    return <Box key="relai-panel" flexDirection="column">{[ours, barRule($.ui.resolve(e), BAR_LOOK, e.surface !== 'terminal', below), below]}</Box>
   })
 }

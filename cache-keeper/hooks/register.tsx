@@ -9,8 +9,8 @@
 import type { EngineInterface, Register } from 'claude-code'
 import { DEFAULT_SETTINGS, MAX_PAYBACK_TURNS, MIN, RELAI_MARKER, applySetting, cacheState, dueWarning, judgeStep, mergeSettings, msLeft, pingDue, pingMissed, type Settings } from './core'
 import { basename, clip, clock, fileStamp, limitsText, minutes, tokens, usd } from './fmt'
-import { barCard } from './bar-card'
-import { BAND, BAR, CHIP } from './relai/theme.mjs'
+import { barCard, barRule } from './bar-card'
+import { BAND, BAR, BAR_LOOK, CHIP_KEY, KEY } from './relai/theme.mjs'
 import { batteryRows, cacheMeasure, contextMeasure, glyphColor, limitMeasure, measureGlyph, resetMeasure, type Limit, type Measure } from './rings'
 import { ancestors, parseStatus } from './relai/plan-state.mjs'
 import { PLAIN_HANDOFF_PROMPT, RELAI_CONTINUE, RELAI_HANDOFF_PROMPT, continuePrompt, plainBody, relaiDiscardPrompt, relaiDone, relaiFreshPrompt, relaiResumePrompt, relaiSavePrompt, saveDone } from './handoff'
@@ -860,8 +860,9 @@ type SecondKind = 'ready' | 'running' | 'saved' | 'resume' | 'broken' | 'cooling
 // The Z9 event carries `lines`: two lines of segments,
 // strong ones bold, the rest muted, with no chip background (calibration 2026-10-14)
 type Second = { kind: SecondKind, text: string, lines?: BarSegment[][] }
-const CHIP_OF: Record<SecondKind, { color: string, bg: string }> = {
-  ready: CHIP.ok, running: CHIP.run, saved: CHIP.ok, resume: CHIP.ok, broken: CHIP.warn, cooling: CHIP.warn, event: CHIP.info, kept: CHIP.run,
+// A chip is its words in the state's theme key, no surface of its own (WYGLAD_PANELU E1)
+const CHIP_OF: Record<SecondKind, string> = {
+  ready: CHIP_KEY.ok, running: CHIP_KEY.run, saved: CHIP_KEY.ok, resume: CHIP_KEY.ok, broken: CHIP_KEY.warn, cooling: CHIP_KEY.warn, event: CHIP_KEY.info, kept: CHIP_KEY.run,
 }
 
 // The event's two lines: "przejdź do nowej sesji — …" | "wiadomość … → … limitu 5 h · przekazanie …"
@@ -918,10 +919,10 @@ function bandView(now: number) {
 const CELL_PX = 8
 const COLUMN_GAP = 2 // cells between the grid's columns (brief v2 §5)
 
-// The middle column's pixels: the card's padding and rounded corners, and beside it the label and
-// figure columns with their gaps (below BAR.narrow they stand on top)
+// The middle column's pixels: the card's padding (no frame since WYGLAD_PANELU E1), and beside it
+// the label and figure columns with their gaps (below BAR.narrow they stand on top)
 const middlePx = (columns: number) =>
-  Math.max(10, columns - 2 - 2 - (columns < BAR.narrow ? 0 : BAR.labelColumn + BAR.figureColumn + 2 * COLUMN_GAP)) * CELL_PX
+  Math.max(10, columns - 2 - (columns < BAR.narrow ? 0 : BAR.labelColumn + BAR.figureColumn + 2 * COLUMN_GAP)) * CELL_PX
 
 // The cache bar (Aneks Z11, brief v3 §10): in calm one row of five batteries, the session's cost
 // on the right, zero buttons; a second row only while its reason lasts.
@@ -936,7 +937,7 @@ function band($: $T, e: Resolved, columns: number, now: number) {
   const batteries = Svg
     ? (
       <Box key="cache-batteries" flexDirection="column">
-        {batteryRows(v.measures, middlePx(columns), BAND.cache.bg).map((row, i) => (
+        {batteryRows(v.measures, middlePx(columns)).map((row, i) => (
           <Box key={`batteries-${i}`} flexDirection="column"><Svg isInteractive source={row.svg} alt={row.alt} height={row.height} /></Box>
         ))}
       </Box>
@@ -946,9 +947,9 @@ function band($: $T, e: Resolved, columns: number, now: number) {
         {v.measures.map((m) => (
           <Box key={`m-${m.name}`} flexDirection="row" flexWrap="wrap" columnGap={1}>
             <Text color={glyphColor(m)}>{measureGlyph(m.fill)}</Text>
-            <Text color={BAR.muted}>{m.label}</Text>
-            <Text bold color={BAR.text}>{m.value}</Text>
-            {m.b === m.value ? null : <Text color={BAR.muted}>{m.b}</Text>}
+            <Text color={KEY.muted}>{m.label}</Text>
+            <Text bold color={KEY.text}>{m.value}</Text>
+            {m.b === m.value ? null : <Text color={KEY.muted}>{m.b}</Text>}
           </Box>
         ))}
       </Box>
@@ -961,12 +962,12 @@ function band($: $T, e: Resolved, columns: number, now: number) {
         <Box key="lines" flexShrink={1} flexDirection="column">
           {v.second.lines.map((line, i) => (
             <Box key={`line-${i}`} flexDirection="row" flexWrap="wrap">
-              {line.map((seg, j) => <Text key={`s-${j}`} bold={seg.strong} color={seg.strong ? BAR.text : BAR.muted}>{seg.text}</Text>)}
+              {line.map((seg, j) => <Text key={`s-${j}`} bold={seg.strong} color={seg.strong ? KEY.text : KEY.muted}>{seg.text}</Text>)}
             </Box>
           ))}
         </Box>
       )
-      : <Box key="chip" flexShrink={1} paddingX={1} flexDirection="row" backgroundColor={look.bg}><Text key="text" color={look.color}>{v.second.text}</Text></Box>
+      : <Box key="chip" flexShrink={1} flexDirection="row"><Text key="text" bold color={look}>{v.second.text}</Text></Box>
     // The event never wraps its buttons under the text (calibration 2026-10-14, a narrow window):
     // the lines shrink and wrap in their own column, the buttons keep their width on the right
     const buttons = secondButtons($, e, v.second.kind)
@@ -978,23 +979,27 @@ function band($: $T, e: Resolved, columns: number, now: number) {
       </Box>,
     )
   }
-  return barCard(el, BAR, isGui, columns, 'relai-cache-card', BAND.cache, middle, v.figure)
+  return barCard(el, BAR_LOOK, isGui, columns, 'relai-cache-card', BAND.cache, middle, v.figure)
 }
 
 // The buttons of a second row: native (a plain one inverts on a painted background, P-018); no
-// digit hotkey (a bare digit typed into an empty composer pressed it, Z5); hotkey h at most once
+// digit hotkey (a bare digit typed into an empty composer pressed it, Z5); hotkey h at most once; in a row where one button carries a hotkey every button does (its badge makes a
+// native button taller — WYGLAD_PANELU E1: "żeby primary i secondary miały dokładnie tą samą wysokość")
 function secondButtons($: $T, e: Resolved, kind: SecondKind) {
   const { Button } = $.ui.resolve(e)
-  const handoff = <Button key="handoff" label="Nowa sesja" hotkey="h" variant="secondary" onPress={() => startHandoff($)} />
+  // Every button of a row is the native primary (WYGLAD_PANELU E1: the secondary is as tall but sinks
+  // into the dark bar — measured 25 px both — so it read lower; Łukasz chose "Oba jako primary"; before,
+  // C5 with a framed secondary); the row's order still names its main action
+  const handoff = <Button key="handoff" label="Nowa sesja" hotkey="h" variant="primary" onPress={() => startHandoff($)} />
   if (kind === 'ready') {
     return [
       <Button key="continue" label="Wyczyść i kontynuuj" hotkey="c" variant="primary" onPress={() => clearAndContinue($)} />,
-      <Button key="stay-ready" label="Zostań" variant="secondary" onPress={() => { H = IDLE; $.ui.invalidate('ui.render') }} />,
+      <Button key="stay-ready" label="Zostań" hotkey="z" variant="primary" onPress={() => { H = IDLE; $.ui.invalidate('ui.render') }} />,
     ]
   }
   if (kind === 'cooling') {
     return [
-      <Button key="keepwarm" label="Podtrzymaj" variant="secondary" onPress={async () => {
+      <Button key="keepwarm" label="Podtrzymaj" hotkey="p" variant="primary" onPress={async () => {
         const text = startKeepWarm($, await $.clock.now(), settings.keepWarmHours)
         if (!S.keepWarm) $.ui.toast(text, { timeoutMs: 10_000 })
         $.ui.invalidate('ui.render')
@@ -1004,21 +1009,21 @@ function secondButtons($: $T, e: Resolved, kind: SecondKind) {
   }
   if (kind === 'event') {
     // "Zostań" dismisses the event for this context size (Z9)
-    return [handoff, <Button key="stay" label="Zostań" variant="secondary" onPress={() => {
+    return [handoff, <Button key="stay" label="Zostań" hotkey="z" variant="primary" onPress={() => {
       set({ stayCtx: S.ctx })
       $.ui.invalidate('ui.render')
     }} />]
   }
-  if (kind === 'kept') return [<Button key="stop" label="Zatrzymaj" variant="secondary" onPress={() => { stopKeepWarm($, 'wyłączone ręcznie'); $.ui.invalidate('ui.render') }} />]
+  if (kind === 'kept') return [<Button key="stop" label="Zatrzymaj" variant="primary" onPress={() => { stopKeepWarm($, 'wyłączone ręcznie'); $.ui.invalidate('ui.render') }} />]
   // After the limit's reset (E4): resume from the file, or let it go; each asks on a card first
   if (kind === 'resume') {
     return [
       <Button key="resume" label="Wznów pracę" variant="primary" onPress={() => resumeWork($)} />,
-      <Button key="discard" label="Odrzuć" variant="secondary" onPress={() => discardSave($)} />,
+      <Button key="discard" label="Odrzuć" variant="primary" onPress={() => discardSave($)} />,
     ]
   }
   // A save cut short stays until a new save or until it is closed here (E4)
-  if (kind === 'broken') return [<Button key="close-broken" label="Zamknij" variant="secondary" onPress={() => keepSave($, NO_SAVE)} />]
+  if (kind === 'broken') return [<Button key="close-broken" label="Zamknij" variant="primary" onPress={() => keepSave($, NO_SAVE)} />]
   return []
 }
 
@@ -1247,6 +1252,7 @@ export const register: Register = (on) => {
     const { Box } = $.ui.resolve(e)
     // No width here: the engine refuses its own node under a Box with "width" and draws its own
     // instead, which drops every band (live, desktop, 2.1.293; plugin test does not see it)
-    return <Box key="relai-cache-keeper" flexDirection="column" gap={e.surface === 'terminal' ? 0 : 1}>{[ours, below]}</Box>
+    // No gap: on the desktop the rule under the card brings the air (WYGLAD_PANELU E1, variant 3b)
+    return <Box key="relai-cache-keeper" flexDirection="column">{[ours, barRule($.ui.resolve(e), BAR_LOOK, e.surface !== 'terminal', below), below]}</Box>
   })
 }

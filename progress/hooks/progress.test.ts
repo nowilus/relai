@@ -1,6 +1,6 @@
 import { describe, expect, mock, test, type TestBody } from 'claude-code/testing'
 import type { On, RenderNode, TurnStepResult } from 'claude-code'
-import { BAND as LOOK, BAR, THEME } from './core/theme.mjs'
+import { BAND as LOOK, BAR, KEY, THEME } from './core/theme.mjs'
 import { agentCost } from './core/agents.mjs'
 import { parseRecords } from './core/measure.mjs'
 import { parsePriceFile, priceAt, priceLists } from './core/pricing.mjs'
@@ -49,7 +49,7 @@ const PANE = (bodyColumns = 100) => ({
   props: { title: 'Agenci RelAI', isFocused: true, bodyColumns, placement: 'dock' as const, scroll: { offset: 0, bodyRows: 40 }, view: {} },
 })
 
-function world(on: On, files: Record<string, string>, here = CWD, ids = { session: SESSION }) {
+function world(on: On, files: Record<string, string>, here = CWD, ids = { session: SESSION }, beneath = 'engine') {
   const disk: Record<string, string> = { ...files }
   const key = (path: string) => path.replace(/\\/g, '/')
   const n = { read: 0, stat: 0 } // what the idle ticks cost (AUDYT_MODOW Z4)
@@ -90,7 +90,7 @@ function world(on: On, files: Record<string, string>, here = CWD, ids = { sessio
   on('turn.complete', ($, e) => ({ text: e.answer }))
   on('ui.render', { component: 'AbovePrompt' }, ($, e) => {
     const { Box, Text } = $.ui.resolve(e)
-    return Box({ key: 'engine', children: [Text({ children: ['engine'] })] })
+    return Box({ key: beneath, children: [Text({ children: [beneath] })] })
   })
   return { disk, clock, n }
 }
@@ -118,10 +118,13 @@ function minWidth(node: RenderNode): number {
   return inner + padX + (p.borderStyle ? 2 : 0)
 }
 
-// The state of each segment as drawn: on the desktop from the fills of the Svg source, in the
-// terminal from the color of each segment's text; a color maps back through BAR.segment
+// The state of each segment as drawn: on the desktop from the ink class of each segment in the Svg
+// source, in the terminal from the theme key of each segment's text (WYGLAD_PANELU E1)
 type Mounted = Awaited<ReturnType<Engine['ui']['mount']>>
-const STATE_OF = new Map(Object.entries(BAR.segment).reverse().map(([state, color]) => [color, state]))
+const STATE_OF = new Map([['done', 'done'], ['track', 'pending'], ['running', 'running'], ['failed', 'failed'],
+  [KEY.done, 'done'], [KEY.muted, 'pending'], [KEY.running, 'running'], [KEY.failed, 'failed']])
+// The segments are the interactive Svg; the rule above the card (variant 3b) is an image
+const isMarks = (x: RenderNode) => typeof x !== 'string' && Boolean((x as { props?: { isInteractive?: boolean } }).props?.isInteractive)
 function* walkNodes(node: RenderNode): Generator<RenderNode> {
   if (typeof node === 'string') return
   yield node
@@ -130,10 +133,10 @@ function* walkNodes(node: RenderNode): Generator<RenderNode> {
 async function segmentStates(_: Engine, ui: Mounted, surface: 'terminal' | 'desktop', n: number): Promise<string[]> {
   if (surface === 'desktop') {
     // A key does not survive on an Svg (as on a Text, P-017): the segments are the Svg of the card
-    const svgs = [...walkNodes(await ui.drawn())].filter((x) => typeof x !== 'string' && x.type === 'Svg')
+    const svgs = [...walkNodes(await ui.drawn())].filter((x) => typeof x !== 'string' && x.type === 'Svg' && isMarks(x))
     expect(svgs.length).toBe(1)
     const source = String(((svgs[0] as { props?: { source?: string } }).props ?? {}).source ?? '')
-    const fills = [...source.matchAll(/<rect class="c" [^>]*fill="(#[0-9a-f]+)"/g)].map((m) => m[1] ?? '')
+    const fills = [...source.matchAll(/<rect class="c f-([a-z]+)"/g)].map((m) => m[1] ?? '')
     expect(fills.length).toBe(n)
     return fills.map((f) => STATE_OF.get(f) ?? 'unknown?')
   }
@@ -168,7 +171,8 @@ describe('the progress card above the prompt', () => {
     }
   })
 
-  // Brief v2 (STYL_PASKOW_CLAUDE.md, 3 and 5): a soft background, the label column, the segments
+  // Brief v2 (STYL_PASKOW_CLAUDE.md, 3 and 5), WYGLAD_PANELU E1: no surface, no frame, a rule above
+  // on the desktop; the label column, the segments
   // across the middle and `a/b` + unit on the right; the stage's name stands in the plan bar
   // (brief 2), so this bar no longer repeats it, and no percent with hundredths
   test('shows the stage as a bar of segments, one per box in its own state, and `a/b punktów` on the right, on both surfaces', async ($, on) => {
@@ -178,9 +182,9 @@ describe('the progress card above the prompt', () => {
       const ui = await $.ui.mount({ plugin: 'relai-progress', surface, ...BAND() })
       const card = await ui.find({ key: 'relai-progress-card' })
       const props = card?.props as { borderStyle?: string, borderColor?: string, backgroundColor?: string }
-      expect(props.backgroundColor).toBe(LOOK.progress.bg)
-      expect(props.borderStyle).toBe(surface === 'desktop' ? 'round' : undefined)
-      if (surface === 'desktop') expect(props.borderColor).toBe(LOOK.progress.bg) // corners only, no colored frame
+      expect(props.backgroundColor).toBeUndefined()
+      expect(props.borderStyle).toBeUndefined()
+      expect(await ui.find({ key: 'rule' })).toBeUndefined() // only the engine beneath: no rule
       expect((await ui.find({ key: 'label' }))?.text).toBe(LOOK.progress.label)
       expect((await ui.find({ key: 'label' }))?.props.width).toBe(BAR.labelColumn)
       expect(await ui.find({ key: 'title' })).toBeUndefined()
@@ -237,25 +241,26 @@ describe('the progress card above the prompt', () => {
     await ui.unmount()
   })
 
-  // Brief v2, 3: a small line under the segments in the same Svg — calm `następny: …` in BAR.muted,
-  // a hovered segment's `<mark> i/N · <name>` in BAR.text; the segments never hide under it
+  // Brief v2, 3: a small line under the segments in the same Svg — calm `następny: …` in the muted
+  // ink, a hovered segment's `<mark> i/N · <name>` in the text ink; the segments never hide under it
   test('under the segments a constant small line: the next item in calm, the hovered item\'s mark, place and name', async ($, on) => {
     world(on, FILES)
     await start($)
     const ui = await $.ui.mount({ plugin: 'relai-progress', surface: 'desktop', ...BAND() })
-    const svgs = [...walkNodes(await ui.drawn())].filter((x) => typeof x !== 'string' && x.type === 'Svg')
+    const svgs = [...walkNodes(await ui.drawn())].filter((x) => typeof x !== 'string' && x.type === 'Svg' && isMarks(x))
     expect(svgs.length).toBe(1)
     const props = ((svgs[0] as { props?: Record<string, unknown> }).props ?? {})
     expect(props.isInteractive).toBe(true)
-    expect(props.height).toBe(26) // segments 8 px + gap 4 px + line 14 px
+    expect(props.height).toBe(36) // 4 px of air, segments 8 px, gap 9 px, line 15 px (WYGLAD_PANELU E1)
     const source = String(props.source ?? '')
-    expect(source).toMatch(/^<svg [^>]*width="100%"[^>]*height="26"/) // a width in the markup (P-020, 7)
+    expect(source).toMatch(/^<svg [^>]*width="100%"[^>]*height="36"/) // a width in the markup (P-020, 7)
+    expect(source).toContain('@media (prefers-color-scheme: light)') // two palettes (P-042)
     expect(source).toContain('font-size:11.5px')
     // calm: one line in the muted color
-    expect(source).toContain(`<text class="d" x="0" y="23" fill="${BAR.muted}">następny: trzy</text>`)
+    expect(source).toContain('<text class="d f-muted" x="0" y="32">następny: trzy</text>')
     // hover: one line per segment in the text color, hidden until its own segment is hovered
-    expect(source).toContain(`<text class="t t0" x="0" y="23" fill="${BAR.text}">✓ 1/4 · jeden</text>`)
-    expect(source).toContain(`<text class="t t3" x="0" y="23" fill="${BAR.text}">○ 4/4 · cztery</text>`)
+    expect(source).toContain('<text class="t t0 f-text" x="0" y="32">✓ 1/4 · jeden</text>')
+    expect(source).toContain('<text class="t t3 f-text" x="0" y="32">○ 4/4 · cztery</text>')
     expect(source).toContain('.b0:hover~.t0')
     // what hover hides is the calm line alone, never a segment
     const hidden = [...source.matchAll(/([^{}]+)\{display:none\}/g)].map((m) => m[1] ?? '')
@@ -316,7 +321,7 @@ describe('the progress card above the prompt', () => {
       const ui = await $.ui.mount({ plugin: 'relai-progress', surface, ...BAND() })
       expect((await ui.find({ key: 'words' }))?.text).toBe('praca poza planem — brak źródła postępu')
       const drawn = [...walkNodes(await ui.drawn())]
-      expect(drawn.filter((x) => typeof x !== 'string' && x.type === 'Svg').length).toBe(0)
+      expect(drawn.filter((x) => typeof x !== 'string' && x.type === 'Svg' && isMarks(x)).length).toBe(0)
       expect(textOf(await ui.drawn())).not.toContain('█')
       await ui.unmount()
     }
@@ -337,7 +342,7 @@ describe('the progress card above the prompt', () => {
     expect(await ui.find({ key: 'seg-b' })).toBeDefined()
     await ui.unmount()
     const desk = await $.ui.mount({ plugin: 'relai-progress', surface: 'desktop', ...BAND() })
-    const svg = [...walkNodes(await desk.drawn())].find((x) => typeof x !== 'string' && x.type === 'Svg')
+    const svg = [...walkNodes(await desk.drawn())].find((x) => typeof x !== 'string' && x.type === 'Svg' && isMarks(x))
     expect(String(((svg as { props?: { alt?: string } } | undefined)?.props ?? {}).alt)).toContain('załoga 2026-10-09_110000')
     await desk.unmount()
   })
@@ -374,7 +379,9 @@ describe('the progress card above the prompt', () => {
     await term.unmount()
   })
 
-  test('a gap apart from the cards beneath on the desktop, none in the terminal (each row counts there)', async ($, on) => {
+  // WYGLAD_PANELU E1 (variant 3b): no gap on either surface — on the desktop the card's own rule
+  // brings the air (22 px), the terminal's rows count
+  test('no gap to the cards beneath: the rule above the card brings the air on the desktop', async ($, on) => {
     world(on, FILES)
     await start($)
     const gapOf = async (surface: 'terminal' | 'desktop') => {
@@ -383,8 +390,20 @@ describe('the progress card above the prompt', () => {
       await ui.unmount()
       return (wrap?.props as { gap?: number } | undefined)?.gap
     }
-    expect(await gapOf('desktop')).toBe(1)
-    expect(await gapOf('terminal')).toBe(0)
+    expect(await gapOf('desktop')).toBeUndefined()
+    expect(await gapOf('terminal')).toBeUndefined()
+  })
+
+  // The rule stands between two RelAI bars only, never above the engine's own row (2026-10-14)
+  test('a RelAI bar beneath: a rule between them on the desktop, none in the terminal', async ($, on) => {
+    world(on, FILES, CWD, { session: SESSION }, 'relai-cache-card')
+    await start($)
+    for (const surface of ['terminal', 'desktop'] as const) {
+      const ui = await $.ui.mount({ plugin: 'relai-progress', surface, ...BAND() })
+      expect(Boolean(await ui.find({ key: 'rule' }))).toBe(surface === 'desktop')
+      expect(await ui.find({ key: 'relai-cache-card' })).toBeDefined()
+      await ui.unmount()
+    }
   })
 
   test('nothing is wider than 40 columns, with and without agents, with a box just ticked', async ($, on) => {
@@ -658,5 +677,49 @@ describe('the line under the segments says the item in progress and the next one
     expect(calmLine([item('done', 'a'), item('pending', 'c'), item('pending', 'd')])).toBe('następny: c')
     expect(calmLine([item('done', 'a'), item('running', 'b')])).toBe('w toku: b')
     expect(calmLine([item('done', 'a')])).toBe('wszystkie punkty odhaczone')
+  })
+})
+
+// WYGLAD_PANELU E1 (Aneks B, P-042): the bar follows the app's appearance by itself — Box and Text
+// in theme keys only, the Svg marks with a dark and a light palette — and fits a narrow split pane
+describe('the bar in the tool\'s own colors (WYGLAD_PANELU E1)', () => {
+  const HEX = /^#[0-9a-f]{3,8}$/i
+  const kidsOf = (n: RenderNode): RenderNode[] => (typeof n === 'string' ? [] : (n as { children?: RenderNode[] }).children ?? [])
+  const propsOf = (n: RenderNode): Record<string, unknown> => (typeof n === 'string' ? {} : (n as { props?: Record<string, unknown> }).props ?? {})
+  // Every raw color a Box or a Text paints with; an Svg's markup is its own (its marks switch by CSS)
+  const rawColors = (n: RenderNode): string[] => {
+    if (typeof n === 'string') return []
+    const own = n.type === 'Svg' ? [] : ['color', 'backgroundColor', 'borderColor'].map((k) => String(propsOf(n)[k] ?? '')).filter((v) => HEX.test(v))
+    return [...own, ...kidsOf(n).flatMap(rawColors)]
+  }
+  const svgSources = (n: RenderNode): string[] => (typeof n === 'string' ? []
+    : [...(n.type === 'Svg' ? [String(propsOf(n).source ?? '')] : []), ...kidsOf(n).flatMap(svgSources)])
+
+  test('no raw color on a Box or a Text, every Svg with both palettes', async ($, on) => {
+    world(on, FILES)
+    await start($)
+    for (const surface of ['terminal', 'desktop'] as const) {
+      const ui = await $.ui.mount({ plugin: 'relai-progress', surface, ...BAND(140) })
+      const drawn = await ui.drawn()
+      expect(rawColors(drawn)).toEqual([])
+      const sources = svgSources(drawn)
+      if (surface === 'desktop') {
+        expect(sources.length).toBeGreaterThan(0) // at least the card's own drawing
+        for (const s of sources) expect(s).toContain('@media (prefers-color-scheme: light)')
+      } else expect(sources).toEqual([])
+      await ui.unmount()
+    }
+  })
+
+  test('fits a narrow split pane, half a window and a full one (40, 70, 140 columns)', async ($, on) => {
+    world(on, FILES)
+    await start($)
+    for (const columns of [40, 70, 140]) {
+      for (const surface of ['terminal', 'desktop'] as const) {
+        const ui = await $.ui.mount({ plugin: 'relai-progress', surface, ...BAND(columns) })
+        expect(minWidth(await ui.drawn())).toBeLessThanOrEqual(columns)
+        await ui.unmount()
+      }
+    }
   })
 })

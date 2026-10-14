@@ -1,6 +1,6 @@
 import { describe, expect, mock, test, type TestBody } from 'claude-code/testing'
 import type { On, RenderNode, TurnStepResult } from 'claude-code'
-import { BAR, CHIP } from './relai/theme.mjs'
+import { KEY } from './relai/theme.mjs'
 
 type Engine = Parameters<TestBody>[0]
 
@@ -139,13 +139,13 @@ describe('the cache bar second row: a fresh session pays off (Z9)', () => {
     walk(await ui.drawn())
     const props = (node: RenderNode) => ((node as { props?: Record<string, unknown> }).props ?? {})
     const kids = (node: RenderNode) => (node as { children?: RenderNode[] }).children ?? []
-    expect(nodes.some((x) => typeof x !== 'string' && props(x).backgroundColor === CHIP.info.bg)).toBe(false)
+    expect(nodes.some((x) => typeof x !== 'string' && props(x).backgroundColor !== undefined)).toBe(false)
     const box = nodes.find((x) => typeof x !== 'string' && x.type === 'Box' && props(x).flexDirection === 'column' && kids(x).length === 2
       && kids(x).every((l) => typeof l !== 'string' && l.type === 'Box' && props(l).flexDirection === 'row'))
     expect(box).toBeDefined()
     const lines = kids(box as RenderNode).map((line) => kids(line).map((t) => [kids(t).join(''), props(t).bold === true, props(t).color]))
-    const B = BAR.text
-    const m = BAR.muted
+    const B = KEY.text
+    const m = KEY.muted
     expect(lines).toEqual([
       [['przejdź do nowej sesji', true, B], [' · tu wiadomość ', false, m], ['4,3×', true, B], [' droższa', false, m]],
       [['przekazanie odrobisz po ', false, m], ['3', true, B], [' wiadomościach', false, m]],

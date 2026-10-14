@@ -1,6 +1,6 @@
 # Styl pasków i panelu RelAI dla Claude Code
 
-Wersja: **3.8** (v3.7 + §12 wycofany: każdy panel podziału rysuje paski, linia w stopce znika; odnoga SPLIT_VIEW, 2026-10-14; v3.7 — v3.6 + §1 i §10.5: zdarzenie „nowa sesja się opłaca” w dwóch liniach bez chipa, sam koszt, przycisk „Nowa sesja”; odnoga KOMUNIKAT_ZWROTU, 2026-10-14; v3.6 — §6 pkt 6: karta startu etapu z wyborem „nowa sesja”; odnoga NOWA_SESJA, 2026-10-12; v3.5 — 11.3: karta „Próg limitu” jako linijka z progiem i przyciski wartości; Aneks E, 2026-10-11; v3.4 — 11.1: podpis „próg N % · źródło” pod baterią limitu, która nie jest spokojna; Aneks D, 2026-10-11; v3.3 — sekcja 11: limit planu — dwa progi, zapis i wznowienie, karta progu w Kosztach; LIMIT_CHECKPOINT E4, 2026-10-11) · Data: **2026-10-10** · Zakres: trzy paski nad promptem **i panel boczny** `/relai-panel`
+Wersja: **4.0** (v3.8 + §13: paski w kolorach narzędzia — klucze motywu, znaczniki `Svg` w dwóch paletach przez `prefers-color-scheme`, wariant 3b z linią gasnącą zamiast teł; plan WYGLAD_PANELU E1, 2026-10-14; v3.8 — v3.7 + §12 wycofany: każdy panel podziału rysuje paski, linia w stopce znika; odnoga SPLIT_VIEW, 2026-10-14; v3.7 — v3.6 + §1 i §10.5: zdarzenie „nowa sesja się opłaca” w dwóch liniach bez chipa, sam koszt, przycisk „Nowa sesja”; odnoga KOMUNIKAT_ZWROTU, 2026-10-14; v3.6 — §6 pkt 6: karta startu etapu z wyborem „nowa sesja”; odnoga NOWA_SESJA, 2026-10-12; v3.5 — 11.3: karta „Próg limitu” jako linijka z progiem i przyciski wartości; Aneks E, 2026-10-11; v3.4 — 11.1: podpis „próg N % · źródło” pod baterią limitu, która nie jest spokojna; Aneks D, 2026-10-11; v3.3 — sekcja 11: limit planu — dwa progi, zapis i wznowienie, karta progu w Kosztach; LIMIT_CHECKPOINT E4, 2026-10-11) · Data: **2026-10-10** · Zakres: trzy paski nad promptem **i panel boczny** `/relai-panel`
 (zakładki Komendy i Koszty) · Źródło decyzji: wątek [AUDYT_MODOW](../../fixy/AUDYT_MODOW/ODNOGA.md),
 makiety [MAKIETY.html](../../fixy/AUDYT_MODOW/MAKIETY.html) (wersja 4, kalibracja z Łukaszem
 w czterech rundach 2026-10-10).
@@ -379,3 +379,61 @@ RelAI w pozostałych panelach.
 - [x] linia w prawym panelu na żywo (zrzut 2026-10-13, aplikacja 2.31226.1.0);
 - [x] tekst i kolejność w teście rdzenia (`core/panel/tests/footer.test.js`) i pluginu
       (`cache-keeper/hooks/footer.test.ts`); ten sam tekst nie idzie drugi raz.
+
+## 13. Kolory z motywu narzędzia (plan WYGLAD_PANELU E1, 2026-10-14) — wersja 4.0
+
+Zastępuje w paskach (nie w panelu bocznym) tła `BAND.*.bg`, ramkę `round` w kolorze tła, odstęp
+1 wiersza między paskami (§5) i kolory czipów `CHIP.*` (§1, §10.5). Geometria siatki — etykieta
+14 komórek, liczba 11, odstęp 2, padding 1, `BAR.narrow` — bez zmian. Panel `/relai-panel` zostaje
+przy palecie „Warsztat” do E3.
+
+### 13.1 Wynik sondy (P-042)
+
+Mod nie zna wyglądu aplikacji: wiersz `theme` z `$.config.list()` stoi na `dark`, `config.set`
+nie przychodzi, `e.props.view` jest pusty. Klucze motywu w `Box`/`Text` (`color`,
+`backgroundColor`, `borderColor`) desktop przemalowuje sam, a ramka `Svg` (interaktywna i obraz)
+zna `prefers-color-scheme` aplikacji. `inverseText` w wyglądzie jasnym jest niewidoczny —
+wykluczony. Decyzja: Aneks B planu (Łukasz, 2026-10-14).
+
+### 13.2 Wybrany wygląd — wariant 3b (cztery rundy, zrzuty `WYGLAD_PANELU_E1_*`)
+
+| Element | Wartość |
+|---|---|
+| powierzchnia i ramka paska | brak |
+| oddzielenie | linia między paskami (patrz wiersz niżej): `Svg` jako obraz, 22 px wysokości, linia 1 px na y = 11, gaśnie na pierwszych i ostatnich 12 % szerokości (gradient), kolor `rule`; terminal bez linii |
+| odstęp między paskami | 0 — powietrze niesie linia |
+| etykieta paska | pogrubiona, klucz `inactive` |
+| wartość / jednostka liczby | `text` pogrubiona / `inactive` |
+| status etapu, chip „w toku” | `warning` (status), czipy: ostrzeżenie `warning`, zrobione `success`, w toku `claude`, informacja `text` — sam tekst pogrubiony, bez tła |
+| pasek postępu | `Svg` 36 px: 4 px powietrza, segmenty 8 px, 9 px odstępu, linia 15 px (było 0/8/4/14 — „za małe odstępy między tymi liniami”) |
+| baterie | bez tła `Svg` (ramka przepuszcza pasek), kapsuła dymka `card` |
+| przyciski drugiego wiersza i „Wybierz pracę…” | wszystkie natywne `primary`, ze skrótem w każdym przycisku wiersza, w którym jeden go ma („Nowa sesja” h, „Zostań” z, „Podtrzymaj” p, „Wyczyść i kontynuuj” c). Droga do tego (trzy rundy sondy przycisków): kolor etykiety i ramka wokół natywnego przycisku odrzucone (desktop ich nie rysuje albo rysuje „przycisk wrapowany borderem”, P-042); C5 — `primary` + `plain` — `plain` czytał się jak tekst; `primary` + `secondary` — secondary zmierzony na zrzucie tej samej wysokości (25 px), ale w ciemnym wyglądzie tonie w pasku i wydawał się niższy; Łukasz: „Oba jako primary”; główną akcję niesie kolejność (pierwsza w wierszu) |
+| linia między paskami | pod kartą, tylko gdy niżej stoi inny pasek RelAI — węzeł z kluczem `relai-…` (`barRule`, `isBar`); nad pierwszym i pod ostatnim jej nie ma, także nad własnym wierszem aplikacji pod paskiem cache („niepotrzebna jest ta przestrzen nadmiarowa nad paskiem plan”; dolna „jest zbędna analogicznie jak była ta górna”) |
+
+Kolory znaczników w `Svg` (`INK` w `core/panel/theme.mjs`, klasy `f-*`, `s-*`, `c-*`; ciemne
+domyślnie, jasne w `@media (prefers-color-scheme: light)`):
+
+| Nazwa | Ciemny | Jasny | Skąd |
+|---|---|---|---|
+| `text` | `#f0efec` | `#0b0b0b` | klucz `text` (próbka z panelu sondy) |
+| `muted` | `#c3c2b8` | `#52514e` | klucz `inactive` |
+| `rule` | `#636260` (2,64 : 1) | `#9a988f` (2,54 : 1) | runda 4, wariant L2 |
+| `track` | `#484847` | `#d3d1cb` | segment czekający, pusta bateria |
+| `done` | `#4ca129` | `#4d9c45` | ciemny: klucz `success`; jasny: strojenie A |
+| `running` | `#ce932a` | `#c48a2c` | ciemny: klucz `warning`; jasny: strojenie A |
+| `failed` | `#db8080` | `#c0504d` | ciemny: klucz `error`; jasny: strojenie A |
+| `accent` | `#b76345` | `#b76345` | klucz `claude` |
+| `card` | `#3a3936` | `#ffffff` | kapsuła dymka baterii |
+
+Słowa Łukasza (kolejne rundy): „może troszeczkę mniej zaokrągleń … propozycje dla ramki
+przynajmniej dwie i tak samo dla linii”; „3B to jest po prostu coś pięknego”; „3B jasny A …
+w to idziemy na pewno”; „L2”; na żywo po przełączeniu wyglądu: „tak przeladowaly sie same”; przyciski: „idźmy w to C5 i tyle”, potem „niech to będzie jednak przycisk” i „Oba jako primary”.
+
+### 13.3 Kryteria
+
+- [x] żaden `Box`/`Text` pasków nie maluje surowym kolorem — test „the bar in the tool's own
+      colors (WYGLAD_PANELU E1)” w trzech pluginach, spada na kodzie sprzed zmiany;
+- [x] każdy `Svg` pasków niesie obie palety (`prefers-color-scheme: light`);
+- [x] 40, 70 i 140 kolumn bez przepełnienia (terminal i desktop);
+- [x] na żywo: wygląd ciemny i jasny, pełne okno i wąski panel podziału, przełączenie wyglądu
+      przemalowuje paski bez restartu (zrzuty `WYGLAD_PANELU_E1_wdrozenie_*`).

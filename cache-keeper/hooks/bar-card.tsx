@@ -6,38 +6,40 @@
 // (P-017 pkt 1), and core/panel/tests/mods-parity.test.js fails when a copy drifts. No `$` here
 // (P-023 pkt 10): the caller passes the element table it resolved. No theme import either — the
 // theme's copy is ./core/theme.mjs in two plugins and ./relai/theme.mjs in the third — so the
-// caller passes BAR too.
+// caller passes BAR_LOOK too.
 
 import type { Elements, RenderChildren } from 'claude-code'
 
 // Every surface's table carries Box and Text, which is all the card draws with
 type AnyTable = Elements[keyof Elements]
 
-// What the card takes of BAR (core/panel/theme.mjs)
-export type Grid = { labelColumn: number, figureColumn: number, narrow: number, text: string, muted: string }
+// The rule drawn above a bar on the desktop (RULE in core/panel/theme.mjs): an image Svg whose
+// line switches with the app's appearance by `prefers-color-scheme` (P-042)
+export type Rule = { height: number, alt: string, svg: string }
 
-// A bar's own label and colors (BAND.panel, BAND.progress, BAND.cache)
-export type Look = { label: string, color: string, bg: string }
+// What the card takes of BAR_LOOK (core/panel/theme.mjs): the grid, the text in theme keys, the rule
+export type Grid = { labelColumn: number, figureColumn: number, narrow: number, text: string, muted: string, rule?: Rule }
+
+// A bar's own label (BAND.panel, BAND.progress, BAND.cache); the bar draws it in the muted key
+export type Look = { label: string }
 
 // The figure on the right edge: the value in bold, then its unit
 export type Figure = readonly [string, string]
 
-// The label column, the middle, the figure on the right edge; a soft background of the bar's own,
-// no colored frame. Box has no corner radius (2.1.293): on the desktop a border in the
-// background's own color only rounds the corners; the terminal draws none, each of its rows
-// counts. Below grid.narrow columns the label and the figure go on top. `align` sets where the
-// label and the figure stand beside a middle of more than one row: the plan and cache bars keep
-// them centred, the progress bar at the top. No Box here has a `width` around anything that may
-// hold `next(e)` (P-017 pkt 2): only the label column is fixed, and it holds the label alone.
-// Keys sit on Box: the engine keeps a Box's key and drops a Text's (P-017 pkt 4).
+// The label column, the middle, the figure on the right edge (plan WYGLAD_PANELU, E1: variant 3b,
+// accepted 2026-10-14): no surface and no frame — every color is a theme key, so the desktop
+// repaints the bar with the app's appearance; the rule between bars is barRule's, below.
+// Below grid.narrow columns the label and the figure go on top. `align` sets where the label and
+// the figure stand beside a middle of more than one row. No Box here has a `width` around anything
+// that may hold `next(e)` (P-017 pkt 2): only the label column is fixed, and it holds the label
+// alone. Keys sit on Box: the engine keeps a Box's key and drops a Text's (P-017 pkt 4).
 export function barCard(el: AnyTable, grid: Grid, isGui: boolean, columns: number, key: string, look: Look, middle: RenderChildren, figure: Figure | null, align: 'center' | 'flex-start' = 'center') {
   const { Box, Text } = el
-  const frame = isGui ? { borderStyle: 'round' as const, borderColor: look.bg } : {}
-  const label = <Text bold color={look.color}>{look.label}</Text>
+  const label = <Text bold color={grid.muted}>{look.label}</Text>
   const figureText = figure ? [<Text key="value" bold color={grid.text}>{figure[0]}</Text>, <Text key="unit" color={grid.muted}>{' ' + figure[1]}</Text>] : []
-  if (columns < grid.narrow) {
-    return (
-      <Box key={key} flexDirection="column" backgroundColor={look.bg} paddingX={1} {...frame}>
+  const card = columns < grid.narrow
+    ? (
+      <Box key="card" flexDirection="column" paddingX={1}>
         <Box key="head" flexDirection="row" flexWrap="wrap" justifyContent="space-between" columnGap={2}>
           <Box key="label">{label}</Box>
           {figure ? <Box key="figure" flexDirection="row">{figureText}</Box> : null}
@@ -45,12 +47,31 @@ export function barCard(el: AnyTable, grid: Grid, isGui: boolean, columns: numbe
         <Box key="middle" flexDirection="column">{middle}</Box>
       </Box>
     )
-  }
-  return (
-    <Box key={key} flexDirection="row" alignItems={align} columnGap={2} backgroundColor={look.bg} paddingX={1} {...frame}>
-      <Box key="label" width={grid.labelColumn} flexShrink={0}>{label}</Box>
-      <Box key="middle" flexDirection="column" flexGrow={1} flexShrink={1}>{middle}</Box>
-      <Box key="figure" minWidth={grid.figureColumn} flexShrink={0} flexDirection="row" justifyContent="flex-end">{figureText}</Box>
-    </Box>
-  )
+    : (
+      <Box key="card" flexDirection="row" alignItems={align} columnGap={2} paddingX={1}>
+        <Box key="label" width={grid.labelColumn} flexShrink={0}>{label}</Box>
+        <Box key="middle" flexDirection="column" flexGrow={1} flexShrink={1}>{middle}</Box>
+        <Box key="figure" minWidth={grid.figureColumn} flexShrink={0} flexDirection="row" justifyContent="flex-end">{figureText}</Box>
+      </Box>
+    )
+  return <Box key={key} flexDirection="column">{card}</Box>
+}
+
+// The rule between two RelAI bars (variant 3b): on the desktop a hairline that fades at both ends,
+// 22 px with its air, under the caller's card only when another RelAI bar stands beneath — so the
+// top bar has no line above it and the last none under it, above the engine's own row (Łukasz,
+// 2026-10-14: "niepotrzebna jest ta przestrzen nadmiarowa nad paskiem plan", and the same under
+// the cache bar). The terminal draws no rule: each of its rows counts.
+export function barRule(el: AnyTable, grid: Grid, isGui: boolean, below: RenderChildren) {
+  if (!isGui || !grid.rule || !('Svg' in el) || !isBar(below)) return null
+  const { Box, Svg } = el
+  return <Box key="rule" flexDirection="column"><Svg source={grid.rule.svg} alt={grid.rule.alt} height={grid.rule.height} /></Box>
+}
+
+// A RelAI bar: the outermost Box every RelAI plugin draws above the prompt has a key beginning
+// with "relai-" (its card's key, or its wrapper's when something stands beneath it)
+export function isBar(node: RenderChildren): boolean {
+  if (!node || typeof node !== 'object' || Array.isArray(node)) return false
+  const key = (node as { props?: { key?: unknown } }).props?.key
+  return typeof key === 'string' && key.startsWith('relai-')
 }

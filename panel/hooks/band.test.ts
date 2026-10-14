@@ -1,7 +1,7 @@
 import { describe, expect, mock, test, type TestBody } from 'claude-code/testing'
 import type { On, RenderNode } from 'claude-code'
 import { FORMS } from './core/commands.mjs'
-import { BAND, BAR, CHIP } from './core/theme.mjs'
+import { CHIP_KEY, KEY } from './core/theme.mjs'
 
 // The plan bar of brief v2 (docs/zasoby/PANEL_RELAI/STYL_PASKOW_CLAUDE.md §1–§2, AUDYT_MODOW Z1):
 // one calm row, and a second row only while a confirmation card waits for "Tak". The bar shows
@@ -32,7 +32,7 @@ const FILES: Record<string, string> = {
 
 type Calls = { commands: { command: string, args: string }[], prompts: string[], opens: string[], processes: string[][] }
 
-function world(on: On, files: Record<string, string> = FILES): Calls {
+function world(on: On, files: Record<string, string> = FILES, beneath = 'engine'): Calls {
   const calls: Calls = { commands: [], prompts: [], opens: [], processes: [] }
   const disk: Record<string, string> = { ...files }
   const key = (path: string) => path.replace(/\\/g, '/')
@@ -58,7 +58,7 @@ function world(on: On, files: Record<string, string> = FILES): Calls {
   // The engine's own band beneath the plugin: what it draws must stay
   on('ui.render', { component: 'AbovePrompt' }, ($, e) => {
     const { Box, Text } = $.ui.resolve(e)
-    return Box({ key: 'engine', children: [Text({ children: ['engine'] })] })
+    return Box({ key: beneath, children: [Text({ children: [beneath] })] })
   })
   return calls
 }
@@ -132,18 +132,18 @@ describe('the plan bar, calm', () => {
     }
   })
 
-  test('the stage name truncates before the figure column; status in the plan color, title in the bar text', async ($, on) => {
+  test('the stage name truncates before the figure column; status in the running key, title in the text key', async ($, on) => {
     world(on)
     await start($)
     const ui = await $.ui.mount({ plugin: 'relai-panel', surface: 'desktop', ...bar() })
     const row = await ui.find({ key: 'plan' })
     const texts = ((row as { children?: RenderNode[] } | undefined)?.children ?? []) as { type: string, props: Record<string, unknown> }[]
     const [title, status, name] = texts
-    expect(title?.props.color).toBe(BAR.text)
+    expect(title?.props.color).toBe(KEY.text)
     expect(title?.props.bold).toBe(true)
-    expect(status?.props.color).toBe(BAND.panel.color)
+    expect(status?.props.color).toBe(KEY.running)
     expect(status?.props.bold).toBe(true)
-    expect(name?.props.color).toBe(BAR.muted)
+    expect(name?.props.color).toBe(KEY.muted)
     expect(String(name?.props.wrap)).toMatch(/^truncate/)
     await ui.unmount()
   })
@@ -163,7 +163,9 @@ describe('the plan bar, a card waiting for "Tak"', () => {
       expect(((await ui.find({ key: 'band-yes' }))?.props as { variant?: string } | undefined)?.variant).toBe('primary')
       expect((await ui.find({ key: 'band-no' }))?.text).toBe('Nie')
       const chip = await ui.find({ key: 'band-chip' })
-      expect((chip?.props as { backgroundColor?: string } | undefined)?.backgroundColor).toBe(CHIP.warn.bg)
+      // WYGLAD_PANELU E1: the chip is its words in the state's theme key, no surface of its own
+      expect((chip?.props as { backgroundColor?: string } | undefined)?.backgroundColor).toBeUndefined()
+      expect(JSON.stringify(chip)).toContain(`"color":"${CHIP_KEY.warn}"`)
       // The native Button is taller than a line (P-021 pkt 6): the row keeps off the first one on the desktop
       expect((row?.props as { marginTop?: number } | undefined)?.marginTop).toBe(surface === 'desktop' ? 1 : undefined)
       expect((await ui.find({ key: 'plan' }))?.text).toContain('PANEL_X · E2') // the calm row stays
@@ -289,11 +291,12 @@ describe('the plan bar, the session\'s work not chosen (Z13)', () => {
       expect(row?.text).toContain('ta sesja: praca nie wybrana')
       expect(row?.text).not.toContain('Zmień')
       const chip = await ui.find({ key: 'band-focus-chip' })
-      expect((chip?.props as { backgroundColor?: string } | undefined)?.backgroundColor).toBe(CHIP.info.bg)
+      expect((chip?.props as { backgroundColor?: string } | undefined)?.backgroundColor).toBeUndefined()
+      expect(JSON.stringify(chip)).toContain(`"color":"${CHIP_KEY.info}"`)
       const pick = await ui.find({ key: 'band-pick' })
       expect(pick?.type).toBe('Button')
       expect(pick?.text).toBe('Wybierz pracę…')
-      expect((pick?.props as { variant?: string } | undefined)?.variant).toBe('secondary')
+      expect((pick?.props as { variant?: string } | undefined)?.variant).toBe('primary') // every bar button is primary (WYGLAD_PANELU E1)
       expect((row?.props as { flexWrap?: string, marginTop?: number } | undefined)?.flexWrap).toBe('wrap')
       expect((row?.props as { marginTop?: number } | undefined)?.marginTop).toBe(surface === 'desktop' ? 1 : undefined)
       const first = await ui.find({ key: 'plan' })
@@ -377,5 +380,49 @@ describe('the plan bar, the session\'s work not chosen (Z13)', () => {
     }
     expect(widths.length).toBe(2)
     expect(widths.filter((w) => Number(w.split(': ')[1]) > 40)).toEqual([])
+  })
+})
+
+// WYGLAD_PANELU E1 (Aneks B, P-042): the bar follows the app's appearance by itself — Box and Text
+// in theme keys only, the Svg marks with a dark and a light palette — and fits a narrow split pane
+describe('the bar in the tool\'s own colors (WYGLAD_PANELU E1)', () => {
+  const HEX = /^#[0-9a-f]{3,8}$/i
+  const kidsOf = (n: RenderNode): RenderNode[] => (typeof n === 'string' ? [] : (n as { children?: RenderNode[] }).children ?? [])
+  const propsOf = (n: RenderNode): Record<string, unknown> => (typeof n === 'string' ? {} : (n as { props?: Record<string, unknown> }).props ?? {})
+  // Every raw color a Box or a Text paints with; an Svg's markup is its own (its marks switch by CSS)
+  const rawColors = (n: RenderNode): string[] => {
+    if (typeof n === 'string') return []
+    const own = n.type === 'Svg' ? [] : ['color', 'backgroundColor', 'borderColor'].map((k) => String(propsOf(n)[k] ?? '')).filter((v) => HEX.test(v))
+    return [...own, ...kidsOf(n).flatMap(rawColors)]
+  }
+  const svgSources = (n: RenderNode): string[] => (typeof n === 'string' ? []
+    : [...(n.type === 'Svg' ? [String(propsOf(n).source ?? '')] : []), ...kidsOf(n).flatMap(svgSources)])
+
+  test('no raw color on a Box or a Text, every Svg with both palettes', async ($, on) => {
+    world(on, FILES, 'relai-cache-card') // a RelAI bar beneath, so the rule is drawn too
+    await start($)
+    for (const surface of ['terminal', 'desktop'] as const) {
+      const ui = await $.ui.mount({ plugin: 'relai-panel', surface, ...bar(140) })
+      const drawn = await ui.drawn()
+      expect(rawColors(drawn)).toEqual([])
+      const sources = svgSources(drawn)
+      if (surface === 'desktop') {
+        expect(sources.length).toBeGreaterThan(0) // at least the rule under the card
+        for (const s of sources) expect(s).toContain('@media (prefers-color-scheme: light)')
+      } else expect(sources).toEqual([])
+      await ui.unmount()
+    }
+  })
+
+  test('fits a narrow split pane, half a window and a full one (40, 70, 140 columns)', async ($, on) => {
+    world(on)
+    await start($)
+    for (const columns of [40, 70, 140]) {
+      for (const surface of ['terminal', 'desktop'] as const) {
+        const ui = await $.ui.mount({ plugin: 'relai-panel', surface, ...bar(columns) })
+        expect(minWidth(await ui.drawn())).toBeLessThanOrEqual(columns)
+        await ui.unmount()
+      }
+    }
   })
 })

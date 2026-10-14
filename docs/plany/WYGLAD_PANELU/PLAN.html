@@ -241,7 +241,7 @@ footer .pis{font-family:var(--pis); font-size:1.2rem; color:var(--glina); margin
     <a href="#s5">Jak działa</a><a href="#s6">Etapy</a><a href="#s7">Ryzyka</a><a href="#s8">Brzegowe</a>
     <a href="#s9">Decyzje</a><a href="#s10">Aneksy</a>
   </nav>
-  <span class="stan">ZAAKCEPTOWANY 2026-10-14 (Aneks A)</span>
+  <span class="stan">ZAAKCEPTOWANY 2026-10-14 (Aneksy A–B)</span>
 </div>
 
 <header class="szyld">
@@ -253,7 +253,7 @@ footer .pis{font-family:var(--pis); font-size:1.2rem; color:var(--glina); margin
   </svg>
   <p class="podtytul">Paski nad promptem w kolorach narzędzia, panel RelAI w dwóch szatach — ciemnej i jasnej — dostrojonych do motywu, i pasek postępu jako lista kroków.</p>
   <div class="metki">
-    <span class="metka akc"><i></i>status: <b>ZAAKCEPTOWANY 2026-10-14 (Aneks A)</b></span>
+    <span class="metka akc"><i></i>status: <b>ZAAKCEPTOWANY 2026-10-14 (Aneksy A–B)</b></span>
     <span class="metka">etapów: <b>4</b></span>
     <span class="metka">pracochłonność: <b>6–9 sesji</b> <span class="et et-s">SZACUNEK</span></span>
     <span class="metka">model etapów: <b>Opus 5.5 w Claude Code</b></span>
@@ -459,6 +459,18 @@ footer .pis{font-family:var(--pis); font-size:1.2rem; color:var(--glina); margin
 <li><b>E1, E2 i E3 pokazują po trzy warianty</b> wyglądu w prawdziwym nośniku — mod z przełącznikiem wariantu, w motywie jasnym i ciemnym — a nie jeden. Warianty różnią się kształtem (np. tło karty, ramka, sama linia), nie odcieniem.</li>
 <li><b>Rundy poprawek do akceptacji:</b> po wyborze Łukasz zgłasza uwagi, etap poprawia wybrany wariant i pokazuje go ponownie; etap zamyka się dopiero po słowach akceptacji wyglądu zapisanych w dzienniku. Turę przed zrzutem kończy zwykły tekst (P-041).</li>
 <li><b>Koszt:</b> do jednej sesji więcej na każdy z trzech etapów <span class="et et-s">SZACUNEK</span> — suma planu 6–12 sesji <span class="et et-s">SZACUNEK</span> zamiast 6–9.</li>
+</ol></div></div></div>
+</div>
+
+<div class="notka">
+  <button type="button" aria-expanded="false" aria-controls="aB"><svg class="spinacz" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="tyt">Aneks B — 2026-10-14: wynik sondy E1, kolor bez odczytu motywu</span><span class="prawo"><span class="naklejka n-tak">E1</span></span></button>
+  <div class="rulon" id="aB"><div><div class="tresc">
+<p>Sonda <code>relai-motyw-sonda</code> 0.1.0–0.2.0 (wynik: <code>docs/PULAPKI.md</code> P-042, zrzuty <code>WYGLAD_PANELU_E1_sonda_*</code>) potwierdziła ryzyko 2 i obaliła ryzyko 1. Desktop przemalowuje klucze motywu i ramkę <code>Svg</code> sam przy zmianie wyglądu aplikacji, ale modowi nic o tym nie mówi: wiersz <code>theme</code> stoi na <code>dark</code>, <code>config.set</code> nie przychodzi. Łukasz przyjął 2026-10-14 („Tak, Aneks B”):</p>
+<ol>
+<li><b>Paski</b> malują <code>Box</code>/<code>Text</code> wyłącznie kluczami motywu (wariant A bez zmian); <code>inverseText</code> wykluczony — w wyglądzie jasnym niewidoczny.</li>
+<li><b>Znaczniki w <code>Svg</code></b> (segmenty, baterie, spinner) niosą obie palety w CSS: wartość ciemna domyślnie, jasna w <code>@media (prefers-color-scheme: light)</code>. Zastępuje to w sekcji 5 „rozwiązywanie według odczytanego motywu”, a w prompcie E1 odczyt motywu przy <code>session.start</code> i na <code>config.set</code>: pasek nie czyta motywu, przerysowanie bez restartu robi sama ramka. Przypadek brzegowy „motyw nierozpoznany” dla pasków znika — nierozpoznany schemat daje paletę ciemną z CSS.</li>
+<li><b>Przełącznika wyglądu dla pasków nie ma</b>; wariant awaryjny B (własne palety) nie jest potrzebny.</li>
+<li><b>Ograniczenie dla E3:</b> kolory panelu w palecie „Warsztat” są surowe w <code>Box</code>/<code>Text</code> i nie mają drogi do wyglądu aplikacji (nagłówki odręczne w <code>Svg</code> ją mają). Sposób wyboru szaty panelu — przełącznik, klucze motywu w tłach albo inny — rozstrzyga człowiek na starcie E3; prompt E3 niesie to pytanie.</li>
 </ol></div></div></div>
 </div>
 </section>

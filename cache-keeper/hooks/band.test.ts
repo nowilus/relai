@@ -12,7 +12,7 @@ const BAND = (bodyColumns: number) => ({
   props: { hasSurvey: false, isWorking: false, maxRows: 10, bodyColumns, scroll: { offset: 0, bodyRows: 9 }, view: {} },
 })
 
-function world(on: On) {
+function world(on: On, beneath = 'engine') {
   mock.clock(on, { now: 1_000_000 })
   mock.store(on)
   on('turn.step', async function* ($, e) {
@@ -24,7 +24,7 @@ function world(on: On) {
   })
   on('ui.render', { component: 'AbovePrompt' }, ($, e) => {
     const { Box, Text } = $.ui.resolve(e)
-    return Box({ key: 'engine', children: [Text({ children: ['engine'] })] })
+    return Box({ key: beneath, children: [Text({ children: [beneath] })] })
   })
 }
 
@@ -54,17 +54,19 @@ function minWidth(node: RenderNode): number {
 }
 
 describe('the cache card above the prompt', () => {
-  // STYL_PASKOW_CLAUDE.md (2026-10-09, Aneks Z11): a soft background, no colored frame, the session's cost on the right
-  test('after a request: a labelled bar on its own background, the session cost on the right, the engine kept beneath', async ($, on) => {
+  // STYL_PASKOW_CLAUDE.md (Aneks Z11) and WYGLAD_PANELU E1 (variant 3b): no surface, no frame, a rule
+  // above the card on the desktop; the session's cost on the right
+  test('after a request: a labelled bar under its rule, the session cost on the right, the engine kept beneath', async ($, on) => {
     world(on)
     await mainStep($)
     for (const surface of ['terminal', 'desktop'] as const) {
       const ui = await $.ui.mount({ plugin: 'relai-cache-keeper', surface, ...BAND(140) })
       const card = await ui.find({ key: 'relai-cache-card' })
       const props = card?.props as { borderStyle?: string, borderColor?: string, backgroundColor?: string }
-      expect(props.backgroundColor).toBe('#2c2824')
-      expect(props.borderStyle).toBe(surface === 'desktop' ? 'round' : undefined)
-      if (surface === 'desktop') expect(props.borderColor).toBe('#2c2824') // corners only, no colored frame
+      expect(props.backgroundColor).toBeUndefined()
+      expect(props.borderStyle).toBeUndefined()
+      // The bottom bar: only the engine beneath, so no rule under it (Łukasz, 2026-10-14)
+      expect(await ui.find({ key: 'rule' })).toBeUndefined()
       expect((await ui.find({ key: 'label' }))?.text).toBe(THEME.cache.label)
       // Aneks Z11: the batteries in the middle, the session's cost on the right (none known here), no button in calm
       expect(await ui.find({ key: 'cache-batteries' })).toBeDefined()
@@ -109,5 +111,49 @@ describe('the cache card above the prompt', () => {
     await $.command.run({ command: 'keepwarm', args: 'off', origin: { kind: 'composer' }, presentation: { isFullscreen: false, columns: 40 } })
     await clock.advance(20 * 60_000)
     await check(null)
+  })
+})
+
+// WYGLAD_PANELU E1 (Aneks B, P-042): the bar follows the app's appearance by itself — Box and Text
+// in theme keys only, the Svg marks with a dark and a light palette — and fits a narrow split pane
+describe('the bar in the tool\'s own colors (WYGLAD_PANELU E1)', () => {
+  const HEX = /^#[0-9a-f]{3,8}$/i
+  const kidsOf = (n: RenderNode): RenderNode[] => (typeof n === 'string' ? [] : (n as { children?: RenderNode[] }).children ?? [])
+  const propsOf = (n: RenderNode): Record<string, unknown> => (typeof n === 'string' ? {} : (n as { props?: Record<string, unknown> }).props ?? {})
+  // Every raw color a Box or a Text paints with; an Svg's markup is its own (its marks switch by CSS)
+  const rawColors = (n: RenderNode): string[] => {
+    if (typeof n === 'string') return []
+    const own = n.type === 'Svg' ? [] : ['color', 'backgroundColor', 'borderColor'].map((k) => String(propsOf(n)[k] ?? '')).filter((v) => HEX.test(v))
+    return [...own, ...kidsOf(n).flatMap(rawColors)]
+  }
+  const svgSources = (n: RenderNode): string[] => (typeof n === 'string' ? []
+    : [...(n.type === 'Svg' ? [String(propsOf(n).source ?? '')] : []), ...kidsOf(n).flatMap(svgSources)])
+
+  test('no raw color on a Box or a Text, every Svg with both palettes', async ($, on) => {
+    world(on)
+    await mainStep($)
+    for (const surface of ['terminal', 'desktop'] as const) {
+      const ui = await $.ui.mount({ plugin: 'relai-cache-keeper', surface, ...BAND(140) })
+      const drawn = await ui.drawn()
+      expect(rawColors(drawn)).toEqual([])
+      const sources = svgSources(drawn)
+      if (surface === 'desktop') {
+        expect(sources.length).toBeGreaterThan(0) // at least the card's own drawing
+        for (const s of sources) expect(s).toContain('@media (prefers-color-scheme: light)')
+      } else expect(sources).toEqual([])
+      await ui.unmount()
+    }
+  })
+
+  test('fits a narrow split pane, half a window and a full one (40, 70, 140 columns)', async ($, on) => {
+    world(on)
+    await mainStep($)
+    for (const columns of [40, 70, 140]) {
+      for (const surface of ['terminal', 'desktop'] as const) {
+        const ui = await $.ui.mount({ plugin: 'relai-cache-keeper', surface, ...BAND(columns) })
+        expect(minWidth(await ui.drawn())).toBeLessThanOrEqual(columns)
+        await ui.unmount()
+      }
+    }
   })
 })

@@ -1,6 +1,6 @@
 import { describe, expect, mock, test, type TestBody } from 'claude-code/testing'
 import type { On, RenderNode, TurnStepResult } from 'claude-code'
-import { BAND, BAR, BATTERY, CHIP } from './relai/theme.mjs'
+import { BAND, BAR, BATTERY, CHIP_KEY } from './relai/theme.mjs'
 import { batteryRows, limitMeasure } from './rings'
 import type { ThresholdSource } from './limit'
 
@@ -19,6 +19,9 @@ const MIN = 60_000
 const SAGE = BAR.segment.done
 const MUSTARD = BAND.panel.color
 const CLAY = BAND.cache.color
+// A fill is drawn by its ink class (WYGLAD_PANELU E1, P-042); the tests keep naming the state by
+// its color of the motif, so the ink maps back to it
+const COLOR_OF_INK: Record<string, string> = { done: SAGE, running: MUSTARD, failed: CLAY }
 
 const BAND_AT = (bodyColumns = 140) => ({
   component: 'AbovePrompt' as const,
@@ -89,8 +92,9 @@ function* walk(node: RenderNode): Generator<RenderNode> {
 
 const propsOf = (node: RenderNode) => ((node as { props?: Record<string, unknown> }).props ?? {})
 
+// The batteries' Svgs: interactive ones; the rule above the card (variant 3b) is an image
 async function svgs(ui: Mounted) {
-  return [...walk(await ui.drawn())].filter((x) => typeof x !== 'string' && x.type === 'Svg').map(propsOf)
+  return [...walk(await ui.drawn())].filter((x) => typeof x !== 'string' && x.type === 'Svg' && Boolean(propsOf(x).isInteractive)).map(propsOf)
 }
 // A card is drawn in the same Svg as the batteries but hidden at rest (display:none): what the
 // person sees without pointing is the drawing without its cards
@@ -114,14 +118,14 @@ async function batteriesOf(ui: Mounted): Promise<BatteryView[]> {
   for (const p of await svgs(ui)) {
     const source = String(p.source ?? '')
     const cards = new Map<string, { x: number, w: number, a: string, b: string }>()
-    for (const m of source.matchAll(/<g class="t t(\d+)"><rect x="(-?[\d.]+)" y="[\d.]+" width="([\d.]+)"[^>]*\/><text[^>]*><tspan class="a"[^>]*>([^<]*)<\/tspan><tspan class="b"[^>]*>([^<]*)<\/tspan><\/text><\/g>/g)) {
+    for (const m of source.matchAll(/<g class="t t(\d+)"><rect class="f-card" x="(-?[\d.]+)" y="[\d.]+" width="([\d.]+)"[^>]*\/><text[^>]*><tspan class="a f-text"[^>]*>([^<]*)<\/tspan><tspan class="b f-muted"[^>]*>([^<]*)<\/tspan><\/text><\/g>/g)) {
       cards.set(m[1] ?? '', { x: Number(m[2]), w: Number(m[3]), a: m[4] ?? '', b: m[5] ?? '' })
     }
     for (const m of source.matchAll(/<g class="i i(\d+) b-(\w+)"><rect x="(-?[\d.]+)"[^>]*\/>(.*?)<\/g><text class="w"[^>]*><tspan[^>]*>([^<]*)<\/tspan><tspan[^>]*>([^<]*)<\/tspan><\/text>/g)) {
-      const fill = (m[4] ?? '').match(/<rect class="f"[^>]*width="([\d.]+)"[^>]*fill="(#[0-9a-f]{6})"/)
+      const fill = (m[4] ?? '').match(/<rect class="f f-([a-z]+)"[^>]*width="([\d.]+)"/)
       const card = cards.get(m[1] ?? '')
       out.push({
-        name: m[2] ?? '', icon: Number(m[3]) + 3, share: fill ? Number(fill[1]) / 18 : null, color: fill?.[2] ?? null,
+        name: m[2] ?? '', icon: Number(m[3]) + 3, share: fill ? Number(fill[2]) / 18 : null, color: fill ? COLOR_OF_INK[fill[1] ?? ''] ?? null : null,
         label: m[5] ?? '', value: m[6] ?? '', a: card?.a ?? '', b: card?.b ?? '', card: { x: card?.x ?? NaN, w: card?.w ?? NaN },
       })
     }
@@ -185,9 +189,10 @@ describe('the calm cache bar: five batteries, the session cost on the right (Ane
       ['41 % · tydzień', `zużyte 41 % · zostało 59 % · reset jutro ${hhmm(weekReset)} · próg 98 %`],
       ['323k · kontekst', 'zużyte 323k z 1M · wolne 68 %'],
     ])
-    // The label muted, the value bold in the text color, 14.5 px
-    expect(source).toContain(`<tspan class="l" fill="${BAR.muted}">limit 5 h</tspan>`)
-    expect(source).toContain(`<tspan class="v" dx="7" fill="${BAR.text}" font-weight="600">64 %</tspan>`)
+    // The label muted, the value bold in the text ink, 14.5 px; both palettes in the CSS (P-042)
+    expect(source).toContain('<tspan class="l f-muted">limit 5 h</tspan>')
+    expect(source).toContain('<tspan class="v f-text" dx="7" font-weight="600">64 %</tspan>')
+    expect(source).toContain('@media (prefers-color-scheme: light)')
     expect(source).toContain('font-size="14.5"')
     await ui.unmount()
   })
@@ -234,7 +239,7 @@ describe('the calm cache bar: five batteries, the session cost on the right (Ane
         for (let i = 0; i < n; i++) expect(source).toContain(`.i${i}:hover~.t${i}{display:inline}`)
         expect(source.match(/:hover/g)?.length).toBe(n) // no other hover
         expect(source.lastIndexOf('<g class="i ')).toBeLessThan(source.indexOf('<g class="t '))
-        expect(source).toContain(`fill="${BATTERY.card.bg}"`)
+        expect(source).toContain('<rect class="f-card"') // the card's capsule, in both palettes
         expect(source).toMatch(/^<svg [^>]*width="100%" height="24">/)
       }
       const b = await batteriesOf(ui)
@@ -375,7 +380,7 @@ describe('the calm cache bar: five batteries, the session cost on the right (Ane
 })
 
 describe('the cache bar second row: one at a time, only while its reason lasts (brief v2 §1)', () => {
-  test('cooling: the chip with the rewrite, Podtrzymaj (no hotkey) and Nowa sesja (h); kept: the pings and Zatrzymaj; cold: none', async ($, on) => {
+  test('cooling: the chip with the rewrite, Podtrzymaj (p) and Nowa sesja (h), both with a badge; kept: the pings and Zatrzymaj; cold: none', async ($, on) => {
     const { clock } = world(on, { window: 1_000_000 })
     await start($)
     await turn($)
@@ -387,7 +392,7 @@ describe('the cache bar second row: one at a time, only while its reason lasts (
       expect(row?.text).toContain('stygnie · ponowny zapis ≈ $1.60')
       const buttons = await ui.findAll({ type: 'Button' })
       expect(buttons.map((b) => b.props.label)).toEqual(['Podtrzymaj', 'Nowa sesja'])
-      expect(buttons.map((b) => b.props.hotkey ?? null)).toEqual([null, 'h'])
+      expect(buttons.map((b) => b.props.hotkey ?? null)).toEqual(['p', 'h'])
       // The native Button is taller than a line: the row keeps one cell off the rings (P-021 pkt 6)
       expect((row?.props as { marginTop?: number }).marginTop ?? 0).toBe(surface === 'desktop' ? 1 : 0)
       await ui.unmount()
@@ -414,8 +419,8 @@ describe('the cache bar second row: one at a time, only while its reason lasts (
     const row = await ui.find({ key: 'cache-ready' })
     expect(row?.text).toContain('przekazanie gotowe')
     const buttons = await ui.findAll({ type: 'Button' })
-    expect(buttons.map((b) => [b.props.label, b.props.variant, b.props.hotkey ?? null])).toEqual([
-      ['Wyczyść i kontynuuj', 'primary', 'c'], ['Zostań', 'secondary', null],
+    expect(buttons.map((b) => [b.props.label, b.props.variant ?? (b.props.plain ? 'plain' : null), b.props.hotkey ?? null])).toEqual([
+      ['Wyczyść i kontynuuj', 'primary', 'c'], ['Zostań', 'primary', 'z'],
     ])
     await ui.press({ key: 'stay-ready' })
     expect(await secondRows(ui)).toEqual(['cache-cooling'])
@@ -432,14 +437,15 @@ describe('the cache bar second row: one at a time, only while its reason lasts (
     await ui.unmount()
   })
 
-  test('every chip is drawn in the CHIP colors', async ($, on) => {
+  test('every chip is drawn in its theme key, with no surface (WYGLAD_PANELU E1)', async ($, on) => {
     const { clock } = world(on, { window: 1_000_000 })
     await start($)
     await turn($)
     await clock.advance(51 * MIN)
     const ui = await mount($)
     const chip = await ui.find({ key: 'chip' })
-    expect((chip?.props as { backgroundColor?: string }).backgroundColor).toBe(CHIP.warn.bg)
+    expect((chip?.props as { backgroundColor?: string }).backgroundColor).toBeUndefined()
+    expect(JSON.stringify(chip)).toContain(`"color":"${CHIP_KEY.warn}"`)
     await ui.unmount()
   })
 })
@@ -500,19 +506,19 @@ describe('Aneks D: the threshold and its source under a limit battery that is no
   })
 
   test('the row grows to 36 px only with a note; the note stands under the label, 11 px, muted', () => {
-    const calm = batteryRows([at(50)], 1200, '#000000')[0]
+    const calm = batteryRows([at(50)], 1200)[0]
     expect(calm?.height).toBe(24)
     expect(calm?.svg).toMatch(/^<svg [^>]*height="24">/)
     expect(calm?.svg).not.toContain('class="n"')
-    const row = batteryRows([at(92, 90, 'sesja')], 1200, '#000000')[0]
+    const row = batteryRows([at(92, 90, 'sesja')], 1200)[0]
     expect(row?.height).toBe(36)
     expect(row?.svg).toMatch(/^<svg [^>]*height="36">/)
     const label = row?.svg.match(/<text class="w" x="([\d.]+)"/)?.[1]
-    expect(row?.svg).toContain(`<text class="n" x="${label}" y="32" font-size="11" fill="${BAR.muted}">próg 90 % · ta sesja</text>`)
+    expect(row?.svg).toContain(`<text class="n f-muted" x="${label}" y="32" font-size="11">próg 90 % · ta sesja</text>`)
   })
 
   test('a note wider than its words widens the measure: the next one moves right', () => {
-    const nextX = (first: ReturnType<typeof at>) => Number(batteryRows([first, at(50)], 1200, '#000000')[0]?.svg.match(/<g class="i i1 b-five"><rect x="(-?[\d.]+)"/)?.[1])
+    const nextX = (first: ReturnType<typeof at>) => Number(batteryRows([first, at(50)], 1200)[0]?.svg.match(/<g class="i i1 b-five"><rect x="(-?[\d.]+)"/)?.[1])
     expect(nextX(at(92, 95, 'globalnie'))).toBeGreaterThan(nextX(at(55)) + 40)
   })
 

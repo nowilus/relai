@@ -8,7 +8,7 @@
 import type { Elements } from 'claude-code'
 import type { Work } from './focus'
 import type { Card } from './core/decisions.mjs'
-import { BAND, BAR, CHIP } from './core/theme.mjs'
+import { BAND, BAR_LOOK, CHIP_KEY, KEY } from './core/theme.mjs'
 import { barCard } from './bar-card'
 
 // Every surface's table carries Box, Text and Button, which is all a bar draws with
@@ -37,27 +37,27 @@ export function band(el: AnyTable, isGui: boolean, columns: number, w: Work, wai
   const p = w.plan
   const isPicking = w.isAsking && !waiting && pick !== null
   const second = waiting ? [cardRow(el, isGui, waiting)] : isPicking && pick ? [pickRow(el, isGui, pick)] : []
-  const mention = w.mention ? [<Text key="mention" color={BAR.muted} wrap="truncate">{w.mention}</Text>] : []
+  const mention = w.mention ? [<Text key="mention" color={KEY.muted} wrap="truncate">{w.mention}</Text>] : []
   if (p.kind !== 'ok') {
     const words = w.isAsking ? askingWords(w, isPicking)
       : w.focus?.kind === 'outside' ? 'ta sesja: poza planem'
         : p.kind === 'none' ? 'brak aktywnego planu' : `plan nieznany: ${p.reason}`
-    const said = words ? [<Text key="words" bold color={BAR.text} wrap="truncate">{words}</Text>] : []
-    return barCard(el, BAR, isGui, columns, 'relai-band-frame', BAND.panel, [<Box key="plan" flexDirection="row" columnGap={2}>{said}{mention}</Box>, ...second], null)
+    const said = words ? [<Text key="words" bold color={KEY.text} wrap="truncate">{words}</Text>] : []
+    return barCard(el, BAR_LOOK, isGui, columns, 'relai-band-frame', BAND.panel, [<Box key="plan" flexDirection="row" columnGap={2}>{said}{mention}</Box>, ...second], null)
   }
   const isBranch = w.unit === 'paczek'
   const title = p.stage ? `${p.plan} · ${p.stage.id}` : p.plan
   const status = isBranch ? 'ODNOGA' : p.stage ? p.stage.status : (p.planStatus ?? 'status nieznany')
   const middle = [
     <Box key="plan" flexDirection="row" columnGap={2}>
-      <Text bold color={BAR.text}>{title}</Text>
-      <Text bold color={BAND.panel.color}>{status}</Text>
-      {p.stage ? [<Text key="stage" color={BAR.muted} wrap="truncate">{p.stage.name}</Text>] : []}
+      <Text bold color={KEY.text}>{title}</Text>
+      <Text bold color={KEY.running}>{status}</Text>
+      {p.stage ? [<Text key="stage" color={KEY.muted} wrap="truncate">{p.stage.name}</Text>] : []}
       {mention}
     </Box>,
     ...second,
   ]
-  return barCard(el, BAR, isGui, columns, 'relai-band-frame', BAND.panel, middle, [`${p.closed}/${p.stages}`, w.unit])
+  return barCard(el, BAR_LOOK, isGui, columns, 'relai-band-frame', BAND.panel, middle, [`${p.closed}/${p.stages}`, w.unit])
 }
 
 const ASKING = 'ta sesja: praca nie wybrana'
@@ -78,14 +78,18 @@ function pickRow(el: AnyTable, isGui: boolean, pick: () => void) {
   const { Box, Text, Button } = el
   return (
     <Box key="band-focus" flexDirection="row" flexWrap="wrap" alignItems="center" columnGap={2} {...(isGui ? { marginTop: 1 } : {})}>
-      <Box key="band-focus-chip" flexShrink={1} paddingX={1} backgroundColor={CHIP.info.bg}>
-        <Text color={CHIP.info.color} wrap="truncate">{ASKING}</Text>
+      <Box key="band-focus-chip" flexShrink={1}>
+        <Text bold color={CHIP_KEY.info} wrap="truncate">{ASKING}</Text>
       </Box>
-      <Button key="band-pick" label="Wybierz pracę…" variant="secondary" onPress={pick} />
+      <Button key="band-pick" label="Wybierz pracę…" variant="primary" onPress={pick} />
     </Box>
   )
 }
 
+// Buttons (WYGLAD_PANELU E1, button round 2, Łukasz chose C5): a row's first action is the native
+// primary, and so are the others (Łukasz chose "Oba jako primary": the native secondary is as tall but sinks
+// into the dark bar; a `plain` one read as text) — the desktop ignores a label's color, and a frame
+// around a native button stays a button in a frame (P-042).
 // The card's row: a chip with its title, "Tak" (primary) and "Nie", the one sentence of R4. It
 // wraps rather than overflow a narrow bar; the native Button is taller than a line of text, so on
 // the desktop the row keeps one cell off the row above (P-021 pkt 6).
@@ -94,12 +98,12 @@ function cardRow(el: AnyTable, isGui: boolean, w: Waiting) {
   const hint = w.card.state === 'second' ? 'drugi krok — nic nie idzie dalej bez „Tak”' : 'nic nie idzie do czatu bez „Tak”'
   return (
     <Box key="band-confirm" flexDirection="row" flexWrap="wrap" alignItems="center" columnGap={2} {...(isGui ? { marginTop: 1 } : {})}>
-      <Box key="band-chip" flexShrink={1} paddingX={1} backgroundColor={CHIP.warn.bg}>
-        <Text color={CHIP.warn.color} wrap="truncate">{`Karta czeka: ${w.card.title}`}</Text>
+      <Box key="band-chip" flexShrink={1}>
+        <Text bold color={CHIP_KEY.warn} wrap="truncate">{`Karta czeka: ${w.card.title}`}</Text>
       </Box>
       <Button key="band-yes" label="Tak" variant="primary" onPress={() => w.decide('tak')} />
-      <Button key="band-no" label="Nie" variant="secondary" onPress={() => w.decide('nie')} />
-      <Text color={BAR.muted} wrap="truncate">{hint}</Text>
+      <Button key="band-no" label="Nie" variant="primary" onPress={() => w.decide('nie')} />
+      <Text color={KEY.muted} wrap="truncate">{hint}</Text>
     </Box>
   )
 }

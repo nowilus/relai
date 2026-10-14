@@ -23,10 +23,10 @@ import { isFileOf, parseRecords } from './core/measure.mjs'
 import type { MeasureRecord } from './core/measure.mjs'
 import { PRICE_FILE, newest, parsePriceFile, priceAt, priceLists } from './core/pricing.mjs'
 import type { Version } from './core/pricing.mjs'
-import { BAND, BAR, THEME } from './core/theme.mjs'
+import { BAND, BAR, BAR_LOOK, KEY, SEGMENT_INK, THEME } from './core/theme.mjs'
 import { HEADING_ART } from './core/headings.mjs'
 import { clip, duration, join, tokens, usd } from './fmt'
-import { barCard } from './bar-card'
+import { barCard, barRule } from './bar-card'
 import { SEGMENTS_HEIGHT, calmLine, itemLine, segmentArt } from './segments'
 import { branchProgress, cardPathOf, countedOf, executorTool, focusPath, isBranchProgress, parseFocus, statusPathOf, workOf } from './focus'
 
@@ -260,6 +260,8 @@ const CELL_PX = 8 // a desktop cell, about (savvy-progress reckons the same)
 const LINE_TEXT_PX = 6.6 // the mean advance of an 11.5 px Segoe UI character, about (6.8 at 12 px)
 const COLUMN_GAP = 2 // cells between the grid's columns (brief, 5)
 const MIN_SEGMENT_CELLS = 10 // below this the chip goes under the segments rather than beside
+// The terminal's segments in theme keys (WYGLAD_PANELU E1): a waiting one in the muted key
+const SEGMENT_KEY: Record<string, string> = { done: KEY.done, pending: KEY.muted, running: KEY.running, failed: KEY.failed, unknown: KEY.muted }
 
 // The unit after `a/b`, one format for all the bars (brief, 3): 1 punktu, 14 punktów; a crew's tasks
 // and a thread's packets (Z12): 1 paczki, 9 paczek
@@ -271,7 +273,7 @@ const unitOf = (p: Progress) => (p.kind === 'crew' ? (p.total === 1 ? 'zadania' 
 function agentsChip(list: readonly AgentRun[], c: AgentCosts) {
   const { running } = counts(list)
   const money = c.total === null ? 'brak pomiaru' : `${c.isPartial ? '≥ ' : ''}${usd(c.total)}`
-  const look = running ? { color: BAND.panel.color, bg: BAR.tile.running.bg } : { color: BAND.progress.color, bg: BAR.tile.done.bg }
+  const look = { color: running ? KEY.running : KEY.done } // WYGLAD_PANELU E1: a theme key, no surface
   const mark = running ? BAR.tile.running.mark : BAR.tile.done.mark
   return { text: `${mark} ${list.length} ${list.length === 1 ? 'agent' : 'agentów'} · ${money}`, look }
 }
@@ -478,26 +480,26 @@ export const register: Register = (on) => {
 
     // The middle column's cells: the card's padding and corners, then the label and figure columns
     // with their gaps when they stand beside it; the chip beside the segments takes its own
-    const middle = Math.max(MIN_SEGMENT_CELLS, columns - 2 - (isGui ? 2 : 0) - (isNarrow ? 0 : BAR.labelColumn + BAR.figureColumn + 2 * COLUMN_GAP))
+    const middle = Math.max(MIN_SEGMENT_CELLS, columns - 2 - (isNarrow ? 0 : BAR.labelColumn + BAR.figureColumn + 2 * COLUMN_GAP))
     const chipCells = chip ? chip.text.length + 2 + COLUMN_GAP : 0
     const isChipBeside = chip !== null && middle - chipCells >= Math.max(MIN_SEGMENT_CELLS, p.items.length)
     const cells = isChipBeside ? middle - chipCells : middle
     const calm = calmLine(p.items)
     const alt = `${p.title} · ${figure ? figure.join(' ') : p.words}: ${p.items.map((it) => `${BAR.tile[it.status].mark} ${it.name}`).join(', ')}`
     const art = Svg ? segmentArt(p.items.map((it, i) => ({
-      color: BAR.segment[it.status],
+      ink: SEGMENT_INK[it.status],
       hover: itemLine(BAR.tile[it.status].mark, i + 1, p.items.length, it.name),
-    })), { background: BAND.progress.bg, text: BAR.text, muted: BAR.muted, calm, chars: Math.floor((cells * CELL_PX) / LINE_TEXT_PX) }) : null
+    })), { calm, chars: Math.floor((cells * CELL_PX) / LINE_TEXT_PX) }) : null
 
     const chipBox = chip
-      ? <Box key="agents-chip" flexShrink={0} paddingX={1} backgroundColor={chip.look.bg}><Text color={chip.look.color}>{chip.text}</Text></Box>
+      ? <Box key="agents-chip" flexShrink={0}><Text bold color={chip.look.color}>{chip.text}</Text></Box>
       : null
     // Beside the segments when both fit, else on a row of its own under the line
     const beside = isChipBeside ? chipBox : null
     const rows: RenderChildren[] = []
     if (p.items.length === 0) {
       rows.push(<Box key="first" flexDirection="row" flexWrap="wrap" columnGap={COLUMN_GAP}>
-        <Box key="words" flexShrink={1}><Text color={BAR.muted} wrap="truncate">{p.words}</Text></Box>
+        <Box key="words" flexShrink={1}><Text color={KEY.muted} wrap="truncate">{p.words}</Text></Box>
         {chipBox}
       </Box>)
     } else if (Svg && art !== null) {
@@ -510,27 +512,28 @@ export const register: Register = (on) => {
         {beside}
       </Box>)
     } else {
-      const text = segmentText(p.items.map((it) => BAR.segment[it.status]), cells)
+      const text = segmentText(p.items.map((it) => SEGMENT_KEY[it.status] ?? KEY.muted), cells)
       rows.push(<Box key="first" flexDirection="row" columnGap={COLUMN_GAP}>
         <Box key="segments" flexDirection="row" flexWrap="wrap" flexShrink={1} columnGap={text.gap}>
           {text.runs.map((r, i) => <Box key={`seg-${p.items[i]?.id ?? i}`}><Text color={r.color}>{r.text}</Text></Box>)}
         </Box>
         {beside}
       </Box>)
-      rows.push(<Box key="line"><Text color={BAR.muted} wrap="truncate">{calm}</Text></Box>)
+      rows.push(<Box key="line"><Text color={KEY.muted} wrap="truncate">{calm}</Text></Box>)
     }
     if (p.items.length && chipBox && !isChipBeside) rows.push(<Box key="chip-row" flexDirection="row">{chipBox}</Box>)
     // The second row, only while its reason lasts: the box just ticked, for TICKED_MS
     if (tick !== null && clockNow - tick.at < TICKED_MS) {
       rows.push(<Box key="ticked-row" flexDirection="row">
-        <Box key="ticked" flexShrink={1} paddingX={1} backgroundColor={BAR.tile.done.bg}>
-          <Text color={BAND.progress.color} wrap="truncate">{itemLine(BAR.tile.done.mark, tick.index, tick.total, tick.name)}</Text>
+        <Box key="ticked" flexShrink={1}>
+          <Text bold color={KEY.done} wrap="truncate">{itemLine(BAR.tile.done.mark, tick.index, tick.total, tick.name)}</Text>
         </Box>
       </Box>)
     }
 
-    const ours = barCard(ui, BAR, isGui, columns, 'relai-progress-card', BAND.progress, rows, figure, 'flex-start')
+    const ours = barCard(ui, BAR_LOOK, isGui, columns, 'relai-progress-card', BAND.progress, rows, figure, 'center')
     if (!below) return ours
-    return <Box key="relai-progress" flexDirection="column" gap={e.surface === 'terminal' ? 0 : 1}>{[ours, below]}</Box>
+    // No gap: on the desktop the rule under the card brings the air (variant 3b)
+    return <Box key="relai-progress" flexDirection="column">{[ours, barRule(ui, BAR_LOOK, isGui, below), below]}</Box>
   })
 }

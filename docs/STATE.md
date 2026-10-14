@@ -13,8 +13,8 @@ repozytorium: `relai-panel` 0.17.0 wydany, 0.18.0 w repo niewydany, `relai-progr
 KOMUNIKAT_ZWROTU; paski i panel w każdym panelu podziału okna, linia w stopce wycofana — odnoga
 SPLIT_VIEW, P-040 rozwiązana; panel bez rozjazdów w wąskim panelu podziału — odnoga PANEL_WASKI,
 0.18.0).
-Aktywny plan: PANEL_CODEX w Codeksie (E1 po stronie Codeksa); HUMANIZACJA zamknięty 2026-10-14
-wydaniem 3.1.0. Opinii spoza projektu nadal nie ma.
+Aktywny plan: WYGLAD_PANELU (E1 zrealizowany 2026-10-14, E2 gotowy do startu); PANEL_CODEX idzie
+dalej w Codeksie; HUMANIZACJA zamknięty 2026-10-14 wydaniem 3.1.0. Opinii spoza projektu nadal nie ma.
 
 ## Co działa
 
@@ -87,13 +87,16 @@ wydaniem 3.1.0. Opinii spoza projektu nadal nie ma.
 
 ## Nad czym pracujemy teraz
 
-- **Plan WYGLAD_PANELU — ZAAKCEPTOWANY 2026-10-14 z Aneksem A, E1 GOTOWY DO STARTU** (aktywny
-  plan; [status](plany/WYGLAD_PANELU/STATUS.md); Aneks A: sonda obowiązkowa i trzy warianty do
-  oceny Łukasza w E1–E3, rundy poprawek;
+- **Plan WYGLAD_PANELU — ZAAKCEPTOWANY 2026-10-14 (Aneksy A–B), E1 ZREALIZOWANY 2026-10-14, E2
+  GOTOWY DO STARTU** (aktywny plan; [status](plany/WYGLAD_PANELU/STATUS.md); Aneks A: sonda
+  obowiązkowa i trzy warianty do oceny Łukasza w E1–E3, rundy poprawek; Aneks B po sondzie P-042:
+  paski na kluczach motywu, znaczniki `Svg` w dwóch paletach przez `prefers-color-scheme`;
   4 etapy, Opus 5.5): paski nad promptem w kluczach motywu narzędzia (czytelne w jasnym i ciemnym),
   panel RelAI w dzisiejszej szacie ciemnej i nowej jasnej z palety Warsztat, pasek postępu jako
-  lista kroków wg makiety. E1 zaczyna się od sondy nośnika; E3 rusza po zamknięciu odnogi
-  [PANEL_WASKI](fixy/PANEL_WASKI/ODNOGA.md) — zamknięta 2026-10-14 (`relai-panel` 0.18.0 w repo;
+  lista kroków wg makiety. E1 w repo, bez wydania (wydanie w E4): paski bez tła i ramki, linia
+  gasnąca tylko między paskami RelAI, wszystkie przyciski pasków `primary`. E3 rusza po zamknięciu odnogi
+  [PANEL_WASKI](fixy/PANEL_WASKI/ODNOGA.md) — zamknięta 2026-10-14 (`relai-panel` 0.18.0 w repo,
+  niewydany: wydanie dopiero po zamknięciu WYGLAD_PANELU, razem z jego zmianami — decyzja Łukasza;
   E3 bierze jej układ: `STACK_BELOW`, `textAndAct`, kafle grup komend, test `narrow.test.ts`).
 - **PANEL_CODEX, E1 — przejęcie rdzenia i natywny panel w Codeksie** (plan
   [PANEL_CODEX](plany/PANEL_CODEX/STATUS.md), ZAAKCEPTOWANY 2026-10-10, 8 etapów, autor
@@ -119,8 +122,8 @@ wydaniem 3.1.0. Opinii spoza projektu nadal nie ma.
   2026-10-13; następne: PANEL_CODEX po stronie Codeksa.
   Po restarcie aplikacji (RelAI 3.1.0, `relai-panel` 0.17.0) — rzut oka na wiersz Model karty startu etapu.
 - Panel RelAI w wąskim panelu podziału okna rozjeżdża się (tekst i „Otwórz” poza kaflami, kafle
-  bez odstępów) — decyzja o formie (plan albo odnoga w nowej sesji); typografia modów czeka na
-  Claude Code ≥ 2.1.299 w aplikacji (2026-10-14 nadal 2.1.295). Rotacja lekcji należna (50,2 KB).
+  bez odstępów) — rozwiązane odnogą PANEL_WASKI (2026-10-14); typografia modów czeka na
+  Claude Code ≥ 2.1.299 w aplikacji (2026-10-14 nadal 2.1.295). Rotacja lekcji zrobiona 2026-10-14.
 - Po AUDYT_SKILLI (kontrola zmiany opisu w S5 przyjęta bez powtórzeń, Łukasz 2026-10-12):
   ewaluacje zachowania komend i `/relai-feedback` poza zakresem odnogi; `relai-prompt.md` ponad 20 KB.
 
@@ -197,10 +200,10 @@ Backupy: `C:\Users\Lukasz\Backupy\RelAI` • [PRZENOSNOSC.md](PRZENOSNOSC.md) �
 
 ### Liczby
 
-Plany zamknięte: 13 (ostatni HUMANIZACJA, 2026-10-14) • Aktywne: PANEL_CODEX (E1 W TOKU) •
+Plany zamknięte: 13 (ostatni HUMANIZACJA, 2026-10-14) • Aktywne: WYGLAD_PANELU (E2 gotowy), PANEL_CODEX (E1 W TOKU, Codex) •
 Start sesji: **93,8 KB / 100 KB** ze skillem z repo (`startCost` 2026-10-12) • Dziennik: **ok. 87 KB / 150 KB**
 (2026-10-14 po rotacji: 168,0 → 86,0 KB, archiwum `DZIENNIK_2026-10-12_2026-10-13.md`) • Ryzyka: 18 w tabeli, archiwum 6 plików + 1 mitygacji • Lekcje:
-**50,2 KB / 50 KB** (ponad budżet — rotacja należna), 29 w żywym pliku (2026-10-14, `wc -c`) • Adaptery: 3 • Komendy: 15 •
-Testy: 401 rdzeń, panel i adaptery (`node --test`, 4 katalogi, 2026-10-14) + 388 pluginów panelu (178 / 31 / 179) + 36 filmu •
+**40,8 KB / 50 KB** (2026-10-14 po rotacji L-0165 … L-0176), 20 w żywym pliku (`wc -c`) • Adaptery: 3 • Komendy: 15 •
+Testy: 401 rdzeń, panel i adaptery (`node --test`, 4 katalogi, 2026-10-14) + 403 pluginów panelu (188 / 34 / 181, 2026-10-14 po WYGLAD_PANELU E1) + 36 filmu •
 Projekty na RelAI: 3 (RelAI, PolyFlow, JiraManager przed migracją) • Modele, na których zmierzono
 proces: 6 (Fable, Opus, Sonnet, Haiku, Composer/auto, Grok 4.6).

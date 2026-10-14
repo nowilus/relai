@@ -1358,13 +1358,106 @@ Autor: RelAI (Opus 5.5) + Lukasz
 
 **Świadomie odłożone:**
 
-- Wydanie `relai-panel` 0.18.0 (tag `relai-panel-v0.18.0`, push) — po zgodzie Łukasza.
+- Wydanie `relai-panel` 0.18.0 (tag `relai-panel-v0.18.0`, push) — decyzja Łukasza 2026-10-14:
+  nie wydajemy teraz, wydanie po zamknięciu planu WYGLAD_PANELU, razem z jego zmianami panelu.
 - Terminal (`isGui === false`) poza zakresem: testy terminalowe zielone, układ terminala nie
   mierzony na wąskim panelu.
 - Poniżej 31 kolumn (najwęższy zmierzony podział) układ niesprawdzony na żywo.
 - `docs/LEKCJE.md` ponad budżet 50 KB (L-0194 dopisana) — rotacja lekcji nadal należna.
 
-**Do zrobienia przez człowieka:** zgoda na wydanie `relai-panel` 0.18.0; po wydaniu `plugin update`
-i restart aplikacji, potem rzut oka na panel w wąskim podziale z wersji zainstalowanej.
+**Do zrobienia przez człowieka:** po zamknięciu WYGLAD_PANELU — wydanie `relai-panel` (0.18.0 albo
+wyższy numer z tamtego planu), `plugin update` i restart aplikacji, potem rzut oka na panel
+w wąskim podziale z wersji zainstalowanej.
+
+Autor: RelAI (Opus 5.5) + Lukasz
+
+### 2026-10-14 — WYGLAD_PANELU E1: paski w kolorach narzędzia, jasne i ciemne (w repo, bez wydania)
+
+**Zrobione:**
+
+- **Sonda nośnika** `relai-motyw-sonda` 0.1.0–0.2.1 (mod w `dev-mods` tej sesji): klucze motywu
+  (`text`, `inactive`, `success`, `warning`, `error`, `promptBorder`, `claude`) desktop przemalowuje
+  z wyglądem aplikacji w `AbovePrompt` i w `Pane`; `$.config.list()` / `config.set` o wyglądzie
+  aplikacji nie mówią nic (Łukasz: „kliknalem kilka razy te przyciski, zmienia sie tylko napis
+  theme = ... ale nic poza tym”); `Svg` (interaktywny i obraz) widzi
+  `@media (prefers-color-scheme: light)` (zrzut sonda_6); SMIL i CSS animują się, przycisk
+  przerysowuje pasek. Wynik w **P-042**, pokazany przed wariantami → **Aneks B** (paski na kluczach,
+  znaczniki `Svg` w dwóch paletach CSS, ograniczenie dla E3) — „Tak, Aneks B (Rekomendowane)”.
+- **Warstwa nazw** w `core/panel/theme.mjs`: `KEY`, `INK` (ciemna i jasna), `inkCss()`, `inkOf()`,
+  `SEGMENT_INK`, `RULE`, `BAR_LOOK`, `CHIP_KEY`; kopie przez `sync-panel-core.js`.
+- **Rundy wyglądu** (mod `relai-paski-warianty` 0.1.0–0.5.0, wszystkie trzy paski naraz, zrzuty
+  `WYGLAD_PANELU_E1_r1_*`, `_r2_*`):
+  - runda 1 (tło / ramka / linia): „może troszeczkę mniej zaokrągleń, może jakieś troszeczkę inne te
+    bordery, żeby to jakoś tak bardziej elegancko wyglądało […] propozycje dla ramki przynajmniej
+    dwie i tak samo dla linii […] żeby tutaj te odstępy były troszkę większe w tej linii”;
+  - runda 2 (osiem wariantów 1, 1b, 2a–2c, 3a–3c): „Dobra, wygrałeś. 3B to jest po prostu coś
+    pięknego. Natomiast trzeba tu troszeczkę zmienić stylowanie w zależności od motywu i dla jasnego
+    […] podkręcić trochę kontrast tych linii”;
+  - runda 3 (jasny A / B): „3B jasny A jest w sensie ok […] żeby może tutaj troszeczkę ten kolor
+    jakby zmienić, żeby on się różnił między wersją jasną i ciemną […] w to idziemy na pewno”;
+  - runda 4 (kolor linii L1–L3): „L2” — linia ciemna `#636260`, jasna `#9a988f`.
+- **Wdrożenie** wariantu 3b: `bar-card.tsx` (×3, bajt w bajt) bez tła i ramki, etykieta w kluczu
+  `inactive`; `band.tsx`, `progress/hooks/register.tsx` + `segments.ts` (segmenty 36 px, odstępy
+  4/8/9/15), `cache-keeper/hooks/register.tsx` + `rings.ts`: kolory z kluczy, znaczniki `Svg`
+  klasami `f-*`/`s-*`/`c-*` z dwiema paletami, czipy jako pogrubiony tekst w kluczu; między
+  paskami bez odstępu, linia gasnąca 22 px (`barRule`).
+- **Poprawki po wdrożeniu**, słowami Łukasza:
+  - „niepotrzebna jest ta przestrzen nadmiarowa nad paskiem plan i przyciemniona lini, jest to za
+    wysokie” → linia pod kartą zamiast nad nią;
+  - „tak jak usunales te przyciemniona linie z gornego paska planu to tez mozesz usunac te na samym
+    dole w cache bo jest zbedna analogicznie jak byla ta gorna” → linia tylko wtedy, gdy niżej stoi
+    inny pasek RelAI (klucz `relai-…`, `isBar`), nie nad własnym wierszem aplikacji (L-0195).
+- **Runda przycisków** (mod `relai-przyciski-sonda` 0.1.0–0.3.0, zrzuty `_przyciski_r1_*`, `_r2_*`):
+  - r1 (B1–B8): „chyba żaden z tych przycisków jakoś mnie nie przekonuje […] może ten B2 […]
+    naprawdę nie jesteśmy w stanie ich jakoś lepiej zaprojektować” — pomiar: natywny `Button`
+    ignoruje kolor i podkreślenie dzieci `Text` (dopisek do P-042);
+  - r2 (C1–C8, `plain` w kluczowanym `Box` z `hover`): „jak ja robię hoovera, to i tak widać, że
+    jest to taki oddzielny mały przycisk […] idźmy w to C5 i tyle”;
+  - po C5: „Niech to będzie sekundary przycisk, ale niech to będzie jednak przycisk” → `secondary`;
+    „żeby primary i secondary miały dokładnie tą samą wysokość” → skrót w każdym przycisku wiersza;
+    „nie nadal jest za niski” → pomiar zrzutu: oba 25 px, różni je kontrast (L-0196) → wybór
+    „Oba jako primary”; po przeładowaniu: **„jest ok” — akceptacja wyglądu**.
+- Brief `STYL_PASKOW_CLAUDE.md` **4.0** (§13: sonda, tabela wyglądu, palety `INK`, przyciski, linia),
+  `ARTEFAKTY.md`; P-042 w `PULAPKI.md`; L-0195, L-0196.
+- **Rotacja lekcji** (SPEC_ARCHIWUM, dwie fazy): L-0165 … L-0176 (12 pozycji, 12 833 B) →
+  `docs/archiwum/lekcje/LEKCJE_L-0165_L-0176.md`, suma `21c6a15c57782d0f` zgodna po odczycie
+  z dysku; `docs/LEKCJE.md` 53 164 → 40 532 B przed odświeżeniem zasad (40 827 B po nim). Cel 60 %
+  progu (30 KB) nieosiągalny: 20 najnowszych lekcji i „Zasady aktywne” są nietykalne — zabrano
+  wszystko, co wolno. Zasady aktywne: 15 / 15 (`count-rules.js`).
+
+**Zweryfikowane — jak dokładnie:**
+
+- `claude plugin validate` i `claude plugin test` binarką aplikacji 2.1.295: panel 188/188,
+  progress 34/34, cache-keeper 181/181 (było 178 / 31 / 179 + 7 testów PANEL_WASKI w panelu);
+  rdzeń `node --test core/{guardrails,panel,process}/tests/*.test.js` 386/386,
+  `sync-panel-core.js --check` zgodne, `mods-parity.test.js` w rdzeniu zielony.
+- `grep` kolorów szesnastkowych w kodzie pasków: 0 trafień poza znacznikami `Svg`; kontrola
+  pozytywna na HEAD `75dce52` (`git worktree`): `band.tsx` 10, `progress/hooks/register.tsx` 6,
+  `cache-keeper/hooks/register.tsx` 6.
+- Nowe testy „pasek w kolorach narzędzia” w trzech pluginach, obie wersje w jednym przebiegu
+  (worktree HEAD z dopisanymi testami): test kolorów spada na HEAD we wszystkich trzech i przechodzi
+  po zmianie; test szerokości 40/70/140 przechodzi na obu (stary kod też się mieścił) — rozliczony
+  jako strażnik regresji decyzją Łukasza (brzmienie pkt 6 promptu tego nie przewidziało).
+- Linia między paskami: test z obiema fiksturami — pod spodem pasek RelAI (linia na desktopie,
+  brak w terminalu) i sam węzeł aplikacji (brak linii) w panelu i postępie; pasek cache bez linii.
+- Na żywo (kod podłożony do zainstalowanych 0.17.0 / 0.4.2 / 0.9.0, `/reload-plugins`): zrzuty
+  `_wdrozenie_1` ciemny pełne okno, `_2` wąski panel podziału (etykieta nad treścią, baterie
+  w dwóch wierszach), `_3` jasny pełne okno; przełączenie wyglądu w trakcie sesji — „tak
+  przeladowaly sie same”.
+- Ryzyka: tabela przejrzana — etap nie otworzył ryzyka projektu; ryzyka 1–2 planu (klucze motywu
+  i odczyt motywu na desktopie) rozstrzygnięte sondą i Aneksem B. C1 (API modów) bez zmian: wygląd
+  stoi teraz także na `prefers-color-scheme` w `Svg` i na kluczu `props.key` węzła `next(e)`.
+
+**Świadomie odłożone:**
+
+- Wydanie — w E4 (decyzja Łukasza); zainstalowane kopie `relai-panel` 0.17.0, `relai-progress`
+  0.4.2, `relai-cache-keeper` 0.9.0 niosą do tego czasu podłożony kod E1 (oryginały = stan wydania).
+- `STATUS_COLOR` w panelu agentów i reszta szaty panelu — E3.
+- Błędy `tsc` (TS7016/TS7006 w importach `.mjs` i testach) istniały przed etapem; porównanie
+  z HEAD niewykonalne wprost (worktree bez nieśledzonych typów `.claude-plugin/types`).
+- Terminal: paski bez linii i z dzisiejszymi kluczami, nie mierzone na żywo.
+- `CLAUDE.md` 11,1 KB przy budżecie 10 KB — do przeglądu przy zamknięciu planu.
+
+**Do zrobienia przez człowieka:** —
 
 Autor: RelAI (Opus 5.5) + Lukasz

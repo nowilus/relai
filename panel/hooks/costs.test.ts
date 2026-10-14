@@ -26,7 +26,7 @@ const U = (input: number, read: number, write: number, output: number): Usage =>
 // The answers beneath the plugin, by "turn:index:agent"; null usage = a response without one
 type Answers = Record<string, Usage | null>
 
-function world(on: On, files: Record<string, string>, answers: Answers = {}, ledgerUsd = 0, startedAt = NOW) {
+function world(on: On, files: Record<string, string>, answers: Answers = {}, ledgerUsd = 0, startedAt = NOW, beneath = 'engine') {
   const disk: Record<string, string> = { ...files }
   const key = (path: string) => path.replace(/\\/g, '/')
   mock.clock(on, { now: NOW })
@@ -56,7 +56,7 @@ function world(on: On, files: Record<string, string>, answers: Answers = {}, led
   on('session.compact', () => ({ messages: [{ role: 'user' as const, text: 'streszczenie', toolUses: [] }], usage: U(2677, 73700, 103, 1208) }))
   on('ui.render', { component: 'AbovePrompt' }, ($, e) => {
     const { Box, Text } = $.ui.resolve(e)
-    return Box({ key: 'engine', children: [Text({ children: ['engine'] })] })
+    return Box({ key: beneath, children: [Text({ children: [beneath] })] })
   })
   return disk
 }
@@ -337,18 +337,32 @@ describe('the cost report', () => {
 })
 
 describe('the band among the other mods above the prompt', () => {
-  // STYL_PASKOW_CLAUDE.md (2026-10-09): set apart by a soft background of its own, not a colored
-  // frame; on the desktop a border in the background's color only rounds the corners
-  test('is set apart from what the plugins beneath draw by a background of its own, on terminal and desktop', async ($, on) => {
+  // WYGLAD_PANELU E1 (variant 3b, accepted 2026-10-14; was a soft background of its own): no
+  // surface and no frame, every color a theme key; on the desktop a fading hairline between two
+  // RelAI bars, none above the engine's own row (Łukasz, 2026-10-14)
+  test('a RelAI bar beneath: a rule between them on the desktop, none in the terminal', async ($, on) => {
+    world(on, BASE, {}, 0, NOW, 'relai-cache-card')
+    await start($)
+    for (const surface of ['terminal', 'desktop'] as const) {
+      const ui = await $.ui.mount({ plugin: 'relai-panel', surface, component: 'AbovePrompt', props: { hasSurvey: false, isWorking: false, maxRows: 10, bodyColumns: 140, scroll: { offset: 0, bodyRows: 9 }, view: {} } })
+      const rule = await ui.find({ key: 'rule' })
+      if (surface === 'desktop') expect(JSON.stringify(rule)).toContain('prefers-color-scheme: light')
+      else expect(rule).toBeUndefined() // the terminal's rows count: no rule there
+      expect(await ui.find({ key: 'relai-cache-card' })).toBeDefined()
+      await ui.unmount()
+    }
+  })
+
+  test('only the engine beneath: no rule under the bar, no surface or frame', async ($, on) => {
     world(on, BASE)
     await start($)
     for (const surface of ['terminal', 'desktop'] as const) {
       const ui = await $.ui.mount({ plugin: 'relai-panel', surface, component: 'AbovePrompt', props: { hasSurvey: false, isWorking: false, maxRows: 10, bodyColumns: 140, scroll: { offset: 0, bodyRows: 9 }, view: {} } })
       const frame = await ui.find({ key: 'relai-band-frame' })
       const props = frame?.props as { borderStyle?: string, borderColor?: string, backgroundColor?: string } | undefined
-      expect(props?.backgroundColor).toBe(BAND.panel.bg)
-      expect(props?.borderStyle).toBe(surface === 'desktop' ? 'round' : undefined)
-      if (surface === 'desktop') expect(props?.borderColor).toBe(BAND.panel.bg) // no colored frame
+      expect(props?.backgroundColor).toBeUndefined()
+      expect(props?.borderStyle).toBeUndefined()
+      expect(await ui.find({ key: 'rule' })).toBeUndefined()
       expect(textOf(frame)).toMatch(/^plan/) // the label, without "RelAI ·" since brief v2
       expect(textOf(frame)).not.toContain('engine') // the mods beneath stay outside the frame
       expect(await ui.find({ key: 'engine' })).toBeDefined()

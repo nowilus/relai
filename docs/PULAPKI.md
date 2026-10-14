@@ -37,6 +37,46 @@ Specyfikacja: `SPEC_PULAPKI.md`.
 - **Zasięg:** aplikacja desktopowa 2.37337.1.0, zakładka Code; terminal (Ink) niezmierzony —
   testy terminalowe panelu zielone.
 
+### P-042 — Aplikacja desktopowa: motyw jasny/ciemny widzą klucze motywu i ramka `Svg`, mod go nie widzi · 2026-10-14 · AKTYWNA
+
+- **Objaw:** po przełączeniu aplikacji na wygląd jasny paski RelAI zostają ciemne (kolory
+  szesnastkowe), a mod, który chciałby wybrać paletę, nie ma skąd wiedzieć, że wygląd się zmienił:
+  wiersz `theme` z `$.config.list()` dalej mówi `dark`, `config.set` nie przychodzi.
+- **Przyczyna (sonda `relai-motyw-sonda` 0.1.0–0.2.0, plan WYGLAD_PANELU E1; aplikacja
+  2.37337.1.0, Claude Code 2.1.295, Windows):**
+
+  | Co mierzone | Wygląd ciemny | Wygląd jasny | Wynik |
+  |---|---|---|---|
+  | 23 klucze `ThemeKey` jako `color`, `backgroundColor`, `borderColor` w `AbovePrompt` | kolory motywu ciemnego | kolory motywu jasnego, bez przeładowania | **działa** |
+  | to samo w `Pane` | jak wyżej | jak wyżej | **działa** |
+  | `inverseText` | prawie czarny | biały na białym tle — niewidoczny | **nie używać** |
+  | klucz nieznany (`relaiNieMa`) | kolor tekstu domyślnego, tła brak | jak wyżej | cisza zamiast błędu |
+  | surowy `#ff00ff` (kontrola pozytywna) | różowy | różowy | działa |
+  | wiersz `theme` z `$.config.list()` po zmianie wyglądu aplikacji | `dark` | `dark` | **nie odzwierciedla** |
+  | `config.set` przy zmianie wyglądu aplikacji | — | 0 zdarzeń | **nie przychodzi** |
+  | `$.config.set({ key: 'theme', value: 'light' })` przy wyglądzie ciemnym | zapisuje (`value: light`) | — | kolory bez zmian: na desktopie wiersz `theme` nie rządzi kolorami |
+  | odczyt `$.config.list()` tuż po własnym `$.config.set` | — | — | zwraca jeszcze wartość poprzednią |
+  | `e.props.view` w `ui.render` | `{}` | `{}` | żadnej wskazówki |
+  | `@media (prefers-color-scheme)` w `Svg` z `isInteractive` | „widzi CIEMNY” | „widzi JASNY” | **działa** |
+  | to samo w `Svg` jako obrazie (z niepustym `alt`) | „widzi CIEMNY” | „widzi JASNY” | **działa** |
+  | SMIL (`animateTransform`, `animate`) i animacja CSS w `Svg` z `isInteractive` w paśmie | ruch | ruch | działa |
+  | `Button` w paśmie: zmiana stanu w `$.state` i przerysowanie | tak | tak | działa |
+  | `Button` z dziećmi `Text` w kolorze / z podkreśleniem (także `plain`) — sonda `relai-przyciski-sonda` 0.1.0 | etykieta domyślna | etykieta domyślna | **ignorowane**: desktop rysuje natywną etykietę |
+  | `Button` `variant` primary / secondary, `dimColor`, `plain` | rysowane | rysowane | `plain` na desktopie to przycisk-duch bez obudowy |
+  | `primary` obok `secondary` w paśmie | ta sama wysokość (25 px na zrzucie, y 221–245) | — | `secondary` w ciemnym wyglądzie tonie w pasku i **wygląda** na niższy — w paskach RelAI wszystkie przyciski `primary` |
+  | `Box` z ramką lub tłem w kluczu i `hover` (`borderColor`, `backgroundColor`) wokół `plain` — sonda 0.2.0 | działa | działa | ale pod kursorem i tak widać osobny natywny przycisk w środku; „przycisk, który jest tylko wrapowany jakimś borderem” (Łukasz) |
+
+- **Obejście:** `Box`/`Text` pasków malujesz kluczami motywu (`text`, `subtle`, `inactive`,
+  `success`, `warning`, `error`, `promptBorder`, `claude`, `suggestion`, `permission`) — desktop
+  przemalowuje je sam. Znacznik w `Svg` niesie obie palety w CSS: wartość ciemna domyślnie,
+  jasna w `@media (prefers-color-scheme: light)` — przełącza się z wyglądem aplikacji, bez kodu
+  w modzie. Kolor surowy w `Box`/`Text` (np. paleta panelu RelAI) nie ma drogi do wyglądu
+  aplikacji: wybór szaty wymaga przełącznika albo kluczy. Przycisk projektujesz wyłącznie
+  natywnym `variant` i `plain` — kolor etykiety i ramka wokół nie dają innego przycisku.
+- **Zasięg:** aplikacja desktopowa 2.37337.1.0, zakładka Code, Windows; terminal niezmierzony
+  (tam klucze działają natywnie, `Svg` nie ma). Zrzuty:
+  `docs/zasoby/PANEL_RELAI/zrzuty/WYGLAD_PANELU_E1_sonda_1…6_*.png`.
+
 ### P-041 — Aplikacja desktopowa: pole „następny krok” z przyciskami zasłania paski modów · 2026-10-14 · AKTYWNA
 
 - **Objaw:** sesja kończy turę polem „następny krok” z pytaniem i przyciskami (narzędzie `wrap_up`

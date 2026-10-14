@@ -8,7 +8,7 @@
 // A fill comes from the very numbers the words show (the minutes left, the rounded percent), so
 // the band's stamp — these words — decides every redraw (Z4).
 
-import { BAND, BAR, BATTERY, RING, leftColor } from './relai/theme.mjs'
+import { BAND, BAR, BATTERY, KEY, RING, inkCss, inkOf, leftColor } from './relai/theme.mjs'
 import { clock, minutes, tokens } from './fmt'
 import { DEFAULT_THRESHOLD, SOURCE_WORDS, type ThresholdSource } from './limit'
 
@@ -123,22 +123,25 @@ export function measureGlyph(fill: number | null): string {
   return '●'
 }
 
-// The glyph's color: an empty battery's track would vanish on the bar, so it takes the muted text
-export const glyphColor = (m: Measure): string => (m.color === RING.track ? BAR.muted : m.color)
+// The glyph's color as a theme key (WYGLAD_PANELU E1): the state's key; an empty battery's track
+// would vanish on the bar, so it takes the muted key
+const GLYPH_KEY: Readonly<Record<string, string>> = { done: KEY.done, running: KEY.running, failed: KEY.failed, track: KEY.muted, muted: KEY.muted }
+export const glyphColor = (m: Measure): string => GLYPH_KEY[inkOf(m.color)] ?? KEY.muted
 
 // ---------- the desktop: one interactive Svg per row ----------
 
 const esc = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
 const round = (n: number) => n.toFixed(2)
 
-// The icon at (x, y): a body outlined in the muted text, a nub, the fill inside in the state's color
+// The icon at (x, y): a body outlined in the muted ink, a nub, the fill inside in the state's ink
+// (WYGLAD_PANELU E1: painted by class, two palettes switched by `prefers-color-scheme`, P-042)
 function batteryIcon(x: number, y: number, m: Measure): string {
   const { w, h } = BATTERY.icon
   const body = w - 4
   const inner = m.fill === null ? 0 : (body - 4) * clamp(m.fill)
-  return `<rect x="${round(x + 0.75)}" y="${round(y + 0.75)}" width="${body}" height="${h - 1.5}" rx="3" fill="none" stroke="${BAR.muted}" stroke-width="1.5"/>`
-    + `<rect x="${round(x + body + 1.5)}" y="${round(y + h / 2 - 2.5)}" width="2" height="5" rx="1" fill="${BAR.muted}"/>`
-    + (inner > 0 ? `<rect class="f" x="${round(x + 2.5)}" y="${round(y + 2.5)}" width="${round(inner)}" height="${h - 5}" rx="1.5" fill="${m.color}"/>` : '')
+  return `<rect class="s-muted" x="${round(x + 0.75)}" y="${round(y + 0.75)}" width="${body}" height="${h - 1.5}" rx="3" fill="none" stroke-width="1.5"/>`
+    + `<rect class="f-muted" x="${round(x + body + 1.5)}" y="${round(y + h / 2 - 2.5)}" width="2" height="5" rx="1"/>`
+    + (inner > 0 ? `<rect class="f f-${inkOf(m.color)}" x="${round(x + 2.5)}" y="${round(y + 2.5)}" width="${round(inner)}" height="${h - 5}" rx="1.5"/>` : '')
 }
 
 // The note under a label (Aneks D): 11 px, a width per character that errs wide; a row with a note
@@ -183,30 +186,31 @@ function card(p: Placed, i: number, maxPx: number): string {
   const left = p.x - C.gap - w
   const x = right + w <= maxPx || (left < 0 && maxPx - right >= p.x - C.gap) ? right : left
   const y = (BATTERY.height - C.h) / 2
-  return `<g class="t t${i}"><rect x="${round(x)}" y="${round(y)}" width="${round(w)}" height="${C.h}" rx="${C.h / 2}" fill="${C.bg}"/>`
-    + `<text x="${round(x + C.pad)}" y="${round(y + 15)}" font-size="${C.font}"><tspan class="a" fill="${BAR.text}" font-weight="600">${esc(p.m.a)}</tspan>`
-    + `<tspan class="b" dx="${C.lineGap}" fill="${BAR.muted}">${esc(p.m.b)}</tspan></text></g>`
+  return `<g class="t t${i}"><rect class="f-card" x="${round(x)}" y="${round(y)}" width="${round(w)}" height="${C.h}" rx="${C.h / 2}"/>`
+    + `<text x="${round(x + C.pad)}" y="${round(y + 15)}" font-size="${C.font}"><tspan class="a f-text" font-weight="600">${esc(p.m.a)}</tspan>`
+    + `<tspan class="b f-muted" dx="${C.lineGap}">${esc(p.m.b)}</tspan></text></g>`
 }
 
 // The rows of batteries, each one Svg of width="100%" — laid out from the column's left edge,
-// where a fixed width is centred in the interactive frame (P-024 pkt 1) — painted with the bar's
-// background (an interactive frame is white otherwise, P-018 pkt 2). Each icon is the hover
-// target of its card; the cards come after every measure, so a card paints over its neighbours.
-export function batteryRows(measures: readonly Measure[], maxPx: number, background: string): { svg: string, alt: string, height: number }[] {
+// where a fixed width is centred in the interactive frame (P-024 pkt 1) — with no background of
+// their own: the frame shows the band through (measured 2026-10-14, WYGLAD_PANELU E1; P-018 pkt 2
+// held a white frame under the 2.1.293 band). Each icon is the hover target of its card; the cards
+// come after every measure, so a card paints over its neighbours.
+export function batteryRows(measures: readonly Measure[], maxPx: number): { svg: string, alt: string, height: number }[] {
   return pack(measures, maxPx).map((placed) => {
     const height = placed.some((p) => p.m.note) ? NOTE.rowHeight : BATTERY.height
     const drawn = placed.map((p, i) => {
       const tx = p.x + BATTERY.icon.w + BATTERY.icon.gap
       return `<g class="i i${i} b-${p.m.name}"><rect x="${round(p.x - 3)}" y="0" width="${BATTERY.icon.w + 6}" height="${height}" fill="transparent"/>${batteryIcon(p.x, BATTERY.icon.y, p.m)}</g>`
-        + `<text class="w" x="${round(tx)}" y="${BATTERY.textY}" font-size="${BATTERY.font}"><tspan class="l" fill="${BAR.muted}">${esc(p.m.label)}</tspan>`
-        + `<tspan class="v" dx="${BATTERY.spanGap}" fill="${BAR.text}" font-weight="600">${esc(p.m.value)}</tspan></text>`
-        + (p.m.note ? `<text class="n" x="${round(tx)}" y="${NOTE.y}" font-size="${NOTE.font}" fill="${BAR.muted}">${esc(p.m.note)}</text>` : '')
+        + `<text class="w" x="${round(tx)}" y="${BATTERY.textY}" font-size="${BATTERY.font}"><tspan class="l f-muted">${esc(p.m.label)}</tspan>`
+        + `<tspan class="v f-text" dx="${BATTERY.spanGap}" font-weight="600">${esc(p.m.value)}</tspan></text>`
+        + (p.m.note ? `<text class="n f-muted" x="${round(tx)}" y="${NOTE.y}" font-size="${NOTE.font}">${esc(p.m.note)}</text>` : '')
     })
-    const css = `text{font-family:system-ui,'Segoe UI',sans-serif}.t{display:none;filter:drop-shadow(0 1px 2px rgba(0,0,0,.45))}`
+    const css = `text{font-family:system-ui,'Segoe UI',sans-serif}.t{display:none;filter:drop-shadow(0 1px 2px rgba(0,0,0,.45))}${inkCss()}`
       + placed.map((_, i) => `.i${i}:hover~.t${i}{display:inline}`).join('')
     return {
       svg: `<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="${height}"><style>${css}</style>`
-        + `<rect width="100%" height="100%" fill="${background}"/>${drawn.join('')}${placed.map((p, i) => card(p, i, maxPx)).join('')}</svg>`,
+        + `${drawn.join('')}${placed.map((p, i) => card(p, i, maxPx)).join('')}</svg>`,
       alt: placed.map((p) => `${p.m.a}, ${p.m.b}${p.m.note ? `, ${p.m.note}` : ''}`).join('; '),
       height,
     }

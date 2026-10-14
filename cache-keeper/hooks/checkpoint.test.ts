@@ -1,6 +1,6 @@
 import { describe, expect, mock, test, type TestBody } from 'claude-code/testing'
 import type { On, RenderNode, TurnStepResult } from 'claude-code'
-import { BAND } from './relai/theme.mjs'
+import { BAND, BAR } from './relai/theme.mjs'
 import { blockingReset, cardDue, focusFilePath, overLimits, focusRef, focusStatus, isWorkGoing, nextSessionThreshold, resumeDue, resumePath, saveRowText, thresholdAnswer, type CardInput } from './limit'
 import { RESUME_CONSENT, SAVE_CONSENT, SAVE_DONE, relaiDiscardPrompt, relaiResumePrompt, relaiSavePrompt, saveDone } from './handoff'
 
@@ -117,14 +117,17 @@ async function turn($: Engine, clock: { advance: (ms: number) => Promise<void> }
 const start = ($: Engine) => $.session.start({ cwd: ROOT, surface: 'desktop', isInteractive: true })
 const cards = (w: World) => w.asked.filter((q) => q.startsWith(CARD))
 
-// The colour of a limit battery as the desktop draws it
+// The colour of a limit battery as the desktop draws it: its ink class (WYGLAD_PANELU E1) named by
+// the state's color of the motif
+const COLOR_OF_INK: Record<string, string> = { done: BAR.segment.done, running: BAND.panel.color, failed: BAND.cache.color }
 async function batteryColor($: Engine, name: 'five' | 'week'): Promise<string | null> {
   const ui = await $.ui.mount({ plugin: 'relai-cache-keeper', surface: 'desktop', component: 'AbovePrompt',
     props: { hasSurvey: false, isWorking: false, maxRows: 10, bodyColumns: 140, scroll: { offset: 0, bodyRows: 9 }, view: {} } })
   const walk = (n: RenderNode): string[] => (typeof n === 'string' ? [] : [String((n as { props?: { source?: unknown } }).props?.source ?? ''), ...((n as { children?: RenderNode[] }).children ?? []).flatMap(walk)])
   const source = walk(await ui.drawn()).join('')
   await ui.unmount()
-  return source.match(new RegExp(`b-${name}">.*?<rect class="f"[^>]*fill="(#[0-9a-f]{6})"`))?.[1] ?? null
+  const ink = source.match(new RegExp(`b-${name}">.*?<rect class="f f-([a-z]+)"`))?.[1]
+  return ink ? COLOR_OF_INK[ink] ?? null : null
 }
 const fiveColor = ($: Engine) => batteryColor($, 'five')
 

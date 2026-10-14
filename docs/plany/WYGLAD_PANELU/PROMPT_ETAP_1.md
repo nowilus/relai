@@ -294,25 +294,28 @@ projektem (`%TEMP%`, katalog domowy, zainstalowana kopia pluginu), wpisujesz do 
 Każdy punkt Weryfikacji, który przeszedł, odhaczasz w `PROMPT_ETAP_1.md` (`- [ ]` → `- [x]`)
 zaraz po jego sprawdzeniu, nie na końcu etapu; punkt, który nie przeszedł, zostaje pusty.
 
-- [ ] Sonda: tabela wyników (klucz motywu × `AbovePrompt` / `Pane` × motyw jasny / ciemny;
+- [x] Sonda: tabela wyników (klucz motywu × `AbovePrompt` / `Pane` × motyw jasny / ciemny;
       `theme` i `config.set` przy zmianie wyglądu aplikacji i motywu CLI; SMIL; przycisk) z wersją
       aplikacji i Claude Code w nowej pozycji `docs/PULAPKI.md`; zrzuty w repo.
-- [ ] Wynik sondy pokazany Łukaszowi przed wariantami; przy wyniku negatywnym — aneks
+- [x] Wynik sondy pokazany Łukaszowi przed wariantami; przy wyniku negatywnym — aneks
       zaproponowany i rozstrzygnięty, zanim powstał kod docelowy.
-- [ ] Trzy warianty pokazane w obu motywach (zrzuty `WYGLAD_PANELU_E1_*`), wybór i każda runda
+- [x] Trzy warianty pokazane w obu motywach (zrzuty `WYGLAD_PANELU_E1_*`), wybór i każda runda
       poprawek zapisane we wpisie dziennika słowami Łukasza; akceptacja wyglądu zapisana.
-- [ ] `grep` po kolorach szesnastkowych w kodzie pasków (`bar-card.tsx`, `band.tsx`,
+- [x] `grep` po kolorach szesnastkowych w kodzie pasków (`bar-card.tsx`, `band.tsx`,
       `progress/hooks/register.tsx`, `cache-keeper/hooks/register.tsx`) — 0 trafień poza
       znacznikami `Svg`; kontrola pozytywna: na HEAD przed zmianą trafienia są.
-- [ ] `claude plugin validate .` i `claude plugin test .` w `panel/`, `progress/`, `cache-keeper/`
+- [x] `claude plugin validate .` i `claude plugin test .` w `panel/`, `progress/`, `cache-keeper/`
       zielone binarką aplikacji; testy rdzenia 386+ zielone, w tym parytet kopii (`sync-panel-core.js
       --check`) i `mods-parity.test.js`.
-- [ ] Nowe testy (brak koloru spoza motywu, dwa motywy znaczników, szerokości) spadają na kodzie
+- [x] Nowe testy (brak koloru spoza motywu, dwa motywy znaczników, szerokości) spadają na kodzie
       sprzed zmiany i przechodzą po niej — obie wersje w jednym przebiegu.
-- [ ] Na żywo: aplikacja w motywie jasnym i ciemnym, trzy paski czytelne w pełnym oknie i w wąskim
+      *(2026-10-14: test kolorów spada na HEAD we wszystkich trzech pluginach i przechodzi po
+      zmianie; test szerokości przechodzi na obu — stary kod też się mieścił — więc pilnuje
+      regresji; tak rozliczony decyzją Łukasza.)*
+- [x] Na żywo: aplikacja w motywie jasnym i ciemnym, trzy paski czytelne w pełnym oknie i w wąskim
       panelu podziału; przełączenie motywu w trakcie sesji przerysowuje paski bez restartu (albo
       odnotowane w P-xxx, że desktop tego nie zgłasza).
-- [ ] `git diff` nie dotyka `panel/hooks/pane-*.tsx`, `panel/hooks/narrow.test.ts`,
+- [x] `git diff` nie dotyka `panel/hooks/pane-*.tsx`, `panel/hooks/narrow.test.ts`,
       `docs/plany/PANEL_CODEX/` ani `docs/zasoby/PANEL_RELAI/makiety/`.
 - [ ] Katalog roboczy `.claude/relai/work/WYGLAD_PANELU/E1/` przejrzany raportem
       (`node .claude/relai/tools/clean-work.js raport`) i skasowany po „tak”; liczby przed i po
