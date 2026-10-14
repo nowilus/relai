@@ -4,7 +4,6 @@
 // their aliases and what they do, each opening its form in the commands tab. Reckoned in
 // ./core/phrases.mjs; register.tsx does the send. No `$` here (P-023 pkt 10).
 
-import { clip } from './fmt'
 import { THEME } from './core/theme.mjs'
 import { buildPhrase, searchSheet } from './core/phrases.mjs'
 import type { Phrase } from './core/phrases.mjs'
@@ -22,23 +21,23 @@ export type HelpCtx = {
 }
 
 export function helpView(c: Ctx, parts: Parts, s: HelpCtx) {
-  const { el, isGui, width } = c
+  const { el, isGui } = c
   const { Box, Text, Input } = el
-  const { icon, mark, btn, flashBorder, section, frame, well } = parts
+  const { icon, mark, btn, isStacked, textAndAct, flashBorder, section, frame, well } = parts
   const { data: d, query: q, fills: filled } = s
 
   // One click: the phrase is the button; its effect under it, the bubble on the left
   const readyCard = (p: Phrase, i: number) => {
     const canSend = buildPhrase(p, '').isOk && d.hasRelai
     return (
-      <Box key={`ph-${i}`} flexDirection="row" alignItems="center" gap={isGui ? 2 : 1} paddingX={isGui ? 2 : 1} paddingY={isGui ? 1 : 0}
+      <Box key={`ph-${i}`} flexDirection="row" alignItems="center" gap={isGui && !isStacked ? 2 : 1} paddingX={isGui ? 2 : 1} paddingY={isGui ? 1 : 0}
         {...frame(false)} borderColor={flashBorder(`phrase-${i}`, THEME.line)} backgroundColor={THEME.card} hover={{ borderColor: THEME.accent }}>
         {mark('phrases', THEME.mark, 32, 'fraza')}
         <Box key={`ph-body-${i}`} flexDirection="column" gap={isGui ? 1 : 0} flexGrow={1} flexShrink={1} alignItems="flex-start">
           {canSend
             ? btn(`phrase-${i}`, p.phrase, 'primary', () => s.sendPhrase(p.phrase), '✓ ' + p.phrase)
             : <Text key={`phrase-text-${i}`} bold color={THEME.title}>{`„${p.phrase}”`}</Text>}
-          <Text color={THEME.body}>{clip(p.effect, width * 2)}</Text>
+          <Text color={THEME.body}>{p.effect}</Text>
         </Box>
       </Box>
     )
@@ -54,7 +53,7 @@ export function helpView(c: Ctx, parts: Parts, s: HelpCtx) {
           {mark('fill', THEME.accentText, 32, 'fraza do uzupełnienia')}
           <Box key={`ph-title-${i}`} flexDirection="column" flexGrow={1} flexShrink={1}>
             <Text bold color={THEME.title}>{`„${p.phrase}”`}</Text>
-            <Text color={THEME.body}>{clip(p.effect, width * 2)}</Text>
+            <Text color={THEME.body}>{p.effect}</Text>
           </Box>
         </Box>
         <Input key={`fill-${i}`} label="Uzupełnij: " value={filled[p.phrase] ?? ''} placeholder="w miejsce „…”"
@@ -70,11 +69,12 @@ export function helpView(c: Ctx, parts: Parts, s: HelpCtx) {
     <Box key={`sheet-${r.command}`} flexDirection="row" alignItems="center" gap={isGui ? 2 : 1}
       paddingX={1} paddingY={isGui ? 1 : 0} {...frame(false)} borderColor={THEME.line} backgroundColor={THEME.card} hover={{ borderColor: THEME.accent }}>
       {icon(r.command, 32)}
-      <Box key={`sheet-text-${r.command}`} flexDirection="column" flexGrow={1} flexShrink={1}>
-        <Text bold color={THEME.title}>{r.forms.join(' · ')}</Text>
-        <Text color={THEME.body}>{clip(r.what, width * 2)}</Text>
-      </Box>
-      {btn(`open-${r.command}`, 'Formularz', 'secondary', () => s.openForm(r.command))}
+      {textAndAct(`sheet-main-${r.command}`,
+        <Box key={`sheet-text-${r.command}`} flexDirection="column" flexGrow={1} flexShrink={1}>
+          <Text bold color={THEME.title}>{r.forms.join(' · ')}</Text>
+          <Text color={THEME.body}>{r.what}</Text>
+        </Box>,
+        btn(`open-${r.command}`, 'Formularz', 'secondary', () => s.openForm(r.command)))}
     </Box>
   )
 

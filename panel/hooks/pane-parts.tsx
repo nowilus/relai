@@ -31,6 +31,11 @@ export type Ctx = {
   fold: (key: string, byDefault: boolean) => void
 }
 
+// The pane width (bodyColumns) below which a row's control goes under its words: the narrowest
+// width at which every row of every tab still holds its icon, its longest word and its button side
+// by side (narrow.test.ts measures both layouts around it)
+export const STACK_BELOW = 48
+
 // The Select of a choice cannot hold an empty value: '' travels as this one
 export const NONE = '_'
 
@@ -69,15 +74,26 @@ export function parts(c: Ctx) {
     if (Svg && art) return <Svg key={`h-${key}`} source={art.svg} alt={art.text} width={art.width} height={art.height} />
     return <Text bold color={color}>{art?.text ?? HEADINGS.find((h) => h.key === key)?.text ?? key}</Text>
   }
+  // Icons, marks and buttons never shrink (PANEL_WASKI): in a row that runs out of room the
+  // surface takes it from the text, which wraps, never from a control ("Otwórz" cut to "Otwó")
+  const fixed = (child: RenderChildren) => <Box flexShrink={0}>{child}</Box>
+  // A row's words and its control (PANEL_WASKI, live 2026-10-14): a desktop never narrows a text
+  // below its longest word, and a row that wraps by itself puts the button under the text in one
+  // row and beside it in the next. So the pane decides once, by its width: below STACK_BELOW every
+  // control stands under its words, from it every control stands right of them.
+  const isStacked = width < STACK_BELOW
+  const textAndAct = (key: string, words: RenderChildren, act: RenderChildren) => (isStacked
+    ? <Box key={key} flexDirection="column" alignItems="flex-start" flexGrow={1} flexShrink={1}>{words}{act}</Box>
+    : <Box key={key} flexDirection="row" alignItems="center" columnGap={isGui ? 2 : 1} flexGrow={1} flexShrink={1}>{words}{act}</Box>)
   const icon = (cmd: string, px: number) => {
     const source = ICONS[iconName(cmd)]
-    if (Svg && source) return <Svg key={`icon-${cmd}`} source={source} alt={NAMES[cmd]?.[0] ?? cmd} width={px} height={px} />
-    return <Text color={THEME.accent}>●</Text>
+    if (Svg && source) return fixed(<Svg key={`icon-${cmd}`} source={source} alt={NAMES[cmd]?.[0] ?? cmd} width={px} height={px} />)
+    return fixed(<Text color={THEME.accent}>●</Text>)
   }
   const mark = (name: string, color: string, px: number, alt: string) => {
     const source = glyph(name, color, px)
-    if (Svg && source) return <Svg key={`g-${name}-${px}`} source={source} alt={alt} width={px} height={px} />
-    return <Text color={color}>●</Text>
+    if (Svg && source) return fixed(<Svg key={`g-${name}-${px}`} source={source} alt={alt} width={px} height={px} />)
+    return fixed(<Text color={color}>●</Text>)
   }
   // Every control is the surface's own button (calibration 2026-10-08): a `plain` button in a
   // painted box inverts under the pointer and that cannot be turned off, so the brand stays in
@@ -86,10 +102,10 @@ export function parts(c: Ctx) {
   // (a send with its done label, a card that prepares or confirms one): a tab, a fold or a switch
   // answers by its own change, and a flash there cost two more drawings (AUDYT_MODOW Z3).
   const isFlash = (key: string) => flashed === key
-  const btn = (key: string, label: string, kind: 'primary' | 'secondary', onPress: () => void, doneLabel?: string, isFlashing = doneLabel !== undefined) => (
+  const btn = (key: string, label: string, kind: 'primary' | 'secondary', onPress: () => void, doneLabel?: string, isFlashing = doneLabel !== undefined) => fixed(
     <Button key={key} variant={kind} onPress={() => { onPress(); if (isFlashing) c.flash(key) }}>
       {doneLabel && isFlash(key) ? doneLabel : label}
-    </Button>
+    </Button>,
   )
   const flashBorder = (key: string, rest: string) => (isFlash(key) ? THEME.pressed : rest)
   // A section: Kalam heading, one line saying what it is for, then its cards
@@ -109,13 +125,27 @@ export function parts(c: Ctx) {
   const folded = (prefix: string, id: string, summary: string, content: () => RenderChildren[], isAlert = false) => {
     const head = `${prefix}-${id}`
     const isOpen = c.isUnfolded(`${prefix}:${id}`, false)
+    const sum = <Box key={`${prefix}-${id}-sum`} flexShrink={1}><Text color={isAlert ? THEME.accentText : THEME.body}>{summary}</Text></Box>
+    const foldBtn = btn(`fold-${prefix}:${id}`, isOpen ? '▾ Zwiń' : '▸ Rozwiń', 'secondary', () => c.fold(`${prefix}:${id}`, false))
     return (
       <Box key={`${prefix}-${id}`} flexDirection="column" gap={isGui ? 1 : 0}>
-        <Box key={`${prefix}-${id}-row`} flexDirection="row" flexWrap="wrap" alignItems="center" columnGap={2} paddingX={1}
+        {/* The heading and the summary wrap on the left, the button keeps the right (PANEL_WASKI).
+            In a narrow pane the heading and the button take the top line and the summary the whole
+            width under them: a long word of it ("(platform.claude.com),") pushed the button past
+            the card's edge (live 2026-10-14, 31 columns) */}
+        <Box key={`${prefix}-${id}-row`} flexDirection={isStacked ? 'column' : 'row'} {...(isStacked ? {} : { alignItems: 'center' as const })} columnGap={2} paddingX={1}
           {...frame(false)} borderColor={isAlert ? THEME.accent : THEME.line} backgroundColor={THEME.card}>
-          {heading(head)}
-          <Box key={`${prefix}-${id}-sum`} flexGrow={1} flexShrink={1}><Text color={isAlert ? THEME.accentText : THEME.body} wrap="truncate">{summary}</Text></Box>
-          {btn(`fold-${prefix}:${id}`, isOpen ? '▾ Zwiń' : '▸ Rozwiń', 'secondary', () => c.fold(`${prefix}:${id}`, false))}
+          {isStacked
+            ? [<Box key={`${prefix}-${id}-top`} flexDirection="row" alignItems="center" justifyContent="space-between" columnGap={2}>
+                {/* In a Box the Kalam drawing is scaled to the room left by the button; standing
+                    straight in the row it kept its width (live 2026-10-14: "Rozwiń" past the card) */}
+                <Box key={`${prefix}-${id}-head`} flexShrink={1}>{heading(head)}</Box>
+                {foldBtn}
+              </Box>, sum]
+            : [<Box key={`${prefix}-${id}-words`} flexDirection="row" flexWrap="wrap" alignItems="center" columnGap={2} flexGrow={1} flexShrink={1}>
+                {heading(head)}
+                {sum}
+              </Box>, foldBtn]}
         </Box>
         {isOpen ? content() : []}
       </Box>
@@ -146,7 +176,7 @@ export function parts(c: Ctx) {
     return section('confirm', 'confirm', card.state === 'second' ? 'Drugi krok — zapis dopiero po tym potwierdzeniu.' : 'Nic nie pójdzie do czatu bez „Tak”.', [
       <Box key="confirm-card" flexDirection="column" gap={isGui ? 1 : 0} paddingX={isGui ? 2 : 1} paddingY={isGui ? 1 : 0}
         borderStyle="round" borderColor={flashBorder('confirm-yes', THEME.accent)} backgroundColor={THEME.cardOn}>
-        <Text bold color={THEME.accentText} wrap="truncate">{card.title}</Text>
+        <Text bold color={THEME.accentText}>{card.title}</Text>
         <Box key="confirm-facts" flexDirection="column">{step.facts.map((f, i) => factRow(`confirm-f-${i}`, f))}</Box>
         <Text bold color={THEME.title}>{step.question}</Text>
         <Box key="confirm-act" flexDirection="row" flexWrap="wrap" gap={1}>
@@ -196,7 +226,7 @@ export function parts(c: Ctx) {
   const legend = (key: string, g: Group) => (
     <Box key={key} flexDirection="row" flexWrap="wrap" columnGap={2}>
       {CATS.map(([k, label, color]) => (
-        <Box key={`${key}-${k}`} flexDirection="row" columnGap={1}>
+        <Box key={`${key}-${k}`} flexDirection="row" columnGap={1} {...(isStacked ? { flexWrap: 'wrap' } : {})}>
           <Text color={color}>●</Text>
           <Text color={THEME.title}>{label}</Text>
           <Text color={THEME.body}>{`${tokens(g[k])} · ${usd(g.parts[k])}`}</Text>
@@ -205,7 +235,7 @@ export function parts(c: Ctx) {
     </Box>
   )
 
-  return { heading, icon, mark, isFlash, btn, flashBorder, section, frame, folded, well, sentLine, factRow, confirmCard, tabs, barCols, figure, bar, costBox, line, money, nCalls, legend }
+  return { heading, fixed, isStacked, textAndAct, icon, mark, isFlash, btn, flashBorder, section, frame, folded, well, sentLine, factRow, confirmCard, tabs, barCols, figure, bar, costBox, line, money, nCalls, legend }
 }
 
 export type Parts = ReturnType<typeof parts>

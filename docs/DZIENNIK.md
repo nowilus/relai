@@ -1286,3 +1286,85 @@ Autor: RelAI (Opus 5.5) + Lukasz
 **Do zrobienia przez człowieka:** start E1 w świeżej sesji (`/relai-stage`) na Opus 5.5.
 
 Autor: RelAI (Opus 5.5) + Lukasz
+
+### 2026-10-14 — PANEL_WASKI: panel bez rozjazdów w wąskim panelu podziału okna; `relai-panel` 0.18.0 w repo
+
+**Zrobione:**
+
+- Pomiar progów instrumentem `panel/hooks/narrow.test.ts` (pięć zakładek, zwinięte i rozwinięte,
+  11 szerokości) i cztery serie zrzutów Łukasza na żywo z kopią niewydaną `relai-panel-dev`
+  (odczyt `bodyColumns` na górze panelu): wąski środek trzech paneli = **31 kolumn**, dwa inne
+  podziały 75 i 94. Tabela progów — szerokość „przed” to najszersza, przy której objaw występował
+  w kodzie sprzed poprawki (instrument po kalibracji albo zrzut):
+
+  | Zakładka | Szerokość | Objaw | Miejsce w kodzie | Poprawka |
+  |---|---|---|---|---|
+  | Komendy | ≤ 80 (31 na żywo) | „Otwórz” ucięte do „Otwó”, potem wypchnięte za kafel | `pane-commands.tsx` wiersz `row-<cmd>` bez zawijania; `Button` bez `flexShrink` | `fixed` w `pane-parts.tsx`; `textAndAct` |
+  | Komendy | każda | „Ta sesja: … aktywny plan: PANEL” ucięte | `pane-now.tsx` `now-focus` (`truncate`) | zawijanie |
+  | Komendy | każda (desktop) | wiersze komend ramka w ramkę | `pane-commands.tsx` `card()` — ramka na wierszu | grupa jednym kaflem, komórka odstępu między wierszami |
+  | Komendy | 75 | przycisk raz obok, raz pod tekstem | `main-<cmd>` z `flexWrap` w każdym wierszu | jeden układ na panel: `STACK_BELOW = 48` |
+  | Komendy | 31–34 | „przekazania /relai-handover” jednym słowem poza wierszem i podświetleniem | kawałek `Text` zaczynający się spacją | trzy kawałki w zawijanym wierszu z `columnGap` |
+  | Mapa | ≤ 64 | „Aktywny plan … $8” ucięte | `pane-parts.tsx` `folded` — podsumowanie `truncate` | zawijanie |
+  | Mapa | ≤ 34 | „Szczegóły” za ramką obok „bez pomiaru” | `pane-map.tsx` `st-row` | `textAndAct`, koszt i przycisk zawijane |
+  | Mapa | 31 | „Teraz: E1 · Sonda nośnika …” ucięte w rysunku | `segBar` — linie `idle` w `hoverSegments` | podpis tekstem nad paskiem (decyzja Łukasza) |
+  | Mapa | każda | rozwinięte szczegóły etapu przyklejone do wiersza | `st-<tag>` bez `gap` | `gap` 1 |
+  | Koszty | ≤ 80 | „Cennik … odczyt 202” ucięte | `folded` — podsumowanie `truncate` | zawijanie |
+  | Koszty | ≤ 42 | wiersz progu limitu poza kartą | `cost-limit-<w>-act` z `flexShrink={0}` | `flexShrink` 1, przyciski zawijane |
+  | Koszty | 31 | „Rozwiń” Cennika na ramce („(platform.claude.com),”) | `folded` — długie słowo podsumowania obok przycisku | w wąskim: nagłówek i „Rozwiń” u góry, podsumowanie pod nimi |
+  | Koszty, Mapa | 31–38 | „Rozwiń” za kartą obok nagłówka Kalam | `folded` — `Svg` wprost w wierszu | nagłówek w kurczliwym `Box` |
+  | Koszty | 31–34 | linie przycisków progu stykają się | `cost-limit-<w>-act` bez `rowGap` | `rowGap` 1 na desktopie |
+  | Pomoc | 31 | „Formularz” na ramce, opisy ucięte do „bac…” | `pane-help.tsx` `commandRow`, `clip(…, width * 2)` | `textAndAct`, pełny opis |
+  | Dokumenty | każda | podpis kafla „KB · data” ucięty | `pane-docs.tsx` kafel (`truncate`) | zawijanie; nazwy plików zostają `truncate-middle` |
+
+- Decyzje Łukasza: grupa komend jednym kaflem (zamiast odstępów między ramkami wierszy); po
+  zrzucie przy 94 kolumnach komórka odstępu także między wierszami grupy — **limit 900 px zakładki
+  Komendy z HUMANIZACJA E4 przestaje obowiązywać, test pilnuje 1061 px**; podpis paska etapów
+  tekstem nad paskiem (wykonany nad, nie pod nim, jak mówiło pytanie — pod paskiem stoi krótka
+  podpowiedź, w której miejscu po najechaniu pojawia się karta etapu; zrzut 27 i 28 zaakceptowane).
+- Wersja: `relai-panel` 0.17.0 → 0.18.0 (`panel/.claude-plugin/plugin.json`,
+  `.claude-plugin/marketplace.json`); bez wydania. Dokumenty: karta odnogi, `STATE.md`, `CLAUDE.md`,
+  P-043, L-0194; 30 zrzutów `docs/zasoby/PANEL_RELAI/zrzuty/PANEL_WASKI_1…30`.
+
+**Zweryfikowane — jak dokładnie:**
+
+- `claude plugin validate .` i `claude plugin test .` w `panel/` binarką aplikacji 2.1.295
+  (P-024 pkt 4): zielone, 185/185 (było 178; +7 w `narrow.test.ts`). Ten sam wynik w `git worktree`
+  HEAD-a `75dce52` z naniesionymi wyłącznie plikami odnogi — bez równoległych zmian sesji
+  WYGLAD_PANELU E1 w tym samym katalogu.
+- Kontrola pozytywna, ten sam `narrow.test.ts` na kodzie sprzed poprawek: na HEAD — spadają
+  Komendy, Koszty, Mapa i test jednego układu; na kodzie ze zrzutów 17–23 — wiersz „Pakiet
+  przekazania” (31 i 34 kolumny) i wiersz Cennika; na kodzie ze zrzutów 24–27 — pięć wierszy
+  sekcji zwiniętych z nagłówkiem Kalam; przed `rowGap` — wyłącznie przyciski progu przy 31 i 34.
+  Model sam ma kontrolę na podłożonych drzewach (ucięty tekst, wiersz ze zrzutu 8, sklejone
+  kawałki ze zrzutu 20, ramki bez odstępu) i przypadki, które nie mogą trafić.
+- Instrument przeszedł przez trzy modele, każdy obalony zrzutem: Yoga (zrzut 8: przycisk nie
+  ucięty, tylko wypchnięty), CSS bez sklejania spacji (zrzut 20), `Svg` zawsze skalowane
+  (zrzuty 25–26). Kalibracja znaku 6,8 px na komórkę 8,2 px: zrzut 12, „kontynuujemy pracę”
+  mieści się przy 31 kolumnach.
+- Budżet wagi drzewa kosztów (200 000 znaków) zachowany: zawijanie legendy tylko w wąskim panelu
+  (`isStacked`), bo w szerokim przekraczało budżet o 202 znaki.
+- Rdzeń `node --test core/panel/tests/*.test.js` 186/186, `sync-panel-core.js --check` zgodne
+  (16 plików) — rdzeń przez odnogę nietknięty.
+- Na żywo (Łukasz): zrzuty 21–24 i 28–30 bez uwag — Komendy, Pomoc, Mapa i Koszty przy 31
+  kolumnach, Komendy i Pomoc przy 75 i 94.
+- `grep -r 0.17.0` po podbiciu: deklaracje stanu poprawione (`STATE.md`, `CLAUDE.md`, oba
+  manifesty); trafienia w dzienniku, kartach odnóg, P-040 i STYL §12 — historyczne;
+  `docs/plany/WYGLAD_PANELU/PROMPT_ETAP_1.md` mówi o 0.17.0 jako stanie z chwili wygenerowania —
+  prompt innego planu, nie ruszany.
+- Katalog roboczy: `clean-work.js raport` — `_fixy/PANEL_WASKI` chroniony (odnoga otwarta), przed
+  33 pliki, 1,5 MB (logi przebiegów testów, `make-dev.mjs`, `undo-dev.mjs`, `agg.mjs`, kopie
+  kontrolne); po „tak” Łukasza skasowany — po 0. Poza projektem skasowana kopia
+  `~/.claude/dev-mods/beb94a87-5d62-40a6-8d46-4b6b44e02ec0/relai-panel-dev` (2,0 MB).
+
+**Świadomie odłożone:**
+
+- Wydanie `relai-panel` 0.18.0 (tag `relai-panel-v0.18.0`, push) — po zgodzie Łukasza.
+- Terminal (`isGui === false`) poza zakresem: testy terminalowe zielone, układ terminala nie
+  mierzony na wąskim panelu.
+- Poniżej 31 kolumn (najwęższy zmierzony podział) układ niesprawdzony na żywo.
+- `docs/LEKCJE.md` ponad budżet 50 KB (L-0194 dopisana) — rotacja lekcji nadal należna.
+
+**Do zrobienia przez człowieka:** zgoda na wydanie `relai-panel` 0.18.0; po wydaniu `plugin update`
+i restart aplikacji, potem rzut oka na panel w wąskim podziale z wersji zainstalowanej.
+
+Autor: RelAI (Opus 5.5) + Lukasz

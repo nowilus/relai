@@ -8,6 +8,35 @@ Specyfikacja: `SPEC_PULAPKI.md`.
 
 ## Pułapki
 
+### P-043 — Aplikacja desktopowa: układ modu liczy się jak CSS, nie jak Ink — tekst nie zwęża się poniżej najdłuższego słowa · 2026-10-14 · AKTYWNA
+
+- **Objaw:** w wąskim panelu podziału okna przycisk „Otwórz” wypada za prawą krawędź kafla, choć
+  dostał `flexShrink={0}`, a test układu (model Yoga: wszystko kurczy się do zera) jest zielony;
+  „przekazania /relai-handover” stoi w jednej linii szerszej niż wiersz; nagłówek Kalam obok
+  „Rozwiń” wypycha przycisk z karty, a w innym miejscu ten sam nagłówek rysuje się pomniejszony.
+- **Przyczyna (odnoga PANEL_WASKI, aplikacja 2.37337.1.0, Claude Code 2.1.295, Windows; zrzuty
+  `docs/zasoby/PANEL_RELAI/zrzuty/PANEL_WASKI_*`):** typy nazywają propsy `Box` „Ink's Box”, ale
+  desktop układa je jak CSS flex:
+  1. element flex nie zwęża się poniżej swojej treści minimalnej (`min-width: auto`): tekst —
+     poniżej najdłuższego słowa (łamanie także po łączniku: „/relai-” „changelog”), przycisk —
+     poniżej etykiety; wiersz bez `flexWrap`, który się nie mieści, wychodzi poza rodzica i jest
+     przycinany na jego krawędzi;
+  2. spacja na **początku** zagnieżdżonego `Text` (`' /relai-handover'`) nie jest miejscem
+     łamania — skleja kawałek z poprzednim słowem, także przez łącznik;
+  3. `Svg` o stałej szerokości postawione wprost w wierszu trzyma swoją szerokość; we własnym
+     `Box` skaluje się do szerokości tego pudełka (przycięcie do 100% rodzica);
+  4. tekst proporcjonalny: ~6,8 px CSS na znak przy komórce 8,2 px (P-024 pkt 3) — znak to mniej
+     niż komórka; natywny przycisk dokłada ~3 komórki do etykiety;
+  5. zawinięte linie przycisków bez `rowGap` stykają się (natywny przycisk 28 px, P-021 pkt 6).
+- **Obejście:** przycisk i ikona w `Box flexShrink={0}`; tekst obok przycisku w wierszu, który
+  przy wąskim panelu przenosi przycisk pod tekst (jedna decyzja dla całego panelu wg
+  `bodyColumns`, nie wiersz po wierszu); kawałki tekstu w osobnych elementach zawijanego wiersza
+  z `columnGap`, nigdy ze spacją na początku; rysunek obok przycisku we własnym `Box`;
+  `rowGap` w zawijanym rzędzie przycisków. Instrument: `panel/hooks/narrow.test.ts` (model CSS
+  skalibrowany na zrzutach, kontrola pozytywna na każdym objawie).
+- **Zasięg:** aplikacja desktopowa 2.37337.1.0, zakładka Code; terminal (Ink) niezmierzony —
+  testy terminalowe panelu zielone.
+
 ### P-041 — Aplikacja desktopowa: pole „następny krok” z przyciskami zasłania paski modów · 2026-10-14 · AKTYWNA
 
 - **Objaw:** sesja kończy turę polem „następny krok” z pytaniem i przyciskami (narzędzie `wrap_up`

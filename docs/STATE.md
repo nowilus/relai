@@ -8,9 +8,11 @@ RelAI **3.1.0** jest w repozytorium i publicznie (tag `v3.1.0`, 2026-10-14: huma
 piętnasta komenda `/relai-humanize`, tryb ciągły w Claude Code; plan HUMANIZACJA zamknięty). Plugin `relai` działa
 w trzech narzędziach — Claude Code, Cursorze i Codeksie — na jednym rdzeniu procesu, z piętnastoma
 komendami. Panel RelAI w oknie Claude Code to trzy osobne pluginy „early access” z marketplace tego
-repozytorium: `relai-panel` 0.17.0, `relai-progress` 0.4.2, `relai-cache-keeper` 0.9.0 (2026-10-14:
-pasek mówi uczciwie, kiedy nowa sesja się opłaca — odnoga KOMUNIKAT_ZWROTU; paski i panel w każdym
-panelu podziału okna, linia w stopce wycofana — odnoga SPLIT_VIEW, P-040 rozwiązana).
+repozytorium: `relai-panel` 0.17.0 wydany, 0.18.0 w repo niewydany, `relai-progress` 0.4.2,
+`relai-cache-keeper` 0.9.0 (2026-10-14: pasek mówi uczciwie, kiedy nowa sesja się opłaca — odnoga
+KOMUNIKAT_ZWROTU; paski i panel w każdym panelu podziału okna, linia w stopce wycofana — odnoga
+SPLIT_VIEW, P-040 rozwiązana; panel bez rozjazdów w wąskim panelu podziału — odnoga PANEL_WASKI,
+0.18.0).
 Aktywny plan: PANEL_CODEX w Codeksie (E1 po stronie Codeksa); HUMANIZACJA zamknięty 2026-10-14
 wydaniem 3.1.0. Opinii spoza projektu nadal nie ma.
 
@@ -91,7 +93,8 @@ wydaniem 3.1.0. Opinii spoza projektu nadal nie ma.
   4 etapy, Opus 5.5): paski nad promptem w kluczach motywu narzędzia (czytelne w jasnym i ciemnym),
   panel RelAI w dzisiejszej szacie ciemnej i nowej jasnej z palety Warsztat, pasek postępu jako
   lista kroków wg makiety. E1 zaczyna się od sondy nośnika; E3 rusza po zamknięciu odnogi
-  [PANEL_WASKI](fixy/PANEL_WASKI/ODNOGA.md), która równolegle naprawia układ panelu.
+  [PANEL_WASKI](fixy/PANEL_WASKI/ODNOGA.md) — zamknięta 2026-10-14 (`relai-panel` 0.18.0 w repo;
+  E3 bierze jej układ: `STACK_BELOW`, `textAndAct`, kafle grup komend, test `narrow.test.ts`).
 - **PANEL_CODEX, E1 — przejęcie rdzenia i natywny panel w Codeksie** (plan
   [PANEL_CODEX](plany/PANEL_CODEX/STATUS.md), ZAAKCEPTOWANY 2026-10-10, 8 etapów, autor
   i wykonawca `gpt-6.1-sol` w Codeksie, Aneks A — 16 pól kontraktu — zaakceptowany). Po co: ten sam

@@ -56,7 +56,7 @@ function sessionFacts(ms: Exclude<MapSession, { kind: 'asking' | 'unknown' }>): 
 export function mapView(c: Ctx, p: Parts, md: MapData, s: MapCtx) {
   const { el, Svg, isGui, width } = c
   const { Box, Text, Input, Select } = el
-  const { btn, flashBorder, section, folded, frame, figure, bar, costBox, line, money, nCalls, legend } = p
+  const { btn, fixed, isStacked, textAndAct, flashBorder, section, folded, frame, figure, bar, costBox, line, money, nCalls, legend } = p
   const { isUnfolded, fold } = s
   const chosen = s.chosen
   const crewDrafts = s.drafts
@@ -79,12 +79,21 @@ export function mapView(c: Ctx, p: Parts, md: MapData, s: MapCtx) {
   // One bar of segments, a stage of a plan or a packet of a thread each (Z14 shares it); hovering one
   // shows its head and its name, the idle lines stand under the bar while nothing is hovered
   type Seg = { item: string, head: string, alt: string, detail: string }
-  const segBar = (key: string, segs: readonly Seg[], idle: string[], bg: string) => {
+  // PANEL_WASKI (decision 2026-10-14): what is in progress stands over the bar as text, which wraps;
+  // a drawing cannot, so under the bar it only holds the short hint and, on hover, the card
+  const segBar = (key: string, segs: readonly Seg[], caption: string, hint: string[], bg: string) => {
     const colors = segs.map((s) => BAR.segment[s.item as keyof typeof BAR.segment] ?? BAR.segment.unknown)
     if (!colors.length) return null
     const art = Svg ? hoverSegments(segs.map((s, i) => ({ color: colors[i] ?? BAR.segment.unknown, head: s.head, detail: s.detail })),
-      { background: bg, text: THEME.title, muted: THEME.body, idle, chars: Math.floor(((width - 8) * 8) / 6.8) }) : null
-    if (Svg && art) return <Svg key={key} isInteractive source={art.svg} alt={segs.map((s) => s.alt).join(', ')} height={art.height} />
+      { background: bg, text: THEME.title, muted: THEME.body, idle: hint, chars: Math.floor(((width - 8) * 8) / 6.8) }) : null
+    if (Svg && art) {
+      return (
+        <Box key={key} flexDirection="column">
+          <Text bold color={THEME.title}>{caption}</Text>
+          <Svg key={`${key}-svg`} isInteractive source={art.svg} alt={segs.map((s) => s.alt).join(', ')} height={art.height} />
+        </Box>
+      )
+    }
     const t = segmentText(colors, Math.max(6, width - 8))
     return (
       <Box key={key} flexDirection="row" flexWrap="wrap" columnGap={t.gap}>
@@ -97,21 +106,21 @@ export function mapView(c: Ctx, p: Parts, md: MapData, s: MapCtx) {
   const strip = (key: string, node: PlanNode, bg: string) => {
     const now = node.stages.find((s) => s.status === 'W TOKU') ?? node.stages.find((s) => s.status === 'GOTOWY DO STARTU')
     const n = node.stages.length
-    const idle = [now ? `Teraz: ${now.id} · ${now.name}` : `${n} ${plural(n, 'etap', 'etapy', 'etapów')}`, 'najedź na segment, żeby zobaczyć etap']
+    const caption = now ? `Teraz: ${now.id} · ${now.name}` : `${n} ${plural(n, 'etap', 'etapy', 'etapów')}`
     return segBar(key, node.stages.map((s) => {
       const look = stageLook(s.status)
       return { item: look.item, head: `${look.mark} ${s.id} · ${s.status}`, alt: `${look.mark} ${s.id} ${s.status}`, detail: s.name }
-    }), idle, bg)
+    }), caption, ['najedź na segment,', 'żeby zobaczyć etap'], bg)
   }
 
   // The packets of a thread as the stages of a plan (Z14): closed, the one in progress, waiting
   const packetBar = (key: string, packets: readonly Packet[], now: Packet | null, bg: string) => {
-    const idle = [now ? `Teraz: ${now.id}${now.name ? ` · ${now.name}` : ''}` : 'wszystkie paczki zamknięte', 'najedź na segment, żeby zobaczyć paczkę']
+    const caption = now ? `Teraz: ${now.id}${now.name ? ` · ${now.name}` : ''}` : 'wszystkie paczki zamknięte'
     return segBar(key, packets.map((pk) => {
       const state = pk.isDone ? 'done' : pk.id === now?.id ? 'running' : 'pending'
       const look = FLOW.task[state]
       return { item: state, head: `${look.mark} ${pk.id} · ${look.word}`, alt: `${look.mark} ${pk.id} ${look.word}`, detail: pk.name }
-    }), idle, bg)
+    }), caption, ['najedź na segment,', 'żeby zobaczyć paczkę'], bg)
   }
 
   // "Ta sesja" (Z14, Aneks B): the session's work in one card in the active plan's look, always
@@ -125,7 +134,7 @@ export function mapView(c: Ctx, p: Parts, md: MapData, s: MapCtx) {
     return costBox('session-card', [
       <Box key="session-head" flexDirection="row" flexWrap="wrap" alignItems="center" columnGap={2}>
         <Box key="session-name" flexDirection="column" flexGrow={1} flexShrink={1}>
-          <Text bold color={THEME.mark} wrap="truncate">{title}</Text>
+          <Text bold color={THEME.mark}>{title}</Text>
           <Text color={THEME.body}>{sessionFacts(ms)}</Text>
         </Box>
         <Box key="session-fig" flexShrink={0}>{costFig('session-cost', ms.cost, 26)}</Box>
@@ -139,8 +148,8 @@ export function mapView(c: Ctx, p: Parts, md: MapData, s: MapCtx) {
     const words = b.statusWords ? clip(b.statusWords, 48) + (b.status ? '' : ' (status spoza listy)') : 'bez statusu'
     return (
       <Box key={key} flexDirection="column">
-        <Text bold color={look.color} wrap="truncate">{`${look.mark} ${b.name} · ${words}`}</Text>
-        {b.about ? [<Text key={`${key}-a`} color={THEME.body}>{clip(b.about, width * 2)}</Text>] : []}
+        <Text bold color={look.color}>{`${look.mark} ${b.name} · ${words}`}</Text>
+        {b.about ? [<Text key={`${key}-a`} color={THEME.body}>{b.about}</Text>] : []}
       </Box>
     )
   }
@@ -169,18 +178,23 @@ export function mapView(c: Ctx, p: Parts, md: MapData, s: MapCtx) {
         ...tasks.map(({ run, t }) => line(`st-t-${tag}-${run}-${t.id}`, `${FLOW.task[t.status].mark} ${t.name} · przebieg ${run}`, FLOW.task[t.status].color))] : []),
     ]) : null
     return (
-      <Box key={`st-${tag}`} flexDirection="column">
+      <Box key={`st-${tag}`} flexDirection="column" gap={isGui ? 1 : 0}>
         <Box key={`st-row-${tag}`} flexDirection="row" alignItems="center" gap={isGui ? 2 : 1} paddingX={1}
           {...frame(isNow || isOpen)} borderColor={flashBorder(`fold-${key}`, isNow ? THEME.accent : THEME.line)}
           backgroundColor={isNow ? THEME.cardOn : THEME.card} hover={{ borderColor: THEME.accent }}>
-          <Text bold color={look.color}>{look.mark}</Text>
-          <Box key={`st-text-${tag}`} flexDirection="column" flexGrow={1} flexShrink={1}>
-            <Text bold color={THEME.title} wrap="truncate">{`${s.id} · ${s.name}`}</Text>
-            <Text color={look.color} wrap="truncate">{facts}</Text>
-          </Box>
-          {/* The cost never shrinks: the name truncates first (terminal, 2026-10-09: "$4.5" over "4") */}
-          <Box key={`st-fig-${tag}`} flexShrink={0}>{costFig(`st-cost-${tag}`, g, 20, isPreTag(md, s) ? 'sprzed znacznika' : 'bez pomiaru')}</Box>
-          {btn(`fold-${key}`, isOpen ? 'Zwiń' : 'Szczegóły', 'secondary', () => fold(key, false))}
+          {fixed(<Text bold color={look.color}>{look.mark}</Text>)}
+          {/* The name wraps first; in a narrow pane the cost and the button go under it, and under
+              each other when even the two do not fit (PANEL_WASKI) */}
+          {textAndAct(`st-main-${tag}`,
+            <Box key={`st-text-${tag}`} flexDirection="column" flexGrow={1} flexShrink={1}>
+              <Text bold color={THEME.title}>{`${s.id} · ${s.name}`}</Text>
+              <Text color={look.color}>{facts}</Text>
+            </Box>,
+            // The cost never shrinks (terminal, 2026-10-09: "$4.5" over "4")
+            <Box key={`st-act-${tag}`} flexDirection="row" flexWrap="wrap" alignItems="center" columnGap={isGui ? 2 : 1} flexShrink={isStacked ? 1 : 0}>
+              <Box key={`st-fig-${tag}`} flexShrink={0}>{costFig(`st-cost-${tag}`, g, 20, isPreTag(md, s) ? 'sprzed znacznika' : 'bez pomiaru')}</Box>
+              {btn(`fold-${key}`, isOpen ? 'Zwiń' : 'Szczegóły', 'secondary', () => fold(key, false))}
+            </Box>)}
         </Box>
         {more ? [more] : []}
       </Box>
@@ -203,8 +217,8 @@ export function mapView(c: Ctx, p: Parts, md: MapData, s: MapCtx) {
         {...frame(isMain)} borderColor={flashBorder(`fold-${key}`, isMain ? THEME.mark : THEME.line)} backgroundColor={bg}>
         <Box key={`plan-head-${node.name}`} flexDirection="row" flexWrap="wrap" alignItems="center" columnGap={2}>
           <Box key={`plan-name-${node.name}`} flexDirection="column" flexGrow={1} flexShrink={1}>
-            <Text bold color={isMain ? THEME.mark : THEME.title} wrap="truncate">{node.name}</Text>
-            <Text color={THEME.body} wrap="truncate">{`${status} · zamknięte ${closed} z ${node.stages.length} etapów`}</Text>
+            <Text bold color={isMain ? THEME.mark : THEME.title}>{node.name}</Text>
+            <Text color={THEME.body}>{`${status} · zamknięte ${closed} z ${node.stages.length} etapów`}</Text>
           </Box>
           {c.records > 0 ? costFig(`plan-cost-${node.name}`, c, isMain ? 26 : 20) : []}
           {btn(`fold-${key}`, isOpen ? 'Zwiń' : 'Rozwiń', isMain ? 'primary' : 'secondary', () => fold(key, isMain))}
@@ -236,12 +250,12 @@ export function mapView(c: Ctx, p: Parts, md: MapData, s: MapCtx) {
         <Box key={`task-head-${id}`} flexDirection="row" alignItems="center" columnGap={1}>
           <Text bold color={look.color}>{look.mark}</Text>
           <Box key={`task-text-${id}`} flexDirection="column" flexGrow={1} flexShrink={1}>
-            <Text bold color={THEME.title} wrap="truncate">{t.name}</Text>
-            <Text color={THEME.body} wrap="truncate">{facts}</Text>
+            <Text bold color={THEME.title}>{t.name}</Text>
+            <Text color={THEME.body}>{facts}</Text>
           </Box>
           {cost ? costFig(`task-cost-${id}`, cost, 18) : []}
         </Box>
-        {t.members.length > 1 ? t.members.map((x) => <Text key={`task-m-${id}-${x.id}`} color={FLOW.task[x.status].color} wrap="truncate">{`  ↳ ${x.id} · ${x.name} ${FLOW.task[x.status].mark}`}</Text>) : []}
+        {t.members.length > 1 ? t.members.map((x) => <Text key={`task-m-${id}-${x.id}`} color={FLOW.task[x.status].color}>{`  ↳ ${x.id} · ${x.name} ${FLOW.task[x.status].mark}`}</Text>) : []}
         <Box key={`task-act-${id}`} flexDirection="row" flexWrap="wrap" gap={1}>
           {btn(`pick-${id}`, isPicked ? 'Odznacz' : 'Zaznacz', isPicked ? 'primary' : 'secondary', () => s.togglePick(id))}
           {t.isGroup ? btn(`split-${id}`, t.members.length > 1 ? 'Rozdziel' : 'Usuń przypisanie', 'secondary', () => { void s.saveMerges(splitGroup(md.merges, t.id)) }) : []}
@@ -259,7 +273,7 @@ export function mapView(c: Ctx, p: Parts, md: MapData, s: MapCtx) {
     const apply = (m: Merges) => { void s.saveMerges(m).then(clear) }
     return (
       <Box key={`run-act-${run.run}`} flexDirection="column" gap={isGui ? 1 : 0} paddingX={1} borderStyle="round" borderColor={THEME.accent} backgroundColor={THEME.cardOn}>
-        <Text bold color={THEME.title} wrap="truncate">{`Zaznaczone: ${mine.join(', ')}`}</Text>
+        <Text bold color={THEME.title}>{`Zaznaczone: ${mine.join(', ')}`}</Text>
         <Box key={`run-btn-${run.run}`} flexDirection="row" flexWrap="wrap" gap={1}>
           {mine.length >= 2 ? btn(`merge-${run.run}`, 'Scal zaznaczone', 'primary', () => apply(mergePicked(md.merges, run.run, mine)), '✓ Scalono') : []}
           {btn(`unpick-${run.run}`, 'Wyczyść', 'secondary', () => { void clear() })}
@@ -306,7 +320,7 @@ export function mapView(c: Ctx, p: Parts, md: MapData, s: MapCtx) {
         <Text bold color={THEME.title}>{`Skład przed startem · ${nTasks(draft.tasks.length)}`}</Text>
         {draft.tasks.map((t) => (
           <Box key={`crew-t-${run}-${t.id}`} flexDirection="column">
-            <Text bold color={THEME.mark} wrap="truncate">{`${t.id} · ${t.title || 'bez tytułu'}`}</Text>
+            <Text bold color={THEME.mark}>{`${t.id} · ${t.title || 'bez tytułu'}`}</Text>
             <Select key={`crew-role-${run}-${t.id}`} label="rola: " value={t.role || NONE}
               options={[...(t.role ? [] : [{ value: NONE, label: '— wybierz —' }]), ...ROLES.map((x) => ({ value: x, label: x }))]}
               onSelect={(v) => { if (v !== NONE) change(t.id, 'role', v) }} />

@@ -38,8 +38,10 @@ function focusRow(c: Ctx, p: Parts, n: NowData, f: FocusUi) {
     </Box>,
   ] : []
   return [
-    <Box key="now-focus" flexDirection="row" flexWrap="wrap" alignItems="center" columnGap={2}>
-      <Text color={w.isAsking ? THEME.accentText : THEME.body} wrap="truncate">{`Ta sesja: ${w.label} — ${how}${w.mention ? ' · ' + w.mention : ''}`}</Text>
+    <Box key="now-focus" flexDirection="row" alignItems="center" columnGap={2}>
+      <Box key="now-focus-words" flexGrow={1} flexShrink={1}>
+        <Text color={w.isAsking ? THEME.accentText : THEME.body}>{`Ta sesja: ${w.label} — ${how}${w.mention ? ' · ' + w.mention : ''}`}</Text>
+      </Box>
       {p.btn('now-focus-change', f.isOpen ? 'Zwiń' : 'Zmień', 'secondary', f.toggle)}
     </Box>,
     ...choices,
@@ -76,7 +78,7 @@ export function nowBar(c: Ctx, p: Parts, n: NowData, start: (() => void) | null,
             {pr.total ? [<Text key="now-figure" bold color={BAND.progress.color}>{`${pr.done}/${pr.total}`}</Text>] : []}
           </Box>,
         ] : []}
-        <Box key="now-l2"><Text color={THEME.body} wrap="truncate">{words}</Text></Box>
+        <Box key="now-l2"><Text color={THEME.body}>{words}</Text></Box>
         {focusRow(c, p, n, f)}
       </Box>
       {start ? [<Box key="now-act" flexShrink={0}>{p.btn('now-start', 'Start etapu…', 'primary', start)}</Box>] : []}

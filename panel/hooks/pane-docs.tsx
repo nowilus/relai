@@ -83,7 +83,7 @@ export function docsView(c: Ctx, p: Parts, dd: DocsData, s: DocsCtx) {
         backgroundColor={isHot ? THEME.cardOn : THEME.card} hover={{ borderColor: THEME.accent }}>
         {docGlyph(`tile-i-${id}`, d, 48)}
         <Text bold color={d.isChanged ? THEME.accentText : THEME.title} wrap="truncate-middle">{d.name}</Text>
-        <Text color={THEME.body} wrap="truncate">{`${kb(d.bytes)} · ${edited(d.mtimeMs, dd.now)}`}</Text>
+        <Text color={THEME.body}>{`${kb(d.bytes)} · ${edited(d.mtimeMs, dd.now)}`}</Text>
         {lines(`tile-n-${id}`, d)}
         {btn(`open-${id}`, isOpen ? 'Zamknij' : 'Otwórz', isOpen ? 'primary' : 'secondary', () => openDoc(group, d))}
       </Box>

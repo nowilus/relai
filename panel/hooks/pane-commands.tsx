@@ -57,7 +57,7 @@ export type CommandsCtx = {
 export function commandTabs(c: Ctx, parts: Parts, s: CommandsCtx) {
   const { el, isGui } = c
   const { Box, Text, Input, Select } = el
-  const { heading, icon, btn, flashBorder, frame, well, sentLine } = parts
+  const { heading, icon, btn, textAndAct, flashBorder, frame, well, sentLine } = parts
   const { data: d, picked, values: all, chat, canNew, clean, pick } = s
   // UX accepted 2026-10-12: the new session first and the default on the desktop
   const chats: { value: ChatMode, label: string }[] = [
@@ -143,14 +143,14 @@ export function commandTabs(c: Ctx, parts: Parts, s: CommandsCtx) {
             {...frame(g.isPicked)} borderColor={flashBorder(`clean-pick-${g.id}`, g.isPicked ? THEME.accent : THEME.line)} backgroundColor={g.isPicked ? THEME.cardOn : THEME.card}>
             <Text bold color={g.isPicked ? THEME.accentText : THEME.body}>{g.isPicked ? '☒' : '☐'}</Text>
             <Box key={`clean-t-${g.id}`} flexDirection="column" flexGrow={1} flexShrink={1}>
-              <Text color={THEME.title} wrap="truncate">{g.name}</Text>
-              <Text color={THEME.body} wrap="truncate">{`${g.count} poz. · ${(g.bytes / 1048576).toFixed(2).replace('.', ',')} MB`}</Text>
+              <Text color={THEME.title}>{g.name}</Text>
+              <Text color={THEME.body}>{`${g.count} poz. · ${(g.bytes / 1048576).toFixed(2).replace('.', ',')} MB`}</Text>
             </Box>
             {btn(`clean-pick-${g.id}`, g.isPicked ? 'Odznacz' : 'Zaznacz', g.isPicked ? 'primary' : 'secondary', () => s.toggleClean(g.id))}
           </Box>
         ))}
         {clean.kept.length ? [<Text key="clean-kept-h" bold color={THEME.mark}>Chronione — poza wyborem</Text>,
-          ...clean.kept.map((k, i) => <Text key={`clean-kept-${i}`} color={THEME.body} wrap="truncate">{`🔒 ${k.path} · ${k.reason}`}</Text>)] : []}
+          ...clean.kept.map((k, i) => <Text key={`clean-kept-${i}`} color={THEME.body}>{`🔒 ${k.path} · ${k.reason}`}</Text>)] : []}
         <Box key="clean-act" flexDirection="row" flexWrap="wrap" gap={1}>
           {nPicked ? btn('clean-prepare', 'Przygotuj sprzątanie', 'primary', () => s.prepareClean(clean)) : []}
           {btn('clean-reload', 'Wczytaj ponownie', 'secondary', () => s.loadClean())}
@@ -164,38 +164,60 @@ export function commandTabs(c: Ctx, parts: Parts, s: CommandsCtx) {
   // and its purpose — and "Otwórz" on the right. A command the session lacks: dimmed, "—" (pressed,
   // its form still shows what it would send and why it cannot). The form opens under its row and
   // the row's button turns "Zamknij".
+  // PANEL_WASKI (decision 2026-10-14): on a desktop a group is one card and its rows have no frame
+  // of their own — the open row is lit, the groups stand apart by the gap of the tab — so the rows
+  // never glue frame to frame and the tab keeps its 900 px. The terminal frames the open row only.
+  // The text wraps in a narrow pane; the icon and the button keep their size.
   const card = (c: string, isFeatured: boolean) => {
     const name = d.names[c] ?? null
     const isOn = c === picked
     const isOff = name === null
     const [title, purpose] = NAMES[c] ?? [c, '']
     const hint = isFeatured && c === 'relai-stage' ? stageHint(s.plan) : ''
-    const border = isOn ? THEME.accent : isOff ? THEME.lineOff : isFeatured ? THEME.mark : THEME.line
     const form = isOn ? formOf(c) : undefined
     const what = isOff ? 'niedostępna w tej sesji' : purpose
-    const command = <Text key={`cn-${c}`} color={THEME.body}>{' /' + c}</Text>
+    // The name, the command and the purpose are pieces of a wrapping row, a cell apart: a desktop
+    // keeps a space that opens a text piece unbreakable, so "przekazania /relai-handover" stood as
+    // one word wider than the row (live 2026-10-14, 31 columns)
+    const command = <Text key={`cn-${c}`} color={THEME.body} dimColor={isOff}>{'/' + c}</Text>
     const text = isFeatured
       ? <Box key={`text-${c}`} flexDirection="column" flexGrow={1} flexShrink={1}>
-          <Text wrap="truncate" dimColor={isOff}>{[<Text key={`nm-${c}`} bold color={THEME.mark}>{title}</Text>, command]}</Text>
-          <Text color={THEME.body} wrap="truncate">{what}</Text>
-          {hint ? [<Text key={`hint-${c}`} color={THEME.accentText} wrap="truncate">{hint}</Text>] : []}
+          <Box key={`head-${c}`} flexDirection="row" flexWrap="wrap" columnGap={1}>
+            <Text bold color={THEME.mark} dimColor={isOff}>{title}</Text>
+            {command}
+          </Box>
+          <Text color={THEME.body}>{what}</Text>
+          {hint ? [<Text key={`hint-${c}`} color={THEME.accentText}>{hint}</Text>] : []}
         </Box>
-      : <Box key={`text-${c}`} flexGrow={1} flexShrink={1}>
-          <Text wrap="truncate" dimColor={isOff}>{[<Text key={`nm-${c}`} bold color={THEME.title}>{title}</Text>, command, <Text key={`pu-${c}`} color={THEME.body}>{' · ' + what}</Text>]}</Text>
+      : <Box key={`text-${c}`} flexDirection="row" flexWrap="wrap" columnGap={1} flexGrow={1} flexShrink={1}>
+          <Text bold color={THEME.title} dimColor={isOff}>{title}</Text>
+          {command}
+          <Text color={THEME.body} dimColor={isOff}>{'· ' + what}</Text>
         </Box>
+    const rowFrame = !isGui && isOn ? { borderStyle: 'round', borderColor: THEME.accent } : {}
     return (
       <Box key={`card-${c}`} flexDirection="column">
         <Box key={`row-${c}`} flexDirection="row" alignItems="center" columnGap={isGui ? 2 : 1}
-          paddingX={isFeatured && isGui ? 2 : 1} {...frame(isOn)} borderColor={flashBorder(`cmd-${c}`, border)}
-          backgroundColor={isOn ? THEME.cardOn : isFeatured ? THEME.cardFeatured : THEME.card} hover={{ borderColor: THEME.accent }}>
+          paddingX={isFeatured && isGui ? 2 : 1} {...rowFrame}
+          {...(isOn ? { backgroundColor: THEME.cardOn } : {})} hover={{ backgroundColor: THEME.cardOn }}>
           {icon(c, isFeatured ? 44 : 24)}
-          {text}
-          {btn(`cmd-${c}`, isOn ? 'Zamknij' : isOff ? '—' : 'Otwórz', 'secondary', () => pick(c))}
+          {textAndAct(`main-${c}`, text, btn(`cmd-${c}`, isOn ? 'Zamknij' : isOff ? '—' : 'Otwórz', 'secondary', () => pick(c)))}
         </Box>
         {form ? [drawer(form)] : []}
       </Box>
     )
   }
+  // A group: its Kalam heading over one card holding its rows (a desktop; the terminal: the rows)
+  const group = (key: string, head: string, commands: readonly string[], isFeatured: boolean) => (
+    <Box key={key} flexDirection="column">
+      {heading(head)}
+      {/* A cell between the rows on a desktop, so no native button touches the next (live 2026-10-14) */}
+      <Box key={`${key}-card`} flexDirection="column" gap={isGui ? 1 : 0} {...frame(false)} borderColor={isFeatured ? THEME.mark : THEME.line}
+        backgroundColor={isFeatured ? THEME.cardFeatured : THEME.card}>
+        {commands.map((c) => card(c, isFeatured))}
+      </Box>
+    </Box>
+  )
 
   // Two recommended (brief v2 §6.3); the third of FEATURED, the tour, goes down to the first group
   const featured = FEATURED.slice(0, 2)
@@ -203,16 +225,8 @@ export function commandTabs(c: Ctx, parts: Parts, s: CommandsCtx) {
   // HUMANIZACJA E4 (decision 2026-10-14): "Polecane teraz" spaced like the groups below it, without
   // the gaps of section(), so the 15 commands, "Teraz" and the header fit 900 px of a desktop
   const commandsView = () => [
-    <Box key="featured" flexDirection="column">
-      {heading('featured')}
-      {featured.map((c) => card(c, true))}
-    </Box>,
-    ...groups.map((g) => (
-      <Box key={`group-${g.id}`} flexDirection="column">
-        {heading(`group-${g.id}`)}
-        {g.commands.map((c) => card(c, false))}
-      </Box>
-    )),
+    group('featured', 'featured', featured, true),
+    ...groups.map((g) => group(`group-${g.id}`, `group-${g.id}`, g.commands, false)),
   ]
 
   return { commandsView }

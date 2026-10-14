@@ -609,6 +609,19 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
 - **Zasada:** w sesji odnogi wątek spoza zakresu ma do wyboru plan, wpis „świadomie odłożone” albo
   odnogę otwartą **po** zamknięciu bieżącej, w nowej sesji — nigdy odnogę z tej sesji.
 
+### L-0194 — Test układu zielony, a na żywo przycisk za krawędzią kafla · 2026-10-14 · AKTYWNA
+
+- **Trigger:** odnoga PANEL_WASKI. Instrument szerokości modelował układ jak Yoga („Ink's Box”
+  w typach: wszystko kurczy się do zera), poprawka przeszła go w całości, a pierwszy zrzut
+  Łukasza pokazał „Otwórz” wypchnięte za kafel; potem jeszcze trzy objawy, których model nie znał
+  (spacja sklejająca słowa, sztywny `Svg` w wierszu, styk zawiniętych przycisków).
+- **Przyczyna:** model cudzego silnika układu przyjęty z opisu typów, bez kalibracji na żywo;
+  dane testowe bez materiału, na którym objaw powstał (źródło cennika z długim słowem).
+- **Zasada:** instrument modelujący cudzy silnik to hipoteza do pierwszego zrzutu — każdy objaw
+  ze zrzutu, którego instrument nie wskazał, najpierw wchodzi do niego jako przypadek kontroli
+  pozytywnej na kodzie ze zrzutu (instrument musi spaść), dopiero potem poprawka kodu; fikstura
+  niesie realny materiał, który objaw wywołał (P-043).
+
 ## Lekcje zwinięte
 
 Pełne wpisy lekcji, których zasady żyją w destylacie „Zasady aktywne" (kompresja 2026-08-20).

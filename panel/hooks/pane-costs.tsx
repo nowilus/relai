@@ -153,15 +153,17 @@ export function costsView(c: Ctx, p: Parts, cd: CostData, s: CostsCtx) {
       return (
         <Box key={`cost-limit-${w}`} flexDirection="row" flexWrap="wrap" alignItems="center" columnGap={2}>
           <Box key={`cost-limit-${w}-name`} minWidth={15} flexShrink={0} flexDirection="column">
-            <Text bold color={THEME.title} wrap="truncate">{LIMIT_LABEL[w]}</Text>
-            <Text color={THEME.body} wrap="truncate">{`próg: ${SOURCE_WORDS[t[w].source]}`}</Text>
+            <Text bold color={THEME.title}>{LIMIT_LABEL[w]}</Text>
+            <Text color={THEME.body}>{`próg: ${SOURCE_WORDS[t[w].source]}`}</Text>
           </Box>
           <Box key={`cost-limit-${w}-gauge`} flexGrow={1} flexShrink={1} minWidth={20} flexDirection="column">
             {Svg
               ? <Svg key={`cost-limit-${w}-ruler`} isInteractive height={RULER_HEIGHT} alt={`${LIMIT_LABEL[w]}: próg ${current} %, ${words}`} source={rulerSvg(used, current)} />
               : <Text key={`cost-limit-${w}-words`} color={THEME.body}>{`próg ${current} % · ${words}`}</Text>}
           </Box>
-          <Box key={`cost-limit-${w}-act`} flexDirection="row" flexWrap="wrap" columnGap={1} flexShrink={0}>
+          {/* The buttons keep their size and wrap among themselves when the card is narrow, a cell
+              between the lines so no native button touches the one under it (PANEL_WASKI) */}
+          <Box key={`cost-limit-${w}-act`} flexDirection="row" flexWrap="wrap" columnGap={1} rowGap={isGui ? 1 : 0} flexShrink={1}>
             {presetsFor(w, current).map((v) => btn(`limit-set-${w}-${v}`, `${v} %`, v === current ? 'primary' : 'secondary', () => s.changeLimit(w, v)))}
             {btn(`limit-change-${w}`, 'Inna…', 'secondary', () => s.changeLimit(w))}
           </Box>
@@ -266,7 +268,9 @@ export function costsView(c: Ctx, p: Parts, cd: CostData, s: CostsCtx) {
       line('pr-date', `Cennik z ${pr.date} · ${pr.source}`, THEME.title, true),
       line('pr-how', pr.saved
         ? `Każde wywołanie liczone cennikiem obowiązującym w chwili pomiaru (${pr.saved + 1} ${plural(pr.saved + 1, 'wersja', 'wersje', 'wersji')}); nowa stawka nie zmienia kwot policzonych wcześniej.`
-        : `Cennik wbudowany w panel; aktualizacja zapisze datowaną wersję w ${PRICE_FILE}.`),
+        : 'Cennik wbudowany w panel; aktualizacja zapisze datowaną wersję w pliku:'),
+      // A path has no place to wrap: in a narrow pane it is cut in the middle, as the documents' paths
+      ...(pr.saved ? [] : [<Text key="pr-file" color={THEME.body} wrap="truncate-middle">{PRICE_FILE}</Text>]),
       ...(pr.error ? [line('pr-err', `⚠ ${pr.error} — liczę cennikiem wbudowanym`, THEME.accentText)] : []),
       ...(pr.warning ? [line('pr-old', '⚠ ' + pr.warning, THEME.accentText)] : []),
       ...shownModels.map((u, i) => line(`pr-u-${i}`, '⚠ ' + unpricedWords(u), THEME.accentText)),
@@ -278,8 +282,8 @@ export function costsView(c: Ctx, p: Parts, cd: CostData, s: CostsCtx) {
         ...data.models.map((m, i) => (
           <Box key={`pr-m-${i}`} flexDirection="row" alignItems="center" columnGap={1}>
             <Box key={`pr-m-n-${i}`} flexDirection="column" flexGrow={1} flexShrink={1}>
-              <Text color={THEME.title} wrap="truncate">{m.model}</Text>
-              <Text color={THEME.body} wrap="truncate">{`${m.records} ${plural(m.records, 'rekord', 'rekordy', 'rekordów')}${m.isPartial && m.usd !== null ? ' · częściowo' : ''}`}</Text>
+              <Text color={THEME.title}>{m.model}</Text>
+              <Text color={THEME.body}>{`${m.records} ${plural(m.records, 'rekord', 'rekordy', 'rekordów')}${m.isPartial && m.usd !== null ? ' · częściowo' : ''}`}</Text>
             </Box>
             <Box key={`pr-m-f-${i}`} flexShrink={0}><Text bold color={m.usd === null ? THEME.accentText : THEME.mark}>{money(m.usd)}</Text></Box>
           </Box>

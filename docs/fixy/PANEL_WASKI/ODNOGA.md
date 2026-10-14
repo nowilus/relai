@@ -1,6 +1,6 @@
 # ODNOGA — panel RelAI bez rozjazdów w wąskim panelu podziału okna
 
-Plan: brak (wątek samodzielny) · Etap-źródło: — · Utworzona: 2026-10-14 · Status: **OTWARTA** ·
+Plan: brak (wątek samodzielny) · Etap-źródło: — · Utworzona: 2026-10-14 · Status: **ZAMKNIĘTA 2026-10-14** ·
 Wykonawca: Opus 5.5 w świeżej sesji
 
 ## Cel
@@ -61,23 +61,44 @@ wątek założyła nowa sesja.
 
 ## Weryfikacja
 
-- [ ] Tabela progów (zakładka × szerokość × objaw × miejsce w kodzie) zapisana we wpisie dziennika;
+- [x] Tabela progów (zakładka × szerokość × objaw × miejsce w kodzie) zapisana we wpisie dziennika;
       każdy objaw z zrzutów 2026-10-14 ma w niej wiersz.
-- [ ] `claude plugin validate .` i `claude plugin test .` w `panel/` zielone binarką aplikacji
+- [x] `claude plugin validate .` i `claude plugin test .` w `panel/` zielone binarką aplikacji
       (P-024 pkt 4); nowe testy szerokości spadają na kodzie sprzed poprawki (kontrola pozytywna
       w tym samym przebiegu, `git worktree` HEAD-a, L-0151) i przechodzą po niej.
-- [ ] Testy rdzenia `node --test core/panel/tests/*.test.js` zielone, w tym parytet kopii rdzenia
+- [x] Testy rdzenia `node --test core/panel/tests/*.test.js` zielone, w tym parytet kopii rdzenia
       (jeśli `theme.mjs` się zmienił).
-- [ ] Na żywo, w wąskim panelu przy trzech sesjach obok siebie i w dwóch innych szerokościach:
+- [x] Na żywo, w wąskim panelu przy trzech sesjach obok siebie i w dwóch innych szerokościach:
       w każdej zakładce tekst kafla mieści się w kaflu albo zawija, „Otwórz” i „Rozwiń” mają pełną
       etykietę, między kaflami jest odstęp, ramki się nie stykają — zrzuty w repo, akceptacja
       Łukasza zapisana w dzienniku.
-- [ ] `git diff` nie dotyka plików spoza zakresu; po podbiciu wersji `grep -r` po `0.17.0`
+- [x] `git diff` nie dotyka plików spoza zakresu; po podbiciu wersji `grep -r` po `0.17.0`
       rozstrzygnięty (historyczne vs deklaracja stanu).
-- [ ] Katalog roboczy `.claude/relai/work/_fixy/PANEL_WASKI/` przejrzany raportem
+- [x] Katalog roboczy `.claude/relai/work/_fixy/PANEL_WASKI/` przejrzany raportem
       (`node .claude/relai/tools/clean-work.js raport`) i skasowany po „tak”; liczby przed i po we
       wpisie dziennika, artefakty spoza niego wypisane z nazwy.
 
 ## Wynik
 
-—
+Panel mieści się w wąskim panelu podziału okna. Zmierzony na żywo w czterech seriach zrzutów
+Łukasza (`docs/zasoby/PANEL_RELAI/zrzuty/PANEL_WASKI_1…30`) przy 31 kolumnach (środek trzech
+paneli), 75 i 94; kopia niewydana `relai-panel-dev` z odczytem `bodyColumns` w folderze modów sesji.
+
+- **Wspólne części** (`pane-parts.tsx`): przycisk, ikona i znak nigdy się nie kurczą (`fixed`);
+  jeden układ wierszy na cały panel — poniżej `STACK_BELOW = 48` kolumn przycisk pod tekstem,
+  od 48 obok (`textAndAct`); sekcja zwinięta zawija podsumowanie, w wąskim panelu nagłówek
+  i „Rozwiń” u góry, podsumowanie pod nimi; nagłówek Kalam w kurczliwym pudełku.
+- **Komendy** (decyzja Łukasza 2026-10-14): grupa to jeden kafel, wiersze bez własnych ramek,
+  komórka odstępu między wierszami — zakładka ma 1061 px zamiast 900 (limit z HUMANIZACJA E4
+  zmieniony na prośbę Łukasza); nazwa, komenda i opis jako trzy kawałki zawijanego wiersza.
+- **Mapa** (decyzja 2026-10-14): „Teraz: …” tekstem nad paskiem etapów, pod paskiem krótka
+  podpowiedź; wiersz etapu łamie koszt i „Szczegóły” pod nazwę; szczegóły etapu z odstępem.
+- **Koszty, Pomoc, Dokumenty**: podsumowania i podpisy zawijane zamiast ucinane; przyciski progu
+  z odstępem między liniami; ścieżka pliku cennika skracana w środku; opisy Pomocy bez obcinania
+  `clip(…, width * 2)`.
+- **Test** `panel/hooks/narrow.test.ts`: model układu desktopu (CSS: min-content, spacja na
+  początku kawałka tekstu nierozdzielająca, `Svg` skalowany tylko do rodzica, 6,8 px na znak)
+  skalibrowany na żywo; pięć zakładek zwiniętych i rozwiniętych w 11 szerokościach, jeden układ
+  wierszy w pięciu szerokościach, kontrola pozytywna na każdym objawie ze zrzutów.
+- `relai-panel` 0.18.0 w repo; wydanie po zgodzie Łukasza. Szczegóły i tabela progów: wpis
+  dziennika 2026-10-14 „PANEL_WASKI”; zachowania silnika: P-043.

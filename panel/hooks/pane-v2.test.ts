@@ -255,26 +255,33 @@ describe('the commands tab (brief v2 §6.3–6.5, P1)', () => {
     for (const c of ROWS) {
       const row = await ui.find({ key: `row-${c}` })
       expect([...walk(row)].find((n) => n.type === 'Svg')?.props?.width).toBe(24)
-      const lines = [...walk(row)].filter((n) => n.type === 'Text')
-      const outer = lines.filter((n) => !lines.some((m) => m !== n && kids(m).includes(n)))
-      expect(outer.length).toBe(1) // one line of text: name, command and purpose together
-      expect(String(props(outer[0]).wrap)).toMatch(/^truncate/)
+      // One wrapping row: name, command and purpose as three pieces a cell apart, each wrapping
+      // in a narrow pane, never cut (PANEL_WASKI: a space opening a piece does not break)
+      const text = await ui.find({ key: `text-${c}` })
+      expect(props(text).flexDirection).toBe('row')
+      expect(props(text).flexWrap).toBe('wrap')
+      const pieces = kids(text)
+      expect(pieces.map((n) => (n as RenderElement).type)).toEqual(['Text', 'Text', 'Text'])
+      expect(pieces.every((n) => props(n).wrap === undefined && !textOf(n).startsWith(' '))).toBe(true)
       const named = [...walk(row)].filter((n) => n.type === 'Text' && textOf(n).trim() === '/' + c)
       expect(named.length === 1 && props(named[0]).color === THEME.body).toBe(true)
       expect(props(await ui.find({ key: `cmd-${c}` })).label).toBe(c === 'relai-adopt' ? '—' : 'Otwórz')
     }
-    expect(textOf(await ui.find({ key: 'row-relai-stage' }))).toContain('Etap planu /relai-stage')
+    expect(textOf(await ui.find({ key: 'head-relai-stage' }))).toBe('Etap planu/relai-stage') // two pieces, a cell apart
     await ui.unmount()
   })
 
   test('a command missing in the session: the row dimmed, its button "—"', async ($, on) => {
     world(on)
     const ui = await open($)
+    // PANEL_WASKI: a row has no frame of its own on a desktop (the group is the card), so the
+    // missing command is dimmed by its words
+    const isDim = (node: RenderNode | undefined) => [...walk(node)].some((n) => n.type === 'Text' && props(n).dimColor === true)
     const row = await ui.find({ key: 'row-relai-adopt' })
-    expect(props(row).borderColor).toBe(THEME.lineOff)
+    expect(isDim(row)).toBe(true)
     expect(textOf(row)).toContain('niedostępna w tej sesji')
     expect(props(await ui.find({ key: 'cmd-relai-adopt' })).label).toBe('—')
-    expect(props(await ui.find({ key: 'row-relai-backup' })).borderColor).not.toBe(THEME.lineOff)
+    expect(isDim(await ui.find({ key: 'row-relai-backup' }))).toBe(false)
     await ui.unmount()
   })
 
@@ -293,13 +300,15 @@ describe('the commands tab (brief v2 §6.3–6.5, P1)', () => {
     await ui.unmount()
   })
 
-  test('the 15 commands, "Teraz" and the header fit 900 px of a desktop', async ($, on) => {
+  test('the 15 commands, "Teraz" and the header fit 1061 px of a desktop', async ($, on) => {
     world(on)
     const ui = await open($)
     const tree = await ui.drawn()
     const px = height(tree as RenderNode)
-    // HUMANIZACJA E4: "Polecane teraz" spaced like the groups (no gaps) pays for the 15th row
-    expect(`${px} px`).toBe(`${Math.min(px, 900)} px`)
+    // HUMANIZACJA E4: "Polecane teraz" spaced like the groups (no gaps) pays for the 15th row.
+    // PANEL_WASKI (Łukasz, live 2026-10-14, 94 columns: "nie ma żadnych marginesów pomiędzy
+    // przyciskami"): a cell between the rows of a group card, 11 gaps of 20 px; 900 px became 1061
+    expect(`${px} px`).toBe(`${Math.min(px, 1061)} px`)
     expect(props(await ui.find({ key: 'featured' })).gap).toBeUndefined()
     for (const c of ROWS) expect(height((await ui.find({ key: `row-${c}` })) as RenderNode)).toBeLessThanOrEqual(PX.button + 2 * PX.border)
     await ui.unmount()
