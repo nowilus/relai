@@ -67,6 +67,12 @@
       "file": "./humanize/LICENSE-humanizer.md",
       "kind": "nota licencyjna",
       "description": "Nota MIT Humanizera (Siqi Chen) z pelnym tekstem licencji i lista plikow, ktore korzystaja z jego tresci."
+    },
+    {
+      "id": "humanize-profil-stylu",
+      "file": "./humanize/PROFIL_STYLU.md",
+      "kind": "procedura",
+      "description": "Profil stylu autora: format STYL.md (cechy, nigdy surowe teksty, najwyzej jeden zwrot do 5 slow), miejsce (~/.claude/relai/STYL.md, projektowy tylko na prosbe), zrodla (wklejony tekst, wskazane pliki, logi dyktowania), procedura budowy z kontrola skryptem i rodzaje tekstu, w ktorych profil dziala."
     }
   ],
   "process": [
@@ -105,6 +111,12 @@
       "file": "./process/humanize-facts.js",
       "kind": "narzedzie",
       "description": "Straznik faktow humanizacji: porownuje oryginal z wersja poprawiona (bloki kodu, backticki, URL, cele linkow, sciezki, daty, liczby) i zwraca JSON { zgubione, dopisane }; kod wyjscia 1 przy roznicy. Teksty z plikow albo ze stdin (heredoc), bez plikow tymczasowych. Samowystarczalny, kopiowany do .claude/relai/tools/ projektu."
+    },
+    {
+      "id": "humanize-mode",
+      "file": "./process/humanize-mode.js",
+      "kind": "biblioteka+CLI",
+      "description": "Ustawienia humanizacji: wiersz Humanizacja czytany w trzech warstwach (plik sesji, projekt, globalnie) z zamknieta lista brzmien PL i EN; CLI odczyt / zapisz / przelacz on|off oraz zapis profilu stylu z kontrola cytatow 6+ slow, sekretow i danych osobowych. Samowystarczalny, kopiowany do .claude/relai/tools/ projektu."
     }
   ],
   "tools": [
@@ -159,7 +171,8 @@
         "./process/resume.js",
         "./process/work-artifacts.js",
         "./process/crew.js",
-        "./process/humanize-facts.js"
+        "./process/humanize-facts.js",
+        "./process/humanize-mode.js"
       ]
     },
     {
@@ -174,7 +187,8 @@
         "./process/session-signals.js",
         "./process/work-artifacts.js",
         "./process/crew.js",
-        "./process/humanize-facts.js"
+        "./process/humanize-facts.js",
+        "./process/humanize-mode.js"
       ]
     },
     {
@@ -189,7 +203,8 @@
         "./process/session-signals.js",
         "./process/work-artifacts.js",
         "./process/crew.js",
-        "./process/humanize-facts.js"
+        "./process/humanize-facts.js",
+        "./process/humanize-mode.js"
       ]
     }
   ]

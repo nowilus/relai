@@ -46,8 +46,9 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
    L-0186)
 5. **Instrument pomiarowy sam bywa źródłem fałszu.**
    - **Backslash:** wyrażenia regularne i ścieżki Windows tylko w pliku pisanym Write/Edit albo
-     z `/`; skrypt edycji niosący `\n` lub ścieżkę — Write, heredok bez wyjątku (L-0116, L-0119,
-     L-0135, L-0148); wynik sprawdzasz grepem stałego ciągu.
+     z `/`; skrypt edycji niosący `\n`, backtick lub ścieżkę — Write, heredok bez wyjątku, także
+     jednolinijkowa podmiana przez `node -e`; dokumenty — tylko Edit (L-0116, L-0119, L-0135, L-0148,
+     L-0188); znaki łączące — `\p{M}` z flagą `u`; wynik sprawdzasz grepem stałego ciągu.
    - **Kontrola pozytywna:** zero trafień przy niepustych zbiorach to defekt instrumentu do czasu
      dowodu, a trafienie na materiale dotąd zdrowym sprawdzasz najpierw na instrumencie; scenariusz
      „konfiguracji nie ma” mierzysz z podstawionym katalogiem domowym; dokładasz przypadek, który **musi** trafić, na **tym samym wejściu**, którego mechanizm
@@ -99,11 +100,12 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
    (L-0025, L-0035, L-0048, L-0066, L-0070, L-0074)
 8. **Zachowanie, które ma działać zawsze, mieszka w warstwie obecnej w każdej sesji** (`CLAUDE.md`
    albo hook); skill wyzwala się zawodnie. Sygnał jednorazowy ma jednego właściciela. Stan pisany
-   przez model: plik na zapisującego, bez scalania. Fakt rozstrzygnięty idzie do subagenta jako
-   rozstrzygnięty. Zmiana formatu trwałej kopii ma drogę migracji. Plik doczytywany dla klasy
-   `balanced` ma drogowskaz z wyzwalaczem w warstwie stałej — działa przy frazie z promptu; krok
-   wyzwalany kształtem zadania stoi w warstwie stałej w skrócie.
-   (L-0015, L-0030, L-0036, L-0112, L-0120, L-0121, L-0126, L-0128)
+   przez model: plik na zapisującego, bez scalania. Zapis w warstwie niższej niż plik tej sesji
+   kasuje ten plik i mówi, która warstwa rozstrzyga po zapisie (L-0187). Fakt rozstrzygnięty idzie
+   do subagenta jako rozstrzygnięty. Zmiana formatu trwałej kopii ma drogę migracji. Plik
+   doczytywany dla klasy `balanced` ma drogowskaz z wyzwalaczem w warstwie stałej — działa przy
+   frazie z promptu; krok wyzwalany kształtem zadania stoi w warstwie stałej w skrócie.
+   (L-0015, L-0030, L-0036, L-0112, L-0120, L-0121, L-0126, L-0128, L-0187)
 9. **Skill nie zakłada dostępu poza katalogiem roboczym**; opis ≤ 1 024 znaki, trzecia osoba, co
    i kiedy, marker projektu i płaska lista fraz, bez `MUST BE USED`; krok sięgający dalej ma
    wyjście po odmowie. (L-0009, L-0010, L-0012, L-0023, L-0114)
@@ -502,6 +504,36 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
 - **Zasada:** test wydanego artefaktu liczy dane ze stanu wydania (tag, worktree) albo przypina
   zbiór wydany stałą listą z kontrolą, że jej elementy nadal istnieją; bieżące repo jest wejściem
   tylko dla artefaktu w toku (odnoga FILM_TESTY_V3, scena 4 przypięta w E1).
+
+### L-0187 — Odpowiedź z wywiadu zapisana w projekcie przegrywała z plikiem tej samej sesji · 2026-10-14 · AKTYWNA
+
+- **Trigger:** przebieg interaktywny E2 HUMANIZACJA. Pierwszy wywiad Łukasz zapisał z zasięgiem
+  „ta sesja”, a `/relai-humanize ustawienia` w tej samej sesji z zasięgiem „ten projekt”. Wiersz
+  projektu powstałby poprawnie, ale do końca sesji rozstrzygałby plik sesji z pierwszej odpowiedzi.
+- **Przyczyna:** pierwszeństwo warstw (sesja → projekt → globalnie) było przetestowane na odczycie,
+  a zapis traktował każdą warstwę osobno. Nikt nie zapytał, co zobaczy człowiek zaraz po zapisie.
+- **Zasada:** zapis w warstwie niższej niż plik **tej** sesji kasuje ten plik, bo człowiek właśnie
+  odpowiedział od nowa. Cudzych sesji nie rusza. Wynik zapisu podaje, która warstwa rozstrzyga po
+  zapisie (`rozstrzyga`), a komenda mówi o tym, gdy to nie jest warstwa właśnie zapisana. Test zapisu
+  w warstwach sprawdza stan odczytu po zapisie, nie tylko plik.
+
+### L-0188 — Wyrażenie regularne puszczone przez `node -e` w powłoce straciło backslash · 2026-10-14 · AKTYWNA
+
+- **Trigger:** E2 HUMANIZACJA, poprawka `humanize-mode.js`. Podmiana zakresu znaków diakrytycznych
+  na `\p{M}` poszła skryptem `node -e "…"` w podwójnym cudzysłowie Basha. W pliku wylądowało
+  `/p{M}/gu`, wyrażenie bez backslasha, które dopasowuje literalny tekst „p{M}”. Wyłapała to
+  kontrola `grep` zaraz po zapisie.
+- **Przyczyna:** zasada L-0116/L-0119 już to zakazywała. Złamałem ją, bo zmiana wyglądała na
+  „tylko podmianę jednego ciągu”, a nie na pisanie skryptu. Druga pułapka tego samego kroku: zakres
+  znaków łączących wpisany w Write trafił do pliku jako niewidoczne znaki.
+- **Ciąg dalszy tej samej sesji:** heredok z testami pełnymi backslashy przewrócił Basha
+  („unexpected EOF”), a podmiana w `STATE.md` przez `node -e "…"` z backtickami w treści wykonała
+  podstawienia — powłoka uruchomiła `on`, `off` i próbowała wykonać `docs/USTAWIENIA.md` jako
+  skrypt (padł na składni w linii 7; `git diff` potwierdził, że pliki są nietknięte).
+- **Zasada:** każda zmiana tekstu z backslashem **albo backtickiem** idzie przez Edit albo Write,
+  także jednolinijkowa podmiana; dokumenty projektu — wyłącznie Edit. Znaki łączące usuwasz przez
+  `\p{M}` z flagą `u`, nie zakresem wpisanych znaków. Po zapisie sprawdzasz `cat -A` albo `grep`
+  stałego ciągu, a po każdym błędzie powłoki — `git diff` plików, które polecenie wymieniało.
 
 ## Lekcje zwinięte
 

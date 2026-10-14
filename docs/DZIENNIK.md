@@ -1783,3 +1783,114 @@ Wykonawca: Opus 5.5 (Claude Code, aplikacja desktopowa), `/relai-stage`, zgoda w
 - Start E2 w świeżej sesji Opus 5.5 (`/effort high`) komendą `/relai-stage`.
 
 Autor: RelAI (Opus 5.5) + Lukasz
+
+### 2026-10-14 — HUMANIZACJA E2: wywiad przy pierwszym `/relai-humanize`, ustawienia w trzech warstwach i profil stylu
+
+Wykonawca: Opus 5.5 (Claude Code, aplikacja desktopowa), `/relai-stage`, zgoda w czacie.
+
+**Zrobione:**
+
+- `core/process/humanize-mode.js` (487 linii, bez zależności, kopiowany do `.claude/relai/tools/`
+  przez `NARZEDZIA`): wiersz `Humanizacja` z zamkniętymi listami PL i EN (stan, `zakresy`, `pokaz`,
+  `ton` tylko z odstępstwami, `profil`, `profil w`), trzy warstwy — plik sesji
+  `.claude/relai/humanizacja/<id>.json` → projekt → globalnie → wywiad; pierwsza warstwa z wierszem
+  rozstrzyga także przy stanie spoza listy (cisza, bez spadku niżej). CLI: `odczyt`, `zapisz`,
+  `przelacz on|off` (kod 3, gdy brak zakresów), `profil` (kontrola ciągów 6+ słów ze źródeł,
+  sekretów i danych osobowych, zapis tylko czystego profilu). Identyfikator sesji z
+  `CLAUDE_CODE_SESSION_ID` — zmienna jest w Bashu sesji aplikacji i w potomnej `claude -p` (FAKT,
+  zmierzone w tym etapie). Testy `core/process/tests/humanize-mode.test.js` (28).
+- `/relai-humanize` v2 (308 linii, 19,3 KB): Krok 0a (`on`, `off`, `ustawienia`), Krok 3a (odczyt
+  i tabela zachowań), Krok 3b (pokaz na próbce, dwa okna, w Cursorze i Codeksie bez pytania
+  o zakresy, mapowanie etykiet na wartości, zapis jednym poleceniem), ton i profil w przepisaniu.
+  `argument-hint` bez zmian — zmieni go E4 razem z formularzem panelu (test parowania formularzy
+  pilnuje tej pary). Skill Codeksa wygenerowany.
+- `core/humanize/PROFIL_STYLU.md` — format `STYL.md`, miejsce, źródła jako „tekst, który
+  wskazujesz”, procedura z kontrolą skryptem, rodzaje tekstu.
+- `core/templates/SPEC_USTAWIENIA.md` — sekcja „Wiersz `Humanizacja` (od 3.1.0)”, wiersz w tabeli
+  czytanych maszynowo (dziesięć) i na liście nietykalnych w rotacji (jedenaście), zdanie przy
+  inicjalizacji. `core/MANIFEST.json` — `humanize-mode`, `humanize-profil-stylu`, odwołania trzech
+  adapterów. `session-signals.test.js` — lista plików bazy i kopia skryptu z sumą.
+- `docs/ARTEFAKTY.md` — `SPEC_USTAWIENIA.md` v14, `/relai-humanize` v2, nowy „Profil stylu autora”.
+- Profil `~/.claude/relai/STYL.md` (poza repo) z logów PolyFlow
+  (`C:\Users\Lukasz\PolyFlow\dane\sessions\`, 7 plików Markdown, pole „Wklejone”, 347 wpisów,
+  16 214 słów): słowa i zwroty, długość zdań (mediana 18 słów), początki i zakończenia, czego unika,
+  czego z mowy nie przenosić. Pokazany Łukaszowi i zapisany po „tak”.
+- Wiersz w `docs/USTAWIENIA.md` z przebiegu interaktywnego:
+  `włączona · zakresy: czat · pokaz: dwie wersje · profil: tak · profil w: czat`.
+- Lekcje L-0187 (zapis niżej niż plik tej sesji) i L-0188 (backslash przez `node -e`), dopisane do
+  zasad 8 i 5; zasad aktywnych 15 / 15.
+
+**Zweryfikowane — jak dokładnie:**
+
+- Testy: `node --test core/process/tests/*.test.js core/guardrails/tests/*.test.js
+  core/panel/tests/*.test.js adapters/codex/tests/*.test.js` → **384 / 384** (przed etapem 356,
+  FAKT). `node core/tools/validate-adapters.js` spójny, parytet Codeksa 42 pliki / 0 rozjazdów,
+  jedno ostrzeżenie zastane (`relai-prompt.md` 30 106 B). `claude plugin test` binarką 2.1.295:
+  panel 178, progress 31, cache-keeper 178 — bez zmian (etap nie dotyka `panel/`).
+- Rdzeń: pierwszeństwo na każdej parze warstw i każdej warstwie osobno; stan spoza listy w projekcie
+  rozstrzyga ciszą, a ten sam układ z poprawnym stanem rozstrzyga wartością (kontrola pozytywna
+  w tym samym teście); wiersz pod „Ustawienia wycofane” i „Humanizacja tekstu” nie rozstrzygają;
+  zapis nie dubluje wiersza, reszta pliku ma tę samą sumę przed i po (LF, CRLF, mieszane, z BOM);
+  plik globalny tworzony w podstawionym katalogu domowym.
+- Przebieg `claude -p` (świeża sesja Opus 5.5, komenda podłożona jako
+  `.claude/commands/relai-humanize-probe.md`, projekt bez wiersza): `odczyt` → `wywiad: true`,
+  model nie zadał pytań, wynik na żądanie z tonem wbudowanym, strażnik `{"zgubione":[],"dopisane":[]}`;
+  `git status --short docs/USTAWIENIA.md` pusty, `sha256sum -c` obu plików ustawień OK, pliku sesji
+  brak. Koszt 0,77 USD (FAKT, `total_cost_usd`).
+- Przebieg interaktywny z Łukaszem (ta sesja): pusty argument → jedno zdanie; pierwsze wywołanie →
+  pokaz na próbce, okno 1, okno 2, budowa profilu, zapis w warstwie sesji; drugie wywołanie bez
+  pytań (`wywiad: false`, `source: sesja`); `ustawienia` → próbka z `STATE.md` („nic do zmiany”),
+  dwa okna, zapis w projekcie; `off` i `on` (kod 3 → jedno pytanie o zakresy → `--zakresy czat`):
+  `git diff docs/USTAWIENIA.md` pokazuje jedną dodaną linię, w pliku jeden wiersz „Humanizacja”.
+- Profil: kontrola skryptem na zapisanym pliku — 0 cytatów 6+ słów, 0 trafień wrażliwych
+  (7 plików, 45 267 słów surowych z polami „Surowe” i „Wklejone”); kontrola pozytywna na tym samym
+  wejściu z podłożonym 6-słowowym ciągiem z logu → trafienie, kod 1. W repo nic z logów: grep
+  `PolyFlow/dane` i `Wklejone` po plikach zmienionych i nowych → 0.
+- Sekrety: `git grep -nE "sk-ant-[a-z0-9]+-[A-Za-z0-9_-]{20,}|sk_(test|live)_[A-Za-z0-9]{10,}"` → 0,
+  nowe pliki → 0, kontrola pozytywna na próbce złożonej w locie → 1.
+- Recenzja kodu (agent `code-reviewer`): 0 CRITICAL, 0 HIGH, 5 MEDIUM, 7 LOW. Poprawione w etapie
+  z testem na każdą pozycję (8 testów czerwonych przed poprawką): JSON/JSONL z ucieczkami u-kodów
+  i źródło NFD gubiły cytaty; zero czytelnych źródeł albo wskazany `.docx` dawały „czysto”; BOM
+  i mieszane końce linii ginęły przy zapisie; wiersz mógł trafić do tabeli wycofanych i nigdy nie
+  być czytany; `--cel` pisał gdziekolwiek, a profil projektowy cicho przesłaniał globalny; flaga
+  bez wartości (`--sesja` → `true.json`), `--data` z `|`, `zapisz włączona` bez zakresów,
+  `przelacz` na wierszu nierozpoznanym (gubił profil i ton), wiersz bez markera RelAI, telefon
+  bez separatorów, JWT, klucz Google, etykiety wywiadu bez mapowania na wartości. LOW 8 (uszkodzony
+  plik sesji) opisany w specyfikacji.
+- Dogfooding wykrył defekt przed recenzją: zapis z `ustawienia` w projekcie przegrywał z plikiem
+  tej sesji z pierwszego wywiadu → zapis niżej kasuje plik tej sesji, wynik podaje `rozstrzyga`
+  (test, L-0187).
+- Katalog roboczy `.claude/relai/work/HUMANIZACJA/E2/`: przed 4 pliki, 325 KB; po „tak” — 0
+  (katalog usunięty). Poza nim: podłożona komenda `.claude/commands/relai-humanize-probe.md`
+  i folder `.claude/commands/` (założony na ten przebieg) — skasowane; katalogi testów
+  `%TEMP%/relai-humanize-mode-*` sprzątane przez sam test; plik sesji
+  `.claude/relai/humanizacja/<id>.json` — skasowany przez zapis w projekcie; `~/.claude/relai/STYL.md`
+  — produkt etapu, zostaje. Materiał pośredni z logów istniał tylko w pamięci skryptu
+  (wynik na stdout) i w tej rozmowie.
+- Ryzyka: tabela „Stan otwartych ryzyk” przejrzana — etap nie otworzył ryzyka projektu. Ryzyka
+  planu: H3 (wyłączenia ścieżek) i H5/H6 dotyczą trybu ciągłego — E3; dane osobowe w profilu
+  (przypadek b11) mają mitygację wdrożoną skryptem.
+
+**Świadomie odłożone:**
+
+- Bramka zgody optymalizatora (`prompt-mode`) zapytała o zgodę przy odpowiedzi Łukasza na pytanie
+  modelu w trakcie komendy („…/sessions/ są w markdownie”) — filtr pomija tylko krótkie
+  potwierdzenia. Odpowiedź „nie, nie w tej sesji” zapisana; temat dotyczy planu optymalizatora, nie
+  HUMANIZACJI — do rozważenia przy E3 (oba tryby ciągłe razem) albo jako odnoga.
+- Komenda poza projektem RelAI nie ma skryptu ustawień ani bazy reguł (start sesji kopiuje je tylko
+  w projekcie) — zastane z E1; ścieżka „wywiad tylko ta sesja / wszystkie projekty” jest w kodzie
+  i w komendzie, ale realnie zadziała w folderze, który ma `.claude/relai/`.
+- LOW 10 recenzji, część: wzorzec PESEL łapie każdą liczbę 11-cyfrową (fałszywy alarm
+  w profilu, nie przeciek) — zostawione.
+- Złamanie L-0116 trzy razy w tej sesji: `node -e` z `\p{M}` (backslash zgubiony, wyłapany grepem),
+  heredok testów z backslashami (Bash odrzucił polecenie), `node -e` z backtickami przy `STATE.md`
+  (powłoka wykonała podstawienia, w tym próbę uruchomienia `docs/USTAWIENIA.md`, która padła na
+  składni; `git diff` potwierdził brak zmian). Lekcja L-0188 i zasada 5: dokumenty wyłącznie Edit.
+
+**Do zrobienia przez człowieka:**
+
+- Rozstrzygnąć przed E3, czy wiersz „Humanizacja” (`włączona · zakresy: czat`) zostaje
+  w `docs/USTAWIENIA.md` — od E3 odpowiedzi w czacie tego projektu będą humanizowane same.
+- Start E3 w świeżej sesji Opus 5.5 (`/effort high`) komendą `/relai-stage`.
+
+Autor: RelAI (Opus 5.5) + Lukasz

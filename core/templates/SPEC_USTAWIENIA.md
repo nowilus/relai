@@ -1,6 +1,6 @@
 # SPEC — `docs/USTAWIENIA.md`
 
-Zawartość: Rola · Odbiorca · Warstwy ustawień (D-23) · Struktura pliku · Wiersz to jedna decyzja, jednym zdaniem (od 1.6.0) · Wpisy tworzone przy inicjalizacji · Wiersz `Rotacja dokumentów` (od 1.2.0) · Wiersz `Budżet startu sesji` (od 1.6.0) · Wiersz `Przegląd spraw człowieka` (od 1.7.0) · Wiersz `Artefakty robocze` (od 1.8.0) · Wiersz `Lista modeli` (od 1.9.0) · Wiersz `Tryb ciągły` (od 2.2.0) · Wiersze `Próg limitu` i `Próg limitu tygodnia` (od 2.9.0) · Wiersze warstwy globalnej (od 2.3.0) · Rotacja ustawień (od 1.7.0) · Katalog progów (od 1.7.0) · Polityka aktualizacji · Co tu trafia, a co nie · Zakazy · Przykład (projekt polski).
+Zawartość: Rola · Odbiorca · Warstwy ustawień (D-23) · Struktura pliku · Wiersz to jedna decyzja, jednym zdaniem (od 1.6.0) · Wpisy tworzone przy inicjalizacji · Wiersz `Rotacja dokumentów` (od 1.2.0) · Wiersz `Budżet startu sesji` (od 1.6.0) · Wiersz `Przegląd spraw człowieka` (od 1.7.0) · Wiersz `Artefakty robocze` (od 1.8.0) · Wiersz `Lista modeli` (od 1.9.0) · Wiersz `Tryb ciągły` (od 2.2.0) · Wiersze `Próg limitu` i `Próg limitu tygodnia` (od 2.9.0) · Wiersz `Humanizacja` (od 3.1.0) · Wiersze warstwy globalnej (od 2.3.0) · Rotacja ustawień (od 1.7.0) · Katalog progów (od 1.7.0) · Polityka aktualizacji · Co tu trafia, a co nie · Zakazy · Przykład (projekt polski).
 
 Specyfikacja dla LLM (D-60). Nie kopiuj tego pliku. Wygeneruj `docs/USTAWIENIA.md` **w języku
 projektu** (`docs/SETTINGS.md` dla projektu angielskiego).
@@ -91,7 +91,7 @@ sesji, zanim skrócisz wiersz.
 
 ### Wiersze czytane maszynowo — tej reguły nie dotyczą
 
-Dziewięć wierszy ma **zamknięty format** opisany niżej w tej specyfikacji i jest parsowanych przez hooki:
+Dziesięć wierszy ma **zamknięty format** opisany niżej w tej specyfikacji i jest parsowanych przez hooki albo skrypty rdzenia:
 
 | Wiersz | Czyta go |
 |---|---|
@@ -104,12 +104,13 @@ Dziewięć wierszy ma **zamknięty format** opisany niżej w tej specyfikacji i 
 | `Tryb ciągły` | hook `prompt-mode` (`UserPromptSubmit`) i zdanie o trybie w hooku startu sesji (od 2.2.0) |
 | `Próg limitu` | pasek cache `relai-cache-keeper` (`hooks/limit.ts`), panel `relai-panel` (zakładka Koszty) i `core/process/threshold.js` (od 2.9.0, wiersz opcjonalny) |
 | `Próg limitu tygodnia` | te same miejsca co `Próg limitu` (od 2.9.0, wiersz opcjonalny) |
+| `Humanizacja` | komenda `/relai-humanize` przez `core/process/humanize-mode.js` (od 3.1.0, wiersz z wywiadu przy pierwszym użyciu) |
 
 **Ich nie skracasz.** Człony rozdzielone `·` wyglądają jak rozwlekłość, a są składnią: usunięcie
 członu zmienia próg na domyślny, a przeredagowanie kotwicy na początku komórki **wycisza mechanizm
 w ciszy** (L-0025). Skrócenie, które wyłącza pomiar albo rotację, jest defektem, nie oszczędnością.
 
-**Nie schodzą też do archiwum** (od 1.7.0) — te dziewięć oraz **`Język projektu`**, razem dziesięć
+**Nie schodzą też do archiwum** (od 1.7.0) — te dziesięć oraz **`Język projektu`**, razem jedenaście
 wierszy wypisanych z nazwy w sekcji „Rotacja ustawień". `Język projektu` nie jest parsowany przez
 żaden hook, ale rozstrzyga, w jakim języku powstają dokumenty i pliki archiwum; jego nieobecność
 kończy się tym samym co brak wiersza czytanego maszynowo — mechanizm robi coś innego, niż projekt
@@ -139,6 +140,10 @@ na język projektu.
 
 Wartość nierozpoznana wycisza reguły profilu — hooki milczą, zamiast zgadywać. Nazwa profilu
 wspomniana w prozie środka komórki nie jest wyborem profilu i celowo nie działa.
+
+Wiersz **`Humanizacja`** (od 3.1.0) **nie powstaje** przy inicjalizacji ani przy `/relai-update`:
+zapisuje go wywiad przy pierwszym `/relai-humanize`, a jego brak jest sygnałem, że wywiadu jeszcze
+nie było.
 
 Wiersz **`Podejście do testów`** powstaje dopiero przy pierwszym kodzie w profilu `app` (D-25) —
 nie przy inicjalizacji. Jego obecność wycisza pytanie o testy, więc nazwy tego wiersza też nie
@@ -544,6 +549,63 @@ otwarciu zakładki Koszty (ten sam czytnik rdzenia); hooki pluginu `relai` przez
 `core/process/threshold.js` — test parytetu trzyma obie implementacje przy tych samych fixturach,
 dla obu okien.
 
+## Wiersz `Humanizacja` (od 3.1.0)
+
+Komenda `/relai-humanize` zwraca tekst bez nawyków pisarskich AI obok oryginału. Jak chce z niej
+korzystać człowiek — w których zakresach sama, jakim tonem w którym rodzaju tekstu, czy z jego
+profilem stylu — mówi ten wiersz. Zapisuje go **wywiad przy pierwszym wywołaniu** (pokaz na próbce
+i dwa okna pytań), a zmienia `/relai-humanize ustawienia` (wywiad od nowa) albo `on` / `off`.
+Model nie dopisuje go z własnej inicjatywy i nie edytuje ręcznie: wiersz i plik sesji pisze skrypt
+`humanize-mode.js` (kopia w `.claude/relai/tools/`).
+
+```
+| 2026-10-14 | Humanizacja | włączona · zakresy: dokumenty, czat · pokaz: notka · ton: czat=rzeczowy · profil: tak · profil w: czat, wiadomości |
+```
+
+**Nazwa w komórce `Czego dotyczy` jest całą komórką:** `Humanizacja` (EN: `Humanization`).
+„Humanizacja tekstu" nie jest tym wierszem i nic go nie czyta.
+
+Komórka `Decyzja` jest czytana maszynowo: stan na **początku** komórki, dalsze człony rozdzielone
+`·`, każdy w postaci `klucz: wartość`, zamknięte listy brzmień. Ogonki są opcjonalne przy odczycie
+(`wlaczona` = `włączona`); skrypt zapisuje formę z ogonkami.
+
+| Człon | Dozwolone wartości (PL / EN) | Znaczenie | Brak członu |
+|---|---|---|---|
+| stan (**pierwszy, obowiązkowy**) | `włączona` / `wyłączona` (`on` / `off`) | tryb ciągły działa w zakresach niżej albo komenda działa tylko na żądanie | — |
+| `zakresy` (`scopes`) | lista z `dokumenty`, `czat`, `zewnętrzne` (`docs`, `chat`, `external`) albo `brak` (`none`) | gdzie tryb ciągły działa sam: dokumenty w `docs/`, odpowiedzi w czacie, teksty na zewnątrz (commit, opis PR, wiadomość o wydaniu, README) | `brak` |
+| `pokaz` (`display`) | `notka` / `dwie wersje` (`note` / `two versions`) | w dokumentach: poprawka od razu z jedną linią o liczbie wzorców albo zmienione akapity obok oryginału i „tak”; czat zawsze bez akceptacji | `dwie wersje` |
+| `ton` (`tone`) | pary `rodzaj=ton`: rodzaje `formalne`, `robocze`, `czat`, `zewnętrzne`; tony `staranny`, `rzeczowy`, `swobodny`, `wg odbiorcy` (EN: `formal`, `working`, `chat`, `external`; `careful`, `matter-of-fact`, `casual`, `by reader`) | odstępstwa od przypisania wbudowanego: formalne → staranny, robocze → rzeczowy, czat → swobodny, zewnętrzne → wg odbiorcy | przypisanie wbudowane |
+| `profil` (`profile`) | `tak` / `nie` (`yes` / `no`) | czy przepisanie korzysta z profilu stylu autora (`~/.claude/relai/STYL.md`, nadpisanie projektowe `docs/zasoby/STYL.md` tylko na prośbę) | `nie` |
+| `profil w` (`profile in`) | lista z `czat`, `wiadomości`, `robocze`, `formalne` (`chat`, `messages`, `working`, `formal`) | rodzaje tekstu, w których profil działa; commit, opis PR i README nigdy | `czat, wiadomości` |
+
+Skrypt zapisuje człon `ton` tylko z odstępstwami, a `profil w` tylko przy `profil: tak`.
+
+**Kolejność odczytu — pierwsza warstwa, w której wiersz jest, rozstrzyga:**
+
+1. plik tej sesji `.claude/relai/humanizacja/<id sesji>.json` z polem `wartosc` (ta sama komórka),
+   np. `{"wartosc": "wyłączona · zakresy: brak · pokaz: notka · profil: nie", "data": "RRRR-MM-DD"}`;
+   identyfikator z `CLAUDE_CODE_SESSION_ID`, plik innej sesji nie jest czytany; plik uszkodzony
+   (nie JSON, brak pola `wartosc`) jest pomijany jak brak pliku — pisze go wyłącznie skrypt, więc
+   uszkodzenie nie jest wyborem człowieka,
+2. wiersz w `docs/USTAWIENIA.md` projektu,
+3. ten sam wiersz w `~/.claude/relai/USTAWIENIA.md`,
+4. brak w każdej warstwie → wywiad przy pierwszym wywołaniu w sesji interaktywnej; w sesji
+   nieinteraktywnej komenda działa na żądanie z tonem wbudowanym i niczego nie zapisuje.
+
+**Stan spoza listy → cisza w tej warstwie:** tryb ciągły nie działa, komenda używa tonu wbudowanego
+bez profilu i mówi jednym zdaniem, który plik ma wartość spoza listy. Niższa warstwa **nie**
+rozstrzyga w zastępstwie — literówka w projekcie nie może włączyć trybu z ustawień globalnych.
+Pojedynczy element spoza listy (np. `zakresy: dokumenty, wszystko`) jest pomijany, reszta działa.
+Wiersz pod nagłówkiem „Ustawienia wycofane" nie rozstrzyga nigdy.
+
+**Zapis:** w wybranej warstwie, istniejący wiersz przepisany w miejscu z nową datą, nowy dopisany
+na końcu pierwszej tabeli; reszta pliku bez zmian, końce linii jak w pliku. Zasięg `ten projekt`
+tylko w projekcie RelAI; brak pliku globalnego → plik z tabelą `| Data | Czego dotyczy | Decyzja |`.
+`on` / `off` zmieniają wyłącznie stan w warstwie, która rozstrzyga w tej chwili.
+
+**Tryb ciągły działa w Claude Code.** W Cursorze i Codeksie wywiad nie pyta o zakresy (stan
+`wyłączona`, `zakresy: brak`), a ton, pokaz i profil działają w komendzie tak samo.
+
 ## Wiersze warstwy globalnej (od 2.3.0)
 
 Dwa wiersze mieszkają **wyłącznie** w `~/.claude/relai/USTAWIENIA.md`, bo dotyczą człowieka i jego
@@ -632,7 +694,7 @@ sesji. Rotacja ustawień nie jest trzecim wejściem i **nie dokłada własnego k
 `docs/archiwum/ustawienia/USTAWIENIA_<data-rotacji>.md`, bajt w bajt, procedurą dwufazową z sumą
 kontrolną. Pod tabelą sekcji zostaje **jedna** linia-odsyłacz na rotację.
 
-**Czego nie ruszasz nigdy — dziesięć wierszy, z nazwy:**
+**Czego nie ruszasz nigdy — jedenaście wierszy, z nazwy:**
 
 | Wiersz | Dlaczego zostaje |
 |---|---|
@@ -645,6 +707,7 @@ kontrolną. Pod tabelą sekcji zostaje **jedna** linia-odsyłacz na rotację.
 | `Tryb ciągły` | czyta go hook `prompt-mode` przy KAŻDYM prompcie sesji |
 | `Próg limitu` | czyta go pasek cache przy starcie sesji, co 30 s, przy `/cache` i przy każdym pomiarze limitów |
 | `Próg limitu tygodnia` | jak `Próg limitu` — próg drugiego okna |
+| `Humanizacja` | czyta go `/relai-humanize`; bez niego komenda wraca do wywiadu, o który człowiek już raz odpowiedział |
 | `Język projektu` | rozstrzyga język dokumentów i nazwy plików archiwum |
 
 Zostają **niezależnie od wieku** i niezależnie od tego, czy ktoś przeniósł je do sekcji „Ustawienia

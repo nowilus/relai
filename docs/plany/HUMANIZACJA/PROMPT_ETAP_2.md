@@ -316,17 +316,17 @@ plików, pierwszego profilu `~/.claude/relai/STYL.md` z logów PolyFlow.
 Każdy punkt Weryfikacji, który przeszedł, odhaczasz w `PROMPT_ETAP_2.md` (`- [ ]` → `- [x]`)
 zaraz po jego sprawdzeniu, nie na końcu etapu; punkt, który nie przeszedł, zostaje pusty.
 
-- [ ] `node --test core/process/tests/*.test.js core/guardrails/tests/*.test.js core/panel/tests/*.test.js adapters/codex/tests/*.test.js` — zero błędów; liczba testów przed (356 — FAKT) i po do wpisu.
-- [ ] `node core/tools/validate-adapters.js` — zero błędów, parytet skilli Codeksa 0 rozjazdów; ostrzeżenia wypisane we wpisie (komenda poniżej 480 linii i 20 KB).
-- [ ] `claude plugin test` binarką aplikacji dla `panel/`, `progress/`, `cache-keeper/` — 178 / 31 / 178 bez zmian (etap nie dotyka panelu).
-- [ ] Rdzeń ustawień: każda para warstw rozstrzyga pierwszeństwo zgodnie z decyzją; wartość spoza listy = cisza z kontrolą pozytywną w tym samym przebiegu; zapis nie dubluje wiersza, a reszta pliku ma sumę przed = po.
-- [ ] Przebieg `claude -p` z podłożoną komendą w projekcie bez wiersza „Humanizacja”: brak wywiadu, wynik na żądanie, `git status --short docs/USTAWIENIA.md` pusty, `~/.claude/relai/USTAWIENIA.md` z tą samą sumą przed i po.
-- [ ] Przebieg interaktywny z Łukaszem: pokaz na próbce, dwa okna, jeden wiersz „Humanizacja” w wybranej warstwie (treść wiersza do wpisu), drugie wywołanie bez pytań; `ustawienia` uruchamia wywiad od nowa; `on` / `off` zmieniają tylko ten wiersz.
-- [ ] Profil `~/.claude/relai/STYL.md`: kontrola skryptem, że żaden ciąg 6+ słów z logów nie występuje w profilu (z kontrolą pozytywną na podłożonym cytacie); skan sekretów bez trafień; `git status --short` nie pokazuje niczego z logów.
-- [ ] `git grep -nE "sk-ant-[a-z0-9]+-[A-Za-z0-9_-]{20,}|sk_(test|live)_[A-Za-z0-9]{10,}"` — 0 trafień, z kontrolą pozytywną na próbce złożonej w czasie wykonania (cytaty samego wzorca w dokumentach nie są trafieniem, L-0185).
-- [ ] `docs/ARTEFAKTY.md` ma podbite i nowe wpisy; `git status --short` nie pokazuje plików spoza zakresu (zmiany PANEL_CODEX i `docs/zasoby/PANEL_RELAI/makiety/` sprzed etapu — nietknięte).
-- [ ] Wpis w `docs/DZIENNIK.md` na końcu sekcji „Wpisy”, z autorem; `docs/STATE.md` nadpisany.
-- [ ] Katalog roboczy `.claude/relai/work/HUMANIZACJA/E2/` przejrzany raportem (`node .claude/relai/tools/clean-work.js raport`) i skasowany po „tak”; liczby przed i po w sekcji „Zweryfikowane” wpisu. Artefakty poza tym katalogiem (podłożona komenda `.claude/commands/relai-humanize-probe.md`, pliki w `%TEMP%`, materiał pośredni z logów) wypisane z nazwy razem z tym, co się z nimi stało.
+- [x] `node --test core/process/tests/*.test.js core/guardrails/tests/*.test.js core/panel/tests/*.test.js adapters/codex/tests/*.test.js` — zero błędów; liczba testów przed (356 — FAKT) i po do wpisu.
+- [x] `node core/tools/validate-adapters.js` — zero błędów, parytet skilli Codeksa 0 rozjazdów; ostrzeżenia wypisane we wpisie (komenda poniżej 480 linii i 20 KB).
+- [x] `claude plugin test` binarką aplikacji dla `panel/`, `progress/`, `cache-keeper/` — 178 / 31 / 178 bez zmian (etap nie dotyka panelu).
+- [x] Rdzeń ustawień: każda para warstw rozstrzyga pierwszeństwo zgodnie z decyzją; wartość spoza listy = cisza z kontrolą pozytywną w tym samym przebiegu; zapis nie dubluje wiersza, a reszta pliku ma sumę przed = po.
+- [x] Przebieg `claude -p` z podłożoną komendą w projekcie bez wiersza „Humanizacja”: brak wywiadu, wynik na żądanie, `git status --short docs/USTAWIENIA.md` pusty, `~/.claude/relai/USTAWIENIA.md` z tą samą sumą przed i po.
+- [x] Przebieg interaktywny z Łukaszem: pokaz na próbce, dwa okna, jeden wiersz „Humanizacja” w wybranej warstwie (treść wiersza do wpisu), drugie wywołanie bez pytań; `ustawienia` uruchamia wywiad od nowa; `on` / `off` zmieniają tylko ten wiersz.
+- [x] Profil `~/.claude/relai/STYL.md`: kontrola skryptem, że żaden ciąg 6+ słów z logów nie występuje w profilu (z kontrolą pozytywną na podłożonym cytacie); skan sekretów bez trafień; `git status --short` nie pokazuje niczego z logów.
+- [x] `git grep -nE "sk-ant-[a-z0-9]+-[A-Za-z0-9_-]{20,}|sk_(test|live)_[A-Za-z0-9]{10,}"` — 0 trafień, z kontrolą pozytywną na próbce złożonej w czasie wykonania (cytaty samego wzorca w dokumentach nie są trafieniem, L-0185).
+- [x] `docs/ARTEFAKTY.md` ma podbite i nowe wpisy; `git status --short` nie pokazuje plików spoza zakresu (zmiany PANEL_CODEX i `docs/zasoby/PANEL_RELAI/makiety/` sprzed etapu — nietknięte).
+- [x] Wpis w `docs/DZIENNIK.md` na końcu sekcji „Wpisy”, z autorem; `docs/STATE.md` nadpisany.
+- [x] Katalog roboczy `.claude/relai/work/HUMANIZACJA/E2/` przejrzany raportem (`node .claude/relai/tools/clean-work.js raport`) i skasowany po „tak”; liczby przed i po w sekcji „Zweryfikowane” wpisu. Artefakty poza tym katalogiem (podłożona komenda `.claude/commands/relai-humanize-probe.md`, pliki w `%TEMP%`, materiał pośredni z logów) wypisane z nazwy razem z tym, co się z nimi stało.
 
 ## Na koniec (rytuał obowiązkowy — bez niego etap nie jest ukończony)
 

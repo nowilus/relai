@@ -62,9 +62,12 @@ test('provisionTemplates copies core/humanize to .claude/relai/humanize with equ
 
   assert.ok(core.provisionTemplates(cwd) > 0);
   const lista = pliki(zrodlo);
-  assert.deepEqual(lista.sort(), ['LICENSE-humanizer.md', 'REGULY.md', 'jezyki/pl.md']);
+  assert.deepEqual(lista.sort(), ['LICENSE-humanizer.md', 'PROFIL_STYLU.md', 'REGULY.md', 'jezyki/pl.md']);
   for (const rel of lista) assert.equal(suma(path.join(cel, rel)), suma(path.join(zrodlo, rel)), rel);
   assert.ok(fs.existsSync(path.join(cwd, '.claude', 'relai', 'tools', 'humanize-facts.js')));
+  // E2: ustawienia humanizacji czyta i zapisuje kopia skryptu w projekcie, nie katalog pluginu
+  assert.equal(suma(path.join(cwd, '.claude', 'relai', 'tools', 'humanize-mode.js')),
+    suma(path.join(__dirname, '..', 'humanize-mode.js')));
 
   fs.writeFileSync(path.join(cel, 'REGULY.md'), 'stara kopia\n');
   core.provisionTemplates(cwd);

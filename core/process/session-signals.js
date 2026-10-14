@@ -184,6 +184,8 @@ const NARZEDZIA = [
   { zrodlo: path.join('..', 'tools', 'count-rules.js'), cel: 'count-rules.js' },
   // HUMANIZACJA E1: straznik faktow, ktory /relai-humanize wola przed pokazaniem wyniku
   { zrodlo: 'humanize-facts.js', cel: 'humanize-facts.js' },
+  // HUMANIZACJA E2: odczyt i zapis wiersza "Humanizacja" w trzech warstwach, zapis profilu stylu
+  { zrodlo: 'humanize-mode.js', cel: 'humanize-mode.js' },
 ];
 
 function provisionTools(destRoot, opcje) {
