@@ -1,6 +1,6 @@
 # Styl pasków i panelu RelAI dla Claude Code
 
-Wersja: **3.7** (v3.6 + §1 i §10.5: zdarzenie „nowa sesja się opłaca” w dwóch liniach bez chipa, sam koszt, przycisk „Nowa sesja”; odnoga KOMUNIKAT_ZWROTU, 2026-10-14; v3.6 — §6 pkt 6: karta startu etapu z wyborem „nowa sesja”; odnoga NOWA_SESJA, 2026-10-12; v3.5 — 11.3: karta „Próg limitu” jako linijka z progiem i przyciski wartości; Aneks E, 2026-10-11; v3.4 — 11.1: podpis „próg N % · źródło” pod baterią limitu, która nie jest spokojna; Aneks D, 2026-10-11; v3.3 — sekcja 11: limit planu — dwa progi, zapis i wznowienie, karta progu w Kosztach; LIMIT_CHECKPOINT E4, 2026-10-11) · Data: **2026-10-10** · Zakres: trzy paski nad promptem **i panel boczny** `/relai-panel`
+Wersja: **3.8** (v3.7 + §12 wycofany: każdy panel podziału rysuje paski, linia w stopce znika; odnoga SPLIT_VIEW, 2026-10-14; v3.7 — v3.6 + §1 i §10.5: zdarzenie „nowa sesja się opłaca” w dwóch liniach bez chipa, sam koszt, przycisk „Nowa sesja”; odnoga KOMUNIKAT_ZWROTU, 2026-10-14; v3.6 — §6 pkt 6: karta startu etapu z wyborem „nowa sesja”; odnoga NOWA_SESJA, 2026-10-12; v3.5 — 11.3: karta „Próg limitu” jako linijka z progiem i przyciski wartości; Aneks E, 2026-10-11; v3.4 — 11.1: podpis „próg N % · źródło” pod baterią limitu, która nie jest spokojna; Aneks D, 2026-10-11; v3.3 — sekcja 11: limit planu — dwa progi, zapis i wznowienie, karta progu w Kosztach; LIMIT_CHECKPOINT E4, 2026-10-11) · Data: **2026-10-10** · Zakres: trzy paski nad promptem **i panel boczny** `/relai-panel`
 (zakładki Komendy i Koszty) · Źródło decyzji: wątek [AUDYT_MODOW](../../fixy/AUDYT_MODOW/ODNOGA.md),
 makiety [MAKIETY.html](../../fixy/AUDYT_MODOW/MAKIETY.html) (wersja 4, kalibracja z Łukaszem
 w czterech rundach 2026-10-10).
@@ -341,7 +341,13 @@ o skasowanie pliku). Bez hotkeyów (cyfra w pustym polu naciskała przycisk, Z5)
       bez pliku — bez przycisków (testy);
 - [ ] karta `Próg limitu` w Kosztach w 40 kolumnach bez rozjazdu; zrzut na żywo z desktopu.
 
-## 12. Linia w stopce (odnoga PASKI_W_STOPCE, 2026-10-13)
+## 12. Linia w stopce (odnoga PASKI_W_STOPCE, 2026-10-13) — WYCOFANA 2026-10-14
+
+> **Wycofana (odnoga [SPLIT_VIEW](../../fixy/SPLIT_VIEW/ODNOGA.md), 2026-10-14):** od pomiaru
+> 2026-10-14 (aplikacja 2.37337.1.0, Claude Code 2.1.295) każdy panel podziału rysuje paski
+> i `Pane`, więc linia dublowała paski. `relai-cache-keeper` 0.9.0 jej nie ustawia, tylko raz
+> czyści linię zostawioną przez starszą wersję; `relai-panel` 0.17.0 nie pisze
+> `.claude/relai/stopka/`. Treść niżej zostaje jako historia (D-18).
 
 Powód: w podziale okna aplikacja rysuje paski tylko w pierwszym panelu (P-040). Linia statusu
 pluginu (`$.ui.status`) rysuje się w każdym panelu i w oknie pop-out — to jedyna powierzchnia

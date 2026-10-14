@@ -169,8 +169,7 @@ describe('the price list in the RelAI panel', () => {
     expect(second).toContain('zostają przy stawkach, którymi je policzono')
     expect(PRICES in calls.writes).toBe(false)
     await ui.press({ key: 'confirm-yes' })
-    // The session's footer words (PASKI_W_STOPCE) are its own file, written when the work is read
-    expect(Object.keys(calls.writes).filter((p) => p !== FILE && !p.includes('/.claude/relai/stopka/'))).toEqual([PRICES])
+    expect(Object.keys(calls.writes).filter((p) => p !== FILE)).toEqual([PRICES])
     expect(calls.writes[PRICES]).toContain('"claude-sonnet-5-5"')
     expect(textOf(await ui.find({ key: 'sent' }))).toContain(`Zapisano: ${PRICE_FILE}`)
     expect(calls.fetches.length).toBe(1)

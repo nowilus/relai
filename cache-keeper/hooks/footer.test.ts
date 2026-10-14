@@ -3,17 +3,16 @@ import type { On, TurnStepResult } from 'claude-code'
 
 type Engine = Parameters<TestBody>[0]
 
-// The footer line (thread PASKI_W_STOPCE): in a split window only the first panel draws the bars
-// (P-040), while a plugin's status line stands in every panel and in a pop-out (probe 2026-10-13).
-// The footer shows one plugin's line, so the keeper carries it all: the session's work as
-// relai-panel wrote it, then the cache, 5 h and week batteries' words.
+// The footer line, withdrawn (thread SPLIT_VIEW): 0.7.0–0.8.0 set a status line because a split
+// window drew the bars only in the first panel (P-040). Every panel draws them now (measured
+// 2026-10-14), so the keeper sets no line — it only clears the one an older version left, since a
+// status line outlives a reload (P-040 point 6).
 
 const ROOT = 'C:/proj'
-const NOW = Date.UTC(2026, 9, 13, 10, 0)
+const NOW = Date.UTC(2026, 9, 14, 10, 0)
 const MIN = 60_000
 const SETTINGS = `${ROOT}/docs/USTAWIENIA.md`
-const FOOTER = `${ROOT}/.claude/relai/stopka/s1.txt`
-const settingsFile = '# USTAWIENIA\n\nWersja RelAI: 3.0.0\n'
+const settingsFile = '# USTAWIENIA\n\nWersja RelAI: 3.1.0\n'
 const five = (percentUsed: number) => ({ kind: 'five_hour', percentUsed, resetsAt: new Date(NOW + 60 * MIN).toISOString() })
 const week = (percentUsed: number) => ({ kind: 'seven_day', percentUsed, resetsAt: new Date(NOW + 3 * 24 * 60 * MIN).toISOString() })
 
@@ -55,38 +54,22 @@ const start = ($: Engine) => $.session.start({ cwd: ROOT, surface: 'desktop', is
 const measure = ($: Engine, fivePct: number, weekPct: number) =>
   $.session.measure({ context: { tokens: 183_010 } as never, rateLimits: [five(fivePct), week(weekPct)] as never, changed: ['rateLimits'] })
 
-describe('the footer line', () => {
-  test('in a RelAI project: the work relai-panel wrote, then cache, 5 h, the week and the context', async ($, on) => {
-    const { statuses } = world(on, { [SETTINGS]: settingsFile, [FOOTER]: 'PASKI_W_STOPCE (odnoga)\n' })
+describe('the footer line, withdrawn', () => {
+  test('in a RelAI project: the old line is cleared once and no new one is set', async ($, on) => {
+    const { statuses, clock } = world(on, { [SETTINGS]: settingsFile })
     await start($)
     await mainTurn($)
     await measure($, 7, 29)
-    expect(statuses[statuses.length - 1]).toBe('PASKI_W_STOPCE (odnoga) · cache ~60 min · 5 h 7 % · tydz. 29 % · kontekst 183k')
+    await clock.advance(10 * MIN)
+    expect(statuses).toEqual([undefined])
   })
 
-  test('outside a RelAI project: the cache part alone, no file of the panel read', async ($, on) => {
-    const { statuses } = world(on, { [FOOTER]: 'NIE_TEN (odnoga)\n' })
+  test('outside a RelAI project: the same — one clear, never a cache line', async ($, on) => {
+    const { statuses, clock } = world(on, {})
     await start($)
     await mainTurn($)
     await measure($, 11, 30)
-    expect(statuses[statuses.length - 1]).toBe('cache ~60 min · 5 h 11 % · tydz. 30 % · kontekst 183k')
-  })
-
-  test('before any request: the plan words alone, never a seeming cache figure', async ($, on) => {
-    const { statuses } = world(on, { [SETTINGS]: settingsFile, [FOOTER]: 'PANEL_X · E2\n' })
-    await start($)
-    expect(statuses[statuses.length - 1]).toBe('PANEL_X · E2')
-  })
-
-  test('the same words are not sent again; the cache minute moving them is', async ($, on) => {
-    const { statuses, clock } = world(on, { [SETTINGS]: settingsFile, [FOOTER]: 'PANEL_X · E2\n' })
-    await start($)
-    await mainTurn($)
-    await measure($, 7, 29)
-    const sent = statuses.length
-    await measure($, 7, 29)
-    expect(statuses.length).toBe(sent)
     await clock.advance(10 * MIN)
-    expect(statuses[statuses.length - 1]).toBe('PANEL_X · E2 · cache ~50 min · 5 h 7 % · tydz. 29 % · kontekst 183k')
+    expect(statuses).toEqual([undefined])
   })
 })

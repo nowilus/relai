@@ -19,7 +19,17 @@ Specyfikacja: `SPEC_PULAPKI.md`.
   pytanie zadajesz w treści odpowiedzi albo dopiero po zrzucie.
 - **Zasięg:** aplikacja desktopowa 2.37337.1.0, zakładka Code.
 
-### P-040 — Aplikacja desktopowa: w podziale okna paski modów rysuje tylko lewy panel · 2026-10-13 · AKTYWNA
+### P-040 — Aplikacja desktopowa: w podziale okna paski modów rysuje tylko lewy panel · 2026-10-13 · ROZWIĄZANA 2026-10-14
+
+- **Rozwiązanie (odnoga SPLIT_VIEW, pomiar Łukasza 2026-10-14):** aplikacja 2.37337.1.0, Claude
+  Code 2.1.295 — te same wersje, przy których błąd jeszcze występował. Poprawka przyszła więc po stronie
+  strony zakładki Code (claude.ai), po zamknięciu anthropics/claude-code#99265 (2026-10-14).
+  Zmierzone: dwa panele obok siebie, dwa jeden nad drugim, trzy obok siebie — w każdym panelu
+  paski (`relai-cache-keeper` także w sesjach spoza RelAI); sesja RelAI w **prawym** panelu ma
+  plan, postęp i cache, a `/relai-panel` otwiera tam `Pane`. Zrzuty:
+  `docs/zasoby/PANEL_RELAI/zrzuty/SPLIT_VIEW_1…4`. Linia w stopce wycofana (`relai-cache-keeper`
+  0.9.0 czyści ją raz — pkt 6 sondy niżej; `relai-panel` 0.17.0). Pkt 3 sondy (`SessionMode`,
+  `PromptHint`) niezmierzony ponownie — zostaje jako stan z 2026-10-13.
 
 - **Objaw:** dwie sesje Code w podziale okna (split view). Paski RelAI (plan, postęp, cache) widać
   tylko w lewym panelu; w prawym nie ma żadnego, także paska cache, który działa w każdym folderze.

@@ -65,3 +65,8 @@ Wdrożenie: jedna linia w stopce każdej sesji, składana przez `relai-cache-kee
 `<praca a/b etapów> · cache … · 5 h … % · tydz. … % · kontekst …`; słowa pracy pisze `relai-panel`
 0.15.0 do `.claude/relai/stopka/<sesja>.txt`; tekst w `core/panel/footer.mjs`. Brief:
 `docs/zasoby/PANEL_RELAI/STYL_PASKOW_CLAUDE.md` §12. Wpis w dzienniku 2026-10-13.
+
+**Wycofane 2026-10-14** (odnoga [SPLIT_VIEW](../SPLIT_VIEW/ODNOGA.md)): po zamknięciu
+anthropics/claude-code#99265 każdy panel podziału rysuje paski i `Pane` (pomiar na żywo, P-040
+rozwiązana), więc linia znika — `relai-cache-keeper` 0.9.0 czyści ją raz, `relai-panel` 0.17.0
+nie pisze `.claude/relai/stopka/`, `core/panel/footer.mjs` usunięty.

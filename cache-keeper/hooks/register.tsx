@@ -11,8 +11,7 @@ import { DEFAULT_SETTINGS, MAX_PAYBACK_TURNS, MIN, RELAI_MARKER, applySetting, c
 import { basename, clip, clock, fileStamp, limitsText, minutes, tokens, usd } from './fmt'
 import { barCard } from './bar-card'
 import { BAND, BAR, CHIP } from './relai/theme.mjs'
-import { MISSING, batteryRows, cacheMeasure, contextMeasure, glyphColor, limitMeasure, measureGlyph, resetMeasure, type Limit, type Measure } from './rings'
-import { footerLine, footerPath, readFooterPlan } from './relai/footer.mjs'
+import { batteryRows, cacheMeasure, contextMeasure, glyphColor, limitMeasure, measureGlyph, resetMeasure, type Limit, type Measure } from './rings'
 import { ancestors, parseStatus } from './relai/plan-state.mjs'
 import { PLAIN_HANDOFF_PROMPT, RELAI_CONTINUE, RELAI_HANDOFF_PROMPT, continuePrompt, plainBody, relaiDiscardPrompt, relaiDone, relaiFreshPrompt, relaiResumePrompt, relaiSavePrompt, saveDone } from './handoff'
 import { PRICE_FILE } from './relai/pricing.mjs'
@@ -377,23 +376,15 @@ function warnStep($: $T, now: number) {
 let drawnStamp = ''
 const bandStamp = (now: number) => JSON.stringify(bandView(now))
 
-// ---------- the footer line (PASKI_W_STOPCE) ----------
-// In a split window only the first panel draws the bars (P-040); a status line stands in every
-// panel and in a pop-out. The footer shows one plugin's line, so this one carries it all: the
-// session's work as relai-panel wrote it (core footer.mjs), then the cache, 5 h and week batteries'
-// own words. Set only when the words change; the tick moves the cache's minute.
-let footerShown: string | undefined
-async function pushFooter($: $T, now: number) {
-  const planText = S.isRelai && S.id ? await $.fs.read(`${S.cwd}/${footerPath(S.id)}`.replace(/\\/g, '/')).catch(() => null) : null
-  const m = bandView(now).measures
-  const words = (name: string) => {
-    const found = m.find((x) => x.name === name)
-    return found && found.value !== MISSING ? found.value : null
-  }
-  const line = footerLine({ plan: readFooterPlan(planText), cache: words('cache'), five: words('five'), week: words('week'), ctx: words('ctx') })
-  if (line === footerShown) return
-  footerShown = line
-  $.ui.status(line)
+// ---------- the footer line, withdrawn (SPLIT_VIEW) ----------
+// 0.7.0–0.8.0 set a status line in every split panel while the app drew the bars only in the
+// first one (P-040). Every panel draws the bars now (measured 2026-10-14), so the line is gone; a
+// line set by an older version outlives a reload (P-040 point 6), so it is cleared once.
+let statusCleared = false
+function clearOldStatus($: $T) {
+  if (statusCleared) return
+  statusCleared = true
+  $.ui.status(undefined)
 }
 
 async function tick($: $T) {
@@ -405,7 +396,7 @@ async function tick($: $T) {
   await checkResumeFile($)
   if (state(now).kind !== reckonedKind) reckon(now)
   await saveSnap($, now)
-  await pushFooter($, now)
+  clearOldStatus($)
   const stamp = bandStamp(now)
   if (stamp === drawnStamp) return
   drawnStamp = stamp
@@ -1056,7 +1047,7 @@ export const register: Register = (on) => {
       handoff: await registerCommand($, 'handoff', 'Przekazanie do świeżego czatu (w projekcie RelAI przez dokumenty); /handoff dalej kończy', '[dalej]'),
     }
     $.clock.every(TICK_MS, () => { tick($).catch(() => {}) })
-    await pushFooter($, now).catch(() => {})
+    clearOldStatus($)
     return next(e)
   })
 
@@ -1189,7 +1180,6 @@ export const register: Register = (on) => {
     await loadThreshold($)
     const measured = await $.clock.now()
     reckon(measured)
-    await pushFooter($, measured)
     return next(e)
   })
 
