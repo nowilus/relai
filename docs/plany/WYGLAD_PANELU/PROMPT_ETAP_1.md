@@ -317,7 +317,7 @@ zaraz po jego sprawdzeniu, nie na końcu etapu; punkt, który nie przeszedł, zo
       odnotowane w P-xxx, że desktop tego nie zgłasza).
 - [x] `git diff` nie dotyka `panel/hooks/pane-*.tsx`, `panel/hooks/narrow.test.ts`,
       `docs/plany/PANEL_CODEX/` ani `docs/zasoby/PANEL_RELAI/makiety/`.
-- [ ] Katalog roboczy `.claude/relai/work/WYGLAD_PANELU/E1/` przejrzany raportem
+- [x] Katalog roboczy `.claude/relai/work/WYGLAD_PANELU/E1/` przejrzany raportem
       (`node .claude/relai/tools/clean-work.js raport`) i skasowany po „tak”; liczby przed i po
       w sekcji „Zweryfikowane” wpisu. Artefakty poza nim (podłożony mod sondy w katalogu pluginów,
       pliki w `%TEMP%`) wypisane z nazwy razem z tym, co się z nimi stało.

@@ -1444,6 +1444,14 @@ Autor: RelAI (Opus 5.5) + Lukasz
   `_wdrozenie_1` ciemny pełne okno, `_2` wąski panel podziału (etykieta nad treścią, baterie
   w dwóch wierszach), `_3` jasny pełne okno; przełączenie wyglądu w trakcie sesji — „tak
   przeladowaly sie same”.
+- Katalog roboczy `.claude/relai/work/WYGLAD_PANELU/E1/` po commicie `8018ca1`, za zgodą
+  Łukasza („Skasuj wszystko po commicie”): przed 53 MB, 877 plików (`du -sh`, `find -type f`),
+  po — katalogu nie ma. Poza nim: worktree HEAD `E1/head` usunięty (`git worktree remove`,
+  `git worktree list` bez niego); mody `relai-motyw-sonda`, `relai-paski-warianty`,
+  `relai-przyciski-sonda` skasowane z `dev-mods` sesji; zainstalowane `relai-panel` 0.17.0,
+  `relai-progress` 0.4.2, `relai-cache-keeper` 0.9.0 zostają z podłożonym kodem E1 do wydania.
+  Pliki `sklej.mjs`, `tresc.mjs`, `zasady.mjs` w `.claude/relai/work/WYGLAD_PANELU/` nie są z E1 —
+  nietknięte.
 - Ryzyka: tabela przejrzana — etap nie otworzył ryzyka projektu; ryzyka 1–2 planu (klucze motywu
   i odczyt motywu na desktopie) rozstrzygnięte sondą i Aneksem B. C1 (API modów) bez zmian: wygląd
   stoi teraz także na `prefers-color-scheme` w `Svg` i na kluczu `props.key` węzła `next(e)`.
