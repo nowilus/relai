@@ -1891,6 +1891,121 @@ Wykonawca: Opus 5.5 (Claude Code, aplikacja desktopowa), `/relai-stage`, zgoda w
 
 - Rozstrzygnąć przed E3, czy wiersz „Humanizacja” (`włączona · zakresy: czat`) zostaje
   w `docs/USTAWIENIA.md` — od E3 odpowiedzi w czacie tego projektu będą humanizowane same.
+  *(rozstrzygnięte 2026-10-14 na starcie E3: Łukasz — „Wyłączyć”)*
 - Start E3 w świeżej sesji Opus 5.5 (`/effort high`) komendą `/relai-stage`.
+
+Autor: RelAI (Opus 5.5) + Lukasz
+
+### 2026-10-14 — HUMANIZACJA E3: tryb ciągły humanizacji, czyli reguła przed odpowiedzią i reguła po zapisie dokumentu
+
+Wykonawca: Opus 5.5 (Claude Code, aplikacja desktopowa), `/relai-stage`, zgoda w czacie.
+
+**Zrobione:**
+
+- Bramka przed startem: wiersz „Humanizacja” w tym repo przełączony skryptem
+  (`humanize-mode.js przelacz off`) na `wyłączona · zakresy: czat · pokaz: dwie wersje · profil: tak
+  · profil w: czat`. Decyzja Łukasza: tryb ciągły mierzony na fiksturach, nie w czacie projektu.
+- `core/process/humanize-continuous.js` (215 linii, osobny plik, bo `humanize-mode.js` ma 487 linii
+  i jest kopiowany do projektów, a ta logika służy tylko hookom). Zawiera: regułę przed odpowiedzią
+  dla zakresów `czat` i `zewnętrzne` (ton z wiersza, profil tylko w rodzajach z `profil w`, wyłączenie
+  propozycji `/relai-prompt`) oraz regułę po zapisie dokumentu (`notka` albo `dwie wersje`, rodzaj
+  i ton z nazwy pliku, polecenie strażnika faktów ze ścieżką w apostrofach). Do tego filtr ścieżek H3,
+  „raz na plik w turze” (atomowy znacznik na plik w `.claude/relai/humanizacja-tura/<sesja>/`) i podział
+  promptów na te, które zaczynają turę, i te, które jej nie zaczynają. Podział robi filtr optymalizatora.
+- Hook `adapters/claude-code/hooks/humanize-continuous.js` (83 linie), jeden plik na dwa zdarzenia,
+  dopięty w `hooks.json` po `prompt-mode` (`UserPromptSubmit`) i w grupie `PostToolUse`
+  `^(Write|Edit|MultiEdit)$`.
+- `core/humanize/SKROT.md` (5 271 B): trzy reguły, wyłączenia, 13 wzorców z polskimi nazwami
+  i formami, polskie nadpisania, ton per rodzaj, profil i sposób pokazania wyniku. Kopiowany
+  z resztą bazy, `session-signals.test.js` pilnuje listy plików. Nota MIT wymienia ściągę.
+- `SPEC_USTAWIENIA.md` v15 (kto czyta który zakres, koszt, „raz na plik”, wyłączenia, kolejność
+  z optymalizatorem; wiersz `Humanizacja` w tabeli „Wiersz | Czyta go”), `MANIFEST.json` (dwa nowe
+  pliki rdzenia, odwołanie adaptera Claude Code), `ARTEFAKTY.md` (nowy `SKROT.md`, nota MIT v2,
+  specyfikacja v15).
+- Decyzje Łukasza w etapie: zakres „dokumenty” obejmuje tylko `.md` i `.txt`, bo w HTML w `docs/`
+  proza miesza się ze znacznikami (H2). Zawężenie bramki optymalizatora zostało świadomie odłożone (niżej).
+- Komenda `/relai-humanize` bez zmian: tryb ciągły nie zmienia jej zachowania, a zapis pliku po
+  „tak” (Krok 9) nie dostaje drugiej reguły, bo „tak” nie zaczyna tury.
+- Lekcja L-0189 dopisana do zasady 13; zasad aktywnych 15 / 15.
+
+**Zweryfikowane — jak dokładnie:**
+
+- Testy: `node --test core/process/tests/*.test.js core/guardrails/tests/*.test.js
+  core/panel/tests/*.test.js adapters/codex/tests/*.test.js` → **402 / 402** (przed etapem 384, FAKT;
+  18 nowych w `humanize-continuous.test.js`). `node core/tools/validate-adapters.js` spójny, parytet
+  Codeksa 42 pliki / 0 rozjazdów, jedno ostrzeżenie zastane (`relai-prompt.md` 30 106 B). `claude
+  plugin test` binarką 2.1.295: panel 178, progress 31, cache-keeper 178, bez zmian.
+- Koszt: reguła przed odpowiedzią ma 349 B przy samym czacie i 549 B w najdłuższym wariancie (oba
+  zakresy, ton `wg odbiorcy`, profil). Reguła po zapisie ma 758 B (`notka`) i 770 B (`dwie wersje`).
+  `SKROT.md` ma 5 271 B wobec limitu 6 KB. Pomiar: `Buffer.byteLength` i `wc -c`, ASCII sprawdzone wzorcem.
+- Cisza z kontrolą pozytywną w tym samym teście, osobno dla `UserPromptSubmit` i `PostToolUse`:
+  brak wiersza, `wyłączona`, stan spoza listy, tryb gościa, folder bez markera. Każdy daje 0 B, a ten
+  sam układ z `włączona` daje regułę.
+- H3 w testach: archiwum, zamrożony `PLAN.html` i `PLAN.md`, plan bez `STATUS.md`, `DECYZJE.md`,
+  `PROMPT_ETAP_*`, `PROMPT_ODNOGA`, `SPEC_*`, `CLAUDE.md`, HTML, `README.md` poza `docs/`, ścieżka
+  z apostrofem, polskimi znakami, tyldą (alias 8.3) i znakiem nowej linii milczą. Kontrola
+  pozytywna: zwykły dokument, plan `**DO AKCEPTACJI**` (także z CRLF), `.txt`. Status w prozie, w tabeli
+  i bez pogrubienia zostawia plan zamrożony.
+- „Raz na plik”: kilka zapisów tego samego pliku w turze daje jedną regułę. „Tak” i powiadomienie
+  w tle nie zaczynają tury, a nowe polecenie zaczyna. Sześć równoległych hooków tej samej sesji daje
+  dokładnie jedną regułę. Uszkodzone zdarzenia (pusty stdin, nie-JSON, brak `tool_input`, `file_path`
+  obiektem, zdarzenie `Stop`) kończą się kodem 0 i 0 B.
+- Na żywo: sześć świeżych sesji `claude -p --plugin-dir <repo>` binarką 2.1.295 z
+  `--setting-sources project,local`. Wynik `init` pokazał `relai` z repo i dwa wbudowane pluginy,
+  bez instalacji 3.0.0. Fikstury `%TEMP%/RelAI-hum-e3-*` z gitem. Koszt łącznie 2,68 USD (FAKT,
+  `total_cost_usd`).
+  - (a) `zakresy: czat`: jedno zdarzenie `hook_additional_context` z regułą, model przeczytał
+    `.claude/relai/humanize/SKROT.md`, odpowiedź bez wzorców z listy (0,20 USD).
+  - (b) `wyłączona`: 0 trafień reguły w transkrypcie (0,18 USD). Na tym prompcie Opus 5.5 pisze
+    czysto także bez reguły, więc różnica jest w kontekście, nie w tekście.
+  - (c) `zakresy: dokumenty`, `notka` (przebieg po poprawkach recenzji): jedno zdarzenie reguły dla
+    `docs/STATE.md` mimo kilku zapisów; zapisy do `docs/archiwum/`, zamrożonego `PLAN.html`
+    i `PLAN.md` dały 0. Model usunął wzorce z prozy, strażnik bez różnic. H2: 10 z 10 chronionych
+    elementów (4 nagłówki, 4 wiersze tabeli, adnotacja `*(…)*`, linie „Stan na:” i „Aktywny plan:”)
+    ma tę samą sumę SHA-256 przed i po (0,65 USD).
+  - (d) oba tryby ciągłe ze zgodą tej sesji (`--session-id` i plik zgody): w transkrypcie reguła
+    optymalizatora stoi przed regułą humanizacji (pozycje 44 398 i 45 595). Propozycja zachowała
+    format `/relai-prompt` (oryginał, propozycja z adnotacjami `⟨dopowiedziane⟩`, pytanie o
+    wykonanie), bez śladów humanizacji (0,48 USD). Przebiegi c i d sprzed poprawek (0,61 i 0,56 USD)
+    dały te same liczniki.
+- Recenzja kodu (agent `code-reviewer`): 0 CRITICAL, 1 HIGH, 3 MEDIUM, 2 LOW. Wszystkie poprawione
+  w etapie, a każda ma test:
+  - HIGH: reset stanu po „tak” i po powiadomieniu (L-0189);
+  - MEDIUM: lista dozwolonych znaków ścieżki (nowa linia, polskie znaki, alias `~1`);
+  - MEDIUM: atomowy znacznik zamiast odczytu i zapisu jednego pliku;
+  - MEDIUM: status planu tylko pogrubiony w linii metrycznej;
+  - LOW: brak reguły na powiadomieniu i pustym prompcie, komentarz o kolejności hooków złagodzony.
+
+  Testów tych poprawek nie pokazałem na czerwono przed zmianą kodu, bo poprawki i testy powstały
+  w jednym kroku.
+- Sekrety: `git grep -nE "sk-ant-[a-z0-9]+-[A-Za-z0-9_-]{20,}|sk_(test|live)_[A-Za-z0-9]{10,}"` → 0,
+  nowe pliki → 0, kontrola pozytywna na próbce złożonej w locie → 1.
+- Katalog roboczy `.claude/relai/work/HUMANIZACJA/E3/`: przed 19 plików, 1,7 MB; po „tak” 0, katalog
+  usunięty. Poza nim leżało 6 fikstur `%TEMP%/RelAI-hum-e3-{a,b,c,c,d,d}-*` (ok. 6 MB), skasowanych
+  po tym samym „tak”. Stan tury `.claude/relai/humanizacja-tura/` w tym repo nie powstał, bo sesja
+  działa na zainstalowanym 3.0.0 bez nowego hooka.
+- Ryzyka: tabela „Stan otwartych ryzyk” przejrzana, etap nie otworzył ryzyka projektu. Ryzyka planu:
+  mitygacje H2, H3 i H6 wdrożone i zmierzone. H5 (koszt tury) zostaje w E5.
+
+**Świadomie odłożone:**
+
+- Zawężenie bramki zgody optymalizatora o odpowiedzi na pytanie modelu (z wpisu E2), decyzja Łukasza.
+  W tej sesji bramka zainstalowanego 3.0.0 odezwała się też na raport subagenta, który harness
+  podaje jako prompt. Pytania nie zadałem, bo nie pisał człowiek. Ta sama klasa sprawy, plan
+  OPTYMALIZATOR_PROMPTOW, do odnogi albo przyszłego planu.
+- HTML w `docs/` poza trybem ciągłym. Na żądanie komenda nadal go obsługuje.
+- Tryb `notka` poprawił w pomiarze (c) akapit, który polecenie kazało wpisać dosłownie. Model to
+  zgłosił i zaproponował cofnięcie. Reguła mówi „popraw prozę tego pliku”, więc sprawa idzie do
+  człowieka (bramka w `STATUS.md`).
+- Raz złamałem zasadę „dokumenty tylko przez Edit” (L-0188): odhaczenie pięciu punktów
+  w `PROMPT_ETAP_3.md` poszło skryptem `python` w heredoku. Tekst był bez backslashy, liczba
+  odhaczeń zgadza się (5) i dalej używałem tylko Edit.
+
+**Do zrobienia przez człowieka:**
+
+- Rozstrzygnąć przed E5, czy tryb ciągły „dokumenty” ma poprawiać także tekst podyktowany w poleceniu
+  dosłownie.
+- Start E4 w świeżej sesji Opus 5.5 (`/effort medium`) komendą `/relai-stage`; przed startem rzut
+  oka na stan PANEL_CODEX (wspólne `core/panel/`).
 
 Autor: RelAI (Opus 5.5) + Lukasz

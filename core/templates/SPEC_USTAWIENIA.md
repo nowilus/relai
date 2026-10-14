@@ -104,7 +104,7 @@ Dziesięć wierszy ma **zamknięty format** opisany niżej w tej specyfikacji i 
 | `Tryb ciągły` | hook `prompt-mode` (`UserPromptSubmit`) i zdanie o trybie w hooku startu sesji (od 2.2.0) |
 | `Próg limitu` | pasek cache `relai-cache-keeper` (`hooks/limit.ts`), panel `relai-panel` (zakładka Koszty) i `core/process/threshold.js` (od 2.9.0, wiersz opcjonalny) |
 | `Próg limitu tygodnia` | te same miejsca co `Próg limitu` (od 2.9.0, wiersz opcjonalny) |
-| `Humanizacja` | komenda `/relai-humanize` przez `core/process/humanize-mode.js` (od 3.1.0, wiersz z wywiadu przy pierwszym użyciu) |
+| `Humanizacja` | komenda `/relai-humanize` przez `core/process/humanize-mode.js` (od 3.1.0, wiersz z wywiadu przy pierwszym użyciu) oraz hook `humanize-continuous` w Claude Code: `UserPromptSubmit` dla zakresów `czat` i `zewnętrzne`, `PostToolUse` po zapisie dokumentu dla zakresu `dokumenty` |
 
 **Ich nie skracasz.** Człony rozdzielone `·` wyglądają jak rozwlekłość, a są składnią: usunięcie
 członu zmienia próg na domyślny, a przeredagowanie kotwicy na początku komórki **wycisza mechanizm
@@ -605,6 +605,34 @@ tylko w projekcie RelAI; brak pliku globalnego → plik z tabelą `| Data | Czeg
 
 **Tryb ciągły działa w Claude Code.** W Cursorze i Codeksie wywiad nie pyta o zakresy (stan
 `wyłączona`, `zakresy: brak`), a ton, pokaz i profil działają w komendzie tak samo.
+
+**Kto czyta który zakres.** Hook `humanize-continuous` czyta wiersz przez `humanize-mode.js`
+(te same trzy warstwy, identyfikator sesji z pola `session_id` zdarzenia). Brak wiersza, stan
+`wyłączona` albo stan spoza listy → hook nie dokłada do kontekstu ani bajtu.
+
+| Zakres | Zdarzenie | Co trafia do kontekstu |
+|---|---|---|
+| `czat`, `zewnętrzne` | `UserPromptSubmit`, przy każdym prompcie poza pustym i powiadomieniem systemowym | reguła ASCII 349–549 B (zmierzone 2026-10-14; najdłuższa przy obu zakresach, tonie `wg odbiorcy` i profilu): które teksty, ton z wiersza, ściąga `.claude/relai/humanize/SKROT.md` (5,3 KB, czytana raz w sesji, gdy model pisze tekst z zakresu), profil tylko w rodzajach z `profil w` |
+| `dokumenty` | `PostToolUse` po `Write`, `Edit`, `MultiEdit` pliku `.md` lub `.txt` w `docs/` | reguła ok. 760 B: popraw prozę tego pliku, rodzaj i ton, strażnik faktów przed zapisem; `notka` — zapis od razu i jedna linia z liczbą wzorców, `dwie wersje` — zmienione akapity obok oryginału i „tak” |
+
+Reguła po zapisie pada **raz na plik w turze**: stan tej sesji pisze hook (nie model), jeden
+znacznik na plik tworzony atomowo w `.claude/relai/humanizacja-tura/<id sesji>/`. Turę zaczyna
+nowe polecenie człowieka; „tak”, inne krótkie potwierdzenie i powiadomienie systemowe tury nie
+zaczynają, więc zapis wersji zaakceptowanej po „dwóch wersjach” nie dostaje reguły drugi raz.
+Katalogi starsze niż tydzień sprząta ten sam hook. Bez identyfikatora sesji hook po zapisie milczy.
+
+**Wyłączenia w hooku**, nie tylko w regule: pliki spoza `docs/`, pliki inne niż `.md` i `.txt`
+(HTML w `docs/` — decyzja 2026-10-14), `docs/archiwum/`, `PLAN.*` planu, którego `STATUS.md` w tym
+samym folderze nie ma pogrubionego statusu `**DO AKCEPTACJI**` w linii metrycznej (brak
+`STATUS.md` liczy się jak plan zamrożony), `docs/DECYZJE.md`, `PROMPT_*.md`, `SPEC_*`, `CLAUDE.md`
+i `AGENTS.md` oraz ścieżka ze znakiem spoza ASCII, apostrofem, tyldą albo znakiem sterującym
+(ścieżka trafia do polecenia strażnika w apostrofach).
+
+**Z optymalizatorem (H6):** w `hooks.json` hook `prompt-mode` stoi przed `humanize-continuous`
+i w transkrypcie reguła optymalizatora pada pierwsza (pomiar 2026-10-14). Kolejność wykonania
+hooków jednej grupy nie jest gwarantowana, więc nic od niej nie zależy: optymalizator rozstrzyga,
+który prompt zostanie wykonany, a humanizacja dotyczy prozy odpowiedzi i nie obejmuje propozycji
+ani oryginału z `/relai-prompt` (mówi to reguła).
 
 ## Wiersze warstwy globalnej (od 2.3.0)
 

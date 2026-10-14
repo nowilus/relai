@@ -1,6 +1,6 @@
 # STATE — RelAI
 
-Stan na: 2026-10-14 (HUMANIZACJA E2 zrealizowany; wydanie 3.0.0)
+Stan na: 2026-10-14 (HUMANIZACJA E3 zrealizowany; wydanie 3.0.0)
 
 ## Gdzie jesteśmy
 
@@ -12,7 +12,7 @@ Claude Code to trzy osobne pluginy „early access” z marketplace tego repozyt
 0.15.0, `relai-progress` 0.4.0, `relai-cache-keeper` 0.7.0 — od 2026-10-13 z linią w stopce każdej
 sesji, widoczną też w prawym panelu podziału okna (odnoga PASKI_W_STOPCE, P-040) (plan PANEL_CLAUDE zamknięty
 2026-10-10, odnoga AUDYT_MODOW zamknięta 2026-10-11, wszystkie paczki zmierzone na żywo na 2.1.295). Aktywne plany: HUMANIZACJA w Claude Code
-(E1 i E2 zrealizowane 2026-10-14, E3 gotowy do startu) i PANEL_CODEX w Codeksie (E1 po stronie Codeksa); FILM_PREZENTACYJNY zamknięty 2026-10-13 wydaniem 3.0.0. Opinii spoza projektu nadal nie ma.
+(E1–E3 zrealizowane 2026-10-14, E4 gotowy do startu) i PANEL_CODEX w Codeksie (E1 po stronie Codeksa); FILM_PREZENTACYJNY zamknięty 2026-10-13 wydaniem 3.0.0. Opinii spoza projektu nadal nie ma.
 
 ## Co działa
 
@@ -32,7 +32,11 @@ sesji, widoczną też w prawym panelu podziału okna (odnoga PASKI_W_STOPCE, P-0
   oknach, jak z niej korzystać (zakresy, sposób pokazywania, ton per rodzaj tekstu, profil stylu
   autora); odpowiedź zostaje w wierszu „Humanizacja” w wybranej warstwie, a `on`, `off`
   i `ustawienia` ją zmieniają. Profil stylu powstaje ze wskazanych plików z kontrolą, że nie
-  cytuje źródła i nie niesie danych osobowych.
+  cytuje źródła i nie niesie danych osobowych. W Claude Code działa tryb ciągły w wybranych
+  zakresach. Odpowiedzi w czacie i teksty na zewnątrz od razu wychodzą bez tych nawyków. Dokument
+  w `docs/` jest poprawiany raz po ostatnim zapisie w turze, notką albo jako dwie wersje do akceptacji.
+  Archiwum, zamrożone plany, rejestr decyzji i prompty dla modeli hook pomija sam. W tym repo tryb
+  jest wyłączony.
 - Załoga deleguje zadania do trzech narzędzi; recenzent bez prawa zapisu, dwa zadania nie piszą
   naraz do jednego pliku, meldunek bez dowodu dostaje najwyżej dwie kontynuacje.
 - Zadanie z kodem kończy się testami projektu i przeglądem diffu w trzech liniach; „coś nie
@@ -89,11 +93,14 @@ sesji, widoczną też w prawym panelu podziału okna (odnoga PASKI_W_STOPCE, P-0
   czat macierzysty; kontrakt w [README adaptera](../adapters/codex/panel/README.md). Tabela
   STATUS planu pokazuje jeszcze `GOTOWY DO STARTU` — do wyprostowania na `W TOKU`.
 
-- **Plan HUMANIZACJA — aktywny w Claude Code; E1 i E2 ZREALIZOWANE 2026-10-14, E3 GOTOWY DO STARTU**
-  ([status](plany/HUMANIZACJA/STATUS.md), 5 etapów, Opus 5.5, prompt E3 gotowy). E2 dowiózł
+- **Plan HUMANIZACJA — aktywny w Claude Code; E1–E3 ZREALIZOWANE 2026-10-14, E4 GOTOWY DO STARTU**
+  ([status](plany/HUMANIZACJA/STATUS.md), 5 etapów, Opus 5.5, prompt E4 gotowy). E3 dowiózł tryb
+  ciągły: `core/process/humanize-continuous.js`, hook `humanize-continuous` (reguła przed odpowiedzią
+  349–549 B, reguła po zapisie dokumentu raz na plik w turze, wyłączenia w hooku), ściągę
+  `core/humanize/SKROT.md`; wiersz „Humanizacja” w tym repo wyłączony decyzją Łukasza; bramka
+  otwarta: czy tryb „dokumenty” poprawia tekst podyktowany dosłownie. E2 dowiózł
   ustawienia w trzech warstwach (`core/process/humanize-mode.js`), wywiad w komendzie, procedurę
-  profilu stylu i pierwszy profil Łukasza z logów PolyFlow; przed E3 do rozstrzygnięcia, czy wiersz
-  „Humanizacja” (`włączona · zakresy: czat`) zostaje w `docs/USTAWIENIA.md`. E1 dowiózł bazę
+  profilu stylu i pierwszy profil Łukasza z logów PolyFlow. E1 dowiózł bazę
   reguł `core/humanize/`, strażnika faktów i komendę zarejestrowaną w panelu i Codeksie; zakładka
   komend panelu ma tymczasowo 925 px zamiast 900 px (powrót w E4); otwarta odnoga
   [FILM_TESTY_V3](plany/HUMANIZACJA/odnogi/FILM_TESTY_V3/ODNOGA.md) (testy filmu na stanie
@@ -189,7 +196,7 @@ Backupy: `C:\Users\Lukasz\Backupy\RelAI` • [PRZENOSNOSC.md](PRZENOSNOSC.md) �
 
 ### Liczby
 
-Plany zamknięte: 12 (ostatni FILM_PREZENTACYJNY, 2026-10-13) • Aktywne: HUMANIZACJA (E3 GOTOWY DO STARTU), PANEL_CODEX (E1 W TOKU) •
+Plany zamknięte: 12 (ostatni FILM_PREZENTACYJNY, 2026-10-13) • Aktywne: HUMANIZACJA (E4 GOTOWY DO STARTU), PANEL_CODEX (E1 W TOKU) •
 Start sesji: **93,8 KB / 100 KB** ze skillem z repo (`startCost` 2026-10-12) • Dziennik: **106 KB / 150 KB**
 (2026-10-13, po rotacji) • Ryzyka: 17 w tabeli, archiwum 6 plików + 1 mitygacji • Lekcje:
 **54,4 KB / 50 KB**, 20 w żywym pliku (po rotacji; ponad progiem przez „Zasady aktywne”, 31 KB) • Adaptery: 3 • Komendy: 14 wydane, 15 w repo •

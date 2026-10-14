@@ -73,6 +73,12 @@
       "file": "./humanize/PROFIL_STYLU.md",
       "kind": "procedura",
       "description": "Profil stylu autora: format STYL.md (cechy, nigdy surowe teksty, najwyzej jeden zwrot do 5 slow), miejsce (~/.claude/relai/STYL.md, projektowy tylko na prosbe), zrodla (wklejony tekst, wskazane pliki, logi dyktowania), procedura budowy z kontrola skryptem i rodzaje tekstu, w ktorych profil dziala."
+    },
+    {
+      "id": "humanize-skrot",
+      "file": "./humanize/SKROT.md",
+      "kind": "sciaga",
+      "description": "Sciaga trybu ciaglego humanizacji (do 6 KB): trzy reguly (tylko proza, bez nowych faktow, nic do zmiany to wynik), wylaczenia, najczestsze wzorce z polskimi nazwami i formami, nadpisania polskie, ton per rodzaj tekstu, profil tylko w rodzajach z profil w, sposob pokazywania wyniku. Wskazuje ja regula hooka humanize-continuous."
     }
   ],
   "process": [
@@ -117,6 +123,12 @@
       "file": "./process/humanize-mode.js",
       "kind": "biblioteka+CLI",
       "description": "Ustawienia humanizacji: wiersz Humanizacja czytany w trzech warstwach (plik sesji, projekt, globalnie) z zamknieta lista brzmien PL i EN; CLI odczyt / zapisz / przelacz on|off oraz zapis profilu stylu z kontrola cytatow 6+ slow, sekretow i danych osobowych. Samowystarczalny, kopiowany do .claude/relai/tools/ projektu."
+    },
+    {
+      "id": "humanize-continuous",
+      "file": "./process/humanize-continuous.js",
+      "kind": "biblioteka",
+      "description": "Tryb ciagly humanizacji: regula przed odpowiedzia (zakresy czat i zewnetrzne, ASCII, do 600 B), regula po zapisie dokumentu w docs/ (notka albo dwie wersje, raz na plik w turze, atomowy znacznik na plik pisany przez hook, tura od nowego polecenia czlowieka), filtr sciezek H3 (archiwum, zamrozone PLAN.*, DECYZJE.md, PROMPT_*, SPEC_*, CLAUDE.md, AGENTS.md, pliki inne niz .md i .txt, znaki spoza ASCII). Ustawienia przez humanize-mode.js. Bez wiedzy o protokole hookow."
     }
   ],
   "tools": [
@@ -172,7 +184,8 @@
         "./process/work-artifacts.js",
         "./process/crew.js",
         "./process/humanize-facts.js",
-        "./process/humanize-mode.js"
+        "./process/humanize-mode.js",
+        "./process/humanize-continuous.js"
       ]
     },
     {

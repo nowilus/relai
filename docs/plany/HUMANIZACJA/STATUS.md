@@ -10,8 +10,8 @@ wydania po kolei, nigdy dwa naraz.
 |---|---|---|---|---|
 | E1 | Komenda na żądanie | ZREALIZOWANY 2026-10-14 | [PROMPT_ETAP_1.md](PROMPT_ETAP_1.md) | świeża sesja; effort high; z rejestracją minimalną w panelu i generatorze Codeksa (Aneks A6) |
 | E2 | Wywiad i ustawienia | ZREALIZOWANY 2026-10-14 | [PROMPT_ETAP_2.md](PROMPT_ETAP_2.md) | dwa okna pytań, ton per rodzaj tekstu, profil stylu z logów PolyFlow (Aneks A1–A5) |
-| E3 | Tryb ciągły | GOTOWY DO STARTU | [PROMPT_ETAP_3.md](PROMPT_ETAP_3.md) | świeża sesja; effort high; wiersz „Humanizacja” w `docs/USTAWIENIA.md` już włączony dla czatu |
-| E4 | Panel i trzy narzędzia | OCZEKUJE | — | dotyka `core/panel/` — sprawdzić stan PANEL_CODEX przed startem |
+| E3 | Tryb ciągły | ZREALIZOWANY 2026-10-14 | [PROMPT_ETAP_3.md](PROMPT_ETAP_3.md) | hook `humanize-continuous` (`UserPromptSubmit` + `PostToolUse`), `SKROT.md`; wiersz „Humanizacja” w tym repo wyłączony decyzją Łukasza |
+| E4 | Panel i trzy narzędzia | GOTOWY DO STARTU | [PROMPT_ETAP_4.md](PROMPT_ETAP_4.md) | dotyka `core/panel/` — sprawdzić stan PANEL_CODEX przed startem; effort medium |
 | E5 | Pomiar i wydanie 3.1.0 | OCZEKUJE | — | wymaga zgody na publikację |
 
 ## Odnogi
@@ -24,7 +24,8 @@ wydania po kolei, nigdy dwa naraz.
 - **Próbka głosu w repozytorium czy lokalnie** · źródło: sekcja 9 PLAN.html · **ROZSTRZYGNIĘTA 2026-10-14 — Aneks A3: profil stylu globalnie w `~/.claude/relai/STYL.md`, poza repozytorium**
 - **Rzut oka na ikonę i wiersz „Humanizacja tekstu” w panelu** · źródło: wpis dziennika E1 2026-10-14 · **OTWARTA** — po najbliższej instalacji panelu z repo albo przy E4
 - **Zgoda na publikację wydania 3.1.0** · źródło: sekcja 9 PLAN.html · **OTWARTA** — przed E5
-- **Wiersz „Humanizacja” w `docs/USTAWIENIA.md` zostaje przed E3?** (`włączona · zakresy: czat` z przebiegu interaktywnego; od E3 odpowiedzi w czacie tego projektu będą humanizowane same) · źródło: wpis dziennika E2 2026-10-14 · **OTWARTA** — przed startem E3
+- **Czy tryb ciągły „dokumenty” ma poprawiać także tekst, który polecenie każe wpisać dosłownie?** (w pomiarze E3 model w trybie `notka` przeredagował podyktowany akapit i powiedział o tym; dziś reguła obejmuje całą prozę pliku) · źródło: wpis dziennika E3 2026-10-14 · **OTWARTA** — przed E5 (korpus)
+- **Wiersz „Humanizacja” w `docs/USTAWIENIA.md` zostaje przed E3?** (`włączona · zakresy: czat` z przebiegu interaktywnego; od E3 odpowiedzi w czacie tego projektu będą humanizowane same) · źródło: wpis dziennika E2 2026-10-14 · **ROZSTRZYGNIĘTA 2026-10-14 — Łukasz: „Wyłączyć”** (wiersz przełączony na `wyłączona`, zakresy zachowane; tryb ciągły mierzony w `-p` na fixturach)
 
 ## Dziennik wdrożenia
 
@@ -34,3 +35,5 @@ wydania po kolei, nigdy dwa naraz.
 - 2026-10-14 — E1 zrealizowany: `core/humanize/` (26 wzorców, nakładka PL, nota MIT), strażnik faktów (pliki i stdin), `/relai-humanize` z rejestracją w panelu i Codeksie (15 komend); 356 testów rdzenia, plugin test 178/31/178; pomiar 17 świeżymi sesjami; recenzja kodu (1 HIGH, 4 MEDIUM) poprawiona w etapie; tymczasowo 925 px w teście zakładki komend (powrót do 900 px w E4); odnoga FILM_TESTY_V3. E2 GOTOWY DO STARTU.
 - 2026-10-14 — E2 rozpoczęty (Opus 5.5, zgoda w czacie).
 - 2026-10-14 — E2 zrealizowany: `core/process/humanize-mode.js` (trzy warstwy, CLI `odczyt` / `zapisz` / `przelacz` / `profil`), `/relai-humanize` v2 z wywiadem w dwóch oknach i `on` / `off` / `ustawienia`, `core/humanize/PROFIL_STYLU.md`, wiersz w `SPEC_USTAWIENIA.md`; profil `~/.claude/relai/STYL.md` z logów PolyFlow; 384 testy rdzenia; przebieg `-p` i interaktywny z Łukaszem; recenzja (5 MEDIUM, 7 LOW) poprawiona w etapie; L-0187, L-0188. E3 GOTOWY DO STARTU.
+- 2026-10-14 — E3 rozpoczęty (Opus 5.5, zgoda w czacie; bramka wiersza „Humanizacja” rozstrzygnięta: wyłączyć).
+- 2026-10-14 — E3 zrealizowany: `core/process/humanize-continuous.js` i hook `humanize-continuous` (reguła przed odpowiedzią 349–549 B, reguła po zapisie dokumentu raz na plik w turze, wyłączenia H3 w hooku, tylko `.md`/`.txt`), `core/humanize/SKROT.md` (5 271 B), `SPEC_USTAWIENIA.md` v15; 402 testy rdzenia; sześć sesji `-p` (H2 10/10 bajt w bajt, H6 kolejność reguł); recenzja (1 HIGH, 3 MEDIUM, 2 LOW) poprawiona w etapie; L-0189. E4 GOTOWY DO STARTU.

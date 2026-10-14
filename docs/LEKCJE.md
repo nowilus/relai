@@ -138,9 +138,11 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
       (L-0153); funkcja czekająca na `$.ui.ask` zapamiętuje id sesji i porzuca odpowiedź po zmianie,
       zegar i próg czyta po każdym `await` (L-0166); test wielu rozmów — atrapy per rozmowa (L-0168);
       narzędzie wołane w komendzie nie pisze plików tymczasowych pod `.claude/` (ścieżka wrażliwa
-      harnessu) — tekst na stdin heredokiem, jedno polecenie (L-0185).
+      harnessu) — tekst na stdin heredokiem, jedno polecenie (L-0185); stan „na turę” liczy się od
+      nowego polecenia człowieka, nie od zdarzenia promptu („tak”, powiadomienie i raport subagenta
+      też nim są), a stan współdzielony przez równoległe hooki powstaje atomowo (L-0189).
     (L-0041, L-0042, L-0044, L-0047, L-0092, L-0133, L-0136, L-0138, L-0139, L-0146, L-0153, L-0166,
-    L-0168, L-0185)
+    L-0168, L-0185, L-0189)
 14. **Najpierw zmiana w repozytorium, potem zdanie, które ją opisuje.** Weryfikację planujesz tam,
     gdzie wykonalna; po pytaniu sprzątasz sam; jednostką inwentarza jest sprawa, nie linia; wstawkę
     kotwiczysz do elementu, który przeżyje operację, i dowodzisz **obecności** nowej treści. Gdy
@@ -534,6 +536,22 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
   także jednolinijkowa podmiana; dokumenty projektu — wyłącznie Edit. Znaki łączące usuwasz przez
   `\p{M}` z flagą `u`, nie zakresem wpisanych znaków. Po zapisie sprawdzasz `cat -A` albo `grep`
   stałego ciągu, a po każdym błędzie powłoki — `git diff` plików, które polecenie wymieniało.
+
+### L-0189 — Stan „raz na turę” kasowany przez każde zdarzenie promptu, także przez „tak” · 2026-10-14 · AKTYWNA
+
+- **Trigger:** E3 HUMANIZACJA, recenzja kodu hooka `humanize-continuous` (HIGH). Hook kasował stan
+  „raz na plik w turze” przy każdym `UserPromptSubmit`. W trybie „dwie wersje” człowiek odpowiada
+  „tak”, a to też jest `UserPromptSubmit`: stan znikał i zapis zaakceptowanej wersji dostawał regułę
+  „popraw prozę” drugi raz. Pętlę zatrzymywało tylko zdanie w regule. W tej samej sesji bramka zgody
+  zainstalowanego optymalizatora 3.0.0 odezwała się na raport subagenta, który harness też podaje
+  jako prompt.
+- **Przyczyna:** „tura” w kodzie znaczyła „zdarzenie promptu”, a dla człowieka to nowe polecenie.
+  Krótkie potwierdzenie, powiadomienie o zadaniu w tle i raport subagenta przychodzą tym samym
+  zdarzeniem. Test sprawdzał reset po „tak” jako poprawne zachowanie.
+- **Zasada:** stan hooka liczony „na turę” zaczyna się od nowego polecenia człowieka. Potwierdzenia
+  i powiadomienia rozpoznajesz tym samym filtrem, którego używa optymalizator (`powodPominiecia`),
+  i test przechodzi ścieżkę „pokaz, tak, zapis”. Stan współdzielony przez równoległe hooki tej samej
+  sesji powstaje atomowo (znacznik `wx` na element, nie odczyt-modyfikacja-zapis jednego pliku).
 
 ## Lekcje zwinięte
 

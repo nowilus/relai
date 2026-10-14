@@ -6,6 +6,7 @@ Wzorce, procedura i zasada „kiedy nie działać” w `core/humanize/REGULY.md`
 - `core/humanize/REGULY.md` — 26 wzorców w sześciu grupach, procedura, „kiedy nie działać”
   (przykłady skrócone, reguły przeniesione),
 - `core/humanize/jezyki/pl.md` — nakładka polska odwołuje się do numerów i treści tych wzorców,
+- `core/humanize/SKROT.md` — ściąga trybu ciągłego streszcza wybrane wzorce i trzy reguły bazy,
 - `adapters/claude-code/commands/relai-humanize.md` — komenda wykonuje procedurę z bazy reguł.
 
 Pełny tekst licencji źródła (odczyt 2026-10-14):

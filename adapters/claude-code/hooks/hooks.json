@@ -17,7 +17,8 @@
           { "type": "command", "command": "node \"${CLAUDE_PLUGIN_ROOT}/adapters/claude-code/hooks/console-log-warn.js\"" },
           { "type": "command", "command": "node \"${CLAUDE_PLUGIN_ROOT}/adapters/claude-code/hooks/design-quality-check.js\"" },
           { "type": "command", "command": "node \"${CLAUDE_PLUGIN_ROOT}/adapters/claude-code/hooks/profile-rules.js\"" },
-          { "type": "command", "command": "node \"${CLAUDE_PLUGIN_ROOT}/adapters/claude-code/hooks/journal-signature.js\"" }
+          { "type": "command", "command": "node \"${CLAUDE_PLUGIN_ROOT}/adapters/claude-code/hooks/journal-signature.js\"" },
+          { "type": "command", "command": "node \"${CLAUDE_PLUGIN_ROOT}/adapters/claude-code/hooks/humanize-continuous.js\"" }
         ]
       },
       {
@@ -30,7 +31,8 @@
     "UserPromptSubmit": [
       {
         "hooks": [
-          { "type": "command", "command": "node \"${CLAUDE_PLUGIN_ROOT}/adapters/claude-code/hooks/prompt-mode.js\"" }
+          { "type": "command", "command": "node \"${CLAUDE_PLUGIN_ROOT}/adapters/claude-code/hooks/prompt-mode.js\"" },
+          { "type": "command", "command": "node \"${CLAUDE_PLUGIN_ROOT}/adapters/claude-code/hooks/humanize-continuous.js\"" }
         ]
       }
     ],

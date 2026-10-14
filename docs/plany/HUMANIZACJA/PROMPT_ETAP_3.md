@@ -308,19 +308,19 @@ obu hooków osobno i razem z optymalizatorem, zdania o trybie w specyfikacji ust
 Każdy punkt Weryfikacji, który przeszedł, odhaczasz w `PROMPT_ETAP_3.md` (`- [ ]` → `- [x]`)
 zaraz po jego sprawdzeniu, nie na końcu etapu; punkt, który nie przeszedł, zostaje pusty.
 
-- [ ] `node --test core/process/tests/*.test.js core/guardrails/tests/*.test.js core/panel/tests/*.test.js adapters/codex/tests/*.test.js` — zero błędów; liczba testów przed (384 — FAKT) i po do wpisu.
-- [ ] `node core/tools/validate-adapters.js` — zero błędów, parytet skilli Codeksa 0 rozjazdów; ostrzeżenia wypisane we wpisie.
-- [ ] `claude plugin test` binarką aplikacji dla `panel/`, `progress/`, `cache-keeper/` — 178 / 31 / 178 bez zmian.
-- [ ] Reguła przed odpowiedzią: rozmiar w bajtach z `wc -c` ≤ 600 (albo uzasadnione przekroczenie we wpisie); `SKROT.md` ≤ 6 KB albo uzasadnienie.
-- [ ] Hook przy wyłączonym trybie, braku wiersza i wierszu nierozpoznanym: **zero bajtów** wyjścia, z kontrolą pozytywną (ten sam układ z `włączona` → reguła) w tym samym przebiegu testów.
-- [ ] Wyłączenia (H3): zapis do `docs/archiwum/…`, `docs/plany/<zamrożony>/PLAN.html`, `docs/DECYZJE.md`, `PROMPT_ETAP_*.md` i `SPEC_*` — hook milczy; zapis do zwykłego dokumentu w `docs/` — mówi (kontrola pozytywna).
-- [ ] „Dwie wersje”: kilka zapisów tego samego pliku w jednej turze → jedno porównanie (test); `notka` — jedna linia z liczbą wzorców w regule.
-- [ ] H2 na żywo: dokument z tabelą, nagłówkami, adnotacją `*(…)*` i wierszem czytanym maszynowo poprawiony w trybie ciągłym — te elementy bajt w bajt (dowód negatywny: suma przed i po dla każdego z nich).
-- [ ] H6: oba tryby ciągłe włączone w jednej sesji `-p` — propozycja optymalizatora nie jest humanizowana, kolejność reguł w transkrypcie zgodna z opisem.
-- [ ] `git grep -nE "sk-ant-[a-z0-9]+-[A-Za-z0-9_-]{20,}|sk_(test|live)_[A-Za-z0-9]{10,}"` — 0 trafień, z kontrolą pozytywną na próbce złożonej w czasie wykonania.
-- [ ] `docs/ARTEFAKTY.md` ma podbite i nowe wpisy; `git status --short` nie pokazuje plików spoza zakresu (zastane zmiany PANEL_CODEX i `docs/zasoby/PANEL_RELAI/makiety/` — nietknięte).
-- [ ] Wpis w `docs/DZIENNIK.md` na końcu sekcji „Wpisy”, z autorem; `docs/STATE.md` nadpisany.
-- [ ] Katalog roboczy `.claude/relai/work/HUMANIZACJA/E3/` przejrzany raportem (`node .claude/relai/tools/clean-work.js raport`) i skasowany po „tak”; liczby przed i po w sekcji „Zweryfikowane” wpisu. Artefakty poza tym katalogiem (podłożone komendy, `%TEMP%`, pliki sesji `.claude/relai/humanizacja/`) wypisane z nazwy razem z tym, co się z nimi stało.
+- [x] `node --test core/process/tests/*.test.js core/guardrails/tests/*.test.js core/panel/tests/*.test.js adapters/codex/tests/*.test.js` — zero błędów; liczba testów przed (384 — FAKT) i po do wpisu.
+- [x] `node core/tools/validate-adapters.js` — zero błędów, parytet skilli Codeksa 0 rozjazdów; ostrzeżenia wypisane we wpisie.
+- [x] `claude plugin test` binarką aplikacji dla `panel/`, `progress/`, `cache-keeper/` — 178 / 31 / 178 bez zmian.
+- [x] Reguła przed odpowiedzią: rozmiar w bajtach z `wc -c` ≤ 600 (albo uzasadnione przekroczenie we wpisie); `SKROT.md` ≤ 6 KB albo uzasadnienie.
+- [x] Hook przy wyłączonym trybie, braku wiersza i wierszu nierozpoznanym: **zero bajtów** wyjścia, z kontrolą pozytywną (ten sam układ z `włączona` → reguła) w tym samym przebiegu testów.
+- [x] Wyłączenia (H3): zapis do `docs/archiwum/…`, `docs/plany/<zamrożony>/PLAN.html`, `docs/DECYZJE.md`, `PROMPT_ETAP_*.md` i `SPEC_*` — hook milczy; zapis do zwykłego dokumentu w `docs/` — mówi (kontrola pozytywna).
+- [x] „Dwie wersje”: kilka zapisów tego samego pliku w jednej turze → jedno porównanie (test); `notka` — jedna linia z liczbą wzorców w regule.
+- [x] H2 na żywo: dokument z tabelą, nagłówkami, adnotacją `*(…)*` i wierszem czytanym maszynowo poprawiony w trybie ciągłym — te elementy bajt w bajt (dowód negatywny: suma przed i po dla każdego z nich).
+- [x] H6: oba tryby ciągłe włączone w jednej sesji `-p` — propozycja optymalizatora nie jest humanizowana, kolejność reguł w transkrypcie zgodna z opisem.
+- [x] `git grep -nE "sk-ant-[a-z0-9]+-[A-Za-z0-9_-]{20,}|sk_(test|live)_[A-Za-z0-9]{10,}"` — 0 trafień, z kontrolą pozytywną na próbce złożonej w czasie wykonania.
+- [x] `docs/ARTEFAKTY.md` ma podbite i nowe wpisy; `git status --short` nie pokazuje plików spoza zakresu (zastane zmiany PANEL_CODEX i `docs/zasoby/PANEL_RELAI/makiety/` — nietknięte).
+- [x] Wpis w `docs/DZIENNIK.md` na końcu sekcji „Wpisy”, z autorem; `docs/STATE.md` nadpisany.
+- [x] Katalog roboczy `.claude/relai/work/HUMANIZACJA/E3/` przejrzany raportem (`node .claude/relai/tools/clean-work.js raport`) i skasowany po „tak”; liczby przed i po w sekcji „Zweryfikowane” wpisu. Artefakty poza tym katalogiem (podłożone komendy, `%TEMP%`, pliki sesji `.claude/relai/humanizacja/`) wypisane z nazwy razem z tym, co się z nimi stało.
 
 ## Na koniec (rytuał obowiązkowy — bez niego etap nie jest ukończony)
 
