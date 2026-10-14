@@ -100,8 +100,6 @@ wydaniem 3.1.0. Opinii spoza projektu nadal nie ma.
 - Wątek samodzielny [FILM_TESTY_V3](fixy/FILM_TESTY_V3/ODNOGA.md) (przeniesiony z planu
   HUMANIZACJA 2026-10-14): testy faktów i pasków filmu 3.0.0 przypięte do commitu wydania, start
   w świeżej sesji promptem z karty.
-- Rotacja dziennika (`docs/DZIENNIK.md` ponad 150 KB) — decyzja Łukasza 2026-10-14: na koniec dnia.
-
 - Aneks do PANEL_CODEX z zapisem pracy przed limitem dla panelu Codeksa — po domknięciu jego E1
   (bramka zamknięcia LIMIT_CHECKPOINT, decyzja Łukasza 2026-10-12). Przepięcie `prompt-mode.js`
   na `threshold.js` nadal świadomie odłożone.
@@ -186,8 +184,8 @@ Backupy: `C:\Users\Lukasz\Backupy\RelAI` • [PRZENOSNOSC.md](PRZENOSNOSC.md) �
 ### Liczby
 
 Plany zamknięte: 13 (ostatni HUMANIZACJA, 2026-10-14) • Aktywne: PANEL_CODEX (E1 W TOKU) •
-Start sesji: **93,8 KB / 100 KB** ze skillem z repo (`startCost` 2026-10-12) • Dziennik: **ponad 150 KB / 150 KB**
-(2026-10-14, hook startu: 157,3 KB przed wpisem E5 — rotacja na koniec dnia) • Ryzyka: 18 w tabeli, archiwum 6 plików + 1 mitygacji • Lekcje:
+Start sesji: **93,8 KB / 100 KB** ze skillem z repo (`startCost` 2026-10-12) • Dziennik: **ok. 87 KB / 150 KB**
+(2026-10-14 po rotacji: 168,0 → 86,0 KB, archiwum `DZIENNIK_2026-10-12_2026-10-13.md`) • Ryzyka: 18 w tabeli, archiwum 6 plików + 1 mitygacji • Lekcje:
 **48,4 KB / 50 KB**, 27 w żywym pliku (2026-10-14, `wc -c`) • Adaptery: 3 • Komendy: 15 •
 Testy: 408 rdzeń, panel i adaptery (`node --test`, 4 katalogi, 2026-10-14) + 387 pluginów panelu (178 / 31 / 178) + 36 filmu •
 Projekty na RelAI: 3 (RelAI, PolyFlow, JiraManager przed migracją) • Modele, na których zmierzono
