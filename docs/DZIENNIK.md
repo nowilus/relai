@@ -99,22 +99,19 @@
   nic nie zostanie wysłane, `PROBY.md` zostanie pusty, a E3 zamknie plan wynikiem
   nierozstrzygającym. · 2026-09-13 ·
   [wpis 2026-09-13 — E2 zamknięty](archiwum/dziennik/DZIENNIK_2026-09-06_2026-09-14.md#2026-09-13--e2-zamknięty-materiały-zaproszenia-gotowe-demo-nieczytelne-na-telefonie)
+  *(odroczone 2026-10-14, odroczeń: 1)*
 
 - **Wskazanie uczestników pilotażu** — trzy do pięciu osób z własnym małym, niekrytycznym
   projektem. Brak kandydatów nie uruchamia bezterminowej rekrutacji. · 2026-09-13 ·
   [wpis 2026-09-13 — E2 zamknięty](archiwum/dziennik/DZIENNIK_2026-09-06_2026-09-14.md#2026-09-13--e2-zamknięty-materiały-zaproszenia-gotowe-demo-nieczytelne-na-telefonie)
-
-- **Czy powstaje nowa wersja materiału demo pod ekran telefonu** — dziś na 375 px czytelny jest
-  wyłącznie tytuł sceny (12,50 px przy progu 8 px), treść scen ma 3,52–7,42 px, a wejście brandowe
-  zajmuje 3 z 25 sekund. Naprawa to nowy render; źródła renderu nie istnieją, więc łączy się
-  z decyzją o ich trwałym miejscu (Aneks A, ryzyko A2). Rozstrzygnięcie należy do E3. · 2026-09-13 ·
-  [wpis 2026-09-13 — E2 zamknięty](archiwum/dziennik/DZIENNIK_2026-09-06_2026-09-14.md#2026-09-13--e2-zamknięty-materiały-zaproszenia-gotowe-demo-nieczytelne-na-telefonie)
+  *(odroczone 2026-10-14, odroczeń: 1)*
 
 - **Rozjazd manifestu z produktem przy opisie repozytorium** — `description`
   w `.claude-plugin/plugin.json` mówi „…framework for Claude Code", a RelAI ma trzy adaptery;
   `keywords` nie zawiera ani jednej nazwy narzędzia. Wizytówka GitHuba ma skopiować manifest, czy
   najpierw poprawiamy manifest (czyli podbicie wersji i pełna sekwencja wydania)? · 2026-09-13 ·
   [karta odnogi OPIS_REPO](archiwum/plany/ROZWOJ_PO_WYDANIU/odnogi/OPIS_REPO/ODNOGA.md)
+  *(odroczone 2026-10-14, odroczeń: 1)*
 
 - **Zamknięta lista rdzeni rozstrzygnięcia nie zna słownika realnego projektu** — 7 z 32 pozycji
   „Czeka na człowieka" w PolyFlow wygląda dla człowieka na zamknięte, a mechanizm liczy je jako
@@ -1557,5 +1554,94 @@ Wykonawca: Opus 5.5 (Claude Code, aplikacja desktopowa po restarcie).
 **Do zrobienia przez człowieka:**
 
 - Brak.
+
+Autor: RelAI (Opus 5.5) + Lukasz
+
+### 2026-10-14 — Plan HUMANIZACJA do akceptacji; przegląd spraw przeterminowanych; plany pisze Opus
+
+Wykonawca: Opus 5.5 (Claude Code, aplikacja desktopowa).
+
+**Zrobione:**
+
+- Przegląd spraw czekających ponad 30 dni (cztery pozycje, decyzje Łukasza): dyspozycja publikacji
+  i kontaktów, wskazanie uczestników pilotażu oraz rozjazd manifestu z produktem — **odroczone**
+  o 30 dni (licznik 1); nowa wersja materiału demo pod ekran telefonu — **zamknięta**:
+  rozstrzygnięte 2026-10-14 — osobnej wersji mobilnej nie robimy (materiał zastąpiony filmem 3.0.0).
+  Wpis źródłowy leży w archiwum z sumą kontrolną, więc adnotacja rozstrzygnięcia stoi tutaj.
+- Rozpoznanie pluginu Humanizer 3.1.0 (MIT, Siqi Chen): jeden `SKILL.md` 32 745 B, 26 wzorców
+  w 6 grupach, wyłącznie po angielsku, bez pokazania oryginału obok wyniku. Rozpoznanie mechaniki
+  `/relai-prompt` i trybu ciągłego jako wzoru (hook `UserPromptSubmit`, trzy warstwy ustawień,
+  formularz panelu, liczba 14 komend na sztywno w generatorze Codeksa i opisach).
+- Wywiad z Łukaszem (dwie rundy) i plan [HUMANIZACJA](plany/HUMANIZACJA/STATUS.md) — 5 etapów,
+  PLAN.html + STATUS.md, status DO AKCEPTACJI. Rozstrzygnięcia: własna baza reguł z nakładką PL;
+  wywiad przy pierwszym `/relai-humanize` (pokaz na próbce, zakresy, sposób pokazywania, zasięg,
+  opcjonalna próbka głosu); zakresy trybu ciągłego wybiera wyłącznie użytkownik; czat zawsze bez
+  akceptacji; praca równoległa z PANEL_CODEX.
+- **D-84 zmieniona aneksem** (dyspozycja Łukasza): architekturę i plany pisze Opus w bieżącej
+  sesji, wymóg Fable odwołany. Zmienione `CLAUDE.md` (reguły procesu), `docs/DECYZJE.md` (tabela
+  „Decyzje zmienione”), `docs/USTAWIENIA.md` (wiersz „Sposób wykonania planów”, stara wartość
+  w „Ustawieniach wycofanych”).
+- Tryb ciągły optymalizatora: w tej sesji wyłączony decyzją Łukasza (plik zgody sesji).
+
+**Zweryfikowane — jak dokładnie:**
+
+- `zbuduj.js` z `core/templates/HTML_PLAN/` (D-87): 6 reguł `@font-face`, plik 217 KB, kod wyjścia
+  0, zero niewypełnionych znaczników; `grep -c http` w pliku → 0.
+- W przeglądarce: 10 sekcji, przycisk przypadku brzegowego zmienia `aria-expanded` z `false` na
+  `true`; szerokość przewijania równa szerokości okna przy 1280 px (1265 = 1265).
+- Diagram: 21 napisów, żaden nie wychodzi poza swoją kartkę (pomiar `getBBox`); kontrola
+  pozytywna na podłożonym długim napisie — instrument go wykrył.
+- Dziennik po przeglądzie: trzy adnotacje `*(odroczone 2026-10-14, odroczeń: 1)*`, pozycja demo
+  mobilnego nieobecna (`grep -c` → 0).
+
+**Świadomie odłożone:**
+
+- Linia „Aktywny plan” w `CLAUDE.md` nadal wskazuje PANEL_CODEX — który plan jest aktywny w Claude
+  Code, rozstrzyga Łukasz przy akceptacji.
+
+**Do zrobienia przez człowieka:**
+
+- Akceptacja planu HUMANIZACJA albo uwagi do niego.
+
+Autor: RelAI (Opus 5.5) + Lukasz
+
+### 2026-10-14 — Plan HUMANIZACJA zaakceptowany z Aneksem A; prompt E1
+
+Wykonawca: Opus 5.5 (Claude Code, aplikacja desktopowa).
+
+**Zrobione:**
+
+- Akceptacja Łukasza: „Akceptuję plan, aktywny HUMANIZACJA”. Linia „Aktywny plan” w `CLAUDE.md`
+  wskazuje HUMANIZACJA, z PANEL_CODEX wymienionym jako plan równoległy w Codeksie.
+- **Aneks A** (uwagi Łukasza przy akceptacji) w sekcji 10 `PLAN.html`: A1 ton zależny od rodzaju
+  tekstu (dokumenty formalne starannie i bez języka mówionego, robocze rzeczowo, czat swobodniej,
+  teksty na zewnątrz według odbiorcy); A2 „próbka głosu” zastąpiona opcjonalnym profilem stylu
+  autora — opis cech zamiast surowych tekstów, bez przenoszenia potknięć mowy, domyślnie tylko czat
+  i wiadomości do zespołu; A3 profil globalnie w `~/.claude/relai/STYL.md`, poza repozytorium;
+  A4 wywiad w dwóch oknach; A5 pierwszy profil z logów PolyFlow (lokalnie, bez śladu w repo);
+  A6 rejestracja minimalna komendy już w E1, bo testy parowania i generator Codeksa nie przepuszczą
+  piętnastej komendy.
+- `STATUS.md`: ZAAKCEPTOWANY, E1 GOTOWY DO STARTU, bramka próbki głosu rozstrzygnięta Aneksem A3.
+- [PROMPT_ETAP_1.md](plany/HUMANIZACJA/PROMPT_ETAP_1.md) wg `SPEC_PROMPT_ETAPU.md`, z 15 zasadami
+  aktywnymi przepisanymi w całości.
+
+**Zweryfikowane — jak dokładnie:**
+
+- Sekcje 1–9 `PLAN.html` nietknięte przez aneks: SHA-256 fragmentu od `<section id="s1">` do
+  `<section id="s10">` przed i po identyczne (`600a64567f0a00f0`); aneks obecny (`grep -c` → 1).
+- Test komend: `core/panel/tests/commands.test.js` wymaga `FORMS.length` = liczba plików komend,
+  `theme.test.js` — ikona ↔ nazwa ↔ formularz, `generate-skills.js:51` — dokładnie 14 komend
+  (odczyt kodu); stąd A6.
+- `node core/tools/validate-adapters.js` — zielony; rytuał „Na koniec” w trzech listach [1,1a,2,3,4,5,6].
+- Prompt E1 bez niewypełnionych znaczników (`grep -c "{{"` → 0).
+
+**Świadomie odłożone:**
+
+- Lokalizacja logów PolyFlow i ich format — rozpoznanie w E2, nie teraz (odczyt cudzych danych
+  dopiero w etapie, który go potrzebuje).
+
+**Do zrobienia przez człowieka:**
+
+- Start E1 w świeżej sesji Opus 5.5 (`/effort high`) komendą `/relai-stage`.
 
 Autor: RelAI (Opus 5.5) + Lukasz

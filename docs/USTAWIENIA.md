@@ -8,7 +8,7 @@ Rejestr wyborów użytkownika dla tego projektu. Każdy wpis: data, czego dotycz
 |---|---|---|
 | 2026-08-07 | Język projektu | Polski (dokumentacja PL, kod EN, commity conventional EN) |
 | 2026-08-07 | Format planów | Interaktywny HTML dla planów głównych + prompty etapowe w Markdown |
-| 2026-08-07 | Sposób wykonania planów | Zawsze prompty etapowe, świeże sesje; architekt: Fable |
+| 2026-10-14 | Sposób wykonania planów | Zawsze prompty etapowe, świeże sesje; architekt: Opus w bieżącej sesji (D-84, aneks 2026-10-14) |
 | 2026-08-07 | Model wykonawczy etapów budowy | **Opus** (D-85) |
 | 2026-08-07 | Git | Repo lokalne + zdalne: `github.com/nowilus/relai` |
 | 2026-08-07 | Docs w repo | Wszystko commitowane, bez sekretów i plików runtime |
@@ -39,6 +39,7 @@ Rejestr wyborów użytkownika dla tego projektu. Każdy wpis: data, czego dotycz
 
 | Data | Czego dotyczy | Decyzja | Zastąpione |
 |---|---|---|---|
+| 2026-08-07 | Sposób wykonania planów | Zawsze prompty etapowe, świeże sesje; architekt: Fable | zastąpione 2026-10-14 wartością „architekt: Opus w bieżącej sesji”, powód: wymóg Fable był chwilowy, odwołany przez Łukasza |
 | 2026-09-24 | Budżet startu sesji | włączony · start 140 KB · CLAUDE 10 KB · STATE 12 KB · ryzyka 12 KB · zasady 30 KB · ustawienia 6 KB · status 10 KB | zastąpione 2026-09-24 wartością `start 100 KB`, powód: po podziale skilla `relai-core` na pliki doczytywane (E3 planu PROWADZENIE_END_TO_END) skill waży 28,6 KB, a warstwa startowa tego repozytorium 88,8 KB; decyzja człowieka w E3 |
 | 2026-08-20 | Budżet startu sesji | włączony · start 80 KB · CLAUDE 10 KB · STATE 12 KB · ryzyka 12 KB · zasady 30 KB · ustawienia 6 KB · status 10 KB | zastąpione 2026-09-24 wartością `start 140 KB`, powód: suma liczy odtąd skill `relai-core` (65,6 KB) i pliki rytuału — 123,7 KB na tym repozytorium; decyzja człowieka w E2 planu PROWADZENIE_END_TO_END |
 | 2026-08-07 | Instalacja pluginu w trakcie budowy | Odinstalowany do końca budowy; instalacja docelowa po ostatnim etapie | zastąpione decyzją z 2026-08-07 (plugin zainstalowany na stałe), powód: dwa etapy przeszły bez pomiaru ryzyka R2, a pomiar wymaga zainstalowanego pluginu |

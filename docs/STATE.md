@@ -81,6 +81,14 @@ E1 po stronie Codeksa; FILM_PREZENTACYJNY zamknięty 2026-10-13 wydaniem 3.0.0. 
   czat macierzysty; kontrakt w [README adaptera](../adapters/codex/panel/README.md). Tabela
   STATUS planu pokazuje jeszcze `GOTOWY DO STARTU` — do wyprostowania na `W TOKU`.
 
+- **Plan HUMANIZACJA — ZAAKCEPTOWANY 2026-10-14, aktywny w Claude Code; E1 GOTOWY DO STARTU**
+  ([status](plany/HUMANIZACJA/STATUS.md), 5 etapów, Opus 5.5, prompt E1 gotowy). Po co: komenda
+  `/relai-humanize` pokazuje oryginał obok wersji bez nawyków pisarskich AI (reguły z pluginu
+  Humanizer, MIT, z nakładką polską); przy pierwszym użyciu wywiad na próbce, tryb ciągły tylko
+  w zakresach wybranych przez użytkownika. Aneks A: ton zależy od rodzaju tekstu (dokumenty
+  formalne starannie, czat swobodniej), opcjonalny profil stylu autora w `~/.claude/relai/STYL.md`
+  (pierwszy z logów PolyFlow). Idzie równolegle z PANEL_CODEX; wydanie 3.1.0.
+
 ## Co dalej
 
 - Aneks do PANEL_CODEX z zapisem pracy przed limitem dla panelu Codeksa — po domknięciu jego E1
