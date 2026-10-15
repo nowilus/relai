@@ -8,6 +8,43 @@ Specyfikacja: `SPEC_PULAPKI.md`.
 
 ## Pułapki
 
+### P-044 — Aplikacja desktopowa: kolor surowy w `Box`/`Text` nie idzie za wyglądem, funkcje CSS odpadają; tło w `Svg` pod tekstem — tak · 2026-10-15 · AKTYWNA
+
+- **Objaw:** panel z kolorami Warsztatu (hex w `Box`/`Text`) zostaje ciemny po przełączeniu
+  aplikacji na wygląd jasny; próba `light-dark(...)` albo `var(--…)` w `backgroundColor` daje
+  pudełko bez tła i tekst w domyślnym kolorze motywu. Pierwsza wersja sondy rysowała pusty panel
+  („has not drawn in this pane”).
+- **Przyczyna (sonda `relai-szata-sonda` 0.1.0–0.3.0, plan WYGLAD_PANELU E3; aplikacja
+  2.37337.1.0, Claude Code 2.1.295, Windows; zrzuty Łukasza w notatkach etapu):**
+  1. **walidator silnika** przepuszcza w `color`/`backgroundColor` każdy napis poza
+     `color-mix(...)` jako `Text color` — ten odrzuca **całe drzewo** (`Text prop "color" must be a
+     color (a theme key, a name, or hex)`), a desktop pokazuje pusty panel; `claude plugin test`
+     z `$.ui.mount` na `desktop` mówi to od razu;
+  2. **desktop** rysuje `light-dark()`, `Canvas`/`CanvasText`, `color-mix()`, `var(--…)`
+     i `hsl(var(--…))` jak klucz nieznany: tła brak, tekst w kolorze domyślnym; hex i `red` bez
+     zmian w obu wyglądach;
+  3. `Svg` z `width="100%"` w znacznikach rysuje się w ok. 375 px (domyślne 300 × 150 skalowane);
+     `Svg` o stałym `width`/`height` w znacznikach skaluje się do szerokości miejsca z zachowaniem
+     proporcji (2000 × 48 → 1262 × 30 px);
+  4. `Box position="absolute"` ze `Svg` maluje się **nad** rodzeństwem w toku, także z
+     `position="relative"` — tekst pod nim znika;
+  5. **„kanapka” działa:** pudełko `position="relative" overflow="hidden"` → treść w toku (nadaje
+     wysokość, ukryta pod tłem) → `Box` absolutny `top/left/right/bottom={0} overflow="hidden"` ze
+     `Svg` 4000 × 4000 i paletami w `@media (prefers-color-scheme: light)` → ta sama treść w `Box`
+     absolutnym `top/left/right={0}`. Tło przełącza się z wyglądem aplikacji, rośnie z zawiniętym
+     tekstem (karta 40 kolumn, 3 linie), `Button` w górnej warstwie działa. **Tło musi być
+     wyższe od treści przy każdej szerokości:** `Svg` 4000 × 4000 w wąskim panelu (~500 px)
+     kończy się po ~500 px wysokości i spod niego prześwituje ukryta kopia (Łukasz: „jest problem
+     przy pomniejszeniu zakladki”) — znaczniki 1000 × 100000 (1 : 100). Każde `Svg` z niepustym
+     `alt` — z pustym desktop go nie rysuje i kopia wychodzi na wierzch. Ukryta kopia ma własne
+     klucze (silnik odrzuca dwa `Button` o jednym kluczu; `children` elementu leżą na wierzchu,
+     nie w `props`).
+  6. Wiersz desktopu ma ok. 24 px (karta 3 wiersze = 71 px), nie 16.
+- **Obejście:** powierzchnia z marką w obu wyglądach — kanapka z pkt 5; tekst nad nią w kluczach
+  motywu (pkt 2 i P-042). Każde drzewo przed pokazem przez `plugin test` z montażem na desktopie.
+- **Zasięg:** aplikacja desktopowa, zakładka Code, Windows; terminal nie ma `Svg` — tam karta bez
+  warstw. Czytnik ekranu czyta treść kanapki dwa razy — niezmierzone.
+
 ### P-043 — Aplikacja desktopowa: układ modu liczy się jak CSS, nie jak Ink — tekst nie zwęża się poniżej najdłuższego słowa · 2026-10-14 · AKTYWNA
 
 - **Objaw:** w wąskim panelu podziału okna przycisk „Otwórz” wypada za prawą krawędź kafla, choć
@@ -382,8 +419,14 @@ Specyfikacja: `SPEC_PULAPKI.md`.
   7. **Za duże drzewo panelu znika bez słowa:** drzewo 726 węzłów / 121 Svg / 256 tys. znaków
      (zakładka „Dokumenty” z rozwiniętym archiwum) — hook skończył się poprawnie, `/relai-panel`
      odpowiada „otwarty”, a desktop nie pokazuje nic i nie ma szarej linii `refused`; `plugin test`
-     takie drzewo przyjmuje. 209 / 27 / 53 tys. — widoczne. Dokładny próg nieznany. Stan zwinięcia
+     takie drzewo przyjmuje. 209 / 27 / 53 tys. — widoczne. Stan zwinięcia
      w `$.state` przeżywa przeładowanie, więc każde otwarcie rysuje znowu to samo.
+     **Próg zmierzony 2026-10-15** (sonda `relai-szata-sonda` 0.9.1–0.9.2, panel ~1 180 px, Claude
+     Code 2.1.295): liczą się **elementy, nie znaki** — 250 tys. znaków w ~210 elementach rysuje się,
+     1 260 elementów (152 tys.) tak, 1 344 (162 tys.) już nie, pusty panel „has not drawn in this
+     pane”; `Svg` z treścią waży więcej (~800 elementów ze 150 `Svg` — pusto). Miara w panelu:
+     `treeWeight` (element 1, `Svg` z treścią 5, pusty obrys 1) ≤ `DRAW_LIMIT` 1 200
+     (`panel/hooks/pane-parts.tsx`); test budżetu liczy tę samą wagę.
   7a. **Link w `Markdown` w panelu desktopu łapie co drugi klik (2.1.295, sonda `tree-probe`
      2026-10-10):** drugi klik w link (`onLinkPress` + `pressableLinks`) nie dociera do pluginu —
      dociera tylko `ui.focus` — dopóki człowiek nie kliknie w tło; póki taki link jest narysowany,

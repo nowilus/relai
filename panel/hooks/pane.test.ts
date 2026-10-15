@@ -165,6 +165,7 @@ describe('the /relai-panel pane', () => {
     await openPanel($)
     const ui = await $.ui.mount({ plugin: 'relai-panel', surface: 'terminal', ...PANE })
     await ui.press({ key: 'tab-help' })
+    await ui.press({ key: 'fold-help:sheet' }) // folded by default (Łukasz 2026-10-15)
     expect(await ui.find({ key: 'sheet-relai-tour' })).toBeDefined()
     await ui.input({ key: 'search', text: 'zip' })
     expect(await ui.find({ key: 'sheet-relai-tour' })).toBeUndefined()

@@ -66,7 +66,7 @@ const LIMIT_LABEL: Readonly<Record<LimitWindow, string>> = { five: 'limit 5 h', 
 export function costsView(c: Ctx, p: Parts, cd: CostData, s: CostsCtx) {
   const { el, Svg, isGui } = c
   const { Box, Text } = el
-  const { section, frame, barCols, bar, costBox, line, money, nCalls, legend, btn } = p
+  const { section, ruled, frame, barCols, bar, costBox, line, money, nCalls, legend, btn } = p
   const S = s.session
   const mutedNow = s.muted
   let figuresLeft = FIGURES
@@ -108,7 +108,7 @@ export function costsView(c: Ctx, p: Parts, cd: CostData, s: CostsCtx) {
 
   // Three tiles in a row (stacked when the pane is narrow): the figure, what it is, one sentence
   const tile = (key: string, fig: string, color: string, label: string, note: string, noteColor: string = THEME.body) => (
-    <Box key={key} flexDirection="column" gap={isGui ? 1 : 0} paddingX={isGui ? 2 : 1} paddingY={isGui ? 1 : 0}
+    <Box key={key} flexDirection="column" gap={isGui ? 1 : 0} paddingX={1}
       width="30%" flexGrow={1} minWidth={26} {...frame(false)} borderColor={THEME.line} backgroundColor={THEME.card}>
       <Box key={`${key}-head`} flexDirection="row" flexWrap="wrap" alignItems="center" columnGap={1}>
         {figure(`${key}-fig`, fig, 24, color)}
@@ -164,7 +164,7 @@ export function costsView(c: Ctx, p: Parts, cd: CostData, s: CostsCtx) {
           {/* The buttons keep their size and wrap among themselves when the card is narrow, a cell
               between the lines so no native button touches the one under it (PANEL_WASKI) */}
           <Box key={`cost-limit-${w}-act`} flexDirection="row" flexWrap="wrap" columnGap={1} rowGap={isGui ? 1 : 0} flexShrink={1}>
-            {presetsFor(w, current).map((v) => btn(`limit-set-${w}-${v}`, `${v} %`, v === current ? 'primary' : 'secondary', () => s.changeLimit(w, v)))}
+            {presetsFor(w, current).map((v) => btn(`limit-set-${w}-${v}`, v === current ? `● ${v} %` : `${v} %`, 'secondary', () => s.changeLimit(w, v)))}
             {btn(`limit-change-${w}`, 'Inna…', 'secondary', () => s.changeLimit(w))}
           </Box>
         </Box>
@@ -321,7 +321,8 @@ export function costsView(c: Ctx, p: Parts, cd: CostData, s: CostsCtx) {
   const total = rep.total.usd ?? 0
   const since = rep.records ? Math.min(...cd.records.map((r) => r.at)) : null
   const pricing = pricingSection(cd)
-  return [
+  // Sections of the tab's sheet with a rule between each two (variant 3, Aneks F)
+  return ruled('costs', [
     section('costs', 'costs', '', [
       ...(rep.records ? [totalCard(rep, series.length)] : []),
       <Box key="cost-tiles" flexDirection="row" flexWrap="wrap" gap={1}>
@@ -345,5 +346,5 @@ export function costsView(c: Ctx, p: Parts, cd: CostData, s: CostsCtx) {
         ? 'Środowisko: nowa sesja z karty przez start_session aplikacji.'
         : 'Środowisko: nowa sesja z karty przez deep link — aplikacja nie udostępnia start_session.'}</Text></Box>] : []}
     </Box>,
-  ]
+  ])
 }

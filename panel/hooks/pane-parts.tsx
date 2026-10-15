@@ -8,7 +8,8 @@
 
 import type { Elements, RenderChildren } from 'claude-code'
 import { pct, tokens, usd } from './fmt'
-import { COST_COLORS, HEADINGS, NAMES, THEME, glyph, iconName } from './core/theme.mjs'
+import { COST_COLORS, HEADINGS, NAMES, RULE, SHEET, SHEET_DRAW, THEME, glyph, iconName, sheetEndSvg, sheetMiddleSvg, sheetTopSvg } from './core/theme.mjs'
+import { HIDDEN, rekey } from './skin'
 import { HEADING_ART } from './core/headings.mjs'
 import { ICONS } from './core/icons.mjs'
 import { plural } from './core/measure.mjs'
@@ -35,6 +36,23 @@ export type Ctx = {
 // width at which every row of every tab still holds its icon, its longest word and its button side
 // by side (narrow.test.ts measures both layouts around it)
 export const STACK_BELOW = 48
+// What the desktop draws of a pane's tree, measured (probe relai-szata-sonda 0.9.x, 2026-10-15; P-023
+// pkt 7): not characters — 250 k in ~100 rows drew — but elements: 1 260 drew, 1 344 vanished without
+// a word, and a drawing weighs more (400 rows with 150 Svg vanished; 726 elements with 121 Svg too).
+// The weight: every element 1, a drawing with markup SVG_WEIGHT more (a hollow one, the sheet's copy,
+// counts as an element). A tree past DRAW_LIMIT loses the sheet's fill, never the tab.
+export const DRAW_LIMIT = 1_200
+const SVG_WEIGHT = 4
+const HOLLOW_MOST = 200 // characters: a drawing this short is a hollow outline (skin.ts)
+export function treeWeight(node: unknown): number {
+  if (Array.isArray(node)) return node.reduce((sum: number, n) => sum + treeWeight(n), 0)
+  if (!node || typeof node !== 'object' || !('type' in node)) return 0
+  const n = node as { type: string, props?: { source?: unknown }, children?: unknown[] }
+  const own = n.type === 'Svg' && String(n.props?.source ?? '').length > HOLLOW_MOST ? 1 + SVG_WEIGHT : 1
+  return own + treeWeight(n.children ?? [])
+}
+// The column of a folded row's Kalam heading, in cells: the widest heading ("Wywołania w czasie") fits
+const FOLD_HEAD = 28
 
 // The Select of a choice cannot hold an empty value: '' travels as this one
 export const NONE = '_'
@@ -116,17 +134,21 @@ export function parts(c: Ctx) {
       {items}
     </Box>
   )
-  // A card: rounded and filled on a desktop; on the terminal only the selected one is framed
-  const frame = (isOn: boolean) => (isGui || isOn ? { borderStyle: 'round' } : {})
+  // A card's frame: on the terminal only the selected one is framed; on a desktop none (WYGLAD_PANELU
+  // E3, variant 3, Aneks F: sections of one sheet, no cards — a frame stands only round a thing that
+  // waits for the person's decision, and those boxes set their own; Łukasz 2026-10-15: "nadal mają
+  // te takie dziwne jakieś bordery")
+  const frame = (isOn: boolean) => (!isGui && isOn ? { borderStyle: 'round' } : {})
   // A section folded to one row (brief v2 §7): its Kalam heading, one line with its key number,
   // "▸ Rozwiń" / "▾ Zwiń"; unfolded, its content under the row. Folded by default and kept in
   // $.state as "<prefix>:<id>". Shared by the costs (Z2) and the map (AUDYT_MODOW Z14): a folded
   // section draws none of its content, which keeps the tree light (P-023 pkt 7).
-  const folded = (prefix: string, id: string, summary: string, content: () => RenderChildren[], isAlert = false) => {
-    const head = `${prefix}-${id}`
-    const isOpen = c.isUnfolded(`${prefix}:${id}`, false)
-    const sum = <Box key={`${prefix}-${id}-sum`} flexShrink={1}><Text color={isAlert ? THEME.accentText : THEME.body}>{summary}</Text></Box>
-    const foldBtn = btn(`fold-${prefix}:${id}`, isOpen ? '▾ Zwiń' : '▸ Rozwiń', 'secondary', () => c.fold(`${prefix}:${id}`, false))
+  // `head` names the Kalam heading when it is not "<prefix>-<id>"; `isNaturallyOpen` unfolds it
+  // until the person folds it (Pomoc: the sheet opens by itself while a search narrows it).
+  const folded = (prefix: string, id: string, summary: string, content: () => RenderChildren[], isAlert = false, head = `${prefix}-${id}`, isNaturallyOpen = false) => {
+    const isOpen = c.isUnfolded(`${prefix}:${id}`, isNaturallyOpen)
+    const sum = <Box key={`${prefix}-${id}-sum`} flexShrink={1}><Text color={isAlert ? THEME.mark : THEME.body}>{summary}</Text></Box>
+    const foldBtn = btn(`fold-${prefix}:${id}`, isOpen ? '▾ Zwiń' : '▸ Rozwiń', 'secondary', () => c.fold(`${prefix}:${id}`, isNaturallyOpen))
     return (
       <Box key={`${prefix}-${id}`} flexDirection="column" gap={isGui ? 1 : 0}>
         {/* The heading and the summary wrap on the left, the button keeps the right (PANEL_WASKI).
@@ -142,8 +164,10 @@ export function parts(c: Ctx) {
                 <Box key={`${prefix}-${id}-head`} flexShrink={1}>{heading(head)}</Box>
                 {foldBtn}
               </Box>, sum]
+            // The heading in a column of one width, so every summary of a tab starts at one edge
+            // (review 2026-10-15: five summaries, five left edges)
             : [<Box key={`${prefix}-${id}-words`} flexDirection="row" flexWrap="wrap" alignItems="center" columnGap={2} flexGrow={1} flexShrink={1}>
-                {heading(head)}
+                <Box key={`${prefix}-${id}-head`} width={FOLD_HEAD} flexShrink={0}>{heading(head)}</Box>
                 {sum}
               </Box>, foldBtn]}
         </Box>
@@ -174,7 +198,7 @@ export function parts(c: Ctx) {
   const confirmCard = (card: Card, decide: (said: 'tak' | 'nie') => void) => {
     const step = shown(card)
     return section('confirm', 'confirm', card.state === 'second' ? 'Drugi krok — zapis dopiero po tym potwierdzeniu.' : 'Nic nie pójdzie do czatu bez „Tak”.', [
-      <Box key="confirm-card" flexDirection="column" gap={isGui ? 1 : 0} paddingX={isGui ? 2 : 1} paddingY={isGui ? 1 : 0}
+      <Box key="confirm-card" flexDirection="column" gap={isGui ? 1 : 0} paddingX={isGui && !isStacked ? 2 : 1} paddingY={isGui ? 1 : 0}
         borderStyle="round" borderColor={flashBorder('confirm-yes', THEME.accent)} backgroundColor={THEME.cardOn}>
         <Text bold color={THEME.accentText}>{card.title}</Text>
         <Box key="confirm-facts" flexDirection="column">{step.facts.map((f, i) => factRow(`confirm-f-${i}`, f))}</Box>
@@ -212,7 +236,7 @@ export function parts(c: Ctx) {
     return <Box key={key} flexDirection="row">{runs.length ? runs.map((r, i) => <Text key={`${key}-${i}`} color={r.color}>{r.text}</Text>) : [<Text key={`${key}-0`} color={THEME.lineOff}>{'░'.repeat(barCols)}</Text>]}</Box>
   }
   const costBox = (key: string, items: RenderChildren[], isMain = false, grow = false) => (
-    <Box key={key} flexDirection="column" gap={isGui ? 1 : 0} paddingX={isGui ? 2 : 1} paddingY={isGui ? 1 : 0}
+    <Box key={key} flexDirection="column" gap={isGui ? 1 : 0} paddingX={1}
       {...(grow ? { flexGrow: 1 } : {})}
       {...frame(isMain)} borderColor={isMain ? THEME.mark : THEME.line} backgroundColor={isMain ? THEME.cardFeatured : THEME.card}>
       {items}
@@ -235,7 +259,49 @@ export function parts(c: Ctx) {
     </Box>
   )
 
-  return { heading, fixed, isStacked, textAndAct, icon, mark, isFlash, btn, flashBorder, section, frame, folded, well, sentLine, factRow, confirmCard, tabs, barCols, figure, bar, costBox, line, money, nCalls, legend }
+  // ---------- the sheet under a tab (WYGLAD_PANELU E3, Aneks E–F; P-044) ----------
+  // One "Warsztat" sheet under every tab that follows the app's appearance (Łukasz 2026-10-15: "zawsze
+  // wypełnione"): the tab in flow, hidden under the drawings, sizes it; the two drawings — fill and
+  // frame in one line, so no pixel between them — cover it; the tab itself is drawn over them. No Box
+  // border: a border clipped the fill inside it and left a seam. Never nested: a sandwich in a
+  // sandwich would draw its tab four times. The terminal has no Svg: the tab as it is.
+  const sheet = (key: string, children: RenderChildren[], isFilled = true) => {
+    // One margin inside the sheet for every tab (review 2026-10-15: "brakuje w ogóle jakichś
+    // paddingów"); a narrow pane (stacked rows) keeps one cell a side, so 40 columns hold every row
+    const inner = { flexDirection: 'column' as const, gap: 1, paddingX: isStacked ? 1 : 2, paddingY: 1 }
+    if (!Svg) return <Box key={key} flexDirection="column" gap={isGui ? 1 : 0}>{children}</Box>
+    // Too heavy to be drawn twice (register.tsx, DRAW_LIMIT): the frame alone, no fill
+    if (!isFilled) return <Box key={key} borderStyle="round" borderColor={SHEET.frame} {...inner}>{children}</Box>
+    return (
+      <Box key={key} flexDirection="column" position="relative" overflow="hidden">
+        <Box key={`${key}${HIDDEN}`} {...inner}>{rekey(children, HIDDEN)}</Box>
+        {/* In a column, so the drawing takes the slot's width (in a row it kept ~375 px, probe 0.7.0) */}
+        <Box key={`${key}-paper`} position="absolute" top={0} left={0} right={0} bottom={1} overflow="hidden" flexDirection="column">
+          <Svg key={`${key}-paper-svg`} source={sheetTopSvg()} alt="kartka panelu RelAI" height={SHEET_DRAW.piece} />
+          {Array.from({ length: SHEET_DRAW.middles }, (_, i) => <Svg key={`${key}-paper-svg-${i}`} source={sheetMiddleSvg()} alt="kartka panelu RelAI: ciąg dalszy" height={SHEET_DRAW.piece} />)}
+        </Box>
+        <Box key={`${key}-paper-end`} position="absolute" left={0} right={0} bottom={0} height={1} overflow="hidden" flexDirection="column" justifyContent="flex-end">
+          <Svg key={`${key}-paper-end-svg`} source={sheetEndSvg()} alt="kartka panelu RelAI: dół" height={SHEET_DRAW.end} />
+        </Box>
+        <Box key={`${key}-top`} position="absolute" top={0} left={0} right={0} {...inner}>{children}</Box>
+      </Box>
+    )
+  }
+
+  // The rule between the sections of a sheet (variant 3, accepted 2026-10-15): the hairline fading
+  // at both ends that stands between the bars above the prompt, in both palettes. None on a terminal.
+  const rule = (key: string) => (Svg
+    ? <Box key={key} flexDirection="column"><Svg key={`${key}-svg`} source={RULE.svg} alt={RULE.alt} height={RULE.height} /></Box>
+    : null)
+  // Sections one under another, a rule between each two (variant 3: "jedna kartka"); the rule's own
+  // 22 px of air is the whole gap, so the commands still fit a desktop's height (pane-v2.test.ts)
+  const ruled = (prefix: string, items: RenderChildren[]) => [
+    <Box key={`${prefix}-ruled`} flexDirection="column">
+      {items.flatMap((it, i) => (i === 0 ? [it] : [rule(`${prefix}-rule-${i}`), it])).filter((x) => x !== null)}
+    </Box>,
+  ]
+
+  return { sheet, rule, ruled, heading, fixed, isStacked, textAndAct, icon, mark, isFlash, btn, flashBorder, section, frame, folded, well, sentLine, factRow, confirmCard, tabs, barCols, figure, bar, costBox, line, money, nCalls, legend }
 }
 
 export type Parts = ReturnType<typeof parts>

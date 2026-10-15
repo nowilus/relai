@@ -2,6 +2,7 @@ import { describe, expect, mock, test, type TestBody } from 'claude-code/testing
 import type { On, RenderNode, TurnStepResult } from 'claude-code'
 import { FORMS } from './core/commands.mjs'
 import { PRICE_FILE, PRICING, PRICING_SOURCE, serializePriceFile } from './core/pricing.mjs'
+import { visible } from './skin'
 import { STACK_BELOW } from './pane-parts'
 
 // The pane in a narrow split pane (branch PANEL_WASKI, 2026-10-14). Each tab is drawn on a desktop
@@ -323,7 +324,7 @@ async function unfoldAll(ui: Ui) {
   const done = new Set<string>()
   for (let round = 0; round < 4; round++) {
     const keys = [...walk(await ui.drawn())].filter((n) => n.type === 'Button').map(nameOf)
-      .filter((k) => k.startsWith('fold-') && !done.has(k))
+      .filter((k) => k.startsWith('fold-') && !k.endsWith('~u') && !done.has(k)) // never the sheet's hidden copy (P-044)
     if (!keys.length) return
     for (const k of keys) {
       const label = [...walk(await ui.drawn())].find((n) => n.type === 'Button' && nameOf(n) === k)
@@ -393,7 +394,7 @@ describe('one layout of the rows per pane (live 2026-10-14, 75 columns: some but
     world(on)
     for (const [width, direction] of [[31, 'column'], [STACK_BELOW - 1, 'column'], [STACK_BELOW, 'row'], [75, 'row'], [94, 'row']] as const) {
       const ui = await open($, width)
-      const mains = [...walk(await ui.drawn())].filter((n) => n.type === 'Box' && nameOf(n).startsWith('main-'))
+      const mains = [...walk(visible(await ui.drawn()) as RenderNode)].filter((n) => n.type === 'Box' && nameOf(n).startsWith('main-'))
       expect(mains.length).toBe(15)
       expect([...new Set(mains.map((n) => String(P(n).flexDirection)))]).toEqual([direction])
       expect(mains.some((n) => P(n).flexWrap === 'wrap')).toBe(false) // never decided row by row

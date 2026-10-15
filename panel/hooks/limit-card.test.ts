@@ -92,9 +92,10 @@ describe('the limit card on the Koszty tab (Aneks E: a ruler and value buttons)'
     world(on, { [SETTINGS]: settings('| 2026-10-11 | Próg limitu tygodnia | 97 |') })
     const ui = await costs($)
     expect(await buttons(ui, 'five')).toEqual([
-      { label: '85 %', variant: 'secondary' }, { label: '90 %', variant: 'primary' }, { label: '95 %', variant: 'secondary' }, { label: 'Inna…', variant: 'secondary' },
+      // the current value marked with a dot on a secondary button: primary is the tab and the one main action (review 2026-10-15)
+      { label: '85 %', variant: 'secondary' }, { label: '● 90 %', variant: 'secondary' }, { label: '95 %', variant: 'secondary' }, { label: 'Inna…', variant: 'secondary' },
     ])
-    expect((await buttons(ui, 'week')).map((b) => `${b.label}:${b.variant}`)).toEqual(['95 %:secondary', '97 %:primary', '98 %:secondary', '99 %:secondary', 'Inna…:secondary'])
+    expect((await buttons(ui, 'week')).map((b) => `${b.label}:${b.variant}`)).toEqual(['95 %:secondary', '● 97 %:secondary', '98 %:secondary', '99 %:secondary', 'Inna…:secondary'])
     expect(words(await ui.find({ key: 'cost-limit-week' })).join(' ')).toContain('próg: ten projekt')
     // No "Zmień" any more: the values are the change
     expect((await ui.findAll({ type: 'Button' })).some((b) => b.props.label === 'Zmień')).toBe(false)
@@ -109,7 +110,7 @@ describe('the limit card on the Koszty tab (Aneks E: a ruler and value buttons)'
     })
     const ui = await costs($, 'desktop')
     expect(words(await ui.find({ key: 'cost-limit-five' })).join(' ')).toContain('próg: ta sesja')
-    expect((await buttons(ui, 'five')).find((b) => b.variant === 'primary')?.label).toBe('85 %')
+    expect((await buttons(ui, 'five')).find((b) => b.label.startsWith('● '))?.label).toBe('● 85 %')
     expect(words(await ui.find({ key: 'cost-limit-week' })).join(' ')).toContain('próg: ten projekt')
     await ui.unmount()
   })
@@ -128,7 +129,7 @@ describe('the limit card on the Koszty tab (Aneks E: a ruler and value buttons)'
     await ui.unmount()
     const again = await $.ui.mount({ plugin: 'relai-panel', surface: 'terminal', ...pane })
     await again.press({ key: 'tab-costs' }).catch(() => undefined)
-    expect((await buttons(again, 'week')).find((b) => b.variant === 'primary')?.label).toBe('99 %')
+    expect((await buttons(again, 'week')).find((b) => b.label.startsWith('● '))?.label).toBe('● 99 %')
     await again.unmount()
   })
 

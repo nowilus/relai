@@ -171,7 +171,11 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
       od lewej (L-0199); nowy element zbioru różnisz kształtem,
       porównanie na całym zbiorze w skali docelowej; plan z interfejsem wskazuje źródło motywu
       w pierwszym etapie, który rysuje więcej niż linię. Ostrzeżenie `plugin validate` o root
-      `CLAUDE.md` jest skutkiem dogfoodingu — nie naprawiasz.
+      `CLAUDE.md` jest skutkiem dogfoodingu — nie naprawiasz. Z zaakceptowanego wariantu
+      przenosisz kształt, nie same barwy, i porównujesz wynik z jego zrzutem (L-0200); walidator,
+      `plugin test` z montażem i zrzut to trzy osobne dowody, `Svg` zawsze z `alt` (L-0201);
+      mechanizm mnożący drzewo — najpierw test budżetu na najgorszych danych (L-0202). Wygląd
+      panelu i pasków: `docs/zasoby/PANEL_RELAI/DESIGN.md` przed każdą zmianą.
     - **Liczby i słowa:** procenty i kwoty z dwoma miejscami (L-0145); etykieta stanu słowem
       i znakiem, „x/y” tylko gdy y jest celem (L-0147); słowo o przeszłości ma warunek prawdziwości
       i test (L-0149); komórka liczby `flexShrink={0}` (L-0152); karta decyzji w całości tylko dla
@@ -534,6 +538,52 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
 - **Zasada:** animacja na pasku znaczy **trwającą czynność** i ma za źródło sygnał narzędzia
   (`isWorking` pasma), nie stan pliku; spoczynek rysuje się nieruchomo. Wskaźnik postępu rośnie od
   lewej — tożsamość elementu przechodzi do dymka.
+
+### L-0200 — Z zaakceptowanego wariantu przeniosłem barwy, a zgubiłem kształt · 2026-10-15 · AKTYWNA
+
+- **Trigger:** plan WYGLAD_PANELU, E3. Łukasz zaakceptował w modzie wariant 3 „jedna kartka” (sekcje
+  bez kart, linie gasnące). W panelu przemapowałem kolory i dołożyłem ramkę dookoła, a wszystkie
+  dawne karty zostały — ramki w ramkach, zero linii. Łukasz: „Przecież Ty zepsułeś cały wygląd tego
+  panelu”. Instalację przywróciłem z kopii.
+- **Przyczyna:** zakres etapu mówił „E3 zmienia barwy, nie układ” i potraktowałem wariant jak paletę;
+  przed oddaniem nie położyłem wyniku obok zaakceptowanego zrzutu.
+- **Zasada:** po akceptacji wariantu przenosisz do produktu jego **kształt** (karty, linie, ramki,
+  kolumna przycisków), nie tylko barwy; przed oddaniem zrzut albo model drzewa stoi obok
+  zaakceptowanego zrzutu i porównujesz go punkt po punkcie. Zasady wyglądu panelu:
+  `docs/zasoby/PANEL_RELAI/DESIGN.md`.
+
+### L-0201 — Walidator silnika przepuszcza, desktop nie rysuje · 2026-10-15 · AKTYWNA
+
+- **Trigger:** plan WYGLAD_PANELU, E3. Sonda 0.1.0 pokazana bez `plugin test` z montażem — panel pusty
+  („has not drawn”), bo jeden `Text color` odrzucił całe drzewo (powtórzona zasada 13). Potem
+  `light-dark()`/`var()` przeszły walidator, a desktop ich nie narysował; `Svg` z `alt=""` w ogóle
+  się nie narysował i spod niego wyszła ukryta kopia tekstu.
+- **Przyczyna:** zielony walidator i zielony test drzewa wziąłem za dowód, że coś się narysuje.
+- **Zasada:** trzy szczeble, każdy osobno: walidator silnika → `plugin test` z `$.ui.mount` na
+  desktopie (drzewo przyjęte) → zrzut na żywo (desktop narysował). Każdy `Svg` z niepustym `alt`,
+  pilnowany testem na drzewie z kontrolą pozytywną.
+
+### L-0202 — Rozwiązanie, które podwaja drzewo, mierzysz budżetem przed wdrożeniem · 2026-10-15 · AKTYWNA
+
+- **Trigger:** plan WYGLAD_PANELU, E3. Kartka „kanapka” (ukryta kopia zakładki pod tłem `Svg`)
+  zadziałała w sondzie, a w panelu ciężkie zakładki przekroczyły budżet drzewa (dokumenty 391 k, koszty
+  421 k przy 200 k; zniknięcie zmierzone przy 256 k). Klucz `sheet` zderzył się z sekcją Ściąga.
+- **Przyczyna:** sonda miała kilka kart, panel ma najgorsze dane; o nazwę klucza nie zapytałem drzewa.
+- **Zasada:** mechanizm, który mnoży drzewo, sprawdzasz na teście budżetu z najgorszymi danymi, zanim
+  pokażesz go człowiekowi, i ograniczasz go do miejsc, które się mieszczą (decyzja człowieka); nowy
+  klucz najpierw szukasz w istniejących (`grep key=`).
+
+### L-0203 — Backslash w heredocu i w literale Pythona to ten sam błąd, co w powłoce · 2026-10-15 · AKTYWNA
+
+- **Trigger:** plan WYGLAD_PANELU, E3 (runda przeglądu UX). Trzy razy w jednej sesji tekst z
+  backslashem szedł przez literał innego języka mimo aktywnej zasady: wyrażenia regularne testu
+  przez `python - <<'EOF'` (ostrzeżenie `invalid escape sequence`, wynik akurat dobry), plik testu
+  `.ts` z `/\\/g` przez heredoc powłoki (plik się nie wczytał: `Unterminated string literal`),
+  `re.sub` z `\(` w `python -c` (podmiana nie zaszła po cichu).
+- **Przyczyna:** wygoda hurtowej podmiany w Pythonie wygrała z zasadą, bo „to tylko jedna linia”.
+- **Zasada:** każdy tekst z `\` — wyrażenie regularne, ścieżka, plik testu — idzie przez Write albo
+  Edit, także wtedy, gdy reszta podmiany robi się skryptem; skrypt dostaje tylko tekst bez `\`.
+  Po podmianie skryptem sprawdzasz `grep`-iem, że zaszła (L-0116, L-0119, L-0127, L-0130).
 
 ## Lekcje zwinięte
 

@@ -1,6 +1,6 @@
 # Styl pasków i panelu RelAI dla Claude Code
 
-Wersja: **4.1** (v4.0 + §3: pasek postępu jako lista kroków — cienkie segmenty, jedna linia z punktem w toku i „Rozwiń”, okno najwyżej 6 wierszy, błysk odhaczenia zamiast drugiego rzędu, zrobione od lewej, znacznik kręci się tylko przy pracy modelu, jasny wygląd „J3 miękki”; plan WYGLAD_PANELU E2, 2026-10-15; v4.0 — v3.8 + §13: paski w kolorach narzędzia — klucze motywu, znaczniki `Svg` w dwóch paletach przez `prefers-color-scheme`, wariant 3b z linią gasnącą zamiast teł; plan WYGLAD_PANELU E1, 2026-10-14; v3.8 — v3.7 + §12 wycofany: każdy panel podziału rysuje paski, linia w stopce znika; odnoga SPLIT_VIEW, 2026-10-14; v3.7 — v3.6 + §1 i §10.5: zdarzenie „nowa sesja się opłaca” w dwóch liniach bez chipa, sam koszt, przycisk „Nowa sesja”; odnoga KOMUNIKAT_ZWROTU, 2026-10-14; v3.6 — §6 pkt 6: karta startu etapu z wyborem „nowa sesja”; odnoga NOWA_SESJA, 2026-10-12; v3.5 — 11.3: karta „Próg limitu” jako linijka z progiem i przyciski wartości; Aneks E, 2026-10-11; v3.4 — 11.1: podpis „próg N % · źródło” pod baterią limitu, która nie jest spokojna; Aneks D, 2026-10-11; v3.3 — sekcja 11: limit planu — dwa progi, zapis i wznowienie, karta progu w Kosztach; LIMIT_CHECKPOINT E4, 2026-10-11) · Data: **2026-10-10** · Zakres: trzy paski nad promptem **i panel boczny** `/relai-panel`
+Wersja: **4.2** (v4.1 + §14: panel w szacie jasnej i ciemnej — automatycznie za wyglądem aplikacji, wariant 3 · jedna kartka z ramką `subtle`, kartka wypełniona bez szczeliny, reguła `primary`, próg drzewa w elementach; szczegóły w `DESIGN.md`; plan WYGLAD_PANELU E3, 2026-10-15; v4.1 — v4.0 + §3: pasek postępu jako lista kroków — cienkie segmenty, jedna linia z punktem w toku i „Rozwiń”, okno najwyżej 6 wierszy, błysk odhaczenia zamiast drugiego rzędu, zrobione od lewej, znacznik kręci się tylko przy pracy modelu, jasny wygląd „J3 miękki”; plan WYGLAD_PANELU E2, 2026-10-15; v4.0 — v3.8 + §13: paski w kolorach narzędzia — klucze motywu, znaczniki `Svg` w dwóch paletach przez `prefers-color-scheme`, wariant 3b z linią gasnącą zamiast teł; plan WYGLAD_PANELU E1, 2026-10-14; v3.8 — v3.7 + §12 wycofany: każdy panel podziału rysuje paski, linia w stopce znika; odnoga SPLIT_VIEW, 2026-10-14; v3.7 — v3.6 + §1 i §10.5: zdarzenie „nowa sesja się opłaca” w dwóch liniach bez chipa, sam koszt, przycisk „Nowa sesja”; odnoga KOMUNIKAT_ZWROTU, 2026-10-14; v3.6 — §6 pkt 6: karta startu etapu z wyborem „nowa sesja”; odnoga NOWA_SESJA, 2026-10-12; v3.5 — 11.3: karta „Próg limitu” jako linijka z progiem i przyciski wartości; Aneks E, 2026-10-11; v3.4 — 11.1: podpis „próg N % · źródło” pod baterią limitu, która nie jest spokojna; Aneks D, 2026-10-11; v3.3 — sekcja 11: limit planu — dwa progi, zapis i wznowienie, karta progu w Kosztach; LIMIT_CHECKPOINT E4, 2026-10-11) · Data: **2026-10-10** · Zakres: trzy paski nad promptem **i panel boczny** `/relai-panel`
 (zakładki Komendy i Koszty) · Źródło decyzji: wątek [AUDYT_MODOW](../../fixy/AUDYT_MODOW/ODNOGA.md),
 makiety [MAKIETY.html](../../fixy/AUDYT_MODOW/MAKIETY.html) (wersja 4, kalibracja z Łukaszem
 w czterech rundach 2026-10-10).
@@ -465,3 +465,30 @@ w to idziemy na pewno”; „L2”; na żywo po przełączeniu wyglądu: „tak 
 - [x] 40, 70 i 140 kolumn bez przepełnienia (terminal i desktop);
 - [x] na żywo: wygląd ciemny i jasny, pełne okno i wąski panel podziału, przełączenie wyglądu
       przemalowuje paski bez restartu (zrzuty `WYGLAD_PANELU_E1_wdrozenie_*`).
+
+## 14. Panel w szacie jasnej i ciemnej (plan WYGLAD_PANELU E3, 2026-10-15) — wersja 4.2
+
+Szczegóły, reguły i powody mieszkają w [DESIGN.md](DESIGN.md) (wersja 1.1) — ta sekcja mówi
+tylko, co E3 zmienia w briefie i skąd to wynika.
+
+- **Sposób wyboru szaty: automatycznie** (Aneks E). Łukasz zamiast wyboru z trzech opcji: „Ale czy
+  na pewno nie da się tego automatycznie zrobić? […] Może zróbmy jakąś sondę”. Sonda
+  `relai-szata-sonda` (P-044): tekst i ramki w kluczach motywu, powierzchnie w `Svg` z obiema
+  paletami przez `prefers-color-scheme` — panel idzie za wyglądem aplikacji bez restartu, bez
+  przełącznika w Pomocy.
+- **Kształt: wariant 3 · jedna kartka, ramka `subtle`** (wybór „3 · jedna kartka (Rekomendowane)”,
+  akceptacja „jest ok juz nie bede pokazywal ale jest ok”). Zastępuje w panelu karty z §6–§7:
+  jedna kartka na zakładkę, sekcje bez kart, oddzielone linią gasnącą; ramka wyłącznie przy
+  formularzu decyzji (Aneks F). Terminal zostaje przy ramkach `round`.
+- **Kartka zawsze wypełniona, bez szczeliny** („nie może być nawet jednego piksela między borderem
+  a wypełnieniem”): wypełnienie i ramka w jednym rysunku `Svg` (górny kawałek + kawałki po 4000 px
+  + dół), bez ramki `Box`; tekst w kanapce (ukryta kopia w toku, warstwy, kopia na wierzchu).
+- **Paleta kartki:** ciemna `#25211c`, jasna `#fffdf7`; ramka ciemna `#898781`, jasna `#888781`;
+  role tekstu → klucze: tytuł `text`, treść `inactive`, wyróżnik `warning`, sukces `success`,
+  akcent `error` (kontrast ≥ 4,5 : 1 do kartki w obu szatach, test w `core/panel/tests/theme.test.js`).
+  Barwy paska „Teraz” w jasnej szacie: zrobione `#8fae95`, w toku `#c99a3a`.
+- **Przyciski:** `primary` tylko dla wybranej zakładki i jednej akcji głównej; wybrana wartość
+  jako `● 98 %` w `secondary`; kolor błędu wyłącznie dla błędów.
+- **Ograniczenie silnika:** desktop liczy elementy drzewa, nie znaki (1 260 rysuje, 1 344 nie;
+  P-023 pkt 7) — `DRAW_LIMIT` 1 200, powyżej kartka bez wypełnienia z ramką `Box` zamiast pustego
+  panelu.

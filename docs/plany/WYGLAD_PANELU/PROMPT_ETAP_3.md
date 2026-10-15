@@ -314,24 +314,32 @@ wpisujesz do wpisu dziennika **z nazwy**, a jego nazwę zaczynasz od slugu proje
 Każdy punkt Weryfikacji, który przeszedł, odhaczasz w `PROMPT_ETAP_3.md` (`- [ ]` → `- [x]`)
 zaraz po jego sprawdzeniu, nie na końcu etapu; punkt, który nie przeszedł, zostaje pusty.
 
-- [ ] Odpowiedź Łukasza na pytanie startowe (sposób wyboru szaty) zapisana jego słowami we wpisie
+- [x] Odpowiedź Łukasza na pytanie startowe (sposób wyboru szaty) zapisana jego słowami we wpisie
       dziennika przed pierwszą zmianą kodu panelu.
-- [ ] Trzy warianty jasnej szaty pokazane w prawdziwym nośniku, w pełnym oknie i w wąskim panelu
+- [x] Trzy warianty jasnej szaty pokazane w prawdziwym nośniku, w pełnym oknie i w wąskim panelu
       (zrzuty `WYGLAD_PANELU_E3_*`); wybór, każda runda i akceptacja wyglądu zapisane w dzienniku
       słowami Łukasza.
-- [ ] Na żywo: siedem zakładek panelu w szacie jasnej i ciemnej, pełne okno i wąski panel podziału,
+- [x] Na żywo: siedem zakładek panelu w szacie jasnej i ciemnej, pełne okno i wąski panel podziału,
       bez przepełnień; przełączenie szaty wybranym sposobem działa bez restartu.
-- [ ] `panel/hooks/theme.test.ts`: każda para tekst–tło obu szat ≥ 4,5 : 1, z kontrolą pozytywną na
+      *(2026-10-15: panel ma dziś pięć zakładek — wszystkie w obu szatach (r6), rozwinięte (r7)
+      i w wąskim panelu 530 px (r8); szata przełącza się z wyglądem aplikacji, bez restartu.)*
+- [x] `panel/hooks/theme.test.ts`: każda para tekst–tło obu szat ≥ 4,5 : 1, z kontrolą pozytywną na
       podłożonej parze poniżej progu; `narrow.test.ts` zielony w obu szatach.
-- [ ] Testy nowego zachowania spadają na kodzie sprzed zmiany i przechodzą po niej (obie wersje
+      *(2026-10-15: pary kontrastu sprawdza `core/panel/tests/theme.test.js` — rdzeń szaty mieszka
+      w `core/panel/theme.mjs`, kopie z `sync-panel-core.js`.)*
+- [x] Testy nowego zachowania spadają na kodzie sprzed zmiany i przechodzą po niej (obie wersje
       w jednym przebiegu); `claude plugin validate .` i `claude plugin test .` w `panel/` zielone
       binarką aplikacji; `progress/` 41 i `cache-keeper/` 181 zielone; rdzeń 386+ zielony;
       `sync-panel-core.js --check` zgodne.
-- [ ] `git diff` nie dotyka `panel/hooks/band.tsx`, `progress/hooks/` (poza kopią rdzenia
+      *(2026-10-15: panel 197, rdzeń 409, na HEAD 10 testów panelu i plik testów szaty rdzenia
+      spadają.)*
+- [x] `git diff` nie dotyka `panel/hooks/band.tsx`, `progress/hooks/` (poza kopią rdzenia
       `progress/hooks/core/`), `cache-keeper/hooks/` (poza kopią `cache-keeper/hooks/relai/`),
       żadnej kopii `bar-card.tsx`, `docs/plany/PANEL_CODEX/` ani `docs/zasoby/PANEL_RELAI/makiety/`
       (`git diff --stat` w dzienniku).
-- [ ] Katalog roboczy `.claude/relai/work/WYGLAD_PANELU/E3/` przejrzany raportem
+      *(2026-10-15: zmiany w `docs/plany/PANEL_CODEX/` i `makiety/` w drzewie pochodzą z sesji
+      Codeksa, nie z E3 — commit etapu ich nie obejmuje.)*
+- [x] Katalog roboczy `.claude/relai/work/WYGLAD_PANELU/E3/` przejrzany raportem
       (`node .claude/relai/tools/clean-work.js raport`) i skasowany po „tak”; liczby przed i po
       w sekcji „Zweryfikowane” wpisu. Artefakty poza nim (mod wariantów w `dev-mods`, kopia
       podłożona do zainstalowanego pluginu, pliki w `%TEMP%`) wypisane z nazwy razem z tym, co się

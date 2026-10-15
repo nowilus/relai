@@ -56,7 +56,7 @@ function sessionFacts(ms: Exclude<MapSession, { kind: 'asking' | 'unknown' }>): 
 export function mapView(c: Ctx, p: Parts, md: MapData, s: MapCtx) {
   const { el, Svg, isGui, width } = c
   const { Box, Text, Input, Select } = el
-  const { btn, fixed, isStacked, textAndAct, flashBorder, section, folded, frame, figure, bar, costBox, line, money, nCalls, legend } = p
+  const { btn, fixed, isStacked, textAndAct, flashBorder, section, ruled, folded, frame, figure, bar, costBox, line, money, nCalls, legend } = p
   const { isUnfolded, fold } = s
   const chosen = s.chosen
   const crewDrafts = s.drafts
@@ -130,7 +130,7 @@ export function mapView(c: Ctx, p: Parts, md: MapData, s: MapCtx) {
     if (ms.kind === 'asking') return costBox('session-card', [line('session-ask', ASKING, THEME.accentText)], true)
     if (ms.kind === 'unknown') return costBox('session-card', [line('session-unknown', `Nie odczytano pracy tej sesji: ${ms.reason}.`, THEME.accentText)], true)
     const title = ms.kind === 'branch' ? `${ms.card} (odnoga)` : ms.kind === 'plan' ? (ms.stage ? `${ms.plan} · ${ms.stage.id}` : ms.plan) : 'poza planem'
-    const packets = ms.kind === 'branch' ? packetBar('session-packets', ms.packets, ms.now, THEME.cardFeatured) : null
+    const packets = ms.kind === 'branch' ? packetBar('session-packets', ms.packets, ms.now, THEME.card) : null
     return costBox('session-card', [
       <Box key="session-head" flexDirection="row" flexWrap="wrap" alignItems="center" columnGap={2}>
         <Box key="session-name" flexDirection="column" flexGrow={1} flexShrink={1}>
@@ -213,7 +213,7 @@ export function mapView(c: Ctx, p: Parts, md: MapData, s: MapCtx) {
     const loose = node.branches.filter((b) => !node.stages.some((s) => s.id === b.source))
     const status = [node.planStatus ?? 'status nieznany', node.closedOn ?? ''].filter(Boolean).join(' ')
     return (
-      <Box key={`plan-${node.name}`} flexDirection="column" gap={isGui ? 1 : 0} paddingX={isGui ? 2 : 1} paddingY={isGui ? 1 : 0}
+      <Box key={`plan-${node.name}`} flexDirection="column" gap={isGui ? 1 : 0} paddingX={1}
         {...frame(isMain)} borderColor={flashBorder(`fold-${key}`, isMain ? THEME.mark : THEME.line)} backgroundColor={bg}>
         <Box key={`plan-head-${node.name}`} flexDirection="row" flexWrap="wrap" alignItems="center" columnGap={2}>
           <Box key={`plan-name-${node.name}`} flexDirection="column" flexGrow={1} flexShrink={1}>
@@ -221,9 +221,11 @@ export function mapView(c: Ctx, p: Parts, md: MapData, s: MapCtx) {
             <Text color={THEME.body}>{`${status} · zamknięte ${closed} z ${node.stages.length} etapów`}</Text>
           </Box>
           {c.records > 0 ? costFig(`plan-cost-${node.name}`, c, isMain ? 26 : 20) : []}
-          {btn(`fold-${key}`, isOpen ? 'Zwiń' : 'Rozwiń', isMain ? 'primary' : 'secondary', () => fold(key, isMain))}
+          {btn(`fold-${key}`, isOpen ? 'Zwiń' : 'Rozwiń', 'secondary', () => fold(key, isMain))}
         </Box>
-        {strip(`strip-${node.name}`, node, bg)}
+        {/* The drawing's ground is the sheet's own color: a plan's tint made a box round it (Łukasz,
+            light 2026-10-15: "te dziwne podświetlenia") */}
+        {strip(`strip-${node.name}`, node, THEME.card)}
         {isOpen ? [
           ...node.stages.map((s) => stageRow(md, node, s)),
           ...(loose.length ? [<Box key={`loose-${node.name}`} flexDirection="column">
@@ -257,7 +259,7 @@ export function mapView(c: Ctx, p: Parts, md: MapData, s: MapCtx) {
         </Box>
         {t.members.length > 1 ? t.members.map((x) => <Text key={`task-m-${id}-${x.id}`} color={FLOW.task[x.status].color}>{`  ↳ ${x.id} · ${x.name} ${FLOW.task[x.status].mark}`}</Text>) : []}
         <Box key={`task-act-${id}`} flexDirection="row" flexWrap="wrap" gap={1}>
-          {btn(`pick-${id}`, isPicked ? 'Odznacz' : 'Zaznacz', isPicked ? 'primary' : 'secondary', () => s.togglePick(id))}
+          {btn(`pick-${id}`, isPicked ? 'Odznacz' : 'Zaznacz', 'secondary', () => s.togglePick(id))}
           {t.isGroup ? btn(`split-${id}`, t.members.length > 1 ? 'Rozdziel' : 'Usuń przypisanie', 'secondary', () => { void s.saveMerges(splitGroup(md.merges, t.id)) }) : []}
         </Box>
       </Box>
@@ -368,7 +370,8 @@ export function mapView(c: Ctx, p: Parts, md: MapData, s: MapCtx) {
     const outside = [md.cost.outside, md.cost.untagged].filter((b) => b.group.records > 0)
     const outsideSum = sumCost(outside.map((b) => b.group))
     const runs = md.runs.length
-    return [
+    // Sections of the tab's sheet with a rule between each two (variant 3, Aneks F)
+    return ruled('map', [
       ...(md.session ? [section('map-session', 'map-session', '', [sessionCard(md.session)])] : []),
       folded('map', 'active', active.length ? active.map(activeWords).join(' · ') : 'brak aktywnego planu', () => [
         line('map-about', `Plany, etapy i odnogi z plików STATUS.md; koszt etapu ze wszystkich zmierzonych sesji projektu (${nCalls(md.cost.total.records)}).`),
@@ -385,7 +388,7 @@ export function mapView(c: Ctx, p: Parts, md: MapData, s: MapCtx) {
         line('archive-about', 'Ostatnio zamknięty na górze.'), ...archive.map((n) => planCard(md, n)),
       ])] : []),
       <Box key="map-foot"><Text dimColor>{`Ceny API z ${md.prices.date} (${md.prices.source}). Pomiary sprzed E4 nie mają znacznika etapu.`}</Text></Box>,
-    ]
+    ])
   }
 
   return draw(md)

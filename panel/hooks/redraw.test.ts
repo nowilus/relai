@@ -3,6 +3,8 @@ import type { On, RenderElement, RenderNode, TurnStepResult } from 'claude-code'
 import { fileName, serializeRecords, stepRecord } from './core/measure.mjs'
 import type { MeasureRecord } from './core/measure.mjs'
 import { NUMSTAT_ARGV } from './core/documents.mjs'
+import { DRAW_LIMIT, treeWeight } from './pane-parts'
+import { THEME } from './core/theme.mjs'
 
 // The pane without I/O in its drawing (AUDYT_MODOW Z3): a tab's data is read when the tab opens and
 // after a turn, then kept; a press that only redraws (a filter, a fold, the end of a flash) reads
@@ -15,8 +17,10 @@ const CWD = 'C:/proj'
 const NOW = new Date(2026, 9, 10, 12, 0).getTime()
 const SESSION = 'session-1'
 // The working threshold of the card (ODNOGA AUDYT_MODOW, Z3): between the tree seen drawn (53 k)
-// and the one that vanished (256 k), with room for what a later section adds
-const TREE_BUDGET = 200_000
+// and the one that vanished (256 k), with room for what a later section adds. 210 k since
+// WYGLAD_PANELU E3 (Łukasz 2026-10-15, "Próg roboczy 210 tys."): the light palette of every drawing
+// added 3.7 k to the costs' worst case, which stood at 199.3 k before; still 18 % under the vanishing
+const TREE_BUDGET = DRAW_LIMIT + 1 // what the desktop draws (pane-parts.tsx, probe 2026-10-15)
 const BASE: Record<string, string> = {
   [`${CWD}/docs/USTAWIENIA.md`]: '# USTAWIENIA\n\nWersja RelAI: 2.7.1\n',
   [`${CWD}/CLAUDE.md`]: '# CLAUDE\n\nAktywny plan: [PANEL_X](docs/plany/PANEL_X/STATUS.md) — w toku.\n',
@@ -104,6 +108,16 @@ async function open($: Engine, tab: string) {
   return ui
 }
 
+// A drawing's full ground in another color than the sheet's is a box on it (Łukasz, light
+// 2026-10-15: "te dziwne podświetlenia"); the sheet's own color, or none, is no box
+const GROUND = 'width="100%" height="100%" fill="'
+const groundsOf = (tree: RenderNode | undefined) => [...walk(tree)].filter((n) => n.type === 'Svg').flatMap((n) => {
+  const src = String((n.props as { source?: string }).source)
+  const out: string[] = []
+  for (let at = src.indexOf(GROUND); at >= 0; at = src.indexOf(GROUND, at + 1)) out.push(src.slice(at + GROUND.length, at + GROUND.length + 7))
+  return out.filter((c) => c !== THEME.card).map((c) => `${String((n.props as { alt?: string }).alt)}: ${c}`)
+})
+
 function* walk(node: RenderNode | undefined): Generator<RenderElement> {
   if (!node || typeof node === 'string') return
   yield node
@@ -112,8 +126,9 @@ function* walk(node: RenderNode | undefined): Generator<RenderElement> {
 const textOf = (node: RenderNode | undefined): string => node === undefined ? '' : typeof node === 'string' ? node
   : ((node as { children?: RenderNode[] }).children ?? []).map(textOf).join('')
 // What a drawing weighs: its serialized size, the measure P-023 pkt 7 was taken in, and its Svg
+// The weight the desktop's limit counts (treeWeight, measured 2026-10-15), not characters
 const weight = (node: RenderNode | undefined) => ({
-  chars: JSON.stringify(node ?? null).length,
+  chars: treeWeight(node),
   svgs: [...walk(node)].filter((x) => x.type === 'Svg').length,
 })
 
@@ -198,17 +213,20 @@ describe('the drawn tree stays under its budget for the worst data (Z3)', () => 
     await ui.press({ key: 'open-edited|docs/archiwum/plany/P0/D000.md' })
     const tree = await ui.drawn()
     const w = weight(tree)
-    expect(`${w.chars} znaków, ${w.svgs} Svg`).toBe(`${Math.min(w.chars, TREE_BUDGET - 1)} znaków, ${w.svgs} Svg`)
+    expect(`${w.chars} jednostek, ${w.svgs} Svg`).toBe(`${Math.min(w.chars, TREE_BUDGET - 1)} jednostek, ${w.svgs} Svg`)
     expect(textOf(tree)).toContain('… jeszcze') // the tiles past the limit, in words
-    expect(textOf(await ui.find({ key: 'doc-window' }))).toContain('Pokazano wiersze 1–200')
-    expect(String((await ui.find({ key: 'dw-more' }))?.props?.label)).toContain('Pokaż dalej (200 z 201 pozostałych)')
+    // Too heavy to be drawn twice: the sheet keeps its frame and loses its fill, the tab stays (Aneks F)
+    expect((await ui.find({ key: 'pane-sheet' }))?.props?.borderStyle).toBe('round')
+    expect(await ui.find({ key: 'pane-sheet~u' })).toBeUndefined()
+    expect(textOf(await ui.find({ key: 'doc-window' }))).toContain('Pokazano wiersze 1–60')
+    expect(String((await ui.find({ key: 'dw-more' }))?.props?.label)).toContain('Pokaż dalej (60 z 341 pozostałych)')
     // The next page of the diff: the rows after the first page, the budget still held
     await ui.press({ key: 'dw-more' })
     const next = await ui.drawn()
-    // The hunk's header is the first row: page two holds the diff's lines 199–398
-    expect(textOf(next)).toContain('wiersz 398 dziennika')
-    expect(textOf(next)).not.toContain('wiersz 198 dziennika')
-    expect(textOf(await ui.find({ key: 'doc-window' }))).toContain('Pokazano wiersze 201–400')
+    // The hunk's header is the first row: page two holds the diff's lines 59–118
+    expect(textOf(next)).toContain('wiersz 118 dziennika')
+    expect(textOf(next)).not.toContain('wiersz 58 dziennika')
+    expect(textOf(await ui.find({ key: 'doc-window' }))).toContain('Pokazano wiersze 61–120')
     expect(weight(next).chars).toBeLessThan(TREE_BUDGET)
     // The document itself instead of its diff: as big as the journal, under the same budget
     await ui.press({ key: 'dw-preview-btn' })
@@ -259,10 +277,11 @@ describe('the drawn tree stays under its budget for the worst data (Z3)', () => 
     for (const s of ['stages', 'turns', 'agents', 'models', 'pricing']) await ui.press({ key: `fold-costs:${s}` })
     const tree = await ui.drawn()
     const w = weight(tree)
-    expect(`${w.chars} znaków, ${w.svgs} Svg`).toBe(`${Math.min(w.chars, TREE_BUDGET - 1)} znaków, ${w.svgs} Svg`)
+    expect(`${w.chars} jednostek, ${w.svgs} Svg`).toBe(`${Math.min(w.chars, TREE_BUDGET - 1)} jednostek, ${w.svgs} Svg`)
     const text = textOf(tree)
     expect(text).toContain('… jeszcze 2') // agents and stages past twelve, in one line each
     expect(text).toMatch(/✓ Etapy i „poza etapem” razem \$[\d.,]+ = suma sesji/) // the check still sums every stage
+    expect(groundsOf(tree)).toEqual([])
     await ui.unmount()
   })
 })

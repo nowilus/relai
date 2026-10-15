@@ -35,7 +35,6 @@ export function rulerSvg(used: number | null, threshold: number): string {
   const lean = threshold >= 50 ? 'text-anchor="end" dx="-6"' : 'text-anchor="start" dx="6"'
   const fill = used === null ? '' : `<rect class="fill" x="0" y="${TRACK_Y}" width="${Math.max(0, Math.min(100, used))}%" height="8" rx="4" fill="${rulerColor(used, threshold)}"/>`
   return `<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="${RULER_HEIGHT}"><style>text{font-family:system-ui,'Segoe UI',sans-serif}</style>`
-    + `<rect width="100%" height="100%" fill="${THEME.card}"/>`
     + `<rect x="0" y="${TRACK_Y}" width="100%" height="8" rx="4" fill="${THEME.lineOff}"/>${fill}`
     + `<rect x="${threshold}%" y="${NOTCH.y}" width="2" height="${NOTCH.h}" rx="1" transform="translate(-1 0)" fill="${THEME.title}"/>`
     + `<text x="${threshold}%" y="13" ${lean} font-size="${FONT}" font-weight="600" fill="${THEME.title}">próg ${threshold} %</text>`

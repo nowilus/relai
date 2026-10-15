@@ -57,7 +57,7 @@ export type CommandsCtx = {
 export function commandTabs(c: Ctx, parts: Parts, s: CommandsCtx) {
   const { el, isGui } = c
   const { Box, Text, Input, Select } = el
-  const { heading, icon, btn, textAndAct, flashBorder, frame, well, sentLine } = parts
+  const { heading, icon, btn, textAndAct, flashBorder, frame, well, sentLine, ruled } = parts
   const { data: d, picked, values: all, chat, canNew, clean, pick } = s
   // UX accepted 2026-10-12: the new session first and the default on the desktop
   const chats: { value: ChatMode, label: string }[] = [
@@ -146,7 +146,7 @@ export function commandTabs(c: Ctx, parts: Parts, s: CommandsCtx) {
               <Text color={THEME.title}>{g.name}</Text>
               <Text color={THEME.body}>{`${g.count} poz. · ${(g.bytes / 1048576).toFixed(2).replace('.', ',')} MB`}</Text>
             </Box>
-            {btn(`clean-pick-${g.id}`, g.isPicked ? 'Odznacz' : 'Zaznacz', g.isPicked ? 'primary' : 'secondary', () => s.toggleClean(g.id))}
+            {btn(`clean-pick-${g.id}`, g.isPicked ? 'Odznacz' : 'Zaznacz', 'secondary', () => s.toggleClean(g.id))}
           </Box>
         ))}
         {clean.kept.length ? [<Text key="clean-kept-h" bold color={THEME.mark}>Chronione — poza wyborem</Text>,
@@ -187,7 +187,7 @@ export function commandTabs(c: Ctx, parts: Parts, s: CommandsCtx) {
             {command}
           </Box>
           <Text color={THEME.body}>{what}</Text>
-          {hint ? [<Text key={`hint-${c}`} color={THEME.accentText}>{hint}</Text>] : []}
+          {hint ? [<Text key={`hint-${c}`} color={THEME.mark}>{hint}</Text>] : []}
         </Box>
       : <Box key={`text-${c}`} flexDirection="row" flexWrap="wrap" columnGap={1} flexGrow={1} flexShrink={1}>
           <Text bold color={THEME.title} dimColor={isOff}>{title}</Text>
@@ -198,7 +198,7 @@ export function commandTabs(c: Ctx, parts: Parts, s: CommandsCtx) {
     return (
       <Box key={`card-${c}`} flexDirection="column">
         <Box key={`row-${c}`} flexDirection="row" alignItems="center" columnGap={isGui ? 2 : 1}
-          paddingX={isFeatured && isGui ? 2 : 1} {...rowFrame}
+          paddingX={1} {...rowFrame} /* one margin for every row: the buttons stand in one column (E3, live 2026-10-15) */
           {...(isOn ? { backgroundColor: THEME.cardOn } : {})} hover={{ backgroundColor: THEME.cardOn }}>
           {icon(c, isFeatured ? 44 : 24)}
           {textAndAct(`main-${c}`, text, btn(`cmd-${c}`, isOn ? 'Zamknij' : isOff ? '—' : 'Otwórz', 'secondary', () => pick(c)))}
@@ -212,8 +212,9 @@ export function commandTabs(c: Ctx, parts: Parts, s: CommandsCtx) {
     <Box key={key} flexDirection="column">
       {heading(head)}
       {/* A cell between the rows on a desktop, so no native button touches the next (live 2026-10-14) */}
-      <Box key={`${key}-card`} flexDirection="column" gap={isGui ? 1 : 0} {...frame(false)} borderColor={isFeatured ? THEME.mark : THEME.line}
-        backgroundColor={isFeatured ? THEME.cardFeatured : THEME.card}>
+      {/* WYGLAD_PANELU E3 (variant 3, accepted 2026-10-15): on a desktop the group is a section of
+          the tab's sheet, no card of its own; a rule stands between the sections (commandsView) */}
+      <Box key={`${key}-card`} flexDirection="column" gap={isGui ? 1 : 0}>
         {commands.map((c) => card(c, isFeatured))}
       </Box>
     </Box>
@@ -224,10 +225,10 @@ export function commandTabs(c: Ctx, parts: Parts, s: CommandsCtx) {
   const groups = GROUPS.map((g, i) => (i === 0 ? { ...g, commands: [...g.commands, ...FEATURED.slice(2)] } : g))
   // HUMANIZACJA E4 (decision 2026-10-14): "Polecane teraz" spaced like the groups below it, without
   // the gaps of section(), so the 15 commands, "Teraz" and the header fit 900 px of a desktop
-  const commandsView = () => [
+  const commandsView = () => ruled('commands', [
     group('featured', 'featured', featured, true),
     ...groups.map((g) => group(`group-${g.id}`, `group-${g.id}`, g.commands, false)),
-  ]
+  ])
 
   return { commandsView }
 }

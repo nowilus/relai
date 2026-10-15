@@ -241,7 +241,7 @@ footer .pis{font-family:var(--pis); font-size:1.2rem; color:var(--glina); margin
     <a href="#s5">Jak działa</a><a href="#s6">Etapy</a><a href="#s7">Ryzyka</a><a href="#s8">Brzegowe</a>
     <a href="#s9">Decyzje</a><a href="#s10">Aneksy</a>
   </nav>
-  <span class="stan">ZAAKCEPTOWANY 2026-10-14 (Aneksy A–C)</span>
+  <span class="stan">ZAAKCEPTOWANY 2026-10-14 (Aneksy A–F)</span>
 </div>
 
 <header class="szyld">
@@ -253,7 +253,7 @@ footer .pis{font-family:var(--pis); font-size:1.2rem; color:var(--glina); margin
   </svg>
   <p class="podtytul">Paski nad promptem w kolorach narzędzia, panel RelAI w dwóch szatach — ciemnej i jasnej — dostrojonych do motywu, i pasek postępu jako lista kroków.</p>
   <div class="metki">
-    <span class="metka akc"><i></i>status: <b>ZAAKCEPTOWANY 2026-10-14 (Aneksy A–C)</b></span>
+    <span class="metka akc"><i></i>status: <b>ZAAKCEPTOWANY 2026-10-14 (Aneksy A–F)</b></span>
     <span class="metka">etapów: <b>4</b></span>
     <span class="metka">pracochłonność: <b>6–9 sesji</b> <span class="et et-s">SZACUNEK</span></span>
     <span class="metka">model etapów: <b>Opus 5.5 w Claude Code</b></span>
@@ -497,6 +497,30 @@ footer .pis{font-family:var(--pis); font-size:1.2rem; color:var(--glina); margin
 <li><b>Dowód:</b> kontrola treści komendy w teście (czerwona na kodzie sprzed zmiany) i pomiar na żywo — karta startu E3 po poprawce.</li>
 <li><b>Kolejność:</b> poprawka przed E3, poza tabelą etapów; wydanie razem z E4.</li>
 <li><b>Koszt:</b> ćwierć sesji <span class="et et-s">SZACUNEK</span>.</li>
+</ol></div></div></div>
+</div>
+
+<div class="notka">
+  <button type="button" aria-expanded="false" aria-controls="aE"><svg class="spinacz" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="tyt">Aneks E — 2026-10-15: panel przełącza szatę sam — tła w <code>Svg</code>, tekst w kluczach motywu</span><span class="prawo"><span class="naklejka n-tak">E3</span></span></button>
+  <div class="rulon" id="aE"><div><div class="tresc">
+<p><b>Przyczyna.</b> Na pytanie startowe E3 (Aneks B: przełącznik, klucze motywu w tłach albo inny pomysł) Łukasz zapytał: „Ale czy na pewno nie da się tego automatycznie zrobić? […] Może zróbmy jakąś sondę, żeby sprawdzić, czy to się automatycznie nie przeładowuje tak samo jak te paski above prompt?”. Sonda <code>relai-szata-sonda</code> 0.1.0–0.3.0 (P-044): desktop odrzuca w <code>Box</code>/<code>Text</code> funkcje CSS (<code>light-dark()</code>, <code>Canvas</code>, <code>var()</code>, <code>color-mix()</code>), ale karta jako „kanapka” — tekst w toku, pod nim tło <code>Svg</code> z obiema paletami w <code>prefers-color-scheme</code>, ten sam tekst w warstwie absolutnej nad tłem — przełącza się z wyglądem aplikacji sama, rośnie z zawiniętym tekstem, a przycisk nad tłem działa. Łukasz wybrał 2026-10-15 „Automatycznie, tła w Svg (Rekomendowane)”:</p>
+<ol>
+<li><b>Wariant A doprecyzowany, nie zmieniony:</b> panel zostaje w palecie „Warsztat” w obu szatach; powierzchnie (tła kart, ramki, stany wybrana/wciśnięta, nagłówki Kalam, ikony, wykresy) rysuje <code>Svg</code> z paletą ciemną domyślnie i jasną w <code>@media (prefers-color-scheme: light)</code>.</li>
+<li><b>Tekst w <code>Text</code></b> idzie na kluczach motywu (<code>text</code>, <code>inactive</code>; akcenty <code>claude</code>, <code>warning</code>, <code>success</code>) — kolor surowy w <code>Text</code> nie ma drogi do wyglądu aplikacji (P-042).</li>
+<li><b>Przełącznika w Pomocy nie ma</b> — szata idzie za wyglądem aplikacji jak paski. Terminal (bez <code>Svg</code>) rysuje karty bez warstw, jak dziś.</li>
+<li><b>Dowód:</b> test, że kanapka ma jedną treść w obu warstwach i nie powstaje w terminalu; test kontrastu 4,5 : 1 każdej pary klucz–tło obu szat (kolory kluczy z próbek desktopu); <code>narrow.test.ts</code> zielony; zrzuty siedmiu zakładek w obu wyglądach.</li>
+<li><b>Koszt:</b> do jednej sesji więcej w E3 <span class="et et-s">SZACUNEK</span>.</li>
+</ol></div></div></div>
+</div>
+
+<div class="notka">
+  <button type="button" aria-expanded="false" aria-controls="aF"><svg class="spinacz" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="tyt">Aneks F — 2026-10-15: dokument designu panelu i pasków, wariant 3 na wszystkich zakładkach</span><span class="prawo"><span class="naklejka n-tak">E3</span></span></button>
+  <div class="rulon" id="aF"><div><div class="tresc">
+<p><b>Przyczyna.</b> Po przebudowie Komend na wariant 3 („jedna kartka”) Łukasz: „wygląda, że już jest lepiej, jest to spójne. Chciałbym, żebyś […] zaktualizował sobie […] jakiś taki design MD […] w którym spiszesz te wszystkie zasady, wszystkie te lekcje, wszystkie te nasze tutaj poprawki”, i o pozostałych zakładkach: „Czyli nadal mają te takie dziwne jakieś bordery”.</p>
+<ol>
+<li><b>Nowy artefakt:</b> <code>docs/zasoby/PANEL_RELAI/DESIGN.md</code> (wersja 1, rejestr artefaktów) — charakter, dwie szaty z kluczami i kontrastem, kompozycja wariantu 3, kanapka, wiersz z jedną kolumną przycisków, typografia, responsywność (P-043), <code>Svg</code>, budżet drzewa, proces i lista kontrolna. Każda zmiana wyglądu panelu i pasków zaczyna się od tego pliku; aktywna zasada 15 w <code>LEKCJE.md</code> na niego wskazuje.</li>
+<li><b>Wariant 3 na wszystkich zakładkach w E3:</b> Koszty, Dokumenty, Mapa i Pomoc tracą wewnętrzne ramki i tła kart — sekcje dzielą gasnące linie, ramka zostaje tylko przy decyzji (Tak/Nie, otwarty formularz). Zakres E3 się nie zmienia (punkt 3 promptu: wybrany wariant we wszystkich zakładkach), aneks zapisuje regułę.</li>
+<li><b>Dowód:</b> testy bez ramek kart na zakładkach desktopu, <code>narrow.test.ts</code> zielony, budżet 210 tys., zrzuty na żywo.</li>
 </ol></div></div></div>
 </div>
 </section>

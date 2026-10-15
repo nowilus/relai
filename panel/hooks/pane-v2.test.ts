@@ -2,6 +2,7 @@ import { describe, expect, mock, test, type TestBody } from 'claude-code/testing
 import type { On, RenderElement, RenderNode } from 'claude-code'
 import { FORMS } from './core/commands.mjs'
 import { THEME } from './core/theme.mjs'
+import { visible } from './skin'
 import { stepRecord, serializeRecords, fileName } from './core/measure.mjs'
 import { pct } from './fmt'
 
@@ -127,7 +128,9 @@ function height(node: RenderNode): number {
   if (node.type === 'Button' || node.type === 'Input' || node.type === 'Select') return PX.button
   if (node.type === 'Svg') return Number(p.height ?? 0)
   if (node.type !== 'Box') return 0
-  const hs = kids(node).filter((k) => typeof k !== 'string').map(height)
+  // A box placed absolute takes no room: the sheet's drawings and its top copy (P-044); the hidden
+  // copy in flow is what sizes the sheet, as on the desktop
+  const hs = kids(node).filter((k) => typeof k !== 'string' && props(k).position !== 'absolute').map(height)
   const isRow = p.flexDirection === 'row'
   const gap = Number(p.rowGap ?? p.gap ?? 0) * PX.line
   const inner = isRow ? Math.max(0, ...hs) : hs.reduce((a, b) => a + b, 0) + gap * Math.max(0, hs.length - 1)
@@ -161,8 +164,10 @@ describe('the header and the "Teraz" bar (brief v2 §6.1–6.2)', () => {
     for (const surface of ['desktop', 'terminal'] as const) {
       const ui = await open($, surface)
       const now = await ui.find({ key: 'now' })
-      expect(props(now).backgroundColor).toBe(THEME.cardFeatured)
-      expect(props(now).borderColor).toBe(THEME.mark)
+      // WYGLAD_PANELU E3 (variant 3): on a desktop the first section of the sheet, no card of its
+      // own; the terminal keeps its framed card in the key of the motif's mustard
+      expect(props(now).borderColor).toBe(surface === 'desktop' ? undefined : 'warning')
+      expect(props(now).backgroundColor).toBeUndefined()
       const text = textOf(now)
       expect(text).toContain('PANEL_X · E2')
       expect(text).toContain('W TOKU')
@@ -175,7 +180,9 @@ describe('the header and the "Teraz" bar (brief v2 §6.1–6.2)', () => {
       else expect(textOf(segs)).toMatch(/^█+/)
       const buttons = [...walk(now)].filter((n) => n.type === 'Button')
       // One main action; "Zmień" (Z12) is the focus row's own, secondary
-      expect(buttons.map((b) => [props(b).label ?? textOf(b), props(b).variant])).toEqual([['Zmień', 'secondary'], ['Start etapu…', 'primary']])
+      // E3 (live 2026-10-15): on a desktop "Start etapu…" stands on the row of the next item, "Zmień" on the session's row under it
+      const order = surface === 'desktop' ? [['Start etapu…', 'primary'], ['Zmień', 'secondary']] : [['Zmień', 'secondary'], ['Start etapu…', 'primary']]
+      expect(buttons.map((b) => [props(b).label ?? textOf(b), props(b).variant])).toEqual(order)
       await ui.unmount()
     }
   })
@@ -264,7 +271,7 @@ describe('the commands tab (brief v2 §6.3–6.5, P1)', () => {
       expect(pieces.map((n) => (n as RenderElement).type)).toEqual(['Text', 'Text', 'Text'])
       expect(pieces.every((n) => props(n).wrap === undefined && !textOf(n).startsWith(' '))).toBe(true)
       const named = [...walk(row)].filter((n) => n.type === 'Text' && textOf(n).trim() === '/' + c)
-      expect(named.length === 1 && props(named[0]).color === THEME.body).toBe(true)
+      expect(named.length === 1 && props(named[0]).color === 'inactive').toBe(true) // THEME.body in its key (E3)
       expect(props(await ui.find({ key: `cmd-${c}` })).label).toBe(c === 'relai-adopt' ? '—' : 'Otwórz')
     }
     expect(textOf(await ui.find({ key: 'head-relai-stage' }))).toBe('Etap planu/relai-stage') // two pieces, a cell apart
@@ -292,7 +299,8 @@ describe('the commands tab (brief v2 §6.3–6.5, P1)', () => {
     const card = await ui.find({ key: 'card-relai-tour' })
     const order = kids(card).map((k) => String(props(k).key))
     expect(order).toEqual(['row-relai-tour', 'form'])
-    expect(props(await ui.find({ key: 'form' })).backgroundColor).toBe(THEME.cardOn)
+    expect(props(await ui.find({ key: 'form' })).backgroundColor).toBeUndefined() // the sheet shows through (E3)
+    expect(props(await ui.find({ key: 'form' })).borderColor).toBe('claude')
     expect(props(await ui.find({ key: 'cmd-relai-tour' })).label).toBe('Zamknij')
     await ui.press({ key: 'cmd-relai-tour' })
     expect(await ui.find({ key: 'form' })).toBeUndefined()
@@ -300,15 +308,18 @@ describe('the commands tab (brief v2 §6.3–6.5, P1)', () => {
     await ui.unmount()
   })
 
-  test('the 15 commands, "Teraz" and the header fit 1061 px of a desktop', async ($, on) => {
+  test('the 15 commands, "Teraz" and the header fit 1101 px of a desktop', async ($, on) => {
     world(on)
     const ui = await open($)
-    const tree = await ui.drawn()
+    const tree = await ui.drawn() // the sheet's hidden copy in flow sizes it (E3, P-044)
     const px = height(tree as RenderNode)
     // HUMANIZACJA E4: "Polecane teraz" spaced like the groups (no gaps) pays for the 15th row.
     // PANEL_WASKI (Łukasz, live 2026-10-14, 94 columns: "nie ma żadnych marginesów pomiędzy
-    // przyciskami"): a cell between the rows of a group card, 11 gaps of 20 px; 900 px became 1061
-    expect(`${px} px`).toBe(`${Math.min(px, 1061)} px`)
+    // przyciskami"): a cell between the rows of a group card, 11 gaps of 20 px; 900 px became 1061.
+    // WYGLAD_PANELU E3: the sheet's frame (variant 3, accepted 2026-10-15) adds its two lines: 1065;
+    // its margin inside, a line above and under the tab (Łukasz 2026-10-15: "brakuje w ogóle jakichś
+    // paddingów w środku"), two more: 1101
+    expect(`${px} px`).toBe(`${Math.min(px, 1101)} px`)
     expect(props(await ui.find({ key: 'featured' })).gap).toBeUndefined()
     for (const c of ROWS) expect(height((await ui.find({ key: `row-${c}` })) as RenderNode)).toBeLessThanOrEqual(PX.button + 2 * PX.border)
     await ui.unmount()
@@ -346,7 +357,8 @@ describe('the costs tab (brief v2 §7, P3)', () => {
       expect(textOf(await ui.drawn())).not.toMatch(/\d\.\d\d ?%/)
       for (const s of SECTIONS) {
         const row = await ui.find({ key: `costs-${s}-row` })
-        expect(props(row).backgroundColor).toBe(THEME.card)
+        expect(props(row).backgroundColor).toBeUndefined() // on the frame of the tab (E3)
+        expect(props(row).borderColor).toBe('subtle')
         expect(textOf(await ui.find({ key: `costs-${s}-sum` })).length).toBeGreaterThan(3)
         expect(props(await ui.find({ key: `fold-costs:${s}` })).label).toBe('▸ Rozwiń')
         expect(await ui.find({ key: CONTENT[s]! })).toBeUndefined()
@@ -444,6 +456,9 @@ describe('Pomoc: the cheat sheet and the phrases in one tab', () => {
     world(on)
     const ui = await open($)
     await ui.press({ key: 'tab-help' })
+    // The sheet folded by default (Łukasz 2026-10-15: "Zwinięta domyślnie"), one press unfolds it
+    expect(await ui.find({ key: 'sheet-relai-backup' })).toBeUndefined()
+    await ui.press({ key: 'fold-help:sheet' })
     expect(textOf(await ui.find({ key: 'sheet-relai-backup' }))).toContain('pakuje cały projekt')
     expect(await ui.find({ key: 'phrase-1' })).toBeDefined()
     await ui.input({ key: 'search', text: 'status' })

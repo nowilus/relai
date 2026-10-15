@@ -1,7 +1,8 @@
 import { describe, expect, mock, test, type TestBody } from 'claude-code/testing'
 import type { On, RenderElement, RenderNode } from 'claude-code'
 import { FORMS } from './core/commands.mjs'
-import { NAMES, THEME } from './core/theme.mjs'
+import { EDGE_OF, NAMES, THEME } from './core/theme.mjs'
+import { visible } from './skin'
 
 // The RelAI motif of the pane (plan PANEL_CLAUDE, E8): icons for the 15 commands on a desktop,
 // text in the same colors on the terminal, and nothing wider than the pane.
@@ -82,7 +83,7 @@ describe('the RelAI motif of the pane', () => {
     world(on)
     await open($)
     const desk = await $.ui.mount({ plugin: 'relai-panel', surface: 'desktop', ...pane(100) })
-    const svgs = [...walk(await desk.drawn())].filter((n) => n.type === 'Svg')
+    const svgs = [...walk(visible(await desk.drawn()) as RenderNode)].filter((n) => n.type === 'Svg')
     const icons = svgs.filter((n) => Object.values(NAMES).some(([name]) => (n.props as { alt?: string }).alt === name))
     expect(icons.length).toBe(FORMS.length)
     expect(svgs.some((n) => (n.props as { alt?: string }).alt === 'Panel RelAI')).toBe(true) // the Kalam hero
@@ -125,13 +126,13 @@ describe('the RelAI motif of the pane', () => {
     const ui = await $.ui.mount({ plugin: 'relai-panel', surface: 'desktop', ...pane(100) })
     const border = async () => ((await ui.find({ key: 'form' }))?.props as { borderColor?: string } | undefined)?.borderColor
     await ui.press({ key: 'cmd-relai-tour' })
-    expect(await border()).toBe(THEME.accent) // the card's own flash is on its row, not on the form
+    expect(await border()).toBe(EDGE_OF[THEME.accent]) // the card's own flash is on its row, not on the form
     await ui.press({ key: 'send' })
     expect((await ui.find({ key: 'send' }))?.text).toBe('✓ Wysłano')
-    expect(await border()).toBe(THEME.pressed)
+    expect(await border()).toBe(EDGE_OF[THEME.pressed])
     await clock.advance(1000)
     expect((await ui.find({ key: 'send' }))?.text).toBe('Wyślij do czatu')
-    expect(await border()).toBe(THEME.accent)
+    expect(await border()).toBe(EDGE_OF[THEME.accent])
     await ui.unmount()
   })
 

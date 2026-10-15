@@ -409,3 +409,129 @@ export function glyph(name, color, px) {
 
 /** The file of docs/zasoby/branding/ikony/ that draws a command: `relai-stage` -> `stage`. */
 export const iconName = (/** @type {string} */ command) => command.replace(/^relai-/, '');
+
+/**
+ * The pane in both appearances of the app (plan WYGLAD_PANELU, E3, Aneks E; P-042, P-044). A mod
+ * cannot read the appearance, so the pane never chooses: text and frames go by theme keys, which
+ * the desktop paints itself, and the "Warsztat" sheet under each tab and every drawing carry both
+ * palettes in CSS, the light one under `@media (prefers-color-scheme: light)`. Look accepted by
+ * Łukasz on 2026-10-15: variant 3 "one sheet", its frame in `subtle`.
+ */
+
+/** What the desktop paints for the keys the pane uses, sampled 2026-10-15 (probe 0.6.0): for the contrast tests only. */
+export const KEY_SAMPLE = Object.freeze({
+  dark: Object.freeze({ text: '#f0efec', inactive: '#c3c2b8', subtle: '#898781', success: '#4ca129', error: '#db8080', warning: '#ce932a', claude: '#b76345', promptBorder: '#484847', diffAddedDimmed: '#2b3f26', diffRemovedDimmed: '#432026' }),
+  light: Object.freeze({ text: '#0b0b0b', inactive: '#52514e', subtle: '#888781', success: '#2a6113', error: '#812a29', warning: '#6b4510', claude: '#b76345', promptBorder: '#cecece', diffAddedDimmed: '#dbebda', diffRemovedDimmed: '#f1d5dd' }),
+});
+
+/** The sheet each tab stands on: today's card in the dark, the template's paper in the light. */
+export const SHEET = Object.freeze({
+  // edge: the desktop's own `subtle` in each appearance (sampled 2026-10-15): soft on the dark sheet,
+  // a clear line on the light one (Łukasz: frame "11b" in light, "11a" in dark)
+  dark: Object.freeze({ sheet: THEME.card, edge: '#898781' }),
+  light: Object.freeze({ sheet: ROOT.kartka, edge: '#888781' }),
+  frame: 'subtle',
+});
+
+/** The key each text role reads in (4.5:1 on both sheets; `claude` is too weak for text: 3.7 / 4.2). */
+export const TONE_ROLES = Object.freeze({ title: 'text', body: 'inactive', mark: 'warning', accentText: 'error', ok: 'success' });
+
+/** A raw color of the pane, met in a Text, and its key. */
+export const TONE_OF = Object.freeze({
+  [THEME.title]: 'text', [THEME.body]: 'inactive', [THEME.mark]: 'warning', [THEME.accentText]: 'error', [THEME.ok]: 'success',
+  [THEME.accent]: 'claude', [THEME.line]: 'subtle', [THEME.lineOff]: 'subtle', [THEME.card]: 'text', [THEME.cardOn]: 'text', [THEME.cardFeatured]: 'text',
+  [DIFF.addText]: 'text', [DIFF.delText]: 'text', [DIFF.gutter]: 'inactive', [DIFF.addBg]: 'text', [DIFF.delBg]: 'text',
+  // The "Teraz" bar's status and figure (pane-now.tsx): in the light look the band's pale mustard and
+  // sage read at ~1.6 : 1 on the sheet (live 2026-10-15)
+  [BAND.panel.color]: 'warning', [BAND.progress.color]: 'success',
+});
+
+/** A raw color of the pane, met in a frame, and its key: the resting line `subtle`, the selected one clay. */
+export const EDGE_OF = Object.freeze({
+  [THEME.line]: 'subtle', [THEME.lineOff]: 'promptBorder', [THEME.accent]: 'claude', [THEME.mark]: 'warning', [THEME.accentText]: 'error',
+  [THEME.ok]: 'success', [THEME.title]: 'text', [THEME.body]: 'inactive', [THEME.card]: 'subtle', [THEME.cardOn]: 'claude', [THEME.cardFeatured]: 'warning',
+  [DIFF.addText]: 'success', [DIFF.delText]: 'error', [DIFF.gutter]: 'subtle', [DIFF.addBg]: 'subtle', [DIFF.delBg]: 'subtle',
+});
+
+/** A raw fill of the pane and what stands for it: null — the sheet shows through; a key — a fill that follows the app. */
+export const FILL_OF = Object.freeze({
+  ...Object.fromEntries(Object.values(THEME).map((c) => [c, null])),
+  ...Object.fromEntries(Object.values(DIFF).map((c) => [c, null])),
+  [DIFF.addBg]: 'diffAddedDimmed', [DIFF.delBg]: 'diffRemovedDimmed',
+});
+
+/** Under the pointer a card lights up in a fill that follows the app (text and inactive read on it at 5:1). */
+export const HOVER_FILL = 'promptBorder';
+
+/** Every dark color a drawing of the pane holds, and its light counterpart from the template's palette. */
+export const SVG_LIGHT = Object.freeze({
+  [THEME.accent]: ROOT['glina-2'], [THEME.accentText]: ROOT['glina-2'], [THEME.mark]: '#9a6a12', [THEME.ok]: '#3d6b47',
+  [THEME.title]: ROOT.txt, [THEME.body]: ROOT['txt-2'], [THEME.line]: ROOT['linia-2'], [THEME.lineOff]: ROOT.linia,
+  [THEME.card]: ROOT.kartka, [THEME.cardOn]: ROOT.tlo, [THEME.cardFeatured]: ROOT['kartka-2'],
+  [DIFF.addBg]: KEY_SAMPLE.light.diffAddedDimmed, [DIFF.delBg]: KEY_SAMPLE.light.diffRemovedDimmed,
+  [DIFF.addText]: KEY_SAMPLE.light.success, [DIFF.delText]: KEY_SAMPLE.light.error, [DIFF.gutter]: ROOT['txt-2'],
+  [COST_COLORS.cacheRead]: '#7fa085',
+  // The progress segments of the "Teraz" bar: dark tracks read as black bars on the light sheet
+  [BAR.segment.done]: '#8fae95', [BAR.segment.pending]: ROOT.linia, [BAR.segment.running]: '#c99a3a',
+  [BAR.segment.failed]: ROOT['glina-2'],
+});
+
+const SVG_PAINTS = ['fill', 'stroke', 'stop-color'];
+
+/**
+ * A drawing of the pane in both appearances: its dark colors, wherever an attribute paints with
+ * one, take the light palette under the media query (CSS outranks a presentation attribute). A
+ * drawing that already carries both palettes, or none of ours, comes back as it was.
+ * @param {string} svg @returns {string}
+ */
+export function twoTone(svg) {
+  if (svg.includes('prefers-color-scheme')) return svg;
+  // A rule only for a paint the drawing really holds, and no longer than it must be: every byte
+  // counts against the tree (P-023 pkt 7). An author rule outranks a presentation attribute as it
+  // is; the pane's drawings write their colors in lower case (mix(), ROOT).
+  const rules = Object.entries(SVG_LIGHT)
+    .flatMap(([dark, light]) => SVG_PAINTS.filter((a) => svg.includes(`${a}="${dark}"`)).map((a) => `[${a}="${dark}"]{${a}:${light}}`));
+  if (!rules.length) return svg;
+  const end = svg.indexOf('>') + 1;
+  return `${svg.slice(0, end)}<style>@media (prefers-color-scheme: light){${rules.join('')}}</style>${svg.slice(end)}`;
+}
+
+/**
+ * The sheet under a tab, its frame drawn with its fill (Łukasz 2026-10-15: "nie może być nawet jednego
+ * piksela między borderem a wypełnieniem"; probe relai-szata-sonda 0.7.0–0.8.0, P-044). Two drawings,
+ * each `width="100%"` (the slot's width, P-044 pkt 3) in a Box of a column: the top one runs past its
+ * own bottom, so it shows the top edge, the sides and the top corners; the end one starts above its
+ * own top, so it shows the bottom edge and corners. Stacked, the two meet in one fill and one line.
+ */
+// The engine takes a drawing of at most 4096 px a side: the sheet's height is the top and `middles`
+// drawings of `piece` px under it (5 × 4000 px: the tallest tab drawn whole, documents unfolded).
+export const SHEET_DRAW = Object.freeze({ piece: 4000, middles: 4, end: 400, radius: 10 });
+
+const sheetCss = (geometry) => '<style>'
+  + `.s{fill:${SHEET.dark.sheet};stroke:${SHEET.dark.edge};stroke-width:1px}`
+  + `@media (prefers-color-scheme: light){.s{fill:${SHEET.light.sheet};stroke:${SHEET.light.edge}}}`
+  + `.s{${geometry}}</style>`;
+
+/** The top of the sheet: top edge, sides, top corners; its bottom never shows. */
+export function sheetTopSvg() {
+  const r = SHEET_DRAW.radius;
+  return '<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">'
+    + sheetCss(`x:0.5px;y:0.5px;width:calc(100% - 1px);height:calc(100% + ${r * 3}px);rx:${r}px;ry:${r}px`)
+    + '<rect class="s"/></svg>';
+}
+
+/** A middle piece of the sheet, under the top: the sides only, both its ends past the drawing. */
+export function sheetMiddleSvg() {
+  const r = SHEET_DRAW.radius;
+  return '<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">'
+    + sheetCss(`x:0.5px;y:-${r * 3}px;width:calc(100% - 1px);height:calc(100% + ${r * 6}px);rx:${r}px;ry:${r}px`)
+    + '<rect class="s"/></svg>';
+}
+
+/** The end of the sheet: bottom edge and corners; its top never shows. */
+export function sheetEndSvg() {
+  const r = SHEET_DRAW.radius;
+  return '<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">'
+    + sheetCss(`x:0.5px;y:-${r * 3}px;width:calc(100% - 1px);height:calc(100% + ${r * 3 - 0.5}px);rx:${r}px;ry:${r}px`)
+    + '<rect class="s"/></svg>';
+}

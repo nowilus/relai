@@ -9,6 +9,16 @@ import { buildPhrase, searchSheet } from './core/phrases.mjs'
 import type { Phrase } from './core/phrases.mjs'
 import type { PaneData } from './data'
 import type { Ctx, Parts } from './pane-parts'
+import { plural } from './core/measure.mjs'
+
+const SHEET_WORDS = 160 // the most characters of a command's words in the sheet; the rest is in docs/KOMENDY.md
+
+// The sheet's words come from Markdown: its marks ("**przed**", "`docs/plany/`") read as plain words
+// (review 2026-10-15: they stood in the pane literally)
+const plainText = (text: string) => text.replace(/\*\*([^*]+)\*\*/g, '$1').replace(/`([^`]+)`/g, '$1')
+
+// A word past the limit is cut with an ellipsis, never in its middle
+const cut = (text: string, most: number) => (text.length <= most ? text : text.slice(0, text.lastIndexOf(' ', most)) + ' …')
 
 export type HelpCtx = {
   data: PaneData
@@ -23,56 +33,62 @@ export type HelpCtx = {
 export function helpView(c: Ctx, parts: Parts, s: HelpCtx) {
   const { el, isGui } = c
   const { Box, Text, Input } = el
-  const { icon, mark, btn, isStacked, textAndAct, flashBorder, section, frame, well } = parts
+  const { icon, mark, btn, isStacked, textAndAct, flashBorder, section, ruled, frame, well } = parts
   const { data: d, query: q, fills: filled } = s
 
-  // One click: the phrase is the button; its effect under it, the bubble on the left
+  // One click: the phrase is the button; its effect under it, the bubble at the top of the row
+  // (WYGLAD_PANELU E3, review 2026-10-15: centred, the bubble floated between the button and the words)
   const readyCard = (p: Phrase, i: number) => {
     const canSend = buildPhrase(p, '').isOk && d.hasRelai
     return (
-      <Box key={`ph-${i}`} flexDirection="row" alignItems="center" gap={isGui && !isStacked ? 2 : 1} paddingX={isGui ? 2 : 1} paddingY={isGui ? 1 : 0}
-        {...frame(false)} borderColor={flashBorder(`phrase-${i}`, THEME.line)} backgroundColor={THEME.card} hover={{ borderColor: THEME.accent }}>
+      <Box key={`ph-${i}`} flexDirection="row" alignItems="flex-start" gap={isGui && !isStacked ? 2 : 1} paddingX={1}
+        {...frame(false)} borderColor={flashBorder(`phrase-${i}`, THEME.line)}>
         {mark('phrases', THEME.mark, 32, 'fraza')}
         <Box key={`ph-body-${i}`} flexDirection="column" gap={isGui ? 1 : 0} flexGrow={1} flexShrink={1} alignItems="flex-start">
           {canSend
-            ? btn(`phrase-${i}`, p.phrase, 'primary', () => s.sendPhrase(p.phrase), '✓ ' + p.phrase)
+            ? btn(`phrase-${i}`, p.phrase, 'secondary', () => s.sendPhrase(p.phrase), '✓ ' + p.phrase)
             : <Text key={`phrase-text-${i}`} bold color={THEME.title}>{`„${p.phrase}”`}</Text>}
-          <Text color={THEME.body}>{p.effect}</Text>
+          <Text color={THEME.body}>{plainText(p.effect)}</Text>
         </Box>
       </Box>
     )
   }
-  // To complete: the same order as a command form — what it does, the field, the exact text, send
+  // To complete: the same order as a command form — what it does, the field, the exact text, send;
+  // the field and what goes out stand in the column of the words. Nothing is said in the accent of
+  // an error before a word is typed (review 2026-10-15: "uzupełnij miejsce" at rest, three times)
   const fillCard = (p: Phrase, i: number) => {
-    const built = buildPhrase(p, filled[p.phrase] ?? '')
+    const value = filled[p.phrase] ?? ''
+    const built = buildPhrase(p, value)
     const canSend = built.isOk && d.hasRelai
     return (
-      <Box key={`ph-${i}`} flexDirection="column" gap={isGui ? 1 : 0} paddingX={isGui ? 2 : 1} paddingY={isGui ? 1 : 0}
-        {...frame(false)} borderColor={flashBorder(`phrase-${i}`, THEME.line)} backgroundColor={THEME.card}>
-        <Box key={`ph-head-${i}`} flexDirection="row" alignItems="center" gap={isGui ? 2 : 1}>
-          {mark('fill', THEME.accentText, 32, 'fraza do uzupełnienia')}
-          <Box key={`ph-title-${i}`} flexDirection="column" flexGrow={1} flexShrink={1}>
+      <Box key={`ph-${i}`} flexDirection="row" alignItems="flex-start" gap={isGui && !isStacked ? 2 : 1} paddingX={1}
+        {...frame(false)} borderColor={flashBorder(`phrase-${i}`, THEME.line)}>
+        {mark('fill', THEME.accentText, 32, 'fraza do uzupełnienia')}
+        <Box key={`ph-title-${i}`} flexDirection="column" gap={isGui ? 1 : 0} flexGrow={1} flexShrink={1}>
+          <Box key={`ph-words-${i}`} flexDirection="column">
             <Text bold color={THEME.title}>{`„${p.phrase}”`}</Text>
-            <Text color={THEME.body}>{p.effect}</Text>
+            <Text color={THEME.body}>{plainText(p.effect)}</Text>
           </Box>
+          <Input key={`fill-${i}`} label="Uzupełnij: " value={value} placeholder="w miejsce „…”"
+            onInput={(v) => s.setFill(p.phrase, v)}
+            onSubmit={(v) => s.setFill(p.phrase, v)} />
+          {value ? [<Box key={`ph-prev-${i}`} flexDirection="column">{well(`ph-well-${i}`, built.isOk ? built.text : (built.error ?? ''), built.isOk)}</Box>] : []}
+          {canSend ? [<Box key={`ph-act-${i}`} flexDirection="row">{btn(`phrase-${i}`, 'Wyślij do czatu', 'primary', () => s.sendPhrase(built.text), '✓ Wysłano')}</Box>] : []}
         </Box>
-        <Input key={`fill-${i}`} label="Uzupełnij: " value={filled[p.phrase] ?? ''} placeholder="w miejsce „…”"
-          onInput={(v) => s.setFill(p.phrase, v)}
-          onSubmit={(v) => s.setFill(p.phrase, v)} />
-        <Box key={`ph-prev-${i}`} flexDirection="column">{well(`ph-well-${i}`, built.isOk ? built.text : (built.error ?? ''), built.isOk)}</Box>
-        {canSend ? [<Box key={`ph-act-${i}`} flexDirection="row">{btn(`phrase-${i}`, 'Wyślij do czatu', 'primary', () => s.sendPhrase(built.text), '✓ Wysłano')}</Box>] : []}
       </Box>
     )
   }
-  // A command of the sheet: its aliases, what it does, "Formularz" to its form
+  // A command of the sheet: its first form bold, the other forms and what it does dimmer under it,
+  // the words cut at SHEET_WORDS (review 2026-10-15: "te teksty się tak zlewają")
   const commandRow = (r: { command: string, forms: string[], what: string }) => (
-    <Box key={`sheet-${r.command}`} flexDirection="row" alignItems="center" gap={isGui ? 2 : 1}
-      paddingX={1} paddingY={isGui ? 1 : 0} {...frame(false)} borderColor={THEME.line} backgroundColor={THEME.card} hover={{ borderColor: THEME.accent }}>
+    <Box key={`sheet-${r.command}`} flexDirection="row" alignItems="flex-start" gap={isGui ? 2 : 1}
+      paddingX={1} {...frame(false)} borderColor={THEME.line}>
       {icon(r.command, 32)}
       {textAndAct(`sheet-main-${r.command}`,
         <Box key={`sheet-text-${r.command}`} flexDirection="column" flexGrow={1} flexShrink={1}>
-          <Text bold color={THEME.title}>{r.forms.join(' · ')}</Text>
-          <Text color={THEME.body}>{r.what}</Text>
+          <Text bold color={THEME.title}>{r.forms[0] ?? r.command}</Text>
+          {r.forms.length > 1 ? [<Text key={`sheet-forms-${r.command}`} color={THEME.body} dimColor>{'także: ' + r.forms.slice(1).join(' · ')}</Text>] : []}
+          <Text color={THEME.body}>{cut(plainText(r.what), SHEET_WORDS)}</Text>
         </Box>,
         btn(`open-${r.command}`, 'Formularz', 'secondary', () => s.openForm(r.command)))}
     </Box>
@@ -85,14 +101,18 @@ export function helpView(c: Ctx, parts: Parts, s: HelpCtx) {
   const ready = indexed.filter(([p]) => !p.isTemplate).map(([p, i]) => readyCard(p, i))
   const toFill = indexed.filter(([p]) => p.isTemplate).map(([p, i]) => fillCard(p, i))
   const none = hit.commands.length + hit.phrases.length === 0 ? [<Box key="sheet-none"><Text color={THEME.body}>Nic nie pasuje.</Text></Box>] : []
-  return [
+  // Sections of the tab's sheet with a rule between each two (variant 3, Aneks F)
+  return ruled('help', [
     <Box key="help-search" flexDirection="column">
       <Input key="search" label="Szukaj: " value={q} placeholder="np. backup albo status"
         onInput={(v) => s.setQuery(v)} onSubmit={(v) => s.setQuery(v)} />
     </Box>,
     ...(ready.length ? [section('phrases-ready', 'phrases-ready', 'Kliknij frazę — pójdzie do czatu tak, jakbyś ją napisał.', ready)] : []),
     ...(toFill.length ? [section('phrases-fill', 'phrases-fill', 'Wpisz brakującą część, sprawdź podgląd i wyślij.', toFill)] : []),
-    ...(hit.commands.length ? [section('sheet', 'sheet', 'Komendy z docs/KOMENDY.md — „Formularz” otwiera ją w zakładce Komendy.', hit.commands.map(commandRow))] : []),
+    // The sheet folded by default (Łukasz 2026-10-15: "Zwinięta domyślnie"): the commands are the
+    // commands tab's; a search unfolds it by itself
+    ...(hit.commands.length ? [parts.folded('help', 'sheet', `${hit.commands.length} ${plural(hit.commands.length, 'komenda', 'komendy', 'komend')} z docs/KOMENDY.md — „Formularz” otwiera ją w zakładce Komendy`,
+      () => [<Box key="sheet-rows" flexDirection="column" gap={isGui ? 1 : 0}>{hit.commands.map(commandRow)}</Box>], false, 'sheet', q !== '')] : []),
     ...none,
-  ]
+  ])
 }

@@ -39,12 +39,14 @@ export type DocsCtx = {
 const TILES_PER_GROUP = 40
 const TILES = 60
 const TILES_OPEN = 16
-const DIFF_PAGE = 200
+// 60 since WYGLAD_PANELU E3: the desktop's limit is elements, not characters (probe 2026-10-15) — a
+// page of 200 rows with 128 tiles weighed 1 729 of the 1 200 it draws
+const DIFF_PAGE = 60
 
 export function docsView(c: Ctx, p: Parts, dd: DocsData, s: DocsCtx) {
   const { el, Svg, isGui } = c
   const { Box, Text, Button } = el
-  const { btn, flashBorder, section, frame, costBox, line } = p
+  const { btn, flashBorder, section, ruled, frame, costBox, line } = p
   const { isUnfolded, fold } = s
 
   // A shelf of tiles (calibration 2026-10-09, variant A of four), then on the person's words of
@@ -82,10 +84,10 @@ export function docsView(c: Ctx, p: Parts, dd: DocsData, s: DocsCtx) {
         {...frame(isGui || isOpen)} borderColor={flashBorder(`open-${id}`, isHot ? THEME.accent : THEME.line)}
         backgroundColor={isHot ? THEME.cardOn : THEME.card} hover={{ borderColor: THEME.accent }}>
         {docGlyph(`tile-i-${id}`, d, 48)}
-        <Text bold color={d.isChanged ? THEME.accentText : THEME.title} wrap="truncate-middle">{d.name}</Text>
+        <Text bold color={THEME.title} wrap="truncate-middle">{d.name}</Text>
         <Text color={THEME.body}>{`${kb(d.bytes)} · ${edited(d.mtimeMs, dd.now)}`}</Text>
         {lines(`tile-n-${id}`, d)}
-        {btn(`open-${id}`, isOpen ? 'Zamknij' : 'Otwórz', isOpen ? 'primary' : 'secondary', () => openDoc(group, d))}
+        {btn(`open-${id}`, isOpen ? 'Zamknij' : 'Otwórz', 'secondary', () => openDoc(group, d))}
       </Box>
     )
   }
@@ -129,7 +131,7 @@ export function docsView(c: Ctx, p: Parts, dd: DocsData, s: DocsCtx) {
           alt={`folder ${n.name}${isOpen ? ', otwarty' : ''}`} width={Math.round((TREE_PX * 24) / 20)} height={TREE_PX} />
       </Box>] : []}
       <Box key={`dir-t-${n.dir}`} flexShrink={1}>{treeButton(`dir-l-${n.dir}`, `${isOpen ? '▾' : '▸'} ${n.name}${Svg ? '' : '/'}`, n.edited > 0, () => fold(foldKey, byDefault))}</Box>
-      {n.edited ? [<Text key={`dir-n-${n.dir}`} color={THEME.accentText}>{String(n.edited)}</Text>] : []}
+      {n.edited ? [<Text key={`dir-n-${n.dir}`} color={THEME.mark}>{String(n.edited)}</Text>] : []}
     </Box>
   )
   // A document's row; on top of the tree it says its folder too, the one word more it needs there
@@ -212,8 +214,8 @@ export function docsView(c: Ctx, p: Parts, dd: DocsData, s: DocsCtx) {
           </Box>
         </Box>
         <Box key="dw-modes" flexDirection="row" flexWrap="wrap" gap={1}>
-          {btn('dw-diff-btn', 'Zmiany', mode === 'diff' ? 'primary' : 'secondary', () => s.setMode('diff'))}
-          {btn('dw-preview-btn', 'Podgląd', mode === 'preview' ? 'primary' : 'secondary', () => s.setMode('preview'))}
+          {btn('dw-diff-btn', mode === 'diff' ? '● Zmiany' : 'Zmiany', 'secondary', () => s.setMode('diff'))}
+          {btn('dw-preview-btn', mode === 'preview' ? '● Podgląd' : 'Podgląd', 'secondary', () => s.setMode('preview'))}
           {btn('dw-close', 'Zamknij', 'secondary', () => s.closeDoc())}
         </Box>
         <Box key="dw-body" flexDirection="column">{body}</Box>
@@ -237,18 +239,18 @@ export function docsView(c: Ctx, p: Parts, dd: DocsData, s: DocsCtx) {
     const nEdited = dd.edited.length
     const controls = (
       <Box key="docs-controls" flexDirection="row" flexWrap="wrap" gap={1}>
-        {btn('docs-f-changed', 'Zmienione', filter === 'changed' ? 'primary' : 'secondary', () => s.setFilter('changed'))}
-        {btn('docs-f-all', 'Wszystkie', filter === 'all' ? 'primary' : 'secondary', () => s.setFilter('all'))}
+        {btn('docs-f-changed', filter === 'changed' ? '● Zmienione' : 'Zmienione', 'secondary', () => s.setFilter('changed'))}
+        {btn('docs-f-all', filter === 'all' ? '● Wszystkie' : 'Wszystkie', 'secondary', () => s.setFilter('all'))}
         <Text color={THEME.line}>│</Text>
-        {btn('docs-l-tiles', 'Kafle', layout === 'tiles' ? 'primary' : 'secondary', () => s.setLayout('tiles'))}
-        {btn('docs-l-tree', 'Drzewo', layout === 'tree' ? 'primary' : 'secondary', () => s.setLayout('tree'))}
+        {btn('docs-l-tiles', layout === 'tiles' ? '● Kafle' : 'Kafle', 'secondary', () => s.setLayout('tiles'))}
+        {btn('docs-l-tree', layout === 'tree' ? '● Drzewo' : 'Drzewo', 'secondary', () => s.setLayout('tree'))}
       </Box>
     )
     // The edited ones on top, in either layout: the turn's first, then since the last commit
     const top = costBox('docs-turn', [
       line('docs-turn-h', nEdited
         ? `Zmienione · ${nEdited}${nTurn ? ` · ${nTurn} w tej turze` : ''}`
-        : 'Żaden dokument nie ma zmian od ostatniego commita', nEdited ? THEME.accentText : THEME.body, true),
+        : 'Żaden dokument nie ma zmian od ostatniego commita', nEdited ? THEME.mark : THEME.body, true),
       ...(nEdited ? layout === 'tiles' ? shelfRow('edited', dd.edited, pick)
         : [<Box key="docs-turn-rows" flexDirection="column">
           {dd.edited.slice(0, TREE_PER_DIR).map((d) => fileRow('top', 'edited', d, 0, pick, d.path.includes('/') ? d.path.slice(0, d.path.lastIndexOf('/')) : ''))}
@@ -269,7 +271,7 @@ export function docsView(c: Ctx, p: Parts, dd: DocsData, s: DocsCtx) {
           ...(isOpen ? under(g.key) : []),
         ]
       })
-      : [<Box key="docs-tree" flexDirection="column" paddingY={isGui ? 1 : 0} {...frame(isGui)} borderColor={THEME.line} backgroundColor={THEME.card}>
+      : [<Box key="docs-tree" flexDirection="column" {...frame(isGui)} borderColor={THEME.line} backgroundColor={THEME.card}>
         {treeRows(dd.tree, 0)}
       </Box>]
     // The project's root unfolded: its folders, then CLAUDE.md and AGENTS.md; every folder folded
@@ -296,7 +298,8 @@ export function docsView(c: Ctx, p: Parts, dd: DocsData, s: DocsCtx) {
       }
       return out
     }
-    return [
+    // Sections of the tab's sheet with a rule between them (variant 3, Aneks F)
+    return ruled('docs', [
       section('docs', 'docs', 'Zmienione na górze; otwórz dokument, żeby zobaczyć jego zmiany albo treść.', [
         controls,
         ...(dd.gitError ? [line('docs-git', `⚠ ${dd.gitError} — bez liczb linii`, THEME.accentText)] : []),
@@ -304,7 +307,7 @@ export function docsView(c: Ctx, p: Parts, dd: DocsData, s: DocsCtx) {
         ...under('edited'),
       ]),
       <Box key="docs-body" flexDirection="column" gap={isGui ? 1 : 0}>{body}</Box>,
-    ]
+    ])
   }
 
   return draw(dd, s.pick, s.mode, s.filter, s.layout)

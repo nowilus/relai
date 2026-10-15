@@ -27,12 +27,13 @@
 // $.state atoms stay here: the validator reads them only from this file.
 
 import { atom, read, update } from 'claude-code'
-import type { EngineInterface, Register } from 'claude-code'
+import type { EngineInterface, Register, RenderNode } from 'claude-code'
 import { join } from './fmt'
 import type { PanelView } from '../types'
 import { formOf } from './core/commands.mjs'
 import { BAR_LOOK, THEME } from './core/theme.mjs'
 import { barRule } from './bar-card'
+import { retone } from './skin'
 import { compactRecord, fileName, isFileOf, mergeRecords, parseRecords, recordKey, serializeRecords, stepRecord } from './core/measure.mjs'
 import type { MeasureRecord } from './core/measure.mjs'
 import { PRICING_PAGE, pricingCard } from './core/pricing.mjs'
@@ -59,7 +60,7 @@ import type { Shelf } from './tab-data'
 import { answerCard } from './card-answer'
 import type { Acts } from './card-answer'
 import { band } from './band'
-import { failure, isPassing, parts, tabOf } from './pane-parts'
+import { DRAW_LIMIT, failure, isPassing, parts, tabOf, treeWeight } from './pane-parts'
 import type { Ctx } from './pane-parts'
 import { costsView } from './pane-costs'
 import { mapView } from './pane-map'
@@ -905,18 +906,22 @@ export const register: Register = (on) => {
         choose: (t) => { fold('now:focus', false); void chooseFocus($, t) },
       }) : null
     const isSentInDrawer = tab === 'commands' && picked !== '' && formOf(picked) !== undefined
-    return (
-      <Box key="relai-pane" flexDirection="column" gap={1} paddingX={isGui ? 1 : 0}>
+    const paneOf = (isFilled: boolean) => (
+      <Box key="relai-pane" flexDirection="column" gap={1}>
         <Box key="pane-head" flexDirection="row" flexWrap="wrap" alignItems="center" columnGap={2}>
           {heading('hero', THEME.accent)}
           {p.tabs(tab, choose)}
         </Box>
         {d.hasRelai ? [] : [<Box key="no-relai"><Text color={THEME.mark}>{NO_RELAI}</Text></Box>]}
-        {top ? [top] : []}
-        <Box key="body" flexDirection="column" gap={1}>{body}</Box>
+        {p.sheet('pane-sheet', p.ruled('pane', [...(top ? [top] : []), <Box key="body" flexDirection="column" gap={1}>{body}</Box>]), isFilled)}
         {sentLine && !isSentInDrawer ? [sentLine] : []}
       </Box>
-    )
+    ) as RenderNode
+    // Both appearances of the app (WYGLAD_PANELU E3): texts and frames in theme keys, drawings two-tone.
+    // The filled sheet draws its tab twice (P-044); a tab so heavy that the two would pass what the
+    // desktop draws (DRAW_LIMIT, P-023 pkt 7) stands in the sheet's frame alone, never vanishes.
+    const whole = retone(paneOf(true)) as RenderNode
+    return treeWeight(whole) <= DRAW_LIMIT ? whole : retone(paneOf(false)) as RenderNode
   }).catch(async ($, e, next) => {
     // A drawing that threw or overran its budget: the pane says so and keeps its tabs, so the
     // person can leave the tab, instead of the engine closing the pane without a word (Z3)
@@ -927,12 +932,12 @@ export const register: Register = (on) => {
     const tab = tabOf(await read($, view).catch(() => 'commands'))
     const p = parts({ el, Svg: null, isGui: e.surface !== 'terminal', width: Math.max(30, e.props.bodyColumns), flashed: '', last: '', flash: () => undefined,
       isUnfolded: (_key, byDefault) => byDefault, fold: () => undefined })
-    return (
+    return retone(
       <Box key="relai-pane" flexDirection="column" gap={1}>
         {p.tabs(tab, (v) => { bump(); void update($, view, () => v) })}
         <Box key="pane-error"><Text color={THEME.accentText}>{`⚠ Panel nie narysował tej zakładki: ${why}. Wybierz inną zakładkę albo otwórz /relai-panel ponownie.`}</Text></Box>
-      </Box>
-    )
+      </Box>,
+    ) as RenderNode
   })
 
   // Each request, main loop and subagents, to the collector, tagged with the stage in progress and

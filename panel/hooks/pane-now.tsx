@@ -37,12 +37,14 @@ function focusRow(c: Ctx, p: Parts, n: NowData, f: FocusUi) {
       {n.choices.map((ch: FocusChoice) => p.btn(`focus-${ch.key}`, ch.label, 'secondary', () => f.choose(ch.target)))}
     </Box>,
   ] : []
+  // Words and button as in a command row (p.textAndAct): the button right, in the column of "Otwórz"
   return [
-    <Box key="now-focus" flexDirection="row" alignItems="center" columnGap={2}>
-      <Box key="now-focus-words" flexGrow={1} flexShrink={1}>
-        <Text color={w.isAsking ? THEME.accentText : THEME.body}>{`Ta sesja: ${w.label} — ${how}${w.mention ? ' · ' + w.mention : ''}`}</Text>
-      </Box>
-      {p.btn('now-focus-change', f.isOpen ? 'Zwiń' : 'Zmień', 'secondary', f.toggle)}
+    <Box key="now-focus" flexDirection="row">
+      {p.textAndAct('now-focus-row',
+        <Box key="now-focus-words" flexGrow={1} flexShrink={1}>
+          <Text color={w.isAsking ? THEME.accentText : THEME.body}>{`Ta sesja: ${w.label} — ${how}${w.mention ? ' · ' + w.mention : ''}`}</Text>
+        </Box>,
+        p.btn('now-focus-change', f.isOpen ? 'Zwiń' : 'Zmień', 'secondary', f.toggle))}
     </Box>,
     ...choices,
   ]
@@ -67,8 +69,12 @@ export function nowBar(c: Ctx, p: Parts, n: NowData, start: (() => void) | null,
     : runs ? [<Box key="now-segs" flexDirection="row" columnGap={runs.gap}>{runs.runs.map((r, i) => <Text key={`now-seg-${i}`} color={r.color}>{r.text}</Text>)}</Box>] : []
   // "Start etapu…" takes no flash: the card replaces the bar at once, a flash would draw twice unseen (Z3)
   return (
-    <Box key="now" flexDirection="row" flexWrap="wrap" alignItems="center" columnGap={2} paddingX={isGui ? 2 : 1}
-      borderStyle="round" borderColor={THEME.mark} backgroundColor={THEME.cardFeatured}>
+    // WYGLAD_PANELU E3 (variant 3): on a desktop "Teraz" is the first section of the sheet, no card of
+    // its own, a rule under it (register.tsx); the terminal keeps its framed card. On a desktop its
+    // buttons stand right in the column of the commands' "Otwórz": the same margin, each on its row
+    // (Łukasz, live 2026-10-15: "te przyciski się nie wyrównują")
+    <Box key="now" flexDirection={isGui ? 'column' : 'row'} flexWrap="wrap" alignItems={isGui ? 'stretch' : 'center'} columnGap={2} paddingX={1}
+      {...(isGui ? {} : { borderStyle: 'round', borderColor: THEME.mark, backgroundColor: THEME.cardFeatured })}>
       <Box key="now-text" flexDirection="column" flexGrow={1} flexShrink={1}>
         {title ? [
           <Box key="now-l1" flexDirection="row" flexWrap="wrap" alignItems="center" columnGap={2}>
@@ -78,10 +84,14 @@ export function nowBar(c: Ctx, p: Parts, n: NowData, start: (() => void) | null,
             {pr.total ? [<Text key="now-figure" bold color={BAND.progress.color}>{`${pr.done}/${pr.total}`}</Text>] : []}
           </Box>,
         ] : []}
-        <Box key="now-l2"><Text color={THEME.body}>{words}</Text></Box>
+        {isGui && start
+          ? <Box key="now-l2" flexDirection="row">{p.textAndAct('now-l2-row',
+              <Box key="now-l2-words" flexGrow={1} flexShrink={1}><Text color={THEME.body}>{words}</Text></Box>,
+              p.btn('now-start', 'Start etapu…', 'primary', start))}</Box>
+          : <Box key="now-l2"><Text color={THEME.body}>{words}</Text></Box>}
         {focusRow(c, p, n, f)}
       </Box>
-      {start ? [<Box key="now-act" flexShrink={0}>{p.btn('now-start', 'Start etapu…', 'primary', start)}</Box>] : []}
+      {start && !isGui ? [<Box key="now-act" flexShrink={0}>{p.btn('now-start', 'Start etapu…', 'primary', start)}</Box>] : []}
     </Box>
   )
 }

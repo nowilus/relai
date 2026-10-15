@@ -261,3 +261,70 @@ test('every row of a diff reads on its background (WCAG AA, 4.5:1)', () => {
   const bad = { ...theme.DIFF, addText: theme.mix(theme.DIFF.addBg, '#ffffff', 0.1) };
   assert.ok(diffPairs(bad, theme.THEME.cardOn).some((l) => l.startsWith('add:')), 'planted defect');
 });
+
+// ---------- WYGLAD_PANELU E3 (Aneks E, P-044): the pane in both appearances of the app ----------
+// Text and frames go by theme keys, which the desktop paints by the app's appearance; the sheet and
+// every drawing (Svg) carry the light palette under `@media (prefers-color-scheme: light)`.
+
+const TONED = Object.keys(theme.TONE_ROLES);
+
+function lowKeyContrast(roles, mode, bg, min = 4.5) {
+  return roles.map((r) => [r, theme.KEY_SAMPLE[mode][theme.TONE_ROLES[r]] ?? r])
+    .filter(([, fg]) => contrast(fg, bg) < min).map(([r, fg]) => `${mode} ${r}: ${contrast(fg, bg).toFixed(2)}`);
+}
+
+test('every text key reads on the sheet of both appearances (4.5:1)', () => {
+  for (const mode of ['dark', 'light']) {
+    assert.deepEqual(lowKeyContrast(TONED, mode, theme.SHEET[mode].sheet), []);
+    // the diff's rows: their text key on the dimmed backgrounds
+    for (const bg of ['diffAddedDimmed', 'diffRemovedDimmed']) {
+      const fill = theme.KEY_SAMPLE[mode][bg];
+      for (const k of ['text', 'inactive']) assert.ok(contrast(theme.KEY_SAMPLE[mode][k], fill) >= 4.5, `${mode} ${k} on ${bg}`);
+    }
+  }
+});
+
+test('the contrast check catches a key too weak for text (planted: claude)', () => {
+  const planted = { ...theme.TONE_ROLES, planted: 'claude' };
+  const low = Object.keys(planted).map((r) => [r, theme.KEY_SAMPLE.light[planted[r]]])
+    .filter(([, fg]) => contrast(fg, theme.SHEET.light.sheet) < 4.5).map(([r]) => r);
+  assert.deepEqual(low, ['planted']);
+});
+
+test('no raw color of the pane is left without a decision: text, frame, fill, drawing', () => {
+  const raw = [...Object.values(theme.THEME), ...Object.values(theme.DIFF)];
+  const undecided = (map) => raw.filter((c) => !(c in map));
+  assert.deepEqual(undecided(theme.TONE_OF), [], 'a text color with no key');
+  assert.deepEqual(undecided(theme.EDGE_OF), [], 'a frame color with no key');
+  assert.deepEqual(undecided(theme.FILL_OF), [], 'a fill with no decision');
+  assert.deepEqual(undecided(theme.SVG_LIGHT), [], 'a drawing color with no light value');
+  for (const v of Object.values(theme.TONE_OF)) assert.match(v, /^[a-zA-Z]+$/, `${v} is a theme key`);
+});
+
+test('twoTone: a drawing in the dark palette gets the light one under the media query', () => {
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10"><rect fill="${theme.THEME.card}"/><text fill="${theme.THEME.title}">a</text></svg>`;
+  const out = theme.twoTone(svg);
+  assert.match(out, /@media \(prefers-color-scheme: light\)/);
+  assert.ok(out.includes(`[fill="${theme.THEME.card}"]{fill:${theme.SVG_LIGHT[theme.THEME.card]}}`));
+  assert.ok(out.includes(`[fill="${theme.THEME.title}"]`));
+  assert.ok(out.startsWith('<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10"><style>'));
+  // a drawing that already carries both palettes (the bars) stays as it is; one with no color of ours too
+  const both = theme.stepCss ? `<svg><style>${theme.stepCss()}</style></svg>` : '';
+  assert.equal(theme.twoTone(both), both);
+  const foreign = '<svg><rect fill="#123456"/></svg>';
+  assert.equal(theme.twoTone(foreign), foreign);
+});
+
+test('the sheet: fill and frame in one drawing, top and end, both palettes (Aneks F, P-044)', () => {
+  for (const svg of [theme.sheetTopSvg(), theme.sheetEndSvg()]) {
+    assert.match(svg, /width="100%" height="100%"/); // the slot's width, never a fixed 1000 px (the seam)
+    for (const mode of ['dark', 'light']) {
+      assert.ok(svg.includes(theme.SHEET[mode].sheet) && svg.includes(theme.SHEET[mode].edge), mode);
+    }
+    assert.match(svg, /@media \(prefers-color-scheme: light\)/);
+    assert.match(svg, /stroke-width:1px/);
+  }
+  // the top hides its bottom edge below the drawing, the end hides its top edge above it
+  assert.match(theme.sheetTopSvg(), /height:calc\(100% \+ \d+px\)/);
+  assert.match(theme.sheetEndSvg(), /y:-\d+px/);
+});

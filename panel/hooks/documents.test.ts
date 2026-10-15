@@ -1,7 +1,7 @@
 import { describe, expect, mock, test, type TestBody } from 'claude-code/testing'
 import type { On, RenderElement, RenderNode, TurnStepResult } from 'claude-code'
 import { NUMSTAT_ARGV } from './core/documents.mjs'
-import { DIFF as DIFF_LOOK } from './core/theme.mjs'
+import { DIFF as DIFF_LOOK, FILL_OF } from './core/theme.mjs'
 
 // The documents tab of the RelAI panel (plan PANEL_CLAUDE, E6, Aneks E): a shelf of tiles, the
 // documents the turn's writing tools named first, line counts since the last commit, a chosen
@@ -189,8 +189,8 @@ describe('the documents tab', () => {
     // Row by row as code review draws it: the hunk, a context row, the removed and the added line
     const rows = ((await ui.find({ key: 'dw-diff' }))?.children ?? []) as RenderElement[]
     expect(rows.map((r) => textOf(r))).toEqual(['@@ -1,3 +1,3 @@', '   1    1 # STATE', '   2     −Stan: E5', '        2+Stan: E6'])
-    expect(props(rows[2]!).backgroundColor).toBe(DIFF_LOOK.delBg)
-    expect(props(rows[3]!).backgroundColor).toBe(DIFF_LOOK.addBg)
+    expect(props(rows[2]!).backgroundColor).toBe(FILL_OF[DIFF_LOOK.delBg]) // a key that follows the app (E3)
+    expect(props(rows[3]!).backgroundColor).toBe(FILL_OF[DIFF_LOOK.addBg])
     expect(props(rows[1]!).backgroundColor).toBeUndefined()
     await ui.press({ key: 'dw-preview-btn' })
     const md = [...walk(await ui.find({ key: 'doc-window' }))].find((n) => n.type === 'Markdown')

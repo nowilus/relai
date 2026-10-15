@@ -4,6 +4,9 @@ import { serializeRecords, stepRecord } from './core/measure.mjs'
 import type { MeasureRecord } from './core/measure.mjs'
 import { priceRecord } from './core/pricing.mjs'
 import { HEADING_ART } from './core/headings.mjs'
+import { RULE, THEME } from './core/theme.mjs'
+import { visible } from './skin'
+import { DRAW_LIMIT, treeWeight } from './pane-parts'
 import { usd } from './fmt'
 
 // The map tab of the RelAI panel (plan PANEL_CLAUDE, E4): plans, stages, branches, crew runs with
@@ -115,6 +118,16 @@ function pane(columns: number) {
   }
 }
 
+// A drawing's full ground in another color than the sheet's is a box on it (Łukasz, light
+// 2026-10-15: "te dziwne podświetlenia"); the sheet's own color, or none, is no box
+const GROUND = 'width="100%" height="100%" fill="'
+const groundsOf = (tree: RenderNode | undefined) => [...walk(tree)].filter((n) => n.type === 'Svg').flatMap((n) => {
+  const src = String((n.props as { source?: string }).source)
+  const out: string[] = []
+  for (let at = src.indexOf(GROUND); at >= 0; at = src.indexOf(GROUND, at + 1)) out.push(src.slice(at + GROUND.length, at + GROUND.length + 7))
+  return out.filter((c) => c !== THEME.card).map((c) => `${String((n.props as { alt?: string }).alt)}: ${c}`)
+})
+
 function* walk(node: RenderNode | undefined): Generator<RenderElement> {
   if (!node || typeof node === 'string') return
   yield node
@@ -220,6 +233,22 @@ describe('the map tab', () => {
       }
     })
   }
+
+  test('every fold of the map unfolded: no drawing lays a ground of its own (light 2026-10-15)', async ($, on) => {
+    world(on, BASE)
+    await start($)
+    const ui = await openMap($, 'desktop')
+    for (let round = 0; round < 4; round++) {
+      const folds = [...walk(await ui.drawn())].filter((n) => n.type === 'Button' && String((n.props as { key?: string }).key ?? '').startsWith('fold-')
+        && !String((n.props as { key?: string }).key).endsWith('~u') && /Rozwiń|Szczegóły/.test(JSON.stringify(n)))
+      if (!folds.length) break
+      for (const f of folds) await ui.press({ key: String((f.props as { key?: string }).key) })
+    }
+    const tree = await ui.drawn()
+    expect([...walk(tree)].some((n) => n.type === 'Svg' && String((n.props as { alt?: string }).alt).includes('E1'))).toBe(true) // the strip drew
+    expect(groundsOf(tree)).toEqual([])
+    await ui.unmount()
+  })
 
   test('a branch hangs on the stage it came from', async ($, on) => {
     world(on, BASE)
@@ -329,12 +358,14 @@ function tagged(stages: (string | null | undefined)[]): MeasureRecord[] {
 const sumOf = (records: MeasureRecord[]) => records.reduce((s, r) => s + (priceRecord(r).usd ?? 0), 0)
 const focusOn = (f: Record<string, string>) => ({ [FOCUS]: JSON.stringify({ ...f, source: 'manual', at: 1 }) })
 const keyOf = (node: RenderNode | undefined) => (node && typeof node !== 'string' ? String((node.props as { key?: string } | undefined)?.key ?? '') : '')
-const firstOfBody = async (ui: Awaited<ReturnType<typeof openMap>>) => keyOf(((await ui.find({ key: 'body' })) as { children?: RenderNode[] } | undefined)?.children?.[0])
+// The tab's sections stand in one ruled column since WYGLAD_PANELU E3 (variant 3, Aneks F)
+const firstOfBody = async (ui: Awaited<ReturnType<typeof openMap>>) => keyOf(((await ui.find({ key: 'map-ruled' })) as { children?: RenderNode[] } | undefined)?.children?.[0])
 
 // What a drawing weighs (the instrument of redraw.test.ts, verbatim) and its budget there
-const TREE_BUDGET = 200_000
+const TREE_BUDGET = DRAW_LIMIT + 1 // what the desktop draws (pane-parts.tsx, probe 2026-10-15)
+// The weight the desktop's limit counts (treeWeight, measured 2026-10-15), not characters
 const weight = (node: RenderNode | undefined) => ({
-  chars: JSON.stringify(node ?? null).length,
+  chars: treeWeight(node),
   svgs: [...walk(node)].filter((x) => x.type === 'Svg').length,
 })
 
@@ -427,15 +458,22 @@ describe('the map tab, focused (Z14)', () => {
     const ui = await openMap($, 'desktop')
     const folded = weight(await ui.drawn())
     // The Svg of a folded map: the pane's title, the five headings, the packets' bar and the cost.
-    // Measured 2026-10-11: 43 755 znaków, 7 Svg — "Ta sesja" still a word, its Kalam art not
+    // Measured 2026-10-11: 43 755 jednostek, 7 Svg — "Ta sesja" still a word, its Kalam art not
     // generated yet (+1 Svg once it is); under the 53 k the desktop was seen drawing (P-023 pkt 7)
     const headings = ['hero', 'map-session', 'map-active', 'map-crew', 'map-outside', 'map-archive'].filter((k) => k in HEADING_ART).length
-    expect(folded.svgs).toBe(headings + 2)
-    expect(`${folded.chars} znaków, ${folded.svgs} Svg`).toBe(`${Math.min(folded.chars, 53_000)} znaków, ${headings + 2} Svg`)
+    // WYGLAD_PANELU E3 (variant 3, Aneks F): a fading rule between each two of the six sections
+    const rules = [...walk(visible(await ui.drawn()) as RenderNode)].filter((x) => x.type === 'Svg' && (x.props as { alt?: string }).alt === RULE.alt).length
+    expect(rules).toBe(5)
+    // Aneks F: every tab stands on the filled sheet — its drawings (top, middles, end) and the hidden
+    // copy of the tab, whose drawings are hollow; the Svg the person sees are counted apart
+    const seen = [...walk(visible(await ui.drawn()) as RenderNode)].filter((x) => x.type === 'Svg' && !String((x.props as { alt?: string }).alt).startsWith('kartka panelu')).length
+    expect(seen).toBe(headings + 2 + rules)
+    // under what the desktop draws, measured 2026-10-15 (DRAW_LIMIT; the 53 k of 2026-10-11 was only seen)
+    expect(`${folded.chars} jednostek`).toBe(`${Math.min(folded.chars, DRAW_LIMIT)} jednostek`)
     await ui.press({ key: 'fold-map:archive' })
     const unfolded = weight(await ui.drawn())
     expect(unfolded.chars).toBeGreaterThan(folded.chars) // positive control: the archive drew
-    expect(`${unfolded.chars} znaków, ${unfolded.svgs} Svg`).toBe(`${Math.min(unfolded.chars, TREE_BUDGET - 1)} znaków, ${unfolded.svgs} Svg`)
+    expect(`${unfolded.chars} jednostek, ${unfolded.svgs} Svg`).toBe(`${Math.min(unfolded.chars, TREE_BUDGET - 1)} jednostek, ${unfolded.svgs} Svg`)
     await ui.unmount()
   })
 })
