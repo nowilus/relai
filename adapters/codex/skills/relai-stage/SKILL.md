@@ -92,11 +92,23 @@ znacznik dotyczy startu, nie tych rozstrzygnięć. Znacznik nie jest zgodą na n
 jednego etapu.
 
 Bez znacznika — i w czterech przypadkach powyżej — pokaż użytkownikowi kartę startu
-i **zatrzymaj się**:
+i **zatrzymaj się**.
 
+Kartę startu piszesz pełnym tekstem — pełnymi zdaniami i z wszystkimi polami poniżej — także wtedy,
+gdy sesja ma włączony styl skracania odpowiedzi (np. tryb „caveman”); styl skracania obowiązuje poza
+kartą. Karta jest jedynym miejscem, w którym człowiek widzi etap, zanim cokolwiek powstanie.
+
+- **Gdzie jesteśmy** — idzie przed resztą karty. Jeśli w tej sesji
+  nie padł jeszcze akapit „gdzie jesteśmy” z rytuału startu (komenda bywa pierwszym promptem sesji,
+  a skill `relai-core` wtedy się nie wyzwala), wykonujesz rytuał teraz: czytasz `docs/STATE.md`,
+  sekcję „Stan otwartych ryzyk” i ostatni wpis `docs/DZIENNIK.md`, i piszesz akapit (3–5 zdań):
+  co działa, nad czym pracujemy, co jest otwarte. Akapit już padł w tej sesji → nie powtarzasz go.
 - **Plan** — temat + status planu.
 - **Etap** — `EN z EM` + tytuł.
-- **Model wykonawczy** — z `STATUS.md`, w trzech przypadkach:
+- **Etapy planu** — tabela z `STATUS.md`: etap, nazwa, status (`ZREALIZOWANY <data>`,
+  `GOTOWY DO STARTU`, `OCZEKUJE`…), żeby było widać, co jest za etapem i co przed nim.
+- **Model wykonawczy** — z `STATUS.md`, razem z zalecanym `/effort` z linii kontroli modelu
+  w prompcie etapu, gdy prompt go podaje; w trzech przypadkach:
   - **zgodny** — jedno zdanie, że model sesji odpowiada wymaganemu;
   - **inny niż wymagany** — napisz to wprost jako pierwszą rzecz karty startu i zaproponuj przełączenie
     przed startem;
@@ -113,7 +125,9 @@ i **zatrzymaj się**:
   wyprowadzoną z tematu i numeru etapu i powiedz jednym zdaniem, że prompt jej nie niesie.
 - **Czego dotyczy** — 2–4 zdania z sekcji „Zakres etapu" promptu, własnymi słowami. Nie przepisujesz
   całej sekcji.
-- **Weryfikacja** — liczba punktów do przejścia i jednym zdaniem, co jest najtwardsze.
+- **Weryfikacja** — **wszystkie punkty** sekcji Weryfikacja promptu jako lista numerowana, każdy
+  jednym wierszem własnymi słowami, a pod listą jedno zdanie, który punkt jest najtwardszy. Sama
+  liczba punktów nie wystarcza.
 - **Rekomendacja subagenta** — jedno zdanie, tylko gdy kryteria z sekcji niżej są spełnione.
 - **Pytanie** — „Zaczynamy?"
 

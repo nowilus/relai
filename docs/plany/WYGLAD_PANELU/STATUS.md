@@ -1,6 +1,6 @@
 # STATUS — plan WYGLAD_PANELU
 
-Plan: [PLAN.html](PLAN.html) · Utworzony: 2026-10-14 · Status planu: **ZAAKCEPTOWANY 2026-10-14 (Aneksy A–B)** · Model wykonawczy etapów: Opus 5.5, świeże sesje (ustawienie projektu, D-85; ustalony w Claude Code)
+Plan: [PLAN.html](PLAN.html) · Utworzony: 2026-10-14 · Status planu: **ZAAKCEPTOWANY 2026-10-14 (Aneksy A–C)** · Model wykonawczy etapów: Opus 5.5, świeże sesje (ustawienie projektu, D-85; ustalony w Claude Code)
 
 Makieta kalibracyjna paska postępu: [MAKIETA_PASEK_POSTEPU.html](MAKIETA_PASEK_POSTEPU.html) (wariant 1, kierunek przyjęty 2026-10-14).
 
@@ -21,3 +21,4 @@ Makieta kalibracyjna paska postępu: [MAKIETA_PASEK_POSTEPU.html](MAKIETA_PASEK_
 - 2026-10-14 — E1 ZREALIZOWANY: paski w kluczach motywu i `Svg` w dwóch paletach (wariant 3b, linia L2 tylko między paskami RelAI, wszystkie przyciski `primary`), w repo bez wydania (wydanie w E4); E2 gotowy do startu.
 - 2026-10-15 — E2 rozpoczęty
 - 2026-10-15 — E2 ZREALIZOWANY: pasek postępu jako lista kroków (wygląd A, jasny „J3 miękki”, zwijanie tekstem, stan za nazwą, zrobione od lewej, kręcenie tylko przy pracy modelu; akceptacja „Akceptuje”), w repo bez wydania (wydanie w E4); E3 gotowy do startu, wygenerowano PROMPT_ETAP_3.
+- 2026-10-15 — Aneks C przyjęty („Tak, ale przed E3”): pełna karta startu `/relai-stage` (akapit „gdzie jesteśmy”, tabela etapów, lista punktów weryfikacji, model i effort, pełny tekst) — poprawka przed E3, wydanie w E4.

@@ -241,7 +241,7 @@ footer .pis{font-family:var(--pis); font-size:1.2rem; color:var(--glina); margin
     <a href="#s5">Jak działa</a><a href="#s6">Etapy</a><a href="#s7">Ryzyka</a><a href="#s8">Brzegowe</a>
     <a href="#s9">Decyzje</a><a href="#s10">Aneksy</a>
   </nav>
-  <span class="stan">ZAAKCEPTOWANY 2026-10-14 (Aneksy A–B)</span>
+  <span class="stan">ZAAKCEPTOWANY 2026-10-14 (Aneksy A–C)</span>
 </div>
 
 <header class="szyld">
@@ -253,7 +253,7 @@ footer .pis{font-family:var(--pis); font-size:1.2rem; color:var(--glina); margin
   </svg>
   <p class="podtytul">Paski nad promptem w kolorach narzędzia, panel RelAI w dwóch szatach — ciemnej i jasnej — dostrojonych do motywu, i pasek postępu jako lista kroków.</p>
   <div class="metki">
-    <span class="metka akc"><i></i>status: <b>ZAAKCEPTOWANY 2026-10-14 (Aneksy A–B)</b></span>
+    <span class="metka akc"><i></i>status: <b>ZAAKCEPTOWANY 2026-10-14 (Aneksy A–C)</b></span>
     <span class="metka">etapów: <b>4</b></span>
     <span class="metka">pracochłonność: <b>6–9 sesji</b> <span class="et et-s">SZACUNEK</span></span>
     <span class="metka">model etapów: <b>Opus 5.5 w Claude Code</b></span>
@@ -471,6 +471,19 @@ footer .pis{font-family:var(--pis); font-size:1.2rem; color:var(--glina); margin
 <li><b>Znaczniki w <code>Svg</code></b> (segmenty, baterie, spinner) niosą obie palety w CSS: wartość ciemna domyślnie, jasna w <code>@media (prefers-color-scheme: light)</code>. Zastępuje to w sekcji 5 „rozwiązywanie według odczytanego motywu”, a w prompcie E1 odczyt motywu przy <code>session.start</code> i na <code>config.set</code>: pasek nie czyta motywu, przerysowanie bez restartu robi sama ramka. Przypadek brzegowy „motyw nierozpoznany” dla pasków znika — nierozpoznany schemat daje paletę ciemną z CSS.</li>
 <li><b>Przełącznika wyglądu dla pasków nie ma</b>; wariant awaryjny B (własne palety) nie jest potrzebny.</li>
 <li><b>Ograniczenie dla E3:</b> kolory panelu w palecie „Warsztat” są surowe w <code>Box</code>/<code>Text</code> i nie mają drogi do wyglądu aplikacji (nagłówki odręczne w <code>Svg</code> ją mają). Sposób wyboru szaty panelu — przełącznik, klucze motywu w tłach albo inny — rozstrzyga człowiek na starcie E3; prompt E3 niesie to pytanie.</li>
+</ol></div></div></div>
+</div>
+
+<div class="notka">
+  <button type="button" aria-expanded="false" aria-controls="aC"><svg class="spinacz" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="tyt">Aneks C — 2026-10-15: pełna karta startu <code>/relai-stage</code> przed E3</span><span class="prawo"><span class="naklejka n-tak">przed E3</span></span></button>
+  <div class="rulon" id="aC"><div><div class="tresc">
+<p><b>Przyczyna.</b> Łukasz zauważył, że karty startu ubożeją. Pomiar 2026-10-15 na transkryptach od 2026-09-15: spis karty w <code>relai-stage.md</code> się nie zmienił; akapit „gdzie jesteśmy” pochodzi z rytuału startu w skillu <code>relai-core</code>, który nie wyzwala się, gdy <code>/relai-stage</code> jest pierwszym promptem sesji (Zasada aktywna 8); globalny styl skracania (<code>caveman</code>) ściska kartę, bo nic jej przed nim nie chroni. Łukasz przyjął 2026-10-15 („Tak, ale przed E3”):</p>
+<ol>
+<li><b>Krok 4 komendy</b> <code>adapters/claude-code/commands/relai-stage.md</code> (kopia Codeksa przez generator adapterów) — karta startu ma obowiązkowo: akapit „gdzie jesteśmy”, gdy rytuał startu nie padł w tej sesji (komenda czyta wtedy sama STATE, ryzyka i ostatni wpis dziennika); tabelę etapów planu ze statusami; pełną listę punktów weryfikacji (treść, nie liczba); model i zalecany <code>/effort</code> z promptu.</li>
+<li><b>Karta startu pełnym tekstem</b>, niezależnie od stylu skracania sesji.</li>
+<li><b>Dowód:</b> kontrola treści komendy w teście (czerwona na kodzie sprzed zmiany) i pomiar na żywo — karta startu E3 jest pierwszą kartą po poprawce; „przed” to transkrypt z 2026-10-15.</li>
+<li><b>Kolejność:</b> poprawka idzie przed E3, poza tabelą etapów; E3 zostaje <code>GOTOWY DO STARTU</code>. Wydanie razem z E4 — do trzech pluginów panelu dochodzi plugin <code>relai</code> (minor).</li>
+<li><b>Koszt:</b> pół sesji <span class="et et-s">SZACUNEK</span>.</li>
 </ol></div></div></div>
 </div>
 </section>

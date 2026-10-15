@@ -1508,3 +1508,48 @@ Wykonawca: Opus 5.5 (Claude Code, aplikacja desktopowa). Etap uruchomiony `/rela
 **Do zrobienia przez człowieka:** —
 
 Autor: RelAI (Opus 5.5) + Lukasz
+
+### 2026-10-15 — WYGLAD_PANELU Aneks C: pełna karta startu `/relai-stage` (przed E3)
+
+Wykonawca: Opus 5.5 (Claude Code, aplikacja desktopowa).
+
+**Zrobione:**
+
+- Zgłoszenie Łukasza przy starcie E3: „przestałeś wykonywać […] rytuału wstępu, nie robisz mi
+  całego podsumowania […] nie piszesz o tym czego dotyczy, rekomendowany model, jakie etapy, co
+  jest zrealizowane, nie wypisujesz mi weryfikacji”. Diagnoza na pierwszych kartach startu
+  ze wszystkich transkryptów sesji z `/relai-stage` od 2026-09-15 (skrypt w `%TEMP%`): spis karty
+  w `relai-stage.md` bez zmian od 1.9.0 (AUDYT_SKILLI zmienił tylko nazewnictwo), Claude Code ten
+  sam (2.1.295); karta z 08:42 (sesja `69bf7e9c`) miała akapit „gdzie jesteśmy”, karta z tej sesji
+  nie — rytuał startu mieszka w skillu `relai-core`, który nie wyzwala się, gdy komenda jest
+  pierwszym promptem (Zasada aktywna 8), a globalny hook `caveman` (od 2026-05) ściska kartę, bo
+  spis jej nie chroni. Spis nigdy nie wymagał listy punktów weryfikacji ani tabeli etapów.
+- Aneks C przyjęty słowami Łukasza: „Tak, ale przed E3” — `PLAN.html` sekcja 10, `STATUS.md`.
+- Krok 4 `adapters/claude-code/commands/relai-stage.md`: karta pełnym tekstem niezależnie od stylu
+  skracania; akapit „gdzie jesteśmy” z rytuałem wykonanym przez komendę, gdy w sesji nie padł;
+  tabela etapów ze statusami; model z zalecanym `/effort`; wszystkie punkty weryfikacji listą.
+  Kopia Codeksa przez `node adapters/codex/generate-skills.js`.
+- Test `core/process/tests/stage-card.test.js` (5 kontroli × 2 kopie).
+
+**Zweryfikowane:**
+
+- Test na HEAD (`git worktree` w `%TEMP%`, ten sam plik testu) i po zmianie w jednym przebiegu:
+  HEAD 0/10, po zmianie 10/10; sekcja Kroku 4 znaleziona w obu (kontrola instrumentu).
+- `generate-skills.js --verify` przed generacją: rozjazd 1 pliku (`relai-stage`), po generacji spójne.
+- Rdzeń `node --test core/{guardrails,panel,process}/tests/*.test.js`: 396/396 (386 + 10 nowych);
+  `adapters/codex/tests`: 15/15; `node core/tools/validate-adapters.js`: kod 0.
+- Zainstalowany `relai` 3.1.0: oryginał komendy (zgodny z tagiem `v3.1.0` po CRLF → LF) odłożony
+  do `.claude/relai/work/WYGLAD_PANELU/ANEKS_C/`, nowa komenda podłożona (`cmp` zgodny). Pomiar na
+  żywo — karta startu E3 w świeżej sesji — przed nami.
+
+**Świadomie odłożone:**
+
+- Karta startu w regule Cursora (`adapters/cursor/rules/relai-planning.mdc`, sekcja 3, punkt 1)
+  ma tę samą krótką formę — poza brzmieniem Aneksu C; do wydania w E4 albo osobnej odnogi.
+- Wydanie (`relai` minor) — w E4 razem z trzema pluginami panelu.
+
+**Do zrobienia przez człowieka:**
+
+- Start E3 w świeżej sesji (`/relai-stage`) — to pomiar na żywo nowej karty.
+
+Autor: RelAI (Opus 5.5) + Lukasz
