@@ -1,6 +1,6 @@
 # DESIGN — panel RelAI i paski nad promptem (Claude Code, aplikacja desktopowa)
 
-Wersja: **1.1** · Data: 2026-10-15 · Powstał w planie WYGLAD_PANELU, E3 (Aneks F), na prośbę
+Wersja: **1.2** · Data: 2026-10-15 (1.2: odbiór E4 — budżet znaków, rysunek bez tła) · Powstał w planie WYGLAD_PANELU, E3 (Aneks F), na prośbę
 Łukasza: „spiszesz te wszystkie zasady, wszystkie te lekcje, wszystkie te nasze tutaj poprawki […]
 jak każę Ci dodać coś nowego, to już będziesz wiedział w jakim stylu, z jakim formatowaniem, jak
 z responsywnością, jak obsłużyć problemy z rozjeżdżaniem się tekstu, nierównością przycisków,
@@ -194,6 +194,8 @@ jeden dla wszystkich zakładek (Łukasz: „brakuje w ogóle jakichś paddingów
 - `width="100%"` w znacznikach daje ~375 px (domyślne 300 × 150); stały `width`/`height` skaluje
   się do szerokości miejsca z proporcją. Na tła: 1 : 100. `isInteractive` (hover, SMIL, `<title>`)
   ma ramkę stałego rozmiaru — nie na tła.
+- Rysunek pod treścią (pasek z hoverem, wykres) **nie maluje własnego tła** (`fill="none"`): na
+  zakładce w samej ramce tło w kolorze kartki stoi jako pas (E4).
 - Obie palety w CSS rysunku; reguła tylko dla pary atrybut–kolor obecnej w rysunku (budżet).
 - Wykres to geometria; każde słowo stoi w pudełku, które liczy układ (tekst w `Svg` się nie
   zawija i jest szacunkiem metryki).
@@ -203,6 +205,10 @@ jeden dla wszystkich zakładek (Łukasz: „brakuje w ogóle jakichś paddingów
 - Budżet drzewa: **waga ≤ 1 200** (`treeWeight`: element 1, `Svg` z treścią 5, pusty obrys 1) na
   najgorszych danych — `redraw.test.ts`, `map.test.ts`. Znaki nie są miarą: 250 tys. znaków w ~210
   elementach się rysuje, 1 344 elementy już nie (sonda 2026-10-15, P-023 pkt 7).
+- **Drugi budżet — znaki drzewa ≤ 280 tys.** (`isDrawable` w `pane-parts.tsx`, SZACUNEK): wiele
+  rysunków z hoverem waży więcej, niż liczy waga (E4: waga 1 045, 338 tys. znaków — pusty panel).
+  Zakładka, która nie mieści się nawet w samej ramce, pokazuje zakładki, jedno zdanie i
+  „Zwiń wszystko” — **nigdy pusty panel**, także po przeładowaniu z zapamiętanym rozwinięciem.
 - Długie listy stronicowane: diff dokumentu po **60** wierszy, kafle i drzewo z limitem i linią
   „… jeszcze N”.
 - Sekcje ciężkie zwinięte domyślnie (stan w `$.state`), zwinięta sekcja nie rysuje treści.

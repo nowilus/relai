@@ -351,9 +351,6 @@ export function inkOf(color) {
   return 'muted';
 }
 
-/** The ink of a progress item by its state (BAR.tile keys). */
-export const SEGMENT_INK = Object.freeze({ done: 'done', pending: 'track', running: 'running', failed: 'failed', unknown: 'track' });
-
 /**
  * The light tuning of the progress list (plan WYGLAD_PANELU, E2, round 3 "J3 miękki", Łukasz
  * 2026-10-15): laid over INK.light in the progress bar's own Svg alone — the other bars and the dark

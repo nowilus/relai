@@ -16,6 +16,7 @@ import { gapsInWords, plural } from './core/measure.mjs'
 import type { Group, Report, TurnCost } from './core/measure.mjs'
 import { PRICE_FILE, unpricedWords } from './core/pricing.mjs'
 import { SOURCE_WORDS } from './core/limit-threshold.mjs'
+import { STACK_BELOW } from './pane-parts'
 import { RULER_HEIGHT, presetsFor, rulerSvg, usedWords, type LimitWindow } from './limit-ruler'
 import type { cacheEffect } from './core/pricing.mjs'
 import { MAX_COLUMNS, bucketRanges, hoverColumns, hoverHeight, niceStep, spark } from './core/charts.mjs'
@@ -144,6 +145,11 @@ export function costsView(c: Ctx, p: Parts, cd: CostData, s: CostsCtx) {
   // with the threshold as a notch (words on the terminal), and buttons of values, the current one
   // lit. A value runs relai-cache-keeper's /cache limit-warn[-week] N, whose card asks the scope;
   // "Inna…" runs it without a number. Nothing is written before the keeper's scope card.
+  // Both windows' buttons take the room of the wider set, so the two rulers end in one column
+  // (E4, live 2026-10-15: five buttons by "limit 5 h", four by the week, rulers of two lengths);
+  // a native button in cells: its label at 6.8 px a character on 8.2 px cells, and its padding
+  const labelsOf = (t: LimitRows, w: LimitWindow) => [...presetsFor(w, t[w].value).map((v) => v === t[w].value ? `● ${v} %` : `${v} %`), 'Inna…']
+  const actCells = (labels: string[]) => labels.reduce((sum, l) => sum + Math.ceil((l.length * 6.8) / 8.2) + 3, 0) + labels.length - 1
   const limitCard = (t: LimitRows) => costBox('cost-limit', [
     line('cost-limit-h', 'Próg limitu', THEME.title, true),
     ...(['five', 'week'] as const).map((w) => {
@@ -163,7 +169,8 @@ export function costsView(c: Ctx, p: Parts, cd: CostData, s: CostsCtx) {
           </Box>
           {/* The buttons keep their size and wrap among themselves when the card is narrow, a cell
               between the lines so no native button touches the one under it (PANEL_WASKI) */}
-          <Box key={`cost-limit-${w}-act`} flexDirection="row" flexWrap="wrap" columnGap={1} rowGap={isGui ? 1 : 0} flexShrink={1}>
+          <Box key={`cost-limit-${w}-act`} flexDirection="row" flexWrap="wrap" columnGap={1} rowGap={isGui ? 1 : 0} flexShrink={1}
+            {...(isGui && c.width >= STACK_BELOW ? { minWidth: Math.max(actCells(labelsOf(t, 'five')), actCells(labelsOf(t, 'week'))) } : {})}>
             {presetsFor(w, current).map((v) => btn(`limit-set-${w}-${v}`, v === current ? `● ${v} %` : `${v} %`, 'secondary', () => s.changeLimit(w, v)))}
             {btn(`limit-change-${w}`, 'Inna…', 'secondary', () => s.changeLimit(w))}
           </Box>

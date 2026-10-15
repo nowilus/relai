@@ -6,7 +6,7 @@ import { priceRecord } from './core/pricing.mjs'
 import { HEADING_ART } from './core/headings.mjs'
 import { RULE, THEME } from './core/theme.mjs'
 import { visible } from './skin'
-import { DRAW_LIMIT, treeWeight } from './pane-parts'
+import { DRAW_LIMIT, isDrawable, treeWeight } from './pane-parts'
 import { usd } from './fmt'
 
 // The map tab of the RelAI panel (plan PANEL_CLAUDE, E4): plans, stages, branches, crew runs with
@@ -125,7 +125,7 @@ const groundsOf = (tree: RenderNode | undefined) => [...walk(tree)].filter((n) =
   const src = String((n.props as { source?: string }).source)
   const out: string[] = []
   for (let at = src.indexOf(GROUND); at >= 0; at = src.indexOf(GROUND, at + 1)) out.push(src.slice(at + GROUND.length, at + GROUND.length + 7))
-  return out.filter((c) => c !== THEME.card).map((c) => `${String((n.props as { alt?: string }).alt)}: ${c}`)
+  return out.filter((c) => c !== THEME.card && !c.startsWith('none')).map((c) => `${String((n.props as { alt?: string }).alt)}: ${c}`)
 })
 
 function* walk(node: RenderNode | undefined): Generator<RenderElement> {
@@ -247,6 +247,20 @@ describe('the map tab', () => {
     const tree = await ui.drawn()
     expect([...walk(tree)].some((n) => n.type === 'Svg' && String((n.props as { alt?: string }).alt).includes('E1'))).toBe(true) // the strip drew
     expect(groundsOf(tree)).toEqual([])
+    await ui.unmount()
+  })
+
+  test('a bar of segments lays no ground at all: in the frame alone it would stand out as a band (E4, live 2026-10-15)', async ($, on) => {
+    // Live 2026-10-15 (WYGLAD_PANELU E4): a tab too heavy for the filled sheet stands in its frame on
+    // the app's ground, and each bar's ground in the sheet's color stood out there as a lighter band
+    world(on, BASE)
+    await start($)
+    const ui = await openMap($, 'desktop')
+    await unfold(ui, 'active')
+    const strips = [...walk(await ui.drawn())].filter((n) => n.type === 'Svg' && String((n.props as { source?: string }).source).includes('class="b b0"'))
+    expect(strips.length).toBeGreaterThan(0) // positive control: the active plan's bar drew
+    const grounds = strips.flatMap((n) => { const src = String((n.props as { source?: string }).source); const at = src.indexOf(GROUND); return at < 0 ? [] : [src.slice(at + GROUND.length, at + GROUND.length + 4)] })
+    expect(grounds.filter((g) => g !== 'none')).toEqual([])
     await ui.unmount()
   })
 
@@ -475,5 +489,54 @@ describe('the map tab, focused (Z14)', () => {
     expect(unfolded.chars).toBeGreaterThan(folded.chars) // positive control: the archive drew
     expect(`${unfolded.chars} jednostek, ${unfolded.svgs} Svg`).toBe(`${Math.min(unfolded.chars, TREE_BUDGET - 1)} jednostek, ${unfolded.svgs} Svg`)
     await ui.unmount()
+  })
+
+  test('weight: every fold of the map unfolded, each archived plan and its stages too (E4, live 2026-10-15)', async ($, on) => {
+    // Live 2026-10-15 (WYGLAD_PANELU E4): every "Rozwiń" pressed left the pane blank ("has not drawn"),
+    // and the fold kept in $.state drew the same blank after every reload (P-023 pkt 7)
+    const archive = Object.fromEntries(Array.from({ length: 12 }, (_, p) => {
+      const name = `A${String(p + 1).padStart(2, '0')}`
+      const rows = Array.from({ length: 9 }, (_, i) => `| E${i + 1} | Etap numer ${i + 1} planu ${name} | ZREALIZOWANY 2026-09-${String(p + 10)} | — | |`)
+      return [`${CWD}/docs/archiwum/plany/${name}/STATUS.md`, [`# STATUS — plan ${name}`, '', `Status: **ZREALIZOWANY 2026-09-${p + 10}**`, '',
+        '| Etap | Nazwa | Status | Prompt | Uwagi |', '|---|---|---|---|---|', ...rows].join('\n')]
+    }))
+    const calls = tagged(Array.from({ length: 400 }, (_, i) => `A${String((i % 12) + 1).padStart(2, '0')}/E${(i % 9) + 1}`))
+    world(on, { ...BASE, ...archive, [OTHER]: serializeRecords(calls) })
+    await start($)
+    const ui = await openMap($, 'desktop')
+    const label = (b: RenderElement) => JSON.stringify(b)
+    let pressed = 0
+    for (let round = 0; round < 80; round++) {
+      const next = [...walk(visible(await ui.drawn()) as RenderNode)]
+        .find((x) => x.type === 'Button' && keyOf(x as RenderNode).startsWith('fold-') && label(x).includes('Rozwiń'))
+      if (!next) break
+      await ui.press({ key: keyOf(next as RenderNode) })
+      pressed++
+    }
+    expect(pressed).toBeGreaterThan(3) // positive control: sections and plans unfolded one by one
+    const all = weight(await ui.drawn())
+    expect(`${all.chars} jednostek`).toBe(`${Math.min(all.chars, TREE_BUDGET - 1)} jednostek`)
+    expect(await ui.find({ key: 'pane-heavy' })).toBeDefined() // the weight that blanked the pane was reached
+    // Never blank: the tabs and one way back, which folds everything and draws the map again
+    expect(await ui.find({ key: 'tab-map' })).toBeDefined()
+    await ui.press({ key: 'fold-all' })
+    expect((await ui.find({ key: 'fold-map:archive' }))?.text).toBe('▸ Rozwiń')
+    expect(weight(await ui.drawn()).chars).toBeLessThanOrEqual(DRAW_LIMIT)
+    await ui.unmount()
+  })
+})
+
+describe('what the desktop draws: weight and characters (E4, live 2026-10-15)', () => {
+  const box = (key: string, children: unknown[] = []) => ({ type: 'Box', props: { key }, children })
+  const svg = (key: string, chars: number) => ({ type: 'Svg', props: { key, alt: key, source: `<svg>${'x'.repeat(chars)}</svg>` }, children: [] })
+  test('the map of 2026-10-15 in the frame alone: under the weight, over the characters — not drawable', () => {
+    // As measured live: weight 1 045, 64 hover drawings with 250 k of markup, a blank pane
+    const tree = box('pane', [...Array.from({ length: 64 }, (_, i) => svg(`s${i}`, 3_900)), ...Array.from({ length: 700 }, (_, i) => box(`b${i}`))])
+    expect(treeWeight(tree)).toBeLessThanOrEqual(DRAW_LIMIT) // the weight alone let it through
+    expect(isDrawable(tree)).toBe(false)
+  })
+  test('the probe that drew: 250 k characters in ~210 elements, and 1 260 light elements (P-023 pkt 7)', () => {
+    expect(isDrawable(box('pane', Array.from({ length: 200 }, (_, i) => box(`b${i}`, ['y'.repeat(1_200)]))))).toBe(true)
+    expect(isDrawable(box('pane', Array.from({ length: 1_150 }, (_, i) => box(`b${i}`, ['z'.repeat(100)]))))).toBe(true)
   })
 })

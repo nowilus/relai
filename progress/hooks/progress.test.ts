@@ -713,9 +713,31 @@ describe('the agents pane', () => {
     await term.unmount()
     const gui = await $.ui.mount({ plugin: 'relai-progress', surface: 'desktop', ...PANE() })
     const card = await gui.find({ key: `agent-${AGENT}` })
-    expect(card?.props.backgroundColor).toBe(THEME.card)
+    expect(card?.props.backgroundColor).toBeUndefined() // no fill of its own since E4: the pane's ground shows through
     expect(card?.props.borderStyle).toBe('round')
     expect(await gui.find({ key: 'tasks-card' })).toBeDefined()
+    await gui.unmount()
+  })
+
+  test('the pane follows the app\'s look: texts and frames in theme keys, no fill of its own (E4, live 2026-10-15)', async ($, on) => {
+    // Live 2026-10-15 (WYGLAD_PANELU E4): in the light app the list of points stood on a dark card
+    // with light words, the words under it light on white (DESIGN.md 2: tło w Box — brak albo klucz)
+    world(on, { ...FILES, [MEASURE]: rec(AGENT, 0, 100, 50) + '\n' })
+    await start($)
+    await spawn($)
+    const gui = await $.ui.mount({ plugin: 'relai-progress', surface: 'desktop', ...PANE() })
+    const raw: string[] = []
+    const walk = (n: unknown): void => {
+      if (Array.isArray(n)) { n.forEach(walk); return }
+      if (!n || typeof n !== 'object' || !('type' in n)) return
+      const x = n as { type: string, props?: Record<string, unknown>, children?: unknown }
+      const p = x.props ?? {}
+      for (const k of ['color', 'backgroundColor', 'borderColor']) if (typeof p[k] === 'string' && String(p[k]).startsWith('#')) raw.push(`${x.type}.${k}=${String(p[k])}`)
+      walk(x.children)
+    }
+    walk(await gui.drawn())
+    expect(raw).toEqual([])
+    expect((await gui.find({ key: 'tasks-card' }))?.props.backgroundColor).toBeUndefined()
     await gui.unmount()
   })
 })

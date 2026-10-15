@@ -51,6 +51,12 @@ export function treeWeight(node: unknown): number {
   const own = n.type === 'Svg' && String(n.props?.source ?? '').length > HOLLOW_MOST ? 1 + SVG_WEIGHT : 1
   return own + treeWeight(n.children ?? [])
 }
+// The second budget, in characters of the tree (WYGLAD_PANELU E4, live 2026-10-15): the map with
+// every plan unfolded stood in the frame alone at weight 1 045, yet with 64 hover drawings (250 k of
+// markup, 338 k of tree) the desktop drew nothing. Drawn: 152 k at 1 260 elements, 250 k at ~210.
+// SZACUNEK between the measured points.
+export const DRAW_CHARS = 280_000
+export const isDrawable = (node: unknown): boolean => treeWeight(node) <= DRAW_LIMIT && JSON.stringify(node).length <= DRAW_CHARS
 // The column of a folded row's Kalam heading, in cells: the widest heading ("Wywołania w czasie") fits
 const FOLD_HEAD = 28
 

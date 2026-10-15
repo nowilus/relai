@@ -322,3 +322,20 @@ describe('the documents tab', () => {
     }
   })
 })
+
+describe('one margin for every row of the tab (E4, live 2026-10-15)', () => {
+  test('the groups\' rows start where the edited ones on top do: the same paddingX', async ($, on) => {
+    // Live 2026-10-15 (WYGLAD_PANELU E4): "Rdzeń", "Wiedza projektu"… stood ~10 px left of
+    // "Zmienione · 3" and its tiles (DESIGN.md 4.3: każdy wiersz ten sam margines)
+    world(on, FILES)
+    await $.session.start({ cwd: CWD, surface: 'desktop', isInteractive: true })
+    const ui = await open($)
+    const pad = (n: unknown) => Number(((n as { props?: { paddingX?: unknown } } | undefined)?.props?.paddingX) ?? 0)
+    const top = pad(await ui.find({ key: 'docs-turn' }))
+    expect(top).toBe(1) // positive control: the box on top has its margin
+    const groups = [...(function* w(n: unknown): Generator<unknown> { if (Array.isArray(n)) { for (const k of n) yield* w(k); return } if (!n || typeof n !== 'object') return; const x = n as { props?: { key?: string }, children?: unknown }; if (String(x.props?.key ?? '').startsWith('docs-g-') && !String(x.props?.key).endsWith('~u')) yield x; yield* w(x.children) })(await ui.drawn())]
+    expect(groups.length).toBeGreaterThan(0)
+    expect(groups.map(pad)).toEqual(groups.map(() => top))
+    await ui.unmount()
+  })
+})

@@ -60,7 +60,7 @@ import type { Shelf } from './tab-data'
 import { answerCard } from './card-answer'
 import type { Acts } from './card-answer'
 import { band } from './band'
-import { DRAW_LIMIT, failure, isPassing, parts, tabOf, treeWeight } from './pane-parts'
+import { failure, isDrawable, isPassing, parts, tabOf } from './pane-parts'
 import type { Ctx } from './pane-parts'
 import { costsView } from './pane-costs'
 import { mapView } from './pane-map'
@@ -400,6 +400,7 @@ function unsay($: $T) {
 }
 
 const NO_RELAI = 'Plugin relai nie jest zainstalowany w tej sesji — panel pokazuje formularze, ale niczego nie wyśle.'
+const HEAVY = 'Rozwiniętych sekcji jest za dużo, żeby aplikacja narysowała tę zakładkę. Zwiń je i rozwiń tylko to, czego potrzebujesz.'
 const NOT_RELAI = 'Ten folder nie jest projektem RelAI, więc panel nie ma czego pokazać — napisz „zacznijmy projekt”, żeby go zainicjować.'
 
 
@@ -921,7 +922,21 @@ export const register: Register = (on) => {
     // The filled sheet draws its tab twice (P-044); a tab so heavy that the two would pass what the
     // desktop draws (DRAW_LIMIT, P-023 pkt 7) stands in the sheet's frame alone, never vanishes.
     const whole = retone(paneOf(true)) as RenderNode
-    return treeWeight(whole) <= DRAW_LIMIT ? whole : retone(paneOf(false)) as RenderNode
+    if (isDrawable(whole)) return whole
+    const frame = retone(paneOf(false)) as RenderNode
+    if (isDrawable(frame)) return frame
+    // So much unfolded that even the frame alone passes what the desktop draws (E4, live 2026-10-15:
+    // every fold of the map open, a blank pane after each reload, the folds being kept): the tabs
+    // and one way back instead of nothing
+    return retone(
+      <Box key="relai-pane" flexDirection="column" gap={1}>
+        {p.tabs(tab, choose)}
+        <Box key="pane-heavy" flexDirection="column" gap={1}>
+          <Text color={THEME.mark}>{HEAVY}</Text>
+          {p.btn('fold-all', 'Zwiń wszystko', 'primary', () => { bump(); void update($, unfolded, () => ({})) })}
+        </Box>
+      </Box>,
+    ) as RenderNode
   }).catch(async ($, e, next) => {
     // A drawing that threw or overran its budget: the pane says so and keeps its tabs, so the
     // person can leave the tab, instead of the engine closing the pane without a word (Z3)

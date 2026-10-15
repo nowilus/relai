@@ -313,13 +313,13 @@ zaraz po jego sprawdzeniu, nie na końcu etapu; punkt, który nie przeszedł, zo
       `WYGLAD_PANELU_E4_*` w `docs/zasoby/PANEL_RELAI/zrzuty/`; każdy rozjazd albo naprawiony, albo
       zapisany słowami Łukasza jako przyjęty; akceptacja całości zapisana w dzienniku jego słowami.
 - [ ] Panel agentów `/relai-agents` sprawdzony zrzutem w obu wyglądach; wynik w dzienniku.
-- [ ] Każda poprawka z punktu 3 ma test, który spada na kodzie sprzed niej i przechodzi po niej
+- [x] Każda poprawka z punktu 3 ma test, który spada na kodzie sprzed niej i przechodzi po niej
       (obie wersje w jednym przebiegu); `git grep -n SEGMENT_INK` nie zwraca nic poza historią.
-- [ ] `claude plugin validate .` i `claude plugin test .` zielone binarką aplikacji w `panel/`,
+- [x] `claude plugin validate .` i `claude plugin test .` zielone binarką aplikacji w `panel/`,
       `progress/` i `cache-keeper/` (co najmniej 197 / 41 / 181); rdzeń 409+ zielony
       (`node --test core/guardrails/tests/*.test.js core/panel/tests/*.test.js core/process/tests/*.test.js`);
       `sync-panel-core.js --check` zgodne.
-- [ ] Brief `STYL_PASKOW_CLAUDE.md` w wersji 5.0, wiersz w `docs/ARTEFAKTY.md`, poprzednia wersja
+- [x] Brief `STYL_PASKOW_CLAUDE.md` w wersji 5.0, wiersz w `docs/ARTEFAKTY.md`, poprzednia wersja
       w historii gita.
 - [ ] Zgoda Łukasza na wydanie zapisana w dzienniku jego słowami **przed** pierwszą zmianą numeru
       wersji; numery zgodne we wszystkich plikach (`git grep` starych numerów w plikach wydania

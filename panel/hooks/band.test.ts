@@ -137,7 +137,8 @@ describe('the plan bar, calm', () => {
     await start($)
     const ui = await $.ui.mount({ plugin: 'relai-panel', surface: 'desktop', ...bar() })
     const row = await ui.find({ key: 'plan' })
-    const texts = ((row as { children?: RenderNode[] } | undefined)?.children ?? []) as { type: string, props: Record<string, unknown> }[]
+    // Each text in its own box since E4 (the plan and status never break, the name gives way)
+    const texts = ((row as { children?: RenderNode[] } | undefined)?.children ?? []).map((b) => ((b as { children?: RenderNode[] }).children ?? [])[0]) as { type: string, props: Record<string, unknown> }[]
     const [title, status, name] = texts
     expect(title?.props.color).toBe(KEY.text)
     expect(title?.props.bold).toBe(true)
@@ -145,6 +146,23 @@ describe('the plan bar, calm', () => {
     expect(status?.props.bold).toBe(true)
     expect(name?.props.color).toBe(KEY.muted)
     expect(String(name?.props.wrap)).toMatch(/^truncate/)
+    await ui.unmount()
+  })
+})
+
+describe('the plan bar in a narrow split column (E4, live 2026-10-15)', () => {
+  test('the plan and its status never break inside: each in a box that does not shrink, the stage name gives way', async ($, on) => {
+    // Live 2026-10-15 (WYGLAD_PANELU E4): a long plan name in a half-window column broke
+    // "ZAKRES_I_KOSZT_ALT · / E2" and "W / TOKU" over two lines (DESIGN.md 6: flexShrink 0)
+    world(on)
+    await start($)
+    const ui = await $.ui.mount({ plugin: 'relai-panel', surface: 'desktop', ...bar() })
+    const shrink = async (key: string) => ((await ui.find({ key })) as { props?: { flexShrink?: number } } | undefined)?.props?.flexShrink
+    expect((await ui.find({ key: 'plan-status' }))?.text).toBe('GOTOWY DO STARTU') // positive control: the box holds the status
+    expect(await shrink('plan-title')).toBe(0)
+    expect(await shrink('plan-status')).toBe(0)
+    const name = (await ui.find({ key: 'plan-stage' })) as { props?: { width?: number, flexGrow?: number } } | undefined
+    expect([name?.props?.width, name?.props?.flexGrow]).toEqual([0, 1]) // a base of zero: it truncates (P-043 pkt 6)
     await ui.unmount()
   })
 })

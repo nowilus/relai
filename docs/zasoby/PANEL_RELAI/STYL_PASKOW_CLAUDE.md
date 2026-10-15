@@ -1,6 +1,6 @@
 # Styl pasków i panelu RelAI dla Claude Code
 
-Wersja: **4.2** (v4.1 + §14: panel w szacie jasnej i ciemnej — automatycznie za wyglądem aplikacji, wariant 3 · jedna kartka z ramką `subtle`, kartka wypełniona bez szczeliny, reguła `primary`, próg drzewa w elementach; szczegóły w `DESIGN.md`; plan WYGLAD_PANELU E3, 2026-10-15; v4.1 — v4.0 + §3: pasek postępu jako lista kroków — cienkie segmenty, jedna linia z punktem w toku i „Rozwiń”, okno najwyżej 6 wierszy, błysk odhaczenia zamiast drugiego rzędu, zrobione od lewej, znacznik kręci się tylko przy pracy modelu, jasny wygląd „J3 miękki”; plan WYGLAD_PANELU E2, 2026-10-15; v4.0 — v3.8 + §13: paski w kolorach narzędzia — klucze motywu, znaczniki `Svg` w dwóch paletach przez `prefers-color-scheme`, wariant 3b z linią gasnącą zamiast teł; plan WYGLAD_PANELU E1, 2026-10-14; v3.8 — v3.7 + §12 wycofany: każdy panel podziału rysuje paski, linia w stopce znika; odnoga SPLIT_VIEW, 2026-10-14; v3.7 — v3.6 + §1 i §10.5: zdarzenie „nowa sesja się opłaca” w dwóch liniach bez chipa, sam koszt, przycisk „Nowa sesja”; odnoga KOMUNIKAT_ZWROTU, 2026-10-14; v3.6 — §6 pkt 6: karta startu etapu z wyborem „nowa sesja”; odnoga NOWA_SESJA, 2026-10-12; v3.5 — 11.3: karta „Próg limitu” jako linijka z progiem i przyciski wartości; Aneks E, 2026-10-11; v3.4 — 11.1: podpis „próg N % · źródło” pod baterią limitu, która nie jest spokojna; Aneks D, 2026-10-11; v3.3 — sekcja 11: limit planu — dwa progi, zapis i wznowienie, karta progu w Kosztach; LIMIT_CHECKPOINT E4, 2026-10-11) · Data: **2026-10-10** · Zakres: trzy paski nad promptem **i panel boczny** `/relai-panel`
+Wersja: **5.0** (odbiór planu WYGLAD_PANELU, E4, 2026-10-15: sekcja „Co obowiązuje po planie” na początku, sekcje zastąpione oznaczone jako historia, wyniki macierzy na żywo w §14.6; v4.2 — v4.1 + §14: panel w szacie jasnej i ciemnej — automatycznie za wyglądem aplikacji, wariant 3 · jedna kartka z ramką `subtle`, kartka wypełniona bez szczeliny, reguła `primary`, próg drzewa w elementach; szczegóły w `DESIGN.md`; plan WYGLAD_PANELU E3, 2026-10-15; v4.1 — v4.0 + §3: pasek postępu jako lista kroków — cienkie segmenty, jedna linia z punktem w toku i „Rozwiń”, okno najwyżej 6 wierszy, błysk odhaczenia zamiast drugiego rzędu, zrobione od lewej, znacznik kręci się tylko przy pracy modelu, jasny wygląd „J3 miękki”; plan WYGLAD_PANELU E2, 2026-10-15; v4.0 — v3.8 + §13: paski w kolorach narzędzia — klucze motywu, znaczniki `Svg` w dwóch paletach przez `prefers-color-scheme`, wariant 3b z linią gasnącą zamiast teł; plan WYGLAD_PANELU E1, 2026-10-14; v3.8 — v3.7 + §12 wycofany: każdy panel podziału rysuje paski, linia w stopce znika; odnoga SPLIT_VIEW, 2026-10-14; v3.7 — v3.6 + §1 i §10.5: zdarzenie „nowa sesja się opłaca” w dwóch liniach bez chipa, sam koszt, przycisk „Nowa sesja”; odnoga KOMUNIKAT_ZWROTU, 2026-10-14; v3.6 — §6 pkt 6: karta startu etapu z wyborem „nowa sesja”; odnoga NOWA_SESJA, 2026-10-12; v3.5 — 11.3: karta „Próg limitu” jako linijka z progiem i przyciski wartości; Aneks E, 2026-10-11; v3.4 — 11.1: podpis „próg N % · źródło” pod baterią limitu, która nie jest spokojna; Aneks D, 2026-10-11; v3.3 — sekcja 11: limit planu — dwa progi, zapis i wznowienie, karta progu w Kosztach; LIMIT_CHECKPOINT E4, 2026-10-11) · Data: **2026-10-10** · Zakres: trzy paski nad promptem **i panel boczny** `/relai-panel`
 (zakładki Komendy i Koszty) · Źródło decyzji: wątek [AUDYT_MODOW](../../fixy/AUDYT_MODOW/ODNOGA.md),
 makiety [MAKIETY.html](../../fixy/AUDYT_MODOW/MAKIETY.html) (wersja 4, kalibracja z Łukaszem
 w czterech rundach 2026-10-10).
@@ -10,6 +10,21 @@ z wersji 1: tokeny kolorów (`BAND`, `BAR`, `THEME` w `core/panel/theme.mjs`), s
 treść | liczba, miękkie tła bez kolorowych ramek, natywne przyciski z błyskiem, reguła
 „agregat i segmenty z jednej listy”. Co zmienia wersja 2: **ile paski mówią w spokoju** i **jak
 mówią, gdy coś się dzieje**.
+
+## 0. Co obowiązuje po planie WYGLAD_PANELU (v5.0, 2026-10-15)
+
+Plan WYGLAD_PANELU (E1–E4) zmienił wygląd pasków i panelu w całości. Czytaj w tej kolejności:
+
+| Temat | Obowiązuje | Historia (tylko kontekst decyzji) |
+|---|---|---|
+| zachowanie pasków: spokój, drugi wiersz przy zdarzeniu | §1, §2, §10, §11 | — |
+| kolory pasków, tła, ramki, linia między paskami | §13 (klucze motywu, wariant 3b) | §5 w części „tła `BAND.*.bg`, ramka `round`”; kolory `CHIP` z §10 |
+| pasek postępu | §3 (lista kroków, v4.1) | — |
+| panel `/relai-panel` i `/relai-agents`: kartka, sekcje, przyciski, szaty | §14 + [DESIGN.md](DESIGN.md) | §6 i §7 w części wyglądu (karty, tła, ramki); układ treści zakładek z §6–§7 obowiązuje |
+| ograniczenia silnika | §8 i P-017–P-024, P-041–P-045 w `PULAPKI.md` | — |
+| linia w stopce | — | §12 (wycofana 2026-10-14) |
+
+Przy sprzeczności wygrywa sekcja z kolumny „Obowiązuje”, a nad nią `DESIGN.md`.
 
 ## 1. Zasada nadrzędna: pasek spokojny, pasek mówiący
 
@@ -113,14 +128,14 @@ z v3 odrzucone 2026-10-10). Terminal: `◔ ◑ ◕ ●` + te same dwie linie tek
 i okno modelu, `cost.usd`), `cacheState` z `cache-keeper/hooks/core.ts` (stan i `left`), TTL jak dziś.
 Brak którejś liczby — pierścień pusty z podpisem `brak danych`, nie pozorne zero.
 
-## 5. Wspólna geometria pasków (bez zmian wobec v1, przypomnienie)
+## 5. Wspólna geometria pasków (bez zmian wobec v1, przypomnienie) — tła i ramka: historia, obowiązuje §13
 
 Etykieta 14 komórek (v1: 16 — krótsza, bo bez „RelAI ·”), kolumna liczby 11 komórek, odstęp
 między kolumnami 2 komórki, padding 1 komórka w poziomie; poniżej `BAR.narrow` kolumn etykieta
 i liczba idą nad treść. Tła `BAND.*.bg`, ramka `round` w kolorze tła dla zaokrąglenia. Odstęp
 między paskami 1 wiersz na desktopie, 0 w terminalu. Owijacz z `next(e)` bez `width` (P-017).
 
-## 6. Panel boczny `/relai-panel` — zakładka Komendy (wariant P1)
+## 6. Panel boczny `/relai-panel` — zakładka Komendy (wariant P1) — wygląd: historia, obowiązuje §14 i DESIGN.md
 
 1. **Nagłówek**: „Panel RelAI” (Svg Kalam, jak dziś) i w tym samym wierszu zakładki jako natywne
    przyciski: `Komendy · Koszty · Dokumenty · Mapa · Pomoc` (Ściąga i Frazy razem jako „Pomoc”;
@@ -148,7 +163,7 @@ między paskami 1 wiersz na desktopie, 0 w terminalu. Owijacz z `next(e)` bez `w
    rozmowa zostaje`). Linia po „Tak”: `Otwarto nową sesję z /relai:relai-stage PLAN EN — naciśnij
    w niej Enter (zgoda ważna 10 min).`
 
-## 7. Panel boczny — zakładka Koszty (wariant P3)
+## 7. Panel boczny — zakładka Koszty (wariant P3) — wygląd: historia, obowiązuje §14 i DESIGN.md
 
 Kafle zostają jak dziś (suma sesji z paskiem kategorii i legendą; licznik Claude Code; wejścia
 z cache; cały projekt), procenty **bez setnych** (`96 %`). Sekcje poniżej — Etapy, Wywołania
@@ -492,3 +507,22 @@ tylko, co E3 zmienia w briefie i skąd to wynika.
 - **Ograniczenie silnika:** desktop liczy elementy drzewa, nie znaki (1 260 rysuje, 1 344 nie;
   P-023 pkt 7) — `DRAW_LIMIT` 1 200, powyżej kartka bez wypełnienia z ramką `Box` zamiast pustego
   panelu.
+
+### 14.6 Odbiór całości na żywo (plan WYGLAD_PANELU E4, 2026-10-15) — wersja 5.0
+
+Macierz: wygląd jasny i ciemny × pełne okno, połowa podziału, wąski panel (~530–590 px) × trzy paski
+i pięć zakładek, plus `/relai-agents` w obu wyglądach (zrzuty `zrzuty/WYGLAD_PANELU_E4_*`). Co
+odbiór dołożył do reguł:
+
+- **Drugi budżet drzewa — znaki.** Rozwinięta Mapa stała w samej ramce przy wadze 1 045 (pod
+  `DRAW_LIMIT`), a desktop nie rysował nic: 64 rysunki z hoverem niosły 250 tys. znaków, drzewo
+  338 tys. Panel przepuszcza drzewo tylko w obu budżetach (`isDrawable`: waga ≤ 1 200 i ≤ 280 tys.
+  znaków, SZACUNEK między punktami pomiaru); za ciężka zakładka pokazuje zakładki, zdanie
+  i „Zwiń wszystko”, nigdy pusty panel.
+- **Rysunek nie maluje własnego tła.** Pasek etapów na Mapie (`hoverSegments`) z tłem w kolorze
+  kartki był jaśniejszym pasem, gdy zakładka stała w samej ramce — tło `none`.
+- **Panel agentów idzie za wyglądem jak panel główny** (`retone` w `progress/hooks/skin.ts`): lista
+  punktów bez własnego tła, teksty i ramki w kluczach motywu.
+- **Jeden margines wiersza także w Dokumentach** (grupy `paddingX` 1 jak sekcja „Zmienione”).
+- **Pasek planu nie łamie nazwy ani statusu** (`flexShrink` 0), ustępuje nazwa etapu (baza zerowa).
+- **Wspólna kolumna przycisków progu limitu** od 48 kolumn: oba paski limitu tej samej długości.

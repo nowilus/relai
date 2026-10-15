@@ -1765,3 +1765,16 @@ Wykonawca: Opus 5.5 (Claude Code, aplikacja desktopowa). Uwagi Łukasza po commi
 **Do zrobienia przez człowieka:** —
 
 Autor: RelAI (Opus 5.5) + Lukasz
+
+### 2026-10-15 — WYGLAD_PANELU E4: odbiór macierzy i zgoda na wydanie (przed zmianą numerów)
+
+Zapis zgody przed pierwszą zmianą numeru wersji (punkt Weryfikacji E4). Pełny wpis etapu niżej.
+
+- Odbiór całości macierzy — Łukasz: „Tak, przyjmuję całość” (6 komórek: jasny i ciemny × pełne
+  okno, połowa podziału, wąski panel; panel agentów w obu wyglądach; 6 poprawek sprawdzonych na
+  żywo).
+- Zgoda na wydanie — Łukasz: „Tak, 3.2.0 / 0.19.0 / 0.5.0 / 0.10.0 (Rekomendowane)”: `relai`
+  3.2.0, `relai-panel` 0.19.0, `relai-progress` 0.5.0, `relai-cache-keeper` 0.10.0, commit, tagi
+  `v3.2.0` i `relai-panel-v0.19.0`, push na `origin`.
+
+Autor: RelAI (Opus 5.5) + Lukasz

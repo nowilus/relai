@@ -266,7 +266,7 @@ export function docsView(c: Ctx, p: Parts, dd: DocsData, s: DocsCtx) {
       ? dd.groups.flatMap((g) => {
         const isOpen = isOpenBy(g.key, !g.isFolded)
         return [
-          <Box key={`docs-g-${g.key}`} flexDirection="column" gap={isGui ? 1 : 0}>
+          <Box key={`docs-g-${g.key}`} flexDirection="column" gap={isGui ? 1 : 0} paddingX={1}>
             {foldHead(`docs:${filter}:${g.key}`, g.title, g.docs, isOpen, filter === 'all' && !g.isFolded)}
             {isOpen ? shelfRow(g.key, g.docs, pick) : []}
           </Box>,

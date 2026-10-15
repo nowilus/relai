@@ -53,10 +53,10 @@ const pane = {
   props: { title: 'RelAI', isFocused: true, bodyColumns: 100, placement: 'dock' as const, scroll: { offset: 0, bodyRows: 40 }, view: {} },
 }
 
-async function costs($: Engine, surface: 'terminal' | 'desktop' = 'terminal') {
+async function costs($: Engine, surface: 'terminal' | 'desktop' = 'terminal', columns = 100) {
   await $.session.start({ cwd: CWD, surface, isInteractive: true })
   await $.command.run({ command: 'relai-panel' } as never)
-  const ui = await $.ui.mount({ plugin: 'relai-panel', surface, ...pane })
+  const ui = await $.ui.mount({ plugin: 'relai-panel', surface, ...pane, props: { ...pane.props, bodyColumns: columns } })
   await ui.press({ key: 'tab-costs' })
   return ui
 }
@@ -228,7 +228,7 @@ describe('the limit card in a narrow pane', () => {
   test('the card fits a 40-column pane on terminal and desktop (minWidth counted)', async ($, on) => {
     world(on, { [SETTINGS]: settings('| 2026-10-11 | Próg limitu tygodnia | 97 |') }, { limits: [{ kind: 'five_hour', percentUsed: 23 }] })
     for (const surface of ['terminal', 'desktop'] as const) {
-      const ui = await costs($, surface)
+      const ui = await costs($, surface, 40) // drawn at the 40 columns it is measured against (E4)
       const card = await ui.find({ key: 'cost-limit' })
       expect(card).toBeDefined()
       expect(minCols(card as RenderNode)).toBeLessThanOrEqual(40)
@@ -241,5 +241,20 @@ describe('the limit card in a narrow pane', () => {
       { type: 'Box', props: { minWidth: 16 }, children: [] }, { type: 'Box', props: { minWidth: 9 }, children: [] }, { type: 'Button', props: { label: 'Zmień' }, children: [] },
     ] } as unknown as RenderNode
     expect(minCols(planted)).toBeGreaterThan(30)
+  })
+})
+
+describe('the two rulers end in one column (E4, live 2026-10-15)', () => {
+  test('both windows\' buttons take the room of the wider set: the rulers are as long as each other', async ($, on) => {
+    // Live 2026-10-15 (WYGLAD_PANELU E4): five buttons by "limit 5 h", four by "limit tygodnia" —
+    // the 5 h ruler ended ~70 px before the week's (DESIGN.md 4.3: one column of buttons)
+    world(on, { [SETTINGS]: settings('| 2026-10-11 | Próg limitu tygodnia | 97 |') })
+    const ui = await costs($, 'desktop')
+    const act = async (w: 'five' | 'week') => propsOf(await ui.find({ key: `cost-limit-${w}-act` })).minWidth
+    expect((await buttons(ui, 'five')).length).not.toBe((await buttons(ui, 'week')).length) // positive control: the sets differ
+    const five = await act('five')
+    expect(typeof five).toBe('number')
+    expect(await act('week')).toBe(five)
+    await ui.unmount()
   })
 })

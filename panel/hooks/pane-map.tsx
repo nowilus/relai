@@ -130,7 +130,7 @@ export function mapView(c: Ctx, p: Parts, md: MapData, s: MapCtx) {
     if (ms.kind === 'asking') return costBox('session-card', [line('session-ask', ASKING, THEME.accentText)], true)
     if (ms.kind === 'unknown') return costBox('session-card', [line('session-unknown', `Nie odczytano pracy tej sesji: ${ms.reason}.`, THEME.accentText)], true)
     const title = ms.kind === 'branch' ? `${ms.card} (odnoga)` : ms.kind === 'plan' ? (ms.stage ? `${ms.plan} · ${ms.stage.id}` : ms.plan) : 'poza planem'
-    const packets = ms.kind === 'branch' ? packetBar('session-packets', ms.packets, ms.now, THEME.card) : null
+    const packets = ms.kind === 'branch' ? packetBar('session-packets', ms.packets, ms.now, 'none') : null
     return costBox('session-card', [
       <Box key="session-head" flexDirection="row" flexWrap="wrap" alignItems="center" columnGap={2}>
         <Box key="session-name" flexDirection="column" flexGrow={1} flexShrink={1}>
@@ -223,9 +223,9 @@ export function mapView(c: Ctx, p: Parts, md: MapData, s: MapCtx) {
           {c.records > 0 ? costFig(`plan-cost-${node.name}`, c, isMain ? 26 : 20) : []}
           {btn(`fold-${key}`, isOpen ? 'Zwiń' : 'Rozwiń', 'secondary', () => fold(key, isMain))}
         </Box>
-        {/* The drawing's ground is the sheet's own color: a plan's tint made a box round it (Łukasz,
-            light 2026-10-15: "te dziwne podświetlenia") */}
-        {strip(`strip-${node.name}`, node, THEME.card)}
+        {/* The drawing lays no ground: a plan's tint made a box round it (Łukasz, light 2026-10-15:
+            "te dziwne podświetlenia"), the sheet's color a band where the tab stands in its frame (E4) */}
+        {strip(`strip-${node.name}`, node, 'none')}
         {isOpen ? [
           ...node.stages.map((s) => stageRow(md, node, s)),
           ...(loose.length ? [<Box key={`loose-${node.name}`} flexDirection="column">

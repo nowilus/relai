@@ -1,15 +1,16 @@
 # STATE — RelAI
 
-Stan na: 2026-10-15 (WYGLAD_PANELU E3 zrealizowany; wydanie 3.1.0)
+Stan na: 2026-10-15 (WYGLAD_PANELU zrealizowany; wydanie 3.2.0)
 
 ## Gdzie jesteśmy
 
-RelAI **3.1.0** jest w repozytorium i publicznie (tag `v3.1.0`, 2026-10-14: humanizacja tekstu —
-piętnasta komenda `/relai-humanize`, tryb ciągły w Claude Code; plan HUMANIZACJA zamknięty). Plugin `relai` działa
+RelAI **3.2.0** jest w repozytorium i publicznie (tag `v3.2.0`, 2026-10-15: pełna karta startu
+`/relai-stage`; wcześniej 3.1.0 z humanizacją tekstu). Plugin `relai` działa
 w trzech narzędziach — Claude Code, Cursorze i Codeksie — na jednym rdzeniu procesu, z piętnastoma
 komendami. Panel RelAI w oknie Claude Code to trzy osobne pluginy „early access” z marketplace tego
-repozytorium: `relai-panel` 0.17.0 wydany, 0.18.0 w repo niewydany, `relai-progress` 0.4.2,
-`relai-cache-keeper` 0.9.0 (2026-10-14: pasek mówi uczciwie, kiedy nowa sesja się opłaca — odnoga
+repozytorium: `relai-panel` 0.19.0, `relai-progress` 0.5.0, `relai-cache-keeper` 0.10.0 (tag
+`relai-panel-v0.19.0`, 2026-10-15: paski i panel same za jasnym i ciemnym wyglądem aplikacji, pasek
+postępu jako lista kroków — plan WYGLAD_PANELU; 2026-10-14: pasek mówi uczciwie, kiedy nowa sesja się opłaca — odnoga
 KOMUNIKAT_ZWROTU; paski i panel w każdym panelu podziału okna, linia w stopce wycofana — odnoga
 SPLIT_VIEW, P-040 rozwiązana; panel bez rozjazdów w wąskim panelu podziału — odnoga PANEL_WASKI,
 0.18.0).

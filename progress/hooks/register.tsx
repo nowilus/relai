@@ -15,6 +15,7 @@ import { atom, read, update } from 'claude-code'
 import type { EngineInterface, Register, RenderChildren } from 'claude-code'
 import { crewProgress, pick, promptLink, stageProgress } from './core/progress.mjs'
 import type { Progress } from './core/progress.mjs'
+import { retone } from './skin'
 import { ancestors, planState } from './core/plan-state.mjs'
 import { agentCost, counts, finished, spawned, stepped } from './core/agents.mjs'
 import type { AgentRun } from './core/agents.mjs'
@@ -433,11 +434,12 @@ export const register: Register = (on) => {
     const about = `${running} działa, ${done} zakończonych · koszt ${sum} — z pomiarów relai-panel, cennik z ${pricing.date}.`
       + (records === null ? ' Brak pliku pomiarów tej sesji: relai-panel jej nie mierzy.' : '')
       + (pricing.error ? ` Cennik projektu pominięty — ${pricing.error}; liczę cennikiem wbudowanym.` : '')
-    return (
+    // Both appearances of the app (WYGLAD_PANELU E4): texts and frames in theme keys, drawings two-tone
+    return retone(
       <Box key="relai-agents" flexDirection="column" gap={isGui ? 2 : 1}>
         {tasks ? [tasks] : []}
         {section('summary', 'agents', about, agentItems)}
-      </Box>
+      </Box>,
     )
   })
 

@@ -1,6 +1,6 @@
 {
   "name": "relai-progress",
-  "version": "0.4.2",
+  "version": "0.5.0",
   "author": { "name": "nowilus", "url": "https://github.com/nowilus" },
   "description": "Early access — needs Claude Code with mods (measured on 2.1.293). RelAI progress above the prompt: segments of the stage in progress or a /relai-crew run with the next item under them, a chip with the session's agents and their cost, and /relai-agents with the session's subagents priced from the project's price list. Reads files only: no model call, no network. Based on savvy-progress by johnnyvizz (MIT).",
   "homepage": "https://github.com/nowilus/relai",

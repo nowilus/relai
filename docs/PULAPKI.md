@@ -442,6 +442,12 @@ Specyfikacja: `SPEC_PULAPKI.md`.
      pane”; `Svg` z treścią waży więcej (~800 elementów ze 150 `Svg` — pusto). Miara w panelu:
      `treeWeight` (element 1, `Svg` z treścią 5, pusty obrys 1) ≤ `DRAW_LIMIT` 1 200
      (`panel/hooks/pane-parts.tsx`); test budżetu liczy tę samą wagę.
+     **Uzupełnienie 2026-10-15 (WYGLAD_PANELU E4, na żywo):** sama waga nie wystarcza — Mapa z każdym
+     planem rozwiniętym miała wagę 1 045 (64 rysunki z hoverem, 250 tys. znaków źródła, 338 tys.
+     znaków drzewa) i desktop nie narysował nic, a zapamiętane rozwinięcie wracało po każdym
+     `/reload-plugins`. Obejście: drugi budżet w znakach drzewa (`isDrawable`, ≤ 280 tys., SZACUNEK
+     między punktami 152 tys. / 250 tys. — rysuje, 338 tys. — nie) i widok zastępczy z „Zwiń
+     wszystko”, gdy zakładka nie mieści się nawet w samej ramce.
   7a. **Link w `Markdown` w panelu desktopu łapie co drugi klik (2.1.295, sonda `tree-probe`
      2026-10-10):** drugi klik w link (`onLinkPress` + `pressableLinks`) nie dociera do pluginu —
      dociera tylko `ui.focus` — dopóki człowiek nie kliknie w tło; póki taki link jest narysowany,

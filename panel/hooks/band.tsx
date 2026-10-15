@@ -50,9 +50,11 @@ export function band(el: AnyTable, isGui: boolean, columns: number, w: Work, wai
   const status = isBranch ? 'ODNOGA' : p.stage ? p.stage.status : (p.planStatus ?? 'status nieznany')
   const middle = [
     <Box key="plan" flexDirection="row" columnGap={2}>
-      <Text bold color={KEY.text}>{title}</Text>
-      <Text bold color={KEY.running}>{status}</Text>
-      {p.stage ? [<Text key="stage" color={KEY.muted} wrap="truncate">{p.stage.name}</Text>] : []}
+      {/* The plan and its status never break inside (E4, live 2026-10-15: "W / TOKU" in a narrow
+          column); the stage name gives way on a base of zero (P-043 pkt 6) */}
+      <Box key="plan-title" flexShrink={0}><Text bold color={KEY.text}>{title}</Text></Box>
+      <Box key="plan-status" flexShrink={0}><Text bold color={KEY.running}>{status}</Text></Box>
+      {p.stage ? [<Box key="plan-stage" width={0} flexGrow={1}><Text key="stage" color={KEY.muted} wrap="truncate">{p.stage.name}</Text></Box>] : []}
       {mention}
     </Box>,
     ...second,
