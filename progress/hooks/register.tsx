@@ -14,7 +14,6 @@
 import { atom, read, update } from 'claude-code'
 import type { EngineInterface, Register, RenderChildren } from 'claude-code'
 import { crewProgress, pick, promptLink, stageProgress } from './core/progress.mjs'
-import { segmentText } from './core/charts.mjs'
 import type { Progress } from './core/progress.mjs'
 import { ancestors, planState } from './core/plan-state.mjs'
 import { agentCost, counts, finished, spawned, stepped } from './core/agents.mjs'
@@ -23,11 +22,11 @@ import { isFileOf, parseRecords } from './core/measure.mjs'
 import type { MeasureRecord } from './core/measure.mjs'
 import { PRICE_FILE, newest, parsePriceFile, priceAt, priceLists } from './core/pricing.mjs'
 import type { Version } from './core/pricing.mjs'
-import { BAND, BAR, BAR_LOOK, KEY, SEGMENT_INK, THEME } from './core/theme.mjs'
+import { BAND, BAR, BAR_LOOK, THEME } from './core/theme.mjs'
 import { HEADING_ART } from './core/headings.mjs'
 import { clip, duration, join, tokens, usd } from './fmt'
 import { barCard, barRule } from './bar-card'
-import { SEGMENTS_HEIGHT, calmLine, itemLine, segmentArt } from './segments'
+import { stepRows } from './steps'
 import { branchProgress, cardPathOf, countedOf, executorTool, focusPath, isBranchProgress, parseFocus, statusPathOf, workOf } from './focus'
 
 type $T = EngineInterface
@@ -43,11 +42,15 @@ const PANE_TITLE = 'Postęp i agenci RelAI'
 const agents = atom({ plugin: 'relai-progress', key: 'agents' } as const, [] as AgentRun[])
 const progress = atom({ plugin: 'relai-progress', key: 'progress' } as const, null as Progress | null)
 const isDoneCollapsed = atom({ plugin: 'relai-progress', key: 'isDoneCollapsed' } as const, false)
-// The box that just turned done (brief v2, 1): in $.state, so a reload of the mod keeps it, and
-// with its time, so it expires by the clock even when the timer that was to clear it is gone
-type Ticked = { id: string, index: number, total: number, name: string, at: number }
-const ticked = atom({ plugin: 'relai-progress', key: 'ticked' } as const, null as Ticked | null)
-const TICKED_MS = 10_000
+// The list of steps (WYGLAD_PANELU E2): expanded or not, and its done ones unfolded — for the
+// session, collapsed by default (plan, risk 4)
+const isListOpen = atom({ plugin: 'relai-progress', key: 'isListOpen' } as const, false)
+const isListDoneShown = atom({ plugin: 'relai-progress', key: 'isListDoneShown' } as const, false)
+// The box that just turned done: its row flashes once and its mark fills (plan, section 5). In
+// $.state with its time, so a reload keeps it and it ends by the clock even without its timer.
+type Fresh = { id: string, at: number }
+const fresh = atom({ plugin: 'relai-progress', key: 'fresh' } as const, null as Fresh | null)
+const FLASH_MS = 1_400
 
 // The module's own; a reload starts them over and session.start sets them again
 let cwd = ''
@@ -136,22 +139,22 @@ let crewReadAt = 0
 
 // The last box of the new list that was not done in the old one and is now; null when none (or
 // when the list is another one: other ids)
-function justTicked(was: Progress | null, now: Progress, at: number): Ticked | null {
+function freshOf(was: Progress | null, now: Progress, at: number): Fresh | null {
   if (was === null) return null
   const before = new Map(was.items.map((it) => [it.id, it.status]))
   for (let i = now.items.length - 1; i >= 0; i--) {
     const it = now.items[i]
     const old = it ? before.get(it.id) : undefined
-    if (it && it.status === 'done' && old !== undefined && old !== 'done') return { id: it.id, index: i + 1, total: now.items.length, name: it.name, at }
+    if (it && it.status === 'done' && old !== undefined && old !== 'done') return { id: it.id, at }
   }
   return null
 }
 
-// Clears the ticked box past its time: called by the timer set when it appeared and by every tick
+// Clears the fresh box past its flash: called by the timer set when it appeared and by every tick
 // (a reload drops the timer, never the state)
-async function expireTicked($: $T, clockNow: number) {
-  const t = await read($, ticked)
-  if (t !== null && clockNow - t.at >= TICKED_MS) await update($, ticked, () => null)
+async function expireFresh($: $T, clockNow: number) {
+  const f = await read($, fresh)
+  if (f !== null && clockNow - f.at >= FLASH_MS) await update($, fresh, () => null)
 }
 
 // The session the last read was for (Z12): after /clear the id changes with no session.start and
@@ -162,7 +165,7 @@ async function refresh($: $T, isForced = false) {
   if (!isRelai) return
   if ((await $.session.id().catch(() => readFor)) !== readFor) isForced = true
   const clockNow = await $.clock.now()
-  await expireTicked($, clockNow)
+  await expireFresh($, clockNow)
   // The times are taken before the read: a file that moves during it is read again next time
   const before = watched.length ? await stampOf($, watched) : ''
   const isCrewDue = crewReadAt > 0 && clockNow - crewReadAt >= CREW_RECHECK_MS
@@ -175,10 +178,10 @@ async function refresh($: $T, isForced = false) {
   if (JSON.stringify(was) === JSON.stringify(now)) return
   await update($, progress, () => now)
   // The first read of a session is no news: boxes ticked before it are not "just ticked"
-  const tick = isForced ? null : justTicked(was, now, clockNow)
+  const tick = isForced ? null : freshOf(was, now, clockNow)
   if (tick === null) return
-  await update($, ticked, () => tick)
-  $.clock.after(TICKED_MS, () => { $.clock.now().then((t) => expireTicked($, t)).catch(() => undefined) })
+  await update($, fresh, () => tick)
+  $.clock.after(FLASH_MS, () => { $.clock.now().then((t) => expireFresh($, t)).catch(() => undefined) })
 }
 
 // This session's records of relai-panel's collector; [] when it does not measure this session
@@ -249,34 +252,13 @@ async function togglePane($: $T): Promise<string> {
   return opened.isPlaced ? 'Panel agentów otwarty.' : `Panel agentów czeka na miejsce: ${opened.reason}`
 }
 
-// The progress bar (brief v2: docs/zasoby/PANEL_RELAI/STYL_PASKOW_CLAUDE.md, 3 and 5) in the shared
-// grid of the RelAI bars (bar-card.tsx, the same file in the three plugins, Z6): the label
-// column, the middle, the figure `a/b` + unit on the right, label and figure at the top of the
-// middle. The middle's first row holds the segments — one per item in the color of its state, Svg
-// on the desktop with the small line under them in the same drawing, cells of text in the
-// terminal with the line as text below — and beside them the agents chip; a second row only while
-// a box has just been ticked. No button: the agents pane opens with /relai-agents.
-const CELL_PX = 8 // a desktop cell, about (savvy-progress reckons the same)
-const LINE_TEXT_PX = 6.6 // the mean advance of an 11.5 px Segoe UI character, about (6.8 at 12 px)
 const COLUMN_GAP = 2 // cells between the grid's columns (brief, 5)
-const MIN_SEGMENT_CELLS = 10 // below this the chip goes under the segments rather than beside
-// The terminal's segments in theme keys (WYGLAD_PANELU E1): a waiting one in the muted key
-const SEGMENT_KEY: Record<string, string> = { done: KEY.done, pending: KEY.muted, running: KEY.running, failed: KEY.failed, unknown: KEY.muted }
+const MIN_SEGMENT_CELLS = 10 // the narrowest the terminal's segments are drawn
 
 // The unit after `a/b`, one format for all the bars (brief, 3): 1 punktu, 14 punktów; a crew's tasks
 // and a thread's packets (Z12): 1 paczki, 9 paczek
 const unitOf = (p: Progress) => (p.kind === 'crew' ? (p.total === 1 ? 'zadania' : 'zadań')
   : isBranchProgress(p) ? (p.total === 1 ? 'paczki' : 'paczek') : (p.total === 1 ? 'punktu' : 'punktów'))
-
-// The agents chip beside the segments (brief, 3): how many subagents the session ran, ● while one
-// runs and ✓ once none does, and what they cost by the pane's own sum ("≥" when it is partial)
-function agentsChip(list: readonly AgentRun[], c: AgentCosts) {
-  const { running } = counts(list)
-  const money = c.total === null ? 'brak pomiaru' : `${c.isPartial ? '≥ ' : ''}${usd(c.total)}`
-  const look = { color: running ? KEY.running : KEY.done } // WYGLAD_PANELU E1: a theme key, no surface
-  const mark = running ? BAR.tile.running.mark : BAR.tile.done.mark
-  return { text: `${mark} ${list.length} ${list.length === 1 ? 'agent' : 'agentów'} · ${money}`, look }
-}
 
 const ITEM_WORD: Record<string, string> = { done: 'ukończone', pending: 'oczekuje', running: 'w toku', failed: 'błąd albo timeout', unknown: 'stan nieznany' }
 
@@ -460,78 +442,39 @@ export const register: Register = (on) => {
   })
 
   // One band instance for every plugin: our card above whatever the plugins beneath draw, never
-  // instead of it; no width on the wrapper (the engine refuses its own node under one, P-017)
+  // instead of it; no width on the wrapper (the engine refuses its own node under one, P-017).
+  // The middle is the list of steps (steps.tsx, WYGLAD_PANELU E2); the label and the figure stand
+  // at its top, as the list grows under the line.
   on('ui.render', { component: 'AbovePrompt' }, async ($, e, next) => {
     if (!isRelai || e.props.hasSurvey) return next(e)
     const p = await read($, progress)
     if (p === null) return next(e)
     const below = await next(e)
     const ui = $.ui.resolve(e)
-    const { Box, Text } = ui
-    const Svg = (e.surface === 'desktop' || e.surface === 'vscode') && 'Svg' in ui ? ui.Svg : null
+    const { Box } = ui
     const isGui = e.surface !== 'terminal'
     const columns = e.props.bodyColumns
-    const isNarrow = columns < BAR.narrow
     const list = await read($, agents)
-    const tick = await read($, ticked)
+    const f = await read($, fresh)
     const clockNow = await $.clock.now()
-    const chip = list.length ? agentsChip(list, await agentCosts($, list)) : null
     const figure: [string, string] | null = p.items.length ? [`${p.done}/${p.total}`, unitOf(p)] : null
-
-    // The middle column's cells: the card's padding and corners, then the label and figure columns
-    // with their gaps when they stand beside it; the chip beside the segments takes its own
-    const middle = Math.max(MIN_SEGMENT_CELLS, columns - 2 - (isNarrow ? 0 : BAR.labelColumn + BAR.figureColumn + 2 * COLUMN_GAP))
-    const chipCells = chip ? chip.text.length + 2 + COLUMN_GAP : 0
-    const isChipBeside = chip !== null && middle - chipCells >= Math.max(MIN_SEGMENT_CELLS, p.items.length)
-    const cells = isChipBeside ? middle - chipCells : middle
-    const calm = calmLine(p.items)
-    const alt = `${p.title} · ${figure ? figure.join(' ') : p.words}: ${p.items.map((it) => `${BAR.tile[it.status].mark} ${it.name}`).join(', ')}`
-    const art = Svg ? segmentArt(p.items.map((it, i) => ({
-      ink: SEGMENT_INK[it.status],
-      hover: itemLine(BAR.tile[it.status].mark, i + 1, p.items.length, it.name),
-    })), { calm, chars: Math.floor((cells * CELL_PX) / LINE_TEXT_PX) }) : null
-
-    const chipBox = chip
-      ? <Box key="agents-chip" flexShrink={0}><Text bold color={chip.look.color}>{chip.text}</Text></Box>
-      : null
-    // Beside the segments when both fit, else on a row of its own under the line
-    const beside = isChipBeside ? chipBox : null
-    const rows: RenderChildren[] = []
-    if (p.items.length === 0) {
-      rows.push(<Box key="first" flexDirection="row" flexWrap="wrap" columnGap={COLUMN_GAP}>
-        <Box key="words" flexShrink={1}><Text color={KEY.muted} wrap="truncate">{p.words}</Text></Box>
-        {chipBox}
-      </Box>)
-    } else if (Svg && art !== null) {
-      // The Svg alone in a column of its own, the chip beside it (P-021 pkt 3: an interactive Svg
-      // in a row next to text shrinks to its frame's default width)
-      rows.push(<Box key="first" flexDirection="row" alignItems="flex-start" columnGap={COLUMN_GAP}>
-        <Box key="segments" flexDirection="column" flexGrow={1} flexShrink={1}>
-          <Svg isInteractive source={art} alt={alt} height={SEGMENTS_HEIGHT} />
-        </Box>
-        {beside}
-      </Box>)
-    } else {
-      const text = segmentText(p.items.map((it) => SEGMENT_KEY[it.status] ?? KEY.muted), cells)
-      rows.push(<Box key="first" flexDirection="row" columnGap={COLUMN_GAP}>
-        <Box key="segments" flexDirection="row" flexWrap="wrap" flexShrink={1} columnGap={text.gap}>
-          {text.runs.map((r, i) => <Box key={`seg-${p.items[i]?.id ?? i}`}><Text color={r.color}>{r.text}</Text></Box>)}
-        </Box>
-        {beside}
-      </Box>)
-      rows.push(<Box key="line"><Text color={KEY.muted} wrap="truncate">{calm}</Text></Box>)
-    }
-    if (p.items.length && chipBox && !isChipBeside) rows.push(<Box key="chip-row" flexDirection="row">{chipBox}</Box>)
-    // The second row, only while its reason lasts: the box just ticked, for TICKED_MS
-    if (tick !== null && clockNow - tick.at < TICKED_MS) {
-      rows.push(<Box key="ticked-row" flexDirection="row">
-        <Box key="ticked" flexShrink={1}>
-          <Text bold color={KEY.done} wrap="truncate">{itemLine(BAR.tile.done.mark, tick.index, tick.total, tick.name)}</Text>
-        </Box>
-      </Box>)
-    }
-
-    const ours = barCard(ui, BAR_LOOK, isGui, columns, 'relai-progress-card', BAND.progress, rows, figure, 'center')
+    // The middle column's cells: the card's padding, then the label and figure columns with their
+    // gaps when they stand beside it
+    const cells = Math.max(MIN_SEGMENT_CELLS, columns - 2 - (columns < BAR.narrow ? 0 : BAR.labelColumn + BAR.figureColumn + 2 * COLUMN_GAP))
+    const rows = stepRows(ui, isGui, {
+      progress: p,
+      isOpen: await read($, isListOpen),
+      isDoneShown: await read($, isListDoneShown),
+      // the flash only while its box is still done (unticked within it, or another list: none)
+      freshId: f !== null && clockNow - f.at < FLASH_MS && p.items.some((it) => it.id === f.id && it.status === 'done') ? f.id : null,
+      isWorking: e.props.isWorking,
+      agents: list.length ? { count: list.length, isRunning: counts(list).running > 0 } : null,
+      columns,
+      cells,
+      onToggle: () => { update($, isListOpen, (x) => !x).catch(() => undefined) },
+      onFold: () => { update($, isListDoneShown, (x) => !x).catch(() => undefined) },
+    })
+    const ours = barCard(ui, BAR_LOOK, isGui, columns, 'relai-progress-card', BAND.progress, rows, figure, 'flex-start')
     if (!below) return ours
     // No gap: on the desktop the rule under the card brings the air (variant 3b)
     return <Box key="relai-progress" flexDirection="column">{[ours, barRule(ui, BAR_LOOK, isGui, below), below]}</Box>

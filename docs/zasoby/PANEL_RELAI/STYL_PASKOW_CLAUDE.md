@@ -1,6 +1,6 @@
 # Styl pasków i panelu RelAI dla Claude Code
 
-Wersja: **4.0** (v3.8 + §13: paski w kolorach narzędzia — klucze motywu, znaczniki `Svg` w dwóch paletach przez `prefers-color-scheme`, wariant 3b z linią gasnącą zamiast teł; plan WYGLAD_PANELU E1, 2026-10-14; v3.8 — v3.7 + §12 wycofany: każdy panel podziału rysuje paski, linia w stopce znika; odnoga SPLIT_VIEW, 2026-10-14; v3.7 — v3.6 + §1 i §10.5: zdarzenie „nowa sesja się opłaca” w dwóch liniach bez chipa, sam koszt, przycisk „Nowa sesja”; odnoga KOMUNIKAT_ZWROTU, 2026-10-14; v3.6 — §6 pkt 6: karta startu etapu z wyborem „nowa sesja”; odnoga NOWA_SESJA, 2026-10-12; v3.5 — 11.3: karta „Próg limitu” jako linijka z progiem i przyciski wartości; Aneks E, 2026-10-11; v3.4 — 11.1: podpis „próg N % · źródło” pod baterią limitu, która nie jest spokojna; Aneks D, 2026-10-11; v3.3 — sekcja 11: limit planu — dwa progi, zapis i wznowienie, karta progu w Kosztach; LIMIT_CHECKPOINT E4, 2026-10-11) · Data: **2026-10-10** · Zakres: trzy paski nad promptem **i panel boczny** `/relai-panel`
+Wersja: **4.1** (v4.0 + §3: pasek postępu jako lista kroków — cienkie segmenty, jedna linia z punktem w toku i „Rozwiń”, okno najwyżej 6 wierszy, błysk odhaczenia zamiast drugiego rzędu, zrobione od lewej, znacznik kręci się tylko przy pracy modelu, jasny wygląd „J3 miękki”; plan WYGLAD_PANELU E2, 2026-10-15; v4.0 — v3.8 + §13: paski w kolorach narzędzia — klucze motywu, znaczniki `Svg` w dwóch paletach przez `prefers-color-scheme`, wariant 3b z linią gasnącą zamiast teł; plan WYGLAD_PANELU E1, 2026-10-14; v3.8 — v3.7 + §12 wycofany: każdy panel podziału rysuje paski, linia w stopce znika; odnoga SPLIT_VIEW, 2026-10-14; v3.7 — v3.6 + §1 i §10.5: zdarzenie „nowa sesja się opłaca” w dwóch liniach bez chipa, sam koszt, przycisk „Nowa sesja”; odnoga KOMUNIKAT_ZWROTU, 2026-10-14; v3.6 — §6 pkt 6: karta startu etapu z wyborem „nowa sesja”; odnoga NOWA_SESJA, 2026-10-12; v3.5 — 11.3: karta „Próg limitu” jako linijka z progiem i przyciski wartości; Aneks E, 2026-10-11; v3.4 — 11.1: podpis „próg N % · źródło” pod baterią limitu, która nie jest spokojna; Aneks D, 2026-10-11; v3.3 — sekcja 11: limit planu — dwa progi, zapis i wznowienie, karta progu w Kosztach; LIMIT_CHECKPOINT E4, 2026-10-11) · Data: **2026-10-10** · Zakres: trzy paski nad promptem **i panel boczny** `/relai-panel`
 (zakładki Komendy i Koszty) · Źródło decyzji: wątek [AUDYT_MODOW](../../fixy/AUDYT_MODOW/ODNOGA.md),
 makiety [MAKIETY.html](../../fixy/AUDYT_MODOW/MAKIETY.html) (wersja 4, kalibracja z Łukaszem
 w czterech rundach 2026-10-10).
@@ -43,17 +43,45 @@ Jeden wiersz: `PANEL_CODEX · E1` (pogrubione, `BAR.text`) · `W TOKU` (pogrubio
 `etapów`. **Koszt sesji znika z tego paska** — stoi raz, w pasku cache. Etykieta kolumny lewej:
 `plan` (bez „RelAI ·”; marka jest w kolorze). Brak planu albo plan nieczytelny — słowami jak dziś.
 
-## 3. Pasek postępu
+## 3. Pasek postępu — lista kroków (v4.1, plan WYGLAD_PANELU E2, 2026-10-15)
 
-Wiersz pierwszy: segmenty (Svg na desktopie, znaki w terminalu) na całą szerokość kolumny
-środkowej, obok chip `● N agentów · $x` gdy sesja ma subagentów (zamiast przycisku „Agenci”;
-panel agentów otwiera się komendą `/relai-agents`). Przycisk „Panel RelAI” **znika z paska**.
-Pod segmentami **stała mała linia** (font Svg ok. 11,5 px, `BAR.muted`): w spokoju
-`w toku: <punkt ●> · następny: <punkt ○>` (albo tylko `następny: …`, gdy nic nie jest w toku);
-po najechaniu na segment — `<znak> i/N · <nazwa punktu>` w `BAR.text`. Segmenty **nigdy** nie
-znikają pod podpowiedzią. Wysokość Svg: dwie linie (segmenty 8 px + odstęp 4 px + linia 14 px).
-Po prawej `2/14` + `punktów` (jeden format liczby dla wszystkich pasków: `a/b` + jednostka,
-bez procentu z setnymi).
+Zastępuje opis z v2–v4.0 (segmenty 36 px z linią w `Svg`, chip z kosztem, drugi rząd
+„odhaczone” na 10 s). Wzór: makieta `docs/plany/WYGLAD_PANELU/MAKIETA_PASEK_POSTEPU.html`, wygląd
+„A · kółka” wybrany w czterech rundach w prawdziwym nośniku (zrzuty `WYGLAD_PANELU_E2_*`), kod
+`progress/hooks/steps.tsx` i `segments.ts`.
+
+**Zwinięty (domyślnie):** w kolumnie środkowej dwa wiersze. (1) Cienka linia segmentów: `Svg`
+interaktywne 10 px (segment 4 px, po 3 px powietrza), jeden segment na punkt, **zrobione od lewej**,
+potem pozostałe w kolejności z pliku — pasek rośnie jak zwykły postęp także przy odhaczaniu nie po
+kolei (runda 4: „czy to nie powinno być tak sekwencyjnie, po kolei?”); dymek `<title>` segmentu
+podaje numer punktu w pliku i nazwę (`5/7 · …`); bieżący segment w `running`. W terminalu te same
+segmenty znakami w kluczach. (2) Jedna linia: znacznik bieżącego punktu (16 px, dymek z pełną
+nazwą) · nazwa punktu w toku pogrubiona, ucięta wielokropkiem · `następny: …` wyciszone od 110
+kolumn · chip `● N agentów` / `✓ N agentów` (bez kosztu — koszt w `/relai-agents`) · przycisk
+**Rozwiń** (`primary`). Tekst ucinany stoi w `Box` z bazą zerową (`width={0}` + `flexGrow`): bez
+niej długa nazwa rozpycha kolumnę poza kartę (P-043 pkt 6).
+
+**Rozwinięty:** linia mówi sumy (`3 zrobionych · 1 w toku · 3 czeka`) i ma przycisk **Zwiń**; pod
+nią okno **najwyżej 6 wierszy**: `▸ N zrobionych` jako przycisk `plain` (tekst — runda 3, wyjątek od
+zasady „wszystkie przyciski `primary`” z §13), wiersz właśnie odhaczony, punkt w toku, trzy
+następne, `+N czekają`; po rozwinięciu zrobionych ich trzy ostatnie zajmują miejsce następnych.
+Stan wiersza stoi **zaraz za nazwą** (`… · w toku`, `… · przed chwilą`, `… · błąd`), nazwa się
+zawija. Stan zwinięty / rozwinięty i rozwinięte zrobione są pamiętane w sesji (`$.state`).
+
+**Znaczniki:** w toku — łuk kręcący się **tylko gdy model pracuje** (`isWorking` pasma; runda 4:
+„jak już wykona pracę … to wtedy się nie kręci”), w spoczynku nieruchome bursztynowe kółko
+z kropką; zrobione — wypełnione kółko z ✓; czeka — przerywany pierścień; błąd — czerwone kółko
+z kreską. Jasny wygląd strojony „J3 miękki” (`STEP_LIGHT_CSS` w `core/panel/theme.mjs`, tylko
+w `Svg` tego paska): tor `#e7e4dd`, zrobione `#5aa851`, w toku `#d39a33`, pierścień czekający
+pełny jasny z cienkim obrysem, tor znacznika na krążku `#f7ecd6`; ciemny bez zmian wobec §13.
+
+**Odhaczenie:** wiersz raz błyska tłem w kluczu `diffAddedDimmed` przez 1,4 s, znacznik się
+wypełnia (SMIL), segment pojawia się z przejściem; w zwiniętym błyska linia. Drugiego rzędu nie ma.
+
+**Przypadki brzegowe:** brak punktów albo wszystkie odhaczone — jedna linia słowami, bez listy
+i przycisku; punkt z błędem jest bieżącym (`błąd: …` w kluczu `error` w zwiniętym); ta sama lista
+dla etapu, odnogi i załogi. Po prawej `3/7` + `punktów` (jeden format liczby dla wszystkich
+pasków: `a/b` + jednostka, bez procentu).
 
 ## 4. Pasek cache: cztery pierścienie z podpisem dwuliniowym
 

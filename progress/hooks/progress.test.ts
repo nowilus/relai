@@ -5,7 +5,7 @@ import { agentCost } from './core/agents.mjs'
 import { parseRecords } from './core/measure.mjs'
 import { parsePriceFile, priceAt, priceLists } from './core/pricing.mjs'
 import { usd } from './fmt'
-import { calmLine } from './segments'
+import { WINDOW, currentOf, sumWords, windowRows } from './segments'
 import type { Item } from './core/progress.mjs'
 
 type Engine = Parameters<TestBody>[0]
@@ -123,8 +123,10 @@ function minWidth(node: RenderNode): number {
 type Mounted = Awaited<ReturnType<Engine['ui']['mount']>>
 const STATE_OF = new Map([['done', 'done'], ['track', 'pending'], ['running', 'running'], ['failed', 'failed'],
   [KEY.done, 'done'], [KEY.muted, 'pending'], [KEY.running, 'running'], [KEY.failed, 'failed']])
-// The segments are the interactive Svg; the rule above the card (variant 3b) is an image
-const isMarks = (x: RenderNode) => typeof x !== 'string' && Boolean((x as { props?: { isInteractive?: boolean } }).props?.isInteractive)
+// The segments are the Svg of rects painted by ink class (WYGLAD_PANELU E2); the marks of the list
+// are Svg of 16 px, the rule above the card (variant 3b) an image of a gradient
+const isMarks = (x: RenderNode) => typeof x !== 'string'
+  && String((x as { props?: { source?: string } }).props?.source ?? '').includes('<rect class="f-')
 function* walkNodes(node: RenderNode): Generator<RenderNode> {
   if (typeof node === 'string') return
   yield node
@@ -136,7 +138,7 @@ async function segmentStates(_: Engine, ui: Mounted, surface: 'terminal' | 'desk
     const svgs = [...walkNodes(await ui.drawn())].filter((x) => typeof x !== 'string' && x.type === 'Svg' && isMarks(x))
     expect(svgs.length).toBe(1)
     const source = String(((svgs[0] as { props?: { source?: string } }).props ?? {}).source ?? '')
-    const fills = [...source.matchAll(/<rect class="c f-([a-z]+)"/g)].map((m) => m[1] ?? '')
+    const fills = [...source.matchAll(/<rect class="f-([a-z]+)"/g)].map((m) => m[1] ?? '')
     expect(fills.length).toBe(n)
     return fills.map((f) => STATE_OF.get(f) ?? 'unknown?')
   }
@@ -190,7 +192,7 @@ describe('the progress card above the prompt', () => {
       expect(await ui.find({ key: 'title' })).toBeUndefined()
       expect((await ui.find({ key: 'figure' }))?.text).toBe('2/4 punktów')
       expect(textOf(await ui.drawn())).not.toContain('%')
-      expect(await segmentStates($, ui, surface, 4)).toEqual(['done', 'done', 'pending', 'pending'])
+      expect(await segmentStates($, ui, surface, 4)).toEqual(['done', 'done', 'running', 'pending'])
       expect(await ui.find({ key: 'engine' })).toBeDefined()
       await ui.unmount()
     }
@@ -212,6 +214,13 @@ describe('the progress card above the prompt', () => {
     const term = await $.ui.mount({ plugin: 'relai-progress', surface: 'terminal', ...BAND() })
     expect(textOf(await term.drawn())).toContain('Z4 · Paski')
     await term.unmount()
+    // the same list of steps as a stage's (WYGLAD_PANELU E2): the open packet, then the next one
+    const open = await $.ui.mount({ plugin: 'relai-progress', surface: 'desktop', ...BAND() })
+    await open.press({ key: 'toggle-btn' })
+    expect(textOf(await open.find({ key: 'list' }))).toContain('w toku')
+    expect(textOf(await open.find({ key: 'list' }))).toContain('Z5 · Poprawność')
+    await open.press({ key: 'toggle-btn' })
+    await open.unmount()
   })
 
   // Review of Z12: /clear changes the session id with no session.start; the bar reads the new
@@ -237,39 +246,60 @@ describe('the progress card above the prompt', () => {
     await clock.advance(11_000)
     const ui = await $.ui.mount({ plugin: 'relai-progress', surface: 'desktop', ...BAND() })
     expect((await ui.find({ key: 'figure' }))?.text).toBe('3/4 punktów')
-    expect(await segmentStates($, ui, 'desktop', 4)).toEqual(['done', 'done', 'done', 'pending'])
+    // the first box not done is the one in progress (WYGLAD_PANELU E2, the mock-up's amber segment)
+    expect(await segmentStates($, ui, 'desktop', 4)).toEqual(['done', 'done', 'done', 'running'])
     await ui.unmount()
   })
 
-  // Brief v2, 3: a small line under the segments in the same Svg — calm `następny: …` in the muted
-  // ink, a hovered segment's `<mark> i/N · <name>` in the text ink; the segments never hide under it
-  test('under the segments a constant small line: the next item in calm, the hovered item\'s mark, place and name', async ($, on) => {
+  // WYGLAD_PANELU E2 (plan, section 5; look accepted in rounds 1–3): collapsed, a thin line of
+  // segments and one line under it — the spinner, the item in progress, the next one on a wide
+  // screen, the button "Rozwiń"; a long name is cut on a zero basis, never widening the column (P-043)
+  test('collapsed: thin segments, then one line — the spinner, the item in progress, the next on a wide screen, "Rozwiń"', async ($, on) => {
     world(on, FILES)
     await start($)
     const ui = await $.ui.mount({ plugin: 'relai-progress', surface: 'desktop', ...BAND() })
     const svgs = [...walkNodes(await ui.drawn())].filter((x) => typeof x !== 'string' && x.type === 'Svg' && isMarks(x))
     expect(svgs.length).toBe(1)
     const props = ((svgs[0] as { props?: Record<string, unknown> }).props ?? {})
-    expect(props.isInteractive).toBe(true)
-    expect(props.height).toBe(36) // 4 px of air, segments 8 px, gap 9 px, line 15 px (WYGLAD_PANELU E1)
+    expect(props.isInteractive).toBe(true) // the tooltips of the segments
+    expect(props.height).toBe(10)
     const source = String(props.source ?? '')
-    expect(source).toMatch(/^<svg [^>]*width="100%"[^>]*height="36"/) // a width in the markup (P-020, 7)
+    expect(source).toMatch(/^<svg [^>]*width="100%"[^>]*height="10"/) // a width in the markup (P-020, 7)
     expect(source).toContain('@media (prefers-color-scheme: light)') // two palettes (P-042)
-    expect(source).toContain('font-size:11.5px')
-    // calm: one line in the muted color
-    expect(source).toContain('<text class="d f-muted" x="0" y="32">następny: trzy</text>')
-    // hover: one line per segment in the text color, hidden until its own segment is hovered
-    expect(source).toContain('<text class="t t0 f-text" x="0" y="32">✓ 1/4 · jeden</text>')
-    expect(source).toContain('<text class="t t3 f-text" x="0" y="32">○ 4/4 · cztery</text>')
-    expect(source).toContain('.b0:hover~.t0')
-    // what hover hides is the calm line alone, never a segment
-    const hidden = [...source.matchAll(/([^{}]+)\{display:none\}/g)].map((m) => m[1] ?? '')
-    expect(hidden.join(',').split(',').map((s) => s.trim()).filter((s) => s !== '.t' && !s.endsWith('~.d'))).toEqual([])
+    expect(source).toContain('.f-done{fill:#5aa851}') // the light tuning "J3 miękki" (round 3)
+    expect(source).toContain('<title>1/4 · jeden</title>')
+    expect(source).toContain('<title>4/4 · cztery</title>')
+    expect(source).not.toContain('<text') // no words in Svg: they do not wrap (plan, variant D)
+    const now = await ui.find({ key: 'now' })
+    expect(now?.text).toBe('trzy')
+    expect(now?.props.width).toBe(0)
+    expect((await ui.find({ key: 'next' }))?.text).toBe('następny: cztery')
+    // waiting for the person the mark stands still (round 4); its tooltip is the full name
+    const markOf = async (u: typeof ui) => {
+      const box = await u.find({ key: 'now-mark' })
+      const svg = [...walkNodes(box as RenderNode)].find((x) => typeof x !== 'string' && x.type === 'Svg')
+      return String((svg as { props?: { source?: string } } | undefined)?.props?.source)
+    }
+    expect(await markOf(ui)).toContain('<title>trzy</title>')
+    expect(await markOf(ui)).not.toContain('animateTransform')
+    await ui.redraw({ ...BAND().props, isWorking: true }) // the model works: the mark spins
+    expect(await markOf(ui)).toContain('animateTransform')
+    await ui.redraw({ ...BAND().props, isWorking: false })
+    expect(await markOf(ui)).not.toContain('animateTransform')
+    const buttons = await ui.findAll({ type: 'Button' })
+    expect(buttons.map((b) => b.props.label)).toEqual(['Rozwiń'])
+    expect(buttons[0]?.props.variant).toBe('primary')
+    expect(await ui.find({ key: 'list' })).toBeUndefined()
     await ui.unmount()
-
-    // the terminal draws the calm line as text under the segments
+    // half a window: the next one is not said
+    const half = await $.ui.mount({ plugin: 'relai-progress', surface: 'desktop', ...BAND(100) })
+    expect(await half.find({ key: 'next' })).toBeUndefined()
+    expect((await half.find({ key: 'now' }))?.text).toBe('trzy')
+    await half.unmount()
+    // the terminal: the same line, the segments as cells, the spinner as a sign
     const term = await $.ui.mount({ plugin: 'relai-progress', surface: 'terminal', ...BAND() })
-    expect((await term.find({ key: 'line' }))?.text).toBe('następny: trzy')
+    expect((await term.find({ key: 'now' }))?.text).toBe('trzy')
+    expect((await term.find({ key: 'now-mark' }))?.text).toBe(BAR.tile.running.mark)
     await term.unmount()
   })
 
@@ -281,35 +311,103 @@ describe('the progress card above the prompt', () => {
     await ui.unmount()
   })
 
-  // Brief v2, 1: "punkt właśnie odhaczony" opens a second row under this bar alone, for 10 s
-  test('a box just ticked opens a second row `✓ i/N · name` for 10 s, then the row is gone', async ($, on) => {
+  // WYGLAD_PANELU E2 (plan, section 5): a box ticked flashes once — the line of the collapsed bar,
+  // the row of the open list with its mark filling — and no second row stands under the bar
+  test('a box just ticked flashes once and its mark fills, with no second row; the flash is gone after 1.4 s', async ($, on) => {
     const { disk, clock } = world(on, FILES)
     await start($)
     const ui = await $.ui.mount({ plugin: 'relai-progress', surface: 'desktop', ...BAND() })
-    expect(await ui.find({ key: 'ticked' })).toBeUndefined() // boxes ticked before the session are no news
+    expect((await ui.find({ key: 'line' }))?.props.backgroundColor).toBeUndefined() // ticked before the session: no news
     disk[`${CWD}/docs/plany/PANEL_CLAUDE/PROMPT_ETAP_9.md`] = PROMPT.replace('- [ ] trzy', '- [x] trzy')
-    await clock.advance(11_000) // the tick at 10 s reads the file
-    expect((await ui.find({ key: 'ticked' }))?.text).toBe('✓ 3/4 · trzy')
-    const term = await $.ui.mount({ plugin: 'relai-progress', surface: 'terminal', ...BAND() })
-    expect((await term.find({ key: 'ticked' }))?.text).toBe('✓ 3/4 · trzy')
-    await term.unmount()
-    await clock.advance(8_000) // 19 s: still within its 10 s
-    expect(await ui.find({ key: 'ticked' })).toBeDefined()
-    await clock.advance(2_000) // 21 s: past them
-    expect(await ui.find({ key: 'ticked' })).toBeUndefined()
-    expect(await ui.find({ key: 'figure' })).toBeDefined() // the bar itself stays
+    await clock.advance(10_500) // the tick at 10 s reads the file
+    expect((await ui.find({ key: 'line' }))?.props.backgroundColor).toBe('diffAddedDimmed')
+    expect((await ui.find({ key: 'now' }))?.text).toBe('cztery')
+    expect(await ui.find({ key: 'ticked-row' })).toBeUndefined()
+    await ui.press({ key: 'toggle-btn' })
+    const row = await ui.find({ key: 'row-docs/plany/PANEL_CLAUDE/PROMPT_ETAP_9.md#3' })
+    expect(row?.props.backgroundColor).toBe('diffAddedDimmed')
+    expect(row?.text).toContain('trzy  ·  przed chwilą')
+    const mark = [...walkNodes(row as RenderNode)].find((x) => typeof x !== 'string' && x.type === 'Svg')
+    expect(String((mark as { props?: { source?: string } } | undefined)?.props?.source)).toContain('<animate attributeName="r"')
+    await clock.advance(1_500) // past the flash
+    expect(await ui.find({ key: 'row-docs/plany/PANEL_CLAUDE/PROMPT_ETAP_9.md#3' })).toBeUndefined()
+    expect(textOf(await ui.drawn())).not.toContain('przed chwilą')
+    expect((await ui.find({ key: 'figure' }))?.text).toBe('3/4 punktów')
     await ui.unmount()
   })
 
-  test('in calm the bar holds no button at all, with relai-panel running and with agents', async ($, on) => {
+  // WYGLAD_PANELU E2: "Rozwiń" opens the window around the current item, the state stays for the
+  // session (a redraw, another answer of the model, a new mount), "Zwiń" closes it; the done ones
+  // fold away behind a text button (round 3: "zwijanie tekst"), a row's state stands by its name
+  test('"Rozwiń" opens the list and it stays open across a redraw and the next answer; the done ones unfold by a text button', async ($, on) => {
     world(on, FILES)
-    on('command.list', () => ({ value: [{ name: 'relai-panel', description: 'Panel RelAI', source: 'plugin' as const }] }))
     await start($)
-    await spawn($)
-    for (const surface of ['terminal', 'desktop'] as const) {
+    for (const surface of ['desktop', 'terminal'] as const) {
       const ui = await $.ui.mount({ plugin: 'relai-progress', surface, ...BAND() })
-      expect(await ui.find({ key: 'figure' })).toBeDefined() // the bar is there at all
-      expect(await ui.findAll({ type: 'Button' })).toEqual([])
+      await ui.press({ key: 'toggle-btn' })
+      expect(await ui.find({ key: 'list' })).toBeDefined()
+      expect((await ui.find({ key: 'sum' }))?.text).toBe('2 zrobionych · 1 w toku · 1 czeka')
+      expect((await ui.find({ key: 'row-docs/plany/PANEL_CLAUDE/PROMPT_ETAP_9.md#3' }))?.text).toContain('trzy  ·  w toku')
+      expect((await ui.findAll({ type: 'Button' })).map((b) => [b.props.label, b.props.plain ?? b.props.variant]))
+        .toEqual([['Zwiń', 'primary'], ['2 zrobionych', true]])
+      await ui.redraw()
+      await $.turn.complete({ answer: 'odpowiedź', durationMs: 10, isAborted: false, turnId: 'tm', reason: 'answer' } as never)
+      expect(await ui.find({ key: 'list' })).toBeDefined()
+      await ui.unmount()
+      const again = await $.ui.mount({ plugin: 'relai-progress', surface, ...BAND() })
+      expect(await again.find({ key: 'list' })).toBeDefined()
+      await again.press({ key: 'fold-press' })
+      expect((await again.find({ key: 'row-docs/plany/PANEL_CLAUDE/PROMPT_ETAP_9.md#1' }))?.text).toContain('jeden')
+      await again.press({ key: 'fold-press' })
+      await again.press({ key: 'toggle-btn' })
+      expect(await again.find({ key: 'list' })).toBeUndefined()
+      await again.unmount()
+    }
+  })
+
+  // Plan, section 8: no list and no button when there is nothing left — every box ticked, or none
+  // at all; a failed task is the news of the collapsed line; a long name is cut collapsed and
+  // wrapped open
+  test('edge cases: all ticked, a failed task, a long name', async ($, on) => {
+    const long = 'Bardzo długa nazwa punktu, która nie mieści się w jednej linii paska nad promptem w wąskim panelu podziału okna aplikacji'
+    const { disk, clock } = world(on, { ...FILES, [`${CWD}/docs/plany/PANEL_CLAUDE/PROMPT_ETAP_9.md`]: PROMPT.replace('trzy', long) })
+    await start($)
+    const ui = await $.ui.mount({ plugin: 'relai-progress', surface: 'desktop', ...BAND(60) })
+    const now = await ui.find({ key: 'now' })
+    expect(now?.text).toBe(long)
+    expect(now?.props.width).toBe(0)
+    const cut = [...walkNodes(now as RenderNode)].find((x) => typeof x !== 'string' && x.type === 'Text')
+    expect((cut as { props?: { wrap?: string } } | undefined)?.props?.wrap).toBe('truncate')
+    await ui.press({ key: 'toggle-btn' })
+    const row = await ui.find({ key: 'row-docs/plany/PANEL_CLAUDE/PROMPT_ETAP_9.md#3' })
+    const wrapped = [...walkNodes(row as RenderNode)].find((x) => typeof x !== 'string' && x.type === 'Text')
+    expect((wrapped as { props?: { wrap?: string } } | undefined)?.props?.wrap).toBe('wrap')
+    await ui.press({ key: 'toggle-btn' })
+    disk[`${CWD}/docs/plany/PANEL_CLAUDE/PROMPT_ETAP_9.md`] = PROMPT.replace(/- \[ \]/g, '- [x]')
+    await clock.advance(10_500)
+    expect((await ui.find({ key: 'words' }))?.text).toBe('wszystkie punkty odhaczone')
+    expect(await ui.findAll({ type: 'Button' })).toEqual([])
+    expect((await ui.find({ key: 'figure' }))?.text).toBe('4/4 punktów')
+    await ui.unmount()
+  })
+
+  test('a failed crew task is the current item: "błąd" in the error key, in place of "w toku"', async ($, on) => {
+    world(on, {
+      ...FILES,
+      [`${CWD}/.claude/relai/work/CREW/2026-10-09_110000/zadania.json`]: JSON.stringify([{ id: 'a', title: 'Pierwsze' }, { id: 'b', title: 'Drugie' }, { id: 'c', title: 'Trzecie' }]),
+      [`${CWD}/.claude/relai/work/CREW/2026-10-09_110000/manifest.json`]: JSON.stringify({ updatedAt: '2026-10-09T11:30:00Z', tasks: [{ id: 'a', status: 'done' }, { id: 'b', status: 'failed' }] }),
+    })
+    await start($)
+    for (const surface of ['desktop', 'terminal'] as const) {
+      const ui = await $.ui.mount({ plugin: 'relai-progress', surface, ...BAND() })
+      const now = await ui.find({ key: 'now' })
+      expect(now?.text).toBe('błąd: Drugie')
+      const t = [...walkNodes(now as RenderNode)].find((x) => typeof x !== 'string' && x.type === 'Text')
+      expect((t as { props?: { color?: string } } | undefined)?.props?.color).toBe(KEY.failed)
+      await ui.press({ key: 'toggle-btn' })
+      expect((await ui.find({ key: 'row-b' }))?.text).toContain('Drugie  ·  błąd')
+      expect((await ui.find({ key: 'sum' }))?.text).toBe('1 zrobionych · 1 z błędem · 1 czeka')
+      await ui.press({ key: 'toggle-btn' })
       await ui.unmount()
     }
   })
@@ -355,15 +453,26 @@ describe('the progress card above the prompt', () => {
     await ui.unmount()
   })
 
-  test('boxes ticked out of order light exactly their own segments, and the count follows the same list (brief, 6)', async ($, on) => {
+  // WYGLAD_PANELU E2, round 4 (Łukasz: "czy to nie powinno być tak sekwencyjnie, po kolei?"; choice
+  // "Zrobione najpierw", replacing brief §6 "each segment its own box"): boxes ticked out of order
+  // stand first, so the bar grows from the left; each segment's tooltip keeps its number in the file
+  test('boxes ticked out of order stand first, the bar grows from the left, each tooltip keeps the box\'s number', async ($, on) => {
     const prompt = Array.from({ length: 10 }, (_, i) => `- [${[2, 5, 9].includes(i + 1) ? 'x' : ' '}] Punkt ${i + 1}`).join('\n')
     world(on, { ...FILES, [`${CWD}/docs/plany/PANEL_CLAUDE/PROMPT_ETAP_9.md`]: prompt })
     await start($)
-    const ui = await $.ui.mount({ plugin: 'relai-progress', surface: 'desktop', ...BAND() })
-    const states = await segmentStates($, ui, 'desktop', 10)
-    expect(states.flatMap((s, i) => (s === 'done' ? [i + 1] : []))).toEqual([2, 5, 9])
-    expect((await ui.find({ key: 'figure' }))?.text).toBe('3/10 punktów')
-    await ui.unmount()
+    for (const surface of ['desktop', 'terminal'] as const) {
+      const ui = await $.ui.mount({ plugin: 'relai-progress', surface, ...BAND() })
+      const states = await segmentStates($, ui, surface, 10)
+      expect(states).toEqual(['done', 'done', 'done', 'running', 'pending', 'pending', 'pending', 'pending', 'pending', 'pending'])
+      expect((await ui.find({ key: 'figure' }))?.text).toBe('3/10 punktów')
+      expect((await ui.find({ key: 'now' }))?.text).toBe('Punkt 1')
+      await ui.unmount()
+    }
+    const desk = await $.ui.mount({ plugin: 'relai-progress', surface: 'desktop', ...BAND() })
+    const svg = [...walkNodes(await desk.drawn())].find((x) => typeof x !== 'string' && x.type === 'Svg' && isMarks(x))
+    const titles = [...String((svg as { props?: { source?: string } } | undefined)?.props?.source).matchAll(/<title>(\d+)\/10/g)].map((m) => Number(m[1]))
+    expect(titles).toEqual([2, 5, 9, 1, 3, 4, 6, 7, 8, 10])
+    await desk.unmount()
   })
 
   test('every box keeps its segment, forty included; the terminal wraps them rather than drop any', async ($, on) => {
@@ -417,13 +526,15 @@ describe('the progress card above the prompt', () => {
     await ui.unmount()
     await spawn($)
     disk[`${CWD}/docs/plany/PANEL_CLAUDE/PROMPT_ETAP_9.md`] = PROMPT.replace('- [ ] trzy', `- [x] ${long}`)
-    await clock.advance(11_000)
+    await clock.advance(10_500) // the box just ticked: its row flashes in the open list
     for (const surface of ['terminal', 'desktop'] as const) {
       const narrow = await $.ui.mount({ plugin: 'relai-progress', surface, ...BAND(40) })
       expect(await narrow.find({ key: 'agents-chip' })).toBeDefined()
-      expect(await narrow.find({ key: 'ticked' })).toBeDefined()
-      const drawn = await narrow.drawn()
-      expect(minWidth(drawn)).toBeLessThanOrEqual(40)
+      expect(minWidth(await narrow.drawn())).toBeLessThanOrEqual(40)
+      await narrow.press({ key: 'toggle-btn' })
+      expect(textOf(await narrow.find({ key: 'list' }))).toContain('przed chwilą')
+      expect(minWidth(await narrow.drawn())).toBeLessThanOrEqual(40)
+      await narrow.press({ key: 'toggle-btn' })
       await narrow.unmount()
       const pane = await $.ui.mount({ plugin: 'relai-progress', surface, ...PANE(40) })
       expect(minWidth(await pane.drawn())).toBeLessThanOrEqual(40)
@@ -438,18 +549,17 @@ describe('the agents pane', () => {
     await start($)
     await spawn($)
     await agentStep($, 0)
-    // Brief v2, 3: a chip `● N agentów · $x` beside the segments instead of the "Agenci" button,
-    // its cost the pane's own sum (computed by hand below: $0.03)
+    // WYGLAD_PANELU E2 (plan, section 5): the chip `● N agentów` in the line, its cost gone to the
+    // pane (/relai-agents), whose own sum is checked below ($0.03 by hand)
     for (const surface of ['terminal', 'desktop'] as const) {
       const band = await $.ui.mount({ plugin: 'relai-progress', surface, ...BAND() })
-      expect((await band.find({ key: 'agents-chip' }))?.text).toBe('● 1 agent · $0.03')
+      expect((await band.find({ key: 'agents-chip' }))?.text).toBe('● 1 agent')
       expect(await band.find({ key: 'agents-btn' })).toBeUndefined()
       await band.unmount()
     }
     await spawn2($)
     const two = await $.ui.mount({ plugin: 'relai-progress', surface: 'desktop', ...BAND() })
-    // The second one has no records yet: the sum is partial and says so
-    expect((await two.find({ key: 'agents-chip' }))?.text).toBe('● 2 agentów · ≥ $0.03')
+    expect((await two.find({ key: 'agents-chip' }))?.text).toBe('● 2 agentów')
     await two.unmount()
 
     const live = await $.ui.mount({ plugin: 'relai-progress', surface: 'desktop', ...PANE() })
@@ -470,28 +580,25 @@ describe('the agents pane', () => {
     expect(textOf(await after.drawn())).toContain('1 zakończonych')
     await after.unmount()
     await $.turn.complete({ answer: 'raport', durationMs: 5000, isAborted: false, turnId: 'tb', agentId: AGENT2, reason: 'answer' } as never)
-    // None runs any more: the chip keeps the count and the cost, its mark says they finished
+    // None runs any more: the chip keeps the count, its mark says they finished
     const ended = await $.ui.mount({ plugin: 'relai-progress', surface: 'desktop', ...BAND() })
-    expect((await ended.find({ key: 'agents-chip' }))?.text).toBe('✓ 2 agentów · ≥ $0.03')
+    expect((await ended.find({ key: 'agents-chip' }))?.text).toBe('✓ 2 agentów')
     await ended.unmount()
   })
 
-  // Measured in Chromium (2026-10-10): beside 14 segments in 40 columns the Svg is ~70 px wide and
-  // its line ran out of it; the chip goes on a row of its own instead, the segments keep the width
-  test('the chip stands beside the segments when both fit, on a row of its own under them when not', async ($, on) => {
+  // WYGLAD_PANELU E2: the segments take a row of their own, so the short chip always fits in the
+  // line beside the item in progress, which gives way (zero basis) — no row of its own any more
+  test('the chip stands in the line, beside the item in progress and the button, in a full window and in 40 columns', async ($, on) => {
     const prompt = Array.from({ length: 14 }, (_, i) => `- [ ] Punkt ${i + 1}`).join('\n')
     world(on, { ...FILES, [`${CWD}/docs/plany/PANEL_CLAUDE/PROMPT_ETAP_9.md`]: prompt })
     await start($)
     await spawn($)
-    for (const surface of ['terminal', 'desktop'] as const) {
-      const wide = await $.ui.mount({ plugin: 'relai-progress', surface, ...BAND(140) })
-      expect(await wide.find({ key: 'agents-chip' })).toBeDefined()
-      expect(await wide.find({ key: 'chip-row' })).toBeUndefined()
-      await wide.unmount()
-      const narrow = await $.ui.mount({ plugin: 'relai-progress', surface, ...BAND(40) })
-      expect((await narrow.find({ key: 'chip-row' }))?.text).toContain('1 agent')
-      expect(minWidth(await narrow.drawn())).toBeLessThanOrEqual(40)
-      await narrow.unmount()
+    for (const surface of ['terminal', 'desktop'] as const) for (const cols of [140, 40]) {
+      const ui = await $.ui.mount({ plugin: 'relai-progress', surface, ...BAND(cols) })
+      expect(textOf(await ui.find({ key: 'line' }))).toContain('1 agent')
+      expect(await ui.find({ key: 'chip-row' })).toBeUndefined()
+      expect(minWidth(await ui.drawn())).toBeLessThanOrEqual(cols)
+      await ui.unmount()
     }
   })
 
@@ -670,13 +777,39 @@ describe('a crew run that went quiet leaves the bar (AUDYT_MODOW Z4, review)', (
   })
 })
 
-describe('the line under the segments says the item in progress and the next one (brief v2, 3)', () => {
+// WYGLAD_PANELU E2 (plan, section 5 and risk 4): the window of the expanded list
+describe('the window of the list stands around the current item, six rows at most', () => {
   const item = (status: Item['status'], name: string): Item => ({ id: name, label: name, name, status })
-  test('an item in progress leads; without one, only the next; with none left, words', () => {
-    expect(calmLine([item('done', 'a'), item('running', 'b'), item('pending', 'c')])).toBe('w toku: b · następny: c')
-    expect(calmLine([item('done', 'a'), item('pending', 'c'), item('pending', 'd')])).toBe('następny: c')
-    expect(calmLine([item('done', 'a'), item('running', 'b')])).toBe('w toku: b')
-    expect(calmLine([item('done', 'a')])).toBe('wszystkie punkty odhaczone')
+  const list = (done: number, total: number) => Array.from({ length: total }, (_, i) => item(i < done ? 'done' : 'pending', `p${i + 1}`))
+  const shape = (rows: ReturnType<typeof windowRows>) => rows.map((r) => (r.kind === 'item' ? `${r.isCurrent ? '*' : ''}${r.item.name}` : r.kind === 'more' ? `+${r.count}` : `fold${r.done}${r.isOpen ? '-open' : ''}`))
+  test('the fold of the done ones, the current one, three next ones, "+N czekają"', () => {
+    expect(shape(windowRows(list(5, 14), false, null))).toEqual(['fold5', '*p6', 'p7', 'p8', 'p9', '+5'])
+    expect(shape(windowRows(list(0, 7), false, null))).toEqual(['*p1', 'p2', 'p3', 'p4', '+3'])
+    expect(shape(windowRows(list(5, 7), false, null))).toEqual(['fold5', '*p6', 'p7'])
+  })
+  test('the one just ticked stands under the fold and the window still holds six rows', () => {
+    expect(shape(windowRows(list(5, 14), false, 'p5'))).toEqual(['fold5', 'p5', '*p6', 'p7', 'p8', '+6'])
+  })
+  test('unfolded, the last done ones take the next ones\' place', () => {
+    expect(shape(windowRows(list(5, 14), true, null))).toEqual(['fold5-open', 'p3', 'p4', 'p5', '*p6', '+8'])
+  })
+  test('every shape of the list keeps to six rows; nothing left to do is no window at all', () => {
+    for (let total = 1; total <= 20; total++) for (let done = 0; done <= total; done++) for (const shown of [false, true]) {
+      const rows = windowRows(list(done, total), shown, done > 0 ? `p${done}` : null)
+      expect(rows.length <= WINDOW).toBe(true)
+      if (done === total) expect(rows).toEqual([])
+    }
+  })
+  test('a failed item is the current one, the more important news', () => {
+    const items = [item('done', 'a'), item('pending', 'b'), item('failed', 'c'), item('pending', 'd')]
+    expect(currentOf(items)).toBe(2)
+  })
+  // Review of E2: a crew's tasks may run side by side — each running one is counted, the first is current
+  test('running tasks lead before pending ones and each is counted in the sums', () => {
+    const items = [item('done', 'a'), item('pending', 'b'), item('running', 'c'), item('running', 'd'), item('pending', 'e'), item('pending', 'f')]
+    expect(currentOf(items)).toBe(2)
+    expect(sumWords(items)).toBe('1 zrobionych · 2 w toku · 3 czekają')
+    expect(sumWords([item('done', 'a'), item('pending', 'b'), item('pending', 'c')])).toBe('1 zrobionych · 1 w toku · 1 czeka')
   })
 })
 

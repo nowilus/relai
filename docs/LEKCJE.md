@@ -50,8 +50,9 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
    - **Backslash:** wyrażenia regularne i ścieżki Windows tylko w pliku pisanym Write/Edit albo
      z `/`; skrypt edycji niosący `\n`, backtick lub ścieżkę — Write, heredok bez wyjątku, także
      jednolinijkowa podmiana przez `node -e`; dokumenty — tylko Edit; napis z `\n` w kodzie albo
-     teście — tylko Edit, także obok podmian bez ucieczek (L-0116, L-0119, L-0135, L-0148,
-     L-0188, L-0192); znaki łączące — `\p{M}` z flagą `u`; wynik sprawdzasz grepem stałego ciągu.
+     teście — tylko Edit, także obok podmian bez ucieczek; dotyczy każdego pliku, także roboczego
+     poza repo (`dev-mods`, `%TEMP%`) (L-0116, L-0119, L-0135, L-0148, L-0188, L-0192, L-0198);
+     znaki łączące — `\p{M}` z flagą `u`; wynik sprawdzasz grepem stałego ciągu.
    - **Kontrola pozytywna:** zero trafień przy niepustych zbiorach to defekt instrumentu do czasu
      dowodu, a trafienie na materiale dotąd zdrowym sprawdzasz najpierw na instrumencie; scenariusz
      „konfiguracji nie ma” mierzysz z podstawionym katalogiem domowym; dokładasz przypadek, który **musi** trafić, na **tym samym wejściu**, którego mechanizm
@@ -161,9 +162,13 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
       prostokątów ma kontrolę na podłożonym przepełnieniu; rysunek do człowieka po renderze
       w Chromium z pomiarem (L-0142); kryterium w warunkach odbiorcy (szerokość, wysokość glifów);
       uwaga „za niski / krzywo” najpierw pomiarem zrzutu, równe piksele przy powtórzonej uwadze to
-      kontrast — pomiar i wybór zamiast kolejnej rundy (L-0196).
+      kontrast — pomiar i wybór zamiast kolejnej rundy (L-0196); tekst ucinany w modzie stoi
+      w pudełku o bazie zerowej (`width={0}` + `flexGrow`), próba wyglądu startuje na
+      najdłuższych realnych danych (L-0197).
     - **Nośnik:** na ograniczonym zestawie elementów sonda ustala pułap przed projektem, warianty
-      w tym samym nośniku, ograniczenie mówione wprost; nowy element zbioru różnisz kształtem,
+      w tym samym nośniku, różne już w stanie domyślnym (L-0197), ograniczenie mówione wprost;
+      animacja znaczy trwającą czynność i ma źródło w sygnale narzędzia, wskaźnik postępu rośnie
+      od lewej (L-0199); nowy element zbioru różnisz kształtem,
       porównanie na całym zbiorze w skali docelowej; plan z interfejsem wskazuje źródło motywu
       w pierwszym etapie, który rysuje więcej niż linię. Ostrzeżenie `plugin validate` o root
       `CLAUDE.md` jest skutkiem dogfoodingu — nie naprawiasz.
@@ -177,7 +182,8 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
       próbki do wyboru (L-0179); licencję czytasz na stronie utworu, plik z kartą źródła i testem
       (L-0180); drugi język zaczyna się od jednej klatki i pytania, dla kogo (L-0183).
     (L-0003, L-0006, L-0016, L-0019, L-0029, L-0094, L-0098, L-0137, L-0140, L-0142, L-0145, L-0147,
-    L-0149, L-0152, L-0157, L-0171, L-0174, L-0176, L-0178, L-0179, L-0180, L-0183, L-0196)
+    L-0149, L-0152, L-0157, L-0171, L-0174, L-0176, L-0178, L-0179, L-0180, L-0183, L-0196, L-0197,
+    L-0199)
 
 **Wyprowadzone 2026-08-20 do `docs/PULAPKI.md`:** sześć pułapek narzędziowych — `tar` na `PATH`
 (L-0021), sesja `claude -p` (L-0024), PowerShell 5.1 i UTF-8 (L-0027), `--allowedTools` przy
@@ -490,6 +496,44 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
 - **Zasada:** uwagę „za niski / za mały / krzywo” sprawdzasz pomiarem tego zrzutu **przed**
   poprawką; równe piksele przy powtarzającej się uwadze znaczą kontrast albo ciężar wizualny —
   pokazujesz pomiar i dajesz wybór (np. jeden wariant dla wszystkich), zamiast kolejnej rundy.
+
+### L-0197 — Próba wyglądu na krótkich danych makiety ukryła rozjazd na danych etapu · 2026-10-15 · AKTYWNA
+
+- **Trigger:** plan WYGLAD_PANELU, E2, runda 1. Mod wariantów listy przeszedł testy i walidację;
+  Łukasz zobaczył na żywo, że na danych etapu E2 długa nazwa punktu wypycha segmenty i liczbę `0/7`
+  za prawą krawędź karty („coś tu się rozjeżdża”). `Text wrap="truncate"` w `Box` z `minWidth={0}`
+  nie ucinał — kolumna brała min-content całej nazwy (P-043 pkt 6). Na 14 krótkich nazwach makiety
+  wszystko się mieściło. Do tego warianty układu w stanie zwiniętym wyglądały tak samo, więc
+  przełącznik „nic nie zmieniał”.
+- **Przyczyna:** próbę wyglądu ustawiłem domyślnie na danych realnych, ale testy i własny podgląd —
+  na danych krótkich; warianty różniły się dopiero po rozwinięciu.
+- **Zasada:** próba wyglądu startuje na **najdłuższych realnych danych** i ma test, który ten stan
+  sprawdza (tu: baza zerowa tekstu ucinanego). Warianty do oceny różnią się już w stanie domyślnym
+  (zwiniętym) — różnica widoczna dopiero po kliknięciu nie jest wariantem.
+
+### L-0198 — Backslash w heredoku drugi raz, tym razem w teście modu poza repo · 2026-10-15 · AKTYWNA
+
+- **Trigger:** plan WYGLAD_PANELU, E2. Plik testu modu próby pisany heredokiem `<<'EOF'` z wyrażeniem
+  `/\\/g` — w pliku zostało `/\/g`, test nie załadował się („Unterminated string literal”).
+  Powtórzenie L-0116 / L-0135 (zasada aktywna 5).
+- **Przyczyna:** zasadę „backslash tylko przez Write/Edit” stosowałem do plików repozytorium, a plik
+  modu w `dev-mods` uznałem za roboczy.
+- **Zasada:** zasada backslasha obowiązuje **każdy** plik, który piszę — także roboczy, poza repo,
+  w `dev-mods` i `%TEMP%`. Separator ścieżki w kodzie testu bez backslasha:
+  `split(String.fromCharCode(92))` albo plik przez Write.
+
+### L-0199 — Animacja „w toku” kręciła się, gdy nikt nie pracował · 2026-10-15 · AKTYWNA
+
+- **Trigger:** plan WYGLAD_PANELU, E2, runda 4. Znacznik bieżącego punktu kręcił się zawsze; Łukasz:
+  „cały czas się to kręci, mimo że teraz tak naprawdę nie wykonujemy żadnej pracy, no bo czat stoi
+  i czeka na moje dyktowanie”. Te same dane pokazały punkty odhaczone nie po kolei jako
+  „poszarpany” pasek.
+- **Przyczyna:** ruch przywiązałem do stanu danych („jest punkt nieodhaczony”), a człowiek czyta ruch
+  jako „ktoś teraz pracuje”; kolejność segmentów do tożsamości punktu, a człowiek czyta pasek jak
+  postęp rosnący od lewej.
+- **Zasada:** animacja na pasku znaczy **trwającą czynność** i ma za źródło sygnał narzędzia
+  (`isWorking` pasma), nie stan pliku; spoczynek rysuje się nieruchomo. Wskaźnik postępu rośnie od
+  lewej — tożsamość elementu przechodzi do dymka.
 
 ## Lekcje zwinięte
 

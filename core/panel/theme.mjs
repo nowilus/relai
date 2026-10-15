@@ -354,6 +354,20 @@ export function inkOf(color) {
 /** The ink of a progress item by its state (BAR.tile keys). */
 export const SEGMENT_INK = Object.freeze({ done: 'done', pending: 'track', running: 'running', failed: 'failed', unknown: 'track' });
 
+/**
+ * The light tuning of the progress list (plan WYGLAD_PANELU, E2, round 3 "J3 miękki", Łukasz
+ * 2026-10-15): laid over INK.light in the progress bar's own Svg alone — the other bars and the dark
+ * palette stay as they are. Classes of the marks: `ring` a waiting item, `sptrack` the spinner's
+ * track; CSS wins over their presentation attributes.
+ */
+export const STEP_LIGHT_CSS = '.f-track{fill:#e7e4dd}.f-done{fill:#5aa851}.f-running{fill:#d39a33}.s-running{stroke:#c98a1e}'
+  + '.ring{fill:#efede8;stroke:#cdcac2;stroke-dasharray:none;stroke-width:1px;opacity:1}.sptrack{fill:#f7ecd6;stroke:#f2e3c4}';
+
+/** The CSS of the progress list's marks and segments: inkCss() and STEP_LIGHT_CSS in the light appearance. @returns {string} */
+export function stepCss() {
+  return inkCss() + `@media (prefers-color-scheme: light){${STEP_LIGHT_CSS}}`;
+}
+
 /** The rule above each bar (variant 3b): 22 px of air, a 1 px line fading over its first and last 12 %. */
 export const RULE = Object.freeze({
   height: 22,

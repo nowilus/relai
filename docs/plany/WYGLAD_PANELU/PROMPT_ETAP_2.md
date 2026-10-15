@@ -311,21 +311,21 @@ dziennika **z nazwy**, a jego nazwę zaczynasz od slugu projektu.
 Każdy punkt Weryfikacji, który przeszedł, odhaczasz w `PROMPT_ETAP_2.md` (`- [ ]` → `- [x]`)
 zaraz po jego sprawdzeniu, nie na końcu etapu; punkt, który nie przeszedł, zostaje pusty.
 
-- [ ] Trzy warianty pokazane w obu wyglądach, zwinięte i rozwinięte (zrzuty
+- [x] Trzy warianty pokazane w obu wyglądach, zwinięte i rozwinięte (zrzuty
       `WYGLAD_PANELU_E2_*`), wybór i każda runda poprawek zapisane we wpisie dziennika słowami
       Łukasza; akceptacja wyglądu zapisana.
-- [ ] Na żywo, pełne okno i wąski panel podziału, jasny i ciemny: zwinięta jedna linia z punktem
+- [x] Na żywo, pełne okno i wąski panel podziału, jasny i ciemny: zwinięta jedna linia z punktem
       w toku i przyciskiem; rozwinięte okno ≤ 6 wierszy; spinner się kręci; odhaczenie (ręczne
       w `PROMPT_ETAP_2.md`) błyska raz; stan rozwinięty zostaje po kolejnej odpowiedzi modelu.
-- [ ] `grep -n "ticked-row\|TICKED_MS" progress/hooks/*.tsx progress/hooks/*.ts` (poza testami)
+- [x] `grep -n "ticked-row\|TICKED_MS" progress/hooks/*.tsx progress/hooks/*.ts` (poza testami)
       — 0 trafień; kontrola pozytywna: na HEAD trafienia są.
-- [ ] Testy nowego zachowania (lista, okno, przycisk, stan, trzy rodzaje list, przypadki
+- [x] Testy nowego zachowania (lista, okno, przycisk, stan, trzy rodzaje list, przypadki
       brzegowe) spadają na kodzie sprzed zmiany i przechodzą po niej — obie wersje w jednym
       przebiegu; testy kolorów i szerokości z E1 zielone.
-- [ ] `claude plugin validate .` i `claude plugin test .` w `progress/` zielone binarką aplikacji;
+- [x] `claude plugin validate .` i `claude plugin test .` w `progress/` zielone binarką aplikacji;
       w `panel/` i `cache-keeper/` testy nadal 188 / 181 zielone (nietknięte); rdzeń 386+ zielony,
       `sync-panel-core.js --check` zgodne.
-- [ ] `git diff` nie dotyka `panel/hooks/band.tsx`, `panel/hooks/pane-*.tsx`, `cache-keeper/`,
+- [x] `git diff` nie dotyka `panel/hooks/band.tsx`, `panel/hooks/pane-*.tsx`, `cache-keeper/`,
       żadnej kopii `bar-card.tsx`, `docs/plany/PANEL_CODEX/` ani `docs/zasoby/PANEL_RELAI/makiety/`
       (`git diff --stat` w dzienniku).
 - [ ] Katalog roboczy `.claude/relai/work/WYGLAD_PANELU/E2/` przejrzany raportem

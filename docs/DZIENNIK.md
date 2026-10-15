@@ -72,41 +72,6 @@
   defekt jest w markerze trybu gościa, a nie w zakresie instalacji · 2026-09-15 ·
   [wpis 2026-09-15 — Zgłoszenie testera](archiwum/dziennik/DZIENNIK_2026-09-14_2026-10-09.md#2026-09-15--zgłoszenie-testera-plugin-pyta-o-relai-w-cudzym-folderze-dwie-bramki-zgody-i-wydanie-230)
 
-- **Który model zostaje domyślny, jeśli pomiar E2 wyjdzie nierozstrzygający** — na przykład gdy
-  Haiku pokryje siedem wymiarów na dziewięć i wypadnie na wybiórczym czytaniu decyzji. Wybór między
-  tańszym i słabszym a droższym i pewnym jest decyzją o jakości pracy, nie o cenniku. · 2026-09-14 ·
-  [wpis 2026-09-14 — Nowy plan OPTYMALIZATOR_PROMPTOW](archiwum/dziennik/DZIENNIK_2026-09-06_2026-09-14.md#2026-09-14--nowy-plan-optymalizator_promptow-pilotaż-wstrzymany-na-wniosek-właściciela)
-
-- **Kolizja z zainstalowanym `ecc:prompt-optimizer`** — dwa skille o podobnych opisach mogą wyzwalać
-  się nawzajem albo zamiast siebie. Wyłączenie cudzego pluginu jest zmianą w konfiguracji
-  użytkownika, więc RelAI jej nie wykona sam. · 2026-09-14 ·
-  [wpis 2026-09-14 — Nowy plan OPTYMALIZATOR_PROMPTOW](archiwum/dziennik/DZIENNIK_2026-09-06_2026-09-14.md#2026-09-14--nowy-plan-optymalizator_promptow-pilotaż-wstrzymany-na-wniosek-właściciela)
-
-- **Czy tryb ciągły optymalizatora ma licznik kosztu** — dokłada około pół sesji do E3 i jest
-  jedynym sposobem, żeby ocenić opłacalność trybu na danych zamiast na wrażeniu. · 2026-09-14 ·
-  [wpis 2026-09-14 — Nowy plan OPTYMALIZATOR_PROMPTOW](archiwum/dziennik/DZIENNIK_2026-09-06_2026-09-14.md#2026-09-14--nowy-plan-optymalizator_promptow-pilotaż-wstrzymany-na-wniosek-właściciela)
-
-- **Czy tryb ciągły dla Cursora i Codeksa dostaje własny plan** — plan OPTYMALIZATOR_PROMPTOW daje
-  im wyłącznie komendę; tryb ciągły wymaga poznania ich mechanizmu przechwytywania promptu.
-  · 2026-09-14 ·
-  [wpis 2026-09-14 — Nowy plan OPTYMALIZATOR_PROMPTOW](archiwum/dziennik/DZIENNIK_2026-09-06_2026-09-14.md#2026-09-14--nowy-plan-optymalizator_promptow-pilotaż-wstrzymany-na-wniosek-właściciela)
-
-- **Kiedy wraca plan PIERWSI_UZYTKOWNICY** — wstrzymany 2026-09-14, nie zamknięty; E3 i trzy bramki
-  czekają nietknięte, a termin graniczny raportu traci moc do czasu wznowienia. · 2026-09-14 ·
-  [wpis 2026-09-14 — Nowy plan OPTYMALIZATOR_PROMPTOW](archiwum/dziennik/DZIENNIK_2026-09-06_2026-09-14.md#2026-09-14--nowy-plan-optymalizator_promptow-pilotaż-wstrzymany-na-wniosek-właściciela)
-
-- **Dyspozycja publikacji i kontaktów (plan PIERWSI_UZYTKOWNICY)** — cztery bloki tekstu czekają
-  gotowe w `docs/plany/PIERWSI_UZYTKOWNICY/ZAPROSZENIE.md`. Bez wskazania kanału, treści i odbiorców
-  nic nie zostanie wysłane, `PROBY.md` zostanie pusty, a E3 zamknie plan wynikiem
-  nierozstrzygającym. · 2026-09-13 ·
-  [wpis 2026-09-13 — E2 zamknięty](archiwum/dziennik/DZIENNIK_2026-09-06_2026-09-14.md#2026-09-13--e2-zamknięty-materiały-zaproszenia-gotowe-demo-nieczytelne-na-telefonie)
-  *(odroczone 2026-10-14, odroczeń: 1)*
-
-- **Wskazanie uczestników pilotażu** — trzy do pięciu osób z własnym małym, niekrytycznym
-  projektem. Brak kandydatów nie uruchamia bezterminowej rekrutacji. · 2026-09-13 ·
-  [wpis 2026-09-13 — E2 zamknięty](archiwum/dziennik/DZIENNIK_2026-09-06_2026-09-14.md#2026-09-13--e2-zamknięty-materiały-zaproszenia-gotowe-demo-nieczytelne-na-telefonie)
-  *(odroczone 2026-10-14, odroczeń: 1)*
-
 - **Rozjazd manifestu z produktem przy opisie repozytorium** — `description`
   w `.claude-plugin/plugin.json` mówi „…framework for Claude Code", a RelAI ma trzy adaptery;
   `keywords` nie zawiera ani jednej nazwy narzędzia. Wizytówka GitHuba ma skopiować manifest, czy
@@ -1465,6 +1430,80 @@ Autor: RelAI (Opus 5.5) + Lukasz
   z HEAD niewykonalne wprost (worktree bez nieśledzonych typów `.claude-plugin/types`).
 - Terminal: paski bez linii i z dzisiejszymi kluczami, nie mierzone na żywo.
 - `CLAUDE.md` 11,1 KB przy budżecie 10 KB — do przeglądu przy zamknięciu planu.
+
+**Do zrobienia przez człowieka:** —
+
+Autor: RelAI (Opus 5.5) + Lukasz
+
+### 2026-10-15 — Przegląd spraw czekających ponad 30 dni (start E2 WYGLAD_PANELU)
+
+Wykonawca: Opus 5.5 (Claude Code, aplikacja desktopowa).
+
+**Zrobione:**
+
+- Przegląd pięciu spraw z bloku hooka (31 dni) dwiema partiami, decyzje Łukasza. Wpisy źródłowe
+  leżą w archiwum z sumą kontrolną (`DZIENNIK_2026-09-06_2026-09-14.md`), więc adnotacje
+  rozstrzygnięcia stoją tutaj, a pozycje zniknęły z sekcji „Czeka na człowieka”:
+  - **Który model zostaje domyślny, jeśli pomiar E2 wyjdzie nierozstrzygający** —
+    *(rozstrzygnięte 2026-10-15 — zamknięte jako nieaktualne: plan OPTYMALIZATOR_PROMPTOW
+    zrealizowany 2026-09-15)*.
+  - **Kolizja z zainstalowanym `ecc:prompt-optimizer`** — *(rozstrzygnięte 2026-10-15 — zamknięte:
+    kolizja przyjęta, bez zmian w konfiguracji użytkownika)*.
+  - **Czy tryb ciągły optymalizatora ma licznik kosztu** — *(rozstrzygnięte 2026-10-15 — tak,
+    licznik ma powstać; praca świadomie odłożona niżej, poza zakresem planu WYGLAD_PANELU)*.
+  - **Czy tryb ciągły dla Cursora i Codeksa dostaje własny plan** — *(rozstrzygnięte 2026-10-15 —
+    tak, osobny plan; pozycja w „Co dalej” w `STATE.md`)*.
+  - **Kiedy wraca plan PIERWSI_UZYTKOWNICY** — *(rozstrzygnięte 2026-10-15: Łukasz — „zamykamy ten
+    plan na taki stan w jakim jest aktualnie. Nie zbieramy oficjalnie feedbacku od userow”)*.
+- Ta sama decyzja zamyka dwie powiązane pozycje planu PIERWSI_UZYTKOWNICY spoza bloku hooka
+  (odroczone 2026-10-14, licznik 1): **Dyspozycja publikacji i kontaktów** i **Wskazanie
+  uczestników pilotażu** — *(rozstrzygnięte 2026-10-15 — pilotażu i oficjalnego zbierania opinii
+  nie będzie)*.
+
+**Zweryfikowane:** sekcja „Czeka na człowieka” bez siedmiu pozycji (`grep` po
+`ecc:prompt-optimizer` i `Wskazanie uczestników` w sekcji — 0 trafień).
+
+**Świadomie odłożone:**
+
+- Licznik kosztu trybu ciągłego optymalizatora — do osobnej odnogi albo planu, gdy przyjdzie kolej.
+
+**Do zrobienia przez człowieka:** —
+
+Autor: RelAI (Opus 5.5) + Lukasz
+
+### 2026-10-15 — WYGLAD_PANELU E2: pasek postępu jako lista kroków (w repo, bez wydania)
+
+Wykonawca: Opus 5.5 (Claude Code, aplikacja desktopowa). Etap uruchomiony `/relai-stage` po karcie startu („Tak, zaczynamy E2.”).
+
+**Zrobione:**
+
+- Pasek `relai-progress` jako lista kroków (`progress/hooks/steps.tsx` nowy, `segments.ts` i `register.tsx` przepisane, kontrakt `progress/types/index.d.ts`): zwinięty — cienka linia segmentów 10 px i jedna linia ze znacznikiem, punktem w toku uciętym wielokropkiem, `następny: …` od 110 kolumn, chipem `● N agentów` bez kosztu i przyciskiem „Rozwiń”; rozwinięty — sumy, „Zwiń” i okno najwyżej 6 wierszy (`windowRows`): `N zrobionych` jako przycisk `plain`, wiersz właśnie odhaczony, punkt w toku, trzy następne, `+N czekają`; stan wiersza zaraz za nazwą. Stan rozwinięcia w `$.state` (`isListOpen`, `isListDoneShown`), odhaczenie jako `fresh` (błysk 1,4 s tłem `diffAddedDimmed`, znacznik wypełnia się SMIL). Drugi rząd `ticked-row`, `TICKED_MS`, `ticked` i linia w `Svg` (`calmLine`, `segmentArt`) usunięte. Ta sama lista dla etapu, odnogi i załogi.
+- Rundy wyglądu w prawdziwym nośniku (mod `relai-lista-warianty` 0.1.0–0.3.0 w `dev-mods` sesji), słowa Łukasza:
+  - runda 1 (układy 1 pod segmentami / 2 cała szerokość / 3 sama linia): „klikanie tych podsegmentami, cała szerokość, sama linia, za bardzo nie zmieniają mi tych styli, muszę klikać dane, żeby coś się w ogóle zmieniało […] ten trzeci punkt, sama linia odpada […] układ jest w porządku i chciałbym po prostu różne alternatywne widoki” — przyczyna zmierzona: układy 1 i 2 zwinięte identyczne, a długa nazwa z danych etapu rozpychała kolumnę (P-043 pkt 6);
+  - runda 2 (A kółka / B numery / C kropki / D jeden pasek): „raczej będziemy iść w ten, a kółka, on chyba jednak cały czas jest najlepszy […] na tym jasnym […] coś w nim mi nie pasuje […] na ciemnym wygląda okej”;
+  - runda 3 (jasny J1 obecny / J2 wyraźny / J3 miękki, zwijanie przycisk/tekst, stan na prawo/przy nazwie): „wybieram […] J3 miękki. W tekst, niech to będzie zwijanie tekst. To chyba dałbym przy nazwie po prostu” — zmiana wobec E1: zwijanie zrobionych to przycisk `plain`, nie `primary`;
+  - runda 4 (wdrożenie na żywo): „czy to nie powinno być tak sekwencyjnie, po kolei? […] cały czas się to kręci, mimo że teraz tak naprawdę nie wykonujemy żadnej pracy” — wybór „Zrobione najpierw” (zastępuje zasadę briefu „każdy segment swój punkt”) i kręcenie tylko przy `isWorking`;
+  - akceptacja po `/reload-plugins`: „Akceptuje”.
+- `core/panel/theme.mjs`: `STEP_LIGHT_CSS` (jasny „J3 miękki” wyłącznie w `Svg` paska postępu) i `stepCss()`; kopie przez `sync-panel-core.js` w trzech pluginach (także `cache-keeper/hooks/relai/theme.mjs` — decyzja Łukasza: „Zostaw w theme.mjs”, kod paska cache bez zmian).
+- Przegląd kodu (agent `code-reviewer`): poprawione — bieżący punkt uwzględnia status `running` załogi i sumy liczą wszystkie trwające (`sumWords`), błysk tylko dla punktu nadal odhaczonego, „2 czekają”, stała `MIN_SEGMENT_CELLS`.
+- Brief `STYL_PASKOW_CLAUDE.md` 4.1 (§3 przepisany), `ARTEFAKTY.md` wiersz 4.1, `PULAPKI.md` P-043 pkt 6, lekcje L-0197 … L-0199 i „Zasady aktywne” 5 i 15.
+- Zrzuty: `docs/zasoby/PANEL_RELAI/zrzuty/WYGLAD_PANELU_E2_r2_{A,B,C,D}_ciemny_zwiniety.png`, `…_r2_A_jasny_rozwiniety.png`, `…_wdrozenie_1 … 7_*.png` (jasny i ciemny, pełne okno i wąski panel, zwinięty i rozwinięty).
+
+**Zweryfikowane — jak dokładnie:**
+
+- Testy binarką aplikacji 2.1.295: `relai-progress` 41/41 (było 34; 8 starych testów świadomie przepisanych na nowe zachowanie), `relai-panel` 188/188, `relai-cache-keeper` 181/181; rdzeń `node --test core/{guardrails,panel,process}/tests/*.test.js` 386/386; `sync-panel-core.js --check` zgodne; `claude plugin validate .` w `progress/` zielone; `tsc` bez błędów w `register.tsx`, `steps.tsx`, `segments.ts` (błędy TS7016/TS7006 i typów testów sprzed etapu).
+- Grep po `ticked-row` i `TICKED_MS` w `progress/hooks/*.ts(x)` poza testami: 0 trafień; na HEAD (`git show HEAD:progress/hooks/register.tsx`): 6.
+- Testy nowego zachowania obiema wersjami (worktree HEAD-a, L-0151): przebieg 1 — HEAD + nowe testy: plik nie ładuje się; przebieg 2 — stary widok HEAD-a + nowa czysta logika okna (`make-run2.mjs`): 6 testów zachowania (zwinięty, błysk, Rozwiń, przypadki brzegowe, błąd załogi, chip w linii) spada, 5 testów okna i 2 testy kolorów/szerokości z E1 przechodzą; w nowym kodzie wszystkie przechodzą (zapis obu przebiegów w jednym wywołaniu).
+- Na żywo (kod podłożony do zainstalowanego `relai-progress` 0.4.2, `/reload-plugins`): zwinięty i rozwinięty w jasnym i ciemnym, pełne okno i wąski panel podziału (zrzuty `wdrozenie_*`); okno 5–6 wierszy; odhaczenie trzech punktów Weryfikacji edycją `PROMPT_ETAP_2.md` przy Łukaszu — licznik 0/7 → 3/7, błysk widziany („Tak, oba działają”); lista rozwinięta została po odpowiedzi modelu (zrzut `wdrozenie_2`); kręcenie tylko podczas pracy modelu potwierdzone.
+- `git diff --stat` (bez PANEL_CODEX i makiet): `cache-keeper/hooks/relai/theme.mjs` +14 (kopia rdzenia), `core/panel/theme.mjs` +14, `panel/hooks/core/theme.mjs` +14, `progress/hooks/core/theme.mjs` +14, `progress/hooks/{progress.test.ts,register.tsx,segments.ts}`, `progress/types/index.d.ts`, nowy `progress/hooks/steps.tsx`, dokumenty; `panel/hooks/band.tsx`, `panel/hooks/pane-*.tsx`, żadna kopia `bar-card.tsx`, `docs/plany/PANEL_CODEX/` i `docs/zasoby/PANEL_RELAI/makiety/` nietknięte przez etap.
+- Katalog roboczy `.claude/relai/work/WYGLAD_PANELU/E2/` przed sprzątaniem: 60 MB, 930 plików (`du -sh`, `find -type f`; worktree HEAD-a, mod próby przeniesiony z `dev-mods`, kopia zainstalowanego pluginu sprzed zmian, notatki rund, skrypty) — kasowanie po commicie za zgodą Łukasza („Tak, skasuj po commicie”), liczby „po” w osobnym zapisie.
+- Ryzyka: tabela przejrzana — etap nie otworzył ryzyka projektu; ryzyka 3 i 4 planu (animacja i przycisk w pasku, miejsce rozwiniętej listy) zamknięte: SMIL i przycisk działają, okno ≤ 6 wierszy i domyślnie zwinięte.
+
+**Świadomie odłożone:**
+
+- Wydanie — w E4 (decyzja Łukasza); zainstalowany `relai-progress` 0.4.2 niesie do tego czasu podłożony kod E2 (oryginał = stan wydania pod tagiem).
+- Z przeglądu kodu: rozwinięte zrobione pokazują trzy ostatnie, więc punkt odhaczony nie po kolei i starszy od nich nie błyska w liście (błyska linia i segment); każdy znacznik `Svg` niesie pełny `stepCss()` (koszt, nie błąd); `SEGMENT_INK` w rdzeniu nieużywany po E2 — usunięcie przy najbliższej zmianie rdzenia (dotyka kopii w trzech pluginach).
+- Mod `relai-lista-warianty` (wygląd B, C, D, strojenia J1–J2) — tylko w historii tego wpisu i zrzutach; kasowany z katalogiem roboczym.
 
 **Do zrobienia przez człowieka:** —
 

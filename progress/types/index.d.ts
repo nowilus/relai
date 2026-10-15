@@ -34,11 +34,8 @@ export type ProgressState = {
   items: ItemState[]
 }
 
-export type TickedState = {
+export type FreshState = {
   id: string
-  index: number
-  total: number
-  name: string
   at: number
 }
 
@@ -51,8 +48,12 @@ declare module 'claude-code' {
       progress: ProgressState | null
       /** The finished agents folded away in the pane. */
       isDoneCollapsed: boolean
-      /** The box that just turned done: shown under the bar for 10 s from `at` (AUDYT_MODOW Z1). */
-      ticked: TickedState | null
+      /** The list of steps above the prompt expanded (WYGLAD_PANELU E2); collapsed by default. */
+      isListOpen: boolean
+      /** The done steps unfolded in the expanded list. */
+      isListDoneShown: boolean
+      /** The box that just turned done: its row flashes and its mark fills for 1.4 s from `at`. */
+      fresh: FreshState | null
     }
   }
 }

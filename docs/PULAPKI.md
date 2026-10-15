@@ -28,6 +28,12 @@ Specyfikacja: `SPEC_PULAPKI.md`.
   4. tekst proporcjonalny: ~6,8 px CSS na znak przy komórce 8,2 px (P-024 pkt 3) — znak to mniej
      niż komórka; natywny przycisk dokłada ~3 komórki do etykiety;
   5. zawinięte linie przycisków bez `rowGap` stykają się (natywny przycisk 28 px, P-021 pkt 6).
+  6. (2026-10-15, plan WYGLAD_PANELU E2) `Text wrap="truncate"` w `Box` z `minWidth={0}` **nie**
+     ucina długiej nazwy: kolumna środkowa `barCard` bierze szerokość całej nazwy (min-content
+     wiersza = suma min-content dzieci) i wypycha segmenty i liczbę `a/b` za prawą krawędź karty.
+     Ucina dopiero pudełko o bazie zerowej: `width={0}` + `flexGrow` (proporcje grow dzielą
+     resztę, np. 3 : 2 dla „w toku” i „następny”). Na krótkich nazwach makiety błąd niewidoczny —
+     zrzut `WYGLAD_PANELU_E2_r1_*` z danymi etapu go pokazał. Test: `now?.props.width === 0`.
 - **Obejście:** przycisk i ikona w `Box flexShrink={0}`; tekst obok przycisku w wierszu, który
   przy wąskim panelu przenosi przycisk pod tekst (jedna decyzja dla całego panelu wg
   `bodyColumns`, nie wiersz po wierszu); kawałki tekstu w osobnych elementach zawijanego wiersza
