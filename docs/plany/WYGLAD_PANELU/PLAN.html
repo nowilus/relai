@@ -534,6 +534,17 @@ footer .pis{font-family:var(--pis); font-size:1.2rem; color:var(--glina); margin
 <li><b>Wykonanie:</b> świeża sesja Opus 5.5 z <code>PROMPT_ETAP_5.md</code>; zamknięcie planu (D-36) przechodzi z E4 na E5.</li>
 </ol></div></div></div>
 </div>
+
+<div class="notka">
+  <button type="button" aria-expanded="false" aria-controls="aH"><svg class="spinacz" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="tyt">Aneks H — 2026-10-15: próg auto-compactu na pasku kontekstu</span><span class="prawo"><span class="naklejka n-tak">E5</span></span></button>
+  <div class="rulon" id="aH"><div><div class="tresc">
+<p><b>Przyczyna.</b> Po akceptacji wyglądu E5 Łukasz: „chcialbym, aby ten pasek kontekstu odczytywal zapisane w ustawieniach configu poziomy auto compactu userow i odpowiednio zmienialo kolor z zielonego na zolty a potem czerwony jak sie zbliza kontekst do tego limitu”, „albo zeby byl oznaczony prog auto compactu tak jak teraz jest oznaczony ten limit 90% w zakladce koszty”. Wybór: „Kreska + kolor, wiersz 24 px”, ujęcie: „Aneks H do E5”.</p>
+<ol>
+<li><b>Źródło progu:</b> silnik, nie pliki konfiguracji — <code>$.session.usage({ breakdown: 'summary' })</code>, pola <code>autoCompactThreshold</code> i <code>isAutoCompactEnabled</code>; obejmują <code>CLAUDE_AUTOCOMPACT_PCT_OVERRIDE</code> i ustawienie z panelu aplikacji.</li>
+<li><b>Wygląd:</b> na pasku kontekstu kreska progu jak w zakładce Koszty (bez napisu nad nią — wiersz zostaje 24 px); barwa paska liczona do progu regułą baterii: zielona, żółta gdy do progu zostało ≤ 30 % drogi, czerwona przy ≤ 10 % i od progu; w natywnym dymku „auto-compact przy 650k · 65 %”. Auto-compact wyłączony albo próg nieznany → pasek jak dotąd, liczony do okna, bez kreski.</li>
+<li><b>Wydanie:</b> w tym samym <code>relai-cache-keeper</code> 0.11.0; zakres i weryfikacja E5 rozszerzone o test progu (barwy, kreska, wiersz 24 px, brak progu) i zrzut na żywo.</li>
+</ol></div></div></div>
+</div>
 </section>
 
 <footer>

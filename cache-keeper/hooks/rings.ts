@@ -96,7 +96,7 @@ export function resetMeasure(limit: Limit | undefined, now: number): Measure {
 }
 
 // A window in round units as the brief writes it: 1M, 200k
-function windowText(n: number): string {
+export function windowText(n: number): string {
   if (n >= 1e6 && n % 1e6 === 0) return `${n / 1e6}M`
   if (n >= 1e3 && n % 1e3 === 0) return `${n / 1e3}k`
   return tokens(n)
@@ -155,64 +155,118 @@ const measureWidth = (m: Measure) => {
 
 type Placed = { x: number, m: Measure }
 
-// The measures left to right in as few rows as `maxPx` takes — one row at a usual width
-function pack(measures: readonly Measure[], maxPx: number): Placed[][] {
-  const rows: Placed[][] = []
-  let row: Placed[] = []
-  let x = 0
-  for (const m of measures) {
-    const w = measureWidth(m)
-    if (row.length && x + BATTERY.itemGap + w > maxPx) {
-      rows.push(row)
-      row = []
-      x = 0
-    }
-    if (row.length) x += BATTERY.itemGap
-    row.push({ x, m })
-    x += w
-  }
-  if (row.length) rows.push(row)
-  return rows
+// The measures in a grid over the whole width (WYGLAD_PANELU E5, variant S2, Łukasz 2026-10-15:
+// „siatka na całą szerokość”): as many equal columns as the widest measure and its gap allow, each
+// column maxPx / cols wide; a measure that does not fit goes to the next row into the same columns,
+// so every row's batteries stand under the row above (Aneks G: "limit tygodnia […] zupełnie rozjechany")
+export function columnsOf(measures: readonly Measure[], maxPx: number): { cols: number, step: number } {
+  const colW = Math.max(0, ...measures.map(measureWidth))
+  const cols = Math.max(1, Math.min(Math.max(1, measures.length), Math.floor((maxPx + BATTERY.itemGap) / (colW + BATTERY.itemGap))))
+  return { cols, step: maxPx / cols }
 }
 
-// A measure's card: lines a and b on a capsule, to the right of the icon, or to its left when the
-// right would run past the column; when neither fits, the side with more room — never over the
-// icon, which holds the pointer, so the card does not flicker (P-024 pkt 5). The width keeps the
-// slack of the calibrated probe: a separator's worth that covers the wider bold line a.
-function card(p: Placed, i: number, maxPx: number): string {
-  const C = BATTERY.card
-  const w = `${p.m.a}  ·  ${p.m.b}`.length * C.char + 2 * C.pad
-  const right = p.x + BATTERY.icon.w + C.gap
-  const left = p.x - C.gap - w
-  const x = right + w <= maxPx || (left < 0 && maxPx - right >= p.x - C.gap) ? right : left
-  const y = (BATTERY.height - C.h) / 2
-  return `<g class="t t${i}"><rect class="f-card" x="${round(x)}" y="${round(y)}" width="${round(w)}" height="${C.h}" rx="${C.h / 2}"/>`
-    + `<text x="${round(x + C.pad)}" y="${round(y + 15)}" font-size="${C.font}"><tspan class="a f-text" font-weight="600">${esc(p.m.a)}</tspan>`
-    + `<tspan class="b f-muted" dx="${C.lineGap}">${esc(p.m.b)}</tspan></text></g>`
+export function grid(measures: readonly Measure[], maxPx: number): Placed[][] {
+  if (!measures.length) return []
+  const { cols, step } = columnsOf(measures, maxPx)
+  const rows: Placed[][] = []
+  measures.forEach((m, i) => {
+    const r = Math.floor(i / cols)
+    rows[r] = [...(rows[r] ?? []), { x: (i % cols) * step, m }]
+  })
+  return rows
 }
 
 // The rows of batteries, each one Svg of width="100%" — laid out from the column's left edge,
 // where a fixed width is centred in the interactive frame (P-024 pkt 1) — with no background of
 // their own: the frame shows the band through (measured 2026-10-14, WYGLAD_PANELU E1; P-018 pkt 2
-// held a white frame under the 2.1.293 band). Each icon is the hover target of its card; the cards
-// come after every measure, so a card paints over its neighbours.
+// held a white frame under the 2.1.293 band).
+//
+// The full words of a measure — line a, then line b — stand in the <title> of its icon, which the
+// app shows as its own tooltip (WYGLAD_PANELU E5, Łukasz 2026-10-15: „Moze to samo zrobmy z
+// bateriami?” after the same choice for "Teraz"). It replaces the capsule of brief §10.3: drawn by
+// us, the capsule was cut at the column's edge in the grid over the whole width, covered its icon
+// and flickered when pushed inside, and grew its row when wrapped. The app's tooltip is never cut,
+// never covers the icon and never changes the row, which keeps its height (24 px, 36 with a note).
 export function batteryRows(measures: readonly Measure[], maxPx: number): { svg: string, alt: string, height: number }[] {
-  return pack(measures, maxPx).map((placed) => {
+  return grid(measures, maxPx).map((placed) => {
     const height = placed.some((p) => p.m.note) ? NOTE.rowHeight : BATTERY.height
     const drawn = placed.map((p, i) => {
       const tx = p.x + BATTERY.icon.w + BATTERY.icon.gap
-      return `<g class="i i${i} b-${p.m.name}"><rect x="${round(p.x - 3)}" y="0" width="${BATTERY.icon.w + 6}" height="${height}" fill="transparent"/>${batteryIcon(p.x, BATTERY.icon.y, p.m)}</g>`
+      return `<g class="i i${i} b-${p.m.name}"><title>${esc(p.m.a)}\n${esc(p.m.b)}</title><rect x="${round(p.x - 3)}" y="0" width="${BATTERY.icon.w + 6}" height="${height}" fill="transparent"/>${batteryIcon(p.x, BATTERY.icon.y, p.m)}</g>`
         + `<text class="w" x="${round(tx)}" y="${BATTERY.textY}" font-size="${BATTERY.font}"><tspan class="l f-muted">${esc(p.m.label)}</tspan>`
         + `<tspan class="v f-text" dx="${BATTERY.spanGap}" font-weight="600">${esc(p.m.value)}</tspan></text>`
         + (p.m.note ? `<text class="n f-muted" x="${round(tx)}" y="${NOTE.y}" font-size="${NOTE.font}">${esc(p.m.note)}</text>` : '')
     })
-    const css = `text{font-family:system-ui,'Segoe UI',sans-serif}.t{display:none;filter:drop-shadow(0 1px 2px rgba(0,0,0,.45))}${inkCss()}`
-      + placed.map((_, i) => `.i${i}:hover~.t${i}{display:inline}`).join('')
+    const css = `text{font-family:system-ui,'Segoe UI',sans-serif}${inkCss()}`
     return {
-      svg: `<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="${height}"><style>${css}</style>`
-        + `${drawn.join('')}${placed.map((p, i) => card(p, i, maxPx)).join('')}</svg>`,
+      svg: `<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="${height}"><style>${css}</style>${drawn.join('')}</svg>`,
       alt: placed.map((p) => `${p.m.a}, ${p.m.b}${p.m.note ? `, ${p.m.note}` : ''}`).join('; '),
       height,
     }
   })
+}
+
+// ---------- the context as its own row (WYGLAD_PANELU E5, variant K1) ----------
+
+// The context: Łukasz 2026-10-15, „ten K1 z tym paskiem […] to może zostać”. The app's own bar no
+// longer shows how full the context is (Aneks G), so the row says it without a hover: the label, a
+// bar of the window used in the colour of what is left, and "used / window · %". The window comes
+// from the session (`usage().context.window`, `session.measure`), never from a table of models.
+// No window reported: null, and the context stays a battery in the grid. A row too narrow for the
+// label, a bar of CTX.minBar and the words goes to two lines: the label and the words, then the bar.
+export const CTX = Object.freeze({ bar: 8, gap: 14, twoLines: 46, notch: 3 })
+
+// Where compaction runs, as Claude Code 2.1.295 reckons it (read in the app's binary 2026-10-15):
+// the breakdown's `autoCompactThreshold` is the effective window less a 13k buffer and leaves
+// CLAUDE_AUTOCOMPACT_PCT_OVERRIDE out, while compaction takes min(floor(effective × pct / 100),
+// effective − 13k) for a pct in (0, 100]. Live: 967k on the bar, compaction at 637k with 65 %.
+const COMPACT_BUFFER = 13_000
+export function compactThreshold(engine: number, pctOverride: string | undefined): number {
+  if (!(engine > 0)) return 0
+  const pct = pctOverride === undefined ? NaN : parseFloat(pctOverride)
+  if (!(pct > 0 && pct <= 100)) return engine
+  return Math.min(Math.floor((engine + COMPACT_BUFFER) * (pct / 100)), engine)
+}
+
+// Łukasz 2026-10-15: „na całą szerokość […] od pierwszej baterii do końcowej baterii”; then the
+// words anchored at the right edge: „wystaje mi / 1M · 32 % poza […] zgrabniej wyrownac”; then:
+// „po lewej stronie jest ikona, a po drugiej jest napis i procenty […] ten kontekst powinien być
+// pomiędzy tym paskiem, a tym fizyczną liczbą tokenów”. So the row speaks the batteries' grammar —
+// the mark, the muted label, the bold value — on their grid (columnsOf): the bar runs from the
+// first column to the last one, where "kontekst 320k / 1M · 32 %" starts with that column's
+// battery, moved left only as far as its words need to end inside the column. One column: the
+// label and the value on a line, the bar under them, as wide as the column.
+//
+// Aneks H (Łukasz 2026-10-15): „zmienialo kolor z zielonego na zolty a potem czerwony jak sie
+// zbliza kontekst do tego limitu”, the threshold marked „tak jak […] limit 90% w zakladce koszty”.
+// With the engine's auto-compact threshold (`compactAt`, tokens) the bar is coloured by the way
+// left to it — the batteries' rule, clay from the threshold on — and a notch as on the Koszty
+// ruler stands at it; its words go to the app's tooltip, never over the notch, so the row keeps
+// its 24 px. No threshold (auto-compact off, not reported): the bar by the window, no notch.
+export function contextRow(used: number, window: number, cols: number, step: number, compactAt = 0): { svg: string, alt: string, height: number, words: string } | null {
+  if (!(used > 0) || !(window > 0)) return null
+  const share = Math.min(1, used / window)
+  const pct = Math.round(share * 100)
+  const value = `${tokens(used)} / ${windowText(window)} · ${pct} %`
+  const at = compactAt > 0 && compactAt <= window ? compactAt : 0
+  const toCompact = at ? Math.max(0, Math.round(((at - used) / at) * 100)) : 0
+  const ink = inkOf(leftColor(at ? toCompact : Math.max(0, 100 - pct)))
+  const wordsW = ('kontekst'.length + value.length) * BATTERY.char + BATTERY.spanGap
+  const isOneLine = cols > 1
+  const right = cols * step - BATTERY.itemGap
+  const textX = isOneLine ? Math.min((cols - 1) * step, right - wordsW) : 0
+  const barW = isOneLine ? Math.max(CTX.bar, textX - CTX.gap) : Math.max(CTX.bar, step - BATTERY.itemGap)
+  const barY = isOneLine ? (BATTERY.height - CTX.bar) / 2 : BATTERY.height + 6
+  const height = isOneLine ? BATTERY.height : CTX.twoLines
+  const css = `text{font-family:system-ui,'Segoe UI',sans-serif}${inkCss()}`
+  const bar = `<rect class="k f-track" x="0" y="${round(barY)}" width="${round(barW)}" height="${CTX.bar}" rx="${CTX.bar / 2}"/>`
+    + `<rect class="u f-${ink}" x="0" y="${round(barY)}" width="${round(Math.max(CTX.bar, barW * share))}" height="${CTX.bar}" rx="${CTX.bar / 2}"/>`
+  const compactWords = at ? `auto-compact przy ${tokens(at)} · ${Math.round((at / window) * 100)} %` : ''
+  // The notch as on the Koszty ruler: 2 px wide, 3 px over the bar on each side, in the text's ink
+  const notch = at ? `<rect class="n f-text" x="${round(barW * (at / window) - 1)}" y="${round(barY - CTX.notch)}" width="2" height="${CTX.bar + 2 * CTX.notch}" rx="1"/>` : ''
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="${height}"><style>${css}</style>`
+    + (at ? `<g class="c"><title>${esc(compactWords)}</title>${bar}${notch}</g>` : bar)
+    + `<text class="w" x="${round(textX)}" y="${BATTERY.textY}" font-size="${BATTERY.font}"><tspan class="l f-muted">kontekst</tspan>`
+    + `<tspan class="v f-text" dx="${BATTERY.spanGap}" font-weight="600">${esc(value)}</tspan></text></svg>`
+  return { svg, alt: `kontekst: zużyte ${tokens(used)} z ${windowText(window)} · ${pct} %${at ? ` · ${compactWords}` : ''}`, height, words: `kontekst ${value}` }
 }

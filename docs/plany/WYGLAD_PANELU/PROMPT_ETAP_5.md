@@ -295,25 +295,25 @@ wpisu dziennika z nazwy, a jego nazwę zaczynasz od slugu projektu.
 Każdy punkt Weryfikacji, który przeszedł, odhaczasz w `PROMPT_ETAP_5.md` (`- [ ]` → `- [x]`)
 zaraz po jego sprawdzeniu, nie na końcu etapu; punkt, który nie przeszedł, zostaje pusty.
 
-- [ ] `okno.ps1` zapisuje okno w rozmiarze fizycznym (porównanie z `GetWindowRect` po
+- [x] `okno.ps1` zapisuje okno w rozmiarze fizycznym (porównanie z `GetWindowRect` po
       `SetProcessDPIAware`), pole promptu w kadrze.
-- [ ] Dla każdej z trzech rzeczy: trzy warianty w prawdziwym nośniku, zrzuty obu szat
+- [x] Dla każdej z trzech rzeczy: trzy warianty w prawdziwym nośniku, zrzuty obu szat
       `docs/zasoby/PANEL_RELAI/zrzuty/WYGLAD_PANELU_E5_*`, wybór Łukasza zapisany w dzienniku jego
       słowami.
-- [ ] Sekcja „Teraz” w produkcie: segmenty reagują na najechanie (zrzut z kursorem nad segmentem),
+- [x] Sekcja „Teraz” w produkcie: segmenty reagują na najechanie (zrzut z kursorem nad segmentem),
       słów mniej niż w E4 (liczba znaków sekcji przed i po w dzienniku), barwy rozróżnialne
       w obu szatach (kontrast par ≥ 3 : 1 dla segmentów, ≥ 4,5 : 1 dla tekstu — test).
-- [ ] Baterie: kolumny równe w pełnym oknie, połowie podziału i wąskiej kolumnie (test układu
+- [x] Baterie: kolumny równe w pełnym oknie, połowie podziału i wąskiej kolumnie (test układu
       i zrzuty trzech szerokości); „limit tygodnia” w tej samej kolumnie co jego sąsiad z wiersza
       wyżej.
-- [ ] Kontekst „użyte / okno · %” widoczny bez najechania; okno z danych sesji (test na sesji
+- [x] Kontekst „użyte / okno · %” widoczny bez najechania; okno z danych sesji (test na sesji
       z oknem 200k i 1M — dwie różne wartości na pasku).
-- [ ] Każda zmiana ma test, który spada na kodzie sprzed niej i przechodzi po niej (obie wersje
+- [x] Każda zmiana ma test, który spada na kodzie sprzed niej i przechodzi po niej (obie wersje
       w jednym przebiegu, `git worktree` HEAD).
-- [ ] `claude plugin validate .` i `claude plugin test .` zielone binarką aplikacji w `panel/`,
+- [x] `claude plugin validate .` i `claude plugin test .` zielone binarką aplikacji w `panel/`,
       `progress/` i `cache-keeper/` (co najmniej 205 / 42 / 181); rdzeń 410+ zielony;
       `sync-panel-core.js --check` zgodne.
-- [ ] `DESIGN.md` 1.3 i brief 5.1 z wierszami w `ARTEFAKTY.md`; poprzednie wersje w historii gita.
+- [x] `DESIGN.md` 1.3 i brief 5.1 z wierszami w `ARTEFAKTY.md`; poprzednie wersje w historii gita.
 - [ ] Zgoda Łukasza na wydanie zapisana w dzienniku jego słowami przed pierwszą zmianą numeru;
       `relai` nadal 3.2.0 we wszystkich plikach; tag `relai-panel-v0.20.0` w `git ls-remote --tags
       origin`; po instalacji katalogi nowych wersji w `installed_plugins.json` i zrzut z nich.

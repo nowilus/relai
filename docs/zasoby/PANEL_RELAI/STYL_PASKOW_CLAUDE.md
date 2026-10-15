@@ -1,6 +1,6 @@
 # Styl pasków i panelu RelAI dla Claude Code
 
-Wersja: **5.0** (odbiór planu WYGLAD_PANELU, E4, 2026-10-15: sekcja „Co obowiązuje po planie” na początku, sekcje zastąpione oznaczone jako historia, wyniki macierzy na żywo w §14.6; v4.2 — v4.1 + §14: panel w szacie jasnej i ciemnej — automatycznie za wyglądem aplikacji, wariant 3 · jedna kartka z ramką `subtle`, kartka wypełniona bez szczeliny, reguła `primary`, próg drzewa w elementach; szczegóły w `DESIGN.md`; plan WYGLAD_PANELU E3, 2026-10-15; v4.1 — v4.0 + §3: pasek postępu jako lista kroków — cienkie segmenty, jedna linia z punktem w toku i „Rozwiń”, okno najwyżej 6 wierszy, błysk odhaczenia zamiast drugiego rzędu, zrobione od lewej, znacznik kręci się tylko przy pracy modelu, jasny wygląd „J3 miękki”; plan WYGLAD_PANELU E2, 2026-10-15; v4.0 — v3.8 + §13: paski w kolorach narzędzia — klucze motywu, znaczniki `Svg` w dwóch paletach przez `prefers-color-scheme`, wariant 3b z linią gasnącą zamiast teł; plan WYGLAD_PANELU E1, 2026-10-14; v3.8 — v3.7 + §12 wycofany: każdy panel podziału rysuje paski, linia w stopce znika; odnoga SPLIT_VIEW, 2026-10-14; v3.7 — v3.6 + §1 i §10.5: zdarzenie „nowa sesja się opłaca” w dwóch liniach bez chipa, sam koszt, przycisk „Nowa sesja”; odnoga KOMUNIKAT_ZWROTU, 2026-10-14; v3.6 — §6 pkt 6: karta startu etapu z wyborem „nowa sesja”; odnoga NOWA_SESJA, 2026-10-12; v3.5 — 11.3: karta „Próg limitu” jako linijka z progiem i przyciski wartości; Aneks E, 2026-10-11; v3.4 — 11.1: podpis „próg N % · źródło” pod baterią limitu, która nie jest spokojna; Aneks D, 2026-10-11; v3.3 — sekcja 11: limit planu — dwa progi, zapis i wznowienie, karta progu w Kosztach; LIMIT_CHECKPOINT E4, 2026-10-11) · Data: **2026-10-10** · Zakres: trzy paski nad promptem **i panel boczny** `/relai-panel`
+Wersja: **5.1** (plan WYGLAD_PANELU E5 z Aneksem H, 2026-10-15: §14.7 — baterie w siatce, wiersz kontekstu z progiem auto-compactu, „Teraz” T1, natywny dymek zamiast kapsuły z §10.3; v5.0 — odbiór planu WYGLAD_PANELU, E4, 2026-10-15: sekcja „Co obowiązuje po planie” na początku, sekcje zastąpione oznaczone jako historia, wyniki macierzy na żywo w §14.6; v4.2 — v4.1 + §14: panel w szacie jasnej i ciemnej — automatycznie za wyglądem aplikacji, wariant 3 · jedna kartka z ramką `subtle`, kartka wypełniona bez szczeliny, reguła `primary`, próg drzewa w elementach; szczegóły w `DESIGN.md`; plan WYGLAD_PANELU E3, 2026-10-15; v4.1 — v4.0 + §3: pasek postępu jako lista kroków — cienkie segmenty, jedna linia z punktem w toku i „Rozwiń”, okno najwyżej 6 wierszy, błysk odhaczenia zamiast drugiego rzędu, zrobione od lewej, znacznik kręci się tylko przy pracy modelu, jasny wygląd „J3 miękki”; plan WYGLAD_PANELU E2, 2026-10-15; v4.0 — v3.8 + §13: paski w kolorach narzędzia — klucze motywu, znaczniki `Svg` w dwóch paletach przez `prefers-color-scheme`, wariant 3b z linią gasnącą zamiast teł; plan WYGLAD_PANELU E1, 2026-10-14; v3.8 — v3.7 + §12 wycofany: każdy panel podziału rysuje paski, linia w stopce znika; odnoga SPLIT_VIEW, 2026-10-14; v3.7 — v3.6 + §1 i §10.5: zdarzenie „nowa sesja się opłaca” w dwóch liniach bez chipa, sam koszt, przycisk „Nowa sesja”; odnoga KOMUNIKAT_ZWROTU, 2026-10-14; v3.6 — §6 pkt 6: karta startu etapu z wyborem „nowa sesja”; odnoga NOWA_SESJA, 2026-10-12; v3.5 — 11.3: karta „Próg limitu” jako linijka z progiem i przyciski wartości; Aneks E, 2026-10-11; v3.4 — 11.1: podpis „próg N % · źródło” pod baterią limitu, która nie jest spokojna; Aneks D, 2026-10-11; v3.3 — sekcja 11: limit planu — dwa progi, zapis i wznowienie, karta progu w Kosztach; LIMIT_CHECKPOINT E4, 2026-10-11) · Data: **2026-10-10** · Zakres: trzy paski nad promptem **i panel boczny** `/relai-panel`
 (zakładki Komendy i Koszty) · Źródło decyzji: wątek [AUDYT_MODOW](../../fixy/AUDYT_MODOW/ODNOGA.md),
 makiety [MAKIETY.html](../../fixy/AUDYT_MODOW/MAKIETY.html) (wersja 4, kalibracja z Łukaszem
 w czterech rundach 2026-10-10).
@@ -22,6 +22,7 @@ Plan WYGLAD_PANELU (E1–E4) zmienił wygląd pasków i panelu w całości. Czyt
 | pasek postępu | §3 (lista kroków, v4.1) | — |
 | panel `/relai-panel` i `/relai-agents`: kartka, sekcje, przyciski, szaty | §14 + [DESIGN.md](DESIGN.md) | §6 i §7 w części wyglądu (karty, tła, ramki); układ treści zakładek z §6–§7 obowiązuje |
 | ograniczenia silnika | §8 i P-017–P-024, P-041–P-045 w `PULAPKI.md` | — |
+| pasek cache po E5: siatka, wiersz kontekstu, próg, natywny dymek | §14.7 + [DESIGN.md](DESIGN.md) §3 i §8 | §10.3 w części kapsuły dymku i miejsca baterii kontekstu |
 | linia w stopce | — | §12 (wycofana 2026-10-14) |
 
 Przy sprzeczności wygrywa sekcja z kolumny „Obowiązuje”, a nad nią `DESIGN.md`.
@@ -526,3 +527,20 @@ odbiór dołożył do reguł:
 - **Jeden margines wiersza także w Dokumentach** (grupy `paddingX` 1 jak sekcja „Zmienione”).
 - **Pasek planu nie łamie nazwy ani statusu** (`flexShrink` 0), ustępuje nazwa etapu (baza zerowa).
 - **Wspólna kolumna przycisków progu limitu** od 48 kolumn: oba paski limitu tej samej długości.
+
+### 14.7 „Teraz”, baterie w siatce, kontekst z progiem (plan WYGLAD_PANELU E5 z Aneksem H, 2026-10-15) — wersja 5.1
+
+Wybór Łukasza na żywo z trzech wariantów każdej rzeczy (zrzuty `zrzuty/WYGLAD_PANELU_E5_*`):
+
+- **Pasek cache: S2 + K1.** Baterie w siatce na całą szerokość — kolumny z najszerszej miary,
+  każdy wiersz w kolumnach pierwszego. Kontekst wychodzi z baterii do własnego wiersza: pasek od
+  pierwszej kolumny, „kontekst 251k / 1M · 25 %” w ostatniej, bez najechania; okno z sesji.
+- **Próg auto-compactu (Aneks H):** kreska jak próg limitu w Kosztach (§11.3), bez napisu nad nią;
+  barwa paska liczona do progu regułą §10.3 (30/10 drogi, od progu glina). Próg liczony tak jak
+  kompaktowanie, z `CLAUDE_AUTOCOMPACT_PCT_OVERRIDE` — rozbicie kontekstu silnika go pomija.
+- **„Teraz”: T1 z nową otoczką.** Cztery wiersze w odstępie (tytuł ze statusem i licznikiem,
+  pasek, punkt w toku w jednej linii z „Start etapu…” w kolumnie przycisków, praca sesji). Stan
+  segmentu kształtem (pełny / połowa w obrysie / obrys / glina), znaczniki ≥ 3 : 1 do kartki.
+- **Dymek: natywny `<title>` zamiast kapsuły z §10.3** — w segmentach „Teraz” i w bateriach.
+  Własna kapsuła ucinała się na krawędzi, migała, łapała hover przed ikoną, a zawinięta podnosiła
+  wiersz w spoczynku z 24 do 44 px. Wiersz baterii i kontekstu ma stałe 24 px.

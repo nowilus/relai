@@ -1,7 +1,7 @@
 import { describe, expect, mock, test, type TestBody } from 'claude-code/testing'
 import type { On, RenderNode, TurnStepResult } from 'claude-code'
 import { BAND, BAR, BATTERY, CHIP_KEY } from './relai/theme.mjs'
-import { batteryRows, limitMeasure } from './rings'
+import { batteryRows, cacheMeasure, compactThreshold, contextRow, limitMeasure } from './rings'
 import type { ThresholdSource } from './limit'
 
 type Engine = Parameters<TestBody>[0]
@@ -29,30 +29,36 @@ const BAND_AT = (bodyColumns = 140) => ({
 })
 
 type Limit = { kind: string, percentUsed: number, resetsAt?: string }
-type World = { ctx: number, window: number | undefined, limits: Limit[], cost: number | undefined }
+// compact: the engine's auto-compact threshold in tokens; null = auto-compact off; absent = no breakdown
+type World = { ctx: number, window: number | undefined, limits: Limit[], cost: number | undefined, compact?: number | null, asked: string[] }
 
-function world(on: On, options: { store?: Record<string, unknown>, ctx?: number, window?: number, limits?: Limit[], cost?: number } = {}) {
-  const w: World = { ctx: options.ctx ?? 200_000, window: options.window, limits: options.limits ?? [], cost: options.cost }
+function world(on: On, options: { store?: Record<string, unknown>, ctx?: number, window?: number, limits?: Limit[], cost?: number, compact?: number | null, env?: Record<string, string> } = {}) {
+  const w: World = { ctx: options.ctx ?? 200_000, window: options.window, limits: options.limits ?? [], cost: options.cost, compact: options.compact, asked: [] }
   const clock = mock.clock(on, { now: NOW })
   const kept = new Map<string, unknown>(Object.entries(options.store ?? {}))
   on('store.get', ($, e) => ({ value: kept.get(e.key) as never }))
   on('store.set', ($, e) => { kept.set(e.key, e.value); return { value: undefined } })
   on('store.delete', ($, e) => { kept.delete(e.key); return { value: undefined } })
-  mock.env(on, {})
+  mock.env(on, options.env ?? {})
   on('fs.exists', () => ({ value: false }))
   on('session.start', ($, e) => ({ cwd: e.cwd }))
   on('session.cwd', () => ({ value: 'C:/proj' }))
   on('session.id', () => ({ value: 's1' }))
   on('session.model', () => ({ value: 'claude-opus-5-5' }))
   on('session.turns', () => ({ value: 5 }))
-  on('session.usage', () => ({
-    value: {
+  on('session.usage', ($, e) => {
+    const detail = (e as { breakdown?: string } | undefined)?.breakdown
+    if (detail) w.asked.push(detail)
+    const breakdown = detail && w.compact !== undefined
+      ? { breakdown: { categories: [], totalTokens: w.ctx, isAutoCompactEnabled: w.compact !== null, ...(w.compact ? { autoCompactThreshold: w.compact } : {}) } }
+      : {}
+    return { value: {
       startedAt: NOW,
-      context: (w.window ? { tokens: w.ctx, window: w.window } : { tokens: w.ctx }) as never,
+      context: (w.window ? { tokens: w.ctx, window: w.window, ...breakdown } : { tokens: w.ctx }) as never,
       rateLimits: w.limits as never,
       ...(w.cost === undefined ? {} : { cost: { usd: w.cost } }),
-    },
-  }))
+    } }
+  })
   on('turn.complete', ($, e) => ({ text: e.answer }))
   on('ui.toast', () => ({ value: undefined }) as never)
   on('ui.render', { component: 'AbovePrompt' }, ($, e) => {
@@ -96,9 +102,9 @@ const propsOf = (node: RenderNode) => ((node as { props?: Record<string, unknown
 async function svgs(ui: Mounted) {
   return [...walk(await ui.drawn())].filter((x) => typeof x !== 'string' && x.type === 'Svg' && Boolean(propsOf(x).isInteractive)).map(propsOf)
 }
-// A card is drawn in the same Svg as the batteries but hidden at rest (display:none): what the
-// person sees without pointing is the drawing without its cards
-const atRest = (source: string) => source.replace(/<g class="t t\d+">.*?<\/g>/g, '')
+// The full words stand in an icon's <title>, shown by the app only on hover (E5): what the person
+// sees without pointing is the drawing without its titles
+const atRest = (source: string) => source.replace(/<title>[^<]*<\/title>/g, '')
 
 // What the person sees: every Text's words and every Svg's drawing at rest (never its alt)
 async function visible(ui: Mounted): Promise<string> {
@@ -108,29 +114,42 @@ async function visible(ui: Mounted): Promise<string> {
   return [...texts, ...sources].join('\n')
 }
 
-type BatteryView = { name: string, share: number | null, color: string | null, label: string, value: string, a: string, b: string, icon: number, card: { x: number, w: number } }
+type BatteryView = { name: string, share: number | null, color: string | null, label: string, value: string, a: string, b: string, icon: number }
 
-// The batteries as drawn on the desktop, in order: each icon a <g class="i iN b-<name>"> (its hover
-// target first, the fill of class f 18 px × the share left), then its words (label, value); each
-// card a <g class="t tN"> after every measure, with lines a and b
+// The batteries as drawn on the desktop, in order: each icon a <g class="i iN b-<name>"> with the
+// full words in its <title> (line a, a newline, line b — the app's own tooltip, E5), its hover
+// target, the fill of class f 18 px × the share left; then its words (label, value)
 async function batteriesOf(ui: Mounted): Promise<BatteryView[]> {
   const out: BatteryView[] = []
   for (const p of await svgs(ui)) {
     const source = String(p.source ?? '')
-    const cards = new Map<string, { x: number, w: number, a: string, b: string }>()
-    for (const m of source.matchAll(/<g class="t t(\d+)"><rect class="f-card" x="(-?[\d.]+)" y="[\d.]+" width="([\d.]+)"[^>]*\/><text[^>]*><tspan class="a f-text"[^>]*>([^<]*)<\/tspan><tspan class="b f-muted"[^>]*>([^<]*)<\/tspan><\/text><\/g>/g)) {
-      cards.set(m[1] ?? '', { x: Number(m[2]), w: Number(m[3]), a: m[4] ?? '', b: m[5] ?? '' })
-    }
-    for (const m of source.matchAll(/<g class="i i(\d+) b-(\w+)"><rect x="(-?[\d.]+)"[^>]*\/>(.*?)<\/g><text class="w"[^>]*><tspan[^>]*>([^<]*)<\/tspan><tspan[^>]*>([^<]*)<\/tspan><\/text>/g)) {
-      const fill = (m[4] ?? '').match(/<rect class="f f-([a-z]+)"[^>]*width="([\d.]+)"/)
-      const card = cards.get(m[1] ?? '')
+    for (const m of source.matchAll(/<g class="i i(\d+) b-(\w+)"><title>([^<]*)<\/title><rect x="(-?[\d.]+)"[^>]*\/>(.*?)<\/g><text class="w"[^>]*><tspan[^>]*>([^<]*)<\/tspan><tspan[^>]*>([^<]*)<\/tspan><\/text>/g)) {
+      const fill = (m[5] ?? '').match(/<rect class="f f-([a-z]+)"[^>]*width="([\d.]+)"/)
+      const [a = '', b = ''] = (m[3] ?? '').split('\n')
       out.push({
-        name: m[2] ?? '', icon: Number(m[3]) + 3, share: fill ? Number(fill[2]) / 18 : null, color: fill ? COLOR_OF_INK[fill[1] ?? ''] ?? null : null,
-        label: m[5] ?? '', value: m[6] ?? '', a: card?.a ?? '', b: card?.b ?? '', card: { x: card?.x ?? NaN, w: card?.w ?? NaN },
+        name: m[2] ?? '', icon: Number(m[4]) + 3, share: fill ? Number(fill[2]) / 18 : null, color: fill ? COLOR_OF_INK[fill[1] ?? ''] ?? null : null,
+        label: m[6] ?? '', value: m[7] ?? '', a, b,
       })
     }
   }
   return out
+}
+type ContextView = { value: string, textX: number, barW: number, share: number, color: string | null, height: number, notch: number | null, title: string | null }
+// The context's own row (WYGLAD_PANELU E5, K1): the bar from the left edge, then label and value
+async function contextOf(ui: Mounted): Promise<ContextView | null> {
+  const p = (await svgs(ui)).find((x) => String(x.source ?? '').includes('class="k f-track"'))
+  if (!p) return null
+  const s = String(p.source ?? '')
+  const bar = s.match(/<rect class="k f-track" x="0" y="[\d.]+" width="([\d.]+)"/)
+  const fill = s.match(/<rect class="u f-([a-z]+)" x="0" y="[\d.]+" width="([\d.]+)"/)
+  const text = s.match(/<text class="w" x="([\d.]+)"[^>]*><tspan class="l f-muted">kontekst<\/tspan><tspan class="v f-text"[^>]*>([^<]*)<\/tspan>/)
+  // Aneks H: the auto-compact threshold as a notch (its centre on the bar) and its words in a <title>
+  const notch = s.match(/<rect class="n f-text" x="([\d.]+)" y="[\d.]+" width="2"/)
+  const title = s.match(/<title>([^<]*)<\/title>/)
+  return {
+    value: text?.[2] ?? '', textX: Number(text?.[1]), barW: Number(bar?.[1]), share: Number(fill?.[2]) / Number(bar?.[1]), color: COLOR_OF_INK[fill?.[1] ?? ''] ?? null, height: Number(p.height),
+    notch: notch ? Number(notch[1]) + 1 : null, title: title?.[1] ?? null,
+  }
 }
 const byName = (list: BatteryView[]) => Object.fromEntries(list.map((x) => [x.name, x]))
 // A share in whole percent: the drawing rounds the fill's width to 0.01 px
@@ -158,7 +177,7 @@ const FIVE_LEFT = 66 * MIN // 1 h 06 min to the 5-hour reset
 const DAY = 24 * 60 * MIN
 
 describe('the calm cache bar: five batteries, the session cost on the right (Aneks Z11, brief v3 §10)', () => {
-  test('cache, limit 5 h, reset za, limit tygodnia, kontekst: label and value on the bar, the full words in each card; one fluid Svg of 24 px', async ($, on) => {
+  test('cache, limit 5 h, reset za, limit tygodnia: label and value on the bar, the full words in each card; one fluid Svg of 24 px; the context in its own row (E5)', async ($, on) => {
     const fiveReset = NOW + FIVE_LEFT
     const weekReset = NOW + DAY
     world(on, {
@@ -169,7 +188,8 @@ describe('the calm cache bar: five batteries, the session cost on the right (Ane
     await turn($)
     const ui = await mount($, 'desktop', 200)
     const list = await svgs(ui)
-    expect(list.length).toBe(1)
+    expect(list.length).toBe(2) // the batteries, then the context's row (WYGLAD_PANELU E5, K1)
+    expect((await contextOf(ui))?.value).toBe('323k / 1M · 32 %')
     const svg = list[0] ?? {}
     expect(svg.isInteractive).toBe(true)
     expect(svg.height).toBe(24)
@@ -180,14 +200,13 @@ describe('the calm cache bar: five batteries, the session cost on the right (Ane
     const b = await batteriesOf(ui)
     expect(b.map((x) => [x.name, x.label, x.value])).toEqual([
       ['cache', 'cache', '~60 min'], ['five', 'limit 5 h', '64 %'], ['reset', 'reset za', '1 h 06 min'],
-      ['week', 'limit tygodnia', '41 %'], ['ctx', 'kontekst', '323k'],
+      ['week', 'limit tygodnia', '41 %'],
     ])
     expect(b.map((x) => [x.a, x.b])).toEqual([
       ['Ciepły · ~60 min', 'TTL 60 min założony'],
       ['64 % · 5 h', `zużyte 64 % · zostało 36 % · reset ${hhmm(fiveReset)} · próg 90 %`],
       ['Reset limitu 5 h za 1 h 06 min', `reset ${hhmm(fiveReset)}`],
       ['41 % · tydzień', `zużyte 41 % · zostało 59 % · reset jutro ${hhmm(weekReset)} · próg 98 %`],
-      ['323k · kontekst', 'zużyte 323k z 1M · wolne 68 %'],
     ])
     // The label muted, the value bold in the text ink, 14.5 px; both palettes in the CSS (P-042)
     expect(source).toContain('<tspan class="l f-muted">limit 5 h</tspan>')
@@ -223,7 +242,9 @@ describe('the calm cache bar: five batteries, the session cost on the right (Ane
     }
   })
 
-  test('each card opens on its own icon only: .iN:hover~.tN, hidden at rest, drawn after every measure, never over its icon', async ($, on) => {
+  // E5, live 2026-10-15: our own cards were cut at the edges, flickered and grew the rows; Łukasz:
+  // „dajmy po prostu ten natywny z caloscia i tyle” (on "Teraz"), then „to samo zrobmy z bateriami”
+  test('each icon carries its full words in the app\'s own tooltip (<title>): no card of our own, no hover rule, the row 24 px', async ($, on) => {
     world(on, {
       ctx: 323_000, window: 1_000_000, cost: 14.93,
       limits: [{ kind: 'five_hour', percentUsed: 64, resetsAt: iso(NOW + FIVE_LEFT) }, { kind: 'seven_day', percentUsed: 41, resetsAt: iso(NOW + DAY) }],
@@ -232,35 +253,18 @@ describe('the calm cache bar: five batteries, the session cost on the right (Ane
     await turn($)
     for (const columns of [200, 160, 130]) {
       const ui = await mount($, 'desktop', columns)
-      for (const p of await svgs(ui)) {
+      const rows = (await svgs(ui)).filter((p) => String(p.source ?? '').includes('<g class="i '))
+      for (const p of rows) {
         const source = String(p.source ?? '')
         const n = [...source.matchAll(/<g class="i i\d+ /g)].length
-        expect(source).toContain('.t{display:none;filter:drop-shadow(0 1px 2px rgba(0,0,0,.45))}')
-        for (let i = 0; i < n; i++) expect(source).toContain(`.i${i}:hover~.t${i}{display:inline}`)
-        expect(source.match(/:hover/g)?.length).toBe(n) // no other hover
-        expect(source.lastIndexOf('<g class="i ')).toBeLessThan(source.indexOf('<g class="t '))
-        expect(source).toContain('<rect class="f-card"') // the card's capsule, in both palettes
+        expect([...source.matchAll(/<g class="i i\d+ [^"]*"><title>[^<]+\n[^<]+<\/title>/g)].length).toBe(n)
+        expect(source).not.toContain(':hover')
+        expect(source).not.toContain('class="t ')
         expect(source).toMatch(/^<svg [^>]*width="100%" height="24">/)
       }
       const b = await batteriesOf(ui)
-      expect(b.length).toBe(5)
-      for (const x of b) expect(x.card.x >= x.icon + 26 || x.card.x + x.card.w <= x.icon).toBe(true)
-      if (columns === 160) {
-        // 127 cells × 8 px = 1016 px of column, five batteries in one row (~902 px); the context's
-        // card would end at ~1175 px, so it opens on the left. At 9.8 px a cell (1245 px) it opened
-        // on the right and the app clipped it (zrzut 2026-10-10)
-        expect((await svgs(ui)).length).toBe(1)
-        const { ctx } = byName(b)
-        expect((ctx?.card.x ?? 0) + (ctx?.card.w ?? 0)).toBeLessThanOrEqual((ctx?.icon ?? 0) - 6)
-      }
-      if (columns === 130) {
-        // 776 px of column: four batteries in the first row, the week's card would run past it on
-        // the right, so it opens on the left; the context wraps to a second row
-        expect((await svgs(ui)).length).toBe(2)
-        const { cache, week } = byName(b)
-        expect(cache?.card.x).toBeGreaterThanOrEqual((cache?.icon ?? 0) + 26)
-        expect((week?.card.x ?? 0) + (week?.card.w ?? 0)).toBeLessThanOrEqual((week?.icon ?? 0) - 6)
-      }
+      expect(b.length).toBe(4) // the context stands in its own row (E5, K1)
+      for (const x of b) expect(x.a.length > 0 && x.b.length > 0).toBe(true)
       await ui.unmount()
     }
   })
@@ -281,19 +285,192 @@ describe('the calm cache bar: five batteries, the session cost on the right (Ane
     })
   }
 
-  for (const [ctx, share, color] of [[323_000, 0.68, SAGE], [720_000, 0.28, MUSTARD], [950_000, 0.05, CLAY]] as const) {
-    test(`the context at ${ctx / 1000}k of 1M: the battery ${Math.round(share * 100)} % full`, async ($, on) => {
+  // WYGLAD_PANELU E5 (K1): the context's row says "used / window · %" without a hover; its bar fills
+  // with the share used, coloured by what is left (the batteries' one rule)
+  for (const [ctx, used, color] of [[323_000, 32, SAGE], [720_000, 72, MUSTARD], [950_000, 95, CLAY]] as const) {
+    test(`the context at ${ctx / 1000}k of 1M: "${ctx / 1000}k / 1M · ${used} %", the bar ${used} % filled`, async ($, on) => {
       world(on, { ctx, window: 1_000_000 })
       await start($)
       await turn($)
       const ui = await mount($)
-      const c = byName(await batteriesOf(ui)).ctx
-      expect(c?.value).toBe(`${ctx / 1000}k`)
-      expect(pct(c?.share)).toBe(pct(share))
+      const c = await contextOf(ui)
+      expect(c?.value).toBe(`${ctx / 1000}k / 1M · ${used} %`)
+      expect(Math.round((c?.share ?? 0) * 100)).toBe(used)
       expect(c?.color).toBe(color)
+      expect(byName(await batteriesOf(ui)).ctx).toBeUndefined()
+      expect(await visible(ui)).toContain(`${ctx / 1000}k / 1M · ${used} %`) // at rest, no hover
       await ui.unmount()
     })
   }
+
+  test('the window comes from the session: 150k of 200k and 150k of 1M draw two different rows', async ($, on) => {
+    const { w } = world(on, { ctx: 150_000, window: 200_000 })
+    await start($)
+    await turn($)
+    let ui = await mount($)
+    expect((await contextOf(ui))?.value).toBe('150k / 200k · 75 %')
+    await ui.unmount()
+    w.window = 1_000_000
+    await turn($)
+    ui = await mount($)
+    expect((await contextOf(ui))?.value).toBe('150k / 1M · 15 %')
+    await ui.unmount()
+  })
+
+  // Aneks H (Łukasz 2026-10-15): „zmienialo kolor z zielonego na zolty a potem czerwony jak sie
+  // zbliza kontekst do tego limitu”, „oznaczony prog auto compactu tak jak […] limit 90% w zakladce
+  // koszty”; chosen: a notch and the colour, the row 24 px. The threshold is the engine's (it holds
+  // CLAUDE_AUTOCOMPACT_PCT_OVERRIDE and the app's setting); the colour by the way left to it.
+  for (const [ctx, color, word] of [[323_000, SAGE, 'sage'], [500_000, MUSTARD, 'mustard'], [600_000, CLAY, 'clay'], [700_000, CLAY, 'clay past it']] as const) {
+    test(`auto-compact at 650k of 1M, the context at ${ctx / 1000}k: the bar ${word}, a notch at 65 %, its words in the tooltip, the row 24 px`, async ($, on) => {
+      const { w } = world(on, { ctx, window: 1_000_000, compact: 650_000 })
+      await start($)
+      await turn($)
+      const ui = await mount($, 'desktop', 160)
+      const c = await contextOf(ui)
+      expect(c?.color).toBe(color)
+      expect(Math.abs((c?.notch ?? 0) - (c?.barW ?? 0) * 0.65)).toBeLessThan(0.02)
+      expect(c?.title).toBe('auto-compact przy 650k · 65 %')
+      expect(c?.height).toBe(24)
+      expect(c?.value).toBe(`${ctx / 1000}k / 1M · ${Math.round(ctx / 10_000)} %`) // the words stay used / window
+      expect(await visible(ui)).not.toContain('auto-compact') // no words over the notch at rest
+      expect(w.asked.every((d) => d === 'summary')).toBe(true) // estimated locally: no token-count requests
+      expect(w.asked.length).toBeGreaterThan(0)
+      await ui.unmount()
+    })
+  }
+
+  test('the instrument tells the threshold from the window: 500k of 1M is sage without one and mustard with auto-compact at 650k (planted case)', async ($, on) => {
+    const { w } = world(on, { ctx: 500_000, window: 1_000_000 })
+    await start($)
+    await turn($)
+    let ui = await mount($)
+    expect((await contextOf(ui))?.color).toBe(SAGE)
+    await ui.unmount()
+    w.compact = 650_000
+    await turn($)
+    ui = await mount($)
+    expect((await contextOf(ui))?.color).toBe(MUSTARD)
+    await ui.unmount()
+  })
+
+  test('auto-compact off or no threshold: the bar by the window as before, no notch, no tooltip', async ($, on) => {
+    const { w } = world(on, { ctx: 720_000, window: 1_000_000, compact: null })
+    await start($)
+    await turn($)
+    let ui = await mount($)
+    let c = await contextOf(ui)
+    expect(c?.color).toBe(MUSTARD)
+    expect(c?.notch).toBeNull()
+    expect(c?.title).toBeNull()
+    await ui.unmount()
+    w.compact = undefined
+    await turn($)
+    ui = await mount($)
+    c = await contextOf(ui)
+    expect(c?.color).toBe(MUSTARD)
+    expect(c?.notch).toBeNull()
+    await ui.unmount()
+  })
+
+  // Live 2026-10-15: the notch stood at 967k though Łukasz sets CLAUDE_AUTOCOMPACT_PCT_OVERRIDE=65
+  // („mam w systemie ustawione na 65%, wiec przy 650k powinno mi to sie compactowac”). In 2.1.295
+  // the breakdown's threshold is the effective window less 13k and leaves the override out, while
+  // compaction takes min(floor(window × pct), window − 13k); the bar takes what compaction takes.
+  test('the env override moves the notch where compaction runs: 967k from the engine and 65 % make 637k', async ($, on) => {
+    world(on, { ctx: 500_000, window: 1_000_000, compact: 967_000, env: { CLAUDE_AUTOCOMPACT_PCT_OVERRIDE: '65' } })
+    await start($)
+    await turn($)
+    const ui = await mount($, 'desktop', 160)
+    const c = await contextOf(ui)
+    expect(c?.title).toBe('auto-compact przy 637k · 64 %')
+    expect(Math.abs((c?.notch ?? 0) - (c?.barW ?? 0) * 0.637)).toBeLessThan(0.02)
+    expect(c?.color).toBe(MUSTARD) // 137k of 637k left: 22 %
+    await ui.unmount()
+  })
+
+  test('the override as compaction reads it: a number in (0, 100], never above the engine\'s own threshold', () => {
+    expect(compactThreshold(967_000, '65')).toBe(637_000)
+    expect(compactThreshold(967_000, undefined)).toBe(967_000)
+    expect(compactThreshold(967_000, '100')).toBe(967_000)
+    expect(compactThreshold(967_000, 'abc')).toBe(967_000)
+    expect(compactThreshold(967_000, '0')).toBe(967_000)
+    expect(compactThreshold(967_000, '150')).toBe(967_000)
+    expect(compactThreshold(0, '65')).toBe(0) // auto-compact off: no threshold at all
+    expect(compactThreshold(187_000, '50')).toBe(100_000) // a 200k model: 200k − 13k out, 50 % of the effective 200k
+  })
+
+  test('one column: the notch stands on the bar under the words, at 65 % of it', () => {
+    const row = contextRow(323_000, 1_000_000, 1, 300, 650_000)
+    const bar = Number(row?.svg.match(/<rect class="k f-track" x="0" y="[\d.]+" width="([\d.]+)"/)?.[1])
+    const notch = Number(row?.svg.match(/<rect class="n f-text" x="([\d.]+)"/)?.[1]) + 1
+    expect(row?.height).toBe(46)
+    expect(Math.abs(notch - bar * 0.65)).toBeLessThan(0.02)
+  })
+
+  test('no window reported: no row, the context stays a battery in the grid', async ($, on) => {
+    world(on, { ctx: 150_000 })
+    await start($)
+    await turn($)
+    const ui = await mount($)
+    expect(await contextOf(ui)).toBeNull()
+    expect(byName(await batteriesOf(ui)).ctx?.value).toBe('150k')
+    await ui.unmount()
+  })
+
+  // Łukasz 2026-10-15: „siatka na całą szerokość”; limit tygodnia under limit 5 h was „zupełnie
+  // rozjechany”; the context „od pierwszej baterii do końcowej baterii”, its words not past them
+  for (const columns of [200, 130, 100, 70]) {
+    test(`the grid at ${columns} columns: every row's batteries in the columns of the first; the context's words in the last column`, async ($, on) => {
+      world(on, {
+        ctx: 323_000, window: 1_000_000,
+        limits: [{ kind: 'five_hour', percentUsed: 64, resetsAt: iso(NOW + FIVE_LEFT) }, { kind: 'seven_day', percentUsed: 41, resetsAt: iso(NOW + DAY) }],
+      })
+      await start($)
+      await turn($)
+      const ui = await mount($, 'desktop', columns)
+      const rows = (await svgs(ui)).filter((p) => String(p.source ?? '').includes('<g class="i '))
+      const xs = rows.map((p) => [...String(p.source ?? '').matchAll(/<g class="i i\d+ b-\w+"><title>[^<]*<\/title><rect x="(-?[\d.]+)"/g)].map((m) => Number(m[1])))
+      const first = xs[0] ?? []
+      for (const row of xs.slice(1)) row.forEach((x, i) => expect(x).toBe(first[i] ?? NaN))
+      const c = await contextOf(ui)
+      const cols = first.length
+      if (cols > 1) {
+        expect(c?.height).toBe(24)
+        const lastX = (first[cols - 1] ?? 0) + 3 // the hover target starts 3 px left of the icon
+        expect(c?.textX).toBeLessThanOrEqual(lastX + 0.01)
+        expect((c?.textX ?? 0) + 'kontekst 323k / 1M · 32 %'.length * 7.9).toBeLessThanOrEqual(lastX + (first[1] ?? 0) - (first[0] ?? 0))
+        expect(c?.barW).toBeGreaterThan(0)
+        expect((c?.barW ?? 0) + 14).toBeLessThanOrEqual((c?.textX ?? 0) + 0.01)
+      } else {
+        expect(c?.height).toBe(46)
+      }
+      await ui.unmount()
+    })
+  }
+
+  // Live 2026-10-15: wrapped cards made the rows grow at rest — „popsułeś wygląd […] nie wprowadzaj
+  // regresji”. The words never change the row: at any width it is 24 px, the tooltip holds them whole.
+  test('the words never grow the row: at 1 200 px and at 280 px the row is 24 px; the tooltip holds line a and line b whole', () => {
+    const week = limitMeasure('week', 'limit tygodnia', 'tydzień', { kind: 'seven_day', percentUsed: 41, resetsAt: new Date(NOW + DAY).toISOString() }, NOW, 98)
+    const cache = cacheMeasure({ kind: 'warm', left: 50 * MIN, ttlMin: 60, isAssumed: true, rewrite: '$1.00', keptUntil: 0 })
+    for (const px of [1200, 280]) {
+      for (const row of batteryRows([cache, week], px)) {
+        expect(row.height).toBe(24)
+        expect(row.svg).toMatch(/^<svg [^>]*height="24">/)
+        expect(row.svg).not.toContain('dy=')
+      }
+    }
+    const svg = batteryRows([week], 280)[0]?.svg ?? ''
+    expect(svg).toContain(`<title>${week.a}\n${week.b}</title>`)
+    expect(svg).not.toContain('…')
+  })
+
+  test('the grid instrument fails the flow of 3.2.0: limit tygodnia wrapped under cache at another x (planted case)', () => {
+    const first = [0, 210, 420]
+    const flowed = [0, 233]
+    expect(flowed.every((x, i) => x === first[i])).toBe(false)
+  })
 
   test('reset za drains over the 5-hour window and stays sage at 5 % left, the limit beside it clay', async ($, on) => {
     world(on, { window: 1_000_000, limits: [{ kind: 'five_hour', percentUsed: 95, resetsAt: iso(NOW + 15 * MIN) }] })
@@ -517,9 +694,9 @@ describe('Aneks D: the threshold and its source under a limit battery that is no
     expect(row?.svg).toContain(`<text class="n f-muted" x="${label}" y="32" font-size="11">próg 90 % · ta sesja</text>`)
   })
 
-  test('a note wider than its words widens the measure: the next one moves right', () => {
-    const nextX = (first: ReturnType<typeof at>) => Number(batteryRows([first, at(50)], 1200)[0]?.svg.match(/<g class="i i1 b-five"><rect x="(-?[\d.]+)"/)?.[1])
-    expect(nextX(at(92, 95, 'globalnie'))).toBeGreaterThan(nextX(at(55)) + 40)
+  test('a note wider than its words widens the grid\'s column: at 400 px the next measure goes to the next row', () => {
+    expect(batteryRows([at(55), at(50)], 400).length).toBe(1)
+    expect(batteryRows([at(92, 95, 'globalnie'), at(50)], 400).length).toBe(2)
   })
 
   test('on the bar: clay at 95 % brings the note and a 36 px row; calm at 50 % neither', async ($, on) => {

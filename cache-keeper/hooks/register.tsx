@@ -11,7 +11,8 @@ import { DEFAULT_SETTINGS, MAX_PAYBACK_TURNS, MIN, RELAI_MARKER, applySetting, c
 import { basename, clip, clock, fileStamp, limitsText, minutes, tokens, usd } from './fmt'
 import { barCard, barRule } from './bar-card'
 import { BAND, BAR, BAR_LOOK, CHIP_KEY, KEY } from './relai/theme.mjs'
-import { batteryRows, cacheMeasure, contextMeasure, glyphColor, limitMeasure, measureGlyph, resetMeasure, type Limit, type Measure } from './rings'
+import { batteryRows, cacheMeasure, columnsOf, compactThreshold, contextMeasure, contextRow, glyphColor, limitMeasure, measureGlyph, resetMeasure, type Limit, type Measure } from './rings'
+
 import { ancestors, parseStatus } from './relai/plan-state.mjs'
 import { PLAIN_HANDOFF_PROMPT, RELAI_CONTINUE, RELAI_HANDOFF_PROMPT, continuePrompt, plainBody, relaiDiscardPrompt, relaiDone, relaiFreshPrompt, relaiResumePrompt, relaiSavePrompt, saveDone } from './handoff'
 import { PRICE_FILE } from './relai/pricing.mjs'
@@ -42,6 +43,7 @@ type Session = {
   lastActivity: number // last main-loop request or ping that touched the cache
   ctx: number
   ctxWindow: number // the model's context window, tokens; 0 = not reported yet
+  ctxCompact: number // the engine's auto-compact threshold, tokens; 0 = off or not reported (Aneks H)
   ttlMeasured: 0 | 5 | 60
   costUsd: number | null
   rateLimits: Limit[]
@@ -75,7 +77,7 @@ type Session = {
 type Handoff = { phase: 'idle' | 'running' | 'ready' | 'continuing'; notTurn: string; relai: boolean; body: string; path: string }
 
 const FRESH: Session = {
-  id: '', cwd: '', model: '', isRelai: false, lastActivity: 0, ctx: 0, ctxWindow: 0, ttlMeasured: 0, costUsd: null, rateLimits: [],
+  id: '', cwd: '', model: '', isRelai: false, lastActivity: 0, ctx: 0, ctxWindow: 0, ctxCompact: 0, ttlMeasured: 0, costUsd: null, rateLimits: [],
   working: false, turnId: '', keepWarm: false, keepWarmUntil: 0, pings: 0, pingUsd: 0, rewrites: 0, rewriteUsd: 0,
   announcedFor: 0, announced: [], justCompacted: false, shortTtlRewrites: 0,
   start: 0, startSource: '', startPending: false, turnOut: 0, outputs: [], limitBase: -1, limitTurns: [], stayCtx: 0,
@@ -190,7 +192,7 @@ async function loadThreshold($: $T) {
 // main turn measures S again (Z9); a /resume does not.
 function resetSession($: $T, id: string, isFresh: boolean) {
   stopKeepWarm($, 'nowa rozmowa')
-  S = { ...FRESH, id, cwd: S.cwd, model: S.model, isRelai: S.isRelai, rateLimits: S.rateLimits, ctxWindow: S.ctxWindow, start: S.start, startSource: S.startSource, startPending: isFresh }
+  S = { ...FRESH, id, cwd: S.cwd, model: S.model, isRelai: S.isRelai, rateLimits: S.rateLimits, ctxWindow: S.ctxWindow, ctxCompact: S.ctxCompact, start: S.start, startSource: S.startSource, startPending: isFresh }
   if (H.phase !== 'continuing') H = IDLE
   // A save still running belonged to the ended conversation: its answer will not come
   if (V.phase === 'running') later($, () => keepSave($, { ...V, phase: 'przerwany' }))
@@ -934,12 +936,19 @@ function band($: $T, e: Resolved, columns: number, now: number) {
   const Svg = (e.surface === 'desktop' || e.surface === 'vscode') && 'Svg' in el ? el.Svg : null
   const isGui = e.surface !== 'terminal'
   const v = bandView(now)
+  // Desktop (WYGLAD_PANELU E5): the batteries in a grid over the whole width (S2), the context in a
+  // row of its own with a bar (K1) — as a battery only while the session reports no window
+  const px = middlePx(columns)
+  const shown = S.ctx > 0 && S.ctxWindow > 0 ? v.measures.filter((m) => m.name !== 'ctx') : v.measures
+  const grid = columnsOf(shown, px)
+  const ctxRow = Svg ? contextRow(S.ctx, S.ctxWindow, grid.cols, grid.step, S.ctxCompact) : null
   const batteries = Svg
     ? (
       <Box key="cache-batteries" flexDirection="column">
-        {batteryRows(v.measures, middlePx(columns)).map((row, i) => (
+        {batteryRows(ctxRow ? shown : v.measures, px).map((row, i) => (
           <Box key={`batteries-${i}`} flexDirection="column"><Svg isInteractive source={row.svg} alt={row.alt} height={row.height} /></Box>
         ))}
+        {ctxRow ? [<Box key="cache-context" flexDirection="column"><Svg isInteractive source={ctxRow.svg} alt={ctxRow.alt} height={ctxRow.height} /></Box>] : []}
       </Box>
     )
     : (
@@ -1137,11 +1146,16 @@ export const register: Register = (on) => {
     if (e.agentId) return r
     const now = await $.clock.now()
     set({ working: false })
-    const usage = await $.session.usage().catch(() => null)
+    // `summary` estimates the breakdown locally, with no token-count requests; it carries the
+    // engine's auto-compact threshold, which holds the env override and the app's setting (Aneks H)
+    const usage = await $.session.usage({ breakdown: 'summary' }).catch(() => null)
     if (usage) {
+      const b = usage.context?.breakdown
+      const pct = b?.isAutoCompactEnabled ? await $.env.get('CLAUDE_AUTOCOMPACT_PCT_OVERRIDE').catch(() => undefined) : undefined
       set({
         ctx: usage.context?.tokens || S.ctx,
         ctxWindow: usage.context?.window || S.ctxWindow,
+        ctxCompact: b ? (b.isAutoCompactEnabled ? compactThreshold(b.autoCompactThreshold ?? 0, pct) : 0) : S.ctxCompact,
         costUsd: usage.cost ? usage.cost.usd : S.costUsd,
         rateLimits: usage.rateLimits?.length ? usage.rateLimits : S.rateLimits,
       })

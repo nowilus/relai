@@ -1,6 +1,7 @@
 # DESIGN — panel RelAI i paski nad promptem (Claude Code, aplikacja desktopowa)
 
-Wersja: **1.2** · Data: 2026-10-15 (1.2: odbiór E4 — budżet znaków, rysunek bez tła) · Powstał w planie WYGLAD_PANELU, E3 (Aneks F), na prośbę
+Wersja: **1.3** · Data: 2026-10-15 (1.3: E5 — natywny dymek, siatka baterii, wiersz kontekstu
+z progiem auto-compactu, kształt stanu segmentu; 1.2: odbiór E4 — budżet znaków, rysunek bez tła) · Powstał w planie WYGLAD_PANELU, E3 (Aneks F), na prośbę
 Łukasza: „spiszesz te wszystkie zasady, wszystkie te lekcje, wszystkie te nasze tutaj poprawki […]
 jak każę Ci dodać coś nowego, to już będziesz wiedział w jakim stylu, z jakim formatowaniem, jak
 z responsywnością, jak obsłużyć problemy z rozjeżdżaniem się tekstu, nierównością przycisków,
@@ -81,6 +82,15 @@ tylko przy zdarzeniu (drugi wiersz pod swoim paskiem); wspólna siatka etykieta 
 **wariant 3b** — bez tła i ramki, nad każdym paskiem linia gasnąca (`RULE`) tylko między paskami
 RelAI; wszystkie przyciski pasków `primary` (`secondary` w ciemnym tonie i wygląda na niższy);
 pasek postępu jako lista kroków (§3 briefu). Owijacz z `next(e)` nigdy z `width` (P-017).
+
+**Pasek cache od 1.3 (E5, wybór S2 + K1):** baterie w siatce na całą szerokość — kolumny z
+najszerszej miary, każdy wiersz w kolumnach pierwszego („limit tygodnia” pod „cache”, nie
+w innym x). Kontekst ma własny wiersz w gramatyce baterii: pasek od pierwszej kolumny, „kontekst”
+i „użyte / okno · %” w ostatniej kolumnie, widoczne bez najechania; okno z sesji, nigdy z tabeli
+modeli. Próg auto-compactu (Aneks H) to kreska jak próg limitu w Kosztach, bez napisu nad nią;
+barwa paska liczona do progu regułą baterii (≤ 30 % drogi żółta, ≤ 10 % i od progu czerwona).
+Próg liczony tak jak kompaktowanie, razem z `CLAUDE_AUTOCOMPACT_PCT_OVERRIDE` (rozbicie silnika
+go pomija — PULAPKI). Wiersz baterii i wiersz kontekstu mają stałe 24 px w każdej szerokości.
 
 ## 4. Panel — kompozycja (wariant 3 „jedna kartka”, zaakceptowany 2026-10-15)
 
@@ -197,6 +207,14 @@ jeden dla wszystkich zakładek (Łukasz: „brakuje w ogóle jakichś paddingów
 - Rysunek pod treścią (pasek z hoverem, wykres) **nie maluje własnego tła** (`fill="none"`): na
   zakładce w samej ramce tło w kolorze kartki stoi jako pas (E4).
 - Obie palety w CSS rysunku; reguła tylko dla pary atrybut–kolor obecnej w rysunku (budżet).
+- **Pełne słowa po najechaniu — natywny dymek z `<title>`, nigdy własna kapsuła** (E5, Łukasz:
+  „dajmy po prostu ten natywny z caloscia i tyle, nie komplikujemy”). Własna kapsuła w `Svg`
+  się ucina na krawędzi ramki, miga, łapie hover poza ikoną, a zawinięta podnosi wiersz
+  w spoczynku. Element chwilowy nigdy nie zmienia geometrii spoczynku — test wysokości spoczynku
+  stoi obok testu nowego zachowania.
+- **Stan bez polegania na barwie** (E5): znacznik ≥ 3 : 1 do kartki w obu wyglądach, stany różni
+  kształt — zrobiony pełny, w toku połowa w obrysie, czeka sam obrys, nie przeszedł pełny w glinie.
+  Trzech wypełnień parami ≥ 3 : 1 i do białej kartki nie ma.
 - Wykres to geometria; każde słowo stoi w pudełku, które liczy układ (tekst w `Svg` się nie
   zawija i jest szacunkiem metryki).
 
@@ -250,6 +268,7 @@ jeden dla wszystkich zakładek (Łukasz: „brakuje w ogóle jakichś paddingów
 - [ ] Żaden tekst ani przycisk poza swoim obrysem (`narrow.test.ts`, 40 kolumn, wysokość).
 - [ ] Tekst tylko w kluczach z tabeli 2.1; nowy kolor ma decyzję w `theme.mjs` (test rdzenia).
 - [ ] Każdy `Svg` z niepustym `alt` i jasną paletą.
+- [ ] Najechanie nie zmienia wysokości ani układu spoczynku (dymek tylko z `<title>`).
 - [ ] Klucze unikalne; budżet drzewa ≤ 210 k na najgorszych danych.
 - [ ] `claude plugin validate` i `plugin test` binarką aplikacji (P-024), rdzeń `node --test`,
       `sync-panel-core.js --check`.

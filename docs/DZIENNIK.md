@@ -1838,3 +1838,15 @@ przeniesione z E4 na E5 (Aneks G).
 **Do zrobienia przez człowieka:** —
 
 Autor: RelAI (Opus 5.5) + Lukasz
+
+### 2026-10-15 — WYGLAD_PANELU E5: odbiór na żywo i zgoda na wydanie (przed zmianą numerów)
+
+Zapis zgody przed pierwszą zmianą numeru wersji (punkt Weryfikacji E5). Pełny wpis etapu niżej.
+
+- Odbiór „Teraz” i paska cache — Łukasz: „ok teraz jest dobrze, mozemy chyba zamykać plan”; po
+  Aneksie H (próg auto-compactu, kreska przy 637k): „ok działa”.
+- Zgoda na wydanie — Łukasz: „Tak, wydaj (Rekomendowane)”: `relai-panel` 0.20.0,
+  `relai-cache-keeper` 0.11.0, `relai-progress` 0.5.0 i `relai` 3.2.0 bez zmian, tag
+  `relai-panel-v0.20.0`, push na `origin`.
+
+Autor: RelAI (Opus 5.5) + Lukasz

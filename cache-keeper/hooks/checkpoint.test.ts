@@ -126,7 +126,7 @@ async function batteryColor($: Engine, name: 'five' | 'week'): Promise<string | 
   const walk = (n: RenderNode): string[] => (typeof n === 'string' ? [] : [String((n as { props?: { source?: unknown } }).props?.source ?? ''), ...((n as { children?: RenderNode[] }).children ?? []).flatMap(walk)])
   const source = walk(await ui.drawn()).join('')
   await ui.unmount()
-  const ink = source.match(new RegExp(`b-${name}">.*?<rect class="f f-([a-z]+)"`))?.[1]
+  const ink = source.match(new RegExp(`b-${name}">[\\s\\S]*?<rect class="f f-([a-z]+)"`))?.[1]
   return ink ? COLOR_OF_INK[ink] ?? null : null
 }
 const fiveColor = ($: Engine) => batteryColor($, 'five')

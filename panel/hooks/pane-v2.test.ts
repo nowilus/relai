@@ -183,6 +183,20 @@ describe('the header and the "Teraz" bar (brief v2 §6.1–6.2)', () => {
       // E3 (live 2026-10-15): on a desktop "Start etapu…" stands on the row of the next item, "Zmień" on the session's row under it
       const order = surface === 'desktop' ? [['Start etapu…', 'primary'], ['Zmień', 'secondary']] : [['Zmień', 'secondary'], ['Start etapu…', 'primary']]
       expect(buttons.map((b) => [props(b).label ?? textOf(b), props(b).variant])).toEqual(order)
+      if (surface === 'desktop') {
+        // WYGLAD_PANELU E5 (T1): rows a row of air apart; the title row holds no button; "Start
+        // etapu…" stands on the words' row, which names one item (Aneks G: „nawalone opisu”)
+        expect(props(now).gap).toBe(1)
+        expect([...walk(await ui.find({ key: 'now-head' }))].filter((n) => n.type === 'Button')).toEqual([])
+        const l2 = await ui.find({ key: 'now-l2' })
+        expect([...walk(l2)].filter((n) => n.type === 'Button').map((b) => props(b).label ?? textOf(b))).toEqual(['Start etapu…'])
+        expect(textOf(l2)).not.toContain('w toku:')
+        // One line, cut with "…" in a box of zero basis (P-043 pkt 6); the whole point on hover
+        const words = await ui.find({ key: 'now-words' })
+        expect([props(words).width, props(words).flexGrow]).toEqual([0, 1])
+        expect(props([...walk(words)].find((n) => n.type === 'Text')).wrap).toBe('truncate')
+        expect(props([...walk(segs)].find((n) => n.type === 'Svg')).isInteractive).toBe(true)
+      }
       await ui.unmount()
     }
   })
@@ -308,7 +322,7 @@ describe('the commands tab (brief v2 §6.3–6.5, P1)', () => {
     await ui.unmount()
   })
 
-  test('the 15 commands, "Teraz" and the header fit 1101 px of a desktop', async ($, on) => {
+  test('the 15 commands, "Teraz" and the header fit 1185 px of a desktop', async ($, on) => {
     world(on)
     const ui = await open($)
     const tree = await ui.drawn() // the sheet's hidden copy in flow sizes it (E3, P-044)
@@ -318,8 +332,10 @@ describe('the commands tab (brief v2 §6.3–6.5, P1)', () => {
     // przyciskami"): a cell between the rows of a group card, 11 gaps of 20 px; 900 px became 1061.
     // WYGLAD_PANELU E3: the sheet's frame (variant 3, accepted 2026-10-15) adds its two lines: 1065;
     // its margin inside, a line above and under the tab (Łukasz 2026-10-15: "brakuje w ogóle jakichś
-    // paddingów w środku"), two more: 1101
-    expect(`${px} px`).toBe(`${Math.min(px, 1101)} px`)
+    // paddingów w środku"), two more: 1101. WYGLAD_PANELU E5 (Łukasz 2026-10-15: „nie ma żadnych
+    // marginów odpowiednich spacingów […] pomiędzy tym paskiem a jakimś tytułem”): "Teraz" in four
+    // rows a row of air apart and the bar's drawing with its band for the hover card — 84 px: 1185
+    expect(`${px} px`).toBe(`${Math.min(px, 1185)} px`)
     expect(props(await ui.find({ key: 'featured' })).gap).toBeUndefined()
     for (const c of ROWS) expect(height((await ui.find({ key: `row-${c}` })) as RenderNode)).toBeLessThanOrEqual(PX.button + 2 * PX.border)
     await ui.unmount()

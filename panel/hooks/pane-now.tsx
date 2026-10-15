@@ -11,6 +11,7 @@ import type { Item } from './core/progress.mjs'
 import type { FocusChoice, NowData } from './data'
 import type { FocusTarget } from './focus'
 import type { Ctx, Parts } from './pane-parts'
+import { nowArt } from './now-art'
 
 const SEG_PX = 8 // the segments' height on a desktop, as in the progress bar (brief v2 §3)
 const SEG_CELLS = 24 // the most cells the terminal's segments take
@@ -50,7 +51,56 @@ function focusRow(c: Ctx, p: Parts, n: NowData, f: FocusUi) {
   ]
 }
 
+// The words under the bar: the item in progress, else the next one — one item, never both (Aneks G:
+// "jest tam nawalone opisu")
+export function nowWords(items: readonly Item[]): string {
+  const running = items.find((it) => it.status === 'running')
+  if (running) return `w toku: ${running.name}`
+  const next = items.find((it) => it.status === 'pending')
+  return next ? `następny: ${next.name}` : 'wszystkie punkty odhaczone'
+}
+
+// The desktop's "Teraz" (WYGLAD_PANELU E5, T1): four rows a row of air apart (DESIGN §4.1) — the
+// title with the status and the count; the bar with the air under it, each segment showing its whole
+// point in the app's tooltip; the item in progress with "Start etapu…" on the right, in the column of
+// "Zmień" and the commands' "Otwórz" (§4.3); the session's work with "Zmień". Every word stands in
+// a Text that wraps (P-043), so a narrow pane folds the rows instead of crowding them.
+function nowGui(c: Ctx, p: Parts, n: NowData, start: (() => void) | null, f: FocusUi) {
+  const { el, Svg } = c
+  const { Box, Text } = el
+  const plan = n.plan
+  const pr = n.progress
+  const title = plan.kind !== 'ok' ? '' : plan.stage ? `${plan.plan} · ${plan.stage.id}` : plan.plan
+  const status = plan.kind !== 'ok' ? '' : plan.stage ? plan.stage.status : (plan.planStatus ?? '')
+  const words = plan.kind === 'none' ? (n.work.focus?.kind === 'outside' || n.work.isAsking ? 'ta sesja nie liczy się do żadnego planu' : 'brak aktywnego planu')
+    : plan.kind !== 'ok' ? `plan nieznany: ${plan.reason}` : pr.items.length ? `${pr.kind === 'crew' ? pr.title + ' · ' : ''}${nowWords(pr.items)}` : pr.words
+  const art = Svg ? nowArt(pr.items) : null
+  // An item: one line, cut with "…" in a box of zero basis (P-043 pkt 6); its whole words on the
+  // hovered segment and in the drawing's alt (Aneks G: „nawalone opisu”, a point wrapped in three
+  // lines). A sentence with no segments to hover (no plan, no items) wraps whole.
+  const wordsBox = art
+    ? <Box key="now-words" width={0} flexGrow={1} flexShrink={1}><Text color={THEME.body} wrap="truncate">{words}</Text></Box>
+    : <Box key="now-words" flexGrow={1} flexShrink={1}><Text color={THEME.body}>{words}</Text></Box>
+  return (
+    <Box key="now" flexDirection="column" paddingX={1} gap={1}>
+      {title ? [
+        <Box key="now-head" flexDirection="row" flexWrap="wrap" alignItems="center" columnGap={2}>
+          <Text bold color={THEME.title}>{title}</Text>
+          {status ? [<Text key="now-status" bold color={BAND.panel.color}>{status}</Text>] : []}
+          {pr.total ? [<Text key="now-figure" bold color={BAND.progress.color}>{`${pr.done}/${pr.total}`}</Text>] : []}
+        </Box>,
+      ] : []}
+      <Box key="now-body" flexDirection="column">
+        {art && Svg ? [<Box key="now-segs" flexDirection="column"><Svg key="now-segs-svg" isInteractive source={art.svg} alt={art.alt} height={art.height} /></Box>] : []}
+        <Box key="now-l2" flexDirection="row">{start ? p.textAndAct('now-l2-row', wordsBox, p.btn('now-start', 'Start etapu…', 'primary', start)) : wordsBox}</Box>
+      </Box>
+      {focusRow(c, p, n, f)}
+    </Box>
+  )
+}
+
 export function nowBar(c: Ctx, p: Parts, n: NowData, start: (() => void) | null, f: FocusUi) {
+  if (c.isGui && c.Svg) return nowGui(c, p, n, start, f)
   const { el, Svg, isGui, width } = c
   const { Box, Text } = el
   const plan = n.plan
