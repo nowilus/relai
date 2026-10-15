@@ -328,7 +328,7 @@ zaraz po jego sprawdzeniu, nie na końcu etapu; punkt, który nie przeszedł, zo
 - [x] `git diff` nie dotyka `panel/hooks/band.tsx`, `panel/hooks/pane-*.tsx`, `cache-keeper/`,
       żadnej kopii `bar-card.tsx`, `docs/plany/PANEL_CODEX/` ani `docs/zasoby/PANEL_RELAI/makiety/`
       (`git diff --stat` w dzienniku).
-- [ ] Katalog roboczy `.claude/relai/work/WYGLAD_PANELU/E2/` przejrzany raportem
+- [x] Katalog roboczy `.claude/relai/work/WYGLAD_PANELU/E2/` przejrzany raportem
       (`node .claude/relai/tools/clean-work.js raport`) i skasowany po „tak”; liczby przed i po
       w sekcji „Zweryfikowane” wpisu. Artefakty poza nim (mod wariantów w `dev-mods`, kopia
       podłożona do zainstalowanego pluginu, pliki w `%TEMP%`) wypisane z nazwy razem z tym, co się
