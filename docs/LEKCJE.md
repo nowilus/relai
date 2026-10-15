@@ -51,7 +51,9 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
      z `/`; skrypt edycji niosący `\n`, backtick lub ścieżkę — Write, heredok bez wyjątku, także
      jednolinijkowa podmiana przez `node -e`; dokumenty — tylko Edit; napis z `\n` w kodzie albo
      teście — tylko Edit, także obok podmian bez ucieczek; dotyczy każdego pliku, także roboczego
-     poza repo (`dev-mods`, `%TEMP%`) (L-0116, L-0119, L-0135, L-0148, L-0188, L-0192, L-0198);
+     poza repo (`dev-mods`, `%TEMP%`); „dokumenty — tylko Edit” obejmuje dopisanie na końcu
+     (`cat >>` z heredokiem) i `sed -i` na wierszu tabeli (L-0116, L-0119, L-0135, L-0148, L-0188,
+     L-0192, L-0198, L-0210);
      znaki łączące — `\p{M}` z flagą `u`; wynik sprawdzasz grepem stałego ciągu.
    - **Kontrola pozytywna:** zero trafień przy niepustych zbiorach to defekt instrumentu do czasu
      dowodu, a trafienie na materiale dotąd zdrowym sprawdzasz najpierw na instrumencie; scenariusz
@@ -177,7 +179,9 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
       mechanizm mnożący drzewo — najpierw test budżetu na najgorszych danych (L-0202); przejście
       po drzewie testujesz na węźle w kształcie silnika, nie z ręki (L-0204, P-045); poprawka
       zielona w teście, a martwa na żywo — najpierw diagnostyka z działającego modu (L-0205);
-      zrzut przez `PrintWindow` z `SetProcessDPIAware` (L-0206). Wygląd
+      zrzut przez `PrintWindow` z `SetProcessDPIAware` (L-0206); element chwilowy (dymek,
+      najechanie) nie zmienia geometrii spoczynku — test wysokości spoczynku obok testu nowego
+      zachowania, pełne słowa w natywnym `<title>` (L-0209). Wygląd
       panelu i pasków: `docs/zasoby/PANEL_RELAI/DESIGN.md` przed każdą zmianą.
     - **Liczby i słowa:** procenty i kwoty z dwoma miejscami (L-0145); etykieta stanu słowem
       i znakiem, „x/y” tylko gdy y jest celem (L-0147); słowo o przeszłości ma warunek prawdziwości
@@ -644,6 +648,30 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
   wklejeniu sprawdzała tylko brak znacznika, nie liczbę nagłówków.
 - **Zasada:** wklejając cudzy tekst w JS, zastępujesz funkcją (`replace(x, () => block)`) albo
   `slice`; po wklejeniu sprawdzasz nagłówki `^## ` (każdy raz) i obecność bloku w całości.
+
+### L-0209 — Poprawka dymku podniosła wiersz baterii w spoczynku · 2026-10-15 · AKTYWNA
+
+- **Trigger:** plan WYGLAD_PANELU E5. Po „Zobacz jak sie ucinaja te dymki” kapsuły dymków
+  dostały zawijanie i zaczep w CSS; wiersz baterii urósł w spoczynku z 24 do 44 px, a wcześniej
+  `.tN:hover` przyklejał dymek pod kursorem i łapał najechanie przed ikoną. Łukasz: „popsułeś
+  wygląd […] nie wprowadzaj regresji”, „tu jest dokladnie ta sama sytuacja”.
+- **Przyczyna:** testy sprawdzały nowe zachowanie dymku (zaczep, brak ucięcia), żaden nie
+  trzymał wysokości wiersza bez najechania; własna kapsuła w `Svg` nie może wyjść poza ramkę,
+  więc każda próba jej ratowania przesuwała geometrię spoczynku.
+- **Zasada:** zmiana elementu chwilowego (dymek, najechanie, rozwinięcie) idzie razem z testem
+  geometrii spoczynku (wysokość, x kolumn) na kilku szerokościach. Pełne słowa po najechaniu —
+  natywny `<title>`; własna kapsuła w `Svg` tylko po pomiarze, że mieści się w ramce.
+
+### L-0210 — Dopisanie do dokumentu heredokiem i `sed -i` w tabeli (powtórzenie L-0198) · 2026-10-15 · AKTYWNA
+
+- **Trigger:** plan WYGLAD_PANELU E5. Sekcję §14.7 briefu i wpis zgody w `DZIENNIK.md` dopisałem
+  przez `cat >> plik <<'EOF'`, a wiersz tabeli §0 briefu wstawiłem `sed -i` — oba teksty
+  z backtickami. Treść przeszła cała (heredok w apostrofach, kontrola grepem), ale reguła
+  „dokumenty — tylko Edit” z destylatu została złamana dwa razy w jednej sesji.
+- **Przyczyna:** „dopisanie na końcu” i „jeden wiersz” odczytane jako nie-edycja; reguła mówi
+  o zmianie dokumentu, każdej.
+- **Zasada:** każdy zapis do dokumentu w `docs/` — także dopisanie na końcu i pojedynczy wiersz
+  — idzie przez Edit/Write; powłoka tylko czyta dokumenty.
 
 ## Lekcje zwinięte
 

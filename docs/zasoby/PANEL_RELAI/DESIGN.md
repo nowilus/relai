@@ -277,5 +277,5 @@ jeden dla wszystkich zakładek (Łukasz: „brakuje w ogóle jakichś paddingów
 ## 13. Źródła
 
 Brief [STYL_PASKOW_CLAUDE.md](STYL_PASKOW_CLAUDE.md) · pułapki P-017–P-024, P-041–P-044 ·
-plan [WYGLAD_PANELU](../../plany/WYGLAD_PANELU/STATUS.md) (Aneksy A–F) · zrzuty
+plan [WYGLAD_PANELU](../../archiwum/plany/WYGLAD_PANELU/STATUS.md) (Aneksy A–H) · zrzuty
 `zrzuty/WYGLAD_PANELU_E1_*`, `_E2_*`, `_E3_*` · odnogi PANEL_WASKI, AUDYT_MODOW, SPLIT_VIEW.

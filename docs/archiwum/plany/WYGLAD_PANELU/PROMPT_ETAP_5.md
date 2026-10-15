@@ -314,11 +314,11 @@ zaraz po jego sprawdzeniu, nie na końcu etapu; punkt, który nie przeszedł, zo
       `progress/` i `cache-keeper/` (co najmniej 205 / 42 / 181); rdzeń 410+ zielony;
       `sync-panel-core.js --check` zgodne.
 - [x] `DESIGN.md` 1.3 i brief 5.1 z wierszami w `ARTEFAKTY.md`; poprzednie wersje w historii gita.
-- [ ] Zgoda Łukasza na wydanie zapisana w dzienniku jego słowami przed pierwszą zmianą numeru;
+- [x] Zgoda Łukasza na wydanie zapisana w dzienniku jego słowami przed pierwszą zmianą numeru;
       `relai` nadal 3.2.0 we wszystkich plikach; tag `relai-panel-v0.20.0` w `git ls-remote --tags
       origin`; po instalacji katalogi nowych wersji w `installed_plugins.json` i zrzut z nich.
-- [ ] `git diff` wydania nie dotyka `docs/plany/PANEL_CODEX/` ani `docs/zasoby/PANEL_RELAI/makiety/`.
-- [ ] Katalog roboczy `.claude/relai/work/WYGLAD_PANELU/E5/` przejrzany raportem
+- [x] `git diff` wydania nie dotyka `docs/plany/PANEL_CODEX/` ani `docs/zasoby/PANEL_RELAI/makiety/`.
+- [x] Katalog roboczy `.claude/relai/work/WYGLAD_PANELU/E5/` przejrzany raportem
       (`node .claude/relai/tools/clean-work.js raport`) i skasowany po „tak”; liczby przed i po
       w sekcji „Zweryfikowane” wpisu. Artefakty poza nim (mody-warianty w `dev-mods`, kopie w cache
       pluginów, pliki w `%TEMP%`) wypisane z nazwy razem z tym, co się z nimi stało.

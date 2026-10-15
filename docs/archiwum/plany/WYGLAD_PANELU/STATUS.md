@@ -1,6 +1,6 @@
 # STATUS — plan WYGLAD_PANELU
 
-Plan: [PLAN.html](PLAN.html) · Utworzony: 2026-10-14 · Status planu: **ZAAKCEPTOWANY 2026-10-14 (Aneksy A–G)** · Model wykonawczy etapów: Opus 5.5, świeże sesje (ustawienie projektu, D-85; ustalony w Claude Code)
+Plan: [PLAN.html](PLAN.html) · Utworzony: 2026-10-14 · Status planu: **ZREALIZOWANY 2026-10-15** (zaakceptowany 2026-10-14, Aneksy A–H; 5/5 etapów) · Model wykonawczy etapów: Opus 5.5, świeże sesje (ustawienie projektu, D-85; ustalony w Claude Code)
 
 Makieta kalibracyjna paska postępu: [MAKIETA_PASEK_POSTEPU.html](MAKIETA_PASEK_POSTEPU.html) (wariant 1, kierunek przyjęty 2026-10-14).
 
@@ -12,7 +12,7 @@ Makieta kalibracyjna paska postępu: [MAKIETA_PASEK_POSTEPU.html](MAKIETA_PASEK_
 | E2 | Pasek postępu jako lista kroków | ZREALIZOWANY 2026-10-15 | [PROMPT_ETAP_2.md](PROMPT_ETAP_2.md) | wg makiety |
 | E3 | Panel w szacie jasnej | ZREALIZOWANY 2026-10-15 | [PROMPT_ETAP_3.md](PROMPT_ETAP_3.md) | start dopiero po zamknięciu odnogi [PANEL_WASKI](../../fixy/PANEL_WASKI/ODNOGA.md) (zamknięta 2026-10-14) |
 | E4 | Odbiór całości i wydanie | ZREALIZOWANY 2026-10-15 | [PROMPT_ETAP_4.md](PROMPT_ETAP_4.md) | wydanie po zgodzie Łukasza |
-| E5 | „Teraz”, baterie w siatce, kontekst z oknem modelu (Aneks G) | W TOKU | [PROMPT_ETAP_5.md](PROMPT_ETAP_5.md) | trzy warianty × trzy rzeczy, wydanie panelu 0.20.0 / 0.11.0 |
+| E5 | „Teraz”, baterie w siatce, kontekst z oknem modelu (Aneksy G i H) | ZREALIZOWANY 2026-10-15 | [PROMPT_ETAP_5.md](PROMPT_ETAP_5.md) | trzy warianty × trzy rzeczy, próg auto-compactu (Aneks H), wydanie panelu 0.20.0 / 0.11.0 |
 
 ## Dziennik wdrożenia
 
@@ -34,6 +34,9 @@ Makieta kalibracyjna paska postępu: [MAKIETA_PASEK_POSTEPU.html](MAKIETA_PASEK_
 - 2026-10-15 — E4 ZREALIZOWANY: macierz na żywo (2 wyglądy × 3 szerokości + /relai-agents), 6 poprawek z testami, brief 5.0, DESIGN 1.2; wydanie 3.2.0 / relai-panel 0.19.0 / relai-progress 0.5.0 / relai-cache-keeper 0.10.0 (zgoda „Tak, 3.2.0 / 0.19.0 / 0.5.0 / 0.10.0 (Rekomendowane)”), odbiór „Tak, przyjmuję całość”; ostatni etap planu.
 - 2026-10-15 — Aneks G przyjęty („dorzućmy do tego planu”, relai zostaje 3.2.0, panel z nowymi numerami): etap E5 — sekcja „Teraz”, baterie w siatce, kontekst z oknem modelu; trzy warianty do wyboru na żywo; świeża sesja. E5 gotowy do startu, wygenerowano PROMPT_ETAP_5.
 - 2026-10-15 — E5 rozpoczęty
+- 2026-10-15 — Aneks H przyjęty („Kreska + kolor, wiersz 24 px”, „Aneks H do E5”): próg auto-compactu na pasku kontekstu, liczony jak kompaktowanie (z `CLAUDE_AUTOCOMPACT_PCT_OVERRIDE`, P-046).
+- 2026-10-15 — E5 ZREALIZOWANY: „Teraz” T1 z nową otoczką, baterie w siatce S2, wiersz kontekstu K1 z progiem, natywne dymki (akceptacja „ok teraz jest dobrze, mozemy chyba zamykać plan”, „ok działa”); wydanie `relai-panel` 0.20.0 / `relai-cache-keeper` 0.11.0 (zgoda „Tak, wydaj”), tag `relai-panel-v0.20.0`; ostatni etap planu.
+- 2026-10-15 — plan ZREALIZOWANY: bramki rozstrzygnięte, odnóg brak; folder przeniesiony do `docs/archiwum/plany/WYGLAD_PANELU/`.
 
 ## Bramki manualne
 

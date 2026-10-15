@@ -1,6 +1,6 @@
 # STATE — RelAI
 
-Stan na: 2026-10-15 (WYGLAD_PANELU E4 zrealizowany, wydanie 3.2.0; E5 z Aneksu G gotowy do startu)
+Stan na: 2026-10-15 (plan WYGLAD_PANELU zamknięty po E5; wydanie `relai-panel` 0.20.0 / `relai-cache-keeper` 0.11.0)
 
 ## Gdzie jesteśmy
 
@@ -8,14 +8,15 @@ RelAI **3.2.0** jest w repozytorium i publicznie (tag `v3.2.0`, 2026-10-15: peł
 `/relai-stage`; wcześniej 3.1.0 z humanizacją tekstu). Plugin `relai` działa
 w trzech narzędziach — Claude Code, Cursorze i Codeksie — na jednym rdzeniu procesu, z piętnastoma
 komendami. Panel RelAI w oknie Claude Code to trzy osobne pluginy „early access” z marketplace tego
-repozytorium: `relai-panel` 0.19.0, `relai-progress` 0.5.0, `relai-cache-keeper` 0.10.0 (tag
-`relai-panel-v0.19.0`, 2026-10-15: paski i panel same za jasnym i ciemnym wyglądem aplikacji, pasek
+repozytorium: `relai-panel` 0.20.0, `relai-progress` 0.5.0, `relai-cache-keeper` 0.11.0 (tag
+`relai-panel-v0.20.0`, 2026-10-15: sekcja „Teraz”, baterie w siatce, wiersz kontekstu z progiem
+auto-compactu; wcześniej `relai-panel-v0.19.0`: paski i panel same za jasnym i ciemnym wyglądem aplikacji, pasek
 postępu jako lista kroków — plan WYGLAD_PANELU; 2026-10-14: pasek mówi uczciwie, kiedy nowa sesja się opłaca — odnoga
 KOMUNIKAT_ZWROTU; paski i panel w każdym panelu podziału okna, linia w stopce wycofana — odnoga
 SPLIT_VIEW, P-040 rozwiązana; panel bez rozjazdów w wąskim panelu podziału — odnoga PANEL_WASKI,
 0.18.0).
-Aktywny plan: WYGLAD_PANELU (E1–E4 zrealizowane, E4 z wydaniem 3.2.0 2026-10-15; E5 z Aneksu G — sekcja „Teraz”, baterie w siatce, kontekst z oknem modelu — gotowy do startu); PANEL_CODEX idzie
-dalej w Codeksie; HUMANIZACJA zamknięty 2026-10-14 wydaniem 3.1.0. Opinii spoza projektu nadal nie ma.
+Aktywny plan: PANEL_CODEX (E1 w toku, prowadzony w Codeksie). WYGLAD_PANELU zamknięty 2026-10-15
+po E5 (wydanie panelu 0.20.0 / 0.11.0); HUMANIZACJA zamknięty 2026-10-14 wydaniem 3.1.0. Opinii spoza projektu nadal nie ma.
 
 ## Co działa
 
@@ -85,33 +86,16 @@ dalej w Codeksie; HUMANIZACJA zamknięty 2026-10-14 wydaniem 3.1.0. Opinii spoza
   zamknięty 2026-10-13): film PL 2 min 49 s z muzyką w zasobach wydania `v3.0.0`, wersja EN jako
   dodatek, pętla 25 s w `README.md`; interfejs odtworzony kodem pluginów, liczby z manifestu
   faktów; źródła i cztery kontrole w `docs/zasoby/film/`.
+- **Wygląd panelu i pasków** ([plan WYGLAD_PANELU](archiwum/plany/WYGLAD_PANELU/STATUS.md),
+  zamknięty 2026-10-15, 5 etapów, Aneksy A–H): paski i panel same za jasnym i ciemnym wyglądem
+  aplikacji, panel na jednej kartce (wariant 3), pasek postępu jako lista kroków (wydanie 3.2.0,
+  pluginy 0.19.0 / 0.5.0 / 0.10.0); E5: sekcja „Teraz” ze stanem punktu po kształcie i całym
+  punktem w natywnym dymku, baterie w równej siatce, wiersz kontekstu „użyte / okno · %” z kreską
+  progu auto-compactu liczonego jak kompaktowanie (P-046) — `relai-panel` 0.20.0 /
+  `relai-cache-keeper` 0.11.0. Zasady wyglądu: [DESIGN.md](zasoby/PANEL_RELAI/DESIGN.md) 1.3.
 
 ## Nad czym pracujemy teraz
 
-- **Plan WYGLAD_PANELU — ZAAKCEPTOWANY 2026-10-14 (Aneksy A–G), E1 ZREALIZOWANY 2026-10-14, E2–E4
-  ZREALIZOWANE 2026-10-15, E5 GOTOWY DO STARTU** (aktywny plan; E4: macierz na żywo w obu szatach
-  i trzech szerokościach, sześć poprawek z testami — m.in. drugi budżet drzewa w znakach, gdy
-  rozwinięte sekcje przerastają rysunek — wydanie 3.2.0 i pluginów 0.19.0 / 0.5.0 / 0.10.0; Aneks G
-  dodał E5: sekcja „Teraz” bez nadmiaru słów i z najechaniem na segmenty, baterie w równej siatce,
-  kontekst „użyte / okno modelu · %” bez najechania — po trzy warianty do wyboru Łukasza; wydanie
-  `relai-panel` 0.20.0 / `relai-cache-keeper` 0.11.0, `relai` zostaje 3.2.0; [status](plany/WYGLAD_PANELU/STATUS.md); Aneks A: sonda
-  obowiązkowa i trzy warianty do oceny Łukasza w E1–E3, rundy poprawek; Aneks B po sondzie P-042:
-  paski na kluczach motywu, znaczniki `Svg` w dwóch paletach przez `prefers-color-scheme`;
-  4 etapy, Opus 5.5): paski nad promptem w kluczach motywu narzędzia (czytelne w jasnym i ciemnym),
-  panel RelAI w dzisiejszej szacie ciemnej i nowej jasnej z palety Warsztat, pasek postępu jako
-  lista kroków wg makiety. E1 w repo, bez wydania (wydanie w E4): paski bez tła i ramki, linia
-  gasnąca tylko między paskami RelAI, wszystkie przyciski pasków `primary`. E2 w repo, bez wydania:
-  pasek postępu jako lista kroków (cienkie segmenty ze zrobionymi od lewej, jedna linia z punktem
-  w toku i „Rozwiń”, okno ≤ 6 wierszy, błysk odhaczenia, znacznik kręci się tylko przy pracy modelu,
-  jasny „J3 miękki”; brief 4.1). E3 w repo, bez wydania: panel sam idzie za wyglądem aplikacji (Aneks E,
-  P-044), wariant 3 · jedna kartka z ramką `subtle` na każdej zakładce, kartka wypełniona bez
-  szczeliny (ramka w rysunku `Svg`), próg desktopu w elementach drzewa (`DRAW_LIMIT` 1 200,
-  bezpiecznik), reguły w [DESIGN.md](zasoby/PANEL_RELAI/DESIGN.md) 1.1, brief 4.2; sprawdzone na żywo
-  zrzutami bez człowieka (skrypty w `docs/zasoby/PANEL_RELAI/narzedzia/`). E4: macierz na żywo
-  i wydanie trzech pluginów po zgodzie. E3 ruszył po zamknięciu odnogi
-  [PANEL_WASKI](fixy/PANEL_WASKI/ODNOGA.md) — zamknięta 2026-10-14 (`relai-panel` 0.18.0 w repo,
-  niewydany: wydanie dopiero po zamknięciu WYGLAD_PANELU, razem z jego zmianami — decyzja Łukasza;
-  E3 bierze jej układ: `STACK_BELOW`, `textAndAct`, kafle grup komend, test `narrow.test.ts`).
 - **PANEL_CODEX, E1 — przejęcie rdzenia i natywny panel w Codeksie** (plan
   [PANEL_CODEX](plany/PANEL_CODEX/STATUS.md), ZAAKCEPTOWANY 2026-10-10, 8 etapów, autor
   i wykonawca `gpt-6.1-sol` w Codeksie, Aneks A — 16 pól kontraktu — zaakceptowany). Po co: ten sam
@@ -200,7 +184,7 @@ hooki; pakiet panelu `adapters/codex/panel/` w budowie (E1).
 testem. Pomiary kosztów w `.claude/relai/pomiary/<data>-<sesja>.jsonl` (poza gitem, schemat
 wspólny z panelem Codeksa), cennik z datą w `.claude/relai/panel/cennik.json`, scalenia i fokus
 sesji w `.claude/relai/`. Wygląd i zasady pasków: brief
-[STYL_PASKOW_CLAUDE.md](zasoby/PANEL_RELAI/STYL_PASKOW_CLAUDE.md) (v3.7); ograniczenia silnika:
+[STYL_PASKOW_CLAUDE.md](zasoby/PANEL_RELAI/STYL_PASKOW_CLAUDE.md) (v5.1) i [DESIGN.md](zasoby/PANEL_RELAI/DESIGN.md) (1.3); ograniczenia silnika:
 P-017–P-024 w [PULAPKI.md](PULAPKI.md); historia i decyzje: [plan PANEL_CLAUDE](archiwum/plany/PANEL_CLAUDE/STATUS.md)
 (Aneksy A–E) i [karta AUDYT_MODOW](fixy/AUDYT_MODOW/ODNOGA.md) (14 paczek, raport 94 ustaleń).
 Testy: `claude plugin test` binarką aplikacji (`claude` na PATH to starsza wersja, P-024).
@@ -217,10 +201,10 @@ Backupy: `C:\Users\Lukasz\Backupy\RelAI` • [PRZENOSNOSC.md](PRZENOSNOSC.md) �
 
 ### Liczby
 
-Plany zamknięte: 13 (ostatni HUMANIZACJA, 2026-10-14) • Aktywne: WYGLAD_PANELU (E5 gotowy), PANEL_CODEX (E1 W TOKU, Codex) •
-Start sesji: **93,8 KB / 100 KB** ze skillem z repo (`startCost` 2026-10-12) • Dziennik: **ok. 146 KB / 150 KB** (2026-10-15 po E4)
+Plany zamknięte: 14 (ostatni WYGLAD_PANELU, 2026-10-15) • Aktywne: PANEL_CODEX (E1 W TOKU, Codex) •
+Start sesji: **93,8 KB / 100 KB** ze skillem z repo (`startCost` 2026-10-12) • Dziennik: **ok. 154 KB / 150 KB — ponad progiem, rotacja na starcie następnej sesji** (2026-10-15 po zamknięciu WYGLAD_PANELU)
 (2026-10-14 po rotacji: 168,0 → 86,0 KB, archiwum `DZIENNIK_2026-10-12_2026-10-13.md`) • Ryzyka: 18 w tabeli, archiwum 6 plików + 1 mitygacji • Lekcje:
-**52,6 KB / 50 KB — ponad progiem, rotacja na starcie następnej sesji** (2026-10-15 po WYGLAD_PANELU E4), 32 w żywym pliku (`wc -c`) • Adaptery: 3 • Komendy: 15 •
-Testy: 401 rdzeń, panel i adaptery (`node --test`, 4 katalogi, 2026-10-14) + 428 pluginów panelu (205 / 42 / 181, 2026-10-15 po WYGLAD_PANELU E4); rdzeń `core/` 410 + 36 filmu •
+**54,8 KB / 50 KB — ponad progiem, rotacja na starcie następnej sesji** (2026-10-15 po WYGLAD_PANELU E5), 32 w żywym pliku (`wc -c`) • Adaptery: 3 • Komendy: 15 •
+Testy: 401 rdzeń, panel i adaptery (`node --test`, 4 katalogi, 2026-10-14) + 451 pluginów panelu (211 / 42 / 198, 2026-10-15 po WYGLAD_PANELU E5); rdzeń `core/` 410 + 36 filmu •
 Projekty na RelAI: 3 (RelAI, PolyFlow, JiraManager przed migracją) • Modele, na których zmierzono
 proces: 6 (Fable, Opus, Sonnet, Haiku, Composer/auto, Grok 4.6).

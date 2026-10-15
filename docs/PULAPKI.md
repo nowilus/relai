@@ -8,6 +8,30 @@ Specyfikacja: `SPEC_PULAPKI.md`.
 
 ## Pułapki
 
+### P-047 — Zrzut z najechaniem: `SetCursorPos` + `PrintWindow` nie wywołuje `:hover` w `Svg` modu · 2026-10-15 · AKTYWNA
+
+- **Objaw:** kursor przesunięty nad segment „Teraz” albo baterię (także krokami, z pauzami),
+  potem zrzut okna `PrintWindow` — rysunek bez stanu najechania, ani własnej kapsuły, ani
+  natywnego dymku. Kontrola pozytywna na dymku, który działa od 3.0: też go nie ma.
+- **Przyczyna:** nieustalona; `PrintWindow` rysuje okno poza ekranem, a ruch kursora z API nie
+  dociera do widoku aplikacji jako najechanie.
+- **Obejście:** zrzut z najechaniem robi człowiek (Win+Shift+S) i wkleja do rozmowy; test
+  `plugin test` sprawdza obecność `<title>` i brak reguł `:hover`, które zmieniają geometrię.
+
+### P-046 — `autoCompactThreshold` z rozbicia kontekstu pomija `CLAUDE_AUTOCOMPACT_PCT_OVERRIDE` · 2026-10-15 · AKTYWNA
+
+- **Objaw:** `$.session.usage({ breakdown: 'summary' })` podaje `autoCompactThreshold` 967 000
+  przy oknie 1M, choć `~/.claude/settings.json` ustawia `CLAUDE_AUTOCOMPACT_PCT_OVERRIDE=65`
+  i zmienna jest w środowisku sesji (Łukasz: „mam w systemie ustawione na 65%, wiec przy 650k
+  powinno mi to sie compactowac”).
+- **Przyczyna (binarka Claude Code 2.1.295, czytana 2026-10-15):** rozbicie liczy próg jako okno
+  efektywne − 13 000 (`BAt`), bez nadpisania; kompaktowanie (`Dae` → `xY`) bierze
+  `min(floor(okno_ef × pct / 100), okno_ef − 13 000)` dla pct w (0, 100]. Przy oknie efektywnym
+  980k i 65 % kompakt rusza przy 637 000, nie 650 000 i nie 967 000.
+- **Obejście:** `compactThreshold()` w `cache-keeper/hooks/rings.ts` — próg z rozbicia + 13 000
+  daje okno efektywne, nadpisanie z `$.env.get` tym samym wzorem; test na 967k i 65 % → 637k.
+  Przy zmianie wersji silnika sprawdzić wzór ponownie (`grep -a "function xY"` w binarce).
+
 ### P-045 — Mod: `h()` trzyma `hover` i `press` na węźle, nie w `props` · 2026-10-15 · AKTYWNA
 
 - **Objaw:** w jasnym wyglądzie wiersze drzewa Dokumentów świeciły pod kursorem ciemnym paskiem
