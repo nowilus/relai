@@ -174,7 +174,8 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
       `CLAUDE.md` jest skutkiem dogfoodingu — nie naprawiasz. Z zaakceptowanego wariantu
       przenosisz kształt, nie same barwy, i porównujesz wynik z jego zrzutem (L-0200); walidator,
       `plugin test` z montażem i zrzut to trzy osobne dowody, `Svg` zawsze z `alt` (L-0201);
-      mechanizm mnożący drzewo — najpierw test budżetu na najgorszych danych (L-0202). Wygląd
+      mechanizm mnożący drzewo — najpierw test budżetu na najgorszych danych (L-0202); przejście
+      po drzewie testujesz na węźle w kształcie silnika, nie z ręki (L-0204, P-045). Wygląd
       panelu i pasków: `docs/zasoby/PANEL_RELAI/DESIGN.md` przed każdą zmianą.
     - **Liczby i słowa:** procenty i kwoty z dwoma miejscami (L-0145); etykieta stanu słowem
       i znakiem, „x/y” tylko gdy y jest celem (L-0147); słowo o przeszłości ma warunek prawdziwości
@@ -584,6 +585,17 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
 - **Zasada:** każdy tekst z `\` — wyrażenie regularne, ścieżka, plik testu — idzie przez Write albo
   Edit, także wtedy, gdy reszta podmiany robi się skryptem; skrypt dostaje tylko tekst bez `\`.
   Po podmianie skryptem sprawdzasz `grep`-iem, że zaszła (L-0116, L-0119, L-0127, L-0130).
+
+### L-0204 — Test przejścia po drzewie na węźle zbudowanym ręcznie nie dowodzi niczego · 2026-10-15 · AKTYWNA
+
+- **Trigger:** plan WYGLAD_PANELU, po zamknięciu E3. Łukasz: „zobacz co się dzieje teraz z
+  hooverem. No tak nie może być” — ciemny pasek pod kursorem w jasnym wyglądzie, choć `retone`
+  miał test na `hover`.
+- **Przyczyna:** test budował węzeł ręcznie z `hover` w `props`; silnik trzyma `hover` i `press` na
+  węźle (P-045). Test sprawdzał moje wyobrażenie o drzewie, nie drzewo.
+- **Zasada:** funkcję, która przechodzi po drzewie z hooka, sprawdzasz na drzewie w kształcie, który
+  naprawdę wychodzi do silnika — zapisanym z działającego modu albo zbudowanym przez `h()`; kształt
+  węzła z ręki jest hipotezą do zmierzenia.
 
 ## Lekcje zwinięte
 

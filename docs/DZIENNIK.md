@@ -1734,3 +1734,34 @@ Wykonawca: Opus 5.5 (Claude Code, aplikacja desktopowa). Ciąg dalszy dwóch wpi
 **Do zrobienia przez człowieka:** —
 
 Autor: RelAI (Opus 5.5) + Lukasz
+
+### 2026-10-15 — WYGLAD_PANELU po E3: foldery i hover w jasnym wyglądzie (poprawka po zamknięciu etapu)
+
+Wykonawca: Opus 5.5 (Claude Code, aplikacja desktopowa). Uwagi Łukasza po commicie E3 `8b98b88`.
+
+**Zrobione:**
+
+- Foldery drzewa Dokumentów — Łukasz: „na jasnym one się powinny inaczej renderować […] Wygląda to
+  jak taki ciemny prostokąt”. Przyczyna: wypełnienie zamkniętego folderu `#d9a134` to ten sam kolor
+  co `THEME.mark`, który jasna szata przyciemnia dla tekstu (`#9a6a12`), a linia zakładki `#8d6922`
+  zlewała się z nim. Folder ma teraz własną jasną paletę w rysunku (`FOLDER` w
+  `core/panel/theme.mjs`: zamknięty `#e3b04a` z linią `#b5832a`, otwarty przód `#efc976`); ciemna
+  szata bez zmian. Łukasz: „foldery już wyglądają dobrze”.
+- Hover — Łukasz: „zobacz co się dzieje teraz z hooverem. No tak nie może być”. Zmierzone: pod
+  kursorem `#302c26` (surowe `cardOn`). Sonda `relai-hover-sonda` 0.1.0–0.2.0: klucz `promptBorder`
+  pod kursorem rysuje się jasno także w kanapce nad `Svg`. Drzewo zapisane z działającego panelu:
+  silnik trzyma `hover` i `press` na węźle, nie w `props` (P-045) — `retone` i `rekey` patrzyły
+  w `props`. Poprawka w `panel/hooks/skin.ts`; Łukasz: „jest ok”.
+
+**Zweryfikowane — jak dokładnie:**
+
+- Testy nowe spadają na kodzie sprzed poprawki i przechodzą po niej: `theme.test.js` „folder icons”
+  (z kontrolą pozytywną na starej palecie), `skin.test.ts` „hover where the engine keeps it”.
+  Panel 198/198, rdzeń 410/410, progress 41, cache-keeper 181, `validate` i `sync --check` zielone.
+- Na żywo w jasnym wyglądzie: hover wiersza dokumentu i folderu `#ceccc8` (przed `#302c26`).
+
+**Świadomie odłożone:** sprawdzenie hovera w ciemnym wyglądzie i na pozostałych zakładkach — macierz E4.
+
+**Do zrobienia przez człowieka:** —
+
+Autor: RelAI (Opus 5.5) + Lukasz

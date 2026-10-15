@@ -306,17 +306,21 @@ export function treeTarget(href) {
 /**
  * A folder icon, closed or open, as an explorer draws one; a dot in its corner when something in
  * it is edited.
- * @param {boolean} isOpen @param {{ fill: string, edge: string, dot: string | null }} c @param {number} px  height
+ * it is edited. `light`: the body and edge in the light look, a media rule of the drawing's own.
+ * @param {boolean} isOpen @param {{ fill: string, edge: string, dot: string | null, light?: { fill: string, edge: string } }} c @param {number} px  height
  */
 export function folderIcon(isOpen, c, px) {
   const w = Math.round((px * 24) / 20);
   const shape = isOpen
-    ? `<path d="M2 5.5A1.5 1.5 0 0 1 3.5 4h5l2 2h8A1.5 1.5 0 0 1 20 7.5V9H6.2a1.5 1.5 0 0 0-1.4 1L2 17.5z" fill="${c.edge}"/>`
-      + `<path d="M4.8 10a1.5 1.5 0 0 1 1.4-1H22a1 1 0 0 1 .95 1.3l-2.4 7.2a1.5 1.5 0 0 1-1.4 1H3a1 1 0 0 1-.95-1.3z" fill="${c.fill}"/>`
-    : `<path d="M2 5.5A1.5 1.5 0 0 1 3.5 4h5l2 2h9A1.5 1.5 0 0 1 21 7.5v9a1.5 1.5 0 0 1-1.5 1.5h-16A1.5 1.5 0 0 1 2 16.5z" fill="${c.fill}"/>`
-      + `<path d="M2 8h19" stroke="${c.edge}" stroke-width="1.2"/>`;
+    ? `<path class="e" d="M2 5.5A1.5 1.5 0 0 1 3.5 4h5l2 2h8A1.5 1.5 0 0 1 20 7.5V9H6.2a1.5 1.5 0 0 0-1.4 1L2 17.5z" fill="${c.edge}"/>`
+      + `<path class="f" d="M4.8 10a1.5 1.5 0 0 1 1.4-1H22a1 1 0 0 1 .95 1.3l-2.4 7.2a1.5 1.5 0 0 1-1.4 1H3a1 1 0 0 1-.95-1.3z" fill="${c.fill}"/>`
+    : `<path class="f" d="M2 5.5A1.5 1.5 0 0 1 3.5 4h5l2 2h9A1.5 1.5 0 0 1 21 7.5v9a1.5 1.5 0 0 1-1.5 1.5h-16A1.5 1.5 0 0 1 2 16.5z" fill="${c.fill}"/>`
+      + `<path class="e" d="M2 8h19" stroke="${c.edge}" stroke-width="1.2"/>`;
   const dot = c.dot ? `<circle cx="20" cy="5" r="3.2" fill="${c.dot}"/>` : '';
-  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 20" width="${w}" height="${px}">${shape}${dot}</svg>`;
+  const light = c.light
+    ? `<style>@media (prefers-color-scheme: light){.f{fill:${c.light.fill}}.e{${isOpen ? 'fill' : 'stroke'}:${c.light.edge}}}</style>`
+    : '';
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 20" width="${w}" height="${px}">${light}${shape}${dot}</svg>`;
 }
 
 /**

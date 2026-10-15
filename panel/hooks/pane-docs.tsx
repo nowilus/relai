@@ -2,7 +2,7 @@
 //
 // Split out of register.tsx in E7 without a change of behavior; no `$` here (P-023 pkt 10).
 
-import { THEME, DIFF, ROOT, mix } from './core/theme.mjs'
+import { THEME, DIFF, FOLDER } from './core/theme.mjs'
 import { plural } from './core/measure.mjs'
 import { KINDS, diffRows, docIcon, edited, folderIcon, kb } from './core/documents.mjs'
 import type { DiffView, Doc, TreeNode } from './core/documents.mjs'
@@ -115,11 +115,13 @@ export function docsView(c: Ctx, p: Parts, dd: DocsData, s: DocsCtx) {
   const TREE_PX = 20
   const TREE_PER_DIR = 40
   const TREE_ROWS = 60
-  // Folders in mustard, as an explorer draws them yellow (calibration 2026-10-10: "żeby nie były
-  // takie szare"): a closed one whole with a darker tab line, an open one with its back darker and
-  // its front lighter; an edited one keeps its clay dot. A desktop draws a Button's label in its own
-  // color (probe tree-probe F: only the hover color holds), so the color lives in the icon.
-  const FOLDER = { closed: ROOT.musztarda, back: mix(ROOT.musztarda, '#000000', 0.35), front: mix(ROOT.musztarda, ROOT.kartka, 0.25) }
+  // Folders in mustard (FOLDER, both looks in the drawing); an edited one keeps its clay dot. A
+  // desktop draws a Button's label in its own color (probe tree-probe F: only the hover color
+  // holds), so the color lives in the icon.
+  const folderColors = (isOpen: boolean, dot: string | null) => ({
+    fill: isOpen ? FOLDER.dark.front : FOLDER.dark.closed, edge: FOLDER.dark.back, dot,
+    light: { fill: isOpen ? FOLDER.light.front : FOLDER.light.closed, edge: FOLDER.light.back },
+  })
   const treeButton = (key: string, label: string, isBold: boolean, onPress: () => void) => (
     <Button key={key} plain onPress={() => onPress()}><Text bold={isBold}>{label}</Text></Button>
   )
@@ -127,7 +129,7 @@ export function docsView(c: Ctx, p: Parts, dd: DocsData, s: DocsCtx) {
     <Box key={`dir-${n.dir}`} flexDirection="row" alignItems="center" columnGap={1} paddingLeft={depth * 2} paddingRight={1}
       hover={{ backgroundColor: THEME.cardOn }}>
       {Svg ? [<Box key={`dir-i-${n.dir}`} flexShrink={0}>
-        <Svg key={`dir-g-${n.dir}`} source={folderIcon(isOpen, { fill: isOpen ? FOLDER.front : FOLDER.closed, edge: FOLDER.back, dot: n.edited ? THEME.accent : null }, TREE_PX)}
+        <Svg key={`dir-g-${n.dir}`} source={folderIcon(isOpen, folderColors(isOpen, n.edited ? THEME.accent : null), TREE_PX)}
           alt={`folder ${n.name}${isOpen ? ', otwarty' : ''}`} width={Math.round((TREE_PX * 24) / 20)} height={TREE_PX} />
       </Box>] : []}
       <Box key={`dir-t-${n.dir}`} flexShrink={1}>{treeButton(`dir-l-${n.dir}`, `${isOpen ? '▾' : '▸'} ${n.name}${Svg ? '' : '/'}`, n.edited > 0, () => fold(foldKey, byDefault))}</Box>

@@ -433,6 +433,18 @@ export const SHEET = Object.freeze({
   frame: 'subtle',
 });
 
+/**
+ * Folders of the document tree in mustard, as an explorer draws them (calibration 2026-10-10: "żeby
+ * nie były takie szare"): a closed one whole with a darker tab line, an open one with its back
+ * darker and its front lighter. The light look has its own palette in the drawing: the closed body
+ * is the text's mark (`THEME.mark`), which the light look darkens for text, and a folder of that and
+ * its tab line read as a dark block (Łukasz 2026-10-15: "wygląda to jak taki ciemny prostokąt").
+ */
+export const FOLDER = Object.freeze({
+  dark: Object.freeze({ closed: ROOT.musztarda, back: mix(ROOT.musztarda, '#000000', 0.35), front: mix(ROOT.musztarda, ROOT.kartka, 0.25) }),
+  light: Object.freeze({ closed: '#e3b04a', back: '#b5832a', front: '#efc976' }),
+});
+
 /** The key each text role reads in (4.5:1 on both sheets; `claude` is too weak for text: 3.7 / 4.2). */
 export const TONE_ROLES = Object.freeze({ title: 'text', body: 'inactive', mark: 'warning', accentText: 'error', ok: 'success' });
 

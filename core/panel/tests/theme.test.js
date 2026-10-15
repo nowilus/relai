@@ -328,3 +328,43 @@ test('the sheet: fill and frame in one drawing, top and end, both palettes (Anek
   assert.match(theme.sheetTopSvg(), /height:calc\(100% \+ \d+px\)/);
   assert.match(theme.sheetEndSvg(), /y:-\d+px/);
 });
+
+// The paint a drawn shape shows in the light look: a rule of the light media query for its class
+// or for its dark paint outranks the presentation attribute (P-044)
+function lightPaints(svg) {
+  const media = (svg.match(/@media \(prefers-color-scheme: light\)\{(.*)\}<\/style>/) ?? [])[1] ?? '';
+  const rules = [...media.matchAll(/([^{}]+)\{([a-z-]+):(#[0-9a-f]{6})\}/g)].map((m) => ({ sel: m[1] ?? '', attr: m[2], value: m[3] }));
+  return [...svg.matchAll(/<path ([^>]*)\/>/g)].map((m) => {
+    const attrs = Object.fromEntries([...(m[1] ?? '').matchAll(/([a-z-]+)="([^"]*)"/g)].map((a) => [a[1], a[2]]));
+    const attr = attrs.fill ? 'fill' : 'stroke';
+    const hit = rules.find((r) => r.attr === attr && (r.sel === `.${attrs.class}` || r.sel === `[${attr}="${attrs[attr]}"]`));
+    return hit ? hit.value : attrs[attr];
+  });
+}
+
+// A folder that reads as a dark block on the light sheet: its body darker than a 2.5 : 1 contrast
+// to the sheet, or its tab line lost in the body (Łukasz 2026-10-15: "wygląda to jak taki ciemny
+// prostokąt")
+function darkBlocks(svgs) {
+  const sheet = theme.SHEET.light.sheet;
+  return svgs.flatMap(([name, svg]) => {
+    const [first, second] = lightPaints(svg);
+    const [body, line] = name.startsWith('open') ? [second, first] : [first, second];
+    return contrast(body, sheet) > 2.5 || contrast(body, line) < 1.3 ? [`${name}: ${body} / ${line}`] : [];
+  });
+}
+
+test('folder icons: their own light palette, no dark block on the light sheet; the old palette is caught', () => {
+  const doc = require('../documents.mjs');
+  const f = theme.FOLDER;
+  const drawn = (isOpen) => theme.twoTone(doc.folderIcon(isOpen, {
+    fill: isOpen ? f.dark.front : f.dark.closed, edge: f.dark.back, dot: null,
+    light: { fill: isOpen ? f.light.front : f.light.closed, edge: f.light.back },
+  }, 20));
+  assert.deepEqual(darkBlocks([['closed', drawn(false)], ['open', drawn(true)]]), []);
+  // the dark look keeps the mustard it was calibrated in (2026-10-10)
+  assert.equal(f.dark.closed, theme.ROOT.musztarda);
+  // positive control: the palette before the fix, the closed body the text's mark, turns dark
+  const before = theme.twoTone(doc.folderIcon(false, { fill: theme.ROOT.musztarda, edge: theme.mix(theme.ROOT.musztarda, '#000000', 0.35), dot: null }, 20));
+  assert.equal(darkBlocks([['closed', before]]).length, 1);
+});

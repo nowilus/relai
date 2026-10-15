@@ -38,7 +38,9 @@ export function rekey(node: RenderChildren, suffix: string): RenderChildren {
   const base = node.type === 'Svg' && typeof own.source === 'string' ? { ...own, source: hollow(own.source), alt: '·' } : own
   const props = typeof base?.key === 'string' ? { ...base, key: base.key + suffix } : base
   const children = Array.isArray(node.children) ? node.children.map((c) => rekey(c, suffix)) : node.children
-  return { ...node, props, ...(children ? { children } : {}) } as RenderNode
+  // The copy is never seen: no hover on it either, also where the engine's h() keeps it (on the node)
+  const { hover: _unseen, ...rest } = node as RenderNode & { hover?: unknown }
+  return { ...rest, props, ...(children ? { children } : {}) } as RenderNode
 }
 
 const keyOf = (map: Readonly<Record<string, string | null>>, c: unknown) =>
@@ -53,13 +55,16 @@ function boxPaints(p: Record<string, unknown>): Record<string, unknown> {
     if (fill === null || fill === undefined) delete out.backgroundColor
     else out.backgroundColor = fill
   }
-  if (p.hover && typeof p.hover === 'object') {
-    const h = { ...(p.hover as Record<string, unknown>) }
-    if ('borderColor' in h) h.borderColor = keyOf(EDGE_OF, h.borderColor)
-    if ('backgroundColor' in h) h.backgroundColor = HOVER_FILL
-    out.hover = h
-  }
+  if (p.hover && typeof p.hover === 'object') out.hover = hoverPaints(p.hover)
   return out
+}
+
+// Under the pointer: the frame in its key, the fill one that follows the app
+function hoverPaints(hover: object): Record<string, unknown> {
+  const h = { ...(hover as Record<string, unknown>) }
+  if ('borderColor' in h) h.borderColor = keyOf(EDGE_OF, h.borderColor)
+  if ('backgroundColor' in h) h.backgroundColor = HOVER_FILL
+  return h
 }
 
 /** The tree in theme keys and two-tone drawings. */
@@ -72,7 +77,10 @@ export function retone(node: RenderChildren): RenderChildren {
     : node.type === 'Svg' && typeof p.source === 'string' ? { ...p, source: twoTone(p.source) }
     : p
   const children = Array.isArray(node.children) ? node.children.map(retone) : node.children
-  return { ...node, props, ...(children ? { children } : {}) } as RenderNode
+  // The engine's h() keeps `hover` on the node, not in props (tree dumped live 2026-10-15)
+  const own = (node as { hover?: unknown }).hover
+  const hover = own && typeof own === 'object' ? { hover: hoverPaints(own) } : {}
+  return { ...node, props, ...hover, ...(children ? { children } : {}) } as RenderNode
 }
 
 /** The children of a drawn tree without the hidden copies of its sandwiches. */

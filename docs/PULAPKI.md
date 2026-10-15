@@ -8,6 +8,21 @@ Specyfikacja: `SPEC_PULAPKI.md`.
 
 ## Pułapki
 
+### P-045 — Mod: `h()` trzyma `hover` i `press` na węźle, nie w `props` · 2026-10-15 · AKTYWNA
+
+- **Objaw:** w jasnym wyglądzie wiersze drzewa Dokumentów świeciły pod kursorem ciemnym paskiem
+  `#302c26` (zrzut Łukasza 2026-10-15), choć `retone` zamieniał `hover.backgroundColor` na klucz
+  `promptBorder`, a test `skin.test.ts` to potwierdzał.
+- **Przyczyna (zmierzona):** drzewo zapisane z działającego panelu (`$.fs.write` w zainstalowanej
+  kopii) ma węzły `{ type, props, children, press, hover }` — 40 węzłów z `hover`, 53 z `press`,
+  żaden `hover` w `props`. Funkcja czytająca `props.hover` nie widzi niczego; test na węźle
+  zbudowanym ręcznie z `hover` w `props` przechodzi i nic nie dowodzi. `ui.drawn()` i `ui.find()`
+  w `claude plugin test` też nie pokazują `hover` — widać go tylko w drzewie, które wychodzi z hooka.
+- **Obejście:** każde przejście po drzewie (przemalowanie, kopia ukryta) czyta i pisze `node.hover`
+  (i `node.press`), nie `props.hover`; test buduje węzeł w kształcie silnika (`hover` na węźle).
+  Kontrola na żywo: sonda `relai-hover-sonda` 0.1.0–0.2.0 — klucz `promptBorder` pod kursorem
+  rysuje się w jasnym `#c4c3bf`–`#ceccc8`, także w kanapce nad `Svg`; surowe `#312c25` daje ciemny pasek.
+
 ### P-044 — Aplikacja desktopowa: kolor surowy w `Box`/`Text` nie idzie za wyglądem, funkcje CSS odpadają; tło w `Svg` pod tekstem — tak · 2026-10-15 · AKTYWNA
 
 - **Objaw:** panel z kolorami Warsztatu (hex w `Box`/`Text`) zostaje ciemny po przełączeniu

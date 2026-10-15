@@ -162,6 +162,20 @@ describe('the pane in both appearances of the app (WYGLAD_PANELU E3)', () => {
     await ui.unmount()
   })
 
+  test('hover where the engine keeps it: on the node, not in props — keyed on the top, gone from the copy', () => {
+    // The engine's h() lifts `hover` and `press` out of props onto the node (tree dumped live from the
+    // desktop 2026-10-15: 40 rows hovered in the raw "#312c25", a dark bar on the light sheet)
+    const built = (globalThis as { h?: (t: string, p: Record<string, unknown>) => unknown }).h
+    const node = (built ? built('Box', { key: 'r', hover: { backgroundColor: THEME.cardOn } })
+      : { type: 'Box', props: { key: 'r' }, hover: { backgroundColor: THEME.cardOn } }) as Record<string, unknown>
+    if (built) expect((node.props as Record<string, unknown>).hover).toBeUndefined()
+    expect(node.hover).toEqual({ backgroundColor: THEME.cardOn })
+    const lit = retone(node as unknown as RenderNode) as unknown as Record<string, unknown>
+    expect(lit.hover).toEqual({ backgroundColor: 'promptBorder' })
+    const copy = rekey(node as unknown as RenderNode, HIDDEN) as unknown as Record<string, unknown>
+    expect('hover' in copy).toBe(false)
+  })
+
   test('the instruments: retone maps, rekey suffixes, visible drops the copy (planted cases)', () => {
     const tree = { type: 'Box', props: { key: 'a', borderColor: THEME.accent, backgroundColor: THEME.card, hover: { backgroundColor: THEME.cardOn } }, children: [
       { type: 'Text', props: { key: 'b', color: THEME.title }, children: ['x'] },
