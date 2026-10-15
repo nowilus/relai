@@ -523,6 +523,17 @@ footer .pis{font-family:var(--pis); font-size:1.2rem; color:var(--glina); margin
 <li><b>Dowód:</b> testy bez ramek kart na zakładkach desktopu, <code>narrow.test.ts</code> zielony, budżet 210 tys., zrzuty na żywo.</li>
 </ol></div></div></div>
 </div>
+
+<div class="notka">
+  <button type="button" aria-expanded="false" aria-controls="aG"><svg class="spinacz" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="tyt">Aneks G — 2026-10-15: etap E5 — sekcja „Teraz”, baterie w siatce, kontekst z oknem modelu</span><span class="prawo"><span class="naklejka n-tak">E5</span></span></button>
+  <div class="rulon" id="aG"><div><div class="tresc">
+<p><b>Przyczyna.</b> Po wydaniu 3.2.0 (E4) Łukasz o sekcji „Teraz” na zakładce Komendy: „nie pasuje stylistycznie, jest tam nawalone opisu, nie da się najeżdżać na te paski, wszystko się ze sobą zlewa”; o pasku cache: baterie „w jakiegoś takiego sensownego grida […] ładnie wyrównane”, limit tygodnia pod limitem 5 h „zupełnie rozjechany”; o kontekście: natywny pasek aplikacji przestał pokazywać zapełnienie kontekstu, więc panel ma go wyeksponować razem z maksymalnym kontekstem modelu sesji. Decyzja: „dorzućmy do tego planu”, bez wersji 3.2.1.</p>
+<ol>
+<li><b>Nowy etap E5</b> (po E4, przed zamknięciem planu): trzy warianty w prawdziwym nośniku dla każdej z trzech rzeczy — sekcja „Teraz” (mniej słów, segmenty z najechaniem, barwy, które się nie zlewają), układ baterii w siatce (równe kolumny, skalowanie z szerokością), miejsce kontekstu „użyte / okno modelu · %” (okno z rozbicia kontekstu sesji, <code>maxTokens</code>) — wybór Łukasza na żywo, potem produkt z testami.</li>
+<li><b>Wydanie:</b> <code>relai</code> zostaje 3.2.0; pluginy panelu dostają nowe numery (<code>relai-panel</code> 0.20.0, <code>relai-cache-keeper</code> 0.11.0, <code>relai-progress</code> tylko jeśli dotknięty), tag <code>relai-panel-v0.20.0</code> — wybór „relai zostaje 3.2.0, panel dostaje nowe numery (Rekomendowane)”, bo <code>plugin update</code> nie widzi zmian pod tym samym numerem.</li>
+<li><b>Wykonanie:</b> świeża sesja Opus 5.5 z <code>PROMPT_ETAP_5.md</code>; zamknięcie planu (D-36) przechodzi z E4 na E5.</li>
+</ol></div></div></div>
+</div>
 </section>
 
 <footer>

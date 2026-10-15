@@ -1,6 +1,6 @@
 # STATE — RelAI
 
-Stan na: 2026-10-15 (WYGLAD_PANELU zrealizowany; wydanie 3.2.0)
+Stan na: 2026-10-15 (WYGLAD_PANELU E4 zrealizowany, wydanie 3.2.0; E5 z Aneksu G gotowy do startu)
 
 ## Gdzie jesteśmy
 
@@ -14,7 +14,7 @@ postępu jako lista kroków — plan WYGLAD_PANELU; 2026-10-14: pasek mówi uczc
 KOMUNIKAT_ZWROTU; paski i panel w każdym panelu podziału okna, linia w stopce wycofana — odnoga
 SPLIT_VIEW, P-040 rozwiązana; panel bez rozjazdów w wąskim panelu podziału — odnoga PANEL_WASKI,
 0.18.0).
-Aktywny plan: WYGLAD_PANELU (E1 zrealizowany 2026-10-14, E2 i E3 zrealizowane 2026-10-15, E4 — odbiór i wydanie — gotowy do startu); PANEL_CODEX idzie
+Aktywny plan: WYGLAD_PANELU (E1–E4 zrealizowane, E4 z wydaniem 3.2.0 2026-10-15; E5 z Aneksu G — sekcja „Teraz”, baterie w siatce, kontekst z oknem modelu — gotowy do startu); PANEL_CODEX idzie
 dalej w Codeksie; HUMANIZACJA zamknięty 2026-10-14 wydaniem 3.1.0. Opinii spoza projektu nadal nie ma.
 
 ## Co działa
@@ -88,8 +88,13 @@ dalej w Codeksie; HUMANIZACJA zamknięty 2026-10-14 wydaniem 3.1.0. Opinii spoza
 
 ## Nad czym pracujemy teraz
 
-- **Plan WYGLAD_PANELU — ZAAKCEPTOWANY 2026-10-14 (Aneksy A–F), E1 ZREALIZOWANY 2026-10-14, E2
-  i E3 ZREALIZOWANE 2026-10-15, E4 GOTOWY DO STARTU** (aktywny plan; [status](plany/WYGLAD_PANELU/STATUS.md); Aneks A: sonda
+- **Plan WYGLAD_PANELU — ZAAKCEPTOWANY 2026-10-14 (Aneksy A–G), E1 ZREALIZOWANY 2026-10-14, E2–E4
+  ZREALIZOWANE 2026-10-15, E5 GOTOWY DO STARTU** (aktywny plan; E4: macierz na żywo w obu szatach
+  i trzech szerokościach, sześć poprawek z testami — m.in. drugi budżet drzewa w znakach, gdy
+  rozwinięte sekcje przerastają rysunek — wydanie 3.2.0 i pluginów 0.19.0 / 0.5.0 / 0.10.0; Aneks G
+  dodał E5: sekcja „Teraz” bez nadmiaru słów i z najechaniem na segmenty, baterie w równej siatce,
+  kontekst „użyte / okno modelu · %” bez najechania — po trzy warianty do wyboru Łukasza; wydanie
+  `relai-panel` 0.20.0 / `relai-cache-keeper` 0.11.0, `relai` zostaje 3.2.0; [status](plany/WYGLAD_PANELU/STATUS.md); Aneks A: sonda
   obowiązkowa i trzy warianty do oceny Łukasza w E1–E3, rundy poprawek; Aneks B po sondzie P-042:
   paski na kluczach motywu, znaczniki `Svg` w dwóch paletach przez `prefers-color-scheme`;
   4 etapy, Opus 5.5): paski nad promptem w kluczach motywu narzędzia (czytelne w jasnym i ciemnym),
@@ -212,10 +217,10 @@ Backupy: `C:\Users\Lukasz\Backupy\RelAI` • [PRZENOSNOSC.md](PRZENOSNOSC.md) �
 
 ### Liczby
 
-Plany zamknięte: 13 (ostatni HUMANIZACJA, 2026-10-14) • Aktywne: WYGLAD_PANELU (E4 gotowy), PANEL_CODEX (E1 W TOKU, Codex) •
-Start sesji: **93,8 KB / 100 KB** ze skillem z repo (`startCost` 2026-10-12) • Dziennik: **ok. 138 KB / 150 KB** (2026-10-15)
+Plany zamknięte: 13 (ostatni HUMANIZACJA, 2026-10-14) • Aktywne: WYGLAD_PANELU (E5 gotowy), PANEL_CODEX (E1 W TOKU, Codex) •
+Start sesji: **93,8 KB / 100 KB** ze skillem z repo (`startCost` 2026-10-12) • Dziennik: **ok. 146 KB / 150 KB** (2026-10-15 po E4)
 (2026-10-14 po rotacji: 168,0 → 86,0 KB, archiwum `DZIENNIK_2026-10-12_2026-10-13.md`) • Ryzyka: 18 w tabeli, archiwum 6 plików + 1 mitygacji • Lekcje:
-**48,1 KB / 50 KB** (2026-10-15 po WYGLAD_PANELU E3), 27 w żywym pliku (`wc -c`) • Adaptery: 3 • Komendy: 15 •
-Testy: 401 rdzeń, panel i adaptery (`node --test`, 4 katalogi, 2026-10-14) + 419 pluginów panelu (197 / 41 / 181, 2026-10-15 po WYGLAD_PANELU E3); rdzeń `core/` 409 + 36 filmu •
+**52,6 KB / 50 KB — ponad progiem, rotacja na starcie następnej sesji** (2026-10-15 po WYGLAD_PANELU E4), 32 w żywym pliku (`wc -c`) • Adaptery: 3 • Komendy: 15 •
+Testy: 401 rdzeń, panel i adaptery (`node --test`, 4 katalogi, 2026-10-14) + 428 pluginów panelu (205 / 42 / 181, 2026-10-15 po WYGLAD_PANELU E4); rdzeń `core/` 410 + 36 filmu •
 Projekty na RelAI: 3 (RelAI, PolyFlow, JiraManager przed migracją) • Modele, na których zmierzono
 proces: 6 (Fable, Opus, Sonnet, Haiku, Composer/auto, Grok 4.6).

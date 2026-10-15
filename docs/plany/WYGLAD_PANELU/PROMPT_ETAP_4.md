@@ -309,10 +309,10 @@ wpisujesz do wpisu dziennika **z nazwy**, a jego nazwę zaczynasz od slugu proje
 Każdy punkt Weryfikacji, który przeszedł, odhaczasz w `PROMPT_ETAP_4.md` (`- [ ]` → `- [x]`)
 zaraz po jego sprawdzeniu, nie na końcu etapu; punkt, który nie przeszedł, zostaje pusty.
 
-- [ ] Macierz na żywo kompletna: 2 wyglądy × 3 szerokości × (paski + pięć zakładek panelu), zrzuty
+- [x] Macierz na żywo kompletna: 2 wyglądy × 3 szerokości × (paski + pięć zakładek panelu), zrzuty
       `WYGLAD_PANELU_E4_*` w `docs/zasoby/PANEL_RELAI/zrzuty/`; każdy rozjazd albo naprawiony, albo
       zapisany słowami Łukasza jako przyjęty; akceptacja całości zapisana w dzienniku jego słowami.
-- [ ] Panel agentów `/relai-agents` sprawdzony zrzutem w obu wyglądach; wynik w dzienniku.
+- [x] Panel agentów `/relai-agents` sprawdzony zrzutem w obu wyglądach; wynik w dzienniku.
 - [x] Każda poprawka z punktu 3 ma test, który spada na kodzie sprzed niej i przechodzi po niej
       (obie wersje w jednym przebiegu); `git grep -n SEGMENT_INK` nie zwraca nic poza historią.
 - [x] `claude plugin validate .` i `claude plugin test .` zielone binarką aplikacji w `panel/`,
@@ -321,14 +321,14 @@ zaraz po jego sprawdzeniu, nie na końcu etapu; punkt, który nie przeszedł, zo
       `sync-panel-core.js --check` zgodne.
 - [x] Brief `STYL_PASKOW_CLAUDE.md` w wersji 5.0, wiersz w `docs/ARTEFAKTY.md`, poprzednia wersja
       w historii gita.
-- [ ] Zgoda Łukasza na wydanie zapisana w dzienniku jego słowami **przed** pierwszą zmianą numeru
+- [x] Zgoda Łukasza na wydanie zapisana w dzienniku jego słowami **przed** pierwszą zmianą numeru
       wersji; numery zgodne we wszystkich plikach (`git grep` starych numerów w plikach wydania
       nie zwraca nic); tagi wypchnięte (`git ls-remote --tags origin` je pokazuje).
-- [ ] Po instalacji z marketplace: log aplikacji albo `/plugin` pokazuje nowe numery czterech
+- [x] Po instalacji z marketplace: log aplikacji albo `/plugin` pokazuje nowe numery czterech
       pluginów; zrzut paska i panelu z zainstalowanej wersji (nie z podłożonej kopii).
-- [ ] `git diff` wydania nie dotyka `docs/plany/PANEL_CODEX/` ani
+- [x] `git diff` wydania nie dotyka `docs/plany/PANEL_CODEX/` ani
       `docs/zasoby/PANEL_RELAI/makiety/` (zmiany sesji Codeksa zostają poza commitem).
-- [ ] Katalog roboczy `.claude/relai/work/WYGLAD_PANELU/E4/` przejrzany raportem
+- [x] Katalog roboczy `.claude/relai/work/WYGLAD_PANELU/E4/` przejrzany raportem
       (`node .claude/relai/tools/clean-work.js raport`) i skasowany po „tak”; liczby przed i po
       w sekcji „Zweryfikowane” wpisu; przy okazji los `.claude/relai/work/WYGLAD_PANELU/ANEKS_C/`
       i trzech skryptów z Aneksów C–D rozstrzygnięty tym samym raportem. Artefakty poza nim

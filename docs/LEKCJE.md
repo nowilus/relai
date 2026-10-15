@@ -175,7 +175,9 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
       przenosisz kształt, nie same barwy, i porównujesz wynik z jego zrzutem (L-0200); walidator,
       `plugin test` z montażem i zrzut to trzy osobne dowody, `Svg` zawsze z `alt` (L-0201);
       mechanizm mnożący drzewo — najpierw test budżetu na najgorszych danych (L-0202); przejście
-      po drzewie testujesz na węźle w kształcie silnika, nie z ręki (L-0204, P-045). Wygląd
+      po drzewie testujesz na węźle w kształcie silnika, nie z ręki (L-0204, P-045); poprawka
+      zielona w teście, a martwa na żywo — najpierw diagnostyka z działającego modu (L-0205);
+      zrzut przez `PrintWindow` z `SetProcessDPIAware` (L-0206). Wygląd
       panelu i pasków: `docs/zasoby/PANEL_RELAI/DESIGN.md` przed każdą zmianą.
     - **Liczby i słowa:** procenty i kwoty z dwoma miejscami (L-0145); etykieta stanu słowem
       i znakiem, „x/y” tylko gdy y jest celem (L-0147); słowo o przeszłości ma warunek prawdziwości
@@ -596,6 +598,51 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
 - **Zasada:** funkcję, która przechodzi po drzewie z hooka, sprawdzasz na drzewie w kształcie, który
   naprawdę wychodzi do silnika — zapisanym z działającego modu albo zbudowanym przez `h()`; kształt
   węzła z ręki jest hipotezą do zmierzenia.
+
+### L-0205 — Poprawka „zielona w teście” mierzysz na żywo diagnostyką, gdy dane testu są lżejsze · 2026-10-15 · AKTYWNA
+
+- **Trigger:** plan WYGLAD_PANELU, E4. Pusty panel po rozwinięciu Mapy: test z rozwinięciem
+  wszystkiego spadał (2109 jednostek) i po poprawce przechodził, a na żywo panel dalej był pusty —
+  prawdziwa Mapa miała wagę 1 045, ale 64 rysunki z hoverem i 338 tys. znaków.
+- **Przyczyna:** świat testu nie miał najcięższego składnika prawdziwych danych (rysunków
+  z długim źródłem), a miara (`treeWeight`) liczyła rysunek po sztuce; „przechodzi w teście”
+  wziąłem za dowód zachowania na żywo.
+- **Zasada:** gdy poprawka ograniczenia silnika przechodzi w teście, a na żywo nie, pierwszym krokiem
+  jest tymczasowy zapis diagnostyczny z działającego modu (miara, liczba i rozmiar elementów do
+  pliku w katalogu roboczym) — dopiero z tych liczb nowa hipoteza; diagnostykę usuwasz przed
+  dowodem. Narzędzie pomiaru stanu (skrypt zrzutów rozwijający wszystko) zmienia zapamiętany stan
+  panelu — po nim sprawdzasz, czy panel nadal się rysuje.
+
+### L-0206 — Zrzut okna z procesu bez świadomości DPI ucina obraz · 2026-10-15 · AKTYWNA
+
+- **Trigger:** plan WYGLAD_PANELU, E4. `okno.ps1` zapisał okno 2766 × 1118, a paski nad promptem
+  wypadły poza kadr; ten sam ekran w pikselach fizycznych ma 3458 × 1398.
+- **Przyczyna:** PowerShell bez `SetProcessDPIAware` dostaje prostokąt okna w pikselach logicznych
+  (skalowanie 125 %), a `PrintWindow` rysuje w fizycznych — bitmapa za mała obcina prawy dół.
+- **Zasada:** skrypt zrzutu przez `PrintWindow` woła `SetProcessDPIAware()` przed
+  `GetWindowRect`; kontrola: rozmiar zrzutu równa się rozdzielczości fizycznej okna, a element przy
+  dolnej krawędzi (pole promptu) jest w kadrze.
+
+### L-0207 — Backtick w `node -e` w cudzysłowie podwójnym wykonuje się w powłoce (powtórzenie L-0198) · 2026-10-15 · AKTYWNA
+
+- **Trigger:** plan WYGLAD_PANELU, E4. Dopisek do ryzyka C1 przez `node -e "…"` zgubił nazwy
+  pluginów: powłoka wykonała `` `relai-panel` `` jako polecenie („command not found”).
+- **Przyczyna:** zasada „dokumenty — tylko Edit” (L-0198) była w destylacie, a sięgnąłem po
+  podmianę w powłoce, bo poprzednie podmiany bez backticków przeszły.
+- **Zasada:** tekst dokumentu z backtickiem idzie wyłącznie przez Edit/Write — bez wyjątku na
+  „krótką podmianę”; po każdej podmianie w powłoce na dokumencie `grep` stałego ciągu wstawionej
+  treści. Powtórzenie — propozycja graduacji do `CLAUDE.md`.
+
+### L-0208 — `String.replace` z tekstem zastępczym czyta `$` jako wzorzec · 2026-10-15 · AKTYWNA
+
+- **Trigger:** plan WYGLAD_PANELU, rytuał „Na koniec” E4. Wklejenie „Zasad aktywnych” do
+  `PROMPT_ETAP_5.md` przez `prompt.replace('<<ZASADY>>', block)` zdublowało pół promptu: zasada
+  z tekstem „`$` i `on`” niosła sekwencję dolara z backtickiem, którą `replace` rozwija w tekst
+  przed dopasowaniem.
+- **Przyczyna:** tekst zastępczy z dokumentu podany jako ciąg, nie jako funkcja; kontrola po
+  wklejeniu sprawdzała tylko brak znacznika, nie liczbę nagłówków.
+- **Zasada:** wklejając cudzy tekst w JS, zastępujesz funkcją (`replace(x, () => block)`) albo
+  `slice`; po wklejeniu sprawdzasz nagłówki `^## ` (każdy raz) i obecność bloku w całości.
 
 ## Lekcje zwinięte
 

@@ -19,7 +19,7 @@
 
 | O4 | Tryb ciągły kosztuje turę przy każdym zdaniu — praca zwalnia i drożeje (plan OPTYMALIZATOR_PROMPTOW, ryzyko O4) | **Średni** (2026-09-14, przy akceptacji planu) | **OTWARTE** | Wyłącznik w `USTAWIENIA.md`, filtr pomija komendy; otwarte: rozrzut kosztu większy niż mierzona różnica. Historia: [MITYGACJE_2026-09-24](archiwum/ryzyka/MITYGACJE_2026-09-24.md). |
 | K3 | Nakładki rodzin modeli starzeją się szybciej niż wydania RelAI — dostawca zmienia wytyczne, a reguła z datą zostaje (plan PROWADZENIE_END_TO_END, ryzyko K3) | **Średni** (2026-09-24, przy zamknięciu planu) | **OTWARTE** | Każda reguła nakładki ma źródło i datę odczytu; hook startu mówi o nakładce starszej niż 30 dni; odświeżenie razem z `/relai-models`. |
-| C1 | API modów Claude Code („early access”) zmieni się między wydaniami i `relai-panel` przestanie się ładować (plan PANEL_CLAUDE, ryzyko R1) | **Wysoki** (2026-10-08, przy E1) | **OTWARTE** | Osobne pluginy; rachunki w `core/panel/` poza API modów; `plugin validate` i `plugin test` przed wydaniem — od E9 dla trzech pluginów (`relai-panel`, `relai-progress`, `relai-cache-keeper`, ten ostatni przejął rolę kanarka po `cache-keeper-pl`). Otwarte: minimalna wersja silnika niezmierzona (działa 2.1.293); trzy pluginy na tym samym API to trzy miejsca do poprawki przy zmianie. E5: zgoda na start etapu opiera się na zachowaniu silnika „wysyłka wtyczki omija jej własny hook `command.run`” (P-022) — gdy się zmieni, hook wytnie znacznik także z wysyłki panelu i start wróci do pytania w czacie (awaria w bezpieczną stronę); znacznik z klawiatury jest wycinany w obu wersjach (test modu). E6: desktop **bez komunikatu** nie pokazał panelu, gdy drzewo miało 726 węzłów, 121 Svg i 256 tys. znaków (`plugin test` przyjmuje takie drzewo); przy 209 / 27 / 53 tys. — widoczny; limit drzewa w kodzie (60 wierszy, 40 na folder), dokładny próg silnika nieznany (P-023). Hot reload raz zostawił starszą wersję modułu mimo nowej kopii — rozpoznane znacznikiem wersji w logu. E7 (2026-10-09): trzy pluginy wydane publicznie jako „early access” (2.8.0; `relai-panel` 0.9.0, `relai-progress` 0.2.0, `relai-cache-keeper` 0.3.0) — opis w README i w marketplace mówi o ryzyku wprost; `register.tsx` podzielony na pliki widoków bez `$`, raport `plugin validate` identyczny z wersją jednoplikową (P-023). Instalacja z marketplace zmierzona na żywo w aplikacji 2.1.293. Otwarte trwale: minimalna wersja silnika niezmierzona. FILM_PREZENTACYJNY E7 (2026-10-13): wydanie 3.0.0 zostawia „early access” (decyzja Łukasza), `relai-panel` 0.14.1 (parser modelu, Aneks F); `plugin test` 177 / 31 / 174 i `plugin validate` na 2.1.295. WYGLAD_PANELU E3 (2026-10-15): próg desktopu zmierzony — liczą się elementy, nie znaki (1 260 rysuje, 1 344 nie, `Svg` waży więcej; P-023 pkt 7); `DRAW_LIMIT` 1 200 i bezpiecznik „kartka bez wypełnienia” zamiast pustego panelu, test wagi drzewa każdej zakładki. Otwarte: próg może się zmienić z wersją aplikacji. |
+| C1 | API modów Claude Code („early access”) zmieni się między wydaniami i `relai-panel` przestanie się ładować (plan PANEL_CLAUDE, ryzyko R1) | **Wysoki** (2026-10-08, przy E1) | **OTWARTE** | Osobne pluginy; rachunki w `core/panel/` poza API modów; `plugin validate` i `plugin test` przed wydaniem — od E9 dla trzech pluginów (`relai-panel`, `relai-progress`, `relai-cache-keeper`, ten ostatni przejął rolę kanarka po `cache-keeper-pl`). Otwarte: minimalna wersja silnika niezmierzona (działa 2.1.293); trzy pluginy na tym samym API to trzy miejsca do poprawki przy zmianie. E5: zgoda na start etapu opiera się na zachowaniu silnika „wysyłka wtyczki omija jej własny hook `command.run`” (P-022) — gdy się zmieni, hook wytnie znacznik także z wysyłki panelu i start wróci do pytania w czacie (awaria w bezpieczną stronę); znacznik z klawiatury jest wycinany w obu wersjach (test modu). E6: desktop **bez komunikatu** nie pokazał panelu, gdy drzewo miało 726 węzłów, 121 Svg i 256 tys. znaków (`plugin test` przyjmuje takie drzewo); przy 209 / 27 / 53 tys. — widoczny; limit drzewa w kodzie (60 wierszy, 40 na folder), dokładny próg silnika nieznany (P-023). Hot reload raz zostawił starszą wersję modułu mimo nowej kopii — rozpoznane znacznikiem wersji w logu. E7 (2026-10-09): trzy pluginy wydane publicznie jako „early access” (2.8.0; `relai-panel` 0.9.0, `relai-progress` 0.2.0, `relai-cache-keeper` 0.3.0) — opis w README i w marketplace mówi o ryzyku wprost; `register.tsx` podzielony na pliki widoków bez `$`, raport `plugin validate` identyczny z wersją jednoplikową (P-023). Instalacja z marketplace zmierzona na żywo w aplikacji 2.1.293. Otwarte trwale: minimalna wersja silnika niezmierzona. FILM_PREZENTACYJNY E7 (2026-10-13): wydanie 3.0.0 zostawia „early access” (decyzja Łukasza), `relai-panel` 0.14.1 (parser modelu, Aneks F); `plugin test` 177 / 31 / 174 i `plugin validate` na 2.1.295. WYGLAD_PANELU E3 (2026-10-15): próg desktopu zmierzony — liczą się elementy, nie znaki (1 260 rysuje, 1 344 nie, `Svg` waży więcej; P-023 pkt 7); `DRAW_LIMIT` 1 200 i bezpiecznik „kartka bez wypełnienia” zamiast pustego panelu, test wagi drzewa każdej zakładki. Otwarte: próg może się zmienić z wersją aplikacji. WYGLAD_PANELU E4 (2026-10-15): sama waga nie wystarczyła — Mapa wagi 1 045 z 338 tys. znaków nie narysowała się wcale; drugi budżet w znakach (≤ 280 tys., SZACUNEK) i widok zastępczy „Zwiń wszystko” zamiast pustego panelu (P-023 pkt 7); wydanie `relai-panel` 0.19.0 / `relai-progress` 0.5.0 / `relai-cache-keeper` 0.10.0, `plugin test` 205 / 42 / 181 na 2.1.295. |
 | C8 | Inny mod paska nad promptem rysuje bez `next` albo owija węzeł silnika w `Box` z `width` i pasek RelAI znika bez komunikatu (E1, P-017) | **Średni** (2026-10-08, przy E1) | **OTWARTE** | `relai-panel`, `relai-progress` i `relai-cache-keeper` zawsze wołają `next` i nie dokładają `width` do owijacza (test „engine kept beneath" w każdym); `savvy-progress` rysował bez `next` — wyłączony w E9, zastąpiony forkiem. Otwarte: cudze mody poza kontrolą — ostrzeżenie w README w E7. |
 | C10 | Pomiar kosztów niepełny albo podwójny — subagenci, kompakcja, wznowienie, `/clear`, wywołania poza pętlą (plan PANEL_CLAUDE, ryzyko R2) | **Niski** (2026-10-08 po E3; wcześniej wysoki) | **OTWARTE** | Klucz sesja + tura + indeks + agent, plik na sesję, kompakcja z `session.compact`, identyfikator sesji przy każdym zapisie; na żywo 117/117 kroków i 8/8 tur zgodnych z sondą co do kategorii; E9: koszt subagenta w `/relai-agents` = suma jego rekordów ($0,42, Opus), agent spoza cennika „brak ceny", nie „brak pomiaru". E4: rekord niesie etap w toku i zadanie załogi (`stage`, `task`); każdy rekord w dokładnie jednej pozycji (etap / „poza etapem” / „sprzed znacznika”), suma pozycji = suma sesji co do centa (test z kontrolą i na żywo $4,54 = $4,54). Otwarte: 9,16% przyrostu licznika silnika to wywołania spoza `turn.step` i kompakcji — raport mówi o nich słowami, bez rozbicia (P-020 pkt 6); zadanie załogi uruchomione jako osobna sesja `claude -p` jest przypisane tylko wtedy, gdy ta sesja ma `relai-panel`. E6: model bez ceny nie znika w sumie częściowej — przypomnienie z liczbą rekordów i aktualizacja cennika z karty; stawki cache per model ze strony (odczyt 0,05× Opus/Sonnet 5.5 — wcześniej jedna stała), Sonnet 5.5 wyceniony na żywo ($0,24 za 4 rekordy) E7: bez zmian w liczeniu (podział pliku bez zmiany zachowania); otwarte trwale na 9,16% wywołań spoza pętli, opisanych słowami. |
 | C11 | Pliki pomiarów puchną albo trafiają do gita (plan PANEL_CLAUDE, ryzyko R5) | **Niski** (2026-10-08 po E3) | **OTWARTE ŚWIADOMIE** | `.claude/relai/` poza gitem (sprawdzone `git check-ignore`), plik na sesję, rekord bez treści (~250 B); E4: plik scaleń `.claude/relai/panel/scalenia.json` też poza gitem (`git check-ignore`), rekord dłuższy o dwa pola; E6: `.claude/relai/panel/cennik.json` (wersje cennika) poza gitem (`git check-ignore`), jedna wersja na zapis z karty; otwarte: sprzątanie starych plików nie istnieje — do E7 E7 (decyzja człowieka 2026-10-09): sprzątanie świadomie odłożone — zmierzone 5 plików, 260 KB po dwóch dniach intensywnej pracy; „Koszty projektu” sumują wszystkie pliki, więc kasowanie zmieniłoby sumę. Próg powrotu: folder `.claude/relai/pomiary/` powyżej 10 MB. |
@@ -1550,7 +1550,7 @@ Wykonawca: Opus 5.5 (Claude Code, aplikacja desktopowa).
 
 **Do zrobienia przez człowieka:**
 
-- Start E3 w świeżej sesji (`/relai-stage`) — to pomiar na żywo nowej karty.
+- Start E3 w świeżej sesji (`/relai-stage`) — to pomiar na żywo nowej karty. *(rozstrzygnięte 2026-10-15 — karta sprawdzona na żywo przy starcie E3 i E4)*
 
 Autor: RelAI (Opus 5.5) + Lukasz
 
@@ -1599,7 +1599,7 @@ Wykonawca: Opus 5.5 (Claude Code, aplikacja desktopowa).
 
 **Do zrobienia przez człowieka:**
 
-- Start E3 w świeżej sesji (`/relai-stage`) — pomiar na żywo układu karty z Aneksu D.
+- Start E3 w świeżej sesji (`/relai-stage`) — pomiar na żywo układu karty z Aneksu D. *(rozstrzygnięte 2026-10-15 — karta sprawdzona na żywo przy starcie E3 i E4)*
 
 Autor: RelAI (Opus 5.5) + Lukasz
 
@@ -1776,5 +1776,65 @@ Zapis zgody przed pierwszą zmianą numeru wersji (punkt Weryfikacji E4). Pełny
 - Zgoda na wydanie — Łukasz: „Tak, 3.2.0 / 0.19.0 / 0.5.0 / 0.10.0 (Rekomendowane)”: `relai`
   3.2.0, `relai-panel` 0.19.0, `relai-progress` 0.5.0, `relai-cache-keeper` 0.10.0, commit, tagi
   `v3.2.0` i `relai-panel-v0.19.0`, push na `origin`.
+
+Autor: RelAI (Opus 5.5) + Lukasz
+
+### 2026-10-15 — WYGLAD_PANELU E4 ZREALIZOWANY: odbiór na żywo i wydanie 3.2.0 / panel 0.19.0; Aneks G (E5)
+
+**Zrobione:**
+
+- Macierz na żywo: jasny i ciemny × pełne okno, połowa podziału, wąski panel (~530–590 px) × trzy
+  paski i pięć zakładek, zrzuty `docs/zasoby/PANEL_RELAI/zrzuty/WYGLAD_PANELU_E4_*` (ostatnia
+  komórka, jasne pełne okno, i zestaw `_po_poprawkach_*`). Panel agentów `/relai-agents` w obu
+  wyglądach: w jasnym lista punktów stała na ciemnej karcie z jasnym tekstem — poprawione
+  (`retone` w `progress/hooks/skin.ts`), zrzuty `_jasny_agenci`, `_ciemny_agenci`.
+- Poprawki z macierzy, każda z testem spadającym przed nią: pusty panel po rozwinięciu wszystkiego
+  na Mapie (zastępczy widok „Zwiń wszystko”, drugi budżet w znakach `isDrawable`), pasek etapów
+  bez własnego tła, margines grup w Dokumentach, pasek planu bez łamania nazwy i „W TOKU”, wspólna
+  kolumna przycisków progu limitu (równe paski), panel agentów w kluczach motywu; komunikat
+  „za dużo rozwiniętych sekcji” w kolorze uwagi. `SEGMENT_INK` usunięty z rdzenia i trzech kopii.
+- Brief `STYL_PASKOW_CLAUDE.md` 5.0 (sekcja 0 „Co obowiązuje”, §5–§7 oznaczone jako historia,
+  §14.6), `DESIGN.md` 1.2, P-023 pkt 7 uzupełniony; dwa wiersze w `ARTEFAKTY.md`.
+- Wydanie po zgodzie: commit `cc2d340`, tagi `v3.2.0` i `relai-panel-v0.19.0` wypchnięte;
+  instalacja z marketplace: `relai` 3.2.0, `relai-panel` 0.19.0, `relai-progress` 0.5.0,
+  `relai-cache-keeper` 0.10.0.
+- Narzędzie: `okno.ps1` ucinał okno (brak świadomości DPI) — w etapie działała kopia robocza
+  z `SetProcessDPIAware` (L-0206); poprawka narzędzia w `narzedzia/` — do E5.
+- Po wydaniu Łukasz: sekcja „Teraz” „nie pasuje stylistycznie, jest tam nawalone opisu, nie da się
+  najeżdżać na te paski, wszystko się ze sobą zlewa”; baterie „w jakiegoś takiego sensownego
+  grida”; kontekst z oknem modelu wyeksponowany, bo natywny pasek aplikacji przestał go pokazywać.
+  Decyzja: „dorzućmy do tego planu” — **Aneks G**, etap E5, `relai` zostaje 3.2.0, panel dostaje
+  nowe numery; warianty dla kontekstu i siatki w E5, świeża sesja.
+
+**Zweryfikowane — jak dokładnie:**
+
+- `plugin validate` i `plugin test` binarką aplikacji 2.1.295: panel 205/205, progress 42/42,
+  cache-keeper 181/181; rdzeń `node --test` 410/410; `sync-panel-core.js --check` zgodne;
+  `validate-adapters.js` spójne (kod 0).
+- Testy poprawek spadają na kodzie sprzed nich w jednym przebiegu (`git worktree` HEAD w `%TEMP%`
+  z nowymi plikami testów): panel 5 fail (4 testy + plik Mapy nie wczytany bez `isDrawable`),
+  progress 2 fail; po poprawkach 0 fail. Pusty panel odtworzony testem: 2109 jednostek przy progu
+  1 200; na żywo zapis diagnostyczny: waga 1 045, 64 `Svg`, 250 tys. znaków źródła, 338 tys.
+  drzewa — po drugim budżecie Łukasz: „kliknalem zwin i dziala”.
+- Każda poprawka obejrzana na żywo po `/reload-plugins` (Dokumenty, Mapa, Koszty — „otwiera sie”,
+  pasek planu testem w wąskiej kolumnie).
+- `git grep SEGMENT_INK` poza `docs/` — pusto; `git grep` starych numerów w plikach `*.json` —
+  pusto; `git show --stat cc2d340` nie dotyka `docs/plany/PANEL_CODEX/` ani `makiety/`;
+  `git ls-remote --tags origin` pokazuje oba tagi.
+- Po instalacji: `installed_plugins.json` wskazuje katalogi 3.2.0 / 0.19.0 / 0.5.0 / 0.10.0, pliki
+  hooków równe repo (`diff -rq --strip-trailing-cr`), znaczniki `.in_use` w nowych katalogach
+  z 16:09–16:10 (po przeładowaniu); zrzut trzech pasków z zainstalowanej wersji
+  `_zainstalowane_okno.png`. Log aplikacji nie wypisuje wersji pluginów.
+- Katalog roboczy `.claude/relai/work/WYGLAD_PANELU/` (E4, ANEKS_C i trzy skrypty z Aneksów C–D)
+  skasowany po „Tak, skasuj wszystko”: przed 3,9 MB, po 0 MB. Poza nim: kopie podłożone do
+  `~/.claude/plugins/cache/relai/relai-panel/0.17.0`, `relai-progress/0.4.2`,
+  `relai-cache-keeper/0.9.0` zostają w cache aplikacji jako stare wersje (nieużywane po aktualizacji);
+  `%TEMP%/relai-e4-przed` usunięty `git worktree remove`.
+
+**Świadomie odłożone:** rotacja ryzyk zamkniętych (sekcja 12,3 KB > 12 KB) i lekcji (51 KB > 50 KB)
+— przy najbliższym starcie sesji; poprawka `narzedzia/okno.ps1` (DPI) — w E5; zamknięcie planu
+przeniesione z E4 na E5 (Aneks G).
+
+**Do zrobienia przez człowieka:** —
 
 Autor: RelAI (Opus 5.5) + Lukasz

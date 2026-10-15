@@ -1,6 +1,6 @@
 # STATUS — plan WYGLAD_PANELU
 
-Plan: [PLAN.html](PLAN.html) · Utworzony: 2026-10-14 · Status planu: **ZAAKCEPTOWANY 2026-10-14 (Aneksy A–F)** · Model wykonawczy etapów: Opus 5.5, świeże sesje (ustawienie projektu, D-85; ustalony w Claude Code)
+Plan: [PLAN.html](PLAN.html) · Utworzony: 2026-10-14 · Status planu: **ZAAKCEPTOWANY 2026-10-14 (Aneksy A–G)** · Model wykonawczy etapów: Opus 5.5, świeże sesje (ustawienie projektu, D-85; ustalony w Claude Code)
 
 Makieta kalibracyjna paska postępu: [MAKIETA_PASEK_POSTEPU.html](MAKIETA_PASEK_POSTEPU.html) (wariant 1, kierunek przyjęty 2026-10-14).
 
@@ -11,7 +11,8 @@ Makieta kalibracyjna paska postępu: [MAKIETA_PASEK_POSTEPU.html](MAKIETA_PASEK_
 | E1 | Sonda nośnika i paski w kolorach narzędzia | ZREALIZOWANY 2026-10-14 | [PROMPT_ETAP_1.md](PROMPT_ETAP_1.md) | sonda przed kodem docelowym; jej wynik może uruchomić wariant awaryjny B |
 | E2 | Pasek postępu jako lista kroków | ZREALIZOWANY 2026-10-15 | [PROMPT_ETAP_2.md](PROMPT_ETAP_2.md) | wg makiety |
 | E3 | Panel w szacie jasnej | ZREALIZOWANY 2026-10-15 | [PROMPT_ETAP_3.md](PROMPT_ETAP_3.md) | start dopiero po zamknięciu odnogi [PANEL_WASKI](../../fixy/PANEL_WASKI/ODNOGA.md) (zamknięta 2026-10-14) |
-| E4 | Odbiór całości i wydanie | W TOKU | [PROMPT_ETAP_4.md](PROMPT_ETAP_4.md) | wydanie po zgodzie Łukasza |
+| E4 | Odbiór całości i wydanie | ZREALIZOWANY 2026-10-15 | [PROMPT_ETAP_4.md](PROMPT_ETAP_4.md) | wydanie po zgodzie Łukasza |
+| E5 | „Teraz”, baterie w siatce, kontekst z oknem modelu (Aneks G) | GOTOWY DO STARTU | [PROMPT_ETAP_5.md](PROMPT_ETAP_5.md) | trzy warianty × trzy rzeczy, wydanie panelu 0.20.0 / 0.11.0 |
 
 ## Dziennik wdrożenia
 
@@ -30,3 +31,12 @@ Makieta kalibracyjna paska postępu: [MAKIETA_PASEK_POSTEPU.html](MAKIETA_PASEK_
 - 2026-10-15 — E3 ZREALIZOWANY: panel w obu szatach automatycznie (wariant 3 · jedna kartka, ramka subtle, akceptacja „jest ok juz nie bede pokazywal ale jest ok”), kartka wypełniona bez szczeliny na wszystkich zakładkach, sprawdzona na żywo w obu szatach, rozwinięta i w wąskim panelu 530 px; w repo bez wydania (wydanie w E4); E4 gotowy do startu, wygenerowano PROMPT_ETAP_4.
 - 2026-10-15 — po E3: foldery drzewa z własną jasną paletą i hover w kluczu motywu także tam, gdzie silnik go trzyma (na węźle, P-045); uwagi Łukasza po commicie E3.
 - 2026-10-15 — E4 rozpoczęty
+- 2026-10-15 — E4 ZREALIZOWANY: macierz na żywo (2 wyglądy × 3 szerokości + /relai-agents), 6 poprawek z testami, brief 5.0, DESIGN 1.2; wydanie 3.2.0 / relai-panel 0.19.0 / relai-progress 0.5.0 / relai-cache-keeper 0.10.0 (zgoda „Tak, 3.2.0 / 0.19.0 / 0.5.0 / 0.10.0 (Rekomendowane)”), odbiór „Tak, przyjmuję całość”; ostatni etap planu.
+- 2026-10-15 — Aneks G przyjęty („dorzućmy do tego planu”, relai zostaje 3.2.0, panel z nowymi numerami): etap E5 — sekcja „Teraz”, baterie w siatce, kontekst z oknem modelu; trzy warianty do wyboru na żywo; świeża sesja. E5 gotowy do startu, wygenerowano PROMPT_ETAP_5.
+
+## Bramki manualne
+
+| Bramka | Źródło | Status |
+|---|---|---|
+| Start E3 w świeżej sesji — pomiar na żywo pełnej karty startu | Aneks C, wpis 2026-10-15 | ROZSTRZYGNIĘTA 2026-10-15 — karta sprawdzona na żywo przy starcie E3 i E4 („Zaczynamy E4.”) |
+| Start E3 w świeżej sesji — pomiar na żywo układu karty z Aneksu D | Aneks D, wpis 2026-10-15 | ROZSTRZYGNIĘTA 2026-10-15 — jak wyżej, układ z Aneksu D |
