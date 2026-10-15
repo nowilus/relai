@@ -64,6 +64,8 @@ Aktywny plan: [WYGLAD_PANELU](docs/plany/WYGLAD_PANELU/STATUS.md) — paski w ko
 - Tekst z backslashem (wyrażenie regularne, ścieżka Windows) nie idzie przez powłokę ani przez literał
   innego języka: skrypt z takim tekstem piszesz narzędziem Write/Edit, a wzorzec sprawdzasz kontrolą
   pozytywną na materiale, który musi trafić (L-0116, L-0119, L-0127, L-0130).
+- Tekst dokumentu z backtickiem zmieniasz wyłącznie narzędziem Edit/Write — nigdy podmianą
+  w powłoce, także „krótką” (L-0198, L-0207).
 
 ## Reguły profilu (prompty)
 

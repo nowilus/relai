@@ -631,7 +631,8 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
   podmianę w powłoce, bo poprzednie podmiany bez backticków przeszły.
 - **Zasada:** tekst dokumentu z backtickiem idzie wyłącznie przez Edit/Write — bez wyjątku na
   „krótką podmianę”; po każdej podmianie w powłoce na dokumencie `grep` stałego ciągu wstawionej
-  treści. Powtórzenie — propozycja graduacji do `CLAUDE.md`.
+  treści. Powtórzenie — propozycja graduacji do `CLAUDE.md`; przyjęta 2026-10-15 (reguła procesu
+  w `CLAUDE.md`, zgoda Łukasza: „ok dopisz”).
 
 ### L-0208 — `String.replace` z tekstem zastępczym czyta `$` jako wzorzec · 2026-10-15 · AKTYWNA
 
