@@ -52,4 +52,27 @@ for (const plik of KOPIE) {
   test(nazwa + ': the card is written in full text whatever the session compression style', () => {
     assert.match(krok4(plik), /Kartę startu piszesz pełnym tekstem/);
   });
+
+  // Aneks D (2026-10-15): the layout is fixed, not left to the model.
+  test(nazwa + ': the card has a fixed layout under the heading "Karta startu"', () => {
+    const t = krok4(plik);
+    assert.match(t, /\*\*Układ karty\*\*/);
+    assert.match(t, /[Nn]agłówek „Karta startu”/);
+    assert.match(t, /jedną listą wypunktowaną/);
+  });
+
+  test(nazwa + ': situational notes go before the card', () => {
+    assert.match(krok4(plik), /\*\*Uwagi z sytuacji\*\*/);
+  });
+
+  test(nazwa + ': the stage scope is given as sub-points with concrete changes', () => {
+    const t = krok4(plik);
+    assert.match(t, /\*\*Czego dotyczy\*\* — podpunkty/);
+    // Negative proof: the old prose rule is gone.
+    assert.doesNotMatch(t, /2–4 zdania z sekcji „Zakres etapu"/);
+  });
+
+  test(nazwa + ': the hardest verification point says what happens when it fails', () => {
+    assert.match(krok4(plik), /co zrobisz, gdy nie przejdzie/);
+  });
 }

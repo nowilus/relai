@@ -1553,3 +1553,52 @@ Wykonawca: Opus 5.5 (Claude Code, aplikacja desktopowa).
 - Start E3 w świeżej sesji (`/relai-stage`) — to pomiar na żywo nowej karty.
 
 Autor: RelAI (Opus 5.5) + Lukasz
+
+### 2026-10-15 — WYGLAD_PANELU Aneks D: stały układ karty startu `/relai-stage` (przed E3)
+
+Wykonawca: Opus 5.5 (Claude Code, aplikacja desktopowa).
+
+**Zrobione:**
+
+- Pomiar na żywo Aneksu C: karta startu E3 (sesja `e11a13ae`, pierwszy prompt sesji) miała
+  wszystkie pola z aneksu — akapit „gdzie jesteśmy”, tabelę etapów, `/effort high`, siedem punktów
+  weryfikacji listą, pełny tekst mimo stylu `caveman`. Łukasz pokazał kartę HUMANIZACJA E4
+  z 2026-10-14: „RelAI ZAWSZE dla komendy rela-stage przygotowywał mi taką strukturę”. Porównanie
+  (na prośbę „Sprawdź, co się zmieniło”): Krok 4 wymieniał pola, nigdy układu — dawne karty miały
+  nagłówek „Karta startu” z listą pól, „Czego dotyczy” w podpunktach (ponad „2–4 zdania” spisu),
+  najtwardszy punkt z tym, co gdy nie przejdzie, uwagi z sytuacji przed kartą; karta E3 miała
+  etykiety jako osobne akapity i zakres prozą.
+- Aneks D przyjęty słowami Łukasza: „Tak, zapisz układ z przykładu w Kroku 4 komendy jako Aneks D
+  przed E3, pola z Aneksu C zostają.” — `PLAN.html` sekcja 10, `STATUS.md` (nagłówek „Aneksy A–D”
+  i linia dziennika wdrożenia).
+- Krok 4 `adapters/claude-code/commands/relai-stage.md`: blok „Układ karty” (uwagi z sytuacji →
+  „gdzie jesteśmy” → nagłówek „Karta startu” z listą pól → tabela etapów → „Zaczynamy?”); „Czego
+  dotyczy” w podpunktach z konkretną zmianą i tym, czego etap nie rusza; najtwardszy punkt
+  weryfikacji ze zdaniem, co gdy nie przejdzie. Kopia Codeksa przez `generate-skills.js`.
+- `core/process/tests/stage-card.test.js`: cztery nowe kontrole × 2 kopie, w tym dowód negatywny
+  (brzmienie „2–4 zdania” znika).
+- `ARTEFAKTY.md`: `/relai-stage` wersja 11.
+
+**Zweryfikowane — jak dokładnie:**
+
+- Test na HEAD (`git worktree` w `%TEMP%/relai-aneksd-head`, ten sam plik testu) i po zmianie
+  w jednym przebiegu: HEAD 10/18 (8 nowych spada), po zmianie 18/18. Pierwszy przebieg po zmianie
+  dał 16/18 — regex szukał „nagłówek” małą literą, komenda ma zdanie od wielkiej; poprawiony
+  instrument, nie komenda. Worktree usunięty (`git worktree list` bez niego).
+- `generate-skills.js --verify`: przed generacją rozjazd 1 pliku (`relai-stage`), po — spójne.
+- Rdzeń `node --test core/{guardrails,panel,process}/tests/*.test.js`: 404/404 (396 + 8);
+  `adapters/codex/tests`: 15/15; `node core/tools/validate-adapters.js`: kod 0.
+- Zainstalowany `relai` 3.1.0: nowa komenda podłożona (`cmp` zgodny); oryginał z tagu `v3.1.0`
+  nadal w `.claude/relai/work/WYGLAD_PANELU/ANEKS_C/relai-stage.zainstalowana-3.1.0.md`.
+
+**Świadomie odłożone:**
+
+- Reguła Cursora (`adapters/cursor/rules/relai-planning.mdc`) — jak przy Aneksie C, do E4 albo
+  odnogi.
+- Wydanie (`relai` minor) — w E4.
+
+**Do zrobienia przez człowieka:**
+
+- Start E3 w świeżej sesji (`/relai-stage`) — pomiar na żywo układu karty z Aneksu D.
+
+Autor: RelAI (Opus 5.5) + Lukasz

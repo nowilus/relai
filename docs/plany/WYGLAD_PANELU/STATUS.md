@@ -1,6 +1,6 @@
 # STATUS — plan WYGLAD_PANELU
 
-Plan: [PLAN.html](PLAN.html) · Utworzony: 2026-10-14 · Status planu: **ZAAKCEPTOWANY 2026-10-14 (Aneksy A–C)** · Model wykonawczy etapów: Opus 5.5, świeże sesje (ustawienie projektu, D-85; ustalony w Claude Code)
+Plan: [PLAN.html](PLAN.html) · Utworzony: 2026-10-14 · Status planu: **ZAAKCEPTOWANY 2026-10-14 (Aneksy A–D)** · Model wykonawczy etapów: Opus 5.5, świeże sesje (ustawienie projektu, D-85; ustalony w Claude Code)
 
 Makieta kalibracyjna paska postępu: [MAKIETA_PASEK_POSTEPU.html](MAKIETA_PASEK_POSTEPU.html) (wariant 1, kierunek przyjęty 2026-10-14).
 
@@ -22,3 +22,4 @@ Makieta kalibracyjna paska postępu: [MAKIETA_PASEK_POSTEPU.html](MAKIETA_PASEK_
 - 2026-10-15 — E2 rozpoczęty
 - 2026-10-15 — E2 ZREALIZOWANY: pasek postępu jako lista kroków (wygląd A, jasny „J3 miękki”, zwijanie tekstem, stan za nazwą, zrobione od lewej, kręcenie tylko przy pracy modelu; akceptacja „Akceptuje”), w repo bez wydania (wydanie w E4); E3 gotowy do startu, wygenerowano PROMPT_ETAP_3.
 - 2026-10-15 — Aneks C przyjęty („Tak, ale przed E3”): pełna karta startu `/relai-stage` (akapit „gdzie jesteśmy”, tabela etapów, lista punktów weryfikacji, model i effort, pełny tekst) — poprawka przed E3, wydanie w E4.
+- 2026-10-15 — Aneks D przyjęty („Tak, zapisz układ z przykładu w Kroku 4 komendy jako Aneks D przed E3, pola z Aneksu C zostają.”): stały układ karty startu `/relai-stage` — uwagi z sytuacji i „gdzie jesteśmy” przed kartą, nagłówek „Karta startu” z listą pól, „Czego dotyczy” w podpunktach, najtwardszy punkt ze zdaniem, co gdy nie przejdzie — poprawka przed E3, wydanie w E4.

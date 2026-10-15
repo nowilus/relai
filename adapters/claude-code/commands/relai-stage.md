@@ -97,7 +97,23 @@ Kartę startu piszesz pełnym tekstem — pełnymi zdaniami i z wszystkimi polam
 gdy sesja ma włączony styl skracania odpowiedzi (np. tryb „caveman”); styl skracania obowiązuje poza
 kartą. Karta jest jedynym miejscem, w którym człowiek widzi etap, zanim cokolwiek powstanie.
 
-- **Gdzie jesteśmy** — idzie przed resztą karty. Jeśli w tej sesji
+**Układ karty** jest stały i nie zależy od modelu (Aneks D planu WYGLAD_PANELU; wzór: karta
+HUMANIZACJA E4 z 2026-10-14). Kolejność:
+
+1. **Uwagi z sytuacji** — przed kartą, po jednym–dwóch zdaniach każda, tylko gdy są: model inny niż
+   wymagany (zawsze pierwsza), dokument ponad próg z `docs/USTAWIENIA.md` (np. dziennik) z propozycją,
+   kiedy go obsłużyć, niezapisane zmiany w plikach, których etap dotyka, i cudze zmiany w drzewie
+   roboczym, których etap nie rusza. Uwag nie ma → nic nie piszesz.
+2. Akapit **Gdzie jesteśmy** (pole niżej), gdy ma paść.
+3. Nagłówek „Karta startu”, a pod nim pola jedną listą wypunktowaną, w kolejności: Plan, Etap, Model
+   wykonawczy, Katalog roboczy, Czego dotyczy (z podpunktami), Weryfikacja (z listą numerowaną),
+   Rekomendacja subagenta (gdy jest).
+4. Pod listą tabela **Etapy planu**.
+5. Pytanie „Zaczynamy?” w osobnej linii, na końcu.
+
+Pola karty:
+
+- **Gdzie jesteśmy** — idzie przed kartą. Jeśli w tej sesji
   nie padł jeszcze akapit „gdzie jesteśmy” z rytuału startu (komenda bywa pierwszym promptem sesji,
   a skill `relai-core` wtedy się nie wyzwala), wykonujesz rytuał teraz: czytasz `docs/STATE.md`,
   sekcję „Stan otwartych ryzyk” i ostatni wpis `docs/DZIENNIK.md`, i piszesz akapit (3–5 zdań):
@@ -122,11 +138,14 @@ kartą. Karta jest jedynym miejscem, w którym człowiek widzi etap, zanim cokol
   sekcję „Zakres etapu" promptu. Karta jest miejscem, w którym człowiek widzi, **gdzie powstaną
   pliki, zanim cokolwiek powstanie**. Prompt tej linii nie ma (etap sprzed 1.8.0) → podaj ścieżkę
   wyprowadzoną z tematu i numeru etapu i powiedz jednym zdaniem, że prompt jej nie niesie.
-- **Czego dotyczy** — 2–4 zdania z sekcji „Zakres etapu" promptu, własnymi słowami. Nie przepisujesz
-  całej sekcji.
-- **Weryfikacja** — **wszystkie punkty** sekcji Weryfikacja promptu jako lista numerowana, każdy
-  jednym wierszem własnymi słowami, a pod listą jedno zdanie, który punkt jest najtwardszy. Sama
-  liczba punktów nie wystarcza.
+- **Czego dotyczy** — podpunkty z sekcji „Zakres etapu" promptu, własnymi słowami, zwykle 3–6:
+  każdy to konkretna zmiana razem z plikiem albo liczbą, której dotyczy; ostatni mówi, czego etap
+  nie rusza (pliki zamknięte, cudze zmiany, wydanie w późniejszym etapie). Nie przepisujesz całej
+  sekcji.
+- **Weryfikacja** — **wszystkie punkty** sekcji Weryfikacja promptu jako lista numerowana pod tym
+  polem, każdy jednym wierszem własnymi słowami, a pod listą jedno–dwa zdania: który punkt jest
+  najtwardszy i co zrobisz, gdy nie przejdzie (np. zatrzymasz się i zapytasz, zamiast obejść go po
+  cichu). Sama liczba punktów nie wystarcza.
 - **Rekomendacja subagenta** — jedno zdanie, tylko gdy kryteria z sekcji niżej są spełnione.
 - **Pytanie** — „Zaczynamy?"
 
