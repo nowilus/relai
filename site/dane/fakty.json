@@ -1,0 +1,107 @@
+{
+  "liczbaKomend": 15,
+  "liczbaAdapterow": 3,
+  "adaptery": [
+    "claude-code",
+    "codex",
+    "cursor"
+  ],
+  "wersje": {
+    "relai": "3.2.0",
+    "relai-panel": "0.20.0",
+    "relai-progress": "0.5.0",
+    "relai-cache-keeper": "0.11.0"
+  },
+  "komendy": [
+    {
+      "nazwa": "relai-adopt",
+      "opisEn": "Adopts an existing project into the RelAI structure: a full backup as the gate, analysis of the code and history, documents generated from the existing state and a change report with a tested full rollback.",
+      "nazwaPl": "Adopcja projektu",
+      "opisPl": "Wprowadź RelAI do zastanego repo"
+    },
+    {
+      "nazwa": "relai-audit",
+      "opisEn": "Reports on the state of the project documentation — housekeeping and health — and ends with a list of proposals to approve; changes nothing by itself.",
+      "nazwaPl": "Przegląd projektu",
+      "opisPl": "Raport o zdrowiu dokumentacji"
+    },
+    {
+      "nazwa": "relai-backup",
+      "opisEn": "Packs the project into a ZIP archive in the central backup folder, without secrets and runtime folders, and writes a journal entry.",
+      "nazwaPl": "Kopia zapasowa",
+      "opisPl": "Spakuj projekt do archiwum ZIP"
+    },
+    {
+      "nazwa": "relai-branch",
+      "opisEn": "Opens a branch — a side thread from a stage gets its own branch card and a self-contained prompt for a fresh session, without touching the frozen plan.",
+      "nazwaPl": "Odnoga planu",
+      "opisPl": "Odłóż boczny wątek na osobną kartę"
+    },
+    {
+      "nazwa": "relai-changelog",
+      "opisEn": "Distils the project journal into a list of changes — on screen, and into a file only on request.",
+      "nazwaPl": "Lista zmian",
+      "opisPl": "Zmiany wydestylowane z dziennika"
+    },
+    {
+      "nazwa": "relai-clean",
+      "opisEn": "Shows a report of working artifacts grouped by source, with the protected ones and the reason for protection; deletes only after a yes for each group and writes a journal entry.",
+      "nazwaPl": "Sprzątanie",
+      "opisPl": "Usuń artefakty robocze po zgodzie"
+    },
+    {
+      "nazwa": "relai-crew",
+      "opisEn": "Crew — the model that ran the command becomes the orchestrator of one goal: an interview about roles and models, waves without file conflicts, delegation to host subagents or to a second tool (Claude Code, Codex, Cursor), cross review and a closing ritual; without a second signed-in tool it falls back to basic mode.",
+      "nazwaPl": "Załoga agentów",
+      "opisPl": "Rozdziel cel między kilku agentów"
+    },
+    {
+      "nazwa": "relai-handover",
+      "opisEn": "Assembles a project handover package in one HTML file — state, document map, plans and stages, open risks, where to start.",
+      "nazwaPl": "Pakiet przekazania",
+      "opisPl": "Cały projekt w jednym pliku HTML"
+    },
+    {
+      "nazwa": "relai-help",
+      "opisEn": "Shows the project cheat sheet — commands, phrases and automatic behaviours — by presenting docs/KOMENDY.md.",
+      "nazwaPl": "Ściąga projektu",
+      "opisPl": "Komendy, frazy i zachowania automatyczne"
+    },
+    {
+      "nazwa": "relai-humanize",
+      "opisEn": "Rewrites text so it loses AI writing habits without changing what it says — shows the original next to the rewrite, lists the removed patterns, checks that numbers, dates, links and code survived, and changes a file only after a yes.",
+      "nazwaPl": "Humanizacja tekstu",
+      "opisPl": "Usuń z tekstu nawyki pisarskie AI"
+    },
+    {
+      "nazwa": "relai-models",
+      "opisEn": "Refreshes the tool model list in the project — asks for consent to network traffic on every run, reads the vendor documentation or asks the person, shows the old and new list side by side and saves only after confirmation.",
+      "nazwaPl": "Lista modeli",
+      "opisPl": "Odśwież modele narzędzia"
+    },
+    {
+      "nazwa": "relai-prompt",
+      "opisEn": "Turns a dictated sentence into a precise prompt — shows the original next to the proposal, marks every addition and waits for approval; executes nothing.",
+      "nazwaPl": "Optymalizator promptu",
+      "opisPl": "Zamień zdanie w precyzyjny prompt"
+    },
+    {
+      "nazwa": "relai-stage",
+      "opisEn": "Starts a stage of the active RelAI plan — detects the plan and the next stage, shows the start card and waits for consent.",
+      "nazwaPl": "Etap planu",
+      "opisPl": "Uruchom następny etap aktywnego planu"
+    },
+    {
+      "nazwa": "relai-tour",
+      "opisEn": "Walks through the project using only its documents — state, map, plans, risks, where to start.",
+      "nazwaPl": "Wycieczka po projekcie",
+      "opisPl": "Opowieść o projekcie z jego dokumentów"
+    },
+    {
+      "nazwa": "relai-update",
+      "opisEn": "Updates a RelAI project to the version of the installed plugin — shows the differences, changes only with consent, respects local overrides and ends with a journal entry.",
+      "nazwaPl": "Aktualizacja",
+      "opisPl": "Podnieś projekt do wersji pluginu"
+    }
+  ]
+}

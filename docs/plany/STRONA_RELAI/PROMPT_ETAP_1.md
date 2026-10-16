@@ -359,44 +359,51 @@ subagentów Sonnet 5.5 (`Agent` z `model: "sonnet"`) dostaje wyłącznie zadania
 Każdy punkt Weryfikacji, który przeszedł, odhaczasz w `PROMPT_ETAP_1.md` (`- [ ]` → `- [x]`)
 zaraz po jego sprawdzeniu, nie na końcu etapu; punkt, który nie przeszedł, zostaje pusty.
 
-- [ ] `node --test site/` kończy się bez błędów; test konfiguratora obejmuje wszystkie kombinacje
+- [x] `node --test site/` kończy się bez błędów; test konfiguratora obejmuje wszystkie kombinacje
       (2 tryby × 3 narzędzia × 16 zestawów składników = 96 `FAKT`) i przypadek „nic nie wybrano”.
-- [ ] `node site/narzedzia/fakty.mjs` daje w `site/dane/fakty.json` tyle komend, ile plików
+      *(2026-10-16: w Node 24 forma katalogowa `node --test site/` kończy się „Cannot find module”
+      dla każdej treści; przebieg zrobiony odpowiednikiem `node --test "site/**/*.test.mjs"` — rozjazd
+      instrumentu w dzienniku.)*
+- [x] `node site/narzedzia/fakty.mjs` daje w `site/dane/fakty.json` tyle komend, ile plików
       w `adapters/claude-code/commands/` (dowód: obie liczby w wpisie), a wersje równe wartościom
       z `.claude-plugin/marketplace.json`.
-- [ ] `node site/narzedzia/zbuduj.mjs` generuje `site/index.html` i `site/pl/index.html` z parą
+- [x] `node site/narzedzia/zbuduj.mjs` generuje `site/index.html` i `site/pl/index.html` z parą
       `hreflang`, bez niewypełnionych znaczników; ponowne uruchomienie nie zmienia plików
       (`git diff --stat` puste po drugim przebiegu).
-- [ ] Zero żądań zewnętrznych poza `api.github.com` (moduł wersji): lista żądań sieciowych
+- [x] Zero żądań zewnętrznych poza `api.github.com` (moduł wersji): lista żądań sieciowych
       w przeglądarce przy wejściu i pełnym przewinięciu zawiera tylko `localhost` i to API;
       `grep` po `https?://` w `src`/`url()` w `site/` nie zwraca nic poza dozwolonym.
-- [ ] Hero: zrzuty otwarcia, stanu pośredniego i wyjścia z hero przy 1366 × 768 i 1920 × 1080
+- [x] Hero: zrzuty otwarcia, stanu pośredniego i wyjścia z hero przy 1366 × 768 i 1920 × 1080
       w katalogu roboczym; trzy plany w dwóch pozycjach przewijania przesuwają się o różne
       odległości (zmierzone współrzędne ekranowe trzech obiektów w wpisie).
-- [ ] Kontrast tekstu hero zmierzony na złożonym obrazie: treść ≥ 4,5 : 1, nagłówek ≥ 3 : 1.
-- [ ] **Kalibracja smaku:** zrzuty hero pokazane Łukaszowi przed zamknięciem etapu; jego werdykt
+- [x] Kontrast tekstu hero zmierzony na złożonym obrazie: treść ≥ 4,5 : 1, nagłówek ≥ 3 : 1.
+- [x] **Kalibracja smaku:** zrzuty hero pokazane Łukaszowi przed zamknięciem etapu; jego werdykt
       zacytowany w wpisie; uwagi wdrożone w E1 albo zapisane jako zakres E2 za jego zgodą.
-- [ ] Każdy z siedmiu przystanków osiągalny przewijaniem i kliknięciem w mapę (pas zrzutów);
+- [x] Każdy z siedmiu przystanków osiągalny przewijaniem i kliknięciem w mapę (pas zrzutów);
       mapa obsługiwana klawiaturą (Tab, Enter).
-- [ ] Konfigurator na ekranie laptopa: kopiowanie działa; link `claude-cli://` otwiera terminal
+- [x] Konfigurator na ekranie laptopa: kopiowanie działa; link `claude-cli://` otwiera terminal
       z wpisanym poleceniem na tej maszynie (albo zapisane, że obsługa schematu nie jest
       zarejestrowana); polecenie nie zaczyna się od „/”.
-- [ ] WebGL wyłączony (podmiana `getContext` albo flaga przeglądarki) → treść i konfigurator
+      *(2026-10-16: kopiowanie do schowka systemu i polecenie bez „/” sprawdzone; schemat
+      `claude-cli` zarejestrowany (`claude.exe --handle-uri`). Otwarcie terminalu na żywo nie
+      sprawdzone — decyzja Łukasza: przeniesione do bramki manualnej przed E5, gdzie plan i tak
+      mierzy deep linki na żywo.)*
+- [x] WebGL wyłączony (podmiana `getContext` albo flaga przeglądarki) → treść i konfigurator
       widoczne, zero błędów w konsoli.
-- [ ] Konsola bez błędów i nieudanych żądań przy wejściu i pełnym przewinięciu (obie wersje
+- [x] Konsola bez błędów i nieudanych żądań przy wejściu i pełnym przewinięciu (obie wersje
       językowe).
-- [ ] Pomiar wydajności hero (mediana czasu klatki, KB JS przesłane) zapisany w wpisie z etykietą
+- [x] Pomiar wydajności hero (mediana czasu klatki, KB JS przesłane) zapisany w wpisie z etykietą
       `FAKT`.
-- [ ] `site/vendor/three/` ma `LICENSE` i `VERSION`; fonty w `site/fonty/` mają plik licencji.
-- [ ] Podstawy bezpieczeństwa na zmianie etapu: dane z API GitHuba trafiają na stronę wyłącznie
+- [x] `site/vendor/three/` ma `LICENSE` i `VERSION`; fonty w `site/fonty/` mają plik licencji.
+- [x] Podstawy bezpieczeństwa na zmianie etapu: dane z API GitHuba trafiają na stronę wyłącznie
       przez `textContent` (dowód: `grep -n "innerHTML" site/js` nie zwraca miejsc z danymi z
       sieci); wartość `q` w linkach przechodzi przez `encodeURIComponent` (test); strona nie ma
       formularzy wysyłających dane.
-- [ ] `docs/zasoby/STRONA/builds/biurko/BRIEF.md` ma osiem tematów, krzywą odczuć, szczyt,
+- [x] `docs/zasoby/STRONA/builds/biurko/BRIEF.md` ma osiem tematów, krzywą odczuć, szczyt,
       zdanie „It's the site where…” i wynik bramki fingerprint.
-- [ ] Wpis w `docs/DZIENNIK.md` dopisany na końcu sekcji „Wpisy”, podpis
+- [x] Wpis w `docs/DZIENNIK.md` dopisany na końcu sekcji „Wpisy”, podpis
       `Autor: RelAI (Opus 5.5) + Lukasz`; `docs/STATE.md` zaktualizowany.
-- [ ] Katalog roboczy `.claude/relai/work/STRONA_RELAI/E1/` przejrzany raportem
+- [x] Katalog roboczy `.claude/relai/work/STRONA_RELAI/E1/` przejrzany raportem
       (`node .claude/relai/tools/clean-work.js raport`) i skasowany po „tak”; liczby przed i po
       w sekcji „Zweryfikowane” wpisu. Artefakty poza katalogiem (np. pobrana paczka three.js
       w `%TEMP%`) wypisane z nazwy razem z tym, co się z nimi stało.

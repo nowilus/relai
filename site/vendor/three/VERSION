@@ -1,0 +1,6 @@
+three 0.186.1
+source: https://registry.npmjs.org/three/-/three-0.186.1.tgz
+integrity: sha512-blFeqb49wRCSGUGj7gtpfnSGHy2lwDk94RhUmS1c/hTby70kvChbWpkJ4Pm1390LqzzvTmzgXKHPEafJwCb8jA==
+files: build/three.core.js, build/three.module.js, examples/jsm/renderers/CSS3DRenderer.js, examples/jsm/environments/RoomEnvironment.js, LICENSE
+license: MIT
+downloaded: 2026-10-16

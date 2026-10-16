@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="{{jezyk}}">
+<head>
+  <title>{{tytul}} v{{fakty.wersja}}</title>
+  <link rel="alternate" hreflang="en" href="{{baza}}">
+  <link rel="alternate" hreflang="pl" href="{{baza}}pl/">
+</head>
+<body data-path="{{sciezkaStrony}}">
+  <ul>
+{{#funkcje}}
+    <li>{{@numer}}. {{nazwa}} ({{fakty.wersja}})</li>
+{{/funkcje}}
+  </ul>
+{{^pusta}}
+  <p>nothing here</p>
+{{/pusta}}
+{{! internal note }}
+  <pre>{{komendyDomyslne}}</pre>
+</body>
+</html>

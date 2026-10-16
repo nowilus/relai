@@ -1,0 +1,107 @@
+{
+  "meta": {
+    "tytul": "RelAI: your project remembers everything",
+    "opis": "RelAI keeps your project's memory in plain files beside your code, so every session with an AI agent starts where the last one stopped. Claude Code, Cursor and Codex."
+  },
+  "nawigacja": {
+    "etykieta": "Desk map",
+    "jezykEtykieta": "Polski",
+    "jezykKod": "pl",
+    "jezykSciezka": "pl/",
+    "jezykNazwa": "Language"
+  },
+  "hero": {
+    "id": "biurko",
+    "nazwa": "Desk",
+    "naglowek": "Your project remembers everything.",
+    "zdanie": "Plain files beside your code hold what your AI agent forgets. Each new session starts where the last one stopped.",
+    "wezwanie": "Install"
+  },
+  "przystanki": [
+    {
+      "id": "amnezja",
+      "nazwa": "Amnesia",
+      "naglowek": "Every session starts from zero.",
+      "tekst": "You explain the project again, hunt for yesterday's decision and fix the same mistake a second time.",
+      "liczbaKomend": false
+    },
+    {
+      "id": "porzadek",
+      "nazwa": "Order",
+      "naglowek": "Memory lives in files.",
+      "tekst": "State, journal, lessons and decisions are plain Markdown files beside your code. A session reads them at the start and adds to them as you work.",
+      "liczbaKomend": false
+    },
+    {
+      "id": "plan",
+      "nazwa": "Plan",
+      "naglowek": "A plan that holds.",
+      "tekst": "Big work goes in stages. Once accepted, the plan is frozen and every stage starts in a fresh session.",
+      "liczbaKomend": false
+    },
+    {
+      "id": "panel",
+      "nazwa": "Panel",
+      "naglowek": "It all shows above the prompt.",
+      "tekst": "Bars in the Claude Code window show the plan, the stage's progress, your limits and the session's cost.",
+      "liczbaKomend": false
+    },
+    {
+      "id": "komendy",
+      "nazwa": "Commands",
+      "naglowek": "commands, or plain sentences.",
+      "tekst": "“Let's continue”, “wrapping up”: RelAI understands phrases and has commands for a stage, a side thread, a backup and a review.",
+      "liczbaKomend": true
+    }
+  ],
+  "instalacja": {
+    "id": "instalacja",
+    "nazwa": "Install",
+    "naglowek": "Start here.",
+    "tekst": "Pick your tool and parts. Copy the commands, or open them in the terminal and send them yourself with Enter."
+  },
+  "konfigurator": {
+    "tryb": "What you're doing",
+    "instaluje": "Installing",
+    "aktualizuje": "Updating",
+    "narzedzie": "Tool",
+    "skladniki": "Parts",
+    "relai": "RelAI, project memory",
+    "panel": "Panel",
+    "postep": "Progress bar",
+    "cache": "Batteries and limits",
+    "wczesny": "early access",
+    "komendyEtykieta": "Commands to paste into a terminal",
+    "kopiuj": "Copy",
+    "skopiowano": "Copied",
+    "zaznaczono": "Selected. Copy with Ctrl+C.",
+    "terminal": "Open in terminal",
+    "aplikacja": "Open in the app",
+    "uwagaLink": "The link only types the command. You send it yourself, with Enter.",
+    "brakSchematu": "Nothing opened? Copy the commands and paste them into a terminal. The link works when Claude Code is installed.",
+    "brakWyboru": "Choose at least one part.",
+    "wersje": "Current versions",
+    "uwagi": {
+      "brakWyboru": "Choose at least one part.",
+      "panelTylkoClaude": "The panel, progress bar and batteries work in Claude Code only.",
+      "panelBezRelai": "Without RelAI the bars stay silent: they show only in a RelAI project.",
+      "restart": "After installing or updating, close and reopen the whole app.",
+      "sciezkaWindows": "On Windows use C:/Narzedzia/relai instead of ~/narzedzia/relai."
+    }
+  },
+  "scena": {
+    "karteczki": ["what did we talk about?", "what was that decision?", "same bug again", "explaining the project a third time", "where did we stop?", "why that way?", "which file?"],
+    "dokumenty": [
+      { "tytul": "State", "plik": "STATE.md" },
+      { "tytul": "Journal", "plik": "JOURNAL.md" },
+      { "tytul": "Lessons", "plik": "LESSONS.md" },
+      { "tytul": "Decisions", "plik": "DECISIONS.md" }
+    ],
+    "teczka": "Plan"
+  },
+  "brakSceny":"Your browser does not show the 3D scene, so you see the same content without the desk.",
+  "stopka": {
+    "licencja": "MIT licence",
+    "kod": "Code on GitHub"
+  }
+}

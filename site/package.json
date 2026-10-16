@@ -1,0 +1,5 @@
+{
+  "private": true,
+  "type": "module",
+  "description": "RelAI site: static files, no dependencies, no build step. See README.md."
+}

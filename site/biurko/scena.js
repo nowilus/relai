@@ -1,0 +1,204 @@
+// The renderer, the light and the render loop. Renders only while the camera is still moving:
+// no decorative loops, motion comes from scroll and click alone.
+import * as THREE from "three";
+import { CSS3DRenderer, CSS3DObject } from "three/addons/CSS3DRenderer.js";
+import { RoomEnvironment } from "three/addons/RoomEnvironment.js";
+import { zbudujBiurko, BLAT } from "./obiekty.js";
+import { poza, POZY } from "./kamera.js";
+
+const MAX_DPR = 1.5;
+const LERP = 0.12; // per 60 Hz frame; damps wheel judder
+const EKRAN_PX = [1136, 710]; // CSS size of the configurator on the laptop display (16:10)
+const PROG_SPADKU_MS = 26; // median frame time that drops quality one step
+
+function swiatlo(scena, obiekty) {
+  const klosz = obiekty.lampa.userData.zrodlo;
+  scena.updateMatrixWorld(true);
+  const zrodlo = new THREE.Vector3(0, -0.035, 0).applyMatrix4(klosz.matrixWorld);
+  const lampa = new THREE.SpotLight("#ffd3a0", 10, 0, 0.95, 0.9, 2);
+  lampa.position.copy(zrodlo);
+  lampa.target.position.set(0.14, BLAT, 0.06);
+  lampa.castShadow = true;
+  lampa.shadow.mapSize.set(2048, 2048);
+  lampa.shadow.bias = -0.0002;
+  lampa.shadow.normalBias = 0.012;
+  lampa.shadow.radius = 6;
+  lampa.shadow.camera.near = 0.05;
+  lampa.shadow.camera.far = 3;
+  scena.add(lampa, lampa.target);
+
+  // light bounced off the lit desk: warm, weak, no shadow
+  const odbicie = new THREE.PointLight("#e7b27a", 0.55, 0, 2);
+  odbicie.position.set(0.2, BLAT + 0.32, 0.0);
+  scena.add(odbicie);
+
+  // the window: a cool, weak light from behind
+  const okno = new THREE.DirectionalLight("#9cb6c6", 0.55);
+  okno.position.set(1.4, 2.1, -1.6);
+  okno.target.position.set(0.1, BLAT, 0.1);
+  scena.add(okno, okno.target);
+
+  scena.add(new THREE.HemisphereLight("#46525c", "#2a2018", 0.42));
+  return { lampa };
+}
+
+/**
+ * @param {{ kontener: HTMLElement, slowa: object, ekran: HTMLElement, tor: object, przyKlatce: Function, ograniczRuch: boolean }} o
+ */
+export function zbudujScene({ kontener, slowa, ekran, tor, przyKlatce, ograniczRuch }) {
+  const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: "high-performance" });
+  let dpr = Math.min(window.devicePixelRatio || 1, MAX_DPR);
+  renderer.setPixelRatio(dpr);
+  renderer.outputColorSpace = THREE.SRGBColorSpace;
+  renderer.toneMapping = THREE.ACESFilmicToneMapping;
+  renderer.toneMappingExposure = 1.05;
+  renderer.shadowMap.enabled = true;
+  renderer.shadowMap.type = THREE.PCFShadowMap;
+  kontener.append(renderer.domElement);
+
+  const scena = new THREE.Scene();
+  scena.background = new THREE.Color("#15120f");
+  const pmrem = new THREE.PMREMGenerator(renderer);
+  scena.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
+  scena.environmentIntensity = 0.14;
+  pmrem.dispose();
+
+  const kamera = new THREE.PerspectiveCamera(40, 1, 0.02, 20);
+  const { swiat, obiekty } = zbudujBiurko(slowa);
+  scena.add(swiat);
+  const { lampa } = swiatlo(scena, obiekty);
+
+  // the configurator lives on the laptop display as real HTML
+  const css = new CSS3DRenderer();
+  css.domElement.classList.add("scena__html");
+  kontener.append(css.domElement);
+  const scenaCss = new THREE.Scene();
+  ekran.style.width = `${EKRAN_PX[0]}px`;
+  ekran.style.height = `${EKRAN_PX[1]}px`;
+  const ekranCss = new CSS3DObject(ekran);
+  const siatka = obiekty.laptop.userData.ekran;
+  scena.updateMatrixWorld(true);
+  siatka.matrixWorld.decompose(ekranCss.position, ekranCss.quaternion, new THREE.Vector3());
+  ekranCss.translateZ(0.0004);
+  ekranCss.scale.setScalar(0.284 / EKRAN_PX[0]);
+  scenaCss.add(ekranCss);
+
+  // the close: the camera squares up to the laptop display, far enough to frame it whole
+  const srodek = new THREE.Vector3();
+  const normalna = new THREE.Vector3(0, 0, 1).applyQuaternion(ekranCss.quaternion);
+  siatka.getWorldPosition(srodek);
+  // shifted left along the display, so the screen sits right of centre and the copy card left of it
+  const wPrawo = new THREE.Vector3(1, 0, 0).applyQuaternion(ekranCss.quaternion);
+  const odleglosc = 0.56;
+  const celKoncowy = srodek.clone().addScaledVector(wPrawo, -0.04);
+  const pozKoncowa = celKoncowy.clone().addScaledVector(normalna, odleglosc);
+  const pozy = { ...POZY, instalacja: { poz: pozKoncowa.toArray(), cel: celKoncowy.toArray(), fov: 40 } };
+
+  let cel = 0;
+  let biez = 0;
+  let ostatni = 0;
+  let czeka = false;
+  const czasy = [];
+
+  function rozmiar() {
+    const w = window.innerWidth, h = window.innerHeight;
+    renderer.setSize(w, h);
+    css.setSize(w, h);
+    kamera.aspect = w / h;
+    kamera.updateProjectionMatrix();
+  }
+
+  function ustawKamere(stan) {
+    kamera.position.set(...stan.poz);
+    kamera.lookAt(...stan.cel);
+    if (kamera.fov !== stan.fov) {
+      kamera.fov = stan.fov;
+      kamera.updateProjectionMatrix();
+    }
+  }
+
+  function obnizJakosc() {
+    if (dpr <= 1) return;
+    dpr = 1;
+    renderer.setPixelRatio(dpr);
+    lampa.shadow.mapSize.set(1024, 1024);
+    lampa.shadow.map?.dispose();
+    lampa.shadow.map = null;
+    rozmiar();
+  }
+
+  function klatka(teraz) {
+    czeka = false;
+    if (document.hidden) return;
+    const dt = ostatni ? Math.min(0.1, (teraz - ostatni) / 1000) : 1 / 60;
+    if (ostatni) {
+      czasy.push(teraz - ostatni);
+      if (czasy.length > 240) czasy.shift();
+    }
+    ostatni = teraz;
+    const k = ograniczRuch ? 1 : 1 - Math.pow(1 - LERP, dt * 60);
+    biez += (cel - biez) * k;
+    if (Math.abs(cel - biez) < 1e-5) biez = cel;
+    const stan = poza(tor, biez, pozy);
+    ustawKamere(stan);
+    renderer.render(scena, kamera);
+    css.render(scenaCss, kamera);
+    przyKlatce(stan);
+    if (czasy.length >= 90 && mediana(czasy) > PROG_SPADKU_MS) obnizJakosc();
+    if (biez !== cel) zamow();
+    else ostatni = 0;
+  }
+
+  function zamow() {
+    if (!czeka) {
+      czeka = true;
+      requestAnimationFrame(klatka);
+    }
+  }
+
+  window.addEventListener("resize", () => {
+    rozmiar();
+    zamow();
+  });
+  document.addEventListener("visibilitychange", () => {
+    if (!document.hidden) {
+      ostatni = 0;
+      zamow();
+    }
+  });
+
+  rozmiar();
+
+  const ekranowe = (obiekt) => {
+    const v = new THREE.Vector3();
+    obiekt.getWorldPosition(v);
+    v.project(kamera);
+    return [Math.round((v.x + 1) / 2 * window.innerWidth), Math.round((1 - v.y) / 2 * window.innerHeight)];
+  };
+
+  return {
+    canvas: renderer.domElement,
+    ustawPostep(p, natychmiast = false) {
+      cel = p;
+      if (natychmiast) biez = p;
+      zamow();
+    },
+    /** For verification: screen positions of one object per depth plane, and frame times. */
+    diagnostyka: () => ({
+      plany: {
+        daleki: ekranowe(obiekty.sciana.children[1]),
+        srodkowy: ekranowe(obiekty.lampa.userData.zrodlo),
+        bliski: ekranowe(obiekty.kubek),
+      },
+      medianaKlatkiMs: czasy.length ? mediana(czasy) : null,
+      probki: czasy.length,
+      dpr,
+    }),
+    wyczyscPomiar: () => { czasy.length = 0; },
+  };
+}
+
+function mediana(a) {
+  const s = [...a].sort((x, y) => x - y);
+  return s[s.length >> 1];
+}

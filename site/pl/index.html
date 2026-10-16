@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="pl" data-wersja-relai="3.2.0" data-wersja-panel="0.20.0">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RelAI: Twój projekt pamięta wszystko</title>
+<meta name="description" content="RelAI trzyma pamięć projektu w zwykłych plikach obok kodu, więc każda sesja z agentem AI zaczyna tam, gdzie skończyła poprzednia. Claude Code, Cursor i Codex.">
+<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#1d1914">
+<link rel="alternate" hreflang="en" href="../">
+<link rel="alternate" hreflang="pl" href="../pl/">
+<link rel="alternate" hreflang="x-default" href="../">
+<link rel="icon" href="../grafika/logo.svg" type="image/svg+xml">
+<link rel="preload" href="../fonty/fraunces-latin-wonk.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="../fonty/hanken-grotesk-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="../css/strona.css">
+<script type="importmap">{ "imports": { "three": "../vendor/three/three.module.js", "three/addons/": "../vendor/three/addons/" } }</script>
+<script type="module" src="../biurko/start.js"></script>
+</head>
+<body>
+<div class="scena" data-scena aria-hidden="true"></div>
+
+<header class="pasek">
+  <a class="znak" href="#biurko" data-cel="0"><img src="../grafika/logo.svg" alt="" width="36" height="36"><span>RelAI</span></a>
+  <a class="jezyk" href="../" hreflang="en" lang="en" data-jezyk="en">English</a>
+</header>
+
+<nav class="mapa" aria-label="Mapa biurka">
+  <div class="mapa__plansza" data-plansza aria-hidden="true"></div>
+  <ol class="mapa__lista">
+    <li><a href="#biurko" data-cel="0">Biurko</a></li>
+    <li><a href="#amnezja" data-cel="1">Amnezja</a></li>
+    <li><a href="#porzadek" data-cel="2">Porządek</a></li>
+    <li><a href="#plan" data-cel="3">Plan</a></li>
+    <li><a href="#panel" data-cel="4">Panel</a></li>
+    <li><a href="#komendy" data-cel="5">Komendy</a></li>
+    <li><a href="#instalacja" data-cel="6">Instalacja</a></li>
+  </ol>
+</nav>
+
+<main class="tresc" data-tresc>
+  <section class="przystanek przystanek--hero" id="biurko" data-przystanek="0" aria-labelledby="t-0">
+    <h1 id="t-0" tabindex="-1">Twój projekt pamięta wszystko.</h1>
+    <p class="przystanek__zdanie">Zwykłe pliki obok kodu pamiętają to, co agent AI zapomina. Każda sesja zaczyna tam, gdzie skończyła poprzednia.</p>
+    <a class="wezwanie" href="#instalacja" data-cel="6">Zainstaluj</a>
+  </section>
+
+  <section class="przystanek" id="amnezja" data-przystanek="1" aria-labelledby="t-1">
+    <div class="karta">
+      <h2 id="t-1" tabindex="-1">Każda sesja zaczyna od zera.</h2>
+      <p>Tłumaczysz projekt od nowa, szukasz wczorajszej decyzji i drugi raz poprawiasz ten sam błąd.</p>
+    </div>
+  </section>
+
+  <section class="przystanek" id="porzadek" data-przystanek="2" aria-labelledby="t-2">
+    <div class="karta">
+      <h2 id="t-2" tabindex="-1">Pamięć mieszka w plikach.</h2>
+      <p>Stan, dziennik, lekcje i decyzje to zwykłe pliki Markdown obok kodu. Sesja czyta je na starcie i dopisuje w trakcie pracy.</p>
+    </div>
+  </section>
+
+  <section class="przystanek" id="plan" data-przystanek="3" aria-labelledby="t-3">
+    <div class="karta">
+      <h2 id="t-3" tabindex="-1">Plan, który się nie rozjeżdża.</h2>
+      <p>Duża praca idzie etapami. Po akceptacji plan jest zamrożony, a każdy etap rusza w świeżej sesji.</p>
+    </div>
+  </section>
+
+  <section class="przystanek" id="panel" data-przystanek="4" aria-labelledby="t-4">
+    <div class="karta">
+      <h2 id="t-4" tabindex="-1">Wszystko widać nad promptem.</h2>
+      <p>Paski w oknie Claude Code pokazują plan, postęp etapu, limity i koszt sesji.</p>
+    </div>
+  </section>
+
+  <section class="przystanek" id="komendy" data-przystanek="5" aria-labelledby="t-5">
+    <div class="karta">
+      <h2 id="t-5" tabindex="-1">15 komend albo zwykłe zdania.</h2>
+      <p>„Kontynuujemy pracę”, „kończymy na dziś”: RelAI rozumie frazy i ma komendy na etap, odnogę, kopię zapasową i przegląd.</p>
+    </div>
+  </section>
+
+  <section class="przystanek przystanek--instalacja" id="instalacja" data-przystanek="6" aria-labelledby="t-6">
+    <div class="karta">
+      <h2 id="t-6" tabindex="-1">Zacznij tutaj.</h2>
+      <p>Wybierz narzędzie i składniki. Komendę kopiujesz albo otwierasz w terminalu i wysyłasz ją sam, Enterem.</p>
+    </div>
+    <div class="ekran" data-ekran>
+      <form class="konfigurator" data-konfigurator aria-labelledby="t-6"
+        data-jezyk="pl"
+        data-kopiuj-tekst="Kopiuj"
+        data-skopiowano="Skopiowano"
+        data-zaznaczono="Zaznaczone. Skopiuj skrótem Ctrl+C."
+        data-brak-schematu="Nic się nie otworzyło? Skopiuj komendy i wklej je w terminalu. Link działa, gdy Claude Code jest zainstalowany."
+        data-brak-wyboru="Wybierz co najmniej jeden składnik.">
+        <fieldset class="konfigurator__grupa">
+          <legend>Co robisz</legend>
+          <label><input type="radio" name="tryb" value="instaluje" checked> Instaluję</label>
+          <label><input type="radio" name="tryb" value="aktualizuje"> Aktualizuję</label>
+        </fieldset>
+        <fieldset class="konfigurator__grupa">
+          <legend>Narzędzie</legend>
+          <label><input type="radio" name="narzedzie" value="claude" checked> Claude Code</label>
+          <label><input type="radio" name="narzedzie" value="cursor"> Cursor</label>
+          <label><input type="radio" name="narzedzie" value="codex"> Codex</label>
+        </fieldset>
+        <fieldset class="konfigurator__grupa">
+          <legend>Składniki</legend>
+          <label><input type="checkbox" name="skladnik" value="relai" checked> RelAI, pamięć projektu</label>
+          <label><input type="checkbox" name="skladnik" value="panel" checked> Panel <small>wczesny dostęp</small></label>
+          <label><input type="checkbox" name="skladnik" value="postep"> Pasek postępu <small>wczesny dostęp</small></label>
+          <label><input type="checkbox" name="skladnik" value="cache" checked> Baterie i limity <small>wczesny dostęp</small></label>
+        </fieldset>
+        <p class="konfigurator__etykieta" id="k-komendy">Komendy do wklejenia w terminalu</p>
+        <pre class="konfigurator__komendy" data-komendy aria-labelledby="k-komendy" aria-live="polite">claude plugin install relai --marketplace nowilus/relai
+claude plugin install relai-panel@relai
+claude plugin install relai-cache-keeper@relai</pre>
+        <ul class="konfigurator__uwagi" data-uwagi>
+          <li>Po instalacji albo aktualizacji zamknij i otwórz całą aplikację.</li>
+        </ul>
+        <template data-uwagi-teksty>
+          <p data-klucz="brakWyboru">Wybierz co najmniej jeden składnik.</p>
+          <p data-klucz="panelTylkoClaude">Panel, pasek postępu i baterie działają tylko w Claude Code.</p>
+          <p data-klucz="panelBezRelai">Bez RelAI paski milczą: pokazują się tylko w projekcie RelAI.</p>
+          <p data-klucz="restart">Po instalacji albo aktualizacji zamknij i otwórz całą aplikację.</p>
+          <p data-klucz="sciezkaWindows">Na Windows zamiast ~/narzedzia/relai użyj C:/Narzedzia/relai.</p>
+        </template>
+        <div class="konfigurator__akcje">
+          <button type="button" class="przycisk" data-kopiuj hidden>Kopiuj</button>
+          <a class="przycisk przycisk--drugi" data-terminal hidden>Otwórz w terminalu</a>
+          <a class="przycisk przycisk--drugi" data-aplikacja hidden>Otwórz w aplikacji</a>
+        </div>
+        <p class="konfigurator__status" data-status role="status"></p>
+        <p class="konfigurator__uwaga">Link tylko wpisuje polecenie. Wysyłasz je sam, Enterem.</p>
+        <p class="konfigurator__wersje">Aktualne wersje: RelAI <span data-wersja="relai">3.2.0</span> · panel <span data-wersja="panel">0.20.0</span></p>
+      </form>
+    </div>
+    <footer class="stopka">
+      <a href="https://github.com/nowilus/relai">Kod na GitHubie</a>
+      <span>Licencja MIT</span>
+    </footer>
+  </section>
+</main>
+
+<p class="brak-sceny" data-brak-sceny hidden>Przeglądarka nie pokazuje sceny 3D, więc widzisz tę samą treść bez biurka.</p>
+<template data-slowa-sceny>
+  <p data-karteczka>o czym rozmawialiśmy?</p>
+  <p data-karteczka>jaka była ta decyzja?</p>
+  <p data-karteczka>znowu ten sam błąd</p>
+  <p data-karteczka>tłumaczę projekt trzeci raz</p>
+  <p data-karteczka>gdzie skończyliśmy?</p>
+  <p data-karteczka>dlaczego tak?</p>
+  <p data-karteczka>który plik?</p>
+  <p data-dokument data-plik="STATE.md">Stan</p>
+  <p data-dokument data-plik="DZIENNIK.md">Dziennik</p>
+  <p data-dokument data-plik="LEKCJE.md">Lekcje</p>
+  <p data-dokument data-plik="DECYZJE.md">Decyzje</p>
+  <p data-teczka>Plan</p>
+</template>
+<div class="przekladka" data-przekladka aria-hidden="true"></div>
+</body>
+</html>

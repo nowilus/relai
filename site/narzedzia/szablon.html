@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="{{jezyk}}" data-wersja-relai="{{fakty.wersje.relai}}" data-wersja-panel="{{fakty.wersje.relai-panel}}">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{meta.tytul}}</title>
+<meta name="description" content="{{meta.opis}}">
+<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#1d1914">
+<link rel="alternate" hreflang="en" href="{{baza}}">
+<link rel="alternate" hreflang="pl" href="{{baza}}pl/">
+<link rel="alternate" hreflang="x-default" href="{{baza}}">
+<link rel="icon" href="{{baza}}grafika/logo.svg" type="image/svg+xml">
+<link rel="preload" href="{{baza}}fonty/fraunces-latin-wonk.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="{{baza}}fonty/hanken-grotesk-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="{{baza}}css/strona.css">
+<script type="importmap">{ "imports": { "three": "{{baza}}vendor/three/three.module.js", "three/addons/": "{{baza}}vendor/three/addons/" } }</script>
+<script type="module" src="{{baza}}biurko/start.js"></script>
+</head>
+<body>
+<div class="scena" data-scena aria-hidden="true"></div>
+
+<header class="pasek">
+  <a class="znak" href="#{{hero.id}}" data-cel="0"><img src="{{baza}}grafika/logo.svg" alt="" width="36" height="36"><span>RelAI</span></a>
+  <a class="jezyk" href="{{baza}}{{nawigacja.jezykSciezka}}" hreflang="{{nawigacja.jezykKod}}" lang="{{nawigacja.jezykKod}}" data-jezyk="{{nawigacja.jezykKod}}">{{nawigacja.jezykEtykieta}}</a>
+</header>
+
+<nav class="mapa" aria-label="{{nawigacja.etykieta}}">
+  <div class="mapa__plansza" data-plansza aria-hidden="true"></div>
+  <ol class="mapa__lista">
+    <li><a href="#{{hero.id}}" data-cel="0">{{hero.nazwa}}</a></li>
+{{#przystanki}}
+    <li><a href="#{{id}}" data-cel="{{@numer}}">{{nazwa}}</a></li>
+{{/przystanki}}
+    <li><a href="#{{instalacja.id}}" data-cel="6">{{instalacja.nazwa}}</a></li>
+  </ol>
+</nav>
+
+<main class="tresc" data-tresc>
+  <section class="przystanek przystanek--hero" id="{{hero.id}}" data-przystanek="0" aria-labelledby="t-0">
+    <h1 id="t-0" tabindex="-1">{{hero.naglowek}}</h1>
+    <p class="przystanek__zdanie">{{hero.zdanie}}</p>
+    <a class="wezwanie" href="#{{instalacja.id}}" data-cel="6">{{hero.wezwanie}}</a>
+  </section>
+{{#przystanki}}
+
+  <section class="przystanek" id="{{id}}" data-przystanek="{{@numer}}" aria-labelledby="t-{{@numer}}">
+    <div class="karta">
+      <h2 id="t-{{@numer}}" tabindex="-1">{{#liczbaKomend}}{{fakty.liczbaKomend}} {{/liczbaKomend}}{{naglowek}}</h2>
+      <p>{{tekst}}</p>
+    </div>
+  </section>
+{{/przystanki}}
+
+  <section class="przystanek przystanek--instalacja" id="{{instalacja.id}}" data-przystanek="6" aria-labelledby="t-6">
+    <div class="karta">
+      <h2 id="t-6" tabindex="-1">{{instalacja.naglowek}}</h2>
+      <p>{{instalacja.tekst}}</p>
+    </div>
+    <div class="ekran" data-ekran>
+      <form class="konfigurator" data-konfigurator aria-labelledby="t-6"
+        data-jezyk="{{jezyk}}"
+        data-kopiuj-tekst="{{konfigurator.kopiuj}}"
+        data-skopiowano="{{konfigurator.skopiowano}}"
+        data-zaznaczono="{{konfigurator.zaznaczono}}"
+        data-brak-schematu="{{konfigurator.brakSchematu}}"
+        data-brak-wyboru="{{konfigurator.brakWyboru}}">
+        <fieldset class="konfigurator__grupa">
+          <legend>{{konfigurator.tryb}}</legend>
+          <label><input type="radio" name="tryb" value="instaluje" checked> {{konfigurator.instaluje}}</label>
+          <label><input type="radio" name="tryb" value="aktualizuje"> {{konfigurator.aktualizuje}}</label>
+        </fieldset>
+        <fieldset class="konfigurator__grupa">
+          <legend>{{konfigurator.narzedzie}}</legend>
+          <label><input type="radio" name="narzedzie" value="claude" checked> Claude Code</label>
+          <label><input type="radio" name="narzedzie" value="cursor"> Cursor</label>
+          <label><input type="radio" name="narzedzie" value="codex"> Codex</label>
+        </fieldset>
+        <fieldset class="konfigurator__grupa">
+          <legend>{{konfigurator.skladniki}}</legend>
+          <label><input type="checkbox" name="skladnik" value="relai" checked> {{konfigurator.relai}}</label>
+          <label><input type="checkbox" name="skladnik" value="panel" checked> {{konfigurator.panel}} <small>{{konfigurator.wczesny}}</small></label>
+          <label><input type="checkbox" name="skladnik" value="postep"> {{konfigurator.postep}} <small>{{konfigurator.wczesny}}</small></label>
+          <label><input type="checkbox" name="skladnik" value="cache" checked> {{konfigurator.cache}} <small>{{konfigurator.wczesny}}</small></label>
+        </fieldset>
+        <p class="konfigurator__etykieta" id="k-komendy">{{konfigurator.komendyEtykieta}}</p>
+        <pre class="konfigurator__komendy" data-komendy aria-labelledby="k-komendy" aria-live="polite">{{komendyDomyslne}}</pre>
+        <ul class="konfigurator__uwagi" data-uwagi>
+          <li>{{konfigurator.uwagi.restart}}</li>
+        </ul>
+        <template data-uwagi-teksty>
+          <p data-klucz="brakWyboru">{{konfigurator.uwagi.brakWyboru}}</p>
+          <p data-klucz="panelTylkoClaude">{{konfigurator.uwagi.panelTylkoClaude}}</p>
+          <p data-klucz="panelBezRelai">{{konfigurator.uwagi.panelBezRelai}}</p>
+          <p data-klucz="restart">{{konfigurator.uwagi.restart}}</p>
+          <p data-klucz="sciezkaWindows">{{konfigurator.uwagi.sciezkaWindows}}</p>
+        </template>
+        <div class="konfigurator__akcje">
+          <button type="button" class="przycisk" data-kopiuj hidden>{{konfigurator.kopiuj}}</button>
+          <a class="przycisk przycisk--drugi" data-terminal hidden>{{konfigurator.terminal}}</a>
+          <a class="przycisk przycisk--drugi" data-aplikacja hidden>{{konfigurator.aplikacja}}</a>
+        </div>
+        <p class="konfigurator__status" data-status role="status"></p>
+        <p class="konfigurator__uwaga">{{konfigurator.uwagaLink}}</p>
+        <p class="konfigurator__wersje">{{konfigurator.wersje}}: RelAI <span data-wersja="relai">{{fakty.wersje.relai}}</span> · panel <span data-wersja="panel">{{fakty.wersje.relai-panel}}</span></p>
+      </form>
+    </div>
+    <footer class="stopka">
+      <a href="https://github.com/nowilus/relai">{{stopka.kod}}</a>
+      <span>{{stopka.licencja}}</span>
+    </footer>
+  </section>
+</main>
+
+<p class="brak-sceny" data-brak-sceny hidden>{{brakSceny}}</p>
+<template data-slowa-sceny>
+{{#scena.karteczki}}
+  <p data-karteczka>{{.}}</p>
+{{/scena.karteczki}}
+{{#scena.dokumenty}}
+  <p data-dokument data-plik="{{plik}}">{{tytul}}</p>
+{{/scena.dokumenty}}
+  <p data-teczka>{{scena.teczka}}</p>
+</template>
+<div class="przekladka" data-przekladka aria-hidden="true"></div>
+</body>
+</html>

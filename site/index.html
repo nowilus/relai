@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="en" data-wersja-relai="3.2.0" data-wersja-panel="0.20.0">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RelAI: your project remembers everything</title>
+<meta name="description" content="RelAI keeps your project&#39;s memory in plain files beside your code, so every session with an AI agent starts where the last one stopped. Claude Code, Cursor and Codex.">
+<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#1d1914">
+<link rel="alternate" hreflang="en" href="./">
+<link rel="alternate" hreflang="pl" href="./pl/">
+<link rel="alternate" hreflang="x-default" href="./">
+<link rel="icon" href="./grafika/logo.svg" type="image/svg+xml">
+<link rel="preload" href="./fonty/fraunces-latin-wonk.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="./fonty/hanken-grotesk-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="./css/strona.css">
+<script type="importmap">{ "imports": { "three": "./vendor/three/three.module.js", "three/addons/": "./vendor/three/addons/" } }</script>
+<script type="module" src="./biurko/start.js"></script>
+</head>
+<body>
+<div class="scena" data-scena aria-hidden="true"></div>
+
+<header class="pasek">
+  <a class="znak" href="#biurko" data-cel="0"><img src="./grafika/logo.svg" alt="" width="36" height="36"><span>RelAI</span></a>
+  <a class="jezyk" href="./pl/" hreflang="pl" lang="pl" data-jezyk="pl">Polski</a>
+</header>
+
+<nav class="mapa" aria-label="Desk map">
+  <div class="mapa__plansza" data-plansza aria-hidden="true"></div>
+  <ol class="mapa__lista">
+    <li><a href="#biurko" data-cel="0">Desk</a></li>
+    <li><a href="#amnezja" data-cel="1">Amnesia</a></li>
+    <li><a href="#porzadek" data-cel="2">Order</a></li>
+    <li><a href="#plan" data-cel="3">Plan</a></li>
+    <li><a href="#panel" data-cel="4">Panel</a></li>
+    <li><a href="#komendy" data-cel="5">Commands</a></li>
+    <li><a href="#instalacja" data-cel="6">Install</a></li>
+  </ol>
+</nav>
+
+<main class="tresc" data-tresc>
+  <section class="przystanek przystanek--hero" id="biurko" data-przystanek="0" aria-labelledby="t-0">
+    <h1 id="t-0" tabindex="-1">Your project remembers everything.</h1>
+    <p class="przystanek__zdanie">Plain files beside your code hold what your AI agent forgets. Each new session starts where the last one stopped.</p>
+    <a class="wezwanie" href="#instalacja" data-cel="6">Install</a>
+  </section>
+
+  <section class="przystanek" id="amnezja" data-przystanek="1" aria-labelledby="t-1">
+    <div class="karta">
+      <h2 id="t-1" tabindex="-1">Every session starts from zero.</h2>
+      <p>You explain the project again, hunt for yesterday&#39;s decision and fix the same mistake a second time.</p>
+    </div>
+  </section>
+
+  <section class="przystanek" id="porzadek" data-przystanek="2" aria-labelledby="t-2">
+    <div class="karta">
+      <h2 id="t-2" tabindex="-1">Memory lives in files.</h2>
+      <p>State, journal, lessons and decisions are plain Markdown files beside your code. A session reads them at the start and adds to them as you work.</p>
+    </div>
+  </section>
+
+  <section class="przystanek" id="plan" data-przystanek="3" aria-labelledby="t-3">
+    <div class="karta">
+      <h2 id="t-3" tabindex="-1">A plan that holds.</h2>
+      <p>Big work goes in stages. Once accepted, the plan is frozen and every stage starts in a fresh session.</p>
+    </div>
+  </section>
+
+  <section class="przystanek" id="panel" data-przystanek="4" aria-labelledby="t-4">
+    <div class="karta">
+      <h2 id="t-4" tabindex="-1">It all shows above the prompt.</h2>
+      <p>Bars in the Claude Code window show the plan, the stage&#39;s progress, your limits and the session&#39;s cost.</p>
+    </div>
+  </section>
+
+  <section class="przystanek" id="komendy" data-przystanek="5" aria-labelledby="t-5">
+    <div class="karta">
+      <h2 id="t-5" tabindex="-1">15 commands, or plain sentences.</h2>
+      <p>“Let&#39;s continue”, “wrapping up”: RelAI understands phrases and has commands for a stage, a side thread, a backup and a review.</p>
+    </div>
+  </section>
+
+  <section class="przystanek przystanek--instalacja" id="instalacja" data-przystanek="6" aria-labelledby="t-6">
+    <div class="karta">
+      <h2 id="t-6" tabindex="-1">Start here.</h2>
+      <p>Pick your tool and parts. Copy the commands, or open them in the terminal and send them yourself with Enter.</p>
+    </div>
+    <div class="ekran" data-ekran>
+      <form class="konfigurator" data-konfigurator aria-labelledby="t-6"
+        data-jezyk="en"
+        data-kopiuj-tekst="Copy"
+        data-skopiowano="Copied"
+        data-zaznaczono="Selected. Copy with Ctrl+C."
+        data-brak-schematu="Nothing opened? Copy the commands and paste them into a terminal. The link works when Claude Code is installed."
+        data-brak-wyboru="Choose at least one part.">
+        <fieldset class="konfigurator__grupa">
+          <legend>What you&#39;re doing</legend>
+          <label><input type="radio" name="tryb" value="instaluje" checked> Installing</label>
+          <label><input type="radio" name="tryb" value="aktualizuje"> Updating</label>
+        </fieldset>
+        <fieldset class="konfigurator__grupa">
+          <legend>Tool</legend>
+          <label><input type="radio" name="narzedzie" value="claude" checked> Claude Code</label>
+          <label><input type="radio" name="narzedzie" value="cursor"> Cursor</label>
+          <label><input type="radio" name="narzedzie" value="codex"> Codex</label>
+        </fieldset>
+        <fieldset class="konfigurator__grupa">
+          <legend>Parts</legend>
+          <label><input type="checkbox" name="skladnik" value="relai" checked> RelAI, project memory</label>
+          <label><input type="checkbox" name="skladnik" value="panel" checked> Panel <small>early access</small></label>
+          <label><input type="checkbox" name="skladnik" value="postep"> Progress bar <small>early access</small></label>
+          <label><input type="checkbox" name="skladnik" value="cache" checked> Batteries and limits <small>early access</small></label>
+        </fieldset>
+        <p class="konfigurator__etykieta" id="k-komendy">Commands to paste into a terminal</p>
+        <pre class="konfigurator__komendy" data-komendy aria-labelledby="k-komendy" aria-live="polite">claude plugin install relai --marketplace nowilus/relai
+claude plugin install relai-panel@relai
+claude plugin install relai-cache-keeper@relai</pre>
+        <ul class="konfigurator__uwagi" data-uwagi>
+          <li>After installing or updating, close and reopen the whole app.</li>
+        </ul>
+        <template data-uwagi-teksty>
+          <p data-klucz="brakWyboru">Choose at least one part.</p>
+          <p data-klucz="panelTylkoClaude">The panel, progress bar and batteries work in Claude Code only.</p>
+          <p data-klucz="panelBezRelai">Without RelAI the bars stay silent: they show only in a RelAI project.</p>
+          <p data-klucz="restart">After installing or updating, close and reopen the whole app.</p>
+          <p data-klucz="sciezkaWindows">On Windows use C:/Narzedzia/relai instead of ~/narzedzia/relai.</p>
+        </template>
+        <div class="konfigurator__akcje">
+          <button type="button" class="przycisk" data-kopiuj hidden>Copy</button>
+          <a class="przycisk przycisk--drugi" data-terminal hidden>Open in terminal</a>
+          <a class="przycisk przycisk--drugi" data-aplikacja hidden>Open in the app</a>
+        </div>
+        <p class="konfigurator__status" data-status role="status"></p>
+        <p class="konfigurator__uwaga">The link only types the command. You send it yourself, with Enter.</p>
+        <p class="konfigurator__wersje">Current versions: RelAI <span data-wersja="relai">3.2.0</span> · panel <span data-wersja="panel">0.20.0</span></p>
+      </form>
+    </div>
+    <footer class="stopka">
+      <a href="https://github.com/nowilus/relai">Code on GitHub</a>
+      <span>MIT licence</span>
+    </footer>
+  </section>
+</main>
+
+<p class="brak-sceny" data-brak-sceny hidden>Your browser does not show the 3D scene, so you see the same content without the desk.</p>
+<template data-slowa-sceny>
+  <p data-karteczka>what did we talk about?</p>
+  <p data-karteczka>what was that decision?</p>
+  <p data-karteczka>same bug again</p>
+  <p data-karteczka>explaining the project a third time</p>
+  <p data-karteczka>where did we stop?</p>
+  <p data-karteczka>why that way?</p>
+  <p data-karteczka>which file?</p>
+  <p data-dokument data-plik="STATE.md">State</p>
+  <p data-dokument data-plik="JOURNAL.md">Journal</p>
+  <p data-dokument data-plik="LESSONS.md">Lessons</p>
+  <p data-dokument data-plik="DECISIONS.md">Decisions</p>
+  <p data-teczka>Plan</p>
+</template>
+<div class="przekladka" data-przekladka aria-hidden="true"></div>
+</body>
+</html>

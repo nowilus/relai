@@ -13,8 +13,10 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
    początek wiersza i to, czego w nim nie ma** — model domyka lukę formatem materiału pod ręką;
    materiał sprzed poprawki reguły zostaje obok materiału po niej.
    **Linia raportu poświadczająca krok bierze treść z wyniku polecenia tego kroku** („Zmiana:
-   <pliki z git status>”) — bez kotwicy powstaje bez uruchomienia polecenia.
-   (L-0001, L-0011, L-0026, L-0089, L-0100, L-0108, L-0129)
+   <pliki z git status>”) — bez kotwicy powstaje bez uruchomienia polecenia. **Komenda
+   w sekcji Weryfikacja ma za sobą jeden realny przebieg autora promptu** (testy Node wzorcem
+   plików, nie katalogiem) (L-0212).
+   (L-0001, L-0011, L-0026, L-0089, L-0100, L-0108, L-0129, L-0212)
 2. **W dokumencie użytkownika stoi tylko to, co działa i co zmierzyłeś** — fraza i forma wywołania
    w wersji uruchomionej dosłownie, z tej samej powłoki, którą zobaczy czytelnik; znak
    interpretowany przez powłokę zapisujesz tak, żeby go nie tknęła. (L-0002, L-0022, L-0059)
@@ -42,18 +44,23 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
      na stanie pośrednim z lukami (L-0175); chwila z przeszłości liczona kodem z jej commitu (L-0177);
      artefakt weryfikacji renderowany od nowa, wszystkie warianty razem (L-0182); parser pola
      opisanego prozą — na każdym zapisie rodziny i przykładzie specyfikacji, stary i nowy kod
-     obok siebie (L-0184).
+     obok siebie (L-0184); po zmianie kodu z trybem zastępczym pierwsza asercja to tryb, potem
+     zrzut (L-0213); ruch i czas klatki tylko w widocznej stronie, kadry o stałym rozmiarze
+     w osobnej stronie DevTools (L-0214).
    (L-0017, L-0018, L-0040, L-0051, L-0052, L-0063, L-0069, L-0082, L-0115, L-0117, L-0123, L-0134,
    L-0144, L-0150, L-0154, L-0155, L-0156, L-0158, L-0159, L-0165, L-0175, L-0177, L-0182, L-0184,
-   L-0186, L-0191, L-0195)
+   L-0186, L-0191, L-0195, L-0213, L-0214)
 5. **Instrument pomiarowy sam bywa źródłem fałszu.**
    - **Backslash:** wyrażenia regularne i ścieżki Windows tylko w pliku pisanym Write/Edit albo
      z `/`; skrypt edycji niosący `\n`, backtick lub ścieżkę — Write, heredok bez wyjątku, także
      jednolinijkowa podmiana przez `node -e`; dokumenty — tylko Edit; napis z `\n` w kodzie albo
      teście — tylko Edit, także obok podmian bez ucieczek; dotyczy każdego pliku, także roboczego
      poza repo (`dev-mods`, `%TEMP%`); „dokumenty — tylko Edit” obejmuje dopisanie na końcu
-     (`cat >>` z heredokiem) i `sed -i` na wierszu tabeli (L-0116, L-0119, L-0135, L-0148, L-0188,
-     L-0192, L-0198, L-0210);
+     (`cat >>` z heredokiem) i `sed -i` na wierszu tabeli; seria podmian w kodzie — kilka Edit albo
+     skrypt Write, także gdy „to tylko liczby” (L-0116, L-0119, L-0135, L-0148, L-0188,
+     L-0192, L-0198, L-0210, L-0215);
+     tekst zastępczy `replace` nie jest dosłowny (`` $` ``, `$&`) — cudzą treść podstawiasz funkcją,
+     po wstawce porównanie ze źródłem i licznik nagłówków całego pliku (L-0211);
      znaki łączące — `\p{M}` z flagą `u`; wynik sprawdzasz grepem stałego ciągu.
    - **Kontrola pozytywna:** zero trafień przy niepustych zbiorach to defekt instrumentu do czasu
      dowodu, a trafienie na materiale dotąd zdrowym sprawdzasz najpierw na instrumencie; scenariusz
@@ -61,7 +68,9 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
      naprawdę pilnuje (nie z jego listy wyłączeń); przebieg „oczekuję ciszy" ważny tylko z kontrolą
      pozytywną w tym samym przebiegu; obok wzorca licznik „ile odrzucono” i „ile bez pary”;
      generator identyfikatorów sprawdzasz na wszystkich kandydatach; wartość podkładaną — wobec
-     zbioru dozwolonego (L-0173); kontrola negatywna zmienia mierzoną wielkość, nie jej obraz (L-0181).
+     zbioru dozwolonego (L-0173); kontrola negatywna zmienia mierzoną wielkość, nie jej obraz (L-0181);
+     tło pod tekstem fotografujesz z `opacity: 0` na rodzicu (`visibility` dzieci wygrywa), wynik
+     1,00 : 1 na całej linii to najpierw instrument (L-0213).
    - **Parsowanie:** separator niepoprzedzony znakiem ucieczki i liczba pól po podmianie; zbiór
      znaków zachowywanych wypisany raz; filtr „to nie przypadek” ma wyjątek dla linii o rzeczy
      sprawdzanej; każdy przypadek graniczny ma własną kontrolę; nazwy narzędzi w cudzym
@@ -90,7 +99,7 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
    (L-0032, L-0037, L-0054, L-0055, L-0056, L-0064, L-0068, L-0071, L-0073, L-0083, L-0084, L-0086,
    L-0087, L-0088, L-0090, L-0091, L-0095, L-0096, L-0097, L-0101, L-0102, L-0105, L-0106, L-0107,
    L-0110, L-0111, L-0113, L-0124, L-0125, L-0127, L-0130, L-0131, L-0135, L-0141, L-0143, L-0151,
-   L-0160, L-0164, L-0169, L-0170, L-0173, L-0181)
+   L-0160, L-0164, L-0169, L-0170, L-0173, L-0181, L-0211, L-0213, L-0215)
 6. **Próg jest liczbą, którą ktoś liczy:** kalibrujesz na realnych plikach, zapisujesz w jednostce
    mechanizmu z komendą sprawdzającą, z **jednym** wyzwalaczem. Porównujesz do wielkości, którą
    mechanizm kontroluje (część usuwalna); zatkanie sygnalizuje **różnica możliwego i wykonanego**,
@@ -239,215 +248,9 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
 > [docs/archiwum/lekcje/LEKCJE_L-0165_L-0176.md](archiwum/lekcje/LEKCJE_L-0165_L-0176.md)
 > — przeniesione 2026-10-14, suma kontrolna `21c6a15c57782d0f`.
 
-### L-0177 — Scena chwili z przeszłości liczona z danych żywych pokazywałaby inny etap w dniu wydania · 2026-10-12 · AKTYWNA
-
-- **Trigger:** scena 4 pokazuje kartę startu E4, ze statusem „GOTOWY DO STARTU” i 16 punktami
-  weryfikacji. Ta sama karta policzona z bieżącego `STATUS.md` w chwili pisania sceny pokazywała
-  już „W TOKU” z ostrzeżeniem, a w dniu renderu wydania (E6) pokazałaby „ZREALIZOWANY”.
-- **Przyczyna:** scena 2 i finał mają pokazywać plan „w stanie z dnia renderu”. Scena 4 opowiada
-  jedną chwilę z przeszłości. Ten sam mechanizm danych żywych daje w niej fałsz, który narasta
-  z każdym etapem.
-- **Zasada:** dane sceny dzielisz na „stan dziś” i „chwilę z przeszłości”. Chwilę liczysz tym samym
-  kodem produktu, ale z plików przypiętych do commitu tej chwili (`git show <commit>:<plik>`),
-  z commitem w polu `zrodlo`. Status ustawiany przez proces po tej chwili (`W TOKU` po starcie)
-  wpisujesz jawnie, ze wskazaniem kroku procesu, który go ustawia.
-- **Źródło:** FILM_PREZENTACYJNY E4, 2026-10-12; destylat: zasada 4.
-
-### L-0178 — Słowo wycofane decyzją człowieka wracało do kadru cytatem · 2026-10-12 · AKTYWNA
-
-- **Trigger:** Łukasz zdecydował, że karta w scenie 4 nie pokazuje „⚠ plan nie wskazuje modelu”.
-  Wiersz Model poprawiłem, ale pasek postępu w tej samej scenie cytował pierwszy punkt promptu E4:
-  „Pytanie o kartę »⚠ plan nie wskazuje modelu« padło na starcie…”. Wyszło to dopiero na klatce
-  kontrolnej.
-- **Przyczyna:** decyzję zastosowałem do miejsca, o które pytałem, a nie do słowa. Cytat
-  (nazwy punktów, wiersze diffu) z założenia wymyka się testowi faktów, więc nic go nie pilnowało.
-- **Zasada:** decyzja „tego nie pokazujemy” dotyczy treści, nie elementu. Po takiej decyzji szukasz
-  jej brzmienia we wszystkich tekstach kadru, także w cytatach wyłączonych z testu faktów, i każde
-  trafienie rozstrzygasz: usuwasz element albo pytasz. Zdjęcie elementu zgłaszasz człowiekowi przy
-  pokazie.
-- **Źródło:** FILM_PREZENTACYJNY E4, 2026-10-12, własny przegląd klatek; destylat: zasada 15.
-
-### L-0179 — Muzyka skomponowana na ślepo poszła do pełnego renderu i została odrzucona w całości · 2026-10-12 · AKTYWNA
-
-- **Trigger:** Łukasz poprosił o muzykę „bez licencji, darmową — ogarnij sam”. Napisałem syntezę
-  w kodzie (pad z detuningiem i wibrato, struny Karplusa–Stronga, pogłos), sprawdziłem ją tylko
-  liczbami (RMS, szczyt, długość) i od razu wpiąłem pod cały film. Pokaz: „psychodeliczna dziwna
-  muzyka… zupełnie nieakceptowalne”, prośba o minimum cztery warianty prawdziwych nagrań.
-- **Przyczyna:** w medium, którego nie umiem odebrać (dźwięk), liczby mówią o poziomie, nie
-  o smaku. Pominąłem zasadę „jeden wariant do kalibracji przed serią” i wybrałem drogę, której
-  wyniku nie mogłem ocenić, zamiast pokazać człowiekowi gotowe nagrania do wyboru.
-- **Zasada:** materiał, którego nie potrafię odebrać zmysłem, na który działa (dźwięk, głos),
-  biorę z gotowych źródeł z licencją sprawdzoną na stronie utworu i daję człowiekowi **próbki do
-  wyboru przed integracją**; synteza najwyżej jako jedna z opcji, z uprzedzeniem, że jej nie
-  słyszę. Ograniczenie mówię wprost razem z pytaniem, nie po odrzuceniu.
-- **Źródło:** FILM_PREZENTACYJNY E5, 2026-10-12, runda 2 pokazu; destylat: zasada 15.
-
-### L-0180 — „Darmowa muzyka” wybrana przez człowieka miała licencję NC-SA · 2026-10-12 · AKTYWNA
-
-- **Trigger:** Łukasz sam wskazał dwa utwory z Free Music Archive. Na stronie utworu: „daylight
-  hour” — CC BY 4.0 (przypisanie, krótszy od filmu), „Die Mit Dem Kontrabass” — CC BY-NC-SA 3.0,
-  czyli tylko niekomercyjnie i z obowiązkiem wydania filmu na tej samej licencji.
-- **Przyczyna:** „darmowe do pobrania” w serwisie z muzyką nie znaczy „wolne do użycia w produkcie”;
-  licencja jest cechą utworu, nie serwisu, a filtr wyszukiwarki łączy kilka licencji naraz.
-- **Zasada:** zanim cudzy materiał wejdzie do artefaktu, czytasz licencję **na stronie tego
-  utworu** (link do creativecommons.org) i mówisz człowiekowi jej skutki dla wydania — NC, SA,
-  wymóg kredytu, długość wobec potrzeby. Plik wchodzi do repo z kartą źródła (adres, suma sha256,
-  licencja, tekst kredytu), a test pilnuje sumy i kredytu w dokumentach, które licencja wskazuje.
-- **Źródło:** FILM_PREZENTACYJNY E5, 2026-10-12, Aneks C; destylat: zasada 15.
-
-### L-0181 — Kontrola negatywna instrumentu czytelności nie mogła się nie udać · 2026-10-13 · AKTYWNA
-
-- **Trigger:** `telefon.py --kontrola` miał pokazać, że ta sama klatka w 1/3 wielkości nie przechodzi
-  progu 7 px. Na klatce 100 pętli dał minimum 7,5 px — „klatka trzy razy mniejsza przechodzi”.
-- **Przyczyna:** kontrola zmniejszała klatkę do 1/3 i powiększała ją z powrotem (`NEAREST`) do tej
-  samej wielkości, więc glify miały tę samą wysokość, tylko w kratkę. Na klatce 132 kontrola
-  „trafiała” wyłącznie dzięki kursorowi, który był linią poniżej progu w obu wersjach.
-- **Zasada:** kontrola negatywna zmienia **mierzoną wielkość**, nie jej obraz — zmniejszony materiał
-  kładziesz na płótnie tej samej wielkości, a wynik kontroli porównujesz z liczbą, jaką defekt
-  musi dać (1/3 z 7 px → ok. 2–3 px), nie z samym „nie przeszło”. Kontrolę sprawdzasz na co najmniej
-  dwóch klatkach różnej treści, bo jedna klatka może trafić z innego powodu.
-- **Źródło:** FILM_PREZENTACYJNY E6, 2026-10-13; destylat: zasada 5.
-
-### L-0182 — Pomiar na artefakcie wyrenderowanym przed ostatnią zmianą kodu · 2026-10-13 · AKTYWNA
-
-- **Trigger:** kontrola telefonu na pętli EN dała 2,0 px i siedem linii poniżej progu; na pętli PL
-  — jedną. GIF EN był z 23:21, PL z 23:29, a powiększenie panelu (zoom 1,6) weszło między nimi.
-- **Przyczyna:** przerwana sesja zostawiła dwa pliki wyjściowe z różnych wersji kodu; wpis
-  dziennika mówił „pętle gotowe”, a pomiar wziął plik, który był, nie plik z bieżącego kodu.
-- **Zasada:** artefakt wyjściowy, na którym stawiasz punkt weryfikacji, renderujesz od nowa
-  w tej sesji z bieżącego kodu (albo porównujesz jego czas z ostatnią zmianą źródeł) — wszystkie
-  warianty językowe w jednym przebiegu, zanim zaczniesz rozbierać wynik.
-- **Źródło:** FILM_PREZENTACYJNY E6, 2026-10-13; destylat: zasada 4.
-
-### L-0183 — Wersja językowa materiału o produkcie w jednym języku zakwestionowana na pokazie · 2026-10-13 · AKTYWNA
-
-- **Trigger:** na pokazie filmu EN Łukasz zapytał, po co wersja angielska, skoro panel, paski
-  i wszystkie zrzuty są po polsku — napisy EN nad polskim interfejsem „mijają się z celem”. Wersja
-  EN zeszła do roli zapasu (Aneks E) po trzech etapach pracy nad słownikiem, testami i renderem.
-- **Przyczyna:** plan przyjął PL i EN jako cel wprost, a reguła „słowa produktu bez tłumaczenia”
-  rozstrzygnęła, jak wersja EN ma wyglądać, nie czy ma sens dla widza; pierwszy kadr EN człowiek
-  zobaczył dopiero po renderze.
-- **Zasada:** materiał w drugim języku o produkcie, którego interfejs jest tylko w jednym, idzie
-  do człowieka **jedną klatką z interfejsem** przed pracą nad słownikiem — z pytaniem, dla kogo jest
-  i czy nie wystarczy wersja podstawowa; reguła tłumaczenia jest drugim pytaniem, nie pierwszym.
-- **Źródło:** FILM_PREZENTACYJNY E6, 2026-10-13, Aneks E; destylat: zasada 15.
-
-### L-0184 — Parser pola, którego specyfikacja nie nazywa etykietą, czytał jeden zapis z pięciu · 2026-10-13 · AKTYWNA
-
-- **Trigger:** karta startu etapu w panelu pokazywała „⚠ plan nie wskazuje modelu” na planie,
-  który model ma. `requiredModel()` rozpoznawał model w 1 z 13 realnych `STATUS.md`; repo trzyma
-  pięć zapisów (bez etykiety, `Model wykonawczy etapów:`, `model wykonawczy etapów:`, `Modele:`,
-  linia łamana na kilka wierszy — tak wygląda też przykład w `SPEC_STATUS`).
-- **Przyczyna:** parser powstał na jednym pliku (PANEL_CLAUDE) i jego teście; `SPEC_STATUS` opisuje
-  pole prozą („model wykonawczy etapów — dosłownie tak, jak odpowiedział użytkownik”), bez
-  etykiety do dopasowania. Usterka czekała dwa etapy na odnogę, a film miał w tym czasie
-  dopisywaną etykietę jako obejście.
-- **Zasada:** parser pola, które specyfikacja opisuje prozą, ma test na **każdym zapisie tej
-  rodziny dokumentów w repo** (przebieg starego i nowego kodu na tych samych plikach, liczba
-  rozpoznanych obok liczby wszystkich) i na przykładzie z samej specyfikacji; zapis
-  niejednoznaczny daje ciszę. Obejście w konsumencie niesie w teście warunek, który sam wskaże
-  chwilę jego usunięcia — test filmu padł dokładnie po poprawce i powiedział, co zdjąć.
-- **Źródło:** FILM_PREZENTACYJNY E7, 2026-10-13, Aneks F; destylat: zasada 4.
-
-### L-0185 — Komenda zakładała pliki tymczasowe pod `.claude/`, a harness tam nie pisze · 2026-10-14 · AKTYWNA
-
-- **Trigger:** pomiar E1 HUMANIZACJA w świeżych sesjach `claude -p`: w trzech z trzech przebiegów
-  z wersją poprawioną zapis `.claude/relai/work/humanize/<id>-oryginal.md` został odrzucony jako
-  edycja ścieżki wrażliwej, mimo `Write` na liście dozwolonych. Strażnik faktów nie ruszył; model
-  porównał teksty czytaniem i powiedział to wprost.
-- **Przyczyna:** procedura komendy zakładała, że katalog roboczy RelAI jest zwykłym miejscem zapisu
-  dla modelu. Dla harnessu `.claude/` jest konfiguracją: w `-p` zapis pada, w sesji interaktywnej
-  pytałby o zgodę przy każdym wywołaniu.
-- **Zasada:** narzędzie wołane przez model w trakcie komendy nie dostaje plików tymczasowych pod
-  `.claude/` — tekst idzie na stdin heredokiem z terminatorem w cudzysłowie, jednym poleceniem bez
-  doklejonych części. Przebieg „strażnik bez różnic” liczy się tylko z wynikiem skryptu
-  w transkrypcie, nie ze zdaniem modelu.
-
-### L-0186 — Testy wydanego filmu czytały bieżące repo i czerwieniały po każdej zmianie · 2026-10-14 · AKTYWNA
-
-- **Trigger:** pomiar bazowy E1 HUMANIZACJA: 5 z 36 testów filmu 3.0.0 padało już przed etapem
-  (więcej testów rdzenia, plan filmu w archiwum), a dodanie piętnastej komendy przewróciło szósty.
-- **Przyczyna:** testy wierności porównują dane filmu z danymi przeliczonymi na drzewie roboczym.
-  Dzień po wydaniu każda zmiana repo, także niezwiązana z filmem, wygląda jak usterka filmu.
-- **Zasada:** test wydanego artefaktu liczy dane ze stanu wydania (tag, worktree) albo przypina
-  zbiór wydany stałą listą z kontrolą, że jej elementy nadal istnieją; bieżące repo jest wejściem
-  tylko dla artefaktu w toku (odnoga FILM_TESTY_V3, scena 4 przypięta w E1).
-
-### L-0187 — Odpowiedź z wywiadu zapisana w projekcie przegrywała z plikiem tej samej sesji · 2026-10-14 · AKTYWNA
-
-- **Trigger:** przebieg interaktywny E2 HUMANIZACJA. Pierwszy wywiad Łukasz zapisał z zasięgiem
-  „ta sesja”, a `/relai-humanize ustawienia` w tej samej sesji z zasięgiem „ten projekt”. Wiersz
-  projektu powstałby poprawnie, ale do końca sesji rozstrzygałby plik sesji z pierwszej odpowiedzi.
-- **Przyczyna:** pierwszeństwo warstw (sesja → projekt → globalnie) było przetestowane na odczycie,
-  a zapis traktował każdą warstwę osobno. Nikt nie zapytał, co zobaczy człowiek zaraz po zapisie.
-- **Zasada:** zapis w warstwie niższej niż plik **tej** sesji kasuje ten plik, bo człowiek właśnie
-  odpowiedział od nowa. Cudzych sesji nie rusza. Wynik zapisu podaje, która warstwa rozstrzyga po
-  zapisie (`rozstrzyga`), a komenda mówi o tym, gdy to nie jest warstwa właśnie zapisana. Test zapisu
-  w warstwach sprawdza stan odczytu po zapisie, nie tylko plik.
-
-### L-0188 — Wyrażenie regularne puszczone przez `node -e` w powłoce straciło backslash · 2026-10-14 · AKTYWNA
-
-- **Trigger:** E2 HUMANIZACJA, poprawka `humanize-mode.js`. Podmiana zakresu znaków diakrytycznych
-  na `\p{M}` poszła skryptem `node -e "…"` w podwójnym cudzysłowie Basha. W pliku wylądowało
-  `/p{M}/gu`, wyrażenie bez backslasha, które dopasowuje literalny tekst „p{M}”. Wyłapała to
-  kontrola `grep` zaraz po zapisie.
-- **Przyczyna:** zasada L-0116/L-0119 już to zakazywała. Złamałem ją, bo zmiana wyglądała na
-  „tylko podmianę jednego ciągu”, a nie na pisanie skryptu. Druga pułapka tego samego kroku: zakres
-  znaków łączących wpisany w Write trafił do pliku jako niewidoczne znaki.
-- **Ciąg dalszy tej samej sesji:** heredok z testami pełnymi backslashy przewrócił Basha
-  („unexpected EOF”), a podmiana w `STATE.md` przez `node -e "…"` z backtickami w treści wykonała
-  podstawienia — powłoka uruchomiła `on`, `off` i próbowała wykonać `docs/USTAWIENIA.md` jako
-  skrypt (padł na składni w linii 7; `git diff` potwierdził, że pliki są nietknięte).
-- **Zasada:** każda zmiana tekstu z backslashem **albo backtickiem** idzie przez Edit albo Write,
-  także jednolinijkowa podmiana; dokumenty projektu — wyłącznie Edit. Znaki łączące usuwasz przez
-  `\p{M}` z flagą `u`, nie zakresem wpisanych znaków. Po zapisie sprawdzasz `cat -A` albo `grep`
-  stałego ciągu, a po każdym błędzie powłoki — `git diff` plików, które polecenie wymieniało.
-
-### L-0189 — Stan „raz na turę” kasowany przez każde zdarzenie promptu, także przez „tak” · 2026-10-14 · AKTYWNA
-
-- **Trigger:** E3 HUMANIZACJA, recenzja kodu hooka `humanize-continuous` (HIGH). Hook kasował stan
-  „raz na plik w turze” przy każdym `UserPromptSubmit`. W trybie „dwie wersje” człowiek odpowiada
-  „tak”, a to też jest `UserPromptSubmit`: stan znikał i zapis zaakceptowanej wersji dostawał regułę
-  „popraw prozę” drugi raz. Pętlę zatrzymywało tylko zdanie w regule. W tej samej sesji bramka zgody
-  zainstalowanego optymalizatora 3.0.0 odezwała się na raport subagenta, który harness też podaje
-  jako prompt.
-- **Przyczyna:** „tura” w kodzie znaczyła „zdarzenie promptu”, a dla człowieka to nowe polecenie.
-  Krótkie potwierdzenie, powiadomienie o zadaniu w tle i raport subagenta przychodzą tym samym
-  zdarzeniem. Test sprawdzał reset po „tak” jako poprawne zachowanie.
-- **Zasada:** stan hooka liczony „na turę” zaczyna się od nowego polecenia człowieka. Potwierdzenia
-  i powiadomienia rozpoznajesz tym samym filtrem, którego używa optymalizator (`powodPominiecia`),
-  i test przechodzi ścieżkę „pokaz, tak, zapis”. Stan współdzielony przez równoległe hooki tej samej
-  sesji powstaje atomowo (znacznik `wx` na element, nie odczyt-modyfikacja-zapis jednego pliku).
-
-### L-0190 — Hook „po zapisie dokumentu” nie odezwał się ani razu, bo model pisał powłoką · 2026-10-14 · AKTYWNA
-
-- **Trigger:** E5 HUMANIZACJA, pomiar kosztu tury trybu „dokumenty”. W 8 z 8 sesji `-p` model
-  dopisał akapit do `docs/NOTATKI.md` przez Bash (`printf >>`, `cat >> <<EOF`), a hook
-  `PostToolUse` miał matcher `Write|Edit`. Reguła nie trafiła do kontekstu ani razu, a podyktowany
-  akapit „został dosłownie” — co wyglądało na dowód Aneksu B, choć reguły w ogóle nie było. Nawet
-  `--allowedTools ... Bash(node:*)` nie zatrzymał `cd … && printf`.
-- **Przyczyna:** test hooka podawał zdarzenie z `tool_name: 'Write'`, czyli zakładał narzędzie,
-  którego model użyje. E3 mierzył na prompcie, przy którym model akurat wybrał Edit.
-- **Zasada:** zachowanie wyzwalane narzędziem mierzysz najpierw listą narzędzi, których model
-  naprawdę użył w transkrypcie, i licznikiem wstrzykniętego kontekstu (`hook_additional_context`
-  w transkrypcie sesji — `stream-json` go nie pokazuje). Wynik „pożądany stan bez reguły w
-  kontekście” nie jest dowodem reguły. Mechanizm „po zapisie pliku” obejmuje każdą drogę zapisu,
-  którą model wybiera sam (Write, Edit, przekierowanie i `tee` w Bash), albo nazywa granicę wprost.
-
-### L-0191 — Prompt kontrolny nie rozróżniał starej i nowej reguły · 2026-10-14 · AKTYWNA
-
-- **Trigger:** E5 HUMANIZACJA, dowód Aneksu B. Prompt „dopisz akapit słowo w słowo” dał akapit
-  dosłownie przy nowej regule 2/2 i przy starej (worktree HEAD) też 2/2. Różnicę pokazał dopiero
-  prompt w układzie z E3 („dopisz akapit: "…" Potem zrób to, o co poproszą reguły RelAI”): stara
-  0/2, nowa 2/2. Ten sam etap: korpus z surowego wyjścia Opus 5.5 miał 2 trafienia licznika
-  wąskiego na 8 tekstów, więc kryterium „spada o połowę” nie miało siły dowodowej, dopóki nie doszły
-  teksty Haiku i licznik potwierdzony.
-- **Przyczyna:** materiał kontrolny dobrany pod wynik, który ma wyjść, a nie pod różnicę, którą ma
-  pokazać; kryterium planu policzone dopiero po przebiegach.
-- **Zasada:** zmianę zachowania dowodzisz na materiale, na którym stara wersja **psuje** — najpierw
-  stara wersja na tym materiale, potem nowa, w jednym przebiegu. Kryterium „spadek o połowę” liczysz
-  na materiale przed pracą i przy małej liczbie zdarzeń wracasz z pytaniem o materiał albo licznik,
-  zanim puścisz przebiegi.
+> Lekcje L-0177 … L-0191 (15 pozycji) są w
+> [docs/archiwum/lekcje/LEKCJE_L-0177_L-0191.md](archiwum/lekcje/LEKCJE_L-0177_L-0191.md)
+> — przeniesione 2026-10-16, suma kontrolna `5e28a9223a147861`.
 
 ### L-0192 — Oczekiwany tekst z `\n` w teście przeszedł przez literał Pythona · 2026-10-14 · AKTYWNA
 
@@ -687,6 +490,51 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
   `split/join`; po wstawce porównanie bajt w bajt ze źródłem **i** licznik nagłówków całego pliku.
   Dokument w `docs/` składany skryptem powstaje w katalogu roboczym, a do `docs/` trafia przez
   Write.
+
+### L-0212 — Komenda weryfikacji `node --test site/` nie mogła przejść na żadnej treści · 2026-10-16 · AKTYWNA
+
+- **Trigger:** STRONA_RELAI E1. Punkt 1 Weryfikacji wymagał `node --test site/`; w Node 24.13.1
+  forma katalogowa kończy się „Cannot find module …\site” (1 fail) niezależnie od testów — dwa
+  subagenty zgłosiły to osobno, 91 testów przechodziło wzorcem plików.
+- **Przyczyna:** autor promptu wpisał komendę z pamięci, bez uruchomienia jej na pustym katalogu
+  ani w wersji Node z repo; Node 22+ traktuje argument `--test` jak moduł albo wzorzec, nie katalog.
+- **Zasada:** komenda w sekcji Weryfikacja ma za sobą jeden realny przebieg autora promptu — choćby
+  na pustym zbiorze; testy Node wołasz wzorcem (`node --test "site/**/*.test.mjs"`). Idempotencję
+  plików nieśledzonych dowodzisz sumą przed i po drugim przebiegu, nie `git diff` (i nie `git add -N`
+  „na chwilę” — to zapis w indeksie).
+
+### L-0213 — Łagodny tryb zastępczy ukrył własny błąd składni, a ukrywanie tekstu zmierzyło sam tekst · 2026-10-16 · AKTYWNA
+
+- **Trigger:** STRONA_RELAI E1, dwa przypadki. (1) Druga deklaracja `const cel` w `scena.js` wywróciła
+  moduł; strona bez słowa przeszła w tryb bez WebGL i zrzut „po poprawce” pokazał płaską stronę.
+  (2) Pomiar kontrastu hero dał najgorszy piksel 1,00 : 1, bo `visibility: hidden` na rodzicu nie
+  ukrył przystanków z inline `visibility: visible` — instrument zmierzył litery, nie tło.
+- **Przyczyna:** wdzięczna degradacja jest dla odwiedzającego, ale przy pracy zamienia błąd w „inny
+  wygląd”; `visibility` dzieci wygrywa z rodzicem, `opacity` nie.
+- **Zasada:** po każdej zmianie kodu sceny pierwsza asercja to tryb (`tryb-3d` na `<html>`), dopiero
+  potem zrzut; tło pod tekstem fotografujesz z `opacity: 0` na rodzicu i z kontrolą pozytywną na
+  jasnym obiekcie kadru (musi dać ~1 : 1), a wynik 1,00 : 1 na całej linii to najpierw instrument.
+
+### L-0214 — Ukryty panel przeglądarki nie tyka `requestAnimationFrame`, a rozmiar okna sam się kasuje · 2026-10-16 · AKTYWNA
+
+- **Trigger:** STRONA_RELAI E1. Kliknięcie w mapę przesunęło stronę o 1,6 px, płynne przewijanie
+  stało w miejscu, a skrypt mierzący klatki wisiał 45 s: panel aplikacji był ukryty (strona w tle).
+  Po pokazaniu panelu ustawione 1366 × 768 zerowało się przy każdej zmianie szerokości panelu.
+- **Przyczyna:** strona w ukrytym panelu działa jak karta w tle; emulacja rozmiaru w panelu należy
+  do panelu, nie do sesji.
+- **Zasada:** ruch, czas klatki i płynne przewijanie mierzysz tylko w widocznej stronie; kadry
+  pomiarowe o stałym rozmiarze robisz w osobnej stronie Chrome przez DevTools (`emulate viewport`,
+  izolowany kontekst), a panel aplikacji służy do pokazania człowiekowi.
+
+### L-0215 — Edycja pliku przez `node -e` z `\n` w napisie (powtórzenie L-0210) · 2026-10-16 · AKTYWNA
+
+- **Trigger:** STRONA_RELAI E1. Przestawienie dziesięciu pozycji w `site/biurko/obiekty.js` poszło
+  jednym `node -e` z podmianami, z których dwie niosły `\n` w napisie. Zadziałało, ale to dokładnie
+  droga zakazana zasadą 5.
+- **Przyczyna:** pośpiech przy serii drobnych podmian; „tylko liczby” uśpiło regułę, choć dwie
+  podmiany obejmowały koniec linii.
+- **Zasada:** bez zmian względem zasady 5 — seria podmian w kodzie to kilka wywołań Edit albo skrypt
+  zapisany Write; liczy się każdy `\n` w napisie, także w kotwicy podmiany.
 
 ## Lekcje zwinięte
 

@@ -1,0 +1,107 @@
+{
+  "meta": {
+    "tytul": "RelAI: Twój projekt pamięta wszystko",
+    "opis": "RelAI trzyma pamięć projektu w zwykłych plikach obok kodu, więc każda sesja z agentem AI zaczyna tam, gdzie skończyła poprzednia. Claude Code, Cursor i Codex."
+  },
+  "nawigacja": {
+    "etykieta": "Mapa biurka",
+    "jezykEtykieta": "English",
+    "jezykKod": "en",
+    "jezykSciezka": "",
+    "jezykNazwa": "Język"
+  },
+  "hero": {
+    "id": "biurko",
+    "nazwa": "Biurko",
+    "naglowek": "Twój projekt pamięta wszystko.",
+    "zdanie": "Zwykłe pliki obok kodu pamiętają to, co agent AI zapomina. Każda sesja zaczyna tam, gdzie skończyła poprzednia.",
+    "wezwanie": "Zainstaluj"
+  },
+  "przystanki": [
+    {
+      "id": "amnezja",
+      "nazwa": "Amnezja",
+      "naglowek": "Każda sesja zaczyna od zera.",
+      "tekst": "Tłumaczysz projekt od nowa, szukasz wczorajszej decyzji i drugi raz poprawiasz ten sam błąd.",
+      "liczbaKomend": false
+    },
+    {
+      "id": "porzadek",
+      "nazwa": "Porządek",
+      "naglowek": "Pamięć mieszka w plikach.",
+      "tekst": "Stan, dziennik, lekcje i decyzje to zwykłe pliki Markdown obok kodu. Sesja czyta je na starcie i dopisuje w trakcie pracy.",
+      "liczbaKomend": false
+    },
+    {
+      "id": "plan",
+      "nazwa": "Plan",
+      "naglowek": "Plan, który się nie rozjeżdża.",
+      "tekst": "Duża praca idzie etapami. Po akceptacji plan jest zamrożony, a każdy etap rusza w świeżej sesji.",
+      "liczbaKomend": false
+    },
+    {
+      "id": "panel",
+      "nazwa": "Panel",
+      "naglowek": "Wszystko widać nad promptem.",
+      "tekst": "Paski w oknie Claude Code pokazują plan, postęp etapu, limity i koszt sesji.",
+      "liczbaKomend": false
+    },
+    {
+      "id": "komendy",
+      "nazwa": "Komendy",
+      "naglowek": "komend albo zwykłe zdania.",
+      "tekst": "„Kontynuujemy pracę”, „kończymy na dziś”: RelAI rozumie frazy i ma komendy na etap, odnogę, kopię zapasową i przegląd.",
+      "liczbaKomend": true
+    }
+  ],
+  "instalacja": {
+    "id": "instalacja",
+    "nazwa": "Instalacja",
+    "naglowek": "Zacznij tutaj.",
+    "tekst": "Wybierz narzędzie i składniki. Komendę kopiujesz albo otwierasz w terminalu i wysyłasz ją sam, Enterem."
+  },
+  "konfigurator": {
+    "tryb": "Co robisz",
+    "instaluje": "Instaluję",
+    "aktualizuje": "Aktualizuję",
+    "narzedzie": "Narzędzie",
+    "skladniki": "Składniki",
+    "relai": "RelAI, pamięć projektu",
+    "panel": "Panel",
+    "postep": "Pasek postępu",
+    "cache": "Baterie i limity",
+    "wczesny": "wczesny dostęp",
+    "komendyEtykieta": "Komendy do wklejenia w terminalu",
+    "kopiuj": "Kopiuj",
+    "skopiowano": "Skopiowano",
+    "zaznaczono": "Zaznaczone. Skopiuj skrótem Ctrl+C.",
+    "terminal": "Otwórz w terminalu",
+    "aplikacja": "Otwórz w aplikacji",
+    "uwagaLink": "Link tylko wpisuje polecenie. Wysyłasz je sam, Enterem.",
+    "brakSchematu": "Nic się nie otworzyło? Skopiuj komendy i wklej je w terminalu. Link działa, gdy Claude Code jest zainstalowany.",
+    "brakWyboru": "Wybierz co najmniej jeden składnik.",
+    "wersje": "Aktualne wersje",
+    "uwagi": {
+      "brakWyboru": "Wybierz co najmniej jeden składnik.",
+      "panelTylkoClaude": "Panel, pasek postępu i baterie działają tylko w Claude Code.",
+      "panelBezRelai": "Bez RelAI paski milczą: pokazują się tylko w projekcie RelAI.",
+      "restart": "Po instalacji albo aktualizacji zamknij i otwórz całą aplikację.",
+      "sciezkaWindows": "Na Windows zamiast ~/narzedzia/relai użyj C:/Narzedzia/relai."
+    }
+  },
+  "scena": {
+    "karteczki": ["o czym rozmawialiśmy?", "jaka była ta decyzja?", "znowu ten sam błąd", "tłumaczę projekt trzeci raz", "gdzie skończyliśmy?", "dlaczego tak?", "który plik?"],
+    "dokumenty": [
+      { "tytul": "Stan", "plik": "STATE.md" },
+      { "tytul": "Dziennik", "plik": "DZIENNIK.md" },
+      { "tytul": "Lekcje", "plik": "LEKCJE.md" },
+      { "tytul": "Decyzje", "plik": "DECYZJE.md" }
+    ],
+    "teczka": "Plan"
+  },
+  "brakSceny":"Przeglądarka nie pokazuje sceny 3D, więc widzisz tę samą treść bez biurka.",
+  "stopka": {
+    "licencja": "Licencja MIT",
+    "kod": "Kod na GitHubie"
+  }
+}
