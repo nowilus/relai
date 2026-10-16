@@ -1,6 +1,6 @@
 # STATE — RelAI
 
-Stan na: 2026-10-16 (STRONA_RELAI E1 zrealizowany: `site/` z hero „Biurka”; wcześniej WYGLAD_PANELU zamknięty 2026-10-15)
+Stan na: 2026-10-16 (STRONA_RELAI E1 zrealizowany, Aneks A: realistyczne biurko z modeli CC0, 6 etapów; wcześniej WYGLAD_PANELU zamknięty 2026-10-15)
 
 ## Gdzie jesteśmy
 
@@ -15,7 +15,7 @@ postępu jako lista kroków — plan WYGLAD_PANELU; 2026-10-14: pasek mówi uczc
 KOMUNIKAT_ZWROTU; paski i panel w każdym panelu podziału okna, linia w stopce wycofana — odnoga
 SPLIT_VIEW, P-040 rozwiązana; panel bez rozjazdów w wąskim panelu podziału — odnoga PANEL_WASKI,
 0.18.0).
-Aktywny plan: STRONA_RELAI (zaakceptowany 2026-10-16, E1 zrealizowany tego dnia, E2 gotowy do startu); równolegle PANEL_CODEX (E1 w toku, prowadzony w Codeksie). WYGLAD_PANELU zamknięty 2026-10-15
+Aktywny plan: STRONA_RELAI (zaakceptowany 2026-10-16, E1 zrealizowany tego dnia, Aneks A tego dnia, E2 „Realistyczny świat i hero od nowa” gotowy do startu po obrazach wzorcowych); równolegle PANEL_CODEX (E1 w toku, prowadzony w Codeksie). WYGLAD_PANELU zamknięty 2026-10-15
 po E5 (wydanie panelu 0.20.0 / 0.11.0); HUMANIZACJA zamknięty 2026-10-14 wydaniem 3.1.0. Opinii spoza projektu nadal nie ma.
 
 ## Co działa
@@ -97,8 +97,8 @@ po E5 (wydanie panelu 0.20.0 / 0.11.0); HUMANIZACJA zamknięty 2026-10-14 wydani
 ## Nad czym pracujemy teraz
 
 - **STRONA_RELAI — strona-wizytówka RelAI** (plan [STRONA_RELAI](plany/STRONA_RELAI/STATUS.md),
-  ZAAKCEPTOWANY 2026-10-16, E1 ZREALIZOWANY 2026-10-16, E2 GOTOWY DO STARTU, 5 etapów, Opus 5.5
-  z do trzech subagentów Sonnet 5.5). Po co: one-pager PL/EN na GitHub Pages ze skillem scroll-craft,
+  ZAAKCEPTOWANY 2026-10-16, E1 ZREALIZOWANY 2026-10-16, Aneks A 2026-10-16, E2 GOTOWY DO STARTU,
+  6 etapów, Opus 5.5 z do trzech subagentów Sonnet 5.5). Po co: one-pager PL/EN na GitHub Pages ze skillem scroll-craft,
   konfigurator instalacji z deep linkami do Claude Code, wersja z wydań GitHuba. Dwa prototypy do
   porównania — „Biurko” (scena 3D w three.js) i „Film” — potem wybór, dopracowanie i publikacja.
   **Stan strony po E1:** `site/` — hero „Biurka” zaakceptowany przez Łukasza (kadry w
@@ -107,7 +107,12 @@ po E5 (wydanie panelu 0.20.0 / 0.11.0); HUMANIZACJA zamknięty 2026-10-14 wydani
   w korzeniu; three.js 0.186.1 w `site/vendor/three/` (433 KB gzip). Budowa:
   `node site/narzedzia/fakty.mjs`, `node site/narzedzia/zbuduj.mjs`, testy
   `node --test "site/**/*.test.mjs"` (91); podgląd lokalny dowolnym serwerem statycznym z korzeniem
-  `site/` ([site/README.md](../site/README.md)). Strona nie jest opublikowana (Pages wyłączone, E5).
+  `site/` ([site/README.md](../site/README.md)). Strona nie jest opublikowana (Pages wyłączone, E6).
+  **Aneks A (2026-10-16):** Łukasz ocenił biurko z kodu jako „wygenerowane przez AI stylistycznie”;
+  nowy E2 buduje scenę od nowa z modeli i materiałów CC0 (Poly Haven, ambientCG) przy tej samej
+  swobodnej kamerze, budżet pierwszego wejścia ok. 8 MB. Obrazy z GPT image są tylko wzorcem —
+  prompty w `docs/zasoby/STRONA/builds/biurko/referencje/PROMPTY_GPT_IMAGE.md`; E2 startuje, gdy
+  Łukasz dostarczy obrazy 01–08. Szczyt i szuflady przeszły do E3.
 - **PANEL_CODEX, E1 — przejęcie rdzenia i natywny panel w Codeksie** (plan
   [PANEL_CODEX](plany/PANEL_CODEX/STATUS.md), ZAAKCEPTOWANY 2026-10-10, 8 etapów, autor
   i wykonawca `gpt-6.1-sol` w Codeksie, Aneks A — 16 pól kontraktu — zaakceptowany). Po co: ten sam

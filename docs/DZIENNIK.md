@@ -25,8 +25,9 @@
 | C11 | Pliki pomiarów puchną albo trafiają do gita (plan PANEL_CLAUDE, ryzyko R5) | **Niski** (2026-10-08 po E3) | **OTWARTE ŚWIADOMIE** | `.claude/relai/` poza gitem (sprawdzone `git check-ignore`), plik na sesję, rekord bez treści (~250 B); E4: plik scaleń `.claude/relai/panel/scalenia.json` też poza gitem (`git check-ignore`), rekord dłuższy o dwa pola; E6: `.claude/relai/panel/cennik.json` (wersje cennika) poza gitem (`git check-ignore`), jedna wersja na zapis z karty; otwarte: sprzątanie starych plików nie istnieje — do E7 E7 (decyzja człowieka 2026-10-09): sprzątanie świadomie odłożone — zmierzone 5 plików, 260 KB po dwóch dniach intensywnej pracy; „Koszty projektu” sumują wszystkie pliki, więc kasowanie zmieniłoby sumę. Próg powrotu: folder `.claude/relai/pomiary/` powyżej 10 MB. |
 | L1 | `percentUsed` limitu odświeża się tylko z odpowiedzią API — długa tura subagentów przekroczy próg, a karta przyjdzie po fakcie (plan LIMIT_CHECKPOINT, ryzyko L1) | **Średni** (2026-10-11 po E2; wcześniej wysoki) | **ZMITYGOWANE 2026-10-12** (zamknięcie planu; ograniczenie silnika — procent tylko z odpowiedzią API) | E2: `session.measure` w trakcie tury przestawia kolor baterii od razu, karta przychodzi po `turn.complete` z procentem odczytanym po turze (test „past the threshold in the middle of a turn”); otwarte, bo procent nadal przychodzi tylko z odpowiedzią API, więc długa tura może przekroczyć próg o kilka punktów, zanim karta padnie. |
 | H9 | Tryb ciągły „dokumenty” nie widzi zapisu, którego nie rozpozna — `sed -i`, skrypt, podproces, `>(tee …)` — i dokument zostaje bez humanizacji (plan HUMANIZACJA, pomiar E5) | **Niski** (2026-10-14, przy zamknięciu planu) | **OTWARTE ŚWIADOMIE** | Aneks C: hook po Write/Edit i po Bash z przekierowaniem `>` / `>>` albo `tee`; w pomiarze E5 model pisał wyłącznie tymi drogami (8/8 przed poprawką, 2/2 po niej z regułą). Pominięcie kończy się ciszą, nigdy złą regułą; komenda `/relai-humanize` na pliku działa niezależnie od trybu ciągłego. |
-| T1 | Scena 3D strony tnie się na słabszym laptopie albo zintegrowanej grafice (plan STRONA_RELAI, ryzyko 1) | **Wysoki** (2026-10-16 po E1, bez zmiany) | **OTWARTE** | E1: render na żądanie (zero pętli), DPR ≤ 1,5, spadek do DPR 1 i cienia 1024 przy medianie > 26 ms; zmierzone tylko na RTX 4070 Ti (mediana 5,6 ms, p95 11,1 ms przy CPU ×4). three.js 433 KB gzip wobec szacunku 160–200 KB. Otwarte: słaba grafika i budżet w E4. |
-| T2 | Biurko wygląda jak tani render albo glina z AI (plan STRONA_RELAI, ryzyko 2) | **Niski** (2026-10-16 po E1; wcześniej wysoki) | **ZMITYGOWANE** dla hero | Hero zaakceptowane przez Łukasza bez uwag 2026-10-16 (kadry w `docs/zasoby/STRONA/builds/biurko/kalibracja/`); drewno, papier i korek z ziarnem w kodzie, jedna ciepła lampa, miękkie cienie. Otwarte: przystanki 2–7 i szczyt w E2. |
+| T1 | Scena 3D strony tnie się na słabszym laptopie albo zintegrowanej grafice (plan STRONA_RELAI, ryzyko 1) | **Wysoki** (2026-10-16 po E1, bez zmiany) | **OTWARTE** | E1: render na żądanie (zero pętli), DPR ≤ 1,5, spadek do DPR 1 i cienia 1024 przy medianie > 26 ms; zmierzone tylko na RTX 4070 Ti (mediana 5,6 ms, p95 11,1 ms przy CPU ×4). three.js 433 KB gzip wobec szacunku 160–200 KB. Otwarte: słaba grafika i budżet w E5 (po Aneksie A; dawny E4), nowy budżet ze scenami CC0 mierzy E2. |
+| T2 | Biurko wygląda jak tani render albo glina z AI (plan STRONA_RELAI, ryzyko 2) | **Wysoki** (2026-10-16 po Aneksie A; po E1 chwilowo niski) | **OTWARTE** | Hero zaakceptowane 2026-10-16, ale tego samego dnia Łukasz: „widać, że wygenerowane jednak przez AI stylistycznie”, brakuje detali. Aneks A: modele i materiały CC0 ze skanów, HDRI, obrazy wzorcowe GPT image jako miara, kalibracja hero od nowa w E2. |
+| T3 | Modele CC0 z różnych źródeł nie zgrywają się stylem i skalą; strona za ciężka (plan STRONA_RELAI, Aneks A pkt 6) | **Średni** (2026-10-16) | **OTWARTE** | Wspólne HDRI i biblioteka materiałów, skala w metrach, budżet pierwszego wejścia ok. 8 MB z ładowaniem etapami; pomiar i kalibracja w E2. |
 
 > Ryzyka zamknięte L3, L2, L5, L6 (4 pozycje) są w
 > [docs/archiwum/ryzyka/RYZYKA_2026-10-12.md](archiwum/ryzyka/RYZYKA_2026-10-12.md)
@@ -1175,5 +1176,50 @@ Autor: RelAI (Opus 5.5) + Lukasz
 **Do zrobienia przez człowieka:**
 
 - Próba linku „Otwórz w terminalu” (`claude-cli://open?q=…`) na żywo w Chrome — przed E5.
+
+Autor: RelAI (Opus 5.5) + Lukasz
+
+### 2026-10-16 — STRONA_RELAI: Aneks A — realistyczne biurko z modeli CC0, sześć etapów
+
+**Zrobione:**
+
+- Commit E1 `a097b35` (64 pliki; poza nim `.claude/`, zmiany PANEL_CODEX i makiety panelu).
+- Łukasz po E1: biurko z kodu „widać, że jest narysowane”, „brakuje tamtych detali”, „wszystko
+  jest takie, no widać, że wygenerowane jednak przez AI stylistycznie”; chce realizmu („żeby było
+  wiadomo, że to jest biurko, to jest szuflada, to jest komputer”) w kolorystyce RelAI.
+- Wywiad, dwie rundy. Warstw zdjęć 2.5D nie chce: „chciałbym tą swobodną kamerę”; obrazy z GPT
+  image tylko poglądowo — wygeneruje je sam z moich promptów. Wybory: modele CC0 (Poly Haven,
+  ambientCG), budżet ok. 8 MB, hero od nowa, same obrazy bez klipów, nowy etap przed szczytem.
+- [Aneks A](plany/STRONA_RELAI/PLAN.html) dopisany (sekcja 10): technika z modeli i materiałów CC0
+  z `GLTFLoader`, GPT image wyłącznie jako wzorzec, budżet, etapy 5 → 6 (nowy E2 „Realistyczny
+  świat i hero od nowa”, dawne E2–E5 → E3–E6), bramka obrazów wzorcowych, ryzyka.
+  Akceptacja: „Akceptuję Aneks A w tej postaci.”
+- [PROMPTY_GPT_IMAGE.md](zasoby/STRONA/builds/biurko/referencje/PROMPTY_GPT_IMAGE.md) — osiem
+  promptów EN z instrukcją dla ChatGPT; wpis w `ARTEFAKTY.md` (wersja 1).
+- `STATUS.md` (6 etapów, bramki z nowymi numerami), `PROMPT_ETAP_2.md` wygenerowany od nowa dla
+  nowego E2 (stary prompt szczytu i szuflad — w `a097b35`, materiał dla promptu E3), `STATE.md`,
+  `CLAUDE.md`, ryzyka T1–T3.
+
+**Zweryfikowane — jak dokładnie:**
+
+- Codex CLI 0.155.1: `codex features list` → `image_generation stable true` (FAKT); generowanie
+  zostaje po stronie Łukasza w ChatGPT, z jego wyboru.
+- Przed commitem E1: indeks bez `.claude/`, PANEL_CODEX i makiet (`grep` po liście plików → pusto),
+  zero wzorców kluczy (`grep -c` → 0); testy `node --test "site/**/*.test.mjs"` → 91 pass.
+- `PROMPT_ETAP_2.md` (pierwsza wersja): zasady aktywne wstawione funkcją, suma bloku równa źródłu
+  (`bd026c03abbd4815`); komenda grep z Weryfikacji poprawiona po realnym przebiegu (bez `-r` nie
+  przeszukiwała katalogów, trafiała test-strażnik).
+
+**Świadomie odłożone:**
+
+- Sekcje 7–9 planu mówią „po E3 / przed E5” w starej numeracji — aneks każe je czytać jako
+  „po E4 / przed E6”, sekcji zamrożonych nie poprawiam.
+- Rotacja ryzyk dalej zablokowana (0 zamkniętych, sekcja ponad progiem 12 KB); propozycja z wpisu E1
+  (historia C1 do archiwum) bez zmian.
+
+**Do zrobienia przez człowieka:**
+
+- Obrazy wzorcowe `01-hero.png` … `08-wieczor.png` z GPT image do
+  `docs/zasoby/STRONA/builds/biurko/referencje/` — przed E2.
 
 Autor: RelAI (Opus 5.5) + Lukasz

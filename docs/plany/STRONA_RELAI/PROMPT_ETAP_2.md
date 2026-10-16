@@ -1,12 +1,12 @@
-# PROMPT_ETAP_2 — Biurko od pierwszego do ostatniego ekranu: szczyt „bałagan → porządek” i szuflady
+# PROMPT_ETAP_2 — Realistyczne biurko z modeli CC0 i hero od nowa
 
-Plan: STRONA_RELAI • Etap: **E2 z E5** • Wygenerowano: 2026-10-16 (autor: Opus 5.5, w rytuale „Na koniec” E1) • Wykonawca: **Opus 5.5 (D-85), w etapie do 3 subagentów Sonnet 5.5 wyłącznie do zadań deterministycznych · w Claude Code**, `/effort high`
+Plan: STRONA_RELAI • Etap: **E2 z E6** (Aneks A) • Wygenerowano: 2026-10-16 (autor: Opus 5.5, po akceptacji Aneksu A; zastępuje niewykonany prompt szczytu i szuflad z commitu `a097b35`) • Wykonawca: **Opus 5.5 (D-85), w etapie do 3 subagentów Sonnet 5.5 wyłącznie do zadań deterministycznych · w Claude Code**, `/effort high`
 
 > **Kontrola modelu:** ten etap wykonuj wyłącznie na modelu klasy **strong**, w tym narzędziu:
 > **Opus 5.5** (lista modeli z dnia `2026-10-08`). Jeśli sesja działa na innym modelu — zatrzymaj
 > się i poproś użytkownika o przełączenie, zanim cokolwiek zrobisz. Zalecany poziom `/effort`:
-> `high` (szczyt jest ruchem-podpisem całej strony i jedynym momentem, który odwiedzający ma
-> zapamiętać; szuflady dokładają dostępność, fokus i powrót do drogi).
+> `high` (realizm sceny to powód aneksu; dobór zasobów z różnych źródeł, światło i budżet ciężaru
+> decydują o tym, czy Łukasz przyjmie hero drugi raz).
 
 ## Co przeczytać na start (w tej kolejności, nic więcej)
 
@@ -14,85 +14,72 @@ Plan: STRONA_RELAI • Etap: **E2 z E5** • Wygenerowano: 2026-10-16 (autor: Op
 |---|---|
 | `CLAUDE.md` | reguły procesu, linia aktywnego planu, sekcja niemutowalna |
 | `docs/LEKCJE.md` | wyłącznie „Zasady aktywne” (są też przepisane niżej) |
-| `docs/DZIENNIK.md` | sekcja „Stan otwartych ryzyk” (wiersze T1, T2) + wpis 2026-10-16 „STRONA_RELAI E1: fundament strony i hero…” — co powstało, liczby, co odłożone do E2 |
-| `docs/plany/STRONA_RELAI/PLAN.html` | sekcje 5 (droga odwiedzającego, szuflady, „wspólne dla obu”), 6 (wiersz E2), 7 (ryzyka 1, 2, 7), 8 (przypadki brzegowe: bez WebGL, szybkie przewijanie, liczby) |
-| `docs/zasoby/STRONA/builds/biurko/BRIEF.md` | krzywa odczuć, „Szczyt”, „Zaplanowana cisza”, „Ruch-podpis”, „Kontrakt warstw hero” — szczyt budujesz dokładnie według tych sekcji |
-| `docs/zasoby/STRONA/builds/biurko/kalibracja/` | trzy kadry hero zaakceptowane przez Łukasza — wzorzec, którego ten etap nie psuje |
-| skill `nateherk-design:scroll-craft` (wywołaj narzędziem Skill) | `SKILL.md`, potem z `references/`: `feel.md` (szczyt, cisza, kontrola odczuć), `worldflight.md` §4 i §7c (kontrakt tekstu, tempo), `taste.md` |
-| `site/README.md`, potem `site/biurko/kamera.js`, `scena.js`, `obiekty.js`, `warstwa.js` | stan sceny, toru kamery i warstwy tekstu, które ten etap rozbudowuje |
-| `site/narzedzia/szablon.html`, `site/tresc/pl.json` | gdzie mieszka treść i znaczniki `data-*`, do których dochodzą szuflady |
-| `docs/zasoby/film/zrodla/skrypty/dane.mjs` i `panel.mjs` | precedens makiet z kodu: dane pasków i panelu liczone funkcjami `core/panel/plan-state.mjs` i `progress.mjs`, każdy liść `{ wartosc, zrodlo }` |
-| `docs/zasoby/PANEL_RELAI/DESIGN.md` | wygląd pasków i panelu, który makiety mają oddać |
+| `docs/DZIENNIK.md` | sekcja „Stan otwartych ryzyk” (wiersze T1–T3) + wpisy 2026-10-16 „STRONA_RELAI E1…” i „STRONA_RELAI: Aneks A…” — liczby E1, słowa Łukasza, wybory wywiadu |
+| `docs/plany/STRONA_RELAI/PLAN.html` | sekcja 10 (**Aneks A** — wiąże), potem 4B, 5, 6, 7 (ryzyka 1, 2, 10), 8 |
+| `docs/zasoby/STRONA/builds/biurko/referencje/` | obrazy wzorcowe `01-hero.png` … `08-wieczor.png` od Łukasza i `PROMPTY_GPT_IMAGE.md` (co każdy obraz miał pokazać) — miara realizmu tego etapu |
+| `docs/zasoby/STRONA/builds/biurko/BRIEF.md` | krzywa odczuć, „Zaplanowana cisza”, „Kontrakt warstw hero” — obowiązują w nowej scenie |
+| `docs/zasoby/STRONA/builds/biurko/kalibracja/` | kadry hero z E1: przyjęty układ (lampa i okno po prawej, nagłówek w lewym dolnym rogu) jako punkt wyjścia kompozycji |
+| skill `nateherk-design:scroll-craft` (wywołaj narzędziem Skill) | `SKILL.md`, potem z `references/`: `hero-depth.md`, `approved-collection.md` §2 i §7, `taste.md` |
+| `site/README.md`, potem `site/biurko/scena.js`, `obiekty.js`, `kamera.js`, `swiat.js`, `start.js` | scena, światło, tor kamery i start, które ten etap przebudowuje |
+| strony licencji Poly Haven i ambientCG | licencję każdego zasobu czytasz na stronie zasobu, nie z pamięci (L-0180) |
 
 ## Decyzje już podjęte — nie otwierasz ich ponownie
 
-- **Struktura i technologia** bez zmian od E1: gramatyka *Continuous world* na jednej scenie
-  three.js 0.186.1 (`site/vendor/three/`), moduły ES bez bundlera i bez npm, geometria
-  i tekstury proceduralne, każdy tekst to prawdziwy HTML (PLAN 4A–4C, PROMPT_ETAP_1 „Decyzje”).
-  Każda nowa zależność — pytanie przed pobraniem.
-- **Hero zaakceptowane:** Łukasz, 2026-10-16: „Akceptuję hero w tej postaci.” Poza kamery `biurko`,
-  układ z lampą i oknem po prawej, scrim w lewym dolnym rogu, rozmiar nagłówka i kolumna hero
-  zostają. Zmiana widoczna w kadrze hero wraca do Łukasza ze zrzutem przed i po.
-- **Szczyt** (BRIEF „Szczyt”, PLAN 5): karteczki z pytaniami („o czym rozmawialiśmy?”) wzlatują
-  i układają się w cztery dokumenty (STATE, DZIENNIK, LEKCJE, DECYZJE; w EN `JOURNAL.md`,
-  `LESSONS.md`, `DECISIONS.md`). Ruch wyłącznie z przewijania, odwracalny, bez pętli ozdobnych;
-  przed nim zaplanowana cisza, szczyt ma najdłuższy odcinek toru (dziś 2,2 wobec 1,0, test
-  `kamera.test.mjs`) i tekst przystanku nie pojawia się w trakcie przelotu (PLAN 8).
-- **Szuflady** (PLAN 5 i 6): kliknięty obiekt unosi się do kamery i otwiera szufladę z prawdziwym
-  HTML — dokumenty (cztery pliki pamięci), teczka (plan z etapami), laptop (panel z zakładkami),
-  pudełko (15 fiszek komend z `site/dane/fakty.json`). Zamknięcie wraca do drogi.
-- **Makiety pasków i panelu z kodu pluginów** na **oznaczonych danych przykładowych** (PLAN 5
-  „Wspólne dla obu”): wartości liczy kod z `core/panel/`, nie ręka; dane sesji, których nie ma
-  w repo, są przykładem podpisanym jako przykład. Film zrobił to samo (`skrypty/dane.mjs`).
-- **Liczby na stronie** tylko z repozytorium (komendy, wersje, adaptery); bez wymyślonych
-  statystyk i liczników (PLAN 8, `taste.md`).
-- **Wygląd:** D-61a / D-61b i kierunek „Warsztat z wigorem” jak w E1 (Fraunces, Kalam, Hanken
-  Grotesk; paleta z `core/panel/theme.mjs`); zakaz low-poly, gliny i plastiku.
-- **Link `claude-cli://` na żywo** to bramka manualna przed E5 (STATUS, decyzja Łukasza
-  2026-10-16) — w tym etapie go nie mierzysz i nie zmieniasz konfiguratora poza treścią.
-- **Granica zakresu:** E2 = pełna droga Biurka, szczyt, szuflady, makiety, mapa. Prototyp Film to
-  **E3**; telefon, pełny wariant reduced motion, plakat bez WebGL z finalnego ujęcia, harness
-  `shoot.mjs` i budżet na słabej grafice to **E4**; workflow Pages, deep linki na żywo, link
-  w README i krok w sekwencji wydania to **E5**. Nie włączasz Pages, nie pushujesz, nie publikujesz.
+- **Aneks A (2026-10-16), w całości:** swobodna kamera w three.js zostaje; obiekty i materiały
+  z gotowych zasobów CC0 (Poly Haven, ambientCG — modele glTF, tekstury PBR, HDRI); dodatek
+  `GLTFLoader` (i dekodery kompresji, gdy potrzebne) z three.js **0.186.1**; każde pobranie po
+  zgodzie Łukasza; plik licencji obok zasobów w `site/`; obiekty, których nie ma w bibliotekach
+  (teczka planu, pudełko z fiszkami), w kodzie na tych samych materiałach PBR. Obrazy GPT image
+  wyłącznie jako wzorzec, nigdy na stronie; klipy wideo i Kie.ai poza planem. Pierwsze wejście
+  do ok. 8 MB SZACUNEK, hero ładuje się pierwsze.
+- **Słowa Łukasza o celu (wpis Aneksu A):** „żeby było wiadomo, że to jest biurko, to jest
+  szuflada, to jest komputer i on ma bardzo dużo różnych szczegółów”; nie „cukierkowe
+  i przetworzone”, „w jakiejś tam kolorystyce RelAI'owej”. Warstw zdjęć 2.5D nie chce.
+- **Hero od nowa** z kalibracją Łukasza na zrzutach (wybór w wywiadzie Aneksu A). Kadr E1 przestaje
+  być wzorcem wyglądu; jego układ jest punktem wyjścia, a gdy obraz `01-hero.png` układa biurko
+  inaczej, wybór układu należy do Łukasza na kalibracji.
+- **Bez zmian z E1:** tor kamery z postojem na siedmiu przystankach, cisza przed szczytem i szczyt
+  najdłuższy (`kamera.js`, test) — pozy przestawiasz do nowej sceny, strukturę toru zostawiasz;
+  treść PL/EN, generator, fakty, konfigurator, wersja, język, mapa, tryb bez WebGL (PLAN 4C–4F,
+  PROMPT_ETAP_1 „Decyzje”). Konfigurator zostaje prawdziwym HTML na ekranie laptopa (CSS3D).
+- **Wygląd:** D-61a / D-61b, paleta z `core/panel/theme.mjs`, fonty z `site/fonty/`; zero CDN —
+  każdy zasób serwowany z `site/`.
+- **Granica zakresu:** E2 = nowa scena, nowe hero, przystanki 2–7 na nowych obiektach, budżet.
+  Animacja szczytu, szuflady po kliknięciu, makiety pasków i dopracowanie mapy to **E3**;
+  karteczki i dokumenty w tym etapie stoją na biurku jako realistyczne obiekty bez animacji.
+  Prototyp Film to **E4**; telefon, pełne reduced motion, plakat bez WebGL i słaba grafika to
+  **E5**; Pages, deep linki na żywo i README to **E6**. Nie włączasz Pages, nie pushujesz.
 
 ## Stan wyjściowy — co realnie zastajesz
 
-RelAI 3.2.0 i pluginy panelu 0.20.0 / 0.5.0 / 0.11.0 wydane; strona nieopublikowana. E1 zamknięty
-2026-10-16 (17/17 punktów, hero zaakceptowane). Sprawdź `git log --oneline -3`: jeśli commit E1
-nie powstał, pliki `site/` i `docs/zasoby/STRONA/` są nieśledzone — wtedy dowody „bez zmian” liczysz
-sumą sha256, nie `git diff` (tak jak w E1).
+E1 w commicie `a097b35`, Aneks A w kolejnym (sprawdź `git log --oneline -3`). Strona działa
+lokalnie z biurkiem z geometrii proceduralnej; hero tej wersji Łukasz najpierw przyjął, potem ocenił
+jako „wygenerowane jednak przez AI stylistycznie”.
 
 ```
-site/package.json                 # {"type":"module"} — bez zależności npm
-site/narzedzia/fakty.mjs (+test)  # repo → site/dane/fakty.json: 15 komend (opis EN + nazwa PL), wersje, 3 adaptery
-site/narzedzia/zbuduj.mjs (+test) # mini-Mustache: szablon.html + tresc/{en,pl}.json → index.html, pl/index.html
-site/narzedzia/szablon.html       # importmap three, mapa a[data-cel], sekcje [data-przystanek] 0–6, form[data-konfigurator]
-site/tresc/pl.json, en.json       # meta, hero, przystanki[5], instalacja, konfigurator, scena{karteczki[7], dokumenty[4], teczka}
-site/js/konfigurator.js (+test)   # 96 kombinacji, prompt bez „/”, ≤ 5000 znaków; fallback 1,5 s po blur/visibilitychange
-site/js/wersja.js, jezyk.js (+testy)  # wersja wpieczona + API po prefiksie tagu; /pl/ i localStorage relai-jezyk
-site/biurko/kamera.js (+test)     # POZY: biurko, amnezja, cisza, porzadek, plan, panel, komendy, instalacja; KLUCZE, zbudujTor, poza
-site/biurko/obiekty.js            # blat, ściana, okno, tablica z kartką-logo, lampa, karteczki, 4 dokumenty, teczka, laptop, pudełko, kubek, ołówek
-site/biurko/tekstury.js           # tekstury z canvas: drewno, papier, korek, tynk, karteczka, dokument, etykieta, ekran panelu
-site/biurko/scena.js              # światło (SpotLight lampy + okno), CSS3D konfiguratora na laptopie, render tylko w ruchu, diagnostyka()
-site/biurko/warstwa.js            # okna widoczności tekstu, --scrim, mapa aria-current, klik i fokus po scrollend
-site/biurko/swiat.js, start.js    # fonty, window.__biurko, webglcontextlost; maWebGL2 → import('./swiat.js')
-site/css/strona.css               # tokeny ROOT, tryb przepływu i .tryb-3d, ekran laptopa 1136 × 710
-site/vendor/three/, site/fonty/   # three 0.186.1 z LICENSE i VERSION; 10 WOFF2 z LICENCJE.md
-docs/zasoby/STRONA/builds/biurko/ # BRIEF.md, kalibracja/ (3 kadry hero)
+site/biurko/scena.js        # renderer, ACES, PCFShadowMap, SpotLight lampy + okno, RoomEnvironment, CSS3D konfiguratora (odleglosc 0.56), diagnostyka()
+site/biurko/obiekty.js      # bryły proceduralne: blat (BLAT), ściana, okno, tablica z kartką-logo, lampa, 7 karteczek, 4 dokumenty, teczka, laptop, pudełko, kubek, ołówek
+site/biurko/tekstury.js     # tekstury z canvas: drewno, papier, korek, tynk, niebo, karteczka, dokument, etykieta, karton, ekran panelu
+site/biurko/kamera.js (+test) # POZY 8 póz, KLUCZE, zbudujTor, poza, aktualnyPrzystanek — 9 testów
+site/biurko/warstwa.js      # okna widoczności tekstu, --scrim, mapa aria-current
+site/biurko/swiat.js, start.js # fonty, window.__biurko, webglcontextlost; maWebGL2 → import('./swiat.js'), wyjątek → console.warn
+site/vendor/three/          # three.core.js, three.module.js, addons/CSS3DRenderer.js, addons/RoomEnvironment.js, LICENSE, VERSION (0.186.1)
+site/css/strona.css, site/narzedzia/, site/tresc/, site/js/  # strona, generator, treść i logika z E1 (bez zmian w tym etapie poza potrzebą sceny)
+docs/zasoby/STRONA/builds/biurko/referencje/  # PROMPTY_GPT_IMAGE.md + obrazy 01–08 od Łukasza (bramka)
 ```
 
-**Warunki pracy:** testy odpalasz `node --test "site/**/*.test.mjs"` (91 pass po E1) — forma
-`node --test site/` w Node 24 kończy się „Cannot find module” (L-0212). Podgląd: serwer
+**Warunki pracy:** testy `node --test "site/**/*.test.mjs"` (91 pass po E1; forma `node --test site/`
+w Node 24 kończy się „Cannot find module”, L-0212). Podgląd: serwer
 `node C:/Users/Lukasz/.claude/plugins/cache/nateherk/nateherk-design/0.3.1/skills/scroll-craft/scripts/serve.mjs --root site --port 4520`
-w tle przez Bash (konfiguracja z `runtimeExecutable` została przez `preview_start` odrzucona),
-`.claude/launch.json` ma wpis `strona` z samym `url`. Ruch i czas klatki mierzysz tylko w widocznej
-stronie (panel podglądu odsłonięty), kadry o stałym rozmiarze w osobnej stronie DevTools z
-`emulate viewport` (L-0214). Kontrast — tło fotografujesz z `opacity: 0` na rodzicu tekstu (L-0213).
+w tle przez Bash (`preview_start` odrzucił `runtimeExecutable`; `.claude/launch.json` ma wpis
+`strona` z samym `url`). Ruch i czas klatki tylko w widocznej stronie, kadry o stałym rozmiarze
+w osobnej stronie DevTools z `emulate viewport` (L-0214); tło pod tekstem fotografujesz
+z `opacity: 0` na rodzicu (L-0213). Paczka npm three.js z E1 została skasowana — dodatki pobierasz
+od nowa, z tą samą wersją i sumą `sha512` z rejestru npm.
 
-**Czego jeszcze nie ma (to jest zakres tego etapu):** animacji szczytu (dziś karteczki i dokumenty
-stoją, tor kamery ma tylko postój), szuflad i ich treści, makiet pasków i panelu z kodu pluginów,
-klikania obiektów w scenie, dopracowanych obiektów przystanków 2–7 (teczka, laptop z panelem,
-pudełko z fiszkami są uproszczone), rozmycia pierwszego planu.
+**Czego jeszcze nie ma (to jest zakres tego etapu):** zasobów CC0 w `site/`, `GLTFLoader`, pliku
+źródeł i licencji zasobów, oświetlenia z HDRI, sceny z modeli, ładowania etapami, hero w nowej
+technice i jego kalibracji, pomiaru ciężaru strony z zasobami.
 
 **Zasady aktywne z `docs/LEKCJE.md` (przepisane w całości, stan 2026-10-16):**
 
@@ -300,106 +287,104 @@ pudełko z fiszkami są uproszczone), rozmycia pierwszego planu.
 ## Zakres etapu
 
 > **Katalog roboczy tego etapu: `.claude/relai/work/STRONA_RELAI/E2/`.** Wszystko tymczasowe —
-> skrypty pomiarowe, zrzuty, wyjścia narzędzi — powstaje tam. Artefakt, który z natury musi leżeć
-> **poza** projektem (`%TEMP%`, katalog domowy), wpisujesz do wpisu dziennika **z nazwy**, a jego
-> nazwę zaczynasz od `relai-`.
+> pobrane paczki przed wyborem, skrypty pomiarowe, zrzuty, wyjścia narzędzi — powstaje tam.
+> Artefakt, który z natury musi leżeć **poza** projektem (`%TEMP%`, katalog domowy), wpisujesz do
+> wpisu dziennika **z nazwy**, a jego nazwę zaczynasz od `relai-`.
 
-Podział pracy: ruch szczytu, kompozycja przystanków, szuflady, światło, typografia i tekst robisz
-sam (Opus). Do trzech subagentów Sonnet 5.5 (`Agent` z `model: "sonnet"`) dostaje wyłącznie
-punkty 4 i 5 — deterministyczne, z testami, sprawdzane przez Ciebie przed przyjęciem.
+Podział pracy: dobór zasobów, kompozycja, światło, materiały, kamera i ocena robisz sam (Opus).
+Do trzech subagentów Sonnet 5.5 (`Agent` z `model: "sonnet"`) dostaje wyłącznie punkty 3 i 9 —
+deterministyczne, z testami, sprawdzane przez Ciebie przed przyjęciem.
 
-1. **Szczyt „bałagan → porządek”** — `site/biurko/szczyt.js` (nowy) i klucze toru
-   w `site/biurko/kamera.js`: siedem karteczek z `scena.karteczki` odrywa się od blatu, wzlatuje
-   i układa w cztery dokumenty z `scena.dokumenty`; stan liczony **czystą funkcją postępu**
-   (`p → pozycje i obroty`), więc ta sama pozycja przewijania daje ten sam kadr w obu kierunkach.
-   Odcinek szczytu najdłuższy na torze, cisza przed nim zostaje, tekst przystanku „Porządek”
-   wchodzi dopiero po ułożeniu. Test `site/biurko/szczyt.test.mjs`: początek = stan bałaganu,
-   koniec = cztery dokumenty, monotoniczność i deterministyczność.
-2. **Przystanki 2–7 na gotowo** — `site/biurko/obiekty.js`, `tekstury.js`, `scena.js`, pozy
-   w `kamera.js`: obiekt każdego przystanku czytelny w kadrze postoju (teczka planu z etykietą
-   i etapami, laptop z panelem, pudełko z fiszkami, dokumenty), tekst przystanku w stałej
-   warstwie HTML z kontrastem jak w hero. Poza `biurko` i kadr hero bez zmian (Decyzje).
-3. **Szuflady po kliknięciu** — `site/biurko/szuflady.js` (nowy), znaczniki w
-   `site/narzedzia/szablon.html`, treść w `site/tresc/pl.json` i `en.json`: cztery szuflady
-   (dokumenty, teczka, laptop, pudełko). Otwiera je klik w obiekt sceny (raycaster) **i** przycisk
-   osiągalny klawiaturą; obiekt unosi się do kamery, szuflada to dialog (`<dialog>` albo
-   `role="dialog"` z `aria-modal`), Esc i przycisk zamykają, fokus wraca do elementu, który ją
-   otworzył, pozycja przewijania po zamknięciu ta sama. Treść szuflad jest w HTML od początku —
-   bez WebGL i bez JS czytelna w zwykłym przepływie.
-4. **Makiety pasków i panelu z kodu pluginów** — `site/narzedzia/makiety.mjs` (nowy, Node, zero
-   zależności) → `site/dane/makiety.json`: pasek planu i postępu etapu z
-   `core/panel/plan-state.mjs` i `progress.mjs` na fixturze `site/narzedzia/fixtury/makiety/`
-   (przykładowy plan, nie stan tego repo), pozostałe wartości sesji jako przykład z polem
-   `zrodlo: "przykład"`; każdy liść `{ wartosc, zrodlo }` jak w filmie. Render w HTML/CSS na
-   przystanku „Panel” i w szufladzie laptopa (wygląd wg `DESIGN.md`), podpis „dane przykładowe”
-   widoczny. Test `site/narzedzia/makiety.test.mjs`: wartości równe wynikowi funkcji `core/panel`
-   na fixturze, dwa przebiegi z identyczną sumą. *(subagent)*
-5. **Generator i fakty pod szuflady** — rozszerzenie `site/narzedzia/zbuduj.mjs` (sekcje
-   `{{#…}}` dla fiszek i szuflad, jeśli potrzebne) i jego testu; `site/index.html`
-   i `site/pl/index.html` wygenerowane od nowa. *(subagent; treść JSON piszesz sam)*
-6. **Mapa** — `site/narzedzia/szablon.html`, `site/biurko/warstwa.js`, `site/css/strona.css`:
-   siedem przystanków i cztery szuflady osiągalne z mapy, `aria-current` na przystanku, wygląd
-   spójny z hero.
-7. **Rozmycie pierwszego planu** (odłożone z E1) — przedmiot bliski kamerze z miękkim rozmyciem
-   (np. kubek lub ołówek), wyłącznie jeśli Łukasz zaakceptuje zrzut hero przed i po; odmowa →
-   zostaje bez, zapis w dzienniku.
-8. **Treść PL i EN** — `site/tresc/pl.json`, `en.json`: teksty szuflad, podpisy fiszek
-   (z `fakty.json`, nie przepisane ręcznie), podpis makiet; bez myślnika w widocznym tekście,
-   bez słów-wypełniaczy; EN dalej „do przeglądu native speakera”.
-9. **Wydajność szczytu** — pomiar mediany i p95 czasu klatki w trakcie szczytu i przy otwartej
-   szufladzie (1366 × 768, DPR 1, także CPU ×4) oraz przyrostu JS wobec E1 (2148 KB surowo /
-   433 KB gzip `FAKT`); render dalej tylko w ruchu, obniżenie jakości przy medianie > 26 ms.
-10. **`site/README.md`** — dopisz `makiety.mjs`, kolejność uruchomień (`fakty.mjs` → `makiety.mjs`
-    → `zbuduj.mjs`) i gdzie mieszka treść szuflad.
+0. **Bramka na starcie:** w `docs/zasoby/STRONA/builds/biurko/referencje/` leży osiem plików
+   `01-hero.png` … `08-wieczor.png`. Brak któregokolwiek → zatrzymaj się i zapytaj Łukasza,
+   zanim cokolwiek zmienisz; pracy na samych promptach nie zaczynasz.
+1. **Analiza wzorców** — `docs/zasoby/STRONA/builds/biurko/referencje/ANALIZA.md`: dla każdego
+   obrazu, co z niego bierzesz (obiekty i ich proporcje w metrach, materiały, światło, kolory
+   zmierzone próbką pikseli, detal, który robi realizm), oraz tabela „obiekt → zasób CC0
+   (kandydat) albo kod na materiałach PBR”. Biurko ma szufladę (słowa Łukasza).
+2. **Karta zgody i pobranie zasobów** — jedno pytanie z całą listą kandydatów: nazwa, strona
+   zasobu, licencja przeczytana na tej stronie, rozdzielczość, rozmiar paczki i rozmiar po
+   przycięciu do tego, co trafi do `site/` (L-0172). Po „tak” pobierasz do katalogu roboczego,
+   do `site/zasoby/` kopiujesz tylko używane pliki. Tak samo `GLTFLoader` i ewentualne dekodery
+   z three.js 0.186.1 do `site/vendor/three/addons/`. Nowe narzędzie do kompresji (np. pakiet
+   npm) — osobne pytanie przed instalacją; narzędzia budowania nie wchodzą do `site/`.
+3. **Rejestr źródeł** — `site/zasoby/ZRODLA.json` (każdy plik: nazwa, URL strony zasobu,
+   licencja, autor, data pobrania, `sha256`), `site/zasoby/LICENCJE.md` i test
+   `site/narzedzia/zasoby.test.mjs`: każdy plik w `site/zasoby/` ma wpis z licencją `CC0`
+   i zgodną sumą, każdy wpis ma plik. *(subagent)*
+4. **Scena z zasobów** — `site/biurko/obiekty.js`, `scena.js`, `swiat.js` (nowy plik ładowania,
+   np. `site/biurko/zasoby.js`, jeśli porządek tego wymaga): modele w skali metrycznej, materiały
+   PBR, HDRI jako `environment`, lampa jako jedyne ciepłe źródło z miękkimi cieniami, kolorystyka
+   RelAI w akcentach (kubek, przekładki, karteczki), teczka i pudełko z fiszkami w kodzie na
+   materiałach PBR. Bryły proceduralne zastąpione modelami usuwasz razem z teksturami canvas,
+   których nic już nie używa; tekstury z tekstem (karteczki, dokumenty, etykiety) zostają.
+5. **Ładowanie etapami** — najpierw zasoby kadru hero, pierwsza klatka, potem reszta w tle; treść
+   HTML czytelna od pierwszej chwili. Nieudane ładowanie zasobu → tryb przepływu jak bez WebGL,
+   bez komunikatu o błędzie dla odwiedzającego.
+6. **Hero od nowa** — kontrakt warstw z BRIEF.md (co najmniej trzy plany o widocznie różnej
+   prędkości w przewijaniu), nagłówek w całości czytelny, wezwanie w kadrze bez przewijania,
+   porównanie obok `01-hero.png`.
+7. **Przystanki 2–7 na nowych obiektach** — pozy w `kamera.js` dopasowane do nowej sceny,
+   struktura toru i testy zostają; konfigurator CSS3D dopasowany do ekranu nowego laptopa.
+8. **Budżet** — mediana i p95 czasu klatki (1366 × 768, DPR 1, zwykły i CPU ×4), czas do pierwszej
+   klatki hero, bajty przesłane przy pierwszym wejściu z wyłączoną pamięcią podręczną (osobno
+   zestaw hero i całość), `renderer.info` (wywołania rysowania, trójkąty); render dalej tylko
+   w ruchu, obniżenie jakości przy medianie > 26 ms.
+9. **Testy i generator** — testy `kamera.test.mjs` po zmianie póz, nowy test rejestru źródeł
+   (punkt 3); `site/index.html` i `site/pl/index.html` wygenerowane od nowa, jeśli szablon się
+   zmienił. *(subagent)*
+10. **`site/README.md`** — skąd zasoby, jak dodać nowy (karta zgody, `ZRODLA.json`, test),
+    jak zmierzyć budżet.
 
 ## Weryfikacja (wszystkie punkty muszą przejść)
 
 Każdy punkt Weryfikacji, który przeszedł, odhaczasz w `PROMPT_ETAP_2.md` (`- [ ]` → `- [x]`)
 zaraz po jego sprawdzeniu, nie na końcu etapu; punkt, który nie przeszedł, zostaje pusty.
 
-- [ ] `node --test "site/**/*.test.mjs"` kończy się bez błędów; liczba testów większa niż 91
-      (E1, `FAKT`), w tym nowe `szczyt.test.mjs` i `makiety.test.mjs`.
-- [ ] `node site/narzedzia/makiety.mjs` i `node site/narzedzia/zbuduj.mjs` uruchomione dwukrotnie
-      dają identyczne sumy sha256 `site/dane/makiety.json`, `site/index.html`, `site/pl/index.html`;
-      zero niewypełnionych `{{`/`}}`; każda wartość makiety ma `zrodlo`, a te spoza `core/panel`
-      mają `zrodlo: "przykład"` (licznik obu grup w wpisie).
-- [ ] **Szczyt odwracalny:** `window.__biurko.diagnostyka()` (rozszerzona w tym etapie; po E1 zwraca
-      tylko plany okno / lampa / kubek) zwraca pozycje karteczek dla tej samej pozycji
-      przewijania przy zejściu w dół i powrocie w górę — różnica ≤ 0,001 jednostki sceny dla
-      każdej z siedmiu (pomiar w trzech punktach szczytu: początek, środek, koniec).
-- [ ] Szczyt na zrzutach: pas kadrów (cisza, start, środek, koniec szczytu) przy 1366 × 768
-      w katalogu roboczym; tekst „Porządek” ma opacity 0 w trakcie przelotu i 1 po ułożeniu
-      (odczyt stylu w trzech punktach).
-- [ ] **Hero nietknięte (dowód negatywny):** kadr hero PL 1366 po etapie obok
-      `kalibracja/hero-pl-1366.jpeg` — średnia różnica pikseli zapisana w wpisie; każda widoczna
-      zmiana pokazana Łukaszowi (punkt 7 albo zgoda na różnicę), `POZY.biurko` bez zmian.
-- [ ] Szuflady: każda z czterech otwiera się klikiem w obiekt sceny i z klawiatury (Tab, Enter),
-      Esc zamyka, `document.activeElement` po zamknięciu = element otwierający, `scrollY` przed
-      i po identyczne; pudełko pokazuje 15 fiszek = 15 komend w `fakty.json`.
-- [ ] Każdy z siedmiu przystanków osiągalny przewijaniem i z mapy (klik i klawiatura); kontrast
-      tekstu przystanków 2–7 zmierzony na złożonym kadrze: treść ≥ 4,5 : 1, nagłówek ≥ 3 : 1
-      (z kontrolą pozytywną na jasnym obiekcie).
-- [ ] WebGL wyłączony (podmiana `getContext`) → treść przystanków, szuflad, fiszek, makiet
-      i konfigurator widoczne w przepływie, zero komunikatów konsoli.
-- [ ] Konsola bez błędów i nieudanych żądań przy wejściu, pełnym przewinięciu i otwarciu każdej
-      szuflady (PL i EN); żądania sieciowe tylko `localhost` i `api.github.com`.
-- [ ] Wydajność (`FAKT`): mediana i p95 klatki w trakcie szczytu i z otwartą szufladą, oba
-      przebiegi (zwykły, CPU ×4), oraz KB JS przesłane — w wpisie obok liczb E1.
-- [ ] Podstawy bezpieczeństwa na zmianie etapu: treść szuflad i makiet trafia do DOM przez
-      `textContent` albo przez generator z ucieczką —
+- [ ] Bramka: `ls docs/zasoby/STRONA/builds/biurko/referencje/*.png | wc -l` zwraca 8 przed
+      pierwszą zmianą w `site/`.
+- [ ] `node --test "site/**/*.test.mjs"` kończy się bez błędów, liczba testów ≥ 91 (E1, `FAKT`)
+      plus nowy test rejestru źródeł; kontrola pozytywna: podłożony w katalogu roboczym plik bez
+      wpisu (kopia `site/zasoby/` z dodatkowym plikiem) wywraca test.
+- [ ] Karta zgody na pobranie pokazana przed pierwszym pobraniem; odpowiedź Łukasza zacytowana
+      w wpisie; każdy plik `site/zasoby/` ma w `ZRODLA.json` licencję `CC0` przeczytaną na stronie
+      zasobu i sumę zgodną z plikiem.
+- [ ] Żądania sieciowe przy wejściu i pełnym przewinięciu (PL i EN): tylko `localhost`
+      i `api.github.com`; `grep` po `https?://` w `src`/`href`/`url()` w `site/` — tylko odnośnik
+      do repo na GitHubie (kontrola pozytywna trafia) i adresy stron zasobów w `ZRODLA.json`
+      oraz `LICENCJE.md`.
+- [ ] Budżet (`FAKT`): bajty przesłane przy pierwszym wejściu z wyłączoną pamięcią podręczną
+      ≤ ok. 8 MB (Aneks A), osobno zestaw hero; liczba z DevTools zgadza się z sumą rozmiarów
+      plików (różnica wyjaśniona); przekroczenie → pytanie do Łukasza, nie cicha zmiana budżetu.
+- [ ] Hero: zrzuty otwarcia, stanu pośredniego i wyjścia przy 1366 × 768 i 1920 × 1080 (PL i EN)
+      w katalogu roboczym, obok `01-hero.png`; trzy plany w dwóch pozycjach przewijania przesuwają
+      się o różne odległości (współrzędne ekranowe trzech obiektów w wpisie).
+- [ ] Kontrast tekstu hero zmierzony na złożonym kadrze, cztery warianty PL/EN × 1366/1920:
+      treść ≥ 4,5 : 1, nagłówek ≥ 3 : 1, z kontrolą pozytywną na jasnym obiekcie.
+- [ ] **Kalibracja smaku:** zrzuty hero i dwóch przystanków pokazane Łukaszowi obok obrazów
+      wzorcowych przed zamknięciem etapu; jego werdykt zacytowany w wpisie; uwagi wdrożone w E2
+      albo zapisane za jego zgodą jako zakres E3 lub E5.
+- [ ] Każdy z siedmiu przystanków osiągalny przewijaniem i z mapy (klik, Tab i Enter);
+      konfigurator na ekranie nowego laptopa: `elementFromPoint` trafia formularz, klik zmienia
+      komendy, „Kopiuj” daje komendy w schowku systemu.
+- [ ] WebGL wyłączony (podmiana `getContext`) i osobno zasób z odpowiedzią 404 (podmiana adresu
+      w `initScript`) → treść i konfigurator widoczne w przepływie, zero komunikatów konsoli
+      poziomu `error`; pierwsza asercja to tryb strony, potem zrzut (L-0213).
+- [ ] Konsola bez błędów i nieudanych żądań przy wejściu i pełnym przewinięciu (PL i EN).
+- [ ] Wydajność (`FAKT`): mediana i p95 klatki (zwykły przebieg i CPU ×4), czas do pierwszej
+      klatki hero, `renderer.info` — w wpisie obok liczb E1 (mediana 5,60 ms, p95 11,10 ms
+      przy CPU ×4, JS 433 KB gzip).
+- [ ] Podstawy bezpieczeństwa:
       `grep -rn --exclude="*.test.mjs" "innerHTML\|outerHTML\|insertAdjacentHTML\|document.write" site/js site/biurko`
-      kończy się kodem 1 (zero trafień; po E1 tak samo, a test-strażnik `wersja.test.mjs` cytuje
-      `innerHTML` i dlatego jest wyłączony), z kontrolą pozytywną: ten sam grep bez `--exclude`
-      trafia `wersja.test.mjs`; strona nie ma formularzy wysyłających dane.
-- [ ] **Kalibracja szczytu i szuflad:** pas kadrów szczytu i zrzut jednej otwartej szuflady
-      pokazane Łukaszowi przed zamknięciem etapu; jego werdykt zacytowany w wpisie; uwagi wdrożone
-      w E2 albo zapisane za jego zgodą jako zakres E4.
+      kończy się kodem 1 (zero trafień), a ten sam grep bez `--exclude` trafia
+      `site/js/wersja.test.mjs` (kontrola pozytywna); zasoby ładowane wyłącznie ze ścieżek
+      względnych `site/`; strona nie ma formularzy wysyłających dane.
 - [ ] Wpis w `docs/DZIENNIK.md` dopisany na końcu sekcji „Wpisy”, podpis
       `Autor: RelAI (Opus 5.5) + Lukasz`; `docs/STATE.md` zaktualizowany.
 - [ ] Katalog roboczy `.claude/relai/work/STRONA_RELAI/E2/` przejrzany raportem
       (`node .claude/relai/tools/clean-work.js raport`) i skasowany po „tak”; liczby przed i po
-      w sekcji „Zweryfikowane” wpisu. Artefakty poza katalogiem (np. serwer podglądu w tle, pliki
-      w `%TEMP%`) wypisane z nazwy razem z tym, co się z nimi stało.
+      w sekcji „Zweryfikowane” wpisu. Artefakty poza katalogiem (paczki w `%TEMP%`, serwer
+      podglądu w tle) wypisane z nazwy razem z tym, co się z nimi stało.
 
 ## Na koniec (rytuał obowiązkowy — bez niego etap nie jest ukończony)
 
@@ -409,16 +394,16 @@ zaraz po jego sprawdzeniu, nie na końcu etapu; punkt, który nie przeszedł, zo
    przed i po do wpisu z kroku 2, artefakty spoza katalogu z nazwy.
 2. `docs/DZIENNIK.md`: wpis wg szablonu (Zrobione / Zweryfikowane — jak dokładnie / Świadomie
    odłożone / Do zrobienia przez człowieka), na końcu sekcji „Wpisy”, podpis
-   `Autor: RelAI (Opus 5.5) + Lukasz`. Zaktualizuj tabelę ryzyk (T1 po pomiarze szczytu, T2 po
-   kalibracji; sekcja ryzyk jest ponad progiem 12 KB — propozycja z wpisu E1: historia wiersza C1
-   do archiwum przy przeglądzie); dopisz lekcje z etapu do `docs/LEKCJE.md` i odśwież „Zasady
-   aktywne”.
+   `Autor: RelAI (Opus 5.5) + Lukasz`. Zaktualizuj tabelę ryzyk (T1 po pomiarze, T2 po kalibracji,
+   T3 po pomiarze budżetu i ocenie spójności); dopisz lekcje z etapu do `docs/LEKCJE.md`
+   i odśwież „Zasady aktywne”.
 3. Bramki manualne: pozycje „Do zrobienia przez człowieka” z wpisu → sekcja „Bramki manualne”
-   `STATUS.md`, status `OTWARTA`.
-4. `docs/STATE.md` — stan strony (szczyt, szuflady, makiety, jak uruchomić); `CLAUDE.md` — wiersz
-   planu w tabeli „Stan prac” i linia „Aktywny plan”.
+   `STATUS.md`, status `OTWARTA`; bramkę „Obrazy wzorcowe 01–08” zamknij z datą.
+4. `docs/STATE.md` — stan strony (zasoby CC0, budżet, jak dodać zasób); `CLAUDE.md` — wiersz planu
+   w tabeli „Stan prac” i linia „Aktywny plan”.
 5. **Wygeneruj `PROMPT_ETAP_3.md`** w tym folderze, ze specyfikacji promptu etapowego
-   (`.claude/relai/templates/SPEC_PROMPT_ETAPU.md`): na bazie `PLAN.html` sekcja 6 (E3 — Film:
-   pełna droga, hero i szczyt, bramka wyboru wersji), realnego stanu `site/` po tym etapie
-   (moduły wspólne, które Film ma wziąć), werdyktu kalibracji szczytu i lekcji z tego etapu.
-6. Commit — propozycja, conventional message po angielsku (np. `feat: add desk peak, drawers and panel mockups (STRONA_RELAI E2)`); `.claude/launch.json` poza commitem.
+   (`.claude/relai/templates/SPEC_PROMPT_ETAPU.md`): na bazie `PLAN.html` sekcja 6 (wiersz dawnego
+   E2 — pełna droga, szczyt, szuflady) i sekcja 10 (Aneks A), treści niewykonanego promptu
+   szczytu i szuflad (`git show a097b35:docs/plany/STRONA_RELAI/PROMPT_ETAP_2.md`) przeniesionej
+   na nową scenę, realnego stanu `site/` po tym etapie, werdyktu kalibracji i lekcji z tego etapu.
+6. Commit — propozycja, conventional message po angielsku (np. `feat: rebuild desk world from CC0 assets (STRONA_RELAI E2)`); `.claude/launch.json` poza commitem.
