@@ -23,9 +23,16 @@ function deska(t, ax, ay) {
   return k;
 }
 
-/** Worn walnut boards. `ax`, `ay` are the repeats over the UVs of the mesh it is put on. */
+/** A thin lacquer coat over the desk boards: the lamp shows in it as a soft streak (03-porzadek, 08-wieczor). */
+export const LAKIER = Object.freeze({ clearcoat: 0.3, clearcoatRoughness: 0.12 });
+
+/**
+ * Worn walnut boards. `ax`, `ay` are the repeats over the UVs of the mesh it is put on; `clearcoat` in
+ * `opcje` (see LAKIER) makes it a lacquered, physical material.
+ */
 export function drewno(A, ax, ay, opcje = {}) {
-  return new THREE.MeshStandardMaterial({
+  const Material = "clearcoat" in opcje ? THREE.MeshPhysicalMaterial : THREE.MeshStandardMaterial;
+  return new Material({
     map: deska(A.blat.map, ax, ay),
     normalMap: deska(A.blat.normalMap, ax, ay),
     roughnessMap: deska(A.blat.roughnessMap, ax, ay),

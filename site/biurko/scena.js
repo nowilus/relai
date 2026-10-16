@@ -36,7 +36,8 @@ function swiatlo(scena, obiekty) {
   const zrodlo = new THREE.Vector3();
   scena.updateMatrixWorld(true);
   obiekty.lampa.userData.zrodlo.getWorldPosition(zrodlo);
-  const lampa = new THREE.SpotLight("#ffc080", 17, 0, 0.74, 0.95, 2);
+  // toned down after E4: at 17 the pool glared on Panel and washed out Plan, Porządek and Amnezja
+  const lampa = new THREE.SpotLight("#ffc080", 9, 0, 0.74, 0.95, 2);
   lampa.position.copy(zrodlo);
   lampa.target.position.set(0.16, BLAT, 0.06);
   lampa.castShadow = true;
@@ -49,12 +50,13 @@ function swiatlo(scena, obiekty) {
   scena.add(lampa, lampa.target);
 
   // light bounced off the lit desk: warm, weak, no shadow
-  const odbicie = new THREE.PointLight("#e7b27a", 0.45, 0, 2);
+  const odbicie = new THREE.PointLight("#e7b27a", 0.2, 0, 2);
   odbicie.position.set(0.2, BLAT + 0.32, 0.0);
   scena.add(odbicie);
 
   // the lamp also grazes the wall and the board: a weak warm light close to the wall brings the plaster and cork grain out
-  const sciana = new THREE.PointLight("#ffc890", 0.6, 3.2, 2);
+  // weak: in 01-hero the wall left of the board falls into darkness, the lamp is the one pool of light
+  const sciana = new THREE.PointLight("#ffc890", 0.22, 3.2, 2);
   sciana.position.set(0.42, 1.38, -0.28);
   scena.add(sciana);
 
@@ -64,7 +66,7 @@ function swiatlo(scena, obiekty) {
   okno.target.position.set(0.1, BLAT, 0.1);
   scena.add(okno, okno.target);
 
-  scena.add(new THREE.HemisphereLight("#3d4a66", "#2a2018", 0.13));
+  scena.add(new THREE.HemisphereLight("#3d4a66", "#2a2018", 0.05));
   return { lampa };
 }
 
@@ -87,7 +89,7 @@ export function zbudujScene({ kontener, slowa, zasoby, ekran, tor, przyKlatce, o
   scena.background = new THREE.Color("#15120f");
   const pmrem = new THREE.PMREMGenerator(renderer);
   scena.environment = pmrem.fromEquirectangular(zasoby.otoczenie).texture;
-  scena.environmentIntensity = 0.24;
+  scena.environmentIntensity = 0.13;
   zasoby.otoczenie.dispose();
   pmrem.dispose();
 
@@ -102,7 +104,8 @@ export function zbudujScene({ kontener, slowa, zasoby, ekran, tor, przyKlatce, o
   const ao = new GTAOPass(scena, kamera, 1, 1);
   ao.updateGtaoMaterial({ radius: 0.14, distanceExponent: 1.4, thickness: 1, scale: 1.3, samples: 12, distanceFallOff: 1, screenSpaceRadius: false });
   ao.updatePdMaterial({ lumaPhi: 10, depthPhi: 2, normalPhi: 3, radius: 6, rings: 2, samples: 12 });
-  const bokeh = new BokehPass(scena, kamera, { focus: 1, aperture: 0.012, maxblur: 0.005 });
+  // a lighter blur than in E3: the boards in front keep their wear, as in 01-hero
+  const bokeh = new BokehPass(scena, kamera, { focus: 1, aperture: 0.0035, maxblur: 0.0016 });
   kompozytor.addPass(ao);
   kompozytor.addPass(bokeh);
   kompozytor.addPass(new OutputPass());

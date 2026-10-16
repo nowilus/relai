@@ -25,11 +25,11 @@
 | C11 | Pliki pomiarów puchną albo trafiają do gita (plan PANEL_CLAUDE, ryzyko R5) | **Niski** (2026-10-08 po E3) | **OTWARTE ŚWIADOMIE** | `.claude/relai/` poza gitem (sprawdzone `git check-ignore`), plik na sesję, rekord bez treści (~250 B); E4: plik scaleń `.claude/relai/panel/scalenia.json` też poza gitem (`git check-ignore`), rekord dłuższy o dwa pola; E6: `.claude/relai/panel/cennik.json` (wersje cennika) poza gitem (`git check-ignore`), jedna wersja na zapis z karty; otwarte: sprzątanie starych plików nie istnieje — do E7 E7 (decyzja człowieka 2026-10-09): sprzątanie świadomie odłożone — zmierzone 5 plików, 260 KB po dwóch dniach intensywnej pracy; „Koszty projektu” sumują wszystkie pliki, więc kasowanie zmieniłoby sumę. Próg powrotu: folder `.claude/relai/pomiary/` powyżej 10 MB. |
 | L1 | `percentUsed` limitu odświeża się tylko z odpowiedzią API — długa tura subagentów przekroczy próg, a karta przyjdzie po fakcie (plan LIMIT_CHECKPOINT, ryzyko L1) | **Średni** (2026-10-11 po E2; wcześniej wysoki) | **ZMITYGOWANE 2026-10-12** (zamknięcie planu; ograniczenie silnika — procent tylko z odpowiedzią API) | E2: `session.measure` w trakcie tury przestawia kolor baterii od razu, karta przychodzi po `turn.complete` z procentem odczytanym po turze (test „past the threshold in the middle of a turn”); otwarte, bo procent nadal przychodzi tylko z odpowiedzią API, więc długa tura może przekroczyć próg o kilka punktów, zanim karta padnie. |
 | H9 | Tryb ciągły „dokumenty” nie widzi zapisu, którego nie rozpozna — `sed -i`, skrypt, podproces, `>(tee …)` — i dokument zostaje bez humanizacji (plan HUMANIZACJA, pomiar E5) | **Niski** (2026-10-14, przy zamknięciu planu) | **OTWARTE ŚWIADOMIE** | Aneks C: hook po Write/Edit i po Bash z przekierowaniem `>` / `>>` albo `tee`; w pomiarze E5 model pisał wyłącznie tymi drogami (8/8 przed poprawką, 2/2 po niej z regułą). Pominięcie kończy się ciszą, nigdy złą regułą; komenda `/relai-humanize` na pliku działa niezależnie od trybu ciągłego. |
-| T1 | Scena 3D strony tnie się na słabszym laptopie albo zintegrowanej grafice (plan STRONA_RELAI, ryzyko 1) | **Wysoki** (2026-10-16 po E3, bez zmiany) | **OTWARTE** | E1: render na żądanie, DPR ≤ 1,5, obniżenie jakości przy medianie > 26 ms. E2 (scena CC0, AO, głębia ostrości): przy CPU ×4 mediana 11,1 ms, p95 16,7 ms, 913 wywołań rysowania na klatkę po scaleniu miasta (przed: 2206, p95 22,3 ms); obniżanie jakości zaczyna od głębi ostrości. E3 (poświata ekranu RectAreaLight, nowe książki): przy CPU ×4 przewijanie mediana 11,9 ms, p95 22,2 ms — p95 wzrosło o 5,5 ms, zapas do 26 ms już tylko 3,8 ms; przybliżanie p95 13,1 ms; najwięcej 907 wywołań rysowania na klatkę. Zmierzone tylko na RTX 4070 Ti. Otwarte: słaba grafika w E7, path tracing w E4 (Aneks B) tylko na postoju i z wyłącznikiem. |
-| T2 | Biurko wygląda jak tani render albo glina z AI (plan STRONA_RELAI, ryzyko 2) | **Wysoki** (2026-10-16 po E2, bez zmiany) | **OTWARTE** | E2: modele i tekstury CC0, deski orzechowe ze słojami, miasto za oknem, kubek i tablica od nowa; kalibracja w czterech rundach, zamknięcie za zgodą Łukasza, ale „nadal jesteśmy całkiem daleko” od obrazów 01–08 — przyczyna: brak światła odbitego w rasteryzacji (L-0220). Aneks B: E3 laptop i detale, E4 path tracing na przystankach. |
-| T3 | Modele CC0 z różnych źródeł nie zgrywają się stylem i skalą; strona za ciężka (plan STRONA_RELAI, Aneks A pkt 6) | **Niski** (2026-10-16 po E2; wcześniej średni) | **OTWARTE** | E2: wspólne HDRI, skala w metrach, barwy modeli przyciemnione do sceny — Łukasz nie zgłaszał niespójności stylu; ciężar 9,0 MB z kompresją (FAKT), zestaw hero 4,5 MB, pułap podniesiony do 10 MB decyzją Łukasza (Aneks B). Otwarte: path tracer (E4) musi się zmieścić w pułapie. |
-| T4 | Path tracing na słabym sprzęcie zamraża stronę albo szumi zbyt długo (plan STRONA_RELAI, Aneks B pkt 5) | **Wysoki** (2026-10-16, przy Aneksie B) | **OTWARTE** | Tylko na postoju kamery, wyłącznik dla słabego GPU i telefonu, render rastrowy jako stan bazowy, pomiar czasu do czystego obrazu w E4. |
-| T5 | Młoda zależność `three-gpu-pathtracer` (0.0.x) zmienia API albo psuje się z three.js (plan STRONA_RELAI, Aneks B pkt 5) | **Średni** (2026-10-16, przy Aneksie B) | **OTWARTE** | Wersja przypięta w `site/vendor/`, rejestr licencji, karta zgody przed pobraniem; strona działa bez niej. |
+| T1 | Scena 3D strony tnie się na słabszym laptopie albo zintegrowanej grafice (plan STRONA_RELAI, ryzyko 1) | **Wysoki** (2026-10-16 po E3, bez zmiany) | **OTWARTE** | E1: render na żądanie, DPR ≤ 1,5, obniżenie jakości przy medianie > 26 ms. E2 (scena CC0, AO, głębia ostrości): przy CPU ×4 mediana 11,1 ms, p95 16,7 ms, 913 wywołań rysowania na klatkę po scaleniu miasta (przed: 2206, p95 22,3 ms); obniżanie jakości zaczyna od głębi ostrości. E3 (poświata ekranu RectAreaLight, nowe książki): przy CPU ×4 przewijanie mediana 11,9 ms, p95 22,2 ms — p95 wzrosło o 5,5 ms, zapas do 26 ms już tylko 3,8 ms; przybliżanie p95 13,1 ms; najwięcej 907 wywołań rysowania na klatkę. Zmierzone tylko na RTX 4070 Ti. E4 (bez path tracingu, przygaszona lampa, lakier blatu): CPU ×4 mediana 11,3 ms, p95 17,5 ms, najwięcej 910 wywołań rysowania. Otwarte: słaba grafika w E7. |
+| T2 | Biurko wygląda jak tani render albo glina z AI (plan STRONA_RELAI, ryzyko 2) | **Wysoki** (2026-10-16 po E2, bez zmiany) | **OTWARTE** | E2: modele i tekstury CC0, deski orzechowe ze słojami, miasto za oknem, kubek i tablica od nowa; kalibracja w czterech rundach, zamknięcie za zgodą Łukasza, ale „nadal jesteśmy całkiem daleko” od obrazów 01–08 — przyczyna: brak światła odbitego w rasteryzacji (L-0220). Aneks B: E3 laptop i detale, E4 path tracing na przystankach. E4 (2026-10-16): światło odbite nie dało uzysku — przyczyną dystansu jest detal przedmiotów, tekstur i kompozycja, nie światło (L-0226); test detalu (blat `wood_table_worn`, druk na dokumentach, ciemniej) dał umiarkowany zysk. Aneks C: następny jest Film, Biurko po bramce. |
+| T3 | Modele CC0 z różnych źródeł nie zgrywają się stylem i skalą; strona za ciężka (plan STRONA_RELAI, Aneks A pkt 6) | **Niski** (2026-10-16 po E2; wcześniej średni) | **OTWARTE** | E2: wspólne HDRI, skala w metrach, barwy modeli przyciemnione do sceny — Łukasz nie zgłaszał niespójności stylu; ciężar 9,0 MB z kompresją (FAKT), zestaw hero 4,5 MB, pułap podniesiony do 10 MB decyzją Łukasza (Aneks B). E4: 9,49 MiB (+0,38 MiB — blat `wood_table_worn` ma więcej szczegółu); path tracera nie ma. |
+| T4 | Path tracing na słabym sprzęcie zamraża stronę albo szumi zbyt długo (plan STRONA_RELAI, Aneks B pkt 5) | **Wysoki** (2026-10-16, przy Aneksie B) | **ZAMKNIĘTE 2026-10-16** (Aneks C — path tracing usunięty) | Ryzyko zmaterializowało się także na mocnym GPU: przy zimnej pamięci shaderów (ANGLE/D3D11, RTX 4070 Ti) shader z MIS kompiluje się ok. 10 s w tle, a pierwsze rysowanie blokuje główny wątek na ok. 8 s (FAKT, trzy czyste pomiary); rozgrzewka w workerze skraca linkowanie do 373 ms, ale nie rysowanie. Do tego hero do 256 próbek w ok. 7,5 s. |
+| T5 | Młoda zależność `three-gpu-pathtracer` (0.0.x) zmienia API albo psuje się z three.js (plan STRONA_RELAI, Aneks B pkt 5) | **Średni** (2026-10-16, przy Aneksie B) | **ZAMKNIĘTE 2026-10-16** (Aneks C — zależności nie ma w `site/vendor/`) | W 0.0.27 `WebGLPathTracer` jest przestarzały (ostrzeżenie w konsoli), generator źle wypieka `InstancedMesh` i siatki wielomateriałowe (L-0225). |
 | T6 | Ekran HTML na laptopie rozjeżdża się ze sceną 3D przy przybliżeniu (plan STRONA_RELAI, Aneks B pkt 5) | **Niski** (2026-10-16 po E3; wcześniej średni) | **OTWARTE** | Zrzuty w trzech rozdzielczościach, test trafienia kliknięciem (`elementFromPoint`) w każdym położeniu przybliżenia; w E3. E3: HTML położony dokładnie na siatce (bez przesunięcia w głąb), różnica narożników ≤ 0,04 px przy 1366 i 1920, PL i EN, na przystanku i w przybliżeniu; `elementFromPoint` 5/5; poza przybliżenia testowana dla 16:9, 16:10 i 4:3. Otwarte: telefon i wąskie okno — E7. |
 
 > Ryzyka zamknięte L3, L2, L5, L6 (4 pozycje) są w
@@ -1484,5 +1484,94 @@ Autor: RelAI (Sonnet 5.5, od czwartej rundy kalibracji Opus 5.5) + Lukasz
 
 **Do zrobienia przez człowieka:** brak nowych pozycji (bramki „Próba linku `claude-cli://`”, „Wybór
 wersji”, „GitHub Pages” — bez zmian w `STATUS.md`).
+
+Autor: RelAI (Opus 5.5) + Lukasz
+
+### 2026-10-16 — STRONA_RELAI E4: path tracing zbudowany, zmierzony i odrzucony; test detalu; Aneks C
+
+**Zrobione:**
+
+- **Karta zgody na zależność** pokazana przed pobraniem: `three-gpu-pathtracer` 0.0.27
+  i `three-mesh-bvh` 0.9.16 (MIT, peer three ≥ 0.185 / ≥ 0.159), rozmiary z rejestru npm; odpowiedź
+  Łukasza: „Tak, pobierz (Rekomendowane)”. Integrity obu paczek zgodne z rejestrem; do `site/vendor/`
+  trafiło wyłącznie domknięcie importów (127 modułów, 512 321 B, 157 467 B po `gzip -9`).
+- **Path tracing na postoju** (`site/biurko/fotorealizm.js`, `postoj.js` + 39 testów subagenta
+  Sonnet 5.5, integracja w `scena.js`): niższa warstwa biblioteki bez przestarzałego
+  `WebGLPathTracer`, mieszanie rastra i obrazu z path tracera w liniowym HDR przed jednym
+  tone mappingiem, ekspozycja dopasowana bisekcją do średniej luminancji rastra po AgX, odszumianie
+  w skali ściśniętej c/(1+c), punkty (miasto, kurz) nad obrazem z bufora głębi, wyłącznik (dotyk,
+  wąskie okno, reduced motion, renderer programowy lub zintegrowany, wolna klatka), wymuszenie
+  `localStorage.relai-fotorealizm`. Dwa błędy generatora obejście po stronie strony: instancje
+  i siatki wielomateriałowe rozbijane na czas budowy (L-0225).
+- **Ocena Łukasza:** „to wygląda po prostu źle i słabo i ja nie widzę tutaj żadnego jakiegoś wielkiego
+  uzysku… głównie chodzi tutaj o jakość tych tekstur, o doszczegółowienie, doprecyzowanie” (L-0226);
+  do tego ekran ładowania ma zasłaniać stany pośrednie. Kierunek: „Test detalu na hero
+  (Rekomendowane)”.
+- **Path tracing usunięty** razem z zależnością, modułami i testami; poświata obiektywu
+  (`UnrealBloomPass`) wypróbowana i usunięta po uwadze Łukasza („światło… świeci po oczach”).
+- **Test detalu, który zostaje** (Łukasz: „Tak, przyjmuję”): blat `wood_table_worn` z Poly Haven
+  (karta zgody po miniaturach obok wzorca; „Tak, pobierz (Rekomendowane)”; `ZRODLA.json`,
+  `LICENCJE.md`), dokumenty z drukiem w Hanken Grotesk, dopiskami ołówkiem w Kalam, podkreśleniami,
+  zażółconym brzegiem i śladem kubka (`tekstury.js`), cienki lakier blatu (`LAKIER`, clearcoat 0,3 /
+  0,12, `materialy.js`), lampa 17 → 9, światło odbite 0,45 → 0,2, ściana 0,6 → 0,22, hemisfera
+  0,13 → 0,05, otoczenie 0,24 → 0,13, łagodniejsza głębia ostrości (`scena.js`), stopka „Instalacji”
+  na szkle jak mapa (`strona.css`).
+- **Aneks C** w `PLAN.html` po sprostowaniu opisu Filmu (L-0228): E4 = „Test fotorealizmu
+  i stonowanie światła”, E5 = Film z planu (grafika z kodu, ekran ładowania, bramka wyboru), E6 =
+  Biurko pełna droga tylko przy wyborze Biurka, E7 z ekranem ładowania wybranej wersji. Łukasz:
+  „Tak, dopisz (Rekomendowane)”, „Film z planu (Rekomendowane)”.
+- Lekcje L-0225…L-0228, destylat odświeżony (zasady 4, 14, 15).
+
+**Zweryfikowane — jak dokładnie:**
+
+- Path tracing (RTX 4070 Ti, 1366 × 768, DPR 1, okno na wierzchu): hero do 256 próbek w ok. 7,5 s,
+  kafle 3 × 1, wzmocnienie ekspozycji 1,19–1,28; próbka przy DPR 1,5 (2049 × 1152) 57 ms, przy
+  1366 × 768 29 ms; BVH SAH 704 ms budowy i 58 ms na próbkę wobec CENTER 185 / 85 ms; budowa sceny
+  path tracera 0,9–1,0 s na głównym wątku. Pomiar w tle zawyżał próbkę do 150 ms (L-0222).
+- Zimna pamięć shaderów (sól w definicjach, L-0227): `compileAsync` 10,0–10,4 s bez przerw głównego
+  wątku, pierwsze `update()` blokuje 8,0–9,7 s; bez mgły, głębi, MIS i ruletki 1,9 + 1,7 s, z samym
+  MIS 8,7 + 7,9 s; worker z tym samym GLSL: linkowanie na głównym wątku 373 ms, rysowanie dalej 8,0 s.
+  Ciepła pamięć po przeładowaniu: 51 ms.
+- Błędy generatora: pudełko wypieczonej geometrii klawiatury −0,05…1,21 m wobec 0,29 × 0 × 0,18 m
+  w scenie (jedyna z 175 siatek ponad 5 mm); referencyjny `WebGLPathTracer` na tej samej scenie dawał
+  tę samą płytę i te same tekstury — błąd sceny, nie okablowania.
+- Po usunięciu: `node --test "site/**/*.test.mjs"` → 162 pass, 0 fail (testy postoju — 39, kontrola
+  pozytywna z odwróconym warunkiem dotyku 10/39 — odeszły z modułem).
+- Ekran HTML: różnica narożników `[data-ekran]` i rzutu siatki 0,013 px na przystanku, 0,045 / 0,046 px
+  w przybliżeniu przy 1366 / 1920; `elementFromPoint` 5/5 w obu.
+- Budżet (`budzet.mjs`: lista żądań przeglądarki, pliki z dysku, tekst `gzip -9`, MiB): 113 plików,
+  9,49 MiB; ten sam instrument na HEAD przez `git show` → 9,11 MiB (= FAKT E3), różnica +0,38 MiB
+  (blat 1 065 846 B wobec 663 669 B).
+- Płynność (CPU ×4, 180 klatek/s przed pomiarem): równe przewijanie 12 s — mediana 11,3 ms, p95 17,5 ms,
+  najwięcej 910 wywołań rysowania na klatkę (E3: 907).
+- Konsola i sieć przy wejściu, pełnym przewinięciu, przybliżeniu i Esc: PL i EN — 0 komunikatów,
+  0 odpowiedzi ≠ 200, wyłącznie `localhost:4520`.
+- Bezpieczeństwo: grep `innerHTML|outerHTML|insertAdjacentHTML|document.write` w `site/js`
+  i `site/biurko` bez testów → kod 1, z testami trafia `site/js/wersja.test.mjs`; formularz bez
+  `action`/`method`; 0 odwołań do CDN.
+- **Kalibracja smaku:** strona porównań w panelu przeglądarki (E3 | test | `01-hero`, potem
+  `01-hero` i 7 przystanków po przygaszeniu) z rozbiorem na światło, materiał, obiektyw i kompozycję;
+  werdykt: „Tak, przyjmuję”.
+- Katalog roboczy `.claude/relai/work/STRONA_RELAI/E4/`: przed 65 445 490 B w 323 plikach, po 0
+  (skasowany po „Tak, skasuj”). Poza katalogiem: `%TEMP%\relai-three-0.186.1` (z E1, użyty do
+  próby `UnrealBloomPass`, zostaje), serwer podglądu na 4520 z poprzedniej sesji (działa), serwer
+  porównań na 4530 zatrzymany; wpis pamięci `realizm-to-detal-nie-swiatlo` poza repo.
+
+**Świadomie odłożone:**
+
+- Punkty weryfikacji E4 o path tracingu (3, 4, 5) — nie dotyczą (Aneks C).
+- Jasna kropka z E3: na zrzutach przystanków drobne jasne punkty na ciemnym tle — hipoteza: kurz
+  (`kurz()`, 90 punktów, rozmiar 4,5 mm) w stożku lampy; niepotwierdzona, do E6 (Biurko), jeśli
+  bramka je wybierze.
+- Rekwizyty i kompozycja hero jak we wzorcu (kamera z góry, modele zamiast brył z kodu) — E6 przy
+  wyborze Biurka.
+- Bramka zgody optymalizatora odpaliła pytanie na krótkim potwierdzeniu „Tak, zaczynamy E4”, które
+  procedura `/relai-prompt` przepuszcza bez zmian — ta sama klasa co L-0189; do odnogi poprawek
+  hooków, jeśli Łukasz zechce.
+- Rotacja ryzyk (sekcja ponad progiem) i lekcji (51,7 KB przy progu 50 KB) — T4 i T5 zamknięte w tym
+  etapie, rotacja do osobnej sesji.
+
+**Do zrobienia przez człowieka:** — (bramki „Wybór wersji” po E5, „Próba linku `claude-cli://`”,
+„GitHub Pages” — bez zmian w treści, terminy wg Aneksu C w `STATUS.md`).
 
 Autor: RelAI (Opus 5.5) + Lukasz

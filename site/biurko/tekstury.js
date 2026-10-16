@@ -157,7 +157,77 @@ export function karteczka(tekst, kolor, ziarno) {
   return tekstura(c);
 }
 
-/** A project document: title in Fraunces, ruled text lines, a margin note in Kalam. */
+// Printed body text for the documents: never read up close, but real words make real texture.
+const SLOWA = ("sesja zaczyna od stanu projektu plik pamięta decyzję etap plan ryzyko zamknięty " +
+  "otwarte dziennik lekcja wpis zmiana kod test przegląd agent kontekst przystanek wersja " +
+  "wydanie notatka pytanie odpowiedź zasada próg model narzędzie dokument rejestr status").split(" ");
+const DOPISKI = ["sprawdzić!", "to zostaje", "zapytać Łukasza", "OK", "ważne", "po E5", "?", "tak"];
+
+function drukowanyAkapit(ctx, x, y, szer, linii, los) {
+  ctx.font = "500 25px 'Hanken Grotesk', sans-serif";
+  ctx.fillStyle = "rgba(49,44,37,.82)";
+  for (let l = 0; l < linii; l++) {
+    const koniec = l === linii - 1 ? szer * (0.35 + los() * 0.4) : szer;
+    let px = x;
+    while (px < x + koniec - 40) {
+      const s = SLOWA[Math.floor(los() * SLOWA.length)];
+      const w = ctx.measureText(s).width;
+      if (px + w > x + koniec) break;
+      ctx.fillText(s, px, y);
+      px += w + 9;
+    }
+    y += 37;
+  }
+  return y;
+}
+
+/** Pencil notes in the margin: a word in Kalam, an underline, a tick or an arrow. */
+function dopiski(ctx, W, los) {
+  ctx.strokeStyle = "rgba(70,66,62,.75)";
+  ctx.fillStyle = "rgba(70,66,62,.82)";
+  ctx.lineWidth = 3;
+  ctx.lineCap = "round";
+  for (let i = 0; i < 2 + Math.floor(los() * 2); i++) {
+    const y = 470 + los() * 760;
+    ctx.save();
+    ctx.translate(W - 250 + los() * 40, y);
+    ctx.rotate((los() - 0.5) * 0.2);
+    ctx.font = "400 42px Kalam, cursive";
+    ctx.fillText(DOPISKI[Math.floor(los() * DOPISKI.length)], 0, 0);
+    ctx.restore();
+    ctx.beginPath(); // the line it refers to, underlined by hand
+    ctx.moveTo(96, y + 8);
+    ctx.bezierCurveTo(300, y + 12 + los() * 6, 500, y + 4, 560 + los() * 120, y + 10);
+    ctx.stroke();
+  }
+  ctx.beginPath(); // a tick at the top
+  ctx.moveTo(W - 160, 150);
+  ctx.lineTo(W - 140, 175);
+  ctx.lineTo(W - 100, 110);
+  ctx.stroke();
+}
+
+/** Age of a sheet that has lain on a desk: a warmer edge, a faint mug ring on some. */
+function zuzycie(ctx, W, H, los) {
+  const brzeg = ctx.createRadialGradient(W / 2, H / 2, H * 0.35, W / 2, H / 2, H * 0.75);
+  brzeg.addColorStop(0, "rgba(200,170,110,0)");
+  brzeg.addColorStop(1, "rgba(200,170,110,.16)");
+  ctx.fillStyle = brzeg;
+  ctx.fillRect(0, 0, W, H);
+  if (los() < 0.5) return;
+  const x = 200 + los() * 600, y = 900 + los() * 400, r = 118;
+  ctx.strokeStyle = "rgba(120,80,40,.16)";
+  ctx.lineWidth = 9;
+  ctx.beginPath();
+  ctx.arc(x, y, r, 0.3, Math.PI * 1.8);
+  ctx.stroke();
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.arc(x + 4, y - 3, r - 9, 0, Math.PI * 2);
+  ctx.stroke();
+}
+
+/** A project document: file name, title in Fraunces, printed paragraphs, pencil notes in Kalam. */
 export function dokument(tytul, plik, ziarno) {
   const W = 1024, H = 1448;
   const [c, ctx] = plotno(W, H);
@@ -172,19 +242,18 @@ export function dokument(tytul, plik, ziarno) {
   ctx.fillText(tytul, 92, 250);
   ctx.fillStyle = KOLOR.glina;
   ctx.fillRect(96, 290, 120, 8);
-  let y = 380;
-  while (y < H - 140) {
-    if (los() < 0.16) {
-      y += 44;
-      ctx.fillStyle = KOLOR.txt2;
-      ctx.fillRect(96, y, 260 + los() * 200, 22);
-      y += 64;
-      continue;
+  let y = 390;
+  while (y < H - 180) {
+    ctx.font = "600 30px 'Hanken Grotesk', sans-serif";
+    ctx.fillStyle = KOLOR.txt;
+    if (los() < 0.35) {
+      ctx.fillText(SLOWA[Math.floor(los() * SLOWA.length)].replace(/^./, (z) => z.toUpperCase()), 96, y);
+      y += 50;
     }
-    ctx.fillStyle = "rgba(97,89,76,.38)";
-    ctx.fillRect(96, y, (W - 192) * (0.55 + los() * 0.45), 12);
-    y += 40;
+    y = drukowanyAkapit(ctx, 96, y, W - 192 - 180, 3 + Math.floor(los() * 4), los) + 30;
   }
+  dopiski(ctx, W, los);
+  zuzycie(ctx, W, H, los);
   szum(ctx, W, H, 6, los);
   return tekstura(c);
 }

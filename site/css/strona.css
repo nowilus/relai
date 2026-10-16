@@ -222,7 +222,12 @@ h1[tabindex="-1"]:focus, h2[tabindex="-1"]:focus { outline: none; }
 .tryb-3d .przystanek--instalacja { inset: 0; padding: clamp(96px, 16vh, 180px) 0 0 var(--margines); display: block; }
 .tryb-3d .przystanek--instalacja.jest { pointer-events: none; }
 .tryb-3d .przystanek--instalacja .karta { width: min(22rem, 30vw); pointer-events: auto; }
-.tryb-3d .przystanek--instalacja .stopka { margin-top: 18px; width: min(22rem, 30vw); pointer-events: auto; }
+/* the footer links sit over the scene: the same glass as the map keeps them readable on any wood or paper */
+.tryb-3d .przystanek--instalacja .stopka {
+  margin-top: 18px; width: fit-content; max-width: min(22rem, 30vw); pointer-events: auto;
+  padding: 8px 14px; border-radius: var(--promien-maly);
+  background: rgba(29, 26, 22, .62); border: 1px solid rgba(242, 233, 216, .12); backdrop-filter: blur(10px);
+}
 .tryb-3d .scena__html { position: absolute !important; inset: 0; pointer-events: none; }
 
 /* the close-up: the laptop display is the whole picture, so the map, the header and the stop's copy step aside */

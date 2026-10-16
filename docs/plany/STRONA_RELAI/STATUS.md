@@ -1,16 +1,16 @@
 # STATUS — plan STRONA_RELAI
 
-[PLAN.html](PLAN.html) · utworzony 2026-10-16 · **ZAAKCEPTOWANY 2026-10-16** · Aneks A 2026-10-16 (realistyczne biurko z modeli CC0, 6 etapów) · Aneks B 2026-10-16 (laptop jako prawdziwy ekran, fotorealizm na przystankach, 8 etapów, pułap 10 MB) · model wykonawczy etapów: Opus 5.5 (D-85), w etapie do 3 subagentów Sonnet 5.5 wyłącznie do zadań deterministycznych · w Claude Code
+[PLAN.html](PLAN.html) · utworzony 2026-10-16 · **ZAAKCEPTOWANY 2026-10-16** · Aneks A 2026-10-16 (realistyczne biurko z modeli CC0, 6 etapów) · Aneks B 2026-10-16 (laptop jako prawdziwy ekran, fotorealizm na przystankach, 8 etapów, pułap 10 MB) · Aneks C 2026-10-16 (bez path tracingu, Film przed pełną drogą Biurka) · model wykonawczy etapów: Opus 5.5 (D-85), w etapie do 3 subagentów Sonnet 5.5 wyłącznie do zadań deterministycznych · w Claude Code
 
 | Etap | Nazwa | Status | Prompt | Uwagi |
 |---|---|---|---|---|
 | E1 | Fundament i hero Biurka | ZREALIZOWANY 2026-10-16 | [PROMPT_ETAP_1.md](PROMPT_ETAP_1.md) | świeża sesja Opus 5.5, `/effort high`; kalibracja hero z Łukaszem przed zamknięciem |
 | E2 | Realistyczny świat i hero od nowa | ZREALIZOWANY 2026-10-16 | [PROMPT_ETAP_2.md](PROMPT_ETAP_2.md) | Aneks A; Sonnet 5.5, w trakcie trzeciej rundy kalibracji przełączony przez Łukasza na Opus 5.5; kalibracja w czterech rundach, zamknięcie za zgodą Łukasza |
 | E3 | Laptop jako prawdziwy ekran i detale | ZREALIZOWANY 2026-10-16 | [PROMPT_ETAP_3.md](PROMPT_ETAP_3.md) | Aneks B; konfigurator wpasowany w ekran, przybliżenie po kliknięciu, dostępność w trybie 3D, książki |
-| E4 | Fotorealizm na przystankach | GOTOWY DO STARTU | [PROMPT_ETAP_4.md](PROMPT_ETAP_4.md) | Aneks B; path tracing na postoju kamery, nowa zależność MIT po karcie zgody |
-| E5 | Biurko: pełna droga, szczyt, szuflady | OCZEKUJE | — | dawny E3 (Aneks B); materiał promptu w commicie `a097b35` |
-| E6 | Film: pełna droga, hero i szczyt | OCZEKUJE | — | dawny E4; kończy się bramką wyboru wersji |
-| E7 | Dopieszczenie wybranej | OCZEKUJE | — | dawny E5; telefon, reduced motion, plakat bez WebGL |
+| E4 | Test fotorealizmu i stonowanie światła | ZREALIZOWANY 2026-10-16 | [PROMPT_ETAP_4.md](PROMPT_ETAP_4.md) | Aneks C (dawniej „Fotorealizm na przystankach”): path tracing zbudowany, zmierzony i usunięty; zostały blat `wood_table_worn`, druk na dokumentach, cienki lakier, przygaszona lampa |
+| E5 | Film: pełna droga, hero i szczyt | GOTOWY DO STARTU | [PROMPT_ETAP_5.md](PROMPT_ETAP_5.md) | Aneks C (dawny E6); plus ekran ładowania; kończy się bramką wyboru wersji |
+| E6 | Biurko: pełna droga, szczyt, szuflady | OCZEKUJE | — | Aneks C (dawny E5); rusza tylko przy wyborze Biurka; materiał promptu w commicie `a097b35` |
+| E7 | Dopieszczenie wybranej | OCZEKUJE | — | dawny E5; telefon, reduced motion, plakat bez WebGL; ekran ładowania wybranej wersji (Aneks C) |
 | E8 | Publikacja i utrzymanie | OCZEKUJE | — | dawny E6; wymaga włączenia Pages i zgody na wdrożenie |
 
 ## Bramki manualne
@@ -20,8 +20,9 @@
 - **Aneks A — realistyczne biurko** · źródło: wpis dziennika 2026-10-16 (Aneks A) · ROZSTRZYGNIĘTA 2026-10-16 — Łukasz: „Akceptuję Aneks A w tej postaci.”
 - **Obrazy wzorcowe 01–08 z GPT image** (prompty: [PROMPTY_GPT_IMAGE.md](../../zasoby/STRONA/builds/biurko/referencje/PROMPTY_GPT_IMAGE.md)) · źródło: Aneks A pkt 5 · ROZSTRZYGNIĘTA 2026-10-16 — dziewięć obrazów 1536 × 1024 w `referencje/` (01–08 i dodatkowy `07b-materialy-neutralne`): w repo JPEG q90, oryginały PNG lokalnie w `.gitignore`
 - **Próba linku „Otwórz w terminalu” (`claude-cli://`) na żywo w Chrome** · źródło: wpis dziennika 2026-10-16 (E1) · **OTWARTA** — przed E8 (numeracja Aneksu B)
-- **Wybór wersji: Biurko czy Film** · źródło: sekcja 9 PLAN.html, po E6 (Aneks B) · **OTWARTA**
+- **Wybór wersji: Biurko czy Film** · źródło: sekcja 9 PLAN.html, po E5 (Aneks C; wcześniej po E6, Aneks B) · **OTWARTA**
 - **Włączenie GitHub Pages (źródło: GitHub Actions) i zgoda na pierwsze wdrożenie** · źródło: sekcja 9 PLAN.html, przed E8 (Aneks B) · **OTWARTA**
+- **Kalibracja smaku E4 i Aneks C** · źródło: PROMPT_ETAP_4, Weryfikacja; wpis dziennika 2026-10-16 (E4) · ROZSTRZYGNIĘTA 2026-10-16 — path tracing Łukasz ocenił jako „bez uzysku”; kierunek „Film teraz”, Film z planu, Aneks C „Tak, dopisz”; stan Biurka po teście: „Tak, przyjmuję”
 - **Kalibracja smaku E2** · źródło: PROMPT_ETAP_2, Weryfikacja · ROZSTRZYGNIĘTA 2026-10-16 — po czterech rundach Łukasz: „Tak, zamknij E2 (Rekomendowane)”; uwagi do ekranu laptopa i książek oraz fotorealizm przeniesione za jego zgodą do E3 i E4 (Aneks B)
 - **Budżet ciężaru E2** · źródło: PROMPT_ETAP_2, Weryfikacja (przekroczenie 8 MB) · ROZSTRZYGNIĘTA 2026-10-16 — Łukasz: „Tak, pułap ok. 10 MB (Rekomendowane)”
 - **Aneks B** · źródło: wpis dziennika 2026-10-16 (E2) · ROZSTRZYGNIĘTA 2026-10-16 — Łukasz: „Tak, dopisz Aneks B (Rekomendowane)”
@@ -38,3 +39,5 @@
 - 2026-10-16 — E2 zrealizowany: scena z 62 plików CC0 (7 modeli Poly Haven, tekstury 2K blatu, ściany i korka, HDRI), miasto za oknem i laptop z napisami klawiatury w kodzie, AO i głębia ostrości; w trakcie trzeciej rundy kalibracji sesja przełączona przez Łukasza na Opus 5.5. 98/98 testów, 16/16 punktów weryfikacji, budżet 9,0 MB z kompresją (pułap 10 MB, Aneks B). Aneks B: E3 laptop i detale, E4 path tracing, dawne E3–E6 → E5–E8. E3 gotowy do startu.
 - 2026-10-16 — E3 rozpoczęty (Opus 5.5, zgoda Łukasza na karcie startu).
 - 2026-10-16 — E3 zrealizowany: konfigurator jako okno aplikacji na matrycy (wpasowanie ≤ 0,04 px przy 1366 i 1920, PL i EN), przybliżenie po kliknięciu i powrót Esc / przewinięciem / przyciskiem, formularz poza `aria-hidden`, matryca z równą ramką 8 mm, uszczelką i pasem aluminium, poświata RectAreaLight, książki od nowa; 162/162 testów, 12/12 punktów weryfikacji, 9,11 MiB; kalibracja przyjęta przez Łukasza bez uwag po dwóch poprawkach ramki w trakcie. E4 gotowy do startu.
+- 2026-10-16 — E4 rozpoczęty (Opus 5.5, zgoda Łukasza na karcie startu).
+- 2026-10-16 — E4 zrealizowany w treści Aneksu C: path tracing zbudowany (dwa obejścia błędów generatora), zmierzony (256 próbek ok. 7,5 s; zimna pamięć shaderów ok. 8 s blokady) i usunięty po ocenie Łukasza; test detalu na hero zostaje: blat `wood_table_worn`, druk na dokumentach, cienki lakier, lampa 17 → 9, stopka na szkle; 162/162 testów, 9,49 MiB, p95 17,5 ms. E5 Film gotowy do startu.

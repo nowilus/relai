@@ -1,6 +1,6 @@
 # STATE — RelAI
 
-Stan na: 2026-10-16 (STRONA_RELAI E3 zrealizowany — laptop jako prawdziwy ekran z przybliżeniem, książki od nowa; E4 path tracing gotowy do startu; wcześniej WYGLAD_PANELU zamknięty 2026-10-15)
+Stan na: 2026-10-16 (STRONA_RELAI E4 zrealizowany wg Aneksu C — path tracing odrzucony, test detalu i przygaszone światło zostają; E5 Film gotowy do startu; wcześniej WYGLAD_PANELU zamknięty 2026-10-15)
 
 ## Gdzie jesteśmy
 
@@ -15,7 +15,7 @@ postępu jako lista kroków — plan WYGLAD_PANELU; 2026-10-14: pasek mówi uczc
 KOMUNIKAT_ZWROTU; paski i panel w każdym panelu podziału okna, linia w stopce wycofana — odnoga
 SPLIT_VIEW, P-040 rozwiązana; panel bez rozjazdów w wąskim panelu podziału — odnoga PANEL_WASKI,
 0.18.0).
-Aktywny plan: STRONA_RELAI (zaakceptowany 2026-10-16, E1–E3 zrealizowane tego dnia, Aneksy A i B, E4 „Fotorealizm na przystankach” gotowy do startu); równolegle PANEL_CODEX (E1 w toku, prowadzony w Codeksie). WYGLAD_PANELU zamknięty 2026-10-15
+Aktywny plan: STRONA_RELAI (zaakceptowany 2026-10-16, E1–E4 zrealizowane tego dnia, Aneksy A–C, E5 „Film: pełna droga, hero i szczyt” gotowy do startu); równolegle PANEL_CODEX (E1 w toku, prowadzony w Codeksie). WYGLAD_PANELU zamknięty 2026-10-15
 po E5 (wydanie panelu 0.20.0 / 0.11.0); HUMANIZACJA zamknięty 2026-10-14 wydaniem 3.1.0. Opinii spoza projektu nadal nie ma.
 
 ## Co działa
@@ -97,7 +97,7 @@ po E5 (wydanie panelu 0.20.0 / 0.11.0); HUMANIZACJA zamknięty 2026-10-14 wydani
 ## Nad czym pracujemy teraz
 
 - **STRONA_RELAI — strona-wizytówka RelAI** (plan [STRONA_RELAI](plany/STRONA_RELAI/STATUS.md),
-  ZAAKCEPTOWANY 2026-10-16, E1–E3 ZREALIZOWANE 2026-10-16, Aneksy A i B 2026-10-16, E4 GOTOWY
+  ZAAKCEPTOWANY 2026-10-16, E1–E4 ZREALIZOWANE 2026-10-16, Aneksy A–C 2026-10-16, E5 Film GOTOWY
   DO STARTU, 8 etapów, Opus 5.5 z do trzech subagentów Sonnet 5.5). Po co: one-pager PL/EN na GitHub Pages ze skillem scroll-craft,
   konfigurator instalacji z deep linkami do Claude Code, wersja z wydań GitHuba. Dwa prototypy do
   porównania — „Biurko” (scena 3D w three.js) i „Film” — potem wybór, dopracowanie i publikacja.
@@ -122,6 +122,12 @@ po E5 (wydanie panelu 0.20.0 / 0.11.0); HUMANIZACJA zamknięty 2026-10-14 wydani
   oddalają; formularz jest poza `aria-hidden` i dostępny z klawiatury w trybie 3D, a przy awarii
   sceny wraca do treści. Książki od nowa (płótno, zaokrąglone grzbiety, tytuły). 9,11 MiB,
   CPU ×4 p95 22,2 ms, testy 162. Kalibracja przyjęta przez Łukasza.
+  **Stan po E4 (2026-10-16, Aneks C):** path tracing zbudowany, zmierzony i odrzucony — Łukasz nie
+  widział uzysku (realizm wzorców to detal i tekstury, nie światło), a pierwsza wizyta blokowała
+  stronę ok. 8 s; zależności nie ma. Zostaje test detalu: blat `wood_table_worn`, dokumenty z drukiem
+  i dopiskami, cienki lakier, lampa przygaszona, ciemniejsze tło, stopka „Instalacji” na szkle.
+  9,49 MiB, CPU ×4 p95 17,5 ms, testy 162. Następny E5 — Film z planu (grafika z kodu, ekran
+  ładowania), potem bramka „Biurko czy Film”; pełna droga Biurka (E6) tylko przy jego wyborze.
 - **PANEL_CODEX, E1 — przejęcie rdzenia i natywny panel w Codeksie** (plan
   [PANEL_CODEX](plany/PANEL_CODEX/STATUS.md), ZAAKCEPTOWANY 2026-10-10, 8 etapów, autor
   i wykonawca `gpt-6.1-sol` w Codeksie, Aneks A — 16 pól kontraktu — zaakceptowany). Po co: ten sam

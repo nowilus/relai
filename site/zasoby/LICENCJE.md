@@ -26,7 +26,7 @@ i zgodną sumą, a każdy wpis ma plik.
 | `standing_picture_frame_02` (model) | Poly Haven | <https://polyhaven.com/a/standing_picture_frame_02> | James Ray Cock |
 | `hanging_picture_frame_02` (model) | Poly Haven | <https://polyhaven.com/a/hanging_picture_frame_02> | James Ray Cock |
 | `alarm_clock_01` (model) | Poly Haven | <https://polyhaven.com/a/alarm_clock_01> | Yann Kervran, James Ray Cock |
-| `wood_cabinet_worn_long` (tekstura) | Poly Haven | <https://polyhaven.com/a/wood_cabinet_worn_long> | Dimitrios Savva, Rico Cilliers |
+| `wood_table_worn` (tekstura) | Poly Haven | <https://polyhaven.com/a/wood_table_worn> | Dimitrios Savva, Rico Cilliers |
 | `painted_plaster_wall` (tekstura) | Poly Haven | <https://polyhaven.com/a/painted_plaster_wall> | Amal Kumar |
 | `comfy_cafe` (HDRI) | Poly Haven | <https://polyhaven.com/a/comfy_cafe> | Sergej Majboroda |
 | `Cork001` (materiał) | ambientCG | <https://ambientcg.com/a/Cork001> | ambientCG |
@@ -35,8 +35,7 @@ i zgodną sumą, a każdy wpis ma plik.
 | `Metal011` (materiał) | ambientCG | <https://ambientcg.com/a/Metal011> | ambientCG |
 
 Pliki modeli (`.gltf`, `.bin`) są bez zmian w stosunku do pobranej wersji 1k. Tekstury zostały
-przeskalowane i ponownie zapisane jako JPEG (blat, ściana i korek z wersji 2K, kolor blatu
-z obniżonym nasyceniem pod barwę orzecha ze wzorca); zakres przeróbki każdego pliku jest w polu
+przeskalowane i ponownie zapisane jako JPEG (blat, ściana i korek z wersji 2K); zakres przeróbki każdego pliku jest w polu
 `przerobiono` w `ZRODLA.json`.
 
 Pozostałe elementy sceny (laptop z klawiaturą, kubek, teczka, pudełko z fiszkami, dokumenty, okno

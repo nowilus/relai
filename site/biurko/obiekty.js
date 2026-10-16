@@ -2,7 +2,7 @@
 import * as THREE from "three";
 import * as T from "./tekstury.js";
 import { BLAT, plyta, skrzynka, cien } from "./geometria.js";
-import { SKALA_BLATU, drewno, nowyRejestr, uzupelnijMaterialy } from "./materialy.js";
+import { SKALA_BLATU, LAKIER, drewno, nowyRejestr, uzupelnijMaterialy } from "./materialy.js";
 import { powtorz } from "./zasoby.js";
 import { laptop, kubek, pudelko, teczka, karteczki, dokumenty } from "./przedmioty.js";
 import { kable, ksiazki, tablicaSzczegoly, oknoSzczegoly, modeleWyposazenia } from "./wyposazenie.js";
@@ -11,12 +11,11 @@ import { miasto } from "./miasto.js";
 export { BLAT };
 
 const SCIANA_Z = -0.62;
-
 /** The desk: a worn walnut top, a frame, and one drawer left a hand's width open. */
 function biurko(A) {
   const grupa = new THREE.Group();
   const W = 1.8, D = 0.9, G = 0.036, faza = 0.005;
-  const blat = new THREE.Mesh(plyta(W, D, G, 0.014, faza), drewno(A, W / SKALA_BLATU, D / SKALA_BLATU, { color: "#f0e8e0", roughness: 0.55, normalScale: new THREE.Vector2(1.1, 1.1) }));
+  const blat = new THREE.Mesh(plyta(W, D, G, 0.014, faza), drewno(A, W / SKALA_BLATU, D / SKALA_BLATU, { color: "#f0e8e0", roughness: 0.55, normalScale: new THREE.Vector2(1.1, 1.1), ...LAKIER }));
   blat.position.y = BLAT - G - faza;
   grupa.add(cien(blat));
 

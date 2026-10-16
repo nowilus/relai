@@ -49,10 +49,12 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
      w osobnej stronie DevTools (L-0214); po zmianie modułu ES `reload` z `ignoreCache` i asercja
      nowego kodu przed kadrem (L-0218); przed diagnozą ruchu liczba `requestAnimationFrame` na
      sekundę — poniżej 30 najpierw `bringToFront`, schowek systemu tylko w prawdziwym Chrome
-     (L-0222); kod przewijający sam zapisuje cel w stanie odbiornika przed `scrollTo` (L-0224).
+     (L-0222); kod przewijający sam zapisuje cel w stanie odbiornika przed `scrollTo` (L-0224);
+     koszt pierwszej wizyty z solą w definicjach shadera, kompilacja i pierwsze rysowanie osobno,
+     licznikiem przerw głównego wątku — przeładowanie mierzy ciepłą pamięć (L-0227).
    (L-0017, L-0018, L-0040, L-0051, L-0052, L-0063, L-0069, L-0082, L-0115, L-0117, L-0123, L-0134,
    L-0144, L-0150, L-0154, L-0155, L-0156, L-0158, L-0159, L-0165, L-0175, L-0177, L-0182, L-0184,
-   L-0186, L-0191, L-0195, L-0213, L-0214, L-0218, L-0222, L-0224)
+   L-0186, L-0191, L-0195, L-0213, L-0214, L-0218, L-0222, L-0224, L-0227)
 5. **Instrument pomiarowy sam bywa źródłem fałszu.**
    - **Backslash:** wyrażenia regularne i ścieżki Windows tylko w pliku pisanym Write/Edit albo
      z `/`; skrypt edycji niosący `\n`, backtick lub ścieżkę — Write, heredok bez wyjątku, także
@@ -169,7 +171,8 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
     gdzie wykonalna; po pytaniu sprzątasz sam; jednostką inwentarza jest sprawa, nie linia; wstawkę
     kotwiczysz do elementu, który przeżyje operację, i dowodzisz **obecności** nowej treści. Gdy
     prompt etapu przeczy regule dokumentu docelowego — wygrywa dokument, rozjazd do dziennika.
-    (L-0005, L-0013, L-0014, L-0050, L-0058, L-0109)
+    Opcja pytania, która odwołuje się do wariantu planu, cytuje jego definicję z planu (L-0228).
+    (L-0005, L-0013, L-0014, L-0050, L-0058, L-0109, L-0228)
 15. **Pytasz raz na projekt, komponent opcjonalny znika bez śladu, komunikaty hooków są ASCII.**
     Zadanie wizualne: najpierw cechy pozytywne, jeden wariant do kalibracji, zrzut przed
     dokończeniem etapu.
@@ -213,10 +216,14 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
       kadru na światło, materiał, obiektyw i kompozycję z jedną przyczyną i granicą techniki przed
       kolejną rundą (L-0220); urządzenie w scenie budujesz warstwami prawdziwej konstrukcji i przed
       pierwszym zrzutem oglądasz wycinek ×2 każdego narożnika i krawędzi obok wzorca — nic nie wystaje
-      poza obrys, warstwa leży na powierzchni, równe marginesy są równe w liczbach (L-0221).
+      poza obrys, warstwa leży na powierzchni, równe marginesy są równe w liczbach (L-0221); cudzy
+      generator sceny sprawdzasz pudełkami wypieczonej geometrii obok `Box3.setFromObject` i klasą
+      referencyjną biblioteki (L-0225); dystans do wzorca najpierw detal, tekstury i kompozycja,
+      technika światła na końcu, a hipotezę „X zrobi różnicę” — tanim testem na jednym kadrze
+      z werdyktem człowieka przed etapem (L-0226).
     (L-0003, L-0006, L-0016, L-0019, L-0029, L-0094, L-0098, L-0137, L-0140, L-0142, L-0145, L-0147,
     L-0149, L-0152, L-0157, L-0171, L-0174, L-0176, L-0178, L-0179, L-0180, L-0183, L-0196, L-0197,
-    L-0199, L-0216, L-0217, L-0219, L-0220, L-0221)
+    L-0199, L-0216, L-0217, L-0219, L-0220, L-0221, L-0225, L-0226)
 
 **Wyprowadzone 2026-08-20 do `docs/PULAPKI.md`:** sześć pułapek narzędziowych — `tar` na `PATH`
 (L-0021), sesja `claude -p` (L-0024), PowerShell 5.1 i UTF-8 (L-0027), `--allowedTools` przy
@@ -658,6 +665,53 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
 - **Zasada:** kod, który sam przewija stronę, zapisuje docelowe położenie w stanie odbiornika przed
   `scrollTo`; reguła oparta na kierunku przewinięcia ma test z programowym przewinięciem obok testu
   gestu.
+
+### L-0225 — Generator path tracera źle wypiekał klawiaturę i książki · 2026-10-16 · AKTYWNA
+
+- **Trigger:** STRONA_RELAI E4. Pierwszy obraz z path tracera miał metrową płytę przed biurkiem
+  i pomieszane tekstury (korek ze słojami drewna, czarne karteczki); raycaster sceny nie trafiał
+  niczego w tym miejscu.
+- **Przyczyna:** `three-gpu-pathtracer` 0.0.27 wypieka `InstancedMesh` jako samą geometrię bazową
+  (klawiatura z 74 klawiszy → kostka 1 m) i numeruje scalone grupy numerem siatki, a listę
+  materiałów rozwija po siatkach wielomateriałowych — od pierwszej książki każda siatka dostaje cudzy
+  materiał. Zastępcze siatki z `matrixAutoUpdate = false` bez `updateMatrixWorld` lądowały w zerze
+  układu.
+- **Zasada:** cudzy generator sceny sprawdzasz, zanim ocenisz obraz: pudełko wypieczonej geometrii
+  każdej siatki obok `Box3.setFromObject(o, true)` na całej scenie, a referencyjna klasa biblioteki
+  na tej samej scenie odróżnia błąd okablowania od błędu sceny. Nieobsługiwane kształty upraszczasz
+  na czas budowy, bez łatania vendora.
+
+### L-0226 — Światło nie zastąpiło detalu · 2026-10-16 · AKTYWNA
+
+- **Trigger:** STRONA_RELAI E4. Path tracing dał światło odbite i miękkie cienie, a Łukasz ocenił
+  efekt jako „słaby, bez uzysku”: obrazy wzorcowe są fotograficzne dzięki detalowi powierzchni
+  i przedmiotów (zużycie drewna, pismo na kartkach, nakrapiana ceramika), nie dzięki globalnemu
+  oświetleniu. Etap planu (Aneks B) zbudowano na hipotezie z rozbioru kadru E2 bez testu.
+- **Przyczyna:** rozbiór kadru (L-0220) wskazał jedną przyczynę — światło — i nikt jej nie sprawdził
+  tanim testem na jednym kadrze, zanim powstał etap z nową zależnością.
+- **Zasada:** dystans do wzorca rozbierasz najpierw na detal przedmiotów, rozdzielczość tekstur
+  i kompozycję; technika światła dopiero, gdy detal stoi. Hipotezę „to X zrobi różnicę” sprawdzasz
+  najtańszym testem na jednym kadrze z werdyktem człowieka, zanim zaplanujesz etap.
+
+### L-0227 — Koszt pierwszej wizyty ukrywała ciepła pamięć shaderów · 2026-10-16 · AKTYWNA
+
+- **Trigger:** STRONA_RELAI E4. Kompilacja path tracera po przeładowaniu trwała 51 ms; pierwsze
+  wejście blokowało stronę na ok. 8 s. Widać to było tylko w dziurze w logu pomiaru.
+- **Przyczyna:** Chrome trzyma skompilowane programy na dysku; `compileAsync` (KHR_parallel_shader_compile)
+  nie blokuje, ale ANGLE/D3D11 kompiluje wariant pod rysowanie przy pierwszym `draw` — synchronicznie.
+  Rozgrzewka w workerze przyspiesza linkowanie, nie rysowanie.
+- **Zasada:** koszt pierwszej wizyty mierzysz z unikalną definicją w shaderze (sól = zimna pamięć),
+  osobno kompilację i pierwsze rysowanie, licznikiem przerw głównego wątku; drugi pomiar po
+  przeładowaniu nie jest pomiarem pierwszej wizyty.
+
+### L-0228 — Opcja w pytaniu opisała wariant inaczej niż plan · 2026-10-16 · AKTYWNA
+
+- **Trigger:** STRONA_RELAI E4. W pytaniu o kierunek opisałem „Film” jako fotorealizm z obrazów lub
+  wideo; w planie Film to kinowy przelot w języku filmu 3.0.0 z grafiką z kodu, a Aneks A pkt 2
+  wyklucza zdjęcia na stronie. Łukasz wybrał opcję w moim brzmieniu.
+- **Przyczyna:** opis wariantu z pamięci rozmowy, nie z sekcji planu.
+- **Zasada:** opcja, która odwołuje się do etapu albo wariantu planu, cytuje jego definicję z planu
+  (sekcja, aneks); rozjazd wykryty później — sprostowanie i ponowne pytanie przed zapisem czegokolwiek.
 
 ## Lekcje zwinięte
 

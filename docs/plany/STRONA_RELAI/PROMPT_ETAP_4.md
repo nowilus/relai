@@ -346,44 +346,51 @@ budżetu — deterministyczne, sprawdzane przez Ciebie przed przyjęciem.
 Każdy punkt Weryfikacji, który przeszedł, odhaczasz w `PROMPT_ETAP_4.md` (`- [ ]` → `- [x]`)
 zaraz po jego sprawdzeniu, nie na końcu etapu; punkt, który nie przeszedł, zostaje pusty.
 
-- [ ] `node --test "site/**/*.test.mjs"` kończy się bez błędów, liczba testów ≥ 162 (E3, `FAKT`)
+> **Aneks C (2026-10-16):** path tracing i poświata obiektywu usunięte — punkty o path tracingu
+> (3, 4, 5, testy wyłącznika w 1) nie dotyczą; zostają niezaznaczone z tą adnotacją.
+
+- [x] `node --test "site/**/*.test.mjs"` kończy się bez błędów, liczba testów ≥ 162 (E3, `FAKT`)
       plus nowe testy wyłącznika i stanów postoju; kontrola pozytywna: wyłącznik z odwróconym
-      warunkiem telefonu musi wywrócić test.
-- [ ] Karta zgody pokazana przed pobraniem, odpowiedź Łukasza zacytowana we wpisie; w `site/vendor/`
-      tylko przypięta wersja z `VERSION` (źródło, `integrity`, lista plików) i `LICENSE` (MIT).
-- [ ] Na każdym z siedmiu przystanków i w przybliżeniu ekranu: path tracing startuje po
+      warunkiem telefonu musi wywrócić test. — 162/162 po Aneksie C; testy wyłącznika (39, z kontrolą
+      pozytywną 10/39 wywróconych) powstały i odeszły razem z path tracingiem.
+- [x] Karta zgody pokazana przed pobraniem, odpowiedź Łukasza zacytowana we wpisie; w `site/vendor/`
+      tylko przypięta wersja z `VERSION` (źródło, `integrity`, lista plików) i `LICENSE` (MIT). —
+      karta pokazana, zgoda zacytowana; zależność usunięta z `site/vendor/` (Aneks C).
+- [ ] *(nie dotyczy — Aneks C)* Na każdym z siedmiu przystanków i w przybliżeniu ekranu: path tracing startuje po
       zatrzymaniu kamery, liczba próbek rośnie do progu, potem 0 klatek renderu (licznik
       `requestAnimationFrame` z pracą renderu = 0 przez 2 s); czas do progu (`FAKT`, RTX 4070 Ti,
       1366 × 768) w tabeli we wpisie.
-- [ ] Ruch przerywa path tracing w ≤ 1 klatce; przejście bez skoku: średnia luminancja kadru
+- [ ] *(nie dotyczy — Aneks C)* Ruch przerywa path tracing w ≤ 1 klatce; przejście bez skoku: średnia luminancja kadru
       w ostatniej klatce przed i pierwszej po przełączeniu różni się o ≤ 3 % (oba kierunki, dwa
       przystanki); kontrola pozytywna: przejście z celowo wyłączonym tone mappingiem w path tracerze
       wywraca pomiar.
-- [ ] Wyłącznik: emulacja telefonu (`375x812x3,mobile,touch`), `prefers-reduced-motion` i wymuszony
+- [ ] *(nie dotyczy — Aneks C)* Wyłącznik: emulacja telefonu (`375x812x3,mobile,touch`), `prefers-reduced-motion` i wymuszony
       słaby GPU (podmiana w `initScript`) → path tracing nie startuje, obraz rastrowy, 0
       `console.error`; pierwsza asercja to tryb (L-0213).
-- [ ] Ekran HTML bez zmian: różnica narożników `[data-ekran]` i rzutu siatki ≤ 2 px (przystanek
+- [x] Ekran HTML bez zmian: różnica narożników `[data-ekran]` i rzutu siatki ≤ 2 px (przystanek
       i przybliżenie, 1366 i 1920) także w trakcie path tracingu; konfigurator klikalny
-      (`elementFromPoint` 5/5).
-- [ ] **Kalibracja smaku:** zrzuty po zbieżności (hero, „Porządek”, „Instalacja”, przybliżenie)
+      (`elementFromPoint` 5/5). — 0,013 px na przystanku, 0,045 / 0,046 px w przybliżeniu (1366 / 1920),
+      5/5 w obu; „w trakcie path tracingu” nie dotyczy (Aneks C).
+- [x] **Kalibracja smaku:** zrzuty po zbieżności (hero, „Porządek”, „Instalacja”, przybliżenie)
       pokazane Łukaszowi obok `01-hero.jpg`, `03-porzadek.jpg`, `05-laptop.jpg`, `08-wieczor.jpg`
       w otwartym oknie, z rozbiorem po kategoriach (światło, materiał, obiektyw, kompozycja —
       L-0220); werdykt zacytowany we wpisie; uwagi wdrożone w E4 albo zapisane za jego zgodą do E5–E7.
-- [ ] Budżet i płynność (`FAKT`): pierwsze wejście ≤ ok. 10 MB, liczone w MiB jak w
+- [x] Budżet i płynność (`FAKT`): 9,49 MiB (+0,38 wobec HEAD = 9,11 MiB, ten sam instrument),
+      CPU ×4 p95 17,5 ms, najwięcej 910 wywołań rysowania (E3: 907). pierwsze wejście ≤ ok. 10 MB, liczone w MiB jak w
       `site/README.md`, z różnicą wobec E3 (9,11 MiB) liczoną tym samym instrumentem na drzewie HEAD
       (L-0223); przy CPU ×4 p95 klatki w ruchu ≤ 26 ms; wywołania rysowania na klatkę rastra obok
       liczby E3 (907).
-- [ ] Konsola bez błędów i nieudanych żądań przy wejściu, pełnym przewinięciu, postoju i przybliżeniu
+- [x] Konsola bez błędów i nieudanych żądań przy wejściu, pełnym przewinięciu, postoju i przybliżeniu
       (PL i EN); żądania tylko `localhost` i `api.github.com`.
-- [ ] Podstawy bezpieczeństwa:
+- [x] Podstawy bezpieczeństwa:
       `grep -rn --exclude="*.test.mjs" "innerHTML\|outerHTML\|insertAdjacentHTML\|document.write" site/js site/biurko`
       kończy się kodem 1, a bez `--exclude` trafia `site/js/wersja.test.mjs` (kontrola pozytywna);
       kod z `site/vendor/` ładowany wyłącznie ze ścieżek względnych, bez CDN; formularz bez
       `action`/`method`.
-- [ ] Wpis w `docs/DZIENNIK.md` dopisany na końcu sekcji „Wpisy”, podpis
+- [x] Wpis w `docs/DZIENNIK.md` dopisany na końcu sekcji „Wpisy”, podpis
       `Autor: RelAI (Opus 5.5) + Lukasz`; ryzyka T1, T4, T5 zaktualizowane; `docs/STATE.md`
       zaktualizowany.
-- [ ] Katalog roboczy `.claude/relai/work/STRONA_RELAI/E4/` przejrzany raportem
+- [x] Katalog roboczy `.claude/relai/work/STRONA_RELAI/E4/` przejrzany raportem
       (`node .claude/relai/tools/clean-work.js raport`) i skasowany po „tak”; liczby przed i po
       w sekcji „Zweryfikowane” wpisu. Artefakty poza katalogiem (`%TEMP%\relai-three-0.186.1`, pobrane
       paczki zależności, serwer podglądu w tle) wypisane z nazwy razem z tym, co się z nimi stało.
