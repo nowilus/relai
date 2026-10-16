@@ -25,3 +25,6 @@ progress/.claude-plugin/types/
 progress/tsconfig.json
 cache-keeper/.claude-plugin/types/
 cache-keeper/tsconfig.json
+
+# Oryginały PNG obrazów wzorcowych strony (~20 MB) zostają lokalnie; w repo kopie JPEG q90
+docs/zasoby/STRONA/builds/biurko/referencje/*.png

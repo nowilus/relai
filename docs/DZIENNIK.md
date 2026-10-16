@@ -1223,3 +1223,37 @@ Autor: RelAI (Opus 5.5) + Lukasz
   `docs/zasoby/STRONA/builds/biurko/referencje/` — przed E2.
 
 Autor: RelAI (Opus 5.5) + Lukasz
+
+### 2026-10-16 — STRONA_RELAI: obrazy wzorcowe 01–08 dostarczone, bramka przed E2 zamknięta
+
+**Zrobione:**
+
+- Łukasz wygenerował w ChatGPT obrazy z [PROMPTY_GPT_IMAGE.md](zasoby/STRONA/builds/biurko/referencje/PROMPTY_GPT_IMAGE.md)
+  i dodał `07b-materialy-neutralne.png` (poprawka „neutral white daylight, flat even lighting…”).
+- Ocena 01 (przed zapisem): wygląda jak zdjęcie — zużyty orzech z rysami, kurz w świetle lampy,
+  rozmyte miasto w oknie, wysunięta szuflada; układ jak hero E1 (lampa i okno po prawej). Krzesło
+  ze swetrem w lewym dolnym rogu to ciemny pierwszy plan pod nagłówek (kontrakt warstw).
+  Odstępstwa: jeden stos kartek zamiast czterech dokumentów (pokazuje je 03), rośliny spoza
+  promptu (w 3D najdroższe — raczej jedna), dodatkowe zdjęcia na tablicy. Przyjęte bez poprawek.
+- Ocena 07: faktury i połysk dobre (słoje z sękiem, zagięcie papieru, granulki korka z dziurką,
+  miedź lampy ze szlifem, szkliwo kubka z pęcherzykami, odcisk na aluminium), ale ciepłe boczne
+  światło podbarwia barwy — stąd `07b` jako źródło barw.
+- Spójność serii (przegląd 03, 05, 06, 07b): to samo biurko, kubek w terakocie, lampa z mosiężną
+  stopą, roślina, drewniane pudełko z przekładkami terakota / musztarda / szałwia.
+- `STATUS.md`: bramka zamknięta; `PROMPT_ETAP_2.md` (niewykonany) — komenda bramki `0[1-8]-*.jpg`
+  zamiast `*.png` i wskazanie `07b` jako źródła barw.
+- Decyzja Łukasza przy commicie: do repo kopie JPEG q90, oryginały PNG zostają lokalnie
+  (`.gitignore`: `docs/zasoby/STRONA/builds/biurko/referencje/*.png`). Konwersja przez .NET
+  `System.Drawing` w PowerShellu (`ffmpeg` nie ma na `PATH`), skrypt `%TEMP%/relai-png-do-jpeg.ps1`
+  skasowany po przebiegu.
+
+**Zweryfikowane — jak dokładnie:**
+
+- Nagłówki plików: 9 × PNG 1536 × 1024, razem ~20 MB; `ls 0[1-8]-*.png | wc -l` → 8, a stara
+  komenda z promptu (`*.png | wc -l`) dałaby 9 — bramka nie przeszłaby mimo kompletu, stąd poprawka.
+- JPEG: 9 plików 1536 × 1024 (nagłówek SOF), razem 2,4 MB (FAKT, 20,1 → 2,4 MB); kadr `01-hero.jpg`
+  obejrzany — bez widocznych artefaktów. `git check-ignore`: PNG ignorowany, JPEG śledzony.
+
+**Do zrobienia przez człowieka:** brak.
+
+Autor: RelAI (Opus 5.5) + Lukasz

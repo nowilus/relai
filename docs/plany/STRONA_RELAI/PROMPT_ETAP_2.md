@@ -16,7 +16,7 @@ Plan: STRONA_RELAI • Etap: **E2 z E6** (Aneks A) • Wygenerowano: 2026-10-16 
 | `docs/LEKCJE.md` | wyłącznie „Zasady aktywne” (są też przepisane niżej) |
 | `docs/DZIENNIK.md` | sekcja „Stan otwartych ryzyk” (wiersze T1–T3) + wpisy 2026-10-16 „STRONA_RELAI E1…” i „STRONA_RELAI: Aneks A…” — liczby E1, słowa Łukasza, wybory wywiadu |
 | `docs/plany/STRONA_RELAI/PLAN.html` | sekcja 10 (**Aneks A** — wiąże), potem 4B, 5, 6, 7 (ryzyka 1, 2, 10), 8 |
-| `docs/zasoby/STRONA/builds/biurko/referencje/` | obrazy wzorcowe `01-hero.png` … `08-wieczor.png` od Łukasza i `PROMPTY_GPT_IMAGE.md` (co każdy obraz miał pokazać) — miara realizmu tego etapu |
+| `docs/zasoby/STRONA/builds/biurko/referencje/` | obrazy wzorcowe `01-hero.jpg` … `08-wieczor.jpg` od Łukasza i `PROMPTY_GPT_IMAGE.md` (co każdy obraz miał pokazać) — miara realizmu tego etapu; barwy materiałów z `07b-materialy-neutralne.jpg` (neutralne światło), fakturę i połysk z `07-materialy.jpg` (ciepłe światło podbarwia); uwagi Łukasza i moje do 01 i 07 — wpis dziennika „Obrazy wzorcowe” |
 | `docs/zasoby/STRONA/builds/biurko/BRIEF.md` | krzywa odczuć, „Zaplanowana cisza”, „Kontrakt warstw hero” — obowiązują w nowej scenie |
 | `docs/zasoby/STRONA/builds/biurko/kalibracja/` | kadry hero z E1: przyjęty układ (lampa i okno po prawej, nagłówek w lewym dolnym rogu) jako punkt wyjścia kompozycji |
 | skill `nateherk-design:scroll-craft` (wywołaj narzędziem Skill) | `SKILL.md`, potem z `references/`: `hero-depth.md`, `approved-collection.md` §2 i §7, `taste.md` |
@@ -36,7 +36,7 @@ Plan: STRONA_RELAI • Etap: **E2 z E6** (Aneks A) • Wygenerowano: 2026-10-16 
   szuflada, to jest komputer i on ma bardzo dużo różnych szczegółów”; nie „cukierkowe
   i przetworzone”, „w jakiejś tam kolorystyce RelAI'owej”. Warstw zdjęć 2.5D nie chce.
 - **Hero od nowa** z kalibracją Łukasza na zrzutach (wybór w wywiadzie Aneksu A). Kadr E1 przestaje
-  być wzorcem wyglądu; jego układ jest punktem wyjścia, a gdy obraz `01-hero.png` układa biurko
+  być wzorcem wyglądu; jego układ jest punktem wyjścia, a gdy obraz `01-hero.jpg` układa biurko
   inaczej, wybór układu należy do Łukasza na kalibracji.
 - **Bez zmian z E1:** tor kamery z postojem na siedmiu przystankach, cisza przed szczytem i szczyt
   najdłuższy (`kamera.js`, test) — pozy przestawiasz do nowej sceny, strukturę toru zostawiasz;
@@ -296,7 +296,7 @@ Do trzech subagentów Sonnet 5.5 (`Agent` z `model: "sonnet"`) dostaje wyłączn
 deterministyczne, z testami, sprawdzane przez Ciebie przed przyjęciem.
 
 0. **Bramka na starcie:** w `docs/zasoby/STRONA/builds/biurko/referencje/` leży osiem plików
-   `01-hero.png` … `08-wieczor.png`. Brak któregokolwiek → zatrzymaj się i zapytaj Łukasza,
+   `01-hero.jpg` … `08-wieczor.jpg`. Brak któregokolwiek → zatrzymaj się i zapytaj Łukasza,
    zanim cokolwiek zmienisz; pracy na samych promptach nie zaczynasz.
 1. **Analiza wzorców** — `docs/zasoby/STRONA/builds/biurko/referencje/ANALIZA.md`: dla każdego
    obrazu, co z niego bierzesz (obiekty i ich proporcje w metrach, materiały, światło, kolory
@@ -323,7 +323,7 @@ deterministyczne, z testami, sprawdzane przez Ciebie przed przyjęciem.
    bez komunikatu o błędzie dla odwiedzającego.
 6. **Hero od nowa** — kontrakt warstw z BRIEF.md (co najmniej trzy plany o widocznie różnej
    prędkości w przewijaniu), nagłówek w całości czytelny, wezwanie w kadrze bez przewijania,
-   porównanie obok `01-hero.png`.
+   porównanie obok `01-hero.jpg`.
 7. **Przystanki 2–7 na nowych obiektach** — pozy w `kamera.js` dopasowane do nowej sceny,
    struktura toru i testy zostają; konfigurator CSS3D dopasowany do ekranu nowego laptopa.
 8. **Budżet** — mediana i p95 czasu klatki (1366 × 768, DPR 1, zwykły i CPU ×4), czas do pierwszej
@@ -341,8 +341,10 @@ deterministyczne, z testami, sprawdzane przez Ciebie przed przyjęciem.
 Każdy punkt Weryfikacji, który przeszedł, odhaczasz w `PROMPT_ETAP_2.md` (`- [ ]` → `- [x]`)
 zaraz po jego sprawdzeniu, nie na końcu etapu; punkt, który nie przeszedł, zostaje pusty.
 
-- [ ] Bramka: `ls docs/zasoby/STRONA/builds/biurko/referencje/*.png | wc -l` zwraca 8 przed
-      pierwszą zmianą w `site/`.
+- [ ] Bramka: `ls docs/zasoby/STRONA/builds/biurko/referencje/0[1-8]-*.jpg | wc -l` zwraca 8 przed
+      pierwszą zmianą w `site/` (dodatkowy `07b-materialy-neutralne.jpg` poza licznikiem; stan
+      2026-10-16: 9 plików JPEG q90 1536 × 1024 w repo; oryginały PNG tylko lokalnie, w `.gitignore`
+      — gdy są, do pomiaru barw próbką pikseli bierzesz PNG).
 - [ ] `node --test "site/**/*.test.mjs"` kończy się bez błędów, liczba testów ≥ 91 (E1, `FAKT`)
       plus nowy test rejestru źródeł; kontrola pozytywna: podłożony w katalogu roboczym plik bez
       wpisu (kopia `site/zasoby/` z dodatkowym plikiem) wywraca test.
@@ -357,7 +359,7 @@ zaraz po jego sprawdzeniu, nie na końcu etapu; punkt, który nie przeszedł, zo
       ≤ ok. 8 MB (Aneks A), osobno zestaw hero; liczba z DevTools zgadza się z sumą rozmiarów
       plików (różnica wyjaśniona); przekroczenie → pytanie do Łukasza, nie cicha zmiana budżetu.
 - [ ] Hero: zrzuty otwarcia, stanu pośredniego i wyjścia przy 1366 × 768 i 1920 × 1080 (PL i EN)
-      w katalogu roboczym, obok `01-hero.png`; trzy plany w dwóch pozycjach przewijania przesuwają
+      w katalogu roboczym, obok `01-hero.jpg`; trzy plany w dwóch pozycjach przewijania przesuwają
       się o różne odległości (współrzędne ekranowe trzech obiektów w wpisie).
 - [ ] Kontrast tekstu hero zmierzony na złożonym kadrze, cztery warianty PL/EN × 1366/1920:
       treść ≥ 4,5 : 1, nagłówek ≥ 3 : 1, z kontrolą pozytywną na jasnym obiekcie.
@@ -398,7 +400,7 @@ zaraz po jego sprawdzeniu, nie na końcu etapu; punkt, który nie przeszedł, zo
    T3 po pomiarze budżetu i ocenie spójności); dopisz lekcje z etapu do `docs/LEKCJE.md`
    i odśwież „Zasady aktywne”.
 3. Bramki manualne: pozycje „Do zrobienia przez człowieka” z wpisu → sekcja „Bramki manualne”
-   `STATUS.md`, status `OTWARTA`; bramkę „Obrazy wzorcowe 01–08” zamknij z datą.
+   `STATUS.md`, status `OTWARTA` (bramka „Obrazy wzorcowe 01–08” zamknięta 2026-10-16 przed startem).
 4. `docs/STATE.md` — stan strony (zasoby CC0, budżet, jak dodać zasób); `CLAUDE.md` — wiersz planu
    w tabeli „Stan prac” i linia „Aktywny plan”.
 5. **Wygeneruj `PROMPT_ETAP_3.md`** w tym folderze, ze specyfikacji promptu etapowego
