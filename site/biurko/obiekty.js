@@ -332,7 +332,7 @@ export function zbudujBiurko(tresc, A) {
     pudelko: pudelko(A, rej),
     kubek: kubek(),
     kable: kable(),
-    ksiazki: ksiazki(rej),
+    ksiazki: ksiazki(),
     kurz: kurz(),
   };
   for (const o of Object.values(obiekty)) swiat.add(o);

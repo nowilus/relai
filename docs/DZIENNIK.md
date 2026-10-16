@@ -25,12 +25,12 @@
 | C11 | Pliki pomiarów puchną albo trafiają do gita (plan PANEL_CLAUDE, ryzyko R5) | **Niski** (2026-10-08 po E3) | **OTWARTE ŚWIADOMIE** | `.claude/relai/` poza gitem (sprawdzone `git check-ignore`), plik na sesję, rekord bez treści (~250 B); E4: plik scaleń `.claude/relai/panel/scalenia.json` też poza gitem (`git check-ignore`), rekord dłuższy o dwa pola; E6: `.claude/relai/panel/cennik.json` (wersje cennika) poza gitem (`git check-ignore`), jedna wersja na zapis z karty; otwarte: sprzątanie starych plików nie istnieje — do E7 E7 (decyzja człowieka 2026-10-09): sprzątanie świadomie odłożone — zmierzone 5 plików, 260 KB po dwóch dniach intensywnej pracy; „Koszty projektu” sumują wszystkie pliki, więc kasowanie zmieniłoby sumę. Próg powrotu: folder `.claude/relai/pomiary/` powyżej 10 MB. |
 | L1 | `percentUsed` limitu odświeża się tylko z odpowiedzią API — długa tura subagentów przekroczy próg, a karta przyjdzie po fakcie (plan LIMIT_CHECKPOINT, ryzyko L1) | **Średni** (2026-10-11 po E2; wcześniej wysoki) | **ZMITYGOWANE 2026-10-12** (zamknięcie planu; ograniczenie silnika — procent tylko z odpowiedzią API) | E2: `session.measure` w trakcie tury przestawia kolor baterii od razu, karta przychodzi po `turn.complete` z procentem odczytanym po turze (test „past the threshold in the middle of a turn”); otwarte, bo procent nadal przychodzi tylko z odpowiedzią API, więc długa tura może przekroczyć próg o kilka punktów, zanim karta padnie. |
 | H9 | Tryb ciągły „dokumenty” nie widzi zapisu, którego nie rozpozna — `sed -i`, skrypt, podproces, `>(tee …)` — i dokument zostaje bez humanizacji (plan HUMANIZACJA, pomiar E5) | **Niski** (2026-10-14, przy zamknięciu planu) | **OTWARTE ŚWIADOMIE** | Aneks C: hook po Write/Edit i po Bash z przekierowaniem `>` / `>>` albo `tee`; w pomiarze E5 model pisał wyłącznie tymi drogami (8/8 przed poprawką, 2/2 po niej z regułą). Pominięcie kończy się ciszą, nigdy złą regułą; komenda `/relai-humanize` na pliku działa niezależnie od trybu ciągłego. |
-| T1 | Scena 3D strony tnie się na słabszym laptopie albo zintegrowanej grafice (plan STRONA_RELAI, ryzyko 1) | **Wysoki** (2026-10-16 po E2, bez zmiany) | **OTWARTE** | E1: render na żądanie, DPR ≤ 1,5, obniżenie jakości przy medianie > 26 ms. E2 (scena CC0, AO, głębia ostrości): przy CPU ×4 mediana 11,1 ms, p95 16,7 ms, 913 wywołań rysowania na klatkę po scaleniu miasta (przed: 2206, p95 22,3 ms); obniżanie jakości zaczyna od głębi ostrości. Zmierzone tylko na RTX 4070 Ti. Otwarte: słaba grafika w E7, path tracing w E4 (Aneks B) tylko na postoju i z wyłącznikiem. |
+| T1 | Scena 3D strony tnie się na słabszym laptopie albo zintegrowanej grafice (plan STRONA_RELAI, ryzyko 1) | **Wysoki** (2026-10-16 po E3, bez zmiany) | **OTWARTE** | E1: render na żądanie, DPR ≤ 1,5, obniżenie jakości przy medianie > 26 ms. E2 (scena CC0, AO, głębia ostrości): przy CPU ×4 mediana 11,1 ms, p95 16,7 ms, 913 wywołań rysowania na klatkę po scaleniu miasta (przed: 2206, p95 22,3 ms); obniżanie jakości zaczyna od głębi ostrości. E3 (poświata ekranu RectAreaLight, nowe książki): przy CPU ×4 przewijanie mediana 11,9 ms, p95 22,2 ms — p95 wzrosło o 5,5 ms, zapas do 26 ms już tylko 3,8 ms; przybliżanie p95 13,1 ms; najwięcej 907 wywołań rysowania na klatkę. Zmierzone tylko na RTX 4070 Ti. Otwarte: słaba grafika w E7, path tracing w E4 (Aneks B) tylko na postoju i z wyłącznikiem. |
 | T2 | Biurko wygląda jak tani render albo glina z AI (plan STRONA_RELAI, ryzyko 2) | **Wysoki** (2026-10-16 po E2, bez zmiany) | **OTWARTE** | E2: modele i tekstury CC0, deski orzechowe ze słojami, miasto za oknem, kubek i tablica od nowa; kalibracja w czterech rundach, zamknięcie za zgodą Łukasza, ale „nadal jesteśmy całkiem daleko” od obrazów 01–08 — przyczyna: brak światła odbitego w rasteryzacji (L-0220). Aneks B: E3 laptop i detale, E4 path tracing na przystankach. |
 | T3 | Modele CC0 z różnych źródeł nie zgrywają się stylem i skalą; strona za ciężka (plan STRONA_RELAI, Aneks A pkt 6) | **Niski** (2026-10-16 po E2; wcześniej średni) | **OTWARTE** | E2: wspólne HDRI, skala w metrach, barwy modeli przyciemnione do sceny — Łukasz nie zgłaszał niespójności stylu; ciężar 9,0 MB z kompresją (FAKT), zestaw hero 4,5 MB, pułap podniesiony do 10 MB decyzją Łukasza (Aneks B). Otwarte: path tracer (E4) musi się zmieścić w pułapie. |
 | T4 | Path tracing na słabym sprzęcie zamraża stronę albo szumi zbyt długo (plan STRONA_RELAI, Aneks B pkt 5) | **Wysoki** (2026-10-16, przy Aneksie B) | **OTWARTE** | Tylko na postoju kamery, wyłącznik dla słabego GPU i telefonu, render rastrowy jako stan bazowy, pomiar czasu do czystego obrazu w E4. |
 | T5 | Młoda zależność `three-gpu-pathtracer` (0.0.x) zmienia API albo psuje się z three.js (plan STRONA_RELAI, Aneks B pkt 5) | **Średni** (2026-10-16, przy Aneksie B) | **OTWARTE** | Wersja przypięta w `site/vendor/`, rejestr licencji, karta zgody przed pobraniem; strona działa bez niej. |
-| T6 | Ekran HTML na laptopie rozjeżdża się ze sceną 3D przy przybliżeniu (plan STRONA_RELAI, Aneks B pkt 5) | **Średni** (2026-10-16, przy Aneksie B) | **OTWARTE** | Zrzuty w trzech rozdzielczościach, test trafienia kliknięciem (`elementFromPoint`) w każdym położeniu przybliżenia; w E3. |
+| T6 | Ekran HTML na laptopie rozjeżdża się ze sceną 3D przy przybliżeniu (plan STRONA_RELAI, Aneks B pkt 5) | **Niski** (2026-10-16 po E3; wcześniej średni) | **OTWARTE** | Zrzuty w trzech rozdzielczościach, test trafienia kliknięciem (`elementFromPoint`) w każdym położeniu przybliżenia; w E3. E3: HTML położony dokładnie na siatce (bez przesunięcia w głąb), różnica narożników ≤ 0,04 px przy 1366 i 1920, PL i EN, na przystanku i w przybliżeniu; `elementFromPoint` 5/5; poza przybliżenia testowana dla 16:9, 16:10 i 4:3. Otwarte: telefon i wąskie okno — E7. |
 
 > Ryzyka zamknięte L3, L2, L5, L6 (4 pozycje) są w
 > [docs/archiwum/ryzyka/RYZYKA_2026-10-12.md](archiwum/ryzyka/RYZYKA_2026-10-12.md)
@@ -1379,3 +1379,110 @@ Autor: RelAI (Opus 5.5) + Lukasz
 wersji”, „GitHub Pages” — bez zmian, z numeracją Aneksu B w `STATUS.md`).
 
 Autor: RelAI (Sonnet 5.5, od czwartej rundy kalibracji Opus 5.5) + Lukasz
+
+### 2026-10-16 — STRONA_RELAI E3: laptop jako prawdziwy ekran, przybliżenie, dostępność, książki od nowa
+
+**Zrobione:**
+
+- **Ekran jako aplikacja** (`site/css/strona.css`, `site/narzedzia/szablon.html`, `site/tresc/*.json`):
+  konfigurator wypełnia matrycę 16:10 jako okno — pasek z kropkami w barwach RelAI, tytułem
+  „RelAI · instalacja” / „RelAI · install” i przyciskiem „Wróć do biurka”, dwie kolumny (wybór |
+  komendy, uwagi, akcje) i pasek stanu z wersjami; refleks szkła i spadek jasności ku krawędziom
+  w `::after`. W przepływie bez WebGL formularz wygląda jak po E1 (pasek okna ukryty).
+- **Matryca jak w prawdziwym laptopie** (`site/biurko/przedmioty.js`) — po dwóch uwagach Łukasza
+  w trakcie: „widzisz te zaokrąglenia ramek”, „sam laptop też ma swoją ramkę… na dole tuż nad
+  widokiem klawiatury”, „tyle samo czarnego paska na górze jak i na dole”. Czarne szkło leży na
+  powierzchni klapy (było 2,8 mm przed nią), ma rogi za obrysem klapy, matową uszczelkę 1 mm i równą
+  ramkę 8 mm z czterech stron; pod nim pas aluminium nad zawiasem. Matryca i HTML mają ten sam
+  promień rogów (4 mm u góry, 2 mm u dołu; `PROMIEN_EKRANU`).
+- **Poświata ekranu** (`site/biurko/scena.js`): `RectAreaLight` w barwie `#bccbe8`, natężenie 1,1 —
+  dodatek `RectAreaLightUniformsLib` + `RectAreaLightTexturesLib` z tej samej paczki three.js 0.186.1,
+  wpis w `vendor/three/VERSION`.
+- **Przybliżenie** (`site/biurko/przyblizenie.js` — czysta logika: stany, przejścia, poza kamery na
+  wprost ekranu, rzut punktu, mieszanie póz): klik albo Enter na ekranie, a także fokus kontrolki
+  w środku przybliżają kamerę, aż ekran zajmie 90 % ciaśniejszego boku kadru; Esc, przewinięcie
+  wstecz, przycisk „Wróć do biurka” i opuszczenie przystanku oddalają. W przybliżeniu mapa, nagłówek
+  i karta przystanku schodzą z kadru. `prefers-reduced-motion` → skok w jednej klatce.
+- **Dostępność w trybie 3D** (`site/biurko/scena.js`, `warstwa.js`, `swiat.js`): warstwa CSS3D stoi
+  w sekcji „Instalacja” w miejscu formularza, poza `.scena[aria-hidden]`; ekran jest grupą
+  z etykietą i `tabindex="0"`. Sekcja nie przesuwa się przy wygaszaniu (przesunięcie zsuwałoby ekran
+  z laptopa).
+- **Usterka z E1 naprawiona przy okazji punktu 6 Weryfikacji:** błąd etapu drugiego zasobów albo utrata
+  kontekstu WebGL chowały konfigurator razem ze sceną; teraz formularz wraca na swoje miejsce
+  w treści bez stylów 3D, a nasłuchy warstwy są zdejmowane.
+- **Książki od nowa** (`site/biurko/wyposazenie.js`): cztery twarde oprawy z płótna (krem, greige,
+  szałwia, glina) jako wyciągnięty przekrój „C” z wypukłym grzbietem, okładki wystające 3 mm nad blok
+  stron, wypaczenie wierzchu, przetarcia rogów i krawędzi w barwie wierzchołków, splot płótna jako
+  mapa i wypukłość, zakładki indeksu przy krawędzi stron, złocone tytuły na grzbietach (DZIENNIK,
+  DECYZJE, LEKCJE, PLAN i znak RelAI) wygięte po krzywiźnie; stos obrócony grzbietami do kamer
+  „Panel” i „Instalacja”. Bez nowego zasobu CC0.
+- **Testy** `site/biurko/przyblizenie.test.mjs` (64 przypadki) — napisał subagent Sonnet 5.5,
+  przejrzane i sprawdzone przed przyjęciem.
+- `site/README.md`: jak działa ekran i przybliżenie, jak sprawdzić wpasowanie; budżet w MiB.
+- Lekcje L-0221…L-0224, destylat odświeżony (zasady 4, 6, 15).
+
+**Zweryfikowane — jak dokładnie:**
+
+- Testy: `node --test "site/**/*.test.mjs"` → 162 pass, 0 fail (98 z E2 + 64). Kontrola pozytywna na
+  kopii modułu w `%TEMP%`: `cel` przesunięty o 0,3 m → 32 testy kadru padają; subagent: mnożnik
+  wypełnienia 1,4 → 16 testów pada.
+- Wpasowanie (DevTools, skrypt `pomiar.js`): różnica narożników `[data-ekran]` i rzutu siatki
+  ≤ 0,04 px przy 1366 i 1920, PL i EN, na przystanku i w przybliżeniu (8 położeń); przed usunięciem
+  przesunięcia `translateZ(0.0004)` było do 1,11 px. 0 z 96 kombinacji formularza z przepełnieniem
+  w każdym położeniu; formularz poszerzony o 40 px → „ekran 1176x710” (kontrola pozytywna).
+- Przybliżenie: klik (prawdziwy, panel przeglądarki) i Tab + Enter (DevTools) → ekran 81 % szerokości
+  i 90 % wysokości kadru; Esc i przewinięcie o 60 px wstecz → udział 0,392 / 0,435 jak w pozie
+  przystanku; zmiana rozmiaru okna przy przybliżeniu zostawia stan (po poprawce L-0224); przy
+  `prefers-reduced-motion` sześć kolejnych klatek: przybliżenie 1,1,1…, oddalenie 0,0,0….
+  Zrzuty przystanku, przejścia (z ≈ 0,2 przy 1366, 0,35 przy 1920) i przybliżenia w katalogu roboczym.
+- Interakcja w przybliżeniu: `elementFromPoint` w środkach pięciu kontrolek → formularz (5/5);
+  prawdziwe kliknięcie „Codex” zmienia komendy; „Kopiuj” → `Get-Clipboard` zwraca cztery linie Codeksa.
+- Dostępność: migawka DevTools bez zdejmowania `aria-hidden` pokazuje grupę ekranu, formularz, radia,
+  pola wyboru i „Kopiuj”; z mapy „Instalacja” fokus na nagłówku, Tab → ekran; `.scena` nadal
+  `aria-hidden="true"`; w przybliżeniu mapa i nagłówek znikają z drzewa dostępności, pojawia się
+  „Wróć do biurka”.
+- Bez WebGL: pierwsza asercja — brak `tryb-3d`, komunikat o braku sceny; formularz 760 × 548 w sekcji,
+  bez paska okna i `tabindex`; 0 komunikatów konsoli. 404 na `alarm_clock_01_1k.gltf` (etap drugi)
+  i `desk_lamp_arm_01_1k.gltf` (etap pierwszy) przez podmianę `fetch`: tryb przepływu, formularz na
+  swoim miejscu przed stopką, styl pusty; jedyny komunikat to `warn` z kodu, `console.error` 0.
+- Poświata (jasność regionu klawiatury z PNG, kontrola na regionie bez zmian 74,19 w obu): z
+  natężeniem 2,2 luminancja 60,28 wobec 40,84 bez światła (+48 %), kanał niebieski 61,78 / 36,88;
+  natężenie obniżone do 1,1.
+- Budżet (lista żądań przeglądarki, pliki z dysku, tekst `gzip -9`): 113 plików, 9,55 MB = 9,11 MiB;
+  ten sam instrument na drzewie HEAD (worktree) → 9,44 MB = 9,00 MiB, czyli liczba E2 była w MiB
+  (L-0223); E3 dokłada 0,11 MB (`RectAreaLightTexturesLib` 107 KB gzip).
+- Płynność (1366 × 768, DPR 1, RTX 4070 Ti, okno na wierzchu, CPU ×4): równe przewijanie 14 s —
+  mediana 11,9 ms, p95 22,2 ms; przybliżanie i oddalanie p95 13,1 ms. Wywołania rysowania na klatkę:
+  mediana 676, najwięcej 907 (E2: 913).
+- Konsola i sieć przy wejściu, pełnym przewinięciu i przybliżeniu: PL 112 żądań, EN 110, wyłącznie
+  `localhost:4520`, 0 odpowiedzi ≥ 400, 0 komunikatów; `api.github.com` w tych przebiegach nie wystąpiło.
+- Bezpieczeństwo: grep `innerHTML|outerHTML|insertAdjacentHTML|document.write` w `site/js`
+  i `site/biurko` bez testów → kod 1, z testami trafia `wersja.test.mjs`; formularz bez
+  `action`/`method`; adresy bezwzględne w szablonie tylko do repo GitHuba.
+- **Kalibracja smaku:** strona porównań (przystanek | E2, przybliżenie | `05-laptop`, książki |
+  `08-wieczor`, `01-hero`) w przeglądarce Łukasza; werdykt: „Akceptuję ekran, przybliżenie
+  i książki w tej postaci. Zamykaj E3.”
+- Katalog roboczy `.claude/relai/work/STRONA_RELAI/E3/`: przed 45 plików / 46 MB, po — usunięty po
+  „Tak, skasuj (Rekomendowane)” Łukasza (krok 1a). Poza katalogiem: `%TEMP%\relai-three-0.186.1` (paczka three.js, dopakowane
+  dwa pliki `lights/`) — zostaje dla E4; `%TEMP%\relai-e3-kontrola` i worktree `%TEMP%\relai-e3-head`
+  — usunięte zaraz po pomiarze; serwer podglądu `serve.mjs` na porcie 4520 (z poprzedniej sesji)
+  w tle; przeglądarka DevTools MCP z poprzedniej sesji (PID 51612, osierocona) zamknięta, żeby MCP
+  mógł wystartować.
+
+**Świadomie odłożone:**
+
+- Zapas p95 przewijania przy CPU ×4 spadł z 9,3 do 3,8 ms (poświata liczona w każdym materiale) —
+  do pomiaru razem z path tracingiem w E4; wyłącznik dla słabego GPU może wyłączać też poświatę.
+- Jasna kropka w kadrze (raz przy górnej ramce w przybliżeniu, raz na ciemnej ścianie przy książkach;
+  widoczna już w kadrze E2) — nie zdiagnozowana; do rozbioru kadru w E4.
+- Napisy na grzbietach przy przystanku „Instalacja” rozmywa głębia ostrości (ostrość na ekranie) —
+  zamierzone.
+- Hook bramki zgody optymalizatora odpalił pytanie na powiadomieniu subagenta (zdarzenie bez
+  polecenia człowieka) — ta sama klasa co L-0189; pytanie zadane dopiero przy następnej wiadomości
+  Łukasza. Do odnogi poprawek hooków, jeśli Łukasz zechce.
+- Rotacja ryzyk dalej zablokowana (sekcja 15,5 KB przy progu 12 KB, 0 zamkniętych).
+
+**Do zrobienia przez człowieka:** brak nowych pozycji (bramki „Próba linku `claude-cli://`”, „Wybór
+wersji”, „GitHub Pages” — bez zmian w `STATUS.md`).
+
+Autor: RelAI (Opus 5.5) + Lukasz

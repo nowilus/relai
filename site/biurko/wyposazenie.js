@@ -45,8 +45,6 @@ export function kable() {
   return grupa;
 }
 
-const kolory = ["#a8502e", "#c9952f", "#5f8a68", "#3b4a5c", "#d8cdb6"];
-
 /** Page-block texture: fine horizontal lines, like the cut edge of a closed book. */
 function bokStron() {
   const c = document.createElement("canvas");
@@ -65,41 +63,190 @@ function bokStron() {
   return t;
 }
 
-/** One closed book lying flat: cover boards, a spine, a page block set back from the edges. */
-function ksiazka(w, d, h, kolor, rej) {
+/** Book cloth: a fine linen weave in grey, used as a colour multiplier and as the bump. */
+function splot() {
+  const N = 128;
+  const c = document.createElement("canvas");
+  c.width = c.height = N;
+  const ctx = c.getContext("2d");
+  const los = T.losowanie(211);
+  ctx.fillStyle = "#e6e6e6";
+  ctx.fillRect(0, 0, N, N);
+  for (let i = 0; i < N; i += 2) {
+    ctx.fillStyle = `rgba(255,255,255,${0.18 + los() * 0.14})`;
+    ctx.fillRect(0, i, N, 1);
+    ctx.fillStyle = `rgba(0,0,0,${0.08 + los() * 0.1})`;
+    ctx.fillRect(i, 0, 1, N);
+  }
+  for (let i = 0; i < 900; i++) {
+    ctx.fillStyle = `rgba(${los() < 0.5 ? "0,0,0" : "255,255,255"},${0.05 + los() * 0.06})`;
+    ctx.fillRect(los() * N, los() * N, 1 + los() * 3, 1);
+  }
+  const t = new THREE.CanvasTexture(c);
+  t.wrapS = t.wrapT = THREE.RepeatWrapping;
+  t.anisotropy = 8;
+  return t;
+}
+
+/** Spine lettering: a small rule, the title and the RelAI mark, laid along the spine (canvas x = book length). */
+function napisGrzbietu(tytul, kolor) {
+  const c = document.createElement("canvas");
+  c.width = 1024;
+  c.height = 160;
+  const ctx = c.getContext("2d");
+  ctx.fillStyle = kolor;
+  ctx.font = "500 92px Fraunces, Georgia, serif";
+  ctx.textBaseline = "middle";
+  ctx.textAlign = "center";
+  ctx.letterSpacing = "10px";
+  ctx.fillText(tytul, 512, 84);
+  ctx.font = "700 46px Kalam, cursive";
+  ctx.letterSpacing = "0px";
+  ctx.fillText("RelAI", 900, 86);
+  ctx.fillRect(70, 74, 120, 6);
+  const t = new THREE.CanvasTexture(c);
+  t.colorSpace = THREE.SRGBColorSpace;
+  t.anisotropy = 8;
+  return t;
+}
+
+const SKALA_SPLOTU = 36; // weave tiles per metre (UVs of the cloth case are in metres)
+const PRZETARCIE = "#efe3c9"; // the board shows through worn cloth at the corners
+
+/**
+ * The cloth case of a hardcover lying flat, as one extruded C-shape: bottom board, a spine bulging
+ * outward, top board. Spine at x = -w/2, fore-edge at x = +w/2, length d along z, height h.
+ * Corners and edges carry wear as vertex colour, the top board a slight warp.
+ */
+function oprawa(w, d, h, kolor, wypaczenie) {
+  const t = 0.0026; // board thickness
+  const garb = h * 0.2; // spine bulge
+  const xs = -w / 2 + garb;
+  const wektory = [];
+  const linia = (x0, y0, x1, y1, n) => {
+    for (let i = 0; i < n; i++) wektory.push(new THREE.Vector2(x0 + (x1 - x0) * i / n, y0 + (y1 - y0) * i / n));
+  };
+  const luk = (rx, ry, odwrot, n) => {
+    for (let i = 0; i <= n; i++) {
+      const a = (odwrot ? i / n : 1 - i / n) * Math.PI - Math.PI / 2;
+      wektory.push(new THREE.Vector2(xs - Math.cos(a) * rx, h / 2 + Math.sin(a) * ry));
+    }
+  };
+  linia(w / 2, 0, xs, 0, 14);
+  luk(garb, h / 2, true, 18);
+  linia(xs, h, w / 2, h, 14);
+  wektory.push(new THREE.Vector2(w / 2, h), new THREE.Vector2(w / 2, h - t));
+  linia(w / 2, h - t, xs, h - t, 14);
+  luk(garb - t, h / 2 - t, false, 18);
+  linia(xs, t, w / 2, t, 14);
+  wektory.push(new THREE.Vector2(w / 2, t));
+  const ksztalt = new THREE.Shape(wektory);
+  const g = new THREE.ExtrudeGeometry(ksztalt, {
+    depth: d, steps: 10, curveSegments: 4,
+    bevelEnabled: true, bevelThickness: 0.0005, bevelSize: 0.0004, bevelSegments: 2,
+  });
+  g.translate(0, 0, -d / 2);
+
+  const baza = new THREE.Color(kolor);
+  const jasny = new THREE.Color(PRZETARCIE);
+  const p = g.attributes.position;
+  const barwy = new Float32Array(p.count * 3);
+  const k = new THREE.Color();
+  for (let i = 0; i < p.count; i++) {
+    const x = p.getX(i), y = p.getY(i), z = p.getZ(i);
+    // warp: the top board lifts a little toward the fore-edge, more at one corner
+    if (y > h / 2) {
+      const u = (x - xs) / (w / 2 - xs);
+      p.setY(i, y + wypaczenie * u * u * (0.6 + 0.4 * (z / d + 0.5)));
+    }
+    // wear: strongest at the four fore-edge corners and the spine ends, a little along every edge
+    const doRogu = Math.min(Math.hypot(w / 2 - x, d / 2 - Math.abs(z)), Math.hypot(x - (xs - garb), d / 2 - Math.abs(z)) * 1.4);
+    const doKrawedzi = Math.min(w / 2 - x, d / 2 - Math.abs(z));
+    const zuzycie = Math.max(0, 1 - doRogu / 0.014) * 0.75 + Math.max(0, 1 - doKrawedzi / 0.0025) * 0.22;
+    k.copy(baza).lerp(jasny, Math.min(0.85, zuzycie));
+    barwy.set([k.r, k.g, k.b], i * 3);
+  }
+  g.setAttribute("color", new THREE.BufferAttribute(barwy, 3));
+  g.computeVertexNormals();
+  return { geometria: g, garb, t };
+}
+
+/** One closed hardcover: cloth case, page block set back under the squares, index tabs, spine title. */
+function ksiazka({ w, d, h, kolor, tytul, zaklad, wypaczenie, napis }, wspolne) {
   const grupa = new THREE.Group();
-  const okladka = new THREE.MeshStandardMaterial({ color: kolor, roughness: 0.62, bumpScale: 1 });
-  const strony = new THREE.MeshStandardMaterial({ map: bokStron(), roughness: 0.92 });
-  const gora = papier(rej, { color: "#d9cfb8" });
-  const grub = 0.0032;
-  const dol = new THREE.Mesh(new THREE.BoxGeometry(w, grub, d), okladka);
-  dol.position.y = grub / 2;
-  const wierzch = new THREE.Mesh(new THREE.BoxGeometry(w, grub, d), okladka);
-  wierzch.position.y = h - grub / 2;
-  const grzbiet = new THREE.Mesh(new THREE.BoxGeometry(grub * 1.4, h, d), okladka);
-  grzbiet.position.set(-w / 2 + grub * 0.2, h / 2, 0);
-  const blok = new THREE.Mesh(new THREE.BoxGeometry(w - grub * 3, h - grub * 2, d - 0.006), [strony, gora, gora, gora, strony, strony]);
-  blok.position.set(grub * 0.4, h / 2, 0);
-  const pasek = new THREE.Mesh(new THREE.BoxGeometry(0.0012, h * 0.55, d * 0.9), new THREE.MeshStandardMaterial({ color: "#e8d9b4", roughness: 0.4, metalness: 0.5 }));
-  pasek.position.set(-w / 2 - grub * 0.55, h / 2, 0);
-  grupa.add(dol, wierzch, grzbiet, blok, pasek);
+  const { geometria, garb, t } = oprawa(w, d, h, kolor, wypaczenie);
+  const plotno = new THREE.MeshPhysicalMaterial({
+    vertexColors: true, map: wspolne.splot, bumpMap: wspolne.splot, bumpScale: 0.6, roughness: 0.86,
+    sheen: 0.4, sheenRoughness: 0.7, sheenColor: new THREE.Color("#fff4e0"),
+  });
+  grupa.add(new THREE.Mesh(geometria, plotno));
+
+  const kant = 0.003; // the boards stand proud of the page block by this much
+  const bw = w - garb - kant - 0.0012, bd = d - 2 * kant, bh = h - 2 * t - 0.0006;
+  const blok = new THREE.Mesh(new THREE.BoxGeometry(bw, bh, bd), [wspolne.strony, wspolne.strony, wspolne.ciemne, wspolne.ciemne, wspolne.strony, wspolne.strony]);
+  blok.position.set(-w / 2 + garb + 0.0012 + bw / 2, h / 2, 0); // fore-edge sits `kant` inside the boards
+  grupa.add(blok);
+
+  // index tabs between the pages, sticking out of the fore-edge (08-wieczor)
+  zaklad.forEach(([barwa, zz, yy], i) => {
+    const z = new THREE.Mesh(new THREE.BoxGeometry(0.009, 0.0005, 0.016), wspolne.zakladki[barwa]);
+    z.position.set(blok.position.x + bw / 2 + 0.0035, t + bh * yy, zz * bd / 2);
+    z.rotation.y = (i % 2 ? 1 : -1) * 0.04;
+    grupa.add(z);
+  });
+
+  // foil lettering along the book's length, bent to follow the curve of the spine half a millimetre out
+  const pas = new THREE.PlaneGeometry(d * 0.82, h * 0.42, 1, 8);
+  const pp = pas.attributes.position;
+  for (let i = 0; i < pp.count; i++) {
+    const v = pp.getY(i) / (h / 2);
+    pp.setZ(i, -garb * (1 - Math.sqrt(1 - v * v)));
+  }
+  pas.computeVertexNormals();
+  const etykieta = new THREE.Mesh(
+    pas,
+    new THREE.MeshStandardMaterial({ map: napisGrzbietu(tytul, napis), transparent: true, alphaTest: 0.25, metalness: 0.55, roughness: 0.38, depthWrite: false }),
+  );
+  etykieta.rotation.y = -Math.PI / 2;
+  etykieta.position.set(-w / 2 - 0.0009, h / 2, 0); // the bevel puts the cloth apex 0.4 mm past -w/2
+  grupa.add(etykieta);
   return cien(grupa);
 }
 
-/** A tidy-ish stack of four books in the RelAI colours. */
-export function ksiazki(rej) {
+// Cream and greige cloth like the reference stack, two in the RelAI clay and sage; titles are RelAI's own files.
+const KSIAZKI = [
+  { w: 0.158, d: 0.232, h: 0.031, kolor: "#d6cab0", tytul: "DZIENNIK", napis: "#7a5a32", wypaczenie: 0.0012, zaklad: [["glina", -0.55, 0.7], ["musztarda", -0.1, 0.45], ["szalwia", 0.35, 0.25]] },
+  { w: 0.152, d: 0.224, h: 0.024, kolor: "#5f7a63", tytul: "DECYZJE", napis: "#e3cf9a", wypaczenie: 0.0008, zaklad: [["kartka", 0.2, 0.5]] },
+  { w: 0.162, d: 0.236, h: 0.028, kolor: "#c9bda5", tytul: "LEKCJE", napis: "#6d5233", wypaczenie: 0.0016, zaklad: [["musztarda", -0.4, 0.6], ["glina", 0.15, 0.35]] },
+  { w: 0.146, d: 0.214, h: 0.02, kolor: "#9c4e33", tytul: "PLAN", napis: "#ecd8a8", wypaczenie: 0.001, zaklad: [] },
+];
+
+/** A tidy-ish stack of four hardcovers; the spines face the camera at the panel and install stops. */
+export function ksiazki() {
+  const papierZakladki = (kolor) => new THREE.MeshStandardMaterial({ color: kolor, roughness: 0.8 });
+  const wspolne = {
+    splot: splot(),
+    strony: new THREE.MeshStandardMaterial({ map: bokStron(), roughness: 0.92, color: "#f3ead6" }),
+    ciemne: new THREE.MeshStandardMaterial({ color: "#d9cfb8", roughness: 0.95 }),
+    zakladki: {
+      glina: papierZakladki(T.KOLOR.glina), musztarda: papierZakladki(T.KOLOR.musztarda),
+      szalwia: papierZakladki("#7fa486"), kartka: papierZakladki(T.KOLOR.kartka2),
+    },
+  };
+  wspolne.splot.repeat.set(SKALA_SPLOTU, SKALA_SPLOTU);
   const grupa = new THREE.Group();
   const los = T.losowanie(131);
   let y = BLAT;
-  [[0.2, 0.145, 0.034], [0.19, 0.14, 0.026], [0.205, 0.15, 0.031], [0.18, 0.13, 0.022]].forEach(([w, d, h], i) => {
-    const k = ksiazka(w, d, h, kolory[i % kolory.length], rej);
-    k.position.set((los() - 0.5) * 0.012, y, (los() - 0.5) * 0.012);
-    k.rotation.y = (los() - 0.5) * 0.28;
+  KSIAZKI.forEach((opis) => {
+    const k = ksiazka(opis, wspolne);
+    k.position.set((los() - 0.5) * 0.01, y, (los() - 0.5) * 0.012);
+    k.rotation.y = (los() - 0.5) * 0.2;
     grupa.add(k);
-    y += h;
+    y += opis.h + 0.0004;
   });
   grupa.position.set(0.9, 0, -0.15);
-  grupa.rotation.y = 0.5;
+  // the spine normal (-cos r, 0, sin r) points at the cameras of the panel and install stops
+  grupa.rotation.y = 0.95;
   return grupa;
 }
 

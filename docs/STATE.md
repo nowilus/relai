@@ -1,6 +1,6 @@
 # STATE — RelAI
 
-Stan na: 2026-10-16 (STRONA_RELAI E2 zrealizowany — scena z zasobów CC0; Aneks B: laptop jako ekran i fotorealizm, 8 etapów; wcześniej WYGLAD_PANELU zamknięty 2026-10-15)
+Stan na: 2026-10-16 (STRONA_RELAI E3 zrealizowany — laptop jako prawdziwy ekran z przybliżeniem, książki od nowa; E4 path tracing gotowy do startu; wcześniej WYGLAD_PANELU zamknięty 2026-10-15)
 
 ## Gdzie jesteśmy
 
@@ -15,7 +15,7 @@ postępu jako lista kroków — plan WYGLAD_PANELU; 2026-10-14: pasek mówi uczc
 KOMUNIKAT_ZWROTU; paski i panel w każdym panelu podziału okna, linia w stopce wycofana — odnoga
 SPLIT_VIEW, P-040 rozwiązana; panel bez rozjazdów w wąskim panelu podziału — odnoga PANEL_WASKI,
 0.18.0).
-Aktywny plan: STRONA_RELAI (zaakceptowany 2026-10-16, E1 i E2 zrealizowane tego dnia, Aneksy A i B, E3 „Laptop jako prawdziwy ekran i detale” gotowy do startu); równolegle PANEL_CODEX (E1 w toku, prowadzony w Codeksie). WYGLAD_PANELU zamknięty 2026-10-15
+Aktywny plan: STRONA_RELAI (zaakceptowany 2026-10-16, E1–E3 zrealizowane tego dnia, Aneksy A i B, E4 „Fotorealizm na przystankach” gotowy do startu); równolegle PANEL_CODEX (E1 w toku, prowadzony w Codeksie). WYGLAD_PANELU zamknięty 2026-10-15
 po E5 (wydanie panelu 0.20.0 / 0.11.0); HUMANIZACJA zamknięty 2026-10-14 wydaniem 3.1.0. Opinii spoza projektu nadal nie ma.
 
 ## Co działa
@@ -97,7 +97,7 @@ po E5 (wydanie panelu 0.20.0 / 0.11.0); HUMANIZACJA zamknięty 2026-10-14 wydani
 ## Nad czym pracujemy teraz
 
 - **STRONA_RELAI — strona-wizytówka RelAI** (plan [STRONA_RELAI](plany/STRONA_RELAI/STATUS.md),
-  ZAAKCEPTOWANY 2026-10-16, E1 i E2 ZREALIZOWANE 2026-10-16, Aneksy A i B 2026-10-16, E3 GOTOWY
+  ZAAKCEPTOWANY 2026-10-16, E1–E3 ZREALIZOWANE 2026-10-16, Aneksy A i B 2026-10-16, E4 GOTOWY
   DO STARTU, 8 etapów, Opus 5.5 z do trzech subagentów Sonnet 5.5). Po co: one-pager PL/EN na GitHub Pages ze skillem scroll-craft,
   konfigurator instalacji z deep linkami do Claude Code, wersja z wydań GitHuba. Dwa prototypy do
   porównania — „Biurko” (scena 3D w three.js) i „Film” — potem wybór, dopracowanie i publikacja.
@@ -111,11 +111,17 @@ po E5 (wydanie panelu 0.20.0 / 0.11.0); HUMANIZACJA zamknięty 2026-10-14 wydani
   **Stan po E2 (2026-10-16):** scena zbudowana od nowa z 62 plików CC0 (7 modeli Poly Haven, deski
   orzechowe, tynk i korek w 2K, HDRI; wykaz z sumami `site/zasoby/ZRODLA.json`, test rejestru), do
   tego w kodzie laptop z klawiaturą QWERTY, kubek z kamionki, tablica w ramie z orzecha i miasto za
-  oknem; cienie kontaktowe i głębia ostrości; ładowanie dwuetapowe. Pierwsze wejście 9,0 MB
+  oknem; cienie kontaktowe i głębia ostrości; ładowanie dwuetapowe. Pierwsze wejście 9,0 MiB
   z kompresją (pułap 10 MB, Aneks B), CPU ×4 p95 16,7 ms; testy 98. Jak dodać zasób i zmierzyć
   budżet — `site/README.md`. Obrazy GPT image są tylko wzorcem (`referencje/`), nigdy na stronie.
-  **Aneks B:** E3 laptop jako prawdziwy ekran (przybliżenie po kliknięciu, dostępność konfiguratora
-  w trybie 3D), książki; E4 path tracing na postoju kamery; dawne E3–E6 → E5–E8 (szczyt i szuflady w E5).
+  **Aneks B:** E3 laptop jako prawdziwy ekran, książki; E4 path tracing na postoju kamery; dawne
+  E3–E6 → E5–E8 (szczyt i szuflady w E5).
+  **Stan po E3 (2026-10-16):** konfigurator to okno aplikacji wpasowane w matrycę laptopa
+  (≤ 0,04 px), z równą ramką szkła, uszczelką, pasem aluminium i chłodną poświatą na klawiaturze;
+  klik albo Enter przybliża ekran do 90 % kadru, Esc, przewinięcie wstecz i „Wróć do biurka”
+  oddalają; formularz jest poza `aria-hidden` i dostępny z klawiatury w trybie 3D, a przy awarii
+  sceny wraca do treści. Książki od nowa (płótno, zaokrąglone grzbiety, tytuły). 9,11 MiB,
+  CPU ×4 p95 22,2 ms, testy 162. Kalibracja przyjęta przez Łukasza.
 - **PANEL_CODEX, E1 — przejęcie rdzenia i natywny panel w Codeksie** (plan
   [PANEL_CODEX](plany/PANEL_CODEX/STATUS.md), ZAAKCEPTOWANY 2026-10-10, 8 etapów, autor
   i wykonawca `gpt-6.1-sol` w Codeksie, Aneks A — 16 pól kontraktu — zaakceptowany). Po co: ten sam

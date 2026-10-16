@@ -47,10 +47,12 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
      obok siebie (L-0184); po zmianie kodu z trybem zastępczym pierwsza asercja to tryb, potem
      zrzut (L-0213); ruch i czas klatki tylko w widocznej stronie, kadry o stałym rozmiarze
      w osobnej stronie DevTools (L-0214); po zmianie modułu ES `reload` z `ignoreCache` i asercja
-     nowego kodu przed kadrem (L-0218).
+     nowego kodu przed kadrem (L-0218); przed diagnozą ruchu liczba `requestAnimationFrame` na
+     sekundę — poniżej 30 najpierw `bringToFront`, schowek systemu tylko w prawdziwym Chrome
+     (L-0222); kod przewijający sam zapisuje cel w stanie odbiornika przed `scrollTo` (L-0224).
    (L-0017, L-0018, L-0040, L-0051, L-0052, L-0063, L-0069, L-0082, L-0115, L-0117, L-0123, L-0134,
    L-0144, L-0150, L-0154, L-0155, L-0156, L-0158, L-0159, L-0165, L-0175, L-0177, L-0182, L-0184,
-   L-0186, L-0191, L-0195, L-0213, L-0214, L-0218)
+   L-0186, L-0191, L-0195, L-0213, L-0214, L-0218, L-0222, L-0224)
 5. **Instrument pomiarowy sam bywa źródłem fałszu.**
    - **Backslash:** wyrażenia regularne i ścieżki Windows tylko w pliku pisanym Write/Edit albo
      z `/`; skrypt edycji niosący `\n`, backtick lub ścieżkę — Write, heredok bez wyjątku, także
@@ -107,8 +109,10 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
    nie zero wykonanego; reguła „najstarszy element” w mechanizmie od najstarszego zatyka go
    z definicji. Liczba zbioru liczona także w komunikacie sukcesu. Odejmowana stała to hipoteza —
    nierzetelne odjęcie oznaczasz. Próg wspólny sprawdzasz na każdej wielkości z osobna (L-0167).
-   Karta zgody na zależność podaje wielkość na dysku (L-0172).
-   (L-0034, L-0049, L-0053, L-0060, L-0065, L-0099, L-0104, L-0167, L-0172)
+   Karta zgody na zależność podaje wielkość na dysku (L-0172). Liczba budżetu niesie jednostkę
+   zdefiniowaną w instrumencie, a różnicę wobec poprzedniego etapu liczysz tym samym instrumentem na
+   drzewie poprzedniego commitu (L-0223).
+   (L-0034, L-0049, L-0053, L-0060, L-0065, L-0099, L-0104, L-0167, L-0172, L-0223)
 7. **Wartość czytana maszynowo ma kotwicę i zamkniętą listę brzmień:** od początku komórki, wybór
    linii po wartości, nierozpoznane = cisza. Rdzeń z diakrytykami łapiesz klasą znaków języka, nie
    `\w`, i tylko w brzmieniu wartości, nie w całej komórce. Koszt zamkniętej listy (pozycje, które
@@ -207,10 +211,12 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
       największy, i wobec `near`/`far` kamery (L-0217); powtarzalne bryły jako jedna geometria,
       wywołania rysowania mierzone opakowaniem kontekstu (L-0219); uwaga „nie jak wzorzec” — rozbiór
       kadru na światło, materiał, obiektyw i kompozycję z jedną przyczyną i granicą techniki przed
-      kolejną rundą (L-0220).
+      kolejną rundą (L-0220); urządzenie w scenie budujesz warstwami prawdziwej konstrukcji i przed
+      pierwszym zrzutem oglądasz wycinek ×2 każdego narożnika i krawędzi obok wzorca — nic nie wystaje
+      poza obrys, warstwa leży na powierzchni, równe marginesy są równe w liczbach (L-0221).
     (L-0003, L-0006, L-0016, L-0019, L-0029, L-0094, L-0098, L-0137, L-0140, L-0142, L-0145, L-0147,
     L-0149, L-0152, L-0157, L-0171, L-0174, L-0176, L-0178, L-0179, L-0180, L-0183, L-0196, L-0197,
-    L-0199, L-0216, L-0217, L-0219, L-0220)
+    L-0199, L-0216, L-0217, L-0219, L-0220, L-0221)
 
 **Wyprowadzone 2026-08-20 do `docs/PULAPKI.md`:** sześć pułapek narzędziowych — `tar` na `PATH`
 (L-0021), sesja `claude -p` (L-0024), PowerShell 5.1 i UTF-8 (L-0027), `--allowedTools` przy
@@ -603,6 +609,55 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
   (światło, materiał, obiektyw, kompozycja) z jedną przyczyną wskazaną wprost i granicą techniki,
   zanim powstanie kolejna runda; etap z oceną smaku na modelu słabszym niż wymagany ma przypomnienie
   o rozjeździe przy pierwszej kalibracji.
+
+### L-0221 — Łukasz dwa razy z rzędu wskazał matrycę, której nie zbudowałem jak prawdziwej · 2026-10-16 · AKTYWNA
+
+- **Trigger:** STRONA_RELAI E3. Ekran HTML był wpasowany w siatkę co do 0,04 px, a Łukasz zobaczył
+  na zrzutach: „widzisz te zaokrąglenia ramek”, potem „sam laptop też ma swoją ramkę… na dole tuż nad
+  widokiem klawiatury, zapoznaj się z tym, jak wyglądają matryce”, potem „tyle samo czarnego paska
+  na górze jak i na dole”. Czarne szkło było prostokątem 2,8 mm przed klapą o rogach 12 mm, sięgało do
+  zawiasu i miało podbródek 2,5 raza grubszy niż górna ramka.
+- **Przyczyna:** pomiar dowodził wpasowania HTML w siatkę, a nie tego, że sama siatka jest
+  urządzeniem. Warstw prawdziwej konstrukcji (szkło na powierzchni klapy, uszczelka, pas aluminium nad
+  zawiasem, rogi szkła za obrysem obudowy, równa ramka) nie sprawdziłem ze wzorcem przed pokazem.
+- **Zasada:** przedmiot-urządzenie w scenie budujesz warstwami jego prawdziwej konstrukcji i przed
+  pierwszym zrzutem dla człowieka oglądasz wycinek ×2 każdego narożnika i krawędzi obok wzorca:
+  czy warstwa wewnętrzna nie wystaje poza obrys zewnętrznej, czy leży na powierzchni, nie przed nią,
+  i czy marginesy, które w urządzeniu są równe, są równe w liczbach.
+
+### L-0222 — Okno DevTools za innymi oknami dawało 2 klatki na sekundę · 2026-10-16 · AKTYWNA
+
+- **Trigger:** STRONA_RELAI E3. Przybliżenie „nie kończyło się” po 5 s, płynne przewinięcie z mapy
+  skoczyło jednym zdarzeniem i nie wysłało `scrollend`, wycofanie z przybliżenia wyglądało na błąd
+  kodu. Pomiar `requestAnimationFrame`: 2 na sekundę; po `select_page` z `bringToFront` — 181.
+  Wbudowany panel przeglądarki rysuje klatki dopiero przy zrzucie, a jego schowek jest odcięty od
+  systemu (`Get-Clipboard` zwracał starą treść).
+- **Przyczyna:** przeglądarka dławi zasłonięte okno; L-0214 mówił o widocznej stronie, a nie
+  o widocznym oknie.
+- **Zasada:** zanim uznasz animację albo przejście za błędne, zmierz liczbę `requestAnimationFrame`
+  na sekundę w tej samej stronie; poniżej 30 — najpierw `bringToFront`, potem diagnoza. Schowek
+  systemu sprawdzasz tylko w prawdziwym Chrome (DevTools), nie w panelu przeglądarki aplikacji.
+
+### L-0223 — Budżet „9,0 MB” z E2 był w MiB · 2026-10-16 · AKTYWNA
+
+- **Trigger:** STRONA_RELAI E3. Ten sam rodzaj pomiaru dał 9,55 MB wobec 9,0 MB po E2, choć etap
+  dodał 0,11 MB. Ten sam instrument na drzewie HEAD (worktree) dał 9,44 MB, czyli dokładnie
+  9,00 MiB; wpis E2 opisał 11 543 902 B jako „10,99 MB”.
+- **Przyczyna:** liczba trafiła do dziennika z etykietą jednostki, w której jej nie liczono.
+- **Zasada:** liczba budżetu niesie jednostkę zdefiniowaną w instrumencie (MiB = 2^20 B, zapisane
+  w `site/README.md`); porównanie z poprzednim etapem robisz tym samym instrumentem na drzewie
+  poprzedniego commitu, zanim przypiszesz różnicę zmianie.
+
+### L-0224 — Własny `scrollTo` po zmianie rozmiaru wyglądał jak przewinięcie wstecz · 2026-10-16 · AKTYWNA
+
+- **Trigger:** STRONA_RELAI E3. Przybliżenie ekranu wycofywało się po zmianie rozmiaru okna:
+  obsługa `resize` przewija programowo do tej samej pozycji toru, nowa droga jest krótsza, więc
+  `scrollY` maleje, a reguła „przewinięcie wstecz oddala” brała to za gest odwiedzającego.
+- **Przyczyna:** zdarzenie `scroll` nie mówi, kto przewinął; stan „ostatnie Y” aktualizował tylko
+  odbiornik przewinięcia.
+- **Zasada:** kod, który sam przewija stronę, zapisuje docelowe położenie w stanie odbiornika przed
+  `scrollTo`; reguła oparta na kierunku przewinięcia ma test z programowym przewinięciem obok testu
+  gestu.
 
 ## Lekcje zwinięte
 

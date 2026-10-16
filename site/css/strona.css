@@ -218,30 +218,80 @@ h1[tabindex="-1"]:focus, h2[tabindex="-1"]:focus { outline: none; }
 .tryb-3d .przystanek[data-przystanek="4"],
 .tryb-3d .przystanek[data-przystanek="5"] { left: var(--margines); bottom: clamp(48px, 10vh, 120px); }
 .tryb-3d .przystanek[data-przystanek="2"] { right: calc(var(--margines) + 228px); bottom: clamp(48px, 10vh, 120px); }
-.tryb-3d .przystanek--instalacja { left: var(--margines); top: clamp(96px, 16vh, 180px); display: block; }
-.tryb-3d .przystanek--instalacja .karta { width: min(22rem, 30vw); }
-.tryb-3d .przystanek--instalacja .stopka { margin-top: 18px; }
+/* the install stop spans the frame: its card sits top left, the 3D display layer covers the frame */
+.tryb-3d .przystanek--instalacja { inset: 0; padding: clamp(96px, 16vh, 180px) 0 0 var(--margines); display: block; }
+.tryb-3d .przystanek--instalacja.jest { pointer-events: none; }
+.tryb-3d .przystanek--instalacja .karta { width: min(22rem, 30vw); pointer-events: auto; }
+.tryb-3d .przystanek--instalacja .stopka { margin-top: 18px; width: min(22rem, 30vw); pointer-events: auto; }
 .tryb-3d .scena__html { position: absolute !important; inset: 0; pointer-events: none; }
-/* on the laptop display: 1136 x 710 CSS px drawn at screen scale, so type is set larger */
-.tryb-3d .ekran {
-  box-shadow: none; border: 0; border-radius: 0; padding: 26px 34px; overflow: hidden;
-  background: #1c1916; font-size: 27px; pointer-events: none; visibility: hidden; opacity: 0;
+
+/* the close-up: the laptop display is the whole picture, so the map, the header and the stop's copy step aside */
+.mapa, .pasek, .przystanek--instalacja .karta, .przystanek--instalacja .stopka {
+  transition: opacity 200ms var(--ease), visibility 200ms var(--ease);
 }
-.tryb-3d .ekran.w-scenie { pointer-events: auto; }
-.tryb-3d .ekran .konfigurator { display: block; columns: 2; column-gap: 40px; column-fill: auto; height: 100%; }
-.tryb-3d .ekran .konfigurator > * { break-inside: avoid; margin: 0 0 14px; }
-.tryb-3d .ekran .konfigurator__etykieta { break-before: column; }
-.tryb-3d .ekran .konfigurator__grupa { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; }
-.tryb-3d .ekran .konfigurator__grupa legend { float: none; width: 100%; padding: 0 0 4px; font-size: 1em; }
-.tryb-3d .ekran .konfigurator__grupa label { font-size: .74em; padding: 8px 12px; }
+.przyblizony .mapa, .przyblizony .pasek,
+.przyblizony .przystanek--instalacja .karta, .przyblizony .przystanek--instalacja .stopka { opacity: 0; visibility: hidden; }
+
+/* the display as an app window: 1136 x 710 CSS px (16:10) drawn at screen scale, so type is set larger.
+   Title bar 48 px, the same window the display texture shows before the form fades in. */
+.ekran__pasek { display: none; }
+.konfigurator__wybor, .konfigurator__wynik { display: grid; gap: 14px; }
+.tryb-3d .ekran {
+  box-shadow: none; border: 0; border-radius: 0; padding: 0; overflow: hidden;
+  display: grid; grid-template-rows: 48px minmax(0, 1fr);
+  background: #1c1916; font-size: 27px; pointer-events: none; visibility: hidden;
+}
+.tryb-3d .ekran.w-scenie { pointer-events: auto; cursor: zoom-in; }
+.przyblizony .ekran.w-scenie { cursor: auto; }
+.tryb-3d .ekran:focus-visible { outline: 4px solid var(--musztarda); outline-offset: -4px; border-radius: 0; }
+/* the glass over the panel: one soft diagonal sheen and a faint falloff toward the edges */
+.tryb-3d .ekran::after {
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  background:
+    linear-gradient(116deg, rgba(255, 253, 247, .05) 0%, rgba(255, 253, 247, .022) 30%, rgba(255, 253, 247, 0) 30.4%),
+    radial-gradient(ellipse 110% 100% at 50% 45%, rgba(0, 0, 0, 0) 62%, rgba(0, 0, 0, .22) 100%);
+}
+.tryb-3d .ekran__pasek {
+  display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; padding: 0 16px 0 21px;
+  background: #2a2621; border-bottom: 1px solid rgba(242, 233, 216, .06);
+  font: 500 .6em/1 var(--font-tekst); color: var(--krem-2);
+}
+.ekran__kropki { display: flex; gap: 11px; }
+.ekran__kropki i { width: 15px; height: 15px; border-radius: 50%; background: var(--glina); }
+.ekran__kropki i:nth-child(2) { background: var(--musztarda); }
+.ekran__kropki i:nth-child(3) { background: var(--szalwia); }
+.ekran__tytul { letter-spacing: .01em; }
+.ekran__wroc {
+  justify-self: end; appearance: none; cursor: pointer; padding: 7px 14px; border-radius: 8px;
+  border: 1px solid rgba(242, 233, 216, .22); background: transparent; color: var(--tlo);
+  font: 500 1em/1 var(--font-tekst);
+  transition: background-color 140ms var(--ease), border-color 140ms var(--ease), opacity 160ms var(--ease);
+}
+.ekran__wroc:active { transform: translateY(1px); }
+@media (hover: hover) and (pointer: fine) { .ekran__wroc:hover { background: rgba(242, 233, 216, .08); border-color: rgba(242, 233, 216, .4); } }
+html:not(.przyblizony) .ekran__wroc { visibility: hidden; opacity: 0; }
+
+.tryb-3d .ekran .konfigurator {
+  display: grid; grid-template-columns: .9fr 1.1fr; grid-template-rows: minmax(0, 1fr) auto;
+  column-gap: 46px; row-gap: 0; padding: 30px 38px 0; min-height: 0;
+}
+.tryb-3d .ekran .konfigurator__wybor { display: flex; flex-direction: column; justify-content: space-between; gap: 16px; min-height: 0; }
+.tryb-3d .ekran .konfigurator__wynik { display: flex; flex-direction: column; gap: 12px; min-height: 0; }
+.tryb-3d .ekran .konfigurator__grupa { display: flex; flex-wrap: wrap; gap: 9px; }
+.tryb-3d .ekran .konfigurator__grupa legend { float: none; width: 100%; padding: 0 0 6px; font-size: .9em; }
+.tryb-3d .ekran .konfigurator__grupa label { font-size: .7em; padding: 9px 14px; }
 .tryb-3d .ekran .konfigurator__grupa:nth-of-type(3) label { width: 100%; }
-.tryb-3d .ekran .konfigurator__etykieta { font-size: .7em; margin: 0; }
-.tryb-3d .ekran .konfigurator__komendy { font-size: .66em; min-height: 7.5em; }
+.tryb-3d .ekran .konfigurator__etykieta { font-size: .62em; margin: 0; }
+.tryb-3d .ekran .konfigurator__komendy { flex: 1 1 auto; min-height: 0; overflow: hidden; font-size: .6em; padding: 16px 18px; }
 .tryb-3d .ekran .konfigurator__uwagi,
 .tryb-3d .ekran .konfigurator__uwaga,
-.tryb-3d .ekran .konfigurator__wersje,
-.tryb-3d .ekran .konfigurator__status { font-size: .66em; }
-.tryb-3d .ekran .przycisk { font-size: .78em; padding: 13px 20px; }
+.tryb-3d .ekran .konfigurator__status { font-size: .58em; }
+.tryb-3d .ekran .przycisk { font-size: .66em; padding: 12px 18px; }
+/* the status bar of the window */
+.tryb-3d .ekran .konfigurator__wersje {
+  grid-column: 1 / -1; margin: 24px -38px 0; padding: 12px 38px 13px;
+  background: #191613; border-top: 1px solid rgba(242, 233, 216, .06); font-size: .54em;
+}
 
 /* the scrim behind the hero copy: a corner of density, not a full-frame overlay */
 .tryb-3d .scena::after {

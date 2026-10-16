@@ -35,15 +35,23 @@ export async function uruchom({ bezSceny }) {
   document.documentElement.classList.add("tryb-3d");
   warstwa = zamontujWarstwe({ tor, przekladka: document.querySelector("[data-przekladka]"), scena, ekran, ograniczRuch });
   warstwa.start();
+  // whatever ends the scene, the configurator goes back into the document flow first
+  const koniecSceny = (powod) => {
+    warstwa.odmontuj();
+    scena.oddajEkran();
+    bezSceny(powod);
+  };
   scena.canvas.addEventListener("webglcontextlost", (e) => {
     e.preventDefault();
-    document.documentElement.classList.remove("tryb-3d");
-    document.querySelector("[data-brak-sceny]")?.removeAttribute("hidden");
+    koniecSceny();
   });
-  window.__biurko = Object.freeze({ diagnostyka: scena.diagnostyka, wyczyscPomiar: scena.wyczyscPomiar, tor, obiekty: scena.obiekty, scena: scena.scena });
+  window.__biurko = Object.freeze({
+    diagnostyka: scena.diagnostyka, wyczyscPomiar: scena.wyczyscPomiar, tor, obiekty: scena.obiekty, scena: scena.scena,
+    przyblizenie: warstwa.przyblizenie,
+  });
   // the first frame is on screen; the rest of the desk follows
   await new Promise((gotowe) => requestAnimationFrame(() => requestAnimationFrame(gotowe)));
   etapDrugi()
     .then((B) => scena.uzupelnij(B))
-    .catch((e) => bezSceny(e instanceof Error ? e.message : String(e)));
+    .catch((e) => koniecSceny(e instanceof Error ? e.message : String(e)));
 }

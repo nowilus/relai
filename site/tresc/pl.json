@@ -81,6 +81,11 @@
     "brakSchematu": "Nic się nie otworzyło? Skopiuj komendy i wklej je w terminalu. Link działa, gdy Claude Code jest zainstalowany.",
     "brakWyboru": "Wybierz co najmniej jeden składnik.",
     "wersje": "Aktualne wersje",
+    "ekran": {
+      "tytul": "RelAI · instalacja",
+      "wroc": "Wróć do biurka",
+      "etykieta": "Ekran laptopa z konfiguratorem instalacji. Enter przybliża ekran, Escape oddala."
+    },
     "uwagi": {
       "brakWyboru": "Wybierz co najmniej jeden składnik.",
       "panelTylkoClaude": "Panel, pasek postępu i baterie działają tylko w Claude Code.",

@@ -58,6 +58,17 @@ Nowy zasób:
 Dodatki three.js (loadery, efekty obrazu) kopiuje się wyłącznie z tej samej paczki npm co
 `three.module.js`, razem z ich importami, i dopisuje do listy w `vendor/three/VERSION`.
 
+## Ekran laptopa i przybliżenie
+
+Konfigurator to prawdziwy formularz HTML położony przez CSS3D dokładnie na siatce ekranu laptopa
+(1136 × 710 px CSS na 0,284 × 0,1775 m, te same zaokrąglone rogi). Jego warstwa stoi w sekcji
+„Instalacja”, poza sceną `aria-hidden`, więc czytnik ekranu i Tab docierają do formularza także
+w trybie 3D. Klik albo Enter na ekranie przybliża kamerę (`biurko/przyblizenie.js`, czysta logika
+z testami), a Esc, przewinięcie wstecz i przycisk „Wróć do biurka” ją oddalają. Gdy scena się
+wyłącza, formularz wraca na swoje miejsce w treści. Wpasowanie sprawdza się w przeglądarce:
+`__biurko.diagnostyka().ekran` daje narożniki siatki rzutowane kamerą, a `getBoundingClientRect()`
+elementu `[data-ekran]` musi się z nimi pokrywać (w E3: ≤ 0,04 px).
+
 ## Budżet ciężaru i płynności
 
 Pułap pierwszego wejścia: ok. 10 MB po kompresji (Aneks B planu). Pomiar:
@@ -66,7 +77,8 @@ Pułap pierwszego wejścia: ok. 10 MB po kompresji (Aneks B planu). Pomiar:
 2. `performance.getEntriesByType('resource')` w konsoli: suma `transferSize` to bajty bez kompresji
    serwera podglądu; zasoby z `startTime` przed startem modeli etapu drugiego to zestaw hero.
 3. Ciężar po kompresji (jak na GitHub Pages): suma rozmiarów plików z tej listy, tekst
-   (`.js`, `.css`, `.html`, `.svg`, `.json`, `.gltf`) przez `gzip -9`, reszta bez zmian.
+   (`.js`, `.css`, `.html`, `.svg`, `.json`, `.gltf`) przez `gzip -9`, reszta bez zmian. Wynik
+   podaj w MiB (2^20 B) — w tej jednostce liczono pułap i stan po E2 (9,00 MiB = 9,44 MB).
 4. Płynność: odstępy `requestAnimationFrame` podczas równego przewijania całej strony, mediana
    i p95, raz zwykle i raz z CPU ×4 w DevTools. Scena obniża jakość sama, gdy mediana klatki
    przekroczy 26 ms (najpierw głębia ostrości, potem cienie kontaktowe, potem rozdzielczość).

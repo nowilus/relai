@@ -85,7 +85,12 @@
       <h2 id="t-6" tabindex="-1">Zacznij tutaj.</h2>
       <p>Wybierz narzędzie i składniki. Komendę kopiujesz albo otwierasz w terminalu i wysyłasz ją sam, Enterem.</p>
     </div>
-    <div class="ekran" data-ekran>
+    <div class="ekran" data-ekran data-etykieta="Ekran laptopa z konfiguratorem instalacji. Enter przybliża ekran, Escape oddala.">
+      <div class="ekran__pasek">
+        <span class="ekran__kropki" aria-hidden="true"><i></i><i></i><i></i></span>
+        <span class="ekran__tytul">RelAI · instalacja</span>
+        <button type="button" class="ekran__wroc" data-wroc>Wróć do biurka</button>
+      </div>
       <form class="konfigurator" data-konfigurator aria-labelledby="t-6"
         data-jezyk="pl"
         data-kopiuj-tekst="Kopiuj"
@@ -93,6 +98,7 @@
         data-zaznaczono="Zaznaczone. Skopiuj skrótem Ctrl+C."
         data-brak-schematu="Nic się nie otworzyło? Skopiuj komendy i wklej je w terminalu. Link działa, gdy Claude Code jest zainstalowany."
         data-brak-wyboru="Wybierz co najmniej jeden składnik.">
+        <div class="konfigurator__wybor">
         <fieldset class="konfigurator__grupa">
           <legend>Co robisz</legend>
           <label><input type="radio" name="tryb" value="instaluje" checked> Instaluję</label>
@@ -111,6 +117,8 @@
           <label><input type="checkbox" name="skladnik" value="postep"> Pasek postępu <small>wczesny dostęp</small></label>
           <label><input type="checkbox" name="skladnik" value="cache" checked> Baterie i limity <small>wczesny dostęp</small></label>
         </fieldset>
+        </div>
+        <div class="konfigurator__wynik">
         <p class="konfigurator__etykieta" id="k-komendy">Komendy do wklejenia w terminalu</p>
         <pre class="konfigurator__komendy" data-komendy aria-labelledby="k-komendy" aria-live="polite">claude plugin install relai --marketplace nowilus/relai
 claude plugin install relai-panel@relai
@@ -132,6 +140,7 @@ claude plugin install relai-cache-keeper@relai</pre>
         </div>
         <p class="konfigurator__status" data-status role="status"></p>
         <p class="konfigurator__uwaga">Link tylko wpisuje polecenie. Wysyłasz je sam, Enterem.</p>
+        </div>
         <p class="konfigurator__wersje">Aktualne wersje: RelAI <span data-wersja="relai">3.2.0</span> · panel <span data-wersja="panel">0.20.0</span></p>
       </form>
     </div>

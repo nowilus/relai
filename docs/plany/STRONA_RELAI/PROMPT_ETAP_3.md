@@ -338,40 +338,40 @@ deterministyczne, sprawdzane przez Ciebie przed przyjęciem.
 Każdy punkt Weryfikacji, który przeszedł, odhaczasz w `PROMPT_ETAP_3.md` (`- [ ]` → `- [x]`)
 zaraz po jego sprawdzeniu, nie na końcu etapu; punkt, który nie przeszedł, zostaje pusty.
 
-- [ ] `node --test "site/**/*.test.mjs"` kończy się bez błędów, liczba testów ≥ 98 (E2, `FAKT`)
+- [x] `node --test "site/**/*.test.mjs"` kończy się bez błędów, liczba testów ≥ 98 (E2, `FAKT`)
       plus nowe testy przybliżenia; kontrola pozytywna: test pozy przybliżenia z ekranem wyjętym
       poza kadr musi się wywrócić.
-- [ ] Ekran wpasowany (`FAKT`, 1366 × 768 i 1920 × 1080, PL i EN): narożniki prostokąta `[data-ekran]`
+- [x] Ekran wpasowany (`FAKT`, 1366 × 768 i 1920 × 1080, PL i EN): narożniki prostokąta `[data-ekran]`
       (`getBoundingClientRect` po transformacji CSS3D) i narożniki siatki „ekran” rzutowane kamerą
       różnią się o ≤ 2 px w pozie przystanku i w przybliżeniu; żaden element formularza nie wystaje
       poza ten prostokąt (`scrollWidth`/`scrollHeight` ≤ wymiar); kontrola pozytywna: formularz
       sztucznie poszerzony o 40 px wywraca pomiar.
-- [ ] Przybliżenie: klik w ekran i Enter na fokusie ekranu → ekran zajmuje ≥ 85 % szerokości albo
+- [x] Przybliżenie: klik w ekran i Enter na fokusie ekranu → ekran zajmuje ≥ 85 % szerokości albo
       wysokości widoku; przewinięcie wstecz i Esc → poza przystanku; zrzuty trzech położeń
       (przystanek, w trakcie, przybliżenie) przy 1366 i 1920 w katalogu roboczym; z
       `prefers-reduced-motion` przejście bez klatek pośrednich.
-- [ ] Interakcja w przybliżeniu: `elementFromPoint` w pięciu punktach formularza trafia formularz;
+- [x] Interakcja w przybliżeniu: `elementFromPoint` w pięciu punktach formularza trafia formularz;
       klik w narzędzie zmienia komendy; „Kopiuj” daje komendy w schowku systemu (`Get-Clipboard`).
-- [ ] Dostępność w trybie 3D: migawka dostępności DevTools **bez zdejmowania `aria-hidden`** pokazuje
+- [x] Dostępność w trybie 3D: migawka dostępności DevTools **bez zdejmowania `aria-hidden`** pokazuje
       formularz z radiami, polami i przyciskiem „Kopiuj”; Tab z mapy „Instalacja” dochodzi do
       formularza; dowód negatywny: warstwa sceny poza formularzem nadal `aria-hidden`.
-- [ ] Bez WebGL i z zasobem 404 (podmiana w `initScript`): tryb przepływu, konfigurator widoczny,
+- [x] Bez WebGL i z zasobem 404 (podmiana w `initScript`): tryb przepływu, konfigurator widoczny,
       0 `console.error` z kodu; pierwsza asercja to tryb strony (L-0213).
-- [ ] **Kalibracja smaku:** zrzuty ekranu laptopa (przystanek i przybliżenie) i stosu książek
+- [x] **Kalibracja smaku:** zrzuty ekranu laptopa (przystanek i przybliżenie) i stosu książek
       pokazane Łukaszowi obok `05-laptop.jpg`, `01-hero.jpg` i `08-wieczor.jpg` w otwartym oknie;
       werdykt zacytowany w wpisie; uwagi wdrożone w E3 albo zapisane za jego zgodą do E4–E7.
-- [ ] Budżet i płynność (`FAKT`): pierwsze wejście ≤ ok. 10 MB po kompresji (pomiar jak w
+- [x] Budżet i płynność (`FAKT`): pierwsze wejście ≤ ok. 10 MB po kompresji (pomiar jak w
       `site/README.md`); przy CPU ×4 p95 klatki ≤ 26 ms także w trakcie przybliżenia; wywołania
       rysowania na klatkę obok liczby E2 (913).
-- [ ] Konsola bez błędów i nieudanych żądań przy wejściu, pełnym przewinięciu i przybliżeniu (PL i EN);
+- [x] Konsola bez błędów i nieudanych żądań przy wejściu, pełnym przewinięciu i przybliżeniu (PL i EN);
       żądania tylko `localhost` i `api.github.com`.
-- [ ] Podstawy bezpieczeństwa:
+- [x] Podstawy bezpieczeństwa:
       `grep -rn --exclude="*.test.mjs" "innerHTML\|outerHTML\|insertAdjacentHTML\|document.write" site/js site/biurko`
       kończy się kodem 1, a bez `--exclude` trafia `site/js/wersja.test.mjs` (kontrola pozytywna);
       zasoby ze ścieżek względnych `site/`; formularz bez `action`/`method`.
-- [ ] Wpis w `docs/DZIENNIK.md` dopisany na końcu sekcji „Wpisy”, podpis
+- [x] Wpis w `docs/DZIENNIK.md` dopisany na końcu sekcji „Wpisy”, podpis
       `Autor: RelAI (Opus 5.5) + Lukasz`; `docs/STATE.md` zaktualizowany.
-- [ ] Katalog roboczy `.claude/relai/work/STRONA_RELAI/E3/` przejrzany raportem
+- [x] Katalog roboczy `.claude/relai/work/STRONA_RELAI/E3/` przejrzany raportem
       (`node .claude/relai/tools/clean-work.js raport`) i skasowany po „tak”; liczby przed i po
       w sekcji „Zweryfikowane” wpisu. Artefakty poza katalogiem (`%TEMP%\relai-three-0.186.1`,
       serwer podglądu w tle) wypisane z nazwy razem z tym, co się z nimi stało.

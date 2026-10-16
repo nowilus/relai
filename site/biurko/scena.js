@@ -7,13 +7,30 @@ import { RenderPass } from "three/addons/postprocessing/RenderPass.js";
 import { GTAOPass } from "three/addons/postprocessing/GTAOPass.js";
 import { BokehPass } from "three/addons/postprocessing/BokehPass.js";
 import { OutputPass } from "three/addons/postprocessing/OutputPass.js";
+import { RectAreaLightUniformsLib } from "three/addons/lights/RectAreaLightUniformsLib.js";
 import { zbudujBiurko, BLAT } from "./obiekty.js";
+import { PROMIEN_EKRANU } from "./przedmioty.js";
 import { poza, POZY } from "./kamera.js";
+import { pozaPrzyblizenia, zmieszaj } from "./przyblizenie.js";
 
 const MAX_DPR = 1.5;
 const LERP = 0.12; // per 60 Hz frame; damps wheel judder
 const EKRAN_PX = [1136, 710]; // CSS size of the configurator on the laptop display (16:10)
+const EKRAN_M = [0.284, 0.1775]; // the display mesh in metres; the HTML is scaled onto it exactly
 const PROG_SPADKU_MS = 26; // median frame time that drops quality one step
+
+/** The display lights what is in front of it: a cool, soft rectangle on the keys and the desk. */
+function poswiata(siatka) {
+  RectAreaLightUniformsLib.init();
+  // weak on purpose: the window on the display is dark, so the keys stay dark with a cool sheen (05-laptop)
+  const swiatlo = new THREE.RectAreaLight("#bccbe8", 1.1, EKRAN_M[0], EKRAN_M[1]);
+  const srodek = new THREE.Vector3();
+  const przod = new THREE.Vector3(0, 0, 1).applyQuaternion(siatka.getWorldQuaternion(new THREE.Quaternion()));
+  siatka.getWorldPosition(srodek);
+  swiatlo.position.copy(srodek).addScaledVector(przod, 0.002);
+  swiatlo.lookAt(srodek.clone().add(przod));
+  return swiatlo;
+}
 
 function swiatlo(scena, obiekty) {
   const zrodlo = new THREE.Vector3();
@@ -90,20 +107,31 @@ export function zbudujScene({ kontener, slowa, zasoby, ekran, tor, przyKlatce, o
   kompozytor.addPass(bokeh);
   kompozytor.addPass(new OutputPass());
 
-  // the configurator lives on the laptop display as real HTML
+  // the configurator lives on the laptop display as real HTML. Its layer stays where the form stood in
+  // the document (inside the install stop), outside the aria-hidden scene, so the form keeps its
+  // place in reading and tab order.
   const css = new CSS3DRenderer();
   css.domElement.classList.add("scena__html");
-  kontener.append(css.domElement);
+  const miejsce = document.createComment("ekran");
+  ekran.before(miejsce);
+  ekran.before(css.domElement);
   const scenaCss = new THREE.Scene();
   ekran.style.width = `${EKRAN_PX[0]}px`;
   ekran.style.height = `${EKRAN_PX[1]}px`;
+  // the same rounded corners as the display mesh under it
+  const px = (m) => `${Math.round(m * EKRAN_PX[0] / EKRAN_M[0])}px`;
+  ekran.style.borderRadius = `${px(PROMIEN_EKRANU.gora)} ${px(PROMIEN_EKRANU.gora)} ${px(PROMIEN_EKRANU.dol)} ${px(PROMIEN_EKRANU.dol)}`;
   const ekranCss = new CSS3DObject(ekran);
+  // the stylesheet decides when the display takes pointer input, and the commands stay selectable
+  ekran.style.removeProperty("pointer-events");
+  ekran.style.removeProperty("user-select");
   const siatka = obiekty.laptop.userData.ekran;
   scena.updateMatrixWorld(true);
+  // exactly on the mesh: the HTML layer is drawn over the canvas anyway, so no offset toward the camera
   siatka.matrixWorld.decompose(ekranCss.position, ekranCss.quaternion, new THREE.Vector3());
-  ekranCss.translateZ(0.0004);
-  ekranCss.scale.setScalar(0.284 / EKRAN_PX[0]);
+  ekranCss.scale.setScalar(EKRAN_M[0] / EKRAN_PX[0]);
   scenaCss.add(ekranCss);
+  scena.add(poswiata(siatka));
 
   // the close: the camera squares up to the laptop display, far enough to frame it whole
   const srodek = new THREE.Vector3();
@@ -115,9 +143,13 @@ export function zbudujScene({ kontener, slowa, zasoby, ekran, tor, przyKlatce, o
   const celKoncowy = srodek.clone().addScaledVector(wPrawo, -0.04);
   const pozKoncowa = celKoncowy.clone().addScaledVector(normalna, odleglosc);
   const pozy = { ...POZY, instalacja: { poz: pozKoncowa.toArray(), cel: celKoncowy.toArray(), fov: 40 } };
+  const daneEkranu = { srodek: srodek.toArray(), normalna: normalna.toArray(), szer: EKRAN_M[0], wys: EKRAN_M[1] };
+  let zblizenie = null; // the close-up pose for the current viewport, set in rozmiar()
 
   let cel = 0;
   let biez = 0;
+  let celZ = 0; // close-up: 0 = the stop's pose, 1 = the display fills the frame
+  let biezZ = 0;
   let ostatni = 0;
   let czeka = false;
   const czasy = [];
@@ -130,6 +162,7 @@ export function zbudujScene({ kontener, slowa, zasoby, ekran, tor, przyKlatce, o
     css.setSize(w, h);
     kamera.aspect = w / h;
     kamera.updateProjectionMatrix();
+    zblizenie = pozaPrzyblizenia(daneEkranu, { fov: POZY.instalacja.fov, aspekt: w / h });
   }
 
   function ustawKamere(stan) {
@@ -173,14 +206,16 @@ export function zbudujScene({ kontener, slowa, zasoby, ekran, tor, przyKlatce, o
     const k = ograniczRuch ? 1 : 1 - Math.pow(1 - LERP, dt * 60);
     biez += (cel - biez) * k;
     if (Math.abs(cel - biez) < 1e-5) biez = cel;
-    const stan = poza(tor, biez, pozy);
+    biezZ += (celZ - biezZ) * k;
+    if (Math.abs(celZ - biezZ) < 1e-4) biezZ = celZ;
+    const stan = { ...zmieszaj(poza(tor, biez, pozy), zblizenie, biezZ), przyblizenie: biezZ };
     ustawKamere(stan);
     bokeh.uniforms.focus.value = kamera.position.distanceTo(new THREE.Vector3(...stan.cel));
     kompozytor.render();
     css.render(scenaCss, kamera);
     przyKlatce(stan);
     if (czasy.length >= 90 && mediana(czasy) > PROG_SPADKU_MS) obnizJakosc();
-    if (biez !== cel) zamow();
+    if (biez !== cel || biezZ !== celZ) zamow();
     else ostatni = 0;
   }
 
@@ -225,13 +260,32 @@ export function zbudujScene({ kontener, slowa, zasoby, ekran, tor, przyKlatce, o
       if (natychmiast) biez = p;
       zamow();
     },
-    /** For verification: screen positions of one object per depth plane, and frame times. */
+    /** 1 = close-up of the display, 0 = the stop's pose. */
+    ustawPrzyblizenie(z, natychmiast = false) {
+      celZ = z;
+      if (natychmiast) biezZ = z;
+      zamow();
+    },
+    /** The scene is going away: the form goes back where it stood in the document, without 3D styles. */
+    oddajEkran() {
+      scenaCss.remove(ekranCss);
+      for (const w of ["position", "pointer-events", "user-select", "transform", "width", "height", "display", "opacity", "visibility", "border-radius"]) ekran.style.removeProperty(w);
+      ekran.classList.remove("w-scenie");
+      miejsce.replaceWith(ekran);
+      css.domElement.remove();
+    },
+    /** For verification: screen positions of one object per depth plane, the display corners, frame times. */
     diagnostyka: () => ({
       plany: {
         daleki: ekranowe(obiekty.sciana.children[1]),
         srodkowy: ekranowe(obiekty.lampa.userData.zrodlo),
         bliski: ekranowe(obiekty.kubek),
       },
+      ekran: [[-1, 1], [1, 1], [1, -1], [-1, -1]].map(([x, y]) => {
+        const v = new THREE.Vector3(x * EKRAN_M[0] / 2, y * EKRAN_M[1] / 2, 0).applyMatrix4(siatka.matrixWorld).project(kamera);
+        return [(v.x + 1) / 2 * window.innerWidth, (1 - v.y) / 2 * window.innerHeight];
+      }),
+      przyblizenie: biezZ,
       medianaKlatkiMs: czasy.length ? mediana(czasy) : null,
       probki: czasy.length,
       dpr,

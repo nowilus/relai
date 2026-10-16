@@ -57,7 +57,12 @@
       <h2 id="t-6" tabindex="-1">{{instalacja.naglowek}}</h2>
       <p>{{instalacja.tekst}}</p>
     </div>
-    <div class="ekran" data-ekran>
+    <div class="ekran" data-ekran data-etykieta="{{konfigurator.ekran.etykieta}}">
+      <div class="ekran__pasek">
+        <span class="ekran__kropki" aria-hidden="true"><i></i><i></i><i></i></span>
+        <span class="ekran__tytul">{{konfigurator.ekran.tytul}}</span>
+        <button type="button" class="ekran__wroc" data-wroc>{{konfigurator.ekran.wroc}}</button>
+      </div>
       <form class="konfigurator" data-konfigurator aria-labelledby="t-6"
         data-jezyk="{{jezyk}}"
         data-kopiuj-tekst="{{konfigurator.kopiuj}}"
@@ -65,6 +70,7 @@
         data-zaznaczono="{{konfigurator.zaznaczono}}"
         data-brak-schematu="{{konfigurator.brakSchematu}}"
         data-brak-wyboru="{{konfigurator.brakWyboru}}">
+        <div class="konfigurator__wybor">
         <fieldset class="konfigurator__grupa">
           <legend>{{konfigurator.tryb}}</legend>
           <label><input type="radio" name="tryb" value="instaluje" checked> {{konfigurator.instaluje}}</label>
@@ -83,6 +89,8 @@
           <label><input type="checkbox" name="skladnik" value="postep"> {{konfigurator.postep}} <small>{{konfigurator.wczesny}}</small></label>
           <label><input type="checkbox" name="skladnik" value="cache" checked> {{konfigurator.cache}} <small>{{konfigurator.wczesny}}</small></label>
         </fieldset>
+        </div>
+        <div class="konfigurator__wynik">
         <p class="konfigurator__etykieta" id="k-komendy">{{konfigurator.komendyEtykieta}}</p>
         <pre class="konfigurator__komendy" data-komendy aria-labelledby="k-komendy" aria-live="polite">{{komendyDomyslne}}</pre>
         <ul class="konfigurator__uwagi" data-uwagi>
@@ -102,6 +110,7 @@
         </div>
         <p class="konfigurator__status" data-status role="status"></p>
         <p class="konfigurator__uwaga">{{konfigurator.uwagaLink}}</p>
+        </div>
         <p class="konfigurator__wersje">{{konfigurator.wersje}}: RelAI <span data-wersja="relai">{{fakty.wersje.relai}}</span> · panel <span data-wersja="panel">{{fakty.wersje.relai-panel}}</span></p>
       </form>
     </div>

@@ -109,6 +109,31 @@ function klawiatura(szer) {
   return grupa;
 }
 
+/** Display corner radii in metres; the HTML on the display uses the same values (EKRAN_PROMIEN in scena.js). */
+export const PROMIEN_EKRANU = Object.freeze({ gora: 0.004, dol: 0.002 });
+
+/**
+ * A flat rectangle w x h centred on the origin with rounded corners (top and bottom radii apart),
+ * UVs 0..1 over its bounding box, so a texture maps as on a plain PlaneGeometry.
+ */
+function zaokraglony(w, h, rGora, rDol) {
+  const x = w / 2, y = h / 2;
+  const s = new THREE.Shape();
+  s.moveTo(-x + rDol, -y);
+  s.lineTo(x - rDol, -y);
+  s.quadraticCurveTo(x, -y, x, -y + rDol);
+  s.lineTo(x, y - rGora);
+  s.quadraticCurveTo(x, y, x - rGora, y);
+  s.lineTo(-x + rGora, y);
+  s.quadraticCurveTo(-x, y, -x, y - rGora);
+  s.lineTo(-x, -y + rDol);
+  s.quadraticCurveTo(-x, -y, -x + rDol, -y);
+  const g = new THREE.ShapeGeometry(s, 8);
+  const p = g.attributes.position, uv = g.attributes.uv;
+  for (let i = 0; i < p.count; i++) uv.setXY(i, (p.getX(i) + x) / w, (p.getY(i) + y) / h);
+  return g;
+}
+
 /** Laptop: aluminium base and lid, keys, trackpad; the display is a named mesh the scene swaps content on. */
 export function laptop(rej) {
   const grupa = new THREE.Group();
@@ -144,14 +169,29 @@ export function laptop(rej) {
   tyl.rotation.x = Math.PI / 2;
   tyl.position.set(0, D / 2, -0.004);
   klapa.add(cien(tyl));
-  const ramka = new THREE.Mesh(new THREE.PlaneGeometry(W - 0.004, D - 0.004), new THREE.MeshStandardMaterial({ color: "#0e0d0e", roughness: 0.28 }));
-  ramka.position.set(0, D / 2, 0.0036);
-  klapa.add(ramka);
+  // A display assembly as on a real lid: black glass lying on the aluminium (its face is at z 0.8 mm),
+  // following the lid's rounded top corners (radius 12 mm, inset 2 mm), ringed by a thin matte rubber
+  // gasket, and ending above the hinge so a strip of bare aluminium shows between the glass and the keys.
+  // one bezel width all round: the sides give 8 mm ((W - 4 mm - panel width) / 2), top and bottom match it
+  const RAMKA = (W - 0.004 - 0.284) / 2;
+  const SZKLO_GORA = D - 0.002;
+  const EKRAN_Y = SZKLO_GORA - RAMKA - 0.1775 / 2;
+  const SZKLO_DOL = EKRAN_Y - 0.1775 / 2 - RAMKA; // below it, bare aluminium down to the hinge
+  const wysSzkla = SZKLO_GORA - SZKLO_DOL;
+  const srodekSzkla = (SZKLO_GORA + SZKLO_DOL) / 2;
+  const uszczelka = new THREE.Mesh(
+    zaokraglony(W - 0.002, wysSzkla + 0.002, 0.011, 0.004),
+    new THREE.MeshStandardMaterial({ color: "#1c1b1d", roughness: 0.92 }),
+  );
+  uszczelka.position.set(0, srodekSzkla, 0.001);
+  const ramka = new THREE.Mesh(zaokraglony(W - 0.004, wysSzkla, 0.01, 0.003), new THREE.MeshStandardMaterial({ color: "#0e0d0e", roughness: 0.22 }));
+  ramka.position.set(0, srodekSzkla, 0.0012);
+  klapa.add(uszczelka, ramka);
   const ekran = new THREE.Mesh(
-    new THREE.PlaneGeometry(0.284, 0.1775),
+    zaokraglony(0.284, 0.1775, PROMIEN_EKRANU.gora, PROMIEN_EKRANU.dol),
     new THREE.MeshStandardMaterial({ color: "#000000", emissive: "#ffffff", emissiveMap: T.ekranPanelu(), emissiveIntensity: 0.85, roughness: 0.18 }),
   );
-  ekran.position.set(0, D / 2 + 0.006, 0.0038);
+  ekran.position.set(0, EKRAN_Y, 0.0014);
   ekran.name = "ekran";
   klapa.add(ekran);
   const zawias = new THREE.Mesh(new THREE.CylinderGeometry(0.0042, 0.0042, W - 0.05, 20), new THREE.MeshStandardMaterial({ color: "#2a292b", roughness: 0.4, metalness: 0.8 }));

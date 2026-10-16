@@ -81,6 +81,11 @@
     "brakSchematu": "Nothing opened? Copy the commands and paste them into a terminal. The link works when Claude Code is installed.",
     "brakWyboru": "Choose at least one part.",
     "wersje": "Current versions",
+    "ekran": {
+      "tytul": "RelAI · install",
+      "wroc": "Back to the desk",
+      "etykieta": "Laptop display with the install configurator. Enter zooms in, Escape zooms out."
+    },
     "uwagi": {
       "brakWyboru": "Choose at least one part.",
       "panelTylkoClaude": "The panel, progress bar and batteries work in Claude Code only.",

@@ -6,8 +6,8 @@
 |---|---|---|---|---|
 | E1 | Fundament i hero Biurka | ZREALIZOWANY 2026-10-16 | [PROMPT_ETAP_1.md](PROMPT_ETAP_1.md) | świeża sesja Opus 5.5, `/effort high`; kalibracja hero z Łukaszem przed zamknięciem |
 | E2 | Realistyczny świat i hero od nowa | ZREALIZOWANY 2026-10-16 | [PROMPT_ETAP_2.md](PROMPT_ETAP_2.md) | Aneks A; Sonnet 5.5, w trakcie trzeciej rundy kalibracji przełączony przez Łukasza na Opus 5.5; kalibracja w czterech rundach, zamknięcie za zgodą Łukasza |
-| E3 | Laptop jako prawdziwy ekran i detale | GOTOWY DO STARTU | [PROMPT_ETAP_3.md](PROMPT_ETAP_3.md) | Aneks B; konfigurator wpasowany w ekran, przybliżenie po kliknięciu, dostępność w trybie 3D, książki |
-| E4 | Fotorealizm na przystankach | OCZEKUJE | — | Aneks B; path tracing na postoju kamery, nowa zależność MIT po karcie zgody |
+| E3 | Laptop jako prawdziwy ekran i detale | ZREALIZOWANY 2026-10-16 | [PROMPT_ETAP_3.md](PROMPT_ETAP_3.md) | Aneks B; konfigurator wpasowany w ekran, przybliżenie po kliknięciu, dostępność w trybie 3D, książki |
+| E4 | Fotorealizm na przystankach | GOTOWY DO STARTU | [PROMPT_ETAP_4.md](PROMPT_ETAP_4.md) | Aneks B; path tracing na postoju kamery, nowa zależność MIT po karcie zgody |
 | E5 | Biurko: pełna droga, szczyt, szuflady | OCZEKUJE | — | dawny E3 (Aneks B); materiał promptu w commicie `a097b35` |
 | E6 | Film: pełna droga, hero i szczyt | OCZEKUJE | — | dawny E4; kończy się bramką wyboru wersji |
 | E7 | Dopieszczenie wybranej | OCZEKUJE | — | dawny E5; telefon, reduced motion, plakat bez WebGL |
@@ -36,3 +36,5 @@
 - 2026-10-16 — Obrazy wzorcowe od Łukasza w `referencje/` (01–08 + `07b`); bramka zamknięta, w prompcie E2 komenda bramki liczy tylko `0[1-8]-*.jpg` (kopie JPEG q90 w repo, PNG lokalnie). E2 gotowy do startu w świeżej sesji.
 - 2026-10-16 — E2 rozpoczęty (zgoda Łukasza na karcie startu; model sesji Sonnet 5.5 zamiast wymaganego Opus 5.5 — świadoma zgoda Łukasza na rozjazd).
 - 2026-10-16 — E2 zrealizowany: scena z 62 plików CC0 (7 modeli Poly Haven, tekstury 2K blatu, ściany i korka, HDRI), miasto za oknem i laptop z napisami klawiatury w kodzie, AO i głębia ostrości; w trakcie trzeciej rundy kalibracji sesja przełączona przez Łukasza na Opus 5.5. 98/98 testów, 16/16 punktów weryfikacji, budżet 9,0 MB z kompresją (pułap 10 MB, Aneks B). Aneks B: E3 laptop i detale, E4 path tracing, dawne E3–E6 → E5–E8. E3 gotowy do startu.
+- 2026-10-16 — E3 rozpoczęty (Opus 5.5, zgoda Łukasza na karcie startu).
+- 2026-10-16 — E3 zrealizowany: konfigurator jako okno aplikacji na matrycy (wpasowanie ≤ 0,04 px przy 1366 i 1920, PL i EN), przybliżenie po kliknięciu i powrót Esc / przewinięciem / przyciskiem, formularz poza `aria-hidden`, matryca z równą ramką 8 mm, uszczelką i pasem aluminium, poświata RectAreaLight, książki od nowa; 162/162 testów, 12/12 punktów weryfikacji, 9,11 MiB; kalibracja przyjęta przez Łukasza bez uwag po dwóch poprawkach ramki w trakcie. E4 gotowy do startu.
