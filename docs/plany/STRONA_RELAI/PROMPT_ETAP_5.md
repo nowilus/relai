@@ -381,52 +381,52 @@ budżetu — deterministyczne, sprawdzane przez Ciebie przed przyjęciem.
 Każdy punkt Weryfikacji, który przeszedł, odhaczasz w `PROMPT_ETAP_5.md` (`- [ ]` → `- [x]`)
 zaraz po jego sprawdzeniu, nie na końcu etapu; punkt, który nie przeszedł, zostaje pusty.
 
-- [ ] `node --test "site/**/*.test.mjs"` kończy się bez błędów, liczba testów ≥ 162 (E4, `FAKT`)
+- [x] `node --test "site/**/*.test.mjs"` kończy się bez błędów, liczba testów ≥ 162 (E4, `FAKT`)
       plus nowe testy Filmu; kontrola pozytywna: generator z podmienioną ścieżką `vendor/` albo
       liczba fiszek o jeden mniejsza musi wywrócić test.
-- [ ] Silnik bez zmian: `sha256sum` plików w `site/vendor/scrollcraft/` równy sumom kopii pluginu
+- [x] Silnik bez zmian: `sha256sum` plików w `site/vendor/scrollcraft/` równy sumom kopii pluginu
       i wpisowi w `VERSION`; `LICENSE` to tekst MIT; karta zgody na pobranie licencji pokazana,
       odpowiedź Łukasza zacytowana we wpisie.
-- [ ] Biurko nietknięte (dowód negatywny): sumy `sha256sum` plików `site/biurko/*`,
+- [x] Biurko nietknięte (dowód negatywny): sumy `sha256sum` plików `site/biurko/*`,
       `site/zasoby/**`, `site/vendor/three/**`, `site/css/strona.css`, `site/index.html`
       i `site/pl/index.html` zapisane w katalogu roboczym **na starcie etapu** (przed pierwszą
       zmianą, niezależnie od tego, czy E4 jest już w commicie) i porównane na końcu, po
       `node site/narzedzia/zbuduj.mjs` — zero różnic; kontrola pozytywna: plik z dopisaną spacją
       daje jedną różnicę.
-- [ ] Bez WebGL i bez zdjęć: w `site/film/`, `site/css/film.css` i `szablon-film.html`
+- [x] Bez WebGL i bez zdjęć: w `site/film/`, `site/css/film.css` i `szablon-film.html`
       `grep -rn "webgl\|getContext\|three\|\.jpe\?g\|\.png\|\.webp\|\.mp4"` nie trafia nic poza
       odnośnikami do `site/grafika/` (kontrola pozytywna: ten sam grep na `site/biurko/` trafia).
-- [ ] Kalibracja hero: zrzut hero Filmu PL 1366 × 768 pokazany Łukaszowi obok `E1-klatka.png`
+- [x] Kalibracja hero: zrzut hero Filmu PL 1366 × 768 pokazany Łukaszowi obok `E1-klatka.png`
       i hero Biurka, z rozbiorem (krój, rytm, detal, ruch — L-0220/L-0226); werdykt zacytowany we
       wpisie; uwagi wdrożone przed resztą aktów.
-- [ ] Siedem punktów historii obecnych w Filmie: dla każdego aktu zrzut PL 1366 × 768 z ustalonego
+- [x] Siedem punktów historii obecnych w Filmie: dla każdego aktu zrzut PL 1366 × 768 z ustalonego
       kadru (L-0182) i lista „tekst aktu w DOM przed startem silnika” (pobranie strony bez JS —
       `curl` — zawiera nagłówek, zdania szczytu, komendę instalacji i konfigurator).
-- [ ] Ekran ładowania: przy zimnym wejściu (nowa strona, pamięć podręczna wyłączona) kadr przed
+- [x] Ekran ładowania: przy zimnym wejściu (nowa strona, pamięć podręczna wyłączona) kadr przed
       jego zejściem nie pokazuje stanów pośrednich (zrzuty co 100 ms do zejścia); z silnikiem
       podmienionym na plik z błędem w `initScript` ekran schodzi w ≤ limitu, treść widoczna,
       `console.error` tylko z podłożonego błędu (pierwsza asercja to tryb — L-0213).
-- [ ] Szczyt nie do przeskoczenia: przewinięcie jednym ruchem kółka (`deltaY` 1000) zatrzymuje się
+- [x] Szczyt nie do przeskoczenia: przewinięcie jednym ruchem kółka (`deltaY` 1000) zatrzymuje się
       wewnątrz aktu szczytu, nie za nim (pozycja z silnika przed i po).
-- [ ] Budżet i płynność (`FAKT`): pierwsze wejście Filmu w MiB tym samym instrumentem co Biurko
+- [x] Budżet i płynność (`FAKT`): pierwsze wejście Filmu w MiB tym samym instrumentem co Biurko
       (`site/README.md`), obok 9,49 MiB Biurka; przy CPU ×4 p95 klatki w ruchu ≤ 26 ms przez całą
       drogę; czas do zejścia ekranu ładowania przy zimnym wejściu.
-- [ ] Konsola bez błędów i nieudanych żądań przy wejściu, pełnym przewinięciu i konfiguratorze
+- [x] Konsola bez błędów i nieudanych żądań przy wejściu, pełnym przewinięciu i konfiguratorze
       (PL i EN, obie wersje); żądania tylko `localhost` i `api.github.com`.
-- [ ] Podstawy bezpieczeństwa:
+- [x] Podstawy bezpieczeństwa:
       `grep -rn --exclude="*.test.mjs" "innerHTML\|outerHTML\|insertAdjacentHTML\|document.write" site/js site/biurko site/film`
       kończy się kodem 1, a bez `--exclude` trafia `site/js/wersja.test.mjs` (kontrola pozytywna);
       kod z `site/vendor/` ładowany wyłącznie ze ścieżek względnych, bez CDN; formularz bez
       `action`/`method`; silnik skopiowany — jedyne `fetch` w `scrollcraft.js` (FAKT 0.3.1, wiersz
       ok. 660) dociąga klip z `data-sc-src`; Film klipów nie ma: `grep -rn "data-sc-src" site/film site/narzedzia/szablon-film.html`
       nie trafia nic, a ten sam grep na kopii silnika trafia (kontrola pozytywna).
-- [ ] **Bramka „Biurko czy Film”:** kadry porównania i liczby obu wersji pokazane Łukaszowi
+- [x] **Bramka „Biurko czy Film”:** kadry porównania i liczby obu wersji pokazane Łukaszowi
       w otwartym oknie; odpowiedź zacytowana we wpisie i w `STATUS.md` (bramka ROZSTRZYGNIĘTA);
       opcje pytania cytowały definicje wariantów z sekcji 4 (L-0228).
-- [ ] Wpis w `docs/DZIENNIK.md` dopisany na końcu sekcji „Wpisy”, podpis
+- [x] Wpis w `docs/DZIENNIK.md` dopisany na końcu sekcji „Wpisy”, podpis
       `Autor: RelAI (Opus 5.5) + Lukasz`; ryzyka T1, T2, T3 zaktualizowane; `docs/STATE.md`
       zaktualizowany.
-- [ ] Katalog roboczy `.claude/relai/work/STRONA_RELAI/E5/` przejrzany raportem
+- [x] Katalog roboczy `.claude/relai/work/STRONA_RELAI/E5/` przejrzany raportem
       (`node .claude/relai/tools/clean-work.js raport`) i skasowany po „tak”; liczby przed i po
       w sekcji „Zweryfikowane” wpisu. Artefakty poza katalogiem (serwer podglądu w tle, strony
       DevTools, pobrana licencja, jeśli trafiła do `%TEMP%`) wypisane z nazwy razem z tym, co się

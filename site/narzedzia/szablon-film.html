@@ -1,0 +1,249 @@
+<!doctype html>
+<html lang="{{jezyk}}" class="film" data-wersja-relai="{{fakty.wersje.relai}}" data-wersja-panel="{{fakty.wersje.relai-panel}}">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{meta.tytul}}</title>
+<meta name="description" content="{{meta.opis}}">
+<meta name="color-scheme" content="light">
+<meta name="theme-color" content="#f2e9d8">
+<link rel="alternate" hreflang="en" href="{{baza}}film/">
+<link rel="alternate" hreflang="pl" href="{{baza}}pl/film/">
+<link rel="alternate" hreflang="x-default" href="{{baza}}film/">
+<link rel="icon" href="{{baza}}grafika/logo.svg" type="image/svg+xml">
+<link rel="preload" href="{{baza}}fonty/fraunces-latin-wonk.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="{{baza}}fonty/hanken-grotesk-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="{{baza}}fonty/kalam-700-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="{{baza}}vendor/scrollcraft/scrollcraft.css">
+<link rel="stylesheet" href="{{baza}}css/film.css">
+<script>document.documentElement.classList.add("ladowanie");setTimeout(function(){document.documentElement.classList.remove("ladowanie")},4000);</script>
+<script defer src="{{baza}}vendor/scrollcraft/scrollcraft.js"></script>
+<script type="module" src="{{baza}}film/start.js"></script>
+</head>
+<body>
+<div class="stol" aria-hidden="true"></div>
+
+<div class="zaslona" data-zaslona aria-hidden="true">
+  <div class="zaslona__srodek">
+    <img class="zaslona__znak" src="{{baza}}grafika/logo.svg" alt="" width="220" height="220">
+    <svg class="zaslona__kreska" viewBox="0 0 100 10" preserveAspectRatio="none"><path d="M 1 6 C 22 2.5, 48 8.5, 70 4.5 S 92 5, 99 3.5" pathLength="1"/></svg>
+    <p class="zaslona__napis">{{film.ladowanie}}</p>
+  </div>
+</div>
+
+<header class="pasek">
+  <a class="pasek__znak" href="#{{hero.id}}">Rel<span>AI</span></a>
+  <nav class="pasek__nav" aria-label="{{film.pasek}}">
+    <a class="pasek__jezyk" href="{{baza}}{{nawigacja.jezykSciezka}}film/" hreflang="{{nawigacja.jezykKod}}" lang="{{nawigacja.jezykKod}}" data-jezyk="{{nawigacja.jezykKod}}">{{nawigacja.jezykEtykieta}}</a>
+    <a class="przycisk przycisk--maly" href="#{{instalacja.id}}">{{hero.wezwanie}}</a>
+  </nav>
+</header>
+
+<main>
+  <section class="akt wejscie" id="{{hero.id}}" data-sc-act="flow" aria-labelledby="t-wejscie">
+    <div class="wejscie__plan wejscie__plan--srodek" data-sc-parallax="1.6" aria-hidden="true">
+      <div class="okno wejscie__okno">
+        <div class="okno__tytul">{{film.hero.okno}}</div>
+        <div class="okno__czat"><p class="okno__wiersz">{{film.hero.czat}}</p></div>
+        <div class="okno__prompt"><i class="okno__kursor"></i></div>
+      </div>
+      <img class="wejscie__logo" src="{{baza}}grafika/logo.svg" alt="" width="230" height="230">
+    </div>
+    <div class="wejscie__plan wejscie__plan--przod" data-sc-parallax="-3.2" aria-hidden="true">
+      <p class="karteczka wejscie__notka">{{film.hero.notatka}}</p>
+    </div>
+    <div class="wejscie__tekst">
+      <h1 id="t-wejscie">{{#film.hero.linie}}<span class="wejscie__linia"><span>{{.}}</span></span> {{/film.hero.linie}}</h1>
+      <p class="wejscie__zdanie">{{hero.zdanie}}</p>
+      <a class="przycisk wejscie__wezwanie" href="#{{instalacja.id}}">{{hero.wezwanie}}</a>
+    </div>
+  </section>
+
+  <section class="akt pamiec" id="{{przystanki.0.id}}" data-sc-act="pin" data-sc-span="4.8" data-akt="pamiec" aria-labelledby="t-amnezja">
+    <div class="pamiec__scena" data-sc-stage>
+      <div class="pamiec__amnezja">
+        <h2 id="t-amnezja" data-sc-cue="0.01 0.31 0.12 0.3">{{przystanki.0.naglowek}}</h2>
+{{#film.amnezja.zdania}}
+        <p class="pamiec__zdanie" data-zdanie="{{@index}}">{{.}}</p>
+{{/film.amnezja.zdania}}
+      </div>
+
+      <ul class="karteczki" aria-label="{{przystanki.0.nazwa}}">
+{{#film.pamiec.dokumenty}}
+{{#wpisy}}
+        <li class="karteczka" data-karteczka>{{pytanie}}</li>
+{{/wpisy}}
+{{/film.pamiec.dokumenty}}
+      </ul>
+
+      <div class="dokumenty" id="{{przystanki.1.id}}">
+{{#film.pamiec.dokumenty}}
+        <article class="dokument" data-dokument>
+          <h3 class="dokument__plik">{{plik}}</h3>
+          <p class="dokument__tytul">{{tytul}}</p>
+          <ol class="dokument__wpisy">
+{{#wpisy}}
+            <li data-wpis>{{wpis}}</li>
+{{/wpisy}}
+          </ol>
+        </article>
+{{/film.pamiec.dokumenty}}
+        <p class="dokumenty__przyklad">{{film.pamiec.przyklad}}</p>
+      </div>
+
+      <div class="pamiec__porzadek">
+        <h2 id="t-porzadek" data-sc-cue="0.8" data-sc-kinetic="lines">{{przystanki.1.naglowek}}</h2>
+        <p data-sc-cue="0.84">{{przystanki.1.tekst}}</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="akt plan" id="{{przystanki.2.id}}" data-sc-act="flow" aria-labelledby="t-plan">
+    <div class="plan__tekst" data-sc-in>
+      <h2 id="t-plan">{{przystanki.2.naglowek}}</h2>
+      <p>{{przystanki.2.tekst}}</p>
+    </div>
+    <figure class="arkusz plan__arkusz" data-sc-reveal="down" data-sc-reveal-at="0.12 0.5">
+      <figcaption class="arkusz__tytul">{{film.plan.tytul}}</figcaption>
+      <ol class="arkusz__etapy">
+{{#makiety.plan.etapy}}
+        <li class="arkusz__etap" style="--znak-kolor:{{kolor}}"><span class="arkusz__numer">{{id}}</span><span class="arkusz__nazwa">{{nazwa}}</span><span class="arkusz__status"><span class="arkusz__znak" aria-hidden="true">{{znak}}</span> {{status}}</span></li>
+{{/makiety.plan.etapy}}
+      </ol>
+      <p class="arkusz__pieczatka">{{film.plan.pieczatka}}</p>
+      <p class="arkusz__przyklad">{{film.plan.przyklad}}</p>
+    </figure>
+  </section>
+
+  <section class="akt panel" id="{{przystanki.3.id}}" data-sc-act="pin" data-sc-span="2.2" data-akt="panel" aria-labelledby="t-panel">
+    <div class="panel__scena" data-sc-stage>
+      <div class="panel__tekst">
+        <h2 id="t-panel" data-sc-cue="0.05">{{przystanki.3.naglowek}}</h2>
+        <p data-sc-cue="0.12">{{przystanki.3.tekst}}</p>
+      </div>
+      <div class="panel__uklad">
+        <div class="okno panel__okno" data-okno-panelu style="--m-tekst:{{makiety.kolory.tekst}};--m-wyciszony:{{makiety.kolory.wyciszony}};--m-linia:{{makiety.kolory.linia}};--m-tor:{{makiety.kolory.tor}};--m-w-toku:{{makiety.kolory.w_toku}};--m-karta:{{makiety.kolory.karta}};--m-okno:{{makiety.kolory.okno}};--m-prompt:{{makiety.kolory.prompt}}">
+          <div class="okno__tytul">{{film.panel.okno}}</div>
+          <div class="paski" role="img" aria-label="{{makiety.opis}}">
+{{#makiety.paski}}
+            <div class="pasek-makieta" data-pasek="{{klucz}}" data-sc-reveal="left">
+              <span class="pasek-makieta__etykieta">{{etykieta}}</span>
+              <span class="pasek-makieta__tresc">
+{{#plan}}
+                <span class="pm-wiersz"><b>{{nazwa}}</b><span class="pm-status">{{status}}</span><span class="pm-cichy">{{etap}}</span></span>
+{{/plan}}
+{{#postep}}
+                <span class="pm-segmenty">{{#segmenty}}<i style="--seg:{{kolor}}"></i>{{/segmenty}}</span>
+                <span class="pm-wiersz"><i class="pm-kolko"></i><b class="pm-utnij">{{biezacy}}</b><span class="pm-cichy pm-utnij">{{nastepny}}</span><span class="pm-rozwin">{{przycisk}}</span></span>
+{{/postep}}
+{{#cache}}
+                <span class="pm-baterie">
+{{#baterie}}
+                  <span class="bateria" style="--zostalo:{{zostalo}};--bateria-kolor:{{kolor}}"><i class="bateria__ikona"></i><span>{{etykieta}}</span><b>{{wartosc}}</b><small class="bateria__dopisek">{{dopisek}}</small></span>
+{{/baterie}}
+                  <span class="pm-kontekst" style="--uzyte:{{kontekst.uzyte}};--prog:{{kontekst.prog}};--k-kolor:{{kontekst.kolor}}"><i class="pm-kontekst__tor"></i></span>
+                  <span class="pm-kontekst__tekst">{{kontekst.etykieta}}<b>{{kontekst.tekst}}</b></span>
+                </span>
+{{/cache}}
+              </span>
+              <span class="pasek-makieta__liczba"><b>{{liczba}}</b> {{jednostka}}</span>
+            </div>
+{{/makiety.paski}}
+          </div>
+          <div class="okno__prompt"><i class="okno__kursor"></i></div>
+        </div>
+        <p class="panel__przyklad" data-sc-cue="0.55">{{film.panel.przyklad}}</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="akt komendy" id="{{przystanki.4.id}}" data-sc-act="pan" data-sc-span="3.2" aria-labelledby="t-komendy">
+    <div class="komendy__scena" data-sc-stage>
+      <div class="tasma__wstep">
+        <h2 id="t-komendy"><span data-liczba-komend>{{fakty.liczbaKomend}}</span> {{przystanki.4.naglowek}}</h2>
+        <p>{{przystanki.4.tekst}}</p>
+      </div>
+      <div class="tasma" data-sc-pan="0.04">
+        <ol class="tasma__fiszki">
+{{#fiszki}}
+          <li class="fiszka" data-fiszka>
+            <img class="fiszka__ikona" src="{{baza}}grafika/ikony/{{ikona}}.svg" alt="" width="56" height="56">
+            <h3 class="fiszka__nazwa">{{tytul}}</h3>
+            <p class="fiszka__opis">{{opis}}</p>
+            <code class="fiszka__komenda">/{{nazwa}}</code>
+          </li>
+{{/fiszki}}
+        </ol>
+      </div>
+    </div>
+  </section>
+
+  <section class="akt instalacja" id="{{instalacja.id}}" data-sc-act="pin" data-sc-span="1.15" aria-labelledby="t-instalacja">
+    <div class="instalacja__scena" data-sc-stage data-sc-spotlight>
+      <div class="instalacja__tekst">
+        <p class="instalacja__notka" data-sc-cue="0.02">{{film.instalacja.reflektor}}</p>
+        <h2 id="t-instalacja" data-sc-cue="0.02">{{instalacja.naglowek}}</h2>
+        <p data-sc-cue="0.04">{{instalacja.tekst}}</p>
+      </div>
+      <div class="okno okno--jasne instalacja__okno" data-sc-cue="0.04" data-sc-rise="0">
+        <div class="okno__tytul">{{konfigurator.ekran.tytul}}</div>
+        <form class="konfigurator" data-konfigurator aria-labelledby="t-instalacja"
+          data-jezyk="{{jezyk}}"
+          data-kopiuj-tekst="{{konfigurator.kopiuj}}"
+          data-skopiowano="{{konfigurator.skopiowano}}"
+          data-zaznaczono="{{konfigurator.zaznaczono}}"
+          data-brak-schematu="{{konfigurator.brakSchematu}}"
+          data-brak-wyboru="{{konfigurator.brakWyboru}}">
+          <div class="konfigurator__wybor">
+          <fieldset class="konfigurator__grupa">
+            <legend>{{konfigurator.tryb}}</legend>
+            <label><input type="radio" name="tryb" value="instaluje" checked> {{konfigurator.instaluje}}</label>
+            <label><input type="radio" name="tryb" value="aktualizuje"> {{konfigurator.aktualizuje}}</label>
+          </fieldset>
+          <fieldset class="konfigurator__grupa">
+            <legend>{{konfigurator.narzedzie}}</legend>
+            <label><input type="radio" name="narzedzie" value="claude" checked> Claude Code</label>
+            <label><input type="radio" name="narzedzie" value="cursor"> Cursor</label>
+            <label><input type="radio" name="narzedzie" value="codex"> Codex</label>
+          </fieldset>
+          <fieldset class="konfigurator__grupa">
+            <legend>{{konfigurator.skladniki}}</legend>
+            <label><input type="checkbox" name="skladnik" value="relai" checked> {{konfigurator.relai}}</label>
+            <label><input type="checkbox" name="skladnik" value="panel" checked> {{konfigurator.panel}} <small>{{konfigurator.wczesny}}</small></label>
+            <label><input type="checkbox" name="skladnik" value="postep"> {{konfigurator.postep}} <small>{{konfigurator.wczesny}}</small></label>
+            <label><input type="checkbox" name="skladnik" value="cache" checked> {{konfigurator.cache}} <small>{{konfigurator.wczesny}}</small></label>
+          </fieldset>
+          </div>
+          <div class="konfigurator__wynik">
+          <p class="konfigurator__etykieta" id="k-komendy">{{konfigurator.komendyEtykieta}}</p>
+          <pre class="konfigurator__komendy" data-komendy aria-labelledby="k-komendy" aria-live="polite">{{komendyDomyslne}}</pre>
+          <ul class="konfigurator__uwagi" data-uwagi>
+            <li>{{konfigurator.uwagi.restart}}</li>
+          </ul>
+          <template data-uwagi-teksty>
+            <p data-klucz="brakWyboru">{{konfigurator.uwagi.brakWyboru}}</p>
+            <p data-klucz="panelTylkoClaude">{{konfigurator.uwagi.panelTylkoClaude}}</p>
+            <p data-klucz="panelBezRelai">{{konfigurator.uwagi.panelBezRelai}}</p>
+            <p data-klucz="restart">{{konfigurator.uwagi.restart}}</p>
+            <p data-klucz="sciezkaWindows">{{konfigurator.uwagi.sciezkaWindows}}</p>
+          </template>
+          <div class="konfigurator__akcje">
+            <button type="button" class="przycisk" data-kopiuj hidden>{{konfigurator.kopiuj}}</button>
+            <a class="przycisk przycisk--drugi" data-terminal hidden>{{konfigurator.terminal}}</a>
+            <a class="przycisk przycisk--drugi" data-aplikacja hidden>{{konfigurator.aplikacja}}</a>
+          </div>
+          <p class="konfigurator__status" data-status role="status"></p>
+          <p class="konfigurator__uwaga">{{konfigurator.uwagaLink}}</p>
+          </div>
+          <p class="konfigurator__wersje">{{konfigurator.wersje}}: RelAI <span data-wersja="relai">{{fakty.wersje.relai}}</span> · panel <span data-wersja="panel">{{fakty.wersje.relai-panel}}</span></p>
+        </form>
+      </div>
+      <footer class="stopka">
+        <a href="https://github.com/nowilus/relai">{{stopka.kod}}</a>
+        <span>{{stopka.licencja}}</span>
+      </footer>
+    </div>
+  </section>
+</main>
+</body>
+</html>

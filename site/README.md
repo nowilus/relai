@@ -17,10 +17,16 @@ Plan: [docs/plany/STRONA_RELAI](../docs/plany/STRONA_RELAI/STATUS.md). Brief pro
 | `zasoby/` | modele, tekstury i HDRI z bibliotek CC0 (Poly Haven, ambientCG); wykaz plik po pliku w `zasoby/ZRODLA.json`, licencje w `zasoby/LICENCJE.md` |
 | `css/strona.css` | wygląd; kolory z `core/panel/theme.mjs` (paleta „Warsztat”) |
 | `vendor/three/` | three.js 0.186.1 i jego dodatki z tej samej paczki npm, przypięte (`VERSION` z listą plików, `LICENSE`) |
-| `fonty/`, `grafika/` | kopie fontów i logo z `docs/zasoby/` (licencje w `fonty/LICENCJE.md`) |
+| `fonty/`, `grafika/` | kopie fontów i logo z `docs/zasoby/` (licencje w `fonty/LICENCJE.md`); `grafika/ikony/` to ikony komend z `docs/zasoby/branding/ikony/` |
+| `narzedzia/szablon-film.html` | szablon prototypu „Film” dla obu języków |
+| `film/` | Film: ekran ładowania (`zaslona.js`), choreografia aktów (`akty.js`), start (`start.js`); `film/index.html` to generowana strona EN |
+| `css/film.css` | wygląd Filmu, paleta z `core/panel/theme.mjs` |
+| `narzedzia/makiety.mjs` | makiety pasków nad promptem z kodu `core/panel` i zrzutu aplikacji → `dane/makiety.json` |
+| `vendor/scrollcraft/` | silnik scroll-craft 0.3.1 skopiowany bajt w bajt (`VERSION` z sumami, `LICENSE` MIT); nie edytujesz go |
 
-`index.html` i `pl/index.html` są **generowane**. Nie edytuj ich ręcznie: zmień treść albo
-szablon i zbuduj od nowa.
+`index.html`, `pl/index.html`, `film/index.html` i `pl/film/index.html` są **generowane**.
+Nie edytuj ich ręcznie: zmień treść albo szablon i zbuduj od nowa. Brief Filmu:
+[docs/zasoby/STRONA/builds/film/BRIEF.md](../docs/zasoby/STRONA/builds/film/BRIEF.md).
 
 ## Zbudowanie stron
 
@@ -28,6 +34,7 @@ Z korzenia repozytorium:
 
 ```bash
 node site/narzedzia/fakty.mjs
+node site/narzedzia/makiety.mjs
 node site/narzedzia/zbuduj.mjs
 node --test "site/**/*.test.mjs"
 ```
@@ -83,6 +90,17 @@ Pułap pierwszego wejścia: ok. 10 MB po kompresji (Aneks B planu). Pomiar:
    i p95, raz zwykle i raz z CPU ×4 w DevTools. Scena obniża jakość sama, gdy mediana klatki
    przekroczy 26 ms (najpierw głębia ostrości, potem cienie kontaktowe, potem rozdzielczość).
 
+Tym samym instrumentem w E5: Film 0,31 MiB po kompresji (33 pliki), CPU ×4 p95 5,6 ms; Biurko
+9,49 MiB, p95 17,5 ms.
+
+## Ekran ładowania Filmu
+
+Skrypt w `<head>` dodaje klasę `ladowanie` z limitem 4 s, więc zasłona stoi od pierwszej klatki.
+`film/start.js` przesuwa kreskę pod logo w trzech krokach (fonty, montaż silnika, choreografia aktów)
+i zdejmuje zasłonę dopiero po dwóch klatkach z gotowym układem. Gdy silnik rzuci błąd albo minie
+limit, zasłona schodzi i treść zostaje widoczna bez animacji. Czas zejścia mierzysz przy zimnym
+wejściu: pusta pamięć podręczna, Fast 4G i CPU ×4; w E5 wyszło ok. 1,1 s.
+
 ## Podgląd lokalny
 
 Strony nie da się oglądać z `file://` (moduły ES i mapa importów wymagają serwera). Dowolny
@@ -92,7 +110,8 @@ serwer statyczny z korzeniem w `site/`, na przykład serwer skilla scroll-craft:
 node <katalog-skilla-scroll-craft>/scripts/serve.mjs --root site --port 4520
 ```
 
-i adres `http://localhost:4520/` (angielski) albo `http://localhost:4520/pl/`. Przeglądarka
+i adres `http://localhost:4520/` (angielski) albo `http://localhost:4520/pl/`; Film pod
+`http://localhost:4520/film/` i `http://localhost:4520/pl/film/`. Przeglądarka
 z polskim językiem trafia przy pierwszej wizycie na `/pl/`; ręczny wybór zapamiętuje się
 w `localStorage` (`relai-jezyk`).
 

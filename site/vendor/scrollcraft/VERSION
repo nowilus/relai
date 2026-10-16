@@ -1,0 +1,8 @@
+scrollcraft 0.3.1
+source: plugin nateherk-design 0.3.1 (skills/scroll-craft/engine/), copied byte for byte, unchanged
+repository: https://github.com/nateherkai/scroll-craft (commit 75d81f74e83692add18cd7a8a8e078b8a887a579)
+license: MIT, LICENSE copied from the local clone of the repository at that commit (no download; Lukasz 2026-10-16)
+sha256 scrollcraft.js: 91a8e57cec07b7b977584885741f07d93fd1cd08fdbea623d5432fcede66fd38
+sha256 scrollcraft.css: 519e254c1877a50eb724153d483ccff5b3b434fbaf3baf9c5bc1179ec28b075a
+sha256 LICENSE: 0333ae139466b1a84b10b415847479b5000d01378932c9ea96d5771b2ce3d1cf
+copied: 2026-10-16

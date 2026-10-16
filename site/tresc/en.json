@@ -104,6 +104,71 @@
     ],
     "teczka": "Plan"
   },
+  "film": {
+    "pasek": "Shortcuts",
+    "ladowanie": "Loading the page",
+    "hero": {
+      "linie": ["Your project", "remembers everything."],
+      "okno": "new session",
+      "czat": "Where do we start?",
+      "notatka": "what did we talk about?"
+    },
+    "amnezja": {
+      "zdania": ["You explain the project again.", "You hunt for yesterday's decision.", "You fix the same mistake a second time."]
+    },
+    "pamiec": {
+      "przyklad": "sample entries",
+      "dokumenty": [
+        { "tytul": "State", "plik": "STATE.md", "wpisy": [
+          { "pytanie": "where did we stop?", "wpis": "Stage E3 in progress: payment tests" },
+          { "pytanie": "explaining the project a third time", "wpis": "Shop: cart, invoices, card payments" }
+        ] },
+        { "tytul": "Journal", "plik": "JOURNAL.md", "wpisy": [
+          { "pytanie": "what did we talk about?", "wpis": "Oct 14 · invoice layout agreed" },
+          { "pytanie": "which file?", "wpis": "Oct 14 · changes in src/payments/" }
+        ] },
+        { "tytul": "Lessons", "plik": "LESSONS.md", "wpisy": [
+          { "pytanie": "same bug again", "wpis": "L-07 · dates always in UTC" }
+        ] },
+        { "tytul": "Decisions", "plik": "DECISIONS.md", "wpisy": [
+          { "pytanie": "what was that decision?", "wpis": "D-12 · database: Postgres" },
+          { "pytanie": "why that way?", "wpis": "D-12 · reason: transactions" }
+        ] }
+      ]
+    },
+    "plan": {
+      "tytul": "Plan PAYMENTS",
+      "pieczatka": "accepted · frozen",
+      "przyklad": "sample plan"
+    },
+    "panel": {
+      "okno": "Claude Code",
+      "przyklad": "sample data"
+    },
+    "komendy": {
+      "przewin": "Scroll sideways or drag"
+    },
+    "fiszki": {
+      "relai-adopt": { "tytul": "Project adoption", "opis": "RelAI in the project you already have" },
+      "relai-audit": { "tytul": "Project review", "opis": "A quick health check of your docs" },
+      "relai-backup": { "tytul": "Backup", "opis": "The whole project in a ZIP, no secrets" },
+      "relai-branch": { "tytul": "Plan branch", "opis": "A side idea waits for its turn" },
+      "relai-changelog": { "tytul": "Changelog", "opis": "What changed, straight from the journal" },
+      "relai-clean": { "tytul": "Cleanup", "opis": "Clears away leftover working files" },
+      "relai-crew": { "tytul": "Agent crew", "opis": "A bigger task shared among agents" },
+      "relai-handover": { "tytul": "Handover package", "opis": "The whole project in one handover file" },
+      "relai-help": { "tytul": "Project cheat sheet", "opis": "Every command in one place" },
+      "relai-humanize": { "tytul": "Humanize text", "opis": "Strips AI writing habits from a text" },
+      "relai-models": { "tytul": "Model list", "opis": "An always up-to-date list of models" },
+      "relai-prompt": { "tytul": "Prompt optimizer", "opis": "From a loose sentence to a precise prompt" },
+      "relai-stage": { "tytul": "Plan stage", "opis": "The plan's next stage in one click" },
+      "relai-tour": { "tytul": "Project tour", "opis": "A quick introduction to the project" },
+      "relai-update": { "tytul": "Update", "opis": "Up to the latest version of RelAI" }
+    },
+    "instalacja": {
+      "reflektor": "Your command, your Enter"
+    }
+  },
   "brakSceny":"Your browser does not show the 3D scene, so you see the same content without the desk.",
   "stopka": {
     "licencja": "MIT licence",

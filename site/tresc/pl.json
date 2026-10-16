@@ -104,6 +104,54 @@
     ],
     "teczka": "Plan"
   },
+  "film": {
+    "pasek": "Na skróty",
+    "ladowanie": "Ładuję stronę",
+    "hero": {
+      "linie": ["Twój projekt", "pamięta wszystko."],
+      "okno": "nowa sesja",
+      "czat": "Od czego zaczynamy?",
+      "notatka": "o czym rozmawialiśmy?"
+    },
+    "amnezja": {
+      "zdania": ["Tłumaczysz projekt od nowa.", "Szukasz wczorajszej decyzji.", "Drugi raz poprawiasz ten sam błąd."]
+    },
+    "pamiec": {
+      "przyklad": "wpisy przykładowe",
+      "dokumenty": [
+        { "tytul": "Stan", "plik": "STATE.md", "wpisy": [
+          { "pytanie": "gdzie skończyliśmy?", "wpis": "Etap E3 w toku: testy płatności" },
+          { "pytanie": "tłumaczę projekt trzeci raz", "wpis": "Sklep: koszyk, faktury, płatności kartą" }
+        ] },
+        { "tytul": "Dziennik", "plik": "DZIENNIK.md", "wpisy": [
+          { "pytanie": "o czym rozmawialiśmy?", "wpis": "14.10 · ustalony wzór faktury" },
+          { "pytanie": "który plik?", "wpis": "14.10 · zmiany w src/platnosci/" }
+        ] },
+        { "tytul": "Lekcje", "plik": "LEKCJE.md", "wpisy": [
+          { "pytanie": "znowu ten sam błąd", "wpis": "L-07 · daty zawsze w UTC" }
+        ] },
+        { "tytul": "Decyzje", "plik": "DECYZJE.md", "wpisy": [
+          { "pytanie": "jaka była ta decyzja?", "wpis": "D-12 · baza: Postgres" },
+          { "pytanie": "dlaczego tak?", "wpis": "D-12 · powód: transakcje" }
+        ] }
+      ]
+    },
+    "plan": {
+      "tytul": "Plan PLATNOSCI",
+      "pieczatka": "zaakceptowany · zamrożony",
+      "przyklad": "plan przykładowy"
+    },
+    "panel": {
+      "okno": "Claude Code",
+      "przyklad": "dane przykładowe"
+    },
+    "komendy": {
+      "przewin": "Przewiń w bok albo przeciągnij"
+    },
+    "instalacja": {
+      "reflektor": "Twoja komenda, Twój Enter"
+    }
+  },
   "brakSceny":"Przeglądarka nie pokazuje sceny 3D, więc widzisz tę samą treść bez biurka.",
   "stopka": {
     "licencja": "Licencja MIT",

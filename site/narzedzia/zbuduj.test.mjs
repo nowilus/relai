@@ -4,7 +4,7 @@ import { existsSync, readFileSync, mkdtempSync, statSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { render, escapeHtml, buildPages, buildPagesFrom, readInputs, writeIfChanged } from "./zbuduj.mjs";
+import { render, escapeHtml, buildPages, buildPagesFrom, readInputs, writeIfChanged, zbudujFiszki } from "./zbuduj.mjs";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(HERE, "..", "..");
@@ -197,7 +197,7 @@ const skip = templateReady ? false : "site/narzedzia/szablon.html does not exist
 describe("real site", () => {
   test("generated pages equal the files on disk", { skip }, async () => {
     const pages = await buildPages(ROOT);
-    assert.deepEqual(Object.keys(pages), ["site/index.html", "site/pl/index.html"]);
+    assert.deepEqual(Object.keys(pages), PAGES);
     for (const [rel, content] of Object.entries(pages)) {
       assert.equal(readFileSync(join(ROOT, rel), "utf8"), content, `${rel} is stale; run node site/narzedzia/zbuduj.mjs`);
     }
@@ -209,7 +209,197 @@ describe("real site", () => {
       assert.ok(html.includes('hreflang="en"'));
       assert.ok(html.includes('hreflang="pl"'));
     }
-    assert.ok(pages["site/index.html"].includes('<html lang="en"'));
-    assert.ok(pages["site/pl/index.html"].includes('<html lang="pl"'));
+    for (const rel of PAGES) {
+      assert.ok(pages[rel].includes(`<html lang="${SITE[rel].jezyk}"`), `${rel} has the wrong html lang`);
+    }
+  });
+});
+
+// ---- the four real pages: Biurko (desk) and Film (scroll film), each in EN and PL ----------------------
+
+const PAGES = ["site/index.html", "site/pl/index.html", "site/film/index.html", "site/pl/film/index.html"];
+const SITE = {
+  "site/index.html": { jezyk: "en", baza: "./", film: false },
+  "site/pl/index.html": { jezyk: "pl", baza: "../", film: false },
+  "site/film/index.html": { jezyk: "en", baza: "../", film: true, przelacznik: "../pl/film/" },
+  "site/pl/film/index.html": { jezyk: "pl", baza: "../../", film: true, przelacznik: "../../film/" },
+};
+const FILM_PAGES = PAGES.filter((rel) => SITE[rel].film);
+
+const fakty = JSON.parse(readFileSync(join(ROOT, "site", "dane", "fakty.json"), "utf8"));
+
+// The pages are built once and shared by the tests below (building is pure, the inputs are read-only).
+let built;
+const realPages = () => (built ??= buildPages(ROOT));
+
+// hreflang alternates of a page as { lang: href }.
+function hreflangs(html) {
+  const out = {};
+  for (const m of html.matchAll(/<link rel="alternate" hreflang="([^"]+)" href="([^"]+)">/g)) out[m[1]] = m[2];
+  return out;
+}
+
+// Every href/src that points into vendor/scrollcraft/.
+const vendorRefs = (html) => [...html.matchAll(/(?:href|src)="([^"]*vendor\/scrollcraft\/[^"]*)"/g)].map((m) => m[1]);
+
+// The assertion under test of the positive control below: the engine must load from exactly
+// "{baza}vendor/scrollcraft/scrollcraft.css|js", relative, no CDN.
+function assertVendorPaths(html, baza) {
+  assert.deepEqual(vendorRefs(html).sort(), [`${baza}vendor/scrollcraft/scrollcraft.css`, `${baza}vendor/scrollcraft/scrollcraft.js`]);
+}
+
+const countCards = (html) => (html.match(/\sdata-fiszka[\s>]/g) ?? []).length;
+const shownCount = (html) => Number(html.match(/<span data-liczba-komend>(\d+)<\/span>/)?.[1]);
+
+describe("real site: the four pages", { skip }, () => {
+  test("buildPages returns exactly the four pages, each a non-empty document with the right lang", async () => {
+    const pages = await realPages();
+    assert.deepEqual(Object.keys(pages), PAGES);
+    for (const rel of PAGES) {
+      assert.ok(pages[rel].startsWith("<!doctype html>"), rel);
+      assert.match(pages[rel], new RegExp(`<html lang="${SITE[rel].jezyk}"`), rel);
+    }
+  });
+
+  test("hreflang links: en -> film/, pl -> pl/film/, x-default -> film/ on the film pages", async () => {
+    const pages = await realPages();
+    for (const rel of FILM_PAGES) {
+      const { baza } = SITE[rel];
+      assert.deepEqual(hreflangs(pages[rel]), { en: `${baza}film/`, pl: `${baza}pl/film/`, "x-default": `${baza}film/` }, rel);
+    }
+  });
+
+  test("the film pages load the engine from relative vendor paths", async () => {
+    const pages = await realPages();
+    assert.match(SITE["site/film/index.html"].baza, /^\.\.\/$/);
+    for (const rel of FILM_PAGES) assertVendorPaths(pages[rel], SITE[rel].baza);
+    assert.ok(vendorRefs(pages["site/film/index.html"]).every((r) => r.startsWith("../vendor/scrollcraft/")));
+    assert.ok(vendorRefs(pages["site/pl/film/index.html"]).every((r) => r.startsWith("../../vendor/scrollcraft/")));
+  });
+
+  test("positive control: the vendor path assertion rejects a wrong or absolute path", () => {
+    const template = readFileSync(join(HERE, "szablon-film.html"), "utf8");
+    const vendorLines = template.split("\n").filter((l) => l.includes("vendor/scrollcraft/")).join("\n");
+    assert.equal(vendorRefs(vendorLines).length, 2, "the template references the engine twice (css, js)");
+    assertVendorPaths(render(vendorLines, { baza: "../" }), "../"); // right baza passes
+    assert.throws(() => assertVendorPaths(render(vendorLines, { baza: "../../" }), "../")); // PL baza on the EN page
+    assert.throws(() => assertVendorPaths(render(vendorLines, { baza: "./" }), "../"));
+    assert.throws(() => assertVendorPaths(render(vendorLines, { baza: "https://cdn.example.com/" }), "../"));
+    assert.throws(() => assertVendorPaths("<p>no engine at all</p>", "../"));
+  });
+
+  test("the Biurko pages do not reference scrollcraft", async () => {
+    const pages = await realPages();
+    for (const rel of PAGES.filter((r) => !SITE[r].film)) assert.ok(!/scrollcraft/i.test(pages[rel]), rel);
+  });
+
+  test("the Film pages do not reference three.js or an import map", async () => {
+    const pages = await realPages();
+    for (const rel of FILM_PAGES) {
+      assert.ok(!/importmap/i.test(pages[rel]), `${rel} has an import map`);
+      assert.ok(!/vendor\/three/i.test(pages[rel]), `${rel} loads three.js from vendor`);
+      assert.ok(!/three\.(?:module\.)?(?:min\.)?js/i.test(pages[rel]), `${rel} references three.js`);
+    }
+  });
+
+  test("language switch on the film pages goes to the other language's film page", async () => {
+    const pages = await realPages();
+    for (const rel of FILM_PAGES) {
+      const href = pages[rel].match(/<a class="pasek__jezyk" href="([^"]+)"/)?.[1];
+      assert.equal(href, SITE[rel].przelacznik, rel);
+    }
+  });
+
+  test("command cards: one per command, as many as the facts say, and the shown number matches", async () => {
+    const pages = await realPages();
+    assert.equal(fakty.komendy.length, fakty.liczbaKomend);
+    for (const rel of FILM_PAGES) {
+      assert.equal(countCards(pages[rel]), fakty.komendy.length, `${rel} card count`);
+      assert.equal(countCards(pages[rel]), fakty.liczbaKomend, `${rel} card count vs liczbaKomend`);
+      assert.equal(shownCount(pages[rel]), fakty.liczbaKomend, `${rel} number shown in the heading`);
+    }
+  });
+});
+
+describe("film: command cards and inputs", () => {
+  const tresc = (fiszki) => ({ film: { fiszki } });
+  const dwieKomendy = {
+    liczbaKomend: 2,
+    komendy: [
+      { nazwa: "relai-aaa", nazwaPl: "Aaa", opisPl: "opis a", opisEn: "desc a" },
+      { nazwa: "relai-bbb", nazwaPl: "Bbb", opisPl: "opis b", opisEn: "desc b" },
+    ],
+  };
+
+  test("zbudujFiszki returns the cards in the order of the facts, Polish from facts, English from content", () => {
+    const en = tresc({ "relai-aaa": { tytul: "A", opis: "a" }, "relai-bbb": { tytul: "B", opis: "b" } });
+    assert.deepEqual(zbudujFiszki(dwieKomendy, en, "en"), [
+      { nazwa: "relai-aaa", ikona: "aaa", tytul: "A", opis: "a" },
+      { nazwa: "relai-bbb", ikona: "bbb", tytul: "B", opis: "b" },
+    ]);
+    assert.deepEqual(zbudujFiszki(dwieKomendy, {}, "pl"), [
+      { nazwa: "relai-aaa", ikona: "aaa", tytul: "Aaa", opis: "opis a" },
+      { nazwa: "relai-bbb", ikona: "bbb", tytul: "Bbb", opis: "opis b" },
+    ]);
+  });
+
+  test("zbudujFiszki throws when an English entry is missing, naming the command", () => {
+    const en = tresc({ "relai-aaa": { tytul: "A", opis: "a" } });
+    assert.throws(() => zbudujFiszki(dwieKomendy, en, "en"), /no film\.fiszki entry for relai-bbb/);
+    assert.throws(() => zbudujFiszki(dwieKomendy, tresc({ "relai-aaa": { tytul: "A", opis: "a" }, "relai-bbb": { tytul: "B" } }), "en"), /relai-bbb/);
+    assert.throws(() => zbudujFiszki(dwieKomendy, {}, "en"), /relai-aaa/);
+  });
+
+  test("zbudujFiszki throws when komendy.length differs from liczbaKomend", () => {
+    assert.throws(() => zbudujFiszki({ ...dwieKomendy, liczbaKomend: 3 }, {}, "pl"), /2 commands but liczbaKomend is 3/);
+    assert.throws(() => zbudujFiszki({ liczbaKomend: 1 }, {}, "pl"), /0 commands but liczbaKomend is 1/);
+  });
+
+  // Inputs of the real site, with a stub for the install commands (not what these tests are about).
+  const zbudujKomendy = () => ({ linie: ["install"] });
+  const realInputs = () =>
+    readInputs(
+      {
+        szablon: join(HERE, "szablon.html"),
+        szablonFilm: join(HERE, "szablon-film.html"),
+        en: join(ROOT, "site", "tresc", "en.json"),
+        pl: join(ROOT, "site", "tresc", "pl.json"),
+        fakty: join(ROOT, "site", "dane", "fakty.json"),
+        makiety: join(ROOT, "site", "dane", "makiety.json"),
+      },
+      ROOT,
+    );
+  const buildFilm = ({ templateFilm, makiety, template, ...rest }, over = {}) =>
+    buildPagesFrom({ ...rest, template: templateFilm, zbudujKomendy, wersja: "film", makiety, ...over });
+
+  test("control: the unmodified real inputs build both film pages", { skip }, () => {
+    const pages = buildFilm(realInputs());
+    assert.equal(countCards(pages.en), fakty.liczbaKomend);
+    assert.equal(countCards(pages.pl), fakty.liczbaKomend);
+  });
+
+  test("POSITIVE CONTROL: a command dropped from komendy while liczbaKomend stays makes the build throw", { skip }, () => {
+    const inputs = realInputs();
+    const broken = { ...inputs.fakty, komendy: inputs.fakty.komendy.slice(0, -1) };
+    assert.equal(broken.komendy.length, inputs.fakty.liczbaKomend - 1);
+    assert.throws(() => buildFilm({ ...inputs, fakty: broken }), /commands but liczbaKomend is/);
+  });
+
+  test("an English film.fiszki entry missing from the content makes the build throw", { skip }, () => {
+    const inputs = realInputs();
+    const { [inputs.fakty.komendy[0].nazwa]: _dropped, ...rest } = inputs.tresc.en.film.fiszki;
+    const tresc = { ...inputs.tresc, en: { ...inputs.tresc.en, film: { ...inputs.tresc.en.film, fiszki: rest } } };
+    assert.throws(() => buildFilm({ ...inputs, tresc }), new RegExp(`no film\\.fiszki entry for ${inputs.fakty.komendy[0].nazwa}`));
+  });
+
+  test("the film build without makiety throws", { skip }, () => {
+    const { makiety: _unused, ...inputs } = realInputs();
+    assert.throws(() => buildFilm({ ...inputs, makiety: undefined }), /Mock-ups .* have no "en" entry/);
+    assert.throws(() => buildFilm({ ...inputs, makiety: { pl: {} } }), /no "en" entry/);
+  });
+
+  test("an unknown page version throws", { skip }, () => {
+    const inputs = realInputs();
+    assert.throws(() => buildPagesFrom({ ...inputs, zbudujKomendy, wersja: "kino" }), /Unknown page version "kino"/);
   });
 });

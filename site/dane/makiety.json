@@ -1,0 +1,292 @@
+{
+  "pl": {
+    "opis": "Makieta trzech pasków RelAI nad promptem na danych przykładowych: plan, postęp etapu i cache z limitami.",
+    "kolory": {
+      "tekst": "#f0efec",
+      "wyciszony": "#c3c2b8",
+      "linia": "#636260",
+      "tor": "#484847",
+      "w_toku": "#ce932a",
+      "karta": "#212121",
+      "okno": "#151515",
+      "prompt": "#20201f"
+    },
+    "plan": {
+      "status": "ZAAKCEPTOWANY",
+      "etapy": [
+        {
+          "id": "E1",
+          "nazwa": "Koszyk",
+          "status": "zrealizowany",
+          "znak": "✓",
+          "kolor": "#4d9c45"
+        },
+        {
+          "id": "E2",
+          "nazwa": "Faktury",
+          "status": "zrealizowany",
+          "znak": "✓",
+          "kolor": "#4d9c45"
+        },
+        {
+          "id": "E3",
+          "nazwa": "Płatności kartą",
+          "status": "w toku",
+          "znak": "●",
+          "kolor": "#c48a2c"
+        },
+        {
+          "id": "E4",
+          "nazwa": "Zwroty",
+          "status": "oczekuje",
+          "znak": "○",
+          "kolor": "#52514e"
+        },
+        {
+          "id": "E5",
+          "nazwa": "Wdrożenie",
+          "status": "oczekuje",
+          "znak": "○",
+          "kolor": "#52514e"
+        }
+      ]
+    },
+    "paski": [
+      {
+        "klucz": "plan",
+        "etykieta": "plan",
+        "plan": {
+          "nazwa": "PLATNOSCI · E3",
+          "status": "W TOKU",
+          "etap": "Płatności kartą"
+        },
+        "postep": false,
+        "cache": false,
+        "liczba": "2/5",
+        "jednostka": "etapów"
+      },
+      {
+        "klucz": "postep",
+        "etykieta": "postęp",
+        "plan": false,
+        "postep": {
+          "segmenty": [
+            {
+              "kolor": "#4ca129"
+            },
+            {
+              "kolor": "#4ca129"
+            },
+            {
+              "kolor": "#ce932a"
+            },
+            {
+              "kolor": "#484847"
+            },
+            {
+              "kolor": "#484847"
+            }
+          ],
+          "biezacy": "Testy płatności odrzuconych",
+          "nastepny": "następny: Zwrot środków po anulowaniu",
+          "przycisk": "Rozwiń"
+        },
+        "cache": false,
+        "liczba": "2/5",
+        "jednostka": "punktów"
+      },
+      {
+        "klucz": "cache",
+        "etykieta": "cache",
+        "plan": false,
+        "postep": false,
+        "cache": {
+          "baterie": [
+            {
+              "etykieta": "cache",
+              "wartosc": "52 min",
+              "zostalo": 87,
+              "dopisek": "",
+              "kolor": "#4ca129"
+            },
+            {
+              "etykieta": "limit 5 h",
+              "wartosc": "19 %",
+              "zostalo": 81,
+              "dopisek": "",
+              "kolor": "#4ca129"
+            },
+            {
+              "etykieta": "reset za",
+              "wartosc": "3 h 12 min",
+              "zostalo": 64,
+              "dopisek": "",
+              "kolor": "#4ca129"
+            },
+            {
+              "etykieta": "limit tygodnia",
+              "wartosc": "74 %",
+              "zostalo": 26,
+              "dopisek": "próg 98 % · domyślny",
+              "kolor": "#ce932a"
+            }
+          ],
+          "kontekst": {
+            "etykieta": "kontekst",
+            "uzyte": 48,
+            "prog": 64,
+            "tekst": "480k / 1M · 48 %",
+            "kolor": "#ce932a"
+          }
+        },
+        "liczba": "$1.84",
+        "jednostka": "sesja"
+      }
+    ]
+  },
+  "en": {
+    "opis": "Mock-up of the RelAI bars above the prompt on sample data: plan, stage progress and cache with limits.",
+    "kolory": {
+      "tekst": "#f0efec",
+      "wyciszony": "#c3c2b8",
+      "linia": "#636260",
+      "tor": "#484847",
+      "w_toku": "#ce932a",
+      "karta": "#212121",
+      "okno": "#151515",
+      "prompt": "#20201f"
+    },
+    "plan": {
+      "status": "ZAAKCEPTOWANY",
+      "etapy": [
+        {
+          "id": "E1",
+          "nazwa": "Cart",
+          "status": "done",
+          "znak": "✓",
+          "kolor": "#4d9c45"
+        },
+        {
+          "id": "E2",
+          "nazwa": "Invoices",
+          "status": "done",
+          "znak": "✓",
+          "kolor": "#4d9c45"
+        },
+        {
+          "id": "E3",
+          "nazwa": "Card payments",
+          "status": "in progress",
+          "znak": "●",
+          "kolor": "#c48a2c"
+        },
+        {
+          "id": "E4",
+          "nazwa": "Refunds",
+          "status": "waiting",
+          "znak": "○",
+          "kolor": "#52514e"
+        },
+        {
+          "id": "E5",
+          "nazwa": "Release",
+          "status": "waiting",
+          "znak": "○",
+          "kolor": "#52514e"
+        }
+      ]
+    },
+    "paski": [
+      {
+        "klucz": "plan",
+        "etykieta": "plan",
+        "plan": {
+          "nazwa": "PLATNOSCI · E3",
+          "status": "W TOKU",
+          "etap": "Płatności kartą"
+        },
+        "postep": false,
+        "cache": false,
+        "liczba": "2/5",
+        "jednostka": "etapów"
+      },
+      {
+        "klucz": "postep",
+        "etykieta": "postęp",
+        "plan": false,
+        "postep": {
+          "segmenty": [
+            {
+              "kolor": "#4ca129"
+            },
+            {
+              "kolor": "#4ca129"
+            },
+            {
+              "kolor": "#ce932a"
+            },
+            {
+              "kolor": "#484847"
+            },
+            {
+              "kolor": "#484847"
+            }
+          ],
+          "biezacy": "Testy płatności odrzuconych",
+          "nastepny": "następny: Zwrot środków po anulowaniu",
+          "przycisk": "Rozwiń"
+        },
+        "cache": false,
+        "liczba": "2/5",
+        "jednostka": "punktów"
+      },
+      {
+        "klucz": "cache",
+        "etykieta": "cache",
+        "plan": false,
+        "postep": false,
+        "cache": {
+          "baterie": [
+            {
+              "etykieta": "cache",
+              "wartosc": "52 min",
+              "zostalo": 87,
+              "dopisek": "",
+              "kolor": "#4ca129"
+            },
+            {
+              "etykieta": "limit 5 h",
+              "wartosc": "19 %",
+              "zostalo": 81,
+              "dopisek": "",
+              "kolor": "#4ca129"
+            },
+            {
+              "etykieta": "reset za",
+              "wartosc": "3 h 12 min",
+              "zostalo": 64,
+              "dopisek": "",
+              "kolor": "#4ca129"
+            },
+            {
+              "etykieta": "limit tygodnia",
+              "wartosc": "74 %",
+              "zostalo": 26,
+              "dopisek": "próg 98 % · domyślny",
+              "kolor": "#ce932a"
+            }
+          ],
+          "kontekst": {
+            "etykieta": "kontekst",
+            "uzyte": 48,
+            "prog": 64,
+            "tekst": "480k / 1M · 48 %",
+            "kolor": "#ce932a"
+          }
+        },
+        "liczba": "$1.84",
+        "jednostka": "sesja"
+      }
+    ]
+  }
+}

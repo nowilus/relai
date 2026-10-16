@@ -1,0 +1,386 @@
+/* RelAI site, the "Film" version: the language of film 3.0.0 (docs/zasoby/film/zrodla/src/tokeny.ts)
+   on paper. Colours: ROOT in core/panel/theme.mjs ("Warsztat"), verbatim, and mixes of two ROOT
+   colours as the film computes them (named after the film's tokens). The engine's stylesheet
+   (vendor/scrollcraft/scrollcraft.css) comes first and is themed here through its tokens only. */
+
+@font-face { font-family: "Fraunces"; font-style: normal; font-weight: 100 900; font-display: swap;
+  src: url(../fonty/fraunces-latin-wonk.woff2) format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+@font-face { font-family: "Fraunces"; font-style: normal; font-weight: 100 900; font-display: swap;
+  src: url(../fonty/fraunces-latin-ext-wonk.woff2) format("woff2");
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF; }
+@font-face { font-family: "Hanken Grotesk"; font-style: normal; font-weight: 100 900; font-display: swap;
+  src: url(../fonty/hanken-grotesk-latin.woff2) format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+@font-face { font-family: "Hanken Grotesk"; font-style: normal; font-weight: 100 900; font-display: swap;
+  src: url(../fonty/hanken-grotesk-latin-ext.woff2) format("woff2");
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF; }
+@font-face { font-family: "Kalam"; font-style: normal; font-weight: 700; font-display: swap;
+  src: url(../fonty/kalam-700-latin.woff2) format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+@font-face { font-family: "Kalam"; font-style: normal; font-weight: 700; font-display: swap;
+  src: url(../fonty/kalam-700-latin-ext.woff2) format("woff2");
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF; }
+@font-face { font-family: "JetBrains Mono"; font-style: normal; font-weight: 400; font-display: swap;
+  src: url(../fonty/jetbrains-mono-latin.woff2) format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+@font-face { font-family: "JetBrains Mono"; font-style: normal; font-weight: 400; font-display: swap;
+  src: url(../fonty/jetbrains-mono-latin-ext.woff2) format("woff2");
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF; }
+
+:root {
+  /* ROOT, verbatim */
+  --tlo: #f2e9d8; --kartka: #fffdf7; --kartka-2: #f8f1e2;
+  --txt: #312c25; --txt-2: #61594c; --txt-3: #8f8574;
+  --linia: #e0d3ba; --linia-2: #cdbc9c;
+  --glina: #c4643c; --glina-2: #a8502e; --musztarda: #d9a134; --szalwia: #5f8a68;
+
+  /* film tokens (tokeny.ts), each a ROOT colour or a mix of two */
+  --ziarno-jasne: rgba(255, 255, 255, .34);            /* DESK.grainLight */
+  --ziarno-ciemne: rgba(163, 153, 136, .16);           /* DESK.grainDark: mix(txt-3, tlo, .2) */
+  --cieplo: rgba(255, 253, 247, .9);                   /* DESK.warmth: kartka */
+  --plama-gliny: rgba(196, 100, 60, .1);               /* DESK.clay */
+  --plama-musztardy: rgba(217, 161, 52, .12);          /* DESK.mustard */
+  --cien-stolu: 0 3px 6px rgba(73, 67, 57, .14), 0 28px 70px rgba(49, 44, 37, .28); /* DESK.shadow */
+  --okno: #191713; --okno-prompt: #221f1a;             /* WINDOW: mix(txt, black, .48 / .3) */
+  --okno-krawedz: rgba(255, 253, 247, .07); --prompt-krawedz: rgba(255, 253, 247, .1);
+  --kursor: #b8b0a3;                                   /* BAR.muted */
+  --notka: #faf1de; --notka-krawedz: #dec799;          /* NOTE: mix(kartka, musztarda, .13), mix(linia, musztarda, .25) */
+  --tasma: rgba(244, 225, 189, .82); --tasma-krawedz: rgba(205, 188, 156, .6); /* NOTE.tape, tapeEdge */
+  --cien-notki: 0 2px 4px rgba(49, 44, 37, .1), 0 14px 30px rgba(49, 44, 37, .18);
+
+  --font-tytul: "Fraunces", Georgia, serif;
+  --font-tekst: "Hanken Grotesk", system-ui, sans-serif;
+  --font-reka: "Kalam", "Segoe Print", cursive;
+  --font-kod: "JetBrains Mono", ui-monospace, monospace;
+  --margines: clamp(24px, 5.3vw, 96px);
+  --ease: cubic-bezier(.23, 1, .32, 1);
+  --sprezyna: cubic-bezier(.34, 1.45, .64, 1);
+
+  /* the engine's six roles and two faces */
+  --sc-canvas: var(--tlo); --sc-surface: var(--kartka);
+  --sc-ink: var(--txt); --sc-ink-soft: var(--txt-2);
+  --sc-accent: var(--glina-2); --sc-accent-ink: var(--kartka);
+  --sc-font-display: var(--font-tytul); --sc-font-text: var(--font-tekst);
+
+  color-scheme: light;
+}
+
+body { font-size: 1.0625rem; }
+h1, h2, h3 { margin: 0; font-family: var(--font-tytul); font-weight: 600; letter-spacing: -0.02em; text-wrap: balance;
+  font-variation-settings: "WONK" 0, "SOFT" 0; color: var(--txt); }
+p { margin: 0; text-wrap: pretty; }
+
+/* Without the engine (no JavaScript, or it failed) the cues and flow reveals stay visible. */
+html:not(.sc-ready) [data-sc-cue], html:not(.sc-ready) [data-sc-in] { opacity: 1; transform: none; }
+
+/* ---------------------------------------------------------------- the desk -- */
+.stol {
+  position: fixed; inset: 0; z-index: -1; pointer-events: none;
+  background-color: var(--tlo);
+  background-image:
+    radial-gradient(circle at 22% 24%, var(--ziarno-jasne) 0 1.6px, transparent 2.2px),
+    radial-gradient(circle at 68% 62%, var(--ziarno-ciemne) 0 1.6px, transparent 2.2px),
+    radial-gradient(95vw 90vh at 50% -10%, var(--cieplo), transparent 70%),
+    radial-gradient(66vw 78vh at 102% 88%, var(--plama-gliny), transparent 70%),
+    radial-gradient(58vw 68vh at -4% 70%, var(--plama-musztardy), transparent 70%);
+  background-size: 32px 32px, 40px 40px, auto, auto, auto;
+}
+
+/* ---------------------------------------------------------- the loading card -- */
+.zaslona {
+  position: fixed; inset: 0; z-index: 50; display: grid; place-items: center;
+  background: var(--tlo);
+  background-image:
+    radial-gradient(circle at 22% 24%, var(--ziarno-jasne) 0 1.6px, transparent 2.2px),
+    radial-gradient(circle at 68% 62%, var(--ziarno-ciemne) 0 1.6px, transparent 2.2px),
+    radial-gradient(95vw 90vh at 50% -10%, var(--cieplo), transparent 70%);
+  background-size: 32px 32px, 40px 40px, auto;
+  opacity: 0; visibility: hidden; pointer-events: none;
+  transition: opacity 450ms var(--ease), visibility 0s linear 450ms;
+}
+html.ladowanie .zaslona { opacity: 1; visibility: visible; pointer-events: auto; transition: none; }
+.zaslona__srodek { display: grid; justify-items: center; gap: 6px; transition: transform 450ms var(--ease); }
+html:not(.ladowanie) .zaslona__srodek { transform: translateY(-14px); }
+.zaslona__znak { width: 200px; height: 200px; clip-path: inset(15% 10% 19% 10% round 3%); }
+.zaslona__kreska { width: 190px; height: 14px; overflow: visible; margin-top: -10px; }
+.zaslona__kreska path {
+  fill: none; stroke: var(--musztarda); stroke-width: 4.5; stroke-linecap: round; vector-effect: non-scaling-stroke;
+  stroke-dasharray: 1; stroke-dashoffset: calc(1 - var(--krok, 0) / 3);
+  transition: stroke-dashoffset 320ms var(--ease);
+}
+.zaslona__napis { font: 700 1.1rem/1 var(--font-reka); color: var(--txt-3); margin-top: 14px; }
+
+/* ------------------------------------------------------------------ the bar -- */
+.pasek {
+  position: fixed; inset: 0 0 auto 0; z-index: 20; height: 76px;
+  display: flex; align-items: center; justify-content: space-between; padding: 0 var(--margines);
+  pointer-events: none;
+}
+.pasek > * { pointer-events: auto; }
+.pasek__znak { font: 700 1.6rem/1 var(--font-reka); color: var(--txt); text-decoration: none; }
+.pasek__znak span { color: var(--glina); }
+.pasek__nav { display: flex; align-items: center; gap: 22px; }
+.pasek__jezyk { font-size: .95rem; color: var(--txt-2); }
+.pasek__jezyk:hover { color: var(--txt); }
+
+.przycisk {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  padding: 14px 26px; border-radius: 12px; border: 1px solid transparent;
+  background: var(--txt); color: var(--kartka); font: 600 1.0625rem/1 var(--font-tekst); text-decoration: none;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, .08) inset, 0 2px 4px rgba(49, 44, 37, .16), 0 10px 22px rgba(49, 44, 37, .16);
+  cursor: pointer; white-space: nowrap;
+  transition: background-color 160ms var(--ease), transform 120ms var(--ease);
+}
+.przycisk:hover { background: var(--glina-2); }
+.przycisk:active { transform: translateY(1px); }
+.przycisk--maly { padding: 10px 18px; font-size: .95rem; }
+.przycisk--drugi { background: transparent; color: var(--txt); border-color: var(--linia-2); box-shadow: none; }
+.przycisk--drugi:hover { background: var(--kartka-2); }
+
+/* ------------------------------------------------- the app window and a note -- */
+.okno {
+  display: flex; flex-direction: column; gap: 18px; padding: 24px;
+  border-radius: 24px; background: var(--okno); border: 1px solid var(--okno-krawedz); box-shadow: var(--cien-stolu);
+  color: #eee8dc;
+}
+.okno__tytul { font: 600 1.05rem/1 var(--font-tekst); color: var(--kursor); letter-spacing: .01em; }
+.okno__czat { flex: 1; min-height: 0; padding-top: 6px; }
+.okno__wiersz { font: 500 1.15rem/1.4 var(--font-tekst); color: rgba(238, 232, 220, .62); }
+.wejscie__okno .okno__prompt { background: rgba(17, 15, 12, .38); border-color: rgba(255, 253, 247, .12); }
+.okno__prompt {
+  height: 58px; border-radius: 16px; background: var(--okno-prompt); border: 1px solid var(--prompt-krawedz);
+  display: flex; align-items: center; padding: 0 22px;
+}
+.okno__kursor { width: 2px; height: 26px; border-radius: 2px; background: var(--kursor); }
+
+.karteczka {
+  position: relative; display: inline-block; white-space: nowrap;
+  padding: .5em .7em .42em; border-radius: .3em;
+  background: var(--notka); border: 1px solid var(--notka-krawedz); box-shadow: var(--cien-notki);
+  font: 700 1.6rem/1.1 var(--font-reka); color: var(--glina-2);
+}
+.karteczka::before {
+  content: ""; position: absolute; top: -.28em; left: 50%; width: 1.9em; height: .55em; margin-left: -.95em;
+  background: var(--tasma); border: 1px solid var(--tasma-krawedz); border-radius: 2px; transform: rotate(3deg);
+}
+
+/* ---------------------------------------------------------- act 1: entrance -- */
+.wejscie { position: relative; height: 100vh; min-height: 620px; overflow: clip; }
+.wejscie__plan { position: absolute; }
+.wejscie__plan--srodek { right: var(--margines); top: 22vh; width: min(37vw, 600px); height: min(53vh, 430px); perspective: 1700px; }
+.wejscie__okno {
+  position: absolute; inset: 0;
+  /* lighter than the app window: the dark of the film's bar band (BAND.*.bg), lit from above */
+  background: linear-gradient(180deg, #34302a, #2a2621 46%, #26221d);
+  border-color: rgba(255, 253, 247, .1);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .09), var(--cien-stolu);
+  transform: rotateY(-11deg) rotateX(4deg) rotateZ(.5deg); transform-origin: 100% 50%;
+  transition: transform 1150ms var(--ease) 60ms, opacity 600ms var(--ease) 60ms;
+}
+.wejscie__logo {
+  position: absolute; right: -11%; top: -19%; width: 34%; height: auto; z-index: 2;
+  clip-path: inset(15% 10% 19% 10% round 3%);
+  filter: drop-shadow(0 14px 18px rgba(49, 44, 37, .22));
+  transform: rotate(6deg); transform-origin: 50% 20%;
+  transition: transform 1000ms var(--sprezyna), opacity 300ms var(--ease);
+}
+.wejscie__plan--przod { right: 22vw; bottom: 8vh; z-index: 3; }
+.wejscie__notka {
+  font-size: clamp(1.6rem, 2.6vw, 2.3rem); transform: rotate(4.5deg) scale(1.04); filter: blur(.5px);
+  transition: transform 1000ms var(--sprezyna) 380ms, opacity 400ms var(--ease) 380ms;
+}
+.wejscie__tekst {
+  position: absolute; left: var(--margines); top: 50%; translate: 0 -44%;
+  width: min(46rem, 52vw); z-index: 4;
+}
+.wejscie h1 { font-size: clamp(3rem, 5.7vw, 6.4rem); line-height: 1.02; letter-spacing: -0.025em; }
+.wejscie__linia { display: block; overflow: hidden; padding-bottom: .12em; margin-bottom: -.12em; }
+.wejscie__linia > span { display: inline-block; transition: transform 900ms var(--ease), opacity 500ms var(--ease); }
+.wejscie__linia:nth-child(2) > span { transition-delay: 90ms; }
+.wejscie__zdanie {
+  margin-top: 26px; max-width: 36ch; font-size: clamp(1.15rem, 1.45vw, 1.4rem); line-height: 1.55; color: var(--txt-2);
+  transition: opacity 700ms var(--ease) 380ms, transform 700ms var(--ease) 380ms;
+}
+.wejscie__wezwanie { margin-top: 34px; transition: opacity 700ms var(--ease) 480ms, transform 700ms var(--ease) 480ms, background-color 160ms var(--ease); }
+
+/* the opening shot: held while the loading card is up, then everything lands */
+html.ladowanie .wejscie__linia > span { transform: translateY(105%); opacity: 0; }
+html.ladowanie .wejscie__zdanie, html.ladowanie .wejscie__wezwanie { opacity: 0; transform: translateY(14px); }
+html.ladowanie .wejscie__okno { transform: rotateY(-24deg) rotateX(22deg) translateY(90px); opacity: 0; }
+html.ladowanie .wejscie__logo { transform: translateY(-220px) rotate(18deg); opacity: 0; }
+html.ladowanie .wejscie__notka { transform: translateY(80px) rotate(10deg) scale(1.04); opacity: 0; }
+
+/* ------------------------------------------------------------ act 2: memory -- */
+.pamiec__scena { padding: 110px var(--margines) 60px; }
+.pamiec__amnezja h2, .pamiec__porzadek h2 { font-size: clamp(2.2rem, 4.1vw, 3.9rem); line-height: 1.04; }
+.pamiec__zdanie { margin-top: 14px; font-size: clamp(1.1rem, 1.5vw, 1.4rem); color: var(--txt-2); }
+.pamiec__porzadek p { margin-top: 16px; max-width: 46ch; font-size: 1.15rem; line-height: 1.55; color: var(--txt-2); }
+.karteczki { list-style: none; margin: 28px 0; padding: 0; display: flex; flex-wrap: wrap; gap: 26px 22px; }
+.karteczki .karteczka { font-size: clamp(1.15rem, 1.6vw, 1.5rem); }
+.karteczki .karteczka:nth-child(odd) { rotate: -2.5deg; }
+.karteczki .karteczka:nth-child(even) { rotate: 2deg; }
+.dokumenty { position: relative; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 22px; }
+.dokument {
+  position: relative; padding: 20px 22px 24px; border-radius: 14px; min-height: 216px;
+  background-color: var(--kartka); border: 1px solid var(--linia); box-shadow: var(--cien-notki);
+}
+.dokument__plik { font: 400 .82rem/1 var(--font-kod); color: var(--txt-3); letter-spacing: 0; }
+.dokument__tytul { margin-top: 6px; font: 700 1.6rem/1 var(--font-reka); color: var(--glina-2); }
+.dokument__wpisy { margin: 16px 0 0; padding: 0; list-style: none; display: grid; gap: 0;
+  border-top: 1px solid var(--linia); }
+.dokument__wpisy li { min-height: 44px; display: flex; align-items: center; padding: 6px 0; border-bottom: 1px dashed var(--linia);
+  font-size: 1rem; line-height: 1.3; color: var(--txt); }
+.dokumenty__przyklad { position: absolute; right: 4px; bottom: -32px; font: 700 1rem/1 var(--font-reka); color: var(--txt-3); }
+
+/* the choreography, only with the engine running and motion allowed (html.ruch) */
+html.ruch .pamiec__scena { padding: 0; }
+html.ruch .pamiec__amnezja { position: absolute; left: var(--margines); top: 19vh; width: min(40rem, 44vw); z-index: 2; }
+html.ruch .pamiec__zdanie { position: absolute; left: 0; top: calc(100% + 6px); margin: 0; width: 100%; }
+html.ruch .pamiec__amnezja h2 { position: relative; }
+html.ruch .karteczki { position: absolute; inset: 0; margin: 0; display: block; z-index: 5; pointer-events: none; }
+html.ruch .karteczki .karteczka { position: absolute; rotate: none; will-change: transform, opacity; }
+html.ruch .dokumenty { position: absolute; left: var(--margines); right: var(--margines); bottom: 12vh; z-index: 3; }
+html.ruch .karteczki .karteczka:nth-child(3n + 1) { font-size: clamp(1.3rem, 1.9vw, 1.75rem); }
+html.ruch .karteczki .karteczka:nth-child(3n + 2) { font-size: clamp(1.05rem, 1.45vw, 1.35rem); }
+html.ruch .dokument__wpisy li { opacity: 0; }
+html.ruch .pamiec__porzadek { position: absolute; left: var(--margines); top: 17vh; width: min(48rem, 60vw); z-index: 4; }
+
+/* -------------------------------------------------------------- act 3: plan -- */
+.plan { position: relative; display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); gap: 6vw; align-items: center;
+  min-height: 100vh; padding: 120px var(--margines) 90px; }
+.plan h2 { font-size: clamp(2.2rem, 4.1vw, 3.9rem); line-height: 1.04; }
+.plan__tekst p { margin-top: 18px; max-width: 40ch; font-size: 1.15rem; line-height: 1.55; color: var(--txt-2); }
+.arkusz {
+  position: relative; margin: 0; padding: 30px 34px 34px; border-radius: 16px; rotate: 1.2deg;
+  background: var(--kartka); border: 1px solid var(--linia); box-shadow: var(--cien-stolu);
+}
+.arkusz__tytul { font: 700 1.9rem/1 var(--font-reka); color: var(--glina-2); }
+.arkusz__etapy { list-style: none; margin: 22px 0 0; padding: 0; }
+.arkusz__etap { display: grid; grid-template-columns: 3.2em 1fr auto; align-items: baseline; gap: 12px;
+  padding: 12px 0; border-top: 1px solid var(--linia); font-size: 1.08rem; }
+.arkusz__numer { font: 400 .9rem/1 var(--font-kod); color: var(--txt-3); }
+.arkusz__status { font-size: .98rem; color: var(--txt-2); }
+.arkusz__znak { color: var(--znak-kolor); font-weight: 700; }
+.arkusz__pieczatka {
+  position: absolute; right: 26px; top: 22px; padding: 6px 14px; border: 2.5px solid var(--glina); border-radius: 10px;
+  font: 700 1.05rem/1 var(--font-reka); color: var(--glina); rotate: -7deg; opacity: .9;
+}
+.arkusz__przyklad { margin-top: 16px; font: 700 1rem/1 var(--font-reka); color: var(--txt-3); }
+
+/* ------------------------------------------------------------- act 4: panel -- */
+.panel__scena { display: grid; grid-template-columns: minmax(0, 3.3fr) minmax(0, 8fr); gap: 4vw; align-items: center;
+  padding: 90px var(--margines) 40px; }
+.panel h2 { font-size: clamp(2.2rem, 4.1vw, 3.9rem); line-height: 1.04; }
+.panel__tekst p { margin-top: 18px; max-width: 36ch; font-size: 1.15rem; line-height: 1.55; color: var(--txt-2); }
+.panel__uklad { perspective: 1800px; }
+.panel__okno { --wyprost: clamp(0, calc(1 - var(--sc-p, 1) * 2.4), 1);
+  background: var(--m-okno, var(--okno));
+  transform: translateY(calc(var(--wyprost) * 70px)) rotateX(calc(var(--wyprost) * 26deg)) scale(calc(1 - var(--wyprost) * .05));
+  transform-origin: 50% 100%; }
+.panel.prosto .panel__uklad { perspective: none; }
+.panel.prosto .panel__okno { transform: none; }
+/* The bars as the app draws them (screenshot of the app 2026-10-16): one card above the prompt,
+   rows plan / postęp / cache split by a hairline, label | content | figure. Colours: INK.dark and the
+   app's surfaces, both from site/dane/makiety.json. */
+.panel__okno { padding: 18px; gap: 12px; }
+.paski { padding: 0 16px; border-radius: 12px; background: var(--m-karta); }
+.pasek-makieta {
+  display: grid; grid-template-columns: 4.4em minmax(0, 1fr) auto; align-items: start; gap: 12px;
+  padding: 11px 0; font: 500 .8rem/1.4 var(--font-tekst); color: var(--m-tekst);
+}
+.pasek-makieta + .pasek-makieta { border-top: 1px solid var(--m-linia); }
+.pasek-makieta[data-pasek="cache"] { align-items: center; }
+.pasek-makieta__etykieta { color: var(--m-wyciszony); }
+.pasek-makieta__tresc { display: grid; gap: 4px; min-width: 0; }
+.pasek-makieta__liczba { color: var(--m-wyciszony); white-space: nowrap; }
+.pasek-makieta__liczba b { color: var(--m-tekst); font-weight: 700; }
+.pm-wiersz { display: flex; align-items: center; gap: 10px; min-width: 0; white-space: nowrap; }
+.pm-wiersz b { font-weight: 700; }
+.pm-status { color: var(--m-w-toku); font-weight: 600; }
+.pm-cichy { color: var(--m-wyciszony); }
+.pm-utnij { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+.pm-segmenty { display: flex; gap: 3px; padding-top: 4px; }
+.pm-segmenty i { flex: 1; height: 3px; border-radius: 2px; background: var(--seg); }
+.pm-kolko { flex: none; width: 11px; height: 11px; border-radius: 50%; border: 1.5px solid var(--m-tor); border-top-color: var(--m-w-toku); }
+.pm-rozwin { flex: none; margin-left: auto; padding: 0 6px; border-radius: 4px; background: #fff; color: #0b0b0b; font-size: .72rem; line-height: 1.5; }
+.pm-baterie { display: grid; grid-template-columns: repeat(3, max-content) minmax(max-content, 1fr); column-gap: 22px; row-gap: 14px; align-items: center; }
+.bateria { position: relative; display: inline-flex; align-items: center; gap: 6px; color: var(--m-wyciszony); white-space: nowrap; }
+.bateria b { color: var(--m-tekst); font-weight: 700; }
+.bateria__dopisek { position: absolute; left: 30px; top: 100%; font-size: .62rem; line-height: 1.2; color: var(--m-wyciszony); }
+.bateria__dopisek:empty { display: none; }
+.bateria__ikona { position: relative; flex: none; width: 22px; height: 10px; border-radius: 3px; border: 1.5px solid var(--m-wyciszony); }
+.bateria__ikona::before { content: ""; position: absolute; inset: 1px; right: auto; width: calc((100% - 2px) * var(--zostalo) / 100); border-radius: 1px; background: var(--bateria-kolor); }
+.bateria__ikona::after { content: ""; position: absolute; right: -4px; top: 2px; width: 2px; height: 3px; border-radius: 0 1px 1px 0; background: var(--m-wyciszony); }
+.pm-kontekst { grid-column: 1 / span 3; position: relative; height: 5px; border-radius: 3px; background: var(--m-tor); }
+.pm-kontekst__tor { position: absolute; inset: 0 auto 0 0; width: calc(var(--uzyte) * 1%); border-radius: 3px; background: var(--k-kolor); }
+.pm-kontekst::after { content: ""; position: absolute; left: calc(var(--prog) * 1%); top: -4px; width: 2px; height: 13px; border-radius: 1px; background: var(--m-tekst); }
+.pm-kontekst__tekst { color: var(--m-wyciszony); white-space: nowrap; }
+.pm-kontekst__tekst b { margin-left: 6px; color: var(--m-tekst); font-weight: 700; }
+.panel__okno .okno__prompt { height: 44px; border-radius: 12px; background: var(--m-prompt, var(--okno-prompt)); }
+.panel__przyklad { margin-top: 16px; text-align: right; font: 700 1.05rem/1 var(--font-reka); color: var(--txt-3); }
+
+/* ---------------------------------------------------------- act 5: commands -- */
+.komendy__scena { display: flex; flex-direction: column; justify-content: center; gap: 40px; padding-top: 70px; }
+.tasma { align-items: center; padding: 14px var(--margines) 20px; }
+.tasma__wstep { width: min(46rem, 62vw); margin-left: var(--margines); }
+.tasma__wstep h2 { font-size: clamp(2.2rem, 4.1vw, 3.9rem); line-height: 1.04; }
+.tasma__wstep p { margin-top: 18px; font-size: 1.12rem; line-height: 1.55; color: var(--txt-2); }
+.tasma__fiszki { display: flex; gap: 24px; margin: 0; padding: 0 var(--margines) 0 0; list-style: none; }
+.fiszka {
+  position: relative; flex: none; width: 250px; height: 262px; display: flex; flex-direction: column; gap: 10px;
+  padding: 26px 22px 20px; border-radius: 16px; background: var(--kartka); border: 1px solid var(--linia); box-shadow: var(--cien-notki);
+}
+.fiszka:nth-child(odd) { rotate: -1.2deg; }
+.fiszka:nth-child(even) { rotate: 1deg; translate: 0 10px; }
+.fiszka::before {
+  content: ""; position: absolute; top: -9px; left: 50%; width: 64px; height: 18px; margin-left: -32px;
+  background: var(--tasma); border: 1px solid var(--tasma-krawedz); border-radius: 2px; rotate: -2deg;
+}
+.fiszka__ikona { width: 56px; height: 56px; }
+.fiszka__nazwa { margin-top: 6px; font: 700 1.45rem/1.1 var(--font-reka); letter-spacing: 0; color: var(--glina-2); }
+.fiszka__opis { font-size: 1rem; line-height: 1.45; color: var(--txt-2); }
+.fiszka__komenda { margin-top: auto; font: 400 .82rem/1 var(--font-kod); color: var(--txt-3); }
+
+/* ------------------------------------------------------------ act 6: install -- */
+.instalacja__scena { display: grid; grid-template-columns: minmax(0, 4fr) minmax(0, 7fr); gap: 4vw; align-items: center;
+  padding: 92px var(--margines) 64px; --sc-accent: var(--musztarda); }
+.instalacja__scena::before {
+  content: ""; position: absolute; inset: 0; pointer-events: none; z-index: -1;
+  background: radial-gradient(40vw 46vh at 66% 52%, rgba(255, 253, 247, .95), transparent 70%);
+}
+.instalacja__notka { font: 700 1.5rem/1.1 var(--font-reka); color: var(--glina-2); rotate: -2deg; margin-bottom: 10px; }
+.instalacja h2 { font-size: clamp(2.2rem, 4.1vw, 3.9rem); line-height: 1.04; }
+.instalacja__tekst > p:last-child { margin-top: 18px; max-width: 34ch; font-size: 1.12rem; line-height: 1.55; color: var(--txt-2); }
+.okno--jasne { background: var(--kartka); color: var(--txt); border: 1px solid var(--linia); gap: 14px; padding: 22px 26px 24px; }
+.okno--jasne .okno__tytul { color: var(--txt-3); }
+.konfigurator { display: grid; gap: 14px; font-size: .96rem; }
+.konfigurator__wybor { display: grid; grid-template-columns: minmax(0, .8fr) minmax(0, .8fr) minmax(0, 1.4fr); gap: 16px; }
+.konfigurator__grupa { margin: 0; padding: 0; border: 0; display: grid; gap: 6px; align-content: start; }
+.konfigurator__grupa legend { padding: 0; margin-bottom: 6px; font: 700 1.1rem/1 var(--font-reka); color: var(--glina-2); }
+.konfigurator__grupa label { display: flex; align-items: baseline; gap: 8px; cursor: pointer; }
+.konfigurator__grupa small { color: var(--txt-3); font-size: .8rem; white-space: nowrap; }
+.konfigurator__wynik { display: grid; gap: 10px; }
+.konfigurator__etykieta { font-size: .88rem; color: var(--txt-3); }
+.konfigurator__komendy {
+  margin: 0; padding: 14px 16px; border-radius: 12px; background: var(--okno-prompt); color: #eee8dc;
+  font: 400 .84rem/1.6 var(--font-kod); white-space: pre-wrap; overflow-wrap: anywhere;
+}
+.konfigurator__uwagi { margin: 0; padding-left: 1.1em; color: var(--txt-2); font-size: .9rem; }
+.konfigurator__akcje { display: flex; flex-wrap: wrap; gap: 10px; }
+.konfigurator__akcje .przycisk { padding: 11px 18px; font-size: .95rem; }
+.konfigurator__status:empty { display: none; }
+.konfigurator__status, .konfigurator__uwaga, .konfigurator__wersje { font-size: .86rem; color: var(--txt-3); }
+.stopka { position: absolute; left: var(--margines); right: var(--margines); bottom: 22px; display: flex; gap: 24px;
+  font-size: .9rem; color: var(--txt-3); }
+
+/* -------------------------------------------------------------- reduced motion -- */
+@media (prefers-reduced-motion: reduce) {
+  .wejscie__okno, .wejscie__logo, .wejscie__notka, .wejscie__linia > span, .wejscie__zdanie, .wejscie__wezwanie {
+    transition-property: opacity; }
+  html.ladowanie .wejscie__linia > span, html.ladowanie .wejscie__zdanie, html.ladowanie .wejscie__wezwanie { transform: none; }
+  html.ladowanie .wejscie__okno { transform: rotateY(-11deg) rotateX(4deg) rotateZ(.5deg); }
+  html.ladowanie .wejscie__logo { transform: rotate(6deg); }
+  html.ladowanie .wejscie__notka { transform: rotate(4.5deg) scale(1.04); }
+  .panel__okno { transform: none; }
+}

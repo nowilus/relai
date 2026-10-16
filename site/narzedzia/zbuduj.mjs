@@ -1,4 +1,5 @@
-// Tiny static page generator: minimal Mustache subset -> site/index.html and site/pl/index.html.
+// Tiny static page generator: minimal Mustache subset -> the desk (site/index.html, site/pl/index.html)
+// and the film (site/film/index.html, site/pl/film/index.html), one template per version.
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from "node:fs";
 import { dirname, join, resolve, relative } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
@@ -6,9 +7,16 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 const HERE = dirname(fileURLToPath(import.meta.url));
 const DEFAULT_ROOT = resolve(HERE, "..", "..");
 
-const RESERVED_KEYS = ["fakty", "jezyk", "baza", "sciezkaStrony", "komendyDomyslne"];
+const RESERVED_KEYS = ["fakty", "jezyk", "baza", "sciezkaStrony", "komendyDomyslne", "makiety", "fiszki"];
 const DEFAULT_COMMAND_CHOICE = { tryb: "instaluje", narzedzie: "claude", skladniki: ["relai", "panel", "cache"] };
 const OUTPUT_FILES = { en: "site/index.html", pl: "site/pl/index.html" };
+const OUTPUT_FILES_FILM = { en: "site/film/index.html", pl: "site/pl/film/index.html" };
+
+// Per version: where each language's page lies, as the relative way back to site/ and its own path.
+const VERSIONS = Object.freeze({
+  biurko: { outputs: OUTPUT_FILES, baza: { en: "./", pl: "../" }, sciezka: { en: "", pl: "pl/" } },
+  film: { outputs: OUTPUT_FILES_FILM, baza: { en: "../", pl: "../../" }, sciezka: { en: "film/", pl: "pl/film/" } },
+});
 
 const ESCAPES = { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" };
 
@@ -213,7 +221,7 @@ function assertNoLeftovers(html, label) {
   if (index !== -1) throw fail(`Unrendered braces in ${label}, line ${index + 1}: ${lines[index].trim()}`);
 }
 
-function buildContext(tresc, fakty, jezyk, komendyDomyslne) {
+function buildContext(tresc, fakty, jezyk, komendyDomyslne, wersja = VERSIONS.biurko) {
   if (!isObject(tresc) || Array.isArray(tresc)) throw fail(`Content for "${jezyk}" must be a JSON object`);
   const clash = RESERVED_KEYS.filter((k) => Object.hasOwn(tresc, k));
   if (clash.length) throw fail(`Content for "${jezyk}" uses reserved keys: ${clash.join(", ")}`);
@@ -221,20 +229,45 @@ function buildContext(tresc, fakty, jezyk, komendyDomyslne) {
     ...tresc,
     fakty,
     jezyk,
-    baza: jezyk === "en" ? "./" : "../",
-    sciezkaStrony: jezyk === "en" ? "" : "pl/",
+    baza: wersja.baza[jezyk],
+    sciezkaStrony: wersja.sciezka[jezyk],
     komendyDomyslne,
   };
 }
 
-// Pure: explicit inputs in, rendered pages out ({ en, pl }).
-export function buildPagesFrom({ template, tresc, fakty, zbudujKomendy }) {
+// The film's command cards: one per command in the facts, in their order. Polish words come from
+// the facts (core/panel NAMES), English ones from the content's film.fiszki, keyed by command.
+export function zbudujFiszki(fakty, tresc, jezyk) {
+  const komendy = Array.isArray(fakty?.komendy) ? fakty.komendy : [];
+  if (komendy.length !== fakty?.liczbaKomend) {
+    throw fail(`Facts list ${komendy.length} commands but liczbaKomend is ${fakty?.liczbaKomend}`);
+  }
+  return komendy.map((k) => {
+    const ikona = String(k.nazwa).replace(/^relai-/, "");
+    if (jezyk === "pl") return { nazwa: k.nazwa, ikona, tytul: k.nazwaPl, opis: k.opisPl };
+    const en = tresc?.film?.fiszki?.[k.nazwa];
+    if (!en?.tytul || !en?.opis) throw fail(`Content for "${jezyk}" has no film.fiszki entry for ${k.nazwa}`);
+    return { nazwa: k.nazwa, ikona, tytul: en.tytul, opis: en.opis };
+  });
+}
+
+function filmExtras(tresc, fakty, jezyk, makiety) {
+  if (!isObject(makiety?.[jezyk])) throw fail(`Mock-ups (site/dane/makiety.json) have no "${jezyk}" entry`);
+  return { makiety: makiety[jezyk], fiszki: zbudujFiszki(fakty, tresc, jezyk) };
+}
+
+// Pure: explicit inputs in, rendered pages out ({ en, pl }). `wersja`: "biurko" (default) or "film";
+// the film needs `makiety` (site/dane/makiety.json).
+export function buildPagesFrom({ template, tresc, fakty, zbudujKomendy, wersja = "biurko", makiety }) {
+  const v = VERSIONS[wersja];
+  if (!v) throw fail(`Unknown page version "${wersja}"`);
   const pages = {};
   for (const jezyk of ["en", "pl"]) {
     const komendy = zbudujKomendy(DEFAULT_COMMAND_CHOICE, jezyk);
-    const ctx = buildContext(tresc[jezyk], fakty, jezyk, komendy.linie.join("\n"));
+    const base = buildContext(tresc[jezyk], fakty, jezyk, komendy.linie.join("\n"), v);
+    const ctx = wersja === "film" ? { ...base, ...filmExtras(tresc[jezyk], fakty, jezyk, makiety) } : base;
     const html = normalizeOutput(render(template, ctx));
-    assertNoLeftovers(html, OUTPUT_FILES[jezyk]);
+    assertNoLeftovers(html, v.outputs[jezyk]);
     pages[jezyk] = html;
   }
   return pages;
@@ -243,6 +276,8 @@ export function buildPagesFrom({ template, tresc, fakty, zbudujKomendy }) {
 export function readInputs(paths, repoRoot = DEFAULT_ROOT) {
   return {
     template: readInput(paths.szablon, repoRoot).text,
+    ...(paths.szablonFilm ? { templateFilm: readInput(paths.szablonFilm, repoRoot).text } : {}),
+    ...(paths.makiety ? { makiety: readJson(paths.makiety, repoRoot) } : {}),
     tresc: { en: readJson(paths.en, repoRoot), pl: readJson(paths.pl, repoRoot) },
     fakty: readJson(paths.fakty, repoRoot),
   };
@@ -261,15 +296,24 @@ export async function buildPages(repoRoot = DEFAULT_ROOT) {
   const inputs = readInputs(
     {
       szablon: join(repoRoot, "site", "narzedzia", "szablon.html"),
+      szablonFilm: join(repoRoot, "site", "narzedzia", "szablon-film.html"),
       en: join(repoRoot, "site", "tresc", "en.json"),
       pl: join(repoRoot, "site", "tresc", "pl.json"),
       fakty: join(repoRoot, "site", "dane", "fakty.json"),
+      makiety: join(repoRoot, "site", "dane", "makiety.json"),
     },
     repoRoot,
   );
   const zbudujKomendy = await loadKomendy(repoRoot);
-  const pages = buildPagesFrom({ ...inputs, zbudujKomendy });
-  return { [OUTPUT_FILES.en]: pages.en, [OUTPUT_FILES.pl]: pages.pl };
+  const { templateFilm, makiety, ...wspolne } = inputs;
+  const pages = buildPagesFrom({ ...wspolne, zbudujKomendy });
+  const film = buildPagesFrom({ ...wspolne, template: templateFilm, zbudujKomendy, wersja: "film", makiety });
+  return {
+    [OUTPUT_FILES.en]: pages.en,
+    [OUTPUT_FILES.pl]: pages.pl,
+    [OUTPUT_FILES_FILM.en]: film.en,
+    [OUTPUT_FILES_FILM.pl]: film.pl,
+  };
 }
 
 // Writes only when bytes differ; returns "zapisano" or "bez zmian".
