@@ -1944,3 +1944,33 @@ i `DESIGN.md` prowadzą do archiwum.
 **Do zrobienia przez człowieka:** —
 
 Autor: RelAI (Opus 5.5) + Lukasz
+
+### 2026-10-16 — Wiadomość do zespołu o 3.2.0 / panelu 0.20.0 i oficjalne wydania na GitHubie
+
+**Zrobione:**
+
+- **Wiadomość na Teams** o nowościach od 3.0.0 (ostatniej wersji wysłanej zespołowi): 3.1.0
+  `/relai-humanize`, 3.2.0 karta startu, panel 0.15–0.20. Szkic po `/relai-humanize` (usunięte:
+  pogrubienie dla ozdoby ×10, myślnik zamiast spójnika ×10; strażnik faktów bez różnic), potem
+  na prośbę Łukasza w pierwszej osobie liczby pojedynczej („nie pisz w liczbie mnogiej nic bo ja
+  RelAI przygotowuje jako pojedynczy developer”). Łukasz: „ok wersja wysłana”.
+- **Zrzuty na danych testowych** zamiast zrzutów z prawdziwych sesji (Łukasz: „zeby mialy
+  mockowane dane a nie moje realne screeny”): makieta HTML, w której rysunki generuje kod pluginów
+  (`rings.ts`, `now-art.ts`, `segments.ts`, `theme.mjs`, nagłówki i ikony), a natywne elementy
+  aplikacji mają kolory pobrane z prawdziwych zrzutów; PNG z Chrome bez okna. Projekt testowy
+  „sklep internetowy”, plan `PLATNOSCI_ONLINE`. Pliki i generator w katalogu roboczym
+  `.claude/relai/work/_wiadomosci/2026-10-16_teams/`.
+- **Wydania na GitHubie** (Łukasz: „oznacz jako wydana oficjalnie”): `v3.2.0`,
+  `relai-panel-v0.19.0` i `relai-panel-v0.20.0` (Latest) — tagi istniały od 2026-10-15 bez notatek
+  wydań.
+
+**Zweryfikowane — jak dokładnie:** `gh release list` — trzy nowe wydania, `relai-panel-v0.20.0`
+jako Latest; makiety porównane na oko z prawdziwymi zrzutami w obu wyglądach przy skali 125 %.
+
+**Świadomie odłożone:** podmiana `docs/zasoby/PANEL_RELAI/zrzuty/WYGLAD_PANELU_E5_jasny_dymek_teraz.png`
+— w commicie `a73cbb3` to przez pomyłkę kopia zrzutu paska kontekstu (dymek wklejony w trakcie
+tury nie zapisał się na dysku); rotacja dziennika, lekcji i ryzyk.
+
+**Do zrobienia przez człowieka:** —
+
+Autor: RelAI (Opus 5.5) + Lukasz
