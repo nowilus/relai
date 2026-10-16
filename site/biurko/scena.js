@@ -2,7 +2,11 @@
 // no decorative loops, motion comes from scroll and click alone.
 import * as THREE from "three";
 import { CSS3DRenderer, CSS3DObject } from "three/addons/CSS3DRenderer.js";
-import { RoomEnvironment } from "three/addons/RoomEnvironment.js";
+import { EffectComposer } from "three/addons/postprocessing/EffectComposer.js";
+import { RenderPass } from "three/addons/postprocessing/RenderPass.js";
+import { GTAOPass } from "three/addons/postprocessing/GTAOPass.js";
+import { BokehPass } from "three/addons/postprocessing/BokehPass.js";
+import { OutputPass } from "three/addons/postprocessing/OutputPass.js";
 import { zbudujBiurko, BLAT } from "./obiekty.js";
 import { poza, POZY } from "./kamera.js";
 
@@ -12,12 +16,12 @@ const EKRAN_PX = [1136, 710]; // CSS size of the configurator on the laptop disp
 const PROG_SPADKU_MS = 26; // median frame time that drops quality one step
 
 function swiatlo(scena, obiekty) {
-  const klosz = obiekty.lampa.userData.zrodlo;
+  const zrodlo = new THREE.Vector3();
   scena.updateMatrixWorld(true);
-  const zrodlo = new THREE.Vector3(0, -0.035, 0).applyMatrix4(klosz.matrixWorld);
-  const lampa = new THREE.SpotLight("#ffd3a0", 10, 0, 0.95, 0.9, 2);
+  obiekty.lampa.userData.zrodlo.getWorldPosition(zrodlo);
+  const lampa = new THREE.SpotLight("#ffc080", 17, 0, 0.74, 0.95, 2);
   lampa.position.copy(zrodlo);
-  lampa.target.position.set(0.14, BLAT, 0.06);
+  lampa.target.position.set(0.16, BLAT, 0.06);
   lampa.castShadow = true;
   lampa.shadow.mapSize.set(2048, 2048);
   lampa.shadow.bias = -0.0002;
@@ -28,30 +32,36 @@ function swiatlo(scena, obiekty) {
   scena.add(lampa, lampa.target);
 
   // light bounced off the lit desk: warm, weak, no shadow
-  const odbicie = new THREE.PointLight("#e7b27a", 0.55, 0, 2);
+  const odbicie = new THREE.PointLight("#e7b27a", 0.45, 0, 2);
   odbicie.position.set(0.2, BLAT + 0.32, 0.0);
   scena.add(odbicie);
 
+  // the lamp also grazes the wall and the board: a weak warm light close to the wall brings the plaster and cork grain out
+  const sciana = new THREE.PointLight("#ffc890", 0.6, 3.2, 2);
+  sciana.position.set(0.42, 1.38, -0.28);
+  scena.add(sciana);
+
   // the window: a cool, weak light from behind
-  const okno = new THREE.DirectionalLight("#9cb6c6", 0.55);
+  const okno = new THREE.DirectionalLight("#8fa9d6", 0.4);
   okno.position.set(1.4, 2.1, -1.6);
   okno.target.position.set(0.1, BLAT, 0.1);
   scena.add(okno, okno.target);
 
-  scena.add(new THREE.HemisphereLight("#46525c", "#2a2018", 0.42));
+  scena.add(new THREE.HemisphereLight("#3d4a66", "#2a2018", 0.13));
   return { lampa };
 }
 
 /**
- * @param {{ kontener: HTMLElement, slowa: object, ekran: HTMLElement, tor: object, przyKlatce: Function, ograniczRuch: boolean }} o
+ * @param {{ kontener: HTMLElement, slowa: object, zasoby: object, ekran: HTMLElement, tor: object, przyKlatce: Function, ograniczRuch: boolean }} o
+ *   `zasoby` = the first loading stage (see zasoby.js); the rest arrives through the returned `uzupelnij`.
  */
-export function zbudujScene({ kontener, slowa, ekran, tor, przyKlatce, ograniczRuch }) {
+export function zbudujScene({ kontener, slowa, zasoby, ekran, tor, przyKlatce, ograniczRuch }) {
   const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: "high-performance" });
   let dpr = Math.min(window.devicePixelRatio || 1, MAX_DPR);
   renderer.setPixelRatio(dpr);
   renderer.outputColorSpace = THREE.SRGBColorSpace;
-  renderer.toneMapping = THREE.ACESFilmicToneMapping;
-  renderer.toneMappingExposure = 1.05;
+  renderer.toneMapping = THREE.AgXToneMapping;
+  renderer.toneMappingExposure = 1.0;
   renderer.shadowMap.enabled = true;
   renderer.shadowMap.type = THREE.PCFShadowMap;
   kontener.append(renderer.domElement);
@@ -59,14 +69,26 @@ export function zbudujScene({ kontener, slowa, ekran, tor, przyKlatce, ograniczR
   const scena = new THREE.Scene();
   scena.background = new THREE.Color("#15120f");
   const pmrem = new THREE.PMREMGenerator(renderer);
-  scena.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
-  scena.environmentIntensity = 0.14;
+  scena.environment = pmrem.fromEquirectangular(zasoby.otoczenie).texture;
+  scena.environmentIntensity = 0.24;
+  zasoby.otoczenie.dispose();
   pmrem.dispose();
 
-  const kamera = new THREE.PerspectiveCamera(40, 1, 0.02, 20);
-  const { swiat, obiekty } = zbudujBiurko(slowa);
+  const kamera = new THREE.PerspectiveCamera(40, 1, 0.02, 40); // far enough for the city behind the window
+  const { swiat, obiekty, uzupelnij } = zbudujBiurko(slowa, zasoby);
   scena.add(swiat);
   const { lampa } = swiatlo(scena, obiekty);
+
+  // the picture: scene, contact shadows (ambient occlusion), a shallow depth of field, then tone mapping
+  const kompozytor = new EffectComposer(renderer, new THREE.WebGLRenderTarget(1, 1, { type: THREE.HalfFloatType, samples: 4 }));
+  kompozytor.addPass(new RenderPass(scena, kamera));
+  const ao = new GTAOPass(scena, kamera, 1, 1);
+  ao.updateGtaoMaterial({ radius: 0.14, distanceExponent: 1.4, thickness: 1, scale: 1.3, samples: 12, distanceFallOff: 1, screenSpaceRadius: false });
+  ao.updatePdMaterial({ lumaPhi: 10, depthPhi: 2, normalPhi: 3, radius: 6, rings: 2, samples: 12 });
+  const bokeh = new BokehPass(scena, kamera, { focus: 1, aperture: 0.012, maxblur: 0.005 });
+  kompozytor.addPass(ao);
+  kompozytor.addPass(bokeh);
+  kompozytor.addPass(new OutputPass());
 
   // the configurator lives on the laptop display as real HTML
   const css = new CSS3DRenderer();
@@ -103,6 +125,8 @@ export function zbudujScene({ kontener, slowa, ekran, tor, przyKlatce, ograniczR
   function rozmiar() {
     const w = window.innerWidth, h = window.innerHeight;
     renderer.setSize(w, h);
+    kompozytor.setPixelRatio(dpr);
+    kompozytor.setSize(w, h);
     css.setSize(w, h);
     kamera.aspect = w / h;
     kamera.updateProjectionMatrix();
@@ -117,7 +141,17 @@ export function zbudujScene({ kontener, slowa, ekran, tor, przyKlatce, ograniczR
     }
   }
 
+  /** One step down per call: depth of field first, then ambient occlusion, then resolution and shadow size. */
   function obnizJakosc() {
+    czasy.length = 0;
+    if (bokeh.enabled) {
+      bokeh.enabled = false;
+      return;
+    }
+    if (ao.enabled) {
+      ao.enabled = false;
+      return;
+    }
     if (dpr <= 1) return;
     dpr = 1;
     renderer.setPixelRatio(dpr);
@@ -141,7 +175,8 @@ export function zbudujScene({ kontener, slowa, ekran, tor, przyKlatce, ograniczR
     if (Math.abs(cel - biez) < 1e-5) biez = cel;
     const stan = poza(tor, biez, pozy);
     ustawKamere(stan);
-    renderer.render(scena, kamera);
+    bokeh.uniforms.focus.value = kamera.position.distanceTo(new THREE.Vector3(...stan.cel));
+    kompozytor.render();
     css.render(scenaCss, kamera);
     przyKlatce(stan);
     if (czasy.length >= 90 && mediana(czasy) > PROG_SPADKU_MS) obnizJakosc();
@@ -178,6 +213,13 @@ export function zbudujScene({ kontener, slowa, ekran, tor, przyKlatce, ograniczR
 
   return {
     canvas: renderer.domElement,
+    obiekty,
+    scena,
+    /** Stage two of the assets arrived: upgrade the materials, add the extras, draw once more. */
+    uzupelnij(B) {
+      uzupelnij(B);
+      zamow();
+    },
     ustawPostep(p, natychmiast = false) {
       cel = p;
       if (natychmiast) biez = p;

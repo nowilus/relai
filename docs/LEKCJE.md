@@ -46,10 +46,11 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
      opisanego prozą — na każdym zapisie rodziny i przykładzie specyfikacji, stary i nowy kod
      obok siebie (L-0184); po zmianie kodu z trybem zastępczym pierwsza asercja to tryb, potem
      zrzut (L-0213); ruch i czas klatki tylko w widocznej stronie, kadry o stałym rozmiarze
-     w osobnej stronie DevTools (L-0214).
+     w osobnej stronie DevTools (L-0214); po zmianie modułu ES `reload` z `ignoreCache` i asercja
+     nowego kodu przed kadrem (L-0218).
    (L-0017, L-0018, L-0040, L-0051, L-0052, L-0063, L-0069, L-0082, L-0115, L-0117, L-0123, L-0134,
    L-0144, L-0150, L-0154, L-0155, L-0156, L-0158, L-0159, L-0165, L-0175, L-0177, L-0182, L-0184,
-   L-0186, L-0191, L-0195, L-0213, L-0214)
+   L-0186, L-0191, L-0195, L-0213, L-0214, L-0218)
 5. **Instrument pomiarowy sam bywa źródłem fałszu.**
    - **Backslash:** wyrażenia regularne i ścieżki Windows tylko w pliku pisanym Write/Edit albo
      z `/`; skrypt edycji niosący `\n`, backtick lub ścieżkę — Write, heredok bez wyjątku, także
@@ -201,9 +202,15 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
       „tego nie pokazujemy” szukasz we wszystkich tekstach kadru (L-0178); dźwięk z gotowych źródeł,
       próbki do wyboru (L-0179); licencję czytasz na stronie utworu, plik z kartą źródła i testem
       (L-0180); drugi język zaczyna się od jednej klatki i pytania, dla kogo (L-0183).
+    - **Scena 3D:** kandydaci zasobów na karcie zgody po miniaturach obok wzorca, cecha wzorca
+      widoczna już na miniaturze (L-0216); obiekt za płaszczyzną sprawdzasz kadrem, w którym jest
+      największy, i wobec `near`/`far` kamery (L-0217); powtarzalne bryły jako jedna geometria,
+      wywołania rysowania mierzone opakowaniem kontekstu (L-0219); uwaga „nie jak wzorzec” — rozbiór
+      kadru na światło, materiał, obiektyw i kompozycję z jedną przyczyną i granicą techniki przed
+      kolejną rundą (L-0220).
     (L-0003, L-0006, L-0016, L-0019, L-0029, L-0094, L-0098, L-0137, L-0140, L-0142, L-0145, L-0147,
     L-0149, L-0152, L-0157, L-0171, L-0174, L-0176, L-0178, L-0179, L-0180, L-0183, L-0196, L-0197,
-    L-0199)
+    L-0199, L-0216, L-0217, L-0219, L-0220)
 
 **Wyprowadzone 2026-08-20 do `docs/PULAPKI.md`:** sześć pułapek narzędziowych — `tar` na `PATH`
 (L-0021), sesja `claude -p` (L-0024), PowerShell 5.1 i UTF-8 (L-0027), `--allowedTools` przy
@@ -535,6 +542,67 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
   podmiany obejmowały koniec linii.
 - **Zasada:** bez zmian względem zasady 5 — seria podmian w kodzie to kilka wywołań Edit albo skrypt
   zapisany Write; liczy się każdy `\n` w napisie, także w kotwicy podmiany.
+
+### L-0216 — Zasób wybrany z nazwy wrócił po pobraniu jako nieużywalny · 2026-10-16 · AKTYWNA
+
+- **Trigger:** STRONA_RELAI E2. Z karty zgody pobrane Metal012 (chrom zamiast aluminium),
+  Cardboard002 (falista tektura) i Paper003 (zmięty papier); każdy wymagał drugiej karty i drugiego
+  pobrania. Drewno blatu `wood_table_worn` przeszło kartę, a po dwóch rundach kalibracji Łukasz
+  dalej nie widział słojów — skan nie ma słojów, tylko plamy.
+- **Przyczyna:** kandydaci szli na kartę z nazwy i opisu biblioteki; miniaturę na kuli i średnią
+  barwę oglądałem dopiero po pobraniu.
+- **Zasada:** przed kartą zgody kandydaci idą na jedną stronę porównania z miniaturami bibliotek
+  (Poly Haven: `cdn.polyhaven.com/asset_img/thumbs/<id>.png`) obok obrazu wzorcowego; cecha, o którą
+  chodzi wzorcowi (słoje, faktura, połysk), ma być widoczna już na miniaturze.
+
+### L-0217 — Niebo okna stało centymetr za ścianą przez dwie rundy kalibracji · 2026-10-16 · AKTYWNA
+
+- **Trigger:** STRONA_RELAI E2. Płaszczyzna nieba w oknie leżała na z = −0,63, a ściana bez otworu
+  na z = −0,62; przez okno było widać tynk, który Łukasz nazwał „zasłoniętą roletą”. Po wycięciu
+  otworu niebo za oknem zniknęło drugi raz — leżało dalej niż `far` kamery (20 m).
+- **Przyczyna:** obiekty za płaszczyzną sprawdzałem w kodzie, a kadry oglądałem w pomniejszeniu, gdzie
+  okno ma kilkadziesiąt pikseli; rozmieszczenie względem ściany i zakresu kamery nie miało pomiaru.
+- **Zasada:** obiekt za płaszczyzną (okno, ekran, dziura) sprawdzasz kadrem przystanku, na którym
+  zajmuje największą część obrazu, w pełnej rozdzielczości; nowy obiekt dalej niż 10 m — najpierw
+  porównanie z `near`/`far` kamery.
+
+### L-0218 — Przeładowanie strony z adresem nie odświeżyło modułów ES · 2026-10-16 · AKTYWNA
+
+- **Trigger:** STRONA_RELAI E2. Dwie poprawki (pozycja miasta, barwa korka) „nie zadziałały”
+  w kadrze — `navigate_page` z `type: url` i `ignoreCache` pobrał nowy HTML, ale moduły
+  `biurko/*.js` przyszły z pamięci podręcznej. Dwa kadry poszły do oceny ze starym kodem.
+- **Przyczyna:** `ignoreCache` przy nawigacji pod adres nie obejmuje importów modułów; obejmuje je
+  dopiero przeładowanie (`type: reload` z `ignoreCache`).
+- **Zasada:** po zmianie modułu strona idzie przez `reload` z `ignoreCache`, a pierwsza asercja
+  sprawdza, że przeglądarka ma nowy kod (np. `fetch` modułu z `no-store` i szukany fragment) — dopiero
+  potem kadr.
+
+### L-0219 — Miasto z 76 brył dało 1400 wywołań rysowania na klatkę · 2026-10-16 · AKTYWNA
+
+- **Trigger:** STRONA_RELAI E2. Bloki za oknem jako osobne `Mesh` z tablicą sześciu materiałów:
+  2206 wywołań rysowania na klatkę (render, cienie kontaktowe, głębia ostrości liczą scenę osobno),
+  p95 klatki przy CPU ×4 22,3 ms. Po scaleniu w jedną geometrię z atlasem fasad: 913 wywołań,
+  p95 16,7 ms, obraz bez zmian.
+- **Przyczyna:** koszt obiektu w scenie z efektami obrazu mnoży się przez liczbę przejść i grup
+  materiału, a widziałem tylko liczbę trójkątów.
+- **Zasada:** dekoracja z wielu powtarzalnych brył od razu idzie jako jedna geometria (scalona albo
+  instancjonowana) z jedną teksturą; liczbę wywołań rysowania na klatkę mierzysz opakowaniem
+  `drawElements`/`drawArrays` kontekstu przed i po dodaniu obiektu.
+
+### L-0220 — Płaskość sceny to światło, nie rozdzielczość tekstur · 2026-10-16 · AKTYWNA
+
+- **Trigger:** STRONA_RELAI E2. Po uwadze „za płaskie” dwie rundy dokładały tekstury 2K, cienie
+  kontaktowe, głębię ostrości i przedmioty; Łukasz za każdym razem: „nadal daleko od wzorca”. Dopiero
+  ocena po przełączeniu na Opus nazwała przyczynę: wzorce mają światło odbite (ściana i spody
+  przedmiotów rozświetlone), a rasteryzacja go nie liczy — stąd Aneks B z path tracingiem.
+  Etap szedł na Sonnet 5.5 za zgodą na rozjazd modelu; przy ocenie smaku nie przypomniałem o nim.
+- **Przyczyna:** odpowiadałem na objaw („więcej detalu”) zamiast porównać kadr ze wzorcem po
+  kategoriach (światło, materiał, obiektyw, kompozycja); zgoda na rozjazd modelu przestała być
+  widoczna po starcie.
+- **Zasada:** uwaga „nie tak jak na wzorcu” najpierw idzie na rozbiór kadru po kategoriach
+  (światło, materiał, obiektyw, kompozycja) z jedną przyczyną wskazaną wprost i granicą techniki,
+  zanim powstanie kolejna runda; etap z oceną smaku na modelu słabszym niż wymagany ma przypomnienie
+  o rozjeździe przy pierwszej kalibracji.
 
 ## Lekcje zwinięte
 

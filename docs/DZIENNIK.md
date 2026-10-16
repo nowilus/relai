@@ -25,9 +25,12 @@
 | C11 | Pliki pomiarów puchną albo trafiają do gita (plan PANEL_CLAUDE, ryzyko R5) | **Niski** (2026-10-08 po E3) | **OTWARTE ŚWIADOMIE** | `.claude/relai/` poza gitem (sprawdzone `git check-ignore`), plik na sesję, rekord bez treści (~250 B); E4: plik scaleń `.claude/relai/panel/scalenia.json` też poza gitem (`git check-ignore`), rekord dłuższy o dwa pola; E6: `.claude/relai/panel/cennik.json` (wersje cennika) poza gitem (`git check-ignore`), jedna wersja na zapis z karty; otwarte: sprzątanie starych plików nie istnieje — do E7 E7 (decyzja człowieka 2026-10-09): sprzątanie świadomie odłożone — zmierzone 5 plików, 260 KB po dwóch dniach intensywnej pracy; „Koszty projektu” sumują wszystkie pliki, więc kasowanie zmieniłoby sumę. Próg powrotu: folder `.claude/relai/pomiary/` powyżej 10 MB. |
 | L1 | `percentUsed` limitu odświeża się tylko z odpowiedzią API — długa tura subagentów przekroczy próg, a karta przyjdzie po fakcie (plan LIMIT_CHECKPOINT, ryzyko L1) | **Średni** (2026-10-11 po E2; wcześniej wysoki) | **ZMITYGOWANE 2026-10-12** (zamknięcie planu; ograniczenie silnika — procent tylko z odpowiedzią API) | E2: `session.measure` w trakcie tury przestawia kolor baterii od razu, karta przychodzi po `turn.complete` z procentem odczytanym po turze (test „past the threshold in the middle of a turn”); otwarte, bo procent nadal przychodzi tylko z odpowiedzią API, więc długa tura może przekroczyć próg o kilka punktów, zanim karta padnie. |
 | H9 | Tryb ciągły „dokumenty” nie widzi zapisu, którego nie rozpozna — `sed -i`, skrypt, podproces, `>(tee …)` — i dokument zostaje bez humanizacji (plan HUMANIZACJA, pomiar E5) | **Niski** (2026-10-14, przy zamknięciu planu) | **OTWARTE ŚWIADOMIE** | Aneks C: hook po Write/Edit i po Bash z przekierowaniem `>` / `>>` albo `tee`; w pomiarze E5 model pisał wyłącznie tymi drogami (8/8 przed poprawką, 2/2 po niej z regułą). Pominięcie kończy się ciszą, nigdy złą regułą; komenda `/relai-humanize` na pliku działa niezależnie od trybu ciągłego. |
-| T1 | Scena 3D strony tnie się na słabszym laptopie albo zintegrowanej grafice (plan STRONA_RELAI, ryzyko 1) | **Wysoki** (2026-10-16 po E1, bez zmiany) | **OTWARTE** | E1: render na żądanie (zero pętli), DPR ≤ 1,5, spadek do DPR 1 i cienia 1024 przy medianie > 26 ms; zmierzone tylko na RTX 4070 Ti (mediana 5,6 ms, p95 11,1 ms przy CPU ×4). three.js 433 KB gzip wobec szacunku 160–200 KB. Otwarte: słaba grafika i budżet w E5 (po Aneksie A; dawny E4), nowy budżet ze scenami CC0 mierzy E2. |
-| T2 | Biurko wygląda jak tani render albo glina z AI (plan STRONA_RELAI, ryzyko 2) | **Wysoki** (2026-10-16 po Aneksie A; po E1 chwilowo niski) | **OTWARTE** | Hero zaakceptowane 2026-10-16, ale tego samego dnia Łukasz: „widać, że wygenerowane jednak przez AI stylistycznie”, brakuje detali. Aneks A: modele i materiały CC0 ze skanów, HDRI, obrazy wzorcowe GPT image jako miara, kalibracja hero od nowa w E2. |
-| T3 | Modele CC0 z różnych źródeł nie zgrywają się stylem i skalą; strona za ciężka (plan STRONA_RELAI, Aneks A pkt 6) | **Średni** (2026-10-16) | **OTWARTE** | Wspólne HDRI i biblioteka materiałów, skala w metrach, budżet pierwszego wejścia ok. 8 MB z ładowaniem etapami; pomiar i kalibracja w E2. |
+| T1 | Scena 3D strony tnie się na słabszym laptopie albo zintegrowanej grafice (plan STRONA_RELAI, ryzyko 1) | **Wysoki** (2026-10-16 po E2, bez zmiany) | **OTWARTE** | E1: render na żądanie, DPR ≤ 1,5, obniżenie jakości przy medianie > 26 ms. E2 (scena CC0, AO, głębia ostrości): przy CPU ×4 mediana 11,1 ms, p95 16,7 ms, 913 wywołań rysowania na klatkę po scaleniu miasta (przed: 2206, p95 22,3 ms); obniżanie jakości zaczyna od głębi ostrości. Zmierzone tylko na RTX 4070 Ti. Otwarte: słaba grafika w E7, path tracing w E4 (Aneks B) tylko na postoju i z wyłącznikiem. |
+| T2 | Biurko wygląda jak tani render albo glina z AI (plan STRONA_RELAI, ryzyko 2) | **Wysoki** (2026-10-16 po E2, bez zmiany) | **OTWARTE** | E2: modele i tekstury CC0, deski orzechowe ze słojami, miasto za oknem, kubek i tablica od nowa; kalibracja w czterech rundach, zamknięcie za zgodą Łukasza, ale „nadal jesteśmy całkiem daleko” od obrazów 01–08 — przyczyna: brak światła odbitego w rasteryzacji (L-0220). Aneks B: E3 laptop i detale, E4 path tracing na przystankach. |
+| T3 | Modele CC0 z różnych źródeł nie zgrywają się stylem i skalą; strona za ciężka (plan STRONA_RELAI, Aneks A pkt 6) | **Niski** (2026-10-16 po E2; wcześniej średni) | **OTWARTE** | E2: wspólne HDRI, skala w metrach, barwy modeli przyciemnione do sceny — Łukasz nie zgłaszał niespójności stylu; ciężar 9,0 MB z kompresją (FAKT), zestaw hero 4,5 MB, pułap podniesiony do 10 MB decyzją Łukasza (Aneks B). Otwarte: path tracer (E4) musi się zmieścić w pułapie. |
+| T4 | Path tracing na słabym sprzęcie zamraża stronę albo szumi zbyt długo (plan STRONA_RELAI, Aneks B pkt 5) | **Wysoki** (2026-10-16, przy Aneksie B) | **OTWARTE** | Tylko na postoju kamery, wyłącznik dla słabego GPU i telefonu, render rastrowy jako stan bazowy, pomiar czasu do czystego obrazu w E4. |
+| T5 | Młoda zależność `three-gpu-pathtracer` (0.0.x) zmienia API albo psuje się z three.js (plan STRONA_RELAI, Aneks B pkt 5) | **Średni** (2026-10-16, przy Aneksie B) | **OTWARTE** | Wersja przypięta w `site/vendor/`, rejestr licencji, karta zgody przed pobraniem; strona działa bez niej. |
+| T6 | Ekran HTML na laptopie rozjeżdża się ze sceną 3D przy przybliżeniu (plan STRONA_RELAI, Aneks B pkt 5) | **Średni** (2026-10-16, przy Aneksie B) | **OTWARTE** | Zrzuty w trzech rozdzielczościach, test trafienia kliknięciem (`elementFromPoint`) w każdym położeniu przybliżenia; w E3. |
 
 > Ryzyka zamknięte L3, L2, L5, L6 (4 pozycje) są w
 > [docs/archiwum/ryzyka/RYZYKA_2026-10-12.md](archiwum/ryzyka/RYZYKA_2026-10-12.md)
@@ -1257,3 +1260,122 @@ Autor: RelAI (Opus 5.5) + Lukasz
 **Do zrobienia przez człowieka:** brak.
 
 Autor: RelAI (Opus 5.5) + Lukasz
+
+### 2026-10-16 — STRONA_RELAI E2: realistyczny świat z zasobów CC0, kalibracja w czterech rundach, Aneks B
+
+**Zrobione:**
+
+- **Model:** etap ruszył na Sonnet 5.5 mimo wymaganego Opus 5.5 — zgoda Łukasza na karcie startu
+  („Tak, zaczynamy E2 na bieżącym modelu mimo rozjazdu.”). W trzeciej rundzie kalibracji Łukasz:
+  „zagapiłem się i widzę, że działamy na Sonnet 5.5 i może stąd wyszły takie problemy. Przepinam się
+  na Opus 5.5” — od tej chwili sesja na Opus 5.5 (L-0220).
+- **Analiza wzorców:** [ANALIZA.md](zasoby/STRONA/builds/biurko/referencje/ANALIZA.md) — co z każdego
+  z obrazów 01–08, barwy z `07b` mierzone próbką pikseli, proporcje w metrach, tabela „obiekt →
+  zasób CC0 albo kod”, odrzucone kandydaty.
+- **Zasoby CC0 w `site/zasoby/`** (62 pliki, wykaz z sumami w `ZRODLA.json`, licencje w
+  `LICENCJE.md`): modele Poly Haven `desk_lamp_arm_01`, `potted_plant_02`, `stationery_supplies`,
+  `office_notepads`, `standing_picture_frame_02`, `hanging_picture_frame_02`, `alarm_clock_01`;
+  tekstury `wood_cabinet_worn_long` (blat, kolor z obniżonym nasyceniem pod orzech z `07b`),
+  `painted_plaster_wall`, Cork001 (2K), Paper006, Paper002, Metal011; HDRI `comfy_cafe` zmniejszony do
+  512 × 256. Dodatki three.js 0.186.1 z tej samej paczki: `GLTFLoader`, `HDRLoader`,
+  `BufferGeometryUtils`, `SkeletonUtils`, efekty obrazu (`EffectComposer`, `GTAOPass`, `BokehPass`,
+  `OutputPass` z importami); lista w `vendor/three/VERSION`.
+- **Scena** (`site/biurko/`, nowe moduły `zasoby.js`, `materialy.js`, `geometria.js`,
+  `przedmioty.js`, `wyposazenie.js`, `miasto.js`): ładowanie dwuetapowe (hero, potem reszta po
+  pierwszej klatce), środowisko z HDRI, lampa jako jedyne mocne ciepłe źródło, AgX, cienie kontaktowe
+  (GTAO) i płytka głębia ostrości; biurko z deskami ze słojami i wysuniętą szufladą, ściana z otworem
+  okiennym, za oknem miasto z brył (atlas fasad, jedno wywołanie rysowania, latarnie w dole),
+  tablica korkowa w profilowanej ramie z orzecha z pinezkami, nitką i notatkami, laptop z
+  instancjonowaną klawiaturą i napisami QWERTY, kubek z kamionki (gruba krawędź, szkliwo z
+  plamkami, glina na stopce, filcowa podkładka), książki, kable z gniazdkiem, ramki, budzik, roślina.
+  Proceduralne niebo z E1 i `RoomEnvironment` usunięte.
+- **Kalibracja smaku — cztery rundy** (strona porównań wzorzec | propozycja w panelu przeglądarki):
+  1. Łukasz: „ta Twoja propozycja to się jakoś wielce nie różni od tego co było na początku… nadal
+     te ściany, tablice, biurko, laptop, okno, lampka, notatki itd są zbyt płaskie i za mało
+     doszczegółowione” → AO, głębia ostrości, tekstury 2K, modele ramek i zegara, książki, kable;
+     budżet: „Nie musimy się jakoś wielce ograniczać budżetowo, bo ma to być dopracowane”.
+  2. „Prawie, ale mam uwagi” (wszystkie cztery obszary) → mocniejsza kałuża światła lampy, ciemniejsze
+     drewno i ściana.
+  3. „popraw proszę słoje na drewnie na blacie… widok zza okna musi być prawdziwy… tablica korkowa
+     musi być przerobiona, bo jej obramowanie jest teraz nijakie i tandetne… Popisz się” → nowy skan
+     desek, otwór w ścianie, rama z orzecha, napisy klawiatury.
+  4. (już Opus) „ten kubek jest zbyt mało dopracowany… tło za oknem jest zbyt futurystyczne… nadal
+     jesteśmy jednak całkiem daleko” → ocena kadru po kategoriach: brakuje światła odbitego, połysku
+     lakieru, obiektywu; kubek i zwykłe miasto z brył 3D poprawione od razu. Kierunek: „Path tracing
+     na przystankach (Rekomendowane)” i „Zamknąć E2 + nowy etap aneksem (Rekomendowane)”;
+     zamknięcie: „Tak, zamknij E2 (Rekomendowane)”.
+- **Uwagi po zamknięciu kalibracji:** ekran laptopa ma być „jednym bytem” z przybliżeniem po
+  kliknięciu, książki „bardzo, bardzo słabo odoszczegółowione”; wykryty błąd z E1: konfigurator
+  w trybie 3D leży w `.scena` z `aria-hidden="true"`. Decyzja Łukasza: „Osobny etap w Aneksie B”.
+- **[Aneks B](plany/STRONA_RELAI/PLAN.html)** (akceptacja: „Tak, dopisz Aneks B (Rekomendowane)”):
+  E3 „Laptop jako prawdziwy ekran i detale”, E4 „Fotorealizm na przystankach” (path tracing MIT na
+  postoju), dawne E3–E6 → E5–E8, pułap 10 MB, ryzyka T4–T6.
+- `site/README.md`: skąd zasoby, jak dodać nowy, jak zmierzyć budżet i płynność.
+- Lekcje L-0216…L-0220, destylat odświeżony (zasada 4 „Na żywo”, zasada o wyglądzie — „Scena 3D”).
+
+**Zweryfikowane — jak dokładnie:**
+
+- Bramka: 8 plików `0[1-8]-*.jpg` przed pierwszą zmianą w `site/`.
+- Testy: `node --test "site/**/*.test.mjs"` → 98 pass, 0 fail (91 z E1 + 7 testów rejestru źródeł);
+  kontrola pozytywna na kopii `site/zasoby/` z dopisanym `tekstury/obcy.jpg`: `sprawdzZasoby` →
+  „plik bez wpisu w ZRODLA.json”, na oryginale `[]`.
+- Karty zgody przed każdym pobraniem (trzy rundy): „Tak, cała lista (Rekomendowane)”, „Tak, Paper006
+  i Paper002 (Rekomendowane)”, „Tak, wszystko (Rekomendowane)” (drewno, panorama). Panorama
+  `shanghai_bund` i drewno `wood_table_large` pobrane, ale nieużyte (miasto „zbyt futurystyczne”,
+  drewno odrzucone w porównaniu) — nie weszły do `site/`.
+- Sieć (DevTools, wejście i pełne przewinięcie, PL i EN): 109 / 107 żądań, wszystkie `localhost`,
+  0 odpowiedzi ≥ 400; `api.github.com` w tym przebiegu nie wystąpiło (wersja z pamięci sesji).
+  Grep `src`/`href`/`url()` z `https?://` w `site/` — tylko `href` do repo GitHuba (kontrola
+  pozytywna trafia); adresy stron zasobów wyłącznie w `ZRODLA.json` i `LICENCJE.md`.
+- Budżet (FAKT, lista żądań z przeglądarki, rozmiary plików z dysku): zestaw hero 63 pliki,
+  6,48 MB surowo / 4,54 MB z `gzip -9` dla tekstu; etap drugi 47 plików, 4,51 / 4,46 MB; całość
+  10,99 / 9,00 MB. DevTools: 11 543 902 B przesłane bez kompresji serwera podglądu = 10,99 MB plików
+  + ok. 30 KB nagłówków. Przekroczenie 8 MB → pytanie; Łukasz: „Tak, pułap ok. 10 MB
+  (Rekomendowane)”. JS: 2447 KB surowo, 514 KB gzip (E1: 433 KB).
+- Wydajność (FAKT, 1366 × 768, DPR 1, RTX 4070 Ti, równe przewijanie całej strony 9 s): zwykły
+  przebieg mediana 5,60 ms, p95 5,60 ms (sufit odświeżania 180 Hz); CPU ×4 mediana 11,10 ms,
+  p95 16,70 ms (E1: 5,60 / 11,10). Wywołania rysowania na klatkę 913, trójkąty 563 577 (wszystkie
+  przejścia; opakowanie `drawElements`/`drawArrays`). Pierwsza klatka ≈ 1,1 s lokalnie (start
+  ładowania etapu drugiego po dwóch klatkach).
+- Hero: 12 zrzutów (otwarcie, środek, wyjście × PL/EN × 1366/1920) w katalogu roboczym. Plany
+  (1366, PL; okno / źródło lampy / kubek) przy scrollu 0 → 768: (1398,168)→(1827,−788),
+  (1041,229)→(1079,−595), (1250,680)→(1213,466) — przesunięcia 1048, 825 i 217 px, różne.
+- Kontrast na złożonym kadrze (tło z `opacity: 0` na rodzicu tekstu, 95. percentyl luminancji pod
+  prostokątem tekstu): 1366 PL/EN — nagłówek 10,53 : 1, zdanie 6,49 : 1; 1920 PL/EN — 12,15 : 1
+  i 8,82 : 1; kontrola pozytywna (kartka-logo na korku) 1,59 : 1.
+- Przystanki: klik w mapę 0…6 → hash i `aria-current` zgodne; przewijanie co 1/20 strony przechodzi
+  0…6; Enter na fokusie mapy (`#biurko`, `#plan`) i Tab z „Komendy” + Enter → `#instalacja`.
+  Konfigurator na nowym laptopie: `elementFromPoint` w środku ekranu → formularz; klik „Codex”
+  (prawdziwe kliknięcie DevTools, z czasowo zdjętym `aria-hidden`, żeby dostać identyfikator) zmienia
+  komendy na cztery linie Codeksa; „Kopiuj” → `Get-Clipboard` zwraca te same cztery linie.
+- Bez WebGL (`getContext` → `null` w `initScript`): pierwsza asercja `tryb` pusty, bez płótna,
+  konfigurator w przepływie, 0 komunikatów konsoli. 404 (`desk_lamp_arm_01.bin` podmieniony
+  w `fetch`): tryb przepływu, konfigurator widoczny; w konsoli wpis sieciowy przeglądarki
+  „Failed to load resource: 404” i `warn` z kodu („RelAI: the desk scene is off…”) — `console.error`
+  z kodu: 0.
+- Konsola przy wejściu i pełnym przewinięciu PL i EN: 0 komunikatów.
+- Bezpieczeństwo: grep `innerHTML|outerHTML|insertAdjacentHTML|document.write` w `site/js`
+  i `site/biurko` bez testów → kod 1; z testami trafia `wersja.test.mjs`; zasoby ze ścieżek
+  względnych (`new URL("../zasoby/", import.meta.url)`); formularz bez `action`/`method`.
+- Katalog roboczy `.claude/relai/work/STRONA_RELAI/E2/`: przed 320 plików / 201,9 MB, po — usunięty
+  po „tak” Łukasza; razem z nim `site/_tmp-kalibracja/` (11 plików, 1,6 MB, strona porównań).
+  Zestawienia kalibracji zostały w `docs/zasoby/STRONA/builds/biurko/kalibracja/`. Poza katalogiem:
+  `%TEMP%\relai-three-0.186.1` (paczka npm three.js, 5,4 MB) — zostaje dla E3–E4; serwer podglądu
+  `serve.mjs` na porcie 4520 w tle.
+
+**Świadomie odłożone:**
+
+- Fotorealizm (światło odbite, połysk lakieru, poświata obiektywu) — E4 (Aneks B).
+- Ekran laptopa jako jeden byt z przybliżeniem, dostępność konfiguratora w trybie 3D, książki od
+  nowa — E3 (Aneks B).
+- Krzesło ze swetrem z `01-hero` i encyklopedia (`book_encyclopedia_set_01`, pobrana, nieużyta) —
+  pominięte; pierwszy plan pod nagłówkiem zostaje ciemnym blatem.
+- Wąski panel (440 px): karta „Zacznij tutaj” przykrywa laptopa — telefon i wąskie okna to E7.
+- Ostrzeżenie ANGLE X4122 w konsoli zniknęło po wejściu kompozytora; nie wróciło w pomiarach.
+- Rotacja ryzyk dalej zablokowana (0 zamkniętych; sekcja ponad progiem 12 KB, teraz z T4–T6) —
+  propozycja z wpisu E1 (historia C1 do archiwum mitygacji) bez zmian.
+
+**Do zrobienia przez człowieka:** brak nowych pozycji (bramki „Próba linku `claude-cli://`”, „Wybór
+wersji”, „GitHub Pages” — bez zmian, z numeracją Aneksu B w `STATUS.md`).
+
+Autor: RelAI (Sonnet 5.5, od czwartej rundy kalibracji Opus 5.5) + Lukasz

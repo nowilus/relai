@@ -40,7 +40,7 @@ if (!maWebGL2()) {
 } else {
   try {
     const { uruchom } = await import("./swiat.js");
-    await uruchom();
+    await uruchom({ bezSceny });
   } catch (e) {
     bezSceny(e instanceof Error ? e.message : String(e));
   }

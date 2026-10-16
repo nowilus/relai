@@ -1,0 +1,2 @@
+# CC0 assets of the site are checked by sha256 in site/zasoby/ZRODLA.json: keep their bytes as committed
+site/zasoby/** -text

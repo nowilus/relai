@@ -202,7 +202,7 @@ h1[tabindex="-1"]:focus, h2[tabindex="-1"]:focus { outline: none; }
 /* ---------- the desk: one fixed scene, stops arrive in a fixed copy layer ---------- */
 .tryb-3d body { overflow-x: hidden; }
 .tryb-3d .scena { display: block; position: fixed; inset: 0; z-index: 0; }
-.tryb-3d .scena canvas { display: block; width: 100%; height: 100%; }
+.tryb-3d .scena canvas { display: block; width: 100%; height: 100%; filter: contrast(1.12) saturate(1.02); }
 .tryb-3d .przekladka { display: block; }
 .tryb-3d .tresc { position: fixed; inset: 0; z-index: 2; pointer-events: none; }
 .tryb-3d .przystanek {
@@ -248,6 +248,16 @@ h1[tabindex="-1"]:focus, h2[tabindex="-1"]:focus { outline: none; }
   content: ""; position: absolute; inset: 0; pointer-events: none;
   background: radial-gradient(ellipse 66% 74% at 0% 100%, rgba(18, 15, 12, .84), rgba(18, 15, 12, 0) 74%);
   opacity: var(--scrim, 1);
+}
+
+/* a lens-like vignette and a fine, still film grain over the whole frame (inline SVG noise, no request) */
+.tryb-3d .scena::before {
+  content: ""; position: absolute; inset: 0; z-index: 1; pointer-events: none;
+  background:
+    radial-gradient(ellipse 85% 85% at 58% 46%, rgba(0, 0, 0, 0) 55%, rgba(6, 4, 3, .5) 100%),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .3 0 0 0 0 .27 0 0 0 0 .24 0 0 0 .22 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: auto, 160px 160px;
+  opacity: .8;
 }
 
 @media (max-width: 860px) {

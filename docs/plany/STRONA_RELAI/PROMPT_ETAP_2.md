@@ -341,49 +341,49 @@ deterministyczne, z testami, sprawdzane przez Ciebie przed przyjęciem.
 Każdy punkt Weryfikacji, który przeszedł, odhaczasz w `PROMPT_ETAP_2.md` (`- [ ]` → `- [x]`)
 zaraz po jego sprawdzeniu, nie na końcu etapu; punkt, który nie przeszedł, zostaje pusty.
 
-- [ ] Bramka: `ls docs/zasoby/STRONA/builds/biurko/referencje/0[1-8]-*.jpg | wc -l` zwraca 8 przed
+- [x] Bramka: `ls docs/zasoby/STRONA/builds/biurko/referencje/0[1-8]-*.jpg | wc -l` zwraca 8 przed
       pierwszą zmianą w `site/` (dodatkowy `07b-materialy-neutralne.jpg` poza licznikiem; stan
       2026-10-16: 9 plików JPEG q90 1536 × 1024 w repo; oryginały PNG tylko lokalnie, w `.gitignore`
       — gdy są, do pomiaru barw próbką pikseli bierzesz PNG).
-- [ ] `node --test "site/**/*.test.mjs"` kończy się bez błędów, liczba testów ≥ 91 (E1, `FAKT`)
+- [x] `node --test "site/**/*.test.mjs"` kończy się bez błędów, liczba testów ≥ 91 (E1, `FAKT`)
       plus nowy test rejestru źródeł; kontrola pozytywna: podłożony w katalogu roboczym plik bez
       wpisu (kopia `site/zasoby/` z dodatkowym plikiem) wywraca test.
-- [ ] Karta zgody na pobranie pokazana przed pierwszym pobraniem; odpowiedź Łukasza zacytowana
+- [x] Karta zgody na pobranie pokazana przed pierwszym pobraniem; odpowiedź Łukasza zacytowana
       w wpisie; każdy plik `site/zasoby/` ma w `ZRODLA.json` licencję `CC0` przeczytaną na stronie
       zasobu i sumę zgodną z plikiem.
-- [ ] Żądania sieciowe przy wejściu i pełnym przewinięciu (PL i EN): tylko `localhost`
+- [x] Żądania sieciowe przy wejściu i pełnym przewinięciu (PL i EN): tylko `localhost`
       i `api.github.com`; `grep` po `https?://` w `src`/`href`/`url()` w `site/` — tylko odnośnik
       do repo na GitHubie (kontrola pozytywna trafia) i adresy stron zasobów w `ZRODLA.json`
       oraz `LICENCJE.md`.
-- [ ] Budżet (`FAKT`): bajty przesłane przy pierwszym wejściu z wyłączoną pamięcią podręczną
+- [x] Budżet (`FAKT`): bajty przesłane przy pierwszym wejściu z wyłączoną pamięcią podręczną
       ≤ ok. 8 MB (Aneks A), osobno zestaw hero; liczba z DevTools zgadza się z sumą rozmiarów
       plików (różnica wyjaśniona); przekroczenie → pytanie do Łukasza, nie cicha zmiana budżetu.
-- [ ] Hero: zrzuty otwarcia, stanu pośredniego i wyjścia przy 1366 × 768 i 1920 × 1080 (PL i EN)
+- [x] Hero: zrzuty otwarcia, stanu pośredniego i wyjścia przy 1366 × 768 i 1920 × 1080 (PL i EN)
       w katalogu roboczym, obok `01-hero.jpg`; trzy plany w dwóch pozycjach przewijania przesuwają
       się o różne odległości (współrzędne ekranowe trzech obiektów w wpisie).
-- [ ] Kontrast tekstu hero zmierzony na złożonym kadrze, cztery warianty PL/EN × 1366/1920:
+- [x] Kontrast tekstu hero zmierzony na złożonym kadrze, cztery warianty PL/EN × 1366/1920:
       treść ≥ 4,5 : 1, nagłówek ≥ 3 : 1, z kontrolą pozytywną na jasnym obiekcie.
-- [ ] **Kalibracja smaku:** zrzuty hero i dwóch przystanków pokazane Łukaszowi obok obrazów
+- [x] **Kalibracja smaku:** zrzuty hero i dwóch przystanków pokazane Łukaszowi obok obrazów
       wzorcowych przed zamknięciem etapu; jego werdykt zacytowany w wpisie; uwagi wdrożone w E2
       albo zapisane za jego zgodą jako zakres E3 lub E5.
-- [ ] Każdy z siedmiu przystanków osiągalny przewijaniem i z mapy (klik, Tab i Enter);
+- [x] Każdy z siedmiu przystanków osiągalny przewijaniem i z mapy (klik, Tab i Enter);
       konfigurator na ekranie nowego laptopa: `elementFromPoint` trafia formularz, klik zmienia
       komendy, „Kopiuj” daje komendy w schowku systemu.
-- [ ] WebGL wyłączony (podmiana `getContext`) i osobno zasób z odpowiedzią 404 (podmiana adresu
+- [x] WebGL wyłączony (podmiana `getContext`) i osobno zasób z odpowiedzią 404 (podmiana adresu
       w `initScript`) → treść i konfigurator widoczne w przepływie, zero komunikatów konsoli
       poziomu `error`; pierwsza asercja to tryb strony, potem zrzut (L-0213).
-- [ ] Konsola bez błędów i nieudanych żądań przy wejściu i pełnym przewinięciu (PL i EN).
-- [ ] Wydajność (`FAKT`): mediana i p95 klatki (zwykły przebieg i CPU ×4), czas do pierwszej
+- [x] Konsola bez błędów i nieudanych żądań przy wejściu i pełnym przewinięciu (PL i EN).
+- [x] Wydajność (`FAKT`): mediana i p95 klatki (zwykły przebieg i CPU ×4), czas do pierwszej
       klatki hero, `renderer.info` — w wpisie obok liczb E1 (mediana 5,60 ms, p95 11,10 ms
       przy CPU ×4, JS 433 KB gzip).
-- [ ] Podstawy bezpieczeństwa:
+- [x] Podstawy bezpieczeństwa:
       `grep -rn --exclude="*.test.mjs" "innerHTML\|outerHTML\|insertAdjacentHTML\|document.write" site/js site/biurko`
       kończy się kodem 1 (zero trafień), a ten sam grep bez `--exclude` trafia
       `site/js/wersja.test.mjs` (kontrola pozytywna); zasoby ładowane wyłącznie ze ścieżek
       względnych `site/`; strona nie ma formularzy wysyłających dane.
-- [ ] Wpis w `docs/DZIENNIK.md` dopisany na końcu sekcji „Wpisy”, podpis
+- [x] Wpis w `docs/DZIENNIK.md` dopisany na końcu sekcji „Wpisy”, podpis
       `Autor: RelAI (Opus 5.5) + Lukasz`; `docs/STATE.md` zaktualizowany.
-- [ ] Katalog roboczy `.claude/relai/work/STRONA_RELAI/E2/` przejrzany raportem
+- [x] Katalog roboczy `.claude/relai/work/STRONA_RELAI/E2/` przejrzany raportem
       (`node .claude/relai/tools/clean-work.js raport`) i skasowany po „tak”; liczby przed i po
       w sekcji „Zweryfikowane” wpisu. Artefakty poza katalogiem (paczki w `%TEMP%`, serwer
       podglądu w tle) wypisane z nazwy razem z tym, co się z nimi stało.

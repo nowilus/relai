@@ -1,5 +1,6 @@
-// Every surface of the desk, drawn in code on a canvas: wood, paper, cork, plaster, the evening sky,
-// sticky notes, documents and the logo card. No images are fetched.
+// Surfaces that carry words or a picture, drawn in code on a canvas: sticky notes, documents, the logo
+// card, labels, the laptop screen, the night view and the mug glaze. Wood, plaster, cork, paper and
+// metal come from the CC0 sets in site/zasoby/ (see zasoby.js).
 import * as THREE from "three";
 
 export const KOLOR = Object.freeze({
@@ -49,186 +50,66 @@ function tekstura(c, { kolor = true, powtorz = null, aniso = 8 } = {}) {
   return t;
 }
 
-/** Walnut desk top: long wandering grain, pores, a little wear toward the front edge. */
-export function drewno() {
-  const W = 2048, H = 1024;
-  const [c, ctx] = plotno(W, H);
-  const los = losowanie(7);
-  const g = ctx.createLinearGradient(0, 0, 0, H);
-  g.addColorStop(0, "#7b5233");
-  g.addColorStop(0.5, "#8a5d3b");
-  g.addColorStop(1, "#7a5132");
-  ctx.fillStyle = g;
-  ctx.fillRect(0, 0, W, H);
-  // broad colour bands
-  for (let i = 0; i < 26; i++) {
-    const y = los() * H;
-    const h = 20 + los() * 90;
-    ctx.fillStyle = `rgba(${los() < 0.5 ? "60,36,20" : "168,118,76"},${0.05 + los() * 0.08})`;
-    ctx.beginPath();
-    ctx.moveTo(0, y);
-    for (let x = 0; x <= W; x += 64) ctx.lineTo(x, y + Math.sin(x * 0.002 + i) * 18);
-    for (let x = W; x >= 0; x -= 64) ctx.lineTo(x, y + h + Math.sin(x * 0.0025 + i * 1.7) * 14);
-    ctx.fill();
-  }
-  // fine grain lines
-  for (let i = 0; i < 900; i++) {
-    const y0 = los() * H;
-    const amp = 2 + los() * 10;
-    const f = 0.001 + los() * 0.003;
-    const ph = los() * 6.28;
-    ctx.strokeStyle = `rgba(${los() < 0.7 ? "52,30,16" : "190,140,94"},${0.04 + los() * 0.1})`;
-    ctx.lineWidth = 0.6 + los() * 1.4;
-    ctx.beginPath();
-    for (let x = -20; x <= W + 20; x += 24) {
-      const y = y0 + Math.sin(x * f + ph) * amp + Math.sin(x * f * 3.1 + ph) * amp * 0.25;
-      if (x < 0) ctx.moveTo(x, y);
-      else ctx.lineTo(x, y);
-    }
-    ctx.stroke();
-  }
-  // pores
-  for (let i = 0; i < 9000; i++) {
-    ctx.fillStyle = `rgba(40,22,10,${0.08 + los() * 0.18})`;
-    ctx.fillRect(los() * W, los() * H, 1 + los() * 5, 0.8);
-  }
-  szum(ctx, W, H, 10, los);
-  return tekstura(c);
-}
-
-/** Roughness for the desk: lacquer with a satin sheen, slightly duller along the grain. */
-export function drewnoChropowatosc() {
-  const W = 512, H = 256;
-  const [c, ctx] = plotno(W, H);
-  const los = losowanie(11);
-  ctx.fillStyle = "rgb(120,120,120)";
-  ctx.fillRect(0, 0, W, H);
-  for (let i = 0; i < 260; i++) {
-    ctx.strokeStyle = `rgba(${los() < 0.5 ? "170,170,170" : "90,90,90"},${0.15 + los() * 0.2})`;
-    ctx.lineWidth = 0.5 + los() * 2;
-    const y = los() * H;
-    ctx.beginPath();
-    ctx.moveTo(0, y);
-    ctx.bezierCurveTo(W * 0.3, y + (los() - 0.5) * 8, W * 0.6, y + (los() - 0.5) * 8, W, y + (los() - 0.5) * 6);
-    ctx.stroke();
-  }
-  return tekstura(c, { kolor: false });
-}
-
-/** Cream paper with fibres; `kropki` adds the dotted grid of the Warsztat sheet. */
-export function papier({ kolor = KOLOR.kartka, kropki = false, rozmiar = 1024, ziarno = 3 } = {}) {
-  const [c, ctx] = plotno(rozmiar, rozmiar);
-  const los = losowanie(ziarno);
-  ctx.fillStyle = kolor;
-  ctx.fillRect(0, 0, rozmiar, rozmiar);
-  for (let i = 0; i < 500; i++) {
-    ctx.strokeStyle = `rgba(120,100,70,${0.02 + los() * 0.04})`;
-    ctx.lineWidth = 0.5;
-    const x = los() * rozmiar, y = los() * rozmiar, a = los() * 6.28, l = 4 + los() * 16;
-    ctx.beginPath();
-    ctx.moveTo(x, y);
-    ctx.lineTo(x + Math.cos(a) * l, y + Math.sin(a) * l);
-    ctx.stroke();
-  }
-  if (kropki) {
-    ctx.fillStyle = "rgba(143,133,116,.42)";
-    const krok = rozmiar / 28;
-    for (let y = krok / 2; y < rozmiar; y += krok) for (let x = krok / 2; x < rozmiar; x += krok) {
-      ctx.beginPath();
-      ctx.arc(x, y, rozmiar / 700, 0, 6.28);
-      ctx.fill();
-    }
-  }
-  szum(ctx, rozmiar, rozmiar, 7, los);
-  return tekstura(c);
-}
-
-/** Cork board: dense granules in several browns. */
-export function korek() {
-  const S = 1024;
+/** Terracotta glaze with dark speckles, for the mug. */
+export function szkliwo() {
+  const S = 512;
   const [c, ctx] = plotno(S, S);
-  const los = losowanie(19);
-  ctx.fillStyle = "#a87a4e";
+  const los = losowanie(61);
+  ctx.fillStyle = "#a9461c";
   ctx.fillRect(0, 0, S, S);
-  const barwy = ["#8c6038", "#b98b5c", "#c99a68", "#74502e", "#9d6f44", "#d1a877"];
-  for (let i = 0; i < 26000; i++) {
-    ctx.fillStyle = barwy[(los() * barwy.length) | 0];
-    ctx.globalAlpha = 0.35 + los() * 0.5;
-    ctx.beginPath();
-    ctx.ellipse(los() * S, los() * S, 0.8 + los() * 3.2, 0.8 + los() * 2.4, los() * 3.14, 0, 6.28);
-    ctx.fill();
-  }
-  ctx.globalAlpha = 1;
-  szum(ctx, S, S, 16, los);
-  return tekstura(c);
-}
-
-/** Warm plaster of a room in the evening. */
-export function tynk() {
-  const S = 1024;
-  const [c, ctx] = plotno(S, S);
-  const los = losowanie(23);
-  ctx.fillStyle = "#3a3129";
-  ctx.fillRect(0, 0, S, S);
-  for (let i = 0; i < 140; i++) {
-    const x = los() * S, y = los() * S, r = 40 + los() * 160;
+  // the glaze pools darker in streaks running down the wall and thins to orange on the high spots
+  for (let i = 0; i < 90; i++) {
+    const x = los() * S, y = los() * S, r = 20 + los() * 70;
     const g = ctx.createRadialGradient(x, y, 0, x, y, r);
-    const jasny = los() < 0.5;
-    g.addColorStop(0, jasny ? "rgba(92,78,62,.10)" : "rgba(30,24,19,.12)");
+    const jasne = los() < 0.5;
+    g.addColorStop(0, jasne ? "rgba(214,120,62,.2)" : "rgba(96,32,12,.2)");
     g.addColorStop(1, "rgba(0,0,0,0)");
     ctx.fillStyle = g;
-    ctx.fillRect(x - r, y - r, r * 2, r * 2);
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.scale(0.45, 1.6);
+    ctx.fillRect(-r, -r, r * 2, r * 2);
+    ctx.restore();
   }
-  szum(ctx, S, S, 9, los);
-  return tekstura(c, { powtorz: [3, 2] });
+  // iron speckles of stoneware: small, dark, some with a pale halo
+  for (let i = 0; i < 900; i++) {
+    const x = los() * S, y = los() * S, r = 0.4 + los() * los() * 1.8;
+    if (los() < 0.25) {
+      ctx.fillStyle = "rgba(230,170,120,.35)";
+      ctx.beginPath();
+      ctx.arc(x, y, r * 2.2, 0, 6.28);
+      ctx.fill();
+    }
+    ctx.fillStyle = `rgba(${los() < 0.7 ? "42,22,14" : "24,13,9"},${0.6 + los() * 0.35})`;
+    ctx.beginPath();
+    ctx.arc(x, y, r, 0, 6.28);
+    ctx.fill();
+  }
+  const t = tekstura(c, { powtorz: [2, 1] });
+  t.wrapS = t.wrapT = THREE.RepeatWrapping;
+  return t;
 }
 
-/** The window: an evening sky, a distant roof line with a few lit windows. Teal to amber, never violet. */
-export function niebo() {
-  const W = 1024, H = 1024;
+/** A small print for the cork board: a pale border and a dusk landscape, no readable detail. */
+export function zdjecie(ziarno) {
+  const W = 384, H = 480;
   const [c, ctx] = plotno(W, H);
-  const los = losowanie(29);
-  const g = ctx.createLinearGradient(0, 0, 0, H);
-  g.addColorStop(0, "#1c2e38");
-  g.addColorStop(0.45, "#3d5560");
-  g.addColorStop(0.72, "#a9876a");
-  g.addColorStop(0.86, "#d69a5c");
-  g.addColorStop(1, "#d69a5c");
-  ctx.fillStyle = g;
+  const los = losowanie(ziarno);
+  ctx.fillStyle = "#efe7d8";
   ctx.fillRect(0, 0, W, H);
-  // far roofs
-  ctx.fillStyle = "#2a2a2c";
+  const g = ctx.createLinearGradient(0, 24, 0, 380);
+  g.addColorStop(0, "#38526e");
+  g.addColorStop(0.6, "#b48a62");
+  g.addColorStop(1, "#5b4533");
+  ctx.fillStyle = g;
+  ctx.fillRect(24, 24, W - 48, 360);
+  ctx.fillStyle = "#1c1a18";
   ctx.beginPath();
-  ctx.moveTo(0, H);
-  let x = 0;
-  while (x < W) {
-    const w = 40 + los() * 110;
-    const h = H * (0.78 + los() * 0.1);
-    ctx.lineTo(x, h);
-    if (los() < 0.35) ctx.lineTo(x + w / 2, h - 30 - los() * 30);
-    ctx.lineTo(x + w, h);
-    x += w;
-  }
-  ctx.lineTo(W, H);
+  ctx.moveTo(24, 384);
+  for (let x = 24; x <= W - 24; x += 24) ctx.lineTo(x, 300 + los() * 70);
+  ctx.lineTo(W - 24, 384);
   ctx.fill();
-  // near roofs, darker
-  ctx.fillStyle = "#1b1b1d";
-  ctx.beginPath();
-  ctx.moveTo(0, H);
-  x = 0;
-  while (x < W) {
-    const w = 90 + los() * 160;
-    const h = H * (0.86 + los() * 0.06);
-    ctx.lineTo(x, h);
-    ctx.lineTo(x + w, h);
-    x += w;
-  }
-  ctx.lineTo(W, H);
-  ctx.fill();
-  for (let i = 0; i < 26; i++) {
-    ctx.fillStyle = `rgba(255,${190 + los() * 40},${110 + los() * 40},${0.55 + los() * 0.4})`;
-    ctx.fillRect(los() * W, H * (0.84 + los() * 0.13), 5 + los() * 6, 7 + los() * 6);
-  }
+  szum(ctx, W, H, 10, los);
   return tekstura(c);
 }
 
@@ -360,29 +241,9 @@ export function etykietaTeczki(tekst) {
   return tekstura(c);
 }
 
-/** Kraft cardboard for the folder and the card box. */
-export function karton(ziarno = 37) {
-  const S = 512;
-  const [c, ctx] = plotno(S, S);
-  const los = losowanie(ziarno);
-  ctx.fillStyle = "#b8936a";
-  ctx.fillRect(0, 0, S, S);
-  for (let i = 0; i < 1800; i++) {
-    ctx.strokeStyle = `rgba(${los() < 0.5 ? "120,88,56" : "214,184,146"},${0.08 + los() * 0.12})`;
-    ctx.lineWidth = 0.6;
-    const x = los() * S, y = los() * S, a = los() * 6.28, l = 3 + los() * 10;
-    ctx.beginPath();
-    ctx.moveTo(x, y);
-    ctx.lineTo(x + Math.cos(a) * l, y + Math.sin(a) * l);
-    ctx.stroke();
-  }
-  szum(ctx, S, S, 12, los);
-  return tekstura(c);
-}
-
 /**
  * The laptop screen before the configurator: the Claude Code window with the RelAI bars, drawn as
- * shapes (the real bars rendered from the plugins' code come in E2).
+ * shapes (the real bars rendered from the plugins' code come in E3).
  */
 export function ekranPanelu() {
   const W = 1280, H = 800;
