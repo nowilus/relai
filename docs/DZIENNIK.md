@@ -67,10 +67,7 @@
   globalnym) i zgoda na propozycję struktury poza projektem (raz na maszynę). Oba wzorce wrócą przy
   każdym nowym zachowaniu proaktywnym RelAI · 2026-09-15 ·
   [wpis 2026-09-15 — Zgłoszenie testera](archiwum/dziennik/DZIENNIK_2026-09-14_2026-10-09.md#2026-09-15--zgłoszenie-testera-plugin-pyta-o-relai-w-cudzym-folderze-dwie-bramki-zgody-i-wydanie-230)
-
-- **Odpowiedź testerowi: czy po odmowie pytanie o RelAI wróciło w tym samym folderze** — jeśli tak,
-  defekt jest w markerze trybu gościa, a nie w zakresie instalacji · 2026-09-15 ·
-  [wpis 2026-09-15 — Zgłoszenie testera](archiwum/dziennik/DZIENNIK_2026-09-14_2026-10-09.md#2026-09-15--zgłoszenie-testera-plugin-pyta-o-relai-w-cudzym-folderze-dwie-bramki-zgody-i-wydanie-230)
+  *(odroczone 2026-10-16, odroczeń: 1)*
 
 - **Rozjazd manifestu z produktem przy opisie repozytorium** — `description`
   w `.claude-plugin/plugin.json` mówi „…framework for Claude Code", a RelAI ma trzy adaptery;
@@ -1970,6 +1967,73 @@ jako Latest; makiety porównane na oko z prawdziwymi zrzutami w obu wyglądach p
 **Świadomie odłożone:** podmiana `docs/zasoby/PANEL_RELAI/zrzuty/WYGLAD_PANELU_E5_jasny_dymek_teraz.png`
 — w commicie `a73cbb3` to przez pomyłkę kopia zrzutu paska kontekstu (dymek wklejony w trakcie
 tury nie zapisał się na dysku); rotacja dziennika, lekcji i ryzyk.
+
+**Do zrobienia przez człowieka:** —
+
+Autor: RelAI (Opus 5.5) + Lukasz
+
+### 2026-10-16 — Plan STRONA_RELAI: wywiad, szkice czterech struktur, plan do akceptacji
+
+**Zrobione:**
+
+- **Przegląd spraw przeterminowanych** (start sesji, 31 dni): „Zamrożenie dwóch bramek zgody”
+  odroczone o 30 dni; „Odpowiedź testerowi — czy po odmowie pytanie o RelAI wróciło” zamknięta
+  decyzją Łukasza: odpowiedzi nie będzie, pozycja zdjęta z „Czeka na człowieka”. Wpis źródłowy
+  2026-09-15 leży w archiwum z sumą kontrolną, więc rozstrzygnięcie stoi tutaj.
+- **Wywiad o stronie-wizytówce** (skill `nateherk-design:scroll-craft` 0.3.1 przeczytany w całości):
+  strona PL i EN po języku przeglądarki; hosting GitHub Pages teraz, Vercel przy płatnym
+  produkcie; odbiorcy: programiści solo i osoby nietechniczne prowadzące projekt z AI; konfigurator
+  z komendą, linkiem do terminala i linkiem do aplikacji; szczyt „bałagan układa się w porządek”;
+  krzywa: cisza, jeden szczyt, spokojny koniec; grafika z kodu i prawdziwego UI, bez generowanych
+  zdjęć; szczegóły funkcji po kliknięciu obiektów w animowanych szufladach; telefon po wyborze
+  wersji; etapy w świeżych sesjach Opus z do trzech subagentów Sonnet.
+- **Szkice czterech struktur** (Łukasz: „chciałbym zobaczyć wszystkie te propozycje na jakieś bardzo
+  oczywiście wstępnej makiecie”): żywa powierzchnia, rozdziały redakcyjne, jeden świat (biurko),
+  film — szare bloki z prawdziwym przewijaniem i wspólnym konfiguratorem, w
+  `.claude/relai/work/STRONA_RELAI/szkice/` (poza repo). Wybór Łukasza: dwa dopracowane
+  prototypy, „Biurko” w three.js i „Film”, potem decyzja.
+- **Plan [STRONA_RELAI](plany/STRONA_RELAI/STATUS.md)**: `PLAN.html` z szablonu „Warsztat”, pięć
+  etapów, 9–13 sesji (SZACUNEK), `STATUS.md` z trzema bramkami manualnymi; linia „Aktywny plan” w
+  `CLAUDE.md` wskazuje STRONA_RELAI (decyzja Łukasza), PANEL_CODEX zostaje w Codeksie.
+
+**Zweryfikowane — jak dokładnie:** szkice przewinięte w Chromium (panel przeglądarki, 1366 × 820)
+na kilku pozycjach każdego toru — błąd zakresu kroków („1” bez „-”) znaleziony na zrzucie
+i poprawiony; plan po builderze bez niewypełnionych znaczników, zero odwołań `http(s)` w
+`src`/`href`, bez przewijania w poziomie przy 1280 i 354 px, sekcja zwija się po kliknięciu.
+Fakty do planu: `gh release list` i API Pages (404) na żywo; deep linki i komendy instalacji z
+dokumentacji Claude Code (code.claude.com, odczyt 2026-10-16); limity Pages i Vercel Hobby ze
+stron dostawców tego samego dnia.
+
+**Świadomie odłożone:** rotacja dziennika, sekcji ryzyk i lekcji (wszystkie ponad progiem);
+`/relai-models` (lista ma 8 dni); `CLAUDE.md` 11,2 KB i `STATE.md` 16,3 KB ponad budżetem startu.
+
+**Do zrobienia przez człowieka:**
+
+- Akceptacja planu STRONA_RELAI albo poprawki przed akceptacją. *(rozstrzygnięte 2026-10-16 —
+  plan zaakceptowany bez poprawek)*
+
+Autor: RelAI (Opus 5.5) + Lukasz
+
+### 2026-10-16 — Plan STRONA_RELAI zaakceptowany; prompt E1
+
+**Zrobione:**
+
+- Łukasz: „Akceptuję plan STRONA_RELAI. Zamroź go, wygeneruj PROMPT_ETAP_1.md i powiedz, jak
+  ruszyć E1.” Plan zamrożony bez aneksów; `STATUS.md`: ZAAKCEPTOWANY 2026-10-16, E1 GOTOWY DO
+  STARTU, bramka akceptacji rozstrzygnięta; nagłówek `PLAN.html`, `CLAUDE.md` i `STATE.md` z nowym
+  statusem.
+- [`PROMPT_ETAP_1.md`](plany/STRONA_RELAI/PROMPT_ETAP_1.md): fundament `site/`, BRIEF.md
+  scroll-craft, hero „Biurka” na gotowo, droga zgrubnie, 17 punktów weryfikacji, kalibracja hero
+  z Łukaszem przed zamknięciem etapu, pytanie przed pobraniem three.js.
+- Lekcja L-0211.
+
+**Zweryfikowane — jak dokładnie:** prompt ma sześć sekcji `##`, każdą raz, i zero
+niewypełnionych znaczników; zasady aktywne w prompcie porównane z `docs/LEKCJE.md` bajt w bajt
+(16 832 znaki, 15 zasad, `FAKT`). Pierwsza wstawka zdublowała trzy sekcje przez `` $` `` w tekście
+zastępczym (L-0211); plik odtworzony z nienaruszonego początku i końca, wstawka powtórzona funkcją.
+
+**Świadomie odłożone:** wpięcie L-0211 do „Zasad aktywnych” (zasada 5) przy najbliższej
+destylacji; prompt E1 niesie destylat sprzed tej lekcji.
 
 **Do zrobienia przez człowieka:** —
 

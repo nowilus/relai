@@ -673,6 +673,21 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
 - **Zasada:** każdy zapis do dokumentu w `docs/` — także dopisanie na końcu i pojedynczy wiersz
   — idzie przez Edit/Write; powłoka tylko czyta dokumenty.
 
+### L-0211 — `String.replace` z tekstem zastępczym zdublował połowę promptu etapu · 2026-10-16 · AKTYWNA
+
+- **Trigger:** plan STRONA_RELAI, akceptacja. Zasady aktywne wstawiałem do `PROMPT_ETAP_1.md`
+  skryptem Node: `cel.replace("{{ZASADY_AKTYWNE}}", tresc)`. Treść zasady 13 niesie „`$` i `on`”,
+  czyli ciąg `` $` ``, który w tekście zastępczym znaczy „wszystko przed dopasowaniem” — plik
+  dostał drugi raz trzy pierwsze sekcje. Naprawa też poszła powłoką (`cp` do `docs/`), wbrew
+  L-0210.
+- **Przyczyna:** tekst zastępczy `replace` nie jest dosłowny (`$&`, `` $` ``, `$'`, `$1`);
+  zasada 5 pilnowała backslasha, nie dolara. Wstawka była sprawdzana licznikiem zasad (15),
+  a nie strukturą całego pliku.
+- **Zasada:** podstawienie cudzej treści w skrypcie idzie funkcją (`replace(z, () => tresc)`) albo
+  `split/join`; po wstawce porównanie bajt w bajt ze źródłem **i** licznik nagłówków całego pliku.
+  Dokument w `docs/` składany skryptem powstaje w katalogu roboczym, a do `docs/` trafia przez
+  Write.
+
 ## Lekcje zwinięte
 
 Pełne wpisy lekcji, których zasady żyją w destylacie „Zasady aktywne" (kompresja 2026-08-20).
