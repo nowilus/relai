@@ -19,7 +19,7 @@ Plan: [docs/plany/STRONA_RELAI](../docs/plany/STRONA_RELAI/STATUS.md). Brief pro
 | `vendor/three/` | three.js 0.186.1 i jego dodatki z tej samej paczki npm, przypięte (`VERSION` z listą plików, `LICENSE`) |
 | `fonty/`, `grafika/` | kopie fontów i logo z `docs/zasoby/` (licencje w `fonty/LICENCJE.md`); `grafika/ikony/` to ikony komend z `docs/zasoby/branding/ikony/` |
 | `narzedzia/szablon-film.html` | szablon prototypu „Film” dla obu języków |
-| `film/` | Film: ekran ładowania (`zaslona.js`), choreografia aktów (`akty.js`), start (`start.js`); `film/index.html` to generowana strona EN |
+| `film/` | Film: ekran ładowania (`zaslona.js`), jednorazowe animacje sekcji i przytrzymanie przewijania (`akty.js`), pasek u góry (`pasek.js`), karta instalacji na telefonie (`telefon.js`), start (`start.js`); `film/index.html` to generowana strona EN |
 | `css/film.css` | wygląd Filmu, paleta z `core/panel/theme.mjs` |
 | `narzedzia/makiety.mjs` | makiety pasków nad promptem z kodu `core/panel` i zrzutu aplikacji → `dane/makiety.json` |
 | `vendor/scrollcraft/` | silnik scroll-craft 0.3.1 skopiowany bajt w bajt (`VERSION` z sumami, `LICENSE` MIT); nie edytujesz go |
@@ -91,7 +91,31 @@ Pułap pierwszego wejścia: ok. 10 MB po kompresji (Aneks B planu). Pomiar:
    przekroczy 26 ms (najpierw głębia ostrości, potem cienie kontaktowe, potem rozdzielczość).
 
 Tym samym instrumentem w E5: Film 0,31 MiB po kompresji (33 pliki), CPU ×4 p95 5,6 ms; Biurko
-9,49 MiB, p95 17,5 ms.
+9,49 MiB, p95 17,5 ms. Po E7: Film 0,317 MiB (35 plików), CPU ×4 p95 16,7 ms na desktopie
+i w emulacji telefonu (390 × 844). Przewijanie mierzysz krokiem `scrollTo(..., { behavior: 'instant' })`
+co klatkę, bo strona ma `scroll-behavior: smooth`. Kartę DevTools najpierw wysuwasz na wierzch:
+karta w tle nie dostaje klatek ani zdarzeń przewijania.
+
+## Film na telefonie, przy ograniczonym ruchu i bez skryptów
+
+- **Telefon (do 600 px):** osobny blok `@media (max-width: 600px)` w `css/film.css`. Tekst idzie
+  na całą szerokość, przedmioty stoją pod nim. Zamiast konfiguratora jest karta „Wyślij sobie link”
+  i „Kopiuj komendy” (`film/telefon.js`), bo z telefonu nie da się zainstalować pluginu. Strona
+  nigdzie nie przewija się w bok: sprawdzasz `document.documentElement.scrollWidth` ≤ 390
+  w każdym akcie, PL i EN.
+- **Ograniczony ruch:** bez klasy `ruch` każda sekcja stoi w stanie końcowym, a przytrzymanie
+  przewijania nie działa. Taśma komend układa się w siatkę, a przypięcie znika. Pierwsza asercja
+  każdego pomiaru to tryb: `matchMedia('(prefers-reduced-motion: reduce)').matches`.
+- **Bez JavaScriptu:** pełna treść jest w HTML (strzeże tego `film/bezjs.test.mjs`). Taśma bez
+  silnika też jest siatką (`html:not(.sc-ready)`), a przyciski wymagające skryptu mają `hidden`.
+  Wersję bez skryptów oglądasz w Chrome DevTools: pobierz HTML, wytnij znaczniki `<script>`
+  i otwórz go jako blob z `<base href>` strony.
+- **Przebiegi zrzutów i dostępność:** cztery przebiegi (desktop, telefon, ograniczony ruch, bez JS),
+  po sześć kadrów na akt, robisz przez protokół DevTools z zainstalowanego Chrome (bez paczek).
+  Arkusze zapisujesz w `docs/zasoby/STRONA/lab/film/`. Lighthouse dostępność mierzysz dla
+  `/film/` i `/pl/film/`, na desktopie i telefonie; w E7 wyszło 100 we wszystkich czterech.
+  Na stronę EN wchodzisz z `localStorage['relai-jezyk'] = 'en'`, bo przeglądarka po polsku
+  przekierowuje na `/pl/film/`.
 
 ## Ekran ładowania Filmu
 

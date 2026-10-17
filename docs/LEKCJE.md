@@ -225,9 +225,14 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
       referencyjną biblioteki (L-0225); dystans do wzorca najpierw detal, tekstury i kompozycja,
       technika światła na końcu, a hipotezę „X zrobi różnicę” — tanim testem na jednym kadrze
       z werdyktem człowieka przed etapem (L-0226).
+    - **Strona przewijana:** ruch wiązany z każdym ruchem kółka odbierasz człowiekowi jako lekturę.
+      Najpierw proponujesz jedną animację na sekcję z resetem poza ekranem (L-0233). Tryb ograniczonego
+      ruchu i brak skryptu sprawdzasz wysokością sekcji i tym, co jest za krawędzią, a nie tylko
+      widocznością (L-0235). Stan sprzed animacji nie przyciemnia tekstu przezroczystością, bo
+      kontrast mierzysz także na pierwszej klatce (L-0236).
     (L-0003, L-0006, L-0016, L-0019, L-0029, L-0094, L-0098, L-0137, L-0140, L-0142, L-0145, L-0147,
     L-0149, L-0152, L-0157, L-0171, L-0174, L-0176, L-0178, L-0179, L-0180, L-0183, L-0196, L-0197,
-    L-0199, L-0216, L-0217, L-0219, L-0220, L-0221, L-0225, L-0226)
+    L-0199, L-0216, L-0217, L-0219, L-0220, L-0221, L-0225, L-0226, L-0233, L-0235, L-0236)
 
 **Wyprowadzone 2026-08-20 do `docs/PULAPKI.md`:** sześć pułapek narzędziowych — `tar` na `PATH`
 (L-0021), sesja `claude -p` (L-0024), PowerShell 5.1 i UTF-8 (L-0027), `--allowedTools` przy
@@ -537,6 +542,52 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
 - **Przyczyna:** `initScript` działa przed parsowaniem dokumentu i od nowa w każdym dokumencie.
 - **Zasada:** sonda `initScript` sprawdza istnienie dokumentu przy każdej próbce i zapisuje wyniki
   w `sessionStorage`. Odczyt następuje po wejściu, osobnym wywołaniem.
+
+### L-0233 — Ruch wiązany z każdym ruchem kółka odebrał Filmowi czytelność · 2026-10-17 · AKTYWNA
+
+- **Trigger:** STRONA_RELAI E7, akt 3. Po dwóch rundach kalibracji akty 2–4 nadal reagowały na każdy
+  ruch kółka: elementy rozwijały się po kawałku. Łukasz: „nie mógłbym przeczytać tam żadnej treści”;
+  wolał „jednorazową animację po prostu na sekcję”.
+- **Przyczyna:** brief przyjął filmowy przelot z ruchem podpiętym pod postęp przewijania. Na stronie
+  to czytelnik trzyma kółko, więc każdy ruch zmienia mu tekst pod oczami. Ruch poziomy (taśma
+  komend) przeszedł, bo nie zmienia czytanego tekstu.
+- **Zasada:** dla sekcji z treścią do przeczytania proponujesz jedną animację na wejściu i reset
+  dopiero po całkowitym zejściu sekcji z ekranu, z przytrzymaniem przewijania w dół do końca
+  animacji. Postęp przewijania zostaje dla ruchu, który niczego nie ukrywa w trakcie.
+
+### L-0234 — `sed '/wzorzec/d'` skasował drugi wiersz o tej samej treści · 2026-10-17 · AKTYWNA
+
+- **Trigger:** STRONA_RELAI E7. Kasowałem nowy klucz `tytul` z `pl.json`, a ten sam tekst miał
+  `meta.tytul`. Usunęły się oba wiersze, a budowa padła na braku klucza. W tej samej sesji `sed`
+  z backslashem w wyrażeniu regularnym nie trafił, czyli powtórzenie L-0116. Przy aktualizacji
+  ryzyk w dzienniku `node -e` w cudzysłowie powłoki wykonał backtick jako polecenie i wyciął
+  słowo, czyli powtórzenie L-0198.
+- **Przyczyna:** usuwanie wzorcem trafia w każde wystąpienie w pliku. Podgląd zakresu nie padł.
+- **Zasada:** wiersz w JSON albo dokumencie usuwasz narzędziem Edit z kontekstem, który go
+  jednoznacznie wskazuje. Po każdej podmianie w powłoce czytasz `git diff` pliku. Backslash nigdy
+  nie idzie przez `sed` (L-0116), a tekst z backtickiem nigdy nie idzie przez powłokę, także
+  wewnątrz `node -e` (L-0198).
+
+### L-0235 — Ograniczony ruch zostawił martwe przewijanie po przypiętej taśmie · 2026-10-17 · AKTYWNA
+
+- **Trigger:** STRONA_RELAI E7. Przy `prefers-reduced-motion: reduce` silnik zeruje przesuw taśmy,
+  ale sekcja nadal ma wysokość 4 ekranów, czyli ok. 2300 px przewijania bez zmiany obrazu. Bez
+  skryptu fiszki za krawędzią ucinał `overflow-x: clip`.
+- **Przyczyna:** sprawdzenie „nic nie jest ukryte” patrzyło na przezroczystość elementów. Wysokości
+  sekcji i elementów za krawędzią okna nie sprawdzało.
+- **Zasada:** w trybie ograniczonego ruchu i bez skryptu mierzysz wysokość każdej sekcji i liczbę
+  elementów w kadrze poziomo. Przesuw poziomy ma wtedy wersję statyczną, na przykład siatkę.
+
+### L-0236 — Lighthouse zmierzył kontrast na stanie sprzed animacji · 2026-10-17 · AKTYWNA
+
+- **Trigger:** STRONA_RELAI E7. Dostępność 96: okno panelu przed animacją miało przezroczystość
+  0,6, więc tytuł spadł do 3,2:1. Drobny tekst w `--txt-3` miał 3,0:1 na papierze.
+- **Przyczyna:** audyt wchodzi na stronę i czyta klatkę początkową, a stan przed animacją jest
+  klatką, którą widzi także człowiek. Kolor `--txt-3` jest z palety filmu i nie był liczony na
+  drobny tekst.
+- **Zasada:** stan sprzed animacji z tekstem rusza położeniem, nie przezroczystością. Drobny tekst
+  w kolorze pomocniczym ma osobny token z policzonym kontrastem; palety źródłowej nie zmieniasz,
+  bo pilnuje jej test.
 
 ## Lekcje zwinięte
 

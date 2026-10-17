@@ -9,8 +9,8 @@
 | E3 | Laptop jako prawdziwy ekran i detale | ZREALIZOWANY 2026-10-16 | [PROMPT_ETAP_3.md](PROMPT_ETAP_3.md) | Aneks B; konfigurator wpasowany w ekran, przybliżenie po kliknięciu, dostępność w trybie 3D, książki |
 | E4 | Test fotorealizmu i stonowanie światła | ZREALIZOWANY 2026-10-16 | [PROMPT_ETAP_4.md](PROMPT_ETAP_4.md) | Aneks C (dawniej „Fotorealizm na przystankach”): path tracing zbudowany, zmierzony i usunięty; zostały blat `wood_table_worn`, druk na dokumentach, cienki lakier, przygaszona lampa |
 | E5 | Film: pełna droga, hero i szczyt | ZREALIZOWANY 2026-10-16 | [PROMPT_ETAP_5.md](PROMPT_ETAP_5.md) | Aneks C (dawny E6); ekran ładowania; hero w trzech rundach kalibracji; bramka rozstrzygnięta Aneksem D |
-| E6 | Biurko: pełna droga, szczyt, szuflady | OCZEKUJE | — | Aneks C (dawny E5); Aneks D: rusza po E7 (kolejność E7 → E6 → E8), z krótkim dopieszczeniem Biurka w zakresie E7; materiał promptu w commicie `a097b35` |
-| E7 | Dopieszczenie Filmu | GOTOWY DO STARTU | [PROMPT_ETAP_7.md](PROMPT_ETAP_7.md) | dawny E5; Aneks D: najpierw Film; telefon, reduced motion, wersja bez skryptów, ekran ładowania (Aneks C) |
+| E6 | Biurko: pełna droga, szczyt, szuflady | GOTOWY DO STARTU | [PROMPT_ETAP_6.md](PROMPT_ETAP_6.md) | Aneks C (dawny E5); Aneks D: rusza po E7 (kolejność E7 → E6 → E8), z krótkim dopieszczeniem Biurka w zakresie E7; materiał promptu w commicie `a097b35` |
+| E7 | Dopieszczenie Filmu | ZREALIZOWANY 2026-10-17 | [PROMPT_ETAP_7.md](PROMPT_ETAP_7.md) | dawny E5; Aneks D: najpierw Film; telefon, reduced motion, wersja bez skryptów, ekran ładowania (Aneks C) |
 | E8 | Publikacja i utrzymanie | OCZEKUJE | — | dawny E6; Aneks D: obie wersje równolegle z ankietą; wymaga włączenia Pages i zgody na wdrożenie |
 
 ## Bramki manualne
@@ -44,3 +44,5 @@
 - 2026-10-16 — E4 zrealizowany w treści Aneksu C: path tracing zbudowany (dwa obejścia błędów generatora), zmierzony (256 próbek ok. 7,5 s; zimna pamięć shaderów ok. 8 s blokady) i usunięty po ocenie Łukasza; test detalu na hero zostaje: blat `wood_table_worn`, druk na dokumentach, cienki lakier, lampa 17 → 9, stopka na szkle; 162/162 testów, 9,49 MiB, p95 17,5 ms. E5 Film gotowy do startu.
 - 2026-10-16 — E5 rozpoczęty (Opus 5.5, zgoda Łukasza na karcie startu; sumy Biurka zapisane na starcie przy HEAD `72dc0f6`).
 - 2026-10-16 — E5 zrealizowany: prototyp Film (EN i PL, sześć aktów z kodu, silnik scroll-craft 0.3.1 bajt w bajt, makiety pasków według zrzutu aplikacji, ekran ładowania); hero przyjęte w trzeciej rundzie; 229/229 testów, 14/14 punktów weryfikacji, 0,31 MiB, CPU ×4 p95 5,6 ms. Bramka: Aneks D — E7 dopieszcza Film, potem E6 Biurko, E8 publikuje obie wersje z ankietą. E7 gotowy do startu.
+- 2026-10-17 — E7 rozpoczęty (Opus 5.5, zgoda Łukasza na karcie startu; sumy Biurka zapisane na starcie przy HEAD `e0c9f21`).
+- 2026-10-17 — E7 zrealizowany: Film na zasadzie „jedna animacja na sekcję” z przytrzymaniem przewijania (wybór Łukasza), osobna kompozycja telefonu z kartą „Wyślij sobie link”, ograniczony ruch i wersja bez skryptów w stanie końcowym (taśma jako siatka); 259/259 testów, 16/16 punktów weryfikacji, Lighthouse dostępność 100 (PL/EN, desktop/telefon), 0,317 MiB, CPU ×4 p95 16,7 ms. E6 Biurko gotowy do startu.

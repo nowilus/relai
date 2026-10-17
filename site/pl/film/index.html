@@ -59,104 +59,111 @@
     </div>
   </section>
 
-  <section class="akt pamiec" id="amnezja" data-sc-act="pin" data-sc-span="4.8" data-akt="pamiec" aria-labelledby="t-amnezja">
-    <div class="pamiec__scena" data-sc-stage>
-      <div class="pamiec__amnezja">
-        <h2 id="t-amnezja" data-sc-cue="0.01 0.31 0.12 0.3">Każda sesja zaczyna od zera.</h2>
-        <p class="pamiec__zdanie" data-zdanie="0">Tłumaczysz projekt od nowa.</p>
-        <p class="pamiec__zdanie" data-zdanie="1">Szukasz wczorajszej decyzji.</p>
-        <p class="pamiec__zdanie" data-zdanie="2">Drugi raz poprawiasz ten sam błąd.</p>
-      </div>
+  <section class="akt amnezja" id="amnezja" data-sc-act="flow" data-raz="amnezja" aria-labelledby="t-amnezja">
+    <div class="amnezja__tekst">
+      <h2 id="t-amnezja">Każda sesja zaczyna od zera.</h2>
+      <p class="amnezja__zdanie">Tłumaczysz projekt od nowa.</p>
+      <p class="amnezja__zdanie">Szukasz wczorajszej decyzji.</p>
+      <p class="amnezja__zdanie">Drugi raz poprawiasz ten sam błąd.</p>
+    </div>
+    <ul class="karteczki" aria-label="Amnezja">
+      <li class="karteczka" data-karteczka>gdzie skończyliśmy?</li>
+      <li class="karteczka" data-karteczka>tłumaczę projekt trzeci raz</li>
+      <li class="karteczka" data-karteczka>co ustaliliśmy wczoraj?</li>
+      <li class="karteczka" data-karteczka>który plik?</li>
+      <li class="karteczka" data-karteczka>znowu ten sam błąd</li>
+      <li class="karteczka" data-karteczka>jak to się testuje?</li>
+      <li class="karteczka" data-karteczka>jaka była ta decyzja?</li>
+      <li class="karteczka" data-karteczka>dlaczego tak?</li>
+    </ul>
+  </section>
 
-      <ul class="karteczki" aria-label="Amnezja">
-        <li class="karteczka" data-karteczka>gdzie skończyliśmy?</li>
-        <li class="karteczka" data-karteczka>tłumaczę projekt trzeci raz</li>
-        <li class="karteczka" data-karteczka>o czym rozmawialiśmy?</li>
-        <li class="karteczka" data-karteczka>który plik?</li>
-        <li class="karteczka" data-karteczka>znowu ten sam błąd</li>
-        <li class="karteczka" data-karteczka>jaka była ta decyzja?</li>
-        <li class="karteczka" data-karteczka>dlaczego tak?</li>
-      </ul>
-
-      <div class="dokumenty" id="porzadek">
-        <article class="dokument" data-dokument>
-          <h3 class="dokument__plik">STATE.md</h3>
-          <p class="dokument__tytul">Stan</p>
-          <ol class="dokument__wpisy">
-            <li data-wpis>Etap E3 w toku: testy płatności</li>
-            <li data-wpis>Sklep: koszyk, faktury, płatności kartą</li>
-          </ol>
-        </article>
-        <article class="dokument" data-dokument>
-          <h3 class="dokument__plik">DZIENNIK.md</h3>
-          <p class="dokument__tytul">Dziennik</p>
-          <ol class="dokument__wpisy">
-            <li data-wpis>14.10 · ustalony wzór faktury</li>
-            <li data-wpis>14.10 · zmiany w src/platnosci/</li>
-          </ol>
-        </article>
-        <article class="dokument" data-dokument>
-          <h3 class="dokument__plik">LEKCJE.md</h3>
-          <p class="dokument__tytul">Lekcje</p>
-          <ol class="dokument__wpisy">
-            <li data-wpis>L-07 · daty zawsze w UTC</li>
-          </ol>
-        </article>
-        <article class="dokument" data-dokument>
-          <h3 class="dokument__plik">DECYZJE.md</h3>
-          <p class="dokument__tytul">Decyzje</p>
-          <ol class="dokument__wpisy">
-            <li data-wpis>D-12 · baza: Postgres</li>
-            <li data-wpis>D-12 · powód: transakcje</li>
-          </ol>
-        </article>
-        <p class="dokumenty__przyklad">wpisy przykładowe</p>
-      </div>
-
-      <div class="pamiec__porzadek">
-        <h2 id="t-porzadek" data-sc-cue="0.8" data-sc-kinetic="lines">Pamięć mieszka w plikach.</h2>
-        <p data-sc-cue="0.84">Stan, dziennik, lekcje i decyzje to zwykłe pliki Markdown obok kodu. Sesja czyta je na starcie i dopisuje w trakcie pracy.</p>
-      </div>
+  <section class="akt pamiec" id="porzadek" data-sc-act="flow" data-raz="pamiec" aria-labelledby="t-porzadek">
+    <div class="pamiec__tekst">
+      <h2 id="t-porzadek">Pamięć mieszka w plikach.</h2>
+      <p>Stan, dziennik, lekcje i decyzje to zwykłe pliki Markdown obok kodu. Sesja czyta je na starcie i dopisuje w trakcie pracy.</p>
+    </div>
+    <div class="pamiec__lot" data-lot aria-hidden="true"></div>
+    <div class="dokumenty">
+      <article class="dokument" data-dokument>
+        <h3 class="dokument__plik">STATE.md</h3>
+        <p class="dokument__tytul">Stan</p>
+        <ol class="dokument__wpisy">
+          <li data-wpis>Etap E3 w toku: testy płatności</li>
+          <li data-wpis>Sklep: koszyk, faktury, płatności kartą</li>
+        </ol>
+      </article>
+      <article class="dokument" data-dokument>
+        <h3 class="dokument__plik">DZIENNIK.md</h3>
+        <p class="dokument__tytul">Dziennik</p>
+        <ol class="dokument__wpisy">
+          <li data-wpis>14.10 · ustalony wzór faktury</li>
+          <li data-wpis>14.10 · zmiany w src/platnosci/</li>
+        </ol>
+      </article>
+      <article class="dokument" data-dokument>
+        <h3 class="dokument__plik">LEKCJE.md</h3>
+        <p class="dokument__tytul">Lekcje</p>
+        <ol class="dokument__wpisy">
+          <li data-wpis>L-07 · daty zawsze w UTC</li>
+          <li data-wpis>L-08 · płatności testujemy na sandboxie</li>
+        </ol>
+      </article>
+      <article class="dokument" data-dokument>
+        <h3 class="dokument__plik">DECYZJE.md</h3>
+        <p class="dokument__tytul">Decyzje</p>
+        <ol class="dokument__wpisy">
+          <li data-wpis>D-12 · baza: Postgres</li>
+          <li data-wpis>D-12 · powód: transakcje</li>
+        </ol>
+      </article>
+      <p class="dokumenty__przyklad">wpisy przykładowe</p>
     </div>
   </section>
 
-  <section class="akt plan" id="plan" data-sc-act="flow" aria-labelledby="t-plan">
-    <div class="plan__tekst" data-sc-in>
-      <h2 id="t-plan">Plan, który się nie rozjeżdża.</h2>
-      <p>Duża praca idzie etapami. Po akceptacji plan jest zamrożony, a każdy etap rusza w świeżej sesji.</p>
+  <section class="akt plan" id="plan" data-sc-act="flow" data-raz="plan" aria-labelledby="t-plan">
+    <div class="plan__scena">
+      <div class="plan__tekst">
+        <h2 id="t-plan">Plan, który się nie rozjeżdża.</h2>
+        <p>Duża praca idzie etapami. Po akceptacji plan jest zamrożony, a każdy etap rusza w świeżej sesji.</p>
+      </div>
+      <figure class="arkusz plan__arkusz" data-arkusz>
+        <figcaption class="arkusz__tytul">Plan PŁATNOŚCI</figcaption>
+        <ol class="arkusz__etapy">
+          <li class="arkusz__etap" data-etap style="--znak-kolor:#4d9c45"><span class="arkusz__numer">E1</span><span class="arkusz__nazwa">Koszyk</span><span class="arkusz__status"><span class="arkusz__znak" aria-hidden="true">✓</span> zrealizowany</span></li>
+          <li class="arkusz__etap" data-etap style="--znak-kolor:#4d9c45"><span class="arkusz__numer">E2</span><span class="arkusz__nazwa">Faktury</span><span class="arkusz__status"><span class="arkusz__znak" aria-hidden="true">✓</span> zrealizowany</span></li>
+          <li class="arkusz__etap" data-etap style="--znak-kolor:#c48a2c"><span class="arkusz__numer">E3</span><span class="arkusz__nazwa">Płatności kartą</span><span class="arkusz__status"><span class="arkusz__znak" aria-hidden="true">●</span> w toku</span></li>
+          <li class="arkusz__etap" data-etap style="--znak-kolor:#52514e"><span class="arkusz__numer">E4</span><span class="arkusz__nazwa">Zwroty</span><span class="arkusz__status"><span class="arkusz__znak" aria-hidden="true">○</span> oczekuje</span></li>
+          <li class="arkusz__etap" data-etap style="--znak-kolor:#52514e"><span class="arkusz__numer">E5</span><span class="arkusz__nazwa">Wdrożenie</span><span class="arkusz__status"><span class="arkusz__znak" aria-hidden="true">○</span> oczekuje</span></li>
+        </ol>
+        <p class="arkusz__pieczatka" data-pieczatka>zaakceptowany · zamrożony</p>
+        <p class="arkusz__przyklad">plan przykładowy</p>
+      </figure>
     </div>
-    <figure class="arkusz plan__arkusz" data-sc-reveal="down" data-sc-reveal-at="0.12 0.5">
-      <figcaption class="arkusz__tytul">Plan PLATNOSCI</figcaption>
-      <ol class="arkusz__etapy">
-        <li class="arkusz__etap" style="--znak-kolor:#4d9c45"><span class="arkusz__numer">E1</span><span class="arkusz__nazwa">Koszyk</span><span class="arkusz__status"><span class="arkusz__znak" aria-hidden="true">✓</span> zrealizowany</span></li>
-        <li class="arkusz__etap" style="--znak-kolor:#4d9c45"><span class="arkusz__numer">E2</span><span class="arkusz__nazwa">Faktury</span><span class="arkusz__status"><span class="arkusz__znak" aria-hidden="true">✓</span> zrealizowany</span></li>
-        <li class="arkusz__etap" style="--znak-kolor:#c48a2c"><span class="arkusz__numer">E3</span><span class="arkusz__nazwa">Płatności kartą</span><span class="arkusz__status"><span class="arkusz__znak" aria-hidden="true">●</span> w toku</span></li>
-        <li class="arkusz__etap" style="--znak-kolor:#52514e"><span class="arkusz__numer">E4</span><span class="arkusz__nazwa">Zwroty</span><span class="arkusz__status"><span class="arkusz__znak" aria-hidden="true">○</span> oczekuje</span></li>
-        <li class="arkusz__etap" style="--znak-kolor:#52514e"><span class="arkusz__numer">E5</span><span class="arkusz__nazwa">Wdrożenie</span><span class="arkusz__status"><span class="arkusz__znak" aria-hidden="true">○</span> oczekuje</span></li>
-      </ol>
-      <p class="arkusz__pieczatka">zaakceptowany · zamrożony</p>
-      <p class="arkusz__przyklad">plan przykładowy</p>
-    </figure>
   </section>
 
-  <section class="akt panel" id="panel" data-sc-act="pin" data-sc-span="2.2" data-akt="panel" aria-labelledby="t-panel">
-    <div class="panel__scena" data-sc-stage>
+  <section class="akt panel" id="panel" data-sc-act="flow" data-raz="panel" aria-labelledby="t-panel">
+    <div class="panel__scena">
       <div class="panel__tekst">
-        <h2 id="t-panel" data-sc-cue="0.05">Wszystko widać nad promptem.</h2>
-        <p data-sc-cue="0.12">Paski w oknie Claude Code pokazują plan, postęp etapu, limity i koszt sesji.</p>
+        <h2 id="t-panel">Wszystko widać nad promptem.</h2>
+        <p>Paski w oknie Claude Code pokazują plan, postęp etapu, limity i koszt sesji.</p>
       </div>
       <div class="panel__uklad">
         <div class="okno panel__okno" data-okno-panelu style="--m-tekst:#f0efec;--m-wyciszony:#c3c2b8;--m-linia:#636260;--m-tor:#484847;--m-w-toku:#ce932a;--m-karta:#212121;--m-okno:#151515;--m-prompt:#20201f">
           <div class="okno__tytul">Claude Code</div>
+          <div class="panel__czat">
+            <p class="panel__ja">kontynuujemy pracę</p>
+            <p class="panel__odpowiedz">Wracam do etapu E3: testy płatności odrzuconych. Zostały 3 punkty weryfikacji.</p>
+          </div>
           <div class="paski" role="img" aria-label="Makieta trzech pasków RelAI nad promptem na danych przykładowych: plan, postęp etapu i cache z limitami.">
-            <div class="pasek-makieta" data-pasek="plan" data-sc-reveal="left">
+            <div class="pasek-makieta" data-pasek="plan">
               <span class="pasek-makieta__etykieta">plan</span>
               <span class="pasek-makieta__tresc">
                 <span class="pm-wiersz"><b>PLATNOSCI · E3</b><span class="pm-status">W TOKU</span><span class="pm-cichy">Płatności kartą</span></span>
               </span>
               <span class="pasek-makieta__liczba"><b>2/5</b> etapów</span>
             </div>
-            <div class="pasek-makieta" data-pasek="postep" data-sc-reveal="left">
+            <div class="pasek-makieta" data-pasek="postep">
               <span class="pasek-makieta__etykieta">postęp</span>
               <span class="pasek-makieta__tresc">
                 <span class="pm-segmenty"><i style="--seg:#4ca129"></i><i style="--seg:#4ca129"></i><i style="--seg:#ce932a"></i><i style="--seg:#484847"></i><i style="--seg:#484847"></i></span>
@@ -164,7 +171,7 @@
               </span>
               <span class="pasek-makieta__liczba"><b>2/5</b> punktów</span>
             </div>
-            <div class="pasek-makieta" data-pasek="cache" data-sc-reveal="left">
+            <div class="pasek-makieta" data-pasek="cache">
               <span class="pasek-makieta__etykieta">cache</span>
               <span class="pasek-makieta__tresc">
                 <span class="pm-baterie">
@@ -181,18 +188,18 @@
           </div>
           <div class="okno__prompt"><i class="okno__kursor"></i></div>
         </div>
-        <p class="panel__przyklad" data-sc-cue="0.55">dane przykładowe</p>
+        <p class="panel__przyklad">dane przykładowe</p>
       </div>
     </div>
   </section>
 
-  <section class="akt komendy" id="komendy" data-sc-act="pan" data-sc-span="3.2" aria-labelledby="t-komendy">
+  <section class="akt komendy" id="komendy" data-sc-act="pan" data-sc-span="4" aria-labelledby="t-komendy">
     <div class="komendy__scena" data-sc-stage>
       <div class="tasma__wstep">
         <h2 id="t-komendy"><span data-liczba-komend>15</span> komend albo zwykłe zdania.</h2>
         <p>„Kontynuujemy pracę”, „kończymy na dziś”: RelAI rozumie frazy i ma komendy na etap, odnogę, kopię zapasową i przegląd.</p>
       </div>
-      <div class="tasma" data-sc-pan="0.04">
+      <div class="tasma" data-sc-pan="0.019">
         <ol class="tasma__fiszki">
           <li class="fiszka" data-fiszka>
             <img class="fiszka__ikona" src="../../grafika/ikony/adopt.svg" alt="" width="56" height="56">
@@ -289,14 +296,14 @@
     </div>
   </section>
 
-  <section class="akt instalacja" id="instalacja" data-sc-act="pin" data-sc-span="1.15" aria-labelledby="t-instalacja">
-    <div class="instalacja__scena" data-sc-stage data-sc-spotlight>
+  <section class="akt instalacja" id="instalacja" data-sc-act="flow" data-raz="instalacja" aria-labelledby="t-instalacja">
+    <div class="instalacja__scena">
       <div class="instalacja__tekst">
-        <p class="instalacja__notka" data-sc-cue="0.02">Twoja komenda, Twój Enter</p>
-        <h2 id="t-instalacja" data-sc-cue="0.02">Zacznij tutaj.</h2>
-        <p data-sc-cue="0.04">Wybierz narzędzie i składniki. Komendę kopiujesz albo otwierasz w terminalu i wysyłasz ją sam, Enterem.</p>
+        <p class="instalacja__notka">Twoja komenda, Twój Enter</p>
+        <h2 id="t-instalacja">Zacznij tutaj.</h2>
+        <p>Wybierz narzędzie i składniki. Komendę kopiujesz albo otwierasz w terminalu i wysyłasz ją sam, Enterem.</p>
       </div>
-      <div class="okno okno--jasne instalacja__okno" data-sc-cue="0.04" data-sc-rise="0">
+      <div class="okno okno--jasne instalacja__okno">
         <div class="okno__tytul">RelAI · instalacja</div>
         <form class="konfigurator" data-konfigurator aria-labelledby="t-instalacja"
           data-jezyk="pl"
@@ -350,6 +357,22 @@ claude plugin install relai-cache-keeper@relai</pre>
           </div>
           <p class="konfigurator__wersje">Aktualne wersje: RelAI <span data-wersja="relai">3.2.0</span> · panel <span data-wersja="panel">0.20.0</span></p>
         </form>
+      </div>
+      <div class="okno okno--jasne instalacja__telefon" data-telefon
+        data-tytul="RelAI: Twój projekt pamięta wszystko"
+        data-link-skopiowany="Link skopiowany. Otwórz go na komputerze."
+        data-skopiowano="Komendy skopiowane."
+        data-blad="Schowek jest niedostępny w tej przeglądarce.">
+        <p class="instalacja__telefon-tekst">RelAI instalujesz na komputerze, w Claude Code, Cursorze albo Codeksie. Wyślij sobie link albo skopiuj komendy na później.</p>
+        <pre class="konfigurator__komendy" data-komendy-telefonu>claude plugin install relai --marketplace nowilus/relai
+claude plugin install relai-panel@relai
+claude plugin install relai-cache-keeper@relai</pre>
+        <div class="instalacja__telefon-akcje">
+          <button type="button" class="przycisk" data-wyslij hidden>Wyślij sobie link</button>
+          <button type="button" class="przycisk przycisk--drugi" data-kopiuj-komendy hidden>Kopiuj komendy</button>
+        </div>
+        <p class="konfigurator__status" data-status-telefonu role="status"></p>
+        <p class="konfigurator__wersje">Aktualne wersje: RelAI <span data-wersja="relai">3.2.0</span> · panel <span data-wersja="panel">0.20.0</span></p>
       </div>
       <footer class="stopka">
         <a href="https://github.com/nowilus/relai">Kod na GitHubie</a>

@@ -48,6 +48,7 @@
   --notka: #faf1de; --notka-krawedz: #dec799;          /* NOTE: mix(kartka, musztarda, .13), mix(linia, musztarda, .25) */
   --tasma: rgba(244, 225, 189, .82); --tasma-krawedz: rgba(205, 188, 156, .6); /* NOTE.tape, tapeEdge */
   --cien-notki: 0 2px 4px rgba(49, 44, 37, .1), 0 14px 30px rgba(49, 44, 37, .18);
+  --txt-3-tekst: #716657; /* small text in txt-3 darkened for contrast: 4.6:1 on the paper, 5.5:1 on a card (E7) */
 
   --font-tytul: "Fraunces", Georgia, serif;
   --font-tekst: "Hanken Grotesk", system-ui, sans-serif;
@@ -75,8 +76,8 @@ p { margin: 0; text-wrap: pretty; }
 html:not(.sc-ready) [data-sc-cue], html:not(.sc-ready) [data-sc-in] { opacity: 1; transform: none; }
 
 /* ---------------------------------------------------------------- the desk -- */
-.stol {
-  position: fixed; inset: 0; z-index: -1; pointer-events: none;
+/* The desk's paper; also painted behind the bar, fixed to the viewport, so the two meet without a seam. */
+.stol, .pasek::before {
   background-color: var(--tlo);
   background-image:
     radial-gradient(circle at 22% 24%, var(--ziarno-jasne) 0 1.6px, transparent 2.2px),
@@ -84,8 +85,10 @@ html:not(.sc-ready) [data-sc-cue], html:not(.sc-ready) [data-sc-in] { opacity: 1
     radial-gradient(95vw 90vh at 50% -10%, var(--cieplo), transparent 70%),
     radial-gradient(66vw 78vh at 102% 88%, var(--plama-gliny), transparent 70%),
     radial-gradient(58vw 68vh at -4% 70%, var(--plama-musztardy), transparent 70%);
-  background-size: 32px 32px, 40px 40px, auto, auto, auto;
+  background-size: 32px 32px, 40px 40px, 100vw 100vh, 100vw 100vh, 100vw 100vh;
+  background-attachment: fixed;
 }
+.stol { position: fixed; inset: 0; z-index: -1; pointer-events: none; }
 
 /* ---------------------------------------------------------- the loading card -- */
 .zaslona {
@@ -109,7 +112,7 @@ html:not(.ladowanie) .zaslona__srodek { transform: translateY(-14px); }
   stroke-dasharray: 1; stroke-dashoffset: calc(1 - var(--krok, 0) / 3);
   transition: stroke-dashoffset 320ms var(--ease);
 }
-.zaslona__napis { font: 700 1.1rem/1 var(--font-reka); color: var(--txt-3); margin-top: 14px; }
+.zaslona__napis { font: 700 1.1rem/1 var(--font-reka); color: var(--txt-3-tekst); margin-top: 14px; }
 
 /* ------------------------------------------------------------------ the bar -- */
 .pasek {
@@ -118,6 +121,15 @@ html:not(.ladowanie) .zaslona__srodek { transform: translateY(-14px); }
   pointer-events: none;
 }
 .pasek > * { pointer-events: auto; }
+/* Off the opening screen the bar stands on paper that fades out downwards (without JavaScript always). */
+.pasek::before {
+  content: ""; position: absolute; inset: 0 0 -30px 0; z-index: -1; pointer-events: none;
+  -webkit-mask-image: linear-gradient(#000 0 66%, transparent); mask-image: linear-gradient(#000 0 66%, transparent);
+  transition: opacity 260ms var(--ease);
+}
+html.na-gorze .pasek::before { opacity: 0; }
+.pasek__nav .przycisk { transition: opacity 240ms var(--ease), visibility 0s linear 0s, background-color 160ms var(--ease); }
+html.przy-instalacji .pasek__nav .przycisk { opacity: 0; visibility: hidden; transition: opacity 240ms var(--ease), visibility 0s linear 240ms; }
 .pasek__znak { font: 700 1.6rem/1 var(--font-reka); color: var(--txt); text-decoration: none; }
 .pasek__znak span { color: var(--glina); }
 .pasek__nav { display: flex; align-items: center; gap: 22px; }
@@ -211,11 +223,36 @@ html.ladowanie .wejscie__okno { transform: rotateY(-24deg) rotateX(22deg) transl
 html.ladowanie .wejscie__logo { transform: translateY(-220px) rotate(18deg); opacity: 0; }
 html.ladowanie .wejscie__notka { transform: translateY(80px) rotate(10deg) scale(1.04); opacity: 0; }
 
-/* ------------------------------------------------------------ act 2: memory -- */
-.pamiec__scena { padding: 110px var(--margines) 60px; }
-.pamiec__amnezja h2, .pamiec__porzadek h2 { font-size: clamp(2.2rem, 4.1vw, 3.9rem); line-height: 1.04; }
-.pamiec__zdanie { margin-top: 14px; font-size: clamp(1.1rem, 1.5vw, 1.4rem); color: var(--txt-2); }
-.pamiec__porzadek p { margin-top: 16px; max-width: 46ch; font-size: 1.15rem; line-height: 1.55; color: var(--txt-2); }
+/* -------------------------------------------- once-sections (site/film/akty.js) --
+   Without motion (no `ruch`) every section stands in its final state. With motion a section waits
+   in its starting state and plays once when it comes into view (class `gra`); the transitions live
+   only on `.gra`, so leaving the screen resets it instantly and invisibly. */
+
+/* ---------------------------------------------------- act 2a: amnesia -- */
+.amnezja { position: relative; padding: 110px var(--margines) 60px; }
+.amnezja h2, .pamiec h2 { font-size: clamp(2.2rem, 4.1vw, 3.9rem); line-height: 1.04; }
+.amnezja__zdanie { margin-top: 10px; font-size: clamp(1.1rem, 1.5vw, 1.4rem); color: var(--txt-2); }
+html.ruch .amnezja { height: 100vh; min-height: 620px; padding: 0; }
+html.ruch .amnezja__tekst { position: absolute; left: var(--margines); top: 16vh; width: min(40rem, 44vw); z-index: 2; }
+html.ruch .amnezja .karteczki { position: absolute; inset: 0; margin: 0; display: block; z-index: 3; pointer-events: none; }
+html.ruch .amnezja .karteczka, html.ruch .pamiec__lot .karteczka {
+  position: absolute; left: calc(var(--x, 0) * 100%); top: calc(var(--y, 0) * 100%); }
+html.ruch .amnezja:not(.gra) .karteczka { opacity: 0; transform: translateY(-220px) rotate(-14deg) scale(1.15); }
+html.ruch .amnezja.gra .karteczka {
+  transition: transform 700ms cubic-bezier(.2, .9, .3, 1.12) var(--opoznienie, 0ms), opacity 260ms var(--ease) var(--opoznienie, 0ms); }
+html.ruch .amnezja:not(.gra) .amnezja__zdanie { opacity: 0; transform: translateY(12px); }
+html.ruch .amnezja.gra .amnezja__zdanie {
+  transition: opacity 500ms var(--ease) var(--opoznienie, 0ms), transform 500ms var(--ease) var(--opoznienie, 0ms); }
+
+/* ------------------------------------------------ act 2b: memory, the peak -- */
+.pamiec { position: relative; padding: 110px var(--margines) 90px; }
+.pamiec__tekst p { margin-top: 16px; max-width: 46ch; font-size: 1.15rem; line-height: 1.55; color: var(--txt-2); }
+.pamiec .dokumenty { margin-top: 48px; }
+html.ruch .pamiec { min-height: 100vh; display: flex; flex-direction: column; }
+html.ruch .pamiec .dokumenty { margin-top: auto; }
+html.ruch .pamiec__lot { position: absolute; inset: 0; z-index: 5; pointer-events: none; }
+html.ruch .pamiec__lot .karteczka { will-change: transform, opacity; }
+html.ruch .pamiec [data-wpis] { opacity: 0; }
 .karteczki { list-style: none; margin: 28px 0; padding: 0; display: flex; flex-wrap: wrap; gap: 26px 22px; }
 .karteczki .karteczka { font-size: clamp(1.15rem, 1.6vw, 1.5rem); }
 .karteczki .karteczka:nth-child(odd) { rotate: -2.5deg; }
@@ -225,30 +262,21 @@ html.ladowanie .wejscie__notka { transform: translateY(80px) rotate(10deg) scale
   position: relative; padding: 20px 22px 24px; border-radius: 14px; min-height: 216px;
   background-color: var(--kartka); border: 1px solid var(--linia); box-shadow: var(--cien-notki);
 }
-.dokument__plik { font: 400 .82rem/1 var(--font-kod); color: var(--txt-3); letter-spacing: 0; }
+.dokument__plik { font: 400 .82rem/1 var(--font-kod); color: var(--txt-3-tekst); letter-spacing: 0; }
 .dokument__tytul { margin-top: 6px; font: 700 1.6rem/1 var(--font-reka); color: var(--glina-2); }
 .dokument__wpisy { margin: 16px 0 0; padding: 0; list-style: none; display: grid; gap: 0;
   border-top: 1px solid var(--linia); }
 .dokument__wpisy li { min-height: 44px; display: flex; align-items: center; padding: 6px 0; border-bottom: 1px dashed var(--linia);
   font-size: 1rem; line-height: 1.3; color: var(--txt); }
-.dokumenty__przyklad { position: absolute; right: 4px; bottom: -32px; font: 700 1rem/1 var(--font-reka); color: var(--txt-3); }
+.dokumenty__przyklad { position: absolute; right: 4px; bottom: -32px; font: 700 1rem/1 var(--font-reka); color: var(--txt-3-tekst); }
 
-/* the choreography, only with the engine running and motion allowed (html.ruch) */
-html.ruch .pamiec__scena { padding: 0; }
-html.ruch .pamiec__amnezja { position: absolute; left: var(--margines); top: 19vh; width: min(40rem, 44vw); z-index: 2; }
-html.ruch .pamiec__zdanie { position: absolute; left: 0; top: calc(100% + 6px); margin: 0; width: 100%; }
-html.ruch .pamiec__amnezja h2 { position: relative; }
-html.ruch .karteczki { position: absolute; inset: 0; margin: 0; display: block; z-index: 5; pointer-events: none; }
-html.ruch .karteczki .karteczka { position: absolute; rotate: none; will-change: transform, opacity; }
-html.ruch .dokumenty { position: absolute; left: var(--margines); right: var(--margines); bottom: 12vh; z-index: 3; }
-html.ruch .karteczki .karteczka:nth-child(3n + 1) { font-size: clamp(1.3rem, 1.9vw, 1.75rem); }
-html.ruch .karteczki .karteczka:nth-child(3n + 2) { font-size: clamp(1.05rem, 1.45vw, 1.35rem); }
-html.ruch .dokument__wpisy li { opacity: 0; }
-html.ruch .pamiec__porzadek { position: absolute; left: var(--margines); top: 17vh; width: min(48rem, 60vw); z-index: 4; }
+/* the notes in three sizes, on the desk and in the flight layer alike */
+html.ruch .karteczka:nth-child(3n + 1) { font-size: clamp(1.3rem, 1.9vw, 1.75rem); }
+html.ruch .karteczka:nth-child(3n + 2) { font-size: clamp(1.05rem, 1.45vw, 1.35rem); }
 
 /* -------------------------------------------------------------- act 3: plan -- */
-.plan { position: relative; display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); gap: 6vw; align-items: center;
-  min-height: 100vh; padding: 120px var(--margines) 90px; }
+.plan__scena { min-height: 100vh; display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); gap: 6vw; align-items: center;
+  padding: 100px var(--margines) 60px; }
 .plan h2 { font-size: clamp(2.2rem, 4.1vw, 3.9rem); line-height: 1.04; }
 .plan__tekst p { margin-top: 18px; max-width: 40ch; font-size: 1.15rem; line-height: 1.55; color: var(--txt-2); }
 .arkusz {
@@ -259,27 +287,43 @@ html.ruch .pamiec__porzadek { position: absolute; left: var(--margines); top: 17
 .arkusz__etapy { list-style: none; margin: 22px 0 0; padding: 0; }
 .arkusz__etap { display: grid; grid-template-columns: 3.2em 1fr auto; align-items: baseline; gap: 12px;
   padding: 12px 0; border-top: 1px solid var(--linia); font-size: 1.08rem; }
-.arkusz__numer { font: 400 .9rem/1 var(--font-kod); color: var(--txt-3); }
+.arkusz__numer { font: 400 .9rem/1 var(--font-kod); color: var(--txt-3-tekst); }
 .arkusz__status { font-size: .98rem; color: var(--txt-2); }
 .arkusz__znak { color: var(--znak-kolor); font-weight: 700; }
 .arkusz__pieczatka {
   position: absolute; right: 26px; top: 22px; padding: 6px 14px; border: 2.5px solid var(--glina); border-radius: 10px;
   font: 700 1.05rem/1 var(--font-reka); color: var(--glina); rotate: -7deg; opacity: .9;
 }
-.arkusz__przyklad { margin-top: 16px; font: 700 1rem/1 var(--font-reka); color: var(--txt-3); }
+.arkusz__przyklad { margin-top: 16px; font: 700 1rem/1 var(--font-reka); color: var(--txt-3-tekst); }
+/* once: the sheet is laid on the desk, the stages are written in one after another, the stamp lands last */
+html.ruch .plan:not(.gra) .plan__arkusz { opacity: 0; transform: translate3d(90px, -24px, 0) rotate(5deg) scale(1.04); }
+html.ruch .plan.gra .plan__arkusz { transition: transform 750ms var(--ease), opacity 350ms var(--ease); }
+html.ruch .plan:not(.gra) .arkusz__etap { opacity: 0; transform: translateX(-14px); }
+html.ruch .plan.gra .arkusz__etap { transition: opacity 380ms var(--ease) var(--d), transform 380ms var(--ease) var(--d); }
+.arkusz__etap:nth-child(1) { --d: 550ms; } .arkusz__etap:nth-child(2) { --d: 720ms; } .arkusz__etap:nth-child(3) { --d: 890ms; }
+.arkusz__etap:nth-child(4) { --d: 1060ms; } .arkusz__etap:nth-child(5) { --d: 1230ms; } .arkusz__etap:nth-child(n + 6) { --d: 1400ms; }
+html.ruch .plan:not(.gra) .arkusz__pieczatka { opacity: 0; transform: scale(1.9) rotate(-12deg); }
+html.ruch .plan.gra .arkusz__pieczatka {
+  transition: transform 360ms cubic-bezier(.55, 0, 1, .45) 1650ms, opacity 160ms linear 1650ms; }
 
 /* ------------------------------------------------------------- act 4: panel -- */
-.panel__scena { display: grid; grid-template-columns: minmax(0, 3.3fr) minmax(0, 8fr); gap: 4vw; align-items: center;
+.panel__scena { min-height: 100vh; display: grid; grid-template-columns: minmax(0, 3fr) minmax(0, 8fr); gap: 3.5vw; align-items: center;
   padding: 90px var(--margines) 40px; }
 .panel h2 { font-size: clamp(2.2rem, 4.1vw, 3.9rem); line-height: 1.04; }
 .panel__tekst p { margin-top: 18px; max-width: 36ch; font-size: 1.15rem; line-height: 1.55; color: var(--txt-2); }
-.panel__uklad { perspective: 1800px; }
-.panel__okno { --wyprost: clamp(0, calc(1 - var(--sc-p, 1) * 2.4), 1);
-  background: var(--m-okno, var(--okno));
-  transform: translateY(calc(var(--wyprost) * 70px)) rotateX(calc(var(--wyprost) * 26deg)) scale(calc(1 - var(--wyprost) * .05));
-  transform-origin: 50% 100%; }
-.panel.prosto .panel__uklad { perspective: none; }
-.panel.prosto .panel__okno { transform: none; }
+.panel__okno { background: var(--m-okno, var(--okno)); transform-origin: 50% 100%; }
+/* once: the window comes upright (and ends with no transform at all, so its text is drawn sharp,
+   P-035) while the bars slide in above the prompt one after another */
+html.ruch .panel:not(.gra) .panel__okno { transform: perspective(1800px) translateY(70px) rotateX(26deg) scale(.95); }
+html.ruch .panel.gra .panel__okno { transition: transform 1000ms var(--ease); }
+html.ruch .panel:not(.gra) .pasek-makieta { clip-path: inset(0 100% 0 0); opacity: 0; }
+html.ruch .panel.gra .pasek-makieta { transition: clip-path 650ms var(--ease) var(--d), opacity 300ms var(--ease) var(--d); }
+.pasek-makieta:nth-child(1) { --d: 450ms; } .pasek-makieta:nth-child(2) { --d: 750ms; } .pasek-makieta:nth-child(n + 3) { --d: 1050ms; }
+/* a conversation in the window, so it is never an empty slab */
+.panel__czat { display: grid; gap: 10px; padding: 2px 4px 4px; }
+.panel__ja { justify-self: end; max-width: 70%; padding: 8px 14px; border-radius: 14px; background: var(--m-karta); color: var(--m-tekst);
+  font: 500 .9rem/1.4 var(--font-tekst); }
+.panel__odpowiedz { font: 400 .9rem/1.5 var(--font-tekst); color: var(--m-tekst); }
 /* The bars as the app draws them (screenshot of the app 2026-10-16): one card above the prompt,
    rows plan / postęp / cache split by a hairline, label | content | figure. Colours: INK.dark and the
    app's surfaces, both from site/dane/makiety.json. */
@@ -287,7 +331,7 @@ html.ruch .pamiec__porzadek { position: absolute; left: var(--margines); top: 17
 .paski { padding: 0 16px; border-radius: 12px; background: var(--m-karta); }
 .pasek-makieta {
   display: grid; grid-template-columns: 4.4em minmax(0, 1fr) auto; align-items: start; gap: 12px;
-  padding: 11px 0; font: 500 .8rem/1.4 var(--font-tekst); color: var(--m-tekst);
+  padding: 12px 0; font: 500 .88rem/1.4 var(--font-tekst); color: var(--m-tekst); /* the app's .8rem, ~10 % larger for a page (U10) */
 }
 .pasek-makieta + .pasek-makieta { border-top: 1px solid var(--m-linia); }
 .pasek-makieta[data-pasek="cache"] { align-items: center; }
@@ -318,21 +362,29 @@ html.ruch .pamiec__porzadek { position: absolute; left: var(--margines); top: 17
 .pm-kontekst__tekst { color: var(--m-wyciszony); white-space: nowrap; }
 .pm-kontekst__tekst b { margin-left: 6px; color: var(--m-tekst); font-weight: 700; }
 .panel__okno .okno__prompt { height: 44px; border-radius: 12px; background: var(--m-prompt, var(--okno-prompt)); }
-.panel__przyklad { margin-top: 16px; text-align: right; font: 700 1.05rem/1 var(--font-reka); color: var(--txt-3); }
+.panel__przyklad { margin-top: 16px; text-align: right; font: 700 1.05rem/1 var(--font-reka); color: var(--txt-3-tekst); }
 
 /* ---------------------------------------------------------- act 5: commands -- */
 .komendy__scena { display: flex; flex-direction: column; justify-content: center; gap: 40px; padding-top: 70px; }
-.tasma { align-items: center; padding: 14px var(--margines) 20px; }
+.tasma { align-items: center; padding: 50px var(--margines) 40px; } /* room for the lifted card */
 .tasma__wstep { width: min(46rem, 62vw); margin-left: var(--margines); }
 .tasma__wstep h2 { font-size: clamp(2.2rem, 4.1vw, 3.9rem); line-height: 1.04; }
 .tasma__wstep p { margin-top: 18px; font-size: 1.12rem; line-height: 1.55; color: var(--txt-2); }
-.tasma__fiszki { display: flex; gap: 24px; margin: 0; padding: 0 var(--margines) 0 0; list-style: none; }
+/* half a frame of room on both sides: the first card starts in the middle of the frame and the last
+   one ends there, so every card passes the middle and gets its turn (125px = half a card) */
+.tasma__fiszki { display: flex; gap: 24px; margin: 0; list-style: none;
+  padding: 0 calc(50vw - 125px - var(--margines)) 0 calc(50vw - 125px - var(--margines)); }
 .fiszka {
+  --unies: 0; --obrot: -1.2deg; --nizej: 0px;
   position: relative; flex: none; width: 250px; height: 262px; display: flex; flex-direction: column; gap: 10px;
-  padding: 26px 22px 20px; border-radius: 16px; background: var(--kartka); border: 1px solid var(--linia); box-shadow: var(--cien-notki);
+  padding: 26px 22px 20px; border-radius: 16px; background: var(--kartka); border: 1px solid var(--linia);
+  /* the card in the middle of the frame rises off the desk and straightens (--unies, akty.js) */
+  rotate: calc(var(--obrot) * (1 - var(--unies)));
+  translate: 0 calc(var(--nizej) * (1 - var(--unies)) - var(--unies) * 30px);
+  scale: calc(1 + var(--unies) * var(--powieksz, .18));
+  box-shadow: 0 2px 4px rgba(49, 44, 37, .1), 0 calc(14px + var(--unies) * 30px) calc(30px + var(--unies) * 36px) rgba(49, 44, 37, calc(.18 - var(--unies) * .02));
 }
-.fiszka:nth-child(odd) { rotate: -1.2deg; }
-.fiszka:nth-child(even) { rotate: 1deg; translate: 0 10px; }
+.fiszka:nth-child(even) { --obrot: 1deg; --nizej: 10px; }
 .fiszka::before {
   content: ""; position: absolute; top: -9px; left: 50%; width: 64px; height: 18px; margin-left: -32px;
   background: var(--tasma); border: 1px solid var(--tasma-krawedz); border-radius: 2px; rotate: -2deg;
@@ -340,28 +392,31 @@ html.ruch .pamiec__porzadek { position: absolute; left: var(--margines); top: 17
 .fiszka__ikona { width: 56px; height: 56px; }
 .fiszka__nazwa { margin-top: 6px; font: 700 1.45rem/1.1 var(--font-reka); letter-spacing: 0; color: var(--glina-2); }
 .fiszka__opis { font-size: 1rem; line-height: 1.45; color: var(--txt-2); }
-.fiszka__komenda { margin-top: auto; font: 400 .82rem/1 var(--font-kod); color: var(--txt-3); }
+.fiszka__komenda { margin-top: auto; font: 400 .82rem/1 var(--font-kod); color: var(--txt-3-tekst); }
 
 /* ------------------------------------------------------------ act 6: install -- */
+.instalacja { position: relative; }
 .instalacja__scena { display: grid; grid-template-columns: minmax(0, 4fr) minmax(0, 7fr); gap: 4vw; align-items: center;
-  padding: 92px var(--margines) 64px; --sc-accent: var(--musztarda); }
-.instalacja__scena::before {
-  content: ""; position: absolute; inset: 0; pointer-events: none; z-index: -1;
-  background: radial-gradient(40vw 46vh at 66% 52%, rgba(255, 253, 247, .95), transparent 70%);
-}
+  min-height: 100vh; padding: 92px var(--margines) 84px; }
+/* once: the configurator is laid on the desk like the plan sheet, and its commands are printed line by line */
+html.ruch .instalacja:not(.gra) :is(.instalacja__okno, .instalacja__telefon) { opacity: 0; transform: translate3d(70px, -18px, 0) rotate(3deg) scale(1.03); }
+html.ruch .instalacja.gra :is(.instalacja__okno, .instalacja__telefon) { transition: transform 750ms var(--ease), opacity 350ms var(--ease); }
+html.ruch .instalacja:not(.gra) .konfigurator__komendy { clip-path: inset(0 0 100% 0); }
+html.ruch .instalacja.gra .konfigurator__komendy { transition: clip-path 900ms steps(3, end) 650ms; }
 .instalacja__notka { font: 700 1.5rem/1.1 var(--font-reka); color: var(--glina-2); rotate: -2deg; margin-bottom: 10px; }
 .instalacja h2 { font-size: clamp(2.2rem, 4.1vw, 3.9rem); line-height: 1.04; }
+.instalacja__telefon { display: none; }
 .instalacja__tekst > p:last-child { margin-top: 18px; max-width: 34ch; font-size: 1.12rem; line-height: 1.55; color: var(--txt-2); }
 .okno--jasne { background: var(--kartka); color: var(--txt); border: 1px solid var(--linia); gap: 14px; padding: 22px 26px 24px; }
-.okno--jasne .okno__tytul { color: var(--txt-3); }
+.okno--jasne .okno__tytul { color: var(--txt-3-tekst); }
 .konfigurator { display: grid; gap: 14px; font-size: .96rem; }
 .konfigurator__wybor { display: grid; grid-template-columns: minmax(0, .8fr) minmax(0, .8fr) minmax(0, 1.4fr); gap: 16px; }
 .konfigurator__grupa { margin: 0; padding: 0; border: 0; display: grid; gap: 6px; align-content: start; }
 .konfigurator__grupa legend { padding: 0; margin-bottom: 6px; font: 700 1.1rem/1 var(--font-reka); color: var(--glina-2); }
 .konfigurator__grupa label { display: flex; align-items: baseline; gap: 8px; cursor: pointer; }
-.konfigurator__grupa small { color: var(--txt-3); font-size: .8rem; white-space: nowrap; }
+.konfigurator__grupa small { color: var(--txt-3-tekst); font-size: .8rem; white-space: nowrap; }
 .konfigurator__wynik { display: grid; gap: 10px; }
-.konfigurator__etykieta { font-size: .88rem; color: var(--txt-3); }
+.konfigurator__etykieta { font-size: .88rem; color: var(--txt-3-tekst); }
 .konfigurator__komendy {
   margin: 0; padding: 14px 16px; border-radius: 12px; background: var(--okno-prompt); color: #eee8dc;
   font: 400 .84rem/1.6 var(--font-kod); white-space: pre-wrap; overflow-wrap: anywhere;
@@ -369,10 +424,111 @@ html.ruch .pamiec__porzadek { position: absolute; left: var(--margines); top: 17
 .konfigurator__uwagi { margin: 0; padding-left: 1.1em; color: var(--txt-2); font-size: .9rem; }
 .konfigurator__akcje { display: flex; flex-wrap: wrap; gap: 10px; }
 .konfigurator__akcje .przycisk { padding: 11px 18px; font-size: .95rem; }
+.konfigurator__akcje [hidden], .instalacja__telefon [hidden] { display: none; } /* buttons that need JavaScript stay out without it */
 .konfigurator__status:empty { display: none; }
-.konfigurator__status, .konfigurator__uwaga, .konfigurator__wersje { font-size: .86rem; color: var(--txt-3); }
+.konfigurator__status, .konfigurator__uwaga, .konfigurator__wersje { font-size: .86rem; color: var(--txt-3-tekst); }
 .stopka { position: absolute; left: var(--margines); right: var(--margines); bottom: 22px; display: flex; gap: 24px;
-  font-size: .9rem; color: var(--txt-3); }
+  font-size: .9rem; color: var(--txt-3-tekst); }
+
+/* the rail runs wide and the once-sections wait off to the side; only the frame shows them, never a
+   sideways scroll of the page (clip, unlike hidden, keeps the pinned stage sticky) */
+main { overflow-x: clip; }
+
+/* ------------------------------------------------------------------ phone -- *
+   Its own composition, not a shrunk desktop (hero-depth.md): text first and full width, the
+   objects below it, the desk recomposed from the same fractions, the bars in two columns. */
+@media (max-width: 600px) {
+  :root { --margines: 22px; }
+  body { font-size: 1rem; }
+  .pasek { height: 60px; }
+  .pasek__znak { font-size: 1.35rem; }
+  .pasek__nav { gap: 14px; }
+  .pasek__jezyk { font-size: .88rem; }
+  .przycisk--maly { padding: 8px 14px; font-size: .86rem; }
+
+  /* hero: heading, sentence and the call in the first frame, the window and its notes below */
+  .wejscie { height: 100svh; min-height: 640px; }
+  .wejscie__tekst { top: 88px; translate: none; width: auto; right: var(--margines); }
+  .wejscie h1 { font-size: clamp(2.5rem, 11.5vw, 3.1rem); }
+  .wejscie__zdanie { margin-top: 16px; max-width: none; font-size: 1.04rem; line-height: 1.5; }
+  .wejscie__wezwanie { margin-top: 22px; }
+  .wejscie__plan--srodek { top: auto; bottom: 9svh; right: var(--margines); width: 70vw; height: 24svh; }
+  .wejscie__okno { padding: 18px; gap: 12px; }
+  .wejscie__okno .okno__wiersz { font-size: .95rem; }
+  .wejscie__okno .okno__prompt { height: 46px; }
+  .wejscie__logo { width: 30%; right: -6%; top: -26%; }
+  .wejscie__plan--przod { right: auto; left: 5vw; bottom: 3svh; }
+  .wejscie__notka { font-size: 1.15rem; }
+
+  .amnezja h2, .pamiec h2, .plan h2, .panel h2, .tasma__wstep h2, .instalacja h2 { font-size: clamp(2rem, 9vw, 2.4rem); }
+
+  /* 2a: the sentences across the top, the desk below them */
+  html.ruch .amnezja { height: 100svh; min-height: 680px; }
+  html.ruch .amnezja__tekst { top: 84px; width: auto; right: var(--margines); }
+  .amnezja__zdanie { font-size: 1.02rem; margin-top: 6px; }
+  html.ruch .amnezja .karteczka {
+    left: calc(var(--x, 0) * 1.25 * (100% - 50vw)); top: calc(36% + (var(--y, 0) - .16) * 105%);
+    max-width: 50vw; white-space: normal; font-size: 1.02rem !important; }
+
+  /* 2b: documents two by two; the notes wait in the free band below them and fly up into them */
+  .pamiec { padding: 84px var(--margines) 56px; }
+  .pamiec__tekst p { font-size: 1rem; }
+  .pamiec .dokumenty, html.ruch .pamiec .dokumenty { margin-top: 28px; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+  .dokument { min-height: 0; padding: 14px 14px 12px; border-radius: 12px; }
+  .dokument__tytul { font-size: 1.3rem; }
+  .dokument__wpisy { margin-top: 10px; }
+  .dokument__wpisy li { min-height: 0; padding: 6px 0; font-size: .86rem; }
+  .dokumenty__przyklad { bottom: -26px; font-size: .9rem; }
+  html.ruch .pamiec__lot .karteczka {
+    left: calc(var(--x, 0) * 1.25 * (100% - 50vw)); top: calc(80% + (var(--y, 0) - .36) * 55%);
+    max-width: 50vw; white-space: normal; font-size: 1rem !important; }
+
+  /* 3: one column, the stamp at the sheet's foot */
+  .plan__scena { grid-template-columns: minmax(0, 1fr); gap: 26px; padding: 84px var(--margines) 48px; align-content: center; }
+  .plan__tekst p { font-size: 1rem; }
+  .arkusz { padding: 20px 18px 22px; }
+  .arkusz__tytul { font-size: 1.5rem; }
+  .arkusz__etap { grid-template-columns: 2.4em minmax(0, 1fr) auto; gap: 8px; padding: 10px 0; font-size: .95rem; }
+  .arkusz__status { font-size: .85rem; }
+  .arkusz__pieczatka { top: auto; bottom: 16px; right: 14px; font-size: .88rem; }
+  .arkusz__przyklad { margin-bottom: 44px; } /* the stamp lands under it, not on it */
+
+  /* 4: one column; each bar's label above its content, batteries in two columns */
+  .panel__scena { grid-template-columns: minmax(0, 1fr); gap: 24px; padding: 84px var(--margines) 48px; align-content: center; }
+  .panel__tekst p { font-size: 1rem; }
+  .panel__okno { padding: 12px; gap: 10px; border-radius: 18px; }
+  .panel__ja, .panel__odpowiedz { font-size: .82rem; }
+  .paski { padding: 0 12px; }
+  .pasek-makieta { grid-template-columns: minmax(0, 1fr) auto; gap: 4px 10px; font-size: .76rem; }
+  /* label and figure share the first row, the content takes the full width below them */
+  .pasek-makieta__etykieta { grid-column: 1; grid-row: 1; }
+  .pasek-makieta__liczba { grid-column: 2; grid-row: 1; }
+  .pasek-makieta__tresc { grid-column: 1 / -1; grid-row: 2; }
+  .pm-wiersz { flex-wrap: wrap; white-space: normal; gap: 4px 8px; }
+  .pm-baterie { grid-template-columns: repeat(2, max-content); column-gap: 16px; row-gap: 18px; }
+  .pm-kontekst, .pm-kontekst__tekst { grid-column: 1 / -1; }
+  .panel__przyklad { font-size: .9rem; }
+
+  /* 5: smaller cards, still half a frame of room on both sides */
+  .tasma__wstep { width: auto; margin: 0 var(--margines); }
+  .tasma__wstep p { font-size: 1rem; }
+  .komendy__scena { gap: 20px; padding-top: 70px; }
+  .fiszka { width: 220px; height: 236px; padding: 22px 18px 16px; --powieksz: .07; }
+  .tasma__fiszki { padding: 0 calc(50vw - 110px - var(--margines)); }
+
+  /* 6: a phone cannot install RelAI, so it gets its own card (Łukasz: "dostosować pod mobilkę"):
+     one sentence, send the link to yourself, copy the commands for later. The configurator stays
+     on wider screens. The card floats with a light margin on three sides. */
+  .instalacja__scena { grid-template-columns: minmax(0, 1fr); gap: 18px; min-height: 100svh; align-content: center; padding: 80px var(--margines) 14px; }
+  .instalacja__notka { font-size: 1.2rem; }
+  .instalacja__tekst > p:last-child, .instalacja__okno { display: none; }
+  .instalacja__telefon { display: flex; margin-inline: calc(14px - var(--margines)); border-radius: 20px; padding: 18px 16px; gap: 14px; }
+  .instalacja__telefon-tekst { font-size: 1rem; line-height: 1.5; color: var(--txt-2); }
+  .instalacja__telefon-akcje { display: grid; gap: 8px; }
+  .instalacja__telefon-akcje .przycisk { min-height: 48px; justify-content: center; }
+  .konfigurator__komendy { padding: 12px 10px; font-size: .66rem; line-height: 1.6; white-space: pre-wrap; overflow-wrap: normal; }
+  .stopka { position: static; padding: 6px var(--margines) 22px; }
+}
 
 /* -------------------------------------------------------------- reduced motion -- */
 @media (prefers-reduced-motion: reduce) {
@@ -382,5 +538,28 @@ html.ruch .pamiec__porzadek { position: absolute; left: var(--margines); top: 17
   html.ladowanie .wejscie__okno { transform: rotateY(-11deg) rotateX(4deg) rotateZ(.5deg); }
   html.ladowanie .wejscie__logo { transform: rotate(6deg); }
   html.ladowanie .wejscie__notka { transform: rotate(4.5deg) scale(1.04); }
-  .panel__okno { transform: none; }
+  .fiszka { --unies: 0 !important; }
+}
+
+/* ------------------------------------- the rail without motion or without the engine -- */
+/* Under reduced motion the engine stops the pan, and without JavaScript there is no engine at all.
+   Either way the rail becomes a plain grid of every card: nothing hidden past the frame's edge
+   and no pinned travel left to scroll through. */
+html:not(.sc-ready) .akt.komendy .tasma__fiszki {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); width: 100%; padding: 0; }
+html:not(.sc-ready) .akt.komendy .fiszka { width: auto; height: auto; }
+@media (prefers-reduced-motion: reduce) {
+  .akt.komendy { height: auto !important; }
+  .akt.komendy .komendy__scena { position: static; height: auto; overflow: visible; }
+  .akt.komendy .tasma__fiszki {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); width: 100%; padding: 0; }
+  .akt.komendy .fiszka { width: auto; height: auto; }
+}
+@media (max-width: 600px) {
+  html:not(.sc-ready) .akt.komendy .tasma__fiszki { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+  html:not(.sc-ready) .akt.komendy .fiszka { padding: 16px 14px 14px; }
+}
+@media (max-width: 600px) and (prefers-reduced-motion: reduce) {
+  .akt.komendy .tasma__fiszki { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+  .akt.komendy .fiszka { padding: 16px 14px 14px; }
 }

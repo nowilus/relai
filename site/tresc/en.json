@@ -124,11 +124,12 @@
           { "pytanie": "explaining the project a third time", "wpis": "Shop: cart, invoices, card payments" }
         ] },
         { "tytul": "Journal", "plik": "JOURNAL.md", "wpisy": [
-          { "pytanie": "what did we talk about?", "wpis": "Oct 14 · invoice layout agreed" },
+          { "pytanie": "what did we agree yesterday?", "wpis": "Oct 14 · invoice layout agreed" },
           { "pytanie": "which file?", "wpis": "Oct 14 · changes in src/payments/" }
         ] },
         { "tytul": "Lessons", "plik": "LESSONS.md", "wpisy": [
-          { "pytanie": "same bug again", "wpis": "L-07 · dates always in UTC" }
+          { "pytanie": "same bug again", "wpis": "L-07 · dates always in UTC" },
+          { "pytanie": "how do we test this?", "wpis": "L-08 · payments tested on the sandbox" }
         ] },
         { "tytul": "Decisions", "plik": "DECISIONS.md", "wpisy": [
           { "pytanie": "what was that decision?", "wpis": "D-12 · database: Postgres" },
@@ -143,6 +144,7 @@
     },
     "panel": {
       "okno": "Claude Code",
+      "czat": { "ja": "let's continue", "odpowiedz": "Back to stage E3: declined-payment tests. 3 verification points left." },
       "przyklad": "sample data"
     },
     "komendy": {
@@ -166,7 +168,15 @@
       "relai-update": { "tytul": "Update", "opis": "Up to the latest version of RelAI" }
     },
     "instalacja": {
-      "reflektor": "Your command, your Enter"
+      "reflektor": "Your command, your Enter",
+      "telefon": {
+        "tekst": "You install RelAI on a computer, in Claude Code, Cursor or Codex. Send yourself the link or copy the commands for later.",
+        "wyslij": "Send yourself the link",
+        "kopiuj": "Copy commands",
+        "linkSkopiowany": "Link copied. Open it on your computer.",
+        "skopiowano": "Commands copied.",
+        "blad": "The clipboard is not available in this browser."
+      }
     }
   },
   "brakSceny":"Your browser does not show the 3D scene, so you see the same content without the desk.",

@@ -25,10 +25,10 @@
 | C11 | Pliki pomiarów puchną albo trafiają do gita (plan PANEL_CLAUDE, ryzyko R5) | **Niski** (2026-10-08 po E3) | **OTWARTE ŚWIADOMIE** | `.claude/relai/` poza gitem (sprawdzone `git check-ignore`), plik na sesję, rekord bez treści (~250 B); E4: plik scaleń `.claude/relai/panel/scalenia.json` też poza gitem (`git check-ignore`), rekord dłuższy o dwa pola; E6: `.claude/relai/panel/cennik.json` (wersje cennika) poza gitem (`git check-ignore`), jedna wersja na zapis z karty; otwarte: sprzątanie starych plików nie istnieje — do E7 E7 (decyzja człowieka 2026-10-09): sprzątanie świadomie odłożone — zmierzone 5 plików, 260 KB po dwóch dniach intensywnej pracy; „Koszty projektu” sumują wszystkie pliki, więc kasowanie zmieniłoby sumę. Próg powrotu: folder `.claude/relai/pomiary/` powyżej 10 MB. |
 | L1 | `percentUsed` limitu odświeża się tylko z odpowiedzią API — długa tura subagentów przekroczy próg, a karta przyjdzie po fakcie (plan LIMIT_CHECKPOINT, ryzyko L1) | **Średni** (2026-10-11 po E2; wcześniej wysoki) | **ZMITYGOWANE 2026-10-12** (zamknięcie planu; ograniczenie silnika — procent tylko z odpowiedzią API) | E2: `session.measure` w trakcie tury przestawia kolor baterii od razu, karta przychodzi po `turn.complete` z procentem odczytanym po turze (test „past the threshold in the middle of a turn”); otwarte, bo procent nadal przychodzi tylko z odpowiedzią API, więc długa tura może przekroczyć próg o kilka punktów, zanim karta padnie. |
 | H9 | Tryb ciągły „dokumenty” nie widzi zapisu, którego nie rozpozna — `sed -i`, skrypt, podproces, `>(tee …)` — i dokument zostaje bez humanizacji (plan HUMANIZACJA, pomiar E5) | **Niski** (2026-10-14, przy zamknięciu planu) | **OTWARTE ŚWIADOMIE** | Aneks C: hook po Write/Edit i po Bash z przekierowaniem `>` / `>>` albo `tee`; w pomiarze E5 model pisał wyłącznie tymi drogami (8/8 przed poprawką, 2/2 po niej z regułą). Pominięcie kończy się ciszą, nigdy złą regułą; komenda `/relai-humanize` na pliku działa niezależnie od trybu ciągłego. |
-| T1 | Scena 3D strony tnie się na słabszym laptopie albo zintegrowanej grafice (plan STRONA_RELAI, ryzyko 1) | **Wysoki** (2026-10-16 po E3, bez zmiany) | **OTWARTE** | E1: render na żądanie, DPR ≤ 1,5, obniżenie jakości przy medianie > 26 ms. E2 (scena CC0, AO, głębia ostrości): przy CPU ×4 mediana 11,1 ms, p95 16,7 ms, 913 wywołań rysowania na klatkę po scaleniu miasta (przed: 2206, p95 22,3 ms); obniżanie jakości zaczyna od głębi ostrości. E3 (poświata ekranu RectAreaLight, nowe książki): przy CPU ×4 przewijanie mediana 11,9 ms, p95 22,2 ms — p95 wzrosło o 5,5 ms, zapas do 26 ms już tylko 3,8 ms; przybliżanie p95 13,1 ms; najwięcej 907 wywołań rysowania na klatkę. Zmierzone tylko na RTX 4070 Ti. E4 (bez path tracingu, przygaszona lampa, lakier blatu): CPU ×4 mediana 11,3 ms, p95 17,5 ms, najwięcej 910 wywołań rysowania. Otwarte: słaba grafika w E7. E5 (Film, bez WebGL): przy CPU ×4 mediana 5,6 ms, p95 5,6 ms, najdłuższa klatka 28,7 ms, więc Filmu ryzyko nie dotyczy. Aneks D: Biurko też idzie do publikacji, dlatego poziom zostaje wysoki do pomiaru na słabej grafice w E6. |
-| T2 | Biurko wygląda jak tani render albo glina z AI (plan STRONA_RELAI, ryzyko 2) | **Wysoki** (2026-10-16 po E2, bez zmiany) | **OTWARTE** | E2: modele i tekstury CC0, deski orzechowe ze słojami, miasto za oknem, kubek i tablica od nowa; kalibracja w czterech rundach, zamknięcie za zgodą Łukasza, ale „nadal jesteśmy całkiem daleko” od obrazów 01–08 — przyczyna: brak światła odbitego w rasteryzacji (L-0220). Aneks B: E3 laptop i detale, E4 path tracing na przystankach. E4 (2026-10-16): światło odbite nie dało uzysku — przyczyną dystansu jest detal przedmiotów, tekstur i kompozycja, nie światło (L-0226); test detalu (blat `wood_table_worn`, druk na dokumentach, ciemniej) dał umiarkowany zysk. Aneks C: następny jest Film, Biurko po bramce. E5: Film rysowany kodem, hero przyjęte w trzeciej rundzie („Tak, przyjmuję”). Bramka z Aneksem D: najpierw dopieszczenie Filmu (E7), potem pełna droga Biurka (E6), publikacja obu z ankietą. Dla Biurka ryzyko zostaje wysokie. |
-| T3 | Modele CC0 z różnych źródeł nie zgrywają się stylem i skalą; strona za ciężka (plan STRONA_RELAI, Aneks A pkt 6) | **Niski** (2026-10-16 po E2; wcześniej średni) | **OTWARTE** | E2: wspólne HDRI, skala w metrach, barwy modeli przyciemnione do sceny — Łukasz nie zgłaszał niespójności stylu; ciężar 9,0 MB z kompresją (FAKT), zestaw hero 4,5 MB, pułap podniesiony do 10 MB decyzją Łukasza (Aneks B). E4: 9,49 MiB (+0,38 MiB — blat `wood_table_worn` ma więcej szczegółu); path tracera nie ma. E5: Film 0,31 MiB po kompresji (33 pliki, FAKT), ten sam instrument; ciężar dotyczy tylko Biurka. |
-| T6 | Ekran HTML na laptopie rozjeżdża się ze sceną 3D przy przybliżeniu (plan STRONA_RELAI, Aneks B pkt 5) | **Niski** (2026-10-16 po E3; wcześniej średni) | **OTWARTE** | Zrzuty w trzech rozdzielczościach, test trafienia kliknięciem (`elementFromPoint`) w każdym położeniu przybliżenia; w E3. E3: HTML położony dokładnie na siatce (bez przesunięcia w głąb), różnica narożników ≤ 0,04 px przy 1366 i 1920, PL i EN, na przystanku i w przybliżeniu; `elementFromPoint` 5/5; poza przybliżenia testowana dla 16:9, 16:10 i 4:3. Otwarte: telefon i wąskie okno — E7. |
+| T1 | Scena 3D strony tnie się na słabszym laptopie albo zintegrowanej grafice (plan STRONA_RELAI, ryzyko 1) | **Wysoki** (2026-10-16 po E3, bez zmiany) | **OTWARTE** | E1: render na żądanie, DPR ≤ 1,5, obniżenie jakości przy medianie > 26 ms. E2 (scena CC0, AO, głębia ostrości): przy CPU ×4 mediana 11,1 ms, p95 16,7 ms, 913 wywołań rysowania na klatkę po scaleniu miasta (przed: 2206, p95 22,3 ms); obniżanie jakości zaczyna od głębi ostrości. E3 (poświata ekranu RectAreaLight, nowe książki): przy CPU ×4 przewijanie mediana 11,9 ms, p95 22,2 ms — p95 wzrosło o 5,5 ms, zapas do 26 ms już tylko 3,8 ms; przybliżanie p95 13,1 ms; najwięcej 907 wywołań rysowania na klatkę. Zmierzone tylko na RTX 4070 Ti. E4 (bez path tracingu, przygaszona lampa, lakier blatu): CPU ×4 mediana 11,3 ms, p95 17,5 ms, najwięcej 910 wywołań rysowania. Otwarte: słaba grafika w E7. E5 (Film, bez WebGL): przy CPU ×4 mediana 5,6 ms, p95 5,6 ms, najdłuższa klatka 28,7 ms, więc Filmu ryzyko nie dotyczy. Aneks D: Biurko też idzie do publikacji, dlatego poziom zostaje wysoki do pomiaru na słabej grafice w E6. E7 (Film z animacjami WAAPI i przytrzymaniem): CPU ×4 mediana 11,1 ms, p95 16,7 ms na desktopie i w emulacji telefonu — Filmu nadal nie dotyczy; poziom bez zmiany przez Biurko. |
+| T2 | Biurko wygląda jak tani render albo glina z AI (plan STRONA_RELAI, ryzyko 2) | **Wysoki** (2026-10-16 po E2, bez zmiany) | **OTWARTE** | E2: modele i tekstury CC0, deski orzechowe ze słojami, miasto za oknem, kubek i tablica od nowa; kalibracja w czterech rundach, zamknięcie za zgodą Łukasza, ale „nadal jesteśmy całkiem daleko” od obrazów 01–08 — przyczyna: brak światła odbitego w rasteryzacji (L-0220). Aneks B: E3 laptop i detale, E4 path tracing na przystankach. E4 (2026-10-16): światło odbite nie dało uzysku — przyczyną dystansu jest detal przedmiotów, tekstur i kompozycja, nie światło (L-0226); test detalu (blat `wood_table_worn`, druk na dokumentach, ciemniej) dał umiarkowany zysk. Aneks C: następny jest Film, Biurko po bramce. E5: Film rysowany kodem, hero przyjęte w trzeciej rundzie („Tak, przyjmuję”). Bramka z Aneksem D: najpierw dopieszczenie Filmu (E7), potem pełna droga Biurka (E6), publikacja obu z ankietą. Dla Biurka ryzyko zostaje wysokie. E7: Film dopieszczony i przyjęty akt po akcie („Tak, przyjmuję”), dotyczy już tylko Biurka (E6). |
+| T3 | Modele CC0 z różnych źródeł nie zgrywają się stylem i skalą; strona za ciężka (plan STRONA_RELAI, Aneks A pkt 6) | **Niski** (2026-10-16 po E2; wcześniej średni) | **OTWARTE** | E2: wspólne HDRI, skala w metrach, barwy modeli przyciemnione do sceny — Łukasz nie zgłaszał niespójności stylu; ciężar 9,0 MB z kompresją (FAKT), zestaw hero 4,5 MB, pułap podniesiony do 10 MB decyzją Łukasza (Aneks B). E4: 9,49 MiB (+0,38 MiB — blat `wood_table_worn` ma więcej szczegółu); path tracera nie ma. E5: Film 0,31 MiB po kompresji (33 pliki, FAKT), ten sam instrument; ciężar dotyczy tylko Biurka. E7: Film 0,317 MiB (35 plików, FAKT). |
+| T6 | Ekran HTML na laptopie rozjeżdża się ze sceną 3D przy przybliżeniu (plan STRONA_RELAI, Aneks B pkt 5) | **Niski** (2026-10-16 po E3; wcześniej średni) | **OTWARTE** | Zrzuty w trzech rozdzielczościach, test trafienia kliknięciem (`elementFromPoint`) w każdym położeniu przybliżenia; w E3. E3: HTML położony dokładnie na siatce (bez przesunięcia w głąb), różnica narożników ≤ 0,04 px przy 1366 i 1920, PL i EN, na przystanku i w przybliżeniu; `elementFromPoint` 5/5; poza przybliżenia testowana dla 16:9, 16:10 i 4:3. Otwarte: telefon i wąskie okno. E7 dopieścił telefon tylko w Filmie (osobna kompozycja ≤ 600 px, `scrollWidth` = 390 w każdym akcie); telefon Biurka przeszedł do E6 (Aneks D pkt 2). |
 
 > Ryzyka zamknięte T4, T5 (2 pozycje) są w
 > [docs/archiwum/ryzyka/RYZYKA_2026-10-16.md](archiwum/ryzyka/RYZYKA_2026-10-16.md)
@@ -1682,5 +1682,137 @@ Autor: RelAI (Opus 5.5) + Lukasz
 **Do zrobienia przez człowieka:**
 
 - Adresy obu wersji strony i narzędzie ankiety (Aneks D pkt 3), termin przed E8.
+
+Autor: RelAI (Opus 5.5) + Lukasz
+
+### 2026-10-17 — STRONA_RELAI E7: Film dopieszczony — jedna animacja na sekcję, telefon, ograniczony ruch, bez skryptów
+
+**Zrobione:**
+
+- **Lista uwag przed kodem** (12 pozycji, kadry z obrysem; strona w oknie przed pierwszą poprawką).
+  Wybór Łukasza: „U1 tło paska,U2 pusty papier,U3 drugi przycisk”; „U4 wyższy lot,U5 lądowanie
+  wcześniej,U6 osiem wpisów”; „U7 pieczątka na końcu,U8 „PŁATNOŚCI”,U9 okno z rozmową,U10 większe
+  paski”; przy U12: „nie podoba mi sie w ogole ten efekt podswietlenia tam […] nie takie tandetne
+  podswietlenie”, plus „U11 fiszka w środku”.
+- **Runda 1 na żywo.** Uwagi Łukasza: pasek „wjeżdża […] po jakichś tam 200 czy 300 czy 400
+  pikselach”; w amnezji „dwa teksty na siebie najeżdżają”, a „każdy scroll [ma być] widoczną od razu
+  […] animacją”; w panelu terminal długo sam na pustej stronie; komendy bez fiszki na pierwszym
+  planie; przed instalacją pusta strona i skok. Poprawki: pasek od 12 px (`site/film/pasek.js`),
+  wspólny papier pod paskiem, drugi przycisk znika przy instalacji. Werdykt rundy 1b:
+  „Tak, przyjmuję”.
+- **Zmiana zasady ruchu po akcie 3.** Łukasz: „nie podoba mi się ten motyw tego, że tak bardzo dużo
+  pojedynczych elementów się gdzieś tam rozwija i wskakuje […] fajnie, gdyby to była taka jednorazowa
+  animacja po prostu na sekcję”. Taśma komend zostaje: „działa idealnie”. Rozstrzygnięcia:
+  „Dwie sekcje (Rekomendowane)”, „Najdłuższa animacja (Rekomendowane)” jako kryterium szczytu,
+  „Też panel”. Przebudowa w `site/film/akty.js`:
+  - maszyna stanów `nastepnyStan`: start przy wejściu góry sekcji w 35 % kadru, reset dopiero po
+    całkowitym zejściu z ekranu (margines 12 px);
+  - przejścia CSS tylko na `.gra`, więc reset jest natychmiastowy;
+  - lot 2b przez WAAPI z ośmioma wpisami;
+  - przytrzymanie przewijania w dół (`zamontujPrzytrzymanie`): jedno dosunięcie do góry sekcji,
+    blokada kółka, klawiszy i dotyku do końca animacji, ponowne dosunięcie po rozpędzie; w górę nie
+    trzyma nigdy;
+  - czasy sekcji: szczyt 3,5 s, reszta 1,6–2,05 s.
+
+  Reflektor usunięty; akt 6 kładzie konfigurator na stole i drukuje komendy.
+- **Poprawki po werdykcie** „Ogólnie przyjmuje wszystko ale z lekkimi poprawkami”: powtórka animacji
+  po powrocie z samej góry, blokada do końca animacji, fiszka bardziej wyeksponowana. Dalej
+  „scroll pozwlaa mi zejsc za nisko i ucina mi sie napis” (dosunięcie po rozpędzie) i „na sekcji
+  Plan […] za szybko odpuszcza i sie cos laguje” (jedno dosunięcie, kierunek z przewijania). Taśma:
+  pół kadru odstępu z obu stron, żeby pierwsze dwie fiszki też przeszły przez środek. Werdykt
+  aktów 2–6: „Tak, przyjmuję”. Kadry w `docs/zasoby/STRONA/builds/film/kalibracja/`
+  (`akt-*-pl-1366.jpeg`, `hero-pl-390.jpeg`, `akt-instalacja-pl-390.jpeg`).
+- **Telefon (≤ 600 px).** Osobna kompozycja w `site/css/film.css`: tekst na całą szerokość,
+  przedmioty pod nim, karteczki przeliczone z tych samych współrzędnych, dokumenty 2 × 2, plan
+  i panel w jednej kolumnie, `main { overflow-x: clip }`. Hero przyjęte. Ostatni ekran przeszedł dwie
+  rundy. Najpierw „musisz poprawic ostatni ekran i go jakos sensowniej skondensowac”; potem pływająca
+  karta z marginesami. Na koniec Łukasz zauważył, że z telefonu nie da się zainstalować, i wybrał
+  „Wyślij na komputer (Rekomendowane)”: karta z jednym zdaniem, „Wyślij sobie link” (Web Share,
+  bez niego schowek) i „Kopiuj komendy” (`site/film/telefon.js`, nowe klucze
+  `film.instalacja.telefon` PL i EN). Werdykt: „Tak, przyjmuję”.
+- **Ograniczony ruch i bez skryptów.** Stany oczekiwania tylko pod `html.ruch`, więc bez niego każda
+  sekcja stoi w stanie końcowym. Taśma w tym trybie i bez silnika (`html:not(.sc-ready)`) to siatka
+  15 fiszek bez przypięcia (L-0235). Przyciski wymagające skryptu są ukryte także na desktopie.
+- **Dostępność.** Okno panelu przed animacją bez przezroczystości. Drobny tekst w nowym tokenie
+  `--txt-3-tekst` #716657: 4,66:1 na papierze, 5,52:1 na kartce. Blok `:root` z paletą filmu bez
+  zmian (L-0236).
+- **Testy:** `site/film/akty.test.mjs` (przepisany pod sekcje jednorazowe), `pasek.test.mjs`,
+  `telefon.test.mjs`, `bezjs.test.mjs` (treść bez JS dla PL i EN, kontrola pozytywna, stany pod
+  `html.ruch`, siatka taśmy). Brief Filmu z sekcją „Zmiany z E7”, `site/README.md` z sekcją
+  o telefonie, ograniczonym ruchu, wersji bez skryptów, przebiegach i dostępności.
+
+**Zweryfikowane — jak dokładnie:**
+
+- `node --test site/**/*.test.mjs site/*/*.test.mjs` → 259/259 (E5: 229). Kontrola pozytywna:
+  strona bez jednej fiszki daje `["command cards"]`, a bez komendy instalacji `["install command"]`.
+  W trakcie test bloku ROOT złapał zmianę `--txt-3`, więc przywróciłem paletę i dodałem osobny token.
+- Silnik: `sha256sum scrollcraft.js scrollcraft.css LICENSE` równe wpisom w `VERSION` (91a8e57c…,
+  519e254c…, 0333ae13…).
+- Biurko: 109 sum zapisanych na starcie przy `e0c9f21`, porównanie po pełnej budowie: 0 różnic.
+  Kontrola: `strona.css` z dopisaną spacją → 1 FAILED, po przywróceniu 0 i czysty `git status`.
+  `zbuduj.mjs`: `site/index.html` i `site/pl/index.html` „bez zmian”.
+- Telefon 390 × 844, PL i EN: `scrollWidth` = 390 w każdym akcie. Hero z nagłówkiem, zdaniem
+  i przyciskiem w kadrze. Ekran instalacji w jednym kadrze (sekcja 844 px).
+- Ograniczony ruch, desktop i telefon: pierwsza asercja `matchMedia(...reduce).matches` = true,
+  `ruch` nieobecny. Kadry każdego aktu w stanie końcowym, taśma jako siatka 5 × 3 (telefon:
+  2 kolumny), sekcja komend 1163 px zamiast 3072. Zero elementów z tekstem niewidocznych.
+- Bez JS: `curl` PL i EN → `h1` 1, fiszki 15, komenda instalacji, formularz, 8 wpisów szczytu.
+  Render bez skryptów (blob z `<base>`) na desktopie: zasłony brak, 15/15 fiszek w kadrze
+  poziomo, 8 wpisów, komendy i formularz widoczne, martwych przycisków 0. Na telefonie zamiast
+  konfiguratora wydrukowane komendy w karcie (decyzja Łukasza).
+- Przebiegi zrzutów: karta zgody na `playwright-core` 1.64.1 (npm, Apache-2.0, ok. 13 MB), odpowiedź
+  Łukasza: „Bez instalacji (Rekomendowane)”. Cztery przebiegi (desktop, telefon, ograniczony ruch,
+  bez JS) zrobione przez protokół DevTools z zainstalowanego Chrome w trybie headless, bez paczek;
+  po 6 kadrów na akt, 42 na przebieg. Arkusze w `docs/zasoby/STRONA/lab/film/*-sheet.jpeg`. Pustych
+  kadrów brak, martwego przewijania brak, `scrollWidth` nigdzie ponad szerokość okna.
+- Kontrola odczuć (krzywa z briefu → kadr):
+
+  | Akt | Odczucie z briefu | Odczucie z kadru |
+  |---|---|---|
+  | 1 Wejście | ciekawość | okno czatu, karteczka-logo i nagłówek; pasek od pierwszych pikseli — ciekawość |
+  | 2a Amnezja | rozpoznanie | zdania w stosie, karteczki spadają na stół jedna po drugiej — rozpoznanie |
+  | 2b Pamięć | ulga (szczyt) | 8 karteczek leci łukiem do czterech dokumentów, wpisy drukują się — ulga, najdłuższa animacja |
+  | 3 Plan | zaufanie | arkusz kładzie się na stole, etapy kolejno, pieczątka na końcu — zaufanie |
+  | 4 Panel | kontrola | okno z rozmową prostuje się, paski wchodzą po kolei — kontrola |
+  | 5 Komendy | ciekawość („co jeszcze”) | taśma w bok, fiszka na środku uniesiona i większa — ciekawość |
+  | 6 Instalacja | gotowość | konfigurator kładzie się i drukuje komendy; na telefonie karta „Wyślij sobie link” — gotowość |
+
+  Rozjazdy z briefu (cisza 2a→2b zniknęła z przypięciem, reflektor usunięty) mają werdykty Łukasza.
+- Lighthouse dostępność: `/pl/film/` desktop 100 i telefon 100, `/film/` desktop 100 i telefon 100.
+  EN wymaga `localStorage['relai-jezyk']='en'`, bo przeglądarka po polsku przekierowuje. Przed
+  poprawką było 96: stopka 3,01:1, okno panelu 3,21:1 i dymek 4,15:1. Fokus: kolejność naturalna,
+  0 dodatnich `tabindex`, 0 elementów fokusowalnych pod `aria-hidden`, obrys `:focus-visible`
+  z silnika.
+- Budżet (instrument z `site/README.md`): Film 0,317 MiB po kompresji, 35 plików (E5: 0,31 MiB /
+  33; doszły `pasek.js` i `telefon.js`). Płynność przy CPU ×4, krok 14 px na klatkę: desktop
+  mediana 11,1 ms i p95 16,7 ms (493 klatki), telefon mediana 11,1 ms i p95 16,7 ms (542 klatki).
+  Wzrost p95 względem E5 (5,6 ms) wynika z animacji WAAPI i przytrzymania; zapas do 26 ms wynosi
+  9,3 ms.
+- Zasłona na telefonie, zimne wejście (ślad wydajności z `ignoreCache`, Fast 4G, CPU ×4, klatki
+  co 100 ms): do ok. 0,8 s kreska i napis bez logo, bo SVG się ładuje; do 1,41 s pełna zasłona
+  z logo; zejście od ok. 1,5 s; od 1,9 s czyste hero. Stanów pośrednich strony pod zasłoną brak.
+  E5 dawało ok. 1,1 s.
+- Konsola: PL i EN, desktop i telefon, wejście, pełne przewinięcie, konfigurator albo karta
+  telefonu → 0 komunikatów, 0 odpowiedzi ≥ 400, żądania tylko do `localhost:4520`.
+- Bezpieczeństwo: grep `innerHTML|outerHTML|insertAdjacentHTML|document.write` bez testów → kod 1,
+  z testami trafia `site/js/wersja.test.mjs`. W szablonie Filmu brak adresów CDN, a `<form>` nie ma
+  `action` ani `method`. Grep `data-sc-src` → kod 1.
+- Katalog roboczy `.claude/relai/work/STRONA_RELAI/E7/`: raport `clean-work.js` pokazał 15,7 MB
+  i 276 plików. Po „Tak, skasuj E7 (Rekomendowane)” zostało 0. Artefakty spoza katalogu: serwer
+  podglądu w tle (port 4530) zatrzymany; strona DevTools 6 zamknięta, a strony 3 nie było już
+  na liście przy pomiarach (karta 4 należała do Łukasza i nie była ruszana); profil headless Chrome `%TEMP%/relai-e7-przebiegi` skasowany przez
+  harness, sprawdzone; `playwright-core` nie instalowany.
+
+**Świadomie odłożone:**
+
+- SEO `hreflang` (Lighthouse SEO 91): względne adresy `{{baza}}` w `<link rel="alternate">`.
+  Wspólne z Biurkiem, więc do E8 przy adresach publikacji.
+- Logo zasłony pojawia się dopiero po załadowaniu SVG (ok. 0,8 s na Fast 4G). Do rozważenia
+  wstawienie SVG w HTML w E8.
+- Biurko na telefonie (T6) i jego ograniczony ruch są w zakresie E6 (Aneks D pkt 2).
+
+**Do zrobienia przez człowieka:**
+
+- —
 
 Autor: RelAI (Opus 5.5) + Lukasz

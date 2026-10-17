@@ -1,67 +1,231 @@
-// The film's own choreography on top of the engine: the cue windows set before mounting, and the
-// signature move of act 2 (each question note flies to a document and its handwriting becomes a
-// printed line). Pure timing functions are exported for the tests; the engine is never edited.
+// The film's own choreography on top of the engine. Sections scrolled downwards play their
+// animation once, by themselves, when they come into view, and reset only after they have left the
+// screen completely (Łukasz, E7: one animation per section, not a small action per wheel notch).
+// Act 5 keeps the engine's horizontal pan; its card in the middle of the frame lifts.
+// Pure timing and shape functions are exported for the tests; the engine is never edited.
 
 const clamp01 = (x) => (x < 0 ? 0 : x > 1 ? 1 : x);
 const smooth = (x) => { const t = clamp01(x); return t * t * (3 - 2 * t); };
 const easeInOut = (x) => { const t = clamp01(x); return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2; };
 
-/** Act 2 in fractions of its pinned travel: amnesia, the authored silence, the peak, the heading. */
-export const PAMIEC = Object.freeze({
-  zdania: Object.freeze({ od: 0.08, krok: 0.075, dlugosc: 0.11 }),
-  cisza: Object.freeze([0.34, 0.4]),
-  dokumenty: Object.freeze([0.38, 0.45]),
-  lot: Object.freeze({ od: 0.44, krok: 0.064, dlugosc: 0.12 }),
-});
+/* ------------------------------------------------------------- play once -- */
 
-/** Act 4: the window straightens by p≈0.42, then the bars wipe in from the left, one by one. */
-export const PASKI = Object.freeze({ od: 0.44, krok: 0.07, dlugosc: 0.12 });
-
-const okno = (od, dlugosc) => `${(+od.toFixed(3))} ${(+(od + dlugosc).toFixed(3))}`;
-
-/** Cue windows of the amnesia sentences ("from to"), crossfading one into the next. */
-export function oknaZdan(n, z = PAMIEC.zdania) {
-  return Array.from({ length: n }, (_, i) => okno(z.od + i * z.krok, z.dlugosc));
+/**
+ * The state of a once-section after an observation. It starts playing when its top has come far
+ * enough into the frame (`wejscie`), and resets only when no part of it is on screen (`widac`).
+ * @param {"czeka"|"gra"} stan @param {boolean} wejscie @param {boolean} widac
+ * @returns {"czeka"|"gra"}
+ */
+export function nastepnyStan(stan, wejscie, widac) {
+  if (stan === "czeka") return wejscie ? "gra" : "czeka";
+  return widac ? "gra" : "czeka";
 }
 
-/** Reveal windows of the bars ("from to"), one after another. */
-export function oknaPaskow(n, p = PASKI) {
-  return Array.from({ length: n }, (_, i) => okno(p.od + i * p.krok, p.dlugosc));
-}
+/** How far the section's top has to come into the frame before it plays (share of the viewport). */
+export const PROG_WEJSCIA = 0.35;
 
-/** The flight window of note i: [start, end] in the act's progress. */
-export function oknoLotu(i, l = PAMIEC.lot) {
-  const od = l.od + i * l.krok;
-  return [od, od + l.dlugosc];
+/**
+ * A section counts as off screen only when it is at least this far out (px). A section that merely
+ * touches the frame's edge (act 2a at the very top of the page) is not on screen, so it resets.
+ */
+export const MARGINES_RESETU = 12;
+
+/** How long each section's animation lasts (ms); scrolling down is held this long once it plays. */
+export const CZAS_SEKCJI = Object.freeze({ amnezja: 1900, pamiec: 3500, plan: 2050, panel: 1750, instalacja: 1600 });
+
+/** Extra hold for the smooth scroll that brings the section to the top of the frame (ms). */
+export const DOSUNIECIE_MS = 450;
+
+/**
+ * Whether a scroll step is held back: only downwards, and only while a section is still playing.
+ * @param {number} teraz @param {number} blokadaDo @param {number} kierunek >0 down, <0 up
+ */
+export function czyTrzymac(teraz, blokadaDo, kierunek) {
+  return kierunek > 0 && teraz < blokadaDo;
 }
 
 /**
- * Where note i is at progress p: offset towards its line (dx, dy, px), turn, scale, and the
- * opacities of the note and of the printed line that takes its place.
- * @param {number} p @param {number} i @param {{ dx: number, dy: number, r: number, s: number }} cel
+ * Watches every `[data-raz]` section: adds the class `gra` when it plays and removes it when the
+ * section has left the screen. `naGranie[name]` / `naReset[name]` run page code for that section,
+ * `naKazde(section)` runs whenever any section starts playing. Returns a stop function.
  */
-export function lotKarteczki(p, i, cel) {
-  const [od, doo] = oknoLotu(i);
-  const t = clamp01((p - od) / (doo - od));
+export function zamontujRaz(naGranie = {}, naReset = {}, naKazde = () => {}, doc = document, win = window) {
+  const sekcje = [...doc.querySelectorAll("[data-raz]")];
+  if (!sekcje.length || !("IntersectionObserver" in win)) return () => {};
+  const stan = new Map(sekcje.map((s) => [s, { stan: "czeka", wejscie: false, widac: false }]));
+  const odswiez = (s) => {
+    const z = stan.get(s);
+    const nowy = nastepnyStan(z.stan, z.wejscie, z.widac);
+    if (nowy === z.stan) return;
+    z.stan = nowy;
+    const nazwa = s.dataset.raz;
+    s.classList.toggle("gra", nowy === "gra");
+    (nowy === "gra" ? naGranie : naReset)[nazwa]?.(s);
+    if (nowy === "gra") naKazde(s);
+  };
+  const obserwuj = (klucz, opcje) =>
+    new win.IntersectionObserver((wpisy) => {
+      for (const w of wpisy) {
+        stan.get(w.target)[klucz] = w.isIntersecting;
+        odswiez(w.target);
+      }
+    }, opcje);
+  const wejscie = obserwuj("wejscie", { rootMargin: `0px 0px -${PROG_WEJSCIA * 100}% 0px`, threshold: 0 });
+  const widac = obserwuj("widac", { rootMargin: `-${MARGINES_RESETU}px 0px`, threshold: 0 });
+  for (const s of sekcje) { wejscie.observe(s); widac.observe(s); }
+  return () => { wejscie.disconnect(); widac.disconnect(); };
+}
+
+/**
+ * Holds scrolling down while a section plays (Łukasz: "it holds me a moment until the animation
+ * ends, then I can scroll on"). The first held step brings the section to the top of the frame, so
+ * the whole animation is in view. Scrolling up is never held. Returns { trzymaj(sekcja), stop }.
+ */
+export function zamontujPrzytrzymanie(win = window) {
+  let blokadaDo = 0;
+  let cel = 0;
+  let ostatnieY = win.scrollY;
+  let kierunek = 0; // of the last real scroll: >0 down, <0 up
+  const teraz = () => win.performance.now();
+  // Brings the section's top to the frame's top once. Called again only when the page has run past
+  // it (momentum of the wheel), never on every held event, so two smooth scrolls never fight.
+  const dosun = () => {
+    if (win.scrollY > cel + 2 || win.scrollY < cel - 2) win.scrollTo({ top: cel, behavior: "smooth" });
+  };
+  const naPrzewiniecie = () => {
+    const y = win.scrollY;
+    if (y !== ostatnieY) kierunek = Math.sign(y - ostatnieY);
+    ostatnieY = y;
+    // Wheel momentum carried the page past the section while it plays: bring it back.
+    if (teraz() < blokadaDo && y > cel + 2 && kierunek > 0) dosun();
+  };
+  const trzymaj = (sekcja) => {
+    // Only on the way down. Coming back up into a section is never held, and a section reached by
+    // the wheel's momentum while another one is held does not take the hold over.
+    if (kierunek < 0 || teraz() < blokadaDo) return;
+    const nazwa = sekcja.dataset.raz;
+    cel = Math.round(sekcja.getBoundingClientRect().top + win.scrollY);
+    blokadaDo = teraz() + DOSUNIECIE_MS + (CZAS_SEKCJI[nazwa] ?? 0);
+    dosun();
+  };
+  const naKolko = (e) => {
+    if (!czyTrzymac(teraz(), blokadaDo, e.deltaY)) return;
+    e.preventDefault();
+  };
+  const KLAWISZE_W_DOL = new Set(["ArrowDown", "PageDown", " ", "End"]);
+  const naKlawisz = (e) => {
+    if (!KLAWISZE_W_DOL.has(e.key) || e.target?.closest?.("input, textarea, select, [contenteditable]")) return;
+    if (!czyTrzymac(teraz(), blokadaDo, 1)) return;
+    e.preventDefault();
+  };
+  let dotykY = 0;
+  const naDotykStart = (e) => { dotykY = e.touches[0]?.clientY ?? 0; };
+  const naDotyk = (e) => {
+    const y = e.touches[0]?.clientY ?? dotykY;
+    if (!czyTrzymac(teraz(), blokadaDo, dotykY - y)) return; // finger up = page down
+    e.preventDefault();
+  };
+  win.addEventListener("scroll", naPrzewiniecie, { passive: true });
+  win.addEventListener("wheel", naKolko, { passive: false });
+  win.addEventListener("keydown", naKlawisz);
+  win.addEventListener("touchstart", naDotykStart, { passive: true });
+  win.addEventListener("touchmove", naDotyk, { passive: false });
+  const stop = () => {
+    win.removeEventListener("scroll", naPrzewiniecie);
+    win.removeEventListener("wheel", naKolko);
+    win.removeEventListener("keydown", naKlawisz);
+    win.removeEventListener("touchstart", naDotykStart);
+    win.removeEventListener("touchmove", naDotyk);
+  };
+  return { trzymaj, stop };
+}
+
+/* ------------------------------------------------------ act 2a: amnesia -- */
+
+/** Where the notes lie on the desk: fractions of the section and a turn in degrees. */
+// In template order (two notes per document: State, Journal, Lessons, Decisions), clear of the
+// heading at the top left. Within the first lines and within the second lines the notes stand left
+// to right in the order of their documents, so in act 2b two notes in the air never cross paths.
+export const ROZSYPKA = Object.freeze([
+  [0.035, 0.6, -6], [0.2, 0.7, 4], [0.47, 0.34, -3], [0.44, 0.56, 7],
+  [0.62, 0.2, 3], [0.55, 0.66, -4], [0.76, 0.4, -5], [0.8, 0.16, 6],
+]);
+
+/** The order the notes drop onto the desk in (indices in template order), scattered on purpose. */
+export const KOLEJNOSC_UPADKU = Object.freeze([4, 0, 6, 2, 7, 1, 5, 3]);
+
+/** Act 2a timing in ms: the notes drop one after another, the sentences stack under the heading. */
+export const AMNEZJA = Object.freeze({ start: 200, krokKarteczki: 140, upadek: 700, startZdan: 350, krokZdania: 450 });
+
+/** Places the notes and gives each its turn in the drop. */
+export function zamontujAmnezje(doc = document) {
+  const karteczki = [...doc.querySelectorAll(".amnezja [data-karteczka]")];
+  karteczki.forEach((k, i) => {
+    const [x, y, r] = ROZSYPKA[i % ROZSYPKA.length];
+    // fractions, not pixels: film.css places the note (and recomposes the desk on a phone)
+    k.style.setProperty("--x", String(x));
+    k.style.setProperty("--y", String(y));
+    k.style.rotate = `${r}deg`;
+    const kolej = KOLEJNOSC_UPADKU.indexOf(i);
+    k.style.setProperty("--opoznienie", `${AMNEZJA.start + (kolej < 0 ? i : kolej) * AMNEZJA.krokKarteczki}ms`);
+  });
+  doc.querySelectorAll(".amnezja__zdanie").forEach((z, i) => {
+    z.style.setProperty("--opoznienie", `${AMNEZJA.startZdan + i * AMNEZJA.krokZdania}ms`);
+  });
+}
+
+/* --------------------------------------------- act 2b: memory, the peak -- */
+
+/** How high a note rises on its way (px) and how much it grows at the top of the arc. */
+export const LUK = Object.freeze({ wysokosc: 140, wzrost: 0.1 });
+
+/**
+ * Act 2b timing in ms: a flight lasts `czas`, the next starts `krok` later, so at most two notes
+ * are in the air at once. The longest animation on the page (the peak).
+ */
+export const LOT = Object.freeze({ start: 350, krok: 350, czas: 700 });
+
+/** When note n (in flight order) starts and lands, in ms. */
+export function oknoLotu(n, l = LOT) {
+  const od = l.start + n * l.krok;
+  return [od, od + l.czas];
+}
+
+/** The whole flight of `n` notes, in ms. */
+export function czasSzczytu(n, l = LOT) {
+  return oknoLotu(n - 1, l)[1];
+}
+
+/**
+ * A note t (0..1) of the way to its line: offset (x, y in px), turn, scale, lift, and the
+ * opacities of the note and of the printed line that takes its place.
+ * @param {number} t @param {{ dx: number, dy: number, r: number, s: number }} cel
+ */
+export function ksztaltLotu(t, cel) {
   const e = easeInOut(t);
-  const luk = Math.sin(Math.PI * e) * -70; // a lift on the way, the note leaves the desk
+  const uniesienie = Math.sin(Math.PI * e); // 0 on the desk, 1 at the top of the arc
   return {
-    t,
     x: cel.dx * e,
-    y: cel.dy * e + luk,
+    y: cel.dy * e - uniesienie * LUK.wysokosc,
     r: cel.r * (1 - e),
-    s: 1 - (1 - cel.s) * e,
+    s: 1 - (1 - cel.s) * e + uniesienie * LUK.wzrost,
+    uniesienie,
     karteczka: 1 - smooth((t - 0.78) / 0.22),
     wpis: smooth((t - 0.7) / 0.3),
   };
 }
 
-/** Where the notes lie before they fly: fractions of the stage and a turn in degrees. */
-// All above the documents (they stand from ~63 % of the stage down) and clear of the heading.
-export const ROZSYPKA = Object.freeze([
-  [0.55, 0.17, -7], [0.79, 0.12, 5], [0.65, 0.32, -3], [0.86, 0.35, 8],
-  [0.5, 0.47, 4], [0.1, 0.52, -6], [0.73, 0.5, -2],
-]);
+/**
+ * The note's shadow at a given lift: on the desk it is the note's own shadow (--cien-notki), in the
+ * air it grows longer and softer, as a card lifted off the table.
+ * @param {number} u lift, 0..1
+ */
+export function cienLotu(u) {
+  const y = (14 + u * 26).toFixed(1);
+  const blur = (30 + u * 30).toFixed(1);
+  const a = (0.18 - u * 0.06).toFixed(3);
+  return `0 2px 4px rgba(49, 44, 37, .1), 0 ${y}px ${blur}px rgba(49, 44, 37, ${a})`;
+}
 
 /**
  * The order the notes fly in: the first line of every document, then the second ones, so the four
@@ -77,95 +241,102 @@ export function kolejnoscLotu(dokumentWpisu) {
 }
 
 /**
- * Act 4: once the window has straightened it carries no transform at all, so its text is drawn
- * sharp rather than as a picture of a 3D layer (film 3.0.0, P-035). Returns a stop function.
- * @param {{ acts: { el: Element, p: number }[] }} api
+ * In act 2b the same scatter is squeezed into the band between the heading and the documents
+ * (about 36 %–59 % of the section), so no note covers a document before it flies.
  */
-export function zamontujPanel(api, doc = document, win = window) {
-  const el = doc.querySelector('[data-akt="panel"]');
-  const akt = api.acts.find((a) => a.el === el);
-  if (!el || !akt) return () => {};
-  let ramka = 0;
-  const rysuj = () => {
-    ramka = win.requestAnimationFrame(rysuj);
-    el.classList.toggle("prosto", akt.p >= PROSTO);
-  };
-  ramka = win.requestAnimationFrame(rysuj);
-  return () => win.cancelAnimationFrame(ramka);
+export function yPamieci(y) {
+  return 0.36 + (y - 0.16) * 0.42;
 }
 
-/** The progress of act 4 at which the window is straight (the CSS tilt reaches 0 at 1 / 2.4). */
-export const PROSTO = 1 / 2.4;
-
-/** Sets the cue and reveal windows the template leaves to the film; call before mounting. */
-export function ustawOkna(doc = document) {
-  const zdania = [...doc.querySelectorAll(".pamiec__zdanie")];
-  oknaZdan(zdania.length).forEach((w, i) => zdania[i].setAttribute("data-sc-cue", `${w} 0.3 0.3`));
-  const paski = [...doc.querySelectorAll(".pasek-makieta[data-sc-reveal]")];
-  oknaPaskow(paski.length).forEach((w, i) => paski[i].setAttribute("data-sc-reveal-at", w));
+/** Keyframes of one flight, sampled from ksztaltLotu. */
+export function klatkiLotu(cel, kroki = 16) {
+  return Array.from({ length: kroki + 1 }, (_, k) => {
+    const l = ksztaltLotu(k / kroki, cel);
+    return {
+      offset: k / kroki,
+      opacity: +l.karteczka.toFixed(3),
+      transform: `translate3d(${l.x.toFixed(1)}px, ${l.y.toFixed(1)}px, 0) rotate(${l.r.toFixed(2)}deg) scale(${l.s.toFixed(3)})`,
+      boxShadow: cienLotu(l.uniesienie),
+    };
+  });
 }
 
 /**
- * Drives act 2 from the engine's own progress of that act. Returns a stop function.
- * @param {{ acts: { el: Element, p: number }[] }} api  the instance ScrollCraft.mount returned
+ * Act 2b: copies the desk's notes into the flight layer (decoration, hidden from assistive tech)
+ * and returns { graj, resetuj } for the once-section. Each note flies to its line and its
+ * handwriting becomes the printed entry.
  */
-export function zamontujPamiec(api, doc = document, win = window) {
-  const el = doc.querySelector('[data-akt="pamiec"]');
-  const akt = api.acts.find((a) => a.el === el);
-  if (!el || !akt) return () => {};
-  const scena = el.querySelector("[data-sc-stage]");
-  const karteczki = [...el.querySelectorAll("[data-karteczka]")];
-  const wpisy = [...el.querySelectorAll("[data-wpis]")];
-  const dokumenty = el.querySelector(".dokumenty");
-  if (karteczki.length !== wpisy.length) return () => {};
-  const docs = [...el.querySelectorAll("[data-dokument]")];
-  const kolejka = kolejnoscLotu(wpisy.map((w) => docs.indexOf(w.closest("[data-dokument]"))));
-  const miejsce = kolejka.reduce((m, i, n) => { m[i] = n; return m; }, []);
-
-  karteczki.forEach((k, i) => {
+export function zamontujPamiec(doc = document) {
+  const sekcja = doc.querySelector('[data-raz="pamiec"]');
+  const warstwa = sekcja?.querySelector("[data-lot]");
+  const zrodla = [...doc.querySelectorAll(".amnezja [data-karteczka]")];
+  const wpisy = sekcja ? [...sekcja.querySelectorAll("[data-wpis]")] : [];
+  if (!sekcja || !warstwa || zrodla.length !== wpisy.length) return { graj() {}, resetuj() {} };
+  const karteczki = zrodla.map((z, i) => {
+    const k = z.cloneNode(true);
+    k.removeAttribute("data-karteczka");
+    k.style.removeProperty("--opoznienie");
+    k.style.removeProperty("rotate"); // the turn is part of the flight's own transform
     const [x, y] = ROZSYPKA[i % ROZSYPKA.length];
-    k.style.left = `${(x * 100).toFixed(1)}%`;
-    k.style.top = `${(y * 100).toFixed(1)}%`;
+    k.style.setProperty("--x", String(x));
+    k.style.setProperty("--y", String(+yPamieci(y).toFixed(4)));
+    warstwa.append(k);
+    return k;
   });
+  const docs = [...sekcja.querySelectorAll("[data-dokument]")];
+  const kolejka = kolejnoscLotu(wpisy.map((w) => docs.indexOf(w.closest("[data-dokument]"))));
+  let animacje = [];
 
-  let cele = [];
-  const zmierz = () => {
-    const s = scena.getBoundingClientRect();
-    cele = karteczki.map((k, i) => {
+  const graj = () => {
+    resetuj();
+    kolejka.forEach((i, n) => {
+      const k = karteczki[i];
       const w = wpisy[i].getBoundingClientRect();
-      const kx = k.offsetLeft + k.offsetWidth / 2;
-      const ky = k.offsetTop + k.offsetHeight / 2;
-      const wx = w.left - s.left + Math.min(k.offsetWidth * 0.62, w.width) / 2;
-      const wy = w.top - s.top + w.height / 2;
-      return { dx: wx - kx, dy: wy - ky, r: ROZSYPKA[i % ROZSYPKA.length][2], s: 0.62 };
+      const kr = k.getBoundingClientRect();
+      const cel = {
+        dx: w.left + Math.min(kr.width * 0.62, w.width) / 2 - (kr.left + kr.width / 2),
+        dy: w.top + w.height / 2 - (kr.top + kr.height / 2),
+        r: ROZSYPKA[i % ROZSYPKA.length][2],
+        s: 0.62,
+      };
+      const [od] = oknoLotu(n);
+      animacje.push(k.animate(klatkiLotu(cel), { duration: LOT.czas, delay: od, fill: "both", easing: "linear" }));
+      animacje.push(wpisy[i].animate(
+        [{ opacity: 0, transform: "translateY(6px)" }, { opacity: 1, transform: "none" }],
+        { duration: LOT.czas * 0.3, delay: od + LOT.czas * 0.7, fill: "both", easing: "ease-out" },
+      ));
     });
-    ostatnie = -1;
   };
+  const resetuj = () => {
+    for (const a of animacje) a.cancel();
+    animacje = [];
+  };
+  return { graj, resetuj };
+}
 
-  let ostatnie = -1;
+/* ------------------------------------------------------------ act 5: cards -- */
+
+/** How much a card is lifted given its centre's distance from the frame's centre (px). */
+export function uniesienieFiszki(odleglosc, szerokosc) {
+  return 1 - smooth(Math.abs(odleglosc) / (szerokosc * 0.9));
+}
+
+/** Act 5: the card passing the middle of the frame rises and straightens. Returns a stop function. */
+export function zamontujTasme(doc = document, win = window) {
+  const fiszki = [...doc.querySelectorAll("[data-fiszka]")];
+  if (!fiszki.length) return () => {};
   let ramka = 0;
   const rysuj = () => {
     ramka = win.requestAnimationFrame(rysuj);
-    const p = akt.p;
-    if (p === ostatnie) return;
-    ostatnie = p;
-    dokumenty.style.opacity = smooth((p - PAMIEC.dokumenty[0]) / (PAMIEC.dokumenty[1] - PAMIEC.dokumenty[0])).toFixed(3);
-    karteczki.forEach((k, i) => {
-      const l = lotKarteczki(p, miejsce[i], cele[i]);
-      const wejscie = smooth((p - i * 0.012) / 0.06); // the notes are already there when the act arrives
-      k.style.opacity = (l.karteczka * wejscie).toFixed(3);
-      k.style.transform = `translate3d(${l.x.toFixed(1)}px, ${l.y.toFixed(1)}px, 0) rotate(${l.r.toFixed(2)}deg) scale(${l.s.toFixed(3)})`;
-      wpisy[i].style.opacity = l.wpis.toFixed(3);
-      wpisy[i].style.transform = `translateY(${((1 - l.wpis) * 6).toFixed(1)}px)`;
-    });
+    const srodek = win.innerWidth / 2;
+    for (const f of fiszki) {
+      const r = f.getBoundingClientRect();
+      if (r.bottom < 0 || r.top > win.innerHeight) continue;
+      const u = uniesienieFiszki(r.left + r.width / 2 - srodek, r.width);
+      f.style.setProperty("--unies", u.toFixed(3));
+      f.style.zIndex = u > 0.5 ? "2" : ""; // the exposed card lies over its neighbours
+    }
   };
-
-  const poZmianie = () => zmierz();
-  zmierz();
-  win.addEventListener("resize", poZmianie, { passive: true });
   ramka = win.requestAnimationFrame(rysuj);
-  return () => {
-    win.cancelAnimationFrame(ramka);
-    win.removeEventListener("resize", poZmianie);
-  };
+  return () => win.cancelAnimationFrame(ramka);
 }

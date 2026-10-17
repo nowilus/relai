@@ -187,3 +187,32 @@ wersji i wydaniu, nie w E5.
   przykładowych z widocznym oznaczeniem.
 - Bez muzyki i dźwięku (strona, nie film).
 - Telefon, pełne reduced motion i plakat zastępczy — E7, jeśli bramka wybierze Film.
+
+## Zmiany z E7 „Dopieszczenie Filmu” (2026-10-17, wybory Łukasza)
+
+Ta sekcja ma pierwszeństwo przed opisem wyżej tam, gdzie się z nim nie zgadza.
+
+- **Zasada ruchu: animacja jednorazowa na sekcję.** Łukasz po kalibracji aktu 3: „wolałbym
+  [...] jednorazowa animacja po prostu na sekcję”. Akty 2a, 2b, 3, 4 i 6 nie są przypięte
+  i nie czytają `--sc-p`: każdy gra swoją animację raz, gdy jego góra wejdzie w kadr, i resetuje się
+  dopiero po całkowitym zejściu z ekranu. Przewinięcie wstecz niczego nie cofa.
+- **Przytrzymanie.** Przewijanie w dół czeka, aż animacja sekcji się skończy: jedno dosunięcie
+  do góry sekcji, potem blokada kółka, klawiszy i dotyku do końca animacji. W górę nie trzyma nigdy.
+- **Dwie sekcje zamiast jednego przypiętego aktu 2.** Amnezja (2a) i Pamięć (2b) to osobne sekcje;
+  karteczki w 2b to kopie z 2a, które lecą do wpisów. Cisza z dawnego aktu 2 znika razem
+  z przypięciem.
+- **Szczyt = najdłuższa animacja,** nie najdłuższy odcinek przewijania: 2b trwa 3,5 s, a pozostałe
+  sekcje od 1,6 do 2,05 s. Strzeże tego test.
+- **Komendy zostają przesuwem `pan`** (Łukasz: „działa idealnie”). Fiszka na środku kadru unosi się
+  i powiększa, a pierwsza i ostatnia fiszka też przechodzą przez środek.
+- **Reflektor usunięty** (Łukasz: „tandetne podświetlenie”). Akt 6 kładzie konfigurator na stole
+  i drukuje komendy wiersz po wierszu.
+- **Telefon (≤ 600 px) ma osobną kompozycję.** Tekst idzie na całą szerokość, a przedmioty stoją
+  pod nim. Instalacji nie da się zrobić z telefonu, więc zamiast konfiguratora jest karta: jedno
+  zdanie, „Wyślij sobie link” (systemowe udostępnianie albo schowek) i „Kopiuj komendy”.
+- **Ograniczony ruch i brak JavaScriptu:** każda sekcja stoi w stanie końcowym. Taśma komend
+  układa się wtedy w zwykłą siatkę wszystkich fiszek, bez przypięcia i bez martwego przewijania.
+  Przyciski, które wymagają skryptu, zostają ukryte.
+
+Krzywa odczuć zostaje, z dwiema zmianami: w akcie 4 okno prostuje się z przechyłu i jest już
+nieprzezroczyste (wymóg kontrastu), a odczucie aktu 6 to gotowość bez reflektora.

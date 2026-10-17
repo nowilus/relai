@@ -387,50 +387,50 @@ Sonnet 5.5 (`Agent` z `model: "sonnet"`) dostaje wyłącznie testy z punktu 7 i 
 Każdy punkt Weryfikacji, który przeszedł, odhaczasz w `PROMPT_ETAP_7.md` (`- [ ]` → `- [x]`)
 zaraz po jego sprawdzeniu, nie na końcu etapu; punkt, który nie przeszedł, zostaje pusty.
 
-- [ ] `node --test "site/**/*.test.mjs"` kończy się bez błędów, liczba testów ≥ 229 (E5, `FAKT`)
+- [x] `node --test "site/**/*.test.mjs"` kończy się bez błędów, liczba testów ≥ 229 (E5, `FAKT`)
       plus nowe; kontrola pozytywna: szablon Filmu bez jednej fiszki albo bez komendy instalacji
       w HTML musi wywrócić test treści bez JS.
-- [ ] Silnik bez zmian: `sha256sum site/vendor/scrollcraft/scrollcraft.js scrollcraft.css LICENSE`
+- [x] Silnik bez zmian: `sha256sum site/vendor/scrollcraft/scrollcraft.js scrollcraft.css LICENSE`
       równe wpisom w `site/vendor/scrollcraft/VERSION`.
-- [ ] Biurko nietknięte (dowód negatywny): sumy `sha256sum` plików `site/biurko/*`,
+- [x] Biurko nietknięte (dowód negatywny): sumy `sha256sum` plików `site/biurko/*`,
       `site/zasoby/**`, `site/vendor/three/**`, `site/css/strona.css`, `site/index.html`
       i `site/pl/index.html` zapisane w katalogu roboczym **na starcie etapu** (przed pierwszą
       zmianą) i porównane na końcu, po pełnej budowie — zero różnic; kontrola pozytywna: plik
       z dopisaną spacją daje jedną różnicę.
-- [ ] Lista uwag z punktu 1 pokazana Łukaszowi w otwartym oknie przed pierwszą poprawką; jego
+- [x] Lista uwag z punktu 1 pokazana Łukaszowi w otwartym oknie przed pierwszą poprawką; jego
       wybór zacytowany we wpisie.
-- [ ] Każdy z aktów 2–6 ma werdykt Łukasza na kadrze „przed i po” z obrysem zmiany (L-0229),
+- [x] Każdy z aktów 2–6 ma werdykt Łukasza na kadrze „przed i po” z obrysem zmiany (L-0229),
       zacytowany we wpisie; kadry przyjęte w `docs/zasoby/STRONA/builds/film/kalibracja/`.
-- [ ] Telefon 390 × 844, PL i EN: pierwszy ekran ma nagłówek, jedno zdanie i przycisk w kadrze;
+- [x] Telefon 390 × 844, PL i EN: pierwszy ekran ma nagłówek, jedno zdanie i przycisk w kadrze;
       brak poziomego przewijania strony (`document.documentElement.scrollWidth` ≤ 390 w każdym
       akcie); szczyt ma najdłuższy odcinek przewijania; hero telefonu z werdyktem Łukasza.
-- [ ] Ograniczony ruch (emulacja `prefers-reduced-motion: reduce`): pierwsza asercja to tryb
+- [x] Ograniczony ruch (emulacja `prefers-reduced-motion: reduce`): pierwsza asercja to tryb
       (L-0213), potem w każdym akcie stan końcowy widoczny bez przewijania wewnątrz przyklejenia
       i bez pustych kadrów.
-- [ ] Bez JavaScriptu (DevTools z wyłączonym JS oraz `curl`): nagłówek, zdania szczytu, 15 fiszek,
+- [x] Bez JavaScriptu (DevTools z wyłączonym JS oraz `curl`): nagłówek, zdania szczytu, 15 fiszek,
       komenda instalacji i konfigurator w HTML i widoczne; zasłony nie ma.
-- [ ] Cztery przebiegi zrzutów (desktop, telefon, reduced motion, JS wyłączony) bez pustych kadrów
+- [x] Cztery przebiegi zrzutów (desktop, telefon, reduced motion, JS wyłączony) bez pustych kadrów
       i bez martwego przewijania poza ciszą zapisaną w briefie; arkusze w `docs/zasoby/STRONA/lab/film/`;
       karta zgody na `playwright-core` pokazana, a odpowiedź zacytowana we wpisie.
-- [ ] Kontrola odczuć: tabela akt → odczucie z briefu → odczucie z kadru we wpisie; rozjazd tylko
+- [x] Kontrola odczuć: tabela akt → odczucie z briefu → odczucie z kadru we wpisie; rozjazd tylko
       z werdyktem Łukasza.
-- [ ] Lighthouse dostępność ≥ 95 dla `/film/` i `/pl/film/` (desktop i telefon); kontrast
+- [x] Lighthouse dostępność ≥ 95 dla `/film/` i `/pl/film/` (desktop i telefon); kontrast
       najjaśniejszej klatki pod każdą linią tekstu ≥ 4,5 : 1 (tekst duży ≥ 3 : 1).
-- [ ] Budżet i płynność (`FAKT`, instrument z `site/README.md`): Film w MiB obok 0,31 MiB z E5;
+- [x] Budżet i płynność (`FAKT`, instrument z `site/README.md`): Film w MiB obok 0,31 MiB z E5;
       przy CPU ×4 p95 klatki w ruchu ≤ 26 ms na desktopie i w emulacji telefonu; zasłona przy
       zimnym wejściu na telefonie (Fast 4G, CPU ×4) — czas zejścia i brak stanów pośrednich
       (zrzuty co 100 ms).
-- [ ] Konsola bez błędów i nieudanych żądań przy wejściu, pełnym przewinięciu i konfiguratorze
+- [x] Konsola bez błędów i nieudanych żądań przy wejściu, pełnym przewinięciu i konfiguratorze
       (Film PL i EN, desktop i telefon); żądania tylko `localhost` i `api.github.com`.
-- [ ] Podstawy bezpieczeństwa:
+- [x] Podstawy bezpieczeństwa:
       `grep -rn --exclude="*.test.mjs" "innerHTML\|outerHTML\|insertAdjacentHTML\|document.write" site/js site/biurko site/film`
       kończy się kodem 1, a bez `--exclude` trafia `site/js/wersja.test.mjs` (kontrola pozytywna);
       kod z `site/vendor/` tylko ze ścieżek względnych, bez CDN; formularz bez `action`/`method`;
       `grep -rn "data-sc-src" site/film site/narzedzia/szablon-film.html` nie trafia nic.
-- [ ] Wpis w `docs/DZIENNIK.md` dopisany na końcu sekcji „Wpisy”, podpis
+- [x] Wpis w `docs/DZIENNIK.md` dopisany na końcu sekcji „Wpisy”, podpis
       `Autor: RelAI (Opus 5.5) + Lukasz`; ryzyka T1, T2, T3 i T6 zaktualizowane (T6: telefon);
       `docs/STATE.md` zaktualizowany.
-- [ ] Katalog roboczy `.claude/relai/work/STRONA_RELAI/E7/` przejrzany raportem
+- [x] Katalog roboczy `.claude/relai/work/STRONA_RELAI/E7/` przejrzany raportem
       (`node .claude/relai/tools/clean-work.js raport`) i skasowany po „tak”; liczby przed i po
       w sekcji „Zweryfikowane” wpisu. Artefakty poza katalogiem (serwer podglądu w tle, strony
       DevTools, `playwright-core`, jeśli trafił poza katalog roboczy) wypisane z nazwy razem z tym,
