@@ -1,16 +1,21 @@
 // The fixed copy layer and the desk map. Scroll sets the camera's target; the camera's actual
 // position (after damping) drives the copy, so text never arrives mid-flight.
-import { postepPrzystanku } from "./kamera.js";
+import { postepPrzystanku, ulamekMapy } from "./kamera.js";
 import { przejscie } from "./przyblizenie.js";
 
 const PRZESUW_VH = 1.6; // copy rises at most this much while it fades, well under the 4vh cap
 const PRZYSTANEK_EKRANU = 6; // the install stop: the laptop display carries the configurator
 const WSTECZ_PX = 2; // a scroll back by more than this leaves the close-up
+// one track unit is this share of the window's height: a stop is three or four wheel notches, not seven
+// (Łukasz, E6: "not ten scrolls for the notes to turn into documents")
+const SKALA_DROGI = 0.45;
 
 export function zamontujWarstwe({ tor, przekladka, scena, ekran, ograniczRuch }) {
   const przystanki = [...document.querySelectorAll("[data-przystanek]")]
     .sort((a, b) => Number(a.dataset.przystanek) - Number(b.dataset.przystanek));
   const linkiMapy = [...document.querySelectorAll(".mapa [data-cel]")];
+  const osMapy = document.querySelector(".mapa__lista");
+  let ulamekOsi = -1;
   const korzen = document.documentElement;
   const sygnal = new AbortController();
   const nasluch = { signal: sygnal.signal };
@@ -20,9 +25,12 @@ export function zamontujWarstwe({ tor, przekladka, scena, ekran, ograniczRuch })
   let ostatnieY = window.scrollY;
 
   function zmierz() {
-    droga = tor.suma * window.innerHeight;
+    droga = tor.suma * window.innerHeight * SKALA_DROGI;
     przekladka.style.height = `${Math.round(droga + window.innerHeight)}px`;
   }
+
+  /** Every stop's scroll offset (the middle of its hold). The silence is not a stop: the camera flies over it. */
+  const punkty = () => przystanki.map((_, nr) => Math.round(postepPrzystanku(tor, nr) * droga));
 
   const postep = () => (droga > 0 ? window.scrollY / droga : 0);
 
@@ -58,9 +66,19 @@ export function zamontujWarstwe({ tor, przekladka, scena, ekran, ograniczRuch })
       else a.removeAttribute("aria-current");
       a.classList.toggle("byl", nr < stan.przystanek);
     });
+    // the axis fill follows the camera, not the scroll, so it meets a dot when the camera holds there
+    const u = Math.round(ulamekMapy(tor, stan.postep) * 1000) / 1000;
+    if (osMapy && u !== ulamekOsi) {
+      ulamekOsi = u;
+      osMapy.style.setProperty("--postep-osi", String(u));
+    }
   }
 
+  // Plain scrolling, nothing held (Łukasz, E6: "we do not block until the animation ends", after four
+  // rounds of stepped, held moves). The camera follows the scroll with a slow damping; the peak plays
+  // once, in time, when the camera reaches it, and the visitor may scroll on while it plays.
   function idzDo(nr, { natychmiast = false } = {}) {
+    scena.skok(postepPrzystanku(tor, nr));
     const top = postepPrzystanku(tor, nr) * droga;
     window.scrollTo({ top, behavior: natychmiast || ograniczRuch ? "auto" : "smooth" });
     if (natychmiast) scena.ustawPostep(postepPrzystanku(tor, nr), true);
@@ -138,6 +156,7 @@ export function zamontujWarstwe({ tor, przekladka, scena, ekran, ograniczRuch })
       korzen.classList.remove("przyblizony");
       for (const a of ["tabindex", "role", "aria-label"]) ekran.removeAttribute(a);
       for (const el of przystanki) for (const w of ["opacity", "transform", "visibility"]) el.style.removeProperty(w);
+      osMapy?.style.removeProperty("--postep-osi");
       przekladka.style.removeProperty("height");
     },
   };

@@ -311,47 +311,209 @@ export function etykietaTeczki(tekst) {
 }
 
 /**
- * The laptop screen before the configurator: the Claude Code window with the RelAI bars, drawn as
- * shapes (the real bars rendered from the plugins' code come in E3).
+ * An index card pulled up out of the box: its tab colour along the top, the command's name by hand and
+ * the way to call it in mono. Only the upper part shows above the cards in front of it.
  */
-export function ekranPanelu() {
+export function fiszkaKomendy(tytul, komenda, kolor) {
+  const W = 1024, H = 484;
+  const [c, ctx] = plotno(W, H);
+  const los = losowanie(151);
+  ctx.fillStyle = "#efe6d3";
+  ctx.fillRect(0, 0, W, H);
+  ctx.fillStyle = kolor;
+  ctx.fillRect(0, 0, W, 26);
+  // only the top 43 % shows above the box wall (3.7 cm of 8.6): both lines sit there
+  ctx.fillStyle = KOLOR.txt;
+  ctx.font = "700 80px Kalam, cursive";
+  ctx.fillText(tytul, 60, 108);
+  ctx.fillStyle = KOLOR.glina2;
+  ctx.font = "500 46px 'JetBrains Mono', monospace";
+  ctx.fillText(`/${komenda}`, 64, 182);
+  ctx.strokeStyle = "rgba(143,133,116,.35)";
+  ctx.lineWidth = 3;
+  for (let y = 300; y < H - 20; y += 52) {
+    ctx.beginPath();
+    ctx.moveTo(60, y);
+    ctx.lineTo(W - 60, y);
+    ctx.stroke();
+  }
+  szum(ctx, W, H, 6, los);
+  return tekstura(c);
+}
+
+/**
+ * The top sheet in the open plan folder: a handwritten title and the stages as a checklist, the done
+ * ones ticked and struck through, the current one marked. `etapy`: [{ nazwa, stan }] from scena.etapy,
+ * stan "zrobiony" | "biezacy" | "czeka" (the drawer reads the same list).
+ */
+export function kartaPlanu(tytul, etapy) {
+  const W = 1024, H = 1364;
+  const [c, ctx] = plotno(W, H);
+  const los = losowanie(127);
+  ctx.fillStyle = KOLOR.kartka;
+  ctx.fillRect(0, 0, W, H);
+  ctx.fillStyle = KOLOR.txt;
+  ctx.font = "700 120px Kalam, cursive";
+  ctx.fillText(tytul, 96, 200);
+  ctx.fillStyle = KOLOR.glina;
+  ctx.fillRect(100, 236, 150, 9);
+  etapy.forEach(({ nazwa: etap, stan }, i) => {
+    const y = 380 + i * 132;
+    const zrobiony = stan === "zrobiony";
+    ctx.strokeStyle = KOLOR.txt2;
+    ctx.lineWidth = 5;
+    ctx.strokeRect(100, y - 52, 58, 58);
+    if (zrobiony) {
+      ctx.strokeStyle = KOLOR.szalwia;
+      ctx.lineWidth = 11;
+      ctx.lineCap = "round";
+      ctx.beginPath();
+      ctx.moveTo(110, y - 24);
+      ctx.lineTo(128, y - 4);
+      ctx.lineTo(170, y - 64);
+      ctx.stroke();
+    } else if (stan === "biezacy") {
+      ctx.fillStyle = KOLOR.musztarda;
+      ctx.beginPath();
+      ctx.arc(129, y - 23, 15, 0, 6.28);
+      ctx.fill();
+    }
+    ctx.fillStyle = zrobiony ? KOLOR.txt2 : KOLOR.txt;
+    ctx.font = "600 56px 'Hanken Grotesk', sans-serif";
+    ctx.fillText(etap, 200, y);
+    if (zrobiony) {
+      const szer = ctx.measureText(etap).width;
+      ctx.fillStyle = "rgba(97,89,76,.55)";
+      ctx.fillRect(196, y - 18, szer + 8, 4);
+    }
+  });
+  zuzycie(ctx, W, H, los);
+  szum(ctx, W, H, 6, los);
+  return tekstura(c);
+}
+
+/**
+ * The laptop screen: the Claude Code window with the three RelAI bars above the prompt, drawn from the
+ * mock-up in site/dane/makiety.json (built from the plugins' code and a capture of the app, E5), on
+ * sample data marked as such. Type is set large: at the Panel stop the screen is a third of the frame.
+ * @param {{ kolory: object, paski: object[] }} m  read from the page's [data-makieta] (swiat.js)
+ */
+export function ekranPanelu(m) {
   const W = 1280, H = 800;
   const [c, ctx] = plotno(W, H);
-  ctx.fillStyle = "#1f1c18";
+  const k = m.kolory;
+  const czcionka = (waga, px) => `${waga} ${px}px 'Hanken Grotesk', sans-serif`;
+  ctx.fillStyle = k.okno;
   ctx.fillRect(0, 0, W, H);
-  ctx.fillStyle = "#2a2621";
+  ctx.fillStyle = "#232220";
   ctx.fillRect(0, 0, W, 54);
-  [KOLOR.glina, KOLOR.musztarda, KOLOR.szalwia].forEach((k, i) => {
-    ctx.fillStyle = k;
+  [KOLOR.glina, KOLOR.musztarda, KOLOR.szalwia].forEach((kolor, i) => {
+    ctx.fillStyle = kolor;
     ctx.beginPath();
     ctx.arc(32 + i * 28, 27, 8, 0, 6.28);
     ctx.fill();
   });
-  // conversation lines
-  ctx.fillStyle = "rgba(242,233,216,.16)";
-  for (let i = 0; i < 9; i++) ctx.fillRect(80, 110 + i * 38, 520 + ((i * 137) % 420), 14);
-  ctx.fillStyle = "rgba(242,233,216,.08)";
-  ctx.fillRect(0, 486, W, 1);
-  // three calm bars above the prompt
-  const bar = (y, etykieta, kolor, czesc) => {
-    ctx.fillStyle = "rgba(242,233,216,.55)";
-    ctx.font = "500 24px 'Hanken Grotesk', sans-serif";
-    ctx.fillText(etykieta, 80, y + 18);
-    ctx.strokeStyle = "rgba(242,233,216,.35)";
-    ctx.lineWidth = 2;
-    for (let i = 0; i < 5; i++) {
-      const x = 300 + i * 120;
-      ctx.strokeRect(x, y, 96, 26);
-      ctx.fillStyle = kolor;
-      if (i < czesc) ctx.fillRect(x + 4, y + 4, 88, 18);
+  // next to the window's dots: the right corner sits under the desk map at the Panel stop
+  ctx.fillStyle = k.wyciszony;
+  ctx.font = czcionka(500, 22);
+  ctx.fillText(k.przyklad, 130, 35);
+  // the conversation above, quiet: what the bars sit under
+  ctx.fillStyle = "rgba(240,239,236,.1)";
+  ctx.fillRect(W - 520, 90, 460, 46);
+  ctx.fillStyle = "rgba(240,239,236,.14)";
+  for (let i = 0; i < 4; i++) ctx.fillRect(60, 170 + i * 30, 540 + ((i * 173) % 380), 12);
+  ctx.fillStyle = k.linia;
+  ctx.fillRect(40, 312, W - 80, 1);
+
+  const RZAD = 118, X_TRESC = 210, X_LICZBA = W - 40;
+  m.paski.forEach((p, n) => {
+    const y = 336 + n * RZAD;
+    ctx.fillStyle = k.wyciszony;
+    ctx.font = czcionka(500, 26);
+    ctx.fillText(p.etykieta, 60, y + 40);
+    ctx.textAlign = "right";
+    ctx.fillStyle = k.tekst;
+    ctx.font = czcionka(700, 30);
+    const jedn = ` ${p.jednostka}`;
+    ctx.fillText(p.liczba, X_LICZBA - ctx.measureText(jedn).width - 4, y + 40);
+    ctx.fillStyle = k.wyciszony;
+    ctx.font = czcionka(500, 24);
+    ctx.fillText(jedn, X_LICZBA, y + 40);
+    ctx.textAlign = "left";
+    if (p.plan) {
+      ctx.fillStyle = k.tekst;
+      ctx.font = czcionka(700, 32);
+      ctx.fillText(p.plan.nazwa, X_TRESC, y + 40);
+      let x = X_TRESC + ctx.measureText(p.plan.nazwa).width + 20;
+      ctx.font = czcionka(700, 22);
+      const sz = ctx.measureText(p.plan.status).width + 24;
+      ctx.strokeStyle = k.wToku;
+      ctx.lineWidth = 2;
+      ctx.strokeRect(x, y + 14, sz, 36);
+      ctx.fillStyle = k.wToku;
+      ctx.fillText(p.plan.status, x + 12, y + 40);
+      x += sz + 20;
+      ctx.fillStyle = k.wyciszony;
+      ctx.font = czcionka(500, 28);
+      ctx.fillText(p.plan.etapNazwa, x, y + 40);
     }
-  };
-  bar(520, "cache", KOLOR.szalwia, 4);
-  bar(572, "limit", KOLOR.musztarda, 3);
-  bar(624, "plan", KOLOR.glina, 2);
-  ctx.fillStyle = "#2a2621";
-  ctx.fillRect(60, 692, W - 120, 64);
-  ctx.strokeStyle = "rgba(196,100,60,.7)";
-  ctx.strokeRect(60, 692, W - 120, 64);
-  return tekstura(c);
+    if (p.postep) {
+      p.segmenty.forEach((kolor, i) => {
+        ctx.fillStyle = kolor;
+        ctx.fillRect(X_TRESC + i * 70, y + 4, 62, 12);
+      });
+      ctx.fillStyle = k.wToku;
+      ctx.beginPath();
+      ctx.arc(X_TRESC + 9, y + 54, 9, 0, 6.28);
+      ctx.fill();
+      ctx.fillStyle = k.tekst;
+      ctx.font = czcionka(700, 28);
+      ctx.fillText(p.postep.biezacy, X_TRESC + 30, y + 64);
+      const x = X_TRESC + 30 + ctx.measureText(p.postep.biezacy).width + 18;
+      ctx.fillStyle = k.wyciszony;
+      ctx.font = czcionka(500, 24);
+      ctx.fillText(p.postep.nastepny, x, y + 64);
+    }
+    if (p.baterie.length) {
+      p.baterie.forEach((b, i) => {
+        const x = X_TRESC + i * 190;
+        ctx.strokeStyle = k.wyciszony;
+        ctx.lineWidth = 2;
+        ctx.strokeRect(x, y + 14, 40, 20);
+        ctx.fillRect(x + 40, y + 19, 4, 10);
+        ctx.fillStyle = b.kolor;
+        ctx.fillRect(x + 3, y + 17, 34 * Number(b.zostalo) / 100, 14);
+        ctx.fillStyle = k.wyciszony;
+        ctx.font = czcionka(500, 20);
+        ctx.fillText(b.etykieta, x + 52, y + 31);
+        ctx.fillStyle = k.tekst;
+        ctx.font = czcionka(700, 26);
+        ctx.fillText(b.wartosc, x, y + 66);
+      });
+      if (p.kontekst) {
+        const y2 = y + 92, sz = 380;
+        ctx.fillStyle = k.tor;
+        ctx.fillRect(X_TRESC, y2, sz, 10);
+        ctx.fillStyle = p.kontekst.kolor;
+        ctx.fillRect(X_TRESC, y2, sz * Number(p.kontekst.uzyte) / 100, 10);
+        ctx.fillStyle = k.tekst;
+        ctx.fillRect(X_TRESC + sz * Number(p.kontekst.prog) / 100, y2 - 5, 3, 20);
+        ctx.fillStyle = k.wyciszony;
+        ctx.font = czcionka(500, 22);
+        ctx.fillText(`${p.kontekst.etykieta}  ${p.kontekst.tekst}`, X_TRESC + sz + 20, y2 + 10);
+      }
+    }
+    if (n < m.paski.length - 1) {
+      ctx.fillStyle = k.linia;
+      ctx.fillRect(40, y + RZAD - 8, W - 80, 1);
+    }
+  });
+  ctx.fillStyle = k.prompt;
+  ctx.fillRect(40, 718, W - 80, 58);
+  ctx.strokeStyle = k.linia;
+  ctx.lineWidth = 2;
+  ctx.strokeRect(40, 718, W - 80, 58);
+  ctx.fillStyle = k.tekst;
+  ctx.fillRect(64, 732, 3, 30);
+  return tekstura(c, { aniso: 16 });
 }

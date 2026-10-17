@@ -102,7 +102,47 @@
       { "tytul": "Lekcje", "plik": "LEKCJE.md" },
       { "tytul": "Decyzje", "plik": "DECYZJE.md" }
     ],
-    "teczka": "Plan"
+    "teczka": "Plan",
+    "etapy": [
+      { "nazwa": "E1 · Wywiad i plan", "stan": "zrobiony", "status": "zrealizowany" },
+      { "nazwa": "E2 · Szkielet", "stan": "zrobiony", "status": "zrealizowany" },
+      { "nazwa": "E3 · Pierwsza wersja", "stan": "biezacy", "status": "w toku" },
+      { "nazwa": "E4 · Testy", "stan": "czeka", "status": "oczekuje" },
+      { "nazwa": "E5 · Wydanie", "stan": "czeka", "status": "oczekuje" }
+    ],
+    "przyklad": "dane przykładowe"
+  },
+  "zaslona": {
+    "napis": "Rozkładam biurko"
+  },
+  "szuflady": {
+    "etykieta": "Szuflady",
+    "zamknij": "Zamknij",
+    "dokumenty": {
+      "id": "szuflada-dokumenty",
+      "nazwa": "Dokumenty",
+      "tytul": "Cztery pliki pamięci",
+      "tekst": "Każdy plik odpowiada na inne pytanie z karteczek. Sesja czyta je na starcie, a w trakcie pracy dopisuje nowe wpisy."
+    },
+    "teczka": {
+      "id": "szuflada-teczka",
+      "nazwa": "Teczka",
+      "tytul": "Plan z etapami",
+      "tekst": "Plan powstaje po wywiadzie i po akceptacji jest zamrożony. Zmiany idą datowanymi aneksami, a każdy etap rusza w świeżej sesji i kończy się wpisem do dziennika."
+    },
+    "laptop": {
+      "id": "szuflada-laptop",
+      "nazwa": "Laptop",
+      "tytul": "Paski nad promptem",
+      "tekst": "Trzy paski w oknie Claude Code: plan, postęp etapu oraz cache z limitami i kontekstem.",
+      "zakladki": "Paski panelu"
+    },
+    "pudelko": {
+      "id": "szuflada-pudelko",
+      "nazwa": "Pudełko",
+      "tytul": "komend w pudełku",
+      "tekst": "Każda fiszka to jedna komenda: do czego służy i co wpisać."
+    }
   },
   "film": {
     "pasek": "Na skróty",

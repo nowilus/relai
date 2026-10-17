@@ -14,10 +14,21 @@
 <link rel="preload" href="{{baza}}fonty/fraunces-latin-wonk.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="{{baza}}fonty/hanken-grotesk-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="{{baza}}css/strona.css">
+<!-- the loading curtain from the first frame (not with reduced motion: that gets the flow); its own 30 s limit -->
+<script>if(!matchMedia("(prefers-reduced-motion: reduce)").matches){document.documentElement.classList.add("laduje");setTimeout(function(){document.documentElement.classList.remove("laduje")},30000)}</script>
 <script type="importmap">{ "imports": { "three": "{{baza}}vendor/three/three.module.js", "three/addons/": "{{baza}}vendor/three/addons/" } }</script>
 <script type="module" src="{{baza}}biurko/start.js"></script>
 </head>
 <body>
+<div class="zaslona" data-zaslona aria-hidden="true">
+  <div class="zaslona__notki" data-notki></div>
+  <div class="zaslona__srodek">
+    <p class="zaslona__znak"><img src="{{baza}}grafika/logo.svg" alt="" width="46" height="46"><span>RelAI</span></p>
+    <svg class="zaslona__kreska" viewBox="0 0 100 10" preserveAspectRatio="none"><path d="M 1 6 C 22 2.5, 48 8.5, 70 4.5 S 92 5, 99 3.5" pathLength="1"/></svg>
+    <p class="zaslona__napis">{{zaslona.napis}}</p>
+    <p class="zaslona__procent" data-procent>0 %</p>
+  </div>
+</div>
 <div class="scena" data-scena aria-hidden="true"></div>
 
 <header class="pasek">
@@ -34,6 +45,12 @@
 {{/przystanki}}
     <li><a href="#{{instalacja.id}}" data-cel="6">{{instalacja.nazwa}}</a></li>
   </ol>
+  <ul class="mapa__szuflady" aria-label="{{szuflady.etykieta}}">
+    <li><a href="#{{szuflady.dokumenty.id}}" data-szuflada-cel="dokumenty">{{szuflady.dokumenty.nazwa}}</a></li>
+    <li><a href="#{{szuflady.teczka.id}}" data-szuflada-cel="teczka">{{szuflady.teczka.nazwa}}</a></li>
+    <li><a href="#{{szuflady.laptop.id}}" data-szuflada-cel="laptop">{{szuflady.laptop.nazwa}}</a></li>
+    <li><a href="#{{szuflady.pudelko.id}}" data-szuflada-cel="pudelko">{{szuflady.pudelko.nazwa}}</a></li>
+  </ul>
 </nav>
 
 <main class="tresc" data-tresc>
@@ -114,12 +131,133 @@
         <p class="konfigurator__wersje">{{konfigurator.wersje}}: RelAI <span data-wersja="relai">{{fakty.wersje.relai}}</span> · panel <span data-wersja="panel">{{fakty.wersje.relai-panel}}</span></p>
       </form>
     </div>
+    <!-- a phone cannot install RelAI: instead of the configurator, send the link to yourself (film/telefon.js) -->
+    <div class="instalacja__telefon" data-telefon
+      data-tytul="{{meta.tytul}}"
+      data-link-skopiowany="{{film.instalacja.telefon.linkSkopiowany}}"
+      data-skopiowano="{{film.instalacja.telefon.skopiowano}}"
+      data-blad="{{film.instalacja.telefon.blad}}">
+      <p class="instalacja__telefon-tekst">{{film.instalacja.telefon.tekst}}</p>
+      <pre class="konfigurator__komendy" data-komendy-telefonu>{{komendyDomyslne}}</pre>
+      <div class="instalacja__telefon-akcje">
+        <button type="button" class="przycisk" data-wyslij hidden>{{film.instalacja.telefon.wyslij}}</button>
+        <button type="button" class="przycisk przycisk--drugi" data-kopiuj-komendy hidden>{{film.instalacja.telefon.kopiuj}}</button>
+      </div>
+      <p class="konfigurator__status" data-status-telefonu role="status"></p>
+    </div>
     <footer class="stopka">
       <a href="https://github.com/nowilus/relai">{{stopka.kod}}</a>
       <span>{{stopka.licencja}}</span>
     </footer>
   </section>
 </main>
+
+<!-- The drawers: plain sections in the document flow (no JS or no WebGL), dialogs over the desk in 3D. -->
+<div class="szuflady">
+  <dialog class="szuflada szuflada--dokumenty" id="{{szuflady.dokumenty.id}}" data-szuflada="dokumenty" aria-labelledby="s-dokumenty">
+    <div class="szuflada__karta">
+      <header class="szuflada__glowa">
+        <h2 id="s-dokumenty">{{szuflady.dokumenty.tytul}}</h2>
+        <p>{{szuflady.dokumenty.tekst}}</p>
+        <form method="dialog" class="szuflada__zamknij" data-zamknij hidden><button class="szuflada__przycisk">{{szuflady.zamknij}}</button></form>
+      </header>
+      <div class="szuflada__dokumenty">
+{{#film.pamiec.dokumenty}}
+        <article class="arkusz-pamieci">
+          <p class="arkusz-pamieci__plik">{{plik}}</p>
+          <h3>{{tytul}}</h3>
+          <ol>
+{{#wpisy}}
+            <li><span class="arkusz-pamieci__pytanie">{{pytanie}}</span> {{wpis}}</li>
+{{/wpisy}}
+          </ol>
+        </article>
+{{/film.pamiec.dokumenty}}
+      </div>
+      <p class="szuflada__przyklad">{{film.pamiec.przyklad}}</p>
+    </div>
+  </dialog>
+
+  <dialog class="szuflada szuflada--teczka" id="{{szuflady.teczka.id}}" data-szuflada="teczka" aria-labelledby="s-teczka">
+    <div class="szuflada__karta">
+      <header class="szuflada__glowa">
+        <h2 id="s-teczka">{{szuflady.teczka.tytul}}</h2>
+        <p>{{szuflady.teczka.tekst}}</p>
+        <form method="dialog" class="szuflada__zamknij" data-zamknij hidden><button class="szuflada__przycisk">{{szuflady.zamknij}}</button></form>
+      </header>
+      <div class="arkusz-planu">
+        <p class="arkusz-planu__tytul">{{scena.teczka}}</p>
+        <ol>
+{{#scena.etapy}}
+          <li data-stan="{{stan}}"><span class="arkusz-planu__znak" aria-hidden="true"></span><span class="arkusz-planu__nazwa">{{nazwa}}</span><small>{{status}}</small></li>
+{{/scena.etapy}}
+        </ol>
+      </div>
+    </div>
+  </dialog>
+
+  <dialog class="szuflada szuflada--laptop" id="{{szuflady.laptop.id}}" data-szuflada="laptop" aria-labelledby="s-laptop">
+    <div class="szuflada__karta">
+      <header class="szuflada__glowa">
+        <h2 id="s-laptop">{{szuflady.laptop.tytul}}</h2>
+        <p>{{szuflady.laptop.tekst}}</p>
+        <form method="dialog" class="szuflada__zamknij" data-zamknij hidden><button class="szuflada__przycisk">{{szuflady.zamknij}}</button></form>
+      </header>
+      <div class="szuflada__okno" style="--m-tekst:{{makiety.kolory.tekst}};--m-wyciszony:{{makiety.kolory.wyciszony}};--m-linia:{{makiety.kolory.linia}};--m-tor:{{makiety.kolory.tor}};--m-w-toku:{{makiety.kolory.w_toku}};--m-karta:{{makiety.kolory.karta}};--m-okno:{{makiety.kolory.okno}}">
+        <div class="szuflada__zakladki" role="tablist" aria-label="{{szuflady.laptop.zakladki}}" data-zakladki hidden>
+{{#makiety.paski}}
+          <button type="button" role="tab" id="z-{{klucz}}" aria-controls="p-{{klucz}}" data-zakladka="{{klucz}}">{{etykieta}}</button>
+{{/makiety.paski}}
+        </div>
+{{#makiety.paski}}
+        <div class="pasek-makieta" id="p-{{klucz}}" data-panel="{{klucz}}">
+          <span class="pasek-makieta__etykieta">{{etykieta}}</span>
+          <span class="pasek-makieta__tresc">
+{{#plan}}
+            <span class="pm-wiersz"><b>{{nazwa}}</b><span class="pm-status">{{status}}</span><span class="pm-cichy">{{etap}}</span></span>
+{{/plan}}
+{{#postep}}
+            <span class="pm-segmenty">{{#segmenty}}<i style="--seg:{{kolor}}"></i>{{/segmenty}}</span>
+            <span class="pm-wiersz"><i class="pm-kolko"></i><b>{{biezacy}}</b><span class="pm-cichy">{{nastepny}}</span></span>
+{{/postep}}
+{{#cache}}
+            <span class="pm-baterie">
+{{#baterie}}
+              <span class="bateria" style="--zostalo:{{zostalo}};--bateria-kolor:{{kolor}}"><i class="bateria__ikona"></i><span>{{etykieta}}</span><b>{{wartosc}}</b></span>
+{{/baterie}}
+              <span class="pm-kontekst" style="--uzyte:{{kontekst.uzyte}};--prog:{{kontekst.prog}};--k-kolor:{{kontekst.kolor}}"><i class="pm-kontekst__tor"></i></span>
+              <span class="pm-kontekst__tekst">{{kontekst.etykieta}}<b>{{kontekst.tekst}}</b></span>
+            </span>
+{{/cache}}
+          </span>
+          <span class="pasek-makieta__liczba"><b>{{liczba}}</b> {{jednostka}}</span>
+        </div>
+{{/makiety.paski}}
+      </div>
+      <p class="szuflada__przyklad">{{scena.przyklad}}</p>
+    </div>
+  </dialog>
+
+  <dialog class="szuflada szuflada--pudelko" id="{{szuflady.pudelko.id}}" data-szuflada="pudelko" aria-labelledby="s-pudelko">
+    <div class="szuflada__karta">
+      <header class="szuflada__glowa">
+        <h2 id="s-pudelko">{{fakty.liczbaKomend}} {{szuflady.pudelko.tytul}}</h2>
+        <p>{{szuflady.pudelko.tekst}}</p>
+        <form method="dialog" class="szuflada__zamknij" data-zamknij hidden><button class="szuflada__przycisk">{{szuflady.zamknij}}</button></form>
+      </header>
+      <ol class="szuflada__fiszki">
+{{#fiszki}}
+        <li class="fiszka-szuflady" data-fiszka-szuflady>
+          <img src="{{baza}}grafika/ikony/{{ikona}}.svg" alt="" width="36" height="36" loading="lazy">
+          <h3>{{tytul}}</h3>
+          <p>{{opis}}</p>
+          <code>/{{nazwa}}</code>
+        </li>
+{{/fiszki}}
+      </ol>
+    </div>
+  </dialog>
+</div>
 
 <p class="brak-sceny" data-brak-sceny hidden>{{brakSceny}}</p>
 <template data-slowa-sceny>
@@ -130,6 +268,33 @@
   <p data-dokument data-plik="{{plik}}">{{tytul}}</p>
 {{/scena.dokumenty}}
   <p data-teczka>{{scena.teczka}}</p>
+{{#scena.etapy}}
+  <p data-etap data-stan="{{stan}}">{{nazwa}}</p>
+{{/scena.etapy}}
+{{#fiszki}}
+  <p data-fiszka data-nazwa="{{nazwa}}">{{tytul}}</p>
+{{/fiszki}}
+  <div data-makieta data-przyklad="{{scena.przyklad}}" data-tekst="{{makiety.kolory.tekst}}" data-wyciszony="{{makiety.kolory.wyciszony}}" data-linia="{{makiety.kolory.linia}}" data-tor="{{makiety.kolory.tor}}" data-w-toku="{{makiety.kolory.w_toku}}" data-okno="{{makiety.kolory.okno}}" data-prompt="{{makiety.kolory.prompt}}">
+{{#makiety.paski}}
+    <div data-pasek="{{klucz}}" data-etykieta="{{etykieta}}" data-liczba="{{liczba}}" data-jednostka="{{jednostka}}">
+{{#plan}}
+      <p data-plan data-nazwa="{{nazwa}}" data-status="{{status}}" data-etap-nazwa="{{etap}}"></p>
+{{/plan}}
+{{#postep}}
+{{#segmenty}}
+      <i data-segment="{{kolor}}"></i>
+{{/segmenty}}
+      <p data-postep data-biezacy="{{biezacy}}" data-nastepny="{{nastepny}}" data-przycisk="{{przycisk}}"></p>
+{{/postep}}
+{{#cache}}
+{{#baterie}}
+      <p data-bateria data-etykieta="{{etykieta}}" data-wartosc="{{wartosc}}" data-zostalo="{{zostalo}}" data-kolor="{{kolor}}"></p>
+{{/baterie}}
+      <p data-kontekst data-etykieta="{{kontekst.etykieta}}" data-tekst="{{kontekst.tekst}}" data-uzyte="{{kontekst.uzyte}}" data-prog="{{kontekst.prog}}" data-kolor="{{kontekst.kolor}}"></p>
+{{/cache}}
+    </div>
+{{/makiety.paski}}
+  </div>
 </template>
 <div class="przekladka" data-przekladka aria-hidden="true"></div>
 </body>

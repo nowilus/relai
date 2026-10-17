@@ -14,10 +14,21 @@
 <link rel="preload" href="../fonty/fraunces-latin-wonk.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="../fonty/hanken-grotesk-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="../css/strona.css">
+<!-- the loading curtain from the first frame (not with reduced motion: that gets the flow); its own 30 s limit -->
+<script>if(!matchMedia("(prefers-reduced-motion: reduce)").matches){document.documentElement.classList.add("laduje");setTimeout(function(){document.documentElement.classList.remove("laduje")},30000)}</script>
 <script type="importmap">{ "imports": { "three": "../vendor/three/three.module.js", "three/addons/": "../vendor/three/addons/" } }</script>
 <script type="module" src="../biurko/start.js"></script>
 </head>
 <body>
+<div class="zaslona" data-zaslona aria-hidden="true">
+  <div class="zaslona__notki" data-notki></div>
+  <div class="zaslona__srodek">
+    <p class="zaslona__znak"><img src="../grafika/logo.svg" alt="" width="46" height="46"><span>RelAI</span></p>
+    <svg class="zaslona__kreska" viewBox="0 0 100 10" preserveAspectRatio="none"><path d="M 1 6 C 22 2.5, 48 8.5, 70 4.5 S 92 5, 99 3.5" pathLength="1"/></svg>
+    <p class="zaslona__napis">Rozkładam biurko</p>
+    <p class="zaslona__procent" data-procent>0 %</p>
+  </div>
+</div>
 <div class="scena" data-scena aria-hidden="true"></div>
 
 <header class="pasek">
@@ -36,6 +47,12 @@
     <li><a href="#komendy" data-cel="5">Komendy</a></li>
     <li><a href="#instalacja" data-cel="6">Instalacja</a></li>
   </ol>
+  <ul class="mapa__szuflady" aria-label="Szuflady">
+    <li><a href="#szuflada-dokumenty" data-szuflada-cel="dokumenty">Dokumenty</a></li>
+    <li><a href="#szuflada-teczka" data-szuflada-cel="teczka">Teczka</a></li>
+    <li><a href="#szuflada-laptop" data-szuflada-cel="laptop">Laptop</a></li>
+    <li><a href="#szuflada-pudelko" data-szuflada-cel="pudelko">Pudełko</a></li>
+  </ul>
 </nav>
 
 <main class="tresc" data-tresc>
@@ -144,12 +161,245 @@ claude plugin install relai-cache-keeper@relai</pre>
         <p class="konfigurator__wersje">Aktualne wersje: RelAI <span data-wersja="relai">3.2.0</span> · panel <span data-wersja="panel">0.20.0</span></p>
       </form>
     </div>
+    <!-- a phone cannot install RelAI: instead of the configurator, send the link to yourself (film/telefon.js) -->
+    <div class="instalacja__telefon" data-telefon
+      data-tytul="RelAI: Twój projekt pamięta wszystko"
+      data-link-skopiowany="Link skopiowany. Otwórz go na komputerze."
+      data-skopiowano="Komendy skopiowane."
+      data-blad="Schowek jest niedostępny w tej przeglądarce.">
+      <p class="instalacja__telefon-tekst">RelAI instalujesz na komputerze, w Claude Code, Cursorze albo Codeksie. Wyślij sobie link albo skopiuj komendy na później.</p>
+      <pre class="konfigurator__komendy" data-komendy-telefonu>claude plugin install relai --marketplace nowilus/relai
+claude plugin install relai-panel@relai
+claude plugin install relai-cache-keeper@relai</pre>
+      <div class="instalacja__telefon-akcje">
+        <button type="button" class="przycisk" data-wyslij hidden>Wyślij sobie link</button>
+        <button type="button" class="przycisk przycisk--drugi" data-kopiuj-komendy hidden>Kopiuj komendy</button>
+      </div>
+      <p class="konfigurator__status" data-status-telefonu role="status"></p>
+    </div>
     <footer class="stopka">
       <a href="https://github.com/nowilus/relai">Kod na GitHubie</a>
       <span>Licencja MIT</span>
     </footer>
   </section>
 </main>
+
+<!-- The drawers: plain sections in the document flow (no JS or no WebGL), dialogs over the desk in 3D. -->
+<div class="szuflady">
+  <dialog class="szuflada szuflada--dokumenty" id="szuflada-dokumenty" data-szuflada="dokumenty" aria-labelledby="s-dokumenty">
+    <div class="szuflada__karta">
+      <header class="szuflada__glowa">
+        <h2 id="s-dokumenty">Cztery pliki pamięci</h2>
+        <p>Każdy plik odpowiada na inne pytanie z karteczek. Sesja czyta je na starcie, a w trakcie pracy dopisuje nowe wpisy.</p>
+        <form method="dialog" class="szuflada__zamknij" data-zamknij hidden><button class="szuflada__przycisk">Zamknij</button></form>
+      </header>
+      <div class="szuflada__dokumenty">
+        <article class="arkusz-pamieci">
+          <p class="arkusz-pamieci__plik">STATE.md</p>
+          <h3>Stan</h3>
+          <ol>
+            <li><span class="arkusz-pamieci__pytanie">gdzie skończyliśmy?</span> Etap E3 w toku: testy płatności</li>
+            <li><span class="arkusz-pamieci__pytanie">tłumaczę projekt trzeci raz</span> Sklep: koszyk, faktury, płatności kartą</li>
+          </ol>
+        </article>
+        <article class="arkusz-pamieci">
+          <p class="arkusz-pamieci__plik">DZIENNIK.md</p>
+          <h3>Dziennik</h3>
+          <ol>
+            <li><span class="arkusz-pamieci__pytanie">co ustaliliśmy wczoraj?</span> 14.10 · ustalony wzór faktury</li>
+            <li><span class="arkusz-pamieci__pytanie">który plik?</span> 14.10 · zmiany w src/platnosci/</li>
+          </ol>
+        </article>
+        <article class="arkusz-pamieci">
+          <p class="arkusz-pamieci__plik">LEKCJE.md</p>
+          <h3>Lekcje</h3>
+          <ol>
+            <li><span class="arkusz-pamieci__pytanie">znowu ten sam błąd</span> L-07 · daty zawsze w UTC</li>
+            <li><span class="arkusz-pamieci__pytanie">jak to się testuje?</span> L-08 · płatności testujemy na sandboxie</li>
+          </ol>
+        </article>
+        <article class="arkusz-pamieci">
+          <p class="arkusz-pamieci__plik">DECYZJE.md</p>
+          <h3>Decyzje</h3>
+          <ol>
+            <li><span class="arkusz-pamieci__pytanie">jaka była ta decyzja?</span> D-12 · baza: Postgres</li>
+            <li><span class="arkusz-pamieci__pytanie">dlaczego tak?</span> D-12 · powód: transakcje</li>
+          </ol>
+        </article>
+      </div>
+      <p class="szuflada__przyklad">wpisy przykładowe</p>
+    </div>
+  </dialog>
+
+  <dialog class="szuflada szuflada--teczka" id="szuflada-teczka" data-szuflada="teczka" aria-labelledby="s-teczka">
+    <div class="szuflada__karta">
+      <header class="szuflada__glowa">
+        <h2 id="s-teczka">Plan z etapami</h2>
+        <p>Plan powstaje po wywiadzie i po akceptacji jest zamrożony. Zmiany idą datowanymi aneksami, a każdy etap rusza w świeżej sesji i kończy się wpisem do dziennika.</p>
+        <form method="dialog" class="szuflada__zamknij" data-zamknij hidden><button class="szuflada__przycisk">Zamknij</button></form>
+      </header>
+      <div class="arkusz-planu">
+        <p class="arkusz-planu__tytul">Plan</p>
+        <ol>
+          <li data-stan="zrobiony"><span class="arkusz-planu__znak" aria-hidden="true"></span><span class="arkusz-planu__nazwa">E1 · Wywiad i plan</span><small>zrealizowany</small></li>
+          <li data-stan="zrobiony"><span class="arkusz-planu__znak" aria-hidden="true"></span><span class="arkusz-planu__nazwa">E2 · Szkielet</span><small>zrealizowany</small></li>
+          <li data-stan="biezacy"><span class="arkusz-planu__znak" aria-hidden="true"></span><span class="arkusz-planu__nazwa">E3 · Pierwsza wersja</span><small>w toku</small></li>
+          <li data-stan="czeka"><span class="arkusz-planu__znak" aria-hidden="true"></span><span class="arkusz-planu__nazwa">E4 · Testy</span><small>oczekuje</small></li>
+          <li data-stan="czeka"><span class="arkusz-planu__znak" aria-hidden="true"></span><span class="arkusz-planu__nazwa">E5 · Wydanie</span><small>oczekuje</small></li>
+        </ol>
+      </div>
+    </div>
+  </dialog>
+
+  <dialog class="szuflada szuflada--laptop" id="szuflada-laptop" data-szuflada="laptop" aria-labelledby="s-laptop">
+    <div class="szuflada__karta">
+      <header class="szuflada__glowa">
+        <h2 id="s-laptop">Paski nad promptem</h2>
+        <p>Trzy paski w oknie Claude Code: plan, postęp etapu oraz cache z limitami i kontekstem.</p>
+        <form method="dialog" class="szuflada__zamknij" data-zamknij hidden><button class="szuflada__przycisk">Zamknij</button></form>
+      </header>
+      <div class="szuflada__okno" style="--m-tekst:#f0efec;--m-wyciszony:#c3c2b8;--m-linia:#636260;--m-tor:#484847;--m-w-toku:#ce932a;--m-karta:#212121;--m-okno:#151515">
+        <div class="szuflada__zakladki" role="tablist" aria-label="Paski panelu" data-zakladki hidden>
+          <button type="button" role="tab" id="z-plan" aria-controls="p-plan" data-zakladka="plan">plan</button>
+          <button type="button" role="tab" id="z-postep" aria-controls="p-postep" data-zakladka="postep">postęp</button>
+          <button type="button" role="tab" id="z-cache" aria-controls="p-cache" data-zakladka="cache">cache</button>
+        </div>
+        <div class="pasek-makieta" id="p-plan" data-panel="plan">
+          <span class="pasek-makieta__etykieta">plan</span>
+          <span class="pasek-makieta__tresc">
+            <span class="pm-wiersz"><b>PLATNOSCI · E3</b><span class="pm-status">W TOKU</span><span class="pm-cichy">Płatności kartą</span></span>
+          </span>
+          <span class="pasek-makieta__liczba"><b>2/5</b> etapów</span>
+        </div>
+        <div class="pasek-makieta" id="p-postep" data-panel="postep">
+          <span class="pasek-makieta__etykieta">postęp</span>
+          <span class="pasek-makieta__tresc">
+            <span class="pm-segmenty"><i style="--seg:#4ca129"></i><i style="--seg:#4ca129"></i><i style="--seg:#ce932a"></i><i style="--seg:#484847"></i><i style="--seg:#484847"></i></span>
+            <span class="pm-wiersz"><i class="pm-kolko"></i><b>Testy płatności odrzuconych</b><span class="pm-cichy">następny: Zwrot środków po anulowaniu</span></span>
+          </span>
+          <span class="pasek-makieta__liczba"><b>2/5</b> punktów</span>
+        </div>
+        <div class="pasek-makieta" id="p-cache" data-panel="cache">
+          <span class="pasek-makieta__etykieta">cache</span>
+          <span class="pasek-makieta__tresc">
+            <span class="pm-baterie">
+              <span class="bateria" style="--zostalo:87;--bateria-kolor:#4ca129"><i class="bateria__ikona"></i><span>cache</span><b>52 min</b></span>
+              <span class="bateria" style="--zostalo:81;--bateria-kolor:#4ca129"><i class="bateria__ikona"></i><span>limit 5 h</span><b>19 %</b></span>
+              <span class="bateria" style="--zostalo:64;--bateria-kolor:#4ca129"><i class="bateria__ikona"></i><span>reset za</span><b>3 h 12 min</b></span>
+              <span class="bateria" style="--zostalo:26;--bateria-kolor:#ce932a"><i class="bateria__ikona"></i><span>limit tygodnia</span><b>74 %</b></span>
+              <span class="pm-kontekst" style="--uzyte:48;--prog:64;--k-kolor:#ce932a"><i class="pm-kontekst__tor"></i></span>
+              <span class="pm-kontekst__tekst">kontekst<b>480k / 1M · 48 %</b></span>
+            </span>
+          </span>
+          <span class="pasek-makieta__liczba"><b>$1.84</b> sesja</span>
+        </div>
+      </div>
+      <p class="szuflada__przyklad">dane przykładowe</p>
+    </div>
+  </dialog>
+
+  <dialog class="szuflada szuflada--pudelko" id="szuflada-pudelko" data-szuflada="pudelko" aria-labelledby="s-pudelko">
+    <div class="szuflada__karta">
+      <header class="szuflada__glowa">
+        <h2 id="s-pudelko">15 komend w pudełku</h2>
+        <p>Każda fiszka to jedna komenda: do czego służy i co wpisać.</p>
+        <form method="dialog" class="szuflada__zamknij" data-zamknij hidden><button class="szuflada__przycisk">Zamknij</button></form>
+      </header>
+      <ol class="szuflada__fiszki">
+        <li class="fiszka-szuflady" data-fiszka-szuflady>
+          <img src="../grafika/ikony/adopt.svg" alt="" width="36" height="36" loading="lazy">
+          <h3>Adopcja projektu</h3>
+          <p>Wprowadź RelAI do zastanego repo</p>
+          <code>/relai-adopt</code>
+        </li>
+        <li class="fiszka-szuflady" data-fiszka-szuflady>
+          <img src="../grafika/ikony/audit.svg" alt="" width="36" height="36" loading="lazy">
+          <h3>Przegląd projektu</h3>
+          <p>Raport o zdrowiu dokumentacji</p>
+          <code>/relai-audit</code>
+        </li>
+        <li class="fiszka-szuflady" data-fiszka-szuflady>
+          <img src="../grafika/ikony/backup.svg" alt="" width="36" height="36" loading="lazy">
+          <h3>Kopia zapasowa</h3>
+          <p>Spakuj projekt do archiwum ZIP</p>
+          <code>/relai-backup</code>
+        </li>
+        <li class="fiszka-szuflady" data-fiszka-szuflady>
+          <img src="../grafika/ikony/branch.svg" alt="" width="36" height="36" loading="lazy">
+          <h3>Odnoga planu</h3>
+          <p>Odłóż boczny wątek na osobną kartę</p>
+          <code>/relai-branch</code>
+        </li>
+        <li class="fiszka-szuflady" data-fiszka-szuflady>
+          <img src="../grafika/ikony/changelog.svg" alt="" width="36" height="36" loading="lazy">
+          <h3>Lista zmian</h3>
+          <p>Zmiany wydestylowane z dziennika</p>
+          <code>/relai-changelog</code>
+        </li>
+        <li class="fiszka-szuflady" data-fiszka-szuflady>
+          <img src="../grafika/ikony/clean.svg" alt="" width="36" height="36" loading="lazy">
+          <h3>Sprzątanie</h3>
+          <p>Usuń artefakty robocze po zgodzie</p>
+          <code>/relai-clean</code>
+        </li>
+        <li class="fiszka-szuflady" data-fiszka-szuflady>
+          <img src="../grafika/ikony/crew.svg" alt="" width="36" height="36" loading="lazy">
+          <h3>Załoga agentów</h3>
+          <p>Rozdziel cel między kilku agentów</p>
+          <code>/relai-crew</code>
+        </li>
+        <li class="fiszka-szuflady" data-fiszka-szuflady>
+          <img src="../grafika/ikony/handover.svg" alt="" width="36" height="36" loading="lazy">
+          <h3>Pakiet przekazania</h3>
+          <p>Cały projekt w jednym pliku HTML</p>
+          <code>/relai-handover</code>
+        </li>
+        <li class="fiszka-szuflady" data-fiszka-szuflady>
+          <img src="../grafika/ikony/help.svg" alt="" width="36" height="36" loading="lazy">
+          <h3>Ściąga projektu</h3>
+          <p>Komendy, frazy i zachowania automatyczne</p>
+          <code>/relai-help</code>
+        </li>
+        <li class="fiszka-szuflady" data-fiszka-szuflady>
+          <img src="../grafika/ikony/humanize.svg" alt="" width="36" height="36" loading="lazy">
+          <h3>Humanizacja tekstu</h3>
+          <p>Usuń z tekstu nawyki pisarskie AI</p>
+          <code>/relai-humanize</code>
+        </li>
+        <li class="fiszka-szuflady" data-fiszka-szuflady>
+          <img src="../grafika/ikony/models.svg" alt="" width="36" height="36" loading="lazy">
+          <h3>Lista modeli</h3>
+          <p>Odśwież modele narzędzia</p>
+          <code>/relai-models</code>
+        </li>
+        <li class="fiszka-szuflady" data-fiszka-szuflady>
+          <img src="../grafika/ikony/prompt.svg" alt="" width="36" height="36" loading="lazy">
+          <h3>Optymalizator promptu</h3>
+          <p>Zamień zdanie w precyzyjny prompt</p>
+          <code>/relai-prompt</code>
+        </li>
+        <li class="fiszka-szuflady" data-fiszka-szuflady>
+          <img src="../grafika/ikony/stage.svg" alt="" width="36" height="36" loading="lazy">
+          <h3>Etap planu</h3>
+          <p>Uruchom następny etap aktywnego planu</p>
+          <code>/relai-stage</code>
+        </li>
+        <li class="fiszka-szuflady" data-fiszka-szuflady>
+          <img src="../grafika/ikony/tour.svg" alt="" width="36" height="36" loading="lazy">
+          <h3>Wycieczka po projekcie</h3>
+          <p>Opowieść o projekcie z jego dokumentów</p>
+          <code>/relai-tour</code>
+        </li>
+        <li class="fiszka-szuflady" data-fiszka-szuflady>
+          <img src="../grafika/ikony/update.svg" alt="" width="36" height="36" loading="lazy">
+          <h3>Aktualizacja</h3>
+          <p>Podnieś projekt do wersji pluginu</p>
+          <code>/relai-update</code>
+        </li>
+      </ol>
+    </div>
+  </dialog>
+</div>
 
 <p class="brak-sceny" data-brak-sceny hidden>Przeglądarka nie pokazuje sceny 3D, więc widzisz tę samą treść bez biurka.</p>
 <template data-slowa-sceny>
@@ -165,6 +415,46 @@ claude plugin install relai-cache-keeper@relai</pre>
   <p data-dokument data-plik="LEKCJE.md">Lekcje</p>
   <p data-dokument data-plik="DECYZJE.md">Decyzje</p>
   <p data-teczka>Plan</p>
+  <p data-etap data-stan="zrobiony">E1 · Wywiad i plan</p>
+  <p data-etap data-stan="zrobiony">E2 · Szkielet</p>
+  <p data-etap data-stan="biezacy">E3 · Pierwsza wersja</p>
+  <p data-etap data-stan="czeka">E4 · Testy</p>
+  <p data-etap data-stan="czeka">E5 · Wydanie</p>
+  <p data-fiszka data-nazwa="relai-adopt">Adopcja projektu</p>
+  <p data-fiszka data-nazwa="relai-audit">Przegląd projektu</p>
+  <p data-fiszka data-nazwa="relai-backup">Kopia zapasowa</p>
+  <p data-fiszka data-nazwa="relai-branch">Odnoga planu</p>
+  <p data-fiszka data-nazwa="relai-changelog">Lista zmian</p>
+  <p data-fiszka data-nazwa="relai-clean">Sprzątanie</p>
+  <p data-fiszka data-nazwa="relai-crew">Załoga agentów</p>
+  <p data-fiszka data-nazwa="relai-handover">Pakiet przekazania</p>
+  <p data-fiszka data-nazwa="relai-help">Ściąga projektu</p>
+  <p data-fiszka data-nazwa="relai-humanize">Humanizacja tekstu</p>
+  <p data-fiszka data-nazwa="relai-models">Lista modeli</p>
+  <p data-fiszka data-nazwa="relai-prompt">Optymalizator promptu</p>
+  <p data-fiszka data-nazwa="relai-stage">Etap planu</p>
+  <p data-fiszka data-nazwa="relai-tour">Wycieczka po projekcie</p>
+  <p data-fiszka data-nazwa="relai-update">Aktualizacja</p>
+  <div data-makieta data-przyklad="dane przykładowe" data-tekst="#f0efec" data-wyciszony="#c3c2b8" data-linia="#636260" data-tor="#484847" data-w-toku="#ce932a" data-okno="#151515" data-prompt="#20201f">
+    <div data-pasek="plan" data-etykieta="plan" data-liczba="2/5" data-jednostka="etapów">
+      <p data-plan data-nazwa="PLATNOSCI · E3" data-status="W TOKU" data-etap-nazwa="Płatności kartą"></p>
+    </div>
+    <div data-pasek="postep" data-etykieta="postęp" data-liczba="2/5" data-jednostka="punktów">
+      <i data-segment="#4ca129"></i>
+      <i data-segment="#4ca129"></i>
+      <i data-segment="#ce932a"></i>
+      <i data-segment="#484847"></i>
+      <i data-segment="#484847"></i>
+      <p data-postep data-biezacy="Testy płatności odrzuconych" data-nastepny="następny: Zwrot środków po anulowaniu" data-przycisk="Rozwiń"></p>
+    </div>
+    <div data-pasek="cache" data-etykieta="cache" data-liczba="$1.84" data-jednostka="sesja">
+      <p data-bateria data-etykieta="cache" data-wartosc="52 min" data-zostalo="87" data-kolor="#4ca129"></p>
+      <p data-bateria data-etykieta="limit 5 h" data-wartosc="19 %" data-zostalo="81" data-kolor="#4ca129"></p>
+      <p data-bateria data-etykieta="reset za" data-wartosc="3 h 12 min" data-zostalo="64" data-kolor="#4ca129"></p>
+      <p data-bateria data-etykieta="limit tygodnia" data-wartosc="74 %" data-zostalo="26" data-kolor="#ce932a"></p>
+      <p data-kontekst data-etykieta="kontekst" data-tekst="480k / 1M · 48 %" data-uzyte="48" data-prog="64" data-kolor="#ce932a"></p>
+    </div>
+  </div>
 </template>
 <div class="przekladka" data-przekladka aria-hidden="true"></div>
 </body>

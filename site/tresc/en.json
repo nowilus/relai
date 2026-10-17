@@ -102,7 +102,47 @@
       { "tytul": "Lessons", "plik": "LESSONS.md" },
       { "tytul": "Decisions", "plik": "DECISIONS.md" }
     ],
-    "teczka": "Plan"
+    "teczka": "Plan",
+    "etapy": [
+      { "nazwa": "E1 · Interview and plan", "stan": "zrobiony", "status": "done" },
+      { "nazwa": "E2 · Skeleton", "stan": "zrobiony", "status": "done" },
+      { "nazwa": "E3 · First version", "stan": "biezacy", "status": "in progress" },
+      { "nazwa": "E4 · Tests", "stan": "czeka", "status": "waiting" },
+      { "nazwa": "E5 · Release", "stan": "czeka", "status": "waiting" }
+    ],
+    "przyklad": "sample data"
+  },
+  "zaslona": {
+    "napis": "Setting up the desk"
+  },
+  "szuflady": {
+    "etykieta": "Drawers",
+    "zamknij": "Close",
+    "dokumenty": {
+      "id": "szuflada-dokumenty",
+      "nazwa": "Documents",
+      "tytul": "Four memory files",
+      "tekst": "Each file answers a different question from the notes. A session reads them at the start and adds entries as it works."
+    },
+    "teczka": {
+      "id": "szuflada-teczka",
+      "nazwa": "Folder",
+      "tytul": "A plan in stages",
+      "tekst": "A plan is written after an interview and frozen once accepted. Changes go in as dated annexes, and every stage starts in a fresh session and ends with a journal entry."
+    },
+    "laptop": {
+      "id": "szuflada-laptop",
+      "nazwa": "Laptop",
+      "tytul": "Bars above the prompt",
+      "tekst": "Three bars in the Claude Code window: the plan, the stage's progress, and the cache with limits and context.",
+      "zakladki": "Panel bars"
+    },
+    "pudelko": {
+      "id": "szuflada-pudelko",
+      "nazwa": "Box",
+      "tytul": "commands in the box",
+      "tekst": "Each card is one command: what it is for and what to type."
+    }
   },
   "film": {
     "pasek": "Shortcuts",

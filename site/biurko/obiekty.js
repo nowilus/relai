@@ -326,9 +326,10 @@ export function zbudujBiurko(tresc, A) {
     lampa: lampa(A),
     karteczki: karteczki(tresc.karteczki, rej),
     dokumenty: dokumenty(tresc.dokumenty, rej),
-    teczka: teczka(tresc.teczka, rej),
-    laptop: laptop(rej),
-    pudelko: pudelko(A, rej),
+    teczka: teczka(tresc.teczka, tresc.etapy, rej),
+    laptop: laptop(rej, tresc.makieta),
+    // the pulled card shows the command that runs a stage of a plan
+    pudelko: pudelko(A, rej, tresc.fiszki.find(([, nazwa]) => nazwa === "relai-stage")),
     kubek: kubek(),
     kable: kable(),
     ksiazki: ksiazki(),

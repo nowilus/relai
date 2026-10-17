@@ -134,8 +134,11 @@ function zaokraglony(w, h, rGora, rDol) {
   return g;
 }
 
-/** Laptop: aluminium base and lid, keys, trackpad; the display is a named mesh the scene swaps content on. */
-export function laptop(rej) {
+/**
+ * Laptop: aluminium base and lid, keys, trackpad; the display is a named mesh the scene swaps content on.
+ * `makieta` = the RelAI bars shown on the display (see T.ekranPanelu).
+ */
+export function laptop(rej, makieta) {
   const grupa = new THREE.Group();
   const alu = aluminium(rej);
   const W = 0.304, D = 0.212;
@@ -189,7 +192,7 @@ export function laptop(rej) {
   klapa.add(uszczelka, ramka);
   const ekran = new THREE.Mesh(
     zaokraglony(0.284, 0.1775, PROMIEN_EKRANU.gora, PROMIEN_EKRANU.dol),
-    new THREE.MeshStandardMaterial({ color: "#000000", emissive: "#ffffff", emissiveMap: T.ekranPanelu(), emissiveIntensity: 0.85, roughness: 0.18 }),
+    new THREE.MeshStandardMaterial({ color: "#000000", emissive: "#ffffff", emissiveMap: T.ekranPanelu(makieta), emissiveIntensity: 0.85, roughness: 0.18 }),
   );
   ekran.position.set(0, EKRAN_Y, 0.0014);
   ekran.name = "ekran";
@@ -264,8 +267,11 @@ export function kubek() {
   return grupa;
 }
 
-/** The index-card box: walnut walls, open lid on a hinge, standing cards with colour tabs, one pulled halfway out. */
-export function pudelko(A, rej) {
+/**
+ * The index-card box: walnut walls, open lid on a hinge, standing cards with colour tabs, one pulled
+ * halfway out. `fiszka` = [title, command] written on the pulled card (the 15 cards are in the drawer).
+ */
+export function pudelko(A, rej, fiszka) {
   const grupa = new THREE.Group();
   const W = 0.2, D = 0.108, H = 0.096, g = 0.006;
   const sciany = (w, h, d) => new THREE.Mesh(skrzynka(w, h, d, SKALA_BLATU), drewno(A, 1, 1));
@@ -289,14 +295,21 @@ export function pudelko(A, rej) {
   const liczba = 26;
   for (let i = 0; i < liczba; i++) {
     const z = -D / 2 + g + 0.004 + i * ((D - 2 * g - 0.01) / liczba);
-    const wysuniecie = i === 17 ? 0.042 : 0;
-    const f = new THREE.Mesh(new THREE.BoxGeometry(W - 2 * g - 0.006, 0.086, 0.0007), karta);
+    const wyjeta = i === 17;
+    const wysuniecie = wyjeta ? 0.042 : 0;
+    // the pulled card carries its command on the face toward the visitor (+z is material 4)
+    const material = wyjeta && fiszka
+      ? [karta, karta, karta, karta, papier(rej, { map: T.fiszkaKomendy(fiszka[0], fiszka[1], T.KOLOR.musztarda) }), karta]
+      : karta;
+    const f = new THREE.Mesh(new THREE.BoxGeometry(W - 2 * g - 0.006, 0.086, 0.0007), material);
     f.position.set(0, 0.048 + wysuniecie, z);
     f.rotation.x = -0.05 + (los() - 0.5) * 0.05;
     grupa.add(cien(f));
     if (i % 5 === 2) {
       const t = new THREE.Mesh(new THREE.BoxGeometry(0.034, 0.012, 0.0009), new THREE.MeshStandardMaterial({ color: barwy[((i / 5) | 0) % 3], roughness: 0.85 }));
-      t.position.set(-0.06 + ((i * 37) % 9) * 0.014, f.position.y + 0.048, z);
+      // cards in front of the pulled one keep their tabs right of its writing
+      const x = i > 17 ? 0.045 + ((i * 37) % 3) * 0.012 : -0.06 + ((i * 37) % 9) * 0.014;
+      t.position.set(x, f.position.y + 0.048, z);
       t.rotation.x = f.rotation.x;
       grupa.add(cien(t));
     }
@@ -308,28 +321,62 @@ export function pudelko(A, rej) {
 
 const TABY = [T.KOLOR.glina, T.KOLOR.musztarda, T.KOLOR.szalwia, "#e2d6bd", "#3f5a47"];
 
-/** The plan folder: kraft board, five coloured dividers sticking out of the right edge, a paper stack inside. */
-export function teczka(etykieta, rej) {
+/** A paper clip: one steel wire bent in the usual three loops, lying flat (x along the clip). */
+function spinacz() {
+  const L = 0.032, s = 0.0042; // length and the outer loop's half width
+  const p = [
+    [0.004, -s * 0.45], [L - s, -s * 0.45], [L, 0], [L - s, s], [0, s], [-s, 0], [0, -s], [L - s * 1.6, -s], [L - s * 0.6, -s * 0.2],
+    [L - s * 1.6, s * 0.55], [s * 1.2, s * 0.55],
+  ].map(([x, z]) => new THREE.Vector3(x, 0, z));
+  const drut = new THREE.Mesh(
+    new THREE.TubeGeometry(new THREE.CatmullRomCurve3(p, false, "catmullrom", 0.35), 120, 0.00045, 8),
+    new THREE.MeshStandardMaterial({ color: "#c9c6c0", metalness: 1, roughness: 0.25 }),
+  );
+  return cien(drut);
+}
+
+/**
+ * The plan folder, open as in 04-teczka: the back board with a stack of sheets, the cover laid open to
+ * the left and running down to the desk, five coloured dividers out of the right edge, and on top the
+ * plan itself: the stages as a checklist, held by a paper clip.
+ */
+export function teczka(etykieta, etapy, rej) {
   const grupa = new THREE.Group();
-  const W = 0.235, D = 0.31;
+  const W = 0.235, D = 0.31, GRUB = 0.0026, STOS = 0.0145;
   const karton = kraft(rej, 1, 1);
-  const spod = new THREE.Mesh(plyta(W, D, 0.0026, 0.006, 0.0012), karton);
+  const spod = new THREE.Mesh(plyta(W, D, GRUB, 0.006, 0.0012), karton);
   grupa.add(cien(spod));
-  const stos = new THREE.Mesh(new THREE.BoxGeometry(W - 0.014, 0.0145, D - 0.016), papier(rej, { color: "#ece4d2" }));
-  stos.position.set(0, 0.0072 + 0.0026, 0);
+  const stos = new THREE.Mesh(new THREE.BoxGeometry(W - 0.014, STOS, D - 0.016), papier(rej, { color: "#ece4d2" }));
+  stos.position.set(0, GRUB + 0.0012 + STOS / 2, 0);
   grupa.add(cien(stos));
-  const gora = new THREE.Mesh(plyta(W, D, 0.0026, 0.006, 0.0012), karton);
-  gora.position.y = 0.0042 + 0.0145 + 0.002;
-  grupa.add(cien(gora));
+  const wierzch = GRUB + 0.0012 + STOS;
+  const kartka = new THREE.Mesh(
+    new THREE.PlaneGeometry(W - 0.018, D - 0.022),
+    // a shade under white: the sheet lies in the lamp's pool and clipped to white in the first frame
+    new THREE.MeshStandardMaterial({ map: T.kartaPlanu(etykieta, etapy), color: "#d9d2c4", roughness: 0.92 }),
+  );
+  kartka.rotation.x = -Math.PI / 2;
+  kartka.rotation.z = 0.012;
+  kartka.position.set(-0.002, wierzch + 0.0004, 0.001);
+  kartka.receiveShadow = true;
+  grupa.add(kartka);
+  const klips = spinacz();
+  klips.rotation.y = Math.PI / 2 + 0.05;
+  klips.position.set(W / 2 - 0.05, wierzch + 0.0009, -D / 2 + 0.006);
+  grupa.add(klips);
+  // the cover hinges on the left edge at the height of the stack and runs down until its far edge meets the desk
+  const zawias = new THREE.Group();
+  zawias.position.set(-W / 2, wierzch, 0);
+  const okladka = new THREE.Mesh(plyta(W, D, GRUB, 0.006, 0.0012), karton);
+  okladka.position.x = W / 2;
+  zawias.add(cien(okladka));
+  zawias.rotation.z = Math.PI + Math.asin((wierzch - GRUB) / W);
+  grupa.add(zawias);
   TABY.forEach((k, i) => {
     const t = new THREE.Mesh(new THREE.BoxGeometry(0.03, 0.0016, 0.044), new THREE.MeshStandardMaterial({ color: k, roughness: 0.85 }));
-    t.position.set(W / 2 + 0.008, 0.0072 + 0.0026 + i * 0.0026, -D / 2 + 0.05 + i * 0.056);
+    t.position.set(W / 2 + 0.008, GRUB + 0.0046 + i * 0.0026, -D / 2 + 0.05 + i * 0.056);
     grupa.add(cien(t));
   });
-  const lab = new THREE.Mesh(new THREE.PlaneGeometry(0.12, 0.06), new THREE.MeshStandardMaterial({ map: T.etykietaTeczki(etykieta), roughness: 0.9 }));
-  lab.rotation.x = -Math.PI / 2;
-  lab.position.set(0, gora.position.y + 0.0043, -0.075);
-  grupa.add(lab);
   grupa.position.set(0.37, BLAT, -0.17);
   grupa.rotation.y = 0.12;
   return grupa;
@@ -341,7 +388,9 @@ export const BARWY_KARTECZEK = ["#f3d77f", "#f6e8bd", "#cddbbc", "#f2bfa1", "#f3
 export function karteczki(pytania, rej) {
   const grupa = new THREE.Group();
   const los = T.losowanie(53);
-  const miejsca = [[-0.08, 0.12], [0.04, 0.26], [0.15, 0.14], [-0.03, 0.33], [0.25, 0.28], [0.09, 0.03], [0.31, 0.12]];
+  // clear of the plan folder's open cover (it reaches z = 0.03): note 5 lay at (0.09, 0.03) and the
+  // cover cut through it (E6); note 3 lay at (-0.03, 0.33), under the Amnesia copy card
+  const miejsca = [[-0.08, 0.12], [0.04, 0.26], [0.15, 0.14], [0.14, 0.3], [0.25, 0.28], [0.02, 0.13], [0.31, 0.12]];
   pytania.forEach((p, i) => {
     const [x, z] = miejsca[i % miejsca.length];
     const mat = papier(rej, { map: T.karteczka(p, BARWY_KARTECZEK[i % BARWY_KARTECZEK.length], 60 + i) });
@@ -353,14 +402,22 @@ export function karteczki(pytania, rej) {
   return grupa;
 }
 
-/** Four project documents, loosely stacked and fanned. */
+/**
+ * Four project documents in a loose row, each title clear of its neighbour. They are where the peak
+ * ends: before it they are not on the desk at all (szczyt.js grows them out of the notes).
+ */
 export function dokumenty(nazwy, rej) {
   const grupa = new THREE.Group();
   nazwy.forEach(([tytul, plik], i) => {
     const mat = papier(rej, { map: T.dokument(tytul, plik, 80 + i) });
-    const d = arkusz(0.21, 0.297, mat, { zgiecie: 0.0035, zawiniecie: 0.006, ziarno: 90 + i });
-    d.position.set(0.0 + i * 0.065, BLAT + 0.001 + i * 0.0009, -0.12 + i * 0.018);
-    d.rotation.y = 0.12 - i * 0.07;
+    // only the top sheet curls: a curled corner under the next sheet pokes through its title
+    const ostatni = i === nazwy.length - 1;
+    const d = arkusz(0.21, 0.297, mat, { zgiecie: 0.002, zawiniecie: ostatni ? 0.006 : 0, ziarno: 90 + i });
+    // where the mess lay: the notes put themselves in order in the same place
+    // clear of the plan folder's open cover (reaches z = 0.03) and of the mug's coaster (checked as
+    // rotated footprints in E6)
+    d.position.set(-0.17 + i * 0.135, BLAT + 0.001 + i * 0.0035, 0.2 - i * 0.008);
+    d.rotation.y = 0.05 - i * 0.03;
     grupa.add(d);
   });
   return grupa;

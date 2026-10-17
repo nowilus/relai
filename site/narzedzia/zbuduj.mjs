@@ -251,13 +251,14 @@ export function zbudujFiszki(fakty, tresc, jezyk) {
   });
 }
 
-function filmExtras(tresc, fakty, jezyk, makiety) {
+// The bar mock-ups and the command cards, built once for both versions (E6: the desk renders them too).
+function makietyIFiszki(tresc, fakty, jezyk, makiety) {
   if (!isObject(makiety?.[jezyk])) throw fail(`Mock-ups (site/dane/makiety.json) have no "${jezyk}" entry`);
   return { makiety: makiety[jezyk], fiszki: zbudujFiszki(fakty, tresc, jezyk) };
 }
 
 // Pure: explicit inputs in, rendered pages out ({ en, pl }). `wersja`: "biurko" (default) or "film";
-// the film needs `makiety` (site/dane/makiety.json).
+// the film needs `makiety` (site/dane/makiety.json); the desk gets them, and the cards, when given.
 export function buildPagesFrom({ template, tresc, fakty, zbudujKomendy, wersja = "biurko", makiety }) {
   const v = VERSIONS[wersja];
   if (!v) throw fail(`Unknown page version "${wersja}"`);
@@ -265,7 +266,7 @@ export function buildPagesFrom({ template, tresc, fakty, zbudujKomendy, wersja =
   for (const jezyk of ["en", "pl"]) {
     const komendy = zbudujKomendy(DEFAULT_COMMAND_CHOICE, jezyk);
     const base = buildContext(tresc[jezyk], fakty, jezyk, komendy.linie.join("\n"), v);
-    const ctx = wersja === "film" ? { ...base, ...filmExtras(tresc[jezyk], fakty, jezyk, makiety) } : base;
+    const ctx = wersja === "film" || makiety ? { ...base, ...makietyIFiszki(tresc[jezyk], fakty, jezyk, makiety) } : base;
     const html = normalizeOutput(render(template, ctx));
     assertNoLeftovers(html, v.outputs[jezyk]);
     pages[jezyk] = html;
@@ -306,7 +307,7 @@ export async function buildPages(repoRoot = DEFAULT_ROOT) {
   );
   const zbudujKomendy = await loadKomendy(repoRoot);
   const { templateFilm, makiety, ...wspolne } = inputs;
-  const pages = buildPagesFrom({ ...wspolne, zbudujKomendy });
+  const pages = buildPagesFrom({ ...wspolne, zbudujKomendy, makiety });
   const film = buildPagesFrom({ ...wspolne, template: templateFilm, zbudujKomendy, wersja: "film", makiety });
   return {
     [OUTPUT_FILES.en]: pages.en,

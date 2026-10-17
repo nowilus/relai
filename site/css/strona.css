@@ -89,27 +89,75 @@ h1[tabindex="-1"]:focus, h2[tabindex="-1"]:focus { outline: none; }
 }
 @media (hover: hover) and (pointer: fine) { .jezyk:hover { background: rgba(51, 45, 38, .8); } }
 
+/* the map is the journey as an axis across the top, between the logo and the language switch (Łukasz, E6:
+   "embedded in the page, not a floating panel"); the top of the scene darkens like a lintel so the names
+   read on any frame, and the picture below stays free on every stop */
+.pasek::before {
+  content: ""; position: absolute; inset: 0 0 auto; height: 128px; z-index: -1; pointer-events: none;
+  background: linear-gradient(rgba(20, 17, 14, .72), rgba(20, 17, 14, .36) 58%, rgba(20, 17, 14, 0));
+}
 .mapa {
-  position: fixed; z-index: 6; right: var(--margines); top: 76px; width: 208px;
-  padding: 12px; border-radius: var(--promien);
-  background: rgba(29, 26, 22, .62); border: 1px solid rgba(242, 233, 216, .12);
-  backdrop-filter: blur(10px); box-shadow: var(--cien-1);
+  position: fixed; z-index: 6; top: 18px;
+  left: calc(var(--margines) + 150px); right: calc(var(--margines) + 96px);
+  pointer-events: none;
 }
 .mapa__plansza { display: none; }
-.mapa__lista { list-style: none; margin: 0; padding: 0; display: grid; gap: 1px; counter-reset: p; }
+.mapa__lista {
+  position: relative; list-style: none; margin: 0; padding: 0;
+  display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr);
+}
+/* the axis runs through the dots' centres (padding 4 px + half of a 7 px dot); its ends fade out */
+.mapa__lista::before, .mapa__lista::after { content: ""; position: absolute; top: 7px; height: 1px; pointer-events: none; }
+.mapa__lista::before {
+  left: 0; right: 0;
+  background: linear-gradient(90deg, transparent, rgba(242, 233, 216, .34) 8%, rgba(242, 233, 216, .34) 92%, transparent);
+}
+/* the fill: from the first dot to the camera's place, set by warstwa.js as --postep-osi (0..1) */
+.mapa__lista::after {
+  left: calc(100% / 14); width: calc((100% - 100% / 7) * var(--postep-osi, 0));
+  background: var(--musztarda); box-shadow: 0 0 8px rgba(217, 161, 52, .6);
+}
 .mapa__lista a {
-  display: flex; align-items: center; gap: 10px; padding: 6px 8px; border-radius: 8px;
-  font: 500 .875rem/1.2 var(--font-tekst); color: var(--krem-2); text-decoration: none;
-  transition: background-color 140ms var(--ease), color 140ms var(--ease);
+  display: flex; flex-direction: column; align-items: center; gap: 9px; padding: 4px 2px 6px;
+  font: 500 .8rem/1.25rem var(--font-tekst); color: var(--krem-2); opacity: .78; text-decoration: none;
+  text-shadow: 0 1px 8px rgba(0, 0, 0, .7); white-space: nowrap; pointer-events: auto;
+  transition: color 160ms var(--ease), opacity 160ms var(--ease);
 }
 .mapa__lista a::before {
-  content: ""; width: 7px; height: 7px; border-radius: 50%; flex: none;
-  background: transparent; border: 1.5px solid currentColor; opacity: .7;
+  content: ""; position: relative; z-index: 1; width: 7px; height: 7px; border-radius: 50%; flex: none;
+  border: 1.5px solid currentColor; background: var(--noc);
+  transition: transform 200ms var(--ease), background-color 200ms var(--ease), box-shadow 200ms var(--ease);
 }
-.mapa__lista a[aria-current="step"] { color: var(--kartka); background: rgba(242, 233, 216, .1); }
-.mapa__lista a[aria-current="step"]::before { background: var(--musztarda); border-color: var(--musztarda); opacity: 1; }
-.mapa__lista a.byl::before { background: currentColor; opacity: .5; }
-@media (hover: hover) and (pointer: fine) { .mapa__lista a:hover { color: var(--kartka); background: rgba(242, 233, 216, .07); } }
+.mapa__lista a.byl::before { background: var(--krem-2); }
+/* the current stop: larger serif name and a lit dot; the dot grows by scale, so nothing in the row moves */
+.mapa__lista a[aria-current="step"] { opacity: 1; color: var(--kartka); font: 600 .95rem/1.25rem var(--font-tytul); }
+.mapa__lista a[aria-current="step"]::before {
+  transform: scale(1.55); background: var(--musztarda); border-color: var(--musztarda);
+  box-shadow: 0 0 0 3px rgba(217, 161, 52, .18), 0 0 10px rgba(217, 161, 52, .5);
+}
+@media (hover: hover) and (pointer: fine) { .mapa__lista a:hover { opacity: 1; color: var(--kartka); } }
+/* the drawers ride on the same line, past a fading divider, each with a drawer-handle mark */
+.mapa { display: flex; align-items: flex-start; gap: 28px; }
+.mapa__lista { flex: 1; min-width: 0; }
+.mapa__szuflady { position: relative; flex: none; display: flex; gap: 14px; list-style: none; margin: 0; padding: 0 0 0 26px; }
+.mapa__szuflady::before {
+  content: ""; position: absolute; left: 0; top: -6px; bottom: -10px; width: 1px;
+  background: linear-gradient(transparent, rgba(242, 233, 216, .3) 30%, rgba(242, 233, 216, .3) 70%, transparent);
+}
+.mapa__szuflady a {
+  display: flex; flex-direction: column; align-items: center; gap: 11px; padding: 4px 2px 6px;
+  font: 500 .8rem/1.25rem var(--font-tekst); color: var(--krem-2); opacity: .78; text-decoration: none;
+  text-shadow: 0 1px 8px rgba(0, 0, 0, .7); white-space: nowrap; pointer-events: auto;
+  transition: color 160ms var(--ease), opacity 160ms var(--ease);
+}
+.mapa__szuflady a::before { content: ""; width: 12px; height: 3px; margin-top: 2px; border-radius: 2px; background: currentColor; }
+@media (hover: hover) and (pointer: fine) { .mapa__szuflady a:hover { opacity: 1; color: var(--kartka); } }
+/* narrower windows: the drawers drop to a second line, right-aligned under the language switch */
+@media (max-width: 1199px) {
+  .mapa { flex-wrap: wrap; row-gap: 12px; right: var(--margines); }
+  .mapa__lista { flex: 0 0 calc(100% - 96px); }
+  .mapa__szuflady { margin-left: auto; }
+}
 
 /* ---------- stops: document flow (no JS, no WebGL) ---------- */
 .tresc { position: relative; z-index: 2; }
@@ -214,10 +262,16 @@ h1[tabindex="-1"]:focus, h2[tabindex="-1"]:focus { outline: none; }
 .tryb-3d .przystanek--hero .wezwanie { display: inline-block; }
 .tryb-3d .przystanek .karta { width: min(27rem, calc(100vw - 2 * var(--margines))); }
 .tryb-3d .przystanek[data-przystanek="1"],
+.tryb-3d .przystanek[data-przystanek="2"],
 .tryb-3d .przystanek[data-przystanek="3"],
 .tryb-3d .przystanek[data-przystanek="4"],
 .tryb-3d .przystanek[data-przystanek="5"] { left: var(--margines); bottom: clamp(48px, 10vh, 120px); }
-.tryb-3d .przystanek[data-przystanek="2"] { right: calc(var(--margines) + 228px); bottom: clamp(48px, 10vh, 120px); }
+/* the panel stop: the card rides higher, clear of the mug in front of the laptop */
+.tryb-3d .przystanek[data-przystanek="4"] { bottom: clamp(140px, 30vh, 330px); }
+@media (min-width: 861px) {
+  /* narrower on small windows so the laptop display starts right of the card */
+  .tryb-3d .przystanek[data-przystanek="4"] .karta { width: min(27rem, 31vw); }
+}
 /* the install stop spans the frame: its card sits top left, the 3D display layer covers the frame */
 .tryb-3d .przystanek--instalacja { inset: 0; padding: clamp(96px, 16vh, 180px) 0 0 var(--margines); display: block; }
 .tryb-3d .przystanek--instalacja.jest { pointer-events: none; }
@@ -315,9 +369,220 @@ html:not(.przyblizony) .ekran__wroc { visibility: hidden; opacity: 0; }
   opacity: .8;
 }
 
+/* ---------- the loading curtain (zaslona.js): only with the class from <head>, so never without JS ---------- */
+.zaslona { display: none; }
+html.laduje .zaslona, html.laduje-koniec .zaslona {
+  display: block; position: fixed; inset: 0; z-index: 30; overflow: hidden; touch-action: none;
+  background: var(--noc); transition: opacity 650ms var(--ease), visibility 650ms;
+}
+html.laduje-koniec:not(.laduje) .zaslona { opacity: 0; visibility: hidden; pointer-events: none; }
+.zaslona::after {
+  content: ""; position: absolute; inset: 0; z-index: 3; pointer-events: none; opacity: .5;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .3 0 0 0 0 .27 0 0 0 0 .24 0 0 0 .22 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+.zaslona__srodek {
+  position: absolute; z-index: 2; left: 50%; top: 50%; translate: -50% -50%;
+  display: grid; justify-items: center; gap: 4px; pointer-events: none;
+}
+.zaslona__znak { display: flex; align-items: center; gap: 12px; font: 700 3rem/1 var(--font-notka); color: var(--kartka); }
+.zaslona__znak img { display: block; border-radius: 10px; }
+.zaslona__kreska { width: 210px; height: 14px; margin-top: 6px; overflow: visible; }
+.zaslona__kreska path {
+  fill: none; stroke: var(--glina); stroke-width: 3.2; stroke-linecap: round; vector-effect: non-scaling-stroke;
+  stroke-dasharray: 1; stroke-dashoffset: calc(1 - var(--postep, 0)); transition: stroke-dashoffset 400ms var(--ease);
+}
+.zaslona__napis { margin-top: 10px; font: 400 1.15rem/1 var(--font-notka); color: var(--krem-2); }
+.zaslona__procent { font: 600 .8rem/1 var(--font-tekst); letter-spacing: .08em; color: var(--krem-2); opacity: .65; font-variant-numeric: tabular-nums; }
+.zaslona__notki { position: absolute; inset: 0; z-index: 1; }
+/* the notes of the Amnesia stop: pinned one per seventh of the loading, grab and throw them while you wait */
+.zaslona__notka {
+  position: absolute; left: 0; top: 0; padding: 22px 14px 12px; border-radius: 2px; cursor: grab; user-select: none;
+  font: 400 1.05rem/1.25 var(--font-notka); color: #3a3226; background: #f2dc9a;
+  box-shadow: 0 2px 3px rgba(0, 0, 0, .25), 0 12px 26px rgba(0, 0, 0, .35);
+  animation: przypnij 520ms var(--ease) both;
+}
+.zaslona__notka:nth-child(7n + 2) { background: #f3c9a6; }
+.zaslona__notka:nth-child(7n + 3) { background: #e9e2b0; }
+.zaslona__notka:nth-child(7n + 4) { background: #f6d58e; }
+.zaslona__notka:nth-child(7n + 5) { background: #efc3b5; }
+.zaslona__notka:nth-child(7n + 6) { background: #e6dba2; }
+.zaslona__notka:nth-child(7n) { background: #f2cf9c; }
+.zaslona__notka.trzymana { cursor: grabbing; z-index: 2; }
+.zaslona__notka::before { /* the pin */
+  content: ""; position: absolute; top: 7px; left: 50%; width: 12px; height: 12px; translate: -50% 0; border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #ff9d7a, var(--glina) 60%, #7d3518); box-shadow: 0 2px 3px rgba(0, 0, 0, .35);
+}
+@keyframes przypnij { from { opacity: 0; scale: 1.35; } }
+html.laduje-koniec .zaslona__notka { transition: transform 650ms var(--ease); }
+@media (max-width: 600px) {
+  .zaslona__znak { font-size: 2.4rem; }
+  .zaslona__notka { padding: 20px 11px 10px; font-size: .92rem; }
+}
+
+/* ---------- drawers: plain sections in the flow, a sheet of paper over the desk in 3D ---------- */
+.tryb-3d.nad-szuflada .scena, .tryb-3d.nad-szuflada .scena__html { cursor: pointer; }
+.szuflada-otwarta { overflow: hidden; }
+.szuflada { color: var(--txt); }
+html:not(.tryb-3d) .szuflada {
+  display: block; position: static; inset: auto; width: auto; max-width: 72rem; max-height: none;
+  margin: 0 var(--margines) clamp(48px, 8vh, 96px); padding: 0; border: 0; background: none; overflow: visible;
+  scroll-margin-top: 136px; /* a jump from the map lands below the fixed header and its lintel */
+}
+.szuflada[open] {
+  width: min(64rem, calc(100vw - 2 * var(--margines))); max-width: none; max-height: none;
+  padding: 0; border: 0; background: transparent; overflow: visible;
+  animation: szuflada-wejscie 260ms var(--ease);
+}
+/* each drawer as wide as what it holds: one plan sheet, one bar, four documents, a grid of cards */
+.szuflada--teczka[open] { width: min(44rem, calc(100vw - 2 * var(--margines))); }
+.szuflada--laptop[open] { width: min(54rem, calc(100vw - 2 * var(--margines))); }
+.szuflada--teczka .arkusz-planu { max-width: none; }
+.szuflada[open]::before { /* tape, as on the stop cards */
+  content: ""; position: absolute; z-index: 1; top: -11px; left: 50%; width: 110px; height: 26px; translate: -50% 0; rotate: -2deg;
+  background: rgba(232, 214, 176, .86); border-radius: 2px; box-shadow: 0 1px 2px rgba(49, 44, 37, .12);
+}
+.szuflada::backdrop { background: rgba(14, 11, 9, .46); backdrop-filter: blur(3px); animation: szuflada-tlo 260ms var(--ease); }
+@keyframes szuflada-wejscie { from { opacity: 0; transform: translateY(14px) scale(.985); } }
+@keyframes szuflada-tlo { from { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .szuflada[open], .szuflada::backdrop { animation: none; } }
+.szuflada__karta {
+  max-height: min(86vh, 56rem); overflow: auto; overscroll-behavior: contain;
+  padding: clamp(24px, 3vw, 38px); border-radius: var(--promien);
+  background: var(--kartka); box-shadow: var(--cien-2);
+}
+.szuflada__glowa { display: grid; grid-template-columns: minmax(0, 1fr) auto; column-gap: 24px; row-gap: 10px; margin-bottom: 26px; }
+.szuflada__glowa h2 { grid-column: 1; font-size: clamp(1.6rem, 2.4vw, 2.2rem); line-height: 1.08; color: var(--txt); }
+.szuflada__glowa p { grid-column: 1; max-width: 44rem; color: var(--txt-2); }
+.szuflada__zamknij { grid-column: 2; grid-row: 1 / span 2; margin: 0; }
+.szuflada__zamknij[hidden] { display: none; }
+.szuflada__przycisk {
+  font: 500 .95rem/1 var(--font-tekst); color: var(--txt); cursor: pointer;
+  padding: 11px 16px; border-radius: var(--promien-maly); border: 1px solid var(--linia-2); background: var(--kartka-2);
+  box-shadow: 0 1px 2px rgba(49, 44, 37, .12); transition: background-color 140ms var(--ease), transform 120ms var(--ease);
+}
+.szuflada__przycisk:active { transform: translateY(1px) scale(.98); }
+@media (hover: hover) and (pointer: fine) { .szuflada__przycisk:hover { background: var(--tlo); } }
+.szuflada__przyklad { margin-top: 18px; text-align: right; font: 400 1.05rem/1 var(--font-notka); color: var(--txt-3); }
+
+/* documents: four sheets, each answering the notes' questions */
+.szuflada__dokumenty { display: grid; grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr)); gap: 16px; }
+.arkusz-pamieci { padding: 18px 18px 14px; border-radius: var(--promien-maly); background: #fffefb; border: 1px solid var(--linia); box-shadow: 0 1px 2px rgba(49, 44, 37, .08); }
+.arkusz-pamieci__plik { font: 400 .78rem/1 var(--font-kod); color: var(--glina-2); }
+.arkusz-pamieci h3 { margin: 8px 0 12px; font: 500 1.4rem/1.1 var(--font-tytul); }
+.arkusz-pamieci h3::after { content: ""; display: block; width: 34px; height: 3px; margin-top: 8px; border-radius: 2px; background: var(--glina); }
+.arkusz-pamieci ol { list-style: none; margin: 0; padding: 0; }
+.arkusz-pamieci li { position: relative; padding: 10px 0; font-size: .95rem; line-height: 1.4; }
+.arkusz-pamieci li + li::before {
+  content: ""; position: absolute; left: 0; right: 0; top: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--linia-2) 20%, var(--linia-2) 80%, transparent);
+}
+.arkusz-pamieci__pytanie { display: block; margin-bottom: 2px; font: 400 .95rem/1.3 var(--font-notka); color: var(--txt-3); }
+
+/* the plan folder: the same checklist as the sheet on the desk */
+.arkusz-planu { max-width: 36rem; padding: 22px 26px 12px; border-radius: var(--promien-maly); background: #fffefb; border: 1px solid var(--linia); box-shadow: 0 1px 2px rgba(49, 44, 37, .08); }
+.arkusz-planu__tytul { font: 700 2.1rem/1 var(--font-notka); }
+.arkusz-planu__tytul::after { content: ""; display: block; width: 52px; height: 3px; margin-top: 8px; border-radius: 2px; background: var(--glina); }
+.arkusz-planu ol { list-style: none; margin: 14px 0 0; padding: 0; }
+.arkusz-planu li { position: relative; display: grid; grid-template-columns: 22px minmax(0, 1fr) auto; align-items: center; gap: 14px; padding: 12px 0; }
+.arkusz-planu li + li::before {
+  content: ""; position: absolute; left: 0; right: 0; top: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--linia-2) 20%, var(--linia-2) 80%, transparent);
+}
+.arkusz-planu__znak { position: relative; width: 18px; height: 18px; border: 2px solid var(--txt-2); border-radius: 3px; }
+.arkusz-planu li[data-stan="zrobiony"] .arkusz-planu__znak::after {
+  content: ""; position: absolute; left: 4px; top: -3px; width: 6px; height: 12px;
+  border: solid var(--szalwia); border-width: 0 3px 3px 0; rotate: 40deg;
+}
+.arkusz-planu li[data-stan="biezacy"] .arkusz-planu__znak::after {
+  content: ""; position: absolute; inset: 3px; border-radius: 50%; background: var(--musztarda);
+}
+.arkusz-planu__nazwa { font: 600 1.02rem/1.3 var(--font-tekst); }
+.arkusz-planu li[data-stan="zrobiony"] .arkusz-planu__nazwa { color: var(--txt-2); text-decoration: line-through; text-decoration-color: rgba(97, 89, 76, .55); }
+.arkusz-planu li small { font-size: .85rem; color: var(--txt-3); }
+.arkusz-planu li[data-stan="biezacy"] small { color: var(--glina-2); font-weight: 600; }
+
+/* the laptop: the bars as the app draws them (as in the film), one tab per bar */
+.szuflada__okno { padding: 16px; border-radius: 16px; background: var(--m-okno); color: var(--m-tekst); }
+.szuflada__zakladki { display: flex; gap: 6px; margin-bottom: 12px; }
+.szuflada__zakladki[hidden] { display: none; }
+.szuflada__zakladki button {
+  font: 500 .88rem/1 var(--font-tekst); color: var(--m-wyciszony); cursor: pointer;
+  padding: 9px 14px; border-radius: 8px; border: 1px solid transparent; background: transparent;
+  transition: background-color 140ms var(--ease), color 140ms var(--ease), transform 120ms var(--ease);
+}
+.szuflada__zakladki button:active { transform: translateY(1px) scale(.98); }
+.szuflada__zakladki button[aria-selected="true"] { color: var(--m-tekst); background: var(--m-karta); border-color: var(--m-linia); }
+@media (hover: hover) and (pointer: fine) { .szuflada__zakladki button:hover { color: var(--m-tekst); } }
+.szuflada .pasek-makieta {
+  display: grid; grid-template-columns: 4.4em minmax(0, 1fr) auto; align-items: start; gap: 12px;
+  padding: 14px 16px; border-radius: 12px; background: var(--m-karta);
+  font: 500 .9rem/1.4 var(--font-tekst); color: var(--m-tekst);
+}
+.szuflada .pasek-makieta + .pasek-makieta { margin-top: 8px; }
+.szuflada .pasek-makieta[hidden] { display: none; }
+.szuflada .pasek-makieta[data-panel="cache"] { align-items: center; }
+.szuflada .pasek-makieta__etykieta { color: var(--m-wyciszony); }
+.szuflada .pasek-makieta__tresc { display: grid; gap: 4px; min-width: 0; }
+.szuflada .pasek-makieta__liczba { color: var(--m-wyciszony); white-space: nowrap; }
+.szuflada .pasek-makieta__liczba b { color: var(--m-tekst); font-weight: 700; }
+.szuflada .pm-wiersz { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; min-width: 0; }
+.szuflada .pm-wiersz b { font-weight: 700; }
+.szuflada .pm-status { color: var(--m-w-toku); font-weight: 600; }
+.szuflada .pm-cichy { color: var(--m-wyciszony); }
+.szuflada .pm-segmenty { display: flex; gap: 3px; padding-top: 4px; }
+.szuflada .pm-segmenty i { flex: 1; height: 3px; border-radius: 2px; background: var(--seg); }
+.szuflada .pm-kolko { flex: none; width: 11px; height: 11px; border-radius: 50%; border: 1.5px solid var(--m-tor); border-top-color: var(--m-w-toku); }
+.szuflada .pm-baterie { display: grid; grid-template-columns: repeat(auto-fit, minmax(8.5rem, max-content)); column-gap: 22px; row-gap: 14px; align-items: center; }
+.szuflada .bateria { display: inline-flex; align-items: center; gap: 6px; color: var(--m-wyciszony); white-space: nowrap; }
+.szuflada .bateria b { color: var(--m-tekst); font-weight: 700; }
+.szuflada .bateria__ikona { position: relative; flex: none; width: 22px; height: 10px; border-radius: 3px; border: 1.5px solid var(--m-wyciszony); }
+.szuflada .bateria__ikona::before { content: ""; position: absolute; inset: 1px; right: auto; width: calc((100% - 2px) * var(--zostalo) / 100); border-radius: 1px; background: var(--bateria-kolor); }
+.szuflada .bateria__ikona::after { content: ""; position: absolute; right: -4px; top: 2px; width: 2px; height: 3px; border-radius: 0 1px 1px 0; background: var(--m-wyciszony); }
+.szuflada .pm-kontekst { grid-column: 1 / -1; position: relative; height: 5px; border-radius: 3px; background: var(--m-tor); }
+.szuflada .pm-kontekst__tor { position: absolute; inset: 0 auto 0 0; width: calc(var(--uzyte) * 1%); border-radius: 3px; background: var(--k-kolor); }
+.szuflada .pm-kontekst::after { content: ""; position: absolute; left: calc(var(--prog) * 1%); top: -4px; width: 2px; height: 13px; border-radius: 1px; background: var(--m-tekst); }
+.szuflada .pm-kontekst__tekst { grid-column: 1 / -1; color: var(--m-wyciszony); }
+.szuflada .pm-kontekst__tekst b { margin-left: 6px; color: var(--m-tekst); font-weight: 700; }
+
+/* the card box: one index card per command */
+.szuflada__fiszki { display: grid; grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr)); gap: 14px; list-style: none; margin: 0; padding: 0; }
+.fiszka-szuflady {
+  display: grid; grid-template-columns: 36px minmax(0, 1fr); column-gap: 14px; row-gap: 6px; align-content: start;
+  padding: 18px 18px 16px; border-radius: var(--promien-maly); background: #fffefb; border: 1px solid var(--linia);
+  box-shadow: inset 0 5px 0 rgba(217, 161, 52, .55), 0 1px 2px rgba(49, 44, 37, .08);
+}
+.fiszka-szuflady img { grid-row: 1 / span 3; width: 36px; height: 36px; }
+.fiszka-szuflady h3 { font: 700 1.2rem/1.15 var(--font-notka); color: var(--glina-2); }
+.fiszka-szuflady p { font-size: .93rem; line-height: 1.4; color: var(--txt-2); }
+.fiszka-szuflady code { justify-self: start; margin-top: 2px; padding: 3px 7px; border-radius: 6px; background: var(--kartka-2); font: 400 .8rem/1.2 var(--font-kod); color: var(--txt-2); }
+
 @media (max-width: 860px) {
   .mapa { display: none; }
   .tryb-3d .przystanek[data-przystanek] { left: var(--margines); right: var(--margines); }
+}
+
+/* ---------- phone (≤ 600 px): portrait poses, every card at the bottom, the link card instead of the configurator ---------- */
+.instalacja__telefon { display: none; }
+.instalacja__telefon [hidden] { display: none; } /* buttons that need JavaScript stay out without it */
+@media (max-width: 600px) {
+  .tryb-3d .przystanek[data-przystanek] { left: 14px; right: 14px; bottom: max(14px, env(safe-area-inset-bottom)); }
+  .tryb-3d .przystanek[data-przystanek] .karta { width: auto; max-width: none; padding: 20px 20px 18px; }
+  .tryb-3d .przystanek--hero { bottom: max(28px, env(safe-area-inset-bottom)); max-width: none; }
+  .przystanek--hero h1 { font-size: clamp(2.3rem, 10.5vw, 2.9rem); }
+  .ekran { display: none !important; }
+  .tryb-3d .przystanek--instalacja { inset: auto 14px max(14px, env(safe-area-inset-bottom)); padding: 0; }
+  .tryb-3d .przystanek--instalacja .karta { width: auto; }
+  .tryb-3d .przystanek--instalacja .stopka { max-width: none; margin-top: 10px; }
+  .instalacja__telefon {
+    display: grid; gap: 12px; margin-top: 10px; padding: 18px 16px; pointer-events: auto;
+    border-radius: var(--promien); background: var(--kartka); color: var(--txt); box-shadow: var(--cien-2);
+  }
+  .instalacja__telefon-tekst { font-size: 1rem; line-height: 1.5; color: var(--txt-2); }
+  .instalacja__telefon .konfigurator__komendy { margin: 0; white-space: pre-wrap; word-break: break-all; font-size: .8rem; }
+  .instalacja__telefon-akcje { display: grid; gap: 8px; }
+  .instalacja__telefon-akcje .przycisk { min-height: 48px; justify-content: center; }
+  .instalacja__telefon-akcje .przycisk--drugi { color: var(--txt); border-color: var(--linia-2); }
+  .instalacja__telefon .konfigurator__status:empty { display: none; }
 }
 
 @media (prefers-reduced-motion: no-preference) {

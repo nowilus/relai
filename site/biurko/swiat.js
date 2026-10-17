@@ -1,10 +1,34 @@
 // Switches the page from document flow to the one fixed desk scene.
 import { zbudujScene } from "./scena.js";
 import { zamontujWarstwe } from "./warstwa.js";
+import { zamontujSzuflady } from "./szuflady.js";
 import { zbudujTor } from "./kamera.js";
 import { etapPierwszy, etapDrugi } from "./zasoby.js";
+import { DefaultLoadingManager } from "three";
+import { postepZPlikow } from "./zaslona.js";
+
+// files the first loading stage requests (textures, the lamp model with its parts, the HDR), measured
+// with the Performance API; the loader learns the parts of a model only while it reads it, so this
+// count is the floor that keeps the curtain's line from running ahead early
+const PLIKI_ETAPU_PIERWSZEGO = 17;
 
 const FONTY = ["400 58px Kalam", "700 250px Kalam", "500 92px Fraunces", "500 34px 'JetBrains Mono'", "500 24px 'Hanken Grotesk'"];
+
+/** The bar mock-up (site/dane/makiety.json, built into the page) as plain data for the laptop screen. */
+function makieta(el) {
+  const dane = (x) => (x ? { ...x.dataset } : null);
+  return {
+    kolory: { ...el.dataset },
+    paski: [...el.querySelectorAll("[data-pasek]")].map((p) => ({
+      ...p.dataset,
+      plan: dane(p.querySelector("[data-plan]")),
+      postep: dane(p.querySelector("[data-postep]")),
+      segmenty: [...p.querySelectorAll("[data-segment]")].map((i) => i.dataset.segment),
+      baterie: [...p.querySelectorAll("[data-bateria]")].map(dane),
+      kontekst: dane(p.querySelector("[data-kontekst]")),
+    })),
+  };
+}
 
 function slowaSceny() {
   const szablon = document.querySelector("template[data-slowa-sceny]");
@@ -13,6 +37,9 @@ function slowaSceny() {
     karteczki: [...t.querySelectorAll("[data-karteczka]")].map((p) => p.textContent),
     dokumenty: [...t.querySelectorAll("[data-dokument]")].map((p) => [p.textContent, p.dataset.plik]),
     teczka: t.querySelector("[data-teczka]").textContent,
+    etapy: [...t.querySelectorAll("[data-etap]")].map((p) => ({ nazwa: p.textContent, stan: p.dataset.stan })),
+    makieta: makieta(t.querySelector("[data-makieta]")),
+    fiszki: [...t.querySelectorAll("[data-fiszka]")].map((p) => [p.textContent, p.dataset.nazwa]),
   };
 }
 
@@ -21,22 +48,30 @@ function slowaSceny() {
  * first frame, then loads the rest in the background; a failure there also drops back to flow mode.
  * @param {{ bezSceny: (powod?: string) => void }} opcje
  */
-export async function uruchom({ bezSceny }) {
+export async function uruchom({ bezSceny, zaslona }) {
+  DefaultLoadingManager.onProgress = (_, gotowe, wszystkie) => {
+    zaslona.postep(postepZPlikow(gotowe, wszystkie, PLIKI_ETAPU_PIERWSZEGO));
+  };
   const [zasoby] = await Promise.all([etapPierwszy(), ...FONTY.map((f) => document.fonts.load(f))]);
   const ograniczRuch = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   const tor = zbudujTor();
   const kontener = document.querySelector("[data-scena]");
   const ekran = document.querySelector("[data-ekran]");
   let warstwa = null;
+  // 3D mode before the scene is built: building it sizes the laptop display to 1136 px, and in the
+  // document flow that overflows a phone, which then zooms out and the scene measures a 1156 px window.
+  // In 3D mode the display sits in the fixed layer, which never widens the page. bezSceny() undoes it.
+  document.documentElement.classList.add("tryb-3d");
   const scena = zbudujScene({
     kontener, slowa: slowaSceny(), zasoby, ekran, tor, ograniczRuch,
     przyKlatce: (stan) => warstwa?.przyKlatce(stan),
   });
-  document.documentElement.classList.add("tryb-3d");
   warstwa = zamontujWarstwe({ tor, przekladka: document.querySelector("[data-przekladka]"), scena, ekran, ograniczRuch });
   warstwa.start();
+  const szuflady = zamontujSzuflady({ scena, ograniczRuch });
   // whatever ends the scene, the configurator goes back into the document flow first
   const koniecSceny = (powod) => {
+    szuflady.odmontuj();
     warstwa.odmontuj();
     scena.oddajEkran();
     bezSceny(powod);
@@ -47,10 +82,12 @@ export async function uruchom({ bezSceny }) {
   });
   window.__biurko = Object.freeze({
     diagnostyka: scena.diagnostyka, wyczyscPomiar: scena.wyczyscPomiar, tor, obiekty: scena.obiekty, scena: scena.scena,
-    przyblizenie: warstwa.przyblizenie,
+    przyblizenie: warstwa.przyblizenie, szuflada: szuflady.otwarta, trafienie: scena.trafienie,
   });
   // the first frame is on screen; the rest of the desk follows
   await new Promise((gotowe) => requestAnimationFrame(() => requestAnimationFrame(gotowe)));
+  zaslona.gotowe();
+  DefaultLoadingManager.onProgress = () => {};
   etapDrugi()
     .then((B) => scena.uzupelnij(B))
     .catch((e) => koniecSceny(e instanceof Error ? e.message : String(e)));
