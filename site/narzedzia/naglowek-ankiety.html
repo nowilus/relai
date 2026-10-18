@@ -1,17 +1,18 @@
 <!doctype html>
 <!-- Source of site/grafika/ankieta/naglowek.png, the cover of the Tally survey (E8). Language-neutral:
      three notes pinned with the panel bars' colours (gold, red, green) and the three-colour strip.
-     Render: see site/README.md, section "Przy wydaniu" (Chrome --headless --screenshot, 1500 x 400). -->
+     Render: see site/README.md, section "Przy wydaniu" (Chrome --headless --screenshot, 2400 x 300).
+     Tally crops the cover to a band of about 8 : 1, so the whole picture is drawn in that band. -->
 <html lang="en">
 <meta charset="utf-8">
 <style>
 @font-face { font-family: "Kalam"; src: url(../fonty/kalam-700-latin.woff2) format("woff2"); font-weight: 700; }
 * { box-sizing: border-box; }
-html, body { margin: 0; width: 1500px; height: 400px; overflow: hidden; }
+html, body { margin: 0; width: 2400px; height: 300px; overflow: hidden; }
 body { position: relative; background: #faf1de; font-family: "Kalam", cursive; color: #3a3128;
   background-image: radial-gradient(rgba(163, 153, 136, .22) 1.4px, transparent 1.6px); background-size: 26px 26px; }
-.notki { position: absolute; inset: 0 0 26px; display: flex; justify-content: center; align-items: center; gap: 70px; }
-.notka { position: relative; width: 250px; height: 200px; display: grid; place-items: center; padding-top: 18px;
+.notki { position: absolute; inset: 0 0 14px; display: flex; justify-content: center; align-items: center; gap: 64px; padding-top: 14px; }
+.notka { position: relative; width: 230px; height: 176px; display: grid; place-items: center; padding-top: 18px;
   background: #fffaf0; border: 1px solid #e6cf9f; border-radius: 6px; transform: rotate(var(--obrot));
   box-shadow: 0 3px 6px rgba(73, 67, 57, .14), 0 22px 46px rgba(49, 44, 37, .22); }
 .notka:nth-child(1) { --obrot: -4deg; }
@@ -30,7 +31,7 @@ body { position: relative; background: #faf1de; font-family: "Kalam", cursive; c
 .notka:nth-child(2) b { --tusz: #8c3f22; }
 .notka:nth-child(3) b { --tusz: #3f6b52; letter-spacing: 6px; font-size: 54px; }
 .notka svg { width: 120px; height: 56px; }
-.pasek { position: absolute; left: 0; right: 0; bottom: 0; height: 12px; display: grid; grid-template-columns: 1fr 1fr 1fr; }
+.pasek { position: absolute; left: 0; right: 0; bottom: 0; height: 10px; display: grid; grid-template-columns: 1fr 1fr 1fr; }
 .pasek i:nth-child(1) { background: #d9a134; }
 .pasek i:nth-child(2) { background: #c4643c; }
 .pasek i:nth-child(3) { background: #5f8a68; }

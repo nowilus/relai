@@ -10,7 +10,7 @@ Plan: [docs/plany/STRONA_RELAI](../docs/plany/STRONA_RELAI/STATUS.md). Brief pro
 |---|---|
 | `tresc/pl.json`, `tresc/en.json` | cała treść strony; tu zmieniasz słowa |
 | `narzedzia/szablon.html` | jeden szablon HTML dla obu języków |
-| `narzedzia/zbuduj.mjs` | generator: szablon + treść + fakty → `index.html` i `pl/index.html` |
+| `narzedzia/zbuduj.mjs` | generator: szablon + treść + fakty → Film w `index.html` i `pl/index.html`, Biurko w `biurko/index.html` i `pl/biurko/index.html`; adres publiczny (`ADRES_PUBLICZNY`) dla `hreflang` i `canonical` |
 | `narzedzia/fakty.mjs` | fakty z repo (komendy, wersje, adaptery) → `dane/fakty.json` |
 | `js/` | konfigurator instalacji, sprawdzanie wersji, wybór języka (czysta logika z testami) |
 | `biurko/` | scena three.js: ładowanie zasobów (`zasoby.js`), materiały, obiekty, miasto za oknem, światło i efekty obrazu, kamera, warstwa tekstu |
@@ -19,12 +19,13 @@ Plan: [docs/plany/STRONA_RELAI](../docs/plany/STRONA_RELAI/STATUS.md). Brief pro
 | `vendor/three/` | three.js 0.186.1 i jego dodatki z tej samej paczki npm, przypięte (`VERSION` z listą plików, `LICENSE`) |
 | `fonty/`, `grafika/` | kopie fontów i logo z `docs/zasoby/` (licencje w `fonty/LICENCJE.md`); `grafika/ikony/` to ikony komend z `docs/zasoby/branding/ikony/` |
 | `narzedzia/szablon-film.html` | szablon prototypu „Film” dla obu języków |
-| `film/` | Film: ekran ładowania (`zaslona.js`), jednorazowe animacje sekcji i przytrzymanie przewijania (`akty.js`), pasek u góry (`pasek.js`), karta instalacji na telefonie (`telefon.js`), start (`start.js`); `film/index.html` to generowana strona EN |
+| `film/` | Film: ekran ładowania (`zaslona.js`), jednorazowe animacje sekcji i przytrzymanie przewijania (`akty.js`), pasek u góry (`pasek.js`), karta instalacji na telefonie (`telefon.js`), start (`start.js`); strona Filmu leży w korzeniu (`index.html`) od E8 |
 | `css/film.css` | wygląd Filmu, paleta z `core/panel/theme.mjs` |
 | `narzedzia/makiety.mjs` | makiety pasków nad promptem z kodu `core/panel` i zrzutu aplikacji → `dane/makiety.json` |
 | `vendor/scrollcraft/` | silnik scroll-craft 0.3.1 skopiowany bajt w bajt (`VERSION` z sumami, `LICENSE` MIT); nie edytujesz go |
 
-`index.html`, `pl/index.html`, `film/index.html` i `pl/film/index.html` są **generowane**.
+`index.html`, `pl/index.html` (Film), `biurko/index.html` i `pl/biurko/index.html` (Biurko) są
+**generowane**.
 Nie edytuj ich ręcznie: zmień treść albo szablon i zbuduj od nowa. Brief Filmu:
 [docs/zasoby/STRONA/builds/film/BRIEF.md](../docs/zasoby/STRONA/builds/film/BRIEF.md).
 
@@ -159,9 +160,9 @@ karta w tle nie dostaje klatek ani zdarzeń przewijania.
 - **Przebiegi zrzutów i dostępność:** cztery przebiegi (desktop, telefon, ograniczony ruch, bez JS),
   po sześć kadrów na akt, robisz przez protokół DevTools z zainstalowanego Chrome (bez paczek).
   Arkusze zapisujesz w `docs/zasoby/STRONA/lab/film/`. Lighthouse dostępność mierzysz dla
-  `/film/` i `/pl/film/`, na desktopie i telefonie; w E7 wyszło 100 we wszystkich czterech.
-  Na stronę EN wchodzisz z `localStorage['relai-jezyk'] = 'en'`, bo przeglądarka po polsku
-  przekierowuje na `/pl/film/`.
+  `/` i `/pl/` (Film od E8 w korzeniu), na desktopie i telefonie; w E8 wyszło 100 we wszystkich
+  czterech, SEO 100. Na stronę EN wchodzisz z `localStorage['relai-jezyk'] = 'en'`, bo przeglądarka
+  po polsku przekierowuje na `/pl/`.
 
 ## Ekran ładowania Filmu
 
@@ -180,15 +181,39 @@ serwer statyczny z korzeniem w `site/`, na przykład serwer skilla scroll-craft:
 node <katalog-skilla-scroll-craft>/scripts/serve.mjs --root site --port 4520
 ```
 
-i adres `http://localhost:4520/` (angielski) albo `http://localhost:4520/pl/`; Film pod
-`http://localhost:4520/film/` i `http://localhost:4520/pl/film/`. Przeglądarka
+i adres `http://localhost:4520/` (Film, angielski) albo `http://localhost:4520/pl/`; Biurko pod
+`http://localhost:4520/biurko/` i `http://localhost:4520/pl/biurko/`. Przeglądarka
 z polskim językiem trafia przy pierwszej wizycie na `/pl/`; ręczny wybór zapamiętuje się
-w `localStorage` (`relai-jezyk`).
+w `localStorage` (`relai-jezyk`). Przekierowanie idzie względnym linkiem języka z nagłówka, nie
+absolutnym `hreflang`, więc podgląd lokalny zostaje lokalny.
+
+## Publikacja
+
+Strona stoi na GitHub Pages pod `https://nowilus.github.io/relai/`: Film pod `/` i `/pl/`, Biurko
+pod `/biurko/` i `/pl/biurko/`. Publikuje ją workflow `.github/workflows/strona.yml` (akcje
+przypięte pełnym SHA, uprawnienia `contents: read`, `pages: write`, `id-token: write`): przy pushu
+na `main` ze zmianą w `site/**`, w `marketplace.json` albo w samym workflow, przy opublikowaniu
+wydania i ręcznie. Kroki: fakty, makiety, budowa, testy, upload katalogu `site/`, publikacja.
+Stopka obu wersji linkuje drugą wersję, ankietę w Tally (`publikacja.ankietaAdres` w treści, PL
+`tally.so/r/BE4lQ5`, EN `tally.so/r/X5lkMj`, z polami `wersja` i `jezyk` w adresie) i GitHub
+Issues. Nagłówek ankiety to `grafika/ankieta/naglowek.png`, rysowany z
+`narzedzia/naglowek-ankiety.html` (proporcja ok. 8 : 1, bo tyle pokazuje Tally), przy działającym
+podglądzie:
+
+```bash
+"C:/Program Files/Google/Chrome/Application/chrome.exe" --headless=new --hide-scrollbars --window-size=2400,300 --screenshot="C:\Users\<ty>\...\site\grafika\ankieta\naglowek.png" http://localhost:4520/narzedzia/naglowek-ankiety.html
+```
 
 ## Przy wydaniu
 
-Po podbiciu wersji w `.claude-plugin/marketplace.json` uruchom oba skrypty z sekcji
-„Zbudowanie stron”, żeby strona miała nowe wersje wpieczone w HTML. Przeglądarka i tak sprawdza
-nowszy tag w API GitHuba (`v…` dla RelAI, `relai-panel-v…` dla pluginów panelu), ale wartość
-wpieczona jest źródłem głównym. Pełny krok „strona” w sekwencji wydania i publikacja na GitHub
-Pages to etap E8 planu (numeracja po Aneksie B).
+Po podbiciu wersji w `.claude-plugin/marketplace.json`, z korzenia repo:
+
+```bash
+node site/narzedzia/fakty.mjs && node site/narzedzia/makiety.mjs && node site/narzedzia/zbuduj.mjs && node --test "site/**/*.test.mjs"
+```
+
+Test `narzedzia/strony.test.mjs` wywraca się, gdy któraś z czterech stron niesie inną wersję niż
+`marketplace.json`. Strony commitujesz razem z wydaniem; push na `main` uruchamia publikację, wynik
+pokazuje `gh run list --workflow strona.yml --limit 1`. Przeglądarka i tak sprawdza nowszy tag
+w API GitHuba (`v…` dla RelAI, `relai-panel-v…` dla pluginów panelu), ale wartość wpieczona jest
+źródłem głównym. Ta sama sekwencja stoi w `docs/PULAPKI.md`, P-005.

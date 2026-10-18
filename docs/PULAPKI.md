@@ -917,6 +917,18 @@ Specyfikacja: `SPEC_PULAPKI.md`.
   komendy, a wykrył to użytkownik oknem `/plugin`, nie żaden pomiar. Wynik inny niż
   `✔ Validation passed` zatrzymuje wydanie; `claude plugin update <plugin>@<marketplace>` wymaga
   **pełnej nazwy z marketplace'em** — sama nazwa pluginu kończy się `Plugin "…" not found`.
+- **Krok „strona” po podbiciu wersji** (od 2026-10-18, STRONA_RELAI E8): strona
+  `nowilus.github.io/relai/` ma wersje wpieczone w HTML, więc po zmianie
+  `.claude-plugin/marketplace.json` z korzenia repo: `node site/narzedzia/fakty.mjs`,
+  `node site/narzedzia/makiety.mjs`, `node site/narzedzia/zbuduj.mjs`,
+  `node --test "site/**/*.test.mjs"` (test `strony.test.mjs` wywraca się, gdy strona niesie inną
+  wersję niż marketplace), potem commit stron razem z wydaniem. Push na `main` ze zmianą w `site/**`
+  albo w `marketplace.json` oraz opublikowanie wydania uruchamia workflow
+  `.github/workflows/strona.yml`, który buduje, testuje i publikuje; wynik:
+  `gh run list --workflow strona.yml --limit 1`. Pierwszy przebieg 2026-10-18 padł na
+  `configure-pages` („Not Found”), bo Pages nie było włączone; włączenie:
+  `gh api -X POST repos/nowilus/relai/pages -f build_type=workflow` (ustawienie repo — za zgodą
+  właściciela), potem `gh run rerun <id>`.
 - **Zasięg:** Claude Code, aplikacja desktopowa; potwierdzone na 0.9.0 → 1.0.0 oraz 1.9.1 → 1.9.2.
   Źródło: L-0031, L-0020.
 
