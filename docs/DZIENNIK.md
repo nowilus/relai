@@ -1964,3 +1964,38 @@ i `cd4effa`.
   maszynie z Intel UHD/Iris albo starszym Radeonem, Chrome z DevTools, procedura z README.
 
 Autor: RelAI (Opus 5.5) + Lukasz
+
+### 2026-10-18 — `/relai-clean`: artefakty robocze po E6 STRONA_RELAI
+
+**Zrobione:**
+
+- Raport `clean-work.js` (pomiar 5,0 s): 7 grup, 24 pozycje, 120,5 MB kandydatów; 35 pozycji
+  chronionych (4 × „etap trwa”, m.in. `work/PANEL_CODEX/GIT_IZOLACJA` 31,2 MB; 12 × „wiązane
+  testami”; 19 × „zależności / narzędzia”).
+- Odpowiedzi Łukasza: „Skasować wszystko” dla wszystkich grup. Skasowane 24 pozycje:
+  `.claude/relai/work/_wiadomosci/2026-10-16_teams` (1,8 MB); w `docs/` oryginały PNG
+  `docs/zasoby/STRONA/builds/biurko/referencje/0*.png` (9 plików, kopie JPEG q90 zostają w repo),
+  `docs/zasoby/film/zrodla/out` (57,7 MB), `.../public/muzyka` (28,4 MB), `.../public/fonty`,
+  nieśledzone `docs/zasoby/PANEL_RELAI/makiety`; `.claude-plugin/types` i `tsconfig.json`
+  w `cache-keeper/`, `panel/`, `progress/` (ignorowane); w `%TEMP%` `relai_plan_e3.txt`,
+  `relai_reg.bak`, `relai-e6-chrome-Z5WmH1`, `relai-ustawienia-podane-…`. Markerów „zachowaj”
+  nie było.
+
+**Zweryfikowane — jak dokładnie:**
+
+- `clean-work.js kasuj .claude/relai/clean-lista.json` → „Skasowane: 24”, 0 odmów, 0 niepowodzeń,
+  „Przed: 120.5 MB, po: 0.0 MB”, kod 0. Ponowny raport: 1 grupa 0,0 MB (pusty katalog
+  `.claude/relai/work/_wiadomosci`), 35 chronionych bez zmian. `git status` bez nowych zmian
+  w plikach śledzonych.
+
+**Świadomie odłożone:**
+
+- Pusty katalog `.claude/relai/work/_wiadomosci` — wróci w następnym raporcie jako 0 MB.
+- Makiety `docs/zasoby/PANEL_RELAI/makiety` były nieśledzonymi plikami planu PANEL_CODEX
+  (Codex); skasowane decyzją Łukasza, przy wznowieniu PANEL_CODEX do odtworzenia z jego sesji.
+
+**Do zrobienia przez człowieka:**
+
+- —
+
+Autor: RelAI (Opus 5.5) + Lukasz
