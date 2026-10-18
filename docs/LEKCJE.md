@@ -102,11 +102,15 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
      dzielisz na „naprawione później” i „nigdy” (L-0131); skrypt cięcia sprawdza cały blok i idzie
      kompilator (L-0160); wklejka dowodzona licznikiem nagłówków i porównaniem ze źródłem (L-0164);
      operacja na zakresie normalizuje tylko styk, reszta nietknięta (L-0169); fixtura ewaluacji
-     niesie środowisko czytane przez hooki (L-0170).
+     niesie środowisko czytane przez hooki (L-0170); widok bez JS to kopia HTML bez `<script>`
+     z rozpakowanym `<noscript>`, bo wyłączone skrypty zatrzymują też sondy DevTools (L-0238);
+     płynność tylko bez innej przeglądarki na GPU, co najmniej dwa przebiegi, wynik z obciążonej
+     maszyny odrzucony z liczbą (L-0239); zrzut sceny bez tekstu przez `opacity: 0` na elementach
+     z tekstem, nie `visibility` rodzica (L-0240).
    (L-0032, L-0037, L-0054, L-0055, L-0056, L-0064, L-0068, L-0071, L-0073, L-0083, L-0084, L-0086,
    L-0087, L-0088, L-0090, L-0091, L-0095, L-0096, L-0097, L-0101, L-0102, L-0105, L-0106, L-0107,
    L-0110, L-0111, L-0113, L-0124, L-0125, L-0127, L-0130, L-0131, L-0135, L-0141, L-0143, L-0151,
-   L-0160, L-0164, L-0169, L-0170, L-0173, L-0181, L-0211, L-0213, L-0215)
+   L-0160, L-0164, L-0169, L-0170, L-0173, L-0181, L-0211, L-0213, L-0215, L-0238, L-0239, L-0240)
 6. **Próg jest liczbą, którą ktoś liczy:** kalibrujesz na realnych plikach, zapisujesz w jednostce
    mechanizmu z komendą sprawdzającą, z **jednym** wyzwalaczem. Porównujesz do wielkości, którą
    mechanizm kontroluje (część usuwalna); zatkanie sygnalizuje **różnica możliwego i wykonanego**,
@@ -229,10 +233,15 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
       Najpierw proponujesz jedną animację na sekcję z resetem poza ekranem (L-0233). Tryb ograniczonego
       ruchu i brak skryptu sprawdzasz wysokością sekcji i tym, co jest za krawędzią, a nie tylko
       widocznością (L-0235). Stan sprzed animacji nie przyciemnia tekstu przezroczystością, bo
-      kontrast mierzysz także na pierwszej klatce (L-0236).
+      kontrast mierzysz także na pierwszej klatce (L-0236). Każdy nowy powód zejścia do trybu
+      przepływu dostaje przebieg z liczeniem elementów za krawędzią sekcji i dialogów. Reguła
+      rozmiaru okna obowiązuje tylko w trybie, dla którego powstała (L-0237). Klasa wyjmująca
+      element z przepływu wchodzi przed zmianą jego rozmiaru; na telefonie pierwsza asercja to
+      `innerWidth` i `scrollWidth` równe emulacji z `mobile: true` (L-0241).
     (L-0003, L-0006, L-0016, L-0019, L-0029, L-0094, L-0098, L-0137, L-0140, L-0142, L-0145, L-0147,
     L-0149, L-0152, L-0157, L-0171, L-0174, L-0176, L-0178, L-0179, L-0180, L-0183, L-0196, L-0197,
-    L-0199, L-0216, L-0217, L-0219, L-0220, L-0221, L-0225, L-0226, L-0233, L-0235, L-0236)
+    L-0199, L-0216, L-0217, L-0219, L-0220, L-0221, L-0225, L-0226, L-0233, L-0235, L-0236, L-0237,
+    L-0241)
 
 **Wyprowadzone 2026-08-20 do `docs/PULAPKI.md`:** sześć pułapek narzędziowych — `tar` na `PATH`
 (L-0021), sesja `claude -p` (L-0024), PowerShell 5.1 i UTF-8 (L-0027), `--allowedTools` przy
@@ -588,6 +597,56 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
 - **Zasada:** stan sprzed animacji z tekstem rusza położeniem, nie przezroczystością. Drobny tekst
   w kolorze pomocniczym ma osobny token z policzonym kontrastem; palety źródłowej nie zmieniasz,
   bo pilnuje jej test.
+
+### L-0237 — Szuflada przyjęta w 3D ucinała ostatni rząd fiszek w trybie przepływu · 2026-10-18 · AKTYWNA
+
+- **Trigger:** STRONA_RELAI E6. Plakat przełączył ograniczony ruch w tryb przepływu, a przebieg
+  zrzutów policzył 24 elementy szuflady „Pudełko” poniżej jej krawędzi. Karta szuflady miała
+  `max-height: min(86vh, 56rem)` i `overflow: auto` z wyglądu okna w 3D, więc w przepływie stała
+  się przewijanym pudełkiem w środku strony, z ukrytym rzędem fiszek. Bez JS było to samo.
+- **Przyczyna:** szuflady przyjęte na żywo w trybie 3D; tryb przepływu sprawdzał tylko, czy sekcja
+  jest widoczna, a reguła okna obowiązywała w obu trybach.
+- **Zasada:** każda zmiana, która kieruje ruch do trybu przepływu (nowy powód wyłączenia sceny),
+  dostaje przebieg z liczeniem elementów za krawędzią każdej sekcji i dialogu. Reguła rozmiaru
+  okna obowiązuje tylko w trybie, dla którego powstała (`.tryb-3d` albo `[open]`).
+
+### L-0238 — `setScriptExecutionDisabled` zatrzymał też sondy przebiegu „bez JS” · 2026-10-18 · AKTYWNA
+
+- **Trigger:** STRONA_RELAI E6. Przebieg „bez JS” z `Emulation.setScriptExecutionDisabled` wisiał
+  do limitu 500 s. Sonda `Runtime.evaluate` z `awaitPromise` czekała na `setTimeout`, którego strona
+  bez skryptów nie wykona.
+- **Przyczyna:** wyłączenie skryptów obejmuje także timery, na które czeka sonda wstrzyknięta przez
+  DevTools.
+- **Zasada:** widok bez JS budujesz kopią HTML bez `<script>`, z rozpakowanym `<noscript>`
+  i `<base href>` strony. Ładujesz ją z drugiego serwera podglądu, więc sondy działają. Fonty
+  z innego portu padają wtedy na CORS: to artefakt instrumentu, nie strony.
+
+### L-0239 — Drugi Chrome w tle podbił p95 klatki z 20,6 do 33,4 ms · 2026-10-18 · AKTYWNA
+
+- **Trigger:** STRONA_RELAI E6. Pierwszy pomiar płynności Biurka (CPU ×4) dał p95 przewijania
+  33,4 ms, czyli ponad próg 26 ms. Równolegle w tle szły przebiegi zrzutów w drugim Chrome bez okna.
+  Powtórka bez nich: 25,2 i 20,6 ms.
+- **Zasada:** płynność mierzysz, gdy żadna inna przeglądarka ani przebieg nie korzysta z GPU,
+  w co najmniej dwóch przebiegach. Wynik z obciążonej maszyny odrzucasz jawnie, z liczbą, nie
+  po cichu.
+
+### L-0240 — `visibility: hidden` na rodzicu nie schowało widocznego przystanku · 2026-10-18 · AKTYWNA
+
+- **Trigger:** STRONA_RELAI E6, render plakatu. Reguła `.tresc { visibility: hidden }` zostawiła
+  na kadrze tekst hero, bo przystanek ma własne `visibility: visible` (klasa `.jest`). Plakat
+  z wypalonym tekstem pod tekstem HTML dałby podwójny napis.
+- **Zasada:** do zrzutu sceny bez tekstu chowasz `opacity: 0` na samych elementach z tekstem.
+  Kadr oglądasz przed zapisem do repo (L-0213 mówi to samo o tle pod tekstem).
+
+### L-0241 — Telefon oddalił widok, bo ekran laptopa wystawał z przepływu przed `tryb-3d` · 2026-10-18 · AKTYWNA
+
+- **Trigger:** STRONA_RELAI E6, telefon. Płótno miało 1156 × 2502 przy oknie 390 × 844. Budowa
+  sceny ustawiała ekran laptopa na 1136 px, zanim strona przeszła w tryb 3D. W przepływie ekran
+  wystawał poza stronę, mobilny Chrome oddalał widok, a scena mierzyła okno 1156 px.
+- **Zasada:** klasa trybu, która wyjmuje element z przepływu, wchodzi **przed** zmianą jego
+  rozmiaru. Pierwsza asercja na telefonie to `innerWidth` i `scrollWidth` równe szerokości
+  emulacji. Pomiar na telefonie zawsze z `mobile: true`, bo bez tego Chrome nie oddala widoku
+  i usterki nie widać.
 
 ## Lekcje zwinięte
 

@@ -9,9 +9,9 @@
 | E3 | Laptop jako prawdziwy ekran i detale | ZREALIZOWANY 2026-10-16 | [PROMPT_ETAP_3.md](PROMPT_ETAP_3.md) | Aneks B; konfigurator wpasowany w ekran, przybliżenie po kliknięciu, dostępność w trybie 3D, książki |
 | E4 | Test fotorealizmu i stonowanie światła | ZREALIZOWANY 2026-10-16 | [PROMPT_ETAP_4.md](PROMPT_ETAP_4.md) | Aneks C (dawniej „Fotorealizm na przystankach”): path tracing zbudowany, zmierzony i usunięty; zostały blat `wood_table_worn`, druk na dokumentach, cienki lakier, przygaszona lampa |
 | E5 | Film: pełna droga, hero i szczyt | ZREALIZOWANY 2026-10-16 | [PROMPT_ETAP_5.md](PROMPT_ETAP_5.md) | Aneks C (dawny E6); ekran ładowania; hero w trzech rundach kalibracji; bramka rozstrzygnięta Aneksem D |
-| E6 | Biurko: pełna droga, szczyt, szuflady | W TOKU | [PROMPT_ETAP_6.md](PROMPT_ETAP_6.md) | Aneks C (dawny E5); Aneks D: rusza po E7 (kolejność E7 → E6 → E8), z krótkim dopieszczeniem Biurka w zakresie E7; materiał promptu w commicie `a097b35` |
+| E6 | Biurko: pełna droga, szczyt, szuflady | ZREALIZOWANY 2026-10-18 | [PROMPT_ETAP_6.md](PROMPT_ETAP_6.md) | Aneks C (dawny E5); Aneks D: po E7; szczyt bez blokady przewijania, mapa w nagłówku, cztery szuflady, telefon, zasłona, plakat bez sceny, wyłącznik słabej grafiki |
 | E7 | Dopieszczenie Filmu | ZREALIZOWANY 2026-10-17 | [PROMPT_ETAP_7.md](PROMPT_ETAP_7.md) | dawny E5; Aneks D: najpierw Film; telefon, reduced motion, wersja bez skryptów, ekran ładowania (Aneks C) |
-| E8 | Publikacja i utrzymanie | OCZEKUJE | — | dawny E6; Aneks D: obie wersje równolegle z ankietą; wymaga włączenia Pages i zgody na wdrożenie |
+| E8 | Publikacja i utrzymanie | GOTOWY DO STARTU | [PROMPT_ETAP_8.md](PROMPT_ETAP_8.md) | dawny E6; Aneks D: obie wersje równolegle z ankietą; wymaga włączenia Pages i zgody na wdrożenie (bramki niżej) |
 
 ## Bramki manualne
 
@@ -27,6 +27,8 @@
 - **Kalibracja smaku E2** · źródło: PROMPT_ETAP_2, Weryfikacja · ROZSTRZYGNIĘTA 2026-10-16 — po czterech rundach Łukasz: „Tak, zamknij E2 (Rekomendowane)”; uwagi do ekranu laptopa i książek oraz fotorealizm przeniesione za jego zgodą do E3 i E4 (Aneks B)
 - **Budżet ciężaru E2** · źródło: PROMPT_ETAP_2, Weryfikacja (przekroczenie 8 MB) · ROZSTRZYGNIĘTA 2026-10-16 — Łukasz: „Tak, pułap ok. 10 MB (Rekomendowane)”
 - **Aneks B** · źródło: wpis dziennika 2026-10-16 (E2) · ROZSTRZYGNIĘTA 2026-10-16 — Łukasz: „Tak, dopisz Aneks B (Rekomendowane)”
+- **Kalibracja E6 (szczyt, przystanki, mapa, szuflady, telefon, zasłona, plakat, wyłącznik słabej grafiki, kontrola odczuć)** · źródło: PROMPT_ETAP_6, Weryfikacja · ROZSTRZYGNIĘTA 2026-10-18 — werdykty per kadr w trakcie etapu, zbiorczo: „1A 2A 3A 4A — przyjmuję wszystkie rekomendacje”
+- **Pomiar Biurka na prawdziwym słabszym laptopie albo zintegrowanej karcie (T1)** · źródło: wpis dziennika 2026-10-18 (E6) · **OTWARTA** — wykonalne na maszynie z Intel UHD/Iris albo starszym Radeonem, procedura w `site/README.md`; nie blokuje E8
 
 ## Dziennik wdrożenia
 
@@ -49,3 +51,4 @@
 - 2026-10-17 — E6 rozpoczęty (Opus 5.5, zgoda Łukasza na karcie startu; optymalizator promptów w tej sesji wyłączony decyzją Łukasza).
 - 2026-10-17 — E6 w toku: lista uwag (15 + 2 pomiary) i trzy pytania pokazane przed poprawką (jedna animacja szczytu, plakat i treść bez sceny, telefon z pozami pionowymi; dokumenty znikają do szczytu); szczyt przyjęty w 7. rundzie — zwykłe przewijanie bez blokad (decyzja Łukasza po rundach z przyciąganiem i przelotami krokowymi), Amnezja i szczyt jedną sceną, szczyt 3 s czasowo, droga ×0,45, kamera LERP 0,05; `site/biurko/szczyt.js` + test. Notatki: `.claude/relai/work/STRONA_RELAI/E6/wybor-lukasza.md`. Dalej: przystanki Plan, Panel, Komendy.
 - 2026-10-18 — E6 w toku, praca przerwana na prośbę Łukasza: przyjęte Plan, Panel, Komendy, hero z otwartą teczką, mapa C (oś w nagłówku), cztery szuflady (dialogi, klik w obiekt), telefon z pozami pionowymi i kartą „Wyślij sobie link” (naprawione oddalenie telefonu przed trybem 3D); loader B „Karteczki” wdrożony, czeka werdykt i decyzja „zasłona na oba etapy zasobów czy na pierwszy” (telefon Fast 4G CPU ×4: 18,1 s vs 22,4 s, dociąganie 3,7 % kadru). 290/290 testów. Zostało: ograniczony ruch i plakat, T1, testy pkt 8, przebiegi pkt 9, treść i README, 26 punktów weryfikacji, rytuał „Na koniec”. Karta wznowienia: `.claude/relai/work/STRONA_RELAI/E6/WZNOWIENIE.md`.
+- 2026-10-18 — E6 zrealizowany: zasłona schodzi po obu etapach zasobów (hero bez dociągania), plakat i treść w przepływie przy ograniczonym ruchu, bez WebGL2, na grafice programowej (SwiftShader 0,3–1,7 s na klatkę) i bez JS; 299/299 testów, siedem przebiegów zrzutów, 9,52 MiB, CPU ×4 p95 ≤ 25,2 ms, Lighthouse dostępność 100; werdykty Łukasza 1A 2A 3A 4A. E8 gotowy do startu.

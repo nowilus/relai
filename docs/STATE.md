@@ -1,6 +1,6 @@
 # STATE — RelAI
 
-Stan na: 2026-10-17 (STRONA_RELAI E7 zrealizowany — Film dopieszczony: jedna animacja na sekcję, telefon, ograniczony ruch, bez skryptów; następny E6 Biurko, potem E8 publikacja obu z ankietą; wcześniej WYGLAD_PANELU zamknięty 2026-10-15)
+Stan na: 2026-10-18 (STRONA_RELAI E6 zrealizowany — Biurko ma całą drogę: szczyt, szuflady, telefon, zasłona, plakat bez sceny; następny E8 publikacja obu wersji z ankietą; wcześniej E7 Film 2026-10-17, WYGLAD_PANELU zamknięty 2026-10-15)
 
 ## Gdzie jesteśmy
 
@@ -15,7 +15,7 @@ postępu jako lista kroków — plan WYGLAD_PANELU; 2026-10-14: pasek mówi uczc
 KOMUNIKAT_ZWROTU; paski i panel w każdym panelu podziału okna, linia w stopce wycofana — odnoga
 SPLIT_VIEW, P-040 rozwiązana; panel bez rozjazdów w wąskim panelu podziału — odnoga PANEL_WASKI,
 0.18.0).
-Aktywny plan: STRONA_RELAI (zaakceptowany 2026-10-16, E1–E5 zrealizowane tego dnia, Aneksy A–D, E7 „Dopieszczenie Filmu” zrealizowany 2026-10-17, E6 Biurko gotowy do startu); równolegle PANEL_CODEX (E1 w toku, prowadzony w Codeksie). WYGLAD_PANELU zamknięty 2026-10-15
+Aktywny plan: STRONA_RELAI (zaakceptowany 2026-10-16, E1–E5 zrealizowane tego dnia, Aneksy A–D, E7 „Dopieszczenie Filmu” zrealizowany 2026-10-17, E6 Biurko zrealizowany 2026-10-18, E8 Publikacja gotowy do startu); równolegle PANEL_CODEX (E1 w toku, prowadzony w Codeksie). WYGLAD_PANELU zamknięty 2026-10-15
 po E5 (wydanie panelu 0.20.0 / 0.11.0); HUMANIZACJA zamknięty 2026-10-14 wydaniem 3.1.0. Opinii spoza projektu nadal nie ma.
 
 ## Co działa
@@ -98,7 +98,7 @@ po E5 (wydanie panelu 0.20.0 / 0.11.0); HUMANIZACJA zamknięty 2026-10-14 wydani
 
 - **STRONA_RELAI — strona-wizytówka RelAI** (plan [STRONA_RELAI](plany/STRONA_RELAI/STATUS.md),
   ZAAKCEPTOWANY 2026-10-16, E1–E5 ZREALIZOWANE 2026-10-16, Aneksy A–D 2026-10-16, E7 „Dopieszczenie
-  Filmu” ZREALIZOWANY 2026-10-17, E6 Biurko GOTOWY DO STARTU (Aneks D), 8 etapów, Opus 5.5 z do trzech subagentów Sonnet 5.5). Po co: one-pager PL/EN na GitHub Pages ze skillem scroll-craft,
+  Filmu” ZREALIZOWANY 2026-10-17, E6 Biurko ZREALIZOWANY 2026-10-18, E8 Publikacja GOTOWY DO STARTU (Aneks D), 8 etapów, Opus 5.5 z do trzech subagentów Sonnet 5.5). Po co: one-pager PL/EN na GitHub Pages ze skillem scroll-craft,
   konfigurator instalacji z deep linkami do Claude Code, wersja z wydań GitHuba. Dwa prototypy do
   porównania — „Biurko” (scena 3D w three.js) i „Film” — potem wybór, dopracowanie i publikacja.
   **Stan strony po E1:** `site/` — hero „Biurka” zaakceptowany przez Łukasza (kadry w
@@ -144,6 +144,15 @@ po E5 (wydanie panelu 0.20.0 / 0.11.0); HUMANIZACJA zamknięty 2026-10-14 wydani
   końcowym, taśma jako siatka. Lighthouse dostępność 100 (PL/EN, desktop/telefon), 0,317 MiB,
   CPU ×4 p95 16,7 ms, testy 259. Następny E6 — pełna droga Biurka z dopieszczeniem (telefon,
   ograniczony ruch, plakat bez WebGL, ekran ładowania).
+  **Stan po E6 (2026-10-18):** Biurko ma całą drogę. Szczyt: zwykłe przewijanie bez blokad,
+  Amnezja i szczyt jedną sceną, karteczki układają się w cztery dokumenty w 3 s. Przystanki Plan
+  (otwarta teczka), Panel i Komendy przyjęte, mapa jako oś w nagłówku. Cztery szuflady
+  (`<dialog>`) otwiera klik w obiekt albo link na osi. Telefon ma pozy pionowe i kartę „Wyślij
+  sobie link”. Zasłona z karteczkami schodzi po obu etapach zasobów. Ograniczony ruch, brak
+  WebGL2, grafika programowa i brak JS dają treść w przepływie z plakatem hero
+  (`site/grafika/plakat/`, odtwarzany `node site/narzedzia/plakat.mjs`). 9,52 MiB, CPU ×4 p95
+  ≤ 25,2 ms, Lighthouse dostępność 100, testy 299. Następny E8 — publikacja obu wersji z ankietą;
+  przed nim trzy bramki człowieka (adresy i ankieta, GitHub Pages, `claude-cli://` na żywo).
 - **PANEL_CODEX, E1 — przejęcie rdzenia i natywny panel w Codeksie** (plan
   [PANEL_CODEX](plany/PANEL_CODEX/STATUS.md), ZAAKCEPTOWANY 2026-10-10, 8 etapów, autor
   i wykonawca `gpt-6.1-sol` w Codeksie, Aneks A — 16 pól kontraktu — zaakceptowany). Po co: ten sam

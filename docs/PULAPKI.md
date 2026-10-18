@@ -8,6 +8,26 @@ Specyfikacja: `SPEC_PULAPKI.md`.
 
 ## Pułapki
 
+### P-048 — Strona z three.js: mobilny Chrome oddala widok, gdy element szerszy niż okno stoi w przepływie choć przez chwilę · 2026-10-18 · AKTYWNA
+
+- **Objaw:** Biurko na telefonie 390 × 844 rysowało płótno 1156 × 2502, cała scena była mała
+  i przesunięta (STRONA_RELAI E6).
+- **Przyczyna (zmierzona):** budowa sceny ustawiała ekran laptopa (CSS3D) na 1136 px, zanim strona
+  dostała klasę `tryb-3d`, która wyjmuje go z przepływu. Mobilny Chrome (`mobile: true`) oddala
+  widok do szerokości dokumentu; scena czyta wtedy `innerWidth` = 1156. Bez `mobile: true`
+  w emulacji objawu nie ma.
+- **Obejście:** `tryb-3d` przed `zbudujScene` (`site/biurko/swiat.js`); `bezSceny()` cofa klasę.
+  Kontrola: `innerWidth` i `scrollWidth` = 390 w emulacji z `mobile: true`.
+
+### P-049 — Chrome DevTools: nawigacja samym `#hash` zostawia stary dokument · 2026-10-18 · AKTYWNA
+
+- **Objaw:** pomiar „po zmianie modułu” pokazywał stary kod i stary stan sceny (STRONA_RELAI E6).
+- **Przyczyna:** `Page.navigate` na ten sam adres z innym `#hash` to nawigacja w dokumencie: brak
+  przeładowania, moduły ES z pamięci.
+- **Obejście:** zawsze świeży parametr zapytania (`?k=<czas>#hash`), a po zmianie modułu ES także
+  asercja nowego kodu przed kadrem (L-0218). Headless Chrome po polsku przekierowuje EN na `/pl/`:
+  język ustawiasz przez `localStorage['relai-jezyk']` w skrypcie startowym.
+
 ### P-047 — Zrzut z najechaniem: `SetCursorPos` + `PrintWindow` nie wywołuje `:hover` w `Svg` modu · 2026-10-15 · AKTYWNA
 
 - **Objaw:** kursor przesunięty nad segment „Teraz” albo baterię (także krokami, z pauzami),

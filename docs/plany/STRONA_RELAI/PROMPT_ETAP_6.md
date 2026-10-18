@@ -508,14 +508,14 @@ zaraz po jego sprawdzeniu, nie na końcu etapu; punkt, który nie przeszedł, zo
       kontrola pozytywna: `site/css/film.css` z dopisaną spacją daje dokładnie jedną różnicę, po
       przywróceniu zero i czysty `git diff` tego pliku względem stanu z początku. Testy Filmu
       (`site/film/*.test.mjs`) zielone w tym samym przebiegu.
-- [ ] Moduły wspólne zmienione tylko addytywnie: `git diff --stat` na `site/js/`, `site/tresc/*.json`,
+- [x] Moduły wspólne zmienione tylko addytywnie: `git diff --stat` na `site/js/`, `site/tresc/*.json`,
       `site/narzedzia/zbuduj.mjs`, `site/dane/fakty.json` wypisany we wpisie z uzasadnieniem każdej
       zmiany; klucze `film.*` w `site/tresc/*.json` identyczne z początkiem etapu (porównanie obiektu
       `film` sprzed i po, kontrola pozytywna na zmienionym jednym znaku).
 - [x] Budowa deterministyczna: `fakty.mjs`, `makiety.mjs`, `zbuduj.mjs` uruchomione dwukrotnie — drugi
       przebieg „bez zmian”, identyczne sumy `site/index.html` i `site/pl/index.html`; zero niewypełnionych
       `{{` i `}}`; 15 fiszek w obu językach Biurka.
-- [ ] Lista uwag z pkt 1 i trzy pytania pokazane Łukaszowi w otwartym oknie przed pierwszą poprawką; jego
+- [x] Lista uwag z pkt 1 i trzy pytania pokazane Łukaszowi w otwartym oknie przed pierwszą poprawką; jego
       wybór (pytania 1–3) zacytowany we wpisie.
 - [x] **Szczyt odwracalny albo deterministyczny** (zależnie od wariantu z pytania 1): `__biurko.diagnostyka()`
       (rozszerzona o pozycje karteczek) w trzech punktach szczytu (początek, środek, koniec) daje przy
@@ -551,7 +551,7 @@ zaraz po jego sprawdzeniu, nie na końcu etapu; punkt, który nie przeszedł, zo
       kadrów i bez martwego przewijania poza zapisaną ciszą przed szczytem; arkusze w
       `docs/zasoby/STRONA/lab/biurko/`; karta zgody na `playwright-core` pokazana (jeśli użyta),
       odpowiedź zacytowana we wpisie.
-- [ ] Kontrola odczuć: tabela przystanek → odczucie z briefu → odczucie z kadru we wpisie; rozjazd tylko
+- [x] Kontrola odczuć: tabela przystanek → odczucie z briefu → odczucie z kadru we wpisie; rozjazd tylko
       z werdyktem Łukasza.
 - [x] Zasłona na telefonie, zimne wejście (390 × 844, Fast 4G, CPU ×4, `ignoreCache`): czas do zdjęcia
       zasłony i do gotowego hero, brak stanów pośrednich sceny pod i po zasłonie (klatki co ok. 100 ms);
@@ -572,13 +572,13 @@ zaraz po jego sprawdzeniu, nie na końcu etapu; punkt, który nie przeszedł, zo
       szuflad i makiet do DOM przez `textContent` albo generator z ucieczką; kod z `site/vendor/` tylko ze
       ścieżek względnych, bez CDN; formularz bez `action` i `method`; `node --test "site/**/*.test.mjs"` obejmuje
       `zasoby.test.mjs` zielony, a plakaty leżą w `site/grafika/plakat/`, nie w `site/zasoby/`.
-- [ ] Kalibracja: werdykty Łukasza zacytowane we wpisie dla szczytu, każdego z przystanków 3–7 (kadr przed
+- [x] Kalibracja: werdykty Łukasza zacytowane we wpisie dla szczytu, każdego z przystanków 3–7 (kadr przed
       i po z obrysem), szuflad, hero telefonu, plakatu i zasłony; kadry przyjęte w
       `docs/zasoby/STRONA/builds/biurko/kalibracja/` (`e6-*-pl-1366.jpeg`, `hero-pl-390.jpeg`).
-- [ ] Wpis w `docs/DZIENNIK.md` dopisany na końcu sekcji „Wpisy”, podpis `Autor: RelAI (Opus 5.5) + Lukasz`;
+- [x] Wpis w `docs/DZIENNIK.md` dopisany na końcu sekcji „Wpisy”, podpis `Autor: RelAI (Opus 5.5) + Lukasz`;
       ryzyka T1 (słaba grafika), T2 (wygląd po przystankach), T3 (ciężar), T6 (telefon i wąskie okno)
       zaktualizowane; `docs/STATE.md` zaktualizowany.
-- [ ] Katalog roboczy `.claude/relai/work/STRONA_RELAI/E6/` przejrzany raportem
+- [x] Katalog roboczy `.claude/relai/work/STRONA_RELAI/E6/` przejrzany raportem
       (`node .claude/relai/tools/clean-work.js raport`) i skasowany po „tak”; liczby przed i po w sekcji
       „Zweryfikowane” wpisu. Artefakty poza katalogiem (serwer podglądu w tle, strony DevTools, profil
       headless Chrome z SwiftShader w `%TEMP%`, worktree HEAD-a do pomiaru „przed”) wypisane z nazwy razem
