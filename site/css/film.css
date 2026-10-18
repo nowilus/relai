@@ -429,6 +429,29 @@ html.ruch .instalacja.gra .konfigurator__komendy { transition: clip-path 900ms s
 .konfigurator__status, .konfigurator__uwaga, .konfigurator__wersje { font-size: .86rem; color: var(--txt-3-tekst); }
 .stopka { position: absolute; left: var(--margines); right: var(--margines); bottom: 22px; display: flex; gap: 24px;
   font-size: .9rem; color: var(--txt-3-tekst); }
+/* E8: the footer as a book's colophon — a serif sentence to the other version, small caps below,
+   the survey as a round stamp (Lukasz's pick from four styles, 2026-10-18) */
+.stopka--kolofon { right: auto; width: min(30rem, 36vw); align-items: center; flex-wrap: wrap; gap: 12px 22px; color: var(--txt); }
+.kolofon__tekst { display: grid; gap: 6px; flex: 1 1 15rem; }
+.kolofon__ozdoba { font: 1rem/1 var(--font-tytul); color: var(--glina-2); }
+.kolofon__zdanie { margin: 0; font: 400 1.18rem/1.3 var(--font-tytul); text-wrap: balance; }
+.kolofon__zdanie a { color: inherit; text-decoration: none; padding-bottom: 2px;
+  background: linear-gradient(currentColor, currentColor) 0 100% / 100% 1px no-repeat; transition: background-size 220ms var(--ease); }
+.kolofon__zdanie a:hover { background-size: 100% 2px; }
+.kolofon__zdanie em { font: 700 1em/1 var(--font-reka); color: var(--glina-2); }
+.kolofon__drobne { margin: 0; font: 600 .72rem/1.5 var(--font-tekst); letter-spacing: .1em; text-transform: uppercase; color: var(--txt-3-tekst); }
+.kolofon__drobne a { color: inherit; }
+.kolofon__drobne a:hover { color: var(--txt); }
+.kolofon__pieczec { flex: none; position: relative; display: grid; place-items: center; width: 92px; height: 92px; border-radius: 50%;
+  color: var(--glina-2); background: var(--kartka); border: 2px solid currentColor; box-shadow: inset 0 0 0 5px var(--kartka), inset 0 0 0 6px currentColor;
+  text-decoration: none; transform: rotate(-9deg); transition: transform 300ms var(--sprezyna); }
+.kolofon__pieczec:hover { transform: rotate(0deg) scale(1.04); }
+.kolofon__pieczec:active { transform: rotate(0deg) scale(.95); }
+.kolofon__pieczec svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+.kolofon__pieczec text { font: 700 10.5px var(--font-tekst); letter-spacing: 1.6px; fill: currentColor; }
+.kolofon__pieczec b { font: 700 1.05rem/1 var(--font-reka); }
+@media (max-width: 600px) { .stopka--kolofon { width: auto; } }
+@media (prefers-reduced-motion: reduce) { .kolofon__pieczec, .kolofon__zdanie a { transition: none; } }
 
 /* the rail runs wide and the once-sections wait off to the side; only the frame shows them, never a
    sideways scroll of the page (clip, unlike hidden, keeps the pinned stage sticky) */

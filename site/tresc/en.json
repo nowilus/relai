@@ -226,5 +226,22 @@
   "stopka": {
     "licencja": "MIT licence",
     "kod": "Code on GitHub"
+  },
+  "publikacja": {
+    "ankietaAdres": "https://tally.so/r/X5lkMj",
+    "uwagi": "Report an issue",
+    "kolofon": {
+      "zdanie": "The same story, at the",
+      "akcent": "3D desk",
+      "obwod": "SURVEY · 1 MINUTE ·",
+      "srodek": "Vote"
+    },
+    "notki": {
+      "drugaNad": "other version",
+      "druga": "film →",
+      "ankietaNad": "which is better?",
+      "ankieta": "1-min survey",
+      "uwagiNad": "something off?"
+    }
   }
 }

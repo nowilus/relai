@@ -7,9 +7,10 @@
 <meta name="description" content="{{meta.opis}}">
 <meta name="color-scheme" content="light">
 <meta name="theme-color" content="#f2e9d8">
-<link rel="alternate" hreflang="en" href="{{baza}}film/">
-<link rel="alternate" hreflang="pl" href="{{baza}}pl/film/">
-<link rel="alternate" hreflang="x-default" href="{{baza}}film/">
+<link rel="canonical" href="{{adresy.kanoniczny}}">
+<link rel="alternate" hreflang="en" href="{{adresy.en}}">
+<link rel="alternate" hreflang="pl" href="{{adresy.pl}}">
+<link rel="alternate" hreflang="x-default" href="{{adresy.xDefault}}">
 <link rel="icon" href="{{baza}}grafika/logo.svg" type="image/svg+xml">
 <link rel="preload" href="{{baza}}fonty/fraunces-latin-wonk.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="{{baza}}fonty/hanken-grotesk-latin.woff2" as="font" type="font/woff2" crossorigin>
@@ -34,7 +35,7 @@
 <header class="pasek">
   <a class="pasek__znak" href="#{{hero.id}}">Rel<span>AI</span></a>
   <nav class="pasek__nav" aria-label="{{film.pasek}}">
-    <a class="pasek__jezyk" href="{{baza}}{{nawigacja.jezykSciezka}}film/" hreflang="{{nawigacja.jezykKod}}" lang="{{nawigacja.jezykKod}}" data-jezyk="{{nawigacja.jezykKod}}">{{nawigacja.jezykEtykieta}}</a>
+    <a class="pasek__jezyk" href="{{adresy.jezyk}}" hreflang="{{nawigacja.jezykKod}}" lang="{{nawigacja.jezykKod}}" data-jezyk="{{nawigacja.jezykKod}}">{{nawigacja.jezykEtykieta}}</a>
     <a class="przycisk przycisk--maly" href="#{{instalacja.id}}">{{hero.wezwanie}}</a>
   </nav>
 </header>
@@ -257,9 +258,17 @@
         <p class="konfigurator__status" data-status-telefonu role="status"></p>
         <p class="konfigurator__wersje">{{konfigurator.wersje}}: RelAI <span data-wersja="relai">{{fakty.wersje.relai}}</span> · panel <span data-wersja="panel">{{fakty.wersje.relai-panel}}</span></p>
       </div>
-      <footer class="stopka">
-        <a href="https://github.com/nowilus/relai">{{stopka.kod}}</a>
-        <span>{{stopka.licencja}}</span>
+      <footer class="stopka stopka--kolofon">
+        <div class="kolofon__tekst">
+          <span class="kolofon__ozdoba" aria-hidden="true">❦</span>
+          <p class="kolofon__zdanie"><a href="{{adresy.drugaWersja}}" data-druga-wersja>{{publikacja.kolofon.zdanie}} <em>{{publikacja.kolofon.akcent}}</em></a></p>
+          <p class="kolofon__drobne"><a href="https://github.com/nowilus/relai/issues">{{publikacja.uwagi}}</a> · <a href="https://github.com/nowilus/relai">{{stopka.kod}}</a> · <span>{{stopka.licencja}}</span></p>
+        </div>
+        <!-- the name comes from the visible text (ring + centre), so the label matches what is seen -->
+        <a class="kolofon__pieczec" href="{{adresy.ankieta}}" target="_blank" rel="noopener" data-ankieta>
+          <svg viewBox="0 0 92 92"><defs><path id="kolofon-krag" d="M46 46 m-33 0 a33 33 0 1 1 66 0 a33 33 0 1 1 -66 0"/></defs><text><textPath href="#kolofon-krag" textLength="205" lengthAdjust="spacing">{{publikacja.kolofon.obwod}}</textPath></text></svg>
+          <b>{{publikacja.kolofon.srodek}}</b>
+        </a>
       </footer>
     </div>
   </section>

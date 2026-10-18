@@ -7,9 +7,10 @@
 <meta name="description" content="{{meta.opis}}">
 <meta name="color-scheme" content="dark">
 <meta name="theme-color" content="#1d1914">
-<link rel="alternate" hreflang="en" href="{{baza}}">
-<link rel="alternate" hreflang="pl" href="{{baza}}pl/">
-<link rel="alternate" hreflang="x-default" href="{{baza}}">
+<link rel="canonical" href="{{adresy.kanoniczny}}">
+<link rel="alternate" hreflang="en" href="{{adresy.en}}">
+<link rel="alternate" hreflang="pl" href="{{adresy.pl}}">
+<link rel="alternate" hreflang="x-default" href="{{adresy.xDefault}}">
 <link rel="icon" href="{{baza}}grafika/logo.svg" type="image/svg+xml">
 <link rel="preload" href="{{baza}}fonty/fraunces-latin-wonk.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="{{baza}}fonty/hanken-grotesk-latin.woff2" as="font" type="font/woff2" crossorigin>
@@ -33,7 +34,7 @@
 
 <header class="pasek">
   <a class="znak" href="#{{hero.id}}" data-cel="0"><img src="{{baza}}grafika/logo.svg" alt="" width="36" height="36"><span>RelAI</span></a>
-  <a class="jezyk" href="{{baza}}{{nawigacja.jezykSciezka}}" hreflang="{{nawigacja.jezykKod}}" lang="{{nawigacja.jezykKod}}" data-jezyk="{{nawigacja.jezykKod}}">{{nawigacja.jezykEtykieta}}</a>
+  <a class="jezyk" href="{{adresy.jezyk}}" hreflang="{{nawigacja.jezykKod}}" lang="{{nawigacja.jezykKod}}" data-jezyk="{{nawigacja.jezykKod}}">{{nawigacja.jezykEtykieta}}</a>
 </header>
 
 <nav class="mapa" aria-label="{{nawigacja.etykieta}}">
@@ -159,9 +160,13 @@
       </div>
       <p class="konfigurator__status" data-status-telefonu role="status"></p>
     </div>
-    <footer class="stopka">
-      <a href="https://github.com/nowilus/relai">{{stopka.kod}}</a>
-      <span>{{stopka.licencja}}</span>
+    <footer class="stopka stopka--notki">
+      <div class="notki-stopki">
+        <a class="notka-stopki" href="{{adresy.drugaWersja}}" data-druga-wersja><span class="notka-stopki__tasma" aria-hidden="true"></span><small>{{publikacja.notki.drugaNad}}</small><b>{{publikacja.notki.druga}}</b></a>
+        <a class="notka-stopki" href="{{adresy.ankieta}}" target="_blank" rel="noopener" data-ankieta><span class="notka-stopki__tasma" aria-hidden="true"></span><small>{{publikacja.notki.ankietaNad}}</small><b>{{publikacja.notki.ankieta}}</b></a>
+        <a class="notka-stopki" href="https://github.com/nowilus/relai/issues"><span class="notka-stopki__tasma" aria-hidden="true"></span><small>{{publikacja.notki.uwagiNad}}</small><b>{{publikacja.uwagi}}</b></a>
+      </div>
+      <p class="notki-stopki__drobne"><a href="https://github.com/nowilus/relai">{{stopka.kod}}</a> · <span>{{stopka.licencja}}</span></p>
     </footer>
   </section>
 </main>

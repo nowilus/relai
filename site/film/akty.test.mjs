@@ -10,7 +10,7 @@ import {
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const TEMPLATE = readFileSync(join(HERE, "..", "narzedzia", "szablon-film.html"), "utf8");
-const PAGE = readFileSync(join(HERE, "index.html"), "utf8");
+const PAGE = readFileSync(join(HERE, "..", "index.html"), "utf8");
 const CSS = readFileSync(join(HERE, "..", "css", "film.css"), "utf8");
 
 const NOTES = 8; // the question notes of act 2 (two per document)

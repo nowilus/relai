@@ -1,0 +1,44 @@
+<!doctype html>
+<!-- Source of site/grafika/ankieta/naglowek.png, the cover of the Tally survey (E8). Language-neutral:
+     three notes pinned with the panel bars' colours (gold, red, green) and the three-colour strip.
+     Render: see site/README.md, section "Przy wydaniu" (Chrome --headless --screenshot, 1500 x 400). -->
+<html lang="en">
+<meta charset="utf-8">
+<style>
+@font-face { font-family: "Kalam"; src: url(../fonty/kalam-700-latin.woff2) format("woff2"); font-weight: 700; }
+* { box-sizing: border-box; }
+html, body { margin: 0; width: 1500px; height: 400px; overflow: hidden; }
+body { position: relative; background: #faf1de; font-family: "Kalam", cursive; color: #3a3128;
+  background-image: radial-gradient(rgba(163, 153, 136, .22) 1.4px, transparent 1.6px); background-size: 26px 26px; }
+.notki { position: absolute; inset: 0 0 26px; display: flex; justify-content: center; align-items: center; gap: 70px; }
+.notka { position: relative; width: 250px; height: 200px; display: grid; place-items: center; padding-top: 18px;
+  background: #fffaf0; border: 1px solid #e6cf9f; border-radius: 6px; transform: rotate(var(--obrot));
+  box-shadow: 0 3px 6px rgba(73, 67, 57, .14), 0 22px 46px rgba(49, 44, 37, .22); }
+.notka:nth-child(1) { --obrot: -4deg; }
+.notka:nth-child(2) { --obrot: 2.5deg; background: #fbe7d9; border-color: #e6bfa6; }
+.notka:nth-child(3) { --obrot: -1.5deg; background: #eef2e6; border-color: #c9d6bf; }
+.pinezka { position: absolute; top: -14px; left: 50%; width: 30px; height: 30px; margin-left: -15px; border-radius: 50%;
+  background: radial-gradient(circle at 35% 32%, rgba(255, 255, 255, .75) 0 18%, transparent 22%), var(--kolor);
+  box-shadow: inset 0 -3px 4px rgba(0, 0, 0, .25), 0 4px 6px rgba(49, 44, 37, .35); }
+.pinezka::after { content: ""; position: absolute; left: 50%; top: 26px; width: 3px; height: 10px; margin-left: -1.5px;
+  border-radius: 2px; background: linear-gradient(#9d9585, #6f6556); }
+.notka:nth-child(1) .pinezka { --kolor: #d9a134; }
+.notka:nth-child(2) .pinezka { --kolor: #c4643c; }
+.notka:nth-child(3) .pinezka { --kolor: #5f8a68; }
+.notka b { font-size: 64px; line-height: 1; font-weight: 700; color: var(--tusz); }
+.notka:nth-child(1) b { --tusz: #a8502e; }
+.notka:nth-child(2) b { --tusz: #8c3f22; }
+.notka:nth-child(3) b { --tusz: #3f6b52; letter-spacing: 6px; font-size: 54px; }
+.notka svg { width: 120px; height: 56px; }
+.pasek { position: absolute; left: 0; right: 0; bottom: 0; height: 12px; display: grid; grid-template-columns: 1fr 1fr 1fr; }
+.pasek i:nth-child(1) { background: #d9a134; }
+.pasek i:nth-child(2) { background: #c4643c; }
+.pasek i:nth-child(3) { background: #5f8a68; }
+</style>
+<div class="notki">
+  <div class="notka"><span class="pinezka"></span><b>film</b></div>
+  <div class="notka"><span class="pinezka"></span><b>3D</b></div>
+  <div class="notka"><span class="pinezka"></span><b>★★★</b></div>
+</div>
+<div class="pasek" aria-hidden="true"><i></i><i></i><i></i></div>
+</html>

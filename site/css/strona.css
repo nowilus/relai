@@ -238,6 +238,34 @@ h1[tabindex="-1"]:focus, h2[tabindex="-1"]:focus { outline: none; }
 .konfigurator__wersje span { font-variant-numeric: tabular-nums; color: var(--tlo); }
 
 .stopka { display: flex; gap: 18px; font-size: .85rem; color: var(--krem-2); }
+/* E8: the footer as three taped notes — the other version, the survey, issues — in the desk's note
+   language; code and licence small below (Lukasz's pick from four styles, 2026-10-18) */
+.stopka--notki { display: block; }
+.notki-stopki { display: flex; flex-wrap: wrap; gap: 14px 12px; padding-top: 10px; }
+.notka-stopki { position: relative; display: grid; gap: 1px; min-width: 8.4rem; padding: 11px 13px 10px;
+  background: #faf1de; border: 1px solid #dec799; border-radius: 6px; color: var(--txt); text-decoration: none;
+  box-shadow: 0 2px 4px rgba(49, 44, 37, .12), 0 12px 26px rgba(49, 44, 37, .2);
+  transform: rotate(var(--obrot, -2deg)); transition: transform 260ms cubic-bezier(.34, 1.45, .64, 1), box-shadow 260ms var(--ease); }
+.notka-stopki:nth-child(2) { --obrot: 1.4deg; background: #fbe7d9; border-color: #e6bfa6; }
+.notka-stopki:nth-child(3) { --obrot: -.8deg; }
+.notka-stopki:hover { transform: rotate(0deg) translateY(-4px); box-shadow: 0 4px 8px rgba(49, 44, 37, .14), 0 20px 36px rgba(49, 44, 37, .26); }
+.notka-stopki:active { transform: rotate(0deg) translateY(-1px) scale(.97); }
+.notka-stopki__tasma { position: absolute; top: -8px; left: 50%; width: 46px; height: 15px; margin-left: -23px;
+  background: rgba(244, 225, 189, .85); border: 1px solid rgba(205, 188, 156, .6); transform: rotate(-3deg); }
+.notka-stopki small { font: 600 .68rem/1.3 var(--font-tekst); letter-spacing: .08em; text-transform: uppercase; color: #6f6556; }
+.notka-stopki b { font: 700 1.12rem/1.2 var(--font-notka); color: var(--glina-2); }
+.notki-stopki__drobne { width: fit-content; margin: 14px 0 0; padding: 5px 12px; border-radius: var(--promien-maly);
+  background: rgba(29, 26, 22, .66); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); font-size: .8rem; color: var(--krem-2); }
+.notki-stopki__drobne a { color: inherit; }
+/* .stopka.stopka--notki outranks the glass box the plain footer gets in 3D (further down) */
+/* in 3D the notes stay two per row in a column narrower than the card: the laptop's screen starts at
+   33-36 % of the window (measured 1024-1920), so 25vw keeps a gap even at 1024 (Lukasz, 2026-10-18) */
+.tryb-3d .przystanek--instalacja .stopka.stopka--notki { max-width: min(22rem, 25vw); padding: 0; background: none; border: 0;
+  backdrop-filter: none; -webkit-backdrop-filter: none; }
+.tryb-3d .przystanek--instalacja .stopka--notki .notki-stopki { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.tryb-3d .przystanek--instalacja .stopka--notki .notka-stopki { min-width: 0; }
+@media (max-width: 600px) { .tryb-3d .przystanek--instalacja .stopka.stopka--notki { max-width: none; } }
+@media (prefers-reduced-motion: reduce) { .notka-stopki { transition: none; } }
 
 .brak-sceny {
   position: relative; z-index: 2; margin: 0 var(--margines) 40px; max-width: 40rem;

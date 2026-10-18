@@ -1,5 +1,5 @@
-// Tiny static page generator: minimal Mustache subset -> the desk (site/index.html, site/pl/index.html)
-// and the film (site/film/index.html, site/pl/film/index.html), one template per version.
+// Tiny static page generator: minimal Mustache subset -> the film (site/index.html, site/pl/index.html)
+// and the desk (site/biurko/index.html, site/pl/biurko/index.html), one template per version.
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from "node:fs";
 import { dirname, join, resolve, relative } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
@@ -7,16 +7,41 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 const HERE = dirname(fileURLToPath(import.meta.url));
 const DEFAULT_ROOT = resolve(HERE, "..", "..");
 
-const RESERVED_KEYS = ["fakty", "jezyk", "baza", "sciezkaStrony", "komendyDomyslne", "makiety", "fiszki"];
+const RESERVED_KEYS = ["fakty", "jezyk", "baza", "sciezkaStrony", "adresy", "komendyDomyslne", "makiety", "fiszki"];
 const DEFAULT_COMMAND_CHOICE = { tryb: "instaluje", narzedzie: "claude", skladniki: ["relai", "panel", "cache"] };
-const OUTPUT_FILES = { en: "site/index.html", pl: "site/pl/index.html" };
-const OUTPUT_FILES_FILM = { en: "site/film/index.html", pl: "site/pl/film/index.html" };
+const OUTPUT_FILES = { en: "site/biurko/index.html", pl: "site/pl/biurko/index.html" };
+const OUTPUT_FILES_FILM = { en: "site/index.html", pl: "site/pl/index.html" };
+
+// The one public address of the site (GitHub Pages); hreflang and canonical are built from it.
+export const ADRES_PUBLICZNY = "https://nowilus.github.io/relai/";
 
 // Per version: where each language's page lies, as the relative way back to site/ and its own path.
+// E8: the film at the root, the desk under biurko/ (Lukasz, 2026-10-18).
 const VERSIONS = Object.freeze({
-  biurko: { outputs: OUTPUT_FILES, baza: { en: "./", pl: "../" }, sciezka: { en: "", pl: "pl/" } },
-  film: { outputs: OUTPUT_FILES_FILM, baza: { en: "../", pl: "../../" }, sciezka: { en: "film/", pl: "pl/film/" } },
+  biurko: { nazwa: "biurko", outputs: OUTPUT_FILES, baza: { en: "../", pl: "../../" }, sciezka: { en: "biurko/", pl: "pl/biurko/" }, druga: "film" },
+  film: { nazwa: "film", outputs: OUTPUT_FILES_FILM, baza: { en: "./", pl: "../" }, sciezka: { en: "", pl: "pl/" }, druga: "biurko" },
 });
+
+// The survey link: the form address from the content plus which page the visitor came from
+// (Tally fills its hidden fields from these query parameters).
+export function adresAnkiety(ankietaAdres, wersja, jezyk) {
+  if (typeof ankietaAdres !== "string") return undefined;
+  return `${ankietaAdres}?wersja=${wersja.nazwa}&jezyk=${jezyk}`;
+}
+
+// Absolute hreflang/canonical addresses and the relative links to the other language and version.
+export function zbudujAdresy(wersja, jezyk) {
+  const inny = jezyk === "en" ? "pl" : "en";
+  const baza = wersja.baza[jezyk];
+  return {
+    en: ADRES_PUBLICZNY + wersja.sciezka.en,
+    pl: ADRES_PUBLICZNY + wersja.sciezka.pl,
+    xDefault: ADRES_PUBLICZNY + wersja.sciezka.en,
+    kanoniczny: ADRES_PUBLICZNY + wersja.sciezka[jezyk],
+    jezyk: baza + wersja.sciezka[inny],
+    drugaWersja: baza + VERSIONS[wersja.druga].sciezka[jezyk],
+  };
+}
 
 const ESCAPES = { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" };
 
@@ -231,6 +256,7 @@ function buildContext(tresc, fakty, jezyk, komendyDomyslne, wersja = VERSIONS.bi
     jezyk,
     baza: wersja.baza[jezyk],
     sciezkaStrony: wersja.sciezka[jezyk],
+    adresy: { ...zbudujAdresy(wersja, jezyk), ankieta: adresAnkiety(tresc.publikacja?.ankietaAdres, wersja, jezyk) },
     komendyDomyslne,
   };
 }
@@ -310,10 +336,10 @@ export async function buildPages(repoRoot = DEFAULT_ROOT) {
   const pages = buildPagesFrom({ ...wspolne, zbudujKomendy, makiety });
   const film = buildPagesFrom({ ...wspolne, template: templateFilm, zbudujKomendy, wersja: "film", makiety });
   return {
-    [OUTPUT_FILES.en]: pages.en,
-    [OUTPUT_FILES.pl]: pages.pl,
     [OUTPUT_FILES_FILM.en]: film.en,
     [OUTPUT_FILES_FILM.pl]: film.pl,
+    [OUTPUT_FILES.en]: pages.en,
+    [OUTPUT_FILES.pl]: pages.pl,
   };
 }
 

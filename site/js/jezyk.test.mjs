@@ -1,6 +1,36 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { KLUCZ, docelowyJezyk } from "./jezyk.js";
+import { KLUCZ, docelowyJezyk, zamontujJezyk } from "./jezyk.js";
+
+// A Polish browser on the EN page: where does the redirect go? Fake document with the absolute
+// hreflang link (E8) and, optionally, the relative language link of the header.
+function przekierowanie({ zLinkiem }) {
+  const elementy = {
+    'a[data-jezyk="pl"]': zLinkiem ? { href: "http://localhost:4520/pl/" } : null,
+    'link[rel="alternate"][hreflang="pl"]': { href: "https://nowilus.github.io/relai/pl/" },
+  };
+  let cel = null;
+  const doc = {
+    documentElement: { lang: "en" },
+    querySelector: (s) => elementy[s] ?? null,
+    querySelectorAll: () => [],
+  };
+  const win = {
+    navigator: { languages: ["pl-PL"] },
+    localStorage: { getItem: () => null, setItem: () => {} },
+    location: { replace: (href) => { cel = href; } },
+  };
+  zamontujJezyk(doc, win);
+  return cel;
+}
+
+test("redirect follows the relative language link, not the absolute hreflang (local preview stays local)", () => {
+  assert.equal(przekierowanie({ zLinkiem: true }), "http://localhost:4520/pl/");
+});
+
+test("positive control: without the language link the redirect falls back to hreflang", () => {
+  assert.equal(przekierowanie({ zLinkiem: false }), "https://nowilus.github.io/relai/pl/");
+});
 
 test("storage key is relai-jezyk", () => {
   assert.equal(KLUCZ, "relai-jezyk");

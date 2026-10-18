@@ -9,7 +9,7 @@ const HERE = dirname(fileURLToPath(import.meta.url));
 const read = (...p) => readFileSync(join(HERE, ...p), "utf8");
 const TEMPLATE = read("..", "narzedzia", "szablon-film.html");
 const CSS = read("..", "css", "film.css");
-const PAGES = { pl: read("..", "pl", "film", "index.html"), en: read("index.html") };
+const PAGES = { pl: read("..", "pl", "index.html"), en: read("..", "index.html") };
 const CONTENT = { pl: JSON.parse(read("..", "tresc", "pl.json")), en: JSON.parse(read("..", "tresc", "en.json")) };
 
 const karta = (html) => html.match(/<div class="okno okno--jasne instalacja__telefon"[\s\S]*?<\/div>\s*<footer/)?.[0] ?? "";

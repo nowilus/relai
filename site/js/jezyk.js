@@ -41,9 +41,12 @@ export function zamontujJezyk(doc = document, win = window) {
       preferowane,
     });
     if (cel) {
+      // The relative language link first: hreflang is absolute (E8), so it would leave a local preview.
+      const link = doc.querySelector(`a[data-jezyk="${cel}"]`);
       const alt = doc.querySelector(`link[rel="alternate"][hreflang="${cel}"]`);
-      if (alt && alt.href) {
-        win.location.replace(alt.href);
+      const href = link?.href || alt?.href;
+      if (href) {
+        win.location.replace(href);
         return;
       }
     }

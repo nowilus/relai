@@ -8,7 +8,7 @@ import { fileURLToPath } from "node:url";
 
 const SITE = join(dirname(fileURLToPath(import.meta.url)), "..");
 const KOMENDY = JSON.parse(readFileSync(join(SITE, "dane", "fakty.json"), "utf8")).komendy.length;
-const STRONY = { en: join(SITE, "index.html"), pl: join(SITE, "pl", "index.html") };
+const STRONY = { en: join(SITE, "biurko", "index.html"), pl: join(SITE, "pl", "biurko", "index.html") };
 const SZUFLADY = ["dokumenty", "teczka", "laptop", "pudelko"];
 
 /** What a browser without scripts renders: no <script>, no <template>. */

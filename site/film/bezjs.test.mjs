@@ -6,7 +6,7 @@ import { fileURLToPath } from "node:url";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const read = (...p) => readFileSync(join(HERE, ...p), "utf8");
-const PAGES = { pl: read("..", "pl", "film", "index.html"), en: read("index.html") };
+const PAGES = { pl: read("..", "pl", "index.html"), en: read("..", "index.html") };
 const CONTENT = { pl: JSON.parse(read("..", "tresc", "pl.json")), en: JSON.parse(read("..", "tresc", "en.json")) };
 const CSS = read("..", "css", "film.css");
 const FACTS = JSON.parse(read("..", "dane", "fakty.json"));

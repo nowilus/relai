@@ -209,5 +209,22 @@
   "stopka": {
     "licencja": "Licencja MIT",
     "kod": "Kod na GitHubie"
+  },
+  "publikacja": {
+    "ankietaAdres": "https://tally.so/r/BE4lQ5",
+    "uwagi": "Zgłoś uwagę",
+    "kolofon": {
+      "zdanie": "Ta sama historia, przy",
+      "akcent": "biurku 3D",
+      "obwod": "ANKIETA · 1 MINUTA ·",
+      "srodek": "Głosuj"
+    },
+    "notki": {
+      "drugaNad": "druga wersja",
+      "druga": "film →",
+      "ankietaNad": "która lepsza?",
+      "ankieta": "ankieta, 1 min",
+      "uwagiNad": "coś nie gra?"
+    }
   }
 }

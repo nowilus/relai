@@ -4,7 +4,7 @@ import { existsSync, readFileSync, mkdtempSync, statSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { render, escapeHtml, buildPages, buildPagesFrom, readInputs, writeIfChanged, zbudujFiszki } from "./zbuduj.mjs";
+import { render, escapeHtml, buildPages, buildPagesFrom, readInputs, writeIfChanged, zbudujFiszki, ADRES_PUBLICZNY } from "./zbuduj.mjs";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(HERE, "..", "..");
@@ -145,10 +145,11 @@ describe("build with fixtures", () => {
     assert.match(pages.pl, /<html lang="pl">/);
     assert.match(pages.en, /<title>Fixture &lt;EN&gt; v1\.2\.3<\/title>/);
     assert.match(pages.en, /<li>1\. one &amp; two \(1\.2\.3\)<\/li>\n    <li>2\. three/);
-    assert.match(pages.en, /href="\.\/pl\/"/);
-    assert.match(pages.pl, /href="\.\.\/pl\/"/);
-    assert.match(pages.en, /data-path=""/);
-    assert.match(pages.pl, /data-path="pl\/"/);
+    // the default version is the desk, under biurko/ since E8
+    assert.match(pages.en, /href="\.\.\/pl\/"/);
+    assert.match(pages.pl, /href="\.\.\/\.\.\/pl\/"/);
+    assert.match(pages.en, /data-path="biurko\/"/);
+    assert.match(pages.pl, /data-path="pl\/biurko\/"/);
     assert.match(pages.en, /<pre>install relai,panel,cache\nlang=en<\/pre>/);
   });
 
@@ -217,12 +218,12 @@ describe("real site", () => {
 
 // ---- the four real pages: Biurko (desk) and Film (scroll film), each in EN and PL ----------------------
 
-const PAGES = ["site/index.html", "site/pl/index.html", "site/film/index.html", "site/pl/film/index.html"];
+const PAGES = ["site/index.html", "site/pl/index.html", "site/biurko/index.html", "site/pl/biurko/index.html"];
 const SITE = {
-  "site/index.html": { jezyk: "en", baza: "./", film: false },
-  "site/pl/index.html": { jezyk: "pl", baza: "../", film: false },
-  "site/film/index.html": { jezyk: "en", baza: "../", film: true, przelacznik: "../pl/film/" },
-  "site/pl/film/index.html": { jezyk: "pl", baza: "../../", film: true, przelacznik: "../../film/" },
+  "site/index.html": { jezyk: "en", baza: "./", film: true, przelacznik: "./pl/", sciezka: "", druga: "./biurko/" },
+  "site/pl/index.html": { jezyk: "pl", baza: "../", film: true, przelacznik: "../", sciezka: "pl/", druga: "../pl/biurko/" },
+  "site/biurko/index.html": { jezyk: "en", baza: "../", film: false, przelacznik: "../pl/biurko/", sciezka: "biurko/", druga: "../" },
+  "site/pl/biurko/index.html": { jezyk: "pl", baza: "../../", film: false, przelacznik: "../../biurko/", sciezka: "pl/biurko/", druga: "../../pl/" },
 };
 const FILM_PAGES = PAGES.filter((rel) => SITE[rel].film);
 
@@ -261,20 +262,35 @@ describe("real site: the four pages", { skip }, () => {
     }
   });
 
-  test("hreflang links: en -> film/, pl -> pl/film/, x-default -> film/ on the film pages", async () => {
+  test("hreflang links are absolute, from the one public address: film at the root, desk under biurko/", async () => {
     const pages = await realPages();
-    for (const rel of FILM_PAGES) {
-      const { baza } = SITE[rel];
-      assert.deepEqual(hreflangs(pages[rel]), { en: `${baza}film/`, pl: `${baza}pl/film/`, "x-default": `${baza}film/` }, rel);
+    const A = ADRES_PUBLICZNY;
+    for (const rel of PAGES) {
+      const wersja = SITE[rel].film ? "" : "biurko/";
+      assert.deepEqual(hreflangs(pages[rel]), { en: A + wersja, pl: `${A}pl/${wersja}`, "x-default": A + wersja }, rel);
     }
+  });
+
+  test("each page has exactly one canonical link, its own absolute address", async () => {
+    const pages = await realPages();
+    for (const rel of PAGES) {
+      const kanoniczne = [...pages[rel].matchAll(/<link rel="canonical" href="([^"]+)">/g)].map((m) => m[1]);
+      assert.deepEqual(kanoniczne, [ADRES_PUBLICZNY + SITE[rel].sciezka], rel);
+    }
+  });
+
+  test("positive control: the hreflang reader sees a relative or missing alternate", () => {
+    assert.deepEqual(hreflangs('<link rel="alternate" hreflang="en" href="./">'), { en: "./" });
+    assert.notDeepEqual(hreflangs('<link rel="alternate" hreflang="en" href="./">'), { en: ADRES_PUBLICZNY });
+    assert.deepEqual(hreflangs("<p>none</p>"), {});
   });
 
   test("the film pages load the engine from relative vendor paths", async () => {
     const pages = await realPages();
-    assert.match(SITE["site/film/index.html"].baza, /^\.\.\/$/);
+    assert.equal(SITE["site/index.html"].baza, "./");
     for (const rel of FILM_PAGES) assertVendorPaths(pages[rel], SITE[rel].baza);
-    assert.ok(vendorRefs(pages["site/film/index.html"]).every((r) => r.startsWith("../vendor/scrollcraft/")));
-    assert.ok(vendorRefs(pages["site/pl/film/index.html"]).every((r) => r.startsWith("../../vendor/scrollcraft/")));
+    assert.ok(vendorRefs(pages["site/index.html"]).every((r) => r.startsWith("./vendor/scrollcraft/")));
+    assert.ok(vendorRefs(pages["site/pl/index.html"]).every((r) => r.startsWith("../vendor/scrollcraft/")));
   });
 
   test("positive control: the vendor path assertion rejects a wrong or absolute path", () => {
@@ -302,10 +318,10 @@ describe("real site: the four pages", { skip }, () => {
     }
   });
 
-  test("language switch on the film pages goes to the other language's film page", async () => {
+  test("language switch on every page goes to the other language of the same version, relatively", async () => {
     const pages = await realPages();
-    for (const rel of FILM_PAGES) {
-      const href = pages[rel].match(/<a class="pasek__jezyk" href="([^"]+)"/)?.[1];
+    for (const rel of PAGES) {
+      const href = pages[rel].match(/<a class="(?:pasek__jezyk|jezyk)" href="([^"]+)" hreflang=/)?.[1];
       assert.equal(href, SITE[rel].przelacznik, rel);
     }
   });
