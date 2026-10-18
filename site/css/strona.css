@@ -245,6 +245,20 @@ h1[tabindex="-1"]:focus, h2[tabindex="-1"]:focus { outline: none; }
   background: var(--noc-3); color: var(--krem-2); font-size: .95rem;
 }
 
+/* the poster behind the hero copy where the scene does not run: the same frame, the same vignette and
+   grain as over the canvas, and a fade into the page below */
+.plakat { position: absolute; z-index: -1; top: 0; left: 0; width: 100%; height: 100svh; display: block; overflow: hidden; }
+.plakat img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: 62% 50%; }
+.plakat::after {
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  background:
+    linear-gradient(rgba(20, 17, 14, 0) 72%, var(--noc)),
+    radial-gradient(ellipse 85% 85% at 58% 46%, rgba(0, 0, 0, 0) 55%, rgba(6, 4, 3, .5) 100%),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .3 0 0 0 0 .27 0 0 0 0 .24 0 0 0 .22 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: auto, auto, 160px 160px;
+}
+.tryb-3d .plakat { display: none; }
+
 .scena, .przekladka { display: none; }
 
 /* ---------- the desk: one fixed scene, stops arrive in a fixed copy layer ---------- */
@@ -450,6 +464,8 @@ html:not(.tryb-3d) .szuflada {
   padding: clamp(24px, 3vw, 38px); border-radius: var(--promien);
   background: var(--kartka); box-shadow: var(--cien-2);
 }
+/* in the flow the drawer is a section of the page: as tall as what it holds, no scroll box inside */
+html:not(.tryb-3d) .szuflada__karta { max-height: none; overflow: visible; }
 .szuflada__glowa { display: grid; grid-template-columns: minmax(0, 1fr) auto; column-gap: 24px; row-gap: 10px; margin-bottom: 26px; }
 .szuflada__glowa h2 { grid-column: 1; font-size: clamp(1.6rem, 2.4vw, 2.2rem); line-height: 1.08; color: var(--txt); }
 .szuflada__glowa p { grid-column: 1; max-width: 44rem; color: var(--txt-2); }
@@ -568,6 +584,8 @@ html:not(.tryb-3d) .szuflada {
   .tryb-3d .przystanek[data-przystanek] { left: 14px; right: 14px; bottom: max(14px, env(safe-area-inset-bottom)); }
   .tryb-3d .przystanek[data-przystanek] .karta { width: auto; max-width: none; padding: 20px 20px 18px; }
   .tryb-3d .przystanek--hero { bottom: max(28px, env(safe-area-inset-bottom)); max-width: none; }
+  /* the flow hero over the portrait poster: copy as low as in 3D, under the desk, not over the mug */
+  .przystanek--hero { padding-bottom: max(28px, env(safe-area-inset-bottom)); }
   .przystanek--hero h1 { font-size: clamp(2.3rem, 10.5vw, 2.9rem); }
   .ekran { display: none !important; }
   .tryb-3d .przystanek--instalacja { inset: auto 14px max(14px, env(safe-area-inset-bottom)); padding: 0; }

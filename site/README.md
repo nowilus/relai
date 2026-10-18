@@ -46,9 +46,9 @@ dlatego testy uruchamia się wzorcem plików.
 ## Zasoby 3D: skąd są i jak dodać nowy
 
 Scena ładuje się dwuetapowo (`biurko/zasoby.js`): najpierw zestaw hero (blat, ściana, korek,
-lampa, HDRI), po pierwszej klatce reszta w tle. Błąd etapu pierwszego przełącza stronę w tryb
-przepływu bez sceny; błąd drugiego zostawia treść i wyłącza scenę bez komunikatu dla
-odwiedzającego.
+lampa, HDRI), po pierwszej klatce reszta. Oba etapy ładują się pod zasłoną (E6): etap drugi
+zmienia kadr hero (roślina, ramki, zegar, bloczki), więc zasłona schodzi dopiero po nim. Błąd
+któregokolwiek etapu przełącza stronę w tryb przepływu z plakatem.
 
 Nowy zasób:
 
@@ -76,6 +76,49 @@ wyłącza, formularz wraca na swoje miejsce w treści. Wpasowanie sprawdza się 
 `__biurko.diagnostyka().ekran` daje narożniki siatki rzutowane kamerą, a `getBoundingClientRect()`
 elementu `[data-ekran]` musi się z nimi pokrywać (w E3: ≤ 0,04 px).
 
+## Biurko: szczyt, szuflady, telefon i strona bez sceny
+
+- **Szczyt** (`biurko/szczyt.js`, czysta logika z testami): Amnezja, cisza i szczyt to jedna scena;
+  po wejściu kamery w postój siedem karteczek w 3 s układa się w cztery dokumenty, bez blokady
+  przewijania; zejście z przystanku cofa stan do bałaganu. Skok z mapy pokazuje stan docelowy od razu.
+- **Szuflady** (`biurko/szuflady.js`): cztery `<dialog>` z treścią w HTML (dokumenty, teczka, laptop,
+  pudełko). Otwiera je klik w obiekt sceny i link na osi mapy, Esc, tło i „Zamknij” zamykają, fokus
+  wraca do elementu, który otworzył. Bez sceny i bez skryptów to zwykłe sekcje strony.
+- **Telefon** (okno węższe niż 0,8 wysokości): pozy pionowe `POZY_PIONOWE` (obiektyw 65°), karty na
+  dole kadru, zamiast konfiguratora karta „Wyślij sobie link” z `film/telefon.js`.
+- **Zasłona** (`biurko/zaslona.js`): stoi od pierwszej klatki (wiersz w `<head>`), karteczki przypina
+  postęp wczytanych plików, pierwszą od razu; schodzi po obu etapach zasobów i dwóch klatkach
+  z gotowym hero. Własny limit 30 s w `<head>`. Zimne wejście na telefonie (Fast 4G, CPU ×4): zasłona
+  zdjęta po 22,7–24,1 s (dwa przebiegi), kadr hero po zdjęciu bez zmian.
+- **Strona bez sceny** dostaje tryb przepływu z plakatem za tekstem hero w czterech sytuacjach:
+  ograniczony ruch (scena nie jest nawet pobierana), brak WebGL2, grafika programowa (`biurko/grafika.js`
+  rozpoznaje SwiftShader, llvmpipe, WARP i podobne po nazwie renderera; tam klatka trwa 0,3–1,7 s)
+  i brak skryptów (`<noscript>`). Komunikat o braku sceny pokazuje się tylko przy braku WebGL2
+  i grafice programowej. W trybie 3D plakat nie jest pobierany: stoi w `<template>`.
+
+### Plakat: jak odtworzyć
+
+Po zmianie wyglądu hero, z korzenia repozytorium, przy działającym serwerze podglądu na porcie 4520
+(sekcja „Podgląd lokalny”):
+
+```bash
+node site/narzedzia/plakat.mjs
+```
+
+Skrypt otwiera `/pl/` w Chrome bez okna, czeka na zdjęcie zasłony, chowa tekst, nagłówek i mapę
+(winietę i ziarno dokłada CSS, więc nie ma ich w pliku) i zapisuje `grafika/plakat/biurko-poziomy.jpg`
+(1366 × 768) oraz `biurko-pionowy.jpg` (390 × 844 w 2×), JPEG jakości 78. Razem ok. 0,17 MiB; pułap
+0,2 MiB. Inna ścieżka Chrome: zmienna `CHROME`.
+
+### Pomiar na słabej grafice
+
+Grafika programowa: Chrome bez okna z `--use-angle=swiftshader --enable-unsafe-swiftshader` (osobny
+profil). W E6 mediana klatki przy równym przewijaniu całej strony: 1366 × 768 — 1 700 ms, po wyłączeniu
+głębi 1 183 ms, po wyłączeniu AO 817 ms; 390 × 844 — 1 033, 867, 433 i 283 ms po zejściu do 1×.
+Dlatego taka grafika dostaje plakat. Kontrolę robisz tą samą przeglądarką z ukrytą nazwą renderera
+(scena musi wystartować). `__biurko.obnizJakosc()` schodzi o jeden krok ręcznie, a
+`__biurko.diagnostyka().jakosc` mówi, który krok jest włączony.
+
 ## Budżet ciężaru i płynności
 
 Pułap pierwszego wejścia: ok. 10 MB po kompresji (Aneks B planu). Pomiar:
@@ -92,7 +135,10 @@ Pułap pierwszego wejścia: ok. 10 MB po kompresji (Aneks B planu). Pomiar:
 
 Tym samym instrumentem w E5: Film 0,31 MiB po kompresji (33 pliki), CPU ×4 p95 5,6 ms; Biurko
 9,49 MiB, p95 17,5 ms. Po E7: Film 0,317 MiB (35 plików), CPU ×4 p95 16,7 ms na desktopie
-i w emulacji telefonu (390 × 844). Przewijanie mierzysz krokiem `scrollTo(..., { behavior: 'instant' })`
+i w emulacji telefonu (390 × 844). Po E6: Biurko 9,52 MiB (118 plików, plakat poza tą liczbą, bo
+w 3D nie jest pobierany), CPU ×4 p95 przewijania 20,6–25,2 ms na desktopie i 15,4–16,3 ms na telefonie,
+w trakcie szczytu do 16,3 ms, przy otwartej szufladzie do 17,9 ms. Drugi Chrome działający w tle
+w tym samym czasie podbił p95 do 33,4 ms: mierzysz bez innych przeglądarek. Przewijanie mierzysz krokiem `scrollTo(..., { behavior: 'instant' })`
 co klatkę, bo strona ma `scroll-behavior: smooth`. Kartę DevTools najpierw wysuwasz na wierzch:
 karta w tle nie dostaje klatek ani zdarzeń przewijania.
 

@@ -60,6 +60,20 @@
     <h1 id="t-0" tabindex="-1">Twój projekt pamięta wszystko.</h1>
     <p class="przystanek__zdanie">Zwykłe pliki obok kodu pamiętają to, co agent AI zapomina. Każda sesja zaczyna tam, gdzie skończyła poprzednia.</p>
     <a class="wezwanie" href="#instalacja" data-cel="6">Zainstaluj</a>
+    <!-- the poster: the hero frame rendered by the scene, only where the scene does not run (reduced
+         motion, no WebGL, no JS); a template is never fetched, so in 3D the poster costs nothing -->
+    <template data-plakat>
+      <picture class="plakat">
+        <source media="(max-width: 600px)" srcset="../grafika/plakat/biurko-pionowy.jpg" width="780" height="1688">
+        <img src="../grafika/plakat/biurko-poziomy.jpg" alt="Biurko nocą w świetle lampy: korkowa tablica z kartką RelAI, otwarta teczka z planem, laptop z paskami panelu, kubek i karteczki rozrzucone po blacie, za oknem miasto." width="1366" height="768">
+      </picture>
+    </template>
+    <noscript>
+      <picture class="plakat">
+        <source media="(max-width: 600px)" srcset="../grafika/plakat/biurko-pionowy.jpg" width="780" height="1688">
+        <img src="../grafika/plakat/biurko-poziomy.jpg" alt="Biurko nocą w świetle lampy: korkowa tablica z kartką RelAI, otwarta teczka z planem, laptop z paskami panelu, kubek i karteczki rozrzucone po blacie, za oknem miasto." width="1366" height="768">
+      </picture>
+    </noscript>
   </section>
 
   <section class="przystanek" id="amnezja" data-przystanek="1" aria-labelledby="t-1">

@@ -429,8 +429,11 @@ export function zbudujScene({ kontener, slowa, zasoby, ekran, tor, przyKlatce, o
       medianaKlatkiMs: czasy.length ? mediana(czasy) : null,
       probki: czasy.length,
       dpr,
+      jakosc: { glebia: bokeh.enabled, ao: ao.enabled, dpr },
     }),
     wyczyscPomiar: () => { czasy.length = 0; },
+    /** For verification: the next quality step now, as the frame-time check would take it. */
+    obnizJakosc: () => { obnizJakosc(); zamow(); },
   };
 }
 

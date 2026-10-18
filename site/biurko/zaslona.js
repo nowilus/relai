@@ -166,6 +166,9 @@ export function zamontujZaslone(dok = document, okno = window) {
     pole.append(n);
     notki.push({ n, s });
   };
+  // the first note is pinned at once: the progress starts only when three.js has loaded (about 4 s on
+  // a slow phone), and the curtain should not stand empty until then
+  if (pole && z.stan === "laduje") przypnij(0);
   const postep = z.postep.bind(z);
   return {
     postep(p) {

@@ -7,10 +7,12 @@ import { etapPierwszy, etapDrugi } from "./zasoby.js";
 import { DefaultLoadingManager } from "three";
 import { postepZPlikow } from "./zaslona.js";
 
-// files the first loading stage requests (textures, the lamp model with its parts, the HDR), measured
-// with the Performance API; the loader learns the parts of a model only while it reads it, so this
-// count is the floor that keeps the curtain's line from running ahead early
-const PLIKI_ETAPU_PIERWSZEGO = 17;
+// files both loading stages request (textures, models with their parts, the HDR; 17 in stage one),
+// measured with the Performance API; the loader learns the parts of a model only while it reads it,
+// so this count is the floor that keeps the curtain's line from running ahead early
+const PLIKI_RAZEM = 62;
+
+const dwieKlatki = () => new Promise((gotowe) => requestAnimationFrame(() => requestAnimationFrame(gotowe)));
 
 const FONTY = ["400 58px Kalam", "700 250px Kalam", "500 92px Fraunces", "500 34px 'JetBrains Mono'", "500 24px 'Hanken Grotesk'"];
 
@@ -50,7 +52,7 @@ function slowaSceny() {
  */
 export async function uruchom({ bezSceny, zaslona }) {
   DefaultLoadingManager.onProgress = (_, gotowe, wszystkie) => {
-    zaslona.postep(postepZPlikow(gotowe, wszystkie, PLIKI_ETAPU_PIERWSZEGO));
+    zaslona.postep(postepZPlikow(gotowe, wszystkie, PLIKI_RAZEM));
   };
   const [zasoby] = await Promise.all([etapPierwszy(), ...FONTY.map((f) => document.fonts.load(f))]);
   const ograniczRuch = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -69,8 +71,13 @@ export async function uruchom({ bezSceny, zaslona }) {
   warstwa = zamontujWarstwe({ tor, przekladka: document.querySelector("[data-przekladka]"), scena, ekran, ograniczRuch });
   warstwa.start();
   const szuflady = zamontujSzuflady({ scena, ograniczRuch });
-  // whatever ends the scene, the configurator goes back into the document flow first
+  // whatever ends the scene, the configurator goes back into the document flow first; once only, since
+  // a lost context and a failed stage two can both arrive while stage two is loading
+  let skonczona = false;
   const koniecSceny = (powod) => {
+    if (skonczona) return;
+    skonczona = true;
+    DefaultLoadingManager.onProgress = () => {};
     szuflady.odmontuj();
     warstwa.odmontuj();
     scena.oddajEkran();
@@ -81,14 +88,24 @@ export async function uruchom({ bezSceny, zaslona }) {
     koniecSceny();
   });
   window.__biurko = Object.freeze({
-    diagnostyka: scena.diagnostyka, wyczyscPomiar: scena.wyczyscPomiar, tor, obiekty: scena.obiekty, scena: scena.scena,
+    diagnostyka: scena.diagnostyka, wyczyscPomiar: scena.wyczyscPomiar, obnizJakosc: scena.obnizJakosc, tor, obiekty: scena.obiekty, scena: scena.scena,
     przyblizenie: warstwa.przyblizenie, szuflada: szuflady.otwarta, trafienie: scena.trafienie,
   });
-  // the first frame is on screen; the rest of the desk follows
-  await new Promise((gotowe) => requestAnimationFrame(() => requestAnimationFrame(gotowe)));
-  zaslona.gotowe();
+  // the first frame is drawn under the curtain (its shaders compile now); the curtain waits for stage
+  // two as well, because stage two changes the hero (plant, frames, clock, notepads: 3.7 % of the
+  // pixels on a slow phone), and the visitor should not watch the desk fill in
+  await dwieKlatki();
+  let B;
+  try {
+    B = await etapDrugi();
+  } catch (e) {
+    koniecSceny(e instanceof Error ? e.message : String(e));
+    return;
+  }
+  if (skonczona) return; // the context was lost meanwhile: the page is already in the flow
+  scena.uzupelnij(B);
+  await dwieKlatki();
+  if (skonczona) return;
   DefaultLoadingManager.onProgress = () => {};
-  etapDrugi()
-    .then((B) => scena.uzupelnij(B))
-    .catch((e) => koniecSceny(e instanceof Error ? e.message : String(e)));
+  zaslona.gotowe();
 }

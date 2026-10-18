@@ -58,6 +58,20 @@
     <h1 id="t-0" tabindex="-1">{{hero.naglowek}}</h1>
     <p class="przystanek__zdanie">{{hero.zdanie}}</p>
     <a class="wezwanie" href="#{{instalacja.id}}" data-cel="6">{{hero.wezwanie}}</a>
+    <!-- the poster: the hero frame rendered by the scene, only where the scene does not run (reduced
+         motion, no WebGL, no JS); a template is never fetched, so in 3D the poster costs nothing -->
+    <template data-plakat>
+      <picture class="plakat">
+        <source media="(max-width: 600px)" srcset="{{baza}}grafika/plakat/biurko-pionowy.jpg" width="780" height="1688">
+        <img src="{{baza}}grafika/plakat/biurko-poziomy.jpg" alt="{{plakat.alt}}" width="1366" height="768">
+      </picture>
+    </template>
+    <noscript>
+      <picture class="plakat">
+        <source media="(max-width: 600px)" srcset="{{baza}}grafika/plakat/biurko-pionowy.jpg" width="780" height="1688">
+        <img src="{{baza}}grafika/plakat/biurko-poziomy.jpg" alt="{{plakat.alt}}" width="1366" height="768">
+      </picture>
+    </noscript>
   </section>
 {{#przystanki}}
 

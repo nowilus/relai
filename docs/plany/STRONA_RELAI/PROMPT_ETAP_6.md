@@ -497,12 +497,12 @@ i zobacz, że test pada). Kolejność daje wcześnie widoczny efekt: przegląd �
 Każdy punkt Weryfikacji, który przeszedł, odhaczasz w `PROMPT_ETAP_6.md` (`- [ ]` → `- [x]`)
 zaraz po jego sprawdzeniu, nie na końcu etapu; punkt, który nie przeszedł, zostaje pusty.
 
-- [ ] `node --test "site/**/*.test.mjs"` kończy się bez błędów, liczba testów ≥ 259 (E7, `FAKT`) plus nowe;
+- [x] `node --test "site/**/*.test.mjs"` kończy się bez błędów, liczba testów ≥ 259 (E7, `FAKT`) plus nowe;
       kontrola pozytywna: szablon Biurka bez jednej fiszki wywraca test treści bez JS, a usunięcie
       klucza szczytu z toru wywraca test „szczyt najdłuższy”.
-- [ ] Silnik bez zmian: `sha256sum site/vendor/scrollcraft/scrollcraft.js scrollcraft.css LICENSE` równe
+- [x] Silnik bez zmian: `sha256sum site/vendor/scrollcraft/scrollcraft.js scrollcraft.css LICENSE` równe
       wpisom w `site/vendor/scrollcraft/VERSION`.
-- [ ] **Film nietknięty (dowód negatywny):** sumy `sha256sum` plików z pkt 1a, zapisane **na starcie**
+- [x] **Film nietknięty (dowód negatywny):** sumy `sha256sum` plików z pkt 1a, zapisane **na starcie**
       i porównane na końcu **po pełnej budowie** (`fakty.mjs`, `makiety.mjs`, `zbuduj.mjs` dwukrotnie):
       zero różnic, `zbuduj.mjs` wypisuje „bez zmian” dla `site/film/index.html` i `site/pl/film/index.html`;
       kontrola pozytywna: `site/css/film.css` z dopisaną spacją daje dokładnie jedną różnicę, po
@@ -512,61 +512,61 @@ zaraz po jego sprawdzeniu, nie na końcu etapu; punkt, który nie przeszedł, zo
       `site/narzedzia/zbuduj.mjs`, `site/dane/fakty.json` wypisany we wpisie z uzasadnieniem każdej
       zmiany; klucze `film.*` w `site/tresc/*.json` identyczne z początkiem etapu (porównanie obiektu
       `film` sprzed i po, kontrola pozytywna na zmienionym jednym znaku).
-- [ ] Budowa deterministyczna: `fakty.mjs`, `makiety.mjs`, `zbuduj.mjs` uruchomione dwukrotnie — drugi
+- [x] Budowa deterministyczna: `fakty.mjs`, `makiety.mjs`, `zbuduj.mjs` uruchomione dwukrotnie — drugi
       przebieg „bez zmian”, identyczne sumy `site/index.html` i `site/pl/index.html`; zero niewypełnionych
       `{{` i `}}`; 15 fiszek w obu językach Biurka.
 - [ ] Lista uwag z pkt 1 i trzy pytania pokazane Łukaszowi w otwartym oknie przed pierwszą poprawką; jego
       wybór (pytania 1–3) zacytowany we wpisie.
-- [ ] **Szczyt odwracalny albo deterministyczny** (zależnie od wariantu z pytania 1): `__biurko.diagnostyka()`
+- [x] **Szczyt odwracalny albo deterministyczny** (zależnie od wariantu z pytania 1): `__biurko.diagnostyka()`
       (rozszerzona o pozycje karteczek) w trzech punktach szczytu (początek, środek, koniec) daje przy
       zejściu w dół i powrocie w górę różnicę ≤ 0,001 jednostki sceny dla każdej z siedmiu (wariant B)
       albo ten sam stan końcowy po resecie i ponownym wejściu (wariant A); test w `szczyt.test.mjs` pokrywa to samo.
-- [ ] Szczyt na zrzutach: pas kadrów (cisza, start, środek, koniec) przy 1366 × 768; tekst „Porządek” ma
+- [x] Szczyt na zrzutach: pas kadrów (cisza, start, środek, koniec) przy 1366 × 768; tekst „Porządek” ma
       przezroczystość 0 w trakcie przelotu i 1 po ułożeniu (odczyt stylu w trzech punktach), a kontrast
       zmierzony także na pierwszej klatce (L-0236).
-- [ ] **Hero nietknięte (dowód negatywny):** kadr hero PL 1366 × 768 po etapie obok kadru wzorcowego
+- [x] **Hero nietknięte (dowód negatywny):** kadr hero PL 1366 × 768 po etapie obok kadru wzorcowego
       z pkt 1b — średnia różnica pikseli w sumie wpisu, kontrola pozytywna: kadr z przesuniętą kamerą daje
       różnicę ponad zmierzony szum; każda widoczna zmiana pokazana Łukaszowi; `POZY.biurko` równe wartości
       z `git show HEAD:site/biurko/kamera.js`.
-- [ ] Szuflady: każda z czterech otwiera się klikiem w obiekt sceny i z klawiatury (Tab, Enter), Esc zamyka,
+- [x] Szuflady: każda z czterech otwiera się klikiem w obiekt sceny i z klawiatury (Tab, Enter), Esc zamyka,
       `document.activeElement` po zamknięciu = element otwierający, `scrollY` przed i po identyczne;
       pudełko pokazuje 15 fiszek = 15 komend w `fakty.json`; przy ograniczonym ruchu otwarcie bez animacji.
-- [ ] Każdy z siedmiu przystanków osiągalny przewijaniem i z mapy (klik i klawiatura); kontrast tekstu
+- [x] Każdy z siedmiu przystanków osiągalny przewijaniem i z mapy (klik i klawiatura); kontrast tekstu
       przystanków 2–7 na złożonym kadrze: treść ≥ 4,5 : 1, nagłówek ≥ 3 : 1, z kontrolą pozytywną na
       jasnym obiekcie i z `opacity: 0` na rodzicu przy fotografowaniu tła (L-0213).
-- [ ] Telefon 390 × 844, PL i EN: pierwszy ekran ma nagłówek, jedno zdanie i przycisk w kadrze; brak
+- [x] Telefon 390 × 844, PL i EN: pierwszy ekran ma nagłówek, jedno zdanie i przycisk w kadrze; brak
       poziomego przewijania (`document.documentElement.scrollWidth` ≤ 390 na każdym przystanku i przy
       otwartej każdej szufladzie); na ekranie instalacji karta „Wyślij sobie link” (jeśli pytanie 3 = A);
       szczyt nadal najdłuższym odcinkiem; hero telefonu z werdyktem Łukasza.
-- [ ] Ograniczony ruch (emulacja `prefers-reduced-motion: reduce`, desktop i telefon): pierwsza asercja to
+- [x] Ograniczony ruch (emulacja `prefers-reduced-motion: reduce`, desktop i telefon): pierwsza asercja to
       tryb (L-0213), potem na każdym przystanku stan końcowy widoczny, wysokość sekcji zgodna z treścią,
       brak treści za krawędzią i brak martwego przewijania (L-0235).
-- [ ] Bez WebGL (podmiana `getContext('webgl2')` na `null`, pierwsza asercja to brak klasy `tryb-3d`):
+- [x] Bez WebGL (podmiana `getContext('webgl2')` na `null`, pierwsza asercja to brak klasy `tryb-3d`):
       plakat widoczny z `alt`, cała treść przystanków, szuflad, fiszek, makiet i konfigurator w przepływie,
       zero komunikatów konsoli poza zamierzonym `warn`; w trybie 3D lista żądań **nie** zawiera plakatu
       (kontrola pozytywna: w trybie bez WebGL zawiera).
-- [ ] Bez JavaScriptu (`curl` i render bez skryptów): `h1` 1, siedem sekcji, 15 fiszek, cztery szuflady
+- [x] Bez JavaScriptu (`curl` i render bez skryptów): `h1` 1, siedem sekcji, 15 fiszek, cztery szuflady
       z treścią, komenda instalacji i formularz w HTML i widoczne; plakat z `<noscript>`.
-- [ ] Cztery przebiegi zrzutów (desktop, telefon, ograniczony ruch, bez WebGL; plus bez JS) bez pustych
+- [x] Cztery przebiegi zrzutów (desktop, telefon, ograniczony ruch, bez WebGL; plus bez JS) bez pustych
       kadrów i bez martwego przewijania poza zapisaną ciszą przed szczytem; arkusze w
       `docs/zasoby/STRONA/lab/biurko/`; karta zgody na `playwright-core` pokazana (jeśli użyta),
       odpowiedź zacytowana we wpisie.
 - [ ] Kontrola odczuć: tabela przystanek → odczucie z briefu → odczucie z kadru we wpisie; rozjazd tylko
       z werdyktem Łukasza.
-- [ ] Zasłona na telefonie, zimne wejście (390 × 844, Fast 4G, CPU ×4, `ignoreCache`): czas do zdjęcia
+- [x] Zasłona na telefonie, zimne wejście (390 × 844, Fast 4G, CPU ×4, `ignoreCache`): czas do zdjęcia
       zasłony i do gotowego hero, brak stanów pośrednich sceny pod i po zasłonie (klatki co ok. 100 ms);
       obok FAKT-u 11,8 s sceny 3D z Aneksu D.
-- [ ] Budżet (`FAKT`, instrument z `site/README.md`, L-0223): Biurko w MiB obok 9,49 MiB z E4 i obok
+- [x] Budżet (`FAKT`, instrument z `site/README.md`, L-0223): Biurko w MiB obok 9,49 MiB z E4 i obok
       pomiaru HEAD z pkt 1c, ten sam instrument; ≤ ok. 10 MiB. Przekroczenie = karta decyzji, nie podniesienie pułapu.
-- [ ] Płynność (`FAKT`): przy CPU ×4 p95 klatki ≤ 26 ms na desktopie i w emulacji telefonu — w trakcie
+- [x] Płynność (`FAKT`): przy CPU ×4 p95 klatki ≤ 26 ms na desktopie i w emulacji telefonu — w trakcie
       szczytu, przy otwartej szufladzie i w równym przewijaniu całej strony; pomiar T1 na grafice programowej
       (pkt 7e) z wynikiem po każdym kroku obniżania jakości albo jawna bramka manualna z warunkiem wykonalności.
-- [ ] Lighthouse dostępność ≥ 95 dla `/` i `/pl/` (desktop i telefon); EN z `localStorage['relai-jezyk']='en'`;
+- [x] Lighthouse dostępność ≥ 95 dla `/` i `/pl/` (desktop i telefon); EN z `localStorage['relai-jezyk']='en'`;
       fokus: kolejność naturalna, brak dodatnich `tabindex`, 0 elementów fokusowalnych pod `aria-hidden`,
       dialogi z etykietą.
-- [ ] Konsola bez błędów i nieudanych żądań przy wejściu, pełnym przewinięciu, otwarciu każdej szuflady
+- [x] Konsola bez błędów i nieudanych żądań przy wejściu, pełnym przewinięciu, otwarciu każdej szuflady
       i konfiguratorze (PL i EN, desktop i telefon); żądania tylko `localhost` i `api.github.com`.
-- [ ] Podstawy bezpieczeństwa na zmianie etapu (`site/package.json` nie ma zależności, więc audytu zależności
+- [x] Podstawy bezpieczeństwa na zmianie etapu (`site/package.json` nie ma zależności, więc audytu zależności
       nie ma): `grep -rn --exclude="*.test.mjs" "innerHTML\|outerHTML\|insertAdjacentHTML\|document.write" site/js site/biurko site/film`
       kończy się kodem 1, a bez `--exclude` trafia `site/js/wersja.test.mjs` (kontrola pozytywna); treść
       szuflad i makiet do DOM przez `textContent` albo generator z ucieczką; kod z `site/vendor/` tylko ze

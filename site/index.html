@@ -60,6 +60,20 @@
     <h1 id="t-0" tabindex="-1">Your project remembers everything.</h1>
     <p class="przystanek__zdanie">Plain files beside your code hold what your AI agent forgets. Each new session starts where the last one stopped.</p>
     <a class="wezwanie" href="#instalacja" data-cel="6">Install</a>
+    <!-- the poster: the hero frame rendered by the scene, only where the scene does not run (reduced
+         motion, no WebGL, no JS); a template is never fetched, so in 3D the poster costs nothing -->
+    <template data-plakat>
+      <picture class="plakat">
+        <source media="(max-width: 600px)" srcset="./grafika/plakat/biurko-pionowy.jpg" width="780" height="1688">
+        <img src="./grafika/plakat/biurko-poziomy.jpg" alt="A desk at night under a lamp: a cork board with a RelAI note, an open folder with the plan, a laptop showing the panel bars, a mug and sticky notes scattered across the desk, the city behind the window." width="1366" height="768">
+      </picture>
+    </template>
+    <noscript>
+      <picture class="plakat">
+        <source media="(max-width: 600px)" srcset="./grafika/plakat/biurko-pionowy.jpg" width="780" height="1688">
+        <img src="./grafika/plakat/biurko-poziomy.jpg" alt="A desk at night under a lamp: a cork board with a RelAI note, an open folder with the plan, a laptop showing the panel bars, a mug and sticky notes scattered across the desk, the city behind the window." width="1366" height="768">
+      </picture>
+    </noscript>
   </section>
 
   <section class="przystanek" id="amnezja" data-przystanek="1" aria-labelledby="t-1">

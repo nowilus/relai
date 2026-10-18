@@ -11,10 +11,27 @@ test("track covers 0..1 with keys in order", () => {
   for (let i = 1; i < o.length; i++) assert.ok(o[i].lotOd >= o[i - 1].postojDo - 1e-12);
 });
 
-test("the peak has the largest span of any stop", () => {
+/** The stops (with copy) that are not clearly shorter than the peak; no peak at all fails as well. */
+function dorownujaSzczytowi(klucze) {
   const span = (k) => k.wejscie + k.postoj;
+  const peak = klucze.find((k) => k.poza === "porzadek");
+  if (!peak) return ["no peak"];
+  return klucze.filter((k) => k !== peak && k.tekst !== null && !(span(peak) > span(k) * 1.8)).map((k) => k.poza);
+}
+
+test("the peak has the largest span of any stop", () => {
+  assert.deepEqual(dorownujaSzczytowi(KLUCZE), []);
+});
+
+test("positive control: the peak check fails without the peak key or with a stop as long as the peak", () => {
+  assert.deepEqual(dorownujaSzczytowi(KLUCZE.filter((k) => k.poza !== "porzadek")), ["no peak"]);
   const peak = KLUCZE.find((k) => k.poza === "porzadek");
-  for (const k of KLUCZE) if (k !== peak && k.tekst !== null) assert.ok(span(peak) > span(k) * 1.8, k.poza);
+  const dlugiPlan = KLUCZE.map((k) => (k.poza === "plan" ? { ...k, wejscie: peak.wejscie, postoj: peak.postoj } : k));
+  assert.deepEqual(dorownujaSzczytowi(dlugiPlan), ["plan"]);
+});
+
+test("the hero pose is the one accepted before E6 (2d749de): the hero frame does not move", () => {
+  assert.deepEqual(POZY.biurko, { poz: [-0.3, 1.14, 1.2], cel: [-0.02, 0.98, -0.45], fov: 40 });
 });
 
 test("every stop's copy is fully visible at the middle of its hold, and only that copy", () => {

@@ -115,6 +115,9 @@
   "zaslona": {
     "napis": "Rozkładam biurko"
   },
+  "plakat": {
+    "alt": "Biurko nocą w świetle lampy: korkowa tablica z kartką RelAI, otwarta teczka z planem, laptop z paskami panelu, kubek i karteczki rozrzucone po blacie, za oknem miasto."
+  },
   "szuflady": {
     "etykieta": "Szuflady",
     "zamknij": "Zamknij",
