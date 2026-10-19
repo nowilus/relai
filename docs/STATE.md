@@ -1,6 +1,6 @@
 # STATE — RelAI
 
-Stan na: 2026-10-18 (plan STRONA_RELAI ZREALIZOWANY — strona opublikowana na https://nowilus.github.io/relai/ w dwóch wersjach, Film i Biurko, z ankietą w Tally; poprawka Aneksu E czeka na push; WYGLAD_PANELU zamknięty 2026-10-15)
+Stan na: 2026-10-19 (wątek BIURKO_PLAKAT zamknięty — Biurko bez sceny 3D jako odbitki biurka; plan STRONA_RELAI ZREALIZOWANY 2026-10-18 — strona opublikowana na https://nowilus.github.io/relai/ w dwóch wersjach, Film i Biurko, z ankietą w Tally, poprawka Aneksu E wdrożona 2026-10-19; WYGLAD_PANELU zamknięty 2026-10-15)
 
 ## Gdzie jesteśmy
 
@@ -105,6 +105,10 @@ po E5 (wydanie panelu 0.20.0 / 0.11.0); HUMANIZACJA zamknięty 2026-10-14 wydani
   i `marketplace.json`) i po wydaniu. Test pilnuje, żeby wersje w stronie były równe
   `marketplace.json`. Krok „strona” po podbiciu wersji jest w P-005. Budowa i publikacja:
   [site/README.md](../site/README.md). Testy 319, Lighthouse 100 w ośmiu pomiarach.
+  **Biurko bez sceny 3D** (wątek [BIURKO_PLAKAT](fixy/BIURKO_PLAKAT/ODNOGA.md), zamknięty
+  2026-10-19): przy grafice programowej (np. Chrome bez akceleracji), braku WebGL2, ograniczonym
+  ruchu i bez JS każdy przystanek to odbitka kadru prawdziwej sceny ze znacznikiem rozdziału. Mapa
+  w nagłówku śledzi przewijanie. Przypięta karteczka mówi, jak włączyć 3D. Testy 329.
 
 ## Nad czym pracujemy teraz
 
@@ -121,8 +125,6 @@ po E5 (wydanie panelu 0.20.0 / 0.11.0); HUMANIZACJA zamknięty 2026-10-14 wydani
 
 ## Co dalej
 
-- **Push poprawki Aneksu E** („Wróć do biurka” w przybliżeniu otwierało szufladę laptopa) — do
-  czasu wdrożenia strona publiczna ma ten błąd.
 - **Strona — sprawy świadomie otwarte przy zamknięciu STRONA_RELAI (2026-10-18):** odczyt ankiety
   i wybór kierunku strony (Aneks D pkt 3; dopiero po nim wspólny moduł Filmu i Biurka); pomiar
   Biurka na słabszym laptopie albo zintegrowanej karcie (T1, procedura w `site/README.md`;

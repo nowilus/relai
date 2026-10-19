@@ -2123,3 +2123,67 @@ Liczby planu: 8/8 etapów, Aneksy A–E, testy 91 (E1) → 319 (E8), Lighthouse 
 - Odczyt ankiety i wybór kierunku, pomiar na słabszym laptopie, przegląd EN — `docs/STATE.md`.
 
 Autor: RelAI (Opus 5.5) + Lukasz
+
+### 2026-10-19 — BIURKO_PLAKAT: Biurko bez sceny 3D jako odbitki biurka; wątek zamknięty
+
+Wątek samodzielny [BIURKO_PLAKAT](fixy/BIURKO_PLAKAT/ODNOGA.md), założony i zamknięty tego samego
+dnia. Wcześniej w tej sesji: push poprawki Aneksu E (`16de8c2`, `a173d44`, wdrożenie 39209420939)
+i notatka na Teams o stronie po `/relai-humanize`, strażnik faktów bez różnic.
+
+**Zrobione:**
+
+- **Diagnoza:** Biurko w Chrome Łukasza pokazywało plakaty, a w Brave scenę. W `Local State`
+  Chrome był wpis `hardware_acceleration_mode: {"enabled": false}`, a Brave nie miał tego wpisu.
+  Bez akceleracji Chrome rysuje grafikę programowo, więc strona zgodnie z werdyktem 3A z E6
+  przechodzi w tryb bez sceny. To nie był błąd.
+- **Wygląd trybu bez sceny**, cztery rundy uwag Łukasza na żywo (localhost:4520):
+  - każdy przystanek po hero to odbitka kadru sceny ze znacznikiem rozdziału, oddzielona od
+    sąsiednich, bez przenikania;
+  - kadry przystanków robi `site/narzedzia/plakat.mjs` (1920 × 1080 i 780 × 1688, opcja
+    `--tylko`); instalacja dostała plakat hero, bo kadr laptopa był za ciemny;
+  - kolumna ma do 150rem, a kadr nie jest wyższy niż okno;
+  - Dokumenty i Pudełko stoją pod przystankami; Teczka i Laptop zostały tylko dla czytników
+    ekranu, a linki mapy prowadzą do Planu i Panelu (Łukasz: „to jest powtórzenie tego samego pod
+    sobą”);
+  - konfigurator jest jasną kartką na kadrze całego biurka;
+  - nagłówek ma pasek z ciemnego szkła, a mapa zapala kropki przy przewijaniu
+    (`site/biurko/mapa-przeplywu.js` i test);
+  - komunikat o braku sceny jest przypiętą karteczką w prawym dolnym rogu, zwijaną do zakładki
+    „Widok bez 3D · Jak włączyć 3D?” z instrukcją dla Chrome, Brave, Edge i Firefoksa (nowe klucze
+    `brakSceny.*` w `site/tresc/*.json`);
+  - pod ostatnią sekcją zostaje 40 px.
+- **Testy:** `bezjs.test.mjs` sprawdza kadr w `<noscript>` każdego przystanku i istnienie plików,
+  z kontrolą pozytywną. `mapa-przeplywu.test.mjs` ma 6 przypadków. `site/README.md` opisuje układ
+  i odtwarzanie kadrów.
+
+**Zweryfikowane — jak dokładnie:**
+
+- `node --test "site/**/*.test.mjs"` → 329/329 (po E8: 319). Budowa: 0 `{{` w stronach.
+- `scrollWidth` równe szerokości okna przy 390, 1024, 1440, 1920 i 2560, PL i EN. Przy 390
+  przyczyną 442 px była siatka instalacji przegrywająca z regułą flex (wykryte bisekcją
+  wstrzykniętych reguł, L-0249).
+- Symetria: odstęp kadru i szuflad od krawędzi okna 65/65 przy 1300, 72/72 przy 1440–1920, 80/80
+  przy 2560. Kontrola z dawnym `width: auto` (styl w elemencie) odtworzyła błąd Łukasza: 72 z lewej,
+  195 z prawej (L-0248).
+- Mapa przy 1920: kropki od „Biurko” do „Instalacja”, oś od 0,075 do 1. Linki mapy:
+  `#szuflada-dokumenty #plan #panel #szuflada-pudelko`.
+- Tryb 3D: scena startuje, 0 pobrań z `grafika/plakat/`, 0 elementów `.kadr`, szuflady w
+  `.szuflady`, Teczka otwiera się z mapy. Telefon 3D nie startuje w Chrome bez okna, także na
+  starym kodzie ze strony publicznej (ograniczenie instrumentu).
+- Notatka: Chrome z `--disable-gpu --disable-software-rasterizer`. Na desktopie jest otwarta na
+  starcie, na telefonie zwinięta, po kliknięciu zakładki otwiera się z instrukcją. Odstęp pod
+  ostatnią sekcją: 40 px przy 1920, 1440 i 1024.
+- Przyjęty plakat hero przywrócony z gita po ponownym renderze, bo render nie jest powtarzalny co
+  do bajtu.
+
+**Świadomie odłożone:**
+
+- Lighthouse dostępność w trybie bez sceny — niezmierzony.
+- Plakat hero 1366 × 768 rozciągnięty na szerokich ekranach (hero i instalacja) — nowy render
+  wymaga ponownej akceptacji.
+
+**Do zrobienia przez człowieka:**
+
+- —
+
+Autor: RelAI (Opus 5.5) + Lukasz

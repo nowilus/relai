@@ -222,7 +222,17 @@
       }
     }
   },
-  "brakSceny":"Your browser does not show the 3D scene, so you see the same content without the desk.",
+  "brakSceny":{
+    "tekst":"Your browser does not show the 3D scene, so you see the same content on photos of the desk.",
+    "jak":"How to turn on 3D?",
+    "kroki":[
+      "Chrome, Brave, Edge: Settings → System → turn on graphics acceleration and restart the browser.",
+      "Firefox: Settings → General → Performance → untick the recommended settings and turn on hardware acceleration.",
+      "Still no scene? Check that the browser is up to date and reload the page."
+    ],
+    "zwin":"Fold the note",
+    "krotko":"View without 3D"
+  },
   "stopka": {
     "licencja": "MIT licence",
     "kod": "Code on GitHub"

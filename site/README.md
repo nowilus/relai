@@ -96,20 +96,35 @@ elementu `[data-ekran]` musi się z nimi pokrywać (w E3: ≤ 0,04 px).
   rozpoznaje SwiftShader, llvmpipe, WARP i podobne po nazwie renderera; tam klatka trwa 0,3–1,7 s)
   i brak skryptów (`<noscript>`). Komunikat o braku sceny pokazuje się tylko przy braku WebGL2
   i grafice programowej. W trybie 3D plakat nie jest pobierany: stoi w `<template>`.
+- **Kadry przystanków** (wątek `BIURKO_PLAKAT`, 2026-10-19): w trybie przepływu każdy przystanek po
+  hero to odbitka kadru sceny z zaokrąglonymi rogami w wyśrodkowanej kolumnie (`--kolumna`, do
+  80rem). Nad nią stoi znacznik rozdziału (`.rozdzial`, „01 Amnezja”), a kartka zachodzi na jej
+  dolną krawędź. Kadry są oddzielone, nie przenikają się. Szuflady `start.js` przenosi pod
+  przystanek, na którym leży ich przedmiot: Dokumenty → Porządek, Pudełko → Komendy. Teczka i Laptop
+  zostają tylko dla czytników ekranu, bo plan i paski widać na kadrach, a ich linki w mapie
+  prowadzą do przystanków Plan i Panel. Bez skryptów wszystkie cztery stoją na końcu strony.
+  Instalacja leży na kadrze całego biurka (plakat hero) i ma trzy kolumny: kartka, konfigurator
+  jako jasna kartka papieru, karteczki; poniżej 1180 px jedną. Nagłówek dostaje pasek z ciemnego
+  szkła zamiast przyciemnienia sceny. Kadry stoją w `<template>` i `<noscript>` jak plakat, więc tryb
+  3D ich nie pobiera.
 
-### Plakat: jak odtworzyć
+### Plakat i kadry: jak odtworzyć
 
-Po zmianie wyglądu hero, z korzenia repozytorium, przy działającym serwerze podglądu na porcie 4520
+Po zmianie wyglądu sceny, z korzenia repozytorium, przy działającym serwerze podglądu na porcie 4520
 (sekcja „Podgląd lokalny”):
 
 ```bash
-node site/narzedzia/plakat.mjs
+node site/narzedzia/plakat.mjs --tylko amnezja,porzadek
 ```
 
-Skrypt otwiera `/pl/` w Chrome bez okna, czeka na zdjęcie zasłony, chowa tekst, nagłówek i mapę
+Skrypt otwiera `/pl/biurko/` w Chrome bez okna, czeka na zdjęcie zasłony, a dla przystanku wchodzi
+pod jego adres (`#amnezja`) i czeka 6 s na uspokojenie kamery. Potem chowa tekst, nagłówek i mapę
 (winietę i ziarno dokłada CSS, więc nie ma ich w pliku) i zapisuje `grafika/plakat/biurko-poziomy.jpg`
-(1366 × 768) oraz `biurko-pionowy.jpg` (390 × 844 w 2×), JPEG jakości 78. Razem ok. 0,17 MiB; pułap
-0,2 MiB. Inna ścieżka Chrome: zmienna `CHROME`.
+i `biurko-<przystanek>-poziomy.jpg` (1366 × 768) oraz odpowiedniki `-pionowy` (390 × 844 w 2×), JPEG
+jakości 78. Bez `--tylko` renderuje hero i pięć przystanków od Amnezji do Komend. Render nie jest
+powtarzalny co do bajtu, więc przyjęte kadry zostawiasz poza `--tylko`. Plakat hero waży ok.
+0,17 MiB, kadry przystanków razem 0,98 MiB; jedno i drugie pobiera tylko tryb przepływu. Inna
+ścieżka Chrome: zmienna `CHROME`.
 
 ### Pomiar na słabej grafice
 

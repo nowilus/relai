@@ -267,11 +267,49 @@ h1[tabindex="-1"]:focus, h2[tabindex="-1"]:focus { outline: none; }
 @media (max-width: 600px) { .tryb-3d .przystanek--instalacja .stopka.stopka--notki { max-width: none; } }
 @media (prefers-reduced-motion: reduce) { .notka-stopki { transition: none; } }
 
+/* the scene-less note: a sticky note pinned in the lower right corner over the page, where only the
+   photo lies (the cards stand on the left), half see-through until the pointer or focus reaches it.
+   Folded (× or the first scroll) it is a one-line tab; the tab opens it with the steps (BIURKO_PLAKAT) */
 .brak-sceny {
-  position: relative; z-index: 2; margin: 0 var(--margines) 40px; max-width: 40rem;
-  padding: 14px 18px; border-radius: var(--promien-maly);
-  background: var(--noc-3); color: var(--krem-2); font-size: .95rem;
+  position: fixed; z-index: 8; right: 16px; bottom: 16px; width: min(19rem, calc(100vw - 32px));
+  padding: 20px 18px 14px; border-radius: 4px 4px 4px 14px; rotate: 1.2deg;
+  background: #f6e7b9; color: var(--txt); font-size: .9rem; line-height: 1.45;
+  box-shadow: 0 1px 2px rgba(49, 44, 37, .2), 0 14px 30px -12px rgba(0, 0, 0, .65);
+  opacity: .9; transition: opacity 180ms var(--ease);
 }
+.brak-sceny:hover, .brak-sceny:focus-within { opacity: 1; }
+.brak-sceny::before { /* the pin */
+  content: ""; position: absolute; top: -7px; left: 50%; translate: -50% 0; width: 16px; height: 16px; border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #ff9d7a, var(--glina) 60%, #7d3518); box-shadow: 0 2px 4px rgba(0, 0, 0, .4);
+}
+.brak-sceny__tresc p { margin: 0; padding-right: 18px; }
+.brak-sceny__zakladka { display: none; }
+.brak-sceny.zwinieta { width: auto; padding: 0; rotate: 0deg; border-radius: 10px; }
+.brak-sceny.zwinieta::before { top: 50%; left: 12px; translate: 0 -50%; width: 12px; height: 12px; }
+.brak-sceny.zwinieta .brak-sceny__tresc { display: none; }
+.brak-sceny.zwinieta .brak-sceny__zakladka {
+  display: block; padding: 10px 14px 10px 32px; border: 0; border-radius: 10px; background: none; cursor: pointer;
+  font: 500 .85rem/1.2 var(--font-tekst); color: var(--txt); text-align: left;
+}
+.brak-sceny__zakladka b { font: 700 .98rem/1 var(--font-notka); color: var(--glina-2); }
+.brak-sceny__jak { margin-top: 8px; }
+.brak-sceny__jak summary {
+  display: inline-block; cursor: pointer; list-style: none; font: 700 1.05rem/1.2 var(--font-notka); color: var(--glina-2);
+  text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: .18em;
+}
+.brak-sceny__jak summary::-webkit-details-marker { display: none; }
+.brak-sceny__jak summary::after { content: " ↗"; }
+.brak-sceny__jak[open] summary::after { content: " ↙"; }
+.brak-sceny__jak ol { margin: 8px 0 0; padding-left: 1.15rem; display: grid; gap: 6px; font-size: .84rem; color: var(--txt-2); }
+.brak-sceny__zwin {
+  position: absolute; top: 4px; right: 6px; width: 28px; height: 28px; padding: 0; border: 0; border-radius: 50%;
+  background: transparent; color: var(--txt-2); font: 400 1.25rem/1 var(--font-tekst); cursor: pointer;
+}
+@media (hover: hover) and (pointer: fine) {
+  .brak-sceny__zwin:hover, .brak-sceny.zwinieta .brak-sceny__zakladka:hover { background: rgba(49, 44, 37, .08); }
+}
+@media (prefers-reduced-motion: reduce) { .brak-sceny { transition: none; } }
+@media (max-width: 600px) { .brak-sceny { right: 10px; bottom: 10px; } .brak-sceny:not(.zwinieta) { left: 10px; width: auto; rotate: 0deg; } }
 
 /* the poster behind the hero copy where the scene does not run: the same frame, the same vignette and
    grain as over the canvas, and a fade into the page below */
@@ -286,6 +324,135 @@ h1[tabindex="-1"]:focus, h2[tabindex="-1"]:focus { outline: none; }
   background-size: auto, auto, 160px 160px;
 }
 .tryb-3d .plakat { display: none; }
+
+/* each stop on its own frame of the desk where the scene does not run (BIURKO_PLAKAT): a print with
+   rounded corners in the centred column, a chapter mark above it ("01 Amnezja", the map's axis line),
+   and the card pinned over its lower edge. Prints are cut apart, not blended: a fade between two frames
+   showed half a laptop turning whole (Łukasz) */
+.kadr, .rozdzial { display: none; }
+/* the column grows to 150rem, so 1920 and 2560 screens keep the page margin, not half the width
+   (Łukasz: "show more, wider") */
+html:not(.tryb-3d) {
+  --kolumna: max(var(--margines), (100% - 150rem) / 2);
+}
+html:not(.tryb-3d) .przystanek--hero { max-width: none; padding-inline: var(--kolumna); }
+html:not(.tryb-3d) .przystanek--hero > :not(.plakat, template, noscript) { max-width: 46rem; }
+html:not(.tryb-3d) .przystanek:has(.kadr) {
+  position: relative; max-width: none; display: grid; grid-template-columns: minmax(0, 1fr);
+  padding: clamp(96px, 14vh, 160px) var(--kolumna) 0;
+}
+@media (scripting: none) { html:not(.tryb-3d) .przystanek noscript { display: contents; } }
+html:not(.tryb-3d) .rozdzial {
+  display: flex; align-items: center; gap: 14px; grid-row: 1; margin-bottom: 18px;
+  font: 400 1.5rem/1 var(--font-notka); color: var(--tlo);
+}
+.rozdzial b { font: 500 .78rem/1 var(--font-kod); letter-spacing: .14em; color: var(--musztarda); }
+.rozdzial::after {
+  content: ""; flex: 1; height: 1px; margin-left: 6px;
+  background: linear-gradient(90deg, rgba(242, 233, 216, .32), rgba(242, 233, 216, 0));
+}
+html:not(.tryb-3d) .kadr {
+  display: block; position: relative; grid-row: 2; grid-column: 1; aspect-ratio: 16 / 9; overflow: hidden;
+  /* a wide print never runs taller than the window: the frame crops. The width is set, not auto: with
+     an auto width the height cap went through the ratio and narrowed the print, so it stood off the
+     column's right edge from ~1600 px up (Łukasz) */
+  width: 100%; max-height: calc(100svh - 150px);
+  border-radius: 22px; box-shadow: 0 0 0 1px rgba(242, 233, 216, .09), 0 34px 70px -28px rgba(0, 0, 0, .75);
+}
+.kadr img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.kadr::after { /* the scene's own vignette and grain, nothing that fades the edge into the page */
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  background:
+    radial-gradient(ellipse 90% 90% at 55% 45%, rgba(0, 0, 0, 0) 60%, rgba(6, 4, 3, .42) 100%),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .3 0 0 0 0 .27 0 0 0 0 .24 0 0 0 .22 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: auto, 160px 160px;
+}
+html:not(.tryb-3d) .przystanek:has(.kadr) > .karta {
+  grid-row: 2; grid-column: 1; align-self: end; justify-self: start; z-index: 1;
+  margin: 0 0 clamp(-72px, -7vh, -40px) clamp(20px, 3vw, 44px);
+}
+/* the hero poster ends in the page; the first print starts below it, so the cut is clean */
+html:not(.tryb-3d) .przystanek--hero + .przystanek:has(.kadr) { padding-top: clamp(40px, 6vh, 72px); }
+/* the two drawers already readable on their frames (folder, laptop bars): for screen readers only */
+html:not(.tryb-3d) .tresc .szuflada.szuflada--w-kadrze {
+  position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden;
+  clip-path: inset(50%); white-space: nowrap;
+}
+/* the header over the flow: a strip of dark glass instead of the lintel, which only suits the scene */
+html:not(.tryb-3d) .pasek { background: rgba(20, 17, 14, .8); backdrop-filter: blur(10px); border-bottom: 1px solid rgba(242, 233, 216, .07); }
+html:not(.tryb-3d) .pasek::before { display: none; }
+/* the drawers' second map line (below 1200 px) stays inside the strip */
+@media (min-width: 601px) and (max-width: 1199px) { html:not(.tryb-3d) .pasek { padding-bottom: 66px; } }
+/* a drawer under its stop (start.js moves it there): the column's width, below the pinned card;
+   .tresc outranks the drawer rules further down */
+html:not(.tryb-3d) .tresc .szuflada {
+  position: relative; z-index: 1; max-width: none;
+  margin: clamp(104px, 13vh, 132px) var(--kolumna) 0;
+}
+/* the install stop: the whole desk again as the print, the card, the configurator as a sheet of paper
+   (dark on the dark laptop did not read, Łukasz) and the notes on it, in three columns at its foot;
+   one centred column below 1180 px */
+html:not(.tryb-3d) .przystanek--instalacja:has(.kadr) {
+  grid-template-columns: minmax(0, 21rem) minmax(0, 46rem) minmax(0, 12.5rem); justify-content: space-between;
+  column-gap: clamp(24px, 3vw, 48px); padding-bottom: 40px; /* the page's end: a token gap (Łukasz) */
+}
+html:not(.tryb-3d) .przystanek--instalacja .rozdzial { grid-column: 1 / -1; }
+html:not(.tryb-3d) .przystanek--instalacja .kadr { grid-column: 1 / -1; aspect-ratio: auto; min-height: min(86svh, 50rem); }
+html:not(.tryb-3d) .przystanek--instalacja .kadr::after {
+  background: linear-gradient(rgba(20, 17, 14, .25), rgba(20, 17, 14, .55)),
+    radial-gradient(ellipse 90% 90% at 55% 45%, rgba(0, 0, 0, 0) 60%, rgba(6, 4, 3, .42) 100%);
+}
+html:not(.tryb-3d) .przystanek--instalacja:has(.kadr) > .karta,
+html:not(.tryb-3d) .przystanek--instalacja > .ekran,
+html:not(.tryb-3d) .przystanek--instalacja > .stopka {
+  grid-row: 2; align-self: end; z-index: 1; margin: 0 0 clamp(28px, 5vh, 56px);
+}
+html:not(.tryb-3d) .przystanek--instalacja:has(.kadr) > .karta { grid-column: 1; margin-left: clamp(24px, 3vw, 44px); }
+html:not(.tryb-3d) .przystanek--instalacja > .ekran { grid-column: 2; width: 100%; }
+html:not(.tryb-3d) .przystanek--instalacja > .stopka { grid-column: 3; margin-right: clamp(24px, 3vw, 44px); }
+html:not(.tryb-3d) .przystanek--instalacja .stopka--notki .notki-stopki { flex-direction: column; align-items: flex-start; }
+/* the configurator in the flow is paper, like the cards: dark ink, the clay accent, the command block
+   stays a dark terminal */
+html:not(.tryb-3d) .ekran {
+  background: var(--kartka); color: var(--txt); border-color: var(--linia); box-shadow: var(--cien-2);
+  color-scheme: light; /* native radios and checkboxes drawn light, not dark on paper */
+}
+html:not(.tryb-3d) .ekran .konfigurator__komendy { color-scheme: dark; }
+html:not(.tryb-3d) .ekran .konfigurator__grupa legend { color: var(--glina-2); }
+html:not(.tryb-3d) .ekran .konfigurator__grupa label { color: var(--txt); border-color: var(--linia-2); background: var(--kartka-2); }
+html:not(.tryb-3d) .ekran .konfigurator__grupa label:has(input:checked) { border-color: var(--glina); background: rgba(196, 100, 60, .1); }
+html:not(.tryb-3d) .ekran .konfigurator__grupa small,
+html:not(.tryb-3d) .ekran .konfigurator__etykieta,
+html:not(.tryb-3d) .ekran .konfigurator__uwagi,
+html:not(.tryb-3d) .ekran .konfigurator__uwaga,
+html:not(.tryb-3d) .ekran .konfigurator__wersje { color: var(--txt-2); }
+html:not(.tryb-3d) .ekran .konfigurator__wersje span { color: var(--txt); }
+html:not(.tryb-3d) .ekran .konfigurator__status { color: var(--glina-2); }
+html:not(.tryb-3d) .ekran .przycisk--drugi { color: var(--txt); border-color: var(--linia-2); }
+@media (hover: hover) and (pointer: fine) {
+  html:not(.tryb-3d) .ekran .przycisk--drugi:hover { background: var(--kartka-2); border-color: var(--txt-3); }
+}
+@media (max-width: 1180px) {
+  html:not(.tryb-3d) .przystanek--instalacja:has(.kadr) { grid-template-columns: minmax(0, 47.5rem); justify-content: center; }
+  html:not(.tryb-3d) .przystanek--instalacja .kadr { grid-row: 2; aspect-ratio: 1366 / 768; min-height: 0; }
+  html:not(.tryb-3d) .przystanek--instalacja:has(.kadr) > .karta { grid-row: 2; grid-column: 1; max-width: 27rem; margin: 0 0 clamp(-72px, -7vh, -40px) clamp(20px, 3vw, 44px); }
+  html:not(.tryb-3d) .przystanek--instalacja > .ekran { grid-row: 3; grid-column: 1; margin: clamp(96px, 12vh, 120px) 0 0; }
+  html:not(.tryb-3d) .przystanek--instalacja > .stopka { grid-row: 4; grid-column: 1; margin: 24px 0 0; }
+  html:not(.tryb-3d) .przystanek--instalacja .stopka--notki .notki-stopki { flex-direction: row; }
+}
+@media (max-width: 600px) {
+  html:not(.tryb-3d) .przystanek:has(.kadr) { padding: clamp(64px, 10vh, 96px) 14px 0; }
+  html:not(.tryb-3d) .kadr { aspect-ratio: 4 / 5; border-radius: 18px; }
+  html:not(.tryb-3d) .kadr img { object-position: 50% 0; }
+  html:not(.tryb-3d) .przystanek:has(.kadr) > .karta { max-width: none; justify-self: stretch; margin: 0 12px -56px; }
+  html:not(.tryb-3d) .tresc .szuflada { margin: 96px 14px 0; }
+  html:not(.tryb-3d) .przystanek--instalacja .kadr { aspect-ratio: 4 / 5; }
+  html:not(.tryb-3d) .przystanek--instalacja:has(.kadr) > .karta { max-width: none; margin: 0 12px -56px; }
+  html:not(.tryb-3d) .przystanek--instalacja > .instalacja__telefon { grid-row: 3; margin-top: 76px; }
+  html:not(.tryb-3d) .przystanek--instalacja > .stopka { grid-row: 4; padding-bottom: 24px; }
+  /* the scene-less note's tab sits in the lower right: the last line keeps clear of it */
+  html:not(.tryb-3d):has(.brak-sceny:not([hidden])) .przystanek--instalacja > .stopka { padding-bottom: 68px; }
+}
 
 .scena, .przekladka { display: none; }
 

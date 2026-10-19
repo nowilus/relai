@@ -205,7 +205,17 @@
       }
     }
   },
-  "brakSceny":"Przeglądarka nie pokazuje sceny 3D, więc widzisz tę samą treść bez biurka.",
+  "brakSceny":{
+    "tekst":"Przeglądarka nie pokazuje sceny 3D, więc widzisz tę samą treść na zdjęciach biurka.",
+    "jak":"Jak włączyć 3D?",
+    "kroki":[
+      "Chrome, Brave, Edge: Ustawienia → System → włącz akcelerację (przyspieszanie) grafiki i uruchom przeglądarkę ponownie.",
+      "Firefox: Ustawienia → Ogólne → Wydajność → odznacz ustawienia zalecane i włącz akcelerację sprzętową.",
+      "Dalej bez sceny? Sprawdź, czy przeglądarka jest aktualna, i odśwież stronę."
+    ],
+    "zwin":"Zwiń notatkę",
+    "krotko":"Widok bez 3D"
+  },
   "stopka": {
     "licencja": "Licencja MIT",
     "kod": "Kod na GitHubie"

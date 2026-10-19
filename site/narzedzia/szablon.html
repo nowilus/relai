@@ -77,18 +77,48 @@
 {{#przystanki}}
 
   <section class="przystanek" id="{{id}}" data-przystanek="{{@numer}}" aria-labelledby="t-{{@numer}}">
+    <p class="rozdzial" aria-hidden="true"><b>0{{@numer}}</b> {{nazwa}}</p>
     <div class="karta">
       <h2 id="t-{{@numer}}" tabindex="-1">{{#liczbaKomend}}{{fakty.liczbaKomend}} {{/liczbaKomend}}{{naglowek}}</h2>
       <p>{{tekst}}</p>
     </div>
+    <!-- this stop's frame of the desk for the page without the scene, like the hero poster; decorative,
+         the card says it all -->
+    <template data-plakat>
+      <picture class="kadr">
+        <source media="(max-width: 600px)" srcset="{{baza}}grafika/plakat/biurko-{{id}}-pionowy.jpg" width="780" height="1688">
+        <img src="{{baza}}grafika/plakat/biurko-{{id}}-poziomy.jpg" alt="" width="1920" height="1080" loading="lazy" decoding="async">
+      </picture>
+    </template>
+    <noscript>
+      <picture class="kadr">
+        <source media="(max-width: 600px)" srcset="{{baza}}grafika/plakat/biurko-{{id}}-pionowy.jpg" width="780" height="1688">
+        <img src="{{baza}}grafika/plakat/biurko-{{id}}-poziomy.jpg" alt="" width="1920" height="1080" loading="lazy" decoding="async">
+      </picture>
+    </noscript>
   </section>
 {{/przystanki}}
 
   <section class="przystanek przystanek--instalacja" id="{{instalacja.id}}" data-przystanek="6" aria-labelledby="t-6">
+    <p class="rozdzial" aria-hidden="true"><b>06</b> {{instalacja.nazwa}}</p>
     <div class="karta">
       <h2 id="t-6" tabindex="-1">{{instalacja.naglowek}}</h2>
       <p>{{instalacja.tekst}}</p>
     </div>
+    <!-- the install stop goes back to the whole desk, the hero frame: lighter than the laptop close-up,
+         so the configurator stands out (Łukasz, BIURKO_PLAKAT) -->
+    <template data-plakat>
+      <picture class="kadr">
+        <source media="(max-width: 600px)" srcset="{{baza}}grafika/plakat/biurko-pionowy.jpg" width="780" height="1688">
+        <img src="{{baza}}grafika/plakat/biurko-poziomy.jpg" alt="" width="1366" height="768" loading="lazy" decoding="async">
+      </picture>
+    </template>
+    <noscript>
+      <picture class="kadr">
+        <source media="(max-width: 600px)" srcset="{{baza}}grafika/plakat/biurko-pionowy.jpg" width="780" height="1688">
+        <img src="{{baza}}grafika/plakat/biurko-poziomy.jpg" alt="" width="1366" height="768" loading="lazy" decoding="async">
+      </picture>
+    </noscript>
     <div class="ekran" data-ekran data-etykieta="{{konfigurator.ekran.etykieta}}">
       <div class="ekran__pasek">
         <span class="ekran__kropki" aria-hidden="true"><i></i><i></i><i></i></span>
@@ -278,7 +308,23 @@
   </dialog>
 </div>
 
-<p class="brak-sceny" data-brak-sceny hidden>{{brakSceny}}</p>
+<!-- the scene-less note (BIURKO_PLAKAT): pinned in a corner over the page, so it is seen at any scroll,
+     with the steps to turn 3D on; folds to its pin, and stays folded for the visit -->
+<aside class="brak-sceny" data-brak-sceny hidden aria-label="{{brakSceny.krotko}}">
+  <button type="button" class="brak-sceny__zakladka" data-rozwin aria-expanded="true" aria-controls="brak-sceny-tresc">{{brakSceny.krotko}} · <b>{{brakSceny.jak}}</b></button>
+  <div class="brak-sceny__tresc" id="brak-sceny-tresc">
+    <p>{{brakSceny.tekst}}</p>
+    <details class="brak-sceny__jak">
+      <summary>{{brakSceny.jak}}</summary>
+      <ol>
+{{#brakSceny.kroki}}
+        <li>{{.}}</li>
+{{/brakSceny.kroki}}
+      </ol>
+    </details>
+    <button type="button" class="brak-sceny__zwin" data-zwin aria-label="{{brakSceny.zwin}}">×</button>
+  </div>
+</aside>
 <template data-slowa-sceny>
 {{#scena.karteczki}}
   <p data-karteczka>{{.}}</p>

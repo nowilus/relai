@@ -110,12 +110,14 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
      a po Edit szablonu idzie `diff` wygenerowanej strony (L-0243); kadry układu w Chrome bez okna
      o zadanym rozmiarze, koniec strony z przypiętymi sekcjami pętlą `scrollTo`, nie
      `scrollIntoView` (L-0246); warstwę HTML w transformacji 3D sprawdzasz `elementsFromPoint`
-     w siatce po całej powierzchni i w każdym stanie kamery (L-0247).
+     w siatce po całej powierzchni i w każdym stanie kamery (L-0247); układ wyśrodkowany liczbą
+     (lewy i prawy odstęp w kilku szerokościach), kontrola najpierw odtwarza błąd (L-0248);
+     przepełnienie telefonu: `innerWidth` wobec `visualViewport`, potem bisekcja reguł (L-0249).
    (L-0032, L-0037, L-0054, L-0055, L-0056, L-0064, L-0068, L-0071, L-0073, L-0083, L-0084, L-0086,
    L-0087, L-0088, L-0090, L-0091, L-0095, L-0096, L-0097, L-0101, L-0102, L-0105, L-0106, L-0107,
    L-0110, L-0111, L-0113, L-0124, L-0125, L-0127, L-0130, L-0131, L-0135, L-0141, L-0143, L-0151,
    L-0160, L-0164, L-0169, L-0170, L-0173, L-0181, L-0211, L-0213, L-0215, L-0238, L-0239, L-0240,
-   L-0242, L-0243, L-0246, L-0247)
+   L-0242, L-0243, L-0246, L-0247, L-0248, L-0249)
 6. **Próg jest liczbą, którą ktoś liczy:** kalibrujesz na realnych plikach, zapisujesz w jednostce
    mechanizmu z komendą sprawdzającą, z **jednym** wyzwalaczem. Porównujesz do wielkości, którą
    mechanizm kontroluje (część usuwalna); zatkanie sygnalizuje **różnica możliwego i wykonanego**,
@@ -710,6 +712,28 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
   po całej powierzchni, w każdym stanie kamery, z kontrolą punktu poza nią. Klik w stanie
   modalnym (przybliżenie) rozstrzyga jeden słuchacz w fazie przechwytywania, zanim dojdzie do
   słuchaczy sceny. Dowód poprawki: prawdziwy klik myszą przez CDP na buildzie przed i po.
+
+### L-0248 — Asymetrię kadrów pokazywał mój własny zrzut, a zauważył ją Łukasz · 2026-10-19 · AKTYWNA
+
+- **Trigger:** BIURKO_PLAKAT. Kadr miał `aspect-ratio` i `max-height`, a szerokość `auto`. Ponad
+  ok. 1600 px ograniczenie wysokości przechodziło przez proporcję i zwężało kadr: 72 px z lewej,
+  195 z prawej. Mój zrzut 1920 to pokazywał (kadr kończył się na 1725 px), a ja oceniłem go na oko.
+  Kontrola przez wstrzyknięty arkusz stylów nie odtworzyła błędu, dopiero styl wpisany w element.
+- **Zasada:** układ wyśrodkowany sprawdzasz liczbą: lewy i prawy odstęp każdego bloku od krawędzi
+  okna w kilku szerokościach, nie zrzutem. Element z `aspect-ratio` i ograniczeniem wysokości
+  dostaje jawne `width`. Kontrola musi najpierw odtworzyć błąd; jeśli nie odtwarza, to instrument
+  jest zły, a nie poprawka dobra.
+
+### L-0249 — Reguła z `:has()` przebiła siatkę i rozepchnęła telefon do 442 px · 2026-10-19 · AKTYWNA
+
+- **Trigger:** BIURKO_PLAKAT. Reguła `.przystanek:has(.kadr) { display: flex }` miała większą wagę
+  niż `.przystanek--instalacja { display: grid }`. Instalacja układała się w rząd i na telefonie
+  rozszerzyła obszar układu do 442 px (`innerWidth` 442, `visualViewport` 390). Szukanie elementu
+  wystającego poza okno nic nie dało, bo przy 442 px nic nie wystawało.
+- **Zasada:** `:has()` liczy się jak klasa, więc reguła wyjątku dla tego samego elementu też
+  potrzebuje `:has()` albo innej drogi do większej wagi. Przy przepełnieniu na telefonie
+  porównujesz najpierw `innerWidth` z `visualViewport.width`. Przyczynę znajdujesz bisekcją:
+  wyłączasz po kolei swoje zmiany regułą wstrzykniętą przed ładowaniem (L-0241).
 
 ## Lekcje zwinięte
 
