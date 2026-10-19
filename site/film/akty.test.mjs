@@ -5,7 +5,7 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import {
   nastepnyStan, PROG_WEJSCIA, MARGINES_RESETU, CZAS_SEKCJI, czyTrzymac, ROZSYPKA, KOLEJNOSC_UPADKU, AMNEZJA, LUK, LOT, oknoLotu, czasSzczytu,
-  ksztaltLotu, cienLotu, kolejnoscLotu, klatkiLotu, uniesienieFiszki, yPamieci, tasmaNaDotyk, ZAPYTANIE_DOTYKU,
+  ksztaltLotu, cienLotu, kolejnoscLotu, klatkiLotu, uniesienieFiszki, yPamieci, tasmaNaDotyk, ZAPYTANIE_DOTYKU, celSrodka,
 } from "./akty.js";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -211,6 +211,21 @@ describe("act 5 under a finger: no pin, the rail scrolls sideways", () => {
     assert.equal(s.scena.hasAttribute("data-sc-stage"), false);
     assert.equal(s.tasma.hasAttribute("data-sc-pan"), false);
     assert.equal(s.html.classList.contains("dotyk"), true);
+  });
+
+  test("a swipe down stops on the act for a second, with the rail as the part to centre", () => {
+    const s = strona();
+    tasmaNaDotyk(s.doc, true);
+    assert.equal(s.akt.getAttribute("data-raz"), "komendy");
+    assert.equal(s.tasma.hasAttribute("data-raz-srodek"), true);
+    assert.equal(CZAS_SEKCJI.komendy, 1000);
+  });
+
+  test("the held rail sits in the middle of the frame below the header bar", () => {
+    // rail 300 px tall whose top is 500 px down the viewport, page at 1000, frame 553, bar 60
+    const cel = celSrodka({ top: 500, height: 300 }, 1000, 553, 60);
+    const srodekPoPrzewinieciu = 500 + 1000 - cel + 150;
+    assert.ok(Math.abs(srodekPoPrzewinieciu - (60 + 553) / 2) <= 0.5, `rail middle at ${srodekPoPrzewinieciu}`);
   });
 
   test("with a mouse nothing changes: the wheel keeps panning the rail", () => {

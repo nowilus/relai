@@ -75,6 +75,10 @@ Decyzje z wywiadu:
       szufladę, po zamknięciu znacznik nie wraca; znacznik ekranu na ramce nad wyświetlaczem przybliża
       ekran (desktop; na telefonie instalacja ma kartę zamiast wyświetlacza).
 - [x] `node --test "site/**/*.test.mjs"` zielone (351/351).
+- [x] Runda 2 (Łukasz na iPhonie: „nie mam automatycznego przytrzymania mnie na sekcji z komendami”):
+      na dotyku swipe w dół zatrzymuje się na komendach na 1 s ze środkiem taśmy na środku kadru pod
+      nagłówkiem (3 px odchyłki przy 375 × 553); swipe w dół w przytrzymaniu nie rusza strony, po
+      nim idzie dalej; desktop bez zmian (`data-raz` tylko na dotyku).
 - [ ] Werdykt Łukasza na telefonie.
 
 ## Wynik
