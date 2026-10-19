@@ -5,7 +5,7 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import {
   nastepnyStan, PROG_WEJSCIA, MARGINES_RESETU, CZAS_SEKCJI, czyTrzymac, ROZSYPKA, KOLEJNOSC_UPADKU, AMNEZJA, LUK, LOT, oknoLotu, czasSzczytu,
-  ksztaltLotu, cienLotu, kolejnoscLotu, klatkiLotu, uniesienieFiszki, yPamieci, tasmaNaDotyk, ZAPYTANIE_DOTYKU, celSrodka,
+  ksztaltLotu, cienLotu, kolejnoscLotu, klatkiLotu, uniesienieFiszki, yPamieci, tasmaNaDotyk, ZAPYTANIE_DOTYKU, celSrodka, naPierwszaFiszke,
 } from "./akty.js";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -255,5 +255,31 @@ describe("the header button on a phone", () => {
 
   test("it steps aside at the install act only on a wider screen", () => {
     assert.match(CSS, /@media \(min-width: 601px\) \{\s*html\.przy-instalacji \.pasek__nav \.przycisk \{ opacity: 0; visibility: hidden;/);
+  });
+});
+
+describe("the first arrival on the commands starts at the first card", () => {
+  const sekcja = () => {
+    const tasma = { left: 732, scrollTo({ left }) { this.left = left; } };
+    return { tasma, dataset: {}, querySelector: (sel) => (sel === "[data-raz-srodek]" ? tasma : null) };
+  };
+
+  test("the rail goes back to its left end the first time the act plays", () => {
+    const s = sekcja();
+    naPierwszaFiszke(s);
+    assert.equal(s.tasma.left, 0);
+  });
+
+  test("a later arrival keeps the card the visitor left it on", () => {
+    const s = sekcja();
+    naPierwszaFiszke(s);
+    s.tasma.left = 488;
+    naPierwszaFiszke(s);
+    assert.equal(s.tasma.left, 488);
+  });
+
+  test("with a mouse (no centred rail) nothing moves", () => {
+    const s = { dataset: {}, querySelector: () => null };
+    assert.doesNotThrow(() => naPierwszaFiszke(s));
   });
 });

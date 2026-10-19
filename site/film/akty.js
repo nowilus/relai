@@ -357,6 +357,19 @@ export function zamontujTasme(doc = document, win = window) {
   return () => win.cancelAnimationFrame(ramka);
 }
 
+/**
+ * The first arrival on the commands under a finger starts at the first card on the left, whatever the
+ * swipe that brought the page there did to the rail, so the visitor sees there is more to the right
+ * (Łukasz, 2026-10-19: "zaczynamy od pierwszej od lewej"). Later arrivals keep where they left it.
+ * @param {HTMLElement} sekcja the commands act
+ */
+export function naPierwszaFiszke(sekcja) {
+  const tasma = sekcja.querySelector("[data-raz-srodek]");
+  if (!tasma || sekcja.dataset.bylaFiszka) return;
+  sekcja.dataset.bylaFiszka = "1";
+  tasma.scrollTo({ left: 0, behavior: "instant" });
+}
+
 /** A touch screen without a mouse: a finger, not a wheel, moves the page. */
 export const ZAPYTANIE_DOTYKU = "(hover: none) and (pointer: coarse)";
 

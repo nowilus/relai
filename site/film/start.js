@@ -6,7 +6,7 @@ import { zamontujJezyk } from "../js/jezyk.js";
 import { zamontujWersje } from "../js/wersja.js";
 import { zamontuj } from "../js/konfigurator.js";
 import { utworzZaslone } from "./zaslona.js";
-import { tasmaNaDotyk, ZAPYTANIE_DOTYKU, zamontujAmnezje, zamontujPamiec, zamontujPrzytrzymanie, zamontujRaz, zamontujTasme } from "./akty.js";
+import { naPierwszaFiszke, tasmaNaDotyk, ZAPYTANIE_DOTYKU, zamontujAmnezje, zamontujPamiec, zamontujPrzytrzymanie, zamontujRaz, zamontujTasme } from "./akty.js";
 import { zamontujPasek } from "./pasek.js";
 import { zamontujTelefon } from "./telefon.js";
 
@@ -53,7 +53,7 @@ async function uruchom() {
     zamontujAmnezje();
     const pamiec = zamontujPamiec();
     const przytrzymanie = zamontujPrzytrzymanie();
-    zamontujRaz({ pamiec: pamiec.graj }, { pamiec: pamiec.resetuj }, przytrzymanie.trzymaj);
+    zamontujRaz({ pamiec: pamiec.graj, komendy: naPierwszaFiszke }, { pamiec: pamiec.resetuj }, przytrzymanie.trzymaj);
     zamontujTasme();
   }
   await klatka();
