@@ -818,5 +818,7 @@ html:not(.tryb-3d) .szuflada__karta { max-height: none; overflow: visible; }
 }
 
 @media (prefers-reduced-motion: no-preference) {
-  html:not(.tryb-3d) { scroll-behavior: smooth; }
+  /* not while loading: the browser's jump to a shared link's anchor runs then, and a smooth one would
+     outlive the switch to 3D and overwrite the jump to the stop (site/biurko/przewijanie.test.mjs) */
+  html:not(.tryb-3d):not(.laduje) { scroll-behavior: smooth; }
 }
