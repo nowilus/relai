@@ -1,7 +1,7 @@
 // The fixed copy layer and the desk map. Scroll sets the camera's target; the camera's actual
 // position (after damping) drives the copy, so text never arrives mid-flight.
 import { postepPrzystanku, ulamekMapy } from "./kamera.js";
-import { przejscie } from "./przyblizenie.js";
+import { przejscie, klikPozaEkranem } from "./przyblizenie.js";
 
 const PRZESUW_VH = 1.6; // copy rises at most this much while it fades, well under the 4vh cap
 const PRZYSTANEK_EKRANU = 6; // the install stop: the laptop display carries the configurator
@@ -137,6 +137,14 @@ export function zamontujWarstwe({ tor, przekladka, scena, ekran, ograniczRuch })
     if (e.key === "Escape") oddal("esc");
   }, nasluch);
   ekran.querySelector("[data-wroc]")?.addEventListener("click", () => oddal("wroc"), nasluch);
+  // zoomed in, a click outside the display zooms out; capture phase and preventDefault, so the drawers'
+  // document listener skips it (the back button's own band lands here, see klikPozaEkranem)
+  document.addEventListener("click", (e) => {
+    const zdarz = klikPozaEkranem(zblizenie, ekran.contains(e.target));
+    if (!zdarz) return;
+    e.preventDefault();
+    oddal(zdarz);
+  }, { capture: true, signal: sygnal.signal });
 
   zmierz();
   return {

@@ -1,6 +1,25 @@
 import { describe, test } from "node:test";
 import assert from "node:assert/strict";
-import { STANY, ZDARZENIA, WYPELNIENIE, przejscie, pozaPrzyblizenia, rzutuj, zmieszaj } from "./przyblizenie.js";
+import { STANY, ZDARZENIA, WYPELNIENIE, przejscie, pozaPrzyblizenia, rzutuj, zmieszaj, klikPozaEkranem } from "./przyblizenie.js";
+
+// E8 Aneks E: in the close-up the top band of the display window (with "back to the desk") is painted
+// but not hit-testable in Chrome (CSS3D projection), so the click lands on the scene canvas. A click
+// outside the display's live area while zoomed in zooms out instead of opening the laptop drawer.
+describe("klikPozaEkranem", () => {
+  test("zoomed in, a click outside the display zooms out (the back button lands here too)", () => {
+    assert.equal(klikPozaEkranem("przyblizony", false), "wroc");
+  });
+  test("zoomed in, a click inside the display is the form's own: no zoom change", () => {
+    assert.equal(klikPozaEkranem("przyblizony", true), null);
+  });
+  test("at the stop (not zoomed), clicks are left to the drawers and the display as before", () => {
+    assert.equal(klikPozaEkranem("przystanek", false), null);
+    assert.equal(klikPozaEkranem("przystanek", true), null);
+  });
+  test("an unknown state is an error, not a silent no-op", () => {
+    assert.throws(() => klikPozaEkranem("zly", false), RangeError);
+  });
+});
 
 const bliskie = (a, b, tol, msg) => assert.ok(Math.abs(a - b) <= tol, `${msg ?? "value"}: ${a} vs ${b} (tol ${tol})`);
 

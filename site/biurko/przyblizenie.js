@@ -23,6 +23,19 @@ export function przejscie(stan, zdarzenie, { naPrzystanku }) {
   return "przystanek";
 }
 
+/**
+ * A click while zoomed in, outside the display's live area, zooms out ("wroc"); anything else is left
+ * alone (null). In the close-up the top band of the display window, with the back button, is painted
+ * but not hit-testable in Chrome (CSS3D projection), so that click lands on the scene canvas; without
+ * this it reached the drawers and opened the laptop drawer (E8 Aneks E).
+ * @param {"przystanek" | "przyblizony"} stan
+ * @param {boolean} wEkranie the click target is inside the display element
+ */
+export function klikPozaEkranem(stan, wEkranie) {
+  if (!STANY.includes(stan)) throw new RangeError(`unknown stan: ${String(stan)}`);
+  return stan === "przyblizony" && !wEkranie ? "wroc" : null;
+}
+
 const dodaj = (a, b, s = 1) => a.map((v, i) => v + b[i] * s);
 const roznica = (a, b) => a.map((v, i) => v - b[i]);
 const iloczyn = (a, b) => a.reduce((s, v, i) => s + v * b[i], 0);
