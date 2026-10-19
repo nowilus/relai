@@ -64,7 +64,7 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
      poza repo (`dev-mods`, `%TEMP%`); „dokumenty — tylko Edit” obejmuje dopisanie na końcu
      (`cat >>` z heredokiem) i `sed -i` na wierszu tabeli; seria podmian w kodzie — kilka Edit albo
      skrypt Write, także gdy „to tylko liczby” (L-0116, L-0119, L-0135, L-0148, L-0188,
-     L-0192, L-0198, L-0210, L-0215); ścieżka w powłoce z `/`, także składana ze zmiennych
+     L-0192, L-0198, L-0210, L-0215, L-0242 — „przeszło testy” nie zwalnia z reguły); ścieżka w powłoce z `/`, także składana ze zmiennych
      w funkcji (L-0230);
      tekst zastępczy `replace` nie jest dosłowny (`` $` ``, `$&`) — cudzą treść podstawiasz funkcją,
      po wstawce porównanie ze źródłem i licznik nagłówków całego pliku (L-0211);
@@ -106,11 +106,16 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
      z rozpakowanym `<noscript>`, bo wyłączone skrypty zatrzymują też sondy DevTools (L-0238);
      płynność tylko bez innej przeglądarki na GPU, co najmniej dwa przebiegi, wynik z obciążonej
      maszyny odrzucony z liczbą (L-0239); zrzut sceny bez tekstu przez `opacity: 0` na elementach
-     z tekstem, nie `visibility` rodzica (L-0240).
+     z tekstem, nie `visibility` rodzica (L-0240); test atrybutu w szablonie kotwiczy sąsiada,
+     a po Edit szablonu idzie `diff` wygenerowanej strony (L-0243); kadry układu w Chrome bez okna
+     o zadanym rozmiarze, koniec strony z przypiętymi sekcjami pętlą `scrollTo`, nie
+     `scrollIntoView` (L-0246); warstwę HTML w transformacji 3D sprawdzasz `elementsFromPoint`
+     w siatce po całej powierzchni i w każdym stanie kamery (L-0247).
    (L-0032, L-0037, L-0054, L-0055, L-0056, L-0064, L-0068, L-0071, L-0073, L-0083, L-0084, L-0086,
    L-0087, L-0088, L-0090, L-0091, L-0095, L-0096, L-0097, L-0101, L-0102, L-0105, L-0106, L-0107,
    L-0110, L-0111, L-0113, L-0124, L-0125, L-0127, L-0130, L-0131, L-0135, L-0141, L-0143, L-0151,
-   L-0160, L-0164, L-0169, L-0170, L-0173, L-0181, L-0211, L-0213, L-0215, L-0238, L-0239, L-0240)
+   L-0160, L-0164, L-0169, L-0170, L-0173, L-0181, L-0211, L-0213, L-0215, L-0238, L-0239, L-0240,
+   L-0242, L-0243, L-0246, L-0247)
 6. **Próg jest liczbą, którą ktoś liczy:** kalibrujesz na realnych plikach, zapisujesz w jednostce
    mechanizmu z komendą sprawdzającą, z **jednym** wyzwalaczem. Porównujesz do wielkości, którą
    mechanizm kontroluje (część usuwalna); zatkanie sygnalizuje **różnica możliwego i wykonanego**,
@@ -171,8 +176,11 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
       też nim są), a stan współdzielony przez równoległe hooki powstaje atomowo (L-0189); hook
       wyzwalany narzędziem mierzysz listą narzędzi z transkryptu i licznikiem wstrzykniętego
       kontekstu — model pisze też powłoką (L-0190).
+    - **Usługi zewnętrzne:** stan ustawienia repozytorium czytasz z API (`gh api repos/<repo>/pages`),
+      nie ze zrzutu ani słowa człowieka (L-0244); obraz dla cudzej usługi w proporcji zmierzonej na
+      opublikowanym widoku, każda podmiana pod nowym adresem (L-0245).
     (L-0041, L-0042, L-0044, L-0047, L-0092, L-0133, L-0136, L-0138, L-0139, L-0146, L-0153, L-0166,
-    L-0168, L-0185, L-0189, L-0190)
+    L-0168, L-0185, L-0189, L-0190, L-0244, L-0245)
 14. **Najpierw zmiana w repozytorium, potem zdanie, które ją opisuje.** Weryfikację planujesz tam,
     gdzie wykonalna; po pytaniu sprzątasz sam; jednostką inwentarza jest sprawa, nie linia; wstawkę
     kotwiczysz do elementu, który przeżyje operację, i dowodzisz **obecności** nowej treści. Gdy
@@ -647,6 +655,61 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
   rozmiaru. Pierwsza asercja na telefonie to `innerWidth` i `scrollWidth` równe szerokości
   emulacji. Pomiar na telefonie zawsze z `mobile: true`, bo bez tego Chrome nie oddala widoku
   i usterki nie widać.
+
+### L-0242 — Skrypt edycji generatora z backtickami poszedł heredokiem (powtórzenie L-0210, L-0215) · 2026-10-18 · AKTYWNA
+
+- **Trigger:** STRONA_RELAI E8. Przenosiny stron w `site/narzedzia/zbuduj.mjs` zrobiłem skryptem
+  podanym przez heredok, a skrypt niósł szablony z backtickami. Wynik przeszedł `node --check`
+  i testy, ale reguła z `CLAUDE.md` i zasady 5 była złamana.
+- **Zasada:** skrypt z backtickiem, `\n` albo ścieżką powstaje narzędziem Write w katalogu
+  roboczym, potem `node <plik>`. „Przeszło testy” nie zwalnia z reguły: kontrola po fakcie łapie
+  tylko te przekłamania, które psują składnię.
+
+### L-0243 — Edit zjadł spację przed atrybutem i test tego nie zauważył · 2026-10-18 · AKTYWNA
+
+- **Trigger:** STRONA_RELAI E8. Po podmianie `href` w obu szablonach wyszło
+  `href="./pl/"hreflang="pl"`. Przeglądarka to toleruje, a test sprawdzał tylko wartość `href`.
+  Złapał to dopiero dowód negatywny (`diff` HTML przed i po).
+- **Zasada:** test atrybutu kotwiczy też sąsiada (`" hreflang=`), nie samą wartość. Po Edit
+  w szablonie HTML robisz `diff` wygenerowanej strony przed i po, nie tylko testy.
+
+### L-0244 — Pages „włączone” w interfejsie, a API mówi „Not Found” · 2026-10-18 · AKTYWNA
+
+- **Trigger:** STRONA_RELAI E8. Łukasz ustawił w interfejsie źródło GitHub Actions. Pierwszy
+  przebieg `strona.yml` padł na `configure-pages`: „Not Found”. Strona nie istniała, dopóki nie
+  poszło `gh api -X POST repos/nowilus/relai/pages -f build_type=workflow` (za zgodą Łukasza).
+- **Zasada:** stan ustawienia repozytorium sprawdzasz `gh api repos/<repo>/pages`, zanim
+  uruchomisz pierwsze wdrożenie. Zrzut ekranu ustawień ani słowo człowieka nie są dowodem
+  (zasada 13). Procedura jest w P-005.
+
+### L-0245 — Tally przyciął okładkę do pasa 8 : 1 i trzymał starą pod tym samym adresem · 2026-10-18 · AKTYWNA
+
+- **Trigger:** STRONA_RELAI E8, ankieta. Okładka 3 : 1 wyszła w formularzu jako wąski pas bez
+  pinezek. Okładka 2400 × 300 była już dobra, ale Tally pokazywał poprzednią, aż do zmiany adresu
+  na `naglowek.png?v=2` i ponownej publikacji.
+- **Zasada:** obraz dla cudzej usługi renderujesz w proporcji, którą usługa pokazuje, zmierzonej
+  na opublikowanym formularzu. Każda podmiana obrazu dostaje nowy adres. Wynik oglądasz w formularzu
+  publicznym, nie w edytorze.
+
+### L-0246 — Ukryty panel i `scrollIntoView` na przypiętych sekcjach sfałszowały pomiar stopki · 2026-10-18 · AKTYWNA
+
+- **Trigger:** STRONA_RELAI E8, warianty stopki. Panel przeglądarki aplikacji był ukryty i dawał
+  wąskie okno. `scrollIntoView` na sekcjach Filmu z przytrzymaniem przewijania lądował w środku
+  animacji, więc stopka „stała” gdzie indziej niż u odwiedzającego.
+- **Zasada:** kadry i pomiary układu robisz w Chrome bez okna o zadanym rozmiarze (CDP), nie
+  w ukrytym panelu (L-0214). Do końca strony z przypiętymi sekcjami dochodzisz pętlą `scrollTo`
+  do ustalenia `scrollY`, nie `scrollIntoView`.
+
+### L-0247 — Górny pas ekranu CSS3D był malowany, ale nie trafiany; „Wróć do biurka” otwierało szufladę · 2026-10-18 · AKTYWNA
+
+- **Trigger:** STRONA_RELAI E8, zgłoszenie Łukasza ze zrzutem. W przybliżeniu klik w „Wróć do
+  biurka” otwierał dialog szuflady laptopa. Błąd był od E6, na obu buildach. `elementsFromPoint`
+  w punkcie przycisku nie zwracał `.ekran`, tylko płótno sceny. Raycaster szuflad brał klik
+  dla siebie. Pięć punktów `elementFromPoint` z E3 tego pasa nie obejmowało.
+- **Zasada:** warstwę HTML w transformacji 3D sprawdzasz `elementsFromPoint` w siatce punktów
+  po całej powierzchni, w każdym stanie kamery, z kontrolą punktu poza nią. Klik w stanie
+  modalnym (przybliżenie) rozstrzyga jeden słuchacz w fazie przechwytywania, zanim dojdzie do
+  słuchaczy sceny. Dowód poprawki: prawdziwy klik myszą przez CDP na buildzie przed i po.
 
 ## Lekcje zwinięte
 

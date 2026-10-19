@@ -1,7 +1,7 @@
 # site/ — strona-wizytówka RelAI
 
 Statyczna strona po polsku (`pl/`) i angielsku (korzeń), bez bundlera i bez zależności npm.
-Plan: [docs/plany/STRONA_RELAI](../docs/plany/STRONA_RELAI/STATUS.md). Brief prototypu „Biurko”:
+Plan (zamknięty 2026-10-18): [docs/archiwum/plany/STRONA_RELAI](../docs/archiwum/plany/STRONA_RELAI/STATUS.md). Brief prototypu „Biurko”:
 [docs/zasoby/STRONA/builds/biurko/BRIEF.md](../docs/zasoby/STRONA/builds/biurko/BRIEF.md).
 
 ## Co gdzie leży

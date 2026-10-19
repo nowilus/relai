@@ -392,42 +392,42 @@ testy), sprawdzane przez Ciebie przed przyjęciem z kontrolą pozytywną. Cało�
 Każdy punkt Weryfikacji, który przeszedł, odhaczasz w `PROMPT_ETAP_8.md` (`- [ ]` → `- [x]`)
 zaraz po jego sprawdzeniu, nie na końcu etapu; punkt, który nie przeszedł, zostaje pusty.
 
-- [ ] Bramki z pkt 1 rozstrzygnięte przez Łukasza, odpowiedzi zacytowane we wpisie; w `STATUS.md` status
+- [x] Bramki z pkt 1 rozstrzygnięte przez Łukasza, odpowiedzi zacytowane we wpisie; w `STATUS.md` status
       `ROZSTRZYGNIĘTA <data> — <jak>`; karta zgody na usługę ankiety pokazana przed użyciem.
-- [ ] `node --test "site/**/*.test.mjs"` bez błędów, liczba testów ≥ 299 (E6, `FAKT`) plus nowe; kontrola
+- [x] `node --test "site/**/*.test.mjs"` bez błędów, liczba testów ≥ 299 (E6, `FAKT`) plus nowe; kontrola
       pozytywna: strona z podmienioną wersją wpieczoną wywraca nową kontrolę wersji.
-- [ ] Budowa deterministyczna: `fakty.mjs`, `makiety.mjs`, `zbuduj.mjs` dwukrotnie — drugi przebieg
+- [x] Budowa deterministyczna: `fakty.mjs`, `makiety.mjs`, `zbuduj.mjs` dwukrotnie — drugi przebieg
       „bez zmian” dla czterech stron, zero `{{`/`}}`.
-- [ ] **Strony nietknięte poza `<head>` i stopką (dowód negatywny):** `git diff` czterech stron po budowie
+- [x] **Strony nietknięte poza `<head>` i stopką (dowód negatywny):** `git diff` czterech stron po budowie
       zawiera wyłącznie `hreflang`, `canonical` i dopisaną stopkę/przełącznik; sumy `site/biurko/*`,
       `site/film/*` (bez szablonów), `site/vendor/**`, `site/zasoby/**` zapisane na starcie i porównane na
       końcu — zero różnic; kontrola pozytywna: dopisana spacja w jednym z plików daje jedną różnicę.
-- [ ] `hreflang` i `canonical`: na czterech stronach adresy absolutne z jednej stałej; Lighthouse SEO
+- [x] `hreflang` i `canonical`: na czterech stronach adresy absolutne z jednej stałej; Lighthouse SEO
       lokalnie bez błędu `hreflang`; dostępność nadal 100 dla `/`, `/pl/`, `/film/`, `/pl/film/` (desktop
       i telefon; EN z `localStorage['relai-jezyk']='en'`).
-- [ ] Stopka i przełącznik: kadry przed i po (1366 i 390, PL i EN, obie wersje) z werdyktem Łukasza;
+- [x] Stopka i przełącznik: kadry przed i po (1366 i 390, PL i EN, obie wersje) z werdyktem Łukasza;
       `scrollWidth` ≤ szerokości okna, wysokość sekcji instalacji zmieniona najwyżej o wysokość nowej linii;
       tryb bez sceny Biurka i wersja bez JS pokazują przełącznik i ankietę.
-- [ ] Workflow: plik przechodzi przegląd składni (`actionlint` albo ręczna lista kroków we wpisie);
+- [x] Workflow: plik przechodzi przegląd składni (`actionlint` albo ręczna lista kroków we wpisie);
       każda akcja przypięta pełnym SHA (`grep -E "uses: [^@]+@[0-9a-f]{40}"` trafia każdą linię `uses:`,
       kontrola pozytywna na podłożonym `@v4`); uprawnienia minimalne; zero sekretów
       (`git grep -nE "(api[_-]?key|token|secret)\s*[:=]"` na `.github/` bez trafień).
-- [ ] Podstawy bezpieczeństwa na zmianie etapu (projekt bez zależności, więc audytu zależności nie ma):
+- [x] Podstawy bezpieczeństwa na zmianie etapu (projekt bez zależności, więc audytu zależności nie ma):
       grep `innerHTML|outerHTML|insertAdjacentHTML|document.write` na `site/js site/biurko site/film`
       bez testów kończy się kodem 1, z testami trafia `site/js/wersja.test.mjs`; nowe linki zewnętrzne
       z `rel="noopener"` przy `target="_blank"`; formularz konfiguratora dalej bez `action` i `method`.
-- [ ] Krok „strona” w P-005 i w `site/README.md` opisany tak, jak został wykonany w tym etapie (komendy
+- [x] Krok „strona” w P-005 i w `site/README.md` opisany tak, jak został wykonany w tym etapie (komendy
       uruchomione dosłownie, L-0002).
-- [ ] Pierwsze wdrożenie (jeśli zgoda padła): przebieg workflow zielony (link do przebiegu we wpisie),
+- [x] Pierwsze wdrożenie (jeśli zgoda padła): przebieg workflow zielony (link do przebiegu we wpisie),
       cztery adresy publiczne odpowiadają 200; na każdej `h1` 1, wersje równe `.claude-plugin/marketplace.json`,
       konsola bez błędów, żądania tylko do `nowilus.github.io` i `api.github.com`. Bez zgody — punkt
       opisany z warunkiem wykonalności (Pages włączone, zgoda), nie odhaczony.
-- [ ] Próba `claude-cli://` na żywo (bramka): wynik opisany (otworzyło się / co pokazało / komunikat po
+- [x] Próba `claude-cli://` na żywo (bramka): wynik opisany (otworzyło się / co pokazało / komunikat po
       1,5 s bez Claude Code); bez prawdziwego Chrome z Claude Code — bramka zostaje OTWARTA z warunkiem.
-- [ ] Link w `README.md` dopiero po udanym wdrożeniu; adresy w nim otwarte i równe tym z wpisu.
-- [ ] Wpis w `docs/DZIENNIK.md` na końcu sekcji „Wpisy”, podpis `Autor: RelAI (Opus 5.5) + Lukasz`; ryzyka
+- [x] Link w `README.md` dopiero po udanym wdrożeniu; adresy w nim otwarte i równe tym z wpisu.
+- [x] Wpis w `docs/DZIENNIK.md` na końcu sekcji „Wpisy”, podpis `Autor: RelAI (Opus 5.5) + Lukasz`; ryzyka
       T1, T2, T3 przejrzane (T2 i ankieta), `docs/STATE.md` zaktualizowany.
-- [ ] Katalog roboczy `.claude/relai/work/STRONA_RELAI/E8/` przejrzany raportem
+- [x] Katalog roboczy `.claude/relai/work/STRONA_RELAI/E8/` przejrzany raportem
       (`node .claude/relai/tools/clean-work.js raport`) i skasowany po „tak”; liczby przed i po w sekcji
       „Zweryfikowane” wpisu. Artefakty poza katalogiem (serwery podglądu w tle, profile Chrome
       `%TEMP%/relai-*`, strony DevTools) wypisane z nazwy razem z tym, co się z nimi stało.

@@ -10,6 +10,10 @@
 zostają w plikach obok kodu, a nie w kontekście sesji, który za chwilę zniknie. Nowa sesja zaczyna
 od przeczytania, gdzie naprawdę jest praca, zamiast pytać Cię od nowa.
 
+**Strona:** [nowilus.github.io/relai](https://nowilus.github.io/relai/) w dwóch wersjach — jako
+[film](https://nowilus.github.io/relai/pl/) i jako [biurko 3D](https://nowilus.github.io/relai/pl/biurko/).
+Która lepiej pokazuje, czym jest RelAI? [Ankieta, 1 minuta](https://tally.so/r/BE4lQ5?wersja=readme&jezyk=pl).
+
 ## Instalacja i pierwsze kroki
 
 **Claude Code** — dwie komendy w terminalu, raz na maszynę:

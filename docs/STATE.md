@@ -1,6 +1,6 @@
 # STATE — RelAI
 
-Stan na: 2026-10-18 (STRONA_RELAI E6 zrealizowany — Biurko ma całą drogę: szczyt, szuflady, telefon, zasłona, plakat bez sceny; następny E8 publikacja obu wersji z ankietą; wcześniej E7 Film 2026-10-17, WYGLAD_PANELU zamknięty 2026-10-15)
+Stan na: 2026-10-18 (plan STRONA_RELAI ZREALIZOWANY — strona opublikowana na https://nowilus.github.io/relai/ w dwóch wersjach, Film i Biurko, z ankietą w Tally; poprawka Aneksu E czeka na push; WYGLAD_PANELU zamknięty 2026-10-15)
 
 ## Gdzie jesteśmy
 
@@ -15,7 +15,8 @@ postępu jako lista kroków — plan WYGLAD_PANELU; 2026-10-14: pasek mówi uczc
 KOMUNIKAT_ZWROTU; paski i panel w każdym panelu podziału okna, linia w stopce wycofana — odnoga
 SPLIT_VIEW, P-040 rozwiązana; panel bez rozjazdów w wąskim panelu podziału — odnoga PANEL_WASKI,
 0.18.0).
-Aktywny plan: STRONA_RELAI (zaakceptowany 2026-10-16, E1–E5 zrealizowane tego dnia, Aneksy A–D, E7 „Dopieszczenie Filmu” zrealizowany 2026-10-17, E6 Biurko zrealizowany 2026-10-18, E8 Publikacja gotowy do startu); równolegle PANEL_CODEX (E1 w toku, prowadzony w Codeksie). WYGLAD_PANELU zamknięty 2026-10-15
+Aktywny plan: PANEL_CODEX (E1 w toku, prowadzony w Codeksie). STRONA_RELAI zamknięty 2026-10-18
+po E8 (8/8, Aneksy A–E). WYGLAD_PANELU zamknięty 2026-10-15
 po E5 (wydanie panelu 0.20.0 / 0.11.0); HUMANIZACJA zamknięty 2026-10-14 wydaniem 3.1.0. Opinii spoza projektu nadal nie ma.
 
 ## Co działa
@@ -93,66 +94,20 @@ po E5 (wydanie panelu 0.20.0 / 0.11.0); HUMANIZACJA zamknięty 2026-10-14 wydani
   punktem w natywnym dymku, baterie w równej siatce, wiersz kontekstu „użyte / okno · %” z kreską
   progu auto-compactu liczonego jak kompaktowanie (P-046) — `relai-panel` 0.20.0 /
   `relai-cache-keeper` 0.11.0. Zasady wyglądu: [DESIGN.md](zasoby/PANEL_RELAI/DESIGN.md) 1.3.
+- **Strona-wizytówka** ([plan STRONA_RELAI](archiwum/plany/STRONA_RELAI/STATUS.md), zamknięty
+  2026-10-18, 8 etapów, Aneksy A–E): https://nowilus.github.io/relai/ w dwóch wersjach do
+  porównania. **Film** (`/`, `/pl/`) to sześć aktów rysowanych kodem na scroll-craft 0.3.1, 0,317 MiB.
+  **Biurko** (`/biurko/`, `/pl/biurko/`) to scena 3D w three.js 0.186.1 z modeli CC0, 9,52 MiB:
+  szczyt, cztery szuflady, konfigurator na ekranie laptopa, plakat bez WebGL, ograniczony ruch i bez
+  JS. Obie mają konfigurator instalacji z linkami `claude-cli://` (sprawdzone na żywo) i ankietę
+  w Tally: PL https://tally.so/r/BE4lQ5, EN https://tally.so/r/X5lkMj, z ukrytymi polami `wersja`
+  i `jezyk`. Wdrożenie robi `.github/workflows/strona.yml` po pushu na `main` (ścieżki `site/**`
+  i `marketplace.json`) i po wydaniu. Test pilnuje, żeby wersje w stronie były równe
+  `marketplace.json`. Krok „strona” po podbiciu wersji jest w P-005. Budowa i publikacja:
+  [site/README.md](../site/README.md). Testy 319, Lighthouse 100 w ośmiu pomiarach.
 
 ## Nad czym pracujemy teraz
 
-- **STRONA_RELAI — strona-wizytówka RelAI** (plan [STRONA_RELAI](plany/STRONA_RELAI/STATUS.md),
-  ZAAKCEPTOWANY 2026-10-16, E1–E5 ZREALIZOWANE 2026-10-16, Aneksy A–D 2026-10-16, E7 „Dopieszczenie
-  Filmu” ZREALIZOWANY 2026-10-17, E6 Biurko ZREALIZOWANY 2026-10-18, E8 Publikacja GOTOWY DO STARTU (Aneks D), 8 etapów, Opus 5.5 z do trzech subagentów Sonnet 5.5). Po co: one-pager PL/EN na GitHub Pages ze skillem scroll-craft,
-  konfigurator instalacji z deep linkami do Claude Code, wersja z wydań GitHuba. Dwa prototypy do
-  porównania — „Biurko” (scena 3D w three.js) i „Film” — potem wybór, dopracowanie i publikacja.
-  **Stan strony po E1:** `site/` — hero „Biurka” zaakceptowany przez Łukasza (kadry w
-  `docs/zasoby/STRONA/builds/biurko/kalibracja/`), droga przez 7 przystanków zgrubnie, mapa
-  z klawiatury, konfigurator jako HTML na ekranie laptopa, wersja bez WebGL, PL pod `pl/` i EN
-  w korzeniu; three.js 0.186.1 w `site/vendor/three/` (433 KB gzip). Budowa:
-  `node site/narzedzia/fakty.mjs`, `node site/narzedzia/zbuduj.mjs`, testy
-  `node --test "site/**/*.test.mjs"` (91); podgląd lokalny dowolnym serwerem statycznym z korzeniem
-  `site/` ([site/README.md](../site/README.md)). Strona nie jest opublikowana (Pages wyłączone, E8).
-  **Stan po E2 (2026-10-16):** scena zbudowana od nowa z 62 plików CC0 (7 modeli Poly Haven, deski
-  orzechowe, tynk i korek w 2K, HDRI; wykaz z sumami `site/zasoby/ZRODLA.json`, test rejestru), do
-  tego w kodzie laptop z klawiaturą QWERTY, kubek z kamionki, tablica w ramie z orzecha i miasto za
-  oknem; cienie kontaktowe i głębia ostrości; ładowanie dwuetapowe. Pierwsze wejście 9,0 MiB
-  z kompresją (pułap 10 MB, Aneks B), CPU ×4 p95 16,7 ms; testy 98. Jak dodać zasób i zmierzyć
-  budżet — `site/README.md`. Obrazy GPT image są tylko wzorcem (`referencje/`), nigdy na stronie.
-  **Aneks B:** E3 laptop jako prawdziwy ekran, książki; E4 path tracing na postoju kamery; dawne
-  E3–E6 → E5–E8 (szczyt i szuflady w E5).
-  **Stan po E3 (2026-10-16):** konfigurator to okno aplikacji wpasowane w matrycę laptopa
-  (≤ 0,04 px), z równą ramką szkła, uszczelką, pasem aluminium i chłodną poświatą na klawiaturze;
-  klik albo Enter przybliża ekran do 90 % kadru, Esc, przewinięcie wstecz i „Wróć do biurka”
-  oddalają; formularz jest poza `aria-hidden` i dostępny z klawiatury w trybie 3D, a przy awarii
-  sceny wraca do treści. Książki od nowa (płótno, zaokrąglone grzbiety, tytuły). 9,11 MiB,
-  CPU ×4 p95 22,2 ms, testy 162. Kalibracja przyjęta przez Łukasza.
-  **Stan po E4 (2026-10-16, Aneks C):** path tracing zbudowany, zmierzony i odrzucony — Łukasz nie
-  widział uzysku (realizm wzorców to detal i tekstury, nie światło), a pierwsza wizyta blokowała
-  stronę ok. 8 s; zależności nie ma. Zostaje test detalu: blat `wood_table_worn`, dokumenty z drukiem
-  i dopiskami, cienki lakier, lampa przygaszona, ciemniejsze tło, stopka „Instalacji” na szkle.
-  9,49 MiB, CPU ×4 p95 17,5 ms, testy 162. Następny E5 — Film z planu (grafika z kodu, ekran
-  ładowania), potem bramka „Biurko czy Film”; pełna droga Biurka (E6) tylko przy jego wyborze.
-  **Stan po E5 (2026-10-16, Aneks D):** prototyp Film pod `site/film/` (EN) i `site/pl/film/` (PL).
-  Sześć aktów rysowanych kodem na silniku scroll-craft 0.3.1 (`site/vendor/scrollcraft/`, kopia
-  bajt w bajt, MIT). Szczyt: karteczki lecą do dokumentów i stają się drukiem. Okno prostuje się
-  do pasków zrobionych według zrzutu aplikacji, dalej taśma 15 fiszek i instalacja z reflektorem.
-  Ekran ładowania zasłania stany pośrednie (limit 4 s). Film: 0,31 MiB, CPU ×4 p95 5,6 ms, hero
-  po ok. 1,1 s przy zimnym wejściu na Fast 4G. Testy 229. Bramka: najpierw dopieszczenie Filmu
-  (E7), potem pełna droga i dopieszczenie Biurka (E6), na końcu E8 publikuje obie wersje
-  równolegle z ankietą; adresy i narzędzie ankiety Łukasz rozstrzyga przed E8.
-  **Stan po E7 (2026-10-17):** zasada ruchu Filmu zmieniona przez Łukasza: jedna animacja na
-  sekcję (2a, 2b, 3, 4, 6), reset po zejściu z ekranu, przewijanie w dół czeka do końca animacji;
-  szczyt to najdłuższa animacja (3,5 s); komendy zostają przesuwem w bok z wyeksponowaną fiszką;
-  reflektor usunięty. Telefon ma osobną kompozycję, a instalację zastępuje tam karta „Wyślij sobie
-  link” / „Kopiuj komendy”. Przy ograniczonym ruchu i bez skryptów wszystko stoi w stanie
-  końcowym, taśma jako siatka. Lighthouse dostępność 100 (PL/EN, desktop/telefon), 0,317 MiB,
-  CPU ×4 p95 16,7 ms, testy 259. Następny E6 — pełna droga Biurka z dopieszczeniem (telefon,
-  ograniczony ruch, plakat bez WebGL, ekran ładowania).
-  **Stan po E6 (2026-10-18):** Biurko ma całą drogę. Szczyt: zwykłe przewijanie bez blokad,
-  Amnezja i szczyt jedną sceną, karteczki układają się w cztery dokumenty w 3 s. Przystanki Plan
-  (otwarta teczka), Panel i Komendy przyjęte, mapa jako oś w nagłówku. Cztery szuflady
-  (`<dialog>`) otwiera klik w obiekt albo link na osi. Telefon ma pozy pionowe i kartę „Wyślij
-  sobie link”. Zasłona z karteczkami schodzi po obu etapach zasobów. Ograniczony ruch, brak
-  WebGL2, grafika programowa i brak JS dają treść w przepływie z plakatem hero
-  (`site/grafika/plakat/`, odtwarzany `node site/narzedzia/plakat.mjs`). 9,52 MiB, CPU ×4 p95
-  ≤ 25,2 ms, Lighthouse dostępność 100, testy 299. Następny E8 — publikacja obu wersji z ankietą;
-  przed nim trzy bramki człowieka (adresy i ankieta, GitHub Pages, `claude-cli://` na żywo).
 - **PANEL_CODEX, E1 — przejęcie rdzenia i natywny panel w Codeksie** (plan
   [PANEL_CODEX](plany/PANEL_CODEX/STATUS.md), ZAAKCEPTOWANY 2026-10-10, 8 etapów, autor
   i wykonawca `gpt-6.1-sol` w Codeksie, Aneks A — 16 pól kontraktu — zaakceptowany). Po co: ten sam
@@ -166,6 +121,13 @@ po E5 (wydanie panelu 0.20.0 / 0.11.0); HUMANIZACJA zamknięty 2026-10-14 wydani
 
 ## Co dalej
 
+- **Push poprawki Aneksu E** („Wróć do biurka” w przybliżeniu otwierało szufladę laptopa) — do
+  czasu wdrożenia strona publiczna ma ten błąd.
+- **Strona — sprawy świadomie otwarte przy zamknięciu STRONA_RELAI (2026-10-18):** odczyt ankiety
+  i wybór kierunku strony (Aneks D pkt 3; dopiero po nim wspólny moduł Filmu i Biurka); pomiar
+  Biurka na słabszym laptopie albo zintegrowanej karcie (T1, procedura w `site/README.md`;
+  od wyniku zależy drugi bezpiecznik 3B); przegląd tekstów EN przez native speakera. Drobne: karta
+  „Zacznij tutaj” Biurka nachodzi na laptop przy 1024 px, logo zasłony Filmu ładuje się po SVG.
 - Wątek samodzielny [FILM_TESTY_V3](fixy/FILM_TESTY_V3/ODNOGA.md) (przeniesiony z planu
   HUMANIZACJA 2026-10-14): testy faktów i pasków filmu 3.0.0 przypięte do commitu wydania, start
   w świeżej sesji promptem z karty.

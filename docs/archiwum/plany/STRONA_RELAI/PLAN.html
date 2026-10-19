@@ -477,6 +477,11 @@ footer .pis{font-family:var(--pis); font-size:1.2rem; color:var(--glina); margin
   <p><strong>2. Kolejność etapów.</strong> Po E5 rusza <strong>E7</strong>, czyli dopieszczenie Filmu w zakresie z sekcji 6 i Aneksu C pkt 4. Potem <strong>E6</strong>: pełna droga Biurka, szczyt i szuflady, a do tego krótkie dopieszczenie Biurka w zakresie E7 (telefon, ograniczony ruch, plakat bez WebGL, ekran ładowania). Na końcu <strong>E8</strong>. Numery etapów zostają, zmienia się tylko kolejność.</p>
   <p><strong>3. E8 publikuje obie wersje</strong> równolegle i zbiera ankietę wśród odwiedzających. Ostateczny wybór kierunku zapada po wynikach ankiety i nie należy do tego planu. Adresy obu wersji i narzędzie ankiety rozstrzyga Łukasz przed E8 (nowa pozycja w sekcji 9).</p>
   <p><strong>4. Suma:</strong> 15–23 sesje SZACUNEK. E6 rośnie o 1–2 sesje na dopieszczenie Biurka.</p>
+
+  <h3>Aneks E · 2026-10-18 — poprawka „Wróć do biurka” w ramach E8</h3>
+  <p><strong>Powód.</strong> Po publikacji Łukasz zgłosił, że w przybliżeniu laptopa przycisk „Wróć do biurka” otwiera szufladę „Paski nad promptem” zamiast oddalić widok. Błąd jest na stronie publicznej z ankietą, a odtwarza się identycznie na stanie sprzed E8, czyli wszedł najpóźniej w E6 (FAKT, prawdziwe kliknięcia myszy przez protokół DevTools). Przyczyna (FAKT, pomiar <code>elementsFromPoint</code>): górny pas okna na ekranie, z przyciskiem, Chrome rysuje, ale nie testuje w nim trafień (rzutowanie CSS3D przy bliskiej kamerze, granica ukośna 57–68 px). Kliknięcie trafia więc w canvas sceny, a ten od E6 otwiera szufladę obiektu.</p>
+  <p><strong>1. Zakres E8 rośnie o poprawkę.</strong> Wybór Łukasza: „Poprawka teraz, aneks do E8 (Rekomendowane)” zamiast odnogi albo odłożenia. W przybliżeniu kliknięcie poza żywym obszarem ekranu oddala widok jak „Wróć do biurka” i nie otwiera szuflady. Wygląd się nie zmienia. Zmiana obejmuje <code>site/biurko/przyblizenie.js</code> (czysta funkcja <code>klikPozaEkranem</code>) i <code>site/biurko/warstwa.js</code> (nasłuch w fazie przechwytywania), z testem.</p>
+  <p><strong>2. Weryfikacja.</strong> Test czerwony przed kodem, zielony po. Przebieg na żywo z kodem starym i nowym obok siebie: stary otwiera <code>szuflada-laptop</code>, nowy oddala widok bez dialogu.</p>
 </section>
 
 <footer>

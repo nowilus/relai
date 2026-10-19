@@ -25,10 +25,10 @@
 | C11 | Pliki pomiarów puchną albo trafiają do gita (plan PANEL_CLAUDE, ryzyko R5) | **Niski** (2026-10-08 po E3) | **OTWARTE ŚWIADOMIE** | `.claude/relai/` poza gitem (sprawdzone `git check-ignore`), plik na sesję, rekord bez treści (~250 B); E4: plik scaleń `.claude/relai/panel/scalenia.json` też poza gitem (`git check-ignore`), rekord dłuższy o dwa pola; E6: `.claude/relai/panel/cennik.json` (wersje cennika) poza gitem (`git check-ignore`), jedna wersja na zapis z karty; otwarte: sprzątanie starych plików nie istnieje — do E7 E7 (decyzja człowieka 2026-10-09): sprzątanie świadomie odłożone — zmierzone 5 plików, 260 KB po dwóch dniach intensywnej pracy; „Koszty projektu” sumują wszystkie pliki, więc kasowanie zmieniłoby sumę. Próg powrotu: folder `.claude/relai/pomiary/` powyżej 10 MB. |
 | L1 | `percentUsed` limitu odświeża się tylko z odpowiedzią API — długa tura subagentów przekroczy próg, a karta przyjdzie po fakcie (plan LIMIT_CHECKPOINT, ryzyko L1) | **Średni** (2026-10-11 po E2; wcześniej wysoki) | **ZMITYGOWANE 2026-10-12** (zamknięcie planu; ograniczenie silnika — procent tylko z odpowiedzią API) | E2: `session.measure` w trakcie tury przestawia kolor baterii od razu, karta przychodzi po `turn.complete` z procentem odczytanym po turze (test „past the threshold in the middle of a turn”); otwarte, bo procent nadal przychodzi tylko z odpowiedzią API, więc długa tura może przekroczyć próg o kilka punktów, zanim karta padnie. |
 | H9 | Tryb ciągły „dokumenty” nie widzi zapisu, którego nie rozpozna — `sed -i`, skrypt, podproces, `>(tee …)` — i dokument zostaje bez humanizacji (plan HUMANIZACJA, pomiar E5) | **Niski** (2026-10-14, przy zamknięciu planu) | **OTWARTE ŚWIADOMIE** | Aneks C: hook po Write/Edit i po Bash z przekierowaniem `>` / `>>` albo `tee`; w pomiarze E5 model pisał wyłącznie tymi drogami (8/8 przed poprawką, 2/2 po niej z regułą). Pominięcie kończy się ciszą, nigdy złą regułą; komenda `/relai-humanize` na pliku działa niezależnie od trybu ciągłego. |
-| T1 | Scena 3D strony tnie się na słabszym laptopie albo zintegrowanej grafice (plan STRONA_RELAI, ryzyko 1) | **Średni** (2026-10-18 po E6; wcześniej wysoki) | **OTWARTE** | E1: render na żądanie, DPR ≤ 1,5, obniżenie jakości przy medianie > 26 ms. E2 (scena CC0, AO, głębia ostrości): przy CPU ×4 mediana 11,1 ms, p95 16,7 ms, 913 wywołań rysowania na klatkę po scaleniu miasta (przed: 2206, p95 22,3 ms); obniżanie jakości zaczyna od głębi ostrości. E3 (poświata ekranu RectAreaLight, nowe książki): przy CPU ×4 przewijanie mediana 11,9 ms, p95 22,2 ms — p95 wzrosło o 5,5 ms, zapas do 26 ms już tylko 3,8 ms; przybliżanie p95 13,1 ms; najwięcej 907 wywołań rysowania na klatkę. Zmierzone tylko na RTX 4070 Ti. E4 (bez path tracingu, przygaszona lampa, lakier blatu): CPU ×4 mediana 11,3 ms, p95 17,5 ms, najwięcej 910 wywołań rysowania. Otwarte: słaba grafika w E7. E5 (Film, bez WebGL): przy CPU ×4 mediana 5,6 ms, p95 5,6 ms, najdłuższa klatka 28,7 ms, więc Filmu ryzyko nie dotyczy. Aneks D: Biurko też idzie do publikacji, dlatego poziom zostaje wysoki do pomiaru na słabej grafice w E6. E7 (Film z animacjami WAAPI i przytrzymaniem): CPU ×4 mediana 11,1 ms, p95 16,7 ms na desktopie i w emulacji telefonu — Filmu nadal nie dotyczy; poziom bez zmiany przez Biurko. E6: SwiftShader (grafika programowa) 1366 × 768 mediana 1 700 → 1 183 → 817 ms po krokach obniżania, 390 × 844 1 033 → 867 → 433 → 283 ms; wyłącznik `biurko/grafika.js` daje takiej przeglądarce plakat (werdykt Łukasza 3A), brak WebGL2 i ograniczony ruch też. RTX przy CPU ×4: p95 przewijania 20,6–25,2 ms desktop, 15,4–16,3 ms telefon. Otwarte: zintegrowana karta niezmierzona (bramka „pomiar na słabszym laptopie”); drugi bezpiecznik (plakat po wyczerpaniu kroków jakości, opcja 3B) świadomie niewdrożony. |
-| T2 | Biurko wygląda jak tani render albo glina z AI (plan STRONA_RELAI, ryzyko 2) | **Średni** (2026-10-18 po E6; wcześniej wysoki) | **OTWARTE** | E2: modele i tekstury CC0, deski orzechowe ze słojami, miasto za oknem, kubek i tablica od nowa; kalibracja w czterech rundach, zamknięcie za zgodą Łukasza, ale „nadal jesteśmy całkiem daleko” od obrazów 01–08 — przyczyna: brak światła odbitego w rasteryzacji (L-0220). Aneks B: E3 laptop i detale, E4 path tracing na przystankach. E4 (2026-10-16): światło odbite nie dało uzysku — przyczyną dystansu jest detal przedmiotów, tekstur i kompozycja, nie światło (L-0226); test detalu (blat `wood_table_worn`, druk na dokumentach, ciemniej) dał umiarkowany zysk. Aneks C: następny jest Film, Biurko po bramce. E5: Film rysowany kodem, hero przyjęte w trzeciej rundzie („Tak, przyjmuję”). Bramka z Aneksem D: najpierw dopieszczenie Filmu (E7), potem pełna droga Biurka (E6), publikacja obu z ankietą. Dla Biurka ryzyko zostaje wysokie. E7: Film dopieszczony i przyjęty akt po akcie („Tak, przyjmuję”), dotyczy już tylko Biurka (E6). E6: każdy przystanek, szczyt, mapa, szuflady, telefon, zasłona i plakat przyjęte przez Łukasza na kadrach przed i po; kontrola odczuć zgodna z krzywą briefu (4A). Otwarte do ankiety po publikacji (E8): czy odwiedzający odbierają Biurko jako dopracowane. |
-| T3 | Modele CC0 z różnych źródeł nie zgrywają się stylem i skalą; strona za ciężka (plan STRONA_RELAI, Aneks A pkt 6) | **Niski** (2026-10-16 po E2; wcześniej średni) | **OTWARTE** | E2: wspólne HDRI, skala w metrach, barwy modeli przyciemnione do sceny — Łukasz nie zgłaszał niespójności stylu; ciężar 9,0 MB z kompresją (FAKT), zestaw hero 4,5 MB, pułap podniesiony do 10 MB decyzją Łukasza (Aneks B). E4: 9,49 MiB (+0,38 MiB — blat `wood_table_worn` ma więcej szczegółu); path tracera nie ma. E5: Film 0,31 MiB po kompresji (33 pliki, FAKT), ten sam instrument; ciężar dotyczy tylko Biurka. E7: Film 0,317 MiB (35 plików, FAKT). E6: Biurko 9,522 MiB, 118 plików (start etapu 9,493 MiB, ten sam instrument); plakaty 0,17 MiB pobierane tylko bez sceny; ograniczony ruch i słaba grafika nie pobierają sceny wcale. |
-| T6 | Ekran HTML na laptopie rozjeżdża się ze sceną 3D przy przybliżeniu (plan STRONA_RELAI, Aneks B pkt 5) | **Niski** (2026-10-16 po E3; wcześniej średni) | **ZAMKNIĘTE 2026-10-18** | Zrzuty w trzech rozdzielczościach, test trafienia kliknięciem (`elementFromPoint`) w każdym położeniu przybliżenia; w E3. E3: HTML położony dokładnie na siatce (bez przesunięcia w głąb), różnica narożników ≤ 0,04 px przy 1366 i 1920, PL i EN, na przystanku i w przybliżeniu; `elementFromPoint` 5/5; poza przybliżenia testowana dla 16:9, 16:10 i 4:3. Otwarte: telefon i wąskie okno. E7 dopieścił telefon tylko w Filmie (osobna kompozycja ≤ 600 px, `scrollWidth` = 390 w każdym akcie); telefon Biurka przeszedł do E6 (Aneks D pkt 2). E6: telefon Biurka ma pozy pionowe i kartę „Wyślij sobie link” zamiast ekranu z konfiguratorem; `scrollWidth` = 390 na każdym przystanku i przy każdej otwartej szufladzie, PL i EN; usterka oddalenia przed `tryb-3d` naprawiona (L-0241). Zamknięte. |
+| T1 | Scena 3D strony tnie się na słabszym laptopie albo zintegrowanej grafice (plan STRONA_RELAI, ryzyko 1) | **Średni** (2026-10-18 po E6; wcześniej wysoki) | **OTWARTE** | E1: render na żądanie, DPR ≤ 1,5, obniżenie jakości przy medianie > 26 ms. E2 (scena CC0, AO, głębia ostrości): przy CPU ×4 mediana 11,1 ms, p95 16,7 ms, 913 wywołań rysowania na klatkę po scaleniu miasta (przed: 2206, p95 22,3 ms); obniżanie jakości zaczyna od głębi ostrości. E3 (poświata ekranu RectAreaLight, nowe książki): przy CPU ×4 przewijanie mediana 11,9 ms, p95 22,2 ms — p95 wzrosło o 5,5 ms, zapas do 26 ms już tylko 3,8 ms; przybliżanie p95 13,1 ms; najwięcej 907 wywołań rysowania na klatkę. Zmierzone tylko na RTX 4070 Ti. E4 (bez path tracingu, przygaszona lampa, lakier blatu): CPU ×4 mediana 11,3 ms, p95 17,5 ms, najwięcej 910 wywołań rysowania. Otwarte: słaba grafika w E7. E5 (Film, bez WebGL): przy CPU ×4 mediana 5,6 ms, p95 5,6 ms, najdłuższa klatka 28,7 ms, więc Filmu ryzyko nie dotyczy. Aneks D: Biurko też idzie do publikacji, dlatego poziom zostaje wysoki do pomiaru na słabej grafice w E6. E7 (Film z animacjami WAAPI i przytrzymaniem): CPU ×4 mediana 11,1 ms, p95 16,7 ms na desktopie i w emulacji telefonu — Filmu nadal nie dotyczy; poziom bez zmiany przez Biurko. E6: SwiftShader (grafika programowa) 1366 × 768 mediana 1 700 → 1 183 → 817 ms po krokach obniżania, 390 × 844 1 033 → 867 → 433 → 283 ms; wyłącznik `biurko/grafika.js` daje takiej przeglądarce plakat (werdykt Łukasza 3A), brak WebGL2 i ograniczony ruch też. RTX przy CPU ×4: p95 przewijania 20,6–25,2 ms desktop, 15,4–16,3 ms telefon. Otwarte: zintegrowana karta niezmierzona (bramka „pomiar na słabszym laptopie”); drugi bezpiecznik (plakat po wyczerpaniu kroków jakości, opcja 3B) świadomie niewdrożony. E8 (2026-10-18): Biurko opublikowane pod `/biurko/` bez zmian w scenie; plan STRONA_RELAI zamknięty, bramka „pomiar na słabszym laptopie” świadomie otwarta poza planem (`docs/STATE.md`, „Co dalej”). |
+| T2 | Biurko wygląda jak tani render albo glina z AI (plan STRONA_RELAI, ryzyko 2) | **Średni** (2026-10-18 po E6; wcześniej wysoki) | **OTWARTE** | E2: modele i tekstury CC0, deski orzechowe ze słojami, miasto za oknem, kubek i tablica od nowa; kalibracja w czterech rundach, zamknięcie za zgodą Łukasza, ale „nadal jesteśmy całkiem daleko” od obrazów 01–08 — przyczyna: brak światła odbitego w rasteryzacji (L-0220). Aneks B: E3 laptop i detale, E4 path tracing na przystankach. E4 (2026-10-16): światło odbite nie dało uzysku — przyczyną dystansu jest detal przedmiotów, tekstur i kompozycja, nie światło (L-0226); test detalu (blat `wood_table_worn`, druk na dokumentach, ciemniej) dał umiarkowany zysk. Aneks C: następny jest Film, Biurko po bramce. E5: Film rysowany kodem, hero przyjęte w trzeciej rundzie („Tak, przyjmuję”). Bramka z Aneksem D: najpierw dopieszczenie Filmu (E7), potem pełna droga Biurka (E6), publikacja obu z ankietą. Dla Biurka ryzyko zostaje wysokie. E7: Film dopieszczony i przyjęty akt po akcie („Tak, przyjmuję”), dotyczy już tylko Biurka (E6). E6: każdy przystanek, szczyt, mapa, szuflady, telefon, zasłona i plakat przyjęte przez Łukasza na kadrach przed i po; kontrola odczuć zgodna z krzywą briefu (4A). Otwarte do ankiety po publikacji (E8): czy odwiedzający odbierają Biurko jako dopracowane. E8 (2026-10-18): obie wersje opublikowane, ankieta w Tally zbiera głosy z ukrytym polem `wersja`; ryzyko zostaje otwarte do odczytu ankiety, który jest poza planem (`docs/STATE.md`). |
+| T3 | Modele CC0 z różnych źródeł nie zgrywają się stylem i skalą; strona za ciężka (plan STRONA_RELAI, Aneks A pkt 6) | **Niski** (2026-10-16 po E2; wcześniej średni) | **ZAMKNIĘTE 2026-10-18** | E2: wspólne HDRI, skala w metrach, barwy modeli przyciemnione do sceny — Łukasz nie zgłaszał niespójności stylu; ciężar 9,0 MB z kompresją (FAKT), zestaw hero 4,5 MB, pułap podniesiony do 10 MB decyzją Łukasza (Aneks B). E4: 9,49 MiB (+0,38 MiB — blat `wood_table_worn` ma więcej szczegółu); path tracera nie ma. E5: Film 0,31 MiB po kompresji (33 pliki, FAKT), ten sam instrument; ciężar dotyczy tylko Biurka. E7: Film 0,317 MiB (35 plików, FAKT). E6: Biurko 9,522 MiB, 118 plików (start etapu 9,493 MiB, ten sam instrument); plakaty 0,17 MiB pobierane tylko bez sceny; ograniczony ruch i słaba grafika nie pobierają sceny wcale. E8: opublikowane w tym ciężarze (poniżej pułapu 10 MB), Łukasz nie zgłosił niespójności stylu w żadnej kalibracji. Zamknięte razem z planem. |
+| T6 | Ekran HTML na laptopie rozjeżdża się ze sceną 3D przy przybliżeniu (plan STRONA_RELAI, Aneks B pkt 5) | **Niski** (2026-10-16 po E3; wcześniej średni) | **ZAMKNIĘTE 2026-10-18** | Zrzuty w trzech rozdzielczościach, test trafienia kliknięciem (`elementFromPoint`) w każdym położeniu przybliżenia; w E3. E3: HTML położony dokładnie na siatce (bez przesunięcia w głąb), różnica narożników ≤ 0,04 px przy 1366 i 1920, PL i EN, na przystanku i w przybliżeniu; `elementFromPoint` 5/5; poza przybliżenia testowana dla 16:9, 16:10 i 4:3. Otwarte: telefon i wąskie okno. E7 dopieścił telefon tylko w Filmie (osobna kompozycja ≤ 600 px, `scrollWidth` = 390 w każdym akcie); telefon Biurka przeszedł do E6 (Aneks D pkt 2). E6: telefon Biurka ma pozy pionowe i kartę „Wyślij sobie link” zamiast ekranu z konfiguratorem; `scrollWidth` = 390 na każdym przystanku i przy każdej otwartej szufladzie, PL i EN; usterka oddalenia przed `tryb-3d` naprawiona (L-0241). Zamknięte. Adnotacja E8 (2026-10-18): w przybliżeniu górny pas okna ekranu jest malowany, ale Chrome go nie trafia (`elementsFromPoint` nie zwraca tam `.ekran`), więc klik w „Wróć do biurka” trafiał w scenę i otwierał szufladę laptopa; pięć punktów `elementFromPoint` z E3 tego pasa nie obejmowało. Poprawka Aneksem E: klik poza ekranem w przybliżeniu oddala (`klikPozaEkranem`). Zostaje zamknięte. |
 
 > Ryzyka zamknięte T4, T5 (2 pozycje) są w
 > [docs/archiwum/ryzyka/RYZYKA_2026-10-16.md](archiwum/ryzyka/RYZYKA_2026-10-16.md)
@@ -1997,5 +1997,129 @@ Autor: RelAI (Opus 5.5) + Lukasz
 **Do zrobienia przez człowieka:**
 
 - —
+
+Autor: RelAI (Opus 5.5) + Lukasz
+
+### 2026-10-18 — STRONA_RELAI E8: obie wersje strony opublikowane z ankietą; Aneks E
+
+Jedna sesja (Opus 5.5, optymalizator promptów wyłączony decyzją Łukasza: „Nie w tej sesji”).
+Commity `6fd755b` i `e0b8b10` wypchnięte na `main` za zgodą Łukasza. Poprawka z Aneksu E czeka
+w drzewie roboczym na commit i push.
+
+**Zrobione:**
+
+- **Bramki przed startem:** „Film w korzeniu”, „Zróbmy może z Tally”, „Sam link do Issues”,
+  „Zapytaj przed pushem (Rekomendowane)”.
+- **Adresy:** Film pod `/` i `/pl/`, Biurko pod `/biurko/` i `/pl/biurko/`. Generator
+  (`site/narzedzia/zbuduj.mjs`) dostał `ADRES_PUBLICZNY`, `zbudujAdresy` i `adresAnkiety`.
+  Kanoniczny adres i `hreflang` są bezwzględne. Przełącznik języka i link do drugiej wersji są
+  względne, więc podgląd lokalny zostaje lokalny (także przekierowanie w `site/js/jezyk.js`).
+- **Stopki:** cztery warianty w zupełnie różnych stylach. Łukasz wybrał 1 dla Filmu („Kolofon
+  z pieczęcią”: pieczęć ankiety z tekstem na okręgu) i 3 dla Biurka („Karteczki”). Pierwszy układ
+  karteczek nachodził na laptop („tak być nie może”). Po poprawce siatka 2 × 2, `max-width:
+  min(22rem, 25vw)`, odstęp od laptopa 29 px przy 1024 i 80–326 px przy 1280–1920. Łukasz:
+  „Przyjmuję karteczki w tym układzie, wyjątek od kryterium wysokości OK”.
+- **Ankieta w Tally** przez konektor MCP: formularze `BE4lQ5` (PL) i `X5lkMj` (EN), ukryte pola
+  `wersja` i `jezyk` z adresu. Pokazałem cztery style graficzne. Wybór: „idziemy w styl 3” (Notatnik)
+  w barwach RelAI, z nagłówkiem-obrazem, kolorowymi akcentami i pinezkami 📌. Okładka:
+  `site/narzedzia/naglowek-ankiety.html` → `site/grafika/ankieta/naglowek.png` (2400 × 300, L-0245).
+- **Wdrożenie:** `.github/workflows/strona.yml` (akcje przypięte SHA, uprawnienia minimalne, przed
+  wysłaniem pełna budowa i testy). Pages włączone przez API za zgodą Łukasza (L-0244). Przebiegi
+  39128963349 i 39129480506 zielone.
+- **Utrzymanie:** `site/narzedzia/strony.test.mjs` porównuje wersje wypieczone w stronach
+  z `.claude-plugin/marketplace.json`, z kontrolą pozytywną. P-005 dostał krok „strona” po podbiciu
+  wersji. W `site/README.md` jest sekcja „Publikacja” i jednolinijkowiec „Przy wydaniu”. W README
+  repo jest link do strony i ankiety (`wersja=readme`).
+- **Aneks E** („Poprawka teraz, aneks do E8 (Rekomendowane)”). Łukasz zgłosił ze zrzutem, że
+  „Wróć do biurka” w przybliżeniu otwiera szufladę laptopa. Przyczyna (L-0247): górny pas ekranu
+  CSS3D nie jest trafiany, więc klik szedł w scenę. Poprawka: `klikPozaEkranem` w
+  `site/biurko/przyblizenie.js` i słuchacz w fazie przechwytywania w `site/biurko/warstwa.js`.
+  Na tę samą zmianę są cztery testy, najpierw czerwone, potem zielone.
+
+**Zweryfikowane — jak dokładnie:**
+
+- `node --test "site/**/*.test.mjs"` → 319/319 (E6: 299). Jednolinijkowiec z README uruchomiony
+  dosłownie przed Aneksem E: 315/315.
+- Budowa deterministyczna: drugi przebieg „bez zmian” na 4 stronach, 0 `{{`.
+- Dowód negatywny: `diff` stron przed i po różni się tylko wierszami `<head>`, linkiem języka
+  i stopką. Kontrola pozytywna: podłożona zmiana → +2 wiersze. To on złapał zjedzoną spację
+  (L-0243). Sumy zasobów i `vendor/` bez zmian (kontrola = 1 różnica).
+- Lighthouse 100/100/100 w ośmiu pomiarach (Film i Biurko, PL i EN, desktop i telefon). Pieczęć
+  bez `aria-label`: nazwa z widocznego tekstu, `label-content-name-mismatch` usunięty.
+- Bezpieczeństwo: grep `innerHTML|outerHTML|insertAdjacentHTML|document.write` → kod 1 poza
+  `wersja.test.mjs`. Każdy `target=_blank` ma `noopener` (test). Adres ankiety pasuje do
+  `^https://tally.so/r/[A-Za-z0-9]+$` (test). Formularz konfiguratora bez `action` i `method`.
+- Bez JS: stopka na 4 stronach, kontrola pozytywna. Ograniczony ruch: stopka Biurka widoczna.
+- Strona publiczna: 4 adresy → 200, jeden `h1`, wersje 3.2.0 / 0.20.0, żądania tylko do
+  `nowilus.github.io` i `api.github.com`, konsola czysta (na Biurku jedno ostrzeżenie X4122, jak
+  w E6). Formularze Tally opublikowane, okładka obejrzana w widoku publicznym.
+- `claude-cli://` na żywo, opis Łukasza: „Otwórz w aplikacji” wkleiło polecenie instalacji
+  w nowej sesji Claude Code Desktop, „Otwórz w terminalu” otworzyło cmd z pytaniem o zaufanie
+  do folderu.
+- Aneks E: prawdziwy klik myszą przez CDP w przycisk w przybliżeniu. Build E8 →
+  `przyblizony: false`, `dialog: []`. Build E6 (worktree `cd4effa`) → `dialog:
+  ["szuflada-laptop"]`.
+- Sprzątanie („Tak, wszystko (Rekomendowane)”): serwery 4521 i 4522 zatrzymane, worktree
+  `relai-e8-przed` usunięty (`git worktree list`: tylko `main` i dwa worktree Codeksa). `%TEMP%`
+  `relai-*`: 30 pozycji → 0. Katalog roboczy `.claude/relai/work/STRONA_RELAI/E8/` (51 MB,
+  104 pliki) → usunięty. Zostały szkice z tworzenia planu w `.claude/relai/work/STRONA_RELAI/`
+  (348 KB, 19 plików) i izolowane konteksty Chrome DevTools MCP `e8-lh`, `e8-pub`, `e8-pub-en`
+  (znikają z serwerem MCP). Rozjazd z promptem: kasowanie poszło `rm` po „tak”, bez raportu
+  `clean-work.js` przed. Raport po kasowaniu: jedna grupa 0,0 MB (`work/_wiadomosci`),
+  35 chronionych, w tym `work/STRONA_RELAI/szkice` jako „etap trwa” (plan był jeszcze w `plany/`).
+
+**Świadomie odłożone:**
+
+- Wspólny moduł Filmu i Biurka (zasłony, telefon) — po odczycie ankiety.
+- Drugi bezpiecznik słabej grafiki (opcja 3B) — po pomiarze na słabszym laptopie (T1).
+- Logo zasłony Filmu ładowane po SVG (z E7) — nie ruszone w E8.
+- Karta „Zacznij tutaj” Biurka nachodzi na laptop przy 1024 px (od E6). Stopka już nie nachodzi.
+- Rotacja dziennika (165 KB przy progu 150), ryzyk (18 KB przy 12) i lekcji (ponad 50 KB) — przy
+  następnym starcie sesji.
+- Tally Pro (własny CSS, kształty) — plan darmowy wystarcza do stylu Notatnik.
+
+**Do zrobienia przez człowieka:**
+
+- Pomiar Biurka na słabszym laptopie (T1) — poza planem, w `docs/STATE.md`.
+- Przegląd tekstów EN przez native speakera — poza planem, w `docs/STATE.md`.
+- Odczyt ankiety i wybór kierunku strony (Aneks D pkt 3) — poza planem, w `docs/STATE.md`.
+- Commit i push poprawki Aneksu E — strona publiczna ma błąd „Wróć do biurka” do czasu wdrożenia.
+
+Autor: RelAI (Opus 5.5) + Lukasz
+
+### 2026-10-18 — Plan STRONA_RELAI ZREALIZOWANY: dowiezione vs plan
+
+**Zrobione — dowiezione vs plan:**
+
+| Miało powstać (plan i aneksy) | Powstało | Przepadło albo zmienione |
+|---|---|---|
+| One-pager PL/EN na GitHub Pages ze scroll-craft, konfigurator z deep linkami, wersja z wydań | Dwie strony PL/EN pod https://nowilus.github.io/relai/, konfigurator z `claude-cli://` (sprawdzone na żywo), wersje pieczone przy budowie i pilnowane testem względem `marketplace.json` | Wersja nie jest czytana z wydań na żywo. Strona bierze ją z manifestu przy budowie, a workflow przebudowuje ją przy wydaniu |
+| Dwa prototypy do porównania, potem wybór jednego (sekcja 9) | Oba dopracowane i opublikowane równolegle (Aneks D) | Wybór przeniesiony do ankiety, poza plan |
+| Biurko realistyczne (Aneks A, B) | Scena z modeli CC0, laptop jako ekran, szczyt, szuflady, telefon, zasłona, plakat; 9,52 MiB przy pułapie 10 MB | Path tracing zbudowany i odrzucony (Aneks C); dystans do obrazów wzorcowych został (T2) |
+| Film z ekranem ładowania (Aneks C, D) | Sześć aktów, jedna animacja na sekcję, telefon, bez JS; 0,317 MiB | — |
+| Publikacja z ankietą (E8) | Workflow `strona.yml`, ankieta w Tally (PL i EN), stopki wybrane przez Łukasza, P-005 z krokiem „strona” | Aneks E: poprawka błędu z E6 dołożona w E8 |
+| Słaba grafika (ryzyko 1) | Wyłącznik grafiki programowej, plakat, kroki obniżania jakości | Pomiar na prawdziwej zintegrowanej karcie niezrobiony (bramka otwarta poza planem) |
+
+Liczby planu: 8/8 etapów, Aneksy A–E, testy 91 (E1) → 319 (E8), Lighthouse 100 w ośmiu pomiarach.
+
+**Zweryfikowane — jak dokładnie:**
+
+- Bramki: siedem rozstrzygniętych z cytatem w `STATUS.md`. Trzy świadomie otwarte decyzją Łukasza
+  („Zostaw otwartą”, „Zostaw otwartą”, „Otwarta, poza planem”) i przeniesione do `docs/STATE.md`,
+  „Co dalej”. Odnóg plan nie miał.
+- Folder `docs/plany/STRONA_RELAI/` przeniesiony `git mv` do `docs/archiwum/plany/STRONA_RELAI/`
+  (10 plików, bez zmian treści). W `docs/plany/` został tylko `PANEL_CODEX/`.
+- Ryzyka: T3 zamknięte, T1 i T2 otwarte z adnotacją E8, T6 z adnotacją o pasie ekranu.
+- `CLAUDE.md`: wiersz planu → archiwum. Linia „Aktywny plan” wskazuje PANEL_CODEX, jedyny inny
+  niezamknięty plan (reguła 8 zamknięcia, bez pytania). Link w `site/README.md` przepięty
+  na archiwum.
+
+**Świadomie odłożone:**
+
+- Jak we wpisie E8 wyżej.
+
+**Do zrobienia przez człowieka:**
+
+- Odczyt ankiety i wybór kierunku, pomiar na słabszym laptopie, przegląd EN — `docs/STATE.md`.
 
 Autor: RelAI (Opus 5.5) + Lukasz
