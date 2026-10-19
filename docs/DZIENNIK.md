@@ -2187,3 +2187,62 @@ i notatka na Teams o stronie po `/relai-humanize`, strażnik faktów bez różni
 - —
 
 Autor: RelAI (Opus 5.5) + Lukasz
+
+### 2026-10-19 — MOBILNA_STRONA: obie wersje strony na telefonie, ankieta na cztery warianty; wątek zamknięty
+
+Wątek samodzielny [MOBILNA_STRONA](fixy/MOBILNA_STRONA/ODNOGA.md), założony i zamknięty tego
+samego dnia, po audycie Łukasza na iPhonie. Decyzje z wywiadu: przycisk w nagłówku „widoczny
+zawsze, inna nazwa”, na Biurku „swipe = przystanek, blokada do dojazdu”, „pulsujący znacznik przy
+przedmiocie”; przy ankiecie „strona sama + kilka pytań”, „najpierw co testowałeś, potem tylko te”,
+werdykt na końcu.
+
+**Zrobione:**
+
+- **Film na telefonie:**
+  - okno panelu skondensowane; przy wysokości do 700 px akapit tylko dla czytnika, bez czatu;
+  - komendy na dotyku bez przypięcia (`tasmaNaDotyk` przed montażem silnika), taśma przewijana
+    natywnie z przyciąganiem do fiszki;
+  - swipe w dół zatrzymuje się na komendach na 1 s z blokiem od nagłówka do taśmy w kadrze
+    (`celBloku`), pierwsze wejście od pierwszej fiszki (`naPierwszaFiszke`);
+  - przycisk w nagłówku stale widoczny jako „Jak zacząć” / „Get started”.
+- **Biurko 3D na telefonie:**
+  - jeden swipe to jeden przystanek, blokada do dojazdu kamery i do końca szczytu
+    (`site/biurko/krok.js`, test 10 przypadków);
+  - znaczniki „Zajrzyj” przy dokumentach, teczce, laptopie i pudełku oraz „Przybliż ekran” nad
+    wyświetlaczem; gasną po pierwszym otwarciu (`site/biurko/znaczniki.js`, test);
+  - ostatni ekran: trzy notki w jednym rzędzie, karta pod paskiem; przy wysokości do 600 px zdanie
+    karty tylko dla czytnika.
+- **Skok z kotwicy** (`#plan` lądował na Instalacji przy szybkim ładowaniu): fix z osobnej sesji,
+  przeniesiony ręcznie za zgodą Łukasza (`0263cd1`, `site/biurko/przewijanie.test.mjs`).
+- **Ankieta:** Tally `BE4lQ5` i `X5lkMj` przebudowane i opublikowane: wybór czterech wariantów,
+  gwiazdki i uwagi do każdego, werdykt, komputer, telefon, ładowanie Biurka. Link ze strony
+  dopisuje ukryte pola `urzadzenie, ekran, okno, przegladarka, system, ladowanie_s, tryb`
+  (`site/js/ankieta.js`, test 7 przypadków). Przed zmianą 0 odpowiedzi.
+- **Notatka na Teams** zaktualizowana o cztery warianty i ankietę z notki na stronie
+  (`.claude/relai/work/_wiadomosci/2026-10-19_teams/szkic-3.md`); wysyła ją Łukasz.
+
+**Zweryfikowane — jak dokładnie:**
+
+- `node --test "site/**/*.test.mjs"` → 368/368 (przed wątkiem 329).
+- Pomiar headless Chrome z emulacją iPhone'a przez CDP (bez pakietów):
+  - Film 375 × 553: dół promptu 529 px (przed: 753); pionowy swipe po taśmie przewija stronę o
+    602 px, poziomy przesuwa taśmę o fiszkę; przy 553–760 px następna sekcja poza kadrem.
+  - Biurko: przeciągnięcie = jeden przystanek 0→6, dwa szybkie = jeden. Kontrola pozytywna na
+    starym kodzie strony publicznej: to samo przeciągnięcie przelatuje za przystanek 1 (y 0 → 895).
+  - Ostatni ekran Biurka: karta od 105 px (320 × 568), 142 px (375 × 553), 132 px (375 × 635), pasek
+    do 72 px.
+- Desktop bez zmian: komendy przypięte, przycisk chowa się przy instalacji, Biurko przewija płynnie.
+- Na żywo po każdym wdrożeniu `strona.yml`: nowe pliki 200, pomiary jak lokalnie; ankiety na żywo
+  z nowymi pytaniami.
+
+**Świadomie odłożone:**
+
+- Wersjonowanie adresów skryptów: GitHub Pages wysyła `max-age=600`, a Safari trzymało stary
+  `akty.js`; test na telefonie wymagał karty prywatnej.
+- Lighthouse w trybie bez sceny — dalej niezmierzony.
+
+**Do zrobienia przez człowieka:**
+
+- Wysłać notatkę na Teams (gotowa w szkicu 3).
+
+Autor: RelAI (Opus 5.5) + Lukasz

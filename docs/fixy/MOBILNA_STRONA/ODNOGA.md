@@ -1,6 +1,6 @@
 # ODNOGA — Strona na telefonie: Film i Biurko bez ucięć i z przewijaniem po przystankach
 
-Plan: brak (wątek samodzielny; plan-rodzic [STRONA_RELAI](../../archiwum/plany/STRONA_RELAI/STATUS.md) zamknięty 2026-10-18) · Etap-źródło: — · Utworzona: 2026-10-19 · Status: **OTWARTA** ·
+Plan: brak (wątek samodzielny; plan-rodzic [STRONA_RELAI](../../archiwum/plany/STRONA_RELAI/STATUS.md) zamknięty 2026-10-18) · Etap-źródło: — · Utworzona: 2026-10-19 · Status: **ZAMKNIĘTA 2026-10-19** ·
 Wykonawca: Opus 5.5 w sesji, która wątek założyła (prompt odnogi pominięty — praca trwa w tej samej sesji)
 
 ## Cel
@@ -88,8 +88,17 @@ Decyzje z wywiadu:
       warianty z gwiazdkami i uwagami, pytania o komputer, telefon i ładowanie Biurka, ukryte pola
       `urzadzenie, ekran, okno, przegladarka, system, ladowanie_s, tryb`; link ze strony dopisuje je
       sam (`site/js/ankieta.js`, test 7 przypadków). 0 odpowiedzi przed zmianą.
-- [ ] Werdykt Łukasza na telefonie.
+- [x] Werdykt Łukasza na telefonie: „strony wyglądają okej. Myślę, że mogę to zaakceptować”.
 
 ## Wynik
 
-—
+Obie wersje strony dają się przejść na iPhonie. W Filmie okno panelu kończy się promptem w kadrze,
+a komendy na dotyku nie są przypięte. Swipe w dół zatrzymuje się na nich na sekundę, z nagłówkiem
+i taśmą w kadrze, od pierwszej fiszki, a swipe w bok przewija taśmę. Przycisk w nagłówku stoi na
+telefonie stale jako „Jak zacząć”. Na Biurku 3D jeden swipe to jeden przystanek, z blokadą do
+dojazdu kamery i do końca animacji szczytu. Pulsujące znaczniki „Zajrzyj” i „Przybliż ekran” stoją
+przy przedmiotach, które się otwierają. Ostatni ekran na telefonie mieści się pod paskiem. Przy
+okazji, za zgodą Łukasza, wszedł fix skoku z kotwicy z osobnej sesji (`0263cd1`). Ankiety PL i EN
+oceniają teraz cztery warianty, a link ze strony dopisuje dane o urządzeniu. Zakres urósł w trzech
+rundach uwag Łukasza w granicach tego samego celu. Commity: `c5889db`, `b1823eb`, `9ee07f4`,
+`0263cd1`, `5eff6b3`, `8767ac2`. Wpis: [dziennik 2026-10-19](../../DZIENNIK.md).

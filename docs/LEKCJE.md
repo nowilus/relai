@@ -735,6 +735,28 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
   porównujesz najpierw `innerWidth` z `visualViewport.width`. Przyczynę znajdujesz bisekcją:
   wyłączasz po kolei swoje zmiany regułą wstrzykniętą przed ładowaniem (L-0241).
 
+### L-0250 — Gest dotykowy z CDP nie przewijał niczego, a ja uznałem pomiar za zaliczony · 2026-10-19 · AKTYWNA
+
+- **Trigger:** MOBILNA_STRONA. `Input.synthesizeScrollGesture` z `gestureSourceType: "touch"`
+  wysyłał zdarzenia dotyku, więc moja obsługa swipe'a na Biurku przesuwała przystanki i pomiar
+  wyglądał na dobry. Kontrola na starym kodzie pokazała, że ten gest w ogóle nie przewija strony.
+  Dopiero `Input.dispatchTouchEvent` (start, ruchy, koniec) przewijał natywnie i odtworzył przelot
+  Łukasza (y 0 → 895). Osobno: iPhone Łukasza nie pokazał zmian przez `max-age=600` i stały adres
+  `akty.js`, choć serwer miał już nową wersję.
+- **Zasada:** pomiar zachowania dotyku zaczynasz od kontroli pozytywnej na starym kodzie: ten sam
+  gest musi odtworzyć zgłoszony błąd. Gest bez natywnego przewijania nie jest kontrolą. Gdy człowiek
+  „nie widzi różnicy” po wdrożeniu, najpierw porównujesz plik na serwerze z kodem, potem prosisz o
+  kartę prywatną.
+
+### L-0251 — Testy z wyrażeniami regularnymi dopisane heredokiem w powłoce · 2026-10-19 · AKTYWNA
+
+- **Trigger:** MOBILNA_STRONA. Dwa razy dopisałem do `*.test.mjs` bloki z `\.` i `\{` przez
+  `cat >> … <<'EOF'`. Treść przeszła nienaruszona, ale to złamanie reguły z CLAUDE.md (L-0116,
+  L-0119). W tej samej sesji poprawka przez `node -e` zjadła backticki w szablonie skryptu
+  pomiarowego i musiałem ją powtórzyć narzędziem Edit.
+- **Zasada:** tekst z backslashem albo backtickiem idzie wyłącznie przez Write/Edit, także dopisek
+  na końcu pliku i także w pliku roboczym. Heredok w apostrofach nie jest wyjątkiem.
+
 ## Lekcje zwinięte
 
 Pełne wpisy lekcji, których zasady żyją w destylacie „Zasady aktywne" (kompresja 2026-08-20).

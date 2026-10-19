@@ -1,6 +1,6 @@
 # STATE — RelAI
 
-Stan na: 2026-10-19 (wątek BIURKO_PLAKAT zamknięty — Biurko bez sceny 3D jako odbitki biurka; plan STRONA_RELAI ZREALIZOWANY 2026-10-18 — strona opublikowana na https://nowilus.github.io/relai/ w dwóch wersjach, Film i Biurko, z ankietą w Tally, poprawka Aneksu E wdrożona 2026-10-19; WYGLAD_PANELU zamknięty 2026-10-15)
+Stan na: 2026-10-19 (wątek MOBILNA_STRONA zamknięty — obie wersje strony przyjęte na iPhonie, ankieta na cztery warianty z danymi o urządzeniu; wątek BIURKO_PLAKAT zamknięty — Biurko bez sceny 3D jako odbitki biurka; plan STRONA_RELAI ZREALIZOWANY 2026-10-18 — strona opublikowana na https://nowilus.github.io/relai/ w dwóch wersjach, Film i Biurko, z ankietą w Tally, poprawka Aneksu E wdrożona 2026-10-19; WYGLAD_PANELU zamknięty 2026-10-15)
 
 ## Gdzie jesteśmy
 
@@ -109,6 +109,12 @@ po E5 (wydanie panelu 0.20.0 / 0.11.0); HUMANIZACJA zamknięty 2026-10-14 wydani
   2026-10-19): przy grafice programowej (np. Chrome bez akceleracji), braku WebGL2, ograniczonym
   ruchu i bez JS każdy przystanek to odbitka kadru prawdziwej sceny ze znacznikiem rozdziału. Mapa
   w nagłówku śledzi przewijanie. Przypięta karteczka mówi, jak włączyć 3D. Testy 329.
+  **Strona na telefonie** (wątek [MOBILNA_STRONA](fixy/MOBILNA_STRONA/ODNOGA.md), zamknięty
+  2026-10-19): Film z promptem w kadrze, komendami bez przypięcia (swipe w bok, 1 s przytrzymania
+  od pierwszej fiszki) i przyciskiem „Jak zacząć”; Biurko 3D z krokiem przystanek na swipe,
+  znacznikami „Zajrzyj” i ostatnim ekranem pod paskiem; link z kotwicą trafia na przystanek. Ankiety
+  `BE4lQ5`/`X5lkMj` oceniają cztery warianty, link ze strony dopisuje urządzenie, ekran,
+  przeglądarkę, system, czas ładowania i tryb (`site/js/ankieta.js`). Testy 368.
 
 ## Nad czym pracujemy teraz
 
