@@ -79,6 +79,15 @@ Decyzje z wywiadu:
       na dotyku swipe w dół zatrzymuje się na komendach na 1 s ze środkiem taśmy na środku kadru pod
       nagłówkiem (3 px odchyłki przy 375 × 553); swipe w dół w przytrzymaniu nie rusza strony, po
       nim idzie dalej; desktop bez zmian (`data-raz` tylko na dotyku).
+- [x] Runda 3 (Film przyjęty; Biurko: „Zacznij tutaj” wchodziło pod pasek na ostatnim ekranie):
+      na telefonie w 3D trzy notki w jednym rzędzie, karta pod paskiem przy 320 × 568 (105 px),
+      375 × 553 (142 px) i 375 × 635 (132 px); poniżej 600 px wysokości zdanie karty tylko dla
+      czytnika ekranu; notki EN bez przepełnienia.
+- [x] Ankieta (decyzje z wywiadu: dane techniczne ze strony + kilka pytań; „co testowałeś”, potem
+      tylko te warianty; werdykt na końcu): Tally `BE4lQ5` (PL) i `X5lkMj` (EN) przebudowane na cztery
+      warianty z gwiazdkami i uwagami, pytania o komputer, telefon i ładowanie Biurka, ukryte pola
+      `urzadzenie, ekran, okno, przegladarka, system, ladowanie_s, tryb`; link ze strony dopisuje je
+      sam (`site/js/ankieta.js`, test 7 przypadków). 0 odpowiedzi przed zmianą.
 - [ ] Werdykt Łukasza na telefonie.
 
 ## Wynik

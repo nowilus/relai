@@ -84,6 +84,8 @@ export function utworzZaslone(korzen, { czas = setTimeout, anuluj = clearTimeout
     gotowe() {
       if (!zywa()) return stan;
       this.postep(1);
+      // the survey link reports this as the loading time (js/ankieta.js)
+      if (korzen.dataset) korzen.dataset.gotoweMs = String(Math.round(globalThis.performance?.now() ?? 0));
       stan = "zbiera";
       korzen.classList.add(KLASA_KONCA);
       naZbieranie();

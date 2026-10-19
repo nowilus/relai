@@ -805,6 +805,20 @@ html:not(.tryb-3d) .szuflada__karta { max-height: none; overflow: visible; }
   .tryb-3d .przystanek--instalacja { inset: auto 14px max(14px, env(safe-area-inset-bottom)); padding: 0; }
   .tryb-3d .przystanek--instalacja .karta { width: auto; }
   .tryb-3d .przystanek--instalacja .stopka { max-width: none; margin-top: 10px; }
+  /* the three notes in one row, smaller, so the card above starts below the header bar (Łukasz,
+     2026-10-19: "Zacznij tutaj" ran under RelAI and English on the last screen) */
+  .tryb-3d .przystanek--instalacja .stopka--notki .notki-stopki { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; padding-top: 8px; }
+  .tryb-3d .przystanek--instalacja .notka-stopki { padding: 8px 8px 7px; }
+  .tryb-3d .przystanek--instalacja .notka-stopki small { font-size: .56rem; letter-spacing: .04em; }
+  .tryb-3d .przystanek--instalacja .notka-stopki b { font-size: .86rem; white-space: nowrap; }
+  @media (max-width: 359px) { .tryb-3d .przystanek--instalacja .notka-stopki b { white-space: normal; } }
+  /* a short frame (a small iPhone with Safari's bars): the heading carries the card, its sentence stays
+     for screen readers only */
+  @media (max-height: 600px) {
+    .tryb-3d .przystanek--instalacja .karta p { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+  }
+  .tryb-3d .przystanek--instalacja .notka-stopki__tasma { width: 34px; height: 12px; margin-left: -17px; top: -6px; }
+  .tryb-3d .przystanek--instalacja .notki-stopki__drobne { margin-top: 8px; padding: 3px 10px; font-size: .74rem; }
   .instalacja__telefon {
     display: grid; gap: 12px; margin-top: 10px; padding: 18px 16px; pointer-events: auto;
     border-radius: var(--promien); background: var(--kartka); color: var(--txt); box-shadow: var(--cien-2);

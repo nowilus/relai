@@ -32,6 +32,8 @@ export function utworzZaslone(root, { limitMs = LIMIT_MS, czas = setTimeout, anu
     /** The opening shot is laid out: the card goes. */
     gotowe() {
       this.krok(KROKI);
+      // the survey link reports this as the loading time (js/ankieta.js)
+      if (root.dataset) root.dataset.gotoweMs = String(Math.round(globalThis.performance?.now() ?? 0));
       return zdejmij("gotowe");
     },
     /** The engine failed: the content is shown at once, without the card. */

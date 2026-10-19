@@ -4,6 +4,7 @@
 // loading card covers the moments in between.
 import { zamontujJezyk } from "../js/jezyk.js";
 import { zamontujWersje } from "../js/wersja.js";
+import { zamontujAnkiete } from "../js/ankieta.js";
 import { zamontuj } from "../js/konfigurator.js";
 import { utworzZaslone } from "./zaslona.js";
 import { naPierwszaFiszke, tasmaNaDotyk, ZAPYTANIE_DOTYKU, zamontujAmnezje, zamontujPamiec, zamontujPrzytrzymanie, zamontujRaz, zamontujTasme } from "./akty.js";
@@ -34,6 +35,7 @@ const form = document.querySelector("[data-konfigurator]");
 zamontuj(form, tekstyKonfiguratora(form));
 form.querySelector("[data-kopiuj]").removeAttribute("hidden");
 zamontujWersje();
+zamontujAnkiete(() => (root.classList.contains("ruch") ? "ruch" : "bez-ruchu"));
 zamontujPasek();
 zamontujTelefon();
 

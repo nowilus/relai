@@ -1,6 +1,7 @@
 // Entry point. Content, configurator and version work without WebGL; the desk is added on top.
 import { zamontujJezyk } from "../js/jezyk.js";
 import { zamontujWersje } from "../js/wersja.js";
+import { zamontujAnkiete } from "../js/ankieta.js";
 import { zamontuj } from "../js/konfigurator.js";
 import { zamontujTelefon } from "../film/telefon.js"; // imported as is: the film's phone card, the same keys
 import { zamontujZaslone } from "./zaslona.js";
@@ -124,6 +125,7 @@ const form = document.querySelector("[data-konfigurator]");
 zamontuj(form, tekstyKonfiguratora(form));
 form.querySelector("[data-kopiuj]").removeAttribute("hidden");
 zamontujWersje();
+zamontujAnkiete(() => (document.documentElement.classList.contains("tryb-3d") ? "3d" : "plakat"));
 zamontujTelefon();
 
 // reduced motion gets the flow with the poster (Łukasz, E6), and the scene is not even downloaded
