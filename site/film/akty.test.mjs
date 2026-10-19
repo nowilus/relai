@@ -5,7 +5,7 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import {
   nastepnyStan, PROG_WEJSCIA, MARGINES_RESETU, CZAS_SEKCJI, czyTrzymac, ROZSYPKA, KOLEJNOSC_UPADKU, AMNEZJA, LUK, LOT, oknoLotu, czasSzczytu,
-  ksztaltLotu, cienLotu, kolejnoscLotu, klatkiLotu, uniesienieFiszki, yPamieci, tasmaNaDotyk, ZAPYTANIE_DOTYKU, celSrodka, naPierwszaFiszke,
+  ksztaltLotu, cienLotu, kolejnoscLotu, klatkiLotu, uniesienieFiszki, yPamieci, tasmaNaDotyk, ZAPYTANIE_DOTYKU, celBloku, ODSTEP_BLOKU, naPierwszaFiszke,
 } from "./akty.js";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -197,9 +197,10 @@ function element(atrybuty = {}, dzieci = {}) {
 function strona() {
   const scena = element({ "data-sc-stage": "" });
   const tasma = element({ "data-sc-pan": "0.019" });
-  const akt = element({ "data-sc-act": "pan", "data-sc-span": "4" }, { "[data-sc-stage]": scena, "[data-sc-pan]": tasma });
+  const wstep = element();
+  const akt = element({ "data-sc-act": "pan", "data-sc-span": "4" }, { "[data-sc-stage]": scena, "[data-sc-pan]": tasma, ".tasma__wstep": wstep });
   const html = element();
-  return { akt, scena, tasma, html, doc: { documentElement: html, querySelector: (sel) => (sel === ".akt.komendy" ? akt : null) } };
+  return { akt, scena, tasma, wstep, html, doc: { documentElement: html, querySelector: (sel) => (sel === ".akt.komendy" ? akt : null) } };
 }
 
 describe("act 5 under a finger: no pin, the rail scrolls sideways", () => {
@@ -221,11 +222,22 @@ describe("act 5 under a finger: no pin, the rail scrolls sideways", () => {
     assert.equal(CZAS_SEKCJI.komendy, 1000);
   });
 
-  test("the held rail sits in the middle of the frame below the header bar", () => {
-    // rail 300 px tall whose top is 500 px down the viewport, page at 1000, frame 553, bar 60
-    const cel = celSrodka({ top: 500, height: 300 }, 1000, 553, 60);
-    const srodekPoPrzewinieciu = 500 + 1000 - cel + 150;
-    assert.ok(Math.abs(srodekPoPrzewinieciu - (60 + 553) / 2) <= 0.5, `rail middle at ${srodekPoPrzewinieciu}`);
+  test("a block that fits sits in the middle of the frame below the header bar", () => {
+    // heading-to-rail block 400 px, its top 500 px down the viewport, page at 1000, frame 700, bar 60
+    const cel = celBloku(500, 900, 1000, 700, 60);
+    const gora = 500 + 1000 - cel;
+    assert.equal(gora - 60, 700 - (gora + 400), "equal room above and below");
+  });
+
+  test("a block taller than the frame starts just below the bar, heading first", () => {
+    const cel = celBloku(500, 1100, 1000, 553, 60);
+    assert.equal(500 + 1000 - cel, 60 + ODSTEP_BLOKU);
+  });
+
+  test("on a touch screen the block runs from the heading to the rail", () => {
+    const s = strona();
+    tasmaNaDotyk(s.doc, true);
+    assert.equal(s.wstep.hasAttribute("data-raz-od"), true);
   });
 
   test("with a mouse nothing changes: the wheel keeps panning the rail", () => {

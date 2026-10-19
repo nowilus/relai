@@ -78,21 +78,28 @@ export function zamontujRaz(naGranie = {}, naReset = {}, naKazde = () => {}, doc
   return () => { wejscie.disconnect(); widac.disconnect(); };
 }
 
+/** Room kept between the header bar and a held block, px. */
+export const ODSTEP_BLOKU = 32; // the bar fades out over ~30 px below its edge
+
+/**
+ * Where to hold a section that frames one block of it (the commands under a finger: from the heading to
+ * the rail's bottom). The block sits in the middle of the frame below the header bar; a block too tall
+ * for that starts just below the bar, heading first (Łukasz, 2026-10-19: centring the rail alone left
+ * "15 komend" under the bar's fade and the next section showing at the bottom). A scroll offset in px.
+ * @param {number} od the block's top in the viewport @param {number} doDol its bottom in the viewport
+ * @param {number} y scrollY @param {number} wys window height @param {number} gora header bar height
+ */
+export function celBloku(od, doDol, y, wys, gora, odstep = ODSTEP_BLOKU) {
+  const wolne = wys - gora - (doDol - od);
+  const nadBlokiem = wolne >= 2 * odstep ? wolne / 2 : odstep;
+  return Math.round(y + od - gora - nadBlokiem);
+}
+
 /**
  * Holds scrolling down while a section plays (Łukasz: "it holds me a moment until the animation
  * ends, then I can scroll on"). The first held step brings the section to the top of the frame, so
  * the whole animation is in view. Scrolling up is never held. Returns { trzymaj(sekcja), stop }.
  */
-/**
- * Where to hold a section that centres one of its parts (the commands rail under a finger): the part in
- * the middle of the frame below the header bar. A scroll offset in px.
- * @param {{ top: number, height: number }} rect the part, in the viewport
- * @param {number} y scrollY @param {number} wys window height @param {number} gora header bar height
- */
-export function celSrodka(rect, y, wys, gora) {
-  return Math.round(rect.top + y + rect.height / 2 - (gora + wys) / 2);
-}
-
 export function zamontujPrzytrzymanie(win = window) {
   let blokadaDo = 0;
   let cel = 0;
@@ -116,10 +123,11 @@ export function zamontujPrzytrzymanie(win = window) {
     // the wheel's momentum while another one is held does not take the hold over.
     if (kierunek < 0 || teraz() < blokadaDo) return;
     const nazwa = sekcja.dataset.raz;
-    const srodek = sekcja.querySelector("[data-raz-srodek]");
+    const od = sekcja.querySelector("[data-raz-od]");
+    const doDol = sekcja.querySelector("[data-raz-srodek]");
     const pasek = win.document.querySelector(".pasek")?.offsetHeight ?? 0;
-    cel = srodek
-      ? celSrodka(srodek.getBoundingClientRect(), win.scrollY, win.innerHeight, pasek)
+    cel = od && doDol
+      ? celBloku(od.getBoundingClientRect().top, doDol.getBoundingClientRect().bottom, win.scrollY, win.innerHeight, pasek)
       : Math.round(sekcja.getBoundingClientRect().top + win.scrollY);
     blokadaDo = teraz() + DOSUNIECIE_MS + (CZAS_SEKCJI[nazwa] ?? 0);
     dosun();
@@ -388,8 +396,9 @@ export function tasmaNaDotyk(doc, dotyk) {
   akt.querySelector("[data-sc-stage]")?.removeAttribute("data-sc-stage");
   const tasma = akt.querySelector("[data-sc-pan]");
   tasma?.removeAttribute("data-sc-pan");
-  // the swipe down stops here for a moment with the rail in the middle (Łukasz, 2026-10-19: "na chociaż
-  // 1 sekundę zatrzymywało ... ładnie wyśrodkowany na komendach")
+  // the swipe down stops here for a moment with the heading and the rail in frame (Łukasz, 2026-10-19:
+  // "na chociaż 1 sekundę zatrzymywało ... ładnie wyśrodkowany na komendach"); celBloku places the block
+  akt.querySelector(".tasma__wstep")?.setAttribute("data-raz-od", "");
   akt.setAttribute("data-raz", "komendy");
   tasma?.setAttribute("data-raz-srodek", "");
   doc.documentElement.classList.add("dotyk");
