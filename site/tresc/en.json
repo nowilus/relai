@@ -15,7 +15,8 @@
     "nazwa": "Desk",
     "naglowek": "Your project remembers everything.",
     "zdanie": "Plain files beside your code hold what your AI agent forgets. Each new session starts where the last one stopped.",
-    "wezwanie": "Install"
+    "wezwanie": "Install",
+    "wezwanieTelefon": "Get started"
   },
   "przystanki": [
     {
@@ -222,6 +223,7 @@
       }
     }
   },
+  "znaczniki": { "zajrzyj": "Take a look", "przybliz": "Zoom in" },
   "brakSceny":{
     "tekst":"Your browser does not show the 3D scene, so you see the same content on photos of the desk.",
     "jak":"How to turn on 3D?",

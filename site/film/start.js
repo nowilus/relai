@@ -6,7 +6,7 @@ import { zamontujJezyk } from "../js/jezyk.js";
 import { zamontujWersje } from "../js/wersja.js";
 import { zamontuj } from "../js/konfigurator.js";
 import { utworzZaslone } from "./zaslona.js";
-import { zamontujAmnezje, zamontujPamiec, zamontujPrzytrzymanie, zamontujRaz, zamontujTasme } from "./akty.js";
+import { tasmaNaDotyk, ZAPYTANIE_DOTYKU, zamontujAmnezje, zamontujPamiec, zamontujPrzytrzymanie, zamontujRaz, zamontujTasme } from "./akty.js";
 import { zamontujPasek } from "./pasek.js";
 import { zamontujTelefon } from "./telefon.js";
 
@@ -42,6 +42,7 @@ const ruch = !matchMedia("(prefers-reduced-motion: reduce)").matches;
 async function uruchom() {
   const silnik = window.ScrollCraft;
   if (!silnik || typeof silnik.mount !== "function") throw new Error("the scroll engine did not load");
+  tasmaNaDotyk(document, matchMedia(ZAPYTANIE_DOTYKU).matches);
   const api = silnik.mount(document.body);
   zaslona.krok(2);
   await czcionki;

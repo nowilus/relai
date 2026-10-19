@@ -630,6 +630,25 @@ html.laduje-koniec .zaslona__notka { transition: transform 650ms var(--ease); }
 
 /* ---------- drawers: plain sections in the flow, a sheet of paper over the desk in 3D ---------- */
 .tryb-3d.nad-szuflada .scena, .tryb-3d.nad-szuflada .scena__html { cursor: pointer; }
+/* click markers (znaczniki.js): a pulsing dot on the object and a word beside it, only at the object's
+   stop and until it was opened once; over the copy layer, which carries the laptop display, under the header */
+.znaczniki { display: none; }
+.tryb-3d .znaczniki:not([hidden]) { display: block; position: fixed; inset: 0; z-index: 3; pointer-events: none; }
+.znacznik {
+  position: absolute; left: 0; top: 0; display: flex; align-items: center; gap: 8px; margin: -11px 0 0 -11px; padding: 4px;
+  border: 0; background: none; cursor: pointer; pointer-events: none; opacity: 0; transition: opacity 320ms var(--ease);
+}
+.znacznik.jest { opacity: 1; pointer-events: auto; }
+.znacznik__kropka {
+  flex: none; width: 14px; height: 14px; border-radius: 50%; background: var(--musztarda); border: 2px solid var(--kartka);
+  box-shadow: 0 0 0 0 rgba(217, 161, 52, .55); animation: znacznik-puls 1.8s var(--ease) infinite;
+}
+.znacznik__tekst {
+  padding: 3px 10px 4px; border-radius: 999px; background: rgba(29, 26, 22, .74); color: var(--kartka);
+  font: 700 .95rem/1.2 var(--font-notka); white-space: nowrap;
+}
+@keyframes znacznik-puls { 70% { box-shadow: 0 0 0 12px rgba(217, 161, 52, 0); } 100% { box-shadow: 0 0 0 0 rgba(217, 161, 52, 0); } }
+@media (prefers-reduced-motion: reduce) { .znacznik__kropka { animation: none; } }
 .szuflada-otwarta { overflow: hidden; }
 .szuflada { color: var(--txt); }
 html:not(.tryb-3d) .szuflada {

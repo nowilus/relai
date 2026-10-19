@@ -129,7 +129,13 @@ html:not(.ladowanie) .zaslona__srodek { transform: translateY(-14px); }
 }
 html.na-gorze .pasek::before { opacity: 0; }
 .pasek__nav .przycisk { transition: opacity 240ms var(--ease), visibility 0s linear 0s, background-color 160ms var(--ease); }
-html.przy-instalacji .pasek__nav .przycisk { opacity: 0; visibility: hidden; transition: opacity 240ms var(--ease), visibility 0s linear 240ms; }
+/* a phone keeps the button in every section under its own name, nothing to hide (Łukasz, 2026-10-19:
+   it stood half hidden on the last section, and a phone cannot install anyway) */
+@media (min-width: 601px) {
+  html.przy-instalacji .pasek__nav .przycisk { opacity: 0; visibility: hidden; transition: opacity 240ms var(--ease), visibility 0s linear 240ms; }
+  .pasek__telefon { display: none; }
+}
+@media (max-width: 600px) { .pasek__komputer { display: none; } }
 .pasek__znak { font: 700 1.6rem/1 var(--font-reka); color: var(--txt); text-decoration: none; }
 .pasek__znak span { color: var(--glina); }
 .pasek__nav { display: flex; align-items: center; gap: 22px; }
@@ -531,6 +537,14 @@ main { overflow-x: clip; }
   .pm-baterie { grid-template-columns: repeat(2, max-content); column-gap: 16px; row-gap: 18px; }
   .pm-kontekst, .pm-kontekst__tekst { grid-column: 1 / -1; }
   .panel__przyklad { font-size: .9rem; }
+  /* the window ends at the prompt, and the prompt has to be in the frame while the section plays
+     (Łukasz, 2026-10-19, iPhone: "ten prompt ... jest ucięty"): tighter rows, the reply line goes,
+     the request bubble stays as the conversation's cue */
+  .panel__scena { padding-top: 72px; gap: 16px; }
+  .panel__tekst p { margin-top: 12px; }
+  .panel__odpowiedz { display: none; }
+  .pasek-makieta { padding: 8px 0; }
+  .pm-baterie { row-gap: 14px; }
 
   /* 5: smaller cards, still half a frame of room on both sides */
   .tasma__wstep { width: auto; margin: 0 var(--margines); }
@@ -551,6 +565,12 @@ main { overflow-x: clip; }
   .instalacja__telefon-akcje .przycisk { min-height: 48px; justify-content: center; }
   .konfigurator__komendy { padding: 12px 10px; font-size: .66rem; line-height: 1.6; white-space: pre-wrap; overflow-wrap: normal; }
   .stopka { position: static; padding: 6px var(--margines) 22px; }
+}
+/* a short phone frame (an iPhone with Safari's bars, ~550-650 px): the heading and the window carry the
+   panel, the sentence under the heading stays for screen readers only and the request bubble goes */
+@media (max-width: 600px) and (max-height: 700px) {
+  .panel__tekst p { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+  .panel__czat { display: none; }
 }
 
 /* -------------------------------------------------------------- reduced motion -- */
@@ -586,3 +606,14 @@ html:not(.sc-ready) .akt.komendy .fiszka { width: auto; height: auto; }
   .akt.komendy .tasma__fiszki { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
   .akt.komendy .fiszka { padding: 16px 14px 14px; }
 }
+
+/* ------------------------------------------------- the rail under a finger -- */
+/* A touch screen (akty.js, tasmaNaDotyk): the act is not pinned, the rail scrolls sideways on its own and
+   stops with a card in the middle; a vertical swipe on it moves the page. The neighbour card peeks in
+   at the edge, so the rail reads as one to swipe. */
+html.dotyk .akt.komendy .tasma {
+  overflow-x: auto; overscroll-behavior-x: contain; scroll-snap-type: x mandatory; scrollbar-width: none;
+  touch-action: pan-x pan-y; }
+html.dotyk .akt.komendy .tasma::-webkit-scrollbar { display: none; }
+html.dotyk .akt.komendy .fiszka { scroll-snap-align: center; }
+html.dotyk .akt.komendy .komendy__scena { min-height: 100svh; padding-bottom: 24px; }

@@ -383,6 +383,14 @@ export function zbudujScene({ kontener, slowa, zasoby, ekran, tor, przyKlatce, o
       zamow();
     },
     trafienie,
+    /** Where a drawer object's middle is in the window, px, or null when hidden or behind the camera. */
+    srodekNaEkranie(nazwa) {
+      const o = obiekty[nazwa];
+      if (!o || !widoczny(o)) return null;
+      const v = new THREE.Box3().setFromObject(o).getCenter(new THREE.Vector3()).project(kamera);
+      if (v.z > 1) return null;
+      return [(v.x + 1) / 2 * window.innerWidth, (1 - v.y) / 2 * window.innerHeight];
+    },
     /** A drawer opens (its object's name) or closes (null): the object rises toward the camera or settles back. */
     unies(nazwa) {
       if (nazwa) {

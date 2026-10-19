@@ -2,6 +2,7 @@
 import { zbudujScene } from "./scena.js";
 import { zamontujWarstwe } from "./warstwa.js";
 import { zamontujSzuflady } from "./szuflady.js";
+import { zamontujZnaczniki } from "./znaczniki.js";
 import { zbudujTor } from "./kamera.js";
 import { etapPierwszy, etapDrugi } from "./zasoby.js";
 import { DefaultLoadingManager } from "three";
@@ -60,17 +61,24 @@ export async function uruchom({ bezSceny, zaslona }) {
   const kontener = document.querySelector("[data-scena]");
   const ekran = document.querySelector("[data-ekran]");
   let warstwa = null;
+  let znaczniki = null;
   // 3D mode before the scene is built: building it sizes the laptop display to 1136 px, and in the
   // document flow that overflows a phone, which then zooms out and the scene measures a 1156 px window.
   // In 3D mode the display sits in the fixed layer, which never widens the page. bezSceny() undoes it.
   document.documentElement.classList.add("tryb-3d");
   const scena = zbudujScene({
     kontener, slowa: slowaSceny(), zasoby, ekran, tor, ograniczRuch,
-    przyKlatce: (stan) => warstwa?.przyKlatce(stan),
+    przyKlatce: (stan) => {
+      warstwa?.przyKlatce(stan);
+      znaczniki?.przyKlatce(stan);
+    },
   });
   warstwa = zamontujWarstwe({ tor, przekladka: document.querySelector("[data-przekladka]"), scena, ekran, ograniczRuch });
-  warstwa.start();
   const szuflady = zamontujSzuflady({ scena, ograniczRuch });
+  znaczniki = zamontujZnaczniki({
+    warstwa: document.querySelector("[data-znaczniki]"), scena, ekran, szuflady, przyblizenie: warstwa.przyblizenie,
+  });
+  warstwa.start(); // after the markers: its first frame places them at a stop reached from the address
   // whatever ends the scene, the configurator goes back into the document flow first; once only, since
   // a lost context and a failed stage two can both arrive while stage two is loading
   let skonczona = false;
@@ -78,6 +86,7 @@ export async function uruchom({ bezSceny, zaslona }) {
     if (skonczona) return;
     skonczona = true;
     DefaultLoadingManager.onProgress = () => {};
+    znaczniki.odmontuj();
     szuflady.odmontuj();
     warstwa.odmontuj();
     scena.oddajEkran();

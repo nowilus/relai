@@ -15,7 +15,8 @@
     "nazwa": "Biurko",
     "naglowek": "Twój projekt pamięta wszystko.",
     "zdanie": "Zwykłe pliki obok kodu pamiętają to, co agent AI zapomina. Każda sesja zaczyna tam, gdzie skończyła poprzednia.",
-    "wezwanie": "Zainstaluj"
+    "wezwanie": "Zainstaluj",
+    "wezwanieTelefon": "Jak zacząć"
   },
   "przystanki": [
     {
@@ -205,6 +206,7 @@
       }
     }
   },
+  "znaczniki": { "zajrzyj": "Zajrzyj", "przybliz": "Przybliż ekran" },
   "brakSceny":{
     "tekst":"Przeglądarka nie pokazuje sceny 3D, więc widzisz tę samą treść na zdjęciach biurka.",
     "jak":"Jak włączyć 3D?",

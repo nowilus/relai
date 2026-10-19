@@ -5,7 +5,7 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import {
   nastepnyStan, PROG_WEJSCIA, MARGINES_RESETU, CZAS_SEKCJI, czyTrzymac, ROZSYPKA, KOLEJNOSC_UPADKU, AMNEZJA, LUK, LOT, oknoLotu, czasSzczytu,
-  ksztaltLotu, cienLotu, kolejnoscLotu, klatkiLotu, uniesienieFiszki, yPamieci,
+  ksztaltLotu, cienLotu, kolejnoscLotu, klatkiLotu, uniesienieFiszki, yPamieci, tasmaNaDotyk, ZAPYTANIE_DOTYKU,
 } from "./akty.js";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -182,5 +182,63 @@ describe("act 5: the card in the middle of the frame lifts", () => {
   test("the lift falls off symmetrically", () => {
     near(uniesienieFiszki(100, 250), uniesienieFiszki(-100, 250), "symmetry");
     assert.ok(uniesienieFiszki(100, 250) > uniesienieFiszki(180, 250));
+  });
+});
+
+// A stand-in for the few DOM calls tasmaNaDotyk makes: attributes and a class list.
+function element(atrybuty = {}, dzieci = {}) {
+  const a = new Map(Object.entries(atrybuty));
+  const klasy = new Set();
+  return {
+    setAttribute: (k, v) => a.set(k, v), removeAttribute: (k) => a.delete(k), hasAttribute: (k) => a.has(k), getAttribute: (k) => a.get(k) ?? null,
+    querySelector: (sel) => dzieci[sel] ?? null, classList: { add: (k) => klasy.add(k), contains: (k) => klasy.has(k) },
+  };
+}
+function strona() {
+  const scena = element({ "data-sc-stage": "" });
+  const tasma = element({ "data-sc-pan": "0.019" });
+  const akt = element({ "data-sc-act": "pan", "data-sc-span": "4" }, { "[data-sc-stage]": scena, "[data-sc-pan]": tasma });
+  const html = element();
+  return { akt, scena, tasma, html, doc: { documentElement: html, querySelector: (sel) => (sel === ".akt.komendy" ? akt : null) } };
+}
+
+describe("act 5 under a finger: no pin, the rail scrolls sideways", () => {
+  test("on a touch screen the act becomes a plain section and the rail loses the engine's pan", () => {
+    const s = strona();
+    assert.equal(tasmaNaDotyk(s.doc, true), true);
+    assert.equal(s.akt.getAttribute("data-sc-act"), "flow");
+    assert.equal(s.akt.hasAttribute("data-sc-span"), false);
+    assert.equal(s.scena.hasAttribute("data-sc-stage"), false);
+    assert.equal(s.tasma.hasAttribute("data-sc-pan"), false);
+    assert.equal(s.html.classList.contains("dotyk"), true);
+  });
+
+  test("with a mouse nothing changes: the wheel keeps panning the rail", () => {
+    const s = strona();
+    assert.equal(tasmaNaDotyk(s.doc, false), false);
+    assert.equal(s.akt.getAttribute("data-sc-act"), "pan");
+    assert.equal(s.tasma.getAttribute("data-sc-pan"), "0.019");
+  });
+
+  test("touch means no hover and a coarse pointer, so a touch laptop with a mouse keeps the pan", () => {
+    assert.equal(ZAPYTANIE_DOTYKU, "(hover: none) and (pointer: coarse)");
+  });
+
+  test("the rail scrolls natively with a card in the middle, and the switch runs before the engine mounts", () => {
+    assert.match(CSS, /html\.dotyk \.akt\.komendy \.tasma \{[^}]*overflow-x: auto;[^}]*scroll-snap-type: x mandatory/);
+    assert.match(CSS, /html\.dotyk \.akt\.komendy \.fiszka \{ scroll-snap-align: center; \}/);
+    const start = readFileSync(join(HERE, "start.js"), "utf8");
+    assert.ok(start.indexOf("tasmaNaDotyk(") < start.indexOf("silnik.mount("), "the switch has to come before mount");
+  });
+});
+
+describe("the header button on a phone", () => {
+  test("carries both names; a phone shows the one that does not promise an install", () => {
+    assert.match(TEMPLATE, /<span class="pasek__komputer">\{\{hero\.wezwanie\}\}<\/span><span class="pasek__telefon">\{\{hero\.wezwanieTelefon\}\}<\/span>/);
+    assert.match(CSS, /@media \(max-width: 600px\) \{ \.pasek__komputer \{ display: none; \} \}/);
+  });
+
+  test("it steps aside at the install act only on a wider screen", () => {
+    assert.match(CSS, /@media \(min-width: 601px\) \{\s*html\.przy-instalacji \.pasek__nav \.przycisk \{ opacity: 0; visibility: hidden;/);
   });
 });

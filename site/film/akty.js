@@ -1,7 +1,8 @@
 // The film's own choreography on top of the engine. Sections scrolled downwards play their
 // animation once, by themselves, when they come into view, and reset only after they have left the
 // screen completely (Łukasz, E7: one animation per section, not a small action per wheel notch).
-// Act 5 keeps the engine's horizontal pan; its card in the middle of the frame lifts.
+// Act 5 keeps the engine's horizontal pan with a wheel and scrolls natively under a finger; its card
+// in the middle of the frame lifts.
 // Pure timing and shape functions are exported for the tests; the engine is never edited.
 
 const clamp01 = (x) => (x < 0 ? 0 : x > 1 ? 1 : x);
@@ -339,4 +340,25 @@ export function zamontujTasme(doc = document, win = window) {
   };
   ramka = win.requestAnimationFrame(rysuj);
   return () => win.cancelAnimationFrame(ramka);
+}
+
+/** A touch screen without a mouse: a finger, not a wheel, moves the page. */
+export const ZAPYTANIE_DOTYKU = "(hover: none) and (pointer: coarse)";
+
+/**
+ * On a touch screen act 5 is not pinned: a vertical swipe moves the page on to the next section and a
+ * sideways swipe moves the rail, which scrolls natively (Łukasz, 2026-10-19: "jeżeli horyzontalnie
+ * swipe'uję ... to wtedy te komendy przewijam"). Runs before the engine mounts, which reads the
+ * attributes once; the wheel's pan on a desktop is untouched. Returns whether it switched.
+ * @param {Document} doc @param {boolean} dotyk
+ */
+export function tasmaNaDotyk(doc, dotyk) {
+  const akt = doc.querySelector(".akt.komendy");
+  if (!dotyk || !akt) return false;
+  akt.setAttribute("data-sc-act", "flow");
+  akt.removeAttribute("data-sc-span");
+  akt.querySelector("[data-sc-stage]")?.removeAttribute("data-sc-stage");
+  akt.querySelector("[data-sc-pan]")?.removeAttribute("data-sc-pan");
+  doc.documentElement.classList.add("dotyk");
+  return true;
 }

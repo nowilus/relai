@@ -2,6 +2,7 @@
 // position (after damping) drives the copy, so text never arrives mid-flight.
 import { postepPrzystanku, ulamekMapy } from "./kamera.js";
 import { przejscie, klikPozaEkranem } from "./przyblizenie.js";
+import { celKroku, czyZwolnic, kierunekGestu, ZAPAS_MS } from "./krok.js";
 
 const PRZESUW_VH = 1.6; // copy rises at most this much while it fades, well under the 4vh cap
 const PRZYSTANEK_EKRANU = 6; // the install stop: the laptop display carries the configurator
@@ -9,6 +10,9 @@ const WSTECZ_PX = 2; // a scroll back by more than this leaves the close-up
 // one track unit is this share of the window's height: a stop is three or four wheel notches, not seven
 // (Łukasz, E6: "not ten scrolls for the notes to turn into documents")
 const SKALA_DROGI = 0.45;
+const DOTYK = "(hover: none) and (pointer: coarse)";
+// a touch that starts here scrolls or works on its own: a drawer's dialog, the header and its map, a form field
+const WLASNY_DOTYK = "dialog, .pasek, .mapa, input, textarea, select";
 
 export function zamontujWarstwe({ tor, przekladka, scena, ekran, ograniczRuch }) {
   const przystanki = [...document.querySelectorAll("[data-przystanek]")]
@@ -45,6 +49,7 @@ export function zamontujWarstwe({ tor, przekladka, scena, ekran, ograniczRuch })
   }
 
   function przyKlatce(stan) {
+    if (krok && czyZwolnic({ postep: stan.postep, cel: krok.cel, szczyt: scena.szczyt.faza(), od: krok.od, teraz: performance.now() })) zwolnijKrok();
     stan.widocznosc.forEach((w, i) => {
       const el = przystanki[i];
       if (!el) return;
@@ -96,6 +101,41 @@ export function zamontujWarstwe({ tor, przekladka, scena, ekran, ograniczRuch })
     history.replaceState(null, "", a.getAttribute("href"));
     idzDo(nr);
   }, nasluch);
+
+  // A touch screen: one swipe is one step to the next stop, held until the camera stands there and the
+  // peak has played (krok.js). The page's own scroll under the finger is off, so a flick's momentum
+  // cannot carry it through every stop; taps still reach the drawers and the display.
+  let krok = null;
+  let zegarKroku = 0;
+  function zwolnijKrok() {
+    krok = null;
+    clearTimeout(zegarKroku);
+  }
+  if (!ograniczRuch && window.matchMedia(DOTYK).matches) {
+    let gest = null;
+    const wlasny = (cel) => cel?.closest?.(WLASNY_DOTYK) || (zblizenie === "przyblizony" && ekran.contains(cel));
+    window.addEventListener("touchstart", (e) => {
+      const t = e.touches[0];
+      gest = e.touches.length === 1 && !wlasny(e.target) ? { x: t.clientX, y: t.clientY } : null;
+    }, { passive: true, signal: sygnal.signal });
+    window.addEventListener("touchmove", (e) => {
+      if (gest) e.preventDefault();
+    }, { passive: false, signal: sygnal.signal });
+    window.addEventListener("touchend", (e) => {
+      const t = e.changedTouches[0];
+      const g = gest;
+      gest = null;
+      if (!g || !t || krok) return;
+      const kierunek = kierunekGestu(t.clientX - g.x, g.y - t.clientY);
+      const nr = celKroku(punkty(), window.scrollY, kierunek);
+      if (nr === null) return;
+      krok = { cel: postepPrzystanku(tor, nr), od: performance.now() };
+      zegarKroku = setTimeout(zwolnijKrok, ZAPAS_MS);
+      // a plain smooth scroll, not idzDo: the peak plays on the way, as with a wheel
+      window.scrollTo({ top: punkty()[nr], behavior: "smooth" });
+    }, { passive: true, signal: sygnal.signal });
+    window.addEventListener("touchcancel", () => { gest = null; }, { passive: true, signal: sygnal.signal });
+  }
 
   window.addEventListener("scroll", () => {
     const y = window.scrollY;
@@ -161,6 +201,7 @@ export function zamontujWarstwe({ tor, przekladka, scena, ekran, ograniczRuch })
     /** The scene is gone: listeners off, the display attributes and the close-up class removed. */
     odmontuj() {
       sygnal.abort();
+      zwolnijKrok();
       korzen.classList.remove("przyblizony");
       for (const a of ["tabindex", "role", "aria-label"]) ekran.removeAttribute(a);
       for (const el of przystanki) for (const w of ["opacity", "transform", "visibility"]) el.style.removeProperty(w);
