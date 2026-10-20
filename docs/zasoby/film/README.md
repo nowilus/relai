@@ -31,6 +31,10 @@ i liczby z manifestu tego dnia); MP4 do gita nie wchodzą — są zasobami wydan
 nazwami `relai-film-pl.mp4` (film główny, kopia `zrodla/out/film.mp4`) i `relai-film-en.mp4`
 (dodatek, kopia `zrodla/out/film-en.mp4`). Scena 4 bierze kartę startu etapu wprost z linii
 metrycznej planu — po poprawce parsera modelu (Aneks F) bez dopisywanej etykiety.
+Od 2026-10-20 README nie osadza już pętli GIF: pokazuje kadr z otwarcia filmu z przyciskiem
+odtwarzania (`relai-film-kadr-pl.jpg`, 1676×943, klatka z 4. sekundy), który prowadzi do
+odtwarzacza na stronie (`site/pl/wideo/`, wersja EN w `site/wideo/`), a ten gra MP4 prosto
+z zasobów wydania `v3.0.0`. Pętle GIF zostają w repozytorium jako materiał źródłowy.
 
 ## Co gdzie leży
 

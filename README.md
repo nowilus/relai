@@ -53,16 +53,12 @@ plan zmian do Twojej zgody; kod zostaje nietknięty.
 ## Zobacz, jak to działa
 
 <p align="center">
-  <img src="docs/zasoby/film/relai-petla-25s-pl.gif" alt="RelAI w Claude Code: trzy paski nad promptem — plan z etapem, postęp etapu i cache z baterią limitu — a potem panel RelAI, w którym każda komenda ma swój przycisk, a mapa zaczyna od tego, co robi bieżąca sesja" width="420">
+  <a href="https://nowilus.github.io/relai/pl/wideo/"><img src="docs/zasoby/film/relai-film-kadr-pl.jpg" alt="Obejrzyj film o RelAI (2 min 49 s, z muzyką)" width="838"></a>
 </p>
 
-Trzy paski nad promptem pokazują plan, postęp etapu i to, ile zostało z limitu; panel w aplikacji
-zamienia komendy w przyciski. Interfejs jest odtworzony z kodu wtyczek i z danych tego
-repozytorium, nie narysowany na pokaz. Pełny film (2 min 49 s, z muzyką):
-[relai-film-pl.mp4](https://github.com/nowilus/relai/releases/download/v3.0.0/relai-film-pl.mp4)
-w zasobach wydania 3.0.0; obok wersja z angielskimi napisami jako dodatek
-([relai-film-en.mp4](https://github.com/nowilus/relai/releases/download/v3.0.0/relai-film-en.mp4)).
-Jak powstaje: [docs/zasoby/film/](docs/zasoby/film/).
+Film (2 min 49 s, z muzyką) pokazuje RelAI w pracy: paski nad promptem, panel z przyciskami
+zamiast komend i start etapu w nowej sesji. Wersja z angielskimi napisami:
+[nowilus.github.io/relai/wideo](https://nowilus.github.io/relai/wideo/).
 
 ## Na co dzień
 
