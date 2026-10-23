@@ -27,7 +27,7 @@
 | H9 | Tryb ciągły „dokumenty” nie widzi zapisu, którego nie rozpozna — `sed -i`, skrypt, podproces, `>(tee …)` — i dokument zostaje bez humanizacji (plan HUMANIZACJA, pomiar E5) | **Niski** (2026-10-14, przy zamknięciu planu) | **OTWARTE ŚWIADOMIE** | Aneks C: hook po Write/Edit i po Bash z przekierowaniem `>` / `>>` albo `tee`; w pomiarze E5 model pisał wyłącznie tymi drogami (8/8 przed poprawką, 2/2 po niej z regułą). Pominięcie kończy się ciszą, nigdy złą regułą; komenda `/relai-humanize` na pliku działa niezależnie od trybu ciągłego. |
 | T1 | Scena 3D strony tnie się na słabszym laptopie albo zintegrowanej grafice (plan STRONA_RELAI, ryzyko 1) | **Średni** (2026-10-18 po E6; wcześniej wysoki) | **OTWARTE** | E1: render na żądanie, DPR ≤ 1,5, obniżenie jakości przy medianie > 26 ms. E2 (scena CC0, AO, głębia ostrości): przy CPU ×4 mediana 11,1 ms, p95 16,7 ms, 913 wywołań rysowania na klatkę po scaleniu miasta (przed: 2206, p95 22,3 ms); obniżanie jakości zaczyna od głębi ostrości. E3 (poświata ekranu RectAreaLight, nowe książki): przy CPU ×4 przewijanie mediana 11,9 ms, p95 22,2 ms — p95 wzrosło o 5,5 ms, zapas do 26 ms już tylko 3,8 ms; przybliżanie p95 13,1 ms; najwięcej 907 wywołań rysowania na klatkę. Zmierzone tylko na RTX 4070 Ti. E4 (bez path tracingu, przygaszona lampa, lakier blatu): CPU ×4 mediana 11,3 ms, p95 17,5 ms, najwięcej 910 wywołań rysowania. Otwarte: słaba grafika w E7. E5 (Film, bez WebGL): przy CPU ×4 mediana 5,6 ms, p95 5,6 ms, najdłuższa klatka 28,7 ms, więc Filmu ryzyko nie dotyczy. Aneks D: Biurko też idzie do publikacji, dlatego poziom zostaje wysoki do pomiaru na słabej grafice w E6. E7 (Film z animacjami WAAPI i przytrzymaniem): CPU ×4 mediana 11,1 ms, p95 16,7 ms na desktopie i w emulacji telefonu — Filmu nadal nie dotyczy; poziom bez zmiany przez Biurko. E6: SwiftShader (grafika programowa) 1366 × 768 mediana 1 700 → 1 183 → 817 ms po krokach obniżania, 390 × 844 1 033 → 867 → 433 → 283 ms; wyłącznik `biurko/grafika.js` daje takiej przeglądarce plakat (werdykt Łukasza 3A), brak WebGL2 i ograniczony ruch też. RTX przy CPU ×4: p95 przewijania 20,6–25,2 ms desktop, 15,4–16,3 ms telefon. Otwarte: zintegrowana karta niezmierzona (bramka „pomiar na słabszym laptopie”); drugi bezpiecznik (plakat po wyczerpaniu kroków jakości, opcja 3B) świadomie niewdrożony. E8 (2026-10-18): Biurko opublikowane pod `/biurko/` bez zmian w scenie; plan STRONA_RELAI zamknięty, bramka „pomiar na słabszym laptopie” świadomie otwarta poza planem (`docs/STATE.md`, „Co dalej”). |
 | T2 | Biurko wygląda jak tani render albo glina z AI (plan STRONA_RELAI, ryzyko 2) | **Średni** (2026-10-18 po E6; wcześniej wysoki) | **OTWARTE** | E2: modele i tekstury CC0, deski orzechowe ze słojami, miasto za oknem, kubek i tablica od nowa; kalibracja w czterech rundach, zamknięcie za zgodą Łukasza, ale „nadal jesteśmy całkiem daleko” od obrazów 01–08 — przyczyna: brak światła odbitego w rasteryzacji (L-0220). Aneks B: E3 laptop i detale, E4 path tracing na przystankach. E4 (2026-10-16): światło odbite nie dało uzysku — przyczyną dystansu jest detal przedmiotów, tekstur i kompozycja, nie światło (L-0226); test detalu (blat `wood_table_worn`, druk na dokumentach, ciemniej) dał umiarkowany zysk. Aneks C: następny jest Film, Biurko po bramce. E5: Film rysowany kodem, hero przyjęte w trzeciej rundzie („Tak, przyjmuję”). Bramka z Aneksem D: najpierw dopieszczenie Filmu (E7), potem pełna droga Biurka (E6), publikacja obu z ankietą. Dla Biurka ryzyko zostaje wysokie. E7: Film dopieszczony i przyjęty akt po akcie („Tak, przyjmuję”), dotyczy już tylko Biurka (E6). E6: każdy przystanek, szczyt, mapa, szuflady, telefon, zasłona i plakat przyjęte przez Łukasza na kadrach przed i po; kontrola odczuć zgodna z krzywą briefu (4A). Otwarte do ankiety po publikacji (E8): czy odwiedzający odbierają Biurko jako dopracowane. E8 (2026-10-18): obie wersje opublikowane, ankieta w Tally zbiera głosy z ukrytym polem `wersja`; ryzyko zostaje otwarte do odczytu ankiety, który jest poza planem (`docs/STATE.md`). |
-| RM1 | Przełącznik `relai-mods` stoi na CLI `claude plugin` wołanym z moda: inna binarka niż silnik aplikacji, inne logowanie albo brak przeładowania z moda (plan RELAI_MODS, ryzyko R1) | **Średni** (2026-10-23 po E1) | **ZMIERZONE 2026-10-23 (E1, P-052), OTWARTE** | Wynik spike'u na desktopie: CLI z moda działa, jest zalogowane i zapisuje w ~0,7 s. Mod uruchamia jednak `claude` z PATH (2.1.304), a nie binarkę silnika (2.1.308), bo nie widzi `CLAUDE_CODE_EXECPATH`. Przeładowania z moda nie ma ani przez `$.command.run`, ani przez `$.prompt.submit`, więc działa plan B „wpisz /reload-plugins”. `enable` przyjmuje każde `x@y` i zapisuje je, dlatego id biorę wyłącznie z `installed_plugins.json`. Terminal mierzy E4. |
+| RM1 | Przełącznik `relai-mods` stoi na CLI `claude plugin` wołanym z moda: inna binarka niż silnik aplikacji, inne logowanie albo brak przeładowania z moda (plan RELAI_MODS, ryzyko R1) | **Średni** (2026-10-23 po E1) | **ZMIERZONE 2026-10-23 (E1, P-052), OTWARTE** | Wynik spike'u na desktopie: CLI z moda działa, jest zalogowane i zapisuje w ~0,7 s. Mod uruchamia jednak `claude` z PATH (2.1.304), a nie binarkę silnika (2.1.308), bo nie widzi `CLAUDE_CODE_EXECPATH`. Przeładowania z moda nie ma ani przez `$.command.run`, ani przez `$.prompt.submit`, więc działa plan B „wpisz /reload-plugins”. `enable` przyjmuje każde `x@y` i zapisuje je, dlatego id biorę wyłącznie z `installed_plugins.json`. Terminal mierzy E4. **E3 (2026-10-23):** `claude` z PATH zostaje decyzją Łukasza (Aneks B), a szczegóły kokpitu pokazują jego wersję. Pasek zmian wie o przeładowaniu tylko z `plugin.register` innych modów (P-053): bez żadnego innego modu z modułem hooków pasek po `/reload-plugins` nie zniknie. |
 
 > Ryzyka zamknięte T3, T6 (2 pozycje) są w
 > [docs/archiwum/ryzyka/RYZYKA_2026-10-19.md](archiwum/ryzyka/RYZYKA_2026-10-19.md)
@@ -1577,5 +1577,127 @@ jeszcze nie ma (E3), przełącznik `filetree` i Przeładuj zostały jak po E1.
 
 Przegląd ryzyk: RM1 bez zmian — E2 nie woła CLI poza przełącznikiem z E1. R5 i R6 planu pokryte
 testami (nieznany kształt pliku, ścieżki z `\` i `/`, marketplace lokalny bez `.claude`).
+
+Autor: RelAI (Opus 5.5) + Lukasz
+
+### 2026-10-23 — RELAI_MODS E3: kokpit na desktopie — akordeon w grupach, przełącznik w każdym wierszu
+
+Kokpit `/relai-mods` przełącza pluginy z panelu. Sekcje Mody / Pluginy / Hooki mają nagłówki
+Kalamem z licznikiem („3/4 włączone”). W każdym wierszu stoi przełącznik: rysunek toru z gałką
+i słowo „Włącz” / „Wyłącz”. Szczegóły rozwijają się pod klikniętym wierszem. Wyszukiwarka ma
+etykietę, filtry pokazują liczby, a pasek „N zmian czeka na przeładowanie” z przyciskiem Przeładuj
+znika po wpisanym `/reload-plugins`. Wygląd przeszedł dwie rundy w prawdziwym nośniku i Łukasz
+przyjął go w obu wyglądach aplikacji.
+
+**Zrobione:**
+
+- Decyzje na starcie (pytanie startowe, sygnał odchylenia):
+  - Aneks B: cel kopii rdzenia `mods/hooks/core` w `core/tools/sync-panel-core.js` przechodzi
+    z E5 do E3, test w `sync.test.js`.
+  - Binarka CLI zostaje `claude` z PATH, z wersją w szczegółach (R1).
+  - Aneks C: `Svg` w `Button` silnik odrzuca (typ `ButtonProps`, P-051), więc przełącznik to
+    rysunek stanu obok przycisku `plain` ze słowem.
+- Czysta logika w nowym `mods/hooks/cockpit.ts`: filtry i wyszukiwanie, migawka stanu
+  „załadowanego”, liczba N jako różnica dysku wobec tej migawki, kolejka wywołań CLI, kłódki,
+  argv i `cwd` przełącznika, etykieta „projekt <folder>”, tekst „co się zmieni”, waga drzewa.
+  Rysunki przełącznika i kłódki z obiema paletami są w `look.ts`, wygląd panelu w `views.tsx`,
+  a `register.tsx` trzyma tylko `$`, kolejkę i odczyt dysku.
+- `mods/types/index.d.ts`: `$.state` dostał `query`, `filter`, `selected`, `queue`, `errors`,
+  `cli` i `loaded`; `busy` zastąpiła kolejka.
+- Runda kalibracji 1 na prośbę Łukasza: przegląd skillem `ui-ux-pro-max`, potem cztery układy
+  w modzie z przełącznikiem wariantu (A grupy, B kafle, C lista, D akordeon). Przegląd dał etykietę
+  wyszukiwarki, liczby przy filtrach, znacznik wybranego wiersza i nazwę bez `@marketplace`. Bazy
+  skilla nie miały dopasowania dla układu lista–szczegóły, więc tę część oceniłem z ogólnych
+  zasad. Wybór Łukasza: „idziemy w D, ale dodajemy podział na grupy […] większa ekspozycja,
+  większe czcionki”. Runda 2: akordeon w grupach, nagłówki „Mody”, „Pluginy”, „Hooki” Kalamem
+  26 px (trzy nowe wpisy w `HEADINGS`, wygenerowany `headings.mjs`, kopie rdzenia w czterech
+  modach). Pozostałe układy usunąłem z kodu. Zmiana zamrożonego układu z sekcji 5 i przypadku
+  „wąski panel” z sekcji 8 zapisana jako Aneks D w `PLAN.html` i w dzienniku wdrożenia `STATUS.md`.
+- Poprawki z przeglądu kodu (subagent `typescript-reviewer`):
+  - kłódki nie liczą się do N;
+  - klucz pluginu bez `kind`, a klucz hooka z `matcher`;
+  - folder projektu porównywany prefiksem (sesja w podfolderze);
+  - kolejka bez flagi modułu;
+  - błąd odczytu złapany w `runOne`.
+- P-053 (przeładowanie i zachowania silnika z tego etapu), lekcje L-0255, L-0256, L-0257
+  w rejestrze i w destylacie (zasady 3, 5, 13).
+
+**Zweryfikowane — jak dokładnie:**
+
+- `"$CLAUDE_CODE_EXECPATH" plugin validate mods` (2.1.308): „✔ Validation passed”, ostrzeżenie
+  katalogu o ikonie jak w E2. `plugin test mods`: **60 pass, 0 fail** w trzech plikach (przed
+  etapem 28). Rdzeń: `node --test core/panel/tests/*.test.js` daje 216 pass, a
+  `sync-panel-core.js --check` jest zgodne. Mody, których kopia rdzenia się zmieniła: `panel` 211,
+  `progress` 48, `cache-keeper` 198, wszystkie bez błędów.
+- Mutacja „N liczone z kliknięć” (skrypt podmiany na kopii `register.tsx`) wywraca 4 testy:
+  „tam i z powrotem”, Przeładuj, błąd CLI i przekroczony czas. Kod przywrócony, ponownie 60 pass.
+  Pierwszy przebieg pokazał, że test „tam i z powrotem” nie łapał formy „2 zmiany czekają”
+  (L-0256). Wzorzec poprawiony, potem mutacja powtórzona po każdej przebudowie.
+- Każdy przypadek z punktu 4 promptu ma osobny test z kontrolą pozytywną:
+  - błąd CLI i przekroczony czas;
+  - polityka i nadpisanie (kłódka bez CLI);
+  - wiersz samego kokpitu (z komendą w szczegółach);
+  - plugin tego i innego projektu (`cwd` Parkly);
+  - kolejka;
+  - tam i z powrotem;
+  - filtr Wyłączone dla wyłączonego modu i dla pluginu bez wpisu;
+  - powierzchnia mobilna.
+- `grep -nE "#[0-9a-fA-F]{3,6}"` na `mods/hooks/*.tsx`, `look.ts` i `cockpit.ts` nie zwraca nic.
+  Kontrola pozytywna: 45 trafień w `core/panel/theme.mjs`. Test drzewa przechodzi po wszystkich
+  `color` i `borderColor` poza `Svg`.
+- Budżet: 100 sztucznych pluginów z rozwiniętym wierszem mieści się w `DRAW_LIMIT` 1 200 (waga
+  liczona jak w `pane-parts.tsx`). Wiersze dostają glif `●━━ Wyłącz`, rysunek przełącznika zostaje
+  tylko w szczegółach. Kontrola: przy 6 pluginach rysunek jest w każdym wierszu z przełącznikiem.
+- Na żywo (kopia moda w `dev-mods`, zrzuty `okno.ps1` i `zrzut-panelu.ps1`, kliknięcia przez
+  UI Automation, kopia `~/.claude/settings.json` sprzed pierwszego kliknięcia):
+  - Punkt 6: „Włącz” przy `filetree` zapisuje `true`, nagłówek pokazuje 13/14 i „1 zmiana czeka na
+    przeładowanie”. „Wyłącz” przywraca `false` i chowa pasek. `diff` z kopią pusty.
+  - Punkt 7: Przeładuj pokazuje „Wpisz /reload-plugins — aplikacja nie przeładowuje pluginów
+    z panelu.”, a po wpisanym `/reload-plugins` pasek znika. Dwie pierwsze wersje stanu
+    „załadowanego” nie przeszły tego punktu na żywo. `$.settings.read()` łapie zapis pliku po kilku
+    sekundach, a `session.start` po przeładowaniu przychodzi tylko przy świeżo włączonym modzie.
+    Sonda w `$.store` pokazała stały sygnał `plugin.register` (P-053, L-0255). Wersja trzecia
+    przeszła czysty przebieg: włączenie, przeładowanie, wyłączenie, przeładowanie.
+  - Punkt 8: filtr Wyłączone pokazuje `filetree` i `security-guidance` („projekt Parkly”), każdy
+    z 7 hooków ma kłódkę „tylko podgląd”. Wiersz `relai-mods@relai` nie istnieje na żywo, bo kokpit
+    nie jest zainstalowany z marketplace. Decyzją Łukasza ta część punktu jest sprawdzona testem
+    montującym panel, a pomiar na żywo przechodzi do E5.
+  - Punkt 9: zrzuty w zasobach `docs/zasoby/PANEL_RELAI/zrzuty/RELAI_MODS_E3_r1_*` (cztery układy)
+    i `RELAI_MODS_E3_r2_ciemny.png` / `_r2_jasny.png` (hybryda), zaakceptowane („Akceptuję”).
+- Dowód negatywny:
+  - `grep -cE '\$\.fs\.write'` daje 0 w `mods/hooks/register.tsx` i `views.tsx`, a 11 w
+    `panel/hooks/register.tsx`;
+  - `git diff --stat` dla `.claude-plugin/marketplace.json` i `core/tools/network-calls.js` pusty;
+  - `mods/.claude-plugin/plugin.json` ma `0.0.1`.
+- Katalog roboczy `.claude/relai/work/RELAI_MODS/E3/` przed sprzątaniem: 46 plików, 6 171 777 B
+  (zrzuty pomiarów i rund, kopie `settings.json` i `register.tsx`, skrypty `mutate.mjs`,
+  `nacisnij.ps1`, `cut-views.mjs`, `splice-body.mjs`). Po sprzątaniu 0, skasowany po „tak”
+  Łukasza razem z pustym `RELAI_MODS/`. Poza projektem:
+  - log sondy `~/.claude/plugins/store/relai-mods_inline-bbd34ac7006a.json` skasowany decyzją
+    Łukasza;
+  - kopia moda `~/.claude/dev-mods/bab201dc-…/relai-mods/` zostaje do końca tej sesji (nowa sesja
+    jej nie załaduje);
+  - w rytuale zamknięcia skrypt `%TEMP%/relai-mods-e4-inject-rules.mjs` wkleił „Zasady aktywne”
+    do `PROMPT_ETAP_4.md` funkcją podmiany (15 zasad, tekst równy źródłu); skasowany po użyciu.
+
+**Świadomie odłożone:**
+
+- Przycisk po rysowaniu przełącza według stanu z dysku w chwili wywołania, a nie według tego, co
+  było widać (uwaga z przeglądu kodu). Gdy plik zmieni się w innym czacie między rysowaniem
+  a kliknięciem, wynik może być odwrotny. Rzadkie, dotyczy E4 (dwa czaty).
+- Jedno `id` zainstalowane w kilku scope'ach liczy się w N osobno dla każdej instalacji (uwaga
+  z przeglądu). Na maszynie Łukasza nie występuje.
+- Hooki projektu i polityki na liście, odświeżanie co 5 s, wąski panel, terminal i dwa czaty — E4.
+  Ikona moda — E5.
+- Pole wyszukiwania na desktopie ucina placeholder („nazwa, opis albo zdarzeni”). Kosmetyka do
+  przeglądu w E4 przy wąskim panelu.
+
+**Do zrobienia przez człowieka:**
+
+- Start E4 w świeżej sesji: `/relai-stage` (plan RELAI_MODS).
+
+Przegląd ryzyk: RM1 zaktualizowany — binarka zostaje decyzją, nowy warunek sygnału przeładowania
+(inny mod z modułem hooków, P-053). R4 (kolory w jasnym wyglądzie) i R7 (budżet) pokryte testami
+i zrzutami.
 
 Autor: RelAI (Opus 5.5) + Lukasz

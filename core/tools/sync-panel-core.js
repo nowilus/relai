@@ -2,7 +2,8 @@
 'use strict';
 // RelAI core / narzedzie: sync-panel-core — kopia core/panel/*.mjs do pluginow, ktore niosa
 // rdzen panelu: relai-panel (panel/), relai-progress (progress/) i relai-cache-keeper
-// (cache-keeper/, hooks/relai/) — E9 planu PANEL_CLAUDE, Aneks C.
+// (cache-keeper/, hooks/relai/) — E9 planu PANEL_CLAUDE, Aneks C — oraz relai-mods (mods/,
+// plan RELAI_MODS, Aneks B).
 //
 // Po co: silnik modow Claude Code odmawia importu spoza folderu pluginu ("cannot import ...
 // it is outside the plugin's folder", 2.1.293, sprawdzone 2026-10-08), a marketplace ze
@@ -27,7 +28,8 @@ const ROOT = path.resolve(__dirname, '..', '..');
 const SRC = path.join(ROOT, 'core', 'panel');
 // Plugin folders that carry the core, and where; one whose folder is absent is skipped.
 // relai-cache-keeper has a hooks/core.ts of its own, so its copy lives in hooks/relai/.
-const PLUGINS = [['panel', 'panel/hooks/core'], ['progress', 'progress/hooks/core'], ['cache-keeper', 'cache-keeper/hooks/relai']];
+// relai-mods joined in E3 of plan RELAI_MODS (Annex B), for the theme keys of its cockpit.
+const PLUGINS = [['panel', 'panel/hooks/core'], ['progress', 'progress/hooks/core'], ['cache-keeper', 'cache-keeper/hooks/relai'], ['mods', 'mods/hooks/core']];
 const dests = () => PLUGINS.filter(([p]) => fs.existsSync(path.join(ROOT, p))).map(([, d]) => d);
 const ICONS = path.join(ROOT, 'docs', 'zasoby', 'branding', 'ikony');
 const ICONS_MODULE = 'icons.mjs';

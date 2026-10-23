@@ -132,6 +132,10 @@ export const HEADINGS = Object.freeze([
   // relai-progress's pane (E9, calibration 2026-10-09: the same motif as relai-panel's)
   { key: 'progress', text: 'Postęp etapu', size: 22, color: ROOT.musztarda },
   { key: 'agents', text: 'Agenci sesji', size: 22, color: ROOT.musztarda },
+  // relai-mods's groups (RELAI_MODS E3, round 1, Łukasz: "grupy muszą mieć większą ekspozycję")
+  { key: 'mods-mod', text: 'Mody', size: 26, color: ROOT.musztarda },
+  { key: 'mods-plugin', text: 'Pluginy', size: 26, color: ROOT.musztarda },
+  { key: 'mods-hook', text: 'Hooki', size: 26, color: ROOT.musztarda },
   ...Object.entries(NAMES).map(([c, [name]]) => ({ key: 'name-' + c, text: name, size: 26, color: mix(ROOT.glina, ROOT.kartka, 0.25) })),
 ]);
 

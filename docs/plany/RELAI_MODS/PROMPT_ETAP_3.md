@@ -422,21 +422,21 @@ mod, dziś wyłączony; przełączenie da się cofnąć bez skutków dla pracy).
 
 Każdy punkt Weryfikacji, który przeszedł, odhaczasz w `PROMPT_ETAP_3.md` (`- [ ]` → `- [x]`) zaraz po jego sprawdzeniu, nie na końcu etapu; punkt, który nie przeszedł, zostaje pusty.
 
-- [ ] Pytanie startowe zadane i rozstrzygnięte przed kodem wyglądu; aneks B (jeśli jest) w `PLAN.html` sekcja 10 i w dzienniku wdrożenia `STATUS.md`.
-- [ ] `"$CLAUDE_CODE_EXECPATH" plugin validate mods` — bez błędów; `"$CLAUDE_CODE_EXECPATH" plugin test mods` — wszystkie testy zielone, liczba testów podana we wpisie (przed: 28).
-- [ ] Każdy przypadek z punktu 4 zakresu ma osobny test z kontrolą pozytywną, a co najmniej jedna celowo wstawiona usterka w logice kokpitu (np. N liczone z kliknięć) wywraca test — wynik mutacji we wpisie, kod przywrócony.
-- [ ] Test drzewa: żaden `color` elementu poza markupem `Svg` nie jest hexem. `grep -nE "#[0-9a-fA-F]{3,6}" mods/hooks/*.tsx` trafia tylko w markup `Svg` (albo nic). Kontrola pozytywna: ten sam `grep` trafia w `core/panel/theme.mjs`.
-- [ ] Test budżetu: 100 sztucznych pluginów mieści się w budżecie z P-023 pkt 7 (waga liczona jak w `pane-parts.tsx`), a ponad progiem wiersze tracą `Svg` przełącznika na rzecz glifu.
-- [ ] Na żywo, z kopią `~/.claude/settings.json` w katalogu roboczym przed pierwszym kliknięciem (L-0253): klik przełącznika `filetree` zmienia plik (`true`), pasek pokazuje „1 zmiana czeka”; drugi klik przywraca `false` i pasek znika. Na koniec `diff` kopii z plikiem pusty.
-- [ ] Na żywo: Przeładuj na desktopie pokazuje „wpisz /reload-plugins”; po wpisanym ręcznie `/reload-plugins` przy N > 0 pasek znika (stan załadowany odświeżony).
-- [ ] Na żywo: `relai-mods@relai` bez przełącznika, z komendą w szczegółach; hooki z kłódką „tylko podgląd”; filtr Wyłączone pokazuje `filetree` i `security-guidance`.
-- [ ] Zrzuty w jasnym i ciemnym wyglądzie (`okno.ps1`) pokazane Łukaszowi i zaakceptowane — bramka manualna w `STATUS.md` z wynikiem.
-- [ ] Dowód negatywny:
+- [x] Pytanie startowe zadane i rozstrzygnięte przed kodem wyglądu; aneks B (jeśli jest) w `PLAN.html` sekcja 10 i w dzienniku wdrożenia `STATUS.md`.
+- [x] `"$CLAUDE_CODE_EXECPATH" plugin validate mods` — bez błędów; `"$CLAUDE_CODE_EXECPATH" plugin test mods` — wszystkie testy zielone, liczba testów podana we wpisie (przed: 28).
+- [x] Każdy przypadek z punktu 4 zakresu ma osobny test z kontrolą pozytywną, a co najmniej jedna celowo wstawiona usterka w logice kokpitu (np. N liczone z kliknięć) wywraca test — wynik mutacji we wpisie, kod przywrócony.
+- [x] Test drzewa: żaden `color` elementu poza markupem `Svg` nie jest hexem. `grep -nE "#[0-9a-fA-F]{3,6}" mods/hooks/*.tsx` trafia tylko w markup `Svg` (albo nic). Kontrola pozytywna: ten sam `grep` trafia w `core/panel/theme.mjs`.
+- [x] Test budżetu: 100 sztucznych pluginów mieści się w budżecie z P-023 pkt 7 (waga liczona jak w `pane-parts.tsx`), a ponad progiem wiersze tracą `Svg` przełącznika na rzecz glifu.
+- [x] Na żywo, z kopią `~/.claude/settings.json` w katalogu roboczym przed pierwszym kliknięciem (L-0253): klik przełącznika `filetree` zmienia plik (`true`), pasek pokazuje „1 zmiana czeka”; drugi klik przywraca `false` i pasek znika. Na koniec `diff` kopii z plikiem pusty.
+- [x] Na żywo: Przeładuj na desktopie pokazuje „wpisz /reload-plugins”; po wpisanym ręcznie `/reload-plugins` przy N > 0 pasek znika (stan załadowany odświeżony).
+- [x] Na żywo: `relai-mods@relai` bez przełącznika, z komendą w szczegółach; hooki z kłódką „tylko podgląd”; filtr Wyłączone pokazuje `filetree` i `security-guidance`.
+- [x] Zrzuty w jasnym i ciemnym wyglądzie (`okno.ps1`) pokazane Łukaszowi i zaakceptowane — bramka manualna w `STATUS.md` z wynikiem.
+- [x] Dowód negatywny:
       - `grep -cE '\$\.fs\.write' mods/hooks/register.tsx` (cudzysłów pojedynczy) daje 0; kontrola pozytywna: ten sam wzorzec daje 11 w `panel/hooks/register.tsx` (2026-10-23);
       - `git diff --stat` dla `.claude-plugin/marketplace.json` i `core/tools/network-calls.js` pusty (oraz `core/tools/sync-panel-core.js`, jeśli nie było aneksu B);
       - `mods/.claude-plugin/plugin.json` ma nadal `0.0.1`.
-- [ ] Wpis w `docs/DZIENNIK.md` na końcu sekcji „Wpisy”, z podpisem z członem użytkownika.
-- [ ] Katalog roboczy `.claude/relai/work/RELAI_MODS/E3/` przejrzany raportem (`node .claude/relai/tools/clean-work.js raport`) i skasowany po „tak”, liczby przed i po we wpisie dziennika. Artefakty spoza katalogu wypisane we wpisie z nazwy razem z tym, co się z nimi stało, w tym kopia moda w `~/.claude/dev-mods/<id sesji>/relai-mods/`.
+- [x] Wpis w `docs/DZIENNIK.md` na końcu sekcji „Wpisy”, z podpisem z członem użytkownika.
+- [x] Katalog roboczy `.claude/relai/work/RELAI_MODS/E3/` przejrzany raportem (`node .claude/relai/tools/clean-work.js raport`) i skasowany po „tak”, liczby przed i po we wpisie dziennika. Artefakty spoza katalogu wypisane we wpisie z nazwy razem z tym, co się z nimi stało, w tym kopia moda w `~/.claude/dev-mods/<id sesji>/relai-mods/`.
 
 ## Na koniec (rytuał obowiązkowy — bez tego rytuału etap nie jest ukończony)
 

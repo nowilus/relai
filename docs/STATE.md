@@ -124,16 +124,21 @@ po E5 (wydanie panelu 0.20.0 / 0.11.0); HUMANIZACJA zamknięty 2026-10-14 wydani
   (`security-audit`, MIT) wbudowane w plugin — komenda `/relai-security`, 13. hook po zmianie
   lockfile, prompty etapów, `done-check`, `first-deploy`, zamknięcie sesji i planu; ryzyka do
   dziennika, raporty w `.security/`. Linia „Aktywny plan” w `CLAUDE.md` zostaje przy PANEL_CODEX.
-- **RELAI_MODS — E2 zrealizowany 2026-10-23, E3 gotowy do startu** (plan
-  [RELAI_MODS](plany/RELAI_MODS/STATUS.md), 5 etapów, wykonanie Opus w Claude Code, Aneks A). Po co: czwarty mod `relai-mods` — kokpit wszystkich
+- **RELAI_MODS — E3 zrealizowany 2026-10-23, E4 gotowy do startu** (plan
+  [RELAI_MODS](plany/RELAI_MODS/STATUS.md), 5 etapów, wykonanie Opus w Claude Code, Aneksy A–D). Po co: czwarty mod `relai-mods` — kokpit wszystkich
   pluginów i hooków z `settings.json` (wariant C makiety), przełączanie przez
   `claude plugin disable/enable`, jedno Przeładuj, jasny i ciemny wygląd, desktop i terminal.
   Szkielet `mods/` 0.0.1 jest w repo (niewydany). Spike E1: CLI z moda działa i jest zalogowane
   (~0,7 s), `cwd` działa, a przeładowanie z moda na desktopie nie działa, więc obowiązuje plan B
   „wpisz /reload-plugins” (P-052). E2: panel pokazuje pełny inwentarz z plików — 14 pluginów
   (4 mody) i 7 hooków własnych z liczbami skilli, agentów, komend, MCP i zdarzeń, 28 testów
-  na fixturach. E3 to kokpit z makiety C: wyszukiwarka, filtry, szczegóły, przełącznik w każdym
-  wierszu, jasny i ciemny wygląd. Linia „Aktywny plan” zostaje przy PANEL_CODEX.
+  na fixturach. E3: kokpit przełącza pluginy z panelu. Po dwóch rundach wyglądu to akordeon
+  w grupach Mody / Pluginy / Hooki z nagłówkami Kalam i licznikami (Aneks D). Każdy wiersz ma
+  przełącznik — rysunek i słowo (Aneks C), CLI wołane jest jedno naraz. Pasek „N zmian czeka”
+  znika po wpisanym `/reload-plugins`, bo stan „załadowany” to migawka plików odświeżana przy
+  `plugin.register` innych modów (P-053). Kopia rdzenia panelu jest w `mods/hooks/core` (Aneks B),
+  60 testów, wygląd przyjęty w obu wyglądach. E4: terminal, wąski panel, odświeżanie i dwa czaty.
+  Linia „Aktywny plan” zostaje przy PANEL_CODEX.
 - **PANEL_CODEX, E1 — przejęcie rdzenia i natywny panel w Codeksie** (plan
   [PANEL_CODEX](plany/PANEL_CODEX/STATUS.md), ZAAKCEPTOWANY 2026-10-10, 8 etapów, autor
   i wykonawca `gpt-6.1-sol` w Codeksie, Aneks A — 16 pól kontraktu — zaakceptowany). Po co: ten sam

@@ -23,7 +23,9 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
    w wersji uruchomionej dosłownie, z tej samej powłoki, którą zobaczy czytelnik; znak
    interpretowany przez powłokę zapisujesz tak, żeby go nie tknęła. (L-0002, L-0022, L-0059)
 3. **Test „czegoś nie wolno" wymaga dowodu negatywnego:** chroniony fragment ma nadal pierwotne
-   brzmienie, nie tylko nowy wpis powstał. (L-0007)
+   brzmienie, nie tylko nowy wpis powstał. Test nieobecności tekstu z odmianą liczebnika szuka
+   rdzenia wspólnego wszystkim formom, a każdy test „czegoś nie ma” wywraca mutacja pisana dla niego
+   (L-0256). (L-0007, L-0256)
 4. **Dowodzisz efektem, nie zdarzeniem** — stanem pliku, sumą, treścią odpowiedzi; kryterium na
    stanie, który kontrolujesz, i na źródle, które artefakt produkuje. Zmianę zachowania pokazujesz
    **obiema wersjami w jednym przebiegu**, instrumentem wiernym obu, na materiale, który stara
@@ -114,12 +116,14 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
      `scrollIntoView` (L-0246); warstwę HTML w transformacji 3D sprawdzasz `elementsFromPoint`
      w siatce po całej powierzchni i w każdym stanie kamery (L-0247); układ wyśrodkowany liczbą
      (lewy i prawy odstęp w kilku szerokościach), kontrola najpierw odtwarza błąd (L-0248);
-     przepełnienie telefonu: `innerWidth` wobec `visualViewport`, potem bisekcja reguł (L-0249).
+     przepełnienie telefonu: `innerWidth` wobec `visualViewport`, potem bisekcja reguł (L-0249);
+     przycisk zmieniający stan użytkownika naciskasz po pozycji sprawdzonej na liście przycisków,
+     nie po pierwszym trafieniu etykiety, i po każdym kliknięciu `diff` z kopią (L-0257).
    (L-0032, L-0037, L-0054, L-0055, L-0056, L-0064, L-0068, L-0071, L-0073, L-0083, L-0084, L-0086,
    L-0087, L-0088, L-0090, L-0091, L-0095, L-0096, L-0097, L-0101, L-0102, L-0105, L-0106, L-0107,
    L-0110, L-0111, L-0113, L-0124, L-0125, L-0127, L-0130, L-0131, L-0135, L-0141, L-0143, L-0151,
    L-0160, L-0164, L-0169, L-0170, L-0173, L-0181, L-0211, L-0213, L-0215, L-0238, L-0239, L-0240,
-   L-0242, L-0243, L-0246, L-0247, L-0248, L-0249)
+   L-0242, L-0243, L-0246, L-0247, L-0248, L-0249, L-0257)
 6. **Próg jest liczbą, którą ktoś liczy:** kalibrujesz na realnych plikach, zapisujesz w jednostce
    mechanizmu z komendą sprawdzającą, z **jednym** wyzwalaczem. Porównujesz do wielkości, którą
    mechanizm kontroluje (część usuwalna); zatkanie sygnalizuje **różnica możliwego i wykonanego**,
@@ -173,7 +177,9 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
       zmiennego cwd, test w podfolderze (L-0146); przypadek błędu najpierw na samym narzędziu
       (bez zapisu), kopia plików użytkownika przed pomiarem, który w nich pisze, odpowiedź
       `$.command.run` po treści, atrapa testu odpowiada na każde wywołanie z `calls` walidatora
-      (L-0253).
+      (L-0253); zachowanie silnika, na którym stoi mechanizm (źródło stanu, sygnał zdarzenia),
+      sondą zdarzeń w `$.store` przez cały cykl, dwa razy, zanim powstanie kod — „zaraz po” i zdanie
+      z typów to hipotezy (L-0255).
     - **Sesje:** sonda działania niszczącego w sesji bez wartości, stan w pliku przed krokiem
       (L-0153); funkcja czekająca na `$.ui.ask` zapamiętuje id sesji i porzuca odpowiedź po zmianie,
       zegar i próg czyta po każdym `await` (L-0166); test wielu rozmów — atrapy per rozmowa (L-0168);
@@ -187,7 +193,7 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
       nie ze zrzutu ani słowa człowieka (L-0244); obraz dla cudzej usługi w proporcji zmierzonej na
       opublikowanym widoku, każda podmiana pod nowym adresem (L-0245).
     (L-0041, L-0042, L-0044, L-0047, L-0092, L-0133, L-0136, L-0138, L-0139, L-0146, L-0153, L-0166,
-    L-0168, L-0185, L-0189, L-0190, L-0244, L-0245, L-0253)
+    L-0168, L-0185, L-0189, L-0190, L-0244, L-0245, L-0253, L-0255)
 14. **Najpierw zmiana w repozytorium, potem zdanie, które ją opisuje.** Weryfikację planujesz tam,
     gdzie wykonalna; po pytaniu sprzątasz sam; jednostką inwentarza jest sprawa, nie linia; wstawkę
     kotwiczysz do elementu, który przeżyje operację, i dowodzisz **obecności** nowej treści. Gdy
@@ -554,6 +560,42 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
   autor promptu wylicza tym samym źródłem, które ma czytać kod etapu (plik scope'u, suma plików),
   a nie najbliższym plikiem pod ręką. Wykonawca, który trafi na rozjazd, najpierw sprawdza oba
   źródła, potem pyta człowieka o brzmienie punktu, a nie dopasowuje kod do faktu.
+
+### L-0255 — Pasek zmian zbudowany dwa razy na niezmierzonym zachowaniu silnika i dwa razy nie znikał · 2026-10-23 · AKTYWNA
+
+- **Trigger:** etap E3 planu RELAI_MODS. Stan „załadowany” najpierw wziąłem z `$.settings.read()`,
+  bo P-052 pkt 4 mówił, że po zapisie CLI zwraca starą wartość. Ten pomiar obejmował tylko chwilę
+  zaraz po zapisie, a silnik odświeża migawkę po kilku sekundach. Druga wersja oparła się na zdaniu
+  z typów („all if one hooks plugin.register”), że przeładowanie odpali `session.start`. Za pierwszym
+  razem zadziałało, bo ładował się świeżo włączony mod, a za drugim nie. Dopiero sonda zapisująca
+  do `$.store` każde zdarzenie przy dwóch ręcznych przeładowaniach pokazała stały sygnał:
+  `plugin.register` innych modów (P-053).
+- **Zasada:** zachowanie cudzego silnika, na którym stoi mechanizm (źródło stanu, sygnał zdarzenia),
+  mierzysz sondą zdarzeń przez cały cykl i co najmniej dwa razy, zanim zbudujesz na nim kod.
+  Pomiar „zaraz po” nie mówi nic o stanie kilka sekund później, a zdanie z typów to hipoteza do
+  sondy. Jeden udany przebieg na żywo nie wystarcza, gdy istnieje druga droga, która mogła dać ten
+  sam wynik.
+
+### L-0256 — Test „pasek zniknął” nie widział formy „2 zmiany czekają” · 2026-10-23 · AKTYWNA
+
+- **Trigger:** etap E3 planu RELAI_MODS, mutacja „N liczone z kliknięć”. Test „tam i z powrotem”
+  przeszedł mimo zepsutej logiki, bo sprawdzał brak tekstu wzorcem `/czeka na przeładowanie/`,
+  a po dwóch kliknięciach panel pisał „2 zmiany czekają na przeładowanie”.
+- **Zasada:** test nieobecności tekstu z odmianą liczebnika szuka rdzenia wspólnego wszystkim
+  formom (`/na przeładowanie/`). Każdy test „czegoś nie ma” przechodzi przez mutację, która ma go
+  wywrócić. Wynik mutacji, w którym nie padł test pisany właśnie dla niej, traktujesz jako defekt
+  testu.
+
+### L-0257 — Klik po samej etykiecie „Wyłącz” przełączył cudzy plugin w ustawieniach Łukasza · 2026-10-23 · AKTYWNA
+
+- **Trigger:** etap E3 planu RELAI_MODS, pomiar na żywo. Skrypt UI Automation nacisnął pierwszy
+  przycisk o nazwie „Wyłącz” i wyłączył `andrej-karpathy-skills` zamiast `filetree`. `diff`
+  z kopią ustawień złapał to od razu i plugin wrócił drugim kliknięciem. W tej samej serii ścieżka
+  `"$WW\\$1"` w funkcji powłoki zablokowała rozwinięcie `$1`, więc trzy zrzuty nadpisały jeden plik
+  (L-0230).
+- **Zasada:** przycisk, który zmienia stan użytkownika, naciskasz po pozycji sprawdzonej na liście
+  przycisków (indeks albo klucz wiersza), nigdy po pierwszym trafieniu etykiety. Po każdym kliknięciu
+  robisz `diff` z kopią sprzed pomiaru. Nazwy plików w funkcji powłoki składasz z `/`.
 
 ## Lekcje zwinięte
 

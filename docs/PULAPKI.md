@@ -8,6 +8,38 @@ Specyfikacja: `SPEC_PULAPKI.md`.
 
 ## Pułapki
 
+### P-053 — Mod: `/reload-plugins` nie budzi niezmienionego modułu, a `$.settings.read()` łapie zapis pliku bez przeładowania · 2026-10-23 · AKTYWNA
+
+- **Objaw (plan RELAI_MODS, E3, kokpit `relai-mods` na żywo):**
+  1. Stan „załadowany” brany z `$.settings.read()` (scalone `enabledPlugins`): po kliknięciu
+     „Włącz” i z powrotem „Wyłącz” pasek „1 zmiana czeka na przeładowanie” został, choć plik
+     wrócił do stanu wyjściowego.
+  2. Migawka stanu w `session.start` z nasłuchem `plugin.register` (według typów: „changed modules
+     only; all if one hooks engine.create/plugin.register”): pasek raz zniknął po
+     `/reload-plugins`, a przy drugim przeładowaniu został.
+- **Przyczyna (sonda w `$.store`, dwa ręczne przeładowania):**
+  - `$.settings.read()` czyta migawkę silnika, którą silnik odświeża sam kilka sekund po zmianie
+    pliku. P-052 pkt 4 zmierzył tylko chwilę zaraz po zapisie: „stara wartość” nie znaczy
+    „stan załadowany”.
+  - Przy `/reload-plugins` przychodzi `plugin.register` dla **każdego innego** modułu hooków
+    (`relai-panel`, `relai-progress`, `relai-cache-keeper` w obu przeładowaniach). `session.start`
+    niezmienionego modu przyszedł tylko wtedy, gdy przeładowanie ładowało świeżo włączony mod
+    (`filetree`). Zdanie z typów dotyczy rejestracji, nie `session.start`.
+- **Obejście:** stan „załadowany” to migawka plików zrobiona w `session.start` i ponownie przy
+  każdym `plugin.register` (obserwator z `.catch(($, e, next) => next(e))`, który nigdy nie odrzuca
+  modułu). Ograniczenie: bez żadnego innego modu z modułem hooków przeładowanie nie da sygnału.
+- **Inne zachowania zmierzone w tym etapie:**
+  - `$.state.set` z hooka `ui.render` silnik odrzuca („drawing is pure”), także zapis z obietnicy
+    puszczonej bez `await` w trakcie rysowania. Zapis wolno zrobić z `session.start`.
+  - `$.process.run` po przekroczeniu `timeoutMs` **odrzuca** obietnicę, nie zwraca `exitCode`.
+  - `$.command.run({ command: 'reload-plugins' })` z przycisku panelu czeka do końca tury modelu.
+    Kliknięte w trakcie tury odpowiada odmową dopiero po niej.
+  - Silnik testów (`plugin test`) nie ma `$.plugin.register`: ścieżkę sygnału przeładowania
+    sprawdza się tylko na żywo.
+  - Atrapa `command.run` w teście odpowiada `{ text }`, a nie `{ value: { text } }`.
+- **Zasięg:** Claude Code 2.1.308 (silnik aplikacji), aplikacja desktopowa, Windows 11; terminal
+  niezmierzony (E4).
+
 ### P-052 — Mod na desktopie: `claude plugin` z `$.process.run` działa, przeładowania z moda nie ma, a `enable` bierze każde id · 2026-10-23 · AKTYWNA
 
 - **Objaw (spike E1 planu RELAI_MODS, mod `relai-mods` 0.0.1 na żywo):**

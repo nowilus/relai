@@ -1,32 +1,46 @@
 // relai-mods: what is installed on this machine and what fires in it, beside the chat (plan
-// RELAI_MODS). E2: the full list from disk — mods, plugins and the user's own hooks, with scope,
-// version, state and a line of counts or events. The switch for filetree and Reload stay as E1 left
-// them; E3 puts a switch in every row. The pane never writes settings.json or
-// installed_plugins.json: the CLI does (brief, Łukasz's decisions). Pure logic in ./inventory.
+// RELAI_MODS). E3: the cockpit of mockup C on the desktop — a header with the count, a search and
+// filters, the list on the left with a fading rule between rows, the details of the chosen row on
+// the right, a switch in every row that has one, locks with their reason, and the bar of changes
+// waiting for /reload-plugins. The pane never writes settings.json or installed_plugins.json: the
+// CLI does, one call at a time (brief, Łukasz's decisions). Pure logic in ./inventory, ./cockpit
+// and ./look; the terminal and the narrow pane get their own layout in E4.
 
 import { atom, read, update } from 'claude-code'
 import type { EngineInterface, Register } from 'claude-code'
 import {
-  STATE_WORD, buildInventory, cliError, filesOf, foldersOf, headerOf, joinPath, parseInstalls,
-  settingsFilesOf, sourcesOf, summaryOf, toggleArgv,
+  buildInventory, cliError, filesOf, foldersOf, joinPath, parseInstalls, settingsFilesOf, sourcesOf,
 } from './inventory'
-import type { CliResult, DirEntry, Install, Inventory, Item, PluginFiles, PluginState } from './inventory'
+import type { DirEntry, Install, Inventory, PluginFiles } from './inventory'
+import {
+  DRAW_LIMIT, EMPTY_QUEUE, enqueue, finish, flipCall, isFilter, itemKey, lockOf, pendingCount, snapshotOf,
+  startNext, treeWeight, visible,
+} from './cockpit'
+import type { Queue } from './cockpit'
+import { cockpit, mobileList } from './views'
+import type { SvgTag, View } from './views'
 
 type $T = EngineInterface
 
 const PANE_ID = 'relai-mods'
 const PANE_TITLE = 'RelAI Mods'
-const TARGET = 'filetree@claude-code-filetree' // E1's one switch, until E3 puts one in every row
-const CLI = 'claude'
-const CLI_TIMEOUT_MS = 60_000
-// Theme keys only (P-042, P-044); the core's KEY comes with the sync in E5
-const KEY = { text: 'text', muted: 'inactive', done: 'success', failed: 'error' } as const
+const CLI = 'claude' // from PATH: the mod does not see CLAUDE_CODE_EXECPATH (P-052, Annex B)
+const CLI_TIMEOUT_MS = 20_000 // SZACUNEK from the plan, section 8; E1 measured ~0.7 s
 
-const busy = atom({ plugin: 'relai-mods', key: 'busy' } as const, false)
-const note = atom({ plugin: 'relai-mods', key: 'note' } as const, '')
-
-// The module's own; a reload starts it over and session.start sets it again
+const S = { plugin: 'relai-mods' } as const
+const note = atom({ ...S, key: 'note' } as const, '')
+const query = atom({ ...S, key: 'query' } as const, '')
+const filterAtom = atom({ ...S, key: 'filter' } as const, 'all')
+const selected = atom({ ...S, key: 'selected' } as const, '')
+const queue = atom({ ...S, key: 'queue' } as const, EMPTY_QUEUE as Queue)
+const errors = atom({ ...S, key: 'errors' } as const, {} as Record<string, string>)
+const cli = atom({ ...S, key: 'cli' } as const, '')
+const loaded = atom({ ...S, key: 'loaded' } as const, {} as Record<string, boolean>)
+// The module's own; a reload of its code starts them over and session.start sets root again
 let root = ''
+let isCliAsked = false
+
+const errorText = (err: unknown) => (err instanceof Error ? err.message : String(err))
 
 async function readText($: $T, path: string): Promise<string | null> {
   try {
@@ -49,12 +63,15 @@ async function homeDir($: $T): Promise<string> {
   return (await $.env.get('USERPROFILE').catch(() => '')) || (await $.env.get('HOME').catch(() => '')) || ''
 }
 
-// Only the policy goes through $.settings.read: the CLI never changes it (Annex A, P-052)
+const booleansOf = (raw: unknown): Record<string, boolean> =>
+  Object.fromEntries(Object.entries((raw ?? {}) as Record<string, unknown>).filter(([, v]) => typeof v === 'boolean')) as Record<string, boolean>
+
+// Only the policy goes through $.settings.read for the disk state: the CLI never changes it (Annex A, P-052)
 async function policyEnabled($: $T): Promise<Record<string, boolean>> {
   const policy = await $.settings.read({ source: 'policy' }).catch(() => ({}))
-  const raw = (policy as { enabledPlugins?: Record<string, unknown> }).enabledPlugins ?? {}
-  return Object.fromEntries(Object.entries(raw).filter(([, v]) => typeof v === 'boolean')) as Record<string, boolean>
+  return booleansOf((policy as { enabledPlugins?: unknown }).enabledPlugins)
 }
+
 
 // What one install has on disk: plugin.json, then the files and folders its manifest points at
 async function readPlugin($: $T, install: Install): Promise<PluginFiles> {
@@ -69,9 +86,11 @@ async function readPlugin($: $T, install: Install): Promise<PluginFiles> {
   return { exists: true, manifest, texts, lists }
 }
 
+const cwdOf = async ($: $T) => root || await $.session.cwd()
+
 async function readInventory($: $T): Promise<Inventory> {
   const home = await homeDir($)
-  const cwd = root || await $.session.cwd()
+  const cwd = await cwdOf($)
   const installedText = await readText($, joinPath(home, '.claude/plugins/installed_plugins.json'))
   const { installs } = parseInstalls(installedText)
   const settings: Record<string, string | null> = {}
@@ -81,33 +100,47 @@ async function readInventory($: $T): Promise<Inventory> {
   return buildInventory({ home, cwd, installedText, settings, policy: await policyEnabled($), files })
 }
 
-const errorText = (err: unknown) => (err instanceof Error ? err.message : String(err))
+// ---------- the switch: one CLI call at a time ----------
 
-async function runCli($: $T, argv: string[], cwd?: string): Promise<CliResult & { ms: number }> {
-  const t0 = await $.clock.now()
-  const r = await $.process.run(argv, { timeoutMs: CLI_TIMEOUT_MS, ...(cwd ? { cwd } : {}) })
-  return { exitCode: r.exitCode, stdout: r.stdout, stderr: r.stderr, ms: (await $.clock.now()) - t0 }
-}
+const setError = ($: $T, key: string, text: string) =>
+  update($, errors, (all) => {
+    const { [key]: _gone, ...rest } = all
+    return text ? { ...rest, [key]: text } : rest
+  })
 
-// One CLI call at a time (plan, section 8: a press during a call waits for none, it is ignored)
-async function flip($: $T, row: { id: string, scope: string, state: PluginState }): Promise<void> {
-  if (await read($, busy)) return
-  await update($, busy, () => true)
+// One call: the row read again from disk, never a lock, the id from installed_plugins.json only (P-052)
+async function runOne($: $T, key: string): Promise<void> {
   try {
-    const r = await runCli($, toggleArgv(CLI, row))
-    const verb = row.state === 'on' ? 'Wyłączony' : 'Włączony'
-    await update($, note, () => (r.exitCode === 0 ? `${verb}: ${row.id} (${r.ms} ms). Przeładuj, żeby zadziałało.` : cliError(r)))
+    const row = (await readInventory($)).items.find((i) => itemKey(i) === key)
+    if (!row || row.kind === 'hook' || lockOf(row)) return await setError($, key, 'Tej pozycji nie da się przełączyć z panelu.')
+    const call = flipCall(CLI, row)
+    const r = await $.process.run(call.argv, { timeoutMs: CLI_TIMEOUT_MS, ...(call.cwd ? { cwd: call.cwd } : {}) })
+    await setError($, key, r.exitCode === 0 ? '' : cliError(r))
   } catch (err) {
-    await update($, note, () => `Nie uruchomiono CLI: ${errorText(err)}`)
-  } finally {
-    await update($, busy, () => false)
+    // $.process.run rejects when the command cannot start or runs past the limit
+    await setError($, key, `Błąd CLI (bez kodu, limit ${CLI_TIMEOUT_MS / 1000} s): ${errorText(err).split(/\r?\n/)[0]}`).catch(() => undefined)
   }
 }
 
-async function toggleTarget($: $T): Promise<void> {
-  const row = (await readInventory($)).items.find((r) => r.kind !== 'hook' && r.id === TARGET)
-  if (!row || row.kind === 'hook') return update($, note, () => `Brak ${TARGET} w installed_plugins.json.`)
-  return flip($, row)
+// The press joins the queue; whoever finds no call running takes the next one, so the queue in
+// $.state alone keeps one call at a time — no flag of the module's, which a press handler may not share
+async function press($: $T, key: string): Promise<void> {
+  await update($, queue, (q) => enqueue(q, key))
+  for (;;) {
+    let next = ''
+    await update($, queue, (q) => {
+      const r = startNext(q)
+      next = r.key
+      return r.queue
+    })
+    if (!next) return
+    const taken = next
+    try {
+      await runOne($, taken)
+    } finally {
+      await update($, queue, (q) => finish(q, taken)).catch(() => undefined)
+    }
+  }
 }
 
 // Measured 2026-10-23 (E1, e; P-052): in the desktop app $.command.run resolves, not rejects, with
@@ -127,6 +160,17 @@ async function reloadPlugins($: $T): Promise<void> {
   }
 }
 
+// The CLI's version for the details (R1), asked once per module at session.start and never
+// awaited: a state write made from a draw is refused by the host ("drawing is pure")
+function askCliVersion($: $T): void {
+  if (isCliAsked) return
+  isCliAsked = true
+  void $.process.run([CLI, '--version'], { timeoutMs: CLI_TIMEOUT_MS })
+    .then((r) => update($, cli, () => r.stdout.split(/\r?\n/)[0]?.trim() || `kod ${r.exitCode ?? 'brak'}`))
+    .catch((err) => update($, cli, () => `nie uruchomiono: ${errorText(err).split(/\r?\n/)[0]}`))
+    .catch(() => undefined)
+}
+
 async function togglePane($: $T): Promise<string> {
   if ((await $.ui.panes()).some((p) => p.id === PANE_ID)) {
     await $.ui.close({ id: PANE_ID })
@@ -136,32 +180,33 @@ async function togglePane($: $T): Promise<string> {
   return opened.isPlaced ? 'Panel RelAI Mods otwarty.' : `Panel RelAI Mods czeka na miejsce: ${opened.reason}`
 }
 
-// ---------- the pane ----------
-
-const keyOf = (i: Item) => (i.kind === 'hook' ? `hook-${i.event}-${i.script}-${i.command}` : `${i.kind}-${i.id}-${i.scope}`)
-
-// The row's two lines: what it is and its state; then its counts or events, and its notes
-function rowText(i: Item): { title: string, meta: string, detail: string, isOn: boolean } {
-  if (i.kind === 'hook') {
-    return {
-      title: i.event,
-      meta: 'user · tylko podgląd',
-      detail: [i.script || i.command, i.matcher ? `matcher: ${i.matcher}` : ''].filter(Boolean).join(' · '),
-      isOn: true,
-    }
-  }
-  return {
-    title: i.id,
-    meta: `${i.scope} · ${i.version || 'bez wersji'} · ${STATE_WORD[i.state]}`,
-    detail: [summaryOf(i), ...i.notes].join(' · '),
-    isOn: i.state === 'on',
-  }
+// The disk as this chat loads it: at session.start and at each plugin.register of a reload.
+// Never awaited: until it lands, N is 0 (no loaded state to differ from)
+function takeSnapshot($: $T): void {
+  void (async () => {
+    const [inv, cwd] = await Promise.all([readInventory($), cwdOf($)])
+    await update($, loaded, () => snapshotOf(inv.items, cwd))
+    await update($, note, () => '')
+  })().catch(() => undefined)
 }
 
 export const register: Register = (on) => {
+  // The sign of a reload. /reload-plugins raises session.start only in modules it loads anew (a
+  // mod just enabled), never in this unchanged one, but plugin.register for every other hooks
+  // module each time: a probe saw relai-panel, relai-progress and relai-cache-keeper at both of two
+  // typed reloads, session.start once (E3, live 2026-10-23). So the loaded state is taken again
+  // here. An observer only: every module is let through
+  on('plugin.register', ($, e, next) => {
+    takeSnapshot($)
+    return next(e)
+  }).catch(($, e, next) => next(e)) // an observer never refuses a module, not even when it fails
+
   on('session.start', async ($, e, next) => {
     root = await $.session.cwd()
-    await $.command.register({ name: 'relai-mods', description: 'RelAI Mods: mody, pluginy i hooki z dysku — zakres, wersja, stan i zawartość' }).catch(() => undefined)
+    await update($, queue, () => EMPTY_QUEUE)
+    askCliVersion($)
+    takeSnapshot($)
+    await $.command.register({ name: 'relai-mods', description: 'RelAI Mods: mody, pluginy i hooki z dysku — przełączanie, szczegóły i przeładowanie' }).catch(() => undefined)
     return next(e)
   })
 
@@ -171,36 +216,31 @@ export const register: Register = (on) => {
   })
 
   on('ui.render', { component: 'Pane', requestId: PANE_ID }, async ($, e) => {
-    const { Box, Text, Button } = $.ui.resolve(e)
+    const el = $.ui.resolve(e)
     const inv = await readInventory($)
-    const target = inv.items.find((r) => r.kind !== 'hook' && r.id === TARGET)
-    const isBusy = await read($, busy)
-    const said = await read($, note)
-    return (
-      <Box flexDirection="column">
-        <Box key="head"><Text bold color={KEY.text}>{headerOf(inv)}</Text></Box>
-        {inv.problem ? <Box key="problem"><Text color={KEY.failed}>{inv.problem}</Text></Box> : null}
-        {inv.items.map((i) => {
-          const t = rowText(i)
-          return (
-            <Box key={keyOf(i)} flexDirection="column" marginTop={1}>
-              <Box key="top" flexDirection="row" columnGap={1}>
-                <Box key="kind" flexShrink={0}><Text color={KEY.muted}>{i.kind}</Text></Box>
-                <Box key="title" width={0} flexGrow={1}><Text color={t.isOn ? KEY.text : KEY.muted} wrap="truncate-end">{t.title}</Text></Box>
-                <Box key="meta" flexShrink={0}><Text color={t.isOn ? KEY.done : KEY.muted}>{t.meta}</Text></Box>
-              </Box>
-              <Box key="detail"><Text color={KEY.muted}>{t.detail}</Text></Box>
-            </Box>
-          )
-        })}
-        <Box key="actions" flexDirection="row" columnGap={1} marginTop={1}>
-          {target && target.kind !== 'hook'
-            ? <Button key="flip" variant="secondary" label={isBusy ? 'Czekam na CLI…' : target.state === 'on' ? 'Wyłącz filetree' : 'Włącz filetree'} onPress={() => toggleTarget($).catch(() => undefined)} />
-            : null}
-          <Button key="reload" variant="secondary" label="Przeładuj" onPress={() => reloadPlugins($).catch(() => undefined)} />
-        </Box>
-        {said ? <Box key="note"><Text color={said.startsWith('Błąd') || said.startsWith('Nie ') ? KEY.failed : KEY.text}>{said}</Text></Box> : null}
-      </Box>
-    )
+    if (e.surface === 'mobile') return mobileList(el, inv)
+    // Drawings only where the surface draws them, decided by the surface (as relai-panel does)
+    const Svg = ((e.surface === 'desktop' || e.surface === 'vscode') && 'Svg' in el ? el.Svg : null) as SvgTag
+    const [q, f, sel, qu, errs, said, version, cwd, was] = await Promise.all([
+      read($, query), read($, filterAtom), read($, selected), read($, queue), read($, errors), read($, note), read($, cli),
+      cwdOf($), read($, loaded),
+    ])
+    const filter = isFilter(f) ? f : 'all'
+    const shown = visible(inv.items, filter, q)
+    const pending = pendingCount(inv.items, was)
+    const base: View = {
+      el, Svg, isFull: Svg !== null, inv, shown, filter, query: q, queue: qu, errors: errs, pending,
+      cli: version, cliName: CLI, cwd, note: said,
+      // The accordion opens only what was picked; a second press folds it again
+      chosen: shown.find((i) => itemKey(i) === sel),
+      onPress: (key) => { void press($, key).catch(() => undefined) },
+      onPick: (key) => { void update($, selected, (was) => (was === key ? '' : key)) },
+      onFilter: (next) => { void update($, filterAtom, () => next) },
+      onQuery: (next) => { void update($, query, () => next) },
+      onReload: () => { void reloadPlugins($).catch(() => undefined) },
+    }
+    const full = cockpit(base)
+    // Past the budget the rows lose their drawings, the details keep theirs (R7, P-023 pkt 7)
+    return base.isFull && treeWeight(full) > DRAW_LIMIT ? cockpit({ ...base, isFull: false }) : full
   })
 }
