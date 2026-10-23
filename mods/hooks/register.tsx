@@ -1,24 +1,24 @@
-// relai-mods: the plugins installed for this machine and a switch for them, beside the chat
-// (plan RELAI_MODS). Spike build of E1: the bare list from installed_plugins.json, one switch for
-// filetree through `claude plugin disable/enable`, one Reload — and the spike's probe
-// (`/relai-mods pomiar`), which goes away with E2. The pane never writes settings.json or
+// relai-mods: what is installed on this machine and what fires in it, beside the chat (plan
+// RELAI_MODS). E2: the full list from disk — mods, plugins and the user's own hooks, with scope,
+// version, state and a line of counts or events. The switch for filetree and Reload stay as E1 left
+// them; E3 puts a switch in every row. The pane never writes settings.json or
 // installed_plugins.json: the CLI does (brief, Łukasz's decisions). Pure logic in ./inventory.
 
 import { atom, read, update } from 'claude-code'
 import type { EngineInterface, Register } from 'claude-code'
-import { STATE_WORD, cliError, enabledOf, listBlock, median, parseInstalled, toggleArgv } from './inventory'
-import type { CliResult, PluginRow } from './inventory'
+import {
+  STATE_WORD, buildInventory, cliError, filesOf, foldersOf, headerOf, joinPath, parseInstalls,
+  settingsFilesOf, sourcesOf, summaryOf, toggleArgv,
+} from './inventory'
+import type { CliResult, DirEntry, Install, Inventory, Item, PluginFiles, PluginState } from './inventory'
 
 type $T = EngineInterface
 
 const PANE_ID = 'relai-mods'
 const PANE_TITLE = 'RelAI Mods'
-const TARGET = 'filetree@claude-code-filetree' // the spike's one switch (plan, E1)
+const TARGET = 'filetree@claude-code-filetree' // E1's one switch, until E3 puts one in every row
 const CLI = 'claude'
 const CLI_TIMEOUT_MS = 60_000
-const PROBE_TIMEOUT_MS = 20_000
-const PERSIST_WAIT_MS = 60_000 // (c): the CLI's write read again after a minute of the running app
-const PROBE_FILE = '.claude/relai/work/RELAI_MODS/E1/probe.json' // spike only, gone with E2
 // Theme keys only (P-042, P-044); the core's KEY comes with the sync in E5
 const KEY = { text: 'text', muted: 'inactive', done: 'success', failed: 'error' } as const
 
@@ -36,19 +36,49 @@ async function readText($: $T, path: string): Promise<string | null> {
   }
 }
 
+async function listDir($: $T, path: string): Promise<DirEntry[] | null> {
+  try {
+    return (await $.fs.exists(path)) ? (await $.fs.list(path)).map((x) => ({ name: x.name, kind: x.kind })) : null
+  } catch {
+    return null
+  }
+}
+
 // The home folder from the environment, never from $.plugin.root (plan, section 5)
 async function homeDir($: $T): Promise<string> {
   return (await $.env.get('USERPROFILE').catch(() => '')) || (await $.env.get('HOME').catch(() => '')) || ''
 }
 
-async function userSettingsPath($: $T): Promise<string> {
-  return `${await homeDir($)}/.claude/settings.json`
+// Only the policy goes through $.settings.read: the CLI never changes it (Annex A, P-052)
+async function policyEnabled($: $T): Promise<Record<string, boolean>> {
+  const policy = await $.settings.read({ source: 'policy' }).catch(() => ({}))
+  const raw = (policy as { enabledPlugins?: Record<string, unknown> }).enabledPlugins ?? {}
+  return Object.fromEntries(Object.entries(raw).filter(([, v]) => typeof v === 'boolean')) as Record<string, boolean>
 }
 
-async function readRows($: $T): Promise<PluginRow[]> {
+// What one install has on disk: plugin.json, then the files and folders its manifest points at
+async function readPlugin($: $T, install: Install): Promise<PluginFiles> {
+  const base = joinPath(install.installPath)
+  if (!base || !(await $.fs.exists(base).catch(() => false))) return { exists: false, manifest: null, texts: {}, lists: {} }
+  const manifest = await readText($, joinPath(base, '.claude-plugin/plugin.json'))
+  const sources = sourcesOf(manifest)
+  const texts: PluginFiles['texts'] = {}
+  for (const f of filesOf(sources)) texts[f] = await readText($, joinPath(base, f))
+  const lists: PluginFiles['lists'] = {}
+  for (const d of foldersOf(sources)) lists[d] = await listDir($, joinPath(base, d))
+  return { exists: true, manifest, texts, lists }
+}
+
+async function readInventory($: $T): Promise<Inventory> {
   const home = await homeDir($)
-  const installed = await readText($, `${home}/.claude/plugins/installed_plugins.json`)
-  return parseInstalled(installed, enabledOf(await readText($, `${home}/.claude/settings.json`)))
+  const cwd = root || await $.session.cwd()
+  const installedText = await readText($, joinPath(home, '.claude/plugins/installed_plugins.json'))
+  const { installs } = parseInstalls(installedText)
+  const settings: Record<string, string | null> = {}
+  for (const f of settingsFilesOf(installs, home, cwd)) settings[f] = await readText($, f)
+  const files: Record<string, PluginFiles> = {}
+  for (const i of installs) files[joinPath(i.installPath)] = await readPlugin($, i)
+  return buildInventory({ home, cwd, installedText, settings, policy: await policyEnabled($), files })
 }
 
 const errorText = (err: unknown) => (err instanceof Error ? err.message : String(err))
@@ -60,7 +90,7 @@ async function runCli($: $T, argv: string[], cwd?: string): Promise<CliResult & 
 }
 
 // One CLI call at a time (plan, section 8: a press during a call waits for none, it is ignored)
-async function flip($: $T, row: Pick<PluginRow, 'id' | 'scope' | 'state'>): Promise<void> {
+async function flip($: $T, row: { id: string, scope: string, state: PluginState }): Promise<void> {
   if (await read($, busy)) return
   await update($, busy, () => true)
   try {
@@ -75,8 +105,8 @@ async function flip($: $T, row: Pick<PluginRow, 'id' | 'scope' | 'state'>): Prom
 }
 
 async function toggleTarget($: $T): Promise<void> {
-  const row = (await readRows($)).find((r) => r.id === TARGET)
-  if (!row) return update($, note, () => `Brak ${TARGET} w installed_plugins.json.`)
+  const row = (await readInventory($)).items.find((r) => r.kind !== 'hook' && r.id === TARGET)
+  if (!row || row.kind === 'hook') return update($, note, () => `Brak ${TARGET} w installed_plugins.json.`)
   return flip($, row)
 }
 
@@ -106,126 +136,69 @@ async function togglePane($: $T): Promise<string> {
   return opened.isPlaced ? 'Panel RelAI Mods otwarty.' : `Panel RelAI Mods czeka na miejsce: ${opened.reason}`
 }
 
-// ---------- the spike's probe (E1, measurements a–d and f); gone with E2 ----------
-
-async function tryRun($: $T, argv: string[], cwd?: string): Promise<Record<string, unknown>> {
-  const t0 = await $.clock.now()
-  try {
-    const r = await $.process.run(argv, { timeoutMs: PROBE_TIMEOUT_MS, ...(cwd ? { cwd } : {}) })
-    const ms = (await $.clock.now()) - t0
-    return { argv, cwd: cwd ?? null, exitCode: r.exitCode, ms, stdout: r.stdout.slice(0, 4000), stderr: r.stderr.slice(0, 600) }
-  } catch (err) {
-    return { argv, cwd: cwd ?? null, error: errorText(err), ms: (await $.clock.now()) - t0 }
-  }
-}
-
-const sleep = ($: $T, ms: number) => new Promise<void>((resolve) => { $.clock.after(ms, () => resolve()) })
-
-async function persisted($: $T): Promise<Record<string, unknown>> {
-  const disk = enabledOf(await readText($, await userSettingsPath($)))[TARGET] ?? null
-  const user = await $.settings.read({ source: 'user' }).catch((err: unknown) => ({ error: errorText(err) }))
-  const viaRead = (user as { enabledPlugins?: Record<string, unknown> }).enabledPlugins?.[TARGET] ?? null
-  return { at: await $.clock.now(), disk, settingsRead: viaRead }
-}
-
-async function probe($: $T): Promise<string> {
-  const out: Record<string, unknown> = { at: new Date(await $.clock.now()).toISOString(), version: await $.session.version().catch(() => null) }
-  const exec = await $.env.get('CLAUDE_CODE_EXECPATH').catch(() => '')
-  // (a) which claude the argv resolves
-  out.a = await Promise.all(['claude', 'claude.exe', 'claude.cmd', ...(exec ? [exec] : [])].map((c) => tryRun($, [c, '--version'])))
-  // (b) without the app's login: what auth status says, then three flips each way, timed
-  out.auth = await tryRun($, [CLI, 'auth', 'status'])
-  // (d) cwd, and (f) what plugin list says of a local-scope plugin from here and from its project
-  const local = (await readRows($)).find((r) => r.scope === 'local' && r.projectPath)
-  const dirs = [root, ...(local ? [local.projectPath] : [])]
-  out.d = await Promise.all(dirs.map((dir) => tryRun($, ['cmd', '/c', 'cd'], dir)))
-  out.f = await Promise.all(dirs.map(async (dir) => {
-    const r = await tryRun($, [CLI, 'plugin', 'list'], dir)
-    return { cwd: dir, id: local?.id ?? null, exitCode: r.exitCode ?? null, block: local ? listBlock(String(r.stdout ?? ''), local.id) : '' }
-  }))
-  // (c) the first enable, read at once and after a minute of the running app; then (b)'s timings
-  const enable = await runCli($, toggleArgv(CLI, { id: TARGET, scope: 'user', state: 'off' }))
-  const c: Record<string, unknown> = { enable: { exitCode: enable.exitCode, ms: enable.ms, err: enable.exitCode ? cliError(enable) : '' }, now: await persisted($) }
-  await sleep($, PERSIST_WAIT_MS)
-  c.later = await persisted($)
-  const disable = await runCli($, toggleArgv(CLI, { id: TARGET, scope: 'user', state: 'on' }))
-  c.disable = { exitCode: disable.exitCode, ms: disable.ms }
-  c.after = await persisted($)
-  out.c = c
-  const timings: { enable: number[], disable: number[], codes: (number | null)[] } = { enable: [enable.ms], disable: [disable.ms], codes: [enable.exitCode, disable.exitCode] }
-  for (let i = 0; i < 2; i += 1) {
-    const on = await runCli($, toggleArgv(CLI, { id: TARGET, scope: 'user', state: 'off' }))
-    const off = await runCli($, toggleArgv(CLI, { id: TARGET, scope: 'user', state: 'on' }))
-    timings.enable.push(on.ms)
-    timings.disable.push(off.ms)
-    timings.codes.push(on.exitCode, off.exitCode)
-  }
-  out.b = { ...timings, medianEnable: median(timings.enable), medianDisable: median(timings.disable), final: await persisted($) }
-  await $.fs.write(`${root}/${PROBE_FILE}`, JSON.stringify(out, null, 2))
-  return `Pomiar zapisany: ${PROBE_FILE} (mediana włączenia ${median(timings.enable)} ms, wyłączenia ${median(timings.disable)} ms).`
-}
-
-async function startProbe($: $T): Promise<string> {
-  if (await read($, busy)) return 'Trwa inne wywołanie CLI — spróbuj za chwilę.'
-  await update($, busy, () => true)
-  await update($, note, () => 'Pomiar trwa (ok. 1,5 min)…')
-  // The probe outlives the command's answer: the turn never waits on it
-  $.clock.after(0, () => {
-    probe($)
-      .then((text) => update($, note, () => text))
-      .catch((err: unknown) => update($, note, () => `Pomiar przerwany: ${errorText(err)}`))
-      .finally(() => update($, busy, () => false).catch(() => undefined))
-  })
-  return 'Pomiar ruszył; wynik pojawi się w panelu.'
-}
-
 // ---------- the pane ----------
 
-const stateKey = (r: PluginRow) => (r.state === 'on' ? KEY.done : KEY.muted)
+const keyOf = (i: Item) => (i.kind === 'hook' ? `hook-${i.event}-${i.script}-${i.command}` : `${i.kind}-${i.id}-${i.scope}`)
+
+// The row's two lines: what it is and its state; then its counts or events, and its notes
+function rowText(i: Item): { title: string, meta: string, detail: string, isOn: boolean } {
+  if (i.kind === 'hook') {
+    return {
+      title: i.event,
+      meta: 'user · tylko podgląd',
+      detail: [i.script || i.command, i.matcher ? `matcher: ${i.matcher}` : ''].filter(Boolean).join(' · '),
+      isOn: true,
+    }
+  }
+  return {
+    title: i.id,
+    meta: `${i.scope} · ${i.version || 'bez wersji'} · ${STATE_WORD[i.state]}`,
+    detail: [summaryOf(i), ...i.notes].join(' · '),
+    isOn: i.state === 'on',
+  }
+}
 
 export const register: Register = (on) => {
   on('session.start', async ($, e, next) => {
     root = await $.session.cwd()
-    await $.command.register({ name: 'relai-mods', description: 'RelAI Mods: zainstalowane pluginy z dysku, ich zakres i stan' }).catch(() => undefined)
+    await $.command.register({ name: 'relai-mods', description: 'RelAI Mods: mody, pluginy i hooki z dysku — zakres, wersja, stan i zawartość' }).catch(() => undefined)
     return next(e)
   })
 
-  on('command.run', { command: 'relai-mods' }, async ($, e) => {
+  on('command.run', { command: 'relai-mods' }, async ($) => {
     if (!root) root = await $.session.cwd()
-    const arg = e.args.trim()
-    if (arg === 'pomiar') return { text: await startProbe($) }
-    // Punkt 5 Weryfikacji: an id the CLI refuses, through the same path as the switch. Not
-    // "x@unknown": `plugin enable` takes any plugin@marketplace with exit 0 and writes it (P-052)
-    if (arg === 'blad') {
-      await flip($, { id: 'nie-ma-takiego', scope: 'user', state: 'off' })
-      return { text: await read($, note) }
-    }
     return { text: await togglePane($) }
   })
 
   on('ui.render', { component: 'Pane', requestId: PANE_ID }, async ($, e) => {
     const { Box, Text, Button } = $.ui.resolve(e)
-    const rows = await readRows($)
-    const target = rows.find((r) => r.id === TARGET)
+    const inv = await readInventory($)
+    const target = inv.items.find((r) => r.kind !== 'hook' && r.id === TARGET)
     const isBusy = await read($, busy)
     const said = await read($, note)
-    const hasFiletree = (await $.command.list().catch(() => [])).some((c) => c.name === 'filetree')
     return (
       <Box flexDirection="column">
-        <Box key="head"><Text bold color={KEY.text}>{`Pluginy z installed_plugins.json · ${rows.length}`}</Text></Box>
-        {rows.map((r) => (
-          <Box key={`row-${r.id}-${r.scope}`} flexDirection="row" columnGap={1}>
-            <Box key="id"><Text color={KEY.text}>{r.id}</Text></Box>
-            <Box key="meta"><Text color={stateKey(r)}>{`${r.scope} · ${r.version || 'bez wersji'} · ${STATE_WORD[r.state]}`}</Text></Box>
-          </Box>
-        ))}
+        <Box key="head"><Text bold color={KEY.text}>{headerOf(inv)}</Text></Box>
+        {inv.problem ? <Box key="problem"><Text color={KEY.failed}>{inv.problem}</Text></Box> : null}
+        {inv.items.map((i) => {
+          const t = rowText(i)
+          return (
+            <Box key={keyOf(i)} flexDirection="column" marginTop={1}>
+              <Box key="top" flexDirection="row" columnGap={1}>
+                <Box key="kind" flexShrink={0}><Text color={KEY.muted}>{i.kind}</Text></Box>
+                <Box key="title" width={0} flexGrow={1}><Text color={t.isOn ? KEY.text : KEY.muted} wrap="truncate-end">{t.title}</Text></Box>
+                <Box key="meta" flexShrink={0}><Text color={t.isOn ? KEY.done : KEY.muted}>{t.meta}</Text></Box>
+              </Box>
+              <Box key="detail"><Text color={KEY.muted}>{t.detail}</Text></Box>
+            </Box>
+          )
+        })}
         <Box key="actions" flexDirection="row" columnGap={1} marginTop={1}>
-          {target
+          {target && target.kind !== 'hook'
             ? <Button key="flip" variant="secondary" label={isBusy ? 'Czekam na CLI…' : target.state === 'on' ? 'Wyłącz filetree' : 'Włącz filetree'} onPress={() => toggleTarget($).catch(() => undefined)} />
             : null}
           <Button key="reload" variant="secondary" label="Przeładuj" onPress={() => reloadPlugins($).catch(() => undefined)} />
         </Box>
-        <Box key="loaded"><Text color={KEY.muted}>{`Komenda /filetree w tej sesji: ${hasFiletree ? 'jest' : 'nie ma'}`}</Text></Box>
         {said ? <Box key="note"><Text color={said.startsWith('Błąd') || said.startsWith('Nie ') ? KEY.failed : KEY.text}>{said}</Text></Box> : null}
       </Box>
     )

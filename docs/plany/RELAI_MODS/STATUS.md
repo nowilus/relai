@@ -7,8 +7,8 @@ Wejście planu: [BRIEF.md](BRIEF.md) i [makieta.html](makieta.html) (wariant C),
 | Etap | Nazwa | Status | Prompt | Uwagi |
 |---|---|---|---|---|
 | E1 | Spike na Windows: przełącznik i przeładowanie z moda | ZREALIZOWANY 2026-10-23 | [PROMPT_ETAP_1.md](PROMPT_ETAP_1.md) | wynik: plan B — CLI z moda działa, przeładowanie tylko wpisane `/reload-plugins` (P-052) |
-| E2 | Inwentarz: pełna lista i szczegóły z dysku | GOTOWY DO STARTU | [PROMPT_ETAP_2.md](PROMPT_ETAP_2.md) | moduł bez `$`, fixtury ze ścieżkami Windows |
-| E3 | Kokpit na desktopie, jasny i ciemny | OCZEKUJE | — | zrzuty w obu wyglądach do akceptacji |
+| E2 | Inwentarz: pełna lista i szczegóły z dysku | ZREALIZOWANY 2026-10-23 | [PROMPT_ETAP_2.md](PROMPT_ETAP_2.md) | 28 testów; na żywo 12/14 włączone · 7 hooków; punkt 4 w brzmieniu zmienionym decyzją Łukasza (L-0254) |
+| E3 | Kokpit na desktopie, jasny i ciemny | GOTOWY DO STARTU | [PROMPT_ETAP_3.md](PROMPT_ETAP_3.md) | zrzuty w obu wyglądach do akceptacji |
 | E4 | Terminal, wąski panel i dwa czaty | OCZEKUJE | — | pomiar na żywo przy 80 kolumnach |
 | E5 | Wydanie relai-mods 0.1.0 | OCZEKUJE | — | publikacja po osobnej zgodzie |
 
@@ -27,3 +27,5 @@ Wejście planu: [BRIEF.md](BRIEF.md) i [makieta.html](makieta.html) (wariant C),
 - 2026-10-23 — E1 rozpoczęty
 - 2026-10-23 — E1 zrealizowany: szkielet `mods/` 0.0.1, pomiary (a)–(f) na żywo, wynik plan B (przeładowanie wpisane ręcznie), P-052, L-0253; `filetree` i `settings.json` jak przed etapem; wygenerowany `PROMPT_ETAP_2.md`.
 - 2026-10-23 — Aneks A (zatwierdzony przez Łukasza): stan i hooki z plików zamiast `$.settings.read()`, plugin innego projektu przełączany z `cwd` bez kłódki, przeładowanie wpisane ręcznie na desktopie (plan B).
+- 2026-10-23 — E2 rozpoczęty
+- 2026-10-23 — E2 zrealizowany: inwentarz czterech źródeł w czystej logice (`inventory.ts`, 22 nowe testy, razem 28), pełna lista w panelu, sonda spike'u usunięta; na żywo 12/14 i 7 hooków zgodne z plikami; wygenerowany `PROMPT_ETAP_3.md`.

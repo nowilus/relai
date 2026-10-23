@@ -415,19 +415,19 @@ do sprawdzenia na żywo, „tyle, ile w plikach w chwili testu” (cel 1 planu).
 
 Każdy punkt Weryfikacji, który przeszedł, odhaczasz w `PROMPT_ETAP_2.md` (`- [ ]` → `- [x]`) zaraz po jego sprawdzeniu, nie na końcu etapu; punkt, który nie przeszedł, zostaje pusty.
 
-- [ ] `"$CLAUDE_CODE_EXECPATH" plugin validate mods` — bez błędów; `"$CLAUDE_CODE_EXECPATH" plugin test mods` — wszystkie testy zielone, liczba testów podana we wpisie (przed: 8).
-- [ ] Testy fixtur pokrywają każdy przypadek z punktu 2 zakresu osobnym testem. Każdy test ma kontrolę pozytywną na fixturze, która **musi** trafić (zasada 5).
-- [ ] Na żywo: `/relai-mods` pokazuje tyle pluginów, ile `installed_plugins.json`, i tyle hooków, ile komend w `hooks` pliku `settings.json` w chwili testu. Liczby z pliku policzone osobnym poleceniem i wpisane obok liczb z panelu.
-- [ ] Na żywo: 4 mody oznaczone jako mod (w tym wyłączony `filetree`), a `security-guidance` jako „wyłączony” z dopiskiem o braku wpisu.
-- [ ] Dane `ecc@ecc` z inwentarza (test na prawdziwych plikach albo zrzut panelu) mają 7 zdarzeń i liczby skilli, agentów i komend równe liczbom z `ls` folderów pluginu w chwili testu. `relai@relai` ma niezerowe liczby skilli i komend ze ścieżek manifestu.
-- [ ] Sonda spike'u usunięta: `grep -nE "pomiar|PROBE_FILE|'blad'" mods/hooks/register.tsx` nie zwraca nic. Kontrola pozytywna: ten sam wzorzec trafia w `docs/plany/RELAI_MODS/PROMPT_ETAP_1.md`.
-- [ ] Dowód negatywny:
+- [x] `"$CLAUDE_CODE_EXECPATH" plugin validate mods` — bez błędów; `"$CLAUDE_CODE_EXECPATH" plugin test mods` — wszystkie testy zielone, liczba testów podana we wpisie (przed: 8).
+- [x] Testy fixtur pokrywają każdy przypadek z punktu 2 zakresu osobnym testem. Każdy test ma kontrolę pozytywną na fixturze, która **musi** trafić (zasada 5).
+- [x] Na żywo: `/relai-mods` pokazuje tyle pluginów, ile `installed_plugins.json`, i tyle hooków, ile komend w `hooks` pliku `settings.json` w chwili testu. Liczby z pliku policzone osobnym poleceniem i wpisane obok liczb z panelu.
+- [x] Na żywo: 4 mody oznaczone jako mod (w tym wyłączony `filetree`), a `security-guidance` jako „wyłączony” z dopiskiem o braku wpisu.
+- [x] Dane `ecc@ecc` z inwentarza (test na prawdziwych plikach albo zrzut panelu) mają 7 zdarzeń i liczby skilli, agentów i komend równe liczbom z `ls` folderów pluginu w chwili testu. `relai@relai` ma niezerowe liczby skilli i komend ze ścieżek manifestu.
+- [x] Sonda spike'u usunięta: `grep -nE "pomiar|PROBE_FILE|'blad'" mods/hooks/register.tsx` nie zwraca nic. Kontrola pozytywna: ten sam wzorzec trafia w `docs/plany/RELAI_MODS/PROMPT_ETAP_1.md`.
+- [x] Dowód negatywny:
       - panel nie pisze do `settings.json` ani `installed_plugins.json` — kopia obu plików sprzed etapu w katalogu roboczym, `diff` po etapie pusty (o ile człowiek sam nie przełączał);
       - `git diff --stat` dla `.claude-plugin/marketplace.json`, `core/tools/network-calls.js` i `core/tools/sync-panel-core.js` pusty;
       - `mods/.claude-plugin/plugin.json` ma nadal `0.0.1`.
-- [ ] W `mods/hooks/*.tsx` żadnego koloru hex (`grep -nE "#[0-9a-fA-F]{3,6}"` — trafienia tylko w markupie `Svg`, jeśli jest). Kontrola pozytywna: ten sam `grep` trafia w `core/panel/theme.mjs`.
-- [ ] Wpis w `docs/DZIENNIK.md` na końcu sekcji „Wpisy”, z podpisem z członem użytkownika.
-- [ ] Katalog roboczy `.claude/relai/work/RELAI_MODS/E2/` przejrzany raportem (`node .claude/relai/tools/clean-work.js raport`) i skasowany po „tak”, liczby przed i po we wpisie dziennika. Artefakty spoza katalogu wypisane we wpisie z nazwy razem z tym, co się z nimi stało, w tym kopia moda w `~/.claude/dev-mods/<id sesji>/relai-mods/`.
+- [x] W `mods/hooks/*.tsx` żadnego koloru hex (`grep -nE "#[0-9a-fA-F]{3,6}"` — trafienia tylko w markupie `Svg`, jeśli jest). Kontrola pozytywna: ten sam `grep` trafia w `core/panel/theme.mjs`.
+- [x] Wpis w `docs/DZIENNIK.md` na końcu sekcji „Wpisy”, z podpisem z członem użytkownika.
+- [x] Katalog roboczy `.claude/relai/work/RELAI_MODS/E2/` przejrzany raportem (`node .claude/relai/tools/clean-work.js raport`) i skasowany po „tak”, liczby przed i po we wpisie dziennika. Artefakty spoza katalogu wypisane we wpisie z nazwy razem z tym, co się z nimi stało, w tym kopia moda w `~/.claude/dev-mods/<id sesji>/relai-mods/`.
 
 ## Na koniec (rytuał obowiązkowy — bez tego rytuału etap nie jest ukończony)
 

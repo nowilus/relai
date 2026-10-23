@@ -1477,3 +1477,105 @@ Bramka „CLI nie działa żadną drogą” nie zaszła.
 - Start E2 w świeżej sesji: `/relai-stage` (plan RELAI_MODS).
 
 Autor: RelAI (Opus 5.5) + Lukasz
+
+### 2026-10-23 — RELAI_MODS E2: inwentarz z dysku — mody, pluginy i hooki z prawdziwymi liczbami
+
+Panel `/relai-mods` pokazuje wszystko, co jest zainstalowane i co odpala się u Łukasza: 14 pluginów
+(4 jako mod), 7 hooków własnych, scope, wersję, stan oraz linię liczb skilli, agentów, komend, MCP
+i zdarzeń. Nagłówek liczy z danych: „12/14 włączone · 7 hooków własnych”. Przełączników w wierszach
+jeszcze nie ma (E3), przełącznik `filetree` i Przeładuj zostały jak po E1.
+
+**Zrobione:**
+
+- `mods/hooks/inventory.ts` przepisany na czystą logikę czterech źródeł (PLAN sekcja 5, Aneks A):
+  `parseInstalls` (R5: nieczytelny plik albo brak obiektu `plugins` daje komunikat z nazwą pliku),
+  `stateFileOf` / `upperFilesOf` / `settingsFilesOf` (stan z pliku scope'u instalacji, warstwy
+  wyższe do pola `overriddenBy`), `sourcesOf` / `foldersOf` / `filesOf` (pola manifestu przed
+  folderami domyślnymi), `pluginPart` (mod po `"modules"`, zdarzenia, liczby, dopiski
+  o nieczytelnych plikach), `userHooks` (zdarzenie, matcher, komenda skrócona do 120 znaków, nazwa
+  skryptu), `buildInventory`, `headerOf`, `summaryOf`, polska odmiana liczebników. Pola dla E3:
+  `isPolicy`, `overriddenBy`, `isSelf`, `projectPath`, `stateFile`.
+- `mods/hooks/register.tsx`: odczyt przez `$.fs` (`exists`, `read`, `list`), polityka przez
+  `$.settings.read({ source: 'policy' })`, pełna lista w panelu, kolory tylko z kluczy motywu.
+  Sonda spike'u (`/relai-mods pomiar`, `/relai-mods blad`, `probe`, `tryRun`, `persisted`,
+  `PROBE_FILE`) i wiersz „Komenda /filetree w tej sesji” usunięte. `listBlock` i `median` z
+  `inventory.ts` też, bo służyły tylko sondzie.
+- `mods/hooks/inventory.test.ts` (nowy, 22 testy na fixturach z dzisiejszego dysku) i
+  `mods/hooks/mods.test.tsx` (6 testów: przełącznik i panel na desktopie i w terminalu, z atrapą
+  `fs.list` i `settings.read`).
+- `mods/types/index.d.ts`: opis `busy` bez sondy. Wersja zostaje 0.0.1.
+- Dwie rozbieżności z faktami promptu, rozstrzygnięte w kodzie na korzyść plików:
+  - Pole `hooks` manifestu bywa ścieżką, listą ścieżek albo obiektem inline (`caveman` trzyma hooki
+    w `plugin.json`). Wszystkie trzy postaci są obsłużone, więc `caveman` pokazuje SessionStart
+    i UserPromptSubmit, choć prompt wymieniał go wśród pluginów bez hooków.
+  - Zdarzenia to suma korzeniowego `hooks/hooks.json` i plików z manifestu, bo Claude Code ładuje
+    oba (P-013). Prompt mówił o „pierwszeństwie manifestu”, a wygrywa zmierzona pułapka (zasada 14).
+    `relai` ma przez to 6 zdarzeń, a nie 3: 5 z adaptera Claude Code plus SessionEnd z pliku
+    Codeksa, który pod Claude Code kończy się cicho bramką `CLAUDECODE`. Dla pluginów, które
+    tylko nazywają swój plik, liczby skilli, komend i agentów idą wyłącznie z manifestu, jak
+    w prompcie.
+- Lekcja L-0254 w rejestrze i destylacie (zasada 1).
+
+**Zweryfikowane — jak dokładnie:**
+
+- `"$CLAUDE_CODE_EXECPATH" plugin validate mods` (2.1.308): „✔ Validation passed”, jedno
+  ostrzeżenie katalogu o braku ikony (nie wpływa na wynik). `plugin test mods`: **28 pass,
+  0 fail** w dwóch plikach (przed etapem 8).
+- Testy łapią usterki: dwie celowo wstawione mutacje (bez korzeniowego `hooks.json` w `sourcesOf`,
+  odwrócone porównanie warstw w `pluginItem`) wywróciły 9 z 28 testów. Kod przywrócony, ponownie
+  zielony. Każdy test przypadku brzegowego ma kontrolę na fixturze, która musi trafić (np. plugin
+  z plikami ma liczby obok pluginu bez plików z „—”).
+- Czysta logika puszczona na prawdziwym dysku skryptem Node (`--experimental-strip-types`), który
+  czyta pliki jak `register.tsx`: 12/14, 7 hooków, ecc z 7 zdarzeniami.
+- Na żywo (kopia moda w `dev-mods`, zrzut okna `docs/zasoby/PANEL_RELAI/narzedzia/okno.ps1`,
+  3458 × 1398 px, dwa kadry — drugi po przewinięciu panelu przez Łukasza):
+  - nagłówek panelu „12/14 włączone · 7 hooków własnych”; osobne polecenie Node na plikach:
+    14 instalacji w `installed_plugins.json`, 7 komend hooków w 5 zdarzeniach `settings.json`;
+  - 4 wiersze `mod` (`filetree` „wyłączony”, `relai-panel`, `relai-progress`,
+    `relai-cache-keeper`); `security-guidance` „local · 2.0.0 · wyłączony”;
+  - `ecc@ecc` w panelu: 292 skille, 68 agentów, 94 komendy, 1 MCP, 7 zdarzeń; `ls` folderów
+    pluginu: 292 / 68 / 94. `relai@relai`: 2 skille, 4 agenci, 15 komend ze ścieżek manifestu,
+    `ls` w `adapters/claude-code`: 2 / 4 / 15.
+- **Punkt 4 w zmienionym brzmieniu, decyzją Łukasza („przyjmuję”):** prompt kazał pokazać
+  `security-guidance` z dopiskiem o braku wpisu, ale plik jego scope'u
+  (`Parkly/.claude/settings.local.json`) ma `"security-guidance@claude-plugins-official": false`.
+  Panel pokazuje więc „wyłączony” bez dopisku, zgodnie z plikiem. Przypadek „brak wpisu” jest
+  sprawdzony testem na fixturze. Źródło rozjazdu: L-0254.
+- `grep -nE "pomiar|PROBE_FILE|'blad'" mods/hooks/register.tsx` nic nie zwraca. Kontrola
+  pozytywna: 10 trafień w `PROMPT_ETAP_1.md`. `grep` hex w `mods/hooks/*.tsx` nic nie zwraca,
+  kontrola: 45 trafień w `core/panel/theme.mjs`.
+- Dowód negatywny: `diff` kopii `settings.json` i `installed_plugins.json` sprzed etapu z plikami
+  po pomiarze na żywo pusty (nikt nie przełączał). `git diff --stat` dla
+  `.claude-plugin/marketplace.json`, `core/tools/network-calls.js`, `core/tools/sync-panel-core.js`
+  pusty. `mods/.claude-plugin/plugin.json` ma `0.0.1`.
+- Katalog roboczy `.claude/relai/work/RELAI_MODS/E2/` przed sprzątaniem: 9 plików, 954 086 B
+  (4 zrzuty, 2 kopie ustawień, wyciąg tekstu planu, skrypt `real-disk.mts`, notatka); po
+  sprzątaniu 0, skasowany po „tak” Łukasza. Poza projektem: kopia moda
+  `~/.claude/dev-mods/49873f6c-…/relai-mods/`, zostaje do końca tej sesji decyzją Łukasza (kopia
+  jest przypisana do sesji, nowa sesja jej nie załaduje). W rytuale zamknięcia powstał
+  w `%TEMP%` skrypt `relai-mods-e3-inject-rules.mjs` (wklejka „Zasad aktywnych” do
+  `PROMPT_ETAP_3.md` funkcją podmiany; wklejka równa źródłu, 7 nagłówków przed i po); skasowany
+  po użyciu.
+- `PROMPT_ETAP_3.md`: komendy `grep` z jego Weryfikacji uruchomione raz na dzisiejszym drzewie
+  (`'\$\.fs\.write'`: 0 w `mods/hooks/register.tsx`, 11 w `panel/hooks/register.tsx`; wersja
+  w cudzysłowie podwójnym robiła z `$` kotwicę i została poprawiona przed zapisem).
+
+**Świadomie odłożone:**
+
+- Odczyt dysku przy każdym renderze to ~100 wywołań `$.fs` przy 14 pluginach. Odświeżanie co 5 s
+  i ewentualny podręczny bufor należą do E4.
+- Hooki projektu (`.claude/settings.json` w `cwd`) i polityki nie trafiają na listę hooków —
+  zakres E2 to hooki użytkownika. Do rozważenia w E3 przy szczegółach.
+- Ikona moda (ostrzeżenie katalogu `ICON_MISSING`) — sprawa wydania, E5.
+- `ls` z `$USERPROFILE` w ścieżce znów nie rozwinął globu (L-0230 obowiązuje, poprawione `cd`
+  ze ścieżką `/c/...`), a skrypt z ścieżką względną poszedł o jeden `../` za wysoko. Oba błędy
+  złapane od razu, bez lekcji.
+
+**Do zrobienia przez człowieka:**
+
+- Start E3 w świeżej sesji: `/relai-stage` (plan RELAI_MODS).
+
+Przegląd ryzyk: RM1 bez zmian — E2 nie woła CLI poza przełącznikiem z E1. R5 i R6 planu pokryte
+testami (nieznany kształt pliku, ścieżki z `\` i `/`, marketplace lokalny bez `.claude`).
+
+Autor: RelAI (Opus 5.5) + Lukasz

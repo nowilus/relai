@@ -15,8 +15,10 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
    **Linia raportu poświadczająca krok bierze treść z wyniku polecenia tego kroku** („Zmiana:
    <pliki z git status>”) — bez kotwicy powstaje bez uruchomienia polecenia. **Komenda
    w sekcji Weryfikacja ma za sobą jeden realny przebieg autora promptu** (testy Node wzorcem
-   plików, nie katalogiem) (L-0212).
-   (L-0001, L-0011, L-0026, L-0089, L-0100, L-0108, L-0129, L-0212)
+   plików, nie katalogiem) (L-0212). **FAKT w prompcie do sprawdzenia na żywo autor liczy tym
+   samym źródłem, które czyta kod etapu**, a rozjazd wykonawca rozstrzyga pytaniem o brzmienie
+   punktu, nie dopasowaniem kodu (L-0254).
+   (L-0001, L-0011, L-0026, L-0089, L-0100, L-0108, L-0129, L-0212, L-0254)
 2. **W dokumencie użytkownika stoi tylko to, co działa i co zmierzyłeś** — fraza i forma wywołania
    w wersji uruchomionej dosłownie, z tej samej powłoki, którą zobaczy czytelnik; znak
    interpretowany przez powłokę zapisujesz tak, żeby go nie tknęła. (L-0002, L-0022, L-0059)
@@ -539,6 +541,19 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
   który pisze w plikach użytkownika, robisz kopię przed pierwszym wywołaniem. Odpowiedź API modu
   (`$.command.run`) oceniasz po treści, bo odmowa nie zawsze odrzuca obietnicę. W teście modu atrapa
   odpowiada na każde wywołanie `$` z listy `calls` walidatora, zanim uznasz wynik za błąd modu.
+
+### L-0254 — Fakty w prompcie E2 policzone innym źródłem niż to, które czyta budowany kod · 2026-10-23 · AKTYWNA
+
+- **Trigger:** etap E2 planu RELAI_MODS. Prompt zapisał jako FAKT, że `security-guidance` „nie ma
+  wpisu w `enabledPlugins`”, i na tym oparł punkt 4 Weryfikacji. Fakt pochodził z
+  `~/.claude/settings.json`, a kod etapu (zgodnie z Aneksem A) czyta stan z pliku scope'u
+  instalacji, czyli `Parkly/.claude/settings.local.json`, gdzie wpis `false` jest. Tak samo
+  „relai: 3 zdarzenia” policzono z jednego `hooks.json`, a kod sumuje dwa pliki ładowane obok
+  siebie (P-013) i daje 6. Punkt 4 dało się spełnić tylko w brzmieniu zmienionym decyzją Łukasza.
+- **Zasada:** liczbę albo stan, które prompt etapu zapisuje jako FAKT do sprawdzenia na żywo,
+  autor promptu wylicza tym samym źródłem, które ma czytać kod etapu (plik scope'u, suma plików),
+  a nie najbliższym plikiem pod ręką. Wykonawca, który trafi na rozjazd, najpierw sprawdza oba
+  źródła, potem pyta człowieka o brzmienie punktu, a nie dopasowuje kod do faktu.
 
 ## Lekcje zwinięte
 
