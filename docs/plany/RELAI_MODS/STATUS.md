@@ -6,15 +6,15 @@ Wejście planu: [BRIEF.md](BRIEF.md) i [makieta.html](makieta.html) (wariant C),
 
 | Etap | Nazwa | Status | Prompt | Uwagi |
 |---|---|---|---|---|
-| E1 | Spike na Windows: przełącznik i przeładowanie z moda | GOTOWY DO STARTU | [PROMPT_ETAP_1.md](PROMPT_ETAP_1.md) | wynik GO albo plan B; ustalenia do `PULAPKI.md`; cel przełącznika: `filetree` |
-| E2 | Inwentarz: pełna lista i szczegóły z dysku | OCZEKUJE | — | moduł bez `$`, fixtury ze ścieżkami Windows |
+| E1 | Spike na Windows: przełącznik i przeładowanie z moda | ZREALIZOWANY 2026-10-23 | [PROMPT_ETAP_1.md](PROMPT_ETAP_1.md) | wynik: plan B — CLI z moda działa, przeładowanie tylko wpisane `/reload-plugins` (P-052) |
+| E2 | Inwentarz: pełna lista i szczegóły z dysku | GOTOWY DO STARTU | [PROMPT_ETAP_2.md](PROMPT_ETAP_2.md) | moduł bez `$`, fixtury ze ścieżkami Windows |
 | E3 | Kokpit na desktopie, jasny i ciemny | OCZEKUJE | — | zrzuty w obu wyglądach do akceptacji |
 | E4 | Terminal, wąski panel i dwa czaty | OCZEKUJE | — | pomiar na żywo przy 80 kolumnach |
 | E5 | Wydanie relai-mods 0.1.0 | OCZEKUJE | — | publikacja po osobnej zgodzie |
 
 ## Bramki manualne
 
-- **Plan B, gdy spike E1 wykaże, że CLI z moda nie działa żadną drogą** (tylko podgląd albo zapis `enabledPlugins`) · blokuje: E3, tylko przy złym wyniku E1 · **OTWARTA**
+- **Plan B, gdy spike E1 wykaże, że CLI z moda nie działa żadną drogą** (tylko podgląd albo zapis `enabledPlugins`) · blokuje: E3, tylko przy złym wyniku E1 · **ROZSTRZYGNIĘTA 2026-10-23 — nie zaszła: CLI z moda działa (E1, P-052); przeładowanie idzie planem B z briefu**
 - **Wersja i etykieta „early access” w marketplace** (propozycja 0.1.0) · blokuje: E5 · **OTWARTA**
 - **Termin wydania wspólny z planem BEZPIECZENSTWO (3.3.0) albo osobny** · blokuje: E5 · **OTWARTA**
 - **Zgoda na publikację: tag `relai-mods-v0.1.0` i push** · blokuje: zamknięcie E5 · **OTWARTA**
@@ -24,3 +24,6 @@ Wejście planu: [BRIEF.md](BRIEF.md) i [makieta.html](makieta.html) (wariant C),
 - 2026-10-23 — plan utworzony z briefu i makiety wariantu C (decyzje briefu przyjęte bez ponownego pytania); czeka na akceptację.
 - 2026-10-23 — plan przeniesiony z worktree `relai-mods-plan-3c68a3` do `main`; przed akceptacją poprawiony o pięć rozbieżności z kodem i maszyną (`relai-progress` 0.6.0; `security-guidance` w scope `local` projektu Parkly zamiast „wyłączony w user”; cel spike'u E1 `filetree`; nowy przypadek „pluginu nie ma w `enabledPlugins`”; hooki liczone jako 7 komend w 5 zdarzeniach, kryterium „tyle, ile w plikach”; `docs/KOMENDY.md` w punktach styku i E5).
 - 2026-10-23 — plan zaakceptowany przez Łukasza z tymi poprawkami; E1 gotowy do startu, wygenerowany `PROMPT_ETAP_1.md`.
+- 2026-10-23 — E1 rozpoczęty
+- 2026-10-23 — E1 zrealizowany: szkielet `mods/` 0.0.1, pomiary (a)–(f) na żywo, wynik plan B (przeładowanie wpisane ręcznie), P-052, L-0253; `filetree` i `settings.json` jak przed etapem; wygenerowany `PROMPT_ETAP_2.md`.
+- 2026-10-23 — Aneks A (zatwierdzony przez Łukasza): stan i hooki z plików zamiast `$.settings.read()`, plugin innego projektu przełączany z `cwd` bez kłódki, przeładowanie wpisane ręcznie na desktopie (plan B).

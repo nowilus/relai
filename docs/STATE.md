@@ -124,12 +124,14 @@ po E5 (wydanie panelu 0.20.0 / 0.11.0); HUMANIZACJA zamknięty 2026-10-14 wydani
   (`security-audit`, MIT) wbudowane w plugin — komenda `/relai-security`, 13. hook po zmianie
   lockfile, prompty etapów, `done-check`, `first-deploy`, zamknięcie sesji i planu; ryzyka do
   dziennika, raporty w `.security/`. Linia „Aktywny plan” w `CLAUDE.md` zostaje przy PANEL_CODEX.
-- **RELAI_MODS — plan ZAAKCEPTOWANY 2026-10-23, E1 gotowy do startu** (plan
-  [RELAI_MODS](plany/RELAI_MODS/STATUS.md), prompt E1 wygenerowany, 5 etapów, wykonanie Opus w Claude Code). Po co: czwarty mod `relai-mods` — kokpit wszystkich
+- **RELAI_MODS — E1 zrealizowany 2026-10-23, E2 gotowy do startu** (plan
+  [RELAI_MODS](plany/RELAI_MODS/STATUS.md), 5 etapów, wykonanie Opus w Claude Code, Aneks A). Po co: czwarty mod `relai-mods` — kokpit wszystkich
   pluginów i hooków z `settings.json` (wariant C makiety), przełączanie przez
   `claude plugin disable/enable`, jedno Przeładuj, jasny i ciemny wygląd, desktop i terminal.
-  E1 to spike na Windows: czy mod umie wywołać CLI i `reload-plugins`. Linia „Aktywny plan”
-  zostaje przy PANEL_CODEX.
+  Szkielet `mods/` 0.0.1 jest w repo (niewydany). Spike E1: CLI z moda działa i jest zalogowane
+  (~0,7 s), `cwd` działa, a przeładowanie z moda na desktopie nie działa, więc obowiązuje plan B
+  „wpisz /reload-plugins” (P-052). E2 to inwentarz z plików. Linia „Aktywny plan” zostaje przy
+  PANEL_CODEX.
 - **PANEL_CODEX, E1 — przejęcie rdzenia i natywny panel w Codeksie** (plan
   [PANEL_CODEX](plany/PANEL_CODEX/STATUS.md), ZAAKCEPTOWANY 2026-10-10, 8 etapów, autor
   i wykonawca `gpt-6.1-sol` w Codeksie, Aneks A — 16 pól kontraktu — zaakceptowany). Po co: ten sam

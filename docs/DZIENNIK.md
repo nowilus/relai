@@ -27,6 +27,7 @@
 | H9 | Tryb ciągły „dokumenty” nie widzi zapisu, którego nie rozpozna — `sed -i`, skrypt, podproces, `>(tee …)` — i dokument zostaje bez humanizacji (plan HUMANIZACJA, pomiar E5) | **Niski** (2026-10-14, przy zamknięciu planu) | **OTWARTE ŚWIADOMIE** | Aneks C: hook po Write/Edit i po Bash z przekierowaniem `>` / `>>` albo `tee`; w pomiarze E5 model pisał wyłącznie tymi drogami (8/8 przed poprawką, 2/2 po niej z regułą). Pominięcie kończy się ciszą, nigdy złą regułą; komenda `/relai-humanize` na pliku działa niezależnie od trybu ciągłego. |
 | T1 | Scena 3D strony tnie się na słabszym laptopie albo zintegrowanej grafice (plan STRONA_RELAI, ryzyko 1) | **Średni** (2026-10-18 po E6; wcześniej wysoki) | **OTWARTE** | E1: render na żądanie, DPR ≤ 1,5, obniżenie jakości przy medianie > 26 ms. E2 (scena CC0, AO, głębia ostrości): przy CPU ×4 mediana 11,1 ms, p95 16,7 ms, 913 wywołań rysowania na klatkę po scaleniu miasta (przed: 2206, p95 22,3 ms); obniżanie jakości zaczyna od głębi ostrości. E3 (poświata ekranu RectAreaLight, nowe książki): przy CPU ×4 przewijanie mediana 11,9 ms, p95 22,2 ms — p95 wzrosło o 5,5 ms, zapas do 26 ms już tylko 3,8 ms; przybliżanie p95 13,1 ms; najwięcej 907 wywołań rysowania na klatkę. Zmierzone tylko na RTX 4070 Ti. E4 (bez path tracingu, przygaszona lampa, lakier blatu): CPU ×4 mediana 11,3 ms, p95 17,5 ms, najwięcej 910 wywołań rysowania. Otwarte: słaba grafika w E7. E5 (Film, bez WebGL): przy CPU ×4 mediana 5,6 ms, p95 5,6 ms, najdłuższa klatka 28,7 ms, więc Filmu ryzyko nie dotyczy. Aneks D: Biurko też idzie do publikacji, dlatego poziom zostaje wysoki do pomiaru na słabej grafice w E6. E7 (Film z animacjami WAAPI i przytrzymaniem): CPU ×4 mediana 11,1 ms, p95 16,7 ms na desktopie i w emulacji telefonu — Filmu nadal nie dotyczy; poziom bez zmiany przez Biurko. E6: SwiftShader (grafika programowa) 1366 × 768 mediana 1 700 → 1 183 → 817 ms po krokach obniżania, 390 × 844 1 033 → 867 → 433 → 283 ms; wyłącznik `biurko/grafika.js` daje takiej przeglądarce plakat (werdykt Łukasza 3A), brak WebGL2 i ograniczony ruch też. RTX przy CPU ×4: p95 przewijania 20,6–25,2 ms desktop, 15,4–16,3 ms telefon. Otwarte: zintegrowana karta niezmierzona (bramka „pomiar na słabszym laptopie”); drugi bezpiecznik (plakat po wyczerpaniu kroków jakości, opcja 3B) świadomie niewdrożony. E8 (2026-10-18): Biurko opublikowane pod `/biurko/` bez zmian w scenie; plan STRONA_RELAI zamknięty, bramka „pomiar na słabszym laptopie” świadomie otwarta poza planem (`docs/STATE.md`, „Co dalej”). |
 | T2 | Biurko wygląda jak tani render albo glina z AI (plan STRONA_RELAI, ryzyko 2) | **Średni** (2026-10-18 po E6; wcześniej wysoki) | **OTWARTE** | E2: modele i tekstury CC0, deski orzechowe ze słojami, miasto za oknem, kubek i tablica od nowa; kalibracja w czterech rundach, zamknięcie za zgodą Łukasza, ale „nadal jesteśmy całkiem daleko” od obrazów 01–08 — przyczyna: brak światła odbitego w rasteryzacji (L-0220). Aneks B: E3 laptop i detale, E4 path tracing na przystankach. E4 (2026-10-16): światło odbite nie dało uzysku — przyczyną dystansu jest detal przedmiotów, tekstur i kompozycja, nie światło (L-0226); test detalu (blat `wood_table_worn`, druk na dokumentach, ciemniej) dał umiarkowany zysk. Aneks C: następny jest Film, Biurko po bramce. E5: Film rysowany kodem, hero przyjęte w trzeciej rundzie („Tak, przyjmuję”). Bramka z Aneksem D: najpierw dopieszczenie Filmu (E7), potem pełna droga Biurka (E6), publikacja obu z ankietą. Dla Biurka ryzyko zostaje wysokie. E7: Film dopieszczony i przyjęty akt po akcie („Tak, przyjmuję”), dotyczy już tylko Biurka (E6). E6: każdy przystanek, szczyt, mapa, szuflady, telefon, zasłona i plakat przyjęte przez Łukasza na kadrach przed i po; kontrola odczuć zgodna z krzywą briefu (4A). Otwarte do ankiety po publikacji (E8): czy odwiedzający odbierają Biurko jako dopracowane. E8 (2026-10-18): obie wersje opublikowane, ankieta w Tally zbiera głosy z ukrytym polem `wersja`; ryzyko zostaje otwarte do odczytu ankiety, który jest poza planem (`docs/STATE.md`). |
+| RM1 | Przełącznik `relai-mods` stoi na CLI `claude plugin` wołanym z moda: inna binarka niż silnik aplikacji, inne logowanie albo brak przeładowania z moda (plan RELAI_MODS, ryzyko R1) | **Średni** (2026-10-23 po E1) | **ZMIERZONE 2026-10-23 (E1, P-052), OTWARTE** | Wynik spike'u na desktopie: CLI z moda działa, jest zalogowane i zapisuje w ~0,7 s. Mod uruchamia jednak `claude` z PATH (2.1.304), a nie binarkę silnika (2.1.308), bo nie widzi `CLAUDE_CODE_EXECPATH`. Przeładowania z moda nie ma ani przez `$.command.run`, ani przez `$.prompt.submit`, więc działa plan B „wpisz /reload-plugins”. `enable` przyjmuje każde `x@y` i zapisuje je, dlatego id biorę wyłącznie z `installed_plugins.json`. Terminal mierzy E4. |
 
 > Ryzyka zamknięte T3, T6 (2 pozycje) są w
 > [docs/archiwum/ryzyka/RYZYKA_2026-10-19.md](archiwum/ryzyka/RYZYKA_2026-10-19.md)
@@ -1388,5 +1389,91 @@ Po przeniesieniu planu do `main` sprawdziłem go wobec kodu i maszyny Łukasza: 
 
 - Start E1 w świeżej sesji: `/relai-stage` (plan RELAI_MODS).
 - Decyzja o usunięciu worktree `relai-mods-plan-3c68a3`.
+
+Autor: RelAI (Opus 5.5) + Lukasz
+
+### 2026-10-23 — RELAI_MODS E1: spike na Windows — CLI z moda działa, przeładowanie tylko ręcznie (plan B)
+
+Szkielet czwartego moda `relai-mods` 0.0.1 jest w `mods/`. Spike zmierzył na żywo w aplikacji
+desktopowej, czy mod przełączy plugin przez `claude plugin` i przeładuje pluginy. Wynik: **plan B
+z briefu**. CLI z moda działa, ale przeładowania z moda nie ma: panel prosi „wpisz /reload-plugins”.
+Bramka „CLI nie działa żadną drogą” nie zaszła.
+
+**Zrobione:**
+
+- `mods/.claude-plugin/plugin.json` (0.0.1, „Early access — …”, `types`), `mods/hooks/hooks.json`,
+  `mods/types/index.d.ts` (`busy`, `note`), `mods/hooks/inventory.ts` (czysta logika: odczyt
+  `installed_plugins.json` i `enabledPlugins`, argv przełącznika, komunikat błędu, mediana),
+  `mods/hooks/register.tsx` (komenda `/relai-mods`, panel „RelAI Mods” z gołą listą, przełącznik
+  `filetree`, Przeładuj z planem B, pomiar spike'u `/relai-mods pomiar` i test błędu
+  `/relai-mods blad` — oba do usunięcia w E2), `mods/hooks/mods.test.tsx` (8 testów).
+- Pomiary (FAKT, 2026-10-23, Claude Code 2.1.308 w aplikacji 3.6556.2, `claude` na PATH 2.1.304):
+  - **(a)** `$.process.run` z `claude` i z `claude.exe` uruchamia CLI 2.1.304 z PATH (971 ms
+    z zimnym startem). `claude.cmd` daje ENOENT („not found or is in an unsafe location”).
+    `CLAUDE_CODE_EXECPATH` (binarka silnika 2.1.308 pod
+    `%LOCALAPPDATA%\Claude-Data\…\claude.exe`) jest dla moda pusta, choć Bash sesji ją widzi.
+  - **(b)** CLI z moda jest zalogowane (`auth status` → `loggedIn: true`, inaczej niż P-032).
+    6/6 wywołań `enable`/`disable` dało kod 0. Włączenie trwało 661, 684 i 653 ms (mediana
+    661), wyłączenie 660, 680 i 685 ms (mediana 680).
+  - **(c)** Plik `settings.json` miał `true` zaraz po zapisie i nadal `true` po 60 s działającej
+    aplikacji. `$.settings.read({ source: 'user' })` zwrócił `false` zaraz po zapisie, `true` po
+    minucie i dalej `true` po wyłączeniu. Stan pluginu czytam więc z pliku.
+  - **(d)** `cwd` działa: `cmd /c cd` zwrócił `…\RelAI` i `…\Parkly`.
+  - **(e)** `$.command.run({ command: 'reload-plugins' })` rozwiązał się tekstem „/reload-plugins
+    isn't available over a remote connection in this session”. `$.prompt.submit('/reload-plugins')`
+    odrzucił tekst od `/`. Wpisane ręcznie `/reload-plugins` przeładowuje: 17 pluginów
+    z wyłączonym `filetree`, 18 z włączonym. Komenda `/filetree` znika i wraca, panel modu zostaje
+    otwarty.
+  - **(f)** `claude plugin list` pokazuje `security-guidance` jako „Scope: local · × disabled”
+    zarówno z RelAI, jak i z Parkly.
+- `docs/PULAPKI.md` ma pozycję P-052. Tabela ryzyk ma wiersz RM1. Lekcja L-0253 trafiła do
+  rejestru i destylatu (zasada 13, „Mody”).
+- Aneks A do `PLAN.html`, zatwierdzony przez Łukasza. Stan i hooki czytam z plików, a nie
+  z `$.settings.read()`. Plugin innego projektu przełączam z `cwd` bez kłódki (sekcja 8 to
+  zapowiadała). Na desktopie przeładowanie wpisuje się ręcznie.
+
+**Zweryfikowane — jak dokładnie:**
+
+- `claude plugin validate mods` binarką aplikacji (`$CLAUDE_CODE_EXECPATH`, 2.1.308) przechodzi.
+  `claude plugin test mods` daje 8/8 (lista, przełącznik z kliknięciem na desktopie i w
+  terminalu, błąd CLI).
+- Na żywo Łukasz potwierdził „Pluginy z installed_plugins.json · 14” i `security-guidance`
+  z „local”. Po kliknięciu „Włącz filetree” plik miał `true`, a `plugin list` pokazał
+  „✔ enabled”. Ponowne kliknięcie i `/reload-plugins` przywróciły `false` i „✘ disabled”.
+- `/relai-mods blad` (id bez `@`) dał w panelu „Błąd CLI (kod 1): × Failed to enable plugin
+  "nie-ma-takiego": … Use plugin@marketplace format.”, a przełącznik nadal czyta dysk. Pierwsza
+  próba z id `nie-ma-takiego@relai-spike` dała kod 0 i dopisała klucz do `enabledPlugins` —
+  L-0253, P-052.
+- Dowód negatywny:
+  - `diff` kopii `settings.json` i `installed_plugins.json` sprzed etapu z plikami na końcu
+    wyszedł pusty. Klucz testowy `nie-ma-takiego@relai-spike` był w pliku między pomiarami i
+    usunąłem go przywróceniem kopii po `diff`, który pokazał tylko ten klucz.
+  - `git diff --stat` dla `.claude-plugin/marketplace.json`, `core/tools/network-calls.js`
+    i `core/tools/sync-panel-core.js` jest pusty. `relai-mods` i `./mods` nie występują
+    w marketplace, choć ten sam wzorzec znajduje `relai-progress`.
+- W `register.tsx` nie ma koloru hex. Kontrola pozytywna: ten sam `grep` daje 45 trafień
+  w `core/panel/theme.mjs`.
+- Katalog roboczy `.claude/relai/work/RELAI_MODS/E1/` miał przed sprzątaniem 3 pliki i 18,4 KB,
+  po sprzątaniu 0 i folder skasowany po „tak” Łukasza. Poza projektem powstała tylko kopia moda
+  `~/.claude/dev-mods/c3bad91e-…/relai-mods/` do ładowania na żywo i też została skasowana.
+  W rytuale zamknięcia powstały w `%TEMP%` dwa pliki: `relai-mods-plan.txt` (tekst `PLAN.html`
+  do odczytu sekcji) i `relai-mods-inject-rules.mjs` (wklejka „Zasad aktywnych” do
+  `PROMPT_ETAP_2.md`, zgodność ze źródłem sprawdzona). Oba skasowałem po użyciu.
+- `PROMPT_ETAP_2.md`: komendy z jego Weryfikacji uruchomiłem raz na dzisiejszym drzewie. `grep`
+  sondy daje 6 trafień w `register.tsx`, a jego kontrola pozytywna 10 w `PROMPT_ETAP_1.md`. `grep`
+  hex daje 0 w `mods/hooks/*.tsx` i 45 w `theme.mjs`.
+
+**Świadomie odłożone:**
+
+- Binarka CLI dla moda: zostaje `claude` z PATH (2.1.304). Ścieżki binarki silnika mod nie zna,
+  a zgadywanie folderu `Claude-Data` wiązałoby kod z wersją aplikacji. Do decyzji w E3, gdy dojdą
+  przełączniki dla każdego wiersza.
+- Przeładowanie z moda w terminalu (tam sesja może nie być „remote connection”) mierzy E4.
+- `inventory.ts` i `mods.test.tsx` to pliki spoza listy zakresu E1 (zasada 13: czysta logika poza
+  modułem z `$` i test `plugin test` przed pokazem na żywo). Nie dotykają niczego poza `mods/`.
+
+**Do zrobienia przez człowieka:**
+
+- Start E2 w świeżej sesji: `/relai-stage` (plan RELAI_MODS).
 
 Autor: RelAI (Opus 5.5) + Lukasz

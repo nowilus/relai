@@ -1,0 +1,10 @@
+{
+  "name": "relai-mods",
+  "version": "0.0.1",
+  "author": { "name": "nowilus", "url": "https://github.com/nowilus" },
+  "description": "Early access — needs Claude Code with mods (spike build, measured on 2.1.308). RelAI Mods: the plugins installed for this machine, read from disk, with their scope, version and state; a switch for one plugin through the claude CLI and one Reload. Reads files and runs the claude CLI only: no model call, no network of its own.",
+  "homepage": "https://github.com/nowilus/relai",
+  "repository": "https://github.com/nowilus/relai",
+  "license": "MIT",
+  "types": "./types/index.d.ts"
+}

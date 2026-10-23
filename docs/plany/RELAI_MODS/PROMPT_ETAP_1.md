@@ -340,17 +340,17 @@ docs/PULAPKI.md                       tu trafiają ustalenia spike'u jako nowa p
 
 Każdy punkt Weryfikacji, który przeszedł, odhaczasz w `PROMPT_ETAP_1.md` (`- [ ]` → `- [x]`) zaraz po jego sprawdzeniu, nie na końcu etapu; punkt, który nie przeszedł, zostaje pusty.
 
-- [ ] `claude plugin validate mods` binarką aplikacji (P-024) — bez błędów.
-- [ ] Mod załadowany lokalnie: `/relai-mods` otwiera panel z 14 wierszami (tyle, ile w `installed_plugins.json` w chwili testu), `security-guidance` ze scope `local`.
-- [ ] Kliknięcie przełącznika `filetree` + Przeładuj (z przycisku albo ręcznie, zależnie od (e)) zmienia stan pluginu: `claude plugin list` w zwykłym terminalu pokazuje nowy stan, a `~/.claude/settings.json` ma `"filetree@claude-code-filetree": true`.
-- [ ] Ponowne kliknięcie przywraca `false`; stan końcowy taki jak przed etapem (dowód: wartość w pliku i wynik `claude plugin list`).
-- [ ] Błąd CLI (np. nieistniejący id w protokole pomiarowym) daje w panelu komunikat z kodem wyjścia, a przełącznik wraca do stanu z dysku.
-- [ ] Pomiary (a)–(f) zapisane z liczbami (FAKT) w protokole i we wpisie dziennika; wynik GO albo plan B nazwany wprost.
-- [ ] `docs/PULAPKI.md` ma nową pozycję z ustaleniami spike'u.
-- [ ] Dowód negatywny: `mods/` nie występuje w `.claude-plugin/marketplace.json`, `core/tools/network-calls.js` ani `core/tools/sync-panel-core.js` (`git diff --stat` tych plików pusty); `~/.claude/settings.json` poza wartością `filetree` w trakcie pomiarów bez zmian (porównanie z kopią sprzed etapu w katalogu roboczym).
-- [ ] W `mods/hooks/register.tsx` żadnego koloru hex poza ramką `Svg` (`grep -nE "#[0-9a-fA-F]{3,6}"` — trafienia tylko w markupie `Svg`, jeśli jest).
-- [ ] Wpis w `docs/DZIENNIK.md` na końcu sekcji „Wpisy”, z podpisem z członem użytkownika.
-- [ ] Katalog roboczy `.claude/relai/work/RELAI_MODS/E1/` przejrzany raportem (`node .claude/relai/tools/clean-work.js raport`) i skasowany po „tak”, liczby przed i po we wpisie dziennika; artefakty spoza katalogu (`%TEMP%`, katalog domowy) wypisane we wpisie z nazwy razem z tym, co się z nimi stało.
+- [x] `claude plugin validate mods` binarką aplikacji (P-024) — bez błędów.
+- [x] Mod załadowany lokalnie: `/relai-mods` otwiera panel z 14 wierszami (tyle, ile w `installed_plugins.json` w chwili testu), `security-guidance` ze scope `local`.
+- [x] Kliknięcie przełącznika `filetree` + Przeładuj (z przycisku albo ręcznie, zależnie od (e)) zmienia stan pluginu: `claude plugin list` w zwykłym terminalu pokazuje nowy stan, a `~/.claude/settings.json` ma `"filetree@claude-code-filetree": true`.
+- [x] Ponowne kliknięcie przywraca `false`; stan końcowy taki jak przed etapem (dowód: wartość w pliku i wynik `claude plugin list`).
+- [x] Błąd CLI (np. nieistniejący id w protokole pomiarowym) daje w panelu komunikat z kodem wyjścia, a przełącznik wraca do stanu z dysku.
+- [x] Pomiary (a)–(f) zapisane z liczbami (FAKT) w protokole i we wpisie dziennika; wynik GO albo plan B nazwany wprost.
+- [x] `docs/PULAPKI.md` ma nową pozycję z ustaleniami spike'u.
+- [x] Dowód negatywny: `mods/` nie występuje w `.claude-plugin/marketplace.json`, `core/tools/network-calls.js` ani `core/tools/sync-panel-core.js` (`git diff --stat` tych plików pusty); `~/.claude/settings.json` poza wartością `filetree` w trakcie pomiarów bez zmian (porównanie z kopią sprzed etapu w katalogu roboczym).
+- [x] W `mods/hooks/register.tsx` żadnego koloru hex poza ramką `Svg` (`grep -nE "#[0-9a-fA-F]{3,6}"` — trafienia tylko w markupie `Svg`, jeśli jest).
+- [x] Wpis w `docs/DZIENNIK.md` na końcu sekcji „Wpisy”, z podpisem z członem użytkownika.
+- [x] Katalog roboczy `.claude/relai/work/RELAI_MODS/E1/` przejrzany raportem (`node .claude/relai/tools/clean-work.js raport`) i skasowany po „tak”, liczby przed i po we wpisie dziennika; artefakty spoza katalogu (`%TEMP%`, katalog domowy) wypisane we wpisie z nazwy razem z tym, co się z nimi stało.
 
 ## Na koniec (rytuał obowiązkowy — bez tego rytuału etap nie jest ukończony)
 

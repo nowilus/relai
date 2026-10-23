@@ -168,7 +168,10 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
       hooków, na zewnątrz czysta logika; typy mówią, co powierzchnia przyjmie, nie co niesie —
       gałąź po polu powierzchni z wejścia, test na obecność odpowiednika; każde drzewo przez
       `plugin test` z montażem i kliknięciem przed pokazem na żywo; korzeń projektu w górę od
-      zmiennego cwd, test w podfolderze (L-0146).
+      zmiennego cwd, test w podfolderze (L-0146); przypadek błędu najpierw na samym narzędziu
+      (bez zapisu), kopia plików użytkownika przed pomiarem, który w nich pisze, odpowiedź
+      `$.command.run` po treści, atrapa testu odpowiada na każde wywołanie z `calls` walidatora
+      (L-0253).
     - **Sesje:** sonda działania niszczącego w sesji bez wartości, stan w pliku przed krokiem
       (L-0153); funkcja czekająca na `$.ui.ask` zapamiętuje id sesji i porzuca odpowiedź po zmianie,
       zegar i próg czyta po każdym `await` (L-0166); test wielu rozmów — atrapy per rozmowa (L-0168);
@@ -182,7 +185,7 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
       nie ze zrzutu ani słowa człowieka (L-0244); obraz dla cudzej usługi w proporcji zmierzonej na
       opublikowanym widoku, każda podmiana pod nowym adresem (L-0245).
     (L-0041, L-0042, L-0044, L-0047, L-0092, L-0133, L-0136, L-0138, L-0139, L-0146, L-0153, L-0166,
-    L-0168, L-0185, L-0189, L-0190, L-0244, L-0245)
+    L-0168, L-0185, L-0189, L-0190, L-0244, L-0245, L-0253)
 14. **Najpierw zmiana w repozytorium, potem zdanie, które ją opisuje.** Weryfikację planujesz tam,
     gdzie wykonalna; po pytaniu sprzątasz sam; jednostką inwentarza jest sprawa, nie linia; wstawkę
     kotwiczysz do elementu, który przeżyje operację, i dowodzisz **obecności** nowej treści. Gdy
@@ -521,6 +524,21 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
 - **Zasada:** skrypt, który przycina żywy dokument, sprawdza granice przed zapisem: liczby
   całkowite, wewnątrz właściwej sekcji, koniec za początkiem. Po fazie 2 porównujesz wagę przed
   i po: plik po rotacji ma być mniejszy, inaczej przywracasz go i szukasz błędu.
+
+### L-0253 — „Nieistniejący id” nie dał błędu CLI, tylko wpis w ustawieniach użytkownika, a „Przeładuj” pokazał sukces · 2026-10-23 · AKTYWNA
+
+- **Trigger:** spike E1 planu RELAI_MODS. Prompt etapu zakładał, że błąd CLI wywoła się
+  nieistniejącym id. `claude plugin enable nie-ma-takiego@relai-spike` skończył się kodem 0
+  i dopisał ten klucz do `enabledPlugins` w `~/.claude/settings.json` Łukasza. Usunąłem go dopiero
+  przywróceniem kopii sprzed etapu. Przycisk „Przeładuj” wywołał `$.command.run`, obietnica się
+  rozwiązała i panel napisał „Przeładowano”, choć silnik odpowiedział tekstem odmowy. W teście
+  `plugin test` trzy z ośmiu testów padły, bo atrapa nie znała `session.cwd`, `clock.now`
+  i ścieżek z `/`. Wynik wyglądał jak pusty panel modu.
+- **Zasada:** przypadek błędu, którym Weryfikacja sprawdza obsługę błędów, uruchamiasz najpierw na
+  samym narzędziu. Na żywo idzie dopiero wtedy, gdy zwraca błąd i niczego nie zapisuje. Do pomiaru,
+  który pisze w plikach użytkownika, robisz kopię przed pierwszym wywołaniem. Odpowiedź API modu
+  (`$.command.run`) oceniasz po treści, bo odmowa nie zawsze odrzuca obietnicę. W teście modu atrapa
+  odpowiada na każde wywołanie `$` z listy `calls` walidatora, zanim uznasz wynik za błąd modu.
 
 ## Lekcje zwinięte
 

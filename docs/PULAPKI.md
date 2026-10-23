@@ -8,6 +8,53 @@ Specyfikacja: `SPEC_PULAPKI.md`.
 
 ## Pułapki
 
+### P-052 — Mod na desktopie: `claude plugin` z `$.process.run` działa, przeładowania z moda nie ma, a `enable` bierze każde id · 2026-10-23 · AKTYWNA
+
+- **Objaw (spike E1 planu RELAI_MODS, mod `relai-mods` 0.0.1 na żywo):**
+  1. Przycisk „Przeładuj” wołający `$.command.run({ command: 'reload-plugins' })` nie zgłasza błędu,
+     a pluginy się nie przeładowują. W transkrypcie stoi „/reload-plugins isn't available over a
+     remote connection in this session”.
+  2. `$.prompt.submit({ text: '/reload-plugins', asUser: true })` odrzuca wywołanie: „a text
+     beginning with / would run a command as the user; run one with $.command.run”.
+  3. `claude plugin enable nie-ma-takiego@relai-spike --scope user` kończy się kodem 0
+     i dopisuje `"nie-ma-takiego@relai-spike": true` do `enabledPlugins` w `~/.claude/settings.json`.
+     Kolejne `disable` zostawia klucz z wartością `false`.
+  4. `$.settings.read({ source: 'user' })` zaraz po zapisie CLI zwraca starą wartość, a po
+     wyłączeniu nadal `true`. Plik na dysku zmienia się od razu.
+- **Przyczyna:** (1) sesja aplikacji desktopowej to dla silnika „remote connection”: komenda
+  `/reload-plugins` działa tylko wpisana przez człowieka. `$.command.run` **rozwiązuje się**
+  tekstem odmowy, zamiast odrzucić obietnicę. (2) Host blokuje komendy przez prompt modu.
+  (3) CLI sprawdza tylko format `plugin@marketplace`, nie instalację. Id bez `@` daje kod 1:
+  „not found in settings. Use plugin@marketplace format.” (4) `$.settings.read` czyta migawkę
+  silnika, a nie plik.
+- **Co działa (pomiar 2026-10-23, 3 próby):**
+  - `$.process.run(['claude', …])` i `['claude.exe', …]` uruchamiają `claude` z PATH (2.1.304),
+    a `claude.cmd` daje ENOENT. Zmienna `CLAUDE_CODE_EXECPATH`, która w Bashu sesji wskazuje
+    binarkę aplikacji 2.1.308 pod
+    `%LOCALAPPDATA%\Claude-Data\claude_pzs8sxrjxfjjc\claude-code\<wersja>\<hash>\claude.exe`,
+    jest dla moda pusta.
+  - CLI wołane z moda jest zalogowane (`auth status` → `loggedIn: true`), inaczej niż w P-032.
+    Wszystkie 6 wywołań `disable`/`enable` skończyło się kodem 0. Mediana: 661 ms dla włączenia
+    i 680 ms dla wyłączenia.
+  - Zapis CLI przetrwał minutę działającej aplikacji.
+  - `cwd` w `$.process.run` działa: `cmd /c cd` zwraca podany folder.
+  - `claude plugin list` pokazuje `security-guidance` (scope `local`, brak wpisu
+    w `enabledPlugins`) jako „Scope: local · disabled” zarówno z folderu RelAI, jak i z Parkly.
+  - Wpisane ręcznie `/reload-plugins` przeładowuje: 17 pluginów po wyłączeniu `filetree`, 18 po
+    włączeniu, komenda `/filetree` znika i wraca, a otwarty panel modu zostaje na miejscu.
+- **Obejście:**
+  - Przełącznik woła CLI z `$.process.run` z id **wyłącznie z `installed_plugins.json`**: CLI nie
+    odrzuci literówki, tylko zapisze śmieć.
+  - Odpowiedź `$.command.run` czytasz po tekście, a nie po odrzuceniu.
+  - Przeładowanie to plan B z briefu: panel prosi „wpisz /reload-plugins”.
+  - Stan pluginu czytasz z pliku, nie z `$.settings.read`.
+  - Binarkę `claude` bierzesz z PATH, bo mod nie widzi `CLAUDE_CODE_EXECPATH`.
+  - Walidację i testy modu nadal robisz binarką aplikacji z Basha sesji (P-024). Na 2.1.308 jej
+    ścieżka to `$CLAUDE_CODE_EXECPATH`, a nie `%APPDATA%\Claude\claude-code`.
+- **Zasięg:** Claude Code 2.1.308 (silnik aplikacji), `claude` na PATH 2.1.304, aplikacja
+  desktopowa 3.6556.2, Windows 11. Terminal niezmierzony, a tam `/reload-plugins` z moda może
+  działać (E4).
+
 ### P-050 — Aplikacja desktopowa: kolumna `Box` nie rozciąga wierszy, a `Svg` w ściśniętym pudełku maleje do zera · 2026-10-23 · AKTYWNA
 
 - **Objaw (odnoga AGENTS_KRABY, kalibracja karty agenta na żywo):** karta zajmuje pół panelu,
