@@ -1,6 +1,6 @@
 # STATE — RelAI
 
-Stan na: 2026-10-23 (wątek AGENTS_KRABY zamknięty — panel „RelAI Agents” z postaciami ról, `relai-progress` 0.6.0 w repo, niewydany; wątek MOBILNA_STRONA zamknięty — obie wersje strony przyjęte na iPhonie, ankieta na cztery warianty z danymi o urządzeniu; wątek BIURKO_PLAKAT zamknięty — Biurko bez sceny 3D jako odbitki biurka; plan STRONA_RELAI ZREALIZOWANY 2026-10-18 — strona opublikowana na https://nowilus.github.io/relai/ w dwóch wersjach, Film i Biurko, z ankietą w Tally, poprawka Aneksu E wdrożona 2026-10-19; WYGLAD_PANELU zamknięty 2026-10-15)
+Stan na: 2026-10-23 (wątek AGENTS_KRABY zamknięty — panel „RelAI Agents” z postaciami ról, `relai-progress` 0.6.0 wydany, tag `relai-progress-v0.6.0`; wątek MOBILNA_STRONA zamknięty — obie wersje strony przyjęte na iPhonie, ankieta na cztery warianty z danymi o urządzeniu; wątek BIURKO_PLAKAT zamknięty — Biurko bez sceny 3D jako odbitki biurka; plan STRONA_RELAI ZREALIZOWANY 2026-10-18 — strona opublikowana na https://nowilus.github.io/relai/ w dwóch wersjach, Film i Biurko, z ankietą w Tally, poprawka Aneksu E wdrożona 2026-10-19; WYGLAD_PANELU zamknięty 2026-10-15)
 
 ## Gdzie jesteśmy
 
@@ -8,7 +8,7 @@ RelAI **3.2.0** jest w repozytorium i publicznie (tag `v3.2.0`, 2026-10-15: peł
 `/relai-stage`; wcześniej 3.1.0 z humanizacją tekstu). Plugin `relai` działa
 w trzech narzędziach — Claude Code, Cursorze i Codeksie — na jednym rdzeniu procesu, z piętnastoma
 komendami. Panel RelAI w oknie Claude Code to trzy osobne pluginy „early access” z marketplace tego
-repozytorium: `relai-panel` 0.20.0, `relai-progress` 0.5.0 (w repo 0.6.0 z panelem „RelAI Agents”, odnoga AGENTS_KRABY, niewydany), `relai-cache-keeper` 0.11.0 (tag
+repozytorium: `relai-panel` 0.20.0, `relai-progress` 0.6.0 (panel „RelAI Agents”, odnoga AGENTS_KRABY, tag `relai-progress-v0.6.0`, 2026-10-23), `relai-cache-keeper` 0.11.0 (tag
 `relai-panel-v0.20.0`, 2026-10-15: sekcja „Teraz”, baterie w siatce, wiersz kontekstu z progiem
 auto-compactu; wcześniej `relai-panel-v0.19.0`: paski i panel same za jasnym i ciemnym wyglądem aplikacji, pasek
 postępu jako lista kroków — plan WYGLAD_PANELU; 2026-10-14: pasek mówi uczciwie, kiedy nowa sesja się opłaca — odnoga

@@ -125,7 +125,7 @@ Worker. Imię: pierwsze wolne z puli roli (pięć imion na rolę), po wyczerpani
       `docs/zasoby/PANEL_RELAI/zrzuty/`.
 - [x] Na żywo: klik w chip agentów w pasku otwiera panel; sesja bez etapu z agentem pokazuje sam
       przycisk; wąski panel podziału bez uciętych przycisków i nachodzących ramek.
-- [ ] (0.6.0 w repo, publikacja czeka na zgodę) `relai-progress` 0.6.0 wydany; wersja potwierdzona plikiem instalacji (zasada aktywna 10).
+- [x] (2026-10-23: tag `relai-progress-v0.6.0`, wydanie na GitHubie, instalacja z marketplace → `0.6.0/`, kod zgodny z repo) `relai-progress` 0.6.0 wydany; wersja potwierdzona plikiem instalacji (zasada aktywna 10).
 - [x] `git diff` nie dotyka plików spoza zakresu.
 - [x] (2026-10-23: 20,1 MB → 0, skasowany po „tak”) Katalog roboczy `.claude/relai/work/_fixy/AGENTS_KRABY/` przejrzany raportem
       (`node .claude/relai/tools/clean-work.js raport`) i skasowany po „tak”. Liczby przed i po
@@ -134,8 +134,8 @@ Worker. Imię: pierwsze wolne z puli roli (pięć imion na rolę), po wyczerpani
 ## Wynik
 
 Zamknięta 2026-10-23 decyzją Łukasza („jest w porządku, możemy to zamykać”) po kilku rundach
-kalibracji na żywo w ciemnym motywie. `relai-progress` 0.6.0 w repozytorium; publikacja (tag,
-push) czeka na zgodę.
+kalibracji na żywo w ciemnym motywie. `relai-progress` 0.6.0 wydany tego samego dnia (tag
+`relai-progress-v0.6.0`).
 
 **Karta agenta — jak doszliśmy do obecnej.** Karta P4 (tekst modu, postać obok) była nieczytelna.
 Łukasz wybrał z czterech kierunków Pixel Art, potem z czterech krojów pikselowy z małymi literami.

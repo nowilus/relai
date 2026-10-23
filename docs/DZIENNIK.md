@@ -1293,7 +1293,6 @@ Od połowy sesji skrypty pisane narzędziem Write i uruchamiane osobno.
 - Pomiar na żywo w jasnym motywie i zrzuty do `docs/zasoby/PANEL_RELAI/zrzuty/` (rysunki niosą
   obie palety, testy pilnują kluczy motywu).
 - Decyzja o ramce karty (rysunek z cieniem czy `Box`) — przełącznik został w panelu.
-- Publikacja `relai-progress` 0.6.0 (tag, push) — czeka na zgodę.
 - Zainstalowany `relai-progress` 0.5.0 ma podłożony kod 0.6.0; kopia oryginału w
   `%TEMP%\relai-progress-0.5.0-kopia` — zastąpi go instalacja wydania.
 
@@ -1302,8 +1301,13 @@ kalibracji, skrypty podmian, pozostałość `base/`) — raport `clean-work.js` 
 po „tak” Łukasza narzędziem (`kasuj`): przed 20,1 MB, po 0,0 MB. Artefaktów poza katalogiem
 nie było; kopia `%TEMP%\relai-progress-0.5.0-kopia` zostaje do wydania.
 
+**Wydanie:** po zgodzie Łukasza `main` wypchnięty, tag `relai-progress-v0.6.0`, wydanie
+https://github.com/nowilus/relai/releases/tag/relai-progress-v0.6.0. Zasada aktywna 10:
+`claude plugin update relai-progress@relai` → „updated from 0.5.0 to 0.6.0”, katalog instalacji
+`0.6.0/`, `pane-agents.tsx` zgodny z repo co do bajtu poza końcami linii.
+
 **Do zrobienia przez człowieka:**
 
-- Zgoda na commit i na publikację 0.6.0.
+- Restart aplikacji, żeby załadować wydane 0.6.0.
 
 Autor: RelAI (Opus 5.5) + Lukasz
