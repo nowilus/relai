@@ -34,14 +34,17 @@ const PANE = {
 function world(on: On, files: Record<string, string>) {
   const disk: Record<string, string> = { ...files }
   const key = (path: string) => path.replace(/\\/g, '/')
-  const n = { reads: [] as string[], agentsWrites: 0 }
+  const n = { reads: [] as string[], agentsWrites: 0, agents: [] as unknown[] }
   // A file's time and size move with its text, in fs.stat and fs.list alike, as on a disk
   const stampOf = (text: string) => [...text].reduce((h, c) => (h * 31 + c.charCodeAt(0)) >>> 0, 7)
   mock.clock(on, { now: NOW })
   mock.store(on, {})
   on('state.set', ($, e, next) => {
-    const ref = e as unknown as { plugin?: string, key?: string }
-    if (ref.plugin === 'relai-progress' && ref.key === 'agents') n.agentsWrites += 1
+    const ref = e as unknown as { plugin?: string, key?: string, value?: unknown }
+    if (ref.plugin === 'relai-progress' && ref.key === 'agents') {
+      n.agentsWrites += 1
+      if (Array.isArray(ref.value)) n.agents = ref.value
+    }
     return next(e)
   })
   on('session.start', ($, e) => ({ cwd: e.cwd }))
@@ -104,6 +107,29 @@ describe('a step writes the agents only when something drawn moved (Z7)', () => 
     // Positive control: a step of the spawned agent moves its drawn count of calls, one write
     await step($, 'ta', 0, AGENT)
     expect(n.agentsWrites - spawned).toBe(1)
+  })
+})
+
+describe('a subagent\'s tool call is its step on the card (AGENTS_KRABY P3)', () => {
+  test('the agent\'s call is written with its words; the main loop\'s call writes nothing; the tool answers as ever', async ($, on) => {
+    const { n } = world(on, FILES)
+    on('tool.call', { tool: 'Read' }, () => ({ result: 'treść' }) as never)
+    type Card = { id: string, name: string, role: string, calls: number, tools: { live: string, dim: string }[] }
+    await start($)
+    await $.agent.spawn({ subagentType: 'Explore', description: 'Sonda agenta', prompt: 'x' } as never)
+    const spawned = n.agentsWrites
+    // The main loop reads a file: no agent moves, no write
+    const main = await $.tool.call({ tool: 'Read', file_path: `${CWD}/CLAUDE.md` } as never)
+    expect((main as { result?: unknown }).result).toBe('treść')
+    expect(n.agentsWrites - spawned).toBe(0)
+    // Positive control: the agent reads a file — one write, the step in Polish, the folder relative
+    const own = await $.tool.call({ tool: 'Read', file_path: `${CWD}/docs/STATE.md`, agentId: AGENT } as never)
+    expect((own as { result?: unknown }).result).toBe('treść')
+    await new Promise((r) => setTimeout(r, 0))
+    expect(n.agentsWrites - spawned).toBe(1)
+    const card = (n.agents as Card[]).find((a) => a.id === AGENT)
+    expect([card?.role, card?.name, card?.calls]).toEqual(['analyst', 'Lis Leon', 1])
+    expect(card?.tools.at(-1)).toEqual({ kind: 'read', label: 'STATE.md', dim: 'docs', live: 'Czyta STATE.md' })
   })
 })
 

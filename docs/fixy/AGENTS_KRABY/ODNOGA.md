@@ -114,7 +114,9 @@ Worker. Imię: pierwsze wolne z puli roli (pięć imion na rolę), po wyczerpani
 - [x] `node --test core/panel/tests/*.test.js` zielone, w tym parytet kopii rdzenia i testy
       `mascots.mjs`: siatki, role, imiona, barwy, klatki, kontrast obrysu w obu wyglądach, waga
       rysunku. Wynik 2026-10-23: 203/203.
-- [ ] Testy `agents.mjs`: kroki, rola, imię, barwa, lista sprzed zmiany.
+- [x] Testy `agents.mjs`: kroki, rola, imię, barwa, lista sprzed zmiany — 2026-10-23: rdzeń
+      209/209; `claude plugin test` w `progress/` 43/43, w tym hook `tool.call` z kontrolą
+      pozytywną (pętla główna nic nie zapisuje, agent — jeden krok).
 - [ ] `claude plugin validate .` i `claude plugin test .` w `progress/` zielone. Test panelu
       montuje kartę z postacią (`Svg` z `alt`), grupy, rozwinięte kroki i chip-przycisk z kliknięciem.
 - [ ] Na żywo, w ciemnym i jasnym motywie: panel „RelAI Agents” z ≥ 3 agentami w różnych rolach.

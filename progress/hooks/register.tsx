@@ -17,7 +17,7 @@ import { crewProgress, pick, promptLink, stageProgress } from './core/progress.m
 import type { Progress } from './core/progress.mjs'
 import { retone } from './skin'
 import { ancestors, planState } from './core/plan-state.mjs'
-import { agentCost, counts, finished, spawned, stepped } from './core/agents.mjs'
+import { agentCost, counts, describeTool, finished, spawned, stepped, toolStep, upgraded } from './core/agents.mjs'
 import type { AgentRun } from './core/agents.mjs'
 import { isFileOf, parseRecords } from './core/measure.mjs'
 import type { MeasureRecord } from './core/measure.mjs'
@@ -278,6 +278,8 @@ export const register: Register = (on) => {
     // Registered everywhere, so outside RelAI the command can say so in one sentence
     await $.command.register({ name: 'relai-agents', description: 'Panel agentów RelAI: uruchomieni i zakończeni, model, kontekst i koszt' }).catch(() => undefined)
     if (!isRelai) return next(e)
+    // A list kept by 0.5.0 has no roles, names, colours or tool steps yet (AGENTS_KRABY P3)
+    await update($, agents, (list) => upgraded(list))
     await refresh($, true)
     if (!ticking) {
       ticking = true
@@ -305,6 +307,17 @@ export const register: Register = (on) => {
     const r = await next(e)
     if (isRelai) $.clock.after(0, () => { refresh($).catch(() => undefined) })
     return r
+  }).catch(($, e, next) => next(e))
+
+  // A subagent's tool call: the card's live line and its list of steps (AGENTS_KRABY P3). Written
+  // without waiting, so the call itself never waits on the pane; one unfiltered hook, as any tool
+  on('tool.call', async ($, e, next) => {
+    const id = e.agentId
+    if (isRelai && id) {
+      const step = describeTool(String(e.tool), e as unknown as Record<string, unknown>, cwd)
+      update($, agents, (list) => [...toolStep(list, id, step)]).catch(() => undefined)
+    }
+    return next(e)
   }).catch(($, e, next) => next(e))
 
   on('agent.spawn', async ($, e, next) => {
