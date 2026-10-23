@@ -1311,3 +1311,82 @@ https://github.com/nowilus/relai/releases/tag/relai-progress-v0.6.0. Zasada akty
 - Restart aplikacji, żeby załadować wydane 0.6.0.
 
 Autor: RelAI (Opus 5.5) + Lukasz
+
+### 2026-10-23 — Plan RELAI_MODS utworzony: kokpit pluginów i hooków jako czwarty mod
+
+Łukasz przetestował i odinstalował mod „mods” od Benaia (lista na sztywno, na Windows nic nie
+znajdował) i w osobnej sesji wybrał wariant C makiety — kokpit z wyszukiwarką, filtrami, listą
+i szczegółami. Ta sesja dostała brief z decyzjami i przygotowała plan.
+
+**Zrobione:**
+
+- Plan [RELAI_MODS](plany/RELAI_MODS/STATUS.md) — 5 etapów, DO AKCEPTACJI: E1 spike na Windows
+  (CLI `claude plugin disable/enable` i `reload-plugins` z moda), E2 inwentarz z dysku, E3 kokpit
+  na desktopie w obu wyglądach, E4 terminal, wąski panel i dwa czaty, E5 wydanie 0.1.0. Wybrany
+  osobny mod `mods/` na wspólnym rdzeniu; odrzucone: zakładka w `relai-panel`, przeróbka moda
+  Benaia, zapis `enabledPlugins` zamiast CLI (ten ostatni wraca tylko decyzją człowieka po E1).
+- Brief i makieta skopiowane obok planu (`BRIEF.md`, `makieta.html`), żeby sesje etapów nie
+  zależały od pulpitu.
+- Plan powstał w worktree `relai-mods-plan-3c68a3` i został przeniesiony do `main` po zamknięciu
+  AGENTS_KRABY (folder planu skopiowany bez zmian, wpisy dopasowane do bieżącej treści plików).
+
+**Zweryfikowane — jak dokładnie:**
+
+- Stan wyjściowy z repo: układ trzech modów, `core/panel/theme.mjs` (brief wskazywał nieistniejący
+  `core/theme.mjs`), `Input`/`Select` w `pane-commands.tsx`, listy modów w `sync-panel-core.js`,
+  `network-calls.js` i marketplace; pułapki P-023, P-024, P-032, P-042, P-043, P-044.
+- Plan: builder szablonu bez niewypełnionych znaczników, zero adresów sieciowych, unikalne
+  identyfikatory, sekcje się zwijają, brak przewijania w poziomie przy 375 i 1280 px, napisy
+  diagramu mieszczą się w kartkach.
+
+**Świadomie odłożone:**
+
+- Odpowiedź na bramkę zgody optymalizatora promptów — sesja uruchomiona z innej sesji, zadanie
+  wykonane bez przeróbki promptu.
+
+**Do zrobienia przez człowieka:**
+
+- Akceptacja planu RELAI_MODS albo poprawki przed akceptacją.
+
+Autor: RelAI (Opus 5.5) + Lukasz
+
+### 2026-10-23 — Plan RELAI_MODS poprawiony i zaakceptowany
+
+Po przeniesieniu planu do `main` sprawdziłem go wobec kodu i maszyny Łukasza: osiem rozbieżności.
+Łukasz kazał poprawić pięć przed akceptacją i zaakceptował plan z tymi poprawkami.
+
+**Zrobione:**
+
+- `PLAN.html` (przed akceptacją, więc w treści, nie aneksem): `relai-progress` 0.6.0 w stanie
+  wyjściowym; `security-guidance` opisany jako plugin scope `local` projektu Parkly bez wpisu
+  w `enabledPlugins` (zamiast „wyłączony w scope user”); cel przełącznika w spike'u E1 to
+  `filetree` z dodatkowym pomiarem stanu pluginu bez wpisu; nowy przypadek brzegowy „pluginu nie ma
+  w `enabledPlugins`”; hooki liczone jako 7 komend w 5 zdarzeniach, a kryterium celu 1 brzmi „tyle,
+  ile w plikach w chwili testu”; `docs/KOMENDY.md` dopisany do punktów styku i do E5. Status
+  w nagłówku przestawiony.
+- `STATUS.md`: ZAAKCEPTOWANY 2026-10-23, E1 GOTOWY DO STARTU, cztery bramki manualne (plan B po E1,
+  wersja 0.1.0, wspólny termin wydania z BEZPIECZENSTWO, publikacja);
+  [PROMPT_ETAP_1.md](plany/RELAI_MODS/PROMPT_ETAP_1.md) wygenerowany.
+
+**Zweryfikowane — jak dokładnie:**
+
+- Rozbieżności: `installed_plugins.json` i `settings.json` odczytane na dysku (14 pluginów, scope
+  `local` dla `security-guidance`, 5 zdarzeń i 7 komend hooków), `claude --version` 2.1.304,
+  marketplace i `docs/KOMENDY.md` w repo.
+- Plan w przeglądarce: identyfikatory unikalne, nowy przypadek się rozwija, brak przewijania
+  w poziomie, brak starych liczb (0.5.0, „5 hooków”).
+- Prompt E1: „Zasady aktywne” identyczne z `docs/LEKCJE.md`, 11 punktów weryfikacji.
+
+**Świadomie odłożone:**
+
+- Rozbieżności 6–8 bez zmian w planie: wersja `claude` w opisie R1 (2.1.280 → dziś 2.1.304, ryzyko
+  aktualne), numer linii listy modów w `sync-panel-core.js` (30, nie 29), nowe moduły rdzenia
+  z AGENTS_KRABY (`agentcard.mjs`, `hanken.mjs`) trafiające do każdego moda. Wspólny termin wydania
+  z BEZPIECZENSTWO jest bramką przed E5.
+
+**Do zrobienia przez człowieka:**
+
+- Start E1 w świeżej sesji: `/relai-stage` (plan RELAI_MODS).
+- Decyzja o usunięciu worktree `relai-mods-plan-3c68a3`.
+
+Autor: RelAI (Opus 5.5) + Lukasz
