@@ -1088,3 +1088,76 @@ miało zgodną sumę i zostało użyte jako osierocona kopia.
 - —
 
 Autor: RelAI (Opus 5.5) + Lukasz
+
+### 2026-10-23 — Plan BEZPIECZENSTWO utworzony: Trivy i audyt Cloudflare w RelAI
+
+Łukasz poprosił o instalację Trivy i skilla `security-audit` od Cloudflare (zakres użytkownika),
+potem o własny skill do skanów Trivy i o wbudowanie obu w RelAI. Prace poza repozytorium były
+wstępem; plan opisuje, jak przenieść je do pluginu.
+
+**Zrobione:**
+
+- Poza repo: Trivy 0.76.1 przez winget (suma SHA256 zgodna z wydaniem na GitHubie), kopia
+  `security-audit` z commitu `c1c8a8c` w `~/.claude/skills/`, własny skill `trivy-scan`
+  (skrypt skanu z planem aktualizacji i porównaniem skanów, hook lockfile) i wpis hooka
+  w `~/.claude/settings.json` (kopia ustawień `settings.json.bak-2026-10-23-trivy`).
+- Plan [BEZPIECZENSTWO](plany/BEZPIECZENSTWO/STATUS.md) — 6 etapów, DO AKCEPTACJI, po dwóch
+  rundach wywiadu: oba skille w pluginie, trzy adaptery, ryzyka do tej tabeli, raporty
+  w `.security/`, hook przejmuje RelAI, pełny audyt na żądanie, plan równolegle do PANEL_CODEX.
+
+**Zweryfikowane — jak dokładnie:**
+
+- `trivy-scan`: 3 przypadki testowe ze skillem i bez — 16/16 sprawdzeń ze skillem, 13/16 bez
+  (wyniki w `~/.claude/skills/trivy-scan-workspace/`). Hook sprawdzony na czterech wejściach:
+  brak wyzwalacza, lockfile, ponowne wywołanie w 20 s, projekt bez podatności.
+- Plan: builder szablonu bez niewypełnionych znaczników, zero adresów sieciowych, sekcje się
+  zwijają, brak przewijania w poziomie przy 375 i 1280 px.
+- **Nie sprawdzono:** walidatory skilla Cloudflare na Windowsie kończą się błędem
+  `OS no-follow and nonblocking input protection is unavailable` — celowe zabezpieczenie upstreamu;
+  obejście opisuje E4.
+
+**Świadomie odłożone:**
+
+- Poprawka `trivy-scan` z testów (wersja docelowa może mieć własne podatności — axios 0.33.0 →
+  0.34.0) — wchodzi do E1 razem z przeniesieniem skilla do pluginu.
+
+**Do zrobienia przez człowieka:**
+
+- Akceptacja planu BEZPIECZENSTWO albo poprawki przed akceptacją.
+
+Autor: RelAI (Opus 5.5) + Lukasz
+
+### 2026-10-23 — Plan BEZPIECZENSTWO zaakceptowany; poprawka trivy-scan w profilu
+
+Łukasz zaakceptował plan bez poprawek i poprosił, żeby poprawkę wyłapaną w testach wprowadzić od
+razu w skillu w profilu, nie dopiero w E1.
+
+**Zrobione:**
+
+- Plan zamrożony: `STATUS.md` → ZAAKCEPTOWANY 2026-10-23, E1 → GOTOWY DO STARTU,
+  [PROMPT_ETAP_1.md](plany/BEZPIECZENSTWO/PROMPT_ETAP_1.md) wygenerowany; status w nagłówku
+  `PLAN.html` przestawiony, sekcje 1–9 bez zmian.
+- `~/.claude/skills/trivy-scan/scripts/scan.mjs` (poza repo): każda wersja docelowa sprawdzana
+  `trivy sbom` po adresach pakietów (PURL), offline, na tej samej bazie; wersja z własnymi
+  podatnościami podnoszona do skutku (do 5 rund), z adnotacją w planie i w `REPORT.md`. Tryb
+  szybki hooka tę weryfikację pomija. `SKILL.md` opisuje zachowanie i jego granicę: sprawdzana
+  jest sama paczka, zależności nowej wersji łapie ponowny skan po aktualizacji.
+
+**Zweryfikowane — jak dokładnie:**
+
+- Projekt testowy z axios 0.21.0: cel 0.34.0 z adnotacją „raised from 0.33.0” (wcześniej 0.33.0,
+  który ma CVE-2026-101909 HIGH); projekt z axios 0.33.0: cel 0.34.0; projekt z express 4.17.1:
+  siedem pozycji bez zmian i bez adnotacji.
+- Hook po zmianie: wejście z `package-lock.json` nadal daje notkę `[trivy-scan]`.
+- `PROMPT_ETAP_1.md`: sekcja „Zasady aktywne” identyczna z `docs/LEKCJE.md` (porównanie tekstu),
+  dziewięć elementów w kolejności ze specyfikacji, 12 punktów weryfikacji.
+- **Nie sprawdzono:** pełnego przebiegu ewaluacji skilla w drugiej iteracji — poprawka sprawdzona
+  deterministycznie na trzech projektach testowych.
+
+**Do zrobienia przez człowieka:**
+
+- Zgoda na nową decyzję w `DECYZJE.md` (Trivy jako pierwsze narzędzie audytu zależności) — przed
+  startem E3.
+- Start E1 w świeżej sesji: `/relai-stage`.
+
+Autor: RelAI (Opus 5.5) + Lukasz

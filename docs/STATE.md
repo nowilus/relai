@@ -118,6 +118,12 @@ po E5 (wydanie panelu 0.20.0 / 0.11.0); HUMANIZACJA zamknięty 2026-10-14 wydani
 
 ## Nad czym pracujemy teraz
 
+- **BEZPIECZENSTWO — plan ZAAKCEPTOWANY 2026-10-23, E1 gotowy do startu** (plan
+  [BEZPIECZENSTWO](plany/BEZPIECZENSTWO/STATUS.md), prompt E1 wygenerowany, 6 etapów, wykonanie Opus w Claude Code, równolegle do PANEL_CODEX). Po co:
+  skan zależności Trivy (własny skill `trivy-scan`) i audyt bezpieczeństwa Cloudflare
+  (`security-audit`, MIT) wbudowane w plugin — komenda `/relai-security`, 13. hook po zmianie
+  lockfile, prompty etapów, `done-check`, `first-deploy`, zamknięcie sesji i planu; ryzyka do
+  dziennika, raporty w `.security/`. Linia „Aktywny plan” w `CLAUDE.md` zostaje przy PANEL_CODEX.
 - **PANEL_CODEX, E1 — przejęcie rdzenia i natywny panel w Codeksie** (plan
   [PANEL_CODEX](plany/PANEL_CODEX/STATUS.md), ZAAKCEPTOWANY 2026-10-10, 8 etapów, autor
   i wykonawca `gpt-6.1-sol` w Codeksie, Aneks A — 16 pól kontraktu — zaakceptowany). Po co: ten sam
