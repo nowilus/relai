@@ -32,3 +32,4 @@ archiwum, jego stan sprawdzamy również w docs/archiwum/plany/PANEL_CLAUDE/STAT
 - 2026-10-10 — Po zamknięciu PANEL_CLAUDE przygotowano [PROMPT_START.md](PROMPT_START.md) — sesja startowa w Codeksie (gpt-6.1-sol): checklist przejęcia, uzgodnienie PLAN.html z wynikiem poprzednika, akceptacja i aneks D-80, potem PROMPT_ETAP_1; E1 w osobnej sesji (decyzja człowieka).
 - 2026-10-10 — Przejęcie rdzenia i testów zweryfikowane, PLAN uzgodniony z wydaniem 2.8.0; czeka na akceptację planu i aneksu D-80, E1 nadal OCZEKUJE.
 - 2026-10-10 — Plan zaakceptowany i zamrożony, aneks D-80 zapisany; wygenerowano PROMPT_ETAP_1, E1 GOTOWY DO STARTU w świeżej sesji Codeksa.
+- 2026-10-12 — Aneks A (zamknięcie LIMIT_CHECKPOINT, decyzja Łukasza): E3 dostaje kartę „Próg limitu” (5 h 90 %, tydzień 98 %) i kolor baterii od progu na wspólnym `core/panel/limit-threshold.mjs`; karta po turze, zapis i „Wznów” tylko przy hookach końca tury Codeksa.
