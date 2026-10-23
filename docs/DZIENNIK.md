@@ -1161,3 +1161,76 @@ razu w skillu w profilu, nie dopiero w E1.
 - Start E1 w świeżej sesji: `/relai-stage`.
 
 Autor: RelAI (Opus 5.5) + Lukasz
+
+### 2026-10-23 — AGENTS_KRABY P1–P2: przegląd Helper Desku, postacie ról agentów w rdzeniu
+
+Odnoga samodzielna [AGENTS_KRABY](fixy/AGENTS_KRABY/ODNOGA.md) (panel „RelAI Agents” w stylu
+Helper Desku, Ben AI). W trakcie P2 Łukasz odrzucił kraba („bardziej z OpenClaw kojarzy się niż
+z Claude”) i wybrał postacie ról: każda rola innym zwierzęciem, strój roli, element w barwie
+agenta, imię z puli.
+
+**Zrobione:**
+
+- Karta i prompt odnogi; po zmianie kierunku zaktualizowane (tabela ról, zakres P3–P6).
+- `core/panel/mascots.mjs` z kopiami w `panel/`, `progress/`, `cache-keeper/`. Moduł niesie:
+  - dziewięć postaci 20 × 16: sowa — Code Reviewer, pies stróż — Audytor bezpieczeństwa,
+    bóbr — Developer, pingwin — Manager, słoń — Architekt, lis — Analityk, szop — Tester,
+    kot — Redaktor dokumentacji, chomik — Worker;
+  - animację w CSS rysunku (stoi, przysiada, mruga) z `prefers-reduced-motion`;
+  - obrys zależny od wyglądu aplikacji;
+  - `roleOf` (typ subagenta przed opisem zadania), `nameFor` (pięć imion na rolę), `pickHue`;
+  - pasek karty z falą i bąbelkami, glif terminala.
+- `core/panel/tests/mascots.test.js` — 11 testów. Wcześniejszy własny krab (`crab.mjs`) usunięty
+  przed commitem.
+
+**Zweryfikowane — jak dokładnie:** przegląd cudzego kodu wg `SPEC_PRZYJECIE_KODU.md` —
+`helper-desk` 0.4.0 z `C:\Users\Lukasz\Desktop\benai-mods\plugins\helper-desk` (folder bez gita;
+SHA-256 `hooks/register.tsx` zaczyna się od `b8b9d64f07e36c09`):
+1. **Inwentarz:** 6 plików — moduł hooków `hooks/register.tsx` (1 416 linii), `hooks/connectors.ts`
+   (116 linii), test `hooks/register.test.tsx`, typy, `hooks.json`, `plugin.json`. Bez binariów
+   i bez kodu zminifikowanego.
+2. **Sieć:** 0 trafień wzorca sieci ze specyfikacji. Kontrola pozytywna tym samym wzorcem na
+   `panel/hooks` RelAI: 1 trafienie.
+3. **Pliki:** zapis i odczyt poza projektem, w `~/.claude/` (`mods-logs/helper-desk.log`,
+   `mods/switches.json`, `mods-state/plan-<sesja>.json`), kasowanie pliku żądania
+   `mods/.open-helper-desk-<sesja>`.
+4. **Procesy:** 4 wywołania `$.process.run` — trzy `mkdir -p`, jedno `rm -f`, ścieżki
+   z katalogu domowego i stałych. Brak `eval`, `child_process` i dynamicznego importu.
+5. **Zgodność z celem:** wszystkie operacje służą własnemu celowi wzorca (przełączniki `/mods`,
+   log, plan z narzędzia `plan`). RelAI żadnej z nich nie potrzebuje.
+6. **Zależności:** brak `package.json` i skryptów instalacji; `hooks.json` wskazuje tylko
+   `./register.tsx`.
+7. **Licencja:** brak pliku licencji (w `benai-mods` licencję ma tylko `replay-theater`,
+   Apache 2.0). Kodu, tablic pikseli i stałych nie przejmujemy, bierzemy samą ideę panelu.
+   Atrybucja „inspired by Helper Desk (Ben AI)” jest w nagłówku `mascots.mjs` i trafi do opisu
+   pluginu przy wydaniu.
+
+Werdykt przeglądu: ODRZUCONY
+
+- Kontrola, że nic nie przeszło ze wzorca: wzorzec `petSvg|twinkleCss|HUES\b|function crab\(|hdc\$\{|helper-desk`
+  daje 0 trafień w kodzie `core/`, `progress/`, `panel/` i `cache-keeper/` (poza `AGENT_HUES`).
+  Kontrola pozytywna na `helper-desk/hooks/register.tsx`: 33 trafienia.
+- Testy: `node --test core/panel/tests/*.test.js` → 203/203. `node core/tools/sync-panel-core.js --check`
+  → zgodne, 17 plików rdzenia.
+- Test złapał wadę przysiadu: dolny wiersz ciała przykrywał stopy (222 → 218 komórek u sowy).
+  Poprawka: stopy rysowane na końcu, test sprawdza je wprost.
+- Kalibracja wyglądu: galerie zrzucone przez Edge headless, ciemny i jasny wygląd obok siebie
+  w ramkach `iframe`. Ciemna ramka ma regułę `prefers-color-scheme: light` wyłączoną, jasna
+  wymuszoną, bo podgląd plików lokalnych w aplikacji rysuje się tylko jasno.
+  - Ciemny obrys kraba w pierwszej wersji był jasny na 0,6 i czytał się jak aureola; obniżony
+    do 0,2, nadal ≥ 4,6 : 1.
+  - Animacje sprawdzone w przeglądarce: 28 aktywnych, jedna klatka widoczna naraz, fala się
+    przesuwa.
+- **Odstępstwo od zasady aktywnej 5:** dwie podmiany przez `sed -i` w kodzie i teście z tekstem
+  z ukośnikami, zamiast Edit. Wynik sprawdzony grepem i testami.
+
+**Świadomie odłożone:**
+
+- P3–P6 (dane agentów i kroki narzędzi, panel, przycisk w pasku, pomiar na żywo i wydanie 0.6.0)
+  wg karty.
+
+**Do zrobienia przez człowieka:**
+
+- Nic — postacie zaakceptowane 2026-10-23.
+
+Autor: RelAI (Opus 5.5) + Lukasz
