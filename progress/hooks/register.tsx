@@ -12,7 +12,7 @@
 // this same file.
 
 import { atom, read, update } from 'claude-code'
-import type { EngineInterface, Register, RenderChildren } from 'claude-code'
+import type { EngineInterface, Register } from 'claude-code'
 import { crewProgress, pick, promptLink, stageProgress } from './core/progress.mjs'
 import type { Progress } from './core/progress.mjs'
 import { retone } from './skin'
@@ -23,11 +23,12 @@ import { isFileOf, parseRecords } from './core/measure.mjs'
 import type { MeasureRecord } from './core/measure.mjs'
 import { PRICE_FILE, newest, parsePriceFile, priceAt, priceLists } from './core/pricing.mjs'
 import type { Version } from './core/pricing.mjs'
-import { BAND, BAR, BAR_LOOK, THEME } from './core/theme.mjs'
-import { HEADING_ART } from './core/headings.mjs'
-import { clip, duration, join, tokens, usd } from './fmt'
+import { BAND, BAR, BAR_LOOK } from './core/theme.mjs'
+import { join, tokens, usd } from './fmt'
 import { barCard, barRule } from './bar-card'
 import { stepRows } from './steps'
+import { agentsPane } from './pane-agents'
+import type { GroupKey } from './pane-agents'
 import { branchProgress, cardPathOf, countedOf, executorTool, focusPath, isBranchProgress, parseFocus, statusPathOf, workOf } from './focus'
 
 type $T = EngineInterface
@@ -38,11 +39,13 @@ const CREW_DIR = '.claude/relai/work/CREW'
 const TICK_MS = 10_000 // a box ticked by hand in the prompt file shows within this
 const EDIT_TOOLS = ['Edit', 'Write', 'NotebookEdit'] as const
 const PANE_ID = 'relai-agents'
-const PANE_TITLE = 'Postęp i agenci RelAI'
+const PANE_TITLE = 'RelAI Agents'
 
 const agents = atom({ plugin: 'relai-progress', key: 'agents' } as const, [] as AgentRun[])
 const progress = atom({ plugin: 'relai-progress', key: 'progress' } as const, null as Progress | null)
-const isDoneCollapsed = atom({ plugin: 'relai-progress', key: 'isDoneCollapsed' } as const, false)
+// The RelAI Agents pane (AGENTS_KRABY P4): the groups folded and the agents whose steps are open
+const foldedGroups = atom({ plugin: 'relai-progress', key: 'foldedGroups' } as const, [] as GroupKey[])
+const openSteps = atom({ plugin: 'relai-progress', key: 'openSteps' } as const, [] as string[])
 // The list of steps (WYGLAD_PANELU E2): expanded or not, and its done ones unfolded — for the
 // session, collapsed by default (plan, risk 4)
 const isListOpen = atom({ plugin: 'relai-progress', key: 'isListOpen' } as const, false)
@@ -261,13 +264,9 @@ const MIN_SEGMENT_CELLS = 10 // the narrowest the terminal's segments are drawn
 const unitOf = (p: Progress) => (p.kind === 'crew' ? (p.total === 1 ? 'zadania' : 'zadań')
   : isBranchProgress(p) ? (p.total === 1 ? 'paczki' : 'paczek') : (p.total === 1 ? 'punktu' : 'punktów'))
 
-const ITEM_WORD: Record<string, string> = { done: 'ukończone', pending: 'oczekuje', running: 'w toku', failed: 'błąd albo timeout', unknown: 'stan nieznany' }
-
 // What the pane and the chip draw of an agent, as drawn: its context in the band's own words
 const drawnOf = (a: AgentRun) => [a.id, a.status, a.steps, tokens(a.context), a.model, a.endedAt ?? null]
 
-const STATUS_WORD: Record<AgentRun['status'], string> = { running: '● działa', done: '✓ zakończony', stopped: '■ przerwany', failed: '✗ błąd' }
-const STATUS_COLOR: Record<AgentRun['status'], string> = { running: THEME.mark, done: THEME.ok, stopped: THEME.body, failed: THEME.accentText }
 
 export const register: Register = (on) => {
   on('session.start', async ($, e, next) => {
@@ -276,7 +275,7 @@ export const register: Register = (on) => {
     isRelai = root !== null
     cwd = root ?? here
     // Registered everywhere, so outside RelAI the command can say so in one sentence
-    await $.command.register({ name: 'relai-agents', description: 'Panel agentów RelAI: uruchomieni i zakończeni, model, kontekst i koszt' }).catch(() => undefined)
+    await $.command.register({ name: 'relai-agents', description: 'RelAI Agents: subagenci sesji jako postacie ról, ich kroki, kontekst i koszt' }).catch(() => undefined)
     if (!isRelai) return next(e)
     // A list kept by 0.5.0 has no roles, names, colours or tool steps yet (AGENTS_KRABY P3)
     await update($, agents, (list) => upgraded(list))
@@ -356,104 +355,31 @@ export const register: Register = (on) => {
     return r
   })
 
-  // The pane in relai-panel's motif (calibration 2026-10-09): a Kalam heading per section, one
-  // line saying what it holds, then rounded cards in THEME colors; the terminal gets the same
-  // text in the same colors, framed only where a frame carries meaning
+  // The RelAI Agents pane (AGENTS_KRABY P4): drawn by pane-agents.tsx from the list, the costs and
+  // what the person folded or opened; the stage's progress stays in the bar above the prompt
   on('ui.render', { component: 'Pane', requestId: PANE_ID }, async ($, e) => {
     const el = $.ui.resolve(e)
-    const { Box, Text, Button } = el
-    const Svg = (e.surface === 'desktop' || e.surface === 'vscode') && 'Svg' in el ? el.Svg : null
     const isGui = e.surface !== 'terminal'
     const list = await read($, agents)
-    const folded = await read($, isDoneCollapsed)
     const { cost, total, isPartial, records, pricing } = await agentCosts($, list)
-    const now = await $.clock.now()
-    const { running, finished: done } = counts(list)
-
-    const heading = (key: string) => {
-      const art = HEADING_ART[key]
-      if (Svg && art) return <Svg key={`h-${key}`} source={art.svg} alt={art.text} width={art.width} height={art.height} />
-      return <Text bold color={THEME.mark}>{art?.text ?? key}</Text>
-    }
-    const section = (key: string, head: string, about: string, items: RenderChildren[]) => (
-      <Box key={key} flexDirection="column" gap={isGui ? 1 : 0}>
-        {heading(head)}
-        <Text key={`${key}-about`} color={THEME.body} wrap="wrap">{about}</Text>
-        {items}
-      </Box>
-    )
-    const frame = isGui ? { borderStyle: 'round' as const } : {}
-
     // Records there but no price for their model is not "no measurement" (live 2026-10-09)
-    const money = (a: AgentRun, c: ReturnType<typeof cost>) => {
-      if (c === null) return 'brak pomiaru'
-      if (c.usd === null) return `brak ceny dla ${a.model}`
-      return `${usd(c.usd)}${c.isPartial ? ' (suma częściowa)' : ''}`
-    }
-    const card = (a: AgentRun) => {
-      const c = cost(a)
-      const time = duration((a.endedAt ?? now) - a.at)
-      return (
-        <Box key={`agent-${a.id}`} flexDirection="row" alignItems="center" columnGap={2} paddingX={isGui ? 2 : 1} paddingY={isGui ? 1 : 0}
-          {...frame} borderColor={a.status === 'running' ? THEME.mark : THEME.line} backgroundColor={THEME.card}>
-          <Box key="text" flexDirection="column" flexGrow={1} flexShrink={1}>
-            <Box key="head" flexDirection="row" flexWrap="wrap" columnGap={1}>
-              <Text bold color={STATUS_COLOR[a.status]}>{STATUS_WORD[a.status]}</Text>
-              <Text bold color={THEME.title} wrap="truncate">{clip(a.description || a.type, 60)}</Text>
-            </Box>
-            <Text key="meta" color={THEME.body} wrap="wrap">{`${a.type} · ${a.model} · ${a.steps} wyw. · kontekst ${tokens(a.context)} · ${time}`}</Text>
-          </Box>
-          <Box key="cost" flexDirection="column" alignItems="flex-end" flexShrink={0}>
-            <Text color={THEME.body}>koszt</Text>
-            <Text bold color={c !== null && c.usd !== null ? THEME.title : THEME.accentText}>{money(a, c)}</Text>
-          </Box>
-        </Box>
-      )
-    }
-
-    const p = await read($, progress)
-    // Every item with its full name and its state: what a segment of the bar shows on hover. The
-    // next item to tick stands out, as on the bar when nothing is hovered.
-    const upcoming = p?.items.find((it) => it.status !== 'done')
-    const taskRow = (it: Progress['items'][number]) => {
-      const isNext = it === upcoming
-      const color = it.status === 'done' ? THEME.ok : it.status === 'failed' ? THEME.accentText : isNext ? THEME.mark : THEME.body
-      return (
-        <Box key={`task-${it.id}`} flexDirection="row" columnGap={1} paddingX={1} {...(isNext && isGui ? { backgroundColor: THEME.cardOn } : {})}>
-          <Box key="mark" flexShrink={0}><Text bold color={color}>{BAR.tile[it.status].mark}</Text></Box>
-          <Box key="name" flexGrow={1} flexShrink={1}><Text color={it.status === 'done' || isNext ? THEME.title : THEME.body} wrap="wrap">{it.name}</Text></Box>
-          <Box key="state" flexShrink={0}><Text color={color}>{isNext ? 'następny' : ITEM_WORD[it.status] ?? it.status}</Text></Box>
-        </Box>
-      )
-    }
-    const tasks = p && p.items.length
-      ? section('tasks', 'progress', `${p.title} · ${p.words}`, [
-          <Box key="tasks-card" flexDirection="column" gap={0} paddingY={isGui ? 1 : 0} {...frame} borderColor={THEME.line} backgroundColor={THEME.card}>
-            {p.items.map(taskRow)}
-          </Box>,
-        ])
-      : null
-
-    const live = list.filter((a) => a.status === 'running').reverse()
-    const ended = list.filter((a) => a.status !== 'running').reverse()
     const sum = total === null ? 'brak pomiaru' : `${usd(total)}${isPartial ? ' (suma częściowa)' : ''}`
-    const agentItems: RenderChildren[] = list.length === 0
-      ? [<Text key="empty" color={THEME.body}>Ta sesja nie uruchomiła jeszcze żadnego subagenta.</Text>]
-      : [...live.map(card)]
-    if (ended.length) {
-      agentItems.push(<Box key="fold" flexDirection="row"><Button key="fold-btn" variant="secondary" label={`${folded ? '▸' : '▾'} Zakończeni · ${ended.length}`} onPress={() => update($, isDoneCollapsed, (x) => !x)} /></Box>)
-      if (!folded) agentItems.push(...ended.map(card))
-    }
-    const about = `${running} działa, ${done} zakończonych · koszt ${sum} — z pomiarów relai-panel, cennik z ${pricing.date}.`
+    const about = `Koszt z pomiarów relai-panel, cennik z ${pricing.date}.`
       + (records === null ? ' Brak pliku pomiarów tej sesji: relai-panel jej nie mierzy.' : '')
       + (pricing.error ? ` Cennik projektu pominięty — ${pricing.error}; liczę cennikiem wbudowanym.` : '')
     // Both appearances of the app (WYGLAD_PANELU E4): texts and frames in theme keys, drawings two-tone
-    return retone(
-      <Box key="relai-agents" flexDirection="column" gap={isGui ? 2 : 1}>
-        {tasks ? [tasks] : []}
-        {section('summary', 'agents', about, agentItems)}
-      </Box>,
-    )
+    return retone(agentsPane(el, isGui, {
+      list,
+      now: await $.clock.now(),
+      columns: e.props.bodyColumns,
+      cost,
+      sum,
+      about,
+      folded: await read($, foldedGroups),
+      openSteps: await read($, openSteps),
+      onFold: (g) => { update($, foldedGroups, (x) => (x.includes(g) ? x.filter((y) => y !== g) : [...x, g])).catch(() => undefined) },
+      onSteps: (id) => { update($, openSteps, (x) => (x.includes(id) ? x.filter((y) => y !== id) : [...x, id])).catch(() => undefined) },
+    }))
   })
 
   // One band instance for every plugin: our card above whatever the plugins beneath draw, never

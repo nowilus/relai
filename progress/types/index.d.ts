@@ -15,6 +15,20 @@ export type AgentRunState = {
   endedAt: number | null
   steps: number
   context: number
+  /** RelAI Agents (AGENTS_KRABY P3): the role, its name from the role's pool, the agent's colour,
+   *  its tool calls and the newest of them; a list kept by 0.5.0 gets them at session start. */
+  role: 'reviewer' | 'auditor' | 'developer' | 'manager' | 'architect' | 'analyst' | 'tester' | 'writer' | 'worker'
+  name: string
+  hue: number
+  calls: number
+  tools: ToolStepState[]
+}
+
+export type ToolStepState = {
+  kind: 'command' | 'connector' | 'read' | 'write' | 'search' | 'web' | 'skill' | 'agent' | 'tool'
+  label: string
+  dim: string
+  live: string
 }
 
 export type ItemState = {
@@ -46,8 +60,10 @@ declare module 'claude-code' {
       agents: AgentRunState[]
       /** How far the work is; null outside a RelAI project. */
       progress: ProgressState | null
-      /** The finished agents folded away in the pane. */
-      isDoneCollapsed: boolean
+      /** The groups of the RelAI Agents pane folded away (AGENTS_KRABY P4). */
+      foldedGroups: ('running' | 'done' | 'broken')[]
+      /** The agents whose every step is shown in the pane. */
+      openSteps: string[]
       /** The list of steps above the prompt expanded (WYGLAD_PANELU E2); collapsed by default. */
       isListOpen: boolean
       /** The done steps unfolded in the expanded list. */

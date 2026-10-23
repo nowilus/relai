@@ -702,21 +702,95 @@ describe('the agents pane', () => {
     await ui.unmount()
   })
 
-  test('the pane speaks the RelAI motif: a heading per section, the cards in the theme of relai-panel', async ($, on) => {
+  // AGENTS_KRABY P4: the pane is RelAI Agents — agents only; the stage's progress lives in the bar
+  test('the pane speaks the RelAI motif: one heading, the agent as its role, no section of the stage', async ($, on) => {
     world(on, { ...FILES, [MEASURE]: rec(AGENT, 0, 100, 50) + '\n' })
     await start($)
     await spawn($)
     const term = await $.ui.mount({ plugin: 'relai-progress', surface: 'terminal', ...PANE() })
     const text = textOf(await term.drawn())
-    expect(text).toContain('Postęp etapu')
     expect(text).toContain('Agenci sesji')
+    expect(text).toContain('Lis Leon · Analityk') // Explore is the analyst, the first name of its pool
+    // Negative proof: the stage the bar shows (PANEL_CLAUDE E9) is nowhere in the pane
+    expect(text).not.toContain('Postęp etapu')
+    expect(text).not.toContain('punktów')
+    expect(await term.find({ key: 'tasks-card' })).toBeUndefined()
     await term.unmount()
     const gui = await $.ui.mount({ plugin: 'relai-progress', surface: 'desktop', ...PANE() })
     const card = await gui.find({ key: `agent-${AGENT}` })
     expect(card?.props.backgroundColor).toBeUndefined() // no fill of its own since E4: the pane's ground shows through
     expect(card?.props.borderStyle).toBe('round')
-    expect(await gui.find({ key: 'tasks-card' })).toBeDefined()
     await gui.unmount()
+  })
+
+  test('the card draws the agent\'s character, what it does now, its last steps and all of them on a press', async ($, on) => {
+    world(on, { ...FILES, [MEASURE]: rec(AGENT, 0, 100, 50) + '\n' })
+    on('tool.call', { tool: ['Read', 'Grep'] }, () => ({ result: 'ok' }) as never)
+    await start($)
+    await spawn($)
+    for (const [i, f] of ['a.md', 'b.md', 'c.md', 'd.md', 'e.md'].entries()) {
+      await $.tool.call({ tool: i === 4 ? 'Grep' : 'Read', ...(i === 4 ? { pattern: 'roleOf' } : { file_path: `${CWD}/docs/${f}` }), agentId: AGENT } as never)
+    }
+    await new Promise((r) => setTimeout(r, 0))
+    const gui = await $.ui.mount({ plugin: 'relai-progress', surface: 'desktop', ...PANE() })
+    const svgs = [...walkNodes(await gui.drawn())].filter((x) => typeof x !== 'string' && x.type === 'Svg')
+    const alts = svgs.map((x) => String(((x as { props?: { alt?: string } }).props ?? {}).alt ?? ''))
+    expect(alts.every((a) => a.length > 0)).toBe(true) // every drawing has its alt (P-042)
+    expect(alts).toContain('Lis Leon, lis — Analityk, kolor gliniany')
+    const pet = svgs.find((x) => String(((x as { props?: { source?: string } }).props ?? {}).source ?? '').includes('mascot-f'))
+    expect(pet).toBeDefined() // a running agent's character steps through its frames
+    let card = textOf(await gui.find({ key: `agent-${AGENT}` }))
+    expect(card).toContain('Krok 5 · Szuka „roleOf”')
+    expect(card).toContain('Czyta d.md') // the three before the current one
+    expect(card).not.toContain('Czyta a.md')
+    const label = async (key: string) => String((await gui.find({ key }))?.props.label ?? '')
+    expect(await label(`steps-${AGENT}`)).toBe('▸ Wszystkie kroki · 5')
+    await gui.press({ key: `steps-${AGENT}` })
+    card = textOf(await gui.find({ key: `agent-${AGENT}` }))
+    expect(await label(`steps-${AGENT}`)).toBe('▾ Zwiń kroki')
+    expect(card).toContain('a.md') // every step, its kind and its folder
+    expect(card).toContain('odczyt')
+    expect(card).toContain('docs')
+    await gui.press({ key: `steps-${AGENT}` })
+    expect(await label(`steps-${AGENT}`)).toBe('▸ Wszystkie kroki · 5')
+    await gui.unmount()
+  })
+
+  test('agents stand in groups, each folds on a press; a finished one stands still', async ($, on) => {
+    world(on, { ...FILES, [MEASURE]: rec(AGENT, 0, 100, 50) + '\n' })
+    await start($)
+    await spawn($)
+    await $.turn.complete({ answer: 'raport', durationMs: 5000, isAborted: false, turnId: 'ta', agentId: AGENT, reason: 'answer' } as never)
+    await spawn2($)
+    const gui = await $.ui.mount({ plugin: 'relai-progress', surface: 'desktop', ...PANE() })
+    const label = async (key: string) => String((await gui.find({ key }))?.props.label ?? '')
+    const drawn = textOf(await gui.drawn())
+    expect(await label('fold-running')).toBe('▾ Działają · 1')
+    expect(await label('fold-done')).toBe('▾ Zakończeni · 1')
+    expect(drawn).toContain('Koszt agentów')
+    expect(drawn).toContain('Czas pracy')
+    const done = await gui.find({ key: `agent-${AGENT}` })
+    const still = [...walkNodes(done as RenderNode)].find((x) => typeof x !== 'string' && x.type === 'Svg' && String((x.props as { source?: string }).source ?? '').includes('mascot-o'))
+    expect(String((still as { props?: { source?: string } })?.props?.source ?? '')).not.toContain('animation')
+    await gui.press({ key: 'fold-done' })
+    expect(await gui.find({ key: `agent-${AGENT}` })).toBeUndefined()
+    expect(await label('fold-done')).toBe('▸ Zakończeni · 1')
+    await gui.press({ key: 'fold-done' })
+    expect(await gui.find({ key: `agent-${AGENT}` })).toBeDefined()
+    await gui.unmount()
+  })
+
+  test('the pane with a running and a finished agent fits a narrow split pane (40 columns) and a full one', async ($, on) => {
+    world(on, FILES)
+    await start($)
+    await spawn($)
+    await $.turn.complete({ answer: 'raport', durationMs: 5000, isAborted: false, turnId: 'ta', agentId: AGENT, reason: 'answer' } as never)
+    await spawn2($)
+    for (const surface of ['terminal', 'desktop'] as const) for (const cols of [40, 100]) {
+      const ui = await $.ui.mount({ plugin: 'relai-progress', surface, ...PANE(cols) })
+      expect(minWidth(await ui.drawn())).toBeLessThanOrEqual(cols)
+      await ui.unmount()
+    }
   })
 
   test('the pane follows the app\'s look: texts and frames in theme keys, no fill of its own (E4, live 2026-10-15)', async ($, on) => {
@@ -737,7 +811,6 @@ describe('the agents pane', () => {
     }
     walk(await gui.drawn())
     expect(raw).toEqual([])
-    expect((await gui.find({ key: 'tasks-card' }))?.props.backgroundColor).toBeUndefined()
     await gui.unmount()
   })
 })
