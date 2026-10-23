@@ -39,6 +39,7 @@ export type Steps = {
   cells: number // the middle column's width in cells: the terminal's segments fill it
   onToggle: () => void
   onFold: () => void
+  onAgents: () => void // opens or closes the RelAI Agents pane
 }
 
 // The agents chip: how many subagents the session ran, ● while one runs and ✓ once none does; the
@@ -68,9 +69,15 @@ export function stepRows(el: AnyTable, isGui: boolean, s: Steps): RenderChildren
   }
   const cut = (key: string, grow: number, color: string, words: string, isBold = false) =>
     <Box key={key} flexGrow={grow} flexShrink={1} width={0}><Text bold={isBold} color={color} wrap="truncate">{words}</Text></Box>
+  // The agents chip is a button: it opens and closes the RelAI Agents pane (AGENTS_KRABY P5)
   const chip = s.agents
-    ? <Box key="agents-chip" flexShrink={0}><Text bold color={s.agents.isRunning ? KEY.running : KEY.done}>{chipWords(s.agents)}</Text></Box>
+    ? <Box key="agents-chip" flexShrink={0}><Button key="agents-open" variant="secondary" label={chipWords(s.agents)} onPress={s.onAgents} /></Box>
     : null
+
+  // Work outside a plan with agents: the line is the agents button alone, nothing to say of progress
+  if (s.progress.kind === 'free' && chip) {
+    return [<Box key="first" flexDirection="row" alignItems="center" columnGap={COLUMN_GAP}>{chip}</Box>]
+  }
 
   // No list to show: no items (the words say why), or every item done — one line, no button
   if (items.length === 0 || cur < 0) {

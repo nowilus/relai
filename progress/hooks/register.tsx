@@ -414,6 +414,7 @@ export const register: Register = (on) => {
       cells,
       onToggle: () => { update($, isListOpen, (x) => !x).catch(() => undefined) },
       onFold: () => { update($, isListDoneShown, (x) => !x).catch(() => undefined) },
+      onAgents: () => { togglePane($).catch(() => undefined) },
     })
     const ours = barCard(ui, BAR_LOOK, isGui, columns, 'relai-progress-card', BAND.progress, rows, figure, 'flex-start')
     if (!below) return ours

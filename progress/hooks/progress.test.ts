@@ -52,7 +52,7 @@ const PANE = (bodyColumns = 100) => ({
 function world(on: On, files: Record<string, string>, here = CWD, ids = { session: SESSION }, beneath = 'engine') {
   const disk: Record<string, string> = { ...files }
   const key = (path: string) => path.replace(/\\/g, '/')
-  const n = { read: 0, stat: 0 } // what the idle ticks cost (AUDYT_MODOW Z4)
+  const n = { read: 0, stat: 0, opens: [] as string[] } // what the idle ticks cost (AUDYT_MODOW Z4); the panes opened
   const clock = mock.clock(on, { now: NOW })
   mock.store(on, {})
   on('session.start', ($, e) => ({ cwd: e.cwd }))
@@ -76,7 +76,7 @@ function world(on: On, files: Record<string, string>, here = CWD, ids = { sessio
     const names = [...new Set(below.map((r) => r.split('/')[0] ?? ''))]
     return { value: names.map((n) => ({ name: n, kind: below.includes(n) ? 'file' as const : 'dir' as const, size: 1, mtimeMs: 0, isLink: false })) }
   })
-  on('ui.open', () => ({ value: { isPlaced: true as const } }))
+  on('ui.open', ($, e) => { n.opens.push(String((e as { id?: string }).id ?? '')); return { value: { isPlaced: true as const } } })
   on('ui.panes', () => ({ value: [] }))
   let spawns = 0
   on('agent.spawn', () => ({ model: 'claude-opus-5-5', agentId: spawns++ === 0 ? AGENT : AGENT2 }))
@@ -425,6 +425,34 @@ describe('the progress card above the prompt', () => {
     }
   })
 
+  // AGENTS_KRABY P5: the way into the RelAI Agents pane from the bar
+  test('outside a plan with an agent the line is the agents button alone; a press opens the pane', async ($, on) => {
+    const { n } = world(on, { ...FILES, [`${CWD}/CLAUDE.md`]: 'Aktywny plan: brak\n' })
+    await start($)
+    await spawn($)
+    for (const surface of ['terminal', 'desktop'] as const) {
+      const ui = await $.ui.mount({ plugin: 'relai-progress', surface, ...BAND(40) })
+      expect((await ui.find({ key: 'agents-open' }))?.props.label).toBe('● 1 agent')
+      expect(await ui.find({ key: 'words' })).toBeUndefined() // nothing to say of progress beside it
+      expect(minWidth(await ui.drawn())).toBeLessThanOrEqual(40)
+      const before = n.opens.length
+      await ui.press({ key: 'agents-open' })
+      expect(n.opens.slice(before)).toEqual(['relai-agents'])
+      await ui.unmount()
+    }
+  })
+
+  test('in a stage the agents button stands in the line too and opens the same pane', async ($, on) => {
+    const { n } = world(on, FILES)
+    await start($)
+    await spawn($)
+    const ui = await $.ui.mount({ plugin: 'relai-progress', surface: 'desktop', ...BAND() })
+    expect((await ui.find({ key: 'figure' }))?.text).toBe('2/4 punktów') // the stage is still drawn
+    await ui.press({ key: 'agents-open' })
+    expect(n.opens).toEqual(['relai-agents'])
+    await ui.unmount()
+  })
+
   // The run's name is no longer a row of its own (one row in calm, brief v2): its unit says
   // "zadań", and the Svg's description and the agents pane name the run
   test('a live /relai-crew run wins over the stage', async ($, on) => {
@@ -553,13 +581,13 @@ describe('the agents pane', () => {
     // pane (/relai-agents), whose own sum is checked below ($0.03 by hand)
     for (const surface of ['terminal', 'desktop'] as const) {
       const band = await $.ui.mount({ plugin: 'relai-progress', surface, ...BAND() })
-      expect((await band.find({ key: 'agents-chip' }))?.text).toBe('● 1 agent')
+      expect((await band.find({ key: 'agents-open' }))?.props.label).toBe('● 1 agent')
       expect(await band.find({ key: 'agents-btn' })).toBeUndefined()
       await band.unmount()
     }
     await spawn2($)
     const two = await $.ui.mount({ plugin: 'relai-progress', surface: 'desktop', ...BAND() })
-    expect((await two.find({ key: 'agents-chip' }))?.text).toBe('● 2 agentów')
+    expect((await two.find({ key: 'agents-open' }))?.props.label).toBe('● 2 agentów')
     await two.unmount()
 
     const live = await $.ui.mount({ plugin: 'relai-progress', surface: 'desktop', ...PANE() })
@@ -582,7 +610,7 @@ describe('the agents pane', () => {
     await $.turn.complete({ answer: 'raport', durationMs: 5000, isAborted: false, turnId: 'tb', agentId: AGENT2, reason: 'answer' } as never)
     // None runs any more: the chip keeps the count, its mark says they finished
     const ended = await $.ui.mount({ plugin: 'relai-progress', surface: 'desktop', ...BAND() })
-    expect((await ended.find({ key: 'agents-chip' }))?.text).toBe('✓ 2 agentów')
+    expect((await ended.find({ key: 'agents-open' }))?.props.label).toBe('✓ 2 agentów')
     await ended.unmount()
   })
 
@@ -595,7 +623,9 @@ describe('the agents pane', () => {
     await spawn($)
     for (const surface of ['terminal', 'desktop'] as const) for (const cols of [140, 40]) {
       const ui = await $.ui.mount({ plugin: 'relai-progress', surface, ...BAND(cols) })
-      expect(textOf(await ui.find({ key: 'line' }))).toContain('1 agent')
+      const line = await ui.find({ key: 'line' })
+      const labels = [...walkNodes(line as RenderNode)].map((x) => (typeof x === 'string' ? '' : String((x.props as { label?: string } | undefined)?.label ?? '')))
+      expect(labels).toContain('● 1 agent') // the agents button stands in the line itself
       expect(await ui.find({ key: 'chip-row' })).toBeUndefined()
       expect(minWidth(await ui.drawn())).toBeLessThanOrEqual(cols)
       await ui.unmount()
