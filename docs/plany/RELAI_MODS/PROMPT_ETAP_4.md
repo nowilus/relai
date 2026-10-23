@@ -393,16 +393,16 @@ Dane na maszynie Łukasza (FAKT, 2026-10-23, panel na żywo): 14 pluginów, 12 w
 
 Każdy punkt Weryfikacji, który przeszedł, odhaczasz w `PROMPT_ETAP_4.md` (`- [ ]` → `- [x]`) zaraz po jego sprawdzeniu, nie na końcu etapu; punkt, który nie przeszedł, zostaje pusty.
 
-- [ ] `"$CLAUDE_CODE_EXECPATH" plugin validate mods` — bez błędów; `"$CLAUDE_CODE_EXECPATH" plugin test mods` — wszystkie testy zielone, liczba testów podana we wpisie (przed: 60).
-- [ ] `mods/hooks/narrow.test.ts` przechodzi przy 31, progu − 1, progu, 80 i 94 kolumnach, a podłożone przepełnienie go wywraca (wynik kontroli we wpisie, kod przywrócony).
-- [ ] Mutacja stanu docelowego (kliknięcie przełącza według dysku, nie według stanu z rysowania) wywraca test z punktu 5 zakresu; kod przywrócony, wynik we wpisie.
-- [ ] Na żywo w terminalu przy 80 kolumnach, z kopią `~/.claude/settings.json` w katalogu roboczym przed pierwszym kliknięciem: kokpit czytelny tekstem (zapis ekranu we wpisie), `filetree` przełączony tam i z powrotem z klawiatury, `diff` kopii z plikiem pusty; wynik Przeładuj w terminalu opisany i dopisany do P-052 albo P-053.
-- [ ] Na żywo, dwa czaty z otwartym kokpitem: przełączenie w czacie 1 pokazuje pasek „1 zmiana czeka” w czacie 2 w czasie odświeżenia; po powrocie do stanu wyjściowego pasek znika w obu.
-- [ ] Na żywo, wąski panel podziału okna (poniżej progu z punktu 1): zrzut bez tekstu ani przycisku poza obrysem, przełącznik pod nazwą wiersza.
-- [ ] Desktop bez regresji: zrzut w ciemnym wyglądzie zgodny kształtem z `RELAI_MODS_E3_r2_ciemny.png` (grupy, akordeon, przełącznik, linie).
-- [ ] Dowód negatywny: `grep -cE '\$\.fs\.write' mods/hooks/register.tsx mods/hooks/views.tsx` daje 0 (kontrola: 11 w `panel/hooks/register.tsx`); `git diff --stat` dla `.claude-plugin/marketplace.json` i `core/tools/network-calls.js` pusty; `mods/.claude-plugin/plugin.json` ma nadal `0.0.1`.
-- [ ] Wpis w `docs/DZIENNIK.md` na końcu sekcji „Wpisy”, z podpisem z członem użytkownika.
-- [ ] Katalog roboczy `.claude/relai/work/RELAI_MODS/E4/` przejrzany raportem (`node .claude/relai/tools/clean-work.js raport`) i skasowany po „tak”, liczby przed i po we wpisie dziennika. Artefakty spoza katalogu wypisane we wpisie z nazwy razem z tym, co się z nimi stało, w tym kopia moda w `~/.claude/dev-mods/<id sesji>/relai-mods/` i plik magazynu `~/.claude/plugins/store/relai-mods_*.json`, jeśli powstał.
+- [x] `"$CLAUDE_CODE_EXECPATH" plugin validate mods` — bez błędów; `"$CLAUDE_CODE_EXECPATH" plugin test mods` — wszystkie testy zielone, liczba testów podana we wpisie (przed: 60).
+- [x] `mods/hooks/narrow.test.ts` przechodzi przy 31, progu − 1, progu, 80 i 94 kolumnach, a podłożone przepełnienie go wywraca (wynik kontroli we wpisie, kod przywrócony).
+- [x] Mutacja stanu docelowego (kliknięcie przełącza według dysku, nie według stanu z rysowania) wywraca test z punktu 5 zakresu; kod przywrócony, wynik we wpisie.
+- [x] Na żywo w terminalu przy 80 kolumnach, z kopią `~/.claude/settings.json` w katalogu roboczym przed pierwszym kliknięciem: kokpit czytelny tekstem (zapis ekranu we wpisie), `filetree` przełączony tam i z powrotem z klawiatury, `diff` kopii z plikiem pusty; wynik Przeładuj w terminalu opisany i dopisany do P-052 albo P-053.
+- [x] Na żywo, dwa czaty z otwartym kokpitem: przełączenie w czacie 1 pokazuje pasek „1 zmiana czeka” w czacie 2 w czasie odświeżenia; po powrocie do stanu wyjściowego pasek znika w obu.
+- [x] Na żywo, wąski panel podziału okna (poniżej progu z punktu 1): zrzut bez tekstu ani przycisku poza obrysem, przełącznik pod nazwą wiersza.
+- [x] Desktop bez regresji: zrzut w ciemnym wyglądzie zgodny kształtem z `RELAI_MODS_E3_r2_ciemny.png` (grupy, akordeon, przełącznik, linie).
+- [x] Dowód negatywny: `grep -cE '\$\.fs\.write' mods/hooks/register.tsx mods/hooks/views.tsx` daje 0 (kontrola: 11 w `panel/hooks/register.tsx`); `git diff --stat` dla `.claude-plugin/marketplace.json` i `core/tools/network-calls.js` pusty; `mods/.claude-plugin/plugin.json` ma nadal `0.0.1`.
+- [x] Wpis w `docs/DZIENNIK.md` na końcu sekcji „Wpisy”, z podpisem z członem użytkownika.
+- [x] Katalog roboczy `.claude/relai/work/RELAI_MODS/E4/` przejrzany raportem (`node .claude/relai/tools/clean-work.js raport`) i skasowany po „tak”, liczby przed i po we wpisie dziennika. Artefakty spoza katalogu wypisane we wpisie z nazwy razem z tym, co się z nimi stało, w tym kopia moda w `~/.claude/dev-mods/<id sesji>/relai-mods/` i plik magazynu `~/.claude/plugins/store/relai-mods_*.json`, jeśli powstał.
 
 ## Na koniec (rytuał obowiązkowy — bez tego rytuału etap nie jest ukończony)
 

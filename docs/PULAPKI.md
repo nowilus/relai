@@ -37,8 +37,16 @@ Specyfikacja: `SPEC_PULAPKI.md`.
   - Silnik testów (`plugin test`) nie ma `$.plugin.register`: ścieżkę sygnału przeładowania
     sprawdza się tylko na żywo.
   - Atrapa `command.run` w teście odpowiada `{ text }`, a nie `{ value: { text } }`.
-- **Zasięg:** Claude Code 2.1.308 (silnik aplikacji), aplikacja desktopowa, Windows 11; terminal
-  niezmierzony (E4).
+- **Terminal (E4, 2026-10-24):**
+  - Panel modu poniżej 110 kolumn stoi nad promptem, nie w doku.
+  - Klawiaturę dostaje po **dwóch** `ctrl+x tab`: pierwsze daje fokus paskowi nad promptem (tu
+    `relai-panel`), drugie panelowi. `tab` i `shift+tab` przesuwają pierścień (pole „Szukaj”,
+    filtry, przełączniki), Enter naciska.
+  - `$.ui.open({ focus: true })` z `command.run` silnik odrzuca, bo prompt nie jest wtedy pusty
+    i bezczynny.
+  - `/reload-plugins` z przycisku działa (P-052).
+- **Zasięg:** Claude Code 2.1.308 (silnik aplikacji), aplikacja desktopowa i terminal (conhost),
+  Windows 11.
 
 ### P-052 — Mod na desktopie: `claude plugin` z `$.process.run` działa, przeładowania z moda nie ma, a `enable` bierze każde id · 2026-10-23 · AKTYWNA
 
@@ -83,9 +91,14 @@ Specyfikacja: `SPEC_PULAPKI.md`.
   - Binarkę `claude` bierzesz z PATH, bo mod nie widzi `CLAUDE_CODE_EXECPATH`.
   - Walidację i testy modu nadal robisz binarką aplikacji z Basha sesji (P-024). Na 2.1.308 jej
     ścieżka to `$CLAUDE_CODE_EXECPATH`, a nie `%APPDATA%\Claude\claude-code`.
+- **Terminal (pomiar 2026-10-24, E4):** w sesji `claude --plugin-dir mods` (2.1.308, 80 kolumn,
+  conhost) przycisk „Przeładuj” z `$.command.run({ command: 'reload-plugins' })` **przeładowuje**.
+  W transkrypcie stoi `/reload-plugins` z odpowiedzią „Reloaded: 14 plugins…”, a po wyłączeniu
+  `filetree` „Reloaded: 13 plugins…”. Pasek zmian znika, bo `plugin.register` robi nową migawkę
+  (P-053). Plan B dotyczy więc tylko desktopu. Kod nie rozróżnia powierzchni: czyta odpowiedź po
+  tekście.
 - **Zasięg:** Claude Code 2.1.308 (silnik aplikacji), `claude` na PATH 2.1.304, aplikacja
-  desktopowa 3.6556.2, Windows 11. Terminal niezmierzony, a tam `/reload-plugins` z moda może
-  działać (E4).
+  desktopowa 3.6556.2, Windows 11; terminal — jak wyżej.
 
 ### P-050 — Aplikacja desktopowa: kolumna `Box` nie rozciąga wierszy, a `Svg` w ściśniętym pudełku maleje do zera · 2026-10-23 · AKTYWNA
 

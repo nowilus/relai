@@ -4,7 +4,8 @@
 // the right, a switch in every row that has one, locks with their reason, and the bar of changes
 // waiting for /reload-plugins. The pane never writes settings.json or installed_plugins.json: the
 // CLI does, one call at a time (brief, Łukasz's decisions). Pure logic in ./inventory, ./cockpit
-// and ./look; the terminal and the narrow pane get their own layout in E4.
+// and ./look. E4: one layout decision for the pane by its width (STACK_BELOW), the terminal's glyphs,
+// a refresh from disk every REFRESH_MS while the pane is open, and a press that carries its target.
 
 import { atom, read, update } from 'claude-code'
 import type { EngineInterface, Register } from 'claude-code'
@@ -13,8 +14,8 @@ import {
 } from './inventory'
 import type { DirEntry, Install, Inventory, PluginFiles } from './inventory'
 import {
-  DRAW_LIMIT, EMPTY_QUEUE, enqueue, finish, flipCall, isFilter, itemKey, lockOf, pendingCount, snapshotOf,
-  startNext, treeWeight, visible,
+  DRAW_LIMIT, EMPTY_QUEUE, REFRESH_MS, enqueue, finish, flipCall, isFilter, isSettled, itemKey, lockOf, pendingCount,
+  snapshotOf, startNext, treeWeight, visible,
 } from './cockpit'
 import type { Queue } from './cockpit'
 import { cockpit, mobileList } from './views'
@@ -36,9 +37,13 @@ const queue = atom({ ...S, key: 'queue' } as const, EMPTY_QUEUE as Queue)
 const errors = atom({ ...S, key: 'errors' } as const, {} as Record<string, string>)
 const cli = atom({ ...S, key: 'cli' } as const, '')
 const loaded = atom({ ...S, key: 'loaded' } as const, {} as Record<string, boolean>)
-// The module's own; a reload of its code starts them over and session.start sets root again
+const wants = atom({ ...S, key: 'wants' } as const, {} as Record<string, boolean>)
+const tick = atom({ ...S, key: 'tick' } as const, 0)
+// The module's own; a reload of its code starts them over (and cancels the timer's waits) and
+// session.start sets root again
 let root = ''
 let isCliAsked = false
+let refresher: { cancel: () => void } | null = null
 
 const errorText = (err: unknown) => (err instanceof Error ? err.message : String(err))
 
@@ -108,11 +113,14 @@ const setError = ($: $T, key: string, text: string) =>
     return text ? { ...rest, [key]: text } : rest
   })
 
-// One call: the row read again from disk, never a lock, the id from installed_plugins.json only (P-052)
+// One call: the row read again from disk, never a lock, the id from installed_plugins.json only (P-052);
+// a row whose disk already holds what the press asked for is skipped (a switch from another chat, E4)
 async function runOne($: $T, key: string): Promise<void> {
   try {
     const row = (await readInventory($)).items.find((i) => itemKey(i) === key)
     if (!row || row.kind === 'hook' || lockOf(row)) return await setError($, key, 'Tej pozycji nie da się przełączyć z panelu.')
+    const want = (await read($, wants))[key]
+    if (want !== undefined && isSettled(row, want)) return await setError($, key, '')
     const call = flipCall(CLI, row)
     const r = await $.process.run(call.argv, { timeoutMs: CLI_TIMEOUT_MS, ...(call.cwd ? { cwd: call.cwd } : {}) })
     await setError($, key, r.exitCode === 0 ? '' : cliError(r))
@@ -124,7 +132,8 @@ async function runOne($: $T, key: string): Promise<void> {
 
 // The press joins the queue; whoever finds no call running takes the next one, so the queue in
 // $.state alone keeps one call at a time — no flag of the module's, which a press handler may not share
-async function press($: $T, key: string): Promise<void> {
+async function press($: $T, key: string, want: boolean): Promise<void> {
+  await update($, wants, (all) => ({ ...all, [key]: want }))
   await update($, queue, (q) => enqueue(q, key))
   for (;;) {
     let next = ''
@@ -171,12 +180,34 @@ function askCliVersion($: $T): void {
     .catch(() => undefined)
 }
 
+const isPaneUp = async ($: $T) => (await $.ui.panes().catch(() => [])).some((p) => p.id === PANE_ID)
+
+function stopRefresh(): void {
+  refresher?.cancel()
+  refresher = null
+}
+
+// While the pane is open its drawing reads the disk again every REFRESH_MS: a write of `tick` redraws
+// it. Started outside the drawing, which may not write (P-053); stopped when the pane closes, and by
+// itself at the first tick that finds the pane gone
+function startRefresh($: $T): void {
+  if (refresher) return
+  refresher = $.clock.every(REFRESH_MS, () => {
+    void (async () => {
+      if (!(await isPaneUp($))) return stopRefresh()
+      await update($, tick, (n) => n + 1)
+    })().catch(() => undefined)
+  })
+}
+
 async function togglePane($: $T): Promise<string> {
-  if ((await $.ui.panes()).some((p) => p.id === PANE_ID)) {
+  if (await isPaneUp($)) {
     await $.ui.close({ id: PANE_ID })
+    stopRefresh()
     return 'Panel RelAI Mods zamknięty.'
   }
   const opened = await $.ui.open({ id: PANE_ID, title: PANE_TITLE })
+  startRefresh($)
   return opened.isPlaced ? 'Panel RelAI Mods otwarty.' : `Panel RelAI Mods czeka na miejsce: ${opened.reason}`
 }
 
@@ -207,6 +238,14 @@ export const register: Register = (on) => {
     askCliVersion($)
     takeSnapshot($)
     await $.command.register({ name: 'relai-mods', description: 'RelAI Mods: mody, pluginy i hooki z dysku — przełączanie, szczegóły i przeładowanie' }).catch(() => undefined)
+    // A pane that stayed open through a reload of this module gets its refresh again
+    if (await isPaneUp($)) startRefresh($)
+    return next(e)
+  })
+
+  // The person's close mark, too: the timer stops with the pane
+  on('ui.close', async ($, e, next) => {
+    if (e.id === PANE_ID) stopRefresh()
     return next(e)
   })
 
@@ -221,19 +260,20 @@ export const register: Register = (on) => {
     if (e.surface === 'mobile') return mobileList(el, inv)
     // Drawings only where the surface draws them, decided by the surface (as relai-panel does)
     const Svg = ((e.surface === 'desktop' || e.surface === 'vscode') && 'Svg' in el ? el.Svg : null) as SvgTag
+    // tick is read only so its write redraws the pane, which reads the disk again (the refresh)
     const [q, f, sel, qu, errs, said, version, cwd, was] = await Promise.all([
       read($, query), read($, filterAtom), read($, selected), read($, queue), read($, errors), read($, note), read($, cli),
-      cwdOf($), read($, loaded),
+      cwdOf($), read($, loaded), read($, tick),
     ])
     const filter = isFilter(f) ? f : 'all'
     const shown = visible(inv.items, filter, q)
     const pending = pendingCount(inv.items, was)
     const base: View = {
-      el, Svg, isFull: Svg !== null, inv, shown, filter, query: q, queue: qu, errors: errs, pending,
+      el, Svg, isFull: Svg !== null, width: e.props.bodyColumns, inv, shown, filter, query: q, queue: qu, errors: errs, pending,
       cli: version, cliName: CLI, cwd, note: said,
       // The accordion opens only what was picked; a second press folds it again
       chosen: shown.find((i) => itemKey(i) === sel),
-      onPress: (key) => { void press($, key).catch(() => undefined) },
+      onPress: (key, want) => { void press($, key, want).catch(() => undefined) },
       onPick: (key) => { void update($, selected, (was) => (was === key ? '' : key)) },
       onFilter: (next) => { void update($, filterAtom, () => next) },
       onQuery: (next) => { void update($, query, () => next) },

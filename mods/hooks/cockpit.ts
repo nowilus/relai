@@ -147,6 +147,26 @@ export function changeText(p: PluginItem, cwd: string): string[] {
 
 export const switchWord = (state: PluginState): string => (state === 'on' ? 'Wyłącz' : 'Włącz')
 
+/**
+ * Whether the disk already holds what a press asked for (E4). A press carries the state the person
+ * saw switched (on for "Włącz"), so a change made in another chat between the draw and the press is
+ * not undone: the row is skipped, no CLI call.
+ */
+export const isSettled = (p: Pick<PluginItem, 'state'>, want: boolean): boolean => isOn(p) === want
+
+// ---------- the pane's width and its refresh ----------
+
+/**
+ * The pane width (bodyColumns) below which a row's tail, switch and arrow go under its name: one
+ * decision for the whole pane, as STACK_BELOW in panel/hooks/pane-parts.tsx. Set by narrow.test.ts:
+ * the narrowest width at which every row of the machine's data (a hook's "UserPromptSubmit", its lock
+ * and the arrow the widest) still gives its name 12 cells — 12.1 at 46, 11.1 at 45.
+ */
+export const STACK_BELOW = 46
+
+/** How often an open pane reads the disk again, so another chat's switch shows here (plan, section 8; SZACUNEK). */
+export const REFRESH_MS = 5_000
+
 // ---------- the queue of CLI calls ----------
 
 /** One CLI call at a time: the running row, then the rows waiting in press order. */

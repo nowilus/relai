@@ -1,6 +1,6 @@
 # STATE — RelAI
 
-Stan na: 2026-10-23 (wątek AGENTS_KRABY zamknięty — panel „RelAI Agents” z postaciami ról, `relai-progress` 0.6.0 wydany, tag `relai-progress-v0.6.0`; wątek MOBILNA_STRONA zamknięty — obie wersje strony przyjęte na iPhonie, ankieta na cztery warianty z danymi o urządzeniu; wątek BIURKO_PLAKAT zamknięty — Biurko bez sceny 3D jako odbitki biurka; plan STRONA_RELAI ZREALIZOWANY 2026-10-18 — strona opublikowana na https://nowilus.github.io/relai/ w dwóch wersjach, Film i Biurko, z ankietą w Tally, poprawka Aneksu E wdrożona 2026-10-19; WYGLAD_PANELU zamknięty 2026-10-15)
+Stan na: 2026-10-24 (RELAI_MODS E4 zrealizowany — kokpit w terminalu, w wąskim panelu i w dwóch czatach, E5 wydanie gotowe do startu; wątek AGENTS_KRABY zamknięty — panel „RelAI Agents” z postaciami ról, `relai-progress` 0.6.0 wydany, tag `relai-progress-v0.6.0`; wątek MOBILNA_STRONA zamknięty — obie wersje strony przyjęte na iPhonie, ankieta na cztery warianty z danymi o urządzeniu; wątek BIURKO_PLAKAT zamknięty — Biurko bez sceny 3D jako odbitki biurka; plan STRONA_RELAI ZREALIZOWANY 2026-10-18 — strona opublikowana na https://nowilus.github.io/relai/ w dwóch wersjach, Film i Biurko, z ankietą w Tally, poprawka Aneksu E wdrożona 2026-10-19; WYGLAD_PANELU zamknięty 2026-10-15)
 
 ## Gdzie jesteśmy
 
@@ -124,7 +124,7 @@ po E5 (wydanie panelu 0.20.0 / 0.11.0); HUMANIZACJA zamknięty 2026-10-14 wydani
   (`security-audit`, MIT) wbudowane w plugin — komenda `/relai-security`, 13. hook po zmianie
   lockfile, prompty etapów, `done-check`, `first-deploy`, zamknięcie sesji i planu; ryzyka do
   dziennika, raporty w `.security/`. Linia „Aktywny plan” w `CLAUDE.md` zostaje przy PANEL_CODEX.
-- **RELAI_MODS — E3 zrealizowany 2026-10-23, E4 gotowy do startu** (plan
+- **RELAI_MODS — E4 zrealizowany 2026-10-24, E5 (wydanie 0.1.0) gotowy do startu** (plan
   [RELAI_MODS](plany/RELAI_MODS/STATUS.md), 5 etapów, wykonanie Opus w Claude Code, Aneksy A–D). Po co: czwarty mod `relai-mods` — kokpit wszystkich
   pluginów i hooków z `settings.json` (wariant C makiety), przełączanie przez
   `claude plugin disable/enable`, jedno Przeładuj, jasny i ciemny wygląd, desktop i terminal.
@@ -137,8 +137,17 @@ po E5 (wydanie panelu 0.20.0 / 0.11.0); HUMANIZACJA zamknięty 2026-10-14 wydani
   przełącznik — rysunek i słowo (Aneks C), CLI wołane jest jedno naraz. Pasek „N zmian czeka”
   znika po wpisanym `/reload-plugins`, bo stan „załadowany” to migawka plików odświeżana przy
   `plugin.register` innych modów (P-053). Kopia rdzenia panelu jest w `mods/hooks/core` (Aneks B),
-  60 testów, wygląd przyjęty w obu wyglądach. E4: terminal, wąski panel, odświeżanie i dwa czaty.
-  Linia „Aktywny plan” zostaje przy PANEL_CODEX.
+  wygląd przyjęty w obu wyglądach. E4:
+  - poniżej 46 kolumn przełącznik schodzi pod nazwę wiersza w całym panelu (próg z testu modelu
+    CSS, zmierzony na żywo w wąskim panelu);
+  - terminal przy 80 kolumnach ma glify w kolorze stanu i sterowanie z klawiatury (dwa
+    `ctrl+x tab`), a Przeładuj przeładowuje tam naprawdę, więc plan B zostaje tylko na desktopie;
+  - otwarty panel co 5 s czyta dysk, więc zmiana z drugiego czatu pokazuje się jako czekająca;
+  - kliknięcie niesie stan docelowy;
+  - 66 testów.
+
+  E5: wydanie `relai-mods` 0.1.0 po trzech bramkach człowieka. Linia „Aktywny plan” zostaje przy
+  PANEL_CODEX.
 - **PANEL_CODEX, E1 — przejęcie rdzenia i natywny panel w Codeksie** (plan
   [PANEL_CODEX](plany/PANEL_CODEX/STATUS.md), ZAAKCEPTOWANY 2026-10-10, 8 etapów, autor
   i wykonawca `gpt-6.1-sol` w Codeksie, Aneks A — 16 pól kontraktu — zaakceptowany). Po co: ten sam

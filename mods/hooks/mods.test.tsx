@@ -1,6 +1,6 @@
-import { describe, expect, test } from 'claude-code/testing'
+import { describe, expect, mock, test } from 'claude-code/testing'
 import type { TestBody } from 'claude-code/testing'
-import { DRAW_LIMIT, treeWeight } from './cockpit'
+import { DRAW_LIMIT, REFRESH_MS, treeWeight } from './cockpit'
 import { cliError, enabledOf, toggleArgv } from './inventory'
 
 type On = Parameters<TestBody>[1]
@@ -59,6 +59,8 @@ type Call = { argv: string[], cwd?: string }
 type Fake = {
   calls: Call[]
   disk: Record<string, string>
+  /** Whether the pane is open, as ui.open and ui.close leave it and ui.panes answers. */
+  isOpen: boolean
 }
 
 const key = (path: string) => path.replace(/\\/g, '/')
@@ -69,6 +71,7 @@ function engine(on: On, mode: 'ok' | 'fail' | 'hang', extra: Record<string, unkn
   const installs = { ...INSTALLS, ...extra }
   const userEnabled = { ...USER_ENABLED, ...Object.fromEntries(Object.keys(extra).map((id) => [id, true])) }
   const fake: Fake = {
+    isOpen: false,
     calls: [],
     disk: {
       [key(`${HOME}/.claude/plugins/installed_plugins.json`)]: JSON.stringify({ version: 2, plugins: installs }),
@@ -112,12 +115,18 @@ function engine(on: On, mode: 'ok' | 'fail' | 'hang', extra: Record<string, unkn
   on('command.register', () => ({ value: { command: 'relai-mods' } }))
   on('command.list', () => ({ value: [] }))
   on('command.run', () => ({ text: "/reload-plugins isn't available over a remote connection in this session" }))
-  on('ui.open', () => ({ value: { isPlaced: true as const } }))
-  on('ui.panes', () => ({ value: [] }))
+  on('ui.open', () => { fake.isOpen = true; return { value: { isPlaced: true as const } } })
+  on('ui.close', () => { fake.isOpen = false; return { value: undefined } })
+  on('ui.panes', () => ({ value: fake.isOpen ? [{ id: 'relai-mods', title: 'RelAI Mods' }] as never : [] }))
   on('session.start', (_, e) => ({ cwd: e.cwd }))
   on('session.cwd', () => ({ value: CWD }))
-  on('clock.now', () => ({ value: 0 }))
   return fake
+}
+
+// Another chat's switch: the user file written beneath this chat, with no state of the mod's changed
+function writeElsewhere(fake: Fake, id: string, isOn: boolean): void {
+  const s = JSON.parse((fake.disk[USER_FILE] ?? '').replace(/^\ufeff/, '')) as { enabledPlugins: Record<string, unknown> }
+  fake.disk[USER_FILE] = JSON.stringify({ ...s, enabledPlugins: { ...s.enabledPlugins, [id]: isOn } })
 }
 
 type Node = { type?: string, props?: Record<string, unknown>, children?: unknown[] }
@@ -252,7 +261,10 @@ describe('cockpit', () => {
     const ui = await $.ui.mount({ ...PANE, surface: 'desktop' })
     await ui.press({ key: `pick-${FILETREE}` })
     expect((await ui.find({ type: 'Text', text: /^CLI: / }))?.text).toBe('CLI: claude z PATH · 2.1.304 (Claude Code)')
-    expect((await ui.find({ type: 'Text', text: /^Przełącznik: / }))?.text).toBe('Przełącznik: Zmieni się C:/Users/Ktos/.claude/settings.json.')
+    // the desktop's path carries a place to break after each separator (E4); the words stay the same
+    const said = (await ui.find({ type: 'Text', text: /^Przełącznik: / }))?.text ?? ''
+    expect(said.split(String.fromCharCode(0x200b)).join('')).toBe('Przełącznik: Zmieni się C:/Users/Ktos/.claude/settings.json.')
+    expect(said.split(String.fromCharCode(0x200b))).toHaveLength(5)
     await ui.unmount()
   })
 
@@ -335,8 +347,60 @@ describe('cockpit', () => {
     await $.session.start({ cwd: CWD, surface: 'terminal', isInteractive: true })
     const ui = await $.ui.mount({ ...PANE, surface: 'terminal' })
     expect((await ui.find({ type: 'Button', key: `flip-row-${FILETREE}` }))?.text).toBe('━━○ Włącz')
+    const nodes = walk(await ui.drawn())
+    expect(nodes.filter((n) => n.type === 'Svg')).toEqual([])
+    // the glyph in the key of its state (E4): off muted, on green; the groups' words in mustard
+    const glyphs = nodes.filter((n) => n.type === 'Text' && ['●━━', '━━○'].includes(String(n.children?.[0] ?? '')))
+    expect([...new Set(glyphs.map((n) => `${String(n.children?.[0])} ${String(n.props?.color)}`))].sort()).toEqual(['━━○ inactive', '●━━ success'])
+    const groups = nodes.filter((n) => n.type === 'Text' && ['Mody', 'Pluginy', 'Hooki'].includes(String(n.children?.[0] ?? '')))
+    expect(groups.map((n) => String(n.props?.color))).toEqual(['warning', 'warning', 'warning'])
+    expect(await ui.find({ type: 'Text', text: '[tylko podgląd]' })).toBeTruthy()
     await ui.press({ key: `flip-row-${FILETREE}` })
     expect(fake.calls).toHaveLength(1)
+    await ui.unmount()
+  })
+
+  test('a press carries the state it asked for: a row another chat already switched is skipped, no CLI call (E4)', async ($, on) => {
+    const fake = engine(on, 'ok')
+    await $.session.start({ cwd: CWD, surface: 'desktop', isInteractive: true })
+    const ui = await $.ui.mount({ ...PANE, surface: 'desktop' })
+    expect((await ui.find({ type: 'Button', key: `flip-row-${FILETREE}` }))?.text).toBe('Włącz')
+    // the other chat turns filetree on between this draw and the press
+    writeElsewhere(fake, 'filetree@claude-code-filetree', true)
+    await ui.press({ key: `flip-row-${FILETREE}` })
+    expect(fake.calls).toEqual([])
+    // positive control on the same row: drawn again, it reads "Wyłącz", and that press runs the CLI
+    expect((await ui.find({ type: 'Button', key: `flip-row-${FILETREE}` }))?.text).toBe('Wyłącz')
+    await ui.press({ key: `flip-row-${FILETREE}` })
+    expect(fake.calls.map((c) => c.argv[2])).toEqual(['disable'])
+    await ui.unmount()
+  })
+
+  test('an open pane reads the disk again every REFRESH_MS: another chat\'s switch shows as waiting, the timer stops with the pane (E4)', async ($, on) => {
+    const fake = engine(on, 'ok')
+    const clock = mock.clock(on)
+    await $.session.start({ cwd: CWD, surface: 'desktop', isInteractive: true })
+    await $.command.run({ command: 'relai-mods' })
+    expect(fake.isOpen).toBe(true)
+    const ui = await $.ui.mount({ ...PANE, surface: 'desktop' })
+    await clock.settle()
+    expect(await ui.find({ type: 'Text', text: /na przeładowanie/ })).toBeFalsy()
+    writeElsewhere(fake, 'filetree@claude-code-filetree', true)
+    // positive control: just short of the period the pane still shows the old disk
+    await clock.advance(REFRESH_MS - 1)
+    expect(await ui.find({ type: 'Text', text: /na przeładowanie/ })).toBeFalsy()
+    await clock.advance(1)
+    expect((await ui.find({ type: 'Text', text: /na przeładowanie/ }))?.text).toBe('⟳ 1 zmiana czeka na przeładowanie')
+    // back to the start in the other chat: the bar goes at the next refresh
+    writeElsewhere(fake, 'filetree@claude-code-filetree', false)
+    await clock.advance(REFRESH_MS)
+    expect(await ui.find({ type: 'Text', text: /na przeładowanie/ })).toBeFalsy()
+    // the pane closed: no refresh redraws it any more
+    await $.command.run({ command: 'relai-mods' })
+    expect(fake.isOpen).toBe(false)
+    writeElsewhere(fake, 'filetree@claude-code-filetree', true)
+    await clock.advance(REFRESH_MS * 3)
+    expect(await ui.find({ type: 'Text', text: /na przeładowanie/ })).toBeFalsy()
     await ui.unmount()
   })
 

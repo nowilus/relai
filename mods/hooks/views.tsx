@@ -9,7 +9,7 @@ import type { EngineInterface } from 'claude-code'
 import { STATE_WORD, headerOf, summaryOf } from './inventory'
 import type { Inventory, Item, PluginItem } from './inventory'
 import {
-  FILTERS, changeText, glyphOf, isQueued, itemKey, lockOf, pendingText, projectLabel, rowLockWord,
+  FILTERS, STACK_BELOW, changeText, glyphOf, isQueued, itemKey, lockOf, pendingText, projectLabel, rowLockWord,
   selfCommand, switchWord, visible,
 } from './cockpit'
 import type { Filter, Queue } from './cockpit'
@@ -25,6 +25,8 @@ export type View = {
   Svg: SvgTag
   /** Drawings in the rows: the switch and the rule; past the budget the glyph and a gap (R7). */
   isFull: boolean
+  /** The pane's bodyColumns: below STACK_BELOW every row puts its tail, switch and arrow under its name (E4). */
+  width: number
   inv: Inventory
   shown: Item[]
   chosen: Item | undefined
@@ -37,7 +39,8 @@ export type View = {
   cli: string
   cliName: string
   cwd: string
-  onPress: (key: string) => void
+  /** A switch's press with the state it asks for, true for on: what the person saw, not the disk at the press (E4). */
+  onPress: (key: string, want: boolean) => void
   onPick: (key: string) => void
   onFilter: (f: Filter) => void
   onQuery: (q: string) => void
@@ -78,9 +81,15 @@ function control(v: View, i: Item, at: string) {
   if (i.kind === 'hook') return null
   const isBusy = isQueued(v.queue, k)
   const word = isBusy ? '…' : switchWord(i.state)
+  const want = i.state !== 'on'
+  const onPress = () => { if (!isBusy) v.onPress(k, want) }
+  // The terminal draws no Svg: the glyph in the key of its state, then the word (E4)
+  const flip = Svg === null
+    ? <Button key={`flip-${at}-${k}`} plain onPress={onPress}><Text color={i.state === 'on' ? KEY.done : KEY.muted}>{glyphOf(i.state)}</Text> {word}</Button>
+    : <Button key={`flip-${at}-${k}`} plain label={isDrawn ? word : `${glyphOf(i.state)} ${word}`} onPress={onPress} />
   return (
     <Box key={`${at}-switch-${k}`} flexDirection="row" columnGap={1} flexShrink={0} alignItems="center">
-      <Button key={`flip-${at}-${k}`} plain label={isDrawn ? word : `${glyphOf(i.state)} ${word}`} onPress={() => { if (!isBusy) v.onPress(k) }} />
+      {flip}
       {/* the drawing last: the words differ in width ("Włącz", "Wyłącz"), the drawings stand in one column (live, E3) */}
       {Svg && isDrawn ? <Box key="mark" flexShrink={0}><Svg key="svg" source={switchSvg(i.state)} alt={switchAlt(i.state)} width={SWITCH.width} height={SWITCH.height} /></Box> : null}
     </Box>
@@ -96,10 +105,16 @@ function rule(v: View, key: string) {
     : <Box key={key} height={1} />
 }
 
+// A path or a command is one long word to a desktop, which never breaks a text below its longest
+// word (P-043): a zero-width space after each separator gives it places to break in a narrow pane
+// (E4). The terminal breaks a long word by itself and gets the text as it is
+const ZWSP = String.fromCharCode(0x200b)
+const breakable = (v: View, s: string) => (v.Svg === null ? s : s.replace(/([/\\])/g, `$1${ZWSP}`))
+
 // One line of the details: the label muted, the value in text
 function line(v: View, key: string, label: string, value: string) {
   const { Text } = v.el
-  return <Text key={key}><Text color={KEY.muted}>{label}: </Text>{value}</Text>
+  return <Text key={key}><Text color={KEY.muted}>{label}: </Text>{breakable(v, value)}</Text>
 }
 
 // The details in three groups split by the fading rule: what it is, what it holds, what a switch changes
@@ -164,7 +179,7 @@ function head(v: View) {
     <Box key="head" flexDirection="column" rowGap={1}>
       <Text key="count" bold color={KEY.text}>{headerOf(v.inv)}</Text>
       {v.inv.problem ? <Text key="problem" color={KEY.failed}>{v.inv.problem}</Text> : null}
-      <Input key="query" label="Szukaj" placeholder="nazwa, opis albo zdarzenie" value={v.query} onInput={(q) => v.onQuery(q)} onSubmit={(q) => v.onQuery(q)} />
+      <Input key="query" label="Szukaj" placeholder="nazwa, opis, zdarzenie" value={v.query} onInput={(q) => v.onQuery(q)} onSubmit={(q) => v.onQuery(q)} />
       <Box key="filters" flexDirection="row" flexWrap="wrap" columnGap={1} rowGap={1}>
         {FILTERS.map(([f, word]) => {
           const n = visible(v.inv.items, f, '').length
@@ -196,22 +211,37 @@ function listRow(v: View, i: Item, index: number, isKindShown: boolean, pickWord
   const chosen = isChosen(v, i)
   const label = i.kind === 'hook' ? '' : projectLabel(i, v.cwd)
   const err = v.errors[k]
+  const title = (
+    <Box key="title" width={0} flexGrow={1}>
+      <Text bold={chosen} color={isOnRow(i) ? KEY.text : KEY.muted} wrap="truncate-end">
+        {chosen ? <Text color={KEY.accent}>● </Text> : null}
+        {isKindShown ? <Text color={KIND_KEY[i.kind]}>{i.kind} </Text> : null}
+        {nameOf(i)}
+        {label ? <Text color={KIND_KEY.project}> · {label}</Text> : null}
+      </Text>
+    </Box>
+  )
+  const acts = [
+    tailOf(i) ? <Box key="tail" flexShrink={0}><Text color={KEY.muted}>{tailOf(i)}</Text></Box> : null,
+    control(v, i, 'row'),
+    <Button key={`pick-${k}`} plain label={chosen ? pickWords[1] : pickWords[0]} onPress={() => v.onPick(k)} />,
+  ]
+  // One decision for the pane, by its width (E4, as STACK_BELOW of relai-panel): below the
+  // threshold every row has its name on a line of its own and the rest under it; the name keeps
+  // a row of its own, as a zero-based box in a column gets no width (P-050)
+  const top = v.width < STACK_BELOW
+    ? (
+      <Box key="top" flexDirection="column">
+        <Box key="name" flexDirection="row">{title}</Box>
+        {/* a hook's long event, its lock and the arrow may not fit one line of the narrowest pane: they wrap */}
+        <Box key="acts" flexDirection="row" flexWrap="wrap" columnGap={1} alignItems="center">{acts}</Box>
+      </Box>
+    )
+    : <Box key="top" flexDirection="row" columnGap={1} alignItems="center">{title}{acts}</Box>
   return (
     <Box key={`row-${k}`} flexDirection="column">
       {index > 0 ? rule(v, 'rule') : null}
-      <Box key="top" flexDirection="row" columnGap={1} alignItems="center">
-        <Box key="title" width={0} flexGrow={1}>
-          <Text bold={chosen} color={isOnRow(i) ? KEY.text : KEY.muted} wrap="truncate-end">
-            {chosen ? <Text color={KEY.accent}>● </Text> : null}
-            {isKindShown ? <Text color={KIND_KEY[i.kind]}>{i.kind} </Text> : null}
-            {nameOf(i)}
-            {label ? <Text color={KIND_KEY.project}> · {label}</Text> : null}
-          </Text>
-        </Box>
-        {tailOf(i) ? <Box key="tail" flexShrink={0}><Text color={KEY.muted}>{tailOf(i)}</Text></Box> : null}
-        {control(v, i, 'row')}
-        <Button key={`pick-${k}`} plain label={chosen ? pickWords[1] : pickWords[0]} onPress={() => v.onPick(k)} />
-      </Box>
+      {top}
       {err ? <Text key="err" color={KEY.failed}>{err}</Text> : null}
     </Box>
   )

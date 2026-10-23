@@ -69,7 +69,8 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
      (`cat >>` z heredokiem) i `sed -i` na wierszu tabeli; seria podmian w kodzie — kilka Edit albo
      skrypt Write, także gdy „to tylko liczby” (L-0116, L-0119, L-0135, L-0148, L-0188,
      L-0192, L-0198, L-0210, L-0215, L-0242 — „przeszło testy” nie zwalnia z reguły); ścieżka w powłoce z `/`, także składana ze zmiennych
-     w funkcji (L-0230);
+     w funkcji (L-0230); znak niewidoczny w kodzie przez `String.fromCharCode`, nie ucieczkę
+     unicode w Edit, i `grep` po bajtach po edycji (L-0258);
      tekst zastępczy `replace` nie jest dosłowny (`` $` ``, `$&`) — cudzą treść podstawiasz funkcją,
      po wstawce porównanie ze źródłem i licznik nagłówków całego pliku (L-0211);
      znaki łączące — `\p{M}` z flagą `u`; wynik sprawdzasz grepem stałego ciągu.
@@ -118,12 +119,14 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
      (lewy i prawy odstęp w kilku szerokościach), kontrola najpierw odtwarza błąd (L-0248);
      przepełnienie telefonu: `innerWidth` wobec `visualViewport`, potem bisekcja reguł (L-0249);
      przycisk zmieniający stan użytkownika naciskasz po pozycji sprawdzonej na liście przycisków,
-     nie po pierwszym trafieniu etykiety, i po każdym kliknięciu `diff` z kopią (L-0257).
+     nie po pierwszym trafieniu etykiety, i po każdym kliknięciu `diff` z kopią (L-0257); terminal
+     mierzysz w `conhost.exe` z `mode con` i oknem nietkniętym, klawisze `WriteConsoleInput`,
+     ekran z bufora z atrybutami, skrypty PowerShell w `%TEMP%` (L-0259).
    (L-0032, L-0037, L-0054, L-0055, L-0056, L-0064, L-0068, L-0071, L-0073, L-0083, L-0084, L-0086,
    L-0087, L-0088, L-0090, L-0091, L-0095, L-0096, L-0097, L-0101, L-0102, L-0105, L-0106, L-0107,
    L-0110, L-0111, L-0113, L-0124, L-0125, L-0127, L-0130, L-0131, L-0135, L-0141, L-0143, L-0151,
    L-0160, L-0164, L-0169, L-0170, L-0173, L-0181, L-0211, L-0213, L-0215, L-0238, L-0239, L-0240,
-   L-0242, L-0243, L-0246, L-0247, L-0248, L-0249, L-0257)
+   L-0242, L-0243, L-0246, L-0247, L-0248, L-0249, L-0257, L-0258, L-0259)
 6. **Próg jest liczbą, którą ktoś liczy:** kalibrujesz na realnych plikach, zapisujesz w jednostce
    mechanizmu z komendą sprawdzającą, z **jednym** wyzwalaczem. Porównujesz do wielkości, którą
    mechanizm kontroluje (część usuwalna); zatkanie sygnalizuje **różnica możliwego i wykonanego**,
@@ -596,6 +599,36 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
 - **Zasada:** przycisk, który zmienia stan użytkownika, naciskasz po pozycji sprawdzonej na liście
   przycisków (indeks albo klucz wiersza), nigdy po pierwszym trafieniu etykiety. Po każdym kliknięciu
   robisz `diff` z kopią sprzed pomiaru. Nazwy plików w funkcji powłoki składasz z `/`.
+
+### L-0258 — Ucieczka unicode w Edit trafiła do pliku jako niewidoczny znak · 2026-10-24 · AKTYWNA
+
+- **Trigger:** etap E4 planu RELAI_MODS. Ucieczki znaków U+200B (w klasie znaków wyrażenia
+  w `narrow.test.ts`) i U+FEFF (we wzorcu BOM w `mods.test.tsx`), zapisane w `new_string`
+  narzędzia Edit jako backslash, `u` i cztery cyfry, wylądowały w plikach jako dosłowne znaki.
+  Ten sam efekt zaszedł w pierwszej wersji tej lekcji. Testy przechodziły, a znak był niewidoczny
+  w czytanym kodzie. Wykrył go dopiero `grep` po bajtach.
+- **Zasada:** znak niewidoczny (U+200B, U+FEFF, NBSP) w kodzie zapisujesz wyrażeniem
+  `String.fromCharCode(0x…)`, nie ucieczką w literale. Po każdej edycji, która go dotyczy,
+  uruchamiasz `grep -c $'\xe2\x80\x8b\|\xef\xbb\xbf'` na zmienionych plikach. Wynik ma być 0.
+  Literał z ucieczką już w pliku poprawiasz skryptem pisanym Write, który liczy trafienia przed
+  zmianą i po niej.
+
+### L-0259 — Pomiar terminala z Basha sesji: cztery usterki instrumentu, zanim padł pierwszy pomiar · 2026-10-24 · AKTYWNA
+
+- **Trigger:** etap E4 planu RELAI_MODS, punkt „terminal przy 80 kolumnach”. Zanim pomiar ruszył,
+  zawiodły cztery rzeczy:
+  - `run_in_terminal` nie wysyła klawiszy do działającego TUI;
+  - PowerShell z Basha nie czyta skryptu spod `.claude/` (ścieżka wrażliwa harnessu);
+  - zwykła konsola w Windows 11 otwiera się w Windows Terminal, który sam zmienia szerokość
+    (80 → 120 → 232), a zmaksymalizowanego okna nie da się zwęzić z API (błąd 87);
+  - w skrypcie `$CH` i `$ch` to w PowerShellu jedna zmienna.
+  Do tego `ctrl+x tab` dawał fokus paskowi `relai-panel`, a nie panelowi kokpitu.
+- **Zasada:** terminal mierzysz w `conhost.exe` uruchomionym wprost z `mode con`, z oknem, którego
+  nikt nie rusza, a zmienne `CLAUDE*` hosta czyścisz w launcherze. Klawisze wysyłasz przez
+  `WriteConsoleInput`, a ekran czytasz z bufora razem z atrybutami, bo pierścień fokusu to
+  inwersja tła. Skrypty PowerShell leżą w `%TEMP%` z prefiksem slugu. Każdą nazwę zmiennej
+  w PowerShellu traktujesz jako bez wielkości liter. Panel nad promptem dostaje klawiaturę po
+  drugim `ctrl+x tab` (P-053), a pierścień sprawdzasz przed każdym Enterem (L-0257).
 
 ## Lekcje zwinięte
 

@@ -26,6 +26,10 @@ declare module 'claude-code' {
       cli: string
       /** The disk as this chat loaded it, plugin row key → on: taken at session.start, which /reload-plugins raises again. */
       loaded: Record<string, boolean>
+      /** The state a press asked for, by the row's key, true for on: the queue's call skips a row whose disk already holds it (E4). */
+      wants: Record<string, boolean>
+      /** Raised every few seconds while the pane is open, so its drawing reads the disk again (E4). */
+      tick: number
     }
   }
 }

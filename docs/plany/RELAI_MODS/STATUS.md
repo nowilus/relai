@@ -9,8 +9,8 @@ Wejście planu: [BRIEF.md](BRIEF.md) i [makieta.html](makieta.html) (wariant C),
 | E1 | Spike na Windows: przełącznik i przeładowanie z moda | ZREALIZOWANY 2026-10-23 | [PROMPT_ETAP_1.md](PROMPT_ETAP_1.md) | wynik: plan B — CLI z moda działa, przeładowanie tylko wpisane `/reload-plugins` (P-052) |
 | E2 | Inwentarz: pełna lista i szczegóły z dysku | ZREALIZOWANY 2026-10-23 | [PROMPT_ETAP_2.md](PROMPT_ETAP_2.md) | 28 testów; na żywo 12/14 włączone · 7 hooków; punkt 4 w brzmieniu zmienionym decyzją Łukasza (L-0254) |
 | E3 | Kokpit na desktopie, jasny i ciemny | ZREALIZOWANY 2026-10-23 | [PROMPT_ETAP_3.md](PROMPT_ETAP_3.md) | 60 testów; akordeon w grupach z nagłówkami Kalam (runda 2, przyjęty); Aneksy B i C; sygnał przeładowania z `plugin.register` (P-053) |
-| E4 | Terminal, wąski panel i dwa czaty | GOTOWY DO STARTU | [PROMPT_ETAP_4.md](PROMPT_ETAP_4.md) | pomiar na żywo przy 80 kolumnach |
-| E5 | Wydanie relai-mods 0.1.0 | OCZEKUJE | — | publikacja po osobnej zgodzie |
+| E4 | Terminal, wąski panel i dwa czaty | ZREALIZOWANY 2026-10-24 | [PROMPT_ETAP_4.md](PROMPT_ETAP_4.md) | 66 testów; próg wąskiego panelu 46 kolumn z testu; terminal z klawiatury, Przeładuj działa w terminalu (P-052); odświeżanie co 5 s, stan docelowy kliknięcia |
+| E5 | Wydanie relai-mods 0.1.0 | GOTOWY DO STARTU | [PROMPT_ETAP_5.md](PROMPT_ETAP_5.md) | publikacja po osobnej zgodzie |
 
 ## Bramki manualne
 
@@ -35,3 +35,5 @@ Wejście planu: [BRIEF.md](BRIEF.md) i [makieta.html](makieta.html) (wariant C),
 - 2026-10-23 — Aneks C (zatwierdzony przez Łukasza w E3): `Svg` w `Button` silnik odrzuca (P-051), więc przełącznik na desktopie to rysunek stanu `Svg` i obok przycisk `plain` ze słowem „Włącz” / „Wyłącz”.
 - 2026-10-23 — Aneks D (decyzja Łukasza przy akceptacji wyglądu E3): kokpit to akordeon w grupach Mody / Pluginy / Hooki z nagłówkami Kalam; szczegóły pod wierszem w każdej szerokości, próg „obok listy od 100 kolumn” znika (sekcje 5 i 8).
 - 2026-10-23 — E3 zrealizowany: kokpit w `cockpit.ts` / `look.ts` / `views.tsx` / `register.tsx`, 60 testów, punkty 6–8 na żywo (stan „załadowany” z migawki przy `session.start` i `plugin.register`, P-053), dwie rundy wyglądu zakończone akordeonem w grupach; wygenerowany `PROMPT_ETAP_4.md`.
+- 2026-10-23 — E4 rozpoczęty
+- 2026-10-24 — E4 zrealizowany: `STACK_BELOW` 46 (test modelu CSS, wąski panel 462 px na żywo), glif terminala w kolorze stanu, odświeżanie co 5 s z `$.clock.every`, stan docelowy kliknięcia, 66 testów; terminal przy 80 kolumnach z klawiatury (dwa `ctrl+x tab`), Przeładuj przeładowuje w terminalu (P-052, P-053); dwa czaty na żywo; wygenerowany `PROMPT_ETAP_5.md`.
