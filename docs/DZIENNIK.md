@@ -1234,3 +1234,71 @@ Werdykt przeglądu: ODRZUCONY
 - Nic — postacie zaakceptowane 2026-10-23.
 
 Autor: RelAI (Opus 5.5) + Lukasz
+
+### 2026-10-23 — AGENTS_KRABY P3–P6: panel „RelAI Agents” z kartą agenta; wątek zamknięty
+
+Odnoga samodzielna [AGENTS_KRABY](fixy/AGENTS_KRABY/ODNOGA.md) zamknięta decyzją Łukasza („jest
+w porządku, możemy to zamykać”). `relai-progress` 0.6.0 w repozytorium, niewydany.
+
+**Zrobione:**
+
+- P3–P5 (commity `62d23f8`, `bfa07a3`, `458c232`): role, imiona, barwy i kroki narzędzi agentów
+  (`core/panel/agents.mjs`, hook `tool.call`), panel „RelAI Agents” w `progress/hooks/pane-agents.tsx`,
+  chip agentów w pasku jako przycisk otwierający panel.
+- Poprawki po recenzji P5: wyścig w `turn.step` (przeliczenie na bieżącej liście w `update`),
+  twarde spacje w linii liczb.
+- Karta agenta przebudowana po kalibracji na żywo (przebieg w karcie odnogi, sekcja „Wynik”):
+  - słowa karty to tekst modu (zawija się, rośnie z powiększeniem aplikacji);
+  - imię w Hanken Grotesk z konturów liter: `core/panel/hanken.mjs` z generatora
+    `core/tools/build-hanken-name.py` (wght 650, SIL OFL — atrybucja w nagłówku modułu, jak Kalam
+    w `headings.mjs`);
+  - `core/panel/agentcard.mjs`: okno kontekstu z nazwy modelu (`windowOf`, wybór Łukasza), słowa
+    modelu, rysunek imienia, ramka pod kartą z cieniem w barwie agenta;
+  - chevron `▾`/`▴` (`Button plain`) w prawym górnym rogu rozwija kontekst i kroki;
+  - siatka Model · Kroki · Koszt · Czas, pasek tylko u pracującego, na całą szerokość
+    (`cardBarSvg(…, isFluid)` w `mascots.mjs`);
+  - przełącznik kalibracyjny „Ramka: rysunek · zmień” (atom `cardFrame`).
+- `relai-progress` 0.6.0: manifest i `marketplace.json`, w opisie panel agentów i atrybucja
+  „inspired by Helper Desk by Ben AI (idea only, no code)”.
+- PULAPKI: P-050 (kolumna `Box` nie rozciąga wierszy, `Svg` w ściśniętym pudełku maleje do zera;
+  zgadnięta szerokość rysunku) i P-051 (`variant="plain"` wywraca panel; prop `plain`).
+  DESIGN.md §7 poprawiony.
+
+**Zweryfikowane — jak dokładnie:**
+
+- `node --test core/panel/tests/*.test.js` → 215/215 (w tym `agentcard.test.js`: okno, słowa
+  kontekstu, litery Hanken z polskimi, rysunek imienia raz na literę i z wielokropkiem, waga
+  < 5 000 znaków, ramka w obu paletach). `sync-panel-core --check` → zgodne, 19 plików.
+- `relai-progress`: `claude plugin validate .` zielone, `claude plugin test .` → 48/48 (karta:
+  postać, imię w Hanken, „▶ co robi teraz”, siatka liczb, chevron `plain` rozwija i zwija kroki;
+  ramka-rysunek i po przełączniku ramka `Box` bez ukrytej kopii; 40 kolumn bez rozjazdu).
+- `relai-cache-keeper` → 198/198. `relai-panel` (zmienione tylko kopie rdzenia): 141 zaliczonych,
+  6 plików „did not load” (kod wyjścia 9). Ten sam przebieg na czystym `HEAD` w drzewie
+  tymczasowym: 190 zaliczonych, 7 błędów (2 pliki niezaładowane, 5 przekroczeń czasu 5 s) —
+  niestabilność środowiska po aktualizacji Claude Code do 2.1.304 w trakcie sesji (przez chwilę
+  `claude` zniknęło z `PATH`, kod 127), nie zmiana odnogi.
+- Brak kodu wzorca: `petSvg|twinkleCss|HUES\b|function crab\(|hdc\$\{|helper-desk` w `core/`,
+  `progress/`, `panel/`, `cache-keeper/` → 0 trafień (poza `AGENT_HUES`); kontrola pozytywna
+  na `helper-desk/hooks/register.tsx` → 32 trafienia.
+- Na żywo, ciemny motyw (kod podłożony do zainstalowanego `relai-progress` 0.5.0, `/reload-plugins`
+  wpisywał Łukasz): pięć rund zrzutów Łukasza, ostatnia przyjęta — wąski i szeroki panel, trzy
+  zakończone agenty w różnych rolach.
+
+**Odstępstwa od zasad aktywnych:** zasada 5 złamana kilka razy — skrypty z `\n` w heredoku
+i podmiana `sed` z ukośnikiem (`\p{M}` zamienione na `p{M}`, naprawione Edit, test to złapał).
+Od połowy sesji skrypty pisane narzędziem Write i uruchamiane osobno.
+
+**Świadomie odłożone:**
+
+- Pomiar na żywo w jasnym motywie i zrzuty do `docs/zasoby/PANEL_RELAI/zrzuty/` (rysunki niosą
+  obie palety, testy pilnują kluczy motywu).
+- Decyzja o ramce karty (rysunek z cieniem czy `Box`) — przełącznik został w panelu.
+- Publikacja `relai-progress` 0.6.0 (tag, push) — czeka na zgodę.
+- Zainstalowany `relai-progress` 0.5.0 ma podłożony kod 0.6.0; kopia oryginału w
+  `%TEMP%\relai-progress-0.5.0-kopia` — zastąpi go instalacja wydania.
+
+**Do zrobienia przez człowieka:**
+
+- Zgoda na commit i na publikację 0.6.0.
+
+Autor: RelAI (Opus 5.5) + Lukasz

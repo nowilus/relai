@@ -1,8 +1,8 @@
 {
   "name": "relai-progress",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "author": { "name": "nowilus", "url": "https://github.com/nowilus" },
-  "description": "Early access — needs Claude Code with mods (measured on 2.1.293). RelAI progress above the prompt: segments of the stage in progress or a /relai-crew run with the next item under them, a chip with the session's agents and their cost, and /relai-agents with the session's subagents priced from the project's price list. Reads files only: no model call, no network. Based on savvy-progress by johnnyvizz (MIT).",
+  "description": "Early access — needs Claude Code with mods (measured on 2.1.293). RelAI progress above the prompt: segments of the stage in progress or a /relai-crew run with the next item under them, and a button with the session's agents that opens RelAI Agents — each subagent as a role character (owl reviewer, beaver developer, fox analyst and six more) with its task, what it does now, steps, cost and time, every tool step one press away. Reads files only: no model call, no network. Based on savvy-progress by johnnyvizz (MIT); the agents pane inspired by Helper Desk by Ben AI (idea only, no code).",
   "homepage": "https://github.com/nowilus/relai",
   "repository": "https://github.com/nowilus/relai",
   "license": "MIT",

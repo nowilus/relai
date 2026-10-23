@@ -192,7 +192,8 @@ jeden dla wszystkich zakładek (Łukasz: „brakuje w ogóle jakichś paddingów
 - **Kolor błędu (`error`) tylko dla tego, co nie działa** albo wymaga naprawy; liczby, nagłówki
   list i uwagi — `warning` (musztarda) albo `inactive`.
 - Wyłącznie natywny `Button`: `primary` — jak wyżej;
-  `secondary` — akcje wierszy; `plain` — przycisk-duch (rzadko). Kolor etykiety, dzieci `Text` i
+  `secondary` — akcje wierszy; przycisk-duch to osobny prop `plain` (np. chevron `▾` karty agenta),
+  nigdy `variant="plain"` — ten wywraca panel (P-051). Kolor etykiety, dzieci `Text` i
   obrys wokół desktop **ignoruje** (P-042).
 - Kliknięcie tylko na `Button`. Efekt kliknięcia: błysk ramki karty (`pressed`) i etykieta „✓
   Wysłano” na chwilę — nigdy hover odwracający tekst („tragedia”).

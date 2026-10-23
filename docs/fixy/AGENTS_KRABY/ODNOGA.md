@@ -1,6 +1,6 @@
 # ODNOGA — panel „RelAI Agents” w stylu Helper Desku: postać roli na agenta, karty na żywo, wejście z paska
 
-Plan: brak (wątek samodzielny) · Etap-źródło: — · Utworzona: 2026-10-23 · Status: **OTWARTA** ·
+Plan: brak (wątek samodzielny) · Etap-źródło: — · Utworzona: 2026-10-23 · Status: **ZAMKNIĘTA 2026-10-23** ·
 Wykonawca: Opus 5.5 (architektura i wykonanie w bieżącej sesji; wolno też w świeżej, wg promptu)
 
 > Nazwa `AGENTS_KRABY` jest historyczna: 2026-10-23, w trakcie P2, Łukasz zamienił kraby na
@@ -107,30 +107,59 @@ Worker. Imię: pierwsze wolne z puli roli (pięć imion na rolę), po wyczerpani
 
 ## Weryfikacja
 
-- [ ] Wpis przeglądu wzorca w dzienniku z siedmioma punktami i linią `Werdykt przeglądu:`.
+- [x] Wpis przeglądu wzorca w dzienniku z siedmioma punktami i linią `Werdykt przeglądu:`.
       `grep` po charakterystycznych identyfikatorach Helper Desku (`petSvg`, `cardBarSvg`
       w kształcie wzorca, `HUES`, `twinkleCss`, `crab(`) w `progress/` i `core/` daje 0 trafień
-      kodu wzorca, z kontrolą pozytywną na pliku wzorca.
+      kodu wzorca, z kontrolą pozytywną na pliku wzorca. 2026-10-23 przy zamknięciu: 0 / 32.
 - [x] `node --test core/panel/tests/*.test.js` zielone, w tym parytet kopii rdzenia i testy
       `mascots.mjs`: siatki, role, imiona, barwy, klatki, kontrast obrysu w obu wyglądach, waga
       rysunku. Wynik 2026-10-23: 203/203.
 - [x] Testy `agents.mjs`: kroki, rola, imię, barwa, lista sprzed zmiany — 2026-10-23: rdzeń
       209/209; `claude plugin test` w `progress/` 43/43, w tym hook `tool.call` z kontrolą
       pozytywną (pętla główna nic nie zapisuje, agent — jeden krok).
-- [ ] `claude plugin validate .` i `claude plugin test .` w `progress/` zielone. Test panelu
+- [x] `claude plugin validate .` i `claude plugin test .` w `progress/` zielone (48/48, 2026-10-23). Test panelu
       montuje kartę z postacią (`Svg` z `alt`), grupy, rozwinięte kroki i chip-przycisk z kliknięciem.
-- [ ] Na żywo, w ciemnym i jasnym motywie: panel „RelAI Agents” z ≥ 3 agentami w różnych rolach.
+- [ ] (ciemny zmierzony i przyjęty, jasny odłożony — dziennik 2026-10-23) Na żywo, w ciemnym i jasnym motywie: panel „RelAI Agents” z ≥ 3 agentami w różnych rolach.
       Postacie ruszają się tylko u działających, obrys jest czytelny w obu motywach, pasek się
       porusza, a zakończony agent przechodzi do grupy „Zakończeni”. Zrzuty w
       `docs/zasoby/PANEL_RELAI/zrzuty/`.
-- [ ] Na żywo: klik w chip agentów w pasku otwiera panel; sesja bez etapu z agentem pokazuje sam
+- [x] Na żywo: klik w chip agentów w pasku otwiera panel; sesja bez etapu z agentem pokazuje sam
       przycisk; wąski panel podziału bez uciętych przycisków i nachodzących ramek.
-- [ ] `relai-progress` 0.6.0 wydany; wersja potwierdzona plikiem instalacji (zasada aktywna 10).
-- [ ] `git diff` nie dotyka plików spoza zakresu.
+- [ ] (0.6.0 w repo, publikacja czeka na zgodę) `relai-progress` 0.6.0 wydany; wersja potwierdzona plikiem instalacji (zasada aktywna 10).
+- [x] `git diff` nie dotyka plików spoza zakresu.
 - [ ] Katalog roboczy `.claude/relai/work/_fixy/AGENTS_KRABY/` przejrzany raportem
       (`node .claude/relai/tools/clean-work.js raport`) i skasowany po „tak”. Liczby przed i po
       trafiają do wpisu dziennika, artefakty spoza katalogu z nazwy.
 
 ## Wynik
 
-—
+Zamknięta 2026-10-23 decyzją Łukasza („jest w porządku, możemy to zamykać”) po kilku rundach
+kalibracji na żywo w ciemnym motywie. `relai-progress` 0.6.0 w repozytorium; publikacja (tag,
+push) czeka na zgodę.
+
+**Karta agenta — jak doszliśmy do obecnej.** Karta P4 (tekst modu, postać obok) była nieczytelna.
+Łukasz wybrał z czterech kierunków Pixel Art, potem z czterech krojów pikselowy z małymi literami.
+Na żywo pikselowa karta była najpierw dwa razy za duża, po zmniejszeniu nieczytelna, a tekst
+w rysunku `Svg` nie zawijał się do szerokości panelu, której mod nie zna (pas pustego miejsca,
+ucięte nazwy). Przebudowa wg skilla UI UX Pro Max:
+- słowa karty to tekst modu: zawija się w wąskim panelu i rośnie z powiększeniem aplikacji;
+- imię rysowane Hanken Grotesk (SIL OFL) z konturów liter (`core/panel/hanken.mjs`, generator
+  `core/tools/build-hanken-name.py`), stały rozmiar 16 px, wielokropek gdy brak miejsca;
+- nagłówek: postać, imię, pod nim rola i stan w zawijanym wierszu; w prawym górnym rogu chevron
+  `▾`/`▴` (natywny `Button` z `plain`) rozwijający kontekst i wszystkie kroki — tylko gdy agent
+  ma kroki;
+- zadanie, u pracującego „▶ co robi teraz”, siatka Model · Kroki · Koszt · Czas na pełną
+  szerokość, zawijana pole po polu;
+- pasek z falą tylko u pracującego, na całą szerokość karty;
+- ramka rysowana pod kartą (cienka linia `subtle`, cień w barwie agenta) albo ramka `Box` —
+  przełącznik kalibracyjny „Ramka: rysunek · zmień” został w panelu;
+- dwie karty w rzędzie od 110 kolumn; najwyżej 16 kart rysowanych, ramka-rysunek do 8.
+
+**Odrzucone w kalibracji:** krab (OpenClaw), czcionka pikselowa w karcie (nieczytelna w skali
+panelu, tekst w `Svg` nie zawija się), przycisk „Szczegóły” (za duży), procent kontekstu w linii
+liczb (niezrozumiały — kontekst opisany słowami po rozwinięciu).
+
+**Niezmierzone na żywo:** jasny motyw aplikacji (rysunki niosą obie palety w CSS, testy pilnują
+kluczy motywu i braku surowych kolorów; zrzut w jasnym nie powstał) i nowa wersja paska nad
+promptem po kliknięciu chipa (zmierzone w ciemnym przy P5). Zrzuty kalibracji zostały w katalogu
+roboczym, nie w `docs/zasoby/PANEL_RELAI/zrzuty/`.

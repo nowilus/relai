@@ -28,6 +28,7 @@ import { join, tokens, usd } from './fmt'
 import { barCard, barRule } from './bar-card'
 import { stepRows } from './steps'
 import { agentsPane } from './pane-agents'
+import type { CardFrame } from './pane-agents'
 import type { GroupKey } from './pane-agents'
 import { branchProgress, cardPathOf, countedOf, executorTool, focusPath, isBranchProgress, parseFocus, statusPathOf, workOf } from './focus'
 
@@ -46,6 +47,8 @@ const progress = atom({ plugin: 'relai-progress', key: 'progress' } as const, nu
 // The RelAI Agents pane (AGENTS_KRABY P4): the groups folded and the agents whose steps are open
 const foldedGroups = atom({ plugin: 'relai-progress', key: 'foldedGroups' } as const, [] as GroupKey[])
 const openSteps = atom({ plugin: 'relai-progress', key: 'openSteps' } as const, [] as string[])
+// Calibration 2026-10-23: the card's frame drawn under it or a Box frame; Łukasz picks live
+const cardFrame = atom({ plugin: 'relai-progress', key: 'cardFrame' } as const, 'draw' as CardFrame)
 // The list of steps (WYGLAD_PANELU E2): expanded or not, and its done ones unfolded — for the
 // session, collapsed by default (plan, risk 4)
 const isListOpen = atom({ plugin: 'relai-progress', key: 'isListOpen' } as const, false)
@@ -336,7 +339,8 @@ export const register: Register = (on) => {
     // Written only when something drawn moved (Z4): the pane's and the chip's words, not each token
     const list = await read($, agents)
     const after = stepped(list, id, usage)
-    if (JSON.stringify(after.map(drawnOf)) !== JSON.stringify(list.map(drawnOf))) await update($, agents, () => [...after])
+    // The write counts again on the list as it is then: a tool step written meanwhile stays (review 2026-10-23)
+    if (JSON.stringify(after.map(drawnOf)) !== JSON.stringify(list.map(drawnOf))) await update($, agents, (now) => [...stepped(now, id, usage)])
     return result
   })
 
@@ -379,6 +383,8 @@ export const register: Register = (on) => {
       openSteps: await read($, openSteps),
       onFold: (g) => { update($, foldedGroups, (x) => (x.includes(g) ? x.filter((y) => y !== g) : [...x, g])).catch(() => undefined) },
       onSteps: (id) => { update($, openSteps, (x) => (x.includes(id) ? x.filter((y) => y !== id) : [...x, id])).catch(() => undefined) },
+      frame: await read($, cardFrame),
+      onFrame: () => { update($, cardFrame, (x) => (x === 'draw' ? 'box' : 'draw')).catch(() => undefined) },
     }))
   })
 

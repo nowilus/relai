@@ -102,6 +102,11 @@ async function start($: Engine) {
 const textOf = (node: RenderNode | undefined): string => node === undefined ? '' : typeof node === 'string' ? node
   : ((node as { children?: RenderNode[] }).children ?? []).map(textOf).join('')
 
+// What a card says on the desktop: its words are drawn (Pixel Art card, AGENTS_KRABY 2026-10-23),
+// so the alt of every drawing counts with the text
+const seenOf = (node: RenderNode | undefined): string => node === undefined ? '' : [textOf(node),
+  ...[...walkNodes(node)].filter((x) => typeof x !== 'string' && x.type === 'Svg').map((x) => String(((x as { props?: { alt?: string } }).props ?? {}).alt ?? ''))].join(' ')
+
 // The narrowest the tree can be drawn, in columns (panel/hooks/theme.test.ts, the same instrument)
 function minWidth(node: RenderNode): number {
   if (typeof node === 'string') return Math.max(0, ...node.split(/\s+/).map((w) => w.length))
@@ -591,13 +596,13 @@ describe('the agents pane', () => {
     await two.unmount()
 
     const live = await $.ui.mount({ plugin: 'relai-progress', surface: 'desktop', ...PANE() })
-    const card = await live.find({ key: `agent-${AGENT}` })
-    expect((card?.text ?? "")).toContain('● działa')
-    expect((card?.text ?? "")).toContain('Sonda agenta')
-    expect((card?.text ?? "")).toContain('claude-opus-5-5')
+    const card = seenOf(await live.find({ key: `agent-${AGENT}` }))
+    expect(card).toContain('● działa')
+    expect(card).toContain('Sonda agenta')
+    expect(card).toContain('Opus 5.5')
     // opus 5.5 at $4 / $20 per million, read x0.05, a subagent's write x1.25:
     // (100 + 200) * 4 + 2 * 10000 * 0.2 + 2 * 2000 * 5 + (50 + 80) * 20 = 1200 + 4000 + 20000 + 2600 = 27800 per million
-    expect((card?.text ?? "")).toContain('$0.03')
+    expect(card).toContain('$0.03')
     await live.unmount()
 
     await $.turn.complete({ answer: 'raport', durationMs: 5000, isAborted: false, turnId: 'ta', agentId: AGENT, reason: 'answer' } as never)
@@ -688,7 +693,7 @@ describe('the agents pane', () => {
     expect(Math.abs((expected?.usd ?? 0) - 1.821)).toBeLessThan(1e-9)
     for (const surface of ['terminal', 'desktop'] as const) {
       const ui = await $.ui.mount({ plugin: 'relai-progress', surface, ...PANE() })
-      const card = (await ui.find({ key: `agent-${AGENT}` }))?.text ?? ''
+      const card = seenOf(await ui.find({ key: `agent-${AGENT}` }))
       expect(card).toContain(usd(expected?.usd ?? null))
       expect(card).toContain('$1.82')
       expect(card).not.toContain('brak ceny')
@@ -749,11 +754,19 @@ describe('the agents pane', () => {
     const gui = await $.ui.mount({ plugin: 'relai-progress', surface: 'desktop', ...PANE() })
     const card = await gui.find({ key: `agent-${AGENT}` })
     expect(card?.props.backgroundColor).toBeUndefined() // no fill of its own since E4: the pane's ground shows through
-    expect(card?.props.borderStyle).toBe('round')
+    // Calibration 2026-10-23: the frame drawn under the card first, a Box frame on the switch
+    expect(card?.props.borderStyle).toBeUndefined()
+    expect(card?.props.position).toBe('relative')
+    expect(await gui.find({ key: 'frame' })).toBeDefined()
+    await gui.press({ key: 'frame-switch' })
+    expect((await gui.find({ key: `agent-${AGENT}` }))?.props.borderStyle).toBe('round')
+    expect(await gui.find({ key: 'frame' })).toBeUndefined()
+    // Negative proof: the hidden copy that sizes a drawn frame is gone with it
+    expect(await gui.find({ key: 'body~u' })).toBeUndefined()
     await gui.unmount()
   })
 
-  test('the card draws the agent\'s character, what it does now, its last steps and all of them on a press', async ($, on) => {
+  test('the card draws the agent\'s character and name, what it does now, its figures and every step on a press', async ($, on) => {
     world(on, { ...FILES, [MEASURE]: rec(AGENT, 0, 100, 50) + '\n' })
     on('tool.call', { tool: ['Read', 'Grep'] }, () => ({ result: 'ok' }) as never)
     await start($)
@@ -769,21 +782,32 @@ describe('the agents pane', () => {
     expect(alts).toContain('Lis Leon, lis — Analityk, kolor gliniany')
     const pet = svgs.find((x) => String(((x as { props?: { source?: string } }).props ?? {}).source ?? '').includes('mascot-f'))
     expect(pet).toBeDefined() // a running agent's character steps through its frames
-    let card = textOf(await gui.find({ key: `agent-${AGENT}` }))
-    expect(card).toContain('Krok 5 · Szuka „roleOf”')
-    expect(card).toContain('Czyta d.md') // the three before the current one
-    expect(card).not.toContain('Czyta a.md')
+    // The name in Hanken, drawn as outlines
+    expect(svgs.some((x) => String(((x as { props?: { source?: string } }).props ?? {}).source ?? '').includes('<path id="hk4c"'))).toBe(true)
+    const card = seenOf(await gui.find({ key: `agent-${AGENT}` }))
+    expect(card).toContain('▶ Szuka „roleOf”') // what it does now, under its task
+    expect(card).toContain('Analityk')
+    for (const cell of ['ModelOpus 5.5', 'Kroki5', 'Koszt$0.01', 'Czas']) expect(card).toContain(cell) // the figures' grid
+    // The steps one short press away, also while the agent runs (live 2026-10-23)
     const label = async (key: string) => String((await gui.find({ key }))?.props.label ?? '')
-    expect(await label(`steps-${AGENT}`)).toBe('▸ Wszystkie kroki · 5')
+    expect(await label(`steps-${AGENT}`)).toBe('▾')
+    expect((await gui.find({ key: `steps-${AGENT}` }))?.props.plain).toBe(true) // a chevron, not a big button
+    expect(card).not.toContain('a.md')
     await gui.press({ key: `steps-${AGENT}` })
-    card = textOf(await gui.find({ key: `agent-${AGENT}` }))
-    expect(await label(`steps-${AGENT}`)).toBe('▾ Zwiń kroki')
-    expect(card).toContain('a.md') // every step, its kind and its folder
-    expect(card).toContain('odczyt')
-    expect(card).toContain('docs')
+    expect(await label(`steps-${AGENT}`)).toBe('▴')
+    const open = seenOf(await gui.find({ key: `agent-${AGENT}` }))
+    expect(open).toContain('a.md')
+    expect(open).toContain('odczyt')
     await gui.press({ key: `steps-${AGENT}` })
-    expect(await label(`steps-${AGENT}`)).toBe('▸ Wszystkie kroki · 5')
+    expect(await label(`steps-${AGENT}`)).toBe('▾')
     await gui.unmount()
+    const term = await $.ui.mount({ plugin: 'relai-progress', surface: 'terminal', ...PANE() })
+    await term.press({ key: `steps-${AGENT}` })
+    const all = textOf(await term.find({ key: `agent-${AGENT}` }))
+    expect(all).toContain('a.md') // every step, its kind and its folder
+    expect(all).toContain('odczyt')
+    expect(all).toContain('docs')
+    await term.unmount()
   })
 
   test('agents stand in groups, each folds on a press; a finished one stands still', async ($, on) => {

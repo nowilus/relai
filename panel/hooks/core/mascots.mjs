@@ -464,14 +464,18 @@ function bubbles(/** @type {number} */ count, /** @type {number} */ seed) {
  * @param {number} width @param {string} key unique on the pane (the agent's id): ids and bubbles
  * @returns {string}
  */
-export function cardBarSvg(status, hue, width, key) {
+export function cardBarSvg(status, hue, width, key, isFluid = false) {
   const W = Math.max(40, Math.round(width));
   const H = CARD_BAR.height;
   const id = `agent-bar-${String(key).replace(/[^a-zA-Z0-9_-]/g, '')}`;
   const seed = [...String(key)].reduce((n, ch) => (n * 31 + ch.charCodeAt(0)) >>> 0, 7);
   const color = status === 'failed' ? ROOT.glina : AGENT_HUES[hueIndex(hue)].color;
   const lit = mix(color, '#ffffff', 0.45);
-  const head = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">`;
+  // Fluid: as wide as the slot it stands in, `width` only sets the drawing's own scale (live
+  // 2026-10-23: a bar of a guessed width stood centred under a wider card)
+  const head = isFluid
+    ? `<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="${H}" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none">`
+    : `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">`;
   const clip = `<clipPath id="${id}-c"><rect width="${W}" height="${H}" rx="${H / 2}"/></clipPath>`;
   const track = `<rect width="${W}" height="${H}" fill="${color}" opacity=".18"/>`;
   const dot = (/** @type {{ x: number, y: number, r: number }} */ b, /** @type {number} */ w) =>

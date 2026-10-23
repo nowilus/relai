@@ -8,6 +8,41 @@ Specyfikacja: `SPEC_PULAPKI.md`.
 
 ## Pułapki
 
+### P-050 — Aplikacja desktopowa: kolumna `Box` nie rozciąga wierszy, a `Svg` w ściśniętym pudełku maleje do zera · 2026-10-23 · AKTYWNA
+
+- **Objaw (odnoga AGENTS_KRABY, kalibracja karty agenta na żywo):** karta zajmuje pół panelu,
+  a jej szerokość zmienia się z najdłuższą linią tekstu. Rola się ucina („Develope…”), stan
+  najeżdża na rolę. Rysowane imię jednego agenta znika, drugiego jest mniejsze. Test układu jest
+  zielony.
+- **Przyczyna:** desktop układa `Box` jak CSS (P-043) i w tym miejscu kolumna nie rozciągała
+  dzieci na swoją szerokość: każdy wiersz dostawał szerokość swojej treści. Pudełko o bazie zerowej
+  (`width={0}` + `flexGrow`) w takim wierszu dostaje prawie nic, a `Svg` we własnym `Box`
+  skaluje się do szerokości pudełka (P-043 pkt 3) — aż do zera. Drugie źródło tego samego objawu:
+  `Svg` o szerokości zgadniętej z `bodyColumns` (×7 px; na żywo ~9,5 px na kolumnę) stoi
+  wyśrodkowane albo zostawia pas pustego miejsca.
+- **Obejście:**
+  - karta w wierszu (`flexDirection="row"`) z `flexGrow={1} width={0}` — wiersz bierze szerokość
+    panelu jak kafle;
+  - kolumny karty z `alignItems="stretch"`;
+  - rysunek, który ma trzymać rozmiar (imię), stawiaj wprost w wierszu z `overflow="hidden"`,
+    nie we własnym pudełku;
+  - pasek na całą szerokość jako `Svg` z `width="100%"` w źródle, `preserveAspectRatio="none"`
+    i samym `height` w propsach;
+  - tekstu do zawinięcia nie rysuj w `Svg`: mod nie zna szerokości panelu w pikselach.
+- **Zasięg:** aplikacja desktopowa, zakładka Code, `relai-progress` 0.6.0; terminal bez zmian.
+
+### P-051 — `Button variant="plain"` wywraca cały panel; przycisk bez obramowania to prop `plain` · 2026-10-23 · AKTYWNA
+
+- **Objaw:** po zmianie jednego przycisku karty na `variant="plain"` każdy test montujący panel
+  z agentem kończy się `$.ui.mount: no implementation for ui.render`, a na żywo panel by się nie
+  narysował. DESIGN.md §7 pisze o „`plain` — przycisk-duch”, co prowadzi do `variant`.
+- **Przyczyna:** typ `ButtonProps` ma `variant?: 'primary' | 'secondary'` i osobny prop
+  `plain?: true` (jeden znak jako etykieta to wtedy cała kontrolka). Nieznany wariant silnik
+  odrzuca, a błąd renderu wygląda jak brak implementacji.
+- **Obejście:** `<Button plain label="▾" …/>`. Desktop i tak rysuje natywny przycisk, ale mały.
+  Dzieci `Button` to tylko tekst i `Text` — `Svg` w przycisku jest odrzucany, więc chevron
+  to znak, nie rysunek.
+
 ### P-048 — Strona z three.js: mobilny Chrome oddala widok, gdy element szerszy niż okno stoi w przepływie choć przez chwilę · 2026-10-18 · AKTYWNA
 
 - **Objaw:** Biurko na telefonie 390 × 844 rysowało płótno 1156 × 2502, cała scena była mała

@@ -64,6 +64,8 @@ declare module 'claude-code' {
       foldedGroups: ('running' | 'done' | 'broken')[]
       /** The agents whose every step is shown in the pane. */
       openSteps: string[]
+      /** The frame of an agent's card: drawn under it with the agent's shadow, or a Box frame (calibration). */
+      cardFrame: 'draw' | 'box'
       /** The list of steps above the prompt expanded (WYGLAD_PANELU E2); collapsed by default. */
       isListOpen: boolean
       /** The done steps unfolded in the expanded list. */
