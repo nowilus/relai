@@ -127,7 +127,7 @@ Worker. Imię: pierwsze wolne z puli roli (pięć imion na rolę), po wyczerpani
       przycisk; wąski panel podziału bez uciętych przycisków i nachodzących ramek.
 - [ ] (0.6.0 w repo, publikacja czeka na zgodę) `relai-progress` 0.6.0 wydany; wersja potwierdzona plikiem instalacji (zasada aktywna 10).
 - [x] `git diff` nie dotyka plików spoza zakresu.
-- [ ] Katalog roboczy `.claude/relai/work/_fixy/AGENTS_KRABY/` przejrzany raportem
+- [x] (2026-10-23: 20,1 MB → 0, skasowany po „tak”) Katalog roboczy `.claude/relai/work/_fixy/AGENTS_KRABY/` przejrzany raportem
       (`node .claude/relai/tools/clean-work.js raport`) i skasowany po „tak”. Liczby przed i po
       trafiają do wpisu dziennika, artefakty spoza katalogu z nazwy.
 

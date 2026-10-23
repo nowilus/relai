@@ -1297,6 +1297,11 @@ Od połowy sesji skrypty pisane narzędziem Write i uruchamiane osobno.
 - Zainstalowany `relai-progress` 0.5.0 ma podłożony kod 0.6.0; kopia oryginału w
   `%TEMP%\relai-progress-0.5.0-kopia` — zastąpi go instalacja wydania.
 
+**Sprzątanie:** katalog roboczy `.claude/relai/work/_fixy/AGENTS_KRABY/` (makiety, zrzuty
+kalibracji, skrypty podmian, pozostałość `base/`) — raport `clean-work.js` 20,1 MB, skasowany
+po „tak” Łukasza narzędziem (`kasuj`): przed 20,1 MB, po 0,0 MB. Artefaktów poza katalogiem
+nie było; kopia `%TEMP%\relai-progress-0.5.0-kopia` zostaje do wydania.
+
 **Do zrobienia przez człowieka:**
 
 - Zgoda na commit i na publikację 0.6.0.
