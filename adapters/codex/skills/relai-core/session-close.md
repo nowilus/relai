@@ -31,7 +31,10 @@ Kolejność:
    „Zweryfikowane — jak dokładnie" musi mówić, czym i z jakim wynikiem sprawdzałeś; „nie
    weryfikowano" jest dopuszczalną treścią, brak sekcji nie jest.
 4. **Ryzyka** — zaktualizuj tabelę „Stan otwartych ryzyk", jeśli któreś zamknięto, otwarto albo
-   zmienił się jego poziom.
+   zmienił się jego poziom. Projekt ma plik blokady, a sesja zmieniała zależności → najpierw
+   szybki skan Trivy ze skilla `trivy-scan` (`scan.mjs --path <korzeń projektu> --quick --json`);
+   nowe CRITICAL/HIGH wpisujesz do tabeli tak, jak robi to `/relai-security` (D-91). Trivy brak
+   (`trivy not found`) → jedno zdanie o tym w podsumowaniu, bez skanu.
 5. **Commit** — jeśli projekt ma gita i są niezacommitowane zmiany, zaproponuj commit
    z conventional message. Nie commituj bez zgody, poza commitem inicjalizacyjnym.
 6. **Podsumowanie** — 3–5 zdań: co zrobione, co zweryfikowane, co czeka na człowieka, od czego

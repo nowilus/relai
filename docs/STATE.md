@@ -1,6 +1,6 @@
 # STATE — RelAI
 
-Stan na: 2026-10-24 (plan BEZPIECZENSTWO: E1 i E2 zrealizowane — skan zależności `/relai-security` i 13. hook `lockfile-scan` w repo, niewydane; plan RELAI_MODS ZREALIZOWANY — kokpit `/relai-mods` wydany jako `relai-mods` 0.1.0 i 0.1.1 w marketplace, tagi `relai-mods-v0.1.0` i `relai-mods-v0.1.1`; wątek AGENTS_KRABY zamknięty — panel „RelAI Agents” z postaciami ról, `relai-progress` 0.6.0 wydany, tag `relai-progress-v0.6.0`; wątek MOBILNA_STRONA zamknięty — obie wersje strony przyjęte na iPhonie, ankieta na cztery warianty z danymi o urządzeniu; wątek BIURKO_PLAKAT zamknięty — Biurko bez sceny 3D jako odbitki biurka; plan STRONA_RELAI ZREALIZOWANY 2026-10-18 — strona opublikowana na https://nowilus.github.io/relai/ w dwóch wersjach, Film i Biurko, z ankietą w Tally, poprawka Aneksu E wdrożona 2026-10-19; WYGLAD_PANELU zamknięty 2026-10-15)
+Stan na: 2026-10-24 (plan BEZPIECZENSTWO: E1–E3 zrealizowane — skan zależności `/relai-security`, 13. hook `lockfile-scan` i D-91 (Trivy pierwszy w punktach procesu) w repo, niewydane; plan RELAI_MODS ZREALIZOWANY — kokpit `/relai-mods` wydany jako `relai-mods` 0.1.0 i 0.1.1 w marketplace, tagi `relai-mods-v0.1.0` i `relai-mods-v0.1.1`; wątek AGENTS_KRABY zamknięty — panel „RelAI Agents” z postaciami ról, `relai-progress` 0.6.0 wydany, tag `relai-progress-v0.6.0`; wątek MOBILNA_STRONA zamknięty — obie wersje strony przyjęte na iPhonie, ankieta na cztery warianty z danymi o urządzeniu; wątek BIURKO_PLAKAT zamknięty — Biurko bez sceny 3D jako odbitki biurka; plan STRONA_RELAI ZREALIZOWANY 2026-10-18 — strona opublikowana na https://nowilus.github.io/relai/ w dwóch wersjach, Film i Biurko, z ankietą w Tally, poprawka Aneksu E wdrożona 2026-10-19; WYGLAD_PANELU zamknięty 2026-10-15)
 
 ## Gdzie jesteśmy
 
@@ -32,7 +32,8 @@ po E5 (wydanie panelu 0.20.0 / 0.11.0); HUMANIZACJA zamknięty 2026-10-14 wydani
   optymalizator promptu, humanizacja tekstu. W repozytorium szesnasty, niewydany: skan zależności
   `/relai-security` (plan BEZPIECZENSTWO, E1). Od E2 zmiana pliku blokady albo instalacja paczek
   w projekcie RelAI sama uruchamia szybki skan (hook `lockfile-scan`), a notka pada tylko przy
-  nowym CRITICAL/HIGH.
+  nowym CRITICAL/HIGH. Od E3 (D-91) ten sam skan jest pierwszym audytem zależności w punktach
+  procesu; komenda ekosystemu (`npm audit`…) zostaje zapasem.
 - Podyktowane zdanie może wrócić poprawione, zanim ruszy w robotę — na żądanie albo w trybie
   ciągłym, o który sesja pyta raz; oryginał stoi obok propozycji.
 - **Humanizacja tekstu** (plan [HUMANIZACJA](archiwum/plany/HUMANIZACJA/STATUS.md), zamknięty
@@ -132,11 +133,13 @@ po E5 (wydanie panelu 0.20.0 / 0.11.0); HUMANIZACJA zamknięty 2026-10-14 wydani
 
 ## Nad czym pracujemy teraz
 
-- **BEZPIECZENSTWO — plan ZAAKCEPTOWANY 2026-10-23, E1 ZREALIZOWANY 2026-10-24, E2 gotowy do
+- **BEZPIECZENSTWO — plan ZAAKCEPTOWANY 2026-10-23, E1–E3 ZREALIZOWANE 2026-10-24, E4 gotowy do
   startu** (plan [BEZPIECZENSTWO](plany/BEZPIECZENSTWO/STATUS.md), 6 etapów, wykonanie Opus
   w Claude Code, równolegle do PANEL_CODEX). E1: skill `trivy-scan` i `/relai-security` w pluginie
   (niewydane), wiersz ryzyka na paczkę z kluczem advisory + paczka + plik blokady (Aneks A),
-  pierwszy skan RelAI dał ryzyko Z1 (`zod` w narzędziach filmu). Po co:
+  pierwszy skan RelAI dał ryzyko Z1 (`zod` w narzędziach filmu). E2: hook `lockfile-scan`. E3:
+  decyzja D-91 — Trivy pierwszym narzędziem audytu zależności w prompcie etapu, `done-check`,
+  `first-deploy`, zamknięciu sesji i planu, komenda ekosystemu zapasem. Po co:
   skan zależności Trivy (własny skill `trivy-scan`) i audyt bezpieczeństwa Cloudflare
   (`security-audit`, MIT) wbudowane w plugin — komenda `/relai-security`, 13. hook po zmianie
   lockfile, prompty etapów, `done-check`, `first-deploy`, zamknięcie sesji i planu; ryzyka do

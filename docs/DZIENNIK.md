@@ -2177,3 +2177,95 @@ Przegląd ryzyk: bez nowych; Z1 bez zmian. Ryzyko 5 planu (podwójny hook) zamkn
 wpisu. Lekcja: L-0263 (dogfooding hooka w `claude -p`), destylat w zasadzie 13.
 
 Autor: RelAI (Opus 5.5) + Lukasz
+
+### 2026-10-24 — BEZPIECZENSTWO E3: Trivy pierwszy w punktach procesu, decyzja D-91
+
+Audyt zależności w procesie RelAI zaczyna się teraz od skanu Trivy, a komenda ekosystemu jest
+zapasem. Zmiana dotyczy promptu etapu, „zanim gotowe”, pierwszego wdrożenia oraz zamknięcia
+sesji i planu. Wersja zostaje 3.2.0.
+
+**Zrobione:**
+
+- Bramka planu: Łukasz zobaczył treść D-91 i odpowiedział „tak, zapisz D-91”. `docs/DECYZJE.md`,
+  sekcja „Hooki, bezpieczeństwo, backup”: **D-91**. Trivy przez `trivy-scan` (`/relai-security`
+  albo `scan.mjs --json`) jest pierwszym narzędziem, a komenda ekosystemu zapasem, gdy Trivy brak,
+  baza się nie pobierze albo skilla nie ma w narzędziu. Kryterium jest bez zmian. Akceptacja
+  ryzyka wymaga decyzji i `.trivyignore` z odwołaniem do niej. D-91 zastępuje dopisek „nie własny
+  skaner”. D-80 i jej aneksy zostają nietknięte. Bramka w `STATUS.md` → `ROZSTRZYGNIĘTA 2026-10-24 — D-91`.
+- `core/templates/SPEC_PROMPT_ETAPU.md` (wersja 10): w akapicie „Bezpieczeństwo” z §8 pierwszy
+  punkt to teraz skan Trivy z kryterium „zero nowych CRITICAL i HIGH”. Zastane podatności trafiają
+  do tabeli ryzyk tak, jak wpisuje je `/relai-security`. Lista komend ekosystemu zostaje jako
+  zapas z warunkiem wykonalności. Punkt audytu w przykładzie PLATNOSCI jest zgodny z regułą.
+  Sekcja 9 jest bez zmian.
+- `relai-core`: `done-check.md` p. 6 (wersja 2), `first-deploy.md` wiersz 5 (wersja 2),
+  `session-close.md` krok 4 (wersja 3). Ten ostatni dostał podkrok szybkiego skanu
+  (`scan.mjs --quick --json`), który działa przy pliku blokady i zmianie zależności w sesji;
+  gdy Trivy brak, pada jedno zdanie bez skanu. `relai-planning`: `plan-closing.md` krok 6
+  (wersja 3), czyli `/relai-security` przed przeglądem tabeli. Numeracja w obu plikach jest bez zmian.
+- `docs/PRZEWODNIK.md`: wiersz „bezpieczeństwa zależności” mówi teraz „Trivy pierwszy, komenda
+  ekosystemu zapasem” i wymienia miejsca skanu. `docs/ARTEFAKTY.md`: nowe wersje pięciu artefaktów.
+- Kopie Codeksa: `node adapters/codex/generate-skills.js`, cztery pliki w `adapters/codex/skills/`.
+- `SPEC_KOMENDY.md` i `relai-security.md` zostały bez zmian. Grep nie pokazał sprzeczności
+  z D-91, bo `relai-security.md` już kieruje zapas do `first-deploy.md`, który nadal niesie listę
+  komend ekosystemu.
+
+**Zweryfikowane — jak dokładnie:**
+
+- `node core/tools/validate-adapters.js`: „spojne”, „parytet skilli Claude Code -> Codex:
+  43 plikow, 0 rozjazdow”, „wywolania z hooks.json: 17”.
+- Testy: `core/process` 206/206, `core/panel` 216/216, `adapters/codex` 15/15.
+- Rodzina dokumentów: `LC_ALL=C.UTF-8 grep -rn "własny skaner" core/templates adapters
+  docs/PRZEWODNIK.md` → 0 trafień (kod 1). Kontrola pozytywna na
+  `git show HEAD:core/templates/SPEC_PROMPT_ETAPU.md` → 1. Trafienia `trivy` w zmienionych
+  plikach: SPEC 5, `done-check` 2, `first-deploy` 1, `session-close` 3, `plan-closing` 3.
+- Numeracja: skrypt porównał z HEAD. `session-close.md`: kroki 1, 2, 2a, 3–6 i lista kontrolna
+  są identyczne. `plan-closing.md`: kroki 1–9 i lista kontrolna z l. 12 są identyczne. §9
+  `SPEC_PROMPT_ETAPU.md` (1 356 znaków) jest identyczna, a kontrola negatywna (mutacja w §9)
+  została wykryta. Instrument dwa razy się mylił, zanim dał wynik: najpierw szukał `## 9`, gdy
+  sekcja ma `### 9.`, potem ciął sekcję na własnym nagłówku i porównywał puste napisy jako
+  „identyczne”. Pierwszy błąd złapało „znaleziona=false”, drugi długość 0. Kontrola negatywna
+  weszła po drugim (zasady 5 i 11; bez nowej lekcji).
+- Dogfooding na kopii fixtury `scan-reports-fix-plan` w `%TEMP%/relai-e3-dogfood`, oba przebiegi
+  według nowego `done-check` p. 6. **Z Trivy:** `scan.mjs --json` → CRITICAL 0, HIGH 16,
+  MEDIUM 20, LOW 1. **Bez Trivy** (`env -i`, `PATH` tylko z Node, `LOCALAPPDATA` / `ProgramData` /
+  `HOME` / `USERPROFILE` na pustym katalogu): `{"ok":false,"error":"trivy not found. …"}`,
+  kod 2. Tekst p. 6 kieruje wtedy na `npm audit --omit=dev`, który dał `high 2, total 2`. Mniejsza
+  liczba wynika z tego, że npm liczy paczki, nie advisory, i nie widzi `requirements.txt`. To
+  właśnie powód D-91. Kontrola pozytywna w tym samym przebiegu: z pełnym środowiskiem `ok:true`.
+- Granica zakresu: `git diff --name-only` nie obejmuje `README.md`, `plugin.json` (3.2.0),
+  `skills/trivy-scan/`, `claude-code/hooks/` ani `adapters/cursor/`. `--full` i `security-audit`
+  występują tylko w `PROMPT_ETAP_3.md` i `STATUS.md`, w wierszach sprzed E3, które cytują granicę.
+  W tekstach procesu nie ma żadnego z nich.
+- `/relai-security` na RelAI (`scan.mjs --path . --json`): CRITICAL 0, HIGH 1, MEDIUM 2, LOW 2,
+  tak jak w E2. HIGH = `zod` 4.5.4 w `docs/zasoby/film/zrodla/package-lock.json` (Z1), nowych brak.
+- Katalog roboczy `.claude/relai/work/BEZPIECZENSTWO/E3/`: przed sprzątaniem 1 plik
+  (`numeracja.cjs`, 2 357 B), po „tak” Łukasza 0, a katalog usunięty. Poza katalogiem, też po
+  „tak”, skasowane: `%TEMP%/relai-e3-dogfood`, `relai-e3-dogfood.out1.json`, `relai-e3-empty`,
+  `relai-e3-repo.json` i cztery znaczniki hooka z tej sesji: `%TEMP%/trivy-scan-hook-089361d61c1f`,
+  `-8288c4c32e83`, `-a9c4eecca968`, `-b3f20255726c`. Znaczników jest teraz 26 zamiast 30. Te
+  sprzed sesji zostają zgodnie z decyzją z E2.
+- Pomiary autora `PROMPT_ETAP_4.md` (FAKT w prompcie). `wsl --status` → WSL niezainstalowany.
+  Kopia `~/.claude/skills/security-audit/` ma 22 pliki i ok. 365 KB, a `SOURCE.txt` wskazuje
+  commit `c1c8a8c…`. Testy walidatorów Cloudflare na kopii w `%TEMP%/relai-e3-sa-probe`
+  (Node v24.13.1): `validate-findings.test.cjs` 34 testy, w tym 22 pass, 7 fail (wszystkie
+  w ścieżce CLI) i 5 skip; `validate-coverage-ledger.test.cjs` 31 testów, w tym 24 pass, 0 fail
+  i 7 skip. Zasady aktywne przeniesione do promptu skryptem z funkcją podstawiającą: 15 pozycji,
+  blok identyczny ze źródłem. Po „tak” Łukasza (ta sama zgoda na artefakty E3) skasowane:
+  `%TEMP%/relai-e3-sa-probe` i `.claude/relai/work/BEZPIECZENSTWO/E3-zamkniecie/wstaw-zasady.cjs`.
+  Walidator po zmianach: „spojne”, z jednym ostrzeżeniem zastanym (`relai-prompt.md` 30 106 B,
+  plik poza zakresem).
+
+**Świadomie odłożone:**
+
+- Pełny audyt Cloudflare i jego jedna propozycja w `first-deploy.md` przechodzą do E4. Kopie
+  `trivy-scan` dla Codeksa i Cursora przechodzą do E5. Zdanie „pełny skan Trivy działa dziś
+  w Claude Code” w `relai-security.md` zostaje prawdziwe do E5.
+- Rotacja `docs/DZIENNIK.md` (162 KB przy progu 150) i sekcji ryzyk (17,4 KB przy progu 12)
+  zostaje poza etapem, przy zamknięciu sesji.
+
+**Do zrobienia przez człowieka:** —
+
+Przegląd ryzyk: nowych brak, Z1 bez zmian (bramka decyzji o `zod` dalej otwarta w `STATUS.md`).
+Lekcji nowych brak.
+
+Autor: RelAI (Opus 5.5) + Lukasz

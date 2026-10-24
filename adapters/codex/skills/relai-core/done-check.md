@@ -47,7 +47,10 @@ napisał ją ktoś inny, i sprawdzasz po kolei:
 3. **Resztki** — wydruki diagnostyczne, zakomentowany kod, `TODO` dopisane w tej zmianie.
 4. **Testy** — test usunięty, osłabiona asercja, przypadek pominięty (`skip`, `only`).
 5. **Wejście i błędy** — nowe wejście od użytkownika bez walidacji, błąd połknięty bez komunikatu.
-6. **Zależności** — nowa paczka → audyt komendą ekosystemu (`npm audit --omit=dev`, `pip-audit`…).
+6. **Zależności** — nowa paczka → skan Trivy ze skilla `trivy-scan` (`/relai-security`); nowe
+   CRITICAL/HIGH zgłaszasz, zastane wpisujesz do tabeli ryzyk tak, jak robi to `/relai-security`.
+   Trivy brak (`trivy not found`) → zapas: komenda ekosystemu (`npm audit --omit=dev`,
+   `pip-audit`…) z tym samym kryterium (D-91).
 
 Znalezione usterki poprawiasz przed zgłoszeniem (i wracasz do kroku 1); to, czego nie poprawiasz,
 bo wychodzi poza zadanie, idzie na listę ryzyk.

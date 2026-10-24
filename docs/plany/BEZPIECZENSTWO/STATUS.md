@@ -6,14 +6,14 @@
 |---|---|---|---|---|
 | E1 | trivy-scan w pluginie i komenda /relai-security | ZREALIZOWANY 2026-10-24 | [PROMPT_ETAP_1.md](PROMPT_ETAP_1.md) | 16. komenda: liczniki w generatorze, panelu, testach i dokumentach; Aneks A (wiersz ryzyka na paczkę); skan pomija `.claude/relai/work` i `evals` skilla; dogfooding: Z1 (`zod` w filmie) |
 | E2 | Hook lockfile-scan | ZREALIZOWANY 2026-10-24 | [PROMPT_ETAP_2.md](PROMPT_ETAP_2.md) | 13. hook RelAI z bramką projektu RelAI (`run(input)` w `lockfile-hook.mjs`, zgoda Łukasza); aneks D-40 „13”; wpis z `~/.claude/settings.json` usunięty; README do E6 |
-| E3 | Punkty procesu i nowa decyzja | GOTOWY DO STARTU | [PROMPT_ETAP_3.md](PROMPT_ETAP_3.md) | wymaga zgody człowieka na nową decyzję w `DECYZJE.md` |
-| E4 | security-audit od Cloudflare | OCZEKUJE | — | przegląd wg `SPEC_PRZYJECIE_KODU.md` przed kopiowaniem |
+| E3 | Punkty procesu i nowa decyzja | ZREALIZOWANY 2026-10-24 | [PROMPT_ETAP_3.md](PROMPT_ETAP_3.md) | D-91 po „tak” Łukasza; Trivy pierwszy w SPEC_PROMPT_ETAPU, done-check, first-deploy, session-close, plan-closing; numeracja kroków bez zmian |
+| E4 | security-audit od Cloudflare | GOTOWY DO STARTU | [PROMPT_ETAP_4.md](PROMPT_ETAP_4.md) | przegląd wg `SPEC_PRZYJECIE_KODU.md` przed kopiowaniem |
 | E5 | Codex i Cursor | OCZEKUJE | — | generator i instalator kopiują dziś tylko `.md` |
 | E6 | Wydanie 3.3.0 | OCZEKUJE | — | publikacja po osobnej zgodzie |
 
 ## Bramki manualne
 
-- **Zgoda na nową decyzję w `DECYZJE.md`** (Trivy jako pierwsze narzędzie audytu zależności, komendy ekosystemu jako zapas — zastępuje dopisek „nie własny skaner” w `SPEC_PROMPT_ETAPU.md`) · blokuje: E3 · źródło: [wpis z 2026-10-23](../../DZIENNIK.md) · **OTWARTA**
+- **Zgoda na nową decyzję w `DECYZJE.md`** (Trivy jako pierwsze narzędzie audytu zależności, komendy ekosystemu jako zapas — zastępuje dopisek „nie własny skaner” w `SPEC_PROMPT_ETAPU.md`) · blokuje: E3 · źródło: [wpis z 2026-10-23](../../DZIENNIK.md) · **ROZSTRZYGNIĘTA 2026-10-24 — D-91**
 - **Usunięcie wpisu hooka z `~/.claude/settings.json`** · blokuje: zamknięcie E2 · **ROZSTRZYGNIĘTA 2026-10-24 — wpis usunięty po „tak” Łukasza, kopia w `Backupy\RelAI\settings.json.przed-E2-2026-10-24`**
 - **Usunięcie kopii `trivy-scan` i `security-audit` z `~/.claude/skills/`** · blokuje: zamknięcie E6 · **OTWARTA**
 - **Publikacja wydania 3.3.0** · blokuje: zamknięcie E6 · **OTWARTA**
@@ -27,3 +27,5 @@
 - 2026-10-24 — E1 zrealizowany: skill `trivy-scan` i `/relai-security` w pluginie, 16 komend w panelu, Codeksie i dokumentach; Aneks A (wiersz ryzyka na paczkę + plik blokady); walidator spójny, testy 216 + 199 + 15 zielone; dogfooding dał Z1; E2 gotowy do startu, wygenerowany `PROMPT_ETAP_2.md`.
 - 2026-10-24 — E2 rozpoczęty
 - 2026-10-24 — E2 zrealizowany: hook `lockfile-scan` w pluginie (13. hook, cisza poza projektem RelAI), test 7 przypadków, liczniki 13, aneks D-40; walidator spójny, testy 206 + 216 + 15 zielone; dogfooding w świeżej sesji: notka przy pliku blokady, cisza przy README; E3 gotowy do startu, wygenerowany `PROMPT_ETAP_3.md`.
+- 2026-10-24 — E3 rozpoczęty
+- 2026-10-24 — E3 zrealizowany: D-91 (bramka rozstrzygnięta), pięć dokumentów procesu z Trivy jako pierwszym narzędziem i kopie Codeksa; walidator spójny, testy 206 + 216 + 15 zielone; dogfooding z Trivy (HIGH 16) i bez (`trivy not found` → `npm audit`); E4 gotowy do startu, wygenerowany `PROMPT_ETAP_4.md`.

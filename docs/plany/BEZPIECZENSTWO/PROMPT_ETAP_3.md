@@ -364,16 +364,16 @@ docs/DECYZJE.md                          ostatnia decyzja D-90; tu dochodzi nowa
 
 Każdy punkt Weryfikacji, który przeszedł, odhaczasz w `PROMPT_ETAP_3.md` (`- [ ]` → `- [x]`) zaraz po jego sprawdzeniu, nie na końcu etapu; punkt, który nie przeszedł, zostaje pusty.
 
-- [ ] Bramka: „tak” człowieka przed pierwszą zmianą; D-91 w `DECYZJE.md` z datą, rozstrzygnięciem, powodem i zdaniem o zgodzie; bramka w `STATUS.md` → `ROZSTRZYGNIĘTA <data>`.
-- [ ] `node core/tools/validate-adapters.js` kończy się „spojne”; linia parytetu skilli Codeksa: 0 rozjazdów.
-- [ ] `node --test core/process/tests/*.test.js`, `node --test core/panel/tests/*.test.js`, `node --test adapters/codex/tests/*.test.js` — zielone.
-- [ ] Rodzina dokumentów (zasada 1): `LC_ALL=C.UTF-8 grep -rn "własny skaner" core/templates adapters docs/PRZEWODNIK.md` nie zwraca nic, a `grep -rn -i "trivy" ` po pięciu zmienionych plikach źródłowych trafia w każdym; kontrola pozytywna pierwszego wzorca na `git show HEAD:core/templates/SPEC_PROMPT_ETAPU.md` trafia.
-- [ ] Dowód negatywny numeracji: nagłówki kroków (`^[0-9]+\.`) w `session-close.md` (1–6) i `plan-closing.md` (1–9) oraz lista kontrolna z l. 12 `plan-closing.md` mają te same numery i tytuły co w `git show HEAD:…` — porównanie skryptem, wynik do wpisu; sekcja 9 `SPEC_PROMPT_ETAPU.md` identyczna z HEAD.
-- [ ] Dogfooding z punktu 8 zakresu: przebieg z Trivy daje liczby według wagi; przebieg z symulacją braku Trivy daje `trivy not found`, a tekst `done-check` kieruje na komendę ekosystemu — oba wyniki we wpisie.
-- [ ] Granica zakresu: `git diff --stat` nie obejmuje `README.md`, `.claude-plugin/plugin.json` (nadal 3.2.0), `adapters/claude-code/skills/trivy-scan/`, `adapters/claude-code/hooks/`, `adapters/cursor/`; żaden zmieniony tekst nie obiecuje `--full` ani `security-audit` (`grep -n "\-\-full\|security-audit"` po zmienionych plikach pusty).
-- [ ] `/relai-security` na repozytorium RelAI: zero nowych CRITICAL/HIGH wobec E2 (Z1 bez zmian albo zamknięty decyzją człowieka); wynik do wpisu.
-- [ ] Wpis w `docs/DZIENNIK.md` na końcu sekcji „Wpisy”, z pomiarami i podpisem z członem użytkownika.
-- [ ] Katalog roboczy `.claude/relai/work/BEZPIECZENSTWO/E3/` przejrzany raportem (`node .claude/relai/tools/clean-work.js raport`) i skasowany po „tak”, liczby przed i po we wpisie dziennika; artefakty spoza katalogu (`%TEMP%/relai-e3-*`, `%TEMP%/trivy-scan-hook-*` z tego etapu) wypisane we wpisie z nazwy razem z tym, co się z nimi stało.
+- [x] Bramka: „tak” człowieka przed pierwszą zmianą; D-91 w `DECYZJE.md` z datą, rozstrzygnięciem, powodem i zdaniem o zgodzie; bramka w `STATUS.md` → `ROZSTRZYGNIĘTA <data>`.
+- [x] `node core/tools/validate-adapters.js` kończy się „spojne”; linia parytetu skilli Codeksa: 0 rozjazdów.
+- [x] `node --test core/process/tests/*.test.js`, `node --test core/panel/tests/*.test.js`, `node --test adapters/codex/tests/*.test.js` — zielone.
+- [x] Rodzina dokumentów (zasada 1): `LC_ALL=C.UTF-8 grep -rn "własny skaner" core/templates adapters docs/PRZEWODNIK.md` nie zwraca nic, a `grep -rn -i "trivy" ` po pięciu zmienionych plikach źródłowych trafia w każdym; kontrola pozytywna pierwszego wzorca na `git show HEAD:core/templates/SPEC_PROMPT_ETAPU.md` trafia.
+- [x] Dowód negatywny numeracji: nagłówki kroków (`^[0-9]+\.`) w `session-close.md` (1–6) i `plan-closing.md` (1–9) oraz lista kontrolna z l. 12 `plan-closing.md` mają te same numery i tytuły co w `git show HEAD:…` — porównanie skryptem, wynik do wpisu; sekcja 9 `SPEC_PROMPT_ETAPU.md` identyczna z HEAD.
+- [x] Dogfooding z punktu 8 zakresu: przebieg z Trivy daje liczby według wagi; przebieg z symulacją braku Trivy daje `trivy not found`, a tekst `done-check` kieruje na komendę ekosystemu — oba wyniki we wpisie.
+- [x] Granica zakresu: `git diff --stat` nie obejmuje `README.md`, `.claude-plugin/plugin.json` (nadal 3.2.0), `adapters/claude-code/skills/trivy-scan/`, `adapters/claude-code/hooks/`, `adapters/cursor/`; żaden zmieniony tekst nie obiecuje `--full` ani `security-audit` (`grep -n "\-\-full\|security-audit"` po zmienionych plikach pusty).
+- [x] `/relai-security` na repozytorium RelAI: zero nowych CRITICAL/HIGH wobec E2 (Z1 bez zmian albo zamknięty decyzją człowieka); wynik do wpisu.
+- [x] Wpis w `docs/DZIENNIK.md` na końcu sekcji „Wpisy”, z pomiarami i podpisem z członem użytkownika.
+- [x] Katalog roboczy `.claude/relai/work/BEZPIECZENSTWO/E3/` przejrzany raportem (`node .claude/relai/tools/clean-work.js raport`) i skasowany po „tak”, liczby przed i po we wpisie dziennika; artefakty spoza katalogu (`%TEMP%/relai-e3-*`, `%TEMP%/trivy-scan-hook-*` z tego etapu) wypisane we wpisie z nazwy razem z tym, co się z nimi stało.
 
 ## Na koniec (rytuał obowiązkowy — bez tego rytuału etap nie jest ukończony)
 

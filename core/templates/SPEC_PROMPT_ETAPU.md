@@ -157,15 +157,18 @@ Zasady:
 - Sprawdzenie zachowania typu „tego nie wolno" wymaga **dowodu negatywnego**: pokaż, że chroniony
   fragment ma nadal pierwotne brzmienie, nie tylko że nowy artefakt powstał.
 - **Bezpieczeństwo — gdy etap dotyka kodu z zależnościami albo wejściem od użytkownika**
-  (D-80: wskazanie komendy ekosystemu, nie własny skaner). Taki prompt dostaje dwa punkty:
-  - **audyt zależności** komendą wykrytą z plików projektu, z wynikiem do wpisu dziennika:
-    `package.json` → `npm audit --omit=dev` (albo `pnpm audit` / `yarn npm audit` przy ich pliku
-    blokady), `requirements.txt` / `pyproject.toml` → `pip-audit`, `Gemfile.lock` →
-    `bundle audit`, `go.mod` → `govulncheck ./...`, `Cargo.lock` → `cargo audit`,
-    `composer.lock` → `composer audit`. Kryterium: zero podatności **wysokich i krytycznych**
-    wprowadzonych w tym etapie; zastane idą do wpisu jako ryzyko, nie blokują. Narzędzia audytu
-    nie ma na maszynie → punkt zostaje, opisany z **warunkiem wykonalności** (co zainstalować
-    i gdzie da się go wykonać), nigdy pominięty;
+  (D-91: Trivy pierwszy, komenda ekosystemu zapasem). Taki prompt dostaje dwa punkty:
+  - **audyt zależności** skanem Trivy ze skilla `trivy-scan` — `/relai-security` albo
+    `scan.mjs --path <korzeń projektu> --json` — z liczbami według wagi do wpisu dziennika.
+    Kryterium: zero nowych **CRITICAL i HIGH** wprowadzonych w tym etapie; zastane idą do tabeli
+    ryzyk w sposób, w jaki wpisuje je `/relai-security`, i nie blokują. **Zapas**, gdy Trivy nie
+    ma na maszynie, jego baza się nie pobierze albo skilla nie ma w narzędziu: komenda ekosystemu
+    wykryta z plików projektu, z tym samym kryterium — `package.json` → `npm audit --omit=dev`
+    (albo `pnpm audit` / `yarn npm audit` przy ich pliku blokady), `requirements.txt` /
+    `pyproject.toml` → `pip-audit`, `Gemfile.lock` → `bundle audit`, `go.mod` →
+    `govulncheck ./...`, `Cargo.lock` → `cargo audit`, `composer.lock` → `composer audit`.
+    Punkt zapasu stoi w prompcie z **warunkiem wykonalności** (co zainstalować i gdzie da się
+    go wykonać), nigdy pominięty;
   - **podstawy** (najczęstsze pozycje OWASP Top 10) sprawdzane na zmianie tego etapu, każda z dowodem: wejście od użytkownika
     walidowane, zanim cokolwiek zapisze; zapytania do bazy parametryzowane, bez sklejania tekstu;
     sekrety wyłącznie w zmiennych środowiskowych, `git grep` po wzorcu klucza nie zwraca nic;
@@ -329,8 +332,9 @@ zaraz po jego sprawdzeniu, nie na końcu etapu; punkt, który nie przeszedł, zo
 - [ ] Webhook z podpisem podmienionym na losowy → HTTP 400, brak zmiany w bazie.
 - [ ] Zdarzenie dla zamówienia wygasłego → HTTP 200, status pozostaje `wygaslo` (dowód: odczyt
       statusu przed i po).
-- [ ] `npm audit --omit=dev` — zero podatności wysokich i krytycznych wprowadzonych w tym etapie
-      (liczby przed i po do wpisu; zastane idą do tabeli ryzyk).
+- [ ] `/relai-security` (skan Trivy) — zero nowych CRITICAL i HIGH wprowadzonych w tym etapie
+      (liczby według wagi przed i po do wpisu; zastane idą do tabeli ryzyk). Trivy brak →
+      `npm audit --omit=dev` z tym samym kryterium (D-91).
 - [ ] Podstawy na zmianie etapu: payload webhooka walidowany schematem przed zapisem (test ze
       złym kształtem → HTTP 400); zapytania przez Prismę, zero `$queryRawUnsafe`;
       `git grep -nE "sk_(test|live)_"` nie zwraca nic w plikach śledzonych; endpoint webhooka nie

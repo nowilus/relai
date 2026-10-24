@@ -41,8 +41,12 @@ inaczej, niż zakładałeś, zostaje po nim wpis do wycofania.
 4. **Wpis zamykający w `DZIENNIK.md`** — sekcja „Zrobione" mówi **dowiezione vs plan**: co miało
    powstać, co powstało, co przepadło. Bez tego porównania wpis jest niepełny.
 5. **`STATUS.md`** — status planu → `ZREALIZOWANY <data>`, wszystkie etapy domknięte.
-6. **Ryzyka** — przejrzyj tabelę „Stan otwartych ryzyk": ryzyka związane z planem zamknij z datą,
-   nowe (jeśli praca je ujawniła) dopisz.
+6. **Ryzyka** — projekt ma plik blokady → **przed** przeglądem tabeli skan zależności Trivy ze
+   skilla `trivy-scan` (`/relai-security`), który wpisuje nowe CRITICAL/HIGH i zamyka wiersze,
+   których skan już nie widzi (D-91); Trivy brak (`trivy not found`) → komenda ekosystemu
+   (`npm audit --omit=dev`, `pip-audit`…) i jej wynik w podsumowaniu. Potem przejrzyj tabelę
+   „Stan otwartych ryzyk": ryzyka związane z planem zamknij z datą, nowe (jeśli praca je
+   ujawniła) dopisz.
 7. **Archiwum** — przenieś `docs/plany/<TEMAT>/` do `docs/archiwum/plany/<TEMAT>/`. Zawartość bez
    zmian; przeniesienie, nie kasowanie.
 8. **`CLAUDE.md`** — linia aktywnego planu. **Warunek twardy: kiedy kończysz turę, linia wskazuje
