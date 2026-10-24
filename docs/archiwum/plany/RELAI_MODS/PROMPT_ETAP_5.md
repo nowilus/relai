@@ -385,15 +385,15 @@ kodem 0 i skanuje 159 plików kodu bez `mods` (FAKT).
 
 Każdy punkt Weryfikacji, który przeszedł, odhaczasz w `PROMPT_ETAP_5.md` (`- [ ]` → `- [x]`) zaraz po jego sprawdzeniu, nie na końcu etapu; punkt, który nie przeszedł, zostaje pusty.
 
-- [ ] Trzy bramki E5 w `STATUS.md` mają status `ROZSTRZYGNIĘTA <data> — <jak>` (wersja i etykieta, termin, zgoda na publikację), a decyzja o ikonie stoi we wpisie dziennika.
+- [x] Trzy bramki E5 w `STATUS.md` mają status `ROZSTRZYGNIĘTA <data> — <jak>` (wersja i etykieta, termin, zgoda na publikację), a decyzja o ikonie stoi we wpisie dziennika.
 - [x] `"$CLAUDE_CODE_EXECPATH" plugin validate mods` — bez błędów; `"$CLAUDE_CODE_EXECPATH" plugin test mods` — wszystkie zielone, liczba we wpisie (przed: 66); `plugin.json` i wpis w marketplace mają tę samą wersję.
 - [x] `node --test core/panel/tests/*.test.js` (w tym `phrases.test.js` i `sync.test.js`) zielone, liczba we wpisie; `node core/tools/sync-panel-core.js --check` zgodne.
 - [x] `node core/tools/validate-adapters.js` kończy się kodem 0, a wiersz „wywolania sieciowe: N plikow kodu” ma N większe niż przed etapem (FAKT przed: 159) i „0 poza lista”; kontrola pozytywna `node --test core/process/tests/network-calls.test.js` zielona, a podłożony import `https` w kopii pliku moda trafia (instrument sprawdzony, zanim orzekniesz ciszę).
 - [x] Testy strony `node --test site/narzedzia/*.test.mjs site/js/*.test.mjs` zielone po zmianie `fakty.json` (FAKT przed: `fakty.test.mjs` i `wersja.test.mjs` 27 pass mimo `relai-progress` 0.5.0 w `fakty.json` przy 0.6.0 w marketplace — test rozjazdu nie widzi); rozjazd rozstrzygnięty albo zapisany jako świadomie odłożony z powodem.
-- [ ] Na żywo po instalacji z marketplace: wersja z `~/.claude/plugins/installed_plugins.json` równa wydanej; wiersz `relai-mods@relai` z kłódką „ten kokpit”, bez przycisku przełącznika, komenda wyłączenia w szczegółach; zrzut w zasobach.
-- [ ] Tag `relai-mods-v0.1.0` wskazuje commit wydania (`git rev-parse`), push wykonany po „tak”; bez zgody punkt zostaje pusty, a etap czeka.
-- [ ] Wpis w `docs/DZIENNIK.md` na końcu sekcji „Wpisy”, z podpisem z członem użytkownika.
-- [ ] Katalog roboczy `.claude/relai/work/RELAI_MODS/E5/` przejrzany raportem (`node .claude/relai/tools/clean-work.js raport`) i skasowany po „tak”, liczby przed i po we wpisie dziennika. Artefakty spoza katalogu wypisane we wpisie z nazwy razem z tym, co się z nimi stało, w tym kopia moda w `~/.claude/dev-mods/` sesji E4 i plik magazynu `~/.claude/plugins/store/relai-mods_*.json`, jeśli powstał.
+- [x] Na żywo po instalacji z marketplace: wersja z `~/.claude/plugins/installed_plugins.json` równa wydanej; wiersz `relai-mods@relai` z kłódką „ten kokpit”, bez przycisku przełącznika, komenda wyłączenia w szczegółach; zrzut w zasobach.
+- [x] Tag `relai-mods-v0.1.0` wskazuje commit wydania (`git rev-parse`), push wykonany po „tak”; bez zgody punkt zostaje pusty, a etap czeka.
+- [x] Wpis w `docs/DZIENNIK.md` na końcu sekcji „Wpisy”, z podpisem z członem użytkownika.
+- [x] Katalog roboczy `.claude/relai/work/RELAI_MODS/E5/` przejrzany raportem (`node .claude/relai/tools/clean-work.js raport`) i skasowany po „tak”, liczby przed i po we wpisie dziennika. Artefakty spoza katalogu wypisane we wpisie z nazwy razem z tym, co się z nimi stało, w tym kopia moda w `~/.claude/dev-mods/` sesji E4 i plik magazynu `~/.claude/plugins/store/relai-mods_*.json`, jeśli powstał.
 
 ## Na koniec (rytuał obowiązkowy — bez tego rytuału etap nie jest ukończony)
 

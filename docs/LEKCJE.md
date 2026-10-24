@@ -158,7 +158,9 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
     deklaracja stanu, także w komendach i skillach). Niewydane mierzysz artefaktem podłożonym
     lokalnie pod **inną nazwą**; cały plugin — `--plugin-dir` z wyłączoną instalacją i ścieżką
     w `init`. Wydanie zestawia zmiany artefaktów z `ARTEFAKTY.md` i `git ls-files` z listą
-    generowanych (L-0161). (L-0004, L-0008, L-0020, L-0061, L-0085, L-0118, L-0161)
+    generowanych (L-0161). Pomiar „instalacji z marketplace” stoi po bramce publikacji, gdy
+    `claude plugin marketplace list` pokazuje źródło GitHub; słowo z liczbą ma test form
+    1 / 2–4 / 5 / 12 / 22 (L-0260). (L-0004, L-0008, L-0020, L-0061, L-0085, L-0118, L-0161, L-0260)
 11. **Końce linii, kolejność wpisów, numeracja nagłówków i stan dokumentu wobec specyfikacji to
     warianty.** Sumy po CRLF → LF, bez kotwicy końca w regexie linii, oba warianty w jednym
     przebiegu; kierunek z danych; nagłówek z tolerancją na `## 2.`, `**…**`, liczbę `#`, a kształt,
@@ -629,6 +631,20 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
   inwersja tła. Skrypty PowerShell leżą w `%TEMP%` z prefiksem slugu. Każdą nazwę zmiennej
   w PowerShellu traktujesz jako bez wielkości liter. Panel nad promptem dostaje klawiaturę po
   drugim `ctrl+x tab` (P-053), a pierścień sprawdzasz przed każdym Enterem (L-0257).
+
+### L-0260 — Instalacja z marketplace przed publikacją: kolejność promptu niewykonalna · 2026-10-24 · AKTYWNA
+
+- **Trigger:** prompt E5 planu RELAI_MODS kazał najpierw zmierzyć instalację z marketplace (punkt 7),
+  a dopiero potem pytać o tag i push (punkt 8). Marketplace `relai` na maszynie Łukasza czyta
+  z GitHuba (`nowilus/relai`), więc przed pushem `claude plugin install relai-mods@relai` nie
+  znalazłby pluginu. Ten sam pomiar ujawnił dwie usterki kokpitu („2 zdarzeń”, „0 komend · bez
+  hooków” przy modzie), których 66 testów nie widziało. Trzeba było więc wydać 0.1.1 tego samego
+  dnia.
+- **Zasada:** zanim prompt wydania każe mierzyć „instalację z marketplace”, autor sprawdza źródło
+  marketplace (`claude plugin marketplace list`). Przy źródle GitHub pomiar stoi **po** bramce
+  publikacji, a prompt to mówi. Tańszy pomiar wiersza przed publikacją idzie artefaktem
+  podłożonym lokalnie (`--plugin-dir`, zasada 10). Słowo z liczbą w interfejsie dostaje test
+  form 1 / 2–4 / 5 / 12 / 22, a nie tylko jednej liczby.
 
 ## Lekcje zwinięte
 

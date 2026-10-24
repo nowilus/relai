@@ -1,13 +1,14 @@
 # STATE — RelAI
 
-Stan na: 2026-10-24 (RELAI_MODS E4 zrealizowany — kokpit w terminalu, w wąskim panelu i w dwóch czatach, E5 wydanie gotowe do startu; wątek AGENTS_KRABY zamknięty — panel „RelAI Agents” z postaciami ról, `relai-progress` 0.6.0 wydany, tag `relai-progress-v0.6.0`; wątek MOBILNA_STRONA zamknięty — obie wersje strony przyjęte na iPhonie, ankieta na cztery warianty z danymi o urządzeniu; wątek BIURKO_PLAKAT zamknięty — Biurko bez sceny 3D jako odbitki biurka; plan STRONA_RELAI ZREALIZOWANY 2026-10-18 — strona opublikowana na https://nowilus.github.io/relai/ w dwóch wersjach, Film i Biurko, z ankietą w Tally, poprawka Aneksu E wdrożona 2026-10-19; WYGLAD_PANELU zamknięty 2026-10-15)
+Stan na: 2026-10-24 (plan RELAI_MODS ZREALIZOWANY — kokpit `/relai-mods` wydany jako `relai-mods` 0.1.0 i 0.1.1 w marketplace, tagi `relai-mods-v0.1.0` i `relai-mods-v0.1.1`; wątek AGENTS_KRABY zamknięty — panel „RelAI Agents” z postaciami ról, `relai-progress` 0.6.0 wydany, tag `relai-progress-v0.6.0`; wątek MOBILNA_STRONA zamknięty — obie wersje strony przyjęte na iPhonie, ankieta na cztery warianty z danymi o urządzeniu; wątek BIURKO_PLAKAT zamknięty — Biurko bez sceny 3D jako odbitki biurka; plan STRONA_RELAI ZREALIZOWANY 2026-10-18 — strona opublikowana na https://nowilus.github.io/relai/ w dwóch wersjach, Film i Biurko, z ankietą w Tally, poprawka Aneksu E wdrożona 2026-10-19; WYGLAD_PANELU zamknięty 2026-10-15)
 
 ## Gdzie jesteśmy
 
 RelAI **3.2.0** jest w repozytorium i publicznie (tag `v3.2.0`, 2026-10-15: pełna karta startu
 `/relai-stage`; wcześniej 3.1.0 z humanizacją tekstu). Plugin `relai` działa
 w trzech narzędziach — Claude Code, Cursorze i Codeksie — na jednym rdzeniu procesu, z piętnastoma
-komendami. Panel RelAI w oknie Claude Code to trzy osobne pluginy „early access” z marketplace tego
+komendami. W marketplace tego repozytorium jest czwarty mod, `relai-mods` 0.1.1 — kokpit pluginów
+i hooków (plan RELAI_MODS, zamknięty 2026-10-24). Panel RelAI w oknie Claude Code to trzy osobne pluginy „early access” z marketplace tego
 repozytorium: `relai-panel` 0.20.0, `relai-progress` 0.6.0 (panel „RelAI Agents”, odnoga AGENTS_KRABY, tag `relai-progress-v0.6.0`, 2026-10-23), `relai-cache-keeper` 0.11.0 (tag
 `relai-panel-v0.20.0`, 2026-10-15: sekcja „Teraz”, baterie w siatce, wiersz kontekstu z progiem
 auto-compactu; wcześniej `relai-panel-v0.19.0`: paski i panel same za jasnym i ciemnym wyglądem aplikacji, pasek
@@ -114,7 +115,17 @@ po E5 (wydanie panelu 0.20.0 / 0.11.0); HUMANIZACJA zamknięty 2026-10-14 wydani
   od pierwszej fiszki) i przyciskiem „Jak zacząć”; Biurko 3D z krokiem przystanek na swipe,
   znacznikami „Zajrzyj” i ostatnim ekranem pod paskiem; link z kotwicą trafia na przystanek. Ankiety
   `BE4lQ5`/`X5lkMj` oceniają cztery warianty, link ze strony dopisuje urządzenie, ekran,
-  przeglądarkę, system, czas ładowania i tryb (`site/js/ankieta.js`). Testy 368.
+  przeglądarkę, system, czas ładowania i tryb (`site/js/ankieta.js`). Testy 370 (2026-10-24:
+  test pilnuje też, żeby `site/dane/fakty.json` był tym, co dziś pisze generator).
+- **Kokpit pluginów i hooków** (plan [RELAI_MODS](archiwum/plany/RELAI_MODS/STATUS.md), zamknięty
+  2026-10-24, 5 etapów, Aneksy A–E): czwarty mod `relai-mods` 0.1.1 w marketplace (tagi
+  `relai-mods-v0.1.0`, `relai-mods-v0.1.1`, bez etykiety „early access”). `/relai-mods` pokazuje
+  mody, pluginy i hooki z `settings.json` tej maszyny, czytane z dysku, w akordeonie w grupach
+  z nagłówkami Kalam. Przełącznik woła `claude plugin enable/disable` z PATH, jedno wywołanie naraz,
+  z kłódką dla hooków, polityki i samego kokpitu. Przeładuj działa z przycisku w terminalu, a na
+  desktopie prosi o wpisanie `/reload-plugins` (P-052, P-053). Kokpit działa w wąskim panelu
+  (próg 46 kolumn), w terminalu z klawiatury i w dwóch czatach naraz (odświeżanie co 5 s). Nie pisze do plików
+  ustawień. 68 testów; wiersz `relai-mods@relai` zmierzony na żywo po instalacji z marketplace.
 
 ## Nad czym pracujemy teraz
 
@@ -124,30 +135,6 @@ po E5 (wydanie panelu 0.20.0 / 0.11.0); HUMANIZACJA zamknięty 2026-10-14 wydani
   (`security-audit`, MIT) wbudowane w plugin — komenda `/relai-security`, 13. hook po zmianie
   lockfile, prompty etapów, `done-check`, `first-deploy`, zamknięcie sesji i planu; ryzyka do
   dziennika, raporty w `.security/`. Linia „Aktywny plan” w `CLAUDE.md` zostaje przy PANEL_CODEX.
-- **RELAI_MODS — E4 zrealizowany 2026-10-24, E5 (wydanie 0.1.0) gotowy do startu** (plan
-  [RELAI_MODS](plany/RELAI_MODS/STATUS.md), 5 etapów, wykonanie Opus w Claude Code, Aneksy A–D). Po co: czwarty mod `relai-mods` — kokpit wszystkich
-  pluginów i hooków z `settings.json` (wariant C makiety), przełączanie przez
-  `claude plugin disable/enable`, jedno Przeładuj, jasny i ciemny wygląd, desktop i terminal.
-  Szkielet `mods/` 0.0.1 jest w repo (niewydany). Spike E1: CLI z moda działa i jest zalogowane
-  (~0,7 s), `cwd` działa, a przeładowanie z moda na desktopie nie działa, więc obowiązuje plan B
-  „wpisz /reload-plugins” (P-052). E2: panel pokazuje pełny inwentarz z plików — 14 pluginów
-  (4 mody) i 7 hooków własnych z liczbami skilli, agentów, komend, MCP i zdarzeń, 28 testów
-  na fixturach. E3: kokpit przełącza pluginy z panelu. Po dwóch rundach wyglądu to akordeon
-  w grupach Mody / Pluginy / Hooki z nagłówkami Kalam i licznikami (Aneks D). Każdy wiersz ma
-  przełącznik — rysunek i słowo (Aneks C), CLI wołane jest jedno naraz. Pasek „N zmian czeka”
-  znika po wpisanym `/reload-plugins`, bo stan „załadowany” to migawka plików odświeżana przy
-  `plugin.register` innych modów (P-053). Kopia rdzenia panelu jest w `mods/hooks/core` (Aneks B),
-  wygląd przyjęty w obu wyglądach. E4:
-  - poniżej 46 kolumn przełącznik schodzi pod nazwę wiersza w całym panelu (próg z testu modelu
-    CSS, zmierzony na żywo w wąskim panelu);
-  - terminal przy 80 kolumnach ma glify w kolorze stanu i sterowanie z klawiatury (dwa
-    `ctrl+x tab`), a Przeładuj przeładowuje tam naprawdę, więc plan B zostaje tylko na desktopie;
-  - otwarty panel co 5 s czyta dysk, więc zmiana z drugiego czatu pokazuje się jako czekająca;
-  - kliknięcie niesie stan docelowy;
-  - 66 testów.
-
-  E5: wydanie `relai-mods` 0.1.0 po trzech bramkach człowieka. Linia „Aktywny plan” zostaje przy
-  PANEL_CODEX.
 - **PANEL_CODEX, E1 — przejęcie rdzenia i natywny panel w Codeksie** (plan
   [PANEL_CODEX](plany/PANEL_CODEX/STATUS.md), ZAAKCEPTOWANY 2026-10-10, 8 etapów, autor
   i wykonawca `gpt-6.1-sol` w Codeksie, Aneks A — 16 pól kontraktu — zaakceptowany). Po co: ten sam

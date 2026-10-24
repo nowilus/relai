@@ -27,7 +27,7 @@
 | H9 | Tryb ciągły „dokumenty” nie widzi zapisu, którego nie rozpozna — `sed -i`, skrypt, podproces, `>(tee …)` — i dokument zostaje bez humanizacji (plan HUMANIZACJA, pomiar E5) | **Niski** (2026-10-14, przy zamknięciu planu) | **OTWARTE ŚWIADOMIE** | Aneks C: hook po Write/Edit i po Bash z przekierowaniem `>` / `>>` albo `tee`; w pomiarze E5 model pisał wyłącznie tymi drogami (8/8 przed poprawką, 2/2 po niej z regułą). Pominięcie kończy się ciszą, nigdy złą regułą; komenda `/relai-humanize` na pliku działa niezależnie od trybu ciągłego. |
 | T1 | Scena 3D strony tnie się na słabszym laptopie albo zintegrowanej grafice (plan STRONA_RELAI, ryzyko 1) | **Średni** (2026-10-18 po E6; wcześniej wysoki) | **OTWARTE** | E1: render na żądanie, DPR ≤ 1,5, obniżenie jakości przy medianie > 26 ms. E2 (scena CC0, AO, głębia ostrości): przy CPU ×4 mediana 11,1 ms, p95 16,7 ms, 913 wywołań rysowania na klatkę po scaleniu miasta (przed: 2206, p95 22,3 ms); obniżanie jakości zaczyna od głębi ostrości. E3 (poświata ekranu RectAreaLight, nowe książki): przy CPU ×4 przewijanie mediana 11,9 ms, p95 22,2 ms — p95 wzrosło o 5,5 ms, zapas do 26 ms już tylko 3,8 ms; przybliżanie p95 13,1 ms; najwięcej 907 wywołań rysowania na klatkę. Zmierzone tylko na RTX 4070 Ti. E4 (bez path tracingu, przygaszona lampa, lakier blatu): CPU ×4 mediana 11,3 ms, p95 17,5 ms, najwięcej 910 wywołań rysowania. Otwarte: słaba grafika w E7. E5 (Film, bez WebGL): przy CPU ×4 mediana 5,6 ms, p95 5,6 ms, najdłuższa klatka 28,7 ms, więc Filmu ryzyko nie dotyczy. Aneks D: Biurko też idzie do publikacji, dlatego poziom zostaje wysoki do pomiaru na słabej grafice w E6. E7 (Film z animacjami WAAPI i przytrzymaniem): CPU ×4 mediana 11,1 ms, p95 16,7 ms na desktopie i w emulacji telefonu — Filmu nadal nie dotyczy; poziom bez zmiany przez Biurko. E6: SwiftShader (grafika programowa) 1366 × 768 mediana 1 700 → 1 183 → 817 ms po krokach obniżania, 390 × 844 1 033 → 867 → 433 → 283 ms; wyłącznik `biurko/grafika.js` daje takiej przeglądarce plakat (werdykt Łukasza 3A), brak WebGL2 i ograniczony ruch też. RTX przy CPU ×4: p95 przewijania 20,6–25,2 ms desktop, 15,4–16,3 ms telefon. Otwarte: zintegrowana karta niezmierzona (bramka „pomiar na słabszym laptopie”); drugi bezpiecznik (plakat po wyczerpaniu kroków jakości, opcja 3B) świadomie niewdrożony. E8 (2026-10-18): Biurko opublikowane pod `/biurko/` bez zmian w scenie; plan STRONA_RELAI zamknięty, bramka „pomiar na słabszym laptopie” świadomie otwarta poza planem (`docs/STATE.md`, „Co dalej”). |
 | T2 | Biurko wygląda jak tani render albo glina z AI (plan STRONA_RELAI, ryzyko 2) | **Średni** (2026-10-18 po E6; wcześniej wysoki) | **OTWARTE** | E2: modele i tekstury CC0, deski orzechowe ze słojami, miasto za oknem, kubek i tablica od nowa; kalibracja w czterech rundach, zamknięcie za zgodą Łukasza, ale „nadal jesteśmy całkiem daleko” od obrazów 01–08 — przyczyna: brak światła odbitego w rasteryzacji (L-0220). Aneks B: E3 laptop i detale, E4 path tracing na przystankach. E4 (2026-10-16): światło odbite nie dało uzysku — przyczyną dystansu jest detal przedmiotów, tekstur i kompozycja, nie światło (L-0226); test detalu (blat `wood_table_worn`, druk na dokumentach, ciemniej) dał umiarkowany zysk. Aneks C: następny jest Film, Biurko po bramce. E5: Film rysowany kodem, hero przyjęte w trzeciej rundzie („Tak, przyjmuję”). Bramka z Aneksem D: najpierw dopieszczenie Filmu (E7), potem pełna droga Biurka (E6), publikacja obu z ankietą. Dla Biurka ryzyko zostaje wysokie. E7: Film dopieszczony i przyjęty akt po akcie („Tak, przyjmuję”), dotyczy już tylko Biurka (E6). E6: każdy przystanek, szczyt, mapa, szuflady, telefon, zasłona i plakat przyjęte przez Łukasza na kadrach przed i po; kontrola odczuć zgodna z krzywą briefu (4A). Otwarte do ankiety po publikacji (E8): czy odwiedzający odbierają Biurko jako dopracowane. E8 (2026-10-18): obie wersje opublikowane, ankieta w Tally zbiera głosy z ukrytym polem `wersja`; ryzyko zostaje otwarte do odczytu ankiety, który jest poza planem (`docs/STATE.md`). |
-| RM1 | Przełącznik `relai-mods` stoi na CLI `claude plugin` wołanym z moda: inna binarka niż silnik aplikacji, inne logowanie albo brak przeładowania z moda (plan RELAI_MODS, ryzyko R1) | **Średni** (2026-10-23 po E1) | **ZMIERZONE 2026-10-23 (E1, P-052), OTWARTE** | Wynik spike'u na desktopie: CLI z moda działa, jest zalogowane i zapisuje w ~0,7 s. Mod uruchamia jednak `claude` z PATH (2.1.304), a nie binarkę silnika (2.1.308), bo nie widzi `CLAUDE_CODE_EXECPATH`. Przeładowania z moda nie ma ani przez `$.command.run`, ani przez `$.prompt.submit`, więc działa plan B „wpisz /reload-plugins”. `enable` przyjmuje każde `x@y` i zapisuje je, dlatego id biorę wyłącznie z `installed_plugins.json`. Terminal mierzy E4. **E3 (2026-10-23):** `claude` z PATH zostaje decyzją Łukasza (Aneks B), a szczegóły kokpitu pokazują jego wersję. Pasek zmian wie o przeładowaniu tylko z `plugin.register` innych modów (P-053): bez żadnego innego modu z modułem hooków pasek po `/reload-plugins` nie zniknie. **E4 (2026-10-24):** w terminalu (2.1.308, conhost, 80 kolumn) przycisk Przeładuj przeładowuje przez `$.command.run` (14 → 13 pluginów), więc plan B dotyczy tylko desktopu (P-052). Zmiana z innego czatu nie odwraca już kliknięcia: przycisk niesie stan docelowy, a `runOne` pomija wiersz, który ma go na dysku. |
+| RM1 | Przełącznik `relai-mods` stoi na CLI `claude plugin` wołanym z moda: inna binarka niż silnik aplikacji, inne logowanie albo brak przeładowania z moda (plan RELAI_MODS, ryzyko R1) | **Średni** (2026-10-23 po E1) | **ZAMKNIĘTE 2026-10-24 (plan RELAI_MODS zrealizowany)** — ograniczenie zostaje opisane w produkcie: desktop wymaga wpisania `/reload-plugins`, CLI to `claude` z PATH (KOMENDY, README, P-052) | Wynik spike'u na desktopie: CLI z moda działa, jest zalogowane i zapisuje w ~0,7 s. Mod uruchamia jednak `claude` z PATH (2.1.304), a nie binarkę silnika (2.1.308), bo nie widzi `CLAUDE_CODE_EXECPATH`. Przeładowania z moda nie ma ani przez `$.command.run`, ani przez `$.prompt.submit`, więc działa plan B „wpisz /reload-plugins”. `enable` przyjmuje każde `x@y` i zapisuje je, dlatego id biorę wyłącznie z `installed_plugins.json`. Terminal mierzy E4. **E3 (2026-10-23):** `claude` z PATH zostaje decyzją Łukasza (Aneks B), a szczegóły kokpitu pokazują jego wersję. Pasek zmian wie o przeładowaniu tylko z `plugin.register` innych modów (P-053): bez żadnego innego modu z modułem hooków pasek po `/reload-plugins` nie zniknie. **E4 (2026-10-24):** w terminalu (2.1.308, conhost, 80 kolumn) przycisk Przeładuj przeładowuje przez `$.command.run` (14 → 13 pluginów), więc plan B dotyczy tylko desktopu (P-052). Zmiana z innego czatu nie odwraca już kliknięcia: przycisk niesie stan docelowy, a `runOne` pomija wiersz, który ma go na dysku. |
 
 > Ryzyka zamknięte T3, T6 (2 pozycje) są w
 > [docs/archiwum/ryzyka/RYZYKA_2026-10-19.md](archiwum/ryzyka/RYZYKA_2026-10-19.md)
@@ -1321,7 +1321,7 @@ i szczegółami. Ta sesja dostała brief z decyzjami i przygotowała plan.
 
 **Zrobione:**
 
-- Plan [RELAI_MODS](plany/RELAI_MODS/STATUS.md) — 5 etapów, DO AKCEPTACJI: E1 spike na Windows
+- Plan [RELAI_MODS](archiwum/plany/RELAI_MODS/STATUS.md) — 5 etapów, DO AKCEPTACJI: E1 spike na Windows
   (CLI `claude plugin disable/enable` i `reload-plugins` z moda), E2 inwentarz z dysku, E3 kokpit
   na desktopie w obu wyglądach, E4 terminal, wąski panel i dwa czaty, E5 wydanie 0.1.0. Wybrany
   osobny mod `mods/` na wspólnym rdzeniu; odrzucone: zakładka w `relai-panel`, przeróbka moda
@@ -1347,7 +1347,7 @@ i szczegółami. Ta sesja dostała brief z decyzjami i przygotowała plan.
 
 **Do zrobienia przez człowieka:**
 
-- Akceptacja planu RELAI_MODS albo poprawki przed akceptacją.
+- Akceptacja planu RELAI_MODS albo poprawki przed akceptacją. *(rozstrzygnięte 2026-10-24 — plan zaakceptowany 2026-10-23 z pięcioma poprawkami)*
 
 Autor: RelAI (Opus 5.5) + Lukasz
 
@@ -1367,7 +1367,7 @@ Po przeniesieniu planu do `main` sprawdziłem go wobec kodu i maszyny Łukasza: 
   w nagłówku przestawiony.
 - `STATUS.md`: ZAAKCEPTOWANY 2026-10-23, E1 GOTOWY DO STARTU, cztery bramki manualne (plan B po E1,
   wersja 0.1.0, wspólny termin wydania z BEZPIECZENSTWO, publikacja);
-  [PROMPT_ETAP_1.md](plany/RELAI_MODS/PROMPT_ETAP_1.md) wygenerowany.
+  [PROMPT_ETAP_1.md](archiwum/plany/RELAI_MODS/PROMPT_ETAP_1.md) wygenerowany.
 
 **Zweryfikowane — jak dokładnie:**
 
@@ -1387,7 +1387,7 @@ Po przeniesieniu planu do `main` sprawdziłem go wobec kodu i maszyny Łukasza: 
 
 **Do zrobienia przez człowieka:**
 
-- Start E1 w świeżej sesji: `/relai-stage` (plan RELAI_MODS).
+- Start E1 w świeżej sesji: `/relai-stage` (plan RELAI_MODS). *(rozstrzygnięte 2026-10-24 — E1 uruchomiony i zrealizowany 2026-10-23)*
 - Decyzja o usunięciu worktree `relai-mods-plan-3c68a3`.
 
 Autor: RelAI (Opus 5.5) + Lukasz
@@ -1474,7 +1474,7 @@ Bramka „CLI nie działa żadną drogą” nie zaszła.
 
 **Do zrobienia przez człowieka:**
 
-- Start E2 w świeżej sesji: `/relai-stage` (plan RELAI_MODS).
+- Start E2 w świeżej sesji: `/relai-stage` (plan RELAI_MODS). *(rozstrzygnięte 2026-10-24 — E2 uruchomiony i zrealizowany 2026-10-23)*
 
 Autor: RelAI (Opus 5.5) + Lukasz
 
@@ -1573,7 +1573,7 @@ jeszcze nie ma (E3), przełącznik `filetree` i Przeładuj zostały jak po E1.
 
 **Do zrobienia przez człowieka:**
 
-- Start E3 w świeżej sesji: `/relai-stage` (plan RELAI_MODS).
+- Start E3 w świeżej sesji: `/relai-stage` (plan RELAI_MODS). *(rozstrzygnięte 2026-10-24 — E3 uruchomiony i zrealizowany 2026-10-23)*
 
 Przegląd ryzyk: RM1 bez zmian — E2 nie woła CLI poza przełącznikiem z E1. R5 i R6 planu pokryte
 testami (nieznany kształt pliku, ścieżki z `\` i `/`, marketplace lokalny bez `.claude`).
@@ -1694,7 +1694,7 @@ przyjął go w obu wyglądach aplikacji.
 
 **Do zrobienia przez człowieka:**
 
-- Start E4 w świeżej sesji: `/relai-stage` (plan RELAI_MODS).
+- Start E4 w świeżej sesji: `/relai-stage` (plan RELAI_MODS). *(rozstrzygnięte 2026-10-24 — E4 uruchomiony i zrealizowany 2026-10-24)*
 
 Przegląd ryzyk: RM1 zaktualizowany — binarka zostaje decyzją, nowy warunek sygnału przeładowania
 (inny mod z modułem hooków, P-053). R4 (kolory w jasnym wyglądzie) i R7 (budżet) pokryte testami
@@ -1812,9 +1812,113 @@ cofnięta.
 **Do zrobienia przez człowieka:**
 
 - Start E5 w świeżej sesji: `/relai-stage` (plan RELAI_MODS). Bramki E5 (wersja i etykieta,
-  termin wydania, zgoda na publikację) są już w `STATUS.md`.
+  termin wydania, zgoda na publikację) są już w `STATUS.md`. *(rozstrzygnięte 2026-10-24 — E5
+  uruchomiony i zrealizowany, trzy bramki rozstrzygnięte w `STATUS.md`)*
 
 Przegląd ryzyk: RM1 zaktualizowany o terminal — przeładowanie z moda działa tam, plan B zostaje
 na desktopie. Zmiana z innego czatu nie odwraca już kliknięcia. R1 i R2 planu zmierzone w E4.
+
+Autor: RelAI (Opus 5.5) + Lukasz
+
+### 2026-10-24 — RELAI_MODS E5: relai-mods 0.1.0 i 0.1.1 wydane, plan zamknięty
+
+`relai-mods` jest czwartym modem w marketplace RelAI. Wyszła wersja 0.1.0 bez etykiety „early
+access”, a tego samego dnia 0.1.1, która poprawia dwie usterki znalezione pomiarem na żywo.
+Kokpit `/relai-mods` po instalacji z marketplace pokazuje swój wiersz z kłódką „ten kokpit” i bez
+przełącznika. Plan RELAI_MODS jest zamknięty i leży w
+[archiwum](archiwum/plany/RELAI_MODS/STATUS.md).
+
+**Zrobione:**
+
+- Bramki na starcie (decyzje Łukasza): 0.1.0 **bez** etykiety „early access”, wydanie osobne
+  (nie z BEZPIECZENSTWO 3.3.0), **bez ikony** (ostrzeżenie `ICON_MISSING` zostaje jak w innych
+  modach).
+- `mods/.claude-plugin/plugin.json` 0.0.1 → 0.1.0 → 0.1.1, z nowym opisem kokpitu zamiast opisu
+  spike'u. `grep` po `0.0.1`: trafienia w promptach E1–E5 i dzienniku wdrożenia są historyczne,
+  w fixturach testów to dane wejściowe; deklaracją stanu był tylko `plugin.json`.
+- `.claude-plugin/marketplace.json`: czwarty wpis `relai-mods` (`./mods`, opis równy
+  `plugin.json`, `keywords` bez `early-access`).
+- `core/tools/network-calls.js`: `mods` w `KATALOGI`.
+- `docs/KOMENDY.md`: instalacja i wiersz `/relai-mods` w „Panel w Claude Code” (desktop wpisuje
+  `/reload-plugins`, terminal przeładowuje z przycisku). README: wiersz w tabeli pluginów,
+  komenda instalacji, „cztery” zamiast „trzy”. Strona: jedno zdanie o kokpicie w sekcji „Panel”
+  (`site/tresc/pl.json`, `en.json`), cztery strony przebudowane.
+- `site/narzedzia/fakty.mjs`: `relai-mods` w kontroli wersji `plugin.json`. `site/dane/fakty.json`
+  zregenerowany: miał `relai-progress` 0.5.0 przy 0.6.0 w marketplace. Dwa nowe testy
+  w `fakty.test.mjs`: plik w repo jest tym, co pisze generator, a każdy plugin marketplace jest
+  w `PLUGIN_JSON_PATHS`. Rozjazd jest rozstrzygnięty, nie odłożony.
+- Aneks E: poprawka 0.1.1. Wiersze pluginów mówiły „2 zdarzeń” — teraz `eventsWord` z `plural`.
+  Szczegóły moda mówiły „0 komend · bez hooków” — mod pomija zerową liczbę komend z plików i ma
+  „moduł hooków”, a „Odpala się na” mówi „zdarzenia modu — moduł hooków”.
+- Publikacja po dwóch „tak” Łukasza: commit `4bec526` z tagiem `relai-mods-v0.1.0` (push wysłał
+  też cztery commity E1–E4), commit `d783cae` z tagiem `relai-mods-v0.1.1`.
+- Lekcja L-0260 (zasada 10). Zrzut `docs/zasoby/PANEL_RELAI/zrzuty/RELAI_MODS_E5_wiersz_kokpitu.png`
+  (0.1.1).
+
+**Dowiezione vs plan (zamknięcie planu):**
+
+- Cel planu — kokpit wszystkich pluginów i hooków z dysku, przełączanie przez CLI, przeładowanie,
+  jasny i ciemny wygląd, desktop i terminal — dowieziony w E1–E4 i wydany w E5.
+- Zmieniło się wobec planu w pięciu aneksach:
+  - A: stan z plików, przeładowanie na desktopie wpisane ręcznie (plan B);
+  - B: kopia rdzenia już w E3;
+  - C: przełącznik jako rysunek i słowo;
+  - D: akordeon w grupach zamiast listy ze szczegółami obok;
+  - E: wydanie bez etykiety i poprawka 0.1.1.
+- Przepadło: przeładowanie z przycisku na desktopie. Silnik go nie daje (P-052), więc desktop
+  prosi o wpisanie `/reload-plugins`. Ikona — świadomie nie (decyzja w E5).
+- Wydania: 0.1.0 i 0.1.1 zamiast jednego 0.1.0.
+
+**Zweryfikowane — jak dokładnie:**
+
+- `"$CLAUDE_CODE_EXECPATH" plugin validate mods` (2.1.308): „✔ Validation passed”, jedno
+  ostrzeżenie `ICON_MISSING`. `plugin validate .`: przechodzi z ostrzeżeniami (root `CLAUDE.md`,
+  dogfooding). `plugin test mods`: **68 pass, 0 fail** (przed: 66). Wersje `plugin.json`
+  i marketplace równe (0.1.1), opisy równe.
+- Mutacja `summaryOf` z powrotem do „bez hooków” wywraca nowy test (67 pass, 1 fail). Kod
+  przywrócony, ponownie 68. Test `eventsWord` sprawdza formy 1, 2, 3, 4, 5, 12 i 22.
+- `node --test core/panel/tests/*.test.js`: 216 pass. `sync-panel-core.js --check`: zgodne,
+  cztery cele.
+- `node core/tools/validate-adapters.js`: kod 0, „wywolania sieciowe: 184 plikow kodu, 1 z listy
+  dozwolonych, 0 poza lista” (przed: 159). Kontrola pozytywna: kopia `cockpit.ts` z importem
+  `https` w `mods/hooks/` dała „poza lista dozwolonych” i kod 1; kopia skasowana, kod 0.
+  `network-calls.test.js`: 3 pass.
+- Strona: `node --test "site/**/*.test.mjs"` — 370 pass. Nowy test świeżości wywraca stary plik
+  `fakty.json` (13 pass, 1 fail), a mutacja bez `relai-mods` w `PLUGIN_JSON_PATHS` wywraca drugi
+  test. Zdanie o kokpicie zmierzone w przeglądarce: na komputerze (1024 px) akapit mieści się
+  w sekcji „Panel”, na telefonie (375 px) `scrollWidth` 375 i nic nie wystaje poza sekcję.
+- Tag: `git rev-parse` `relai-mods-v0.1.0` = `4bec526`, `relai-mods-v0.1.1` = `d783cae`.
+  `git ls-remote` pokazuje oba tagi i `main` na zdalnym.
+- Na żywo po `plugin marketplace update relai` i instalacji (0.1.0), potem `plugin update`
+  (0.1.1): `installed_plugins.json` ma `version` 0.1.1 i `gitCommitSha` `d783cae`. Po
+  `/reload-plugins` Łukasza zrzut okna (`PrintWindow`) pokazał:
+  - wiersz `relai-mods` z kłódką „ten kokpit”, bez przełącznika;
+  - w szczegółach „Wyłączysz go ręcznie: claude plugin disable relai-mods@relai”, wersję 0.1.1,
+    zakres user;
+  - „Zawiera: 0 skilli · 0 agentów · 0 MCP · moduł hooków”;
+  - „caveman 2 zdarzenia”, „codex 3 zdarzenia”.
+  Pierwszy zrzut z 0.1.0 pokazał obie usterki, drugi z 0.1.1 je wyklucza.
+- Katalog roboczy `.claude/relai/work/RELAI_MODS/E5/` nie powstał: przed 0 plików, po 0. Poza
+  projektem:
+  - `%TEMP%/relai-mods-e5-shot.ps1`, `-crop.ps1` i `-full.png` (zrzut całego okna z innymi
+    sesjami) skasowane po „tak” Łukasza;
+  - trzy kopie moda w `~/.claude/dev-mods/{49873f6c…,597203f7…,bab201dc…}/relai-mods/` (13, 38
+    i 37 plików) skasowane tym samym „tak”;
+  - pliku magazynu `~/.claude/plugins/store/relai-mods_*.json` brak;
+  - serwer `python -m http.server 4520` do pomiaru strony zatrzymany.
+
+**Świadomie odłożone:**
+
+- `$.ui.open({ focus: true })` i podpowiedź o skrótach w terminalu (z E4) — poza planem, bez
+  zmian.
+- Ikona moda — decyzja Łukasza: bez ikony, jak w pozostałych modach.
+- Narzędzie podglądu przeglądarki odrzuca w tej sesji każdy wpis `launch.json` z `cwd`
+  („cwd must be a relative path within the project root”), więc stronę obsłużył serwer z Basha
+  w tle. Wpis cofnięty.
+
+**Do zrobienia przez człowieka:** —
+
+Przegląd ryzyk: RM1 zamknięty z planem. Ograniczenie przeładowania na desktopie i CLI z PATH
+zostaje opisane w KOMENDY, README i P-052. Nowych ryzyk etap nie ujawnił.
 
 Autor: RelAI (Opus 5.5) + Lukasz

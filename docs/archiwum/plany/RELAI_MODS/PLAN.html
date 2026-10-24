@@ -606,6 +606,10 @@ footer .pis{font-family:var(--pis); font-size:1.2rem; color:var(--glina); margin
   <p><strong>Zmiana w sekcji 5 („Wygląd”):</strong> zamiast listy po lewej i szczegółów po prawej kokpit ma jedną kolumnę. Sekcje Mody / Pluginy / Hooki stoją pod nagłówkami Kalamem (26 px, <code>HEADINGS</code> w <code>core/panel/theme.mjs</code>) z licznikiem obok, a wiersze mają jedną linię. Szczegóły rozwijają się pod wybranym wierszem (▸ / ▾), domyślnie żaden wiersz nie jest rozwinięty. Wyszukiwarka ma etykietę „Szukaj”, a filtry pokazują liczby.</p>
   <p><strong>Zmiana w sekcji 8 („Wąski panel albo terminal przy 80 kolumnach”):</strong> szczegóły stoją pod wierszem w każdej szerokości, więc progu „obok listy od 100 kolumn” nie ma. Zostaje jedna decyzja na panel w stylu <code>STACK_BELOW</code>: poniżej progu (do ustalenia testem w modelu CSS w E4) przełącznik i strzałka schodzą pod nazwę wiersza. Filtry zawijają się jak dotąd.</p>
   <p><strong>Bez zmian:</strong> linie gasnące między wierszami, przełącznik z Aneksu C, kłódki, pasek zmian z Przeładuj, kolory wyłącznie z kluczy motywu.</p>
+  <h3>Aneks E · 2026-10-24 — wydanie bez etykiety i poprawka 0.1.1 w E5</h3>
+  <p><strong>Powód:</strong> na starcie E5 Łukasz rozstrzygnął bramkę „Wersja i etykieta”: 0.1.0 bez „early access” (sekcja 9 proponowała etykietę jak w pozostałych modach). Pomiar wiersza <code>relai-mods@relai</code> po instalacji z marketplace pokazał dwie usterki kokpitu: „2 zdarzeń” w wierszach pluginów i „0 komend · bez hooków” w szczegółach moda, który rejestruje komendę i ma moduł hooków. Łukasz zdecydował: „zrealizuj to tutaj”.</p>
+  <p><strong>Zmiana w E5 (sekcja 6):</strong> etap kończy się dwoma wydaniami. Pierwsze to 0.1.0, tag <code>relai-mods-v0.1.0</code>. Drugie to 0.1.1, tag <code>relai-mods-v0.1.1</code>, z liczebnikiem zdarzeń z <code>plural</code> i opisem moda „moduł hooków” bez zerowej liczby komend z plików. Pomiar na żywo dotyczy 0.1.1.</p>
+  <p><strong>Bez zmian:</strong> wygląd, przełącznik, kłódki, przeładowanie i ikona (bez ikony, ostrzeżenie <code>ICON_MISSING</code> zostaje).</p>
 </section>
 
 <footer>
