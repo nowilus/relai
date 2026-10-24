@@ -18,13 +18,15 @@
           { "type": "command", "command": "node \"${CLAUDE_PLUGIN_ROOT}/adapters/claude-code/hooks/design-quality-check.js\"" },
           { "type": "command", "command": "node \"${CLAUDE_PLUGIN_ROOT}/adapters/claude-code/hooks/profile-rules.js\"" },
           { "type": "command", "command": "node \"${CLAUDE_PLUGIN_ROOT}/adapters/claude-code/hooks/journal-signature.js\"" },
-          { "type": "command", "command": "node \"${CLAUDE_PLUGIN_ROOT}/adapters/claude-code/hooks/humanize-continuous.js\"" }
+          { "type": "command", "command": "node \"${CLAUDE_PLUGIN_ROOT}/adapters/claude-code/hooks/humanize-continuous.js\"" },
+          { "type": "command", "command": "node \"${CLAUDE_PLUGIN_ROOT}/adapters/claude-code/hooks/lockfile-scan.js\"", "timeout": 120 }
         ]
       },
       {
         "matcher": "^Bash$",
         "hooks": [
-          { "type": "command", "command": "node \"${CLAUDE_PLUGIN_ROOT}/adapters/claude-code/hooks/humanize-continuous.js\"" }
+          { "type": "command", "command": "node \"${CLAUDE_PLUGIN_ROOT}/adapters/claude-code/hooks/humanize-continuous.js\"" },
+          { "type": "command", "command": "node \"${CLAUDE_PLUGIN_ROOT}/adapters/claude-code/hooks/lockfile-scan.js\"", "timeout": 120 }
         ]
       },
       {

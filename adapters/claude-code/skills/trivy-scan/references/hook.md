@@ -11,7 +11,9 @@ It never blocks or fails the tool call: any error ends silently, except "trivy n
 
 ## Registration
 
-In the RelAI plugin this script is not registered yet: the plugin's own `hooks.json` takes it over in stage E2 of the BEZPIECZENSTWO plan, and until then nothing runs it automatically. A manual entry in a user's `~/.claude/settings.json` (an older setup, outside the plugin) looks like this:
+In the RelAI plugin the hook is registered as `lockfile-scan` in `adapters/claude-code/hooks/hooks.json`: one entry at the end of the `^(Write|Edit|MultiEdit)$` list and one at the end of the `^Bash$` list, each `node "${CLAUDE_PLUGIN_ROOT}/adapters/claude-code/hooks/lockfile-scan.js"` with `"timeout": 120`. `lockfile-scan.js` reads the payload, stays silent outside a RelAI project and in guest mode (the plugin's hook convention), and then calls `run(input)` exported by `lockfile-hook.mjs` — one process, one copy of the logic. To switch the hook off, disable the RelAI plugin; there is no separate switch.
+
+Older setup, outside the plugin: a manual entry in `~/.claude/settings.json` that runs the script directly. Remove it once the plugin is installed — hooks from all scopes merge, so with both in place every lockfile change in a RelAI project is scanned twice. Such an entry looks like this:
 
 ```json
 "PostToolUse": [
@@ -24,10 +26,11 @@ In the RelAI plugin this script is not registered yet: the plugin's own `hooks.j
 ]
 ```
 
-To turn such an entry off, remove it. Hooks from all scopes merge, so a project cannot switch off a user-scope hook by redefining `PostToolUse`; removing the entry is the way. Once the plugin registers the hook, keep only one of the two, or every lockfile change is scanned twice.
+To turn such an entry off, remove it. A project cannot switch off a user-scope hook by redefining `PostToolUse`; removing the entry is the way. Unlike the plugin hook, the manual entry has no RelAI-project gate and scans in every folder.
 
 ## Troubleshooting
 
-- Test without Claude: `echo '{"tool_name":"Write","tool_input":{"file_path":"<dir>/package-lock.json"},"cwd":"<dir>"}' | node lockfile-hook.mjs`
+- Test without Claude: `echo '{"tool_name":"Write","tool_input":{"file_path":"<dir>/package-lock.json"},"cwd":"<dir>"}' | node lockfile-hook.mjs` (the script, no project gate) or `| node <plugin>/adapters/claude-code/hooks/lockfile-scan.js` (the plugin hook; `<dir>` must be a RelAI project).
+- Silent in a project that should be scanned: the plugin hook speaks only where `docs/` holds the `Wersja RelAI:` / `RelAI version:` marker and `.claude/relai.json` does not set guest mode.
 - No note ever appears: the folder has no CRITICAL/HIGH findings, or the previous scan already knew them (see `<dir>/.security/trivy/REPORT.md`).
 - The DB is updated by full scans (the skill, or `trivy fs` by hand); quick scans reuse it.

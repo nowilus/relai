@@ -2071,3 +2071,109 @@ Przegląd ryzyk: nowe **Z1** (wyżej). Pozostałe bez zmian. Lekcje: L-0261 (wzo
 bez oboczności), L-0262 (`sed -i` na liczbach, powtórzenie L-0242), destylat w zasadzie 5.
 
 Autor: RelAI (Opus 5.5) + Lukasz
+
+### 2026-10-24 — BEZPIECZENSTWO E2: hook lockfile-scan jako 13. hook RelAI
+
+Szybki skan Trivy po zmianie pliku blokady albo komendzie instalacji uruchamia teraz plugin, a nie
+ręczny wpis w profilu. Hook milczy poza projektem RelAI, jak pozostałe. Wersja zostaje 3.2.0.
+
+**Zrobione:**
+
+- `adapters/claude-code/hooks/lockfile-scan.js`: 13. hook, CommonJS, nagłówek `OSTRZEGA (D-41)`.
+  Czyta stdin, sprawdza marker RelAI i tryb gościa (`relaiMarkerFile` z `session-signals.js`),
+  potem ładuje `lockfile-hook.mjs` przez `import()` i woła `run(input)`. Jeden proces, jeden
+  właściciel logiki. Błąd na każdym kroku kończy się ciszą i kodem 0.
+- `adapters/claude-code/skills/trivy-scan/scripts/lockfile-hook.mjs`: eksport `run(input)`. Sam
+  czyta stdin tylko uruchomiony wprost (stary ręczny wpis, diagnostyka). **Odchylenie od promptu**,
+  zgoda Łukasza w tej sesji: prompt zakładał ładowanie modułu bez zmian, ale moduł nie sprawdzał
+  markera, więc hook pluginu skanowałby każdy folder — wbrew „Poza projektem RelAI wszystkie hooki
+  milczą” (PRZEWODNIK, README). Wybrany wariant: bramka w hooku + `run(input)`. Odrzucone: proces
+  potomny (drugi proces) i jawny wyjątek od konwencji.
+- `adapters/claude-code/hooks/hooks.json`: wpis z `"timeout": 120` na końcu listy
+  `^(Write|Edit|MultiEdit)$` i na końcu listy `^Bash$`.
+- `core/process/tests/lockfile-scan.test.js`: 7 przypadków — `Edit` `README.md`, `Bash` bez
+  instalacji i błędny JSON → cisza; `Write` `package-lock.json` na kopii fixtury
+  `scan-reports-fix-plan` w projekcie RelAI → `[trivy-scan]` z `HIGH 16`; ta sama fixtura poza
+  projektem i w trybie gościa → cisza; `lockfile-hook.mjs` wprost → notka. Fixtura kopiowana do
+  katalogu tymczasowego testu, nie do repo. Przypadki z Trivy dają `skip` z powodem, gdy Trivy brak.
+- `core/process/tests/humanize-continuous.test.js`: test z aneksu C HUMANIZACJI zapisywał stan
+  „`humanize-continuous` sam w grupie Bash”. Oczekiwana lista to teraz `humanize-continuous`,
+  potem `lockfile-scan` — dokładna, więc każdy kolejny dopisany hook dalej ją wywraca (ryzyko 1
+  planu: dodanie hooka łamie testy zakładające 12).
+- `trivy-scan` `references/hook.md` i `SKILL.md` (wersje 2 w `ARTEFAKTY.md`): rejestracja
+  w pluginie, cisza poza projektem, wyłączenie razem z pluginem, ręczny wpis z profilu jako stary
+  układ do usunięcia.
+- Liczniki hooków: `PRZEWODNIK.md` — „Trzynaście hooków … Dwa blokują, siedem ostrzega, cztery
+  pracują cicho” (policzone z nagłówków plików i D-41), nowy wiersz „podatnych zależności”
+  w tabeli, drzewo „trzynastu” / „trzynaście”; `STATE.md` — 13 hooków. `DECYZJE.md`: aneks D-40
+  z 2026-10-24 („Hooków jest 13”), zgoda Łukasza w tej sesji.
+- Bramka planu: z `~/.claude/settings.json` usunięta grupa `PostToolUse` z ręcznym
+  `lockfile-hook.mjs` (jedyna grupa, więc zniknął klucz). Zgoda Łukasza w tej sesji. Diff pliku
+  to wyłącznie usunięty blok, formatowanie bez zmian.
+
+**Zweryfikowane — jak dokładnie:**
+
+- `node core/tools/validate-adapters.js` → „spojne”, „wywolania z hooks.json: 17” (było 15),
+  „wywolania sieciowe: 187 plikow kodu … 0 poza lista”. Lista plików instrumentu sieci
+  (`network-calls.js` → `pliki`) obejmuje `lockfile-scan.js` i `lockfile-hook.mjs`.
+- Testy: `node --test core/process/tests/*.test.js` 206/206 (przypadek z Trivy wykonany, 0 skip),
+  `core/panel/tests/*.test.js` 216/216, `adapters/codex/tests/*.test.js` 15/15.
+- Mutacja bramki markera (`if (false && …)`) wywraca 2 testy ciszy (poza projektem, gość). Po
+  cofnięciu 7/7.
+- Dowód negatywny kolejności: skrypt porównał każdą grupę `PostToolUse` z
+  `git show HEAD:adapters/claude-code/hooks/hooks.json`. Write/Edit: HEAD 6, teraz 7; Bash: HEAD 1,
+  teraz 2; Skill: 1 i 1. Polecenia przed nowym wpisem są identyczne, nowy wpis stoi na końcu.
+- Przebieg `lockfile-scan.js` ze stdin, kopia fixtury z markerem RelAI, Trivy 0.76.1 z ciepłą
+  bazą, trzy przebiegi: `Write` `package-lock.json` 1 226 / 1 178 / 1 163 ms, kod 0, notka
+  `HIGH 16` w pierwszym; w dwóch kolejnych cisza zgodna z projektem (raport zna już te same
+  podatności, nowych CRITICAL/HIGH brak). `Edit` `README.md` 135 / 147 / 167 ms, 0 bajtów, kod 0.
+  Prompt zakładał rzędu 0,1 s i 1,4 s; przyrost przy `README.md` wobec 0,08 s samego `.mjs` to
+  ładowanie `session-signals.js` i marker.
+- ASCII: `LC_ALL=C.UTF-8 grep -cP '[^\x00-\x7F]'` → `lockfile-scan.js` 0, `lockfile-hook.mjs` 0,
+  plik kontrolny z „ą” 1. Pierwsza wersja hooka miała 2 trafienia (myślniki „—” w komentarzu
+  nagłówka) — zamienione na `-`, inaczej niż w nagłówkach siostrzanych hooków.
+- Liczniki: grep `(jedena|dwuna|dwana)… hook|1[12] hook` (`LC_ALL=C.UTF-8`, z formą „jedenastu”)
+  po `docs/`, `README.md`, `adapters/`, `core/` → trafienia tylko historyczne: wpis E1 w dzienniku,
+  `PLAN.html` §2, `PROMPT_ETAP_1.md` i `PROMPT_ETAP_2.md`. README „ma ich jedenaście” wzorzec
+  pomija (szyk słów) — niżej, w odłożonych.
+- `git diff --stat hooks/ adapters/codex/hooks/` pusty; `.claude-plugin/plugin.json` → 3.2.0.
+- Bramka `settings.json`: `node` parsuje plik jako JSON, `grep -c lockfile-hook.mjs` → 0.
+- Dogfooding (punkt 8): dwie świeże sesje `claude -p --model haiku --plugin-dir <repo>`
+  (`init`: `relai@C:\Users\Lukasz\Desktop\RelAI`), projekt testowy z markerem RelAI i fixturą
+  w `%TEMP%`. Sesja A: `Edit` `package-lock.json` → jeden skan (jeden `scan-*.json` w
+  `.security/trivy/` projektu, więc bez podwójnego skanu po usunięciu wpisu z profilu); notka
+  `[trivy-scan] … (Edit package-lock.json) … HIGH 16` w transkrypcie sesji na dysku:
+  `hook_success` i `hook_additional_context` `PostToolUse:Edit` oraz `api-request-blob`. Sesja B:
+  `Edit` `README.md` → 0 notek. Pierwszy przebieg był nieważny (L-0263): projekt pod `.claude/`,
+  harness odrzucił obie edycje (`safetyCheck`); stream-json nie niesie kontekstu `PostToolUse`.
+- `/relai-security` na RelAI (`scan.mjs --path . --json`, ten sam skan co komenda): CRITICAL 0,
+  HIGH 1, MEDIUM 2, LOW 2 — tyle co w E1, `delta.added` puste. Z1 bez zmian, nowych wierszy brak.
+- Katalog roboczy `.claude/relai/work/BEZPIECZENSTWO/E2/`: przed sprzątaniem 15 plików,
+  351 474 B; po „tak” Łukasza 0, a katalog `BEZPIECZENSTWO/` usunięty. Kopia
+  `settings.json.przed-E2` (9 855 B) przeniesiona do
+  `C:\Users\Lukasz\Backupy\RelAI\settings.json.przed-E2-2026-10-24`. Poza katalogiem skasowane:
+  `%TEMP%/relai-e2-dogfood-N9UV2h`, `%TEMP%/relai-e2-fix-jd5OeK` i folder transkryptów
+  `~/.claude/projects/C--Users-Lukasz-AppData-Local-Temp-relai-e2-dogfood-N9UV2h`. Zostają:
+  27 pustych znaczników `%TEMP%/trivy-scan-hook-*` (0 B; testy i stary hook z profilu, nie do
+  rozdzielenia; decyzja Łukasza) oraz `%TEMP%/relai-ustawienia-podane-02cb6643-…` i `…-071f7a14-…`
+  po sesjach dogfoodingu (hooki RelAI tych sesji). Katalogi tymczasowe testów
+  `relai-lockfile-scan-*` sprząta sam test.
+
+**Świadomie odłożone:**
+
+- `README.md`, sekcja „Co pilnuje tylko Claude Code”: „ma ich jedenaście”, a tabela nie ma
+  `humanize-continuous` ani `lockfile-scan`. README opisuje wydanie, więc poprawka idzie do E6
+  (decyzja Łukasza).
+- Wiersz „bezpieczeństwa zależności” w tabeli `PRZEWODNIK.md` mówi „RelAI wskazuje komendę, nie
+  skanuje sam” o punkcie audytu w promptach etapów. Trivy jako pierwsze narzędzie w procesie to E3
+  (bramka nowej decyzji).
+- `README.md` i `PRZEWODNIK.md` obiecują ciszę poza projektem RelAI. Stary ręczny wpis
+  `lockfile-hook.mjs` w profilu (dziś usunięty u Łukasza) bramki nie ma; `references/hook.md`
+  mówi to wprost.
+
+**Do zrobienia przez człowieka:** —
+
+Przegląd ryzyk: bez nowych; Z1 bez zmian. Ryzyko 5 planu (podwójny hook) zamknięte usunięciem
+wpisu. Lekcja: L-0263 (dogfooding hooka w `claude -p`), destylat w zasadzie 13.
+
+Autor: RelAI (Opus 5.5) + Lukasz

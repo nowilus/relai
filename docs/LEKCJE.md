@@ -195,12 +195,14 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
       nowego polecenia człowieka, nie od zdarzenia promptu („tak”, powiadomienie i raport subagenta
       też nim są), a stan współdzielony przez równoległe hooki powstaje atomowo (L-0189); hook
       wyzwalany narzędziem mierzysz listą narzędzi z transkryptu i licznikiem wstrzykniętego
-      kontekstu — model pisze też powłoką (L-0190).
+      kontekstu — model pisze też powłoką (L-0190); projekt pomiaru na żywo poza `.claude/`
+      (harness odrzuca tam edycje), najpierw `permission_denied`, a kontekst hooka `PostToolUse`
+      liczysz w transkrypcie na dysku, nie w stream-json (L-0263).
     - **Usługi zewnętrzne:** stan ustawienia repozytorium czytasz z API (`gh api repos/<repo>/pages`),
       nie ze zrzutu ani słowa człowieka (L-0244); obraz dla cudzej usługi w proporcji zmierzonej na
       opublikowanym widoku, każda podmiana pod nowym adresem (L-0245).
     (L-0041, L-0042, L-0044, L-0047, L-0092, L-0133, L-0136, L-0138, L-0139, L-0146, L-0153, L-0166,
-    L-0168, L-0185, L-0189, L-0190, L-0244, L-0245, L-0253, L-0255)
+    L-0168, L-0185, L-0189, L-0190, L-0244, L-0245, L-0253, L-0255, L-0263)
 14. **Najpierw zmiana w repozytorium, potem zdanie, które ją opisuje.** Weryfikację planujesz tam,
     gdzie wykonalna; po pytaniu sprzątasz sam; jednostką inwentarza jest sprawa, nie linia; wstawkę
     kotwiczysz do elementu, który przeżyje operację, i dowodzisz **obecności** nowej treści. Gdy
@@ -576,6 +578,22 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
   w kodzie — Edit albo skrypt Write, także gdy „to tylko liczby”.
 - **Zasada:** bez wyjątku — każda zmiana pliku śledzonego idzie przez Edit/Write. `sed` służy
   wyłącznie do odczytu (`sed -n`). Odruch „krótka podmiana” jest sygnałem, żeby sięgnąć po Edit.
+
+### L-0263 — Dogfooding hooka w `claude -p`: dwie warstwy fałszu, zanim hook w ogóle zagrał · 2026-10-24 · AKTYWNA
+
+- **Trigger:** BEZPIECZENSTWO E2, punkt 8 zakresu. Projekt testowy stał w katalogu roboczym
+  `.claude/relai/work/…`, a dwie sesje `claude -p --plugin-dir` dały „0 notek” w obu przypadkach.
+  Przyczyna nie leżała w hooku. (1) Harness odrzucił obie edycje (`permission_denied`,
+  `safetyCheck`: ścieżka pod `.claude/` jest wrażliwa także przy `acceptEdits`), więc `PostToolUse`
+  nie miał czego zobaczyć. Do tego `scan.mjs` pomija `.claude/relai/work`. (2) Po przeniesieniu
+  projektu do `%TEMP%` edycja przeszła i skan się odbył (`.security/trivy/` w projekcie), ale
+  `--output-format stream-json` nie niesie kontekstu hooków `PostToolUse`. Notka stoi dopiero
+  w transkrypcie na dysku `~/.claude/projects/<slug>/<session_id>.jsonl` jako rekordy
+  `attachment` `hook_additional_context` i `api-request-blob`.
+- **Zasada:** projekt do pomiaru na żywo, w którym model ma pisać, leży poza `.claude/`, w `%TEMP%`
+  z nazwą od slugu projektu. Przed liczeniem wyniku sprawdzasz `permission_denied` w transkrypcie.
+  Kontekst hooka narzędziowego liczysz w transkrypcie sesji na dysku, nie w stream-json. Cisza
+  bez kontroli pozytywnej w tym samym przebiegu nic nie dowodzi (zasada 5).
 
 ## Lekcje zwinięte
 

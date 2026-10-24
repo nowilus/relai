@@ -362,19 +362,19 @@ docs/DECYZJE.md           aneks D-40 z 2026-09-24: „Hooków jest 11” (rejest
 
 Każdy punkt Weryfikacji, który przeszedł, odhaczasz w `PROMPT_ETAP_2.md` (`- [ ]` → `- [x]`) zaraz po jego sprawdzeniu, nie na końcu etapu; punkt, który nie przeszedł, zostaje pusty.
 
-- [ ] `node core/tools/validate-adapters.js` kończy się „spojne”; linia „wywolania z hooks.json” rośnie o 2 wobec 15 (dwa nowe wpisy), skan sieci obejmuje `lockfile-scan.js` i nie zgłasza go.
-- [ ] `node --test core/process/tests/*.test.js` — zielone, w tym `lockfile-scan.test.js`; przypadek z Trivy wykonany (nie `skip`) na tej maszynie.
-- [ ] `node --test core/panel/tests/*.test.js` i `node --test adapters/codex/tests/*.test.js` — zielone (hook nie rusza panelu ani Codeksa — dowód, że nic się nie rozjechało).
-- [ ] Dowód negatywny kolejności: dla każdej listy `PostToolUse` w `hooks.json` lista poleceń przed nowym wpisem jest identyczna jak w `git show HEAD:adapters/claude-code/hooks/hooks.json` (porównanie skryptem, wynik do wpisu).
-- [ ] Przebieg `lockfile-scan.js` ze stdin: `Write` `package-lock.json` w kopii fixtury → notka `[trivy-scan]` (kontrola pozytywna); `Edit` `README.md` → pusty stdout; oba z kodem 0; czasy z punktu 6 zakresu we wpisie.
-- [ ] Komunikaty hooka ASCII: `LC_ALL=C.UTF-8 grep -nP "[^\x00-\x7F]"` po `lockfile-scan.js` i `lockfile-hook.mjs` nic nie zwraca, a kontrola pozytywna tego wzorca na pliku z „ą” w katalogu roboczym trafia (bez `LC_ALL` Git Bash odpowiada „-P supports only unibyte and UTF-8 locales” — sprawdzone przez autora promptu: `lockfile-hook.mjs` 0 trafień, plik z „ą” 1).
-- [ ] `grep -rn -i "jedenaście hook\|jedenastu hook\|dwanaście hook\|dwunastu hook\|1[12] hook"` po `docs/`, `README.md`, `adapters/`, `core/` nie zwraca miejsc mówiących o bieżącej liczbie hooków (wzmianki historyczne opisane we wpisie).
-- [ ] `hooks/hooks.json` w korzeniu i `adapters/codex/hooks/` bez zmian (`git diff --stat hooks/ adapters/codex/hooks/` pusty); wersja w `.claude-plugin/plugin.json` nadal 3.2.0.
-- [ ] Bramka `~/.claude/settings.json`: albo „tak” i plik parsuje się jako JSON bez wpisu `lockfile-hook.mjs` (`grep -c` = 0, kopia przed zmianą w katalogu roboczym), albo bramka `OTWARTA` z adnotacją o podwójnym skanie.
-- [ ] Dogfooding z punktu 8 zakresu: notka przy pliku blokady, cisza przy `README.md` — wynik i sposób pomiaru we wpisie.
-- [ ] `/relai-security` na repozytorium RelAI: zero nowych CRITICAL/HIGH wobec E1 (Z1 bez zmian albo zamknięty decyzją człowieka); wynik do wpisu.
-- [ ] Wpis w `docs/DZIENNIK.md` na końcu sekcji „Wpisy”, z pomiarami i podpisem z członem użytkownika.
-- [ ] Katalog roboczy `.claude/relai/work/BEZPIECZENSTWO/E2/` przejrzany raportem (`node .claude/relai/tools/clean-work.js raport`) i skasowany po „tak”, liczby przed i po we wpisie dziennika; artefakty spoza katalogu (`%TEMP%/trivy-scan-hook-*`, kopie fixtur, kopia `settings.json`) wypisane we wpisie z nazwy razem z tym, co się z nimi stało.
+- [x] `node core/tools/validate-adapters.js` kończy się „spojne”; linia „wywolania z hooks.json” rośnie o 2 wobec 15 (dwa nowe wpisy), skan sieci obejmuje `lockfile-scan.js` i nie zgłasza go.
+- [x] `node --test core/process/tests/*.test.js` — zielone, w tym `lockfile-scan.test.js`; przypadek z Trivy wykonany (nie `skip`) na tej maszynie.
+- [x] `node --test core/panel/tests/*.test.js` i `node --test adapters/codex/tests/*.test.js` — zielone (hook nie rusza panelu ani Codeksa — dowód, że nic się nie rozjechało).
+- [x] Dowód negatywny kolejności: dla każdej listy `PostToolUse` w `hooks.json` lista poleceń przed nowym wpisem jest identyczna jak w `git show HEAD:adapters/claude-code/hooks/hooks.json` (porównanie skryptem, wynik do wpisu).
+- [x] Przebieg `lockfile-scan.js` ze stdin: `Write` `package-lock.json` w kopii fixtury → notka `[trivy-scan]` (kontrola pozytywna); `Edit` `README.md` → pusty stdout; oba z kodem 0; czasy z punktu 6 zakresu we wpisie.
+- [x] Komunikaty hooka ASCII: `LC_ALL=C.UTF-8 grep -nP "[^\x00-\x7F]"` po `lockfile-scan.js` i `lockfile-hook.mjs` nic nie zwraca, a kontrola pozytywna tego wzorca na pliku z „ą” w katalogu roboczym trafia (bez `LC_ALL` Git Bash odpowiada „-P supports only unibyte and UTF-8 locales” — sprawdzone przez autora promptu: `lockfile-hook.mjs` 0 trafień, plik z „ą” 1).
+- [x] `grep -rn -i "jedenaście hook\|jedenastu hook\|dwanaście hook\|dwunastu hook\|1[12] hook"` po `docs/`, `README.md`, `adapters/`, `core/` nie zwraca miejsc mówiących o bieżącej liczbie hooków (wzmianki historyczne opisane we wpisie).
+- [x] `hooks/hooks.json` w korzeniu i `adapters/codex/hooks/` bez zmian (`git diff --stat hooks/ adapters/codex/hooks/` pusty); wersja w `.claude-plugin/plugin.json` nadal 3.2.0.
+- [x] Bramka `~/.claude/settings.json`: albo „tak” i plik parsuje się jako JSON bez wpisu `lockfile-hook.mjs` (`grep -c` = 0, kopia przed zmianą w katalogu roboczym), albo bramka `OTWARTA` z adnotacją o podwójnym skanie.
+- [x] Dogfooding z punktu 8 zakresu: notka przy pliku blokady, cisza przy `README.md` — wynik i sposób pomiaru we wpisie.
+- [x] `/relai-security` na repozytorium RelAI: zero nowych CRITICAL/HIGH wobec E1 (Z1 bez zmian albo zamknięty decyzją człowieka); wynik do wpisu.
+- [x] Wpis w `docs/DZIENNIK.md` na końcu sekcji „Wpisy”, z pomiarami i podpisem z członem użytkownika.
+- [x] Katalog roboczy `.claude/relai/work/BEZPIECZENSTWO/E2/` przejrzany raportem (`node .claude/relai/tools/clean-work.js raport`) i skasowany po „tak”, liczby przed i po we wpisie dziennika; artefakty spoza katalogu (`%TEMP%/trivy-scan-hook-*`, kopie fixtur, kopia `settings.json`) wypisane we wpisie z nazwy razem z tym, co się z nimi stało.
 
 ## Na koniec (rytuał obowiązkowy — bez tego rytuału etap nie jest ukończony)
 

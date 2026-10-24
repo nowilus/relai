@@ -278,11 +278,11 @@ test('PostToolUse after Bash: a shell write to a document speaks once per file, 
   assert.equal(hook(HOOK, wyl, { hook_event_name: 'PostToolUse', tool_name: 'Bash', tool_input: { command: "printf 'x' >> docs/N.md" } }), '');
 });
 
-test('hooks.json registers humanize-continuous alone on PostToolUse Bash (annex C)', () => {
+test('hooks.json registers humanize-continuous first on PostToolUse Bash, lockfile-scan after it (annex C, BEZPIECZENSTWO E2)', () => {
   const h = JSON.parse(fs.readFileSync(path.join(HOOKI, 'hooks.json'), 'utf8')).hooks.PostToolUse;
   const grupa = h.find((g) => new RegExp(g.matcher).test('Bash'));
   assert.ok(grupa, 'grupa PostToolUse dla Bash');
-  assert.deepEqual(grupa.hooks.map((x) => path.basename(x.command.replace(/"$/, ''))), ['humanize-continuous.js']);
+  assert.deepEqual(grupa.hooks.map((x) => path.basename(x.command.replace(/"$/, ''))), ['humanize-continuous.js', 'lockfile-scan.js']);
   assert.ok(!new RegExp(grupa.matcher).test('Write'), 'grupa Bash nie dubluje grupy zapisu');
 });
 

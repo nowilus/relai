@@ -72,7 +72,7 @@ Things to avoid, and why:
 
 ## Lockfile hook (automatic scans)
 
-`scripts/lockfile-hook.mjs` is a PostToolUse hook: after Claude edits a lockfile or runs an install command (`npm install`, `pip install`, `poetry add`, `go get`, `cargo update`, …) it runs a quick scan of the session folder. It stays silent unless it is the first scan of that folder with CRITICAL/HIGH findings, or a new CRITICAL/HIGH finding appeared. When it speaks, a `[trivy-scan]` note appears in context: finish the current step, tell the user in one or two sentences, and offer this skill's fix plan. Setup and troubleshooting: `references/hook.md`.
+The RelAI plugin registers the hook `lockfile-scan` (PostToolUse, logic in `scripts/lockfile-hook.mjs`): after Claude edits a lockfile or runs an install command (`npm install`, `pip install`, `poetry add`, `go get`, `cargo update`, …) in a RelAI project, it runs a quick scan of the session folder. It stays silent outside RelAI projects, and also unless it is the first scan of that folder with CRITICAL/HIGH findings or a new CRITICAL/HIGH finding appeared. When it speaks, a `[trivy-scan]` note appears in context: finish the current step, tell the user in one or two sentences, and offer this skill's fix plan. It is switched off with the plugin; an older manual entry in `~/.claude/settings.json` should be removed, or scans run twice. Registration and troubleshooting: `references/hook.md`.
 
 ## Beyond dependencies
 

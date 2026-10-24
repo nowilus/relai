@@ -57,8 +57,17 @@ function debounced(root) {
   return false;
 }
 
-function main() {
-  const input = readStdin();
+// Entry point for a host that already read the hook payload (the RelAI plugin hook
+// lockfile-scan.js reads stdin, checks the RelAI marker, then calls this).
+export function run(input) {
+  try {
+    handle(input);
+  } catch {
+    // A broken scan must never break the user's tool call.
+  }
+}
+
+function handle(input) {
   if (!input) return;
   const trigger = triggerOf(input);
   if (!trigger) return;
@@ -100,8 +109,9 @@ function emit(text) {
   console.log(JSON.stringify({ hookSpecificOutput: { hookEventName: "PostToolUse", additionalContext: text } }));
 }
 
-try {
-  main();
-} catch {
-  // A broken scan must never break the user's tool call.
-}
+// Run as a script (manual entry in settings.json, troubleshooting): read stdin here.
+// Imported as a module: do nothing until the importer calls run().
+const self = fileURLToPath(import.meta.url);
+const invoked = process.argv[1] ? path.resolve(process.argv[1]) : "";
+const sameFile = process.platform === "win32" ? invoked.toLowerCase() === self.toLowerCase() : invoked === self;
+if (sameFile) run(readStdin());

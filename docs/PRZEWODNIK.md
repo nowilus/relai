@@ -117,7 +117,7 @@ Do tego trzy zdania, które działają w zwykłej rozmowie:
 
 ## Czego RelAI pilnuje bez proszenia
 
-Jedenaście hooków w Node.js, zero zależności npm. **Dwa blokują, sześć ostrzega, trzy pracują cicho.**
+Trzynaście hooków w Node.js, zero zależności npm. **Dwa blokują, siedem ostrzega, cztery pracują cicho.**
 Niżej to, czego pilnują; pełna lista hooków z odpowiednikami w Cursorze i Codeksie stoi w tabeli
 [„Co pilnuje tylko Claude Code"](../README.md#co-pilnuje-tylko-claude-code) w README.
 
@@ -136,6 +136,7 @@ Niżej to, czego pilnują; pełna lista hooków z odpowiednikami w Cursorze i Co
 | **„gotowe" z dowodem** | zadanie, które zmieniło kod, kończy się uruchomieniem testów Twojego projektu i przeglądem własnego diffu; zgłoszenie ma trzy linie: testy z wynikiem, zmienione pliki, ryzyka — brak testów jest powiedziany wprost, nie przemilczany (od 2.7.0) |
 | **domknięcia rytuału** | na starcie sesji jedno zdanie, gdy etap jest zamknięty bez wpisu w dzienniku albo bez promptu następnego etapu, gdy artefakt z rejestru zmienił się bez podbicia wersji albo gdy `AGENTS.md`-kopia rozjechała się z `CLAUDE.md`; przy zgodnym stanie cisza (od 2.7.0) |
 | **członków załogi** | w `/relai-crew` meldunek bez polecenia z wynikiem nie jest ukończeniem: najwyżej dwie automatyczne kontynuacje, potem sprawa wraca do Ciebie; subagenci dostają tylko duże, niezależne zadania (od 2.7.0) |
+| **podatnych zależności** | zmiana pliku blokady (`package-lock.json`, `poetry.lock`, `go.sum`…) albo komenda instalacji paczek uruchamia szybki skan Trivy folderu; notka trafia do rozmowy tylko przy pierwszym skanie z CRITICAL/HIGH albo przy nowym CRITICAL/HIGH, poza tym cisza; bez Trivy jedno zdanie, że skanu nie było (w repo, do wydania 3.3.0) |
 | **startu sesji** | data dnia, rytuał startu, kontrola wersji i sygnały wymagające reakcji trafiają do kontekstu niezależnie od tego, czy cokolwiek się „wyzwoliło" |
 
 **Poza projektem RelAI wszystkie hooki milczą.** To twarda konwencja, nie deklaracja: hook, który
@@ -241,8 +242,8 @@ relai/
 │   │   │                        #     humanize, security
 │   │   ├── agents/              #   czterej subagenci: trzej załogi + relai-prompt-optimizer
 │   │   └── hooks/
-│   │       ├── hooks.json       #   rejestracja jedenastu hooków (zdarzenia i matchery)
-│   │       └── *.js             #   jedenaście hooków Node.js, zero zależności npm
+│   │       ├── hooks.json       #   rejestracja trzynastu hooków (zdarzenia i matchery)
+│   │       └── *.js             #   trzynaście hooków Node.js, zero zależności npm
 │   ├── cursor/                  # ADAPTER Cursor (od 1.5.0)
 │       ├── install.js           #   instalacja i cofnięcie jednym poleceniem
 │       ├── rules/               #   trzy reguły .mdc: rdzeń i guardraile zawsze, planowanie na żądanie
