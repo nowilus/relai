@@ -1,6 +1,6 @@
 # STATE — RelAI
 
-Stan na: 2026-10-24 (plan BEZPIECZENSTWO: E1–E4 zrealizowane — skan zależności `/relai-security`, 13. hook `lockfile-scan`, D-91 (Trivy pierwszy w punktach procesu) i pełny audyt `/relai-security --full` ze skillem Cloudflare `security-audit` w repo, niewydane; plan RELAI_MODS ZREALIZOWANY — kokpit `/relai-mods` wydany jako `relai-mods` 0.1.0 i 0.1.1 w marketplace, tagi `relai-mods-v0.1.0` i `relai-mods-v0.1.1`; wątek AGENTS_KRABY zamknięty — panel „RelAI Agents” z postaciami ról, `relai-progress` 0.6.0 wydany, tag `relai-progress-v0.6.0`; wątek MOBILNA_STRONA zamknięty — obie wersje strony przyjęte na iPhonie, ankieta na cztery warianty z danymi o urządzeniu; wątek BIURKO_PLAKAT zamknięty — Biurko bez sceny 3D jako odbitki biurka; plan STRONA_RELAI ZREALIZOWANY 2026-10-18 — strona opublikowana na https://nowilus.github.io/relai/ w dwóch wersjach, Film i Biurko, z ankietą w Tally, poprawka Aneksu E wdrożona 2026-10-19; WYGLAD_PANELU zamknięty 2026-10-15)
+Stan na: 2026-10-24 (plan BEZPIECZENSTWO: E1–E5 zrealizowane — skan zależności `/relai-security`, 13. hook `lockfile-scan`, D-91 (Trivy pierwszy w punktach procesu), pełny audyt `/relai-security --full` ze skillem Cloudflare `security-audit` i oba skille w Codeksie i Cursorze (E5) w repo, niewydane; E6 — wydanie 3.3.0 — gotowy do startu; plan RELAI_MODS ZREALIZOWANY — kokpit `/relai-mods` wydany jako `relai-mods` 0.1.0 i 0.1.1 w marketplace, tagi `relai-mods-v0.1.0` i `relai-mods-v0.1.1`; wątek AGENTS_KRABY zamknięty — panel „RelAI Agents” z postaciami ról, `relai-progress` 0.6.0 wydany, tag `relai-progress-v0.6.0`; wątek MOBILNA_STRONA zamknięty — obie wersje strony przyjęte na iPhonie, ankieta na cztery warianty z danymi o urządzeniu; wątek BIURKO_PLAKAT zamknięty — Biurko bez sceny 3D jako odbitki biurka; plan STRONA_RELAI ZREALIZOWANY 2026-10-18 — strona opublikowana na https://nowilus.github.io/relai/ w dwóch wersjach, Film i Biurko, z ankietą w Tally, poprawka Aneksu E wdrożona 2026-10-19; WYGLAD_PANELU zamknięty 2026-10-15)
 
 ## Gdzie jesteśmy
 
@@ -37,6 +37,10 @@ po E5 (wydanie panelu 0.20.0 / 0.11.0); HUMANIZACJA zamknięty 2026-10-14 wydani
   robi pełny audyt kodu skillem Cloudflare `security-audit` (kopia 1:1 w pluginie): najpierw karta
   kosztu i „tak”, raport w `.security/security-audit/`; na Windowsie bez WSL walidatory idą przez
   wrapper RelAI z adnotacją w raporcie, a bez piaskownicy audyt jest wyłącznie źródłowy.
+  Od E5 Codex i Cursor dostają oba skille w całości, ze skryptami. Lista skilli jest w
+  `core/process/bundled-skills.js`, a test parzystości pilnuje sum. W Codeksie hook
+  `lockfile-scan` działa po komendzie instalacji (`PostToolUse`, zmierzone 2026-10-24). Cursor
+  hooka jeszcze nie ma, bo jego pomiar czeka na zalogowanie CLI.
 - Podyktowane zdanie może wrócić poprawione, zanim ruszy w robotę — na żądanie albo w trybie
   ciągłym, o który sesja pyta raz; oryginał stoi obok propozycji.
 - **Humanizacja tekstu** (plan [HUMANIZACJA](archiwum/plany/HUMANIZACJA/STATUS.md), zamknięty

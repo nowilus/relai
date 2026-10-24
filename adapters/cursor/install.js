@@ -9,7 +9,8 @@
 // Co robi instalacja (kolejnosc jest tresciwa, nie kosmetyczna):
 //   1) reguly zawsze-w-kontekscie  -> <projekt>/.cursor/rules/relai-*.mdc
 //   2) komendy /relai-*            -> <projekt>/.cursor/commands/*.md   (z adaptera Claude Code)
-//   3) skille relai-core/planning  -> <projekt>/.cursor/skills/<nazwa>/ (SKILL.md + pliki doczytywane)
+//   3) skille dolaczone            -> <projekt>/.cursor/skills/<nazwa>/ (wszystkie pliki z podkatalogami;
+//                                     lista w core/process/bundled-skills.js)
 //   4) specyfikacje dokumentow     -> <projekt>/.claude/relai/templates/  (R8; ta sama sciezka
 //                                     co w Claude Code, bo komendy i skille mowia o jednej)
 //   5) hooki                       -> wpisy w <projekt>/.cursor/hooks.json wskazujace pliki
@@ -243,16 +244,16 @@ function install(projekt, bezSkanu) {
     zapisane.push(dest);
   }
 
+  // BEZPIECZENSTWO E5 (ryzyko 8): skille z jednej listy (core/process/bundled-skills.js), kazdy
+  // ze WSZYSTKIMI plikami i podkatalogami (skrypty, references/, LICENSE) bajt w bajt — dawniej
+  // tylko .md plasko, wiec skill bez skryptow byl martwy. Katalog spoza listy nie trafia nigdzie.
   const skillsRoot = path.join(REPO_ROOT, 'adapters', 'claude-code', 'skills');
-  let skille = [];
-  try { skille = fs.readdirSync(skillsRoot, { withFileTypes: true }).filter((d) => d.isDirectory()); } catch (_) { skille = []; }
-  // E3 PROWADZENIE_END_TO_END: skill to SKILL.md plus pliki doczytywane obok niego —
-  // kopiujemy kazdy plik .md katalogu skilla, inaczej odeslanie z SKILL.md prowadzi donikad.
-  for (const d of skille) {
-    const katalog = path.join(skillsRoot, d.name);
-    if (!fs.existsSync(path.join(katalog, 'SKILL.md'))) continue;
-    for (const plik of pliki(katalog, /\.md$/i)) {
-      kopiuj(plik, path.join(projekt, '.cursor', 'skills', d.name, path.basename(plik)), zapisane);
+  const { BUNDLED_SKILL_NAMES, skillFiles } = require(path.join(REPO_ROOT, 'core', 'process', 'bundled-skills.js'));
+  const skille = BUNDLED_SKILL_NAMES.filter((nazwa) => fs.existsSync(path.join(skillsRoot, nazwa, 'SKILL.md')));
+  for (const nazwa of skille) {
+    for (const rel of skillFiles(path.join(skillsRoot, nazwa))) {
+      const czesci = rel.split('/');
+      kopiuj(path.join(skillsRoot, nazwa, ...czesci), path.join(projekt, '.cursor', 'skills', nazwa, ...czesci), zapisane);
     }
   }
 
@@ -311,6 +312,13 @@ function install(projekt, bezSkanu) {
   return 0;
 }
 
+function usunPuste(dir) {
+  let wpisy = [];
+  try { wpisy = fs.readdirSync(dir, { withFileTypes: true }); } catch (_) { return; }
+  for (const d of wpisy) if (d.isDirectory()) usunPuste(path.join(dir, d.name));
+  try { fs.rmdirSync(dir); } catch (_) { /* niepuste — zostaje tresc uzytkownika */ }
+}
+
 function uninstall(projekt) {
   const manifestPath = path.join(projekt, '.cursor', MANIFEST_NAME);
   let manifest = null;
@@ -331,15 +339,10 @@ function uninstall(projekt) {
     const p = path.join(projekt, ...rel.split('/'));
     try { fs.unlinkSync(p); usuniete++; } catch (_) { /* juz go nie ma */ }
   }
-  // Puste katalogi po naszych plikach — tylko nasze, tylko gdy puste.
+  // Puste katalogi po naszych plikach — tylko gdy puste, od najglebszego (skille maja podkatalogi
+  // scripts/ i references/ od E5 planu BEZPIECZENSTWO).
   for (const rel of ['.cursor/skills', '.cursor/commands', '.cursor/rules', '.cursor/agents']) {
-    const p = path.join(projekt, ...rel.split('/'));
-    try {
-      for (const d of fs.readdirSync(p, { withFileTypes: true })) {
-        if (d.isDirectory()) { try { fs.rmdirSync(path.join(p, d.name)); } catch (_) { /* niepuste */ } }
-      }
-      fs.rmdirSync(p);
-    } catch (_) { /* niepuste albo go nie ma */ }
+    usunPuste(path.join(projekt, ...rel.split('/')));
   }
 
   zapiszHooks(projekt, 'uninstall', []);

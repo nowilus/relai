@@ -2451,3 +2451,143 @@ cache-keeper` przeszedł.
 **Do zrobienia przez człowieka:** —
 
 Autor: RelAI (Opus 5.5) + Lukasz
+
+### 2026-10-24 — BEZPIECZENSTWO E5: trivy-scan i security-audit w Codeksie i Cursorze
+
+Codex i Cursor dostają teraz komplet skilli `trivy-scan` i `security-audit`, ze skryptami,
+`references/` i `LICENSE`. Wcześniej trafiały do nich tylko pliki `.md`, a w Codeksie oba skille
+nie istniały wcale. W Codeksie hook `lockfile-scan` działa po komendzie instalacji, co zmierzono na
+żywo. Cursor jest bez hooka, bo jego CLI nie miało ważnego logowania. Wersja zostaje 3.2.0.
+
+**Zrobione:**
+
+- `core/process/bundled-skills.js` (nowy) jest jednym źródłem listy skilli dołączonych:
+  `relai-core`, `relai-planning`, `trivy-scan`, `security-audit`. `skillFiles()` zwraca wszystkie
+  pliki z podkatalogami, bez `evals/`. Plik wpisany do `uses` obu adapterów w `core/MANIFEST.json`
+  (bez tego walidator go odrzucał). Listę trzymam w `core/`, bo instalator Cursora i tak sięga do
+  rdzenia, a zależność Cursora od generatora Codeksa byłaby gorsza.
+- **`evals/` pominięte** (decyzja z p. 2 zakresu): to przypadki testowe autora skilla z
+  `package.json` i plikami blokady. W kopii skan Trivy liczyłby je jako zależności projektu. Plik
+  `ARTEFAKTY.md` i tak trzyma je poza rejestrem.
+- `adapters/codex/generate-skills.js`:
+  - lista z `bundled-skills.js` zamiast `CORE_SKILL_NAMES`;
+  - pliki tekstowe z CRLF → LF jak dotąd, plik z bajtem NUL bajt w bajt;
+  - sieroty liczone rekurencyjnie, także w `scripts/`; cały katalog spoza listy też jest sierotą;
+  - opcja `skillsSource` dla fixtur.
+  
+  Wyjście: `adapters/codex/skills/trivy-scan/` (5 plików, 4 w podkatalogach) i `security-audit/`
+  (25 plików). Komunikat mówi o „4 skille dolaczone (52 plikow)”.
+- `adapters/cursor/install.js`: ta sama lista i kopiowanie z podkatalogami (`copyFileSync`, bajt
+  w bajt) zamiast płaskiego `*.md`. Deinstalacja usuwa puste katalogi rekurencyjnie od
+  najgłębszego, inaczej zostałby `.cursor/skills/trivy-scan/scripts/`.
+- `adapters/codex/tests/skill-parity.test.js` (nowy, 6 przypadków): zbiór ścieżek i sha256 kopii
+  porównany ze źródłem. Ścieżki źródła liczy niezależny walker, żeby błąd wspólnego modułu nie
+  ukrył się sam. Przypadki: kontrola negatywna (usunięty `scan.mjs`), sierota w `scripts/`,
+  fixtura z `stray-skill`, Cursor install → parzystość → usunięty `validate-findings.cjs` →
+  deinstalacja. Testów instalatora Cursora w repo nie było, więc przypadek Cursora stoi tutaj
+  (glob z Weryfikacji go obejmuje).
+- **Hook `lockfile-scan` w Codeksie:**
+  - `adapters/codex/hooks/lockfile-scan.js` (nowy) ma bramkę `CLAUDECODE` i wywołuje hook adaptera
+    Claude Code bez zmian;
+  - `hooks/hooks.json` dostał `PostToolUse` z `matcher: "Bash"`;
+  - test `adapters/codex/tests/lockfile-hook.test.js` (3 przypadki) używa payloadu dosłownie
+    z sondy.
+- `adapters/claude-code/commands/relai-security.md`, wiersz tabeli Kroku 1: zdanie „pełny skan
+  Trivy działa dziś w Claude Code” przestało być prawdą. Teraz wiersz mówi o starej instalacji
+  Codeksa albo Cursora i o tym, że skan dochodzi z aktualizacją RelAI. Skill Codeksa
+  wygenerowany na nowo; `sync-panel-core.js` zgłosił „zgodne: 19 plikow”, więc kopie rdzenia
+  w modach są bez zmian.
+- README adapterów: Codex opisuje cztery skille i hook `PostToolUse`, Cursor — cztery skille
+  i brak hooka lockfile. `docs/ARTEFAKTY.md`: `/relai-security` w wersji 3, akapit o kopiach
+  skilli w adapterach.
+- `docs/PULAPKI.md` P-054 (Codex pomija niezaufany hook bez słowa), `docs/LEKCJE.md` L-0266
+  (komenda dla człowieka w składni PowerShella) i zasada 2 destylatu.
+
+**Zweryfikowane — jak dokładnie:**
+
+- `generate-skills.js --verify`: „spojne”. Przed generacją ten sam `--verify` zgłosił
+  „rozjazd 30 plikow” (brak kopii). Skrypt sum (`porownaj.cjs`, sha256 surowych bajtów) na
+  czterech skillach dał 52 pliki: trivy-scan 5/5, security-audit 25/25, relai-core 15/15,
+  relai-planning 7/7, 0 różnic sum, 0 różnic ścieżek. Wszystkie pliki źródłowe skilli mają tryb
+  `100644`, więc o bit wykonywalny nie ma sporu.
+- Test parzystości przechodzi 6/6. Ten sam plik testu w `git worktree` HEAD (stary generator
+  i instalator, nowy `bundled-skills.js`) daje 5 z 6 czerwonych: przechodzi tylko przypadek
+  samej listy. Kontrola negatywna jest asercją w każdym przebiegu.
+- Cursor, projekt testowy `%TEMP%/relai-e5-cursor-projekt` z samym `package.json`:
+  - pliki: przed instalacją 1, po niej 132 (w `.cursor/skills` 52), po deinstalacji 56; usunięto
+    76 plików z manifestu. Zostały specyfikacje i cache `.claude/relai/` (z założenia) oraz
+    raport skanu w `.security/`, a `.cursor/skills` zniknął w całości;
+  - sha256 `scan.mjs` `4b5c9ccd14f8b722…` i `validate-findings.cjs` `e85f232e36bfac0f…` są równe
+    źródłu;
+  - `node .cursor/skills/trivy-scan/scripts/scan.mjs --json` dał `ok: true`, 0 trafień. Kontrola
+    pozytywna tym samym skryptem na fixturze `scan-reports-fix-plan`: HIGH 16, MEDIUM 20, LOW 1.
+- `security-audit/RELAI-validate.cjs` z kopii Codeksa: `[]` → `PASS: 0 findings valid` (kod 0),
+  `[{"title":"x"}]` → `FAIL: 1 validation error(s)` (kod 1).
+- **Pomiar zdarzenia po narzędziu:**
+  - **Codex 0.155.1.** Hooki sondy w `.codex/hooks.json` projektu milczały, dopóki Łukasz nie
+    zaufał im w przeglądzie. Zaufany `PreToolUse` pluginu RelAI w tym samym czasie odpalał
+    (kontrola pozytywna, P-054). Po zaufaniu jedna tura `codex exec` dała w logu sondy
+    `SessionStart`, `PreToolUse Bash` i `PostToolUse Bash` z polami `tool_name`, `tool_input`,
+    `tool_response`, `tool_use_id`. Druga tura z `apply_patch` dała `PostToolUse apply_patch`.
+    Kształt `tool_input`: `Bash` → `{"command":"npm install --version"}`, `apply_patch` →
+    `{"command":"*** Begin Patch\n*** Add File: …/package-lock.json…"}`.
+  - **Decyzja zgodna z wynikiem:** hook `PostToolUse` po `Bash` z bramką. Test na payloadzie
+    z sondy daje 3/3 i notkę z HIGH 16 bez pominięcia. Kontrola mutacyjna: ten sam payload
+    z `CLAUDECODE=1` podany hookowi Claude Code (bez bramki) daje notkę `[trivy-scan]`, więc
+    cisza w teście pochodzi od bramki. Cytat z README Codeksa: „`PostToolUse` po `Bash`
+    uruchamia hook `lockfile-scan` (…) z bramką `CLAUDECODE`”.
+  - **Cursor Agent CLI 2026.09.02.** `status` mówi „Logged in (unable to fetch user details)”,
+    a `-p` zwraca `Authentication required`. Łukasz nie odnowił logowania, więc pomiaru nie ma.
+    Decyzja Łukasza: bramka manualna. Cytat z README Cursora: „Hooka `lockfile-scan` (…)
+    w Cursorze nie ma: zdarzenie po narzędziu nie zostało tu zmierzone”.
+- `validate-adapters.js`: „spojne”; parytet skilli Claude Code → Codex 43 → **73** pliki,
+  0 rozjazdów; nota MIT Cloudflare 21/21; bramki hosta w hookach Codeksa 4/4 → **5/5**.
+  Testy: `core/process` 206/206, `core/panel` 216/216, `adapters/codex` 24/24 (15 zastanych
+  + 6 parzystości + 3 hooka).
+- `/relai-security` (`scan.mjs --path . --json`) na RelAI: CRITICAL 0, HIGH 1, MEDIUM 2, LOW 2,
+  nowych 0, czyli tak jak w E4. HIGH = `zod` 4.5.4 (Z1), MEDIUM = `fast-uri`, oba w
+  `docs/zasoby/film/zrodla/package-lock.json`. W kopiach skilli 0 plików `package*.json`.
+- Granica zakresu: `git diff` nie obejmuje `.claude-plugin/plugin.json` (nadal 3.2.0),
+  `history.md`, `relai-update.md` ani `README.md` w korzeniu. `git diff HEAD --
+  adapters/claude-code/skills/` jest pusty, więc źródło Cloudflare pozostaje kopią `c1c8a8c`
+  z E4, a kopie mają te same sumy.
+- Katalog roboczy `.claude/relai/work/BEZPIECZENSTWO/E5/`: 5 plików → 0 (`porownaj.cjs`,
+  `usun-sonde-z-config.cjs`, trzy logi testów), skasowany po „tak”. Rytuał dołożył potem dwa
+  skrypty pomocnicze (`plan-tekst.cjs` — tekst sekcji `PLAN.html` do promptu E6,
+  `zasady-diff.cjs` — porównanie „Zasad aktywnych” promptu E6 z rejestrem: 0 różnic poza
+  akapitem granicznym; kontrola na prompcie E5 ze starą zasadą 2 dała 259 różnic), skasowane
+  w ramach tej samej zgody. Poza katalogiem:
+  - `%TEMP%/relai-e5-cursor-projekt`, `relai-e5-kontrola`, `relai-e5-validate` — skasowane;
+  - `%TEMP%/relai-e5-sonda` — skasowany poza pustym `codex/`, który trzyma terminal PowerShell
+    Łukasza;
+  - `%TEMP%/relai-e5-mutacja` — powstał i zniknął w jednej komendzie;
+  - `%TEMP%/trivy-scan-hook-*`: 5 stempli z tego etapu skasowanych, 33 → 28 (zastane z E4
+    zostają decyzją z E4);
+  - `~/.codex/config.toml`: 4 sekcje zaufania sondy usunięte po „tak” (357 → 343 linie + dwie
+    puste linie styku przywrócone; `diff` z kopią pokazuje wyłącznie sekcje sondy), kopia
+    `Backupy\RelAI\codex-config.toml.przed-E5-sprzatanie-2026-10-24`.
+
+**Świadomie odłożone:**
+
+- Edycja pliku blokady przez `apply_patch` w Codeksie nie wyzwala skanu: `triggerOf` w
+  `lockfile-hook.mjs` zna `Edit/Write/MultiEdit` z `file_path`, a nie tekst łatki. Zmiana logiki
+  skilla wykracza poza zakres E5. Drogę pokrywają `/relai-security` i rytuały, a pliki blokady
+  zmienia zwykle komenda instalacji.
+- Pomiar na żywo hooka RelAI z zainstalowanego pluginu Codeksa wymaga wydania i aktualizacji
+  pluginu (E6), a potem zaufania w przeglądzie hooków (P-054). E5 mierzył zdarzenie sondą,
+  a hook testem na tym samym payloadzie.
+- Ostrzeżenie walidatora o rozmiarze `security-audit/SKILL.md` (22 026 B) jest zastane z E4.
+  To kopia 1:1, nie ruszam jej.
+
+**Do zrobienia przez człowieka:**
+
+- Pomiar zdarzenia po narzędziu w Cursorze: `agent login`, potem sonda (`postToolUse`,
+  `afterFileEdit`, `afterShellExecution`). Jest → hook w instalatorze Cursora. Brak → zdanie
+  w README zostaje. Bramka manualna, do E6.
+- Usunięcie pustego `%TEMP%\relai-e5-sonda` po zamknięciu terminala PowerShell, który ma tam
+  ustawiony katalog bieżący.
+
+Przegląd ryzyk: nowych brak. Z1 bez zmian. Ryzyko 8 planu (lista zamiast reguły, parzystość
+plików) ma teraz test w obu adapterach.
+
+Autor: RelAI (Opus 5.5) + Lukasz

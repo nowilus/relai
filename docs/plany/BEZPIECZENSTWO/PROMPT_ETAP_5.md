@@ -419,15 +419,15 @@ ma zdarzenie w Codeksie i Cursorze; zdań w README adapterów.
 
 Każdy punkt Weryfikacji, który przeszedł, odhaczasz w `PROMPT_ETAP_5.md` (`- [ ]` → `- [x]`) zaraz po jego sprawdzeniu, nie na końcu etapu; punkt, który nie przeszedł, zostaje pusty.
 
-- [ ] `node adapters/codex/generate-skills.js --verify` spójny; `adapters/codex/skills/trivy-scan/` i `adapters/codex/skills/security-audit/` istnieją, a skrypt sum porównuje każdy plik ze źródłem — 0 różnic, ta sama lista ścieżek (z podkatalogami).
-- [ ] Test parzystości plików przechodzi, a jego kontrola negatywna (usunięty plik wykonywalny w kopii) daje czerwony wynik w tym samym przebiegu; katalog spoza listy skilli nie jest kopiowany (fixtura).
-- [ ] Instalacja Cursora na projekcie testowym: `.cursor/skills/trivy-scan/scripts/scan.mjs` i `.cursor/skills/security-audit/validate-findings.cjs` istnieją z sumami źródła; deinstalacja je usuwa; liczby plików przed i po do wpisu.
-- [ ] Pomiar zdarzenia po narzędziu w Codeksie i Cursorze z kontrolą pozytywną; decyzja o hooku zgodna z wynikiem i zapisana w README adaptera (cytat do wpisu).
-- [ ] `node core/tools/validate-adapters.js` kończy się „spojne” (licznik parytetu z nową liczbą plików); `node --test core/process/tests/*.test.js`, `node --test core/panel/tests/*.test.js`, `node --test adapters/codex/tests/*.test.js` — zielone.
-- [ ] `/relai-security` (skan Trivy) na repozytorium RelAI — zero nowych CRITICAL i HIGH wobec E4 (Z1 bez zmian albo zamknięty decyzją człowieka); liczby według wagi do wpisu. Pliki kopii nie wnoszą nowych paczek (brak `package.json` w skillach).
-- [ ] Granica zakresu: `git diff --stat` nie obejmuje `.claude-plugin/plugin.json` (nadal 3.2.0), `history.md`, `relai-update.md` ani `README.md` w korzeniu; pliki Cloudflare w kopiach bez zmian wobec `c1c8a8c…` (sumy).
-- [ ] Wpis w `docs/DZIENNIK.md` na końcu sekcji „Wpisy”, z pomiarami i podpisem z członem użytkownika.
-- [ ] Katalog roboczy `.claude/relai/work/BEZPIECZENSTWO/E5/` przejrzany raportem (`node .claude/relai/tools/clean-work.js raport`) i skasowany po „tak”, liczby przed i po we wpisie dziennika; artefakty spoza katalogu (`%TEMP%/relai-e5-*`, `%TEMP%/trivy-scan-hook-*` z tego etapu) wypisane we wpisie z nazwy razem z tym, co się z nimi stało.
+- [x] `node adapters/codex/generate-skills.js --verify` spójny; `adapters/codex/skills/trivy-scan/` i `adapters/codex/skills/security-audit/` istnieją, a skrypt sum porównuje każdy plik ze źródłem — 0 różnic, ta sama lista ścieżek (z podkatalogami).
+- [x] Test parzystości plików przechodzi, a jego kontrola negatywna (usunięty plik wykonywalny w kopii) daje czerwony wynik w tym samym przebiegu; katalog spoza listy skilli nie jest kopiowany (fixtura).
+- [x] Instalacja Cursora na projekcie testowym: `.cursor/skills/trivy-scan/scripts/scan.mjs` i `.cursor/skills/security-audit/validate-findings.cjs` istnieją z sumami źródła; deinstalacja je usuwa; liczby plików przed i po do wpisu.
+- [x] Pomiar zdarzenia po narzędziu w Codeksie i Cursorze z kontrolą pozytywną; decyzja o hooku zgodna z wynikiem i zapisana w README adaptera (cytat do wpisu). *(2026-10-24: Codex zmierzony; Cursor — bramka manualna z decyzji Łukasza, CLI bez ważnego logowania.)*
+- [x] `node core/tools/validate-adapters.js` kończy się „spojne” (licznik parytetu z nową liczbą plików); `node --test core/process/tests/*.test.js`, `node --test core/panel/tests/*.test.js`, `node --test adapters/codex/tests/*.test.js` — zielone.
+- [x] `/relai-security` (skan Trivy) na repozytorium RelAI — zero nowych CRITICAL i HIGH wobec E4 (Z1 bez zmian albo zamknięty decyzją człowieka); liczby według wagi do wpisu. Pliki kopii nie wnoszą nowych paczek (brak `package.json` w skillach).
+- [x] Granica zakresu: `git diff --stat` nie obejmuje `.claude-plugin/plugin.json` (nadal 3.2.0), `history.md`, `relai-update.md` ani `README.md` w korzeniu; pliki Cloudflare w kopiach bez zmian wobec `c1c8a8c…` (sumy).
+- [x] Wpis w `docs/DZIENNIK.md` na końcu sekcji „Wpisy”, z pomiarami i podpisem z członem użytkownika.
+- [x] Katalog roboczy `.claude/relai/work/BEZPIECZENSTWO/E5/` przejrzany raportem (`node .claude/relai/tools/clean-work.js raport`) i skasowany po „tak”, liczby przed i po we wpisie dziennika; artefakty spoza katalogu (`%TEMP%/relai-e5-*`, `%TEMP%/trivy-scan-hook-*` z tego etapu) wypisane we wpisie z nazwy razem z tym, co się z nimi stało.
 
 ## Na koniec (rytuał obowiązkowy — bez tego rytuału etap nie jest ukończony)
 

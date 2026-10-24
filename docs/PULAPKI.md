@@ -8,6 +8,27 @@ Specyfikacja: `SPEC_PULAPKI.md`.
 
 ## Pułapki
 
+### P-054 — Codex pomija niezaufany hook bez słowa, także `PostToolUse` z `.codex/hooks.json` projektu · 2026-10-24 · AKTYWNA
+
+- **Objaw (plan BEZPIECZENSTWO, E5, sonda hooków na Codeksie 0.155.1):** hooki sondy w
+  `.codex/hooks.json` projektu (`SessionStart`, `PreToolUse`, `PostToolUse`) nie odpaliły ani razu.
+  `codex exec` nie wypisał ostrzeżenia, a log sondy był pusty. Nie pomogło też zaufanie projektu
+  przez `-c projects.'<ścieżka>'.trust_level="trusted"`. W tej samej turze `PreToolUse` pluginu
+  RelAI (zaufany) odpalił.
+- **Przyczyna:** każdy wpis hooka wymaga zaufania zapisanego w `~/.codex/config.toml`
+  (`[hooks.state.'<plik>:<zdarzenie>:0:0'] trusted_hash = "sha256:…"`). Bez niego Codex hooka po
+  prostu nie uruchamia. CLI nie ma komendy zaufania. Hasha nie da się odtworzyć z typowych
+  serializacji wpisu (29 wariantów, 0 trafień). `--dangerously-bypass-hook-trust` uruchomiłby
+  wszystkie niezaufane hooki maszyny.
+- **Obejście:** człowiek otwiera `codex` w katalogu i akceptuje hooki w przeglądzie. Potem
+  `codex exec` je uruchamia. Po pomiarze wpisy sondy usuwasz z `config.toml` (kopia przed). Pomiar
+  dał: `PostToolUse` przychodzi po `Bash` (`tool_input.command` jak w Claude Code) i po
+  `apply_patch` (`tool_input.command` = tekst łatki z `*** Add File: <ścieżka>`).
+- **Także:** domyślny model z `config.toml` (`gpt-6.1-sol`) nie działa w `codex exec` z kontem
+  ChatGPT (`model_not_found`), więc sonda podaje model flagą `-m`. Hook RelAI w Codeksie po
+  aktualizacji pluginu też czeka na zaufanie w przeglądzie hooków.
+- **Zasięg:** Codex CLI 0.155.1, Windows 11.
+
 ### P-053 — Mod: `/reload-plugins` nie budzi niezmienionego modułu, a `$.settings.read()` łapie zapis pliku bez przeładowania · 2026-10-23 · AKTYWNA
 
 - **Objaw (plan RELAI_MODS, E3, kokpit `relai-mods` na żywo):**

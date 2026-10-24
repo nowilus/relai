@@ -21,7 +21,9 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
    (L-0001, L-0011, L-0026, L-0089, L-0100, L-0108, L-0129, L-0212, L-0254)
 2. **W dokumencie użytkownika stoi tylko to, co działa i co zmierzyłeś** — fraza i forma wywołania
    w wersji uruchomionej dosłownie, z tej samej powłoki, którą zobaczy czytelnik; znak
-   interpretowany przez powłokę zapisujesz tak, żeby go nie tknęła. (L-0002, L-0022, L-0059)
+   interpretowany przez powłokę zapisujesz tak, żeby go nie tknęła. Komenda do wklejenia przez
+   człowieka w czacie: pełna ścieżka, bez zmiennych środowiska, na Windowsie w składni PowerShella
+   (L-0266). (L-0002, L-0022, L-0059, L-0266)
 3. **Test „czegoś nie wolno" wymaga dowodu negatywnego:** chroniony fragment ma nadal pierwotne
    brzmienie, nie tylko nowy wpis powstał. Test nieobecności tekstu z odmianą liczebnika szuka
    rdzenia wspólnego wszystkim formom, a każdy test „czegoś nie ma” wywraca mutacja pisana dla niego
@@ -618,6 +620,16 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
 - **Zasada:** ścieżkę dla Node w powłoce składasz z `cygpath -m` (ukośniki `/`), nigdy z
   `cygpath -w` i doklejonym `\\`. Pierwszy przebieg narzędzia przyjmującego ścieżkę ma kontrolę
   pozytywną: komunikat ENOENT z posklejaną nazwą to błąd instrumentu, nie wynik.
+
+### L-0266 — Komenda dla człowieka w składni mojej powłoki, nie jego (powtórzenie zasady 2) · 2026-10-24 · AKTYWNA
+
+- **Trigger:** BEZPIECZENSTWO E5. Prosząc Łukasza o zaufanie hookom Codeksa, podałem
+  `cd "$TEMP/relai-e5-sonda/codex" && codex` w składni Git Bash. Łukasz uruchomił to
+  w PowerShellu, gdzie `$TEMP` jest puste, i dostał `Cannot find path 'C:\relai-e5-sonda\codex'`.
+  Zasada 2 („z tej samej powłoki, którą zobaczy czytelnik”) już to mówiła.
+- **Zasada:** komenda, którą człowiek ma wkleić sam, ma pełną ścieżkę bezwzględną, bez zmiennych
+  środowiska i bez `&&`. Na Windowsie idzie w bloku `powershell`, a zmienna, gdy jest
+  konieczna, w formie `$env:NAZWA`.
 
 ## Lekcje zwinięte
 

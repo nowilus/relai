@@ -41,7 +41,7 @@ Sytuacje, w których skan nie daje wyniku:
 | Sytuacja | Co robisz |
 |---|---|
 | `trivy not found` | mówisz, że Trivy nie ma, i proponujesz instalację wg skilla — **dopiero po „tak”**, wyłącznie z oficjalnego źródła. Do tego czasu zapas: komenda audytu ekosystemu z pliku `first-deploy.md` skilla `relai-core` (`npm audit --omit=dev`, `pip-audit`, `bundle audit`, `govulncheck ./...`, `cargo audit`); jej wynik raportujesz tak samo, ale ryzyk w Kroku 3 nie zamykasz — inne narzędzie, inne identyfikatory |
-| skilla `trivy-scan` nie ma w tym narzędziu (Codex i Cursor przed kolejnym wydaniem) | zapas jak wyżej: komenda audytu ekosystemu, i jedno zdanie, że pełny skan Trivy działa dziś w Claude Code |
+| skilla `trivy-scan` nie ma w tym narzędziu (Codex albo Cursor zainstalowany, zanim adaptery zaczęły go dołączać) | zapas jak wyżej: komenda audytu ekosystemu, i jedno zdanie, że skan Trivy dochodzi z aktualizacją RelAI (Codex: aktualizacja pluginu; Cursor: ponowne `install.js`) |
 | baza podatności się nie pobrała (brak sieci) | mówisz to jednym zdaniem; zapas jak wyżej, z warunkiem wykonalności |
 | zero wyników, a w projekcie jest manifest bez pliku blokady | nazywasz brakujący plik (np. `package.json` bez `package-lock.json`) i nie wpisujesz ryzyka |
 | kod wyjścia 2 | czytasz komunikat i mówisz go wprost; niczego nie zgadujesz |

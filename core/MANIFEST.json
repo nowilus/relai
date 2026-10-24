@@ -129,6 +129,12 @@
       "file": "./process/humanize-continuous.js",
       "kind": "biblioteka",
       "description": "Tryb ciagly humanizacji: regula przed odpowiedzia (zakresy czat i zewnetrzne, ASCII, do 600 B), regula po zapisie dokumentu w docs/ (notka albo dwie wersje, raz na plik w turze, atomowy znacznik na plik pisany przez hook, tura od nowego polecenia czlowieka), filtr sciezek H3 (archiwum, zamrozone PLAN.*, DECYZJE.md, PROMPT_*, SPEC_*, CLAUDE.md, AGENTS.md, pliki inne niz .md i .txt, znaki spoza ASCII). Ustawienia przez humanize-mode.js. Bez wiedzy o protokole hookow."
+    },
+    {
+      "id": "bundled-skills",
+      "file": "./process/bundled-skills.js",
+      "kind": "biblioteka",
+      "description": "Lista skilli dolaczanych do Codeksa i Cursora (relai-core, relai-planning, trivy-scan, security-audit) i lista plikow skilla z podkatalogami bez evals/ (BEZPIECZENSTWO E5, ryzyko 8). Wola ja generator skilli Codeksa i instalator Cursora; katalog spoza listy nie trafia nigdzie."
     }
   ],
   "tools": [
@@ -198,6 +204,7 @@
         "./templates/",
         "./guardrails/secret-scan.js",
         "./process/session-signals.js",
+        "./process/bundled-skills.js",
         "./process/work-artifacts.js",
         "./process/crew.js",
         "./process/humanize-facts.js",
@@ -214,6 +221,7 @@
         "./templates/",
         "./guardrails/secret-scan.js",
         "./process/session-signals.js",
+        "./process/bundled-skills.js",
         "./process/work-artifacts.js",
         "./process/crew.js",
         "./process/humanize-facts.js",

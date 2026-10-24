@@ -12,9 +12,21 @@ const ADAPTER = __dirname;
 const ROOT = path.resolve(ADAPTER, '..', '..');
 const COMMANDS = path.join(ROOT, 'adapters', 'claude-code', 'commands');
 const CORE_SKILLS = path.join(ROOT, 'adapters', 'claude-code', 'skills');
+const { BUNDLED_SKILL_NAMES, skillFiles } = require(path.join(ROOT, 'core', 'process', 'bundled-skills.js'));
 
 function read(file) {
   return fs.readFileSync(file, 'utf8').replace(/\r\n/g, '\n');
+}
+
+// Skill files are copied byte for byte; text files get the same CRLF -> LF as the commands, so a
+// Windows checkout with autocrlf does not count as drift. A file with a NUL byte stays untouched.
+function readSkillFile(file) {
+  const bytes = fs.readFileSync(file);
+  return bytes.includes(0) ? bytes : bytes.toString('utf8').replace(/\r\n/g, '\n');
+}
+
+function sameContent(actual, expected) {
+  return Buffer.isBuffer(expected) ? Buffer.isBuffer(actual) && actual.equals(expected) : actual === expected;
 }
 
 // $ARGUMENTS is substituted only by Claude Code; Codex passes the argument inside the message
@@ -43,7 +55,7 @@ function commandSkill(source) {
   return '---\nname: ' + name + '\ndescription: ' + description + '\n---\n\n' + text;
 }
 
-function sourceFiles() {
+function sourceFiles(skillsSource = CORE_SKILLS) {
   const commands = fs.readdirSync(COMMANDS)
     .filter((name) => /^relai-[a-z-]+\.md$/.test(name))
     .sort()
@@ -54,94 +66,82 @@ function sourceFiles() {
       commands.push({ name: command.name, file: path.join('agents', 'openai.yaml'), source: command.source, content: EXPLICIT_ONLY_POLICY, policy: true });
     }
   }
-  // Core skills ship SKILL.md plus reference files read on demand (E3 PROWADZENIE_END_TO_END):
-  // every .md file of the skill directory is copied, so none of them can drift or go missing.
-  for (const name of CORE_SKILL_NAMES) {
-    for (const file of coreSkillFiles(name)) {
-      const source = path.join(CORE_SKILLS, name, file);
-      commands.push({ name, file, source, content: read(source) });
+  // Bundled skills (core/process/bundled-skills.js) ship every file with subdirectories — SKILL.md,
+  // reference files, scripts, LICENSE (E3 PROWADZENIE_END_TO_END, BEZPIECZENSTWO E5), so none of
+  // them can drift or go missing.
+  for (const name of BUNDLED_SKILL_NAMES) {
+    for (const file of skillFiles(path.join(skillsSource, name))) {
+      const source = path.join(skillsSource, name, ...file.split('/'));
+      commands.push({ name, file: path.join(...file.split('/')), source, content: readSkillFile(source), skill: true });
     }
   }
   return commands;
 }
 
-const CORE_SKILL_NAMES = ['relai-core', 'relai-planning'];
-
-function coreSkillFiles(name) {
-  const files = fs.readdirSync(path.join(CORE_SKILLS, name)).filter((file) => file.endsWith('.md')).sort();
-  if (!files.includes('SKILL.md')) throw new Error('Brak SKILL.md w skillu: ' + name);
-  return files;
-}
-
-function entries(output) {
-  return sourceFiles().map((item) => ({
+function entries(output, skillsSource) {
+  return sourceFiles(skillsSource).map((item) => ({
     name: item.name,
     file: path.join(output, item.name, item.file || 'SKILL.md'),
     content: item.content,
-    command: /^relai-(?!core$|planning$)/.test(item.name) && !item.policy,
+    command: !item.skill && !item.policy,
   }));
 }
 
-// Files in a generated skill directory (and its agents/ folder) that no source file produces any
-// more: a removed reference file, or an openai.yaml left after a command lost its explicit-only flag.
-function orphans(output) {
-  const all = entries(output);
-  const expected = new Set(all.map((entry) => entry.file));
-  const found = [];
-  const names = new Set(all.map((entry) => entry.name));
-  // A relai-* directory no source produces any more (a renamed command) is orphaned as a whole.
-  let dirs = [];
-  try { dirs = fs.readdirSync(output, { withFileTypes: true }).filter((d) => d.isDirectory() && /^relai-/.test(d.name)); } catch (_) { dirs = []; }
-  for (const d of dirs) {
-    if (names.has(d.name)) continue;
-    const walk = (dir) => {
-      for (const f of fs.readdirSync(dir, { withFileTypes: true })) {
-        const full = path.join(dir, f.name);
-        if (f.isDirectory()) walk(full); else found.push(full);
-      }
-    };
-    walk(path.join(output, d.name));
+function walkFiles(dir, found) {
+  let items = [];
+  try { items = fs.readdirSync(dir, { withFileTypes: true }); } catch (_) { return found; }
+  for (const f of items) {
+    const full = path.join(dir, f.name);
+    if (f.isDirectory()) walkFiles(full, found); else found.push(full);
   }
-  for (const name of names) {
-    for (const dir of [path.join(output, name), path.join(output, name, 'agents')]) {
-      let files = [];
-      try { files = fs.readdirSync(dir, { withFileTypes: true }); } catch (_) { continue; }
-      for (const file of files) {
-        if (file.isDirectory()) continue;
-        const full = path.join(dir, file.name);
-        if (!expected.has(full)) found.push(full);
-      }
+  return found;
+}
+
+// Files in the generated tree that no source file produces any more: a removed reference file or
+// script (also in a subdirectory), an openai.yaml left after a command lost its explicit-only flag,
+// or a whole skill directory no source produces any more (a renamed command, a skill off the list).
+function orphans(output, skillsSource) {
+  const all = entries(output, skillsSource);
+  const expected = new Set(all.map((entry) => entry.file));
+  const names = new Set(all.map((entry) => entry.name));
+  let dirs = [];
+  try { dirs = fs.readdirSync(output, { withFileTypes: true }).filter((d) => d.isDirectory()); } catch (_) { dirs = []; }
+  const found = [];
+  for (const d of dirs) {
+    for (const full of walkFiles(path.join(output, d.name), [])) {
+      if (!names.has(d.name) || !expected.has(full)) found.push(full);
     }
   }
   return found;
 }
 
-function generate({ output = path.join(ROOT, 'adapters', 'codex', 'skills') } = {}) {
+// skillsSource: the Claude Code skills directory; tests point it at a fixture.
+function generate({ output = path.join(ROOT, 'adapters', 'codex', 'skills'), skillsSource } = {}) {
   const files = [];
   let commandSkills = 0;
-  const names = new Set(entries(output).map((entry) => entry.name));
-  for (const orphan of orphans(output)) {
+  const names = new Set(entries(output, skillsSource).map((entry) => entry.name));
+  for (const orphan of orphans(output, skillsSource)) {
     fs.rmSync(orphan, { force: true });
     const top = path.relative(output, orphan).split(path.sep)[0];
     if (!names.has(top)) fs.rmSync(path.join(output, top), { recursive: true, force: true });
   }
-  for (const entry of entries(output)) {
+  for (const entry of entries(output, skillsSource)) {
     fs.mkdirSync(path.dirname(entry.file), { recursive: true });
-    fs.writeFileSync(entry.file, entry.content, 'utf8');
+    fs.writeFileSync(entry.file, entry.content, Buffer.isBuffer(entry.content) ? undefined : 'utf8');
     files.push(entry.file);
     if (entry.command) commandSkills++;
   }
   return { commandSkills, files };
 }
 
-function verify({ output = path.join(ROOT, 'adapters', 'codex', 'skills') } = {}) {
+function verify({ output = path.join(ROOT, 'adapters', 'codex', 'skills'), skillsSource } = {}) {
   const mismatches = [];
-  for (const entry of entries(output)) {
+  for (const entry of entries(output, skillsSource)) {
     let actual = '';
-    try { actual = read(entry.file); } catch (_) { mismatches.push(entry.file); continue; }
-    if (actual !== entry.content) mismatches.push(entry.file);
+    try { actual = Buffer.isBuffer(entry.content) ? fs.readFileSync(entry.file) : read(entry.file); } catch (_) { mismatches.push(entry.file); continue; }
+    if (!sameContent(actual, entry.content)) mismatches.push(entry.file);
   }
-  return mismatches.concat(orphans(output));
+  return mismatches.concat(orphans(output, skillsSource));
 }
 
 if (require.main === module) {
@@ -154,9 +154,9 @@ if (require.main === module) {
   const wszystkie = entries(path.join(ROOT, 'adapters', 'codex', 'skills'));
   const procedury = wszystkie.filter((e) => e.command).length;
   const polityki = wszystkie.filter((e) => e.file.endsWith('openai.yaml')).length;
-  const rdzen = wszystkie.length - procedury - polityki;
-  process.stdout.write('RelAI Codex skills: ' + procedury + ' procedur (' + polityki + ' tylko na jawne wywolanie) + 2 skille rdzeniowe ('
-    + rdzen + ' plikow), spojne.\n');
+  const dolaczone = wszystkie.length - procedury - polityki;
+  process.stdout.write('RelAI Codex skills: ' + procedury + ' procedur (' + polityki + ' tylko na jawne wywolanie) + '
+    + BUNDLED_SKILL_NAMES.length + ' skille dolaczone (' + dolaczone + ' plikow), spojne.\n');
 }
 
 // Every file the generated tree must contain, for the parity line of validate-adapters.js.

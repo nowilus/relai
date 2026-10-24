@@ -31,8 +31,11 @@ Instalator kładzie w projekcie dokładnie sześć rzeczy i wypisuje, co zrobił
    dotyczy planu, etapu albo odnogi, a reguła rdzenia każe ją doczytać, gdyby się nie dobrała.
 2. `.cursor/commands/relai-*.md` — szesnaście komend wywoływanych jako `/relai-stage`, `/relai-tour`…
    Pliki są kopiami z adaptera Claude Code: jedno źródło w repozytorium, kopia w projekcie.
-3. `.cursor/skills/relai-core/`, `.cursor/skills/relai-planning/` — te same skille co w Claude Code;
-   w Cursorze niosą procedurę, nigdy regułę.
+3. `.cursor/skills/relai-core/`, `relai-planning/`, `trivy-scan/`, `security-audit/` — te same skille
+   co w Claude Code, każdy ze wszystkimi plikami i podkatalogami (skrypty, `references/`, `LICENSE`),
+   bez `evals/`; lista w `core/process/bundled-skills.js`. `trivy-scan` daje skan zależności
+   `/relai-security`, `security-audit` — pełny audyt `/relai-security --full`. W Cursorze skille niosą
+   procedurę, nigdy regułę.
 4. `.claude/relai/templates/` — dwadzieścia specyfikacji dokumentów plus szablon planu HTML
    (razem trzydzieści plików).
    Katalog nazywa się tak samo jak w Claude Code **celowo**: komendy i skille mówią o jednej ścieżce,
@@ -41,7 +44,9 @@ Instalator kładzie w projekcie dokładnie sześć rzeczy i wypisuje, co zrobił
    dla `/relai-crew` (od 2.1.0). Treść ról pochodzi z agentów adaptera Claude Code; instalator zmienia
    wyłącznie frontmatter na format Cursora (recenzent dostaje narzędzia tylko-do-odczytu).
 6. Dwa wpisy w `.cursor/hooks.json` — `sessionStart` i `preToolUse`. Cudze wpisy zostają nietknięte;
-   nasze są oznaczone opisem zaczynającym się od `RelAI:`.
+   nasze są oznaczone opisem zaczynającym się od `RelAI:`. Hooka `lockfile-scan` (skan po zmianie
+   zależności) w Cursorze nie ma: zdarzenie po narzędziu nie zostało tu zmierzone, więc skan
+   zależności dają komenda `/relai-security` i rytuały procesu (zamknięcie sesji, „gotowe”).
 
 Instalacja jest **idempotentna**: powtórzone uruchomienie nadpisuje własne pliki i nie mnoży wpisów
 w `hooks.json`. Zapisuje też `.cursor/relai-install.json` — spis tego, co położyła.
