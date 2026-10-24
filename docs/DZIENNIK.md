@@ -2425,3 +2425,29 @@ zmitygowane wrapperem z adnotacją, droga WSL niezmierzona. Lekcje nowe: L-0264 
 modów po zmianie komendy), L-0265 (ścieżka z backslashem w powłoce, powtórzenie L-0230).
 
 Autor: RelAI (Opus 5.5) + Lukasz
+
+### 2026-10-24 — /cache mówi prawdę o karcie limitu przy progu 99 %
+
+Łukasz chciał, żeby przy 99 % limitu tygodnia nic nie przerwało pracy. Prosił o wyłącznik albo
+próg 100 %. Okazało się, że karta przy progu 99 % już nie przychodzi: `overLimits` w
+`cache-keeper/hooks/limit.ts` pomija okno z progiem `>= MAX_THRESHOLD` (99), co pokazują testy
+w `checkpoint.test.ts` („at 99 the card does not come back”). Globalny wiersz `Próg limitu
+tygodnia | 99` zostaje, a progu 100 % nie dodano. Po jego decyzji poprawiony został tylko tekst
+`/cache`, który przy 99 % dalej obiecywał „a po turze przychodzi karta”.
+
+**Zrobione:** `thresholdTail` w `cache-keeper/hooks/limit.ts` składa koniec linii progu. Poniżej
+99 % brzmi on jak dotąd. Przy jednym oknie na 99 % dochodzi nawias, np. „(tydzień: karta
+wyłączona przy 99 %)”. Przy obu oknach na 99 % pada zdanie „karta po turze wyłączona (próg
+99 %)”. Funkcję woła `register.tsx`. Wersja `relai-cache-keeper` bez zmian, niewydane.
+
+**Zweryfikowane — jak dokładnie:** test czystej funkcji (cztery przypadki) w `limit.test.ts`
+i asercja w `commands.test.ts` (tydzień 99 % w projekcie). Przed implementacją `claude plugin
+test cache-keeper` dał 182 pass i 2 fail (RED), po niej 199/199, a `claude plugin validate
+cache-keeper` przeszedł.
+
+**Świadomie odłożone:** `docs/KOMENDY.md` (l. 62) i `core/templates/SPEC_USTAWIENIA.md`
+(l. 488, 793) opisują kartę bez wyjątku dla 99 %. Łukasz prosił tylko o tekst `/cache`.
+
+**Do zrobienia przez człowieka:** —
+
+Autor: RelAI (Opus 5.5) + Lukasz

@@ -121,6 +121,16 @@ export const NO_SCOPE = 'Nie zapisuj' // the scope card's way out: nothing is wr
 
 export const nextSessionThreshold = (t: number): number => Math.min(MAX_THRESHOLD, t + THRESHOLD_STEP)
 
+// The /cache words after both thresholds. A window at 99 asks no more (overLimits), so the line
+// says its card is off instead of promising one (Łukasz 2026-10-24: "przy 99 nic nie przerwie")
+export function thresholdTail(t: PerWindow): string {
+  const off = WINDOWS.filter((w) => t[w] >= MAX_THRESHOLD)
+  const battery = 'od niego bateria limitu ostrzega kolorem'
+  if (off.length === WINDOWS.length) return `${battery}; karta po turze wyłączona (próg ${MAX_THRESHOLD} %).`
+  if (!off.length) return `${battery}, a po turze przychodzi karta.`
+  return `${battery}, a po turze przychodzi karta (${off.map((w) => WINDOW_NAME[w]).join(', ')}: karta wyłączona przy ${MAX_THRESHOLD} %).`
+}
+
 // A threshold typed or chosen on the card: "85", "85 %", "85%"; anything else, or outside 1–99, is null
 export function thresholdAnswer(answer: string): number | null {
   const m = String(answer ?? '').trim().match(/^(\d{1,3})\s*%?$/)

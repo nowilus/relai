@@ -206,7 +206,10 @@ test('without a number (the panel\'s "Zmień"): the value card, then the scope c
   expect(w.asked[0]?.question).toContain('Teraz 98 % (domyślny)')
   expect(w.disk[PROJECT_FILE]).toContain('| 2026-10-11 | Próg limitu tygodnia | 99 |')
   expect(w.disk[PROJECT_FILE]).not.toContain('| Próg limitu |')
-  expect(await run($, 'cache')).toContain('Próg limitu: 5 h 90 % (domyślny) · tydzień 99 % (ten projekt)')
+  const status = await run($, 'cache')
+  expect(status).toContain('Próg limitu: 5 h 90 % (domyślny) · tydzień 99 % (ten projekt)')
+  // 99 asks no more (overLimits): the line says the week's card is off, the 5 hours' still comes
+  expect(status).toContain('a po turze przychodzi karta (tydzień: karta wyłączona przy 99 %).')
 })
 
 test('a session file that outranks the chosen project row is said so in the toast', async ($, on) => {

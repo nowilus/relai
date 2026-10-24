@@ -21,7 +21,7 @@ import { handoffEconomics, limitPace, type BarSegment, type CacheTemp, type Hand
 import { RITUAL_FILES, activePlanStatus, dateText, estimatedLayer, measuredLayer, startKey, type MeasuredStart } from './start-layer'
 import {
   CARD_OPTIONS, DEFAULTS, GO_ON, MUTE, NO_SCOPE, SAVE, SCOPE_OPTIONS, THRESHOLD_CHOICES, THRESHOLD_HEADER, WINDOW_NAME, WINDOW_OF, cardDue, focusDocPath, focusFilePath, focusRef,
-  focusStatus, isWorkGoing, limitWarnWindow, nextSessionThreshold, rememberThreshold, resumeDue, resumePath, saveRowText, thresholdAnswer, thresholdText,
+  focusStatus, isWorkGoing, limitWarnWindow, nextSessionThreshold, rememberThreshold, resumeDue, resumePath, saveRowText, thresholdAnswer, thresholdTail, thresholdText,
   thresholdsOf, type CardInput, type LimitIO, type LimitWindow, type SavePhase, type Thresholds,
 } from './limit'
 
@@ -835,7 +835,7 @@ function statusText(now: number): string {
   if (st.kind === 'cold') lines.push(`Cache prawdopodobnie zimny od ${minutes(-st.left)}. Następna wiadomość zapisze go ponownie za ≈ ${usd(rewriteAt(S.ctx))}.`)
   if (S.keepWarm) lines.push(`Podtrzymanie do ${clock(S.keepWarmUntil)}: ${S.pings} pingów, ${usd(S.pingUsd)}.`)
   if (S.rateLimits.length) lines.push(`Limity planu: ${limitsText(S.rateLimits)}.`)
-  lines.push(`Próg limitu: 5 h ${thresholdText(thresholds.five)} · tydzień ${thresholdText(thresholds.week)} — od niego bateria limitu ostrzega kolorem, a po turze przychodzi karta.`)
+  lines.push(`Próg limitu: 5 h ${thresholdText(thresholds.five)} · tydzień ${thresholdText(thresholds.week)} — ${thresholdTail({ five: thresholds.five.value, week: thresholds.week.value })}`)
   lines.push(`Sesja ≈ ${usd(S.costUsd)} (hipotetycznie wg cennika API). Ponowne zapisy cache: ${S.rewrites} (${usd(S.rewriteUsd)}).`)
   lines.push(`Strażnik: ${settings.guard ? 'on' : 'off'} od ${tokens(settings.bigTokens)}. Alerty: ${settings.alerts ? 'on' : 'off'} od ${tokens(settings.alertTokens)}, progi ${settings.warnMin.join(' i ')} min. Projekt RelAI: ${S.isRelai ? 'tak' : 'nie'}.`)
   lines.push(`Ustawienia: /${names.cache} ttl 5|60|auto · straznik on|off · prog 150k · alerty on|off · progi 10,5 · godziny 4 · limit 90 · limit-warn 85|90|95 · limit-warn-week 95|98|99 · zwrot ${settings.paybackTurns} (1–${MAX_PAYBACK_TURNS} wiadomości)`)

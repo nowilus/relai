@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'claude-code/testing'
-import { DEFAULT_THRESHOLD, rememberThreshold, rowValue, sessionPath, sessionValue, thresholdOf, thresholdsOf, withRow, type LimitIO } from './limit'
+import { DEFAULT_THRESHOLD, rememberThreshold, rowValue, sessionPath, sessionValue, thresholdOf, thresholdTail, thresholdsOf, withRow, type LimitIO } from './limit'
 
 // The plan-limit thresholds, LIMIT_CHECKPOINT E1 and Aneks C: per window, this session's file →
 // the project's row → the global row → the window's default (90 for 5 h, 98 for the week); the
@@ -75,6 +75,15 @@ describe('the week threshold (Aneks C)', () => {
     const io = disk({})
     await thresholdsOf(io, WHERE)
     expect(io.reads).toEqual([SESSION, PROJECT, GLOBAL])
+  })
+})
+
+describe('the /cache words after the thresholds', () => {
+  test('a card after a turn below 99; at 99 the line says that window\'s card is off', () => {
+    expect(thresholdTail({ five: 90, week: 98 })).toBe('od niego bateria limitu ostrzega kolorem, a po turze przychodzi karta.')
+    expect(thresholdTail({ five: 90, week: 99 })).toBe('od niego bateria limitu ostrzega kolorem, a po turze przychodzi karta (tydzień: karta wyłączona przy 99 %).')
+    expect(thresholdTail({ five: 99, week: 98 })).toBe('od niego bateria limitu ostrzega kolorem, a po turze przychodzi karta (5 h: karta wyłączona przy 99 %).')
+    expect(thresholdTail({ five: 99, week: 99 })).toBe('od niego bateria limitu ostrzega kolorem; karta po turze wyłączona (próg 99 %).')
   })
 })
 
