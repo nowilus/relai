@@ -2269,3 +2269,159 @@ Przegląd ryzyk: nowych brak, Z1 bez zmian (bramka decyzji o `zod` dalej otwarta
 Lekcji nowych brak.
 
 Autor: RelAI (Opus 5.5) + Lukasz
+
+### 2026-10-24 — BEZPIECZENSTWO E4: security-audit od Cloudflare w pluginie i /relai-security --full
+
+Pełny audyt bezpieczeństwa kodu działa teraz jednym poleceniem: `/relai-security --full`. Korzysta
+ze skilla `security-audit` od Cloudflare, dołączonego do pluginu jako kopia 1:1 przypiętego
+commitu. Przed startem komenda pokazuje kartę kosztu i czeka na „tak”. Wersja zostaje 3.2.0.
+
+**Zrobione:**
+
+- `adapters/claude-code/skills/security-audit/`: 21 plików kopii (`skills/security-audit/`
+  i `LICENSE` z `cloudflare/security-audit-skill` @ `c1c8a8c1471069fb0e188eeaff69b8e8db6564a8`,
+  2026-09-14) z klonu z `core.autocrlf=false`. Obok cztery pliki RelAI z przedrostkiem `RELAI-`:
+  `RELAI-SOURCE.txt` (źródło), `RELAI-NOTICE.md` (nota MIT, lista 21 plików, tekst licencji),
+  `RELAI-SYNC.md` (procedura synchronizacji w ośmiu krokach, do niej odsyła krok wydania w E6)
+  i `RELAI-validate.cjs`. Nota leży w katalogu kopii, więc pytanie o katalog z p. 4 promptu nie
+  padło. Testy upstreamu (`*.test.cjs`) skopiowane razem z resztą: przegląd nie dał powodu do
+  pominięcia, a kopia zostaje 1:1.
+- `core/tools/validate-adapters.js`, kontrola 14 „nota MIT Cloudflare” wzorem kontroli 13:
+  plik noty, linia `MIT License`, linia praw autora z zakresem lat (`2025-2026`) i każdy plik
+  katalogu kopii (bez `RELAI-*`) wymieniony w backtickach.
+- `adapters/claude-code/commands/relai-security.md` (wersja 2): sekcja „Tryb --full” z krokami
+  F1–F4. F1: karta kosztu ze zdaniem o liczbie wywołań, profil i budżet, katalog
+  `.security/security-audit/run-<N>/` (odpowiedź „tak” to jawny wybór katalogu w projekcie,
+  którego skill wymaga), audyt wyłącznie źródłowy bez piaskownicy systemowej. F2:
+  `.gitignore` z `*` i `git check-ignore`. F3: walidatory według systemu. F4: wynik i wiersz
+  ryzyka dla `confirmed` critical/high. `argument-hint` z `[--full]`, opis z frazą „pełny audyt
+  bezpieczeństwa”. Tryb domyślny (Trivy) bez zmian.
+- Droga walidatorów na Windowsie bez WSL, wybrana pomiarem. CLI Cloudflare odmawia odczytu
+  („OS no-follow and nonblocking input protection is unavailable”), bo Node na Windowsie nie
+  ma `O_NOFOLLOW` i `O_NONBLOCK`. To jest przyczyna 7 błędów CLI w testach z promptu: CLI celowo
+  zamyka się przy braku zabezpieczenia, nie psuje się. `RELAI-validate.cjs` czyta plik
+  `readFileSync` i woła eksportowane `validateDocument` (schemat i semantyka te same), a raport
+  mówi o tym zdaniem w pierwszym akapicie.
+- `adapters/claude-code/skills/relai-core/first-deploy.md` (wersja 3): akapit pod tabelą
+  z krótkim przeglądem w trybie porad `security-audit` i **jedną** propozycją `--full`.
+  Numeracja tabeli bez zmian.
+- README §„Licencja” (akapit o Cloudflare), `docs/KOMENDY.md` i `docs/PRZEWODNIK.md` po jednym
+  zdaniu o `--full`, `docs/ARTEFAKTY.md`: `/relai-security` w wersji 2, `first-deploy` w wersji 3
+  i cztery nowe wiersze (kopia, źródło, nota, synchronizacja).
+- Poza literą zakresu, po decyzjach Łukasza w tej sesji (sygnał odchylenia, AskUserQuestion):
+  (1) **kopie Codeksa** przegenerowane `generate-skills.js`. Walidator wymaga zgodności,
+  a prompt zabraniał `adapters/codex/`. Zmieniły się 2 pliki: `relai-security/SKILL.md`
+  i `relai-core/first-deploy.md`. (2) **Formularz panelu** `/relai-security` z wyborem „skan
+  zależności / --full” w `core/panel/commands.mjs`, plus `sync-panel-core.js` do czterech kopii
+  (`panel`, `progress`, `cache-keeper`, `mods`). Bez podbicia wersji modów i bez wydania.
+  (3) **Testy pluginu panelu** `pane-v2.test.ts` i `narrow.test.ts`: 16 komend, 14 wierszy,
+  1213 px (16. wiersz z odstępem, +28 px). Błędy były zastane z E1 (L-0264).
+
+**Zweryfikowane — jak dokładnie:**
+
+- Przegląd cudzego kodu wg `SPEC_PRZYJECIE_KODU.md` — `security-audit` (Cloudflare,
+  `cloudflare/security-audit-skill` @ `c1c8a8c…`, 2026-09-14). `git ls-remote … HEAD` →
+  `c1c8a8c…`, więc najnowszy commit upstreamu to commit przypięty, a różnic nie ma (ryzyko 2).
+  1. Inwentarz: 22 pliki w repo. Do kopii wchodzi 21: 15 `*.md` z klasami i procedurą, `SKILL.md`,
+     `report-schema.json`, 2 walidatory `.cjs` (wykonywane), 2 testy `.test.cjs` i `LICENSE`.
+     Poza kopią zostaje `README.md` upstreamu. Bez binariów i kodu zminifikowanego.
+  2. Sieć: 0 trafień wzorca ze specyfikacji w `*.cjs` i `*.json`. Kontrola pozytywna tym samym
+     wzorcem na `panel/hooks/register.tsx`: 1. Walidator RelAI: „wywolania sieciowe: 190 plikow
+     kodu, 1 z listy dozwolonych, 0 poza lista”.
+  3. Pliki: walidatory tylko czytają plik z `argv[2]` (`openSync` / `readSync` / `fstatSync`
+     z `O_NOFOLLOW | O_NONBLOCK`). Zapisy (`writeFileSync`, `rmSync`) są wyłącznie w testach, we
+     własnych katalogach tymczasowych.
+  4. Procesy: `child_process.spawnSync` tylko w dwóch testach (`node` walidatora, `mkfifo`).
+     W walidatorach 0. Bez `eval`, `new Function` i dynamicznego `import()`.
+  5. Zgodność z celem: odczyt `findings.json` i `coverage-ledger.json` służy walidacji raportu
+     audytu. Testy tworzą pliki tymczasowe do sprawdzenia CLI.
+  6. Zależności: brak `package.json` i skryptów instalacji. Wyłącznie moduły wbudowane (`fs`,
+     `path`, `util`, a w testach `assert`, `os`, `child_process`, `test`).
+  7. Licencja: MIT, `Copyright (c) 2025-2026 Cloudflare, Inc.`, `LICENSE` zachowany w kopii,
+     atrybucja w nocie i README.
+  Werdykt przeglądu: PRZYJĘTY
+- Sumy profilu wobec checkoutu `c1c8a8c…` (bez `SOURCE.txt`): wobec klonu LF 0/21 zgodnych,
+  wobec klonu z `autocrlf=true` (CRLF) 21/21. Kopia w profilu jest więc upstreamem
+  z końcami CRLF. Kontrola pozytywna instrumentu: klon CRLF wobec klonu LF daje różnice.
+- Kopia 1:1: sumy SHA-256 `adapters/claude-code/skills/security-audit/` wobec klonu LF (bez
+  `RELAI-*`): 21 zgodnych, 0 różnych, 0 brak, 0 nadmiar. Indeks gita w repo trzyma LF
+  (`git ls-files --eol`), czyli bloby są równe upstreamowi.
+- `node core/tools/validate-adapters.js`: „spojne”, „nota MIT Cloudflare: 21 plikow kopii,
+  21 wymienionych”, „metadane skilli i komend: 4 skilli + 16 komend, 0 bledow, 0 wyjatkow
+  zastanych”, „parytet skilli Claude Code -> Codex: 43 plikow, 0 rozjazdow”. Ostrzeżenie
+  o `SKILL.md` Cloudflare (22 026 B ponad 20 480 B) nie jest błędem, więc wyjątek był zbędny.
+  Kontrola negatywna w jednym przebiegu: bez wpisu `SKILL.md` w nocie walidator kończy się
+  kodem 1 („nie wymienia pliku …/SKILL.md”), a po przywróceniu kodem 0 i „spojne”. Nota po
+  przebiegu identyczna bajt w bajt.
+- Testy: `core/process` 206/206, `core/panel` 216/216 (przed formularzem 214/216, dwa testy
+  nagłówków), `adapters/codex` 15/15. `claude plugin test`: `panel` 211/211 (przed poprawką
+  208/3, tak samo na HEAD w `git worktree`), `progress` 48/48, `cache-keeper` 198/198,
+  `mods` 68/68. Formularza panelu nie sprawdzałem na żywo w aplikacji.
+- `/relai-security` na RelAI (`scan.mjs --path . --json`): CRITICAL 0, HIGH 1, MEDIUM 2, LOW 2,
+  nowych 0. HIGH = `zod` (Z1), tak jak w E3.
+- `RELAI-validate.cjs`: pusta tablica → PASS dla `findings` i `ledger`. Dokument błędny →
+  FAIL (1 błąd `oneOf` / 38 błędów rejestru). Na tym samym `findings.json` CLI upstreamu → kod 1
+  z komunikatem o braku ochrony.
+- Dogfooding `--full` w `%TEMP%/relai-e4-dogfood` (4 pliki, commit `9520933`, IDOR wstawiony
+  w `GET /notes/:id`). Zdanie o koszcie przed startem: „Pełny audyt uruchamia wielu agentów:
+  10–14 wywołań przy profilu quick (cztery rozpoznania, łowcy, krytycy pokrycia, weryfikatorzy) —
+  to zużyje wyraźną część limitu sesji.” Łukasz wybrał mniejszy budżet: 7 wywołań. Profil
+  `quick`: 4 rozpoznania, 1 łowca (5 jednostek: 3 `covered`, 2 `candidate`), 1 krytyk końcowy
+  (2 jednostki brakujące → `deferred`, `quick_profile_final_critic`), 1 weryfikator. Wynik
+  w `.security/security-audit/run-1/` (`git check-ignore` → ignorowany): `REPORT.md`,
+  `findings.json`, `FINDINGS-DETAIL.md`, `NEEDS-VALIDATION.md`, `coverage-ledger.json`
+  (7 jednostek), `run-metadata.json`. Wstawiona podatność jest w `findings.json` jako
+  `needs_validation` z odciskiem `notes-get-by-id-missing-owner-check`. Nie jest `confirmed`, bo
+  bez piaskownicy systemowej skill zakazuje uruchamiania kodu projektu. Pierwszy akapit
+  `REPORT.md` to zdanie o wrapperze z F3. `run_status: incomplete`
+  (`validation_budget_exhausted`): drugi kandydat, `notes-store-unbounded-growth-no-quota`,
+  został bez weryfikacji i raport nie podaje go jako ustalenia. Wrapper: `findings` PASS (1),
+  rejestr PASS (7).
+  Uproszczenie wobec litery skilla: bloki klas ataków, procedurę promocji i gałęzie
+  `report-schema.json` łowca i weryfikator czytali z plików skilla, zamiast dostać je wklejone
+  w prompt. Treść jest ta sama, inny jest kanał.
+- Granica zakresu (`git diff --stat`): 18 plików śledzonych i nowy katalog skilla.
+  `adapters/cursor/` i `history.md` bez zmian, `.claude-plugin/plugin.json` dalej 3.2.0.
+  `adapters/codex/` ma 2 pliki wygenerowane, a mody 4 kopie `commands.mjs` i 2 testy, oba
+  zestawy po decyzjach Łukasza wyżej. README zmieniony wyłącznie w §„Licencja”:
+
+  ```
+  @@ -205,2 +205,7 @@ gwarancji.
+   z nich korzystają, i pełny tekst licencji źródła: [nota](core/humanize/LICENSE-humanizer.md).
+  +
+  +Pełny audyt `/relai-security --full` korzysta ze skilla `security-audit` od Cloudflare (licencja
+  ```
+- Katalog roboczy `.claude/relai/work/BEZPIECZENSTWO/E4/`: przed sprzątaniem 8 plików
+  (34 947 B: skrypty porównania sum, kontroli noty, rejestru, łowcy, krytyka, finalizacji,
+  plik zły do kontroli wrappera i wynik testów panelu). Po „tak” Łukasza 0, katalog
+  `BEZPIECZENSTWO/` usunięty. Poza katalogiem, też po „tak”, skasowane: `%TEMP%/relai-e4-upstream`,
+  `%TEMP%/relai-e4-upstream-lf`, `%TEMP%/relai-e4-empty.json` i 6 znaczników
+  `%TEMP%/trivy-scan-hook-*` z 20:03–20:06 (32 → 26). Zostaje do wglądu, decyzją Łukasza:
+  `%TEMP%/relai-e4-dogfood`. Worktree HEAD `%TEMP%/relai-e4-head` usunięty zaraz po pomiarze
+  (`git worktree remove`).
+- `PROMPT_ETAP_5.md`: zasady aktywne (15 pozycji, 24 949 znaków, z L-0264 i L-0265) wstawione
+  skryptem z funkcją podstawiającą, blok identyczny ze źródłem, znacznik usunięty. Skrypt
+  `.claude/relai/work/BEZPIECZENSTWO/E4-zamkniecie/wstaw-zasady.cjs` skasowany po wstawce w ramach
+  tej samej zgody Łukasza na artefakty E4. Walidator po wszystkich zmianach: „spojne”, rytuał
+  „Na koniec” w 3 listach z krokami [1,1a,2,3,4,5,6].
+
+**Świadomie odłożone:**
+
+- Droga WSL w F3 jest opisana, ale niezmierzona, bo na tej maszynie nie ma WSL. Ryzyko 9 planu
+  zostaje otwarte.
+- Formularz `--full` w panelu i nowe oczekiwania testów są w repo bez wydania modów. Wersje
+  `relai-panel`, `relai-progress`, `relai-cache-keeper` i `relai-mods` zostają, do decyzji przy
+  wydaniu (E6).
+- Kopie `security-audit` i `trivy-scan` dla Codeksa i Cursora przechodzą do E5. Wygenerowany
+  `relai-security` Codeksa opisuje już `--full`, choć skilla w Codeksie jeszcze nie ma. E5 to
+  domyka przed wydaniem.
+- Rotacja `docs/DZIENNIK.md` (~175 KB przy progu 150) i sekcji ryzyk (17,4 KB przy progu 12)
+  zostaje poza etapem, przy zamknięciu sesji.
+
+**Do zrobienia przez człowieka:** —
+
+Przegląd ryzyk: nowych brak. Z1 bez zmian. Ryzyko 9 planu (walidatory na Windowsie)
+zmitygowane wrapperem z adnotacją, droga WSL niezmierzona. Lekcje nowe: L-0264 (testy pluginów
+modów po zmianie komendy), L-0265 (ścieżka z backslashem w powłoce, powtórzenie L-0230).
+
+Autor: RelAI (Opus 5.5) + Lukasz

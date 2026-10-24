@@ -28,6 +28,13 @@ z trzech stanów: **OK** (z dowodem), **BRAK** (co konkretnie), **NIE DOTYCZY** 
 **BRAK w punktach 1–4 nie blokuje sam** — mówisz go wprost i pytasz człowieka, czy wdrażać mimo to.
 Decyzja o wdrożeniu mimo braku należy do człowieka i idzie do wpisu w dzienniku razem z brakiem.
 
+**Kod, nie tylko zależności — jedna propozycja.** Przy punkcie 5 robisz krótki przegląd kodu
+w trybie porad skilla `security-audit` (bez agentów i bez plików: miejsca, gdzie dane z zewnątrz
+przekraczają granicę zaufania — logowanie, uprawnienia, zapytania, wysyłane pliki) i **raz**
+proponujesz pełny audyt `/relai-security --full`, mówiąc, że jest kosztowny (wielu agentów).
+Odmowa albo brak odpowiedzi nie blokuje wdrożenia i nie wraca w tym projekcie; zgodę albo odmowę
+zapisujesz we wpisie dziennika razem z listą.
+
 Wynik listy pokazujesz w rozmowie jako tabelę `# | Punkt | Stan | Dowód albo brak` i zapisujesz
 we wpisie `docs/DZIENNIK.md` tej sesji. Pytania o brakujące fakty zbierasz w **jednym** wywołaniu
 pytań, nie po jednym na punkt.

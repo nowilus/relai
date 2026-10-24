@@ -263,7 +263,7 @@ describe('"Teraz" opened from the plan bar (Z13)', () => {
 })
 
 describe('the commands tab (brief v2 §6.3–6.5, P1)', () => {
-  test('two recommended cards with 44 px icons; thirteen rows of one line: 24 px icon, name, command, purpose, "Otwórz"', async ($, on) => {
+  test('two recommended cards with 44 px icons; fourteen rows of one line: 24 px icon, name, command, purpose, "Otwórz"', async ($, on) => {
     world(on)
     const ui = await open($)
     for (const c of FEATURED_V2) {
@@ -272,7 +272,7 @@ describe('the commands tab (brief v2 §6.3–6.5, P1)', () => {
       expect(textOf(card)).toContain('/' + c)
     }
     expect(await ui.find({ key: 'row-relai-tour' })).toBeDefined() // the tour went down to the rows
-    expect(ROWS.length).toBe(13) // 15 commands since HUMANIZACJA E1 (relai-humanize), two of them cards
+    expect(ROWS.length).toBe(14) // 16 commands since BEZPIECZENSTWO E1 (relai-security), two of them cards
     for (const c of ROWS) {
       const row = await ui.find({ key: `row-${c}` })
       expect([...walk(row)].find((n) => n.type === 'Svg')?.props?.width).toBe(24)
@@ -322,7 +322,7 @@ describe('the commands tab (brief v2 §6.3–6.5, P1)', () => {
     await ui.unmount()
   })
 
-  test('the 15 commands, "Teraz" and the header fit 1185 px of a desktop', async ($, on) => {
+  test('the 16 commands, "Teraz" and the header fit 1213 px of a desktop', async ($, on) => {
     world(on)
     const ui = await open($)
     const tree = await ui.drawn() // the sheet's hidden copy in flow sizes it (E3, P-044)
@@ -334,8 +334,9 @@ describe('the commands tab (brief v2 §6.3–6.5, P1)', () => {
     // its margin inside, a line above and under the tab (Łukasz 2026-10-15: "brakuje w ogóle jakichś
     // paddingów w środku"), two more: 1101. WYGLAD_PANELU E5 (Łukasz 2026-10-15: „nie ma żadnych
     // marginów odpowiednich spacingów […] pomiędzy tym paskiem a jakimś tytułem”): "Teraz" in four
-    // rows a row of air apart and the bar's drawing with its band for the hover card — 84 px: 1185
-    expect(`${px} px`).toBe(`${Math.min(px, 1185)} px`)
+    // rows a row of air apart and the bar's drawing with its band for the hover card — 84 px: 1185.
+    // BEZPIECZENSTWO E1 added the 16th command (/relai-security): one row and its gap, 28 px: 1213.
+    expect(`${px} px`).toBe(`${Math.min(px, 1213)} px`)
     expect(props(await ui.find({ key: 'featured' })).gap).toBeUndefined()
     for (const c of ROWS) expect(height((await ui.find({ key: `row-${c}` })) as RenderNode)).toBeLessThanOrEqual(PX.button + 2 * PX.border)
     await ui.unmount()

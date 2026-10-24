@@ -169,7 +169,16 @@ export const FORMS = Object.freeze([
       ] },
     ],
   },
-  { command: 'relai-security', argumentHint: '', fields: [] },
+  {
+    command: 'relai-security',
+    argumentHint: '[--full] — opcjonalnie pełny audyt kodu (wielu agentów, po uwadze o koszcie i „tak”)',
+    fields: [
+      { kind: 'choice', key: 'mode', label: 'zakres', emit: true, options: [
+        { value: '', label: 'skan zależności (Trivy)' },
+        { value: '--full', label: '--full — pełny audyt kodu, wielu agentów' },
+      ] },
+    ],
+  },
 ]);
 
 /**

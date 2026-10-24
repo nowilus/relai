@@ -395,7 +395,7 @@ describe('one layout of the rows per pane (live 2026-10-14, 75 columns: some but
     for (const [width, direction] of [[31, 'column'], [STACK_BELOW - 1, 'column'], [STACK_BELOW, 'row'], [75, 'row'], [94, 'row']] as const) {
       const ui = await open($, width)
       const mains = [...walk(visible(await ui.drawn()) as RenderNode)].filter((n) => n.type === 'Box' && nameOf(n).startsWith('main-'))
-      expect(mains.length).toBe(15)
+      expect(mains.length).toBe(16) // 16 commands since BEZPIECZENSTWO E1 (relai-security)
       expect([...new Set(mains.map((n) => String(P(n).flexDirection)))]).toEqual([direction])
       expect(mains.some((n) => P(n).flexWrap === 'wrap')).toBe(false) // never decided row by row
       await ui.unmount()

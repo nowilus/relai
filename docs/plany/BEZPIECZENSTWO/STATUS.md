@@ -7,8 +7,8 @@
 | E1 | trivy-scan w pluginie i komenda /relai-security | ZREALIZOWANY 2026-10-24 | [PROMPT_ETAP_1.md](PROMPT_ETAP_1.md) | 16. komenda: liczniki w generatorze, panelu, testach i dokumentach; Aneks A (wiersz ryzyka na paczkę); skan pomija `.claude/relai/work` i `evals` skilla; dogfooding: Z1 (`zod` w filmie) |
 | E2 | Hook lockfile-scan | ZREALIZOWANY 2026-10-24 | [PROMPT_ETAP_2.md](PROMPT_ETAP_2.md) | 13. hook RelAI z bramką projektu RelAI (`run(input)` w `lockfile-hook.mjs`, zgoda Łukasza); aneks D-40 „13”; wpis z `~/.claude/settings.json` usunięty; README do E6 |
 | E3 | Punkty procesu i nowa decyzja | ZREALIZOWANY 2026-10-24 | [PROMPT_ETAP_3.md](PROMPT_ETAP_3.md) | D-91 po „tak” Łukasza; Trivy pierwszy w SPEC_PROMPT_ETAPU, done-check, first-deploy, session-close, plan-closing; numeracja kroków bez zmian |
-| E4 | security-audit od Cloudflare | GOTOWY DO STARTU | [PROMPT_ETAP_4.md](PROMPT_ETAP_4.md) | przegląd wg `SPEC_PRZYJECIE_KODU.md` przed kopiowaniem |
-| E5 | Codex i Cursor | OCZEKUJE | — | generator i instalator kopiują dziś tylko `.md` |
+| E4 | security-audit od Cloudflare | ZREALIZOWANY 2026-10-24 | [PROMPT_ETAP_4.md](PROMPT_ETAP_4.md) | przegląd: PRZYJĘTY; kopia 1:1 `c1c8a8c` (21/21 sum), kontrola 14 noty; `--full` z kartą kosztu, wrapper `RELAI-validate.cjs` na Windowsie bez WSL; formularz panelu i testy modów (16 komend) po zgodzie Łukasza |
+| E5 | Codex i Cursor | GOTOWY DO STARTU | [PROMPT_ETAP_5.md](PROMPT_ETAP_5.md) | generator i instalator kopiują dziś tylko `.md` |
 | E6 | Wydanie 3.3.0 | OCZEKUJE | — | publikacja po osobnej zgodzie |
 
 ## Bramki manualne
@@ -29,3 +29,5 @@
 - 2026-10-24 — E2 zrealizowany: hook `lockfile-scan` w pluginie (13. hook, cisza poza projektem RelAI), test 7 przypadków, liczniki 13, aneks D-40; walidator spójny, testy 206 + 216 + 15 zielone; dogfooding w świeżej sesji: notka przy pliku blokady, cisza przy README; E3 gotowy do startu, wygenerowany `PROMPT_ETAP_3.md`.
 - 2026-10-24 — E3 rozpoczęty
 - 2026-10-24 — E3 zrealizowany: D-91 (bramka rozstrzygnięta), pięć dokumentów procesu z Trivy jako pierwszym narzędziem i kopie Codeksa; walidator spójny, testy 206 + 216 + 15 zielone; dogfooding z Trivy (HIGH 16) i bez (`trivy not found` → `npm audit`); E4 gotowy do startu, wygenerowany `PROMPT_ETAP_4.md`.
+- 2026-10-24 — E4 rozpoczęty
+- 2026-10-24 — E4 zrealizowany: `security-audit` Cloudflare w pluginie (przegląd PRZYJĘTY, kopia 1:1, nota i kontrola 14, procedura synchronizacji), `/relai-security --full` z kartą kosztu i drogą walidatorów bez WSL, propozycja w `first-deploy`; walidator spójny, testy 206 + 216 + 15 i `plugin test` 211/48/198/68 zielone; dogfooding: IDOR w `findings.json` (`needs_validation`, brak piaskownicy); E5 gotowy do startu, wygenerowany `PROMPT_ETAP_5.md`.

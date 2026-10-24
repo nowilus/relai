@@ -358,15 +358,15 @@ docs/ARTEFAKTY.md, docs/KOMENDY.md, docs/PRZEWODNIK.md   wersje i opis --full
 
 Każdy punkt Weryfikacji, który przeszedł, odhaczasz w `PROMPT_ETAP_4.md` (`- [ ]` → `- [x]`) zaraz po jego sprawdzeniu, nie na końcu etapu; punkt, który nie przeszedł, zostaje pusty.
 
-- [ ] Przegląd wg `SPEC_PRZYJECIE_KODU.md` z werdyktem we wpisie dziennika; sumy profilu wobec checkoutu `c1c8a8c…` porównane (wynik do wpisu), najnowszy commit upstreamu odnotowany.
-- [ ] Kopia 1:1: skrypt porównuje sumy każdego pliku `adapters/claude-code/skills/security-audit/` z checkoutem przypiętego commitu — 0 różnic, lista plików identyczna (pomijając plik źródła RelAI, jeśli leży w kopii).
-- [ ] `node core/tools/validate-adapters.js` kończy się „spojne”; nowa linia kontroli noty Cloudflare z liczbą plików; kontrola negatywna (wpis usunięty z noty) daje błąd w tym samym przebiegu, po cofnięciu „spojne”.
-- [ ] `node --test core/process/tests/*.test.js`, `node --test core/panel/tests/*.test.js`, `node --test adapters/codex/tests/*.test.js` — zielone.
-- [ ] `/relai-security` (skan Trivy) na repozytorium RelAI — zero nowych CRITICAL i HIGH wobec E3 (Z1 bez zmian albo zamknięty decyzją człowieka); liczby według wagi do wpisu.
-- [ ] Dogfooding p. 7: `REPORT.md` i `findings.json` istnieją, wstawiona podatność jest w `findings.json`, pierwszy akapit raportu mówi o walidatorach zgodnie z p. 5; zdanie o koszcie padło przed startem (cytat do wpisu).
-- [ ] Granica zakresu: `git diff --stat` nie obejmuje `adapters/codex/`, `adapters/cursor/`, `.claude-plugin/plugin.json` (nadal 3.2.0) ani `history.md`; `README.md` zmieniony wyłącznie w §„Licencja” (diff z kontekstem do wpisu).
-- [ ] Wpis w `docs/DZIENNIK.md` na końcu sekcji „Wpisy”, z pomiarami i podpisem z członem użytkownika.
-- [ ] Katalog roboczy `.claude/relai/work/BEZPIECZENSTWO/E4/` przejrzany raportem (`node .claude/relai/tools/clean-work.js raport`) i skasowany po „tak”, liczby przed i po we wpisie dziennika; artefakty spoza katalogu (`%TEMP%/relai-e4-*`, `%TEMP%/trivy-scan-hook-*` z tego etapu) wypisane we wpisie z nazwy razem z tym, co się z nimi stało.
+- [x] Przegląd wg `SPEC_PRZYJECIE_KODU.md` z werdyktem we wpisie dziennika; sumy profilu wobec checkoutu `c1c8a8c…` porównane (wynik do wpisu), najnowszy commit upstreamu odnotowany.
+- [x] Kopia 1:1: skrypt porównuje sumy każdego pliku `adapters/claude-code/skills/security-audit/` z checkoutem przypiętego commitu — 0 różnic, lista plików identyczna (pomijając plik źródła RelAI, jeśli leży w kopii).
+- [x] `node core/tools/validate-adapters.js` kończy się „spojne”; nowa linia kontroli noty Cloudflare z liczbą plików; kontrola negatywna (wpis usunięty z noty) daje błąd w tym samym przebiegu, po cofnięciu „spojne”.
+- [x] `node --test core/process/tests/*.test.js`, `node --test core/panel/tests/*.test.js`, `node --test adapters/codex/tests/*.test.js` — zielone.
+- [x] `/relai-security` (skan Trivy) na repozytorium RelAI — zero nowych CRITICAL i HIGH wobec E3 (Z1 bez zmian albo zamknięty decyzją człowieka); liczby według wagi do wpisu.
+- [x] Dogfooding p. 7: `REPORT.md` i `findings.json` istnieją, wstawiona podatność jest w `findings.json`, pierwszy akapit raportu mówi o walidatorach zgodnie z p. 5; zdanie o koszcie padło przed startem (cytat do wpisu).
+- [x] Granica zakresu: `git diff --stat` nie obejmuje `adapters/codex/`, `adapters/cursor/`, `.claude-plugin/plugin.json` (nadal 3.2.0) ani `history.md`; `README.md` zmieniony wyłącznie w §„Licencja” (diff z kontekstem do wpisu).
+- [x] Wpis w `docs/DZIENNIK.md` na końcu sekcji „Wpisy”, z pomiarami i podpisem z członem użytkownika.
+- [x] Katalog roboczy `.claude/relai/work/BEZPIECZENSTWO/E4/` przejrzany raportem (`node .claude/relai/tools/clean-work.js raport`) i skasowany po „tak”, liczby przed i po we wpisie dziennika; artefakty spoza katalogu (`%TEMP%/relai-e4-*`, `%TEMP%/trivy-scan-hook-*` z tego etapu) wypisane we wpisie z nazwy razem z tym, co się z nimi stało.
 
 ## Na koniec (rytuał obowiązkowy — bez tego rytuału etap nie jest ukończony)
 

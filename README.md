@@ -204,3 +204,8 @@ gwarancji.
 
 Reguły `/relai-humanize` pochodzą z pluginu Humanizer (Siqi Chen, licencja MIT) — pliki, które
 z nich korzystają, i pełny tekst licencji źródła: [nota](core/humanize/LICENSE-humanizer.md).
+
+Pełny audyt `/relai-security --full` korzysta ze skilla `security-audit` od Cloudflare (licencja
+MIT), dołączonego bez zmian jako kopia przypiętego commitu w
+`adapters/claude-code/skills/security-audit/` — lista plików kopii, źródło i pełny tekst licencji:
+[nota](adapters/claude-code/skills/security-audit/RELAI-NOTICE.md).

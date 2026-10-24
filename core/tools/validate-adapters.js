@@ -630,6 +630,34 @@ const ostrzezenia = [];
   }
 }
 
+// 14) Nota MIT Cloudflare (BEZPIECZENSTWO E4, wzor: kontrola 13): skill security-audit jest kopia
+// 1:1 upstreamu; RELAI-NOTICE.md w katalogu kopii niesie licencje MIT z linia praw autora
+// i wymienia kazdy plik kopii. Pliki z przedrostkiem RELAI- sa wlasne RelAI i nie naleza do kopii.
+// Nowy plik kopii bez wpisu w nocie to blad.
+{
+  const KATALOG = 'adapters/claude-code/skills/security-audit';
+  const NOTA = KATALOG + '/RELAI-NOTICE.md';
+  let pliki = null;
+  try {
+    pliki = fs.readdirSync(path.resolve(ROOT, KATALOG), { withFileTypes: true })
+      .filter((w) => w.isFile() && !/^RELAI-/.test(w.name)).map((w) => KATALOG + '/' + w.name);
+  } catch (_) { bledy.push('nota MIT Cloudflare: brak katalogu ' + KATALOG); }
+  let tekst = null;
+  if (pliki !== null) {
+    try { tekst = fs.readFileSync(path.resolve(ROOT, NOTA), 'utf8'); } catch (_) {
+      bledy.push('nota MIT Cloudflare: brak pliku ' + NOTA);
+    }
+  }
+  if (tekst !== null) {
+    if (!/^MIT License\s*$/m.test(tekst)) bledy.push('nota MIT Cloudflare: ' + NOTA + ' nie zawiera linii "MIT License"');
+    if (!/^Copyright \(c\) \d{4}(-\d{4})? \S.*$/m.test(tekst)) bledy.push('nota MIT Cloudflare: ' + NOTA + ' nie zawiera linii praw autora "Copyright (c) <rok> <autor>"');
+    const brak = pliki.filter((r) => !tekst.includes('`' + r + '`'));
+    for (const r of brak) bledy.push('nota MIT Cloudflare: ' + NOTA + ' nie wymienia pliku ' + r);
+    sprawdzone.push('nota MIT Cloudflare: ' + pliki.length + ' plikow kopii, '
+      + (pliki.length - brak.length) + ' wymienionych');
+  }
+}
+
 // --- wynik -----------------------------------------------------------------
 if (ostrzezenia.length) {
   process.stdout.write('RelAI validate-adapters: ostrzezenia (' + ostrzezenia.length + ')\n');

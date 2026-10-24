@@ -70,7 +70,7 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
      skrypt Write, także gdy „to tylko liczby” (L-0116, L-0119, L-0135, L-0148, L-0188,
      L-0192, L-0198, L-0210, L-0215, L-0242, L-0262 — „przeszło testy” nie zwalnia z reguły; `sed`
      tylko do odczytu); ścieżka w powłoce z `/`, także składana ze zmiennych
-     w funkcji (L-0230); znak niewidoczny w kodzie przez `String.fromCharCode`, nie ucieczkę
+     w funkcji (L-0230), dla Node z `cygpath -m`, nigdy `cygpath -w` z doklejonym `\\` (L-0265); znak niewidoczny w kodzie przez `String.fromCharCode`, nie ucieczkę
      unicode w Edit, i `grep` po bajtach po edycji (L-0258);
      tekst zastępczy `replace` nie jest dosłowny (`` $` ``, `$&`) — cudzą treść podstawiasz funkcją,
      po wstawce porównanie ze źródłem i licznik nagłówków całego pliku (L-0211);
@@ -128,7 +128,7 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
    L-0087, L-0088, L-0090, L-0091, L-0095, L-0096, L-0097, L-0101, L-0102, L-0105, L-0106, L-0107,
    L-0110, L-0111, L-0113, L-0124, L-0125, L-0127, L-0130, L-0131, L-0135, L-0141, L-0143, L-0151,
    L-0160, L-0164, L-0169, L-0170, L-0173, L-0181, L-0211, L-0213, L-0215, L-0238, L-0239, L-0240,
-   L-0242, L-0243, L-0246, L-0247, L-0248, L-0249, L-0257, L-0258, L-0259, L-0261, L-0262)
+   L-0242, L-0243, L-0246, L-0247, L-0248, L-0249, L-0257, L-0258, L-0259, L-0261, L-0262, L-0265)
 6. **Próg jest liczbą, którą ktoś liczy:** kalibrujesz na realnych plikach, zapisujesz w jednostce
    mechanizmu z komendą sprawdzającą, z **jednym** wyzwalaczem. Porównujesz do wielkości, którą
    mechanizm kontroluje (część usuwalna); zatkanie sygnalizuje **różnica możliwego i wykonanego**,
@@ -186,7 +186,9 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
       `$.command.run` po treści, atrapa testu odpowiada na każde wywołanie z `calls` walidatora
       (L-0253); zachowanie silnika, na którym stoi mechanizm (źródło stanu, sygnał zdarzenia),
       sondą zdarzeń w `$.store` przez cały cykl, dwa razy, zanim powstanie kod — „zaraz po” i zdanie
-      z typów to hipotezy (L-0255).
+      z typów to hipotezy (L-0255); zmiana komendy albo `core/panel/` → `sync-panel-core.js`
+      i `claude plugin test` każdego drzewa z kopią rdzenia, czerwony wynik najpierw na HEAD
+      w `git worktree` (L-0264).
     - **Sesje:** sonda działania niszczącego w sesji bez wartości, stan w pliku przed krokiem
       (L-0153); funkcja czekająca na `$.ui.ask` zapamiętuje id sesji i porzuca odpowiedź po zmianie,
       zegar i próg czyta po każdym `await` (L-0166); test wielu rozmów — atrapy per rozmowa (L-0168);
@@ -202,7 +204,7 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
       nie ze zrzutu ani słowa człowieka (L-0244); obraz dla cudzej usługi w proporcji zmierzonej na
       opublikowanym widoku, każda podmiana pod nowym adresem (L-0245).
     (L-0041, L-0042, L-0044, L-0047, L-0092, L-0133, L-0136, L-0138, L-0139, L-0146, L-0153, L-0166,
-    L-0168, L-0185, L-0189, L-0190, L-0244, L-0245, L-0253, L-0255, L-0263)
+    L-0168, L-0185, L-0189, L-0190, L-0244, L-0245, L-0253, L-0255, L-0263, L-0264)
 14. **Najpierw zmiana w repozytorium, potem zdanie, które ją opisuje.** Weryfikację planujesz tam,
     gdzie wykonalna; po pytaniu sprzątasz sam; jednostką inwentarza jest sprawa, nie linia; wstawkę
     kotwiczysz do elementu, który przeżyje operację, i dowodzisz **obecności** nowej treści. Gdy
@@ -594,6 +596,28 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
   z nazwą od slugu projektu. Przed liczeniem wyniku sprawdzasz `permission_denied` w transkrypcie.
   Kontekst hooka narzędziowego liczysz w transkrypcie sesji na dysku, nie w stream-json. Cisza
   bez kontroli pozytywnej w tym samym przebiegu nic nie dowodzi (zasada 5).
+
+### L-0264 — 16. komenda złamała testy pluginu panelu, a etap E1 tego nie zobaczył · 2026-10-24 · AKTYWNA
+
+- **Trigger:** BEZPIECZENSTWO E4. Zmiana `argument-hint` w `/relai-security` złamała dwa testy
+  `core/panel/tests/commands.test.js`, bo formularz panelu jest przypięty do brzmienia nagłówka.
+  `claude plugin test panel` pokazał przy tym 3 błędy (15 wobec 16 wierszy komend, 1185 wobec
+  1213 px). Na czystym HEAD w `git worktree` było tak samo (208/3), więc błędy żyły od E1, które
+  dodało 16. komendę. Weryfikacja E1–E3 uruchamiała `node --test` trzech pakietów, a nie
+  `claude plugin test` modów, które niosą kopię rdzenia panelu.
+- **Zasada:** zmiana komendy (nowa komenda, `argument-hint`, opis) albo pliku `core/panel/`
+  → po `node core/tools/sync-panel-core.js` idzie `claude plugin test` każdego drzewa z kopią
+  rdzenia (`panel`, `progress`, `cache-keeper`, `mods`). Wynik czerwony najpierw sprawdzasz na
+  HEAD w `git worktree`, żeby odróżnić błąd zastany od własnego.
+
+### L-0265 — Ścieżka Windows z backslashem w powłoce (powtórzenie L-0230) · 2026-10-24 · AKTYWNA
+
+- **Trigger:** BEZPIECZENSTWO E4. Wrapper `RELAI-validate.cjs` dostał ścieżkę
+  `$(cygpath -w "$TEMP")\\relai-e4-empty.json`. Bash zjadł separator i wyszło
+  `…\Temprelai-e4-empty.json` (ENOENT). Zasada 5 („ścieżka w powłoce z `/`”) już to mówiła.
+- **Zasada:** ścieżkę dla Node w powłoce składasz z `cygpath -m` (ukośniki `/`), nigdy z
+  `cygpath -w` i doklejonym `\\`. Pierwszy przebieg narzędzia przyjmującego ścieżkę ma kontrolę
+  pozytywną: komunikat ENOENT z posklejaną nazwą to błąd instrumentu, nie wynik.
 
 ## Lekcje zwinięte
 

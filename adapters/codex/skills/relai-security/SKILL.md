@@ -1,6 +1,6 @@
 ---
 name: relai-security
-description: "Scans the project's code dependencies for known vulnerabilities with Trivy, shows the counts by severity and an update plan, records new CRITICAL and HIGH findings as risks in the journal and updates packages only after a yes — code and dependencies, not documents. Use when the person asks about the security of dependencies — „przeskanuj zależności”, „sprawdź podatności”, „bezpieczeństwo zależności”, „scan dependencies for vulnerabilities”."
+description: "Scans the project's code dependencies for known vulnerabilities with Trivy, shows the counts by severity and an update plan, records new CRITICAL and HIGH findings as risks in the journal and updates packages only after a yes; with --full it runs the full multi-agent security audit of the code (Cloudflare security-audit) after a cost warning and a yes — code and dependencies, not documents. Use when the person asks about the security of dependencies or code — „przeskanuj zależności”, „sprawdź podatności”, „bezpieczeństwo zależności”, „pełny audyt bezpieczeństwa”, „scan dependencies for vulnerabilities”."
 ---
 
 
@@ -9,6 +9,9 @@ description: "Scans the project's code dependencies for known vulnerabilities wi
 Twoje zadanie: **sprawdzić zależności kodu projektu** — nie dokumenty (od dokumentów jest
 `/relai-audit`). Komenda kończy się planem aktualizacji i pytaniem; żadna paczka, plik blokady ani
 `.trivyignore` nie zmienia się przed „tak” człowieka (D-45).
+
+Argument `--full` → zamiast Kroków 1–4 wykonujesz sekcję **„Tryb --full — pełny audyt kodu”** na
+końcu tego pliku (Krok 0 obowiązuje w obu trybach). Bez argumentu — skan Trivy jak niżej.
 
 ---
 
@@ -97,7 +100,74 @@ Po „tak” prowadzisz aktualizację **procedurą skilla** (`references/fixing.
 nie ręczna edycja pliku blokady; potem testy projektu i ponowny skan z liczbami przed → po, a po nim
 Krok 3 jeszcze raz (zamknięcia).
 
-Pełny audyt kodu (wiele agentów) przyjdzie w kolejnym wydaniu RelAI; ta komenda go nie uruchamia.
+Pełny audyt kodu (wiele agentów) uruchamia `/relai-security --full` — niżej.
+
+---
+
+## Tryb --full — pełny audyt kodu
+
+Pełny audyt bezpieczeństwa kodu według skilla **`security-audit`** (Cloudflare, MIT; kopia 1:1
+w pluginie, nota w `RELAI-NOTICE.md` skilla). Kosztowny — wielu agentów — dlatego uruchamiasz go
+**wyłącznie na żądanie i po „tak”**.
+
+### F1 — karta kosztu i zgoda
+
+Wczytaj skill `security-audit` (narzędzie Skill) i ustal z jego sekcji „Run profiles and scope”
+oraz „Cost budget” profil: `quick` dla małego projektu albo pierwszego przebiegu, `standard`
+domyślnie, `deep` dla dużego albo krytycznego. Zanim cokolwiek uruchomisz, pokaż kartę:
+
+- **koszt** — zdanie dosłownie: „Pełny audyt uruchamia wielu agentów: <N–M> wywołań przy profilu
+  <profil> (cztery rozpoznania, łowcy, krytycy pokrycia, weryfikatorzy) — to zużyje wyraźną część
+  limitu sesji.” Liczby szacujesz z rozmiaru projektu wg sekcji „Cost budget” skilla i oznaczasz
+  jako SZACUNEK; człowiek może podać budżet (maksymalna liczba wywołań agentów);
+- **zakres** — korzeń projektu albo ścieżki, które człowiek wskaże;
+- **gdzie powstaną pliki** — `.security/security-audit/run-<N>/` w projekcie (pierwszy wolny `N`);
+  ta odpowiedź „tak” jest jawnym wyborem katalogu wewnątrz projektu, którego skill wymaga;
+- **piaskownica** — RelAI nie zapewnia piaskownicy systemowej, której skill wymaga do uruchamiania
+  kodu projektu, więc audyt jest **wyłącznie źródłowy**: zachowanie, którego nie da się ustalić
+  z kodu, kończy się rekordem `needs_validation` (zasada skilla „Universal execution safety”);
+- **walidatory** — która droga z F3 obowiązuje na tej maszynie.
+
+Pytanie: zaczynamy z tym profilem i budżetem / zmień profil albo zakres / nie teraz. Bez „tak”
+nie tworzysz katalogu ani nie uruchamiasz agenta.
+
+### F2 — przebieg
+
+1. Utwórz `.security/security-audit/` z plikiem `.gitignore` o treści `*` (jak `.security/trivy/`)
+   i sprawdź `git check-ignore -q .security/security-audit/run-<N>/findings.json` — katalog
+   nieignorowany → zatrzymaj się i powiedz to; skill zabrania wtedy zapisu w projekcie.
+2. Prowadź pełny audyt **dosłownie wg skilla**: tryb „Full audit mode”, sześć faz w kolejności,
+   katalog wyjściowy z punktu 1, profil i budżet z F1 w `run-metadata.json`. Kodu skilla nie
+   zmieniasz i nie skracasz faz.
+3. Kod projektu się nie wykonuje (F1, piaskownica) — także „żeby sprawdzić”.
+
+### F3 — walidatory skilla
+
+Fazy 4 i 5 wymagają `validate-findings.cjs` i `validate-coverage-ledger.cjs`. Na Windowsie CLI
+upstreamu odmawia odczytu („OS no-follow and nonblocking input protection is unavailable”) —
+Node na Windowsie nie ma flag `O_NOFOLLOW` i `O_NONBLOCK`. Droga zależy od systemu:
+
+| System | Droga | Adnotacja w raporcie |
+|---|---|---|
+| macOS, Linux | CLI skilla: `node "<katalog skilla>/validate-findings.cjs" <plik>` i `validate-coverage-ledger.cjs` | brak |
+| Windows z WSL (`wsl -e node --version` działa) | to samo CLI przez WSL: `wsl -e node <ścieżka skilla w /mnt/…> <plik w /mnt/…>` (ścieżki z `wslpath`) | „Walidatory uruchomione przez WSL.” |
+| Windows bez WSL | wrapper RelAI: `node "<katalog skilla>/RELAI-validate.cjs" findings <plik>` i `… ledger <plik>` — ten sam schemat i semantyka, bez zabezpieczeń odczytu CLI | zdanie niżej |
+
+Ścieżki do Node podajesz z ukośnikami `/`. Na Windowsie bez WSL **pierwszy akapit `REPORT.md`**
+zaczyna się dosłownie od zdania: „Walidatory formatu uruchomiono przez wrapper RelAI
+(`RELAI-validate.cjs`), bo na Windowsie bez WSL CLI walidatorów Cloudflare odmawia odczytu pliku:
+schemat i semantyka sprawdzone, zabezpieczenia odczytu CLI (bez dowiązań, limit tekstu) pominięte.”
+Wrapper też zawodzi → walidacji nie było: zdanie „Sprawdzenia formatu nie było: <powód>.” w tym
+samym miejscu i `run_status: "incomplete"` wg skilla.
+
+### F4 — wynik
+
+Na ekranie: profil, liczba wywołań agentów, liczby rekordów `confirmed` według wagi,
+`needs_validation`, `rejected`, droga walidatorów i ścieżki `REPORT.md` oraz `findings.json`.
+Tryb projektu: rekord `confirmed` o wadze `critical` albo `high` → wiersz ryzyka w tabeli „Stan
+otwartych ryzyk” (`docs/DZIENNIK.md`) z odesłaniem do `findings.json` i wpis w dzienniku w tej
+samej turze (D-44); kod projektu poprawiasz dopiero po „tak”, osobnym zadaniem. Tryb gościa:
+nic poza `.security/security-audit/`.
 
 ---
 
@@ -109,5 +179,8 @@ Pełny audyt kodu (wiele agentów) przyjdzie w kolejnym wydaniu RelAI; ta komend
 - Nie dopisujesz advisory do `.trivyignore` i nie obniżasz wagi bez decyzji człowieka w
   `docs/DECYZJE.md` — ukrycie podatności to decyzja o ryzyku, nie techniczna.
 - Nie instalujesz niczego globalnie, żeby skan zadziałał — instalacja Trivy tylko po „tak”.
-- W trybie gościa nie zapisujesz nic poza `.security/trivy/`.
+- W trybie gościa nie zapisujesz nic poza `.security/trivy/` (a w trybie `--full` poza
+  `.security/security-audit/`).
+- Nie uruchamiasz pełnego audytu bez karty kosztu i „tak”; nie zmieniasz plików skilla
+  `security-audit`.
 - Nie dublujesz wiersza ryzyka: ten sam klucz to ten sam wiersz.
