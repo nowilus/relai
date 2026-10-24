@@ -4,8 +4,8 @@ Stan na: 2026-10-24 (plan BEZPIECZENSTWO: E1–E5 zrealizowane — skan zależno
 
 ## Gdzie jesteśmy
 
-RelAI **3.2.0** jest w repozytorium i publicznie (tag `v3.2.0`, 2026-10-15: pełna karta startu
-`/relai-stage`; wcześniej 3.1.0 z humanizacją tekstu). Plugin `relai` działa
+RelAI **3.3.0** jest w repozytorium (wydanie w toku, plan BEZPIECZENSTWO E6; publicznie jeszcze
+3.2.0 — tag `v3.2.0`, 2026-10-15: pełna karta startu `/relai-stage`). Plugin `relai` działa
 w trzech narzędziach — Claude Code, Cursorze i Codeksie — na jednym rdzeniu procesu, z piętnastoma
 komendami. W marketplace tego repozytorium jest czwarty mod, `relai-mods` 0.1.1 — kokpit pluginów
 i hooków (plan RELAI_MODS, zamknięty 2026-10-24). Panel RelAI w oknie Claude Code to trzy osobne pluginy „early access” z marketplace tego

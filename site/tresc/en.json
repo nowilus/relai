@@ -207,6 +207,7 @@
       "relai-humanize": { "tytul": "Humanize text", "opis": "Strips AI writing habits from a text" },
       "relai-models": { "tytul": "Model list", "opis": "An always up-to-date list of models" },
       "relai-prompt": { "tytul": "Prompt optimizer", "opis": "From a loose sentence to a precise prompt" },
+      "relai-security": { "tytul": "Dependency security", "opis": "Scans your dependencies for vulnerabilities" },
       "relai-stage": { "tytul": "Plan stage", "opis": "The plan's next stage in one click" },
       "relai-tour": { "tytul": "Project tour", "opis": "A quick introduction to the project" },
       "relai-update": { "tytul": "Update", "opis": "Up to the latest version of RelAI" }

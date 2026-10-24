@@ -1,5 +1,5 @@
 {
-  "liczbaKomend": 15,
+  "liczbaKomend": 16,
   "liczbaAdapterow": 3,
   "adaptery": [
     "claude-code",
@@ -7,11 +7,11 @@
     "cursor"
   ],
   "wersje": {
-    "relai": "3.2.0",
-    "relai-panel": "0.20.0",
-    "relai-progress": "0.6.0",
-    "relai-cache-keeper": "0.11.0",
-    "relai-mods": "0.1.1"
+    "relai": "3.3.0",
+    "relai-panel": "0.21.0",
+    "relai-progress": "0.6.1",
+    "relai-cache-keeper": "0.12.0",
+    "relai-mods": "0.1.2"
   },
   "komendy": [
     {
@@ -85,6 +85,12 @@
       "opisEn": "Turns a dictated sentence into a precise prompt — shows the original next to the proposal, marks every addition and waits for approval; executes nothing.",
       "nazwaPl": "Optymalizator promptu",
       "opisPl": "Zamień zdanie w precyzyjny prompt"
+    },
+    {
+      "nazwa": "relai-security",
+      "opisEn": "Scans the project's code dependencies for known vulnerabilities with Trivy, shows the counts by severity and an update plan, records new CRITICAL and HIGH findings as risks in the journal and updates packages only after a yes; with --full it runs the full multi-agent security audit of the code (Cloudflare security-audit) after a cost warning and a yes — code and dependencies, not documents.",
+      "nazwaPl": "Bezpieczeństwo zależności",
+      "opisPl": "Przeskanuj zależności kodu pod kątem podatności"
     },
     {
       "nazwa": "relai-stage",

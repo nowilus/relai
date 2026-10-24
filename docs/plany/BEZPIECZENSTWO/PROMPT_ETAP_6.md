@@ -435,13 +435,13 @@ i `relai-update.md` to artefakty z rejestru — wersja w `ARTEFAKTY.md`.
 Każdy punkt Weryfikacji, który przeszedł, odhaczasz w `PROMPT_ETAP_6.md` (`- [ ]` → `- [x]`) zaraz po jego sprawdzeniu, nie na końcu etapu; punkt, który nie przeszedł, zostaje pusty.
 
 - [ ] Decyzje z punktu 1 (publikacja, kopie z profilu, mody, bramka Cursora) zapisane w `STATUS.md` jako bramki `ROZSTRZYGNIĘTA` z datą i słowami Łukasza.
-- [ ] Upstream Cloudflare: wynik `git ls-remote` wobec `c1c8a8c…` we wpisie („bez zmian” albo różnica z decyzją Łukasza).
-- [ ] `node core/tools/validate-adapters.js` → „spojne”, „numery wersji: 7 zrodel, wartosc "3.3.0"”, parytet skilli i nota Cloudflare bez rozjazdów; ostrzeżenia wypisane we wpisie.
-- [ ] `grep -r "3\.2\.0"` po repo poza `.git` — każde trafienie wypisane jako „podbite” albo „historyczne, zostaje”; `site/dane/fakty.json` i `README.md` mówią 3.3.0.
-- [ ] `history.md` ma wpis 3.3.0; `docs/ARTEFAKTY.md` — każdy artefakt z rejestru zmieniony od `v3.2.0` ma wpis (lista z `git diff --stat v3.2.0..HEAD` do wpisu).
-- [ ] Testy zielone: `node --test core/process/tests/*.test.js` (206 przed), `node --test core/panel/tests/*.test.js` (216 przed), `node --test adapters/codex/tests/*.test.js` (24 przed); `claude plugin test` panel / progress / cache-keeper / mods (211 / 48 / 198 / 68 przed); `plugin validate` — `✔ Validation passed` (ostrzeżenie o root `CLAUDE.md` dopuszczalne).
-- [ ] Skan sekretów na plikach diffu `origin/main..HEAD` — zero trafień; kontrola pozytywna (próbka złożona w czasie wykonania) trafiona.
-- [ ] `/relai-security` (skan Trivy) na RelAI — zero nowych CRITICAL i HIGH wobec E5 (Z1 bez zmian albo zamknięty decyzją człowieka); liczby według wagi do wpisu.
+- [x] Upstream Cloudflare: wynik `git ls-remote` wobec `c1c8a8c…` we wpisie („bez zmian” albo różnica z decyzją Łukasza).
+- [x] `node core/tools/validate-adapters.js` → „spojne”, „numery wersji: 7 zrodel, wartosc "3.3.0"”, parytet skilli i nota Cloudflare bez rozjazdów; ostrzeżenia wypisane we wpisie.
+- [x] `grep -r "3\.2\.0"` po repo poza `.git` — każde trafienie wypisane jako „podbite” albo „historyczne, zostaje”; `site/dane/fakty.json` i `README.md` mówią 3.3.0.
+- [x] `history.md` ma wpis 3.3.0; `docs/ARTEFAKTY.md` — każdy artefakt z rejestru zmieniony od `v3.2.0` ma wpis (lista z `git diff --stat v3.2.0..HEAD` do wpisu).
+- [x] Testy zielone: `node --test core/process/tests/*.test.js` (206 przed), `node --test core/panel/tests/*.test.js` (216 przed), `node --test adapters/codex/tests/*.test.js` (24 przed); `claude plugin test` panel / progress / cache-keeper / mods (211 / 48 / 198 / 68 przed); `plugin validate` — `✔ Validation passed` (ostrzeżenie o root `CLAUDE.md` dopuszczalne).
+- [x] Skan sekretów na plikach diffu `origin/main..HEAD` — zero trafień; kontrola pozytywna (próbka złożona w czasie wykonania) trafiona.
+- [x] `/relai-security` (skan Trivy) na RelAI — zero nowych CRITICAL i HIGH wobec E5 (Z1 bez zmian albo zamknięty decyzją człowieka); liczby według wagi do wpisu.
 - [ ] Publikacja po zgodzie: `git ls-remote --tags origin v3.3.0` zwraca tag, `gh release view v3.3.0` istnieje, cache pluginu po `plugin update` i restarcie równy repo po CRLF → LF (liczba plików i rozjazdów do wpisu), świeża sesja na 3.3.0 wykonała `/relai-security` — **albo** brak zgody i etap kończy się lokalnym commitem, bramka publikacji `OTWARTA`.
 - [ ] Kopie z profilu wg decyzji 1b: kopia w `Backupy\RelAI\` i usunięcie z dowodem świeżej sesji — **albo** decyzja „zostają” zapisana w bramce.
 - [ ] Pliki PANEL_CODEX nietknięte: `git status --short` i `git diff --stat` na `docs/plany/PANEL_CODEX/` i `docs/zasoby/PANEL_RELAI/makiety/` identyczne z zapisem sprzed etapu; żaden w commitach etapu.

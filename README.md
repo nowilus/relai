@@ -3,7 +3,7 @@
 </p>
 
 <p align="center">
-  <em>Wersja 3.2.0 &nbsp;·&nbsp; licencja MIT &nbsp;·&nbsp; Claude Code, Cursor albo Codex, plus Node.js 14+ &nbsp;·&nbsp; zero zależności npm</em>
+  <em>Wersja 3.3.0 &nbsp;·&nbsp; licencja MIT &nbsp;·&nbsp; Claude Code, Cursor albo Codex, plus Node.js 14+ &nbsp;·&nbsp; zero zależności npm</em>
 </p>
 
 **RelAI zamienia rozmowę z agentem w prowadzony projekt.** Ustalenia, decyzje, stan prac i historia
@@ -75,6 +75,9 @@ akceptacji plan jest zamrożony, a `/relai-stage` uruchamia kolejny etap — zaw
 
 Szesnaście komend `/relai-*` to skróty rzadszych operacji (backup, audyt, przekazanie projektu,
 optymalizator promptów, humanizacja tekstu, skan zależności…). Pełna lista: `/relai-help` albo [przewodnik](docs/PRZEWODNIK.md#komendy).
+`/relai-security` skanuje zależności projektu Trivy i zapisuje znaleziska do ryzyk w dzienniku;
+`/relai-security --full` robi pełny audyt kodu skillem `security-audit` od Cloudflare, po karcie
+kosztu i Twoim „tak”.
 W Claude Code komendy mają pełną nazwę `/relai:relai-<nazwa>`.
 
 ## Panel w Claude Code (early access)
@@ -86,10 +89,10 @@ na 2.1.308), na desktopie i w terminalu.
 
 | Plugin | Co pokazuje |
 |---|---|
-| `relai-panel` | nad promptem: aktywny plan, etap i status, a wiersz „Tak / Nie” tylko, gdy karta decyzji czeka; `/relai-panel` otwiera panel z sekcją „Teraz” (stan punktów widać po kształcie znaczników, cały punkt w dymku po najechaniu), formularzami piętnastu komend, mapą planów i etapów, dokumentami projektu ze zmianami od commita i kosztami sesji. Na desktopie start etapu z karty otwiera nową sesję aplikacji z komendą w polu — jeden Enter, a rozmowa, w której kliknąłeś, zostaje |
+| `relai-panel` | nad promptem: aktywny plan, etap i status, a wiersz „Tak / Nie” tylko, gdy karta decyzji czeka; `/relai-panel` otwiera panel z sekcją „Teraz” (stan punktów widać po kształcie znaczników, cały punkt w dymku po najechaniu), formularzami szesnastu komend, mapą planów i etapów, dokumentami projektu ze zmianami od commita i kosztami sesji. Na desktopie start etapu z karty otwiera nową sesję aplikacji z komendą w polu — jeden Enter, a rozmowa, w której kliknąłeś, zostaje |
 | `relai-progress` | nad promptem: lista kroków etapu w toku albo przebiegu `/relai-crew` — cienkie segmenty ze zrobionymi od lewej, jedna linia z punktem w toku i „Rozwiń”, chip agentów; `/relai-agents` — subagenci sesji z kosztem |
 | `relai-cache-keeper` | nad promptem: cztery baterie w równej siatce — czas cache promptu, limit 5 h, czas do jego resetu, limit tygodniowy — pełne słowa w dymku aplikacji, i wiersz kontekstu „użyte / okno modelu · %” z kreską progu auto-compactu (z `CLAUDE_AUTOCOMPACT_PCT_OVERRIDE`) i barwą liczoną do progu; koszt sesji; podpowiada, kiedy nowa sesja się zwróci (`/cache` pokazuje rachunek). Limit planu: progi 5 h (90 %) i tygodnia (98 %) z podpisem pod baterią, karta „pracuję dalej / zapisz pracę” po turze ponad progiem, a po resecie „Wznów pracę” — czysty czat od pliku wznowienia. Progi zmieniasz w panelu, zakładka Koszty |
-| `relai-mods` (0.1.1) | `/relai-mods` otwiera kokpit modów, pluginów i hooków z `settings.json` tej maszyny, czytany z dysku: przełącznik włącza albo wyłącza plugin przez `claude plugin` z PATH, a Przeładuj w terminalu przeładowuje od razu, na desktopie prosi o wpisanie `/reload-plugins`. Hooki, pluginy z polityki i sam kokpit mają kłódkę; kokpit nie pisze do plików ustawień |
+| `relai-mods` (0.1.2) | `/relai-mods` otwiera kokpit modów, pluginów i hooków z `settings.json` tej maszyny, czytany z dysku: przełącznik włącza albo wyłącza plugin przez `claude plugin` z PATH, a Przeładuj w terminalu przeładowuje od razu, na desktopie prosi o wpisanie `/reload-plugins`. Hooki, pluginy z polityki i sam kokpit mają kłódkę; kokpit nie pisze do plików ustawień |
 
 Paski i panel idą same za wyglądem aplikacji, jasnym albo ciemnym: tekst i ramki w kolorach
 narzędzia, panel na jednej kartce z palety Warsztat. Przełączać niczego nie trzeba.
@@ -132,7 +135,7 @@ prowadź na modelu `strong`.
 ## Co pilnuje tylko Claude Code
 
 Twarde mechanizmy to **hooki** — skrypty uruchamiane przez narzędzie, nie przez model. Claude Code
-ma ich jedenaście; Cursor i Codex po części. Tam, gdzie hooka nie ma, zasada stoi wyłącznie na
+ma ich trzynaście; Cursor i Codex po części. Tam, gdzie hooka nie ma, zasada stoi wyłącznie na
 pamięci modelu — reguła w kontekście, bez blokady.
 
 | Hook Claude Code | Co robi | Cursor | Codex |
@@ -144,6 +147,8 @@ pamięci modelu — reguła w kontekście, bez blokady.
 | `journal-signature` | pilnuje formatu podpisu wpisu dziennika | tylko pamięć modelu | tylko pamięć modelu |
 | `profile-rules` | pierwszy plik kodu, ekran czy wdrożenie tworzy właściwy dokument | reguła | tylko pamięć modelu |
 | `prompt-mode` | tryb ciągły optymalizatora promptów i jego pytanie o zgodę | brak trybu | brak trybu |
+| `humanize-continuous` | tryb ciągły `/relai-humanize` w zakresach wybranych przez Ciebie | brak trybu | brak trybu |
+| `lockfile-scan` | zmiana pliku blokady albo instalacja paczek uruchamia szybki skan Trivy; notka tylko przy nowym CRITICAL/HIGH | brak | hook (po komendzie instalacji) |
 | `quality-gate` | `tsc` i eslint po edycji, gdy projekt je ma | brak | brak |
 | `console-log-warn` | ostrzega o `console.log` w zapisanym pliku | brak | brak |
 | `design-quality-check` | sygnalizuje odstępstwo od `docs/DESIGN.md` | brak | brak |

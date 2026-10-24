@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en" data-wersja-relai="3.2.0" data-wersja-panel="0.20.0">
+<html lang="en" data-wersja-relai="3.3.0" data-wersja-panel="0.21.0">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -169,7 +169,7 @@
   <section class="przystanek" id="komendy" data-przystanek="5" aria-labelledby="t-5">
     <p class="rozdzial" aria-hidden="true"><b>05</b> Commands</p>
     <div class="karta">
-      <h2 id="t-5" tabindex="-1">15 commands, or plain sentences.</h2>
+      <h2 id="t-5" tabindex="-1">16 commands, or plain sentences.</h2>
       <p>“Let&#39;s continue”, “wrapping up”: RelAI understands phrases and has commands for a stage, a side thread, a backup and a review.</p>
     </div>
     <!-- this stop's frame of the desk for the page without the scene, like the hero poster; decorative,
@@ -264,7 +264,7 @@ claude plugin install relai-cache-keeper@relai</pre>
         <p class="konfigurator__status" data-status role="status"></p>
         <p class="konfigurator__uwaga">The link only types the command. You send it yourself, with Enter.</p>
         </div>
-        <p class="konfigurator__wersje">Current versions: RelAI <span data-wersja="relai">3.2.0</span> · panel <span data-wersja="panel">0.20.0</span></p>
+        <p class="konfigurator__wersje">Current versions: RelAI <span data-wersja="relai">3.3.0</span> · panel <span data-wersja="panel">0.21.0</span></p>
       </form>
     </div>
     <!-- a phone cannot install RelAI: instead of the configurator, send the link to yourself (film/telefon.js) -->
@@ -411,7 +411,7 @@ claude plugin install relai-cache-keeper@relai</pre>
   <dialog class="szuflada szuflada--pudelko" id="szuflada-pudelko" data-szuflada="pudelko" aria-labelledby="s-pudelko">
     <div class="szuflada__karta">
       <header class="szuflada__glowa">
-        <h2 id="s-pudelko">15 commands in the box</h2>
+        <h2 id="s-pudelko">16 commands in the box</h2>
         <p>Each card is one command: what it is for and what to type.</p>
         <form method="dialog" class="szuflada__zamknij" data-zamknij hidden><button class="szuflada__przycisk">Close</button></form>
       </header>
@@ -489,6 +489,12 @@ claude plugin install relai-cache-keeper@relai</pre>
           <code>/relai-prompt</code>
         </li>
         <li class="fiszka-szuflady" data-fiszka-szuflady>
+          <img src="../grafika/ikony/security.svg" alt="" width="36" height="36" loading="lazy">
+          <h3>Dependency security</h3>
+          <p>Scans your dependencies for vulnerabilities</p>
+          <code>/relai-security</code>
+        </li>
+        <li class="fiszka-szuflady" data-fiszka-szuflady>
           <img src="../grafika/ikony/stage.svg" alt="" width="36" height="36" loading="lazy">
           <h3>Plan stage</h3>
           <p>The plan&#39;s next stage in one click</p>
@@ -558,6 +564,7 @@ claude plugin install relai-cache-keeper@relai</pre>
   <p data-fiszka data-nazwa="relai-humanize">Humanize text</p>
   <p data-fiszka data-nazwa="relai-models">Model list</p>
   <p data-fiszka data-nazwa="relai-prompt">Prompt optimizer</p>
+  <p data-fiszka data-nazwa="relai-security">Dependency security</p>
   <p data-fiszka data-nazwa="relai-stage">Plan stage</p>
   <p data-fiszka data-nazwa="relai-tour">Project tour</p>
   <p data-fiszka data-nazwa="relai-update">Update</p>

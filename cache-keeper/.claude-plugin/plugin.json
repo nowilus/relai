@@ -1,6 +1,6 @@
 {
   "name": "relai-cache-keeper",
-  "version": "0.11.0",
+  "version": "0.12.0",
   "author": { "name": "nowilus", "url": "https://github.com/nowilus" },
   "description": "Early access — needs Claude Code with mods (measured on 2.1.295). Four batteries above the prompt in an even grid — the prompt cache's time left, the 5-hour limit, the time to its reset and the weekly limit — each showing what is left, with the full words in the app's tooltip, and a context row: used / the model's window · %, a notch at the auto-compact threshold (CLAUDE_AUTOCOMPACT_PCT_OVERRIDE included) and the bar's colour by the way left to it; the session's cost once, on the right; asks before a cold send of a big context and says when a fresh session pays off (/cache shows the reckoning). Plan limits: a 5-hour threshold (90 %) and a weekly one (98 %), each set per session, project or everywhere; past a threshold a card after the turn offers to save the work (tests, a local commit, the docs, a resume file) and, after the reset, Wznów pracę starts a fresh chat from that file. Calls the model only on the person's request (keep-warm pings, hand-off, save and resume).",
   "homepage": "https://github.com/nowilus/relai",
