@@ -1,6 +1,6 @@
 # STATE — RelAI
 
-Stan na: 2026-10-24 (plan RELAI_MODS ZREALIZOWANY — kokpit `/relai-mods` wydany jako `relai-mods` 0.1.0 i 0.1.1 w marketplace, tagi `relai-mods-v0.1.0` i `relai-mods-v0.1.1`; wątek AGENTS_KRABY zamknięty — panel „RelAI Agents” z postaciami ról, `relai-progress` 0.6.0 wydany, tag `relai-progress-v0.6.0`; wątek MOBILNA_STRONA zamknięty — obie wersje strony przyjęte na iPhonie, ankieta na cztery warianty z danymi o urządzeniu; wątek BIURKO_PLAKAT zamknięty — Biurko bez sceny 3D jako odbitki biurka; plan STRONA_RELAI ZREALIZOWANY 2026-10-18 — strona opublikowana na https://nowilus.github.io/relai/ w dwóch wersjach, Film i Biurko, z ankietą w Tally, poprawka Aneksu E wdrożona 2026-10-19; WYGLAD_PANELU zamknięty 2026-10-15)
+Stan na: 2026-10-24 (plan BEZPIECZENSTWO: E1 zrealizowany — skan zależności `/relai-security` w repo, niewydany; plan RELAI_MODS ZREALIZOWANY — kokpit `/relai-mods` wydany jako `relai-mods` 0.1.0 i 0.1.1 w marketplace, tagi `relai-mods-v0.1.0` i `relai-mods-v0.1.1`; wątek AGENTS_KRABY zamknięty — panel „RelAI Agents” z postaciami ról, `relai-progress` 0.6.0 wydany, tag `relai-progress-v0.6.0`; wątek MOBILNA_STRONA zamknięty — obie wersje strony przyjęte na iPhonie, ankieta na cztery warianty z danymi o urządzeniu; wątek BIURKO_PLAKAT zamknięty — Biurko bez sceny 3D jako odbitki biurka; plan STRONA_RELAI ZREALIZOWANY 2026-10-18 — strona opublikowana na https://nowilus.github.io/relai/ w dwóch wersjach, Film i Biurko, z ankietą w Tally, poprawka Aneksu E wdrożona 2026-10-19; WYGLAD_PANELU zamknięty 2026-10-15)
 
 ## Gdzie jesteśmy
 
@@ -27,9 +27,10 @@ po E5 (wydanie panelu 0.20.0 / 0.11.0); HUMANIZACJA zamknięty 2026-10-14 wydani
 - Ustalenia, decyzje i korekty zapisują się w trakcie pracy, a nowa sesja zaczyna od stanu.
 - Plany powstają jako osobny dokument z wariantami i ryzykami (dla odbiorcy nietechnicznego jako
   HTML bez internetu); boczny wątek dostaje własną kartę bez ruszania zamrożonego planu.
-- Piętnaście skrótów: etap, odnoga, kopia zapasowa, przegląd, lista zmian, przekazanie, wycieczka,
-  ściąga, adopcja, aktualizacja, sprzątanie, lista modeli, załoga, optymalizator promptu,
-  humanizacja tekstu.
+- Piętnaście skrótów w wydaniu 3.2.0: etap, odnoga, kopia zapasowa, przegląd, lista zmian,
+  przekazanie, wycieczka, ściąga, adopcja, aktualizacja, sprzątanie, lista modeli, załoga,
+  optymalizator promptu, humanizacja tekstu. W repozytorium szesnasty, niewydany: skan zależności
+  `/relai-security` (plan BEZPIECZENSTWO, E1).
 - Podyktowane zdanie może wrócić poprawione, zanim ruszy w robotę — na żądanie albo w trybie
   ciągłym, o który sesja pyta raz; oryginał stoi obok propozycji.
 - **Humanizacja tekstu** (plan [HUMANIZACJA](archiwum/plany/HUMANIZACJA/STATUS.md), zamknięty
@@ -129,8 +130,11 @@ po E5 (wydanie panelu 0.20.0 / 0.11.0); HUMANIZACJA zamknięty 2026-10-14 wydani
 
 ## Nad czym pracujemy teraz
 
-- **BEZPIECZENSTWO — plan ZAAKCEPTOWANY 2026-10-23, E1 gotowy do startu** (plan
-  [BEZPIECZENSTWO](plany/BEZPIECZENSTWO/STATUS.md), prompt E1 wygenerowany, 6 etapów, wykonanie Opus w Claude Code, równolegle do PANEL_CODEX). Po co:
+- **BEZPIECZENSTWO — plan ZAAKCEPTOWANY 2026-10-23, E1 ZREALIZOWANY 2026-10-24, E2 gotowy do
+  startu** (plan [BEZPIECZENSTWO](plany/BEZPIECZENSTWO/STATUS.md), 6 etapów, wykonanie Opus
+  w Claude Code, równolegle do PANEL_CODEX). E1: skill `trivy-scan` i `/relai-security` w pluginie
+  (niewydane), wiersz ryzyka na paczkę z kluczem advisory + paczka + plik blokady (Aneks A),
+  pierwszy skan RelAI dał ryzyko Z1 (`zod` w narzędziach filmu). Po co:
   skan zależności Trivy (własny skill `trivy-scan`) i audyt bezpieczeństwa Cloudflare
   (`security-audit`, MIT) wbudowane w plugin — komenda `/relai-security`, 13. hook po zmianie
   lockfile, prompty etapów, `done-check`, `first-deploy`, zamknięcie sesji i planu; ryzyka do
@@ -217,8 +221,8 @@ i wpis marketplace każdego pluginu panelu z jego `plugin.json`. Pre-commit repo
 sesji, artefakty robocze, załoga, tryb ciągły, baza reguł optymalizatora z nakładkami `claude`
 i `openai`, walidator, rdzeń panelu `core/panel/*.mjs` (pomiar kosztów, cennik, atrybucja, mapa,
 decyzje, dokumenty, motyw, nagłówki Kalamem). **Adapter Claude Code**: dwa skille z plikami
-doczytywanymi, 15 komend, 4 agenci, 12 hooków (`humanize-continuous` także po Bash), lista modeli. **Adapter Cursor**: trzy reguły
-`.mdc`, dwa hooki, instalator. **Adapter Codex**: manifest, 15 skilli komend i 2 rdzeniowe, router `AGENTS.md`, trzy
+doczytywanymi i `trivy-scan` (od BEZPIECZENSTWO E1, niewydany), 16 komend, 4 agenci, 12 hooków (`humanize-continuous` także po Bash), lista modeli. **Adapter Cursor**: trzy reguły
+`.mdc`, dwa hooki, instalator. **Adapter Codex**: manifest, 16 skilli komend i 2 rdzeniowe, router `AGENTS.md`, trzy
 hooki; pakiet panelu `adapters/codex/panel/` w budowie (E1).
 
 ### Pluginy panelu (Claude Code Mods, „early access”, zmierzone na 2.1.295)

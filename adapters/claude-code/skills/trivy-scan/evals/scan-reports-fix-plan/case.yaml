@@ -1,0 +1,6 @@
+schema_version: "1.1"
+name: scan-reports-fix-plan
+expected_outcome: |
+  A Trivy scan runs; the answer gives per-severity counts and a fix plan naming axios, lodash and requests with target versions, flags the axios fix as a breaking (major) bump, leaves dependency files untouched and asks before updating.
+context:
+  scaffold_script: place-files.sh

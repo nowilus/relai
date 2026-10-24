@@ -73,8 +73,8 @@ Trzy zdania wystarczą do większości pracy:
 „Przygotuj plan…" daje plan jako osobny dokument: warianty, ryzyka, etapy, przypadki brzegowe. Po
 akceptacji plan jest zamrożony, a `/relai-stage` uruchamia kolejny etap — zawsze po Twoim „tak".
 
-Piętnaście komend `/relai-*` to skróty rzadszych operacji (backup, audyt, przekazanie projektu,
-optymalizator promptów, humanizacja tekstu…). Pełna lista: `/relai-help` albo [przewodnik](docs/PRZEWODNIK.md#komendy).
+Szesnaście komend `/relai-*` to skróty rzadszych operacji (backup, audyt, przekazanie projektu,
+optymalizator promptów, humanizacja tekstu, skan zależności…). Pełna lista: `/relai-help` albo [przewodnik](docs/PRZEWODNIK.md#komendy).
 W Claude Code komendy mają pełną nazwę `/relai:relai-<nazwa>`.
 
 ## Panel w Claude Code (early access)

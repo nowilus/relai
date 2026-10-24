@@ -1,6 +1,6 @@
 'use strict';
 
-// Formularze 15 komend RelAI w panelu (plan PANEL_CLAUDE, E2).
+// Formularze 16 komend RelAI w panelu (plan PANEL_CLAUDE, E2; szesnasta od BEZPIECZENSTWO E1).
 // Kontrola na realnym materiale: naglowki YAML wszystkich komend w adapters/claude-code/commands/
 // paruja sie z formularzami jeden do jednego; liczby w komunikatach sa liczone, nie wpisane.
 // Druga strona: podlozony rozjazd argument-hint i komenda bez formularza sa odrzucane.

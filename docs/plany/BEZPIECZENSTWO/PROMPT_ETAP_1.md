@@ -343,18 +343,18 @@ adapters/claude-code/commands/relai-update.md (63: „piętnastu”), core/templ
 
 Każdy punkt Weryfikacji, który przeszedł, odhaczasz w `PROMPT_ETAP_1.md` (`- [ ]` → `- [x]`) zaraz po jego sprawdzeniu, nie na końcu etapu; punkt, który nie przeszedł, zostaje pusty.
 
-- [ ] `node core/tools/validate-adapters.js` kończy się bez błędów (metadane `trivy-scan` i `relai-security`, parytet Codeksa, sieć w skryptach).
-- [ ] `node --test core/panel/tests/*.test.js` — zielone, w tym `commands.test.js`, `theme.test.js`, `phrases.test.js` z 16 komendami.
-- [ ] `node --test core/process/tests/*.test.js` i `node --test adapters/codex/tests/*.test.js` — zielone.
-- [ ] `node adapters/codex/generate-skills.js --verify` — brak różnic.
-- [ ] Skrypt skilla w pluginie na projekcie testowym z podatnym `package-lock.json` (np. lodash 4.17.15, axios 0.21.0 — w katalogu roboczym) zwraca liczby według wagi, plan „jest → cel” i adnotację o podniesionej wersji docelowej axios.
-- [ ] Dowód negatywny: `scan.mjs` i `lockfile-hook.mjs` nie zawierają wywołań sieciowych — `grep -nE "require\\(['\"](https?|net|tls)|from ['\"](node:)?(https?|net|tls)['\"]|fetch\\(|WebSocket"` na obu plikach nic nie zwraca; kontrola pozytywna tego wzorca na pliku z `fetch(` w katalogu roboczym trafia.
-- [ ] `/relai-security` na projekcie testowym w katalogu roboczym ze strukturą RelAI dopisuje wiersz CRITICAL/HIGH do tabeli ryzyk, a drugie uruchomienie nie dubluje wiersza.
-- [ ] `grep -rn "15 komend\|piętnast\|Komendy (15)"` po `docs/`, `README.md`, `adapters/`, `core/` nie zwraca miejsc mówiących o bieżącej liczbie komend (wzmianki historyczne opisane we wpisie).
-- [ ] `hooks.json` i `~/.claude/settings.json` bez zmian (dowód negatywny: `git diff --stat adapters/claude-code/hooks/` pusty).
-- [ ] Wersja w `.claude-plugin/plugin.json` nadal 3.2.0.
-- [ ] Wpis w `docs/DZIENNIK.md` na końcu sekcji „Wpisy”, z wynikiem dogfoodingu i podpisem z członem użytkownika.
-- [ ] Katalog roboczy `.claude/relai/work/BEZPIECZENSTWO/E1/` przejrzany raportem (`node .claude/relai/tools/clean-work.js raport`) i skasowany po „tak”, liczby przed i po we wpisie dziennika; artefakty spoza katalogu (`%TEMP%`, katalog domowy) wypisane we wpisie z nazwy razem z tym, co się z nimi stało.
+- [x] `node core/tools/validate-adapters.js` kończy się bez błędów (metadane `trivy-scan` i `relai-security`, parytet Codeksa, sieć w skryptach).
+- [x] `node --test core/panel/tests/*.test.js` — zielone, w tym `commands.test.js`, `theme.test.js`, `phrases.test.js` z 16 komendami.
+- [x] `node --test core/process/tests/*.test.js` i `node --test adapters/codex/tests/*.test.js` — zielone.
+- [x] `node adapters/codex/generate-skills.js --verify` — brak różnic.
+- [x] Skrypt skilla w pluginie na projekcie testowym z podatnym `package-lock.json` (np. lodash 4.17.15, axios 0.21.0 — w katalogu roboczym) zwraca liczby według wagi, plan „jest → cel” i adnotację o podniesionej wersji docelowej axios.
+- [x] Dowód negatywny: `scan.mjs` i `lockfile-hook.mjs` nie zawierają wywołań sieciowych — `grep -nE "require\\(['\"](https?|net|tls)|from ['\"](node:)?(https?|net|tls)['\"]|fetch\\(|WebSocket"` na obu plikach nic nie zwraca; kontrola pozytywna tego wzorca na pliku z `fetch(` w katalogu roboczym trafia.
+- [x] `/relai-security` na projekcie testowym w katalogu roboczym ze strukturą RelAI dopisuje wiersz CRITICAL/HIGH do tabeli ryzyk, a drugie uruchomienie nie dubluje wiersza.
+- [x] `grep -rn "15 komend\|piętnast\|Komendy (15)"` po `docs/`, `README.md`, `adapters/`, `core/` nie zwraca miejsc mówiących o bieżącej liczbie komend (wzmianki historyczne opisane we wpisie).
+- [x] `hooks.json` i `~/.claude/settings.json` bez zmian (dowód negatywny: `git diff --stat adapters/claude-code/hooks/` pusty).
+- [x] Wersja w `.claude-plugin/plugin.json` nadal 3.2.0.
+- [x] Wpis w `docs/DZIENNIK.md` na końcu sekcji „Wpisy”, z wynikiem dogfoodingu i podpisem z członem użytkownika.
+- [x] Katalog roboczy `.claude/relai/work/BEZPIECZENSTWO/E1/` przejrzany raportem (`node .claude/relai/tools/clean-work.js raport`) i skasowany po „tak”, liczby przed i po we wpisie dziennika; artefakty spoza katalogu (`%TEMP%`, katalog domowy) wypisane we wpisie z nazwy razem z tym, co się z nimi stało.
 
 ## Na koniec (rytuał obowiązkowy — bez tego rytuału etap nie jest ukończony)
 

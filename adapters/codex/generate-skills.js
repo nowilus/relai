@@ -48,7 +48,7 @@ function sourceFiles() {
     .filter((name) => /^relai-[a-z-]+\.md$/.test(name))
     .sort()
     .map((name) => ({ name: path.basename(name, '.md'), source: path.join(COMMANDS, name), content: commandSkill(path.join(COMMANDS, name)) }));
-  if (commands.length !== 15) throw new Error('Oczekiwano 15 komend RelAI, znaleziono: ' + commands.length);
+  if (commands.length !== 16) throw new Error('Oczekiwano 16 komend RelAI, znaleziono: ' + commands.length);
   for (const command of commands.slice()) {
     if (commandParts(command.source).explicitOnly) {
       commands.push({ name: command.name, file: path.join('agents', 'openai.yaml'), source: command.source, content: EXPLICIT_ONLY_POLICY, policy: true });

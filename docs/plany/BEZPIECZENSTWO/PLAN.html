@@ -420,8 +420,12 @@ footer .pis{font-family:var(--pis); font-size:1.2rem; color:var(--glina); margin
 
 <section id="s10">
   <svg class="pinezka" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="9" r="7" fill="#5f8a68"/><circle cx="9.5" cy="6.5" r="2.2" fill="rgba(255,255,255,.5)"/><path d="M12 16v6" stroke="#456338" stroke-width="2" stroke-linecap="round"/></svg>
-  <div class="tyt-sek"><span class="nr">10</span><h2>Aneksy</h2><span class="szept">pusto do akceptacji</span></div>
+  <div class="tyt-sek"><span class="nr">10</span><h2>Aneksy</h2><span class="szept">jeden aneks</span></div>
   <p>Po akceptacji sekcje 1–9 są zamrożone. Zmiany wyłącznie tutaj, jako datowane aneksy. Odchylenie fundamentalne (zmiana celu albo wybranego wariantu) → status CZĘŚCIOWO ZREALIZOWANY i nowy plan z linkiem do tego dokumentu.</p>
+  <h3>Aneks A · 2026-10-24 — wiersz ryzyka na paczkę, klucz bez zmian</h3>
+  <p><strong>Powód:</strong> pierwszy przebieg <code>/relai-security</code> w E1 na projekcie testowym (axios 0.21.0, lodash 4.17.15, requests 2.19.0) dał 16 advisory HIGH w trzech paczkach. Wiersz na advisory oznaczałby 16 wierszy w tabeli ryzyk, a sekcja „Stan otwartych ryzyk” tego repozytorium już jest ponad progiem 12 KB. Łukasz wybrał 2026-10-24 wiersz na paczkę.</p>
+  <p><strong>Zmiana</strong> (sekcja 8, przypadki „Ten sam advisory przy kolejnych skanach” i „Podatność bez dostępnej poprawki”): jeden wiersz ryzyka na paczkę + plik blokady, a komórka „Ryzyko” niesie listę identyfikatorów advisory CRITICAL/HIGH. Klucz zostaje ten sam — advisory + paczka + plik blokady — i deduplikacja dalej idzie po nim: klucz już obecny w tabeli nie tworzy niczego, nowy advisory tej samej paczki i pliku dopisuje się do jej wiersza, nowa paczka dostaje nowy wiersz. Wiersz przechodzi w <code>ZAMKNIĘTE</code>, gdy skan Trivy nie widzi żadnego z jego advisory.</p>
+  <p><strong>Bez zmian:</strong> do tabeli idą tylko CRITICAL i HIGH bez decyzji w <code>DECYZJE.md</code>; akceptacja ryzyka i <code>.trivyignore</code> jak w sekcji 8. Wagę pojedynczego advisory komenda czyta z <code>.security/trivy/latest-summary.json</code> (pole <code>vulns</code>), bo plan aktualizacji w wyniku <code>--json</code> łączy identyfikatory wszystkich wag.</p>
 </section>
 
 <footer>

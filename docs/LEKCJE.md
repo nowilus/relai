@@ -68,7 +68,8 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
      poza repo (`dev-mods`, `%TEMP%`); „dokumenty — tylko Edit” obejmuje dopisanie na końcu
      (`cat >>` z heredokiem) i `sed -i` na wierszu tabeli; seria podmian w kodzie — kilka Edit albo
      skrypt Write, także gdy „to tylko liczby” (L-0116, L-0119, L-0135, L-0148, L-0188,
-     L-0192, L-0198, L-0210, L-0215, L-0242 — „przeszło testy” nie zwalnia z reguły); ścieżka w powłoce z `/`, także składana ze zmiennych
+     L-0192, L-0198, L-0210, L-0215, L-0242, L-0262 — „przeszło testy” nie zwalnia z reguły; `sed`
+     tylko do odczytu); ścieżka w powłoce z `/`, także składana ze zmiennych
      w funkcji (L-0230); znak niewidoczny w kodzie przez `String.fromCharCode`, nie ucieczkę
      unicode w Edit, i `grep` po bajtach po edycji (L-0258);
      tekst zastępczy `replace` nie jest dosłowny (`` $` ``, `$&`) — cudzą treść podstawiasz funkcją,
@@ -82,7 +83,8 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
      generator identyfikatorów sprawdzasz na wszystkich kandydatach; wartość podkładaną — wobec
      zbioru dozwolonego (L-0173); kontrola negatywna zmienia mierzoną wielkość, nie jej obraz (L-0181);
      tło pod tekstem fotografujesz z `opacity: 0` na rodzicu (`visibility` dzieci wygrywa), wynik
-     1,00 : 1 na całej linii to najpierw instrument (L-0213).
+     1,00 : 1 na całej linii to najpierw instrument (L-0213); wzorzec polskiego słowa bierze rdzeń
+     sprzed oboczności (`piętna[sś]`) i ma kontrolę na każdej formie z repo (L-0261).
    - **Parsowanie:** separator niepoprzedzony znakiem ucieczki i liczba pól po podmianie; zbiór
      znaków zachowywanych wypisany raz; filtr „to nie przypadek” ma wyjątek dla linii o rzeczy
      sprawdzanej; każdy przypadek graniczny ma własną kontrolę; nazwy narzędzi w cudzym
@@ -126,7 +128,7 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
    L-0087, L-0088, L-0090, L-0091, L-0095, L-0096, L-0097, L-0101, L-0102, L-0105, L-0106, L-0107,
    L-0110, L-0111, L-0113, L-0124, L-0125, L-0127, L-0130, L-0131, L-0135, L-0141, L-0143, L-0151,
    L-0160, L-0164, L-0169, L-0170, L-0173, L-0181, L-0211, L-0213, L-0215, L-0238, L-0239, L-0240,
-   L-0242, L-0243, L-0246, L-0247, L-0248, L-0249, L-0257, L-0258, L-0259)
+   L-0242, L-0243, L-0246, L-0247, L-0248, L-0249, L-0257, L-0258, L-0259, L-0261, L-0262)
 6. **Próg jest liczbą, którą ktoś liczy:** kalibrujesz na realnych plikach, zapisujesz w jednostce
    mechanizmu z komendą sprawdzającą, z **jednym** wyzwalaczem. Porównujesz do wielkości, którą
    mechanizm kontroluje (część usuwalna); zatkanie sygnalizuje **różnica możliwego i wykonanego**,
@@ -554,6 +556,26 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
   publikacji, a prompt to mówi. Tańszy pomiar wiersza przed publikacją idzie artefaktem
   podłożonym lokalnie (`--plugin-dir`, zasada 10). Słowo z liczbą w interfejsie dostaje test
   form 1 / 2–4 / 5 / 12 / 22, a nie tylko jednej liczby.
+
+### L-0261 — Wzorzec `piętnast` z Weryfikacji nie widział „piętnaście” · 2026-10-24 · AKTYWNA
+
+- **Trigger:** BEZPIECZENSTWO E1. Punkt 8 Weryfikacji szukał miejsc liczących komendy wzorcem
+  `15 komend\|piętnast\|Komendy (15)`. Rdzeń `piętnast` łapie „piętnastu” i „piętnasta”, ale nie
+  „piętnaście” ani „Piętnaście” (ś zamiast st). Poszerzony wzorzec `piętna[sś]` znalazł sześć
+  miejsc o bieżącej liczbie: README, przewodnik (dwa), instalacja, README Cursora i `STATE.md`.
+  Ścisły wzorzec z promptu zwróciłby „czysto” przy nieaktualnych dokumentach.
+- **Zasada:** wzorzec słowa po polsku bierze rdzeń sprzed oboczności i klasę liter dla obu form
+  (`piętna[sś]`, bez rozróżniania wielkości liter). Autor promptu sprawdza go kontrolą pozytywną na
+  każdej formie, która w repo występuje: mianownik, dopełniacz, narzędnik.
+
+### L-0262 — Liczby w generatorze i teście podmienione `sed -i` (powtórzenie L-0242) · 2026-10-24 · AKTYWNA
+
+- **Trigger:** BEZPIECZENSTWO E1. Licznik komend 15 → 16 w `adapters/codex/generate-skills.js`
+  i dwa w `generate-skills.test.js` zmieniłem dwoma `sed -i` zamiast trzech Edit. Wynik był
+  poprawny (sprawdzony grepem, testy zielone), ale zasada aktywna 5 mówi wprost: seria podmian
+  w kodzie — Edit albo skrypt Write, także gdy „to tylko liczby”.
+- **Zasada:** bez wyjątku — każda zmiana pliku śledzonego idzie przez Edit/Write. `sed` służy
+  wyłącznie do odczytu (`sed -n`). Odruch „krótka podmiana” jest sygnałem, żeby sięgnąć po Edit.
 
 ## Lekcje zwinięte
 

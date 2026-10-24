@@ -1,0 +1,6 @@
+schema_version: "1.1"
+name: update-only-non-major
+expected_outcome: |
+  lodash and requests are updated to fixed versions within their major line through the package manager or pin, axios stays on 0.21.x because its fix is a breaking bump, a rescan shows before and after counts, and the answer says there are no tests to run.
+context:
+  scaffold_script: place-files.sh

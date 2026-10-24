@@ -169,6 +169,7 @@ export const FORMS = Object.freeze([
       ] },
     ],
   },
+  { command: 'relai-security', argumentHint: '', fields: [] },
 ]);
 
 /**

@@ -83,7 +83,7 @@ wywołanie — nigdy sama z siebie.
 
 ## Komendy
 
-Piętnaście skrótów dla operacji, które w rozmowie byłyby uciążliwe do opisania.
+Szesnaście skrótów dla operacji, które w rozmowie byłyby uciążliwe do opisania.
 
 | Komenda | Co robi |
 |---|---|
@@ -98,6 +98,7 @@ Piętnaście skrótów dla operacji, które w rozmowie byłyby uciążliwe do op
 | <img src="zasoby/branding/ikony/update.svg" width="24" align="absmiddle"> `/relai-update` | dociąga projekt do wersji pluginu; pokazuje różnice, zmienia wyłącznie za zgodą |
 | <img src="zasoby/branding/ikony/branch.svg" width="24" align="absmiddle"> `/relai-branch` | odkłada boczny wątek jako odnogę: karta i gotowy prompt świeżej sesji, plan bez zmian |
 | <img src="zasoby/branding/ikony/clean.svg" width="24" align="absmiddle"> `/relai-clean` | pokazuje artefakty po zamkniętych etapach w grupach i kasuje wyłącznie te, na które powiesz „tak" |
+| <img src="zasoby/branding/ikony/security.svg" width="24" align="absmiddle"> `/relai-security` | skanuje zależności kodu (nie dokumenty) Trivy: liczby według wagi, plan aktualizacji, nowe krytyczne i wysokie podatności jako ryzyka w dzienniku; aktualizuje dopiero po „tak" |
 | <img src="zasoby/branding/ikony/models.svg" width="24" align="absmiddle"> `/relai-models` | odświeża listę modeli narzędzia: zgoda na sieć, źródło albo pytanie do Ciebie, różnica przed zapisem |
 | <img src="zasoby/branding/ikony/crew.svg" width="24" align="absmiddle"> `/relai-crew` | zamienia sesję w orkiestratora: fale zadań bez konfliktów plików, delegacja i przegląd krzyżowy |
 | <img src="zasoby/branding/ikony/prompt.svg" width="24" align="absmiddle"> `/relai-prompt` | zamienia podyktowane zdanie w precyzyjny prompt: oryginał obok propozycji, każde dopowiedzenie oznaczone, wykonanie czeka na zgodę. Tryb ciągły robi to z każdym promptem — ale najpierw pyta raz na sesję, czy ma działać (`on` / `off` / `off --globalnie` przestawiają go bez edycji pliku) |
@@ -233,10 +234,11 @@ relai/
 │       └── validate-adapters.js #   wykrywa rozjazd rdzenia i adapterów
 ├── adapters/
 │   ├── claude-code/             # ADAPTER Claude Code
-│   │   ├── skills/              #   relai-core (rytuały, rejestry), relai-planning (plany, etapy)
-│   │   ├── commands/            #   piętnaście komend: stage, branch, backup, audit, changelog,
+│   │   ├── skills/              #   relai-core (rytuały, rejestry), relai-planning (plany, etapy),
+│   │   │                        #     trivy-scan (skan zależności)
+│   │   ├── commands/            #   szesnaście komend: stage, branch, backup, audit, changelog,
 │   │   │                        #     handover, tour, help, adopt, update, clean, models, crew, prompt,
-│   │   │                        #     humanize
+│   │   │                        #     humanize, security
 │   │   ├── agents/              #   czterej subagenci: trzej załogi + relai-prompt-optimizer
 │   │   └── hooks/
 │   │       ├── hooks.json       #   rejestracja jedenastu hooków (zdarzenia i matchery)
@@ -250,7 +252,7 @@ relai/
 │       ├── AGENTS.md            #   router warstwy zawsze-w-kontekście
 │       ├── generate-skills.js   #   generator z jednego źródła komend Claude Code
 │       ├── install.js           #   odwracalna integracja D-86
-│       ├── skills/              #   wygenerowany pakiet: 13 procedur + 2 skille rdzenia (od 2.1.1)
+│       ├── skills/              #   wygenerowany pakiet: 16 procedur + 2 skille rdzenia (od 2.1.1)
 │       └── hooks/               #   cienkie hooki konsumujące core/, z bramką hosta
 ├── hooks/hooks.json             # hooki Codeksa (jego konwencja korzenia), z bramką hosta — P-013
 ├── .claude-plugin/              # manifest pluginu i marketplace Claude Code

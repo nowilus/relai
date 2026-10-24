@@ -2,8 +2,10 @@
 
 Adapter Codeksa jest natywnym pluginem od wersji 2.0.0 (wcześniej dostępny eksperymentalnie w 1.10.0). Źródłem prawdy jest repozytorium RelAI:
 `.codex-plugin/plugin.json` opisuje pakiet, `.agents/plugins/marketplace.json` wystawia repozytorium,
-a `adapters/codex/skills/` powstaje deterministycznie z 13 komend adaptera Claude Code oraz dwóch skilli rdzeniowych.
-Nie kopiuj `core/` do drugiego drzewa.
+a `adapters/codex/skills/` powstaje deterministycznie z 16 komend adaptera Claude Code oraz dwóch skilli rdzeniowych.
+Nie kopiuj `core/` do drugiego drzewa. Skilla `trivy-scan` (skan zależności, na którym stoi
+`/relai-security`) generator jeszcze nie kopiuje — razem z jego skryptami dojdzie w etapie E5 planu
+BEZPIECZENSTWO; do tego czasu `relai-security` w Codeksie korzysta z komendy audytu ekosystemu.
 
 **Katalog skilli nie może wrócić do korzenia** (P-010, naprawione w 2.1.1). Korzeń repozytorium jest
 jednocześnie korzeniem pluginu Claude Code, a ta aplikacja skanuje `skills/` niezależnie od

@@ -27,6 +27,7 @@
 | H9 | Tryb ciągły „dokumenty” nie widzi zapisu, którego nie rozpozna — `sed -i`, skrypt, podproces, `>(tee …)` — i dokument zostaje bez humanizacji (plan HUMANIZACJA, pomiar E5) | **Niski** (2026-10-14, przy zamknięciu planu) | **OTWARTE ŚWIADOMIE** | Aneks C: hook po Write/Edit i po Bash z przekierowaniem `>` / `>>` albo `tee`; w pomiarze E5 model pisał wyłącznie tymi drogami (8/8 przed poprawką, 2/2 po niej z regułą). Pominięcie kończy się ciszą, nigdy złą regułą; komenda `/relai-humanize` na pliku działa niezależnie od trybu ciągłego. |
 | T1 | Scena 3D strony tnie się na słabszym laptopie albo zintegrowanej grafice (plan STRONA_RELAI, ryzyko 1) | **Średni** (2026-10-18 po E6; wcześniej wysoki) | **OTWARTE** | E1: render na żądanie, DPR ≤ 1,5, obniżenie jakości przy medianie > 26 ms. E2 (scena CC0, AO, głębia ostrości): przy CPU ×4 mediana 11,1 ms, p95 16,7 ms, 913 wywołań rysowania na klatkę po scaleniu miasta (przed: 2206, p95 22,3 ms); obniżanie jakości zaczyna od głębi ostrości. E3 (poświata ekranu RectAreaLight, nowe książki): przy CPU ×4 przewijanie mediana 11,9 ms, p95 22,2 ms — p95 wzrosło o 5,5 ms, zapas do 26 ms już tylko 3,8 ms; przybliżanie p95 13,1 ms; najwięcej 907 wywołań rysowania na klatkę. Zmierzone tylko na RTX 4070 Ti. E4 (bez path tracingu, przygaszona lampa, lakier blatu): CPU ×4 mediana 11,3 ms, p95 17,5 ms, najwięcej 910 wywołań rysowania. Otwarte: słaba grafika w E7. E5 (Film, bez WebGL): przy CPU ×4 mediana 5,6 ms, p95 5,6 ms, najdłuższa klatka 28,7 ms, więc Filmu ryzyko nie dotyczy. Aneks D: Biurko też idzie do publikacji, dlatego poziom zostaje wysoki do pomiaru na słabej grafice w E6. E7 (Film z animacjami WAAPI i przytrzymaniem): CPU ×4 mediana 11,1 ms, p95 16,7 ms na desktopie i w emulacji telefonu — Filmu nadal nie dotyczy; poziom bez zmiany przez Biurko. E6: SwiftShader (grafika programowa) 1366 × 768 mediana 1 700 → 1 183 → 817 ms po krokach obniżania, 390 × 844 1 033 → 867 → 433 → 283 ms; wyłącznik `biurko/grafika.js` daje takiej przeglądarce plakat (werdykt Łukasza 3A), brak WebGL2 i ograniczony ruch też. RTX przy CPU ×4: p95 przewijania 20,6–25,2 ms desktop, 15,4–16,3 ms telefon. Otwarte: zintegrowana karta niezmierzona (bramka „pomiar na słabszym laptopie”); drugi bezpiecznik (plakat po wyczerpaniu kroków jakości, opcja 3B) świadomie niewdrożony. E8 (2026-10-18): Biurko opublikowane pod `/biurko/` bez zmian w scenie; plan STRONA_RELAI zamknięty, bramka „pomiar na słabszym laptopie” świadomie otwarta poza planem (`docs/STATE.md`, „Co dalej”). |
 | T2 | Biurko wygląda jak tani render albo glina z AI (plan STRONA_RELAI, ryzyko 2) | **Średni** (2026-10-18 po E6; wcześniej wysoki) | **OTWARTE** | E2: modele i tekstury CC0, deski orzechowe ze słojami, miasto za oknem, kubek i tablica od nowa; kalibracja w czterech rundach, zamknięcie za zgodą Łukasza, ale „nadal jesteśmy całkiem daleko” od obrazów 01–08 — przyczyna: brak światła odbitego w rasteryzacji (L-0220). Aneks B: E3 laptop i detale, E4 path tracing na przystankach. E4 (2026-10-16): światło odbite nie dało uzysku — przyczyną dystansu jest detal przedmiotów, tekstur i kompozycja, nie światło (L-0226); test detalu (blat `wood_table_worn`, druk na dokumentach, ciemniej) dał umiarkowany zysk. Aneks C: następny jest Film, Biurko po bramce. E5: Film rysowany kodem, hero przyjęte w trzeciej rundzie („Tak, przyjmuję”). Bramka z Aneksem D: najpierw dopieszczenie Filmu (E7), potem pełna droga Biurka (E6), publikacja obu z ankietą. Dla Biurka ryzyko zostaje wysokie. E7: Film dopieszczony i przyjęty akt po akcie („Tak, przyjmuję”), dotyczy już tylko Biurka (E6). E6: każdy przystanek, szczyt, mapa, szuflady, telefon, zasłona i plakat przyjęte przez Łukasza na kadrach przed i po; kontrola odczuć zgodna z krzywą briefu (4A). Otwarte do ankiety po publikacji (E8): czy odwiedzający odbierają Biurko jako dopracowane. E8 (2026-10-18): obie wersje opublikowane, ankieta w Tally zbiera głosy z ukrytym polem `wersja`; ryzyko zostaje otwarte do odczytu ankiety, który jest poza planem (`docs/STATE.md`). |
+| Z1 | `zod` · `docs/zasoby/film/zrodla/package-lock.json` — podatna zależność: `CVE-2023-54404` | HIGH | OTWARTE | aktualizacja 4.5.4 → 4.6.6, pośrednio przez `@remotion/cli@4.0.535` — najpierw `npm update @remotion/cli`; dotyczy narzędzi budowy filmu, nie pluginu |
 
 > Ryzyka zamknięte RM1 (1 pozycja) są w
 > [docs/archiwum/ryzyka/RYZYKA_2026-10-24.md](archiwum/ryzyka/RYZYKA_2026-10-24.md)
@@ -1969,5 +1970,104 @@ pracy.
 **Do zrobienia przez człowieka:** —
 
 Przegląd ryzyk: bez zmian po wpisie wyżej (RM1 zamknięty i w archiwum).
+
+Autor: RelAI (Opus 5.5) + Lukasz
+
+### 2026-10-24 — BEZPIECZENSTWO E1: trivy-scan w pluginie i komenda /relai-security
+
+Skan zależności przeszedł z profilu użytkownika do pluginu, a szesnasta komenda `/relai-security`
+skanuje, raportuje i wpisuje nowe podatności CRITICAL/HIGH do tabeli ryzyk. Wersja zostaje 3.2.0,
+bo wydanie należy do E6.
+
+**Zrobione:**
+
+- `adapters/claude-code/skills/trivy-scan/`: kopia skilla z `~/.claude/skills/trivy-scan/`
+  (`SKILL.md`, `scripts/scan.mjs`, `scripts/lockfile-hook.mjs`, `references/`, `evals/`; 38 plików).
+  W kopii skrypt jest wołany z katalogu skilla („Base directory for this skill”). Instalacja Trivy
+  idzie tylko z oficjalnego źródła z kontrolą SHA256 (ryzyko 7), a zapasem jest komenda audytu
+  ekosystemu. `references/hook.md` mówi, że rejestrację daje E2. `scan.mjs` pomija
+  `.claude/relai/work` i własne `evals` skilla (decyzja Łukasza po dogfoodingu, niżej).
+- `adapters/claude-code/commands/relai-security.md`: tryb projektu albo gościa, skan `--json`,
+  raport, ryzyka w dzienniku i pytanie o aktualizację. Wiersz `Z<n>` przypada na paczkę + plik
+  blokady, a deduplikacja idzie po kluczu advisory + paczka + plik. To **Aneks A** planu, decyzja
+  Łukasza z 2026-10-24: wiersz na advisory dałby 16 wierszy dla trzech paczek.
+- Panel: formularz w `FORMS`, `NAMES['relai-security']` i grupa „Porządek i bezpieczeństwo”, ikona
+  `docs/zasoby/branding/ikony/security.svg` (tarcza z ptaszkiem). Nagłówki Kalamem przebudowane
+  `build-panel-headings.js`, bo test wymagał narysowanej nazwy. `sync-panel-core.js` przeniósł
+  zmiany do `panel/`, `progress/`, `cache-keeper/` i `mods/`.
+- Codex: liczba 15 → 16 w generatorze i teście, a generator dał `adapters/codex/skills/relai-security/`.
+  README adaptera mówi, że `trivy-scan` dojdzie w E5. Do tego czasu komenda w Codeksie i Cursorze
+  używa zapasu.
+- Liczby komend 15 → 16: `KOMENDY.md` (nowy wiersz), `SPEC_KOMENDY.md` (akapit 3.3.0, tabela
+  wymagana, przykład), `README.md`, `PRZEWODNIK.md` (tabela z ikoną, drzewo, „16 procedur”),
+  `INSTALACJA.md`, README Cursora i Codeksa, `STATE.md`, tabela celów `relai-update.md`, komentarze
+  w `sync-panel-core.js` i `commands.test.js`. `ARTEFAKTY.md`: `/relai-security` w wersji 1,
+  `trivy-scan` z trzema plikami w wersji 1, `SPEC_KOMENDY` w wersji 12, `/relai-update` w wersji 22.
+
+**Zweryfikowane — jak dokładnie:**
+
+- `node core/tools/validate-adapters.js`: „spójne”, 16 nagłówków komend, 3 skille + 16 komend bez
+  błędów, a skan sieci objął 186 plików, w tym oba skrypty `trivy-scan`.
+- `node --test core/panel/tests/*.test.js` dał 216/216. Pierwszy przebieg miał 215/216
+  (`name-relai-security: not drawn`), więc przebudowałem nagłówki. `core/process/tests` dał 199/199,
+  `adapters/codex/tests` 15/15, a `generate-skills.js --verify` zwrócił „spójne”.
+- `scan.mjs` na projekcie testowym (kopia fixtury `scan-reports-fix-plan`) zwrócił 37 podatności:
+  HIGH 16, MEDIUM 20, LOW 1. Plan: axios 0.21.0 → 0.34.0 [MAJOR] „raised from 0.33.0”, lodash
+  4.17.15 → 4.18.0, requests 2.19.0 → 2.33.0. Ten sam wynik dał przebieg powtórzony po ostatniej
+  zmianie skryptu.
+- Brak sieci w skryptach: wzorzec z promptu nie trafił w `scan.mjs` ani `lockfile-hook.mjs` (kod
+  grep 1). Na podłożonym pliku z `fetch(` i `node:https` dał 2 trafienia.
+- `/relai-security` wykonałem w tej sesji dosłownie według pliku komendy, na projekcie testowym ze
+  strukturą RelAI. Przebieg 1 dopisał Z1–Z3 (axios, lodash, requests; 16 kluczy) i wpis. Przebieg 2:
+  16/16 kluczy już w tabeli, `sha256sum -c` dziennika OK. Kontrola pozytywna licznika na kopii bez
+  `NSWG-ECO-516` wskazała dokładnie ten klucz. Nie był to przebieg w świeżej sesji z pluginem
+  podłożonym przez `--plugin-dir`.
+- Pierwszy przebieg wykazał, że `plan.ids` w wyniku `--json` łączy identyfikatory wszystkich wag.
+  Komenda czyta więc wagę advisory z `latest-summary.json` (`vulns`).
+- Punkt 8 (stara liczba): wzorzec z promptu nie łapał „piętnaście” (L-0261). Przeszedłem więc
+  szerzej, z `piętna[sś]`. Zostały wzmianki historyczne (wiersze wersji w `ARTEFAKTY.md`,
+  `history.md`, akapit 3.1.0 w `SPEC_KOMENDY.md`, `STATE.md` o 3.1.0), opisy wydanego stanu
+  (`STATE.md` „z piętnastoma komendami” i „w wydaniu 3.2.0”; `README.md` w wierszu `relai-panel`
+  0.20.0 „formularzami piętnastu komend”), pomiar z 2026-09-06 w README Codeksa, briefy strony
+  i karta odnogi MOBILNA_STRONA.
+- `git diff --stat adapters/claude-code/hooks/` jest pusty. `~/.claude/settings.json` ma czas zmiany
+  12:31, sprzed tej sesji, i dalej jeden wpis hooka trivy. `.claude-plugin/plugin.json` ma 3.2.0.
+- Dogfooding `/relai-security` na RelAI. Pierwszy skan znalazł 145 podatności, w tym 59 HIGH:
+  47 HIGH pochodziło z celowo podatnych fixtur `trivy-scan/evals`, 16 z projektu testowego E1,
+  a 4 z katalogu roboczego PANEL_CODEX. Po wykluczeniu (decyzja Łukasza) zostało 5: HIGH 1,
+  MEDIUM 2, LOW 2, wszystkie w `docs/zasoby/film/zrodla/package-lock.json`. Nowy wiersz **Z1**:
+  `zod` 4.5.4 → 4.6.6 (`CVE-2023-54404`), pośrednio przez `@remotion/cli@4.0.535`. Raport leży
+  w `.security/trivy/` (gitignore `*`).
+- Katalog roboczy `.claude/relai/work/BEZPIECZENSTWO/E1/`: przed sprzątaniem 20 plików, 595 064 B;
+  po „tak” Łukasza 0, a katalog `BEZPIECZENSTWO/` usunięty. Poza katalogiem skasowałem
+  `%TEMP%/relai-plan-bezp.txt`, `relai-panel-tests.txt` i `relai-validate.txt`. Hook trivy
+  z profilu utworzył `%TEMP%/trivy-scan-hook-*` (5 katalogów); nie są moje i zostają. Przy
+  generowaniu `PROMPT_ETAP_2.md` powstały jeszcze `E1-zamkniecie/wstaw-zasady.cjs` (wstawka zasad
+  aktywnych) i `a.txt` (kontrola „ą”) oraz `%TEMP%/relai-e2-probe` (sonda hooka); wszystkie
+  skasowane w tej samej turze.
+- `PROMPT_ETAP_2.md`: komendy Weryfikacji puszczone raz przez autora. `grep -P` w Git Bash wymaga
+  `LC_ALL=C.UTF-8` (bez niego błąd locale) i tak stoi w prompcie.
+
+**Świadomie odłożone:**
+
+- `zod` i `body-parser` (HIGH, `CVE-2023-54404`, `CVE-2026-111181`) w roboczym pakiecie panelu
+  Codeksa `.claude/relai/work/PANEL_CODEX/GIT_IZOLACJA/`. Należy do planu PANEL_CODEX i wraca, gdy
+  pakiet trafi do `adapters/codex/panel/` (tam skan już go zobaczy).
+- Kopie rdzenia panelu w `panel/`, `progress/`, `cache-keeper/` i `mods/` niosą 16. formularz
+  i ikonę bez podbicia wersji tych pluginów. Wydanie panelu nie należy do planu; E6 ma o nim
+  rozstrzygnąć razem ze stroną (`site/dane/fakty.json` liczy dziś 15 komend).
+- Drzewo w `PRZEWODNIK.md` mówi „jedenaście hooków”, a `hooks.json` ma ich 12. Liczniki hooków
+  należą do E2.
+- Ponowny przebieg ewaluacji `trivy-scan` (16/16 w profilu) na kopii w pluginie, która zmieniła
+  ścieżkę skryptu i wykluczenia. Pasuje do E5 razem z kopiowaniem skilla do Codeksa i Cursora.
+
+**Do zrobienia przez człowieka:**
+
+- Decyzja o aktualizacji `zod` w narzędziach filmu (Z1): `npm update @remotion/cli` w
+  `docs/zasoby/film/zrodla/` albo akceptacja ryzyka w `DECYZJE.md`, bo dotyczy narzędzi budowy, nie
+  pluginu.
+
+Przegląd ryzyk: nowe **Z1** (wyżej). Pozostałe bez zmian. Lekcje: L-0261 (wzorzec polskiego słowa
+bez oboczności), L-0262 (`sed -i` na liczbach, powtórzenie L-0242), destylat w zasadzie 5.
 
 Autor: RelAI (Opus 5.5) + Lukasz

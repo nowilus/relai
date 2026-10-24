@@ -102,7 +102,11 @@ tekstu**: piętnasta komenda `/relai-humanize` w tabeli, z formami wywołania `<
 pliku, `on`, `off` i `ustawienia` — zapisanymi dosłownie tak, jak w nagłówku komendy. W wierszu
 tabeli jedno zdanie o trybie ciągłym: działa w **Claude Code** w zakresach wybranych w wywiadzie,
 a w Cursorze i Codeksie komenda działa na żądanie. Sekcja o zachowaniach automatycznych nie rośnie:
-tryb ciągły włącza wyłącznie człowiek, komendą albo w wywiadzie. Działa:
+tryb ciągły włącza wyłącznie człowiek, komendą albo w wywiadzie. W 3.3.0 dochodzi **skan
+zależności**: szesnasta komenda `/relai-security` w tabeli, bez argumentu; wiersz mówi wprost, że
+dotyczy kodu i zależności, nie dokumentów (od dokumentów jest `/relai-audit`), że nowe krytyczne
+i wysokie podatności trafiają do ryzyk w dzienniku bez dublowania, a aktualizacja czeka na „tak”.
+Sekcja o zachowaniach automatycznych nie rośnie. Działa:
 
 - inicjalizacja struktury projektu (zgoda → trzy pytania → osiem dokumentów),
 - rozpoznanie folderu, który już jest projektem RelAI,
@@ -271,6 +275,7 @@ oraz tabelę fraz naturalnych:
 | `/relai-branch [NAZWA] [cel]` | zakłada odnogę: kartę wątku i samowystarczalny prompt świeżej sesji; jedna linia w sekcji „Odnogi" `STATUS.md`, zamrożony plan bez zmian; bez planu — wątek samodzielny w `docs/fixy/` |
 | `/relai-clean [raport]` | raport artefaktów roboczych w grupach, z listą chronionych i powodem ochrony; kasuje wyłącznie po „tak" na grupę i mierzy ponownie po operacji; argument `raport` kończy komendę na raporcie |
 | `/relai-models` | odświeża listę modeli narzędzia: pyta o zgodę na ruch sieciowy przy każdym wywołaniu, czyta strony dokumentacji, pokazuje różnicę stara–nowa i zapisuje dopiero po „tak”; odczyt nieudany zostawia starą listę z jej datą |
+| `/relai-security` | skan zależności kodu (nie dokumentów) skillem `trivy-scan`: liczby według wagi, plan aktualizacji „jest → cel”, nowe CRITICAL/HIGH jako ryzyka w dzienniku z kluczem advisory + paczka + plik blokady (bez dublowania), aktualizacja dopiero po „tak”; bez Trivy — komenda audytu ekosystemu jako zapas; w trybie gościa raport tylko w `.security/` |
 | `/relai-crew [cel | setup | status | review | rescue <zadanie>]` | załoga: sesja zostaje orkiestratorem celu — wywiad (role, liczba subagentów, tryb, zakres modeli), fale zadań bez konfliktów plików, delegacja do subagentów gospodarza albo drugiego zalogowanego narzędzia, przegląd krzyżowy z werdyktem, rytuał zamknięcia; nic nie startuje bez „zaczynamy”; bez drugiego narzędzia tryb basic |
 
 | Fraza (PL / EN) | Co się stanie |
@@ -313,6 +318,7 @@ a struktura projektu nadąża. Komendy są skrótem do rzadszych operacji.
 | `/relai-update` | podnosi ten projekt do wersji zainstalowanego RelAI: pokazuje, co się zmieni, czeka na Twoje „tak" i nie rusza niczego, co sam zmieniłeś | gdy RelAI mówi na starcie sesji, że projekt jest starszy niż plugin |
 | `/relai-branch` · `/relai-branch OPIS_REPO` | odkłada boczny wątek na bok: spisuje, o co chodzi i po czym poznać, że zrobione, i przygotowuje gotowy prompt do wklejenia w nowej sesji | gdy w trakcie etapu wypływa coś ważnego, ale nie na teraz — zamiast robić to przy okazji albo zapomnieć |
 | `/relai-clean` · `/relai-clean raport` | pokazuje, co zostało po zamkniętych etapach — w katalogu roboczym projektu, w folderze plików tymczasowych i wśród plików nieśledzonych — grupuje to i pyta; kasuje wyłącznie grupy, na które powiesz „tak". Z argumentem `raport` sam raport, bez pytań | gdy plików roboczych zrobiło się dużo albo gdy RelAI powie o tym na starcie sesji |
+| `/relai-security` | sprawdza kod i zależności, nie dokumenty: skanuje biblioteki projektu, podaje liczby według wagi i plan aktualizacji, a nowe podatności krytyczne i wysokie wpisuje do ryzyk w dzienniku; paczki aktualizuje dopiero po Twoim „tak” | przed wydaniem albo po dodaniu nowych bibliotek |
 
 Pełna nazwa każdej z nich to `/relai:relai-…` (np. `/relai:relai-backup`) — wpisz `/relai` i wybierz
 z podpowiedzi; skrócona forma działa tam, gdzie podpowiadacz ją rozwinie.

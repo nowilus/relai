@@ -14,7 +14,7 @@
 //   node core/tools/sync-panel-core.js          # zapisuje kopie
 //   node core/tools/sync-panel-core.js --check  # tylko porownuje (test, przed wydaniem)
 //
-// Ikony 15 komend (E8, humanizacja od HUMANIZACJA E1): zrodlem jest docs/zasoby/branding/ikony/*.svg; narzedzie sklada z nich
+// Ikony 16 komend (E8, humanizacja od HUMANIZACJA E1, bezpieczenstwo od BEZPIECZENSTWO E1): zrodlem jest docs/zasoby/branding/ikony/*.svg; narzedzie sklada z nich
 // modul panel/hooks/core/icons.mjs (ICONS: nazwa pliku bez .svg -> tekst SVG bez deklaracji XML),
 // bo plugin czyta wylacznie pliki ze swojego folderu. --check porownuje go z ikonami.
 //

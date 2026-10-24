@@ -86,6 +86,7 @@ export const NAMES = Object.freeze({
   'relai-update': ['Aktualizacja', 'Podnieś projekt do wersji pluginu'],
   'relai-models': ['Lista modeli', 'Odśwież modele narzędzia'],
   'relai-clean': ['Sprzątanie', 'Usuń artefakty robocze po zgodzie'],
+  'relai-security': ['Bezpieczeństwo zależności', 'Przeskanuj zależności kodu pod kątem podatności'],
 });
 
 /** Recommended at the top of the pane (calibration 2026-10-08: variant A with C's "Polecane"). */
@@ -95,7 +96,7 @@ export const FEATURED = Object.freeze(['relai-stage', 'relai-prompt', 'relai-tou
 export const GROUPS = Object.freeze([
   { id: 'work', title: 'Prowadzenie pracy', commands: ['relai-crew', 'relai-branch', 'relai-humanize'] },
   { id: 'know', title: 'Wiedza o projekcie', commands: ['relai-help', 'relai-audit', 'relai-changelog', 'relai-handover'] },
-  { id: 'care', title: 'Porządek i bezpieczeństwo', commands: ['relai-backup', 'relai-clean', 'relai-update', 'relai-models', 'relai-adopt'] },
+  { id: 'care', title: 'Porządek i bezpieczeństwo', commands: ['relai-backup', 'relai-clean', 'relai-security', 'relai-update', 'relai-models', 'relai-adopt'] },
 ]);
 
 /**

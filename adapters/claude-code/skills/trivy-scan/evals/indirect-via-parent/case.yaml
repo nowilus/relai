@@ -1,0 +1,6 @@
+schema_version: "1.1"
+name: indirect-via-parent
+expected_outcome: |
+  The scan shows vulnerable transitive packages (body-parser, qs, path-to-regexp and others) pulled in by express 4.17.1; the answer attributes them to express and recommends upgrading express itself first, with overrides only as a fallback, without changing files.
+context:
+  scaffold_script: place-files.sh
