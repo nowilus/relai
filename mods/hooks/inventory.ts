@@ -372,17 +372,26 @@ export function headerOf(inv: Pick<Inventory, 'plugins' | 'enabled' | 'hooks'>):
 // `none` reads as off: `claude plugin list` shows such a plugin as disabled (E1, P-052)
 export const STATE_WORD: Record<PluginState, string> = { on: 'włączony', off: 'wyłączony', none: 'wyłączony' }
 
+/** "1 zdarzenie", "2 zdarzenia", "5 zdarzeń": the count of a plugin's hook events. */
+export function eventsWord(n: number): string {
+  return `${n} ${plural(n, 'zdarzenie', 'zdarzenia', 'zdarzeń')}`
+}
+
+// A mod registers its commands and reacts to events in its hooks module, which no file count sees
+export const MOD_MODULE_WORD = 'moduł hooków'
+
 /** The short line under a plugin: its counts and events, or "—" without files. */
 export function summaryOf(p: PluginItem): string {
   if (!p.counts) return '—'
   const c = p.counts
+  const isMod = p.kind === 'mod'
   const parts = [
     `${c.skills} ${plural(c.skills, 'skill', 'skille', 'skilli')}`,
     `${c.agents} ${plural(c.agents, 'agent', 'agenci', 'agentów')}`,
-    `${c.commands} ${plural(c.commands, 'komenda', 'komendy', 'komend')}`,
+    ...(isMod && c.commands === 0 ? [] : [`${c.commands} ${plural(c.commands, 'komenda', 'komendy', 'komend')}`]),
     `${c.mcp} MCP`,
   ]
-  const events = p.events.length ? `zdarzenia: ${p.events.join(', ')}` : 'bez hooków'
+  const events = p.events.length ? `zdarzenia: ${p.events.join(', ')}` : isMod ? MOD_MODULE_WORD : 'bez hooków'
   return [...parts, events].join(' · ')
 }
 

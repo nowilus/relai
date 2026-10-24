@@ -1,6 +1,6 @@
 {
   "name": "relai-mods",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "author": { "name": "nowilus", "url": "https://github.com/nowilus" },
   "description": "Needs Claude Code with mods (measured on 2.1.308). RelAI Mods: /relai-mods opens a cockpit of the mods, plugins and settings.json hooks on this machine, read from disk in folded groups, each with its scope, version, state and details. A switch turns one plugin on or off through the claude CLI on PATH; Reload reloads the plugins in the terminal and on the desktop asks you to type /reload-plugins. Hooks, policy-managed plugins and the cockpit itself are locked. Never writes settings.json or installed_plugins.json; reads files and runs the claude CLI only: no model call, no network of its own.",
   "homepage": "https://github.com/nowilus/relai",

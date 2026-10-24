@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'claude-code/testing'
 import {
-  NO_FILES_NOTE, NO_KEY_NOTE, buildInventory, foldersOf, filesOf, headerOf, joinPath, parseInstalls,
+  NO_FILES_NOTE, NO_KEY_NOTE, buildInventory, eventsWord, foldersOf, filesOf, headerOf, joinPath, parseInstalls,
   plural, pluginPart, scriptOf, shorten, sourcesOf, summaryOf, userHooks,
 } from './inventory'
 import type { DirEntry, InventoryInput, PluginFiles, PluginItem } from './inventory'
@@ -131,6 +131,22 @@ describe('inventory — today\'s machine', () => {
     const caveman = plugin(buildInventory(input()).items, 'caveman@caveman')
     expect(caveman?.events).toEqual(['SessionStart', 'UserPromptSubmit'])
     expect(caveman?.kind).toBe('plugin')
+  })
+
+  test('a mod names its hooks module, not "bez hooków", and no file count of the commands it registers in code (E5)', () => {
+    const items = buildInventory(input()).items
+    const panel = plugin(items, 'relai-panel@relai') as PluginItem
+    expect(panel.kind).toBe('mod')
+    expect(summaryOf(panel)).toBe('0 skilli · 0 agentów · 0 MCP · moduł hooków')
+    // control: a plain plugin without hooks keeps its 0 commands and "bez hooków"
+    const humanizer = plugin(items, 'humanizer@humanizer') as PluginItem
+    expect(summaryOf(humanizer)).toMatch(/ \d+ komend(a|y)? · \d+ MCP · bez hooków$/)
+  })
+
+  test('the events word follows the Polish plural (E5: "2 zdarzeń" was wrong)', () => {
+    expect([1, 2, 3, 4, 5, 12, 22].map(eventsWord)).toEqual([
+      '1 zdarzenie', '2 zdarzenia', '3 zdarzenia', '4 zdarzenia', '5 zdarzeń', '12 zdarzeń', '22 zdarzenia',
+    ])
   })
 })
 

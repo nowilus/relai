@@ -6,7 +6,7 @@
 // the filters with their counts and the bar of changes.
 
 import type { EngineInterface } from 'claude-code'
-import { STATE_WORD, headerOf, summaryOf } from './inventory'
+import { MOD_MODULE_WORD, STATE_WORD, eventsWord, headerOf, summaryOf } from './inventory'
 import type { Inventory, Item, PluginItem } from './inventory'
 import {
   FILTERS, STACK_BELOW, changeText, glyphOf, isQueued, itemKey, lockOf, pendingText, projectLabel, rowLockWord,
@@ -56,7 +56,7 @@ const isChosen = (v: View, i: Item) => v.chosen !== undefined && itemKey(v.chose
 // The short note at a row's right edge: the events, or the hook's event
 function tailOf(i: Item): string {
   if (i.kind === 'hook') return i.event
-  return i.events.length ? `${i.events.length} ${i.events.length === 1 ? 'zdarzenie' : 'zdarzeń'}` : ''
+  return i.events.length ? eventsWord(i.events.length) : ''
 }
 
 // ---------- shared parts ----------
@@ -143,7 +143,7 @@ function detailGroups(v: View, i: Item) {
     rule(v, 'd-rule-1'),
     <Box key="d-holds" flexDirection="column">
       {line(v, 'd-counts', 'Zawiera', summaryOf(p).split(' · zdarzenia:')[0] ?? '—')}
-      {line(v, 'd-events', 'Odpala się na', p.events.length ? p.events.join(', ') : 'nic — bez hooków')}
+      {line(v, 'd-events', 'Odpala się na', p.events.length ? p.events.join(', ') : p.kind === 'mod' ? `zdarzenia modu — ${MOD_MODULE_WORD}` : 'nic — bez hooków')}
       {p.notes.map((t, n) => line(v, `d-note-${n}`, 'Dopisek', t))}
     </Box>,
     rule(v, 'd-rule-2'),
