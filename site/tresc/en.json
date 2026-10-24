@@ -44,7 +44,7 @@
       "id": "panel",
       "nazwa": "Panel",
       "naglowek": "It all shows above the prompt.",
-      "tekst": "Bars in the Claude Code window show the plan, the stage's progress, your limits and the session's cost.",
+      "tekst": "Bars in the Claude Code window show the plan, the stage's progress, your limits and the session's cost. The /relai-mods cockpit lists your plugins and hooks and switches a plugin with one button.",
       "liczbaKomend": false
     },
     {

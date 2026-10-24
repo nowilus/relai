@@ -44,7 +44,7 @@
       "id": "panel",
       "nazwa": "Panel",
       "naglowek": "Wszystko widać nad promptem.",
-      "tekst": "Paski w oknie Claude Code pokazują plan, postęp etapu, limity i koszt sesji.",
+      "tekst": "Paski w oknie Claude Code pokazują plan, postęp etapu, limity i koszt sesji. Kokpit /relai-mods pokazuje pluginy i hooki i włącza je jednym przyciskiem.",
       "liczbaKomend": false
     },
     {

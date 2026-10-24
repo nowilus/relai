@@ -105,3 +105,16 @@ test('checkVersions throws on a mismatch (positive control) and passes on a matc
   assert.doesNotThrow(() => checkVersions(plugins, { relai: '3.2.0' }));
   assert.doesNotThrow(() => checkVersions(plugins, { relai: '3.2.0', 'relai-panel': '0.20.0' }));
 });
+
+test('site/dane/fakty.json is what the generator writes today (run node site/narzedzia/fakty.mjs)', async () => {
+  const committed = readFileSync(join(repoRoot, 'site', 'dane', 'fakty.json'), 'utf8').replace(/\r\n?/g, '\n');
+  assert.equal(committed, serialize(await collectFacts(repoRoot)));
+});
+
+test('every marketplace plugin has its plugin.json checked against the marketplace version', async () => {
+  const marketplace = JSON.parse(readFileSync(join(repoRoot, '.claude-plugin', 'marketplace.json'), 'utf8'));
+  const source = readFileSync(join(repoRoot, 'site', 'narzedzia', 'fakty.mjs'), 'utf8');
+  for (const { name } of marketplace.plugins) {
+    assert.ok(source.includes(`'${name}': [`) || source.includes(`  ${name}: [`), `${name} missing from PLUGIN_JSON_PATHS`);
+  }
+});

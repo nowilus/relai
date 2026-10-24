@@ -13,6 +13,7 @@ const PLUGIN_JSON_PATHS = Object.freeze({
   'relai-panel': ['panel', '.claude-plugin', 'plugin.json'],
   'relai-progress': ['progress', '.claude-plugin', 'plugin.json'],
   'relai-cache-keeper': ['cache-keeper', '.claude-plugin', 'plugin.json'],
+  'relai-mods': ['mods', '.claude-plugin', 'plugin.json'],
 });
 
 function readText(path) {

@@ -79,22 +79,23 @@ W Claude Code komendy mają pełną nazwę `/relai:relai-<nazwa>`.
 
 ## Panel w Claude Code (early access)
 
-Trzy osobne pluginy z tego samego marketplace rysują RelAI w oknie Claude Code. Działają na
+Cztery osobne pluginy z tego samego marketplace rysują RelAI w oknie Claude Code. Działają na
 **modach**, czyli API Claude Code oznaczonym jako „early access”. To API może się zmienić bez
-zapowiedzi i wtedy panel przestanie się ładować. Zmierzone na wersjach 2.1.293–2.1.295, na desktopie
-i w terminalu.
+zapowiedzi i wtedy panel przestanie się ładować. Zmierzone na wersjach 2.1.293–2.1.295 (`relai-mods`
+na 2.1.308), na desktopie i w terminalu.
 
 | Plugin | Co pokazuje |
 |---|---|
 | `relai-panel` | nad promptem: aktywny plan, etap i status, a wiersz „Tak / Nie” tylko, gdy karta decyzji czeka; `/relai-panel` otwiera panel z sekcją „Teraz” (stan punktów widać po kształcie znaczników, cały punkt w dymku po najechaniu), formularzami piętnastu komend, mapą planów i etapów, dokumentami projektu ze zmianami od commita i kosztami sesji. Na desktopie start etapu z karty otwiera nową sesję aplikacji z komendą w polu — jeden Enter, a rozmowa, w której kliknąłeś, zostaje |
 | `relai-progress` | nad promptem: lista kroków etapu w toku albo przebiegu `/relai-crew` — cienkie segmenty ze zrobionymi od lewej, jedna linia z punktem w toku i „Rozwiń”, chip agentów; `/relai-agents` — subagenci sesji z kosztem |
 | `relai-cache-keeper` | nad promptem: cztery baterie w równej siatce — czas cache promptu, limit 5 h, czas do jego resetu, limit tygodniowy — pełne słowa w dymku aplikacji, i wiersz kontekstu „użyte / okno modelu · %” z kreską progu auto-compactu (z `CLAUDE_AUTOCOMPACT_PCT_OVERRIDE`) i barwą liczoną do progu; koszt sesji; podpowiada, kiedy nowa sesja się zwróci (`/cache` pokazuje rachunek). Limit planu: progi 5 h (90 %) i tygodnia (98 %) z podpisem pod baterią, karta „pracuję dalej / zapisz pracę” po turze ponad progiem, a po resecie „Wznów pracę” — czysty czat od pliku wznowienia. Progi zmieniasz w panelu, zakładka Koszty |
+| `relai-mods` (0.1.0) | `/relai-mods` otwiera kokpit modów, pluginów i hooków z `settings.json` tej maszyny, czytany z dysku: przełącznik włącza albo wyłącza plugin przez `claude plugin` z PATH, a Przeładuj w terminalu przeładowuje od razu, na desktopie prosi o wpisanie `/reload-plugins`. Hooki, pluginy z polityki i sam kokpit mają kłódkę; kokpit nie pisze do plików ustawień |
 
 Paski i panel idą same za wyglądem aplikacji, jasnym albo ciemnym: tekst i ramki w kolorach
 narzędzia, panel na jednej kartce z palety Warsztat. Przełączać niczego nie trzeba.
 
 Każda zmiana stanu z panelu (start etapu, sprzątanie, aktualizacja) idzie przez kartę „Tak / Nie”.
-Panel nie woła modelu. Jedyny ruch sieciowy w całej trójce to odczyt strony cennika Anthropic, i to
+Panel nie woła modelu. Jedyny ruch sieciowy we wszystkich czterech to odczyt strony cennika Anthropic, i to
 dopiero po „Tak” na karcie aktualizacji cennika. W podziale okna (dwie albo trzy sesje obok
 siebie, także jedna nad drugą) każda sesja ma własne paski i własny `/relai-panel`. Etap
 uruchomiony z karty w nowej sesji możesz więc otworzyć obok bieżącej rozmowy (przeciągnij ją
@@ -112,6 +113,10 @@ claude plugin install relai-progress@relai
 
 ```bash
 claude plugin install relai-cache-keeper@relai
+```
+
+```bash
+claude plugin install relai-mods@relai
 ```
 
 Potem uruchom aplikację ponownie. Poza projektem RelAI paski milczą.

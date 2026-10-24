@@ -12,7 +12,7 @@ const path = require('path');
 
 // Kod wykonywany pluginow. Testy, typy i dokumenty nie wchodza: test wola siec atrapa, a typy
 // opisuja API, ktorego nikt w nich nie wywoluje.
-const KATALOGI = ['core', 'adapters', 'hooks', 'panel', 'progress', 'cache-keeper'];
+const KATALOGI = ['core', 'adapters', 'hooks', 'panel', 'progress', 'cache-keeper', 'mods'];
 const ROZSZERZENIA = /\.(c?js|mjs|ts|tsx)$/;
 const POMIJANE = /(^|\/)(node_modules|tests?|types|work)(\/|$)|\.test\.|\.d\.ts$/;
 

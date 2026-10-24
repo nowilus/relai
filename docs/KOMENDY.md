@@ -49,7 +49,8 @@ z podpowiedzi; skrócona forma działa tam, gdzie podpowiadacz ją rozwinie.
 Trzy osobne pluginy z marketplace RelAI, na modach Claude Code („early access”, zmierzone na 2.1.293),
 instalowane każdy własną komendą: `claude plugin install relai-panel@relai`,
 `claude plugin install relai-progress@relai`, `claude plugin install relai-cache-keeper@relai`,
-potem ponowne uruchomienie aplikacji.
+potem ponowne uruchomienie aplikacji. Czwarty plugin, kokpit pluginów i hooków (bez etykiety
+„early access”, od `relai-mods` 0.1.0, zmierzony na 2.1.308): `claude plugin install relai-mods@relai`.
 
 - **Nad promptem** — trzy spokojne paski bez przycisków: plan (aktywny plan, etap, status),
   postęp (segmenty etapu albo przebiegu załogi, pod nimi następny punkt; chip agentów z kosztem)
@@ -74,6 +75,12 @@ potem ponowne uruchomienie aplikacji.
   ustawia próg w wiadomościach (domyślnie 20, od 1 do 50); `/cache limit-warn [N]` i `/cache limit-warn-week [N]` to
   zapasowa droga do tych samych kart progu co przyciski w Kosztach.
 - **`/relai-agents`** — subagenci sesji: model, kontekst i koszt.
+- **`/relai-mods`** — kokpit modów, pluginów i hooków z `settings.json` tej maszyny, czytany
+  z dysku, w zwiniętych grupach ze szczegółami pod wierszem. Przełącznik włącza albo wyłącza
+  jeden plugin przez `claude plugin enable/disable` z PATH; zmiana działa po przeładowaniu.
+  Przeładuj w terminalu przeładowuje pluginy od razu, na desktopie prosi o wpisanie
+  `/reload-plugins`. Hooki, pluginy z polityki i sam kokpit mają kłódkę zamiast przełącznika.
+  Kokpit nie pisze do `settings.json` ani `installed_plugins.json`.
 - **Karta „Tak / Nie”** — start etapu, sprzątanie, aktualizacja, lista modeli i zmiana cennika idą
   z panelu dopiero po Twoim „Tak”. Etap potwierdzony na karcie startuje bez drugiego pytania w czacie.
 - **Sieć** — jedyny odczyt to strona cennika Anthropic, po „Tak” na karcie aktualizacji cennika.
