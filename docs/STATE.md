@@ -1,22 +1,24 @@
 # STATE — RelAI
 
-Stan na: 2026-10-24 (plan BEZPIECZENSTWO: E1–E5 zrealizowane — skan zależności `/relai-security`, 13. hook `lockfile-scan`, D-91 (Trivy pierwszy w punktach procesu), pełny audyt `/relai-security --full` ze skillem Cloudflare `security-audit` i oba skille w Codeksie i Cursorze (E5) w repo, niewydane; E6 — wydanie 3.3.0 — gotowy do startu; plan RELAI_MODS ZREALIZOWANY — kokpit `/relai-mods` wydany jako `relai-mods` 0.1.0 i 0.1.1 w marketplace, tagi `relai-mods-v0.1.0` i `relai-mods-v0.1.1`; wątek AGENTS_KRABY zamknięty — panel „RelAI Agents” z postaciami ról, `relai-progress` 0.6.0 wydany, tag `relai-progress-v0.6.0`; wątek MOBILNA_STRONA zamknięty — obie wersje strony przyjęte na iPhonie, ankieta na cztery warianty z danymi o urządzeniu; wątek BIURKO_PLAKAT zamknięty — Biurko bez sceny 3D jako odbitki biurka; plan STRONA_RELAI ZREALIZOWANY 2026-10-18 — strona opublikowana na https://nowilus.github.io/relai/ w dwóch wersjach, Film i Biurko, z ankietą w Tally, poprawka Aneksu E wdrożona 2026-10-19; WYGLAD_PANELU zamknięty 2026-10-15)
+Stan na: 2026-10-25 (plan BEZPIECZENSTWO ZREALIZOWANY 2026-10-25 — wydanie 3.3.0: skan zależności `/relai-security`, 13. hook `lockfile-scan`, D-91 (Trivy pierwszy w punktach procesu), pełny audyt `/relai-security --full` ze skillem Cloudflare `security-audit`, oba skille w Codeksie i Cursorze; mody `relai-panel` 0.21.0, `relai-progress` 0.6.1, `relai-cache-keeper` 0.12.0, `relai-mods` 0.1.2; plan RELAI_MODS ZREALIZOWANY — kokpit `/relai-mods` wydany jako `relai-mods` 0.1.0 i 0.1.1 w marketplace, tagi `relai-mods-v0.1.0` i `relai-mods-v0.1.1`; wątek AGENTS_KRABY zamknięty — panel „RelAI Agents” z postaciami ról, `relai-progress` 0.6.0 wydany, tag `relai-progress-v0.6.0`; wątek MOBILNA_STRONA zamknięty — obie wersje strony przyjęte na iPhonie, ankieta na cztery warianty z danymi o urządzeniu; wątek BIURKO_PLAKAT zamknięty — Biurko bez sceny 3D jako odbitki biurka; plan STRONA_RELAI ZREALIZOWANY 2026-10-18 — strona opublikowana na https://nowilus.github.io/relai/ w dwóch wersjach, Film i Biurko, z ankietą w Tally, poprawka Aneksu E wdrożona 2026-10-19; WYGLAD_PANELU zamknięty 2026-10-15)
 
 ## Gdzie jesteśmy
 
-RelAI **3.3.0** jest w repozytorium (wydanie w toku, plan BEZPIECZENSTWO E6; publicznie jeszcze
-3.2.0 — tag `v3.2.0`, 2026-10-15: pełna karta startu `/relai-stage`). Plugin `relai` działa
-w trzech narzędziach — Claude Code, Cursorze i Codeksie — na jednym rdzeniu procesu, z piętnastoma
-komendami. W marketplace tego repozytorium jest czwarty mod, `relai-mods` 0.1.1 — kokpit pluginów
-i hooków (plan RELAI_MODS, zamknięty 2026-10-24). Panel RelAI w oknie Claude Code to trzy osobne pluginy „early access” z marketplace tego
-repozytorium: `relai-panel` 0.20.0, `relai-progress` 0.6.0 (panel „RelAI Agents”, odnoga AGENTS_KRABY, tag `relai-progress-v0.6.0`, 2026-10-23), `relai-cache-keeper` 0.11.0 (tag
-`relai-panel-v0.20.0`, 2026-10-15: sekcja „Teraz”, baterie w siatce, wiersz kontekstu z progiem
+RelAI **3.3.0** jest w repozytorium i publicznie (tag `v3.3.0`, 2026-10-25: bezpieczeństwo
+zależności i kodu — plan BEZPIECZENSTWO; wcześniej 3.2.0 z pełną kartą startu `/relai-stage`).
+Plugin `relai` działa w trzech narzędziach — Claude Code, Cursorze i Codeksie — na jednym rdzeniu
+procesu, z szesnastoma komendami i trzynastoma hookami w Claude Code. W marketplace tego
+repozytorium jest czwarty mod, `relai-mods` 0.1.2 — kokpit pluginów i hooków (plan RELAI_MODS,
+zamknięty 2026-10-24; tag `relai-mods-v0.1.2`). Panel RelAI w oknie Claude Code to trzy osobne pluginy „early access” z marketplace tego
+repozytorium: `relai-panel` 0.21.0 (formularz `/relai-security`), `relai-progress` 0.6.1 (panel „RelAI Agents”, odnoga AGENTS_KRABY), `relai-cache-keeper` 0.12.0 (tag
+`relai-panel-v0.21.0`, 2026-10-25; wcześniej `relai-panel-v0.20.0`, 2026-10-15: sekcja „Teraz”, baterie w siatce, wiersz kontekstu z progiem
 auto-compactu; wcześniej `relai-panel-v0.19.0`: paski i panel same za jasnym i ciemnym wyglądem aplikacji, pasek
 postępu jako lista kroków — plan WYGLAD_PANELU; 2026-10-14: pasek mówi uczciwie, kiedy nowa sesja się opłaca — odnoga
 KOMUNIKAT_ZWROTU; paski i panel w każdym panelu podziału okna, linia w stopce wycofana — odnoga
 SPLIT_VIEW, P-040 rozwiązana; panel bez rozjazdów w wąskim panelu podziału — odnoga PANEL_WASKI,
 0.18.0).
-Aktywny plan: PANEL_CODEX (E1 w toku, prowadzony w Codeksie). STRONA_RELAI zamknięty 2026-10-18
+Aktywny plan: PANEL_CODEX (E1 w toku, prowadzony w Codeksie). BEZPIECZENSTWO zamknięty 2026-10-25
+po E6 (6/6, Aneksy A–B, wydanie 3.3.0). STRONA_RELAI zamknięty 2026-10-18
 po E8 (8/8, Aneksy A–E). WYGLAD_PANELU zamknięty 2026-10-15
 po E5 (wydanie panelu 0.20.0 / 0.11.0); HUMANIZACJA zamknięty 2026-10-14 wydaniem 3.1.0. Opinii spoza projektu nadal nie ma.
 
@@ -27,20 +29,20 @@ po E5 (wydanie panelu 0.20.0 / 0.11.0); HUMANIZACJA zamknięty 2026-10-14 wydani
 - Ustalenia, decyzje i korekty zapisują się w trakcie pracy, a nowa sesja zaczyna od stanu.
 - Plany powstają jako osobny dokument z wariantami i ryzykami (dla odbiorcy nietechnicznego jako
   HTML bez internetu); boczny wątek dostaje własną kartę bez ruszania zamrożonego planu.
-- Piętnaście skrótów w wydaniu 3.2.0: etap, odnoga, kopia zapasowa, przegląd, lista zmian,
+- Szesnaście skrótów w wydaniu 3.3.0: etap, odnoga, kopia zapasowa, przegląd, lista zmian,
   przekazanie, wycieczka, ściąga, adopcja, aktualizacja, sprzątanie, lista modeli, załoga,
-  optymalizator promptu, humanizacja tekstu. W repozytorium szesnasty, niewydany: skan zależności
-  `/relai-security` (plan BEZPIECZENSTWO, E1). Od E2 zmiana pliku blokady albo instalacja paczek
-  w projekcie RelAI sama uruchamia szybki skan (hook `lockfile-scan`), a notka pada tylko przy
-  nowym CRITICAL/HIGH. Od E3 (D-91) ten sam skan jest pierwszym audytem zależności w punktach
-  procesu; komenda ekosystemu (`npm audit`…) zostaje zapasem. Od E4 `/relai-security --full`
-  robi pełny audyt kodu skillem Cloudflare `security-audit` (kopia 1:1 w pluginie): najpierw karta
-  kosztu i „tak”, raport w `.security/security-audit/`; na Windowsie bez WSL walidatory idą przez
-  wrapper RelAI z adnotacją w raporcie, a bez piaskownicy audyt jest wyłącznie źródłowy.
-  Od E5 Codex i Cursor dostają oba skille w całości, ze skryptami. Lista skilli jest w
-  `core/process/bundled-skills.js`, a test parzystości pilnuje sum. W Codeksie hook
-  `lockfile-scan` działa po komendzie instalacji (`PostToolUse`, zmierzone 2026-10-24). Cursor
-  hooka jeszcze nie ma, bo jego pomiar czeka na zalogowanie CLI.
+  optymalizator promptu, humanizacja tekstu i skan zależności `/relai-security` (plan
+  BEZPIECZENSTWO). Zmiana pliku blokady albo instalacja paczek w projekcie RelAI sama uruchamia
+  szybki skan (hook `lockfile-scan`), a notka pada tylko przy nowym CRITICAL/HIGH. Ten sam skan
+  jest pierwszym audytem zależności w punktach procesu (D-91); komenda ekosystemu (`npm audit`…)
+  zostaje zapasem. `/relai-security --full` robi pełny audyt kodu skillem Cloudflare
+  `security-audit` (kopia 1:1 w pluginie): najpierw karta kosztu i „tak”, raport
+  w `.security/security-audit/`; na Windowsie bez WSL walidatory idą przez wrapper RelAI
+  z adnotacją w raporcie, a bez piaskownicy audyt jest wyłącznie źródłowy. Codex i Cursor dostają
+  oba skille w całości, ze skryptami (lista w `core/process/bundled-skills.js`, test parzystości
+  sum). W Codeksie hook `lockfile-scan` działa po komendzie instalacji (`PostToolUse`, po zaufaniu
+  w przeglądzie hooków). Cursor hooka nie ma — pomiar świadomie odłożony (Co dalej). Skan RelAI
+  2026-10-25: zero podatności.
 - Podyktowane zdanie może wrócić poprawione, zanim ruszy w robotę — na żądanie albo w trybie
   ciągłym, o który sesja pyta raz; oryginał stoi obok propozycji.
 - **Humanizacja tekstu** (plan [HUMANIZACJA](archiwum/plany/HUMANIZACJA/STATUS.md), zamknięty
@@ -140,20 +142,6 @@ po E5 (wydanie panelu 0.20.0 / 0.11.0); HUMANIZACJA zamknięty 2026-10-14 wydani
 
 ## Nad czym pracujemy teraz
 
-- **BEZPIECZENSTWO — plan ZAAKCEPTOWANY 2026-10-23, E1–E4 ZREALIZOWANE 2026-10-24, E5 gotowy do
-  startu** (plan [BEZPIECZENSTWO](plany/BEZPIECZENSTWO/STATUS.md), 6 etapów, wykonanie Opus
-  w Claude Code, równolegle do PANEL_CODEX). E1: skill `trivy-scan` i `/relai-security` w pluginie
-  (niewydane), wiersz ryzyka na paczkę z kluczem advisory + paczka + plik blokady (Aneks A),
-  pierwszy skan RelAI dał ryzyko Z1 (`zod` w narzędziach filmu). E2: hook `lockfile-scan`. E3:
-  decyzja D-91 — Trivy pierwszym narzędziem audytu zależności w prompcie etapu, `done-check`,
-  `first-deploy`, zamknięciu sesji i planu, komenda ekosystemu zapasem. E4: `security-audit`
-  Cloudflare w pluginie po przeglądzie (PRZYJĘTY), kopia 1:1 commitu `c1c8a8c` z notą i kontrolą
-  walidatora, `/relai-security --full`, jedna propozycja w `first-deploy`; formularz `--full`
-  w panelu i testy modów na 16 komend (mody niewydane). Po co:
-  skan zależności Trivy (własny skill `trivy-scan`) i audyt bezpieczeństwa Cloudflare
-  (`security-audit`, MIT) wbudowane w plugin — komenda `/relai-security`, 13. hook po zmianie
-  lockfile, prompty etapów, `done-check`, `first-deploy`, zamknięcie sesji i planu; ryzyka do
-  dziennika, raporty w `.security/`. Linia „Aktywny plan” w `CLAUDE.md` zostaje przy PANEL_CODEX.
 - **PANEL_CODEX, E1 — przejęcie rdzenia i natywny panel w Codeksie** (plan
   [PANEL_CODEX](plany/PANEL_CODEX/STATUS.md), ZAAKCEPTOWANY 2026-10-10, 8 etapów, autor
   i wykonawca `gpt-6.1-sol` w Codeksie, Aneks A — 16 pól kontraktu — zaakceptowany). Po co: ten sam
@@ -167,6 +155,17 @@ po E5 (wydanie panelu 0.20.0 / 0.11.0); HUMANIZACJA zamknięty 2026-10-14 wydani
 
 ## Co dalej
 
+- **Lista planów w zakładce „Komendy” panelu** (zgłoszenie Łukasza 2026-10-25, do zrobienia po
+  zamknięciu BEZPIECZENSTWO): wybór planu pokazuje etapy PANEL_CODEX, odnogi i „poza planem”
+  zamiast realnych planów — do poprawy w `core/panel/` i kopii modów.
+- **Po planie BEZPIECZENSTWO (zamknięty 2026-10-25):** pomiar zdarzenia po narzędziu w Cursorze
+  świadomie odłożony (`agent login`, sonda `postToolUse` / `afterFileEdit` / `afterShellExecution`;
+  jest → hook `lockfile-scan` w instalatorze Cursora); narzędzia filmu mają `"overrides": {"zod":
+  "4.6.6"}` (Z1 zamknięte) — Remotion przy każdym renderze ostrzega o niezgodnej wersji `zod`,
+  pełnego renderu filmu na override nie było; przy aktualizacji Remotion override zdjąć, gdy
+  przypnie bezpieczny `zod`. Edycja pliku blokady przez `apply_patch` w Codeksie nie wyzwala skanu.
+  Po stronie człowieka: restart aplikacji (sesje desktopu wczytają 3.3.0, P-005) i zaufanie hooka
+  `lockfile-scan` w przeglądzie hooków Codeksa (P-054).
 - **Strona — sprawy świadomie otwarte przy zamknięciu STRONA_RELAI (2026-10-18):** odczyt ankiety
   i wybór kierunku strony (Aneks D pkt 3; dopiero po nim wspólny moduł Filmu i Biurka); pomiar
   Biurka na słabszym laptopie albo zintegrowanej karcie (T1, procedura w `site/README.md`;
@@ -223,8 +222,8 @@ po E5 (wydanie panelu 0.20.0 / 0.11.0); HUMANIZACJA zamknięty 2026-10-14 wydani
 
 ### Wersja i instalacja
 
-Repo i publicznie **3.1.0**; marketplace w tym repozytorium (scope `user`) niesie cztery pluginy:
-`relai` i trzy pluginy panelu z własnymi wersjami i tagami (`relai-panel-v0.17.0`). Wydanie
+Repo i publicznie **3.3.0**; marketplace w tym repozytorium (scope `user`) niesie pięć pluginów:
+`relai` i cztery mody z własnymi wersjami i tagami (`relai-panel-v0.21.0`, `relai-mods-v0.1.2`). Wydanie
 potwierdzasz treścią plików z cache'u, nie komunikatem CLI (P-005): `claude plugin validate` → tag
 → push → release → `marketplace update` → `plugin update` → suma plików po CRLF → LF. Walidator
 `core/tools/validate-adapters.js` sprawdza 7 źródeł wersji (w tym baner README i „Gdzie jesteśmy”)
@@ -236,9 +235,9 @@ i wpis marketplace każdego pluginu panelu z jego `plugin.json`. Pre-commit repo
 sesji, artefakty robocze, załoga, tryb ciągły, baza reguł optymalizatora z nakładkami `claude`
 i `openai`, walidator, rdzeń panelu `core/panel/*.mjs` (pomiar kosztów, cennik, atrybucja, mapa,
 decyzje, dokumenty, motyw, nagłówki Kalamem). **Adapter Claude Code**: dwa skille z plikami
-doczytywanymi, `trivy-scan` (od BEZPIECZENSTWO E1, niewydany) i kopia `security-audit` Cloudflare (od E4, niewydana), 16 komend, 4 agenci, 13 hooków (`humanize-continuous` i `lockfile-scan` — od BEZPIECZENSTWO E2, niewydany — także po Bash), lista modeli. **Adapter Cursor**: trzy reguły
-`.mdc`, dwa hooki, instalator. **Adapter Codex**: manifest, 16 skilli komend i 2 rdzeniowe, router `AGENTS.md`, trzy
-hooki; pakiet panelu `adapters/codex/panel/` w budowie (E1).
+doczytywanymi, `trivy-scan` i kopia `security-audit` Cloudflare (od 3.3.0), 16 komend, 4 agenci, 13 hooków (`humanize-continuous` i `lockfile-scan` także po Bash), lista modeli. **Adapter Cursor**: trzy reguły
+`.mdc`, dwa hooki, instalator, cztery skille. **Adapter Codex**: manifest, 16 skilli komend i 4 dołączone, router `AGENTS.md`, cztery
+hooki (z `lockfile-scan`); pakiet panelu `adapters/codex/panel/` w budowie (E1).
 
 ### Pluginy panelu (Claude Code Mods, „early access”, zmierzone na 2.1.295)
 

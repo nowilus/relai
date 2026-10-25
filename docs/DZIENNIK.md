@@ -27,7 +27,7 @@
 | H9 | Tryb ciągły „dokumenty” nie widzi zapisu, którego nie rozpozna — `sed -i`, skrypt, podproces, `>(tee …)` — i dokument zostaje bez humanizacji (plan HUMANIZACJA, pomiar E5) | **Niski** (2026-10-14, przy zamknięciu planu) | **OTWARTE ŚWIADOMIE** | Aneks C: hook po Write/Edit i po Bash z przekierowaniem `>` / `>>` albo `tee`; w pomiarze E5 model pisał wyłącznie tymi drogami (8/8 przed poprawką, 2/2 po niej z regułą). Pominięcie kończy się ciszą, nigdy złą regułą; komenda `/relai-humanize` na pliku działa niezależnie od trybu ciągłego. |
 | T1 | Scena 3D strony tnie się na słabszym laptopie albo zintegrowanej grafice (plan STRONA_RELAI, ryzyko 1) | **Średni** (2026-10-18 po E6; wcześniej wysoki) | **OTWARTE** | E1: render na żądanie, DPR ≤ 1,5, obniżenie jakości przy medianie > 26 ms. E2 (scena CC0, AO, głębia ostrości): przy CPU ×4 mediana 11,1 ms, p95 16,7 ms, 913 wywołań rysowania na klatkę po scaleniu miasta (przed: 2206, p95 22,3 ms); obniżanie jakości zaczyna od głębi ostrości. E3 (poświata ekranu RectAreaLight, nowe książki): przy CPU ×4 przewijanie mediana 11,9 ms, p95 22,2 ms — p95 wzrosło o 5,5 ms, zapas do 26 ms już tylko 3,8 ms; przybliżanie p95 13,1 ms; najwięcej 907 wywołań rysowania na klatkę. Zmierzone tylko na RTX 4070 Ti. E4 (bez path tracingu, przygaszona lampa, lakier blatu): CPU ×4 mediana 11,3 ms, p95 17,5 ms, najwięcej 910 wywołań rysowania. Otwarte: słaba grafika w E7. E5 (Film, bez WebGL): przy CPU ×4 mediana 5,6 ms, p95 5,6 ms, najdłuższa klatka 28,7 ms, więc Filmu ryzyko nie dotyczy. Aneks D: Biurko też idzie do publikacji, dlatego poziom zostaje wysoki do pomiaru na słabej grafice w E6. E7 (Film z animacjami WAAPI i przytrzymaniem): CPU ×4 mediana 11,1 ms, p95 16,7 ms na desktopie i w emulacji telefonu — Filmu nadal nie dotyczy; poziom bez zmiany przez Biurko. E6: SwiftShader (grafika programowa) 1366 × 768 mediana 1 700 → 1 183 → 817 ms po krokach obniżania, 390 × 844 1 033 → 867 → 433 → 283 ms; wyłącznik `biurko/grafika.js` daje takiej przeglądarce plakat (werdykt Łukasza 3A), brak WebGL2 i ograniczony ruch też. RTX przy CPU ×4: p95 przewijania 20,6–25,2 ms desktop, 15,4–16,3 ms telefon. Otwarte: zintegrowana karta niezmierzona (bramka „pomiar na słabszym laptopie”); drugi bezpiecznik (plakat po wyczerpaniu kroków jakości, opcja 3B) świadomie niewdrożony. E8 (2026-10-18): Biurko opublikowane pod `/biurko/` bez zmian w scenie; plan STRONA_RELAI zamknięty, bramka „pomiar na słabszym laptopie” świadomie otwarta poza planem (`docs/STATE.md`, „Co dalej”). |
 | T2 | Biurko wygląda jak tani render albo glina z AI (plan STRONA_RELAI, ryzyko 2) | **Średni** (2026-10-18 po E6; wcześniej wysoki) | **OTWARTE** | E2: modele i tekstury CC0, deski orzechowe ze słojami, miasto za oknem, kubek i tablica od nowa; kalibracja w czterech rundach, zamknięcie za zgodą Łukasza, ale „nadal jesteśmy całkiem daleko” od obrazów 01–08 — przyczyna: brak światła odbitego w rasteryzacji (L-0220). Aneks B: E3 laptop i detale, E4 path tracing na przystankach. E4 (2026-10-16): światło odbite nie dało uzysku — przyczyną dystansu jest detal przedmiotów, tekstur i kompozycja, nie światło (L-0226); test detalu (blat `wood_table_worn`, druk na dokumentach, ciemniej) dał umiarkowany zysk. Aneks C: następny jest Film, Biurko po bramce. E5: Film rysowany kodem, hero przyjęte w trzeciej rundzie („Tak, przyjmuję”). Bramka z Aneksem D: najpierw dopieszczenie Filmu (E7), potem pełna droga Biurka (E6), publikacja obu z ankietą. Dla Biurka ryzyko zostaje wysokie. E7: Film dopieszczony i przyjęty akt po akcie („Tak, przyjmuję”), dotyczy już tylko Biurka (E6). E6: każdy przystanek, szczyt, mapa, szuflady, telefon, zasłona i plakat przyjęte przez Łukasza na kadrach przed i po; kontrola odczuć zgodna z krzywą briefu (4A). Otwarte do ankiety po publikacji (E8): czy odwiedzający odbierają Biurko jako dopracowane. E8 (2026-10-18): obie wersje opublikowane, ankieta w Tally zbiera głosy z ukrytym polem `wersja`; ryzyko zostaje otwarte do odczytu ankiety, który jest poza planem (`docs/STATE.md`). |
-| Z1 | `zod` · `docs/zasoby/film/zrodla/package-lock.json` — podatna zależność: `CVE-2023-54404` | HIGH | OTWARTE | aktualizacja 4.5.4 → 4.6.6, pośrednio przez `@remotion/cli@4.0.535` — najpierw `npm update @remotion/cli`; dotyczy narzędzi budowy filmu, nie pluginu |
+| Z1 | `zod` · `docs/zasoby/film/zrodla/package-lock.json` — podatna zależność: `CVE-2023-54404` | HIGH | **ZAMKNIĘTE 2026-10-25** | `npm update` nie pomógł — `@remotion/*` (także 4.0.538) przypina `zod` dokładnie na 4.5.4; decyzją Łukasza `"overrides": {"zod": "4.6.6"}` w `package.json` filmu (+ `fast-uri` 3.1.9); skan Trivy 0/0/0/0; render klatek działa, ale Remotion przy każdym renderze ostrzega o niezgodnej wersji `zod` — przy aktualizacji Remotion override do zdjęcia |
 
 > Ryzyka zamknięte RM1 (1 pozycja) są w
 > [docs/archiwum/ryzyka/RYZYKA_2026-10-24.md](archiwum/ryzyka/RYZYKA_2026-10-24.md)
@@ -2589,5 +2589,136 @@ nie istniały wcale. W Codeksie hook `lockfile-scan` działa po komendzie instal
 
 Przegląd ryzyk: nowych brak. Z1 bez zmian. Ryzyko 8 planu (lista zamiast reguły, parzystość
 plików) ma teraz test w obu adapterach.
+
+Autor: RelAI (Opus 5.5) + Lukasz
+
+### 2026-10-25 — BEZPIECZENSTWO E6: wydanie 3.3.0 i zamknięcie planu
+
+RelAI 3.3.0 jest publicznie, razem z czterema modami: `relai-panel` 0.21.0, `relai-progress` 0.6.1,
+`relai-cache-keeper` 0.12.0, `relai-mods` 0.1.2. Plan BEZPIECZENSTWO jest zamknięty 6/6
+z Aneksami A–B, a folder planu jest w archiwum. Etap zaczął się 2026-10-24 wieczorem, a skończył
+2026-10-25, po wznowieniu sesji przerwanej po commicie wydania.
+
+**Zrobione:**
+
+- **Decyzje na start** (jedno pytanie, 2026-10-24): publikacja „Tak, po szkicu”; kopie skilli
+  z profilu „Usuń wszystkie trzy” (także `trivy-scan-workspace/`, spoza planu); mody „Tak,
+  wszystkie cztery”; Cursor „Świadomie odłożone” (CLI `agent` nie ma na PATH). Wcześniej, w tej
+  samej turze, bramka zgody optymalizatora: „Nie w tej sesji” (plik zgody tej sesji).
+- **Upstream Cloudflare:** `git ls-remote` HEAD = `c1c8a8c1471069fb0e188eeaff69b8e8db6564a8`
+  = `commit:` w `RELAI-SOURCE.txt` — bez zmian, synchronizacji nie było.
+- **Numery:** skrypt roboczy podbił 13 wpisów w manifestach (7 źródeł walidatora + 4 mody
+  w `plugin.json` i marketplace), każda podmiana trafiła dokładnie raz. Edit: baner README,
+  `relai-update.md` (5 trafień), `new-project.md`, README Cursora, `KOMENDY.md`, marker
+  `docs/USTAWIENIA.md` i fixtury ewaluacji, „Gdzie jesteśmy” w `STATE.md`. Kopie: `generate-skills.js`
+  (16 procedur + 4 skille, 52 pliki), `sync-panel-core.js` (19 plików + 16 ikon do czterech modów),
+  `site/narzedzia/fakty.mjs` (16 komend, nowe wersje), `zbuduj.mjs` (cztery strony).
+- **README:** baner 3.3.0, zdanie o `/relai-security` i `--full`, „formularzami szesnastu
+  komend”, `relai-mods` (0.1.2), tabela hooków „trzynaście” z dwoma brakującymi wierszami
+  (`humanize-continuous` i `lockfile-scan` — tabela miała 11 wierszy przy 13 hookach).
+- **Historia i rejestr:** wpis „Wersja 3.3.0” w `history.md` (kopia Codeksa z generatora).
+  `ARTEFAKTY.md`: kontrola L-0161 (rejestr wobec `git diff --name-only v3.2.0`) — 114 wierszy, 40
+  dotkniętych od tagu, 6 bez wpisu po tagu; trzy prawdziwe luki uzupełnione: `new-project.md`
+  v10, `history.md` v8 (oba nie dostały wpisu przy 3.2.0), README Codeksa v3 (zmiany z E1 i E5).
+  Trzy pozostałe to fałsz instrumentu: kopia Cloudflare datowana commitem upstreamu, a STYL
+  i DESIGN mają nowsze wiersze 5.1 i 1.3 z 2026-10-15 po tagu.
+- **Aneks B** (decyzja Łukasza, zamiast odnogi): `zbuduj.mjs` przerwał budowę strony — „Content
+  for "en" has no film.fiszki entry for relai-security”. Dopisana fiszka EN „Dependency security”
+  / „Scans your dependencies for vulnerabilities” w `site/tresc/en.json`; aneks w sekcji 10
+  `PLAN.html` obejmuje też wydanie modów.
+- **Publikacja** po drugiej zgodzie („Tak, publikuj” po szkicu notatek): commit `a1439b9`, push
+  `main` (z nim E5 `53830cc`), tagi adnotowane `v3.3.0`, `relai-panel-v0.21.0`,
+  `relai-mods-v0.1.2`, wydanie GitHub „RelAI 3.3.0” z notatkami po angielsku.
+- **Kopie z profilu:** `trivy-scan/` (38 plików), `security-audit/` (22), `trivy-scan-workspace/`
+  (1160) skopiowane do `C:\Users\Lukasz\Backupy\RelAI\skills-przed-E6-2026-10-25\` (liczby i sumy
+  katalogów zgodne), potem usunięte z `~/.claude/skills/`.
+- **Z1 zamknięte:** Łukasz wybrał „Aktualizuj teraz”. `npm update @remotion/cli` nic nie zmienił —
+  wszystkie `@remotion/*` 4.0.535 (i najnowszy 4.0.538 z 2026-10-22) przypinają `zod` dokładnie
+  na 4.5.4. Po drugim pytaniu „Override zod 4.6.6”: `"overrides": {"zod": "4.6.6"}`
+  w `docs/zasoby/film/zrodla/package.json`, `npm install`, `npm update fast-uri` (3.1.9).
+- **Zamknięcie planu (D-36):** bramki rozstrzygnięte (Cursor odłożony do `STATE.md`), odnóg brak;
+  `STATUS.md` E6 i plan `ZREALIZOWANY`; folder `git mv` do `docs/archiwum/plany/BEZPIECZENSTWO/`;
+  trzy linki `../../DZIENNIK.md` w przeniesionym `STATUS.md` poprawione na `../../../DZIENNIK.md`
+  (po przeniesieniu prowadziły donikąd — jedyna zmiana treści w archiwum); `CLAUDE.md`: wiersz
+  planu i wiersz pluginu, „Ostatni zamknięty” → BEZPIECZENSTWO, „Aktywny plan” zostaje PANEL_CODEX
+  (jedyny inny plan niezamknięty, plik istnieje); `STATE.md` nadpisany w sześciu miejscach.
+
+**Dowiezione vs plan:** plan obiecał skan Trivy jako komendę i hook, D-91 w punktach procesu,
+pełny audyt Cloudflare na żądanie, oba skille w trzech adapterach, ryzyka w dzienniku, raporty
+w `.security/` i wydanie 3.3.0 — wszystko powstało i jest wydane. Przepadło (świadomie): hook
+`lockfile-scan` w Cursorze (pomiar zdarzenia odłożony) i wyzwalanie skanu przez `apply_patch`
+w Codeksie. Ponad plan: Aneks A (wiersz ryzyka na paczkę), Aneks B (fiszka strony, cztery mody),
+zamknięcie Z1 override i uzupełniona tabela hooków w README.
+
+**Zweryfikowane — jak dokładnie:**
+
+- `node core/tools/validate-adapters.js` → „spojne”; „numery wersji: 7 zrodel, wartosc
+  "3.3.0"”, „parytet skilli Claude Code -> Codex: 73 plikow, 0 rozjazdow”, „wersje pluginow
+  panelu w marketplace: 4”, „nota MIT Cloudflare: 21 plikow kopii, 21 wymienionych”. Ostrzeżenia
+  (2, zastane): `security-audit/SKILL.md` 22 026 B, `relai-prompt.md` 30 106 B.
+- `grep -r "3\.2\.0"` poza `.git` (bez `.claude/worktrees`, `.security`, archiwum) po zmianach:
+  podbite — wszystkie deklaracje stanu wyżej i strona (`site/*.html`, `fakty.json`); historyczne,
+  zostają — `CLAUDE.md` (wiersz WYGLAD_PANELU), `history.md` ×2 (wpis 3.2.0), `DZIENNIK.md`,
+  prompty BEZPIECZENSTWO E1–E6 i `PLAN.html`, `PROMPT_ODNOGA` AGENTS_KRABY, komentarze „after
+  3.2.0” w `panel/hooks/now-art.ts`, `now.test.ts`, `rings.test.ts`; fixtury testów — markery
+  w `lockfile-hook.test.js` i `lockfile-scan.test.js`, `mods.test.tsx`, `narrow.test.ts`,
+  `site/js/wersja.test.mjs`, `site/narzedzia/fakty.test.mjs`; cudza wersja — `package-lock.json`
+  filmu.
+- Testy: `node --test core/process/tests/*.test.js` 206/206, `core/panel/tests` 216/216,
+  `adapters/codex/tests` 24/24, `node --test "site/**/*.test.mjs"` 370/370. `claude plugin test`
+  binarką aplikacji 2.1.308: panel 211, progress 48, cache-keeper 199 (198 w prompcie — +1 test
+  z `d38f7f4`), mods 68 — 0 fail. `plugin validate`: repo „passed with warnings” (root
+  `CLAUDE.md`), cztery mody „✔ Validation passed”. `generate-skills.js --verify` i
+  `sync-panel-core.js --check` zgodne.
+- Skan sekretów (`core/guardrails/secret-scan.js`, `scanText`) na 76 plikach `git diff
+  --name-only origin/main` (przed pushem): 0 trafień; kontrola pozytywna — klucz AWS złożony
+  w czasie wykonania — trafiona („klucz AWS (AKIA...)”).
+- Trivy przed Z1 (2026-10-24): CRITICAL 0, HIGH 1 (`zod`), MEDIUM 2, LOW 2 — jak w E5. Po
+  override (2026-10-25): **0 we wszystkich wagach**. `npm ls`: `zod@4.6.6` wszędzie
+  („overridden”), `fast-uri@3.1.9`; `npm install` — „found 0 vulnerabilities”.
+- Film na override: `tsc --noEmit` exit 0; `remotion still` Paski klatka 280 i Animatik klatka
+  900 wyrenderowane (obejrzana: „Przegląd projektu” z fontami). Pierwszy render padł na 404 fontów —
+  `public/fonty/` (ignorowany) nie był przygotowany; po `npm run fonty` przeszedł. Remotion przy
+  każdym renderze wypisuje „Version mismatch … zod: installed 4.6.6, required 4.5.4”. Testy filmu
+  29/36 — 7 czerwonych to stan zastany odnogi FILM_TESTY_V3 (fakty, paski, muzyka liczone na
+  bieżącym repo); żaden plik testów nie importuje `zod` ani `remotion` (grep pusty).
+- Publikacja: `git ls-remote --tags origin v3.3.0` → `e9418db…`; `gh release view v3.3.0` →
+  „RelAI 3.3.0”. `marketplace update` i `plugin update` pięciu pluginów; `installed_plugins.json`
+  wskazuje `cache\relai\relai\3.3.0` i mody 0.21.0 / 0.6.1 / 0.12.0 / 0.1.2. Cache wobec tagu po
+  CRLF → LF: plugin 1484/1484, panel 62/62, progress 34/34, cache-keeper 46/46, mods 32/32 — 0
+  różnic, 0 braków (w każdym cache jeden plik więcej — znacznik instalacji).
+- Świeża sesja `claude -p` (stream-json, binarka aplikacji, `/relai:relai-security` przez stdin):
+  `init` — plugin `relai` 3.3.0 z cache i mody w nowych wersjach; skille z „trivy” — tylko
+  `relai:trivy-scan` i `relai:security-audit` (kopie z profilu zniknęły); sesja odpaliła
+  `scan.mjs` z `cache\relai\relai\3.3.0`, wynik 0/1/2/2, „Tabela się nie zmienia” — dziennik
+  nietknięty; `success`, 9 tur.
+- PANEL_CODEX: `git status --short` i `git diff --stat` na `docs/plany/PANEL_CODEX/`
+  i `docs/zasoby/PANEL_RELAI/makiety/` puste przed etapem i po; `a1439b9` bez tych ścieżek (0).
+- Katalog roboczy `.claude/relai/work/BEZPIECZENSTWO/E6/`: 12 plików, 160 KB przed, 0 po (po „tak”
+  Łukasza). Poza nim: `docs/zasoby/film/zrodla/out/e6-zod-*.png` (2 klatki, 1,4 MB, katalog
+  ignorowany) — skasowane po tym samym „tak”; `public/fonty/` filmu odtworzone `npm run fonty`
+  (ignorowane, zostają); `.security/trivy/` dostał nowe raporty skanu (ignorowane); backup kopii
+  skilli w `Backupy\RelAI\skills-przed-E6-2026-10-25\` zostaje.
+
+**Świadomie odłożone:**
+
+- Pomiar zdarzenia po narzędziu w Cursorze i hook `lockfile-scan` w instalatorze Cursora (decyzja
+  Łukasza 2026-10-24) — w `STATE.md`, „Co dalej”.
+- Pełny render filmu na `zod` 4.6.6 — zrobione dwie klatki; ostrzeżenie Remotion zostaje do
+  aktualizacji Remotion, wtedy override do zdjęcia.
+- Lista planów w zakładce „Komendy” panelu pokazuje etapy, odnogi i „poza planem” zamiast realnych
+  planów — zgłoszenie Łukasza w trakcie E6, do zrobienia po zamknięciu planu, poza jego zakresem.
+- Rotacja dziennika (191 KB przy progu 150 KB), ryzyk i lekcji — proponowana na starcie sesji,
+  nie część etapu.
+
+**Do zrobienia przez człowieka:**
+
+- Restart aplikacji, żeby bieżące sesje desktopu wczytały RelAI 3.3.0 i mody (P-005) —
+  zainstalowane są, ale ta sesja działa jeszcze na skillach z 3.2.0.
+- Codex: zaufanie hooka `lockfile-scan` w przeglądzie hooków po aktualizacji pluginu (P-054).
+
+Przegląd ryzyk: Z1 zamknięte (wyżej, tabela). Nowych ryzyk brak; override `zod` opisany w wierszu
+Z1 i w `STATE.md`. Lekcje: brak nowych — luka w `ARTEFAKTY.md` przy 3.2.0 to przypadek istniejącej
+L-0161 (kontrola wydania złapała ją teraz).
 
 Autor: RelAI (Opus 5.5) + Lukasz
