@@ -13,7 +13,10 @@
 //   node core/tools/release-check.js               # drzewo robocze wobec bazy
 //   node core/tools/release-check.js --rev <rew>   # drzewo rewizji w tymczasowym git worktree
 //   flagi: --json (raport JSON), --szybko (bez ciezkich zestawow, raport mowi, co pominieto),
-//          --tylko <id,id> (wybrane kontrole), --mapa <plik>, --repo <katalog> (fixtury testow)
+//          --tylko <id,id> (wybrane kontrole), --mapa <plik>, --repo <katalog> (fixtury testow),
+//          --wydanie (tryb wydania: komponent ze zmianami i numerem bazy = czerwien "podbicie")
+// Raport niesie tez propozycje numerow (E2): patch / minor z conventional commits od bazy,
+// osobno dla rdzenia i kazdego modu (release-version.js).
 //
 // Kod wyjscia: 0 = gotowe, 1 = czerwone kontrole, 2 = nie da sie sprawdzic (brak bazy, brak mapy,
 // rewizja nieznana). Komunikaty bez polskich znakow diakrytycznych (L-0016).
@@ -23,14 +26,16 @@ const os = require('os');
 const path = require('path');
 const { spawnSync } = require('child_process');
 const kontrole = require('./release-checks.js');
+const numery = require('./release-version.js');
 
 class NieDaSie extends Error {}
 
 function argumenty(argv) {
-  const a = { rev: null, json: false, szybko: false, tylko: null, mapa: path.join(__dirname, 'release-map.json'), repo: path.resolve(__dirname, '..', '..') };
+  const a = { rev: null, json: false, szybko: false, wydanie: false, tylko: null, mapa: path.join(__dirname, 'release-map.json'), repo: path.resolve(__dirname, '..', '..') };
   for (let i = 0; i < argv.length; i++) {
     const x = argv[i];
     if (x === '--json') a.json = true;
+    else if (x === '--wydanie') a.wydanie = true;
     else if (x === '--szybko') a.szybko = true;
     else if (x === '--rev') a.rev = argv[++i];
     else if (x === '--tylko') a.tylko = String(argv[++i] || '').split(',').filter(Boolean);
@@ -169,6 +174,38 @@ function klasyfikuj(mapa, lista) {
   return { wynik: w, typy, osobne };
 }
 
+// --- propozycje numerow (E2) ------------------------------------------------------------
+
+// Rdzen: pliki z typow diffu, ktorych wiersz ma "wydanie: rdzen". Mod: pliki diffu od bazy modu
+// z wierszem "mod:<nazwa>". Komponent bez takich plikow nie dostaje propozycji (przypadek "tylko docs").
+function propozycjeNumerow(repo, mapa, rev, baza, wersja, mody, typy, plikiModow, lista) {
+  const wydanieWiersza = (id) => (mapa.wiersze.find((w) => w.id === id) || {}).wydanie;
+  // Przemianowany plik wnosi tez stara sciezke: commit feat sprzed zmiany nazwy ja niesie (przeglad E2).
+  const stare = new Map((lista || []).filter((z) => z.stary).map((z) => [z.plik, z.stary]));
+  const plikiRdzenia = new Set();
+  const usuniete = [];
+  for (const [klucz, pliki] of Object.entries(typy)) {
+    const [id, odmiana] = klucz.split(' / ');
+    if (wydanieWiersza(id) !== 'rdzen') continue;
+    for (const p of pliki) {
+      plikiRdzenia.add(p);
+      if (stare.has(p)) plikiRdzenia.add(stare.get(p));
+    }
+    if (id === 'komenda' && (odmiana === 'usuniety' || odmiana === 'przemianowany')) usuniete.push(...pliki);
+  }
+  const out = [];
+  const rdzen = numery.propozycja('relai', wersja, baza.wersja, plikiRdzenia, usuniete,
+    plikiRdzenia.size ? numery.commity(git, repo, baza.commit, rev) : []);
+  if (rdzen) out.push(rdzen);
+  for (const m of mody) {
+    const pliki = new Set(plikiModow.get(m.nazwa).filter((p) => (wierszeDla(mapa, p)[0] || {}).wydanie === 'mod:' + m.nazwa));
+    const p = numery.propozycja(m.nazwa, m.wersja, m.wersjaBazy, pliki, [],
+      pliki.size ? numery.commity(git, repo, m.commit, rev, [m.katalog]) : []);
+    if (p) out.push(p);
+  }
+  return out;
+}
+
 // --- ciezkie zestawy -------------------------------------------------------------------
 
 function czas(od) { return Math.round((Date.now() - od) / 100) / 10; }
@@ -262,6 +299,12 @@ function raportTekst(r) {
   o.push('Zmiany od bazy rdzenia: ' + r.zmiany.plikow + (r.zmiany.pominieteNiesledzone ? ' (pominiete niesledzone .claude/: ' + r.zmiany.pominieteNiesledzone + ')' : ''));
   for (const [typ, pliki] of Object.entries(r.zmiany.typy)) o.push('  ' + typ + ': ' + pliki.length);
   for (const [g, pliki] of Object.entries(r.zmiany.osobne)) o.push('  [grupa osobna ' + g + ' - poza pipeline]: ' + pliki.length);
+  o.push('Propozycje numerow' + (r.trybWydania ? ' (tryb wydania)' : '') + ':' + (r.propozycje.length ? '' : ' brak - zadna zmiana nie wymaga wydania'));
+  for (const p of r.propozycje) {
+    o.push('  ' + p.komponent + ': ' + p.wersjaBazy + ' -> ' + p.propozycja + ' (' + p.poziom + '), teraz ' + p.wersja + ' - ' + p.stan
+      + '; plikow ' + p.plikow + ', commitow ' + p.commitow + (p.bezCommitu ? ', bez commitu ' + p.bezCommitu : ''));
+    for (const pw of p.powody) o.push('      > ' + pw);
+  }
   o.push('Kontrole:');
   for (const k of r.kontrole) {
     o.push('  ' + (k.bledy.length ? '[CZERWONE] ' : '[ok] ') + k.id + ' - ' + k.nazwa + ' (sprawdzono ' + k.sprawdzono + (k.licznik ? '; ' + k.licznik : '') + ')');
@@ -293,18 +336,22 @@ async function sprawdz(a) {
     const baza = bazaRdzenia(repo, a.rev, commit);
     const wersja = (kontrole.czytajJson(korzen, '.claude-plugin/plugin.json') || {}).version || null;
     const mody = kontrole.modyMarketplace(korzen).map((m) => bazaModu(repo, m, commit, a.rev));
+    const plikiModow = new Map();
     for (const m of mody) {
-      m.zmienionych = linie(git(repo, ['diff', '--name-only', m.commit].concat(a.rev ? [commit] : []).concat(['--', m.katalog]))).length
-        + (a.rev ? 0 : linie(git(repo, ['ls-files', '--others', '--exclude-standard', '--', m.katalog])).length);
+      const lista = linie(git(repo, ['diff', '--name-only', m.commit].concat(a.rev ? [commit] : []).concat(['--', m.katalog])))
+        .concat(a.rev ? [] : linie(git(repo, ['ls-files', '--others', '--exclude-standard', '--', m.katalog])));
+      plikiModow.set(m.nazwa, lista);
+      m.zmienionych = lista.length;
     }
     const z = zmiany(repo, baza.commit, a.rev ? commit : null, mapa);
     const pliki = linie(a.rev ? git(repo, ['ls-tree', '-r', '--name-only', commit]) : git(repo, ['ls-files']));
+    const klas = klasyfikuj(mapa, z.lista);
+    const propozycje = propozycjeNumerow(repo, mapa, a.rev ? commit : null, baza, wersja, mody, klas.typy, plikiModow, z.lista);
     const ctx = {
       korzen, korzenRobocze: repo, mapa, wersja, pliki, zmiany: z.lista,
-      baza: { rdzen: baza, mody },
+      baza: { rdzen: baza, mody }, propozycje, trybWydania: a.wydanie,
       pokazZBazy: (rel) => git(repo, ['show', baza.commit + ':' + rel], true),
     };
-    const klas = klasyfikuj(mapa, z.lista);
     const wyniki = [kontrolaMapy(mapa, pliki), klas.wynik];
     const pominiete = [];
     for (const [id, fn] of kontrole.KONTROLE) {
@@ -326,7 +373,7 @@ async function sprawdz(a) {
     const czerwone = wszystkie.filter((k) => k.bledy.length).length;
     return {
       wersjaSkryptu: 1, rewizja: a.rev ? commit.slice(0, 7) + ' (' + a.rev + ')' : 'drzewo robocze (HEAD ' + commit.slice(0, 7) + ')',
-      wersja, bazy: { rdzen: baza, mody },
+      wersja, trybWydania: a.wydanie, bazy: { rdzen: baza, mody }, propozycje,
       zmiany: { plikow: z.lista.length, pominieteNiesledzone: z.pominieteNiesledzone, typy: klas.typy, osobne: klas.osobne },
       kontrole: wszystkie, pominiete: pominiete.concat(zest.pominiete), czerwone,
       czasS: czas(od), kod: czerwone ? 1 : 0,
@@ -357,4 +404,4 @@ async function main() {
 
 if (require.main === module) main().then((kod) => { process.exitCode = kod; });
 
-module.exports = { argumenty, bazaRdzenia, bazaModu, kontrolaMapy, klasyfikuj, wierszeDla, raportTekst, sprawdz };
+module.exports = { argumenty, bazaRdzenia, bazaModu, kontrolaMapy, klasyfikuj, wierszeDla, propozycjeNumerow, raportTekst, sprawdz };

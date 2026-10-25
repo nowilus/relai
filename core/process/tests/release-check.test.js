@@ -105,7 +105,7 @@ function repo(t, opcje = {}) {
 }
 
 const WSZYSTKIE = 'walidator,generator-codex,sync-panel-core,readme-komendy,readme-hooki,readme-mody,historia,artefakty,'
-  + 'strona-komendy,strona-fakty,film-komendy,film-rekwizyty,film-zakladki,film-paski,film-narzedzia,modele,stary-numer';
+  + 'strona-komendy,strona-fakty,film-komendy,film-rekwizyty,film-zakladki,film-paski,film-narzedzia,modele,stary-numer,podbicie';
 
 test('czysta fixtura: wszystkie kontrole zielone, kazda z licznikiem > 0, kod 0', (t) => {
   const r = repo(t).uruchom();
@@ -257,6 +257,186 @@ test('liczebniki: formy 1 / 2-4 / 5 / 12 / 22 i dopelniacz', () => {
   assert.deepEqual(kontrole.liczbyPrzed('dwadzieścia dwa komend', /^komend$/, 1).map((x) => x.wartosc), [22]);
   // "dwie komendy w terminalu" nie jest liczba komend RelAI (forma "komendy", nie "komend").
   assert.deepEqual(kontrole.liczbyPrzed('dwie komendy w terminalu', /^komend$/, 1), []);
+});
+
+// --- E2: propozycje numerow, kontrola "podbicie", sciezki historyczne, komenda projektowa ---------
+
+const numery = require('../../tools/release-version.js');
+const { wierszeDla } = require('../../tools/release-check.js');
+const MAPA = require('../../tools/release-map.json');
+
+const propozycja = (r, komponent) => r.json.propozycje.find((p) => p.komponent === komponent);
+const zmienRdzen = (f) => f.zapisz('core/tools/validate-adapters.js', f.czytaj('core/tools/validate-adapters.js') + '// zmiana\n');
+
+test('propozycja: fix w rdzeniu -> patch 1.0.1; czysta fixtura bez propozycji', (t) => {
+  const f = repo(t);
+  assert.deepEqual(f.uruchom(['--tylko', 'podbicie']).json.propozycje, []);
+  zmienRdzen(f);
+  f.commit('fix(tools): popraw walidator');
+  const p = propozycja(f.uruchom(['--tylko', 'podbicie']), 'relai');
+  assert.equal(p.poziom, 'patch');
+  assert.equal(p.propozycja, '1.0.1');
+  assert.equal(p.stan, 'do podbicia');
+});
+
+test('propozycja: feat w rdzeniu -> minor 1.1.0 z commitem w powodach', (t) => {
+  const f = repo(t);
+  zmienRdzen(f);
+  f.commit('feat(tools): nowa kontrola');
+  const p = propozycja(f.uruchom(['--tylko', 'podbicie']), 'relai');
+  assert.equal(p.poziom, 'minor');
+  assert.equal(p.propozycja, '1.1.0');
+  assert.match(p.powody.join('\n'), /feat\(tools\): nowa kontrola/);
+});
+
+test('propozycja: usunieta komenda -> minor mimo commitu fix', (t) => {
+  const f = repo(t);
+  fs.rmSync(path.join(f.dir, 'adapters/claude-code/commands/relai-e.md'));
+  f.commit('fix: usun relai-e');
+  const p = propozycja(f.uruchom(['--tylko', 'podbicie']), 'relai');
+  assert.equal(p.poziom, 'minor');
+  assert.match(p.powody.join('\n'), /usunieta lub przemianowana komenda: adapters\/claude-code\/commands\/relai-e\.md/);
+});
+
+test('propozycja: zmiana tylko w modzie -> propozycja tylko dla modu', (t) => {
+  const f = repo(t);
+  f.zapisz('progress/hooks/nowy.ts', 'export {}\n');
+  f.commit('feat(progress): nowy wiersz');
+  const r = f.uruchom(['--tylko', 'podbicie']);
+  assert.deepEqual(r.json.propozycje.map((p) => p.komponent), ['relai-progress']);
+  assert.equal(propozycja(r, 'relai-progress').propozycja, '0.2.0');
+});
+
+test('propozycja: plik w katalogu modu z wierszem "wydanie: brak" nie daje propozycji modu', (t) => {
+  const f = repo(t);
+  const mapa = JSON.parse(JSON.stringify(MAPA));
+  mapa.wiersze.find((w) => w.id === 'mod-progress').wyklucz = ['progress/docs/**'];
+  mapa.wiersze.push({ id: 'mod-docs', wzorce: ['progress/docs/**'], wydanie: 'brak', komponenty: [], kontrole: [] });
+  const plikMapy = path.join(f.dir, '..', path.basename(f.dir) + '-mapa.json');
+  fs.writeFileSync(plikMapy, JSON.stringify(mapa));
+  t.after(() => fs.rmSync(plikMapy, { force: true }));
+  f.zapisz('progress/docs/notatka.md', 'x\n');
+  f.commit('feat(progress): notatka');
+  assert.deepEqual(f.uruchom(['--tylko', 'podbicie', '--mapa', plikMapy]).json.propozycje, []);
+  f.zapisz('progress/hooks/nowy.ts', 'export {}\n');
+  f.commit('fix(progress): kod');
+  assert.equal(propozycja(f.uruchom(['--tylko', 'podbicie', '--mapa', plikMapy]), 'relai-progress').poziom, 'patch');
+});
+
+test('propozycja: zmiana tylko w docs/ (nawet feat) -> brak propozycji', (t) => {
+  const f = repo(t);
+  f.zapisz('docs/notatka.md', 'x\n');
+  f.commit('feat(docs): notatka');
+  assert.deepEqual(f.uruchom(['--tylko', 'podbicie']).json.propozycje, []);
+});
+
+test('propozycja: feat dotykajacy tylko strony nie podnosi rdzenia do minor', (t) => {
+  const f = repo(t);
+  f.zapisz('site/dane/fakty.json', JSON.stringify({ liczbaKomend: 5, nowe: 1 }));
+  f.commit('feat(site): nowe pole');
+  zmienRdzen(f);
+  f.commit('fix(tools): drobiazg');
+  const p = propozycja(f.uruchom(['--tylko', 'podbicie']), 'relai');
+  assert.equal(p.poziom, 'patch');
+  assert.equal(p.commitow, 1);
+});
+
+test('podbicie: numer bazy w trybie wydania czerwony, po podbiciu zielony; tryb zwykly ostrzega', (t) => {
+  const f = repo(t);
+  zmienRdzen(f);
+  f.commit('fix(tools): popraw walidator');
+  const zwykly = f.uruchom(['--tylko', 'podbicie']);
+  assert.deepEqual(zwykly.k('podbicie').bledy, []);
+  assert.match(zwykly.k('podbicie').ostrzezenia.join('\n'), /relai: 1 plikow wymaga wydania, numer 1\.0\.0 rowny bazie/);
+  const przed = f.uruchom(['--tylko', 'podbicie', '--wydanie']);
+  assert.match(przed.k('podbicie').bledy.join('\n'), /relai: 1 plikow wymaga wydania, numer 1\.0\.0 rowny bazie \(propozycja 1\.0\.1, patch\)/);
+  assert.equal(przed.kod, 1);
+  f.zapisz('.claude-plugin/plugin.json', JSON.stringify({ name: 'relai', version: '1.0.1' }));
+  const po = f.uruchom(['--tylko', 'podbicie', '--wydanie']);
+  assert.deepEqual(po.k('podbicie').bledy, []);
+  assert.equal(propozycja(po, 'relai').stan, 'podbity');
+  assert.equal(po.kod, 0);
+});
+
+test('podbicie: numer ponizej propozycji i nieczytelny czerwone w trybie wydania, powyzej - ostrzezenie', (t) => {
+  const f = repo(t);
+  zmienRdzen(f);
+  f.commit('feat(tools): nowa kontrola');
+  const ustaw = (v) => f.zapisz('.claude-plugin/plugin.json', JSON.stringify({ name: 'relai', version: v }));
+  ustaw('1.0.1');
+  const ponizej = f.uruchom(['--tylko', 'podbicie', '--wydanie']);
+  assert.match(ponizej.k('podbicie').bledy.join('\n'), /numer 1\.0\.1 ponizej propozycji \(propozycja 1\.1\.0, minor\)/);
+  ustaw('x');
+  assert.match(f.uruchom(['--tylko', 'podbicie', '--wydanie']).k('podbicie').bledy.join('\n'), /numer "x" nieczytelny/);
+  ustaw('2.0.0');
+  const powyzej = f.uruchom(['--tylko', 'podbicie', '--wydanie']);
+  assert.deepEqual(powyzej.k('podbicie').bledy, []);
+  assert.match(powyzej.k('podbicie').ostrzezenia.join('\n'), /numer 2\.0\.0 powyzej propozycji 1\.1\.0/);
+});
+
+test('propozycja: feat sprzed zmiany nazwy pliku nadal daje minor (stara sciezka w zbiorze)', (t) => {
+  const f = repo(t);
+  // Plik dosc dlugi, zeby "git diff -M" od bazy pokazal R (stary -> nowy), a nie D + A.
+  const tresc = Array.from({ length: 30 }, (_, i) => '// linia ' + i + '\n').join('');
+  f.zapisz('core/process/stary.js', tresc);
+  f.commit('chore: plik');
+  git(f.dir, ['tag', '-d', 'v1.0.0']);
+  git(f.dir, ['tag', 'v1.0.0']);
+  f.zapisz('core/process/stary.js', tresc + '// funkcja\n');
+  f.commit('feat(process): funkcja');
+  git(f.dir, ['mv', 'core/process/stary.js', 'core/process/nowy.js']);
+  f.commit('refactor(process): nowa nazwa');
+  const r = f.uruchom(['--tylko', 'podbicie']);
+  assert.deepEqual(Object.keys(r.json.zmiany.typy), ['rdzen-procesu / przemianowany']);
+  const p = propozycja(r, 'relai');
+  assert.equal(p.poziom, 'minor');
+  assert.match(p.powody.join('\n'), /feat\(process\): funkcja/);
+});
+
+test('propozycja: plik bez commitu - powod "poziom niepewny" obok poziomu z commitow', (t) => {
+  const f = repo(t);
+  zmienRdzen(f);
+  f.commit('fix(tools): popraw walidator');
+  f.zapisz('adapters/claude-code/hooks/gamma.js', '// nowy hook bez commitu\n');
+  const p = propozycja(f.uruchom(['--tylko', 'podbicie']), 'relai');
+  assert.equal(p.bezCommitu, 1);
+  assert.match(p.powody.join('\n'), /same poprawki/);
+  assert.match(p.powody.join('\n'), /poziom niepewny: 1 plikow bez commitu - propozycja to co najmniej patch/);
+});
+
+test('stary-numer: plik testu z numerem bazy pominiety, plik produkcyjny nadal czerwony', (t) => {
+  const f = repo(t);
+  f.zapisz('.claude-plugin/plugin.json', JSON.stringify({ name: 'relai', version: '1.1.0' }));
+  f.zapisz('site/js/wersja.test.mjs', "// dane testu: stara wersja 1.0.0\n");
+  f.zapisz('core/process/produkcja.js', "const WERSJA = '1.0.0';\n");
+  f.commit('chore: 1.1.0');
+  const r = f.uruchom(['--tylko', 'stary-numer']);
+  const bledy = r.k('stary-numer').bledy.join('\n');
+  assert.match(bledy, /core\/process\/produkcja\.js/);
+  assert.doesNotMatch(bledy, /wersja\.test\.mjs/);
+  // Kontrola pozytywna reguly: ten sam plik testu poza wzorcem '*.test.*' wchodzi do trafien.
+  f.zapisz('site/js/wersja-dane.mjs', "// dane testu: stara wersja 1.0.0\n");
+  f.commit('chore: dane');
+  assert.match(f.uruchom(['--tylko', 'stary-numer']).k('stary-numer').bledy.join('\n'), /site\/js\/wersja-dane\.mjs/);
+});
+
+test('mapa: komenda projektowa .claude/commands/*.md w dokladnie jednym wierszu, bez wydania', () => {
+  const w = wierszeDla(MAPA, '.claude/commands/relai-release.md');
+  assert.deepEqual(w.map((x) => x.id), ['komenda-projektowa']);
+  assert.equal(w[0].wydanie, 'brak');
+  assert.deepEqual(wierszeDla(MAPA, '.claude/relai/work/x.md'), []);
+});
+
+test('poziom commitu i podbicie numeru', () => {
+  assert.equal(numery.poziomCommitu('feat(x): a').poziom, 'minor');
+  assert.equal(numery.poziomCommitu('fix(x): a').poziom, 'patch');
+  assert.equal(numery.poziomCommitu('docs: a').poziom, 'patch');
+  assert.deepEqual(numery.poziomCommitu('fix!: a'), { poziom: 'minor', typ: 'fix', breaking: true });
+  assert.equal(numery.poziomCommitu('refactor: a', 'opis\n\nBREAKING CHANGE: api').poziom, 'minor');
+  assert.deepEqual(numery.poziomCommitu('Merge branch main'), { poziom: 'patch', typ: null, breaking: false });
+  assert.equal(numery.podbij('3.3.0', 'minor'), '3.4.0');
+  assert.equal(numery.podbij('0.21.2', 'patch'), '0.21.3');
+  assert.equal(numery.podbij('x', 'patch'), null);
 });
 
 test('glob mapy: * bez ukosnika, ** dowolna glebokosc', () => {

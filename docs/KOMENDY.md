@@ -45,6 +45,15 @@ z podpowiedzi; skrócona forma działa tam, gdzie podpowiadacz ją rozwinie.
 | „jutro wdrażamy … na produkcję" / „wdrażamy …" | **przed** pierwszym wdrożeniem środowiska: lista kontrolna w sześciu punktach — zmienne i sekrety, kopia danych, droga cofnięcia, kto ma dostęp, audyt zależności (`npm audit` i odpowiedniki), jak sprawdzić, że działa — każdy ze stanem OK / BRAK / NIE DOTYCZY; o wdrożeniu mimo braków decydujesz Ty. Opis środowiska z sekcją „co obserwować po wdrożeniu" powstaje dopiero po wdrożeniu (od 2.7.0) |
 | „przygotuj plan…" / „zaplanuj…" / „rozpisz to na etapy" | powstaje plan w `docs/plany/` z wariantami, ryzykami i etapami — albo krótki miniplan w dzienniku, jeśli zadanie jest drobne |
 
+## Tylko w tym repozytorium (budowa RelAI)
+
+Komenda projektowa z `.claude/commands/` — nie należy do pluginu i nie trafia do użytkowników
+RelAI; szesnaście komend pluginu wyżej zostaje bez zmian.
+
+| Komenda albo fraza | Co się stanie |
+|---|---|
+| `/relai-release` · „gotowi do wydania?” | uruchamia raport gotowości `node core/tools/release-check.js --json`: werdykt, propozycje numerów (patch / minor z commitów od ostatniego tagu, osobno rdzeń i każdy mod), czerwone kontrole. Braki dzieli na bezpieczne (regeneracje, numery, szkice wpisów i wierszy README) — wykonuje je po jednej zgodzie i pokazuje raport po naprawie — i na listę dla Ciebie. Tag, push, wydanie GitHub, marketplace i aktualizacja pluginów idą wyłącznie po osobnym „tak” na każdy krok. W Codeksie i Cursorze fraza daje sam raport (plan PIPELINE_WYDAN E2) |
+
 ## Panel w Claude Code (early access, od 2.8.0)
 
 Trzy osobne pluginy z marketplace RelAI, na modach Claude Code („early access”, zmierzone na 2.1.293),

@@ -1,5 +1,5 @@
 'use strict';
-// RelAI core / narzedzie: kontrole zgodnosci wydania (plan PIPELINE_WYDAN, E1).
+// RelAI core / narzedzie: kontrole zgodnosci wydania (plan PIPELINE_WYDAN, E1; "podbicie" — E2).
 //
 // Modul wolany przez release-check.js. Kazda kontrola dostaje kontekst (korzen drzewa, bazy,
 // wersje, mape) i zwraca { id, nazwa, sprawdzono, licznik, bledy, ostrzezenia, info }.
@@ -525,6 +525,39 @@ function kontrolaStaryNumer(ctx) {
   return w;
 }
 
+// --- podbicie numeru (E2, odlozone z przegladu E1) ---------------------------------------
+
+// Komponent ze zmianami wymagajacymi wydania (propozycja istnieje) i numerem rownym bazie, nizszym
+// niz propozycja albo nieczytelnym: w trybie wydania czerwien, w trybie zwyklym ostrzezenie — praca
+// miedzy wydaniami nie jest bledem. Numer wyzszy niz propozycja to wybor czlowieka: ostrzezenie.
+const STAN_PODBICIA = {
+  'do podbicia': (p) => 'numer ' + p.wersja + ' rowny bazie',
+  'ponizej propozycji': (p) => 'numer ' + p.wersja + ' ponizej propozycji',
+  'numer nieczytelny': (p) => 'numer "' + p.wersja + '" nieczytelny',
+  'numer bazy nieczytelny': (p) => 'numer bazy "' + p.wersjaBazy + '" nieczytelny',
+};
+
+function kontrolaPodbicie(ctx) {
+  const w = wynik('podbicie', 'komponent ze zmianami wymagajacymi wydania ma numer co najmniej rowny propozycji');
+  w.sprawdzono = 1 + ctx.baza.mody.length;
+  let niepodbite = 0;
+  for (const p of ctx.propozycje || []) {
+    if (p.stan === 'podbity') continue;
+    const sedno = p.komponent + ': ' + p.plikow + ' plikow wymaga wydania, ';
+    if (p.stan === 'powyzej propozycji') {
+      w.ostrzezenia.push(sedno + 'numer ' + p.wersja + ' powyzej propozycji ' + p.propozycja + ' (' + p.poziom + ') - wybor czlowieka');
+      continue;
+    }
+    niepodbite++;
+    const opis = sedno + (STAN_PODBICIA[p.stan] || (() => 'stan ' + p.stan))(p) + ' (propozycja ' + p.propozycja + ', ' + p.poziom + ')';
+    if (ctx.trybWydania) w.bledy.push(opis);
+    else w.ostrzezenia.push(opis + ' - czerwien w trybie --wydanie');
+  }
+  w.licznik = 'komponentow ' + w.sprawdzono + ', z propozycja ' + (ctx.propozycje || []).length + ', niepodbitych ' + niepodbite
+    + (ctx.trybWydania ? ' (tryb wydania)' : '');
+  return w;
+}
+
 // --- narzedzia zewnetrzne (walidator, generator, rdzen panelu) -----------------------
 
 function uruchom(ctx, args, opcje) {
@@ -572,6 +605,7 @@ const KONTROLE = [
   ['film-narzedzia', kontrolaFilmNarzedzia],
   ['modele', kontrolaModele],
   ['stary-numer', kontrolaStaryNumer],
+  ['podbicie', kontrolaPodbicie],
 ];
 
 module.exports = {

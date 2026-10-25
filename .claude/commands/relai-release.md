@@ -1,0 +1,134 @@
+---
+description: "Gotowość wydania RelAI (komenda projektowa tego repo): raport release-check.js z propozycjami numerów, naprawy bezpieczne po jednej zgodzie, lista dla człowieka i publikacja krok po kroku, każdy krok zewnętrzny po osobnym „tak”."
+argument-hint: "[--rev <rewizja>]"
+---
+
+# /relai-release — gotowość wydania RelAI
+
+Komenda **projektowa** repozytorium RelAI (`.claude/commands/`, plan PIPELINE_WYDAN). Nie trafia do
+użytkowników pluginu. Fraza „gotowi do wydania?” w `CLAUDE.md` prowadzi tutaj.
+
+Argumenty: `$ARGUMENTS` (opcjonalnie `--rev <rewizja>` — raport dla drzewa tej rewizji, bez napraw
+i bez publikacji). Argument inny niż `--rev` z nazwą rewizji (litery, cyfry, `.`, `-`, `_`, `/`) →
+nie wstawiasz go do polecenia, mówisz jednym zdaniem, co komenda przyjmuje.
+
+**Źródło prawdy to raport skryptu.** Nie liczysz kontroli od nowa i nie oceniasz „na oko”, co jest
+gotowe. Zmiana kontroli = zmiana w `core/tools/release-checks.js` z testem, nie w tej komendzie.
+
+## Krok 1 — raport
+
+Uruchom (Bash, `timeout: 600000` — pełny przebieg z testami trwa ~2 minuty):
+
+```bash
+node core/tools/release-check.js --json $ARGUMENTS
+```
+
+- Kod 2 albo pole `blad` → pokaż błąd jednym zdaniem i zakończ (brak bazy, mapy, rewizji).
+- Kod 0 albo 1 → JSON jest raportem. **Kod 1 to „są czerwone kontrole”, nie awaria:** narzędzie
+  oznaczy wynik jako błąd („Exit code 1”), ale cały JSON (~10–15 KB) stoi w tym samym wyniku —
+  czytasz go stamtąd. Nie uruchamiasz skryptu drugi raz, nie dopisujesz `echo`/`|| true` i nie
+  zapisujesz raportu do pliku (`.claude/` to ścieżka wrażliwa harnessu, `/tmp` jest poza
+  katalogiem roboczym — pierwszy przebieg frazy 2026-10-25 stracił na tym cztery wywołania). Czytasz z niego: `bazy`, `propozycje`, `zmiany`
+  (`typy`, `osobne`), `kontrole` (`id`, `bledy`, `ostrzezenia`, `info`, `licznik`), `pominiete`,
+  `czerwone`.
+
+## Krok 2 — raport po polsku
+
+Pokaż w tej kolejności, zwięźle:
+
+1. **Werdykt** — „gotowe” albo „N czerwonych”; rewizja, baza rdzenia (tag i numer), bazy modów
+   ze zmianami. Pominięte zestawy nie są zielenią: gdy `pominiete` niesie coś innego niż „diff nie
+   dotyka obszaru” albo „żaden mod nie zmienił się”, werdykt mówi „bez N pozycji”.
+2. **Propozycje numerów** — tabela: komponent | baza | propozycja | poziom | stan | powód
+   (pierwszy z `powody`). Pusta lista → jedno zdanie „żadna zmiana nie wymaga wydania”.
+3. **Czerwone** — każda kontrola z `bledy`: identyfikator i błędy własnymi słowami, krótko.
+4. **Ostrzeżenia** — `podbicie`, `stary-numer` i inne z `ostrzezenia`, po jednym wierszu.
+5. **Pominięte** — z powodem.
+6. **Grupa osobna PANEL_CODEX** (`zmiany.osobne`) — jeśli jest: liczba plików i zdanie, że to
+   pliki innego planu, poza każdym commitem tego wydania.
+
+## Krok 3 — podział braków
+
+Każdą czerwień i ostrzeżenie przypisz do jednej z dwóch list według tabeli. Czego tabela nie zna
+— trafia do listy **dla człowieka**.
+
+| Kontrola | Lista | Co robisz |
+|---|---|---|
+| `podbicie` (i propozycja „do podbicia”) | bezpieczne | numer z propozycji (albo wskazany przez człowieka w zgodzie). **Rdzeń:** `.claude-plugin/plugin.json`, wpis `relai` w `.claude-plugin/marketplace.json`, `.codex-plugin/plugin.json`, wpis `relai` w `.agents/plugins/marketplace.json`, `core/MANIFEST.json`, baner `<em>Wersja` w `README.md`, pierwszy numer w „Gdzie jesteśmy” `docs/STATE.md`, stan docelowy w `adapters/claude-code/commands/relai-update.md`, nagłówek `docs/KOMENDY.md`. **Mod:** `<katalog>/.claude-plugin/plugin.json`, jego wpis w `.claude-plugin/marketplace.json` (i w `.agents/plugins/marketplace.json`, jeśli tam jest), numer w wierszu tabeli „Panel w Claude Code” README. Potem `node core/tools/validate-adapters.js` → „spojne” |
+| `stary-numer` (po podbiciu) | bezpieczne / człowiek | każde trafienie: deklaracja stanu → podbijasz; zapis przeszłości (komentarz „po 3.2.0”, wpis historyczny) → zostaje i trafia do listy dla człowieka z jednym zdaniem dlaczego |
+| `generator-codex` | bezpieczne | `node adapters/codex/generate-skills.js`, potem `--verify` |
+| `sync-panel-core` | bezpieczne | `node core/tools/sync-panel-core.js`, potem `--check` |
+| `strona-fakty`, `testy-strony` (budowa) | bezpieczne | `node site/narzedzia/fakty.mjs`, `node site/narzedzia/makiety.mjs`, `node site/narzedzia/zbuduj.mjs`, `node --test "site/**/*.test.mjs"` (P-005, krok „strona”) |
+| `readme-mody` | bezpieczne | numer z `plugin.json` modu w nawiasie za nazwą w wierszu tabeli „Panel w Claude Code”: `` `relai-x` (N.N.N) `` |
+| `readme-komendy`, `readme-hooki` | bezpieczne (szkic) | liczba w prozie i wiersz tabeli hooków równe repo |
+| `historia` | bezpieczne (szkic) | wpis `Wersja X.Y.Z (…)` na górze listy w `adapters/claude-code/skills/relai-core/history.md`, układ jak wpis poprzedni (jeden akapit: temat wydania, plan, zmiany po kolei); potem generator Codeksa |
+| `artefakty` | bezpieczne (szkic) | dla każdego pliku z błędu: nowy wiersz w `docs/ARTEFAKTY.md` — wersja +1, data, co się zmieniło, po co (zasady prowadzenia rejestru) |
+| `strona-komendy` | bezpieczne (szkic) | fiszka EN w `site/tresc/en.json` (`film.fiszki`), nazwa PL w `NAMES` `core/panel/theme.mjs` + `sync-panel-core.js` |
+| notatki wydania EN | bezpieczne (szkic) | `.claude/relai/work/WYDANIE/<wersja>/NOTATKI_EN.md` w układzie notatek `gh release view v<poprzednia>`: zdanie wstępne, lista zmian, linia „Checks:”, instrukcja aktualizacji |
+| `film-komendy`, `film-rekwizyty`, `film-*`, `testy-filmu` | człowiek | rekwizyt i slogan to kalibracja z człowiekiem (plan PIPELINE_WYDAN E4); komenda nie naprawia filmu |
+| `modele` | człowiek | `/relai-models`, potem przeniesienie listy do `adapters/claude-code/MODELE.md` — zmienia artefakt pluginu, osobne „tak” |
+| `mapa`, `diff` | człowiek | nowy plik bez wiersza mapy: który typ zmiany — decyzja; wiersz mapy dopisany w tej samej zmianie |
+| `walidator` (poza numerem), `testy-rdzenia`, `plugin-test` | człowiek | diagnoza (skill `relai-core`, `debugging.md`), nie naprawa „przy okazji” |
+| propozycja w stanie „powyzej propozycji”, `powody` z BREAKING albo „poziom niepewny” (pliki bez commitu) | człowiek | czy numer zostaje; major tylko decyzją człowieka; przy plikach bez commitu poziom z propozycji to dolna granica |
+| grupa PANEL_CODEX | człowiek | kolejność wydań z planem PANEL_CODEX |
+
+Dokumenty (`README.md`, `history.md`, `ARTEFAKTY.md`, `STATE.md`, `KOMENDY.md`, `DZIENNIK.md`,
+`PULAPKI.md`, `relai-update.md`, `adapters/*/MODELE.md`) i treści strony (`site/tresc/*.json`)
+zmieniasz **wyłącznie narzędziem Edit** — nigdy `sed`, `node -e` ani heredokiem (L-0198, L-0207).
+JSON-y manifestów — Edit albo skrypt zapisany narzędziem Write.
+
+## Krok 4 — jedna zgoda na naprawy bezpieczne
+
+Raport z `--rev` → ten krok i krok 6 pomijasz: naprawy idą tylko na drzewie roboczym. Lista
+bezpiecznych pusta → przejdź do kroku 5. Inaczej **jedno** pytanie (AskUserQuestion):
+lista napraw (każda jednym wierszem z plikiem) i numery, które wpiszesz (propozycje z raportu;
+człowiek może podać inne w odpowiedzi). Opcje: „wykonaj wszystkie” / „tylko część — wskażę” /
+„nie teraz”. Milczenie nie jest zgodą.
+
+Po zgodzie: wykonaj listę, potem **uruchom skrypt ponownie** (ten sam Krok 1) i pokaż różnicę:
+które kontrole przeszły z czerwonych na zielone, które zostały, nowe czerwienie (każda nowa
+czerwień zatrzymuje dalsze kroki i idzie do człowieka). Pod spodem `git status --short`
+i `git diff --stat` — wszystko, co automat zmienił, jest do obejrzenia przed tagiem.
+
+## Krok 5 — lista dla człowieka
+
+Wypisz pozycje z listy „człowiek”: co, dlaczego nie automat, jaki jest następny krok. Gdy lista
+nie jest pusta albo raport ma czerwień — **nie proponujesz tagu** i kończysz tutaj zdaniem, co
+blokuje wydanie.
+
+## Krok 6 — publikacja (tylko zielony raport w trybie wydania)
+
+Warunek wejścia: `node core/tools/release-check.js --json --wydanie` → kod 0. Z `--rev` publikacji
+nie ma. Każdy krok **zewnętrzny** (oznaczony ⚑) to **osobne pytanie i osobne „tak”**; „tak” na
+jeden krok nie obejmuje następnego. Kolejność (P-005, ostatni ręczny przebieg: plan
+BEZPIECZENSTWO E6):
+
+1. `claude plugin validate .` i każdego modu z propozycją — binarką aplikacji
+   (`$CLAUDE_CODE_EXECPATH`, nie `claude` z PATH — P-024). Wynik inny niż `✔ Validation passed`
+   zatrzymuje wydanie.
+2. ⚑ Commit lokalny — pokazujesz listę plików i wiadomość conventional po angielsku, pytasz,
+   commitujesz dopiero po „tak”; pliki PANEL_CODEX i nieśledzone `.claude/` poza commitem
+   (dodajesz pliki z nazwy, nie `git add -A`).
+3. ⚑ Tag adnotowany `v<X.Y.Z>` rdzenia i `relai-<mod>-v<N.N.N>` każdego wydawanego modu.
+4. ⚑ `git push origin main`, potem push tagów z nazwy.
+5. ⚑ `gh release create v<X.Y.Z> --title "RelAI <X.Y.Z>" --notes-file <NOTATKI_EN.md>` — szkic
+   notatek pokazany przed pytaniem.
+6. ⚑ `claude plugin marketplace update relai`.
+7. ⚑ `claude plugin update relai@relai` i `<mod>@relai` każdego wydanego modu — pełna nazwa
+   z marketplace'em. Potem restart aplikacji robi człowiek (P-005: bez restartu sesje ładują starą
+   treść).
+8. Po restarcie: suma plików cache `~/.claude/plugins/cache/relai/relai/<X.Y.Z>/` wobec
+   `git ls-files` po CRLF → LF (liczba plików i rozjazdów) i `gh run list --workflow strona.yml
+   --limit 1`, gdy push dotknął `site/**` albo `marketplace.json`.
+
+Zmiana w profilu użytkownika (`~/.claude/…`) — wyłącznie ⚑ po osobnym „tak”.
+
+## Zakazy
+
+- Bez „tak” nie tagujesz, nie pushujesz, nie tworzysz wydania GitHub, nie ruszasz marketplace ani
+  profilu użytkownika — także w dogfoodingu i przy zielonym raporcie.
+- Czerwień poza listą bezpiecznych → komenda nie proponuje tagu.
+- Nie omijasz kontroli i nie poprawiasz instrumentu „na szybko”, żeby wyszło zielono: fałszywa
+  czerwień to zgłoszenie do człowieka i poprawka w `release-checks.js` z testem.
+- W Codeksie i Cursorze ta komenda nie istnieje: fraza „gotowi do wydania?” znaczy tam
+  `node core/tools/release-check.js` i raport, bez napraw i bez publikacji.

@@ -1,6 +1,6 @@
 # STATE — RelAI
 
-Stan na: 2026-10-25 (PIPELINE_WYDAN E1 zrealizowany — raport gotowości wydania `release-check.js` z mapą wpływu; plan BEZPIECZENSTWO ZREALIZOWANY 2026-10-25 — wydanie 3.3.0: skan zależności `/relai-security`, 13. hook `lockfile-scan`, D-91 (Trivy pierwszy w punktach procesu), pełny audyt `/relai-security --full` ze skillem Cloudflare `security-audit`, oba skille w Codeksie i Cursorze; mody `relai-panel` 0.21.0, `relai-progress` 0.6.1, `relai-cache-keeper` 0.12.0, `relai-mods` 0.1.2; plan RELAI_MODS ZREALIZOWANY — kokpit `/relai-mods` wydany jako `relai-mods` 0.1.0 i 0.1.1 w marketplace, tagi `relai-mods-v0.1.0` i `relai-mods-v0.1.1`; wątek AGENTS_KRABY zamknięty — panel „RelAI Agents” z postaciami ról, `relai-progress` 0.6.0 wydany, tag `relai-progress-v0.6.0`; wątek MOBILNA_STRONA zamknięty — obie wersje strony przyjęte na iPhonie, ankieta na cztery warianty z danymi o urządzeniu; wątek BIURKO_PLAKAT zamknięty — Biurko bez sceny 3D jako odbitki biurka; plan STRONA_RELAI ZREALIZOWANY 2026-10-18 — strona opublikowana na https://nowilus.github.io/relai/ w dwóch wersjach, Film i Biurko, z ankietą w Tally, poprawka Aneksu E wdrożona 2026-10-19; WYGLAD_PANELU zamknięty 2026-10-15)
+Stan na: 2026-10-25 (PIPELINE_WYDAN E2 zrealizowany — `/relai-release` i fraza „gotowi do wydania?”, propozycje numerów, kontrola `podbicie`; E1 — raport gotowości wydania `release-check.js` z mapą wpływu; plan BEZPIECZENSTWO ZREALIZOWANY 2026-10-25 — wydanie 3.3.0: skan zależności `/relai-security`, 13. hook `lockfile-scan`, D-91 (Trivy pierwszy w punktach procesu), pełny audyt `/relai-security --full` ze skillem Cloudflare `security-audit`, oba skille w Codeksie i Cursorze; mody `relai-panel` 0.21.0, `relai-progress` 0.6.1, `relai-cache-keeper` 0.12.0, `relai-mods` 0.1.2; plan RELAI_MODS ZREALIZOWANY — kokpit `/relai-mods` wydany jako `relai-mods` 0.1.0 i 0.1.1 w marketplace, tagi `relai-mods-v0.1.0` i `relai-mods-v0.1.1`; wątek AGENTS_KRABY zamknięty — panel „RelAI Agents” z postaciami ról, `relai-progress` 0.6.0 wydany, tag `relai-progress-v0.6.0`; wątek MOBILNA_STRONA zamknięty — obie wersje strony przyjęte na iPhonie, ankieta na cztery warianty z danymi o urządzeniu; wątek BIURKO_PLAKAT zamknięty — Biurko bez sceny 3D jako odbitki biurka; plan STRONA_RELAI ZREALIZOWANY 2026-10-18 — strona opublikowana na https://nowilus.github.io/relai/ w dwóch wersjach, Film i Biurko, z ankietą w Tally, poprawka Aneksu E wdrożona 2026-10-19; WYGLAD_PANELU zamknięty 2026-10-15)
 
 ## Gdzie jesteśmy
 
@@ -17,8 +17,9 @@ postępu jako lista kroków — plan WYGLAD_PANELU; 2026-10-14: pasek mówi uczc
 KOMUNIKAT_ZWROTU; paski i panel w każdym panelu podziału okna, linia w stopce wycofana — odnoga
 SPLIT_VIEW, P-040 rozwiązana; panel bez rozjazdów w wąskim panelu podziału — odnoga PANEL_WASKI,
 0.18.0).
-Aktywny plan: PIPELINE_WYDAN (zaakceptowany 2026-10-25; E1 zrealizowany tego dnia — raport
-gotowości `release-check.js`, E2 gotowy do startu); równolegle
+Aktywny plan: PIPELINE_WYDAN (zaakceptowany 2026-10-25; E1 i E2 zrealizowane tego dnia — raport
+gotowości `release-check.js` z propozycjami numerów i komenda projektowa `/relai-release` z frazą
+„gotowi do wydania?”; E3 gotowy do startu); równolegle
 PANEL_CODEX (E1 w toku, prowadzony w Codeksie). BEZPIECZENSTWO zamknięty 2026-10-25
 po E6 (6/6, Aneksy A–B, wydanie 3.3.0). STRONA_RELAI zamknięty 2026-10-18
 po E8 (8/8, Aneksy A–E). WYGLAD_PANELU zamknięty 2026-10-15
@@ -157,8 +158,9 @@ po E5 (wydanie panelu 0.20.0 / 0.11.0); HUMANIZACJA zamknięty 2026-10-14 wydani
 
 ## Co dalej
 
-- **Plan PIPELINE_WYDAN — ZAAKCEPTOWANY 2026-10-25, aktywny; E1 gotowy do startu**
-  ([prompt](plany/PIPELINE_WYDAN/PROMPT_ETAP_1.md), świeża sesja Opus 5.5, `/relai-stage`) (brief
+- **Plan PIPELINE_WYDAN — ZAAKCEPTOWANY 2026-10-25, aktywny; E1 i E2 zrealizowane, E3 gotowy
+  do startu** ([prompt](plany/PIPELINE_WYDAN/PROMPT_ETAP_3.md), świeża sesja Opus 5.5,
+  `/relai-stage`: bramka `pre-push` na tagi wydań, podpowiedź gotowości, weryfikacja po publikacji) (brief
   [PIPELINE_WYDAN/BRIEF.md](zasoby/PIPELINE_WYDAN/BRIEF.md)) —
   [plan](plany/PIPELINE_WYDAN/PLAN.html) i [status](plany/PIPELINE_WYDAN/STATUS.md): mapa wpływu
   i `release-check.js`, komenda `/relai-release` z frazą „gotowi do wydania?” tylko w tym repo,
@@ -243,9 +245,14 @@ i wpis marketplace każdego pluginu panelu z jego `plugin.json`. Pre-commit repo
 Przed wydaniem: `node core/tools/release-check.js` (PIPELINE_WYDAN E1, tylko odczyt) — bazy rdzenia
 i modów, diff od bazy wg mapy `core/tools/release-map.json` (plik bez wiersza = czerwień), 19 kontroli
 zgodności (README, `history.md`, `ARTEFAKTY.md`, strona, film, `MODELE.md`, stary numer) i testy
-obszarów z diffu; kod 0 / 1 / 2. Raport na `HEAD` 2026-10-25: 4 czerwone zastane — wiersze trzech
-modów w README bez numeru, film z 14 komendami przy 16, `MODELE.md` pluginu starszy niż kopia
-projektu, testy filmu 29/36 (do E2 i E4).
+obszarów z diffu; kod 0 / 1 / 2. Od E2: propozycje numerów (patch / minor z conventional commits
+od bazy, osobno rdzeń i każdy mod — `core/tools/release-version.js`), kontrola `podbicie` (numer
+równy bazie albo poniżej propozycji: ostrzeżenie, z `--wydanie` czerwień) i komenda projektowa
+`/relai-release` (`.claude/commands/`, śledzona; fraza „gotowi do wydania?” w `CLAUDE.md`):
+raport po polsku, naprawy bezpieczne po jednej zgodzie, publikacja krok po kroku po osobnym „tak”.
+Raport po E2 (drzewo robocze, 2026-10-25): propozycja `relai` 3.3.0 → 3.4.0 (minor); 3 czerwone
+zastane — film z 14 komendami przy 16 i testy filmu 29/36 (E4), `MODELE.md` pluginu starszy niż
+kopia projektu; wiersze modów w README z numerami (naprawa bezpieczna z dogfoodingu E2).
 
 ### Zawartość pluginu
 

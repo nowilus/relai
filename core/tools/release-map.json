@@ -1,5 +1,5 @@
 {
-  "opis": "Mapa wplywu wydania RelAI (plan PIPELINE_WYDAN, E1). Wiersz = typ zmiany: wzorce sciezek, ktore go wykrywaja w diffie od bazy, komponenty do ruszenia i kontrole, ktore to sprawdzaja. Kazdy plik sledzony trafia w dokladnie jeden wiersz (kontrola 'mapa'); plik z diffu bez wiersza = czerwien 'nieznany typ zmiany'. Wzorce: '*' bez ukosnika, '**' dowolna glebokosc, 'wyklucz' zdejmuje pliki z wiersza. Status pliku w diffie (A/D/R/M) daje odmiane typu: nowy / usuniety / przemianowany / zmieniony. Pole 'wydanie': 'rdzen' (numer relai), 'mod:<nazwa>' (numer modu) albo 'brak' (zmiana nie wymaga wydania sama w sobie). Pole wydanie jest w E1 informacyjne (raport wypisuje, co wymaga numeru); kontrola podbicia i propozycja numerow to E2.",
+  "opis": "Mapa wplywu wydania RelAI (plan PIPELINE_WYDAN, E1). Wiersz = typ zmiany: wzorce sciezek, ktore go wykrywaja w diffie od bazy, komponenty do ruszenia i kontrole, ktore to sprawdzaja. Kazdy plik sledzony trafia w dokladnie jeden wiersz (kontrola 'mapa'); plik z diffu bez wiersza = czerwien 'nieznany typ zmiany'. Wzorce: '*' bez ukosnika, '**' dowolna glebokosc, 'wyklucz' zdejmuje pliki z wiersza. Status pliku w diffie (A/D/R/M) daje odmiane typu: nowy / usuniety / przemianowany / zmieniony. Pole 'wydanie': 'rdzen' (numer relai), 'mod:<nazwa>' (numer modu) albo 'brak' (zmiana nie wymaga wydania sama w sobie). Od E2 pole wydanie decyduje o propozycji numeru (patch / minor z conventional commits od bazy, osobno rdzen i kazdy mod; same wiersze 'brak' = brak propozycji) i o kontroli 'podbicie' (numer rowny bazie: ostrzezenie, w trybie --wydanie czerwien). 'historyczne': sciezki pomijane przez kontrole 'stary-numer' - zapis przeszlosci (dziennik, archiwum, history.md) i dane testow (regula '**/*.test.*': testy niosa stare numery jako dane wejsciowe, kod produkcyjny nadal jest sprawdzany).",
   "wiersze": [
     {
       "id": "komenda",
@@ -445,6 +445,21 @@
       "wydanie": "brak",
       "komponenty": [],
       "kontrole": []
+    },
+    {
+      "id": "komenda-projektowa",
+      "opis": "komendy projektowe tego repo w .claude/commands/ (np. /relai-release) - sledzone w gicie, poza adapterami, nie trafiaja do uzytkownikow",
+      "wzorce": [
+        ".claude/commands/*.md"
+      ],
+      "wydanie": "brak",
+      "komponenty": [
+        "docs/KOMENDY.md (sekcja tego repozytorium)",
+        "docs/ARTEFAKTY.md (wiersz komendy projektowej)"
+      ],
+      "kontrole": [
+        "artefakty"
+      ]
     }
   ],
   "grupyOsobne": {
@@ -472,7 +487,8 @@
     "adapters/claude-code/skills/relai-core/history.md",
     "adapters/codex/skills/relai-core/history.md",
     "**/package-lock.json",
-    "site/vendor/**"
+    "site/vendor/**",
+    "**/*.test.*"
   ],
   "strona": {
     "komendy": "lista z faktow (site/dane/fakty.json z adapters/claude-code/commands): nazwa PL z NAMES w core/panel/theme.mjs, fiszka EN w site/tresc/en.json film.fiszki; liczba komend z faktow w naglowkach obu wersji",

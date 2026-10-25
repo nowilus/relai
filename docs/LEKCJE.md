@@ -18,8 +18,10 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
    plików, nie katalogiem) (L-0212). **FAKT w prompcie do sprawdzenia na żywo autor liczy tym
    samym źródłem, które czyta kod etapu**, a rozjazd wykonawca rozstrzyga pytaniem o brzmienie
    punktu, nie dopasowaniem kodu (L-0254); FAKT o lukach „na drzewie X” liczysz regułą kontroli
-   z bazą tego drzewa (L-0269).
-   (L-0001, L-0011, L-0026, L-0089, L-0100, L-0108, L-0129, L-0212, L-0254, L-0269)
+   z bazą tego drzewa (L-0269). Instrukcja wołająca narzędzie, którego kod wyjścia „wynik
+   negatywny” nie jest awarią, mówi, co znaczy każdy kod i gdzie stoi pełny wynik, i zakazuje
+   obejść — powtórki, pliku tymczasowego (L-0271).
+   (L-0001, L-0011, L-0026, L-0089, L-0100, L-0108, L-0129, L-0212, L-0254, L-0269, L-0271)
 2. **W dokumencie użytkownika stoi tylko to, co działa i co zmierzyłeś** — fraza i forma wywołania
    w wersji uruchomionej dosłownie, z tej samej powłoki, którą zobaczy czytelnik; znak
    interpretowany przez powłokę zapisujesz tak, żeby go nie tknęła. Komenda do wklejenia przez
@@ -86,7 +88,9 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
      generator identyfikatorów sprawdzasz na wszystkich kandydatach; wartość podkładaną — wobec
      zbioru dozwolonego (L-0173); kontrola negatywna zmienia mierzoną wielkość, nie jej obraz (L-0181);
      tło pod tekstem fotografujesz z `opacity: 0` na rodzicu (`visibility` dzieci wygrywa), wynik
-     1,00 : 1 na całej linii to najpierw instrument (L-0213); wzorzec polskiego słowa bierze rdzeń
+     1,00 : 1 na całej linii to najpierw instrument (L-0213); skrypt mutacji wymusza format
+     wyniku, który parsuje (`--test-reporter=tap`), a „wszystkie przeżyły” to najpierw instrument
+     (L-0270); wzorzec polskiego słowa bierze rdzeń
      sprzed oboczności (`piętna[sś]`) i ma kontrolę na każdej formie z repo (L-0261).
    - **Parsowanie:** separator niepoprzedzony znakiem ucieczki i liczba pól po podmianie; zbiór
      znaków zachowywanych wypisany raz; filtr „to nie przypadek” ma wyjątek dla linii o rzeczy
@@ -134,7 +138,7 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
    L-0110, L-0111, L-0113, L-0124, L-0125, L-0127, L-0130, L-0131, L-0135, L-0141, L-0143, L-0151,
    L-0160, L-0164, L-0169, L-0170, L-0173, L-0181, L-0211, L-0213, L-0215, L-0238, L-0239, L-0240,
    L-0242, L-0243, L-0246, L-0247, L-0248, L-0249, L-0257, L-0258, L-0259, L-0261, L-0262, L-0265,
-   L-0267, L-0268)
+   L-0267, L-0268, L-0270)
 6. **Próg jest liczbą, którą ktoś liczy:** kalibrujesz na realnych plikach, zapisujesz w jednostce
    mechanizmu z komendą sprawdzającą, z **jednym** wyzwalaczem. Porównujesz do wielkości, którą
    mechanizm kontroluje (część usuwalna); zatkanie sygnalizuje **różnica możliwego i wykonanego**,
@@ -614,6 +618,30 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
 - **Zasada:** FAKT o lukach „na drzewie X” autor promptu liczy regułą kontroli na tym drzewie, z
   bazą tego drzewa. Luka widoczna dopiero w innym wydaniu idzie do punktu z rewizją, w której
   powstała (rozszerza L-0254).
+
+### L-0270 — Skrypt mutacji „wszystkie przeżyły”: wzorzec TAP na wyjściu reportera spec · 2026-10-25 · AKTYWNA
+
+- **Trigger:** PIPELINE_WYDAN E2, dowód negatywny testów (zasada 3). Skrypt podkładał 10 mutacji
+  i liczył nieudane testy wzorcem `^not ok`. Wynik: 10/10 „przeżyło”, przy każdej mutacji
+  „nieudanych 0”. `node --test` bez `--test-reporter` pisze w formacie `spec` (`✖`), nie TAP, więc
+  wzorzec nie miał czego złapać. Z `--test-reporter=tap` 9 z 10 mutacji wywróciło swój test,
+  a dziesiąta odsłoniła realną lukę: filtr plików modu bez testu.
+- **Zasada:** instrument liczący wynik cudzego narzędzia wymusza format, który parsuje
+  (`--test-reporter=tap`). „Zero nieudanych przy każdej mutacji” to najpierw defekt instrumentu
+  (zasada 5, kontrola pozytywna), nie dowód siły testów.
+
+### L-0271 — Kod wyjścia 1 raportu: harness pokazuje błąd, model obchodzi go zapisem do pliku · 2026-10-25 · AKTYWNA
+
+- **Trigger:** PIPELINE_WYDAN E2, pierwszy przebieg frazy „gotowi do wydania?” w świeżej sesji.
+  `release-check.js --json` kończy się kodem 1, gdy są czerwone kontrole. Narzędzie Bash oznaczyło
+  wtedy wynik jako błąd („Exit code 1”), choć cały JSON (10 KB) stał w wyniku. Model uznał go za
+  ucięty: najpierw dopisał `echo EXIT`, potem próbował zapisać raport do `.claude/relai/work/`
+  (ścieżka wrażliwa) i do `/tmp` (poza katalogiem). Trzy odmowy, pięć wywołań skryptu zamiast
+  jednego.
+- **Zasada:** instrukcja, która woła narzędzie z kodem wyjścia „wynik negatywny ≠ awaria”, mówi
+  wprost, co znaczy każdy kod i gdzie stoi pełny wynik. Zakazuje też obejść (powtórka, plik
+  tymczasowy). Pierwszy realny przebieg instrukcji w świeżej sesji jest częścią jej pisania
+  (zasada 1).
 
 ## Lekcje zwinięte
 

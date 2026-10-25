@@ -237,6 +237,15 @@ czyli liczba plików, nie liczba specyfikacji. Rejestr trzyma się stanu z dysku
 | Design panelu i pasków RelAI | `docs/zasoby/PANEL_RELAI/DESIGN.md` | 1.2 | 2026-10-15 | §9 Wydajność: drugi budżet drzewa w znakach (`isDrawable`: waga ≤ 1 200 i ≤ 280 tys. znaków), zastępczy widok „Zwiń wszystko” zamiast pustego panelu; §8: rysunek pod treścią nie maluje własnego tła | Odbiór E4 (2026-10-15): rozwinięta Mapa pod progiem wagi zostawiała pusty panel po każdym przeładowaniu, a tło rysunku odcinało się pasem, gdy zakładka stała w samej ramce |
 | Prompty GPT image — wzorce realistycznego biurka | `docs/zasoby/STRONA/builds/biurko/referencje/PROMPTY_GPT_IMAGE.md` | 1 | 2026-10-16 | Nowy artefakt: instrukcja generowania w ChatGPT (jedna rozmowa, obraz wzorcowy 01 jako kotwica spójności, pobranie oryginału), wspólny styl z paletą `theme.mjs` i zakazami D-61a/b, osiem promptów EN (hero, bałagan, porządek, teczka, laptop, pudełko, arkusz materiałów, koniec), zdania naprawcze na „wygląda sztucznie” | Łukasz po E1 (2026-10-16): biurko z kodu „widać, że wygenerowane przez AI stylistycznie”, brakuje detali; chce realizmu przy zachowaniu swobodnej kamery three.js — obrazy są wzorcem dla sceny z modeli CC0, nie treścią strony |
 
+## Komendy projektowe — `.claude/commands/` (1)
+
+Instrukcje dla modelu w tym repozytorium, śledzone w gicie, poza adapterami — nie trafiają do
+użytkowników pluginu.
+
+| Artefakt | Plik | Wersja | Data | Co się zmieniło | Po co |
+|---|---|---|---|---|---|
+| `/relai-release` | `.claude/commands/relai-release.md` | 1 | 2026-10-25 | Nowy artefakt (plan PIPELINE_WYDAN E2): raport `release-check.js --json` po polsku z propozycjami numerów, podział braków na bezpieczne (tabela kontrola → naprawa) i dla człowieka, jedna zgoda na naprawy bezpieczne z powtórnym raportem, publikacja wg P-005 z osobnym „tak” na każdy krok zewnętrzny; fraza „gotowi do wydania?” w `CLAUDE.md` | Przy 3.3.0 trzy luki złapała dopiero ręczna lista w prompcie etapu (PW1, PW2); wydanie prowadzone komendą czyta raport skryptu zamiast pamięci sesji, a automat robi tylko to, co odwracalne i widoczne w diffie |
+
 ## Poza rejestrem — świadomie
 
 ### Jawna korekta promptu E1 PANEL_CODEX (2026-10-10)

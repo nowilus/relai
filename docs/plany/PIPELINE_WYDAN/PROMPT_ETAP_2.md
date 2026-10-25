@@ -435,30 +435,30 @@ nieśledzony — reszta `.claude/` zostaje poza commitem); pliki PANEL_CODEX poz
 Każdy punkt Weryfikacji, który przeszedł, odhaczasz w `PROMPT_ETAP_2.md` (`- [ ]` → `- [x]`)
 zaraz po jego sprawdzeniu, nie na końcu etapu; punkt, który nie przeszedł, zostaje pusty.
 
-- [ ] `node core/tools/release-check.js --json` na `HEAD` niesie `propozycje` dla rdzenia i modów;
+- [x] `node core/tools/release-check.js --json` na `HEAD` niesie `propozycje` dla rdzenia i modów;
       na fixturze: `fix:` → patch, `feat:` → minor, usunięta komenda → minor, zmiana tylko w modzie
       → propozycja tylko dla modu, zmiana tylko w `docs/` → brak propozycji.
-- [ ] Kontrola `podbicie`: czerwona w trybie wydania, gdy komponent ze zmianami ma numer bazy;
+- [x] Kontrola `podbicie`: czerwona w trybie wydania, gdy komponent ze zmianami ma numer bazy;
       zielona po podbiciu — oba stany w jednym przebiegu testu.
-- [ ] Ścieżki historyczne: `--rev a1439b9` — `stary-numer` bez plików testów z 3.2.0; kontrola
+- [x] Ścieżki historyczne: `--rev a1439b9` — `stary-numer` bez plików testów z 3.2.0; kontrola
       pozytywna: numer bazy podłożony w pliku produkcyjnym fixtury nadal daje czerwień.
-- [ ] Mapa: `.claude/commands/relai-release.md` śledzony i w dokładnie jednym wierszu (`mapa`:
+- [x] Mapa: `.claude/commands/relai-release.md` śledzony i w dokładnie jednym wierszu (`mapa`:
       0 bez wiersza, 0 w dwóch).
-- [ ] Fraza „gotowi do wydania?” w świeżej sesji uruchamia komendę i pokazuje raport (transkrypt
+- [x] Fraza „gotowi do wydania?” w świeżej sesji uruchamia komendę i pokazuje raport (transkrypt
       albo zrzut); naprawa bezpieczna po zgodzie daje zieloną `readme-mody` w powtórnym przebiegu.
-- [ ] Brak publikacji: `git tag --list 'v3.3.1' 'v3.4.0' 'relai-*-v*'` bez nowych tagów,
+- [x] Brak publikacji: `git tag --list 'v3.3.1' 'v3.4.0' 'relai-*-v*'` bez nowych tagów,
       `git log origin/main..HEAD` pokazuje wyłącznie lokalne commity, zero wywołań `gh release`.
-- [ ] Testy zielone: `node --test core/process/tests/*.test.js` (liczba przed — 240 — i po),
+- [x] Testy zielone: `node --test core/process/tests/*.test.js` (liczba przed — 240 — i po),
       `node --test core/panel/tests/*.test.js`, `node --test adapters/codex/tests/*.test.js`;
       `node core/tools/validate-adapters.js` → „spojne”; `release-check.js --szybko` bez nowych
       czerwieni poza zastanymi (`film-komendy`, `modele` — chyba że Łukasz zgodził się na naprawę).
-- [ ] Brak zmian poza zakresem: `git diff --stat` na `site/`, `docs/zasoby/film/` i ścieżkach
+- [x] Brak zmian poza zakresem: `git diff --stat` na `site/`, `docs/zasoby/film/` i ścieżkach
       PANEL_CODEX (`docs/plany/PANEL_CODEX/`, `adapters/codex/panel/`,
       `docs/zasoby/PANEL_RELAI/makiety/`) — pusty; README zmieniony wyłącznie naprawą bezpieczną
       z raportu.
-- [ ] Wpis w `docs/DZIENNIK.md` na końcu sekcji „Wpisy”, z podpisem `Autor: RelAI (<model>) + Lukasz`;
+- [x] Wpis w `docs/DZIENNIK.md` na końcu sekcji „Wpisy”, z podpisem `Autor: RelAI (<model>) + Lukasz`;
       `docs/STATE.md` nadpisany.
-- [ ] Katalog roboczy `.claude/relai/work/PIPELINE_WYDAN/E2/` przejrzany raportem
+- [x] Katalog roboczy `.claude/relai/work/PIPELINE_WYDAN/E2/` przejrzany raportem
       (`node .claude/relai/tools/clean-work.js raport`) i skasowany po „tak”; liczby przed i po we
       wpisie dziennika. Artefakty spoza katalogu (worktree `%TEMP%/relai-release-check-*`, fixtury
       `%TEMP%/relai-release-test-*`, kopie do dogfoodingu) wypisane z nazwy razem z tym, co się
