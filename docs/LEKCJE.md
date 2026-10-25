@@ -182,7 +182,9 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
 12. **Guardrail zatrzymujący nie-sekret to defekt rdzenia** — poprawka z dowodem, nie obejście;
     wołany przez opakowanie powłoki (brak interpretera = blokada); próbki sekretów składane
     w czasie wykonania; cudzysłów (także backtick) należy do grupy cudzysłowu, nie do wartości.
-    (L-0043, L-0045, L-0046, L-0072)
+    Bramka rozróżnia „wejście puste” od „wejście nieczytelne” i „wynik bez treści” — dwa ostatnie
+    to odmowa z komunikatem, a `catch` bez odmowy to fałszywa zieleń (L-0272).
+    (L-0043, L-0045, L-0046, L-0072, L-0272)
 13. **Cudze narzędzie poznajesz z wydanego builda i z próby**, nie z dokumentacji: payload po
     zdjęciu BOM, bez założeń o nazwach pól; CLI z powłoki natywnej; brak sygnału konfrontujesz
     z warunkiem milczenia; nieprzyjęty artefakt — najpierw jego walidator albo widok statusu.
@@ -209,12 +211,13 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
       wyzwalany narzędziem mierzysz listą narzędzi z transkryptu i licznikiem wstrzykniętego
       kontekstu — model pisze też powłoką (L-0190); projekt pomiaru na żywo poza `.claude/`
       (harness odrzuca tam edycje), najpierw `permission_denied`, a kontekst hooka `PostToolUse`
-      liczysz w transkrypcie na dysku, nie w stream-json (L-0263).
+      liczysz w transkrypcie na dysku, nie w stream-json (L-0263); pomiar reguły w `claude -p`
+      niesie `--allowedTools` dla każdego polecenia, które reguła uruchamia, dosłownie (L-0273).
     - **Usługi zewnętrzne:** stan ustawienia repozytorium czytasz z API (`gh api repos/<repo>/pages`),
       nie ze zrzutu ani słowa człowieka (L-0244); obraz dla cudzej usługi w proporcji zmierzonej na
       opublikowanym widoku, każda podmiana pod nowym adresem (L-0245).
     (L-0041, L-0042, L-0044, L-0047, L-0092, L-0133, L-0136, L-0138, L-0139, L-0146, L-0153, L-0166,
-    L-0168, L-0185, L-0189, L-0190, L-0244, L-0245, L-0253, L-0255, L-0263, L-0264)
+    L-0168, L-0185, L-0189, L-0190, L-0244, L-0245, L-0253, L-0255, L-0263, L-0264, L-0273)
 14. **Najpierw zmiana w repozytorium, potem zdanie, które ją opisuje.** Weryfikację planujesz tam,
     gdzie wykonalna; po pytaniu sprzątasz sam; jednostką inwentarza jest sprawa, nie linia; wstawkę
     kotwiczysz do elementu, który przeżyje operację, i dowodzisz **obecności** nowej treści. Gdy
@@ -642,6 +645,29 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
   wprost, co znaczy każdy kod i gdzie stoi pełny wynik. Zakazuje też obejść (powtórka, plik
   tymczasowy). Pierwszy realny przebieg instrukcji w świeżej sesji jest częścią jej pisania
   (zasada 1).
+
+### L-0272 — Bramka z cichym `catch` na wejściu: „nie mogę odczytać” zlewa się z „nie ma czego sprawdzać” · 2026-10-25 · AKTYWNA
+
+- **Trigger:** PIPELINE_WYDAN E3, przegląd kodu hooka `pre-push`. Lista refów szła ze stdin przez
+  `try { readFileSync(0) } catch (_) {}`. Błąd odczytu (EAGAIN/EOF na rurze Windowsa) dawał pustą
+  listę, a pusta lista znaczy „żadnego tagu wydania” — hook przepuszczał push. Testy były zielone,
+  bo fixtura zawsze podawała czytelne wejście, a test dymny instalatora — puste `input: ''`.
+  W tym samym przeglądzie: raport z kodem 0 i pustą listą kontroli liczył się jako zieleń.
+- **Zasada:** mechanizm, który zatrzymuje, rozróżnia jawnie „wejście puste” od „wejście
+  nieczytelne” i „wynik bez treści”. Dwa ostatnie to odmowa z komunikatem, nigdy przepustka.
+  `catch` bez odmowy w bramce to fałszywa zieleń z definicji (rozszerza zasadę 12 i L-0043).
+
+### L-0273 — Reguła wołająca Bash w świeżej sesji `claude -p`: bez `--allowedTools` dowód mówi „nie wiem” · 2026-10-25 · AKTYWNA
+
+- **Trigger:** PIPELINE_WYDAN E3, punkt „podpowiedź w świeżej sesji”. Pierwszy przebieg
+  `claude -p "kontynuujemy pracę"` wykonał regułę z `CLAUDE.md` i cztery razy wołał
+  `release-hint.js`. Każde wywołanie dostało odmowę uprawnień, a sesja napisała uczciwie, że
+  gotowości nie zna. Drugi przebieg z `--allowedTools "Bash(node core/tools/release-hint.js)"` dał
+  zdanie z liczbą z raportu (12 plików). L-0263 („najpierw `permission_denied`”) mówiło o tym
+  wcześniej — zastosowane dopiero po przebiegu, a nie w jego projekcie.
+- **Zasada:** pomiar reguły w świeżej sesji niesie w wywołaniu `--allowedTools` dla każdego
+  polecenia, które reguła ma uruchomić, wypisanego dosłownie. Transkrypt czytasz najpierw pod
+  kątem `permission_denied`, dopiero potem treść odpowiedzi.
 
 ## Lekcje zwinięte
 

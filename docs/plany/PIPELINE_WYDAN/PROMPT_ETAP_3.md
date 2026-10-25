@@ -423,33 +423,33 @@ pliki PANEL_CODEX poza każdym commitem; komunikaty hooka ASCII (zasada 15); `.g
 Każdy punkt Weryfikacji, który przeszedł, odhaczasz w `PROMPT_ETAP_3.md` (`- [ ]` → `- [x]`)
 zaraz po jego sprawdzeniu, nie na końcu etapu; punkt, który nie przeszedł, zostaje pusty.
 
-- [ ] Fixtura z `--bare` remote: push tagu `v*` przy czerwonej kontroli → odrzucony (kod ≠ 0,
+- [x] Fixtura z `--bare` remote: push tagu `v*` przy czerwonej kontroli → odrzucony (kod ≠ 0,
       lista czerwonych w komunikacie); po naprawie ten sam tag → przyjęty; push gałęzi `main` bez
       tagu → przyjęty bez przebiegu skryptu — wszystko w jednym przebiegu testu.
-- [ ] Obejście: z powodem → push przyjęty i linia w `docs/DZIENNIK.md` fixtury (data, tag,
+- [x] Obejście: z powodem → push przyjęty i linia w `docs/DZIENNIK.md` fixtury (data, tag,
       czerwone, powód); bez powodu (pusta zmienna) → odrzucony.
-- [ ] Tag `relai-<mod>-v*` w fixturze z czerwonym filmem → przyjęty; ten sam tag przy czerwonej
+- [x] Tag `relai-<mod>-v*` w fixturze z czerwonym filmem → przyjęty; ten sam tag przy czerwonej
       kontroli modu (`readme-mody`) → odrzucony.
-- [ ] Kontrola `pre-push`: zielona po instalacji, czerwona z `--wydanie` po podłożonej zmianie
+- [x] Kontrola `pre-push`: zielona po instalacji, czerwona z `--wydanie` po podłożonej zmianie
       hooka; instalator uruchomiony drugi raz nie zmienia niczego (suma przed = po).
-- [ ] Weryfikacja po publikacji na wydanym 3.3.0: cache `relai` 3.3.0 wobec tagu `v3.3.0` — liczba
+- [x] Weryfikacja po publikacji na wydanym 3.3.0: cache `relai` 3.3.0 wobec tagu `v3.3.0` — liczba
       plików i rozjazdów do dziennika; kontrola pozytywna: kopia cache z podłożoną zmianą jednego
       pliku → rozjazd wykryty i nazwany.
-- [ ] Podpowiedź: świeża sesja „kontynuujemy pracę” (transkrypt) mówi jedno zdanie o gotowości
+- [x] Podpowiedź: świeża sesja „kontynuujemy pracę” (transkrypt) mówi jedno zdanie o gotowości
       z liczbą z raportu; na fixturze ze zmianą tylko w `docs/` skrypt podpowiedzi milczy.
-- [ ] Hook zainstalowany w tym repo **po „tak”**; push gałęzi w tym repo **nie pada** w E3 (dowód:
+- [x] Hook zainstalowany w tym repo **po „tak”**; push gałęzi w tym repo **nie pada** w E3 (dowód:
       `git log origin/main..HEAD` przed i po), a `git tag --list 'v3.3.1' 'v3.4.0'` pusty.
-- [ ] Testy zielone: `node --test core/process/tests/*.test.js` (liczba przed — 256 — i po),
+- [x] Testy zielone: `node --test core/process/tests/*.test.js` (liczba przed — 256 — i po),
       `node --test core/guardrails/tests/*.test.js`, `node --test core/panel/tests/*.test.js`,
       `node --test adapters/codex/tests/*.test.js`; `node core/tools/validate-adapters.js` →
       „spojne”; `release-check.js --szybko` bez nowych czerwieni poza zastanymi (`film-komendy`,
       `modele` — chyba że Łukasz zgodził się na naprawę).
-- [ ] Brak zmian poza zakresem: `git diff --stat` na `site/`, `docs/zasoby/film/`, `README.md`
+- [x] Brak zmian poza zakresem: `git diff --stat` na `site/`, `docs/zasoby/film/`, `README.md`
       i ścieżkach PANEL_CODEX (`docs/plany/PANEL_CODEX/`, `adapters/codex/panel/`,
       `docs/zasoby/PANEL_RELAI/makiety/`) — pusty.
-- [ ] Wpis w `docs/DZIENNIK.md` na końcu sekcji „Wpisy”, z podpisem `Autor: RelAI (<model>) + Lukasz`;
+- [x] Wpis w `docs/DZIENNIK.md` na końcu sekcji „Wpisy”, z podpisem `Autor: RelAI (<model>) + Lukasz`;
       `docs/STATE.md` nadpisany.
-- [ ] Katalog roboczy `.claude/relai/work/PIPELINE_WYDAN/E3/` przejrzany raportem
+- [x] Katalog roboczy `.claude/relai/work/PIPELINE_WYDAN/E3/` przejrzany raportem
       (`node .claude/relai/tools/clean-work.js raport`) i skasowany po „tak”; liczby przed i po we
       wpisie dziennika. Artefakty spoza katalogu (fixtury i `--bare` remote w `%TEMP%`, worktree
       `%TEMP%/relai-release-check-*`, kopia cache do kontroli pozytywnej) wypisane z nazwy razem

@@ -27,8 +27,9 @@
 | H9 | Tryb ciągły „dokumenty” nie widzi zapisu, którego nie rozpozna — `sed -i`, skrypt, podproces, `>(tee …)` — i dokument zostaje bez humanizacji (plan HUMANIZACJA, pomiar E5) | **Niski** (2026-10-14, przy zamknięciu planu) | **OTWARTE ŚWIADOMIE** | Aneks C: hook po Write/Edit i po Bash z przekierowaniem `>` / `>>` albo `tee`; w pomiarze E5 model pisał wyłącznie tymi drogami (8/8 przed poprawką, 2/2 po niej z regułą). Pominięcie kończy się ciszą, nigdy złą regułą; komenda `/relai-humanize` na pliku działa niezależnie od trybu ciągłego. |
 | T1 | Scena 3D strony tnie się na słabszym laptopie albo zintegrowanej grafice (plan STRONA_RELAI, ryzyko 1) | **Średni** (2026-10-18 po E6; wcześniej wysoki) | **OTWARTE** | E1: render na żądanie, DPR ≤ 1,5, obniżenie jakości przy medianie > 26 ms. E2 (scena CC0, AO, głębia ostrości): przy CPU ×4 mediana 11,1 ms, p95 16,7 ms, 913 wywołań rysowania na klatkę po scaleniu miasta (przed: 2206, p95 22,3 ms); obniżanie jakości zaczyna od głębi ostrości. E3 (poświata ekranu RectAreaLight, nowe książki): przy CPU ×4 przewijanie mediana 11,9 ms, p95 22,2 ms — p95 wzrosło o 5,5 ms, zapas do 26 ms już tylko 3,8 ms; przybliżanie p95 13,1 ms; najwięcej 907 wywołań rysowania na klatkę. Zmierzone tylko na RTX 4070 Ti. E4 (bez path tracingu, przygaszona lampa, lakier blatu): CPU ×4 mediana 11,3 ms, p95 17,5 ms, najwięcej 910 wywołań rysowania. Otwarte: słaba grafika w E7. E5 (Film, bez WebGL): przy CPU ×4 mediana 5,6 ms, p95 5,6 ms, najdłuższa klatka 28,7 ms, więc Filmu ryzyko nie dotyczy. Aneks D: Biurko też idzie do publikacji, dlatego poziom zostaje wysoki do pomiaru na słabej grafice w E6. E7 (Film z animacjami WAAPI i przytrzymaniem): CPU ×4 mediana 11,1 ms, p95 16,7 ms na desktopie i w emulacji telefonu — Filmu nadal nie dotyczy; poziom bez zmiany przez Biurko. E6: SwiftShader (grafika programowa) 1366 × 768 mediana 1 700 → 1 183 → 817 ms po krokach obniżania, 390 × 844 1 033 → 867 → 433 → 283 ms; wyłącznik `biurko/grafika.js` daje takiej przeglądarce plakat (werdykt Łukasza 3A), brak WebGL2 i ograniczony ruch też. RTX przy CPU ×4: p95 przewijania 20,6–25,2 ms desktop, 15,4–16,3 ms telefon. Otwarte: zintegrowana karta niezmierzona (bramka „pomiar na słabszym laptopie”); drugi bezpiecznik (plakat po wyczerpaniu kroków jakości, opcja 3B) świadomie niewdrożony. E8 (2026-10-18): Biurko opublikowane pod `/biurko/` bez zmian w scenie; plan STRONA_RELAI zamknięty, bramka „pomiar na słabszym laptopie” świadomie otwarta poza planem (`docs/STATE.md`, „Co dalej”). |
 | T2 | Biurko wygląda jak tani render albo glina z AI (plan STRONA_RELAI, ryzyko 2) | **Średni** (2026-10-18 po E6; wcześniej wysoki) | **OTWARTE** | E2: modele i tekstury CC0, deski orzechowe ze słojami, miasto za oknem, kubek i tablica od nowa; kalibracja w czterech rundach, zamknięcie za zgodą Łukasza, ale „nadal jesteśmy całkiem daleko” od obrazów 01–08 — przyczyna: brak światła odbitego w rasteryzacji (L-0220). Aneks B: E3 laptop i detale, E4 path tracing na przystankach. E4 (2026-10-16): światło odbite nie dało uzysku — przyczyną dystansu jest detal przedmiotów, tekstur i kompozycja, nie światło (L-0226); test detalu (blat `wood_table_worn`, druk na dokumentach, ciemniej) dał umiarkowany zysk. Aneks C: następny jest Film, Biurko po bramce. E5: Film rysowany kodem, hero przyjęte w trzeciej rundzie („Tak, przyjmuję”). Bramka z Aneksem D: najpierw dopieszczenie Filmu (E7), potem pełna droga Biurka (E6), publikacja obu z ankietą. Dla Biurka ryzyko zostaje wysokie. E7: Film dopieszczony i przyjęty akt po akcie („Tak, przyjmuję”), dotyczy już tylko Biurka (E6). E6: każdy przystanek, szczyt, mapa, szuflady, telefon, zasłona i plakat przyjęte przez Łukasza na kadrach przed i po; kontrola odczuć zgodna z krzywą briefu (4A). Otwarte do ankiety po publikacji (E8): czy odwiedzający odbierają Biurko jako dopracowane. E8 (2026-10-18): obie wersje opublikowane, ankieta w Tally zbiera głosy z ukrytym polem `wersja`; ryzyko zostaje otwarte do odczytu ankiety, który jest poza planem (`docs/STATE.md`). |
-| PW1 | Kontrola gotowości wydania jest zielona przy luce — instrument fałszywie cichy przywraca problem z 3.3.0 z poczuciem bezpieczeństwa (plan PIPELINE_WYDAN, ryzyko W1) | **Wysoki** (2026-10-25, przy akceptacji planu) | **OTWARTE — ZMITYGOWANE W E1 (2026-10-25)** | E1: każda z 19 kontroli ma test z podłożonym defektem (36 testów), licznik „sprawdzono N” i blokadę „sprawdzono 0 = czerwień”; odbiór: `53830cc` i `v3.2.0` pokazują 3/3 luki z 3.3.0 (i 11/12 hooków już przy 3.2.0), `a1439b9` — te kontrole zielone; przegląd kodu: 0 krytycznych, 1 wysoki (mapa nie wołała testów rdzenia dla komend, hooków i adapterów) — poprawiony z testem; nagłówek mówi o pominiętych zestawach. E2 (2026-10-25): kontrola `podbicie` i propozycje numerów — 14 testów z mutacją, która każdy wywraca (instrument mutacji sam był najpierw fałszywie cichy — L-0270); przegląd: 3 MEDIUM pod fałszywą zieleń (feat sprzed zmiany nazwy, pliki bez commitu, numer poniżej propozycji) poprawione z testem. Otwarte do E3: bramka, która tego używa. |
-| PW2 | Mapa wpływu się starzeje — nowy rodzaj pliku albo komponentu przechodzi bez kontroli (plan PIPELINE_WYDAN, ryzyko W2) | **Wysoki** (2026-10-25, przy akceptacji planu) | **OTWARTE — ZMITYGOWANE W E1 (2026-10-25)** | Fail-closed działa: plik z diffu (także nieśledzony) bez wiersza = „nieznany typ zmiany”; kontrola `mapa` na 1491 plikach: 0 bez wiersza, 0 w dwóch; test z plikiem w nowym katalogu. E2 (2026-10-25): wiersz `komenda-projektowa` (`.claude/commands/*.md`) w tej samej zmianie co komenda, `mapa` na 1497 plikach: 0 bez wiersza, 0 w dwóch. Otwarte: trwałość mapy w kolejnych wydaniach. |
+| PW1 | Kontrola gotowości wydania jest zielona przy luce — instrument fałszywie cichy przywraca problem z 3.3.0 z poczuciem bezpieczeństwa (plan PIPELINE_WYDAN, ryzyko W1) | **Wysoki** (2026-10-25, przy akceptacji planu) | **OTWARTE — ZMITYGOWANE W E1 (2026-10-25)** | E1: każda z 19 kontroli ma test z podłożonym defektem (36 testów), licznik „sprawdzono N” i blokadę „sprawdzono 0 = czerwień”; odbiór: `53830cc` i `v3.2.0` pokazują 3/3 luki z 3.3.0 (i 11/12 hooków już przy 3.2.0), `a1439b9` — te kontrole zielone; przegląd kodu: 0 krytycznych, 1 wysoki (mapa nie wołała testów rdzenia dla komend, hooków i adapterów) — poprawiony z testem; nagłówek mówi o pominiętych zestawach. E2 (2026-10-25): kontrola `podbicie` i propozycje numerów — 14 testów z mutacją, która każdy wywraca (instrument mutacji sam był najpierw fałszywie cichy — L-0270); przegląd: 3 MEDIUM pod fałszywą zieleń (feat sprzed zmiany nazwy, pliki bez commitu, numer poniżej propozycji) poprawione z testem. E3 (2026-10-25): bramka `pre-push` używa raportu na drzewie tagu — fixtura z `--bare`: czerwień odrzuca tag, zieleń przyjmuje, gałąź bez przebiegu (wartownik); 13 mutacji testów „czegoś nie ma”, 13 zabitych; przegląd: 1 HIGH pod fałszywą zieleń (nieczytelny stdin = przepustka) i LOW (raport bez kontroli = zieleń) poprawione — odmowa (L-0272). Otwarte: pierwsze realne wydanie przez bramkę (E5). |
+| PW2 | Mapa wpływu się starzeje — nowy rodzaj pliku albo komponentu przechodzi bez kontroli (plan PIPELINE_WYDAN, ryzyko W2) | **Wysoki** (2026-10-25, przy akceptacji planu) | **OTWARTE — ZMITYGOWANE W E1 (2026-10-25)** | Fail-closed działa: plik z diffu (także nieśledzony) bez wiersza = „nieznany typ zmiany”; kontrola `mapa` na 1491 plikach: 0 bez wiersza, 0 w dwóch; test z plikiem w nowym katalogu. E2 (2026-10-25): wiersz `komenda-projektowa` (`.claude/commands/*.md`) w tej samej zmianie co komenda, `mapa` na 1497 plikach: 0 bez wiersza, 0 w dwóch. E3 (2026-10-25): sześć nowych narzędzi i testów pod istniejącym wierszem `rdzen-procesu`, bez nowego wiersza; mapa jest teraz źródłem zestawu kontroli tagu modu (`--komponent`: wiersze `mod:<nazwa>` dotknięte diffem modu) — zmiana mapy zmienia bramkę. Otwarte: trwałość mapy w kolejnych wydaniach. |
+| PW3 | Bramka `pre-push` nie działa, bo hook nie jest zainstalowany albo jest stary (inna maszyna, świeży klon, Codex) (plan PIPELINE_WYDAN, ryzyko S4) | **Średni** (2026-10-25, przy akceptacji planu) | **OTWARTE — ZMITYGOWANE W E3 (2026-10-25)** | E3: kontrola `pre-push` w raporcie (kopia w `.git/hooks/` równa źródłu po CRLF → LF; brak albo inna suma — ostrzeżenie z komendą instalacji, z `--wydanie` czerwień) — na żywo złapała kopię nieaktualną po poprawce z przeglądu (`bd6ff875d97b` wobec `69874c8e1e78`); hook zainstalowany w tym klonie po „tak”; `/relai-release` nie taguje przy czerwieni niezależnie od hooka. Otwarte: każdy inny klon wymaga instalacji. |
 
 > Ryzyka zamknięte Z1 (1 pozycja) są w
 > [docs/archiwum/ryzyka/RYZYKA_2026-10-25.md](archiwum/ryzyka/RYZYKA_2026-10-25.md)
@@ -1385,5 +1386,118 @@ w tej sesji wyłączony decyzją Łukasza.
 Przegląd ryzyk: PW1 i PW2 — wynik E2 dopisany w tabeli; S2 planu (automat podbija numer w miejscu
 historycznym albo psuje dokument) — komenda kieruje każdy dokument przez Edit, a trafienia
 `stary-numer` dzieli na podbite i historyczne do decyzji; pozostałe bez zmian.
+
+Autor: RelAI (Opus 5.5) + Lukasz
+
+### 2026-10-25 — PIPELINE_WYDAN E3: bramka pre-push na tagi wydań, weryfikacja po publikacji i podpowiedź gotowości
+
+Start z karty w czacie („Zaczynamy E3.”), Opus 5.5, `/effort high`. Tryb ciągły optymalizatora
+w tej sesji wyłączony decyzją Łukasza.
+
+**Zrobione:**
+
+- `core/tools/release-pre-push.js` (nowy) — logika hooka `pre-push`: tagi `v*` →
+  `release-check.js --rev <sha> --wydanie`, tagi `relai-<mod>-v*` → to samo z `--komponent`;
+  gałęzie i usunięcie tagu bez kontroli; czerwień = odmowa z listą czerwonych (ASCII); obejście
+  `RELAI_RELEASE_OBEJSCIE="<powód>"` (pusty powód nie obchodzi) dopisuje własny wpis `###` na
+  końcu „Wpisów” w `docs/DZIENNIK.md`.
+- `core/tools/install-prepush.js` (nowy) — instalator w układzie pre-commita 1.9.2 (shim `sh` +
+  `relai-pre-push.cjs`), idempotentny („bez zmian”), cudzego `pre-push` nie nadpisuje, test dymny
+  z cofnięciem, `--uninstall`.
+- `core/tools/release-check.js` — flaga `--komponent <mod>`: kontrole z pola `kontrole` wierszy mapy
+  `mod:<nazwa>` dotkniętych diffem modu (bez zmian — wszystkie wiersze modu) plus `podbicie`
+  tego modu; zestawy ciężkie i `plugin-test` zawężone; pole `komponent` w `--json`; kontrola
+  `pre-push` pomijana przy `--rev`.
+- `core/tools/release-checks.js` — kontrola `pre-push` (kopia w `.git/hooks/` równa źródłu po
+  CRLF → LF; brak albo inna suma: ostrzeżenie z komendą instalacji, z `--wydanie` czerwień);
+  `podbicie` zawężone do komponentu.
+- `core/tools/release-verify.js` (nowy) — cache pluginu wobec drzewa tagu (`git cat-file --batch`,
+  treść po CRLF → LF, katalog pluginu z `marketplace.json` tagu, bez `.in_use/`): liczba plików,
+  rozjazdy, brakujące, nadmiarowe; `--sesja` — świeża sesja `claude -p` binarką aplikacji i ścieżka
+  pluginu z `init`.
+- `core/tools/release-hint.js` (nowy) — jedno zdanie z pola `propozycje` (`--szybko --tylko podbicie`)
+  albo cisza; reguła „Podpowiedź wydania” w `CLAUDE.md` pod frazami sesji.
+- `.claude/commands/relai-release.md` (wersja 2) — push tagu przez bramkę, punkt 8: `release-verify.js
+  --sesja`, punkt 9: pytanie „`/reload-plugins` i rzut oka na panel” przy wydaniu modu, wiersz
+  `pre-push` w tabeli braków; `docs/KOMENDY.md` (bramka, obejście, podpowiedź), `docs/ARTEFAKTY.md`,
+  `docs/STATE.md`.
+- Testy: fixtura wyniesiona do `core/process/tests/release-fixture.js` (treść plików bez zmian,
+  opcja `narzedzia` kopiuje narzędzia wydania), nowy `release-pre-push.test.js` — 11 testów.
+- Hook zainstalowany w `.git/hooks/` tego repo po „tak” Łukasza, po przeglądzie zaktualizowany.
+- Przegląd kodu subagentem (pod fałszywą zieleń bramki): 1 HIGH (nieczytelny stdin = pusta lista
+  refów = przepustka) → odmowa; 2 MEDIUM (obejście doklejone do cudzego wpisu, przepisanie końców
+  linii całego dziennika) → własny wpis `###` i wstawka między kawałki oryginału; LOW (raport bez
+  kontroli liczony jako zieleń) → odmowa. Lekcje L-0272, L-0273; „Zasady aktywne” 12 i 13.
+
+**Zweryfikowane — jak dokładnie:**
+
+- Bramka na fixturze z `git init --bare` w `%TEMP%`: tag `v1.0.1` przy czerwonej `readme-hooki` —
+  odrzucony, tagu brak na zdalnym; po naprawie ten sam tag (`tag -f`) przyjęty; push `main`
+  przyjęty bez przebiegu skryptu — dowód: `release-check.js` drzewa roboczego podmieniony na
+  wartownika zostawiającego znacznik, push gałęzi bez znacznika, push tagu ze znacznikiem i odmową
+  (kontrola pozytywna) — jeden test.
+- Obejście: powód z samych spacji — odmowa, dziennik fixtury bajt w bajt bez zmian; z powodem —
+  push przyjęty, wpis `### <data> — Obejście bramki pre-push: tag `v1.0.1`` z czerwonymi
+  (`readme-hooki`) i powodem; treść sprzed obejścia nietknięta (prefiks pliku).
+- Tag `relai-panel-v0.1.1` przy czerwonym filmie (`film-komendy`) i niepodbitym rdzeniu — przyjęty
+  (raport: wiersze `mod-panel`, kontrole `mapa`, `diff`, `walidator`, `readme-mody`,
+  `strona-fakty`, `podbicie`); ten sam commit jako `v1.0.1` — odrzucony z `film-komendy`;
+  `relai-panel-v0.1.2` przy czerwonej `readme-mody` — odrzucony, bez `film-komendy` w komunikacie.
+- Kontrola `pre-push`: brak hooka — ostrzeżenie, z `--wydanie` czerwień; po instalacji zielona;
+  drugi przebieg instalatora „bez zmian”, suma plików hooka przed = po (w fixturze i w repo:
+  `d72a262f2d92`); kopia zmieniona — czerwień, kopia w CRLF — zielona; `--rev` — „pominięta”.
+  Na żywo w repo: po poprawce z przeglądu kontrola pokazała kopię `bd6ff875d97b` wobec źródła
+  `69874c8e1e78` (czerwień z `--wydanie`), po aktualizacji instalatorem zielona.
+- Weryfikacja po publikacji na wydanym 3.3.0: cache `relai` 3.3.0 wobec `v3.3.0` — 1484 pliki
+  w tagu, 1484 w cache, 0 rozjazdów, 0 brakujących, 0 nadmiarowych (3,7 s); `relai-panel` 0.21.2
+  wobec `relai-panel-v0.21.2` — 62/62, 0 rozjazdów. Różnicę 1485/1484 przed projektem robił katalog
+  `.in_use/` (PID sesji, znacznik harnessu). Kontrola pozytywna na kopii cache: dopisana linia
+  w `core/tools/validate-adapters.js` → „rozjazd: core/tools/validate-adapters.js”, kod 1; README
+  w CRLF — bez rozjazdu; plik `extra.txt` → „nadmiarowy”. `--sesja` (binarka 2.1.308, 19,9 s):
+  `init` ładuje `relai` z `cache/relai/relai/3.3.0` — zgodne; ta sama sonda z `--wersja 3.2.0` —
+  czerwień „oczekiwany …/3.2.0”.
+- Podpowiedź: skrypt 1,2 s; świeża sesja `claude -p "kontynuujemy pracę"` — przebieg 1: reguła
+  wykonana, cztery wywołania `release-hint.js` z odmową uprawnień, sesja uczciwie „nie wiem”
+  (L-0273); przebieg 2 z `--allowedTools "Bash(node core/tools/release-hint.js)"` — zdanie „od
+  v3.3.0 zmieniło się 12 plików w `relai`. Sprawdzić teraz gotowość…?” — 12 jak skrypt w tej
+  chwili. Fixtura ze zmianą tylko w `docs/` (commit `feat`) — skrypt milczy; po zmianie w rdzeniu —
+  „od v1.0.0: 1 plikow w relai; …”.
+- Dowód negatywny: 10 mutacji w kodzie (gałąź sprawdzana, powód ze spacji, usunięcie tagu,
+  `--komponent` bez zawężenia, `podbicie` bez filtra, instalator nadpisujący, podpowiedź przy pustych
+  propozycjach, `pre-push` przy `--rev`, `.in_use` w cache, obejście bez wpisu) i 3 mutacje poprawek
+  z przeglądu — 13/13 zabitych (reporter TAP, L-0270). HIGH z przeglądu (błąd odczytu stdin) bez
+  testu fixtury — nie da się podać nieczytelnego stdin przez `git push`; dowód z kodu.
+- Brak publikacji: `git log origin/main..HEAD` — 3 commity przed i po (plan, E1, E2);
+  `git tag --list 'v3.3.1' 'v3.4.0'` — pusty; push w repo nie padł ani razu.
+- Testy: `node --test core/process/tests/*.test.js` 256 → 267, `core/guardrails/tests` 19/19,
+  `core/panel/tests` 216/216, `adapters/codex/tests` 24/24; `validate-adapters.js` → „spojne”;
+  `release-check.js --szybko` — czerwone tylko zastane `film-komendy` i `modele`; `release-check.test.js`
+  50/50 po wyniesieniu fixtury.
+- Zakres: `git diff --stat` i `git status` na `site/`, `docs/zasoby/film/`, `README.md`
+  i ścieżkach PANEL_CODEX — puste.
+- Katalog roboczy `.claude/relai/work/PIPELINE_WYDAN/E3/`: przed — 1493 pliki (110 MB: kopia
+  cache 3.3.0 do kontroli pozytywnej, dwa transkrypty sesji podpowiedzi, raport `--szybko`, skrypty
+  mutacji i wyniesienia fixtury), po — 0, skasowany po „tak” (skrypt mutacji poprawek z przeglądu
+  powstał po kasowaniu i zszedł tą samą zgodą). Poza katalogiem: fixtury
+  `%TEMP%/relai-release-test-*`, zdalne `relai-release-remote-*`, cache `relai-release-cache-*`,
+  dzienniki `relai-release-dziennik-*` (kasowane w `t.after`), worktree `relai-release-check-*`
+  (sprzątane przez skrypt) — po przebiegach 0. Cudzy `.claude/launch.json` nietknięty, poza
+  commitem.
+
+**Świadomie odłożone:**
+
+- Tagi spoza dwóch kształtów (`relai-v3.3.0`, `V3.3.0`) przechodzą bez bramki (przegląd, LOW 5) —
+  w repo nie występują; zamknięta lista kształtów zamiast odmowy nieznanych.
+- Ponowne otagowanie wydanego numeru modu przy braku zmian przechodzi (przegląd, LOW 6) — tag
+  i tak już istnieje na zdalnym.
+- `release-verify.js` przy starych wersjach widzi `.orphaned_at` jako nadmiarowy — znacznik
+  harnessu porzuconej wersji; dotyczy tylko weryfikacji wersji nieaktualnej.
+- Mapa woła `film-zakladki` dla tagu `relai-panel` przy zmianie zakładek panelu — zgodnie
+  z planem („film nie, chyba że mapa uzna zmianę za pokazywaną”).
+
+**Do zrobienia przez człowieka:** —
+
+Przegląd ryzyk: PW1 i PW2 — wynik E3 dopisany; PW3 (S4 planu: bramka niezainstalowana) dopisane
+jako zmitygowane w E3; pozostałe bez zmian.
 
 Autor: RelAI (Opus 5.5) + Lukasz

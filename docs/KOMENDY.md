@@ -47,12 +47,15 @@ z podpowiedzi; skrócona forma działa tam, gdzie podpowiadacz ją rozwinie.
 
 ## Tylko w tym repozytorium (budowa RelAI)
 
-Komenda projektowa z `.claude/commands/` — nie należy do pluginu i nie trafia do użytkowników
-RelAI; szesnaście komend pluginu wyżej zostaje bez zmian.
+Komenda projektowa z `.claude/commands/`, hook gita i reguła `CLAUDE.md` tego repo — nie należą
+do pluginu i nie trafiają do użytkowników RelAI; szesnaście komend pluginu wyżej zostaje bez zmian.
 
 | Komenda albo fraza | Co się stanie |
 |---|---|
-| `/relai-release` · „gotowi do wydania?” | uruchamia raport gotowości `node core/tools/release-check.js --json`: werdykt, propozycje numerów (patch / minor z commitów od ostatniego tagu, osobno rdzeń i każdy mod), czerwone kontrole. Braki dzieli na bezpieczne (regeneracje, numery, szkice wpisów i wierszy README) — wykonuje je po jednej zgodzie i pokazuje raport po naprawie — i na listę dla Ciebie. Tag, push, wydanie GitHub, marketplace i aktualizacja pluginów idą wyłącznie po osobnym „tak” na każdy krok. W Codeksie i Cursorze fraza daje sam raport (plan PIPELINE_WYDAN E2) |
+| `/relai-release` · „gotowi do wydania?” | uruchamia raport gotowości `node core/tools/release-check.js --json`: werdykt, propozycje numerów (patch / minor z commitów od ostatniego tagu, osobno rdzeń i każdy mod), czerwone kontrole. Braki dzieli na bezpieczne (regeneracje, numery, szkice wpisów i wierszy README) — wykonuje je po jednej zgodzie i pokazuje raport po naprawie — i na listę dla Ciebie. Tag, push, wydanie GitHub, marketplace i aktualizacja pluginów idą wyłącznie po osobnym „tak” na każdy krok. W Codeksie i Cursorze fraza daje sam raport (plan PIPELINE_WYDAN E2). Po publikacji i restarcie komenda uruchamia weryfikację `node core/tools/release-verify.js --plugin <plugin> --wersja <N.N.N> --sesja` (cache równy tagowi, świeża sesja ładuje tę wersję), a przy wydaniu modu pyta o `/reload-plugins` i rzut oka na panel — wydanie zamknięte dopiero po Twoim „ok” (E3) |
+| bramka `pre-push` (hook gita) | push tagu `v*` albo `relai-<mod>-v*` przechodzi tylko przy zielonym raporcie `release-check.js --rev <tag> --wydanie` (tag modu: `--komponent relai-<mod>` — kontrole z wierszy mapy tego modu, bez filmu i numeru rdzenia). Push zwykłego commitu i usunięcie tagu — bez kontroli. Działa w każdym narzędziu, które pushuje gitem. Instalacja raz na klon (zmiana konfiguracji maszyny): `node core/tools/install-prepush.js`, cofnięcie z `--uninstall`; brak hooka raport pokazuje jako ostrzeżenie, z `--wydanie` jako czerwień |
+| obejście bramki | `RELAI_RELEASE_OBEJSCIE="<powód>" git push origin <tag>` — pusty powód nie obchodzi; hook dopisuje do `docs/DZIENNIK.md` linię z datą, tagiem, czerwonymi kontrolami i powodem. Każde obejście to sygnał do poprawki kontroli |
+| podpowiedź gotowości | przy „kontynuujemy pracę” i przy zamknięciu planu sesja uruchamia `node core/tools/release-hint.js` (~1 s) i mówi jedno zdanie „od v<baza>: N plików w <komponenty>; sprawdzić gotowość?”; gdy od tagu zmieniły się tylko pliki bez wydania (np. `docs/`) — milczy |
 
 ## Panel w Claude Code (early access, od 2.8.0)
 

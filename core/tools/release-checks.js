@@ -539,9 +539,11 @@ const STAN_PODBICIA = {
 
 function kontrolaPodbicie(ctx) {
   const w = wynik('podbicie', 'komponent ze zmianami wymagajacymi wydania ma numer co najmniej rowny propozycji');
-  w.sprawdzono = 1 + ctx.baza.mody.length;
+  // Wydanie samego modu (E3): liczy sie tylko numer tego modu - nie rdzenia i nie innych modow.
+  const propozycje = (ctx.propozycje || []).filter((p) => !ctx.komponent || p.komponent === ctx.komponent);
+  w.sprawdzono = ctx.komponent ? 1 : 1 + ctx.baza.mody.length;
   let niepodbite = 0;
-  for (const p of ctx.propozycje || []) {
+  for (const p of propozycje) {
     if (p.stan === 'podbity') continue;
     const sedno = p.komponent + ': ' + p.plikow + ' plikow wymaga wydania, ';
     if (p.stan === 'powyzej propozycji') {
@@ -553,8 +555,40 @@ function kontrolaPodbicie(ctx) {
     if (ctx.trybWydania) w.bledy.push(opis);
     else w.ostrzezenia.push(opis + ' - czerwien w trybie --wydanie');
   }
-  w.licznik = 'komponentow ' + w.sprawdzono + ', z propozycja ' + (ctx.propozycje || []).length + ', niepodbitych ' + niepodbite
-    + (ctx.trybWydania ? ' (tryb wydania)' : '');
+  w.licznik = 'komponentow ' + w.sprawdzono + ', z propozycja ' + propozycje.length + ', niepodbitych ' + niepodbite
+    + (ctx.trybWydania ? ' (tryb wydania)' : '') + (ctx.komponent ? ' (komponent ' + ctx.komponent + ')' : '');
+  return w;
+}
+
+// --- hook pre-push (E3, ryzyko S4 planu) ----------------------------------------------------
+
+// Bramka tagow wydan dziala tylko tam, gdzie hook jest zainstalowany: inna maszyna, swiezy klon
+// i Codex jej nie maja. Kontrola porownuje kopie w .git/hooks/ ze zrodlem obok tego pliku (to samo
+// zrodlo kopiuje instalator), tresc po CRLF -> LF. Brak albo inna suma: w trybie wydania czerwien,
+// w trybie zwyklym ostrzezenie z komenda instalacji. Przy --rev release-check.js ja pomija.
+const PREPUSH_ZRODLO = path.join(__dirname, 'release-pre-push.js');
+
+function suma(tekst) {
+  return require('crypto').createHash('sha256').update(lf(tekst)).digest('hex').slice(0, 12);
+}
+
+function kontrolaPrePush(ctx) {
+  const w = wynik('pre-push', 'hook pre-push (bramka tagow wydan) zainstalowany i rowny zrodlu');
+  const zrodlo = czytaj(path.dirname(PREPUSH_ZRODLO), path.basename(PREPUSH_ZRODLO));
+  if (zrodlo === null) { w.bledy.push('brak zrodla hooka ' + PREPUSH_ZRODLO); return w; }
+  const r = spawnSync('git', ['rev-parse', '--git-path', 'hooks'], { cwd: ctx.korzenRobocze, encoding: 'utf8' });
+  if (r.status !== 0) { w.bledy.push('nie moge ustalic katalogu hookow gita'); return w; }
+  const katalog = path.resolve(ctx.korzenRobocze, r.stdout.trim());
+  w.sprawdzono = 1;
+  const shim = czytaj(katalog, 'pre-push');
+  const logika = czytaj(katalog, 'relai-pre-push.cjs');
+  const problemy = [];
+  if (shim === null) problemy.push('brak .git/hooks/pre-push');
+  else if (!shim.includes('relai-pre-push.cjs')) problemy.push('.git/hooks/pre-push nie wola relai-pre-push.cjs (cudzy hook)');
+  if (logika === null) problemy.push('brak .git/hooks/relai-pre-push.cjs');
+  else if (suma(logika) !== suma(zrodlo)) problemy.push('kopia hooka ' + suma(logika) + ' inna niz zrodlo ' + suma(zrodlo) + ' (core/tools/release-pre-push.js)');
+  for (const p of problemy) (ctx.trybWydania ? w.bledy : w.ostrzezenia).push(p + ' - instalacja: node core/tools/install-prepush.js');
+  w.licznik = problemy.length ? 'hook niegotowy (' + problemy.length + ')' : 'hook zainstalowany, suma ' + suma(zrodlo);
   return w;
 }
 
@@ -606,6 +640,7 @@ const KONTROLE = [
   ['modele', kontrolaModele],
   ['stary-numer', kontrolaStaryNumer],
   ['podbicie', kontrolaPodbicie],
+  ['pre-push', kontrolaPrePush],
 ];
 
 module.exports = {

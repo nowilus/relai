@@ -244,8 +244,7 @@ użytkowników pluginu.
 
 | Artefakt | Plik | Wersja | Data | Co się zmieniło | Po co |
 |---|---|---|---|---|---|
-| `/relai-release` | `.claude/commands/relai-release.md` | 1 | 2026-10-25 | Nowy artefakt (plan PIPELINE_WYDAN E2): raport `release-check.js --json` po polsku z propozycjami numerów, podział braków na bezpieczne (tabela kontrola → naprawa) i dla człowieka, jedna zgoda na naprawy bezpieczne z powtórnym raportem, publikacja wg P-005 z osobnym „tak” na każdy krok zewnętrzny; fraza „gotowi do wydania?” w `CLAUDE.md` | Przy 3.3.0 trzy luki złapała dopiero ręczna lista w prompcie etapu (PW1, PW2); wydanie prowadzone komendą czyta raport skryptu zamiast pamięci sesji, a automat robi tylko to, co odwracalne i widoczne w diffie |
-
+| `/relai-release` | `.claude/commands/relai-release.md` | 2 | 2026-10-25 | Krok 6: push tagu przez bramkę `pre-push` (odmowa wraca do Kroku 1, obejścia komenda nie proponuje); punkt 8 — weryfikacja po publikacji `release-verify.js --sesja` zamiast ręcznego rachunku sum; nowy punkt 9 — pytanie „`/reload-plugins` i rzut oka na panel” przy wydaniu modu, wydanie zamknięte po „ok”; wiersz `pre-push` w tabeli braków (instalacja po osobnym „tak”) (plan PIPELINE_WYDAN E3) | Ostatni krok wydania był ręczną listą w prompcie etapu, a tag wychodził z maszyny bez sprawdzenia; teraz cache i sesję liczy skrypt, a hook odmawia tagu przy czerwieni (ryzyka PW1, S4) |
 ## Poza rejestrem — świadomie
 
 ### Jawna korekta promptu E1 PANEL_CODEX (2026-10-10)

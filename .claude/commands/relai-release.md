@@ -71,6 +71,7 @@ Każdą czerwień i ostrzeżenie przypisz do jednej z dwóch list według tabeli
 | `walidator` (poza numerem), `testy-rdzenia`, `plugin-test` | człowiek | diagnoza (skill `relai-core`, `debugging.md`), nie naprawa „przy okazji” |
 | propozycja w stanie „powyzej propozycji”, `powody` z BREAKING albo „poziom niepewny” (pliki bez commitu) | człowiek | czy numer zostaje; major tylko decyzją człowieka; przy plikach bez commitu poziom z propozycji to dolna granica |
 | grupa PANEL_CODEX | człowiek | kolejność wydań z planem PANEL_CODEX |
+| `pre-push` (hook nie zainstalowany albo inny niż źródło) | człowiek (osobne „tak”) | instalacja to zmiana konfiguracji maszyny: pytasz, potem `node core/tools/install-prepush.js` i ponowny raport |
 
 Dokumenty (`README.md`, `history.md`, `ARTEFAKTY.md`, `STATE.md`, `KOMENDY.md`, `DZIENNIK.md`,
 `PULAPKI.md`, `relai-update.md`, `adapters/*/MODELE.md`) i treści strony (`site/tresc/*.json`)
@@ -110,16 +111,33 @@ BEZPIECZENSTWO E6):
    commitujesz dopiero po „tak”; pliki PANEL_CODEX i nieśledzone `.claude/` poza commitem
    (dodajesz pliki z nazwy, nie `git add -A`).
 3. ⚑ Tag adnotowany `v<X.Y.Z>` rdzenia i `relai-<mod>-v<N.N.N>` każdego wydawanego modu.
-4. ⚑ `git push origin main`, potem push tagów z nazwy.
+4. ⚑ `git push origin main`, potem push tagów z nazwy. Push tagu przechodzi przez hook `pre-push`
+   (`release-check.js --rev <tag> --wydanie`, dla `relai-<mod>-v*` z `--komponent`; ~2 minuty dla
+   rdzenia — Bash z `timeout: 600000`). Odmowa hooka zatrzymuje wydanie i wraca do Kroku 1;
+   obejścia `RELAI_RELEASE_OBEJSCIE="<powód>"` nie proponujesz — powód podaje człowiek sam.
 5. ⚑ `gh release create v<X.Y.Z> --title "RelAI <X.Y.Z>" --notes-file <NOTATKI_EN.md>` — szkic
    notatek pokazany przed pytaniem.
 6. ⚑ `claude plugin marketplace update relai`.
 7. ⚑ `claude plugin update relai@relai` i `<mod>@relai` każdego wydanego modu — pełna nazwa
    z marketplace'em. Potem restart aplikacji robi człowiek (P-005: bez restartu sesje ładują starą
    treść).
-8. Po restarcie: suma plików cache `~/.claude/plugins/cache/relai/relai/<X.Y.Z>/` wobec
-   `git ls-files` po CRLF → LF (liczba plików i rozjazdów) i `gh run list --workflow strona.yml
-   --limit 1`, gdy push dotknął `site/**` albo `marketplace.json`.
+8. Po restarcie — weryfikacja po publikacji, dla każdego wydanego pluginu osobno:
+
+   ```bash
+   node core/tools/release-verify.js --plugin <relai|relai-mod> --wersja <N.N.N> --sesja
+   ```
+
+   Skrypt porównuje cache `~/.claude/plugins/cache/relai/<plugin>/<numer>/` z drzewem tagu (po
+   CRLF → LF; pomija `.in_use/`) i sprawdza świeżą sesją `claude -p` binarką aplikacji, że plugin
+   ładuje się z katalogu tej wersji. Kod 0 = zgodne; **kod 1 to rozjazd, nie awaria** — raport
+   (liczba plików, rozjazdy, brakujące, nadmiarowe, wiersz „Sesja”) stoi w tym samym wyniku, nie
+   uruchamiasz go drugi raz; kod 2 = nie da się sprawdzić (brak cache — restart nie nastąpił).
+   Rozjazd zatrzymuje zamknięcie wydania i idzie do człowieka. Gdy push dotknął `site/**` albo
+   `marketplace.json`: `gh run list --workflow strona.yml --limit 1`.
+9. Wydanie z modem: **pytanie** (AskUserQuestion) — „W sesji z nowym modem wpisz `/reload-plugins`
+   i rzuć okiem na panel: czy wygląda i działa jak przed wydaniem?” z opcjami „ok” / „coś nie tak —
+   opiszę”. Wydanie jest zamknięte dopiero po „ok”. Uwaga człowieka to diagnoza (`debugging.md`),
+   nie poprawka modu w tej komendzie.
 
 Zmiana w profilu użytkownika (`~/.claude/…`) — wyłącznie ⚑ po osobnym „tak”.
 

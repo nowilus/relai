@@ -14,9 +14,12 @@
 //   node core/tools/release-check.js --rev <rew>   # drzewo rewizji w tymczasowym git worktree
 //   flagi: --json (raport JSON), --szybko (bez ciezkich zestawow, raport mowi, co pominieto),
 //          --tylko <id,id> (wybrane kontrole), --mapa <plik>, --repo <katalog> (fixtury testow),
-//          --wydanie (tryb wydania: komponent ze zmianami i numerem bazy = czerwien "podbicie")
+//          --wydanie (tryb wydania: komponent ze zmianami i numerem bazy = czerwien "podbicie"),
+//          --komponent <mod> (E3: wydanie samego modu - kontrole z wierszy mapy "mod:<nazwa>",
+//          bez filmu i bez numeru rdzenia, chyba ze wiersz modu je wola)
 // Raport niesie tez propozycje numerow (E2): patch / minor z conventional commits od bazy,
 // osobno dla rdzenia i kazdego modu (release-version.js).
+// Wola go hook pre-push (release-pre-push.js) dla tagow wydan v* i relai-*-v* (E3).
 //
 // Kod wyjscia: 0 = gotowe, 1 = czerwone kontrole, 2 = nie da sie sprawdzic (brak bazy, brak mapy,
 // rewizja nieznana). Komunikaty bez polskich znakow diakrytycznych (L-0016).
@@ -31,7 +34,7 @@ const numery = require('./release-version.js');
 class NieDaSie extends Error {}
 
 function argumenty(argv) {
-  const a = { rev: null, json: false, szybko: false, wydanie: false, tylko: null, mapa: path.join(__dirname, 'release-map.json'), repo: path.resolve(__dirname, '..', '..') };
+  const a = { rev: null, json: false, szybko: false, wydanie: false, tylko: null, komponent: null, mapa: path.join(__dirname, 'release-map.json'), repo: path.resolve(__dirname, '..', '..') };
   for (let i = 0; i < argv.length; i++) {
     const x = argv[i];
     if (x === '--json') a.json = true;
@@ -39,11 +42,14 @@ function argumenty(argv) {
     else if (x === '--szybko') a.szybko = true;
     else if (x === '--rev') a.rev = argv[++i];
     else if (x === '--tylko') a.tylko = String(argv[++i] || '').split(',').filter(Boolean);
+    else if (x === '--komponent') a.komponent = argv[++i] || '';
     else if (x === '--mapa') a.mapa = path.resolve(argv[++i]);
     else if (x === '--repo') a.repo = path.resolve(argv[++i]);
     else throw new NieDaSie('nieznany argument: ' + x);
   }
   if (a.rev === undefined || a.rev === '') throw new NieDaSie('--rev bez rewizji');
+  if (a.komponent === '') throw new NieDaSie('--komponent bez nazwy modu');
+  if (a.komponent === 'relai') a.komponent = null;
   return a;
 }
 
@@ -206,6 +212,25 @@ function propozycjeNumerow(repo, mapa, rev, baza, wersja, mody, typy, plikiModow
   return out;
 }
 
+// --- wydanie samego modu (E3) -----------------------------------------------------------
+
+// Zestaw kontroli tagu relai-<mod>-v*: pole "kontrole" wierszy mapy "mod:<nazwa>", ktorych pliki
+// zmienily sie od bazy modu (zmiana zakladek panelu wola film-zakladki, zmiana kodu modu - nie;
+// PLAN, sekcja 8). Mod bez zmian bierze wszystkie swoje wiersze, zeby tag nie przeszedl z zerem
+// kontroli. "podbicie" zawsze - zawezone do tego modu. Lista kontroli mieszka w mapie, nie tutaj.
+function zestawKomponentu(mapa, mody, nazwa, plikiModow) {
+  const mod = mody.find((m) => m.nazwa === nazwa);
+  if (!mod) throw new NieDaSie('nieznany komponent ' + nazwa + ' (mody w marketplace: ' + mody.map((m) => m.nazwa).join(', ') + ')');
+  const wiersze = mapa.wiersze.filter((w) => w.wydanie === 'mod:' + nazwa);
+  if (!wiersze.length) throw new NieDaSie('mapa nie ma wierszy "wydanie": "mod:' + nazwa + '"');
+  const dotkniete = new Set(plikiModow.get(nazwa).map((p) => (wierszeDla(mapa, p)[0] || {}).id));
+  const trafione = wiersze.filter((w) => dotkniete.has(w.id));
+  const zrodlo = trafione.length ? trafione : wiersze;
+  const kontroleModu = new Set(['podbicie']);
+  for (const w of zrodlo) for (const k of w.kontrole || []) kontroleModu.add(k);
+  return { nazwa, mod, wiersze: zrodlo.map((w) => w.id), kontrole: kontroleModu };
+}
+
 // --- ciezkie zestawy -------------------------------------------------------------------
 
 function czas(od) { return Math.round((Date.now() - od) / 100) / 10; }
@@ -292,6 +317,7 @@ function raportTekst(r) {
   const bez = r.pominiete.filter((p) => !/diff nie dotyka obszaru|zaden mod nie zmienil/.test(p)).length;
   o.push('RelAI release-check: ' + (r.kod === 0 ? 'GOTOWE' : 'CZERWONE (' + r.czerwone + ')') + (bez ? ' (BEZ ' + bez + ' pozycji - lista "Pominiete")' : '')
     + ' - rewizja ' + r.rewizja + ', wersja relai ' + r.wersja);
+  if (r.komponent) o.push('Komponent: ' + r.komponent.nazwa + ' (wydanie samego modu; wiersze mapy: ' + r.komponent.wiersze.join(', ') + ')');
   o.push('Baza rdzenia: ' + r.bazy.rdzen.ref + ' (' + r.bazy.rdzen.commit.slice(0, 7) + ', ' + r.bazy.rdzen.wersja + ')' + (r.bazy.rdzen.uwaga ? ' - ' + r.bazy.rdzen.uwaga : ''));
   for (const m of r.bazy.mody) {
     o.push('Baza modu ' + m.nazwa + ' ' + m.wersja + ': ' + m.ref + ' (' + m.commit.slice(0, 7) + ', ' + m.zrodlo + ', numer bazy ' + m.wersjaBazy + '), zmienionych plikow od bazy: ' + m.zmienionych);
@@ -347,15 +373,19 @@ async function sprawdz(a) {
     const pliki = linie(a.rev ? git(repo, ['ls-tree', '-r', '--name-only', commit]) : git(repo, ['ls-files']));
     const klas = klasyfikuj(mapa, z.lista);
     const propozycje = propozycjeNumerow(repo, mapa, a.rev ? commit : null, baza, wersja, mody, klas.typy, plikiModow, z.lista);
+    const komp = a.komponent ? zestawKomponentu(mapa, mody, a.komponent, plikiModow) : null;
     const ctx = {
       korzen, korzenRobocze: repo, mapa, wersja, pliki, zmiany: z.lista,
-      baza: { rdzen: baza, mody }, propozycje, trybWydania: a.wydanie,
+      baza: { rdzen: baza, mody }, propozycje, trybWydania: a.wydanie, komponent: komp ? komp.nazwa : null,
       pokazZBazy: (rel) => git(repo, ['show', baza.commit + ':' + rel], true),
     };
     const wyniki = [kontrolaMapy(mapa, pliki), klas.wynik];
     const pominiete = [];
     for (const [id, fn] of kontrole.KONTROLE) {
       if (a.tylko && !a.tylko.includes(id)) { pominiete.push(id + ': poza --tylko'); continue; }
+      if (komp && !komp.kontrole.has(id)) { pominiete.push(id + ': poza komponentem ' + komp.nazwa); continue; }
+      // Hook to stan maszyny, nie rewizji - i to on wola raport z --rev.
+      if (id === 'pre-push' && a.rev) { pominiete.push(id + ': --rev (hook to stan maszyny, nie rewizji)'); continue; }
       wyniki.push(await fn(ctx));
     }
     const potrzebne = new Set();
@@ -364,7 +394,14 @@ async function sprawdz(a) {
       for (const k of (wiersz && wiersz.kontrole) || []) potrzebne.add(k);
     }
     if (mody.some((m) => m.zmienionych)) potrzebne.add('plugin-test');
-    const zest = a.tylko ? { wyniki: [], pominiete: ['ciezkie zestawy: --tylko'] } : await zestawy(ctx, potrzebne, mody.filter((m) => m.zmienionych), a.szybko, a.rev);
+    let modyTestu = mody.filter((m) => m.zmienionych);
+    if (komp) {
+      for (const k of Array.from(potrzebne)) {
+        if (!komp.kontrole.has(k)) { potrzebne.delete(k); pominiete.push(k + ': poza komponentem ' + komp.nazwa); }
+      }
+      modyTestu = modyTestu.filter((m) => m.nazwa === komp.nazwa);
+    }
+    const zest = a.tylko ? { wyniki: [], pominiete: ['ciezkie zestawy: --tylko'] } : await zestawy(ctx, potrzebne, modyTestu, a.szybko, a.rev);
     const wszystkie = wyniki.concat(zest.wyniki);
     // Kontrola z zerowym licznikiem nic nie sprawdzila — to blad instrumentu, nie zielen.
     for (const k of wszystkie) {
@@ -373,7 +410,8 @@ async function sprawdz(a) {
     const czerwone = wszystkie.filter((k) => k.bledy.length).length;
     return {
       wersjaSkryptu: 1, rewizja: a.rev ? commit.slice(0, 7) + ' (' + a.rev + ')' : 'drzewo robocze (HEAD ' + commit.slice(0, 7) + ')',
-      wersja, trybWydania: a.wydanie, bazy: { rdzen: baza, mody }, propozycje,
+      wersja, trybWydania: a.wydanie, komponent: komp ? { nazwa: komp.nazwa, wiersze: komp.wiersze, kontrole: Array.from(komp.kontrole) } : null,
+      bazy: { rdzen: baza, mody }, propozycje,
       zmiany: { plikow: z.lista.length, pominieteNiesledzone: z.pominieteNiesledzone, typy: klas.typy, osobne: klas.osobne },
       kontrole: wszystkie, pominiete: pominiete.concat(zest.pominiete), czerwone,
       czasS: czas(od), kod: czerwone ? 1 : 0,
@@ -404,4 +442,4 @@ async function main() {
 
 if (require.main === module) main().then((kod) => { process.exitCode = kod; });
 
-module.exports = { argumenty, bazaRdzenia, bazaModu, kontrolaMapy, klasyfikuj, wierszeDla, propozycjeNumerow, raportTekst, sprawdz };
+module.exports = { argumenty, bazaRdzenia, bazaModu, kontrolaMapy, klasyfikuj, wierszeDla, propozycjeNumerow, zestawKomponentu, raportTekst, sprawdz };
