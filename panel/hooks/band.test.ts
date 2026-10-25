@@ -42,10 +42,20 @@ function world(on: On, files: Record<string, string> = FILES, beneath = 'engine'
   on('session.cwd', () => ({ value: CWD }))
   on('session.id', () => ({ value: 'session-1' }))
   on('session.model', () => ({ value: 'claude-opus-5-5' }))
-  on('fs.exists', ($, e) => ({ value: key(e.path) in disk }))
+  on('fs.exists', ($, e) => ({ value: key(e.path) in disk || Object.keys(disk).some((p) => p.startsWith(key(e.path) + '/')) }))
   on('fs.read', ($, e) => (key(e.path) in disk ? { value: disk[key(e.path)] ?? '' } : { deny: 'ENOENT ' + e.path }))
   on('fs.write', ($, e) => { disk[key(e.path)] = e.text; return { value: undefined } })
-  on('fs.list', () => ({ value: [] }))
+  // The folders under a path, from the files on the disk: the pane's choice reads docs/plany/
+  on('fs.list', ($, e) => {
+    const dir = key(e.path ?? '') + '/'
+    const names = new Map<string, 'file' | 'dir'>()
+    for (const p of Object.keys(disk).filter((x) => x.startsWith(dir))) {
+      const rest = p.slice(dir.length)
+      const cut = rest.indexOf('/')
+      names.set(cut < 0 ? rest : rest.slice(0, cut), cut < 0 ? 'file' : 'dir')
+    }
+    return { value: [...names].map(([name, kind]) => ({ name, kind, size: 1, mtimeMs: 0, isLink: false })) }
+  })
   on('command.list', () => ({ value: FORMS.map((f) => ({ name: 'relai:' + f.command, description: 'opis', source: 'plugin' as const })) }))
   on('session.usage', () => ({ value: { startedAt: 0, context: { tokens: 1000 } as never, rateLimits: [], cost: { usd: 3.5 } } }))
   on('command.run', ($, e) => { calls.commands.push({ command: e.command, args: e.args }); return { text: 'ok' } })
@@ -282,7 +292,9 @@ describe('the plan bar, a card waiting for "Tak"', () => {
 // info chip and a native "Wybierz pracę…" that opens the pane on "Teraz" with the choice unfolded.
 // The row goes when the work is chosen; a card waiting for "Tak" keeps the one second row.
 const IN_CODEX = STATUS.replace('model wykonawczy: Opus, w Claude Code', 'model wykonawczy etapów: **gpt-6.1-sol w Codeksie**')
-const ASKING: Record<string, string> = { ...FILES, [`${CWD}/docs/plany/PANEL_X/STATUS.md`]: IN_CODEX }
+// A second plan run in Claude Code: the work this session can pick in the pane (2026-10-25 — the
+// list offers open Claude Code plans only, so the Codex plan itself is not on it)
+const ASKING: Record<string, string> = { ...FILES, [`${CWD}/docs/plany/PANEL_X/STATUS.md`]: IN_CODEX, [`${CWD}/docs/plany/KOD_X/STATUS.md`]: STATUS.replace(/PANEL_X/g, 'KOD_X') }
 const FOCUS_FILE = `${CWD}/.claude/relai/fokus/session-1.json`
 
 type Writes = { unfolded: Record<string, boolean>[], view: string[] }
@@ -348,12 +360,12 @@ describe('the plan bar, the session\'s work not chosen (Z13)', () => {
     const ui = await $.ui.mount({ plugin: 'relai-panel', surface: 'desktop', ...bar() })
     await ui.press({ key: 'band-pick' })
     const paneUi = await $.ui.mount({ plugin: 'relai-panel', surface: 'desktop', ...pane })
-    await paneUi.press({ key: 'focus-plan:PANEL_X:E2' })
+    await paneUi.press({ key: 'focus-plan:KOD_X:E2' })
     await paneUi.unmount()
     await ui.unmount()
     const again = await $.ui.mount({ plugin: 'relai-panel', surface: 'desktop', ...bar() })
     expect(await again.find({ key: 'band-focus' })).toBeUndefined()
-    expect((await again.find({ key: 'plan' }))?.text).toContain('PANEL_X · E2')
+    expect((await again.find({ key: 'plan' }))?.text).toContain('KOD_X · E2')
     expect(JSON.stringify(await again.drawn())).not.toContain('"Button"')
     await again.unmount()
   })

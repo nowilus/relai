@@ -23,10 +23,19 @@ const CARD = [
   '1. **Z3 · Panel bez I/O** — opis', '2. **Z4 · Paski** — opis', '', '## Weryfikacja', '',
   '- [x] Z3: liczniki', '- [ ] Z4: bezczynność',
 ].join('\n')
+// Plans beside the active one (choice list, 2026-10-25): one run in Claude Code with a stage in
+// progress, one closed, one waiting for acceptance — only the first is work a session can pick
+const planIn = (name: string, head: string, rows: string[]) => [
+  `# STATUS — plan ${name}`, '', `[PLAN.html](PLAN.html) · ${head} · model wykonawczy etapów: **Opus w Claude Code**`, '',
+  '| Etap | Nazwa | Status | Prompt | Uwagi |', '|---|---|---|---|---|', ...rows,
+].join('\n')
 const FILES: Record<string, string> = {
   [`${CWD}/docs/USTAWIENIA.md`]: '# USTAWIENIA\n\nWersja RelAI: 2.8.0\n',
   [`${CWD}/CLAUDE.md`]: '# CLAUDE\n\nAktywny plan: [PANEL_CODEX](docs/plany/PANEL_CODEX/STATUS.md) — w toku.\n',
   [`${CWD}/docs/plany/PANEL_CODEX/STATUS.md`]: STATUS,
+  [`${CWD}/docs/plany/BEZPIECZENSTWO/STATUS.md`]: planIn('BEZPIECZENSTWO', '**ZAAKCEPTOWANY 2026-10-23**', ['| E5 | Codex i Cursor | ZREALIZOWANY 2026-10-24 | — | |', '| E6 | Wydanie 3.3.0 | W TOKU | — | |']),
+  [`${CWD}/docs/plany/STARY/STATUS.md`]: planIn('STARY', '**ZREALIZOWANY 2026-09-01**', ['| E1 | Wszystko | ZREALIZOWANY 2026-09-01 | — | |']),
+  [`${CWD}/docs/plany/NOWY/STATUS.md`]: planIn('NOWY', '**DO AKCEPTACJI**', ['| E1 | Początek | OCZEKUJE | — | |']),
   [`${CWD}/docs/fixy/AUDYT_MODOW/ODNOGA.md`]: CARD,
   [`${CWD}/docs/fixy/STARA/ODNOGA.md`]: '# ODNOGA\n\nStatus: **ZAMKNIĘTA**\n',
 }
@@ -127,7 +136,7 @@ describe('the session focus, end to end (Z12)', () => {
     await ui.unmount()
   })
 
-  test('"Zmień" lists the open stages, the open cards and outside; a hand-set focus outlives the next prompt', async ($, on) => {
+  test('"Zmień" lists each open plan run in Claude Code once, with its current stage, then outside; a hand-set focus outlives the next prompt', async ($, on) => {
     const { disk } = world(on, FILES)
     await $.session.start({ cwd: CWD, surface: 'desktop', isInteractive: true })
     await $.command.run({ command: 'relai-panel' } as never)
@@ -135,8 +144,11 @@ describe('the session focus, end to end (Z12)', () => {
     // No focus, the active plan runs in Codex: this session counts outside it and says so
     expect(textOf(await ui.find({ key: 'now' }))).toContain('Ta sesja: nie wybrano — aktywny plan idzie w innym narzędziu')
     await ui.press({ key: 'now-focus-change' })
-    const keys = [...walk(await ui.find({ key: 'now-focus-list' }))].filter((n) => n.type === 'Button').map((b) => String((b.props as { key?: string }).key))
-    expect(keys).toEqual(['focus-plan:PANEL_CODEX:E1', 'focus-branch:AUDYT_MODOW', 'focus-outside'])
+    const buttons = [...walk(await ui.find({ key: 'now-focus-list' }))].filter((n) => n.type === 'Button').map((b) => b.props as { key?: string, label?: string })
+    // Not PANEL_CODEX (its stages run in Codex), not STARY (closed), not NOWY (no stage to start),
+    // not the open card AUDYT_MODOW (a thread is picked up from its prompt, not from this list)
+    expect(buttons.map((b) => String(b.key))).toEqual(['focus-plan:BEZPIECZENSTWO:E6', 'focus-outside'])
+    expect(buttons.map((b) => b.label)).toEqual(['BEZPIECZENSTWO · E6 Wydanie 3.3.0', 'poza planem'])
     await ui.press({ key: 'focus-outside' })
     expect(JSON.parse(disk[`${CWD}/.claude/relai/fokus/session-1.json`] ?? '{}')).toMatchObject({ kind: 'outside', source: 'manual' })
     expect(textOf(await ui.find({ key: 'now' }))).toContain('Ta sesja: poza planem — wybrane ręcznie')
@@ -189,12 +201,12 @@ describe('the session focus, end to end (Z12)', () => {
     await $.command.run({ command: 'relai-panel' } as never)
     const ui = await $.ui.mount({ plugin: 'relai-panel', surface: 'desktop', ...PANE })
     await ui.press({ key: 'now-focus-change' })
-    await ui.press({ key: 'focus-branch:AUDYT_MODOW' })
+    await ui.press({ key: 'focus-plan:BEZPIECZENSTWO:E6' })
     await ui.unmount()
     await $.session.end({ reason: 'clear' } as never)
     ids.session = 'session-2'
     await $.prompt.submit({ text: 'uruchom docs/plany/PANEL_CODEX/PROMPT_ETAP_1.md' } as never)
-    expect(JSON.parse(disk[`${CWD}/.claude/relai/fokus/session-2.json`] ?? '{}')).toMatchObject({ kind: 'branch', card: 'AUDYT_MODOW', source: 'manual' })
+    expect(JSON.parse(disk[`${CWD}/.claude/relai/fokus/session-2.json`] ?? '{}')).toMatchObject({ kind: 'plan', plan: 'BEZPIECZENSTWO', stage: 'E6', source: 'manual' })
     // A third session (resumed, not the one /clear began) gets nothing handed
     ids.session = 'session-3'
     await $.prompt.submit({ text: 'kontynuujemy pracę' } as never)

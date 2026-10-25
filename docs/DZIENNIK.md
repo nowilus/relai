@@ -2722,3 +2722,47 @@ Z1 i w `STATE.md`. Lekcje: brak nowych — luka w `ARTEFAKTY.md` przy 3.2.0 to p
 L-0161 (kontrola wydania złapała ją teraz).
 
 Autor: RelAI (Opus 5.5) + Lukasz
+
+### 2026-10-25 — Panel: lista „Zmień” w „Teraz” pokazuje realne plany
+
+Zgłoszenie Łukasza ze zrzutem (w trakcie E6, do zrobienia po zamknięciu planu): lista wyboru pracy
+sesji pokazywała „PANEL_CODEX · E1/E2/E3”, „FILM_TESTY_V3 (odnoga)”, „OPIS_REPO (odnoga)” i „poza
+planem”. Przyczyna: `focusChoices` w `panel/hooks/tab-data.ts` brał do trzech niezamkniętych
+etapów jednego planu z linii „Aktywny plan” w `CLAUDE.md` — także planu prowadzonego w Codeksie —
+oraz każdą otwartą kartę z `docs/fixy/`; pozostałych planów z `docs/plany/` nie widział (w czasie
+E6 BEZPIECZENSTWO nie było na liście).
+
+**Zrobione:**
+
+- Decyzje Łukasza (jedno pytanie): pozycją jest „plan z bieżącym etapem”; plany innego narzędzia
+  i odnogi poza listą.
+- `focusChoices`: każdy plan z `docs/plany/` jedną pozycją „PLAN · EN Nazwa etapu”, etap `W TOKU`,
+  inaczej `GOTOWY DO STARTU`; pomija plany z wykonawcą w Codeksie lub Cursorze (`executorTool`) i plany
+  bez etapu do pracy (zamknięte, czekające na akceptację); na końcu „poza planem”. Odnogę panel
+  dalej rozpoznaje z promptu. Import `isCardOpen` w tym pliku zbędny — usunięty.
+- Testy (najpierw RED): `focus-flow.test.ts` — fixtura z planem Claude Code w toku, zamkniętym,
+  czekającym na akceptację i planem Codeksu; oczekiwane przyciski
+  `['focus-plan:BEZPIECZENSTWO:E6', 'focus-outside']` z etykietami; test przeżycia `/clear` wybiera
+  plan zamiast odnogi. `band.test.ts` i `pane-v2.test.ts` — drugi plan Claude Code `KOD_X` obok
+  planu w Codeksie; atrapa `fs.exists` / `fs.list` w `band.test.ts` zna katalogi.
+
+**Zweryfikowane — jak dokładnie:**
+
+- `claude plugin test panel` (binarka aplikacji 2.1.308): przed zmianą kodu 207 pass / 4 fail
+  (cztery testy listy: etap Codeksu i odnoga na liście, brak `KOD_X`), po zmianie 211/211.
+  `plugin validate panel` — „✔ Validation passed”.
+- Wydanie na „Commit poprawki, wydaj relai-panel 0.21.1” Łukasza: `plugin.json` i wpis
+  marketplace 0.21.1, strona przebudowana (`fakty.json`, cztery strony), walidator spójny, strona
+  370/370; tag `relai-panel-v0.21.1`, wydanie GitHub, `marketplace update` i `plugin update`.
+- Na żywo niesprawdzone przeze mnie: listę po restarcie aplikacji ogląda Łukasz.
+
+**Świadomie odłożone:** —
+
+**Do zrobienia przez człowieka:**
+
+- Restart aplikacji i rzut oka na listę „Zmień” (dziś w repo jedynym otwartym planem jest
+  PANEL_CODEX w Codeksie — lista pokaże samo „poza planem”).
+
+Przegląd ryzyk: bez zmian.
+
+Autor: RelAI (Opus 5.5) + Lukasz

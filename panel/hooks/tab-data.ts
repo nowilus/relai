@@ -20,7 +20,7 @@ import type { CostData, DocsData, MapData, MapSession, NowData, OpenDoc, PaneDat
 import { sumCost } from './data'
 import { CREW_DIR, MEASURE_DIR, localDay, readRel } from './pane-io'
 import type { PaneIo } from './pane-io'
-import { branchProgress, cardPackets, cardPathOf, cardStatus, countedOf, isCardOpen, packetNow } from './focus'
+import { branchProgress, cardPackets, cardPathOf, cardStatus, countedOf, executorTool, packetNow, statusPathOf } from './focus'
 import { parseStatus } from './core/plan-state.mjs'
 import type { FocusChoice } from './data'
 
@@ -173,20 +173,19 @@ export async function commandFacts(io: PaneIo, command: 'relai-update' | 'relai-
 // "Teraz" (brief v2 §6.2): the active plan and the progress from the files the progress bar reads —
 // the newest live crew run, else the stage prompt's boxes — with this plugin's own copy of the core
 // (./core/progress.mjs), no dependency on relai-progress. Read through remember (Z3), never per drawing.
-// What "Zmień" offers (Z12): the active plan's stages not closed yet (three at most), every thread
-// card still open, and outside any plan
-const CHOICE_STAGES = 3
+// What "Zmień" offers (Łukasz, 2026-10-25 — it used to list the CLAUDE.md plan's stages, a Codex
+// plan's too, and every open thread card): each plan in docs/plany/ run in Claude Code that has a
+// stage to work on, once, with that stage (W TOKU, else GOTOWY DO STARTU) — closed plans and plans
+// waiting for acceptance have none — and outside any plan. A thread is still picked up from its prompt.
 async function focusChoices(io: PaneIo): Promise<FocusChoice[]> {
-  const active = io.session().plan
   const out: FocusChoice[] = []
-  if (active.kind === 'ok') {
-    const statusMd = await readRel(io, active.statusPath)
-    const open = statusMd === null ? [] : parseStatus(statusMd).stages.filter((st) => st.status !== 'ZREALIZOWANY' && st.status !== 'POMINIĘTY')
-    for (const st of open.slice(0, CHOICE_STAGES)) out.push({ key: `plan:${active.plan}:${st.id}`, label: `${active.plan} · ${st.id}`, target: { kind: 'plan', plan: active.plan, stage: st.id } })
-  }
-  for (const card of await io.folders('docs/fixy')) {
-    const text = await readRel(io, cardPathOf(card))
-    if (text !== null && isCardOpen(text)) out.push({ key: `branch:${card}`, label: `${card} (odnoga)`, target: { kind: 'branch', card } })
+  for (const plan of await io.folders('docs/plany')) {
+    const statusMd = await readRel(io, statusPathOf(plan))
+    if (statusMd === null || executorTool(statusMd) !== null) continue
+    const { stages } = parseStatus(statusMd)
+    const st = stages.find((s) => s.status === 'W TOKU') ?? stages.find((s) => s.status === 'GOTOWY DO STARTU')
+    if (!st) continue
+    out.push({ key: `plan:${plan}:${st.id}`, label: `${plan} · ${st.id}${st.name ? ` ${st.name}` : ''}`, target: { kind: 'plan', plan, stage: st.id } })
   }
   return [...out, { key: 'outside', label: 'poza planem', target: 'outside' }]
 }

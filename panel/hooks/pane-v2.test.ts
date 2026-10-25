@@ -239,7 +239,7 @@ describe('the header and the "Teraz" bar (brief v2 §6.1–6.2)', () => {
 
 // AUDYT_MODOW Z13: "Wybierz pracę…" on the plan bar opens the pane with the focus choice unfolded
 describe('"Teraz" opened from the plan bar (Z13)', () => {
-  const inCodex = { ...FILES, [`${CWD}/docs/plany/PANEL_X/STATUS.md`]: STATUS.replace('model wykonawczy: Opus, w Claude Code', 'model wykonawczy etapów: **gpt-6.1-sol w Codeksie**') }
+  const inCodex = { ...FILES, [`${CWD}/docs/plany/PANEL_X/STATUS.md`]: STATUS.replace('model wykonawczy: Opus, w Claude Code', 'model wykonawczy etapów: **gpt-6.1-sol w Codeksie**'), [`${CWD}/docs/plany/KOD_X/STATUS.md`]: STATUS.replace(/PANEL_X/g, 'KOD_X') }
   const band = { component: 'AbovePrompt' as const, props: { hasSurvey: false, isWorking: false, maxRows: 10, bodyColumns: 140, scroll: { offset: 0, bodyRows: 9 }, view: {} } }
 
   test('the choice shows without a press on "Zmień", whose button says "Zwiń"', async ($, on) => {
@@ -255,7 +255,7 @@ describe('"Teraz" opened from the plan bar (Z13)', () => {
     await bar.unmount()
     const ui = await $.ui.mount({ plugin: 'relai-panel', surface: 'desktop', ...pane(100) })
     const keys = [...walk(await ui.find({ key: 'now-focus-list' }))].filter((n) => n.type === 'Button').map((b) => String(props(b).key ?? ''))
-    expect(keys).toEqual(['focus-plan:PANEL_X:E2', 'focus-outside'])
+    expect(keys).toEqual(['focus-plan:KOD_X:E2', 'focus-outside'])
     expect(props(await ui.find({ key: 'now-focus-change' })).label).toBe('Zwiń')
     expect(props(await ui.find({ key: 'tab-commands' })).variant).toBe('primary')
     await ui.unmount()
