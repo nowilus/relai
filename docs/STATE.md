@@ -17,7 +17,8 @@ postępu jako lista kroków — plan WYGLAD_PANELU; 2026-10-14: pasek mówi uczc
 KOMUNIKAT_ZWROTU; paski i panel w każdym panelu podziału okna, linia w stopce wycofana — odnoga
 SPLIT_VIEW, P-040 rozwiązana; panel bez rozjazdów w wąskim panelu podziału — odnoga PANEL_WASKI,
 0.18.0).
-Aktywny plan: PANEL_CODEX (E1 w toku, prowadzony w Codeksie). BEZPIECZENSTWO zamknięty 2026-10-25
+Aktywny plan: PIPELINE_WYDAN (zaakceptowany 2026-10-25, E1 gotowy do startu); równolegle
+PANEL_CODEX (E1 w toku, prowadzony w Codeksie). BEZPIECZENSTWO zamknięty 2026-10-25
 po E6 (6/6, Aneksy A–B, wydanie 3.3.0). STRONA_RELAI zamknięty 2026-10-18
 po E8 (8/8, Aneksy A–E). WYGLAD_PANELU zamknięty 2026-10-15
 po E5 (wydanie panelu 0.20.0 / 0.11.0); HUMANIZACJA zamknięty 2026-10-14 wydaniem 3.1.0. Opinii spoza projektu nadal nie ma.
@@ -155,6 +156,14 @@ po E5 (wydanie panelu 0.20.0 / 0.11.0); HUMANIZACJA zamknięty 2026-10-14 wydani
 
 ## Co dalej
 
+- **Plan PIPELINE_WYDAN — ZAAKCEPTOWANY 2026-10-25, aktywny; E1 gotowy do startu**
+  ([prompt](plany/PIPELINE_WYDAN/PROMPT_ETAP_1.md), świeża sesja Opus 5.5, `/relai-stage`) (brief
+  [PIPELINE_WYDAN/BRIEF.md](zasoby/PIPELINE_WYDAN/BRIEF.md)) —
+  [plan](plany/PIPELINE_WYDAN/PLAN.html) i [status](plany/PIPELINE_WYDAN/STATUS.md): mapa wpływu
+  i `release-check.js`, komenda `/relai-release` z frazą „gotowi do wydania?” tylko w tym repo,
+  bramka `pre-push` na tagi wydań, wszystko lokalnie; film nadrobiony do bieżącej wersji w E4
+  (wchłania FILM_TESTY_V3); 5 etapów, 8–11 sesji (SZACUNEK). Aktywny plan w `CLAUDE.md`;
+  PANEL_CODEX prowadzony równolegle w Codeksie. Ryzyka PW1, PW2 w dzienniku.
 - **Lista „Zmień” w „Teraz” panelu** (zgłoszenie Łukasza 2026-10-25): poprawiona w repo — każdy
   otwarty plan Claude Code z `docs/plany/` jedną pozycją z bieżącym etapem, bez planów Codeksu
   i odnóg (`panel/hooks/tab-data.ts`, testy 211/211); wydana w `relai-panel` 0.21.1 (2026-10-25);

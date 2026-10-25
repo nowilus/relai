@@ -27,6 +27,8 @@
 | H9 | Tryb ciągły „dokumenty” nie widzi zapisu, którego nie rozpozna — `sed -i`, skrypt, podproces, `>(tee …)` — i dokument zostaje bez humanizacji (plan HUMANIZACJA, pomiar E5) | **Niski** (2026-10-14, przy zamknięciu planu) | **OTWARTE ŚWIADOMIE** | Aneks C: hook po Write/Edit i po Bash z przekierowaniem `>` / `>>` albo `tee`; w pomiarze E5 model pisał wyłącznie tymi drogami (8/8 przed poprawką, 2/2 po niej z regułą). Pominięcie kończy się ciszą, nigdy złą regułą; komenda `/relai-humanize` na pliku działa niezależnie od trybu ciągłego. |
 | T1 | Scena 3D strony tnie się na słabszym laptopie albo zintegrowanej grafice (plan STRONA_RELAI, ryzyko 1) | **Średni** (2026-10-18 po E6; wcześniej wysoki) | **OTWARTE** | E1: render na żądanie, DPR ≤ 1,5, obniżenie jakości przy medianie > 26 ms. E2 (scena CC0, AO, głębia ostrości): przy CPU ×4 mediana 11,1 ms, p95 16,7 ms, 913 wywołań rysowania na klatkę po scaleniu miasta (przed: 2206, p95 22,3 ms); obniżanie jakości zaczyna od głębi ostrości. E3 (poświata ekranu RectAreaLight, nowe książki): przy CPU ×4 przewijanie mediana 11,9 ms, p95 22,2 ms — p95 wzrosło o 5,5 ms, zapas do 26 ms już tylko 3,8 ms; przybliżanie p95 13,1 ms; najwięcej 907 wywołań rysowania na klatkę. Zmierzone tylko na RTX 4070 Ti. E4 (bez path tracingu, przygaszona lampa, lakier blatu): CPU ×4 mediana 11,3 ms, p95 17,5 ms, najwięcej 910 wywołań rysowania. Otwarte: słaba grafika w E7. E5 (Film, bez WebGL): przy CPU ×4 mediana 5,6 ms, p95 5,6 ms, najdłuższa klatka 28,7 ms, więc Filmu ryzyko nie dotyczy. Aneks D: Biurko też idzie do publikacji, dlatego poziom zostaje wysoki do pomiaru na słabej grafice w E6. E7 (Film z animacjami WAAPI i przytrzymaniem): CPU ×4 mediana 11,1 ms, p95 16,7 ms na desktopie i w emulacji telefonu — Filmu nadal nie dotyczy; poziom bez zmiany przez Biurko. E6: SwiftShader (grafika programowa) 1366 × 768 mediana 1 700 → 1 183 → 817 ms po krokach obniżania, 390 × 844 1 033 → 867 → 433 → 283 ms; wyłącznik `biurko/grafika.js` daje takiej przeglądarce plakat (werdykt Łukasza 3A), brak WebGL2 i ograniczony ruch też. RTX przy CPU ×4: p95 przewijania 20,6–25,2 ms desktop, 15,4–16,3 ms telefon. Otwarte: zintegrowana karta niezmierzona (bramka „pomiar na słabszym laptopie”); drugi bezpiecznik (plakat po wyczerpaniu kroków jakości, opcja 3B) świadomie niewdrożony. E8 (2026-10-18): Biurko opublikowane pod `/biurko/` bez zmian w scenie; plan STRONA_RELAI zamknięty, bramka „pomiar na słabszym laptopie” świadomie otwarta poza planem (`docs/STATE.md`, „Co dalej”). |
 | T2 | Biurko wygląda jak tani render albo glina z AI (plan STRONA_RELAI, ryzyko 2) | **Średni** (2026-10-18 po E6; wcześniej wysoki) | **OTWARTE** | E2: modele i tekstury CC0, deski orzechowe ze słojami, miasto za oknem, kubek i tablica od nowa; kalibracja w czterech rundach, zamknięcie za zgodą Łukasza, ale „nadal jesteśmy całkiem daleko” od obrazów 01–08 — przyczyna: brak światła odbitego w rasteryzacji (L-0220). Aneks B: E3 laptop i detale, E4 path tracing na przystankach. E4 (2026-10-16): światło odbite nie dało uzysku — przyczyną dystansu jest detal przedmiotów, tekstur i kompozycja, nie światło (L-0226); test detalu (blat `wood_table_worn`, druk na dokumentach, ciemniej) dał umiarkowany zysk. Aneks C: następny jest Film, Biurko po bramce. E5: Film rysowany kodem, hero przyjęte w trzeciej rundzie („Tak, przyjmuję”). Bramka z Aneksem D: najpierw dopieszczenie Filmu (E7), potem pełna droga Biurka (E6), publikacja obu z ankietą. Dla Biurka ryzyko zostaje wysokie. E7: Film dopieszczony i przyjęty akt po akcie („Tak, przyjmuję”), dotyczy już tylko Biurka (E6). E6: każdy przystanek, szczyt, mapa, szuflady, telefon, zasłona i plakat przyjęte przez Łukasza na kadrach przed i po; kontrola odczuć zgodna z krzywą briefu (4A). Otwarte do ankiety po publikacji (E8): czy odwiedzający odbierają Biurko jako dopracowane. E8 (2026-10-18): obie wersje opublikowane, ankieta w Tally zbiera głosy z ukrytym polem `wersja`; ryzyko zostaje otwarte do odczytu ankiety, który jest poza planem (`docs/STATE.md`). |
+| PW1 | Kontrola gotowości wydania jest zielona przy luce — instrument fałszywie cichy przywraca problem z 3.3.0 z poczuciem bezpieczeństwa (plan PIPELINE_WYDAN, ryzyko W1) | **Wysoki** (2026-10-25, przy akceptacji planu) | **OTWARTE** | E1: kontrola pozytywna każdej nowej kontroli na podłożonym defekcie; odbiór na drzewie `53830cc` (sprzed poprawek E6) — 3/3 luki muszą wyjść, na `a1439b9` zielone; licznik „sprawdzono N” w raporcie, zero przy niepustym zbiorze = błąd. |
+| PW2 | Mapa wpływu się starzeje — nowy rodzaj pliku albo komponentu przechodzi bez kontroli (plan PIPELINE_WYDAN, ryzyko W2) | **Wysoki** (2026-10-25, przy akceptacji planu) | **OTWARTE** | Fail-closed: plik z diffu bez wiersza mapy = czerwień „nieznany typ zmiany”; w E1 kontrola, że każdy plik `git ls-files` trafia w dokładnie jeden wiersz. |
 
 > Ryzyka zamknięte Z1 (1 pozycja) są w
 > [docs/archiwum/ryzyka/RYZYKA_2026-10-25.md](archiwum/ryzyka/RYZYKA_2026-10-25.md)
@@ -1113,5 +1115,79 @@ sesji; lista modeli z 2026-10-08 (17 dni) — `/relai-models` przy okazji.
   (te same pozycje co we wpisie E6).
 
 Przegląd ryzyk: Z1 w archiwum; pozostałe bez zmian.
+
+Autor: RelAI (Opus 5.5) + Lukasz
+
+### 2026-10-25 — Plan PIPELINE_WYDAN po wywiadzie, do akceptacji
+
+Sesja uruchomiona z innej sesji z briefem [PIPELINE_WYDAN/BRIEF.md](zasoby/PIPELINE_WYDAN/BRIEF.md).
+Po rytuale startu i lekturze materiałów (prompt E6 BEZPIECZENSTWO, walidator, `site/narzedzia/`,
+README filmu, karta FILM_TESTY_V3, `strona.yml`) — trzy rundy wywiadu i plan w HTML.
+
+**Zrobione:**
+
+- Bramka optymalizatora: „Nie, nie w tej sesji” (plik zgody tej sesji).
+- Wywiad, trzy rundy po cztery pytania — rozstrzygnięcia Łukasza: film aktualizowany, gdy zmienia
+  się to, co pokazuje; twarda bramka lokalna (`pre-push` na tagi, obejście jawną flagą); komenda
+  `/relai-release` i fraza tylko w repo RelAI; **wszystko lokalnie, bez nowego CI**; mapa wpływu
+  jako tabela i diff od tagu; wydania na żądanie z podpowiedzią; mody z własnymi numerami;
+  weryfikacja na żywo automatem i „ok” człowieka; automat sam robi regeneracje, numery, szkice
+  wpisów **i render filmu**; strona — fakty i kontrola list w tekstach PL/EN; zaległość filmu jako
+  etap planu (wchłania odnogę FILM_TESTY_V3); po akceptacji aktywny plan PIPELINE_WYDAN.
+- [PLAN.html](plany/PIPELINE_WYDAN/PLAN.html) z szablonu `core/templates/HTML_PLAN/` (D-87):
+  pięć wariantów (A wybrany — mapa wpływu, kontrola zgodności, komenda i `pre-push`; B plan-szablon,
+  C CI-first, D release-please/changesets, E sam walidator — odrzucone z powodem), pięć etapów
+  (E1 raport gotowości, E2 komenda i naprawy, E3 bramka i na żywo, E4 film do bieżącej wersji,
+  E5 pierwsze wydanie przez pipeline), 8–11 sesji (SZACUNEK), 8 ryzyk, 11 przypadków brzegowych,
+  4 decyzje człowieka. [STATUS.md](plany/PIPELINE_WYDAN/STATUS.md) — `DO AKCEPTACJI`.
+
+**Zweryfikowane — jak dokładnie:** skrypt składający podmienił każdy z 30 znaczników szablonu
+dokładnie raz albo dwa (tytuł, status); builder: „Osadzono 6 regul @font-face. Plik ma 222 KB.”,
+„Plan bez symulatora”, kod 0; `grep -c "{{"` → 0, adresy `http(s)://` w pliku — brak. W przeglądarce:
+rozwinięcie wariantu B (`aria-expanded` → `true`), `scrollWidth` = `clientWidth` = 1009, diagram
+przepływu (8 kroków) obejrzany na zrzucie.
+
+**Świadomie odłożone:** dwie sprawy „Czeka na człowieka” starsze niż 30 dni — nie ruszane w tej
+sesji (sesja z zadaniem od innej sesji); wracają na najbliższym starcie sesji.
+
+**Do zrobienia przez człowieka:**
+
+- Akceptacja planu PIPELINE_WYDAN (albo poprawki przed akceptacją); po niej `PROMPT_ETAP_1.md`,
+  linia „Aktywny plan” w `CLAUDE.md` i wiersze W1, W2 w tabeli ryzyk.
+  *(rozstrzygnięte 2026-10-25 — plan zaakceptowany bez zmian, wpis niżej)*
+
+Przegląd ryzyk: bez zmian w tabeli — ryzyka planu wchodzą do niej przy akceptacji.
+
+Autor: RelAI (Opus 5.5) + Lukasz
+
+### 2026-10-25 — Plan PIPELINE_WYDAN zaakceptowany
+
+Łukasz: „Akceptuję plan PIPELINE_WYDAN bez zmian.” Plan zamrożony bez Aneksu A.
+
+**Zrobione:**
+
+- `STATUS.md`: plan `ZAAKCEPTOWANY 2026-10-25`, E1 `GOTOWY DO STARTU` z linkiem do
+  [PROMPT_ETAP_1.md](plany/PIPELINE_WYDAN/PROMPT_ETAP_1.md) (raport gotowości: mapa wpływu,
+  `release-check.js` tylko do odczytu, odbiór na `53830cc` / `a1439b9`, `/effort high`).
+- `PLAN.html` przebudowany z nowym statusem w nagłówku; sekcje 1–9 nietknięte.
+- `CLAUDE.md`: linia „Aktywny plan” → PIPELINE_WYDAN, PANEL_CODEX wymieniony jako prowadzony
+  równolegle w Codeksie; wiersz planu w tabeli; przy FILM_TESTY_V3 adnotacja o wchłonięciu przez E4.
+- Karta [FILM_TESTY_V3](fixy/FILM_TESTY_V3/ODNOGA.md): adnotacja „wchłonięta przez E4 planu
+  PIPELINE_WYDAN, nie uruchamiać osobno” (status OTWARTA do zamknięcia w E4).
+- Tabela ryzyk: PW1 (instrument fałszywie cichy) i PW2 (mapa wpływu się starzeje) — oba wysokie
+  (identyfikatory W1/W2 zajęte w archiwum ryzyk, stąd przedrostek PW).
+
+**Zweryfikowane — jak dokładnie:** `diff` `PLAN.html` przed i po przebudowie — 3 linie: dwa
+miejsca statusu i półzdanie przy Aneksach. „Zasady aktywne” wstawione do promptu skryptem
+z `LEKCJE.md`: 25 096 znaków, porównanie z sekcją źródłową — zgodne co do znaku, 15 zasad,
+znacznik wstawki usunięty (`grep -c` → 0).
+
+**Świadomie odłożone:** —
+
+**Do zrobienia przez człowieka:**
+
+- Start E1 w świeżej sesji Opus 5.5 (`/relai-stage`).
+
+Przegląd ryzyk: PW1 i PW2 dopisane; pozostałe bez zmian.
 
 Autor: RelAI (Opus 5.5) + Lukasz
