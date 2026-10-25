@@ -17,8 +17,9 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
    w sekcji Weryfikacja ma za sobą jeden realny przebieg autora promptu** (testy Node wzorcem
    plików, nie katalogiem) (L-0212). **FAKT w prompcie do sprawdzenia na żywo autor liczy tym
    samym źródłem, które czyta kod etapu**, a rozjazd wykonawca rozstrzyga pytaniem o brzmienie
-   punktu, nie dopasowaniem kodu (L-0254).
-   (L-0001, L-0011, L-0026, L-0089, L-0100, L-0108, L-0129, L-0212, L-0254)
+   punktu, nie dopasowaniem kodu (L-0254); FAKT o lukach „na drzewie X” liczysz regułą kontroli
+   z bazą tego drzewa (L-0269).
+   (L-0001, L-0011, L-0026, L-0089, L-0100, L-0108, L-0129, L-0212, L-0254, L-0269)
 2. **W dokumencie użytkownika stoi tylko to, co działa i co zmierzyłeś** — fraza i forma wywołania
    w wersji uruchomionej dosłownie, z tej samej powłoki, którą zobaczy czytelnik; znak
    interpretowany przez powłokę zapisujesz tak, żeby go nie tknęła. Komenda do wklejenia przez
@@ -90,7 +91,9 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
    - **Parsowanie:** separator niepoprzedzony znakiem ucieczki i liczba pól po podmianie; zbiór
      znaków zachowywanych wypisany raz; filtr „to nie przypadek” ma wyjątek dla linii o rzeczy
      sprawdzanej; każdy przypadek graniczny ma własną kontrolę; nazwy narzędzi w cudzym
-     transkrypcie wypisujesz, zanim orzekniesz brak.
+     transkrypcie wypisujesz, zanim orzekniesz brak; blok wycinany z kodu kotwiczysz do otwarcia
+     literału, nie do nazwy (L-0267); wynik `git log -S` to commit zmiany liczby wystąpień, nie
+     dodania — cofając się po numerach, szukasz od rodzica (L-0268).
    - **Porównania:** instrument dwóch drzew odtwarza materiał przed każdym wariantem i dowodzi
      nietkniętości; wynik wynosisz od razu, z sumą; porównanie najpierw sprawdza istnienie obu
      wejść, a oba pliki kasuje przed przebiegiem (L-0143); stan „przed” w `git worktree` HEAD-a, nie
@@ -130,7 +133,8 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
    L-0087, L-0088, L-0090, L-0091, L-0095, L-0096, L-0097, L-0101, L-0102, L-0105, L-0106, L-0107,
    L-0110, L-0111, L-0113, L-0124, L-0125, L-0127, L-0130, L-0131, L-0135, L-0141, L-0143, L-0151,
    L-0160, L-0164, L-0169, L-0170, L-0173, L-0181, L-0211, L-0213, L-0215, L-0238, L-0239, L-0240,
-   L-0242, L-0243, L-0246, L-0247, L-0248, L-0249, L-0257, L-0258, L-0259, L-0261, L-0262, L-0265)
+   L-0242, L-0243, L-0246, L-0247, L-0248, L-0249, L-0257, L-0258, L-0259, L-0261, L-0262, L-0265,
+   L-0267, L-0268)
 6. **Próg jest liczbą, którą ktoś liczy:** kalibrujesz na realnych plikach, zapisujesz w jednostce
    mechanizmu z komendą sprawdzającą, z **jednym** wyzwalaczem. Porównujesz do wielkości, którą
    mechanizm kontroluje (część usuwalna); zatkanie sygnalizuje **różnica możliwego i wykonanego**,
@@ -580,6 +584,36 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
 - **Zasada:** komenda, którą człowiek ma wkleić sam, ma pełną ścieżkę bezwzględną, bez zmiennych
   środowiska i bez `&&`. Na Windowsie idzie w bloku `powershell`, a zmienna, gdy jest
   konieczna, w formie `$env:NAZWA`.
+
+### L-0267 — Blok literału ucięty na typie: kontrola rekwizytów zobaczyła 0 przy 14 · 2026-10-25 · AKTYWNA
+
+- **Trigger:** PIPELINE_WYDAN E1, pierwszy przebieg `release-check.js`. Kontrola rekwizytów filmu
+  szukała wpisów od `const REKWIZYTY` do pierwszego `})`. Sygnatura typu tego samego wiersza,
+  `(p: { t: number }) => ReactNode`, niesie `})`, więc blok kończył się przed pierwszym wpisem.
+  Wynik: 14 czerwonych „bez rekwizytu” na zdrowym filmie. Licznik „rekwizytów w mapie 0” przy 14
+  komendach pokazał, że to instrument.
+- **Zasada:** blok wycinany z kodu kotwiczysz do otwarcia literału (`Object.freeze({` po nazwie),
+  nie do samej nazwy. Fixtura testu niesie dosłownie ten kształt, który przewrócił parser.
+
+### L-0268 — `git log -S` trafił w commit, który numer usunął · 2026-10-25 · AKTYWNA
+
+- **Trigger:** PIPELINE_WYDAN E1, `--rev a1439b9`. Baza modu cofała się do poprzedniego numeru
+  (0.11.0), szukając `git log -S '"version": "0.11.0"'` od rewizji. `-S` łapie każdą zmianę liczby
+  wystąpień, więc znalazł commit, który 0.11.0 **zastąpił** 0.12.0. Pętla kręciła się w miejscu
+  i skrypt skończył kodem 2.
+- **Zasada:** cofając się po historii numerów, punkt szukania przesuwasz na rodzica commitu, który
+  numer zmienił. Wynik `-S` to commit zmiany, nie commit dodania.
+
+### L-0269 — Luka w rejestrze bez zmiany pliku od bazy: FAKT promptu nieosiągalny regułą · 2026-10-25 · AKTYWNA
+
+- **Trigger:** PIPELINE_WYDAN E1, punkt 1 Weryfikacji: na `53830cc` miały wyjść trzy luki
+  `ARTEFAKTY.md`, w tym `new-project.md` i `history.md`. Oba pliki nie zmieniły się między
+  `v3.2.0` a `53830cc`. Wpisów zabrakło im przy wydaniu 3.2.0, a zmieniło je dopiero podbicie
+  w `a1439b9`. Reguła „zmieniony od bazy bez nowego wpisu” nie mogła ich zobaczyć na tym drzewie.
+  Ten sam skrypt pokazał je na `--rev v3.2.0`. Łukasz wybrał dowód na dwóch drzewach.
+- **Zasada:** FAKT o lukach „na drzewie X” autor promptu liczy regułą kontroli na tym drzewie, z
+  bazą tego drzewa. Luka widoczna dopiero w innym wydaniu idzie do punktu z rewizją, w której
+  powstała (rozszerza L-0254).
 
 ## Lekcje zwinięte
 

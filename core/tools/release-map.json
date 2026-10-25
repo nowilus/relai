@@ -1,0 +1,506 @@
+{
+  "opis": "Mapa wplywu wydania RelAI (plan PIPELINE_WYDAN, E1). Wiersz = typ zmiany: wzorce sciezek, ktore go wykrywaja w diffie od bazy, komponenty do ruszenia i kontrole, ktore to sprawdzaja. Kazdy plik sledzony trafia w dokladnie jeden wiersz (kontrola 'mapa'); plik z diffu bez wiersza = czerwien 'nieznany typ zmiany'. Wzorce: '*' bez ukosnika, '**' dowolna glebokosc, 'wyklucz' zdejmuje pliki z wiersza. Status pliku w diffie (A/D/R/M) daje odmiane typu: nowy / usuniety / przemianowany / zmieniony. Pole 'wydanie': 'rdzen' (numer relai), 'mod:<nazwa>' (numer modu) albo 'brak' (zmiana nie wymaga wydania sama w sobie). Pole wydanie jest w E1 informacyjne (raport wypisuje, co wymaga numeru); kontrola podbicia i propozycja numerow to E2.",
+  "wiersze": [
+    {
+      "id": "komenda",
+      "opis": "komenda Claude Code (zrodlo dla Codeksa, panelu, strony i filmu)",
+      "wzorce": [
+        "adapters/claude-code/commands/*.md"
+      ],
+      "wydanie": "rdzen",
+      "komponenty": [
+        "README.md (liczba komend w prozie)",
+        "docs/KOMENDY.md",
+        "core/panel/commands.mjs (FORMS)",
+        "core/panel/theme.mjs (NAMES)",
+        "adapters/codex/skills (generator)",
+        "adapters/cursor/README.md",
+        "adapters/claude-code/commands/relai-update.md",
+        "site/tresc/en.json (film.fiszki)",
+        "film: CYKL i rekwizyt w src/sceny/komendy/",
+        "history.md",
+        "docs/ARTEFAKTY.md"
+      ],
+      "kontrole": [
+        "readme-komendy",
+        "strona-komendy",
+        "film-komendy",
+        "film-rekwizyty",
+        "generator-codex",
+        "historia",
+        "artefakty",
+        "testy-rdzenia"
+      ]
+    },
+    {
+      "id": "hook",
+      "opis": "hook Claude Code (hooks.json i skrypty)",
+      "wzorce": [
+        "adapters/claude-code/hooks/**"
+      ],
+      "wydanie": "rdzen",
+      "komponenty": [
+        "README.md (liczba hookow w prozie, tabela 'Co pilnuje tylko Claude Code')",
+        "adapters/codex/hooks i adapters/cursor/hooks (odpowiednik albo 'brak' w tabeli)",
+        "history.md"
+      ],
+      "kontrole": [
+        "readme-hooki",
+        "walidator",
+        "historia",
+        "testy-rdzenia"
+      ]
+    },
+    {
+      "id": "skill",
+      "opis": "skill Claude Code i jego pliki doczytywane",
+      "wzorce": [
+        "adapters/claude-code/skills/**"
+      ],
+      "wydanie": "rdzen",
+      "komponenty": [
+        "adapters/codex/skills (generator)",
+        "adapters/cursor (kopia przy instalacji)",
+        "docs/ARTEFAKTY.md",
+        "history.md"
+      ],
+      "kontrole": [
+        "generator-codex",
+        "walidator",
+        "artefakty",
+        "historia",
+        "testy-rdzenia"
+      ]
+    },
+    {
+      "id": "agent",
+      "opis": "agent Claude Code",
+      "wzorce": [
+        "adapters/claude-code/agents/**"
+      ],
+      "wydanie": "rdzen",
+      "komponenty": [
+        ".claude-plugin/plugin.json (agents)",
+        "docs/ARTEFAKTY.md",
+        "history.md"
+      ],
+      "kontrole": [
+        "walidator",
+        "artefakty",
+        "historia",
+        "testy-rdzenia"
+      ]
+    },
+    {
+      "id": "lista-modeli",
+      "opis": "lista modeli adaptera",
+      "wzorce": [
+        "adapters/*/MODELE.md"
+      ],
+      "wydanie": "rdzen",
+      "komponenty": [
+        "adapters/*/MODELE.md (list-date)",
+        "docs/ARTEFAKTY.md"
+      ],
+      "kontrole": [
+        "modele",
+        "walidator",
+        "artefakty",
+        "testy-rdzenia"
+      ]
+    },
+    {
+      "id": "adapter-codex",
+      "opis": "adapter Codeksa (manifest, router, hooki, wygenerowane skille, testy)",
+      "wzorce": [
+        "adapters/codex/**",
+        ".codex-plugin/**",
+        ".agents/**",
+        "hooks/**",
+        "AGENTS.md"
+      ],
+      "wyklucz": [
+        "adapters/codex/MODELE.md"
+      ],
+      "wydanie": "rdzen",
+      "komponenty": [
+        ".codex-plugin/plugin.json (wersja)",
+        "adapters/codex/README.md",
+        "docs/ARTEFAKTY.md",
+        "history.md"
+      ],
+      "kontrole": [
+        "generator-codex",
+        "walidator",
+        "artefakty",
+        "testy-rdzenia"
+      ]
+    },
+    {
+      "id": "adapter-cursor",
+      "opis": "adapter Cursora (reguly, hooki, instalator)",
+      "wzorce": [
+        "adapters/cursor/**"
+      ],
+      "wyklucz": [
+        "adapters/cursor/MODELE.md"
+      ],
+      "wydanie": "rdzen",
+      "komponenty": [
+        "adapters/cursor/README.md",
+        "docs/ARTEFAKTY.md",
+        "history.md"
+      ],
+      "kontrole": [
+        "walidator",
+        "artefakty",
+        "testy-rdzenia"
+      ]
+    },
+    {
+      "id": "manifest",
+      "opis": "manifesty i licencja pakietu relai",
+      "wzorce": [
+        ".claude-plugin/**",
+        "core/MANIFEST.json",
+        "LICENSE"
+      ],
+      "wydanie": "rdzen",
+      "komponenty": [
+        "7 zrodel numeru wersji (walidator)",
+        "README.md (baner)",
+        "docs/STATE.md ('Gdzie jestesmy')"
+      ],
+      "kontrole": [
+        "walidator",
+        "historia"
+      ]
+    },
+    {
+      "id": "specyfikacja",
+      "opis": "specyfikacja dokumentu albo szablon planu",
+      "wzorce": [
+        "core/templates/**"
+      ],
+      "wydanie": "rdzen",
+      "komponenty": [
+        "docs/ARTEFAKTY.md",
+        "history.md"
+      ],
+      "kontrole": [
+        "artefakty",
+        "historia"
+      ]
+    },
+    {
+      "id": "paski",
+      "opis": "pasma paskow (BAND) i nazwy komend (NAMES) w motywie rdzenia panelu",
+      "wzorce": [
+        "core/panel/theme.mjs"
+      ],
+      "wydanie": "rdzen",
+      "komponenty": [
+        "kopie rdzenia w modach (sync-panel-core)",
+        "film: paski.json i manifest (paski)",
+        "strona: nazwy PL komend przez fakty"
+      ],
+      "kontrole": [
+        "sync-panel-core",
+        "film-paski",
+        "strona-komendy"
+      ]
+    },
+    {
+      "id": "rdzen-panelu",
+      "opis": "rdzen panelu core/panel (kopiowany do modow)",
+      "wzorce": [
+        "core/panel/**"
+      ],
+      "wyklucz": [
+        "core/panel/theme.mjs"
+      ],
+      "wydanie": "rdzen",
+      "komponenty": [
+        "kopie rdzenia w czterech modach (sync-panel-core)",
+        "claude plugin test kazdego modu",
+        "numery modow"
+      ],
+      "kontrole": [
+        "sync-panel-core",
+        "testy-rdzenia",
+        "plugin-test"
+      ]
+    },
+    {
+      "id": "rdzen-procesu",
+      "opis": "rdzen procesu: guardraile, proces, optymalizator, humanizacja, ewaluacje, narzedzia",
+      "wzorce": [
+        "core/process/**",
+        "core/guardrails/**",
+        "core/prompt/**",
+        "core/humanize/**",
+        "core/evals/**",
+        "core/tools/**",
+        "core/README.md"
+      ],
+      "wydanie": "rdzen",
+      "komponenty": [
+        "docs/ARTEFAKTY.md (core/prompt, core/humanize)",
+        "history.md"
+      ],
+      "kontrole": [
+        "walidator",
+        "testy-rdzenia",
+        "artefakty"
+      ]
+    },
+    {
+      "id": "zakladki-panelu",
+      "opis": "zakladki panelu (TABS)",
+      "wzorce": [
+        "panel/hooks/pane-parts.tsx"
+      ],
+      "wydanie": "mod:relai-panel",
+      "komponenty": [
+        "film: zakladki sceny 3 (src/teksty.ts)",
+        "README.md (opis relai-panel)"
+      ],
+      "kontrole": [
+        "film-zakladki",
+        "plugin-test",
+        "readme-mody"
+      ]
+    },
+    {
+      "id": "mod-panel",
+      "opis": "kod modu relai-panel",
+      "wzorce": [
+        "panel/**"
+      ],
+      "wyklucz": [
+        "panel/hooks/pane-parts.tsx"
+      ],
+      "wydanie": "mod:relai-panel",
+      "komponenty": [
+        "panel/.claude-plugin/plugin.json i wpis marketplace (numer)",
+        "README.md (wiersz modu)",
+        "site/dane/fakty.json (wersje)"
+      ],
+      "kontrole": [
+        "walidator",
+        "readme-mody",
+        "strona-fakty",
+        "plugin-test"
+      ]
+    },
+    {
+      "id": "mod-progress",
+      "opis": "kod modu relai-progress",
+      "wzorce": [
+        "progress/**"
+      ],
+      "wydanie": "mod:relai-progress",
+      "komponenty": [
+        "progress/.claude-plugin/plugin.json i wpis marketplace (numer)",
+        "README.md (wiersz modu)",
+        "site/dane/fakty.json (wersje)"
+      ],
+      "kontrole": [
+        "walidator",
+        "readme-mody",
+        "strona-fakty",
+        "plugin-test"
+      ]
+    },
+    {
+      "id": "mod-cache-keeper",
+      "opis": "kod modu relai-cache-keeper",
+      "wzorce": [
+        "cache-keeper/**"
+      ],
+      "wydanie": "mod:relai-cache-keeper",
+      "komponenty": [
+        "cache-keeper/.claude-plugin/plugin.json i wpis marketplace (numer)",
+        "README.md (wiersz modu)",
+        "site/dane/fakty.json (wersje)"
+      ],
+      "kontrole": [
+        "walidator",
+        "readme-mody",
+        "strona-fakty",
+        "plugin-test"
+      ]
+    },
+    {
+      "id": "mod-mods",
+      "opis": "kod modu relai-mods",
+      "wzorce": [
+        "mods/**"
+      ],
+      "wydanie": "mod:relai-mods",
+      "komponenty": [
+        "mods/.claude-plugin/plugin.json i wpis marketplace (numer)",
+        "README.md (wiersz modu)",
+        "site/dane/fakty.json (wersje)"
+      ],
+      "kontrole": [
+        "walidator",
+        "readme-mody",
+        "strona-fakty",
+        "plugin-test"
+      ]
+    },
+    {
+      "id": "strona",
+      "opis": "strona (Film i Biurko, PL i EN), jej narzedzia i workflow",
+      "wzorce": [
+        "site/**",
+        ".github/workflows/strona.yml",
+        ".scrollcraft.json"
+      ],
+      "wydanie": "brak",
+      "komponenty": [
+        "site/dane/fakty.json (z repo)",
+        "site/index.html, site/pl/, site/biurko/ (budowa)",
+        "testy strony"
+      ],
+      "kontrole": [
+        "strona-komendy",
+        "strona-fakty",
+        "testy-strony"
+      ]
+    },
+    {
+      "id": "film",
+      "opis": "film prezentacyjny (zrodla Remotion, dane, dokumentacja)",
+      "wzorce": [
+        "docs/zasoby/film/**"
+      ],
+      "wydanie": "brak",
+      "komponenty": [
+        "film: src/dane/*.json",
+        "rekwizyty src/sceny/komendy/",
+        "testy filmu",
+        "MP4 w zasobach wydania"
+      ],
+      "kontrole": [
+        "film-komendy",
+        "film-rekwizyty",
+        "film-zakladki",
+        "film-paski",
+        "film-narzedzia",
+        "testy-filmu"
+      ]
+    },
+    {
+      "id": "readme",
+      "opis": "README repozytorium (wizytowka na GitHubie)",
+      "wzorce": [
+        "README.md"
+      ],
+      "wydanie": "brak",
+      "komponenty": [
+        "README.md"
+      ],
+      "kontrole": [
+        "readme-komendy",
+        "readme-hooki",
+        "readme-mody",
+        "walidator"
+      ]
+    },
+    {
+      "id": "dokumenty-uzytkownika",
+      "opis": "dokumenty dla uzytkownika w repo (sciaga, przewodnik, instalacja)",
+      "wzorce": [
+        "docs/KOMENDY.md",
+        "docs/PRZEWODNIK.md",
+        "docs/INSTALACJA.md",
+        "docs/PRZENOSNOSC.md"
+      ],
+      "wydanie": "brak",
+      "komponenty": [
+        "docs/KOMENDY.md (naglowek wersji)"
+      ],
+      "kontrole": [
+        "stary-numer"
+      ]
+    },
+    {
+      "id": "bez-wydania",
+      "opis": "dokumenty projektu, plany, dziennik, archiwum, zasoby i konfiguracja repo (bez wydania)",
+      "wzorce": [
+        "docs/**",
+        "CLAUDE.md",
+        ".gitignore",
+        ".gitattributes"
+      ],
+      "wyklucz": [
+        "docs/zasoby/film/**",
+        "docs/KOMENDY.md",
+        "docs/PRZEWODNIK.md",
+        "docs/INSTALACJA.md",
+        "docs/PRZENOSNOSC.md"
+      ],
+      "wydanie": "brak",
+      "komponenty": [],
+      "kontrole": []
+    }
+  ],
+  "grupyOsobne": {
+    "PANEL_CODEX": [
+      "docs/plany/PANEL_CODEX/**",
+      "adapters/codex/panel/**",
+      "docs/zasoby/PANEL_RELAI/makiety/**"
+    ]
+  },
+  "pominieteNiesledzone": [
+    ".claude/**"
+  ],
+  "historyczne": [
+    "docs/DZIENNIK.md",
+    "docs/LEKCJE.md",
+    "docs/DECYZJE.md",
+    "docs/ARTEFAKTY.md",
+    "docs/PULAPKI.md",
+    "docs/STATE.md",
+    "docs/archiwum/**",
+    "docs/plany/**",
+    "docs/fixy/**",
+    "docs/zasoby/**",
+    "CLAUDE.md",
+    "adapters/claude-code/skills/relai-core/history.md",
+    "adapters/codex/skills/relai-core/history.md",
+    "**/package-lock.json",
+    "site/vendor/**"
+  ],
+  "strona": {
+    "komendy": "lista z faktow (site/dane/fakty.json z adapters/claude-code/commands): nazwa PL z NAMES w core/panel/theme.mjs, fiszka EN w site/tresc/en.json film.fiszki; liczba komend z faktow w naglowkach obu wersji",
+    "hooki": "strona nie ma listy hookow (jedno slowo 'hook' w opisie kokpitu relai-mods) - kontroli nie ma, bo nie ma czego porownac",
+    "mody": "strona nie ma listy modow; konfigurator pokazuje wersje relai i relai-panel z fakty.wersje - kontrola 'strona-fakty' porownuje fakty z repo"
+  },
+  "film": {
+    "pokazuje": [
+      "komendy (CYKL i manifest.komendy)",
+      "rekwizyt na kazda komende z CYKL",
+      "zakladki panelu (src/teksty.ts wobec TABS)",
+      "paski (manifest.paski wobec BAND)",
+      "narzedzia (manifest.narzedzia i narzedziaNazwy wobec adapters/)"
+    ],
+    "liczniki": [
+      "wersja",
+      "planyZamkniete",
+      "testyRdzenia"
+    ],
+    "poza-kategoria": [
+      "progLimitu",
+      "oknoLimitu",
+      "instalacja"
+    ],
+    "nazwyNarzedzi": {
+      "claude-code": "Claude Code",
+      "codex": "Codex",
+      "cursor": "Cursor"
+    }
+  }
+}

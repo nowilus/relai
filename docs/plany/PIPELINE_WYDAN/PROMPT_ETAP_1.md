@@ -442,31 +442,31 @@ rejestrze — luki z bieżącego raportu idą do wpisu jako lista dla E2/E4, nie
 Każdy punkt Weryfikacji, który przeszedł, odhaczasz w `PROMPT_ETAP_1.md` (`- [ ]` → `- [x]`)
 zaraz po jego sprawdzeniu, nie na końcu etapu; punkt, który nie przeszedł, zostaje pusty.
 
-- [ ] `node core/tools/release-check.js --rev 53830cc` kończy się kodem 1 i raport nazywa trzy luki:
+- [x] `node core/tools/release-check.js --rev 53830cc` kończy się kodem 1 i raport nazywa trzy luki:
       README (11 wierszy hooków przy 13), `ARTEFAKTY.md` (`new-project.md`, `history.md`, README
       Codeksa), fiszka EN `relai-security`.
-- [ ] `node core/tools/release-check.js --rev a1439b9` — te trzy kontrole zielone (dowód negatywny:
+- [x] `node core/tools/release-check.js --rev a1439b9` — te trzy kontrole zielone (dowód negatywny:
       ten sam instrument, ta sama wersja skryptu, dwa drzewa w jednym przebiegu — zasada 4).
-- [ ] Mapa: każdy plik z `git ls-files` trafia w dokładnie jeden wiersz (licznik w raporcie: N plików,
+- [x] Mapa: każdy plik z `git ls-files` trafia w dokładnie jeden wiersz (licznik w raporcie: N plików,
       0 bez wiersza, 0 w dwóch); kontrola pozytywna — plik w nowym katalogu spoza mapy na fixturze
       daje czerwień „nieznany typ zmiany”.
-- [ ] Każda kontrola w raporcie ma licznik „sprawdzono N” > 0 na bieżącym repo; podłożony defekt
+- [x] Każda kontrola w raporcie ma licznik „sprawdzono N” > 0 na bieżącym repo; podłożony defekt
       każdej kontroli wychodzi w teście (punkt 4 zakresu).
-- [ ] Bazy modów: raport na `HEAD` podaje bazę każdego z czterech modów; dla `relai-cache-keeper`
+- [x] Bazy modów: raport na `HEAD` podaje bazę każdego z czterech modów; dla `relai-cache-keeper`
       i `relai-progress` to commit z bieżącym numerem w `plugin.json`, nie tag innego modu.
-- [ ] `node core/tools/release-check.js` na `HEAD` — raport zapisany do wpisu dziennika (zielone,
+- [x] `node core/tools/release-check.js` na `HEAD` — raport zapisany do wpisu dziennika (zielone,
       czerwone, pominięte, czas przebiegu); czerwień zastana opisana, nie poprawiona.
-- [ ] Testy zielone: `node --test core/process/tests/*.test.js` (liczba przed i po),
+- [x] Testy zielone: `node --test core/process/tests/*.test.js` (liczba przed i po),
       `node --test core/panel/tests/*.test.js`, `node --test adapters/codex/tests/*.test.js`;
       `node core/tools/validate-adapters.js` → „spojne”.
-- [ ] Brak zmian poza zakresem: `git status --short` pokazuje wyłącznie mapę, skrypt (moduł
+- [x] Brak zmian poza zakresem: `git status --short` pokazuje wyłącznie mapę, skrypt (moduł
       kontroli), test, `STATE.md`, `DZIENNIK.md`, `STATUS.md`, `PROMPT_ETAP_1.md` i
       `PROMPT_ETAP_2.md`; `git diff --stat` na `README.md`, `site/`, `docs/zasoby/film/`,
       `docs/ARTEFAKTY.md` i ścieżkach PANEL_CODEX — pusty.
-- [ ] `git worktree list` po przebiegach nie zawiera worktree założonych przez skrypt.
-- [ ] Wpis w `docs/DZIENNIK.md` na końcu sekcji „Wpisy”, z podpisem `Autor: RelAI (<model>) + Lukasz`;
+- [x] `git worktree list` po przebiegach nie zawiera worktree założonych przez skrypt.
+- [x] Wpis w `docs/DZIENNIK.md` na końcu sekcji „Wpisy”, z podpisem `Autor: RelAI (<model>) + Lukasz`;
       `docs/STATE.md` nadpisany.
-- [ ] Katalog roboczy `.claude/relai/work/PIPELINE_WYDAN/E1/` przejrzany raportem
+- [x] Katalog roboczy `.claude/relai/work/PIPELINE_WYDAN/E1/` przejrzany raportem
       (`node .claude/relai/tools/clean-work.js raport`) i skasowany po „tak”; liczby przed i po we
       wpisie dziennika. Artefakty spoza katalogu (worktree w `%TEMP%` ze slugiem `relai-`, repo
       fixtur testów) wypisane z nazwy razem z tym, co się z nimi stało.

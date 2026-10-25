@@ -27,8 +27,8 @@
 | H9 | Tryb ciągły „dokumenty” nie widzi zapisu, którego nie rozpozna — `sed -i`, skrypt, podproces, `>(tee …)` — i dokument zostaje bez humanizacji (plan HUMANIZACJA, pomiar E5) | **Niski** (2026-10-14, przy zamknięciu planu) | **OTWARTE ŚWIADOMIE** | Aneks C: hook po Write/Edit i po Bash z przekierowaniem `>` / `>>` albo `tee`; w pomiarze E5 model pisał wyłącznie tymi drogami (8/8 przed poprawką, 2/2 po niej z regułą). Pominięcie kończy się ciszą, nigdy złą regułą; komenda `/relai-humanize` na pliku działa niezależnie od trybu ciągłego. |
 | T1 | Scena 3D strony tnie się na słabszym laptopie albo zintegrowanej grafice (plan STRONA_RELAI, ryzyko 1) | **Średni** (2026-10-18 po E6; wcześniej wysoki) | **OTWARTE** | E1: render na żądanie, DPR ≤ 1,5, obniżenie jakości przy medianie > 26 ms. E2 (scena CC0, AO, głębia ostrości): przy CPU ×4 mediana 11,1 ms, p95 16,7 ms, 913 wywołań rysowania na klatkę po scaleniu miasta (przed: 2206, p95 22,3 ms); obniżanie jakości zaczyna od głębi ostrości. E3 (poświata ekranu RectAreaLight, nowe książki): przy CPU ×4 przewijanie mediana 11,9 ms, p95 22,2 ms — p95 wzrosło o 5,5 ms, zapas do 26 ms już tylko 3,8 ms; przybliżanie p95 13,1 ms; najwięcej 907 wywołań rysowania na klatkę. Zmierzone tylko na RTX 4070 Ti. E4 (bez path tracingu, przygaszona lampa, lakier blatu): CPU ×4 mediana 11,3 ms, p95 17,5 ms, najwięcej 910 wywołań rysowania. Otwarte: słaba grafika w E7. E5 (Film, bez WebGL): przy CPU ×4 mediana 5,6 ms, p95 5,6 ms, najdłuższa klatka 28,7 ms, więc Filmu ryzyko nie dotyczy. Aneks D: Biurko też idzie do publikacji, dlatego poziom zostaje wysoki do pomiaru na słabej grafice w E6. E7 (Film z animacjami WAAPI i przytrzymaniem): CPU ×4 mediana 11,1 ms, p95 16,7 ms na desktopie i w emulacji telefonu — Filmu nadal nie dotyczy; poziom bez zmiany przez Biurko. E6: SwiftShader (grafika programowa) 1366 × 768 mediana 1 700 → 1 183 → 817 ms po krokach obniżania, 390 × 844 1 033 → 867 → 433 → 283 ms; wyłącznik `biurko/grafika.js` daje takiej przeglądarce plakat (werdykt Łukasza 3A), brak WebGL2 i ograniczony ruch też. RTX przy CPU ×4: p95 przewijania 20,6–25,2 ms desktop, 15,4–16,3 ms telefon. Otwarte: zintegrowana karta niezmierzona (bramka „pomiar na słabszym laptopie”); drugi bezpiecznik (plakat po wyczerpaniu kroków jakości, opcja 3B) świadomie niewdrożony. E8 (2026-10-18): Biurko opublikowane pod `/biurko/` bez zmian w scenie; plan STRONA_RELAI zamknięty, bramka „pomiar na słabszym laptopie” świadomie otwarta poza planem (`docs/STATE.md`, „Co dalej”). |
 | T2 | Biurko wygląda jak tani render albo glina z AI (plan STRONA_RELAI, ryzyko 2) | **Średni** (2026-10-18 po E6; wcześniej wysoki) | **OTWARTE** | E2: modele i tekstury CC0, deski orzechowe ze słojami, miasto za oknem, kubek i tablica od nowa; kalibracja w czterech rundach, zamknięcie za zgodą Łukasza, ale „nadal jesteśmy całkiem daleko” od obrazów 01–08 — przyczyna: brak światła odbitego w rasteryzacji (L-0220). Aneks B: E3 laptop i detale, E4 path tracing na przystankach. E4 (2026-10-16): światło odbite nie dało uzysku — przyczyną dystansu jest detal przedmiotów, tekstur i kompozycja, nie światło (L-0226); test detalu (blat `wood_table_worn`, druk na dokumentach, ciemniej) dał umiarkowany zysk. Aneks C: następny jest Film, Biurko po bramce. E5: Film rysowany kodem, hero przyjęte w trzeciej rundzie („Tak, przyjmuję”). Bramka z Aneksem D: najpierw dopieszczenie Filmu (E7), potem pełna droga Biurka (E6), publikacja obu z ankietą. Dla Biurka ryzyko zostaje wysokie. E7: Film dopieszczony i przyjęty akt po akcie („Tak, przyjmuję”), dotyczy już tylko Biurka (E6). E6: każdy przystanek, szczyt, mapa, szuflady, telefon, zasłona i plakat przyjęte przez Łukasza na kadrach przed i po; kontrola odczuć zgodna z krzywą briefu (4A). Otwarte do ankiety po publikacji (E8): czy odwiedzający odbierają Biurko jako dopracowane. E8 (2026-10-18): obie wersje opublikowane, ankieta w Tally zbiera głosy z ukrytym polem `wersja`; ryzyko zostaje otwarte do odczytu ankiety, który jest poza planem (`docs/STATE.md`). |
-| PW1 | Kontrola gotowości wydania jest zielona przy luce — instrument fałszywie cichy przywraca problem z 3.3.0 z poczuciem bezpieczeństwa (plan PIPELINE_WYDAN, ryzyko W1) | **Wysoki** (2026-10-25, przy akceptacji planu) | **OTWARTE** | E1: kontrola pozytywna każdej nowej kontroli na podłożonym defekcie; odbiór na drzewie `53830cc` (sprzed poprawek E6) — 3/3 luki muszą wyjść, na `a1439b9` zielone; licznik „sprawdzono N” w raporcie, zero przy niepustym zbiorze = błąd. |
-| PW2 | Mapa wpływu się starzeje — nowy rodzaj pliku albo komponentu przechodzi bez kontroli (plan PIPELINE_WYDAN, ryzyko W2) | **Wysoki** (2026-10-25, przy akceptacji planu) | **OTWARTE** | Fail-closed: plik z diffu bez wiersza mapy = czerwień „nieznany typ zmiany”; w E1 kontrola, że każdy plik `git ls-files` trafia w dokładnie jeden wiersz. |
+| PW1 | Kontrola gotowości wydania jest zielona przy luce — instrument fałszywie cichy przywraca problem z 3.3.0 z poczuciem bezpieczeństwa (plan PIPELINE_WYDAN, ryzyko W1) | **Wysoki** (2026-10-25, przy akceptacji planu) | **OTWARTE — ZMITYGOWANE W E1 (2026-10-25)** | E1: każda z 19 kontroli ma test z podłożonym defektem (36 testów), licznik „sprawdzono N” i blokadę „sprawdzono 0 = czerwień”; odbiór: `53830cc` i `v3.2.0` pokazują 3/3 luki z 3.3.0 (i 11/12 hooków już przy 3.2.0), `a1439b9` — te kontrole zielone; przegląd kodu: 0 krytycznych, 1 wysoki (mapa nie wołała testów rdzenia dla komend, hooków i adapterów) — poprawiony z testem; nagłówek mówi o pominiętych zestawach. Otwarte do E3: bramka, która tego używa. |
+| PW2 | Mapa wpływu się starzeje — nowy rodzaj pliku albo komponentu przechodzi bez kontroli (plan PIPELINE_WYDAN, ryzyko W2) | **Wysoki** (2026-10-25, przy akceptacji planu) | **OTWARTE — ZMITYGOWANE W E1 (2026-10-25)** | Fail-closed działa: plik z diffu (także nieśledzony) bez wiersza = „nieznany typ zmiany”; kontrola `mapa` na 1491 plikach: 0 bez wiersza, 0 w dwóch; test z plikiem w nowym katalogu. Otwarte: wiersz `.claude/commands/` dla komendy E2 i trwałość mapy w kolejnych wydaniach. |
 
 > Ryzyka zamknięte Z1 (1 pozycja) są w
 > [docs/archiwum/ryzyka/RYZYKA_2026-10-25.md](archiwum/ryzyka/RYZYKA_2026-10-25.md)
@@ -75,13 +75,11 @@
 - **AUDYT_MODOW — ustalenia poza zakresem (5 pozycji `outOfScope` raportu)** — odchudzenie kopii rdzenia per plugin (`sync-panel-core`), `headings.mjs` 254 KB w progress i cache-keeperze, % limitu per etap w rdzeniu, `userConfig` cache-keepera, przedrostek `relai-` jego komend; plus wariant B „jedna listwa” jako kandydat na plan — decyzja: plan, odnoga albo odrzucić · 2026-10-11 · [wpis 2026-10-11 — Z13, Z14 i zamknięcie odnogi](archiwum/dziennik/DZIENNIK_2026-10-11_2026-10-12.md#2026-10-11--audyt_modow-z13-i-z14-wydanie-0120-i-zamknięcie-odnogi)
 - **PANEL_CODEX E1 — próba przycisków minimalnego pakietu i świeżego kontekstu** — w macierzystym czacie nadal proces 0.0.7/PID 62300; po restarcie sprawdzić sondę 0.0.9 (także fonty), nowy szkic i jego rzeczywisty projekt/kontekst. Wygląd już zaakceptowany · 2026-10-10 · [wpis — Panel i mostek](archiwum/dziennik/DZIENNIK_2026-10-09_2026-10-10.md#2026-10-10--panel_codex-e1-natywny-widok-minimalny-pakiet-i-mostek-bieżącego-czatu)
 
-- **Powiadomienie w tle bez bramki zgody** — po wydaniu sprawdzić w sesji interaktywnej, że
-  zakończone zadanie w tle nie dostaje pytania o zgodę (Aneks H) · 2026-09-24 · [wpis 2026-09-24 — E6](archiwum/dziennik/DZIENNIK_2026-09-14_2026-10-09.md#2026-09-24--e6-planu-prowadzenie_end_to_end-krańce-drogi-bez-wydania)
-
 - **Jedno okno pytań na starcie w sesji interaktywnej** — po wydaniu przy zamknięciu planu
   PROWADZENIE_END_TO_END sprawdzić, że bramka trybu ciągłego pyta o zgodę i model w jednym oknie
   (Aneks F) · 2026-09-24 ·
   [wpis 2026-09-24 — E5](archiwum/dziennik/DZIENNIK_2026-09-14_2026-10-09.md#2026-09-24--e5-planu-prowadzenie_end_to_end-pierwsze-30-minut-bez-wydania)
+  *(odroczone 2026-10-25, odroczeń: 1)*
 
 - **Zamrożenie dwóch bramek zgody jako decyzji** — zgoda na tryb ciągły (raz na sesję, z zapisem
   globalnym) i zgoda na propozycję struktury poza projektem (raz na maszynę). Oba wzorce wrócą przy
@@ -1186,8 +1184,105 @@ znacznik wstawki usunięty (`grep -c` → 0).
 
 **Do zrobienia przez człowieka:**
 
-- Start E1 w świeżej sesji Opus 5.5 (`/relai-stage`).
+- Start E1 w świeżej sesji Opus 5.5 (`/relai-stage`). *(rozstrzygnięte 2026-10-25 — E1 uruchomiony i zamknięty, wpis niżej)*
 
 Przegląd ryzyk: PW1 i PW2 dopisane; pozostałe bez zmian.
+
+Autor: RelAI (Opus 5.5) + Lukasz
+
+### 2026-10-25 — PIPELINE_WYDAN E1: raport gotowości wydania, mapa wpływu i release-check.js
+
+Start z karty w czacie („Zaczynamy E1.”), Opus 5.5, `/effort high`. Na starcie sesji przegląd
+spraw przeterminowanych (decyzje Łukasza): „Powiadomienie w tle bez bramki zgody” — **zamknięte**
+bez pomiaru (adnotacja we wpisie źródłowym w archiwum `DZIENNIK_2026-09-14_2026-10-09.md`),
+„Jedno okno pytań na starcie” — **odroczone** o 30 dni (odroczeń: 1).
+
+**Zrobione:**
+
+- `core/tools/release-map.json` — mapa wpływu, 22 wiersze (komenda, hook, skill, agent, lista
+  modeli, adapter Codeksa i Cursora, manifest, specyfikacja, paski, rdzeń panelu, rdzeń procesu,
+  zakładki panelu, cztery mody, strona, film, README, dokumenty użytkownika, bez wydania); wzorce
+  z `wyklucz`, status z diffu jako odmiana typu (nowy / usunięty / przemianowany / zmieniony /
+  nieśledzony), grupa osobna PANEL_CODEX, ścieżki historyczne dla starego numeru, opis miejsc na
+  stronie i kategorii filmu. Pole `wydanie` w E1 informacyjne.
+- `core/tools/release-check.js` (CLI) + `core/tools/release-checks.js` (kontrole): baza rdzenia
+  (ostatni `v*`; rewizja będąca wydaniem liczy się wobec poprzedniego tagu), baza każdego modu
+  (własny tag, inaczej commit numeru w `plugin.json`; numer niewydany → poprzedni), diff z plikami
+  nieśledzonymi, 19 kontroli (mapa, diff, walidator, generator Codeksa, rdzeń panelu, README:
+  komendy / hooki / mody, `history.md`, `ARTEFAKTY.md`, strona: komendy i fakty, film: komendy,
+  rekwizyty, zakładki, paski, narzędzia, `MODELE.md`, stary numer), 4 ciężkie zestawy (testy
+  rdzenia, budowa i testy strony bez zapisu, testy filmu, `claude plugin test`) tylko przy
+  dotkniętym obszarze, `--rev` przez worktree w `%TEMP%` (`relai-release-check-*`, sprzątany
+  w `finally`), `--json`, `--szybko`, `--tylko`. Tylko odczyt.
+- Reguła `ARTEFAKTY.md` bez dat: wpis „nowszy niż baza” = wiersz pliku (plik + wersja + data),
+  którego rejestr z bazy nie miał. Zdejmuje oba fałsze z E6 (data upstreamu kopii Cloudflare,
+  wiersze STYL/DESIGN z dnia tagu) — test z wierszem o starszej dacie wstawionym przed innymi.
+- `core/process/tests/release-check.test.js` — 36 testów na fixturze git z tagiem: czysta fixtura
+  zielona, 24 podłożone defekty (każda kontrola czerwona z konkretnym brzmieniem), bazy modów,
+  numer podbity bez commitu, brak tagu → kod 2, nowy katalog → mapa i diff czerwone, `--rev`
+  i sprzątanie worktree, liczebniki 1 / 2–4 / 5 / 12 / 22.
+- Przegląd kodu subagentem (pod fałszywą zieleń): 0 krytycznych; poprawione: mapa woła testy
+  rdzenia przy komendzie, hooku, skillu, agencie, liście modeli i adapterach (był HIGH: zmiana
+  hooka mogła dać „GOTOWE” bez testów); nagłówek „(BEZ N pozycji)” przy pominiętych zestawach;
+  nieśledzone pliki modu w liczniku zmian; `tag --contains` z `--merged`. Testy na dwie pierwsze.
+- `STATE.md`: zdanie o `release-check.js` w „Wersja i instalacja” i wynik raportu na `HEAD`.
+- Lekcje L-0267 (blok literału ucięty na typie), L-0268 (`git log -S` trafia w commit zmiany),
+  L-0269 (FAKT o lukach liczony regułą na tym drzewie); „Zasady aktywne” 1 i 5 odświeżone.
+
+**Zweryfikowane — jak dokładnie:**
+
+- Odbiór jedną wersją skryptu (sumy: `release-check.js` 3532ea4d…, `release-checks.js`
+  b3c35687…, mapa cbec49b8…), w jednym przebiegu: `--rev 53830cc` → kod 1, `readme-hooki`
+  czerwone (11 wierszy przy 13, brak `humanize-continuous`, `lockfile-scan`; proza „jedenaście”),
+  `artefakty` czerwone (README Codeksa), `strona-komendy` czerwone (brak fiszki EN
+  `relai-security`); `--rev v3.2.0` → `artefakty`: `new-project.md`, `history.md` (i
+  `relai-update.md`), tabela hooków 11 przy 12 już przy 3.2.0; `--rev a1439b9` → te trzy kontrole
+  zielone. **Korekta brzmienia punktu 1** (decyzja Łukasza, L-0269): `new-project.md`
+  i `history.md` nie zmieniły się między `v3.2.0` a `53830cc` — reguła „zmieniony bez wpisu” nie
+  mogła ich zobaczyć na tym drzewie; dowód idzie na dwóch drzewach, reguła bez zmian.
+- Pierwszy przebieg wywrócił instrument dwa razy, zanim padł wynik: rekwizyty „0 w mapie przy 14”
+  (L-0267) i kod 2 na `a1439b9` (L-0268). Trzeci defekt (HEAD z tagiem modu uznany za niewydany)
+  wyszedł na fixturze.
+- Raport na `HEAD` (drzewo robocze, pełny, 110,1 s): baza rdzenia `v3.3.0`; mody: `relai-panel`
+  — tag `relai-panel-v0.21.2`, `relai-progress` 0.6.1 i `relai-cache-keeper` 0.12.0 — commit
+  `a1439b9` (numer w `plugin.json`, nie tag innego modu), `relai-mods` — tag `relai-mods-v0.1.2`;
+  zmian od bazy 41, 0 nieznanych; **zielone** 18 z 22 (19 kontroli + 3 zestawy): mapa (1491 plików, 0 bez wiersza,
+  0 w dwóch), diff, walidator, generator, rdzeń panelu, README komendy i hooki, historia,
+  artefakty (105 plików rejestru, 0 zmienionych), strona (komendy, fakty), film (rekwizyty 14/14,
+  zakładki, paski, narzędzia), stary numer (686 plików, 22 z numerem 3.3.0 — ostrzeżenie, numer
+  równy bazie), testy rdzenia 501/501 (58,2 s), strona 370/370 i 4 strony równe budowie;
+  **czerwone (zastane, nie poprawiane)**: README — wiersze `relai-panel`, `relai-progress`,
+  `relai-cache-keeper` bez numeru; film — `CYKL` i manifest 14 przy 16 komendach (brak
+  `/relai-humanize`, `/relai-security`); `MODELE.md` pluginu 2026-09-24 starszy niż kopia
+  projektu 2026-10-08; testy filmu 29/36 (FILM_TESTY_V3); **pominięte**: `plugin-test` — żaden
+  mod nie zmienił się od bazy.
+- Testy: `node --test core/process/tests/*.test.js` 206 → 240 (przed — worktree HEAD
+  w `%TEMP%`, usunięty), `core/panel/tests` 216/216, `adapters/codex/tests` 24/24;
+  `validate-adapters.js` → „spojne” (2 ostrzeżenia rozmiaru zastane).
+- `git worktree list` po wszystkich przebiegach: 0 worktree `relai-`; fixtury testów
+  (`%TEMP%/relai-release-test-*`) kasowane w `t.after` — po przebiegu 0.
+- Zakres: `git diff --stat` na `README.md`, `site/`, `docs/zasoby/film/`, `docs/ARTEFAKTY.md`
+  i ścieżkach PANEL_CODEX — pusty. Poza listą punktu 8: `docs/LEKCJE.md` (rytuał etapu) i plik
+  archiwum dziennika (adnotacja z przeglądu spraw na starcie).
+- Katalog roboczy `.claude/relai/work/PIPELINE_WYDAN/E1/`: przed — 6 plików (~47 KB: tekst planu,
+  cztery raporty, skrypt diagnostyczny), po — 0, skasowany po „tak”. Poza katalogiem: worktree
+  `relai-release-check-*` i `relai-e1-przed-*` (usunięte), fixtury `relai-release-test-*`
+  (usunięte przez testy). W `work/PIPELINE_WYDAN/` zostały 4 pliki z sesji planowania — nie E1.
+
+**Świadomie odłożone:**
+
+- Kontrola „zmieniony komponent bez podbicia numeru” (przegląd, MEDIUM) — do E2 razem
+  z propozycją numerów; w E1 pole `wydanie` jest informacyjne.
+- Lista ścieżek historycznych dla starego numeru: przy `a1439b9` 9 plików testów z 3.2.0 jako
+  danymi testów (np. `site/js/wersja.test.mjs`) — fałszywa czerwień przy podbiciu; rozstrzygnąć
+  w E2, zanim komenda zacznie podbijać.
+- Liczby w prozie README czytane z pierwszego akapitu sekcji: numer wersji w tym akapicie dałby
+  fałszywą czerwień (przegląd, uwaga) — zostaje, czerwień jest głośna.
+- `generate-skills.js` bez `--verify` regeneruje pliki (uruchomiony raz przy rozpoznaniu, bez
+  zmian w drzewie) — skrypt woła go wyłącznie z `--verify`.
+
+**Do zrobienia przez człowieka:** —
+
+Przegląd ryzyk: PW1 i PW2 zmitygowane w E1 (opis w tabeli); pozostałe bez zmian.
 
 Autor: RelAI (Opus 5.5) + Lukasz
