@@ -11,7 +11,7 @@ import type { PlanState } from './core/plan-state.mjs'
 import { copyText } from './core/decisions.mjs'
 import type { CleanChoices } from './core/decisions.mjs'
 import type { ChatMode } from './launch'
-import type { PaneData } from './data'
+import type { PaneData, StagePick } from './data'
 import { NONE } from './pane-parts'
 import type { Ctx, Parts } from './pane-parts'
 
@@ -26,8 +26,11 @@ function formValues(all: Record<string, string>, form: Form): Record<string, str
   return out
 }
 
-// What the recommended stage card says under its purpose: the plan and stage the band shows
-function stageHint(plan: PlanState): string {
+// What the recommended stage card says under its purpose: the plan and stage the band shows — or,
+// while the active plan runs in another tool, a plan run here, else why there is none (2026-10-25)
+function stageHint(plan: PlanState, pick: StagePick): string {
+  if (pick.kind === 'plan') return `${pick.plan} · ${pick.stage.id} ${pick.stage.name}`
+  if (pick.kind === 'elsewhere') return `aktywny plan ${pick.plan} prowadzony w ${pick.tool} — tu brak planu do uruchomienia`
   if (plan.kind !== 'ok') return ''
   return plan.stage ? `${plan.plan} · ${plan.stage.id} ${plan.stage.name}` : `${plan.plan} · wszystkie etapy zamknięte`
 }
@@ -37,6 +40,7 @@ function stageHint(plan: PlanState): string {
 export type CommandsCtx = {
   data: PaneData
   plan: PlanState
+  stagePick: StagePick
   picked: string
   values: Record<string, string>
   chat: ChatMode
@@ -95,9 +99,16 @@ export function commandTabs(c: Ctx, parts: Parts, s: CommandsCtx) {
     // instead of sending; /relai-clean keeps its report send and gains the list of groups
     const isStage = c === 'relai-stage'
     const isCarded = isStage || c === 'relai-update' || c === 'relai-models'
-    const copyWhat = isStage && !current.topic && !current.stage && s.plan.kind === 'ok' && s.plan.stage ? copyText(s.plan.statusPath, s.plan.stage.id) : built.text
+    // An empty form starts the stage the card recommends: a plan run here before the active one
+    // when that runs in another tool
+    const pick = s.stagePick
+    const isPicked = isStage && !current.topic && !current.stage && pick.kind === 'plan'
+    const topic = isPicked && pick.kind === 'plan' ? pick.plan : current.topic ?? ''
+    const stage = isPicked && pick.kind === 'plan' ? pick.stage.id : current.stage ?? ''
+    const copyWhat = isPicked && pick.kind === 'plan' ? copyText(`docs/plany/${pick.plan}/STATUS.md`, pick.stage.id)
+      : isStage && !current.topic && !current.stage && s.plan.kind === 'ok' && s.plan.stage ? copyText(s.plan.statusPath, s.plan.stage.id) : built.text
     const actions = isStage
-      ? [btn('prepare', 'Przygotuj start', 'primary', () => s.prepareStage(current.topic ?? '', current.stage ?? '', chat), undefined, true),
+      ? [btn('prepare', 'Przygotuj start', 'primary', () => s.prepareStage(topic, stage, chat), undefined, true),
           btn('copy', 'Kopiuj prompt', 'secondary', () => s.copy(copyWhat), '✓ Skopiowano')]
       : isCarded
         ? [btn('prepare', 'Przygotuj', 'primary', () => s.prepareCommand(c as 'relai-update' | 'relai-models'), undefined, true)]
@@ -173,7 +184,7 @@ export function commandTabs(c: Ctx, parts: Parts, s: CommandsCtx) {
     const isOn = c === picked
     const isOff = name === null
     const [title, purpose] = NAMES[c] ?? [c, '']
-    const hint = isFeatured && c === 'relai-stage' ? stageHint(s.plan) : ''
+    const hint = isFeatured && c === 'relai-stage' ? stageHint(s.plan, s.stagePick) : ''
     const form = isOn ? formOf(c) : undefined
     const what = isOff ? 'niedostępna w tej sesji' : purpose
     // The name, the command and the purpose are pieces of a wrapping row, a cell apart: a desktop

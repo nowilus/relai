@@ -2761,7 +2761,46 @@ E6 BEZPIECZENSTWO nie było na liście).
 **Do zrobienia przez człowieka:**
 
 - Restart aplikacji i rzut oka na listę „Zmień” (dziś w repo jedynym otwartym planem jest
-  PANEL_CODEX w Codeksie — lista pokaże samo „poza planem”).
+  PANEL_CODEX w Codeksie — lista pokaże samo „poza planem”). *(rozstrzygnięte 2026-10-25: Łukasz
+  obejrzał panel po przeładowaniu — lista zgodna, uwaga do karty „Etap planu”, wpis niżej)*
+
+Przegląd ryzyk: bez zmian.
+
+Autor: RelAI (Opus 5.5) + Lukasz
+
+### 2026-10-25 — Panel: karta „Etap planu” bez etapu planu z innego narzędzia (relai-panel 0.21.2)
+
+Po przeładowaniu pluginów Łukasz pokazał zrzut: lista „Zmień” była już pusta poza „poza planem”,
+ale karta „Polecane teraz → Etap planu” dalej proponowała „PANEL_CODEX · E1 Przejęcie rdzenia
+i natywny panel” — etap planu prowadzonego w Codeksie (`stageHint(S.plan)` w
+`panel/hooks/pane-commands.tsx` brał plan z linii w `CLAUDE.md` bez sprawdzenia narzędzia).
+Propozycja przyjęta („Tak, zrealizuj to tak”).
+
+**Zrobione:**
+
+- `data.ts`: typ `StagePick` (`active` / `plan` / `elsewhere`) w `NowData`.
+- `tab-data.ts`: `herePlans` — otwarte plany Claude Code z etapem (jedno źródło dla listy „Zmień”
+  i karty); `stagePickOf` — aktywny plan w Claude Code → bez zmian; w innym narzędziu → pierwszy
+  plan Claude Code z bieżącym etapem, a bez takiego → `elsewhere` z nazwą narzędzia.
+- `pane-commands.tsx`: karta mówi „KOD · EN Nazwa” planu tutaj albo „aktywny plan PANEL_CODEX
+  prowadzony w Codex — tu brak planu do uruchomienia”; pusty formularz „Przygotuj start” i „Kopiuj
+  prompt” idą na plan z karty. Czerwona linia „Ta sesja: nie wybrano…” bez zmian (mówi prawdę).
+- `register.tsx`: `stagePick` z „Teraz” do zakładki komend. `relai-panel` 0.21.2.
+
+**Zweryfikowane — jak dokładnie:**
+
+- Trzy nowe testy w `pane-v2.test.ts`. Pierwszy szkic instrumentu dawał pusty tekst nawet na
+  przypadku regresji (klucz `hint-relai-stage` nie przeżywa opakowania karty) — poprawiony na tekst
+  bloku `featured`; po poprawce na starym kodzie: regresja zielona, dwa nowe czerwone z „Received:
+  "PANEL_X · E2 Decyzje"”. Po zmianie `claude plugin test panel` 214/214; trzeci test sprawdza też,
+  że „Przygotuj start” czyta `docs/plany/KOD_X/STATUS.md`, a nie `PANEL_X`.
+- `plugin validate panel` — „✔ Validation passed”; strona przebudowana z 0.21.2.
+
+**Świadomie odłożone:** —
+
+**Do zrobienia przez człowieka:**
+
+- Przeładowanie pluginów i rzut oka na kartę „Etap planu” (dziś: zdanie o PANEL_CODEX w Codex).
 
 Przegląd ryzyk: bez zmian.
 

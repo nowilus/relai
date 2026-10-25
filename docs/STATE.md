@@ -10,7 +10,7 @@ Plugin `relai` działa w trzech narzędziach — Claude Code, Cursorze i Codeksi
 procesu, z szesnastoma komendami i trzynastoma hookami w Claude Code. W marketplace tego
 repozytorium jest czwarty mod, `relai-mods` 0.1.2 — kokpit pluginów i hooków (plan RELAI_MODS,
 zamknięty 2026-10-24; tag `relai-mods-v0.1.2`). Panel RelAI w oknie Claude Code to trzy osobne pluginy „early access” z marketplace tego
-repozytorium: `relai-panel` 0.21.1 (formularz `/relai-security`; lista „Zmień” z realnymi planami — tag `relai-panel-v0.21.1`), `relai-progress` 0.6.1 (panel „RelAI Agents”, odnoga AGENTS_KRABY), `relai-cache-keeper` 0.12.0 (tag
+repozytorium: `relai-panel` 0.21.2 (formularz `/relai-security`; lista „Zmień” z realnymi planami w 0.21.1, karta „Etap planu” bez etapów planu innego narzędzia w 0.21.2 — tag `relai-panel-v0.21.2`), `relai-progress` 0.6.1 (panel „RelAI Agents”, odnoga AGENTS_KRABY), `relai-cache-keeper` 0.12.0 (tag
 `relai-panel-v0.21.0`, 2026-10-25; wcześniej `relai-panel-v0.20.0`, 2026-10-15: sekcja „Teraz”, baterie w siatce, wiersz kontekstu z progiem
 auto-compactu; wcześniej `relai-panel-v0.19.0`: paski i panel same za jasnym i ciemnym wyglądem aplikacji, pasek
 postępu jako lista kroków — plan WYGLAD_PANELU; 2026-10-14: pasek mówi uczciwie, kiedy nowa sesja się opłaca — odnoga
@@ -157,8 +157,9 @@ po E5 (wydanie panelu 0.20.0 / 0.11.0); HUMANIZACJA zamknięty 2026-10-14 wydani
 
 - **Lista „Zmień” w „Teraz” panelu** (zgłoszenie Łukasza 2026-10-25): poprawiona w repo — każdy
   otwarty plan Claude Code z `docs/plany/` jedną pozycją z bieżącym etapem, bez planów Codeksu
-  i odnóg (`panel/hooks/tab-data.ts`, testy 211/211); wydana w `relai-panel` 0.21.1 (2026-10-25),
-  rzut oka Łukasza na listę po restarcie.
+  i odnóg (`panel/hooks/tab-data.ts`, testy 211/211); wydana w `relai-panel` 0.21.1 (2026-10-25);
+  w 0.21.2 karta „Etap planu” w „Polecane teraz” też pomija plan innego narzędzia — wskazuje plan
+  Claude Code z bieżącym etapem albo mówi, że tu brak planu do uruchomienia.
 - **Po planie BEZPIECZENSTWO (zamknięty 2026-10-25):** pomiar zdarzenia po narzędziu w Cursorze
   świadomie odłożony (`agent login`, sonda `postToolUse` / `afterFileEdit` / `afterShellExecution`;
   jest → hook `lockfile-scan` w instalatorze Cursora); narzędzia filmu mają `"overrides": {"zod":
@@ -224,7 +225,7 @@ po E5 (wydanie panelu 0.20.0 / 0.11.0); HUMANIZACJA zamknięty 2026-10-14 wydani
 ### Wersja i instalacja
 
 Repo i publicznie **3.3.0**; marketplace w tym repozytorium (scope `user`) niesie pięć pluginów:
-`relai` i cztery mody z własnymi wersjami i tagami (`relai-panel-v0.21.1`, `relai-mods-v0.1.2`). Wydanie
+`relai` i cztery mody z własnymi wersjami i tagami (`relai-panel-v0.21.2`, `relai-mods-v0.1.2`). Wydanie
 potwierdzasz treścią plików z cache'u, nie komunikatem CLI (P-005): `claude plugin validate` → tag
 → push → release → `marketplace update` → `plugin update` → suma plików po CRLF → LF. Walidator
 `core/tools/validate-adapters.js` sprawdza 7 źródeł wersji (w tym baner README i „Gdzie jesteśmy”)

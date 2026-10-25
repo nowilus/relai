@@ -856,7 +856,7 @@ export const register: Register = (on) => {
       : ['', 'diff' as const, 'changed' as const, 'tiles' as const, 0, { turn: '', paths: [] as string[] }]
     const docs = tab === 'docs' ? await docsData($, key, pickNow, modeNow, changedNow.paths) : null
     const body = now ? commandTabs(c, p, {
-      data: d, plan: S.plan, picked, values: all, chat, canNew, clean, pick,
+      data: d, plan: S.plan, stagePick: now.stagePick, picked, values: all, chat, canNew, clean, pick,
       setValue: (k, v) => { void update($, values, (m) => ({ ...m, [k]: v })) },
       setChat: (x) => { void update($, chatKept, () => x) },
       prepareStage: (topic, stage, mode) => { void prepareStage($, topic, stage, mode) },

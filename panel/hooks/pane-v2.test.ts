@@ -262,6 +262,48 @@ describe('"Teraz" opened from the plan bar (Z13)', () => {
   })
 })
 
+// 2026-10-25 (Łukasz, live): "Polecane teraz" offered the stage of PANEL_CODEX, a plan run in
+// Codex. The card offers a stage of a plan run in Claude Code, or says why there is none here.
+describe('"Etap planu" in "Polecane teraz" when the active plan runs in another tool', () => {
+  const codexStatus = STATUS.replace('model wykonawczy: Opus, w Claude Code', 'model wykonawczy etapów: **gpt-6.1-sol w Codeksie**')
+  const codexOnly = { ...FILES, [`${CWD}/docs/plany/PANEL_X/STATUS.md`]: codexStatus }
+  const withClaudePlan = { ...codexOnly, [`${CWD}/docs/plany/KOD_X/STATUS.md`]: STATUS.replace(/PANEL_X/g, 'KOD_X') }
+  const hintOf = async (files: Record<string, string>, $: Engine, on: On) => {
+    const { calls } = world(on, files)
+    const ui = await open($)
+    // The hint's own key does not survive the card's wrapping: it is the text between the stage
+    // card's purpose and the next recommended card
+    const featured = textOf(await ui.find({ key: 'featured' }))
+    const hint = featured.split('Uruchom następny etap aktywnego planu')[1]?.split('Optymalizator promptu')[0] ?? `brak karty: ${featured}`
+    return { calls, ui, hint }
+  }
+
+  test('the active plan in Claude Code: the card names its stage, as before', async ($, on) => {
+    const { ui, hint } = await hintOf(FILES, $, on)
+    expect(hint).toBe('PANEL_X · E2 Decyzje')
+    await ui.unmount()
+  })
+
+  test('the active plan in Codex, no plan run here: the card says so and names no stage of it', async ($, on) => {
+    const { ui, hint } = await hintOf(codexOnly, $, on)
+    expect(hint).toBe('aktywny plan PANEL_X prowadzony w Codex — tu brak planu do uruchomienia')
+    expect(hint).not.toContain('E2')
+    await ui.unmount()
+  })
+
+  test('the active plan in Codex, a plan run here: the card names that plan, and "Przygotuj start" reads it', async ($, on) => {
+    const { calls, ui, hint } = await hintOf(withClaudePlan, $, on)
+    expect(hint).toBe('KOD_X · E2 Decyzje')
+    await ui.press({ key: 'cmd-relai-stage' })
+    const before = calls.reads.length
+    await ui.press({ key: 'prepare' })
+    const read = calls.reads.slice(before)
+    expect(read).toContain(`${CWD}/docs/plany/KOD_X/STATUS.md`)
+    expect(read).not.toContain(`${CWD}/docs/plany/PANEL_X/STATUS.md`)
+    await ui.unmount()
+  })
+})
+
 describe('the commands tab (brief v2 §6.3–6.5, P1)', () => {
   test('two recommended cards with 44 px icons; fourteen rows of one line: 24 px icon, name, command, purpose, "Otwórz"', async ($, on) => {
     world(on)

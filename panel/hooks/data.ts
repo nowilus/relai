@@ -64,4 +64,10 @@ export type DocsData = { changed: Doc[], edited: Doc[], groups: DocGroup[], tree
 // The work of the session (Z12) and what "Zmień" offers: the active plan's open stages, the open
 // thread cards, outside any plan
 export type FocusChoice = { key: string, label: string, target: FocusTarget | 'outside' }
-export type NowData = { plan: PlanState, progress: Progress, work: Work, choices: FocusChoice[] }
+// The stage "Polecane teraz" offers (2026-10-25): the active plan's, while it runs in Claude Code;
+// else the first open plan run here; else none, with the tool the active plan runs in
+export type StagePick =
+  | { kind: 'active' }
+  | { kind: 'plan', plan: string, stage: { id: string, name: string } }
+  | { kind: 'elsewhere', plan: string, tool: string }
+export type NowData = { plan: PlanState, progress: Progress, work: Work, choices: FocusChoice[], stagePick: StagePick }

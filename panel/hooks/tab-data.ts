@@ -22,7 +22,7 @@ import { CREW_DIR, MEASURE_DIR, localDay, readRel } from './pane-io'
 import type { PaneIo } from './pane-io'
 import { branchProgress, cardPackets, cardPathOf, cardStatus, countedOf, executorTool, packetNow, statusPathOf } from './focus'
 import { parseStatus } from './core/plan-state.mjs'
-import type { FocusChoice } from './data'
+import type { FocusChoice, StagePick } from './data'
 
 // The session's commands and the project's cheat sheet (register.tsx reads both, loadData)
 export function paneData(list: readonly { name: string, description?: string }[], text: string | null): PaneData {
@@ -177,23 +177,39 @@ export async function commandFacts(io: PaneIo, command: 'relai-update' | 'relai-
 // plan's too, and every open thread card): each plan in docs/plany/ run in Claude Code that has a
 // stage to work on, once, with that stage (W TOKU, else GOTOWY DO STARTU) — closed plans and plans
 // waiting for acceptance have none — and outside any plan. A thread is still picked up from its prompt.
-async function focusChoices(io: PaneIo): Promise<FocusChoice[]> {
-  const out: FocusChoice[] = []
+type HerePlan = { plan: string, stage: { id: string, name: string } }
+async function herePlans(io: PaneIo): Promise<HerePlan[]> {
+  const out: HerePlan[] = []
   for (const plan of await io.folders('docs/plany')) {
     const statusMd = await readRel(io, statusPathOf(plan))
     if (statusMd === null || executorTool(statusMd) !== null) continue
     const { stages } = parseStatus(statusMd)
     const st = stages.find((s) => s.status === 'W TOKU') ?? stages.find((s) => s.status === 'GOTOWY DO STARTU')
-    if (!st) continue
-    out.push({ key: `plan:${plan}:${st.id}`, label: `${plan} · ${st.id}${st.name ? ` ${st.name}` : ''}`, target: { kind: 'plan', plan, stage: st.id } })
+    if (st) out.push({ plan, stage: { id: st.id, name: st.name } })
   }
+  return out
+}
+
+function focusChoices(plans: HerePlan[]): FocusChoice[] {
+  const out: FocusChoice[] = plans.map(({ plan, stage }) => ({ key: `plan:${plan}:${stage.id}`, label: `${plan} · ${stage.id}${stage.name ? ` ${stage.name}` : ''}`, target: { kind: 'plan', plan, stage: stage.id } }))
   return [...out, { key: 'outside', label: 'poza planem', target: 'outside' }]
+}
+
+// "Polecane teraz" never offers a stage of a plan run in another tool (2026-10-25)
+async function stagePickOf(io: PaneIo, plans: HerePlan[]): Promise<StagePick> {
+  const active = io.session().plan
+  const tool = active.kind === 'ok' ? executorTool(await readRel(io, active.statusPath)) : null
+  if (active.kind !== 'ok' || tool === null) return { kind: 'active' }
+  const first = plans[0]
+  return first ? { kind: 'plan', ...first } : { kind: 'elsewhere', plan: active.plan, tool }
 }
 
 export async function nowData(io: PaneIo): Promise<NowData> {
   const work = io.session().work
   const plan = work.plan
-  const choices = await focusChoices(io)
+  const plans = await herePlans(io)
+  const choices = focusChoices(plans)
+  const stagePick = await stagePickOf(io, plans)
   const run = (await io.folders(CREW_DIR)).at(-1)
   const crew = run ? crewProgress(run, await readRel(io, `${CREW_DIR}/${run}/zadania.json`),
     await readRel(io, `${CREW_DIR}/${run}/manifest.json`), await io.now()) : null
@@ -201,7 +217,7 @@ export async function nowData(io: PaneIo): Promise<NowData> {
   if (work.focus?.kind === 'branch' && !work.isAsking) {
     const own = branchProgress(await readRel(io, cardPathOf(work.focus.card)))
     const fallback = { kind: 'stage' as const, title: work.label, done: 0, total: 0, percent: null, items: [], words: 'karta bez paczek do odhaczenia' }
-    return { plan, work, choices, progress: pickProgress(crew, own ?? fallback) }
+    return { plan, work, choices, stagePick, progress: pickProgress(crew, own ?? fallback) }
   }
   let promptText: string | null = null
   let link: string | null = null
@@ -210,5 +226,5 @@ export async function nowData(io: PaneIo): Promise<NowData> {
     link = statusMd === null ? null : promptLink(statusMd, plan.stage.id, plan.statusPath)
     promptText = link === null ? null : await readRel(io, link)
   }
-  return { plan, work, choices, progress: pickProgress(crew, stageProgress(countedOf(work.focus, plan), promptText, link ?? 'prompt')) }
+  return { plan, work, choices, stagePick, progress: pickProgress(crew, stageProgress(countedOf(work.focus, plan), promptText, link ?? 'prompt')) }
 }
