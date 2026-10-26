@@ -416,22 +416,26 @@ wpisujesz do wpisu dziennika **z nazwy**, a jego nazwę zaczynasz od slugu proje
 Każdy punkt Weryfikacji, który przeszedł, odhaczasz w `PROMPT_ETAP_2.md` (`- [ ]` → `- [x]`)
 zaraz po jego sprawdzeniu, nie na końcu etapu; punkt, który nie przeszedł, zostaje pusty.
 
-- [ ] Krok 3a jest w trzech plikach: `grep -c "3a\."` na dwóch `session-close.md` i na
+- [x] Krok 3a jest w trzech plikach: `grep -c "3a\."` na dwóch `session-close.md` i na
       `relai-core.mdc` → co najmniej 1 w każdym; kontrola pozytywna: ten sam wzorzec trafia `2a.`
       po podmianie cyfry (instrument nie jest ślepy).
-- [ ] Dowód negatywny: kroki 1–6 i 2a w trzech plikach mają pierwotne brzmienie — `git diff`
+- [x] Dowód negatywny: kroki 1–6 i 2a w trzech plikach mają pierwotne brzmienie — `git diff`
       pokazuje wyłącznie linie dodane w miejscu kroku 3a i pozycję listy do odhaczania.
-- [ ] `node adapters/codex/generate-skills.js --verify` → „spojne”.
-- [ ] `SPEC_WZNOWIENIE.md`: czwarta droga zgody w „Polityce aktualizacji” i w „Zakazach”;
+- [x] `node adapters/codex/generate-skills.js --verify` → „spojne”.
+- [x] `SPEC_WZNOWIENIE.md`: czwarta droga zgody w „Polityce aktualizacji” i w „Zakazach”;
       zdanie „Nikt nie kasuje pliku sam” bez zmian (dowód negatywny).
 - [ ] Pomiar na żywo (punkt 6 zakresu): w jednym przebiegu wersja „przed” (plik zostaje) i „po”
       (jedno pytanie; po „tak” brak `.md`, `.patch` jest; następny start bez zdania o pliku
       wznowienia) — wyniki i nazwa katalogu pomiaru w wpisie.
-- [ ] `node --test "core/process/tests/*.test.js"` → bez porażek, liczba ≥ 272;
+      **Częściowo (2026-10-26):** „przed” bez pytania, plik zostaje; „po” jedno pytanie z łatką,
+      na „tak” `rm` wyłącznie `.md` — odrzucone przez harness `-p` (P-014, dopisek), więc brak
+      `.md` i następny start bez wzmianki niezmierzone. Decyzja Łukasza: bramka manualna po E5
+      (pomiar w aplikacji na wydanym pluginie).
+- [x] `node --test "core/process/tests/*.test.js"` → bez porażek, liczba ≥ 272;
       `node --test "adapters/codex/tests/*.test.js"` → bez porażek, liczba ≥ 24.
-- [ ] `node core/tools/release-check.js --szybko` — zero czerwieni wynikających z plików E2.
-- [ ] Wpis w `docs/DZIENNIK.md` dopisany na końcu sekcji „Wpisy”; `docs/STATE.md` zaktualizowany.
-- [ ] Katalog roboczy `.claude/relai/work/ZGLOSZENIA/E2/` przejrzany raportem
+- [x] `node core/tools/release-check.js --szybko` — zero czerwieni wynikających z plików E2.
+- [x] Wpis w `docs/DZIENNIK.md` dopisany na końcu sekcji „Wpisy”; `docs/STATE.md` zaktualizowany.
+- [x] Katalog roboczy `.claude/relai/work/ZGLOSZENIA/E2/` przejrzany raportem
       (`node .claude/relai/tools/clean-work.js raport`) i skasowany po „tak”; liczby przed i po
       w sekcji „Zweryfikowane” wpisu. Artefakty poza tym katalogiem (np. katalog pomiaru
       w `%TEMP%`) wypisane z nazwy razem z tym, co się z nimi stało.

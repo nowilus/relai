@@ -225,6 +225,18 @@ finish a larger chunk of work:
 3. **Journal entry** — one entry for the session, all four sections. "Zweryfikowane — jak dokładnie"
    must say what you checked and with what result; "nie weryfikowano" is acceptable content, a
    missing section is not.
+3a. **Resume file** — the file `.claude/relai/wznowienie/<project-slug>.md` (slug as in
+   `SPEC_WZNOWIENIE.md`) exists → **one** question whether to delete it, with its metric line
+   (`Zapisano: … · HEAD: …`) and the number of commits since it was written, if you have it at
+   hand. The state is already in the documents (step 3), so the file adds nothing. "Yes" deletes
+   **only** the `.md` file. A patch `<project-slug>.patch` lies next to it → the question names it,
+   "yes" does not delete it, and the summary (step 6) says in one sentence that it stayed. Any other
+   answer → the file stays, the start hook mentions it in the next session, and the question does
+   not come back in this session. The file is newer than the last commit → you ask the same way; you
+   do not compare dates. No file → the step leaves no trace, not a word. A non-interactive session
+   (`claude -p`, background agent) → no question and no deletion; one sentence in the summary that
+   the file is waiting. The number is `3a` and not `4` on purpose — as with step 2a: the 1–6
+   numbering does not move.
 4. **Risks** — update the "Stan otwartych ryzyk" table if anything opened, closed or changed level.
 5. **Commit** — if the project uses git and there are uncommitted changes, propose a conventional
    commit. Never commit without consent.

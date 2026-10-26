@@ -11,7 +11,7 @@ gdy sam kończysz większą porcję pracy. Skopiuj listę do odpowiedzi i odhacz
 
 ```
 Zamknięcie sesji: [ ] 1 sync + liczba zasad  [ ] 2 rotacja  [ ] 2a artefakty  [ ] 3 wpis
-                  [ ] 4 ryzyka  [ ] 5 commit (propozycja)  [ ] 6 podsumowanie
+                  [ ] 3a wznowienie  [ ] 4 ryzyka  [ ] 5 commit (propozycja)  [ ] 6 podsumowanie
 ```
 
 Kolejność:
@@ -30,6 +30,17 @@ Kolejność:
 3. **Wpis do dziennika** — jeden wpis zbiorczy za sesję, na końcu sekcji „Wpisy". Sekcja
    „Zweryfikowane — jak dokładnie" musi mówić, czym i z jakim wynikiem sprawdzałeś; „nie
    weryfikowano" jest dopuszczalną treścią, brak sekcji nie jest.
+3a. **Plik wznowienia** — plik `.claude/relai/wznowienie/<slug-projektu>.md` (slug wg
+   `SPEC_WZNOWIENIE.md`) istnieje → **jedno** pytanie, czy go skasować, z jego linią metryczną
+   (`Zapisano: … · HEAD: …`) i liczbą commitów od zapisu, jeśli masz ją pod ręką. Stan jest już
+   w dokumentach (krok 3), więc plik nic nie wnosi. „Tak” kasuje **wyłącznie** plik `.md`. Leży
+   obok łatka `<slug-projektu>.patch` → pytanie ją wymienia, „tak” jej nie kasuje, a podsumowanie
+   (krok 6) mówi jednym zdaniem, że została. Każda inna odpowiedź → plik zostaje, hook startu
+   wspomni o nim w następnej sesji, a pytanie w tej sesji nie wraca. Plik nowszy niż ostatni
+   commit → pytasz tak samo; dat nie porównujesz. Pliku nie ma → krok bez śladu, ani słowa. Sesja
+   nieinteraktywna (`claude -p`, agent w tle) → bez pytania i bez kasowania; jedno zdanie
+   w podsumowaniu, że plik czeka. Numer `3a`, a nie `4`, jest świadomy — jak przy kroku 2a:
+   numeracji kroków 1–6 nie ruszamy.
 4. **Ryzyka** — zaktualizuj tabelę „Stan otwartych ryzyk", jeśli któreś zamknięto, otwarto albo
    zmienił się jego poziom. Projekt ma plik blokady, a sesja zmieniała zależności → najpierw
    szybki skan Trivy ze skilla `trivy-scan` (`scan.mjs --path <korzeń projektu> --quick --json`);

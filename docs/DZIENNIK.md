@@ -1943,3 +1943,69 @@ wdrożenie, gdy zbudowana strona wskazuje nieistniejący plik albo komenda nie m
 Przegląd ryzyk: bez zmian (ryzyko 6 planu — zastane braki blokujące wdrożenie — nie zaszło).
 
 Autor: RelAI (Opus 5.5) + Lukasz
+
+### 2026-10-26 — ZGLOSZENIA E2: pytanie o plik wznowienia w rytuale zamknięcia (#3)
+
+**Zrobione:**
+
+- Krok `3a. **Plik wznowienia**` w rytuale zamknięcia: `adapters/claude-code/skills/relai-core/session-close.md`
+  (pozycja `[ ] 3a wznowienie` na liście do odhaczania i treść kroku po kroku 3), Codex przez
+  `generate-skills.js` (plik generowany ze źródła Claude Code), Cursor — `3a. **Resume file**`
+  w `adapters/cursor/rules/relai-core.mdc`. Numeracja 1–6 i krok 2a bez zmian.
+- `core/templates/SPEC_WZNOWIENIE.md`: czwarta droga zgody (pytanie w kroku 3a) w „Polityce
+  aktualizacji” i w „Zakazach”; kopia w `.claude/relai/templates/` nietknięta.
+- `history.md` skilla: akapit „Niewydane (po 3.4.0)” — kontrola `historia` raportu wydania liczy
+  tylko wiersze „Wersja X.Y.Z”, więc akapit bez numeru jej nie myli; numer nada E5.
+- `docs/ARTEFAKTY.md`: zamknięcie sesji 3 → 4, specyfikacja pliku wznowienia 3 → 4, historia
+  wersji 9 → 10, reguła Cursora 5 → 6 (dwie ostatnie dopisane po czerwieni `release-check`).
+- `docs/PULAPKI.md`: dopisek do P-014 — badana sesja `-p` nie skasuje pliku pod `.claude/`
+  projektu kontrolnego nawet z `Bash(rm:*)`.
+
+**Zweryfikowane — jak dokładnie:**
+
+- `grep -c "3a\."` na obu `session-close.md` i `relai-core.mdc` → 1/1/1; kontrola `2a.` → 1/1/1.
+- Dowód negatywny: `git diff -U0` trzech plików usuwa jedynie starą drugą linię listy do
+  odhaczania; `SPEC_WZNOWIENIE.md` — dwie linie przedłużone, zdanie „Nikt nie kasuje pliku sam.”
+  w HEAD i po zmianie (1 = 1).
+- `generate-skills.js --verify`: przed generatorem „rozjazd 1 plikow” (`session-close.md`), po nim
+  „spojne” (52 pliki).
+- Pomiar na żywo, jeden przebieg obu wersji na kopii `core/evals/fixtures/relai` z podłożonym
+  plikiem wznowienia i łatką `.patch`; katalogi `%TEMP%/relai-e2-przed` i `%TEMP%/relai-e2-po`,
+  plugin „przed” z `git worktree` HEAD-a (`%TEMP%/relai-e2-plugin-head`, 0 trafień `3a.`), „po”
+  z drzewa roboczego; ścieżka pluginu potwierdzona w `init`; `claude -p` 2.1.304, Opus,
+  `--setting-sources project,local`, tury „kończymy na dziś” → „tak” (`--resume`) → nowy start.
+  - „Przed”: bez pytania; podsumowanie „Plik wznowienia zostawiam”; po „tak” `.md` i `.patch` są.
+  - „Po”: lista z `[ ] 3a wznowienie`, **jedno** pytanie z linią metryczną (`HEAD: 10a6d91`,
+    zero commitów od zapisu) i wzmianką, że łatki nie skasuje; na „tak” polecenie
+    `rm .claude/relai/wznowienie/relai-e2-po.md` (sam `.md`) — w `permission_denials`, plik został;
+    sesja powiedziała to wprost. Próba z `--allowedTools "Bash(rm:*)"` — też odrzucona (P-014).
+  - Następny start: w obu wersjach hook wspomina o pliku (21 i 27 trafień „wznowieni”) — w „po”
+    dlatego, że plik nie zniknął; „brak `.md` po tak” i „start bez wzmianki” **niezmierzone**.
+    Decyzja Łukasza: bramka manualna po E5, punkt Weryfikacji 5 zostaje nieodhaczony z adnotacją.
+- `node --test "core/process/tests/*.test.js"` → 272/272; `node --test "adapters/codex/tests/*.test.js"`
+  → 24/24.
+- `node core/tools/release-check.js --szybko`: najpierw czerwień `artefakty` (bez wpisu:
+  `history.md`, `relai-core.mdc`), po dopisaniu wierszy — zero czerwieni; propozycja `relai`
+  3.4.0 → 3.5.0 (minor) do E5.
+- Katalog roboczy `.claude/relai/work/ZGLOSZENIA/E2/`: przed — 17 plików, 430 KB (skrypt
+  `pomiar.js`, transkrypty i logi obu wersji); po „tak” Łukasza skasowany, raport `clean-work.js`
+  — 0 trafień. Poza katalogiem: worktree `%TEMP%/relai-e2-plugin-head` usunięty (`git worktree
+  remove`, `prune`), `%TEMP%/relai-e2-przed` i `%TEMP%/relai-e2-po` skasowane (0 trafień
+  `relai-e2` w `%TEMP%`).
+
+**Świadomie odłożone:**
+
+- `.claude/relai/work/ZGLOSZENIA/plan-fill.mjs` i `zasady.md` — pozostałości sprzed etapów planu,
+  nie E2; nie ruszane.
+- `.claude/launch.json` — nieśledzony plik spoza etapu.
+- Rotacja zamkniętych ryzyk (sekcja ponad progiem) — przy „kończymy na dziś”.
+
+**Do zrobienia przez człowieka:**
+
+- Po wydaniu w E5: w aplikacji, w projekcie z plikiem wznowienia, „kończymy na dziś” → jedno
+  pytanie → „tak” → plik `.md` znika, `.patch` zostaje; następny start sesji bez zdania o pliku.
+
+Przegląd ryzyk: bez zmian (ryzyka 4 i 5 planu — plik kasowany bez zgody, łatka skasowana razem
+z plikiem — nie zaszły: kasowanie tylko po „tak”, polecenie dotyczyło samego `.md`).
+
+Autor: RelAI (Opus 5.5) + Lukasz

@@ -49,7 +49,10 @@ z linią `Zgoda na skasowanie pliku wznowienia po wznowieniu: tak (karta „Wzn�
 model czyta plik, proponuje krok 1 i dopiero wtedy go kasuje; „Odrzuć” wysyła wyłącznie prośbę
 o skasowanie, bez wznawiania. Fraza „kontynuujemy pracę” wpisana ręcznie, bez linii zgody, przy
 istniejącym pliku → model po akapicie „gdzie jesteśmy” **pyta raz**, czy skasować plik; „tak”
-kasuje, każda inna odpowiedź go zostawia. Do tego czasu hook startu wspomina o pliku jednym
+kasuje, każda inna odpowiedź go zostawia. Rytuał zamknięcia „kończymy na dziś” przy istniejącym
+pliku **pyta raz** w kroku 3a, po wpisie do dziennika, czy go skasować; „tak” kasuje wyłącznie
+plik `.md` (łatka `.patch` zostaje), każda inna odpowiedź go zostawia, a sesja nieinteraktywna nie
+pyta i nie kasuje. Do tego czasu hook startu wspomina o pliku jednym
 zdaniem w każdej nowej sesji projektu, razem z liczbą commitów, które doszły od hasha `HEAD`
 z linii metrycznej (albo z ostrzeżeniem, że hash jest w repozytorium nieznany). Pasek cache
 traktuje plik jako sam zapis: gdy go nie ma, wiersz „zapis gotowy” znika.
@@ -95,7 +98,8 @@ stoi ścieżka łatki z tym fragmentem, a w „Co dalej” krok, który do niego
 - Nie commitujesz pliku wznowienia i nie przenosisz go do `docs/`.
 - Nie kasujesz go w procedurze zapisu ani na starcie sesji — tylko na zgodę człowieka: linia
   zgody z karty „Wznów pracę” we frazie, prośba z karty „Odrzuć”, prośba wpisana w czacie albo
-  „tak” na jedno pytanie po ręcznym „kontynuujemy pracę”.
+  „tak” na jedno pytanie po ręcznym „kontynuujemy pracę” albo „tak” na jedno pytanie w kroku 3a
+  rytuału zamknięcia (kasuje sam plik `.md`, nie łatkę).
 - Nie zmieniasz nazwy katalogu `wznowienie/` przy projekcie w innym języku.
 
 ## Przykład (projekt polski, katalog `Sklep`, przerwany etap planu)

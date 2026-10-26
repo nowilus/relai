@@ -7,13 +7,20 @@ Plan: [PLAN.html](PLAN.html) · Utworzony: 2026-10-26 · Status planu: **ZAAKCEP
 | Etap | Nazwa | Status | Prompt | Uwagi |
 |---|---|---|---|---|
 | E1 | Ikona na stronie | ZREALIZOWANY 2026-10-26 | [PROMPT_ETAP_1.md](PROMPT_ETAP_1.md) | ikona skopiowana, test odwołań w `strona.yml`; na żywo 200 |
-| E2 | Plik wznowienia w zamknięciu (#3) | GOTOWY DO STARTU | [PROMPT_ETAP_2.md](PROMPT_ETAP_2.md) | wariant: pytanie raz, kasowanie po „tak” |
-| E3 | Pasek cache w terminalu (#2) | OCZEKUJE | — | wariant: siatka bez linii b |
+| E2 | Plik wznowienia w zamknięciu (#3) | ZREALIZOWANY 2026-10-26 | [PROMPT_ETAP_2.md](PROMPT_ETAP_2.md) | krok 3a w trzech adapterach; zniknięcie pliku po „tak” — bramka po E5 |
+| E3 | Pasek cache w terminalu (#2) | GOTOWY DO STARTU | [PROMPT_ETAP_3.md](PROMPT_ETAP_3.md) | wariant: siatka bez linii b |
 | E4 | Tytuł nowej sesji (#1) | OCZEKUJE | — | sonda `sessionTitle` przed kodem |
 | E5 | Wydanie i zamknięcie zgłoszeń | OCZEKUJE | — | numery i komentarze na GitHubie po „tak” |
+
+## Bramki manualne
+
+- **Pomiar w aplikacji po wydaniu: „kończymy na dziś” → jedno pytanie → „tak” → plik wznowienia
+  `.md` znika, `.patch` zostaje; następny start bez zdania o pliku** · źródło: wpis dziennika
+  2026-10-26 (E2) · **OTWARTA**
 
 ## Dziennik wdrożenia
 
 - 2026-10-26 — plan utworzony po wywiadzie z Łukaszem (cztery decyzje: ikona w planie, jeden plan, plik wznowienia z pytaniem, siatka bez linii b; tytuł z fokusu przy pierwszym prompcie-kontynuacji), przekazany do akceptacji.
 - 2026-10-26 — plan ZAAKCEPTOWANY bez zmian („Akceptuję plan ZGLOSZENIA bez zmian.”); wygenerowano PROMPT_ETAP_1.
 - 2026-10-26 — E1 ZREALIZOWANY: `site/grafika/ikony/security.svg` (kopia bajt w bajt) i test `site/narzedzia/odwolania.test.mjs` (26 testów, RED przed kopią na czterech stronach); testy strony 370 → 396; commit `e42f9a3` wypchnięty, `strona.yml` zielony, ikona 200 na żywo; wygenerowano PROMPT_ETAP_2.
+- 2026-10-26 — E2 ZREALIZOWANY: krok 3a „Plik wznowienia” w `session-close.md` (Claude Code, Codex) i `relai-core.mdc`, czwarta droga zgody w `SPEC_WZNOWIENIE.md`; testy 272/272 i 24/24, `release-check --szybko` bez czerwieni; pomiar `-p` „przed”/„po”: pytanie pada raz, `rm` samego `.md` odrzucone przez harness (P-014) — zniknięcie pliku jako bramka manualna po E5 (decyzja Łukasza); L-0281; wygenerowano PROMPT_ETAP_3.

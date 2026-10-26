@@ -93,12 +93,15 @@ PANEL_CODEX (E1 w toku). Opinii spoza projektu nadal nie ma.
   pokazuje właściwy stan, układ zaakceptowany; sonda 0.0.9 z poprawką fontów czeka na pomiar po
   przeładowaniu macierzystego procesu. Tabela STATUS planu pokazuje jeszcze `GOTOWY DO STARTU` —
   do wyprostowania na `W TOKU`. Kontrakt w [README adaptera](../adapters/codex/panel/README.md).
-- **Plan ZGLOSZENIA — E1 ZREALIZOWANY 2026-10-26, E2 gotowy do startu** (plan [ZGLOSZENIA](plany/ZGLOSZENIA/STATUS.md), 2026-10-26,
+- **Plan ZGLOSZENIA — E1 i E2 ZREALIZOWANE 2026-10-26, E3 gotowy do startu** (plan [ZGLOSZENIA](plany/ZGLOSZENIA/STATUS.md), 2026-10-26,
   5 etapów, Opus). E1: ikona `/relai-security` na stronie (kopia z brandingu, na żywo 200) i test
   `site/narzedzia/odwolania.test.mjs` — zbudowana strona odwołująca się do nieistniejącego pliku
-  albo komenda bez ikony zatrzymuje wdrożenie w `strona.yml` (testy strony 396). Dalej: #3 (plik
-  wznowienia po „kończymy na dziś” — E2), #2 (pasek cache w terminalu — E3), #1 (tytuł nowej sesji
-  przez `sessionTitle` hooka — sonda przed kodem, E4), wydanie i zamknięcie zgłoszeń (E5).
+  albo komenda bez ikony zatrzymuje wdrożenie w `strona.yml` (testy strony 396). E2 (#3, w repo,
+  niewydane): rytuał „kończymy na dziś” ma krok 3a — istniejący plik wznowienia → jedno pytanie,
+  „tak” kasuje sam `.md`, łatka zostaje; w trzech adapterach, `SPEC_WZNOWIENIE.md` z czwartą drogą
+  zgody. Zniknięcie pliku po „tak” czeka na pomiar w aplikacji po wydaniu (bramka manualna; `-p`
+  nie kasuje pod `.claude/`, P-014). Dalej: #2 (pasek cache w terminalu — E3), #1 (tytuł nowej
+  sesji przez `sessionTitle` hooka — sonda przed kodem, E4), wydanie i zamknięcie zgłoszeń (E5).
 
 ## Co dalej
 

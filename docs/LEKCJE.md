@@ -220,14 +220,17 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
       kontekstu — model pisze też powłoką (L-0190); projekt pomiaru na żywo poza `.claude/`
       (harness odrzuca tam edycje), najpierw `permission_denied`, a kontekst hooka `PostToolUse`
       liczysz w transkrypcie na dysku, nie w stream-json (L-0263); pomiar reguły w `claude -p`
-      niesie `--allowedTools` dla każdego polecenia, które reguła uruchamia, dosłownie (L-0273).
+      niesie `--allowedTools` dla każdego polecenia, które reguła uruchamia, dosłownie (L-0273);
+      zapis albo skasowanie pod `.claude/` przez badaną sesję `-p` mierzysz poleceniem
+      w transkrypcie, a stan pliku — interaktywnie albo bramką (L-0281).
     - **Usługi zewnętrzne:** stan ustawienia repozytorium czytasz z API (`gh api repos/<repo>/pages`),
       nie ze zrzutu ani słowa człowieka (L-0244); obraz dla cudzej usługi w proporcji zmierzonej na
       opublikowanym widoku, każda podmiana pod nowym adresem (L-0245); strona wskazująca zasób
       wydania wdraża się po wydaniu — push tagu, wydanie z zasobami i ich sumy, potem push `main`
       (L-0280).
     (L-0041, L-0042, L-0044, L-0047, L-0092, L-0133, L-0136, L-0138, L-0139, L-0146, L-0153, L-0166,
-    L-0168, L-0185, L-0189, L-0190, L-0244, L-0245, L-0253, L-0255, L-0263, L-0264, L-0273, L-0280)
+    L-0168, L-0185, L-0189, L-0190, L-0244, L-0245, L-0253, L-0255, L-0263, L-0264, L-0273, L-0280,
+    L-0281)
 14. **Najpierw zmiana w repozytorium, potem zdanie, które ją opisuje.** Weryfikację planujesz tam,
     gdzie wykonalna; po pytaniu sprzątasz sam; jednostką inwentarza jest sprawa, nie linia; wstawkę
     kotwiczysz do elementu, który przeżyje operację, i dowodzisz **obecności** nowej treści. Gdy
@@ -581,6 +584,16 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
 - **Zasada:** gdy commit wydania zmienia adres na zasób, który powstaje dopiero z wydaniem,
   kolejność jest taka: push tagu (bramka), wydanie GitHub z zasobami i sprawdzenie ich sum,
   dopiero potem push `main`. Odstępstwo od kolejności komendy pada w pytaniu o zgodę, z powodem.
+
+### L-0281 — Punkt „plik znika” pod `.claude/` nie jest mierzalny w `claude -p` · 2026-10-26 · AKTYWNA
+
+- **Trigger:** ZGLOSZENIA E2. Prompt etapu kazał zmierzyć w sesji `-p`, że po „tak” plik
+  wznowienia znika. Badana sesja wydała poprawne `rm`, ale harness odrzucił je jako zapis pod
+  chronionym `.claude/` — z `--allowedTools Bash` i z dosłownym `Bash(rm:*)`. Punkt Weryfikacji
+  nie przeszedł z powodu instrumentu, nie reguły, i trafił do bramki manualnej.
+- **Zasada:** punkt Weryfikacji, który wymaga zapisu albo skasowania pod `.claude/` przez badaną
+  sesję `-p`, autor promptu formułuje jako polecenie w transkrypcie (`rm` sam `.md`), a stan pliku
+  przenosi do pomiaru interaktywnego albo bramki manualnej już w prompcie (P-014, dopisek).
 
 ## Lekcje zwinięte
 

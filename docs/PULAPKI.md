@@ -878,6 +878,12 @@ Specyfikacja: `SPEC_PULAPKI.md`.
 - **Zasięg:** każdy pomiar z drugą sesją Claude Code w roli badanego: inicjalizacja, adopcja,
   instalacja pluginu, przebieg dowodowy. Zmierzone 2026-09-12: osiem plików odrzuconych przy próbie
   inicjalizacji pod `.claude/relai/work/...`, ten sam prompt bez zmian przeszedł w `%TEMP%`.
+- **Dopisek 2026-10-26 (ZGLOSZENIA E2):** to samo dotyczy `.claude/` **projektu kontrolnego
+  w `%TEMP%`** — badana sesja `claude -p` (2.1.304, `--permission-mode acceptEdits`) nie skasuje
+  pliku `.claude/relai/wznowienie/<slug>.md` ani z `--allowedTools Bash`, ani z dosłownym
+  `Bash(rm:*)`: `rm` trafia do `permission_denials`. Zachowanie reguły kasującej plik pod `.claude/`
+  mierzysz więc w `-p` do polecenia `rm` w transkrypcie (stan pliku się nie zmieni), a samo
+  zniknięcie pliku — w sesji interaktywnej, gdzie człowiek zatwierdza uprawnienie.
 
 ### P-013 — korzeniowy `hooks/` ładuje się obok hooków zadeklarowanych w manifeście · 2026-09-12 · AKTYWNA
 
