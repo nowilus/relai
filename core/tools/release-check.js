@@ -356,7 +356,9 @@ async function sprawdz(a) {
     let korzen = repo;
     if (a.rev) {
       worktree = fs.mkdtempSync(path.join(os.tmpdir(), 'relai-release-check-'));
-      git(repo, ['worktree', 'add', '--detach', worktree, commit]);
+      // Drzewo rewizji z LF jak w gicie i w CI (PIPELINE_WYDAN, Aneks B): przy core.autocrlf=true
+      // checkout dawal CRLF, a generatory i testy parzystosci porownuja z LF - falszywa czerwien.
+      git(repo, ['-c', 'core.autocrlf=false', 'worktree', 'add', '--detach', worktree, commit]);
       korzen = worktree;
     }
     const baza = bazaRdzenia(repo, a.rev, commit);

@@ -345,6 +345,19 @@ test('strona-film: adres odtwarzacza = tag wersji filmu; zielony na zgodnym, cze
   assert.match(f.uruchom(['--tylko', 'strona-film']).k('strona-film').bledy.join('\n'), /site\/wideo\/index\.html: brak adresu filmu/);
 });
 
+test('--rev: drzewo rewizji z LF niezaleznie od core.autocrlf=true repozytorium (PIPELINE_WYDAN, Aneks B)', (t) => {
+  const f = repo(t);
+  git(f.dir, ['config', 'core.autocrlf', 'true']);
+  f.zapisz('core/tools/validate-adapters.js', "const t = require('fs').readFileSync(__filename, 'utf8');\n"
+    + "if (t.includes(String.fromCharCode(13))) { process.stderr.write('  - CRLF w drzewie\\n'); process.exit(1); }\n"
+    + "process.stdout.write('ok\\n  + jedna pozycja\\n');\n");
+  f.commit('chore: walidator czuly na CRLF');
+  assert.deepEqual(f.uruchom(['--rev', 'HEAD', '--tylko', 'walidator']).k('walidator').bledy, []);
+  // Kontrola pozytywna instrumentu: ten sam walidator na pliku z CRLF jest czerwony.
+  f.zapisz('core/tools/validate-adapters.js', f.czytaj('core/tools/validate-adapters.js').split('\n').join(String.fromCharCode(13, 10)));
+  assert.match(f.uruchom(['--tylko', 'walidator']).k('walidator').bledy.join('\n'), /zakonczyl sie kodem 1/);
+});
+
 test('stary-numer: zapis przeszlosci (slowo z zamknietej listy przed numerem) pominiety, deklaracja stanu czerwona (PIPELINE_WYDAN, Aneks A)', (t) => {
   const f = repo(t);
   f.zapisz('.claude-plugin/plugin.json', JSON.stringify({ name: 'relai', version: '1.1.0' }));
