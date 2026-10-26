@@ -1887,3 +1887,59 @@ Aneksu A. Plan zamrożony: status w `STATUS.md` i w nagłówku `PLAN.html` → Z
 Przegląd ryzyk: bez zmian.
 
 Autor: RelAI (Opus 5.5) + Lukasz
+
+### 2026-10-26 — ZGLOSZENIA E1: ikona `/relai-security` na stronie i test odwołań
+
+Karta komendy `/relai-security` na Filmie i Biurku wskazywała `grafika/ikony/security.svg`, którego
+w `site/` nigdy nie było (404 publicznie). Ikona jest już na stronie, a nowy test zatrzymuje
+wdrożenie, gdy zbudowana strona wskazuje nieistniejący plik albo komenda nie ma ikony.
+
+**Zrobione:**
+
+- `site/narzedzia/odwolania.test.mjs` (node:test, bez zależności): zbiera lokalne odwołania
+  (`src`, `href`, `poster`, `srcset`, `url()`) z każdego `index.html` pod `site/` poza
+  `narzedzia/`, `vendor/`, `node_modules/`; pomija adresy z protokołem, `//`, `#`; treść
+  wbudowanych skryptów pomija (szablony tekstowe), `src` skryptu zostaje. Katalog jako cel wymaga
+  `index.html`. Drugi blok: każda komenda z `site/dane/fakty.json` ma
+  `site/grafika/ikony/<nazwa bez relai->.svg`. Kontrola pozytywna na podłożonym odwołaniu
+  i test kolektora na fixturze. 26 testów.
+- `site/grafika/ikony/security.svg` — kopia bajt w bajt z `docs/zasoby/branding/ikony/security.svg`.
+- Commit `e42f9a3` (`fix(site): …`) wypchnięty po zgodzie Łukasza; przebieg `strona.yml`
+  40354245481 zielony (32 s).
+- `PROMPT_ETAP_2.md` wygenerowany; „Zasady aktywne” wklejone skryptem dosłownie z promptu E1
+  (w E1 nie powstały nowe lekcje).
+
+**Zweryfikowane — jak dokładnie:**
+
+- RED przed kopią: `node --test site/narzedzia/odwolania.test.mjs` → 26 testów, 5 porażek:
+  cztery strony (`index.html`, `pl/index.html`, `biurko/index.html`, `pl/biurko/index.html`)
+  wskazują brakujące `…/grafika/ikony/security.svg`, plus test ikony `relai-security`. Innych
+  zastanych braków test nie znalazł — lista wyłączeń niepotrzebna.
+- Kontrola pozytywna instrumentu — odwołania lokalne na stronę: Film EN i PL po 26, Biurko EN
+  i PL po 35, wideo EN i PL po 5; podłożone `grafika/ikony/nie-ma-takiej.svg` zgłoszone na
+  każdej z czterech stron.
+- SHA-256 kopii i źródła równe: `cfb9609a…0cf61c`; plik pobrany ze strony publicznej ma tę samą sumę.
+- `node --test "site/**/*.test.mjs"`: 370/370 przed, 396/396 po.
+- Dowód negatywny: `git diff` na czterech zbudowanych stronach pusty — naprawa bez przebudowy.
+- `node core/tools/release-check.js --szybko`: GOTOWE, zero czerwieni; pliki E1 w diffie jako
+  `strona / nieśledzony: 2`.
+- Na żywo: `curl` `…/grafika/ikony/security.svg` → 200; w przeglądarce na `/`, `/pl/`, `/biurko/`,
+  `/pl/biurko/` odwołanie ze strony ładuje obraz o `naturalWidth` 48 (na `/pl/` także żywy
+  element karty: 48).
+- Katalog roboczy `.claude/relai/work/ZGLOSZENIA/E1/`: przed — 7 plików, 113 KB na dysku (wyniki
+  testów, RED, raport, tekst planu, dwa skrypty); po „tak” Łukasza skasowany, raport
+  `clean-work.js` nie wymienia go (0 trafień). Artefaktów poza katalogiem nie było.
+- Testy rdzenia i Codeksa do stanu wyjściowego E2: `core/process/tests/*.test.js` 272/272,
+  `adapters/codex/tests/*.test.js` 24/24, `generate-skills.js --verify` spójne.
+
+**Świadomie odłożone:**
+
+- `.claude/launch.json` — nieśledzony plik spoza etapu, nie ruszany.
+- Sekcja „Stan otwartych ryzyk” ponad progiem (17,5 KB przy 12 KB) — rotacja zamkniętych ryzyk
+  przy „kończymy na dziś”.
+
+**Do zrobienia przez człowieka:** —
+
+Przegląd ryzyk: bez zmian (ryzyko 6 planu — zastane braki blokujące wdrożenie — nie zaszło).
+
+Autor: RelAI (Opus 5.5) + Lukasz

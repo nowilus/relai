@@ -415,13 +415,13 @@ zaraz po jego sprawdzeniu, nie na końcu etapu; punkt, który nie przeszedł, zo
       `site/pl/biurko/index.html` bez zmian w `git diff` (naprawa nie wymaga przebudowy stron),
       albo — jeśli zastany brak wymagał przebudowy — diff tylko w miejscu tego braku.
 - [x] `node core/tools/release-check.js --szybko` — zero czerwieni wynikających z plików E1.
-- [ ] Po pushu (tylko po „tak”): przebieg `strona.yml` zielony; `curl` na
+- [x] Po pushu (tylko po „tak”): przebieg `strona.yml` zielony; `curl` na
       `https://nowilus.github.io/relai/grafika/ikony/security.svg` → 200; na `/`, `/pl/`,
       `/biurko/`, `/pl/biurko/` obraz ikony karty `/relai-security` ma `naturalWidth > 0`
       (sprawdzone w przeglądarce). Bez zgody na push punkt zostaje pusty i trafia do „Do
       zrobienia przez człowieka”.
-- [ ] Wpis w `docs/DZIENNIK.md` dopisany na końcu sekcji „Wpisy”; `docs/STATE.md` zaktualizowany.
-- [ ] Katalog roboczy `.claude/relai/work/ZGLOSZENIA/E1/` przejrzany raportem
+- [x] Wpis w `docs/DZIENNIK.md` dopisany na końcu sekcji „Wpisy”; `docs/STATE.md` zaktualizowany.
+- [x] Katalog roboczy `.claude/relai/work/ZGLOSZENIA/E1/` przejrzany raportem
       (`node .claude/relai/tools/clean-work.js raport`) i skasowany po „tak”; liczby przed i po
       w sekcji „Zweryfikowane” wpisu. Artefakty poza tym katalogiem (np. pobrane w `%TEMP%`)
       wypisane z nazwy razem z tym, co się z nimi stało.
