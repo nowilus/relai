@@ -129,9 +129,13 @@ const ANEKS_A = Object.freeze([
   ['relai-stage', 'Etap planu', 'Kolejny etap planu jednym kliknięciem'],
   ['relai-crew', 'Załoga agentów', 'Większe zadanie podzielone między agentów'],
   ['relai-branch', 'Odnoga planu', 'Poboczny pomysł czeka na swoją kolej'],
+  // PIPELINE_WYDAN E4, accepted by Łukasz on the frame 2026-10-26
+  ['relai-humanize', 'Humanizacja tekstu', 'Tekst bez nawyków AI, fakty na miejscu'],
   ['relai-audit', 'Przegląd projektu', 'Szybka kontrola stanu dokumentacji'],
   ['relai-clean', 'Sprzątanie', 'Usuwa zbędne pliki robocze'],
   ['relai-backup', 'Kopia zapasowa', 'Cały projekt w ZIP-ie, bez sekretów'],
+  // PIPELINE_WYDAN E4, accepted by Łukasz on the frame 2026-10-26
+  ['relai-security', 'Bezpieczeństwo zależności', 'Zależności sprawdzone, ryzyka w dzienniku'],
   ['relai-changelog', 'Lista zmian', 'Co się zmieniło — prosto z dziennika'],
   ['relai-update', 'Aktualizacja', 'Aktualizacja do najnowszej wersji RelAI'],
   ['relai-models', 'Lista modeli', 'Zawsze aktualna lista modeli'],
@@ -141,20 +145,20 @@ const ANEKS_A = Object.freeze([
 ]);
 
 /**
- * The commands of FORMS at the 3.0.0 release, which the film shows. A command added after the
- * release (relai-humanize, plan HUMANIZACJA E1) is not in the released film: Łukasz decided on
- * 2026-10-14 that the film stays 3.0.0. Each name must still be a command of FORMS.
+ * The commands of FORMS the film shows. Until PIPELINE_WYDAN E4 the film stayed at the fourteen of
+ * 3.0.0 (Łukasz, 2026-10-14); E4 added relai-humanize and relai-security ("the film changes when
+ * what it shows changes", plan PIPELINE_WYDAN). Each name must still be a command of FORMS.
  */
-const FORMS_3_0_0 = Object.freeze(['relai-stage', 'relai-prompt', 'relai-crew', 'relai-branch', 'relai-backup',
+const FORMS_FILMU = Object.freeze(['relai-stage', 'relai-prompt', 'relai-crew', 'relai-branch', 'relai-backup',
   'relai-audit', 'relai-changelog', 'relai-handover', 'relai-tour', 'relai-help', 'relai-adopt', 'relai-update',
-  'relai-models', 'relai-clean']);
+  'relai-models', 'relai-clean', 'relai-humanize', 'relai-security']);
 
-/** Fails unless the cycle holds each command of FORMS at 3.0.0 once, in the order of Annex A. */
-function checkCykl(cykl, forms = FORMS_3_0_0) {
+/** Fails unless the cycle holds each command the film shows once, in the order of Annex A. */
+function checkCykl(cykl, forms = FORMS_FILMU) {
   const biezace = FORMS.map((f) => f.command);
-  assert.deepEqual(forms.filter((c) => !biezace.includes(c)), [], 'each command of 3.0.0 is still in FORMS');
+  assert.deepEqual(forms.filter((c) => !biezace.includes(c)), [], 'each command of the film is still in FORMS');
   assert.equal(new Set(cykl).size, cykl.length, 'no command twice');
-  assert.deepEqual([...cykl].sort(), [...forms].sort(), 'the commands of FORMS at 3.0.0, none missing');
+  assert.deepEqual([...cykl].sort(), [...forms].sort(), 'the commands the film shows, none missing');
   assert.deepEqual([...cykl], ANEKS_A.map(([c]) => c), 'the order of Annex A');
 }
 
@@ -168,9 +172,11 @@ const ANEKS_D = Object.freeze([
   ['relai-stage', 'Plan stage', "The plan's next stage in one click"],
   ['relai-crew', 'Agent crew', 'A bigger task shared among agents'],
   ['relai-branch', 'Plan branch', 'A side idea waits for its turn'],
+  ['relai-humanize', 'Text humanizer', 'Your text without AI habits, facts intact'], // E4, 2026-10-26
   ['relai-audit', 'Project review', 'A quick health check of your docs'],
   ['relai-clean', 'Cleanup', 'Clears away leftover working files'],
   ['relai-backup', 'Backup', 'The whole project in a ZIP, no secrets'],
+  ['relai-security', 'Dependency security', 'Dependencies checked, risks in the journal'], // E4, 2026-10-26
   ['relai-changelog', 'Changelog', 'What changed — straight from the journal'],
   ['relai-update', 'Update', 'Up to the latest version of RelAI'],
   ['relai-models', 'Model list', 'An always up-to-date list of models'],
@@ -194,15 +200,17 @@ function checkSlowa(slowa = PL, tabela = ANEKS_A, names = NAMES) {
   assert.deepEqual(Object.keys(slowa.komendy.nazwy).sort(), ids, 'no name of a command not in the scene');
 }
 
-test('scene 4: CYKL is each command of FORMS at 3.0.0 once, in the order of Annex A', (t) => {
+test('scene 4: CYKL is each command the film shows once, in the order of Annex A', (t) => {
   checkCykl(CYKL);
-  t.diagnostic(`cycle: ${CYKL.length} commands of FORMS at 3.0.0 ${FORMS_3_0_0.length}, FORMS now ${FORMS.length}`);
+  t.diagnostic(`cycle: ${CYKL.length} commands of the film ${FORMS_FILMU.length}, FORMS now ${FORMS.length}`);
   // positive controls: a cycle missing a command, with one doubled, or in another order,
   // and a 3.0.0 command that is gone from FORMS
   assert.throws(() => checkCykl(CYKL.slice(1)));
   assert.throws(() => checkCykl([...CYKL.slice(0, -1), 'relai-stage']));
   assert.throws(() => checkCykl([CYKL[1], CYKL[0], ...CYKL.slice(2)]));
-  assert.throws(() => checkCykl(CYKL, [...FORMS_3_0_0.slice(0, -1), 'relai-nieistnieje']));
+  assert.throws(() => checkCykl(CYKL, [...FORMS_FILMU.slice(0, -1), 'relai-nieistnieje']));
+  // and the cycle of 3.0.0 (fourteen, without the two of E4) fails against the film's commands
+  assert.throws(() => checkCykl(CYKL.filter((c) => c !== 'relai-humanize' && c !== 'relai-security')));
 });
 
 test('scene 4: each name is NAMES[command][0] and each slogan is the accepted one, word for word', () => {
@@ -246,6 +254,8 @@ test('scene 4: each command has its icon in public/znak/, byte for byte the bran
 const SLOWA_REKWIZYTOW = Object.freeze({
   zip: 'adapters/claude-code/commands/relai-backup.md',
   env: 'adapters/claude-code/commands/relai-backup.md',
+  trivy: 'adapters/claude-code/commands/relai-security.md',
+  high: 'adapters/claude-code/commands/relai-security.md',
 });
 
 test('scene 4: every word written on a prop is the product\'s word, quoted from its command file', () => {

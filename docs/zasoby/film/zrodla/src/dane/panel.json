@@ -1,52 +1,42 @@
 {
   "mapa": {
     "plan": {
-      "wartosc": "FILM_PREZENTACYJNY",
-      "zrodlo": "docs/plany/FILM_PREZENTACYJNY/STATUS.md przez core/panel/plan-state.mjs"
+      "wartosc": "PIPELINE_WYDAN",
+      "zrodlo": "docs/plany/PIPELINE_WYDAN/STATUS.md przez core/panel/plan-state.mjs"
     },
     "statusPlanu": {
       "wartosc": "ZAAKCEPTOWANY",
-      "zrodlo": "docs/plany/FILM_PREZENTACYJNY/STATUS.md przez core/panel/plan-state.mjs"
+      "zrodlo": "docs/plany/PIPELINE_WYDAN/STATUS.md przez core/panel/plan-state.mjs"
     },
     "etapy": {
       "wartosc": [
         {
           "id": "E1",
-          "nazwa": "Klatka wzorcowa i 10 s ruchu",
+          "nazwa": "Raport gotowości",
           "status": "ZREALIZOWANY"
         },
         {
           "id": "E2",
-          "nazwa": "Scenariusz i animatik",
+          "nazwa": "Komenda i naprawy",
           "status": "ZREALIZOWANY"
         },
         {
           "id": "E3",
-          "nazwa": "Sceny 1–3",
+          "nazwa": "Bramka i na żywo",
           "status": "ZREALIZOWANY"
         },
         {
           "id": "E4",
-          "nazwa": "Sceny 4–6",
-          "status": "ZREALIZOWANY"
+          "nazwa": "Film do bieżącej wersji",
+          "status": "GOTOWY DO STARTU"
         },
         {
           "id": "E5",
-          "nazwa": "Scena komend",
-          "status": "ZREALIZOWANY"
-        },
-        {
-          "id": "E6",
-          "nazwa": "Wersja EN, pętla, kontrola jakości",
-          "status": "ZREALIZOWANY"
-        },
-        {
-          "id": "E7",
-          "nazwa": "Wydanie RelAI 3.0.0",
-          "status": "W TOKU"
+          "nazwa": "Pierwsze wydanie przez pipeline",
+          "status": "OCZEKUJE"
         }
       ],
-      "zrodlo": "docs/plany/FILM_PREZENTACYJNY/STATUS.md przez core/panel/plan-state.mjs"
+      "zrodlo": "docs/plany/PIPELINE_WYDAN/STATUS.md przez core/panel/plan-state.mjs"
     },
     "kosztyEtapow": {
       "wartosc": {

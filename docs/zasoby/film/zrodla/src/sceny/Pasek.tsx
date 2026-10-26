@@ -49,8 +49,10 @@ export const Liczba = ({ value, unit }: { value: string, unit: string }) => (
 
 const ellipsis: CSSProperties = { overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' };
 
+// overflow: hidden — a long status ("GOTOWY DO STARTU") in the finale's narrow bar ran over the
+// figure "3/5 etapów" (E4 of PIPELINE_WYDAN); the row now ends at its grid cell
 export const TrescPlanu = ({ plan, statusColor }: { plan: DanePaskow['plan'], statusColor: string }) => (
-  <div style={{ display: 'flex', alignItems: 'baseline', gap: 1.6 * CELL, minWidth: 0 }}>
+  <div style={{ display: 'flex', alignItems: 'baseline', gap: 1.6 * CELL, minWidth: 0, overflow: 'hidden' }}>
     <b style={{ color: BAR.text, fontWeight: 700, whiteSpace: 'nowrap' }}>{plan.plan.wartosc} · {plan.etap.wartosc}</b>
     <b style={{ color: statusColor, fontWeight: 700, whiteSpace: 'nowrap' }}>{plan.status.wartosc}</b>
     <span style={{ color: BAR.muted, minWidth: 0, ...ellipsis }}>{plan.nazwa.wartosc}</span>

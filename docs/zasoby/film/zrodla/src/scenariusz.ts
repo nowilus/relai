@@ -11,8 +11,8 @@ export type Scena = Readonly<{ id: IdSceny, tytul: string, sekundy: number }>;
 /** Working titles: what the scene is called in the plan; the words on screen live in teksty.ts. */
 export const SCENY: readonly Scena[] = Object.freeze([
   Object.freeze({ id: 'pamiec', tytul: 'Pamięć', sekundy: 12 }),
-  // Annex B: fourteen commands, 3.5 s each
-  Object.freeze({ id: 'komendy', tytul: 'Komendy', sekundy: 49 }),
+  // Annex B: 3.5 s a command; sixteen commands since PIPELINE_WYDAN E4 (fourteen before)
+  Object.freeze({ id: 'komendy', tytul: 'Komendy', sekundy: 56 }),
   Object.freeze({ id: 'paski', tytul: 'Trzy paski', sekundy: 23 }),
   Object.freeze({ id: 'panel', tytul: 'Panel', sekundy: 30 }),
   Object.freeze({ id: 'nowaSesja', tytul: 'Etap w nowej sesji', sekundy: 20 }),

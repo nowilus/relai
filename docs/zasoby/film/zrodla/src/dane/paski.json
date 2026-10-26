@@ -1,115 +1,46 @@
 {
   "plan": {
     "plan": {
-      "wartosc": "FILM_PREZENTACYJNY",
-      "zrodlo": "CLAUDE.md + docs/plany/FILM_PREZENTACYJNY/STATUS.md przez core/panel/plan-state.mjs"
+      "wartosc": "PIPELINE_WYDAN",
+      "zrodlo": "CLAUDE.md + docs/plany/PIPELINE_WYDAN/STATUS.md przez core/panel/plan-state.mjs"
     },
     "etap": {
-      "wartosc": "E7",
-      "zrodlo": "CLAUDE.md + docs/plany/FILM_PREZENTACYJNY/STATUS.md przez core/panel/plan-state.mjs"
+      "wartosc": "E4",
+      "zrodlo": "CLAUDE.md + docs/plany/PIPELINE_WYDAN/STATUS.md przez core/panel/plan-state.mjs"
     },
     "status": {
-      "wartosc": "W TOKU",
-      "zrodlo": "CLAUDE.md + docs/plany/FILM_PREZENTACYJNY/STATUS.md przez core/panel/plan-state.mjs"
+      "wartosc": "GOTOWY DO STARTU",
+      "zrodlo": "CLAUDE.md + docs/plany/PIPELINE_WYDAN/STATUS.md przez core/panel/plan-state.mjs"
     },
     "nazwa": {
-      "wartosc": "Wydanie RelAI 3.0.0",
-      "zrodlo": "CLAUDE.md + docs/plany/FILM_PREZENTACYJNY/STATUS.md przez core/panel/plan-state.mjs"
+      "wartosc": "Film do bieżącej wersji",
+      "zrodlo": "CLAUDE.md + docs/plany/PIPELINE_WYDAN/STATUS.md przez core/panel/plan-state.mjs"
     },
     "zamkniete": {
-      "wartosc": 6,
-      "zrodlo": "CLAUDE.md + docs/plany/FILM_PREZENTACYJNY/STATUS.md przez core/panel/plan-state.mjs"
+      "wartosc": 3,
+      "zrodlo": "CLAUDE.md + docs/plany/PIPELINE_WYDAN/STATUS.md przez core/panel/plan-state.mjs"
     },
     "etapy": {
-      "wartosc": 7,
-      "zrodlo": "CLAUDE.md + docs/plany/FILM_PREZENTACYJNY/STATUS.md przez core/panel/plan-state.mjs"
+      "wartosc": 5,
+      "zrodlo": "CLAUDE.md + docs/plany/PIPELINE_WYDAN/STATUS.md przez core/panel/plan-state.mjs"
     }
   },
   "postep": {
     "zrobione": {
-      "wartosc": 7,
-      "zrodlo": "docs/plany/FILM_PREZENTACYJNY/PROMPT_ETAP_7.md przez core/panel/progress.mjs"
+      "wartosc": 0,
+      "zrodlo": "docs/plany/PIPELINE_WYDAN/PROMPT_ETAP_4.md przez core/panel/progress.mjs"
     },
     "razem": {
-      "wartosc": 17,
-      "zrodlo": "docs/plany/FILM_PREZENTACYJNY/PROMPT_ETAP_7.md przez core/panel/progress.mjs"
+      "wartosc": 0,
+      "zrodlo": "docs/plany/PIPELINE_WYDAN/PROMPT_ETAP_4.md przez core/panel/progress.mjs"
     },
     "slowa": {
-      "wartosc": "7 z 17 punktów",
-      "zrodlo": "docs/plany/FILM_PREZENTACYJNY/PROMPT_ETAP_7.md przez core/panel/progress.mjs"
+      "wartosc": "etap gotowy do startu",
+      "zrodlo": "docs/plany/PIPELINE_WYDAN/PROMPT_ETAP_4.md przez core/panel/progress.mjs"
     },
     "punkty": {
-      "wartosc": [
-        {
-          "status": "done",
-          "nazwa": "Bramka odnogi parsera rozstrzygnięta przed zmianą numerów: odnoga ZAMKNIĘTA albo decyzja Łukasza jego słowami we wpisie i w STATUS.md."
-        },
-        {
-          "status": "done",
-          "nazwa": "Decyzje z sekcji 9 planu (numery i „early access” pluginów panelu, zgoda na publikację) padły w jednym pytaniu; odpowiedzi we wpisie."
-        },
-        {
-          "status": "done",
-          "nazwa": "node core/tools/validate-adapters.js → exit 0 i raport „numery wersji: 7 zrodel, wartosc \"3.0.0\"”; generate-skills.js --verify i sync-panel-core.js --check zielone."
-        },
-        {
-          "status": "pending",
-          "nazwa": "grep -r \"2\\.9\\.0\" (i stare numery pluginów, gdy się zmieniły) po repo poza .git, node_modules i docs/archiwum/ — każde trafienie rozstrzygnięte we wpisie (historyczne / podbite); kontrola pozytywna: podłożony plik w katalogu roboczym trafiony."
-        },
-        {
-          "status": "done",
-          "nazwa": "history.md (obie kopie) ma wpis 3.0.0; docs/ARTEFAKTY.md — każdy artefakt z rejestru zmieniony od v2.9.0 ma wpis (lista z git diff --stat v2.9.0..HEAD obok rejestru we wpisie)."
-        },
-        {
-          "status": "done",
-          "nazwa": "Film PL i EN wyrenderowane po podbiciu: ffprobe z pliku — po 5070 klatek, 169 s ± 1 klatka, audio obecne; ostatnia klatka obu pokazuje RelAI 3.0.0 (obejrzana)."
-        },
-        {
-          "status": "done",
-          "nazwa": "Pętle PL i EN wyrenderowane po podbiciu: 720×900, 25 000 ms, waga do wpisu wobec 3 MB (SZACUNEK); kontrola telefonu (tekst ≥ 7 px, linie poniżej progu obejrzane na wycinkach) i przepełnień (0, kontrola pozytywna trafiona) na nowych plikach."
-        },
-        {
-          "status": "pending",
-          "nazwa": "npm test filmu po npm run przygotuj po ostatniej zmianie promptu — wszystkie (36 z E6 + nowe, minus świadomie zmienione z powodem); npm run typy bez błędów."
-        },
-        {
-          "status": "done",
-          "nazwa": "Testy rdzenia — wszystkie zielone (331 z E6 + nowe, liczba do wpisu); plugin test trzech pluginów binarką aplikacji — liczby do wpisu; plugin validate repo i trzech pluginów — exit 0 (ostrzeżenie o root CLAUDE.md świadome)."
-        },
-        {
-          "status": "pending",
-          "nazwa": "Skan sekretów na plikach diffu origin/main..HEAD — zero trafień; kontrola pozytywna (próbka sekretu złożona w czasie wykonania w pliku katalogu roboczego) trafiona."
-        },
-        {
-          "status": "pending",
-          "nazwa": "Szkic notatek wydania przejrzany przez Łukasza (jego słowa we wpisie); kredyt muzyki w notatkach równy ZRODLO.md (porównanie stałego ciągu)."
-        },
-        {
-          "status": "pending",
-          "nazwa": "Publikacja po zgodzie: git ls-remote --tags origin v3.0.0 zwraca tag; gh release view v3.0.0 pokazuje dwa zasoby MP4; README.md linkuje do istniejącego zasobu (adres sprawdzony gh release view --json assets) — albo brak zgody i etap kończy się lokalnym commitem, opisane we wpisie, bramka publikacji OTWARTA w STATUS.md."
-        },
-        {
-          "status": "pending",
-          "nazwa": "Po publikacji: cache pluginu po plugin update równy repo po CRLF → LF (liczba plików i rozjazdów do wpisu) — albo zdanie, że publikacji nie było."
-        },
-        {
-          "status": "pending",
-          "nazwa": "Pliki PANEL_CODEX (docs/plany/PANEL_CODEX/, docs/zasoby/PANEL_RELAI/makiety/) nietknięte: git diff --stat, git status --short i sha256 ich plików identyczne z zapisem sprzed etapu; żaden w commitach etapu."
-        },
-        {
-          "status": "pending",
-          "nazwa": "Sekwencja zamknięcia planu (D-36) wykonana w całości: bramki i odnogi rozstrzygnięte, plan ZREALIZOWANY, folder w docs/archiwum/plany/, linia „Aktywny plan” w CLAUDE.md wskazuje istniejący plik albo brzmi Aktywny plan: brak."
-        },
-        {
-          "status": "pending",
-          "nazwa": "Wpis w docs/DZIENNIK.md na końcu sekcji „Wpisy”, z podpisem Autor: RelAI (Opus 5.5) + Lukasz."
-        },
-        {
-          "status": "pending",
-          "nazwa": "Katalog roboczy .claude/relai/work/FILM_PREZENTACYJNY/E7/ przejrzany raportem (node .claude/relai/tools/clean-work.js raport) i skasowany po „tak”; liczby przed i po w sekcji „Zweryfikowane” wpisu. Artefakty poza nim (pliki %TEMP% renderu, jeśli powstały) wypisane z nazwy, z tym, co się z nimi stało."
-        }
-      ],
-      "zrodlo": "docs/plany/FILM_PREZENTACYJNY/PROMPT_ETAP_7.md przez core/panel/progress.mjs"
+      "wartosc": [],
+      "zrodlo": "docs/plany/PIPELINE_WYDAN/PROMPT_ETAP_4.md przez core/panel/progress.mjs"
     }
   },
   "cache": {

@@ -148,7 +148,7 @@ function wide(texts, words = WORDS, word = WORD) {
 // after "pamiec", 3.5 s a command
 test('scenariusz.ts holds the seven scenes of the plan in order, and the film is their sum', () => {
   assert.deepEqual(SCENY.map((s) => s.id), ['pamiec', 'komendy', 'paski', 'panel', 'nowaSesja', 'pracaWraca', 'final']);
-  assert.equal(SCENY.find((s) => s.id === 'komendy')?.sekundy, 49, 'Annex B: fourteen commands, 3.5 s each');
+  assert.equal(SCENY.find((s) => s.id === 'komendy')?.sekundy, 56, 'Annex B, PIPELINE_WYDAN E4: sixteen commands, 3.5 s each');
   const sum = SCENY.reduce((a, s) => a + s.sekundy, 0);
   assert.equal(dlugosc(FPS), sum * FPS);
   const parts = odcinki(FPS);

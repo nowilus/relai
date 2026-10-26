@@ -1501,3 +1501,34 @@ Przegląd ryzyk: PW1 i PW2 — wynik E3 dopisany; PW3 (S4 planu: bramka niezains
 jako zmitygowane w E3; pozostałe bez zmian.
 
 Autor: RelAI (Opus 5.5) + Lukasz
+
+### 2026-10-26 — PIPELINE_WYDAN E4: film do bieżącej wersji
+
+Start z karty w czacie („tak”), Opus 5.5. Wpis prowadzony w trakcie etapu: decyzje człowieka
+zapisane od razu, bo stan z tej chwili staje się kotwicą danych filmu (commit lokalny w toku E4).
+
+**Decyzje człowieka:**
+
+- **Finał filmu** (sekcja 9 planu: liczby zmienne i numer wersji „ze stemplem «stan z wersji X»,
+  bez numeru wersji czy usunięte z finału”) — Łukasz wybrał „Stempel wersji (Rekomendowane)”:
+  liczby zostają, linia pod tytułem brzmi „RelAI · stan z wersji {wersja}” / „RelAI · as of
+  version {wersja}”.
+- **Rekwizyty i słowa** `/relai-humanize` i `/relai-security` — kalibracja na kadrach
+  `.claude/relai/work/PIPELINE_WYDAN/E4/` `pl-935.png`, `pl-975.png`, `en-975.png` (humanizacja),
+  `pl-1365.png`, `pl-1395.png`, `en-1395.png` (bezpieczeństwo); odpowiedzi Łukasza: „Akceptuję
+  oba” (rekwizyty), „Akceptuję PL i EN” (nazwy i slogany: „Humanizacja tekstu — Tekst bez nawyków
+  AI, fakty na miejscu”, „Bezpieczeństwo zależności — Zależności sprawdzone, ryzyka w dzienniku”,
+  „Text humanizer — Your text without AI habits, facts intact”, „Dependency security —
+  Dependencies checked, risks in the journal”), kolejność „Tak, tak zostaje (Rekomendowane)”:
+  humanizacja po odnodze planu, bezpieczeństwo po kopii zapasowej.
+- **Kotwica danych filmu** — „Lokalny commit E4 w toku (Rekomendowane)”: dane liczone z commitu
+  z E4 W TOKU, nie z `b57a132` (tam pasek postępu był pusty — „etap gotowy do startu” — przy
+  podpisie „Postęp liczy punkty weryfikacji z promptu etapu”).
+
+**Pomiar startowy** (`npm test` w `docs/zasoby/film/zrodla/`): na danych z gita **29/36** — 3 od
+bieżącego repo (FILM_TESTY_V3: manifest, panel, paski), 2 kontrole pozytywne ze ścieżkami sprzed
+archiwizacji planu FILM_PREZENTACYJNY, 2 testy muzyki bez `npm run przygotuj` (brak
+`public/muzyka/relai.wav`); po `przygotuj` **35/36** (została kontrola pozytywna `paski` ze
+ścieżką `docs/plany/FILM_PREZENTACYJNY/STATUS.md`).
+
+*(Wpis dokończony przy zamknięciu etapu.)*

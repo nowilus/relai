@@ -1,4 +1,4 @@
-// Scene 2 of the film, "Komendy" (plan FILM_PREZENTACYJNY, Annexes A and B): the fourteen commands
+// Scene 2 of the film, "Komendy" (plan FILM_PREZENTACYJNY, Annexes A and B): the sixteen commands (fourteen before PIPELINE_WYDAN E4)
 // as props lying side by side on one long desk, in the order of a project's life (CYKL), right
 // after "Pamięć" as the film's introduction. The camera pans along the desk and springs from prop
 // to prop, one every 3.5 s — no cut, no flash. In each window
@@ -29,6 +29,8 @@ import { Modele } from './komendy/Modele';
 import { Sciaga } from './komendy/Sciaga';
 import { Wycieczka } from './komendy/Wycieczka';
 import { Pakiet } from './komendy/Pakiet';
+import { Humanizacja } from './komendy/Humanizacja';
+import { Bezpieczenstwo } from './komendy/Bezpieczenstwo';
 
 /** Frames of one command's window: 3.5 s (Annex B; 2.5 s in Annex A was too fast). */
 export const OKNO = Math.round(SEKUNDY_NA_KOMENDE * FILM.fps);
@@ -55,9 +57,11 @@ const REKWIZYTY: Readonly<Record<IdKomendy, (p: { t: number }) => ReactNode>> = 
   'relai-stage': Etap,
   'relai-crew': Zaloga,
   'relai-branch': Odnoga,
+  'relai-humanize': Humanizacja,
   'relai-audit': Przeglad,
   'relai-clean': Sprzatanie,
   'relai-backup': Kopia,
+  'relai-security': Bezpieczenstwo,
   'relai-changelog': ListaZmian,
   'relai-update': Aktualizacja,
   'relai-models': Modele,

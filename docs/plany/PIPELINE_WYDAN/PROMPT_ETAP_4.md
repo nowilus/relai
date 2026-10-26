@@ -432,9 +432,9 @@ gitem; strona nietknięta (odtwarzacz to E5); żadnego tagu (bramka i tak by go 
 Każdy punkt Weryfikacji, który przeszedł, odhaczasz w `PROMPT_ETAP_4.md` (`- [ ]` → `- [x]`)
 zaraz po jego sprawdzeniu, nie na końcu etapu; punkt, który nie przeszedł, zostaje pusty.
 
-- [ ] Decyzja o finale padła słowami Łukasza i stoi we wpisie dziennika (wariant zacytowany
+- [x] Decyzja o finale padła słowami Łukasza i stoi we wpisie dziennika (wariant zacytowany
       z sekcji 9 planu); finał w kadrze PL i EN jej odpowiada.
-- [ ] Rekwizyty i slogany PL/EN `/relai-humanize` i `/relai-security` zaakceptowane przez Łukasza
+- [x] Rekwizyty i slogany PL/EN `/relai-humanize` i `/relai-security` zaakceptowane przez Łukasza
       na kadrze **przed** renderem (cytat akceptacji w dzienniku, zrzuty z nazwy).
 - [ ] `node core/tools/release-check.js --szybko`: `film-komendy`, `film-rekwizyty`, `film-zakladki`,
       `film-paski`, `film-narzedzia` zielone (CYKL 16, manifest 16); w pełnym przebiegu

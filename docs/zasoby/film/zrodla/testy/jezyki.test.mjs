@@ -33,8 +33,10 @@ const PRODUKT = Object.freeze([
   'panel.tytul', 'panel.zakladki', 'panel.otworz', 'panel.zamknij', 'panel.teraz', 'panel.mapa',
   'panel.dokumenty', 'panel.koszty', 'paski.etapy', 'paski.punkty', 'paski.nastepny', 'paski.wToku',
   'paski.wszystko', 'komendy.rekwizyty', 'nowaSesja.tak', 'nowaSesja.nie', 'pracaWraca.limit',
-  'pracaWraca.gdzie', 'final.wersja',
+  'pracaWraca.gdzie',
 ]);
+// final.wersja left the list in PIPELINE_WYDAN E4: "RelAI 3.0.0" was the product's name and number,
+// the stamp "stan z wersji …" / "as of version …" is the film's own words, one per language
 const at = (o, path) => path.split('.').reduce((n, k) => n?.[k], o);
 const checkProdukt = (pl, en) => { for (const p of PRODUKT) assert.deepEqual(at(en, p), at(pl, p), p); };
 

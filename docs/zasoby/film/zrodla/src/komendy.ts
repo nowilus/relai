@@ -19,9 +19,9 @@ export function ukladKomend(featured: readonly string[], groups: readonly Grupa[
 export const wszystkie = (u: UkladKomend): string[] => [...u.polecane, ...u.grupy.flatMap((g) => g.commands)];
 
 /**
- * Scene 2 "Komendy" (Annexes A and B): the fourteen commands in the order of a project's life — come in,
- * work, look after the project, learn it, hand it over. Each command of FORMS once
- * (wiernosc.test.mjs).
+ * Scene 2 "Komendy" (Annexes A and B; PIPELINE_WYDAN E4): the sixteen commands in the order of a
+ * project's life — come in, work, look after the project, learn it, hand it over. Each command of
+ * FORMS once (wiernosc.test.mjs).
  */
 export const CYKL = Object.freeze([
   'relai-adopt',
@@ -29,9 +29,11 @@ export const CYKL = Object.freeze([
   'relai-stage',
   'relai-crew',
   'relai-branch',
+  'relai-humanize',
   'relai-audit',
   'relai-clean',
   'relai-backup',
+  'relai-security',
   'relai-changelog',
   'relai-update',
   'relai-models',
