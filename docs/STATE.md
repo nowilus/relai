@@ -93,7 +93,11 @@ PANEL_CODEX (E1 w toku). Opinii spoza projektu nadal nie ma.
   pokazuje właściwy stan, układ zaakceptowany; sonda 0.0.9 z poprawką fontów czeka na pomiar po
   przeładowaniu macierzystego procesu. Tabela STATUS planu pokazuje jeszcze `GOTOWY DO STARTU` —
   do wyprostowania na `W TOKU`. Kontrakt w [README adaptera](../adapters/codex/panel/README.md).
-- Plan Claude Code: brak aktywnego — następny wybiera Łukasz.
+- **Plan ZGLOSZENIA — ZAAKCEPTOWANY 2026-10-26, E1 gotowy do startu** (plan [ZGLOSZENIA](plany/ZGLOSZENIA/STATUS.md), 2026-10-26,
+  5 etapów, Opus): ikona `/relai-security` na stronie (plik nigdy nie trafił do
+  `site/grafika/ikony/`, 404 publicznie), zgłoszenia GitHub #3 (plik wznowienia po „kończymy na
+  dziś”), #2 (pasek cache w terminalu), #1 (tytuł nowej sesji przez `sessionTitle` hooka — sonda
+  przed kodem), wydanie i zamknięcie zgłoszeń.
 
 ## Co dalej
 

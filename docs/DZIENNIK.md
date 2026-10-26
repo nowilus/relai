@@ -1828,6 +1828,60 @@ Miniplan wykonany w całości, bez rozszerzania zakresu.
 - Zmiana w `core/tools/release-checks.js` czeka na wydanie (propozycja 3.4.1); komenda
   `/relai-release` jest projektowa i wydania nie wymaga.
 
+### 2026-10-26 — Plan ZGLOSZENIA: przegląd zgłoszeń z GitHuba i diagnoza ikony na stronie
+
+Przejrzane trzy otwarte zgłoszenia `nowilus/relai` (#1–#3, autor `lszczap`, 19–20 października)
+i zdiagnozowana brakująca ikona `/relai-security` na Filmie i Biurku; powstał plan naprawy
+[ZGLOSZENIA](plany/ZGLOSZENIA/STATUS.md) — DO AKCEPTACJI, bez zmian w kodzie.
+
+**Ustalone:**
+
+- Ikona: `site/grafika/ikony/security.svg` nie istnieje (źródło
+  `docs/zasoby/branding/ikony/security.svg` jest); karta weszła w `a1439b9` (3.3.0), ikony trafiły
+  na stronę ręcznie w `e0c9f21`, przed BEZPIECZENSTWEM; żaden test strony ani `release-check`
+  nie sprawdza plików z odwołań.
+- #3: `session-close.md` nie ma kroku dla pliku wznowienia, a `SPEC_WZNOWIENIE.md` zabrania
+  kasowania bez zgody — stąd „doszły N commitów” na starcie następnej sesji.
+- #2: gałąź terminalowa `band()` w `cache-keeper/hooks/register.tsx` rysuje każdą miarę z linią b
+  w zawijanym wierszu; desktop ma siatkę.
+- #1: „Nowa sesja” robi `/clear` i wysyła `kontynuujemy pracę`, więc aplikacja nazywa czat od tej
+  frazy; API hooków ma `hookSpecificOutput.sessionTitle` (`UserPromptSubmit`, `SessionStart`),
+  nieużywane w repo i niezmierzone w aplikacji.
+- Decyzje Łukasza z wywiadu: naprawa ikony w tym planie; jeden plan, etap na usterkę; plik
+  wznowienia — pytanie raz i kasowanie po „tak”; terminal — siatka bez linii b; tytuł z fokusu
+  (plan i etap) tylko przy pierwszym prompcie-kontynuacji.
+
+**Zweryfikowane — jak dokładnie:**
+
+- `gh issue list --repo nowilus/relai --state open` → 3 zgłoszenia; treści przez `gh issue view`,
+  zrzuty pobrane i obejrzane.
+- `curl` strony publicznej: `grafika/ikony/security.svg` → 404, `humanize.svg` → 200.
+- Plan HTML: builder bez niewypełnionych znaczników (215 KB), zero adresów sieciowych, zwijanie
+  sekcji i brak przewijania w poziomie przy 375 px sprawdzone w przeglądarce.
+
+**Świadomie odłożone:**
+
+- Komentarze i zamknięcie zgłoszeń na GitHubie — w E5, po osobnym „tak”.
+
+### 2026-10-26 — Plan ZGLOSZENIA zaakceptowany
+
+Łukasz zaakceptował plan bez zmian („Akceptuję plan ZGLOSZENIA bez zmian.”), więc nie ma
+Aneksu A. Plan zamrożony: status w `STATUS.md` i w nagłówku `PLAN.html` → ZAAKCEPTOWANY
+2026-10-26, E1 → GOTOWY DO STARTU.
+
+**Zrobione:**
+
+- `docs/plany/ZGLOSZENIA/PROMPT_ETAP_1.md` wg `SPEC_PROMPT_ETAPU.md`: dziewięć elementów,
+  „Zasady aktywne” przepisane w całości (15 pozycji), katalog roboczy
+  `.claude/relai/work/ZGLOSZENIA/E1/`, push `main` wyłącznie po osobnym „tak”.
+- `CLAUDE.md` (wiersz tabeli i linia „Aktywny plan”) oraz `docs/STATE.md` zaktualizowane.
+
+**Zweryfikowane — jak dokładnie:**
+
+- W prompcie nie został znacznik wstawki (`grep -c` → 0); ostatnia zasada to pozycja 15.
+- Stan wyjściowy E1 sprawdzony na repo: 15 ikon w `site/grafika/ikony/`, 16 komend w
+  `site/dane/fakty.json`, wiersz `site/**` w `core/tools/release-map.json`.
+
 **Do zrobienia przez człowieka:** —
 
 Przegląd ryzyk: bez zmian.
