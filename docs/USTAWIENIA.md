@@ -1,6 +1,6 @@
 # USTAWIENIA — projekt: budowa RelAI
 
-Wersja RelAI: 3.3.0 · zainicjowano: 2026-08-07
+Wersja RelAI: 3.4.0 · zainicjowano: 2026-08-07
 
 Rejestr wyborów użytkownika dla tego projektu. Każdy wpis: data, czego dotyczył, decyzja.
 

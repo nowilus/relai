@@ -4,8 +4,9 @@ Stan na: 2026-10-26 (PIPELINE_WYDAN E4 zrealizowany — film do bieżącej wersj
 
 ## Gdzie jesteśmy
 
-RelAI **3.3.0** jest w repozytorium i publicznie (tag `v3.3.0`, 2026-10-25: bezpieczeństwo
-zależności i kodu — plan BEZPIECZENSTWO; wcześniej 3.2.0 z pełną kartą startu `/relai-stage`).
+RelAI **3.4.0** jest w repozytorium (pipeline wydań — plan PIPELINE_WYDAN, wydanie w toku E5);
+publicznie 3.3.0 (tag `v3.3.0`, 2026-10-25: bezpieczeństwo zależności i kodu — plan
+BEZPIECZENSTWO; wcześniej 3.2.0 z pełną kartą startu `/relai-stage`).
 Plugin `relai` działa w trzech narzędziach — Claude Code, Cursorze i Codeksie — na jednym rdzeniu
 procesu, z szesnastoma komendami i trzynastoma hookami w Claude Code. W marketplace tego
 repozytorium jest czwarty mod, `relai-mods` 0.1.2 — kokpit pluginów i hooków (plan RELAI_MODS,

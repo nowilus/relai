@@ -64,7 +64,11 @@ function pliki() {
     + KOMENDY.map((k, i) => "  '" + k + "': " + KOMPONENTY[i] + ',').join('\n') + '\n});\n';
   for (const c of KOMPONENTY) f[F + 'src/sceny/komendy/' + c + '.tsx'] = 'export const ' + c + ' = () => null;\n';
   f[F + 'src/teksty.ts'] = "export const PL = { panel: { zakladki: Object.freeze(['Komendy', 'Koszty']) } };\n";
-  f[F + 'src/dane/manifest.json'] = JSON.stringify({ komendy: { wartosc: 5 }, paski: { wartosc: 3 }, narzedzia: { wartosc: 2 }, narzedziaNazwy: { wartosc: ['Claude Code', 'Codex'] } });
+  for (const [plik, jezyk] of [['site/wideo/index.html', 'en'], ['site/pl/wideo/index.html', 'pl']]) {
+    const adres = 'https://github.com/nowilus/relai/releases/download/v1.0.0/relai-film-' + jezyk + '.mp4';
+    f[plik] = '<video controls src="' + adres + '">\n  <a href="' + adres + '">MP4</a>\n</video>\n';
+  }
+  f[F + 'src/dane/manifest.json'] = JSON.stringify({ wersja: { wartosc: '1.0.0' }, komendy: { wartosc: 5 }, paski: { wartosc: 3 }, narzedzia: { wartosc: 2 }, narzedziaNazwy: { wartosc: ['Claude Code', 'Codex'] } });
   f['core/tools/validate-adapters.js'] = "process.stdout.write('ok\\n  + jedna pozycja\\n');\n";
   f['adapters/codex/generate-skills.js'] = "process.stdout.write('Codex skills (3 plikow), spojne.\\n');\n";
   f['core/tools/sync-panel-core.js'] = "process.stdout.write('[sync] zgodne: 2 plikow core/panel\\n');\n";

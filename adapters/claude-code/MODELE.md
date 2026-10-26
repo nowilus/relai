@@ -28,13 +28,13 @@ Parsing rules for whoever reads this file:
   treats the list as undated and stays silent about its age.
 
 ```
-list-date: 2026-09-24
+list-date: 2026-10-08
 tool: claude-code
 
-strong: Opus 5.5 | alias: opus | id: claude-opus-5-5 | family: claude | source: code.claude.com/docs/en/model-config, read 2026-09-24
-strong: Fable 5.1 | alias: fable | id: claude-fable-5-1 | family: claude | source: support.claude.com/en/articles/11940350-claude-code-model-configuration, read 2026-09-04
-balanced: Sonnet 5 | alias: sonnet | id: claude-sonnet-5 | family: claude | source: code.claude.com/docs/en/model-config, read 2026-09-04
-cheap: Haiku 4.5 | alias: haiku | id: claude-haiku-4-5-20251001 | family: claude | source: support.claude.com/en/articles/11940350-claude-code-model-configuration, read 2026-09-04
+strong: Opus 5.5 | alias: opus | id: claude-opus-5-5 | family: claude | source: code.claude.com/docs/en/model-config, read 2026-10-08
+strong: Fable 5.1 | alias: fable | id: claude-fable-5-1 | family: claude | source: support.claude.com/en/articles/11940350-claude-code-model-configuration, read 2026-10-08
+balanced: Sonnet 5.5 | alias: sonnet | id: claude-sonnet-5-5 | family: claude | source: code.claude.com/docs/en/model-config + support.claude.com/en/articles/11940350-claude-code-model-configuration, read 2026-10-08
+cheap: Haiku 5.5 | alias: haiku | id: claude-haiku-5-5 | family: claude | source: code.claude.com/docs/en/model-config + support.claude.com/en/articles/11940350-claude-code-model-configuration, read 2026-10-08
 ```
 
 ## Notes for the reader

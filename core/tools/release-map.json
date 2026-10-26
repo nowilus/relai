@@ -367,6 +367,7 @@
       "kontrole": [
         "strona-komendy",
         "strona-fakty",
+        "strona-film",
         "testy-strony"
       ]
     },
@@ -381,9 +382,11 @@
         "film: src/dane/*.json",
         "rekwizyty src/sceny/komendy/",
         "testy filmu",
-        "MP4 w zasobach wydania"
+        "MP4 w zasobach wydania",
+        "site/wideo/index.html, site/pl/wideo/index.html (adres odtwarzacza = tag wersji filmu)"
       ],
       "kontrole": [
+        "strona-film",
         "film-komendy",
         "film-rekwizyty",
         "film-zakladki",

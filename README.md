@@ -3,7 +3,7 @@
 </p>
 
 <p align="center">
-  <em>Wersja 3.3.0 &nbsp;·&nbsp; licencja MIT &nbsp;·&nbsp; Claude Code, Cursor albo Codex, plus Node.js 14+ &nbsp;·&nbsp; zero zależności npm</em>
+  <em>Wersja 3.4.0 &nbsp;·&nbsp; licencja MIT &nbsp;·&nbsp; Claude Code, Cursor albo Codex, plus Node.js 14+ &nbsp;·&nbsp; zero zależności npm</em>
 </p>
 
 **RelAI zamienia rozmowę z agentem w prowadzony projekt.** Ustalenia, decyzje, stan prac i historia
@@ -53,10 +53,10 @@ plan zmian do Twojej zgody; kod zostaje nietknięty.
 ## Zobacz, jak to działa
 
 <p align="center">
-  <a href="https://nowilus.github.io/relai/pl/wideo/"><img src="docs/zasoby/film/relai-film-kadr-pl.jpg" alt="Obejrzyj film o RelAI (2 min 49 s, z muzyką)" width="838"></a>
+  <a href="https://nowilus.github.io/relai/pl/wideo/"><img src="docs/zasoby/film/relai-film-kadr-pl.jpg" alt="Obejrzyj film o RelAI (2 min 56 s, z muzyką)" width="838"></a>
 </p>
 
-Film (2 min 49 s, z muzyką) pokazuje RelAI w pracy: paski nad promptem, panel z przyciskami
+Film (2 min 56 s, z muzyką) pokazuje RelAI w pracy: paski nad promptem, panel z przyciskami
 zamiast komend i start etapu w nowej sesji. Wersja z angielskimi napisami:
 [nowilus.github.io/relai/wideo](https://nowilus.github.io/relai/wideo/).
 

@@ -474,6 +474,34 @@ function kontrolaFilmNarzedzia(ctx) {
   return w;
 }
 
+// --- odtwarzacz filmu na stronie (PIPELINE_WYDAN E5) --------------------------------
+
+// MP4 filmu zyja w zasobach wydania rdzenia, w ktorym film powstal (PLAN, sekcja 8): kazdy adres
+// odtwarzacza wskazuje tag v<wersja z manifestu filmu> i plik w jezyku swojej strony.
+const ODTWARZACZE = [['site/wideo/index.html', 'en'], ['site/pl/wideo/index.html', 'pl']];
+
+function kontrolaStronaFilm(ctx) {
+  const w = wynik('strona-film', 'strona: odtwarzacz filmu wskazuje zasoby wydania z wersji filmu');
+  const man = manifestFilmu(ctx.korzen);
+  const wersja = man && man.wersja && man.wersja.wartosc;
+  if (!wersja) { w.bledy.push('manifest filmu bez pola wersja'); return w; }
+  let adresow = 0;
+  for (const [rel, jezyk] of ODTWARZACZE) {
+    const tekst = czytaj(ctx.korzen, rel);
+    if (tekst === null) { w.bledy.push(rel + ': brak pliku'); continue; }
+    const adresy = [...tekst.matchAll(/releases\/download\/([^/"'\s]+)\/(relai-film-[a-z]+\.mp4)/g)];
+    if (!adresy.length) { w.bledy.push(rel + ': brak adresu filmu w zasobach wydania'); continue; }
+    for (const [, tag, plik] of adresy) {
+      adresow++;
+      if (tag !== 'v' + wersja) w.bledy.push(rel + ': ' + tag + ', a film jest z wersji ' + wersja);
+      if (plik !== 'relai-film-' + jezyk + '.mp4') w.bledy.push(rel + ': ' + plik + ', a strona jest w jezyku ' + jezyk);
+    }
+  }
+  w.sprawdzono = adresow;
+  w.licznik = 'adresow ' + adresow + ' w ' + ODTWARZACZE.length + ' odtwarzaczach, wersja filmu ' + wersja;
+  return w;
+}
+
 // --- listy modeli ------------------------------------------------------------------
 
 function dataListy(tekst) {
@@ -499,11 +527,18 @@ function kontrolaModele(ctx) {
 
 // --- stary numer ---------------------------------------------------------------------
 
+// Zapis przeszlosci w pliku nie-historycznym (PIPELINE_WYDAN, Aneks A): slowo z zamknietej listy
+// tuz przed numerem bazy ("od 3.3.0", "W 3.3.0 dochodzi", "since v3.3.0") nie jest deklaracja
+// stanu. Takie wystapienia wycinamy przed testem; kazde inne zostaje trafieniem.
+const SLOWA_PRZESZLOSCI = ['od', 'po', 'przy', 'w', 'do', 'sprzed', 'since', 'after', 'before', 'in'];
+
 function kontrolaStaryNumer(ctx) {
   const w = wynik('stary-numer', 'stary numer wersji poza sciezkami historycznymi');
   const stary = ctx.baza.rdzen.wersja;
   if (!stary) { w.bledy.push('nie znam numeru bazy'); return w; }
-  const re = new RegExp('(^|[^0-9.])' + stary.replace(/\./g, '\\.') + '(?![0-9]|\\.[0-9])');
+  const numer = stary.replace(/\./g, '\\.') + '(?![0-9]|\\.[0-9])';
+  const re = new RegExp('(^|[^0-9.])' + numer);
+  const przeszlosc = new RegExp('(^|[^\\p{L}\\p{N}])(?:' + SLOWA_PRZESZLOSCI.join('|') + ')\\s+v?' + numer, 'giu');
   const trafienia = [];
   let przejrzane = 0;
   for (const rel of ctx.pliki) {
@@ -512,7 +547,7 @@ function kontrolaStaryNumer(ctx) {
     try { buf = fs.readFileSync(path.join(ctx.korzen, rel)); } catch (_) { continue; }
     if (buf.length > 2 * 1024 * 1024 || buf.includes(0)) continue;
     przejrzane++;
-    if (re.test(buf.toString('utf8'))) trafienia.push(rel);
+    if (re.test(buf.toString('utf8').replace(przeszlosc, '$1'))) trafienia.push(rel);
   }
   w.sprawdzono = przejrzane;
   const czerwien = ctx.wersja !== stary;
@@ -632,6 +667,7 @@ const KONTROLE = [
   ['artefakty', kontrolaArtefakty],
   ['strona-komendy', kontrolaStronaKomendy],
   ['strona-fakty', kontrolaStronaFakty],
+  ['strona-film', kontrolaStronaFilm],
   ['film-komendy', kontrolaFilmKomendy],
   ['film-rekwizyty', kontrolaFilmRekwizyty],
   ['film-zakladki', kontrolaFilmZakladki],

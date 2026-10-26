@@ -15,7 +15,7 @@ const { SKRYPT, git, repo } = require('./release-fixture.js');
 const kontrole = require('../../tools/release-checks.js');
 
 const WSZYSTKIE = 'walidator,generator-codex,sync-panel-core,readme-komendy,readme-hooki,readme-mody,historia,artefakty,'
-  + 'strona-komendy,strona-fakty,film-komendy,film-rekwizyty,film-zakladki,film-paski,film-narzedzia,modele,stary-numer,podbicie,pre-push';
+  + 'strona-komendy,strona-fakty,strona-film,film-komendy,film-rekwizyty,film-zakladki,film-paski,film-narzedzia,modele,stary-numer,podbicie,pre-push';
 
 test('czysta fixtura: wszystkie kontrole zielone, kazda z licznikiem > 0, kod 0', (t) => {
   const r = repo(t).uruchom();
@@ -116,6 +116,7 @@ const MUTACJE = [
   }, /relai-c bez fiszki EN/],
   ['strona-komendy', 'brak nazwy PL w NAMES', (f) => f.zapisz('core/panel/theme.mjs', f.czytaj('core/panel/theme.mjs').replace("  'relai-d': ['Nazwa relai-d', 'Opis relai-d'],\n", '')), /relai-d bez nazwy PL w NAMES/],
   ['strona-fakty', 'fakty.json nieaktualne', (f) => f.zapisz('site/dane/fakty.json', JSON.stringify({ liczbaKomend: 4 })), /pole "liczbaKomend" inne niz w repo/],
+  ['strona-film', 'odtwarzacz na zasobach starego wydania', (f) => f.zapisz('site/wideo/index.html', f.czytaj('site/wideo/index.html').split('/v1.0.0/').join('/v0.9.0/')), /site\/wideo\/index\.html: v0\.9\.0, a film jest z wersji 1\.0\.0/],
   ['film-komendy', 'nowa komenda bez miejsca w filmie', (f) => f.zapisz('adapters/claude-code/commands/relai-f.md', '---\ndescription: "F."\n---\n'), /film nie pokazuje komend: relai-f/],
   ['film-rekwizyty', 'komenda bez rekwizytu', (f) => f.zapisz('docs/zasoby/film/zrodla/src/sceny/ScenaKomend.tsx', f.czytaj('docs/zasoby/film/zrodla/src/sceny/ScenaKomend.tsx').replace("  'relai-e': Epsilon,\n", '')), /relai-e z CYKL bez rekwizytu/],
   ['film-rekwizyty', 'rekwizyt bez pliku', (f) => fs.rmSync(path.join(f.dir, 'docs/zasoby/film/zrodla/src/sceny/komendy/Gamma.tsx')), /rekwizyt Gamma komendy relai-c bez pliku/],
@@ -328,6 +329,36 @@ test('stary-numer: plik testu z numerem bazy pominiety, plik produkcyjny nadal c
   f.zapisz('site/js/wersja-dane.mjs', "// dane testu: stara wersja 1.0.0\n");
   f.commit('chore: dane');
   assert.match(f.uruchom(['--tylko', 'stary-numer']).k('stary-numer').bledy.join('\n'), /site\/js\/wersja-dane\.mjs/);
+});
+
+test('strona-film: adres odtwarzacza = tag wersji filmu; zielony na zgodnym, czerwony na v0.9.0, obcym jezyku i braku adresu (jeden przebieg)', (t) => {
+  const f = repo(t);
+  const zgodny = f.uruchom(['--tylko', 'strona-film']).k('strona-film');
+  assert.deepEqual(zgodny.bledy, []);
+  assert.equal(zgodny.sprawdzono, 4);
+  f.zapisz('site/wideo/index.html', f.czytaj('site/wideo/index.html').split('/v1.0.0/').join('/v0.9.0/'));
+  f.zapisz('site/pl/wideo/index.html', f.czytaj('site/pl/wideo/index.html').split('relai-film-pl').join('relai-film-en'));
+  const bledy = f.uruchom(['--tylko', 'strona-film']).k('strona-film').bledy.join('\n');
+  assert.match(bledy, /site\/wideo\/index\.html: v0\.9\.0, a film jest z wersji 1\.0\.0/);
+  assert.match(bledy, /site\/pl\/wideo\/index\.html: relai-film-en\.mp4, a strona jest w jezyku pl/);
+  f.zapisz('site/wideo/index.html', '<video controls></video>\n');
+  assert.match(f.uruchom(['--tylko', 'strona-film']).k('strona-film').bledy.join('\n'), /site\/wideo\/index\.html: brak adresu filmu/);
+});
+
+test('stary-numer: zapis przeszlosci (slowo z zamknietej listy przed numerem) pominiety, deklaracja stanu czerwona (PIPELINE_WYDAN, Aneks A)', (t) => {
+  const f = repo(t);
+  f.zapisz('.claude-plugin/plugin.json', JSON.stringify({ name: 'relai', version: '1.1.0' }));
+  f.zapisz('docs/historia-a.md', 'Tabela komend (od 1.0.0 `/relai-x`), W 1.0.0 dochodzi skan,\nprzy 1.0.0 trzy luki; since v1.0.0; (po 1.0.0) sprzed 1.0.0, after 1.0.0, in 1.0.0, do 1.0.0.\n');
+  f.zapisz('docs/stan-b.md', '| Obszar | Stan docelowy 1.0.0 |\n');
+  f.zapisz('docs/mieszany-c.md', 'od 1.0.0 nowa komenda; naglowek `RelAI 1.0.0`\n');
+  f.zapisz('docs/wydanie-d.md', 'w repo, do wydania 1.0.0\n');
+  f.commit('chore: 1.1.0');
+  const bledy = f.uruchom(['--tylko', 'stary-numer']).k('stary-numer').bledy.join('\n');
+  assert.doesNotMatch(bledy, /historia-a\.md/);
+  assert.match(bledy, /stan-b\.md/);
+  assert.match(bledy, /mieszany-c\.md/);
+  // "wydania" nie jest na liscie: slowo przed numerem musi stac tuz przed nim.
+  assert.match(bledy, /wydanie-d\.md/);
 });
 
 test('mapa: komenda projektowa .claude/commands/*.md w dokladnie jednym wierszu, bez wydania', () => {

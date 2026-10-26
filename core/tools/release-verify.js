@@ -7,7 +7,7 @@
 // CRLF -> LF, liczba plikow, rozjazdy, pliki brakujace i nadmiarowe - i (z --sesja) sprawdza, ze
 // swieza sesja claude -p laduje plugin z katalogu cache tej wersji (pole "plugins" zdarzenia init).
 //
-//   node core/tools/release-verify.js --plugin relai --wersja 3.3.0
+//   node core/tools/release-verify.js --plugin relai --wersja <N.N.N>
 //   node core/tools/release-verify.js --plugin relai-panel --wersja 0.21.2 --sesja
 //   flagi: --tag <tag> (domyslnie v<wersja> albo <plugin>-v<wersja>), --cache <katalog>
 //          (domyslnie ~/.claude/plugins/cache/relai/<plugin>/<wersja>), --repo, --json
