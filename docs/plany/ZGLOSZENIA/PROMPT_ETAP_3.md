@@ -405,18 +405,18 @@ wpisujesz do wpisu dziennika **z nazwy**, a jego nazwę zaczynasz od slugu proje
 Każdy punkt Weryfikacji, który przeszedł, odhaczasz w `PROMPT_ETAP_3.md` (`- [ ]` → `- [x]`)
 zaraz po jego sprawdzeniu, nie na końcu etapu; punkt, który nie przeszedł, zostaje pusty.
 
-- [ ] Test szerokości przy 31, 75, 94 i 120 kolumnach zielony; kontrola pozytywna (komórka
+- [x] Test szerokości przy 31, 75, 94 i 120 kolumnach zielony; kontrola pozytywna (komórka
       szersza niż okno) wykryta w tym samym przebiegu.
-- [ ] Test „bez linii `b`” zielony na drzewie terminala; mutacja przywracająca `m.b` go wywraca
+- [x] Test „bez linii `b`” zielony na drzewie terminala; mutacja przywracająca `m.b` go wywraca
       (wynik mutacji w wpisie).
-- [ ] Desktop bez zmian: test regresji drzewa `desktop` zielony; `git diff` gałęzi `Svg`
+- [x] Desktop bez zmian: test regresji drzewa `desktop` zielony; `git diff` gałęzi `Svg`
       w `band()` pusty (dowód negatywny).
-- [ ] `claude plugin test .` w `cache-keeper/` → bez porażek, liczba ≥ 200 (199 `FAKT` + nowe).
-- [ ] Zrzut na żywo w `conhost.exe` przy 80 i 120 kolumnach: kolumny równe, brak linii `b`;
+- [x] `claude plugin test .` w `cache-keeper/` → bez porażek, liczba ≥ 200 (199 `FAKT` + nowe).
+- [x] Zrzut na żywo w `conhost.exe` przy 80 i 120 kolumnach: kolumny równe, brak linii `b`;
       wersja „przed” z HEAD w tym samym przebiegu pokazuje linię `b` (L-0191).
-- [ ] `node core/tools/release-check.js --szybko` — zero czerwieni wynikających z plików E3.
-- [ ] Wpis w `docs/DZIENNIK.md` dopisany na końcu sekcji „Wpisy”; `docs/STATE.md` zaktualizowany.
-- [ ] Katalog roboczy `.claude/relai/work/ZGLOSZENIA/E3/` przejrzany raportem
+- [x] `node core/tools/release-check.js --szybko` — zero czerwieni wynikających z plików E3.
+- [x] Wpis w `docs/DZIENNIK.md` dopisany na końcu sekcji „Wpisy”; `docs/STATE.md` zaktualizowany.
+- [x] Katalog roboczy `.claude/relai/work/ZGLOSZENIA/E3/` przejrzany raportem
       (`node .claude/relai/tools/clean-work.js raport`) i skasowany po „tak”; liczby przed i po
       w sekcji „Zweryfikowane” wpisu. Artefakty poza tym katalogiem (np. `git worktree` HEAD-a
       w `%TEMP%`) wypisane z nazwy razem z tym, co się z nimi stało.

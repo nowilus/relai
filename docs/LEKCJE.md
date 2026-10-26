@@ -18,14 +18,15 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
    plików, nie katalogiem) (L-0212). **FAKT w prompcie do sprawdzenia na żywo autor liczy tym
    samym źródłem, które czyta kod etapu**, a rozjazd wykonawca rozstrzyga pytaniem o brzmienie
    punktu, nie dopasowaniem kodu (L-0254); FAKT o lukach „na drzewie X” liczysz regułą kontroli
-   z bazą tego drzewa (L-0269). Instrukcja wołająca narzędzie, którego kod wyjścia „wynik
+   z bazą tego drzewa (L-0269); zdanie „miara rośnie z szerokością” liczysz wzorem układu przy
+   każdej szerokości z listy, osobno po obu stronach progu układu (L-0282). Instrukcja wołająca narzędzie, którego kod wyjścia „wynik
    negatywny” nie jest awarią, mówi, co znaczy każdy kod i gdzie stoi pełny wynik, i zakazuje
    obejść — powtórki, pliku tymczasowego (L-0271); zakaz powtórki obejmuje przebieg z wyjściem
    wyrzuconym (L-0279). Kontrola „stary tekst nie może zostać” odróżnia deklarację stanu od zapisu
    przeszłości zamkniętą listą słów przed wartością i przed oddaniem przechodzi jedno realne
    podbicie, nie tylko fixturę (L-0277).
    (L-0001, L-0011, L-0026, L-0089, L-0100, L-0108, L-0129, L-0212, L-0254, L-0269, L-0271, L-0277,
-   L-0279)
+   L-0279, L-0282)
 2. **W dokumencie użytkownika stoi tylko to, co działa i co zmierzyłeś** — fraza i forma wywołania
    w wersji uruchomionej dosłownie, z tej samej powłoki, którą zobaczy czytelnik; znak
    interpretowany przez powłokę zapisujesz tak, żeby go nie tknęła. Komenda do wklejenia przez
@@ -140,13 +141,15 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
      przycisk zmieniający stan użytkownika naciskasz po pozycji sprawdzonej na liście przycisków,
      nie po pierwszym trafieniu etykiety, i po każdym kliknięciu `diff` z kopią (L-0257); terminal
      mierzysz w `conhost.exe` z `mode con` i oknem nietkniętym, klawisze `WriteConsoleInput`,
-     ekran z bufora z atrybutami, skrypty PowerShell w `%TEMP%` (L-0259).
+     ekran z bufora z atrybutami, skrypty PowerShell w `%TEMP%` (L-0259); skrypt z `Bypass`
+     zapowiadasz człowiekowi przed pierwszym przebiegiem, mod „przed” i „po” stoi w jednej sesji
+     jako dwie kopie pod innymi nazwami, instalacja wyłączona `--settings` (L-0283).
    (L-0032, L-0037, L-0054, L-0055, L-0056, L-0064, L-0068, L-0071, L-0073, L-0083, L-0084, L-0086,
    L-0087, L-0088, L-0090, L-0091, L-0095, L-0096, L-0097, L-0101, L-0102, L-0105, L-0106, L-0107,
    L-0110, L-0111, L-0113, L-0124, L-0125, L-0127, L-0130, L-0131, L-0135, L-0141, L-0143, L-0151,
    L-0160, L-0164, L-0169, L-0170, L-0173, L-0181, L-0211, L-0213, L-0215, L-0238, L-0239, L-0240,
    L-0242, L-0243, L-0246, L-0247, L-0248, L-0249, L-0257, L-0258, L-0259, L-0261, L-0262, L-0265,
-   L-0267, L-0268, L-0270)
+   L-0267, L-0268, L-0270, L-0283)
 6. **Próg jest liczbą, którą ktoś liczy:** kalibrujesz na realnych plikach, zapisujesz w jednostce
    mechanizmu z komendą sprawdzającą, z **jednym** wyzwalaczem. Porównujesz do wielkości, którą
    mechanizm kontroluje (część usuwalna); zatkanie sygnalizuje **różnica możliwego i wykonanego**,
@@ -594,6 +597,29 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
 - **Zasada:** punkt Weryfikacji, który wymaga zapisu albo skasowania pod `.claude/` przez badaną
   sesję `-p`, autor promptu formułuje jako polecenie w transkrypcie (`rm` sam `.md`), a stan pliku
   przenosi do pomiaru interaktywnego albo bramki manualnej już w prompcie (P-014, dopisek).
+
+### L-0282 — „Rośnie z szerokością” przez próg wspólnej karty: liczba kolumn spada · 2026-10-26 · AKTYWNA
+
+- **Trigger:** ZGLOSZENIA E3. Prompt kazał sprawdzić, że liczba kolumn siatki terminala rośnie
+  przy 31, 75, 94 i 120 kolumnach. Test policzył 1, 3, 2, 3: od 90 kolumn (`BAR.narrow`) wspólna
+  karta stawia etykietę i koszt obok środka i zabiera mu 31 komórek, więc przy 94 zostaje mniej
+  miejsca niż przy 75. Łukasz rozstrzygnął: kolumny rosną w obrębie układu.
+- **Zasada:** autor promptu, który pisze o zależności miary od szerokości, liczy tę miarę wzorem
+  układu przy każdej szerokości z listy, zanim napisze „rośnie”. Szerokości po obu stronach progu
+  układu (`narrow`) wpisuje osobno albo zdanie dzieli na układy (rozszerza L-0254).
+
+### L-0283 — Pomiar terminala z PowerShellem `Bypass`: klasyfikator pyta, jedna sesja niesie przed i po · 2026-10-26 · AKTYWNA
+
+- **Trigger:** ZGLOSZENIA E3. Skrypt `conhost.exe` z `-ExecutionPolicy Bypass` i `WriteConsoleInput`
+  został odrzucony przez klasyfikator trybu auto („Security Weaken”). Przeszedł dopiero po zgodzie
+  Łukasza na dokładnie to polecenie. Sam pomiar wyszedł za pierwszym razem: dwie kopie modu pod
+  innymi nazwami (`-head`, `-e3`) przez dwa `--plugin-dir`, zainstalowany mod wyłączony flagą
+  `--settings`, katalog sesji poza projektem, więc „przed” i „po” na jednym ekranie po jednej turze.
+- **Zasada:** pomiar terminala skryptem PowerShell z `Bypass` zapowiadasz człowiekowi przed
+  pierwszym uruchomieniem: nazwa skryptu i co robi, jedna zgoda na serię. Wersje „przed” i „po” modu
+  stawiasz w jednej sesji jako kopie pod innymi nazwami. Instalację wyłączasz `--settings` z pliku
+  w `%TEMP%`, bez edycji `~/.claude/settings.json`. Bez jednej tury z odpowiedzią modelu limity nie
+  mają danych i linii `b` nie widać.
 
 ## Lekcje zwinięte
 

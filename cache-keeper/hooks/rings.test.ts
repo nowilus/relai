@@ -539,18 +539,19 @@ describe('the calm cache bar: five batteries, the session cost on the right (Ane
     }
   })
 
-  test('the terminal: per measure a glyph of what is left, label and value, then line b muted', async ($, on) => {
+  // ZGLOSZENIA E3 (#2): line b left the terminal — the grid and its widths in terminal-grid.test.ts
+  test('the terminal: per measure a glyph of what is left, label and value, no line b', async ($, on) => {
     world(on, { ctx: 500_000, window: 1_000_000, cost: 1.5, limits: [{ kind: 'five_hour', percentUsed: 11 }, { kind: 'seven_day', percentUsed: 80 }] })
     await start($)
     await turn($)
     const ui = await mount($, 'terminal')
     expect(await svgs(ui)).toEqual([])
     const line = async (key: string) => (await ui.find({ key }))?.text ?? ''
-    expect(await line('m-cache')).toMatch(/^●.*cache.*~60 min.*TTL 60 min założony/)
-    expect(await line('m-five')).toMatch(/^●.*limit 5 h.*11 %.*zużyte 11 % · zostało 89 % · reset nieznany/)
-    expect(await line('m-reset')).toMatch(/^○.*reset za.*brak danych/)
-    expect(await line('m-week')).toMatch(/^◔.*limit tygodnia.*80 %.*zużyte 80 % · zostało 20 %/)
-    expect(await line('m-ctx')).toMatch(/^◑.*kontekst.*500k.*zużyte 500k z 1M · wolne 50 %/)
+    expect(await line('m-cache')).toMatch(/^●\s*cache\s*~60 min$/)
+    expect(await line('m-five')).toMatch(/^●\s*limit 5 h\s*11 %$/)
+    expect(await line('m-reset')).toMatch(/^○\s*reset za\s*brak danych$/)
+    expect(await line('m-week')).toMatch(/^◔\s*limit tygodnia\s*80 %$/)
+    expect(await line('m-ctx')).toMatch(/^◑\s*kontekst\s*500k$/)
     expect((await ui.find({ key: 'figure' }))?.text).toContain('$1.50')
     await ui.unmount()
   })

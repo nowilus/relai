@@ -128,6 +128,29 @@ export function measureGlyph(fill: number | null): string {
 const GLYPH_KEY: Readonly<Record<string, string>> = { done: KEY.done, running: KEY.running, failed: KEY.failed, track: KEY.muted, muted: KEY.muted }
 export const glyphColor = (m: Measure): string => GLYPH_KEY[inkOf(m.color)] ?? KEY.muted
 
+// The terminal's grid (ZGLOSZENIA E3, #2, variant A, Łukasz 2026-10-26): a glyph, the label and the
+// value per measure, no line b — the reset and the threshold are in /cache. Columns of one width:
+// the widest "glyph label value" and the gap, as many as fit the middle's cells, at most three.
+// Counted in terminal cells, never in pixels (P-024); a glyph ◔ ◑ ◕ ● ○ is East Asian "ambiguous"
+// and takes one cell in conhost (measured at 80 and 120 columns, 2026-10-26) — a terminal set to
+// wide ambiguous glyphs draws it in two. A cell wider than the middle: one column,
+// whose label wraps under the glyph while the value keeps its width.
+export const TERM = Object.freeze({ gap: 2, maxCols: 3 })
+
+const cells = (s: string) => [...s].length
+export const termCellWidth = (m: Measure): number => cells(measureGlyph(m.fill)) + 1 + cells(m.label) + 1 + cells(m.value)
+
+export function termColumns(measures: readonly Measure[], middle: number): { cols: number, width: number } {
+  const width = Math.max(0, ...measures.map(termCellWidth))
+  const fit = Math.floor((middle + TERM.gap) / (width + TERM.gap))
+  return { cols: Math.max(1, Math.min(TERM.maxCols, measures.length, fit)), width }
+}
+
+export function termRows(measures: readonly Measure[], middle: number): Measure[][] {
+  const { cols } = termColumns(measures, middle)
+  return measures.reduce<Measure[][]>((rows, m, i) => (i % cols ? [...rows.slice(0, -1), [...rows[rows.length - 1], m]] : [...rows, [m]]), [])
+}
+
 // ---------- the desktop: one interactive Svg per row ----------
 
 const esc = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')

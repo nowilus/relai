@@ -2009,3 +2009,91 @@ Przegląd ryzyk: bez zmian (ryzyka 4 i 5 planu — plik kasowany bez zgody, łat
 z plikiem — nie zaszły: kasowanie tylko po „tak”, polecenie dotyczyło samego `.md`).
 
 Autor: RelAI (Opus 5.5) + Lukasz
+
+### 2026-10-26 — ZGLOSZENIA E3: pasek cache w terminalu jako siatka kolumn (#2)
+
+**Zrobione:**
+
+- `cache-keeper/hooks/rings.ts`: czysta siatka terminala (bez `$`). `TERM` (odstęp 2, najwyżej
+  3 kolumny), `termCellWidth` (glif + etykieta + wartość w komórkach), `termColumns` i `termRows`.
+  Komentarz mówi, że glif ma jedną komórkę w `conhost`, a w terminalu z szerokimi znakami
+  „ambiguous” dwie.
+- `cache-keeper/hooks/register.tsx`: gałąź terminalowa `band()` rysuje wiersze `cells-N` po N
+  miar. Przy więcej niż jednej kolumnie komórka `m-<miara>` ma stałą szerokość i `flexShrink={0}`,
+  a wartość zawsze stoi w pudełku `flexShrink={0}`. Linii `b` nie ma. `termMiddle()` liczy środek
+  karty w komórkach jak `middlePx`, ale kolumna kosztu rośnie z tekstem („brak danych kosztu” to
+  18 komórek). Gałąź `Svg` nietknięta.
+- Testy: nowy `cache-keeper/hooks/terminal-grid.test.ts` (7 testów). `rings.test.ts`: test
+  terminala oczekuje teraz glifu, etykiety i wartości bez linii `b` (decyzja wariantu A planu).
+
+**Zweryfikowane — jak dokładnie:**
+
+- `claude plugin test .` w `cache-keeper/` (2.1.308) → **206/206 w 15 plikach** (było 199/199
+  w 14).
+- Szerokość przy 31, 75, 94 i 120 kolumnach, z kosztem i bez niego: żaden wiersz nie jest szerszy
+  niż okno (instrument `natural`). Każda miara stoi raz, wiersze mają równe kolumny. Kontrola
+  pozytywna w tym samym przebiegu: drzewo z komórką o szerokości okna + 1 jest wykryte.
+  Liczba kolumn: **1, 3, 2, 3**. Od `BAR.narrow` = 90 wspólna karta stawia etykietę i koszt obok
+  środka i zabiera mu 31 komórek. Punkt promptu „rośnie z szerokością” nie przeszedłby dosłownie.
+  Rozstrzygnięcie Łukasza: „Rosną w obrębie układu”. Test sprawdza wzrost osobno dla układu
+  wąskiego (31 → 75: 1 → 3) i szerokiego (94 → 120: 2 → 3), oraz 1 kolumnę przy 31 i najwyżej 3
+  (L-0282).
+- Węższy niż jedna komórka (16 i 20 kolumn, przypadek z sekcji 8 planu): pięć wierszy po jednej
+  mierze, wszystkie pięć wartości całe. Instrument `narrowest` (zawijanie) ≤ okno, a `natural`
+  > okno, więc zawijanie jest naprawdę potrzebne. Kontrola: podłożona wartość dłuższa niż okno
+  wykryta. Dodane po przeglądzie diffu; wcześniej gałąź zawijania nie miała testu.
+- Brak linii `b`: rdzenie `zużyt|zostało|reset (jutro |\d)|TTL|wolne|próg` nie występują w tekście
+  terminala przy żadnej z czterech szerokości. Kontrola pozytywna: ten sam wzorzec trafia w `alt`
+  desktopu tej samej sesji. **Mutacja** przywracająca `{m.b}` w komórce (skrypt z kotwicą,
+  1 trafienie) → 200 pass / 4 fail, w tym „no line b in the terminal”. Plik po przywróceniu ma tę
+  samą sumę (sha1 `8cc929d34ff7` przed i po).
+- Desktop bez zmian: odcisk FNV-1a drzewa `desktop` przy 75 i 140 kolumnach — **HEAD `f07fc26`**
+  (sonda w `git worktree` z `core.autocrlf=false`) i drzewo robocze w jednym przebiegu dały te same
+  wartości `b2293fa1` / `705cb674`, wpisane w test. Dowód negatywny: `git diff -U0` w
+  `register.tsx` nie zawiera ani jednego wiersza z `Svg`.
+- Na żywo w `conhost.exe` (L-0259): `mode con` 80 i 120 kolumn, `claude.exe` 2.1.308. W jednej
+  sesji dwie kopie modu pod innymi nazwami (`relai-cache-keeper-head` z worktree HEAD i `-e3`
+  z drzewa roboczego, dwa `--plugin-dir`). Zainstalowany mod wyłączony przez `--settings`,
+  katalog sesji poza projektem, jedna tura „ok”. Klawisze przez `WriteConsoleInput`, ekran
+  z bufora. Skrypt PowerShell z `Bypass` klasyfikator trybu auto najpierw odrzucił; ruszył po
+  zgodzie Łukasza („Pozwól, uruchom pomiar”, L-0283).
+  - Przy 80 kolumnach HEAD rysuje „◕ limit 5 h 25 % zużyte 25 % · zostało 75 % · reset 21:10 ·
+    próg 90 %”, a „zużyte 16 % …” limitu tygodnia spada do osobnej linii (7 wierszy). E3 rysuje
+    „● cache ~60 min ◕ limit 5 h 25 % ◑ reset za 2 h 05 min” i „◕ limit tygodnia 16 % ●
+    kontekst 66.5k” (2 wiersze). Glify E3 stoją na pozycjach 1, 24, 47 i w drugim wierszu 1, 24.
+  - Przy 120 kolumnach HEAD ma 5 wierszy z linią `b`. E3 ma 2 wiersze, glify na 17, 40, 63
+    i 17, 40. Krok kolumny 23 = komórka 21 + odstęp 2.
+- `node core/tools/release-check.js --szybko` → zero czerwieni; `relai-cache-keeper` 0.12.0 →
+  propozycja 0.12.1 (4 pliki bez commitu, „co najmniej patch”) do E5.
+- Przegląd diffu (subagent recenzent): 0 krytycznych, 7 średnich, 1 drobna. Wzięte: test
+  węższego okna, kontrola pozytywna `cutCells`, `natural` liczy `Box` bez kierunku jako wiersz
+  (jak Ink), komentarz o glifie „ambiguous”. Odrzucone:
+  - wspólne stałe geometrii z `bar-card.tsx` — ten sam wzór ma `middlePx` od dawna, a rozjazd
+    złapie test szerokości;
+  - pojedyncza spacja w wyrażeniach `rings.test.ts` — tekst węzłów łączy się bez spacji, odstęp
+    to `columnGap`.
+- Katalog roboczy `.claude/relai/work/ZGLOSZENIA/E3/`: przed — 7 plików, 24 504 B (skrypty
+  `make-probe.js`, `mutate.js`, `plan-text.js`, tekst planu, trzy zrzuty bufora). Skasowany po
+  „Wszystko” Łukasza; po — katalogu nie ma. Poza katalogiem: worktree
+  `%TEMP%/relai-zgl-e3-head` (116 MB) usunięty `git worktree remove`. Skasowane też
+  `%TEMP%/relai-zgl-e3-mods` (3,6 MB), `relai-zgl-e3-cwd`, `relai-zgl-e3-term.ps1`,
+  `relai-zgl-e3-run80.cmd` i `relai-zgl-e3-run120.cmd`; 0 trafień `relai-zgl-e3` w `%TEMP%`.
+
+**Świadomie odłożone:**
+
+- Glif w terminalu z szerokimi znakami „ambiguous” (CJK) zajmie dwie komórki i wiersz może
+  wyjść poza środek — niezmierzone, opisane w komentarzu `rings.ts`.
+- Próg `narrow` wspólnej karty (trzy mody) zostaje: przy 90–~100 kolumnach siatka ma 2 kolumny,
+  przy 75 ma 3.
+- `.claude/relai/work/ZGLOSZENIA/plan-fill.mjs` i `zasady.md` — pozostałości sprzed etapów,
+  nie E3. `.claude/launch.json` — nieśledzony plik spoza etapu.
+- Rotacja dziennika (153 KB przy progu 150) i zamkniętych ryzyk; `LEKCJE.md` po dwóch lekcjach
+  powyżej progu 50 KB — przy „kończymy na dziś”.
+
+**Do zrobienia przez człowieka:** —
+
+Przegląd ryzyk: ryzyko 3 planu (siatka rozjedzie się w wąskim terminalu) nie zaszło — szerokości
+31–120 i 16–20 zmierzone testem, 80 i 120 na żywo. C8 (inny mod nad promptem) bez zmian: gałąź
+terminalowa nie owija `next(e)`.
+
+Autor: RelAI (Opus 5.5) + Lukasz

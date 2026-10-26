@@ -11,7 +11,7 @@ import { DEFAULT_SETTINGS, MAX_PAYBACK_TURNS, MIN, RELAI_MARKER, applySetting, c
 import { basename, clip, clock, fileStamp, limitsText, minutes, tokens, usd } from './fmt'
 import { barCard, barRule } from './bar-card'
 import { BAND, BAR, BAR_LOOK, CHIP_KEY, KEY } from './relai/theme.mjs'
-import { batteryRows, cacheMeasure, columnsOf, compactThreshold, contextMeasure, contextRow, glyphColor, limitMeasure, measureGlyph, resetMeasure, type Limit, type Measure } from './rings'
+import { TERM, batteryRows, cacheMeasure, columnsOf, compactThreshold, contextMeasure, contextRow, glyphColor, limitMeasure, measureGlyph, resetMeasure, termColumns, termRows, type Limit, type Measure } from './rings'
 
 import { ancestors, parseStatus } from './relai/plan-state.mjs'
 import { PLAIN_HANDOFF_PROMPT, RELAI_CONTINUE, RELAI_HANDOFF_PROMPT, continuePrompt, plainBody, relaiDiscardPrompt, relaiDone, relaiFreshPrompt, relaiResumePrompt, relaiSavePrompt, saveDone } from './handoff'
@@ -926,10 +926,15 @@ const COLUMN_GAP = 2 // cells between the grid's columns (brief v2 §5)
 const middlePx = (columns: number) =>
   Math.max(10, columns - 2 - (columns < BAR.narrow ? 0 : BAR.labelColumn + BAR.figureColumn + 2 * COLUMN_GAP)) * CELL_PX
 
+// The middle column's cells in the terminal (ZGLOSZENIA E3): as middlePx, but the figure column
+// grows with its words ("brak danych kosztu" is 18 cells, the column's minimum 11)
+const termMiddle = (columns: number, figure: readonly [string, string]) =>
+  Math.max(1, columns - 2 - (columns < BAR.narrow ? 0 : BAR.labelColumn + Math.max(BAR.figureColumn, figure[0].length + 1 + figure[1].length) + 2 * COLUMN_GAP))
+
 // The cache bar (Aneks Z11, brief v3 §10): in calm one row of five batteries, the session's cost
 // on the right, zero buttons; a second row only while its reason lasts.
 // Desktop: each Svg alone in its row (an interactive Svg beside text shrinks, P-021 pkt 3).
-// Terminal: no card to hover, so line b stays — a glyph, label, value, line b muted, wrapping.
+// Terminal (ZGLOSZENIA E3, #2): a grid of a glyph, the label and the value, no line b (termRows).
 function band($: $T, e: Resolved, columns: number, now: number) {
   const el = $.ui.resolve(e)
   const { Box, Text } = el
@@ -942,6 +947,8 @@ function band($: $T, e: Resolved, columns: number, now: number) {
   const shown = S.ctx > 0 && S.ctxWindow > 0 ? v.measures.filter((m) => m.name !== 'ctx') : v.measures
   const grid = columnsOf(shown, px)
   const ctxRow = Svg ? contextRow(S.ctx, S.ctxWindow, grid.cols, grid.step, S.ctxCompact) : null
+  const cells = termMiddle(columns, v.figure)
+  const { cols, width: cellWidth } = termColumns(v.measures, cells)
   const batteries = Svg
     ? (
       <Box key="cache-batteries" flexDirection="column">
@@ -952,13 +959,18 @@ function band($: $T, e: Resolved, columns: number, now: number) {
       </Box>
     )
     : (
-      <Box key="cache-batteries" flexDirection="row" flexWrap="wrap" columnGap={3}>
-        {v.measures.map((m) => (
-          <Box key={`m-${m.name}`} flexDirection="row" flexWrap="wrap" columnGap={1}>
-            <Text color={glyphColor(m)}>{measureGlyph(m.fill)}</Text>
-            <Text color={KEY.muted}>{m.label}</Text>
-            <Text bold color={KEY.text}>{m.value}</Text>
-            {m.b === m.value ? null : <Text color={KEY.muted}>{m.b}</Text>}
+      <Box key="cache-batteries" flexDirection="column">
+        {termRows(v.measures, cells).map((row, i) => (
+          <Box key={`cells-${i}`} flexDirection="row" columnGap={TERM.gap}>
+            {row.map((m) => (
+              <Box key={`m-${m.name}`} flexDirection="row" columnGap={1} {...(cols > 1 ? { width: cellWidth, flexShrink: 0 } : {})}>
+                <Text color={glyphColor(m)}>{measureGlyph(m.fill)}</Text>
+                <Box key="words" flexDirection="row" flexWrap="wrap" flexShrink={1} columnGap={1}>
+                  <Text color={KEY.muted}>{m.label}</Text>
+                  <Box key="value" flexShrink={0}><Text bold color={KEY.text}>{m.value}</Text></Box>
+                </Box>
+              </Box>
+            ))}
           </Box>
         ))}
       </Box>
