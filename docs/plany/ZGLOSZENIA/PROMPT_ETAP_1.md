@@ -403,18 +403,18 @@ wpisujesz do wpisu dziennika **z nazwy**, a jego nazwę zaczynasz od slugu proje
 Każdy punkt Weryfikacji, który przeszedł, odhaczasz w `PROMPT_ETAP_1.md` (`- [ ]` → `- [x]`)
 zaraz po jego sprawdzeniu, nie na końcu etapu; punkt, który nie przeszedł, zostaje pusty.
 
-- [ ] `node --test site/narzedzia/odwolania.test.mjs` **przed** kopią ikony kończy się porażką
+- [x] `node --test site/narzedzia/odwolania.test.mjs` **przed** kopią ikony kończy się porażką
       wskazującą `grafika/ikony/security.svg` na stronach Filmu i Biurka (wynik w wpisie).
-- [ ] Kontrola pozytywna instrumentu: test zbiera co najmniej jedno odwołanie z każdej z czterech
+- [x] Kontrola pozytywna instrumentu: test zbiera co najmniej jedno odwołanie z każdej z czterech
       stron Filmu i Biurka (liczba odwołań na stronę w wpisie) — test, który nic nie zbiera,
       przechodzi sam.
-- [ ] `site/grafika/ikony/security.svg` ma tę samą sumę SHA-256 co
+- [x] `site/grafika/ikony/security.svg` ma tę samą sumę SHA-256 co
       `docs/zasoby/branding/ikony/security.svg`.
-- [ ] `node --test "site/**/*.test.mjs"` kończy się bez błędów; liczba testów po > 370.
-- [ ] Dowód negatywny: pliki `site/index.html`, `site/pl/index.html`, `site/biurko/index.html`,
+- [x] `node --test "site/**/*.test.mjs"` kończy się bez błędów; liczba testów po > 370.
+- [x] Dowód negatywny: pliki `site/index.html`, `site/pl/index.html`, `site/biurko/index.html`,
       `site/pl/biurko/index.html` bez zmian w `git diff` (naprawa nie wymaga przebudowy stron),
       albo — jeśli zastany brak wymagał przebudowy — diff tylko w miejscu tego braku.
-- [ ] `node core/tools/release-check.js --szybko` — zero czerwieni wynikających z plików E1.
+- [x] `node core/tools/release-check.js --szybko` — zero czerwieni wynikających z plików E1.
 - [ ] Po pushu (tylko po „tak”): przebieg `strona.yml` zielony; `curl` na
       `https://nowilus.github.io/relai/grafika/ikony/security.svg` → 200; na `/`, `/pl/`,
       `/biurko/`, `/pl/biurko/` obraz ikony karty `/relai-security` ma `naturalWidth > 0`

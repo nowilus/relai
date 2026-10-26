@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48" role="img" aria-label="Bezpieczenstwo zaleznosci">
+  <title>Bezpieczenstwo zaleznosci</title>
+  <g fill="none" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M24 6l14 5v11c0 9-6 16-14 20c-8-4-14-11-14-20V11z" stroke="#8a7f70"/>
+    <path d="M17 24l5 5l9-10" stroke="#c4643c"/>
+  </g>
+</svg>
