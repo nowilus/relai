@@ -426,7 +426,7 @@ restart aplikacji po `plugin update` (P-005) — to krok człowieka.
 Każdy punkt Weryfikacji, który przeszedł, odhaczasz w `PROMPT_ETAP_5.md` (`- [ ]` → `- [x]`)
 zaraz po jego sprawdzeniu, nie na końcu etapu; punkt, który nie przeszedł, zostaje pusty.
 
-- [ ] Decyzje z punktu 0 (numer, miejsce MP4, mody) padły słowami Łukasza i stoją we wpisie
+- [x] Decyzje z punktu 0 (numer, miejsce MP4, mody) padły słowami Łukasza i stoją we wpisie
       dziennika z cytatem opcji.
 - [x] `node core/tools/release-check.js --wydanie` przed tagiem: zero czerwonych (albo czerwień
       z obejściem zaakceptowanym przez Łukasza i wpisem w dzienniku — zacytowanym).
@@ -437,23 +437,23 @@ zaraz po jego sprawdzeniu, nie na końcu etapu; punkt, który nie przeszedł, zo
       `node --test core/panel/tests/*.test.js`, `node --test adapters/codex/tests/*.test.js`,
       testy strony, `npm test` filmu (37/37 albo więcej); `node core/tools/validate-adapters.js`
       → „spojne”.
-- [ ] Publikacja: każdy krok zewnętrzny miał osobne „tak” (cytaty w dzienniku); tag nowej wersji
+- [x] Publikacja: każdy krok zewnętrzny miał osobne „tak” (cytaty w dzienniku); tag nowej wersji
       istnieje lokalnie i zdalnie; wydanie GitHub ma oba MP4 o sumach z E4 (albo z nowego renderu
       według punktu 0 — wtedy nowe sumy i 5280 klatek). Brak zgody → punkt opisany jako
       niezrealizowany, bramka `OTWARTA` w `STATUS.md`.
-- [ ] Po publikacji: `release-verify.js` — zero rozjazdów cache wobec tagu; adres odtwarzacza PL
+- [x] Po publikacji: `release-verify.js` — zero rozjazdów cache wobec tagu; adres odtwarzacza PL
       i EN odpowiada (kod HTTP do dziennika).
-- [ ] Pomiar automatu w dzienniku: liczba kroków komendy, liczba i treść pytań, kroki ręczne
+- [x] Pomiar automatu w dzienniku: liczba kroków komendy, liczba i treść pytań, kroki ręczne
       z powodem.
-- [ ] Brak zmian poza zakresem: `git diff --stat` na ścieżkach PANEL_CODEX
+- [x] Brak zmian poza zakresem: `git diff --stat` na ścieżkach PANEL_CODEX
       (`docs/plany/PANEL_CODEX/`, `adapters/codex/panel/`, `docs/zasoby/PANEL_RELAI/makiety/`) —
       pusty; `.claude/launch.json` poza commitem.
-- [ ] Zamknięcie planu: kroki 1–9 `plan-closing.md` wykonane; folder planu w
+- [x] Zamknięcie planu: kroki 1–9 `plan-closing.md` wykonane; folder planu w
       `docs/archiwum/plany/PIPELINE_WYDAN/`; linia „Aktywny plan” w `CLAUDE.md` wskazuje istniejący
       plik albo brzmi `Aktywny plan: brak`.
-- [ ] Wpis w `docs/DZIENNIK.md` na końcu sekcji „Wpisy”, z podpisem `Autor: RelAI (<model>) + Lukasz`;
+- [x] Wpis w `docs/DZIENNIK.md` na końcu sekcji „Wpisy”, z podpisem `Autor: RelAI (<model>) + Lukasz`;
       `docs/STATE.md` nadpisany.
-- [ ] Katalog roboczy `.claude/relai/work/PIPELINE_WYDAN/E5/` przejrzany raportem
+- [x] Katalog roboczy `.claude/relai/work/PIPELINE_WYDAN/E5/` przejrzany raportem
       (`node .claude/relai/tools/clean-work.js raport`) i skasowany po „tak”; liczby przed i po we
       wpisie dziennika. Artefakty spoza katalogu (`out/*.mp4` filmu — po wydaniu: zostają czy
       kasowane, decyzja człowieka; pliki `.claude/relai/work/PIPELINE_WYDAN/*` z tworzenia planu)

@@ -1,7 +1,7 @@
 # ODNOGA — testy faktów i pasków filmu 3.0.0 przypięte do commitu wydania
 
 Plan: [HUMANIZACJA](../../archiwum/plany/HUMANIZACJA/STATUS.md) · Etap-źródło: E1 — Komenda na żądanie · Utworzona: 2026-10-14 ·
-Status: **ZAMKNIĘTA 2026-10-26 przez E4 planu [PIPELINE_WYDAN](../../plany/PIPELINE_WYDAN/STATUS.md)** (wynik niżej; wcześniej: wątek samodzielny od 2026-10-14 — przeniesiona z planu przy jego zamknięciu, decyzja Łukasza; **od 2026-10-25 wchłonięta przez E4 planu [PIPELINE_WYDAN](../../plany/PIPELINE_WYDAN/STATUS.md)** — testy przypięte do wersji danych filmu zamiast `v3.0.0`, decyzja Łukasza z wywiadu; nie uruchamiać osobno, zamyka ją E4) · Wykonawca: Opus 5.5 w świeżej sesji
+Status: **ZAMKNIĘTA 2026-10-26 przez E4 planu [PIPELINE_WYDAN](../../archiwum/plany/PIPELINE_WYDAN/STATUS.md)** (wynik niżej; wcześniej: wątek samodzielny od 2026-10-14 — przeniesiona z planu przy jego zamknięciu, decyzja Łukasza; **od 2026-10-25 wchłonięta przez E4 planu [PIPELINE_WYDAN](../../archiwum/plany/PIPELINE_WYDAN/STATUS.md)** — testy przypięte do wersji danych filmu zamiast `v3.0.0`, decyzja Łukasza z wywiadu; nie uruchamiać osobno, zamyka ją E4) · Wykonawca: Opus 5.5 w świeżej sesji
 
 ## Cel
 

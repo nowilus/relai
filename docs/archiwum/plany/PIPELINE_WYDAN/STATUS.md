@@ -1,6 +1,6 @@
 # STATUS — plan PIPELINE_WYDAN
 
-Plan: [PLAN.html](PLAN.html) · Utworzony: 2026-10-25 · Status planu: **ZAAKCEPTOWANY 2026-10-25** · Model wykonawczy etapów: Opus 5.5, świeże sesje (D-85, `docs/USTAWIENIA.md`), w Claude Code
+Plan: [PLAN.html](PLAN.html) · Utworzony: 2026-10-25 · Status planu: ZAAKCEPTOWANY 2026-10-25 (Aneksy A i B 2026-10-26) · **ZREALIZOWANY 2026-10-26** · Model wykonawczy etapów: Opus 5.5, świeże sesje (D-85, `docs/USTAWIENIA.md`), w Claude Code
 
 ## Tabela etapów
 
@@ -10,7 +10,13 @@ Plan: [PLAN.html](PLAN.html) · Utworzony: 2026-10-25 · Status planu: **ZAAKCEP
 | E2 | Komenda i naprawy | ZREALIZOWANY 2026-10-25 | [PROMPT_ETAP_2.md](PROMPT_ETAP_2.md) | `/relai-release` (`.claude/commands/`, śledzona) i fraza „gotowi do wydania?”; propozycje numerów (`release-version.js`), kontrola `podbicie`, `**/*.test.*` w historycznych; 50 testów `release-check`, 14/14 mutacji |
 | E3 | Bramka i na żywo | ZREALIZOWANY 2026-10-25 | [PROMPT_ETAP_3.md](PROMPT_ETAP_3.md) | hook `pre-push` (`release-pre-push.js` + `install-prepush.js`, zainstalowany w tym klonie), `--komponent` dla tagu modu, kontrola `pre-push`, `release-verify.js` (3.3.0: 1484/1484), `release-hint.js` + reguła w `CLAUDE.md`; 267 testów `core/process`, 13/13 mutacji |
 | E4 | Film do bieżącej wersji | ZREALIZOWANY 2026-10-26 | [PROMPT_ETAP_4.md](PROMPT_ETAP_4.md) | 16 komend, 176 s (5280 klatek PL i EN), stempel „stan z wersji 3.3.0” w finale; dane filmu z kotwicy `cbfe85c` (`kotwica.mjs`, worktree), testy filmu 37/37, FILM_TESTY_V3 zamknięta; MP4 lokalnie w `out/` |
-| E5 | Pierwsze wydanie przez pipeline | **W TOKU** | [PROMPT_ETAP_5.md](PROMPT_ETAP_5.md) | publikacja tylko po zgodzie; zamknięcie planu |
+| E5 | Pierwsze wydanie przez pipeline | ZREALIZOWANY 2026-10-26 | [PROMPT_ETAP_5.md](PROMPT_ETAP_5.md) | RelAI 3.4.0 wydany przez `/relai-release` (tag `v3.4.0` na `7277083` przez bramkę `pre-push`, wydanie GitHub z MP4 nowego renderu, push `main`, marketplace i `plugin update`; `release-verify` 1517/1517); kontrola `strona-film`; Aneks A (`stary-numer` a zapis przeszłości) i Aneks B (worktree rewizji z LF); lista modeli w pluginie z 2026-10-08 |
+
+## Bramki manualne
+
+| Bramka | Etap | Status |
+|---|---|---|
+| Restart aplikacji Claude, żeby sesje desktopu wczytały RelAI 3.4.0 (P-005) | E5 | OTWARTA — decyzja Łukasza 2026-10-26: zostaje otwarta, przeniesiona do `docs/STATE.md` („Co dalej”) |
 
 ## Dziennik wdrożenia
 
@@ -20,4 +26,4 @@ Plan: [PLAN.html](PLAN.html) · Utworzony: 2026-10-25 · Status planu: **ZAAKCEP
 - 2026-10-25 — E2 ZREALIZOWANY: `/relai-release` i fraza „gotowi do wydania?” (świeża sesja: Skill → raport po polsku, bez zmian bez zgody), propozycje numerów z conventional commits (rdzeń 3.3.0 → 3.4.0 minor), kontrola `podbicie` (czerwień z `--wydanie`), reguła testów w ścieżkach historycznych (`--rev a1439b9`: 9 → 1 trafienie, `now-art.ts` — komentarz); naprawa bezpieczna `readme-mody` po zgodzie Łukasza; zero tagów i pushu; E3 gotowy do startu.
 - 2026-10-25 — E3 ZREALIZOWANY: bramka `pre-push` na tagi `v*` i `relai-*-v*` (czerwień = odmowa, gałąź bez kontroli, obejście z powodem jako wpis w dzienniku), wydanie samego modu `--komponent`, kontrola `pre-push` w raporcie, weryfikacja po publikacji (cache 3.3.0 = tag, świeża sesja), podpowiedź gotowości przy „kontynuujemy pracę”; hook zainstalowany w repo po „tak”; zero tagów i pushu; przegląd: 1 HIGH i 2 MEDIUM poprawione; E4 gotowy do startu.
 - 2026-10-26 — E4 ZREALIZOWANY: rekwizyty i słowa `/relai-humanize` i `/relai-security` zaakceptowane na kadrze, finał ze stemplem wersji (decyzja Łukasza), dane filmu z commitu-kotwicy `cbfe85c` (commit lokalny E4 w toku, za zgodą), testy filmu 29/36 → 37/37 i odporne na niezwiązane zmiany (FILM_TESTY_V3 zamknięta), render PL i EN po 5280 klatek; zero tagów i pushu; E5 gotowy do startu.
-- 2026-10-26 — E5 rozpoczęty
+- 2026-10-26 — E5 ZREALIZOWANY: pierwsze wydanie przez pipeline — RelAI 3.4.0 (decyzje Łukasza: numer 3.4.0, ponowny render filmu z kotwicą na commicie wydania, tylko rdzeń, najpierw `/relai-models`); raport `--wydanie` zielony po dwóch aneksach do instrumentu (A: `stary-numer` pomija zapis przeszłości; B: bramka odrzuciła pierwszy push tagu przez CRLF w worktree rewizji — poprawka i tag przeniesiony lokalnie); każdy krok zewnętrzny po osobnym „tak”; strona na `v3.4.0`, cache = tag, świeża sesja na 3.4.0; ostatni etap — plan zamknięty.

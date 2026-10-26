@@ -20,8 +20,12 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
    punktu, nie dopasowaniem kodu (L-0254); FAKT o lukach „na drzewie X” liczysz regułą kontroli
    z bazą tego drzewa (L-0269). Instrukcja wołająca narzędzie, którego kod wyjścia „wynik
    negatywny” nie jest awarią, mówi, co znaczy każdy kod i gdzie stoi pełny wynik, i zakazuje
-   obejść — powtórki, pliku tymczasowego (L-0271).
-   (L-0001, L-0011, L-0026, L-0089, L-0100, L-0108, L-0129, L-0212, L-0254, L-0269, L-0271)
+   obejść — powtórki, pliku tymczasowego (L-0271); zakaz powtórki obejmuje przebieg z wyjściem
+   wyrzuconym (L-0279). Kontrola „stary tekst nie może zostać” odróżnia deklarację stanu od zapisu
+   przeszłości zamkniętą listą słów przed wartością i przed oddaniem przechodzi jedno realne
+   podbicie, nie tylko fixturę (L-0277).
+   (L-0001, L-0011, L-0026, L-0089, L-0100, L-0108, L-0129, L-0212, L-0254, L-0269, L-0271, L-0277,
+   L-0279)
 2. **W dokumencie użytkownika stoi tylko to, co działa i co zmierzyłeś** — fraza i forma wywołania
    w wersji uruchomionej dosłownie, z tej samej powłoki, którą zobaczy czytelnik; znak
    interpretowany przez powłokę zapisujesz tak, żeby go nie tknęła. Komenda do wklejenia przez
@@ -48,7 +52,9 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
      wydanego artefaktu czyta stan wydania (tag, worktree), nie drzewo robocze (L-0186); element
      „pomiędzy” ma warunek na rodzaju sąsiada i test z sąsiadem własnym i obcym (L-0195); dane
      z repo w artefakcie mają commit-kotwicę ze stanem, który artefakt pokazuje, i liczą się
-     w worktree z `core.autocrlf=false` w folderze o nazwie repo (L-0274, L-0275).
+     w worktree z `core.autocrlf=false` w folderze o nazwie repo (L-0274, L-0275); lekcja
+     o mechanizmie (`git worktree add`, checkout) idzie od razu `grep`-em po każdym miejscu repo,
+     które go używa, także po kodzie sprzed lekcji (L-0278).
    - **Na żywo:** widok z danych projektu mierzysz w najgorszym stanie i ograniczasz w kodzie
      (L-0158); diagnoza zaczyna się od znacznika wersji w logu (L-0159); „przed” w dwóch
      przebiegach — stary kod i stary kod z nową czystą logiką (L-0165); animacja z danych procesu
@@ -66,7 +72,7 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
      `initScript` sprawdza istnienie dokumentu i pisze do `sessionStorage` (L-0232).
    (L-0017, L-0018, L-0040, L-0051, L-0052, L-0063, L-0069, L-0082, L-0115, L-0117, L-0123, L-0134,
    L-0144, L-0150, L-0154, L-0155, L-0156, L-0158, L-0159, L-0165, L-0175, L-0177, L-0182, L-0184,
-   L-0186, L-0191, L-0195, L-0213, L-0214, L-0218, L-0222, L-0224, L-0227)
+   L-0186, L-0191, L-0195, L-0213, L-0214, L-0218, L-0222, L-0224, L-0227, L-0274, L-0275, L-0278)
 5. **Instrument pomiarowy sam bywa źródłem fałszu.**
    - **Backslash:** wyrażenia regularne i ścieżki Windows tylko w pliku pisanym Write/Edit albo
      z `/`; skrypt edycji niosący `\n`, backtick lub ścieżkę — Write, heredok bez wyjątku, także
@@ -217,9 +223,11 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
       niesie `--allowedTools` dla każdego polecenia, które reguła uruchamia, dosłownie (L-0273).
     - **Usługi zewnętrzne:** stan ustawienia repozytorium czytasz z API (`gh api repos/<repo>/pages`),
       nie ze zrzutu ani słowa człowieka (L-0244); obraz dla cudzej usługi w proporcji zmierzonej na
-      opublikowanym widoku, każda podmiana pod nowym adresem (L-0245).
+      opublikowanym widoku, każda podmiana pod nowym adresem (L-0245); strona wskazująca zasób
+      wydania wdraża się po wydaniu — push tagu, wydanie z zasobami i ich sumy, potem push `main`
+      (L-0280).
     (L-0041, L-0042, L-0044, L-0047, L-0092, L-0133, L-0136, L-0138, L-0139, L-0146, L-0153, L-0166,
-    L-0168, L-0185, L-0189, L-0190, L-0244, L-0245, L-0253, L-0255, L-0263, L-0264, L-0273)
+    L-0168, L-0185, L-0189, L-0190, L-0244, L-0245, L-0253, L-0255, L-0263, L-0264, L-0273, L-0280)
 14. **Najpierw zmiana w repozytorium, potem zdanie, które ją opisuje.** Weryfikację planujesz tam,
     gdzie wykonalna; po pytaniu sprzątasz sam; jednostką inwentarza jest sprawa, nie linia; wstawkę
     kotwiczysz do elementu, który przeżyje operację, i dowodzisz **obecności** nowej treści. Gdy
@@ -353,178 +361,9 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
 > [docs/archiwum/lekcje/LEKCJE_L-0241_L-0246.md](archiwum/lekcje/LEKCJE_L-0241_L-0246.md)
 > — przeniesione 2026-10-25, suma kontrolna `521f8d24d3980479`.
 
-### L-0247 — Górny pas ekranu CSS3D był malowany, ale nie trafiany; „Wróć do biurka” otwierało szufladę · 2026-10-18 · AKTYWNA
-
-- **Trigger:** STRONA_RELAI E8, zgłoszenie Łukasza ze zrzutem. W przybliżeniu klik w „Wróć do
-  biurka” otwierał dialog szuflady laptopa. Błąd był od E6, na obu buildach. `elementsFromPoint`
-  w punkcie przycisku nie zwracał `.ekran`, tylko płótno sceny. Raycaster szuflad brał klik
-  dla siebie. Pięć punktów `elementFromPoint` z E3 tego pasa nie obejmowało.
-- **Zasada:** warstwę HTML w transformacji 3D sprawdzasz `elementsFromPoint` w siatce punktów
-  po całej powierzchni, w każdym stanie kamery, z kontrolą punktu poza nią. Klik w stanie
-  modalnym (przybliżenie) rozstrzyga jeden słuchacz w fazie przechwytywania, zanim dojdzie do
-  słuchaczy sceny. Dowód poprawki: prawdziwy klik myszą przez CDP na buildzie przed i po.
-
-### L-0248 — Asymetrię kadrów pokazywał mój własny zrzut, a zauważył ją Łukasz · 2026-10-19 · AKTYWNA
-
-- **Trigger:** BIURKO_PLAKAT. Kadr miał `aspect-ratio` i `max-height`, a szerokość `auto`. Ponad
-  ok. 1600 px ograniczenie wysokości przechodziło przez proporcję i zwężało kadr: 72 px z lewej,
-  195 z prawej. Mój zrzut 1920 to pokazywał (kadr kończył się na 1725 px), a ja oceniłem go na oko.
-  Kontrola przez wstrzyknięty arkusz stylów nie odtworzyła błędu, dopiero styl wpisany w element.
-- **Zasada:** układ wyśrodkowany sprawdzasz liczbą: lewy i prawy odstęp każdego bloku od krawędzi
-  okna w kilku szerokościach, nie zrzutem. Element z `aspect-ratio` i ograniczeniem wysokości
-  dostaje jawne `width`. Kontrola musi najpierw odtworzyć błąd; jeśli nie odtwarza, to instrument
-  jest zły, a nie poprawka dobra.
-
-### L-0249 — Reguła z `:has()` przebiła siatkę i rozepchnęła telefon do 442 px · 2026-10-19 · AKTYWNA
-
-- **Trigger:** BIURKO_PLAKAT. Reguła `.przystanek:has(.kadr) { display: flex }` miała większą wagę
-  niż `.przystanek--instalacja { display: grid }`. Instalacja układała się w rząd i na telefonie
-  rozszerzyła obszar układu do 442 px (`innerWidth` 442, `visualViewport` 390). Szukanie elementu
-  wystającego poza okno nic nie dało, bo przy 442 px nic nie wystawało.
-- **Zasada:** `:has()` liczy się jak klasa, więc reguła wyjątku dla tego samego elementu też
-  potrzebuje `:has()` albo innej drogi do większej wagi. Przy przepełnieniu na telefonie
-  porównujesz najpierw `innerWidth` z `visualViewport.width`. Przyczynę znajdujesz bisekcją:
-  wyłączasz po kolei swoje zmiany regułą wstrzykniętą przed ładowaniem (L-0241).
-
-### L-0250 — Gest dotykowy z CDP nie przewijał niczego, a ja uznałem pomiar za zaliczony · 2026-10-19 · AKTYWNA
-
-- **Trigger:** MOBILNA_STRONA. `Input.synthesizeScrollGesture` z `gestureSourceType: "touch"`
-  wysyłał zdarzenia dotyku, więc moja obsługa swipe'a na Biurku przesuwała przystanki i pomiar
-  wyglądał na dobry. Kontrola na starym kodzie pokazała, że ten gest w ogóle nie przewija strony.
-  Dopiero `Input.dispatchTouchEvent` (start, ruchy, koniec) przewijał natywnie i odtworzył przelot
-  Łukasza (y 0 → 895). Osobno: iPhone Łukasza nie pokazał zmian przez `max-age=600` i stały adres
-  `akty.js`, choć serwer miał już nową wersję.
-- **Zasada:** pomiar zachowania dotyku zaczynasz od kontroli pozytywnej na starym kodzie: ten sam
-  gest musi odtworzyć zgłoszony błąd. Gest bez natywnego przewijania nie jest kontrolą. Gdy człowiek
-  „nie widzi różnicy” po wdrożeniu, najpierw porównujesz plik na serwerze z kodem, potem prosisz o
-  kartę prywatną.
-
-### L-0251 — Testy z wyrażeniami regularnymi dopisane heredokiem w powłoce · 2026-10-19 · AKTYWNA
-
-- **Trigger:** MOBILNA_STRONA. Dwa razy dopisałem do `*.test.mjs` bloki z `\.` i `\{` przez
-  `cat >> … <<'EOF'`. Treść przeszła nienaruszona, ale to złamanie reguły z CLAUDE.md (L-0116,
-  L-0119). W tej samej sesji poprawka przez `node -e` zjadła backticki w szablonie skryptu
-  pomiarowego i musiałem ją powtórzyć narzędziem Edit.
-- **Zasada:** tekst z backslashem albo backtickiem idzie wyłącznie przez Write/Edit, także dopisek
-  na końcu pliku i także w pliku roboczym. Heredok w apostrofach nie jest wyjątkiem.
-
-### L-0252 — Skrypt rotacji lekcji ciął po `NaN` i dokleił odsyłacz na początek pliku · 2026-10-19 · AKTYWNA
-
-- **Trigger:** rotacja dokumentów. Skrypt roboczy liczył granice cięcia z pola `od`, którego
-  obiekty lekcji nie miały. `slice(0, NaN)` dało pusty początek, `slice(NaN)` cały plik, więc
-  odsyłacz trafił nad nagłówek, a plik urósł zamiast zmaleć. Kontrola sum fazy 1 przeszła, bo
-  liczyła fragment z tekstów lekcji, nie z pozycji cięcia.
-- **Zasada:** skrypt, który przycina żywy dokument, sprawdza granice przed zapisem: liczby
-  całkowite, wewnątrz właściwej sekcji, koniec za początkiem. Po fazie 2 porównujesz wagę przed
-  i po: plik po rotacji ma być mniejszy, inaczej przywracasz go i szukasz błędu.
-
-### L-0253 — „Nieistniejący id” nie dał błędu CLI, tylko wpis w ustawieniach użytkownika, a „Przeładuj” pokazał sukces · 2026-10-23 · AKTYWNA
-
-- **Trigger:** spike E1 planu RELAI_MODS. Prompt etapu zakładał, że błąd CLI wywoła się
-  nieistniejącym id. `claude plugin enable nie-ma-takiego@relai-spike` skończył się kodem 0
-  i dopisał ten klucz do `enabledPlugins` w `~/.claude/settings.json` Łukasza. Usunąłem go dopiero
-  przywróceniem kopii sprzed etapu. Przycisk „Przeładuj” wywołał `$.command.run`, obietnica się
-  rozwiązała i panel napisał „Przeładowano”, choć silnik odpowiedział tekstem odmowy. W teście
-  `plugin test` trzy z ośmiu testów padły, bo atrapa nie znała `session.cwd`, `clock.now`
-  i ścieżek z `/`. Wynik wyglądał jak pusty panel modu.
-- **Zasada:** przypadek błędu, którym Weryfikacja sprawdza obsługę błędów, uruchamiasz najpierw na
-  samym narzędziu. Na żywo idzie dopiero wtedy, gdy zwraca błąd i niczego nie zapisuje. Do pomiaru,
-  który pisze w plikach użytkownika, robisz kopię przed pierwszym wywołaniem. Odpowiedź API modu
-  (`$.command.run`) oceniasz po treści, bo odmowa nie zawsze odrzuca obietnicę. W teście modu atrapa
-  odpowiada na każde wywołanie `$` z listy `calls` walidatora, zanim uznasz wynik za błąd modu.
-
-### L-0254 — Fakty w prompcie E2 policzone innym źródłem niż to, które czyta budowany kod · 2026-10-23 · AKTYWNA
-
-- **Trigger:** etap E2 planu RELAI_MODS. Prompt zapisał jako FAKT, że `security-guidance` „nie ma
-  wpisu w `enabledPlugins`”, i na tym oparł punkt 4 Weryfikacji. Fakt pochodził z
-  `~/.claude/settings.json`, a kod etapu (zgodnie z Aneksem A) czyta stan z pliku scope'u
-  instalacji, czyli `Parkly/.claude/settings.local.json`, gdzie wpis `false` jest. Tak samo
-  „relai: 3 zdarzenia” policzono z jednego `hooks.json`, a kod sumuje dwa pliki ładowane obok
-  siebie (P-013) i daje 6. Punkt 4 dało się spełnić tylko w brzmieniu zmienionym decyzją Łukasza.
-- **Zasada:** liczbę albo stan, które prompt etapu zapisuje jako FAKT do sprawdzenia na żywo,
-  autor promptu wylicza tym samym źródłem, które ma czytać kod etapu (plik scope'u, suma plików),
-  a nie najbliższym plikiem pod ręką. Wykonawca, który trafi na rozjazd, najpierw sprawdza oba
-  źródła, potem pyta człowieka o brzmienie punktu, a nie dopasowuje kod do faktu.
-
-### L-0255 — Pasek zmian zbudowany dwa razy na niezmierzonym zachowaniu silnika i dwa razy nie znikał · 2026-10-23 · AKTYWNA
-
-- **Trigger:** etap E3 planu RELAI_MODS. Stan „załadowany” najpierw wziąłem z `$.settings.read()`,
-  bo P-052 pkt 4 mówił, że po zapisie CLI zwraca starą wartość. Ten pomiar obejmował tylko chwilę
-  zaraz po zapisie, a silnik odświeża migawkę po kilku sekundach. Druga wersja oparła się na zdaniu
-  z typów („all if one hooks plugin.register”), że przeładowanie odpali `session.start`. Za pierwszym
-  razem zadziałało, bo ładował się świeżo włączony mod, a za drugim nie. Dopiero sonda zapisująca
-  do `$.store` każde zdarzenie przy dwóch ręcznych przeładowaniach pokazała stały sygnał:
-  `plugin.register` innych modów (P-053).
-- **Zasada:** zachowanie cudzego silnika, na którym stoi mechanizm (źródło stanu, sygnał zdarzenia),
-  mierzysz sondą zdarzeń przez cały cykl i co najmniej dwa razy, zanim zbudujesz na nim kod.
-  Pomiar „zaraz po” nie mówi nic o stanie kilka sekund później, a zdanie z typów to hipoteza do
-  sondy. Jeden udany przebieg na żywo nie wystarcza, gdy istnieje druga droga, która mogła dać ten
-  sam wynik.
-
-### L-0256 — Test „pasek zniknął” nie widział formy „2 zmiany czekają” · 2026-10-23 · AKTYWNA
-
-- **Trigger:** etap E3 planu RELAI_MODS, mutacja „N liczone z kliknięć”. Test „tam i z powrotem”
-  przeszedł mimo zepsutej logiki, bo sprawdzał brak tekstu wzorcem `/czeka na przeładowanie/`,
-  a po dwóch kliknięciach panel pisał „2 zmiany czekają na przeładowanie”.
-- **Zasada:** test nieobecności tekstu z odmianą liczebnika szuka rdzenia wspólnego wszystkim
-  formom (`/na przeładowanie/`). Każdy test „czegoś nie ma” przechodzi przez mutację, która ma go
-  wywrócić. Wynik mutacji, w którym nie padł test pisany właśnie dla niej, traktujesz jako defekt
-  testu.
-
-### L-0257 — Klik po samej etykiecie „Wyłącz” przełączył cudzy plugin w ustawieniach Łukasza · 2026-10-23 · AKTYWNA
-
-- **Trigger:** etap E3 planu RELAI_MODS, pomiar na żywo. Skrypt UI Automation nacisnął pierwszy
-  przycisk o nazwie „Wyłącz” i wyłączył `andrej-karpathy-skills` zamiast `filetree`. `diff`
-  z kopią ustawień złapał to od razu i plugin wrócił drugim kliknięciem. W tej samej serii ścieżka
-  `"$WW\\$1"` w funkcji powłoki zablokowała rozwinięcie `$1`, więc trzy zrzuty nadpisały jeden plik
-  (L-0230).
-- **Zasada:** przycisk, który zmienia stan użytkownika, naciskasz po pozycji sprawdzonej na liście
-  przycisków (indeks albo klucz wiersza), nigdy po pierwszym trafieniu etykiety. Po każdym kliknięciu
-  robisz `diff` z kopią sprzed pomiaru. Nazwy plików w funkcji powłoki składasz z `/`.
-
-### L-0258 — Ucieczka unicode w Edit trafiła do pliku jako niewidoczny znak · 2026-10-24 · AKTYWNA
-
-- **Trigger:** etap E4 planu RELAI_MODS. Ucieczki znaków U+200B (w klasie znaków wyrażenia
-  w `narrow.test.ts`) i U+FEFF (we wzorcu BOM w `mods.test.tsx`), zapisane w `new_string`
-  narzędzia Edit jako backslash, `u` i cztery cyfry, wylądowały w plikach jako dosłowne znaki.
-  Ten sam efekt zaszedł w pierwszej wersji tej lekcji. Testy przechodziły, a znak był niewidoczny
-  w czytanym kodzie. Wykrył go dopiero `grep` po bajtach.
-- **Zasada:** znak niewidoczny (U+200B, U+FEFF, NBSP) w kodzie zapisujesz wyrażeniem
-  `String.fromCharCode(0x…)`, nie ucieczką w literale. Po każdej edycji, która go dotyczy,
-  uruchamiasz `grep -c $'\xe2\x80\x8b\|\xef\xbb\xbf'` na zmienionych plikach. Wynik ma być 0.
-  Literał z ucieczką już w pliku poprawiasz skryptem pisanym Write, który liczy trafienia przed
-  zmianą i po niej.
-
-### L-0259 — Pomiar terminala z Basha sesji: cztery usterki instrumentu, zanim padł pierwszy pomiar · 2026-10-24 · AKTYWNA
-
-- **Trigger:** etap E4 planu RELAI_MODS, punkt „terminal przy 80 kolumnach”. Zanim pomiar ruszył,
-  zawiodły cztery rzeczy:
-  - `run_in_terminal` nie wysyła klawiszy do działającego TUI;
-  - PowerShell z Basha nie czyta skryptu spod `.claude/` (ścieżka wrażliwa harnessu);
-  - zwykła konsola w Windows 11 otwiera się w Windows Terminal, który sam zmienia szerokość
-    (80 → 120 → 232), a zmaksymalizowanego okna nie da się zwęzić z API (błąd 87);
-  - w skrypcie `$CH` i `$ch` to w PowerShellu jedna zmienna.
-  Do tego `ctrl+x tab` dawał fokus paskowi `relai-panel`, a nie panelowi kokpitu.
-- **Zasada:** terminal mierzysz w `conhost.exe` uruchomionym wprost z `mode con`, z oknem, którego
-  nikt nie rusza, a zmienne `CLAUDE*` hosta czyścisz w launcherze. Klawisze wysyłasz przez
-  `WriteConsoleInput`, a ekran czytasz z bufora razem z atrybutami, bo pierścień fokusu to
-  inwersja tła. Skrypty PowerShell leżą w `%TEMP%` z prefiksem slugu. Każdą nazwę zmiennej
-  w PowerShellu traktujesz jako bez wielkości liter. Panel nad promptem dostaje klawiaturę po
-  drugim `ctrl+x tab` (P-053), a pierścień sprawdzasz przed każdym Enterem (L-0257).
-
-### L-0260 — Instalacja z marketplace przed publikacją: kolejność promptu niewykonalna · 2026-10-24 · AKTYWNA
-
-- **Trigger:** prompt E5 planu RELAI_MODS kazał najpierw zmierzyć instalację z marketplace (punkt 7),
-  a dopiero potem pytać o tag i push (punkt 8). Marketplace `relai` na maszynie Łukasza czyta
-  z GitHuba (`nowilus/relai`), więc przed pushem `claude plugin install relai-mods@relai` nie
-  znalazłby pluginu. Ten sam pomiar ujawnił dwie usterki kokpitu („2 zdarzeń”, „0 komend · bez
-  hooków” przy modzie), których 66 testów nie widziało. Trzeba było więc wydać 0.1.1 tego samego
-  dnia.
-- **Zasada:** zanim prompt wydania każe mierzyć „instalację z marketplace”, autor sprawdza źródło
-  marketplace (`claude plugin marketplace list`). Przy źródle GitHub pomiar stoi **po** bramce
-  publikacji, a prompt to mówi. Tańszy pomiar wiersza przed publikacją idzie artefaktem
-  podłożonym lokalnie (`--plugin-dir`, zasada 10). Słowo z liczbą w interfejsie dostaje test
-  form 1 / 2–4 / 5 / 12 / 22, a nie tylko jednej liczby.
+> Lekcje L-0247 … L-0260 (14 pozycji) są w
+> [docs/archiwum/lekcje/LEKCJE_L-0247_L-0260.md](archiwum/lekcje/LEKCJE_L-0247_L-0260.md)
+> — przeniesione 2026-10-26, suma kontrolna `68ceb57e2928eb09`.
 
 ### L-0261 — Wzorzec `piętnast` z Weryfikacji nie widział „piętnaście” · 2026-10-24 · AKTYWNA
 
@@ -701,6 +540,47 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
   ten sam mechanizm co w L-0262 („to tylko liczby”).
 - **Zasada:** każda zmiana pliku z kodem idzie przez Edit albo skrypt Write, bez wyjątku na
   komentarz, jedną linię czy oczywistą podmianę; `sed` w powłoce wyłącznie do odczytu.
+
+### L-0277 — Kontrola numeru wersji po całym pliku czerwieni historię · 2026-10-26 · AKTYWNA
+
+- **Trigger:** PIPELINE_WYDAN E5, pierwsze wydanie przez raport. Po podbiciu 3.3.0 → 3.4.0
+  kontrola `stary-numer` w trybie `--wydanie` dała czerwień na siedmiu plikach, a każde trafienie
+  było zapisem przeszłości („od 3.3.0 `/relai-security`”, „W 3.3.0 dochodzi”, przykłady
+  w komentarzach). Kontrola pisana w E1 nie przeszła ani jednego realnego podbicia, więc nikt nie
+  widział, że czerwień wraca przy każdym wydaniu i blokuje tag.
+- **Zasada:** kontrola „stary tekst nie może zostać” rozróżnia deklarację stanu od zapisu
+  przeszłości zamkniętą listą słów tuż przed wartością (`od`, `po`, `w`, `since`…), z testem obu
+  stron i mutacją listy. Taka kontrola przed oddaniem przechodzi jedno realne podbicie na kopii
+  drzewa, nie tylko fixturę.
+
+### L-0278 — Lekcja o mechanizmie obejmuje kod sprzed niej: szukasz wszystkich miejsc, które robią to samo · 2026-10-26 · AKTYWNA
+
+- **Trigger:** PIPELINE_WYDAN E5. Bramka `pre-push` odrzuciła tag `v3.4.0`: w drzewie tagu nie
+  przeszły 2 testy rdzenia i 2 testy strony. `release-check.js --rev` (E1–E3) zakładał
+  `git worktree` z `core.autocrlf=true`, więc pliki dostały CRLF. Lekcja L-0274 z E4 mówiła już
+  „worktree z `-c core.autocrlf=false`”, ale poprawiono tylko kod E4 (kotwica filmu).
+- **Zasada:** gdy lekcja nazywa mechanizm (`git worktree add`, checkout, zapis pliku), zaraz po
+  niej `grep` po całym repozytorium za każdym miejscem, które go używa, i każde trafienie
+  poprawiasz albo opisujesz jako wyjątek. Lekcja poprawiona w jednym miejscu zostawia ten sam
+  błąd w narzędziu, które ją poprzedza.
+
+### L-0279 — „Nie uruchamiasz drugi raz” obejmuje przebieg z wyjściem wyrzuconym · 2026-10-26 · AKTYWNA
+
+- **Trigger:** PIPELINE_WYDAN E5. Komenda `/relai-release` zakazuje drugiego przebiegu raportu
+  i pisania go do pliku. Mimo to puściłem pełny raport z wyjściem do `/dev/null` przed szybkim:
+  ~150 s straty, a wynik i tak nie był potrzebny.
+- **Zasada:** zakaz powtórki dotyczy każdego przebiegu tego samego narzędzia, także „w tle” czy
+  bez wyjścia. Potrzebny wynik czytasz z pierwszego przebiegu, a inny tryb (`--szybko`) uruchamiasz
+  dopiero wtedy, gdy pierwszy nie wystarcza.
+
+### L-0280 — Strona wskazująca zasoby wydania wdraża się po wydaniu, nie przed · 2026-10-26 · AKTYWNA
+
+- **Trigger:** PIPELINE_WYDAN E5. Odtwarzacz filmu na stronie wskazywał zasoby `v3.4.0`, a push
+  `main` od razu uruchamia wdrożenie strony (`strona.yml`). Kolejność z komendy („push main,
+  potem tag”, wydanie GitHub na końcu) dałaby kilka minut 404 w odtwarzaczu.
+- **Zasada:** gdy commit wydania zmienia adres na zasób, który powstaje dopiero z wydaniem,
+  kolejność jest taka: push tagu (bramka), wydanie GitHub z zasobami i sprawdzenie ich sum,
+  dopiero potem push `main`. Odstępstwo od kolejności komendy pada w pytaniu o zgodę, z powodem.
 
 ## Lekcje zwinięte
 

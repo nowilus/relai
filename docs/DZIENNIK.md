@@ -27,9 +27,10 @@
 | H9 | Tryb ciągły „dokumenty” nie widzi zapisu, którego nie rozpozna — `sed -i`, skrypt, podproces, `>(tee …)` — i dokument zostaje bez humanizacji (plan HUMANIZACJA, pomiar E5) | **Niski** (2026-10-14, przy zamknięciu planu) | **OTWARTE ŚWIADOMIE** | Aneks C: hook po Write/Edit i po Bash z przekierowaniem `>` / `>>` albo `tee`; w pomiarze E5 model pisał wyłącznie tymi drogami (8/8 przed poprawką, 2/2 po niej z regułą). Pominięcie kończy się ciszą, nigdy złą regułą; komenda `/relai-humanize` na pliku działa niezależnie od trybu ciągłego. |
 | T1 | Scena 3D strony tnie się na słabszym laptopie albo zintegrowanej grafice (plan STRONA_RELAI, ryzyko 1) | **Średni** (2026-10-18 po E6; wcześniej wysoki) | **OTWARTE** | E1: render na żądanie, DPR ≤ 1,5, obniżenie jakości przy medianie > 26 ms. E2 (scena CC0, AO, głębia ostrości): przy CPU ×4 mediana 11,1 ms, p95 16,7 ms, 913 wywołań rysowania na klatkę po scaleniu miasta (przed: 2206, p95 22,3 ms); obniżanie jakości zaczyna od głębi ostrości. E3 (poświata ekranu RectAreaLight, nowe książki): przy CPU ×4 przewijanie mediana 11,9 ms, p95 22,2 ms — p95 wzrosło o 5,5 ms, zapas do 26 ms już tylko 3,8 ms; przybliżanie p95 13,1 ms; najwięcej 907 wywołań rysowania na klatkę. Zmierzone tylko na RTX 4070 Ti. E4 (bez path tracingu, przygaszona lampa, lakier blatu): CPU ×4 mediana 11,3 ms, p95 17,5 ms, najwięcej 910 wywołań rysowania. Otwarte: słaba grafika w E7. E5 (Film, bez WebGL): przy CPU ×4 mediana 5,6 ms, p95 5,6 ms, najdłuższa klatka 28,7 ms, więc Filmu ryzyko nie dotyczy. Aneks D: Biurko też idzie do publikacji, dlatego poziom zostaje wysoki do pomiaru na słabej grafice w E6. E7 (Film z animacjami WAAPI i przytrzymaniem): CPU ×4 mediana 11,1 ms, p95 16,7 ms na desktopie i w emulacji telefonu — Filmu nadal nie dotyczy; poziom bez zmiany przez Biurko. E6: SwiftShader (grafika programowa) 1366 × 768 mediana 1 700 → 1 183 → 817 ms po krokach obniżania, 390 × 844 1 033 → 867 → 433 → 283 ms; wyłącznik `biurko/grafika.js` daje takiej przeglądarce plakat (werdykt Łukasza 3A), brak WebGL2 i ograniczony ruch też. RTX przy CPU ×4: p95 przewijania 20,6–25,2 ms desktop, 15,4–16,3 ms telefon. Otwarte: zintegrowana karta niezmierzona (bramka „pomiar na słabszym laptopie”); drugi bezpiecznik (plakat po wyczerpaniu kroków jakości, opcja 3B) świadomie niewdrożony. E8 (2026-10-18): Biurko opublikowane pod `/biurko/` bez zmian w scenie; plan STRONA_RELAI zamknięty, bramka „pomiar na słabszym laptopie” świadomie otwarta poza planem (`docs/STATE.md`, „Co dalej”). |
 | T2 | Biurko wygląda jak tani render albo glina z AI (plan STRONA_RELAI, ryzyko 2) | **Średni** (2026-10-18 po E6; wcześniej wysoki) | **OTWARTE** | E2: modele i tekstury CC0, deski orzechowe ze słojami, miasto za oknem, kubek i tablica od nowa; kalibracja w czterech rundach, zamknięcie za zgodą Łukasza, ale „nadal jesteśmy całkiem daleko” od obrazów 01–08 — przyczyna: brak światła odbitego w rasteryzacji (L-0220). Aneks B: E3 laptop i detale, E4 path tracing na przystankach. E4 (2026-10-16): światło odbite nie dało uzysku — przyczyną dystansu jest detal przedmiotów, tekstur i kompozycja, nie światło (L-0226); test detalu (blat `wood_table_worn`, druk na dokumentach, ciemniej) dał umiarkowany zysk. Aneks C: następny jest Film, Biurko po bramce. E5: Film rysowany kodem, hero przyjęte w trzeciej rundzie („Tak, przyjmuję”). Bramka z Aneksem D: najpierw dopieszczenie Filmu (E7), potem pełna droga Biurka (E6), publikacja obu z ankietą. Dla Biurka ryzyko zostaje wysokie. E7: Film dopieszczony i przyjęty akt po akcie („Tak, przyjmuję”), dotyczy już tylko Biurka (E6). E6: każdy przystanek, szczyt, mapa, szuflady, telefon, zasłona i plakat przyjęte przez Łukasza na kadrach przed i po; kontrola odczuć zgodna z krzywą briefu (4A). Otwarte do ankiety po publikacji (E8): czy odwiedzający odbierają Biurko jako dopracowane. E8 (2026-10-18): obie wersje opublikowane, ankieta w Tally zbiera głosy z ukrytym polem `wersja`; ryzyko zostaje otwarte do odczytu ankiety, który jest poza planem (`docs/STATE.md`). |
-| PW1 | Kontrola gotowości wydania jest zielona przy luce — instrument fałszywie cichy przywraca problem z 3.3.0 z poczuciem bezpieczeństwa (plan PIPELINE_WYDAN, ryzyko W1) | **Wysoki** (2026-10-25, przy akceptacji planu) | **OTWARTE — ZMITYGOWANE W E1 (2026-10-25)** | E1: każda z 19 kontroli ma test z podłożonym defektem (36 testów), licznik „sprawdzono N” i blokadę „sprawdzono 0 = czerwień”; odbiór: `53830cc` i `v3.2.0` pokazują 3/3 luki z 3.3.0 (i 11/12 hooków już przy 3.2.0), `a1439b9` — te kontrole zielone; przegląd kodu: 0 krytycznych, 1 wysoki (mapa nie wołała testów rdzenia dla komend, hooków i adapterów) — poprawiony z testem; nagłówek mówi o pominiętych zestawach. E2 (2026-10-25): kontrola `podbicie` i propozycje numerów — 14 testów z mutacją, która każdy wywraca (instrument mutacji sam był najpierw fałszywie cichy — L-0270); przegląd: 3 MEDIUM pod fałszywą zieleń (feat sprzed zmiany nazwy, pliki bez commitu, numer poniżej propozycji) poprawione z testem. E3 (2026-10-25): bramka `pre-push` używa raportu na drzewie tagu — fixtura z `--bare`: czerwień odrzuca tag, zieleń przyjmuje, gałąź bez przebiegu (wartownik); 13 mutacji testów „czegoś nie ma”, 13 zabitych; przegląd: 1 HIGH pod fałszywą zieleń (nieczytelny stdin = przepustka) i LOW (raport bez kontroli = zieleń) poprawione — odmowa (L-0272). E4 (2026-10-26): kontrole filmu przeszły z czerwieni (CYKL 14 przy 16 komendach) w zieleń po realnej zmianie, a `testy-filmu` 37/37 w pełnym przebiegu; testy filmu przypięte do kotwicy danych mają dowód obu stron (zmiana niezwiązana: nowe 17/17, stare czerwone; defekt danych i brak kotwicy: czerwień). S3 planu (render): oba MP4 po 5280 klatek = `scenariusz.ts`, muzyka co do próbki, klatki nowych scen i finału przejrzane. Otwarte: pierwsze realne wydanie przez bramkę (E5). |
-| PW2 | Mapa wpływu się starzeje — nowy rodzaj pliku albo komponentu przechodzi bez kontroli (plan PIPELINE_WYDAN, ryzyko W2) | **Wysoki** (2026-10-25, przy akceptacji planu) | **OTWARTE — ZMITYGOWANE W E1 (2026-10-25)** | Fail-closed działa: plik z diffu (także nieśledzony) bez wiersza = „nieznany typ zmiany”; kontrola `mapa` na 1491 plikach: 0 bez wiersza, 0 w dwóch; test z plikiem w nowym katalogu. E2 (2026-10-25): wiersz `komenda-projektowa` (`.claude/commands/*.md`) w tej samej zmianie co komenda, `mapa` na 1497 plikach: 0 bez wiersza, 0 w dwóch. E3 (2026-10-25): sześć nowych narzędzi i testów pod istniejącym wierszem `rdzen-procesu`, bez nowego wiersza; mapa jest teraz źródłem zestawu kontroli tagu modu (`--komponent`: wiersze `mod:<nazwa>` dotknięte diffem modu) — zmiana mapy zmienia bramkę. Otwarte: trwałość mapy w kolejnych wydaniach. |
-| PW3 | Bramka `pre-push` nie działa, bo hook nie jest zainstalowany albo jest stary (inna maszyna, świeży klon, Codex) (plan PIPELINE_WYDAN, ryzyko S4) | **Średni** (2026-10-25, przy akceptacji planu) | **OTWARTE — ZMITYGOWANE W E3 (2026-10-25)** | E3: kontrola `pre-push` w raporcie (kopia w `.git/hooks/` równa źródłu po CRLF → LF; brak albo inna suma — ostrzeżenie z komendą instalacji, z `--wydanie` czerwień) — na żywo złapała kopię nieaktualną po poprawce z przeglądu (`bd6ff875d97b` wobec `69874c8e1e78`); hook zainstalowany w tym klonie po „tak”; `/relai-release` nie taguje przy czerwieni niezależnie od hooka. Otwarte: każdy inny klon wymaga instalacji. |
+
+> Ryzyka zamknięte PW1, PW2, PW3 (3 pozycje) są w
+> [docs/archiwum/ryzyka/RYZYKA_2026-10-26.md](archiwum/ryzyka/RYZYKA_2026-10-26.md)
+> — przeniesione 2026-10-26, suma kontrolna `4002375c6a3d35fd`.
 
 > Ryzyka zamknięte Z1 (1 pozycja) są w
 > [docs/archiwum/ryzyka/RYZYKA_2026-10-25.md](archiwum/ryzyka/RYZYKA_2026-10-25.md)
@@ -1133,12 +1134,12 @@ README filmu, karta FILM_TESTY_V3, `strona.yml`) — trzy rundy wywiadu i plan w
   weryfikacja na żywo automatem i „ok” człowieka; automat sam robi regeneracje, numery, szkice
   wpisów **i render filmu**; strona — fakty i kontrola list w tekstach PL/EN; zaległość filmu jako
   etap planu (wchłania odnogę FILM_TESTY_V3); po akceptacji aktywny plan PIPELINE_WYDAN.
-- [PLAN.html](plany/PIPELINE_WYDAN/PLAN.html) z szablonu `core/templates/HTML_PLAN/` (D-87):
+- [PLAN.html](archiwum/plany/PIPELINE_WYDAN/PLAN.html) z szablonu `core/templates/HTML_PLAN/` (D-87):
   pięć wariantów (A wybrany — mapa wpływu, kontrola zgodności, komenda i `pre-push`; B plan-szablon,
   C CI-first, D release-please/changesets, E sam walidator — odrzucone z powodem), pięć etapów
   (E1 raport gotowości, E2 komenda i naprawy, E3 bramka i na żywo, E4 film do bieżącej wersji,
   E5 pierwsze wydanie przez pipeline), 8–11 sesji (SZACUNEK), 8 ryzyk, 11 przypadków brzegowych,
-  4 decyzje człowieka. [STATUS.md](plany/PIPELINE_WYDAN/STATUS.md) — `DO AKCEPTACJI`.
+  4 decyzje człowieka. [STATUS.md](archiwum/plany/PIPELINE_WYDAN/STATUS.md) — `DO AKCEPTACJI`.
 
 **Zweryfikowane — jak dokładnie:** skrypt składający podmienił każdy z 30 znaczników szablonu
 dokładnie raz albo dwa (tytuł, status); builder: „Osadzono 6 regul @font-face. Plik ma 222 KB.”,
@@ -1166,7 +1167,7 @@ Autor: RelAI (Opus 5.5) + Lukasz
 **Zrobione:**
 
 - `STATUS.md`: plan `ZAAKCEPTOWANY 2026-10-25`, E1 `GOTOWY DO STARTU` z linkiem do
-  [PROMPT_ETAP_1.md](plany/PIPELINE_WYDAN/PROMPT_ETAP_1.md) (raport gotowości: mapa wpływu,
+  [PROMPT_ETAP_1.md](archiwum/plany/PIPELINE_WYDAN/PROMPT_ETAP_1.md) (raport gotowości: mapa wpływu,
   `release-check.js` tylko do odczytu, odbiór na `53830cc` / `a1439b9`, `/effort high`).
 - `PLAN.html` przebudowany z nowym statusem w nagłówku; sekcje 1–9 nietknięte.
 - `CLAUDE.md`: linia „Aktywny plan” → PIPELINE_WYDAN, PANEL_CODEX wymieniony jako prowadzony
@@ -1612,5 +1613,158 @@ Przegląd ryzyk: PW1 — wynik E4 dopisany (z S3 planu: render); PW2, PW3 bez zm
 
 Lekcje: L-0274 (worktree pomiarowy: końce linii i nazwa folderu), L-0275 (kotwica stanu etapu to
 commit pośredni), L-0276 (`sed -i` w komentarzu), „Zasady aktywne” 4 i 5 odświeżone.
+
+Autor: RelAI (Opus 5.5) + Lukasz
+
+### 2026-10-26 — PIPELINE_WYDAN E5: RelAI 3.4.0 — pierwsze wydanie przez pipeline i zamknięcie planu
+
+Start z karty w czacie („Tak, zaczynamy E5.”), Opus 5.5. Ostatni etap planu: wydanie poszło
+komendą `/relai-release`, każdy krok zewnętrzny po osobnym „tak”, a plan jest zamknięty
+i przeniesiony do archiwum.
+
+**Decyzje człowieka (AskUserQuestion, cytaty opcji):**
+
+- Numer: „3.4.0 (Rekomendowane)” — propozycja raportu z trzech commitów `feat(release)` E1–E3.
+- MP4 filmu: „Ponowny render po podbiciu” (pytanie cytowało sprzeczność PLAN, sekcja 8: „MP4 PL
+  i EN idą jako zasoby wydania rdzenia, w którym film powstał; … adres w odtwarzaczu = wersja
+  w manifeście filmu” przy kotwicy 3.3.0) — kotwica na commicie wydania, stempel „stan z wersji
+  3.4.0”.
+- Mody: „Tylko rdzeń (Rekomendowane)” — raport: żaden z czterech modów bez zmian od swojej bazy.
+- Czerwień `modele`: „Najpierw /relai-models”; w `/relai-models`: „Kopia projektu
+  (Rekomendowane)” i „Tak, odczytaj obie strony”.
+- Naprawy bezpieczne: „Wykonaj wszystkie (Rekomendowane)”.
+- Odchylenia: „Aneks do planu: poprawka w E5 (Rekomendowane)” (`stary-numer`, Aneks A) i „Aneks B:
+  poprawka w E5 (Rekomendowane)” (CRLF w worktree rewizji).
+- Zamknięcie: „Tak, skasuj wszystkie (Rekomendowane)”, MP4 w `out/` „Zostają lokalnie
+  (Rekomendowane)”, restart aplikacji „Otwarta → STATE «Co dalej» (Rekomendowane)”, „Rotacja
+  ryzyk i lekcji + krótszy STATE (Rekomendowane)”.
+- Tryb ciągły optymalizatora w tej sesji: „Nie, nie w tej sesji (Rekomendowane)”.
+
+**Zrobione — dowiezione wobec planu:**
+
+| Cel planu (sekcja 6) | Stan |
+|---|---|
+| E1 raport gotowości z mapą wpływu | dowiezione 2026-10-25; w E5 25 kontroli, w tym nowa `strona-film` |
+| E2 komenda `/relai-release`, naprawy i numery | dowiezione 2026-10-25; w E5 wydanie poszło komendą od Kroku 1 do 8 |
+| E3 bramka `pre-push`, weryfikacja po publikacji | dowiezione 2026-10-25; w E5 bramka odrzuciła tag raz (fałszywa czerwień, Aneks B) i przyjęła po poprawce |
+| E4 film do bieżącej wersji | dowiezione 2026-10-26; w E5 kotwica `d917011`, render 3.4.0 |
+| E5 pierwsze wydanie przez pipeline | dowiezione: RelAI 3.4.0 publicznie |
+| Przepadło | nic z zakresu; dwie poprawki instrumentu weszły aneksami A i B |
+
+- `/relai-models`: obie strony dostawcy pokazują aliasy zgodne z kopią projektu z 2026-10-08
+  (`opus` → Opus 5.5, `sonnet` → Sonnet 5.5, `haiku` → Haiku 5.5, `fable` → Fable 5.1) — bez
+  zapisu; blok danych przeniesiony do `adapters/claude-code/MODELE.md` (wersja 5 w
+  `ARTEFAKTY.md`).
+- Podbicie 3.3.0 → 3.4.0: 9 deklaracji z tabeli komendy, `docs/USTAWIENIA.md`, fixtura ewaluacji,
+  `adapters/cursor/README.md`, `new-project.md`, wpis „Wersja 3.4.0” w `history.md`, generator
+  Codeksa, `site/dane/fakty.json` i budowa czterech stron; `PRZEWODNIK.md` „(od 3.3.0)”;
+  `ARTEFAKTY.md`: `/relai-update` v23, `new-project.md` v11, `history.md` v9.
+- Aneks A (`PLAN.html`): `stary-numer` pomija wystąpienie poprzedzone słowem z zamkniętej listy
+  (`od`, `po`, `przy`, `w`, `do`, `sprzed`, `since`, `after`, `before`, `in`, opcjonalne `v`);
+  przykład w komentarzu `release-verify.js` → `<N.N.N>`.
+- Kontrola `strona-film` (`release-checks.js`, wiersze `strona` i `film` w `release-map.json`):
+  adres odtwarzacza = `v<wersja z manifestu filmu>` i plik w języku strony.
+- Odtwarzacze `site/wideo/`, `site/pl/wideo/` na zasobach `v3.4.0`, „2 min 56 s”, „29 MB”;
+  README „2 min 56 s”; `docs/zasoby/film/README.md` — stan E5.
+- Film: kotwica `d917011` (dane: E5 W TOKU, RelAI 3.4.0, 16 komend, 17 planów, 529 testów),
+  render PL i EN.
+- Aneks B: `release-check.js --rev` zakłada worktree z `-c core.autocrlf=false`.
+- Commity: `d917011` (wydanie, kotwica), `d1c9264` (dane filmu), `7277083` (poprawka Aneksu B);
+  tag `v3.4.0` na `7277083` (pierwotnie lokalnie na `d1c9264`, przeniesiony przed pierwszym
+  udanym pushem); wydanie GitHub
+  [v3.4.0](https://github.com/nowilus/relai/releases/tag/v3.4.0) z `relai-film-pl.mp4`
+  i `relai-film-en.mp4`; push `main` `3a29701..7277083`; `claude plugin marketplace update relai`
+  i `claude plugin update relai@relai` (3.3.0 → 3.4.0).
+- Zamknięcie planu: `STATUS.md` ZREALIZOWANY, folder `docs/plany/PIPELINE_WYDAN/` →
+  `docs/archiwum/plany/PIPELINE_WYDAN/` (`git mv`), linki w dzienniku i w karcie FILM_TESTY_V3
+  przepięte; ryzyka PW1–PW3 zamknięte i przeniesione do
+  `docs/archiwum/ryzyka/RYZYKA_2026-10-26.md` (suma `4002375c6a3d35fd`; sekcja 21,8 → 17,5 KB);
+  lekcje L-0247 … L-0260 (14) do `docs/archiwum/lekcje/LEKCJE_L-0247_L-0260.md` (suma
+  `68ceb57e2928eb09`; `LEKCJE.md` 60,3 → 47,2 KB, 20 pełnych lekcji).
+- Katalog roboczy: `.claude/relai/work/PIPELINE_WYDAN/` (E5 i cztery pliki z tworzenia planu)
+  oraz `.claude/relai/work/WYDANIE/3.4.0/` — przed 14 plików, 60,3 MB, po 0 (raport
+  `clean-work.js` bez pozycji planu). Poza katalogiem: `docs/zasoby/film/zrodla/out/film.mp4`
+  i `film-en.mp4` (56 MB, poza gitem) zostają decyzją Łukasza; worktree diagnostyczne
+  `%TEMP%/relai-e5-diag` i `relai-e5-diag-lf` usunięte (`git worktree list` bez nich).
+
+**Pomiar automatu (cel planu: człowiek odpowiada tylko na zgody):**
+
+| Rodzaj | Liczba | Treść |
+|---|---|---|
+| Kroki komendy `/relai-release` | 15 | raport, podział, jedna zgoda na naprawy, naprawy (podbicie, historia, generator, strona, notatki EN), raport ponowny ×2, `plugin validate`, commit, tag, push tagu, wydanie GitHub, push `main`, marketplace, `plugin update`, `release-verify` |
+| Pytania — zgody na kroki | 14 | naprawy, sieć `/relai-models`, commit A, commit B, tag, push tagu ×2, commit C, przeniesienie tagu, wydanie GitHub, push `main`, marketplace, `plugin update`, sprzątanie |
+| Pytania — decyzje | 9 | numer, miejsce MP4, mody, czerwień `modele`, baza listy modeli, MP4 w `out/`, restart, rotacje (oraz karta startu etapu) |
+| Pytania — fałszywe czerwienie instrumentu | 2 | `stary-numer` na zapisie przeszłości, CRLF w worktree rewizji (odmowa bramki) |
+| Pytania poza wydaniem | 3 | bramka trybu ciągłego optymalizatora (zgoda, model, zasięg) |
+| Kroki ręczne poza komendą | 9 | przeniesienie listy modeli (komenda kieruje do człowieka); poprawka `stary-numer` (Aneks A); kontrola `strona-film` (zakres E5); kotwica i render (decyzja MP4); czasy i rozmiar w odtwarzaczach, README filmu (kontrola ich nie pilnuje); poprawka CRLF (Aneks B) i przeniesienie tagu; kolejność publikacji tag → wydanie → `main` (L-0280); jeden zbędny pełny przebieg raportu do `/dev/null` (błąd wykonawcy, ~150 s, L-0279) |
+
+Werdykt: zgody i decyzje stanowią całość pytań wydania poza dwiema fałszywymi czerwieniami, obie
+naprawione w instrumencie z testem; kolejne wydanie nie powinno ich powtórzyć.
+
+**Zweryfikowane — jak dokładnie:**
+
+- Decyzje punktu 0 — słowami Łukasza, cytaty wyżej.
+- `release-check.js --json --wydanie` na drzewie przed tagiem: kod 0, 25 kontroli, 0 czerwonych,
+  156 s (`testy-rdzenia` 529/529, `testy-strony` 370/370, `testy-filmu` 37/37, `strona-film`
+  4 adresy przy wersji 3.4.0, `stary-numer` 0 z 585 plików, `modele` 2026-10-08 = 2026-10-08);
+  `--rev v3.4.0 --wydanie` po Aneksie B: kod 0, rdzeń 530/530, strona 370/370 (testy filmu w
+  worktree pominięte — brak `node_modules`).
+- Kontrola `strona-film`: test jednego przebiegu — zielona na zgodnym (4 adresy), czerwona na
+  `v0.9.0`, obcym języku i braku adresu; przypadek w tabeli `MUTACJE`.
+- Aneks A: test zielony (zapis przeszłości) i czerwony (deklaracja stanu, „do wydania”) w jednym
+  przebiegu; mutacja listy słów zabita, plik przywrócony (porównanie treści).
+- Aneks B: test z repozytorium `core.autocrlf=true` — RED przed poprawką, GREEN po; kontrola
+  pozytywna instrumentu (ten sam walidator na pliku z CRLF czerwony); przyczyna potwierdzona
+  przed poprawką: ten sam tag w worktree z CRLF 527/529 i 368/370, z LF 529/529 i 370/370.
+- `core/process` 267 → 271, `core/guardrails` 19/19, `core/panel` 216/216, `adapters/codex`
+  24/24, strona 370/370, film 37/37, `tsc --noEmit` filmu czysty; `validate-adapters.js` →
+  „spojne”; `claude plugin validate .` → „Validation passed with warnings” (root `CLAUDE.md`,
+  brak ikony).
+- Render: oba MP4 5280 klatek, 30 kl./s, 176,000 s (ffprobe Remotion); sumy
+  `510f185f11cb345bc483662f8447a66cbc65baca770f0abe4790215b8530d97f` (PL, 29 304 183 B)
+  i `bc4fb8322bc7fc586b6171b692c1ff0ec2c7fcec1a80993b60f032a1f58b3b55` (EN, 29 425 299 B);
+  kadry finału PL i EN („stan z wersji 3.4.0”, 17 · 16 · 529 · 3) i sceny pasków
+  („PIPELINE_WYDAN · E5 W TOKU”) przejrzane.
+- Publikacja: `git ls-remote --tags origin v3.4.0` → `5e61891…`; zasoby wydania z
+  `gh release view` mają te same rozmiary i sumy co pliki lokalne; adresy pobrania PL i EN →
+  HTTP 200 (po przekierowaniu).
+- Po publikacji: `release-verify.js --plugin relai --wersja 3.4.0 --sesja` — 1517 plików w tagu
+  i w cache, 0 rozjazdów, 0 brakujących, 0 nadmiarowych; sesja: plugin z
+  `…/cache/relai/relai/3.4.0`. Wdrożenie strony `strona.yml` (run 40313757459) — success;
+  na żywo `/wideo/` i `/pl/wideo/` wskazują `v3.4.0` i „2 min 56 s”, Film i Biurko — „RelAI 3.4.0”.
+- PANEL_CODEX: `git diff --stat v3.3.0` na `docs/plany/PANEL_CODEX/`,
+  `adapters/codex/panel/`, `docs/zasoby/PANEL_RELAI/makiety/` — pusty; `.claude/launch.json`
+  poza wszystkimi commitami.
+- Trivy (krok 6 zamknięcia): `trivy fs` CRITICAL/HIGH — lockfile filmu 0; trafienia tylko
+  w celowo podatnych fixturach `evals` skilla `trivy-scan` i w cudzym worktree `.claude/worktrees/`.
+
+**Świadomie odłożone:**
+
+- `/relai-release` (komenda projektowa, wersja 2) nadal podaje kolejność „push main, potem tag”,
+  a przy odtwarzaczu na zasobach wydania właściwa jest „tag → wydanie GitHub → `main`” (L-0280);
+  krok 8 mówi „po restarcie”, choć `--sesja` w świeżym `claude -p` działa bez restartu.
+- Kontrola `strona-film` pilnuje adresu, nie czasu ani rozmiaru filmu w tekście odtwarzacza.
+- Testy filmu nie biegną w bramce (`--rev`: brak `node_modules` w worktree) — tag sprawdza je
+  tylko pośrednio, przez przebieg na drzewie roboczym.
+- Ostrzeżenie `plugin validate` o braku ikony pluginu (nowe w tej wersji CLI).
+- Miniatura `docs/zasoby/film/relai-film-kadr-pl.jpg` w README to kadr ze starego filmu.
+- Testy parzystości skilli Codeksa w zwykłym klonie z `core.autocrlf=true` (odłożone 2026-10-26)
+  — bramka już ich nie dotyka (Aneks B), sam klon tak.
+- Sekcja „Stan otwartych ryzyk” 17,5 KB przy progu 12 KB — dolna granica to same ryzyka otwarte.
+- Bramka trybu ciągłego (hook `UserPromptSubmit`) znów odpaliła na odpowiedzi „Tak, zaczynamy E5.”
+  z karty startu — jak w E4 (L-0189).
+
+**Do zrobienia przez człowieka:**
+
+- Restart aplikacji Claude, żeby sesje desktopu wczytały RelAI 3.4.0 (P-005; świeża sesja
+  `claude -p` już ładuje 3.4.0).
+
+Przegląd ryzyk: PW1, PW2, PW3 zamknięte z planem (wynik E5 w ich wierszach, archiwum
+`RYZYKA_2026-10-26.md`); Trivy bez nowych CRITICAL/HIGH; pozostałe bez zmian.
+
+Lekcje: L-0277 (kontrola numeru a zapis przeszłości), L-0278 (lekcja o mechanizmie — `grep`
+po kodzie sprzed niej), L-0279 (zakaz powtórki obejmuje przebieg z wyjściem wyrzuconym), L-0280
+(strona wskazująca zasoby wydania wdraża się po wydaniu); „Zasady aktywne” 1, 4 i 13
+odświeżone.
 
 Autor: RelAI (Opus 5.5) + Lukasz
