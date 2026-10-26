@@ -345,6 +345,17 @@ test('strona-film: adres odtwarzacza = tag wersji filmu; zielony na zgodnym, cze
   assert.match(f.uruchom(['--tylko', 'strona-film']).k('strona-film').bledy.join('\n'), /site\/wideo\/index\.html: brak adresu filmu/);
 });
 
+test('strona-film: czas filmu w tekscie odtwarzacza = suma sekund scen; zielony na zgodnym, czerwony na starym i na braku (jeden przebieg)', (t) => {
+  const f = repo(t);
+  assert.deepEqual(f.uruchom(['--tylko', 'strona-film']).k('strona-film').bledy, []);
+  f.zapisz('site/wideo/index.html', f.czytaj('site/wideo/index.html').split('<p>RelAI, 1 min 30 s.</p>').join('<p>RelAI, 1 min 20 s.</p>'));
+  f.zapisz('site/pl/wideo/index.html', f.czytaj('site/pl/wideo/index.html').split(' min 30 s').join(''));
+  const bledy = f.uruchom(['--tylko', 'strona-film']).k('strona-film').bledy.join('\n');
+  assert.match(bledy, /site\/wideo\/index\.html: czas "1 min 20 s", a film ma 1 min 30 s/);
+  assert.doesNotMatch(bledy, /site\/wideo\/index\.html: czas "1 min 30 s"/);
+  assert.match(bledy, /site\/pl\/wideo\/index\.html: brak czasu filmu/);
+});
+
 test('--rev: drzewo rewizji z LF niezaleznie od core.autocrlf=true repozytorium (PIPELINE_WYDAN, Aneks B)', (t) => {
   const f = repo(t);
   git(f.dir, ['config', 'core.autocrlf', 'true']);

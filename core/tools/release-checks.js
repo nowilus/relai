@@ -480,15 +480,34 @@ function kontrolaFilmNarzedzia(ctx) {
 // odtwarzacza wskazuje tag v<wersja z manifestu filmu> i plik w jezyku swojej strony.
 const ODTWARZACZE = [['site/wideo/index.html', 'en'], ['site/pl/wideo/index.html', 'pl']];
 
+// Dlugosc filmu w sekundach: suma pol "sekundy" scen SCENY w scenariusz.ts (to samo zrodlo, z ktorego
+// Remotion liczy klatki). null = nie umiem odczytac.
+function sekundyFilmu(korzen) {
+  const tekst = czytaj(korzen, FILM + '/src/scenariusz.ts');
+  if (tekst === null) return null;
+  const od = tekst.indexOf('export const SCENY');
+  const blok = od < 0 ? '' : tekst.slice(od, tekst.indexOf(']);', od));
+  const sekundy = [...blok.matchAll(/sekundy:\s*(\d+)/g)].map((m) => Number(m[1]));
+  return sekundy.length ? sekundy.reduce((a, b) => a + b, 0) : null;
+}
+
+const czasFilmu = (s) => Math.floor(s / 60) + ' min ' + (s % 60) + ' s';
+
 function kontrolaStronaFilm(ctx) {
-  const w = wynik('strona-film', 'strona: odtwarzacz filmu wskazuje zasoby wydania z wersji filmu');
+  const w = wynik('strona-film', 'strona: odtwarzacz filmu wskazuje zasoby wydania z wersji filmu i mowi jego czas');
   const man = manifestFilmu(ctx.korzen);
   const wersja = man && man.wersja && man.wersja.wartosc;
   if (!wersja) { w.bledy.push('manifest filmu bez pola wersja'); return w; }
+  const sekundy = sekundyFilmu(ctx.korzen);
+  if (sekundy === null) { w.bledy.push('nie znam dlugosci filmu (SCENY w ' + FILM + '/src/scenariusz.ts)'); return w; }
+  const czas = czasFilmu(sekundy);
   let adresow = 0;
   for (const [rel, jezyk] of ODTWARZACZE) {
     const tekst = czytaj(ctx.korzen, rel);
     if (tekst === null) { w.bledy.push(rel + ': brak pliku'); continue; }
+    const czasy = [...tekst.matchAll(/(\d+) min (\d+) s\b/g)].map((m) => m[0]);
+    if (!czasy.length) w.bledy.push(rel + ': brak czasu filmu ("' + czas + '")');
+    for (const c of new Set(czasy)) if (c !== czas) w.bledy.push(rel + ': czas "' + c + '", a film ma ' + czas);
     const adresy = [...tekst.matchAll(/releases\/download\/([^/"'\s]+)\/(relai-film-[a-z]+\.mp4)/g)];
     if (!adresy.length) { w.bledy.push(rel + ': brak adresu filmu w zasobach wydania'); continue; }
     for (const [, tag, plik] of adresy) {
@@ -498,7 +517,7 @@ function kontrolaStronaFilm(ctx) {
     }
   }
   w.sprawdzono = adresow;
-  w.licznik = 'adresow ' + adresow + ' w ' + ODTWARZACZE.length + ' odtwarzaczach, wersja filmu ' + wersja;
+  w.licznik = 'adresow ' + adresow + ' w ' + ODTWARZACZE.length + ' odtwarzaczach, wersja filmu ' + wersja + ', czas ' + czas;
   return w;
 }
 

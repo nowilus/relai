@@ -66,8 +66,10 @@ function pliki() {
   f[F + 'src/teksty.ts'] = "export const PL = { panel: { zakladki: Object.freeze(['Komendy', 'Koszty']) } };\n";
   for (const [plik, jezyk] of [['site/wideo/index.html', 'en'], ['site/pl/wideo/index.html', 'pl']]) {
     const adres = 'https://github.com/nowilus/relai/releases/download/v1.0.0/relai-film-' + jezyk + '.mp4';
-    f[plik] = '<video controls src="' + adres + '">\n  <a href="' + adres + '">MP4</a>\n</video>\n';
+    f[plik] = '<title>RelAI (1 min 30 s)</title>\n<video controls src="' + adres + '">\n  <a href="' + adres + '">MP4</a>\n</video>\n<p>RelAI, 1 min 30 s.</p>\n';
   }
+  f[F + 'src/scenariusz.ts'] = 'export const SCENY: readonly Scena[] = Object.freeze([\n'
+    + "  Object.freeze({ id: 'a', tytul: 'A', sekundy: 60 }),\n  Object.freeze({ id: 'b', tytul: 'B', sekundy: 30 }),\n]);\n";
   f[F + 'src/dane/manifest.json'] = JSON.stringify({ wersja: { wartosc: '1.0.0' }, komendy: { wartosc: 5 }, paski: { wartosc: 3 }, narzedzia: { wartosc: 2 }, narzedziaNazwy: { wartosc: ['Claude Code', 'Codex'] } });
   f['core/tools/validate-adapters.js'] = "process.stdout.write('ok\\n  + jedna pozycja\\n');\n";
   f['adapters/codex/generate-skills.js'] = "process.stdout.write('Codex skills (3 plikow), spojne.\\n');\n";

@@ -101,27 +101,44 @@ blokuje wydanie.
 
 Warunek wejścia: `node core/tools/release-check.js --json --wydanie` → kod 0. Z `--rev` publikacji
 nie ma. Każdy krok **zewnętrzny** (oznaczony ⚑) to **osobne pytanie i osobne „tak”**; „tak” na
-jeden krok nie obejmuje następnego. Kolejność (P-005, ostatni ręczny przebieg: plan
-BEZPIECZENSTWO E6):
+jeden krok nie obejmuje następnego. Kolejność (P-005; pierwszy przebieg tą komendą: RelAI 3.4.0,
+plan PIPELINE_WYDAN E5):
+
+Wydanie niesie nowe MP4 filmu (render od poprzedniego wydania) → przed commitem tekst obu
+odtwarzaczy (`site/wideo/index.html`, `site/pl/wideo/index.html`) mówi czas i rozmiar tych plików:
+czas pilnuje kontrola `strona-film`, rozmiar w MB (zaokrąglony, z `ls -l` pliku w `out/`) —
+nikt, więc sprawdzasz go sam. Pliki MP4 do wydania kopiujesz pod nazwami `relai-film-pl.mp4`
+(z `out/film.mp4`) i `relai-film-en.mp4` (z `out/film-en.mp4`) do katalogu roboczego wydania.
 
 1. `claude plugin validate .` i każdego modu z propozycją — binarką aplikacji
-   (`$CLAUDE_CODE_EXECPATH`, nie `claude` z PATH — P-024). Wynik inny niż `✔ Validation passed`
-   zatrzymuje wydanie.
+   (`$CLAUDE_CODE_EXECPATH`, nie `claude` z PATH — P-024). Wynik bez `✔ Validation passed`
+   zatrzymuje wydanie; „passed with warnings” przechodzi, a każde ostrzeżenie wypisujesz
+   człowiekowi (znane: `CLAUDE.md` w korzeniu — skutek dogfoodingu, brak ikony pluginu).
 2. ⚑ Commit lokalny — pokazujesz listę plików i wiadomość conventional po angielsku, pytasz,
    commitujesz dopiero po „tak”; pliki PANEL_CODEX i nieśledzone `.claude/` poza commitem
-   (dodajesz pliki z nazwy, nie `git add -A`).
+   (dodajesz pliki z nazwy, nie `git add -A`; ścieżka przeniesiona `git mv` już jest w indeksie
+   i nie wchodzi do `git add`).
 3. ⚑ Tag adnotowany `v<X.Y.Z>` rdzenia i `relai-<mod>-v<N.N.N>` każdego wydawanego modu.
-4. ⚑ `git push origin main`, potem push tagów z nazwy. Push tagu przechodzi przez hook `pre-push`
-   (`release-check.js --rev <tag> --wydanie`, dla `relai-<mod>-v*` z `--komponent`; ~2 minuty dla
-   rdzenia — Bash z `timeout: 600000`). Odmowa hooka zatrzymuje wydanie i wraca do Kroku 1;
-   obejścia `RELAI_RELEASE_OBEJSCIE="<powód>"` nie proponujesz — powód podaje człowiek sam.
-5. ⚑ `gh release create v<X.Y.Z> --title "RelAI <X.Y.Z>" --notes-file <NOTATKI_EN.md>` — szkic
-   notatek pokazany przed pytaniem.
-6. ⚑ `claude plugin marketplace update relai`.
-7. ⚑ `claude plugin update relai@relai` i `<mod>@relai` każdego wydanego modu — pełna nazwa
-   z marketplace'em. Potem restart aplikacji robi człowiek (P-005: bez restartu sesje ładują starą
-   treść).
-8. Po restarcie — weryfikacja po publikacji, dla każdego wydanego pluginu osobno:
+4. ⚑ Push **tagów** z nazwy (`git push origin v<X.Y.Z>`), jeszcze bez `main`. Push tagu
+   przechodzi przez hook `pre-push` (`release-check.js --rev <tag> --wydanie`, dla `relai-<mod>-v*`
+   z `--komponent`; ~2 minuty dla rdzenia — Bash z `timeout: 600000`). Odmowa hooka zatrzymuje
+   wydanie i wraca do Kroku 1; obejścia `RELAI_RELEASE_OBEJSCIE="<powód>"` nie proponujesz — powód
+   podaje człowiek sam. Tag niewypchnięty, a poprawiony po odmowie, przenosisz lokalnie dopiero po
+   osobnym „tak”.
+5. ⚑ `gh release create v<X.Y.Z> --verify-tag --title "RelAI <X.Y.Z>" --notes-file <NOTATKI_EN.md>
+   [relai-film-pl.mp4 relai-film-en.mp4]` — szkic notatek pokazany przed pytaniem. Z MP4: rozmiary
+   i sumy z `gh release view v<X.Y.Z> --json assets` równe plikom lokalnym (`sha256sum`), a adres
+   pobrania każdego odpowiada (`curl -sIL -o /dev/null -w "%{http_code}"` → 200).
+6. ⚑ `git push origin main` — **po** wydaniu, nie przed: push `main` z `site/**` albo
+   `marketplace.json` wdraża stronę (`strona.yml`), a odtwarzacz wskazujący zasoby wydania bez
+   tego wydania gra 404 (L-0280). Potem `gh run list --workflow strona.yml --limit 1` i, przy
+   zmianie odtwarzacza, adres na żywo (`curl -s` strony, grep po tagu i czasie filmu).
+7. ⚑ `claude plugin marketplace update relai`.
+8. ⚑ `claude plugin update relai@relai` i `<mod>@relai` każdego wydanego modu — pełna nazwa
+   z marketplace'em.
+9. Weryfikacja po publikacji, zaraz po `plugin update`, dla każdego wydanego pluginu osobno —
+   bez czekania na restart, bo `--sesja` startuje świeży proces `claude -p`, który czyta nową
+   instalację:
 
    ```bash
    node core/tools/release-verify.js --plugin <relai|relai-mod> --wersja <N.N.N> --sesja
@@ -131,10 +148,11 @@ BEZPIECZENSTWO E6):
    CRLF → LF; pomija `.in_use/`) i sprawdza świeżą sesją `claude -p` binarką aplikacji, że plugin
    ładuje się z katalogu tej wersji. Kod 0 = zgodne; **kod 1 to rozjazd, nie awaria** — raport
    (liczba plików, rozjazdy, brakujące, nadmiarowe, wiersz „Sesja”) stoi w tym samym wyniku, nie
-   uruchamiasz go drugi raz; kod 2 = nie da się sprawdzić (brak cache — restart nie nastąpił).
-   Rozjazd zatrzymuje zamknięcie wydania i idzie do człowieka. Gdy push dotknął `site/**` albo
-   `marketplace.json`: `gh run list --workflow strona.yml --limit 1`.
-9. Wydanie z modem: **pytanie** (AskUserQuestion) — „W sesji z nowym modem wpisz `/reload-plugins`
+   uruchamiasz go drugi raz; kod 2 = nie da się sprawdzić (brak cache — `plugin update` nie
+   nastąpił). Rozjazd zatrzymuje zamknięcie wydania i idzie do człowieka. Restart aplikacji robi
+   człowiek dla sesji desktopu, które już działają (P-005) — to pozycja „Do zrobienia przez
+   człowieka”, nie warunek tego kroku.
+10. Wydanie z modem: **pytanie** (AskUserQuestion) — „W sesji z nowym modem wpisz `/reload-plugins`
    i rzuć okiem na panel: czy wygląda i działa jak przed wydaniem?” z opcjami „ok” / „coś nie tak —
    opiszę”. Wydanie jest zamknięte dopiero po „ok”. Uwaga człowieka to diagnoza (`debugging.md`),
    nie poprawka modu w tej komendzie.

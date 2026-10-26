@@ -1768,3 +1768,68 @@ po kodzie sprzed niej), L-0279 (zakaz powtórki obejmuje przebieg z wyjściem wy
 odświeżone.
 
 Autor: RelAI (Opus 5.5) + Lukasz
+
+### 2026-10-26 — Pipeline wydań po pierwszym wydaniu: `/relai-release` 3 i czas filmu w kontroli — MINIPLAN
+
+Zgoda Łukasza: „ok rob” na propozycję poprawek po wydaniu 3.4.0 (świadomie odłożone we wpisie E5).
+
+- **Cel:** następne wydanie z filmem na stronie idzie kolejnością bez 404 w odtwarzaczu, a raport
+  łapie nieaktualny czas filmu w tekście odtwarzacza.
+- **Kroki:**
+  1. `.claude/commands/relai-release.md` → wersja 3: Krok 6 z kolejnością „push tagu → wydanie
+     GitHub z zasobami i sprawdzeniem sum → push `main`” (L-0280), krok 8 bez wymogu restartu przed
+     `--sesja`, rozmiar pliku w odtwarzaczu przy zmianie MP4; wiersz w `ARTEFAKTY.md`.
+  2. Kontrola `strona-film`: czas „M min S s” w obu odtwarzaczach równy sumie `sekundy` scen
+     z `scenariusz.ts` filmu — test czerwony najpierw, potem kod, mutacja.
+  3. Testy `core/process`, raport `--szybko`, wpis wynikowy.
+- **Weryfikacja:** test `strona-film` zielony na zgodnym czasie i czerwony na „2 min 49 s” w jednym
+  przebiegu; `node --test core/process/tests/*.test.js` zielone; raport na drzewie bez czerwieni
+  nowej kontroli; `grep` w komendzie po nowej kolejności.
+
+Autor: RelAI (Opus 5.5) + Lukasz
+
+### 2026-10-26 — Pipeline wydań po pierwszym wydaniu: wynik miniplanu
+
+Miniplan wykonany w całości, bez rozszerzania zakresu.
+
+**Zrobione:**
+
+- `.claude/commands/relai-release.md` → wersja 3 (`ARTEFAKTY.md`): Krok 6 ma 10 punktów —
+  validate (z „passed with warnings” jako przejściem i wypisanymi ostrzeżeniami), commit, tag,
+  **push samego tagu**, wydanie GitHub z `--verify-tag` i MP4 oraz sprawdzeniem rozmiarów, sum
+  i adresów, **dopiero potem push `main`** (wdrożenie strony, L-0280) ze sprawdzeniem strony na
+  żywo, marketplace, `plugin update`, `release-verify.js --sesja` zaraz po nim (restart to pozycja
+  dla człowieka, nie warunek), pytanie o panel przy modzie. Akapit przed listą: nowe MP4 filmu →
+  czas i rozmiar w odtwarzaczach, nazwy zasobów `relai-film-pl.mp4` / `relai-film-en.mp4`.
+- Kontrola `strona-film` (`core/tools/release-checks.js`): czas „M min S s” w obu odtwarzaczach
+  równy sumie `sekundy` scen z `SCENY` w `scenariusz.ts` filmu; brak czasu w odtwarzaczu i brak
+  scen to czerwień. Fixtura testów dostała `scenariusz.ts` (90 s) i czas w odtwarzaczach.
+
+**Zweryfikowane — jak dokładnie:**
+
+- Test czasu filmu: RED przed kodem, potem zielony na zgodnym „1 min 30 s” i czerwony na
+  „1 min 20 s” oraz na braku czasu w jednym przebiegu; mutacja wyłączająca porównanie — zabita,
+  plik przywrócony (porównanie treści).
+- Kontrola pozytywna na realnym materiale: `release-check.js --rev d917011 --tylko strona-film`
+  (odtwarzacz z „2 min 49 s” przed poprawką w E5) — 2 błędy czasu i 4 rozjazdy wersji (manifest
+  3.3.0 w tym drzewie); na drzewie roboczym zielona: „adresow 4 w 2 odtwarzaczach, wersja filmu
+  3.4.0, czas 2 min 56 s”.
+- `node --test core/process/tests/*.test.js` → 272/272 (było 271).
+- `release-check.js --json --szybko` → kod 0, 0 czerwonych; propozycja `relai` 3.4.0 → 3.4.1
+  (patch, 3 pliki); `release-hint.js` → „od v3.4.0: 3 plikow w relai”.
+- Katalog roboczy `.claude/relai/work/miniplan-czas-filmu/` (1 plik, skrypt mutacji) skasowany.
+
+**Świadomie odłożone:**
+
+- Rozmiar MP4 w tekście odtwarzacza — pliku nie ma w gicie, więc kontrola go nie sprawdzi;
+  komenda każe sprawdzić go ręcznie.
+- Testy filmu w bramce `pre-push` (worktree rewizji bez `node_modules`), ikona pluginu,
+  miniatura filmu w README — bez zmian.
+- Zmiana w `core/tools/release-checks.js` czeka na wydanie (propozycja 3.4.1); komenda
+  `/relai-release` jest projektowa i wydania nie wymaga.
+
+**Do zrobienia przez człowieka:** —
+
+Przegląd ryzyk: bez zmian.
+
+Autor: RelAI (Opus 5.5) + Lukasz
