@@ -8,9 +8,15 @@
 // digits and a wide one for numbers in words and percent signs. Each has its positive control,
 // the wide one also a control against counting too much on material with no figures.
 // Run after `npm run przygotuj` (npm test does not regenerate the files: that would test nothing).
-import { test } from 'node:test';
+// Since PIPELINE_WYDAN E4 (branch FILM_TESTY_V3) the data is computed again from the commit it was
+// taken from — the anchor of src/dane/kotwica.json, checked out in a temporary worktree — not from
+// the working tree: a change made after the anchor no longer turns these tests red.
+import { after, test } from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { readFileSync, writeFileSync, mkdtempSync, rmSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import { readAnchor, worktreeAt, KOTWICA } from '../skrypty/kotwica.mjs';
 import { PL, EN } from '../src/teksty.ts';
 import { wstaw, tekstFaktu, znaczniki } from '../src/fakty.ts';
 import { SCENY, dlugosc, odcinki } from '../src/scenariusz.ts';
@@ -25,6 +31,10 @@ const P = JSON.parse(readFileSync(PASKI, 'utf8'));
 const PN = JSON.parse(readFileSync(PANEL, 'utf8'));
 const SC = JSON.parse(readFileSync(SCENY_DATA, 'utf8'));
 const FPS = 30;
+
+// the repository at the anchor; no anchor (or an unknown one) throws here: the whole file is red
+const TREE = worktreeAt(readAnchor());
+after(() => TREE.remove());
 
 // ---------- what the frame shows ----------
 
@@ -167,14 +177,30 @@ test('every fact of manifest.json carries a source', () => {
   }
 });
 
-test('manifest.json equals the manifest computed again from the repository (runs the core suite)', () => {
-  assert.deepEqual(fromRepo(), F);
+test('the data carries its anchor: a full hash git knows; a missing, short or unknown anchor throws', () => {
+  assert.match(readAnchor(), /^[0-9a-f]{40}$/);
+  // positive controls, each on its own copy of the anchor file
+  const dir = mkdtempSync(join(tmpdir(), 'relai-film-kotwica-'));
+  try {
+    const at = (name, text) => { const p = join(dir, name); if (text !== null) writeFileSync(p, text); return p; };
+    const real = JSON.parse(readFileSync(KOTWICA, 'utf8'));
+    assert.throws(() => readAnchor(at('brak.json', null)), /has no anchor/);
+    assert.throws(() => readAnchor(at('krotka.json', JSON.stringify({ commit: { ...real.commit, wartosc: real.commit.wartosc.slice(0, 7) } }))), /not a full commit hash/);
+    assert.throws(() => readAnchor(at('obca.json', JSON.stringify({ commit: { ...real.commit, wartosc: 'f'.repeat(40) } }))), /not a commit of this repository/);
+    assert.throws(() => readAnchor(at('bez-zrodla.json', JSON.stringify({ commit: { wartosc: real.commit.wartosc } }))), /has no source/);
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test('manifest.json equals the manifest computed again from the repository at the anchor (runs the core suite)', () => {
+  assert.deepEqual(fromRepo(TREE.root), F);
 });
 
 test('positive control: a changed copy of a source gives a changed fact', () => {
-  const read = repoReader();
-  const dirs = dirLister();
-  const files = dirLister(undefined, false);
+  const read = repoReader(TREE.root);
+  const dirs = dirLister(TREE.root);
+  const files = dirLister(TREE.root, false);
   const plugin = JSON.parse(read('.claude-plugin/plugin.json'));
   const other = plugin.version === '9.9.9' ? '9.9.8' : '9.9.9';
   const changed = manifest({
@@ -212,8 +238,8 @@ test('every marker of both dictionaries has a fact', () => {
   assert.throws(() => wstaw('{nieMa|a|b}', F, 'en'), /no fact for the marker/);
 });
 
-test('panel.json equals the data computed again; each of its facts carries a source', () => {
-  assert.deepEqual(panelFromRepo(), PN);
+test('panel.json equals the data computed again at the anchor; each of its facts carries a source', () => {
+  assert.deepEqual(panelFromRepo(TREE.root), PN);
   let facts = 0;
   for (const [group, entries] of Object.entries(PN)) {
     for (const [k, f] of Object.entries(entries)) {
@@ -225,8 +251,8 @@ test('panel.json equals the data computed again; each of its facts carries a sou
   assert.ok(facts > 0);
 });
 
-test('sceny.json equals the data computed again; each of its facts carries a source', () => {
-  assert.deepEqual(scenyFromRepo(), SC);
+test('sceny.json equals the data computed again at the anchor; each of its facts carries a source', () => {
+  assert.deepEqual(scenyFromRepo(TREE.root), SC);
   let facts = 0;
   for (const [scene, entries] of Object.entries(SC)) {
     for (const [k, f] of Object.entries(entries)) {

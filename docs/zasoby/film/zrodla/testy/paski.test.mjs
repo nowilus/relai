@@ -1,24 +1,31 @@
 // The film shows only figures that can be pointed at (plan FILM_PREZENTACYJNY, section 1). These
 // tests hold src/dane/paski.json to its sources: the plan and progress bars to core/panel on the
-// repository as it is, the cache bar to the pixels of the screenshot it was transcribed from.
-// Run after `npm run dane` (npm test does not regenerate the file: that would test nothing).
-import { test } from 'node:test';
+// repository at the film's data anchor (src/dane/kotwica.json, since PIPELINE_WYDAN E4 — before,
+// the repository as it is, red after every unrelated change), the cache bar to the pixels of the
+// screenshot it was transcribed from.
+// Run after `npm run przygotuj` (npm test does not regenerate the file: that would test nothing).
+import { after, test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { fromRepo, paski, repoReader, REPO, OUT, CACHE_SOURCE } from '../skrypty/dane.mjs';
+import { readAnchor, worktreeAt } from '../skrypty/kotwica.mjs';
 import { readPng } from './png.mjs';
 
 const saved = JSON.parse(readFileSync(OUT, 'utf8'));
 
-test('the plan and progress bars of paski.json equal core/panel on the current repository', async () => {
-  const now = await fromRepo();
-  assert.deepEqual(saved.plan, now.plan);
-  assert.deepEqual(saved.postep, now.postep);
+// the repository at the anchor; no anchor (or an unknown one) throws here: the whole file is red
+const TREE = worktreeAt(readAnchor());
+after(() => TREE.remove());
+
+test('the plan and progress bars of paski.json equal core/panel on the repository at the anchor', async () => {
+  const then = await fromRepo(TREE.root);
+  assert.deepEqual(saved.plan, then.plan);
+  assert.deepEqual(saved.postep, then.postep);
 });
 
 test('positive control: a STATUS.md copy with another stage status gives other bars, and the comparison sees it', async () => {
-  const read = repoReader();
+  const read = repoReader(TREE.root);
   const statusPath = 'docs/' + saved.plan.plan.zrodlo.split(' + ')[1].split(' ')[0].replace(/^docs\//, '');
   const status = read(statusPath);
   assert.ok(status, `cannot read ${statusPath}`);
@@ -26,7 +33,10 @@ test('positive control: a STATUS.md copy with another stage status gives other b
   assert.ok(row, 'the stage row of the filmed stage is in STATUS.md');
   // the test sets its own starting state (L-0150): a status other than the one the stage has now
   const other = saved.plan.status.wartosc === 'W TOKU' ? 'GOTOWY DO STARTU' : 'W TOKU';
-  const changed = status.replace(row, row.replace(`| ${saved.plan.status.wartosc} |`, `| ${other} |`));
+  // the status cell, bold or not ("| **W TOKU** |" since PIPELINE_WYDAN): only its word changes,
+  // anchored to the cell so a stage name holding the same words is left alone (review of E4)
+  const cell = new RegExp(`\\|(\\s*(?:\\*\\*)?)${saved.plan.status.wartosc}((?:\\*\\*)?\\s*)\\|`);
+  const changed = status.replace(row, row.replace(cell, `|$1${other}$2|`));
   assert.notEqual(changed, status, 'the copy really differs');
   const claudeMd = read('CLAUDE.md');
   const recomputed = await paski({ claudeMd, readText: (p) => (p === statusPath ? changed : read(p)) });

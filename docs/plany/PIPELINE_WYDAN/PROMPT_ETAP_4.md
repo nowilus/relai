@@ -436,33 +436,33 @@ zaraz po jego sprawdzeniu, nie na końcu etapu; punkt, który nie przeszedł, zo
       z sekcji 9 planu); finał w kadrze PL i EN jej odpowiada.
 - [x] Rekwizyty i slogany PL/EN `/relai-humanize` i `/relai-security` zaakceptowane przez Łukasza
       na kadrze **przed** renderem (cytat akceptacji w dzienniku, zrzuty z nazwy).
-- [ ] `node core/tools/release-check.js --szybko`: `film-komendy`, `film-rekwizyty`, `film-zakladki`,
+- [x] `node core/tools/release-check.js --szybko`: `film-komendy`, `film-rekwizyty`, `film-zakladki`,
       `film-paski`, `film-narzedzia` zielone (CYKL 16, manifest 16); w pełnym przebiegu
       `testy-filmu` zielone; poza filmem bez nowych czerwieni (zastane `modele` — chyba że Łukasz
       zgodził się na naprawę).
-- [ ] `npm test` w `docs/zasoby/film/zrodla/`: N/N zielonych (liczba przed z punktu 1 i po
+- [x] `npm test` w `docs/zasoby/film/zrodla/`: N/N zielonych (liczba przed z punktu 1 i po
       do dziennika); `ANEKS_A`/`ANEKS_D` porównują słowo w słowo także dwie nowe komendy.
-- [ ] **Dowód przypięcia (FILM_TESTY_V3):** podłożona niezwiązana zmiana w repo (np. nowy plik
+- [x] **Dowód przypięcia (FILM_TESTY_V3):** podłożona niezwiązana zmiana w repo (np. nowy plik
       testu rdzenia albo zmiana w aktywnym `STATUS.md`) — testy filmu dalej N/N; ta sama zmiana
       przy starym kodzie testów czerwieni (oba wyniki w jednym przebiegu — zasada 4); kontrole
       pozytywne testów nadal łapią podłożony defekt danych; brak kotwicy wersji → głośna czerwień;
       `git worktree list` bez pozostałości.
-- [ ] Render: `out/film.mp4` i `out/film-en.mp4` istnieją, długość obu w klatkach równa
+- [x] Render: `out/film.mp4` i `out/film-en.mp4` istnieją, długość obu w klatkach równa
       `scenariusz.ts` (liczba do dziennika, SZACUNEK 5280); `muzyka.test` zielony; przegląd klatek
       ustalonych dwóch nowych komend i finału w PL i EN (zrzuty z nazwy).
-- [ ] Odnoga FILM_TESTY_V3 zamknięta: karta ze statusem i rozstrzygniętymi punktami, wiersz w
+- [x] Odnoga FILM_TESTY_V3 zamknięta: karta ze statusem i rozstrzygniętymi punktami, wiersz w
       `CLAUDE.md` i `docs/STATE.md` zaktualizowany.
-- [ ] Testy zielone: `node --test core/process/tests/*.test.js` (267 przed — liczba po),
+- [x] Testy zielone: `node --test core/process/tests/*.test.js` (267 przed — liczba po),
       `node --test core/guardrails/tests/*.test.js`, `node --test core/panel/tests/*.test.js`,
       `node --test adapters/codex/tests/*.test.js`; `node core/tools/validate-adapters.js` →
       „spojne”.
-- [ ] Brak zmian poza zakresem: `git diff --stat` na `site/`, `adapters/`, `panel/`, `progress/`,
+- [x] Brak zmian poza zakresem: `git diff --stat` na `site/`, `adapters/`, `panel/`, `progress/`,
       `cache-keeper/`, `mods/` i ścieżkach PANEL_CODEX (`docs/plany/PANEL_CODEX/`,
       `adapters/codex/panel/`, `docs/zasoby/PANEL_RELAI/makiety/`) — pusty; `package.json`
       i `package-lock.json` filmu bez zmian zależności; `git tag --list 'v3.3.1' 'v3.4.0'` pusty.
-- [ ] Wpis w `docs/DZIENNIK.md` na końcu sekcji „Wpisy”, z podpisem `Autor: RelAI (<model>) + Lukasz`;
+- [x] Wpis w `docs/DZIENNIK.md` na końcu sekcji „Wpisy”, z podpisem `Autor: RelAI (<model>) + Lukasz`;
       `docs/STATE.md` nadpisany.
-- [ ] Katalog roboczy `.claude/relai/work/PIPELINE_WYDAN/E4/` przejrzany raportem
+- [x] Katalog roboczy `.claude/relai/work/PIPELINE_WYDAN/E4/` przejrzany raportem
       (`node .claude/relai/tools/clean-work.js raport`) i skasowany po „tak”; liczby przed i po we
       wpisie dziennika. Artefakty spoza katalogu (`out/*.mp4` filmu — zostają do E5 z sumą,
       worktree `%TEMP%/relai-*` testów, zrzuty kadrów) wypisane z nazwy razem z tym, co się z nimi

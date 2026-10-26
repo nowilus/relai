@@ -49,9 +49,12 @@ export function readAnchor(path = KOTWICA) {
   return commit;
 }
 
+/** The full hash of rev; throws when git does not know it. */
+export const resolveCommit = (rev = 'HEAD') => git(['rev-parse', '--verify', `${rev}^{commit}`]);
+
 /** Writes the anchor for rev (resolved to its full hash) and returns the hash. */
 export function writeAnchor(rev = 'HEAD', path = KOTWICA) {
-  const commit = git(['rev-parse', '--verify', `${rev}^{commit}`]);
+  const commit = resolveCommit(rev);
   mkdirSync(dirname(path), { recursive: true });
   writeFileSync(path, JSON.stringify({ commit: { wartosc: commit, zrodlo: SOURCE } }, null, 2) + '\n');
   return commit;
@@ -69,16 +72,26 @@ export function worktreeAt(commit) {
   const root = join(parent, basename(REPO));
   // the commit's bytes as committed (LF): with core.autocrlf=true (Git for Windows' default) a
   // checkout gets CRLF and two parity tests of the core suite count other sums than the source's
-  git(['-c', 'core.autocrlf=false', 'worktree', 'add', '--detach', '--quiet', root, commit]);
+  // cleanup is best-effort step by step: a locked file on Windows must not leave the folder, the
+  // worktree entry or the caller's own error behind (review of E4)
+  const cleanup = () => {
+    try { git(['worktree', 'remove', '--force', root]); } catch { /* the folder goes below anyway */ }
+    rmSync(parent, { recursive: true, force: true });
+    try { git(['worktree', 'prune']); } catch { /* nothing registered */ }
+  };
+  try {
+    git(['-c', 'core.autocrlf=false', 'worktree', 'add', '--detach', '--quiet', root, commit]);
+  } catch (e) {
+    cleanup();
+    throw e;
+  }
   let removed = false;
   return {
     root,
     remove() {
       if (removed) return;
       removed = true;
-      git(['worktree', 'remove', '--force', root]);
-      git(['worktree', 'prune']);
-      rmSync(parent, { recursive: true, force: true });
+      cleanup();
     },
   };
 }
@@ -96,7 +109,9 @@ export async function atAnchor(fn, commit = readAnchor()) {
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
   const args = process.argv.slice(2);
   const at = args.indexOf('--nowa');
-  if (at >= 0) process.stdout.write(`kotwica: ${writeAnchor(args[at + 1] ?? 'HEAD')}\n`);
+  // a new anchor is written only after all four files are computed (review of E4): a failure on
+  // the way leaves the old anchor and the old data together
+  const target = at >= 0 ? resolveCommit(args[at + 1] ?? 'HEAD') : readAnchor();
   // imported here, not at the top: each module checks paths at load time against REPO
   const dane = await import('./dane.mjs');
   const panel = await import('./panel.mjs');
@@ -108,11 +123,14 @@ if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.ur
   };
   await atAnchor(async (root, commit) => {
     const p = await dane.fromRepo(root);
-    write(dane.OUT, p);
-    write(panel.OUT, panel.fromRepo(root));
-    write(sceny.OUT, sceny.fromRepo(root));
+    const pn = panel.fromRepo(root);
+    const sc = sceny.fromRepo(root);
     const m = manifest.fromRepo(root);
+    write(dane.OUT, p);
+    write(panel.OUT, pn);
+    write(sceny.OUT, sc);
     write(manifest.OUT, m);
+    if (at >= 0) process.stdout.write(`kotwica: ${writeAnchor(commit)}\n`);
     process.stdout.write(`dane filmu z ${commit.slice(0, 7)}: ${p.plan.plan.wartosc} ${p.plan.etap.wartosc} ${p.plan.status.wartosc}; RelAI ${m.wersja.wartosc}, ${m.komendy.wartosc} komend, ${m.planyZamkniete.wartosc} planów, ${m.testyRdzenia.wartosc} testów\n`);
-  });
+  }, target);
 }

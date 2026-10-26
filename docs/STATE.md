@@ -1,6 +1,6 @@
 # STATE — RelAI
 
-Stan na: 2026-10-25 (PIPELINE_WYDAN E3 zrealizowany — bramka `pre-push` na tagi wydań z obejściem do dziennika, wydanie samego modu `--komponent`, kontrola `pre-push`, weryfikacja po publikacji `release-verify.js`, podpowiedź gotowości `release-hint.js`; E2 — `/relai-release` i fraza „gotowi do wydania?”, propozycje numerów, kontrola `podbicie`; E1 — raport gotowości wydania `release-check.js` z mapą wpływu; plan BEZPIECZENSTWO ZREALIZOWANY 2026-10-25 — wydanie 3.3.0: skan zależności `/relai-security`, 13. hook `lockfile-scan`, D-91 (Trivy pierwszy w punktach procesu), pełny audyt `/relai-security --full` ze skillem Cloudflare `security-audit`, oba skille w Codeksie i Cursorze; mody `relai-panel` 0.21.0, `relai-progress` 0.6.1, `relai-cache-keeper` 0.12.0, `relai-mods` 0.1.2; plan RELAI_MODS ZREALIZOWANY — kokpit `/relai-mods` wydany jako `relai-mods` 0.1.0 i 0.1.1 w marketplace, tagi `relai-mods-v0.1.0` i `relai-mods-v0.1.1`; wątek AGENTS_KRABY zamknięty — panel „RelAI Agents” z postaciami ról, `relai-progress` 0.6.0 wydany, tag `relai-progress-v0.6.0`; wątek MOBILNA_STRONA zamknięty — obie wersje strony przyjęte na iPhonie, ankieta na cztery warianty z danymi o urządzeniu; wątek BIURKO_PLAKAT zamknięty — Biurko bez sceny 3D jako odbitki biurka; plan STRONA_RELAI ZREALIZOWANY 2026-10-18 — strona opublikowana na https://nowilus.github.io/relai/ w dwóch wersjach, Film i Biurko, z ankietą w Tally, poprawka Aneksu E wdrożona 2026-10-19; WYGLAD_PANELU zamknięty 2026-10-15)
+Stan na: 2026-10-26 (PIPELINE_WYDAN E4 zrealizowany — film do bieżącej wersji: `/relai-humanize` i `/relai-security` w scenie komend, 176 s, finał ze stemplem wersji, testy filmu 37/37 przypięte do commitu-kotwicy danych, odnoga FILM_TESTY_V3 zamknięta, MP4 PL i EN lokalnie; E3 zrealizowany 2026-10-25 — bramka `pre-push` na tagi wydań z obejściem do dziennika, wydanie samego modu `--komponent`, kontrola `pre-push`, weryfikacja po publikacji `release-verify.js`, podpowiedź gotowości `release-hint.js`; E2 — `/relai-release` i fraza „gotowi do wydania?”, propozycje numerów, kontrola `podbicie`; E1 — raport gotowości wydania `release-check.js` z mapą wpływu; plan BEZPIECZENSTWO ZREALIZOWANY 2026-10-25 — wydanie 3.3.0: skan zależności `/relai-security`, 13. hook `lockfile-scan`, D-91 (Trivy pierwszy w punktach procesu), pełny audyt `/relai-security --full` ze skillem Cloudflare `security-audit`, oba skille w Codeksie i Cursorze; mody `relai-panel` 0.21.0, `relai-progress` 0.6.1, `relai-cache-keeper` 0.12.0, `relai-mods` 0.1.2; plan RELAI_MODS ZREALIZOWANY — kokpit `/relai-mods` wydany jako `relai-mods` 0.1.0 i 0.1.1 w marketplace, tagi `relai-mods-v0.1.0` i `relai-mods-v0.1.1`; wątek AGENTS_KRABY zamknięty — panel „RelAI Agents” z postaciami ról, `relai-progress` 0.6.0 wydany, tag `relai-progress-v0.6.0`; wątek MOBILNA_STRONA zamknięty — obie wersje strony przyjęte na iPhonie, ankieta na cztery warianty z danymi o urządzeniu; wątek BIURKO_PLAKAT zamknięty — Biurko bez sceny 3D jako odbitki biurka; plan STRONA_RELAI ZREALIZOWANY 2026-10-18 — strona opublikowana na https://nowilus.github.io/relai/ w dwóch wersjach, Film i Biurko, z ankietą w Tally, poprawka Aneksu E wdrożona 2026-10-19; WYGLAD_PANELU zamknięty 2026-10-15)
 
 ## Gdzie jesteśmy
 
@@ -20,7 +20,9 @@ SPLIT_VIEW, P-040 rozwiązana; panel bez rozjazdów w wąskim panelu podziału �
 Aktywny plan: PIPELINE_WYDAN (zaakceptowany 2026-10-25; E1–E3 zrealizowane tego dnia — raport
 gotowości `release-check.js` z propozycjami numerów, komenda projektowa `/relai-release` z frazą
 „gotowi do wydania?”, bramka `pre-push` zainstalowana w tym klonie i weryfikacja po publikacji;
-E4 — film do bieżącej wersji — gotowy do startu po decyzjach o finale filmu); równolegle
+E4 zrealizowany 2026-10-26 — film z szesnastoma komendami, 176 s, stempel „stan z wersji 3.3.0”
+w finale, dane filmu przypięte do commitu-kotwicy, MP4 PL i EN lokalnie w `out/`; E5 — pierwsze
+wydanie przez pipeline — gotowy do startu); równolegle
 PANEL_CODEX (E1 w toku, prowadzony w Codeksie). BEZPIECZENSTWO zamknięty 2026-10-25
 po E6 (6/6, Aneksy A–B, wydanie 3.3.0). STRONA_RELAI zamknięty 2026-10-18
 po E8 (8/8, Aneksy A–E). WYGLAD_PANELU zamknięty 2026-10-15
@@ -159,10 +161,11 @@ po E5 (wydanie panelu 0.20.0 / 0.11.0); HUMANIZACJA zamknięty 2026-10-14 wydani
 
 ## Co dalej
 
-- **Plan PIPELINE_WYDAN — ZAAKCEPTOWANY 2026-10-25, aktywny; E1–E3 zrealizowane, E4 gotowy
-  do startu** ([prompt](plany/PIPELINE_WYDAN/PROMPT_ETAP_4.md), świeża sesja Opus 5.5,
-  `/relai-stage`: film do bieżącej wersji — rekwizyty, slogany i finał to decyzje Łukasza przed
-  startem, sekcja 9 planu; wchłania odnogę FILM_TESTY_V3) (brief
+- **Plan PIPELINE_WYDAN — ZAAKCEPTOWANY 2026-10-25, aktywny; E1–E4 zrealizowane, E5 gotowy
+  do startu** ([prompt](plany/PIPELINE_WYDAN/PROMPT_ETAP_5.md), świeża sesja Opus 5.5,
+  `/relai-stage`: pierwsze wydanie przez pipeline — numer wydania i zgoda na publikację to
+  decyzje Łukasza, MP4 filmu z E4 czekają lokalnie w `docs/zasoby/film/zrodla/out/` na zasoby
+  wydania i odtwarzacz strony) (brief
   [PIPELINE_WYDAN/BRIEF.md](zasoby/PIPELINE_WYDAN/BRIEF.md)) —
   [plan](plany/PIPELINE_WYDAN/PLAN.html) i [status](plany/PIPELINE_WYDAN/STATUS.md): mapa wpływu
   i `release-check.js`, komenda `/relai-release` z frazą „gotowi do wydania?” tylko w tym repo,
@@ -187,9 +190,6 @@ po E5 (wydanie panelu 0.20.0 / 0.11.0); HUMANIZACJA zamknięty 2026-10-14 wydani
   Biurka na słabszym laptopie albo zintegrowanej karcie (T1, procedura w `site/README.md`;
   od wyniku zależy drugi bezpiecznik 3B); przegląd tekstów EN przez native speakera. Drobne: karta
   „Zacznij tutaj” Biurka nachodzi na laptop przy 1024 px, logo zasłony Filmu ładuje się po SVG.
-- Wątek samodzielny [FILM_TESTY_V3](fixy/FILM_TESTY_V3/ODNOGA.md) (przeniesiony z planu
-  HUMANIZACJA 2026-10-14): testy faktów i pasków filmu 3.0.0 przypięte do commitu wydania, start
-  w świeżej sesji promptem z karty.
 - Tryb ciągły optymalizatora promptów dla Cursora i Codeksa — osobny plan, i licznik kosztu trybu
   ciągłego (decyzje Łukasza 2026-10-15, przegląd spraw przeterminowanych). Plan
   PIERWSI_UZYTKOWNICY zamknięty w obecnym stanie — oficjalnego zbierania opinii nie będzie.

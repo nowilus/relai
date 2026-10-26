@@ -27,7 +27,7 @@
 | H9 | Tryb ciągły „dokumenty” nie widzi zapisu, którego nie rozpozna — `sed -i`, skrypt, podproces, `>(tee …)` — i dokument zostaje bez humanizacji (plan HUMANIZACJA, pomiar E5) | **Niski** (2026-10-14, przy zamknięciu planu) | **OTWARTE ŚWIADOMIE** | Aneks C: hook po Write/Edit i po Bash z przekierowaniem `>` / `>>` albo `tee`; w pomiarze E5 model pisał wyłącznie tymi drogami (8/8 przed poprawką, 2/2 po niej z regułą). Pominięcie kończy się ciszą, nigdy złą regułą; komenda `/relai-humanize` na pliku działa niezależnie od trybu ciągłego. |
 | T1 | Scena 3D strony tnie się na słabszym laptopie albo zintegrowanej grafice (plan STRONA_RELAI, ryzyko 1) | **Średni** (2026-10-18 po E6; wcześniej wysoki) | **OTWARTE** | E1: render na żądanie, DPR ≤ 1,5, obniżenie jakości przy medianie > 26 ms. E2 (scena CC0, AO, głębia ostrości): przy CPU ×4 mediana 11,1 ms, p95 16,7 ms, 913 wywołań rysowania na klatkę po scaleniu miasta (przed: 2206, p95 22,3 ms); obniżanie jakości zaczyna od głębi ostrości. E3 (poświata ekranu RectAreaLight, nowe książki): przy CPU ×4 przewijanie mediana 11,9 ms, p95 22,2 ms — p95 wzrosło o 5,5 ms, zapas do 26 ms już tylko 3,8 ms; przybliżanie p95 13,1 ms; najwięcej 907 wywołań rysowania na klatkę. Zmierzone tylko na RTX 4070 Ti. E4 (bez path tracingu, przygaszona lampa, lakier blatu): CPU ×4 mediana 11,3 ms, p95 17,5 ms, najwięcej 910 wywołań rysowania. Otwarte: słaba grafika w E7. E5 (Film, bez WebGL): przy CPU ×4 mediana 5,6 ms, p95 5,6 ms, najdłuższa klatka 28,7 ms, więc Filmu ryzyko nie dotyczy. Aneks D: Biurko też idzie do publikacji, dlatego poziom zostaje wysoki do pomiaru na słabej grafice w E6. E7 (Film z animacjami WAAPI i przytrzymaniem): CPU ×4 mediana 11,1 ms, p95 16,7 ms na desktopie i w emulacji telefonu — Filmu nadal nie dotyczy; poziom bez zmiany przez Biurko. E6: SwiftShader (grafika programowa) 1366 × 768 mediana 1 700 → 1 183 → 817 ms po krokach obniżania, 390 × 844 1 033 → 867 → 433 → 283 ms; wyłącznik `biurko/grafika.js` daje takiej przeglądarce plakat (werdykt Łukasza 3A), brak WebGL2 i ograniczony ruch też. RTX przy CPU ×4: p95 przewijania 20,6–25,2 ms desktop, 15,4–16,3 ms telefon. Otwarte: zintegrowana karta niezmierzona (bramka „pomiar na słabszym laptopie”); drugi bezpiecznik (plakat po wyczerpaniu kroków jakości, opcja 3B) świadomie niewdrożony. E8 (2026-10-18): Biurko opublikowane pod `/biurko/` bez zmian w scenie; plan STRONA_RELAI zamknięty, bramka „pomiar na słabszym laptopie” świadomie otwarta poza planem (`docs/STATE.md`, „Co dalej”). |
 | T2 | Biurko wygląda jak tani render albo glina z AI (plan STRONA_RELAI, ryzyko 2) | **Średni** (2026-10-18 po E6; wcześniej wysoki) | **OTWARTE** | E2: modele i tekstury CC0, deski orzechowe ze słojami, miasto za oknem, kubek i tablica od nowa; kalibracja w czterech rundach, zamknięcie za zgodą Łukasza, ale „nadal jesteśmy całkiem daleko” od obrazów 01–08 — przyczyna: brak światła odbitego w rasteryzacji (L-0220). Aneks B: E3 laptop i detale, E4 path tracing na przystankach. E4 (2026-10-16): światło odbite nie dało uzysku — przyczyną dystansu jest detal przedmiotów, tekstur i kompozycja, nie światło (L-0226); test detalu (blat `wood_table_worn`, druk na dokumentach, ciemniej) dał umiarkowany zysk. Aneks C: następny jest Film, Biurko po bramce. E5: Film rysowany kodem, hero przyjęte w trzeciej rundzie („Tak, przyjmuję”). Bramka z Aneksem D: najpierw dopieszczenie Filmu (E7), potem pełna droga Biurka (E6), publikacja obu z ankietą. Dla Biurka ryzyko zostaje wysokie. E7: Film dopieszczony i przyjęty akt po akcie („Tak, przyjmuję”), dotyczy już tylko Biurka (E6). E6: każdy przystanek, szczyt, mapa, szuflady, telefon, zasłona i plakat przyjęte przez Łukasza na kadrach przed i po; kontrola odczuć zgodna z krzywą briefu (4A). Otwarte do ankiety po publikacji (E8): czy odwiedzający odbierają Biurko jako dopracowane. E8 (2026-10-18): obie wersje opublikowane, ankieta w Tally zbiera głosy z ukrytym polem `wersja`; ryzyko zostaje otwarte do odczytu ankiety, który jest poza planem (`docs/STATE.md`). |
-| PW1 | Kontrola gotowości wydania jest zielona przy luce — instrument fałszywie cichy przywraca problem z 3.3.0 z poczuciem bezpieczeństwa (plan PIPELINE_WYDAN, ryzyko W1) | **Wysoki** (2026-10-25, przy akceptacji planu) | **OTWARTE — ZMITYGOWANE W E1 (2026-10-25)** | E1: każda z 19 kontroli ma test z podłożonym defektem (36 testów), licznik „sprawdzono N” i blokadę „sprawdzono 0 = czerwień”; odbiór: `53830cc` i `v3.2.0` pokazują 3/3 luki z 3.3.0 (i 11/12 hooków już przy 3.2.0), `a1439b9` — te kontrole zielone; przegląd kodu: 0 krytycznych, 1 wysoki (mapa nie wołała testów rdzenia dla komend, hooków i adapterów) — poprawiony z testem; nagłówek mówi o pominiętych zestawach. E2 (2026-10-25): kontrola `podbicie` i propozycje numerów — 14 testów z mutacją, która każdy wywraca (instrument mutacji sam był najpierw fałszywie cichy — L-0270); przegląd: 3 MEDIUM pod fałszywą zieleń (feat sprzed zmiany nazwy, pliki bez commitu, numer poniżej propozycji) poprawione z testem. E3 (2026-10-25): bramka `pre-push` używa raportu na drzewie tagu — fixtura z `--bare`: czerwień odrzuca tag, zieleń przyjmuje, gałąź bez przebiegu (wartownik); 13 mutacji testów „czegoś nie ma”, 13 zabitych; przegląd: 1 HIGH pod fałszywą zieleń (nieczytelny stdin = przepustka) i LOW (raport bez kontroli = zieleń) poprawione — odmowa (L-0272). Otwarte: pierwsze realne wydanie przez bramkę (E5). |
+| PW1 | Kontrola gotowości wydania jest zielona przy luce — instrument fałszywie cichy przywraca problem z 3.3.0 z poczuciem bezpieczeństwa (plan PIPELINE_WYDAN, ryzyko W1) | **Wysoki** (2026-10-25, przy akceptacji planu) | **OTWARTE — ZMITYGOWANE W E1 (2026-10-25)** | E1: każda z 19 kontroli ma test z podłożonym defektem (36 testów), licznik „sprawdzono N” i blokadę „sprawdzono 0 = czerwień”; odbiór: `53830cc` i `v3.2.0` pokazują 3/3 luki z 3.3.0 (i 11/12 hooków już przy 3.2.0), `a1439b9` — te kontrole zielone; przegląd kodu: 0 krytycznych, 1 wysoki (mapa nie wołała testów rdzenia dla komend, hooków i adapterów) — poprawiony z testem; nagłówek mówi o pominiętych zestawach. E2 (2026-10-25): kontrola `podbicie` i propozycje numerów — 14 testów z mutacją, która każdy wywraca (instrument mutacji sam był najpierw fałszywie cichy — L-0270); przegląd: 3 MEDIUM pod fałszywą zieleń (feat sprzed zmiany nazwy, pliki bez commitu, numer poniżej propozycji) poprawione z testem. E3 (2026-10-25): bramka `pre-push` używa raportu na drzewie tagu — fixtura z `--bare`: czerwień odrzuca tag, zieleń przyjmuje, gałąź bez przebiegu (wartownik); 13 mutacji testów „czegoś nie ma”, 13 zabitych; przegląd: 1 HIGH pod fałszywą zieleń (nieczytelny stdin = przepustka) i LOW (raport bez kontroli = zieleń) poprawione — odmowa (L-0272). E4 (2026-10-26): kontrole filmu przeszły z czerwieni (CYKL 14 przy 16 komendach) w zieleń po realnej zmianie, a `testy-filmu` 37/37 w pełnym przebiegu; testy filmu przypięte do kotwicy danych mają dowód obu stron (zmiana niezwiązana: nowe 17/17, stare czerwone; defekt danych i brak kotwicy: czerwień). S3 planu (render): oba MP4 po 5280 klatek = `scenariusz.ts`, muzyka co do próbki, klatki nowych scen i finału przejrzane. Otwarte: pierwsze realne wydanie przez bramkę (E5). |
 | PW2 | Mapa wpływu się starzeje — nowy rodzaj pliku albo komponentu przechodzi bez kontroli (plan PIPELINE_WYDAN, ryzyko W2) | **Wysoki** (2026-10-25, przy akceptacji planu) | **OTWARTE — ZMITYGOWANE W E1 (2026-10-25)** | Fail-closed działa: plik z diffu (także nieśledzony) bez wiersza = „nieznany typ zmiany”; kontrola `mapa` na 1491 plikach: 0 bez wiersza, 0 w dwóch; test z plikiem w nowym katalogu. E2 (2026-10-25): wiersz `komenda-projektowa` (`.claude/commands/*.md`) w tej samej zmianie co komenda, `mapa` na 1497 plikach: 0 bez wiersza, 0 w dwóch. E3 (2026-10-25): sześć nowych narzędzi i testów pod istniejącym wierszem `rdzen-procesu`, bez nowego wiersza; mapa jest teraz źródłem zestawu kontroli tagu modu (`--komponent`: wiersze `mod:<nazwa>` dotknięte diffem modu) — zmiana mapy zmienia bramkę. Otwarte: trwałość mapy w kolejnych wydaniach. |
 | PW3 | Bramka `pre-push` nie działa, bo hook nie jest zainstalowany albo jest stary (inna maszyna, świeży klon, Codex) (plan PIPELINE_WYDAN, ryzyko S4) | **Średni** (2026-10-25, przy akceptacji planu) | **OTWARTE — ZMITYGOWANE W E3 (2026-10-25)** | E3: kontrola `pre-push` w raporcie (kopia w `.git/hooks/` równa źródłu po CRLF → LF; brak albo inna suma — ostrzeżenie z komendą instalacji, z `--wydanie` czerwień) — na żywo złapała kopię nieaktualną po poprawce z przeglądu (`bd6ff875d97b` wobec `69874c8e1e78`); hook zainstalowany w tym klonie po „tak”; `/relai-release` nie taguje przy czerwieni niezależnie od hooka. Otwarte: każdy inny klon wymaga instalacji. |
 
@@ -1514,8 +1514,8 @@ zapisane od razu, bo stan z tej chwili staje się kotwicą danych filmu (commit 
   liczby zostają, linia pod tytułem brzmi „RelAI · stan z wersji {wersja}” / „RelAI · as of
   version {wersja}”.
 - **Rekwizyty i słowa** `/relai-humanize` i `/relai-security` — kalibracja na kadrach
-  `.claude/relai/work/PIPELINE_WYDAN/E4/` `pl-935.png`, `pl-975.png`, `en-975.png` (humanizacja),
-  `pl-1365.png`, `pl-1395.png`, `en-1395.png` (bezpieczeństwo); odpowiedzi Łukasza: „Akceptuję
+  `pl-935.png`, `pl-975.png`, `en-975.png` (humanizacja), `pl-1365.png`, `pl-1395.png`,
+  `en-1395.png` (bezpieczeństwo), zachowanych jako `docs/zasoby/film/kalibracja/E4-*.png`; odpowiedzi Łukasza: „Akceptuję
   oba” (rekwizyty), „Akceptuję PL i EN” (nazwy i slogany: „Humanizacja tekstu — Tekst bez nawyków
   AI, fakty na miejscu”, „Bezpieczeństwo zależności — Zależności sprawdzone, ryzyka w dzienniku”,
   „Text humanizer — Your text without AI habits, facts intact”, „Dependency security —
@@ -1531,4 +1531,86 @@ archiwizacji planu FILM_PREZENTACYJNY, 2 testy muzyki bez `npm run przygotuj` (b
 `public/muzyka/relai.wav`); po `przygotuj` **35/36** (została kontrola pozytywna `paski` ze
 ścieżką `docs/plany/FILM_PREZENTACYJNY/STATUS.md`).
 
-*(Wpis dokończony przy zamknięciu etapu.)*
+**Zrobione:**
+
+- Rekwizyty `src/sceny/komendy/Humanizacja.tsx` (oryginał zostaje, ołówek prostuje falę na
+  kopii, ptaszek strażnika faktów) i `Bezpieczenstwo.tsx` (paczki przez bramkę „Trivy”, znacznik
+  „HIGH” odlatuje do dziennika, na paczce zostaje „!”; słowa „Trivy” i „HIGH” cytowane
+  z `relai-security.md`); `CYKL` 16 komend (`src/komendy.ts`), `REKWIZYTY`, nazwy i slogany PL/EN
+  (`src/teksty.ts`); scena „Komendy” 49 → 56 s, film 169 → 176 s (5280 klatek, FAKT z ffprobe);
+  muzyka 176 s z tego samego utworu i cięcia (bez odchylenia).
+- Finał: linia „RelAI · stan z wersji {wersja}” / „RelAI · as of version {wersja}” (`final.wersja`
+  wyjęte z listy słów produktu w `jezyki.test.mjs` — to słowa filmu w dwóch językach); wiersz planu
+  w pasku (`TrescPlanu`, `Pasek.tsx`) kończy się na swojej komórce — przy „GOTOWY DO STARTU”
+  wchodził na „3/5 etapów”.
+- Wersja danych filmu: `skrypty/kotwica.mjs` + `src/dane/kotwica.json`; `npm run przygotuj` liczy
+  paski, panel, sceny i manifest w `git worktree` kotwicy (`%TEMP%/relai-film-dane-*/RelAI`,
+  `core.autocrlf=false`), `--nowa [rev]` przesuwa kotwicę dopiero po policzeniu czterech plików.
+  Kotwica: `cbfe85c` — commit lokalny E4 w toku (`chore(film): anchor point…`, za zgodą Łukasza).
+- Testy: `fakty.test.mjs` i `paski.test.mjs` przeliczają dane w worktree kotwicy (nowy test
+  kotwicy z czterema kontrolami pozytywnymi), kontrola pozytywna `paski` podmienia status w jego
+  komórce (także pogrubiony); `wiernosc.test.mjs` — `FORMS_FILMU` (16), tabele `ANEKS_A`/`ANEKS_D`
+  z brzmieniami E4, słowa rekwizytów `trivy`/`high`, kontrola „cykl 3.0.0 bez dwóch komend
+  czerwieni”; `fakty` — scena „Komendy” 56 s.
+- Dokumenty: `docs/zasoby/film/README.md` (16 komend, 176 s, kotwica i `npm run kotwica`), karta
+  FILM_TESTY_V3 zamknięta, `CLAUDE.md` (wiersz odnóg), `docs/STATE.md`.
+- Render: `docs/zasoby/film/zrodla/out/film.mp4` (sha256 `e6bd9cbc11d7b4ee601568baa0fe581aacd37ea40172ff8538b82481d93fded3`)
+  i `out/film-en.mp4` (sha256 `7acee430031cab24860bba5ef9e8175e6f3c24f81561cd165edb1d5c246e29d7`),
+  po 5280 klatek, 30 kl./s — poza gitem, czekają na E5.
+
+**Zweryfikowane — jak dokładnie:**
+
+- `npm test` filmu: 29/36 (dane z gita) → **37/37**; `ANEKS_A`/`ANEKS_D` słowo w słowo z dwiema
+  nowymi komendami.
+- Dowód przypięcia jednym skryptem (stare testy z `cbfe85c` obok nowych): czyste drzewo — nowe
+  17/17, stare 15/16 (ich kontrola `paski` nie znała pogrubionego statusu); podłożony plik testu
+  rdzenia + zmiana nazwy E5 w `STATUS.md` — nowe 17/17, stare czerwone (manifest, panel); defekt
+  danych (komendy 15, etap E9) — nowe 7 czerwonych; brak `kotwica.json` — oba pliki czerwone
+  błędem; `git worktree list` bez `relai-film`, `%TEMP%` bez `relai-film-*`; pliki przywrócone.
+- `release-check.js --szybko`: `film-komendy` (CYKL 16, manifest 16), `film-rekwizyty`,
+  `film-zakladki`, `film-paski`, `film-narzedzia` zielone; pełny przebieg (279 s): `testy-filmu`
+  37/37, `testy-rdzenia` 526/526, `testy-strony` 370/370; jedyna czerwień — zastane `modele`.
+- Testy rdzenia osobno: `core/process` 267/267 (przed: 267), `core/guardrails` 19/19,
+  `core/panel` 216/216, `adapters/codex` 24/24; `validate-adapters.js` → „spojne”; `npx tsc
+  --noEmit` filmu czysty; `muzyka.test` 3/3.
+- Render: ffprobe — oba MP4 5280 klatek = `dlugosc(30)` ze `scenariusz.ts`; klatki ustalone
+  z MP4 (32,5 s humanizacja, 46,5 s bezpieczeństwo, 173,3 s finał) w PL i EN przejrzane —
+  bez nakładek i ucięć; scena pasków na danych kotwicy: „PIPELINE_WYDAN · E4 W TOKU”, 2/11 punktów.
+- Poza zakresem: `git diff --stat b57a132` na `site/`, `adapters/`, `panel/`, `progress/`,
+  `cache-keeper/`, `mods/` i ścieżkach PANEL_CODEX — pusty; `package.json` filmu — tylko skrypty
+  (`kotwica`, `przygotuj`), zależności bez zmian; `git tag --list 'v3.3.1' 'v3.4.0'` — pusto.
+- Przegląd kodu (subagent `code-reviewer`): 0 CRITICAL, 0 HIGH, 2 MEDIUM (wyciek worktree przy
+  nieudanym `add` i przy blokadzie pliku w `remove`) i 2 LOW (kotwica przesuwana przed policzeniem
+  danych, podmiana statusu niezakotwiczona do komórki) — poprawione; sprawdzone: nieudany
+  `worktreeAt` nie zostawia śladu, dane po poprawkach bajtowo bez zmian, testy 37/37.
+- Katalog roboczy `.claude/relai/work/PIPELINE_WYDAN/E4/`: 28 pozycji, 12,5 MB → 0 MB
+  (`clean-work.js kasuj`, po „Zachowaj kadry, reszta precz”); sześć kadrów kalibracji skopiowanych
+  do `docs/zasoby/film/kalibracja/E4-*.png`. Poza katalogiem: `out/film.mp4` i `out/film-en.mp4`
+  (zostają do E5, sumy wyżej), worktree `%TEMP%/relai-film-dane-*` (sprzątane przez skrypt i testy,
+  zero pozostałości), lista `.claude/relai/clean-lista-pipeline-e4.json`.
+
+**Świadomie odłożone:**
+
+- Dwa testy parzystości skilli Codeksa (`adapters/codex/tests/skill-parity.test.js`) padają
+  w świeżym checkoucie na Windowsie z `core.autocrlf=true` (CRLF w plikach, sumy na LF); w drzewie
+  głównym przechodzą. Decyzja Łukasza: „Świadomie odłożone (Rekomendowane)”. Wraca przy pierwszym
+  klonie na innej maszynie albo przy E5, jeśli raport policzy testy w czystym checkoucie.
+- Przegląd, LOW: przerwany twardo przebieg testów (Ctrl+C) zostawia worktree w `%TEMP%`
+  i wpis w `.git/worktrees`; sprząta go `git worktree prune` i ręczne usunięcie folderu
+  `relai-film-dane-*`. Każdy `npm test` robi dwa checkouty (po jednym na plik testów).
+- Strzałka notki „postęp etapu” w scenie pasków przechodzi nad słowem „etapów” licznika 3/5 —
+  pozycja notki ręczna, sprzed E4; kadr czytelny.
+- Remotion przy każdym renderze ostrzega o `zod` 4.6.6 zamiast 4.5.4 (override Z1 z planu
+  BEZPIECZENSTWO); pełny render obu filmów na overridzie przeszedł bez błędu.
+- Bramka zgody trybu ciągłego (hook `UserPromptSubmit`) odpaliła na odpowiedzi z okna pytań
+  w środku etapu, nie na nowym poleceniu — nie zadałem pytania o zgodę w trakcie etapu; do
+  sprawdzenia, czy odpowiedź `AskUserQuestion` wyzwala ten hook (L-0189).
+
+**Do zrobienia przez człowieka:** —
+
+Przegląd ryzyk: PW1 — wynik E4 dopisany (z S3 planu: render); PW2, PW3 bez zmian.
+
+Lekcje: L-0274 (worktree pomiarowy: końce linii i nazwa folderu), L-0275 (kotwica stanu etapu to
+commit pośredni), L-0276 (`sed -i` w komentarzu), „Zasady aktywne” 4 i 5 odświeżone.
+
+Autor: RelAI (Opus 5.5) + Lukasz

@@ -1,7 +1,7 @@
 # ODNOGA — testy faktów i pasków filmu 3.0.0 przypięte do commitu wydania
 
 Plan: [HUMANIZACJA](../../archiwum/plany/HUMANIZACJA/STATUS.md) · Etap-źródło: E1 — Komenda na żądanie · Utworzona: 2026-10-14 ·
-Status: **OTWARTA** (wątek samodzielny od 2026-10-14 — przeniesiona z planu przy jego zamknięciu, decyzja Łukasza; **od 2026-10-25 wchłonięta przez E4 planu [PIPELINE_WYDAN](../../plany/PIPELINE_WYDAN/STATUS.md)** — testy przypięte do wersji danych filmu zamiast `v3.0.0`, decyzja Łukasza z wywiadu; nie uruchamiać osobno, zamyka ją E4) · Wykonawca: Opus 5.5 w świeżej sesji
+Status: **ZAMKNIĘTA 2026-10-26 przez E4 planu [PIPELINE_WYDAN](../../plany/PIPELINE_WYDAN/STATUS.md)** (wynik niżej; wcześniej: wątek samodzielny od 2026-10-14 — przeniesiona z planu przy jego zamknięciu, decyzja Łukasza; **od 2026-10-25 wchłonięta przez E4 planu [PIPELINE_WYDAN](../../plany/PIPELINE_WYDAN/STATUS.md)** — testy przypięte do wersji danych filmu zamiast `v3.0.0`, decyzja Łukasza z wywiadu; nie uruchamiać osobno, zamyka ją E4) · Wykonawca: Opus 5.5 w świeżej sesji
 
 ## Cel
 
@@ -37,11 +37,11 @@ zamiast regeneracji danych filmu albo ignorowania czerwieni.
 
 ## Weryfikacja
 
-- [ ] `node --test docs/zasoby/film/zrodla/testy/*.test.mjs` → 36/36 na bieżącym repo.
-- [ ] Ten sam przebieg po podłożonej zmianie w drzewie roboczym, która przewracała test przed
+- [x] `node --test docs/zasoby/film/zrodla/testy/*.test.mjs` → 36/36 na bieżącym repo.
+- [x] Ten sam przebieg po podłożonej zmianie w drzewie roboczym, która przewracała test przed
       odnogą (np. dopisany plik testu rdzenia), nadal 36/36; kontrola pozytywna każdego testu nadal
       wykrywa podłożony defekt w kopii z `v3.0.0`.
-- [ ] Po przebiegu `git worktree list` nie ma worktree założonego przez testy.
+- [x] Po przebiegu `git worktree list` nie ma worktree założonego przez testy.
 - [ ] `git diff --stat` dotyka wyłącznie plików testów filmu (i pomocnika).
 - [ ] Katalog roboczy `.claude/relai/work/HUMANIZACJA/FILM_TESTY_V3/` przejrzany raportem
       (`node .claude/relai/tools/clean-work.js raport`) i skasowany po „tak”; liczby przed i po we
@@ -49,4 +49,21 @@ zamiast regeneracji danych filmu albo ignorowania czerwieni.
 
 ## Wynik
 
-—
+2026-10-26, E4 planu PIPELINE_WYDAN. Testy przypięte nie do `v3.0.0`, lecz do **wersji danych
+filmu** (decyzja Łukasza z wywiadu planu 2026-10-25): commit w `zrodla/src/dane/kotwica.json`
+(`cbfe85c`, commit lokalny E4 w toku — decyzja Łukasza 2026-10-26), pomocnik
+`zrodla/skrypty/kotwica.mjs` (worktree `%TEMP%/relai-film-dane-*/RelAI` z `core.autocrlf=false`,
+sprzątany po przebiegu). Rozstrzygnięcie punktów weryfikacji (brzmienia „36/36” i „`v3.0.0`”
+zastąpione wersją danych i liczbą po dwóch nowych testach):
+
+- przebieg na bieżącym repo — **37/37** (przed: 29/36 na danych z gita, 35/36 po `przygotuj`);
+- podłożona zmiana niezwiązana (nowy plik testu rdzenia + zmiana nazwy E5 w aktywnym
+  `STATUS.md`): nowe testy `fakty` + `paski` 17/17, stare (z `cbfe85c`) czerwone — manifest
+  i panel; podłożony defekt danych (komendy 15, etap E9) — 7 czerwonych; brak kotwicy — oba pliki
+  czerwone błędem; wynik w `.claude/relai/work/PIPELINE_WYDAN/E4/dowod-przypiecia.txt`
+  (skasowany z katalogiem roboczym; liczby we wpisie dziennika E4);
+- po przebiegu `git worktree list` bez worktree `relai-film`;
+- `git diff --stat` — punkt nie dotyczy: odnoga weszła w etap, który zmienia też dane, sceny
+  i render (zakres E4);
+- katalog `.claude/relai/work/HUMANIZACJA/FILM_TESTY_V3/` nigdy nie powstał — praca szła
+  w katalogu E4 planu PIPELINE_WYDAN.

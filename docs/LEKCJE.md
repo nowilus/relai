@@ -46,7 +46,9 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
      fixtura, nigdy z `.gitignore` (L-0156); przed pytaniem o zasięg sprawdzasz, czy plik nie jest
      generowany (L-0154); zmianę dowodzisz na widoku, który obejmuje jej rekordy (L-0155); test
      wydanego artefaktu czyta stan wydania (tag, worktree), nie drzewo robocze (L-0186); element
-     „pomiędzy” ma warunek na rodzaju sąsiada i test z sąsiadem własnym i obcym (L-0195).
+     „pomiędzy” ma warunek na rodzaju sąsiada i test z sąsiadem własnym i obcym (L-0195); dane
+     z repo w artefakcie mają commit-kotwicę ze stanem, który artefakt pokazuje, i liczą się
+     w worktree z `core.autocrlf=false` w folderze o nazwie repo (L-0274, L-0275).
    - **Na żywo:** widok z danych projektu mierzysz w najgorszym stanie i ograniczasz w kodzie
      (L-0158); diagnoza zaczyna się od znacznika wersji w logu (L-0159); „przed” w dwóch
      przebiegach — stary kod i stary kod z nową czystą logiką (L-0165); animacja z danych procesu
@@ -74,7 +76,7 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
      (`cat >>` z heredokiem) i `sed -i` na wierszu tabeli; seria podmian w kodzie — kilka Edit albo
      skrypt Write, także gdy „to tylko liczby” (L-0116, L-0119, L-0135, L-0148, L-0188,
      L-0192, L-0198, L-0210, L-0215, L-0242, L-0262 — „przeszło testy” nie zwalnia z reguły; `sed`
-     tylko do odczytu); ścieżka w powłoce z `/`, także składana ze zmiennych
+     tylko do odczytu, także w komentarzu — L-0276); ścieżka w powłoce z `/`, także składana ze zmiennych
      w funkcji (L-0230), dla Node z `cygpath -m`, nigdy `cygpath -w` z doklejonym `\\` (L-0265); znak niewidoczny w kodzie przez `String.fromCharCode`, nie ucieczkę
      unicode w Edit, i `grep` po bajtach po edycji (L-0258);
      tekst zastępczy `replace` nie jest dosłowny (`` $` ``, `$&`) — cudzą treść podstawiasz funkcją,
@@ -668,6 +670,37 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
 - **Zasada:** pomiar reguły w świeżej sesji niesie w wywołaniu `--allowedTools` dla każdego
   polecenia, które reguła ma uruchomić, wypisanego dosłownie. Transkrypt czytasz najpierw pod
   kątem `permission_denied`, dopiero potem treść odpowiedzi.
+
+### L-0274 — Worktree pomiarowy na Windowsie: checkout zmienia bajty, nazwa folderu zmienia dane · 2026-10-26 · AKTYWNA
+
+- **Trigger:** PIPELINE_WYDAN E4, dane filmu liczone w `git worktree` commitu-kotwicy. Pierwszy
+  przebieg: testy rdzenia w worktree 524/526 — dwa testy parzystości skilli Codeksa liczą sumy
+  na LF, a checkout z `core.autocrlf=true` (domyślne Git for Windows) dał CRLF. Drugi przebieg:
+  `sceny.json` dostał ścieżkę wznowienia `relai-film-dane-<hash>-<pid>-<czas>.md`, bo slug pliku
+  wznowienia bierze się z nazwy folderu repo — dane zmieniały się z przebiegu na przebieg.
+- **Zasada:** worktree, z którego liczysz dane albo uruchamiasz testy, zakładasz z
+  `git -c core.autocrlf=false worktree add`, w folderze o nazwie repozytorium
+  (`<tmp>/<unikalny>/<nazwa-repo>`), i sprzątasz krok po kroku (każdy krok osobno w `try`), także
+  gdy `add` padnie w połowie. Rozjazd testów rdzenia między drzewem głównym a świeżym checkoutem
+  jest znaleziskiem o końcach linii, nie o kodzie.
+
+### L-0275 — Kotwica danych „stanu etapu” nie istnieje w historii: commity są na granicach etapów · 2026-10-26 · AKTYWNA
+
+- **Trigger:** PIPELINE_WYDAN E4. Film pokazuje plan, który go zrobił, a dane przypięte do
+  `HEAD` (`b57a132`) dały pasek „E4 GOTOWY DO STARTU” bez punktów — sprzeczny z podpisem sceny
+  „Postęp liczy punkty weryfikacji z promptu etapu”. Żaden commit nie ma etapu `W TOKU`, bo
+  commity powstają przy zamknięciu etapów.
+- **Zasada:** gdy artefakt pokazuje stan pracy w toku, kotwicą jest commit pośredni zrobiony
+  w trakcie etapu, za zgodą człowieka, po odhaczeniu tego, co już przeszło. Kadr sceny
+  oglądasz na danych z kotwicy, zanim wybierzesz kotwicę — nie po renderze.
+
+### L-0276 — `sed -i` „tylko w komentarzu” to też złamanie reguły · 2026-10-26 · AKTYWNA
+
+- **Trigger:** PIPELINE_WYDAN E4: podmiana pierwszej linii komentarza w `ScenaKomend.tsx` przez
+  `sed -i`, mimo zasady 5 („`sed` tylko do odczytu”). Wynik był poprawny, a reguła złamana —
+  ten sam mechanizm co w L-0262 („to tylko liczby”).
+- **Zasada:** każda zmiana pliku z kodem idzie przez Edit albo skrypt Write, bez wyjątku na
+  komentarz, jedną linię czy oczywistą podmianę; `sed` w powłoce wyłącznie do odczytu.
 
 ## Lekcje zwinięte
 

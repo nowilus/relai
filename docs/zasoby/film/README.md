@@ -35,6 +35,15 @@ Od 2026-10-20 README nie osadza już pętli GIF: pokazuje kadr z otwarcia filmu 
 odtwarzania (`relai-film-kadr-pl.jpg`, 1676×943, klatka z 4. sekundy), który prowadzi do
 odtwarzacza na stronie (`site/pl/wideo/`, wersja EN w `site/wideo/`), a ten gra MP4 prosto
 z zasobów wydania `v3.0.0`. Pętle GIF zostają w repozytorium jako materiał źródłowy.
+Stan na 2026-10-26 (plan PIPELINE_WYDAN, E4): **film ma szesnaście komend i 176 s** (5280
+klatek; scena „Komendy” 56 s) — doszły „Humanizacja tekstu” (po „Odnodze planu”) i
+„Bezpieczeństwo zależności” (po „Kopii zapasowej”), rekwizyty i słowa PL/EN zaakceptowane przez
+Łukasza na kadrze. Finał niesie stempel „RelAI · stan z wersji {wersja}” („as of version” w EN):
+liczby finału są stanem wersji danych filmu, nie każdego późniejszego wydania. **Dane filmu mają
+kotwicę** — commit w `zrodla/src/dane/kotwica.json`: `npm run przygotuj` liczy je w tymczasowym
+`git worktree` tego commitu, a testy przeliczają je tam samo, więc zmiana repozytorium po kotwicy
+nie czerwieni testów filmu (odnoga FILM_TESTY_V3). MP4 tej wersji powstają lokalnie w `zrodla/out/`;
+zasoby wydania i adres odtwarzacza strony zmienia E5.
 
 ## Co gdzie leży
 
@@ -75,7 +84,7 @@ cd docs/zasoby/film/zrodla && npm run paski
 ```
 
 Cały film PL w pełnej jakości (MP4 1920×1080, 30 kl./s, z muzyką, siedem scen z `src/scenariusz.ts`,
-5070 klatek = 169 s = suma ich czasów) do `zrodla/out/film.mp4`:
+5280 klatek = 176 s = suma ich czasów od PIPELINE_WYDAN E4; wcześniej 5070 = 169 s) do `zrodla/out/film.mp4`:
 
 ```bash
 cd docs/zasoby/film/zrodla && npm run film
@@ -109,17 +118,23 @@ cd docs/zasoby/film/zrodla && node skrypty/petla.mjs pl
 ```
 
 Wszystkie komendy renderu najpierw odświeżają dane, manifest, fonty, znak i muzykę (`npm run przygotuj`; manifest
-uruchamia testy rdzenia, ok. 35–45 s). Podgląd na żywo: `npm run studio`. Testy (po
-`npm run przygotuj`): `npm test`; typy: `npm run typy`.
+uruchamia testy rdzenia, ok. 35–45 s). Dane i manifest liczy `npm run kotwica` w `git worktree`
+commitu z `src/dane/kotwica.json` (worktree z `core.autocrlf=false`, bajty jak w commicie; folder
+`%TEMP%/relai-film-dane-*`, sprzątany po przebiegu). Kotwicę przesuwa wyłącznie
+`node skrypty/kotwica.mjs --nowa [rev]` (domyślnie `HEAD`) — po zmianie tego, co film pokazuje,
+i przed renderem; brak kotwicy zatrzymuje `przygotuj` i testy błędem. Skrypty `dane`, `panel`,
+`sceny` i `manifest` uruchomione osobno liczą bieżące drzewo — testy przypięte do kotwicy to
+wychwycą. Podgląd na żywo: `npm run studio`. Testy (po `npm run przygotuj`): `npm test`; typy:
+`npm run typy`.
 
 ## Skąd liczby w kadrze
 
 Zasada filmu: na ekranie nie ma liczby, której nie da się wskazać w repozytorium albo w zapisie
 prawdziwej sesji. Dlatego:
 
-- **paski plan i postęp** liczy `core/panel/plan-state.mjs` i `progress.mjs` z bieżących `CLAUDE.md`,
-  `STATUS.md` aktywnego planu i promptu etapu — film pokazuje plan, który go robi, w stanie z dnia
-  renderu;
+- **paski plan i postęp** liczy `core/panel/plan-state.mjs` i `progress.mjs` z `CLAUDE.md`,
+  `STATUS.md` aktywnego planu i promptu etapu w commicie kotwicy — film pokazuje plan, który go
+  robi, w stanie z chwili kotwicy (od PIPELINE_WYDAN E4; wcześniej z dnia renderu);
 - **pasek cache** (minuty, limity, reset, kontekst, koszt sesji) nie leży w repozytorium: wartości
   są przepisane ze zrzutu prawdziwych pasków
   [`docs/fixy/AUDYT_MODOW/zrzuty/2026-10-11-z1-trzy-paski-0.12.0.png`](../../fixy/AUDYT_MODOW/zrzuty/2026-10-11-z1-trzy-paski-0.12.0.png);
@@ -128,7 +143,7 @@ prawdziwej sesji. Dlatego:
 - **liczby sceny 3** (koszty sesji, etapów i projektu, wywołania, kafle dokumentów, cennik) też nie
   leżą w repozytorium: `skrypty/panel.mjs` przepisuje je słowo w słowo ze zrzutów `relai-panel`
   0.14 z 2026-10-12 i zapisuje do `src/dane/panel.json` ze zrzutem jako źródłem; etapy planu liczy
-  `core/panel/plan-state.mjs` z bieżącego `STATUS.md`, a linię o odczycie sieciowym cennika skrypt
+  `core/panel/plan-state.mjs` ze `STATUS.md` w commicie kotwicy, a linię o odczycie sieciowym cennika skrypt
   czyta z `panel/hooks/pane-costs.tsx`; wiersze diffu w Dokumentach są cytatem `STATUS.md` ze
   zrzutu, nie faktami filmu;
 - **liczby pozostałych scen** (wersja, komendy, zamknięte plany, testy rdzenia, narzędzia, próg
