@@ -5,7 +5,7 @@
       "zrodlo": "CLAUDE.md + docs/plany/PIPELINE_WYDAN/STATUS.md przez core/panel/plan-state.mjs"
     },
     "etap": {
-      "wartosc": "E4",
+      "wartosc": "E5",
       "zrodlo": "CLAUDE.md + docs/plany/PIPELINE_WYDAN/STATUS.md przez core/panel/plan-state.mjs"
     },
     "status": {
@@ -13,11 +13,11 @@
       "zrodlo": "CLAUDE.md + docs/plany/PIPELINE_WYDAN/STATUS.md przez core/panel/plan-state.mjs"
     },
     "nazwa": {
-      "wartosc": "Film do bieżącej wersji",
+      "wartosc": "Pierwsze wydanie przez pipeline",
       "zrodlo": "CLAUDE.md + docs/plany/PIPELINE_WYDAN/STATUS.md przez core/panel/plan-state.mjs"
     },
     "zamkniete": {
-      "wartosc": 3,
+      "wartosc": 4,
       "zrodlo": "CLAUDE.md + docs/plany/PIPELINE_WYDAN/STATUS.md przez core/panel/plan-state.mjs"
     },
     "etapy": {
@@ -27,54 +27,54 @@
   },
   "postep": {
     "zrobione": {
-      "wartosc": 2,
-      "zrodlo": "docs/plany/PIPELINE_WYDAN/PROMPT_ETAP_4.md przez core/panel/progress.mjs"
+      "wartosc": 1,
+      "zrodlo": "docs/plany/PIPELINE_WYDAN/PROMPT_ETAP_5.md przez core/panel/progress.mjs"
     },
     "razem": {
       "wartosc": 11,
-      "zrodlo": "docs/plany/PIPELINE_WYDAN/PROMPT_ETAP_4.md przez core/panel/progress.mjs"
+      "zrodlo": "docs/plany/PIPELINE_WYDAN/PROMPT_ETAP_5.md przez core/panel/progress.mjs"
     },
     "slowa": {
-      "wartosc": "2 z 11 punktów",
-      "zrodlo": "docs/plany/PIPELINE_WYDAN/PROMPT_ETAP_4.md przez core/panel/progress.mjs"
+      "wartosc": "1 z 11 punktów",
+      "zrodlo": "docs/plany/PIPELINE_WYDAN/PROMPT_ETAP_5.md przez core/panel/progress.mjs"
     },
     "punkty": {
       "wartosc": [
         {
+          "status": "pending",
+          "nazwa": "Decyzje z punktu 0 (numer, miejsce MP4, mody) padły słowami Łukasza i stoją we wpisie dziennika z cytatem opcji."
+        },
+        {
+          "status": "pending",
+          "nazwa": "node core/tools/release-check.js --wydanie przed tagiem: zero czerwonych (albo czerwień z obejściem zaakceptowanym przez Łukasza i wpisem w dzienniku — zacytowanym)."
+        },
+        {
           "status": "done",
-          "nazwa": "Decyzja o finale padła słowami Łukasza i stoi we wpisie dziennika (wariant zacytowany z sekcji 9 planu); finał w kadrze PL i EN jej odpowiada."
-        },
-        {
-          "status": "done",
-          "nazwa": "Rekwizyty i slogany PL/EN /relai-humanize i /relai-security zaakceptowane przez Łukasza na kadrze przed renderem (cytat akceptacji w dzienniku, zrzuty z nazwy)."
+          "nazwa": "Nowa kontrola adresu odtwarzacza: test zielony na drzewie po zmianie i czerwony na podłożonym adresie v3.0.0 (oba w jednym przebiegu, zasada 4); node --test core/process/tests/*.test.js zielone (liczba przed: 267, po — do dziennika)."
         },
         {
           "status": "pending",
-          "nazwa": "node core/tools/release-check.js --szybko: film-komendy, film-rekwizyty, film-zakladki, film-paski, film-narzedzia zielone (CYKL 16, manifest 16); w pełnym przebiegu testy-filmu zielone; poza filmem bez nowych czerwieni (zastane modele — chyba że Łukasz zgodził się na naprawę)."
+          "nazwa": "Testy zielone: node --test core/guardrails/tests/*.test.js, node --test core/panel/tests/*.test.js, node --test adapters/codex/tests/*.test.js, testy strony, npm test filmu (37/37 albo więcej); node core/tools/validate-adapters.js → „spojne”."
         },
         {
           "status": "pending",
-          "nazwa": "npm test w docs/zasoby/film/zrodla/: N/N zielonych (liczba przed z punktu 1 i po do dziennika); ANEKS_A/ANEKS_D porównują słowo w słowo także dwie nowe komendy."
+          "nazwa": "Publikacja: każdy krok zewnętrzny miał osobne „tak” (cytaty w dzienniku); tag nowej wersji istnieje lokalnie i zdalnie; wydanie GitHub ma oba MP4 o sumach z E4 (albo z nowego renderu według punktu 0 — wtedy nowe sumy i 5280 klatek). Brak zgody → punkt opisany jako niezrealizowany, bramka OTWARTA w STATUS.md."
         },
         {
           "status": "pending",
-          "nazwa": "Dowód przypięcia (FILM_TESTY_V3): podłożona niezwiązana zmiana w repo (np. nowy plik testu rdzenia albo zmiana w aktywnym STATUS.md) — testy filmu dalej N/N; ta sama zmiana przy starym kodzie testów czerwieni (oba wyniki w jednym przebiegu — zasada 4); kontrole pozytywne testów nadal łapią podłożony defekt danych; brak kotwicy wersji → głośna czerwień; git worktree list bez pozostałości."
+          "nazwa": "Po publikacji: release-verify.js — zero rozjazdów cache wobec tagu; adres odtwarzacza PL i EN odpowiada (kod HTTP do dziennika)."
         },
         {
           "status": "pending",
-          "nazwa": "Render: out/film.mp4 i out/film-en.mp4 istnieją, długość obu w klatkach równa scenariusz.ts (liczba do dziennika, SZACUNEK 5280); muzyka.test zielony; przegląd klatek ustalonych dwóch nowych komend i finału w PL i EN (zrzuty z nazwy)."
+          "nazwa": "Pomiar automatu w dzienniku: liczba kroków komendy, liczba i treść pytań, kroki ręczne z powodem."
         },
         {
           "status": "pending",
-          "nazwa": "Odnoga FILM_TESTY_V3 zamknięta: karta ze statusem i rozstrzygniętymi punktami, wiersz w CLAUDE.md i docs/STATE.md zaktualizowany."
+          "nazwa": "Brak zmian poza zakresem: git diff --stat na ścieżkach PANEL_CODEX (docs/plany/PANEL_CODEX/, adapters/codex/panel/, docs/zasoby/PANEL_RELAI/makiety/) — pusty; .claude/launch.json poza commitem."
         },
         {
           "status": "pending",
-          "nazwa": "Testy zielone: node --test core/process/tests/*.test.js (267 przed — liczba po), node --test core/guardrails/tests/*.test.js, node --test core/panel/tests/*.test.js, node --test adapters/codex/tests/*.test.js; node core/tools/validate-adapters.js → „spojne”."
-        },
-        {
-          "status": "pending",
-          "nazwa": "Brak zmian poza zakresem: git diff --stat na site/, adapters/, panel/, progress/, cache-keeper/, mods/ i ścieżkach PANEL_CODEX (docs/plany/PANEL_CODEX/, adapters/codex/panel/, docs/zasoby/PANEL_RELAI/makiety/) — pusty; package.json i package-lock.json filmu bez zmian zależności; git tag --list 'v3.3.1' 'v3.4.0' pusty."
+          "nazwa": "Zamknięcie planu: kroki 1–9 plan-closing.md wykonane; folder planu w docs/archiwum/plany/PIPELINE_WYDAN/; linia „Aktywny plan” w CLAUDE.md wskazuje istniejący plik albo brzmi Aktywny plan: brak."
         },
         {
           "status": "pending",
@@ -82,10 +82,10 @@
         },
         {
           "status": "pending",
-          "nazwa": "Katalog roboczy .claude/relai/work/PIPELINE_WYDAN/E4/ przejrzany raportem (node .claude/relai/tools/clean-work.js raport) i skasowany po „tak”; liczby przed i po we wpisie dziennika. Artefakty spoza katalogu (out/*.mp4 filmu — zostają do E5 z sumą, worktree %TEMP%/relai-* testów, zrzuty kadrów) wypisane z nazwy razem z tym, co się z nimi stało."
+          "nazwa": "Katalog roboczy .claude/relai/work/PIPELINE_WYDAN/E5/ przejrzany raportem (node .claude/relai/tools/clean-work.js raport) i skasowany po „tak”; liczby przed i po we wpisie dziennika. Artefakty spoza katalogu (out/*.mp4 filmu — po wydaniu: zostają czy kasowane, decyzja człowieka; pliki .claude/relai/work/PIPELINE_WYDAN/* z tworzenia planu) wypisane z nazwy razem z tym, co się z nimi stało."
         }
       ],
-      "zrodlo": "docs/plany/PIPELINE_WYDAN/PROMPT_ETAP_4.md przez core/panel/progress.mjs"
+      "zrodlo": "docs/plany/PIPELINE_WYDAN/PROMPT_ETAP_5.md przez core/panel/progress.mjs"
     }
   },
   "cache": {

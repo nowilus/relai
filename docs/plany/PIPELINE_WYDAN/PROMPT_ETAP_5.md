@@ -428,12 +428,12 @@ zaraz po jego sprawdzeniu, nie na końcu etapu; punkt, który nie przeszedł, zo
 
 - [ ] Decyzje z punktu 0 (numer, miejsce MP4, mody) padły słowami Łukasza i stoją we wpisie
       dziennika z cytatem opcji.
-- [ ] `node core/tools/release-check.js --wydanie` przed tagiem: zero czerwonych (albo czerwień
+- [x] `node core/tools/release-check.js --wydanie` przed tagiem: zero czerwonych (albo czerwień
       z obejściem zaakceptowanym przez Łukasza i wpisem w dzienniku — zacytowanym).
 - [x] Nowa kontrola adresu odtwarzacza: test zielony na drzewie po zmianie i czerwony na
       podłożonym adresie `v3.0.0` (oba w jednym przebiegu, zasada 4);
       `node --test core/process/tests/*.test.js` zielone (liczba przed: 267, po — do dziennika).
-- [ ] Testy zielone: `node --test core/guardrails/tests/*.test.js`,
+- [x] Testy zielone: `node --test core/guardrails/tests/*.test.js`,
       `node --test core/panel/tests/*.test.js`, `node --test adapters/codex/tests/*.test.js`,
       testy strony, `npm test` filmu (37/37 albo więcej); `node core/tools/validate-adapters.js`
       → „spojne”.

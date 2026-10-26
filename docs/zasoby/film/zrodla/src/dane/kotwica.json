@@ -1,6 +1,6 @@
 {
   "commit": {
-    "wartosc": "cbfe85c72e1960b9bbf54b8acf0843117409e34e",
+    "wartosc": "d917011d142808d12ad166bbac98b55bb72dd256",
     "zrodlo": "git rev-parse przy node skrypty/kotwica.mjs --nowa; dane filmu liczone z git worktree tego commitu"
   }
 }

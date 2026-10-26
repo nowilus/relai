@@ -28,12 +28,12 @@
         {
           "id": "E4",
           "nazwa": "Film do bieżącej wersji",
-          "status": "W TOKU"
+          "status": "ZREALIZOWANY"
         },
         {
           "id": "E5",
           "nazwa": "Pierwsze wydanie przez pipeline",
-          "status": "OCZEKUJE"
+          "status": "W TOKU"
         }
       ],
       "zrodlo": "docs/plany/PIPELINE_WYDAN/STATUS.md przez core/panel/plan-state.mjs"

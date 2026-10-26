@@ -44,6 +44,11 @@ kotwicę** — commit w `zrodla/src/dane/kotwica.json`: `npm run przygotuj` licz
 `git worktree` tego commitu, a testy przeliczają je tam samo, więc zmiana repozytorium po kotwicy
 nie czerwieni testów filmu (odnoga FILM_TESTY_V3). MP4 tej wersji powstają lokalnie w `zrodla/out/`;
 zasoby wydania i adres odtwarzacza strony zmienia E5.
+Stan na 2026-10-26 (plan PIPELINE_WYDAN, E5): kotwica przesunięta na commit wydania 3.4.0
+(`d917011`), finał mówi „stan z wersji 3.4.0”; oba filmy wyrenderowane od nowa (5280 klatek,
+176 s; PL 29 304 183 B, EN 29 425 299 B) i idą jako zasoby wydania `v3.4.0`
+(`relai-film-pl.mp4`, `relai-film-en.mp4`). Odtwarzacz strony gra je z `v3.4.0`, a kontrola
+`strona-film` raportu wydania pilnuje, że adres odtwarzacza = tag wersji z manifestu filmu.
 
 ## Co gdzie leży
 
