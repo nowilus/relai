@@ -408,6 +408,7 @@ Każdy punkt Weryfikacji, który przeszedł, odhaczasz w `PROMPT_ETAP_1.md` (`- 
 1a. Katalog roboczy `.claude/relai/work/ZASIEG_PLUGINU/E1/` — raport, „tak”, kasowanie; liczby przed i po do wpisu z kroku 2, artefakty spoza katalogu z nazwy.
 2. Wpis w `docs/DZIENNIK.md` (+ lekcje w `docs/LEKCJE.md`, + ryzyka), podpis z członem użytkownika.
 3. Bramki manualne w `STATUS.md` z sekcji „Do zrobienia przez człowieka” tego wpisu (m.in. decyzja z PLAN sekcja 9: czy przełączyć maszynę już po E1).
-4. `docs/STATE.md` i `CLAUDE.md` (wiersz planu w „Stan prac”) — stan po E1.
+4. `docs/STATE.md` — stan po E1. Tabeli „Stan prac” w `CLAUDE.md` nie dotykasz: plan nie ma
+   tam wiersza, wskazuje go linia „Aktywny plan” (`SPEC_CLAUDE_MD.md`, poprawka 2026-10-27).
 5. **Wygenerowanie `PROMPT_ETAP_2.md`** wg `.claude/relai/templates/SPEC_PROMPT_ETAPU.md` — materiał: PLAN sekcje 5 („Punkty styku”: `/relai-adopt`, `new-project.md`, `/relai-update`, krok 1a) i 6 (E2), realny stan po E1 (nazwa i interfejs narzędzia, ścieżka pobierana z `installPath`), lekcje z tego etapu.
 6. Commit — propozycja: wyłącznie pliki tego etapu, wymienione z nazwy (`feat(core): relai-scope tool … (ZASIEG_PLUGINU E1)`).
