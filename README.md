@@ -3,7 +3,7 @@
 </p>
 
 <p align="center">
-  <em>Wersja 3.5.0 &nbsp;·&nbsp; licencja MIT &nbsp;·&nbsp; Claude Code, Cursor albo Codex, plus Node.js 14+ &nbsp;·&nbsp; zero zależności npm</em>
+  <em>Wersja 3.6.0 &nbsp;·&nbsp; licencja MIT &nbsp;·&nbsp; Claude Code, Cursor albo Codex, plus Node.js 14+ &nbsp;·&nbsp; zero zależności npm</em>
 </p>
 
 **RelAI zamienia rozmowę z agentem w prowadzony projekt.** Ustalenia, decyzje, stan prac i historia
@@ -38,7 +38,63 @@ dziennik, lekcje, decyzje, ustawienia i ściągę komend. Od tej chwili piszesz 
 aktualizują się w ramach pracy.
 
 Odmowa jest ostateczna: w tym folderze RelAI więcej się nie zaproponuje. Plugin działa w każdym
-folderze na koncie, ale pliki powstają wyłącznie tam, gdzie się zgodzisz.
+folderze na koncie, ale pliki powstają wyłącznie tam, gdzie się zgodzisz. Wolisz, żeby poza
+projektami nie ładował się wcale? Niżej tryb „RelAI tylko w projektach”.
+
+### RelAI tylko w projektach (Claude Code, od 3.6.0)
+
+Domyślnie RelAI jest włączony globalnie. W folderze bez RelAI hooki milkną, ale skille, komendy
+i agenci i tak trafiają do kontekstu każdej sesji. W trybie „RelAI tylko w projektach” plugin
+`relai` i trzy dodatki (`relai-panel`, `relai-progress`, `relai-cache-keeper`) mają w ustawieniach
+użytkownika `false`. Każdy projekt z RelAI włącza je u siebie w `.claude/settings.local.json` —
+plik lokalny, nie trafia do repozytorium ani do współpracowników. `relai-mods` zostaje włączony
+wszędzie, bo nim włączasz nowy folder.
+
+Przełącza narzędzie `relai-scope`, w PowerShellu. Najpierw ścieżka pluginu (pole `installPath`):
+
+```powershell
+$relai = ((claude plugin list --json | ConvertFrom-Json) | Where-Object id -eq 'relai@relai').installPath
+```
+
+Potem, w tym samym oknie, podgląd — niczego nie zapisuje:
+
+```powershell
+node "$relai\core\tools\relai-scope.js" status
+```
+
+Pokazuje projekty z markerem RelAI znalezione w historii sesji, planowane zmiany i pliki
+`.worktreeinclude` do utworzenia. Projektu, którego tam nie ma, dopisz jako argument (pełna ścieżka
+folderu, także przy `apply`). Przełączenie:
+
+```powershell
+node "$relai\core\tools\relai-scope.js" apply
+```
+
+Najpierw w każdym projekcie włącza zestaw lokalnie i dopisuje `.claude/settings.local.json` do
+`.worktreeinclude` (żeby dostał go nowy worktree), na końcu wyłącza globalnie. Każdy krok trafia
+do dziennika `~/.claude/relai/zasieg-pluginu.json`. Zmiana działa po `/reload-plugins` albo
+w nowej sesji. Commit `.worktreeinclude` w projektach należy do Ciebie. Cofnięcie całości:
+
+```powershell
+node "$relai\core\tools\relai-scope.js" undo
+```
+
+**Nowy folder** włączasz w kokpicie `/relai-mods`: wiersz „RelAI w tym projekcie” → Włącz → Tak,
+potem `/reload-plugins`. Bez kokpitu — w folderze projektu (`off` wyłącza):
+
+```powershell
+node "$relai\core\tools\relai-scope.js" on
+```
+
+`/relai-adopt`, „zacznijmy projekt” i `/relai-update` włączają RelAI w projekcie same. Sesję
+otwierasz w korzeniu projektu: ustawienia lokalne są czytane z folderu sesji, więc w podfolderze
+RelAI zostanie wyłączony.
+
+Narzędzie uruchamia `claude` bez powłoki. Instalacja z npm daje `claude.cmd`, którego tak nie
+uruchomi — wtedy dodaj opcję `--cli` z pełną ścieżką do pliku `.exe` albo `.js` Claude Code (plik
+`.js` uruchamia bieżący Node). Gdy CLI brak, narzędzie niczego nie zapisuje i wypisuje polecenia
+do wykonania ręcznie. Jeśli `claude plugin enable … --scope local` odpowie „is already enabled at
+local scope”, wykonaj najpierw `disable` z tym samym zakresem, a potem `enable`.
 
 **Cursor i Codex** instalują się inaczej (adapter per projekt, plugin z repozytorium) — instrukcja
 krok po kroku i aktualizacja dla wszystkich trzech narzędzi: [docs/INSTALACJA.md](docs/INSTALACJA.md).
@@ -92,7 +148,7 @@ na 2.1.308), na desktopie i w terminalu.
 | `relai-panel` (0.22.1) | nad promptem: aktywny plan, etap i status, a wiersz „Tak / Nie” tylko, gdy karta decyzji czeka; `/relai-panel` otwiera panel z sekcją „Teraz” (stan punktów widać po kształcie znaczników, cały punkt w dymku po najechaniu), formularzami szesnastu komend, mapą planów i etapów, dokumentami projektu ze zmianami od commita i kosztami sesji. Na desktopie start etapu z karty otwiera nową sesję aplikacji z komendą w polu — jeden Enter, a rozmowa, w której kliknąłeś, zostaje |
 | `relai-progress` (0.7.0) | nad promptem: lista kroków etapu w toku albo przebiegu `/relai-crew` — cienkie segmenty ze zrobionymi od lewej, jedna linia z punktem w toku i „Rozwiń”, chip agentów; `/relai-agents` — subagenci sesji z kosztem |
 | `relai-cache-keeper` (0.13.0) | nad promptem: cztery baterie w równej siatce — czas cache promptu, limit 5 h, czas do jego resetu, limit tygodniowy — pełne słowa w dymku aplikacji, i wiersz kontekstu „użyte / okno modelu · %” z kreską progu auto-compactu (z `CLAUDE_AUTOCOMPACT_PCT_OVERRIDE`) i barwą liczoną do progu; koszt sesji; podpowiada, kiedy nowa sesja się zwróci (`/cache` pokazuje rachunek). Limit planu: progi 5 h (90 %) i tygodnia (98 %) z podpisem pod baterią, karta „pracuję dalej / zapisz pracę” po turze ponad progiem, a po resecie „Wznów pracę” — czysty czat od pliku wznowienia. Progi zmieniasz w panelu, zakładka Koszty |
-| `relai-mods` (0.2.0) | `/relai-mods` otwiera kokpit modów, pluginów i hooków z `settings.json` tej maszyny, czytany z dysku: przełącznik włącza albo wyłącza plugin przez `claude plugin` z PATH, a Przeładuj w terminalu przeładowuje od razu, na desktopie prosi o wpisanie `/reload-plugins`. Hooki, pluginy z polityki i sam kokpit mają kłódkę; kokpit nie pisze do plików ustawień |
+| `relai-mods` (0.3.0) | `/relai-mods` otwiera kokpit modów, pluginów i hooków z `settings.json` tej maszyny, czytany z dysku: przełącznik włącza albo wyłącza plugin przez `claude plugin` z PATH, a Przeładuj w terminalu przeładowuje od razu, na desktopie prosi o wpisanie `/reload-plugins`. Hooki, pluginy z polityki i sam kokpit mają kłódkę. Wiersz „RelAI w tym projekcie” nad listą włącza albo wyłącza RelAI i trzy dodatki w folderze sesji (`claude plugin … --scope local`, po karcie „Tak / Nie”) i dopisuje `.claude/settings.local.json` do `.worktreeinclude` — to jedyny plik, który kokpit zapisuje sam |
 
 Paski i panel idą same za wyglądem aplikacji, jasnym albo ciemnym: tekst i ramki w kolorach
 narzędzia, panel na jednej kartce z palety Warsztat. Przełączać niczego nie trzeba.

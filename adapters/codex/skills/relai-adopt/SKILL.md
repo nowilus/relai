@@ -199,7 +199,7 @@ w Codeksie i Cursorze ten akapit pomijasz w całości), przed commitem:
 1. `claude plugin list --json` → wpis `relai@relai`, pole `installPath`. Brak wpisu albo
    polecenie nie działa → zdanie z poleceniem ręcznym (punkt 4) i idziesz dalej.
 2. `test -e "<installPath>/core/tools/relai-scope.js"` — kod 1 znaczy, że zainstalowana wersja
-   pluginu nie ma jeszcze narzędzia (np. 3.5.0): jedno zdanie o tym z poleceniem ręcznym
+   pluginu nie ma jeszcze narzędzia (wersja sprzed 3.6.0): jedno zdanie o tym z poleceniem ręcznym
    (punkt 4) i idziesz dalej. Narzędzia nie szukasz gdzie indziej.
 3. `.claude/settings.local.json` projektu ma już `false` dla pluginu z zestawu → to świadomy
    wybór (R6), `on` by go przestawił: nie wołasz narzędzia, mówisz o tym jednym zdaniem. Inaczej

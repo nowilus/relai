@@ -1,6 +1,6 @@
 # KOMENDY — RelAI
 
-RelAI 3.5.0
+RelAI 3.6.0
 
 Nic z tej listy nie jest obowiązkowe. RelAI działa w zwykłej rozmowie — piszesz normalnie,
 a struktura projektu nadąża. Komendy są skrótem do rzadszych operacji.
@@ -32,6 +32,29 @@ OpenAI) biorą się z listy modeli, a pod propozycją stoi linia `target:` z mod
 
 Pełna nazwa każdej z nich to `/relai:relai-…` (np. `/relai:relai-backup`) — wpisz `/relai` i wybierz
 z podpowiedzi; skrócona forma działa tam, gdzie podpowiadacz ją rozwinie.
+
+## Narzędzie `relai-scope` — RelAI tylko w projektach (Claude Code, od 3.6.0)
+
+Przełącza maszynę w tryb, w którym RelAI i trzy dodatki (`relai-panel`, `relai-progress`,
+`relai-cache-keeper`) są wyłączone w ustawieniach użytkownika, a włączone lokalnie w każdym
+projekcie z RelAI (`.claude/settings.local.json`). Nie jest komendą czatu — uruchamiasz je
+w PowerShellu, po ustaleniu ścieżki pluginu:
+
+```powershell
+$relai = ((claude plugin list --json | ConvertFrom-Json) | Where-Object id -eq 'relai@relai').installPath
+```
+
+| Polecenie | Co robi | Kod wyjścia |
+|---|---|---|
+| `node "$relai\core\tools\relai-scope.js" status` | podgląd: projekty z markerem z historii sesji (i z argumentów), stan teraz, planowane zmiany; nic nie zapisuje | 0 |
+| `node "$relai\core\tools\relai-scope.js" apply` | lokalne włączenie w każdym projekcie i linia w `.worktreeinclude`, na końcu globalne wyłączenie; dziennik `~/.claude/relai/zasieg-pluginu.json` | 0 — wykonane; 1 — przerwane (globalne wyłączenie nie zaszło) |
+| `node "$relai\core\tools\relai-scope.js" undo` | cofa wszystko z dziennika: najpierw poziom użytkownika, potem projekty | 0 — cofnięte albo brak dziennika (wtedy polecenia ręczne); 1 — przerwane |
+| `node "$relai\core\tools\relai-scope.js" on` | włącza RelAI w bieżącym folderze (albo w folderze podanym argumentem), bez ruszania ustawień użytkownika | 0; 1 — błąd albo folder domowy |
+| `node "$relai\core\tools\relai-scope.js" off` | to samo, wyłączenie | 0; 1 — błąd albo folder domowy |
+
+Opcje: `--cli <pełna ścieżka>` gdy `claude` jest z npm (`claude.cmd`), `--home <folder>` — inny
+katalog domowy. Zmiana działa po `/reload-plugins` albo w nowej sesji; sesję otwierasz w korzeniu
+projektu. Bez terminala: wiersz „RelAI w tym projekcie” w `/relai-mods`.
 
 ## Frazy, które działają
 
@@ -93,7 +116,13 @@ potem ponowne uruchomienie aplikacji. Czwarty plugin, kokpit pluginów i hooków
   jeden plugin przez `claude plugin enable/disable` z PATH; zmiana działa po przeładowaniu.
   Przeładuj w terminalu przeładowuje pluginy od razu, na desktopie prosi o wpisanie
   `/reload-plugins`. Hooki, pluginy z polityki i sam kokpit mają kłódkę zamiast przełącznika.
-  Kokpit nie pisze do `settings.json` ani `installed_plugins.json`.
+  Kokpit nie pisze do `settings.json` ani `installed_plugins.json`. Wiersz „RelAI w tym projekcie”
+  nad listą (od `relai-mods` 0.3.0) pokazuje stan RelAI w folderze sesji słowem i znakiem: ✓ włączony
+  w tym projekcie, ● włączony z ustawień globalnych, ◐ częściowo (np. 2/4 włączone), ○ wyłączony. Włącz albo Wyłącz
+  otwiera kartę „Tak / Nie” z plikiem, pluginami i linią worktree; po „Tak” `claude plugin
+  enable/disable --scope local` dla RelAI i trzech dodatków, a przy włączaniu w repozytorium linia
+  `.claude/settings.local.json` w `.worktreeinclude` — jedyny plik, który kokpit zapisuje sam.
+  W folderze domowym wiersza nie ma.
 - **Karta „Tak / Nie”** — start etapu, sprzątanie, aktualizacja, lista modeli i zmiana cennika idą
   z panelu dopiero po Twoim „Tak”. Etap potwierdzony na karcie startuje bez drugiego pytania w czacie.
 - **Sieć** — jedyny odczyt to strona cennika Anthropic, po „Tak” na karcie aktualizacji cennika.

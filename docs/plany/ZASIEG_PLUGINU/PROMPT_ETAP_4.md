@@ -389,7 +389,7 @@ docs/DECYZJE.md                      ostatnia D-91
 Każdy punkt Weryfikacji, który przeszedł, odhaczasz w `PROMPT_ETAP_4.md` (`- [ ]` → `- [x]`) zaraz po jego sprawdzeniu, nie na końcu etapu; punkt, który nie przeszedł, zostaje pusty.
 
 - [ ] Każde polecenie z nowego tekstu README i `KOMENDY.md` uruchomione dosłownie w PowerShellu na tej maszynie (na folderze tymczasowym albo `status`), kod i pierwsza linia wyniku do wpisu dziennika.
-- [ ] D-92 w `docs/DECYZJE.md`; `grep -n "D-92" docs/DECYZJE.md` zwraca dokładnie jeden nagłówek wpisu.
+- [x] D-92 w `docs/DECYZJE.md`; `grep -n "D-92" docs/DECYZJE.md` zwraca dokładnie jeden nagłówek wpisu.
 - [ ] Pomiar R2: wynik (kontekst startu w worktree jest / nie ma) wpisany do P-058 z wersją aplikacji i CLI.
 - [ ] Bramka maszyny rozstrzygnięta: `apply` po „tak” Łukasza, dziennik `~/.claude/relai/zasieg-pluginu.json` istnieje; pomiar w 2 projektach i 1 folderze bez RelAI z kontekstem startu sesji jako dowodem; albo — gdy Łukasz odłoży — bramka zostaje `OTWARTA` z jego datą i powodem, a punkt pusty.
 - [ ] `node core/tools/release-check.js` bez czerwieni przed publikacją; po publikacji `release-verify.js` zielony dla każdego wydanego komponentu.

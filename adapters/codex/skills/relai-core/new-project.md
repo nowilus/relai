@@ -119,7 +119,7 @@ Zasady generacji:
   Dla projektu angielskiego: `docs/STATE.md`, `docs/JOURNAL.md`, `docs/LESSONS.md`,
   `docs/DECISIONS.md`, `docs/SETTINGS.md`, `docs/COMMANDS.md`. Konwencja stała: CAPS_SNAKE, bez dat
   i numerów wersji w nazwie.
-- `docs/USTAWIENIA.md` **musi** zawierać linię `Wersja RelAI: 3.5.0` — to marker, po którym RelAI
+- `docs/USTAWIENIA.md` **musi** zawierać linię `Wersja RelAI: 3.6.0` — to marker, po którym RelAI
   rozpoznaje projekt i po którym przyszły `/relai-update` policzy różnicę wersji.
 - `CLAUDE.md` **musi** zawierać sekcję `## Reguły profilu (<wybrany profil>)` zaraz po „Regułach
   procesu" — 3–6 punktów wg `SPEC_PROFILE.md`. To jedyna warstwa reguł profilu działająca bez
@@ -154,7 +154,7 @@ pomijasz w całości), po commicie, w ramach zgody z punktu 1:
 1. `claude plugin list --json` → wpis `relai@relai`, pole `installPath`. Brak wpisu albo
    polecenie nie działa → zdanie z poleceniem ręcznym (punkt 4) i idziesz dalej.
 2. `test -e "<installPath>/core/tools/relai-scope.js"` — kod 1 znaczy, że zainstalowana wersja
-   pluginu nie ma jeszcze narzędzia (np. 3.5.0): jedno zdanie o tym z poleceniem ręcznym
+   pluginu nie ma jeszcze narzędzia (wersja sprzed 3.6.0): jedno zdanie o tym z poleceniem ręcznym
    (punkt 4) i idziesz dalej. Narzędzia nie szukasz gdzie indziej.
 3. `.claude/settings.local.json` ma już `false` dla pluginu z zestawu → to świadomy wybór,
    `on` by go przestawił: nie wołasz narzędzia, mówisz o tym jednym zdaniem. Inaczej jedno

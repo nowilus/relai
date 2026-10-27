@@ -6,7 +6,7 @@ description: "Updates a RelAI project to the version of the installed plugin —
 
 # /relai-update — aktualizacja projektu do wersji pluginu
 
-**Ta komenda pochodzi z RelAI 3.5.0** — ta liczba to wersja docelowa aktualizacji. Komenda jest
+**Ta komenda pochodzi z RelAI 3.6.0** — ta liczba to wersja docelowa aktualizacji. Komenda jest
 częścią pluginu, więc jej treść zawsze odpowiada wersji zainstalowanej; przy każdym wydaniu
 pluginu liczba w tym zdaniu jest podbijana.
 
@@ -51,7 +51,7 @@ Nie odtwarzasz historii wersja-po-wersji — porównujesz **stan projektu** z **
 wersji, z której pochodzi ta komenda. Dzięki temu projekt 0.5.0 i projekt 0.8.0 aktualizują się
 tą samą procedurą. Sprawdzasz kolejno:
 
-| Obszar | Stan docelowy 3.5.0 | Jak sprawdzasz |
+| Obszar | Stan docelowy 3.6.0 | Jak sprawdzasz |
 |---|---|---|
 | nadpisania lokalne (R6) | **nietykalne** — cokolwiek znajdziesz, omijasz | `docs/zasoby/HTML_PLAN/` istnieje? wiersz „Szablon planu HTML" w `USTAWIENIA.md`? wiersze „lokalne" w `KOMENDY.md`? |
 | `docs/USTAWIENIA.md` | wiersz `Profil projektu` z wartością maszynową na **początku** komórki: `app`, `agent-voice`, `flow` albo `prompty` | czytasz komórkę; wartość nierozpoznana → propozycja doprecyzowania (nowy wiersz, stary do „Ustawień wycofanych") — **pytasz o profil, nie zgadujesz** (L-0026) |
@@ -60,7 +60,7 @@ tą samą procedurą. Sprawdzasz kolejno:
 | `CLAUDE.md` | reguła sygnału odchylenia w „Regułach procesu" (odnoga / aneks / świadomie odłożone) | punktu brak → do dodania wg `SPEC_CLAUDE_MD.md` (sekcja „Reguła sygnału odchylenia"); nie ruszasz przy tym niczego innego w pliku |
 | `docs/USTAWIENIA.md` | wiersz `Rotacja dokumentów` z wartością `włączona` na **początku** komórki (Aneks A planu ROZWOJ_PO_WYDANIU: zgoda użytkownika na auto-rotację w istniejących projektach **jest**, nie pytasz o nią ponownie) | wiersz **już obecny — nie nadpisujesz**, także gdy stoi w nim `wyłączona`: to świadomy wybór projektu. Brak wiersza → dopisujesz go wg `SPEC_USTAWIENIA.md` z dzisiejszą datą |
 | `CLAUDE.md` | reguła rejestru decyzji po adopcji — **wyłącznie** w projekcie, który ma sekcję „Zasady projektu (odziedziczone)" | sekcja odziedziczona jest, a punktu w „Regułach procesu" brak → do dodania wg `SPEC_CLAUDE_MD.md` (sekcja „Reguła rejestru decyzji po adopcji") plus jedno zdanie pod nagłówkiem sekcji odziedziczonej. Projekt bez tej sekcji → **nic nie dodajesz**, punkt bez adresata zjada budżet 10 KB |
-| `docs/KOMENDY.md` | nagłówek `RelAI 3.5.0`, cztery frazy sesji (od 2.9.0 także „zapisz pracę” / „save my work”), tabela **szesnastu** komend (w tym `/relai-adopt`, `/relai-update`, `/relai-branch`, `/relai-clean`, `/relai-models`, `/relai-crew`, `/relai-prompt`, od 3.1.0 `/relai-humanize`, od 3.3.0 `/relai-security`), aktualna sekcja zachowań automatycznych — z rotacją dokumentów, budżetem startu sesji, przeglądem spraw przeterminowanych, sprzątaniem artefaktów roboczych, wiekiem listy modeli, sygnałem rozjazdu stanu, siatką rytuału „Na koniec" i wersji artefaktów, krokiem „gotowe z wynikiem testów", kontrolą podpisu i bramkami manualnymi — oraz akapit „Do włączenia ręcznie" o skanie sekretów przy commicie, ze zdaniem prawdziwym dla tego projektu (zainstalowany czy nie) | plik regenerowany wg `SPEC_KOMENDY.md`; wiersze oznaczone „lokalne" **przeżywają** regenerację |
+| `docs/KOMENDY.md` | nagłówek `RelAI 3.6.0`, cztery frazy sesji (od 2.9.0 także „zapisz pracę” / „save my work”), tabela **szesnastu** komend (w tym `/relai-adopt`, `/relai-update`, `/relai-branch`, `/relai-clean`, `/relai-models`, `/relai-crew`, `/relai-prompt`, od 3.1.0 `/relai-humanize`, od 3.3.0 `/relai-security`), aktualna sekcja zachowań automatycznych — z rotacją dokumentów, budżetem startu sesji, przeglądem spraw przeterminowanych, sprzątaniem artefaktów roboczych, wiekiem listy modeli, sygnałem rozjazdu stanu, siatką rytuału „Na koniec" i wersji artefaktów, krokiem „gotowe z wynikiem testów", kontrolą podpisu i bramkami manualnymi — oraz akapit „Do włączenia ręcznie" o skanie sekretów przy commicie, ze zdaniem prawdziwym dla tego projektu (zainstalowany czy nie) | plik regenerowany wg `SPEC_KOMENDY.md`; wiersze oznaczone „lokalne" **przeżywają** regenerację |
 | `docs/USTAWIENIA.md` | wiersz `Budżet startu sesji` z wartością `włączony` na **początku** komórki (nowość 1.6.0; format i progi domyślne: `SPEC_USTAWIENIA.md`) | wiersz **już obecny — nie nadpisujesz**, także gdy stoi w nim `wyłączony` albo własne progi: to świadomy wybór projektu (R6). Brak wiersza → dopisujesz go z dzisiejszą datą. Bez tego wiersza projekt nie mierzy warstwy startowej w ogóle |
 | `docs/DZIENNIK.md` | sekcja „Czeka na człowieka" pod „Stanem otwartych ryzyk" (nowość 1.6.0; `SPEC_DZIENNIK.md`) | sekcji brak → **nie zakładasz jej pustej i nie robisz tego przy okazji**. Mówisz jednym zdaniem, że projekt jej nie ma, więc rotacja blokuje się w nim po staremu, i proponujesz **jednorazową procedurę wyprowadzenia** ze skilla `relai-core` — z liczeniem przed i po. Wykonujesz ją wyłącznie po zgodzie, jako osobny krok po aktualizacji |
 | `CLAUDE.md` | linia przeglądu spraw człowieka zaraz pod linią fraz sesji (nowość 1.7.0) | linii brak, a projekt ma sekcję „Czeka na człowieka" **i** włączony przegląd → do dodania wg `SPEC_CLAUDE_MD.md` (sekcja „Linia przeglądu spraw człowieka"); projekt bez tej sekcji albo z wyłączonym przeglądem linii **nie dostaje** — reguła bez mechanizmu jest obietnicą bez pokrycia |
@@ -70,7 +70,7 @@ tą samą procedurą. Sprawdzasz kolejno:
 | `docs/USTAWIENIA.md` | wiersz `Tryb ciągły` z wartością `włączony` albo `wyłączony` na **początku** komórki (nowość 2.2.0; format i wartość domyślna: `SPEC_USTAWIENIA.md`) | wiersz **już obecny — nie nadpisujesz**, także gdy stoi w nim `wyłączony`: to świadomy wybór projektu (R6). Brak wiersza → dopisujesz go z dzisiejszą datą i wartością domyślną **`wyłączony`** — tryb ciągły włącza się jawnie, bo przerabia każdy prompt merytoryczny. Wyłącznik jest **osobny** od pozostałych i od wiersza `Model optymalizatora` |
 | `docs/USTAWIENIA.md` | wiersz `Humanizacja` (nowość 3.1.0; format: `SPEC_USTAWIENIA.md`) **nie jest** stanem docelowym aktualizacji: zapisuje go wywiad przy pierwszym `/relai-humanize`, a jego brak znaczy, że wywiadu jeszcze nie było | wiersz obecny → **nie nadpisujesz** (R6). Brak wiersza → **nic nie dopisujesz**; w podsumowaniu jedno zdanie, że `/relai-humanize` zapyta o ustawienia przy pierwszym użyciu |
 | włączenie lokalne (**tylko Claude Code** — w Codeksie i Cursorze wiersz pomijasz) | wpisy `true` zainstalowanych pluginów zestawu (`relai`, `relai-panel`, `relai-progress`, `relai-cache-keeper`) w `.claude/settings.local.json` projektu — **wyłącznie wtedy, gdy RelAI jest wyłączony globalnie**. Globalnie włączony → nic nie dopisujesz; w podsumowaniu jedno zdanie, że jest tryb „RelAI tylko w projektach”, z podglądem `node "<installPath>/core/tools/relai-scope.js" status` | globalnie: klucz `relai@relai` w `enabledPlugins` pliku `~/.claude/settings.json` (`false` = wyłączony); lokalnie: ten sam obiekt w `.claude/settings.local.json`. Lokalne `false` przy którymkolwiek pluginie zestawu **zostaje** (R6) i wtedy nie wołasz narzędzia — `on` by je przestawił; brakujące klucze podajesz jako polecenia ręczne. W pozostałych przypadkach brak wpisów → działanie do zatwierdzenia, wykonywane w kroku 4 narzędziem `relai-scope` (`installPath` z `claude plugin list --json`, wpis `relai@relai`) |
-| marker wersji | `Wersja RelAI: 3.5.0` | zmiana **na końcu**, po wykonaniu zatwierdzonych zmian |
+| marker wersji | `Wersja RelAI: 3.6.0` | zmiana **na końcu**, po wykonaniu zatwierdzonych zmian |
 
 Specyfikacje (`SPEC_PROFILE.md`, `SPEC_KOMENDY.md`) czytasz z lokalnej kopii
 `.claude/relai/templates/` — w projekcie RelAI dostarcza ją hook przy starcie sesji. Kopii nie
@@ -145,7 +145,7 @@ kolejne wywołanie tej komendy dokończyło pracę.
 
 1. Wpis na końcu sekcji „Wpisy" `docs/DZIENNIK.md` wg `SPEC_DZIENNIK.md` (D-72): wersja
    z → na, lista wykonanych zmian, lista pominiętych nadpisań lokalnych, co odrzucono.
-2. Propozycja commita: `chore: update RelAI project to 3.5.0`. Commit wyłącznie za zgodą.
+2. Propozycja commita: `chore: update RelAI project to 3.6.0`. Commit wyłącznie za zgodą.
 3. Podsumowanie 2–4 zdania: co się zmieniło, czego nie ruszono i dlaczego, czy coś czeka na
    człowieka.
 

@@ -6,7 +6,8 @@ modami, poprawki zgłoszeń #1–#3 z GitHuba, zgłoszenia zamknięte; poprzedni
 
 ## Gdzie jesteśmy
 
-RelAI **3.5.0** jest w repozytorium i publicznie (tag `v3.5.0`, 2026-10-27: poprawki zgłoszeń
+RelAI **3.6.0** jest w repozytorium (wydanie w E4 ZASIEG_PLUGINU: tryb „RelAI tylko w projektach”);
+poprzednie publiczne 3.5.0 (tag `v3.5.0`, 2026-10-27: poprawki zgłoszeń
 #1–#3 z GitHuba — plan ZGLOSZENIA; wcześniej 3.4.0 z pipeline'em wydań). Plugin `relai` działa
 w trzech narzędziach — Claude Code, Cursorze i Codeksie — na jednym rdzeniu procesu, z szesnastoma
 komendami i czternastoma hookami w Claude Code (czternasty: `session-title`). Marketplace tego

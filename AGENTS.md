@@ -35,11 +35,11 @@ o kolejne `N` dni / rozstrzygnąć teraz. Sesja nieinteraktywna: sam raport, bez
 
 | Co | Status | Gdzie |
 |---|---|---|
-| Plugin RelAI — wydany, trzy adaptery | DZIAŁA (3.5.0 w repo i publicznie, wydane 2026-10-27 — zgłoszenia #1–#3; 3.4.0 z 2026-10-26 — pipeline wydań; w marketplace także cztery mody, każdy z własnym tagiem i wydaniem: relai-panel 0.22.0, relai-progress 0.7.0, relai-cache-keeper 0.13.0 („early access”) i relai-mods 0.2.0) | [docs/STATE.md](docs/STATE.md) |
-| Plany zamknięte | 19, ostatni ZGLOSZENIA 2026-10-27 (wydanie 3.5.0) | [archiwum planów](docs/archiwum/plany/), [docs/STATE.md](docs/STATE.md) |
+| Plugin RelAI — wydany, trzy adaptery | DZIAŁA (3.6.0 w repo i publicznie, wydane 2026-10-27 — tryb „RelAI tylko w projektach”; zgłoszenia #1–#3 w 3.5.0 z tego samego dnia; w marketplace także cztery mody, każdy z własnym tagiem i wydaniem: relai-panel 0.22.1, relai-progress 0.7.0, relai-cache-keeper 0.13.0 („early access”) i relai-mods 0.3.0) | [docs/STATE.md](docs/STATE.md) |
+| Plany zamknięte | 19, ostatni ZGLOSZENIA 2026-10-27 (wydanie w 3.5.0) | [archiwum planów](docs/archiwum/plany/), [docs/STATE.md](docs/STATE.md) |
 | Odnogi i wątki samodzielne | 1 otwarta: `OPIS_REPO` (od 2026-09-24); zamknięte — karty w [docs/fixy/](docs/fixy/) | [docs/STATE.md](docs/STATE.md) |
 
-Aktywny plan: [ZASIEG_PLUGINU](docs/plany/ZASIEG_PLUGINU/STATUS.md) — w Claude Code, ZAAKCEPTOWANY 2026-10-27, E1–E3 zrealizowane, E4 gotowy do startu (RelAI tylko w zaadoptowanych projektach). [PANEL_CODEX](docs/plany/PANEL_CODEX/STATUS.md) (Codex) **nieaktywny — WSTRZYMANY 2026-10-27** decyzją Łukasza. Ostatni zamknięty: [ZGLOSZENIA](docs/archiwum/plany/ZGLOSZENIA/STATUS.md), 2026-10-27 (wydanie 3.5.0 z czterema modami, zgłoszenia GitHub #1–#3 zamknięte).
+Aktywny plan: [ZASIEG_PLUGINU](docs/plany/ZASIEG_PLUGINU/STATUS.md) — w Claude Code, ZAAKCEPTOWANY 2026-10-27, E1–E3 zrealizowane, E4 W TOKU (RelAI tylko w zaadoptowanych projektach). [PANEL_CODEX](docs/plany/PANEL_CODEX/STATUS.md) (Codex) **nieaktywny — WSTRZYMANY 2026-10-27** decyzją Łukasza. Ostatni zamknięty: [ZGLOSZENIA](docs/archiwum/plany/ZGLOSZENIA/STATUS.md), 2026-10-27 (wydanie w 3.5.0 z czterema modami, zgłoszenia GitHub #1–#3 zamknięte).
 
 ## Reguły procesu
 
