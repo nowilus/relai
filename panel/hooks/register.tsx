@@ -43,7 +43,7 @@ import { crewTag } from './core/attribution.mjs'
 import { MERGE_FILE, serializeMerges } from './core/flow.mjs'
 import type { Merges } from './core/flow.mjs'
 import { CLEAN_ARGV, cleanCard, cleanChoices, commandCard, consentFile, consentOf, consentPath, crewCard, crewDraft, crewTasksPath, hasConsent, stageArgs, togglePick, stageCard, stageToStart, stripConsent, usedConsent, withConsent } from './core/decisions.mjs'
-import { HANDOFF_PATH, START_SERVER, START_TOOL, chatOf, deepLink, handoffFile, handoffOf, hasStartSession, linkedStage, openArgv, platformOf, startSessionArgs, usedHandoff } from './launch'
+import { HANDOFF_PATH, START_SERVER, START_TOOL, chatOf, deepLink, handoffFile, handoffOf, hasStartSession, isClassifierRefusal, linkedStage, openArgv, platformOf, startSessionArgs, usedHandoff } from './launch'
 import type { ChatMode } from './launch'
 import { promptLink } from './core/progress.mjs'
 import { globalPath, projectPath, sessionPath, thresholdsOf } from './core/limit-threshold.mjs'
@@ -614,9 +614,17 @@ async function openSession($: $T, a: Extract<Action, { kind: 'newSession' }>, na
 
 async function launch($: $T, a: Extract<Action, { kind: 'newSession' }>, text: string): Promise<'link' | 'app'> {
   if (await offersStart($)) {
-    const r = await $.mcp.call(START_SERVER, START_TOOL, startSessionArgs(a.topic, a.stage, text, a.name))
-    if (r.isError) throw new Error(r.content.map((b) => ('text' in b ? String(b.text) : '')).join(' ').trim() || 'aplikacja odmówiła startu sesji')
-    return 'app'
+    let r: Awaited<ReturnType<typeof $.mcp.call>> | null = null
+    try {
+      r = await $.mcp.call(START_SERVER, START_TOOL, startSessionArgs(a.topic, a.stage, text, a.name))
+    } catch (err) {
+      // Auto mode: the classifier, not the person, refused the call — the link below still opens it
+      if (!isClassifierRefusal(err instanceof Error ? err.message : String(err))) throw err
+    }
+    if (r !== null) {
+      if (r.isError) throw new Error(r.content.map((b) => ('text' in b ? String(b.text) : '')).join(' ').trim() || 'aplikacja odmówiła startu sesji')
+      return 'app'
+    }
   }
   const os = await platform($)
   if (os === null) throw new Error('nie rozpoznano systemu, więc nie ma czym otworzyć linku')
