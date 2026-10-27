@@ -7,13 +7,12 @@ BEZPIECZENSTWO 2026-10-25 — wydanie 3.3.0, RELAI_MODS 2026-10-24, STRONA_RELAI
 
 ## Gdzie jesteśmy
 
-RelAI **3.4.0** jest w repozytorium i publicznie (tag `v3.4.0`, 2026-10-26: pipeline wydań — plan
-PIPELINE_WYDAN; wcześniej 3.3.0 z bezpieczeństwem zależności i kodu). Plugin `relai` działa
+RelAI **3.5.0** jest w repozytorium (2026-10-27: poprawki zgłoszeń #1–#3 z GitHuba — plan
+ZGLOSZENIA, wydanie w E5; publicznie do tego czasu 3.4.0 z pipeline'em wydań). Plugin `relai` działa
 w trzech narzędziach — Claude Code, Cursorze i Codeksie — na jednym rdzeniu procesu, z szesnastoma
-komendami i trzynastoma hookami w Claude Code (w repo czternaście — `session-title` z E4 planu
-ZGLOSZENIA, niewydany). Marketplace tego repozytorium niesie też cztery
-mody bez zmian w 3.4.0: `relai-panel` 0.21.2, `relai-progress` 0.6.1, `relai-cache-keeper` 0.12.0
-(„early access”) i kokpit `relai-mods` 0.1.2. Wydanie robi się teraz frazą „gotowi do wydania?”
+komendami i czternastoma hookami w Claude Code (czternasty: `session-title`). Marketplace tego
+repozytorium niesie też cztery mody: `relai-panel` 0.22.0, `relai-progress` 0.7.0,
+`relai-cache-keeper` 0.13.0 („early access”) i kokpit `relai-mods` 0.2.0. Wydanie robi się teraz frazą „gotowi do wydania?”
 (`/relai-release`): raport `release-check.js`, naprawy po jednej zgodzie, publikacja krok po kroku,
 bramka `pre-push` na tagi. Aktywnego planu Claude Code nie ma; równolegle w Codeksie trwa
 PANEL_CODEX (E1 w toku). Opinii spoza projektu nadal nie ma.

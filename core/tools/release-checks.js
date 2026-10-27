@@ -558,6 +558,14 @@ function kontrolaStaryNumer(ctx) {
   const numer = stary.replace(/\./g, '\\.') + '(?![0-9]|\\.[0-9])';
   const re = new RegExp('(^|[^0-9.])' + numer);
   const przeszlosc = new RegExp('(^|[^\\p{L}\\p{N}])(?:' + SLOWA_PRZESZLOSCI.join('|') + ')\\s+v?' + numer, 'giu');
+  // Odtwarzacz wskazuje zasoby wydania, w ktorym powstal film (kontrola strona-film), wiec adres
+  // zasobu z wersji filmu nie jest deklaracja stanu (ZGLOSZENIA, Aneks A). Tylko w odtwarzaczach.
+  const man = manifestFilmu(ctx.korzen);
+  const wersjaFilmu = man && man.wersja && man.wersja.wartosc;
+  const zasobFilmu = wersjaFilmu
+    ? new RegExp('releases/download/v' + String(wersjaFilmu).replace(/\./g, '\\.') + '/relai-film-[a-z]+\\.mp4', 'g')
+    : null;
+  const odtwarzacze = new Set(ODTWARZACZE.map(([rel]) => rel));
   const trafienia = [];
   let przejrzane = 0;
   for (const rel of ctx.pliki) {
@@ -566,7 +574,9 @@ function kontrolaStaryNumer(ctx) {
     try { buf = fs.readFileSync(path.join(ctx.korzen, rel)); } catch (_) { continue; }
     if (buf.length > 2 * 1024 * 1024 || buf.includes(0)) continue;
     przejrzane++;
-    if (re.test(buf.toString('utf8').replace(przeszlosc, '$1'))) trafienia.push(rel);
+    let tekst = buf.toString('utf8').replace(przeszlosc, '$1');
+    if (zasobFilmu && odtwarzacze.has(rel)) tekst = tekst.replace(zasobFilmu, '');
+    if (re.test(tekst)) trafienia.push(rel);
   }
   w.sprawdzono = przejrzane;
   const czerwien = ctx.wersja !== stary;

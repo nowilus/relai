@@ -663,8 +663,13 @@ zamknięcie dnia pyta o plik wznowienia, a nowa sesja dostaje nazwę od planu i 
 
 <section id="s10">
   <svg class="pinezka" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="9" r="7" fill="#5f8a68"/><circle cx="9.5" cy="6.5" r="2.2" fill="rgba(255,255,255,.5)"/><path d="M12 16v6" stroke="#456338" stroke-width="2" stroke-linecap="round"/></svg>
-  <div class="tyt-sek"><span class="nr">10</span><h2>Aneksy</h2><span class="szept">pusto do akceptacji</span></div>
-  <p>Do akceptacji pusta. Po akceptacji sekcje 1–9 są zamrożone; zmiany wyłącznie tutaj, jako datowane aneksy A, B, C… Zmiana celu albo wybranego wariantu oznacza status CZĘŚCIOWO ZREALIZOWANY i nowy plan z linkiem do tego.</p>
+  <div class="tyt-sek"><span class="nr">10</span><h2>Aneksy</h2><span class="szept">zamrożony 2026-10-26</span></div>
+  <p>Po akceptacji sekcje 1–9 są zamrożone; zmiany wyłącznie tutaj, jako datowane aneksy A, B, C… Zmiana celu albo wybranego wariantu oznacza status CZĘŚCIOWO ZREALIZOWANY i nowy plan z linkiem do tego.</p>
+
+  <h3>Aneks A · 2026-10-27 — adres filmu w odtwarzaczu nie jest starym numerem</h3>
+  <p><strong>Powód:</strong> w E5, po podbiciu 3.4.0 → 3.5.0, kontrola <code>stary-numer</code> w trybie <code>--wydanie</code> została czerwona na <code>site/wideo/index.html</code> i <code>site/pl/wideo/index.html</code>. Oba odtwarzacze wskazują zasoby wydania <code>v3.4.0</code>, bo film powstał w 3.4.0, i tego samego adresu wymaga kontrola <code>strona-film</code>. Dwie kontrole przeczą sobie przy każdym wydaniu bez nowego renderu filmu, a bramka <code>pre-push</code> odmówiłaby tagu. Łukasz wybrał 2026-10-27 aneks z poprawką i testem w E5 zamiast obejścia albo odnogi.</p>
+  <p><strong>Zmiana</strong> (sekcja 6, wiersz E5): w dwóch stronach odtwarzacza kontrola <code>stary-numer</code> pomija adres zasobu wydania <code>releases/download/v&lt;wersja filmu&gt;/relai-film-*.mp4</code>, gdzie wersja filmu pochodzi z manifestu filmu, tego samego źródła co w <code>strona-film</code>. Numer bazy w innym miejscu tych stron, ten sam adres poza odtwarzaczem i adres starego wydania przy filmie z innej wersji zostają czerwienią. Test w <code>release-check.test.js</code> z kontrolą pozytywną, czerwony przed poprawką.</p>
+  <p><strong>Bez zmian:</strong> kontrola <code>strona-film</code>, lista słów zapisu przeszłości, ścieżki historyczne w <code>release-map.json</code>, zakres wydania.</p>
 </section>
 
 <footer>

@@ -385,6 +385,28 @@ test('stary-numer: zapis przeszlosci (slowo z zamknietej listy przed numerem) po
   assert.match(bledy, /wydanie-d\.md/);
 });
 
+test('stary-numer: adres filmu w zasobach wydania z wersji filmu pominiety w odtwarzaczu, inne wystapienia czerwone (ZGLOSZENIA, Aneks A)', (t) => {
+  const f = repo(t);
+  f.zapisz('.claude-plugin/plugin.json', JSON.stringify({ name: 'relai', version: '1.1.0' }));
+  f.commit('chore: 1.1.0');
+  // Film z wersji bazy, odtwarzacze na jego zasobach: strona-film zielona, stary-numer bez odtwarzaczy.
+  assert.deepEqual(f.uruchom(['--tylko', 'strona-film']).k('strona-film').bledy, []);
+  const czysty = f.uruchom(['--tylko', 'stary-numer']).k('stary-numer').bledy.join('\n');
+  assert.doesNotMatch(czysty, /wideo\/index\.html/);
+  // Kontrola pozytywna: numer bazy poza adresem zasobu w tej samej stronie i ten sam adres poza odtwarzaczem.
+  f.zapisz('site/wideo/index.html', f.czytaj('site/wideo/index.html') + '<p>RelAI 1.0.0</p>\n');
+  f.zapisz('docs/link-e.md', 'https://github.com/nowilus/relai/releases/download/v1.0.0/relai-film-en.mp4\n');
+  f.commit('chore: numer poza adresem');
+  const bledy = f.uruchom(['--tylko', 'stary-numer']).k('stary-numer').bledy.join('\n');
+  assert.match(bledy, /site\/wideo\/index\.html/);
+  assert.doesNotMatch(bledy, /site\/pl\/wideo\/index\.html/);
+  assert.match(bledy, /docs\/link-e\.md/);
+  // Film z innej wersji niz adres: adres starego wydania w odtwarzaczu znow jest trafieniem.
+  f.zapisz('docs/zasoby/film/zrodla/src/dane/manifest.json', f.czytaj('docs/zasoby/film/zrodla/src/dane/manifest.json').split('"1.0.0"').join('"1.1.0"'));
+  f.commit('chore: film 1.1.0');
+  assert.match(f.uruchom(['--tylko', 'stary-numer']).k('stary-numer').bledy.join('\n'), /site\/pl\/wideo\/index\.html/);
+});
+
 test('mapa: komenda projektowa .claude/commands/*.md w dokladnie jednym wierszu, bez wydania', () => {
   const w = wierszeDla(MAPA, '.claude/commands/relai-release.md');
   assert.deepEqual(w.map((x) => x.id), ['komenda-projektowa']);

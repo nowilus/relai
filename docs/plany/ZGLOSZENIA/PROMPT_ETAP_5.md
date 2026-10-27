@@ -407,7 +407,7 @@ wpisujesz do wpisu dziennika **z nazwy**, a jego nazwę zaczynasz od slugu proje
 Każdy punkt Weryfikacji, który przeszedł, odhaczasz w `PROMPT_ETAP_5.md` (`- [ ]` → `- [x]`)
 zaraz po jego sprawdzeniu, nie na końcu etapu; punkt, który nie przeszedł, zostaje pusty.
 
-- [ ] `node core/tools/release-check.js --wydanie` bez czerwieni dla wydawanych komponentów
+- [x] `node core/tools/release-check.js --wydanie` bez czerwieni dla wydawanych komponentów
       (wynik przed tagiem we wpisie).
 - [ ] Tagi wypchnięte przez bramkę `pre-push` bez obejścia; wydania GitHub istnieją
       (`gh release view <tag>` dla każdego).

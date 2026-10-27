@@ -101,7 +101,7 @@ blokuje wydanie.
 
 Warunek wejścia: `node core/tools/release-check.js --json --wydanie` → kod 0. Z `--rev` publikacji
 nie ma. Każdy krok **zewnętrzny** (oznaczony ⚑) to **osobne pytanie i osobne „tak”**; „tak” na
-jeden krok nie obejmuje następnego. Kolejność (P-005; pierwszy przebieg tą komendą: RelAI 3.4.0,
+jeden krok nie obejmuje następnego. Kolejność (P-005; pierwszy przebieg tą komendą w 3.4.0,
 plan PIPELINE_WYDAN E5):
 
 Wydanie niesie nowe MP4 filmu (render od poprzedniego wydania) → przed commitem tekst obu
