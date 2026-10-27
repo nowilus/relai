@@ -13,8 +13,8 @@ komendami i czternastoma hookami w Claude Code (czternasty: `session-title`). Ma
 repozytorium niesie też cztery mody: `relai-panel` 0.22.0, `relai-progress` 0.7.0,
 `relai-cache-keeper` 0.13.0 („early access”) i kokpit `relai-mods` 0.2.0. Wydanie robi się teraz frazą „gotowi do wydania?”
 (`/relai-release`): raport `release-check.js`, naprawy po jednej zgodzie, publikacja krok po kroku,
-bramka `pre-push` na tagi. Aktywnego planu Claude Code nie ma; równolegle w Codeksie trwa
-PANEL_CODEX (E1 w toku). Opinii spoza projektu nadal nie ma.
+bramka `pre-push` na tagi. Aktywny plan: ZASIEG_PLUGINU (Claude Code, E1 gotowy do startu);
+PANEL_CODEX (Codex) wstrzymany 2026-10-27 decyzją Łukasza. Opinii spoza projektu nadal nie ma.
 
 ## Co działa
 
@@ -92,17 +92,16 @@ PANEL_CODEX (E1 w toku). Opinii spoza projektu nadal nie ma.
 
 ## Nad czym pracujemy teraz
 
-- **PANEL_CODEX, E1 — przejęcie rdzenia i natywny panel w Codeksie** (plan
-  [PANEL_CODEX](plany/PANEL_CODEX/STATUS.md), ZAAKCEPTOWANY 2026-10-10, 8 etapów, autor
-  i wykonawca `gpt-6.1-sol` w Codeksie, Aneks A zaakceptowany). Natywny widok i wiadomość do
-  bieżącego czatu potwierdzone sondą 0.0.7; pakiet `adapters/codex/panel/` 0.1.0 (13 testów)
-  pokazuje właściwy stan, układ zaakceptowany; sonda 0.0.9 z poprawką fontów czeka na pomiar po
-  przeładowaniu macierzystego procesu. Tabela STATUS planu pokazuje jeszcze `GOTOWY DO STARTU` —
-  do wyprostowania na `W TOKU`. Kontrakt w [README adaptera](../adapters/codex/panel/README.md).
 - **ZASIEG_PLUGINU — ZAAKCEPTOWANY 2026-10-27, E1 gotowy do startu** (plan
   [ZASIEG_PLUGINU](plany/ZASIEG_PLUGINU/STATUS.md), 4 etapy): tryb „RelAI tylko w zaadoptowanych projektach” — globalnie
   `false`, lokalnie `true` przy adopcji, narzędzie `relai-scope` (status / apply / undo),
   przycisk w `relai-mods`. Zadanie z sesji PolyFlow-rust po `/doctor` (`relai` = 16% zużycia).
+- **PANEL_CODEX — nieaktywny, WSTRZYMANY 2026-10-27** decyzją Łukasza (plan
+  [PANEL_CODEX](plany/PANEL_CODEX/STATUS.md), ZAAKCEPTOWANY 2026-10-10, 8 etapów, Codex
+  `gpt-6.1-sol`). Stan zatrzymania E1: natywny widok i wiadomość do bieżącego czatu potwierdzone
+  sondą 0.0.7; pakiet `adapters/codex/panel/` 0.1.0 (13 testów) pokazuje właściwy stan; sonda
+  0.0.9 z poprawką fontów czeka na pomiar. Wznowienie tylko decyzją Łukasza. Kontrakt
+  w [README adaptera](../adapters/codex/panel/README.md).
 - **W repo, niewydane (2026-10-27, miniplan):** `relai-panel` 0.22.1 — karta „Etap planu”
   w trybie auto otwiera nową sesję deep linkiem po odmowie klasyfikatora (P-057); numer podbity,
   wydanie i wpis wynikowy miniplanu jeszcze nie powstały.
@@ -136,8 +135,8 @@ PANEL_CODEX (E1 w toku). Opinii spoza projektu nadal nie ma.
   ciągłego (decyzje Łukasza 2026-10-15).
 - Aneks do PANEL_CODEX z zapisem pracy przed limitem dla panelu Codeksa — po domknięciu jego E1
   (decyzja Łukasza 2026-10-12). Przepięcie `prompt-mode.js` na `threshold.js` odłożone.
-- PANEL_CODEX E1: przeładować klienta MCP, zmierzyć sondę 0.0.9 (fonty, przyciski, świeży szkic);
-  prompt E2 dopiero po odbiorze E1.
+- PANEL_CODEX E1 (po wznowieniu planu decyzją Łukasza): przeładować klienta MCP, zmierzyć sondę
+  0.0.9 (fonty, przyciski, świeży szkic); prompt E2 dopiero po odbiorze E1.
 - Ustalenia poza zakresem audytu modów (pięć pozycji `outOfScope`, wariant B „jedna listwa”) —
   decyzja człowieka: plan, odnoga albo odrzucić.
 - Bramki świadomie otwarte: start etapu z karty panelu bez drugiego pytania (E5 PANEL_CLAUDE);
@@ -192,7 +191,7 @@ panelu `core/panel/*.mjs`. **Adapter Claude Code**: dwa skille z plikami doczyty
 `trivy-scan` i kopia `security-audit` Cloudflare, 16 komend, 4 agenci, 14 hooków, lista modeli
 z 2026-10-08. **Adapter Cursor**: trzy reguły `.mdc`, dwa hooki, instalator, cztery skille.
 **Adapter Codex**: manifest, 16 skilli komend i 4 dołączone, router `AGENTS.md`, cztery hooki
-(z `lockfile-scan`); pakiet panelu `adapters/codex/panel/` w budowie (PANEL_CODEX E1).
+(z `lockfile-scan`); pakiet panelu `adapters/codex/panel/` w budowie wstrzymanej (PANEL_CODEX E1, od 2026-10-27).
 
 ### Pluginy panelu (Claude Code Mods, „early access”, zmierzone na 2.1.295)
 
@@ -216,8 +215,8 @@ zamknięte: [docs/archiwum/plany/](archiwum/plany/) • Backupy: `C:\Users\Lukas
 
 ### Liczby
 
-Plany zamknięte: 19 (ostatni ZGLOSZENIA, 2026-10-27) • Aktywne: PANEL_CODEX (E1 W TOKU,
-Codex) • Start sesji: 115,2 KB / 100 KB na starcie 2026-10-27 • Dziennik: 178 KB / 150 KB (do
+Plany zamknięte: 19 (ostatni ZGLOSZENIA, 2026-10-27) • Aktywne: ZASIEG_PLUGINU (E1 gotowy do
+startu, Claude Code) • Wstrzymane: PANEL_CODEX (Codex, od 2026-10-27) • Start sesji: 115,2 KB / 100 KB na starcie 2026-10-27 • Dziennik: 178 KB / 150 KB (do
 rotacji) • Ryzyka: 20 w tabeli, 17,5 KB / 12 KB (dolna granica — same otwarte), archiwum 12
 plików • Lekcje: 56,5 KB / 50 KB (do rotacji) • Adaptery: 3 • Komendy: 16 • Hooki Claude Code: 14
 • Testy (2026-10-27, raport wydania 3.5.0): rdzeń, panel i Codex 564, strona 396, film 37

@@ -2441,3 +2441,30 @@ Prośba Łukasza: wyrównać prace dwóch sesji, żeby E1 ZASIEG_PLUGINU ruszył
 (pięć plików bez raportu, w tym `register.test.ts` dotknięty poprawką 0.22.1).
 
 Autor: RelAI (Opus 5.5) + Lukasz
+
+### 2026-10-27 — PANEL_CODEX wstrzymany, aktywny plan ZASIEG_PLUGINU we wszystkich dokumentach
+
+Decyzja Łukasza: aktywnym planem jest ZASIEG_PLUGINU, PANEL_CODEX ma być jawnie nieaktywny.
+
+**Zrobione:**
+
+- `docs/plany/PANEL_CODEX/STATUS.md`: status planu `WSTRZYMANY 2026-10-27` (SPEC_STATUS: praca
+  przerwana, plan obowiązuje) i linia w dzienniku wdrożenia; tabela etapów bez zmian.
+- `CLAUDE.md`: wiersz PANEL_CODEX usunięty z tabeli „Stan prac” (reguła „plan bez wiersza”,
+  zostają 3 wiersze), linia „Aktywny plan” — ZASIEG_PLUGINU, PANEL_CODEX jako wstrzymany.
+- `AGENTS.md` (instrukcje Codeksa): linia „Aktywny plan” wskazywała PANEL_CODEX — teraz
+  ZASIEG_PLUGINU z zakazem podejmowania etapów PANEL_CODEX bez nowej decyzji; wiersz planu z tabeli
+  usunięty.
+- `docs/STATE.md`: „Gdzie jesteśmy”, „Nad czym pracujemy” (PANEL_CODEX jako wstrzymany, ze stanem
+  zatrzymania E1), „Co dalej”, opis adaptera Codex i liczby.
+
+**Zweryfikowane — jak dokładnie:** `grep PANEL_CODEX` w `CLAUDE.md`, `AGENTS.md`, `docs/STATE.md`
+— żadne miejsce nie nazywa go aktywnym; `stateDrift` na repo bez faktów; testy `core/process`.
+
+**Świadomie odłożone:** `AGENTS.md` poza linią aktywnego planu jest nieaktualny wobec `CLAUDE.md`
+(tabela 12 wierszy, panel 0.15.0) — pełna synchronizacja osobno. Worktree Codeksa
+`codex/panel-codex` nietknięty.
+
+**Do zrobienia przez człowieka:** —
+
+Autor: RelAI (Opus 5.5) + Lukasz

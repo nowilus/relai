@@ -27,7 +27,6 @@ o kolejne `N` dni / rozstrzygnąć teraz. Sesja nieinteraktywna: sam raport, bez
 
 | Co | Status | Gdzie |
 |---|---|---|
-| Plan PANEL_CODEX | ZAAKCEPTOWANY 2026-10-10; E1 W TOKU — natywny widok i mostek bieżącego czatu potwierdzone; układ zaakceptowany; sonda 0.0.9 z poprawką fontów gotowa; pomiar po restarcie i świeży szkic czekają | [status](docs/plany/PANEL_CODEX/STATUS.md) |
 | Plugin RelAI — wydany, trzy adaptery | DZIAŁA (3.0.0 w repo i publicznie, wydane 2026-10-13; w marketplace także trzy pluginy panelu „early access”: relai-panel 0.15.0, relai-progress 0.4.0, relai-cache-keeper 0.7.0 — linia w stopce każdej sesji od 2026-10-13) | [docs/STATE.md](docs/STATE.md) |
 | Plan PANEL_CLAUDE — 9 etapów | **ZREALIZOWANY 2026-10-10** (9/9, Aneksy A–E, wydanie 2.8.0; pomiar bramki E5 pominięty decyzją człowieka) | [archiwum planu](docs/archiwum/plany/PANEL_CLAUDE/STATUS.md) |
 | Plan BUDOWA_RELAI — 10 etapów | ZAMKNIĘTY 2026-08-10 | [archiwum planu](docs/archiwum/plany/BUDOWA_RELAI/STATUS.md) |
@@ -41,11 +40,11 @@ o kolejne `N` dni / rozstrzygnąć teraz. Sesja nieinteraktywna: sam raport, bez
 | Plan OPTYMALIZATOR_PROMPTOW — 5 etapów | **ZREALIZOWANY 2026-09-15** (5/5, Aneksy A i B, wydanie 2.2.0) | [archiwum planu](docs/archiwum/plany/OPTYMALIZATOR_PROMPTOW/STATUS.md) |
 | Odnogi i wątki samodzielne | 2 otwarte: `AUDYT_MODOW` (od 2026-10-10, `docs/fixy/` — mody Claude Code po audycie, 9 paczek, wykonawca Opus 5.5, [karta](docs/fixy/AUDYT_MODOW/ODNOGA.md)) i `OPIS_REPO` (od 2026-09-24); `ORKIESTRACJA` zamknięta 2026-09-06 (2.1.0 w repo), `PRECOMMIT_ESM` 2026-09-04 wydaniem 1.9.2, `CURSOR_1_9_1` tego samego dnia | [docs/STATE.md](docs/STATE.md) |
 
-Aktywny plan: [PANEL_CODEX](docs/plany/PANEL_CODEX/STATUS.md) — panel RelAI dla Codeksa, **ZAAKCEPTOWANY 2026-10-10**; E1 **W TOKU**; Aneks A (16 pól) zaakceptowany; sonda 0.0.7 dowiodła natywnego widoku i wiadomości do tego czatu; pakiet 0.1.0 podłożony sondą 0.0.8 pokazuje właściwy stan w czacie kontrolnym 01a12590-0b6d-7d40-affe-7e54f80313da, układ zaakceptowany; natywne fonty wymagały poprawki, sonda 0.0.9 gotowa do pomiaru. Macierzysty proces nadal 0.0.7/PID 62300 — fonty i próba szkicu po przeładowaniu. Dalsza diagnostyka w czacie kontrolnym zatwierdzona, bez mostków przez ten czat; autor i wykonawca `gpt-6.1-sol` w Codeksie (sesja xhigh, zalecany high); D-80 rozszerzona na adapter Codeksa.
+Aktywny plan: [ZASIEG_PLUGINU](docs/plany/ZASIEG_PLUGINU/STATUS.md) — prowadzony w Claude Code, ZAAKCEPTOWANY 2026-10-27, E1 gotowy do startu. [PANEL_CODEX](docs/plany/PANEL_CODEX/STATUS.md) **nieaktywny — WSTRZYMANY 2026-10-27** decyzją Łukasza (stan E1 w jego STATUS); w Codeksie nie podejmuj jego etapów bez nowej decyzji Łukasza.
 
 ## Reguły procesu
 
-- **PANEL_CODEX (wybór 2026-10-08):** autor planu i wykonawca etapów — `gpt-6.1-sol` w Codeksie, w świeżych sesjach. Plan jest osobny i rusza dopiero po pełnym zamknięciu PANEL_CLAUDE oraz akceptacji PANEL_CODEX; jego E1 pozostaje `OCZEKUJE` do spełnienia bramek.
+- **PANEL_CODEX (wybór 2026-10-08; plan WSTRZYMANY 2026-10-27):** autor planu i wykonawca etapów — `gpt-6.1-sol` w Codeksie, w świeżych sesjach. Plan jest osobny i rusza dopiero po pełnym zamknięciu PANEL_CLAUDE oraz akceptacji PANEL_CODEX; jego E1 pozostaje `OCZEKUJE` do spełnienia bramek.
 - Plan zamrożony po akceptacji; zmiany wyłącznie datowanymi aneksami. Odchylenie fundamentalne → propozycja nowego planu z linkiem do starego.
 - Wykonanie etapów: świeże sesje **Opus** (D-85) wg `PROMPT_ETAP_N.md`; wyjątek E7 z 2026-09-05:
   **`gpt-5.6-terra/high` w Codeksie**. Architektura i plany: model najsilniejszy (Fable). Na
