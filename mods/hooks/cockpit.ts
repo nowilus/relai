@@ -2,8 +2,8 @@
 // the search, the count of changes waiting for a reload, the queue of CLI calls, the locks, and what
 // a switch runs and changes. register.tsx draws it; inventory.ts reads the disk.
 
-import { joinPath, toggleArgv } from './inventory'
-import type { Item, PluginItem, PluginState } from './inventory'
+import { enabledOf, joinPath, toggleArgv } from './inventory'
+import type { CliResult, Install, Item, PluginItem, PluginState } from './inventory'
 
 export type Filter = 'all' | 'mod' | 'plugin' | 'hook' | 'off'
 
@@ -75,8 +75,11 @@ export function snapshotOf(items: Item[], cwd: string): Loaded {
  * presses (plan, section 8). A plugin installed after the snapshot is not counted: there is no
  * loaded state to differ from.
  */
-export function pendingCount(items: Item[], loaded: Loaded): number {
-  return items.filter((i) => i.kind !== 'hook' && itemKey(i) in loaded && loaded[itemKey(i)] !== isOn(i)).length
+export function pendingCount(items: Item[], loaded: Loaded, scope: ScopeRow | null = null): number {
+  const ids = new Set(items.filter((i) => i.kind !== 'hook' && itemKey(i) in loaded && loaded[itemKey(i)] !== isOn(i)).map((i) => (i as PluginItem).id))
+  // The row "RelAI w tym projekcie" (ZASIEG_PLUGINU E3): a plugin of the set counts once, whichever side saw it
+  for (const p of scope?.plugins ?? []) if (scopeKey(p.id) in loaded && loaded[scopeKey(p.id)] !== p.isOn) ids.add(p.id)
+  return ids.size
 }
 
 export function pendingText(n: number): string {
@@ -153,6 +156,141 @@ export const switchWord = (state: PluginState): string => (state === 'on' ? 'Wy�
  * not undone: the row is skipped, no CLI call.
  */
 export const isSettled = (p: Pick<PluginItem, 'state'>, want: boolean): boolean => isOn(p) === want
+
+// ---------- the row "RelAI w tym projekcie" (plan ZASIEG_PLUGINU, E3) ----------
+
+/**
+ * The plugins the row switches, as core/process/plugin-scope.js (ZESTAW): only those installed
+ * for the user. relai-mods is never among them — it stays on everywhere, as it is what turns
+ * RelAI on in a new folder (plan ZASIEG_PLUGINU, section 5).
+ */
+export const RELAI_SET = ['relai@relai', 'relai-panel@relai', 'relai-progress@relai', 'relai-cache-keeper@relai'] as const
+
+/** The line a worktree needs to copy the ignored local settings (P-058 pt 2). */
+export const WORKTREE_LINE = '.claude/settings.local.json'
+
+/** The row's key in the queue, the errors and the wants of $.state. */
+export const SCOPE_KEY = 'scope-row'
+
+/** A set plugin's key in the loaded snapshot: its effective value in this folder. */
+export const scopeKey = (id: string): string => `scope-${id}`
+
+export type ScopeInput = {
+  home: string
+  /** The session's folder: local settings are read from it, never from a root above (plan, section 8). */
+  cwd: string
+  installs: Install[]
+  userText: string | null
+  localText: string | null
+  /** What `.git` in the folder is: a folder in a main repo, a file in a worktree, null without git. */
+  gitKind: 'dir' | 'file' | 'other' | null
+  worktreeText: string | null
+}
+
+export type ScopePlugin = {
+  id: string
+  /** The value in the folder's .claude/settings.local.json; undefined for no key. */
+  local: boolean | undefined
+  /** Local, without it the user's; no key anywhere reads as off (P-052). */
+  isOn: boolean
+}
+
+export type ScopeRow = {
+  folder: string
+  /** The file the CLI writes: <folder>/.claude/settings.local.json. */
+  file: string
+  plugins: ScopePlugin[]
+  /** Every installed plugin of the set holds true here as its own local key. */
+  isLocalOn: boolean
+  /** On "Włącz" the line goes to .worktreeinclude: a main repo (`.git` a folder) without it. */
+  needsWorktreeLine: boolean
+}
+
+const hasWorktreeLine = (text: string | null) => (text ?? '').split(/\r?\n/).some((l) => l.trim() === WORKTREE_LINE)
+
+/**
+ * The row, or null where it does not stand: the home folder, whose .claude/settings.json is the
+ * user's own (plan, section 8), and a machine with no plugin of the set installed.
+ */
+export function scopeRowOf(s: ScopeInput): ScopeRow | null {
+  if (!s.cwd || norm(s.cwd) === norm(s.home)) return null
+  const installed = RELAI_SET.filter((id) => s.installs.some((i) => i.id === id && i.scope === 'user'))
+  if (!installed.length) return null
+  const local = enabledOf(s.localText)
+  const user = enabledOf(s.userText)
+  const plugins = installed.map((id) => ({ id, local: local[id], isOn: (local[id] ?? user[id]) === true }))
+  return {
+    folder: joinPath(s.cwd),
+    file: joinPath(s.cwd, WORKTREE_LINE),
+    plugins,
+    isLocalOn: plugins.every((p) => p.local === true),
+    needsWorktreeLine: s.gitKind === 'dir' && !hasWorktreeLine(s.worktreeText),
+  }
+}
+
+/** What a press of the row asks for: on unless every plugin already holds its own local true. */
+export const scopeWant = (row: Pick<ScopeRow, 'isLocalOn'>): boolean => !row.isLocalOn
+
+export type ScopeCall = { id: string, argv: string[], cwd: string, want: boolean }
+
+/**
+ * The calls of a press, one per plugin not yet holding the wanted value locally, run from the
+ * folder (`--scope local` writes the folder it is called from, P-058), then the line for worktrees.
+ */
+export function scopePlan(cli: string, row: ScopeRow, want: boolean): { calls: ScopeCall[], isWorktreeLine: boolean } {
+  const calls = row.plugins
+    .filter((p) => p.local !== want)
+    .map((p) => ({ id: p.id, argv: [cli, 'plugin', want ? 'enable' : 'disable', p.id, '--scope', 'local'], cwd: row.folder, want }))
+  return { calls, isWorktreeLine: want && row.needsWorktreeLine }
+}
+
+const ALREADY = /is already (enabled|disabled) at/i
+
+/**
+ * A call's outcome. The CLI refuses ("is already enabled at local scope", exit 1) when the value
+ * comes from another scope and the folder has no key (P-058 pt 5, Annex A): with the wanted value
+ * already in the file that is done, without it the pair — the opposite call, then the wanted one.
+ */
+export function outcomeOf(r: CliResult, fileValue: boolean | undefined, want: boolean): 'ok' | 'pair' | 'error' {
+  if (r.exitCode === 0) return 'ok'
+  if (!ALREADY.test(`${r.stderr}${r.stdout}`)) return 'error'
+  return fileValue === want ? 'ok' : 'pair'
+}
+
+/** The first call of the pair: the opposite of the wanted one, same plugin, same scope. */
+export function oppositeArgv(c: ScopeCall): string[] {
+  return [...c.argv.slice(0, 2), c.want ? 'disable' : 'enable', ...c.argv.slice(3)]
+}
+
+/** The text of .worktreeinclude with the line, its line ends kept; the same text when it has the line. */
+export function withWorktreeLine(text: string | null): string {
+  if (!text) return `${WORKTREE_LINE}\n`
+  if (hasWorktreeLine(text)) return text
+  const nl = text.includes('\r\n') ? '\r\n' : '\n'
+  return `${text}${text.endsWith('\n') ? '' : nl}${WORKTREE_LINE}${nl}`
+}
+
+/** The row's state in a word and a sign (DESIGN.md §5), x/y only toward the whole set. */
+export function scopeStateWord(row: ScopeRow): string {
+  const on = row.plugins.filter((p) => p.isOn).length
+  if (row.isLocalOn) return '✓ włączony w tym projekcie'
+  if (on === row.plugins.length) return '● włączony z ustawień globalnych'
+  return on === 0 ? '○ wyłączony' : `◐ częściowo: ${on}/${row.plugins.length} włączone`
+}
+
+const shortName = (id: string) => id.split('@')[0] ?? id
+
+/** The card's rows: what a "Tak" changes — the file, the plugins, the line — and the question. */
+export function scopeFacts(row: ScopeRow, want: boolean): { facts: Array<[string, string]>, question: string } {
+  const plan = scopePlan('claude', row, want)
+  const facts: Array<[string, string]> = [
+    ['Plik', row.file],
+    ['Pluginy', plan.calls.length ? plan.calls.map((c) => `${shortName(c.id)} → ${want ? 'true' : 'false'}`).join(', ') : 'bez zmian'],
+  ]
+  if (plan.isWorktreeLine) facts.push(['Worktree', `dopisze ${WORKTREE_LINE} do .worktreeinclude`])
+  facts.push(['Potem', 'przeładowanie pluginów (/reload-plugins) albo nowa sesja'])
+  return { facts, question: want ? 'Włączyć RelAI w tym projekcie?' : 'Wyłączyć RelAI w tym projekcie?' }
+}
 
 // ---------- the pane's width and its refresh ----------
 

@@ -383,13 +383,13 @@ core/process/plugin-scope.js      wzorzec logiki zestawu i pary disable → enab
 
 Każdy punkt Weryfikacji, który przeszedł, odhaczasz w `PROMPT_ETAP_3.md` (`- [ ]` → `- [x]`) zaraz po jego sprawdzeniu, nie na końcu etapu; punkt, który nie przeszedł, zostaje pusty.
 
-- [ ] `"$CLAUDE_CODE_EXECPATH" plugin validate mods` i `"$CLAUDE_CODE_EXECPATH" plugin test mods` z Basha sesji — bez błędów; testów więcej niż 68 (FAKT przed etapem: 68/68), nowe testy wiersza zielone.
-- [ ] Mutacja: w kopii `cockpit.ts` w katalogu roboczym usunięta para disable → enable — test „globalne `true`, brak wpisu lokalnego” czerwony; oryginał zielony (zasada 3, L-0270: format wyniku wymuszony).
-- [ ] Test „folder domowy”: brak wiersza; test „`relai-mods` nigdy w planie” — oba zielone i każdy wywraca własna mutacja.
-- [ ] Pomiar z punktu 5 zakresu: po Włącz cztery klucze `true` (i linia w `.worktreeinclude`, jeśli punkt 3 dał zapis), po Wyłącz cztery `false`; suma `~/.claude/settings.json` i `installed_plugins.json` ta sama przed i po; zrzut wiersza przed i po kliknięciu w katalogu roboczym.
-- [ ] Dowód negatywny: `git diff --stat -- adapters core panel progress cache-keeper site README.md .claude-plugin` pusty; `mods/.claude-plugin/plugin.json` bez zmiany wersji (wydanie to E4).
-- [ ] Wpis w `docs/DZIENNIK.md` na końcu sekcji „Wpisy”.
-- [ ] Katalog roboczy: (a) `.claude/relai/work/ZASIEG_PLUGINU/E3/` przejrzany raportem (`node .claude/relai/tools/clean-work.js raport`) i skasowany po „tak”, liczby przed i po do wpisu dziennika; (b) foldery `%TEMP%/relai-zasieg-e3-*` i kopia modu pod inną nazwą wypisane z nazwy razem z tym, co się z nimi stało.
+- [x] `"$CLAUDE_CODE_EXECPATH" plugin validate mods` i `"$CLAUDE_CODE_EXECPATH" plugin test mods` z Basha sesji — bez błędów; testów więcej niż 68 (FAKT przed etapem: 68/68), nowe testy wiersza zielone.
+- [x] Mutacja: w kopii `cockpit.ts` w katalogu roboczym usunięta para disable → enable — test „globalne `true`, brak wpisu lokalnego” czerwony; oryginał zielony (zasada 3, L-0270: format wyniku wymuszony).
+- [x] Test „folder domowy”: brak wiersza; test „`relai-mods` nigdy w planie” — oba zielone i każdy wywraca własna mutacja.
+- [x] Pomiar z punktu 5 zakresu: po Włącz cztery klucze `true` (i linia w `.worktreeinclude`, jeśli punkt 3 dał zapis), po Wyłącz cztery `false`; suma `~/.claude/settings.json` i `installed_plugins.json` ta sama przed i po; zrzut wiersza przed i po kliknięciu w katalogu roboczym.
+- [x] Dowód negatywny: `git diff --stat -- adapters core panel progress cache-keeper site README.md .claude-plugin` pusty; `mods/.claude-plugin/plugin.json` bez zmiany wersji (wydanie to E4).
+- [x] Wpis w `docs/DZIENNIK.md` na końcu sekcji „Wpisy”.
+- [x] Katalog roboczy: (a) `.claude/relai/work/ZASIEG_PLUGINU/E3/` przejrzany raportem (`node .claude/relai/tools/clean-work.js raport`) i skasowany po „tak”, liczby przed i po do wpisu dziennika; (b) foldery `%TEMP%/relai-zasieg-e3-*` i kopia modu pod inną nazwą wypisane z nazwy razem z tym, co się z nimi stało.
 
 ## Na koniec (rytuał obowiązkowy) — bez tego rytuału etap nie jest ukończony
 

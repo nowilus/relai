@@ -2644,3 +2644,84 @@ sesji).
 **Do zrobienia przez człowieka:** —
 
 Autor: RelAI (Opus 5.5) + Lukasz
+
+### 2026-10-27 — ZASIEG_PLUGINU E3: wiersz „RelAI w tym projekcie” w kokpicie relai-mods
+
+Etap E3 planu [ZASIEG_PLUGINU](plany/ZASIEG_PLUGINU/STATUS.md), wg `PROMPT_ETAP_3.md`, w sesji
+startu (karta startu → zgoda Łukasza). Tryb ciągły optymalizatora w tej sesji: odmowa (plik zgody
+sesji).
+
+**Zrobione:**
+
+- `mods/hooks/cockpit.ts` (czysta logika): `RELAI_SET` (cztery pluginy, tylko instalacje `user`,
+  nigdy `relai-mods`), `scopeRowOf` (brak wiersza w folderze domowym i bez żadnego pluginu zestawu;
+  wartość lokalna i efektywna = lokalna, bez niej user), `scopePlan` (`enable|disable --scope local`
+  z `cwd` = folder sesji, pominięte pluginy z żądaną wartością lokalną, linia worktree tylko przy
+  włączaniu w repo głównym), `outcomeOf` + `oppositeArgv` (odmowa „already …” → para, jak
+  `krokPluginu`), `withWorktreeLine` (końce linii zachowane), `scopeStateWord`
+  (✓ / ● z globalnych / ◐ x/y / ○), `scopeFacts` (karta), `pendingCount` z wierszem — plugin
+  liczony raz.
+- `mods/hooks/register.tsx`: `readScope` (pliki, `$.fs.stat` na `.git`), `runScope`
+  i `runScopeCall` — wykonanie przez istniejącą kolejkę (klucz `scope-row`), po każdym pluginie
+  odczyt pliku jako dowód; linia `.claude/settings.local.json` w `.worktreeinclude` przez
+  `$.fs.write` (API ma zapis — punkt 3 zakresu bez odchylenia); migawka „załadowane” obejmuje
+  wartości efektywne zestawu, więc wyłączenie daje ten sam pasek przeładowania co przełącznik.
+- `mods/hooks/views.tsx`: wiersz nad listą (stan słowem i znakiem, przycisk Włącz/Wyłącz otwiera
+  tylko kartę), karta z ramką `Plik / Pluginy / Worktree / Potem`, pytanie, „Tak” / „Nie”, błąd CLI
+  pod wierszem.
+- `mods/types/index.d.ts`: wartość `ask` (karta czekająca na „Tak”) — poza listą plików promptu,
+  ale walidator trzyma każdy klucz `$.state` w tym kontrakcie; bez niej karty nie ma.
+- Testy: 10 w `cockpit.test.ts`, 9 w `mods.test.tsx`; atrapa CLI `--scope local` odmawia jak
+  prawdziwe 2.1.304 (L-0288), atrapa `fs.stat` / `fs.write`.
+- Recenzja (subagent `typescript-reviewer`): HIGH — `.worktreeinclude`, którego nie da się
+  odczytać, byłby nadpisany jedną linią (`readText` zamienia błąd odczytu na „brak pliku”).
+  Poprawione: odczyt poza `readText`, błąd przerywa zapis i trafia pod wiersz; test z plikiem
+  nieczytelnym. MEDIUM (nieczytelny `settings.local.json` raportowany jako „brak wpisu”) —
+  świadomie odłożone niżej.
+
+**Zweryfikowane — jak dokładnie:**
+
+- `"$CLAUDE_CODE_EXECPATH" plugin validate mods` → „Validation passed” (ostrzeżenie o ikonie jak
+  dotąd); `plugin test mods` przed 68/68, po 87/87 (FAKT).
+- Mutacje skryptem w katalogu roboczym (trzy kopie modu, wynik czytany po liniach `(fail)`):
+  bez pary → czerwony „global true, no local key: Włącz, Tak”; bez warunku folderu domowego →
+  czerwone oba testy folderu domowego; `relai-mods` w `RELAI_SET` → czerwone oba testy „nigdy
+  w planie”; oryginał 87/87. Poprawka z recenzji obiema wersjami w jednym przebiegu: stary zapis
+  przez `readText` — test pliku nieczytelnego `(fail)`, nowy — `(pass)`.
+- Pomiar na żywo na desktopie (aplikacja 2.1.308, `claude` z PATH): kopia modu jako
+  `relai-mods-e3` w `~/.claude/dev-mods/7be49f27-…/` (panel, komenda i stan przemianowane),
+  sesja przeniesiona do `%TEMP%/relai-zasieg-e3-1` (marker, `git init`). Kliknięcia i cztery zrzuty
+  od Łukasza (L-0289): przed — „● włączony z ustawień globalnych”; karta z plikiem, czterema
+  pluginami i linią worktree; po Włącz → Tak — „✓ włączony w tym projekcie” (stan liczony z pliku:
+  wszystkie cztery wpisy lokalne `true`; samego pliku między kliknięciami nie odczytałem); po
+  Wyłącz → Tak — „○ wyłączony”, „4 zmiany czekają na przeładowanie”, wiersze `relai-*` z kłódką
+  „nadpisane”. Odczyt po serii: `.claude/settings.local.json` — cztery klucze `false`;
+  `.worktreeinclude` — `.claude/settings.local.json` z LF. Suma `~/.claude/settings.json`
+  (`0ea9ff58b6c4…`) i `installed_plugins.json` (`e8d2d2826f7b…`) ta sama przed i po.
+  Zainstalowanego `relai-mods` nie wyłączałem — desktop nie bierze `--settings`; kopia ma inny
+  panel i komendę. Poprawka z recenzji powstała po pomiarze i dotyczy tylko pliku nieczytelnego —
+  na żywo niemierzona.
+- Dowód negatywny: `git diff --stat -- adapters core panel progress cache-keeper site README.md
+  .claude-plugin` pusty; `mods/.claude-plugin/plugin.json` bez zmian.
+- `node --test core/process/tests/*.test.js adapters/codex/tests/*.test.js` — 342/344, dwie
+  porażki te same co w E2 (parytet Codeksa przy `core.autocrlf=true`), bez regresji.
+- Katalog roboczy `.claude/relai/work/ZASIEG_PLUGINU/E3/`: przed 142 pliki / 3 549 KB (mutacje,
+  kopie modu, zrzuty, skrypty), po 0 — skasowany po „tak” Łukasza. Poza nim, po tym samym „tak”:
+  kopia `~/.claude/dev-mods/7be49f27-…/relai-mods-e3` (1,7 MB) — skasowana;
+  `%TEMP%/relai-zasieg-e3-1` (76 KB) — treść skasowana, sam folder zostaje („Device or resource
+  busy”): aplikacja trzyma go jako katalog tej sesji i założyła w nim na nowo pusty `.claude/`.
+  Do skasowania po zamknięciu sesji.
+- Tabela „Stan otwartych ryzyk” przejrzana — bez zmian.
+
+**Świadomie odłożone:**
+
+- MEDIUM z recenzji: nieczytelny `.claude/settings.local.json` po udanym CLI wiersz raportuje
+  jako „brak wpisu”, a `scopeRowOf` czyta go jak plik bez kluczy. Błąd nie przechodzi po cichu
+  (wiersz pokazuje niezgodność), mylące jest tylko słowo. Do E4 albo osobnej poprawki.
+- Opis w `mods/.claude-plugin/plugin.json` nie mówi o wierszu ani o zapisie `.worktreeinclude`
+  („Never writes settings.json…” zostaje prawdą) — do E4 razem z podbiciem 0.3.0.
+- Folder testowy po pomiarze ma lokalne `false` dla zestawu — nie dotyczy żadnego projektu.
+
+**Do zrobienia przez człowieka:** —
+
+Autor: RelAI (Opus 5.5) + Lukasz

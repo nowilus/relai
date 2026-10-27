@@ -30,6 +30,8 @@ declare module 'claude-code' {
       wants: Record<string, boolean>
       /** Raised every few seconds while the pane is open, so its drawing reads the disk again (E4). */
       tick: number
+      /** The card of the row "RelAI w tym projekcie" waiting for "Tak": 'on', 'off', or '' for none (ZASIEG_PLUGINU E3). */
+      ask: string
     }
   }
 }

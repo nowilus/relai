@@ -9,10 +9,10 @@ import type { EngineInterface } from 'claude-code'
 import { MOD_MODULE_WORD, STATE_WORD, eventsWord, headerOf, summaryOf } from './inventory'
 import type { Inventory, Item, PluginItem } from './inventory'
 import {
-  FILTERS, STACK_BELOW, changeText, glyphOf, isQueued, itemKey, lockOf, pendingText, projectLabel, rowLockWord,
-  selfCommand, switchWord, visible,
+  FILTERS, SCOPE_KEY, STACK_BELOW, changeText, glyphOf, isQueued, itemKey, lockOf, pendingText, projectLabel, rowLockWord,
+  scopeFacts, scopeStateWord, scopeWant, selfCommand, switchWord, visible,
 } from './cockpit'
-import type { Filter, Queue } from './cockpit'
+import type { Filter, Queue, ScopeRow } from './cockpit'
 import { KEY, KIND_KEY, LOCK, RULE, SWITCH, lockAlt, lockSvg, switchAlt, switchSvg } from './look'
 import { HEADING_ART } from './core/headings.mjs'
 import { twoTone } from './core/theme.mjs'
@@ -45,6 +45,12 @@ export type View = {
   onFilter: (f: Filter) => void
   onQuery: (q: string) => void
   onReload: () => void
+  /** The row "RelAI w tym projekcie"; null in the home folder or with no plugin of the set (ZASIEG_PLUGINU E3). */
+  scope: ScopeRow | null
+  /** Its card waiting for "Tak": the state it asks for, '' for none. */
+  ask: '' | 'on' | 'off'
+  onAsk: (want: boolean) => void
+  onDecide: (isYes: boolean, want: boolean) => void
 }
 
 export const titleOf = (i: Item): string => (i.kind === 'hook' ? i.script || i.command : i.id)
@@ -204,6 +210,51 @@ function pendingBar(v: View) {
   )
 }
 
+// The card of the row: a frame only for what waits on the person's decision (DESIGN.md §4.1),
+// what a "Tak" changes in rows of facts, the question, "Tak" (primary) and "Nie"
+function scopeCard(v: View, row: ScopeRow, want: boolean) {
+  const { Box, Text, Button } = v.el
+  const { facts, question } = scopeFacts(row, want)
+  return (
+    <Box key="scope-card" flexDirection="column" marginTop={1} paddingX={1} borderStyle="round" borderColor={KEY.accent}>
+      {facts.map(([label, value], n) => (
+        <Box key={`scope-fact-${n}`} flexDirection="row" flexWrap="wrap" columnGap={1}>
+          <Box key="l" flexShrink={0} width={9}><Text color={KEY.muted}>{label}</Text></Box>
+          <Box key="v" width={0} flexGrow={1}><Text color={KEY.text}>{breakable(v, value)}</Text></Box>
+        </Box>
+      ))}
+      <Text key="scope-question" bold color={KEY.text}>{question}</Text>
+      <Box key="scope-act" flexDirection="row" flexWrap="wrap" columnGap={1} rowGap={1}>
+        <Button key="scope-yes" variant="primary" label="Tak" onPress={() => v.onDecide(true, want)} />
+        <Button key="scope-no" variant="secondary" label="Nie" onPress={() => v.onDecide(false, want)} />
+      </Box>
+    </Box>
+  )
+}
+
+// The row "RelAI w tym projekcie" above the list (ZASIEG_PLUGINU E3): the state in a word and a
+// sign, one button that only opens the card, the CLI's error under it
+function scopeSection(v: View) {
+  const { Box, Text, Button } = v.el
+  const row = v.scope
+  if (!row) return null
+  const want = scopeWant(row)
+  const isBusy = isQueued(v.queue, SCOPE_KEY)
+  const err = v.errors[SCOPE_KEY]
+  return (
+    <Box key="scope" flexDirection="column" marginTop={1}>
+      <Box key="scope-row" flexDirection="row" flexWrap="wrap" columnGap={1} rowGap={1} alignItems="center">
+        <Box key="scope-words" width={0} flexGrow={1}>
+          <Text><Text bold color={KEY.text}>RelAI w tym projekcie </Text><Text color={row.isLocalOn ? KEY.done : KEY.muted}>{scopeStateWord(row)}</Text></Text>
+        </Box>
+        <Button key="scope-flip" variant="secondary" label={isBusy ? '…' : want ? 'Włącz' : 'Wyłącz'} onPress={() => { if (!isBusy && !v.ask) v.onAsk(want) }} />
+      </Box>
+      {v.ask ? scopeCard(v, row, v.ask === 'on') : null}
+      {err ? <Text key="scope-err" color={KEY.failed}>{err}</Text> : null}
+    </Box>
+  )
+}
+
 // One line of a list: a mark of the chosen row, the kind (unless the group says it), the name, the tail, the switch, the pick
 function listRow(v: View, i: Item, index: number, isKindShown: boolean, pickWords: readonly [string, string]) {
   const { Box, Text, Button } = v.el
@@ -301,6 +352,7 @@ export function cockpit(v: View) {
     <Box key="cockpit" flexDirection="column">
       {head(v)}
       {pendingBar(v)}
+      {scopeSection(v)}
       {body(v)}
     </Box>
   )

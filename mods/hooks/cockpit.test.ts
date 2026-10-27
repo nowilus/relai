@@ -2,8 +2,10 @@ import { describe, expect, test } from 'claude-code/testing'
 import {
   EMPTY_QUEUE, enqueue, finish, flipCall, isQueued, itemKey, lockOf, matches, pendingCount,
   pendingText, projectLabel, rowLockWord, selfCommand, snapshotOf, startNext, changeText, treeWeight, visible,
+  RELAI_SET, oppositeArgv, outcomeOf, scopeFacts, scopeKey, scopePlan, scopeRowOf, scopeStateWord, scopeWant, withWorktreeLine,
 } from './cockpit'
-import type { HookItem, Item, PluginItem } from './inventory'
+import type { ScopeInput } from './cockpit'
+import type { HookItem, Install, Item, PluginItem } from './inventory'
 
 // Rows in the shape inventory.ts builds them (E2): Windows paths come in with `\`, leave with `/`
 const CWD = 'C:/Users/Ktos/Desktop/RelAI'
@@ -166,5 +168,106 @@ describe('the budget of the tree', () => {
     const svg = { type: 'Svg', props: { source: 'x'.repeat(300) }, children: [] }
     const hollow = { type: 'Svg', props: { source: '<svg/>' }, children: [] }
     expect(treeWeight({ type: 'Box', props: {}, children: [svg, hollow, { type: 'Text', props: {}, children: ['a'] }] })).toBe(1 + 5 + 1 + 1)
+  })
+})
+
+// ---------- the row "RelAI w tym projekcie" (ZASIEG_PLUGINU E3) ----------
+
+const HOME = 'C:\\Users\\Ktos'
+const userInstall = (id: string): Install => ({ id, scope: 'user', version: '1.0.0', projectPath: '', installPath: `C:/x/${id}` })
+const ALL_SET: Install[] = [...RELAI_SET.map(userInstall), userInstall('relai-mods@relai'), userInstall('filetree@claude-code-filetree')]
+const enabled = (map: Record<string, boolean>) => JSON.stringify({ enabledPlugins: map })
+const ALL_TRUE = Object.fromEntries([...RELAI_SET, 'relai-mods@relai'].map((id) => [id, true]))
+
+function scopeInput(over: Partial<ScopeInput> = {}): ScopeInput {
+  return { home: HOME, cwd: CWD, installs: ALL_SET, userText: enabled(ALL_TRUE), localText: null, gitKind: null, worktreeText: null, ...over }
+}
+
+describe('the row "RelAI w tym projekcie"', () => {
+  test('no row in the home folder, whatever its slashes and case; a project folder has one (plan, section 8)', () => {
+    expect(scopeRowOf(scopeInput({ cwd: 'c:/users/ktos/' }))).toBeNull()
+    expect(scopeRowOf(scopeInput({ cwd: HOME }))).toBeNull()
+    // positive control: the same machine in a project folder
+    expect(scopeRowOf(scopeInput())?.folder).toBe(CWD)
+  })
+
+  test('relai-mods is never in the set nor in a plan, though installed and on', () => {
+    const row = scopeRowOf(scopeInput())
+    expect(row?.plugins.map((p) => p.id)).toEqual([...RELAI_SET])
+    const ids = [true, false].flatMap((want) => scopePlan('claude', row!, want).calls.map((c) => c.id))
+    expect(ids).not.toContain('relai-mods@relai')
+    // positive control: the plan is not empty, relai stands in it
+    expect(ids).toContain('relai@relai')
+  })
+
+  test('a plugin of the set not installed is left out', () => {
+    const row = scopeRowOf(scopeInput({ installs: [userInstall('relai@relai'), userInstall('relai-mods@relai')] }))
+    expect(row?.plugins.map((p) => p.id)).toEqual(['relai@relai'])
+    expect(scopeRowOf(scopeInput({ installs: [userInstall('relai-mods@relai')] }))).toBeNull()
+  })
+
+  test('global true, no local key: on from the user settings, a press asks "on" for every plugin, from the folder', () => {
+    const row = scopeRowOf(scopeInput())!
+    expect(scopeStateWord(row)).toBe('● włączony z ustawień globalnych')
+    expect(scopeWant(row)).toBe(true)
+    const plan = scopePlan('claude', row, true)
+    expect(plan.calls.map((c) => c.argv)).toEqual(RELAI_SET.map((id) => ['claude', 'plugin', 'enable', id, '--scope', 'local']))
+    expect(plan.calls.every((c) => c.cwd === CWD && c.want)).toBe(true)
+  })
+
+  test('local false: off; the plan turns it on; local true everywhere: on here, the press asks "off"', () => {
+    const off = scopeRowOf(scopeInput({ localText: enabled({ 'relai@relai': false }), installs: [userInstall('relai@relai')] }))!
+    expect(scopeStateWord(off)).toBe('○ wyłączony')
+    expect(scopePlan('claude', off, true).calls.map((c) => c.argv[2])).toEqual(['enable'])
+    const on = scopeRowOf(scopeInput({ localText: enabled(ALL_TRUE) }))!
+    expect(scopeStateWord(on)).toBe('✓ włączony w tym projekcie')
+    expect(scopeWant(on)).toBe(false)
+    // a plugin already holding the wanted value locally is skipped
+    expect(scopePlan('claude', on, true).calls).toEqual([])
+    expect(scopePlan('claude', on, false).calls).toHaveLength(4)
+  })
+
+  test('partly on: x/y toward the whole set', () => {
+    const row = scopeRowOf(scopeInput({ localText: enabled({ 'relai-panel@relai': false }) }))!
+    expect(scopeStateWord(row)).toBe('◐ częściowo: 3/4 włączone')
+  })
+
+  test('the CLI refusal "already": done with the value in the file, the pair without it, any other error an error', () => {
+    const refused = { exitCode: 1, stdout: '', stderr: 'Plugin "relai@relai" is already enabled at local scope' }
+    expect(outcomeOf(refused, undefined, true)).toBe('pair')
+    expect(outcomeOf(refused, true, true)).toBe('ok')
+    expect(outcomeOf({ exitCode: 1, stdout: '', stderr: 'Error: plugin not found' }, undefined, true)).toBe('error')
+    expect(outcomeOf({ exitCode: 0, stdout: '', stderr: '' }, undefined, true)).toBe('ok')
+    const c = scopePlan('claude', scopeRowOf(scopeInput())!, true).calls[0]!
+    expect(oppositeArgv(c)).toEqual(['claude', 'plugin', 'disable', 'relai@relai', '--scope', 'local'])
+  })
+
+  test('.worktreeinclude: the line in a main repo only, on "on" only; its line ends kept', () => {
+    expect(scopeRowOf(scopeInput({ gitKind: 'dir' }))?.needsWorktreeLine).toBe(true)
+    expect(scopeRowOf(scopeInput({ gitKind: 'file' }))?.needsWorktreeLine).toBe(false)
+    expect(scopeRowOf(scopeInput({ gitKind: 'dir', worktreeText: 'a\r\n.claude/settings.local.json\r\n' }))?.needsWorktreeLine).toBe(false)
+    const row = scopeRowOf(scopeInput({ gitKind: 'dir' }))!
+    expect(scopePlan('claude', row, false).isWorktreeLine).toBe(false)
+    expect(withWorktreeLine(null)).toBe('.claude/settings.local.json\n')
+    expect(withWorktreeLine('a\r\nb')).toBe('a\r\nb\r\n.claude/settings.local.json\r\n')
+    expect(withWorktreeLine('.claude/settings.local.json\n')).toBe('.claude/settings.local.json\n')
+  })
+
+  test('the card names the file, the plugins and the line', () => {
+    const { facts, question } = scopeFacts(scopeRowOf(scopeInput({ gitKind: 'dir' }))!, true)
+    expect(facts[0]).toEqual(['Plik', `${CWD}/.claude/settings.local.json`])
+    expect(facts[1]?.[1]).toBe('relai → true, relai-panel → true, relai-progress → true, relai-cache-keeper → true')
+    expect(facts.some(([l]) => l === 'Worktree')).toBe(true)
+    expect(question).toBe('Włączyć RelAI w tym projekcie?')
+  })
+
+  test('the row\'s plugins add to N once, beside a row of the list with the same id', () => {
+    const row = scopeRowOf(scopeInput({ localText: enabled({ 'relai@relai': false }) }))!
+    const relai = plugin('relai@relai')
+    expect(pendingCount([relai], { [itemKey(relai)]: true, [scopeKey('relai@relai')]: true }, row)).toBe(1)
+    // the same id differing on both sides is one change, not two
+    const relaiOff = plugin('relai@relai', { state: 'off' })
+    expect(pendingCount([relaiOff], { [itemKey(relaiOff)]: true, [scopeKey('relai@relai')]: true }, row)).toBe(1)
+    expect(pendingCount([relai], { [itemKey(relai)]: true })).toBe(0)
   })
 })

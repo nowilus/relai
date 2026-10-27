@@ -6,18 +6,21 @@
 // CLI does, one call at a time (brief, Łukasz's decisions). Pure logic in ./inventory, ./cockpit
 // and ./look. E4: one layout decision for the pane by its width (STACK_BELOW), the terminal's glyphs,
 // a refresh from disk every REFRESH_MS while the pane is open, and a press that carries its target.
+// ZASIEG_PLUGINU E3: the row "RelAI w tym projekcie" — the set enabled or disabled in the session's
+// folder with `--scope local`, after a "Tak" card; its one write of its own is the line in .worktreeinclude.
 
 import { atom, read, update } from 'claude-code'
 import type { EngineInterface, Register } from 'claude-code'
 import {
-  buildInventory, cliError, filesOf, foldersOf, joinPath, parseInstalls, settingsFilesOf, sourcesOf,
+  buildInventory, cliError, enabledOf, filesOf, foldersOf, joinPath, parseInstalls, settingsFilesOf, sourcesOf,
 } from './inventory'
 import type { DirEntry, Install, Inventory, PluginFiles } from './inventory'
 import {
-  DRAW_LIMIT, EMPTY_QUEUE, REFRESH_MS, enqueue, finish, flipCall, isFilter, isSettled, itemKey, lockOf, pendingCount,
-  snapshotOf, startNext, treeWeight, visible,
+  DRAW_LIMIT, EMPTY_QUEUE, REFRESH_MS, SCOPE_KEY, enqueue, finish, flipCall, isFilter, isSettled, itemKey, lockOf,
+  oppositeArgv, outcomeOf, pendingCount, scopeKey, scopePlan, scopeRowOf, snapshotOf, startNext, treeWeight, visible,
+  withWorktreeLine,
 } from './cockpit'
-import type { Queue } from './cockpit'
+import type { Queue, ScopeCall, ScopeRow } from './cockpit'
 import { cockpit, mobileList } from './views'
 import type { SvgTag, View } from './views'
 
@@ -39,6 +42,7 @@ const cli = atom({ ...S, key: 'cli' } as const, '')
 const loaded = atom({ ...S, key: 'loaded' } as const, {} as Record<string, boolean>)
 const wants = atom({ ...S, key: 'wants' } as const, {} as Record<string, boolean>)
 const tick = atom({ ...S, key: 'tick' } as const, 0)
+const ask = atom({ ...S, key: 'ask' } as const, '')
 // The module's own; a reload of its code starts them over (and cancels the timer's waits) and
 // session.start sets root again
 let root = ''
@@ -105,6 +109,21 @@ async function readInventory($: $T): Promise<Inventory> {
   return buildInventory({ home, cwd, installedText, settings, policy: await policyEnabled($), files })
 }
 
+// The row "RelAI w tym projekcie" (ZASIEG_PLUGINU E3): the set's values in the session's folder
+async function readScope($: $T): Promise<ScopeRow | null> {
+  const home = await homeDir($)
+  const cwd = await cwdOf($)
+  const { installs } = parseInstalls(await readText($, joinPath(home, '.claude/plugins/installed_plugins.json')))
+  const git = await $.fs.stat(joinPath(cwd, '.git')).catch(() => null)
+  return scopeRowOf({
+    home, cwd, installs,
+    userText: await readText($, joinPath(home, '.claude/settings.json')),
+    localText: await readText($, joinPath(cwd, '.claude/settings.local.json')),
+    gitKind: git ? git.kind : null,
+    worktreeText: await readText($, joinPath(cwd, '.worktreeinclude')),
+  })
+}
+
 // ---------- the switch: one CLI call at a time ----------
 
 const setError = ($: $T, key: string, text: string) =>
@@ -115,8 +134,51 @@ const setError = ($: $T, key: string, text: string) =>
 
 // One call: the row read again from disk, never a lock, the id from installed_plugins.json only (P-052);
 // a row whose disk already holds what the press asked for is skipped (a switch from another chat, E4)
+// One plugin of the row: the call, the pair on the CLI's "already" refusal (Annex A, P-058 pt 5),
+// then the file read again — the effect, not the exit code, says it is done. '' or the error
+async function runScopeCall($: $T, c: ScopeCall, file: string): Promise<string> {
+  const run = (argv: string[]) => $.process.run(argv, { timeoutMs: CLI_TIMEOUT_MS, cwd: c.cwd })
+  const valueOf = async () => enabledOf(await readText($, file))[c.id]
+  const r = await run(c.argv)
+  const outcome = outcomeOf(r, await valueOf(), c.want)
+  if (outcome === 'error') return cliError(r)
+  if (outcome === 'pair') {
+    const first = await run(oppositeArgv(c))
+    if (first.exitCode !== 0) return cliError(first)
+    const second = await run(c.argv)
+    if (second.exitCode !== 0) return `${cliError(second)} — w ${file} został ${c.id} = ${!c.want}`
+  }
+  const after = await valueOf()
+  return after === c.want ? '' : `Odczyt ${file}: ${c.id} = ${after ?? 'brak wpisu'}, oczekiwano ${c.want}.`
+}
+
+// The row's press after "Tak": the folder read again, only the plugins not yet holding the value,
+// the first error stops the rest; the line for worktrees last, as relai-scope does
+async function runScope($: $T, want: boolean): Promise<void> {
+  const row = await readScope($)
+  if (!row) return await setError($, SCOPE_KEY, 'RelAI nie da się przełączyć w tym folderze.')
+  const plan = scopePlan(CLI, row, want)
+  for (const c of plan.calls) {
+    const failed = await runScopeCall($, c, row.file)
+    if (failed) return await setError($, SCOPE_KEY, failed)
+  }
+  if (plan.isWorktreeLine) {
+    const path = joinPath(row.folder, '.worktreeinclude')
+    try {
+      // Read outside readText, which turns an unreadable file into "no file": a read error stops
+      // the write, so a file that is there is never replaced by the one line (review E3)
+      const was = (await $.fs.exists(path)) ? await $.fs.read(path) : null
+      await $.fs.write(path, withWorktreeLine(was))
+    } catch (err) {
+      return await setError($, SCOPE_KEY, `Pluginy włączone, ale nie dopisano linii do ${path}: ${errorText(err).split(/\r?\n/)[0]}`)
+    }
+  }
+  await setError($, SCOPE_KEY, '')
+}
+
 async function runOne($: $T, key: string): Promise<void> {
   try {
+    if (key === SCOPE_KEY) return await runScope($, (await read($, wants))[key] ?? true)
     const row = (await readInventory($)).items.find((i) => itemKey(i) === key)
     if (!row || row.kind === 'hook' || lockOf(row)) return await setError($, key, 'Tej pozycji nie da się przełączyć z panelu.')
     const want = (await read($, wants))[key]
@@ -215,8 +277,9 @@ async function togglePane($: $T): Promise<string> {
 // Never awaited: until it lands, N is 0 (no loaded state to differ from)
 function takeSnapshot($: $T): void {
   void (async () => {
-    const [inv, cwd] = await Promise.all([readInventory($), cwdOf($)])
-    await update($, loaded, () => snapshotOf(inv.items, cwd))
+    const [inv, cwd, scope] = await Promise.all([readInventory($), cwdOf($), readScope($)])
+    const set = Object.fromEntries((scope?.plugins ?? []).map((p) => [scopeKey(p.id), p.isOn]))
+    await update($, loaded, () => ({ ...snapshotOf(inv.items, cwd), ...set }))
     await update($, note, () => '')
   })().catch(() => undefined)
 }
@@ -235,6 +298,7 @@ export const register: Register = (on) => {
   on('session.start', async ($, e, next) => {
     root = await $.session.cwd()
     await update($, queue, () => EMPTY_QUEUE)
+    await update($, ask, () => '')
     askCliVersion($)
     takeSnapshot($)
     await $.command.register({ name: 'relai-mods', description: 'RelAI Mods: mody, pluginy i hooki z dysku — przełączanie, szczegóły i przeładowanie' }).catch(() => undefined)
@@ -261,16 +325,25 @@ export const register: Register = (on) => {
     // Drawings only where the surface draws them, decided by the surface (as relai-panel does)
     const Svg = ((e.surface === 'desktop' || e.surface === 'vscode') && 'Svg' in el ? el.Svg : null) as SvgTag
     // tick is read only so its write redraws the pane, which reads the disk again (the refresh)
-    const [q, f, sel, qu, errs, said, version, cwd, was] = await Promise.all([
+    const [q, f, sel, qu, errs, said, version, cwd, was, asked, scope] = await Promise.all([
       read($, query), read($, filterAtom), read($, selected), read($, queue), read($, errors), read($, note), read($, cli),
-      cwdOf($), read($, loaded), read($, tick),
+      cwdOf($), read($, loaded), read($, ask), readScope($), read($, tick),
     ])
     const filter = isFilter(f) ? f : 'all'
     const shown = visible(inv.items, filter, q)
-    const pending = pendingCount(inv.items, was)
+    const pending = pendingCount(inv.items, was, scope)
     const base: View = {
       el, Svg, isFull: Svg !== null, width: e.props.bodyColumns, inv, shown, filter, query: q, queue: qu, errors: errs, pending,
       cli: version, cliName: CLI, cwd, note: said,
+      scope, ask: asked === 'on' || asked === 'off' ? asked : '',
+      // The row's button only opens the card; "Tak" runs it through the queue, "Nie" folds it
+      onAsk: (want) => { void update($, ask, () => (want ? 'on' : 'off')) },
+      onDecide: (isYes, want) => {
+        void (async () => {
+          await update($, ask, () => '')
+          if (isYes) await press($, SCOPE_KEY, want)
+        })().catch(() => undefined)
+      },
       // The accordion opens only what was picked; a second press folds it again
       chosen: shown.find((i) => itemKey(i) === sel),
       onPress: (key, want) => { void press($, key, want).catch(() => undefined) },

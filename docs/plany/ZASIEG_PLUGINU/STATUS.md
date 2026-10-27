@@ -8,8 +8,8 @@ Plan: [PLAN.html](PLAN.html) · Utworzony: 2026-10-27 · Status planu: **ZAAKCEP
 |---|---|---|---|---|
 | E1 | Narzędzie relai-scope | ZREALIZOWANY 2026-10-27 | [PROMPT_ETAP_1.md](PROMPT_ETAP_1.md) | status / apply / undo / on / off, dziennik zmian, testy |
 | E2 | Adopcja, init, update | ZREALIZOWANY 2026-10-27 | [PROMPT_ETAP_2.md](PROMPT_ETAP_2.md) | krok włączenia lokalnego w trzech procedurach, propozycja trybu w kroku 1a |
-| E3 | Przycisk w relai-mods | GOTOWY DO STARTU | [PROMPT_ETAP_3.md](PROMPT_ETAP_3.md) | wiersz „RelAI w tym projekcie” w kokpicie |
-| E4 | Dokumentacja i wydanie | OCZEKUJE | — | README, KOMENDY, D-92; bramka: przełączenie maszyny właściciela; `/relai-release` |
+| E3 | Przycisk w relai-mods | ZREALIZOWANY 2026-10-27 | [PROMPT_ETAP_3.md](PROMPT_ETAP_3.md) | wiersz „RelAI w tym projekcie” w kokpicie |
+| E4 | Dokumentacja i wydanie | GOTOWY DO STARTU | [PROMPT_ETAP_4.md](PROMPT_ETAP_4.md) | README, KOMENDY, D-92; bramka: przełączenie maszyny właściciela; `/relai-release` |
 
 ## Bramki manualne
 
@@ -22,3 +22,5 @@ Plan: [PLAN.html](PLAN.html) · Utworzony: 2026-10-27 · Status planu: **ZAAKCEP
 - 2026-10-27 — E1 zrealizowany: `relai-scope` (status / apply / undo / on / off) z dziennikiem zmian, 17 testów, `status` na tej maszynie — 15 projektów z markerem, 74 kroki, zero zapisów; wygenerowany `PROMPT_ETAP_2.md`.
 - 2026-10-27 — E2 rozpoczęty
 - 2026-10-27 — E2 zrealizowany: krok włączenia lokalnego w `/relai-adopt`, inicjalizacji i `/relai-update` (tylko Claude Code), Codex zregenerowany; Aneks A — `relai-scope` obchodzi odmowę CLI „already enabled” parą disable → enable (pomiar na prawdziwym CLI: 4 klucze `true`), testy 342/344 (2 zastane), ewaluacje 7/7; wygenerowany `PROMPT_ETAP_3.md`.
+- 2026-10-27 — E3 rozpoczęty
+- 2026-10-27 — E3 zrealizowany: wiersz „RelAI w tym projekcie” w kokpicie `relai-mods` (karta „Tak / Nie”, para disable → enable, linia w `.worktreeinclude`), testy 87/87, trzy mutacje zabite, pomiar na żywo na desktopie (kopia `relai-mods-e3`, kliknięcia Łukasza): cztery klucze lokalne, sumy globalne bez zmian; wygenerowany `PROMPT_ETAP_4.md`.

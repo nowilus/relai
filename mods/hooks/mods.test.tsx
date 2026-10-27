@@ -66,8 +66,26 @@ type Fake = {
 const key = (path: string) => path.replace(/\\/g, '/')
 const USER_FILE = key(`${HOME}/.claude/settings.json`)
 
+/** A file that is there but will not read: fs.exists says yes, fs.read refuses. */
+const UNREADABLE = 'fixture: unreadable'
+
+const ok = (stderr = '') => ({ value: { exitCode: stderr ? 1 : 0, stdout: '', stderr, isStdoutTruncated: false, isStderrTruncated: false } })
+
+// `--scope local` as the real CLI 2.1.304 does it (measured in E2, P-058 pt 5): it writes the
+// folder's settings.local.json, and refuses with exit 1 when the value in force there — local,
+// without it the user's — already is the asked one (L-0288)
+function localCall(disk: Record<string, string>, cwd: string, verb: string, id: string) {
+  const file = `${key(cwd)}/.claude/settings.local.json`
+  const local = enabledOf(disk[file] ?? null)
+  const want = verb === 'enable'
+  if ((local[id] ?? enabledOf(disk[USER_FILE] ?? null)[id] ?? false) === want) return ok(`Plugin "${id}" is already ${verb}d at local scope`)
+  const s = JSON.parse(disk[file] ?? '{}') as Record<string, unknown>
+  disk[file] = JSON.stringify({ ...s, enabledPlugins: { ...local, [id]: want } })
+  return ok()
+}
+
 // The CLI: 'ok' writes the user file as claude plugin enable/disable does, 'fail' exits 1, 'hang' runs past the limit
-function engine(on: On, mode: 'ok' | 'fail' | 'hang', extra: Record<string, unknown[]> = {}): Fake {
+function engine(on: On, mode: 'ok' | 'fail' | 'hang', extra: Record<string, unknown[]> = {}, sessionCwd = CWD): Fake {
   const installs = { ...INSTALLS, ...extra }
   const userEnabled = { ...USER_ENABLED, ...Object.fromEntries(Object.keys(extra).map((id) => [id, true])) }
   const fake: Fake = {
@@ -91,7 +109,7 @@ function engine(on: On, mode: 'ok' | 'fail' | 'hang', extra: Record<string, unkn
   on('env.get', ($, e) => ({ value: e.name === 'USERPROFILE' ? HOME : '' }))
   on('settings.read', ($, e) => ({ value: e.source === 'policy' ? { enabledPlugins: { 'pol@corp': true } } : {} }))
   on('fs.exists', ($, e) => ({ value: key(e.path) in disk || Object.keys(disk).some((p) => p.startsWith(`${key(e.path)}/`)) }))
-  on('fs.read', ($, e) => (key(e.path) in disk ? { value: disk[key(e.path)] ?? '' } : { deny: `ENOENT ${e.path}` }))
+  on('fs.read', ($, e) => (disk[key(e.path)] === UNREADABLE ? { deny: `EACCES ${e.path}` } : key(e.path) in disk ? { value: disk[key(e.path)] ?? '' } : { deny: `ENOENT ${e.path}` }))
   on('fs.list', ($, e) => {
     const dir = `${key(e.path)}/`
     const below = Object.keys(disk).filter((p) => p.startsWith(dir)).map((p) => p.slice(dir.length))
@@ -106,6 +124,7 @@ function engine(on: On, mode: 'ok' | 'fail' | 'hang', extra: Record<string, unkn
     if (mode === 'hang') return { deny: 'timed out after 20000 ms' }
     if (mode === 'fail') return { value: { exitCode: 1, stdout: '', stderr: 'Error: plugin not found', isStdoutTruncated: false, isStderrTruncated: false } }
     const [, , verb, id] = argv
+    if (argv[5] === 'local' && id && verb && cwd) return localCall(disk, cwd, verb, id)
     if (argv[5] === 'user' && id) {
       const s = JSON.parse((disk[USER_FILE] ?? '').replace(/^\ufeff/, '')) as { enabledPlugins: Record<string, unknown> }
       disk[USER_FILE] = JSON.stringify({ ...s, enabledPlugins: { ...s.enabledPlugins, [id]: verb === 'enable' } })
@@ -119,7 +138,14 @@ function engine(on: On, mode: 'ok' | 'fail' | 'hang', extra: Record<string, unkn
   on('ui.close', () => { fake.isOpen = false; return { value: undefined } })
   on('ui.panes', () => ({ value: fake.isOpen ? [{ id: 'relai-mods', title: 'RelAI Mods' }] as never : [] }))
   on('session.start', (_, e) => ({ cwd: e.cwd }))
-  on('session.cwd', () => ({ value: CWD }))
+  on('session.cwd', () => ({ value: sessionCwd }))
+  // `.git` a folder when anything lies under it, a file when it is one
+  on('fs.stat', ($, e) => {
+    const p = key(e.path)
+    if (Object.keys(disk).some((f) => f.startsWith(`${p}/`))) return { value: { kind: 'dir' as const, size: 0, mtimeMs: 0, isLink: false } }
+    return p in disk ? { value: { kind: 'file' as const, size: 1, mtimeMs: 0, isLink: false } } : { deny: `ENOENT ${e.path}` }
+  })
+  on('fs.write', ($, e) => { disk[key(e.path)] = e.text; return { value: undefined } })
   return fake
 }
 
@@ -410,6 +436,143 @@ describe('cockpit', () => {
     const ui = await $.ui.mount({ ...PANE, surface: 'mobile' })
     expect(await ui.findAll({ type: 'Button' })).toHaveLength(0)
     expect((await ui.find({ type: 'Text', text: /^mod filetree/ }))?.text).toBe('mod filetree@claude-code-filetree · wyłączony')
+    await ui.unmount()
+  })
+})
+
+// ---------- the row "RelAI w tym projekcie" (ZASIEG_PLUGINU E3) ----------
+
+const LOCAL_FILE = 'C:/proj/.claude/settings.local.json'
+const ADDONS: Record<string, unknown[]> = Object.fromEntries(['relai-panel', 'relai-progress', 'relai-cache-keeper'].map((n) => [`${n}@relai`, [{ scope: 'user', version: '1.0.0', installPath: `C:\\x\\${n}` }]]))
+const SET = ['relai@relai', 'relai-panel@relai', 'relai-progress@relai', 'relai-cache-keeper@relai']
+const localOf = (fake: Fake) => enabledOf(fake.disk[LOCAL_FILE] ?? null)
+
+describe('the row "RelAI w tym projekcie"', () => {
+  test('the home folder has no row; a project folder has it (plan, section 8)', async ($, on) => {
+    engine(on, 'ok', {}, HOME)
+    await $.session.start({ cwd: HOME, surface: 'desktop', isInteractive: true })
+    const ui = await $.ui.mount({ ...PANE, surface: 'desktop' })
+    expect(await ui.find({ type: 'Button', key: 'scope-flip' })).toBeFalsy()
+    expect(await ui.find({ type: 'Text', text: /RelAI w tym projekcie/ })).toBeFalsy()
+    // positive control: the list itself is drawn in the home folder
+    expect(await ui.find({ type: 'Button', key: `flip-row-${FILETREE}` })).toBeTruthy()
+    await ui.unmount()
+  })
+
+  test('global true, no local key: Włącz, Tak — the CLI refuses and the pair disable → enable writes true for each of four (L-0288)', async ($, on) => {
+    const fake = engine(on, 'ok', ADDONS)
+    await $.session.start({ cwd: CWD, surface: 'desktop', isInteractive: true })
+    const ui = await $.ui.mount({ ...PANE, surface: 'desktop' })
+    expect((await ui.find({ type: 'Text', text: /^RelAI w tym projekcie/ }))?.text).toBe('RelAI w tym projekcie ● włączony z ustawień globalnych')
+    await ui.press({ key: 'scope-flip' })
+    await ui.press({ key: 'scope-yes' })
+    expect(fake.calls.map((c) => c.argv.slice(2, 4).join(' '))).toEqual(SET.flatMap((id) => [`enable ${id}`, `disable ${id}`, `enable ${id}`]))
+    expect(fake.calls.every((c) => c.cwd === 'C:/proj' && c.argv[5] === 'local')).toBe(true)
+    expect(Object.fromEntries(SET.map((id) => [id, localOf(fake)[id]]))).toEqual(Object.fromEntries(SET.map((id) => [id, true])))
+    expect(await ui.find({ type: 'Text', text: /na przeładowanie/ })).toBeFalsy() // nothing in force changed
+    expect((await ui.find({ type: 'Text', text: /^RelAI w tym projekcie/ }))?.text).toBe('RelAI w tym projekcie ✓ włączony w tym projekcie')
+    // no git: no .worktreeinclude
+    expect('C:/proj/.worktreeinclude' in fake.disk).toBe(false)
+    await ui.unmount()
+  })
+
+  test('Wyłącz, Tak: four false in the file, four changes wait for the reload', async ($, on) => {
+    const fake = engine(on, 'ok', ADDONS)
+    fake.disk[LOCAL_FILE] = JSON.stringify({ enabledPlugins: Object.fromEntries(SET.map((id) => [id, true])) })
+    await $.session.start({ cwd: CWD, surface: 'desktop', isInteractive: true })
+    const ui = await $.ui.mount({ ...PANE, surface: 'desktop' })
+    expect((await ui.find({ type: 'Button', key: 'scope-flip' }))?.text).toBe('Wyłącz')
+    await ui.press({ key: 'scope-flip' })
+    expect((await ui.find({ type: 'Text', text: /RelAI w tym projekcie\?$/ }))?.text).toBe('Wyłączyć RelAI w tym projekcie?')
+    await ui.press({ key: 'scope-yes' })
+    expect(fake.calls.map((c) => c.argv[2])).toEqual(['disable', 'disable', 'disable', 'disable'])
+    expect(SET.map((id) => localOf(fake)[id])).toEqual([false, false, false, false])
+    expect((await ui.find({ type: 'Text', text: /na przeładowanie/ }))?.text).toBe('⟳ 4 zmiany czekają na przeładowanie')
+    expect((await ui.find({ type: 'Text', text: /^RelAI w tym projekcie/ }))?.text).toBe('RelAI w tym projekcie ○ wyłączony')
+    await ui.unmount()
+  })
+
+  test('local false reads off; Włącz only opens the card, Nie folds it with no call, Tak runs it', async ($, on) => {
+    const fake = engine(on, 'ok')
+    fake.disk[LOCAL_FILE] = JSON.stringify({ enabledPlugins: { 'over@x': false, 'relai@relai': false } })
+    await $.session.start({ cwd: CWD, surface: 'desktop', isInteractive: true })
+    const ui = await $.ui.mount({ ...PANE, surface: 'desktop' })
+    expect((await ui.find({ type: 'Text', text: /^RelAI w tym projekcie/ }))?.text).toBe('RelAI w tym projekcie ○ wyłączony')
+    await ui.press({ key: 'scope-flip' })
+    expect(fake.calls).toEqual([])
+    expect(await ui.find({ type: 'Text', text: /^Plik / })).toBeFalsy() // facts stand in two boxes, not one text
+    expect((await ui.find({ type: 'Text', text: /^relai → true$/ }))?.text).toBe('relai → true')
+    await ui.press({ key: 'scope-no' })
+    expect(await ui.find({ type: 'Button', key: 'scope-yes' })).toBeFalsy()
+    expect(fake.calls).toEqual([])
+    await ui.press({ key: 'scope-flip' })
+    await ui.press({ key: 'scope-yes' })
+    expect(fake.calls).toEqual([{ argv: ['claude', 'plugin', 'enable', 'relai@relai', '--scope', 'local'], cwd: 'C:/proj' }])
+    expect(localOf(fake)).toEqual({ 'over@x': false, 'relai@relai': true })
+    await ui.unmount()
+  })
+
+  test('a plugin of the set not installed is skipped; relai-mods never runs, though installed', async ($, on) => {
+    const fake = engine(on, 'ok')
+    await $.session.start({ cwd: CWD, surface: 'desktop', isInteractive: true })
+    const ui = await $.ui.mount({ ...PANE, surface: 'desktop' })
+    await ui.press({ key: 'scope-flip' })
+    await ui.press({ key: 'scope-yes' })
+    const ids = [...new Set(fake.calls.map((c) => c.argv[3]))]
+    expect(ids).toEqual(['relai@relai'])
+    expect(ids).not.toContain('relai-mods@relai')
+    await ui.unmount()
+  })
+
+  test('a main repo (.git a folder) gets the line in .worktreeinclude, beside the lines it had', async ($, on) => {
+    const fake = engine(on, 'ok')
+    fake.disk['C:/proj/.git/HEAD'] = 'ref: refs/heads/main'
+    fake.disk['C:/proj/.worktreeinclude'] = '.env\r\n'
+    await $.session.start({ cwd: CWD, surface: 'desktop', isInteractive: true })
+    const ui = await $.ui.mount({ ...PANE, surface: 'desktop' })
+    await ui.press({ key: 'scope-flip' })
+    expect(await ui.find({ type: 'Text', text: /do \.worktreeinclude$/ })).toBeTruthy()
+    await ui.press({ key: 'scope-yes' })
+    expect(fake.disk['C:/proj/.worktreeinclude']).toBe('.env\r\n.claude/settings.local.json\r\n')
+    await ui.unmount()
+  })
+
+  test('a .worktreeinclude that will not read is never replaced: the error says so, the file stays', async ($, on) => {
+    const fake = engine(on, 'ok')
+    fake.disk['C:/proj/.git/HEAD'] = 'ref: refs/heads/main'
+    fake.disk['C:/proj/.worktreeinclude'] = UNREADABLE
+    await $.session.start({ cwd: CWD, surface: 'desktop', isInteractive: true })
+    const ui = await $.ui.mount({ ...PANE, surface: 'desktop' })
+    await ui.press({ key: 'scope-flip' })
+    await ui.press({ key: 'scope-yes' })
+    expect(fake.disk['C:/proj/.worktreeinclude']).toBe(UNREADABLE)
+    expect((await ui.find({ type: 'Text', text: /nie dopisano linii/ }))?.text ?? '').toContain('EACCES')
+    // the plugins were switched before the line: their part is done
+    expect(localOf(fake)['relai@relai']).toBe(true)
+    await ui.unmount()
+  })
+
+  test('a worktree (.git a file) gets no .worktreeinclude', async ($, on) => {
+    const tree = engine(on, 'ok')
+    tree.disk['C:/proj/.git'] = 'gitdir: C:/main/.git/worktrees/proj'
+    await $.session.start({ cwd: CWD, surface: 'desktop', isInteractive: true })
+    const ui2 = await $.ui.mount({ ...PANE, surface: 'desktop' })
+    await ui2.press({ key: 'scope-flip' })
+    await ui2.press({ key: 'scope-yes' })
+    expect(localOf(tree)['relai@relai']).toBe(true)
+    expect('C:/proj/.worktreeinclude' in tree.disk).toBe(false)
+    await ui2.unmount()
+  })
+
+  test('a CLI error stays under the row, nothing written', async ($, on) => {
+    const fake = engine(on, 'fail')
+    await $.session.start({ cwd: CWD, surface: 'desktop', isInteractive: true })
+    const ui = await $.ui.mount({ ...PANE, surface: 'desktop' })
+    await ui.press({ key: 'scope-flip' })
+    await ui.press({ key: 'scope-yes' })
+    expect(fake.calls).toHaveLength(1)
+    expect((await ui.find({ type: 'Text', text: /^Błąd CLI/ }))?.text).toBe('Błąd CLI (kod 1): Error: plugin not found')
+    expect(fake.disk[LOCAL_FILE]).toBe(JSON.stringify({ enabledPlugins: { 'over@x': false } }))
     await ui.unmount()
   })
 })

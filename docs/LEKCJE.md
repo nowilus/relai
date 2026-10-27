@@ -83,7 +83,7 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
      poza repo (`dev-mods`, `%TEMP%`); „dokumenty — tylko Edit” obejmuje dopisanie na końcu
      (`cat >>` z heredokiem) i `sed -i` na wierszu tabeli; seria podmian w kodzie — kilka Edit albo
      skrypt Write, także gdy „to tylko liczby” (L-0116, L-0119, L-0135, L-0148, L-0188,
-     L-0192, L-0198, L-0210, L-0215, L-0242, L-0262 — „przeszło testy” nie zwalnia z reguły; `sed`
+     L-0192, L-0198, L-0210, L-0215, L-0242, L-0262, L-0290 — „przeszło testy” ani „to tylko test” nie zwalnia z reguły; `sed`
      tylko do odczytu, także w komentarzu — L-0276); ścieżka w powłoce z `/`, także składana ze zmiennych
      w funkcji (L-0230), dla Node z `cygpath -m`, nigdy `cygpath -w` z doklejonym `\\` (L-0265); znak niewidoczny w kodzie przez `String.fromCharCode`, nie ucieczkę
      unicode w Edit, i `grep` po bajtach po edycji (L-0258);
@@ -150,7 +150,7 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
    L-0110, L-0111, L-0113, L-0124, L-0125, L-0127, L-0130, L-0131, L-0135, L-0141, L-0143, L-0151,
    L-0160, L-0164, L-0169, L-0170, L-0173, L-0181, L-0211, L-0213, L-0215, L-0238, L-0239, L-0240,
    L-0242, L-0243, L-0246, L-0247, L-0248, L-0249, L-0257, L-0258, L-0259, L-0261, L-0262, L-0265,
-   L-0267, L-0268, L-0270, L-0283)
+   L-0267, L-0268, L-0270, L-0283, L-0290)
 6. **Próg jest liczbą, którą ktoś liczy:** kalibrujesz na realnych plikach, zapisujesz w jednostce
    mechanizmu z komendą sprawdzającą, z **jednym** wyzwalaczem. Porównujesz do wielkości, którą
    mechanizm kontroluje (część usuwalna); zatkanie sygnalizuje **różnica możliwego i wykonanego**,
@@ -233,7 +233,10 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
       symulacja gubi kroki (L-0284); pole payloadu hooka, na którym stoi warunek, sprawdzasz
       w każdym scenariuszu z listy, także po `/clear` (L-0285); instrukcja pomiaru dla człowieka
       ustawia każdy warunek bramki mechanizmem, który go tworzy, sprawdzonym plikiem przed
-      pierwszym przebiegiem, bez kroków, które przepływ robi sam (L-0286).
+      pierwszym przebiegiem, bez kroków, które przepływ robi sam (L-0286); przycisk modu na
+      desktopie klika człowiek (okna Claude nie da się sterować), kopia modu w dev-mods sesji pod
+      inną nazwą z innym panelem, komendą i stanem, a seria kliknięć ma przerwę na odczyt pliku po
+      każdym kliknięciu zmieniającym stan (L-0289).
     - **Usługi zewnętrzne:** stan ustawienia repozytorium czytasz z API (`gh api repos/<repo>/pages`),
       nie ze zrzutu ani słowa człowieka (L-0244); obraz dla cudzej usługi w proporcji zmierzonej na
       opublikowanym widoku, każda podmiana pod nowym adresem (L-0245); strona wskazująca zasób
@@ -241,7 +244,7 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
       (L-0280).
     (L-0041, L-0042, L-0044, L-0047, L-0092, L-0133, L-0136, L-0138, L-0139, L-0146, L-0153, L-0166,
     L-0168, L-0185, L-0189, L-0190, L-0244, L-0245, L-0253, L-0255, L-0263, L-0264, L-0273, L-0280,
-    L-0281, L-0284, L-0285, L-0286, L-0288)
+    L-0281, L-0284, L-0285, L-0286, L-0288, L-0289)
 14. **Najpierw zmiana w repozytorium, potem zdanie, które ją opisuje.** Weryfikację planujesz tam,
     gdzie wykonalna; po pytaniu sprzątasz sam; jednostką inwentarza jest sprawa, nie linia; wstawkę
     kotwiczysz do elementu, który przeżyje operację, i dowodzisz **obecności** nowej treści. Gdy
@@ -696,6 +699,30 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
   każdą operację zapisu puszczasz raz na prawdziwym CLI w każdym stanie wyjściowym, który
   narzędzie obsłuży (tu: globalnie `true` i `false`, z kluczem lokalnym i bez), w folderze
   tymczasowym. Wynik — kod i komunikat — wchodzi do atrapy dosłownie.
+
+### L-0289 — Przycisk modu na desktopie klika człowiek; stan pośredni zostaje tylko na zrzucie · 2026-10-27 · AKTYWNA
+
+- **Trigger:** ZASIEG_PLUGINU E3. Pomiar wiersza „RelAI w tym projekcie” wymagał sesji w folderze
+  tymczasowym i kliknięć w panelu. Sterowanie pulpitem odmawia okna aplikacji Claude („cannot be
+  granted control of its own window”), a sesja desktopu nie bierze `--settings` ani
+  `--plugin-dir`. Działało: kopia modu pod inną nazwą w `~/.claude/dev-mods/<sesja>/` z przemianowanym
+  panelem, komendą i kluczem stanu, sesja przeniesiona do folderu testowego narzędziem zmiany katalogu
+  (mod czyta `cwd` sesji), kliknięcia i zrzuty od Łukasza. Łukasz kliknął Włącz i Wyłącz jednym
+  ciągiem, więc „cztery `true`” po Włącz poświadcza tylko zrzut, nie odczyt pliku.
+- **Zasada:** pomiar przycisku modu na desktopie planujesz z człowiekiem jako wykonawcą kliknięć.
+  Instrukcja dzieli serię na kroki z przerwą: po każdym kliknięciu zmieniającym stan człowiek
+  pisze „dalej”, a ty czytasz plik, zanim padnie następne kliknięcie. Zainstalowanego modu nie
+  wyłączysz na desktopie — kopia nie spotyka się z nim, gdy panel, komenda i stan mają inne nazwy.
+
+### L-0290 — Powtórka L-0198: kod testu z `\\` dopisany heredokiem stracił backslash · 2026-10-27 · AKTYWNA
+
+- **Trigger:** ZASIEG_PLUGINU E3. Testy wiersza dopisałem do `cockpit.test.ts` przez `cat >>`
+  z heredokiem. Ścieżka `'C:\\Users\\Ktos'` trafiła do pliku jako `'C:\Users\Ktos'`, a test
+  „folder domowy” padł. Reguła z zasady aktywnej 5 („dopisanie na końcu (`cat >>` z heredokiem)”)
+  istniała. Złamałem ją, bo dopisek był „tylko testem”.
+- **Zasada:** bez zmian względem zasady 5 — kod z ukośnikiem wstecznym, także test i także
+  dopisek na końcu, idzie wyłącznie przez Write/Edit. Czerwony test z dziwną ścieżką sprawdzasz
+  najpierw `grep`-em bajtów pliku, zanim dotkniesz kodu.
 
 ## Lekcje zwinięte
 
