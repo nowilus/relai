@@ -2303,3 +2303,63 @@ i z adnotacją we wpisach E2 i E4; odnóg plan nie miał; folder przeniesiony `g
 **Do zrobienia przez człowieka:** —
 
 Autor: RelAI (Opus 5.5) + Lukasz
+
+### 2026-10-27 — Tabela „Stan prac” w limicie: plan bez własnego wiersza — MINIPLAN
+
+Zlecenie z sesji nadrzędnej po przeglądzie `/doctor` (tabela tego repo urosła do ~20 wierszy
+i 15 KB, przycięta ręcznie). Zgoda Łukasza na miniplan, kontrolę w hooku startu i regułę „plan nie
+ma wiersza w tabeli” (D-30).
+
+- **Cel:** zamknięcie etapu ani planu nie dopisuje wierszy do tabeli „Stan prac” w `CLAUDE.md`,
+  a tabela ponad pięcioma wierszami jest zgłaszana przy starcie sesji.
+- **Kroki:**
+  1. `SPEC_CLAUDE_MD.md` i `SPEC_PROMPT_ETAPU.md` — reguła: plan żyje wyłącznie w linii „Aktywny
+     plan”, krok 4 rytuału „Na koniec” nie dotyka tabeli.
+  2. Skille `relai-planning` w Claude Code i Codeksie (`stage-closing.md`, `plan-closing.md`)
+     i reguła Cursora — to samo zdanie.
+  3. `core/process/session-signals.js` — sygnał startu, gdy tabela „Stan prac” ma ponad 5 wierszy;
+     test czerwony najpierw.
+  4. Testy `core/process`, wpis wynikowy.
+- **Weryfikacja:** nowy test sygnału czerwony przed zmianą kodu i zielony po niej (tabela 6 wierszy
+  → sygnał, 5 → cisza, brak tabeli → cisza); `node --test core/process/tests/*.test.js` zielone;
+  `grep` po regule w siedmiu plikach.
+
+Autor: RelAI (Opus 5.5) + Lukasz
+
+### 2026-10-27 — Tabela „Stan prac” w limicie: wynik miniplanu
+
+Miniplan wykonany w całości, bez rozszerzania zakresu.
+
+**Zrobione:**
+
+- Reguła „plan nie ma wiersza w tabeli Stan prac” (zgodna z D-30, bez aneksu): `SPEC_CLAUDE_MD.md`
+  (punkt 3 układu, polityka aktualizacji, „Dawniej”), `SPEC_PROMPT_ETAPU.md` (krok 4 sekcji 9),
+  `stage-closing.md` i `plan-closing.md` skilla `relai-planning` w Claude Code i Codeksie (kopie
+  identyczne), reguła Cursora `relai-planning.mdc`; katalog progów w `SPEC_USTAWIENIA.md`.
+  Przyczyna: krok 4 rytuału „Na koniec” („dokumenty, których dotknął etap”) prompty etapów
+  rozwijały w „`CLAUDE.md` — wiersz planu”, a krok 8 zamknięcia planu mówił tylko o linii
+  „Aktywny plan”.
+- `core/process/session-signals.js`: `wierszeStanuPrac()` i pozycja w `dokumentyPonadProgiem()`
+  — tabela ponad 5 wierszami trafia do linii `[RelAI progi dokumentow]` z procedurą „przeniesienie
+  wierszy planow zamknietych do STATE.md”. Jeden kod dla trzech adapterów, bo raport startu wołają
+  hooki Claude Code, Codeksa i Cursora. Bramka: włączona rotacja dokumentów, jak reszta raportu.
+- `docs/ARTEFAKTY.md`: sześć wierszy podbitych (SPEC_CLAUDE_MD 8, SPEC_PROMPT_ETAPU 11,
+  SPEC_USTAWIENIA 16, plan-closing 4, stage-closing 2, reguła Cursora 4).
+
+**Zweryfikowane — jak dokładnie:**
+
+- `core/process/tests/work-table.test.js` (5 testów): przed zmianą kodu 3 czerwone, 2 zielone
+  (przypadki ciszy); po zmianie 5/5. Granica 5 → cisza, 6 → sygnał; CRLF i nagłówek EN
+  „Work status”; brak pliku, sekcji albo rotacja wyłączona → cisza; raport w ASCII z „8 wierszy
+  (prog 5 wierszy)”.
+- Kontrola na żywych plikach `FAKT`: `CLAUDE.md` tego worktree (tabela sprzed przycięcia)
+  → 22 wiersze, zgłoszone; główny checkout po ręcznym przycięciu (4 wiersze) → cisza.
+- `node --test core/process/tests/*.test.js` 301/301, `core/panel` + `core/tools` 225/225,
+  `core/guardrails` 19/19; `release-check.js --szybko` bez czerwieni; `validate-adapters.js` zielony.
+
+**Świadomie odłożone:** wydanie — osobno przez `/relai-release` (propozycja raportu: 3.5.1, patch).
+Przycięcie tabeli w `CLAUDE.md` tego repo zrobione ręcznie w głównym checkoucie, poza tą gałęzią.
+
+**Do zrobienia przez człowieka:** —
+
+Autor: RelAI (Opus 5.5) + Lukasz

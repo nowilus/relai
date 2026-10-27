@@ -204,7 +204,9 @@ katalogu roboczego:
    artefakty spoza katalogu z nazwy.
 2. Wpis w dzienniku (+ lekcje, + ryzyka), podpis z członem użytkownika.
 3. Bramki manualne w `STATUS.md` z sekcji „Do zrobienia przez człowieka” tego wpisu.
-4. `docs/STATE.md` i pozostałe dokumenty projektu, których dotknął etap.
+4. `docs/STATE.md` i pozostałe dokumenty projektu, których dotknął etap. Tabeli „Stan prac”
+   w `CLAUDE.md` krok nie dotyka — plan nie ma tam wiersza (`SPEC_CLAUDE_MD.md`); prompt nie
+   każe aktualizować „wiersza planu”.
 5. **Wygenerowanie `PROMPT_ETAP_N+1.md`**.
 6. Commit — propozycja.
 

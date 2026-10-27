@@ -100,6 +100,10 @@ PANEL_CODEX (E1 w toku). Opinii spoza projektu nadal nie ma.
   przeładowaniu macierzystego procesu. Tabela STATUS planu pokazuje jeszcze `GOTOWY DO STARTU` —
   do wyprostowania na `W TOKU`. Kontrakt w [README adaptera](../adapters/codex/panel/README.md).
 - W Claude Code aktywnego planu nie ma (ZGLOSZENIA zamknięty 2026-10-27).
+- **W repo, niewydane (2026-10-27, miniplan):** plan nie ma wiersza w tabeli „Stan prac”
+  `CLAUDE.md` — reguła w `SPEC_CLAUDE_MD.md`, `SPEC_PROMPT_ETAPU.md`, rytuale „Na koniec”
+  i zamknięciu planu trzech adapterów; hook startu zgłasza tabelę ponad 5 wierszami
+  (`[RelAI progi dokumentow]`). Do następnego wydania przez `/relai-release`.
 
 ## Co dalej
 

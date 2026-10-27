@@ -77,6 +77,11 @@ journal entry "dowiezione vs plan" → plan status `ZREALIZOWANY` → risk revie
 folder to `docs/archiwum/plany/` → update the "Aktywny plan" line → summary. The first two points
 are blocking: until they are resolved you do not write anywhere that the plan is done.
 
+Neither a stage close nor a plan close touches the "Stan prac" table in `CLAUDE.md` /
+`AGENTS.md`: a plan has **no row** there — the "Aktywny plan" line points to it (D-30), its history
+lives in `STATE.md` and the archive. A plan row left over from before this rule is removed at plan
+closing; the table ends the turn with at most five rows (`SPEC_CLAUDE_MD.md`).
+
 ## 5. Deviation signal — never "while we are at it"
 
 Something needed but **outside the scope of the current stage** appears. Stop and ask one

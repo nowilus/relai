@@ -1117,6 +1117,24 @@ function progiRotacjiZKomorki(komorka) {
   return progi;
 }
 
+// Wiersze danych PIERWSZEJ tabeli sekcji "Stan prac" (bez naglowka i separatora). Brak pliku,
+// sekcji albo tabeli → null, czyli nie ma czego mierzyc. Jedyne zrodlo prawdy o progu to
+// core/templates/SPEC_CLAUDE_MD.md — tutaj stoi jego kopia wykonawcza.
+const NAGLOWEK_STANU_PRAC = [/^stan prac\b/i, /^work status\b/i];
+const PROG_STANU_PRAC = 5;
+
+function wierszeStanuPrac(txt) {
+  if (!txt) return null;
+  const sekcja = wytnijSekcje(String(txt).replace(/\r\n/g, '\n'), NAGLOWEK_STANU_PRAC);
+  if (sekcja === null) return null;
+  const linie = sekcja.split('\n');
+  const start = linie.findIndex((l) => l.trim().startsWith('|'));
+  if (start < 0) return null;
+  let koniec = start;
+  while (koniec < linie.length && linie[koniec].trim().startsWith('|')) koniec++;
+  return Math.max(0, koniec - start - 2);
+}
+
 // Dokumenty i sekcje ponad WLASNYM progiem — inny fakt niz suma warstwy startowej.
 // Kazda pozycja niesie nazwe procedury, ktora ja odchudza: pozycja bez procedury nie wchodzi
 // do listy, bo raport bez procedury tylko marudzi (ryzyko 3 planu HIGIENA_DOKUMENTOW).
@@ -1178,6 +1196,15 @@ function dokumentyPonadProgiem(cwd, txtUstawien, progRyzyk, progUstawien) {
       const linii = czytaj(state).split('\n').length;
       dodaj(path.relative(cwd, state).split(path.sep).join('/'), linii, progi.STATE, 'linii',
         'skrocenie STATE.md');
+    }
+
+    // Tabela "Stan prac" w CLAUDE.md: najwyzej piec wierszy-drogowskazow (SPEC_CLAUDE_MD.md).
+    // Zamkniecie planu dopisywalo wiersz z historia planu i tabela tego repo urosla do ~20
+    // wierszy (przeglad 2026-10-27) — plan zyje w linii "Aktywny plan", historia w STATE.
+    const wierszyTabeli = wierszeStanuPrac(czytaj(path.join(cwd, 'CLAUDE.md')));
+    if (wierszyTabeli !== null) {
+      dodaj('tabela "Stan prac" w CLAUDE.md', wierszyTabeli, PROG_STANU_PRAC, 'wierszy',
+        'przeniesienie wierszy planow zamknietych do STATE.md');
     }
 
     // Plik ustawien (1.7.0, E5): prog CZASTKOWY budzetu, tak jak sekcja ryzyk. Dwa wylaczniki

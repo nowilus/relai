@@ -774,6 +774,7 @@ zmienić — osobny plik byłby drugim miejscem do zapomnienia.
 |---|---|---|---|---|---|
 | suma warstwy startowej | 100 KB (skill i pliki rytuału w sumie) | wiersz `Budżet startu sesji` (ta specyfikacja) | hook startu sesji (`startCost`) | raport `[RelAI budzet startu]`, najwyżej sześć linii | **jest** — hook startu |
 | `CLAUDE.md` | 10 KB | wiersz `Budżet startu sesji`; ten sam limit opisuje `SPEC_CLAUDE_MD.md` | hook startu sesji | wymieniony w raporcie jako pozycja ponad progiem cząstkowym | **jest** — hook startu (tylko wewnątrz raportu) |
+| tabela „Stan prac” w `CLAUDE.md` — liczba wierszy | 5 wierszy | `SPEC_CLAUDE_MD.md` (bez strojenia) | hook startu sesji (`dokumentyPonadProgiem`, przy włączonej rotacji) | wiersze planów zamkniętych do `STATE.md`; linia `[RelAI progi dokumentow]` | **jest** — raport startu; regułę niosą rytuał „Na koniec” i zamknięcie planu |
 | `docs/STATE.md` — waga | 12 KB | wiersz `Budżet startu sesji` | hook startu sesji | jw. | **jest** — hook startu (tylko wewnątrz raportu) |
 | sekcja „Stan otwartych ryzyk" + „Czeka na człowieka" + ostatni wpis | 12 KB | wiersz `Budżet startu sesji` (człon `ryzyka`) | hook startu sesji | jw. | **jest** — hook startu (tylko wewnątrz raportu) |
 | sekcja „Zasady aktywne" — waga | 30 KB | wiersz `Budżet startu sesji` (człon `zasady`) | hook startu sesji | jw. | **jest** — hook startu (tylko wewnątrz raportu) |

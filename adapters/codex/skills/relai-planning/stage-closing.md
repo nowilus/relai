@@ -34,7 +34,9 @@ Na koniec E<N>: [ ] 1 STATUS  [ ] 1a katalog roboczy  [ ] 2 dziennik  [ ] 3 bram
    status `ROZSTRZYGNIĘTA <data> — <jak>`, równolegle z adnotacją przy pozycji we wpisie. Sekcja
    „Do zrobienia przez człowieka" z treścią „—" nie tworzy niczego i nie zostawia śladu.
 4. **`docs/STATE.md`** i pozostałe dokumenty projektu, których dotknął etap (`README.md` tylko przy
-   zmianie sposobu uruchomienia).
+   zmianie sposobu uruchomienia). Tabeli „Stan prac” w `CLAUDE.md` nie dotykasz: plan nie ma tam
+   wiersza, wskazuje go linia „Aktywny plan” (D-30) — wiersz dopisywany przy każdym planie
+   rozsadził limit pięciu wierszy i 10 KB.
 5. **Wygeneruj `PROMPT_ETAP_N+1.md`** wg `stage-prompts.md` — z sekcji `PLAN.md` opisującej etap
    N+1, z **realnego stanu repo po tym etapie** i z lekcji, które w tym etapie powstały. To jest
    punkt, który najłatwiej pominąć i który przesądza o ciągłości pracy: **etap bez wygenerowanego

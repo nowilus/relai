@@ -91,7 +91,13 @@ zakłada dokument i **w tej samej turze** dokłada tę linię.
    Listę zamyka **jedna linia z trzema frazami sesji** (D-05) — patrz sekcja „Linia fraz sesji" —
    oraz **jedna linia o sprawach przeterminowanych**, patrz sekcja niżej.
 3. **Stan prac** — tabela `Co | Status | Gdzie` z maksymalnie pięcioma wierszami najwyższego
-   poziomu. Szczegóły są w `STATE.md`; tu tylko drogowskazy.
+   poziomu. Szczegóły są w `STATE.md`; tu tylko drogowskazy. **Plan nie ma tu własnego wiersza**
+   (D-30): wskazuje go linia „Aktywny plan”, a jego historia mieszka w `STATE.md` i archiwum planu.
+   Rytuał „Na koniec” etapu i zamknięcie planu tej tabeli nie dotykają — ani nie dopisują wiersza,
+   ani nie aktualizują wiersza planu. Projekt, który chce wskazać zamknięte plany, ma na to
+   **jeden** wiersz zbiorczy z linkiem do `STATE.md`, bez listy planów w komórce. Tabelę ponad
+   pięcioma wierszami zgłasza hook startu sesji w linii `[RelAI progi dokumentow]` (przy włączonej
+   rotacji dokumentów); naprawa: wiersze planów zamkniętych do `STATE.md`, w tabeli drogowskaz.
 4. **Aktywny plan** — dokładnie **jedna** linia w formacie `Aktywny plan: [<TEMAT>](docs/plany/<TEMAT>/STATUS.md)`,
    umieszczona zaraz pod tabelą „Stan prac" (D-30). Link prowadzi do `STATUS.md`, nie do `PLAN.md` —
    status jest tym, co się zmienia. Planów może być kilka, ale aktywny wskazujesz jeden; pozostałe
@@ -230,7 +236,8 @@ Tej sekcji nie edytuje się w ramach zwykłej pracy. Zmiana wymaga jawnej prośb
 | Kiedy | Co się zmienia |
 |---|---|
 | Zmiana statusu dużego obszaru prac | wiersz w tabeli „Stan prac" |
-| Start / zamknięcie planu | linia „Aktywny plan" |
+| Start / zamknięcie planu | linia „Aktywny plan" — **nigdy** wiersz w tabeli „Stan prac" |
+| Zamknięcie etapu | nic — stan etapu żyje w `STATUS.md` planu i w `STATE.md` |
 | Reguła powtórzyła się drugi raz jako korekta użytkownika | dopisek w „Regułach procesu" (graduacja) |
 | Zmiana ustawienia językowego / procesowego | odpowiedni punkt reguł, równolegle z `USTAWIENIA.md` |
 | Zmiana profilu projektu (tylko na prośbę człowieka) | cała sekcja „Reguły profilu", równolegle z `USTAWIENIA.md` |
@@ -311,3 +318,8 @@ Historia reguł tej specyfikacji. Instrukcją jest treść wyżej.
   zmierzonym projekcie — jeden po adopcji miał 1249 linii `FAKT`; linii nikt nie liczył. W tym
   samym wydaniu: zakaz treści odtwarzalnej z repozytorium i linia odsyłacza do `PULAPKI.md`.
   Linia przeglądu spraw człowieka — od 1.7.0.
+- **Plan bez wiersza w „Stan prac” (po 3.5.0).** Do 3.5.0 prompty etapów kazały w kroku 4
+  rytuału „Na koniec” aktualizować „wiersz planu” w `CLAUDE.md`, a zamknięcie planu go nie
+  usuwało — w repo RelAI tabela urosła do ~20 wierszy i plik do 15 KB `FAKT` (przegląd
+  2026-10-27). Od tej poprawki plan żyje wyłącznie w linii „Aktywny plan”, a hook startu liczy
+  wiersze tabeli.

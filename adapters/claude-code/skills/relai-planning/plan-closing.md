@@ -61,6 +61,11 @@ inaczej, niż zakładałeś, zostaje po nim wpis do wycofania.
    Pytanie o następcę jest dozwolone. Pytanie **zamiast** poprawienia linii — nie: to zostawia
    projekt z martwym linkiem i przerzuca sprzątanie po sobie na człowieka. `brak` jest zawsze
    poprawną wartością tymczasową; martwy link nie jest poprawny nigdy.
+
+   **Tabela „Stan prac” — bez zmian.** Zamknięty plan nie dostaje wiersza w tabeli i nie
+   dopisujesz go do żadnej komórki: jego ślad to `STATE.md` (punkt 3) i archiwum (punkt 7).
+   Projekt ma w tabeli wiersz planu z czasów przed tą regułą → usuwasz go w tej turze; tabela
+   kończy turę z najwyżej pięcioma wierszami (`SPEC_CLAUDE_MD.md`).
 9. **Podsumowanie** — 3–5 zdań dla użytkownika: co dowieziono, czego nie i dlaczego, co czeka na
    człowieka.
 
