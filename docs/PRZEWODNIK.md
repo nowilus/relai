@@ -243,7 +243,7 @@ relai/
 │   │   ├── agents/              #   czterej subagenci: trzej załogi + relai-prompt-optimizer
 │   │   └── hooks/
 │   │       ├── hooks.json       #   rejestracja trzynastu hooków (zdarzenia i matchery)
-│   │       └── *.js             #   trzynaście hooków Node.js, zero zależności npm
+│   │       └── *.js             #   czternaście hooków Node.js, zero zależności npm
 │   ├── cursor/                  # ADAPTER Cursor (od 1.5.0)
 │       ├── install.js           #   instalacja i cofnięcie jednym poleceniem
 │       ├── rules/               #   trzy reguły .mdc: rdzeń i guardraile zawsze, planowanie na żądanie

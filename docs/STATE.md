@@ -1,6 +1,6 @@
 # STATE — RelAI
 
-Stan na: 2026-10-26 (plan PIPELINE_WYDAN ZREALIZOWANY — RelAI 3.4.0 wydany przez pipeline:
+Stan na: 2026-10-27 (ZGLOSZENIA E1–E4 zrealizowane, E5 — wydanie — następny; ostatni zamknięty plan PIPELINE_WYDAN ZREALIZOWANY — RelAI 3.4.0 wydany przez pipeline:
 raport gotowości z mapą wpływu, `/relai-release`, bramka `pre-push`, weryfikacja po publikacji,
 film z szesnastoma komendami w zasobach `v3.4.0`; Aneksy A i B poprawiły instrument; poprzednio
 BEZPIECZENSTWO 2026-10-25 — wydanie 3.3.0, RELAI_MODS 2026-10-24, STRONA_RELAI 2026-10-18)
@@ -10,7 +10,8 @@ BEZPIECZENSTWO 2026-10-25 — wydanie 3.3.0, RELAI_MODS 2026-10-24, STRONA_RELAI
 RelAI **3.4.0** jest w repozytorium i publicznie (tag `v3.4.0`, 2026-10-26: pipeline wydań — plan
 PIPELINE_WYDAN; wcześniej 3.3.0 z bezpieczeństwem zależności i kodu). Plugin `relai` działa
 w trzech narzędziach — Claude Code, Cursorze i Codeksie — na jednym rdzeniu procesu, z szesnastoma
-komendami i trzynastoma hookami w Claude Code. Marketplace tego repozytorium niesie też cztery
+komendami i trzynastoma hookami w Claude Code (w repo czternaście — `session-title` z E4 planu
+ZGLOSZENIA, niewydany). Marketplace tego repozytorium niesie też cztery
 mody bez zmian w 3.4.0: `relai-panel` 0.21.2, `relai-progress` 0.6.1, `relai-cache-keeper` 0.12.0
 („early access”) i kokpit `relai-mods` 0.1.2. Wydanie robi się teraz frazą „gotowi do wydania?”
 (`/relai-release`): raport `release-check.js`, naprawy po jednej zgodzie, publikacja krok po kroku,
@@ -93,7 +94,7 @@ PANEL_CODEX (E1 w toku). Opinii spoza projektu nadal nie ma.
   pokazuje właściwy stan, układ zaakceptowany; sonda 0.0.9 z poprawką fontów czeka na pomiar po
   przeładowaniu macierzystego procesu. Tabela STATUS planu pokazuje jeszcze `GOTOWY DO STARTU` —
   do wyprostowania na `W TOKU`. Kontrakt w [README adaptera](../adapters/codex/panel/README.md).
-- **Plan ZGLOSZENIA — E1–E3 ZREALIZOWANE 2026-10-26, E4 gotowy do startu** (plan [ZGLOSZENIA](plany/ZGLOSZENIA/STATUS.md), 2026-10-26,
+- **Plan ZGLOSZENIA — E1–E4 ZREALIZOWANE 2026-10-26/27, E5 gotowy do startu** (plan [ZGLOSZENIA](plany/ZGLOSZENIA/STATUS.md), 2026-10-26,
   5 etapów, Opus). E1: ikona `/relai-security` na stronie (kopia z brandingu, na żywo 200) i test
   `site/narzedzia/odwolania.test.mjs` — zbudowana strona odwołująca się do nieistniejącego pliku
   albo komenda bez ikony zatrzymuje wdrożenie w `strona.yml` (testy strony 396). E2 (#3, w repo,
@@ -102,8 +103,11 @@ PANEL_CODEX (E1 w toku). Opinii spoza projektu nadal nie ma.
   zgody. Zniknięcie pliku po „tak” czeka na pomiar w aplikacji po wydaniu (bramka manualna; `-p`
   nie kasuje pod `.claude/`, P-014). E3 (#2, w repo, niewydane): pasek cache w terminalu to siatka
   do trzech kolumn — glif, etykieta, wartość — bez linii `b`, desktop bez zmian; testy modu 206.
-  Dalej: #1 (tytuł nowej sesji przez `sessionTitle` hooka — sonda przed kodem, E4), wydanie
-  i zamknięcie zgłoszeń (E5).
+  E4 (#1, w repo, niewydane): hook `session-title` nadaje pierwszemu promptowi-kontynuacji tytuł
+  „E4 · PLAN — nazwa etapu” z przekazania, pliku fokusu albo STATE; „pierwszy” z transkryptu, bo
+  po `/clear` aplikacja przenosi stary tytuł (P-055). „Nowa sesja” w projekcie testowym dała
+  dobry tytuł; wyścig zapisu fokusu z hookiem (zmierzony raz) czeka na bramkę po wydaniu. Testy
+  rdzenia 295. Dalej: wydanie i zamknięcie zgłoszeń (E5).
 
 ## Co dalej
 
@@ -179,7 +183,7 @@ pluginu panelu. Pre-commit repo: układ 1.9.2.
 sesji, artefakty robocze, załoga, tryb ciągły, baza reguł optymalizatora z nakładkami `claude`
 i `openai`, walidator, narzędzia wydań (`core/tools/release-*.js`, `release-map.json`), rdzeń
 panelu `core/panel/*.mjs`. **Adapter Claude Code**: dwa skille z plikami doczytywanymi,
-`trivy-scan` i kopia `security-audit` Cloudflare, 16 komend, 4 agenci, 13 hooków, lista modeli
+`trivy-scan` i kopia `security-audit` Cloudflare, 16 komend, 4 agenci, 14 hooków, lista modeli
 z 2026-10-08. **Adapter Cursor**: trzy reguły `.mdc`, dwa hooki, instalator, cztery skille.
 **Adapter Codex**: manifest, 16 skilli komend i 4 dołączone, router `AGENTS.md`, cztery hooki
 (z `lockfile-scan`); pakiet panelu `adapters/codex/panel/` w budowie (PANEL_CODEX E1).

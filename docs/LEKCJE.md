@@ -225,7 +225,10 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
       liczysz w transkrypcie na dysku, nie w stream-json (L-0263); pomiar reguły w `claude -p`
       niesie `--allowedTools` dla każdego polecenia, które reguła uruchamia, dosłownie (L-0273);
       zapis albo skasowanie pod `.claude/` przez badaną sesję `-p` mierzysz poleceniem
-      w transkrypcie, a stan pliku — interaktywnie albo bramką (L-0281).
+      w transkrypcie, a stan pliku — interaktywnie albo bramką (L-0281); ścieżkę modu (przycisk)
+      mierzysz funkcją, którą ona woła (komenda tego modu), po przeczytaniu jej kodu — ręczna
+      symulacja gubi kroki (L-0284); pole payloadu hooka, na którym stoi warunek, sprawdzasz
+      w każdym scenariuszu z listy, także po `/clear` (L-0285).
     - **Usługi zewnętrzne:** stan ustawienia repozytorium czytasz z API (`gh api repos/<repo>/pages`),
       nie ze zrzutu ani słowa człowieka (L-0244); obraz dla cudzej usługi w proporcji zmierzonej na
       opublikowanym widoku, każda podmiana pod nowym adresem (L-0245); strona wskazująca zasób
@@ -233,7 +236,7 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
       (L-0280).
     (L-0041, L-0042, L-0044, L-0047, L-0092, L-0133, L-0136, L-0138, L-0139, L-0146, L-0153, L-0166,
     L-0168, L-0185, L-0189, L-0190, L-0244, L-0245, L-0253, L-0255, L-0263, L-0264, L-0273, L-0280,
-    L-0281)
+    L-0281, L-0284, L-0285)
 14. **Najpierw zmiana w repozytorium, potem zdanie, które ją opisuje.** Weryfikację planujesz tam,
     gdzie wykonalna; po pytaniu sprzątasz sam; jednostką inwentarza jest sprawa, nie linia; wstawkę
     kotwiczysz do elementu, który przeżyje operację, i dowodzisz **obecności** nowej treści. Gdy
@@ -620,6 +623,32 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
   stawiasz w jednej sesji jako kopie pod innymi nazwami. Instalację wyłączasz `--settings` z pliku
   w `%TEMP%`, bez edycji `~/.claude/settings.json`. Bez jednej tury z odpowiedzią modelu limity nie
   mają danych i linii `b` nie widać.
+
+### L-0284 — Ręczna symulacja ścieżki modu zgubiła jej krok; komenda modu woła tę samą funkcję · 2026-10-27 · AKTYWNA
+
+- **Trigger:** ZGLOSZENIA E4. „Nowa sesja” z paska cache odtworzyłem ręcznie: `/clear`
+  i „kontynuujemy pracę”. Wyszedł zły tytuł (PANEL_CODEX ze STATE) i zaproponowałem aneks. Łukasz
+  zapytał, czy przycisk nie robi czegoś więcej. Kod `cache-keeper/hooks/register.tsx` pokazał
+  pominięty krok synchronizacji dokumentów. Komenda modu `/handoff` woła tę samą funkcję
+  (`startHandoff`) co przycisk i nie czeka na wygaśnięcie cache. Pomiar nią w projekcie testowym
+  wskazał prawdziwą przyczynę (L-0285), inną niż ta z symulacji.
+- **Zasada:** zanim odtworzysz ścieżkę przycisku modu ręcznie, czytasz jej kod. Jest komenda,
+  która woła tę samą funkcję — mierzysz nią. Pomiar, który pisze dokumenty projektu, robisz
+  w projekcie testowym w `%TEMP%` z gitem, nie w repo w trakcie etapu. Wynik symulacji nie jest
+  podstawą aneksu.
+
+### L-0285 — Warunek na polu payloadu hooka sprawdzony w jednym scenariuszu; po `/clear` pole kłamie · 2026-10-27 · AKTYWNA
+
+- **Trigger:** ZGLOSZENIA E4. W sondzie desktopu od drugiego promptu payload `UserPromptSubmit`
+  niósł `session_title`, więc hook dostał warunek „sesja ma tytuł → cisza”. Po `/clear` z paska
+  cache aplikacja przenosi tytuł starej rozmowy do nowego transkryptu (rekord `custom-title`
+  w linii 1, przed promptem). Pierwszy prompt nowej sesji miał więc `session_title` i hook milczał
+  dokładnie w scenariuszu zgłoszenia #1.
+- **Zasada:** pole payloadu cudzego narzędzia, na którym stawiasz warunek, sprawdzasz w każdym
+  scenariuszu z listy sondy (świeża sesja, po `/clear`, wznowiona), zanim powstanie kod. Stan
+  „pierwszy” czytasz ze źródła, które go zapisuje (transkrypt sesji), a nie z pola, które go tylko
+  sugeruje. Zbiór linii, które nie są promptem człowieka, jest zamkniętą listą opakowań
+  systemowych, nie prefiksem „<”.
 
 ## Lekcje zwinięte
 

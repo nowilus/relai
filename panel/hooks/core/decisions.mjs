@@ -22,7 +22,7 @@ import { crewWaves } from './flow.mjs';
  * @typedef {{ question: string, facts: Fact[] }} Step
  * @typedef {{ kind: 'clear' } | { kind: 'command', command: string, args: string } | { kind: 'submit', text: string }
  *   | { kind: 'write', path: string, text: string }
- *   | { kind: 'newSession', command: string, args: string, topic: string, stage: string, card: string }} Action
+ *   | { kind: 'newSession', command: string, args: string, topic: string, stage: string, name: string, card: string }} Action
  *   write: a path relative to the project root; newSession: a new desktop session with the command
  *   ready in it, the card's consent left in consentPath(topic, stage)
  * @typedef {'open' | 'second' | 'confirmed' | 'cancelled'} CardState
@@ -368,7 +368,7 @@ export function stageCard(x) {
   const args = withConsent(`${topic} ${s.id}`, x.id);
   /** @type {Action[]} */
   const actions = x.isNew === true
-    ? [{ kind: 'newSession', command: 'relai-stage', args: `${topic} ${s.id}`, topic, stage: s.id, card: x.id }]
+    ? [{ kind: 'newSession', command: 'relai-stage', args: `${topic} ${s.id}`, topic, stage: s.id, name: s.name, card: x.id }]
     : [...(x.isFresh ? [/** @type {Action} */ ({ kind: 'clear' })] : []), { kind: 'command', command: 'relai-stage', args }];
   return { kind: 'card', card: makeCard({ id: x.id, title: `Start etapu ${s.id}${prompt ? '' : ' (bez promptu)'}`, facts, question: 'Zaczynamy?', actions }) };
 }

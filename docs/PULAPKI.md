@@ -8,6 +8,30 @@ Specyfikacja: `SPEC_PULAPKI.md`.
 
 ## Pułapki
 
+### P-056 — Link `claude://code/new?folder=…` z folderem nieznanym aplikacji otwiera sesję w innym folderze · 2026-10-27 · AKTYWNA
+
+- **Objaw (ZGLOSZENIA E4, aplikacja desktop z Claude Code 2.1.308):** link z `folder` =
+  `%TEMP%\relai-zgl-e4-cwd` (folder, którego aplikacja jeszcze nie znała) otworzył sesję
+  w `C:/Users/Lukasz/Desktop/RelAI`, z wpisanym promptem. Hook projektu z folderu z linku się nie
+  odpalił.
+- **Obejście:** pierwszą sesję w nowym folderze zakłada człowiek, wybierając folder ręcznie.
+  Po każdym otwarciu linkiem sprawdzasz `cwd` sesji (`list_sessions`), zanim uznasz pomiar.
+- **Zasięg:** deep link aplikacji desktop; mechanizm `relai-panel` (karta etapu) używa folderu
+  projektu, który aplikacja zna, więc go to nie dotyka. Źródło: wpis dziennika 2026-10-27 (E4).
+
+### P-055 — Po `/clear` aplikacja przenosi tytuł starej rozmowy; `session_title` w payloadzie nie znaczy „nie pierwszy prompt” · 2026-10-27 · AKTYWNA
+
+- **Objaw (ZGLOSZENIA E4, 2.1.308, desktop):** nowy transkrypt po `/clear` z paska cache
+  (`/handoff` → „Wyczyść i kontynuuj”) zaczyna się rekordem `custom-title` z tytułem starej
+  rozmowy, a pierwszy prompt nowej sesji niesie `session_title`. Po `/clear` wpisanym ręcznie
+  w sesji z tytułem nadanym przez hook pole bywało puste — zachowanie zależy od ścieżki.
+- **Obejście:** „pierwszy prompt” czytasz z transkryptu (`transcript_path`): brak wcześniejszego
+  promptu człowieka, z pominięciem opakowań systemowych (`/clear`, `local-command-*`,
+  `command-message`, `system-reminder`). Hook `session-title` tak robi.
+- **Zasięg:** hooki `UserPromptSubmit`, które rozróżniają pierwszy prompt sesji. Plik fokusu
+  nowej sesji panel zapisuje w tej samej chwili co hook (zmierzone raz: 131 ms przed hookiem). Źródło:
+  L-0285.
+
 ### P-054 — Codex pomija niezaufany hook bez słowa, także `PostToolUse` z `.codex/hooks.json` projektu · 2026-10-24 · AKTYWNA
 
 - **Objaw (plan BEZPIECZENSTWO, E5, sonda hooków na Codeksie 0.155.1):** hooki sondy w

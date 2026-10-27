@@ -9,6 +9,7 @@
 // No `$` here (P-023 pkt 10): pure functions; register.tsx runs the process or the tool.
 
 import { samePath } from './core/decisions.mjs'
+import { titleOf } from './core/session-title.mjs'
 import { FOCUS_DIR, parseFocus } from './focus'
 import type { FocusTarget } from './focus'
 
@@ -61,11 +62,12 @@ export function hasStartSession(names: readonly string[]): boolean {
 }
 
 // The arguments of start_session (schema of the app 2.31226.1.0): started now at the person's
-// "Tak", a fresh context, this project's folder as it is; background is required, 80+ characters
-export function startSessionArgs(topic: string, stage: string, text: string): Record<string, unknown> {
+// "Tak", a fresh context, this project's folder as it is; background is required, 80+ characters.
+// The title has the shape the plugin's hook gives a continued session (ZGLOSZENIA E4, #1)
+export function startSessionArgs(topic: string, stage: string, text: string, name = ''): Record<string, unknown> {
   return {
     initiation: 'user_asked',
-    title: `Etap ${stage} planu ${topic}`,
+    title: titleOf({ kind: 'plan', plan: topic, stage, name }) ?? `Etap ${stage} planu ${topic}`,
     prompt: text,
     context: 'fresh',
     use_worktree: false,

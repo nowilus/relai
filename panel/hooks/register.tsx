@@ -614,7 +614,7 @@ async function openSession($: $T, a: Extract<Action, { kind: 'newSession' }>, na
 
 async function launch($: $T, a: Extract<Action, { kind: 'newSession' }>, text: string): Promise<'link' | 'app'> {
   if (await offersStart($)) {
-    const r = await $.mcp.call(START_SERVER, START_TOOL, startSessionArgs(a.topic, a.stage, text))
+    const r = await $.mcp.call(START_SERVER, START_TOOL, startSessionArgs(a.topic, a.stage, text, a.name))
     if (r.isError) throw new Error(r.content.map((b) => ('text' in b ? String(b.text) : '')).join(' ').trim() || 'aplikacja odmówiła startu sesji')
     return 'app'
   }

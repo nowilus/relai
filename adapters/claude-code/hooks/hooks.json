@@ -40,7 +40,8 @@
       {
         "hooks": [
           { "type": "command", "command": "node \"${CLAUDE_PLUGIN_ROOT}/adapters/claude-code/hooks/prompt-mode.js\"" },
-          { "type": "command", "command": "node \"${CLAUDE_PLUGIN_ROOT}/adapters/claude-code/hooks/humanize-continuous.js\"" }
+          { "type": "command", "command": "node \"${CLAUDE_PLUGIN_ROOT}/adapters/claude-code/hooks/humanize-continuous.js\"" },
+          { "type": "command", "command": "node \"${CLAUDE_PLUGIN_ROOT}/adapters/claude-code/hooks/session-title.js\"" }
         ]
       }
     ],

@@ -2097,3 +2097,109 @@ Przegląd ryzyk: ryzyko 3 planu (siatka rozjedzie się w wąskim terminalu) nie 
 terminalowa nie owija `next(e)`.
 
 Autor: RelAI (Opus 5.5) + Lukasz
+
+### 2026-10-27 — ZGLOSZENIA E4: tytuł nowej sesji z fokusu przez `sessionTitle` (#1)
+
+**Zrobione:**
+
+- Sonda przed kodem (zasada 13): build 2.1.308 ma `sessionTitle` w schemacie wyjścia
+  `UserPromptSubmit` i `SessionStart`; payload nie mówi, czy prompt jest pierwszy.
+- `core/panel/session-title.mjs` (nowy): kształt „E4 · PLAN — nazwa etapu” / „Odnoga NAZWA”,
+  najwyżej 60 znaków, cięcie na granicy słowa z „…”, identyfikator nigdy nie cięty. Jedna reguła
+  dla hooka (przez `import()`) i dla `start_session` karty etapu (kopia `sync-panel-core` w czterech
+  modach).
+- `core/process/session-title.js` (nowy): zamknięta lista fraz (`kontynuujemy pracę`, `kontynuuj`,
+  `tak`, `let's continue`, `continue`, `yes`, forma z plikiem wznowienia i zgodą), komenda etapu
+  (oba ukośniki, `--zgoda-panelu`), źródła w kolejności przekazanie → plik fokusu sesji → komenda
+  etapu → pierwsza pozycja „Nad czym pracujemy” w STATE; `priorPrompts` (wcześniejsze prompty
+  człowieka w transkrypcie) i `claimFirst` (znacznik `.claude/relai/tytul/<id>`, flaga `wx`).
+- `adapters/claude-code/hooks/session-title.js` (nowy, czternasty hook) i jedno wejście
+  w `hooks.json`. Kolejność: marker RelAI → znacznik → fraza → transkrypt → źródła; cisza przy
+  awarii; `exit` po opróżnieniu stdout.
+- `panel/hooks/launch.ts`: `startSessionArgs(topic, stage, text, name)` bierze tytuł z `titleOf`;
+  `core/panel/decisions.mjs` niesie `name` etapu w akcji `newSession`; `register.tsx` przekazuje go
+  dalej.
+- `core/MANIFEST.json` (biblioteka `session-title`, `uses` adaptera), README (tabela i „czternaście”),
+  `docs/PRZEWODNIK.md` (drzewo katalogów). P-055, P-056; L-0284, L-0285.
+- Komenda etapu jako źródło stoi za przekazaniem i plikiem fokusu, przed STATE — decyzja planu
+  wymienia trzy źródła, komenda z karty i tak niesie ten sam cel co przekazanie.
+
+**Zweryfikowane — jak dokładnie:**
+
+- Sonda `sessionTitle`, trzy pomiary:
+  - CLI `claude -p` (2.1.308, `--settings` z hookiem sondy, katalog w `%TEMP%`): log debug „Hook
+    sessionTitle applied (14 chars)”, transkrypt ma `custom-title` „SONDA-E4 33471”.
+  - Desktop, folder sondy wybrany ręcznie: lista sesji aplikacji pokazała „SONDA-E4 67435”, tytuł
+    z hooka wygrał z tytułem AI. Pierwsza próba linkiem wylądowała w folderze RelAI i nie
+    zmierzyła niczego (P-056).
+  - Po `/clear` w tej samej sesji: nowe id `56b96d95`, tytuł z hooka zapisany w nowym transkrypcie.
+- Testy: `core/process/tests/session-title.test.js` 23 testy, `core/panel/tests/session-title.test.js`
+  9. `node --test "core/process/tests/*.test.js"` → **295/295** (było 272). `node --test
+  "core/panel/tests/*.test.js"` → **225/225**. `claude plugin test .`: panel **214**, progress 48,
+  cache-keeper 206, mods 68 — bez porażek (L-0264).
+- Mutacje (skrypt z kotwicą, `--test-reporter=tap`, plik przywrócony i porównany): zdjęcie
+  znacznika w hooku → 1 fail („tak” jako drugi prompt); zdjęcie `isFirst` w rdzeniu → 1 fail;
+  zdjęcie warunku transkryptu → 1 fail (sesja z wcześniejszymi promptami).
+- Dowód negatywny na realnym repo, po ostatniej zmianie: sesja `e4-dowod-3` „zrób przegląd
+  README” → pusto, potem „tak” → pusto; kontrola pozytywna `e4-dowod-4` „kontynuujemy pracę” →
+  tytuł. Znaczniki skasowane.
+- Na żywo, „Nowa sesja” — trzy przebiegi:
+  1. Ręcznie w RelAI (`/clear` + „kontynuujemy pracę”): tytuł „E1 · PANEL_CODEX — …” ze STATE,
+     bo nowa sesja `dd164ad9` nie miała pliku fokusu. Zaproponowałem aneks; Łukasz zapytał, czy
+     przycisk nie robi więcej. Kod potwierdził pominięty krok synchronizacji (L-0284).
+  2. Projekt testowy `%TEMP%/relai-zgl-e4-proj` (INNY_PLAN pierwszy w STATE, PROBA drugi),
+     `/handoff` → „Wyczyść i kontynuuj”: tytuł „PROMPT_ETAP_2 documentation summary” z aplikacji.
+     Transkrypt nowej sesji zaczyna się rekordem `custom-title` starej rozmowy, a hook milczał na
+     warunku `session_title` (L-0285, P-055). Synchronizacja nie zmieniła kolejności w STATE.
+  3. Po poprawce (pierwszy prompt z transkryptu), ten sam projekt: lista sesji aplikacji —
+     **„E2 · PROBA — Drugi krok sondy”**. Plik fokusu nowej sesji powstał o 08:08:07.011, znacznik
+     hooka o 08:08:07.142 — tytuł ze źródła nr 2, nie ze STATE.
+- `priorPrompts` na prawdziwych transkryptach przebiegów 2–3: nowe sesje po `/clear` → 0, stare → 3.
+- `node core/tools/release-check.js --szybko` → zero czerwieni (dwie czerwienie od E4 — `uses`
+  w MANIFEST i README na 13 hooków — naprawione w etapie).
+- Przegląd diffu (subagent recenzent): 0 krytycznych, 0 wysokich, 2 średnie, 4 drobne. Wzięte:
+  transkrypt czytany dopiero po znaczniku i frazie; zamknięta lista opakowań systemowych zamiast
+  prefiksu „<” (wklejony HTML i komenda inna niż `/clear` liczą się jako prompt); prompt z samym
+  obrazem lub dokumentem liczy się; `exit` po opróżnieniu stdout. Odłożone: niżej.
+- Katalog roboczy `.claude/relai/work/ZGLOSZENIA/E4/`: przed — 17 plików, 10 632 B (skrypty
+  `probe-title.js`, `mutate.js`, `make-proj.js`, `open-probe.js`, pięć payloadów, pięć tytułów,
+  ustawienia i wynik sondy `-p`). Skasowany po zgodzie Łukasza; po — katalogu nie ma. Poza
+  katalogiem: `%TEMP%/relai-zgl-e4-cwd` i `%TEMP%/relai-zgl-e4-proj` oraz ich katalogi
+  transkryptów w `~/.claude/projects/` — skasowane; `.claude/settings.local.json` z hookiem
+  pomiaru w RelAI — skasowany; sesje testowe „E2 · PROBA …”, „PROMPT_ETAP_2 documentation
+  summary”, „Sonda E4 pierwszy prompt” — zarchiwizowane. 0 trafień `relai-zgl-e4` w `%TEMP%`.
+
+**Świadomie odłożone:**
+
+- Wyścig zapisu fokusu po `/clear` z hookiem: jeden przebieg, margines 131 ms. Gdy hook wygra,
+  tytuł spada do STATE — bramka manualna po wydaniu (trzy przebiegi).
+- Przegląd, uwagi drobne: „tak” bez znacznika z jednym wcześniejszym „tak” w transkrypcie liczy
+  się jako pierwszy, a nieczytelny transkrypt po `/clear` milczy tylko przy niepustym
+  `session_title` — oba przypadki dotyczą wyłącznie sesji sprzed znacznika i błądzą w stronę ciszy
+  albo jednego tytułu.
+- Panel nie przeniósł fokusu na sesję po ręcznym `/clear` w RelAI (brak pliku dla `dd164ad9`),
+  a po `/clear` z `/handoff` przeniósł — przyczyna w `relai-panel` niezbadana, poza zakresem E4.
+- Pozycja STATE wskazująca plan z innego narzędzia daje tytuł tego planu (decyzja planu, sekcja 8).
+  W tym repo pierwszą pozycją jest PANEL_CODEX, więc sesja bez fokusu dostanie jego tytuł.
+- `relai-progress` i `relai-mods` dostały kopię `session-title.mjs` przez `sync-panel-core`, choć
+  jej nie używają — raport proponuje im patch; rozstrzygnięcie w E5.
+- Sesje testowe: `local_69f0791f` (RelAI, po `/clear`) nie dała się zarchiwizować, bo pracowała;
+  `local_6fbb7b19` „PROMPT_ETAP_2 documentation summary” w folderze RelAI — nieruszona, do decyzji
+  Łukasza. Znaczniki `7232f936` i `dd164ad9` w `.claude/relai/tytul/` to zwykły stan hooka.
+- Powtórka błędu z L-0116: ścieżkę Windows przepuściłem przez `node -e` w powłoce (błąd składni,
+  nic nie powstało); poprawione skryptem pisanym Write.
+- Rotacja dziennika, ryzyk i lekcji (wszystkie ponad progiem) — przy „kończymy na dziś”.
+
+**Do zrobienia przez człowieka:**
+
+- Po wydaniu: „Nowa sesja” z paska cache w RelAI z aktywnym fokusem → tytuł „E<N> · PLAN — nazwa”
+  w trzech przebiegach (bramka w `STATUS.md`).
+
+Przegląd ryzyk: ryzyko 1 planu (aplikacja ignoruje albo nadpisuje `sessionTitle`) nie zaszło —
+sonda pozytywna w trzech miejscach. Ryzyko 2 planu (fałszywe „tak” — tytuł sesji, której pierwszy
+prompt nie był kontynuacją) nie zaszło: testy drugiego promptu, „tak” z treścią i sesji
+z wcześniejszymi promptami, trzy mutacje zabite. Poza tabelą planu zaszło coś innego: tytuł ze
+STATE zamiast z fokusu (przebiegi 1–2), naprawione warunkiem pierwszego promptu z transkryptu;
+wyścig zapisu fokusu zostaje w bramce.
+
+Autor: RelAI (Opus 5.5) + Lukasz

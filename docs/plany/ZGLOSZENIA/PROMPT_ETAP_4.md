@@ -425,20 +425,20 @@ wpisujesz do wpisu dziennika **z nazwy**, a jego nazwę zaczynasz od slugu proje
 Każdy punkt Weryfikacji, który przeszedł, odhaczasz w `PROMPT_ETAP_4.md` (`- [ ]` → `- [x]`)
 zaraz po jego sprawdzeniu, nie na końcu etapu; punkt, który nie przeszedł, zostaje pusty.
 
-- [ ] Sonda `sessionTitle`: wynik w desktopie, CLI i po `/clear` zapisany we wpisie (napis sondy
+- [x] Sonda `sessionTitle`: wynik w desktopie, CLI i po `/clear` zapisany we wpisie (napis sondy
       widoczny albo nie — z dowodem: zrzut, transkrypt); przy wyniku negatywnym w desktopie —
       decyzja Łukasza we wpisie, zanim powstał kod.
-- [ ] Testy modułu tytułu zielone; mutacja zdejmująca warunek „pierwszy prompt” wywraca co
+- [x] Testy modułu tytułu zielone; mutacja zdejmująca warunek „pierwszy prompt” wywraca co
       najmniej jeden test (wynik mutacji we wpisie).
-- [ ] Dowód negatywny: prompt z własną treścią i „tak” jako drugi prompt sesji — brak
+- [x] Dowód negatywny: prompt z własną treścią i „tak” jako drugi prompt sesji — brak
       `sessionTitle` na wyjściu hooka (test i jeden przebieg hooka z payloadem).
-- [ ] `node --test "core/process/tests/*.test.js"` → bez porażek, liczba ≥ 273 (272 `FAKT` + nowe);
+- [x] `node --test "core/process/tests/*.test.js"` → bez porażek, liczba ≥ 273 (272 `FAKT` + nowe);
       `claude plugin test .` w `panel/` bez porażek.
-- [ ] Na żywo w aplikacji: nowa sesja z frazą kontynuacji ma tytuł planu i etapu (zrzut listy
+- [x] Na żywo w aplikacji: nowa sesja z frazą kontynuacji ma tytuł planu i etapu (zrzut listy
       sesji) — albo, decyzją Łukasza, bramka manualna po E5 w `STATUS.md`.
-- [ ] `node core/tools/release-check.js --szybko` — zero czerwieni wynikających z plików E4.
-- [ ] Wpis w `docs/DZIENNIK.md` dopisany na końcu sekcji „Wpisy”; `docs/STATE.md` zaktualizowany.
-- [ ] Katalog roboczy `.claude/relai/work/ZGLOSZENIA/E4/` przejrzany raportem
+- [x] `node core/tools/release-check.js --szybko` — zero czerwieni wynikających z plików E4.
+- [x] Wpis w `docs/DZIENNIK.md` dopisany na końcu sekcji „Wpisy”; `docs/STATE.md` zaktualizowany.
+- [x] Katalog roboczy `.claude/relai/work/ZGLOSZENIA/E4/` przejrzany raportem
       (`node .claude/relai/tools/clean-work.js raport`) i skasowany po „tak”; liczby przed i po
       w sekcji „Zweryfikowane” wpisu. Artefakty poza tym katalogiem (np. kopie pluginu
       w `%TEMP%`, plik `--settings`) wypisane z nazwy razem z tym, co się z nimi stało.

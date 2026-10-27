@@ -178,7 +178,7 @@ test('karta etapu w nowej sesji: dokladnie jeden krok newSession, bez /clear i b
     const r = d.stageCard({ id: ID, statusMd: statusWithE5('GOTOWY DO STARTU'), statusPath: STATUS_PATH, stage: 'E5', promptText: REAL_PROMPT, sessionModel: 'claude-opus-5-5', isFresh: true, isNew: true, via });
     assert.equal(r.kind, 'card');
     assert.deepEqual(r.card.actions.map((a) => a.kind), ['newSession']);
-    assert.deepEqual(r.card.actions[0], { kind: 'newSession', command: 'relai-stage', args: 'PANEL_CLAUDE E5', topic: 'PANEL_CLAUDE', stage: 'E5', card: ID });
+    assert.deepEqual(r.card.actions[0], { kind: 'newSession', command: 'relai-stage', args: 'PANEL_CLAUDE E5', topic: 'PANEL_CLAUDE', stage: 'E5', name: 'Decyzje w panelu', card: ID });
     assert.equal(d.hasConsent(r.card.actions[0].args), false);
     const chat = r.card.facts.find((x) => x.label === 'Czat').value;
     assert.match(chat, via === 'app' ? /aplikacja pokaże swoją kartę zgody/ : /Enter tam; ta rozmowa zostaje; zgoda ważna 10 min/);

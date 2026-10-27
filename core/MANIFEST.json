@@ -95,6 +95,12 @@
       "description": "Tryb ciagly optymalizatora promptow: przelacznik `Tryb ciagly` z ustawien czytany maszynowo (wlaczony / wylaczony / nie wiadomo), filtr pomijania (komendy, frazy sesji, krotkie potwierdzenia, pytania) i tresc reguly wstrzykiwanej do tury. Bez wiedzy o protokole hookow."
     },
     {
+      "id": "session-title",
+      "file": "./process/session-title.js",
+      "kind": "biblioteka",
+      "description": "Tytul nowej sesji z fokusu (plan ZGLOSZENIA, E4, zgloszenie #1): pierwszy prompt sesji z zamknietej listy fraz kontynuacji albo komenda etapu, zrodla w kolejnosci przekazanie fokusu, plik fokusu sesji, pierwsza pozycja 'Nad czym pracujemy' w STATE; znacznik pierwszego promptu na sesje. Ksztalt tytulu wspolny z relai-panel: ./panel/session-title.mjs (import()). Bez wiedzy o protokole hookow."
+    },
+    {
       "id": "resume",
       "file": "./process/resume.js",
       "kind": "biblioteka",
@@ -186,6 +192,7 @@
         "./guardrails/secret-scan.js",
         "./process/session-signals.js",
         "./process/prompt-mode.js",
+        "./process/session-title.js",
         "./process/resume.js",
         "./process/work-artifacts.js",
         "./process/crew.js",

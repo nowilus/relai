@@ -377,6 +377,8 @@ describe('decisions in the RelAI panel', () => {
     expect(calls.processes).toEqual([])
     expect(calls.mcp.map((c) => `${c.server}/${c.tool}`)).toEqual(['ccd_session/start_session'])
     expect(calls.mcp[0]?.args).toMatchObject({ initiation: 'user_asked', prompt: '/relai:relai-stage PANEL_X E2', context: 'fresh', use_worktree: false })
+    // ZGLOSZENIA E4 (#1): the same title shape the plugin's hook gives a continued session
+    expect(calls.mcp[0]?.args.title).toBe('E2 · PANEL_X — Decyzje')
     expect(String(calls.mcp[0]?.args.background).length).toBeGreaterThanOrEqual(80)
     expect(calls.writes[CONSENT]).toBeDefined()
     expect((await ui.find({ key: 'sent' }))?.text).toContain('potwierdź na jej karcie')

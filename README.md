@@ -135,7 +135,7 @@ prowadź na modelu `strong`.
 ## Co pilnuje tylko Claude Code
 
 Twarde mechanizmy to **hooki** — skrypty uruchamiane przez narzędzie, nie przez model. Claude Code
-ma ich trzynaście; Cursor i Codex po części. Tam, gdzie hooka nie ma, zasada stoi wyłącznie na
+ma ich czternaście; Cursor i Codex po części. Tam, gdzie hooka nie ma, zasada stoi wyłącznie na
 pamięci modelu — reguła w kontekście, bez blokady.
 
 | Hook Claude Code | Co robi | Cursor | Codex |
@@ -148,6 +148,7 @@ pamięci modelu — reguła w kontekście, bez blokady.
 | `profile-rules` | pierwszy plik kodu, ekran czy wdrożenie tworzy właściwy dokument | reguła | tylko pamięć modelu |
 | `prompt-mode` | tryb ciągły optymalizatora promptów i jego pytanie o zgodę | brak trybu | brak trybu |
 | `humanize-continuous` | tryb ciągły `/relai-humanize` w zakresach wybranych przez Ciebie | brak trybu | brak trybu |
+| `session-title` | nowa sesja zaczęta frazą „kontynuujemy pracę” albo komendą etapu dostaje tytuł planu i etapu zamiast samej frazy | brak | brak |
 | `lockfile-scan` | zmiana pliku blokady albo instalacja paczek uruchamia szybki skan Trivy; notka tylko przy nowym CRITICAL/HIGH | brak | hook (po komendzie instalacji) |
 | `quality-gate` | `tsc` i eslint po edycji, gdy projekt je ma | brak | brak |
 | `console-log-warn` | ostrzega o `console.log` w zapisanym pliku | brak | brak |
