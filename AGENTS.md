@@ -1,5 +1,8 @@
 # RelAI — budowa pluginu (projekt dogfoodingowy)
 
+> Kopia `CLAUDE.md` dla Codeksa, zsynchronizowana 2026-10-27. Od pierwszej sekcji `##` treść jest
+> identyczna z `CLAUDE.md` — zmieniasz oba pliki naraz; rozjazd zgłasza hook startu sesji.
+
 Ten folder to repo pluginu **RelAI** („Twój projekt pamięta wszystko") — frameworka dokumentacyjno-procesowego dla Claude Code. Projekt prowadzi się według zasad, które sam buduje. Trzymaj ten plik krótkim — szczegóły są w `docs/`.
 
 ## Rytuał startu sesji
@@ -11,12 +14,17 @@ Czytaj w kolejności, nie skanuj pełnotekstowo repo:
 4. [docs/LEKCJE.md](docs/LEKCJE.md) — wyłącznie sekcja „Zasady aktywne".
 5. Rejestru decyzji **nie czytasz na starcie** — `docs/DECYZJE.md` otwierasz, gdy temat dotyka decyzji; decyzji zamrożonych **nie proponujesz ponownie**.
 6. [docs/USTAWIENIA.md](docs/USTAWIENIA.md) — preferencje projektu.
-7. Aktywny plan — linia „Aktywny plan" pod tabelą „Stan prac"; plany zamknięte mają tam status i link do archiwum.
+7. Aktywny plan — linia „Aktywny plan" pod tabelą „Stan prac"; tabela ma najwyżej pięć wierszy-drogowskazów (`SPEC_CLAUDE_MD.md`), plany zamknięte są w `docs/archiwum/plany/` i w `docs/STATE.md`.
 
 **Frazy sesji:** „kontynuujemy pracę" → rytuał startu, akapit „gdzie jesteśmy" **i jedno zdanie
 z propozycją najbliższego kroku**; „sprawdź status" → stan, plany, ryzyka, zaległości
 dokumentacyjne; „kończymy na dziś" → sync dokumentów, wpis do dziennika, przegląd ryzyk,
-sprzątanie artefaktów roboczych, propozycja commita. Pełna ściąga: [docs/KOMENDY.md](docs/KOMENDY.md).
+sprzątanie artefaktów roboczych, propozycja commita; „gotowi do wydania?” → komenda projektowa
+`/relai-release` (`.claude/commands/`; w Codeksie i Cursorze sam raport
+`node core/tools/release-check.js`, bez publikacji). Pełna ściąga: [docs/KOMENDY.md](docs/KOMENDY.md).
+**Podpowiedź wydania:** przy „kontynuujemy pracę” (po akapicie „gdzie jesteśmy”) i w podsumowaniu
+zamknięcia planu uruchom `node core/tools/release-hint.js` (~1 s). Linia na wyjściu → jedno zdanie
+o gotowości wydania z jej liczbą plików i komponentami; puste wyjście → nic nie mówisz.
 
 **Sprawa przeterminowana:** pozycja sekcji „Czeka na człowieka" starsza niż `N` dni (wiersz
 `Przegląd spraw człowieka` w [docs/USTAWIENIA.md](docs/USTAWIENIA.md), domyślnie 30) wymusza
@@ -27,27 +35,19 @@ o kolejne `N` dni / rozstrzygnąć teraz. Sesja nieinteraktywna: sam raport, bez
 
 | Co | Status | Gdzie |
 |---|---|---|
-| Plugin RelAI — wydany, trzy adaptery | DZIAŁA (3.0.0 w repo i publicznie, wydane 2026-10-13; w marketplace także trzy pluginy panelu „early access”: relai-panel 0.15.0, relai-progress 0.4.0, relai-cache-keeper 0.7.0 — linia w stopce każdej sesji od 2026-10-13) | [docs/STATE.md](docs/STATE.md) |
-| Plan PANEL_CLAUDE — 9 etapów | **ZREALIZOWANY 2026-10-10** (9/9, Aneksy A–E, wydanie 2.8.0; pomiar bramki E5 pominięty decyzją człowieka) | [archiwum planu](docs/archiwum/plany/PANEL_CLAUDE/STATUS.md) |
-| Plan BUDOWA_RELAI — 10 etapów | ZAMKNIĘTY 2026-08-10 | [archiwum planu](docs/archiwum/plany/BUDOWA_RELAI/STATUS.md) |
-| Plan ROZWOJ_PO_WYDANIU — 8 etapów | **ZREALIZOWANY 2026-09-05**; wydania 1.10.0 i 2.0.0 opublikowane | [archiwum planu](docs/archiwum/plany/ROZWOJ_PO_WYDANIU/STATUS.md) |
-| Plan OPTYMALIZACJA_KONTEKSTU — 5 etapów | ZREALIZOWANY 2026-08-21 | [archiwum planu](docs/archiwum/plany/OPTYMALIZACJA_KONTEKSTU/STATUS.md) |
-| Plan HIGIENA_DOKUMENTOW — 6 etapów | **ZREALIZOWANY 2026-09-01** (Aneksy A–D) | [archiwum planu](docs/archiwum/plany/HIGIENA_DOKUMENTOW/STATUS.md) |
-| Plan SPRZATANIE_ARTEFAKTOW — 4 etapy | **ZREALIZOWANY 2026-09-03** (4/4, wydanie 1.8.0) | [archiwum planu](docs/archiwum/plany/SPRZATANIE_ARTEFAKTOW/STATUS.md) |
-| Plan REKOMENDACJA_MODELU — 4 etapy | **ZREALIZOWANY 2026-09-04** (4/4, Aneksy A–D, wydanie 1.9.0) | [archiwum planu](docs/archiwum/plany/REKOMENDACJA_MODELU/STATUS.md) |
-| Plan PIERWSI_UZYTKOWNICY — 3 etapy | **CZĘŚCIOWO ZREALIZOWANY 2026-09-24** (E1 i E2 zrealizowane, E3 pominięty — pilotaż nie wystartował) | [archiwum planu](docs/archiwum/plany/PIERWSI_UZYTKOWNICY/STATUS.md) |
-| Plan PROWADZENIE_END_TO_END — 7 etapów | **ZREALIZOWANY 2026-09-24** (7/7, Aneksy A–K; wydania 2.3.1–2.6.0 po E1–E4, E5–E7 razem w 2.7.0) | [archiwum planu](docs/archiwum/plany/PROWADZENIE_END_TO_END/STATUS.md) |
-| Plan OPTYMALIZATOR_PROMPTOW — 5 etapów | **ZREALIZOWANY 2026-09-15** (5/5, Aneksy A i B, wydanie 2.2.0) | [archiwum planu](docs/archiwum/plany/OPTYMALIZATOR_PROMPTOW/STATUS.md) |
-| Odnogi i wątki samodzielne | 2 otwarte: `AUDYT_MODOW` (od 2026-10-10, `docs/fixy/` — mody Claude Code po audycie, 9 paczek, wykonawca Opus 5.5, [karta](docs/fixy/AUDYT_MODOW/ODNOGA.md)) i `OPIS_REPO` (od 2026-09-24); `ORKIESTRACJA` zamknięta 2026-09-06 (2.1.0 w repo), `PRECOMMIT_ESM` 2026-09-04 wydaniem 1.9.2, `CURSOR_1_9_1` tego samego dnia | [docs/STATE.md](docs/STATE.md) |
+| Plugin RelAI — wydany, trzy adaptery | DZIAŁA (3.5.0 w repo i publicznie, wydane 2026-10-27 — zgłoszenia #1–#3; 3.4.0 z 2026-10-26 — pipeline wydań; w marketplace także cztery mody, każdy z własnym tagiem i wydaniem: relai-panel 0.22.0, relai-progress 0.7.0, relai-cache-keeper 0.13.0 („early access”) i relai-mods 0.2.0) | [docs/STATE.md](docs/STATE.md) |
+| Plany zamknięte | 19, ostatni ZGLOSZENIA 2026-10-27 (wydanie 3.5.0) | [archiwum planów](docs/archiwum/plany/), [docs/STATE.md](docs/STATE.md) |
+| Odnogi i wątki samodzielne | 1 otwarta: `OPIS_REPO` (od 2026-09-24); zamknięte — karty w [docs/fixy/](docs/fixy/) | [docs/STATE.md](docs/STATE.md) |
 
-Aktywny plan: [ZASIEG_PLUGINU](docs/plany/ZASIEG_PLUGINU/STATUS.md) — prowadzony w Claude Code, ZAAKCEPTOWANY 2026-10-27, E1 gotowy do startu. [PANEL_CODEX](docs/plany/PANEL_CODEX/STATUS.md) **nieaktywny — WSTRZYMANY 2026-10-27** decyzją Łukasza (stan E1 w jego STATUS); w Codeksie nie podejmuj jego etapów bez nowej decyzji Łukasza.
+Aktywny plan: [ZASIEG_PLUGINU](docs/plany/ZASIEG_PLUGINU/STATUS.md) — w Claude Code, ZAAKCEPTOWANY 2026-10-27, E1 gotowy do startu (RelAI tylko w zaadoptowanych projektach). [PANEL_CODEX](docs/plany/PANEL_CODEX/STATUS.md) (Codex) **nieaktywny — WSTRZYMANY 2026-10-27** decyzją Łukasza. Ostatni zamknięty: [ZGLOSZENIA](docs/archiwum/plany/ZGLOSZENIA/STATUS.md), 2026-10-27 (wydanie 3.5.0 z czterema modami, zgłoszenia GitHub #1–#3 zamknięte).
 
 ## Reguły procesu
 
 - **PANEL_CODEX (wybór 2026-10-08; plan WSTRZYMANY 2026-10-27):** autor planu i wykonawca etapów — `gpt-6.1-sol` w Codeksie, w świeżych sesjach. Plan jest osobny i rusza dopiero po pełnym zamknięciu PANEL_CLAUDE oraz akceptacji PANEL_CODEX; jego E1 pozostaje `OCZEKUJE` do spełnienia bramek.
 - Plan zamrożony po akceptacji; zmiany wyłącznie datowanymi aneksami. Odchylenie fundamentalne → propozycja nowego planu z linkiem do starego.
 - Wykonanie etapów: świeże sesje **Opus** (D-85) wg `PROMPT_ETAP_N.md`; wyjątek E7 z 2026-09-05:
-  **`gpt-5.6-terra/high` w Codeksie**. Architektura i plany: model najsilniejszy (Fable). Na
+  **`gpt-5.6-terra/high` w Codeksie**. Architektura i plany: Opus w bieżącej sesji (D-84 zmieniona
+  2026-10-14 — wymóg Fable odwołany). Na
   starcie etapu sprawdź model wskazany w prompcie — rozjazd zatrzymuje pracę przed zapisem.
 - Każdy etap kończy się rytuałem „Na koniec": aktualizacja STATUS → wpis do DZIENNIKA → wygenerowanie promptu następnego etapu. Zadanie bez tego rytuału NIE jest ukończone.
 - Wątek spoza zakresu etapu → zatrzymaj się i zapytaj: odnoga (`/relai-branch`), aneks do planu czy
@@ -58,6 +58,8 @@ Aktywny plan: [ZASIEG_PLUGINU](docs/plany/ZASIEG_PLUGINU/STATUS.md) — prowadzo
 - Tekst z backslashem (wyrażenie regularne, ścieżka Windows) nie idzie przez powłokę ani przez literał
   innego języka: skrypt z takim tekstem piszesz narzędziem Write/Edit, a wzorzec sprawdzasz kontrolą
   pozytywną na materiale, który musi trafić (L-0116, L-0119, L-0127, L-0130).
+- Tekst dokumentu z backtickiem zmieniasz wyłącznie narzędziem Edit/Write — nigdy podmianą
+  w powłoce, także „krótką” (L-0198, L-0207).
 
 ## Reguły profilu (prompty)
 

@@ -2468,3 +2468,28 @@ Decyzja Łukasza: aktywnym planem jest ZASIEG_PLUGINU, PANEL_CODEX ma być jawni
 **Do zrobienia przez człowieka:** —
 
 Autor: RelAI (Opus 5.5) + Lukasz
+
+### 2026-10-27 — `AGENTS.md` zsynchronizowany z `CLAUDE.md`, kopia ze strażnikiem
+
+Odłożone we wpisie o wstrzymaniu PANEL_CODEX; zgoda Łukasza na formę „kopia ze strażnikiem”.
+
+**Zrobione:**
+
+- `AGENTS.md` (instrukcje Codeksa w tym repo) był równoległą kopią `CLAUDE.md` bez deklaracji
+  kopii, więc `kopiaAgents()` w hooku startu milczał, a plik rozjechał się po cichu: tabela „Stan
+  prac” z 12 wierszami historii, wydanie 3.0.0 i panel 0.15.0, otwarta odnoga AUDYT_MODOW,
+  „plany: Fable” (D-84 zmieniona 2026-10-14), brak frazy „gotowi do wydania?”, podpowiedzi
+  wydania i reguły backticka. Żadna różnica nie była właściwa dla Codeksa.
+- Treść 1:1 z `CLAUDE.md` plus linia pod tytułem „Kopia `CLAUDE.md` dla Codeksa,
+  zsynchronizowana 2026-10-27” — nagłówek, po którym hook startu rozpoznaje kopię i porównuje
+  sekcje od pierwszego `##`. D-86 dotyczy projektów użytkowników, nie tego repo.
+
+**Zweryfikowane — jak dokładnie:** `kopiaAgents('.')` → `[]` na zgodnej kopii; kontrola pozytywna
+z dopisaną linią na końcu → fakt o sekcji „Implementation guidelines”, po przywróceniu znowu `[]`;
+testy `core/process` zielone.
+
+**Świadomie odłożone:** —
+
+**Do zrobienia przez człowieka:** —
+
+Autor: RelAI (Opus 5.5) + Lukasz
