@@ -409,18 +409,18 @@ zaraz po jego sprawdzeniu, nie na końcu etapu; punkt, który nie przeszedł, zo
 
 - [x] `node core/tools/release-check.js --wydanie` bez czerwieni dla wydawanych komponentów
       (wynik przed tagiem we wpisie).
-- [ ] Tagi wypchnięte przez bramkę `pre-push` bez obejścia; wydania GitHub istnieją
+- [x] Tagi wypchnięte przez bramkę `pre-push` bez obejścia; wydania GitHub istnieją
       (`gh release view <tag>` dla każdego).
-- [ ] `release-verify.js` po publikacji — zainstalowany plugin równy drzewu tagu (plik instalacji,
+- [x] `release-verify.js` po publikacji — zainstalowany plugin równy drzewu tagu (plik instalacji,
       nie komunikat CLI, zasada 10).
-- [ ] Bramka E2 zmierzona w aplikacji po restarcie i wpisana do `STATUS.md` jako
+- [x] Bramka E2 zmierzona w aplikacji po restarcie i wpisana do `STATUS.md` jako
       `ROZSTRZYGNIĘTA <data> — <jak>` — albo, decyzją Łukasza, z zapisanym powodem odroczenia.
-- [ ] Bramka E4 zmierzona w aplikacji po restarcie (trzy przebiegi „Nowa sesja”, lista sesji
+- [x] Bramka E4 zmierzona w aplikacji po restarcie (trzy przebiegi „Nowa sesja”, lista sesji
       z tytułem planu i etapu) i wpisana jak wyżej.
-- [ ] Zgłoszenia #1, #2, #3 skomentowane i zamknięte po „tak” (`gh issue view <n>` → `CLOSED`,
+- [x] Zgłoszenia #1, #2, #3 skomentowane i zamknięte po „tak” (`gh issue view <n>` → `CLOSED`,
       komentarz z odnośnikiem do wydania) — albo zostawione otwarte decyzją Łukasza, z powodem.
-- [ ] Wpis w `docs/DZIENNIK.md` dopisany na końcu sekcji „Wpisy”; `docs/STATE.md` zaktualizowany.
-- [ ] Katalog roboczy `.claude/relai/work/ZGLOSZENIA/E5/` przejrzany raportem
+- [x] Wpis w `docs/DZIENNIK.md` dopisany na końcu sekcji „Wpisy”; `docs/STATE.md` zaktualizowany.
+- [x] Katalog roboczy `.claude/relai/work/ZGLOSZENIA/E5/` przejrzany raportem
       (`node .claude/relai/tools/clean-work.js raport`) i skasowany po „tak”; liczby przed i po
       w sekcji „Zweryfikowane” wpisu. Artefakty poza tym katalogiem (worktree w `%TEMP%`, projekt
       testowy pomiaru) wypisane z nazwy razem z tym, co się z nimi stało.

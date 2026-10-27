@@ -1832,7 +1832,7 @@ Miniplan wykonany w całości, bez rozszerzania zakresu.
 
 Przejrzane trzy otwarte zgłoszenia `nowilus/relai` (#1–#3, autor `lszczap`, 19–20 października)
 i zdiagnozowana brakująca ikona `/relai-security` na Filmie i Biurku; powstał plan naprawy
-[ZGLOSZENIA](plany/ZGLOSZENIA/STATUS.md) — DO AKCEPTACJI, bez zmian w kodzie.
+[ZGLOSZENIA](archiwum/plany/ZGLOSZENIA/STATUS.md) — DO AKCEPTACJI, bez zmian w kodzie.
 
 **Ustalone:**
 
@@ -2004,6 +2004,7 @@ Autor: RelAI (Opus 5.5) + Lukasz
 
 - Po wydaniu w E5: w aplikacji, w projekcie z plikiem wznowienia, „kończymy na dziś” → jedno
   pytanie → „tak” → plik `.md` znika, `.patch` zostaje; następny start sesji bez zdania o pliku.
+  *(rozstrzygnięte 2026-10-27 w E5 — pomiar w aplikacji na 3.5.0, `STATUS.md` planu ZGLOSZENIA)*
 
 Przegląd ryzyk: bez zmian (ryzyka 4 i 5 planu — plik kasowany bez zgody, łatka skasowana razem
 z plikiem — nie zaszły: kasowanie tylko po „tak”, polecenie dotyczyło samego `.md`).
@@ -2193,7 +2194,8 @@ Autor: RelAI (Opus 5.5) + Lukasz
 **Do zrobienia przez człowieka:**
 
 - Po wydaniu: „Nowa sesja” z paska cache w RelAI z aktywnym fokusem → tytuł „E<N> · PLAN — nazwa”
-  w trzech przebiegach (bramka w `STATUS.md`).
+  w trzech przebiegach (bramka w `STATUS.md`). *(rozstrzygnięte 2026-10-27 w E5 — trzy przebiegi
+  `/handoff` z fokusem na 3.5.0, `STATUS.md` planu ZGLOSZENIA)*
 
 Przegląd ryzyk: ryzyko 1 planu (aplikacja ignoruje albo nadpisuje `sessionTitle`) nie zaszło —
 sonda pozytywna w trzech miejscach. Ryzyko 2 planu (fałszywe „tak” — tytuł sesji, której pierwszy
@@ -2201,5 +2203,103 @@ prompt nie był kontynuacją) nie zaszło: testy drugiego promptu, „tak” z t
 z wcześniejszymi promptami, trzy mutacje zabite. Poza tabelą planu zaszło coś innego: tytuł ze
 STATE zamiast z fokusu (przebiegi 1–2), naprawione warunkiem pierwszego promptu z transkryptu;
 wyścig zapisu fokusu zostaje w bramce.
+
+Autor: RelAI (Opus 5.5) + Lukasz
+
+### 2026-10-27 — ZGLOSZENIA E5: wydanie 3.5.0 i zamknięcie zgłoszeń #1–#3
+
+**Zrobione:**
+
+- Wydanie przez `/relai-release`: RelAI **3.5.0** z czterema modami — `relai-panel` 0.22.0,
+  `relai-progress` 0.7.0, `relai-cache-keeper` 0.13.0, `relai-mods` 0.2.0. Wszystkie pięć numerów
+  z propozycji raportu (minor, bo commit `feat` E4 dotknął każdego kopią `session-title.mjs`);
+  decyzja Łukasza „wszystkie 5 wg raportu”.
+- Podbicie: manifesty i oba marketplace'y (skrypt), README (baner i wiersze modów),
+  `relai-update.md` (pięć deklaracji), `new-project.md`, README Cursora, `KOMENDY.md`, markery
+  `USTAWIENIA.md` (projekt i fikstura ewaluacji), `STATE.md`; wpis 3.5.0 w `history.md` zamiast
+  akapitu „Niewydane”; generator Codeksa, fakty i strony; dwa wiersze `ARTEFAKTY.md`
+  (`relai-update.md` v24, `new-project.md` v12); zdanie w `relai-release.md` przepisane na zapis
+  przeszłości („w 3.4.0”).
+- Aneks A planu: kontrola `stary-numer` pomija w dwóch stronach odtwarzacza adres zasobu wydania
+  z wersji filmu (manifest filmu — to samo źródło co `strona-film`). Test w
+  `release-check.test.js`, RED przed poprawką, z kontrolą pozytywną.
+- Publikacja, każdy krok po osobnym „tak”: commit `5842186`, pięć tagów adnotowanych, push
+  tagów przez `pre-push`, pięć wydań GitHub (`v3.5.0` Latest, mody z `--latest=false`, bez MP4 —
+  film bez zmian), push `main`, `marketplace update`, `plugin update` pięciu pluginów.
+- Bramki manualne E2 i E4 zmierzone w aplikacji po restarcie (projekt testowy w `%TEMP%`).
+- Zgłoszenia #1, #2, #3: komentarz w pierwszej osobie z odnośnikiem do wydania, zamknięte jako
+  `completed`.
+
+**Zweryfikowane — jak dokładnie:**
+
+- Raport przed tagiem: `node core/tools/release-check.js --json --wydanie` → kod 0, 25 kontroli,
+  0 czerwonych; rdzeń 564/564, strona 396/396, `plugin test` czterech modów zielony, `stary-numer`
+  0 plików z 3.4.0, `artefakty` 0 bez wpisu. Wcześniej w tym etapie: 1 czerwień `plugin-test`
+  (panel 209/211) i po podbiciu 2 czerwienie (`artefakty`, `stary-numer`).
+- Bramka `pre-push`: `v3.5.0` gotowy (99,8 s), mody 5,6–15,7 s, każdy push kod 0; tagi na
+  `origin` (`git ls-remote`). `gh release view` dla pięciu tagów — `draft=false`.
+- `release-verify.js --sesja`: ZGODNE dla pięciu pluginów, 0 rozjazdów (relai 1538/1538,
+  panel 63, progress 35, cache-keeper 48, mods 33 pliki); sesja ładuje katalog nowej wersji.
+- `strona.yml` po pushu `main` — success; strona na żywo pokazuje 3.5.0; film `v3.4.0` → 200.
+- `claude plugin validate` binarką aplikacji: rdzeń „passed with warnings” (znane: `CLAUDE.md`
+  w korzeniu, brak ikony), cztery mody „passed”.
+- Bramka E2: transkrypty `6aeab3d7` i `79892253` (ścieżka cache `relai/3.5.0`) — pytanie
+  (AskUserQuestion), `rm` samego `.md`, `.patch` zostało; w drugiej sesji 0 rekordów ze zdaniem
+  hooka o pliku.
+- Bramka E4: pierwsza seria trzech przebiegów bez tytułu — w projekcie nie było pliku fokusu,
+  bo mój prompt „wykonaj etap PROBA E2” go nie ustawia. Kontrola pozytywna hooka z cache 3.5.0
+  z podłożonym fokusem → `"sessionTitle":"E2 · PROBA — Odejmowanie z łatki"`, bez fokusu cisza.
+  Druga seria z promptem ze ścieżką `PROMPT_ETAP_2.md`: trzy przebiegi `/handoff` → „Wyczyść
+  i kontynuuj”, tytuł „E2 · PROBA — Odejmowanie z łatki”, fokus przed hookiem o 145, 139 i 209 ms.
+- Zgłoszenia: `gh issue view` → #1, #2, #3 `CLOSED COMPLETED`, po jednym komentarzu.
+- Skan Trivy przy zamknięciu planu (`scan-20261027-110956.json`, HIGH/CRITICAL): 0 trafień
+  w plikach blokady projektu; 47 HIGH to fikstury ewaluacji `trivy-scan` (celowo podatne),
+  nieśledzone kopie paczki w `.claude/relai/work/PANEL_CODEX/GIT_IZOLACJA/` i stary worktree
+  `.claude/worktrees/charming-rosalind-7cfc42`.
+- Katalogi robocze: przed — `.claude/relai/work/ZGLOSZENIA/` 25 plików (281 KB),
+  `.claude/relai/work/WYDANIE/3.5.0/` 6 plików (16 KB); poza repo `%TEMP%/relai-zgl-e5-proj`
+  161 plików. Skasowane po zgodzie Łukasza; po — żadnego z nich nie ma. Siedem sesji testowych
+  projektu zarchiwizowanych. Zostają transkrypty w
+  `~/.claude/projects/C--Users-Lukasz-AppData-Local-Temp-relai-zgl-e5-proj/`.
+
+**Świadomie odłożone:**
+
+- `plugin test` modu `relai-panel` chwieje się pod obciążeniem: osobno 214/214 dwa razy, trzy
+  przebiegi naraz — 14–17 porażek z przekroczeniem ~5 s i pliki „did not load”; raport po
+  testach rdzenia raz dał 2 porażki na 211. Raport zachowuje tylko trzy ostatnie linie wyjścia,
+  więc nazw porażek z tamtego przebiegu nie ma (decyzja Łukasza: do dziennika, nie aneks).
+- Przycisk „Nowa sesja” pokazuje się tylko przy opłacalnym przekazaniu (20 tur) albo stygnącym
+  cache; w świeżej sesji go nie ma i bramka szła przez `/handoff` — tę samą funkcję.
+- Rotacja dziennika, ryzyk i lekcji (wszystkie ponad progiem) — przy „kończymy na dziś”.
+
+**Do zrobienia przez człowieka:** —
+
+Przegląd ryzyk: tabela bez zmian — plan nie miał w niej wierszy; ryzyka planu 1–5 nie zaszły
+po wydaniu (bramki w aplikacji pozytywne).
+
+Autor: RelAI (Opus 5.5) + Lukasz
+
+### 2026-10-27 — Plan ZGLOSZENIA zamknięty: dowiezione vs plan
+
+**Zrobione — dowiezione vs plan:**
+
+| Miało powstać (plan, sekcja 5) | Powstało | Różnica |
+|---|---|---|
+| E1: ikona `/relai-security` na stronie | ikona i test odwołań zatrzymujący wdrożenie | test ponad plan |
+| E2 (#3): pytanie o plik wznowienia w zamknięciu | krok 3a w trzech adapterach, bramka w aplikacji | — |
+| E3 (#2): pasek cache w terminalu w kolumnach | siatka do 3 kolumn bez linii `b` | liczba kolumn idzie za układem karty (L-0282) |
+| E4 (#1): tytuł nowej sesji z fokusu | hook `session-title`, tytuł `start_session` w panelu | „pierwszy prompt” z transkryptu (P-055) |
+| E5: wydanie i zamknięcie zgłoszeń | 3.5.0 + cztery mody, #1–#3 zamknięte | Aneks A — poprawka instrumentu |
+
+Przepadło: nic. Plan miał wydać `relai` i `relai-cache-keeper`; wyszły też trzy pozostałe mody,
+bo E4 dał im kopię rdzenia (decyzja Łukasza w E5).
+
+**Zweryfikowane — jak dokładnie:** bramki manualne obie `ROZSTRZYGNIĘTA 2026-10-27` w `STATUS.md`
+i z adnotacją we wpisach E2 i E4; odnóg plan nie miał; folder przeniesiony `git mv` do
+`docs/archiwum/plany/ZGLOSZENIA/` (`ls docs/plany/` → `PANEL_CODEX/`).
+
+**Świadomie odłożone:** —
+
+**Do zrobienia przez człowieka:** —
 
 Autor: RelAI (Opus 5.5) + Lukasz

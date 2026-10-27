@@ -24,9 +24,10 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
    obejść — powtórki, pliku tymczasowego (L-0271); zakaz powtórki obejmuje przebieg z wyjściem
    wyrzuconym (L-0279). Kontrola „stary tekst nie może zostać” odróżnia deklarację stanu od zapisu
    przeszłości zamkniętą listą słów przed wartością i przed oddaniem przechodzi jedno realne
-   podbicie, nie tylko fixturę (L-0277).
+   podbicie, nie tylko fixturę (L-0277); kontrola wymagająca numeru wersji w treści dostaje test
+   z kontrolą starego numeru na „następnym wydaniu bez zmiany tego numeru” (L-0287).
    (L-0001, L-0011, L-0026, L-0089, L-0100, L-0108, L-0129, L-0212, L-0254, L-0269, L-0271, L-0277,
-   L-0279, L-0282)
+   L-0279, L-0282, L-0287)
 2. **W dokumencie użytkownika stoi tylko to, co działa i co zmierzyłeś** — fraza i forma wywołania
    w wersji uruchomionej dosłownie, z tej samej powłoki, którą zobaczy czytelnik; znak
    interpretowany przez powłokę zapisujesz tak, żeby go nie tknęła. Komenda do wklejenia przez
@@ -228,7 +229,9 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
       w transkrypcie, a stan pliku — interaktywnie albo bramką (L-0281); ścieżkę modu (przycisk)
       mierzysz funkcją, którą ona woła (komenda tego modu), po przeczytaniu jej kodu — ręczna
       symulacja gubi kroki (L-0284); pole payloadu hooka, na którym stoi warunek, sprawdzasz
-      w każdym scenariuszu z listy, także po `/clear` (L-0285).
+      w każdym scenariuszu z listy, także po `/clear` (L-0285); instrukcja pomiaru dla człowieka
+      ustawia każdy warunek bramki mechanizmem, który go tworzy, sprawdzonym plikiem przed
+      pierwszym przebiegiem, bez kroków, które przepływ robi sam (L-0286).
     - **Usługi zewnętrzne:** stan ustawienia repozytorium czytasz z API (`gh api repos/<repo>/pages`),
       nie ze zrzutu ani słowa człowieka (L-0244); obraz dla cudzej usługi w proporcji zmierzonej na
       opublikowanym widoku, każda podmiana pod nowym adresem (L-0245); strona wskazująca zasób
@@ -236,7 +239,7 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
       (L-0280).
     (L-0041, L-0042, L-0044, L-0047, L-0092, L-0133, L-0136, L-0138, L-0139, L-0146, L-0153, L-0166,
     L-0168, L-0185, L-0189, L-0190, L-0244, L-0245, L-0253, L-0255, L-0263, L-0264, L-0273, L-0280,
-    L-0281, L-0284, L-0285)
+    L-0281, L-0284, L-0285, L-0286)
 14. **Najpierw zmiana w repozytorium, potem zdanie, które ją opisuje.** Weryfikację planujesz tam,
     gdzie wykonalna; po pytaniu sprzątasz sam; jednostką inwentarza jest sprawa, nie linia; wstawkę
     kotwiczysz do elementu, który przeżyje operację, i dowodzisz **obecności** nowej treści. Gdy
@@ -649,6 +652,35 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
   „pierwszy” czytasz ze źródła, które go zapisuje (transkrypt sesji), a nie z pola, które go tylko
   sugeruje. Zbiór linii, które nie są promptem człowieka, jest zamkniętą listą opakowań
   systemowych, nie prefiksem „<”.
+
+### L-0286 — Instrukcja pomiaru bramki nie ustawiła jej warunku; trzy przebiegi człowieka na nic · 2026-10-27 · AKTYWNA
+
+- **Trigger:** ZGLOSZENIA E5. Bramka E4 brzmiała „z aktywnym fokusem”. Moja instrukcja dla
+  Łukasza zaczynała się od „wykonaj etap PROBA E2”, ale fokus ustawia tylko prompt ze ścieżką
+  `docs/plany/<PLAN>/PROMPT_ETAP_N.md` albo „Zmień”. Trzy przebiegi dały tytuł „Kontynuuj”
+  i dopiero transkrypty pokazały, że w projekcie nie było ani jednego pliku fokusu. Ta sama
+  instrukcja miała zbędny krok „w nowej sesji napisz kontynuuj”, a „Wyczyść i kontynuuj” sam
+  wysyła pierwszy prompt. Do tego przycisku „Nowa sesja” w świeżej sesji nie ma — pokazuje się
+  dopiero przy opłacalnym przekazaniu.
+- **Zasada:** instrukcja pomiaru dla człowieka ustawia każdy warunek z brzmienia bramki tym
+  mechanizmem, który go tworzy (kod, nie nazwa kroku), a przed pierwszym przebiegiem sprawdzasz
+  warunek plikiem albo stanem (tu: `.claude/relai/fokus/<sesja>.json`). Nie dopisujesz kroków,
+  które przepływ robi sam, i sprawdzasz w kodzie, kiedy element interfejsu z instrukcji w ogóle
+  się pokazuje. Kontrola pozytywna instrumentu (hook z podłożonym warunkiem) idzie przed prośbą
+  o powtórkę.
+
+### L-0287 — Dwie kontrole raportu przeczą sobie dopiero przy pierwszym podbiciu po zmianie jednej z nich · 2026-10-27 · AKTYWNA
+
+- **Trigger:** ZGLOSZENIA E5. Kontrola `strona-film` (PIPELINE_WYDAN E5) wymaga w odtwarzaczu
+  adresu zasobów `v<wersja filmu>`, a `stary-numer` (Aneks A tamtego planu) w trybie `--wydanie`
+  czerwieni każdy numer bazy. Przy 3.4.0 wersja filmu była równa wydawanej, więc obie milczały.
+  Pierwsze wydanie bez nowego renderu (3.5.0) dało czerwień, której nie dało się naprawić
+  w treści — bramka `pre-push` odmówiłaby tagu. Fikstura testów miała film w wersji bazy i nie
+  miała scenariusza podbicia z tym samym filmem.
+- **Zasada:** nowa kontrola, która wymaga w treści numeru wersji, dostaje test razem z kontrolą
+  starego numeru na scenariuszu „następne wydanie bez zmiany tego numeru”. Konflikt dwóch
+  kontroli to defekt instrumentu: poprawka w kontroli z testem, nie przepisanie treści ani
+  obejście.
 
 ## Lekcje zwinięte
 

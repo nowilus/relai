@@ -1,14 +1,13 @@
 # STATE — RelAI
 
-Stan na: 2026-10-27 (ZGLOSZENIA E1–E4 zrealizowane, E5 — wydanie — następny; ostatni zamknięty plan PIPELINE_WYDAN ZREALIZOWANY — RelAI 3.4.0 wydany przez pipeline:
-raport gotowości z mapą wpływu, `/relai-release`, bramka `pre-push`, weryfikacja po publikacji,
-film z szesnastoma komendami w zasobach `v3.4.0`; Aneksy A i B poprawiły instrument; poprzednio
-BEZPIECZENSTWO 2026-10-25 — wydanie 3.3.0, RELAI_MODS 2026-10-24, STRONA_RELAI 2026-10-18)
+Stan na: 2026-10-27 (ostatni zamknięty plan ZGLOSZENIA ZREALIZOWANY — RelAI 3.5.0 z czterema
+modami, poprawki zgłoszeń #1–#3 z GitHuba, zgłoszenia zamknięte; poprzednio PIPELINE_WYDAN
+2026-10-26 — wydanie 3.4.0 przez pipeline, BEZPIECZENSTWO 2026-10-25 — wydanie 3.3.0)
 
 ## Gdzie jesteśmy
 
-RelAI **3.5.0** jest w repozytorium (2026-10-27: poprawki zgłoszeń #1–#3 z GitHuba — plan
-ZGLOSZENIA, wydanie w E5; publicznie do tego czasu 3.4.0 z pipeline'em wydań). Plugin `relai` działa
+RelAI **3.5.0** jest w repozytorium i publicznie (tag `v3.5.0`, 2026-10-27: poprawki zgłoszeń
+#1–#3 z GitHuba — plan ZGLOSZENIA; wcześniej 3.4.0 z pipeline'em wydań). Plugin `relai` działa
 w trzech narzędziach — Claude Code, Cursorze i Codeksie — na jednym rdzeniu procesu, z szesnastoma
 komendami i czternastoma hookami w Claude Code (czternasty: `session-title`). Marketplace tego
 repozytorium niesie też cztery mody: `relai-panel` 0.22.0, `relai-progress` 0.7.0,
@@ -77,7 +76,14 @@ PANEL_CODEX (E1 w toku). Opinii spoza projektu nadal nie ma.
   [STRONA_RELAI](archiwum/plany/STRONA_RELAI/STATUS.md)): Film (`/`, `/pl/`) i Biurko 3D
   (`/biurko/`, `/pl/biurko/`, z plakatem bez WebGL), obie na telefonie, konfigurator instalacji
   i ankieta w Tally (PL https://tally.so/r/BE4lQ5, EN https://tally.so/r/X5lkMj). Wdrożenie
-  `.github/workflows/strona.yml` po pushu na `main`; konfigurator pokazuje RelAI 3.4.0. Testy 370.
+  `.github/workflows/strona.yml` po pushu na `main`; konfigurator pokazuje RelAI 3.5.0. Testy 396,
+  w tym test odwołań: zbudowana strona wskazująca nieistniejący plik zatrzymuje wdrożenie.
+- **Zgłoszenia z GitHuba #1–#3** (plan [ZGLOSZENIA](archiwum/plany/ZGLOSZENIA/STATUS.md),
+  zamknięty 2026-10-27, wydanie 3.5.0): nowa sesja po „Nowa sesja” / `/handoff` dostaje tytuł
+  „E<N> · PLAN — nazwa etapu” z hooka `session-title` (czternasty hook; źródło: przekazanie,
+  fokus sesji albo STATE; „pierwszy prompt” z transkryptu, P-055); „kończymy na dziś” pyta raz
+  o istniejący plik wznowienia i po „tak” kasuje sam `.md`; pasek cache w terminalu to siatka do
+  trzech kolumn bez drugiej linii. Obie bramki zmierzone w aplikacji po wydaniu.
 - Skille według praktyk Agent Skills (odnoga [AUDYT_SKILLI](fixy/AUDYT_SKILLI/ODNOGA.md)):
   walidator metadanych, pliki doczytywane, ewaluacje wyzwalania, pięć komend tylko na jawne
   wywołanie.
@@ -93,25 +99,15 @@ PANEL_CODEX (E1 w toku). Opinii spoza projektu nadal nie ma.
   pokazuje właściwy stan, układ zaakceptowany; sonda 0.0.9 z poprawką fontów czeka na pomiar po
   przeładowaniu macierzystego procesu. Tabela STATUS planu pokazuje jeszcze `GOTOWY DO STARTU` —
   do wyprostowania na `W TOKU`. Kontrakt w [README adaptera](../adapters/codex/panel/README.md).
-- **Plan ZGLOSZENIA — E1–E4 ZREALIZOWANE 2026-10-26/27, E5 gotowy do startu** (plan [ZGLOSZENIA](plany/ZGLOSZENIA/STATUS.md), 2026-10-26,
-  5 etapów, Opus). E1: ikona `/relai-security` na stronie (kopia z brandingu, na żywo 200) i test
-  `site/narzedzia/odwolania.test.mjs` — zbudowana strona odwołująca się do nieistniejącego pliku
-  albo komenda bez ikony zatrzymuje wdrożenie w `strona.yml` (testy strony 396). E2 (#3, w repo,
-  niewydane): rytuał „kończymy na dziś” ma krok 3a — istniejący plik wznowienia → jedno pytanie,
-  „tak” kasuje sam `.md`, łatka zostaje; w trzech adapterach, `SPEC_WZNOWIENIE.md` z czwartą drogą
-  zgody. Zniknięcie pliku po „tak” czeka na pomiar w aplikacji po wydaniu (bramka manualna; `-p`
-  nie kasuje pod `.claude/`, P-014). E3 (#2, w repo, niewydane): pasek cache w terminalu to siatka
-  do trzech kolumn — glif, etykieta, wartość — bez linii `b`, desktop bez zmian; testy modu 206.
-  E4 (#1, w repo, niewydane): hook `session-title` nadaje pierwszemu promptowi-kontynuacji tytuł
-  „E4 · PLAN — nazwa etapu” z przekazania, pliku fokusu albo STATE; „pierwszy” z transkryptu, bo
-  po `/clear` aplikacja przenosi stary tytuł (P-055). „Nowa sesja” w projekcie testowym dała
-  dobry tytuł; wyścig zapisu fokusu z hookiem (zmierzony raz) czeka na bramkę po wydaniu. Testy
-  rdzenia 295. Dalej: wydanie i zamknięcie zgłoszeń (E5).
+- W Claude Code aktywnego planu nie ma (ZGLOSZENIA zamknięty 2026-10-27).
 
 ## Co dalej
 
-- **Restart aplikacji Claude** — sesje desktopu wczytają RelAI 3.4.0 (P-005; bramka E5
-  PIPELINE_WYDAN, OTWARTA decyzją Łukasza 2026-10-26; świeża sesja `claude -p` już ładuje 3.4.0).
+- **Po ZGLOSZENIA (świadomie odłożone 2026-10-27):** `plugin test` modu `relai-panel` chwieje się
+  pod obciążeniem (przekroczenia ~5 s przy równoległych przebiegach; raport raz 2/211), a raport
+  wydania zachowuje tylko trzy ostatnie linie wyjścia — bez nazw porażek. Restart aplikacji po
+  3.5.0 zrobiony 2026-10-27 przy pomiarze bramek (P-005; bramka E5 PIPELINE_WYDAN spełniona
+  w praktyce).
 - **Po PIPELINE_WYDAN (świadomie odłożone 2026-10-26):** `/relai-release` do wersji 3 — kolejność
   publikacji „tag → wydanie GitHub z zasobami → push `main`”, gdy strona wskazuje zasoby wydania
   (L-0280), i krok 8 bez wymogu restartu przed `--sesja`; kontrola `strona-film` nie pilnuje czasu
@@ -163,15 +159,16 @@ PANEL_CODEX (E1 w toku). Opinii spoza projektu nadal nie ma.
 
 ### Wersja i instalacja
 
-Repo i publicznie **3.4.0** (tag `v3.4.0` na `7277083`); marketplace w tym repozytorium (scope
+Repo i publicznie **3.5.0** (tag `v3.5.0` na `5842186`); marketplace w tym repozytorium (scope
 `user`) niesie pięć pluginów: `relai` i cztery mody z własnymi wersjami i tagami
-(`relai-panel-v0.21.2`, `relai-mods-v0.1.2`). Wydanie: fraza „gotowi do wydania?” →
+(`relai-panel-v0.22.0`, `relai-progress-v0.7.0`, `relai-cache-keeper-v0.13.0`,
+`relai-mods-v0.2.0`, każdy z własnym wydaniem GitHub). Wydanie: fraza „gotowi do wydania?” →
 `/relai-release` (`.claude/commands/`, wersja 2): raport `release-check.js --json`, podział braków
 na naprawy bezpieczne (jedna zgoda) i listę dla człowieka, ponowny raport, `claude plugin validate`
 binarką aplikacji, commit, tag przez hook `pre-push` (`core/tools/release-pre-push.js`,
 instalator `install-prepush.js`, w `.git/hooks/` tego klonu), push, wydanie GitHub z notatkami EN,
 `marketplace update`, `plugin update`, `release-verify.js --plugin <p> --wersja <n> --sesja`
-(3.4.0: 1517/1517, 0 rozjazdów). Raport ma kody 0 / 1 / 2; `--rev <rewizja>` liczy drzewo
+(3.5.0: 1538/1538, 0 rozjazdów). Raport ma kody 0 / 1 / 2; `--rev <rewizja>` liczy drzewo
 rewizji w worktree z `core.autocrlf=false` (Aneks B); `--komponent relai-<mod>` dla tagu modu.
 Walidator `core/tools/validate-adapters.js` sprawdza 7 źródeł wersji i wpis marketplace każdego
 pluginu panelu. Pre-commit repo: układ 1.9.2.
@@ -203,18 +200,17 @@ Claude Code, Cursor albo Codex • Node.js 14+ w `PATH` • git (opcjonalnie).
 
 ### Linki
 
-Repo: github.com/nowilus/relai • Wydanie: github.com/nowilus/relai/releases/tag/v3.4.0 • Plany
+Repo: github.com/nowilus/relai • Wydanie: github.com/nowilus/relai/releases/tag/v3.5.0 • Plany
 zamknięte: [docs/archiwum/plany/](archiwum/plany/) • Backupy: `C:\Users\Lukasz\Backupy\RelAI` •
 [PRZENOSNOSC.md](PRZENOSNOSC.md) • [PULAPKI.md](PULAPKI.md) • [KOMENDY.md](KOMENDY.md)
 
 ### Liczby
 
-Plany zamknięte: 18 (ostatni PIPELINE_WYDAN, 2026-10-26) • Aktywne: PANEL_CODEX (E1 W TOKU,
-Codex) • Start sesji: 127,7 KB / 100 KB na starcie 2026-10-26 (przed rotacjami i tym skróceniem)
-• Dziennik: 142 KB / 150 KB • Ryzyka: 20 w tabeli, 17,5 KB / 12 KB (dolna granica — same
-otwarte), archiwum 12 plików • Lekcje: 47,2 KB / 50 KB, 20 pełnych w żywym pliku (po rotacji
-2026-10-26) • Adaptery: 3 • Komendy: 16 • Testy (2026-10-26): rdzeń 530 (`core/process` 271,
-`core/guardrails` 19, `core/panel` 216, `adapters/codex` 24), strona 370, film 37; pluginy panelu
-211 / 48 / 206 / 68 (`relai-cache-keeper` 2026-10-26, reszta 2026-10-25) • Projekty na RelAI: 3 (RelAI, PolyFlow, JiraManager przed
+Plany zamknięte: 19 (ostatni ZGLOSZENIA, 2026-10-27) • Aktywne: PANEL_CODEX (E1 W TOKU,
+Codex) • Start sesji: 115,2 KB / 100 KB na starcie 2026-10-27 • Dziennik: 178 KB / 150 KB (do
+rotacji) • Ryzyka: 20 w tabeli, 17,5 KB / 12 KB (dolna granica — same otwarte), archiwum 12
+plików • Lekcje: 56,5 KB / 50 KB (do rotacji) • Adaptery: 3 • Komendy: 16 • Hooki Claude Code: 14
+• Testy (2026-10-27, raport wydania 3.5.0): rdzeń, panel i Codex 564, strona 396, film 37
+(2026-10-26); pluginy panelu: `relai-panel` 214, reszta zielona w raporcie • Projekty na RelAI: 3 (RelAI, PolyFlow, JiraManager przed
 migracją) • Modele, na których zmierzono proces: 6 (Fable, Opus, Sonnet, Haiku, Composer/auto,
 Grok 4.6).
