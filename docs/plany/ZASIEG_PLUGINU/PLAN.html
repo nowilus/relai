@@ -589,6 +589,10 @@ footer .pis{font-family:var(--pis); font-size:1.2rem; color:var(--glina); margin
   <svg class="pinezka" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="9" r="7" fill="#5f8a68"/><circle cx="9.5" cy="6.5" r="2.2" fill="rgba(255,255,255,.5)"/><path d="M12 16v6" stroke="#456338" stroke-width="2" stroke-linecap="round"/></svg>
   <div class="tyt-sek"><span class="nr">10</span><h2>Aneksy</h2><span class="szept">po akceptacji tylko tutaj</span></div>
   <p>Po akceptacji sekcje 1–9 są zamrożone. Zmiany wyłącznie tutaj, jako datowane aneksy. Odchylenie fundamentalne (zmiana celu albo wybranego wariantu) → status CZĘŚCIOWO ZREALIZOWANY i nowy plan z linkiem do tego dokumentu.</p>
+  <h3>Aneks A · 2026-10-27 (w trakcie E2) — poprawka narzędzia z E1 w zakresie E2</h3>
+  <p><b>Co się okazało:</b> prawdziwe <code>claude plugin enable X --scope local</code> (CLI 2.1.304) odmawia kodem 1 komunikatem „is already enabled at local scope”, gdy plugin jest włączony globalnie, a w folderze nie ma klucza lokalnego. Testy E1 tego nie złapały, bo fałszywe CLI zapisywało zawsze. Skutek: <code>on</code> nie działał na maszynie z RelAI włączonym globalnie, a <code>apply</code> padało na pierwszym kroku (bezpiecznie, przed globalnym <code>disable</code>).</p>
+  <p><b>Decyzja Łukasza:</b> poprawka w E2, nie odnoga. Gdy CLI odmówi „already enabled/disabled”, a w pliku zakresu nie ma żądanej wartości, <code>core/process/plugin-scope.js</code> wykonuje akcję przeciwną i zaraz potem żądaną. Wynik dalej sprawdza odczyt pliku. Fałszywe CLI w testach odmawia teraz jak prawdziwe, a doszedł osobny test pary. Opis trafia do P-058.</p>
+  <p><b>Zmiana zakresu E2:</b> dowód negatywny E2 nie obejmuje już <code>core/process/plugin-scope.js</code> ani <code>core/process/tests/plugin-scope.test.js</code>. Reszta <code>core/process</code> i <code>core/tools</code> zostaje bez zmian.</p>
 </section>
 
 <footer>

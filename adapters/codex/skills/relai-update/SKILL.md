@@ -69,6 +69,7 @@ tą samą procedurą. Sprawdzasz kolejno:
 | `docs/USTAWIENIA.md` | wiersz `Lista modeli` z wartością `włączona` na **początku** komórki i progiem w dniach (nowość 1.9.0; format i wartość domyślna: `SPEC_USTAWIENIA.md`) | wiersz **już obecny — nie nadpisujesz**, także gdy stoi w nim `wyłączona` albo własny próg (R6). Brak wiersza → dopisujesz go z dzisiejszą datą i wartością domyślną `włączona · 7 dni`. Wyłącznik jest **osobny** od pozostałych; samej listy `.claude/relai/MODELE-<narzędzie>.md` **nie ruszasz** — kopia w projekcie jest trwała i przeżywa aktualizację |
 | `docs/USTAWIENIA.md` | wiersz `Tryb ciągły` z wartością `włączony` albo `wyłączony` na **początku** komórki (nowość 2.2.0; format i wartość domyślna: `SPEC_USTAWIENIA.md`) | wiersz **już obecny — nie nadpisujesz**, także gdy stoi w nim `wyłączony`: to świadomy wybór projektu (R6). Brak wiersza → dopisujesz go z dzisiejszą datą i wartością domyślną **`wyłączony`** — tryb ciągły włącza się jawnie, bo przerabia każdy prompt merytoryczny. Wyłącznik jest **osobny** od pozostałych i od wiersza `Model optymalizatora` |
 | `docs/USTAWIENIA.md` | wiersz `Humanizacja` (nowość 3.1.0; format: `SPEC_USTAWIENIA.md`) **nie jest** stanem docelowym aktualizacji: zapisuje go wywiad przy pierwszym `/relai-humanize`, a jego brak znaczy, że wywiadu jeszcze nie było | wiersz obecny → **nie nadpisujesz** (R6). Brak wiersza → **nic nie dopisujesz**; w podsumowaniu jedno zdanie, że `/relai-humanize` zapyta o ustawienia przy pierwszym użyciu |
+| włączenie lokalne (**tylko Claude Code** — w Codeksie i Cursorze wiersz pomijasz) | wpisy `true` zainstalowanych pluginów zestawu (`relai`, `relai-panel`, `relai-progress`, `relai-cache-keeper`) w `.claude/settings.local.json` projektu — **wyłącznie wtedy, gdy RelAI jest wyłączony globalnie**. Globalnie włączony → nic nie dopisujesz; w podsumowaniu jedno zdanie, że jest tryb „RelAI tylko w projektach”, z podglądem `node "<installPath>/core/tools/relai-scope.js" status` | globalnie: klucz `relai@relai` w `enabledPlugins` pliku `~/.claude/settings.json` (`false` = wyłączony); lokalnie: ten sam obiekt w `.claude/settings.local.json`. Lokalne `false` przy którymkolwiek pluginie zestawu **zostaje** (R6) i wtedy nie wołasz narzędzia — `on` by je przestawił; brakujące klucze podajesz jako polecenia ręczne. W pozostałych przypadkach brak wpisów → działanie do zatwierdzenia, wykonywane w kroku 4 narzędziem `relai-scope` (`installPath` z `claude plugin list --json`, wpis `relai@relai`) |
 | marker wersji | `Wersja RelAI: 3.5.0` | zmiana **na końcu**, po wykonaniu zatwierdzonych zmian |
 
 Specyfikacje (`SPEC_PROFILE.md`, `SPEC_KOMENDY.md`) czytasz z lokalnej kopii
@@ -127,6 +128,17 @@ kolejne wywołanie tej komendy dokończyło pracę.
   potwierdzenia — to w porządku, użytkownik właśnie się zgodził. Blokada bez możliwości
   potwierdzenia (sesja nieinteraktywna) → powiedz wprost, które zmiany czekają, i pokaż ich
   treść; nie omijasz hooka i nie odpuszczasz po cichu.
+- Włączenie lokalne (tylko Claude Code, gdy zatwierdzone): `test -e
+  "<installPath>/core/tools/relai-scope.js"` — kod 1 znaczy, że zainstalowana wersja pluginu
+  nie ma jeszcze narzędzia; wtedy jedno zdanie z poleceniem ręcznym dla człowieka (na Windowsie
+  PowerShell, pełna ścieżka): `cd "<korzeń projektu>"; claude plugin enable relai@relai --scope
+  local`, a dalej to samo dla zainstalowanych `relai-panel@relai`, `relai-progress@relai`
+  i `relai-cache-keeper@relai`. Kod 0 → jedno wywołanie
+  `node "<installPath>/core/tools/relai-scope.js" on "<korzeń projektu>"`. Kod wyjścia 0 —
+  przytaczasz linię wyniku ze stdout. Kod 1 — pełny wynik stoi na stderr z listą „Do wykonania
+  recznie”, którą przytaczasz dosłownie; aktualizacja idzie dalej. Nie powtarzasz wywołania, nie
+  piszesz pliku ustawień sam i nie podmieniasz `--cli`. `.worktreeinclude` nie wchodzi do commitu
+  aktualizacji bez osobnej zgody.
 - Marker: linia `Wersja RelAI:` dostaje wersję docelową; data inicjalizacji zostaje.
 
 ## Krok 5 — wpis w dzienniku i podsumowanie

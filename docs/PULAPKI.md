@@ -19,11 +19,17 @@ Specyfikacja: `SPEC_PULAPKI.md`.
   3. CLI umie tylko `true` albo `false`. Gdy przed zmianą klucza nie było, `disable` nie jest
      cofnięciem: lokalne `false` wyłączyłoby plugin w projekcie mimo globalnego `true`.
   4. W folderze domowym `.claude/settings.json` to plik użytkownika, a nie projektu.
+  5. `enable --scope local` przy pluginie włączonym globalnie i braku klucza lokalnego kończy
+     się kodem 1: „Plugin "relai@relai" is already enabled at local scope”, bez zapisu
+     (zmierzone 2026-10-27 w E2, CLI 2.1.304). Para `disable --scope local`, potem
+     `enable --scope local`, zapisuje `true`. Drugie `enable` przy lokalnym `true` znowu daje kod 1.
 - **Przyczyna:** precedencja `enabledPlugins` idzie klucz po kluczu, user < project < local.
   Kopię ignorowanych plików do nowego worktree robi `.worktreeinclude` w repozytorium głównym
   (dokumentacja Claude Code, CLI i sesje aplikacji; pomiar w E4 planu). Worktree, w którym
   `.git` jest plikiem, sam nie potrzebuje `.worktreeinclude`, tylko własnego wpisu lokalnego.
 - **Obejście:** `relai-scope` pisze przez CLI (P-052) i sprawdza każdy zapis odczytem pliku.
+  Odmowę „already enabled/disabled” przy braku żądanej wartości w pliku zakresu obchodzi parą:
+  akcja przeciwna, potem żądana (Aneks A planu, od E2).
   Jedyny zapis bez CLI to usunięcie klucza przy `undo`: odczyt, skasowanie jednego klucza
   w `enabledPlugins`, reszta obiektu, wcięcie i końce linii bez zmian, zapis atomowy przez plik
   tymczasowy; plik, który powstał przez `apply` i został pusty, znika. Folder domowy narzędzie

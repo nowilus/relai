@@ -199,7 +199,9 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
     (L-0043, L-0045, L-0046, L-0072, L-0272)
 13. **Cudze narzędzie poznajesz z wydanego builda i z próby**, nie z dokumentacji: payload po
     zdjęciu BOM, bez założeń o nazwach pól; CLI z powłoki natywnej; brak sygnału konfrontujesz
-    z warunkiem milczenia; nieprzyjęty artefakt — najpierw jego walidator albo widok statusu.
+    z warunkiem milczenia; nieprzyjęty artefakt — najpierw jego walidator albo widok statusu;
+    atrapa cudzego CLI powtarza jego odmowy, zmierzone na prawdziwym CLI w każdym stanie
+    wyjściowym przed testami (L-0288).
     - **Mody:** zielone `validate`, typy i testy nie dowodzą zachowania w łańcuchu — mierzysz na
       żywo, ciszę sondą (licznik hooka, wynik `next`) (P-017); `$` i `on` tylko w pliku modułu
       hooków, na zewnątrz czysta logika; typy mówią, co powierzchnia przyjmie, nie co niesie —
@@ -239,7 +241,7 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
       (L-0280).
     (L-0041, L-0042, L-0044, L-0047, L-0092, L-0133, L-0136, L-0138, L-0139, L-0146, L-0153, L-0166,
     L-0168, L-0185, L-0189, L-0190, L-0244, L-0245, L-0253, L-0255, L-0263, L-0264, L-0273, L-0280,
-    L-0281, L-0284, L-0285, L-0286)
+    L-0281, L-0284, L-0285, L-0286, L-0288)
 14. **Najpierw zmiana w repozytorium, potem zdanie, które ją opisuje.** Weryfikację planujesz tam,
     gdzie wykonalna; po pytaniu sprzątasz sam; jednostką inwentarza jest sprawa, nie linia; wstawkę
     kotwiczysz do elementu, który przeżyje operację, i dowodzisz **obecności** nowej treści. Gdy
@@ -681,6 +683,19 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
   starego numeru na scenariuszu „następne wydanie bez zmiany tego numeru”. Konflikt dwóch
   kontroli to defekt instrumentu: poprawka w kontroli z testem, nie przepisanie treści ani
   obejście.
+
+### L-0288 — Atrapa cudzego CLI zapisywała zawsze; prawdziwe odmawia, gdy stan już jest · 2026-10-27 · AKTYWNA
+
+- **Trigger:** ZASIEG_PLUGINU E2. Fałszywe CLI w testach `relai-scope` (E1) przy każdym
+  `enable` zapisywało klucz. Prawdziwe `claude plugin enable --scope local` (2.1.304) przy
+  pluginie włączonym globalnie i braku klucza lokalnego kończy się kodem 1 („already enabled at
+  local scope”) i nic nie zapisuje. E1 zmierzył CLI tylko przy globalnym `false`, a `status` nic
+  nie zapisuje — 17 zielonych testów, a `on` i pierwszy krok `apply` nie działały na maszynie
+  właściciela. Wyszło dopiero przy pomiarze polecenia z procedury w E2.
+- **Zasada:** atrapa cudzego CLI powtarza jego odmowy, nie tylko zapisy. Zanim powstaną testy,
+  każdą operację zapisu puszczasz raz na prawdziwym CLI w każdym stanie wyjściowym, który
+  narzędzie obsłuży (tu: globalnie `true` i `false`, z kluczem lokalnym i bez), w folderze
+  tymczasowym. Wynik — kod i komunikat — wchodzi do atrapy dosłownie.
 
 ## Lekcje zwinięte
 

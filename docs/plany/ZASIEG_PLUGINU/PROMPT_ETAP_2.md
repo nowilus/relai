@@ -381,15 +381,15 @@ adapters/codex/skills/relai-core/new-project.md   kopia new-project.md dla Codek
 
 Każdy punkt Weryfikacji, który przeszedł, odhaczasz w `PROMPT_ETAP_2.md` (`- [ ]` → `- [x]`) zaraz po jego sprawdzeniu, nie na końcu etapu; punkt, który nie przeszedł, zostaje pusty.
 
-- [ ] `grep -n "relai-scope" adapters/claude-code/commands/relai-adopt.md adapters/claude-code/commands/relai-update.md adapters/claude-code/skills/relai-core/new-project.md` — trafienie w każdym z trzech plików, w Krokach wymienionych w zakresie (kontrola pozytywna: ten sam `grep` na HEAD w `git worktree` nie trafia nigdzie).
-- [ ] `node core/tools/validate-adapters.js` — bez błędów; linia „parytet skilli Claude Code -> Codex: … 0 rozjazdów”.
-- [ ] `node --test core/process/tests/*.test.js adapters/codex/tests/*.test.js` — bez nowych porażek względem stanu przed etapem (liczby przed i po do wpisu; katalog zamiast wzorca plików nie działa — L-0212).
-- [ ] Pomiar z punktu 5 zakresu: cztery klucze `true`, linia w `.worktreeinclude`, suma `~/.claude/settings.json` i `installed_plugins.json` ta sama przed i po; polecenie wklejone do wpisu dosłownie.
-- [ ] Przypadek „narzędzia nie ma” (plugin 3.5.0): ścieżka z `installPath` zainstalowanego pluginu nie istnieje → tekst kroku prowadzi do zdania z poleceniem ręcznym, nie do błędu (dowód: `test -e "<installPath>/core/tools/relai-scope.js"` daje 1, a tekst kroku ma gałąź dla tego wyniku).
-- [ ] Dowód negatywny: `git diff --stat -- adapters/cursor panel site README.md .claude-plugin core/tools core/process` nie pokazuje zmian tego etapu; `~/.claude/settings.json` niezmieniony.
-- [ ] Ewaluacje wyzwalania: `node core/tools/eval-triggers.js --model sonnet --ids <pozycje dotyczące relai-core i adopcji>` — bez regresji wobec wyniku sprzed zmiany (ten sam zestaw `--ids` przed i po). Limit konta albo brak `claude -p` → punkt zostaje pusty, warunek wykonalności do wpisu i pytanie do człowieka.
-- [ ] Wpis w `docs/DZIENNIK.md` na końcu sekcji „Wpisy”.
-- [ ] Katalog roboczy: (a) `.claude/relai/work/ZASIEG_PLUGINU/E2/` przejrzany raportem (`node .claude/relai/tools/clean-work.js raport`) i skasowany po „tak”, liczby przed i po do wpisu dziennika; (b) foldery `%TEMP%/relai-zasieg-e2-*` wypisane z nazwy razem z tym, co się z nimi stało.
+- [x] `grep -n "relai-scope" adapters/claude-code/commands/relai-adopt.md adapters/claude-code/commands/relai-update.md adapters/claude-code/skills/relai-core/new-project.md` — trafienie w każdym z trzech plików, w Krokach wymienionych w zakresie (kontrola pozytywna: ten sam `grep` na HEAD w `git worktree` nie trafia nigdzie).
+- [x] `node core/tools/validate-adapters.js` — bez błędów; linia „parytet skilli Claude Code -> Codex: … 0 rozjazdów”.
+- [x] `node --test core/process/tests/*.test.js adapters/codex/tests/*.test.js` — bez nowych porażek względem stanu przed etapem (liczby przed i po do wpisu; katalog zamiast wzorca plików nie działa — L-0212).
+- [x] Pomiar z punktu 5 zakresu: cztery klucze `true`, linia w `.worktreeinclude`, suma `~/.claude/settings.json` i `installed_plugins.json` ta sama przed i po; polecenie wklejone do wpisu dosłownie.
+- [x] Przypadek „narzędzia nie ma” (plugin 3.5.0): ścieżka z `installPath` zainstalowanego pluginu nie istnieje → tekst kroku prowadzi do zdania z poleceniem ręcznym, nie do błędu (dowód: `test -e "<installPath>/core/tools/relai-scope.js"` daje 1, a tekst kroku ma gałąź dla tego wyniku).
+- [x] Dowód negatywny (zakres zmieniony Aneksem A planu: bez `core/process/plugin-scope.js` i jego testu): `git diff --stat -- adapters/cursor panel site README.md .claude-plugin core/tools core/process` nie pokazuje zmian tego etapu; `~/.claude/settings.json` niezmieniony.
+- [x] Ewaluacje wyzwalania: `node core/tools/eval-triggers.js --model sonnet --ids <pozycje dotyczące relai-core i adopcji>` — bez regresji wobec wyniku sprzed zmiany (ten sam zestaw `--ids` przed i po). Limit konta albo brak `claude -p` → punkt zostaje pusty, warunek wykonalności do wpisu i pytanie do człowieka.
+- [x] Wpis w `docs/DZIENNIK.md` na końcu sekcji „Wpisy”.
+- [x] Katalog roboczy: (a) `.claude/relai/work/ZASIEG_PLUGINU/E2/` przejrzany raportem (`node .claude/relai/tools/clean-work.js raport`) i skasowany po „tak”, liczby przed i po do wpisu dziennika; (b) foldery `%TEMP%/relai-zasieg-e2-*` wypisane z nazwy razem z tym, co się z nimi stało.
 
 ## Na koniec (rytuał obowiązkowy) — bez tego rytuału etap nie jest ukończony
 

@@ -13,7 +13,7 @@ komendami i czternastoma hookami w Claude Code (czternasty: `session-title`). Ma
 repozytorium niesie też cztery mody: `relai-panel` 0.22.0, `relai-progress` 0.7.0,
 `relai-cache-keeper` 0.13.0 („early access”) i kokpit `relai-mods` 0.2.0. Wydanie robi się teraz frazą „gotowi do wydania?”
 (`/relai-release`): raport `release-check.js`, naprawy po jednej zgodzie, publikacja krok po kroku,
-bramka `pre-push` na tagi. Aktywny plan: ZASIEG_PLUGINU (Claude Code, E1 zrealizowany, E2 gotowy do startu);
+bramka `pre-push` na tagi. Aktywny plan: ZASIEG_PLUGINU (Claude Code, E1–E2 zrealizowane, E3 gotowy do startu);
 PANEL_CODEX (Codex) wstrzymany 2026-10-27 decyzją Łukasza. Opinii spoza projektu nadal nie ma.
 
 ## Co działa
@@ -92,13 +92,16 @@ PANEL_CODEX (Codex) wstrzymany 2026-10-27 decyzją Łukasza. Opinii spoza projek
 
 ## Nad czym pracujemy teraz
 
-- **ZASIEG_PLUGINU — E1 zrealizowany 2026-10-27, E2 gotowy do startu** (plan
-  [ZASIEG_PLUGINU](plany/ZASIEG_PLUGINU/STATUS.md), 4 etapy): tryb „RelAI tylko w zaadoptowanych projektach” — globalnie
-  `false`, lokalnie `true` przy adopcji. Narzędzie `core/tools/relai-scope.js` (status / apply /
-  undo / on / off, dziennik `~/.claude/relai/zasieg-pluginu.json`, 17 testów) jest w repo,
-  niewydane; `status` na tej maszynie: 15 projektów z markerem, 74 kroki. Maszyna nieprzełączona —
-  bramka w `STATUS.md` (po E1 czy po wydaniu). Dalej: kroki w adopcji/init/update (E2), przycisk
-  w `relai-mods` (E3). Zadanie z sesji PolyFlow-rust po `/doctor` (`relai` = 16% zużycia).
+- **ZASIEG_PLUGINU — E1 i E2 zrealizowane 2026-10-27, E3 gotowy do startu** (plan
+  [ZASIEG_PLUGINU](plany/ZASIEG_PLUGINU/STATUS.md), 4 etapy, Aneks A): tryb „RelAI tylko
+  w zaadoptowanych projektach” — globalnie `false`, lokalnie `true` przy adopcji. Narzędzie
+  `core/tools/relai-scope.js` (status / apply / undo / on / off, dziennik
+  `~/.claude/relai/zasieg-pluginu.json`, 19 testów) jest w repo, niewydane; od E2 obchodzi odmowę
+  CLI „already enabled at local scope” parą disable → enable (P-058 pkt 5). `/relai-adopt`,
+  inicjalizacja i `/relai-update` mają krok włączenia lokalnego (tylko Claude Code; plugin 3.5.0
+  bez narzędzia → polecenie ręczne). Maszyna nieprzełączona — bramka w `STATUS.md`. Dalej:
+  przycisk w `relai-mods` (E3), dokumentacja i wydanie (E4). Zadanie z sesji PolyFlow-rust po
+  `/doctor` (`relai` = 16% zużycia).
 - **PANEL_CODEX — nieaktywny, WSTRZYMANY 2026-10-27** decyzją Łukasza (plan
   [PANEL_CODEX](plany/PANEL_CODEX/STATUS.md), ZAAKCEPTOWANY 2026-10-10, 8 etapów, Codex
   `gpt-6.1-sol`). Stan zatrzymania E1: natywny widok i wiadomość do bieżącego czatu potwierdzone
@@ -218,7 +221,7 @@ zamknięte: [docs/archiwum/plany/](archiwum/plany/) • Backupy: `C:\Users\Lukas
 
 ### Liczby
 
-Plany zamknięte: 19 (ostatni ZGLOSZENIA, 2026-10-27) • Aktywne: ZASIEG_PLUGINU (E2 gotowy do
+Plany zamknięte: 19 (ostatni ZGLOSZENIA, 2026-10-27) • Aktywne: ZASIEG_PLUGINU (E3 gotowy do
 startu, Claude Code) • Wstrzymane: PANEL_CODEX (Codex, od 2026-10-27) • Start sesji: 115,2 KB / 100 KB na starcie 2026-10-27 • Dziennik: 178 KB / 150 KB (do
 rotacji) • Ryzyka: 20 w tabeli, 17,5 KB / 12 KB (dolna granica — same otwarte), archiwum 12
 plików • Lekcje: 56,5 KB / 50 KB (do rotacji) • Adaptery: 3 • Komendy: 16 • Hooki Claude Code: 14

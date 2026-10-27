@@ -100,6 +100,13 @@ Pokaż użytkownikowi **pełny plan zmian**, zanim powstanie pierwszy plik:
    wykryć, jest tu pytaniem.
 6. **Commit na koniec** — jeśli projekt ma gita: propozycja `chore: adopt RelAI project
    structure`; jeśli nie ma — propozycja `git init` (opcjonalna, z konsekwencją D-53).
+7. **Włączenie RelAI w tym projekcie (tylko Claude Code)** — w Codeksie i Cursorze tej pozycji
+   nie pokazujesz. Narzędzie `relai-scope` zapisze `true` dla zainstalowanych pluginów zestawu
+   (`relai`, `relai-panel`, `relai-progress`, `relai-cache-keeper`) w `.claude/settings.local.json`
+   projektu, a w repo z gitem dopisze linię `.claude/settings.local.json` do `.worktreeinclude`.
+   Po co: przy RelAI wyłączonym globalnie (tryb „RelAI tylko w projektach”) projekt włącza go
+   u siebie; przy włączonym globalnie wpis dziś niczego nie zmienia. `.worktreeinclude` nie
+   wchodzi do commitu adopcji bez osobnej zgody.
 
 **Czekasz na zgodę.** Zgoda może być częściowa (np. bez commita). Zgoda wyrażona z góry w treści
 polecenia („zgadzam się na standardowy plan adopcji") jest zgodą — plan i tak pokazujesz, przed
@@ -185,6 +192,30 @@ cofnięcie** — procedura z realnymi ścieżkami tego projektu. Raport jest jed
 przeżyje tę sesję; pisz go dla człowieka, który za pół roku będzie miał tylko ten plik i archiwum.
 
 ## Krok 7 — commit i podsumowanie
+
+**Włączenie RelAI w tym projekcie** (zgoda na pozycję 7 z kroku 3; **tylko Claude Code** —
+w Codeksie i Cursorze ten akapit pomijasz w całości), przed commitem:
+
+1. `claude plugin list --json` → wpis `relai@relai`, pole `installPath`. Brak wpisu albo
+   polecenie nie działa → zdanie z poleceniem ręcznym (punkt 4) i idziesz dalej.
+2. `test -e "<installPath>/core/tools/relai-scope.js"` — kod 1 znaczy, że zainstalowana wersja
+   pluginu nie ma jeszcze narzędzia (np. 3.5.0): jedno zdanie o tym z poleceniem ręcznym
+   (punkt 4) i idziesz dalej. Narzędzia nie szukasz gdzie indziej.
+3. `.claude/settings.local.json` projektu ma już `false` dla pluginu z zestawu → to świadomy
+   wybór (R6), `on` by go przestawił: nie wołasz narzędzia, mówisz o tym jednym zdaniem. Inaczej
+   jedno wywołanie: `node "<installPath>/core/tools/relai-scope.js" on "<korzeń projektu>"`.
+   Kod 0 — linia wyniku na stdout (`on: <folder> — N krokow.` albo `— bez zmian.`), przytaczasz
+   ją. Kod 1 — zapis nie przeszedł w całości; pełny wynik stoi na stderr, z listą „Do wykonania
+   recznie”, którą przytaczasz dosłownie. Kod 1 nie przerywa adopcji. Nie powtarzasz wywołania,
+   nie piszesz `.claude/settings.local.json` sam i nie podmieniasz `--cli`.
+4. Polecenie ręczne dla człowieka (na Windowsie PowerShell, pełna ścieżka projektu):
+   `cd "<korzeń projektu>"; claude plugin enable relai@relai --scope local`, a dalej to samo dla
+   zainstalowanych `relai-panel@relai`, `relai-progress@relai` i `relai-cache-keeper@relai`.
+   Odpowiedź „already enabled at local scope” przy RelAI włączonym globalnie znaczy, że brakuje
+   zapisu: przed `enable` idzie wtedy `claude plugin disable <id> --scope local`.
+
+Zmiana działa po `/reload-plugins` albo w nowej sesji. Plik `.worktreeinclude` zostaje poza
+commitem adopcji, chyba że człowiek osobno się na niego zgodził.
 
 - Zgoda z kroku 3 obejmowała commit → wykonaj: `chore: adopt RelAI project structure`
   (+ wcześniej `git init`, jeśli na to też była zgoda). Bez zgody — bez commita.

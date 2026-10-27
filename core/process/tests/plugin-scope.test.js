@@ -37,6 +37,12 @@ const FAKE_CLI = [
   "let d = {};",
   "try { d = JSON.parse(fs.readFileSync(plik, 'utf8')); } catch (_) {}",
   "d.enabledPlugins = d.enabledPlugins || {};",
+  // Jak CLI 2.1.304 (P-058, pomiar 2026-10-27 w E2): stan efektywny (lokalny klucz, bez niego
+  // poziom user) rowny zadanemu = odmowa z kodem 1, bez zapisu.
+  "let u = {};",
+  "try { u = JSON.parse(fs.readFileSync(path.join(home, '.claude', 'settings.json'), 'utf8')).enabledPlugins || {}; } catch (_) {}",
+  "const efektywny = id in d.enabledPlugins ? d.enabledPlugins[id] : u[id] === true;",
+  "if (efektywny === (akcja === 'enable')) { console.error('Failed to ' + akcja + ' plugin \"' + id + '\": Plugin \"' + id + '\" is already ' + akcja + 'd at ' + zakres + ' scope'); process.exit(1); }",
   "d.enabledPlugins[id] = akcja === 'enable';",
   "fs.mkdirSync(path.dirname(plik), { recursive: true });",
   "fs.writeFileSync(plik, JSON.stringify(d, null, 2) + String.fromCharCode(10));",
@@ -355,6 +361,35 @@ test('on/off: jeden projekt, poziom uzytkownika nietkniety; folder domowy i niei
     assert.equal(brak.status, 1);
     assert.match(brak.stderr, /Folder nie istnieje/);
     assert.equal(sumaDrzewa(m.baza), przed);
+  } finally { m.sprzataj(); }
+});
+
+test('on przy globalnym true: CLI odmawia "already enabled", narzedzie robi disable + enable local', () => {
+  const m = maszyna();
+  try {
+    const a = m.projekt('A');
+    const w = m.narzedzie(['on', a]);
+    assert.equal(w.status, 0, w.stderr);
+    for (const id of ZESTAW) assert.equal(zp.wartosciZestawu(lokalnyPlik(a))[id], true);
+    const log = czytaj(path.join(m.home, 'fake-cli-log.txt')).split('\n').filter((l) => l.includes('relai@relai '));
+    assert.deepEqual(log.map((l) => l.split(' ')[1]), ['enable', 'disable', 'enable']);
+    // Drugie on: lokalne true juz jest — zero wywolan pluginu.
+    const n = czytaj(path.join(m.home, 'fake-cli-calls.txt'));
+    assert.match(m.narzedzie(['on', a]).stdout, /bez zmian/);
+    assert.equal(czytaj(path.join(m.home, 'fake-cli-calls.txt')), n);
+  } finally { m.sprzataj(); }
+});
+
+test('on: para disable + enable, w ktorej pada enable, mowi, ze lokalnie zostal false', () => {
+  const m = maszyna();
+  try {
+    const a = m.projekt('A');
+    // Wywolania pluginu: 1 enable (odmowa), 2 disable, 3 enable — pada.
+    const w = m.narzedzie(['on', a], { FAKE_FAIL_AFTER: '2' });
+    assert.equal(w.status, 1);
+    assert.match(w.stderr, /po disable: kod 3: fake failure/);
+    assert.match(w.stderr, /zostal klucz relai@relai = false/);
+    assert.equal(zp.wartosciZestawu(lokalnyPlik(a))['relai@relai'], false);
   } finally { m.sprzataj(); }
 });
 

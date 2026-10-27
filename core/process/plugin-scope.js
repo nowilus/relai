@@ -294,9 +294,27 @@ function bladCli(r) {
   return 'kod ' + r.status + (linia ? ': ' + linia : '');
 }
 
+const JUZ_TAKI = /is already (enabled|disabled) at/i;
+
 // Jeden krok pluginu przez CLI i odczyt pliku zakresu. Zwraca null albo opis bledu.
+// CLI odmawia (kod 1, "is already enabled at local scope"), gdy stan efektywny z innego zakresu
+// jest juz taki, a w tym zakresie klucza brak (P-058, CLI 2.1.304). Wtedy para: akcja
+// przeciwna, potem zadana — zapisuje klucz, a odczyt pliku sprawdza wynik jak zwykle.
 function krokPluginu(krok, akcja, oczekiwana, { uruchom, cli, home }) {
-  const r = uruchom(argvPluginu(cli, akcja, krok.id, krok.zakres), cwdZakresu(krok, home));
+  const cwd = cwdZakresu(krok, home);
+  let r = uruchom(argvPluginu(cli, akcja, krok.id, krok.zakres), cwd);
+  const odmowa = !r.error && r.status !== 0 && JUZ_TAKI.test(String(r.stderr || '') + String(r.stdout || ''));
+  if (odmowa && wartoscKlucza(plikZakresu(krok, home), krok.id) === oczekiwana) return null;
+  if (odmowa) {
+    const przeciwna = akcja === 'enable' ? 'disable' : 'enable';
+    const p = uruchom(argvPluginu(cli, przeciwna, krok.id, krok.zakres), cwd);
+    if (p.error || p.status !== 0) return 'CLI ' + przeciwna + ' ' + krok.id + ' (' + krok.zakres + '): ' + bladCli(p);
+    r = uruchom(argvPluginu(cli, akcja, krok.id, krok.zakres), cwd);
+    if (r.error || r.status !== 0) {
+      return 'CLI ' + akcja + ' ' + krok.id + ' (' + krok.zakres + ') po ' + przeciwna + ': ' + bladCli(r)
+        + ' — w ' + plikZakresu(krok, home) + ' zostal klucz ' + krok.id + ' = ' + !oczekiwana;
+    }
+  }
   if (r.error || r.status !== 0) return 'CLI ' + akcja + ' ' + krok.id + ' (' + krok.zakres + '): ' + bladCli(r);
   const po = wartoscKlucza(plikZakresu(krok, home), krok.id);
   if (po !== oczekiwana) {

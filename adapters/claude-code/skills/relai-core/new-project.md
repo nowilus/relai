@@ -10,7 +10,9 @@ Plik doczytywany skilla `relai-core`. Otwierasz go, gdy Krok 0 skilla rozpoznał
 
 Zapytaj **zwykłym tekstem**, krótko: czym jest RelAI (framework dokumentacyjno-procesowy: projekt
 pamięta ustalenia, decyzje i stan między sesjami), co konkretnie powstanie (`CLAUDE.md`, `README.md`
-i `docs/` z sześcioma dokumentami) i że nic poza tym nie zostanie utworzone. Poproś o zgodę.
+i `docs/` z sześcioma dokumentami) i że nic poza tym nie zostanie utworzone — w Claude Code
+dochodzi jeszcze włączenie RelAI w tym projekcie (`.claude/settings.local.json`, przy gicie linia
+w `.worktreeinclude`; sekcja 3). Poproś o zgodę.
 
 - **Zgoda** → punkt 2.
 - **Odmowa** → utwórz `.claude/relai.json` o treści `{"mode":"guest"}`, potwierdź jednym zdaniem
@@ -34,6 +36,14 @@ Po odmowie zadaj **jedno** pytanie (AskUserQuestion, dwie opcje):
 Wiersz `nie proponuj` jest **wyciszeniem tego skilla poza projektami**, a nie wyłączeniem RelAI:
 w folderze z markerem `Wersja RelAI` rytuał startu sesji obowiązuje bez zmian. Wycofanie wiersza to
 zmiana jego wartości na `proponuj` albo skasowanie linijki — powiedz o tym w tym samym zdaniu.
+
+Po odpowiedzi „Nigdy poza projektami RelAI” w **Claude Code** dodajesz jeszcze jedno zdanie
+z propozycją trybu „RelAI tylko w projektach”: plugin można wyłączyć globalnie i zostawić
+włączony tylko w projektach z markerem, a podgląd zmian bez żadnego zapisu daje
+`node "<installPath>/core/tools/relai-scope.js" status` (`installPath` — pole wpisu `relai@relai`
+z `claude plugin list --json`). Polecenia `apply` nie wykonujesz — przełączenie maszyny należy do
+człowieka. Gdy `test -e "<installPath>/core/tools/relai-scope.js"` daje kod 1, zdanie mówi, że
+narzędzie przyjdzie z aktualizacją pluginu. W Codeksie i Cursorze tego zdania nie ma.
 
 Widzisz w kontekście startu sesji linię `[RelAI]` mówiącą, że propozycja poza projektami jest
 wyłączona → **nie proponujesz niczego i nie pytasz o zasięg**; pracujesz jak zwykły Claude Code,
@@ -138,10 +148,34 @@ Zasady generacji:
 - Po zapisie: gdy wybrano git, wykonaj `git init` (jeśli trzeba) i **jeden** commit
   `chore: initialize RelAI project structure`. Bez pytania o commit — to część inicjalizacji.
 
+**Włączenie RelAI w tym projekcie — tylko Claude Code** (w Codeksie i Cursorze ten akapit
+pomijasz w całości), po commicie, w ramach zgody z punktu 1:
+
+1. `claude plugin list --json` → wpis `relai@relai`, pole `installPath`. Brak wpisu albo
+   polecenie nie działa → zdanie z poleceniem ręcznym (punkt 4) i idziesz dalej.
+2. `test -e "<installPath>/core/tools/relai-scope.js"` — kod 1 znaczy, że zainstalowana wersja
+   pluginu nie ma jeszcze narzędzia (np. 3.5.0): jedno zdanie o tym z poleceniem ręcznym
+   (punkt 4) i idziesz dalej. Narzędzia nie szukasz gdzie indziej.
+3. `.claude/settings.local.json` ma już `false` dla pluginu z zestawu → to świadomy wybór,
+   `on` by go przestawił: nie wołasz narzędzia, mówisz o tym jednym zdaniem. Inaczej jedno
+   wywołanie: `node "<installPath>/core/tools/relai-scope.js" on "<korzeń projektu>"`.
+   Kod 0 — linia wyniku na stdout (`on: <folder> — N krokow.` albo `— bez zmian.`), przytaczasz
+   ją. Kod 1 — zapis nie przeszedł w całości; pełny wynik stoi na stderr, z listą „Do wykonania
+   recznie”, którą przytaczasz dosłownie. Kod 1 nie przerywa inicjalizacji. Nie powtarzasz
+   wywołania, nie piszesz `.claude/settings.local.json` sam i nie podmieniasz `--cli`.
+4. Polecenie ręczne dla człowieka (na Windowsie PowerShell, pełna ścieżka projektu):
+   `cd "<korzeń projektu>"; claude plugin enable relai@relai --scope local`, a dalej to samo dla
+   zainstalowanych `relai-panel@relai`, `relai-progress@relai` i `relai-cache-keeper@relai`.
+   Odpowiedź „already enabled at local scope” przy RelAI włączonym globalnie znaczy, że brakuje
+   zapisu: przed `enable` idzie wtedy `claude plugin disable <id> --scope local`.
+
+Plik `.worktreeinclude` zostaje poza commitem inicjalizacji — jego commit należy do człowieka.
+
 ### 4. Podsumowanie dla użytkownika
 
 Trzy–pięć zdań: co powstało, co robi każdy dokument, co się dzieje dalej („od teraz mówisz normalnie
 — dokumenty aktualizują się w ramach pracy"), plus zdanie o zapamiętanej preferencji globalnej.
+W Claude Code także zdanie o włączeniu RelAI w projekcie: wynik z sekcji 3 albo polecenie ręczne.
 Bez ozdobników i bez listy komend, których jeszcze nie ma.
 
 ---

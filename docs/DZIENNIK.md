@@ -2567,3 +2567,80 @@ sesji co start (karta startu → zgoda Łukasza). Tryb ciągły optymalizatora w
   (PLAN sekcja 9).
 
 Autor: RelAI (Opus 5.5) + Lukasz
+
+### 2026-10-27 — ZASIEG_PLUGINU E2: adopcja, init i update włączają RelAI w projekcie; poprawka narzędzia (Aneks A)
+
+Etap E2 planu [ZASIEG_PLUGINU](plany/ZASIEG_PLUGINU/STATUS.md), wg `PROMPT_ETAP_2.md`, w sesji
+startu (karta startu → zgoda Łukasza). Tryb ciągły optymalizatora w tej sesji: odmowa (plik zgody
+sesji).
+
+**Zrobione:**
+
+- `adapters/claude-code/commands/relai-adopt.md` — Krok 3: pozycja 7 „Włączenie RelAI w tym
+  projekcie (tylko Claude Code)”; Krok 7: cztery punkty przed commitem — `installPath` z `claude
+  plugin list --json`, `test -e` narzędzia (kod 1 → zdanie z poleceniem ręcznym), lokalne `false`
+  → bez wywołania (R6), jedno `on` z opisem kodów 0/1 i zakazem obejść (L-0271); `.worktreeinclude`
+  poza commitem bez osobnej zgody.
+- `adapters/claude-code/skills/relai-core/new-project.md` — sekcja 1: zgoda wymienia włączenie
+  w Claude Code; 1a: po „Nigdy poza projektami RelAI” zdanie o trybie z `relai-scope status`, bez
+  `apply`; 3: ten sam krok `on` po commicie inicjalizacji; 4: zdanie o wyniku.
+- `adapters/claude-code/commands/relai-update.md` — Krok 2: wiersz „włączenie lokalne” (tylko przy
+  RelAI wyłączonym globalnie; lokalne `false` zostaje); Krok 4: wykonanie z tą samą gałęzią braku
+  narzędzia.
+- Codex: `generate-skills.js` — `relai-adopt`, `relai-update` i `relai-core/new-project.md`
+  zregenerowane; tekst kroku mówi „w Codeksie i Cursorze pomijasz”. Cursor bez zmian.
+- **Aneks A planu (decyzja Łukasza w trakcie etapu):** pomiar z punktu 5 zakresu pokazał, że
+  prawdziwe `claude plugin enable --scope local` (2.1.304) przy globalnym `true` i braku klucza
+  lokalnego odmawia kodem 1 „already enabled at local scope”. `on` i pierwszy krok `apply` nie
+  działały na tej maszynie. Poprawka w `core/process/plugin-scope.js` (`krokPluginu`): odmowa
+  „already …” i brak żądanej wartości w pliku → akcja przeciwna, potem żądana; odmowa przy pliku
+  już w stanie żądanym = sukces; pad drugiej akcji mówi, jaki klucz został. Fałszywe CLI w testach
+  odmawia teraz jak prawdziwe; dwa nowe testy. P-058 punkt 5, ręczne polecenie w adopcji i init
+  z obejściem `disable` → `enable`.
+- Recenzja (subagent `code-reviewer`): 0 CRITICAL/HIGH, dwa MEDIUM w nowej gałęzi — oba
+  poprawione z testem (pad drugiej akcji); trzeci przypadek (odmowa przy pliku w stanie żądanym)
+  bez osobnego testu — `planJednego` go odfiltrowuje.
+
+**Zweryfikowane — jak dokładnie:**
+
+- `grep -n "relai-scope"` w trzech plikach: trafienia w Kroku 3 i 7 adopcji, Kroku 2 i 4
+  aktualizacji, sekcjach 1a i 3 `new-project.md`; ten sam `grep -c` na HEAD w `git worktree`:
+  0 / 0 / 0.
+- `node core/tools/validate-adapters.js` — kod 0, „parytet skilli Claude Code -> Codex: 73 plikow,
+  0 rozjazdow”.
+- `node --test core/process/tests/*.test.js adapters/codex/tests/*.test.js` — przed etapem
+  340/342, po 342/344 (FAKT). Dwie porażki te same przed i po: parytet Codeksa przy
+  `core.autocrlf=true` (znane, STATE „Co dalej”). Generator przepisuje przy tym
+  `relai-planning/plan-closing.md` i `stage-closing.md` samymi końcami linii — przywrócone,
+  poza commitem.
+- Testy narzędzia: z nową atrapą na starym `krokPluginu` 12/18 (sześć czerwonych, w tym nowy test
+  pary), po poprawce 19/19.
+- Pomiar polecenia z procedury na prawdziwym `claude` (2.1.304), folder z markerem i `git init`:
+  `node "C:/Users/Lukasz/Desktop/RelAI/core/tools/relai-scope.js" on "C:/Users/Lukasz/AppData/Local/Temp/relai-zasieg-e2-2"`
+  → `on: … — 5 krokow.`, kod 0; cztery klucze `true` w `.claude/settings.local.json`, linia
+  `.claude/settings.local.json` w `.worktreeinclude`; drugie `on` → „bez zmian.”. Suma
+  `~/.claude/settings.json` (`0ea9ff58b6c4…`) i `installed_plugins.json` (`e8d2d2826f7b…`) ta sama
+  przed i po. Pierwszy przebieg (przed poprawką, `relai-zasieg-e2-1`): kod 1, zero zapisów.
+- Gałąź „narzędzia nie ma”: `installPath` z `claude plugin list --json` =
+  `C:\Users\Lukasz\.claude\plugins\cache\relai\relai\3.5.0`; `test -e …/core/tools/relai-scope.js`
+  → 1; tekst kroku ma na to punkt 2.
+- Dowód negatywny (zakres wg Aneksu A): `git diff --stat -- adapters/cursor panel site README.md
+  .claude-plugin core/tools core/process` pokazuje tylko `core/process/plugin-scope.js` i jego test;
+  `~/.claude/settings.json` z tą samą sumą na końcu etapu.
+- `node core/tools/eval-triggers.js --model sonnet --ids core-p1,core-p2,core-p3,core-p4,core-n1,core-n2,core-n3`
+  — przed 7/7 ok, po 7/7 ok (`core-p4` czyta `new-project.md` w obu).
+- Katalog roboczy `.claude/relai/work/ZASIEG_PLUGINU/E2/`: przed 14 plików / 141 KB, po 0
+  (skasowany po „tak”). Poza nim: `%TEMP%/relai-zasieg-e2-1` (63 KB) i `relai-zasieg-e2-2`
+  (68 KB) — skasowane po tym samym „tak”.
+- Tabela „Stan otwartych ryzyk” przejrzana — bez zmian; R3 planu („CLI zapisze co innego”) się
+  zmaterializował w innej postaci (odmowa zamiast zapisu) i jest zamknięty poprawką z testem.
+
+**Świadomie odłożone:**
+
+- Lista „Do wykonania recznie” w wyniku narzędzia podaje samo `enable` — przy globalnym `true`
+  człowiek trafi na tę samą odmowę; procedury mają obejście w tekście, narzędzie nie. Do E4
+  (README) albo osobnej poprawki.
+
+**Do zrobienia przez człowieka:** —
+
+Autor: RelAI (Opus 5.5) + Lukasz
