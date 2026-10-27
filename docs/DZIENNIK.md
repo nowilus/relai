@@ -2493,3 +2493,77 @@ testy `core/process` zielone.
 **Do zrobienia przez człowieka:** —
 
 Autor: RelAI (Opus 5.5) + Lukasz
+
+### 2026-10-27 — ZASIEG_PLUGINU E1: narzędzie `relai-scope` przełącza maszynę i umie to cofnąć
+
+Etap E1 planu [ZASIEG_PLUGINU](plany/ZASIEG_PLUGINU/STATUS.md), wg `PROMPT_ETAP_1.md`, w tej samej
+sesji co start (karta startu → zgoda Łukasza). Tryb ciągły optymalizatora w tej sesji: odmowa
+(zapisana w pliku zgody sesji).
+
+**Zrobione:**
+
+- `core/process/plugin-scope.js` — czysta logika: odkrywanie folderów (`cwd` z pierwszych 64 KB
+  plików `~/.claude/projects/*/*.jsonl` + argumenty, deduplikacja bez wielkości liter na Windows,
+  folder domowy i nieistniejące osobno), klasyfikacja (`zaadoptowany` / `gosc` / `inny` przez
+  `relaiMarkerFile` i `isGuest`, git, worktree), plan zmian (lokalne `enable` i `.worktreeinclude`
+  przed globalnym `disable`), dziennik `~/.claude/relai/zasieg-pluginu.json` po każdym kroku,
+  plan cofnięcia (poprzednio brak klucza → usunięcie klucza wąskim zapisem JSON). CLI wstrzykiwane
+  funkcją.
+- `core/tools/relai-scope.js` — `status` (domyślne) / `apply` / `undo` / `on [folder]` /
+  `off [folder]`, opcje `--home` i `--cli` (plik `.js` uruchamiany bieżącym Node), kod 0 / 1,
+  spawn bez powłoki.
+- `core/process/tests/plugin-scope.test.js` — 17 testów na fałszywym HOME i fałszywym CLI
+  (skrypt Node piszący do pliku zakresu jak prawdziwe `claude plugin`, z awarią po N wywołaniach).
+- `core/MANIFEST.json` — moduł `plugin-scope` i narzędzie `relai-scope`; `docs/PULAPKI.md` — P-058.
+- Dwie rzeczy ponad literę promptu, w granicach narzędzia: (1) worktree (`.git` jako plik)
+  dostaje lokalne `enable`, ale nie `.worktreeinclude` — ta linia działa tylko w repo głównym;
+  (2) raport `status` skraca listę „brak folderu” do liczby i 5 przykładów (na tej maszynie 241).
+- Po recenzji (subagent `code-reviewer`, APPROVE, 0 CRITICAL/HIGH): `apply` odmawia przy
+  nieczytelnym dzienniku zamiast go nadpisać (zgubiłby `undo`); `on`/`off` łapie błąd zapisu
+  `.worktreeinclude`; komunikat braku CLI podpowiada `--cli` (instalacja npm daje `claude.cmd`,
+  którego spawn bez powłoki nie uruchomi).
+
+**Zweryfikowane — jak dokładnie:**
+
+- `node --test core/process/tests/plugin-scope.test.js` — 17/17. Mutacja „globalne `disable` przed
+  lokalnymi” (kopia modułu i testu w katalogu roboczym): test przerwanego `apply` czerwony
+  („globalnie relai@relai nadal true”), oryginał zielony. Druga mutacja (bez odmowy przy
+  nieczytelnym dzienniku): test dziennika czerwony, oryginał zielony.
+- `node --test core/process/tests/*.test.js` — przed etapem 301/301, po 318/318 (FAKT). Katalog
+  jako argument kończy się porażką „test failed” bez testów — wzorzec plików (L-0212).
+- `node core/tools/validate-adapters.js` — kod 0; wywołania sieciowe „0 poza listą”. Kontrola
+  pozytywna: oba nowe pliki są w zbiorze skanu, a dopisane `require('https')` trafia.
+- `node core/tools/relai-scope.js status` na tej maszynie (FAKT 2026-10-27): zestaw zainstalowany
+  w całości, globalnie wszystkie cztery `true`; **15 projektów z markerem** (13 projektów + 2
+  worktree aplikacji w `RelAI\.claude\worktrees\`; PolyFlow-rust to worktree PolyFlow),
+  wszystkie bez wpisów lokalnych; 2 bez gita (KartonOps, TargiKielce); 25 innych folderów;
+  241 folderów z historii już nie istnieje; folder domowy pominięty; 10 plików `.worktreeinclude`
+  do utworzenia; **74 kroki** planu. Suma `~/.claude/settings.json` (`0ea9ff58…`)
+  i `installed_plugins.json` (`e8d2d282…`) ta sama przed i po; dziennik zmian nie powstał.
+- Dowód negatywny: `git diff --stat -- panel site README.md .claude-plugin package.json` pusty;
+  `settings.json` z tą samą sumą na końcu etapu.
+- Bezpieczeństwo: brak `package.json` w zmianie; argumenty przez `path.resolve`, `on`/`off`
+  odrzucają folder nieistniejący i domowy przed zapisem; `spawnSync` bez `shell`; `git grep -n
+  "sk-\|api[_-]key"` po `git add -N` pusty, a kontrola pozytywna (`spawnSync`) trafia.
+- Katalog roboczy `.claude/relai/work/ZASIEG_PLUGINU/E1/`: przed 11 plików / 156 KB, po 0
+  (skasowany po „tak”). Poza katalogiem: fałszywe HOME testów `%TEMP%/relai-zasieg-e1-*` —
+  sprzątane przez każdy test, po etapie 0.
+- Tabela „Stan otwartych ryzyk” przejrzana — bez zmian; ryzyka R1–R6 planu żyją w `PLAN.html`,
+  R4 (przerwane `apply`) ma test i mutację.
+
+**Świadomie odłożone:**
+
+- Lista „brak folderu” (241) pokazuje, że historia sesji niesie setki skasowanych folderów
+  tymczasowych — narzędzie je pomija; sprzątanie `~/.claude/projects/` nie należy do planu.
+- Instalacja `claude` z npm (`claude.cmd`) wymaga `--cli` z pełną ścieżką — opis do README w E4.
+- Złamałem L-0258 przy pisaniu modułu: znak BOM w wyrażeniu regularnym wszedł przez Write jako
+  surowy bajt; wyłapany `grep` po bajtach i zamieniony na `String.fromCharCode(0xfeff)` przed
+  testami. Lekcja istnieje, nowej nie dopisuję.
+
+**Do zrobienia przez człowieka:**
+
+- Kiedy przełączyć maszynę: zaraz po E1 narzędziem z repo (`node core/tools/relai-scope.js apply`
+  z tego folderu; oszczędność od razu, ale nowy folder tylko poleceniem `on`) czy po wydaniu
+  (PLAN sekcja 9).
+
+Autor: RelAI (Opus 5.5) + Lukasz

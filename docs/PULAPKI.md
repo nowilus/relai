@@ -8,6 +8,29 @@ Specyfikacja: `SPEC_PULAPKI.md`.
 
 ## Pułapki
 
+### P-058 — `enabledPlugins` lokalnie wygrywa z user, ale worktree go nie dostaje, a cofnięcie „brak klucza” nie ma polecenia CLI · 2026-10-27 · AKTYWNA
+
+- **Objaw (plan ZASIEG_PLUGINU, narzędzie `relai-scope`):**
+  1. `claude plugin enable X --scope local` zapisuje `{"enabledPlugins":{"X":true}}` do
+     `.claude/settings.local.json` folderu, z którego jest wołane, a ta wartość wygrywa
+     z `false` w `~/.claude/settings.json` (zmierzone 2026-10-27, CLI 2.1.304, dwa razy).
+  2. `.claude/settings.local.json` jest w globalnym ignore gita, więc nowy worktree go nie ma
+     i sesja w worktree startuje ze stanem globalnym.
+  3. CLI umie tylko `true` albo `false`. Gdy przed zmianą klucza nie było, `disable` nie jest
+     cofnięciem: lokalne `false` wyłączyłoby plugin w projekcie mimo globalnego `true`.
+  4. W folderze domowym `.claude/settings.json` to plik użytkownika, a nie projektu.
+- **Przyczyna:** precedencja `enabledPlugins` idzie klucz po kluczu, user < project < local.
+  Kopię ignorowanych plików do nowego worktree robi `.worktreeinclude` w repozytorium głównym
+  (dokumentacja Claude Code, CLI i sesje aplikacji; pomiar w E4 planu). Worktree, w którym
+  `.git` jest plikiem, sam nie potrzebuje `.worktreeinclude`, tylko własnego wpisu lokalnego.
+- **Obejście:** `relai-scope` pisze przez CLI (P-052) i sprawdza każdy zapis odczytem pliku.
+  Jedyny zapis bez CLI to usunięcie klucza przy `undo`: odczyt, skasowanie jednego klucza
+  w `enabledPlugins`, reszta obiektu, wcięcie i końce linii bez zmian, zapis atomowy przez plik
+  tymczasowy; plik, który powstał przez `apply` i został pusty, znika. Folder domowy narzędzie
+  pomija. Sesję otwierasz w korzeniu projektu — ustawienia lokalne czytane są z folderu sesji.
+- **Zasięg:** każdy zapis `enabledPlugins` w zakresie `local` (narzędzie `relai-scope`,
+  przycisk w `relai-mods` od E3). Źródło: wpis dziennika 2026-10-27 (ZASIEG_PLUGINU E1).
+
 ### P-057 — W sesji w trybie auto klasyfikator odmawia `$.mcp.call` wołanego przez mod z kliknięcia · 2026-10-27 · AKTYWNA
 
 - **Objaw (`relai-panel` 0.22.0, projekt TargiKielce, `"permissionMode":"auto"`):** karta „Etap

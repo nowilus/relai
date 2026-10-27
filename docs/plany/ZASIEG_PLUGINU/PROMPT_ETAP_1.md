@@ -392,15 +392,15 @@ docs/PULAPKI.md                P-052, P-053 — zachowanie claude plugin z modó
 
 Każdy punkt Weryfikacji, który przeszedł, odhaczasz w `PROMPT_ETAP_1.md` (`- [ ]` → `- [x]`) zaraz po jego sprawdzeniu, nie na końcu etapu; punkt, który nie przeszedł, zostaje pusty.
 
-- [ ] `node --test core/process/tests/plugin-scope.test.js` — wszystkie zielone; test przerwanego `apply` czerwony na wersji z globalnym `disable` przed lokalnymi (pokaż, że test łapie złą kolejność).
-- [ ] `node --test core/process/tests/` — bez nowych porażek względem stanu przed etapem.
-- [ ] `node core/tools/validate-adapters.js` — bez błędów.
-- [ ] `node core/tools/relai-scope.js status` na prawdziwej maszynie: lista ≥ 13 projektów z markerem (FAKT z 2026-10-27), folder domowy pominięty, a `~/.claude/settings.json` i `installed_plugins.json` mają tę samą sumę kontrolną przed i po.
-- [ ] Dowód negatywny: `git diff --stat` nie pokazuje zmian w `panel/`, `site/`, `README.md`, `.claude-plugin/` wprowadzonych przez ten etap; `~/.claude/settings.json` niezmieniony.
-- [ ] Bezpieczeństwo: narzędzie nie ma zależności npm (`git diff` bez `package.json`); ścieżki z argumentów normalizowane `path.resolve` i sprawdzane na istnienie, zanim cokolwiek zapisze; polecenie CLI składane tablicą argumentów (`spawnSync` bez `shell: true`); `git grep -n "sk-\|api[_-]key" -- core/process/plugin-scope.js core/tools/relai-scope.js` nic nie zwraca.
-- [ ] `node core/tools/network-calls.js` (przez `validate-adapters.js`) — nowe pliki bez wywołań sieciowych.
-- [ ] Wpis w `docs/DZIENNIK.md` na końcu sekcji „Wpisy”, z wynikiem `status`.
-- [ ] Katalog roboczy: (a) `.claude/relai/work/ZASIEG_PLUGINU/E1/` przejrzany raportem (`node .claude/relai/tools/clean-work.js raport`) i skasowany po „tak”, liczby przed i po do wpisu dziennika; (b) artefakty spoza katalogu (fałszywe HOME testów w `%TEMP%`) wypisane z nazwy razem z tym, co się z nimi stało.
+- [x] `node --test core/process/tests/plugin-scope.test.js` — wszystkie zielone; test przerwanego `apply` czerwony na wersji z globalnym `disable` przed lokalnymi (pokaż, że test łapie złą kolejność).
+- [x] `node --test core/process/tests/` — bez nowych porażek względem stanu przed etapem.
+- [x] `node core/tools/validate-adapters.js` — bez błędów.
+- [x] `node core/tools/relai-scope.js status` na prawdziwej maszynie: lista ≥ 13 projektów z markerem (FAKT z 2026-10-27), folder domowy pominięty, a `~/.claude/settings.json` i `installed_plugins.json` mają tę samą sumę kontrolną przed i po.
+- [x] Dowód negatywny: `git diff --stat` nie pokazuje zmian w `panel/`, `site/`, `README.md`, `.claude-plugin/` wprowadzonych przez ten etap; `~/.claude/settings.json` niezmieniony.
+- [x] Bezpieczeństwo: narzędzie nie ma zależności npm (`git diff` bez `package.json`); ścieżki z argumentów normalizowane `path.resolve` i sprawdzane na istnienie, zanim cokolwiek zapisze; polecenie CLI składane tablicą argumentów (`spawnSync` bez `shell: true`); `git grep -n "sk-\|api[_-]key" -- core/process/plugin-scope.js core/tools/relai-scope.js` nic nie zwraca.
+- [x] `node core/tools/network-calls.js` (przez `validate-adapters.js`) — nowe pliki bez wywołań sieciowych.
+- [x] Wpis w `docs/DZIENNIK.md` na końcu sekcji „Wpisy”, z wynikiem `status`.
+- [x] Katalog roboczy: (a) `.claude/relai/work/ZASIEG_PLUGINU/E1/` przejrzany raportem (`node .claude/relai/tools/clean-work.js raport`) i skasowany po „tak”, liczby przed i po do wpisu dziennika; (b) artefakty spoza katalogu (fałszywe HOME testów w `%TEMP%`) wypisane z nazwy razem z tym, co się z nimi stało.
 
 ## Na koniec (rytuał obowiązkowy) — bez tego rytuału etap nie jest ukończony
 

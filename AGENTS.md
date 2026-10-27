@@ -39,7 +39,7 @@ o kolejne `N` dni / rozstrzygnąć teraz. Sesja nieinteraktywna: sam raport, bez
 | Plany zamknięte | 19, ostatni ZGLOSZENIA 2026-10-27 (wydanie 3.5.0) | [archiwum planów](docs/archiwum/plany/), [docs/STATE.md](docs/STATE.md) |
 | Odnogi i wątki samodzielne | 1 otwarta: `OPIS_REPO` (od 2026-09-24); zamknięte — karty w [docs/fixy/](docs/fixy/) | [docs/STATE.md](docs/STATE.md) |
 
-Aktywny plan: [ZASIEG_PLUGINU](docs/plany/ZASIEG_PLUGINU/STATUS.md) — w Claude Code, ZAAKCEPTOWANY 2026-10-27, E1 gotowy do startu (RelAI tylko w zaadoptowanych projektach). [PANEL_CODEX](docs/plany/PANEL_CODEX/STATUS.md) (Codex) **nieaktywny — WSTRZYMANY 2026-10-27** decyzją Łukasza. Ostatni zamknięty: [ZGLOSZENIA](docs/archiwum/plany/ZGLOSZENIA/STATUS.md), 2026-10-27 (wydanie 3.5.0 z czterema modami, zgłoszenia GitHub #1–#3 zamknięte).
+Aktywny plan: [ZASIEG_PLUGINU](docs/plany/ZASIEG_PLUGINU/STATUS.md) — w Claude Code, ZAAKCEPTOWANY 2026-10-27, E1 zrealizowany, E2 gotowy do startu (RelAI tylko w zaadoptowanych projektach). [PANEL_CODEX](docs/plany/PANEL_CODEX/STATUS.md) (Codex) **nieaktywny — WSTRZYMANY 2026-10-27** decyzją Łukasza. Ostatni zamknięty: [ZGLOSZENIA](docs/archiwum/plany/ZGLOSZENIA/STATUS.md), 2026-10-27 (wydanie 3.5.0 z czterema modami, zgłoszenia GitHub #1–#3 zamknięte).
 
 ## Reguły procesu
 

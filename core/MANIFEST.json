@@ -107,6 +107,12 @@
       "description": "Plik wznowienia pracy (.claude/relai/wznowienie/<slug>.md, LIMIT_CHECKPOINT): slug z nazwy katalogu projektu ograniczony do [A-Za-z0-9_-], odczyt daty zapisu i zdanie dla hooka startu. Ten sam slug liczy cache-keeper/hooks/limit.ts (test parytetu). Bez wiedzy o protokole hookow."
     },
     {
+      "id": "plugin-scope",
+      "file": "./process/plugin-scope.js",
+      "kind": "biblioteka",
+      "description": "Tryb RelAI tylko w zaadoptowanych projektach (ZASIEG_PLUGINU): odkrywanie folderow z historii sesji, klasyfikacja (zaadoptowany / gosc / inny), plan zmian (lokalne enable i .worktreeinclude przed globalnym disable), dziennik ~/.claude/relai/zasieg-pluginu.json i plan cofniecia. Polecenie claude plugin wstrzykiwane funkcja; jedyny zapis bez CLI to usuniecie klucza przy cofnieciu."
+    },
+    {
       "id": "work-artifacts",
       "file": "./process/work-artifacts.js",
       "kind": "biblioteka+CLI",
@@ -176,6 +182,12 @@
       "file": "./tools/count-rules.js",
       "kind": "CLI",
       "description": "Liczba pozycji sekcji Zasady aktywne w docs/LEKCJE.md wobec limitu 15 — krok 1 rytualu zamkniecia sesji. Kopia w projekcie: .claude/relai/tools/count-rules.js."
+    },
+    {
+      "id": "relai-scope",
+      "file": "./tools/relai-scope.js",
+      "kind": "CLI",
+      "description": "Przelaczenie maszyny w tryb RelAI tylko w zaadoptowanych projektach i jego cofniecie: status (podglad, zero zapisow), apply, undo, on/off dla jednego projektu; opcje --home i --cli. Zapis przez claude plugin enable|disable, spawn bez powloki. Uruchamiany recznie z katalogu pluginu."
     }
   ],
   "adapters": [
