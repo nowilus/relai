@@ -31,7 +31,7 @@
     {
       "name": "relai-panel",
       "source": "./panel",
-      "version": "0.22.0",
+      "version": "0.22.1",
       "description": "Early access — needs Claude Code with mods (measured on 2.1.295). RelAI panel: a calm bar above the prompt with the session's work (a plan stage or a thread card and its packets), its status, and a second row only while a decision card waits or the work is not chosen (then a Wybierz pracę… button opens the pane on the choice); /relai-panel opens a pane with Teraz (the work, a bar whose marks tell each item's state by shape, the whole item in the app's tooltip, the item in progress on one line, Zmień to pick the work), forms for the 15 RelAI commands, a map that starts with Ta sesja (the focus with its packets and cost) over folded sections of plans, crew runs and the archive, the project documents and the session's measured costs in folded sections, with the plan-limit thresholds as rulers (used now, the threshold, the room left) and value buttons. Every change goes through a confirmation card; on the desktop a stage starts in a new session of the app, the old conversation kept. One network request only: the Anthropic pricing page, read after \"Tak\" on a card.",
       "category": "productivity",
       "homepage": "https://github.com/nowilus/relai",

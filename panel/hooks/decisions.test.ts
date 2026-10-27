@@ -47,7 +47,8 @@ const COMMANDS = FORMS.map((f) => 'relai:' + f.command)
 type Calls = { commands: { command: string, args: string }[], prompts: string[], writes: Record<string, string>, processes: string[][], copies: string[],
   mcp: { server: string, tool: string, args: Record<string, unknown> }[], advance: (ms: number) => Promise<unknown> }
 // The host as the new-session step sees it (NOWA_SESJA): the OS variable, uname, the session's tools
-type Host = { os?: string, uname?: string, tools?: string[], fail?: boolean }
+// refuse: the engine refuses $.mcp.call itself ({ deny: reason } — the call throws "… refused: <reason>"), before the app's card
+type Host = { os?: string, uname?: string, tools?: string[], fail?: boolean, refuse?: string }
 
 function world(on: On, files: Record<string, string>, model = 'claude-opus-5-5', host: Host = { os: 'Windows_NT' }): Calls {
   const calls: Calls = { commands: [], prompts: [], writes: {}, processes: [], copies: [], mcp: [], advance: async () => undefined }
@@ -87,6 +88,7 @@ function world(on: On, files: Record<string, string>, model = 'claude-opus-5-5',
   on('tool.list', () => ({ value: (host.tools ?? []).map((name) => ({ name, description: '', mcp: name.startsWith('mcp__') })) }))
   on('mcp.call', ($, e) => {
     calls.mcp.push({ server: e.server, tool: e.tool, args: e.args })
+    if (host.refuse) return { deny: host.refuse }
     return { value: { content: [{ type: 'text', text: host.fail ? 'The user declined.' : 'started' }], isError: host.fail === true } as never }
   })
   on('ui.copy', ($, e) => { calls.copies.push(e.text); return { value: { isCopied: true } as never } })
@@ -498,6 +500,35 @@ describe('decisions in the RelAI panel', () => {
     expect(line).not.toContain('Otwarto')
     await typed($, 'PANEL_X E2')
     expect(sent(calls).at(-1)?.args).toBe('PANEL_X E2')
+    await ui.unmount()
+  })
+
+  // Live 2026-10-27 (TargiKielce, auto mode): the engine refused start_session — its classifier found
+  // no request for a call made from a press. The link still opens the session; any other refusal does not
+  const CLASSIFIER = 'The server-side auto mode classifier gave no verdict for mcp__ccd_session__start_session: the request that produced this action did not ask for one.'
+  test('auto mode: when the classifier refuses start_session, the card opens the link and the consent stays', async ($, on) => {
+    const calls = world(on, FILES, 'claude-opus-5-5', { os: 'Windows_NT', tools: ['mcp__ccd_session__start_session'], refuse: CLASSIFIER })
+    const ui = await open($)
+    await ui.press({ key: 'cmd-relai-stage' })
+    await ui.press({ key: 'prepare' })
+    await ui.press({ key: 'confirm-yes' })
+    expect((await ui.find({ key: 'sent' }))?.text).toContain('Otwarto')
+    expect(calls.mcp.map((c) => c.tool)).toEqual(['start_session'])
+    expect(calls.processes.length).toBe(1)
+    expect(String(calls.processes[0]?.at(-1))).toStartWith('claude://code/new?')
+    expect(JSON.parse(calls.writes[CONSENT] ?? '{}').usedAt).toBeUndefined()
+    await ui.unmount()
+  })
+
+  test('any other refusal of start_session opens no link and spends the consent', async ($, on) => {
+    const calls = world(on, FILES, 'claude-opus-5-5', { os: 'Windows_NT', tools: ['mcp__ccd_session__start_session'], refuse: 'denied by policy' })
+    const ui = await open($)
+    await ui.press({ key: 'cmd-relai-stage' })
+    await ui.press({ key: 'prepare' })
+    await ui.press({ key: 'confirm-yes' })
+    expect(calls.processes).toEqual([])
+    expect(JSON.parse(calls.writes[CONSENT] ?? '{}').usedAt).toBe(NOW)
+    expect((await ui.find({ key: 'sent' }))?.text).toContain('Nie wysłano')
     await ui.unmount()
   })
 

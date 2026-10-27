@@ -61,6 +61,18 @@ export function hasStartSession(names: readonly string[]): boolean {
   return names.includes(START_TOOL_NAME)
 }
 
+// A refusal of $.mcp.call by the auto mode classifier, not by the person (live 2026-10-27, TargiKielce):
+// in an auto mode session the engine throws "<plugin>: $.mcp.call(…) refused: The server-side auto mode
+// classifier gave no verdict …" — a press asks the app for nothing in words, so the classifier finds no
+// request. The person's "no" on the app's card is a result with isError, never this. Closed list of one
+// wording (rule 7), the classifier's reason itself — the engine's prefix differs ("refused: " live,
+// none in plugin test): any other refusal stays a refusal
+const CLASSIFIER_REFUSAL = /\bThe server-side auto mode classifier gave no verdict\b/
+
+export function isClassifierRefusal(message: string): boolean {
+  return CLASSIFIER_REFUSAL.test(String(message))
+}
+
 // The arguments of start_session (schema of the app 2.31226.1.0): started now at the person's
 // "Tak", a fresh context, this project's folder as it is; background is required, 80+ characters.
 // The title has the shape the plugin's hook gives a continued session (ZGLOSZENIA E4, #1)
