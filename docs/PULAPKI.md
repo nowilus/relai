@@ -8,6 +8,25 @@ Specyfikacja: `SPEC_PULAPKI.md`.
 
 ## Pułapki
 
+### P-057 — W sesji w trybie auto klasyfikator odmawia `$.mcp.call` wołanego przez mod z kliknięcia · 2026-10-27 · AKTYWNA
+
+- **Objaw (`relai-panel` 0.22.0, projekt TargiKielce, `"permissionMode":"auto"`):** karta „Etap
+  planu” z czatem „nowa sesja” → „Tak” → „Nie wysłano … `$.mcp.call(ccd_session, start_session)
+  refused: The server-side auto mode classifier gave no verdict for
+  mcp__ccd_session__start_session: the request that produced this action did not ask for one.`”
+- **Przyczyna:** w trybie auto każde wywołanie narzędzia przechodzi przez klasyfikator, który szuka
+  w rozmowie prośby o nie. Wywołanie z przycisku modu nie ma takiej prośby, więc klasyfikator nie
+  wydaje werdyktu i silnik rzuca wyjątek. To nie jest odmowa człowieka: ta przychodzi z karty
+  aplikacji jako wynik `isError` („The user declined.”).
+- **Obejście:** od `relai-panel` 0.22.1 karta po takiej odmowie otwiera sesję deep linkiem i zgoda
+  zostaje ważna. Rozpoznanie po brzmieniu powodu („The server-side auto mode classifier gave no
+  verdict”), bo prefiks silnika jest różny: na żywo `refused: `, w `plugin test` brak. W teście
+  odmowę wywołania na `$` daje `{ deny: reason }` z hooka `mcp.call`, a nie `throw` (wyjątek
+  z hooka silnik testowy pomija jako „no implementation”). W wersjach do 0.22.0: czat „świeży”,
+  „Kopiuj prompt” albo tryb uprawnień inny niż auto.
+- **Zasięg:** każde `$.mcp.call` (i inne wywołanie narzędzia) wołane przez mod bez prośby
+  w rozmowie, w sesji w trybie auto. Źródło: wpis dziennika 2026-10-27 (miniplan karty etapu).
+
 ### P-056 — Link `claude://code/new?folder=…` z folderem nieznanym aplikacji otwiera sesję w innym folderze · 2026-10-27 · AKTYWNA
 
 - **Objaw (ZGLOSZENIA E4, aplikacja desktop z Claude Code 2.1.308):** link z `folder` =

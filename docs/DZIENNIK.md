@@ -2303,3 +2303,55 @@ i z adnotacją we wpisach E2 i E4; odnóg plan nie miał; folder przeniesiony `g
 **Do zrobienia przez człowieka:** —
 
 Autor: RelAI (Opus 5.5) + Lukasz
+
+### 2026-10-27 — Karta „Etap planu” w trybie auto: deep link po odmowie klasyfikatora — MINIPLAN
+
+Zgłoszenie Łukasza (zrzut z projektu TargiKielce, `relai-panel` 0.22.0): „Przygotuj start” → „Tak”
+→ „Nie wysłano … `$.mcp.call(ccd_session, start_session) refused: The server-side auto mode
+classifier gave no verdict …`”. Sesja w trybie `auto` (transkrypt: `"permissionMode":"auto"`);
+aplikacja oddaje już `start_session`, więc karta woła je zamiast deep linku
+(`panel/hooks/register.tsx:616`), a klasyfikator nie znajduje w rozmowie prośby o wywołanie
+z kliknięcia. Po odmowie panel zużywa zgodę i nie ma drogi zapasowej. Zgoda Łukasza: „Miniplan
+teraz”.
+
+- **Cel:** w sesji w trybie auto karta „Etap planu” z czatem „nowa sesja” otwiera nową sesję
+  deep linkiem, gdy silnik odmówi `start_session` z powodu klasyfikatora; odmowa człowieka na
+  karcie aplikacji (`isError`, „The user declined.”) i każda inna odmowa zostają jak dziś.
+- **Kroki:**
+  1. Test w `panel/hooks/decisions.test.ts`: wyjątek z powodem klasyfikatora → jeden proces
+     z linkiem `claude://`, zgoda nieużyta, „Otwarto”; wyjątek z innym powodem → bez linku,
+     zgoda zużyta. Czerwony przed poprawką.
+  2. `panel/hooks/launch.ts`: rozpoznanie powodu odmowy (zamknięta lista brzmień, kotwica
+     „auto mode classifier”); `register.tsx`: `launch` po takim wyjątku idzie drogą linku.
+  3. `claude plugin test panel`, testy `core/panel`, wpis w `PULAPKI.md`, wydanie `relai-panel`
+     0.22.1 przez `/relai-release` (kroki zewnętrzne po „tak”), wpis wynikowy.
+- **Weryfikacja:** nowy test czerwony na HEAD i zielony po poprawce w jednym przebiegu;
+  `plugin test panel` i N1 (odmowa człowieka) zielone; raport `--wydanie` bez czerwieni.
+
+Autor: RelAI (Opus 5.5) + Lukasz
+
+### 2026-10-27 — Plan ZASIEG_PLUGINU: RelAI tylko w zaadoptowanych projektach (DO AKCEPTACJI)
+
+Zadanie przyszło z sesji PolyFlow-rust po przeglądzie `/doctor`: `relai` to 16% zużycia, a plugin
+i trzy dodatki ładują się w każdym folderze. Rozpoznanie: hooki już milkną poza projektem; listę
+skilli, komend i agentów chowa wyłącznie wyłączenie pluginu. Zmierzone w folderze tymczasowym:
+lokalne `false` wygrywa z globalnym `true`, a `claude plugin enable … --scope local` zapisuje
+`true` do `.claude/settings.local.json`. Skan historii sesji: 13 projektów z markerem (brief
+mówił o 9). Wywiad (dwie rundy): zapis lokalny + `.worktreeinclude`; bramką objęte relai,
+relai-panel, relai-progress, relai-cache-keeper, a `relai-mods` zostaje globalnie z przyciskiem
+„RelAI w tym projekcie”; narzędzie `relai-scope` z dry-run / apply / undo; tryb do wyboru dla
+innych użytkowników; tylko Claude Code; pełny PLAN. Plan w HTML, 4 etapy, 4–6 sesji (SZACUNEK).
+Ustawień maszyny ani innych projektów nie zmieniałem.
+
+Autor: RelAI (Opus 5.5) + Lukasz
+
+### 2026-10-27 — Plan ZASIEG_PLUGINU zaakceptowany
+
+Łukasz zaakceptował plan bez poprawek („Akceptuję plan ZASIEG_PLUGINU.”). Status planu
+ZAAKCEPTOWANY 2026-10-27, E1 „Narzędzie relai-scope” gotowy do startu, wygenerowany
+`PROMPT_ETAP_1.md` (Opus 5.5, `/effort high`). Doprecyzowanie przy generacji promptu: cofnięcie
+lokalnego wpisu, którego przed `apply` nie było, usuwa klucz wąskim zapisem JSON — `disable`
+zostawiłby lokalne `false`, które po przywróceniu globalnego `true` wyłączyłoby RelAI w projekcie.
+Start etapu: świeża sesja i `/relai-stage`.
+
+Autor: RelAI (Opus 5.5) + Lukasz
