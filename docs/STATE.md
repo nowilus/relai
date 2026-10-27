@@ -99,7 +99,10 @@ PANEL_CODEX (E1 w toku). Opinii spoza projektu nadal nie ma.
   pokazuje właściwy stan, układ zaakceptowany; sonda 0.0.9 z poprawką fontów czeka na pomiar po
   przeładowaniu macierzystego procesu. Tabela STATUS planu pokazuje jeszcze `GOTOWY DO STARTU` —
   do wyprostowania na `W TOKU`. Kontrakt w [README adaptera](../adapters/codex/panel/README.md).
-- W Claude Code aktywnego planu nie ma (ZGLOSZENIA zamknięty 2026-10-27).
+- **ZASIEG_PLUGINU — ZAAKCEPTOWANY 2026-10-27, E1 gotowy do startu** (plan
+  [ZASIEG_PLUGINU](plany/ZASIEG_PLUGINU/STATUS.md), 4 etapy): tryb „RelAI tylko w zaadoptowanych projektach” — globalnie
+  `false`, lokalnie `true` przy adopcji, narzędzie `relai-scope` (status / apply / undo),
+  przycisk w `relai-mods`. Zadanie z sesji PolyFlow-rust po `/doctor` (`relai` = 16% zużycia).
 
 ## Co dalej
 
