@@ -32,7 +32,8 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
    w wersji uruchomionej dosłownie, z tej samej powłoki, którą zobaczy czytelnik; znak
    interpretowany przez powłokę zapisujesz tak, żeby go nie tknęła. Komenda do wklejenia przez
    człowieka w czacie: pełna ścieżka, bez zmiennych środowiska, na Windowsie w składni PowerShella
-   (L-0266). (L-0002, L-0022, L-0059, L-0266)
+   (L-0266). Polecenie mierzysz w każdym stanie, który samo wytwarza albo na który przełącza —
+   przed zmianą i po niej (L-0292). (L-0002, L-0022, L-0059, L-0266, L-0292)
 3. **Test „czegoś nie wolno" wymaga dowodu negatywnego:** chroniony fragment ma nadal pierwotne
    brzmienie, nie tylko nowy wpis powstał. Test nieobecności tekstu z odmianą liczebnika szuka
    rdzenia wspólnego wszystkim formom, a każdy test „czegoś nie ma” wywraca mutacja pisana dla niego
@@ -208,7 +209,8 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
       gałąź po polu powierzchni z wejścia, test na obecność odpowiednika; każde drzewo przez
       `plugin test` z montażem i kliknięciem przed pokazem na żywo; korzeń projektu w górę od
       zmiennego cwd, test w podfolderze (L-0146); przypadek błędu najpierw na samym narzędziu
-      (bez zapisu), kopia plików użytkownika przed pomiarem, który w nich pisze, odpowiedź
+      (bez zapisu), kopia plików użytkownika przed pomiarem, który w nich pisze — kopia, nie
+      same sumy (L-0291), odpowiedź
       `$.command.run` po treści, atrapa testu odpowiada na każde wywołanie z `calls` walidatora
       (L-0253); zachowanie silnika, na którym stoi mechanizm (źródło stanu, sygnał zdarzenia),
       sondą zdarzeń w `$.store` przez cały cykl, dwa razy, zanim powstanie kod — „zaraz po” i zdanie
@@ -244,7 +246,7 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
       (L-0280).
     (L-0041, L-0042, L-0044, L-0047, L-0092, L-0133, L-0136, L-0138, L-0139, L-0146, L-0153, L-0166,
     L-0168, L-0185, L-0189, L-0190, L-0244, L-0245, L-0253, L-0255, L-0263, L-0264, L-0273, L-0280,
-    L-0281, L-0284, L-0285, L-0286, L-0288, L-0289)
+    L-0281, L-0284, L-0285, L-0286, L-0288, L-0289, L-0291)
 14. **Najpierw zmiana w repozytorium, potem zdanie, które ją opisuje.** Weryfikację planujesz tam,
     gdzie wykonalna; po pytaniu sprzątasz sam; jednostką inwentarza jest sprawa, nie linia; wstawkę
     kotwiczysz do elementu, który przeżyje operację, i dowodzisz **obecności** nowej treści. Gdy
@@ -723,6 +725,29 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
 - **Zasada:** bez zmian względem zasady 5 — kod z ukośnikiem wstecznym, także test i także
   dopisek na końcu, idzie wyłącznie przez Write/Edit. Czerwony test z dziwną ścieżką sprawdzasz
   najpierw `grep`-em bajtów pliku, zanim dotkniesz kodu.
+
+### L-0291 — Powtórka L-0253: migawka sumami przed zapisem w plikach użytkownika nie pozwala rozłożyć różnicy · 2026-10-28 · AKTYWNA
+
+- **Trigger:** ZASIEG_PLUGINU E4, bramka `apply → undo → apply` na prawdziwym HOME. Migawka
+  przed `apply` trzymała same sumy 31 plików. Po `undo` 5 plików miało inne sumy. W czterech
+  plikach lokalnych przyczynę dało się odczytać z treści (pusty `"enabledPlugins": {}`).
+  W `~/.claude/settings.json` nie dało się już ustalić, co poza wartościami RelAI się zmieniło:
+  kopii nie było, a najbliższa kopia zapasowa miała zmiany człowieka z innego dnia.
+- **Zasada:** bez zmian względem zasady 13 („kopia plików użytkownika przed pomiarem, który
+  w nich pisze”). Migawka przed zapisem w plikach człowieka to **kopia plików** do folderu
+  pomiaru, a nie same sumy. Sumy służą do szybkiego porównania, kopia do wyjaśnienia różnicy.
+
+### L-0292 — Polecenie z README działało przed przełączeniem i padło po nim: mierz w każdym stanie, który samo wytwarza · 2026-10-28 · AKTYWNA
+
+- **Trigger:** ZASIEG_PLUGINU E4. Wiersz README
+  `((claude plugin list --json | ConvertFrom-Json) | Where-Object id -eq 'relai@relai').installPath`
+  zmierzyłem dosłownie przed `apply` — działał. Po przełączeniu maszyny CLI wypisuje
+  `relai@relai` raz na zakres (user + każdy projekt z lokalnym `true`). `.installPath` skleił
+  trzy ścieżki i `node` padł kodem 1. Wydanie 3.6.0 wyszło z tym wierszem (P-059).
+- **Zasada:** polecenie w dokumencie użytkownika mierzysz w każdym stanie, który samo wytwarza
+  albo na który przełącza: przed zmianą i po niej. Zwłaszcza gdy czyta wynik narzędzia, którego
+  kształt zależy od tego stanu (lista pluginów, zakresy). Pomiar „przed” nie wystarcza dla
+  polecenia, które człowiek uruchomi też „po”.
 
 ## Lekcje zwinięte
 

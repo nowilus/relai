@@ -53,7 +53,7 @@ wszędzie, bo nim włączasz nowy folder.
 Przełącza narzędzie `relai-scope`, w PowerShellu. Najpierw ścieżka pluginu (pole `installPath`):
 
 ```powershell
-$relai = ((claude plugin list --json | ConvertFrom-Json) | Where-Object id -eq 'relai@relai').installPath
+$relai = ((claude plugin list --json | ConvertFrom-Json) | Where-Object id -eq 'relai@relai' | Select-Object -First 1).installPath
 ```
 
 Potem, w tym samym oknie, podgląd — niczego nie zapisuje:

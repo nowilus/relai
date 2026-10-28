@@ -41,7 +41,7 @@ projekcie z RelAI (`.claude/settings.local.json`). Nie jest komendą czatu — u
 w PowerShellu, po ustaleniu ścieżki pluginu:
 
 ```powershell
-$relai = ((claude plugin list --json | ConvertFrom-Json) | Where-Object id -eq 'relai@relai').installPath
+$relai = ((claude plugin list --json | ConvertFrom-Json) | Where-Object id -eq 'relai@relai' | Select-Object -First 1).installPath
 ```
 
 | Polecenie | Co robi | Kod wyjścia |

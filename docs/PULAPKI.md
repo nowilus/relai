@@ -8,6 +8,26 @@ Specyfikacja: `SPEC_PULAPKI.md`.
 
 ## Pułapki
 
+### P-059 — PowerShell 5.1 nie rozwija tablicy z `ConvertFrom-Json`, a `claude plugin list --json` powtarza plugin per zakres lokalny · 2026-10-28 · AKTYWNA
+
+- **Objaw (plan ZASIEG_PLUGINU E4, polecenie z README):**
+  1. `(claude plugin list --json | ConvertFrom-Json | Where-Object id -eq 'relai@relai').installPath`
+     zwraca w PowerShellu 5.1 pustą wartość z kodem 0.
+  2. Po przełączeniu maszyny w tryb „RelAI tylko w projektach” ten sam wpis `relai@relai` stoi
+     na liście trzy razy: `scope: user` i po jednym `scope: local` z polem `projectPath` dla
+     każdego projektu z lokalnym `true`, w którym ruszyła już sesja. `.installPath` daje wtedy
+     trzy ścieżki sklejone w jedną i `node` pada kodem 1.
+- **Przyczyna:** (1) w PS 5.1 `ConvertFrom-Json` oddaje tablicę JSON do potoku jako jeden obiekt,
+  więc `Where-Object` porównuje całą tablicę, nie jej elementy. (2) CLI 2.1.304 wypisuje
+  instalację osobno dla każdego zakresu, w którym plugin jest włączony; `installPath` jest wszędzie
+  ten sam.
+- **Obejście:** nawias wokół `ConvertFrom-Json` i pierwszy wpis:
+  `((claude plugin list --json | ConvertFrom-Json) | Where-Object id -eq 'relai@relai' | Select-Object -First 1).installPath`
+  — zmierzone przed przełączeniem i po nim (README i `KOMENDY.md` od E4). Procedury modelu
+  („wpis `relai@relai`, pole `installPath`”) tego nie potrzebują: model wybiera jeden wpis.
+- **Zasięg:** każde polecenie PowerShella, które filtruje wynik `claude … --json`. Źródło: wpis
+  dziennika 2026-10-28 (ZASIEG_PLUGINU E4).
+
 ### P-058 — `enabledPlugins` lokalnie wygrywa z user, ale worktree go nie dostaje, a cofnięcie „brak klucza” nie ma polecenia CLI · 2026-10-27 · AKTYWNA
 
 - **Objaw (plan ZASIEG_PLUGINU, narzędzie `relai-scope`):**
@@ -34,6 +54,20 @@ Specyfikacja: `SPEC_PULAPKI.md`.
   w `enabledPlugins`, reszta obiektu, wcięcie i końce linii bez zmian, zapis atomowy przez plik
   tymczasowy; plik, który powstał przez `apply` i został pusty, znika. Folder domowy narzędzie
   pomija. Sesję otwierasz w korzeniu projektu — ustawienia lokalne czytane są z folderu sesji.
+- **Pomiar R2 (E4, 2026-10-27/28):**
+  - CLI 2.1.304, `claude -w <nazwa> -p` w repo z lokalnym `false`: plik
+    `.claude/settings.local.json` trafił do nowego worktree **także bez** `.worktreeinclude`
+    (z linią i bez niej — 0 trafień kontekstu RelAI w transkrypcie; kontrola instrumentu: bez
+    pliku lokalnego 2 trafienia). Linia w `.worktreeinclude` jest więc zapasem dla dróg, które
+    kopii nie robią, nie warunkiem w CLI.
+  - Aplikacja 2.1.308 (2026-10-28, maszyna w trybie „tylko w projektach”, globalnie `false`):
+    nowa sesja aplikacji w worktree repo RelAI (`.claude/worktrees/angry-spence-081996`) ma
+    `.claude/settings.local.json` z czterema kluczami zestawu `true` i kontekst startu
+    `[RelAI session-context]` — **R2 nie zachodzi** w CLI ani w aplikacji.
+- **`undo` zostawia pusty obiekt:** plik lokalny, który miał inne klucze i nie miał
+  `enabledPlugins`, po `apply` → `undo` ma `"enabledPlugins": {}` (pierwsze `enable` CLI dodaje
+  obiekt, `undo` usuwa tylko klucze). Dla precedencji neutralne, bajtowo nie — 4 pliki na tej
+  maszynie (2026-10-28). Drugie `apply` daje stan bajt w bajt równy pierwszemu.
 - **Zasięg:** każdy zapis `enabledPlugins` w zakresie `local` (narzędzie `relai-scope`,
   przycisk w `relai-mods` od E3). Źródło: wpis dziennika 2026-10-27 (ZASIEG_PLUGINU E1).
 

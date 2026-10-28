@@ -388,14 +388,14 @@ docs/DECYZJE.md                      ostatnia D-91
 
 Każdy punkt Weryfikacji, który przeszedł, odhaczasz w `PROMPT_ETAP_4.md` (`- [ ]` → `- [x]`) zaraz po jego sprawdzeniu, nie na końcu etapu; punkt, który nie przeszedł, zostaje pusty.
 
-- [ ] Każde polecenie z nowego tekstu README i `KOMENDY.md` uruchomione dosłownie w PowerShellu na tej maszynie (na folderze tymczasowym albo `status`), kod i pierwsza linia wyniku do wpisu dziennika.
+- [x] Każde polecenie z nowego tekstu README i `KOMENDY.md` uruchomione dosłownie w PowerShellu na tej maszynie (na folderze tymczasowym albo `status`), kod i pierwsza linia wyniku do wpisu dziennika.
 - [x] D-92 w `docs/DECYZJE.md`; `grep -n "D-92" docs/DECYZJE.md` zwraca dokładnie jeden nagłówek wpisu.
-- [ ] Pomiar R2: wynik (kontekst startu w worktree jest / nie ma) wpisany do P-058 z wersją aplikacji i CLI.
-- [ ] Bramka maszyny rozstrzygnięta: `apply` po „tak” Łukasza, dziennik `~/.claude/relai/zasieg-pluginu.json` istnieje; pomiar w 2 projektach i 1 folderze bez RelAI z kontekstem startu sesji jako dowodem; albo — gdy Łukasz odłoży — bramka zostaje `OTWARTA` z jego datą i powodem, a punkt pusty.
-- [ ] `node core/tools/release-check.js` bez czerwieni przed publikacją; po publikacji `release-verify.js` zielony dla każdego wydanego komponentu.
-- [ ] Dowód negatywny: `git diff --stat` od commitu E3 nie pokazuje zmian w `core/process/plugin-scope.js` ani `mods/hooks/` poza tym, co wskazał człowiek.
-- [ ] Wpis w `docs/DZIENNIK.md` na końcu sekcji „Wpisy”.
-- [ ] Katalog roboczy: (a) `.claude/relai/work/ZASIEG_PLUGINU/E4/` przejrzany raportem (`node .claude/relai/tools/clean-work.js raport`) i skasowany po „tak”, liczby przed i po do wpisu dziennika; (b) foldery `%TEMP%/relai-zasieg-e4-*` i worktree pomiaru R2 wypisane z nazwy razem z tym, co się z nimi stało.
+- [x] Pomiar R2: wynik (kontekst startu w worktree jest / nie ma) wpisany do P-058 z wersją aplikacji i CLI.
+- [x] Bramka maszyny rozstrzygnięta: `apply` po „tak” Łukasza, dziennik `~/.claude/relai/zasieg-pluginu.json` istnieje; pomiar w 2 projektach i 1 folderze bez RelAI z kontekstem startu sesji jako dowodem; albo — gdy Łukasz odłoży — bramka zostaje `OTWARTA` z jego datą i powodem, a punkt pusty.
+- [x] `node core/tools/release-check.js` bez czerwieni przed publikacją; po publikacji `release-verify.js` zielony dla każdego wydanego komponentu.
+- [x] Dowód negatywny: `git diff --stat` od commitu E3 nie pokazuje zmian w `core/process/plugin-scope.js` ani `mods/hooks/` poza tym, co wskazał człowiek.
+- [x] Wpis w `docs/DZIENNIK.md` na końcu sekcji „Wpisy”.
+- [x] Katalog roboczy: (a) `.claude/relai/work/ZASIEG_PLUGINU/E4/` przejrzany raportem (`node .claude/relai/tools/clean-work.js raport`) i skasowany po „tak”, liczby przed i po do wpisu dziennika; (b) foldery `%TEMP%/relai-zasieg-e4-*` i worktree pomiaru R2 wypisane z nazwy razem z tym, co się z nimi stało.
 
 ## Na koniec (rytuał obowiązkowy) — bez tego rytuału etap nie jest ukończony
 

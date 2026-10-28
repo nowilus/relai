@@ -2439,6 +2439,7 @@ Prośba Łukasza: wyrównać prace dwóch sesji, żeby E1 ZASIEG_PLUGINU ruszył
 
 **Do zrobienia przez człowieka:** ponowić `claude plugin test panel` po zwolnieniu pamięci
 (pięć plików bez raportu, w tym `register.test.ts` dotknięty poprawką 0.22.1).
+*(rozstrzygnięte 2026-10-28 — `claude plugin test panel` 216/216 przy wydaniu 0.22.1, wpis E4)*
 
 Autor: RelAI (Opus 5.5) + Lukasz
 
@@ -2496,7 +2497,7 @@ Autor: RelAI (Opus 5.5) + Lukasz
 
 ### 2026-10-27 — ZASIEG_PLUGINU E1: narzędzie `relai-scope` przełącza maszynę i umie to cofnąć
 
-Etap E1 planu [ZASIEG_PLUGINU](plany/ZASIEG_PLUGINU/STATUS.md), wg `PROMPT_ETAP_1.md`, w tej samej
+Etap E1 planu [ZASIEG_PLUGINU](archiwum/plany/ZASIEG_PLUGINU/STATUS.md), wg `PROMPT_ETAP_1.md`, w tej samej
 sesji co start (karta startu → zgoda Łukasza). Tryb ciągły optymalizatora w tej sesji: odmowa
 (zapisana w pliku zgody sesji).
 
@@ -2564,13 +2565,13 @@ sesji co start (karta startu → zgoda Łukasza). Tryb ciągły optymalizatora w
 
 - Kiedy przełączyć maszynę: zaraz po E1 narzędziem z repo (`node core/tools/relai-scope.js apply`
   z tego folderu; oszczędność od razu, ale nowy folder tylko poleceniem `on`) czy po wydaniu
-  (PLAN sekcja 9).
+  (PLAN sekcja 9). *(rozstrzygnięte 2026-10-28 — po wydaniu: `apply → undo → apply` z 3.6.0, wpis E4)*
 
 Autor: RelAI (Opus 5.5) + Lukasz
 
 ### 2026-10-27 — ZASIEG_PLUGINU E2: adopcja, init i update włączają RelAI w projekcie; poprawka narzędzia (Aneks A)
 
-Etap E2 planu [ZASIEG_PLUGINU](plany/ZASIEG_PLUGINU/STATUS.md), wg `PROMPT_ETAP_2.md`, w sesji
+Etap E2 planu [ZASIEG_PLUGINU](archiwum/plany/ZASIEG_PLUGINU/STATUS.md), wg `PROMPT_ETAP_2.md`, w sesji
 startu (karta startu → zgoda Łukasza). Tryb ciągły optymalizatora w tej sesji: odmowa (plik zgody
 sesji).
 
@@ -2647,7 +2648,7 @@ Autor: RelAI (Opus 5.5) + Lukasz
 
 ### 2026-10-27 — ZASIEG_PLUGINU E3: wiersz „RelAI w tym projekcie” w kokpicie relai-mods
 
-Etap E3 planu [ZASIEG_PLUGINU](plany/ZASIEG_PLUGINU/STATUS.md), wg `PROMPT_ETAP_3.md`, w sesji
+Etap E3 planu [ZASIEG_PLUGINU](archiwum/plany/ZASIEG_PLUGINU/STATUS.md), wg `PROMPT_ETAP_3.md`, w sesji
 startu (karta startu → zgoda Łukasza). Tryb ciągły optymalizatora w tej sesji: odmowa (plik zgody
 sesji).
 
@@ -2721,6 +2722,146 @@ sesji).
 - Opis w `mods/.claude-plugin/plugin.json` nie mówi o wierszu ani o zapisie `.worktreeinclude`
   („Never writes settings.json…” zostaje prawdą) — do E4 razem z podbiciem 0.3.0.
 - Folder testowy po pomiarze ma lokalne `false` dla zestawu — nie dotyczy żadnego projektu.
+
+**Do zrobienia przez człowieka:** —
+
+Autor: RelAI (Opus 5.5) + Lukasz
+
+### 2026-10-28 — ZASIEG_PLUGINU E4: tryb „RelAI tylko w projektach” opisany, wydany (3.6.0) i włączony na maszynie
+
+Etap E4 planu [ZASIEG_PLUGINU](archiwum/plany/ZASIEG_PLUGINU/STATUS.md), wg `PROMPT_ETAP_4.md`, start
+2026-10-27 w sesji startu (karta → zgoda Łukasza), dokończony 2026-10-28 w sesji przejętej po
+przekazaniu (główna sesja zajęła się CI strony). Tryb ciągły optymalizatora: odmowa w obu sesjach.
+
+**Zrobione:**
+
+- `README.md`: podrozdział „RelAI tylko w projektach (Claude Code, od 3.6.0)” — dwa tryby,
+  `relai-scope` w PowerShellu (`installPath` → `status` → `apply` → `undo`, `on`/`off`), przycisk
+  kokpitu, sesja w korzeniu projektu, `--cli` dla `claude.cmd`, para `disable` → `enable` przy
+  odmowie „already enabled” (odłożone z E1/E2); wiersz `relai-mods` w tabeli panelu.
+  `docs/KOMENDY.md`: sekcja narzędzia (pięć poleceń, kody wyjścia, opcje) i wiersz kokpitu.
+- `docs/DECYZJE.md`: D-92 (wariant A, odrzucone B–D). `mods/.claude-plugin/plugin.json` i wpis
+  marketplace: opis z wierszem i zapisem `.worktreeinclude`.
+- Wydanie przez `/relai-release`: RelAI **3.6.0**, `relai-mods` **0.3.0**, `relai-panel`
+  **0.22.1** (numery z raportu). Naprawy bezpieczne po jednej zgodzie: numery w 7 źródłach
+  + `relai-update.md`, marker w `new-project.md`, README Cursora, fixture ewaluacji, własny
+  marker; trafienia „np. 3.5.0” przepisane na „wersja sprzed 3.6.0”; wiersze `ARTEFAKTY.md`
+  (`relai-adopt` v3, `relai-update` v25, `new-project` v13, `history.md` v11), wpis 3.6.0
+  w `history.md`, generator Codeksa, fakty i budowa strony. Commity `74e8d0e` (wydanie)
+  i `2658e04` (poprawka bramki), tagi trzech komponentów, trzy wydania GitHub (v3.6.0 oznaczone
+  „Latest” — GitHub nadał etykietę modowi utworzonemu ostatni), push `main`, `strona.yml` success.
+- **Aneks B** (decyzja Łukasza: poprawka w E4): hook `pre-push` odmówił wszystkich trzech tagów —
+  `bazaModu` w `core/tools/release-check.js` zapętlała się, gdy numer modu podbito wcześniejszym
+  commitem (`relai-panel` 0.22.1 w `2adda0b`), a tag stał na sprawdzanej rewizji. Przy `--rev`
+  tag na samej rewizji nie czyni numeru wydanym, szukanie idzie od commitu numeru. Test
+  z fixturą tego układu: czerwony przed poprawką („brak bazy modu relai-panel”), zielony po;
+  testy wydań 68/68. Tagi lokalne przeniesione na `2658e04` po „tak”, push przeszedł bramkę.
+- Bramka maszyny (decyzja Łukasza: po wydaniu, `apply → undo → apply`): `relai-scope` z
+  zainstalowanego 3.6.0 — 74 kroki w 15 projektach, 10 nowych `.worktreeinclude`, na końcu
+  globalne `false` dla czterech pluginów zestawu; dziennik `~/.claude/relai/zasieg-pluginu.json`
+  (74 wpisy). Bramka w `STATUS.md`: ROZSTRZYGNIĘTA 2026-10-28.
+- `docs/PULAPKI.md`: P-058 — pomiar R2 (CLI i aplikacja) i pusty `enabledPlugins` po `undo`;
+  nowa P-059 — PowerShell 5.1 i powtórzone wpisy `claude plugin list --json`. README i KOMENDY:
+  wiersz `installPath` z nawiasem i `Select-Object -First 1`.
+
+**Zweryfikowane — jak dokładnie:**
+
+- Polecenia README/KOMENDY dosłownie w PowerShellu 5.1 z zainstalowanego 3.6.0 (skrypt przez stdin):
+  wiersz `installPath` → kod 0, `…\relai\3.6.0`; `status` → kod 0, „RelAI tylko w zaadoptowanych
+  projektach — podglad (nic nie zapisuje)”; `on` (folder tymczasowy) → kod 0, „on: … — 5 krokow.”,
+  plik z czterema `true` i linia `.worktreeinclude`; `off` → kod 0, „— 4 krokow.”; `on --cli`
+  pełną ścieżką → kod 0; `--cli claude.cmd` → kod 1, „Nie znaleziono polecenia claude — nic nie
+  zapisano.” + polecenia ręczne. Po przełączeniu: pierwotny wiersz `installPath` sklejał trzy
+  ścieżki → `status` kod 1; poprawiony → `status` kod 0 („Krokow w planie: 0”), `apply` kod 0
+  („apply: 0 krokow wykonanych.”). `apply`/`undo` na prawdziwym HOME szły tym samym wywołaniem
+  `node` z Basha.
+- Pierwszy wiersz `installPath` pierwotnie (repo przed wydaniem) dawał w PS 5.1 pustą wartość
+  z kodem 0; diagnoza wariantami A/B/C w jednym przebiegu — nawias wokół `ConvertFrom-Json`
+  zwraca ścieżkę (P-059).
+- `apply` 1: kod 0, 26 z 31 plików zmienionych, w `~/.claude/settings.json` cztery klucze `false`,
+  `relai-mods` `true`. `undo`: kod 0, „74 krokow cofnietych”, zestaw istniejących plików jak przed
+  (5), wartości RelAI w `settings.json` z powrotem `true`; 5 plików bajtowo innych — 4 pliki
+  lokalne z pustym `"enabledPlugins": {}`, `settings.json` bez możliwej do ustalenia przyczyny
+  (migawka bez kopii — L-0291). `apply` 2: kod 0, stan bajt w bajt równy `apply` 1 (0 różnic
+  w 31 plikach).
+- Pomiar świeżymi sesjami `claude -p` (`init` + transkrypt na dysku): RelAI — 5 pluginów `relai*`,
+  24 komendy `relai*`, „RelAI session-context” 2; PolyFlow — 5 / 22 / 2; folder bez RelAI
+  („Agenci Hotelowi framework/Rajd Polski”) — tylko `relai-mods`, 0 komend, 0 kontekstu.
+- R2: CLI 2.1.304 (`claude -w … -p`, maszyna jeszcze globalnie `true`, lokalnie `false`) kopiuje
+  `.claude/settings.local.json` do worktree także bez `.worktreeinclude`; kontrola instrumentu bez
+  pliku — 2 trafienia kontekstu. Aplikacja 2.1.308 po przełączeniu: sesja z karty w worktree
+  `angry-spence-081996` — plik lokalny z czterema `true`, kontekst `[RelAI session-context]` jest.
+- `release-check.js --wydanie`: 0 czerwonych, 25 kontroli (testy rdzenia 588/588 po normalizacji LF
+  dwóch źródeł `relai-planning`, strona 396/396); raport drzewa tagu `v3.6.0` po Aneksie B
+  0 czerwonych; `plugin validate` — rdzeń z ostrzeżeniem o ikonie, `mods`, `panel` czyste;
+  `plugin test` mods 87/87, panel 216/216. `release-verify --sesja`: relai 1548/1548,
+  relai-mods 33/33, relai-panel 63/63, 0 rozjazdów, świeża sesja ładuje każdą wersję. Panel
+  i kokpit po `/reload-plugins` — „ok” Łukasza.
+- Dowód negatywny: `git diff --stat 92d3d73 -- core/process/plugin-scope.js mods/hooks/` pusty.
+- Katalog roboczy `.claude/relai/work/ZASIEG_PLUGINU/E4/`: przed 24 pliki / 298 KB (+
+  `work/WYDANIE/3.6.0/` 16 KB, notatki wydania), po 0 — skasowane po „tak” Łukasza. Poza
+  projektem, po tym samym „tak”: `%TEMP%/relai-zasieg-e4-proba` (skasowany w trakcie, z trzema
+  worktree R2), `%TEMP%/relai-zasieg-e4-kopie` (kopie ustawień przed drugim `apply`),
+  `%TEMP%/relai-zasieg-e3-1` (po E3), 4 foldery transkryptów `~/.claude/projects/…-relai-zasieg-e4-proba*`,
+  worktree i gałąź `claude/angry-spence-081996` (sesja pomiaru zarchiwizowana). Folder transkryptu
+  sesji w „Rajd Polski” zostaje (projekt Łukasza).
+- Tabela „Stan otwartych ryzyk” przejrzana — bez zmian (R1–R6 planu żyją w `PLAN.html`).
+
+**Świadomie odłożone:**
+
+- `undo` zostawia pusty `"enabledPlugins": {}` w pliku lokalnym, który przed `apply` nie miał
+  tego obiektu (P-058) — neutralne dla precedencji; poprawka w `plugin-scope.js` poza zakresem.
+- Wiersz kokpitu przy „● włączony z ustawień globalnych” ma przycisk „Włącz” — uwaga Łukasza
+  2026-10-28: myli, bo RelAI już działa; lepsze brzmienie typu „Przypnij w tym projekcie”.
+  Zmiana modu poza zakresem E4.
+- Testy parytetu Codeksa w klonie z `core.autocrlf=true`: źródła `relai-planning` w drzewie
+  roboczym znormalizowane do LF (decyzja Łukasza), sam test dalej porównuje sumy bez CRLF → LF.
+- Raport `release-check.js --json` (~15 KB) narzędzie ucina w środku — drugi przebieg z filtrem
+  był potrzebny, żeby zobaczyć drugą czerwień; komenda `/relai-release` tego nie przewiduje.
+- Procedury adopt/init/update czytają „wpis `relai@relai`” bez wyboru zakresu — po przełączeniu
+  wpisów jest kilka, ścieżka ta sama; bez zmian.
+
+**Do zrobienia przez człowieka:**
+
+- Wydane 3.6.0 (README na GitHubie w tagu i w pluginie) ma wiersz `installPath`, który po
+  przełączeniu maszyny skleja ścieżki (P-059); poprawka jest w repo — wydanie 3.6.1 teraz czy
+  przy następnym wydaniu? *(rozstrzygnięte 2026-10-28 — przy następnym wydaniu)*
+- Commit `.worktreeinclude` w 10 projektach (w tym w tym repo) — zostawić lokalnie czy
+  commitować (PLAN sekcja 9)? *(rozstrzygnięte 2026-10-28 — commit tylko w RelAI, w pozostałych
+  projektach lokalnie)*
+
+Autor: RelAI (Opus 5.5) + Lukasz
+
+### 2026-10-28 — Plan ZASIEG_PLUGINU zamknięty: dowiezione vs plan
+
+Plan [ZASIEG_PLUGINU](archiwum/plany/ZASIEG_PLUGINU/STATUS.md) (zaakceptowany 2026-10-27,
+4 etapy, Aneksy A–B) — zamknięcie po E4.
+
+**Zrobione — dowiezione vs plan:**
+
+| Cel z PLAN sekcja 2 | Stan |
+|---|---|
+| Folder bez markera nie dostaje skilli, komend, agentów ani hooków RelAI | dowiezione — zmierzone 2026-10-28: „Rajd Polski” ładuje tylko `relai-mods`, 0 komend `relai*`, 0 kontekstu |
+| Każdy zaadoptowany projekt działa jak przed, także w worktree | dowiezione — RelAI i PolyFlow z kontekstem startu; worktree w CLI 2.1.304 i aplikacji 2.1.308 dostaje plik lokalny (R2 nie zachodzi); pozostałe 13 projektów nie mierzone osobno, `apply` sprawdził zapis każdego odczytem pliku |
+| Przełączenie i cofnięcie jednym poleceniem, z podglądem | dowiezione — `status` bez zapisu, `apply` / `undo` na prawdziwym HOME; `undo` przywraca klucze RelAI, bajtowo zostaje pusty `enabledPlugins` w 4 plikach (P-058) |
+| Adopcja, inicjalizacja i `/relai-update` włączają RelAI lokalnie | dowiezione w E2 (ewaluacje 7/7) |
+| Nowy folder bez terminala | dowiezione w E3 — wiersz kokpitu `relai-mods` 0.3.0, zmierzony na desktopie |
+
+- Etapy: E1 narzędzie, E2 procedury (Aneks A — para disable → enable), E3 kokpit, E4 dokumentacja,
+  D-92, wydanie 3.6.0 / 0.3.0 / 0.22.1 (Aneks B — poprawka bramki `pre-push`), przełączenie maszyny.
+- Szacunek 4–6 sesji: 5 sesji (E1, E2, E3, E4 w dwóch sesjach po przekazaniu).
+- Przepadło / poza planem: nic z celów. Poza planem doszły Aneks B i P-059 (wiersz `installPath`
+  w wydanym README — do następnego wydania).
+
+**Zweryfikowane — jak dokładnie:** bramki w `STATUS.md` — 3 z 3 rozstrzygnięte (przełączenie
+maszyny, 3.6.1, `.worktreeinclude`); odnóg plan nie miał; sprawy „Do zrobienia przez człowieka”
+z okresu planu — 4 z adnotacją rozstrzygnięcia. Trivy przed przeglądem ryzyk: 0 znalezisk,
+0 nowych. Tabela ryzyk bez zmian (ryzyka R1–R6 planu w `PLAN.html`: R2 zmierzone — nie
+zachodzi; R3, R4 — zapisy sprawdzane odczytem, `apply` przerwane nie wystąpiło; R5 —
+`.worktreeinclude` rozstrzygnięte; R6 — commity z plikami z nazwy).
+
+**Świadomie odłożone:** pozycje z wpisu E4 (pusty `enabledPlugins` po `undo`, brzmienie przycisku
+kokpitu, test parytetu przy CRLF, ucięty raport `--json`) — w `STATE.md` „Co dalej”.
 
 **Do zrobienia przez człowieka:** —
 

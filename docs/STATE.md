@@ -1,21 +1,21 @@
 # STATE — RelAI
 
-Stan na: 2026-10-27 (ostatni zamknięty plan ZGLOSZENIA ZREALIZOWANY — RelAI 3.5.0 z czterema
-modami, poprawki zgłoszeń #1–#3 z GitHuba, zgłoszenia zamknięte; poprzednio PIPELINE_WYDAN
-2026-10-26 — wydanie 3.4.0 przez pipeline, BEZPIECZENSTWO 2026-10-25 — wydanie 3.3.0)
+Stan na: 2026-10-28 (ostatni zamknięty plan ZASIEG_PLUGINU ZREALIZOWANY — RelAI 3.6.0 z trybem
+„RelAI tylko w projektach”, `relai-mods` 0.3.0, `relai-panel` 0.22.1; poprzednio ZGLOSZENIA
+2026-10-27 — wydanie 3.5.0, PIPELINE_WYDAN 2026-10-26 — wydanie 3.4.0)
 
 ## Gdzie jesteśmy
 
-RelAI **3.6.0** jest w repozytorium (wydanie w E4 ZASIEG_PLUGINU: tryb „RelAI tylko w projektach”);
-poprzednie publiczne 3.5.0 (tag `v3.5.0`, 2026-10-27: poprawki zgłoszeń
-#1–#3 z GitHuba — plan ZGLOSZENIA; wcześniej 3.4.0 z pipeline'em wydań). Plugin `relai` działa
+RelAI **3.6.0** jest w repozytorium i publicznie (tag `v3.6.0`, 2026-10-28: tryb „RelAI tylko
+w projektach” — plan ZASIEG_PLUGINU; wcześniej 3.5.0 z poprawkami zgłoszeń #1–#3). Plugin `relai` działa
 w trzech narzędziach — Claude Code, Cursorze i Codeksie — na jednym rdzeniu procesu, z szesnastoma
 komendami i czternastoma hookami w Claude Code (czternasty: `session-title`). Marketplace tego
-repozytorium niesie też cztery mody: `relai-panel` 0.22.0, `relai-progress` 0.7.0,
-`relai-cache-keeper` 0.13.0 („early access”) i kokpit `relai-mods` 0.2.0. Wydanie robi się teraz frazą „gotowi do wydania?”
+repozytorium niesie też cztery mody: `relai-panel` 0.22.1, `relai-progress` 0.7.0,
+`relai-cache-keeper` 0.13.0 („early access”) i kokpit `relai-mods` 0.3.0. Wydanie robi się frazą „gotowi do wydania?”
 (`/relai-release`): raport `release-check.js`, naprawy po jednej zgodzie, publikacja krok po kroku,
-bramka `pre-push` na tagi. Aktywny plan: ZASIEG_PLUGINU (Claude Code, E1–E3 zrealizowane, E4 gotowy do startu);
-PANEL_CODEX (Codex) wstrzymany 2026-10-27 decyzją Łukasza. Opinii spoza projektu nadal nie ma.
+bramka `pre-push` na tagi. Maszyna Łukasza pracuje w trybie „RelAI tylko w projektach” od
+2026-10-28. Aktywnego planu nie ma; PANEL_CODEX (Codex) wstrzymany 2026-10-27 decyzją Łukasza.
+Opinii spoza projektu nadal nie ma.
 
 ## Co działa
 
@@ -72,12 +72,22 @@ PANEL_CODEX (Codex) wstrzymany 2026-10-27 decyzją Łukasza. Opinii spoza projek
   paski milczą.
 - **Kokpit pluginów i hooków** `/relai-mods` (plan [RELAI_MODS](archiwum/plany/RELAI_MODS/STATUS.md)):
   mody, pluginy i hooki z dysku, przełącznik przez `claude plugin` z PATH, Przeładuj w terminalu,
-  na desktopie `/reload-plugins` (P-052, P-053).
+  na desktopie `/reload-plugins` (P-052, P-053). Od 0.3.0 wiersz „RelAI w tym projekcie”:
+  Włącz/Wyłącz RelAI w folderze sesji (`--scope local`) z kartą „Tak / Nie”.
+- **RelAI tylko w projektach** (plan [ZASIEG_PLUGINU](archiwum/plany/ZASIEG_PLUGINU/STATUS.md),
+  zamknięty 2026-10-28, wydanie 3.6.0, D-92): w Claude Code tryb do wyboru — `relai`
+  i trzy dodatki `false` w ustawieniach użytkownika, `true` w `.claude/settings.local.json`
+  każdego projektu z RelAI; poza projektami RelAI nie ładuje się wcale (zmierzone: folder bez
+  RelAI — tylko `relai-mods`, 0 komend, 0 kontekstu). Narzędzie `core/tools/relai-scope.js`
+  (`status` / `apply` / `undo` / `on` / `off`, dziennik `~/.claude/relai/zasieg-pluginu.json`)
+  uruchamiane z PowerShella (README), adopcja, inicjalizacja i `/relai-update` włączają RelAI
+  w projekcie same; sesja w worktree dostaje plik lokalny (CLI 2.1.304 i aplikacja 2.1.308,
+  P-058). Maszyna Łukasza przełączona 2026-10-28 (15 projektów).
 - **Strona-wizytówka** https://nowilus.github.io/relai/ (plan
   [STRONA_RELAI](archiwum/plany/STRONA_RELAI/STATUS.md)): Film (`/`, `/pl/`) i Biurko 3D
   (`/biurko/`, `/pl/biurko/`, z plakatem bez WebGL), obie na telefonie, konfigurator instalacji
   i ankieta w Tally (PL https://tally.so/r/BE4lQ5, EN https://tally.so/r/X5lkMj). Wdrożenie
-  `.github/workflows/strona.yml` po pushu na `main`; konfigurator pokazuje RelAI 3.5.0. Testy 396,
+  `.github/workflows/strona.yml` po pushu na `main`; konfigurator pokazuje RelAI 3.6.0. Testy 396,
   w tym test odwołań: zbudowana strona wskazująca nieistniejący plik zatrzymuje wdrożenie.
 - **Zgłoszenia z GitHuba #1–#3** (plan [ZGLOSZENIA](archiwum/plany/ZGLOSZENIA/STATUS.md),
   zamknięty 2026-10-27, wydanie 3.5.0): nowa sesja po „Nowa sesja” / `/handoff` dostaje tytuł
@@ -93,33 +103,25 @@ PANEL_CODEX (Codex) wstrzymany 2026-10-27 decyzją Łukasza. Opinii spoza projek
 
 ## Nad czym pracujemy teraz
 
-- **ZASIEG_PLUGINU — E1–E3 zrealizowane 2026-10-27, E4 gotowy do startu** (plan
-  [ZASIEG_PLUGINU](plany/ZASIEG_PLUGINU/STATUS.md), 4 etapy, Aneks A): tryb „RelAI tylko
-  w zaadoptowanych projektach” — globalnie `false`, lokalnie `true` przy adopcji. Narzędzie
-  `core/tools/relai-scope.js` (status / apply / undo / on / off, dziennik
-  `~/.claude/relai/zasieg-pluginu.json`, 19 testów) jest w repo, niewydane; od E2 obchodzi odmowę
-  CLI „already enabled at local scope” parą disable → enable (P-058 pkt 5). `/relai-adopt`,
-  inicjalizacja i `/relai-update` mają krok włączenia lokalnego (tylko Claude Code; plugin 3.5.0
-  bez narzędzia → polecenie ręczne). Od E3 kokpit `relai-mods` (w repo, niewydany) ma wiersz
-  „RelAI w tym projekcie”: Włącz/Wyłącz z kartą „Tak / Nie” w folderze sesji, para przy odmowie
-  CLI, linia w `.worktreeinclude`; zmierzone na żywo na desktopie. Maszyna nieprzełączona — bramka
-  w `STATUS.md`. Dalej: dokumentacja i wydanie (E4). Zadanie z sesji PolyFlow-rust po
-  `/doctor` (`relai` = 16% zużycia).
+- **Aktywnego planu nie ma** (ZASIEG_PLUGINU zamknięty 2026-10-28).
 - **PANEL_CODEX — nieaktywny, WSTRZYMANY 2026-10-27** decyzją Łukasza (plan
   [PANEL_CODEX](plany/PANEL_CODEX/STATUS.md), ZAAKCEPTOWANY 2026-10-10, 8 etapów, Codex
   `gpt-6.1-sol`). Stan zatrzymania E1: natywny widok i wiadomość do bieżącego czatu potwierdzone
   sondą 0.0.7; pakiet `adapters/codex/panel/` 0.1.0 (13 testów) pokazuje właściwy stan; sonda
   0.0.9 z poprawką fontów czeka na pomiar. Wznowienie tylko decyzją Łukasza. Kontrakt
   w [README adaptera](../adapters/codex/panel/README.md).
-- **W repo, niewydane (2026-10-27, miniplan):** `relai-panel` 0.22.1 — karta „Etap planu”
-  w trybie auto otwiera nową sesję deep linkiem po odmowie klasyfikatora (P-057); numer podbity,
-  wydanie i wpis wynikowy miniplanu jeszcze nie powstały.
-- **W repo, niewydane (2026-10-27, miniplan):** plan nie ma wiersza w tabeli „Stan prac”
-  `CLAUDE.md` — reguła w `SPEC_CLAUDE_MD.md`, `SPEC_PROMPT_ETAPU.md`, rytuale „Na koniec”
-  i zamknięciu planu trzech adapterów; hook startu zgłasza tabelę ponad 5 wierszami
-  (`[RelAI progi dokumentow]`). Do następnego wydania przez `/relai-release`.
+- **W repo, niewydane (2026-10-28):** wiersz `installPath` w README i `KOMENDY.md` poprawiony po
+  przełączeniu maszyny (P-059 — w 3.6.0 skleja ścieżki, gdy plugin ma wpisy lokalne); decyzja
+  Łukasza: do następnego wydania. README na GitHubie poprawione pushem `main`.
 
 ## Co dalej
+
+- **Po ZASIEG_PLUGINU (świadomie odłożone 2026-10-28):** `undo` zostawia pusty
+  `"enabledPlugins": {}` w pliku lokalnym, który go wcześniej nie miał (P-058); przycisk „Włącz”
+  w kokpicie przy stanie „● włączony z ustawień globalnych” myli (uwaga Łukasza — lepiej
+  „Przypnij w tym projekcie”); test parytetu Codeksa porównuje sumy bez CRLF → LF; komenda
+  `/relai-release` nie przewiduje ucięcia raportu `--json` przez narzędzie (~15 KB).
+  `.worktreeinclude` w 9 pozostałych projektach zostaje lokalny (decyzja Łukasza).
 
 - **Po ZGLOSZENIA (świadomie odłożone 2026-10-27):** `plugin test` modu `relai-panel` chwieje się
   pod obciążeniem (przekroczenia ~5 s przy równoległych przebiegach; raport raz 2/211), a raport
@@ -177,17 +179,20 @@ PANEL_CODEX (Codex) wstrzymany 2026-10-27 decyzją Łukasza. Opinii spoza projek
 
 ### Wersja i instalacja
 
-Repo i publicznie **3.5.0** (tag `v3.5.0` na `5842186`); marketplace w tym repozytorium (scope
+Repo i publicznie **3.6.0** (tag `v3.6.0` na `2658e04`); marketplace w tym repozytorium (scope
 `user`) niesie pięć pluginów: `relai` i cztery mody z własnymi wersjami i tagami
-(`relai-panel-v0.22.0`, `relai-progress-v0.7.0`, `relai-cache-keeper-v0.13.0`,
-`relai-mods-v0.2.0`, każdy z własnym wydaniem GitHub). Wydanie: fraza „gotowi do wydania?” →
+(`relai-panel-v0.22.1`, `relai-progress-v0.7.0`, `relai-cache-keeper-v0.13.0`,
+`relai-mods-v0.3.0`, każdy z własnym wydaniem GitHub). Na maszynie Łukasza `relai`
+i trzy dodatki są włączone lokalnie w projektach (tryb „RelAI tylko w projektach”), `relai-mods`
+globalnie. Wydanie: fraza „gotowi do wydania?” →
 `/relai-release` (`.claude/commands/`, wersja 2): raport `release-check.js --json`, podział braków
 na naprawy bezpieczne (jedna zgoda) i listę dla człowieka, ponowny raport, `claude plugin validate`
 binarką aplikacji, commit, tag przez hook `pre-push` (`core/tools/release-pre-push.js`,
 instalator `install-prepush.js`, w `.git/hooks/` tego klonu), push, wydanie GitHub z notatkami EN,
 `marketplace update`, `plugin update`, `release-verify.js --plugin <p> --wersja <n> --sesja`
-(3.5.0: 1538/1538, 0 rozjazdów). Raport ma kody 0 / 1 / 2; `--rev <rewizja>` liczy drzewo
-rewizji w worktree z `core.autocrlf=false` (Aneks B); `--komponent relai-<mod>` dla tagu modu.
+(3.6.0: 1548/1548, 0 rozjazdów). Raport ma kody 0 / 1 / 2; `--rev <rewizja>` liczy drzewo
+rewizji w worktree z `core.autocrlf=false` (Aneks B); `--komponent relai-<mod>` dla tagu modu;
+baza modu przy `--rev` pomija tag stojący na samej rewizji (Aneks B ZASIEG_PLUGINU).
 Walidator `core/tools/validate-adapters.js` sprawdza 7 źródeł wersji i wpis marketplace każdego
 pluginu panelu. Pre-commit repo: układ 1.9.2.
 
@@ -218,17 +223,19 @@ Claude Code, Cursor albo Codex • Node.js 14+ w `PATH` • git (opcjonalnie).
 
 ### Linki
 
-Repo: github.com/nowilus/relai • Wydanie: github.com/nowilus/relai/releases/tag/v3.5.0 • Plany
+Repo: github.com/nowilus/relai • Wydanie: github.com/nowilus/relai/releases/tag/v3.6.0 • Plany
 zamknięte: [docs/archiwum/plany/](archiwum/plany/) • Backupy: `C:\Users\Lukasz\Backupy\RelAI` •
 [PRZENOSNOSC.md](PRZENOSNOSC.md) • [PULAPKI.md](PULAPKI.md) • [KOMENDY.md](KOMENDY.md)
 
 ### Liczby
 
-Plany zamknięte: 19 (ostatni ZGLOSZENIA, 2026-10-27) • Aktywne: ZASIEG_PLUGINU (E3 gotowy do
-startu, Claude Code) • Wstrzymane: PANEL_CODEX (Codex, od 2026-10-27) • Start sesji: 115,2 KB / 100 KB na starcie 2026-10-27 • Dziennik: 178 KB / 150 KB (do
-rotacji) • Ryzyka: 20 w tabeli, 17,5 KB / 12 KB (dolna granica — same otwarte), archiwum 12
-plików • Lekcje: 56,5 KB / 50 KB (do rotacji) • Adaptery: 3 • Komendy: 16 • Hooki Claude Code: 14
-• Testy (2026-10-27, raport wydania 3.5.0): rdzeń, panel i Codex 564, strona 396, film 37
-(2026-10-26); pluginy panelu: `relai-panel` 214, reszta zielona w raporcie • Projekty na RelAI: 3 (RelAI, PolyFlow, JiraManager przed
+Plany zamknięte: 20 (ostatni ZASIEG_PLUGINU, 2026-10-28) • Aktywne: brak • Wstrzymane:
+PANEL_CODEX (Codex, od 2026-10-27) • Start sesji: 109,3 KB / 100 KB na starcie 2026-10-28 •
+Dziennik: 209 KB / 150 KB (do rotacji) • Ryzyka: 20 w tabeli, 17,5 KB / 12 KB (dolna granica —
+same otwarte), archiwum 12 plików • Lekcje: 60,5 KB / 50 KB (do rotacji) • Adaptery: 3 •
+Komendy: 16 • Hooki Claude Code: 14 • Testy (2026-10-27, raport wydania 3.6.0): rdzeń, panel
+i Codex 588 (+1 test bramki w Aneksie B), strona 396, film 37 (2026-10-26); pluginy panelu:
+`relai-panel` 216, `relai-mods` 87 • Projekty z markerem RelAI na tej maszynie: 15 (status
+`relai-scope` 2026-10-28) • Projekty na RelAI: 3 (RelAI, PolyFlow, JiraManager przed
 migracją) • Modele, na których zmierzono proces: 6 (Fable, Opus, Sonnet, Haiku, Composer/auto,
 Grok 4.6).
