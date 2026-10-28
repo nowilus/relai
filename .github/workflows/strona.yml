@@ -7,8 +7,6 @@ on:
       - "site/**"
       - ".github/workflows/strona.yml"
       - ".claude-plugin/marketplace.json"
-  release:
-    types: [published]
   workflow_dispatch:
 
 permissions:

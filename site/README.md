@@ -207,8 +207,10 @@ absolutnym `hreflang`, więc podgląd lokalny zostaje lokalny.
 Strona stoi na GitHub Pages pod `https://nowilus.github.io/relai/`: Film pod `/` i `/pl/`, Biurko
 pod `/biurko/` i `/pl/biurko/`. Publikuje ją workflow `.github/workflows/strona.yml` (akcje
 przypięte pełnym SHA, uprawnienia `contents: read`, `pages: write`, `id-token: write`): przy pushu
-na `main` ze zmianą w `site/**`, w `marketplace.json` albo w samym workflow, przy opublikowaniu
-wydania i ręcznie. Kroki: fakty, makiety, budowa, testy, upload katalogu `site/`, publikacja.
+na `main` ze zmianą w `site/**`, w `marketplace.json` albo w samym workflow, i ręcznie. Wydania
+GitHub go nie wyzwalają: przebieg na tagu odrzucały reguły środowiska `github-pages` (tylko
+`main`), a stronę i tak wdraża push `main` po wydaniu. Kroki: fakty, makiety, budowa, testy,
+upload katalogu `site/`, publikacja.
 Stopka obu wersji linkuje drugą wersję, ankietę w Tally (`publikacja.ankietaAdres` w treści, PL
 `tally.so/r/BE4lQ5`, EN `tally.so/r/X5lkMj`, z polami `wersja` i `jezyk` w adresie) i GitHub
 Issues. Nagłówek ankiety to `grafika/ankieta/naglowek.png`, rysowany z
