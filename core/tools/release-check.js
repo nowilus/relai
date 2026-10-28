@@ -98,9 +98,13 @@ function bazaModu(repo, mod, commit, rev) {
   let punkt = commit;
   for (let krok = 0; krok < 20 && wersja; krok++) {
     const tag = mod.nazwa + '-v' + wersja;
-    const tagCommit = git(repo, ['rev-list', '-n', '1', 'refs/tags/' + tag], true);
+    const tagSurowy = (git(repo, ['rev-list', '-n', '1', 'refs/tags/' + tag], true) || '').trim();
+    // --rev: tag na samej rewizji to wydanie, ktore wlasnie sprawdzamy — nie baza. Szukanie idzie
+    // wtedy od commitu, ktory numer wprowadzil; inaczej numer podbity wczesniejszym commitem
+    // zapetla petle na tym samym tagu (ZASIEG_PLUGINU Aneks B, relai-panel 0.22.1 w v3.6.0).
+    const tagCommit = rev && tagSurowy === commit ? '' : tagSurowy;
     const wNumerze = git(repo, ['log', '-1', '--format=%H', '-S', '"version": "' + wersja + '"', punkt, '--', rel], true);
-    const c = tagCommit ? tagCommit.trim() : (wNumerze || '').trim();
+    const c = tagCommit || (wNumerze || '').trim();
     if (!c && !rev && krok === 0) {
       // Numer podbity w drzewie roboczym, jeszcze bez commitu: baza to numer z HEAD.
       wersja = wersjaZ(repo, commit, rel);
@@ -110,7 +114,9 @@ function bazaModu(repo, mod, commit, rev) {
     // --rev: commit numeru rowny rewizji to wydanie, ktore wlasnie sprawdzamy (baza = poprzedni numer).
     // Drzewo robocze: HEAD z tagiem jest juz wydany.
     // Tylko tagi osiagalne z rewizji (--merged): tag pozniejszy niz --rev nie czyni numeru wydanym.
-    const wydany = (!rev || c !== commit) && Boolean(tagCommit || linie(git(repo, ['tag', '--contains', c, '--merged', commit])).length > 0);
+    const naRewizji = rev ? linie(git(repo, ['tag', '--points-at', commit])) : [];
+    const tagiPozniej = linie(git(repo, ['tag', '--contains', c, '--merged', commit])).filter((t) => !naRewizji.includes(t));
+    const wydany = (!rev || c !== commit) && Boolean(tagCommit || tagiPozniej.length > 0);
     if (wydany) {
       return { nazwa: mod.nazwa, katalog: mod.katalog, wersja: mod.wersja, wersjaBazy: wersja, ref: tagCommit ? tag : c.slice(0, 7), commit: c,
         zrodlo: tagCommit ? 'wlasny tag' : 'commit numeru w plugin.json' };

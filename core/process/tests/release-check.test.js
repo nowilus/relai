@@ -45,6 +45,24 @@ test('numer modu podbity w drzewie roboczym: baza to numer z HEAD, nie kod 2', (
   assert.equal(progress.zmienionych, 1);
 });
 
+test('--rev: numer modu podbity wczesniejszym commitem, tag modu na rewizji wydania - baza to poprzedni tag, nie kod 2 (ZASIEG_PLUGINU Aneks B)', (t) => {
+  const f = repo(t);
+  f.zapisz('panel/.claude-plugin/plugin.json', '{\n  "name": "relai-panel",\n  "version": "0.2.0"\n}\n');
+  f.commit('fix(panel): poprawka (0.2.0)');
+  f.zapisz('.claude-plugin/plugin.json', JSON.stringify({ name: 'relai', version: '1.1.0' }));
+  f.commit('feat(release): 1.1.0');
+  git(f.dir, ['tag', 'v1.1.0']);
+  git(f.dir, ['tag', 'relai-panel-v0.2.0']);
+  const r = f.uruchom(['--rev', 'v1.1.0', '--tylko', 'historia']);
+  assert.notEqual(r.kod, 2, JSON.stringify(r.json.blad || ''));
+  const panel = r.json.bazy.mody.find((m) => m.nazwa === 'relai-panel');
+  assert.equal(panel.wersjaBazy, '0.1.0');
+  assert.equal(panel.ref, 'relai-panel-v0.1.0');
+  // Drzewo robocze: HEAD z tagiem modu jest juz wydany - baza to jego numer.
+  const robocze = f.uruchom(['--tylko', 'historia']).json.bazy.mody.find((m) => m.nazwa === 'relai-panel');
+  assert.equal(robocze.wersjaBazy, '0.2.0');
+});
+
 test('zmiana hooka kolejkuje testy rdzenia (przeglad E1: mapa ich nie wolala), nieruszony obszar nie', (t) => {
   const f = repo(t);
   const czysta = f.uruchom(['--tylko', 'historia']);
