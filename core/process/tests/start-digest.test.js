@@ -242,6 +242,62 @@ test('digest fits the command output limit: long last journal entry is cut with 
   }
 });
 
+// KONTEKST_STARTU E5, Aneks F: projekt w ksztalcie JiraManagera (2026-10-28) — "Zasady aktywne"
+// bez indeksu ok. 70 KB, 18 spraw przeterminowanych (ok. 24 KB), wpisy dziennika na poziomie "##".
+// Skrot mial 112 612 znakow, a ostatni wpis skracal sie do 0. Sekcja ponad progiem zamienia sie
+// w drogowskaz z liniami do odczytu; wpis zostaje, bo zmiescil sie po zamianie.
+function projektDuzy() {
+  const dir = projektBiezacy('2026-08-01');
+  const zasady = Array.from({ length: 400 }, (_, i) => (i + 1) + '. **ZASADA-' + (i + 1) + '** ' + 'tresc zasady. '.repeat(12)).join('\n');
+  fs.writeFileSync(path.join(dir, 'docs', 'LEKCJE.md'), '# LEKCJE\n\n## Zasady aktywne\n\n' + zasady + '\n\n## Lekcje\n\n### L-0001 — X\n\ntresc.\n');
+  const sprawy = Array.from({ length: 150 }, (_, i) => '- **SPRAWA-' + i + '** ' + 'opis sprawy. '.repeat(10) + '· 2026-08-01').join('\n');
+  fs.writeFileSync(path.join(dir, 'docs', 'DZIENNIK.md'), '# Dziennik prac\n\n## Etap N — nazwa\n\nszablon.\n\n'
+    + '## Stan otwartych ryzyk\n\n| # | Ryzyko | Poziom | Status |\n|---|---|---|---|\n| R1 | Pierwsze ryzyko | Niski | OTWARTE |\n\n'
+    + '## Czeka na człowieka\n\n' + sprawy + '\n\n'
+    + '## 2026-09-12 — Starszy wpis\n\nSTARY-WPIS.\n\n### Podsekcja bez daty\n\nPODSEKCJA-STARA.\n\n'
+    + '## 2026-10-27 — Najnowszy wpis\n\nNOWY-WPIS-H2.\n\n### Szczegoly\n\nSZCZEGOL-NOWEGO.\n\nAutor: X\n');
+  return dir;
+}
+
+test('oversized sections become read pointers with line ranges and the digest fits the limit (Aneks F)', () => {
+  const duzy = projektDuzy();
+  const maly = projektBiezacy();
+  try {
+    const w = startDigest(duzy, { dzisiaj: DZISIAJ });
+    const t = w.tekst;
+    assert.ok(t.length <= LIMIT_ZNAKOW, 'skrot ponad limit: ' + t.length);
+    // Zasady zastapione drogowskazem z zakresem linii, ktory naprawde wskazuje sekcje.
+    const m = t.match(/Przeczytaj ja teraz narzedziem Read: docs\/LEKCJE\.md, linie (\d+)-(\d+)/);
+    assert.ok(m, 'brak drogowskazu do zasad');
+    const linie = fs.readFileSync(path.join(duzy, 'docs', 'LEKCJE.md'), 'utf8').split('\n');
+    assert.match(linie[Number(m[1]) - 1], /^## Zasady aktywne/);
+    assert.match(linie[Number(m[2]) - 1], /ZASADA-400/);
+    assert.ok(!t.includes('ZASADA-200'), 'pelna tresc zasad w skrocie');
+    // Najnowszy wpis "##" w calosci, z podsekcja; starszy wpis i jego podsekcja nie.
+    assert.ok(t.includes('NOWY-WPIS-H2') && t.includes('SZCZEGOL-NOWEGO'), 'najnowszy wpis ## zgubiony');
+    assert.ok(!t.includes('PODSEKCJA-STARA') && !t.includes('STARY-WPIS'), 'wpis wziety od zlego naglowka');
+    assert.ok(!/wpis skrocony/.test(t), 'wpis skrocony, choc sekcje ponad progiem wystarczylo zastapic');
+    // STATE, ryzyka i ramka zostaja.
+    assert.ok(t.includes('GDZIE-TRESC') && t.includes('Pierwsze ryzyko') && t.includes('=== Drogowskazy'));
+    assert.equal(w.czesci.reduce((s, c) => s + c.bajty, 0), Buffer.byteLength(t, 'utf8'));
+    // Kontrola pozytywna w tym samym przebiegu: maly projekt bez drogowskazow "Read".
+    const k = startDigest(maly, { dzisiaj: DZISIAJ }).tekst;
+    assert.ok(!/Przeczytaj ja teraz/.test(k) && k.includes('ZASADA-JEDEN'));
+  } finally {
+    for (const d of [duzy, maly]) fs.rmSync(d, { recursive: true, force: true });
+  }
+});
+
+test('last journal entry: dated "##" entries end at the next "##" and keep their subsections', () => {
+  const dz = '# D\n\n## Czeka na człowieka\n\n- x\n\n## 2026-09-01 — A\n\nWPIS-A.\n\n### Sub\n\nSUB-A.\n\n'
+    + '## 2026-10-01 — B\n\nWPIS-B.\n\n### Sub B\n\nSUB-B.\n\n## 2026-09-15 — C\n\nWPIS-C.\n';
+  const w = core.ostatniWpis(dz);
+  assert.ok(w.startsWith('## 2026-10-01 — B') && w.includes('SUB-B') && !w.includes('WPIS-C'), w);
+  // Kontrola pozytywna w tym samym przebiegu: wpisy "###" pod "## Wpisy" dzialaja jak dotad.
+  const w3 = core.ostatniWpis(dziennik('2026-10-20'));
+  assert.ok(w3.startsWith('### 2026-10-27') && w3.includes('NOWY-WPIS') && !w3.includes('STARY-WPIS'));
+});
+
 test('rules index stands before the risks and the last journal entry', () => {
   const dir = projektBiezacy();
   try {

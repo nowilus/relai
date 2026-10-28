@@ -209,23 +209,23 @@ Format komórki `Decyzja` jest sztywny, bo jest czytana maszynowo (L-0025) — k
 komórki, człony rozdzielone `·`:
 
 ```
-włączony · start 100 KB · CLAUDE 10 KB · STATE 12 KB · ryzyka 12 KB · zasady 30 KB · ustawienia 6 KB · status 10 KB
+włączony · start 55 KB · CLAUDE 10 KB · STATE 12 KB · ryzyka 12 KB · zasady 5 KB · ustawienia 6 KB · status 10 KB
 ```
 
 | Człon | Dozwolone wartości | Znaczenie |
 |---|---|---|
 | przełącznik (**pierwszy, obowiązkowy**) | `włączony` / `wyłączony` (EN: `on` / `off`) | `wyłączony` → nie liczysz nic i nie mówisz nic |
-| `start <liczba> KB` | liczba całkowita | budżet całej warstwy startowej — **domyślnie 100** (do 2.3.1: 80; w 2.4.0: 140, gdy suma zaczęła liczyć skill `relai-core`, 65,6 KB; od 2.5.0: 100 — po podziale skilla na pliki doczytywane skill waży 28,6 KB, a repozytorium RelAI 88,8 KB; decyzja człowieka 2026-09-24) |
+| `start <liczba> KB` | liczba całkowita | budżet całej warstwy startowej — **domyślnie 55** (do 2.3.1: 80; w 2.4.0: 140, gdy suma zaczęła liczyć skill `relai-core`, 65,6 KB; od 2.5.0: 100 — po podziale skilla na pliki doczytywane skill waży 28,6 KB, a repozytorium RelAI 88,8 KB; decyzja człowieka 2026-09-24; od 3.7.0: 55 — suma liczy wyjście skrótu startu, najwyżej ok. 29 KB z konstrukcji; repozytorium RelAI 50,2 KB, trzynaście zmierzonych projektów 19,4–60,7 KB; decyzja człowieka 2026-10-28) |
 | `CLAUDE <liczba> KB` | liczba całkowita | próg cząstkowy `CLAUDE.md` — **domyślnie 10** |
 | `STATE <liczba> KB` | liczba całkowita | próg cząstkowy `docs/STATE.md` — **domyślnie 12** |
 | `ryzyka <liczba> KB` (EN: `risks`) | liczba całkowita | próg sekcji ryzyk wraz z ostatnim wpisem — **domyślnie 12** |
-| `zasady <liczba> KB` (EN: `rules`) | liczba całkowita | próg części „Zasady aktywne” w skrócie startu (indeks; bez indeksu cała sekcja) — **domyślnie 30** |
+| `zasady <liczba> KB` (EN: `rules`) | liczba całkowita | próg części „Zasady aktywne” w skrócie startu (indeks; bez indeksu cała sekcja albo — gdy skrót przekracza limit wyjścia — drogowskaz do jej odczytu) — **domyślnie 5** (do 3.6.0: 30; od 3.7.0: 5 — cel planu KONTEKST_STARTU dla indeksu, indeks repozytorium RelAI 3,6 KB; decyzja człowieka 2026-10-28) |
 | `ustawienia <liczba> KB` (EN: `settings`) | liczba całkowita | próg tego pliku — **domyślnie 6** |
 | `status <liczba> KB` | liczba całkowita | próg `STATUS.md` aktywnego planu — **domyślnie 10** |
 
 To jest **jedyne źródło prawdy o domyślnym budżecie** — inne specyfikacje nie powtarzają tych
 liczb. Człon pominięty znaczy „wartość domyślna": projekt, który niczego nie stroi, ma w komórce
-samo `włączony`. Progi cząstkowe **nie sumują się do budżetu** i nie mają się sumować — 100 KB jest
+samo `włączony`. Progi cząstkowe **nie sumują się do budżetu** i nie mają się sumować — 55 KB jest
 sufitem całości, a progi cząstkowe wskazują winowajcę. Raport wyzwala **wyłącznie** przekroczenie
 sumy: pozycja grubsza od swojego progu w projekcie mieszczącym się w budżecie nie odzywa się
 w ogóle, bo inaczej cisza przestałaby cokolwiek znaczyć.
@@ -784,7 +784,7 @@ zmienić — osobny plik byłby drugim miejscem do zapomnienia.
 
 | Próg | Domyślnie | Gdzie mieszka wartość | Kto go czyta | Po przekroczeniu | Adres egzekwowania |
 |---|---|---|---|---|---|
-| suma warstwy startowej | 100 KB (`CLAUDE.md`, wyjście skrótu startu, skill i pliki dopisane do rytuału w sumie) | wiersz `Budżet startu sesji` (ta specyfikacja) | hook startu sesji (`startCost`) | raport `[RelAI budzet startu]`, najwyżej sześć linii | **jest** — hook startu |
+| suma warstwy startowej | 55 KB (`CLAUDE.md`, wyjście skrótu startu, skill i pliki dopisane do rytuału w sumie) | wiersz `Budżet startu sesji` (ta specyfikacja) | hook startu sesji (`startCost`) | raport `[RelAI budzet startu]`, najwyżej sześć linii | **jest** — hook startu |
 | `CLAUDE.md` | 10 KB | wiersz `Budżet startu sesji`; ten sam limit opisuje `SPEC_CLAUDE_MD.md` | hook startu sesji | wymieniony w raporcie jako pozycja ponad progiem cząstkowym | **jest** — hook startu (tylko wewnątrz raportu) |
 | tabela „Stan prac” w `CLAUDE.md` — liczba wierszy | 5 wierszy | `SPEC_CLAUDE_MD.md` (bez strojenia) | hook startu sesji (`dokumentyPonadProgiem`, przy włączonej rotacji) | wiersze planów zamkniętych do `STATE.md`; linia `[RelAI progi dokumentow]` | **jest** — raport startu; regułę niosą rytuał „Na koniec” i zamknięcie planu |
 | `docs/STATE.md` — waga części skrótu startu (cztery sekcje) | 12 KB | wiersz `Budżet startu sesji` | hook startu sesji | jw. | **jest** — hook startu (tylko wewnątrz raportu) |

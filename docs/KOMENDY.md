@@ -1,6 +1,6 @@
 # KOMENDY — RelAI
 
-RelAI 3.6.0
+RelAI 3.7.0
 
 Nic z tej listy nie jest obowiązkowe. RelAI działa w zwykłej rozmowie — piszesz normalnie,
 a struktura projektu nadąża. Komendy są skrótem do rzadszych operacji.
@@ -61,7 +61,7 @@ projektu. Bez terminala: wiersz „RelAI w tym projekcie” w `/relai-mods`.
 | Powiesz | Co się stanie |
 |---|---|
 | „kończymy na dziś" / „wrapping up" | RelAI domyka dokumenty, zapisuje wpis w dzienniku, aktualizuje ryzyka, proponuje commit i podsumowuje sesję |
-| „kontynuujemy pracę" / „let's continue" | RelAI odtwarza kontekst z dokumentów, mówi, gdzie jesteśmy, i proponuje najbliższy krok. Gdy w projekcie czeka plik wznowienia (po „zapisz pracę”), zaczyna od niego: mówi, ile commitów doszło od zapisu, proponuje pierwszy krok z jego listy „co dalej” i raz pyta, czy plik skasować. W Claude Code nowa sesja zaczęta tą frazą (także „tak”, „kontynuuj”, komenda etapu z karty) dostaje tytuł planu i etapu, np. „E4 · ZGLOSZENIA — Tytuł nowej sesji (#1)”, zamiast samej frazy |
+| „kontynuujemy pracę" / „let's continue" | RelAI uruchamia jedno polecenie skrótu startu (`node .claude/relai/tools/start-digest.js`), mówi z niego, gdzie jesteśmy, i proponuje najbliższy krok. Gdy w projekcie czeka plik wznowienia (po „zapisz pracę”), zaczyna od niego: mówi, ile commitów doszło od zapisu, proponuje pierwszy krok z jego listy „co dalej” i raz pyta, czy plik skasować. W Claude Code nowa sesja zaczęta tą frazą (także „tak”, „kontynuuj”, komenda etapu z karty) dostaje tytuł planu i etapu, np. „E4 · ZGLOSZENIA — Tytuł nowej sesji (#1)”, zamiast samej frazy |
 | „sprawdź status" / „status check" | krótki raport: stan projektu, plany i etapy, otwarte ryzyka, zaległości w dokumentach |
 | „zapisz pracę" / „save my work" | gdy limit planu się kończy: RelAI uruchamia testy, robi commit lokalny tego, co działa (bez pusha), domyka dokumenty i zostawia plik wznowienia z listą „co dalej” — następna sesja zaczyna od niego. W Claude Code to samo robi przycisk „Zapisz pracę teraz” na karcie limitu, a kliknięcie jest zgodą na commit; wpisana ręcznie fraza pyta o commit. Na pasku zostaje „zapis gotowy · reset GG:MM” albo „zapis niepełny”; po resecie limitu — „Wznów pracę” (czysty czat, który zaczyna od pliku wznowienia) i „Odrzuć” (prośba do Claude o skasowanie pliku) |
 | „coś nie działa — …" (np. „coś nie działa — npm test pada przy sumie koszyka, napraw to") | zanim RelAI dotknie kodu, odtwarza błąd komendą i pokazuje jej wynik, sprawdza po jednej hipotezie z dowodem, robi najmniejszą poprawkę i uruchamia tę samą komendę jeszcze raz; kończy raportem: odtworzenie, przyczyna, poprawka, dowód. Przyczyna, która jest dziwactwem narzędzia, trafia do `docs/PULAPKI.md`. Po trzech odrzuconych hipotezach zatrzymuje się i mówi, czego potrzebuje od Ciebie (od 2.7.0) |
@@ -141,9 +141,9 @@ potem ponowne uruchomienie aplikacji. Czwarty plugin, kokpit pluginów i hooków
   Sprawa czekająca na Twoją decyzję nie zatrzymuje już rotacji: wpis, do którego prowadzi, jedzie
   do archiwum jak każdy inny, a link sprawy zostaje przepięty na plik archiwum. Poniżej progu nie
   dzieje się nic; progi i wyłącznik masz w `docs/USTAWIENIA.md`.
-- **Koszt startu sesji jest widoczny, zanim urośnie.** Dokumenty czytane na starcie — razem
-  ze skillem ładowanym na pierwszym prompcie i plikami z rytuału startu w `CLAUDE.md` — mają wspólny
-  budżet (domyślnie 100 KB). Gdy go przekroczą, RelAI mówi o tym pierwszym zdaniem sesji, wskazuje
+- **Koszt startu sesji jest widoczny, zanim urośnie.** Skrót startu — razem z `CLAUDE.md`,
+  skillem ładowanym na pierwszym prompcie i plikami dopisanymi do rytuału startu w `CLAUDE.md` —
+  ma wspólny budżet (domyślnie 55 KB). Gdy go przekroczą, RelAI mówi o tym pierwszym zdaniem sesji, wskazuje
   najgrubsze pozycje, wylicza, co jest w sumie, i proponuje odchudzenie — niczego nie blokuje i niczego nie zmienia sam. Poniżej budżetu
   milczy. Budżet, progi i wyłącznik: wiersz „Budżet startu sesji" w `docs/USTAWIENIA.md`.
 - **Sprawy czekające na Ciebie mają stałe miejsce.** Decyzja, dostęp, zakup, akceptacja — wszystko,
@@ -186,7 +186,7 @@ potem ponowne uruchomienie aplikacji. Czwarty plugin, kokpit pluginów i hooków
   zgoda „nie pytaj więcej" idzie do ustawień globalnych i przypomina o sobie raz na 30 dni.
   Przełączniki: `/relai-prompt on`, `/relai-prompt off` (projekt) oraz `/relai-prompt off --globalnie`
   (cofnięcie zgody na stałe).
-  **Od KONTEKST_STARTU E3 (w repozytorium, niewydane) bramka ma dwa kroki:** pierwsze okno pyta
+  **Od 3.7.0 bramka ma dwa kroki:** pierwsze okno pyta
   tylko o zgodę — po „nie” nic więcej nie pada. Po „tak” pada drugie okno z modelem
   optymalizatora i zasięgiem, chyba że model jest już wybrany (wiersz z członem `· nie pytaj` albo
   wybór „ta sesja”); potem prompt przerabia agent. Wcześniej, od 2.7.0, zgoda, model i zasięg
@@ -210,6 +210,13 @@ potem ponowne uruchomienie aplikacji. Czwarty plugin, kokpit pluginów i hooków
 - **Start sesji ma stałą kolejność.** Data dnia, rytuał startu, kontrola wersji projekt↔plugin
   i sygnały wymagające reakcji trafiają do kontekstu niezależnie od tego, czy cokolwiek się
   „wyzwoliło".
+- **Start czyta skrót, nie całe dokumenty.** Od 3.7.0 rytuał startu to jedno polecenie
+  `node .claude/relai/tools/start-digest.js`: wypisuje potrzebne sekcje STATE, tabelę ryzyk bez
+  mitygacji, ostatni wpis dziennika, aktywne ustawienia, STATUS aktywnego planu i drogowskazy do
+  reszty. „Zasady aktywne” wchodzą jako indeks z wyzwalaczami — pełne brzmienie zasady sesja
+  doczytuje, gdy zadanie trafia w jej wyzwalacz; projekt bez indeksu dostaje całą sekcję. Skrót
+  mieści się w limicie wyjścia polecenia (ok. 28 tys. znaków): sekcja za duża zamienia się
+  w drogowskaz z plikiem i zakresem linii do odczytu.
 - **Wątek spoza etapu nie ginie i nie rozdyma etapu.** Gdy w trakcie pracy wypływa coś poza
   zakresem, RelAI zatrzymuje się i pyta: odnoga, aneks do planu czy „świadomie odłożone". Przy
   zamykaniu planu wylicza odnogi, które zostały otwarte.

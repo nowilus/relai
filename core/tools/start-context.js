@@ -49,6 +49,18 @@ function czyPolecenie(e) {
   return tekst !== null && !ZDARZENIE.test(tekst);
 }
 
+// Wpis komendy z ukosnikiem (<command-name> albo <command-message> na poczatku). Komenda lokalna
+// (/model, /config, /effort) nie wywoluje modelu, wiec liczy sie jako polecenie dopiero wtedy,
+// gdy po niej — przed kolejnym poleceniem — przychodzi wywolanie modelu (L-0299, E5).
+const KOMENDA = /^\s*<command-(name|message)>/;
+
+function czyKomenda(e) {
+  const c = e.message && e.message.content;
+  const tekst = typeof c === 'string' ? c
+    : (Array.isArray(c) ? String((c.find((b) => b && b.type === 'text') || {}).text || '') : '');
+  return KOMENDA.test(tekst);
+}
+
 const liczba = (v) => typeof v === 'number' && Number.isFinite(v);
 
 function wejscie(usage) {
@@ -61,12 +73,18 @@ function analizuj(tekst) {
   const wywolania = []; // { id, usage, tura }
   const indeks = new Map();
   let polecen = 0;
+  let komendaCzeka = false;
   for (const linia of String(tekst).split(/\r?\n/)) {
     if (!linia.trim()) continue;
     let e;
     try { e = JSON.parse(linia); } catch (_) { continue; }
-    if (czyPolecenie(e)) { polecen++; continue; }
+    if (czyPolecenie(e)) {
+      if (czyKomenda(e)) komendaCzeka = true;
+      else { polecen++; komendaCzeka = false; }
+      continue;
+    }
     if (e.type !== 'assistant' || e.isSidechain || !e.message) continue;
+    if (komendaCzeka) { polecen++; komendaCzeka = false; }
     const id = e.message.id || e.requestId || e.uuid;
     const wpis = { id, usage: e.message.usage || null, tura: polecen };
     if (indeks.has(id)) wywolania[indeks.get(id)] = wpis;

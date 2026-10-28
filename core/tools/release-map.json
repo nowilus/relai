@@ -436,7 +436,8 @@
         "docs/**",
         "CLAUDE.md",
         ".gitignore",
-        ".gitattributes"
+        ".gitattributes",
+        ".worktreeinclude"
       ],
       "wyklucz": [
         "docs/zasoby/film/**",

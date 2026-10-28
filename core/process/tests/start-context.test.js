@@ -66,6 +66,40 @@ test('session without a second human command ends the turn at the last call in t
   assert.match(sc.tabela({ sesje: [Object.assign({ sesja: 's1' }, r)] })[2], /bez drugiego polecenia/);
 });
 
+// Ksztalt z transkryptu Claude Code 2.1.x (sesja s1 pomiaru E3): komenda lokalna to meta
+// z ostrzezeniem, wpis <command-name> i wyjscie <local-command-stdout>; model nie jest wywolany.
+const komenda = (nazwa) => czlowiek('<command-name>/' + nazwa + '</command-name>\n            <command-message>'
+  + nazwa + '</command-message>\n            <command-args></command-args>');
+
+test('local commands without a model call are not a human command (L-0299)', () => {
+  const r = sc.analizuj(jsonl([
+    meta('<local-command-caveat>The command below was run directly in Claude Code</local-command-caveat>'),
+    komenda('model'),
+    czlowiek('<local-command-stdout>Set model to `Sonnet 5.5`</local-command-stdout>'),
+    komenda('effort'),
+    czlowiek('przeczytaj notatki.md'),
+    asystent('m1', 48000, 300),
+    wynikNarzedzia(),
+    asystent('m2', 50000, 444),
+    czlowiek('drugie polecenie'),
+    asystent('m3', 52000, 10),
+  ]));
+  assert.equal(r.polecen, 2, '/model i /effort bez wywolania modelu nie sa poleceniem');
+  assert.equal(r.pierwsze, 48000);
+  assert.equal(r.koniecTury, 50444, 'pierwsza tura to tura promptu, nie komendy lokalnej');
+  assert.equal(r.wywolanTury, 2);
+  // Kontrola pozytywna: komenda, po ktorej model odpowiada (/relai-stage), jest poleceniem.
+  const etap = sc.analizuj(jsonl([
+    komenda('relai-stage'),
+    meta('# rozwiniecie komendy'),
+    asystent('m1', 80000, 100),
+    czlowiek('tak'),
+    asystent('m2', 90000, 5),
+  ]));
+  assert.equal(etap.polecen, 2);
+  assert.equal(etap.koniecTury, 80100);
+});
+
 test('slug and session selection work on a transcript directory', () => {
   assert.equal(sc.slug('C:\\Users\\Lukasz\\Desktop\\RelAI'), 'C--Users-Lukasz-Desktop-RelAI');
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'relai-start-context-'));

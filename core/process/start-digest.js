@@ -8,7 +8,8 @@
 // tabele ryzyk bez kolumny "Mitygacja"; sekcje "Czeka na czlowieka" tylko przy sprawie
 // przeterminowanej; ostatni wpis dziennika; aktywne wiersze USTAWIEN; STATUS planu naprawde
 // aktywnego (parser z E1); z "Zasad aktywnych" sam indeks z wyzwalaczami (E4, D-15 Aneks A),
-// a w projekcie bez indeksu sekcja w calosci.
+// a w projekcie bez indeksu sekcja w calosci. Wyjscie zawsze w limicie polecenia (E5, Aneks F):
+// sekcja za duza staje sie drogowskazem "Przeczytaj ja teraz narzedziem Read: plik, linie A-B".
 //
 // Jedno polecenie zamiast trzech list (CLAUDE.md, hook, skill): `node .claude/relai/tools/start-digest.js`.
 // Kopia w projekcie lezy obok kopii session-signals.js (lista NARZEDZIA), wiec require nizej
@@ -43,6 +44,11 @@ const KOLUMNA_MITYGACJI = /^(?:mitygacja|mitigation)$/i;
 // Limit wyjscia, ktore model dostaje w calosci: Claude Code ok. 30 tys. znakow, ponad nim podglad
 // 2 KB (L-0296). 28 tys. zostawia zapas na roznice liczenia znakow (Aneks C planu KONTEKST_STARTU).
 const LIMIT_ZNAKOW = 28000;
+// Sekcja dluzsza niz to, w skrocie ponad limitem, zamienia sie w drogowskaz z zakresem linii
+// (Aneks F planu KONTEKST_STARTU). Skalibrowane 2026-10-28: najwieksza sekcja skrotu tego repo
+// ma 6 711 znakow (ryzyka) i zostaje; w projektach Lukasza sekcje ponad limitem maja 15–70 KB
+// ("Zasady aktywne" bez indeksu, "Czeka na czlowieka" przy sprawach przeterminowanych, STATE).
+const PROG_SEKCJI_ZNAKOW = 8000;
 // Separator komorki niepoprzedzony znakiem ucieczki (zasada 5, parsowanie).
 const SEPARATOR = /(?<!\\)\|/;
 
@@ -107,8 +113,27 @@ function bezMitygacji(tekst) {
   }).join('\n');
 }
 
-function blok(tytul, tresc) {
-  return '=== ' + tytul + ' ===\n' + tresc;
+// Blok skrotu: tytul, tresc i (gdy jest) zrodlo { rel, od, do } — plik i zakres linii, z ktorych
+// tresc pochodzi; zrodlo pozwala zamienic za duza sekcje w drogowskaz do odczytu (Aneks F).
+function blok(tytul, tresc, zrodlo) {
+  return { tytul, tresc, zrodlo: zrodlo || null };
+}
+
+function pokaz(b) {
+  return '=== ' + b.tytul + ' ===\n' + b.tresc;
+}
+
+// Zakres linii (od 1) fragmentu w tekscie pliku po normalizacji CRLF -> LF (liczba linii ta sama).
+function linieSekcji(rel, txt, fragment) {
+  const i = txt.indexOf(fragment);
+  if (i < 0) return null;
+  const od = txt.slice(0, i).split('\n').length;
+  return { rel, od, do: od + fragment.replace(/\n+$/, '').split('\n').length - 1 };
+}
+
+function drogowskazSekcji(b) {
+  return '[sekcja za duza do skrotu startu: ' + b.tresc.length + ' znakow. Przeczytaj ja teraz narzedziem Read: ' +
+    b.zrodlo.rel + ', linie ' + b.zrodlo.od + '-' + b.zrodlo.do + ']';
 }
 
 function czescState(cwd, docsDir) {
@@ -123,7 +148,7 @@ function czescState(cwd, docsDir) {
     const tresc = cialo(sekcja);
     return s.pierwszyPunkt
       ? blok(rel + ' - ' + naglowek + ' (pierwszy punkt)', pierwszyPunkt(tresc))
-      : blok(rel + ' - ' + naglowek, tresc);
+      : blok(rel + ' - ' + naglowek, tresc, linieSekcji(rel, txt, sekcja));
   });
   // Pozostale sekcje drugiego poziomu — do drogowskazu, z nazwy.
   const znane = SEKCJE_STATE.flatMap((s) => s.wzorce);
@@ -142,7 +167,7 @@ function czescDziennika(cwd, docsDir, opcje) {
   bloki.push(ryzyka === null
     ? blok(rel, 'brak sekcji "Stan otwartych ryzyk"')
     : blok(rel + ' - ' + ryzyka.split('\n')[0].replace(/^#+\s*/, '').trim() + ' (bez kolumny Mitygacja)',
-      bezMitygacji(cialo(ryzyka))));
+      bezMitygacji(cialo(ryzyka)), linieSekcji(rel, txt, ryzyka)));
 
   // "Czeka na czlowieka" tylko przy sprawie przeterminowanej — ta sama miara co hook startu.
   const miara = core.sprawyPrzeterminowane(cwd, { dzisiaj: opcje.dzisiaj });
@@ -151,21 +176,24 @@ function czescDziennika(cwd, docsDir, opcje) {
     const czeka = core.wytnijSekcje(txt, NAGLOWEK_CZEKA);
     if (czeka !== null) {
       bloki.push(blok(rel + ' - ' + czeka.split('\n')[0].replace(/^#+\s*/, '').trim() +
-        ' (spraw przeterminowanych: ' + przeterminowane + ', prog ' + miara.N + ' dni)', cialo(czeka)));
+        ' (spraw przeterminowanych: ' + przeterminowane + ', prog ' + miara.N + ' dni)', cialo(czeka),
+        linieSekcji(rel, txt, czeka)));
     }
   }
 
   const wpis = core.ostatniWpis(txt);
   const trescWpisu = wpis === null ? null : wpis.replace(/\n+$/, '');
-  bloki.push(trescWpisu === null
-    ? blok(rel, 'brak wpisow (naglowkow ###)')
-    : blok(rel + ' - ostatni wpis', trescWpisu));
+  const blokWpisu = trescWpisu === null
+    ? blok(rel, 'brak wpisow (naglowkow ### albo ## z data)')
+    : blok(rel + ' - ostatni wpis', trescWpisu, linieSekcji(rel, txt, trescWpisu));
+  blokWpisu.wpis = trescWpisu !== null;
+  bloki.push(blokWpisu);
   return { bloki, rel, czeka: przeterminowane > 0, wpis: trescWpisu };
 }
 
 // Skrocenie ostatniego wpisu, gdy skrot przekracza limit (Aneks C): poczatek wpisu do granicy
-// linii, a na koncu linia z liczbami i drogowskazem. Nic innego skrot nie przycina — gdy po
-// skroceniu dalej jest za dlugi, zostaje za dlugi (bez zgadywania, co jeszcze wyciac).
+// linii, a na koncu linia z liczbami i drogowskazem. Kolejnosc wzgledem zamiany sekcji
+// w drogowskazy (Aneks F) ustala startDigest.
 function skroconyWpis(wpis, nadmiar, rel) {
   const dopisek = (n) => '\n\n[wpis skrocony do ' + n + ' z ' + wpis.length + ' znakow; calosc: ' + rel +
     ' - ostatni wpis]';
@@ -185,7 +213,8 @@ function czescUstawien(cwd, docsDir) {
   const aktywne = wycofane === null ? txt : txt.replace(wycofane, '');
   const linie = aktywne.split('\n').filter((l) => l.trim().startsWith('|') || /^(?:Wersja RelAI|RelAI version)\b/i.test(l));
   return {
-    bloki: [blok(rel + ' - wiersze aktywne (bez "Ustawien wycofanych")', linie.join('\n'))],
+    bloki: [blok(rel + ' - wiersze aktywne (bez "Ustawien wycofanych")', linie.join('\n'),
+      { rel, od: 1, do: txt.replace(/\n+$/, '').split('\n').length })],
     rel,
     wycofane: wycofane !== null,
   };
@@ -199,7 +228,8 @@ function czescPlanu(cwd) {
     return { bloki: [blok('Aktywny plan', 'brak aktywnego planu (linia "Aktywny plan" w CLAUDE.md)')] };
   }
   const rel = wzgledna(cwd, p);
-  return { bloki: [blok('Aktywny plan - ' + rel, (czytajLF(p) || '').replace(/\n+$/, ''))], rel };
+  const tresc = (czytajLF(p) || '').replace(/\n+$/, '');
+  return { bloki: [blok('Aktywny plan - ' + rel, tresc, { rel, od: 1, do: tresc.split('\n').length })], rel };
 }
 
 function czescLekcji(cwd, docsDir) {
@@ -220,8 +250,8 @@ function czescLekcji(cwd, docsDir) {
     bloki: [trescIndeksu
       ? blok(tytul + ' (indeks)', 'Zanim pierwszy raz zmienisz plik, porownaj zadanie z wyzwalaczami ponizej; ' +
         'trafienie = Read pelnego brzmienia tej zasady z ' + rel + ' (podsekcja pelnego brzmienia), dopiero potem praca.\n\n' +
-        trescIndeksu)
-      : blok(tytul, cialo(zasady))],
+        trescIndeksu, linieSekcji(rel, txt, indeks))
+      : blok(tytul, cialo(zasady), linieSekcji(rel, txt, zasady))],
     rel,
     indeks: Boolean(trescIndeksu),
   };
@@ -251,7 +281,7 @@ function drogowskazy(cwd, docsDir, c) {
     const p = pierwszyIstniejacy(docsDir, nazwy);
     if (p) out.push('- ' + wzgledna(cwd, p) + ' - ' + opis);
   }
-  return blok('Drogowskazy (pelne tresci otwierasz dopiero, gdy zadanie ich wymaga)', out.join('\n') || '- brak');
+  return pokaz(blok('Drogowskazy (pelne tresci otwierasz dopiero, gdy zadanie ich wymaga)', out.join('\n') || '- brak'));
 }
 
 // Zwraca { tekst, czesci: [{ id, bajty }] } albo null poza projektem RelAI. Identyfikatory
@@ -272,27 +302,42 @@ function startDigest(cwd, opcje) {
   // Indeks zasad zaraz po STATE, przed ryzykami i wpisem dziennika (Aneks C): tresc obowiazkowa
   // nie moze stac na koncu wyjscia, ktore bywa przyciete do podgladu (L-0296).
   const czesci = [
-    { id: 'STATE', tekst: c.state.bloki.join('\n\n'), sciezka: c.state.rel },
-    { id: 'zasady', tekst: c.lekcje.bloki.join('\n\n'), sciezka: c.lekcje.rel },
-    { id: 'ryzyka', tekst: c.dziennik.bloki.join('\n\n'), sciezka: c.dziennik.rel },
-    { id: 'ustawienia', tekst: c.ustawienia.bloki.join('\n\n'), sciezka: c.ustawienia.rel },
-    { id: c.plan.rel ? 'status' : 'skrot', tekst: c.plan.bloki.join('\n\n'), sciezka: c.plan.rel },
+    { id: 'STATE', cz: c.state },
+    { id: 'zasady', cz: c.lekcje },
+    { id: 'ryzyka', cz: c.dziennik },
+    { id: 'ustawienia', cz: c.ustawienia },
+    { id: c.plan.rel ? 'status' : 'skrot', cz: c.plan },
   ];
+  const tekstCzesci = (x) => x.cz.bloki.map(pokaz).join('\n\n');
   const naglowek = '[RelAI skrot startu] ' + (o.dzisiaj || core.todayLocal()) + '. To jest caly odczyt ' +
     'startu sesji: akapit "gdzie jestesmy" piszesz z ponizszych sekcji, nie otwierajac plikow, ' +
     'ktore skrot streszcza.';
-  const zloz = () => [naglowek].concat(czesci.map((x) => x.tekst), drogowskazy(cwd, docsDir, c)).join('\n\n') + '\n';
+  const zloz = () => [naglowek].concat(czesci.map(tekstCzesci), drogowskazy(cwd, docsDir, c)).join('\n\n') + '\n';
   let tekst = zloz();
-  if (tekst.length > LIMIT_ZNAKOW && c.dziennik.wpis) {
-    const ostatni = c.dziennik.bloki.length - 1;
-    const wpis = skroconyWpis(c.dziennik.wpis, tekst.length - LIMIT_ZNAKOW, c.dziennik.rel);
-    c.dziennik.bloki = c.dziennik.bloki.map((b, i) => (i === ostatni ? blok(c.dziennik.rel + ' - ostatni wpis', wpis) : b));
-    czesci[2] = { ...czesci[2], tekst: c.dziennik.bloki.join('\n\n') };
+  // Limit wyjscia (Aneks F): najpierw sekcje ponad progiem, od najwiekszej, zamieniaja sie
+  // w drogowskaz do odczytu; potem skraca sie ostatni wpis (Aneks C); na koniec, gdy to nie
+  // wystarczy, drogowskazem staje sie kazda sekcja ze zrodlem, znow od najwiekszej.
+  const bloki = () => czesci.flatMap((x) => x.cz.bloki);
+  const zastapNajwieksza = (warunek) => {
+    const k = bloki().filter((b) => b.zrodlo && !b.zastapiona && warunek(b))
+      .sort((a, b) => b.tresc.length - a.tresc.length)[0];
+    if (!k || k.tresc.length <= drogowskazSekcji(k).length) return false;
+    k.tresc = drogowskazSekcji(k);
+    k.zastapiona = true;
+    tekst = zloz();
+    return true;
+  };
+  while (tekst.length > LIMIT_ZNAKOW && zastapNajwieksza((b) => !b.wpis && b.tresc.length > PROG_SEKCJI_ZNAKOW));
+  const blokWpisu = c.dziennik.bloki.find((b) => b.wpis);
+  if (tekst.length > LIMIT_ZNAKOW && blokWpisu) {
+    blokWpisu.tresc = skroconyWpis(c.dziennik.wpis, tekst.length - LIMIT_ZNAKOW, c.dziennik.rel);
+    blokWpisu.zrodlo = null;
     tekst = zloz();
   }
+  while (tekst.length > LIMIT_ZNAKOW && zastapNajwieksza(() => true));
   const bajty = (t) => Buffer.byteLength(t, 'utf8');
   const policzone = czesci.filter((x) => x.id !== 'skrot')
-    .map((x) => ({ id: x.id, sciezka: x.sciezka || null, bajty: bajty(x.tekst) }));
+    .map((x) => ({ id: x.id, sciezka: x.cz.rel || null, bajty: bajty(tekstCzesci(x)) }));
   const reszta = bajty(tekst) - policzone.reduce((s, x) => s + x.bajty, 0);
   return { tekst, czesci: policzone.concat([{ id: 'skrot', sciezka: null, bajty: reszta }]) };
 }

@@ -6,11 +6,12 @@ Stan na: 2026-10-28 (ostatni zamknięty plan ZASIEG_PLUGINU ZREALIZOWANY — Rel
 
 ## Gdzie jesteśmy
 
-RelAI **3.6.0** jest w repozytorium i publicznie (tag `v3.6.0`, 2026-10-28: tryb „RelAI tylko
-w projektach” — plan ZASIEG_PLUGINU; wcześniej 3.5.0 z poprawkami zgłoszeń #1–#3). Plugin `relai` działa
+RelAI **3.7.0** jest w repozytorium (lżejszy start sesji — plan KONTEKST_STARTU; wydanie w toku
+2026-10-28); publicznie **3.6.0** (tag `v3.6.0`: tryb „RelAI tylko w projektach” — plan
+ZASIEG_PLUGINU). Plugin `relai` działa
 w trzech narzędziach — Claude Code, Cursorze i Codeksie — na jednym rdzeniu procesu, z szesnastoma
 komendami i czternastoma hookami w Claude Code (czternasty: `session-title`). Marketplace tego
-repozytorium niesie też cztery mody: `relai-panel` 0.22.1, `relai-progress` 0.7.0,
+repozytorium niesie też cztery mody: `relai-panel` 0.22.1, `relai-progress` 0.7.1,
 `relai-cache-keeper` 0.13.0 („early access”) i kokpit `relai-mods` 0.3.0. Wydanie robi się frazą „gotowi do wydania?”
 (`/relai-release`): raport `release-check.js`, naprawy po jednej zgodzie, publikacja krok po kroku,
 bramka `pre-push` na tagi. Maszyna Łukasza pracuje w trybie „RelAI tylko w projektach” od

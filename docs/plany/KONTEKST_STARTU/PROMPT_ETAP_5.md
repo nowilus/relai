@@ -195,21 +195,21 @@ repozytorium), wpisujesz do wpisu dziennika **z nazwy**, a jego nazwę zaczynasz
 Każdy punkt Weryfikacji, który przeszedł, odhaczasz w `PROMPT_ETAP_5.md` (`- [ ]` → `- [x]`)
 zaraz po jego sprawdzeniu, nie na końcu etapu; punkt, który nie przeszedł, zostaje pusty.
 
-- [ ] `node --test core/process/tests/*.test.js`, `node --test core/panel/tests/*.test.js`,
+- [x] `node --test core/process/tests/*.test.js`, `node --test core/panel/tests/*.test.js`,
       `node --test adapters/codex/tests/*.test.js` bez błędów; `node core/tools/validate-adapters.js`
       kod 0; `node adapters/codex/generate-skills.js` kończy się „spojne”.
-- [ ] **Obie wersje w jednym przebiegu:** nowy test `start-context.js` na HEAD sprzed etapu
+- [x] **Obie wersje w jednym przebiegu:** nowy test `start-context.js` na HEAD sprzed etapu
       (worktree w katalogu roboczym, `core.autocrlf=false`) pada, na zmianie przechodzi — liczby
       do wpisu.
-- [ ] Pomiar końcowy: trzy sesje tego repo z modelem, `init`, asercją dostarczenia skrótu
+- [x] Pomiar końcowy: trzy sesje tego repo z modelem, `init`, asercją dostarczenia skrótu
       i liczbą RelAI po pierwszej turze; cel ≤ 25 tys. (SZACUNEK planu) osiągnięty albo rozjazd
       rozstrzygnięty z Łukaszem aneksem.
-- [ ] Pomiar w projekcie użytkownika: rozmiar skrótu (bajty, znaki) i jego dostarczenie w całości
+- [x] Pomiar w projekcie użytkownika: rozmiar skrótu (bajty, znaki) i jego dostarczenie w całości
       albo opisany rozjazd; w tamtym projekcie `git status` bez zmian po pomiarze.
-- [ ] Nowe progi: wartości po „tak” Łukasza w `SPEC_USTAWIENIA.md`, `PROGI_DOMYSLNE`
+- [x] Nowe progi: wartości po „tak” Łukasza w `SPEC_USTAWIENIA.md`, `PROGI_DOMYSLNE`
       i `docs/USTAWIENIA.md` identyczne (test albo `grep` po trzech miejscach); raport budżetu tego
       repo po zmianie bez fałszywej pozycji „ponad progiem” (wynik `startCost` do wpisu).
-- [ ] `KOMENDY.md` i `README.md`: każde zmienione zdanie o starcie ma za sobą przebieg, który je
+- [x] `KOMENDY.md` i `README.md`: każde zmienione zdanie o starcie ma za sobą przebieg, który je
       potwierdza; stare brzmienie („czyta wyłącznie »Zasady aktywne«”, lista plików rytuału) nie
       zostaje jako deklaracja stanu (`grep` z kontrolą pozytywną).
 - [ ] Wydanie: `release-check.js` zielony przed tagiem; po publikacji `release-verify.js` zielony

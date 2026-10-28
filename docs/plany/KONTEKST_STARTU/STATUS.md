@@ -10,7 +10,7 @@ Plan: [PLAN.html](PLAN.html) · Utworzony: 2026-10-28 · Status planu: **ZAAKCEP
 | E2 | Skrót startu jednym poleceniem | ZREALIZOWANY 2026-10-28 | [PROMPT_ETAP_2.md](PROMPT_ETAP_2.md) | `start-digest.js`, jedna linia rytuału w trzech kopiach, budżet ze skrótu, adaptery |
 | E3 | Bramka trybu ciągłego w dwóch krokach | ZREALIZOWANY 2026-10-28 | [PROMPT_ETAP_3.md](PROMPT_ETAP_3.md) | najpierw sama zgoda, po „tak” model i zasięg; procedura u agenta; podział `relai-prompt.md` |
 | E4 | „Zasady aktywne” jako indeks | ZREALIZOWANY 2026-10-28 | [PROMPT_ETAP_4.md](PROMPT_ETAP_4.md) | przed startem: aneks do D-15 (sekcja 9 planu); ewaluacja wyzwalania |
-| E5 | Pomiar końcowy, progi i wydanie | GOTOWY DO STARTU | [PROMPT_ETAP_5.md](PROMPT_ETAP_5.md) | progi budżetu startu — decyzja Łukasza; „gotowi do wydania?” |
+| E5 | Pomiar końcowy, progi i wydanie | W TOKU | [PROMPT_ETAP_5.md](PROMPT_ETAP_5.md) | progi budżetu startu — decyzja Łukasza; „gotowi do wydania?” |
 
 ## Aneksy
 
@@ -38,6 +38,20 @@ Plan: [PLAN.html](PLAN.html) · Utworzony: 2026-10-28 · Status planu: **ZAAKCEP
   `CLAUDE.md` mówią „zanim pierwszy raz zmienisz plik, porównaj zadanie z wyzwalaczami; trafienie
   → odczyt pełnej zasady”. Potem jedna powtórka ewaluacji; negatywy to prompty, które uruchamiają
   skrót („kontynuujemy pracę”, „sprawdź status”, pytanie o autora wpisu).
+- **Aneks E (2026-10-28, E5, decyzja Łukasza):** pomiar końcowy (trzy sesje `claude -p`, Opus 5.5)
+  dał RelAI po turze z zadaniem 32 377 / 27 744 / 24 732 tokenów wobec ok. 72 tys. przed planem —
+  cel ≤ 25 tys. osiągnięty w jednej sesji z trzech. Łukasz przyjął wynik bez zmian kodu: cel
+  częściowo osiągnięty (−55…−66 %), rozjazd w dzienniku. Przyczyny nadwyżki do późniejszej
+  poprawki: skrót milczy o braku spraw przeterminowanych, więc „kontynuujemy pracę” przeszukuje
+  cały `DZIENNIK.md` (16 452 B); skrót ma 29 KB zamiast ok. 16 KB (notki archiwum ryzyk, aneksy
+  i dziennik wdrożenia STATUS).
+- **Aneks F (2026-10-28, E5, decyzja Łukasza):** skrót startu w 7 z 12 projektów Łukasza ma
+  31–178 KB (ponad limitem wyjścia ok. 30 tys. znaków: „Zasady aktywne” bez indeksu 47–70 KB,
+  „Czeka na człowieka” 15–48 KB, STATE i ryzyka do 44 KB), a „ostatni wpis” bywa pusty, bo wpisy
+  stoją jako `## RRRR-MM-DD`. Zakres E5 obejmuje poprawkę `start-digest.js` przed wydaniem: sekcja
+  zbyt duża zamienia się w drogowskaz z rozmiarem i poleceniem odczytu, wyjście zawsze mieści się
+  w limicie; „ostatni wpis” rozpoznaje nagłówek wpisu z datą na poziomie `##`. Testy na fixturach
+  w kształcie tych projektów, pomiar w kopii JiraManagera.
 
 ## Bramki manualne
 
@@ -68,3 +82,4 @@ Plan: [PLAN.html](PLAN.html) · Utworzony: 2026-10-28 · Status planu: **ZAAKCEP
   STATE i skraca ostatni wpis ponad 28 tys. znaków (60 489 → 29 084 B); ewaluacja wyzwalania 3/3
   i 0/3 w trzecim przebiegu (0/3 przy skrócie w podglądzie, 1/3 bez zdania w warstwie stałej);
   testy 353/353, 225/225, 24/24. E5 gotowy do startu.
+- 2026-10-28 — E5 rozpoczęty

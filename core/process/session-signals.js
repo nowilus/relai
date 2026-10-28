@@ -916,11 +916,12 @@ const KB = 1024;
 // Progi domyslne w KB. Jedyne zrodlo prawdy o tych wartosciach to
 // core/templates/SPEC_USTAWIENIA.md — tutaj stoi ich kopia wykonawcza.
 const PROGI_DOMYSLNE = {
-  start: 100, // do 2.3.1: 80; 2.4.0: 140 (suma liczy skill startu); 2.5.0: 100 po podziale skilla (E3)
+  start: 55, // do 2.3.1: 80; 2.4.0: 140 (suma liczy skill startu); 2.5.0: 100 po podziale skilla (E3);
+  //            3.7.0: 55 — suma liczy skrot startu (KONTEKST_STARTU E5, decyzja Lukasza 2026-10-28)
   CLAUDE: 10,
   STATE: 12,
   ryzyka: 12,
-  zasady: 30, // od KONTEKST_STARTU E4 liczy indeks "Zasad aktywnych" ze skrotu; nowy prog to E5
+  zasady: 5, // od KONTEKST_STARTU E4 liczy indeks "Zasad aktywnych" ze skrotu; do 3.6.0: 30 (E5)
   ustawienia: 6,
   status: 10,
 };
@@ -1016,8 +1017,10 @@ function wytnijSekcje(txt, wzorce) {
   return linie.slice(start, koniec).join('\n');
 }
 
-// Naglowek wpisu z data: "### RRRR-MM-DD — Temat". Bez kotwicy konca linii (CRLF, L-0033).
-const NAGLOWEK_WPISU = /^###\s+(\d{4}-\d{2}-\d{2})\b/;
+// Naglowek wpisu z data: "### RRRR-MM-DD — Temat", a w projektach zaadoptowanych takze
+// "## RRRR-MM-DD — Temat" (JiraManager, PekaoWektor; KONTEKST_STARTU E5, Aneks F). Bez kotwicy
+// konca linii (CRLF, L-0033). Naglowek bez daty liczy sie tylko na poziomie ###.
+const NAGLOWEK_WPISU = /^(#{2,3})\s+(\d{4}-\d{2}-\d{2})\b/;
 const NAGLOWEK_WPISU_BEZ_DATY = /^###\s+/;
 
 // Ostatni wpis dziennika = wpis NAJNOWSZY, czyli o najpozniejszej dacie w naglowku.
@@ -1031,10 +1034,10 @@ function ostatniWpis(txt) {
   const zData = [];
   let ostatniNaglowek = -1;
   for (let i = 0; i < linie.length; i++) {
-    if (!NAGLOWEK_WPISU_BEZ_DATY.test(linie[i])) continue;
-    ostatniNaglowek = i;
     const m = linie[i].match(NAGLOWEK_WPISU);
-    if (m) zData.push({ linia: i, data: m[1] });
+    if (!m && !NAGLOWEK_WPISU_BEZ_DATY.test(linie[i])) continue;
+    ostatniNaglowek = i;
+    if (m) zData.push({ linia: i, data: m[2], poziom: m[1].length });
   }
   if (ostatniNaglowek === -1) return null;
   if (zData.length < 2) return linie.slice(ostatniNaglowek).join('\n');
@@ -1045,10 +1048,12 @@ function ostatniWpis(txt) {
   const kandydaci = zData.filter((w) => w.data === najpozniejsza);
   const wybrany = malejaco ? kandydaci[0] : kandydaci[kandydaci.length - 1];
 
-  // Wpis konczy sie na kolejnym naglowku ### albo na naglowku sekcji wyzszego poziomu.
+  // Wpis konczy sie na kolejnym naglowku swojego poziomu albo wyzszego: wpis "###" na ###, ##
+  // i #, wpis "##" na ## i # — jego podsekcje ### naleza do niego.
+  const konczy = new RegExp('^#{1,' + wybrany.poziom + '}\\s+');
   let koniec = linie.length;
   for (let i = wybrany.linia + 1; i < linie.length; i++) {
-    if (/^#{1,3}\s+/.test(linie[i])) { koniec = i; break; }
+    if (konczy.test(linie[i])) { koniec = i; break; }
   }
   return linie.slice(wybrany.linia, koniec).join('\n');
 }

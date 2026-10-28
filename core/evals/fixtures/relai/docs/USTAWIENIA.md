@@ -1,6 +1,6 @@
 # USTAWIENIA
 
-Wersja RelAI: 3.6.0 · zainicjowano: 2026-10-01
+Wersja RelAI: 3.7.0 · zainicjowano: 2026-10-01
 
 | Data | Czego dotyczy | Decyzja |
 |---|---|---|

@@ -7,9 +7,9 @@
     "cursor"
   ],
   "wersje": {
-    "relai": "3.6.0",
+    "relai": "3.7.0",
     "relai-panel": "0.22.1",
-    "relai-progress": "0.7.0",
+    "relai-progress": "0.7.1",
     "relai-cache-keeper": "0.13.0",
     "relai-mods": "0.3.0"
   },

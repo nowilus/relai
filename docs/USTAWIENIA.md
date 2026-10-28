@@ -1,6 +1,6 @@
 # USTAWIENIA — projekt: budowa RelAI
 
-Wersja RelAI: 3.6.0 · zainicjowano: 2026-08-07
+Wersja RelAI: 3.7.0 · zainicjowano: 2026-08-07
 
 Rejestr wyborów użytkownika dla tego projektu. Każdy wpis: data, czego dotyczył, decyzja.
 
@@ -22,7 +22,7 @@ Rejestr wyborów użytkownika dla tego projektu. Każdy wpis: data, czego dotycz
 | 2026-08-07 | Instalacja pluginu w trakcie budowy | Zainstalowany na stałe (scope `user`); po każdej zmianie obowiązuje sekwencja wydania — [PULAPKI.md](PULAPKI.md) P-005 |
 | 2026-08-12 | Rotacja dokumentów | włączona · dziennik 150 KB · lekcje 40 wpisów albo 50 KB · STATE 300 linii — progi skalibrowane w E2 na zmierzonych dziennikach JiraManagera i PolyFlow |
 | 2026-08-12 | Język warstw adapterów | Warstwa czytana przez model — angielski; warstwa czytana przez człowieka — polski; dokumenty projektów w języku projektu (Aneks A planu ROZWOJ_PO_WYDANIU) |
-| 2026-09-24 | Budżet startu sesji | włączony · start 100 KB · CLAUDE 10 KB · STATE 12 KB · ryzyka 12 KB · zasady 30 KB · ustawienia 6 KB · status 10 KB |
+| 2026-10-28 | Budżet startu sesji | włączony · start 55 KB · CLAUDE 10 KB · STATE 12 KB · ryzyka 12 KB · zasady 5 KB · ustawienia 6 KB · status 10 KB |
 | 2026-09-01 | Przegląd spraw człowieka | włączony · 30 dni |
 | 2026-09-03 | Artefakty robocze | włączone · 100 MB |
 | 2026-09-04 | Lista modeli | włączona · 7 dni |
@@ -40,6 +40,7 @@ Rejestr wyborów użytkownika dla tego projektu. Każdy wpis: data, czego dotycz
 
 | Data | Czego dotyczy | Decyzja | Zastąpione |
 |---|---|---|---|
+| 2026-09-24 | Budżet startu sesji | włączony · start 100 KB · CLAUDE 10 KB · STATE 12 KB · ryzyka 12 KB · zasady 30 KB · ustawienia 6 KB · status 10 KB | zastąpione 2026-10-28 wartościami „start 55 KB” i „zasady 5 KB”, powód: od KONTEKST_STARTU budżet liczy skrót startu (to repo 50,2 KB, projekty 19,4–60,7 KB), a „Zasady aktywne” wchodzą jako indeks (3,6 KB) — stare progi nie odzywały się nigdzie; decyzja Łukasza (E5) |
 | 2026-08-07 | Sposób wykonania planów | Zawsze prompty etapowe, świeże sesje; architekt: Fable | zastąpione 2026-10-14 wartością „architekt: Opus w bieżącej sesji”, powód: wymóg Fable był chwilowy, odwołany przez Łukasza |
 | 2026-09-24 | Budżet startu sesji | włączony · start 140 KB · CLAUDE 10 KB · STATE 12 KB · ryzyka 12 KB · zasady 30 KB · ustawienia 6 KB · status 10 KB | zastąpione 2026-09-24 wartością `start 100 KB`, powód: po podziale skilla `relai-core` na pliki doczytywane (E3 planu PROWADZENIE_END_TO_END) skill waży 28,6 KB, a warstwa startowa tego repozytorium 88,8 KB; decyzja człowieka w E3 |
 | 2026-08-20 | Budżet startu sesji | włączony · start 80 KB · CLAUDE 10 KB · STATE 12 KB · ryzyka 12 KB · zasady 30 KB · ustawienia 6 KB · status 10 KB | zastąpione 2026-09-24 wartością `start 140 KB`, powód: suma liczy odtąd skill `relai-core` (65,6 KB) i pliki rytuału — 123,7 KB na tym repozytorium; decyzja człowieka w E2 planu PROWADZENIE_END_TO_END |

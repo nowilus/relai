@@ -150,3 +150,23 @@ test('startCostReport proposes rotation only when rotation would remove somethin
     for (const d of [zero, wiecej]) fs.rmSync(d, { recursive: true, force: true });
   }
 });
+
+// KONTEKST_STARTU E5: progi domyslne stoja w SPEC_USTAWIENIA (jedyne zrodlo prawdy) i w kopii
+// wykonawczej PROGI_DOMYSLNE. Projekt z samym "wlaczony" dostaje dokladnie wartosci ze specyfikacji.
+test('default start budget thresholds equal the SPEC_USTAWIENIA row (start 55, zasady 5)', () => {
+  const spec = fs.readFileSync(path.join(__dirname, '..', '..', 'templates', 'SPEC_USTAWIENIA.md'), 'utf8');
+  const wiersz = spec.split(/\r?\n/).find((l) => /^włączony · start \d+ KB/.test(l));
+  assert.ok(wiersz, 'brak wiersza wzorcowego w SPEC_USTAWIENIA');
+  const zSpec = {};
+  for (const m of wiersz.matchAll(/(\S+) (\d+) KB/g)) zSpec[m[1]] = Number(m[2]);
+  assert.equal(Object.keys(zSpec).length, 7, 'kontrola pozytywna: siedem czlonow w wierszu');
+  const { dir } = projekt();
+  try {
+    fs.writeFileSync(path.join(dir, 'docs', 'USTAWIENIA.md'), USTAWIENIA.replace('włączony · start 1 KB', 'włączony'));
+    assert.deepEqual(core.startCost(dir, { dzisiaj: '2026-10-28' }).progi, zSpec);
+    assert.equal(zSpec.start, 55);
+    assert.equal(zSpec.zasady, 5);
+  } finally {
+    fs.rmSync(dir, { recursive: true, force: true });
+  }
+});
