@@ -74,3 +74,54 @@ test('provisionTemplates copies core/humanize to .claude/relai/humanize with equ
   core.provisionTemplates(cwd);
   assert.equal(suma(path.join(cel, 'REGULY.md')), suma(path.join(zrodlo, 'REGULY.md')), 'next start overwrites the copy');
 });
+
+// KONTEKST_STARTU E1: linia "Aktywny plan" z wartoscia "brak" i linkiem do STATUS.md innego
+// (wstrzymanego) planu znaczy "brak planu". Bez tego budzet startu i siatka D-34 czytaly STATUS
+// wstrzymanego PANEL_CODEX jak aktywnego. Kontrola pozytywna: ta sama linia bez "brak".
+function projektZLiniaPlanu(liniaPlanu) {
+  const fs = require('node:fs');
+  const os = require('node:os');
+  const path = require('node:path');
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'relai-aktywny-plan-'));
+  fs.mkdirSync(path.join(dir, 'docs', 'plany', 'PANEL_CODEX'), { recursive: true });
+  fs.writeFileSync(path.join(dir, 'docs', 'USTAWIENIA.md'), '# USTAWIENIA\n\nWersja RelAI: 3.6.0\n\n'
+    + '| Data | Czego dotyczy | Decyzja |\n|---|---|---|\n'
+    + '| 2026-10-28 | Budżet startu sesji | włączony · start 100 KB |\n');
+  fs.writeFileSync(path.join(dir, 'docs', 'plany', 'PANEL_CODEX', 'STATUS.md'),
+    '# STATUS\n\n| Etap | Nazwa | Status | Prompt | Uwagi |\n|---|---|---|---|---|\n'
+    + '| E1 | Widok | GOTOWY DO STARTU | — | — |\n');
+  fs.writeFileSync(path.join(dir, 'CLAUDE.md'), '# Projekt\n\n## Rytuał startu sesji\n\n'
+    + '7. Aktywny plan — linia „Aktywny plan” pod tabelą „Stan prac”.\n\n## Stan prac\n\n'
+    + liniaPlanu + '\n');
+  return dir;
+}
+
+function statusWSygnalach(dir) {
+  const m = core.startCost(dir, {});
+  const status = m.pozycje.find((p) => p.id === 'status');
+  return { status: status ? status.sciezka : null, luka: core.promptGap(dir) };
+}
+
+test('Active plan line starting with "brak" means no plan even with a STATUS link further on', () => {
+  const fs = require('node:fs');
+  const zBrak = projektZLiniaPlanu('Aktywny plan: brak. [PANEL_CODEX](docs/plany/PANEL_CODEX/STATUS.md) '
+    + '(Codex) **nieaktywny — WSTRZYMANY 2026-10-27**.');
+  const bezBrak = projektZLiniaPlanu('Aktywny plan: [PANEL_CODEX](docs/plany/PANEL_CODEX/STATUS.md) (Codex).');
+  const proza = projektZLiniaPlanu('Aktywny plan: brak — zobacz STATE.');
+  try {
+    // Dowod negatywny: ani budzet, ani siatka D-34 nie wymieniaja STATUS-u wstrzymanego planu.
+    assert.deepEqual(statusWSygnalach(zBrak), { status: null, luka: null });
+    // Kontrola pozytywna na tym samym materiale bez slowa "brak".
+    const pos = statusWSygnalach(bezBrak);
+    assert.equal(pos.status, 'docs/plany/PANEL_CODEX/STATUS.md');
+    assert.equal(pos.luka && pos.luka.stage, 'E1');
+    // L-0047: proza rytualu (pozycja 7 bez linku) nie wygrywa z linia; linia bez linku = brak.
+    assert.deepEqual(statusWSygnalach(proza), { status: null, luka: null });
+    // Wariant EN i pogrubienie etykiety.
+    fs.writeFileSync(require('node:path').join(bezBrak, 'CLAUDE.md'),
+      '# P\n\n**Active plan:** none (paused: [PANEL_CODEX](docs/plany/PANEL_CODEX/STATUS.md))\n');
+    assert.deepEqual(statusWSygnalach(bezBrak), { status: null, luka: null });
+  } finally {
+    for (const d of [zBrak, bezBrak, proza]) fs.rmSync(d, { recursive: true, force: true });
+  }
+});

@@ -1283,3 +1283,111 @@ RelAI najwyżej 25 tys. tokenów po pierwszej turze.
 **Do zrobienia przez człowieka:** —
 
 Autor: RelAI (Opus 5.5) + Lukasz
+
+### 2026-10-28 — KONTEKST_STARTU E1: start bez fałszywych sygnałów i instrument pomiaru kontekstu
+
+Etap wg [PROMPT_ETAP_1.md](plany/KONTEKST_STARTU/PROMPT_ETAP_1.md), sesja Opus 5.5. W trakcie
+etapu Łukasz przyjął **Aneks A** (wpis w [STATUS.md](plany/KONTEKST_STARTU/STATUS.md)): linia
+`[RelAI progi dokumentow]` nie proponuje rotacji ryzyk, gdy żadne nie jest zamknięte.
+
+**Zrobione:**
+
+- `core/process/session-signals.js`, `liniaAktywnegoPlanu`: wartość linii zaczynająca się od
+  `brak` / `none` daje „brak planu”, także z linkiem do `STATUS.md` dalej w linii (wzorzec
+  `WARTOSC_BRAK`, toleruje `**…:**`). Linia z linkiem nadal wygrywa z prozą rytuału (L-0047).
+- `startCost` liczy część rotowalną warstwy startowej (`rotowalne`, `rotowalneBajty`): wiersze ryzyk
+  `ZAMKNIĘTE` z tego samego planu co `rotate.js` i wiersze „Ustawień wycofanych”, obie tylko przy
+  dokumencie ponad progiem, bo poniżej rotacja nic nie robi. `startCostReport`: „Zaproponuj
+  rotacje dziennika…” tylko przy części rotowalnej > 0, z liczbą KB i składnikami; przy 0 pada
+  zdanie „Rotacja nic tu nie zdejmie…”. Aneks A: pozycja sekcji ryzyk w linii progów dokumentów
+  ma procedurę „zamykanie ryzyk”, gdy nic nie jest zamknięte. `SPEC_ARCHIWUM.md`: wejście 2 ma
+  czwarty warunek.
+- Nakładki: `git mv` na `core/prompt/rodziny/nakladka-claude.md` i `nakladka-openai.md` (treść
+  bajt w bajt). Wzorzec ścieżki w `relai-prompt.md`, skillu Codeksa `relai-prompt`, agencie
+  optymalizatora, `REGULY.md`, `SZABLONY.md` i w `core/MANIFEST.json`. `provisionPrompt` kasuje
+  w projekcie stare `rodziny/claude.md` i `openai.md`, chyba że źródło nadal je niesie. Codex
+  i Cursor kopiują przez ten sam `core.provisionTemplates`, więc parytet bez osobnego kodu.
+- Nowe narzędzie repozytorium `core/tools/start-context.js` (`--sesja`, `--ostatnie`, `--json`,
+  `--projekt`, `--transkrypty`): pierwsze wywołanie i koniec 1. tury z `message.usage`, jedno
+  wywołanie na `message.id`, polecenie człowieka bez meta, wyników narzędzi i powiadomień;
+  brak pól → „brak danych”. Wiersz `core/tools/**` w `release-map.json` już je obejmuje;
+  `provisionTools` go nie kopiuje (lista `NARZEDZIA`).
+- Testy: parser w `session-signals.test.js`, rotacja i Aneks A w `start-cost.test.js`,
+  dwa testy nakładek w `model-overlays.test.js`, cztery testy instrumentu w nowym
+  `start-context.test.js`.
+- Dokumenty: P-061 w `PULAPKI.md` ze stanem po naprawie; `ARTEFAKTY.md` — `REGULY` 3,
+  `SZABLONY` 4, obie nakładki 2, `relai-prompt.md` 13, agent optymalizatora 4, `SPEC_ARCHIWUM`
+  4. Lekcje L-0293–L-0295.
+
+**Pomiar „przed”** (`node core/tools/start-context.js`, tokeny, pierwsze wywołanie → koniec
+1. tury):
+
+| Sesja | Rodzaj | Pierwsze | Koniec 1. tury |
+|---|---|---|---|
+| `730b6571` | interaktywna, 3.6.0 | 81 946 | 173 910 |
+| `03576d50` | interaktywna, 3.6.0 | 87 337 | 141 453 |
+| `ee1beb6e` | interaktywna, 3.6.0 | 89 943 | 198 710 |
+| `d166a966` | ta sesja, karta startu E1 | 87 499 | 126 312 |
+| `30fe4ea7` | `claude -p`, zainstalowany 3.6.0, odczyt `rodziny/openai.md` | 53 036 | 59 076 |
+| `07aae907` | `claude -p`, `--plugin-dir` repo, odczyt `rodziny/nakladka-openai.md` | 53 123 | 55 887 |
+
+Sesja `03576d50` ma te same liczby co `a14fa0b2` z ANALIZY §3.1 (87 337 → 141 453), pod innym
+identyfikatorem pliku.
+
+**Zweryfikowane — jak dokładnie:**
+
+- `node --test core/process/tests/*.test.js` → 329/329 (było 321; +8 nowych);
+  `node --test core/panel/tests/*.test.js` → 225/225; `node core/tools/validate-adapters.js` →
+  kod 0, „nakladki rodzin: 2 plikow, 18 regul, 18 ze zrodlem i data”.
+- Obie wersje w jednym przebiegu: nowe testy skopiowane do worktree HEAD `7e9a8dd`
+  (`core.autocrlf=false`) → `session-signals` 3 pass / 1 fail, `start-cost` 3 / 1,
+  `model-overlays` 7 / 1. Padły dokładnie trzy nowe testy (parser, rotacja, sprzątanie nakładek;
+  TAP). Na zmianie: 4 / 0, 4 / 0, 8 / 0.
+- Parser: fixtura „Aktywny plan: brak. [PANEL_CODEX](…STATUS.md) …” → ani pozycja `status`
+  budżetu, ani siatka D-34 nie wskazują STATUS-u PANEL_CODEX; ta sama linia bez „brak” →
+  wskazują (`docs/plany/PANEL_CODEX/STATUS.md`, luka E1). Na tym repo: suma `startCost` bez skilla
+  88 718 B, pozycje `CLAUDE, STATE, ryzyka, zasady, ustawienia, status` — `status` to
+  KONTEKST_STARTU.
+- Rotacja: przy części rotowalnej 0 raport bez frazy „Zaproponuj rotacj”, ze zdaniem „Rotacja nic
+  tu nie zdejmie”; przy jednym ryzyku `ZAMKNIĘTE` — „Zaproponuj rotacje dziennika … ryzyka
+  ZAMKNIETE”. Ten sam test, jeden przebieg. Na tym repo: `rotowalne` = 0 B (ryzyka 0, ustawienia 0
+  — plik 6 097 B poniżej progu 6 KB).
+- Nakładki: `git ls-files core/prompt/rodziny` → wyłącznie `nakladka-claude.md`,
+  `nakladka-openai.md`; `git diff -M` → „similarity index 100%” dla obu. `grep` starych wzorców
+  w `core adapters` → dwa komentarze historyczne (kod i test) i dwa `history.md`, poza tym tylko
+  zbędna kopia `adapters/claude-code/hooks/.claude/relai/` (poza planem).
+- Nakładka na żywo: sesja A (`30fe4ea7`, zainstalowany 3.6.0) — odczyt `rodziny/openai.md`
+  i jeden załącznik `nested_memory` `…\rodziny\CLAUDE.md` (7 151 B): kontrola pozytywna.
+  Sesja B (`07aae907`, `--plugin-dir` repo; w `init` `relai` z `C:\Users\Lukasz\Desktop\RelAI`,
+  `relai@inline`, instalacja wyłączona `--settings`) — odczyt `rodziny/nakladka-openai.md`,
+  zero `nested_memory`. Po sesji B w projekcie były tylko dwie nowe nakładki.
+- Instrument: `730b6571` 81 946 → 173 910, `23b3dfc2` 87 039 → 128 139, `a9d65f84` 87 322 →
+  129 512, `7be49f27` 87 327 → 122 268 — dokładnie liczby z promptu. Fixtura bez pól `usage` →
+  „brak danych” w obu kolumnach, kontrola z pełnymi polami w tym samym teście.
+- Dowód negatywny: `git diff --stat 7e9a8dd` nie pokazuje `adapters/claude-code/hooks/` ani
+  `core/process/prompt-mode.js` (kontrola pozytywna tej samej komendy na `core/process/` →
+  4 pliki); `git diff 7e9a8dd -- docs/LEKCJE.md` przed dopisaniem lekcji → 0 linii; sekcja „Zasady
+  aktywne” nietknięta także po dopisaniu L-0293–L-0295.
+- Katalog roboczy `.claude/relai/work/KONTEKST_STARTU/E1/`: przed — 6 pozycji, 60 006 B (trzy
+  sondy, dwa wyjścia sesji `claude -p`, pusty folder po worktree „przed”); po — skasowany po „tak”
+  Łukasza, 0 pozycji. Poza katalogiem: transkrypty `30fe4ea7` i `07aae907`
+  w `~/.claude/projects/C--Users-Lukasz-Desktop-RelAI/` zostają jako dowód pomiaru; dwa pliki
+  robocze `relai-plan.txt` i `relai-val.txt` w `%TEMP%` skasowane; worktree „przed” usunięty
+  z listy (`git worktree prune`).
+
+**Świadomie odłożone:**
+
+- Do wydania zainstalowany 3.6.0 kopiuje stare `rodziny/claude.md` i `openai.md` z powrotem przy
+  każdym starcie i wywołaniu skilla (L-0294); w tym projekcie leżą teraz obok nowych.
+- Definicja „końca 1. tury” to wejście ostatniego wywołania **plus** jego wyjście — tak liczy
+  ANALIZA (L-0295); prompt podawał samą sumę wejścia. Zapisane w nagłówku narzędzia.
+- `clean-work.js raport` liczy nieśledzony `core/process/tests/start-context.test.js` jako
+  artefakt w katalogu `core` (zniknie po commicie).
+- `start-nets.md` opisuje frazę „Zaproponuj rotacje” jako sygnał włączonej rotacji — nadal
+  prawda (warunek konieczny), więc bez zmiany.
+- Destylat „Zasady aktywne” bez odświeżenia — zakaz z weryfikacji etapu; L-0293–L-0295 mieszczą
+  się w zasadach 5, 13 i 4. Odświeżenie w E4 razem z indeksem.
+
+**Do zrobienia przez człowieka:** —
+
+Autor: RelAI (Opus 5.5) + Lukasz

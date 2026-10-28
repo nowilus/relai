@@ -268,7 +268,7 @@ albo o to pytasz.
 ## Część zależna od narzędzia i modelu
 
 Nazw modeli **nie ma w tym pliku**. Reguły zależne od modelu mieszkają w **nakładkach rodzin**
-obok: `rodziny/<rodzina>.md` (w projekcie `.claude/relai/prompt/rodziny/`). Każda reguła nakładki
+obok: `rodziny/nakladka-<rodzina>.md` (w projekcie `.claude/relai/prompt/rodziny/`). Każda reguła nakładki
 ma źródło dostawcy i datę odczytu.
 
 **Kiedy otwierasz nakładkę:** gdy znasz **model docelowy** — model, który wykona przerobiony

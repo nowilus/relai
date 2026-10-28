@@ -94,3 +94,59 @@ test('startCostReport names what the sum is made of', () => {
     fs.rmSync(dir, { recursive: true, force: true });
   }
 });
+
+// KONTEKST_STARTU E1: "Zaproponuj rotacje" pada tylko wtedy, gdy rotacja cos zdejmie z warstwy
+// startowej. Ten sam projekt w dwoch wariantach: same ryzyka OTWARTE (czesc rotowalna 0)
+// i jedno ryzyko ZAMKNIETE (czesc rotowalna > 0). Sekcja ryzyk ponad progiem w obu.
+const USTAWIENIA_ROTACJA = '# USTAWIENIA\n\nWersja RelAI: 3.6.0 · zainicjowano: 2026-10-28\n\n'
+  + '| Data | Czego dotyczy | Decyzja |\n|---|---|---|\n'
+  + '| 2026-10-28 | Budżet startu sesji | włączony · start 1 KB · ryzyka 1 KB |\n'
+  + '| 2026-10-28 | Rotacja dokumentów | włączona |\n';
+
+function dziennikRyzyk(statusDrugiego) {
+  const wiersz = (nr, status) => '| ' + nr + ' | ' + 'ryzyko '.repeat(40) + '| Niski | ' + status
+    + ' | ' + 'mitygacja '.repeat(30) + '|\n';
+  return '# DZIENNIK — Projekt\n\n## Stan otwartych ryzyk\n\n'
+    + '| # | Ryzyko | Poziom | Status | Mitygacja |\n|---|---|---|---|---|\n'
+    + wiersz('R1', 'OTWARTE') + wiersz('R2', statusDrugiego) + wiersz('R3', 'OTWARTE')
+    + '\n## Wpisy\n\n### 2026-10-28 — Wpis\n\nTresc.\n';
+}
+
+function projektRotacji(statusDrugiego) {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'relai-start-cost-rot-'));
+  fs.mkdirSync(path.join(dir, 'docs'));
+  fs.writeFileSync(path.join(dir, 'docs', 'USTAWIENIA.md'), USTAWIENIA_ROTACJA);
+  fs.writeFileSync(path.join(dir, 'CLAUDE.md'), '# Projekt\n\nAktywny plan: brak\n');
+  fs.writeFileSync(path.join(dir, 'docs', 'DZIENNIK.md'), dziennikRyzyk(statusDrugiego));
+  return dir;
+}
+
+test('startCostReport proposes rotation only when rotation would remove something', () => {
+  const zero = projektRotacji('OTWARTE');
+  const wiecej = projektRotacji('ZAMKNIĘTE 2026-10-28');
+  try {
+    const mZero = core.startCost(zero, {});
+    const mWiecej = core.startCost(wiecej, {});
+    // Oba warianty przekraczaja budzet — roznica jest wylacznie w czesci rotowalnej.
+    assert.ok(mZero.przekroczonaSuma && mWiecej.przekroczonaSuma, 'fixtura nie przekracza budzetu');
+    assert.equal(mZero.rotowalneBajty, 0);
+    assert.ok(mWiecej.rotowalne.ryzyka > 0, 'zamkniete ryzyko nie liczy sie jako rotowalne');
+
+    const rZero = core.startCostReport(mZero).join('\n');
+    const rWiecej = core.startCostReport(mWiecej).join('\n');
+    // Dowod negatywny: przy czesci rotowalnej 0 nie ma propozycji, jest zdanie, ze nic nie zdejmie.
+    assert.ok(!/Zaproponuj rotacj/.test(rZero), 'propozycja przy czesci rotowalnej 0: ' + rZero);
+    assert.match(rZero, /Rotacja nic tu nie zdejmie/);
+    // Kontrola pozytywna w tym samym przebiegu.
+    assert.match(rWiecej, /Zaproponuj rotacje dziennika/);
+    assert.match(rWiecej, /ryzyka ZAMKNIETE/);
+
+    // Aneks A: linia progow dokumentow nie proponuje rotacji ryzyk, gdy zadne nie jest zamkniete.
+    assert.match(rZero, /zamykanie ryzyk \(zadne nie jest ZAMKNIETE/);
+    assert.ok(!/rotacja ryzyk ZAMKNIETYCH/.test(rZero), 'pusta rotacja ryzyk: ' + rZero);
+    assert.match(rWiecej, /rotacja ryzyk ZAMKNIETYCH do archiwum/);
+    assert.ok(!/[ąćęłńóśźżĄĆĘŁŃÓŚŹŻ]/.test(rZero + rWiecej), 'raport ma byc w ASCII (L-0016)');
+  } finally {
+    for (const d of [zero, wiecej]) fs.rmSync(d, { recursive: true, force: true });
+  }
+});

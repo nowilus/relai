@@ -151,7 +151,7 @@ docelowy może pracować w innym narzędziu niż ta sesja. Dopasowanie po nazwie
 listach rozstrzyga lista tego narzędzia (nazwa ze zdania hooka startu). **Rodzinę bierzesz z pola
 `family` znalezionej pozycji**, nigdy z nazwy — ten sam alias u innego dostawcy wskazuje inny model.
 
-**Nakładka** to `rodziny/<family>.md`, szukana w tej kolejności: `.claude/relai/prompt/rodziny/`,
+**Nakładka** to `rodziny/nakladka-<family>.md`, szukana w tej kolejności: `.claude/relai/prompt/rodziny/`,
 potem `core/prompt/rodziny/` (sesja w repozytorium RelAI).
 
 | Co zastajesz | Co robisz |

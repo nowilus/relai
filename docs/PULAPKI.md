@@ -20,7 +20,12 @@ Specyfikacja: `SPEC_PULAPKI.md`.
   o wielkości liter (odczyt https://code.claude.com/docs/en/memory, 2026-10-28).
 - **Obejście:** pliki o nazwie `claude.md` nie mogą stać w katalogach, które model czyta. Dotyczy
   kopii nakładek, którą `provisionPrompt` (`session-signals.js`) robi w każdym projekcie
-  użytkownika. Naprawa (zmiana nazwy) jest w planie KONTEKST_STARTU.
+  użytkownika. **Naprawione w repo 2026-10-28 (KONTEKST_STARTU E1, niewydane):** nakładki noszą
+  nazwy `rodziny/nakladka-claude.md` i `rodziny/nakladka-openai.md`, a `provisionPrompt` kasuje
+  w projekcie stare kopie `claude.md` i `openai.md`. Zmierzone w dwóch sesjach `claude -p`:
+  odczyt `rodziny/openai.md` na zainstalowanym 3.6.0 wstrzyknął `nested_memory`
+  `…\rodziny\CLAUDE.md` (7 151 B), odczyt `rodziny/nakladka-openai.md` z `--plugin-dir`
+  repozytorium — zero wstrzyknięć. Projekty na 3.6.0 mają starą kopię do następnego wydania.
 - **Zasięg:** Claude Code na systemie plików bez rozróżniania wielkości liter; na macOS
   niezmierzone. Źródło: [ANALIZA KONTEKST_STARTU](plany/KONTEKST_STARTU/ANALIZA.md), §3.2.
 

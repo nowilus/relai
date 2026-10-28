@@ -229,13 +229,26 @@ function markCommonJs(destRoot) {
 // odswieza ja w projekcie), wiec nadpisanie zjadloby odswiezenie. Do .claude/relai/prompt/
 // nie pisze nikt poza tym miejscem, a poprawka regul ma dotrzec do projektu przy pierwszym
 // starcie po `plugin update`, bez kasowania kopii recznie.
+//
+// Nakladki rodzin nosza nazwe rodziny/nakladka-<family>.md (KONTEKST_STARTU E1, P-061): plik
+// rodziny/claude.md na systemie plikow bez rozrozniania wielkosci liter harness wczytywal jako
+// zagniezdzony CLAUDE.md przy kazdym odczycie pliku z tego katalogu. Kopia sprzed zmiany nazwy
+// zostalaby w projekcie na zawsze (copyTree tylko dopisuje), wiec kasujemy ja tutaj.
+const STARE_NAKLADKI = ['claude.md', 'openai.md'];
+
 function provisionPrompt(destRoot, opcje) {
   const o = opcje || {};
   const src = o.corePrompt || path.resolve(__dirname, '..', 'prompt');
   if (!fs.existsSync(src)) return 0;
   const dest = path.join(destRoot, 'prompt');
   try { fs.mkdirSync(dest, { recursive: true }); } catch (_) { return 0; }
-  return copyTree(src, dest);
+  const n = copyTree(src, dest);
+  for (const nazwa of STARE_NAKLADKI) {
+    // Tylko gdy zrodlo juz nie niesie tej nazwy — inaczej skasowalibysmy swiezo skopiowany plik.
+    if (fs.existsSync(path.join(src, 'rodziny', nazwa))) continue;
+    try { fs.rmSync(path.join(dest, 'rodziny', nazwa), { force: true }); } catch (_) { /* cisza */ }
+  }
+  return n;
 }
 
 // Baza regul humanizacji (E1 planu HUMANIZACJA) — ta sama droga i ten sam powod co provisionPrompt:
@@ -604,6 +617,12 @@ function planyZEtapemWToku(cwd) {
 // trafienia wyciszalo siatke D-34 i detektor rozjazdu w calym repozytorium — sygnal
 // milczal nie dlatego, ze bylo zgodnie, tylko dlatego, ze nie mial czego porownac
 // (poprawka 1.6.0, L-0047). Wygrywa linia, ktora NIESIE link do STATUS.md.
+//
+// Wartosc linii zaczynajaca sie od "brak" / "none" znaczy "brak aktywnego planu" takze wtedy,
+// gdy dalej w tej samej linii stoi link do STATUS.md innego planu (np. wpis o planie
+// wstrzymanym). Bez tego wstrzymany plan liczyl sie jak aktywny (KONTEKST_STARTU E1).
+const WARTOSC_BRAK = /(?:Aktywny plan|Active plan)[*_]*\s*:[*_\s]*(?:brak|none)\b/i;
+
 function liniaAktywnegoPlanu(cwd) {
   const txt = czytaj(path.join(cwd, 'CLAUDE.md'));
   if (!txt) return null;
@@ -614,6 +633,7 @@ function liniaAktywnegoPlanu(cwd) {
     if (linie.some((l) => /:\s*brak|:\s*none/i.test(l))) return { brak: true, pusta: false, link: null };
     return { brak: false, pusta: false, link: null };
   }
+  if (WARTOSC_BRAK.test(zLinkiem)) return { brak: true, pusta: false, link: null };
   const m = zLinkiem.match(/\]\(([^)]+)\)/);
   return { brak: false, pusta: false, link: m ? m[1] : null };
 }
@@ -1135,6 +1155,31 @@ function wierszeStanuPrac(txt) {
   return Math.max(0, koniec - start - 2);
 }
 
+// Czesc rotowalna warstwy startowej (KONTEKST_STARTU E1): bajty, ktore rotacja naprawde zdejmie
+// z pozycji liczonych w budzecie. Rotacja dziennika nie rusza ostatniego wpisu ani "Czeka na
+// czlowieka", a "Zasady aktywne" sa nierotowalne — zostaja wiersze ryzyk ZAMKNIETYCH (ten sam
+// plan co rotate.js, zeby liczba nie rozjechala sie z narzedziem) i wiersze "Ustawien wycofanych".
+// Z progiem (w bajtach) liczy sie tylko to, co rotacja ruszy: ponizej progu nie robi nic.
+function rotowalneRyzyka(txtDziennika, progBajtow) {
+  try {
+    const plan = require('../tools/rotate.js').planuj('ryzyka', txtDziennika, {});
+    if (!plan || !plan.wagi) return 0;
+    if (typeof progBajtow === 'number' && plan.wagi.calkowita <= progBajtow) return 0;
+    return plan.wagi.rotowalna;
+  } catch (_) {
+    return 0;
+  }
+}
+
+function rotowalneUstawienia(txtUstawien, progBajtow) {
+  const lf = String(txtUstawien).replace(/\r\n/g, '\n');
+  if (typeof progBajtow === 'number' && bajty(lf) <= progBajtow) return 0;
+  const wycofane = wytnijSekcje(lf, NAGLOWEK_WYCOFANE);
+  if (wycofane === null) return 0;
+  const tabela = wycofane.split('\n').filter((l) => l.trim().startsWith('|'));
+  return tabela.slice(2).reduce((s, l) => s + bajty(l) + 1, 0);
+}
+
 // Dokumenty i sekcje ponad WLASNYM progiem — inny fakt niz suma warstwy startowej.
 // Kazda pozycja niesie nazwe procedury, ktora ja odchudza: pozycja bez procedury nie wchodzi
 // do listy, bo raport bez procedury tylko marudzi (ryzyko 3 planu HIGIENA_DOKUMENTOW).
@@ -1161,10 +1206,14 @@ function dokumentyPonadProgiem(cwd, txtUstawien, progRyzyk, progUstawien) {
         bajtyLF(txt), progi.dziennik * KB, 'KB', 'rotacja dziennika');
       // Sekcja ryzyk ma prog CZASTKOWY budzetu (SPEC_ARCHIWUM.md) — mierzona sama,
       // bez sekcji "Czeka na czlowieka" i bez ostatniego wpisu, bo to jej rotacja odchudza.
+      // Bez ani jednego ryzyka ZAMKNIETEGO rotacja nic nie zdejmie — procedura to wtedy
+      // zamykanie ryzyk, nie rotacja (Aneks A planu KONTEKST_STARTU, E1).
       const ryzyka = wytnijSekcje(txt, NAGLOWEK_RYZYK);
       if (ryzyka !== null && typeof progRyzyk === 'number') {
         dodaj('sekcja "Stan otwartych ryzyk"', bajtyLF(ryzyka), progRyzyk, 'KB',
-          'rotacja ryzyk ZAMKNIETYCH do archiwum');
+          rotowalneRyzyka(txt) > 0
+            ? 'rotacja ryzyk ZAMKNIETYCH do archiwum'
+            : 'zamykanie ryzyk (zadne nie jest ZAMKNIETE, wiec rotacja nic nie zdejmie)');
       }
     }
 
@@ -1346,10 +1395,18 @@ function startCost(cwd, opcje) {
 
     const suma = pozycje.reduce((s, p) => s + p.bajty, 0);
     const budzet = progi.start * KB;
+    // Ryzyka liczone sa w budzecie tylko wtedy, gdy sekcja istnieje (pozycja 'sekcja').
+    const rotowalne = {
+      ryzyka: dziennik && wytnijSekcje(czytaj(dziennik), NAGLOWEK_RYZYK) !== null
+        ? rotowalneRyzyka(czytaj(dziennik), progi.ryzyka * KB) : 0,
+      ustawienia: rotowalneUstawienia(txtUstawien, progi.ustawienia * KB),
+    };
 
     return {
       wlaczony: true,
       rotacja: przelacznikRotacji(txtUstawien),
+      rotowalne,
+      rotowalneBajty: rotowalne.ryzyka + rotowalne.ustawienia,
       budzet,
       progi,
       pozycje,
@@ -1450,9 +1507,20 @@ function startCostReport(miara, opcje) {
   // Dwa niezalezne wylaczniki (sekcja 8 planu): budzet moze liczyc przy wylaczonej rotacji.
   // Fraza "Zaproponuj rotacje" pada WYLACZNIE przy rotacji wlaczonej — na niej stoi dowod
   // negatywny z punktu weryfikacji E2.
-  if (miara.rotacja === true) {
-    out.push('Zaproponuj rotacje dziennika jako pierwszy krok odchudzania: procedura dwufazowa ' +
+  // KONTEKST_STARTU E1: i WYLACZNIE wtedy, gdy rotacja cos zdejmie z warstwy startowej. Przy
+  // czesci rotowalnej 0 propozycja wracala w kazdej sesji i nic nie dawala.
+  const rotowalne = typeof miara.rotowalneBajty === 'number' ? miara.rotowalneBajty : 0;
+  if (miara.rotacja === true && rotowalne > 0) {
+    const r = miara.rotowalne || {};
+    const co = [r.ryzyka ? 'ryzyka ZAMKNIETE ' + kb(r.ryzyka) : '',
+      r.ustawienia ? 'ustawienia wycofane ' + kb(r.ustawienia) : ''].filter(Boolean).join(', ');
+    out.push('Zaproponuj rotacje dziennika jako pierwszy krok odchudzania (zdejmie z warstwy ' +
+      'startowej ' + kb(rotowalne) + ': ' + co + '): procedura dwufazowa ' +
       'z SPEC_ARCHIWUM.md, wejscie 2 (start sesji).');
+  } else if (miara.rotacja === true) {
+    out.push('Rotacja nic tu nie zdejmie: w warstwie startowej nie ma ryzyk ZAMKNIETYCH ani ' +
+      'ustawien wycofanych. Warstwe startowa odchudza zamykanie ryzyk i zwiezlejsze sekcje ' +
+      'czytane na starcie (STATE, "Zasady aktywne") — bez propozycji rotacji.');
   } else {
     out.push('Rotacja dokumentow jest wylaczona albo nieustawiona (wiersz "Rotacja dokumentow" ' +
       'w docs/USTAWIENIA.md) — sam raport, bez rotowania.');

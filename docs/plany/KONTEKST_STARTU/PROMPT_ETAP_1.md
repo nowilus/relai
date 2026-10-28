@@ -340,30 +340,30 @@ repozytorium), wpisujesz do wpisu dziennika **z nazwy**, a jego nazwę zaczynasz
 Każdy punkt Weryfikacji, który przeszedł, odhaczasz w `PROMPT_ETAP_1.md` (`- [ ]` → `- [x]`)
 zaraz po jego sprawdzeniu, nie na końcu etapu; punkt, który nie przeszedł, zostaje pusty.
 
-- [ ] `node --test core/process/tests/*.test.js` i `node --test core/panel/tests/*.test.js` bez
+- [x] `node --test core/process/tests/*.test.js` i `node --test core/panel/tests/*.test.js` bez
       błędów; `node core/tools/validate-adapters.js` zielony.
-- [ ] **Obie wersje w jednym przebiegu (zasada 4):** nowe testy z punktów 1–3 uruchomione na kodzie
+- [x] **Obie wersje w jednym przebiegu (zasada 4):** nowe testy z punktów 1–3 uruchomione na kodzie
       z HEAD sprzed etapu (worktree w katalogu roboczym) padają, na zmianie przechodzą — liczby
       fail/pass do wpisu.
-- [ ] Parser: fixture z linią „Aktywny plan: brak. [PANEL_CODEX](docs/plany/PANEL_CODEX/STATUS.md) …”
+- [x] Parser: fixture z linią „Aktywny plan: brak. [PANEL_CODEX](docs/plany/PANEL_CODEX/STATUS.md) …”
       → sygnały startu nie wymieniają STATUS-u PANEL_CODEX; ta sama fixture bez słowa „brak” →
       wymieniają (kontrola pozytywna).
-- [ ] Rotacja: w raporcie startu przy części rotowalnej 0 nie ma frazy „Zaproponuj rotacje”; przy
+- [x] Rotacja: w raporcie startu przy części rotowalnej 0 nie ma frazy „Zaproponuj rotacje”; przy
       części rotowalnej > 0 jest (dowód negatywny i kontrola pozytywna w jednym przebiegu).
-- [ ] Nakładki: `git ls-files core/prompt/rodziny` → wyłącznie `nakladka-claude.md`
+- [x] Nakładki: `git ls-files core/prompt/rodziny` → wyłącznie `nakladka-claude.md`
       i `nakladka-openai.md`; `grep -rn "rodziny/claude.md\|rodziny/openai.md\|rodziny/<family>.md\|rodziny/<rodzina>.md" core adapters`
       zwraca tylko historię i archiwum; fixture projektu ze starą kopią — po kopiowaniu starej nie ma.
-- [ ] Instrument: na sesjach `730b6571`, `23b3dfc2`, `a9d65f84`, `7be49f27` zwraca dokładnie liczby
+- [x] Instrument: na sesjach `730b6571`, `23b3dfc2`, `a9d65f84`, `7be49f27` zwraca dokładnie liczby
       ze „Stanu wyjściowego”; fixture bez pól `usage` → „brak danych”.
-- [ ] Pomiar „przed” (trzy sesje + świeża `claude -p` z `--plugin-dir`) wpisany do dziennika
+- [x] Pomiar „przed” (trzy sesje + świeża `claude -p` z `--plugin-dir`) wpisany do dziennika
       i do `docs/STATE.md`; w transkrypcie świeżej sesji brak bloku zagnieżdżonego `CLAUDE.md`
       po odczycie pliku z `.claude/relai/prompt/rodziny/`.
-- [ ] Dowód negatywny: `git diff --stat` od początku etapu nie pokazuje zmian w
+- [x] Dowód negatywny: `git diff --stat` od początku etapu nie pokazuje zmian w
       `adapters/claude-code/hooks/prompt-mode*`, `core/process/prompt-mode.js`, `docs/LEKCJE.md`
       (sekcja „Zasady aktywne”) ani w treści nakładek (`git diff -M` pokazuje czystą zmianę nazwy).
-- [ ] Wpis w `docs/DZIENNIK.md` dopisany na końcu sekcji „Wpisy”, z autorem; `docs/STATE.md`
+- [x] Wpis w `docs/DZIENNIK.md` dopisany na końcu sekcji „Wpisy”, z autorem; `docs/STATE.md`
       zaktualizowany.
-- [ ] Katalog roboczy `.claude/relai/work/KONTEKST_STARTU/E1/` przejrzany raportem
+- [x] Katalog roboczy `.claude/relai/work/KONTEKST_STARTU/E1/` przejrzany raportem
       (`node .claude/relai/tools/clean-work.js raport`) i skasowany po „tak”; liczby przed i po
       w sekcji „Zweryfikowane” wpisu. Artefakty poza tym katalogiem (worktree „przed” w `%TEMP%`,
       jeśli tam powstał, transkrypty sesji `claude -p`) wypisane z nazwy razem z tym, co się

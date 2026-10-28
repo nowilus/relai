@@ -7,7 +7,7 @@ portowana z `nidhinjs/prompt-master` (MIT, © 2026 Nidhin Joseph Nelson); nota �
 pliku „na wszelki wypadek" — baza reguł ma zostać tania w każdym wywołaniu (ryzyko O8).
 
 **Rusztowania są neutralne wobec modelu.** Nagłówki tekstowe niżej to treść sekcji, nie ich
-opakowanie: nakładka rodziny modelu docelowego (`rodziny/<rodzina>.md`) mówi, czy sekcje idą
+opakowanie: nakładka rodziny modelu docelowego (`rodziny/nakladka-<rodzina>.md`) mówi, czy sekcje idą
 w tagach, gdzie stoi materiał i jak brzmi raport z pracy. Bez nakładki zostaje postać z tego pliku.
 
 ## Jak rozpoznać kształt

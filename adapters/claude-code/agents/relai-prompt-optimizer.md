@@ -52,7 +52,7 @@ Model docelowy: <name from the list> · family: <family> · nakładka: <path>
 ```
 
 It names the model that will **execute** the rewritten prompt — not you. Open the overlay at that
-path (`.claude/relai/prompt/rodziny/<family>.md` first, then `core/prompt/rodziny/<family>.md`) and
+path (`.claude/relai/prompt/rodziny/nakladka-<family>.md` first, then `core/prompt/rodziny/nakladka-<family>.md`) and
 apply its rules next to the core: the core says **what** the prompt must contain, the overlay says
 **how** to say it to that model (section wrapping, where the material stands, what kind of progress
 report to ask for). A rule scoped to a model name applies only when the target's name matches it

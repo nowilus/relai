@@ -132,3 +132,34 @@ test('provisionModelList fills family in an existing copy and never overwrites n
   assert.equal(wynik.uzupelnione, 1);
   assert.equal(wynik.data, '2026-09-04', 'the copy keeps its own date, not the plugin one');
 });
+
+// KONTEKST_STARTU E1 (P-061): nakladki nosza nazwe nakladka-<family>.md, bo rodziny/claude.md
+// harness wczytywal jako zagniezdzony CLAUDE.md. Projekt ze stara kopia: po kopiowaniu starych
+// plikow nie ma, nowe sa. Material: prawdziwe core/prompt repozytorium, nie atrapa.
+test('provisionPrompt removes the old overlay copies and lays down the new names', () => {
+  const cwd = tmp('relai-e1-overlay-rename-');
+  const destRoot = path.join(cwd, '.claude', 'relai');
+  const rodziny = path.join(destRoot, 'prompt', 'rodziny');
+  fs.mkdirSync(rodziny, { recursive: true });
+  fs.writeFileSync(path.join(rodziny, 'claude.md'), '# stara kopia\n');
+  fs.writeFileSync(path.join(rodziny, 'openai.md'), '# stara kopia\n');
+  // Kontrola pozytywna stanu wyjsciowego: stare kopie naprawde sa.
+  assert.deepEqual(fs.readdirSync(rodziny).sort(), ['claude.md', 'openai.md']);
+
+  const n = core.provisionPrompt(destRoot);
+  assert.ok(n > 0, 'nothing copied');
+  assert.deepEqual(fs.readdirSync(rodziny).sort(), ['nakladka-claude.md', 'nakladka-openai.md']);
+  const zrodlo = path.resolve(__dirname, '..', '..', 'prompt', 'rodziny', 'nakladka-claude.md');
+  assert.equal(fs.readFileSync(path.join(rodziny, 'nakladka-claude.md'), 'utf8'),
+    fs.readFileSync(zrodlo, 'utf8'));
+});
+
+test('provisionPrompt keeps a file named claude.md when the source still carries it', () => {
+  const cwd = tmp('relai-e1-overlay-keep-');
+  const src = path.join(cwd, 'zrodlo');
+  fs.mkdirSync(path.join(src, 'rodziny'), { recursive: true });
+  fs.writeFileSync(path.join(src, 'rodziny', 'claude.md'), '# ze zrodla\n');
+  const destRoot = path.join(cwd, 'cel');
+  core.provisionPrompt(destRoot, { corePrompt: src });
+  assert.equal(fs.readFileSync(path.join(destRoot, 'prompt', 'rodziny', 'claude.md'), 'utf8'), '# ze zrodla\n');
+});

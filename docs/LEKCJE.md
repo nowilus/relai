@@ -620,6 +620,37 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
   kształt zależy od tego stanu (lista pluginów, zakresy). Pomiar „przed” nie wystarcza dla
   polecenia, które człowiek uruchomi też „po”.
 
+### L-0293 — Powtórka L-0290: test z napisami `\n` dopisany heredokiem · 2026-10-28 · AKTYWNA
+
+- **Trigger:** KONTEKST_STARTU E1. Test parsera „Aktywny plan” dopisałem do
+  `session-signals.test.js` przez `cat >> … <<'EOF'`, a jego fixtury niosą napisy z `\n`.
+  Heredok z cudzysłowem zachował bajty i test przeszedł, ale reguła z zasady 5 zakazuje tej drogi
+  bez wyjątku („przeszło testy” nie zwalnia). Dwa kolejne testy etapu poszły już przez Edit i Write.
+- **Zasada:** bez zmian względem zasady 5. Dopisanie testu na końcu pliku to też edycja kodu
+  z napisem `\n`: Edit z kotwicą na ostatnim teście albo Write całego nowego pliku.
+
+### L-0294 — Zainstalowany plugin odtwarza stan, który naprawia kod z repo · 2026-10-28 · AKTYWNA
+
+- **Trigger:** KONTEKST_STARTU E1. Sesja B z `--plugin-dir` skasowała w projekcie stare kopie
+  `rodziny/claude.md` i `openai.md`. Potem w sesji etapu wczytałem skill `relai-planning`
+  z zainstalowanego 3.6.0, a jego hook po wywołaniu skilla skopiował obie stare kopie z powrotem.
+  Stan katalogu przeczył pomiarowi sprzed kilku minut.
+- **Zasada:** sprzątanie, które robi kod z repo, odtworzy każdy hook zainstalowanej wersji
+  w tej samej maszynie. Stan pliku po naprawie mierzysz w sesji z wyłączoną instalacją
+  (`--settings` z `enabledPlugins: false`), a w dokumentach piszesz, że do wydania stara
+  kopia wraca przy każdym starcie i każdym wywołaniu skilla.
+
+### L-0295 — Liczba z analizy sprawdzona instrumentem ujawniła definicję, której prompt nie podał · 2026-10-28 · AKTYWNA
+
+- **Trigger:** KONTEKST_STARTU E1. Prompt definiował rozmiar kontekstu jako sumę trzech pól
+  wejścia. Pierwsze wywołanie zgadzało się co do tokena, koniec tury nie (120 021 zamiast
+  122 268). Liczby ANALIZY to wejście ostatniego wywołania **plus jego `output_tokens`**.
+  Zgodność na czterech sesjach dała dopiero ta definicja.
+- **Zasada:** kontrola pozytywna instrumentu na liczbach z dokumentu sprawdza też definicję. Gdy
+  liczba nie wychodzi, najpierw szukasz składnika, który dokument dodał po cichu (sonda: wszystkie
+  pola na wywołanie), zanim uznasz liczbę albo kod za błędne. Definicję zapisujesz w nagłówku
+  narzędzia razem ze źródłem liczb.
+
 ## Lekcje zwinięte
 
 Pełne wpisy lekcji, których zasady żyją w destylacie „Zasady aktywne" (kompresja 2026-08-20).

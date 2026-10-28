@@ -38,13 +38,13 @@
     },
     {
       "id": "prompt-rodzina-claude",
-      "file": "./prompt/rodziny/claude.md",
+      "file": "./prompt/rodziny/nakladka-claude.md",
       "kind": "nakladka rodziny",
       "description": "Reguly optymalizatora dla modelu docelowego z family: claude na liscie narzedzia — tagi XML, material przed zadaniem, raport z pracy per model. Kazda regula ze zrodlem dostawcy i data odczytu; overlay-date czyta hook startu."
     },
     {
       "id": "prompt-rodzina-openai",
-      "file": "./prompt/rodziny/openai.md",
+      "file": "./prompt/rodziny/nakladka-openai.md",
       "kind": "nakladka rodziny",
       "description": "Reguly optymalizatora dla modelu docelowego z family: openai — cel i kontrakt wyjscia bez krokow, zacheta do dzialania, pierwszenstwo polecenia nad skillem. Bez nazw modeli do odswiezenia listy Codeksa."
     }

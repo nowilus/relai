@@ -32,13 +32,19 @@ z `docs/USTAWIENIA.md`. Poniżej progu nie dzieje się nic i nie pada ani jedno 
 archiwum też wtedy nie powstaje. Rotacja nie jest osobną komendą i nie przypomina o swoim
 istnieniu.
 
-**Wejście 2 — start sesji**, gdy spełnione są **wszystkie trzy** warunki:
+**Wejście 2 — start sesji**, gdy spełnione są **wszystkie cztery** warunki:
 
 1. pomiar warstwy startowej pokazał **przekroczenie budżetu** (wiersz `Budżet startu sesji`
    w `docs/USTAWIENIA.md`, mechanizm z `SPEC_USTAWIENIA.md`),
 2. **rotacja jest włączona** (wiersz `Rotacja dokumentów` — to dwa niezależne wyłączniki i mają
    pozostać niezależne),
-3. sesja jest **interaktywna**.
+3. sesja jest **interaktywna**,
+4. rotacja **coś zdejmie z warstwy startowej** — część rotowalna pozycji liczonych w budżecie
+   (wiersze ryzyk `ZAMKNIĘTE` w sekcji ponad progiem, wiersze „Ustawień wycofanych” w pliku
+   ustawień ponad progiem) jest większa od zera. Rotacja dziennika nie rusza ostatniego wpisu ani
+   sekcji „Czeka na człowieka”, a „Zasady aktywne” są nierotowalne. Przy części rotowalnej 0
+   propozycja nie pada — raport mówi jednym zdaniem, że rotacja nic nie zdejmie, a warstwę
+   startową odchudza zamykanie ryzyk i zwięźlejsze sekcje czytane na starcie.
 
 Powód drugiego wejścia jest arytmetyczny: przy zamknięciu sesji kontekst jest już wykupiony,
 a przy starcie rotacja jeszcze coś oszczędza. Wejście pierwsze **zostaje bez zmian** — projekt
