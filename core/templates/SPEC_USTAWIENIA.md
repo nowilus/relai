@@ -182,14 +182,19 @@ jedynym źródłem prawdy o wartościach domyślnych.
 
 ## Wiersz `Budżet startu sesji` (od 1.6.0)
 
-Rytuał startu sesji czyta sześć stałych pozycji: `CLAUDE.md`, `docs/STATE.md`, sekcję „Stan
-otwartych ryzyk" **plus ostatni wpis** dziennika, sekcję „Zasady aktywne" rejestru lekcji, ten plik
-oraz `STATUS.md` aktywnego planu. **Od E2 planu PROWADZENIE_END_TO_END suma liczy też dwie rzeczy,
-które start realnie płaci:** skill wymuszany przez adapter na pierwszym prompcie (w Claude Code
-`relai-core`; ścieżkę podaje adapter) oraz każdy plik linkowany z **numerowanej listy** sekcji
-„Rytuał startu sesji" w `CLAUDE.md` projektu, którego sześć stałych pozycji jeszcze nie mierzy.
-Te dwie pozycje nie mają progów cząstkowych — raport wymienia je w linii „W sumie", która mówi, co
-suma zawiera. Ten wiersz mówi, ile to wszystko **wolno**, żeby ważyło, i jest **wyłącznikiem**
+**Od E2 planu KONTEKST_STARTU rytuał startu nie czyta plików, tylko wyjście skrótu startu**
+(`node .claude/relai/tools/start-digest.js`), i budżet liczy właśnie to wyjście. Pozycje sumy:
+`CLAUDE.md` (ładuje go harness) oraz części skrótu pod nazwami progów cząstkowych — `STATE` (cztery
+sekcje `STATE.md`), `ryzyka` (tabela ryzyk bez kolumny „Mitygacja”, sekcja „Czeka na człowieka”
+tylko przy sprawie przeterminowanej, ostatni wpis dziennika), `ustawienia` (aktywne wiersze tego
+pliku), `status` (`STATUS.md` aktywnego planu; brak planu = brak pozycji) i `zasady` („Zasady
+aktywne”) — plus `skrot` (ramka i drogowskazy, bez progu). Do E2 suma liczyła całe pliki rytuału.
+**Od E2 planu PROWADZENIE_END_TO_END suma liczy też dwie rzeczy, które start realnie płaci:** skill
+wymuszany przez adapter na pierwszym prompcie (w Claude Code `relai-core`; ścieżkę podaje adapter)
+oraz każdy plik linkowany z **numerowanej listy** sekcji „Rytuał startu sesji" w `CLAUDE.md`
+projektu, którego skrót nie streszcza (projekt, który dopisał listę obok polecenia). Te dwie
+pozycje nie mają progów cząstkowych — raport wymienia je w linii „W sumie", która mówi, co suma
+zawiera. Ten wiersz mówi, ile to wszystko **wolno**, żeby ważyło, i jest **wyłącznikiem**
 pomiaru. Powstaje przy inicjalizacji projektu oraz przy `/relai-update` projektu
 z wcześniejszej wersji.
 
@@ -772,11 +777,11 @@ zmienić — osobny plik byłby drugim miejscem do zapomnienia.
 
 | Próg | Domyślnie | Gdzie mieszka wartość | Kto go czyta | Po przekroczeniu | Adres egzekwowania |
 |---|---|---|---|---|---|
-| suma warstwy startowej | 100 KB (skill i pliki rytuału w sumie) | wiersz `Budżet startu sesji` (ta specyfikacja) | hook startu sesji (`startCost`) | raport `[RelAI budzet startu]`, najwyżej sześć linii | **jest** — hook startu |
+| suma warstwy startowej | 100 KB (`CLAUDE.md`, wyjście skrótu startu, skill i pliki dopisane do rytuału w sumie) | wiersz `Budżet startu sesji` (ta specyfikacja) | hook startu sesji (`startCost`) | raport `[RelAI budzet startu]`, najwyżej sześć linii | **jest** — hook startu |
 | `CLAUDE.md` | 10 KB | wiersz `Budżet startu sesji`; ten sam limit opisuje `SPEC_CLAUDE_MD.md` | hook startu sesji | wymieniony w raporcie jako pozycja ponad progiem cząstkowym | **jest** — hook startu (tylko wewnątrz raportu) |
 | tabela „Stan prac” w `CLAUDE.md` — liczba wierszy | 5 wierszy | `SPEC_CLAUDE_MD.md` (bez strojenia) | hook startu sesji (`dokumentyPonadProgiem`, przy włączonej rotacji) | wiersze planów zamkniętych do `STATE.md`; linia `[RelAI progi dokumentow]` | **jest** — raport startu; regułę niosą rytuał „Na koniec” i zamknięcie planu |
-| `docs/STATE.md` — waga | 12 KB | wiersz `Budżet startu sesji` | hook startu sesji | jw. | **jest** — hook startu (tylko wewnątrz raportu) |
-| sekcja „Stan otwartych ryzyk" + „Czeka na człowieka" + ostatni wpis | 12 KB | wiersz `Budżet startu sesji` (człon `ryzyka`) | hook startu sesji | jw. | **jest** — hook startu (tylko wewnątrz raportu) |
+| `docs/STATE.md` — waga części skrótu startu (cztery sekcje) | 12 KB | wiersz `Budżet startu sesji` | hook startu sesji | jw. | **jest** — hook startu (tylko wewnątrz raportu) |
+| część `ryzyka` skrótu startu: tabela ryzyk bez „Mitygacji” + „Czeka na człowieka” (tylko przy sprawie przeterminowanej) + ostatni wpis | 12 KB | wiersz `Budżet startu sesji` (człon `ryzyka`) | hook startu sesji | jw. | **jest** — hook startu (tylko wewnątrz raportu) |
 | sekcja „Zasady aktywne" — waga | 30 KB | wiersz `Budżet startu sesji` (człon `zasady`) | hook startu sesji | jw. | **jest** — hook startu (tylko wewnątrz raportu) |
 | `docs/USTAWIENIA.md` | 6 KB | wiersz `Budżet startu sesji` | hook startu sesji **+ rotacja ustawień** (od 1.7.0) | jw.; dodatkowo wiersze sekcji „Ustawienia wycofane" → `docs/archiwum/ustawienia/`; linia `[RelAI progi dokumentow]` | **jest** — rytuał zamknięcia (krok 2) i raport startu |
 | `STATUS.md` aktywnego planu | 10 KB | wiersz `Budżet startu sesji` | hook startu sesji | jw. | **jest** — hook startu (tylko wewnątrz raportu) |

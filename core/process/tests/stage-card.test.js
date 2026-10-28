@@ -32,7 +32,8 @@ for (const plik of KOPIE) {
     const t = krok4(plik);
     assert.match(t, /\*\*Gdzie jesteśmy\*\*/);
     assert.match(t, /nie padł jeszcze akapit „gdzie jesteśmy”/);
-    assert.match(t, /sekcję „Stan otwartych ryzyk” i ostatni wpis `docs\/DZIENNIK\.md`/);
+    // KONTEKST_STARTU E2, Aneks B: rytual karty to skrot startu, nie lista plikow.
+    assert.match(t, /uruchamiasz\s+`node \.claude\/relai\/tools\/start-digest\.js` \(skrót startu\)/);
   });
 
   test(nazwa + ': the card shows the stage table with statuses', () => {

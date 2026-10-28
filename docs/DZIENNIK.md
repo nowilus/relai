@@ -1391,3 +1391,118 @@ identyfikatorem pliku.
 **Do zrobienia przez człowieka:** —
 
 Autor: RelAI (Opus 5.5) + Lukasz
+
+### 2026-10-28 — KONTEKST_STARTU E2: skrót startu jednym poleceniem
+
+Etap wg [PROMPT_ETAP_2.md](plany/KONTEKST_STARTU/PROMPT_ETAP_2.md), sesja Opus 5.5, HEAD `b5b843b`.
+W trakcie Łukasz przyjął **Aneks B** ([STATUS.md](plany/KONTEKST_STARTU/STATUS.md)): dwie kopie
+rytuału spoza listy promptu — Krok 4 `/relai-stage` i `SPEC_KOMENDY.md` — weszły do zakresu.
+
+**Zrobione:**
+
+- `core/process/start-digest.js` (`node .claude/relai/tools/start-digest.js [katalog]`): z `STATE.md`
+  „Gdzie jesteśmy”, „Nad czym pracujemy teraz”, „Co blokuje”, pierwszy punkt „Co dalej”; tabela
+  ryzyk bez „Mitygacji” (separator bez ucieczki, wiersze tabel bez własnego nagłówka też);
+  „Czeka na człowieka” tylko przy sprawie przeterminowanej (ta sama miara co hook); ostatni wpis;
+  aktywne wiersze `USTAWIENIA.md`; `STATUS.md` planu z parsera E1; „Zasady aktywne” w pełnym
+  brzmieniu; drogowskazy. Nagłówki z tolerancją `## 2.` i `**…**`, CRLF, „brak sekcji …” /
+  „brak pliku …”, kod wyjścia 0. Do projektu przez `NARZEDZIA` razem z `session-signals.js`
+  (ten sam `require('./session-signals.js')` w repo i w projekcie); `POLECENIE_SKROTU` w rdzeniu.
+- Jedno polecenie rytuału w 11 kopiach: `CLAUDE.md`, `AGENTS.md`, hooki `session-context` trzech
+  adapterów, `SKILL.md` `relai-core` (Codex z generatora), `relai-core.mdc`, `SPEC_CLAUDE_MD.md`,
+  oraz z Aneksu B `relai-stage.md` (+ skill Codeksa) i `SPEC_KOMENDY.md`. Drogowskazy hooka do
+  `debugging.md`, `first-deploy.md`, `done-check.md` zostały.
+- Hook Claude Code po kompakcji (`source: compact`) przypomina polecenie i nie każe czytać od nowa;
+  „kontynuujemy pracę” w `SKILL.md` i regule Cursora uruchamia skrót ponownie.
+- Budżet startu: `startCost` liczy `CLAUDE.md` + części skrótu pod nazwami progów cząstkowych
+  (`STATE`, `ryzyka`, `ustawienia`, `status` — tylko przy aktywnym planie, `zasady`) + `skrot`
+  (ramka) + skill + pliki dopisane do rytuału. Część rotowalna: wiersze `ZAMKNIĘTE` w kształcie
+  skrótu (bez „Mitygacji”); „Ustawienia wycofane” wypadły, bo skrót ich nie wypisuje.
+  `SPEC_USTAWIENIA` (wiersz budżetu, katalog progów) i `SPEC_ARCHIWUM` (warunek 4 wejścia 2)
+  mówią, co budżet liczy.
+- Testy: nowe `start-digest.test.js` (8) i `ritual-copies.test.js` (3, hooki trzech adapterów
+  uruchamiane na fixturze); `stage-card.test.js` przestawiony na nowe brzmienie Kroku 4.
+- `ARTEFAKTY.md`: `SPEC_ARCHIWUM` 5, `SPEC_CLAUDE_MD` 9, `SPEC_KOMENDY` 13, `SPEC_USTAWIENIA` 17,
+  `/relai-stage` 12, skill `relai-core` 27, reguła Cursora `relai-core` 7. Lekcje L-0296–L-0298.
+
+**Porównanie akapitów „gdzie jesteśmy”** (ryzyko 2): dwie świeże sesje `claude -p "kontynuujemy
+pracę"` na tych samych dokumentach (pliki `docs/` skopiowane do worktree, `cmp` zgodny). A —
+stary rytuał (worktree `b5b843b`, plugin z worktree, sesja `21d9e44a`). B — skrót (repo, plugin
+z repo, sesja `137a0d75`).
+
+| Informacja | A (stary) | B (skrót) | Rozstrzygnięcie |
+|---|---|---|---|
+| RelAI 3.6.0 wydany, trzy narzędzia | jest | jest | — |
+| Aktywny plan, cel 25 tys. tokenów | jest | jest (z „zamiast ~72 tys.”) | — |
+| E1 zamknięty, E2 w toku z niezacommitowaną pracą | jest | jest (+ rozjazd STATE „gotowy” wobec STATUS „W TOKU”) | — |
+| Które punkty Weryfikacji E2 zostały | jest — A weszło do głównego repo i czytało `PROMPT_ETAP_2.md` | brak | poza rytuałem (prompt czyta `/relai-stage`); skrót ma drogowskaz do folderu planu |
+| PANEL_CODEX wstrzymany | brak | jest | — |
+| Co blokuje | brak | „nic nie blokuje” planu | sekcja jest w skrócie; ocena modelu, nie luka |
+| Gotowość wydania (35 plików) | jest | jest | — |
+| Budżet startu 109,3 KB > 100 KB | jest | brak | zmiana zamierzona: budżet liczy skrót, 77,7 KB < 100 KB, raport milczy |
+| Progi ryzyk i lekcji, artefakty, lista modeli | jest | jest | — |
+
+Zero informacji zgubionej bez rozstrzygnięcia. Obie sesje pominęły „Zasady aktywne” — A nie
+otworzyło `LEKCJE.md`, B nie doczytało tej części skrótu (L-0296).
+
+**Pomiar „po E2”** (`node core/tools/start-context.js`, tokeny, pierwsze wywołanie → koniec
+1. tury, `claude -p`, Opus 5.5, instalacja wyłączona `--settings`, w `init` `relai@inline`):
+
+| Sesja | Rytuał | Pierwsze | Koniec 1. tury | Wywołań |
+|---|---|---|---|---|
+| `21d9e44a` | stary (worktree `b5b843b`) | 52 154 | 88 144 | 6 |
+| `137a0d75` | skrót (repo po E2) | 52 492 | 75 848 | 5 |
+
+Różnica: −12 296 tokenów na końcu tury (FAKT, jedna para, bez pomiaru szumu). Dla porządku:
+przed E2 w E1 `claude -p` z `--plugin-dir` mierzyło 53 123 → 55 887, ale tamta sesja nie robiła
+rytuału (pytanie o nakładkę), więc nie jest „przed” dla tej pary. Budżet startu tego repo:
+109,3 KB (raport hooka 3.6.0) → 77,7 KB ze skillem (FAKT, `startCost`).
+
+**Zweryfikowane — jak dokładnie:**
+
+- `node --test core/process/tests/*.test.js` → 340/340 (było 329; +11);
+  `node --test core/panel/tests/*.test.js` → 225/225; `node core/tools/validate-adapters.js` →
+  kod 0 (dwa ostrzeżenia rozmiaru dotyczą `security-audit` i `relai-prompt.md`, sprzed etapu).
+- Obie wersje: nowe testy w worktree `b5b843b` (`core.autocrlf=false`, TAP) → `start-digest`
+  0/1 (moduł nie istnieje), `ritual-copies` 1/2 (przechodzi tylko kontrola pozytywna wzorców),
+  `stage-card` 16/2; na zmianie 8/0, 3/0, 18/0.
+- Skrót na tym repo: kod 0, nagłówki — STATE „Gdzie jesteśmy”, „Nad czym pracujemy teraz”, „Co
+  blokuje”, „Co dalej (pierwszy punkt)”; DZIENNIK „Stan otwartych ryzyk (bez kolumny Mitygacja)”,
+  „ostatni wpis”; USTAWIENIA „wiersze aktywne”; „Aktywny plan - …/KONTEKST_STARTU/STATUS.md”;
+  LEKCJE „Zasady aktywne”; „Drogowskazy”. „Mitygacja” w wierszach tabeli skrótu 0 (w dzienniku 1
+  — kontrola); wierszy ryzyk 20 = 20. „Czeka na człowieka” nieobecna (nic przeterminowanego).
+  Fixtura starego projektu (CRLF, `## 2.`, `## **Co dalej**`) → pięć linii „brak …”, kod 0.
+- „Czeka na człowieka”: ta sama fixtura z datą 2026-08-01 → sekcja jest, z 2026-10-20 → nie ma.
+- `grep` dawnej listy (9 wzorców) w 11 kopiach: HEAD `b5b843b` 11/11 plików z trafieniem, po
+  zmianie 0; polecenie skrótu w 11/11.
+- Sesja B: `Bash node .claude/relai/tools/start-digest.js`, zero odczytu `docs/STATE.md`; wyjście
+  55 KB poszło do pliku `tool-results`, model przeczytał z niego ok. 14 KB (L-0296).
+- Dowód negatywny: `git diff --stat b5b843b` na `adapters/claude-code/hooks/prompt-mode*`,
+  `core/process/prompt-mode.js`, `adapters/claude-code/commands/relai-prompt.md`, `docs/LEKCJE.md`
+  → nic przed dopisaniem lekcji; sekcja „Zasady aktywne” identyczna z HEAD (`diff`), także po
+  L-0296–L-0298. Kontrola pozytywna na `core/process/` → 2 pliki.
+- Katalog roboczy `.claude/relai/work/KONTEKST_STARTU/E2/`: przed — 5 pozycji, 386 859 B (wyjścia
+  sesji A i B, skrypt `do-lf.js`); po — skasowany po „tak” Łukasza, 0 pozycji. Poza katalogiem:
+  worktree `%TEMP%/relai-E2-przed/RelAI` (114,3 MB) — usunięty (`git worktree remove`, `prune`);
+  `%TEMP%/relai-digest.txt` i `relai-plan.txt` skasowane; znaczniki
+  `relai-ustawienia-podane-test-rytual*` z testu hooka — test sprząta je sam; transkrypty
+  `21d9e44a` (`~/.claude/projects/C--Users-Lukasz-AppData-Local-Temp-relai-E2-przed-RelAI/`)
+  i `137a0d75` zostają jako dowód pomiaru.
+- Końce linii: pięć plików z CRLF na dysku przy LF w indeksie znormalizowanych do LF (L-0297);
+  po normalizacji diff realny: 18 plików, +187/−171 przed dokumentami.
+
+**Świadomie odłożone:**
+
+- Skrót na tym repo ma 55 KB i przekracza limit wyjścia polecenia. Model czyta go kawałkami
+  i gubi „Zasady aktywne” (L-0296). Indeks zasad w E4 zdejmuje ok. 25 KB. Prompt E4 ma sprawdzić,
+  czy skrót mieści się w limicie, i zmierzyć, ile wyjścia trafia do kontekstu.
+- Pomiar „po” to jedna para sesji `-p` bez szumu i bez trybu interaktywnego; pełny pomiar na trzech
+  sesjach i w projekcie użytkownika to E5.
+- Codex i Cursor nie mają osobnej obsługi kompakcji (pole `source` niezmierzone w ich payloadzie).
+- Szkice z sesji planowania w `.claude/relai/work/KONTEKST_STARTU/` (5 plików, ok. 73 KB) — nie
+  należą do E2, zostają do zamknięcia planu.
+- `docs/KOMENDY.md` bez zmian — fraza „kontynuujemy pracę” nadal „odtwarza kontekst z dokumentów”.
+
+**Do zrobienia przez człowieka:** —
+
+Autor: RelAI (Opus 5.5) + Lukasz

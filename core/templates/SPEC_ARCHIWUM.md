@@ -40,8 +40,11 @@ istnieniu.
    pozostać niezależne),
 3. sesja jest **interaktywna**,
 4. rotacja **coś zdejmie z warstwy startowej** — część rotowalna pozycji liczonych w budżecie
-   (wiersze ryzyk `ZAMKNIĘTE` w sekcji ponad progiem, wiersze „Ustawień wycofanych” w pliku
-   ustawień ponad progiem) jest większa od zera. Rotacja dziennika nie rusza ostatniego wpisu ani
+   (wiersze ryzyk `ZAMKNIĘTE` w sekcji ponad progiem) jest większa od zera. Od E2 planu
+   KONTEKST_STARTU warstwą startową jest wyjście skrótu startu (`start-digest.js`), więc wiersz
+   ryzyka liczy się tak, jak stoi w skrócie — bez kolumny „Mitygacja” — a wiersze „Ustawień
+   wycofanych” nie liczą się wcale: skrót ich nie wypisuje, więc ich rotacja odchudza plik, nie
+   start (linia progów dokumentów). Rotacja dziennika nie rusza ostatniego wpisu ani
    sekcji „Czeka na człowieka”, a „Zasady aktywne” są nierotowalne. Przy części rotowalnej 0
    propozycja nie pada — raport mówi jednym zdaniem, że rotacja nic nie zdejmie, a warstwę
    startową odchudza zamykanie ryzyk i zwięźlejsze sekcje czytane na starcie.

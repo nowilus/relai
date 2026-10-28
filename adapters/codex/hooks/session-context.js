@@ -33,7 +33,8 @@ function main(input) {
   const copied = core.provisionTemplates(cwd, { coreTemplates: path.join(ROOT, 'core', 'templates'), destRel: '.claude/relai' });
   const lines = [
     '[RelAI session-context]',
-    'This is a RelAI project. Before substantive work, read AGENTS.md, docs/STATE.md, the open risks and latest journal entry, active rules, settings, and the active-plan status.',
+    // KONTEKST_STARTU E2: one command instead of a file list, the same in all three adapters.
+    'This is a RelAI project. Before substantive work, run ' + core.POLECENIE_SKROTU + ' and read its output (the start digest); AGENTS.md is already in context.',
     'Use the project instruction router for process rules; skills add procedures but do not replace always-on guidance.',
   ];
   if (copied) lines.push('RelAI templates were provisioned in .claude/relai/templates (' + copied + ' files).');

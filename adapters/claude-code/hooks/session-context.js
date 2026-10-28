@@ -195,11 +195,19 @@ function onSessionStart(input) {
     out.push(linia);
   }
 
-  out.push('Ten folder to projekt RelAI. Zanim odpowiesz merytorycznie, wykonaj rytual startu sesji: ' +
-    'przeczytaj CLAUDE.md, docs/STATE.md (jesli istnieje), docs/DZIENNIK.md (sekcja ryzyk + ostatni wpis), ' +
-    'docs/LEKCJE.md (tylko "Zasady aktywne"), docs/USTAWIENIA.md oraz STATUS.md aktywnego planu; ' +
-    'potem napisz akapit "gdzie jestesmy". Jesli dostepny jest skill relai-core, wywolaj go — ' +
-    'ta instrukcja obowiazuje takze wtedy, gdy skill sie nie wyzwolil.');
+  // KONTEKST_STARTU E2: jedno polecenie zamiast listy plikow — ta sama komenda stoi w CLAUDE.md
+  // i w SKILL.md skilla relai-core (test kopii rytualu). Po kompakcji (source: compact) hook
+  // przypomina polecenie, nie kaze czytac od nowa: stan jest w streszczeniu rozmowy (PLAN §8).
+  if (input.source === 'compact') {
+    out.push('Ten folder to projekt RelAI. Po kompakcji nie czytasz dokumentow od nowa: gdy zadanie ' +
+      'potrzebuje stanu projektu, uruchom ' + core.POLECENIE_SKROTU + ' (skrot startu z drogowskazami ' +
+      'do pelnych sekcji).');
+  } else {
+    out.push('Ten folder to projekt RelAI. Zanim odpowiesz merytorycznie, wykonaj rytual startu sesji: ' +
+      'uruchom ' + core.POLECENIE_SKROTU + ' i przeczytaj jego wyjscie (CLAUDE.md masz juz w kontekscie), ' +
+      'potem napisz akapit "gdzie jestesmy". Jesli dostepny jest skill relai-core, wywolaj go — ' +
+      'ta instrukcja obowiazuje takze wtedy, gdy skill sie nie wyzwolil.');
+  }
   // Aneks J (E6 PROWADZENIE_END_TO_END): Sonnet 5 pomija wywolanie skilla z linii wyzej (0/7
   // przebiegow), a bez skilla nie zna sciezki plikow doczytywanych. Konkretny wyzwalacz w tej
   // warstwie dal 3/3 — procedury rzadkie zostaja w plikach, tu stoi tylko drogowskaz.

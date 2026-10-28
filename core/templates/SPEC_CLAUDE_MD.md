@@ -82,14 +82,18 @@ zakłada dokument i **w tej samej turze** dokłada tę linię.
 ## Struktura sekcji (kolejność obowiązkowa)
 
 1. **Nagłówek** — nazwa projektu + jedno zdanie: co to jest i dla kogo.
-2. **Rytuał startu sesji** — numerowana lista plików do przeczytania, w kolejności, z jednozdaniowym
-   uzasadnieniem każdego. Domyślnie: ten plik → `docs/STATE.md` → `docs/DZIENNIK.md` (sekcja ryzyk +
-   ostatni wpis) → `docs/LEKCJE.md` (**wyłącznie** sekcja „Zasady aktywne" — D-15) →
-   `docs/USTAWIENIA.md` → aktywny plan. Zakończ instrukcją „czytaj w tej kolejności, nie skanuj repo
-   pełnotekstowo". `docs/DECYZJE.md` **nie jest** czytany na starcie — sięgasz po niego, gdy temat
-   tego wymaga; w regułach procesu zostaje sama zasada „decyzji stamtąd się nie proponuje ponownie".
-   Listę zamyka **jedna linia z trzema frazami sesji** (D-05) — patrz sekcja „Linia fraz sesji" —
-   oraz **jedna linia o sprawach przeterminowanych**, patrz sekcja niżej.
+2. **Rytuał startu sesji** — **jedno polecenie, nie lista plików** (od RelAI z planem
+   KONTEKST_STARTU, E2): uruchom `node .claude/relai/tools/start-digest.js` i przeczytaj jego
+   wyjście. Skrót startu wypisuje z dokumentów to, czego potrzebuje akapit „gdzie jesteśmy” (sekcje
+   `STATE.md`, tabelę ryzyk bez „Mitygacji”, ostatni wpis dziennika, aktywne ustawienia, `STATUS.md`
+   aktywnego planu, „Zasady aktywne” — D-15), i kończy się drogowskazami do pełnych sekcji. Ten
+   plik ładuje harness, więc go nie wymieniasz. Dopisz zdanie „plików, które skrót streszcza, nie
+   otwierasz na starcie i nie skanujesz repo pełnotekstowo”. `docs/DECYZJE.md` **nie jest** czytany
+   na starcie — sięgasz po niego, gdy temat tego wymaga; w regułach procesu zostaje sama zasada
+   „decyzji stamtąd się nie proponuje ponownie". Akapit zamyka **jedna linia z trzema frazami
+   sesji** (D-05) — patrz sekcja „Linia fraz sesji" — oraz **jedna linia o sprawach
+   przeterminowanych**, patrz sekcja niżej. Numerowanej listy plików nie piszesz: plik z takiej
+   listy budżet startu liczy osobno, jako czytany obok skrótu.
 3. **Stan prac** — tabela `Co | Status | Gdzie` z maksymalnie pięcioma wierszami najwyższego
    poziomu. Szczegóły są w `STATE.md`; tu tylko drogowskazy. **Plan nie ma tu własnego wiersza**
    (D-30): wskazuje go linia „Aktywny plan”, a jego historia mieszka w `STATE.md` i archiwum planu.
@@ -124,7 +128,7 @@ zakłada dokument i **w tej samej turze** dokłada tę linię.
 
 ## Linia fraz sesji
 
-Jedna linia zaraz pod listą rytuału startu. Powód jest ten sam co przy regułach profilu: trzy
+Jedna linia zaraz pod poleceniem rytuału startu. Powód jest ten sam co przy regułach profilu: trzy
 frazy naturalne (D-05) opisane wyłącznie w skillu działają tylko wtedy, gdy skill się wyzwoli —
 a wyzwala się zawodnie (R2). `CLAUDE.md` jest w kontekście zawsze, więc to on ma **nieść regułę**;
 skill dokłada pełną procedurę, gdy się załaduje.
@@ -252,12 +256,9 @@ Sekcja niemutowalna: nigdy bez jawnej prośby.
 
 ## Rytuał startu sesji
 
-Czytaj w tej kolejności, nie skanuj repo pełnotekstowo:
-1. Ten plik.
-2. [docs/STATE.md](docs/STATE.md) — stan na dziś.
-3. [docs/DZIENNIK.md](docs/DZIENNIK.md) — „Stan otwartych ryzyk" + ostatni wpis.
-4. [docs/LEKCJE.md](docs/LEKCJE.md) — wyłącznie sekcja „Zasady aktywne".
-5. [docs/USTAWIENIA.md](docs/USTAWIENIA.md) — preferencje projektu.
+Uruchom `node .claude/relai/tools/start-digest.js` i przeczytaj jego wyjście — to cały odczyt
+startu. Plików, które skrót streszcza, nie otwierasz na starcie i nie skanujesz repo
+pełnotekstowo; pełne sekcje wskazują drogowskazy na końcu skrótu.
 
 **Frazy sesji:** „kontynuujemy pracę" → rytuał, akapit „gdzie jesteśmy" **i zdanie z propozycją
 najbliższego kroku**; „sprawdź status" → stan, plany, ryzyka, zaległości; „kończymy na dziś" →

@@ -19,19 +19,18 @@ user already declined RelAI in this folder. Never propose it again, in any sessi
 
 ## 1. Session start ritual — before your first substantive answer
 
-Read, in this order, and nothing else:
+Run `node .claude/relai/tools/start-digest.js` and read its output — that is the whole start read.
+The digest carries, from `docs/STATE.md`, "Gdzie jesteśmy", "Nad czym pracujemy teraz", "Co
+blokuje" and the first point of "Co dalej"; the risk table without the "Mitygacja" column; the last
+journal entry ("Czeka na człowieka" only when an item is overdue); the active rows of
+`docs/USTAWIENIA.md`; the active plan's `STATUS.md`; and "Zasady aktywne". `CLAUDE.md` / `AGENTS.md`
+is already in your context.
 
-| # | File | What you take from it |
-|---|---|---|
-| 1 | `CLAUDE.md` or `AGENTS.md` | process rules, definition of done, the active-plan line |
-| 2 | `docs/STATE.md` | today's state — the whole file, it is short |
-| 3 | `docs/DZIENNIK.md` (`JOURNAL.md`) | **only** "Stan otwartych ryzyk", "Czeka na człowieka" and the last entry |
-| 4 | `docs/LEKCJE.md` (`LESSONS.md`) | **only** the "Zasady aktywne" section |
-| 5 | `docs/USTAWIENIA.md` (`SETTINGS.md`) | preferences — before you ask the user about anything |
-| 6 | active plan `docs/plany/<TOPIC>/STATUS.md` | only if the file in row 1 points to one |
-
-Do **not** full-text scan the repository at session start. Do not read `docs/DECYZJE.md` whole —
-reach for it when the topic requires it. A file that does not exist is not an error.
+Do **not** open the files the digest summarises, and do not full-text scan the repository, at
+session start. Full sections, `docs/DECYZJE.md` and older journal entries are listed as signposts
+at the end of the digest — reach for them when the topic requires it. A "brak sekcji …" or "brak
+pliku …" line is a fact about the project, not an error. If the tool itself is missing (a project
+from an older version), read `docs/STATE.md`, the risks and "Zasady aktywne" yourself.
 
 Plans and stages have their own rule, `.cursor/rules/relai-planning.mdc`, pulled in on demand.
 When a plan, a stage or a branch is on the table and that rule is not in your context, read the
@@ -244,7 +243,8 @@ finish a larger chunk of work:
 
 ## 5. Session phrases
 
-- "kontynuujemy pracę" / "let's continue" → run the start ritual again, write "where we are", add
+- "kontynuujemy pracę" / "let's continue" → run the start digest again (one command, no whole
+  files read twice), write "where we are", add
   one sentence proposing the nearest step and ask whether to start with it. A resume file
   `.claude/relai/wznowienie/<slug>.md` (named in the phrase or present in the project) is read
   **first**: "where we are" starts from it, the proposed step is step 1 of its "Co dalej" list,

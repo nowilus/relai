@@ -176,6 +176,10 @@ function copyTree(src, dest) {
 // Narzedzia rdzenia prowizjonowane do projektu ta sama droga co specyfikacje (L-0012):
 // sesja nie ma dostepu do katalogu pluginu, wiec musi miec kopie u siebie. Kopia jest
 // samowystarczalna — work-artifacts.js nie wola require na zaden inny plik rdzenia.
+// Polecenie skrotu startu (KONTEKST_STARTU E2) — jedno brzmienie dla hookow trzech adapterow;
+// CLAUDE.md, AGENTS.md, skille i regula Cursora niosa je doslownie (test kopii rytualu).
+const POLECENIE_SKROTU = 'node .claude/relai/tools/start-digest.js';
+
 const NARZEDZIA = [
   { zrodlo: 'work-artifacts.js', cel: 'clean-work.js' },
   { zrodlo: 'crew.js', cel: 'crew.js' }, // 2.1.0: /relai-crew — tak samo samowystarczalny
@@ -186,6 +190,11 @@ const NARZEDZIA = [
   { zrodlo: 'humanize-facts.js', cel: 'humanize-facts.js' },
   // HUMANIZACJA E2: odczyt i zapis wiersza "Humanizacja" w trzech warstwach, zapis profilu stylu
   { zrodlo: 'humanize-mode.js', cel: 'humanize-mode.js' },
+  // KONTEKST_STARTU E2: skrot startu jednym poleceniem. Jedyne narzedzie, ktore nie jest
+  // samowystarczalne — bierze sekcje, dziennik i parser planu z session-signals.js, wiec ten
+  // jedzie obok pod ta sama nazwa i require('./session-signals.js') dziala w obu miejscach.
+  { zrodlo: 'start-digest.js', cel: 'start-digest.js' },
+  { zrodlo: 'session-signals.js', cel: 'session-signals.js' },
 ];
 
 function provisionTools(destRoot, opcje) {
@@ -897,10 +906,10 @@ function unknownAuthor(cwd) {
 }
 
 // --- miara warstwy startowej (1.6.0, plan OPTYMALIZACJA_KONTEKSTU E1) --------
-// Rytual startu sesji czyta szesc pozycji. Ta funkcja liczy, ile one waza, i
-// porownuje z budzetem z wiersza "Budzet startu sesji" w USTAWIENIA.md.
-// Mierzy to, co rytual naprawde czyta: caly plik tam, gdzie czytany jest caly
-// plik, i sekcje tam, gdzie czytana jest sekcja.
+// Warstwa startowa sesji: CLAUDE.md (laduje go harness), wyjscie skrotu startu
+// (start-digest.js, KONTEKST_STARTU E2), skill wymuszany na pierwszym prompcie i pliki
+// dopisane do rytualu w CLAUDE.md. Ta funkcja liczy, ile to wazy, i porownuje z budzetem
+// z wiersza "Budzet startu sesji" w USTAWIENIA.md. Do E2 liczyla cale pliki rytualu.
 
 const KB = 1024;
 
@@ -1158,26 +1167,22 @@ function wierszeStanuPrac(txt) {
 // Czesc rotowalna warstwy startowej (KONTEKST_STARTU E1): bajty, ktore rotacja naprawde zdejmie
 // z pozycji liczonych w budzecie. Rotacja dziennika nie rusza ostatniego wpisu ani "Czeka na
 // czlowieka", a "Zasady aktywne" sa nierotowalne — zostaja wiersze ryzyk ZAMKNIETYCH (ten sam
-// plan co rotate.js, zeby liczba nie rozjechala sie z narzedziem) i wiersze "Ustawien wycofanych".
+// plan co rotate.js, zeby liczba nie rozjechala sie z narzedziem).
+// KONTEKST_STARTU E2: warstwa startowa to wyjscie skrotu, wiec wiersze licza sie tak, jak stoja
+// w skrocie — bez kolumny "Mitygacja". "Ustawienia wycofane" do skrotu nie wchodza wcale, wiec
+// ich rotacja nic ze startu nie zdejmuje (odchudza plik — to linia progow dokumentow).
 // Z progiem (w bajtach) liczy sie tylko to, co rotacja ruszy: ponizej progu nie robi nic.
 function rotowalneRyzyka(txtDziennika, progBajtow) {
   try {
     const plan = require('../tools/rotate.js').planuj('ryzyka', txtDziennika, {});
-    if (!plan || !plan.wagi) return 0;
+    if (!plan || !plan.wagi || !plan.zabrane.length) return 0;
     if (typeof progBajtow === 'number' && plan.wagi.calkowita <= progBajtow) return 0;
-    return plan.wagi.rotowalna;
+    const { bezMitygacji } = require('./start-digest.js');
+    const naglowek = plan.naglowek.join('\n');
+    return bajty(bezMitygacji(naglowek + '\n' + plan.fragment)) - bajty(bezMitygacji(naglowek));
   } catch (_) {
     return 0;
   }
-}
-
-function rotowalneUstawienia(txtUstawien, progBajtow) {
-  const lf = String(txtUstawien).replace(/\r\n/g, '\n');
-  if (typeof progBajtow === 'number' && bajty(lf) <= progBajtow) return 0;
-  const wycofane = wytnijSekcje(lf, NAGLOWEK_WYCOFANE);
-  if (wycofane === null) return 0;
-  const tabela = wycofane.split('\n').filter((l) => l.trim().startsWith('|'));
-  return tabela.slice(2).reduce((s, l) => s + bajty(l) + 1, 0);
 }
 
 // Dokumenty i sekcje ponad WLASNYM progiem — inny fakt niz suma warstwy startowej.
@@ -1335,40 +1340,25 @@ function startCost(cwd, opcje) {
     const claudeMd = pierwszyIstniejacy(cwd, ['CLAUDE.md']);
     if (claudeMd) dodaj('CLAUDE', claudeMd, czytaj(claudeMd), 'plik');
 
-    // 2. STATE.md — caly plik
+    // 2-6. Skrot startu (KONTEKST_STARTU E2): rytual nie czyta juz plikow, tylko wyjscie
+    // start-digest.js, wiec budzet liczy to wyjscie. Czesci skrotu niosa identyfikatory pozycji
+    // (STATE, ryzyka, ustawienia, status, zasady), zeby progi czastkowe dalej wskazywaly
+    // winowajce; "skrot" to ramka i drogowskazy, bez progu. Suma czesci = bajty wyjscia.
     const state = pierwszyIstniejacy(docsDir, ['STATE.md']);
-    if (state) dodaj('STATE', state, czytaj(state), 'plik');
-
-    // 3. dziennik — sekcja ryzyk PLUS ostatni wpis
     const dziennik = pierwszyIstniejacy(docsDir, ['DZIENNIK.md', 'JOURNAL.md']);
-    if (dziennik) {
-      const txt = czytaj(dziennik);
-      const ryzyka = wytnijSekcje(txt, NAGLOWEK_RYZYK);
-      if (ryzyka === null) {
-        dodaj('ryzyka', dziennik, txt, 'plik-bez-sekcji');
-      } else {
-        const czeka = wytnijSekcje(txt, NAGLOWEK_CZEKA);
-        const wpis = ostatniWpis(txt);
-        dodaj('ryzyka', dziennik,
-          ryzyka + (czeka ? '\n' + czeka : '') + (wpis ? '\n' + wpis : ''), 'sekcja');
-      }
-    }
-
-    // 4. lekcje — sekcja "Zasady aktywne"
     const lekcje = pierwszyIstniejacy(docsDir, ['LEKCJE.md', 'LESSONS.md']);
-    if (lekcje) {
-      const txt = czytaj(lekcje);
-      const zasady = wytnijSekcje(txt, NAGLOWEK_ZASAD);
-      if (zasady === null) dodaj('zasady', lekcje, txt, 'plik-bez-sekcji');
-      else dodaj('zasady', lekcje, zasady, 'sekcja');
-    }
-
-    // 5. ustawienia — caly plik
-    dodaj('ustawienia', plikUstawien, txtUstawien, 'plik');
-
-    // 6. STATUS.md aktywnego planu — caly plik; brak planu = brak pozycji, nie zero
     const statusPath = sciezkaStatusuPlanu(cwd);
-    if (statusPath) dodaj('status', statusPath, czytaj(statusPath), 'plik');
+    const skrot = require('./start-digest.js').startDigest(cwd,
+      { markeryGoscia: o.markeryGoscia, dzisiaj: o.dzisiaj });
+    for (const czesc of skrot ? skrot.czesci : []) {
+      pozycje.push({
+        id: czesc.id,
+        sciezka: czesc.sciezka || 'start-digest.js',
+        bajty: czesc.bajty,
+        prog: typeof progi[czesc.id] === 'number' ? progi[czesc.id] * KB : null,
+        sposob: 'skrot',
+      });
+    }
 
     // 7. skill wymuszany na pierwszym prompcie (E2 PROWADZENIE_END_TO_END, A11) — sciezke
     // podaje adapter, bo tylko on wie, skad laduje skill; rdzen katalogu pluginu nie zna.
@@ -1399,14 +1389,13 @@ function startCost(cwd, opcje) {
     const rotowalne = {
       ryzyka: dziennik && wytnijSekcje(czytaj(dziennik), NAGLOWEK_RYZYK) !== null
         ? rotowalneRyzyka(czytaj(dziennik), progi.ryzyka * KB) : 0,
-      ustawienia: rotowalneUstawienia(txtUstawien, progi.ustawienia * KB),
     };
 
     return {
       wlaczony: true,
       rotacja: przelacznikRotacji(txtUstawien),
       rotowalne,
-      rotowalneBajty: rotowalne.ryzyka + rotowalne.ustawienia,
+      rotowalneBajty: rotowalne.ryzyka,
       budzet,
       progi,
       pozycje,
@@ -1511,15 +1500,12 @@ function startCostReport(miara, opcje) {
   // czesci rotowalnej 0 propozycja wracala w kazdej sesji i nic nie dawala.
   const rotowalne = typeof miara.rotowalneBajty === 'number' ? miara.rotowalneBajty : 0;
   if (miara.rotacja === true && rotowalne > 0) {
-    const r = miara.rotowalne || {};
-    const co = [r.ryzyka ? 'ryzyka ZAMKNIETE ' + kb(r.ryzyka) : '',
-      r.ustawienia ? 'ustawienia wycofane ' + kb(r.ustawienia) : ''].filter(Boolean).join(', ');
     out.push('Zaproponuj rotacje dziennika jako pierwszy krok odchudzania (zdejmie z warstwy ' +
-      'startowej ' + kb(rotowalne) + ': ' + co + '): procedura dwufazowa ' +
+      'startowej ' + kb(rotowalne) + ': ryzyka ZAMKNIETE ' + kb(rotowalne) + '): procedura dwufazowa ' +
       'z SPEC_ARCHIWUM.md, wejscie 2 (start sesji).');
   } else if (miara.rotacja === true) {
-    out.push('Rotacja nic tu nie zdejmie: w warstwie startowej nie ma ryzyk ZAMKNIETYCH ani ' +
-      'ustawien wycofanych. Warstwe startowa odchudza zamykanie ryzyk i zwiezlejsze sekcje ' +
+    out.push('Rotacja nic tu nie zdejmie: w warstwie startowej nie ma ryzyk ZAMKNIETYCH. ' +
+      'Warstwe startowa odchudza zamykanie ryzyk i zwiezlejsze sekcje ' +
       'czytane na starcie (STATE, "Zasady aktywne") — bez propozycji rotacji.');
   } else {
     out.push('Rotacja dokumentow jest wylaczona albo nieustawiona (wiersz "Rotacja dokumentow" ' +
@@ -1866,6 +1852,7 @@ module.exports = {
   todayLocal,
   projectVersion,
   provisionTemplates,
+  POLECENIE_SKROTU,
   provisionPrompt, // baza regul optymalizatora — kopia nadpisywana, jak specyfikacje (2.2.0)
   provisionHumanize, // baza regul humanizacji — ta sama droga (HUMANIZACJA E1)
   provisionModelList, // lista modeli narzedzia — kopia trwala, nie nadpisywana (1.9.0)
@@ -1887,6 +1874,8 @@ module.exports = {
   siatkaRytualuReport,
   unknownAuthor,
   ostatniWpis, // eksportowana, zeby dalo sie ja sprawdzic testem na obu kierunkach dziennika
+  wytnijSekcje, // skrot startu (KONTEKST_STARTU E2) tnie sekcje ta sama funkcja co budzet
+  liniaAktywnegoPlanu, // skrot startu bierze plan z tego samego parsera co siatka D-34 (E1)
   startCost,
   startCostReport,
   przelacznikRotacji, // eksportowany, zeby dalo sie pokazac niezaleznosc obu wylacznikow (Aneks A)

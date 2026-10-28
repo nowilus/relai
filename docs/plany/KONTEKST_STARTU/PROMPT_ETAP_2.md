@@ -333,32 +333,32 @@ slugu projektu.
 Każdy punkt Weryfikacji, który przeszedł, odhaczasz w `PROMPT_ETAP_2.md` (`- [ ]` → `- [x]`)
 zaraz po jego sprawdzeniu, nie na końcu etapu; punkt, który nie przeszedł, zostaje pusty.
 
-- [ ] `node --test core/process/tests/*.test.js` i `node --test core/panel/tests/*.test.js` bez
+- [x] `node --test core/process/tests/*.test.js` i `node --test core/panel/tests/*.test.js` bez
       błędów; `node core/tools/validate-adapters.js` zielony.
-- [ ] **Obie wersje w jednym przebiegu (zasada 4):** nowe testy skrótu i budżetu uruchomione na
+- [x] **Obie wersje w jednym przebiegu (zasada 4):** nowe testy skrótu i budżetu uruchomione na
       kodzie z HEAD sprzed etapu (worktree w katalogu roboczym) padają, na zmianie przechodzą —
       liczby fail/pass do wpisu.
-- [ ] Skrót na tym repozytorium wypisuje wszystkie pozycje z „Decyzji” (lista nagłówków wyjścia
+- [x] Skrót na tym repozytorium wypisuje wszystkie pozycje z „Decyzji” (lista nagłówków wyjścia
       do wpisu), tabela ryzyk bez kolumny „Mitygacja” (dowód negatywny: słowo nagłówka nieobecne;
       kontrola pozytywna: liczba wierszy ryzyk równa tabeli w `DZIENNIK.md`); fixtura starego
       projektu → linie „brak sekcji …”, kod wyjścia 0.
-- [ ] Sekcja „Czeka na człowieka” w skrócie tylko przy sprawie przeterminowanej: fixtura ze sprawą
+- [x] Sekcja „Czeka na człowieka” w skrócie tylko przy sprawie przeterminowanej: fixtura ze sprawą
       starszą niż próg → jest; ta sama fixtura z datą świeżą → nie ma (jeden przebieg).
-- [ ] Kopie rytuału: test w `core/process/tests/` (albo walidatorze) — `CLAUDE.md`, `AGENTS.md`,
+- [x] Kopie rytuału: test w `core/process/tests/` (albo walidatorze) — `CLAUDE.md`, `AGENTS.md`,
       hooki trzech adapterów, oba `SKILL.md`, `relai-core.mdc` i `SPEC_CLAUDE_MD.md` niosą to samo
       polecenie skrótu; `grep` po dawnej liście („sekcja ryzyk + ostatni wpis”) w tych plikach →
       zero trafień, z kontrolą pozytywną wzorca na HEAD sprzed etapu.
-- [ ] Porównanie akapitów „gdzie jesteśmy” (stary rytuał vs skrót) wpisane do dziennika punkt po
+- [x] Porównanie akapitów „gdzie jesteśmy” (stary rytuał vs skrót) wpisane do dziennika punkt po
       punkcie; zero informacji zgubionej bez rozstrzygnięcia.
-- [ ] Pomiar „po E2” na świeżej sesji `claude -p` z `--plugin-dir` (w `init` `relai@inline`):
+- [x] Pomiar „po E2” na świeżej sesji `claude -p` z `--plugin-dir` (w `init` `relai@inline`):
       pierwsze wywołanie i koniec 1. tury obok liczb „przed” w dzienniku i w `docs/STATE.md`;
       w transkrypcie sesja uruchomiła `start-digest.js` i nie czytała `docs/STATE.md` w całości.
-- [ ] Dowód negatywny: `git diff --stat` od początku etapu nie pokazuje zmian w
+- [x] Dowód negatywny: `git diff --stat` od początku etapu nie pokazuje zmian w
       `adapters/claude-code/hooks/prompt-mode*`, `core/process/prompt-mode.js`,
       `adapters/claude-code/commands/relai-prompt.md` ani w sekcji „Zasady aktywne” `docs/LEKCJE.md`.
-- [ ] Wpis w `docs/DZIENNIK.md` dopisany na końcu sekcji „Wpisy”, z autorem; `docs/STATE.md`
+- [x] Wpis w `docs/DZIENNIK.md` dopisany na końcu sekcji „Wpisy”, z autorem; `docs/STATE.md`
       zaktualizowany.
-- [ ] Katalog roboczy `.claude/relai/work/KONTEKST_STARTU/E2/` przejrzany raportem
+- [x] Katalog roboczy `.claude/relai/work/KONTEKST_STARTU/E2/` przejrzany raportem
       (`node .claude/relai/tools/clean-work.js raport`) i skasowany po „tak”; liczby przed i po
       w sekcji „Zweryfikowane” wpisu. Artefakty poza tym katalogiem (worktree „przed”, jeśli
       powstał poza nim, transkrypty sesji `claude -p`) wypisane z nazwy razem z tym, co się

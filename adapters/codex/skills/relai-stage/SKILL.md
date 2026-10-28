@@ -116,9 +116,10 @@ Pola karty:
 
 - **Gdzie jesteśmy** — idzie przed kartą. Jeśli w tej sesji
   nie padł jeszcze akapit „gdzie jesteśmy” z rytuału startu (komenda bywa pierwszym promptem sesji,
-  a skill `relai-core` wtedy się nie wyzwala), wykonujesz rytuał teraz: czytasz `docs/STATE.md`,
-  sekcję „Stan otwartych ryzyk” i ostatni wpis `docs/DZIENNIK.md`, i piszesz akapit (3–5 zdań):
-  co działa, nad czym pracujemy, co jest otwarte. Akapit już padł w tej sesji → nie powtarzasz go.
+  a skill `relai-core` wtedy się nie wyzwala), wykonujesz rytuał teraz: uruchamiasz
+  `node .claude/relai/tools/start-digest.js` (skrót startu) i z jego wyjścia piszesz akapit
+  (3–5 zdań): co działa, nad czym pracujemy, co jest otwarte. Akapit już padł w tej sesji → nie
+  powtarzasz go.
 - **Plan** — temat + status planu.
 - **Etap** — `EN z EM` + tytuł.
 - **Etapy planu** — tabela z `STATUS.md`: etap, nazwa, status (`ZREALIZOWANY <data>`,

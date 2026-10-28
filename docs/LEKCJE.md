@@ -651,6 +651,36 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
   pola na wywołanie), zanim uznasz liczbę albo kod za błędne. Definicję zapisujesz w nagłówku
   narzędzia razem ze źródłem liczb.
 
+### L-0296 — Wyjście polecenia ponad ~30 tys. znaków model dostaje jako 2 KB podglądu · 2026-10-28 · AKTYWNA
+
+- **Trigger:** KONTEKST_STARTU E2. Skrót startu na tym repo ma 55 KB. W sesji `claude -p`
+  harness zapisał wyjście `start-digest.js` do pliku `tool-results` i pokazał modelowi 2 KB
+  podglądu. Model doczytał plik kawałkami (`Read` z `limit`, `Grep`, `Read` z `offset`), razem
+  ok. 14 KB, bez „Zasad aktywnych”. Pomiar kontekstu wyszedł niższy, niż kosztowałby pełny odczyt.
+- **Zasada:** narzędzie, którego wyjście model ma przeczytać w całości, mieści się w limicie
+  wyjścia polecenia (Claude Code: ok. 30 tys. znaków) albo stawia treść obowiązkową na początku.
+  Pomiar „po” mówi, ile wyjścia trafiło do kontekstu (wyniki narzędzi z transkryptu), a nie tylko
+  że polecenie padło.
+
+### L-0297 — `git status` milczał o pięciu plikach z CRLF na dysku przy LF w indeksie · 2026-10-28 · AKTYWNA
+
+- **Trigger:** KONTEKST_STARTU E2. Kontrola pozytywna dowodu negatywnego (`git diff --stat` od
+  bazy na `core/process/`) pokazała ok. 1900 zmienionych linii przy kilkudziesięciu realnych.
+  `session-signals.js`, `CLAUDE.md`, `AGENTS.md`, `SPEC_CLAUDE_MD.md` i `SPEC_USTAWIENIA.md`
+  miały na dysku CRLF przy LF w indeksie i w HEAD. Na starcie sesji `git status` ich nie pokazywał
+  — pamięć stat uznała je za nietknięte do pierwszego zapisu.
+- **Zasada:** przed commitem i przed liczeniem diffu sprawdzasz końce linii zmienionych plików
+  (`git ls-files --eol`). `w/crlf` przy `i/lf` normalizujesz do LF skryptem pisanym Write, zanim
+  liczba z `git diff --stat` trafi do wpisu. Wynik `--ignore-cr-at-eol` jest kontrolą, nie wynikiem.
+
+### L-0298 — `cd` do worktree w poleceniu Bash przestawił katalog roboczy sesji · 2026-10-28 · AKTYWNA
+
+- **Trigger:** KONTEKST_STARTU E2. Polecenie `cd <worktree> && node --test …` uruchomione
+  w powłoce sesji zmieniło jej katalog roboczy. Harness ogłosił worktree głównym katalogiem
+  i kazał nie wracać do repo, więc następne polecenie musiało wrócić ścieżką bezwzględną.
+- **Zasada:** w worktree pomiarowym pracujesz podpowłoką `( cd … && … )` albo `git -C` / ścieżkami
+  bezwzględnymi; gołego `cd` do innego drzewa w sesji etapu nie używasz.
+
 ## Lekcje zwinięte
 
 Pełne wpisy lekcji, których zasady żyją w destylacie „Zasady aktywne" (kompresja 2026-08-20).

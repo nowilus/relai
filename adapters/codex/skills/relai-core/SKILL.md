@@ -86,20 +86,19 @@ użytkownik sam prosi o RelAI w folderze bez markera.
 
 Nie inicjalizuj niczego drugi raz. Wykonaj **rytuał startu** — raz na sesję, przed pierwszą merytoryczną odpowiedzią.
 
-### Kolejność czytania (obowiązkowa, nic poza tym)
+### Skrót startu (jedno polecenie, nic poza nim)
 
-| # | Plik | Co z niego bierzesz |
-|---|---|---|
-| 1 | `CLAUDE.md` | reguły procesu, definicja ukończenia, wskazanie aktywnego planu |
-| 2 | `docs/STATE.md` | stan na dziś — cały plik, jest krótki |
-| 3 | `docs/DZIENNIK.md` | **wyłącznie** sekcja „Stan otwartych ryzyk", sekcja „Czeka na człowieka" (jeśli jest) i ostatni wpis |
-| 4 | `docs/LEKCJE.md` | **wyłącznie** sekcja „Zasady aktywne" (D-15) |
-| 5 | `docs/USTAWIENIA.md` | tabela preferencji — zanim o cokolwiek zapytasz |
-| 6 | aktywny plan (`docs/plany/TEMAT/STATUS.md`) | tylko jeśli `CLAUDE.md` go wskazuje |
+Uruchom `node .claude/relai/tools/start-digest.js` i przeczytaj jego wyjście. Skrót niesie
+z `docs/STATE.md` sekcje „Gdzie jesteśmy”, „Nad czym pracujemy teraz”, „Co blokuje” i pierwszy
+punkt „Co dalej”; tabelę ryzyk bez kolumny „Mitygacja”; ostatni wpis dziennika (sekcję „Czeka
+na człowieka” tylko przy sprawie przeterminowanej); aktywne wiersze `docs/USTAWIENIA.md`;
+`STATUS.md` aktywnego planu i „Zasady aktywne” (D-15). `CLAUDE.md` masz już w kontekście.
 
-**Na starcie czytasz wyłącznie pliki z tabeli.** `docs/DECYZJE.md` i starsze wpisy dziennika
-otwierasz dopiero wtedy, gdy temat tego wymaga. Brakujący plik (np. `LEKCJE.md` w starszym
-projekcie) pomijasz po cichu.
+**Na starcie nie otwierasz plików, które skrót streszcza.** Pełne sekcje, `docs/DECYZJE.md`
+i starsze wpisy dziennika wskazują drogowskazy na końcu skrótu — otwierasz je dopiero wtedy, gdy
+temat tego wymaga. Linia „brak sekcji …” albo „brak pliku …” w skrócie to fakt o projekcie,
+nie awaria. Brak samego narzędzia (projekt sprzed tej wersji) → wtedy czytasz `docs/STATE.md`,
+sekcje ryzyk i „Zasady aktywne” sam i proponujesz `/relai-update`.
 
 ### Siatki startu — zasady każdej siatki
 
@@ -118,10 +117,10 @@ zasadom:
 
 ### Podsumowanie dla użytkownika
 
-Po przeczytaniu napisz **jeden akapit** (3–5 zdań) „gdzie jesteśmy": co działa, nad czym pracujemy,
-co blokuje, jaki jest najbliższy krok. Bez list, bez tabel, bez powtarzania nazw plików. Potem
-zrób to, o co użytkownik prosił. Prompt samowystarczalny i drobny (jedno pytanie o kod) →
-podsumowanie skróć do jednego zdania, ale rytuał czytania wykonaj mimo to.
+Po przeczytaniu skrótu napisz **jeden akapit** (3–5 zdań) „gdzie jesteśmy": co działa, nad czym
+pracujemy, co blokuje, jaki jest najbliższy krok. Bez list, bez tabel, bez powtarzania nazw plików.
+Potem zrób to, o co użytkownik prosił. Prompt samowystarczalny i drobny (jedno pytanie o kod) →
+podsumowanie skróć do jednego zdania, ale skrót uruchom mimo to.
 
 ---
 
@@ -198,9 +197,10 @@ i zgoda na skasowanie grupy artefaktów w kroku 2a. Krok 2 wykonujesz według
 
 ### „kontynuujemy pracę" / „let's continue"
 
-1. Wykonaj **rytuał startu sesji**, nawet jeśli sesja trwa już jakiś czas. **Plik wznowienia** —
+1. Wykonaj **rytuał startu sesji**, nawet jeśli sesja trwa już jakiś czas: uruchom skrót startu
+   ponownie (jedno polecenie — całych plików nie czytasz drugi raz). **Plik wznowienia** —
    wskazany we frazie („kontynuujemy pracę — plik wznowienia: ścieżka”) albo zgłoszony zdaniem
-   hooka startu — czytasz **jako pierwsze źródło** „gdzie jesteśmy”, przed `STATE.md`.
+   hooka startu — czytasz **jako pierwsze źródło** „gdzie jesteśmy”, przed skrótem startu.
 2. Napisz akapit „gdzie jesteśmy". Hook podał commity od zapisu albo nieznany hash → powiedz,
    że lista „Co dalej” mogła się zestarzeć.
 3. Dodaj **jedno zdanie z propozycją najbliższego kroku** — z pliku wznowienia: krok 1 jego listy

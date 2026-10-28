@@ -15,7 +15,8 @@ repozytorium niesie też cztery mody: `relai-panel` 0.22.1, `relai-progress` 0.7
 (`/relai-release`): raport `release-check.js`, naprawy po jednej zgodzie, publikacja krok po kroku,
 bramka `pre-push` na tagi. Maszyna Łukasza pracuje w trybie „RelAI tylko w projektach” od
 2026-10-28. Aktywny plan KONTEKST_STARTU (lżejszy start sesji) zaakceptowany 2026-10-28; E1
-zrealizowany tego samego dnia, E2 gotowy do startu; PANEL_CODEX (Codex)
+i E2 zrealizowane tego samego dnia (rytuał startu to jedno polecenie skrótu `start-digest.js`),
+E3 gotowy do startu; PANEL_CODEX (Codex)
 wstrzymany 2026-10-27 decyzją Łukasza.
 Opinii spoza projektu nadal nie ma.
 
@@ -105,13 +106,14 @@ Opinii spoza projektu nadal nie ma.
 
 ## Nad czym pracujemy teraz
 
-- **Plan KONTEKST_STARTU — E1 ZREALIZOWANY 2026-10-28, E2 GOTOWY DO STARTU** ( [STATUS](plany/KONTEKST_STARTU/STATUS.md),
+- **Plan KONTEKST_STARTU — E1 i E2 ZREALIZOWANE 2026-10-28, E3 GOTOWY DO STARTU** ( [STATUS](plany/KONTEKST_STARTU/STATUS.md),
   [PLAN.html](plany/KONTEKST_STARTU/PLAN.html)): 5 etapów, 6–9 sesji (szacunek). Cel: RelAI
-  najwyżej 25 tys. tokenów po pierwszej turze (dziś ok. 72 tys.). E1 (w repo, niewydane): linia
-  „Aktywny plan: brak” z linkiem nie wskazuje już planu, propozycja rotacji pada tylko wtedy,
-  gdy rotacja coś zdejmie (z Aneksem A), nakładki rodzin jako `rodziny/nakladka-<family>.md`
-  bez zagnieżdżonego `CLAUDE.md` (P-061), instrument `core/tools/start-context.js`. Następny:
-  E2 — skrót startu jednym poleceniem.
+  najwyżej 25 tys. tokenów po pierwszej turze (dziś ok. 72 tys.). W repo, niewydane: E1 (parser
+  „Aktywny plan: brak”, rotacja tylko z zyskiem, nakładki `nakladka-<family>.md`, instrument
+  `start-context.js`) i E2 — rytuał startu to `node .claude/relai/tools/start-digest.js` w 11
+  kopiach, budżet liczy skrót (to repo 77,7 KB ze skillem). Skrót ma tu 55 KB, ponad limit wyjścia
+  polecenia — model czyta go kawałkami; indeks zasad w E4 (L-0296). Następny: E3 — bramka trybu
+  ciągłego w dwóch krokach.
 - **PANEL_CODEX — nieaktywny, WSTRZYMANY 2026-10-27** decyzją Łukasza (plan
   [PANEL_CODEX](plany/PANEL_CODEX/STATUS.md), ZAAKCEPTOWANY 2026-10-10, 8 etapów, Codex
   `gpt-6.1-sol`). Stan zatrzymania E1: natywny widok i wiadomość do bieżącego czatu potwierdzone
@@ -248,9 +250,11 @@ Kontekst pierwszej tury „przed” (KONTEKST_STARTU E1, `node core/tools/start-
 pierwsze wywołanie → koniec 1. tury; koniec tury = wejście + wyjście ostatniego wywołania):
 `730b6571` 81 946 → 173 910, `03576d50` 87 337 → 141 453, `ee1beb6e` 89 943 → 198 710; świeża
 `claude -p` z `--plugin-dir` repo 53 123 → 55 887 (bez nested `CLAUDE.md`; na 3.6.0 ten sam odczyt:
-53 036 → 59 076, z 7 151 B nakładki jako `CLAUDE.md`) •
-Plany zamknięte: 20 (ostatni ZASIEG_PLUGINU, 2026-10-28) • Aktywne: KONTEKST_STARTU (E2) • Wstrzymane:
-PANEL_CODEX (Codex, od 2026-10-27) • Start sesji: 109,3 KB / 100 KB na starcie 2026-10-28 •
+53 036 → 59 076, z 7 151 B nakładki jako `CLAUDE.md`) • „Po E2” (`claude -p "kontynuujemy
+pracę"`, para na tych samych dokumentach): stary rytuał `21d9e44a` 52 154 → 88 144, skrót
+`137a0d75` 52 492 → 75 848 (−12 296 na końcu tury, jedna para) •
+Plany zamknięte: 20 (ostatni ZASIEG_PLUGINU, 2026-10-28) • Aktywne: KONTEKST_STARTU (E3) • Wstrzymane:
+PANEL_CODEX (Codex, od 2026-10-27) • Start sesji: 109,3 KB / 100 KB na starcie 2026-10-28 (pliki), po E2 77,7 KB / 100 KB (skrót) •
 Dziennik: 209 KB / 150 KB (do rotacji) • Ryzyka: 20 w tabeli, 17,5 KB / 12 KB (dolna granica —
 same otwarte), archiwum 12 plików • Lekcje: 60,5 KB / 50 KB (do rotacji) • Adaptery: 3 •
 Komendy: 16 • Hooki Claude Code: 14 • Testy (2026-10-27, raport wydania 3.6.0): rdzeń, panel
