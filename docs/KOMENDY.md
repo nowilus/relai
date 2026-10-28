@@ -186,9 +186,11 @@ potem ponowne uruchomienie aplikacji. Czwarty plugin, kokpit pluginów i hooków
   zgoda „nie pytaj więcej" idzie do ustawień globalnych i przypomina o sobie raz na 30 dni.
   Przełączniki: `/relai-prompt on`, `/relai-prompt off` (projekt) oraz `/relai-prompt off --globalnie`
   (cofnięcie zgody na stałe).
-  **Od 2.7.0 pytanie jest jedno:** gdy model optymalizatora nie jest jeszcze wybrany na stałe,
-  bramka każe zadać zgodę i wybór modelu (z zasięgiem) w tym samym oknie pytań, zamiast dwóch
-  pytań po kolei (sprawdzone na treści bramki; w oknie aplikacji czeka na potwierdzenie).
+  **Od KONTEKST_STARTU E3 (w repozytorium, niewydane) bramka ma dwa kroki:** pierwsze okno pyta
+  tylko o zgodę — po „nie” nic więcej nie pada. Po „tak” pada drugie okno z modelem
+  optymalizatora i zasięgiem, chyba że model jest już wybrany (wiersz z członem `· nie pytaj` albo
+  wybór „ta sesja”); potem prompt przerabia agent. Wcześniej, od 2.7.0, zgoda, model i zasięg
+  padały w jednym oknie także przy odpowiedzi „nie”.
 - **RelAI nie proponuje się w cudzym folderze dwa razy.** Plugin jest zainstalowany dla całego
   konta, więc widzi każdy katalog otwarty w Claude Code albo Codeksie i w każdym zapyta raz, czy
   założyć strukturę. Odmowa zamyka temat w tym folderze (tryb gościa), a od 2.3.0 pytanie

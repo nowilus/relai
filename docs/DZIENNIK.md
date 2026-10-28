@@ -1506,3 +1506,128 @@ rytuału (pytanie o nakładkę), więc nie jest „przed” dla tej pary. Budże
 **Do zrobienia przez człowieka:** —
 
 Autor: RelAI (Opus 5.5) + Lukasz
+
+### 2026-10-28 — KONTEKST_STARTU E3: bramka trybu ciągłego w dwóch krokach
+
+Etap wg [PROMPT_ETAP_3.md](plany/KONTEKST_STARTU/PROMPT_ETAP_3.md), sesja Opus 5.5, HEAD `fe81391`.
+Na starcie etapu bramka (stara) zadała tej sesji trzy pytania naraz na „Tak, zaczynamy” —
+odpowiedź „nie”.
+
+**Zrobione:**
+
+- **Bramka w dwóch krokach** (`core/process/prompt-mode.js`, hook
+  `adapters/claude-code/hooks/prompt-mode.js`): pierwsze okno pyta wyłącznie o zgodę (trzy opcje
+  „i nic więcej”); po „nie” — wykonanie promptu bez kolejnych pytań i bez czytania procedury. Część
+  „po (1) i (2)” to reguła trybu ciągłego: model nieznany → drugie, osobne pytanie o model
+  i zasięg; nazwa z listy → delegacja do `relai-prompt-optimizer`; `model sesji` albo brak listy →
+  sesja przerabia sama z plików doczytywanych. Żadne brzmienie nie odsyła do całej komendy.
+- **Model „na tę sesję”** — pole `"model"` we własnym pliku zgody sesji
+  (`.claude/relai/zgoda-promptu/<id>.json`, L-0189: jeden zapisujący, bez scalania), opisane
+  w nagłówku modułu. Nowe `modelSesji`, `modelOptymalizatora` (nazwa z wiersza `· nie pytaj`,
+  projekt przed globalnym); nazwa wpuszczana do reguły tylko w kształcie nazwy z listy.
+- **Podział `relai-prompt.md`** (30 115 → 16 174 B): Kroki 1b i 6 → `core/prompt/PRZYGOTOWANIE.md`
+  (wykonuje sesja, także przy delegacji), Kroki 2–5 i 7–11 → `core/prompt/PROCEDURA.md` (czyta
+  agent; sesja tylko bez delegacji). W rdzeniu sekcja-drogowskaz; zdania o bramce, zasięgu
+  `ta sesja`, zakazach i „Dawniej” poprawione na dwa kroki. Kopia w `.claude/relai/prompt/` tą
+  samą drogą co reguły (`provisionPrompt`). Agent czyta najpierw `PROCEDURA.md`. Skill Codeksa
+  `relai-prompt` odtworzony generatorem.
+- **Testy:** nowe `prompt-gate.test.js` (7) — stany mierzone na hooku: brak zgody, „nie”, „tak”
+  bez modelu, „tak” z modelem w sesji (też `model sesji` i nazwa spoza kształtu), globalne
+  „nie pytaj” z wierszem i bez, wiersz projektu, brak listy, filtr pomijania. W
+  `prompt-mode.test.js` trzy testy starego kontraktu (2.7.0: jedno okno, odesłanie do komendy)
+  przepisane na nowy, plus test odczytu modelu.
+- Dokumenty: `ARTEFAKTY.md` — `PRZYGOTOWANIE.md` 1, `PROCEDURA.md` 1, `/relai-prompt` 14, agent 5,
+  `SPEC_USTAWIENIA` 18 (akapit o dwóch krokach przy `Zgoda na optymalizator`); `KOMENDY.md` —
+  punkt „Od 2.7.0 pytanie jest jedno” zastąpiony opisem dwóch kroków. Lekcje L-0299–L-0301.
+
+**Pomiar na żywo** (2026-10-28, Łukasz klikał, `claude --plugin-dir` + instalacja wyłączona
+`--settings`; „po” = repo, „przed” = worktree `fe81391`; projekty `%TEMP%/relai-e3-pomiar/s1…s7`,
+ten sam prompt „przeczytaj notatki.md i streść go w dwóch zdaniach, dodając jedno ryzyko”).
+Liczone skryptem z katalogu roboczego tak jak `start-context.js`, ale z lokalnymi komendami poza
+licznikiem poleceń (L-0299). **Model:** s1–s5 i s7 na Sonnet 5.5 (w sesji padło `/model`, L-0300),
+s6 na Opus 5.5 — więc porównanie tylko w obrębie Sonneta.
+
+| Sesja | Kod | Stan i odpowiedzi | Koniec 1. tury | Wobec s1 | Dowód z transkryptu |
+|---|---|---|---|---|---|
+| s1 `c822eb7b` | po | tryb wyłączony (baza) | 48 444 | — | brak `AskUserQuestion` |
+| s2 `c04ad143` | po | brak zgody → „nie” | 49 741 | **+1 297** | 1 okno, 1 pytanie; plik `{"decyzja":"nie"}`; prompt wykonany |
+| s4 `70751df5` | przed | brak zgody → „nie” | 67 957 | **+19 513** | odczyt `relai-prompt.md` i listy **przed** pytaniem; 1 okno, 3 pytania |
+| s3 `ce7e063e` | po | „tak” → `model sesji`, `ten prompt` | 71 256 | +22 812 | 2 osobne okna (1 i 2 pytania); odczyt `PRZYGOTOWANIE`, `PROCEDURA`, nakładki, `SZABLONY`; propozycja z markerami |
+| s5 `c9fee6d1` | przed | „tak” + `model sesji`, `ten prompt` | 51 892 | +3 448 | **przebieg niezgodny z procedurą** (L-0301): bez odczytu `relai-prompt.md`, propozycja bez markerów — nie jest „przed” |
+| s7 `b419abca` | po | wiersz `Sonnet 5.5 · nie pytaj` → „tak” | 55 785 | +7 341 | 1 okno; delegacja `relai-prompt-optimizer`, model `sonnet` |
+| s6 `e9da6b41` | po | „tak” → Sonnet 5.5, `ta sesja`; drugi prompt | 55 505 (Opus) | — | 2 osobne okna; plik `"model":"Sonnet 5.5"`; drugi prompt: 0 pytań, delegacja |
+
+Koszt odpowiedzi „nie”: **+1 297** tokenów (po) wobec **+19 513** (przed) — FAKT, jedna para,
+bez pomiaru szumu. „Tak + model sesji”: **+22 812** (po, Sonnet) obok **+26,7 tys.** z ANALIZY
+(przed, Opus, inna sesja) — FAKT dla każdej liczby, porównanie SZACUNEK (inny model). Droga
+domyślna po „tak” — delegacja — kosztuje sesję +7 341 (s7).
+
+**Zweryfikowane — jak dokładnie:**
+
+- `node --test core/process/tests/*.test.js` → 348/348 (było 340; +7 bramki, +1 odczytu
+  modelu); `core/panel/tests` → 225/225; `adapters/codex/tests` → 24/24;
+  `validate-adapters.js` → kod 0, jedno ostrzeżenie (`security-audit`, sprzed etapu) —
+  ostrzeżenie `relai-prompt.md` 30 115 B zniknęło; `generate-skills.js` → „spojne”.
+- Obie wersje: `prompt-gate.test.js` w worktree `fe81391` (`core.autocrlf=false`) → 2 pass /
+  5 fail (przechodzą „nie” i filtr — działały przed etapem); na zmianie 7/0. Przyczyny porażek
+  sprawdzone: brak delegacji, brak `PROCEDURA.md`, model w pierwszym oknie. Dwa testy zielone na
+  HEAD wywrócone mutacjami pisanymi dla nich: M1 („nie” nie wycisza) → test „nie” pada, M2 (filtr
+  nic nie pomija) → test filtra pada, M3 (model w pierwszym oknie) → 2 testy padają; bez mutacji
+  0 fail.
+- Podział: skrypt porównania — 11 sekcji przeniesionych, 0 rozjazdów (każda dosłownie w nowym
+  pliku, żadna w rdzeniu); nagłówki 18 przed = 7 + 2 + 9 zaraz po podziale; bajty bloku 15 899 =
+  5 462 + 10 437. Po dopisaniu nagłówków plików i drogowskazu: rdzeń 8, `PRZYGOTOWANIE` 3,
+  `PROCEDURA` 10.
+- Dowód negatywny: `git diff --stat fe81391` na `core/process/start-digest.js`, 13 kopiach
+  rytuału (`CLAUDE.md`, `AGENTS.md`, hooki `session-context` trzech adapterów, `SKILL.md`
+  `relai-core` ×2, `relai-core.mdc`, `SPEC_CLAUDE_MD`, `relai-stage.md` + skill Codeksa,
+  `SPEC_KOMENDY`) i `docs/LEKCJE.md` przed dopisaniem lekcji → nic; kontrola pozytywna na
+  `core/process` → 2 pliki. Lekcje dopisane po L-0298, poza sekcją „Zasady aktywne”.
+- Końce linii: `core/process/prompt-mode.js` po edycji `w/crlf` przy `i/lf` — 438 CRLF → LF
+  (L-0297); po normalizacji diff realny.
+- Pliki zgody w projektach pomiarowych (`przygotuj-pomiar.js --stan`): s2 i s4 `nie`, s3, s5, s7
+  `tak` bez modelu, s6 `tak` + `"model":"Sonnet 5.5"`.
+- Katalog roboczy `.claude/relai/work/KONTEKST_STARTU/E3/` (`clean-work.js raport`: chroniony
+  „etap trwa”): przed — 9 pozycji, 119 135 970 B, 1 579 plików (worktree „przed” `fe81391`,
+  skrypty `podziel.js`, `mutacje.js`, `przygotuj-pomiar.js`, `analiza-pomiaru.js`, `do-lf.js`,
+  `wstaw-zasady.js`, kopia `relai-prompt.przed.md`, wyniki TAP i analizy); po „tak” Łukasza —
+  worktree `git worktree remove` + `prune`, katalog skasowany, 0 pozycji. Poza katalogiem:
+  `%TEMP%/relai-e3-pomiar` (7 projektów, ok. 7 MB) skasowany poza pustym folderem `s7` (0 B,
+  zablokowany przez otwarty terminal); `%TEMP%/relai-plan-e3.txt`, `relai-val.txt`,
+  `relai-e3-core.tap`, `relai-digest-e3.txt` skasowane; transkrypty s1–s7
+  (`~/.claude/projects/C--Users-Lukasz-AppData-Local-Temp-relai-e3-pomiar-s*`) zostają jako
+  dowód pomiaru; kopia `~/.claude/settings.json.bak-2026-10-28-e3` zostaje.
+
+**Świadomie odłożone:**
+
+- **Filtr potwierdzeń** nie przepuszcza „Tak, zaczynamy” (lista zamknięta całych promptów);
+  poszerzenie to decyzja Łukasza (zasada 7) — odłożone jego decyzją z 2026-10-28.
+- `core/tools/start-context.js` liczy lokalne komendy jako polecenie (L-0299) — poprawka
+  instrumentu przed pomiarem E5.
+- s6 w pierwszej turze oddał prompt agentowi bez odczytu `PRZYGOTOWANIE.md` (bez linii „Model
+  docelowy”), w drugiej przeczytał — dyscyplina modelu; do obserwacji w E5.
+- „Tak + model sesji” zszedł tylko o ok. 4 tys. — sesja i tak czyta `PROCEDURA`, `SZABLONY`
+  i nakładkę; zysk planu stoi na „nie” i na delegacji.
+- Folder bez struktury RelAI: pełna procedura tylko przez agenta (własny rdzeń reguł); Codex poza
+  projektem jej nie ma. Krok 9 (pytanie o język z zapisem) w `PROCEDURA.md` nie pasuje do agenta
+  bez narzędzi zapisu — rozjazd sprzed etapu, przeniesiony bez zmian.
+- Pomiar na jednej parze sesji, bez szumu; pełny pomiar trzech sesji — E5.
+- Lekcje L-0299–L-0301 bez odświeżenia destylatu „Zasady aktywne”: rytuał „Na koniec” skilla
+  `relai-planning` każe go odświeżyć, prompt E3 zakazuje (to zakres E4, punkt 7 Weryfikacji) —
+  rozjazd rozstrzygnięty na rzecz promptu etapu; E4 obejmie te lekcje indeksem.
+
+**Do zrobienia przez człowieka:**
+
+- **Zamrożenie bramek zgody jako decyzji** (sprawa z „Czeka na człowieka” z 2026-09-15) —
+  proponowane brzmienie: *„Każde zachowanie proaktywne RelAI pyta najpierw wyłącznie o zgodę:
+  tryb ciągły raz na sesję (ta sesja / nie pytaj więcej / nie), propozycja struktury poza
+  projektem raz na maszynę. Po »nie« nie pada żadne kolejne pytanie i nic nie jest czytane;
+  pytania dodatkowe (np. model i zasięg) padają wyłącznie po »tak« i tylko wtedy, gdy odpowiedź
+  nie jest zapisana. Zgoda sesyjna — plik na sesję, trwała — wiersz w ustawieniach globalnych.”*
+  Decyzja Łukasza: zamrozić (wpis do `DECYZJE.md`), poprawić brzmienie albo odrzucić.
+- Domyślny model nowych sesji Claude Code zmieniony w trakcie pomiaru na Sonnet
+  (`~/.claude/settings.json`, `"model": "sonnet"`) — przywrócić, jeśli niezamierzone.
+  *(rozstrzygnięte 2026-10-28 — Łukasz: przywrócić Opus; `"model": "opus"`, kopia pliku
+  `settings.json.bak-2026-10-28-e3`)*
+
+Autor: RelAI (Opus 5.5) + Lukasz

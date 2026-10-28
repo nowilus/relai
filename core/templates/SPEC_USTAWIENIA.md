@@ -655,6 +655,11 @@ opcje: **ta sesja** / **nie pytaj więcej** / **nie**. Zgoda sesyjna trafia do
 `.claude/relai/zgoda-promptu/<id sesji>.json` (od 2.3.1 osobny plik na sesję; plik `zgoda-promptu.json` z 2.3.0 czytany dalej) związana z identyfikatorem sesji (nie przecieka do następnej),
 trwała — do tego wiersza.
 
+Od KONTEKST_STARTU E3 bramka ma **dwa kroki**: pierwsze okno pyta wyłącznie o zgodę, a pytanie
+o model optymalizatora i zasięg pada osobno, dopiero po „tak” — i nie pada, gdy model jest znany
+z wiersza `Model optymalizatora` z członem `· nie pytaj` albo z pola `"model"` w pliku zgody tej
+sesji (zasięg `ta sesja`). Po „nie” nie pada żadne kolejne pytanie.
+
 ```
 | 2026-09-15 | Zgoda na optymalizator | tak · przypomnienie co 30 dni |
 ```

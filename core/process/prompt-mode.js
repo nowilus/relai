@@ -12,6 +12,20 @@
 //    dotyka KAZDEGO promptu, a wiersz w pliku ustawien jest zgoda sprzed
 //    tygodni, nie zgoda na dzisiejsza sesje.
 //
+// Od E3 planu KONTEKST_STARTU bramka ma DWA KROKI. Krok pierwszy pyta wylacznie
+// o zgode — po "nie" nie pada zadne kolejne pytanie i nikt nie czyta procedury.
+// Krok drugi (tylko po "tak") pyta o model optymalizatora i zasieg, chyba ze model
+// jest juz znany: z pliku tej sesji albo z wiersza `Model optymalizatora` z czlonem
+// `· nie pytaj`. Procedure po "tak" czyta agent relai-prompt-optimizer, a sesja
+// tylko przygotowuje wywolanie (core/prompt/PRZYGOTOWANIE.md).
+//
+// Gdzie mieszka "model wybrany w tej sesji" (L-0189 — plik na zapisujacego, bez
+// scalania): pole `model` we WLASNYM pliku zgody sesji,
+// .claude/relai/zgoda-promptu/<id>.json, zapisanym jednym zapisem razem z decyzja:
+//   {"decyzja":"tak","data":"2026-10-28","model":"Sonnet 5.5"}
+// Pisze go wylacznie ta sesja, wiec nie ma czego scalac; plik przezywa kompakcje,
+// a nowa sesja (takze po /clear) ma nowy identyfikator i pyta od nowa.
+//
 // Bez wiedzy o protokole hookow — tak samo jak session-signals.js. Adapter
 // wola te funkcje i sam decyduje, jak wyglada jego zdarzenie.
 //
@@ -187,13 +201,42 @@ function decyzjaZRekordu(j) {
   return null;
 }
 
+function rekordSesji(cwd, sesja) {
+  const plik = plikZgodySesji(cwd, sesja);
+  if (!plik) return null;
+  try {
+    const j = JSON.parse(fs.readFileSync(plik, 'utf8'));
+    return j && typeof j === 'object' ? j : null;
+  } catch (_) {
+    return null;
+  }
+}
+
+// Nazwa modelu jest wstawiana do tresci reguly, a pisze ja model — wiec wpuszczamy
+// tylko ksztalt nazwy z listy modeli (litery, cyfry, spacja, kropka, myslnik).
+// Cokolwiek innego znaczy "modelu nie ma" i bramka zapyta raz jeszcze.
+const NAZWA_MODELU = /^[A-Za-z0-9][A-Za-z0-9 ._-]{0,39}$/;
+
+function nazwaModelu(wartosc) {
+  const s = String(wartosc || '').trim();
+  return NAZWA_MODELU.test(s) ? s : null;
+}
+
+// Model optymalizatora wybrany "na te sesje": pole `model` pliku sesji, ale tylko
+// przy decyzji "tak" — rekord "nie" nie niesie wyboru, ktory mialby gdzie zadzialac.
+function modelSesji(cwd, sesja) {
+  const j = rekordSesji(cwd, sesja);
+  if (decyzjaZRekordu(j) !== true) return null;
+  return nazwaModelu(j.model);
+}
+
 // Zwraca true / false / null (brak pliku, inna sesja, wartosc nierozpoznana).
 function zgodaSesji(cwd, sesja) {
   const plik = plikZgodySesji(cwd, sesja);
   if (!plik) return null;
-  try {
-    return decyzjaZRekordu(JSON.parse(fs.readFileSync(plik, 'utf8')));
-  } catch (_) { /* brak pliku tej sesji — sprawdzamy stary format */ }
+  const j = rekordSesji(cwd, sesja);
+  if (j) return decyzjaZRekordu(j);
+  // brak pliku tej sesji albo plik nieczytelny — sprawdzamy stary format
   try {
     const stary = JSON.parse(fs.readFileSync(path.join(cwd || '.', ...PLIK_ZGODY_SESJI.split('/')), 'utf8'));
     if (!stary || String(stary.sesja || '') !== String(sesja)) return null;
@@ -257,12 +300,42 @@ function pomija(prompt) {
 // wejscia (POMIAR_CLAUDE.md), wiec kazde zdanie w tym tekscie placi sie przy
 // KAZDYM prompcie sesji. Bez polskich znakow diakrytycznych — jak w pozostalych
 // hookach (bezpieczenstwo kodowania konsoli Windows).
-const REGULA = '[RelAI tryb ciagly] Zanim wykonasz ten prompt: przerob go procedura komendy ' +
-  '/relai-prompt, pokaz oryginal obok propozycji i CZEKAJ na zgode. Bez zgody nie wykonujesz ' +
+//
+// Od E3 KONTEKST_STARTU regula ma trzy brzmienia, wybierane po tym, co wiadomo o modelu
+// optymalizatora (opcje.model, opcje.listaModeli):
+// - nazwa z listy        -> sesja oddaje prompt agentowi relai-prompt-optimizer;
+// - "model sesji" albo brak listy modeli -> sesja przerabia sama (Krok 1 /relai-prompt);
+// - modelu brak, lista jest -> najpierw JEDNO pytanie o model i zasieg (drugi krok bramki).
+// Zadne brzmienie nie kaze czytac calej komendy /relai-prompt: przygotowanie wywolania
+// i procedura leza w osobnych plikach (core/prompt/, kopia w .claude/relai/prompt/).
+const PRZYGOTOWANIE = '.claude/relai/prompt/PRZYGOTOWANIE.md';
+const PROCEDURA = '.claude/relai/prompt/PROCEDURA.md';
+const MODEL_SESJI = /^model sesji$/i;
+const CZEKAJ = ' Pokaz oryginal obok propozycji i CZEKAJ na zgode. Bez zgody nie wykonujesz ' +
   'ani oryginalu, ani propozycji. Zgoda uruchamia prompt przyjety przez czlowieka.';
 
-function regula() {
-  return REGULA;
+function sposobPracy(model) {
+  if (model && !MODEL_SESJI.test(model)) {
+    return 'oddaj go agentowi relai-prompt-optimizer (narzedzie Agent, model: ' + model +
+      ') z linia "Model docelowy" i blokiem kontekstu wg ' + PRZYGOTOWANIE + '.';
+  }
+  return 'przerob go sam wg ' + PRZYGOTOWANIE + ' i ' + PROCEDURA + '.';
+}
+
+function regula(opcje) {
+  const o = opcje || {};
+  const model = nazwaModelu(o.model) || (MODEL_SESJI.test(String(o.model || '').trim()) ? 'model sesji' : null);
+  if (model || !o.listaModeli) {
+    return '[RelAI tryb ciagly] Zanim wykonasz ten prompt: ' + sposobPracy(model) + CZEKAJ;
+  }
+  return '[RelAI tryb ciagly] Model optymalizatora nie jest wybrany. Zanim wykonasz ten prompt, ' +
+    'zadaj JEDNO pytanie (AskUserQuestion) w dwoch czesciach: model (pozycje z .claude/relai/' +
+    o.listaModeli + ' z data listy oraz "model sesji") i zasieg (ten prompt / ta sesja / ten ' +
+    'projekt / wszystkie projekty). "ta sesja": pole "model" we wlasnym pliku .claude/relai/' +
+    'zgoda-promptu/' + String(o.sesja || '') + '.json obok "decyzja":"tak"; "ten projekt" i ' +
+    '"wszystkie projekty": wiersz "| RRRR-MM-DD | Model optymalizatora | <nazwa> · nie pytaj |" ' +
+    'w docs/USTAWIENIA.md albo ~/.claude/relai/USTAWIENIA.md. Potem: nazwa z listy - oddaj prompt ' +
+    'agentowi relai-prompt-optimizer z ta nazwa modelu; "model sesji" - ' + sposobPracy(null) + CZEKAJ;
 }
 
 // Tresc bramki. Placi sie tylko do momentu odpowiedzi — potem wraca zwykla REGULA
@@ -270,28 +343,22 @@ function regula() {
 // czlowiek czeka, konkuruje z nia o kontekst. Identyfikator sesji wstawia adapter,
 // bo model go nie widzi, a bez niego zgoda "na te sesje" nie ma czego pilnowac.
 //
-// Od 2.7.0 (E5 PROWADZENIE_END_TO_END, A20+S03): gdy model optymalizatora nie jest
-// wybrany na stale, pytanie o model i zasieg idzie W TYM SAMYM wywolaniu AskUserQuestion
-// co zgoda — czlowiek dostaje jedno okno pytan zamiast dwoch po kolei. O tym, czy pytac,
-// decyduje adapter (opcja `pytajOModel`), bo tylko on zna nazwe listy modeli swojego narzedzia.
+// Od E3 KONTEKST_STARTU (wariant C planu) bramka ma dwa kroki. Pierwsze pytanie dotyczy
+// WYLACZNIE zgody — model i zasieg nie padaja w tym samym oknie (tak bylo od 2.7.0), bo
+// po "nie" bylyby pytaniem bez celu. Dalszy ciag po (1) i (2) to regula trybu ciaglego
+// (regula(opcje)) — przy nieznanym modelu jest nia drugie, osobne pytanie.
 function regulaBramki(sesja, opcje) {
-  const o = opcje || {};
-  const model = o.pytajOModel && o.listaModeli
-    ? ' W TYM SAMYM wywolaniu dodaj dwa pytania z Kroku 1 komendy /relai-prompt: model ' +
-      'optymalizatora (pozycje z .claude/relai/' + o.listaModeli + ' z data listy oraz "model ' +
-      'sesji") i zasieg (ten prompt / ta sesja / ten projekt / wszystkie projekty); zapis wg ' +
-      'tabeli zasiegu z Kroku 1. Po (3) odpowiedz o model pomijasz.'
-    : '';
+  const o = Object.assign({}, opcje || {}, { sesja });
   return '[RelAI bramka zgody] Tryb ciagly optymalizatora jest wlaczony w tym projekcie, ale ' +
     'zgody na te sesje jeszcze nie ma. ZANIM zrobisz cokolwiek z tym promptem, zadaj JEDNO ' +
-    'pytanie (AskUserQuestion) o trzy opcje: (1) tak, w tej sesji; (2) tak i nie pytaj wiecej — ' +
-    'zgoda zapisana globalnie; (3) nie, nie korzystaj w tej sesji.' + model + ' Odpowiedz ZAPISZ, zanim ' +
-    'wykonasz prompt: (1) i (3) do WLASNEGO pliku tej sesji .claude/relai/zgoda-promptu/' +
-    String(sesja || '') + '.json jako {"decyzja":"tak albo nie","data":"RRRR-MM-DD"} - ' +
-    'plikow innych sesji nie ruszasz; (2) to samo z ' +
-    'decyzja "tak" PLUS wiersz "| RRRR-MM-DD | Zgoda na optymalizator | tak |" w ' +
-    '~/.claude/relai/USTAWIENIA.md. Po (1) i (2) przerabiasz ten prompt procedura /relai-prompt; ' +
-    'po (3) wykonujesz go bez zmian i nie wracasz do tematu w tej sesji.';
+    'pytanie (AskUserQuestion) o trzy opcje i nic wiecej: (1) tak, w tej sesji; (2) tak i nie ' +
+    'pytaj wiecej — zgoda zapisana globalnie; (3) nie, nie korzystaj w tej sesji. Odpowiedz ' +
+    'ZAPISZ, zanim wykonasz prompt: (1) i (3) do WLASNEGO pliku tej sesji .claude/relai/' +
+    'zgoda-promptu/' + String(sesja || '') + '.json jako {"decyzja":"tak albo nie",' +
+    '"data":"RRRR-MM-DD"} - plikow innych sesji nie ruszasz; (2) to samo z decyzja "tak" PLUS ' +
+    'wiersz "| RRRR-MM-DD | Zgoda na optymalizator | tak |" w ~/.claude/relai/USTAWIENIA.md. ' +
+    'Po (3) wykonujesz prompt bez zmian, bez kolejnych pytan i bez czytania procedury, i nie ' +
+    'wracasz do tematu w tej sesji. Po (1) i (2) dalej wg reguly: ' + regula(o);
 }
 
 // Czy model optymalizatora jest wybrany NA STALE: wiersz `Model optymalizatora` z czlonem
@@ -300,7 +367,11 @@ function regulaBramki(sesja, opcje) {
 const NAZWA_MODELU_OPT = /^(?:Model optymalizatora|Prompt optimizer model)\b/i;
 const CZLON_NIE_PYTAJ = /^(?:nie pytaj|don'?t ask)$/i;
 
-function modelOptymalizatoraNaStale(...teksty) {
+// Nazwa modelu z PIERWSZEGO wiersza z czlonem `nie pytaj` (kolejnosc plikow = kolejnosc
+// argumentow: projekt przed globalnymi, jak w Kroku 1 /relai-prompt) albo null. Nazwa
+// spoza ksztaltu (NAZWA_MODELU) daje true w modelOptymalizatoraNaStale, ale null tutaj —
+// regula wtedy pyta, zamiast wstawiac do tekstu cudza tresc.
+function wierszModeluNaStale(...teksty) {
   for (const txt of teksty) {
     for (const linia of String(txt || '').split('\n')) {
       if (!linia.trim().startsWith('|')) continue;
@@ -308,10 +379,20 @@ function modelOptymalizatoraNaStale(...teksty) {
       if (cells.length < 5) continue;
       if (!NAZWA_MODELU_OPT.test(cells[2].replace(/\*\*/g, '').trim())) continue;
       const czlony = cells[3].replace(/\*\*/g, '').split('·').map((c) => c.trim());
-      if (czlony.slice(1).some((c) => CZLON_NIE_PYTAJ.test(c))) return true;
+      if (czlony.slice(1).some((c) => CZLON_NIE_PYTAJ.test(c))) return czlony[0];
     }
   }
-  return false;
+  return null;
+}
+
+function modelOptymalizatoraNaStale(...teksty) {
+  return wierszModeluNaStale(...teksty) !== null;
+}
+
+function modelOptymalizatora(...teksty) {
+  const w = wierszModeluNaStale(...teksty);
+  if (w === null) return null;
+  return MODEL_SESJI.test(w.trim()) ? 'model sesji' : nazwaModelu(w);
 }
 
 // Przypomnienie o zgodzie udzielonej na stale — JEDNA linia albo zero, na starcie
@@ -350,5 +431,8 @@ module.exports = {
   stanBramki,
   regulaBramki,
   modelOptymalizatoraNaStale,
+  // Drugi krok bramki (E3 KONTEKST_STARTU): skad wiadomo, ze model jest juz wybrany.
+  modelSesji,
+  modelOptymalizatora,
   przypomnienieZgodyReport,
 };

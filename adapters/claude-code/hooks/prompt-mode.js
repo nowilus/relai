@@ -63,18 +63,20 @@ function main(input) {
   });
   if (stan === 'cisza') return process.exit(0);
 
-  // Od 2.7.0 bramka pyta o model optymalizatora w tym samym oknie co o zgode — ale tylko
-  // wtedy, gdy jest z czego wybierac (lista modeli w projekcie) i wybor nie zapadl na stale.
-  const opcjeBramki = { listaModeli: LISTA_MODELI, pytajOModel: false };
-  if (stan === 'pytaj') {
-    opcjeBramki.pytajOModel = fs.existsSync(path.join(cwd, '.claude', 'relai', LISTA_MODELI)) &&
-      !tryb.modelOptymalizatoraNaStale(ustawieniaProjektu(cwd), globalne ? globalne.text : '');
-  }
+  // Od E3 KONTEKST_STARTU bramka ma dwa kroki: najpierw sama zgoda, po "tak" model
+  // i zasieg. Model jest juz znany z pliku tej sesji albo z wiersza `· nie pytaj`;
+  // bez listy modeli w projekcie nie ma z czego wybierac, wiec regula nie pyta.
+  const opcje = {
+    sesja: input.session_id,
+    model: tryb.modelSesji(cwd, input.session_id) ||
+      tryb.modelOptymalizatora(ustawieniaProjektu(cwd), globalne ? globalne.text : ''),
+    listaModeli: fs.existsSync(path.join(cwd, '.claude', 'relai', LISTA_MODELI)) ? LISTA_MODELI : null,
+  };
 
   process.stdout.write(JSON.stringify({
     hookSpecificOutput: {
       hookEventName: 'UserPromptSubmit',
-      additionalContext: stan === 'pytaj' ? tryb.regulaBramki(input.session_id, opcjeBramki) : tryb.regula(),
+      additionalContext: stan === 'pytaj' ? tryb.regulaBramki(input.session_id, opcje) : tryb.regula(opcje),
     },
   }));
   process.exit(0);

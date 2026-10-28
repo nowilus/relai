@@ -681,6 +681,34 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
 - **Zasada:** w worktree pomiarowym pracujesz podpowłoką `( cd … && … )` albo `git -C` / ścieżkami
   bezwzględnymi; gołego `cd` do innego drzewa w sesji etapu nie używasz.
 
+### L-0299 — instrument tury liczył lokalną komendę `/model` jako polecenie człowieka · 2026-10-28 · AKTYWNA
+
+- **Trigger:** KONTEKST_STARTU E3, pomiar bramki na żywo. `core/tools/start-context.js` dał „brak
+  danych” dla końca 1. tury w sześciu z siedmiu sesji: wpis `<command-name>/model</command-name>`
+  przed promptem przesunął licznik poleceń, więc cała tura wypadła poza „turę 1”.
+- **Zasada:** filtr „to nie polecenie człowieka” obejmuje lokalne komendy (`<command-name>`,
+  `<local-command-stdout>`, `<local-command-caveat>`); „brak danych” przy istniejącym pierwszym
+  wywołaniu to najpierw defekt instrumentu, nie brak tury.
+
+### L-0300 — `/model` w sesji pomiarowej zmienił domyślny model człowieka i model pomiaru · 2026-10-28 · AKTYWNA
+
+- **Trigger:** KONTEKST_STARTU E3. Instrukcja dla człowieka podała `claude --model opus`, ale nie
+  zakazała `/model`. Człowiek przełączył sześć sesji na Sonnet 5.5, a Claude Code zapisał go jako
+  domyślny model nowych sesji (`~/.claude/settings.json`, `"model": "sonnet"`). Liczby stały się
+  porównywalne tylko między sobą, nie z „przed” zmierzonym na Opusie.
+- **Zasada:** instrukcja pomiaru dla człowieka mówi wprost, czego w sesji nie robić (`/model`,
+  `/config`), a analiza najpierw wypisuje model każdej sesji z transkryptu (`message.model`), zanim
+  zestawi liczby; zmiana ustawień użytkownika przez sesję pomiarową idzie do raportu jako uwaga.
+
+### L-0301 — sesja „przed” na słabszym modelu pominęła procedurę i wyszła tańsza · 2026-10-28 · AKTYWNA
+
+- **Trigger:** KONTEKST_STARTU E3. Stara bramka, „tak” + „model sesji”, Sonnet 5.5: sesja nie
+  przeczytała `relai-prompt.md`, nie oznaczyła dopowiedzeń i zrobiła propozycję z głowy — 51 892
+  tokenów wobec 71 256 nowej wersji, która procedurę wykonała w całości.
+- **Zasada:** koszt mierzysz tylko na przebiegach zgodnych z procedurą — przed porównaniem liczb
+  sprawdzasz w transkrypcie, czy kroki wymagane zaszły (odczyty plików, markery w wyniku);
+  przebieg niezgodny opisujesz z nazwy i nie wstawiasz jako „przed”.
+
 ## Lekcje zwinięte
 
 Pełne wpisy lekcji, których zasady żyją w destylacie „Zasady aktywne" (kompresja 2026-08-20).

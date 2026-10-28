@@ -325,27 +325,27 @@ slugu projektu.
 Każdy punkt Weryfikacji, który przeszedł, odhaczasz w `PROMPT_ETAP_3.md` (`- [ ]` → `- [x]`)
 zaraz po jego sprawdzeniu, nie na końcu etapu; punkt, który nie przeszedł, zostaje pusty.
 
-- [ ] `node --test core/process/tests/*.test.js` i `node --test core/panel/tests/*.test.js` bez
+- [x] `node --test core/process/tests/*.test.js` i `node --test core/panel/tests/*.test.js` bez
       błędów; `node core/tools/validate-adapters.js` zielony; `node adapters/codex/generate-skills.js`
       kończy się „spojne”.
-- [ ] **Obie wersje w jednym przebiegu (zasada 4):** nowe testy stanów bramki na kodzie z HEAD
+- [x] **Obie wersje w jednym przebiegu (zasada 4):** nowe testy stanów bramki na kodzie z HEAD
       sprzed etapu (worktree w katalogu roboczym, `core.autocrlf=false`) padają, na zmianie
       przechodzą — liczby fail/pass do wpisu.
-- [ ] Stan „brak zgody”: wyjście hooka bez pytania o model i zasięg i bez odesłania do
+- [x] Stan „brak zgody”: wyjście hooka bez pytania o model i zasięg i bez odesłania do
       `relai-prompt.md` (dowód negatywny) — z kontrolą pozytywną: stan „tak” bez wybranego modelu
       daje okno modelu i zasięgu.
-- [ ] „Nie” i globalne „nie pytaj”: zero pytań w kolejnych promptach tej sesji (test) i zero
+- [x] „Nie” i globalne „nie pytaj”: zero pytań w kolejnych promptach tej sesji (test) i zero
       okna modelu przy zapisanym `· nie pytaj` (test z wierszem i bez wiersza w jednym przebiegu).
-- [ ] `relai-prompt.md` poniżej 20 480 B albo z jawnym powodem, dlaczego nie; kroki przeniesione
+- [x] `relai-prompt.md` poniżej 20 480 B albo z jawnym powodem, dlaczego nie; kroki przeniesione
       bajt w bajt (porównanie treści przed i po, licznik nagłówków całego pakietu — zasada 5).
-- [ ] Pomiar na żywo: każdy stan z listy z dowodem z transkryptu (pytania w `AskUserQuestion`,
+- [x] Pomiar na żywo: każdy stan z listy z dowodem z transkryptu (pytania w `AskUserQuestion`,
       plik zgody), koszt „nie” i „tak + model sesji” obok „przed” w dzienniku i w `docs/STATE.md`.
-- [ ] Dowód negatywny: `git diff --stat` od początku etapu nie pokazuje zmian w
+- [x] Dowód negatywny: `git diff --stat` od początku etapu nie pokazuje zmian w
       `core/process/start-digest.js`, kopiach rytuału startu ani w sekcji „Zasady aktywne”
       `docs/LEKCJE.md`.
-- [ ] Wpis w `docs/DZIENNIK.md` dopisany na końcu sekcji „Wpisy”, z autorem; `docs/STATE.md`
+- [x] Wpis w `docs/DZIENNIK.md` dopisany na końcu sekcji „Wpisy”, z autorem; `docs/STATE.md`
       zaktualizowany; brzmienie decyzji o zamrożeniu bramek w „Do zrobienia przez człowieka”.
-- [ ] Katalog roboczy `.claude/relai/work/KONTEKST_STARTU/E3/` przejrzany raportem
+- [x] Katalog roboczy `.claude/relai/work/KONTEKST_STARTU/E3/` przejrzany raportem
       (`node .claude/relai/tools/clean-work.js raport`) i skasowany po „tak”; liczby przed i po
       w sekcji „Zweryfikowane” wpisu. Artefakty poza tym katalogiem (worktree „przed”, jeśli
       powstał poza nim, transkrypty sesji) wypisane z nazwy razem z tym, co się z nimi stało.

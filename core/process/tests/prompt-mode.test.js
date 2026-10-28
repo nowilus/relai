@@ -146,18 +146,28 @@ test('powodPominiecia still gates a human prompt that only starts like a notific
 });
 
 test('regula carries the whole contract and costs what it was measured to cost', () => {
-  const r = tryb.regula();
-  assert.ok(r.length > 0, 'pusta regula znaczy tryb bez tresci');
-  // Trzy zobowiazania reguly. Bez ktoregokolwiek tryb przestaje byc trybem:
-  // pokazuje roznice i nie wykonuje niczego bez zgody.
-  assert.match(r, /relai-prompt/);
-  assert.match(r, /oryginal/i);
-  assert.match(r, /zgod/i);
-  // Bez polskich diakrytykow — jak pozostale komunikaty hookow (L-0016).
-  assert.ok(!/[ąćęłńóśźżĄĆĘŁŃÓŚŹŻ]/.test(r), 'regula ma byc w ASCII');
-  // Regula placi sie przy KAZDYM prompcie merytorycznym sesji: 245 znakow =
-  // +110 tokenow wejscia (POMIAR_CLAUDE.md, E4). Prog trzyma ten koszt w ryzach.
-  assert.ok(r.length <= 400, 'regula urosla do ' + r.length + ' znakow — przelicz koszt na ture');
+  // E3 KONTEKST_STARTU: dwa brzmienia placone przy kazdym prompcie — delegacja do agenta
+  // (model znany) i praca sesji z plikow doczytywanych (model sesji albo brak listy).
+  const sam = tryb.regula();
+  const agent = tryb.regula({ model: 'Sonnet 5.5', listaModeli: 'MODELE-claude-code.md' });
+  assert.match(sam, /PRZYGOTOWANIE\.md/);
+  assert.match(sam, /PROCEDURA\.md/);
+  assert.match(agent, /relai-prompt-optimizer/);
+  assert.match(agent, /model: Sonnet 5\.5/);
+  for (const r of [sam, agent]) {
+    assert.ok(r.length > 0, 'pusta regula znaczy tryb bez tresci');
+    // Zobowiazania reguly. Bez ktoregokolwiek tryb przestaje byc trybem:
+    // pokazuje roznice i nie wykonuje niczego bez zgody.
+    assert.match(r, /oryginal/i);
+    assert.match(r, /zgod/i);
+    // Dowod negatywny: zadne brzmienie nie odsyla do calej komendy (+26,7 tys. tokenow).
+    assert.doesNotMatch(r, /relai-prompt\.md|procedura komendy/);
+    // Bez polskich diakrytykow — jak pozostale komunikaty hookow (L-0016).
+    assert.ok(!/[ąćęłńóśźżĄĆĘŁŃÓŚŹŻ]/.test(r), 'regula ma byc w ASCII');
+    // Regula placi sie przy KAZDYM prompcie merytorycznym sesji: 245 znakow =
+    // +110 tokenow wejscia (POMIAR_CLAUDE.md, E4). Prog trzyma ten koszt w ryzach.
+    assert.ok(r.length <= 400, 'regula urosla do ' + r.length + ' znakow — przelicz koszt na ture');
+  }
 });
 
 test('normalizuj strips diacritics, case and trailing punctuation', () => {
@@ -282,28 +292,55 @@ test('regulaBramki carries the three options, the session id and the place to wr
   assert.match(r, /zgoda-promptu\/sesja-42\.json/);
   assert.match(r, /innych sesji nie ruszasz/);
   assert.match(r, /USTAWIENIA\.md/);
-  assert.match(r, /relai-prompt/);
+  assert.match(r, /PROCEDURA\.md/);
   assert.ok(!/[ąćęłńóśźżĄĆĘŁŃÓŚŹŻ]/.test(r), 'bramka ma byc w ASCII');
   // Bramka placi sie tylko do odpowiedzi, wiec moze byc dluzsza od reguly — ale nie
   // dowolnie: czlowiek czeka na swoj prompt, a nie na regulamin.
   assert.ok(r.length <= 1200, 'bramka urosla do ' + r.length + ' znakow');
 });
 
-test('regulaBramki asks about the model in the same call only when told to (A20+S03, 2.7.0)', () => {
-  const bez = tryb.regulaBramki('sesja-42');
-  const z = tryb.regulaBramki('sesja-42', { pytajOModel: true, listaModeli: 'MODELE-claude-code.md' });
-  const wylaczone = tryb.regulaBramki('sesja-42', { pytajOModel: false, listaModeli: 'MODELE-claude-code.md' });
-  // Kontrola pozytywna: wariant z modelem niesie pytanie, liste i zasieg.
-  assert.match(z, /W TYM SAMYM wywolaniu/);
-  assert.match(z, /\.claude\/relai\/MODELE-claude-code\.md/);
-  assert.match(z, /ten prompt \/ ta sesja \/ ten projekt \/ wszystkie projekty/);
-  // Dowod negatywny: bez opcji i z opcja wylaczona tresc jest ta sama co przed 2.7.0.
-  assert.equal(wylaczone, bez);
-  assert.doesNotMatch(bez, /TYM SAMYM/);
-  // Pytanie o zgode nadal jest JEDNO — wywolanie AskUserQuestion pada w tresci raz.
-  assert.equal((z.match(/AskUserQuestion/g) || []).length, 1);
+// E3 KONTEKST_STARTU odwraca A20+S03 z 2.7.0: model i zasieg nigdy nie padaja w jednym
+// oknie ze zgoda. Po "tak" sa drugim, osobnym pytaniem — i tylko gdy modelu nie ma.
+test('regulaBramki keeps the model question out of the consent call (E3 KONTEKST_STARTU)', () => {
+  const lista = { listaModeli: 'MODELE-claude-code.md' };
+  const z = tryb.regulaBramki('sesja-42', lista);
+  const [zgoda, poTak] = z.split('Po (1) i (2)');
+  // Dowod negatywny: pierwsze okno nie niesie listy modeli, zasiegu ani "W TYM SAMYM".
+  assert.doesNotMatch(zgoda, /MODELE-claude-code\.md|ten prompt \/ ta sesja|TYM SAMYM/);
+  assert.equal((zgoda.match(/AskUserQuestion/g) || []).length, 1);
+  // Kontrola pozytywna: drugie okno jest w czesci "po tak", z lista i zasiegiem.
+  assert.match(poTak, /\.claude\/relai\/MODELE-claude-code\.md/);
+  assert.match(poTak, /ten prompt \/ ta sesja \/ ten projekt \/ wszystkie projekty/);
+  assert.match(poTak, /zgoda-promptu\/sesja-42\.json/);
+  // Model znany: po "tak" zadnego drugiego pytania.
+  const znany = tryb.regulaBramki('sesja-42', { ...lista, model: 'Sonnet 5.5' });
+  assert.equal((znany.match(/AskUserQuestion/g) || []).length, 1);
+  assert.match(znany, /model: Sonnet 5\.5/);
   assert.ok(!/[ąćęłńóśźżĄĆĘŁŃÓŚŹŻ]/.test(z), 'bramka ma byc w ASCII');
-  assert.ok(z.length <= 1200, 'bramka z pytaniem o model urosla do ' + z.length + ' znakow');
+  // Pelne brzmienie z drugim oknem placi sie raz na sesje; 2.7.0 mialo jedno okno do 1200 znakow.
+  assert.ok(z.length <= 1800, 'bramka z drugim oknem urosla do ' + z.length + ' znakow');
+});
+
+test('modelSesji and modelOptymalizatora name the model only in the shape of a list name', (t) => {
+  const root = fixture(t);
+  const katalog = path.join(root, '.claude', 'relai', 'zgoda-promptu');
+  fs.mkdirSync(katalog, { recursive: true });
+  const zapisz = (rekord) => fs.writeFileSync(path.join(katalog, 'S.json'), JSON.stringify(rekord));
+  zapisz({ decyzja: 'tak', data: '2026-10-28', model: 'Sonnet 5.5' });
+  assert.equal(tryb.modelSesji(root, 'S'), 'Sonnet 5.5');
+  assert.equal(tryb.zgodaSesji(root, 'S'), true, 'pole model nie zmienia odczytu zgody');
+  zapisz({ decyzja: 'nie', data: '2026-10-28', model: 'Sonnet 5.5' });
+  assert.equal(tryb.modelSesji(root, 'S'), null, 'rekord "nie" nie niesie wyboru');
+  zapisz({ decyzja: 'tak', data: '2026-10-28', model: 'a\nb' });
+  assert.equal(tryb.modelSesji(root, 'S'), null);
+  zapisz({ decyzja: 'tak', data: '2026-10-28' });
+  assert.equal(tryb.modelSesji(root, 'S'), null);
+
+  const tab = (d) => '| Data | Czego dotyczy | Decyzja |\n|---|---|---|\n| 2026-10-28 | Model optymalizatora | ' + d + ' |\n';
+  assert.equal(tryb.modelOptymalizatora(tab('Sonnet 5.5 · lista claude-code z dnia 2026-10-08 · nie pytaj')), 'Sonnet 5.5');
+  assert.equal(tryb.modelOptymalizatora(tab('model sesji · nie pytaj')), 'model sesji');
+  assert.equal(tryb.modelOptymalizatora(tab('Sonnet 5.5')), null, 'bez czlonu to podpowiedz');
+  assert.equal(tryb.modelOptymalizatora(tab('Opus · nie pytaj'), tab('Haiku 5.5 · nie pytaj')), 'Opus', 'projekt przed globalnym');
 });
 
 test('modelOptymalizatoraNaStale: only a row with "nie pytaj" settles the model', () => {
