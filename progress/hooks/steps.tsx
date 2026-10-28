@@ -2,7 +2,8 @@
 // MAKIETA_PASEK_POSTEPU.html; look accepted with Łukasz in rounds 1–3, the words in the journal).
 //
 // Collapsed: the thin line of segments, under it one line — the spinner, the item in progress, the
-// next one on a wide screen, "● N agentów", the button "Rozwiń". Expanded: the line says the sums
+// next one on a wide screen, "● N agentów", the button "Rozwiń" (on the desktop both buttons are
+// ghosts with air above them, short below SHORT_BELOW columns). Expanded: the line says the sums
 // and "Zwiń"; under it the window of at most six rows (segments.ts windowRows) — the fold of the done
 // ones as text, the one just ticked (it flashes once and its mark fills), the current one, three
 // next ones, "+N czekają". A row says its state right after its name (round 3).
@@ -22,6 +23,12 @@ type AnyTable = Elements[keyof Elements]
 
 export const FLASH_KEY = 'diffAddedDimmed' // a soft green in both appearances: the row just ticked
 export const WIDE = 110 // from this many columns the collapsed line also says the next item
+// Below this many columns the line's buttons speak short on the desktop — the chip its sign and
+// count, the toggle its word without the chevron — so the item's name keeps its room (PRZYCISKI_
+// POSTEPU, Łukasz's pick "B" of 2026-10-28; DESIGN.md §6 names the same width STACK_BELOW)
+export const SHORT_BELOW = 48
+// The air between the segments and the line on the desktop: a step name, so the terminal draws none
+const LINE_AIR = 'xs'
 const COLUMN_GAP = 2
 const WORD: Record<string, string> = { done: 'zrobione', pending: 'czeka', running: 'w toku', failed: 'błąd', unknown: 'stan nieznany' }
 const GLYPH: Record<MarkKind, string> = { done: BAR.tile.done.mark, pending: BAR.tile.pending.mark, running: BAR.tile.running.mark, failed: BAR.tile.failed.mark, 'fold-open': '▾', 'fold-closed': '▸' }
@@ -45,7 +52,12 @@ export type Steps = {
 // The agents chip: how many subagents the session ran, ● while one runs and ✓ once none does; the
 // cost is in /relai-agents (plan, section 5)
 export function chipWords(a: { count: number, isRunning: boolean }): string {
-  return `${a.isRunning ? BAR.tile.running.mark : BAR.tile.done.mark} ${a.count} ${a.count === 1 ? 'agent' : 'agentów'}`
+  return `${chipShort(a)} ${a.count === 1 ? 'agent' : 'agentów'}`
+}
+
+// The chip in a narrow line: its sign and the count alone
+export function chipShort(a: { count: number, isRunning: boolean }): string {
+  return `${a.isRunning ? BAR.tile.running.mark : BAR.tile.done.mark} ${a.count}`
 }
 
 // The rows of the middle column of the bar, top to bottom
@@ -69,20 +81,29 @@ export function stepRows(el: AnyTable, isGui: boolean, s: Steps): RenderChildren
   }
   const cut = (key: string, grow: number, color: string, words: string, isBold = false) =>
     <Box key={key} flexGrow={grow} flexShrink={1} width={0}><Text bold={isBold} color={color} wrap="truncate">{words}</Text></Box>
-  // The agents chip is a button: it opens and closes the RelAI Agents pane (AGENTS_KRABY P5)
-  const chip = s.agents
-    ? <Box key="agents-chip" flexShrink={0}><Button key="agents-open" variant="secondary" label={chipWords(s.agents)} onPress={s.onAgents} /></Box>
+  // The bar's buttons on the desktop are ghosts (PRZYCISKI_POSTEPU, 2026-10-28): a filled one stood
+  // over the segments and squeezed the item's name; the terminal keeps its own look
+  const look = (variant: 'primary' | 'secondary') => (isGui ? { plain: true as const } : { variant })
+  const isShort = isGui && s.columns < SHORT_BELOW
+  // Under the label of a narrow card the first row gets air too, or the button touches the label
+  const firstAir = isGui && s.columns < BAR.narrow ? LINE_AIR : 0
+  // The agents chip is a button: it opens and closes the RelAI Agents pane (AGENTS_KRABY P5); it
+  // speaks short only beside the item's name, alone it keeps its words
+  const chipOf = (isInLine: boolean) => s.agents
+    ? <Box key="agents-chip" flexShrink={0}><Button key="agents-open" {...look('secondary')} label={isInLine && isShort ? chipShort(s.agents) : chipWords(s.agents)} onPress={s.onAgents} /></Box>
     : null
+  const chip = chipOf(false)
 
   // Work outside a plan with agents: the line is the agents button alone, nothing to say of progress
   if (s.progress.kind === 'free' && chip) {
-    return [<Box key="first" flexDirection="row" alignItems="center" columnGap={COLUMN_GAP}>{chip}</Box>]
+    return [<Box key="first" flexDirection="row" alignItems="center" columnGap={COLUMN_GAP} marginTop={firstAir}>{chip}</Box>]
   }
 
   // No list to show: no items (the words say why), or every item done — one line, no button
   if (items.length === 0 || cur < 0) {
     const words = items.length === 0 ? s.progress.words : 'wszystkie punkty odhaczone'
-    return [<Box key="first" flexDirection="row" alignItems="center" columnGap={COLUMN_GAP}>
+    // words alone need no air under the label: only a button stands too close to it
+    return [<Box key="first" flexDirection="row" alignItems="center" columnGap={COLUMN_GAP} marginTop={chip ? firstAir : 0}>
       {cut('words', 1, KEY.muted, words)}
       {chip}
     </Box>]
@@ -117,11 +138,13 @@ export function stepRows(el: AnyTable, isGui: boolean, s: Steps): RenderChildren
         nextIt && s.columns >= WIDE ? cut('next', 2, KEY.muted, `następny: ${nextIt.name}`) : null,
       ]
   const isLineFresh = !s.isOpen && s.freshId !== null
-  rows.push(<Box key="line" flexDirection="row" alignItems="center" columnGap={1} {...(isLineFresh ? { backgroundColor: FLASH_KEY } : {})}>
+  // A wide desktop line says the toggle with its chevron; a narrow one, and the terminal, the word
+  const chevron = isGui && !isShort ? (s.isOpen ? ' ▴' : ' ▾') : ''
+  rows.push(<Box key="line" flexDirection="row" alignItems="center" columnGap={1} marginTop={isGui ? LINE_AIR : 0} {...(isLineFresh ? { backgroundColor: FLASH_KEY } : {})}>
     {s.isOpen ? null : mark(isFailed ? 'failed' : 'running', 'now-mark', { title: it.name })}
     {words}
-    {chip}
-    <Box key="toggle" flexShrink={0}><Button key="toggle-btn" variant="primary" label={s.isOpen ? 'Zwiń' : 'Rozwiń'} onPress={s.onToggle} /></Box>
+    {chipOf(true)}
+    <Box key="toggle" flexShrink={0}><Button key="toggle-btn" {...look('primary')} label={(s.isOpen ? 'Zwiń' : 'Rozwiń') + chevron} onPress={s.onToggle} /></Box>
   </Box>)
 
   if (s.isOpen) {

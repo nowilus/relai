@@ -6,6 +6,7 @@ import { parseRecords } from './core/measure.mjs'
 import { parsePriceFile, priceAt, priceLists } from './core/pricing.mjs'
 import { usd } from './fmt'
 import { WINDOW, currentOf, sumWords, windowRows } from './segments'
+import { SHORT_BELOW } from './steps'
 import type { Item } from './core/progress.mjs'
 
 type Engine = Parameters<TestBody>[0]
@@ -291,9 +292,11 @@ describe('the progress card above the prompt', () => {
     expect(await markOf(ui)).toContain('animateTransform')
     await ui.redraw({ ...BAND().props, isWorking: false })
     expect(await markOf(ui)).not.toContain('animateTransform')
+    // the desktop's button is a ghost with air above the line, so it never stands on the segments
+    // (PRZYCISKI_POSTEPU, 2026-10-28: a filled "Rozwiń" covered them in a narrow pane)
     const buttons = await ui.findAll({ type: 'Button' })
-    expect(buttons.map((b) => b.props.label)).toEqual(['Rozwiń'])
-    expect(buttons[0]?.props.variant).toBe('primary')
+    expect(buttons.map((b) => [b.props.label, b.props.plain ?? b.props.variant])).toEqual([['Rozwiń ▾', true]])
+    expect((await ui.find({ key: 'line' }))?.props.marginTop).toBe('xs')
     expect(await ui.find({ key: 'list' })).toBeUndefined()
     await ui.unmount()
     // half a window: the next one is not said
@@ -305,6 +308,9 @@ describe('the progress card above the prompt', () => {
     const term = await $.ui.mount({ plugin: 'relai-progress', surface: 'terminal', ...BAND() })
     expect((await term.find({ key: 'now' }))?.text).toBe('trzy')
     expect((await term.find({ key: 'now-mark' }))?.text).toBe(BAR.tile.running.mark)
+    // the terminal keeps its bracketed button and draws no air: each of its rows counts
+    expect((await term.findAll({ type: 'Button' })).map((b) => [b.props.label, b.props.plain ?? b.props.variant])).toEqual([['Rozwiń', 'primary']])
+    expect((await term.find({ key: 'line' }))?.props.marginTop).toBe(0)
     await term.unmount()
   })
 
@@ -353,8 +359,9 @@ describe('the progress card above the prompt', () => {
       expect(await ui.find({ key: 'list' })).toBeDefined()
       expect((await ui.find({ key: 'sum' }))?.text).toBe('2 zrobionych · 1 w toku · 1 czeka')
       expect((await ui.find({ key: 'row-docs/plany/PANEL_CLAUDE/PROMPT_ETAP_9.md#3' }))?.text).toContain('trzy  ·  w toku')
+      const toggle = surface === 'desktop' ? ['Zwiń ▴', true] : ['Zwiń', 'primary']
       expect((await ui.findAll({ type: 'Button' })).map((b) => [b.props.label, b.props.plain ?? b.props.variant]))
-        .toEqual([['Zwiń', 'primary'], ['2 zrobionych', true]])
+        .toEqual([toggle, ['2 zrobionych', true]])
       await ui.redraw()
       await $.turn.complete({ answer: 'odpowiedź', durationMs: 10, isAborted: false, turnId: 'tm', reason: 'answer' } as never)
       expect(await ui.find({ key: 'list' })).toBeDefined()
@@ -445,6 +452,48 @@ describe('the progress card above the prompt', () => {
       expect(n.opens.slice(before)).toEqual(['relai-agents'])
       await ui.unmount()
     }
+  })
+
+  // PRZYCISKI_POSTEPU, variant B (Łukasz, 2026-10-28): in a narrow pane the filled buttons stood on
+  // the segments and squeezed the item's name to "Bram…"; on the desktop they turn ghosts with air
+  // above them and, below SHORT_BELOW columns, speak short beside the name
+  test('a narrow desktop line speaks short — "● N" and "Rozwiń" — the terminal keeps its words and brackets', async ($, on) => {
+    world(on, FILES)
+    await start($)
+    await spawn($)
+    const look = async (surface: 'desktop' | 'terminal', cols: number) => {
+      const ui = await $.ui.mount({ plugin: 'relai-progress', surface, ...BAND(cols) })
+      const buttons = (await ui.findAll({ type: 'Button' })).map((b) => [b.props.label, b.props.plain ?? b.props.variant])
+      await ui.unmount()
+      return buttons
+    }
+    expect(await look('desktop', SHORT_BELOW - 1)).toEqual([['● 1', true], ['Rozwiń', true]])
+    expect(await look('desktop', SHORT_BELOW)).toEqual([['● 1 agent', true], ['Rozwiń ▾', true]])
+    expect(await look('terminal', SHORT_BELOW - 1)).toEqual([['● 1 agent', 'secondary'], ['Rozwiń', 'primary']])
+    // open, the narrow line still speaks short: "Zwiń" with no chevron, beside the sums
+    const open = await $.ui.mount({ plugin: 'relai-progress', surface: 'desktop', ...BAND(SHORT_BELOW - 1) })
+    await open.press({ key: 'toggle-btn' })
+    expect((await open.findAll({ type: 'Button' })).map((b) => [b.props.label, b.props.plain ?? b.props.variant]))
+      .toEqual([['● 1', true], ['Zwiń', true], ['2 zrobionych', true]])
+    await open.press({ key: 'toggle-btn' })
+    await open.unmount()
+  })
+
+  test('the chip alone keeps its words; under the label of a narrow desktop card it gets air, words alone get none', async ($, on) => {
+    world(on, { ...FILES, [`${CWD}/CLAUDE.md`]: 'Aktywny plan: brak\n' })
+    await start($)
+    const first = async (surface: 'desktop' | 'terminal', cols: number) => {
+      const ui = await $.ui.mount({ plugin: 'relai-progress', surface, ...BAND(cols) })
+      const row = await ui.find({ key: 'first' })
+      const label = (await ui.find({ key: 'agents-open' }))?.props.label
+      await ui.unmount()
+      return [label, row?.props.marginTop]
+    }
+    expect(await first('desktop', 40)).toEqual([undefined, 0]) // no agents: the words say why, no button
+    await spawn($)
+    expect(await first('desktop', 40)).toEqual(['● 1 agent', 'xs']) // the label stands above
+    expect(await first('desktop', 140)).toEqual(['● 1 agent', 0]) // the label stands beside
+    expect(await first('terminal', 40)).toEqual(['● 1 agent', 0])
   })
 
   test('in a stage the agents button stands in the line too and opens the same pane', async ($, on) => {
@@ -630,7 +679,8 @@ describe('the agents pane', () => {
       const ui = await $.ui.mount({ plugin: 'relai-progress', surface, ...BAND(cols) })
       const line = await ui.find({ key: 'line' })
       const labels = [...walkNodes(line as RenderNode)].map((x) => (typeof x === 'string' ? '' : String((x.props as { label?: string } | undefined)?.label ?? '')))
-      expect(labels).toContain('● 1 agent') // the agents button stands in the line itself
+      // the agents button stands in the line itself; on a narrow desktop it speaks short (variant B)
+      expect(labels).toContain(surface === 'desktop' && cols < SHORT_BELOW ? '● 1' : '● 1 agent')
       expect(await ui.find({ key: 'chip-row' })).toBeUndefined()
       expect(minWidth(await ui.drawn())).toBeLessThanOrEqual(cols)
       await ui.unmount()

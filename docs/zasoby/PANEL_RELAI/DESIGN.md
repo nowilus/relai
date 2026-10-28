@@ -1,6 +1,7 @@
 # DESIGN — panel RelAI i paski nad promptem (Claude Code, aplikacja desktopowa)
 
-Wersja: **1.3** · Data: 2026-10-15 (1.3: E5 — natywny dymek, siatka baterii, wiersz kontekstu
+Wersja: **1.4** · Data: 2026-10-28 (1.4: §3 — przyciski paska postępu jako duchy z odstępem
+`xs`, krótkie etykiety poniżej 48 kolumn; 1.3: E5 — natywny dymek, siatka baterii, wiersz kontekstu
 z progiem auto-compactu, kształt stanu segmentu; 1.2: odbiór E4 — budżet znaków, rysunek bez tła) · Powstał w planie WYGLAD_PANELU, E3 (Aneks F), na prośbę
 Łukasza: „spiszesz te wszystkie zasady, wszystkie te lekcje, wszystkie te nasze tutaj poprawki […]
 jak każę Ci dodać coś nowego, to już będziesz wiedział w jakim stylu, z jakim formatowaniem, jak
@@ -80,8 +81,13 @@ Ciemniejsza musztarda `#9a6a12` i glina `#a8502e` (zwykła musztarda na białym 
 Obowiązuje brief, sekcje 1–5 i 13: pasek spokojny w spokoju (zero przycisków na stałe), mówiący
 tylko przy zdarzeniu (drugi wiersz pod swoim paskiem); wspólna siatka etykieta | treść | liczba;
 **wariant 3b** — bez tła i ramki, nad każdym paskiem linia gasnąca (`RULE`) tylko między paskami
-RelAI; wszystkie przyciski pasków `primary` (`secondary` w ciemnym tonie i wygląda na niższy);
-pasek postępu jako lista kroków (§3 briefu). Owijacz z `next(e)` nigdy z `width` (P-017).
+RelAI; przyciski pasków `primary` (`secondary` w ciemnym tonie i wygląda na niższy) — **poza
+paskiem postępu**: jego „Rozwiń/Zwiń” i chip agentów są na desktopie przyciskami-duchami (`plain`),
+a nad linią pod segmentami stoi odstęp `xs` (wypełniony przycisk zasłaniał segmenty w wąskim
+panelu). Poniżej `SHORT_BELOW = 48` kolumn linia mówi krótko — chip `● N`, „Rozwiń” bez ▾ — żeby
+nazwa punktu nie kurczyła się do kilku liter; sam chip pod etykietą zostaje w pełnych słowach
+(MINIPLAN PRZYCISKI_POSTEPU, wybór Łukasza „B”, 2026-10-28; P-060). Terminal bez zmian.
+Pasek postępu jako lista kroków (§3 briefu). Owijacz z `next(e)` nigdy z `width` (P-017).
 
 **Pasek cache od 1.3 (E5, wybór S2 + K1):** baterie w siatce na całą szerokość — kolumny z
 najszerszej miary, każdy wiersz w kolumnach pierwszego („limit tygodnia” pod „cache”, nie
