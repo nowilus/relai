@@ -212,12 +212,12 @@ zaraz po jego sprawdzeniu, nie na końcu etapu; punkt, który nie przeszedł, zo
 - [x] `KOMENDY.md` i `README.md`: każde zmienione zdanie o starcie ma za sobą przebieg, który je
       potwierdza; stare brzmienie („czyta wyłącznie »Zasady aktywne«”, lista plików rytuału) nie
       zostaje jako deklaracja stanu (`grep` z kontrolą pozytywną).
-- [ ] Wydanie: `release-check.js` zielony przed tagiem; po publikacji `release-verify.js` zielony
+- [x] Wydanie: `release-check.js` zielony przed tagiem; po publikacji `release-verify.js` zielony
       i świeża sesja ładuje nową wersję (plik instalacji, zasada 10); każdy krok zewnętrzny
       z osobnym „tak” w transkrypcie.
-- [ ] Wpis w `docs/DZIENNIK.md` dopisany na końcu sekcji „Wpisy”, z autorem; `docs/STATE.md`
+- [x] Wpis w `docs/DZIENNIK.md` dopisany na końcu sekcji „Wpisy”, z autorem; `docs/STATE.md`
       zaktualizowany.
-- [ ] Katalog roboczy `.claude/relai/work/KONTEKST_STARTU/E5/` przejrzany raportem
+- [x] Katalog roboczy `.claude/relai/work/KONTEKST_STARTU/E5/` przejrzany raportem
       (`node .claude/relai/tools/clean-work.js raport`) i skasowany po „tak”; liczby przed i po
       w sekcji „Zweryfikowane” wpisu. Artefakty poza tym katalogiem (worktree „przed”, jeśli
       powstał poza nim, transkrypty sesji pomiarowych, pliki w `%TEMP%`) wypisane z nazwy razem

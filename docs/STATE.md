@@ -1,25 +1,22 @@
 # STATE — RelAI
 
-Stan na: 2026-10-28 (ostatni zamknięty plan ZASIEG_PLUGINU ZREALIZOWANY — RelAI 3.6.0 z trybem
-„RelAI tylko w projektach”, `relai-mods` 0.3.0, `relai-panel` 0.22.1; poprzednio ZGLOSZENIA
-2026-10-27 — wydanie 3.5.0, PIPELINE_WYDAN 2026-10-26 — wydanie 3.4.0)
+Stan na: 2026-10-28 (ostatni zamknięty plan KONTEKST_STARTU ZREALIZOWANY — RelAI 3.7.0 z lżejszym
+startem sesji, `relai-progress` 0.7.1; tego samego dnia ZASIEG_PLUGINU — wydanie 3.6.0;
+poprzednio ZGLOSZENIA 2026-10-27 — wydanie 3.5.0)
 
 ## Gdzie jesteśmy
 
-RelAI **3.7.0** jest w repozytorium (lżejszy start sesji — plan KONTEKST_STARTU; wydanie w toku
-2026-10-28); publicznie **3.6.0** (tag `v3.6.0`: tryb „RelAI tylko w projektach” — plan
-ZASIEG_PLUGINU). Plugin `relai` działa
+RelAI **3.7.0** jest w repozytorium i publicznie (tag `v3.7.0`, 2026-10-28: lżejszy start sesji —
+plan KONTEKST_STARTU; wcześniej tego dnia 3.6.0 z trybem „RelAI tylko w projektach”). Plugin `relai` działa
 w trzech narzędziach — Claude Code, Cursorze i Codeksie — na jednym rdzeniu procesu, z szesnastoma
 komendami i czternastoma hookami w Claude Code (czternasty: `session-title`). Marketplace tego
 repozytorium niesie też cztery mody: `relai-panel` 0.22.1, `relai-progress` 0.7.1,
 `relai-cache-keeper` 0.13.0 („early access”) i kokpit `relai-mods` 0.3.0. Wydanie robi się frazą „gotowi do wydania?”
 (`/relai-release`): raport `release-check.js`, naprawy po jednej zgodzie, publikacja krok po kroku,
 bramka `pre-push` na tagi. Maszyna Łukasza pracuje w trybie „RelAI tylko w projektach” od
-2026-10-28. Aktywny plan KONTEKST_STARTU (lżejszy start sesji) zaakceptowany 2026-10-28; E1
-i E2 zrealizowane tego samego dnia (rytuał startu to jedno polecenie skrótu `start-digest.js`),
-E3 też (bramka trybu ciągłego pyta najpierw tylko o zgodę) i E4 („Zasady aktywne” jako indeks,
-skrót startu w limicie wyjścia), E5 gotowy do startu; PANEL_CODEX (Codex)
-wstrzymany 2026-10-27 decyzją Łukasza.
+2026-10-28. Aktywnego planu nie ma: KONTEKST_STARTU zamknięty 2026-10-28 (start sesji to jedno
+polecenie skrótu, RelAI po pierwszej turze 25–32 tys. tokenów zamiast ok. 72 tys. — cel 25 tys.
+częściowo), PANEL_CODEX (Codex) wstrzymany 2026-10-27 decyzją Łukasza.
 Opinii spoza projektu nadal nie ma.
 
 ## Co działa
@@ -88,11 +85,20 @@ Opinii spoza projektu nadal nie ma.
   uruchamiane z PowerShella (README), adopcja, inicjalizacja i `/relai-update` włączają RelAI
   w projekcie same; sesja w worktree dostaje plik lokalny (CLI 2.1.304 i aplikacja 2.1.308,
   P-058). Maszyna Łukasza przełączona 2026-10-28 (15 projektów).
+- **Lżejszy start sesji** (plan [KONTEKST_STARTU](archiwum/plany/KONTEKST_STARTU/STATUS.md),
+  zamknięty 2026-10-28, wydanie 3.7.0, D-15 Aneks A, D-93): rytuał startu w każdej kopii to
+  `node .claude/relai/tools/start-digest.js` — sekcje STATE, ryzyka bez mitygacji, ostatni wpis,
+  aktywne ustawienia, STATUS planu i drogowskazy; „Zasady aktywne” jako indeks z wyzwalaczami
+  (3,4 KB), pełne brzmienie przy wyzwalaczu; skrót zawsze w limicie wyjścia — sekcja za duża staje
+  się drogowskazem z zakresem linii (12 projektów Łukasza 4–26,5 tys. znaków); budżet startu liczy
+  skrót (`start 55`, `zasady 5`); bramka trybu ciągłego pyta najpierw tylko o zgodę, procedurę
+  czyta agent; start bez fałszywych sygnałów (plan wstrzymany, pusta rotacja, nakładka jako
+  zagnieżdżony `CLAUDE.md`). Instrument `core/tools/start-context.js`.
 - **Strona-wizytówka** https://nowilus.github.io/relai/ (plan
   [STRONA_RELAI](archiwum/plany/STRONA_RELAI/STATUS.md)): Film (`/`, `/pl/`) i Biurko 3D
   (`/biurko/`, `/pl/biurko/`, z plakatem bez WebGL), obie na telefonie, konfigurator instalacji
   i ankieta w Tally (PL https://tally.so/r/BE4lQ5, EN https://tally.so/r/X5lkMj). Wdrożenie
-  `.github/workflows/strona.yml` po pushu na `main`; konfigurator pokazuje RelAI 3.6.0. Testy 396,
+  `.github/workflows/strona.yml` po pushu na `main`; konfigurator pokazuje RelAI 3.7.0. Testy 396,
   w tym test odwołań: zbudowana strona wskazująca nieistniejący plik zatrzymuje wdrożenie.
 - **Zgłoszenia z GitHuba #1–#3** (plan [ZGLOSZENIA](archiwum/plany/ZGLOSZENIA/STATUS.md),
   zamknięty 2026-10-27, wydanie 3.5.0): nowa sesja po „Nowa sesja” / `/handoff` dostaje tytuł
@@ -108,42 +114,33 @@ Opinii spoza projektu nadal nie ma.
 
 ## Nad czym pracujemy teraz
 
-- **Plan KONTEKST_STARTU — E1–E4 ZREALIZOWANE 2026-10-28, E5 GOTOWY DO STARTU** ( [STATUS](plany/KONTEKST_STARTU/STATUS.md),
-  [PLAN.html](plany/KONTEKST_STARTU/PLAN.html)): 5 etapów, 6–9 sesji (szacunek). Cel: RelAI
-  najwyżej 25 tys. tokenów po pierwszej turze (dziś ok. 72 tys.). W repo, niewydane: E1 (parser
-  „Aktywny plan: brak”, rotacja tylko z zyskiem, nakładki `nakladka-<family>.md`, instrument
-  `start-context.js`) i E2 — rytuał startu to `node .claude/relai/tools/start-digest.js` w 11
-  kopiach, budżet liczy skrót. E3: bramka trybu ciągłego
-  w dwóch krokach — najpierw sama zgoda, po „tak” model i zasięg (wybór „ta sesja” w pliku zgody
-  sesji), procedura u agenta; `relai-prompt.md` 30 115 → 16 174 B, kroki w
-  `core/prompt/PRZYGOTOWANIE.md` i `PROCEDURA.md`. Zamrożenie bramek jako decyzji czeka na
-  Łukasza (bramka manualna w STATUS). E4 (z Aneksami C i D): „Zasady aktywne” na starcie jako
-  indeks z wyzwalaczami (3 443 B, D-15 Aneks A), pełne brzmienie doczytywane; skrót startu
-  60 489 → 29 056 B (27 946 znaków, w limicie wyjścia polecenia — długi ostatni wpis skraca się),
-  ewaluacja wyzwalania 3/3 i 0/3 na Opus 5.5. Następny: E5 — pomiar końcowy, progi, wydanie.
+- Aktywnego planu nie ma — następny do wyboru przez Łukasza (kandydat: migracja projektów na
+  nowy rytuał, „Co dalej”).
 - **PANEL_CODEX — nieaktywny, WSTRZYMANY 2026-10-27** decyzją Łukasza (plan
   [PANEL_CODEX](plany/PANEL_CODEX/STATUS.md), ZAAKCEPTOWANY 2026-10-10, 8 etapów, Codex
   `gpt-6.1-sol`). Stan zatrzymania E1: natywny widok i wiadomość do bieżącego czatu potwierdzone
   sondą 0.0.7; pakiet `adapters/codex/panel/` 0.1.0 (13 testów) pokazuje właściwy stan; sonda
   0.0.9 z poprawką fontów czeka na pomiar. Wznowienie tylko decyzją Łukasza. Kontrakt
   w [README adaptera](../adapters/codex/panel/README.md).
-- **W repo, niewydane (2026-10-28):** wiersz `installPath` w README i `KOMENDY.md` poprawiony po
-  przełączeniu maszyny (P-059 — w 3.6.0 skleja ścieżki, gdy plugin ma wpisy lokalne); decyzja
-  Łukasza: do następnego wydania. README na GitHubie poprawione pushem `main`. Przyciski paska
-  postępu w `relai-progress` (MINIPLAN PRZYCISKI_POSTEPU): na desktopie duchy z odstępem `xs`,
-  poniżej 48 kolumn krótkie etykiety — wersja modu podniesie się przy wydaniu.
-- **Analiza KONTEKST_STARTU (2026-10-28)** — [ANALIZA.md](plany/KONTEKST_STARTU/ANALIZA.md) z
-  wywiadem: cel to kontekst po pierwszej turze (RelAI ≈ 41 % z ~130–174 tys.), „Zasady aktywne”
-  jako indeks z doczytywaniem, bramka trybu ciągłego pyta najpierw tylko o zgodę, zakres tylko
-  RelAI. Plan na jej podstawie — pozycja wyżej.
+- Wydane w 3.7.0 razem z planem: wiersz `installPath` w README i `KOMENDY.md` po przełączeniu
+  maszyny (P-059) i przyciski paska postępu `relai-progress` 0.7.1 (MINIPLAN PRZYCISKI_POSTEPU).
 
 ## Co dalej
+
+- **Po KONTEKST_STARTU (2026-10-28):** kandydat na następny plan — migracja projektów sprzed planu
+  przez `/relai-update`: rytuał startu jednym poleceniem w ich `CLAUDE.md`, „Zasady aktywne” jako
+  indeks (decyzja Łukasza: nowy plan później). **Świadomie otwarte:** wpisy lokalne pluginów
+  w PolyFlow, PolyFlow-rust, PekaoWektor i dwóch worktree zostały na 3.6.0 / 0.7.0 (P-062) —
+  `claude plugin update relai@relai` (i `relai-progress@relai`) z katalogu każdego projektu.
+  **Świadomie odłożone:** cel 25 tys. częściowo (Aneks E) — linia „brak spraw przeterminowanych”
+  w skrócie i skrót 29 KB zamiast ok. 16 KB; `/relai-release` bez `--scope user` w kroku 8
+  i z raportem `--json` ucinanym przez narzędzie (L-0308); `docs/USTAWIENIA.md` 6,4 KB ponad 6 KB;
+  zdanie Aneksu D w `SPEC_CLAUDE_MD.md` i `SPEC_PROMPT_ETAPU.md` z pełnymi „Zasadami aktywnymi”.
 
 - **Po ZASIEG_PLUGINU (świadomie odłożone 2026-10-28):** `undo` zostawia pusty
   `"enabledPlugins": {}` w pliku lokalnym, który go wcześniej nie miał (P-058); przycisk „Włącz”
   w kokpicie przy stanie „● włączony z ustawień globalnych” myli (uwaga Łukasza — lepiej
   „Przypnij w tym projekcie”); test parytetu Codeksa porównuje sumy bez CRLF → LF; komenda
-  `/relai-release` nie przewiduje ucięcia raportu `--json` przez narzędzie (~15 KB).
   `.worktreeinclude` w 9 pozostałych projektach zostaje lokalny (decyzja Łukasza).
 
 - **Po ZGLOSZENIA (świadomie odłożone 2026-10-27):** `plugin test` modu `relai-panel` chwieje się
@@ -176,7 +173,7 @@ Opinii spoza projektu nadal nie ma.
 - Bramki świadomie otwarte: start etapu z karty panelu bez drugiego pytania (E5 PANEL_CLAUDE);
   brak pytania po zadaniu w tle (Aneks H); bramka trybu ciągłego odpala na odpowiedzi z karty
   startu (L-0189). Aneks F („jedno okno pytań”) Łukasz odwrócił 2026-10-28 — najpierw sama zgoda,
-  po „tak” okno z modelem i zasięgiem; zrobione w KONTEKST_STARTU E3 (w repo, niewydane). Filtr
+  po „tak” okno z modelem i zasięgiem; zrobione w KONTEKST_STARTU E3, wydane w 3.7.0 (D-93). Filtr
   potwierdzeń nie przepuszcza „Tak, zaczynamy” — świadomie odłożone 2026-10-28.
 - `/relai-models` w sesji Codeksa — lista ma nazwy z 2026-09-05; nakładka `openai` bez reguł
   z nazwą modelu. Nakładki rodzin modeli (`claude`, `openai`) z 2026-09-24 — starsze niż 30 dni.
@@ -204,9 +201,9 @@ Opinii spoza projektu nadal nie ma.
 
 ### Wersja i instalacja
 
-Repo i publicznie **3.6.0** (tag `v3.6.0` na `2658e04`); marketplace w tym repozytorium (scope
+Repo i publicznie **3.7.0** (tag `v3.7.0` na `1fe9c7d`); marketplace w tym repozytorium (scope
 `user`) niesie pięć pluginów: `relai` i cztery mody z własnymi wersjami i tagami
-(`relai-panel-v0.22.1`, `relai-progress-v0.7.0`, `relai-cache-keeper-v0.13.0`,
+(`relai-panel-v0.22.1`, `relai-progress-v0.7.1`, `relai-cache-keeper-v0.13.0`,
 `relai-mods-v0.3.0`, każdy z własnym wydaniem GitHub). Na maszynie Łukasza `relai`
 i trzy dodatki są włączone lokalnie w projektach (tryb „RelAI tylko w projektach”), `relai-mods`
 globalnie. Wydanie: fraza „gotowi do wydania?” →
@@ -214,8 +211,8 @@ globalnie. Wydanie: fraza „gotowi do wydania?” →
 na naprawy bezpieczne (jedna zgoda) i listę dla człowieka, ponowny raport, `claude plugin validate`
 binarką aplikacji, commit, tag przez hook `pre-push` (`core/tools/release-pre-push.js`,
 instalator `install-prepush.js`, w `.git/hooks/` tego klonu), push, wydanie GitHub z notatkami EN,
-`marketplace update`, `plugin update`, `release-verify.js --plugin <p> --wersja <n> --sesja`
-(3.6.0: 1548/1548, 0 rozjazdów). Raport ma kody 0 / 1 / 2; `--rev <rewizja>` liczy drzewo
+`marketplace update`, `plugin update` (na tej maszynie także `--scope user`, P-062),
+`release-verify.js --plugin <p> --wersja <n> --sesja` (3.7.0: 1574/1574, 0 rozjazdów). Raport ma kody 0 / 1 / 2; `--rev <rewizja>` liczy drzewo
 rewizji w worktree z `core.autocrlf=false` (Aneks B); `--komponent relai-<mod>` dla tagu modu;
 baza modu przy `--rev` pomija tag stojący na samej rewizji (Aneks B ZASIEG_PLUGINU).
 Walidator `core/tools/validate-adapters.js` sprawdza 7 źródeł wersji i wpis marketplace każdego
@@ -248,7 +245,7 @@ Claude Code, Cursor albo Codex • Node.js 14+ w `PATH` • git (opcjonalnie).
 
 ### Linki
 
-Repo: github.com/nowilus/relai • Wydanie: github.com/nowilus/relai/releases/tag/v3.6.0 • Plany
+Repo: github.com/nowilus/relai • Wydanie: github.com/nowilus/relai/releases/tag/v3.7.0 • Plany
 zamknięte: [docs/archiwum/plany/](archiwum/plany/) • Backupy: `C:\Users\Lukasz\Backupy\RelAI` •
 [PRZENOSNOSC.md](PRZENOSNOSC.md) • [PULAPKI.md](PULAPKI.md) • [KOMENDY.md](KOMENDY.md)
 
@@ -263,13 +260,15 @@ pracę"`, para na tych samych dokumentach): stary rytuał `21d9e44a` 52 154 → 
 `137a0d75` 52 492 → 75 848 (−12 296 na końcu tury, jedna para) • Koszt bramki trybu ciągłego
 po E3 (koniec 1. tury wobec sesji bez trybu, Sonnet 5.5, jedna sesja na wariant): odpowiedź „nie”
 **+1 297** (przed E3: +19 513); „tak” + model sesji +22 812 (przed: +26,7 tys. z ANALIZY, Opus);
-„tak” z delegacją do agenta +7 341 •
-Plany zamknięte: 20 (ostatni ZASIEG_PLUGINU, 2026-10-28) • Aktywne: KONTEKST_STARTU (E4) • Wstrzymane:
-PANEL_CODEX (Codex, od 2026-10-27) • Start sesji: 109,3 KB / 100 KB na starcie 2026-10-28 (pliki), po E2 77,7 KB / 100 KB (skrót) •
+„tak” z delegacją do agenta +7 341 • **Po planie** (E5, `claude -p`, Opus 5.5, RelAI po turze
+z zadaniem, metoda ANALIZY §3.1): „kontynuujemy pracę” 32 377, bramka + „nie” 27 744, zadanie
+z wyzwalaczem 24 732 — wobec ok. 72 tys. przed planem; skrót startu tego repo 29 046 B •
+Plany zamknięte: 21 (ostatni KONTEKST_STARTU, 2026-10-28) • Aktywne: brak • Wstrzymane:
+PANEL_CODEX (Codex, od 2026-10-27) • Start sesji: 109,3 KB / 100 KB na starcie 2026-10-28 (pliki), po planie 50,2 KB / 55 KB (skrót) •
 Dziennik: 209 KB / 150 KB (do rotacji) • Ryzyka: 20 w tabeli, 17,5 KB / 12 KB (dolna granica —
-same otwarte), archiwum 12 plików • Lekcje: 60,5 KB / 50 KB (do rotacji) • Adaptery: 3 •
-Komendy: 16 • Hooki Claude Code: 14 • Testy (2026-10-27, raport wydania 3.6.0): rdzeń, panel
-i Codex 588 (+1 test bramki w Aneksie B), strona 396, film 37 (2026-10-26); pluginy panelu:
+same otwarte), archiwum 12 plików • Lekcje: 68,1 KB / 50 KB (do rotacji) • Adaptery: 3 •
+Komendy: 16 • Hooki Claude Code: 14 • Testy (2026-10-28, raport wydania 3.7.0): rdzeń, panel
+i Codex 625, strona 396, film 37 (2026-10-26); pluginy panelu:
 `relai-panel` 216, `relai-mods` 87 • Projekty z markerem RelAI na tej maszynie: 15 (status
 `relai-scope` 2026-10-28) • Projekty na RelAI: 3 (RelAI, PolyFlow, JiraManager przed
 migracją) • Modele, na których zmierzono proces: 6 (Fable, Opus, Sonnet, Haiku, Composer/auto,

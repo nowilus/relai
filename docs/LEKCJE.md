@@ -95,7 +95,9 @@ w wyzwalacz, przed pracą doczytujesz pełne brzmienie zasady z sekcji „Pełne
      wzorca omija pliki, które go cytują. Tekst tłumaczący liczbę ma warunek prawdziwości i test
      stanu docelowego (L-0144). Koszt liczysz tylko z przebiegów zgodnych z procedurą — kroki
      wymagane sprawdzone w transkrypcie (L-0301); ewaluacja zachowania wywołanego treścią
-     wstrzykniętą zaczyna się od asercji, że ta treść dotarła w całości (L-0303).
+     wstrzykniętą zaczyna się od asercji, że ta treść dotarła w całości (L-0303). Narzędzie
+     z limitem rozmiaru wyjścia mierzysz przed wydaniem na wszystkich projektach z markerem na
+     maszynie (odczyt, bez zapisu), fixturę piszesz z najgorszego (L-0304).
    - **Materiał:** test na realnym pliku zmienianym przez proces sam ustawia stan wyjściowy,
      licznik do dziennika z przebiegu po ostatniej zmianie (L-0150); plik śledzony albo własna
      fixtura, nigdy z `.gitignore` (L-0156); przed pytaniem o zasięg sprawdzasz, czy plik nie jest
@@ -124,7 +126,7 @@ w wyzwalacz, przed pracą doczytujesz pełne brzmienie zasady z sekcji „Pełne
    (L-0017, L-0018, L-0040, L-0051, L-0052, L-0063, L-0069, L-0082, L-0115, L-0117, L-0123, L-0134,
    L-0144, L-0150, L-0154, L-0155, L-0156, L-0158, L-0159, L-0165, L-0175, L-0177, L-0182, L-0184,
    L-0186, L-0191, L-0195, L-0213, L-0214, L-0218, L-0222, L-0224, L-0227, L-0274, L-0275, L-0278,
-   L-0301, L-0303)
+   L-0301, L-0303, L-0304)
 5. **Instrument pomiarowy sam bywa źródłem fałszu.**
    - **Backslash:** wyrażenia regularne i ścieżki Windows tylko w pliku pisanym Write/Edit albo
      z `/`; skrypt edycji niosący `\n`, backtick lub ścieżkę — Write, heredok bez wyjątku, także
@@ -202,7 +204,7 @@ w wyzwalacz, przed pracą doczytujesz pełne brzmienie zasady z sekcji „Pełne
    L-0110, L-0111, L-0113, L-0124, L-0125, L-0127, L-0130, L-0131, L-0135, L-0141, L-0143, L-0151,
    L-0160, L-0164, L-0169, L-0170, L-0173, L-0181, L-0211, L-0213, L-0215, L-0238, L-0239, L-0240,
    L-0242, L-0243, L-0246, L-0247, L-0248, L-0249, L-0257, L-0258, L-0259, L-0261, L-0262, L-0265,
-   L-0267, L-0268, L-0270, L-0283, L-0290, L-0298, L-0299, L-0302)
+   L-0267, L-0268, L-0270, L-0283, L-0290, L-0298, L-0299, L-0302, L-0309)
 6. **Próg jest liczbą, którą ktoś liczy:** kalibrujesz na realnych plikach, zapisujesz w jednostce
    mechanizmu z komendą sprawdzającą, z **jednym** wyzwalaczem. Porównujesz do wielkości, którą
    mechanizm kontroluje (część usuwalna); zatkanie sygnalizuje **różnica możliwego i wykonanego**,
@@ -236,7 +238,11 @@ w wyzwalacz, przed pracą doczytujesz pełne brzmienie zasady z sekcji „Pełne
     w `init`. Wydanie zestawia zmiany artefaktów z `ARTEFAKTY.md` i `git ls-files` z listą
     generowanych (L-0161). Pomiar „instalacji z marketplace” stoi po bramce publikacji, gdy
     `claude plugin marketplace list` pokazuje źródło GitHub; słowo z liczbą ma test form
-    1 / 2–4 / 5 / 12 / 22 (L-0260). (L-0004, L-0008, L-0020, L-0061, L-0085, L-0118, L-0161, L-0260)
+    1 / 2–4 / 5 / 12 / 22 (L-0260). Podbicie numeru modu idzie osobnym commitem
+    `chore(release)`, a przed pushem tagu raport `--rev <tag> --wydanie` (L-0305); na maszynie
+    z wpisami lokalnymi pluginu `plugin update` także z `--scope user`, a dotarcie wydania
+    rozstrzyga `release-verify.js --sesja` (L-0306). (L-0004, L-0008, L-0020, L-0061, L-0085,
+    L-0118, L-0161, L-0260, L-0305, L-0306)
 11. **Końce linii, kolejność wpisów, numeracja nagłówków i stan dokumentu wobec specyfikacji to
     warianty.** Sumy po CRLF → LF, bez kotwicy końca w regexie linii, oba warianty w jednym
     przebiegu; kierunek z danych; nagłówek z tolerancją na `## 2.`, `**…**`, liczbę `#`, a kształt,
@@ -294,7 +300,10 @@ w wyzwalacz, przed pracą doczytujesz pełne brzmienie zasady z sekcji „Pełne
       każdym kliknięciu zmieniającym stan (L-0289); wyjście polecenia ponad ok. 30 tys. znaków
       model dostaje jako 2 KB podglądu — narzędzie czytane w całości mieści się w limicie, a treść
       obowiązkowa stoi na początku (L-0296); instrukcja pomiaru dla człowieka zakazuje `/model`
-      i `/config`, a analiza najpierw wypisuje model każdej sesji (L-0300).
+      i `/config`, a analiza najpierw wypisuje model każdej sesji (L-0300); `claude -p` nie ma
+      `AskUserQuestion` — odpowiedź na pytanie podajesz `--resume`, a koniec mierzonej tury
+      definiujesz jawnie (L-0307); wynik maszynowy ponad limit czytasz filtrem w tym samym
+      poleceniu (L-0308).
     - **Usługi zewnętrzne:** stan ustawienia repozytorium czytasz z API (`gh api repos/<repo>/pages`),
       nie ze zrzutu ani słowa człowieka (L-0244); obraz dla cudzej usługi w proporcji zmierzonej na
       opublikowanym widoku, każda podmiana pod nowym adresem (L-0245); strona wskazująca zasób
@@ -302,7 +311,7 @@ w wyzwalacz, przed pracą doczytujesz pełne brzmienie zasady z sekcji „Pełne
       (L-0280).
     (L-0041, L-0042, L-0044, L-0047, L-0092, L-0133, L-0136, L-0138, L-0139, L-0146, L-0153, L-0166,
     L-0168, L-0185, L-0189, L-0190, L-0244, L-0245, L-0253, L-0255, L-0263, L-0264, L-0273, L-0280,
-    L-0281, L-0284, L-0285, L-0286, L-0288, L-0289, L-0291, L-0296, L-0300)
+    L-0281, L-0284, L-0285, L-0286, L-0288, L-0289, L-0291, L-0296, L-0300, L-0307, L-0308)
 14. **Najpierw zmiana w repozytorium, potem zdanie, które ją opisuje.** Weryfikację planujesz tam,
     gdzie wykonalna; po pytaniu sprzątasz sam; jednostką inwentarza jest sprawa, nie linia; wstawkę
     kotwiczysz do elementu, który przeżyje operację, i dowodzisz **obecności** nowej treści. Gdy
@@ -787,6 +796,66 @@ w wyzwalacz, przed pracą doczytujesz pełne brzmienie zasady z sekcji „Pełne
   dostarczenia — w transkrypcie wynik narzędzia niesie mierzony fragment (np. pierwszą linię
   indeksu), inaczej przebieg to „nie zmierzono”, nie 0/3. Pomiar dostarczenia idzie przed
   pomiarem zachowania.
+
+### L-0304 — Limit wyjścia sprawdzony na jednym projekcie, regresja w siedmiu · 2026-10-28 · AKTYWNA
+
+- **Trigger:** KONTEKST_STARTU E5. Aneks C (E4) mieścił skrót startu w limicie wyjścia, skracając
+  ostatni wpis — zmierzone tylko na tym repozytorium. Odczyt `start-digest.js` w dwunastu
+  projektach Łukasza dał 31–178 KB w siedmiu („Zasady aktywne” bez indeksu 47–70 KB, „Czeka na
+  człowieka” do 48 KB), a wpis skracał się do 0 znaków. Wydanie zepsułoby im start.
+- **Przyczyna:** test i pomiar na materiale autora, który ma już indeks i rotowane dokumenty;
+  projekty użytkowników mają inny kształt (wpisy `##`, brak indeksu, sprawy przeterminowane).
+- **Zasada:** narzędzie z limitem rozmiaru wyjścia mierzysz przed wydaniem na **wszystkich**
+  projektach z markerem na maszynie (odczyt, bez zapisu) i na najgorszym z nich piszesz fixturę;
+  mechanizm ograniczający gwarantuje limit z konstrukcji, nie przycina jednej sekcji z nadzieją.
+
+### L-0305 — Commit wydania typu feat z numerem modu podniósł poziom modu · 2026-10-28 · AKTYWNA
+
+- **Trigger:** wydanie 3.7.0. Raport drzewa roboczego proponował `relai-progress` 0.7.1 (patch),
+  a bramka `pre-push` dla tagu `v3.7.0` odmówiła: 0.8.0 (minor). Jedynym plikiem modu w commicie
+  `feat(start)…` był `progress/.claude-plugin/plugin.json` z podbitym numerem.
+- **Przyczyna:** poziom wydania modu liczy typy commitów dotykających jego plików, a raport bez
+  `--rev` nie widział commitu, który dopiero miał powstać.
+- **Zasada:** podbicie numeru modu idzie osobnym commitem `chore(release): <mod> <numer>`, a przed
+  pushem tagu uruchamiasz `release-check.js --rev <tag> --wydanie` (także `--komponent <mod>`) —
+  ten sam raport co bramka.
+
+### L-0306 — `plugin update` w trybie „tylko w projektach” podbił sam wpis lokalny · 2026-10-28 · AKTYWNA
+
+- **Trigger:** wydanie 3.7.0. `claude plugin update relai@relai` z katalogu repo zwrócił „updated
+  … for scope local”; cache 3.7.0 zgodny z tagiem, a świeża sesja `release-verify --sesja`
+  ładowała `…/relai/3.6.0`. Wpis `scope: user` i wpisy lokalne innych projektów zostały na 3.6.0.
+- **Przyczyna:** maszyna w trybie „RelAI tylko w projektach” ma wpis `user` i wpis lokalny na
+  projekt; bez `--scope` CLI aktualizuje zakres katalogu bieżącego, a sesja wzięła ścieżkę z wpisu
+  `user` (P-062).
+- **Zasada:** na takiej maszynie `plugin update` idzie także z `--scope user`; o tym, czy wydanie
+  dotarło, rozstrzyga `release-verify.js --sesja`, nie komunikat `update`.
+
+### L-0307 — `claude -p` nie ma AskUserQuestion: bramka pyta tekstem i kończy turę · 2026-10-28 · AKTYWNA
+
+- **Trigger:** KONTEKST_STARTU E5, sesja pomiarowa z trybem ciągłym. W `init` 21 narzędzi bez
+  `AskUserQuestion`; model zadał pytanie bramki tekstem z numerami opcji i zakończył turę bez
+  zadania.
+- **Zasada:** pomiar zachowania z pytaniem do człowieka w `-p` ma dwie tury — odpowiedź podajesz
+  `--resume <id> -p "<odpowiedź>"`, a koniec mierzonej tury definiujesz jawnie (tura, w której
+  zadanie się wykonało) i zapisujesz tę definicję przy liczbach.
+
+### L-0308 — Raport JSON ponad limit wyjścia przyszedł ucięty w środku · 2026-10-28 · AKTYWNA
+
+- **Trigger:** `/relai-release`, `release-check.js --json` (ok. 15 KB z listą plików): narzędzie
+  ucięło środek wyniku, a dwie czerwone kontrole stały właśnie tam. Drugi pełny przebieg
+  (2 minuty) z filtrem.
+- **Zasada:** wynik maszynowy, który może przekroczyć limit, czytasz od razu filtrem w tym samym
+  poleceniu (`| node -e` z `process.stdin`, same czerwone, ostrzeżenia i liczniki) — jeden przebieg,
+  pełna informacja o czerwieni.
+
+### L-0309 — Ścieżka `/tmp` dla Node na Windows (powtórka L-0265) · 2026-10-28 · AKTYWNA
+
+- **Trigger:** KONTEKST_STARTU E5, pętla pomiaru skrótu w projektach: `> /tmp/relai-d.txt`
+  z powłoki zapisało plik, a `node -e` czytające `/tmp/relai-d.txt` szukało `C:\tmp\…` (ENOENT,
+  12 razy). Bajty z `wc` przeszły, znaki — nie.
+- **Zasada:** bez zmian względem L-0265 — ścieżka dla Node z `cygpath -m`, a plik roboczy
+  w katalogu roboczym etapu, nie w `/tmp`.
 
 ## Lekcje zwinięte
 

@@ -8,6 +8,22 @@ Specyfikacja: `SPEC_PULAPKI.md`.
 
 ## Pułapki
 
+### P-062 — `claude plugin update` bez `--scope` podbija tylko zakres bieżącego katalogu · 2026-10-28 · AKTYWNA
+
+- **Objaw (wydanie 3.7.0, maszyna w trybie „RelAI tylko w projektach”):** `claude plugin update
+  relai@relai` z katalogu repo mówi „updated from 3.6.0 to 3.7.0 for scope local
+  (C:\Users\Lukasz\Desktop\RelAI)”. Cache 3.7.0 jest zgodny z tagiem, a świeża sesja `claude -p`
+  w tym samym katalogu ładuje plugin z `…\cache\relai\relai\3.6.0`.
+- **Przyczyna:** `installed_plugins.json` ma dla pluginu wpis `scope: user` i wpis `scope: local`
+  na każdy projekt (`projectPath`). Aktualizacja bez `--scope` dotyka wyłącznie wpisu katalogu
+  bieżącego; wpis `user` i wpisy innych projektów zostają na starej wersji, a sesja wzięła ścieżkę
+  z wpisu `user`.
+- **Obejście:** `claude plugin update relai@relai --scope user` (i każdy mod tak samo), potem
+  `node core/tools/release-verify.js --plugin <plugin> --wersja <N> --sesja` — po nim sesja
+  ładowała 3.7.0 i 0.7.1. Wpisy lokalne innych projektów (PolyFlow, PolyFlow-rust, PekaoWektor,
+  worktree) zostały na 3.6.0 — która ścieżka wygrywa w sesji tamtych projektów, niezmierzone.
+- **Zasięg:** Claude Code 2.1.309 z wpisami lokalnymi pluginu. Lekcja L-0306.
+
 ### P-061 — Na Windows plik `claude.md` w podkatalogu jest dla harnessu zagnieżdżonym `CLAUDE.md` · 2026-10-28 · AKTYWNA
 
 - **Objaw (sesja 2026-10-28, procedura bramki trybu ciągłego):** po odczycie
@@ -20,14 +36,14 @@ Specyfikacja: `SPEC_PULAPKI.md`.
   o wielkości liter (odczyt https://code.claude.com/docs/en/memory, 2026-10-28).
 - **Obejście:** pliki o nazwie `claude.md` nie mogą stać w katalogach, które model czyta. Dotyczy
   kopii nakładek, którą `provisionPrompt` (`session-signals.js`) robi w każdym projekcie
-  użytkownika. **Naprawione w repo 2026-10-28 (KONTEKST_STARTU E1, niewydane):** nakładki noszą
+  użytkownika. **Naprawione 2026-10-28 (KONTEKST_STARTU E1, wydane w 3.7.0):** nakładki noszą
   nazwy `rodziny/nakladka-claude.md` i `rodziny/nakladka-openai.md`, a `provisionPrompt` kasuje
   w projekcie stare kopie `claude.md` i `openai.md`. Zmierzone w dwóch sesjach `claude -p`:
   odczyt `rodziny/openai.md` na zainstalowanym 3.6.0 wstrzyknął `nested_memory`
   `…\rodziny\CLAUDE.md` (7 151 B), odczyt `rodziny/nakladka-openai.md` z `--plugin-dir`
-  repozytorium — zero wstrzyknięć. Projekty na 3.6.0 mają starą kopię do następnego wydania.
+  repozytorium — zero wstrzyknięć. Projekty na 3.6.0 mają starą kopię do aktualizacji pluginu.
 - **Zasięg:** Claude Code na systemie plików bez rozróżniania wielkości liter; na macOS
-  niezmierzone. Źródło: [ANALIZA KONTEKST_STARTU](plany/KONTEKST_STARTU/ANALIZA.md), §3.2.
+  niezmierzone. Źródło: [ANALIZA KONTEKST_STARTU](archiwum/plany/KONTEKST_STARTU/ANALIZA.md), §3.2.
 
 ### P-060 — `Button` na desktopie: przy `label` i dzieciach rysuje `label`; `plain` zostawia natywną wysokość · 2026-10-28 · AKTYWNA
 

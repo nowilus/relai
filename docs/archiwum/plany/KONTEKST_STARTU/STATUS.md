@@ -1,6 +1,6 @@
 # STATUS — plan KONTEKST_STARTU
 
-Plan: [PLAN.html](PLAN.html) · Utworzony: 2026-10-28 · Status planu: **ZAAKCEPTOWANY 2026-10-28** · Model wykonawczy etapów: Opus 5.5, świeże sesje (D-85, `docs/USTAWIENIA.md`), w Claude Code
+Plan: [PLAN.html](PLAN.html) · Utworzony: 2026-10-28 · Status planu: **ZREALIZOWANY 2026-10-28** (cel 25 tys. częściowo — Aneks E) · Model wykonawczy etapów: Opus 5.5, świeże sesje (D-85, `docs/USTAWIENIA.md`), w Claude Code
 
 ## Tabela etapów
 
@@ -10,7 +10,7 @@ Plan: [PLAN.html](PLAN.html) · Utworzony: 2026-10-28 · Status planu: **ZAAKCEP
 | E2 | Skrót startu jednym poleceniem | ZREALIZOWANY 2026-10-28 | [PROMPT_ETAP_2.md](PROMPT_ETAP_2.md) | `start-digest.js`, jedna linia rytuału w trzech kopiach, budżet ze skrótu, adaptery |
 | E3 | Bramka trybu ciągłego w dwóch krokach | ZREALIZOWANY 2026-10-28 | [PROMPT_ETAP_3.md](PROMPT_ETAP_3.md) | najpierw sama zgoda, po „tak” model i zasięg; procedura u agenta; podział `relai-prompt.md` |
 | E4 | „Zasady aktywne” jako indeks | ZREALIZOWANY 2026-10-28 | [PROMPT_ETAP_4.md](PROMPT_ETAP_4.md) | przed startem: aneks do D-15 (sekcja 9 planu); ewaluacja wyzwalania |
-| E5 | Pomiar końcowy, progi i wydanie | W TOKU | [PROMPT_ETAP_5.md](PROMPT_ETAP_5.md) | progi budżetu startu — decyzja Łukasza; „gotowi do wydania?” |
+| E5 | Pomiar końcowy, progi i wydanie | ZREALIZOWANY 2026-10-28 | [PROMPT_ETAP_5.md](PROMPT_ETAP_5.md) | progi budżetu startu — decyzja Łukasza; „gotowi do wydania?” |
 
 ## Aneksy
 
@@ -55,8 +55,11 @@ Plan: [PLAN.html](PLAN.html) · Utworzony: 2026-10-28 · Status planu: **ZAAKCEP
 
 ## Bramki manualne
 
-- **Zamrożenie bramek zgody jako decyzji (brzmienie we wpisie)** · źródło: wpis dziennika 2026-10-28 (E3) · **OTWARTA**
-- **Graduacja L-0298/L-0302 (gołe `cd` w Bash) do `CLAUDE.md`** · źródło: wpis dziennika 2026-10-28 (E4) · **OTWARTA**
+- **Zamrożenie bramek zgody jako decyzji (brzmienie we wpisie)** · źródło: wpis dziennika 2026-10-28 (E3) · ROZSTRZYGNIĘTA 2026-10-28 — zamrożona jako D-93
+- **Graduacja L-0298/L-0302 (gołe `cd` w Bash) do `CLAUDE.md`** · źródło: wpis dziennika 2026-10-28 (E4) · ROZSTRZYGNIĘTA 2026-10-28 — dopisana do „Reguł procesu” `CLAUDE.md` i `AGENTS.md`
+- **Restart aplikacji dla sesji desktopu sprzed `plugin update` (P-005)** · źródło: wpis dziennika 2026-10-28 (E5) · ROZSTRZYGNIĘTA 2026-10-28 — Łukasz restartuje po zakończeniu sesji zamknięcia planu
+- **Wpisy lokalne pluginów w PolyFlow, PolyFlow-rust, PekaoWektor i dwóch worktree na 3.6.0 / 0.7.0 (P-062)** · źródło: wpis dziennika 2026-10-28 (E5) · OTWARTA świadomie — przeniesiona do `docs/STATE.md`, „Co dalej”
+- **Migracja projektów sprzed planu na nowy rytuał i indeks zasad (`/relai-update`) — odnoga, nowy plan czy zostawić** · źródło: wpis dziennika 2026-10-28 (E5) · ROZSTRZYGNIĘTA 2026-10-28 — nowy plan później; kandydat w `docs/STATE.md`, „Co dalej”
 - **Domyślny model nowych sesji zmieniony w pomiarze na Sonnet (`~/.claude/settings.json`) — przywrócić, jeśli niezamierzone** · źródło: wpis dziennika 2026-10-28 (E3) · ROZSTRZYGNIĘTA 2026-10-28 — przywrócony `"model": "opus"`
 
 ## Dziennik wdrożenia
@@ -83,3 +86,11 @@ Plan: [PLAN.html](PLAN.html) · Utworzony: 2026-10-28 · Status planu: **ZAAKCEP
   i 0/3 w trzecim przebiegu (0/3 przy skrócie w podglądzie, 1/3 bez zdania w warstwie stałej);
   testy 353/353, 225/225, 24/24. E5 gotowy do startu.
 - 2026-10-28 — E5 rozpoczęty
+- 2026-10-28 — E5 zrealizowany (Opus 5.5, z Aneksami E i F): `start-context.js` bez lokalnych
+  komend; pomiar trzech sesji 32 377 / 27 744 / 24 732 tokenów RelAI wobec ok. 72 tys. (cel
+  częściowo, Aneks E); skrót zawsze w limicie wyjścia z drogowskazami i wpisami `##` (Aneks F,
+  12 projektów Łukasza 4–26,5 tys. znaków); progi `start 55`, `zasady 5`; wydanie 3.7.0
+  i `relai-progress` 0.7.1; testy 357/357, 225/225, 24/24.
+- 2026-10-28 — Plan zamknięty: bramki rozstrzygnięte (D-93, reguła `cd` w `CLAUDE.md`, restart
+  po sesji, migracja jako przyszły plan; wpisy lokalne pluginów świadomie otwarte w `STATE.md`),
+  odnóg brak, Trivy 0 podatności; folder do `docs/archiwum/plany/KONTEKST_STARTU/`.

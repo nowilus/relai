@@ -1176,7 +1176,7 @@ sesji”, model sesji) rozdzielił zdanie na dwa prompty: przyciski (wpis wyżej
 - Trzy równoległe rozpoznania: A — pomiar tokenów w transkryptach (`api-request-shape`,
   kalibracja 1,93 B/tok PL, 2,31 EN, 3,52 JSON); B — mapa mechanizmu (kto każe czytać co
   i kiedy); C — dokumentacja Claude Code i blog Anthropic, odczyt 2026-10-28.
-- Raport [ANALIZA.md](plany/KONTEKST_STARTU/ANALIZA.md): warianty W0–W4 (W1 „rytuał sekcjami”
+- Raport [ANALIZA.md](archiwum/plany/KONTEKST_STARTU/ANALIZA.md): warianty W0–W4 (W1 „rytuał sekcjami”
   i W2 „indeks z drogowskazem” rekomendowane, W0 i W4 odrzucone z powodem), ryzyka, przypadki
   brzegowe, rozstrzygnięcia wywiadu.
 - Wywiad, dwie rundy. Rozstrzygnięcia: cel — kontekst po pierwszej turze; „Zasady aktywne” jako
@@ -1214,19 +1214,19 @@ Autor: RelAI (Opus 5.5) + Lukasz
 
 ### 2026-10-28 — Plan KONTEKST_STARTU: lżejszy start sesji (DO AKCEPTACJI)
 
-Plan na podstawie [ANALIZA.md](plany/KONTEKST_STARTU/ANALIZA.md) i wywiadu z Łukaszem (prośba:
+Plan na podstawie [ANALIZA.md](archiwum/plany/KONTEKST_STARTU/ANALIZA.md) i wywiadu z Łukaszem (prośba:
 „zacommituj zmiany a potem pisz plan”). Format i model z `docs/USTAWIENIA.md` — HTML, Opus
 (D-85) — więc bez pytania startowego.
 
 **Zrobione:**
 
-- [PLAN.html](plany/KONTEKST_STARTU/PLAN.html) z szablonu pluginu (`HTML_PLAN`, bez nadpisania
+- [PLAN.html](archiwum/plany/KONTEKST_STARTU/PLAN.html) z szablonu pluginu (`HTML_PLAN`, bez nadpisania
   lokalnego — wiersz „Szablon planu HTML”): dziesięć sekcji, warianty A–E (C wybrany: skrót
   startu jednym poleceniem, indeks zasad, bramka w dwóch krokach), 5 etapów, 8 ryzyk,
   10 przypadków brzegowych, 4 sprawy dla Łukasza, diagram przepływu, symulator kontekstu po
   pierwszej turze. Treść w `.claude/relai/work/KONTEKST_STARTU/plan-tresc.html`, złożona skryptem
   `wypelnij-plan.cjs` (podstawienia funkcją) i builderem `zbuduj.js`.
-- [STATUS.md](plany/KONTEKST_STARTU/STATUS.md) — DO AKCEPTACJI, etapy OCZEKUJE, bez promptów
+- [STATUS.md](archiwum/plany/KONTEKST_STARTU/STATUS.md) — DO AKCEPTACJI, etapy OCZEKUJE, bez promptów
   (PROMPT_ETAP_1 powstaje przy akceptacji, D-34). Linia „Aktywny plan” w `CLAUDE.md` i kopii
   w `AGENTS.md`; STATE.
 
@@ -1261,10 +1261,10 @@ RelAI najwyżej 25 tys. tokenów po pierwszej turze.
 
 **Zrobione:**
 
-- [STATUS.md](plany/KONTEKST_STARTU/STATUS.md): ZAAKCEPTOWANY 2026-10-28, E1 GOTOWY DO STARTU
+- [STATUS.md](archiwum/plany/KONTEKST_STARTU/STATUS.md): ZAAKCEPTOWANY 2026-10-28, E1 GOTOWY DO STARTU
   z linkiem do promptu, linia w dzienniku wdrożenia. Nagłówek PLAN.html przebudowany z nowym
   statusem; sekcje 1–10 od teraz nietykalne (zmiany tylko aneksami).
-- [PROMPT_ETAP_1.md](plany/KONTEKST_STARTU/PROMPT_ETAP_1.md) wg `SPEC_PROMPT_ETAPU.md`: parser
+- [PROMPT_ETAP_1.md](archiwum/plany/KONTEKST_STARTU/PROMPT_ETAP_1.md) wg `SPEC_PROMPT_ETAPU.md`: parser
   linii „Aktywny plan: brak”, propozycja rotacji tylko z zyskiem, nakładki
   `rodziny/nakladka-<family>.md` ze sprzątaniem starych kopii, instrument
   `core/tools/start-context.js` z kontrolą pozytywną na czterech zmierzonych sesjach, pomiar
@@ -1286,8 +1286,8 @@ Autor: RelAI (Opus 5.5) + Lukasz
 
 ### 2026-10-28 — KONTEKST_STARTU E1: start bez fałszywych sygnałów i instrument pomiaru kontekstu
 
-Etap wg [PROMPT_ETAP_1.md](plany/KONTEKST_STARTU/PROMPT_ETAP_1.md), sesja Opus 5.5. W trakcie
-etapu Łukasz przyjął **Aneks A** (wpis w [STATUS.md](plany/KONTEKST_STARTU/STATUS.md)): linia
+Etap wg [PROMPT_ETAP_1.md](archiwum/plany/KONTEKST_STARTU/PROMPT_ETAP_1.md), sesja Opus 5.5. W trakcie
+etapu Łukasz przyjął **Aneks A** (wpis w [STATUS.md](archiwum/plany/KONTEKST_STARTU/STATUS.md)): linia
 `[RelAI progi dokumentow]` nie proponuje rotacji ryzyk, gdy żadne nie jest zamknięte.
 
 **Zrobione:**
@@ -1394,8 +1394,8 @@ Autor: RelAI (Opus 5.5) + Lukasz
 
 ### 2026-10-28 — KONTEKST_STARTU E2: skrót startu jednym poleceniem
 
-Etap wg [PROMPT_ETAP_2.md](plany/KONTEKST_STARTU/PROMPT_ETAP_2.md), sesja Opus 5.5, HEAD `b5b843b`.
-W trakcie Łukasz przyjął **Aneks B** ([STATUS.md](plany/KONTEKST_STARTU/STATUS.md)): dwie kopie
+Etap wg [PROMPT_ETAP_2.md](archiwum/plany/KONTEKST_STARTU/PROMPT_ETAP_2.md), sesja Opus 5.5, HEAD `b5b843b`.
+W trakcie Łukasz przyjął **Aneks B** ([STATUS.md](archiwum/plany/KONTEKST_STARTU/STATUS.md)): dwie kopie
 rytuału spoza listy promptu — Krok 4 `/relai-stage` i `SPEC_KOMENDY.md` — weszły do zakresu.
 
 **Zrobione:**
@@ -1509,7 +1509,7 @@ Autor: RelAI (Opus 5.5) + Lukasz
 
 ### 2026-10-28 — KONTEKST_STARTU E3: bramka trybu ciągłego w dwóch krokach
 
-Etap wg [PROMPT_ETAP_3.md](plany/KONTEKST_STARTU/PROMPT_ETAP_3.md), sesja Opus 5.5, HEAD `fe81391`.
+Etap wg [PROMPT_ETAP_3.md](archiwum/plany/KONTEKST_STARTU/PROMPT_ETAP_3.md), sesja Opus 5.5, HEAD `fe81391`.
 Na starcie etapu bramka (stara) zadała tej sesji trzy pytania naraz na „Tak, zaczynamy” —
 odpowiedź „nie”.
 
@@ -1625,6 +1625,7 @@ domyślna po „tak” — delegacja — kosztuje sesję +7 341 (s7).
   pytania dodatkowe (np. model i zasięg) padają wyłącznie po »tak« i tylko wtedy, gdy odpowiedź
   nie jest zapisana. Zgoda sesyjna — plik na sesję, trwała — wiersz w ustawieniach globalnych.”*
   Decyzja Łukasza: zamrozić (wpis do `DECYZJE.md`), poprawić brzmienie albo odrzucić.
+  *(rozstrzygnięte 2026-10-28 przy zamknięciu planu — zamrożone jako D-93)*
 - Domyślny model nowych sesji Claude Code zmieniony w trakcie pomiaru na Sonnet
   (`~/.claude/settings.json`, `"model": "sonnet"`) — przywrócić, jeśli niezamierzone.
   *(rozstrzygnięte 2026-10-28 — Łukasz: przywrócić Opus; `"model": "opus"`, kopia pliku
@@ -1634,8 +1635,8 @@ Autor: RelAI (Opus 5.5) + Lukasz
 
 ### 2026-10-28 — KONTEKST_STARTU E4: „Zasady aktywne” jako indeks z wyzwalaczami
 
-Etap wg [PROMPT_ETAP_4.md](plany/KONTEKST_STARTU/PROMPT_ETAP_4.md), sesja Opus 5.5, HEAD `b3a1132`,
-z Aneksami C i D (decyzje Łukasza w trakcie etapu, [STATUS](plany/KONTEKST_STARTU/STATUS.md)).
+Etap wg [PROMPT_ETAP_4.md](archiwum/plany/KONTEKST_STARTU/PROMPT_ETAP_4.md), sesja Opus 5.5, HEAD `b3a1132`,
+z Aneksami C i D (decyzje Łukasza w trakcie etapu, [STATUS](archiwum/plany/KONTEKST_STARTU/STATUS.md)).
 Bramka trybu ciągłego (kopia 3.6.0 z marketplace, stary kształt) zadała na „Tak, zaczynamy” trzy
 pytania naraz — odpowiedź „nie w tej sesji”.
 
@@ -1730,5 +1731,164 @@ pytania naraz — odpowiedź „nie w tej sesji”.
 
 - **Graduacja L-0298/L-0302 do `CLAUDE.md`** (powtórzenie): „W poleceniu Bash nigdy gołe `cd` —
   ścieżka w argumencie albo podpowłoka `( cd … && … )`.” Decyzja Łukasza: dopisać czy nie.
+  *(rozstrzygnięte 2026-10-28 przy zamknięciu planu — dopisane do `CLAUDE.md` i `AGENTS.md`)*
+
+Autor: RelAI (Opus 5.5) + Lukasz
+
+### 2026-10-28 — KONTEKST_STARTU E5: pomiar końcowy, skrót w limicie u użytkowników, progi i wydanie 3.7.0
+
+Etap wg [PROMPT_ETAP_5.md](archiwum/plany/KONTEKST_STARTU/PROMPT_ETAP_5.md), sesja Opus 5.5, HEAD `41f9849`,
+z Aneksami E i F (decyzje Łukasza w trakcie etapu, [STATUS](archiwum/plany/KONTEKST_STARTU/STATUS.md)).
+
+**Zrobione:**
+
+- **`core/tools/start-context.js`:** wpis komendy (`<command-name>` / `<command-message>`) liczy
+  się jako polecenie człowieka dopiero wtedy, gdy po nim przychodzi wywołanie modelu — `/model`,
+  `/effort` i inne lokalne już nie przesuwają tury (L-0299). Test w `start-context.test.js`.
+- **Pomiar końcowy** (trzy świeże sesje `claude -p`, Opus 5.5, `--plugin-dir` repo, instalacja
+  wyłączona, `--setting-sources project,local`, `--strict-mcp-config`) — tabela niżej. Wynik ponad
+  celem w dwóch sesjach → **Aneks E**: Łukasz przyjął wynik bez zmian kodu.
+- **Aneks F:** odczyt `start-digest.js` w dwunastu projektach Łukasza dał 31–178 KB w siedmiu,
+  ponad limitem wyjścia, a ostatni wpis skracał się do 0 znaków. `start-digest.js`: bloki niosą
+  źródło (plik, zakres linii); ponad limitem sekcje powyżej 8 000 znaków stają się — od
+  największej — drogowskazem „Przeczytaj ja teraz narzedziem Read: plik, linie A-B”, potem
+  skraca się wpis (Aneks C), na koniec, gdy trzeba, kolejne sekcje. `ostatniWpis` w
+  `session-signals.js` rozpoznaje wpisy z datą na poziomie `##` (JiraManager, PekaoWektor), wpis
+  kończy się na nagłówku swojego poziomu. Dwa testy w `start-digest.test.js`.
+- **Progi budżetu startu** (decyzja Łukasza): `start 100 → 55 KB`, `zasady 30 → 5 KB` w
+  `SPEC_USTAWIENIA.md` (wersja 20), `PROGI_DOMYSLNE` i `docs/USTAWIENIA.md` (stary wiersz w
+  „Ustawieniach wycofanych” z powodem); test zgodności SPEC z wartościami domyślnymi w
+  `start-cost.test.js`.
+- **Dokumenty użytkownika:** `KOMENDY.md` — fraza „kontynuujemy pracę” uruchamia skrót, budżet
+  55 KB, bramka „od 3.7.0”, nowy punkt „Start czyta skrót, nie całe dokumenty”; README — wiersz
+  frazy.
+- **Wydanie 3.7.0 i `relai-progress` 0.7.1** (`/relai-release`): numery w manifestach, README,
+  `KOMENDY.md`, STATE, `relai-update.md`, `new-project.md`, adapter Cursora i fixtura ewaluacji;
+  wpis historii, wiersze `ARTEFAKTY.md`, strona przebudowana; `.worktreeinclude` w wierszu
+  `bez-wydania` mapy wydań (decyzja Łukasza); historyczne „3.6.0” w wierszach „Stan prac”
+  przeredagowane bez numeru (decyzja Łukasza). Commity `a83a41d` (feat) i `1fe9c7d`
+  (`chore(release): relai-progress 0.7.1` — rozdzielone po odmowie bramki, L-0305), tagi
+  `v3.7.0` i `relai-progress-v0.7.1`, wydania GitHub, push `main`, strona wdrożona,
+  `plugin update` (także `--scope user`, P-062).
+- Lekcje L-0304–L-0309, pułapka P-062, destylat „Zasady aktywne” (zasady 4, 5, 10, 13; indeks bez
+  zmian, 3 443 B).
+- **Parytet adapterów (ryzyko 4):** zmiany E5 są w rdzeniu (`start-digest.js`,
+  `session-signals.js`), który Codex i Cursor dostają tą samą kopią narzędzi
+  (`provisionTemplates`) i tym samym poleceniem rytuału — drogowskazy, wpisy `##` i progi działają
+  tam tak samo. Bramka trybu ciągłego istnieje tylko w Claude Code (bez zmian w E5). Skille
+  Codeksa odtworzone generatorem („spojne”), testy Codeksa 24/24; w Cursorze niezmierzone na żywo.
+
+**Pomiar końcowy** (tokeny; RelAI = składniki pierwszego żądania z `api-request-shape`
+i `api-request-blob` — `CLAUDE.md`, blok hooka `[RelAI session-context]`, 19 wpisów `- relai:`
+na listach — plus wyniki narzędzi RelAI i hooki RelAI w turze, bajty / 1,93, listy / 2,31;
+metoda ANALIZY §3.1, bez wyjścia modelu):
+
+| Sesja | Scenariusz | Pierwsze | Koniec tury | RelAI | Skrót |
+|---|---|---|---|---|---|
+| `945e4d52` | „kontynuujemy pracę”, zgoda „nie” podłożona | 34 891 | 64 490 | **32 377** | 27 922 zn., w całości |
+| `5f271e89` | zadanie z wyzwalaczem zasady 6, bramka → „3” (nie) w drugiej turze `--resume` | 35 923 | 64 479 (tura 2) | **27 744** | jw. |
+| `b6e44ed7` | to samo zadanie, zgoda „nie” podłożona | 34 921 | 60 495 | **24 732** | jw. |
+| `9bef0614` | JiraManager (kopia dokumentów w `%TEMP%`), „kontynuujemy pracę” | 36 916 | 79 316 | 51 558 | 26 552 zn., w całości, 2 drogowskazy |
+
+Wobec ok. 72 tys. przed planem: −55…−66 %; cel ≤ 25 tys. w jednej sesji z trzech (Aneks E).
+Nadwyżka S1: `Grep „Czeka na człowieka”` po całym `DZIENNIK.md` (16 452 B) — skrót milczy, gdy
+nic nie jest przeterminowane. W JiraManagerze 35,8 KB to sam `CLAUDE.md` projektu (nieaktualizowany).
+Wszystkie sesje: model `claude-opus-5-5`, 21 narzędzi w `init`, `relai@inline` z repo.
+
+**Zweryfikowane — jak dokładnie:**
+
+- `node --test core/process/tests/*.test.js` → 357/357 (było 353; +1 instrument, +2 skrót, +1
+  progi); `core/panel/tests` → 225/225; `adapters/codex/tests` → 24/24; `validate-adapters.js` →
+  kod 0, „spojne” (ostrzeżenie `security-audit` sprzed etapu); `generate-skills.js` → „spojne”.
+- Obie wersje w jednym przebiegu (worktree `41f9849`, `core.autocrlf=false`): `start-context`
+  4/1 na HEAD, 5/0 na zmianie; transkrypt s1 z E3: koniec tury „brak danych” (HEAD) → 48 444
+  (zmiana, liczba z E3). Skrót: nowe testy RED 13/2 przed implementacją, potem 15/0. Progi: test
+  na HEAD pada (`actual: 100`, `expected: 55`), na zmianie przechodzi.
+- Skrót po Aneksie F: 12 projektów 4 073–26 553 znaków, ostatni wpis wszędzie w całości;
+  zakresy drogowskazów trafiają w nagłówki sekcji (JiraManager `LEKCJE.md` 7–561, `DZIENNIK.md`
+  83–297; PolyFlow-rust cztery). To repo i Parkly: wyjście nowego kodu bajt w bajt równe HEAD.
+- Projekt użytkownika: JiraManager nietknięty — `git status` i sumy 8 plików bez zmian po
+  pomiarze, plik zgody sesji pomiarowej poza nim.
+- Progi: `start 55` i `zasady 5` w trzech miejscach (`grep`), `startCost` tego repo 50,2 KB bez
+  raportu budżetu; trzynaście projektów 19,4–60,7 KB (`start` odpali w PolyFlow, PolyFlow-rust
+  i PekaoWektor; `zasady 5` wskazuje winowajcę tylko ponad sumą — ADIC i ExpensesManager
+  poniżej 55 KB milczą).
+- Słowa: stare brzmienie („odtwarza kontekst z dokumentów”, „domyślnie 100 KB”, „niewydane”)
+  0 trafień w `KOMENDY.md` i README; nowe obecne.
+- Wydanie: `release-check.js --wydanie` 25/25 zielonych przed tagiem i dla drzewa tagu (oba
+  komponenty); bramka `pre-push` przepuściła `v3.7.0` (75,5 s) i tag modu; `plugin validate`
+  rdzenia z ostrzeżeniami znanymi (`CLAUDE.md` w korzeniu, brak ikony), modu bez; strona.yml
+  `success`, strona na żywo pokazuje 3.7.0; `release-verify.js --sesja` → ZGODNE dla `relai`
+  3.7.0 (1574/1574 plików) i `relai-progress` 0.7.1 (35/35), sesja ładuje nowe katalogi; kopia
+  narzędzi w projekcie równa rdzeniowi po CRLF → LF, budżet z kopii: progi 55/5, 50,1 KB (koniec
+  L-0294). Panel `relai-progress` po `/reload-plugins` — „ok” Łukasza.
+- Katalog roboczy `.claude/relai/work/KONTEKST_STARTU/` (raport `clean-work.js` nie wyliczał go
+  jako zamkniętego): przed — E5 119 MB (worktree „przed” `41f9849`, 42 pliki: skrypty
+  `sesja.js`, `analiza.js`, `pierwsze.js`, wyjścia sesji, skróty projektów, migawka JiraManagera)
+  i 5 szkiców planowania (73 KB); po „tak” Łukasza — `git worktree remove` + `prune`, katalog
+  skasowany, 0 pozycji. Poza katalogiem: `%TEMP%/relai-e5-jira` (24 MB) skasowany; pliki zgody
+  sesji S1 i S3 w `.claude/relai/zgoda-promptu/` skasowane; transkrypty czterech sesji
+  (`~/.claude/projects/C--Users-Lukasz-Desktop-RelAI/`, `…-Temp-relai-e5-jira-JiraManager/`)
+  zostają jako dowód; `.claude/relai/work/WYDANIE/3.7.0/` (notatki wydania) zostaje.
+
+**Świadomie odłożone:**
+
+- Cel 25 tys. (Aneks E): linia „brak spraw przeterminowanych” w skrócie i skrót 29 KB zamiast
+  ok. 16 KB (notki archiwum ryzyk, aneksy i dziennik wdrożenia STATUS) — do osobnej poprawki.
+- `/relai-update` (stan docelowy 3.7.0) nie migruje rytuału startu w `CLAUDE.md` projektów ani
+  „Zasad aktywnych” do indeksu — projekty sprzed planu dostają skrót przez hook, ale ich
+  `CLAUDE.md` dalej wylicza pliki rytuału.
+- `/relai-release`: krok 8 bez `--scope user` (P-062) i raport `--json` ucinany przez narzędzie
+  (L-0308) — komenda projektowa do poprawy.
+- W JiraManagerze sesja poszła za drogowskazem „Czeka na człowieka”, a nie za drogowskazem do
+  „Zasad aktywnych” (projekt bez indeksu) — do obserwacji.
+- `docs/USTAWIENIA.md` 6,4 KB ponad progiem 6 KB po dopisaniu wycofanego wiersza budżetu —
+  rotacja ustawień.
+- Odłożone z E4 bez zmian: zdanie Aneksu D w `SPEC_CLAUDE_MD.md`, `SPEC_PROMPT_ETAPU.md` każący
+  przepisać pełne „Zasady aktywne” do promptu.
+- Cztery pliki `relai-planning` (`plan-closing.md`, `stage-closing.md` w obu adapterach) zmienione
+  tylko końcami linii przed etapem i nieśledzony `.claude/launch.json` — poza commitami.
+
+**Do zrobienia przez człowieka:**
+
+- Restart aplikacji dla sesji desktopu działających sprzed `plugin update` (P-005).
+  *(rozstrzygnięte 2026-10-28 — Łukasz restartuje po zakończeniu tej sesji)*
+- Wpisy lokalne pluginów w PolyFlow, PolyFlow-rust, PekaoWektor (i dwóch worktree) zostały na
+  3.6.0 / 0.7.0 (P-062) — `claude plugin update relai@relai` z katalogu każdego projektu albo
+  pomiar, którą wersję tam ładuje sesja. *(świadomie otwarte 2026-10-28 — w `STATE.md`, „Co dalej”)*
+- Migracja projektów sprzed planu na nowy rytuał i indeks zasad (`/relai-update`) — decyzja:
+  odnoga, nowy plan czy zostawić. *(rozstrzygnięte 2026-10-28 — nowy plan później, kandydat
+  w `STATE.md`, „Co dalej”)*
+
+Autor: RelAI (Opus 5.5) + Lukasz
+
+### 2026-10-28 — Plan KONTEKST_STARTU zamknięty: dowiezione vs plan
+
+Plan [KONTEKST_STARTU](archiwum/plany/KONTEKST_STARTU/STATUS.md), zaakceptowany i zamknięty 2026-10-28;
+5 etapów w 5 sesjach Opus 5.5 (szacunek planu 6–9), Aneksy A–F.
+
+**Zrobione — dowiezione vs plan (sekcja 2 planu, sześć celów):**
+
+| Cel | Plan | Dowiezione |
+|---|---|---|
+| RelAI po pierwszej turze | ok. 72 tys. → najwyżej 25 tys. (SZACUNEK) | 24 732 / 27 744 / 32 377 w trzech sesjach E5 — **częściowo** (Aneks E: przyjęte bez zmian kodu) |
+| Rytuał startu jednym poleceniem | skrót najwyżej 16 KB zamiast ok. 80 KB | jedno polecenie w 11 kopiach; skrót tego repo 29 KB — **ponad szacunkiem**, ale zawsze w limicie wyjścia (Aneksy C, F) |
+| „Zasady aktywne” jako indeks | najwyżej 5 KB, ewaluacja 3/3 i 0/3 | 3 443 B, ewaluacja 3/3 i 0/3 (E4, po Aneksach C i D) — **tak** |
+| Bramka trybu ciągłego w dwóch krokach | „nie” bez dalszych pytań i odczytu | „nie” +1 297 wobec +19 513 (E3), zamrożone jako D-93 — **tak** |
+| Start bez fałszywych sygnałów | trzy usterki | parser „Aktywny plan: brak”, rotacja tylko z zyskiem, nakładki `nakladka-<rodzina>.md` (E1) — **tak** |
+| Parytet trzech adapterów | ten sam skrót | jedno narzędzie rdzenia w Claude Code, Cursorze i Codeksie, testy parytetu zielone (E2, E5); Cursor niezmierzony na żywo — **tak, z zastrzeżeniem** |
+
+Poza planem, aneksami: progi budżetu (`start 55`, `zasady 5`), skrót w projektach użytkowników
+(drogowskazy, wpisy `##`), wydanie 3.7.0 i `relai-progress` 0.7.1. Przepadło: nic z zakresu;
+linia „brak spraw przeterminowanych” i dalsze odchudzenie skrótu odłożone (Aneks E).
+
+**Zweryfikowane — jak dokładnie:** bramki manualne planu rozstrzygnięte z Łukaszem (cztery
+zamknięte, jedna świadomie otwarta w `STATE.md`); odnóg plan nie miał; skan Trivy
+(`scan.mjs --path .`) 0 / 0 / 0 / 0, delta pusta; tabela ryzyk bez pozycji tego planu.
+
+**Świadomie odłożone:** jak we wpisie E5 i w `STATE.md`, „Co dalej” (Po KONTEKST_STARTU).
+
+**Do zrobienia przez człowieka:** wpisy lokalne pluginów w trzech projektach i dwóch worktree
+(P-062) — w `STATE.md`.
 
 Autor: RelAI (Opus 5.5) + Lukasz
