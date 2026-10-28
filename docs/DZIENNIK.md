@@ -1211,3 +1211,75 @@ sesji”, model sesji) rozdzielił zdanie na dwa prompty: przyciski (wpis wyżej
 **Do zrobienia przez człowieka:** —
 
 Autor: RelAI (Opus 5.5) + Lukasz
+
+### 2026-10-28 — Plan KONTEKST_STARTU: lżejszy start sesji (DO AKCEPTACJI)
+
+Plan na podstawie [ANALIZA.md](plany/KONTEKST_STARTU/ANALIZA.md) i wywiadu z Łukaszem (prośba:
+„zacommituj zmiany a potem pisz plan”). Format i model z `docs/USTAWIENIA.md` — HTML, Opus
+(D-85) — więc bez pytania startowego.
+
+**Zrobione:**
+
+- [PLAN.html](plany/KONTEKST_STARTU/PLAN.html) z szablonu pluginu (`HTML_PLAN`, bez nadpisania
+  lokalnego — wiersz „Szablon planu HTML”): dziesięć sekcji, warianty A–E (C wybrany: skrót
+  startu jednym poleceniem, indeks zasad, bramka w dwóch krokach), 5 etapów, 8 ryzyk,
+  10 przypadków brzegowych, 4 sprawy dla Łukasza, diagram przepływu, symulator kontekstu po
+  pierwszej turze. Treść w `.claude/relai/work/KONTEKST_STARTU/plan-tresc.html`, złożona skryptem
+  `wypelnij-plan.cjs` (podstawienia funkcją) i builderem `zbuduj.js`.
+- [STATUS.md](plany/KONTEKST_STARTU/STATUS.md) — DO AKCEPTACJI, etapy OCZEKUJE, bez promptów
+  (PROMPT_ETAP_1 powstaje przy akceptacji, D-34). Linia „Aktywny plan” w `CLAUDE.md` i kopii
+  w `AGENTS.md`; STATE.
+
+**Zweryfikowane — jak dokładnie:**
+
+- Builder: 6 reguł `@font-face`, 222 KB, kod 0, żadnego niewypełnionego znacznika; zero adresów
+  `http(s)` w pliku.
+- W przeglądarce: zwijanie (`aria-expanded` false → true), symulator 178 → 117 tys., RelAI
+  18 tys. przy wartościach startowych, a przy skrócie 40 KB 31 tys. i „ponad cel”; brak przewijania
+  poziomego przy 375 px i 1280 px.
+- Diagram: pierwsza wersja miała dwie dolne kartki nachodzące o 40 px — przesunięte; instrument
+  (prostokąty `getBBox`, podpis w kartce) daje 0 nachodzeń i 0 podpisów poza kartką, a na
+  podłożonym przesunięciu wykrywa nachodzenie 4–5 (kontrola pozytywna).
+- `node --test core/process/tests/*.test.js` 321/321 (w tym sieć rytuału z kopią `AGENTS.md`).
+
+**Świadomie odłożone:**
+
+- Przy panelu przeglądarki o szerokości 278 px szablon ma 286 px (8 px) — zachowanie szablonu
+  przy szerokości mniejszej niż telefon; bez zmiany.
+
+**Do zrobienia przez człowieka:**
+
+- Akceptacja planu KONTEKST_STARTU (z celem 25 tys. tokenów z sekcji 9) albo poprawki.
+  *(rozstrzygnięte 2026-10-28 — „Akceptuję”, wpis niżej)*
+
+Autor: RelAI (Opus 5.5) + Lukasz
+
+### 2026-10-28 — Plan KONTEKST_STARTU zaakceptowany
+
+Łukasz: „Akceptuję” — bez poprawek, więc bez Aneksu A; razem z planem przyjęty cel z sekcji 9:
+RelAI najwyżej 25 tys. tokenów po pierwszej turze.
+
+**Zrobione:**
+
+- [STATUS.md](plany/KONTEKST_STARTU/STATUS.md): ZAAKCEPTOWANY 2026-10-28, E1 GOTOWY DO STARTU
+  z linkiem do promptu, linia w dzienniku wdrożenia. Nagłówek PLAN.html przebudowany z nowym
+  statusem; sekcje 1–10 od teraz nietykalne (zmiany tylko aneksami).
+- [PROMPT_ETAP_1.md](plany/KONTEKST_STARTU/PROMPT_ETAP_1.md) wg `SPEC_PROMPT_ETAPU.md`: parser
+  linii „Aktywny plan: brak”, propozycja rotacji tylko z zyskiem, nakładki
+  `rodziny/nakladka-<family>.md` ze sprzątaniem starych kopii, instrument
+  `core/tools/start-context.js` z kontrolą pozytywną na czterech zmierzonych sesjach, pomiar
+  „przed”. Zasady aktywne 3, 4, 5, 6, 7, 8, 10, 11, 13 wklejone skryptem dosłownie z LEKCJE.
+- Linia „Aktywny plan” w `CLAUDE.md` i `AGENTS.md`, STATE.
+
+**Zweryfikowane — jak dokładnie:**
+
+- `diff` PLAN.html przed i po przebudowie: zmieniły się wyłącznie dwie linie statusu w nagłówku.
+- Skrypt wklejający zasady: 15 zasad w sekcji, 9 wklejonych, prompt 34 068 B; ogon zasady 13
+  (lista L-…) obecny w prompcie.
+- Linie „Aktywny plan” w `CLAUDE.md` i `AGENTS.md` identyczne (`diff` linii).
+
+**Świadomie odłożone:** —
+
+**Do zrobienia przez człowieka:** —
+
+Autor: RelAI (Opus 5.5) + Lukasz

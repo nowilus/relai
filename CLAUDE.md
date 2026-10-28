@@ -36,7 +36,7 @@ o kolejne `N` dni / rozstrzygnąć teraz. Sesja nieinteraktywna: sam raport, bez
 | Plany zamknięte | 20, ostatni ZASIEG_PLUGINU 2026-10-28 (wydanie 3.6.0) | [archiwum planów](docs/archiwum/plany/), [docs/STATE.md](docs/STATE.md) |
 | Odnogi i wątki samodzielne | 1 otwarta: `OPIS_REPO` (od 2026-09-24); zamknięte — karty w [docs/fixy/](docs/fixy/) | [docs/STATE.md](docs/STATE.md) |
 
-Aktywny plan: brak. [PANEL_CODEX](docs/plany/PANEL_CODEX/STATUS.md) (Codex) **nieaktywny — WSTRZYMANY 2026-10-27** decyzją Łukasza. Ostatni zamknięty: [ZASIEG_PLUGINU](docs/archiwum/plany/ZASIEG_PLUGINU/STATUS.md), 2026-10-28 (wydanie 3.6.0 — RelAI tylko w zaadoptowanych projektach, maszyna przełączona).
+Aktywny plan: [KONTEKST_STARTU](docs/plany/KONTEKST_STARTU/STATUS.md) — w Claude Code, ZAAKCEPTOWANY 2026-10-28, E1 gotowy do startu (lżejszy start sesji: skrót startu, indeks zasad, bramka trybu ciągłego w dwóch krokach). [PANEL_CODEX](docs/plany/PANEL_CODEX/STATUS.md) (Codex) **nieaktywny — WSTRZYMANY 2026-10-27** decyzją Łukasza. Ostatni zamknięty: [ZASIEG_PLUGINU](docs/archiwum/plany/ZASIEG_PLUGINU/STATUS.md), 2026-10-28 (wydanie 3.6.0 — RelAI tylko w zaadoptowanych projektach, maszyna przełączona).
 
 ## Reguły procesu
 

@@ -14,7 +14,9 @@ repozytorium niesie też cztery mody: `relai-panel` 0.22.1, `relai-progress` 0.7
 `relai-cache-keeper` 0.13.0 („early access”) i kokpit `relai-mods` 0.3.0. Wydanie robi się frazą „gotowi do wydania?”
 (`/relai-release`): raport `release-check.js`, naprawy po jednej zgodzie, publikacja krok po kroku,
 bramka `pre-push` na tagi. Maszyna Łukasza pracuje w trybie „RelAI tylko w projektach” od
-2026-10-28. Aktywnego planu nie ma; PANEL_CODEX (Codex) wstrzymany 2026-10-27 decyzją Łukasza.
+2026-10-28. Aktywny plan KONTEKST_STARTU (lżejszy start sesji) zaakceptowany 2026-10-28, E1 gotowy
+do startu; PANEL_CODEX (Codex)
+wstrzymany 2026-10-27 decyzją Łukasza.
 Opinii spoza projektu nadal nie ma.
 
 ## Co działa
@@ -103,7 +105,11 @@ Opinii spoza projektu nadal nie ma.
 
 ## Nad czym pracujemy teraz
 
-- **Aktywnego planu nie ma** (ZASIEG_PLUGINU zamknięty 2026-10-28).
+- **Plan KONTEKST_STARTU — ZAAKCEPTOWANY 2026-10-28, E1 GOTOWY DO STARTU** ( [STATUS](plany/KONTEKST_STARTU/STATUS.md),
+  [PLAN.html](plany/KONTEKST_STARTU/PLAN.html)): 5 etapów, 6–9 sesji (szacunek) — fałszywe
+  sygnały startu i instrument pomiaru, skrót startu jednym poleceniem, bramka trybu ciągłego
+  w dwóch krokach, „Zasady aktywne” jako indeks, pomiar i wydanie. Cel: RelAI najwyżej 25 tys.
+  tokenów po pierwszej turze (dziś ok. 72 tys.).
 - **PANEL_CODEX — nieaktywny, WSTRZYMANY 2026-10-27** decyzją Łukasza (plan
   [PANEL_CODEX](plany/PANEL_CODEX/STATUS.md), ZAAKCEPTOWANY 2026-10-10, 8 etapów, Codex
   `gpt-6.1-sol`). Stan zatrzymania E1: natywny widok i wiadomość do bieżącego czatu potwierdzone
@@ -118,7 +124,7 @@ Opinii spoza projektu nadal nie ma.
 - **Analiza KONTEKST_STARTU (2026-10-28)** — [ANALIZA.md](plany/KONTEKST_STARTU/ANALIZA.md) z
   wywiadem: cel to kontekst po pierwszej turze (RelAI ≈ 41 % z ~130–174 tys.), „Zasady aktywne”
   jako indeks z doczytywaniem, bramka trybu ciągłego pyta najpierw tylko o zgodę, zakres tylko
-  RelAI. Następny krok: plan wg `relai-planning`.
+  RelAI. Plan na jej podstawie — pozycja wyżej.
 
 ## Co dalej
 
