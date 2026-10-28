@@ -9,8 +9,8 @@ Plan: [PLAN.html](PLAN.html) · Utworzony: 2026-10-28 · Status planu: **ZAAKCEP
 | E1 | Fałszywe sygnały startu i instrument pomiaru | ZREALIZOWANY 2026-10-28 | [PROMPT_ETAP_1.md](PROMPT_ETAP_1.md) | parser aktywnego planu, rotacja tylko z zyskiem, nakładki rodzin bez kolizji z `CLAUDE.md`, pomiar „przed” |
 | E2 | Skrót startu jednym poleceniem | ZREALIZOWANY 2026-10-28 | [PROMPT_ETAP_2.md](PROMPT_ETAP_2.md) | `start-digest.js`, jedna linia rytuału w trzech kopiach, budżet ze skrótu, adaptery |
 | E3 | Bramka trybu ciągłego w dwóch krokach | ZREALIZOWANY 2026-10-28 | [PROMPT_ETAP_3.md](PROMPT_ETAP_3.md) | najpierw sama zgoda, po „tak” model i zasięg; procedura u agenta; podział `relai-prompt.md` |
-| E4 | „Zasady aktywne” jako indeks | GOTOWY DO STARTU | [PROMPT_ETAP_4.md](PROMPT_ETAP_4.md) | przed startem: aneks do D-15 (sekcja 9 planu); ewaluacja wyzwalania |
-| E5 | Pomiar końcowy, progi i wydanie | OCZEKUJE | — | progi budżetu startu — decyzja Łukasza; „gotowi do wydania?” |
+| E4 | „Zasady aktywne” jako indeks | ZREALIZOWANY 2026-10-28 | [PROMPT_ETAP_4.md](PROMPT_ETAP_4.md) | przed startem: aneks do D-15 (sekcja 9 planu); ewaluacja wyzwalania |
+| E5 | Pomiar końcowy, progi i wydanie | GOTOWY DO STARTU | [PROMPT_ETAP_5.md](PROMPT_ETAP_5.md) | progi budżetu startu — decyzja Łukasza; „gotowi do wydania?” |
 
 ## Aneksy
 
@@ -24,9 +24,25 @@ Plan: [PLAN.html](PLAN.html) · Utworzony: 2026-10-28 · Status planu: **ZAAKCEP
   (`adapters/claude-code/commands/relai-stage.md`) i opis rytuału w `SPEC_KOMENDY.md` (l. 115).
   Oba mówią to samo jedno polecenie skrótu i wchodzą do testu kopii rytuału.
 
+- **Aneks C (2026-10-28, E4, decyzja Łukasza):** zakres E4 obejmuje także rozmiar skrótu startu.
+  Ewaluacja wyzwalania wyszła 0/3 i 0/3, bo skrót (34 116 B, 32 762 znaki) przekraczał limit
+  wyjścia polecenia: sesje dostały 2 KB podglądu i indeksu nie widziały (L-0303). `start-digest.js`
+  stawia indeks „Zasad aktywnych” zaraz po sekcjach STATE, przed ryzykami i wpisem dziennika,
+  a przy wyjściu ponad 28 tys. znaków skraca ostatni wpis dziennika do początku z drogowskazem.
+  Test na obu kształtach, potem jedna powtórka ewaluacji z asercją dostarczenia, bez pluginów
+  użytkownika.
+- **Aneks D (2026-10-28, E4, decyzja Łukasza):** po aneksie C skrót dotarł w całości, a ewaluacja
+  dała 1/3 z wyzwalaczem (T3 tak; T1 zatrzymał się na pytaniu, T2 oparł się na regule backslasha
+  z `CLAUDE.md`) i 0/3 bez (ważna tylko N3 — N1 i N2 nie uruchomiły skrótu). Zakres E4 obejmuje
+  zdanie w warstwie stałej (zasada 8): nagłówek bloku indeksu w skrócie i rytuał startu w
+  `CLAUDE.md` mówią „zanim pierwszy raz zmienisz plik, porównaj zadanie z wyzwalaczami; trafienie
+  → odczyt pełnej zasady”. Potem jedna powtórka ewaluacji; negatywy to prompty, które uruchamiają
+  skrót („kontynuujemy pracę”, „sprawdź status”, pytanie o autora wpisu).
+
 ## Bramki manualne
 
 - **Zamrożenie bramek zgody jako decyzji (brzmienie we wpisie)** · źródło: wpis dziennika 2026-10-28 (E3) · **OTWARTA**
+- **Graduacja L-0298/L-0302 (gołe `cd` w Bash) do `CLAUDE.md`** · źródło: wpis dziennika 2026-10-28 (E4) · **OTWARTA**
 - **Domyślny model nowych sesji zmieniony w pomiarze na Sonnet (`~/.claude/settings.json`) — przywrócić, jeśli niezamierzone** · źródło: wpis dziennika 2026-10-28 (E3) · ROZSTRZYGNIĘTA 2026-10-28 — przywrócony `"model": "opus"`
 
 ## Dziennik wdrożenia
@@ -47,3 +63,8 @@ Plan: [PLAN.html](PLAN.html) · Utworzony: 2026-10-28 · Status planu: **ZAAKCEP
   `relai-prompt.md` 30 115 → 16 174 B (`core/prompt/PRZYGOTOWANIE.md`, `PROCEDURA.md`); testy
   348/348, 225/225, 24/24; pomiar na żywo (Sonnet 5.5): „nie” +1 297 wobec +19 513 przed. E4
   gotowy do startu.
+- 2026-10-28 — E4 zrealizowany (Opus 5.5, z Aneksami C i D): aneks A do D-15, indeks „Zasad
+  aktywnych” w `LEKCJE.md` (3 443 B, pełne brzmienie bajt w bajt), skrót wypisuje indeks zaraz po
+  STATE i skraca ostatni wpis ponad 28 tys. znaków (60 489 → 29 084 B); ewaluacja wyzwalania 3/3
+  i 0/3 w trzecim przebiegu (0/3 przy skrócie w podglądzie, 1/3 bez zdania w warstwie stałej);
+  testy 353/353, 225/225, 24/24. E5 gotowy do startu.

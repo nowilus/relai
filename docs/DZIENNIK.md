@@ -1631,3 +1631,104 @@ domyślna po „tak” — delegacja — kosztuje sesję +7 341 (s7).
   `settings.json.bak-2026-10-28-e3`)*
 
 Autor: RelAI (Opus 5.5) + Lukasz
+
+### 2026-10-28 — KONTEKST_STARTU E4: „Zasady aktywne” jako indeks z wyzwalaczami
+
+Etap wg [PROMPT_ETAP_4.md](plany/KONTEKST_STARTU/PROMPT_ETAP_4.md), sesja Opus 5.5, HEAD `b3a1132`,
+z Aneksami C i D (decyzje Łukasza w trakcie etapu, [STATUS](plany/KONTEKST_STARTU/STATUS.md)).
+Bramka trybu ciągłego (kopia 3.6.0 z marketplace, stary kształt) zadała na „Tak, zaczynamy” trzy
+pytania naraz — odpowiedź „nie w tej sesji”.
+
+**Zrobione:**
+
+- **Aneks A do D-15** w `docs/DECYZJE.md` — po „tak” Łukasza na brzmienie, przed pierwszą zmianą
+  kodu i rejestru.
+- **Indeks w `docs/LEKCJE.md`:** sekcja „Zasady aktywne” ma `### Indeks` (15 linii
+  `- **N · tytuł** — wyzwalacz`, 3 443 B; zasada 14 w pełnym brzmieniu, bo obowiązuje w każdym
+  zadaniu) i `### Pełne brzmienie` (15 zasad). Linie indeksu zaczynają się od `- `, bo
+  `count-rules.js` liczy `^\d+\.` w całej sekcji — dalej 15 / 15.
+- **`core/process/start-digest.js`:** z „Zasad aktywnych” wypisuje sam indeks ze zdaniem
+  wykonawczym („zanim pierwszy raz zmienisz plik, porównaj zadanie z wyzwalaczami; trafienie =
+  Read pełnego brzmienia”); projekt bez indeksu albo z pustym — cała sekcja. Indeks stoi zaraz
+  po STATE (Aneks C), a przy wyjściu ponad 28 tys. znaków ostatni wpis dziennika skraca się do
+  początku z linią `[wpis skrocony do N z M znakow; calosc: …]`. Drogowskaz do pełnego brzmienia.
+- **Warstwa stała (Aneks D):** zdanie o porównaniu z wyzwalaczami w rytuale startu `CLAUDE.md`
+  i `AGENTS.md`.
+- **Specyfikacje i skille:** `SPEC_LEKCJE` (struktura z indeksem, czytanie, przykład Parkly,
+  „Dawniej”), `SPEC_USTAWIENIA` (człon `zasady` liczy indeks; skrócony wpis w pozycji `ryzyka`),
+  `SPEC_ARCHIWUM` (nietykalne indeks i pełne brzmienie), skill `relai-core` (Claude Code, Codex
+  z generatora) i reguła Cursora — zdania o tym, co czyta start i jak dopisać zasadę.
+  `session-signals.js` — tylko komentarz przy progu `zasady` (wartość 30 KB bez zmian, E5).
+  `ARTEFAKTY.md`: `SPEC_LEKCJE` 3, `SPEC_ARCHIWUM` 6, `SPEC_USTAWIENIA` 19, skill `relai-core` 28,
+  reguła Cursora 8. `KOMENDY.md` bez zmian — człowiek nie widzi innej komendy ani frazy.
+- **Testy** `start-digest.test.js` (+5): indeks zamiast pełnej treści z kontrolą pozytywną na
+  projekcie bez indeksu; warianty nagłówka (pogrubiony, numerowany, angielski, CRLF) i pusty
+  indeks; pozycja budżetu `zasady` liczy indeks; skrócenie długiego wpisu z kontrolą na krótkim;
+  indeks przed ryzykami i wpisem. Test kolejności pozycji budżetu poprawiony na nową kolejność
+  (skutek Aneksu C).
+- **Lekcje** L-0302 (powtórka L-0298: gołe `cd`) i L-0303 (ewaluacja bez asercji dostarczenia);
+  destylat w nowym kształcie — L-0296–L-0303 w pełnym brzmieniu zasad 4, 5, 11 i 13.
+
+**Zweryfikowane — jak dokładnie:**
+
+- `node --test core/process/tests/*.test.js` → 353/353 (było 348); `core/panel/tests` → 225/225;
+  `adapters/codex/tests` → 24/24; `validate-adapters.js` → kod 0; `generate-skills.js` →
+  „spojne”; `ritual-copies.test.js` → 3/3.
+- Obie wersje: nowe testy skrótu w worktree `b3a1132` (`core.autocrlf=false`) → 7 pass / 6 fail
+  (pięć nowych i kolejność budżetu); na zmianie 13/0. RED przed implementacją widziany też w tej
+  sesji (8/3, potem 11/2, potem 12/1).
+- Indeks: 3 443 B (`Buffer.byteLength` wyciętej podsekcji). Pełne brzmienie porównane ze stanem
+  sprzed etapu — identyczne (29 951 B) przed dopisaniem lekcji do destylatu; reszta pliku poza
+  sekcją identyczna; nagłówki 33 → 37 (+2 podsekcje, +2 lekcje). Po odświeżeniu destylatu sekcja
+  34 423 B.
+- Skrót startu na tym repo: **60 489 B / 58 094 znaki → 29 056 B / 27 946 znaków** (FAKT,
+  2026-10-28, po odświeżeniu destylatu i z nowym wpisem jeszcze niedopisanym).
+- **Ewaluacja wyzwalania** — własny skrypt w katalogu roboczym (powód: `eval-triggers.js` mierzy
+  skille w fixturach, a tu trzeba realnego `LEKCJE.md` repo i miary odczytu pliku spoza skilla),
+  świeże sesje `claude -p --plugin-dir` repo, instalacja wyłączona `--settings`, Edit/Write
+  zabronione, Bash tylko dla skrótu, zgoda trybu ciągłego „nie” podłożona per `--session-id`.
+  Wszystkie 18 sesji: model `claude-opus-5-5`, kod 0, edycje odrzucone (`git status` bez zmian).
+  Miara: `Read`/`Grep` na `docs/LEKCJE.md` obejmujące wiersz zasady.
+
+  | Przebieg | Warunki | Z wyzwalaczem | Bez | Uwagi |
+  |---|---|---|---|---|
+  | 1 | skrót 34 116 B, pluginy użytkownika | 0/3 | 0/3 | skrót we wszystkich sesjach jako podgląd 2 190 znaków — indeksu nikt nie widział (L-0303) → Aneks C |
+  | 2 | skrót 29 002 B, `--setting-sources project,local`, `--strict-mcp-config`, 21 narzędzi w `init` | 1/3 (T3) | 0/3 | dostarczenie w całości (28 248 znaków wyniku); T1 pytał o niezgodność polecenia z kodem, T2 oparł się na regule backslasha z `CLAUDE.md`; N1, N2 bez skrótu → Aneks D |
+  | 3 | jak 2 + zdanie w warstwie stałej; negatywy „kontynuujemy pracę”, „sprawdź status”, autor wpisu | **3/3** | **0/3** | T1 `Grep ^15\. -A 30`, T2 `Read` l. 51–250 (zasada 5 od l. 125), T3 `Grep „Próg jest liczbą” -A 14`; wszystkie sześć z indeksem w całości (28 323 znaki) |
+
+  Scenariusze: T1 kolor paska `relai-progress` (zasada 15), T2 regex nagłówka archiwum
+  w `rotate.js` (zasada 5), T3 próg `zasady` 30 → 6 KB (zasada 6). Pluginy w `init` przebiegów 2–3:
+  `relai` z repo, mody z `.claude/settings.local.json` projektu, dwa wbudowane.
+- Dowód negatywny: `git diff --stat` na `core/process/prompt-mode.js`, `core/prompt/`
+  i hooku `prompt-mode.js` → nic; kopie rytuału (`CLAUDE.md`, `AGENTS.md`, skille, reguła
+  Cursora) zmienione wyłącznie w zdaniach o „Zasadach aktywnych”, `CLAUDE.md` i `AGENTS.md`
+  identyczne w sekcji rytuału.
+- Katalog roboczy `.claude/relai/work/KONTEKST_STARTU/E4/` (`clean-work.js raport`: „etap
+  zamknięty”): przed — 1 pozycja, 116,3 MB (worktree „przed” `b3a1132`, skrypt
+  `eval-indeks.js`, transkrypty trzech przebiegów, kopie `LEKCJE`/zasad „przed”, wyjścia skrótu);
+  po „tak” Łukasza — `git worktree remove` + `prune`, katalog skasowany, 0 pozycji. Poza
+  katalogiem: transkrypty 18 sesji ewaluacji w `~/.claude/projects/C--Users-Lukasz-Desktop-RelAI/`
+  zostają jako dowód; pliki zgody per sesja skasowane przez skrypt po każdej sesji.
+
+**Świadomie odłożone:**
+
+- Wartość progu `zasady` (30 KB) i budżetu startu — E5, decyzja Łukasza.
+- `SPEC_CLAUDE_MD.md` (szablon rytuału dla innych projektów) bez zdania z Aneksu D — w innych
+  projektach zdanie niesie nagłówek indeksu w skrócie; czy dopisać je też do szablonu, do pomiaru
+  w E5.
+- Ewaluacja na jednym przebiegu po poprawce, bez szumu; Sonnet nie mierzony.
+- Kopia narzędzi w `.claude/relai/tools/` nadpisywana przez plugin 3.6.0 przy starcie (L-0294) —
+  hook startu liczy budżet starym skrótem (zasady 32,7 KB) do wydania.
+- Wpis dziennika ponad 28 tys. znaków skrótu traci koniec — model ma drogowskaz; czy krótsze
+  wpisy, do obserwacji.
+- `SPEC_PROMPT_ETAPU.md` każe przepisać „Zasady aktywne” do promptu w całości; `PROMPT_ETAP_5.md`
+  niesie indeks w całości i pełne brzmienie tylko zasad 2, 6, 10 (pozostałe z wyzwalaczem —
+  doczytywane), bo pełna sekcja ma 34 KB. Specyfikacja do przepisania na indeks — poza zakresem
+  planu (wątek do decyzji: odnoga albo aneks).
+
+**Do zrobienia przez człowieka:**
+
+- **Graduacja L-0298/L-0302 do `CLAUDE.md`** (powtórzenie): „W poleceniu Bash nigdy gołe `cd` —
+  ścieżka w argumencie albo podpowłoka `( cd … && … )`.” Decyzja Łukasza: dopisać czy nie.
+
+Autor: RelAI (Opus 5.5) + Lukasz

@@ -92,7 +92,9 @@ Uruchom `node .claude/relai/tools/start-digest.js` i przeczytaj jego wyjście. S
 z `docs/STATE.md` sekcje „Gdzie jesteśmy”, „Nad czym pracujemy teraz”, „Co blokuje” i pierwszy
 punkt „Co dalej”; tabelę ryzyk bez kolumny „Mitygacja”; ostatni wpis dziennika (sekcję „Czeka
 na człowieka” tylko przy sprawie przeterminowanej); aktywne wiersze `docs/USTAWIENIA.md`;
-`STATUS.md` aktywnego planu i „Zasady aktywne” (D-15). `CLAUDE.md` masz już w kontekście.
+`STATUS.md` aktywnego planu i indeks „Zasad aktywnych” (D-15, Aneks A) — gdy zadanie trafia
+w wyzwalacz zasady, przed pracą doczytujesz jej pełne brzmienie z `docs/LEKCJE.md`. `CLAUDE.md`
+masz już w kontekście.
 
 **Na starcie nie otwierasz plików, które skrót streszcza.** Pełne sekcje, `docs/DECYZJE.md`
 i starsze wpisy dziennika wskazują drogowskazy na końcu skrótu — otwierasz je dopiero wtedy, gdy
@@ -168,7 +170,8 @@ Użytkownik poprawił sposób, w jaki coś zrobiłeś — nie treść zadania, t
 1. **Zapisz lekcję bez pytania.** Wpis `L-NNNN` na końcu sekcji „Lekcje" w `docs/LEKCJE.md`, format
    wg `SPEC_LEKCJE.md` (trigger / przyczyna / zasada / źródło). Potwierdź jedną linią: „Zapisane
    jako L-0007.". Na tym kończysz — bez pytania o zgodę, przeprosin i rozwijania tematu.
-2. **Zaktualizuj „Zasady aktywne"**, jeśli lekcja wnosi zasadę, której tam jeszcze nie ma.
+2. **Zaktualizuj „Zasady aktywne"**, jeśli lekcja wnosi zasadę, której tam jeszcze nie ma:
+   pełne brzmienie i linię indeksu z wyzwalaczem (`SPEC_LEKCJE.md`).
 3. **Sprawdź powtórzenie.** Ta sama sprawa była już zapisana → zamiast bliźniaczego wpisu dopisz
    lekcję z adnotacją „powtórzenie L-XXXX" i **zaproponuj graduację** do `CLAUDE.md` jednym
    zdaniem. Dopisujesz tam dopiero po zgodzie człowieka.

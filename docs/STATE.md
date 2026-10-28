@@ -16,7 +16,8 @@ repozytorium niesie też cztery mody: `relai-panel` 0.22.1, `relai-progress` 0.7
 bramka `pre-push` na tagi. Maszyna Łukasza pracuje w trybie „RelAI tylko w projektach” od
 2026-10-28. Aktywny plan KONTEKST_STARTU (lżejszy start sesji) zaakceptowany 2026-10-28; E1
 i E2 zrealizowane tego samego dnia (rytuał startu to jedno polecenie skrótu `start-digest.js`),
-E3 też (bramka trybu ciągłego pyta najpierw tylko o zgodę), E4 gotowy do startu; PANEL_CODEX (Codex)
+E3 też (bramka trybu ciągłego pyta najpierw tylko o zgodę) i E4 („Zasady aktywne” jako indeks,
+skrót startu w limicie wyjścia), E5 gotowy do startu; PANEL_CODEX (Codex)
 wstrzymany 2026-10-27 decyzją Łukasza.
 Opinii spoza projektu nadal nie ma.
 
@@ -106,17 +107,19 @@ Opinii spoza projektu nadal nie ma.
 
 ## Nad czym pracujemy teraz
 
-- **Plan KONTEKST_STARTU — E1, E2 i E3 ZREALIZOWANE 2026-10-28, E4 GOTOWY DO STARTU** ( [STATUS](plany/KONTEKST_STARTU/STATUS.md),
+- **Plan KONTEKST_STARTU — E1–E4 ZREALIZOWANE 2026-10-28, E5 GOTOWY DO STARTU** ( [STATUS](plany/KONTEKST_STARTU/STATUS.md),
   [PLAN.html](plany/KONTEKST_STARTU/PLAN.html)): 5 etapów, 6–9 sesji (szacunek). Cel: RelAI
   najwyżej 25 tys. tokenów po pierwszej turze (dziś ok. 72 tys.). W repo, niewydane: E1 (parser
   „Aktywny plan: brak”, rotacja tylko z zyskiem, nakładki `nakladka-<family>.md`, instrument
   `start-context.js`) i E2 — rytuał startu to `node .claude/relai/tools/start-digest.js` w 11
-  kopiach, budżet liczy skrót (to repo 77,7 KB ze skillem). Skrót ma tu 55 KB, ponad limit wyjścia
-  polecenia — model czyta go kawałkami; indeks zasad w E4 (L-0296). E3: bramka trybu ciągłego
+  kopiach, budżet liczy skrót. E3: bramka trybu ciągłego
   w dwóch krokach — najpierw sama zgoda, po „tak” model i zasięg (wybór „ta sesja” w pliku zgody
   sesji), procedura u agenta; `relai-prompt.md` 30 115 → 16 174 B, kroki w
   `core/prompt/PRZYGOTOWANIE.md` i `PROCEDURA.md`. Zamrożenie bramek jako decyzji czeka na
-  Łukasza (bramka manualna w STATUS). Następny: E4 — „Zasady aktywne” jako indeks.
+  Łukasza (bramka manualna w STATUS). E4 (z Aneksami C i D): „Zasady aktywne” na starcie jako
+  indeks z wyzwalaczami (3 443 B, D-15 Aneks A), pełne brzmienie doczytywane; skrót startu
+  60 489 → 29 056 B (27 946 znaków, w limicie wyjścia polecenia — długi ostatni wpis skraca się),
+  ewaluacja wyzwalania 3/3 i 0/3 na Opus 5.5. Następny: E5 — pomiar końcowy, progi, wydanie.
 - **PANEL_CODEX — nieaktywny, WSTRZYMANY 2026-10-27** decyzją Łukasza (plan
   [PANEL_CODEX](plany/PANEL_CODEX/STATUS.md), ZAAKCEPTOWANY 2026-10-10, 8 etapów, Codex
   `gpt-6.1-sol`). Stan zatrzymania E1: natywny widok i wiadomość do bieżącego czatu potwierdzone

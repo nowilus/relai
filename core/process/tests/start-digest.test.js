@@ -12,7 +12,7 @@ const path = require('node:path');
 const { spawnSync } = require('node:child_process');
 
 const core = require('../session-signals.js');
-const { startDigest, bezMitygacji, pierwszyPunkt } = require('../start-digest.js');
+const { startDigest, bezMitygacji, pierwszyPunkt, LIMIT_ZNAKOW } = require('../start-digest.js');
 
 const NARZEDZIE = path.join(__dirname, '..', 'start-digest.js');
 const DZISIAJ = '2026-10-28';
@@ -148,6 +148,114 @@ test('old project shape: missing sections, numbered and bold headings, CRLF, exi
   }
 });
 
+// KONTEKST_STARTU E4 (D-15, Aneks A): "Zasady aktywne" z podsekcja indeksu wchodza do skrotu
+// samym indeksem, z drogowskazem do pelnego brzmienia. Projekt bez indeksu — sekcja w calosci.
+const LEKCJE_Z_INDEKSEM = '# LEKCJE\n\n## Zasady aktywne\n\n### Indeks\n\nOpis indeksu.\n\n'
+  + '- **1 · INDEKS-JEDEN** — WYZWALACZ-JEDEN.\n- **2 · INDEKS-DWA** — w pelnym brzmieniu.\n\n'
+  + '### Pełne brzmienie\n\n1. **PELNE-JEDEN** pelne brzmienie.\n2. **PELNE-DWA** drugie.\n\n'
+  + '## Lekcje\n\n### L-0001 — LEKCJA-PELNA\n\ntresc.\n';
+
+function blokZasad(t) {
+  return t.split('=== ').find((b) => b.startsWith('docs/LEKCJE.md')) || '';
+}
+
+test('rules index: the digest carries the index and a pointer, not the full wording (one run, both shapes)', () => {
+  const zIndeksem = projektBiezacy();
+  const bezIndeksu = projektBiezacy();
+  try {
+    fs.writeFileSync(path.join(zIndeksem, 'docs', 'LEKCJE.md'), LEKCJE_Z_INDEKSEM);
+    const t = blokZasad(startDigest(zIndeksem, { dzisiaj: DZISIAJ }).tekst);
+    for (const znacznik of ['INDEKS-JEDEN', 'WYZWALACZ-JEDEN', 'INDEKS-DWA']) {
+      assert.ok(t.includes(znacznik), 'brak w indeksie: ' + znacznik);
+    }
+    for (const znacznik of ['PELNE-JEDEN', 'PELNE-DWA', 'Pełne brzmienie\n\n1.', 'LEKCJA-PELNA']) {
+      assert.ok(!t.includes(znacznik), 'skrot niesie pelne brzmienie: ' + znacznik);
+    }
+    assert.match(t, /indeks\) ===\nZanim pierwszy raz zmienisz plik, porownaj zadanie z wyzwalaczami ponizej; trafienie = /);
+    assert.match(t, /Read pelnego brzmienia tej zasady z docs\/LEKCJE\.md/);
+    // Kontrola pozytywna w tym samym przebiegu: projekt bez indeksu dostaje sekcje w calosci.
+    const s = blokZasad(startDigest(bezIndeksu, { dzisiaj: DZISIAJ }).tekst);
+    assert.ok(s.includes('ZASADA-JEDEN'), 'projekt bez indeksu zgubil zasade');
+    assert.ok(!/porownaj zadanie z wyzwalaczami/.test(s), 'projekt bez indeksu dostal instrukcje indeksu');
+  } finally {
+    for (const d of [zIndeksem, bezIndeksu]) fs.rmSync(d, { recursive: true, force: true });
+  }
+});
+
+test('rules index: heading variants (bold, numbered, English, CRLF) and an empty index', () => {
+  const dir = projektBiezacy();
+  const p = path.join(dir, 'docs', 'LEKCJE.md');
+  try {
+    const warianty = [
+      LEKCJE_Z_INDEKSEM.replace('### Indeks', '### **Indeks**'),
+      LEKCJE_Z_INDEKSEM.replace('### Indeks', '### 1. Indeks'),
+      LEKCJE_Z_INDEKSEM.replace('## Zasady aktywne', '## Active rules').replace('### Indeks', '### Index')
+        .replace('### Pełne brzmienie', '### Full wording'),
+      LEKCJE_Z_INDEKSEM.replace(/\n/g, '\r\n'),
+    ];
+    for (const w of warianty) {
+      fs.writeFileSync(p, w);
+      const t = blokZasad(startDigest(dir, { dzisiaj: DZISIAJ }).tekst);
+      assert.ok(t.includes('INDEKS-JEDEN') && !t.includes('PELNE-JEDEN'), 'wariant naglowka: ' + w.slice(0, 80));
+    }
+    // Indeks pusty: nic nie zgaduje — sekcja w calosci.
+    fs.writeFileSync(p, LEKCJE_Z_INDEKSEM.replace(/### Indeks[\s\S]*?(?=### Pełne)/, '### Indeks\n\n'));
+    const pusty = blokZasad(startDigest(dir, { dzisiaj: DZISIAJ }).tekst);
+    assert.ok(pusty.includes('PELNE-JEDEN'), 'pusty indeks zgubil pelne brzmienie');
+  } finally {
+    fs.rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test('rules index: the start budget item "zasady" counts the index, not the full wording', () => {
+  const dir = projektBiezacy();
+  try {
+    fs.writeFileSync(path.join(dir, 'docs', 'LEKCJE.md'),
+      LEKCJE_Z_INDEKSEM.replace('2. **PELNE-DWA** drugie.', '2. **PELNE-DWA** ' + 'P'.repeat(5000)));
+    const zasady = core.startCost(dir, { dzisiaj: DZISIAJ }).pozycje.find((x) => x.id === 'zasady');
+    assert.ok(zasady.bajty < 1000, 'pozycja zasady liczy pelne brzmienie: ' + zasady.bajty);
+    assert.ok(zasady.bajty > 0, 'kontrola pozytywna: pozycja zasady istnieje');
+  } finally {
+    fs.rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+// KONTEKST_STARTU E4, Aneks C: wyjscie ponad limit polecenia model dostaje jako 2 KB podgladu
+// (L-0296, L-0303). Indeks stoi przed ryzykami i wpisem, a dlugi ostatni wpis skraca sie z drogowskazem.
+test('digest fits the command output limit: long last journal entry is cut with a pointer (one run, both sizes)', () => {
+  const dlugi = projektBiezacy();
+  const krotki = projektBiezacy();
+  try {
+    fs.writeFileSync(path.join(dlugi, 'docs', 'LEKCJE.md'), LEKCJE_Z_INDEKSEM);
+    const wpis = 'NOWY-WPIS.\n\n' + 'Akapit wpisu dlugi.\n'.repeat(2500) + '\nKONIEC-WPISU.\n\nAutor: X\n';
+    fs.writeFileSync(path.join(dlugi, 'docs', 'DZIENNIK.md'), dziennik('2026-10-20').replace('NOWY-WPIS.\n\nAutor: X\n', wpis));
+    const t = startDigest(dlugi, { dzisiaj: DZISIAJ }).tekst;
+    assert.ok(t.length <= LIMIT_ZNAKOW, 'skrot ponad limit: ' + t.length);
+    assert.ok(t.includes('NOWY-WPIS') && !t.includes('KONIEC-WPISU'), 'wpis nie skrocony od konca');
+    assert.match(t, /wpis skrocony do \d+ z \d+ znakow; calosc: docs\/DZIENNIK\.md/);
+    assert.ok(t.includes('INDEKS-JEDEN') && t.includes('Pierwsze ryzyko'), 'indeks albo ryzyka zgubione');
+    // Kontrola pozytywna w tym samym przebiegu: krotki dziennik zostaje nietkniety.
+    const k = startDigest(krotki, { dzisiaj: DZISIAJ }).tekst;
+    assert.ok(k.includes('NOWY-WPIS.\n\nAutor: X') && !/wpis skrocony/.test(k));
+  } finally {
+    for (const d of [dlugi, krotki]) fs.rmSync(d, { recursive: true, force: true });
+  }
+});
+
+test('rules index stands before the risks and the last journal entry', () => {
+  const dir = projektBiezacy();
+  try {
+    fs.writeFileSync(path.join(dir, 'docs', 'LEKCJE.md'), LEKCJE_Z_INDEKSEM);
+    const t = startDigest(dir, { dzisiaj: DZISIAJ }).tekst;
+    const iIndeks = t.indexOf('INDEKS-JEDEN');
+    assert.ok(iIndeks > 0, 'kontrola pozytywna: indeks w skrocie');
+    assert.ok(iIndeks < t.indexOf('Stan otwartych ryzyk') && iIndeks < t.indexOf('NOWY-WPIS'));
+    assert.ok(t.indexOf('GDZIE-TRESC') < iIndeks, 'STATE nie jest pierwszy');
+  } finally {
+    fs.rmSync(dir, { recursive: true, force: true });
+  }
+});
+
 test('outside a RelAI project the digest is one line and exit code 0', () => {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'relai-start-digest-poza-'));
   try {
@@ -187,7 +295,8 @@ test('start budget counts the digest output, not the files it summarises', () =>
     // Dlugie "Co dziala" (ok. 8,5 KB) nie wchodzi do pozycji STATE.
     const state = m.pozycje.find((p) => p.id === 'STATE');
     assert.ok(state.bajty < fs.statSync(path.join(dir, 'docs', 'STATE.md')).size / 4, 'STATE liczony jako caly plik');
-    assert.deepEqual(m.pozycje.map((p) => p.id), ['CLAUDE', 'STATE', 'ryzyka', 'ustawienia', 'status', 'zasady', 'skrot']);
+    // Kolejnosc czesci skrotu: indeks zasad zaraz po STATE (Aneks C planu KONTEKST_STARTU, E4).
+    assert.deepEqual(m.pozycje.map((p) => p.id), ['CLAUDE', 'STATE', 'zasady', 'ryzyka', 'ustawienia', 'status', 'skrot']);
     assert.equal(m.pozycje.find((p) => p.id === 'status').sciezka, 'docs/plany/PLAN_X/STATUS.md');
   } finally {
     fs.rmSync(dir, { recursive: true, force: true });

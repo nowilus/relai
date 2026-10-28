@@ -1,8 +1,54 @@
 # LEKCJE — budowa RelAI
 
-Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłącznie „Zasady aktywne".
+Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłącznie indeks „Zasad aktywnych"; pełne brzmienie zasady doczytuje przy jej wyzwalaczu.
 
 ## Zasady aktywne
+
+### Indeks
+
+Start sesji czyta tylko ten indeks (D-15, Aneks A): numer, tytuł i wyzwalacz. Gdy zadanie trafia
+w wyzwalacz, przed pracą doczytujesz pełne brzmienie zasady z sekcji „Pełne brzmienie” niżej.
+
+- **1 · Specyfikacja dokumentu jest kompletna albo martwa** — piszesz albo zmieniasz specyfikację
+  (`SPEC_*`), prompt etapu, regułę produkującą tekst, punkt Weryfikacji albo FAKT do sprawdzenia.
+- **2 · W dokumencie użytkownika stoi tylko to, co działa i co zmierzyłeś** — wpisujesz komendę,
+  frazę albo polecenie do README, `KOMENDY.md`, skilla albo do czatu dla człowieka.
+- **3 · Test „czegoś nie wolno” wymaga dowodu negatywnego** — piszesz test nieobecności, kontrolę
+  „stary tekst nie może zostać” albo chronisz fragment przed zmianą.
+- **4 · Dowodzisz efektem, nie zdarzeniem** — planujesz dowód zmiany: kryterium, materiał testu,
+  porównanie przed i po, worktree, pomiar na żywo w przeglądarce albo w modzie.
+- **5 · Instrument pomiarowy sam bywa źródłem fałszu** — piszesz wyrażenie regularne, ścieżkę
+  Windows, skrypt edycji, parser albo licznik; porównujesz dwa drzewa; mierzysz sesją `claude -p`,
+  terminalem albo cudzą usługą.
+- **6 · Próg jest liczbą, którą ktoś liczy** — ustalasz albo zmieniasz próg, budżet, limit albo
+  liczbę w komunikacie.
+- **7 · Wartość czytana maszynowo ma kotwicę i zamkniętą listę brzmień** — kod czyta komórkę,
+  wiersz albo pole dokumentu (tabela, ustawienia, status).
+- **8 · Zachowanie, które ma działać zawsze, mieszka w warstwie obecnej w każdej sesji** —
+  decydujesz, gdzie mieszka zachowanie (`CLAUDE.md`, hook, skill, plik doczytywany) albo stan
+  pisany przez model.
+- **9 · Skill nie zakłada dostępu poza katalogiem roboczym** — piszesz albo zmieniasz skill: opis,
+  frazy, krok sięgający poza projekt.
+- **10 · Wersję pluginu potwierdzasz plikiem instalacji, nie komunikatem CLI** — mierzysz plugin
+  wydany albo niewydany, podbijasz wersję albo wydajesz.
+- **11 · Końce linii, kolejność wpisów, numeracja nagłówków i stan dokumentu wobec specyfikacji to
+  warianty** — liczysz sumy, dopasowujesz nagłówek albo linię, przenosisz katalog z cudzego
+  manifestu, przepisujesz regułę dostawcy.
+- **12 · Guardrail zatrzymujący nie-sekret to defekt rdzenia** — hook albo bramka blokuje coś, co
+  nie jest sekretem, albo piszesz bramkę czytającą wejście.
+- **13 · Cudze narzędzie poznajesz z wydanego builda i z próby** — pracujesz z cudzym CLI, API
+  modów, payloadem hooka, sesjami harnessu albo usługą zewnętrzną.
+- **14 · Najpierw zmiana w repozytorium, potem zdanie, które ją opisuje** — obowiązuje w każdym
+  zadaniu, więc stoi tu w pełnym brzmieniu: weryfikację planujesz tam, gdzie wykonalna; po pytaniu
+  sprzątasz sam; jednostką inwentarza jest sprawa, nie linia; wstawkę kotwiczysz do elementu,
+  który przeżyje operację, i dowodzisz **obecności** nowej treści. Gdy prompt etapu przeczy
+  regule dokumentu docelowego — wygrywa dokument, rozjazd do dziennika. Opcja pytania, która
+  odwołuje się do wariantu planu, cytuje jego definicję z planu.
+- **15 · Pytasz raz na projekt, komponent opcjonalny znika bez śladu, komunikaty hooków są
+  ASCII** — dodajesz pytanie do człowieka, komponent opcjonalny albo komunikat hooka; każda praca
+  nad wyglądem (mod, panel, strona, film, scena 3D, makieta).
+
+### Pełne brzmienie
 
 1. **Specyfikacja dokumentu jest kompletna albo martwa:** kończy się realnym przykładem, wypisuje
    wymaganą strukturę w treści (odesłanie nie wystarcza) i ma ścieżkę „pytam zamiast zmyślać"
@@ -47,7 +93,9 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
      nieosiągalne wraca do człowieka jako aneks. Etap przenoszący treść liczy metrykę na całym
      pakiecie. Liczenie wywołań narzędzia zaczynasz od listy narzędzi w `init`. Wyszukiwanie
      wzorca omija pliki, które go cytują. Tekst tłumaczący liczbę ma warunek prawdziwości i test
-     stanu docelowego (L-0144).
+     stanu docelowego (L-0144). Koszt liczysz tylko z przebiegów zgodnych z procedurą — kroki
+     wymagane sprawdzone w transkrypcie (L-0301); ewaluacja zachowania wywołanego treścią
+     wstrzykniętą zaczyna się od asercji, że ta treść dotarła w całości (L-0303).
    - **Materiał:** test na realnym pliku zmienianym przez proces sam ustawia stan wyjściowy,
      licznik do dziennika z przebiegu po ostatniej zmianie (L-0150); plik śledzony albo własna
      fixtura, nigdy z `.gitignore` (L-0156); przed pytaniem o zasięg sprawdzasz, czy plik nie jest
@@ -75,7 +123,8 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
      `initScript` sprawdza istnienie dokumentu i pisze do `sessionStorage` (L-0232).
    (L-0017, L-0018, L-0040, L-0051, L-0052, L-0063, L-0069, L-0082, L-0115, L-0117, L-0123, L-0134,
    L-0144, L-0150, L-0154, L-0155, L-0156, L-0158, L-0159, L-0165, L-0175, L-0177, L-0182, L-0184,
-   L-0186, L-0191, L-0195, L-0213, L-0214, L-0218, L-0222, L-0224, L-0227, L-0274, L-0275, L-0278)
+   L-0186, L-0191, L-0195, L-0213, L-0214, L-0218, L-0222, L-0224, L-0227, L-0274, L-0275, L-0278,
+   L-0301, L-0303)
 5. **Instrument pomiarowy sam bywa źródłem fałszu.**
    - **Backslash:** wyrażenia regularne i ścieżki Windows tylko w pliku pisanym Write/Edit albo
      z `/`; skrypt edycji niosący `\n`, backtick lub ścieżkę — Write, heredok bez wyjątku, także
@@ -145,13 +194,15 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
      mierzysz w `conhost.exe` z `mode con` i oknem nietkniętym, klawisze `WriteConsoleInput`,
      ekran z bufora z atrybutami, skrypty PowerShell w `%TEMP%` (L-0259); skrypt z `Bypass`
      zapowiadasz człowiekowi przed pierwszym przebiegiem, mod „przed” i „po” stoi w jednej sesji
-     jako dwie kopie pod innymi nazwami, instalacja wyłączona `--settings` (L-0283).
+     jako dwie kopie pod innymi nazwami, instalacja wyłączona `--settings` (L-0283); w poleceniu
+     Bash nigdy gołe `cd`, w żadnym katalogu — ścieżka w argumencie albo podpowłoka (L-0298,
+     L-0302); instrument tury nie liczy lokalnych komend (`/model`) jako polecenia (L-0299).
    (L-0032, L-0037, L-0054, L-0055, L-0056, L-0064, L-0068, L-0071, L-0073, L-0083, L-0084, L-0086,
    L-0087, L-0088, L-0090, L-0091, L-0095, L-0096, L-0097, L-0101, L-0102, L-0105, L-0106, L-0107,
    L-0110, L-0111, L-0113, L-0124, L-0125, L-0127, L-0130, L-0131, L-0135, L-0141, L-0143, L-0151,
    L-0160, L-0164, L-0169, L-0170, L-0173, L-0181, L-0211, L-0213, L-0215, L-0238, L-0239, L-0240,
    L-0242, L-0243, L-0246, L-0247, L-0248, L-0249, L-0257, L-0258, L-0259, L-0261, L-0262, L-0265,
-   L-0267, L-0268, L-0270, L-0283, L-0290)
+   L-0267, L-0268, L-0270, L-0283, L-0290, L-0298, L-0299, L-0302)
 6. **Próg jest liczbą, którą ktoś liczy:** kalibrujesz na realnych plikach, zapisujesz w jednostce
    mechanizmu z komendą sprawdzającą, z **jednym** wyzwalaczem. Porównujesz do wielkości, którą
    mechanizm kontroluje (część usuwalna); zatkanie sygnalizuje **różnica możliwego i wykonanego**,
@@ -191,7 +242,9 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
     przebiegu; kierunek z danych; nagłówek z tolerancją na `## 2.`, `**…**`, liczbę `#`, a kształt,
     który przewrócił wzorzec, wchodzi do kontroli dosłownie. Przeniesienie katalogu z cudzego
     manifestu — najpierw na kopii, walidatorem. Regułę dostawcy przepisujesz po ponownym odczycie
-    źródła, z jej zakresem. (L-0033, L-0038, L-0057, L-0062, L-0067, L-0103, L-0122)
+    źródła, z jej zakresem. Przed liczeniem diffu `git ls-files --eol` — `w/crlf` przy `i/lf`
+    normalizujesz do LF, bo `git status` o nim milczy (L-0297). (L-0033, L-0038, L-0057, L-0062,
+    L-0067, L-0103, L-0122, L-0297)
 12. **Guardrail zatrzymujący nie-sekret to defekt rdzenia** — poprawka z dowodem, nie obejście;
     wołany przez opakowanie powłoki (brak interpretera = blokada); próbki sekretów składane
     w czasie wykonania; cudzysłów (także backtick) należy do grupy cudzysłowu, nie do wartości.
@@ -238,7 +291,10 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
       pierwszym przebiegiem, bez kroków, które przepływ robi sam (L-0286); przycisk modu na
       desktopie klika człowiek (okna Claude nie da się sterować), kopia modu w dev-mods sesji pod
       inną nazwą z innym panelem, komendą i stanem, a seria kliknięć ma przerwę na odczyt pliku po
-      każdym kliknięciu zmieniającym stan (L-0289).
+      każdym kliknięciu zmieniającym stan (L-0289); wyjście polecenia ponad ok. 30 tys. znaków
+      model dostaje jako 2 KB podglądu — narzędzie czytane w całości mieści się w limicie, a treść
+      obowiązkowa stoi na początku (L-0296); instrukcja pomiaru dla człowieka zakazuje `/model`
+      i `/config`, a analiza najpierw wypisuje model każdej sesji (L-0300).
     - **Usługi zewnętrzne:** stan ustawienia repozytorium czytasz z API (`gh api repos/<repo>/pages`),
       nie ze zrzutu ani słowa człowieka (L-0244); obraz dla cudzej usługi w proporcji zmierzonej na
       opublikowanym widoku, każda podmiana pod nowym adresem (L-0245); strona wskazująca zasób
@@ -246,7 +302,7 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
       (L-0280).
     (L-0041, L-0042, L-0044, L-0047, L-0092, L-0133, L-0136, L-0138, L-0139, L-0146, L-0153, L-0166,
     L-0168, L-0185, L-0189, L-0190, L-0244, L-0245, L-0253, L-0255, L-0263, L-0264, L-0273, L-0280,
-    L-0281, L-0284, L-0285, L-0286, L-0288, L-0289, L-0291)
+    L-0281, L-0284, L-0285, L-0286, L-0288, L-0289, L-0291, L-0296, L-0300)
 14. **Najpierw zmiana w repozytorium, potem zdanie, które ją opisuje.** Weryfikację planujesz tam,
     gdzie wykonalna; po pytaniu sprzątasz sam; jednostką inwentarza jest sprawa, nie linia; wstawkę
     kotwiczysz do elementu, który przeżyje operację, i dowodzisz **obecności** nowej treści. Gdy
@@ -708,6 +764,29 @@ Rejestr korekt i wniosków zamienionych w zasady pracy. Start sesji czyta wyłą
 - **Zasada:** koszt mierzysz tylko na przebiegach zgodnych z procedurą — przed porównaniem liczb
   sprawdzasz w transkrypcie, czy kroki wymagane zaszły (odczyty plików, markery w wyniku);
   przebieg niezgodny opisujesz z nazwy i nie wstawiasz jako „przed”.
+
+### L-0302 — Powtórka L-0298: `cd` do katalogu roboczego w poleceniu Bash przestawił sesję · 2026-10-28 · AKTYWNA
+
+- **Trigger:** KONTEKST_STARTU E4. Ewaluację uruchomiłem jako `cd .claude/relai/work/… && node
+  eval-indeks.js run`, a analizę tym samym wzorcem — katalog roboczy sesji przeszedł do folderu
+  etapu i kolejne polecenie trzeba było cofać.
+- **Przyczyna:** L-0298 zapamiętana jako „worktree pomiarowy”, a nie jako każdy katalog.
+- **Zasada:** w poleceniu Bash nigdy gołe `cd` — skrypt dostaje ścieżkę w argumencie albo
+  podpowłokę `( cd … && … )`, w każdym katalogu, nie tylko w worktree. Powtórzenie L-0298 →
+  propozycja graduacji do `CLAUDE.md`.
+
+### L-0303 — Ewaluacja wyzwalacza bez sprawdzenia, że materiał dotarł do sesji · 2026-10-28 · AKTYWNA
+
+- **Trigger:** KONTEKST_STARTU E4. Sześć sesji `claude -p` miało pokazać, czy model doczytuje
+  pełną zasadę przy wyzwalaczu z indeksu. Wynik 0/3 i 0/3 — ale we wszystkich sesjach skrót startu
+  (34 KB) przyszedł jako podgląd 2 190 znaków, a indeks stoi na jego końcu: żadna sesja go nie
+  widziała.
+- **Przyczyna:** zakres etapu stawiał pomiar dostarczenia skrótu (punkt 6) po ewaluacji (punkt 5),
+  a skrypt ewaluacji nie sprawdzał, czy wynik `start-digest.js` przyszedł w całości.
+- **Zasada:** ewaluacja zachowania wywołanego treścią wstrzykniętą zaczyna się od asercji
+  dostarczenia — w transkrypcie wynik narzędzia niesie mierzony fragment (np. pierwszą linię
+  indeksu), inaczej przebieg to „nie zmierzono”, nie 0/3. Pomiar dostarczenia idzie przed
+  pomiarem zachowania.
 
 ## Lekcje zwinięte
 

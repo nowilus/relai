@@ -7,7 +7,8 @@
 // z STATE "Gdzie jestesmy", "Nad czym pracujemy teraz", "Co blokuje" i pierwszy punkt "Co dalej";
 // tabele ryzyk bez kolumny "Mitygacja"; sekcje "Czeka na czlowieka" tylko przy sprawie
 // przeterminowanej; ostatni wpis dziennika; aktywne wiersze USTAWIEN; STATUS planu naprawde
-// aktywnego (parser z E1); "Zasady aktywne" w pelnym brzmieniu (indeks to E4).
+// aktywnego (parser z E1); z "Zasad aktywnych" sam indeks z wyzwalaczami (E4, D-15 Aneks A),
+// a w projekcie bez indeksu sekcja w calosci.
 //
 // Jedno polecenie zamiast trzech list (CLAUDE.md, hook, skill): `node .claude/relai/tools/start-digest.js`.
 // Kopia w projekcie lezy obok kopii session-signals.js (lista NARZEDZIA), wiec require nizej
@@ -36,8 +37,12 @@ const SEKCJE_STATE = [
 const NAGLOWEK_RYZYK = wzorce('stan otwartych ryzyk\\b', 'open risks\\b');
 const NAGLOWEK_CZEKA = wzorce('czeka na cz[łl]owieka\\b', 'waiting on a human\\b');
 const NAGLOWEK_ZASAD = wzorce('zasady aktywne\\b', 'active rules\\b');
+const NAGLOWEK_INDEKSU = wzorce('indeks\\b', 'index\\b');
 const NAGLOWEK_WYCOFANE = wzorce('ustawienia wycofane\\b', 'withdrawn settings\\b');
 const KOLUMNA_MITYGACJI = /^(?:mitygacja|mitigation)$/i;
+// Limit wyjscia, ktore model dostaje w calosci: Claude Code ok. 30 tys. znakow, ponad nim podglad
+// 2 KB (L-0296). 28 tys. zostawia zapas na roznice liczenia znakow (Aneks C planu KONTEKST_STARTU).
+const LIMIT_ZNAKOW = 28000;
 // Separator komorki niepoprzedzony znakiem ucieczki (zasada 5, parsowanie).
 const SEPARATOR = /(?<!\\)\|/;
 
@@ -151,10 +156,24 @@ function czescDziennika(cwd, docsDir, opcje) {
   }
 
   const wpis = core.ostatniWpis(txt);
-  bloki.push(wpis === null
+  const trescWpisu = wpis === null ? null : wpis.replace(/\n+$/, '');
+  bloki.push(trescWpisu === null
     ? blok(rel, 'brak wpisow (naglowkow ###)')
-    : blok(rel + ' - ostatni wpis', wpis.replace(/\n+$/, '')));
-  return { bloki, rel, czeka: przeterminowane > 0 };
+    : blok(rel + ' - ostatni wpis', trescWpisu));
+  return { bloki, rel, czeka: przeterminowane > 0, wpis: trescWpisu };
+}
+
+// Skrocenie ostatniego wpisu, gdy skrot przekracza limit (Aneks C): poczatek wpisu do granicy
+// linii, a na koncu linia z liczbami i drogowskazem. Nic innego skrot nie przycina — gdy po
+// skroceniu dalej jest za dlugi, zostaje za dlugi (bez zgadywania, co jeszcze wyciac).
+function skroconyWpis(wpis, nadmiar, rel) {
+  const dopisek = (n) => '\n\n[wpis skrocony do ' + n + ' z ' + wpis.length + ' znakow; calosc: ' + rel +
+    ' - ostatni wpis]';
+  let dlugosc = Math.max(0, wpis.length - nadmiar - dopisek(wpis.length).length);
+  const koniecLinii = wpis.lastIndexOf('\n', dlugosc);
+  if (koniecLinii > 0) dlugosc = koniecLinii;
+  const poczatek = wpis.slice(0, dlugosc).replace(/\n+$/, '');
+  return poczatek + dopisek(poczatek.length);
 }
 
 function czescUstawien(cwd, docsDir) {
@@ -189,11 +208,22 @@ function czescLekcji(cwd, docsDir) {
   const txt = czytajLF(plik) || '';
   const rel = wzgledna(cwd, plik);
   const zasady = core.wytnijSekcje(txt, NAGLOWEK_ZASAD);
+  if (zasady === null) return { bloki: [blok(rel, 'brak sekcji "Zasady aktywne"')], rel };
+  const tytul = rel + ' - ' + zasady.split('\n')[0].replace(/^#+\s*/, '').trim();
+  // Indeks (D-15, Aneks A): podsekcja "Indeks" wchodzi sama, z drogowskazem do pelnego brzmienia.
+  // Brak indeksu albo indeks pusty (projekt sprzed E4) -> sekcja w calosci, bez zgadywania.
+  const indeks = core.wytnijSekcje(zasady.split('\n').slice(1).join('\n'), NAGLOWEK_INDEKSU);
+  const trescIndeksu = indeks === null ? '' : cialo(indeks);
   return {
-    bloki: [zasady === null
-      ? blok(rel, 'brak sekcji "Zasady aktywne"')
-      : blok(rel + ' - ' + zasady.split('\n')[0].replace(/^#+\s*/, '').trim(), cialo(zasady))],
+    // Zdanie wykonawcze w warstwie obecnej w kazdej sesji (zasada 8, Aneks D): sam opis
+    // indeksu w LEKCJE.md nie wystarczyl, model nie porownywal zadania z wyzwalaczami.
+    bloki: [trescIndeksu
+      ? blok(tytul + ' (indeks)', 'Zanim pierwszy raz zmienisz plik, porownaj zadanie z wyzwalaczami ponizej; ' +
+        'trafienie = Read pelnego brzmienia tej zasady z ' + rel + ' (podsekcja pelnego brzmienia), dopiero potem praca.\n\n' +
+        trescIndeksu)
+      : blok(tytul, cialo(zasady))],
     rel,
+    indeks: Boolean(trescIndeksu),
   };
 }
 
@@ -207,7 +237,10 @@ function drogowskazy(cwd, docsDir, c) {
     out.push('- ' + c.dziennik.rel + ' - kolumna "Mitygacja" tabeli ryzyk' +
       (c.dziennik.czeka ? '' : ', sekcja "Czeka na czlowieka"') + ', starsze wpisy');
   }
-  if (c.lekcje.rel) out.push('- ' + c.lekcje.rel + ' - pelne wpisy lekcji (L-...)');
+  if (c.lekcje.rel) {
+    out.push('- ' + c.lekcje.rel + ' - ' + (c.lekcje.indeks ? 'pelne brzmienie "Zasad aktywnych" przy wyzwalaczu, ' : '') +
+      'pelne wpisy lekcji (L-...)');
+  }
   if (c.ustawienia.rel && c.ustawienia.wycofane) out.push('- ' + c.ustawienia.rel + ' - sekcja "Ustawienia wycofane"');
   if (c.plan.rel) out.push('- ' + path.posix.dirname(c.plan.rel) + '/ - plan aktywny (PLAN, prompty etapow)');
   for (const [nazwy, opis] of [
@@ -236,17 +269,27 @@ function startDigest(cwd, opcje) {
   };
   // Brak planu = brak pozycji "status", nie zero (jak w budzecie do E2): linia "brak aktywnego
   // planu" liczy sie do ramki.
+  // Indeks zasad zaraz po STATE, przed ryzykami i wpisem dziennika (Aneks C): tresc obowiazkowa
+  // nie moze stac na koncu wyjscia, ktore bywa przyciete do podgladu (L-0296).
   const czesci = [
     { id: 'STATE', tekst: c.state.bloki.join('\n\n'), sciezka: c.state.rel },
+    { id: 'zasady', tekst: c.lekcje.bloki.join('\n\n'), sciezka: c.lekcje.rel },
     { id: 'ryzyka', tekst: c.dziennik.bloki.join('\n\n'), sciezka: c.dziennik.rel },
     { id: 'ustawienia', tekst: c.ustawienia.bloki.join('\n\n'), sciezka: c.ustawienia.rel },
     { id: c.plan.rel ? 'status' : 'skrot', tekst: c.plan.bloki.join('\n\n'), sciezka: c.plan.rel },
-    { id: 'zasady', tekst: c.lekcje.bloki.join('\n\n'), sciezka: c.lekcje.rel },
   ];
   const naglowek = '[RelAI skrot startu] ' + (o.dzisiaj || core.todayLocal()) + '. To jest caly odczyt ' +
     'startu sesji: akapit "gdzie jestesmy" piszesz z ponizszych sekcji, nie otwierajac plikow, ' +
     'ktore skrot streszcza.';
-  const tekst = [naglowek].concat(czesci.map((x) => x.tekst), drogowskazy(cwd, docsDir, c)).join('\n\n') + '\n';
+  const zloz = () => [naglowek].concat(czesci.map((x) => x.tekst), drogowskazy(cwd, docsDir, c)).join('\n\n') + '\n';
+  let tekst = zloz();
+  if (tekst.length > LIMIT_ZNAKOW && c.dziennik.wpis) {
+    const ostatni = c.dziennik.bloki.length - 1;
+    const wpis = skroconyWpis(c.dziennik.wpis, tekst.length - LIMIT_ZNAKOW, c.dziennik.rel);
+    c.dziennik.bloki = c.dziennik.bloki.map((b, i) => (i === ostatni ? blok(c.dziennik.rel + ' - ostatni wpis', wpis) : b));
+    czesci[2] = { ...czesci[2], tekst: c.dziennik.bloki.join('\n\n') };
+    tekst = zloz();
+  }
   const bajty = (t) => Buffer.byteLength(t, 'utf8');
   const policzone = czesci.filter((x) => x.id !== 'skrot')
     .map((x) => ({ id: x.id, sciezka: x.sciezka || null, bajty: bajty(x.tekst) }));
@@ -254,7 +297,7 @@ function startDigest(cwd, opcje) {
   return { tekst, czesci: policzone.concat([{ id: 'skrot', sciezka: null, bajty: reszta }]) };
 }
 
-module.exports = { startDigest, bezMitygacji, pierwszyPunkt };
+module.exports = { startDigest, bezMitygacji, pierwszyPunkt, LIMIT_ZNAKOW };
 
 if (require.main === module) {
   const cwd = path.resolve(process.argv[2] || process.cwd());

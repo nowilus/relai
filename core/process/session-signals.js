@@ -920,7 +920,7 @@ const PROGI_DOMYSLNE = {
   CLAUDE: 10,
   STATE: 12,
   ryzyka: 12,
-  zasady: 30,
+  zasady: 30, // od KONTEKST_STARTU E4 liczy indeks "Zasad aktywnych" ze skrotu; nowy prog to E5
   ustawienia: 6,
   status: 10,
 };

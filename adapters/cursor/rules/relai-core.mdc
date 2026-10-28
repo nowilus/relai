@@ -23,8 +23,9 @@ Run `node .claude/relai/tools/start-digest.js` and read its output — that is t
 The digest carries, from `docs/STATE.md`, "Gdzie jesteśmy", "Nad czym pracujemy teraz", "Co
 blokuje" and the first point of "Co dalej"; the risk table without the "Mitygacja" column; the last
 journal entry ("Czeka na człowieka" only when an item is overdue); the active rows of
-`docs/USTAWIENIA.md`; the active plan's `STATUS.md`; and "Zasady aktywne". `CLAUDE.md` / `AGENTS.md`
-is already in your context.
+`docs/USTAWIENIA.md`; the active plan's `STATUS.md`; and the index of "Zasady aktywne" (D-15,
+Annex A) — when a task hits a rule's trigger, read that rule's full wording in `docs/LEKCJE.md`
+before the work. `CLAUDE.md` / `AGENTS.md` is already in your context.
 
 Do **not** open the files the digest summarises, and do not full-text scan the repository, at
 session start. Full sections, `docs/DECYZJE.md` and older journal entries are listed as signposts
@@ -122,7 +123,8 @@ The user corrected *how* you work, not *what* to do:
 1. **Write the lesson without asking.** Entry `L-NNNN` at the end of the "Lekcje" section of
    `docs/LEKCJE.md`, format per `SPEC_LEKCJE.md` (trigger / cause / rule / source). Confirm in one
    line: "Zapisane jako L-0007." No apologies, no elaboration.
-2. Update "Zasady aktywne" if the lesson adds a rule that is not there yet.
+2. Update "Zasady aktywne" if the lesson adds a rule that is not there yet: the full wording and
+   the index line with its trigger (`SPEC_LEKCJE.md`).
 3. Repeat of an existing lesson → add it with a "powtórzenie L-XXXX" note and **propose** promoting
    it to the always-in-context rules. You append there only after the human agrees.
 4. A recurring **substantive** decision (not behaviour) → propose freezing it as `D-NN` in

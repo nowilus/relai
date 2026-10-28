@@ -8,7 +8,9 @@ Ten folder to repo pluginu **RelAI** („Twój projekt pamięta wszystko") — f
 ## Rytuał startu sesji
 
 Uruchom `node .claude/relai/tools/start-digest.js` i przeczytaj jego wyjście — to cały odczyt
-startu: stan, ryzyka, ostatni wpis dziennika, ustawienia, aktywny plan i „Zasady aktywne”. Plików,
+startu: stan, ryzyka, ostatni wpis dziennika, ustawienia, aktywny plan i indeks „Zasad aktywnych”.
+**Zanim pierwszy raz zmienisz plik, porównaj zadanie z wyzwalaczami indeksu; trafienie → `Read`
+pełnego brzmienia tej zasady z `docs/LEKCJE.md`, dopiero potem praca.** Plików,
 które skrót streszcza, nie otwierasz na starcie i nie skanujesz repo pełnotekstowo; pełne sekcje
 wskazują drogowskazy na końcu skrótu. Ten plik ładuje harness — nie czytasz go drugi raz.
 Rejestru decyzji **nie czytasz na starcie** — `docs/DECYZJE.md` otwierasz, gdy temat dotyka
@@ -39,7 +41,7 @@ o kolejne `N` dni / rozstrzygnąć teraz. Sesja nieinteraktywna: sam raport, bez
 | Plany zamknięte | 20, ostatni ZASIEG_PLUGINU 2026-10-28 (wydanie 3.6.0) | [archiwum planów](docs/archiwum/plany/), [docs/STATE.md](docs/STATE.md) |
 | Odnogi i wątki samodzielne | 1 otwarta: `OPIS_REPO` (od 2026-09-24); zamknięte — karty w [docs/fixy/](docs/fixy/) | [docs/STATE.md](docs/STATE.md) |
 
-Aktywny plan: [KONTEKST_STARTU](docs/plany/KONTEKST_STARTU/STATUS.md) — w Claude Code, ZAAKCEPTOWANY 2026-10-28, E1–E3 zrealizowane 2026-10-28, E4 gotowy do startu (lżejszy start sesji: skrót startu, indeks zasad, bramka trybu ciągłego w dwóch krokach). [PANEL_CODEX](docs/plany/PANEL_CODEX/STATUS.md) (Codex) **nieaktywny — WSTRZYMANY 2026-10-27** decyzją Łukasza. Ostatni zamknięty: [ZASIEG_PLUGINU](docs/archiwum/plany/ZASIEG_PLUGINU/STATUS.md), 2026-10-28 (wydanie 3.6.0 — RelAI tylko w zaadoptowanych projektach, maszyna przełączona).
+Aktywny plan: [KONTEKST_STARTU](docs/plany/KONTEKST_STARTU/STATUS.md) — w Claude Code, ZAAKCEPTOWANY 2026-10-28, E1–E4 zrealizowane 2026-10-28, E5 gotowy do startu (lżejszy start sesji: skrót startu, indeks zasad, bramka trybu ciągłego w dwóch krokach). [PANEL_CODEX](docs/plany/PANEL_CODEX/STATUS.md) (Codex) **nieaktywny — WSTRZYMANY 2026-10-27** decyzją Łukasza. Ostatni zamknięty: [ZASIEG_PLUGINU](docs/archiwum/plany/ZASIEG_PLUGINU/STATUS.md), 2026-10-28 (wydanie 3.6.0 — RelAI tylko w zaadoptowanych projektach, maszyna przełączona).
 
 ## Reguły procesu
 

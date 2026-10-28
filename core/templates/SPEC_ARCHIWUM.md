@@ -294,7 +294,7 @@ komentarza. W projekcie anglojęzycznym rdzenie czytasz w języku projektu (`res
 
 **Lekcje** — nietykalne są:
 
-- cała sekcja **„Zasady aktywne"** (destylat czytany na starcie — nigdy nie jest archiwizowany),
+- cała sekcja **„Zasady aktywne"**, indeks i pełne brzmienie (destylat — nigdy nie jest archiwizowany),
 - **dwadzieścia najnowszych lekcji** `SZACUNEK`,
 - sekcja „Lekcje zwinięte", jeśli istnieje — ta ma własną drogę do archiwum opisaną
   w `SPEC_LEKCJE.md` (kompresja), i rotacja jej nie dotyka.

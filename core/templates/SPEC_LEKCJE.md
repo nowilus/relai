@@ -43,9 +43,20 @@ zapamiętana.
 ## Struktura pliku (kolejność obowiązkowa)
 
 1. **Nagłówek** — `# LEKCJE — <nazwa projektu>` + jedno zdanie o roli pliku.
-2. **Sekcja „Zasady aktywne"** — destylat, **zawsze na górze**, nadpisywana. To jedyna sekcja
-   czytana przy starcie sesji (D-15). Lista numerowana, każda pozycja: jedno zdanie w trybie
-   rozkazującym + w nawiasie źródłowe numery lekcji, np. „(L-0003, L-0009)".
+2. **Sekcja „Zasady aktywne"** — destylat, **zawsze na górze**, nadpisywana. Ma dwie podsekcje
+   w tej kolejności (D-15, Aneks A):
+   - **`### Indeks`** — jedyna część czytana przy starcie sesji. Jedna linia-punktor na zasadę:
+     `- **N · tytuł zasady** — wyzwalacz`, gdzie wyzwalacz mówi, przy jakim zadaniu doczytujesz
+     pełne brzmienie (np. „piszesz wyrażenie regularne albo ścieżkę Windows”). Linia zaczyna się
+     od `- `, nigdy od `N.` — numerowaną listę liczy limit 15 pozycji. Zasada, która obowiązuje
+     w każdym zadaniu i nie ma sensownego wyzwalacza, stoi w indeksie **w pełnym brzmieniu**.
+     Cały indeks: najwyżej **5 KB** `SZACUNEK`.
+   - **`### Pełne brzmienie`** — lista numerowana, każda pozycja: jedno zdanie w trybie
+     rozkazującym + w nawiasie źródłowe numery lekcji, np. „(L-0003, L-0009)". Numer pozycji
+     jest numerem z indeksu.
+
+   Projekt bez podsekcji „Indeks” (sprzed tej reguły) działa dalej: skrót startu wypisuje wtedy
+   całą sekcję. Indeks dopisujesz przy najbliższej aktualizacji destylatu.
 3. **Sekcja „Lekcje"** — wpisy `L-NNNN` chronologicznie, najstarszy u góry.
 4. *(gdy powstanie)* **Sekcja „Lekcje zwinięte"** — patrz „Kompresja".
 
@@ -112,7 +123,7 @@ powstają.
 Część wpisów tego rejestru to nie korekty zachowania, tylko **fakty o świecie**: narzędzie zachowuje
 się nieoczywiście, kolejność kroków ma znaczenie, środowisko czegoś wymaga i o tym nie mówi. Takie
 pozycje należą do rejestru pułapek (`SPEC_PULAPKI.md`) — czytanego **na żądanie**, a nie przy
-starcie sesji, gdzie „Zasady aktywne" kosztują tokeny w każdym prompcie.
+starcie sesji, gdzie indeks „Zasad aktywnych" kosztuje tokeny w każdej sesji.
 
 Test rozstrzygający: **czy dałoby się tego uniknąć, zachowując się inaczej?** Tak → zostaje lekcją.
 Nie, bo świat po prostu tak działa → jest pułapką.
@@ -197,7 +208,7 @@ opisuje `SPEC_ARCHIWUM.md`; tutaj obowiązuje to, czego rotacja nie ma prawa nar
 
 **Co zostaje zawsze:**
 
-- **cała sekcja „Zasady aktywne"** — destylat czytany na starcie sesji nigdy nie opuszcza żywego
+- **cała sekcja „Zasady aktywne"**, indeks i pełne brzmienie — destylat nigdy nie opuszcza żywego
   pliku. Zasada z zarchiwizowanej lekcji **nadal obowiązuje**: żyje w destylacie, a numer w nawiasie
   prowadzi do archiwum,
 - **dwadzieścia najnowszych lekcji** `SZACUNEK` — to zapas na sprawdzanie powtórzeń przy graduacji,
@@ -216,9 +227,14 @@ Skutek dla graduacji: sprawdzając, czy dana korekta już padła, zaczynasz od �
 
 ## Jak ten plik jest czytany
 
-Przy starcie sesji czytasz **wyłącznie sekcję „Zasady aktywne"**. Pełną listę lekcji otwierasz
-tylko wtedy, gdy sprawdzasz, czy dana korekta już padła (przy graduacji) albo gdy użytkownik pyta
-o historię. To jest cała oszczędność kontekstu, dla której ten plik ma dwie warstwy.
+Przy starcie sesji czytasz **wyłącznie indeks „Zasad aktywnych"** — wypisuje go skrót startu
+(`start-digest.js`). Gdy zadanie trafia w wyzwalacz zasady, **przed pracą** doczytujesz jej pełne
+brzmienie z podsekcji „Pełne brzmienie”. Pełną listę lekcji otwierasz tylko wtedy, gdy sprawdzasz,
+czy dana korekta już padła (przy graduacji) albo gdy użytkownik pyta o historię. To jest cała
+oszczędność kontekstu, dla której ten plik ma trzy warstwy: indeks, pełne brzmienie, lekcje.
+
+Nowa albo zmieniona zasada zmienia **obie** podsekcje: pełne brzmienie i linię indeksu z jej
+wyzwalaczem. Zasada bez linii w indeksie na starcie nie istnieje.
 
 ## Zakazy
 
@@ -235,9 +251,18 @@ o historię. To jest cała oszczędność kontekstu, dla której ten plik ma dwi
 ```markdown
 # LEKCJE — Parkly
 
-Rejestr korekt zamienionych w zasady. Start sesji czyta wyłącznie „Zasady aktywne".
+Rejestr korekt zamienionych w zasady. Start sesji czyta wyłącznie indeks „Zasad aktywnych".
 
 ## Zasady aktywne
+
+### Indeks
+
+- **1 · Nie dodawaj bibliotek bez pytania** — zadanie dokłada zależność do `package.json`.
+- **2 · Tabela tylko od trzech kolumn** — obowiązuje w każdej odpowiedzi: tabela tylko przy trzech
+  i więcej kolumnach; w pozostałych wypadkach lista.
+- **3 · Migracje bazy wyłącznie po jawnej zgodzie** — zadanie uruchamia albo pisze migrację.
+
+### Pełne brzmienie
 
 1. Nie dodawaj bibliotek bez pytania — najpierw sprawdź, czy problem rozwiązuje kod już w repo.
    (L-0001, L-0004)
@@ -281,6 +306,11 @@ Rejestr korekt zamienionych w zasady. Start sesji czyta wyłącznie „Zasady ak
 ## Dawniej
 
 Historia reguł tej specyfikacji. Instrukcją jest treść wyżej.
+
+- **Indeks „Zasad aktywnych” (KONTEKST_STARTU E4, 2026-10-28).** Do tej pory start sesji czytał
+  całą sekcję — w repozytorium RelAI ok. 30 KB, połowę skrótu startu, przez co wyjście przekraczało
+  limit polecenia i model dostawał podgląd (L-0296). Od E4 start czyta indeks z wyzwalaczami,
+  a pełne brzmienie doczytuje przy wyzwalaczu (D-15, Aneks A).
 
 - **Adres egzekwowania limitu „Zasad aktywnych" (1.6.0).** Do 1.5.2 limit był regułą bez miejsca,
   w którym ktokolwiek by go sprawdził, i był łamany kilkunastokrotnie `FAKT` (2026-08-20: 930 linii

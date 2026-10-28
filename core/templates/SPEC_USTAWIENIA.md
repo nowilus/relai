@@ -186,9 +186,11 @@ jedynym źródłem prawdy o wartościach domyślnych.
 (`node .claude/relai/tools/start-digest.js`), i budżet liczy właśnie to wyjście. Pozycje sumy:
 `CLAUDE.md` (ładuje go harness) oraz części skrótu pod nazwami progów cząstkowych — `STATE` (cztery
 sekcje `STATE.md`), `ryzyka` (tabela ryzyk bez kolumny „Mitygacja”, sekcja „Czeka na człowieka”
-tylko przy sprawie przeterminowanej, ostatni wpis dziennika), `ustawienia` (aktywne wiersze tego
-pliku), `status` (`STATUS.md` aktywnego planu; brak planu = brak pozycji) i `zasady` („Zasady
-aktywne”) — plus `skrot` (ramka i drogowskazy, bez progu). Do E2 suma liczyła całe pliki rytuału.
+tylko przy sprawie przeterminowanej, ostatni wpis dziennika — przy skrócie ponad 28 tys. znaków
+sam jego początek z drogowskazem), `ustawienia` (aktywne wiersze tego
+pliku), `status` (`STATUS.md` aktywnego planu; brak planu = brak pozycji) i `zasady` (indeks
+„Zasad aktywnych”, `SPEC_LEKCJE.md`; projekt bez indeksu — cała sekcja) — plus `skrot` (ramka
+i drogowskazy, bez progu). Do E2 suma liczyła całe pliki rytuału.
 **Od E2 planu PROWADZENIE_END_TO_END suma liczy też dwie rzeczy, które start realnie płaci:** skill
 wymuszany przez adapter na pierwszym prompcie (w Claude Code `relai-core`; ścieżkę podaje adapter)
 oraz każdy plik linkowany z **numerowanej listy** sekcji „Rytuał startu sesji" w `CLAUDE.md`
@@ -217,7 +219,7 @@ włączony · start 100 KB · CLAUDE 10 KB · STATE 12 KB · ryzyka 12 KB · zas
 | `CLAUDE <liczba> KB` | liczba całkowita | próg cząstkowy `CLAUDE.md` — **domyślnie 10** |
 | `STATE <liczba> KB` | liczba całkowita | próg cząstkowy `docs/STATE.md` — **domyślnie 12** |
 | `ryzyka <liczba> KB` (EN: `risks`) | liczba całkowita | próg sekcji ryzyk wraz z ostatnim wpisem — **domyślnie 12** |
-| `zasady <liczba> KB` (EN: `rules`) | liczba całkowita | próg sekcji „Zasady aktywne" — **domyślnie 30** |
+| `zasady <liczba> KB` (EN: `rules`) | liczba całkowita | próg części „Zasady aktywne” w skrócie startu (indeks; bez indeksu cała sekcja) — **domyślnie 30** |
 | `ustawienia <liczba> KB` (EN: `settings`) | liczba całkowita | próg tego pliku — **domyślnie 6** |
 | `status <liczba> KB` | liczba całkowita | próg `STATUS.md` aktywnego planu — **domyślnie 10** |
 
@@ -787,7 +789,7 @@ zmienić — osobny plik byłby drugim miejscem do zapomnienia.
 | tabela „Stan prac” w `CLAUDE.md` — liczba wierszy | 5 wierszy | `SPEC_CLAUDE_MD.md` (bez strojenia) | hook startu sesji (`dokumentyPonadProgiem`, przy włączonej rotacji) | wiersze planów zamkniętych do `STATE.md`; linia `[RelAI progi dokumentow]` | **jest** — raport startu; regułę niosą rytuał „Na koniec” i zamknięcie planu |
 | `docs/STATE.md` — waga części skrótu startu (cztery sekcje) | 12 KB | wiersz `Budżet startu sesji` | hook startu sesji | jw. | **jest** — hook startu (tylko wewnątrz raportu) |
 | część `ryzyka` skrótu startu: tabela ryzyk bez „Mitygacji” + „Czeka na człowieka” (tylko przy sprawie przeterminowanej) + ostatni wpis | 12 KB | wiersz `Budżet startu sesji` (człon `ryzyka`) | hook startu sesji | jw. | **jest** — hook startu (tylko wewnątrz raportu) |
-| sekcja „Zasady aktywne" — waga | 30 KB | wiersz `Budżet startu sesji` (człon `zasady`) | hook startu sesji | jw. | **jest** — hook startu (tylko wewnątrz raportu) |
+| „Zasady aktywne” w skrócie startu (indeks) — waga | 30 KB | wiersz `Budżet startu sesji` (człon `zasady`) | hook startu sesji | jw. | **jest** — hook startu (tylko wewnątrz raportu) |
 | `docs/USTAWIENIA.md` | 6 KB | wiersz `Budżet startu sesji` | hook startu sesji **+ rotacja ustawień** (od 1.7.0) | jw.; dodatkowo wiersze sekcji „Ustawienia wycofane" → `docs/archiwum/ustawienia/`; linia `[RelAI progi dokumentow]` | **jest** — rytuał zamknięcia (krok 2) i raport startu |
 | `STATUS.md` aktywnego planu | 10 KB | wiersz `Budżet startu sesji` | hook startu sesji | jw. | **jest** — hook startu (tylko wewnątrz raportu) |
 | `docs/DZIENNIK.md` — waga | 150 KB | `SPEC_ARCHIWUM.md`, strojenie w wierszu `Rotacja dokumentów` | rotacja + hook startu sesji (od 1.7.0) | rotacja najstarszych wpisów do archiwum; w raporcie linia `[RelAI progi dokumentow]` | **jest** — rytuał zamknięcia (krok 2) i raport startu |

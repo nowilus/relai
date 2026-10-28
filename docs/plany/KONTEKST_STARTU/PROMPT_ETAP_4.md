@@ -318,27 +318,27 @@ zaczynasz od slugu projektu.
 Każdy punkt Weryfikacji, który przeszedł, odhaczasz w `PROMPT_ETAP_4.md` (`- [ ]` → `- [x]`)
 zaraz po jego sprawdzeniu, nie na końcu etapu; punkt, który nie przeszedł, zostaje pusty.
 
-- [ ] Aneks do D-15 w `docs/DECYZJE.md` z datą i „tak” Łukasza, zapisany **przed** pierwszą zmianą
+- [x] Aneks do D-15 w `docs/DECYZJE.md` z datą i „tak” Łukasza, zapisany **przed** pierwszą zmianą
       kodu albo rejestru (kolejność widoczna w transkrypcie).
-- [ ] `node --test core/process/tests/*.test.js`, `node --test core/panel/tests/*.test.js`,
+- [x] `node --test core/process/tests/*.test.js`, `node --test core/panel/tests/*.test.js`,
       `node --test adapters/codex/tests/*.test.js` bez błędów; `node core/tools/validate-adapters.js`
       kod 0; `node adapters/codex/generate-skills.js` kończy się „spojne”.
-- [ ] **Obie wersje w jednym przebiegu (zasada 4):** nowe testy skrótu na kodzie z HEAD sprzed
+- [x] **Obie wersje w jednym przebiegu (zasada 4):** nowe testy skrótu na kodzie z HEAD sprzed
       etapu (worktree w katalogu roboczym, `core.autocrlf=false`) padają, na zmianie przechodzą —
       liczby fail/pass do wpisu.
-- [ ] Indeks ≤ 5 KB (FAKT, `wc -c` na wyciętej sekcji); 15 zasad w pełnym brzmieniu nadal
+- [x] Indeks ≤ 5 KB (FAKT, `wc -c` na wyciętej sekcji); 15 zasad w pełnym brzmieniu nadal
       w `LEKCJE.md` bajt w bajt (porównanie ze stanem sprzed etapu, licznik nagłówków).
-- [ ] Ewaluacja: pełna zasada doczytana 3/3 w scenariuszach z wyzwalaczem i 0/3 bez — z modelem
+- [x] Ewaluacja: pełna zasada doczytana 3/3 w scenariuszach z wyzwalaczem i 0/3 bez — z modelem
       każdej sesji i listą narzędzi z `init`; wynik niższy → zatrzymanie i pytanie, nie powtórka
       do skutku (zasada 1, L-0271).
-- [ ] Skrót startu: bajty i znaki przed i po; świeża sesja dostaje go w całości albo rozjazd jest
+- [x] Skrót startu: bajty i znaki przed i po; świeża sesja dostaje go w całości albo rozjazd jest
       opisany i rozstrzygnięty z Łukaszem.
-- [ ] Dowód negatywny: `git diff --stat` od początku etapu nie pokazuje zmian w
+- [x] Dowód negatywny: `git diff --stat` od początku etapu nie pokazuje zmian w
       `core/process/prompt-mode.js`, `core/prompt/` ani w kopiach rytuału startu poza zdaniami
       o „Zasadach aktywnych”.
-- [ ] Wpis w `docs/DZIENNIK.md` dopisany na końcu sekcji „Wpisy”, z autorem; `docs/STATE.md`
+- [x] Wpis w `docs/DZIENNIK.md` dopisany na końcu sekcji „Wpisy”, z autorem; `docs/STATE.md`
       zaktualizowany.
-- [ ] Katalog roboczy `.claude/relai/work/KONTEKST_STARTU/E4/` przejrzany raportem
+- [x] Katalog roboczy `.claude/relai/work/KONTEKST_STARTU/E4/` przejrzany raportem
       (`node .claude/relai/tools/clean-work.js raport`) i skasowany po „tak”; liczby przed i po
       w sekcji „Zweryfikowane” wpisu. Artefakty poza tym katalogiem (worktree „przed”, jeśli
       powstał poza nim, foldery fixtur w `%TEMP%`, transkrypty sesji ewaluacji) wypisane z nazwy
