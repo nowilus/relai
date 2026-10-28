@@ -77,12 +77,6 @@
 - **AUDYT_MODOW — ustalenia poza zakresem (5 pozycji `outOfScope` raportu)** — odchudzenie kopii rdzenia per plugin (`sync-panel-core`), `headings.mjs` 254 KB w progress i cache-keeperze, % limitu per etap w rdzeniu, `userConfig` cache-keepera, przedrostek `relai-` jego komend; plus wariant B „jedna listwa” jako kandydat na plan — decyzja: plan, odnoga albo odrzucić · 2026-10-11 · [wpis 2026-10-11 — Z13, Z14 i zamknięcie odnogi](archiwum/dziennik/DZIENNIK_2026-10-11_2026-10-12.md#2026-10-11--audyt_modow-z13-i-z14-wydanie-0120-i-zamknięcie-odnogi)
 - **PANEL_CODEX E1 — próba przycisków minimalnego pakietu i świeżego kontekstu** — w macierzystym czacie nadal proces 0.0.7/PID 62300; po restarcie sprawdzić sondę 0.0.9 (także fonty), nowy szkic i jego rzeczywisty projekt/kontekst. Wygląd już zaakceptowany · 2026-10-10 · [wpis — Panel i mostek](archiwum/dziennik/DZIENNIK_2026-10-09_2026-10-10.md#2026-10-10--panel_codex-e1-natywny-widok-minimalny-pakiet-i-mostek-bieżącego-czatu)
 
-- **Jedno okno pytań na starcie w sesji interaktywnej** — po wydaniu przy zamknięciu planu
-  PROWADZENIE_END_TO_END sprawdzić, że bramka trybu ciągłego pyta o zgodę i model w jednym oknie
-  (Aneks F) · 2026-09-24 ·
-  [wpis 2026-09-24 — E5](archiwum/dziennik/DZIENNIK_2026-09-14_2026-10-09.md#2026-09-24--e5-planu-prowadzenie_end_to_end-pierwsze-30-minut-bez-wydania)
-  *(odroczone 2026-10-25, odroczeń: 1)*
-
 - **Zamrożenie dwóch bramek zgody jako decyzji** — zgoda na tryb ciągły (raz na sesję, z zapisem
   globalnym) i zgoda na propozycję struktury poza projektem (raz na maszynę). Oba wzorce wrócą przy
   każdym nowym zachowaniu proaktywnym RelAI · 2026-09-15 ·
@@ -1113,6 +1107,106 @@ progami). Procedura `document-rotation.md` skilla `relai-core`, `SPEC_ARCHIWUM.m
 **Do zrobienia przez człowieka:** —
 
 Autor: RelAI (Opus 5.5) + Lukasz
+
+**Do zrobienia przez człowieka:** —
+
+Autor: RelAI (Opus 5.5) + Lukasz
+
+### 2026-10-28 — Przyciski paska postępu: duchy z odstępem, krótkie etykiety w wąskim panelu — MINIPLAN
+
+Zgłoszenie Łukasza: przycisk „Rozwiń” na pasku postępu „zajmuje za dużo miejsca, nachodzi on
+prawie na pasek postępu, prawie się zlewa, nie ma tam odpowiednich marginesów, paddingów”; w trakcie
+dopisał: „zobacz, jak to wygląda na takim małym zwiniętym pasku […] można od razu też ten przycisk
+z liczbą agentów poprawić analogicznie”. Wątek bez aktywnego planu — MINIPLAN, prompt po
+optymalizatorze (tryb ciągły) przyjęty z aneksem o chipie i wąskim pasku.
+
+**Zrobione:**
+
+- Sonda `relai-przyciski-sonda` w `dev-mods` sesji (budowana skryptem
+  `.claude/relai/work/PRZYCISKI_POSTEPU/build-sonda.cjs` z kopii `steps.tsx` z liczonymi
+  podmianami): pięć rund na danych etapu E4 ZASIEG_PLUGINU — przed/po, formy natywnego `Button`,
+  `sm` wobec `xs`, trzy układy wąskiego paska (A jeden rząd, B krótkie etykiety, C przyciski pod
+  nazwą), na końcu prawdziwy plik z repo obok kodu z HEAD. Wybór Łukasza: „tak niech będzie b”.
+- `progress/hooks/steps.tsx`: na desktopie „Rozwiń/Zwiń” i chip agentów jako `plain`, odstęp `xs`
+  nad linią i pod etykietą wąskiej karty, poniżej `SHORT_BELOW = 48` kolumn w linii chip `● N`
+  i „Rozwiń” bez ▾ (szeroko: „Rozwiń ▾” / „Zwiń ▴”); sam chip zostaje w pełnych słowach; terminal
+  bez zmian. Nowa funkcja `chipShort`.
+- `progress/hooks/progress.test.ts`: trzy testy zmienione, dwa nowe (wąska linia na obu
+  powierzchniach, sam chip z odstępem).
+- `DESIGN.md` 1.4 (§3, wyjątek od „przyciski pasków `primary`”) z wierszem w `ARTEFAKTY.md`;
+  `PULAPKI.md` P-060 (desktop rysuje `label`, nie dzieci `Button`; `plain` zostawia natywną
+  wysokość). Wycinki zrzutów `docs/zasoby/PANEL_RELAI/zrzuty/PRZYCISKI_POSTEPU_r0–r5_*`; pełne
+  zrzuty okna (z innymi sesjami na ekranie) usunięte, sonda usunięta.
+
+**Zweryfikowane — jak dokładnie:**
+
+- Piksele zrzutów (`okno.ps1`, `lupa.ps1`, skan wierszy `rzedy.ps1`, skala ekranu ok. 1,73):
+  przed — segmenty i przycisk w jednym bloku bez wiersza tła (0 px), w wąskim panelu przycisk
+  zasłania segmenty, nazwa „Bramka …” / „Bram…”; produkt B przy 37 kolumnach — 17 px przerwy,
+  karta 80 px zamiast 70 px, nazwa „Bramka maszyny …”, sam chip 18 px pod etykietą.
+- Dowód obiema wersjami: nowe testy na kodzie z HEAD (worktree w `%TEMP%`, stała zamiast
+  importu) — 5 fail, dokładnie zmienione i nowe; na zmianie `claude plugin test progress`
+  (binarka aplikacji 2.1.309) 50/50; `node --test core/panel/tests/*.test.js` 225/225;
+  `claude plugin validate progress` zielone; `sync-panel-core.js --check` zgodne.
+- Recenzja (agent `code-reviewer`): zero HIGH i MEDIUM, dwa LOW — oba poprawione: wiersz z samym
+  tekstem (bez przycisku) nie dostaje odstępu `xs`; testy dopisane dla wąskiej linii rozwiniętej
+  („Zwiń” bez ▴ obok `● 1`) i wiersza bez przycisku. Mutacja (powrót odstępu dla samego tekstu)
+  → 1 fail w tym teście; po przywróceniu 50/50.
+
+**Świadomie odłożone:**
+
+- Wydanie: wersja `relai-progress` podnosi się przy „gotowi do wydania?”.
+- Najechanie na przycisk-duch maluje jego tło, które przy wąskim pasku może dotknąć segmentów
+  (P-060) — niezmierzone na żywo.
+- Samotny chip stoi kilka pikseli na prawo od krawędzi etykiety (wewnętrzny margines przycisku).
+
+**Do zrobienia przez człowieka:** —
+
+Autor: RelAI (Opus 5.5) + Lukasz
+
+### 2026-10-28 — Analiza kontekstu startowego KONTEKST_STARTU: pomiar, mapa, zalecenia dostawcy, wywiad
+
+Zgłoszenie Łukasza: przy pierwszej wiadomości w projekcie RelAI ok. 100 tys. tokenów zajętych;
+prośba o przegląd logiki czytania dokumentów na starcie „biorąc pod uwagę najnowsze zalecenia”
+i o logikę doczytywania tylko potrzebnych sekcji. Optymalizator (tryb ciągły, zgoda „tak, w tej
+sesji”, model sesji) rozdzielił zdanie na dwa prompty: przyciski (wpis wyżej) i tę analizę.
+
+**Zrobione:**
+
+- Trzy równoległe rozpoznania: A — pomiar tokenów w transkryptach (`api-request-shape`,
+  kalibracja 1,93 B/tok PL, 2,31 EN, 3,52 JSON); B — mapa mechanizmu (kto każe czytać co
+  i kiedy); C — dokumentacja Claude Code i blog Anthropic, odczyt 2026-10-28.
+- Raport [ANALIZA.md](plany/KONTEKST_STARTU/ANALIZA.md): warianty W0–W4 (W1 „rytuał sekcjami”
+  i W2 „indeks z drogowskazem” rekomendowane, W0 i W4 odrzucone z powodem), ryzyka, przypadki
+  brzegowe, rozstrzygnięcia wywiadu.
+- Wywiad, dwie rundy. Rozstrzygnięcia: cel — kontekst po pierwszej turze; „Zasady aktywne” jako
+  indeks z doczytywaniem (W2, wpis przy D-15 do zrobienia w planie); tryb ciągły — delegacja
+  i podział `relai-prompt.md`, a bramka zgody pyta najpierw tylko o zgodę, po „nie” kończy,
+  po „tak” drugie okno z modelem i zasięgiem (słowa Łukasza: „on bardzo często zadaje za dużo
+  pytań […] jak odpowiadam «nie», to po prostu nie drąży tematu”); zakres — tylko RelAI.
+- `PULAPKI.md` P-061 (zagnieżdżony `claude.md` na Windows).
+- Sprawa „Jedno okno pytań na starcie w sesji interaktywnej” (z 2026-09-24) zdjęta z sekcji
+  „Czeka na człowieka”: rozstrzygnięta odwrotnie decyzją Łukasza z wywiadu. Wpis źródłowy jest
+  w archiwum z sumą kontrolną, więc adnotacja stoi tylko tutaj.
+
+**Zweryfikowane — jak dokładnie:**
+
+- Pierwsze wywołanie API dziś 81,9–87,3 tys. (pięć sesji), linia bazowa bez RelAI 73,2 tys.
+  (Jarvis); koniec pierwszej tury 122–174 tys., mediana 129,5 tys.; w tej sesji 81,9 → 173,9 tys.:
+  rytuał +39,1 tys., bramka trybu ciągłego +26,7 tys., wyjście modelu +25,3 tys.
+- Każde zalecenie dostawcy w raporcie ma adres; liczby z transkryptów i `wc -c`, nie oszacowania
+  (tokeny składników startu — wyliczone przelicznikiem, oznaczone).
+
+**Świadomie odłożone:**
+
+- Plan KONTEKST_STARTU — następny krok, skill `relai-planning`.
+- Usterki znalezione w analizie idą do planu: parser aktywnego planu bierze link z linii
+  „Aktywny plan: brak” (wstrzymany PANEL_CODEX liczy się jako aktywny), propozycja rotacji
+  dziennika przy każdym starcie mimo braku części rotowalnej, nakładki `rodziny/claude.md`
+  jako zagnieżdżony `CLAUDE.md` u wszystkich użytkowników, zbędna kopia
+  `adapters/claude-code/hooks/.claude/relai/`, hook `session-context` trwający 24,5 s.
+- Poprzedni wpis (rotacja z 2026-10-28) ma podwójną stopkę „Do zrobienia… / Autor” — kosmetyka,
+  bez zmiany.
 
 **Do zrobienia przez człowieka:** —
 

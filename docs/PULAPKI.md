@@ -8,6 +8,38 @@ Specyfikacja: `SPEC_PULAPKI.md`.
 
 ## Pułapki
 
+### P-061 — Na Windows plik `claude.md` w podkatalogu jest dla harnessu zagnieżdżonym `CLAUDE.md` · 2026-10-28 · AKTYWNA
+
+- **Objaw (sesja 2026-10-28, procedura bramki trybu ciągłego):** po odczycie
+  `.claude/relai/prompt/rodziny/claude.md` w kontekście pojawia się blok „Contents of
+  …\rodziny\CLAUDE.md” z całą nakładką rodziny `claude` (6,9 KB). Ten sam blok wraca przy
+  odczycie każdego innego pliku z tego katalogu, także nakładki `openai.md`.
+- **Przyczyna:** Claude Code wczytuje zagnieżdżony `CLAUDE.md` katalogu, gdy model czyta, pisze
+  albo edytuje plik w tym katalogu. System plików Windows (i domyślny APFS w macOS) nie rozróżnia
+  wielkości liter, więc `claude.md` przechodzi jako `CLAUDE.md`. Dokumentacja dostawcy nie mówi
+  o wielkości liter (odczyt https://code.claude.com/docs/en/memory, 2026-10-28).
+- **Obejście:** pliki o nazwie `claude.md` nie mogą stać w katalogach, które model czyta. Dotyczy
+  kopii nakładek, którą `provisionPrompt` (`session-signals.js`) robi w każdym projekcie
+  użytkownika. Naprawa (zmiana nazwy) jest w planie KONTEKST_STARTU.
+- **Zasięg:** Claude Code na systemie plików bez rozróżniania wielkości liter; na macOS
+  niezmierzone. Źródło: [ANALIZA KONTEKST_STARTU](plany/KONTEKST_STARTU/ANALIZA.md), §3.2.
+
+### P-060 — `Button` na desktopie: przy `label` i dzieciach rysuje `label`; `plain` zostawia natywną wysokość · 2026-10-28 · AKTYWNA
+
+- **Objaw (sonda przycisków paska postępu, MINIPLAN PRZYCISKI_POSTEPU):**
+  1. `<Button plain label="Rozwiń" onPress={…}>▾</Button>` rysuje się w aplikacji desktopowej
+     jako „Rozwiń”. Znak ▾ z dzieci nie pojawia się.
+  2. `plain` zdejmuje z przycisku tło i obrys, ale wiersz z takim przyciskiem jest tak samo wysoki
+     jak z `primary`. Odstęp `marginTop` `xs` daje 17 px ekranu przerwy pod segmentami, a `sm`
+     22 px (skala ekranu ok. 1,73). Najechanie wskaźnikiem nadal maluje tło przycisku duch.
+- **Przyczyna:** typy mówią, że `label` „names the control” obok dzieci. Desktop rysuje swój
+  natywny przycisk z `label`, a dzieci pomija. Wysokość przycisku natywnego nie zależy od `plain`.
+- **Obejście:** na desktopie krótszy przycisk to krótszy `label` (sam znak albo słowo), nie
+  dzieci. Odstęp od elementu powyżej daje `marginTop` z nazwą kroku (`xs`), bo terminal rysuje
+  ją jako 0 wierszy.
+- **Zasięg:** Claude Code 2.1.309, aplikacja desktopowa; terminal niezmierzony. Źródło: zrzuty
+  `docs/zasoby/PANEL_RELAI/zrzuty/PRZYCISKI_POSTEPU_r1–r4_*`, wpis dziennika 2026-10-28.
+
 ### P-059 — PowerShell 5.1 nie rozwija tablicy z `ConvertFrom-Json`, a `claude plugin list --json` powtarza plugin per zakres lokalny · 2026-10-28 · AKTYWNA
 
 - **Objaw (plan ZASIEG_PLUGINU E4, polecenie z README):**

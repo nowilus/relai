@@ -112,7 +112,13 @@ Opinii spoza projektu nadal nie ma.
   w [README adaptera](../adapters/codex/panel/README.md).
 - **W repo, niewydane (2026-10-28):** wiersz `installPath` w README i `KOMENDY.md` poprawiony po
   przełączeniu maszyny (P-059 — w 3.6.0 skleja ścieżki, gdy plugin ma wpisy lokalne); decyzja
-  Łukasza: do następnego wydania. README na GitHubie poprawione pushem `main`.
+  Łukasza: do następnego wydania. README na GitHubie poprawione pushem `main`. Przyciski paska
+  postępu w `relai-progress` (MINIPLAN PRZYCISKI_POSTEPU): na desktopie duchy z odstępem `xs`,
+  poniżej 48 kolumn krótkie etykiety — wersja modu podniesie się przy wydaniu.
+- **Analiza KONTEKST_STARTU (2026-10-28)** — [ANALIZA.md](plany/KONTEKST_STARTU/ANALIZA.md) z
+  wywiadem: cel to kontekst po pierwszej turze (RelAI ≈ 41 % z ~130–174 tys.), „Zasady aktywne”
+  jako indeks z doczytywaniem, bramka trybu ciągłego pyta najpierw tylko o zgodę, zakres tylko
+  RelAI. Następny krok: plan wg `relai-planning`.
 
 ## Co dalej
 
@@ -151,8 +157,9 @@ Opinii spoza projektu nadal nie ma.
 - Ustalenia poza zakresem audytu modów (pięć pozycji `outOfScope`, wariant B „jedna listwa”) —
   decyzja człowieka: plan, odnoga albo odrzucić.
 - Bramki świadomie otwarte: start etapu z karty panelu bez drugiego pytania (E5 PANEL_CLAUDE);
-  jedno okno pytań trybu ciągłego (Aneks F) i brak pytania po zadaniu w tle (Aneks H); bramka
-  trybu ciągłego odpala na odpowiedzi z karty startu (L-0189).
+  brak pytania po zadaniu w tle (Aneks H); bramka trybu ciągłego odpala na odpowiedzi z karty
+  startu (L-0189). Aneks F („jedno okno pytań”) Łukasz odwrócił 2026-10-28 — najpierw sama zgoda,
+  po „tak” okno z modelem i zasięgiem; wchodzi do planu KONTEKST_STARTU.
 - `/relai-models` w sesji Codeksa — lista ma nazwy z 2026-09-05; nakładka `openai` bez reguł
   z nazwą modelu. Nakładki rodzin modeli (`claude`, `openai`) z 2026-09-24 — starsze niż 30 dni.
 - Wątek `OPIS_REPO` (opis i tematy repozytorium na GitHubie; manifest mówi o jednym narzędziu).
