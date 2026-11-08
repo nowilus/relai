@@ -30,7 +30,7 @@ function router(backups) {
 }
 
 function claudePointer() {
-  return '# Claude Code compatibility\n\nRead AGENTS.md for the active project instructions.\n';
+  return '@AGENTS.md\n\n# Claude Code compatibility\n\nShared project instructions are imported from AGENTS.md above.\n';
 }
 
 function install(project) {

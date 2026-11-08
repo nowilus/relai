@@ -44,7 +44,7 @@ function router(originals) {
     (links ? '\n## Preserved project guidance\n' + links + '\n' : '');
 }
 
-function claudePointer() { return '# Claude Code compatibility\n\nRead AGENTS.md for the active project instructions.\n'; }
+function claudePointer() { return '@AGENTS.md\n\n# Claude Code compatibility\n\nShared project instructions are imported from AGENTS.md above.\n'; }
 
 function guidanceInstall(projekt) {
   const dir = path.join(projekt, GUIDANCE_DIR);

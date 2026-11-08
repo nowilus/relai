@@ -20,7 +20,7 @@ for (const files of [{}, { 'AGENTS.md': 'agent rules\n' }, { 'CLAUDE.md': 'claud
     const project = fixture(t, files);
     assert.equal(install(project), 0);
     assert.match(fs.readFileSync(path.join(project, 'AGENTS.md'), 'utf8'), /RelAI project router/);
-    assert.match(fs.readFileSync(path.join(project, 'CLAUDE.md'), 'utf8'), /Read AGENTS\.md/);
+    assert.match(fs.readFileSync(path.join(project, 'CLAUDE.md'), 'utf8'), /^@AGENTS\.md$/m);
     for (const [name, content] of Object.entries(files)) {
       assert.equal(fs.readFileSync(path.join(project, '.agents', 'relai', 'original-' + name.toLowerCase()), 'utf8'), content);
     }
