@@ -24,6 +24,13 @@ Gałąź `refactor/2026-11-relai`, baza: main @ a512efe.
 
 W tej sesji ponownie pobrałem tylko stronę `memory` (potwierdzenie F03). Pozostałe adresy pochodzą z audytu wejściowego i nie były tu weryfikowane drugi raz. Strona learn.chatgpt.com to domena OpenAI podana w audycie; nie weryfikowałem jej niezależnie z developers.openai.com.
 
+Uzupełnienie 2026-11-09 (sesja nadrzędna przeglądu): oficjalne adresy dokumentacji Codexa przekierowują na tę domenę na
+stałe — `https://developers.openai.com/codex/skills` → `308 Permanent Redirect` → `https://learn.chatgpt.com/docs/build-skills`,
+`https://developers.openai.com/codex/hooks` → 308 → `https://learn.chatgpt.com/docs/hooks`,
+`https://developers.openai.com/codex/guides/agents-md` → 308 → `https://learn.chatgpt.com/docs/agent-configuration/agents-md`
+(nagłówek `Location` z odpowiedzi serwera). learn.chatgpt.com jest więc obecnym miejscem oficjalnej dokumentacji OpenAI
+dla Codexa. Treści tych stron w tej weryfikacji nie pobierałam ponownie.
+
 ## 3. Ustalenia
 
 | ID | Waga | Status |
