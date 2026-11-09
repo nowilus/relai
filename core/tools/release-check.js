@@ -297,8 +297,8 @@ async function zestawy(ctx, potrzebne, modyZeZmianami, szybko, rev) {
     if (szybko) { pominiete.push(id + ': --szybko'); continue; }
     const od = Date.now();
     if (id === 'testy-rdzenia') {
-      wyniki.push(wynikTestow(id, 'testy rdzenia, panelu i Codeksa', nodeTest(ctx.korzen,
-        ['core/process/tests/*.test.js', 'core/guardrails/tests/*.test.js', 'core/panel/tests/*.test.js', 'adapters/codex/tests/*.test.js']), od));
+      wyniki.push(wynikTestow(id, 'testy rdzenia, panelu, Codeksa i Cursora', nodeTest(ctx.korzen,
+        ['core/process/tests/*.test.js', 'core/guardrails/tests/*.test.js', 'core/panel/tests/*.test.js', 'adapters/codex/tests/*.test.js', 'adapters/cursor/tests/*.test.js']), od));
     } else if (id === 'testy-strony') {
       wyniki.push(await zestawStrony(ctx.korzen));
     } else if (id === 'testy-filmu') {
