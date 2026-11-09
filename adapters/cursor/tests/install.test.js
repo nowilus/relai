@@ -16,13 +16,13 @@ const INSTALL = path.join(__dirname, '..', 'install.js');
 function projekt(t, pliki = {}) {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'relai-cursor-install-'));
   for (const [nazwa, tresc] of Object.entries(pliki)) fs.writeFileSync(path.join(dir, nazwa), tresc);
-  t.after(() => fs.rmSync(dir, { recursive: true, force: true }));
+  t.after(() => fs.rmSync(dir, { recursive: true, force: true, maxRetries: 3 }));
   return dir;
 }
 
 function uruchom(dir, ...flagi) {
   const r = spawnSync(process.execPath, [INSTALL, dir, '--bez-skanu', ...flagi], { encoding: 'utf8', timeout: 120000 });
-  assert.equal(r.status, 0, r.stderr);
+  assert.equal(r.status, 0, [r.error && String(r.error), r.stderr, r.stdout].filter(Boolean).join('\n'));
 }
 
 for (const pliki of [{}, { 'AGENTS.md': 'agent rules\n' }, { 'CLAUDE.md': 'claude rules\n' },
@@ -32,7 +32,6 @@ for (const pliki of [{}, { 'AGENTS.md': 'agent rules\n' }, { 'CLAUDE.md': 'claud
     uruchom(dir);
     assert.match(fs.readFileSync(path.join(dir, 'AGENTS.md'), 'utf8'), /RelAI project router/);
     const claude = fs.readFileSync(path.join(dir, 'CLAUDE.md'), 'utf8');
-    assert.match(claude, /^@AGENTS\.md$/m);
     assert.ok(claude.startsWith('@AGENTS.md\n'), 'import AGENTS.md ma byc w pierwszej linii CLAUDE.md');
     for (const [nazwa, tresc] of Object.entries(pliki)) {
       assert.equal(fs.readFileSync(path.join(dir, '.cursor', 'relai-guidance', 'original-' + nazwa.toLowerCase()), 'utf8'), tresc);
