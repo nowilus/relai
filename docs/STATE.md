@@ -1,6 +1,6 @@
 # STATE — RelAI
 
-Stan na: 2026-10-28 (ostatni zamknięty plan KONTEKST_STARTU ZREALIZOWANY — RelAI 3.7.0 z lżejszym
+Stan na: 2026-11-09 (plan OPTYMALIZACJA_PO_AUDYCIE zaakceptowany, E1 gotowy do startu; ostatni zamknięty plan KONTEKST_STARTU ZREALIZOWANY — RelAI 3.7.0 z lżejszym
 startem sesji, `relai-progress` 0.7.1; tego samego dnia ZASIEG_PLUGINU — wydanie 3.6.0;
 poprzednio ZGLOSZENIA 2026-10-27 — wydanie 3.5.0)
 
@@ -14,7 +14,8 @@ repozytorium niesie też cztery mody: `relai-panel` 0.22.1, `relai-progress` 0.7
 `relai-cache-keeper` 0.13.0 („early access”) i kokpit `relai-mods` 0.3.0. Wydanie robi się frazą „gotowi do wydania?”
 (`/relai-release`): raport `release-check.js`, naprawy po jednej zgodzie, publikacja krok po kroku,
 bramka `pre-push` na tagi. Maszyna Łukasza pracuje w trybie „RelAI tylko w projektach” od
-2026-10-28. Aktywnego planu nie ma: KONTEKST_STARTU zamknięty 2026-10-28 (start sesji to jedno
+2026-10-28. Od 2026-11-09 aktywny jest plan OPTYMALIZACJA_PO_AUDYCIE (naprawy po audycie
+projektu; zaakceptowany, etap E1 gotowy do startu). Poprzedni: KONTEKST_STARTU zamknięty 2026-10-28 (start sesji to jedno
 polecenie skrótu, RelAI po pierwszej turze 25–32 tys. tokenów zamiast ok. 72 tys. — cel 25 tys.
 częściowo), PANEL_CODEX (Codex) wstrzymany 2026-10-27 decyzją Łukasza.
 Opinii spoza projektu nadal nie ma.
@@ -114,8 +115,12 @@ Opinii spoza projektu nadal nie ma.
 
 ## Nad czym pracujemy teraz
 
-- Aktywnego planu nie ma — następny do wyboru przez Łukasza (kandydat: migracja projektów na
-  nowy rytuał, „Co dalej”).
+- **OPTYMALIZACJA_PO_AUDYCIE — ZAAKCEPTOWANY 2026-11-09, E1 gotowy do startu** (plan
+  [OPTYMALIZACJA_PO_AUDYCIE](plany/OPTYMALIZACJA_PO_AUDYCIE/STATUS.md), 14 etapów, wykonanie Opus 5.5
+  medium w świeżych sesjach, gałąź `optymalizacja/po-audycie`, jedno wydanie na końcu). Źródło:
+  [raport audytu](AUDYT_RELAI_2026-11-09.md) — 56 znalezisk, do naprawy wybrane 41 wysokiej
+  i średniej wagi oraz E9; każdy etap ma plik kart zmian w `plany/OPTYMALIZACJA_PO_AUDYCIE/karty/`.
+  Plan i karty są zamrożone; etap uruchamia `/relai-stage` w świeżej sesji.
 - **PANEL_CODEX — nieaktywny, WSTRZYMANY 2026-10-27** decyzją Łukasza (plan
   [PANEL_CODEX](plany/PANEL_CODEX/STATUS.md), ZAAKCEPTOWANY 2026-10-10, 8 etapów, Codex
   `gpt-6.1-sol`). Stan zatrzymania E1: natywny widok i wiadomość do bieżącego czatu potwierdzone

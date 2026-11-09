@@ -1892,3 +1892,102 @@ zamknięte, jedna świadomie otwarta w `STATE.md`); odnóg plan nie miał; skan 
 (P-062) — w `STATE.md`.
 
 Autor: RelAI (Opus 5.5) + Lukasz
+
+### 2026-11-09 — Audyt RelAI i plan OPTYMALIZACJA_PO_AUDYCIE (DO AKCEPTACJI)
+
+Prośba Łukasza: krytyczny audyt projektu (plugin, proces, mody) z dowodem przy każdym znalezisku,
+bez zmian w kodzie, a potem plan napraw rozpisany tak, żeby wykonał go Opus 5.5 na effort medium.
+
+**Zrobione:**
+
+- [AUDYT_RELAI_2026-11-09.md](AUDYT_RELAI_2026-11-09.md) — 56 znalezisk w siedmiu obszarach
+  (start i kontekst, tryb ciągły, hooki, bezpieczeństwo, proces, mody, repozytorium), każde
+  z dowodem i wstępną diagnozą.
+- Plan [OPTYMALIZACJA_PO_AUDYCIE](plany/OPTYMALIZACJA_PO_AUDYCIE/STATUS.md):
+  [PLAN.html](plany/OPTYMALIZACJA_PO_AUDYCIE/PLAN.html) z szablonu pluginu (dziesięć sekcji,
+  diagram etapów, bez symulatora), `STATUS.md` (DO AKCEPTACJI, 14 etapów OCZEKUJE, bez promptów —
+  D-34) i załącznik `karty/`: konwencje wspólne, ustalenia robocze, 14 plików kart (57 kart,
+  480 KB) i trzy skrypty w `karty/zalaczniki/`. Karta podaje cel, pliki, kotwicę stanu obecnego,
+  kroki z kodem docelowym, test pisany przed zmianą, weryfikację, granice i pułapki.
+- Zakres wg decyzji Łukasza: 41 znalezisk wysokiej i średniej wagi (w tym hipotezy A6, C9, C10
+  sprawdzane pomiarem w E2) oraz E9 z niskich; aneksy dozwolone do D-14, D-40, D-88 i D-93; G1
+  (waga instalacji) tylko pomiar wariantów; jedno wydanie na końcu; gałąź `optymalizacja/po-audycie`.
+- Decyzje z dnia: `core/panel/cache-timer.mjs` zostaje do decyzji o PANEL_CODEX (K-F4 bez zmiany
+  kodu); podział plików `register.tsx` wyjęty z planu (K-F5).
+- Linia „Aktywny plan” w `CLAUDE.md` i kopii w `AGENTS.md`; `STATE.md`.
+
+**Zweryfikowane — jak dokładnie:**
+
+- Audyt: 629 testów Node i 559 testów modów zielonych na `main @ 5aeab39`; znaleziska
+  bezpieczeństwa i hooków odtworzone skryptami na fiksturach (dowody w raporcie).
+- Karty: autorzy (Opus 5.5 medium) sprawdzali kotwice Grepem i rozwiązania prototypami na kopiach —
+  m.in. skaner sekretów 51 z 51 przypadków i zero zmian blokad na 1193 plikach śledzonych; filtr
+  trybu ciągłego 44 z 44 promptów; odczyty plików testowych przy starcie 4 324 → 188; skrót startu
+  26 633 → 19 156 B; kopie rdzenia w modach −822 518 B.
+- Dwa przeglądy przed przekazaniem: kolizje między etapami (jedna kotwica unieważniana przez
+  wcześniejszy etap, trzy mniejsze rozjazdy, liczby testów liczone od `main`) i spójność planu
+  z kartami (pokrycie znalezisk, lista dla człowieka, format). Poprawki naniesione; tabela
+  narastająca testów w konwencjach.
+- `PLAN.html`: builder kod 0, 232 605 B, zero niewypełnionych znaczników, zero adresów `http(s)`,
+  podgląd w przeglądarce przy 375 px i 1200 px bez przewijania poziomego.
+- `node --test "core/process/tests/ritual-copies.test.js"` 3/3 po zmianie `CLAUDE.md` i `AGENTS.md`.
+- `git status --short`: zmienione wyłącznie `CLAUDE.md`, `AGENTS.md`, `docs/STATE.md`; nowe —
+  raport i folder planu. Kod bez zmian.
+
+**Świadomie odłożone:**
+
+- 13 znalezisk niskiej wagi (poza E9, pytaniem K-D12 i granicą powtórzeń w K-D1), znalezisko B3,
+  wdrożenie wariantu dystrybucji (G1), rotacja lekcji w `rotate.js`, podział `headings.mjs`,
+  refaktor stanu modułu w `register.tsx` (F5).
+- Przegląd czterech spraw przeterminowanych i trzy progi dokumentów zgłoszone na starcie sesji —
+  sesja była audytem bez zapisu; wracają przy następnym starcie.
+
+**Do zrobienia przez człowieka:**
+
+- Akceptacja planu OPTYMALIZACJA_PO_AUDYCIE albo poprawki. Sekcja 9 planu wymienia dziewiętnaście
+  spraw do rozstrzygnięcia w etapach.
+  *(rozstrzygnięte 2026-11-09 — „Akceptuję”, wpis niżej)*
+- Commit dokumentów planu i raportu (propozycja: `docs: add RelAI audit report and post-audit optimization plan`).
+  *(rozstrzygnięte 2026-11-09 — commit na gałęzi planu po akceptacji, wpis niżej)*
+
+Autor: RelAI (Fable 5.2; karty: Opus 5.5) + Lukasz
+
+### 2026-11-09 — Plan OPTYMALIZACJA_PO_AUDYCIE zaakceptowany
+
+Łukasz: „Akceptuję”, bez poprawek przy akceptacji.
+
+**Zrobione:**
+
+- [STATUS.md](plany/OPTYMALIZACJA_PO_AUDYCIE/STATUS.md): plan ZAAKCEPTOWANY 2026-11-09, E1 GOTOWY
+  DO STARTU, linia w dzienniku wdrożenia. Plan i załącznik `karty/` są od tej chwili zamrożone
+  (D-33) — zmiana wyłącznie datowanym aneksem.
+- [PROMPT_ETAP_1.md](plany/OPTYMALIZACJA_PO_AUDYCIE/PROMPT_ETAP_1.md) wg `SPEC_PROMPT_ETAPU.md`:
+  dziewięć elementów, wykonawca Opus 5.5 na `/effort medium`, zakres = siedem kart
+  z `karty/E01_PORZADKI_WIDOCZNE.md`, 12 punktów weryfikacji.
+- Linia „Aktywny plan” w `CLAUDE.md` i `AGENTS.md`, `STATE.md`.
+- Gałąź `optymalizacja/po-audycie` z commitem
+  `docs: add RelAI audit report and post-audit optimization plan` (raport, folder planu,
+  `CLAUDE.md`, `AGENTS.md`, `STATE.md`, `DZIENNIK.md`); bez `push`.
+
+**Zweryfikowane — jak dokładnie:**
+
+- `node --test "core/process/tests/ritual-copies.test.js"` po zmianie `CLAUDE.md` i `AGENTS.md`:
+  3/3.
+- `git status --short`: zmienione `CLAUDE.md`, `AGENTS.md`, `docs/STATE.md`, `docs/DZIENNIK.md`;
+  nowe — raport i folder planu. Żaden plik kodu.
+
+**Świadomie odłożone:**
+
+- Prompt etapu niesie **indeks** „Zasad aktywnych” (15 pozycji z wyzwalaczami), nie pełne
+  brzmienie: tak czyta je start sesji od D-15 Aneks A, a pełny odpis (35 KB) to znalezisko A1
+  audytu. Zdanie `SPEC_PROMPT_ETAPU.md` §6 „przepisaną w całości” poprawia karta K-A1 w etapie E10.
+- Karta K-0 (zamrożona) opisuje stan sprzed commita: gałąź `main` i pliki niezacommitowane. Po
+  „ok commituj” Łukasza gałąź `optymalizacja/po-audycie` powstała od razu, z jednym commitem
+  dokumentów planu; `main` zostaje równy wydanemu 3.7.0. Rozjazd obsługuje pole „Pułapki” karty
+  (gałąź istnieje → bez `-c`), a `PROMPT_ETAP_1.md` opisuje stan faktyczny.
+
+**Do zrobienia przez człowieka:**
+
+- Uruchomić etap E1: świeża sesja na Opus 5.5, `/effort medium`, komenda `/relai-stage`.
+
+Autor: RelAI (Fable 5.2) + Lukasz

@@ -38,7 +38,7 @@ o kolejne `N` dni / rozstrzygnąć teraz. Sesja nieinteraktywna: sam raport, bez
 | Plany zamknięte | 21, ostatni KONTEKST_STARTU 2026-10-28 (wydanie 3.7.0) | [archiwum planów](docs/archiwum/plany/), [docs/STATE.md](docs/STATE.md) |
 | Odnogi i wątki samodzielne | 1 otwarta: `OPIS_REPO` (od 2026-09-24); zamknięte — karty w [docs/fixy/](docs/fixy/) | [docs/STATE.md](docs/STATE.md) |
 
-Aktywny plan: brak. [PANEL_CODEX](docs/plany/PANEL_CODEX/STATUS.md) (Codex) **nieaktywny — WSTRZYMANY 2026-10-27** decyzją Łukasza. Ostatni zamknięty: [KONTEKST_STARTU](docs/archiwum/plany/KONTEKST_STARTU/STATUS.md), 2026-10-28 (lżejszy start sesji: skrót startu, indeks zasad, bramka trybu ciągłego w dwóch krokach; wydanie 3.7.0).
+Aktywny plan: [OPTYMALIZACJA_PO_AUDYCIE](docs/plany/OPTYMALIZACJA_PO_AUDYCIE/STATUS.md) — **ZAAKCEPTOWANY 2026-11-09** (14 etapów po [audycie](docs/AUDYT_RELAI_2026-11-09.md); wykonanie: Opus 5.5 medium, gałąź `optymalizacja/po-audycie`). [PANEL_CODEX](docs/plany/PANEL_CODEX/STATUS.md) (Codex) **nieaktywny — WSTRZYMANY 2026-10-27** decyzją Łukasza. Ostatni zamknięty: [KONTEKST_STARTU](docs/archiwum/plany/KONTEKST_STARTU/STATUS.md), 2026-10-28 (lżejszy start sesji: skrót startu, indeks zasad, bramka trybu ciągłego w dwóch krokach; wydanie 3.7.0).
 
 ## Reguły procesu
 
