@@ -56,7 +56,8 @@ test('Codex Bash payload with npm install: note [trivy-scan] (or skip without Tr
   const context = JSON.parse(out).hookSpecificOutput.additionalContext;
   if (/no quick scan ran/.test(context)) { t.skip('Trivy or its database missing: ' + context); return; }
   assert.match(context, /^\[trivy-scan\] /);
-  assert.match(context, /HIGH 16/);
+  // The count comes from the live vulnerability database and drifts; assert the shape, not the number.
+  assert.match(context, /CRITICAL \d+, HIGH [1-9]\d*, MEDIUM \d+; \d+ package\(s\) have a fix\./);
 });
 
 test('same payload under Claude Code (CLAUDECODE set): silence, the plugin hook runs there', (t) => {

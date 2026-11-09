@@ -54,7 +54,8 @@ function oczekujNotki(t, wyjscie) {
     return;
   }
   assert.match(kontekst, /^\[trivy-scan\] /);
-  assert.match(kontekst, /HIGH 16/);
+  // Liczby pochodza z zywej bazy podatnosci i sie zmieniaja; sprawdzamy ksztalt, nie liczbe.
+  assert.match(kontekst, /CRITICAL \d+, HIGH [1-9]\d*, MEDIUM \d+; \d+ package\(s\) have a fix\./);
 }
 
 test('Edit pliku spoza listy plikow blokady: cisza, kod 0', (t) => {
@@ -71,7 +72,7 @@ test('bledny JSON na stdin: cisza, kod 0', () => {
   assert.equal(uruchom(HOOK, 'to nie jest JSON {'), '');
 });
 
-test('Write package-lock.json w projekcie RelAI z fixtura skilla: notka [trivy-scan] z HIGH 16', (t) => {
+test('Write package-lock.json w projekcie RelAI z fixtura skilla: notka [trivy-scan] z HIGH >= 1', (t) => {
   const dir = folder(t, { fixtura: true });
   oczekujNotki(t, uruchom(HOOK, zapisBlokady(dir)));
 });
