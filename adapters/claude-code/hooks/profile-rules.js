@@ -131,10 +131,34 @@ function jestKonfiguracjaWdrozeniowa(rel) {
 // Artefakt profilu prompty: tekst poza docs/, bez plikow rdzenia projektu.
 // .mdc to regula adaptera Cursora — czytana przez model jak skill, wiec jest artefaktem.
 // Bez niej trzy reguly Cursora nie wyzwalaly reguly profilu ani razu (pomiar 2026-09-01).
+// K-C7: material testowy (katalogi fixtures/ i evals/) i kopia generowana skilli Codeksa nie sa
+// artefaktami prowadzonymi w rejestrze; AGENTS.md to blizniak CLAUDE.md, LICENCJE.md to nota.
+const MATERIAL_TESTOWY = /(^|\/)(fixtures|evals)\//i;
+const KOPIA_GENEROWANA = /^adapters\/codex\/skills\//;
+
 function jestArtefaktem(rel) {
   const nazwa = rel.split('/').pop() || '';
-  if (/^(CLAUDE|README|LICENSE|CHANGELOG|CONTRIBUTING)\.md$/i.test(nazwa)) return false;
+  if (/^(CLAUDE|AGENTS|README|LICENSE|LICENCJE|CHANGELOG|CONTRIBUTING)\.md$/i.test(nazwa)) return false;
+  if (MATERIAL_TESTOWY.test(rel) || KOPIA_GENEROWANA.test(rel)) return false;
   return /\.(md|mdc|txt|prompt|tmpl|j2)$/i.test(rel);
+}
+
+// Sciezki z kolumny "Plik"/"File": naglowek po nazwie kolumny, komorki dzielone po "|" bez "\|",
+// komorka rozbita na slowa (backticki, link, goly tekst). Dopasowanie po pelnej sciezce.
+function sciezkiRejestru(tekst) {
+  const zbior = new Set();
+  let kolumna = -1;
+  for (const wiersz of String(tekst).replace(/\r\n/g, '\n').split('\n')) {
+    if (!wiersz.trim().startsWith('|')) { kolumna = -1; continue; }
+    const komorki = wiersz.split(/(?<!\\)\|/).map((c) => c.trim());
+    const i = komorki.findIndex((c) => /^(Plik|File)$/i.test(c));
+    if (i > 0) { kolumna = i; continue; }
+    if (kolumna < 0) continue;
+    for (const slowo of (komorki[kolumna] || '').split(/[\s`()[\]<>,;+]+/)) {
+      if (slowo) zbior.add(slowo.replace(/^\.\//, ''));
+    }
+  }
+  return zbior;
 }
 
 function warn(text) {
@@ -197,8 +221,7 @@ function regulyPrompty(cwd, rel, komunikaty) {
 
   let tresc = '';
   try { tresc = fs.readFileSync(path.join(cwd, rejestr), 'utf8'); } catch (_) { return; }
-  const nazwa = rel.split('/').pop() || '';
-  if (tresc.indexOf(rel) === -1 && tresc.indexOf(nazwa) === -1) {
+  if (!sciezkiRejestru(tresc).has(rel)) {
     komunikaty.push('Profil prompty: artefakt "' + rel + '" nie ma wpisu w ' + rejestr +
       '. Dopisz go (wersja 1) albo podbij wersje istniejacego wpisu — z jednym zdaniem "co sie zmienilo" ' +
       'i jednym "po co".');

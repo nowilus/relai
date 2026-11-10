@@ -9,7 +9,8 @@ w tej kolejności. Skopiuj listę do odpowiedzi i odhaczaj:
 
 ```
 Zamknięcie planu: [ ] 1 bramki (blokuje)  [ ] 2 odnogi (blokuje)  [ ] 3 STATE  [ ] 4 wpis
-                  [ ] 5 STATUS  [ ] 6 ryzyka  [ ] 7 archiwum  [ ] 8 CLAUDE.md  [ ] 9 podsumowanie
+                  [ ] 5 STATUS  [ ] 6 ryzyka  [ ] 7 archiwum  [ ] 7a linki  [ ] 8 CLAUDE.md
+                  [ ] 9 podsumowanie
 ```
 
 
@@ -54,6 +55,17 @@ inaczej, niż zakładałeś, zostaje po nim wpis do wycofania.
    ujawniła) dopisz.
 7. **Archiwum** — przenieś `docs/plany/<TEMAT>/` do `docs/archiwum/plany/<TEMAT>/`. Zawartość bez
    zmian; przeniesienie, nie kasowanie.
+7a. **Linki do przeniesionych folderów** — zaraz po punkcie 7 przepinasz linki prowadzące do
+   starych ścieżek w trzech miejscach: sekcja „Czeka na człowieka” w `docs/DZIENNIK.md`,
+   `docs/STATE.md` oraz `CLAUDE.md` i `AGENTS.md` (jeśli istnieje). Zmienia się wyłącznie cel
+   linku; tekst linku, treść pozycji i data zostają. Najpierw odnogi przeniesione w punkcie 2
+   (`plany/<TEMAT>/odnogi/<NAZWA>/` → `fixy/<NAZWA>/`), potem plan (`plany/<TEMAT>/` →
+   `archiwum/plany/<TEMAT>/`) — w `CLAUDE.md` i `AGENTS.md` z przedrostkiem `docs/`. Linię
+   „Aktywny plan” zostawiasz punktowi 8. Miejsca znajdujesz poleceniami:
+   `grep -nF -e "](plany/<TEMAT>/" -e "](docs/plany/<TEMAT>/" docs/STATE.md CLAUDE.md AGENTS.md`
+   i `awk '/^## /{w=($0 ~ /Czeka na człowieka|Waiting for the human/)} w' docs/DZIENNIK.md | grep -nF "](plany/<TEMAT>/"`.
+   Kontrola: te same polecenia po edycji nie zwracają nic poza linią „Aktywny plan”. Wpisów
+   dziennika nie przepinasz — są zapisem przeszłości.
 8. **`CLAUDE.md`** — linia aktywnego planu. **Warunek twardy: kiedy kończysz turę, linia wskazuje
    istniejący plik albo brzmi `Aktywny plan: brak`.** Link do przeniesionego folderu jest błędem —
    prowadzi donikąd, a jednocześnie mówi „tu trwa praca". Rozstrzygasz tak:

@@ -83,3 +83,20 @@ test('rotation spec only on manual paths, last stage writes the entry once', () 
     ['punkt zastępujesz wskazaniem']);
   sprawdz('adapters/cursor/rules/relai-planning.mdc', ['are written **once**'], []);
 });
+
+test('overdue review carries a repository fact, plan closing repoints moved links', () => {
+  for (const rel of OBA('adapters/claude-code/skills/relai-core/overdue-review.md')) {
+    // nowy akapit obecny, zakaz zamykania za czlowieka nietkniety (dowod negatywny, zasada 3)
+    sprawdz(rel, ['**Fakt z repozytorium jako podpowiedź.**', 'Decyzję nadal podejmuje człowiek',
+      'sprawy nie zamykasz „bo widać, że nieaktualna" (L-0025)'], []);
+  }
+  sprawdz('adapters/cursor/rules/relai-core.mdc',
+    ['**A fact from the repository as a hint.**', 'because it "looks stale" (L-0025)'], []);
+  for (const rel of OBA('adapters/claude-code/skills/relai-planning/plan-closing.md')) {
+    sprawdz(rel, ['7a. **Linki do przeniesionych folderów**', '[ ] 7a linki'], []);
+  }
+  for (const rel of ['adapters/claude-code/commands/relai-stage.md', 'adapters/codex/skills/relai-stage/SKILL.md']) {
+    sprawdz(rel, ['przepięcie linków do przeniesionych folderów', 'kroki 1–9 (z 7a)'], []);
+  }
+  sprawdz('adapters/cursor/rules/relai-planning.mdc', ['repoint links to the moved folders'], []);
+});

@@ -191,13 +191,18 @@ inicjalizacji.
 | Plik | ścieżka do aktualnej wersji |
 | Wersja | liczba całkowita, rosnąca; `1` przy pierwszym zapisie |
 | Data | z kontekstu sesji |
-| Co się zmieniło | jedno zdanie o różnicy wobec poprzedniej wersji |
+| Co się zmieniło | wpis **bieżącej** wersji: data, numer wersji i jedno zdanie o różnicy wobec poprzedniej; przy podbiciu wersji poprzedni wpis znika z komórki i zostaje w historii gita |
 | Po co | jaki problem miała naprawić ta wersja — bez tego porównanie wersji nic nie mówi |
 
 **Jak wygląda porównanie wersji:** projekt z gitem porównuje treść (`git log -p <plik>`), a rejestr
 odpowiada na pytanie, którego git nie zna — **po co** ta zmiana zaszła i czy zadziałała. Projekt bez
 gita trzyma poprzednie wersje jako datowane kopie w `docs/archiwum/artefakty/` (D-18: nigdy ciche
 kasowanie), a rejestr linkuje do nich z kolumny `Plik`.
+
+Komórka „Co się zmieniło” nie jest kroniką. Rejestr z historią wersji w komórkach urósł
+w repozytorium RelAI do 145 KB (`FAKT`, 2026-11-09) i był czytany przy każdej edycji artefaktu;
+dlatego przy podbiciu wersji wpis bieżący zastępuje poprzedni, a odsyłacz „Starsze wersje: […]”
+do datowanej kopii w `docs/archiwum/artefakty/`, jeśli komórka go ma, zostaje na jej końcu.
 
 Rejestru nie mieszasz z `DZIENNIK.md`: dziennik mówi, co się działo w sesji, rejestr — jak wygląda
 historia jednego artefaktu.

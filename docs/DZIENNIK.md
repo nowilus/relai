@@ -2931,3 +2931,93 @@ testy, recenzował, zrobił K-R10 i rytuał.
 - Czy przepisać wstecz `docs/plany/PANEL_CODEX/PROMPT_ETAP_1.md` (plan wstrzymany; 44 569 B,
   z czego odpis zasad 27 503 B) do kształtu z numerami zasad — teraz, przy wznowieniu planu, czy
   wcale.
+
+### 2026-11-10 — OPTYMALIZACJA_PO_AUDYCIE E11: rejestr bez kroniki, wpis po pełnej ścieżce, fakt w przeglądzie spraw, linki przy zamknięciu planu
+
+Autor: RelAI (Opus 5.5) + Lukasz
+
+Trzeci etap według Aneksu A, pierwszy w dwóch przebiegach Codeksa zgodnie z L-0316: (1) same
+testy z kart, (2) wdrożenie bez zmiany testów. Codex `gpt-6.1-terra`, effort `high`
+z `~/.codex/config.toml`, przez `node core/process/crew.js run --runtime codex --role coder --write`
+z repozytorium. Claude (Opus 5.5) zrobił K-E6 przed przebiegiem 1, K-C7 krok 3, K-R11, testy,
+recenzję i rytuał.
+
+**Zrobione:**
+
+- **K-E6:** `docs/ARTEFAKTY.md` — naprawa nieucieczkowanego `|` w wierszu `SPEC_USTAWIENIA`
+  (`„Wiersz \| Czyta go”`), datowana kopia `docs/archiwum/artefakty/ARTEFAKTY_2026-11-10.md`,
+  skrócenie skryptem z załączników kart, punkt w „Zasadach prowadzenia” (komórka niesie wpis
+  bieżącej wersji); `core/templates/SPEC_PROFILE.md` — wiersz „Co się zmieniło” i akapit „Komórka
+  … nie jest kroniką”.
+- **K-C7:** `profile-rules.js` — wpis w rejestrze dopasowany po pełnej ścieżce z kolumny „Plik”
+  (`sciezkiRejestru()`), poza artefaktami: katalogi `fixtures/` i `evals/`, kopia
+  `adapters/codex/skills/`, `AGENTS.md`, `LICENCJE.md`; wiersz `security-audit` w rejestrze
+  wymienia 15 ścieżek kopii zamiast „+ 20 plików kopii”. Nowy `core/process/tests/profile-rules.test.js`
+  (4 przypadki).
+- **K-E2:** `overdue-review.md` i `relai-core.mdc` — fakt z repozytorium jako podpowiedź
+  w pytaniu o sprawę przeterminowaną (akapit L-0025 nietknięty); `plan-closing.md` punkt 7a
+  „Linki do przeniesionych folderów” i „7a linki” na liście; `relai-stage.md` Krok 6
+  i `relai-planning.mdc` — przepięcie linków w sekwencji zamknięcia (akapit `.mdc` przełamany,
+  linia 79 z E10 nie ma już 182 znaków).
+- **K-E4:** `relai-core.mdc` — cel rotacji na wadze całego żywego pliku z dwiema granicami
+  aneksu D-88 z 2026-11-10 zamiast „części rotowalnej”.
+- **K-R11:** sześć wierszy rejestru już w nowym kształcie komórki: SPEC_PROFILE 3 → 4,
+  `/relai-stage` 13 → 14, plan-closing 5 → 6, overdue-review 2 → 3, `relai-core.mdc` 11 → 12
+  (jeden wpis za K-E2 i K-E4), `relai-planning.mdc` 5 → 6. Wiersz overdue-review nie był
+  skracany skryptem (krótki), więc jego wpis startowy zszedł z komórki razem z wpisem wersji 2,
+  a komórka dostała odsyłacz „Starsze wersje” do dzisiejszej kopii, która go przechowuje.
+- Kopie Codeksa z generatora (trzy pliki). Dwie poprawki łamania po recenzji (Claude, bez
+  przebiegu poprawki): linia 101 znaków w `relai-core.mdc` i urwany wiersz akapitu w
+  `relai-stage.md`.
+
+**Zweryfikowane — jak dokładnie:**
+
+- K-E6: kontrola przed — `awk` na wierszu z `„Wiersz | Czyta go”` → 9 pól, nagłówek → 8.
+  `sprawdz-rejestr.js` kopii z samą sobą → `kluczy: 127, linii zmienionych: 0, bledow: 0`.
+  Skrypt: `wierszy tabel z kolumna: 118, skroconych: 40, bajty przed: 154108, po: 79901`.
+  Dowód: `sprawdz-rejestr.js` kopia → rejestr: `kluczy: 127, linii zmienionych: 40, bledow: 0`.
+  Obiekt `artefakty` w `release-check --json` przed i po identyczny: `plikow rejestru 108,
+  zmienionych od bazy 19, bez wpisu 0`, `bledy: []`. Grep `count`: `Starsze wersje: .ARTEFAKTY_`
+  → 40; `Wiersz .. Czyta go` → 0 w rejestrze, 1 w kopii. `release-check.test.js` → 57/57.
+  Rejestr po całym etapie 81 387 B (≤ 85 000). `sprawdz-rejestr.js` puszczony jeszcze raz po
+  K-R11 zgłasza błędy przesunięcia — porównuje linia w linię, a krok 8 dodał dwie linie; dowód
+  należy do momentu po kroku 4, jak w karcie.
+- Testy przed zmianą (zapis w katalogu roboczym, diff testów przeczytany w całości — wierny
+  kartom, LF): `profile-rules` 1 pass / 3 fail z asercji (zielony: „a bare path and a link
+  target…” — nazwany wyjątek karty); `ritual-texts` 3 / 1 fail („brak nowego tekstu »**Fakt
+  z repozytorium jako podpowiedź.**«”); `ritual-copies` 7 / 1 fail („cel na czesci rotowalnej”).
+- Po zmianie: 4/4, 4/4, 8/8. `node --test "core/process/tests/*.test.*"` → **430 pass, 0 fail**
+  (424 + 6); `adapters/cursor` 10, `adapters/codex` 28, `core/guardrails` 33 — bez zmian.
+- Pętla K-C7 (polecenie z karty): przed **70**, po krokach 1–2 **14** (dokładnie 14 plików `.md`
+  skilla `security-audit`), po kroku 3 **0**. Pierwsza próba listy ścieżek dała 0 przez wzorzec
+  `artefakt "` — wyjście hooka jest JSON-em z `\"`; liczba z polecenia karty była poprawna.
+- Greps: akapit „Pytanie nie zamienia się w rozstrzygnięcie za człowieka” → 1;
+  „target moves to the rotatable” → 0; `security-audit` `.md` → 17.
+- Dowód negatywny: `git diff --stat` dla `CLAUDE.md`, `AGENTS.md`, `docs/DECYZJE.md`,
+  `document-rotation.md`, `session-signals.js`, `rotate.js` i załączników kart → pusty.
+- `generate-skills.js --verify` → kod 0; `validate-adapters.js` → kod 0, jedno ostrzeżenie,
+  parytet 73 plików 0 rozjazdów, `rytual "Na koniec": 3 list, kroki [1,1a,2,3,4,5,6]`,
+  `wywolania z hooks.json: 20`.
+- Rejestr (K-R11): `release-check --json --tylko artefakty` → `"bledy": []` w trzech sekcjach,
+  `plikow rejestru 122, zmienionych od bazy 20, bez wpisu 0` (108 → 122, +14 po K-C7 krok 3).
+- Bezpieczeństwo: `trivy fs --scanners vuln .` → 0 CRITICAL, 42 HIGH, 50 MEDIUM, 12 LOW — bez
+  nowych wobec E9; etap nie dodaje zależności. Diff hooka: `writeFile|https?.request|fetch(` → 0.
+- Długości linii dodanych (znaki, nie bajty): ponad 100 zostały wiersz tabeli w `SPEC_PROFILE.md`
+  (tabela) i polecenie `awk` w punkcie 7a `plan-closing.md` (dosłownie z karty, w jednej linii).
+- Katalog roboczy `.claude/relai/work/OPTYMALIZACJA_PO_AUDYCIE/E11/`: przed 29 plików, ok. 1,1 MB;
+  przebiegi Codeksa `.claude/relai/work/CREW/2026-11-10_172030` i `_172236` — 10 plików,
+  ok. 460 KB; po „tak” Łukasza skasowane — po 0 plików (oba foldery nadrzędne puste). Poza
+  katalogiem: fikstur `%TEMP%/relai-profile-rules-*` po testach 0 (sprzątane w `t.after`).
+- **Pomiar Aneksu A:** dwa przebiegi Codeksa — cel aneksu osiągnięty po raz pierwszy; przebieg 1
+  ok. 2 min, bez odchyleń; przebieg 2 bez `STOP`. Poprawek po recenzji (6c): 0; dwie poprawki
+  łamania zrobił Claude (tabela 4.2, usterka ≤ 3 edycje).
+- Ryzyka: R5 — rejestr artefaktów zszedł o ok. 72 KB, ale dziennik i lekcje są ponad progiem,
+  więc poziom bez zmian; AX2 (osłabienie testu) — nie wystąpiło, diff testów po przebiegu 2
+  identyczny jak po przebiegu 1 (37 linii w dwóch plikach, nowy plik bez zmian).
+
+**Świadomie odłożone:**
+
+- Rotacja `docs/DZIENNIK.md` (216 KB przy progu 150 KB) i `docs/LEKCJE.md` (76 KB przy 50 KB)
+  zgłoszona na starcie sesji — poza zakresem etapu, do „kończymy na dziś”.
+
+**Do zrobienia przez człowieka:** —

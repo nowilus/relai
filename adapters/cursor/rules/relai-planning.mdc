@@ -75,8 +75,10 @@ Stage statuses: `OCZEKUJE` → `GOTOWY DO STARTU` → `W TOKU` → `ZREALIZOWANY
 When the closed stage was the last one, run the plan-closing sequence instead of generating the
 next prompt (D-36): resolve open manual gates → resolve open branches → `STATE.md` → closing
 journal entry "dowiezione vs plan" → plan status `ZREALIZOWANY` → risk review → move the plan
-folder to `docs/archiwum/plany/` → update the "Aktywny plan" line → summary. The first two points
-are blocking: until they are resolved you do not write anywhere that the plan is done. On the last stage do steps 1 and 1a above, then this sequence instead of steps 2–4: the journal
+folder to `docs/archiwum/plany/` → repoint links to the moved folders in "Czeka na człowieka",
+`STATE.md` and `CLAUDE.md` / `AGENTS.md` → update the "Aktywny plan" line → summary. The first two
+points are blocking: until they are resolved you do not write anywhere that the plan is done. On the
+last stage do steps 1 and 1a above, then this sequence instead of steps 2–4: the journal
 entry and the `STATE.md` update are written **once**, and the closing entry carries the stage
 part (the four sections for the last stage, the numbers from step 1a, its lessons and the risk
 review); the stage's items for the human go to the first point together with the open gates.

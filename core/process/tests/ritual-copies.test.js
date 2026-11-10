@@ -215,3 +215,23 @@ test('overdue items: hooks of three adapters report them, the digest does not', 
     fs.rmSync(path.join(os.tmpdir(), 'znaczniki-relai', 'ustawienia-podane-test-rytual-sprawy'), { force: true });
   }
 });
+
+test('Cursor rule states the D-88 rotation target like document-rotation.md', () => {
+  const norm = (rel) => fs.readFileSync(path.join(ROOT, rel), 'utf8').replace(/\s+/g, ' ');
+  const STARE = 'The **target moves to the rotatable part**';
+  const NOWE = 'until the whole live file drops below 60% of the threshold (for `LEKCJE.md`: without "Zasady aktywne")';
+  const ANEKS_LEKCJE = 'In `docs/LEKCJE.md` the KB threshold and target count the file without the "Zasady aktywne" section';
+  const ANEKS_RYZYKA = 'a risk section over its threshold with no `ZAMKNIĘTE` risk gives no start line and no blocked-rotation message, only one sentence in the "sprawdź status" report (D-88, annex';
+  // kontrola pozytywna: STARE trafia w brzmienie reguly z main @ 5aeab39
+  const PRZED = 'The **target moves to the rotatable part**: take the oldest items until **it** drops below 60% of the threshold';
+  assert.ok(PRZED.includes(STARE));
+  const mdc = norm('adapters/cursor/rules/relai-core.mdc');
+  assert.ok(!mdc.includes(STARE), 'regula Cursora: cel na czesci rotowalnej, sprzeczny z D-88');
+  assert.ok(mdc.includes(NOWE), 'regula Cursora: brak celu D-88');
+  assert.ok(mdc.includes(ANEKS_LEKCJE), 'regula Cursora: brak aneksu D-88 (lekcje bez Zasad aktywnych)');
+  assert.ok(mdc.includes(ANEKS_RYZYKA), 'regula Cursora: brak aneksu D-88 (ryzyka bez ZAMKNIETE)');
+  for (const rel of ['adapters/claude-code/skills/relai-core/document-rotation.md',
+    'adapters/codex/skills/relai-core/document-rotation.md']) {
+    assert.ok(norm(rel).includes('aż cały żywy plik zejdzie poniżej 60% progu'), rel + ': zrodlo D-88');
+  }
+});

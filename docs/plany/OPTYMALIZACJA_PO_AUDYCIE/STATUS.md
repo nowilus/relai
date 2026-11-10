@@ -20,8 +20,8 @@ Karty zmian (załącznik planu, zamrażany razem z nim): [konwencje](karty/00_KO
 | E8 | Skrót startu, progi i lista modeli | ZREALIZOWANY 2026-11-10 | [PROMPT_ETAP_8.md](PROMPT_ETAP_8.md) | [karty](karty/E08_SKROT_PROGI_MODELE.md); aneks D-88 |
 | E9 | Tryb ciągły | ZREALIZOWANY 2026-11-10 | [PROMPT_ETAP_9.md](PROMPT_ETAP_9.md) | [karty](karty/E09_TRYB_CIAGLY.md); po E7; aneks D-93 |
 | E10 | Prompty etapów i rytuały | ZREALIZOWANY 2026-11-10 | [PROMPT_ETAP_10.md](PROMPT_ETAP_10.md) | [karty](karty/E10_PROMPTY_ETAPOW_I_RYTUALY.md) |
-| E11 | Proces i rejestry | GOTOWY DO STARTU | [PROMPT_ETAP_11.md](PROMPT_ETAP_11.md) | [karty](karty/E11_PROCES_I_REJESTRY.md); po E10; karta K-E4 po aneksie D-88 z E8 |
-| E12 | Mody: odporność i koszt | OCZEKUJE | — | [karty](karty/E12_MODY_ODPORNOSC.md) |
+| E11 | Proces i rejestry | ZREALIZOWANY 2026-11-10 | [PROMPT_ETAP_11.md](PROMPT_ETAP_11.md) | [karty](karty/E11_PROCES_I_REJESTRY.md); po E10; karta K-E4 po aneksie D-88 z E8 |
+| E12 | Mody: odporność i koszt | GOTOWY DO STARTU | [PROMPT_ETAP_12.md](PROMPT_ETAP_12.md) | [karty](karty/E12_MODY_ODPORNOSC.md) |
 | E13 | Mody: rdzeń i kopie | OCZEKUJE | — | [karty](karty/E13_MODY_RDZEN_I_KOPIE.md); po E12; kod zmienia tylko K-G2 — K-F4 i K-F5 rozstrzygnięte decyzją właściciela 2026-11-09 |
 | E14 | CI, liczebniki, wydanie i zamknięcie | OCZEKUJE | — | [karty](karty/E14_CI_I_WYDANIE.md); aneks D-40; jedyne wydanie planu |
 
@@ -91,3 +91,7 @@ Karty zmian (załącznik planu, zamrażany razem z nim): [konwencje](karty/00_KO
   końcach linii z winy pliku zadania, dokończenie; poprawek po recenzji 0): cztery karty (K-A1,
   K-E1, K-E7, K-R10), 3 nowe testy, `core/process` 424, rejestr 14 wierszy; E11 GOTOWY DO STARTU,
   wygenerowany `PROMPT_ETAP_11.md`.
+- 2026-11-10 — E11 ZREALIZOWANY (Codex, dwa przebiegi: testy, wdrożenie; poprawek po recenzji 0):
+  pięć kart (K-E6, K-C7, K-E2, K-E4, K-R11), rejestr 154 108 → 81 387 B z kopią
+  `ARTEFAKTY_2026-11-10.md`, pętla K-C7 70 → 14 → 0, 6 nowych testów, `core/process` 430;
+  E12 GOTOWY DO STARTU, wygenerowany `PROMPT_ETAP_12.md`.

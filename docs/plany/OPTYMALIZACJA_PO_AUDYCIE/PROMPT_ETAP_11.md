@@ -167,49 +167,49 @@ nigdy `sed` ani `node -e`). Skilli Codeksa nie edytujesz ręcznie — tylko gene
 Każdy punkt Weryfikacji, który przeszedł, odhaczasz w `PROMPT_ETAP_11.md` (`- [ ]` → `- [x]`)
 zaraz po jego sprawdzeniu, nie na końcu etapu; punkt, który nie przeszedł, zostaje pusty.
 
-- [ ] K-0 (konwencje, sekcja 3): `git branch --show-current` → `optymalizacja/po-audycie`;
+- [x] K-0 (konwencje, sekcja 3): `git branch --show-current` → `optymalizacja/po-audycie`;
       `git log --oneline -1` pokazuje commit E10 (albo człowiek rozstrzygnął, co z drzewem).
-- [ ] K-E6: `skroc-rejestr.js` wypisał linię liczb (do wpisu); `sprawdz-rejestr.js` → kluczy jak
+- [x] K-E6: `skroc-rejestr.js` wypisał linię liczb (do wpisu); `sprawdz-rejestr.js` → kluczy jak
       w przebiegu kopii z samą sobą, linii zmienionych = skróconych, `bledow: 0`; obiekt `artefakty`
       w raporcie przed i po identyczny (`licznik`, `bledy`); `wc -c docs/ARTEFAKTY.md` ≤ 85 000;
       Grep `count`: `Starsze wersje: .ARTEFAKTY_` → liczba skróconych, `Wiersz .. Czyta go`
       w rejestrze → 0, w kopii archiwum → 1; `node --test core/process/tests/release-check.test.js`
       → zielony.
-- [ ] Testy przed zmianą (przebieg zapisany w katalogu roboczym, diff testów przeczytany w całości
+- [x] Testy przed zmianą (przebieg zapisany w katalogu roboczym, diff testów przeczytany w całości
       i zgodny z kartami): `profile-rules.test.js` → 3 fail z asercji + 1 pass (nazwany wyjątek);
       `ritual-texts.test.js` → 3 pass + 1 fail z asercji; `ritual-copies.test.js` → 7 pass + 1 fail
       z asercji.
-- [ ] Po zmianie: `profile-rules.test.js` → 4 pass; `ritual-texts.test.js` → 4 pass;
+- [x] Po zmianie: `profile-rules.test.js` → 4 pass; `ritual-texts.test.js` → 4 pass;
       `ritual-copies.test.js` → 8 pass.
-- [ ] `node --test "core/process/tests/*.test.*"` → **430 pass** (albo suma od wpisu E10 plus 6,
+- [x] `node --test "core/process/tests/*.test.*"` → **430 pass** (albo suma od wpisu E10 plus 6,
       opisana), 0 fail; `adapters/cursor` → 10; `adapters/codex` → 28; `core/guardrails` → 33.
-- [ ] Pętla K-C7 (polecenie z karty, Git Bash): przed — liczba do wpisu; po krokach 1–2 → `14`; po
+- [x] Pętla K-C7 (polecenie z karty, Git Bash): przed — liczba do wpisu; po krokach 1–2 → `14`; po
       kroku 3 → `0`. Inna liczba → ścieżki przez `grep -o 'artefakt [^ ]*'` i pytanie do człowieka.
-- [ ] Greps z kart: `grep -c "Pytanie nie zamienia się w rozstrzygnięcie za człowieka"
+- [x] Greps z kart: `grep -c "Pytanie nie zamienia się w rozstrzygnięcie za człowieka"
       adapters/claude-code/skills/relai-core/overdue-review.md` → 1 (akapit chroniony);
       `grep -c "target moves to the rotatable" adapters/cursor/rules/relai-core.mdc` → 0;
       `git ls-files adapters/claude-code/skills/security-audit/ | grep -c "\.md$"` → 17.
-- [ ] Dowód negatywny (zasada 3): `git diff --stat CLAUDE.md AGENTS.md docs/DECYZJE.md
+- [x] Dowód negatywny (zasada 3): `git diff --stat CLAUDE.md AGENTS.md docs/DECYZJE.md
       adapters/claude-code/skills/relai-core/document-rotation.md core/process/session-signals.js
       core/tools/rotate.js docs/plany/OPTYMALIZACJA_PO_AUDYCIE/karty/zalaczniki` → pusty.
-- [ ] `node adapters/codex/generate-skills.js --verify` → kod 0; `node core/tools/validate-adapters.js`
+- [x] `node adapters/codex/generate-skills.js --verify` → kod 0; `node core/tools/validate-adapters.js`
       → kod 0, jedno ostrzeżenie, `rytual "Na koniec": 3 list, kroki [1,1a,2,3,4,5,6]`,
       `parytet … 0 rozjazdow`, `wywolania z hooks.json: 20`.
-- [ ] Rejestr (K-R11): `node core/tools/release-check.js --json --tylko artefakty` → `"bledy":[]`
+- [x] Rejestr (K-R11): `node core/tools/release-check.js --json --tylko artefakty` → `"bledy":[]`
       we wszystkich sekcjach; licznik `plikow rejestru` większy o 14 niż po K-E6.
-- [ ] Bezpieczeństwo (etap zmienia hook czytający wejście JSON): `trivy fs --scanners vuln .` →
+- [x] Bezpieczeństwo (etap zmienia hook czytający wejście JSON): `trivy fs --scanners vuln .` →
       0 nowych CRITICAL i HIGH wobec wpisu E9 (zastane: 0 CRITICAL, 42 HIGH); etap nie dodaje
       zależności. Zapas bez Trivy: korzeń repo nie ma `package.json` (FAKT 2026-11-10; pięć
       śledzonych `package.json` leży w modach i fiksturach) → `npm audit --omit=dev` w katalogu
       każdego z nich, z wynikiem do wpisu. Hook nie dokłada zapisu ani sieci: `git diff
       adapters/claude-code/hooks/profile-rules.js | grep -cE "writeFile|https?\.request|fetch\("` → 0.
-- [ ] Granica: `git status --short` pokazuje z tego etapu wyłącznie pliki z pól „Pliki” pięciu
+- [x] Granica: `git status --short` pokazuje z tego etapu wyłącznie pliki z pól „Pliki” pięciu
       kart, `SPEC_PROFILE.md`, kopie Codeksa, nowy plik archiwum i dokumenty rytuału (`STATUS.md`,
       `PROMPT_ETAP_11.md`, `PROMPT_ETAP_12.md`, `DZIENNIK.md`, `STATE.md`, ewentualnie `LEKCJE.md`).
-- [ ] Wpis etapu jest na końcu sekcji „Wpisy” w `docs/DZIENNIK.md`, z liczbami testów, liczbą
+- [x] Wpis etapu jest na końcu sekcji „Wpisy” w `docs/DZIENNIK.md`, z liczbami testów, liczbą
       przebiegów Codeksa (cel aneksu: 2, poprawek 0), linią skryptu skracającego, liczbami pętli
       K-C7 i podpisem `Autor: RelAI (Opus 5.5) + Lukasz`.
-- [ ] Katalog roboczy: (a) `.claude/relai/work/OPTYMALIZACJA_PO_AUDYCIE/E11/` i przebiegi
+- [x] Katalog roboczy: (a) `.claude/relai/work/OPTYMALIZACJA_PO_AUDYCIE/E11/` i przebiegi
       `.claude/relai/work/CREW/` tego etapu przejrzane (`node .claude/relai/tools/clean-work.js
       raport`; katalog otwartego etapu raport pomija — wtedy liczby z `find`/`du`) i skasowane po
       „tak”, liczby przed i po we wpisie dziennika; (b) artefakty spoza katalogu wypisane z nazwy

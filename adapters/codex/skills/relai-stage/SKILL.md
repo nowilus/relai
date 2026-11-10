@@ -206,11 +206,11 @@ dziennika i `STATE.md` powstają w niej raz — z **wczytanego** skilla `relai-p
 (bez niego pominiesz kroki, których ta komenda nie powtarza), sekcja „Zamknięcie
 planu (D-36)": **rozstrzygnięcie otwartych bramek manualnych** → **rozstrzygnięcie otwartych
 odnóg** → `STATE.md` → wpis zamykający „dowiezione vs plan" → status planu `ZREALIZOWANY` →
-przegląd ryzyk → przeniesienie folderu planu do `docs/archiwum/plany/` → linia „Aktywny plan"
-w `CLAUDE.md` → podsumowanie. Sekwencji nie odtwarzasz z pamięci i nie skracasz — wykonujesz
-kroki 1–9 stamtąd. Dwa punkty blokujące idą pierwsze: dopóki bramki i odnogi nie są rozstrzygnięte,
-nie piszesz nigdzie, że plan jest zrealizowany. Pytaniem może być wyłącznie commit, te dwa
-punkty — pozycje „Do zrobienia przez człowieka" bez adnotacji o rozstrzygnięciu i odnogi
+przegląd ryzyk → przeniesienie folderu planu do `docs/archiwum/plany/` → przepięcie linków
+do przeniesionych folderów → linia „Aktywny plan" w `CLAUDE.md` → podsumowanie. Sekwencji nie
+odtwarzasz z pamięci i nie skracasz — wykonujesz kroki 1–9 (z 7a) stamtąd. Dwa punkty blokujące
+idą pierwsze: dopóki bramki i odnogi nie są rozstrzygnięte, nie piszesz nigdzie, że plan jest
+zrealizowany. Pytaniem może być wyłącznie commit, te dwa punkty — pozycje „Do zrobienia przez człowieka" bez adnotacji o rozstrzygnięciu i odnogi
 `OTWARTA` — oraz jedno pytanie o następcę planu, zadane po wpisaniu poprawnej linii „Aktywny plan”.
 
 ---
