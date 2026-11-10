@@ -21,8 +21,8 @@ Karty zmian (załącznik planu, zamrażany razem z nim): [konwencje](karty/00_KO
 | E9 | Tryb ciągły | ZREALIZOWANY 2026-11-10 | [PROMPT_ETAP_9.md](PROMPT_ETAP_9.md) | [karty](karty/E09_TRYB_CIAGLY.md); po E7; aneks D-93 |
 | E10 | Prompty etapów i rytuały | ZREALIZOWANY 2026-11-10 | [PROMPT_ETAP_10.md](PROMPT_ETAP_10.md) | [karty](karty/E10_PROMPTY_ETAPOW_I_RYTUALY.md) |
 | E11 | Proces i rejestry | ZREALIZOWANY 2026-11-10 | [PROMPT_ETAP_11.md](PROMPT_ETAP_11.md) | [karty](karty/E11_PROCES_I_REJESTRY.md); po E10; karta K-E4 po aneksie D-88 z E8 |
-| E12 | Mody: odporność i koszt | GOTOWY DO STARTU | [PROMPT_ETAP_12.md](PROMPT_ETAP_12.md) | [karty](karty/E12_MODY_ODPORNOSC.md) |
-| E13 | Mody: rdzeń i kopie | OCZEKUJE | — | [karty](karty/E13_MODY_RDZEN_I_KOPIE.md); po E12; kod zmienia tylko K-G2 — K-F4 i K-F5 rozstrzygnięte decyzją właściciela 2026-11-09 |
+| E12 | Mody: odporność i koszt | ZREALIZOWANY 2026-11-10 | [PROMPT_ETAP_12.md](PROMPT_ETAP_12.md) | [karty](karty/E12_MODY_ODPORNOSC.md) |
+| E13 | Mody: rdzeń i kopie | GOTOWY DO STARTU | [PROMPT_ETAP_13.md](PROMPT_ETAP_13.md) | [karty](karty/E13_MODY_RDZEN_I_KOPIE.md); po E12; kod zmienia tylko K-G2 — K-F4 i K-F5 rozstrzygnięte decyzją właściciela 2026-11-09 |
 | E14 | CI, liczebniki, wydanie i zamknięcie | OCZEKUJE | — | [karty](karty/E14_CI_I_WYDANIE.md); aneks D-40; jedyne wydanie planu |
 
 ## Bramki manualne
@@ -95,3 +95,8 @@ Karty zmian (załącznik planu, zamrażany razem z nim): [konwencje](karty/00_KO
   pięć kart (K-E6, K-C7, K-E2, K-E4, K-R11), rejestr 154 108 → 81 387 B z kopią
   `ARTEFAKTY_2026-11-10.md`, pętla K-C7 70 → 14 → 0, 6 nowych testów, `core/process` 430;
   E12 GOTOWY DO STARTU, wygenerowany `PROMPT_ETAP_12.md`.
+- 2026-11-10 — E12 ZREALIZOWANY (Codex, dwa przebiegi: testy, wdrożenie; poprawek po recenzji 0):
+  trzy karty (K-F3, K-F1, K-F2), testy modów 559 → 565 (mods 91, panel 217, progress 51,
+  cache-keeper 206), bramka manualna przeszła; trzy rozjazdy z kartą uznane przez Łukasza
+  (L-0313, komunikat silnika K-F3, komentarz `$.` w `inventory.ts`); E13 GOTOWY DO STARTU,
+  wygenerowany `PROMPT_ETAP_13.md`.

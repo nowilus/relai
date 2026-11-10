@@ -327,6 +327,26 @@ describe('the panel during a turn (Z4)', () => {
     expect(n.written.filter((p) => p.includes('/pomiary/')).length).toBe(1)
   })
 
+  test("after a turn the costs read only what moved: the other sessions' files stay in memory (audit F2)", async ($, on) => {
+    const { n, disk, clock } = world(on, { ...BASE, ...crewSession(4, 3, 40) })
+    const old = (p: string) => p.includes('/.claude/relai/pomiary/') && p.includes('-old-')
+    const ui = await open($, 'costs')
+    expect(n.read.filter(old).length).toBe(3)
+    const mark = n.read.length
+    await step($, 't1', 0)
+    await $.turn.complete({ answer: 'ok', durationMs: 1000, isAborted: false, turnId: 't1', reason: 'answer' } as never)
+    await clock.settle()
+    expect(textOf(await ui.drawn())).toContain('Suma sesji')
+    expect(n.read.filter(old).length).toBe(3)
+    const own = `${CWD}/.claude/relai/pomiary/${fileName(new Date(NOW), SESSION)}`
+    expect(n.read.slice(mark).filter((p) => p.includes('/.claude/relai/pomiary/') && p !== own)).toEqual([])
+    const grown = Object.keys(disk).find(old) ?? ''
+    disk[grown] = `${disk[grown] ?? ''}${disk[grown] ?? ''}`
+    await ui.press({ key: 'tab-costs' })
+    expect(n.read.filter(old)).toEqual([...n.read.filter(old).slice(0, 3), grown])
+    await ui.unmount()
+  })
+
   test('a write of the measurements that fails is said in the costs tab, never swallowed', async ($, on) => {
     const { broken } = world(on, BASE)
     broken.write = true

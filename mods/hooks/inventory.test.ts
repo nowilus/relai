@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'claude-code/testing'
 import {
   NO_FILES_NOTE, NO_KEY_NOTE, buildInventory, eventsWord, foldersOf, filesOf, headerOf, joinPath, parseInstalls,
-  plural, pluginPart, scriptOf, shorten, sourcesOf, summaryOf, userHooks,
+  plural, pluginPart, scriptOf, shorten, sourcesOf, summaryOf, userHooks, watchedPaths,
 } from './inventory'
 import type { DirEntry, InventoryInput, PluginFiles, PluginItem } from './inventory'
 
@@ -261,6 +261,18 @@ describe('inventory — edge cases (plan, section 8)', () => {
 })
 
 describe('inventory — paths (R6)', () => {
+  test("the memory watches installed_plugins.json, every settings file and the folder row's three, once each (audit F1)", () => {
+    expect(watchedPaths(HOME, CWD, parseInstalls(INSTALLED).installs)).toEqual([
+      'C:/Users/Ktos/.claude/plugins/installed_plugins.json',
+      'C:/Users/Ktos/.claude/settings.json',
+      'C:/Users/Ktos/Desktop/RelAI/.claude/settings.json',
+      'C:/Users/Ktos/Desktop/RelAI/.claude/settings.local.json',
+      'C:/Users/Ktos/Desktop/Parkly/.claude/settings.local.json',
+      'C:/Users/Ktos/Desktop/RelAI/.git',
+      'C:/Users/Ktos/Desktop/RelAI/.worktreeinclude',
+    ])
+  })
+
   test('backslashes and forward slashes join the same way', () => {
     expect(joinPath('C:\\a\\b\\', './c/d/')).toBe('C:/a/b/c/d')
     expect(joinPath('C:/a/b', 'c\\d')).toBe('C:/a/b/c/d')

@@ -51,6 +51,7 @@ import type { LimitRows, LimitWindow } from './pane-costs'
 import type { Action, Card, CardResult, CleanChoices, CrewDraft } from './core/decisions.mjs'
 import type { DocsData, PaneData } from './data'
 import { bump, epochNow, forget, remember } from './memo'
+import { forgetRecords, othersFrom } from './records-memo'
 import { CREW_DIR, FRESH, MEASURE_DIR, forgetPlan, readWork, relaiRoot } from './pane-io'
 import { focusOfPrompt, focusPath, isSameWork, parseFocus, serializeFocus } from './focus'
 import type { Focus, FocusTarget } from './focus'
@@ -235,7 +236,11 @@ async function projectRecords($: $T): Promise<{ current: Ledger, others: Measure
   const dir = join(S.cwd, MEASURE_DIR)
   const entries = (await $.fs.exists(dir).catch(() => false)) ? await $.fs.list(dir).catch(() => []) : []
   const others = entries.filter((x) => x.kind === 'file' && x.name.endsWith('.jsonl') && x.name !== current.name)
-  return { current, others: await Promise.all(others.map(async (x) => parseRecords(await readText($, join(dir, x.name))).records)) }
+  // A closed session's file from memory while its name, size and time stand (audit F2)
+  return { current, others: await othersFrom(others, async (name) => {
+    const text = await readText($, join(dir, name))
+    return text === null ? null : parseRecords(text).records
+  }) }
 }
 
 async function folders($: $T, rel: string): Promise<string[]> {
@@ -794,6 +799,7 @@ export const register: Register = (on) => {
     carried = null
     forget()
     forgetPlan()
+    forgetRecords()
     bump()
     // Registered everywhere, so outside RelAI the command can say so in one sentence (plan, section 8)
     await $.command.register({ name: 'relai-panel', description: 'Panel RelAI: formularze komend, ściąga i frazy sesji' }).catch(() => undefined)

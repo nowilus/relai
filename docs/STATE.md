@@ -17,7 +17,7 @@ bramka `pre-push` na tagi. Na maszynie Łukasza `relai`, `relai-panel` i `relai-
 są włączone na poziomie użytkownika, a w projektach z markerem RelAI także lokalnie (stan
 z `relai-scope.js status`, 2026-11-10); tryb „RelAI tylko w projektach” jest dostępny
 (`relai-scope.js apply`), ale nie jest włączony. Od 2026-11-09 aktywny jest plan OPTYMALIZACJA_PO_AUDYCIE (naprawy po audycie
-projektu; E1–E11 zrealizowane 2026-11-10, etap E12 gotowy do startu; E9–E13 wykonuje Codex wg Aneksu A). Poprzedni: KONTEKST_STARTU zamknięty 2026-10-28 (start sesji to jedno
+projektu; E1–E12 zrealizowane 2026-11-10, etap E13 gotowy do startu; E9–E13 wykonuje Codex wg Aneksu A). Poprzedni: KONTEKST_STARTU zamknięty 2026-10-28 (start sesji to jedno
 polecenie skrótu, RelAI po pierwszej turze 25–32 tys. tokenów zamiast ok. 72 tys. — cel 25 tys.
 częściowo), PANEL_CODEX (Codex) wstrzymany 2026-10-27 decyzją Łukasza.
 Opinii spoza projektu nadal nie ma.
@@ -158,7 +158,12 @@ Opinii spoza projektu nadal nie ma.
   zamiast 154 KB, z kopią `archiwum/artefakty/ARTEFAKTY_2026-11-10.md`; hook profilu dopasowuje
   wpis po pełnej ścieżce i pomija fikstury, ewaluacje, kopie Codeksa, `AGENTS.md`, `LICENCJE.md`;
   przegląd spraw podaje fakt z repozytorium, zamknięcie planu przepina linki (punkt 7a), reguła
-  Cursora z celem rotacji D-88; `core/process` 430 testów), E12 gotowy do startu** (plan
+  Cursora z celem rotacji D-88; `core/process` 430 testów), E12 zrealizowany 2026-11-10 (czwarty
+  etap w Codeksie, dwa przebiegi: panel agentów i kokpit `relai-mods` mówią, że się nie narysowały,
+  zamiast pustego panelu; kokpit rysuje z pamięci — seria klawiszy i tyknięcie bez odczytu treści
+  plików, tylko czasy; Koszty i Mapa po turze nie czytają plików zamkniętych sesji; testy modów
+  559 → 565, bramka manualna przeszła; mody do podbicia w E14: `relai-progress`, `relai-mods`,
+  `relai-panel`), E13 gotowy do startu** (plan
   [OPTYMALIZACJA_PO_AUDYCIE](plany/OPTYMALIZACJA_PO_AUDYCIE/STATUS.md), 14 etapów, wykonanie Opus 5.5
   medium w świeżych sesjach, gałąź `optymalizacja/po-audycie`, jedno wydanie na końcu). Źródło:
   [raport audytu](AUDYT_RELAI_2026-11-09.md) — 56 znalezisk, do naprawy wybrane 41 wysokiej

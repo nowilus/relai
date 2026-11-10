@@ -23,7 +23,7 @@ import { isFileOf, parseRecords } from './core/measure.mjs'
 import type { MeasureRecord } from './core/measure.mjs'
 import { PRICE_FILE, newest, parsePriceFile, priceAt, priceLists } from './core/pricing.mjs'
 import type { Version } from './core/pricing.mjs'
-import { BAND, BAR, BAR_LOOK } from './core/theme.mjs'
+import { BAND, BAR, BAR_LOOK, THEME } from './core/theme.mjs'
 import { join, tokens, usd } from './fmt'
 import { barCard, barRule } from './bar-card'
 import { stepRows } from './steps'
@@ -386,6 +386,20 @@ export const register: Register = (on) => {
       frame: await read($, cardFrame),
       onFrame: () => { update($, cardFrame, (x) => (x === 'draw' ? 'box' : 'draw')).catch(() => undefined) },
     }))
+  }).catch(async ($, e, next) => {
+    // A drawing that threw or overran its budget: the pane says so in words instead of the engine
+    // closing it without a word (audit F3, the pattern of relai-panel). Nothing read here: the read
+    // that failed would fail again; an agent's next step draws the pane anew by itself
+    if (e.surface === 'mobile') return next(e)
+    const { Box, Text } = $.ui.resolve(e)
+    const why = next.error.kind === 'timeout' ? 'liczył się dłużej, niż pozwala silnik' : next.error.message ?? 'nieznany błąd'
+    return retone(
+      <Box key="agents-error" flexDirection="column" rowGap={1}>
+        <Text key="agents-error-title" bold color={THEME.title}>{PANE_TITLE}</Text>
+        <Text key="agents-error-why" color={THEME.accentText}>{`⚠ Panel agentów nie narysował się: ${why}.`}</Text>
+        <Text key="agents-error-todo" color={THEME.body}>Narysuje się ponownie przy następnym kroku agenta. Jeśli komunikat zostaje, zamknij panel i otwórz go ponownie komendą /relai-agents.</Text>
+      </Box>,
+    )
   })
 
   // One band instance for every plugin: our card above whatever the plugins beneath draw, never

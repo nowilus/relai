@@ -3021,3 +3021,90 @@ recenzję i rytuał.
   zgłoszona na starcie sesji — poza zakresem etapu, do „kończymy na dziś”.
 
 **Do zrobienia przez człowieka:** —
+
+### 2026-11-10 — OPTYMALIZACJA_PO_AUDYCIE E12: mody mówią, że się nie narysowały, kokpit z pamięci, Koszty bez czytania zamkniętych sesji
+
+Autor: RelAI (Opus 5.5) + Lukasz
+
+Czwarty etap według Aneksu A, w dwóch przebiegach Codeksa (L-0316): (1) same testy z kart,
+(2) wdrożenie bez zmiany testów. Codex `gpt-6.1-terra`, effort `high` z `~/.codex/config.toml`
+(odczytany przed przebiegiem), przez `node core/process/crew.js run --runtime codex --role coder
+--write` z repozytorium. Claude (Opus 5.5) uruchamiał testy modów binarką sesji, recenzował diff,
+prowadził bramkę manualną i rytuał.
+
+**Zrobione:**
+
+- **K-F3:** `progress/hooks/register.tsx` i `mods/hooks/register.tsx` — gałąź `.catch` handlera
+  `ui.render` panelu agentów i kokpitu: tytuł, zdanie z przyczyną („⚠ Panel agentów nie narysował
+  się: …”, „⚠ Kokpit nie narysował listy: …”) i zdanie, co zrobić; bez odczytów, mobile → `next(e)`.
+- **K-F1:** `mods/hooks/inventory.ts` — czysta `watchedPaths`; `mods/hooks/register.tsx` — pamięć
+  `disk` (`readDisk`, `stampOf`, `forgetDisk`) kluczowana katalogiem domowym, `cwd`, polityką
+  i `mtimeMs:size` obserwowanych plików; trzy unieważnienia (`press`, `togglePane`,
+  `takeSnapshot`); `runOne`, `runScope`, `runScopeCall` bez zmian.
+- **K-F2:** nowy `panel/hooks/records-memo.ts` (`othersFrom`, `forgetRecords`, `fileKey`);
+  `panel/hooks/register.tsx` — `projectRecords` bierze rekordy zamkniętych sesji z pamięci,
+  `forgetRecords()` w `session.start`.
+- Sześć nowych testów i licznik `n` z czasem idącym za treścią w atrapie `Fake` kokpitu.
+
+**Zweryfikowane — jak dokładnie:**
+
+- K-0: gałąź `optymalizacja/po-audycie`, ostatni commit `d5768c4` (E11). Końce linii ośmiu plików
+  kart `i/lf w/lf` przed obydwoma przebiegami — normalizacja niepotrzebna.
+- Przed zmianą `"$CLAUDE_CODE_EXECPATH" plugin test` (claude-code 2.1.321): mods **87**, panel
+  **216**, progress **50**, cache-keeper **206**, wszystkie ` 0 fail`; `plugin validate` mods,
+  progress, panel → „✔ Validation passed”.
+- Przebieg 1 (testy): diff testów przeczytany w całości — wierny kartom, jedyna zmiana dawnego
+  kodu to atrapa `Fake`, asercje nietknięte. Na czerwono: K-F1 `Expected: { exists: 0, read: 0,
+  list: 0 }`, `Received: { exists: 225, read: 60, list: 10 }` (seria klawiszy) i `{ 45, 12, 2 }`
+  (tyknięcie) — liczby z prototypu karty; K-F2 `Expected: 3`, `Received: 6`; dawne zielone:
+  panel 216, progress 50.
+- **Rozjazd z kartą 1 (L-0313, nazwany wyjątek Łukasza):** `inventory.test.ts` nie załadował się
+  („Export named 'watchedPaths' not found”), więc padł razem z 24 dawnymi testami pliku (mods
+  63 pass / 4 fail zamiast 87 + 3 czerwone). Łukasz uznał błąd ładowania za czerwień tego jednego
+  przypadku; po przebiegu 2 plik ładuje się w całości.
+- **Rozjazd z kartą 2:** oba testy K-F3 czerwone z właściwego powodu (pusty panel), ale silnik
+  2.1.321 zgłasza „relai-…'s ui.render hook was skipped: …: $.state.get: stan niedostępny”, nie
+  `HooksError: no implementation for ui.render` z prototypu 2026-11-09 (asercja: `Received:
+  undefined` w kokpicie, `Received: ""` w panelu agentów).
+- Przebieg 2 (wdrożenie): diff logiki = kod kart, bez odchyleń; liczby diffu testów identyczne
+  jak po przebiegu 1 (AX2 nie wystąpiło). Po zmianie: mods **91**, panel **217**, progress **51**,
+  cache-keeper **206** — razem 565, ` 0 fail`. `plugin validate` trzech modów → „✔ Validation
+  passed”; linie `state writes` / `state reads` raportu `mods` przed i po identyczne (`diff` pusty).
+- `node --test "core/panel/tests/*.test.*"` → 225 pass; `core/process` → 430 pass, 0 fail.
+- Dowód efektu (zasada 4) w zielonych testach: kokpit — przyrost `{ exists: 0, read: 0, list: 0 }`
+  na serię klawiszy i na tyknięcie, `stat` > 0, po zapisie z innego czatu `read` > 0 i pasek
+  „⟳ 1 zmiana czeka na przeładowanie”; Koszty — po turze 0 odczytów innych sesji, plik
+  o zmienionym rozmiarze czytany raz.
+- Granice: Grep `\$\.` w `panel/hooks/records-memo.ts` → 0; w `mods/hooks/inventory.ts` → 1 —
+  **rozjazd 3**: komentarz z `main` (l. 328, `($.settings.read({ source: 'policy' }))`), którego etap
+  nie dotknął; wywołań `$` w kodzie brak. Łukasz uznał punkt co do istoty. `git diff --stat` plików
+  spoza zakresu (`core/panel`, `cache-keeper`, `views.tsx`, `cockpit.ts`, `look.ts`,
+  `pane-agents.tsx`, `tab-data.ts`, `memo.ts`, `pane-io.ts`), manifestów i `package.json`/lock → pusty.
+- Bezpieczeństwo: `trivy fs --scanners vuln .` → 0 CRITICAL, 42 HIGH, 50 MEDIUM, 12 LOW — bez
+  nowych wobec E11. Dodane linie z `fs\.write|\.request\(|fetch\(` → 0 (jedno trafienie całego
+  diffu to linia kontekstu atrapy testu).
+- **Bramka manualna (Łukasz, kroki 1–7 karty):** zwykłe okno PowerShell, `--settings` z wyłączonymi
+  zainstalowanymi modami, trzy `--plugin-dir`. Wynik Łukasza: „Wszystko było poprawnie” — kokpit
+  zawęża listę po każdej literze i nie miga, przełącznik daje i zdejmuje pasek „⟳ 1 zmiana…”,
+  panel agentów „● działa” → „✓ zakończony”, Koszty rosną o koszt tury, Mapa się rysuje.
+- Katalog roboczy `.claude/relai/work/OPTYMALIZACJA_PO_AUDYCIE/E12/`: przed 21 plików, 276 KB;
+  przebiegi `.claude/relai/work/CREW/2026-11-10_184342` i `_185007` — 10 plików, ok. 776 KB; po
+  „tak” Łukasza skasowane — po 0. Poza katalogiem: `%TEMP%/relai-e12-settings.json` — skasował
+  Łukasz w kroku 7 (sprawdzone: brak pliku); `mods/tsconfig.json` wygenerowany przez
+  `claude --plugin-dir .\mods` o 19:30 w bramce (nieśledzony, treść `extends`
+  `./.claude-plugin/types/tsconfig.json`) — usunięty przez Claude.
+- **Pomiar Aneksu A:** dwa przebiegi Codeksa, poprawek po recenzji 0 — cel aneksu drugi raz z rzędu.
+- Ryzyka: C1 i C8 (API modów, pasek nad promptem) — bez zmian, etap nie dotyka paska; AX1
+  (`crew.js` z repozytorium), AX2, AX3 (`git status` tylko pliki kart), AX6 — nie wystąpiły.
+
+**Świadomie odłożone:**
+
+- `mods/tsconfig.json` nie stoi w `.gitignore`, a `panel/tsconfig.json` i `progress/tsconfig.json`
+  stoją (l. 23, 25) — każda sesja z `--plugin-dir .\mods` zostawia nieśledzony plik. Poza kartami
+  E12; kandydat do E13/E14 albo odnogi.
+- Rotacja `docs/DZIENNIK.md` i `docs/LEKCJE.md` (ponad progami) — do „kończymy na dziś”.
+
+**Do zrobienia przez człowieka:** —
+
+Mody do podbicia w E14 (pola „Gotowe, gdy”): `relai-progress` (K-F3), `relai-mods` (K-F3, K-F1),
+`relai-panel` (K-F2).

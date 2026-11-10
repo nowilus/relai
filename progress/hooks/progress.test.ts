@@ -708,6 +708,27 @@ describe('the agents pane', () => {
     await ui.unmount()
   })
 
+  test('a drawing that throws says so in the pane, never an empty pane (audit F3)', async ($, on) => {
+    let isBroken = false
+    const isFoldedGroups = (e: unknown) => (e as { plugin?: string }).plugin === 'relai-progress' && (e as { key?: string }).key === 'foldedGroups'
+    on('state.get', ($, e, next) => (isBroken && isFoldedGroups(e) ? { deny: 'stan niedostępny' } as never : next(e)))
+    world(on, FILES)
+    await start($)
+    await spawn($)
+    const healthy = await $.ui.mount({ plugin: 'relai-progress', surface: 'desktop', ...PANE() })
+    expect(await healthy.find({ key: `agent-${AGENT}` })).toBeTruthy()
+    await healthy.unmount()
+    isBroken = true
+    for (const surface of ['desktop', 'terminal'] as const) {
+      const ui = await $.ui.mount({ plugin: 'relai-progress', surface, ...PANE() })
+      const text = textOf(await ui.drawn())
+      expect(text).toContain('⚠ Panel agentów nie narysował się')
+      expect(text).toContain('stan niedostępny')
+      expect(text).toContain('/relai-agents')
+      await ui.unmount()
+    }
+  })
+
   test('an agent on a model outside the price list is "brak ceny", not "brak pomiaru" (live 2026-10-09)', async ($, on) => {
     const sonnet = (index: number) => rec(AGENT, index, 100, 50).replace('claude-opus-5-5', 'claude-sonnet-5-5')
     world(on, { ...FILES, [MEASURE]: [sonnet(0), sonnet(1)].join('\n') + '\n' })

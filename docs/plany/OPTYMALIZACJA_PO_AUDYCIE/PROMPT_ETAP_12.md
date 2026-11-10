@@ -173,48 +173,48 @@ aneks czy „świadomie odłożone”.
 Każdy punkt Weryfikacji, który przeszedł, odhaczasz w `PROMPT_ETAP_12.md` (`- [ ]` → `- [x]`)
 zaraz po jego sprawdzeniu, nie na końcu etapu; punkt, który nie przeszedł, zostaje pusty.
 
-- [ ] K-0 (konwencje, sekcja 3): `git branch --show-current` → `optymalizacja/po-audycie`;
+- [x] K-0 (konwencje, sekcja 3): `git branch --show-current` → `optymalizacja/po-audycie`;
       `git log --oneline -1` pokazuje commit E11 (albo człowiek rozstrzygnął, co z drzewem).
-- [ ] Przed zmianą: `"$CLAUDE_CODE_EXECPATH" plugin test` → mods 87, panel 216, progress 50,
+- [x] Przed zmianą: `"$CLAUDE_CODE_EXECPATH" plugin test` → mods 87, panel 216, progress 50,
       cache-keeper 206, wszystkie ` 0 fail` (inna liczba → zatrzymujesz się i pytasz).
-- [ ] Testy przed zmianą (przebieg zapisany w katalogu roboczym, diff testów przeczytany w całości
+- [x] Testy przed zmianą (przebieg zapisany w katalogu roboczym, diff testów przeczytany w całości
       i zgodny z kartami): mods — 3 nowe czerwone z asercji albo z `HooksError` wg karty (K-F3 1,
       K-F1 2) i 87 dawnych zielonych; `inventory.test.ts` nowy przypadek czerwony z asercji (albo
       rozstrzygnięcie człowieka wg L-0313); progress 1 czerwony (`HooksError: no implementation
       for ui.render`), 50 zielonych; panel 1 czerwony (`Expected: 3`, `Received: 6`), 216 zielonych.
-- [ ] Po zmianie: `plugin test mods` → ` 91 pass`, ` 0 fail`; `panel` → ` 217 pass`; `progress` →
+- [x] Po zmianie: `plugin test mods` → ` 91 pass`, ` 0 fail`; `panel` → ` 217 pass`; `progress` →
       ` 51 pass`; `cache-keeper` → ` 206 pass` — łącznie 565.
-- [ ] `plugin validate mods`, `plugin validate progress`, `plugin validate panel` → „✔ Validation
+- [x] `plugin validate mods`, `plugin validate progress`, `plugin validate panel` → „✔ Validation
       passed”; lista kluczy stanu w raporcie `mods` (`state writes`, `state reads`) identyczna jak
       przed zmianą (dowód negatywny K-F1: pamięć nie jest stanem silnika).
-- [ ] `node --test "core/panel/tests/*.test.*"` → 225 pass; `node --test "core/process/tests/*.test.*"`
+- [x] `node --test "core/panel/tests/*.test.*"` → 225 pass; `node --test "core/process/tests/*.test.*"`
       → 430 pass, 0 fail (bez zmian).
-- [ ] Dowód efektu (zasada 4): test K-F1 pokazuje przyrost `{ exists: 0, read: 0, list: 0 }` na
+- [x] Dowód efektu (zasada 4): test K-F1 pokazuje przyrost `{ exists: 0, read: 0, list: 0 }` na
       serię klawiszy i tyknięcie bez zmian, `stat` > 0, a po zmianie z innego czatu `read` > 0
       (kontrola pozytywna); test K-F2 — po turze 0 odczytów innych sesji, plik o zmienionym
       rozmiarze czytany raz (kontrola pozytywna).
-- [ ] Granice API modów: narzędziem Grep (nie przez powłokę — zasada 5) wzorzec `\$\.` w
+- [x] Granice API modów: narzędziem Grep (nie przez powłokę — zasada 5) wzorzec `\$\.` w
       `mods/hooks/inventory.ts` i `panel/hooks/records-memo.ts` → 0 trafień (P-023 pkt 10); `git diff --stat -- core/panel cache-keeper mods/hooks/views.tsx
       mods/hooks/cockpit.ts mods/hooks/look.ts progress/hooks/pane-agents.tsx panel/hooks/tab-data.ts
       panel/hooks/memo.ts panel/hooks/pane-io.ts` → pusty; manifesty modów bez zmian
       (`git diff --stat -- "*/plugin.json" "*marketplace.json"` → pusty).
-- [ ] Bramka manualna (karta E12, kroki 1–7): człowiek opisał kroki 3–6 — kokpit zawęża listę po
+- [x] Bramka manualna (karta E12, kroki 1–7): człowiek opisał kroki 3–6 — kokpit zawęża listę po
       każdej literze bez opóźnienia i nie miga przez 15 s, przełącznik daje pasek „⟳ 1 zmiana czeka
       na przeładowanie” i znika po ponownym naciśnięciu, panel agentów pokazuje kartę „● działa” →
       „✓ zakończony”, Koszty po turze rosną o koszt tury, Mapa się rysuje. Opis do wpisu dziennika.
-- [ ] Bezpieczeństwo (etap zmienia hooki modów czytające dysk): `trivy fs --scanners vuln .` →
+- [x] Bezpieczeństwo (etap zmienia hooki modów czytające dysk): `trivy fs --scanners vuln .` →
       0 nowych CRITICAL i HIGH wobec wpisu E11 (zastane: 0 CRITICAL, 42 HIGH); etap nie dodaje
       zależności (`git diff --stat -- "*package.json" "*lock*"` → pusty). Zapas bez Trivy:
       `npm audit --omit=dev` w katalogu każdego śledzonego `package.json` modu, wynik do wpisu.
       Kod nie dokłada zapisu ani sieci: `git diff -- mods progress panel | grep -cE
       "fs\.write|\.request\(|fetch\("` → 0.
-- [ ] Granica: `git status --short` pokazuje z tego etapu wyłącznie osiem plików z pól „Pliki” trzech
+- [x] Granica: `git status --short` pokazuje z tego etapu wyłącznie osiem plików z pól „Pliki” trzech
       kart i dokumenty rytuału (`STATUS.md`, `PROMPT_ETAP_12.md`, `PROMPT_ETAP_13.md`,
       `DZIENNIK.md`, `STATE.md`, ewentualnie `LEKCJE.md`).
-- [ ] Wpis etapu jest na końcu sekcji „Wpisy” w `docs/DZIENNIK.md`, z liczbami testów modów przed
+- [x] Wpis etapu jest na końcu sekcji „Wpisy” w `docs/DZIENNIK.md`, z liczbami testów modów przed
       i po, liczbą przebiegów Codeksa (cel aneksu: 2, poprawek 0), wynikiem bramki manualnej, listą
       modów do podbicia w E14 i podpisem `Autor: RelAI (Opus 5.5) + Lukasz`.
-- [ ] Katalog roboczy: (a) `.claude/relai/work/OPTYMALIZACJA_PO_AUDYCIE/E12/` i przebiegi
+- [x] Katalog roboczy: (a) `.claude/relai/work/OPTYMALIZACJA_PO_AUDYCIE/E12/` i przebiegi
       `.claude/relai/work/CREW/` tego etapu przejrzane (`node .claude/relai/tools/clean-work.js
       raport`; katalog otwartego etapu raport pomija — wtedy liczby z `find`/`du`) i skasowane po
       „tak”, liczby przed i po we wpisie dziennika; (b) artefakty spoza katalogu wypisane z nazwy
