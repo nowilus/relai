@@ -19,6 +19,10 @@ Gdy spełnione są **wszystkie trzy** warunki:
 2. blok **nie** kończy się linią „Sesja nieinteraktywna",
 3. sesja jest interaktywna.
 
+Pierwsza wiadomość sesji jest wywołaniem komendy (zaczyna się od `/`) → pytania odkładasz do
+pierwszej wiadomości, która komendą nie jest; komenda idzie pierwsza i jej zakazy zapisu
+obowiązują do jej końca.
+
 ## Jak pytasz
 
 Przed akapitem „gdzie jesteśmy", narzędziem `AskUserQuestion`, **partiami po cztery sprawy**, aż

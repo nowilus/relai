@@ -224,7 +224,10 @@ function onSessionStart(input) {
   } else {
     out.push('Ten folder to projekt RelAI. Zanim odpowiesz merytorycznie, wykonaj rytual startu sesji: ' +
       'uruchom ' + core.POLECENIE_SKROTU + ' i przeczytaj jego wyjscie (CLAUDE.md masz juz w kontekscie), ' +
-      'potem napisz akapit "gdzie jestesmy". Jesli dostepny jest skill relai-core, wywolaj go — ' +
+      'potem napisz akapit "gdzie jestesmy". ' +
+      'Wyjatek: gdy pierwsza wiadomosc sesji jest wywolaniem komendy (zaczyna sie od "/"), ' +
+      'najpierw wykonujesz komende, a rytual startu odkladasz do pierwszej wiadomosci, ktora komenda nie jest. ' +
+      'Jesli dostepny jest skill relai-core, wywolaj go — ' +
       'ta instrukcja obowiazuje takze wtedy, gdy skill sie nie wyzwolil.');
   }
   // Aneks J (E6 PROWADZENIE_END_TO_END): Sonnet 5 pomija wywolanie skilla z linii wyzej (0/7

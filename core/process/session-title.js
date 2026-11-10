@@ -18,7 +18,9 @@ const { pathToFileURL } = require('url');
 const PANEL_CORE = path.join(__dirname, '..', 'panel');
 
 // Closed list (rule 7): the whole prompt, case and trailing punctuation aside
-const PHRASES = new Set(['kontynuujemy pracę', 'kontynuuj', 'tak', "let's continue", 'continue', 'yes']);
+// The session phrases have one list, in prompt-mode.js (K-B2 d); the short confirmations stay here.
+const { normalizuj, FRAZY_KONTYNUACJI } = require('./prompt-mode.js');
+const PHRASES = new Set([...FRAZY_KONTYNUACJI, 'kontynuuj', 'tak', 'continue', 'yes']);
 // The resume prompt of relai-cache-keeper (handoff.ts, relaiResumePrompt) and its consent line
 const RESUME_LINE = /^kontynuujemy pracę — plik wznowienia: \S.*$/;
 const RESUME_CONSENT = /^Zgoda na skasowanie pliku wznowienia po wznowieniu: tak\b/;
@@ -32,14 +34,10 @@ const HANDOFF_TTL_MS = 10 * 60_000;
 const STATE_HEADING = /^##\s+Nad czym pracujemy\b/;
 const STATE_PLAN = /^([A-Z][A-Z0-9_]*),\s*(E\d+)\s+[—–-]\s+(.+)$/;
 
-function bare(text) {
-  return String(text || '').trim().toLocaleLowerCase('pl').replace(/[.!…]+$/u, '').trim();
-}
-
 /** @param {string} prompt */
 function isContinuation(prompt) {
   const text = String(prompt || '').trim();
-  if (PHRASES.has(bare(text))) return true;
+  if (PHRASES.has(normalizuj(text))) return true;
   const lines = text.split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
   if (lines.length === 0 || !RESUME_LINE.test(lines[0])) return false;
   return lines.slice(1).every((l) => RESUME_CONSENT.test(l));

@@ -84,7 +84,7 @@ użytkownik sam prosi o RelAI w folderze bez markera.
 
 ## Stan PROJEKT RELAI — rytuał startu sesji
 
-Nie inicjalizuj niczego drugi raz. Wykonaj **rytuał startu** — raz na sesję, przed pierwszą merytoryczną odpowiedzią.
+Nie inicjalizuj niczego drugi raz. Wykonaj **rytuał startu** — raz na sesję, przed pierwszą merytoryczną odpowiedzią. Pierwsza wiadomość sesji jest wywołaniem komendy (zaczyna się od `/`) → najpierw wykonujesz komendę; rytuał startu i przegląd spraw przeterminowanych odkładasz do pierwszej wiadomości, która komendą nie jest.
 
 ### Skrót startu (jedno polecenie, nic poza nim)
 

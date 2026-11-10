@@ -29,6 +29,7 @@ o gotowości wydania z jej liczbą plików i komponentami; puste wyjście → ni
 `Przegląd spraw człowieka` w [docs/USTAWIENIA.md](docs/USTAWIENIA.md), domyślnie 30) wymusza
 decyzję **przed** akapitem „gdzie jesteśmy": pytasz partiami po cztery — zamknąć / odroczyć
 o kolejne `N` dni / rozstrzygnąć teraz. Sesja nieinteraktywna: sam raport, bez pytań — rozpoznajesz ją z kontekstu (`claude -p`, agent w tle); żaden hook jej nie sygnalizuje.
+Pierwsza wiadomość sesji to komenda (zaczyna się od `/`) → najpierw komenda; rytuał startu i ten przegląd czekają na pierwszą wiadomość, która komendą nie jest.
 
 ## Stan prac
 

@@ -24,17 +24,20 @@ przerobienia. Wykonujesz zapis, meldujesz **jednym zdaniem** i kończysz — nic
 
 | Argument | Co zapisujesz | Skutek |
 |---|---|---|
-| `on` | wiersz `Tryb ciągły` = `włączony` w `docs/USTAWIENIA.md` | tryb dostępny w tym projekcie; o zgodę na sesję i tak pyta bramka |
+| `on` | wiersz `Tryb ciągły` = `włączony` w `docs/USTAWIENIA.md` | tryb dostępny w tym projekcie; o zgodę na sesję pyta bramka. Gdy `~/.claude/relai/USTAWIENIA.md` ma wiersz `Zgoda na optymalizator` = `nie`, tryb dalej milczy — mówisz to w tym samym zdaniu meldunku i wskazujesz `on --globalnie` |
 | `off` | wiersz `Tryb ciągły` = `wyłączony` w `docs/USTAWIENIA.md` | tryb milczy w tym projekcie, ustawienia globalne bez zmian |
-| `off --globalnie` | wiersz `Zgoda na optymalizator` = `nie` w `~/.claude/relai/USTAWIENIA.md` | zgoda na stałe cofnięta; bramka pyta od nowa w każdej sesji |
-| `on --globalnie` | wiersz `Zgoda na optymalizator` = `tak` z dzisiejszą datą w `~/.claude/relai/USTAWIENIA.md` | bramka przestaje pytać; przypomnienie wraca po progu z członu `· przypomnienie co N dni` (domyślnie 30) |
+| `off --globalnie` | wiersz `Zgoda na optymalizator` = `nie` z dzisiejszą datą w `~/.claude/relai/USTAWIENIA.md`; istniejący wiersz nadpisujesz | trwała odmowa: tryb milczy we wszystkich projektach i bramka nie pyta — to samo co odpowiedź „nie i nie pytaj więcej” w bramce |
+| `on --globalnie` | wiersz `Zgoda na optymalizator` = `tak` z dzisiejszą datą w `~/.claude/relai/USTAWIENIA.md`; istniejący wiersz nadpisujesz | bramka przestaje pytać, tryb działa w projektach z włączonym wierszem; przypomnienie wraca po progu z członu `· przypomnienie co N dni` (domyślnie 30) |
 
 Brak pliku ustawień w projekcie przy `on`/`off` → powiedz **jednym zdaniem**, że ten folder nie jest
 projektem RelAI, więc przełącznika nie ma gdzie zapisać. Nie zakładasz struktury przy okazji.
 
-`off --globalnie` **nie wyłącza** trybu w projektach — kasuje wyłącznie zgodę „nie pytaj więcej".
-Te dwie warstwy są rozdzielone świadomie: projekt mówi, czy tryb jest dostępny, człowiek mówi, czy
-w tej sesji ma działać.
+Wiersz projektu i wiersz globalny są rozdzielone świadomie: projekt mówi, czy tryb jest
+dostępny, człowiek mówi, czy ma działać. `off --globalnie` nie zmienia wiersza `Tryb ciągły`
+w żadnym projekcie. Powrót do pytania bramki w każdej sesji to usunięcie wiersza `Zgoda na
+optymalizator` — osobnego przełącznika na to nie ma. Decyzja zapisana wcześniej w tej sesji
+(plik `.claude/relai/zgoda-promptu/<id sesji>.json`) rozstrzyga do końca tej sesji, nowy wiersz
+globalny — od następnej; mówisz to w meldunku po `off --globalnie` i `on --globalnie`.
 
 ## Krok 0 — czy jest co przerabiać
 
@@ -150,21 +153,27 @@ rdzeń reguł, i mówisz o tym pół zdaniem. Kroków nie odtwarzasz z pamięci 
 
 Ta sama procedura ma drugie wejście: **tryb ciągły**, włączany wierszem `Tryb ciągły`
 w `docs/USTAWIENIA.md`. Gdy jest włączony, każdy prompt merytoryczny wraca najpierw z propozycją
-i oryginałem obok — bez wpisywania komendy. Nietknięte przechodzą: wywołania komend (tekst
-zaczynający się od `/`), frazy sesji, krótkie potwierdzenia i pytania.
+i oryginałem obok — bez wpisywania komendy. Nietknięte przechodzą: wywołania komend (`/` i nazwa
+komendy — ścieżka `/c/Users/…` komendą nie jest), frazy sesji, krótkie potwierdzenia — także
+przyjęcie propozycji, czyli prompt złożony wyłącznie ze słów potwierdzenia („wykonaj propozycję”,
+„tak, wykonaj”, „opcja B”) — i pytania; prompt zaczęty od „czy”, „jak”, „kiedy”, „do”, „is”, „can”
+jest pytaniem tylko ze znakiem zapytania na końcu.
 
 **Bramka zgody.** Włączony wiersz znaczy „tryb jest dostępny", a nie „tryb działa bez
-pytania". Bramka ma **dwa kroki**. Pierwszy prompt merytoryczny sesji wraca **pytaniem o trzy
-opcje i nic więcej**: tak w tej sesji / tak i nie pytaj więcej (zapis globalny) / nie. Odpowiedź
-zapisuje się od razu — sesyjna do `.claude/relai/zgoda-promptu/<id sesji>.json` (osobny plik na
-sesję, więc nie przecieka do następnej), trwała wierszem `Zgoda na optymalizator`
-w `~/.claude/relai/USTAWIENIA.md`. Odpowiedź „nie" wycisza tryb do końca sesji i wraca dopiero
-w następnej — bez kolejnych pytań i bez czytania procedury. Po „tak” pada **drugie, osobne
+pytania". Bramka ma **dwa kroki**. Pierwszy prompt merytoryczny sesji wraca **pytaniem o cztery
+opcje i nic więcej**: tak w tej sesji / tak i nie pytaj więcej (zapis globalny) / nie w tej sesji /
+nie i nie pytaj więcej (zapis globalny). Odpowiedź zapisuje się od razu — każda do
+`.claude/relai/zgoda-promptu/<id sesji>.json` (osobny plik na sesję, więc nie przecieka do następnej),
+obie trwałe dodatkowo wierszem `Zgoda na optymalizator` w `~/.claude/relai/USTAWIENIA.md`.
+„Nie w tej sesji” wycisza tryb do końca sesji i wraca w następnej; „nie i nie pytaj więcej” wycisza
+go we wszystkich projektach, dopóki człowiek nie zmieni wiersza albo nie wywoła
+`/relai-prompt on --globalnie`. Po obu „nie” — bez kolejnych pytań i bez czytania procedury.
+Po „tak” pada **drugie, osobne
 pytanie** o model i zasięg (Krok 1), chyba że model jest już znany: z pliku tej sesji albo z wiersza
 z członem `· nie pytaj`. Potem sesja przygotowuje wywołanie (`PRZYGOTOWANIE.md`) i oddaje prompt
 agentowi; przy `model sesji` przerabia go sama. Przy zgodzie trwałej start sesji
-przypomina o niej raz na `N` dni (człon `· przypomnienie co N dni`, domyślnie 30), a wyłącza ją
-`/relai-prompt off --globalnie`.
+przypomina o niej raz na `N` dni (człon `· przypomnienie co N dni`, domyślnie 30), a
+`/relai-prompt off --globalnie` zamienia ją w trwałą odmowę.
 
 Tryb ciągły **istnieje wyłącznie w Claude Code**, bo tylko dla tego narzędzia został w RelAI
 zmierzony i zbudowany nośnik. W **Cursorze i Codeksie** komenda działa normalnie, a trybu nie ma:
@@ -216,4 +225,5 @@ człowieka, człon `· nie pytaj` i plik zgody na sesję (`.claude/relai/zgoda-p
 zamiast wspólnego `zgoda-promptu.json`) — od 2.3.1; model docelowy i nakładka rodziny — od 2.6.0;
 pytanie o model w jednym oknie z bramką zgody — od 2.7.0, odwrócone w KONTEKST_STARTU E3: bramka
 w dwóch krokach, wybór „ta sesja” w pliku zgody sesji, kroki 1b–11 w plikach doczytywanych
-(`PRZYGOTOWANIE.md`, `PROCEDURA.md`).
+(`PRZYGOTOWANIE.md`, `PROCEDURA.md`). Czwarta opcja bramki (trwała odmowa) — od planu
+OPTYMALIZACJA_PO_AUDYCIE, E9.

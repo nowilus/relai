@@ -1791,7 +1791,11 @@ function sprawyPrzeterminowaneReport(miara, opcje) {
   out.push('ZADANIE: przed akapitem "gdzie jestesmy" zadaj pytanie o te sprawy PARTIAMI PO CZTERY, ' +
     'az do wyczerpania listy. Kazda sprawa ma trzy realne wybory: zamknac (adnotacja ' +
     'rozstrzygniecia), odroczyc o kolejne ' + miara.N + ' dni (adnotacja odroczenia z licznikiem) ' +
-    'albo rozstrzygnac teraz. Procedura: plik overdue-review.md skilla relai-core. ' +
+    'albo rozstrzygnac teraz. ' +
+    'Gdy pierwsza wiadomosc sesji jest wywolaniem komendy (zaczyna sie od "/"), najpierw ' +
+    'wykonujesz komende, a ten przeglad odkladasz razem z rytualem startu do pierwszej ' +
+    'wiadomosci, ktora komenda nie jest. ' +
+    'Procedura: plik overdue-review.md skilla relai-core. ' +
     'Wylacznik i wartosc N: wiersz "Przeglad spraw czlowieka" w ' +
     'docs/USTAWIENIA.md — osobny od rotacji.');
   return out;

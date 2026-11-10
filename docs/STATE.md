@@ -17,7 +17,7 @@ bramka `pre-push` na tagi. Na maszynie Łukasza `relai`, `relai-panel` i `relai-
 są włączone na poziomie użytkownika, a w projektach z markerem RelAI także lokalnie (stan
 z `relai-scope.js status`, 2026-11-10); tryb „RelAI tylko w projektach” jest dostępny
 (`relai-scope.js apply`), ale nie jest włączony. Od 2026-11-09 aktywny jest plan OPTYMALIZACJA_PO_AUDYCIE (naprawy po audycie
-projektu; E1–E8 zrealizowane 2026-11-10, etap E9 gotowy do startu). Poprzedni: KONTEKST_STARTU zamknięty 2026-10-28 (start sesji to jedno
+projektu; E1–E9 zrealizowane 2026-11-10, etap E10 gotowy do startu; E9–E13 wykonuje Codex wg Aneksu A). Poprzedni: KONTEKST_STARTU zamknięty 2026-10-28 (start sesji to jedno
 polecenie skrótu, RelAI po pierwszej turze 25–32 tys. tokenów zamiast ok. 72 tys. — cel 25 tys.
 częściowo), PANEL_CODEX (Codex) wstrzymany 2026-10-27 decyzją Łukasza.
 Opinii spoza projektu nadal nie ma.
@@ -144,7 +144,12 @@ Opinii spoza projektu nadal nie ma.
   „Czeka na człowieka”, sprawy przeterminowane zgłasza hook startu trzech adapterów, także
   Codeksa; aneks D-88: próg lekcji w KB bez „Zasad aktywnych”, sekcja ryzyk bez zamkniętych bez
   komunikatu na starcie i w `rotate.js`; wiersz „Model optymalizatora” = Sonnet 5.5 z listy
-  z 2026-11-10; `core/process` 409 testów), E9 gotowy do startu** (plan
+  z 2026-11-10; `core/process` 409 testów), E9 zrealizowany 2026-11-10 (pierwszy etap w Codeksie
+  wg Aneksu A: bramka trybu ciągłego z czwartą opcją „nie i nie pytaj więcej” i
+  `off --globalnie` jako trwała odmowa, aneks D-93; filtr przepuszcza przyjęcie propozycji,
+  słowa dwuznaczne liczą się jako pytanie tylko z pytajnikiem, ścieżka nie jest komendą, jedna
+  lista fraz sesji z `gotowi do wydania`; sesja zaczęta komendą odkłada rytuał i przegląd spraw;
+  `core/process` 421 testów), E10 gotowy do startu** (plan
   [OPTYMALIZACJA_PO_AUDYCIE](plany/OPTYMALIZACJA_PO_AUDYCIE/STATUS.md), 14 etapów, wykonanie Opus 5.5
   medium w świeżych sesjach, gałąź `optymalizacja/po-audycie`, jedno wydanie na końcu). Źródło:
   [raport audytu](AUDYT_RELAI_2026-11-09.md) — 56 znalezisk, do naprawy wybrane 41 wysokiej

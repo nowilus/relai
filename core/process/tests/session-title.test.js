@@ -50,6 +50,18 @@ function args(over) {
 
 // ---------- zamknieta lista fraz ----------
 
+test('session phrases come from one list shared with prompt-mode (K-B2)', () => {
+  const tryb = require('../prompt-mode.js');
+  assert.ok(Array.isArray(tryb.FRAZY_KONTYNUACJI), 'FRAZY_KONTYNUACJI must be exported');
+  assert.ok(tryb.FRAZY_KONTYNUACJI.length > 0);
+  for (const fraza of tryb.FRAZY_KONTYNUACJI) {
+    assert.equal(st.isContinuation(fraza), true, fraza);
+    assert.equal(tryb.powodPominiecia(fraza), 'fraza sesji', fraza);
+  }
+  assert.equal(st.isContinuation('Let’s continue'), true);
+  assert.equal(st.isContinuation('kontynuujemy pracę…'), true);
+});
+
 test('kazda fraza z zamknietej listy jest kontynuacja (kontrola pozytywna)', () => {
   for (const p of ['kontynuujemy pracę', 'Kontynuujemy pracę.', '  kontynuuj ', 'tak', 'Tak!', "let's continue", 'continue', 'yes',
     'kontynuujemy pracę — plik wznowienia: .claude/relai/wznowienie/relai.md\nZgoda na skasowanie pliku wznowienia po wznowieniu: tak (karta „Wznów pracę”).',

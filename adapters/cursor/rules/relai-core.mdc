@@ -20,6 +20,8 @@ user already declined RelAI in this folder. Never propose it again, in any sessi
 ## 1. Session start ritual — before your first substantive answer
 
 Run `node .claude/relai/tools/start-digest.js` and read its output — that is the whole start read.
+When the first message of the session is a command call (it starts with `/`), run the command first;
+the start ritual and the overdue review below wait for the first message that is not a command.
 The digest carries, from `docs/STATE.md`, "Gdzie jesteśmy", "Nad czym pracujemy teraz", "Co
 blokuje" and the first point of "Co dalej"; the risk table without the "Mitygacja" column; the last
 journal entry (not "Czeka na człowieka": the start hook reports overdue items); the active rows of

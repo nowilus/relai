@@ -18,8 +18,8 @@ Karty zmian (załącznik planu, zamrażany razem z nim): [konwencje](karty/00_KO
 | E6 | Adaptery i załoga | ZREALIZOWANY 2026-11-10 | [PROMPT_ETAP_6.md](PROMPT_ETAP_6.md) | [karty](karty/E06_ADAPTERY_I_ZALOGA.md) |
 | E7 | Koszt hooka startu | ZREALIZOWANY 2026-11-10 | [PROMPT_ETAP_7.md](PROMPT_ETAP_7.md) | [karty](karty/E07_KOSZT_HOOKA_STARTU.md); karta K-A6 zależy od werdyktu z E2 |
 | E8 | Skrót startu, progi i lista modeli | ZREALIZOWANY 2026-11-10 | [PROMPT_ETAP_8.md](PROMPT_ETAP_8.md) | [karty](karty/E08_SKROT_PROGI_MODELE.md); aneks D-88 |
-| E9 | Tryb ciągły | GOTOWY DO STARTU | [PROMPT_ETAP_9.md](PROMPT_ETAP_9.md) | [karty](karty/E09_TRYB_CIAGLY.md); po E7; aneks D-93 |
-| E10 | Prompty etapów i rytuały | OCZEKUJE | — | [karty](karty/E10_PROMPTY_ETAPOW_I_RYTUALY.md) |
+| E9 | Tryb ciągły | ZREALIZOWANY 2026-11-10 | [PROMPT_ETAP_9.md](PROMPT_ETAP_9.md) | [karty](karty/E09_TRYB_CIAGLY.md); po E7; aneks D-93 |
+| E10 | Prompty etapów i rytuały | GOTOWY DO STARTU | [PROMPT_ETAP_10.md](PROMPT_ETAP_10.md) | [karty](karty/E10_PROMPTY_ETAPOW_I_RYTUALY.md) |
 | E11 | Proces i rejestry | OCZEKUJE | — | [karty](karty/E11_PROCES_I_REJESTRY.md); po E10; karta K-E4 po aneksie D-88 z E8 |
 | E12 | Mody: odporność i koszt | OCZEKUJE | — | [karty](karty/E12_MODY_ODPORNOSC.md) |
 | E13 | Mody: rdzeń i kopie | OCZEKUJE | — | [karty](karty/E13_MODY_RDZEN_I_KOPIE.md); po E12; kod zmienia tylko K-G2 — K-F4 i K-F5 rozstrzygnięte decyzją właściciela 2026-11-09 |
@@ -41,6 +41,8 @@ Karty zmian (załącznik planu, zamrażany razem z nim): [konwencje](karty/00_KO
   · źródło: wpis dziennika 2026-11-10 (E6) · **OTWARTA**
 - **K-D6: `%` w ścieżce projektu na Windows — załoga odmawia; potwierdzić kompromis**
   · źródło: wpis dziennika 2026-11-10 (E6) · **OTWARTA**
+- **Effort wykonawcy Codeksa E10–E13: `xhigh` z `~/.codex/config.toml`, `high` w konfiguracji
+  czy przekazanie effortu przez `crew.js`** · źródło: wpis dziennika 2026-11-10 (E9) · **OTWARTA**
 
 ## Dziennik wdrożenia
 
@@ -76,3 +78,6 @@ Karty zmian (załącznik planu, zamrażany razem z nim): [konwencje](karty/00_KO
 - 2026-11-10 — Aneks A ZAAKCEPTOWANY („Akceptuję”): E9–E13 wykonuje Codex (gpt-6.1-terra,
   poprawki gpt-6.1-sol) przez `core/process/crew.js`, Claude orkiestruje, recenzuje i robi
   rytuał; E14 bez zmian; aneks D-85.
+- 2026-11-10 — E9 ZREALIZOWANY (pierwszy etap w Codeksie, cztery przebiegi, poprawek 0): trzy
+  karty (K-B1 z aneksem D-93, K-B2, K-B4), 12 nowych testów, `core/process` 421, tabela 44 z 44;
+  E10 GOTOWY DO STARTU, wygenerowany `PROMPT_ETAP_10.md`.

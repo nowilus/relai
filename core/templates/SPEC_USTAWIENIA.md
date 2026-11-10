@@ -652,8 +652,8 @@ odpowiedź na pytanie zadane w momencie, w którym sprawa jest realna. Brak wier
 ### `Zgoda na optymalizator`
 
 Bramka trybu ciągłego. Tryb dotyka **każdego** promptu merytorycznego, a wiersz `Tryb ciągły` w
-projekcie bywa zgodą sprzed tygodni — więc pierwszy taki prompt w sesji wraca pytaniem o trzy
-opcje: **ta sesja** / **nie pytaj więcej** / **nie**. Zgoda sesyjna trafia do
+projekcie bywa zgodą sprzed tygodni — więc pierwszy taki prompt w sesji wraca pytaniem o cztery
+opcje: **ta sesja** / **nie pytaj więcej** / **nie** / **nie i nie pytaj więcej**. Zgoda sesyjna trafia do
 `.claude/relai/zgoda-promptu/<id sesji>.json` (od 2.3.1 osobny plik na sesję; plik `zgoda-promptu.json` z 2.3.0 czytany dalej) związana z identyfikatorem sesji (nie przecieka do następnej),
 trwała — do tego wiersza.
 
@@ -664,18 +664,21 @@ sesji (zasięg `ta sesja`). Po „nie” nie pada żadne kolejne pytanie.
 
 ```
 | 2026-09-15 | Zgoda na optymalizator | tak · przypomnienie co 30 dni |
+| 2026-11-09 | Zgoda na optymalizator | nie |
 ```
 
 | Człon | Dozwolone wartości | Znaczenie |
 |---|---|---|
-| przełącznik (**pierwszy, obowiązkowy**) | `tak` / `nie` (EN: `yes` / `no`) | `tak` → bramka nie pyta; `nie` → tryb ciągły milczy mimo włączonego wiersza projektowego |
+| przełącznik (**pierwszy, obowiązkowy**) | zamknięta lista: `tak` / `nie` (EN: `yes` / `no`); czytane też dawne brzmienia `udzielona` / `cofnięta` (EN: `granted` / `revoked`). Inne brzmienie = brak wiersza, bramka pyta | `tak` → bramka nie pyta, tryb działa; `nie` → trwała odmowa: tryb ciągły milczy we wszystkich projektach mimo włączonego wiersza projektowego i bramka nie pyta |
 | próg przypomnienia | `przypomnienie co N dni` (EN: `reminder every N days`) | domyślnie **30**; start sesji przypomina o zgodzie raz po przekroczeniu progu |
 
 **Data w pierwszej komórce jest datą udzielenia zgody** — od niej liczy się próg. Zgoda z datą
 nieczytelną żyje dalej, tylko nigdy o sobie nie przypomni: zgadywanie daty byłoby gorsze od ciszy.
 
 **Decyzja sesyjna ma pierwszeństwo w obie strony:** „nie w tej sesji" wycisza tryb mimo zgody na
-stałe, „tak w tej sesji" włącza go mimo jej braku. Wyłącznik: `/relai-prompt off --globalnie`.
+stałe, „tak w tej sesji" włącza go mimo jej braku. Trwała odmowa: czwarta opcja bramki albo
+`/relai-prompt off --globalnie`; przy `nie` przypomnienia na starcie nie ma. Powrót do pytania
+w każdej sesji: usunięcie wiersza.
 
 ### `Propozycja RelAI poza projektem`
 

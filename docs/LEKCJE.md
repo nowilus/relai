@@ -936,6 +936,22 @@ w wyzwalacz, przed pracą doczytujesz pełne brzmienie zasady z sekcji „Pełne
   lekcji, obecność spraw przeterminowanych) w karcie pisanej dzień wcześniej wykonawca mierzy na
   starcie, zanim uzna liczbę z karty za kryterium.
 
+### L-0316 — Plik zadania dla Codeksa nie znał dwóch granic: preambuły roli i sandboksa · 2026-11-10 · AKTYWNA
+
+- **Trigger:** OPTYMALIZACJA_PO_AUDYCIE E9, pierwszy etap według Aneksu A. Przebieg 1 Codeksa
+  zakończył się `STOP` bez jednej zmiany: preambuła roli `coder` w `core/process/crew.js` (l. 88,
+  D-44) zabrania edycji `docs/`, a karty K-B1 i K-B2 kazały zmienić `docs/KOMENDY.md`
+  i `docs/DECYZJE.md`. Przebieg 2 dopisał testy i stanął na `spawn EPERM`: sandbox
+  `workspace-write` Codeksa na Windows nie pozwala `node --test` uruchamiać procesów potomnych,
+  więc żaden test nie ruszył (ryzyko AX4 aneksu się spełniło). Etap zajął cztery przebiegi zamiast
+  jednego.
+- **Zasada:** plik zadania dla Codeksa od pierwszego przebiegu oddaje Claude'owi wszystko, czego
+  Codex nie może: edycje pod `docs/`, `CLAUDE.md` i `AGENTS.md` (Codex podaje kotwicę i tekst)
+  oraz każde uruchomienie testów i hooków. Etap idzie dwoma przebiegami: (1) same nowe testy wg
+  kart → Claude uruchamia je na czerwono; (2) wdrożenie bez zmiany testów → Claude uruchamia je na
+  zielono i robi resztę Weryfikacji. Effort `crew.js` nie przekazuje (tylko `-m`), więc Codex
+  bierze go z `~/.codex/config.toml`.
+
 ## Lekcje zwinięte
 
 Pełne wpisy lekcji, których zasady żyją w destylacie „Zasady aktywne" (kompresja 2026-08-20).

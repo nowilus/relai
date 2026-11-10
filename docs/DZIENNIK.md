@@ -17,7 +17,7 @@
 | M5 | Nazwy modeli zmieniają się szybciej niż wydania RelAI (plan REKOMENDACJA_MODELU, ryzyko 6) | **Średni** (2026-09-04) | **OTWARTE** | Lista ma próg wieku 7 dni; otwarte trwale, bo świeża lista nie wie o zmianie nazw u dostawcy. Historia: [MITYGACJE_2026-09-24](archiwum/ryzyka/MITYGACJE_2026-09-24.md). |
 | M6 | Załoga stoi na flagach CLI trzech dostawców (`claude -p --permission-mode`, `codex exec -s`, `agent -p --mode`), które zmieniają się szybciej niż wydania RelAI (wątek ORKIESTRACJA) | **Średni** (2026-09-06) | **OTWARTE** | Flagi w `buildCommand`, porażka zawsze w raporcie; otwarte: Codex i Cursor jako gospodarz niezmierzone. Historia: [MITYGACJE_2026-09-24](archiwum/ryzyka/MITYGACJE_2026-09-24.md). |
 
-| O4 | Tryb ciągły kosztuje turę przy każdym zdaniu — praca zwalnia i drożeje (plan OPTYMALIZATOR_PROMPTOW, ryzyko O4) | **Średni** (2026-09-14, przy akceptacji planu) | **OTWARTE** | Wyłącznik w `USTAWIENIA.md`, filtr pomija komendy; otwarte: rozrzut kosztu większy niż mierzona różnica. Historia: [MITYGACJE_2026-09-24](archiwum/ryzyka/MITYGACJE_2026-09-24.md). |
+| O4 | Tryb ciągły kosztuje turę przy każdym zdaniu — praca zwalnia i drożeje (plan OPTYMALIZATOR_PROMPTOW, ryzyko O4) | **Średni** (2026-09-14, przy akceptacji planu) | **OTWARTE** | Wyłącznik w `USTAWIENIA.md`, filtr pomija komendy; od E9 OPTYMALIZACJA_PO_AUDYCIE (2026-11-10) trwała odmowa „nie i nie pytaj więcej” i przyjęcie propozycji bez bramki; otwarte: rozrzut kosztu większy niż mierzona różnica. Historia: [MITYGACJE_2026-09-24](archiwum/ryzyka/MITYGACJE_2026-09-24.md). |
 | K3 | Nakładki rodzin modeli starzeją się szybciej niż wydania RelAI — dostawca zmienia wytyczne, a reguła z datą zostaje (plan PROWADZENIE_END_TO_END, ryzyko K3) | **Średni** (2026-09-24, przy zamknięciu planu) | **OTWARTE** | Każda reguła nakładki ma źródło i datę odczytu; hook startu mówi o nakładce starszej niż 30 dni; odświeżenie razem z `/relai-models`. |
 | C1 | API modów Claude Code („early access”) zmieni się między wydaniami i `relai-panel` przestanie się ładować (plan PANEL_CLAUDE, ryzyko R1) | **Wysoki** (2026-10-08, przy E1) | **OTWARTE** | Osobne pluginy; rachunki w `core/panel/` poza API modów; `plugin validate` i `plugin test` przed wydaniem — od E9 dla trzech pluginów (`relai-panel`, `relai-progress`, `relai-cache-keeper`, ten ostatni przejął rolę kanarka po `cache-keeper-pl`). Otwarte: minimalna wersja silnika niezmierzona (działa 2.1.293); trzy pluginy na tym samym API to trzy miejsca do poprawki przy zmianie. E5: zgoda na start etapu opiera się na zachowaniu silnika „wysyłka wtyczki omija jej własny hook `command.run`” (P-022) — gdy się zmieni, hook wytnie znacznik także z wysyłki panelu i start wróci do pytania w czacie (awaria w bezpieczną stronę); znacznik z klawiatury jest wycinany w obu wersjach (test modu). E6: desktop **bez komunikatu** nie pokazał panelu, gdy drzewo miało 726 węzłów, 121 Svg i 256 tys. znaków (`plugin test` przyjmuje takie drzewo); przy 209 / 27 / 53 tys. — widoczny; limit drzewa w kodzie (60 wierszy, 40 na folder), dokładny próg silnika nieznany (P-023). Hot reload raz zostawił starszą wersję modułu mimo nowej kopii — rozpoznane znacznikiem wersji w logu. E7 (2026-10-09): trzy pluginy wydane publicznie jako „early access” (2.8.0; `relai-panel` 0.9.0, `relai-progress` 0.2.0, `relai-cache-keeper` 0.3.0) — opis w README i w marketplace mówi o ryzyku wprost; `register.tsx` podzielony na pliki widoków bez `$`, raport `plugin validate` identyczny z wersją jednoplikową (P-023). Instalacja z marketplace zmierzona na żywo w aplikacji 2.1.293. Otwarte trwale: minimalna wersja silnika niezmierzona. FILM_PREZENTACYJNY E7 (2026-10-13): wydanie 3.0.0 zostawia „early access” (decyzja Łukasza), `relai-panel` 0.14.1 (parser modelu, Aneks F); `plugin test` 177 / 31 / 174 i `plugin validate` na 2.1.295. WYGLAD_PANELU E3 (2026-10-15): próg desktopu zmierzony — liczą się elementy, nie znaki (1 260 rysuje, 1 344 nie, `Svg` waży więcej; P-023 pkt 7); `DRAW_LIMIT` 1 200 i bezpiecznik „kartka bez wypełnienia” zamiast pustego panelu, test wagi drzewa każdej zakładki. Otwarte: próg może się zmienić z wersją aplikacji. WYGLAD_PANELU E4 (2026-10-15): sama waga nie wystarczyła — Mapa wagi 1 045 z 338 tys. znaków nie narysowała się wcale; drugi budżet w znakach (≤ 280 tys., SZACUNEK) i widok zastępczy „Zwiń wszystko” zamiast pustego panelu (P-023 pkt 7); wydanie `relai-panel` 0.19.0 / `relai-progress` 0.5.0 / `relai-cache-keeper` 0.10.0, `plugin test` 205 / 42 / 181 na 2.1.295. WYGLAD_PANELU E5 (2026-10-15): próg auto-compactu na pasku stoi na wzorze kompaktowania odczytanym z binarki 2.1.295 (P-046) — rozbicie silnika pomija `CLAUDE_AUTOCOMPACT_PCT_OVERRIDE`; zmiana wzoru w nowej wersji przesunie kreskę bez komunikatu (otwarte: kontrola wzoru przy zmianie wersji silnika); wydanie `relai-panel` 0.20.0 / `relai-cache-keeper` 0.11.0, `plugin test` 211 / 42 / 198. |
 | C8 | Inny mod paska nad promptem rysuje bez `next` albo owija węzeł silnika w `Box` z `width` i pasek RelAI znika bez komunikatu (E1, P-017) | **Średni** (2026-10-08, przy E1) | **OTWARTE** | `relai-panel`, `relai-progress` i `relai-cache-keeper` zawsze wołają `next` i nie dokładają `width` do owijacza (test „engine kept beneath" w każdym); `savvy-progress` rysował bez `next` — wyłączony w E9, zastąpiony forkiem. Otwarte: cudze mody poza kontrolą — ostrzeżenie w README w E7. |
@@ -2744,3 +2744,95 @@ zaakceptowany słowem „Akceptuję”.
 **Do zrobienia przez człowieka:**
 
 —
+
+### 2026-11-10 — OPTYMALIZACJA_PO_AUDYCIE E9: tryb ciągły — trwała odmowa, filtr przyjęcia propozycji, sesja zaczęta komendą
+
+Autor: RelAI (Opus 5.5) + Lukasz
+
+Pierwszy etap według Aneksu A: kod i testy pisał Codex (`gpt-6.1-terra`) uruchamiany przez
+`node core/process/crew.js run --runtime codex --role coder --write` z repozytorium, w tle;
+Claude (Opus 5.5) złożył plik zadania (prompt etapu + nakładka 4.1), recenzował, wykonał edycje
+`docs/`, `CLAUDE.md`, `AGENTS.md`, rejestru i rytuał.
+
+**Zrobione:**
+
+- **K-B1:** bramka trybu ciągłego pyta o cztery opcje — czwarta „nie i nie pytaj więcej” zapisuje
+  wiersz `Zgoda na optymalizator | nie` globalnie; `/relai-prompt off --globalnie` opisane jako
+  trwała odmowa w `relai-prompt.md`, `SPEC_USTAWIENIA.md` i `docs/KOMENDY.md`; wiersz
+  **D-93 → aneks** na końcu „Decyzji zmienionych” (linia 66 bez zmian). Odczyt zgody nietknięty.
+- **K-B2:** filtr pomijania w `prompt-mode.js` — `SLOWA_POTWIERDZENIA` (lista dosłownie z karty)
+  i `LIMIT_POTWIERDZENIA = 6`, więc „Wykonaj propozycję”, „tak, wykonaj”, „opcja B” przechodzą;
+  `PYTAJNE_Z_PYTAJNIKIEM` (`czy`, `jak`, `kiedy`, `do`, `does`…) liczą się tylko z pytajnikiem;
+  `KOMENDA` odróżnia `/relai:relai-stage` od ścieżki `/c/Users/…`; `normalizuj` zdejmuje apostrofy
+  i `…`; `FRAZY_KONTYNUACJI` + `gotowi do wydania` w `FRAZY_SESJI`; `session-title.js` bierze
+  frazy i `normalizuj` z `prompt-mode.js` (bez `bare`).
+- **K-B4:** zdanie wyjątku „pierwsza wiadomość to komenda → najpierw komenda, rytuał i przegląd
+  spraw czekają” w ASCII w hookach startu Claude Code i Cursora oraz w
+  `sprawyPrzeterminowaneReport`; zdanie w kopiach: `CLAUDE.md`, `AGENTS.md`, `relai-core/SKILL.md`,
+  `overdue-review.md`, `relai-core.mdc`, `SPEC_CLAUDE_MD.md` (dwa miejsca). Kopie Codeksa
+  z generatora. Hook Codeksa bez zmian.
+- 12 nowych testów (K-B1 2, K-B2 7, K-B4 3); żaden istniejący nie zmienił oczekiwania.
+- `docs/ARTEFAKTY.md`: `/relai-prompt` 14 → 15 (K-B1 i K-B2 jednym wpisem), Specyfikacja
+  `USTAWIENIA.md` 21 → 22, Skill `relai-core` 30 → 31, przegląd spraw 1 → 2, Reguła `relai-core`
+  Cursora 9 → 10, Specyfikacja `CLAUDE.md` 9 → 10.
+- Lekcja L-0316 (plik zadania dla Codeksa a preambuła roli i sandbox) — mieści się w zasadzie
+  13, indeks „Zasad aktywnych” bez zmian.
+
+**Zweryfikowane — jak dokładnie:**
+
+- Przebiegi czerwone przed zmianą (uruchamiał Claude, zapis w katalogu roboczym): K-B1 —
+  `node --test core/process/tests/prompt-mode.test.js core/process/tests/prompt-gate.test.js` →
+  27 pass / 1 fail z asercji, strażnik ciszy przy globalnym „nie” zielony (wyjątek z karty);
+  K-B2 — trzy pliki → 50 pass / 8 fail (siedem K-B2 + K-B1), wszystkie z asercji; K-B4 —
+  `ritual-copies.test.js` → 4 pass / 3 fail z asercji. Diff testów przeczytany w całości wobec
+  kart (AX2) — wierny, bez osłabień.
+- Po zmianie: trzy pliki 58/58 (49 przed etapem, +9); `ritual-copies` 7/7 (+3);
+  `node --test "core/process/tests/*.test.*"` → **421 pass, 0 fail** (409 + 12);
+  `adapters/cursor` 10, `adapters/codex` 28, `core/guardrails` 33 — bez zmian.
+- Tabela 44 promptów z karty przez `powodPominiecia`: kopia `prompt-mode.js` z `0036114` (E8,
+  przez `git show`) → **44 z 44** zgodnych z kolumną „Dziś”; po zmianie → **44 z 44** zgodnych
+  z kolumną „Po zmianie”. `regulaBramki` zawiera `(4) nie i nie pytaj wiecej`; bajty bramki
+  `sesja-42`: **1118 / 1743 / 1190** (bez listy / z listą modeli / ze znanym modelem) — progi
+  1200 i 1800 trzymają.
+- Greps kart: `D-93** → aneks` → 1, `git diff --numstat docs/DECYZJE.md` → `1 0`; „bramka pyta od
+  nowa” → brak w komendzie i kopii Codeksa; „nie i nie pytaj więcej” w komendzie → 3;
+  `let's continue` w `session-title.js` → brak; `gotowi do wydania` w `prompt-mode.js` → 1.
+- Dowód negatywny: `git diff --stat adapters/codex/` → trzy skille (plus zastane cztery
+  `*-closing.md` z pustym diffem), hook Codeksa bez zmian; `diff CLAUDE.md AGENTS.md | grep -c
+  "^[<>]"` → 3 przed i po; `CLAUDE.md` 7079 B (< 10 240); `zgodaGlobalna`/`ZGODA_` bez zmian.
+- `KOMENDA`: `/relai:relai-stage PLAN E3` → `wywolanie komendy`, `/c/Users/x/log.txt` → `null`;
+  `<task-notification>` → `powiadomienie systemowe`. `git grep` wzorców `sk_live_`/`github_pat_` → 0;
+  `PASSWORD=` w diffie testów → 0.
+- `node core/tools/validate-adapters.js` → kod 0, jedno ostrzeżenie, parytet 73 plików
+  0 rozjazdów, `wywolania z hooks.json: 20`.
+- Trivy `trivy fs --scanners vuln` → 0 CRITICAL, 42 HIGH, 50 MEDIUM, 12 LOW — tyle samo co po E8
+  (zastane fikstury `trivy-scan`), etap nie dodał zależności.
+- Granica: `git status --short` — pliki z pól „Pliki” trzech kart, kopie Codeksa, dokumenty
+  rytuału, zastane `*-closing.md` i `.claude/launch.json`.
+- Katalog roboczy `.claude/relai/work/OPTYMALIZACJA_PO_AUDYCIE/E9/`: przed 15 plików, 180 KB;
+  przebiegi Codeksa `.claude/relai/work/CREW/2026-11-10_15*` cztery katalogi, ok. 1,2 MB —
+  po „Skasuj oba” 0. Poza katalogiem: fikstury testów `%TEMP%/relai-*` nie zostały; cztery pliki
+  `%TEMP%/relai-ustawienia-podane-*` to znaczniki hooka zainstalowanego 3.7.0 (stare położenie
+  sprzed K-C1), nie artefakty etapu — zostały.
+- **Pomiar Aneksu A (pierwszy przebieg):** cztery przebiegi Codeksa zamiast jednego —
+  (1) `STOP` bez zmian: preambuła roli `coder` zabrania `docs/` (D-44), karty kazały zmienić
+  `KOMENDY.md` i `DECYZJE.md`; (2) testy K-B1 dopisane, `STOP` na `spawn EPERM` — sandbox Codeksa
+  na Windows nie uruchamia `node --test` (AX4); (3) same testy K-B2/K-B4; (4) wdrożenie. Poprawek
+  po recenzji (6c): 0. Effort: `crew.js` przekazuje tylko `-m`, Codex wziął `xhigh`
+  z `~/.codex/config.toml` zamiast `high` z aneksu. Raporty mieściły się w ok. 80 liniach.
+
+**Świadomie odłożone:**
+
+- Rozjazd z kartą K-B4: zdanie „hook Codeksa nie wypisuje przeglądu spraw” jest nieaktualne od E8
+  — hook Codeksa woła `sprawyPrzeterminowaneReport`, więc zdanie wyjątku dociera do Codeksa bez
+  zmiany jego hooka. Karty nie poprawiałem.
+- Zdanie startu `trybCiaglyReport` przy trwałej odmowie dalej mówi „tryb włączony w projekcie”
+  (znalezisko A5, poza planem — karta K-B1).
+- Przekazanie effortu przez `crew.js` (flaga `-c model_reasoning_effort`) — zmiana `crew.js`
+  poza zakresem kart E9; decyzja niżej.
+
+**Do zrobienia przez człowieka:**
+
+- Effort wykonawcy E10–E13: zostawić `xhigh` z `~/.codex/config.toml` (stan dziś), ustawić `high`
+  w konfiguracji Codeksa na czas planu albo dodać przekazanie effortu do `crew.js` (odnoga albo
+  aneks).

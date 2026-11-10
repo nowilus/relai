@@ -135,7 +135,10 @@ function onSessionStart(input) {
   // KONTEKST_STARTU E2: jedno polecenie zamiast listy plikow, to samo co w Claude Code i Codeksie.
   out.push('Ten folder to projekt RelAI. Zanim odpowiesz merytorycznie, wykonaj rytual startu sesji: ' +
     'uruchom ' + core.POLECENIE_SKROTU + ' i przeczytaj jego wyjscie; potem napisz akapit ' +
-    '"gdzie jestesmy". Reguly procesu masz w regulach ' +
+    '"gdzie jestesmy". ' +
+    'Wyjatek: gdy pierwsza wiadomosc sesji jest wywolaniem komendy (zaczyna sie od "/"), ' +
+    'najpierw wykonujesz komende, a rytual startu odkladasz do pierwszej wiadomosci, ktora komenda nie jest. ' +
+    'Reguly procesu masz w regulach ' +
     'projektu (.cursor/rules/relai-*.mdc) — one obowiazuja niezaleznie od tego komunikatu.');
 
   const copied = core.provisionTemplates(cwd, { coreTemplates: CORE_TEMPLATES, destRel: '.claude/relai' });

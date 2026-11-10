@@ -78,6 +78,64 @@ function bezClaudeCode() {
   return env;
 }
 
+test('start hooks of Claude Code and Cursor defer the ritual when the first message is a command (K-B4)', () => {
+  const dir = projekt();
+  const ids = ['test-rytual-komenda', 'test-rytual-komenda-compact'];
+  try {
+    const run = (rel, payload) => {
+      const result = spawnSync(process.execPath, [path.join(ROOT, rel)], {
+        cwd: dir, input: JSON.stringify(payload), encoding: 'utf8', env: process.env, timeout: 60000,
+      });
+      assert.equal(result.status, 0, result.stderr);
+      return result.stdout || '';
+    };
+    const wyjscia = [
+      run('adapters/claude-code/hooks/session-context.js',
+        { hook_event_name: 'SessionStart', cwd: dir, session_id: ids[0] }),
+      run('adapters/cursor/hooks/session-context.js', { hook_event_name: 'sessionStart', cwd: dir }),
+    ];
+    for (const out of wyjscia) {
+      assert.match(out, /pierwsza wiadomosc sesji jest wywolaniem komendy/);
+      assert.match(out, /wykonaj rytual startu sesji/);
+    }
+    const compact = run('adapters/claude-code/hooks/session-context.js',
+      { hook_event_name: 'SessionStart', source: 'compact', cwd: dir, session_id: ids[1] });
+    assert.doesNotMatch(compact, /pierwsza wiadomosc sesji jest wywolaniem komendy/);
+  } finally {
+    fs.rmSync(dir, { recursive: true, force: true });
+    for (const id of ids) {
+      fs.rmSync(path.join(os.tmpdir(), 'znaczniki-relai', 'ustawienia-podane-' + id), { force: true });
+    }
+  }
+});
+
+test('the overdue review waits for the first message that is not a command (K-B4)', () => {
+  const miara = { przeterminowane: [{ tresc: 'Decyzja o licencji', wiek: 40, odroczen: 0 }], pozycje: [{}, {}], N: 30 };
+  const interactive = core.sprawyPrzeterminowaneReport(miara);
+  assert.match(interactive.at(-1), /odkladasz razem z rytualem startu/);
+  assert.match(interactive.at(-1), /PARTIAMI PO CZTERY/);
+  for (const line of core.sprawyPrzeterminowaneReport(miara, { interaktywna: false })) {
+    assert.doesNotMatch(line, /odkladasz razem z rytualem startu/);
+  }
+});
+
+test('every copy of the start rule carries the command exception (K-B4)', () => {
+  const files = [
+    'CLAUDE.md', 'AGENTS.md',
+    'adapters/claude-code/skills/relai-core/SKILL.md', 'adapters/codex/skills/relai-core/SKILL.md',
+    'adapters/claude-code/skills/relai-core/overdue-review.md',
+    'adapters/codex/skills/relai-core/overdue-review.md', 'core/templates/SPEC_CLAUDE_MD.md',
+  ];
+  for (const rel of files) {
+    const text = fs.readFileSync(path.join(ROOT, rel), 'utf8').replace(/\r\n/g, '\n');
+    const count = text.split('która komendą nie jest').length - 1;
+    assert.ok(count >= (rel === 'core/templates/SPEC_CLAUDE_MD.md' ? 2 : 1), rel);
+  }
+  const cursor = fs.readFileSync(path.join(ROOT, 'adapters/cursor/rules/relai-core.mdc'), 'utf8')
+    .replace(/\r\n/g, '\n');
+  assert.ok(cursor.includes('the first message that is not a command'));
+});
+
 test('old file-list wording: every pattern matches the pre-E2 text (positive control)', () => {
   for (const wzorzec of DAWNA_LISTA) {
     assert.ok(PRZED_E2.some((t) => wzorzec.test(t)), 'wzorzec bez kontroli pozytywnej: ' + wzorzec);

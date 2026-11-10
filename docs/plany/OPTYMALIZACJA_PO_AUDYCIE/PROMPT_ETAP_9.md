@@ -212,60 +212,60 @@ ręcznie — tylko generator. Wątek spoza kart → zatrzymujesz się i pytasz: 
 Każdy punkt Weryfikacji, który przeszedł, odhaczasz w `PROMPT_ETAP_9.md` (`- [ ]` → `- [x]`)
 zaraz po jego sprawdzeniu, nie na końcu etapu; punkt, który nie przeszedł, zostaje pusty.
 
-- [ ] K-0 (konwencje, sekcja 3): `git branch --show-current` → `optymalizacja/po-audycie`;
+- [x] K-0 (konwencje, sekcja 3): `git branch --show-current` → `optymalizacja/po-audycie`;
       `git log --oneline -1` pokazuje commit E8 (albo człowiek rozstrzygnął, co z drzewem).
-- [ ] Testy przed zmianą: każda karta ma zapisany w katalogu roboczym przebieg czerwony z asercji
+- [x] Testy przed zmianą: każda karta ma zapisany w katalogu roboczym przebieg czerwony z asercji
       (K-B1: test `regulaBramki offers the fourth option…` czerwony, test ciszy przy globalnym
       „nie” zielony — strażnik; K-B2: siedem nowych czerwonych; K-B4: trzy nowe czerwone).
-- [ ] `node --test core/process/tests/prompt-mode.test.js core/process/tests/prompt-gate.test.js core/process/tests/session-title.test.js`
+- [x] `node --test core/process/tests/prompt-mode.test.js core/process/tests/prompt-gate.test.js core/process/tests/session-title.test.js`
       → zielone, o 9 więcej niż przed etapem; `ritual-copies.test.js` → zielone, o 3 więcej
       (w tym test E8 spraw w trzech hookach).
-- [ ] `node --test "core/process/tests/*.test.*"` → **421 pass** (albo suma od wpisu E8 plus 12,
+- [x] `node --test "core/process/tests/*.test.*"` → **421 pass** (albo suma od wpisu E8 plus 12,
       opisana), 0 fail; `adapters/cursor` → 10 pass; `adapters/codex` → 28 pass;
       `core/guardrails` → 33 pass.
-- [ ] Greps z kart: `grep -c "D-93\*\* → aneks" docs/DECYZJE.md` → 1 i `git diff --numstat
+- [x] Greps z kart: `grep -c "D-93\*\* → aneks" docs/DECYZJE.md` → 1 i `git diff --numstat
       docs/DECYZJE.md` → `1 0` (linia 66 bez zmian); `grep -n "bramka pyta od nowa"
       adapters/claude-code/commands/relai-prompt.md adapters/codex/skills/relai-prompt/SKILL.md`
       → brak; `grep -c "nie i nie pytaj więcej" adapters/claude-code/commands/relai-prompt.md` → ≥ 2;
       `grep -n "let's continue" core/process/session-title.js` → brak;
       `grep -c "gotowi do wydania" core/process/prompt-mode.js` → 1.
-- [ ] Dowód negatywny (zasada 3): `git diff --stat adapters/codex/` → wyłącznie
+- [x] Dowód negatywny (zasada 3): `git diff --stat adapters/codex/` → wyłącznie
       `skills/relai-prompt/SKILL.md`, `skills/relai-core/SKILL.md`, `skills/relai-core/overdue-review.md`
       (plus zastane `relai-planning/*-closing.md`), **hook Codeksa bez zmian**;
       `diff CLAUDE.md AGENTS.md | grep -c "^[<>]"` → ta sama liczba co przed K-B4;
       `wc -c CLAUDE.md` → poniżej 10 240; odczyt zgody (`zgodaGlobalna`, `ZGODA_`) bez zmian
       w `git diff core/process/prompt-mode.js`.
-- [ ] Efekt widoczny (zasada 4), kodem z repozytorium: tabela 44 promptów z karty K-B2 przepuszczona
+- [x] Efekt widoczny (zasada 4), kodem z repozytorium: tabela 44 promptów z karty K-B2 przepuszczona
       przez `powodPominiecia` przed (kopia `prompt-mode.js` z commitu E8 przez `git show` do
       katalogu roboczego, bez `git stash`) i po — wynik „44 z 44 zgodnych” do wpisu; `regulaBramki('s')`
       po zmianie zawiera `(4) nie i nie pytaj wiecej`, a bajty tekstu bramki mieszczą się
       w progach 1200 i 1800 znaków (karta: 1118 / 1743 / 1190 B, SZACUNEK z prototypu).
-- [ ] Rejestr (konwencje, sekcja 5): wiersze `docs/ARTEFAKTY.md` z kart podbite o 1 na etap
+- [x] Rejestr (konwencje, sekcja 5): wiersze `docs/ARTEFAKTY.md` z kart podbite o 1 na etap
       (`/relai-prompt` 14 → 15, Specyfikacja `USTAWIENIA.md` 21 → 22, Skill `relai-core` 30 → 31,
       `relai-core` — przegląd spraw 1 → 2, Reguła `relai-core` Cursora 9 → 10, Specyfikacja
       `CLAUDE.md` 9 → 10), każdy z wpisem `2026-…(wersja N, plan OPTYMALIZACJA_PO_AUDYCIE E9, K-…)`
       na początku kolumny.
-- [ ] `node core/tools/validate-adapters.js` → kod 0, jedno ostrzeżenie (`security-audit/SKILL.md`),
+- [x] `node core/tools/validate-adapters.js` → kod 0, jedno ostrzeżenie (`security-audit/SKILL.md`),
       `parytet skilli Claude Code -> Codex: … 0 rozjazdow`, `wywolania z hooks.json: 20`.
-- [ ] Bezpieczeństwo (D-91): `/relai-security` (skan Trivy, `trivy fs --scanners vuln`) — zero
+- [x] Bezpieczeństwo (D-91): `/relai-security` (skan Trivy, `trivy fs --scanners vuln`) — zero
       nowych CRITICAL i HIGH wprowadzonych w tym etapie, liczby według wagi do wpisu (etap nie
       dodaje zależności; po E8: 0 CRITICAL, 42 HIGH, 50 MEDIUM, 12 LOW — zastane fikstury
       ewaluacji `trivy-scan`, nie blokują). Trivy brak → zapis „brak pliku zależności w `adapters/`
       i `core/`” z wynikiem `git ls-files adapters core | grep package.json`.
-- [ ] Podstawy na zmianie etapu (filtr czyta wejście człowieka — zasada 12): `KOMENDA` sprawdzony
+- [x] Podstawy na zmianie etapu (filtr czyta wejście człowieka — zasada 12): `KOMENDA` sprawdzony
       kontrolą pozytywną (`/relai:relai-stage PLAN E3` trafia) i negatywną (`/c/Users/x/log.txt`
       nie); powiadomienie `<task-notification>` dalej pomijane (istniejące testy zielone);
       `git grep -nE "sk_live_[A-Za-z0-9]{16}|github_pat_[A-Za-z0-9_]{22}"` → 0; `PASSWORD=`
       w zmienionych testach → 0.
-- [ ] Granica: `git status --short` pokazuje z tego etapu wyłącznie pliki z pól „Pliki” trzech kart,
+- [x] Granica: `git status --short` pokazuje z tego etapu wyłącznie pliki z pól „Pliki” trzech kart,
       kopie Codeksa i dokumenty rytuału (`STATUS.md`, `PROMPT_ETAP_9.md`, `PROMPT_ETAP_10.md`,
       `DZIENNIK.md`, `STATE.md`, ewentualnie `LEKCJE.md`); pod `adapters/*/skills/relai-planning/`
       wyłącznie cztery zastane `*-closing.md`.
-- [ ] Wpis etapu jest na końcu sekcji „Wpisy” w `docs/DZIENNIK.md`, z liczbami testów
+- [x] Wpis etapu jest na końcu sekcji „Wpisy” w `docs/DZIENNIK.md`, z liczbami testów
       (`core/process` 421 albo zgodnie z sumą, opisaną), wynikiem tabeli 44 promptów, bajtami
       tekstu bramki, rozjazdem „hook Codeksa a przegląd spraw” i podpisem
       `Autor: RelAI (Opus 5.5) + Lukasz`.
-- [ ] Katalog roboczy: (a) `.claude/relai/work/OPTYMALIZACJA_PO_AUDYCIE/E9/` przejrzany
+- [x] Katalog roboczy: (a) `.claude/relai/work/OPTYMALIZACJA_PO_AUDYCIE/E9/` przejrzany
       (`node .claude/relai/tools/clean-work.js raport`; katalog otwartego etapu raport pomija —
       wtedy liczby z `find`/`du`) i skasowany po „tak”, liczby przed i po we wpisie dziennika;
       (b) artefakty spoza katalogu (fikstury `%TEMP%/relai-*` z testów) wypisane z nazwy razem

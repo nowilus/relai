@@ -8,6 +8,62 @@ const test = require('node:test');
 
 const tryb = require('../prompt-mode.js');
 
+test('powodPominiecia passes an answer to the proposal made only of confirmation words (K-B2)', () => {
+  for (const prompt of [
+    'Wykonaj propozycję', 'Wykonaj oryginał', 'tak, wykonaj', 'akceptuję', 'zatwierdzam',
+    'ok, dalej', 'opcja B', 'nie, wykonaj oryginał', 'do it',
+  ]) {
+    assert.equal(tryb.powodPominiecia(prompt), 'krotkie potwierdzenie', prompt);
+  }
+  for (const prompt of ['popraw punkt 2 i wykonaj', 'wykonaj propozycję i dopisz test']) {
+    assert.equal(tryb.powodPominiecia(prompt), null, prompt);
+  }
+});
+
+test('ambiguous question words count only with a question mark (K-B2)', () => {
+  for (const prompt of [
+    'Do the migration of the settings parser', 'Czy możesz przepisać parser ustawień na jeden moduł',
+    'Jak skończysz, odpal testy', 'kiedy skończysz, zrób commit',
+  ]) {
+    assert.equal(tryb.powodPominiecia(prompt), null, prompt);
+  }
+  for (const prompt of [
+    'Czy możesz przepisać parser ustawień na jeden moduł?', 'Does the parser handle CRLF?',
+    'jak to działa?', "What's next?",
+  ]) {
+    assert.equal(tryb.powodPominiecia(prompt), 'pytanie', prompt);
+  }
+});
+
+test('normalizuj drops straight and curly apostrophes and the ellipsis (K-B2)', () => {
+  assert.equal(tryb.normalizuj("Let's continue"), 'lets continue');
+  assert.equal(tryb.normalizuj('Let’s continue'), 'lets continue');
+  assert.equal(tryb.normalizuj('kontynuujemy pracę…'), 'kontynuujemy prace');
+});
+
+test('gotowi do wydania is a session phrase from CLAUDE.md (K-B2)', () => {
+  assert.ok(Array.isArray(tryb.FRAZY_SESJI), 'FRAZY_SESJI must be exported');
+  assert.ok(tryb.FRAZY_SESJI.includes('gotowi do wydania'));
+  for (const prompt of ['gotowi do wydania?', "Let's continue", 'Let’s continue']) {
+    assert.equal(tryb.powodPominiecia(prompt), 'fraza sesji', prompt);
+  }
+});
+
+test('a path that starts with a slash is not a command (K-B2)', () => {
+  assert.equal(tryb.powodPominiecia('/c/Users/x/log.txt - co tu jest?'), null);
+  for (const prompt of ['/relai:relai-stage PLAN E3', '/relai-prompt cos']) {
+    assert.equal(tryb.powodPominiecia(prompt), 'wywolanie komendy', prompt);
+  }
+});
+
+test('regulaBramki offers the fourth option: no and do not ask again (K-B1)', () => {
+  const r = tryb.regulaBramki('sesja-42');
+  assert.match(r, /\(4\) nie i nie pytaj wiecej/);
+  assert.match(r, /Zgoda na optymalizator \| tak albo nie \|/);
+  assert.match(r, /Po \(3\) i \(4\) wykonujesz prompt bez zmian/);
+  assert.equal((r.split('Po (1) i (2)')[0].match(/AskUserQuestion/g) || []).length, 1);
+});
+
 function fixture(t) {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'relai-prompt-mode-'));
   t.after(() => fs.rmSync(root, { recursive: true, force: true }));
