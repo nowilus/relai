@@ -2835,4 +2835,5 @@ Claude (Opus 5.5) złożył plik zadania (prompt etapu + nakładka 4.1), recenzo
 
 - Effort wykonawcy E10–E13: zostawić `xhigh` z `~/.codex/config.toml` (stan dziś), ustawić `high`
   w konfiguracji Codeksa na czas planu albo dodać przekazanie effortu do `crew.js` (odnoga albo
-  aneks).
+  aneks). — *Rozstrzygnięte 2026-11-10 (Łukasz): `gpt-6-luna` na `xhigh`, `gpt-6.1-terra`
+  i `gpt-6.1-sol` na `high`; Łukasz ustawia to sam w konfiguracji Codeksa, `crew.js` bez zmian.*

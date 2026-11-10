@@ -38,8 +38,11 @@ Plan: OPTYMALIZACJA_PO_AUDYCIE • Etap: **E10 z E14** • Wygenerowano: 2026-11
   uruchamia `node --test` (`spawn EPERM`) — testów nie uruchamia i to nie jest `STOP`; wszystko
   pod `docs/` należy do Claude (preambuła roli `coder`, D-44). W tym etapie jedyna zmiana
   w `docs/` to `docs/ARTEFAKTY.md` (K-R10) i `docs/STATE.md` (krok 4 rytuału) — obie robi Claude.
-  Effort: `crew.js` przekazuje tylko `-m`; Codex bierze effort z `~/.codex/config.toml` (w E9:
-  `xhigh`) — decyzja Łukasza w bramce STATUS; do niej zostaje jak jest.
+  Effort (decyzja Łukasza 2026-11-10, bramka w `STATUS.md`): `gpt-6-luna` na `xhigh`,
+  `gpt-6.1-terra` i `gpt-6.1-sol` na `high`. `crew.js` przekazuje tylko `-m`, a
+  `high` dla terra/sol ustawia Łukasz w konfiguracji Codeksa (`crew.js` bez zmian) — przed
+  przebiegiem przeczytaj `~/.codex/config.toml` i sprawdź, czy terra dostanie `high`; nie dostanie
+  → powiedz o tym w karcie startu, zanim uruchomisz Codeksa.
 - `--files` przebiegu (granica Codeksa) = pola „Pliki” kart K-A1, K-E1, K-E7 bez `docs/` plus kopie
   Codeksa z kroków generatora kart i katalog roboczy etapu.
 - K-A1 nie przepisuje wstecz `docs/plany/PANEL_CODEX/PROMPT_ETAP_1.md` (plan wstrzymany) — pytanie

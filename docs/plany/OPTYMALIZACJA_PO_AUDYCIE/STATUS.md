@@ -42,7 +42,11 @@ Karty zmian (załącznik planu, zamrażany razem z nim): [konwencje](karty/00_KO
 - **K-D6: `%` w ścieżce projektu na Windows — załoga odmawia; potwierdzić kompromis**
   · źródło: wpis dziennika 2026-11-10 (E6) · **OTWARTA**
 - **Effort wykonawcy Codeksa E10–E13: `xhigh` z `~/.codex/config.toml`, `high` w konfiguracji
-  czy przekazanie effortu przez `crew.js`** · źródło: wpis dziennika 2026-11-10 (E9) · **OTWARTA**
+  czy przekazanie effortu przez `crew.js`** · źródło: wpis dziennika 2026-11-10 (E9) ·
+  **ROZSTRZYGNIĘTA 2026-11-10 — decyzja Łukasza: `gpt-6-luna` na `xhigh` (domyślny w
+  `~/.codex/config.toml`, bez zmian), `gpt-6.1-terra` i `gpt-6.1-sol` na `high`; `crew.js` dziś
+  przekazuje tylko `-m`, więc `high` dla terra/sol ustawia Łukasz w konfiguracji Codeksa (bez
+  zmiany `crew.js`); start E10 sprawdza, czy działa**
 
 ## Dziennik wdrożenia
 
