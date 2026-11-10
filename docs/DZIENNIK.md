@@ -2068,3 +2068,79 @@ pre-commita (odroczeń: 2). Adnotacje z datą 2026-11-10 w sekcji „Czeka na cz
 —
 
 Autor: RelAI (Opus 5.5) + Lukasz
+
+### 2026-11-10 — OPTYMALIZACJA_PO_AUDYCIE E2: pomiary na żywo — C9 nie widzi, A6 bez dowodu, liczby G1
+
+Etap E2 z E14, pięć kart z `karty/E02_POMIARY_NA_ZYWO.md`; niczego nie naprawia. Gałąź
+`optymalizacja/po-audycie`, punkt wyjścia `86358ef` (commit E1). Claude Code 2.1.321, sesje
+`claude -p` na Opus 5.5 (`claude-opus-5-5` w zdarzeniu `init`). Wynik:
+[POMIARY.md](plany/OPTYMALIZACJA_PO_AUDYCIE/POMIARY.md).
+
+**Zrobione:**
+
+- K-P0: instrument `pomiar-sesji.js` i kontrola `pomiar-kontrola.js` w katalogu roboczym etapu.
+  Kontrola najpierw na szkielecie: 0/4 (trzy asercje, przypadek 3 — atrapa niewywołana, ENOENT
+  pliku argumentów), potem 4/4. Odstępstwo od wzoru: atrapa `.cmd` idzie przez `shell: true`, bo
+  Node 24 nie uruchamia `.cmd` bez powłoki; prawdziwa binarka (`$CLAUDE_CODE_EXECPATH`, `.exe`)
+  idzie tym samym `spawn` bez powłoki co `eval-triggers.js`. Sesja próbna — sesja 1/10.
+- K-C9m: trzy sesje na świeżych fiksturach (sesje 2–4/10), prompt z karty dosłownie.
+  **`C9: NIE WIDZI`.**
+- K-A6m: trzy pary z `--resume` (sesje 5–10/10). **`A6: NIE POWTARZA`** — z gałęzi „mniej niż
+  dwie pary ważne”, nie z dowodu (L-0310).
+- K-G1m: wariant A policzony skryptem, wariant B zbudowany w `%TEMP%`, zwalidowany i — po
+  „Tak” Łukasza w bramce z karty — zainstalowany w zakresie `local` projektu tymczasowego, potem
+  posprzątany w tej samej turze; wariant C z jednego odczytu strony `plugin-marketplaces`.
+- K-P9: `POMIARY.md` w strukturze z karty, z notą kontroli mechanizmu C9, informacją o hooku przy
+  `--resume` i udokumentowanymi postaciami pola `source`.
+- Lekcja L-0310 i dopisek do zasady 4 w `docs/LEKCJE.md` (rytuał „Na koniec”, krok 2; plik spoza
+  listy punktu „Granica” promptu — wygrywa rytuał, zasada 14).
+
+**Zweryfikowane — jak dokładnie:**
+
+- `git branch --show-current` → `optymalizacja/po-audycie`.
+- `node …/E2/pomiar-kontrola.js` → `4/4 przechodzi`, kod 0 (przed implementacją `0/4`, kod 1).
+- Sesja próbna: `kod: 0`, `sesjaId` `f9902028-…`, `tekstKoncowy` `OK.`, 13 zdarzeń; kształt jak
+  w karcie (`system/init` z `session_id`, `assistant` z blokami `content`, `result` z `result`);
+  w `init` plugin `relai` z `C:\Users\Lukasz\Desktop\RelAI` (`relai@inline`, 3.7.0).
+- K-C9m: trzy przebiegi ważne (nagłówek wpisu jest, linii `Autor:` po nim nie ma), kod 0, każdy
+  odpowiada `KOMUNIKAT: BRAK` → widzi 0/3. Kontrola mechanizmu: w transkrypcie każdej sesji na
+  dysku stoi `[RelAI journal-signature] Ostatni wpis dziennika (` — hook wystrzelił.
+- K-A6m: pary 1–3 nieważne, `start-digest.js` w sesji 1 i 2: 0 i 0 we wszystkich; kod 0 w sześciu
+  sesjach. Hook przy `--resume` (`SessionStart:resume`) wstrzyknął ten sam blok 2005 znaków co
+  przy starcie. Para 1, pierwsze wywołanie sesji drugiej: `input_tokens` 4,
+  `cache_read_input_tokens` 48 220, `cache_creation_input_tokens` 142.
+- Budżet: **10/10 sesji `claude -p`** (1 + 3 + 6), wszystkie z `--max-turns 8` i limitem 300 s.
+- K-G1m (MiB): dziś 114,5 śledzonych, cache 3.7.0 118; A 36,6 (389 plików, 77,9 MiB, 91 linków
+  w 27 plikach `.md`); B 3,8 (431 plików), `plugin validate` kod 0, instalacja 4,8 MiB zajętości,
+  200 miejsc w narzędziach (`MANIFEST.json` 9, `release-map.json` 126, `validate-adapters.js`
+  65), 25 ścieżek `CLAUDE_PLUGIN_ROOT` tylko w `adapters/`; C ok. 3,8 SZACUNEK. **Odpowiedź
+  z bramki instalacji: „Tak”.**
+- Sprzątanie K-G1m: `plugin marketplace list` → 0 trafień `relai-pomiar` (lista identyczna
+  z kopią sprzed); `ls ~/.claude/plugins/cache/` → 0; `%TEMP%/relai-pomiar-*` → 0;
+  `known_marketplaces.json` bajtowo identyczny, `installed_plugins.json` semantycznie identyczny
+  (CLI przestawiło kolejność kluczy `projectPath`/`gitCommitSha` przy wpisach TargiKielce).
+- Grep (`count`) w `POMIARY.md`: `^C9: (WIDZI|NIE WIDZI)$` → 1, `^A6: (POWTARZA|NIE POWTARZA)$` → 1.
+- Katalog roboczy `.claude/relai/work/OPTYMALIZACJA_PO_AUDYCIE/E2/`: przed 22 pliki, 340 KB; po
+  „tak” Łukasza — 0 (katalog i pusty folder planu skasowane). `clean-work.js raport` pominął
+  katalog otwartego etapu, liczby z `find`/`du`. Artefakty spoza katalogu, skasowane po tym samym
+  „tak”: 7 folderów transkryptów `~/.claude/projects/C--Users-Lukasz-AppData-Local-Temp-relai-pomiar-*`
+  (ok. 2,8 MB) i 7 plików `%TEMP%/relai-ustawienia-podane-<id sesji pomiarowej>`. Fikstury
+  `relai-pomiar-*` w `%TEMP%` kasował instrument po każdej sesji albo parze; projekt
+  `relai-pomiar-projekt` i katalog `relai-pomiar-dystrybucja` — skasowane w turze instalacji.
+
+**Świadomie odłożone:**
+
+- Werdykt A6 bez dowodu: powtórka pomiaru z promptem, który uruchamia rytuał w sesji pierwszej,
+  wymaga nowej zgody na sesje i zmiany karty (aneks). Do decyzji przy etapie E7 (karta K-A6).
+- Zachowanie pluginu z podkatalogu (wariant B) w świeżej sesji niezmierzone — budżet wyczerpany.
+- Ryzyko M6: flagi `claude -p` z karty (`--setting-sources`, `--strict-mcp-config`,
+  `--plugin-dir`, `--permission-mode`, `--allowedTools`, `--resume`) zadziałały bez zmian —
+  adnotacji nie ma.
+- Rotacje dziennika, sekcji ryzyk i lekcji zgłoszone na starcie — poza etapem.
+
+**Do zrobienia przez człowieka:**
+
+- Wybór wariantu dystrybucji G1 (A / B / C / bez zmiany) na liczbach z `POMIARY.md` — plan go nie
+  wdraża; wdrożenie aneksem albo osobnym planem.
+
+Autor: RelAI (Opus 5.5) + Lukasz

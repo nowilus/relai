@@ -95,7 +95,9 @@ w wyzwalacz, przed pracą doczytujesz pełne brzmienie zasady z sekcji „Pełne
      wzorca omija pliki, które go cytują. Tekst tłumaczący liczbę ma warunek prawdziwości i test
      stanu docelowego (L-0144). Koszt liczysz tylko z przebiegów zgodnych z procedurą — kroki
      wymagane sprawdzone w transkrypcie (L-0301); ewaluacja zachowania wywołanego treścią
-     wstrzykniętą zaczyna się od asercji, że ta treść dotarła w całości (L-0303). Narzędzie
+     wstrzykniętą zaczyna się od asercji, że ta treść dotarła w całości (L-0303); kontrolę
+     pozytywną zależną od zachowania modelu sprawdzasz pierwszą sesją serii w jej warunkach,
+     zanim ruszą kolejne (L-0310). Narzędzie
      z limitem rozmiaru wyjścia mierzysz przed wydaniem na wszystkich projektach z markerem na
      maszynie (odczyt, bez zapisu), fixturę piszesz z najgorszego (L-0304).
    - **Materiał:** test na realnym pliku zmienianym przez proces sam ustawia stan wyjściowy,
@@ -126,7 +128,7 @@ w wyzwalacz, przed pracą doczytujesz pełne brzmienie zasady z sekcji „Pełne
    (L-0017, L-0018, L-0040, L-0051, L-0052, L-0063, L-0069, L-0082, L-0115, L-0117, L-0123, L-0134,
    L-0144, L-0150, L-0154, L-0155, L-0156, L-0158, L-0159, L-0165, L-0175, L-0177, L-0182, L-0184,
    L-0186, L-0191, L-0195, L-0213, L-0214, L-0218, L-0222, L-0224, L-0227, L-0274, L-0275, L-0278,
-   L-0301, L-0303, L-0304)
+   L-0301, L-0303, L-0304, L-0310)
 5. **Instrument pomiarowy sam bywa źródłem fałszu.**
    - **Backslash:** wyrażenia regularne i ścieżki Windows tylko w pliku pisanym Write/Edit albo
      z `/`; skrypt edycji niosący `\n`, backtick lub ścieżkę — Write, heredok bez wyjątku, także
@@ -856,6 +858,17 @@ w wyzwalacz, przed pracą doczytujesz pełne brzmienie zasady z sekcji „Pełne
   12 razy). Bajty z `wc` przeszły, znaki — nie.
 - **Zasada:** bez zmian względem L-0265 — ścieżka dla Node z `cygpath -m`, a plik roboczy
   w katalogu roboczym etapu, nie w `/tmp`.
+
+### L-0310 — Kontrola pozytywna zależna od modelu nie przeszła ani razu: seria bez próby w jej warunkach · 2026-11-10 · AKTYWNA
+
+- **Trigger:** OPTYMALIZACJA_PO_AUDYCIE E2, karta K-A6m. Para ważna wymagała, żeby sesja pierwsza
+  uruchomiła `start-digest.js`. Na prompt „Odpowiedz jednym slowem: OK.” model odpowiedział od razu
+  we wszystkich trzech parach (0/3 ważnych), budżet 10 sesji się wyczerpał, a werdykt
+  `A6: NIE POWTARZA` wyszedł z gałęzi „mniej niż dwie pary ważne”, nie z dowodu. Sesja próbna K-P0
+  miała tylko `Read` i inny cel, więc tego nie pokazała.
+- **Zasada:** gdy kontrola pozytywna przebiegu zależy od zachowania modelu, pierwsza sesja serii
+  idzie w dokładnie jej warunkach (prompt, narzędzia) i sprawdza, czy kontrola w ogóle może
+  przejść, zanim ruszą następne; autor karty pomiaru planuje tę próbę w budżecie.
 
 ## Lekcje zwinięte
 

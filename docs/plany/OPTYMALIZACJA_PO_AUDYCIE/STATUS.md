@@ -11,8 +11,8 @@ Karty zmian (załącznik planu, zamrażany razem z nim): [konwencje](karty/00_KO
 | Etap | Nazwa | Status | Prompt | Uwagi |
 |---|---|---|---|---|
 | E1 | Porządki widoczne od następnej sesji | ZREALIZOWANY 2026-11-10 | [PROMPT_ETAP_1.md](PROMPT_ETAP_1.md) | [karty](karty/E01_PORZADKI_WIDOCZNE.md); dwa pytania do człowieka |
-| E2 | Pomiary na żywo i warianty dystrybucji | GOTOWY DO STARTU | [PROMPT_ETAP_2.md](PROMPT_ETAP_2.md) | [karty](karty/E02_POMIARY_NA_ZYWO.md); do 10 sesji `claude -p`; wynik w `POMIARY.md` |
-| E3 | Skaner sekretów i pre-commit | OCZEKUJE | — | [karty](karty/E03_SKANER_I_PRECOMMIT.md) |
+| E2 | Pomiary na żywo i warianty dystrybucji | ZREALIZOWANY 2026-11-10 | [PROMPT_ETAP_2.md](PROMPT_ETAP_2.md) | [karty](karty/E02_POMIARY_NA_ZYWO.md); do 10 sesji `claude -p`; wynik w `POMIARY.md` |
+| E3 | Skaner sekretów i pre-commit | GOTOWY DO STARTU | [PROMPT_ETAP_3.md](PROMPT_ETAP_3.md) | [karty](karty/E03_SKANER_I_PRECOMMIT.md) |
 | E4 | Guardy Claude Code | OCZEKUJE | — | [karty](karty/E04_GUARDY_CLAUDE_CODE.md) |
 | E5 | Hook poleceń i kontrola przy zatrzymaniu | OCZEKUJE | — | [karty](karty/E05_HOOK_POLECEN_I_STOP.md); po E4; karta K-C9 zależy od werdyktu z E2 |
 | E6 | Adaptery i załoga | OCZEKUJE | — | [karty](karty/E06_ADAPTERY_I_ZALOGA.md) |
@@ -25,6 +25,11 @@ Karty zmian (załącznik planu, zamrażany razem z nim): [konwencje](karty/00_KO
 | E13 | Mody: rdzeń i kopie | OCZEKUJE | — | [karty](karty/E13_MODY_RDZEN_I_KOPIE.md); po E12; kod zmienia tylko K-G2 — K-F4 i K-F5 rozstrzygnięte decyzją właściciela 2026-11-09 |
 | E14 | CI, liczebniki, wydanie i zamknięcie | OCZEKUJE | — | [karty](karty/E14_CI_I_WYDANIE.md); aneks D-40; jedyne wydanie planu |
 
+## Bramki manualne
+
+- **Wybór wariantu dystrybucji G1 (A / B / C / bez zmiany) na liczbach z [POMIARY.md](POMIARY.md)**
+  · źródło: wpis dziennika 2026-11-10 (E2) · **OTWARTA**
+
 ## Dziennik wdrożenia
 
 - 2026-11-09 — plan utworzony, przekazany do akceptacji. Przed przekazaniem: przegląd kolizji
@@ -36,3 +41,5 @@ Karty zmian (załącznik planu, zamrażany razem z nim): [konwencje](karty/00_KO
 - 2026-11-10 — E1 rozpoczęty
 - 2026-11-10 — E1 ZREALIZOWANY: siedem kart, 12/12 punktów weryfikacji; manifest — sprawa
   zamknięta, linie archiwum zostają; E2 GOTOWY DO STARTU, wygenerowany `PROMPT_ETAP_2.md`.
+- 2026-11-10 — E2 ZREALIZOWANY: `C9: NIE WIDZI`, `A6: NIE POWTARZA` (bez ważnej pary), tabela G1
+  w `POMIARY.md`, 10/10 sesji; E3 GOTOWY DO STARTU, wygenerowany `PROMPT_ETAP_3.md`.

@@ -163,32 +163,32 @@ i pytanie. Wątek spoza kart → zatrzymujesz się i pytasz: odnoga, aneks czy �
 Każdy punkt, który przeszedł, odhaczasz w tym pliku (`- [ ]` → `- [x]`) zaraz po jego sprawdzeniu,
 nie na końcu etapu; punkt, który nie przeszedł, zostaje pusty.
 
-- [ ] K-0 (konwencje, sekcja 3): `git branch --show-current` → `optymalizacja/po-audycie`.
-- [ ] K-P0: `node .claude/relai/work/OPTYMALIZACJA_PO_AUDYCIE/E2/pomiar-kontrola.js` → cztery
+- [x] K-0 (konwencje, sekcja 3): `git branch --show-current` → `optymalizacja/po-audycie`.
+- [x] K-P0: `node .claude/relai/work/OPTYMALIZACJA_PO_AUDYCIE/E2/pomiar-kontrola.js` → cztery
       asercje przechodzą, kod 0 (a przed implementacją instrumentu była czerwona z asercji).
-- [ ] K-P0: sesja próbna → `kod: 0`, niepuste `sesjaId`, `tekstKoncowy` zawiera `OK`; zdarzenia
+- [x] K-P0: sesja próbna → `kod: 0`, niepuste `sesjaId`, `tekstKoncowy` zawiera `OK`; zdarzenia
       w pliku strumienia mają kształt z karty.
-- [ ] K-C9m: tabela trzech przebiegów (ważny, początek odpowiedzi, widzi) i werdykt zgodny z regułą
+- [x] K-C9m: tabela trzech przebiegów (ważny, początek odpowiedzi, widzi) i werdykt zgodny z regułą
       karty.
-- [ ] K-A6m: tabela trzech par (ważna, liczba `start-digest.js` w sesji 1 i 2) i werdykt zgodny
+- [x] K-A6m: tabela trzech par (ważna, liczba `start-digest.js` w sesji 1 i 2) i werdykt zgodny
       z regułą karty.
-- [ ] Budżet: łączna liczba sesji `claude -p` ≤ 10, zapisana we wpisie dziennika i w linii
+- [x] Budżet: łączna liczba sesji `claude -p` ≤ 10, zapisana we wpisie dziennika i w linii
       „Wykonano” `POMIARY.md`.
-- [ ] K-G1m: tabela trzech wariantów wypełniona liczbami; odpowiedź człowieka z bramki instalacji
+- [x] K-G1m: tabela trzech wariantów wypełniona liczbami; odpowiedź człowieka z bramki instalacji
       zapisana we wpisie dziennika.
-- [ ] K-G1m sprzątanie: `"$CLAUDE_CODE_EXECPATH" plugin marketplace list` nie zawiera
+- [x] K-G1m sprzątanie: `"$CLAUDE_CODE_EXECPATH" plugin marketplace list` nie zawiera
       `relai-pomiar`; `ls ~/.claude/plugins/cache/` nie zawiera `relai-pomiar`; w `os.tmpdir()`
       nie ma katalogów `relai-pomiar-*`.
-- [ ] K-P9: narzędziem Grep (tryb `count`) w `POMIARY.md`: `^C9: (WIDZI|NIE WIDZI)$` → `1`,
+- [x] K-P9: narzędziem Grep (tryb `count`) w `POMIARY.md`: `^C9: (WIDZI|NIE WIDZI)$` → `1`,
       `^A6: (POWTARZA|NIE POWTARZA)$` → `1`.
-- [ ] Granica: `git status --short` pokazuje z tego etapu wyłącznie `POMIARY.md` i dokumenty
+- [x] Granica: `git status --short` pokazuje z tego etapu wyłącznie `POMIARY.md` i dokumenty
       rytuału (`STATUS.md`, `PROMPT_ETAP_2.md`, `PROMPT_ETAP_3.md`, `DZIENNIK.md`, `STATE.md`);
       pod `adapters/` wyłącznie cztery zastane `*-closing.md`.
-- [ ] Bramka manualna „wybór wariantu dystrybucji G1” stoi w sekcji „Bramki manualne”
+- [x] Bramka manualna „wybór wariantu dystrybucji G1” stoi w sekcji „Bramki manualne”
       `STATUS.md` ze statusem `OTWARTA`.
-- [ ] Wpis etapu jest na końcu sekcji „Wpisy” w `docs/DZIENNIK.md`, z podpisem
+- [x] Wpis etapu jest na końcu sekcji „Wpisy” w `docs/DZIENNIK.md`, z podpisem
       `Autor: RelAI (Opus 5.5) + Lukasz`.
-- [ ] Katalog roboczy: (a) `.claude/relai/work/OPTYMALIZACJA_PO_AUDYCIE/E2/` przejrzany raportem
+- [x] Katalog roboczy: (a) `.claude/relai/work/OPTYMALIZACJA_PO_AUDYCIE/E2/` przejrzany raportem
       (`node .claude/relai/tools/clean-work.js raport`) i skasowany po „tak”, liczby przed i po we
       wpisie dziennika; (b) artefakty spoza katalogu (fikstury `relai-pomiar-*` w `%TEMP%`,
       wpisy konfiguracji Claude Code) wypisane z nazwy razem z tym, co się z nimi stało.
