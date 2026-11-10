@@ -200,53 +200,53 @@ odnoga, aneks czy „świadomie odłożone”.
 Każdy punkt Weryfikacji, który przeszedł, odhaczasz w `PROMPT_ETAP_7.md` (`- [ ]` → `- [x]`)
 zaraz po jego sprawdzeniu, nie na końcu etapu; punkt, który nie przeszedł, zostaje pusty.
 
-- [ ] K-0 (konwencje, sekcja 3): `git branch --show-current` → `optymalizacja/po-audycie`;
+- [x] K-0 (konwencje, sekcja 3): `git branch --show-current` → `optymalizacja/po-audycie`;
       `git log --oneline -1` pokazuje commit E6 (albo człowiek rozstrzygnął, co z drzewem).
-- [ ] Testy przed zmianą: każda karta z kodem ma zapisany w katalogu roboczym przebieg czerwony
+- [x] Testy przed zmianą: każda karta z kodem ma zapisany w katalogu roboczym przebieg czerwony
       z właściwego powodu (K-C1: trzy czerwone z asercji — 3 odczyty pliku, `opisane` dla temp,
       znacznik w starym miejscu; K-C3: dwa czerwone z asercji — liczba odczytów i `typeof
       core.czytaj`; K-C2: przypadki 1, 3, 4 czerwone z asercji, przypadek 2 zielony jako kontrola).
-- [ ] `node --test core/process/tests/start-hook-cost.test.js` → **9 pass**;
+- [x] `node --test core/process/tests/start-hook-cost.test.js` → **9 pass**;
       `node --test core/process/tests/ritual-copies.test.js`, `start-digest.test.js`,
       `start-cost.test.js`, `session-signals.test.js`, `esm-project.test.js` → zielone, liczba
       testów bez zmian.
-- [ ] `node --test "core/process/tests/*.test.*"` → **405 pass** (albo suma od wpisu E6 plus 9,
+- [x] `node --test "core/process/tests/*.test.*"` → **405 pass** (albo suma od wpisu E6 plus 9,
       opisana), 0 fail; `node --test "adapters/cursor/tests/*.test.js"` → 10 pass;
       `node --test "adapters/codex/tests/*.test.js"` → 28 pass; `core/guardrails` → 33 pass.
-- [ ] Dowód negatywny (zasada 3): `git diff core/process/tests/ritual-copies.test.js
+- [x] Dowód negatywny (zasada 3): `git diff core/process/tests/ritual-copies.test.js
       core/process/tests/hook-failures.test.js` zmienia wyłącznie ścieżki sprzątania znacznika
       (`git diff -U0` — każda linia `-` zawiera `relai-ustawienia-podane`); `prompt-mode.js`,
       `resume.js` i `.claude/relai/` bez zmian w `git status --short`.
-- [ ] K-A6: `grep -c "^A6: NIE POWTARZA$" docs/plany/OPTYMALIZACJA_PO_AUDYCIE/POMIARY.md` → 1
+- [x] K-A6: `grep -c "^A6: NIE POWTARZA$" docs/plany/OPTYMALIZACJA_PO_AUDYCIE/POMIARY.md` → 1
       i `grep -c "^A6: POWTARZA$" …` → 0; gałąź `compact` w hooku Claude Code bez zmian
       w brzmieniu; zdanie zamknięcia karty we wpisie dziennika.
-- [ ] Efekt widoczny (zasada 4; skrypt w katalogu roboczym, kod z repozytorium, fikstura z markerem
+- [x] Efekt widoczny (zasada 4; skrypt w katalogu roboczym, kod z repozytorium, fikstura z markerem
       i `TEMP`/`TMP`/`TMPDIR` na pusty katalog): pierwszy SessionStart hooka Claude Code mówi
       „Specyfikacje dokumentow RelAI sa skopiowane lokalnie”, drugi `startup` bez zmian i `compact`
       — nie; plik `.claude/relai/.provisioned` istnieje; znacznik w `tmp/znaczniki-relai/`, zero
       `relai-ustawienia-podane-*` w `tmp/`. Liczby odczytów (pliki testowe, `DZIENNIK.md`,
       `USTAWIENIA.md`, `CLAUDE.md`) przed i po z testów K-C1/K-C3 do wpisu.
-- [ ] `node core/tools/validate-adapters.js` → kod 0, jedno ostrzeżenie (`security-audit/SKILL.md`),
+- [x] `node core/tools/validate-adapters.js` → kod 0, jedno ostrzeżenie (`security-audit/SKILL.md`),
       `wywolania z hooks.json: 20` bez zmian.
-- [ ] Bezpieczeństwo (D-91): `/relai-security` (skan Trivy, `trivy fs --scanners vuln`) — zero
+- [x] Bezpieczeństwo (D-91): `/relai-security` (skan Trivy, `trivy fs --scanners vuln`) — zero
       nowych CRITICAL i HIGH wprowadzonych w tym etapie, liczby według wagi do wpisu (etap nie
       dodaje zależności; po E6: 0 CRITICAL, 42 HIGH, 50 MEDIUM, 12 LOW — zastane fikstury
       ewaluacji `trivy-scan`, nie blokują). Trivy brak → zapis „brak pliku zależności w `adapters/`
       i `core/`” z wynikiem `git ls-files adapters core | grep package.json` (same fikstury
       ewaluacji `trivy-scan`).
-- [ ] Podstawy na zmianie etapu: nazwa znacznika z identyfikatora sesji oczyszczona do
+- [x] Podstawy na zmianie etapu: nazwa znacznika z identyfikatora sesji oczyszczona do
       `[A-Za-z0-9_-]` (test K-C1 z identyfikatorem); `sprzatnijZnaczniki` kasuje wyłącznie wpisy
       z prefiksem `relai-ustawienia-podane-` w korzeniu i wpisy w `znaczniki-relai` (Grep `rmSync`
       w hooku → tylko te dwa miejsca); `git grep -nE "sk_live_[A-Za-z0-9]{16}|github_pat_[A-Za-z0-9_]{22}"`
       → 0; Grep po `PASSWORD=` w nowym teście → 0.
-- [ ] Granica: `git status --short` pokazuje z tego etapu wyłącznie pliki z pól „Pliki” trzech kart
+- [x] Granica: `git status --short` pokazuje z tego etapu wyłącznie pliki z pól „Pliki” trzech kart
       i dokumenty rytuału (`STATUS.md`, `PROMPT_ETAP_7.md`, `PROMPT_ETAP_8.md`, `DZIENNIK.md`,
       `STATE.md`, ewentualnie `LEKCJE.md`); pod `adapters/*/skills/relai-planning/` wyłącznie cztery
       zastane `*-closing.md`.
-- [ ] Wpis etapu jest na końcu sekcji „Wpisy” w `docs/DZIENNIK.md`, z liczbami testów
+- [x] Wpis etapu jest na końcu sekcji „Wpisy” w `docs/DZIENNIK.md`, z liczbami testów
       (`core/process` 405 albo zgodnie z sumą, opisaną), liczbami odczytów przed i po, zdaniem
       zamknięcia K-A6 i podpisem `Autor: RelAI (Opus 5.5) + Lukasz`.
-- [ ] Katalog roboczy: (a) `.claude/relai/work/OPTYMALIZACJA_PO_AUDYCIE/E7/` przejrzany
+- [x] Katalog roboczy: (a) `.claude/relai/work/OPTYMALIZACJA_PO_AUDYCIE/E7/` przejrzany
       (`node .claude/relai/tools/clean-work.js raport`; katalog otwartego etapu raport pomija —
       wtedy liczby z `find`/`du`) i skasowany po „tak”, liczby przed i po we wpisie dziennika;
       (b) artefakty spoza katalogu (fikstury `%TEMP%/relai-*` z testów i skryptu efektu) wypisane

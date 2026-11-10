@@ -113,6 +113,8 @@ function raport(out, nazwa, fn) {
 
 function onSessionStart(input) {
   const cwd = input.cwd || process.cwd();
+  // Jeden odczyt kazdego dokumentu na proces hooka (audyt C3).
+  core.pamiecOdczytow(true);
   const markerFile = relaiMarkerFile(cwd);
   // Folder bez struktury RelAI: do 2.2.0 zawsze cisza. Od 2.3.0 jeden wyjatek — czlowiek,
   // ktory raz odpowiedzial "nie pytaj mnie o to nigdzie", dostaje tu linie wyciszajaca
@@ -199,7 +201,12 @@ function onSessionStart(input) {
   // WLACZONYM — brak wiersza i wartosc spoza zamknietej listy daja zero znakow. Stoi tutaj,
   // bo jest stanem projektu, a nie zadaniem: czlowiek ma wiedziec, czemu jego zdania wracaja
   // z propozycja, zanim zobaczy pierwsza z nich.
-  raport(out, 'tryb ciagly', () => trybPromptu.trybCiaglyReport(trybPromptu.trybCiaglyProjektu(cwd)));
+  raport(out, 'tryb ciagly', () => {
+    const plikUstawien = ['USTAWIENIA.md', 'SETTINGS.md'].map((n) => path.join(cwd, 'docs', n))
+      .find((p) => fs.existsSync(p));
+    return trybPromptu.trybCiaglyReport(
+      trybPromptu.trybCiagly(plikUstawien ? core.czytaj(plikUstawien) : ''));
+  });
 
   // Plik wznowienia pracy (LIMIT_CHECKPOINT E3, L7): per projekt, wiec zdanie pada w kazdej
   // nowej sesji, dopoki plik istnieje — przycisk "Wznow" na pasku cache jest wygoda, nie
@@ -238,7 +245,8 @@ function onSessionStart(input) {
     'Pelna procedura: plik done-check.md skilla relai-core.');
 
   raport(out, 'kopie specyfikacji', () => {
-    const copied = provisionTemplates(cwd);
+    // Po kompakcji kopia jest juz w projekcie (audyt C2).
+    const copied = input.source === 'compact' ? 0 : provisionTemplates(cwd);
     if (!(copied > 0)) return [];
     return ['Specyfikacje dokumentow RelAI sa skopiowane lokalnie do .claude/relai/templates/ (' + copied +
       ' plikow). Czytaj je stamtad — katalog pluginu jest poza zasiegiem sesji.'];
@@ -285,13 +293,38 @@ function onSessionStart(input) {
 // ktory je podal, zostawia znacznik w katalogu tymczasowym, nazwany identyfikatorem sesji;
 // hook wywolania skilla po znaczniku ich nie powtarza. Brak identyfikatora albo znacznika
 // (sesja zaczeta poza projektem, projekt zalozony w trakcie) = ustawienia podane jak dotad.
+// Znacznik poza prefiksem relai- (audyt C1): skan artefaktow roboczych bierze z katalogu
+// tymczasowego kazdy wpis relai-*, a znacznikow przybywalo z kazda sesja.
+const KATALOG_ZNACZNIKOW = 'znaczniki-relai';
+const STARY_PREFIKS = 'relai-ustawienia-podane-';
+const WIEK_ZNACZNIKA_MS = 7 * 24 * 60 * 60 * 1000;
+
 function znacznikUstawien(sesja) {
   const id = String(sesja || '').replace(/[^A-Za-z0-9_-]/g, '');
-  return id ? path.join(os.tmpdir(), 'relai-ustawienia-podane-' + id) : null;
+  return id ? path.join(os.tmpdir(), KATALOG_ZNACZNIKOW, 'ustawienia-podane-' + id) : null;
+}
+function sprzatnijZnaczniki(teraz) {
+  const dir = path.join(os.tmpdir(), KATALOG_ZNACZNIKOW);
+  if (!fs.existsSync(dir)) {
+    // Pierwszy start po zmianie: znaczniki starego ksztaltu kasujemy raz, razem z utworzeniem katalogu.
+    for (const nazwa of fs.readdirSync(os.tmpdir())) {
+      if (nazwa.startsWith(STARY_PREFIKS)) fs.rmSync(path.join(os.tmpdir(), nazwa), { force: true });
+    }
+    fs.mkdirSync(dir, { recursive: true });
+    return;
+  }
+  for (const nazwa of fs.readdirSync(dir)) {
+    const p = path.join(dir, nazwa);
+    if (teraz - fs.statSync(p).mtimeMs > WIEK_ZNACZNIKA_MS) fs.rmSync(p, { force: true });
+  }
 }
 function oznaczUstawieniaPodane(sesja) {
   const plik = znacznikUstawien(sesja);
-  try { if (plik) fs.writeFileSync(plik, ''); } catch (_) { /* brak znacznika = powtorzenie, nie awaria */ }
+  try {
+    if (!plik) return;
+    sprzatnijZnaczniki(Date.now());
+    fs.writeFileSync(plik, '');
+  } catch (_) { /* brak znacznika = powtorzenie ustawien, nie awaria */ }
 }
 function ustawieniaPodane(sesja) {
   const plik = znacznikUstawien(sesja);

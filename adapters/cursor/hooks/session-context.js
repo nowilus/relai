@@ -63,6 +63,8 @@ function adapterVersion() {
 
 function onSessionStart(input) {
   const cwd = workingDir(input);
+  // Jeden odczyt kazdego dokumentu na proces hooka (audyt C3).
+  core.pamiecOdczytow(true);
   const markerFile = core.relaiMarkerFile(cwd, MARKERY_GOSCIA);
   if (!markerFile) return process.exit(0);
 

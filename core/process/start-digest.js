@@ -52,9 +52,8 @@ const PROG_SEKCJI_ZNAKOW = 8000;
 // Separator komorki niepoprzedzony znakiem ucieczki (zasada 5, parsowanie).
 const SEPARATOR = /(?<!\\)\|/;
 
-function czytajLF(p) {
-  try { return fs.readFileSync(p, 'utf8').replace(/\r\n/g, '\n'); } catch (_) { return null; }
-}
+// Odczyt przez rdzen: w procesie hooka startu dziala tam pamiec odczytow (audyt C3).
+function czytajLF(p) { return core.czytaj(p).replace(/\r\n/g, '\n'); }
 
 function pierwszyIstniejacy(dir, nazwy) {
   for (const n of nazwy) {

@@ -17,7 +17,7 @@ bramka `pre-push` na tagi. Na maszynie Łukasza `relai`, `relai-panel` i `relai-
 są włączone na poziomie użytkownika, a w projektach z markerem RelAI także lokalnie (stan
 z `relai-scope.js status`, 2026-11-10); tryb „RelAI tylko w projektach” jest dostępny
 (`relai-scope.js apply`), ale nie jest włączony. Od 2026-11-09 aktywny jest plan OPTYMALIZACJA_PO_AUDYCIE (naprawy po audycie
-projektu; E1–E6 zrealizowane 2026-11-10, etap E7 gotowy do startu). Poprzedni: KONTEKST_STARTU zamknięty 2026-10-28 (start sesji to jedno
+projektu; E1–E7 zrealizowane 2026-11-10, etap E8 gotowy do startu). Poprzedni: KONTEKST_STARTU zamknięty 2026-10-28 (start sesji to jedno
 polecenie skrótu, RelAI po pierwszej turze 25–32 tys. tokenów zamiast ok. 72 tys. — cel 25 tys.
 częściowo), PANEL_CODEX (Codex) wstrzymany 2026-10-27 decyzją Łukasza.
 Opinii spoza projektu nadal nie ma.
@@ -135,7 +135,11 @@ Opinii spoza projektu nadal nie ma.
   manifeście, załoga uruchamia inne narzędzie bez zmiennych gospodarza, więc skaner Codeksa nie
   milknie, prompt recenzenta Codeksa idzie stdin-em, `--model`/`--base` z białej listy, tryb
   zapisu bez `-f` w Cursorze i bez gołego `Bash` w Claude Code; cursor 10, codex 28,
-  `core/process` 396 testów), E7 gotowy do startu** (plan
+  `core/process` 396 testów), E7 zrealizowany 2026-11-10 (skan artefaktów czyta każdy plik
+  testowy raz, a pozycje z `%TEMP%` omijają bramki dokumentów i testów; znacznik ustawień
+  w `<tmp>/znaczniki-relai/`, stare sprzątane; dokumenty startu czytane raz na proces hooka;
+  kopia specyfikacji tylko przy zmianie, znacznik `.claude/relai/.provisioned`, bez kopii po
+  kompakcji; K-A6 zamknięta bez kodu; `core/process` 405 testów), E8 gotowy do startu** (plan
   [OPTYMALIZACJA_PO_AUDYCIE](plany/OPTYMALIZACJA_PO_AUDYCIE/STATUS.md), 14 etapów, wykonanie Opus 5.5
   medium w świeżych sesjach, gałąź `optymalizacja/po-audycie`, jedno wydanie na końcu). Źródło:
   [raport audytu](AUDYT_RELAI_2026-11-09.md) — 56 znalezisk, do naprawy wybrane 41 wysokiej

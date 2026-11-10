@@ -261,6 +261,7 @@ function install(projekt, bezSkanu) {
   try {
     const core = require(path.join(REPO_ROOT, 'core', 'process', 'session-signals.js'));
     templates = core.provisionTemplates(projekt, {
+      wymus: true,
       coreTemplates: path.join(REPO_ROOT, 'core', 'templates'),
       destRel: '.claude/relai',
     });

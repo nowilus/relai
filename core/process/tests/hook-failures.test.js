@@ -114,7 +114,7 @@ test('session-context: one failing report keeps the block, the ritual line and t
   const root = projekt(b, true);
   const sesje = ['test-c4-awaria', 'test-c4-kontrola'];
   t.after(() => {
-    for (const id of sesje) fs.rmSync(path.join(os.tmpdir(), 'relai-ustawienia-podane-' + id), { force: true });
+    for (const id of sesje) fs.rmSync(path.join(os.tmpdir(), 'znaczniki-relai', 'ustawienia-podane-' + id), { force: true });
   });
   const sygnaly = path.join(ROOT, 'core', 'process', 'session-signals.js');
   const wspolne = { 'prompt-mode.js': reeksport('prompt-mode.js'), 'resume.js': reeksport('resume.js') };

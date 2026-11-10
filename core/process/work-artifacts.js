@@ -429,11 +429,14 @@ function opiszWork(cwd, wpis) {
 
 // --- bramka ------------------------------------------------------------------
 
-function indeksDokumentow(cwd) {
+// czytajTekst (opcjonalny): odczyt wolajacego, np. pamiec odczytow hooka startu (audyt C3).
+// Zwraca tekst albo '' — pusty dokument niczego nie opisuje, wiec traktujemy go jak brak.
+function indeksDokumentow(cwd, czytajTekst) {
   const wynik = [];
   for (const rel of DOKUMENTY_BRAMKI) {
     const p = path.join(cwd, ...rel.split('/'));
-    const linie = czytajLinie(p);
+    const tekst = czytajTekst ? czytajTekst(p) : null;
+    const linie = czytajTekst ? (tekst ? tekst.split(/\r?\n/) : null) : czytajLinie(p);
     if (linie) wynik.push({ plik: rel, linie });
   }
   return wynik;
@@ -477,7 +480,7 @@ function kontekstBramki(cwd, opcje) {
     cwd,
     markery: o.markery || czytajMarkery(cwd),
     sledzone: o.sledzone !== undefined ? o.sledzone : sledzonePliki(cwd),
-    dokumenty: o.dokumenty || indeksDokumentow(cwd),
+    dokumenty: o.dokumenty || indeksDokumentow(cwd, o.czytaj),
     testy: o.testy || plikiTestowe(cwd),
     korzenie: [path.resolve(cwd), fs.realpathSync(os.tmpdir())],
   };
@@ -515,17 +518,25 @@ function szukajWDokumentach(kontekst, poz) {
   return null;
 }
 
+// Tresc pliku testowego czytana najwyzej raz na kontekst bramki (audyt C1: 23 odczyty kazdego
+// pliku testowego na jeden start sesji). Plik nieczytelny zapamietany jako null.
+function trescTestu(kontekst, p) {
+  if (!kontekst.tresciTestow) kontekst.tresciTestow = new Map();
+  if (!kontekst.tresciTestow.has(p)) {
+    let tresc = null;
+    try { tresc = fs.readFileSync(p, 'utf8'); } catch (_) { tresc = null; }
+    kontekst.tresciTestow.set(p, tresc);
+  }
+  return kontekst.tresciTestow.get(p);
+}
+
 function szukajWTestach(kontekst, poz) {
   const rel = poz.wzgledna;
   if (!rel || rel.startsWith('..')) return null;
   const igly = [rel, rel.split('/').join('\\')];
   for (const p of kontekst.testy) {
-    let tresc;
-    try {
-      tresc = fs.readFileSync(p, 'utf8');
-    } catch (_) {
-      continue;
-    }
+    const tresc = trescTestu(kontekst, p);
+    if (tresc === null) continue;
     for (const igla of igly) {
       if (tresc.includes(igla)) return { plik: relatywna(kontekst.cwd, p) };
     }
@@ -555,10 +566,14 @@ function bramka(poz, kontekst) {
     if (m.re.test(rel)) return { powod: 'zachowaj', zrodlo: m.zrodlo + ': ' + m.wzorzec };
   }
 
-  const opis = szukajWDokumentach(kontekst, poz);
+  // Pozycja z katalogu tymczasowego (zrodlo "temp") lezy poza projektem: jej sciezka nie jest
+  // wzgledna, wiec dokument ani test projektu jej nie wymienia (audyt C1).
+  const wProjekcie = poz.zrodlo !== 'temp';
+
+  const opis = wProjekcie ? szukajWDokumentach(kontekst, poz) : null;
   if (opis) return { powod: 'opisane', zrodlo: opis.plik + ':' + opis.linia };
 
-  const test = szukajWTestach(kontekst, poz);
+  const test = wProjekcie ? szukajWTestach(kontekst, poz) : null;
   if (test) return { powod: 'wiazane testami', zrodlo: test.plik };
 
   // .claude jest zaleznoscia narzedzia POZA .claude/relai/work — to jest jedyny wyjatek.

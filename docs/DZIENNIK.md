@@ -2500,3 +2500,90 @@ dopiero po wydaniu w E14 — dowodem są testy i skrypt efektu na kodzie z repoz
 
 Lekcja z etapu: L-0313 (krok karty „sam eksport” nazwy, której jeszcze nie ma, daje
 `ReferenceError`, nie przebieg czerwony z asercji).
+
+### 2026-11-10 — OPTYMALIZACJA_PO_AUDYCIE E7: koszt hooka startu — jeden odczyt pliku testowego, jeden odczyt dokumentu, prowizja tylko przy zmianie
+
+Autor: RelAI (Opus 5.5) + Lukasz
+
+Etap E7 z E14, karty z `karty/E07_KOSZT_HOOKA_STARTU.md` w kolejności K-C1 → K-C3 → K-C2 → K-A6.
+Gałąź `optymalizacja/po-audycie`, punkt wyjścia `364e94e` (commit E6). Zmiana działa w sesjach
+dopiero po wydaniu w E14 — dowodem są testy i skrypt efektu na kodzie z repozytorium.
+
+**Zrobione:**
+
+- K-C1: `core/process/work-artifacts.js` — `trescTestu` (mapa leniwa `tresciTestow` w kontekście
+  bramki) i dwie linie w `szukajWTestach`; `wProjekcie` w `bramka` — pozycja `zrodlo === 'temp'`
+  omija bramki „opisane” i „wiązane testami”. Hook Claude Code: `KATALOG_ZNACZNIKOW`,
+  `STARY_PREFIKS`, `WIEK_ZNACZNIKA_MS`, `sprzatnijZnaczniki`, nowe `znacznikUstawien`
+  (`<tmp>/znaczniki-relai/ustawienia-podane-<id>`) i `oznaczUstawieniaPodane`. Ścieżka sprzątania
+  znacznika w `ritual-copies.test.js` i `hook-failures.test.js`. Nowy
+  `core/process/tests/start-hook-cost.test.js`, trzy przypadki.
+- K-C3: `core/process/session-signals.js` — `pamiecOdczytow` i `czytaj` z pamięcią (eksport obu
+  razem z kodem), odczyty w `markerWKatalogu`, `projectVersion`, `unknownAuthor` przez `czytaj`,
+  `czytaj` w wywołaniu skanu artefaktów; `indeksDokumentow(cwd, czytajTekst)` i `o.czytaj`
+  w `kontekstBramki`; `czytajLF` w `start-digest.js` przez `core.czytaj` (Edit). Hooki trzech
+  adapterów wołają `core.pamiecOdczytow(true)`; raport „tryb ciagly” w hooku Claude Code czyta
+  ustawienia przez `core.czytaj` i `trybCiagly`. Dwa przypadki testu.
+- K-C2: `session-signals.js` — `crypto`, `ZNACZNIK_PROWIZJI`, `paryDrzewa`, `plikiProwizji`,
+  `odcisk`, sprawdzenie znacznika przed kopią i zapis po kopii kompletnej, komentarz nad
+  `provisionTemplates` (0 = nic się nie zmieniło) i opcja `wymus`. Hook Claude Code przy
+  `source === 'compact'` nie kopiuje; `adapters/cursor/install.js` z `wymus: true`. Cztery
+  przypadki testu.
+- K-A6: K-A6 zamknieta jako niepotwierdzona: POMIARY.md ma linie `A6: NIE POWTARZA`, wiec start po
+  wznowieniu zostaje bez zmian.
+
+**Zweryfikowane — jak dokładnie:**
+
+- `git branch --show-current` → `optymalizacja/po-audycie`; `git log --oneline -1` → `364e94e`.
+- Przebiegi czerwone przed zmianą (z asercji): K-C1 — `a.test.js przeczytany 3 razy`, pozycja
+  temp dostała `{ powod: 'opisane', zrodlo: 'CLAUDE.md:3' }`, `brak znacznika w znaczniki-relai`;
+  K-C3 — `docs/DZIENNIK.md przeczytany 7 razy` i `typeof core.czytaj` różny od `'function'`;
+  K-C2 — przypadki 1 i 3 (drugi zwrot różny od 0) i 4 (`kompakcja skopiowala`) czerwone,
+  przypadek 2 zielony jako kontrola.
+- Po zmianie: `start-hook-cost.test.js` → **9 pass**; `ritual-copies`, `hook-failures`,
+  `start-digest`, `start-cost`, `session-signals`, `esm-project` → zielone, liczby testów bez
+  zmian. `node --test "core/process/tests/*.test.*"` → **405 pass**, 0 fail (po E6 396, +3 +2 +4);
+  `adapters/cursor` → 10 pass, `adapters/codex` → 28 pass, `core/guardrails` → 33 pass.
+- Liczby odczytów (fikstury testów): plik testowy w skanie trzech pozycji `work` — przed 3 razy
+  każdy (12 przy czterech plikach), po 1 raz (4). Sekwencja startu z testu K-C3 — `DZIENNIK.md`
+  przed 7, po 1; `USTAWIENIA.md` i `CLAUDE.md` po 1 i 1. Skrypt efektu (fikstura z mniejszym
+  dziennikiem, pamięć wyłączona jako stan sprzed K-C3): `DZIENNIK` 4 → 1, `USTAWIENIA` 12 → 1,
+  `CLAUDE` 8 → 1. Skrót startu w procesie hooka: 1 budowa (utrwalone testem).
+- Efekt widoczny (skrypt w katalogu roboczym, hook z repozytorium, `TEMP`/`TMP`/`TMPDIR` na pusty
+  katalog obok projektu): pierwszy `startup` mówi „Specyfikacje dokumentow RelAI sa skopiowane
+  lokalnie”, drugi `startup` i `compact` — nie; `.claude/relai/.provisioned` istnieje; znaczniki
+  w `tmp/znaczniki-relai/` (trzy), podłożony `relai-ustawienia-podane-stary` skasowany — w `tmp/`
+  zero `relai-ustawienia-podane-*`.
+- Dowód negatywny: `git diff -U0` obu plików testów — każda linia `-` zawiera
+  `relai-ustawienia-podane`, `+` zmienia wyłącznie ścieżkę sprzątania; `prompt-mode.js`,
+  `resume.js` i `.claude/relai/` (poza katalogiem roboczym) bez zmian w `git status --short`.
+- K-A6: `grep -c "^A6: NIE POWTARZA$"` → 1, `grep -c "^A6: POWTARZA$"` → 0; zdanie gałęzi
+  `compact` w hooku Claude Code bez zmian (brak w `git diff`).
+- `node core/tools/validate-adapters.js` → kod 0, jedno ostrzeżenie (`security-audit/SKILL.md`),
+  `wywolania z hooks.json: 20`.
+- Trivy (`trivy fs --scanners vuln`): 0 CRITICAL, 42 HIGH, 50 MEDIUM, 12 LOW — identycznie jak
+  po E6; etap nie dodaje zależności. Nowych CRITICAL ani HIGH: 0.
+- Podstawy: identyfikator sesji oczyszczony do `[A-Za-z0-9_-]` przed nazwą znacznika (test K-C1
+  z `k-c1`); `rmSync` w hooku tylko w dwóch miejscach `sprzatnijZnaczniki` (prefiks
+  `relai-ustawienia-podane-` w korzeniu i wpisy `znaczniki-relai`); `git grep -nE` po
+  `sk_live_…{16}` i `github_pat_…{22}` → 0; `PASSWORD=` w nowym teście → 0.
+- Granica: `git status --short` — z etapu wyłącznie pliki z pól „Pliki” trzech kart i dokumenty
+  rytuału; pod `adapters/*/skills/relai-planning/` tylko cztery zastane `*-closing.md`.
+- Katalog roboczy `.claude/relai/work/OPTYMALIZACJA_PO_AUDYCIE/E7/`: przed — 9 plików, 829 KB
+  (`find`/`du`; przebiegi czerwone, pełne przebiegi testów, raport Trivy, skrypt efektu i wynik);
+  po „tak” Łukasza — 0. Artefakty spoza katalogu: fikstury `%TEMP%/relai-e7-*` (testy i skrypt
+  efektu) sprzątane w `finally` — po etapie `ls` → 0.
+
+**Świadomie odłożone:**
+
+- Przegląd ryzyk: R5 (dokumenty puchną i zjadają kontekst) — start czyta mniej, ale wagi
+  dokumentów bez zmian; poziom bez zmian. C11 (pliki pomiarów) — bez zmian. Nowych ryzyk etap nie
+  wnosi.
+- Rotacje dziennika, sekcji ryzyk i lekcji zgłoszone na starcie — poza etapem (próg ryzyk i lekcji
+  porządkuje K-A3 w E8).
+- W bieżących sesjach hook zainstalowanego 3.7.0 dalej pisze znaczniki starego kształtu
+  i kopiuje przy każdym starcie — pierwszy start po wydaniu w E14 je sprzątnie.
+
+**Do zrobienia przez człowieka:**
+
+—

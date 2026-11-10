@@ -124,7 +124,7 @@ test('session start hooks of three adapters print the same command, compact only
     fs.rmSync(dir, { recursive: true, force: true });
     // Hook Claude Code zostawia znacznik "ustawienia podane" na sesje w katalogu tymczasowym.
     for (const id of ['test-rytual', 'test-rytual-2']) {
-      fs.rmSync(path.join(os.tmpdir(), 'relai-ustawienia-podane-' + id), { force: true });
+      fs.rmSync(path.join(os.tmpdir(), 'znaczniki-relai', 'ustawienia-podane-' + id), { force: true });
     }
   }
 });
