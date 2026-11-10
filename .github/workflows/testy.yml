@@ -24,6 +24,8 @@ jobs:
     runs-on: windows-latest
     timeout-minutes: 20
     steps:
+      - name: Konce linii LF jak w repozytorium
+        run: git config --global core.autocrlf false
       - name: Pobierz repozytorium
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Ustaw Node
