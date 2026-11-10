@@ -66,6 +66,24 @@ test('sprawdz porownuje sume fragmentu z suma archiwum i zglasza roznice', (t) =
   assert.match(roznica.out[0], /ROZNE/);
 });
 
+test('plan ryzyk bez zamknietych: bez komunikatu zablokowanej rotacji (D-88, aneks)', (t) => {
+  const tekst = (statusTrzeciego) => '# DZIENNIK\n\n## Stan otwartych ryzyk\n\n'
+    + '| # | Ryzyko | Poziom | Status | Mitygacja |\n|---|---|---|---|---|\n'
+    + '| R1 | Pierwsze | Niski | OTWARTE | m |\n'
+    + '| R2 | Drugie | Niski | OTWARTE | m |\n'
+    + '| R3 | Trzecie | Niski | ' + statusTrzeciego + ' | m |\n\n'
+    + '## Wpisy\n\n### 2026-10-01 — Wpis\n\nTresc.\n';
+  const dir = projekt(t, tekst('OTWARTE'));
+  const wynik = rotate.wykonaj('ryzyka', opcje(dir, { prog: 0.01 }));
+  const out = wynik.out.join('\n');
+  assert.equal(wynik.kod, 0, out);
+  assert.match(out, /zadne ryzyko nie jest ZAMKNIETE/);
+  assert.doesNotMatch(out, /komunikat zablokowanej rotacji/);
+  // Kontrola pozytywna: jedno ryzyko zamkniete -> rotacja idzie do archiwum.
+  const dir2 = projekt(t, tekst('ZAMKNIĘTE 2026-10-01'));
+  assert.match(rotate.wykonaj('ryzyka', opcje(dir2, { prog: 0.01 })).out.join('\n'), /archiwum:/);
+});
+
 function dziennik(daty, { malejaco = false } = {}) {
   const wpisy = daty.map((d, i) => '### ' + d + ' — Wpis numer ' + (i + 1) + ', z przecinkiem\n\n' + 'Treść '.repeat(200) + '\n\nAutor: RelAI (Opus) + Lukasz\n');
   const kolejne = malejaco ? wpisy.slice().reverse() : wpisy;

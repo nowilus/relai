@@ -141,13 +141,46 @@ test('startCostReport proposes rotation only when rotation would remove somethin
     assert.match(rWiecej, /Zaproponuj rotacje dziennika/);
     assert.match(rWiecej, /ryzyka ZAMKNIETE/);
 
-    // Aneks A: linia progow dokumentow nie proponuje rotacji ryzyk, gdy zadne nie jest zamkniete.
-    assert.match(rZero, /zamykanie ryzyk \(zadne nie jest ZAMKNIETE/);
-    assert.ok(!/rotacja ryzyk ZAMKNIETYCH/.test(rZero), 'pusta rotacja ryzyk: ' + rZero);
+    // D-88, aneks (audyt A3): sekcja ryzyk bez zamknietych nie wchodzi do linii progow.
+    assert.ok(!/Stan otwartych ryzyk/.test(rZero), 'sekcja ryzyk bez zamknietych: ' + rZero);
+    // Zawezone do brzmienia procedury z linii progow: zdanie budzetu "Rotacja nic tu nie zdejmie"
+    // tez mowi o zamykaniu ryzyk i zostaje (karta K-A3, "Nie ruszasz"; decyzja Lukasza 2026-11-10).
+    assert.ok(!/zamykanie ryzyk \(zadne/.test(rZero), 'procedura zamykania ryzyk w linii progow: ' + rZero);
+    assert.match(rZero, /Rotacja nic tu nie zdejmie/, 'kontrola pozytywna: zdanie budzetu zostaje');
     assert.match(rWiecej, /rotacja ryzyk ZAMKNIETYCH do archiwum/);
     assert.ok(!/[ąćęłńóśźżĄĆĘŁŃÓŚŹŻ]/.test(rZero + rWiecej), 'raport ma byc w ASCII (L-0016)');
   } finally {
     for (const d of [zero, wiecej]) fs.rmSync(d, { recursive: true, force: true });
+  }
+});
+
+test('lessons threshold in KB counts the file without "Zasady aktywne" (D-88 annex)', () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'relai-start-cost-lekcje-'));
+  try {
+    fs.mkdirSync(path.join(dir, 'docs'));
+    const txtUstawien = '# USTAWIENIA\n\nWersja RelAI: 3.7.0\n\n'
+      + '| Data | Czego dotyczy | Decyzja |\n|---|---|---|\n'
+      + '| 2026-10-28 | Rotacja dokumentów | włączona · lekcje 40 wpisów albo 2 KB |\n';
+    fs.writeFileSync(path.join(dir, 'docs', 'USTAWIENIA.md'), txtUstawien);
+    const lekcje = (dlugoscLekcji) => '# LEKCJE\n\n## Zasady aktywne\n\n' + 'z'.repeat(3000)
+      + '\n\n## Lekcje\n\n### L-0001 — A\n\n' + 'l'.repeat(dlugoscLekcji);
+    const plik = path.join(dir, 'docs', 'LEKCJE.md');
+    const pozycjaLekcji = () => core.dokumentyPonadProgiem(dir, txtUstawien)
+      .find((p) => p.etykieta === 'docs/LEKCJE.md');
+
+    // Plik 3,5 KB, z czego 3 KB to "Zasady aktywne": bez nich ponizej 2 KB -> brak pozycji.
+    fs.writeFileSync(plik, lekcje(500));
+    assert.equal(pozycjaLekcji(), undefined, 'prog lekcji liczy sekcje "Zasady aktywne"');
+
+    // Kontrola pozytywna: lekcja 2 500 znakow -> pozycja jest, waga bez sekcji zasad.
+    const txt = lekcje(2500);
+    fs.writeFileSync(plik, txt);
+    const p = pozycjaLekcji();
+    assert.ok(p, 'kontrola pozytywna: brak pozycji przy lekcjach ponad progiem');
+    const zasady = core.wytnijSekcje(txt, [/^zasady aktywne\b/i]);
+    assert.equal(p.wartosc, Buffer.byteLength(txt, 'utf8') - Buffer.byteLength(zasady, 'utf8'));
+  } finally {
+    fs.rmSync(dir, { recursive: true, force: true });
   }
 });
 

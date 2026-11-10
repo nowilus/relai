@@ -203,7 +203,8 @@ Kompresja i rotacja to **dwie różne operacje** i nie wolno ich mylić:
 | **Rotacja** (tutaj) | przenosi **pełne wpisy bajt w bajt** do `docs/archiwum/lekcje/` — nie zmienia ani znaku | sama, w rytuale zamknięcia sesji |
 
 Rotacja rusza, gdy plik przekracza próg z `docs/USTAWIENIA.md`: domyślnie **40 lekcji albo 50 KB**,
-co nastąpi wcześniej. Poniżej progu — cisza. Mechanizm (dwie fazy, sumy kontrolne, nazwy plików)
+co nastąpi wcześniej. Próg w KB liczy plik **bez sekcji „Zasady aktywne”** — ta ma własny limit
+liczby zasad (D-88, aneks 2026-11-10). Poniżej progu — cisza. Mechanizm (dwie fazy, sumy kontrolne, nazwy plików)
 opisuje `SPEC_ARCHIWUM.md`; tutaj obowiązuje to, czego rotacja nie ma prawa naruszyć.
 
 **Co zostaje zawsze:**

@@ -17,8 +17,8 @@ Karty zmian (załącznik planu, zamrażany razem z nim): [konwencje](karty/00_KO
 | E5 | Hook poleceń i kontrola przy zatrzymaniu | ZREALIZOWANY 2026-11-10 | [PROMPT_ETAP_5.md](PROMPT_ETAP_5.md) | [karty](karty/E05_HOOK_POLECEN_I_STOP.md); po E4; karta K-C9 zależy od werdyktu z E2 |
 | E6 | Adaptery i załoga | ZREALIZOWANY 2026-11-10 | [PROMPT_ETAP_6.md](PROMPT_ETAP_6.md) | [karty](karty/E06_ADAPTERY_I_ZALOGA.md) |
 | E7 | Koszt hooka startu | ZREALIZOWANY 2026-11-10 | [PROMPT_ETAP_7.md](PROMPT_ETAP_7.md) | [karty](karty/E07_KOSZT_HOOKA_STARTU.md); karta K-A6 zależy od werdyktu z E2 |
-| E8 | Skrót startu, progi i lista modeli | GOTOWY DO STARTU | [PROMPT_ETAP_8.md](PROMPT_ETAP_8.md) | [karty](karty/E08_SKROT_PROGI_MODELE.md); aneks D-88 |
-| E9 | Tryb ciągły | OCZEKUJE | — | [karty](karty/E09_TRYB_CIAGLY.md); po E7; aneks D-93 |
+| E8 | Skrót startu, progi i lista modeli | ZREALIZOWANY 2026-11-10 | [PROMPT_ETAP_8.md](PROMPT_ETAP_8.md) | [karty](karty/E08_SKROT_PROGI_MODELE.md); aneks D-88 |
+| E9 | Tryb ciągły | GOTOWY DO STARTU | [PROMPT_ETAP_9.md](PROMPT_ETAP_9.md) | [karty](karty/E09_TRYB_CIAGLY.md); po E7; aneks D-93 |
 | E10 | Prompty etapów i rytuały | OCZEKUJE | — | [karty](karty/E10_PROMPTY_ETAPOW_I_RYTUALY.md) |
 | E11 | Proces i rejestry | OCZEKUJE | — | [karty](karty/E11_PROCES_I_REJESTRY.md); po E10; karta K-E4 po aneksie D-88 z E8 |
 | E12 | Mody: odporność i koszt | OCZEKUJE | — | [karty](karty/E12_MODY_ODPORNOSC.md) |
@@ -69,3 +69,7 @@ Karty zmian (załącznik planu, zamrażany razem z nim): [konwencje](karty/00_KO
 - 2026-11-10 — E7 ZREALIZOWANY: trzy karty z kodem (K-C1, K-C3, K-C2), K-A6 zamknięta bez kodu
   (`A6: NIE POWTARZA`), 9 nowych testów, `core/process` 405; E8 GOTOWY DO STARTU, wygenerowany
   `PROMPT_ETAP_8.md`.
+- 2026-11-10 — E8 ZREALIZOWANY: trzy karty (K-A2, K-A3 z aneksem D-88, K-A4 — Sonnet 5.5, lista
+  z 2026-11-10), 4 nowe testy, `core/process` 409; dwa rozjazdy z kartą rozstrzygnięte przez
+  Łukasza (asercja K-A3 zawężona, próg lekcji w sztukach uznany); E9 GOTOWY DO STARTU,
+  wygenerowany `PROMPT_ETAP_9.md`.

@@ -2587,3 +2587,122 @@ dopiero po wydaniu w E14 — dowodem są testy i skrypt efektu na kodzie z repoz
 **Do zrobienia przez człowieka:**
 
 —
+
+### 2026-11-10 — OPTYMALIZACJA_PO_AUDYCIE E8: skrót startu bez odsyłaczy archiwum i sekcji spraw, progi osiągalne rotacją (aneks D-88), wiersz modelu optymalizatora
+
+Autor: RelAI (Opus 5.5) + Lukasz
+
+Etap E8 z E14, karty z `karty/E08_SKROT_PROGI_MODELE.md` w kolejności K-A2 → K-A3 → K-A4.
+Gałąź `optymalizacja/po-audycie`, punkt wyjścia `cfee4df` (commit E7). Kod działa w sesjach
+dopiero po wydaniu w E14; aneks D-88 i wiersz ustawień — od razu.
+
+**Zrobione:**
+
+- K-A2: `core/process/start-digest.js` — `ODSYLACZ_SUMA` i `bezOdsylaczy` (blok cytatu z „suma
+  kontrolna”/„checksum” zwija się do linii `[odsylacze do archiwum ryzyk pominiete: N; …]`, cytat
+  bez sumy zostaje), sekcja „Czeka na człowieka” wyjęta ze skrótu, drogowskaz do niej zawsze,
+  `NAGLOWEK_CZEKA` i pole `czeka` usunięte, komentarz nagłówka. Hook Codeksa
+  (`adapters/codex/hooks/session-context.js`) wypisuje `sprawyPrzeterminowaneReport` — sprawy
+  przeterminowane mają teraz jeden nośnik, hook startu, w trzech adapterach. Kopie zdania:
+  `relai-core/SKILL.md`, `relai-core.mdc` (linia 25), `SPEC_USTAWIENIA.md` (opis części `ryzyka`
+  i wiersz katalogu progów); generator Codeksa. Test przepisany + dwa nowe.
+- K-A3: wiersz **D-88 → aneks** na końcu tabeli „Decyzje zmienione” w `docs/DECYZJE.md` (brzmienie
+  z karty, data 2026-11-10; linia 29 bez zmian). `session-signals.js`, `dokumentyPonadProgiem`:
+  sekcja ryzyk wchodzi do listy tylko przy części rotowalnej > 0; próg lekcji w KB liczy plik bez
+  sekcji „Zasady aktywne”. `rotate.js`, `raportPlanu`: dla ryzyk bez zamkniętych linia „zadne
+  ryzyko nie jest ZAMKNIETE …” zamiast komunikatu zablokowanej rotacji. Kopie reguły:
+  `SPEC_ARCHIWUM.md` (tabela progów, akapit progów startu, wagi lekcji, cel 60%, dwa przypadki
+  brzegowe, punkt „Dawniej”), `SPEC_LEKCJE.md`, `SPEC_USTAWIENIA.md` (wiersz katalogu progów),
+  `document-rotation.md` (trzy miejsca), `SKILL.md` (fraza „sprawdź status”, punkt 3); generator
+  Codeksa. Test ze zmienionym oczekiwaniem + dwa nowe.
+- K-A4: `docs/USTAWIENIA.md` — `| 2026-11-10 | Model optymalizatora | Sonnet 5.5 · lista
+  claude-code z dnia 2026-11-10 |` w miejsce wiersza z `Sonnet 5 · … 2026-09-04` (odpowiedź
+  Łukasza: Sonnet 5.5, data listy 2026-11-10). Stary wiersz nie poszedł do „Ustawień wycofanych”.
+- Rejestr `docs/ARTEFAKTY.md`: sześć wierszy podbitych **o 1 na etap** (jeden wpis z obiema
+  kartami tam, gdzie dotknęły tego samego artefaktu): Specyfikacja archiwum 6 → 7, Specyfikacja
+  `LEKCJE.md` 3 → 4, Specyfikacja `USTAWIENIA.md` 20 → 21 (K-A2, K-A3), Skill `relai-core`
+  29 → 30 (K-A2, K-A3), `relai-core` — rotacja dokumentów 2 → 3, Reguła `relai-core` 8 → 9.
+- Lekcje L-0314 (czwarta powtórka L-0298 — `cd` przestawił sesję do katalogu roboczego etapu)
+  i L-0315 (asercja karty kontra pole „Nie ruszasz”); destylat zasad 3 i 5 odświeżony,
+  `count-rules.js` → 15 / 15.
+
+**Zweryfikowane — jak dokładnie:**
+
+- `git branch --show-current` → `optymalizacja/po-audycie`; `git log --oneline -1` → `cfee4df`.
+- Przebiegi czerwone przed zmianą, z asercji: K-A2 — 20 testów, 3 fail (`codex: hook bez raportu
+  spraw`, `przeterminowana: skrot niesie sekcje "Czeka na czlowieka"`, `skrot niesie
+  linie-odsylacze`); K-A3 — 14 testów, 3 fail (`zadne ryzyko nie jest ZAMKNIETE` brak w wyjściu,
+  `sekcja ryzyk bez zamknietych: [RelAI budzet startu] …`, `prog lekcji liczy sekcje "Zasady
+  aktywne"`).
+- Po zmianie: `start-digest.test.js` + `ritual-copies.test.js` → 20 pass (było 18 + 2);
+  `start-cost.test.js` + `rotate.test.js` → 14 pass (było 12 + 2). `node --test
+  "core/process/tests/*.test.*"` → **409 pass**, 0 fail (po E7 405, +2 +2; `esm-project`
+  w nim zielony); `adapters/codex` → 28 pass; `adapters/cursor` → 10 pass; `core/guardrails` →
+  33 pass.
+- **Rozjazd z kartą K-A3 (decyzja Łukasza):** asercja `!/zamykanie ryzyk/` trafiała w zdanie
+  budżetu „Rotacja nic tu nie zdejmie… odchudza zamykanie ryzyk”, które karta każe zostawić.
+  Zawężona do `zamykanie ryzyk \(zadne` (brzmienie procedury z linii progów) z kontrolą pozytywną
+  `Rotacja nic tu nie zdejmie` w tym samym teście (L-0315).
+- Efekt widoczny na tym repozytorium (kod z repozytorium, tylko odczyt): skrót startu
+  **28 930 B → 28 956 B** — oba na limicie 28 tys. znaków, więc zwolnione miejsce zajmuje dłuższy
+  ostatni wpis (skrócony do 1 011 → 3 043 z 6 048 znaków). Sekcja ryzyk skrótu **6 711 B →
+  4 653 B** (FAKT zgodny z kartą); `suma kontrolna` w skrócie 11 → 0, linia
+  `[odsylacze do archiwum ryzyk pominiete: 11; pliki archiwum w docs/archiwum/ryzyka/, odsylacze
+  pod tabela w docs/DZIENNIK.md]`; drogowskaz `sekcja "Czeka na czlowieka"` jest. Sekcji „Czeka
+  na człowieka” nie było ani przed, ani po — dziś zero spraw przeterminowanych (karta liczyła
+  26 633 → 19 156 B przy sprawie przeterminowanej i bez skrócenia wpisu — SZACUNEK się nie
+  odtworzył, bo stan dziennika jest inny).
+- Linia progów przed: `docs/DZIENNIK.md 191.9 KB …; sekcja "Stan otwartych ryzyk" 17.5 KB …
+  zamykanie ryzyk (…); docs/LEKCJE.md 72 KB (prog 50 KB) — rotacja lekcji oraz 2 dalsze pozycje`.
+  Po: `docs/DZIENNIK.md 191.9 KB …; docs/LEKCJE.md 41 lekcji (prog 40 lekcji) — rotacja lekcji;
+  docs/STATE.md 306 linii (prog 300 linii) — skrocenie STATE.md oraz 1 dalsza pozycja` (czwarta:
+  `docs/USTAWIENIA.md` 6 478 B przy 6 144 B — kontrola pozytywna, zasada 6). Sekcja ryzyk znikła;
+  `LEKCJE.md` w KB: 73 725 B, „Zasady aktywne” 35 503 B, bez nich 38 222 B przy progu 51 200 B —
+  poniżej. **Punkt promptu „linia nie wymienia `docs/LEKCJE.md`” — rozjazd (decyzja Łukasza:
+  uznany co do intencji):** lekcje wracają z progu w sztukach (41 > 40), którego aneks nie
+  zmienia i który rotacja lekcji spełni; karta liczyła na stanie, w którym lekcji było ≤ 40.
+- `node core/tools/rotate.js plan ryzyka --prog 12` → `ryzyka: 20 wierszy w tabeli, zamknietych 0`
+  i ostatnia linia `ponad progiem, ale zadne ryzyko nie jest ZAMKNIETE - rotacja nic nie zdejmie;
+  bez komunikatu zablokowanej rotacji (D-88, aneks), jedno zdanie w raporcie "sprawdz status"`.
+- Dowód negatywny: `git diff --stat adapters/codex/skills/` → wyłącznie `relai-core/SKILL.md`
+  i `relai-core/document-rotation.md` (plus zastane `relai-planning/*-closing.md` z pustym
+  diffem); `git diff --numstat docs/DECYZJE.md` → `1 0`, hunk `@@ -115,0 +116 @@` (linia 29 bez
+  zmian), `grep -c "D-88\*\* → aneks"` → 1; `relai-core.mdc` — jeden hunk `@@ -25 +25 @@`.
+- K-A4: `grep -c "Model optymalizatora"` → 1; `grep -cF "| Model optymalizatora | Sonnet 5.5"` → 1;
+  `grep -c "^[a-z]*: Sonnet 5.5 |" .claude/relai/MODELE-claude-code.md` → 1. Rozjazd daty: karta
+  wzorowała wiersz na liście z 2026-10-08, lista w projekcie ma `list-date: 2026-11-10` (z Fable
+  5.2) — Łukasz wybrał 2026-11-10.
+- `node core/tools/validate-adapters.js` → kod 0, jedno ostrzeżenie (`security-audit/SKILL.md`),
+  `parytet skilli Claude Code -> Codex: 73 plikow, 0 rozjazdow`, `wywolania z hooks.json: 20`.
+- Trivy (`trivy fs --scanners vuln`): 0 CRITICAL, 42 HIGH, 50 MEDIUM, 12 LOW — identycznie jak
+  po E7; etap nie dodaje zależności.
+- Podstawy: `ODSYLACZ_SUMA` — kontrola pozytywna na prawdziwym dzienniku (pierwszy blok
+  odsyłacza, `docs/DZIENNIK.md:33`, niesie `suma kontrolna`; skrót repo zwinął 11 bloków
+  z 11) i negatywna w teście (`UWAGA-CYTAT bez sumy` zostaje); `git grep -nE` po `sk_live_…{16}`
+  i `github_pat_…{22}` → 0; `PASSWORD=` w zmienionych testach → 0.
+- Granica: `git status --short` — pliki z pól „Pliki” trzech kart, kopie Codeksa i dokumenty
+  rytuału; pod `adapters/*/skills/relai-planning/` tylko cztery zastane `*-closing.md`;
+  `.claude/launch.json` nieśledzony, spoza planu.
+- Katalog roboczy `.claude/relai/work/OPTYMALIZACJA_PO_AUDYCIE/E8/`: przed — 12 plików, 146 KB
+  (`find`/`du`; przebiegi czerwone i zielone kart, pełne przebiegi czterech zestawów, skrót
+  i linia progów przed i po); po „tak” Łukasza — 0. Artefakty spoza katalogu: fikstury
+  `%TEMP%/relai-start-digest-*`, `relai-rytual-*`, `relai-start-cost-*`, `relai-rotate-*` sprzątane
+  w `finally`/`t.after` — po etapie 0; w `%TEMP%` zostały dwa `relai-ustawienia-podane-*` od hooka
+  zainstalowanego 3.7.0 (nie z tego etapu; sprzątnie je hook po wydaniu w E14).
+
+**Świadomie odłożone:**
+
+- Przegląd ryzyk: R5 (dokumenty puchną) — skrót niesie mniej balastu (odsyłacze, sprawy), linia
+  progów milknie o ryzykach i lekcjach w KB; wagi plików bez zmian, poziom bez zmian. Nowych ryzyk
+  etap nie wnosi.
+- Rotacje dziennika (191,9 KB), lekcji (po tym wpisie 43 lekcje przy progu 40), skrócenie
+  `STATE.md` (306 linii) i ustawień (6,3 KB) — poza etapem (prompt E8: „rotacji nie wykonujesz”).
+- Reguła Cursora wobec D-88 i aneksu — karta K-E4 w E11; linia 113 `SPEC_ARCHIWUM.md` („waga
+  całkowita … 60% progu”) zostaje w dawnym brzmieniu, bo karta K-A3 jej nie wymienia — do
+  ujednolicenia przy K-E4 albo osobno.
+- Hook Codeksa wypisuje raport spraw bez opcji `interaktywna` (jak w karcie) — Codex nie ma
+  zmierzonego sygnału sesji w tle; tekst raportu i tak każe sesji nieinteraktywnej nie pytać.
+
+**Do zrobienia przez człowieka:**
+
+—

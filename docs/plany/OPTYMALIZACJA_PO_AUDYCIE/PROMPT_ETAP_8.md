@@ -211,25 +211,25 @@ ręcznie — tylko generator. Wątek spoza kart → zatrzymujesz się i pytasz: 
 Każdy punkt Weryfikacji, który przeszedł, odhaczasz w `PROMPT_ETAP_8.md` (`- [ ]` → `- [x]`)
 zaraz po jego sprawdzeniu, nie na końcu etapu; punkt, który nie przeszedł, zostaje pusty.
 
-- [ ] K-0 (konwencje, sekcja 3): `git branch --show-current` → `optymalizacja/po-audycie`;
+- [x] K-0 (konwencje, sekcja 3): `git branch --show-current` → `optymalizacja/po-audycie`;
       `git log --oneline -1` pokazuje commit E7 (albo człowiek rozstrzygnął, co z drzewem).
-- [ ] Testy przed zmianą: każda karta z kodem ma zapisany w katalogu roboczym przebieg czerwony
+- [x] Testy przed zmianą: każda karta z kodem ma zapisany w katalogu roboczym przebieg czerwony
       z właściwego powodu (K-A2: przepisany test i oba nowe czerwone z asercji — skrót niesie
       `SPRAWA-CZEKA` / `suma kontrolna`, Codex milczy; K-A3: zmieniony test i oba nowe czerwone
       z asercji — pozycja ryzyk, pozycja `docs/LEKCJE.md` przy 3,5 KB, brak `zadne ryzyko nie jest
       ZAMKNIETE`).
-- [ ] `node --test core/process/tests/start-digest.test.js` → o jeden test więcej niż przed etapem,
+- [x] `node --test core/process/tests/start-digest.test.js` → o jeden test więcej niż przed etapem,
       zielone; `ritual-copies.test.js` → o jeden więcej, zielone; `start-cost.test.js`
       i `rotate.test.js` → razem o dwa więcej, zielone; `esm-project.test.js` → zielone bez zmian.
-- [ ] `node --test "core/process/tests/*.test.*"` → **409 pass** (albo suma od wpisu E7 plus 4,
+- [x] `node --test "core/process/tests/*.test.*"` → **409 pass** (albo suma od wpisu E7 plus 4,
       opisana), 0 fail; `adapters/cursor` → 10 pass; `adapters/codex` → 28 pass;
       `core/guardrails` → 33 pass.
-- [ ] Dowód negatywny (zasada 3): `git diff --stat adapters/codex/skills/` → wyłącznie
+- [x] Dowód negatywny (zasada 3): `git diff --stat adapters/codex/skills/` → wyłącznie
       `relai-core/SKILL.md` i `relai-core/document-rotation.md`; `git diff --stat docs/DECYZJE.md` →
       jedna linia dodana, zero usuniętych, `grep -c "D-88\*\* → aneks" docs/DECYZJE.md` → 1;
       linia 29 (`D-88`) bez zmian; `adapters/cursor/rules/relai-core.mdc` zmienia wyłącznie linię 25
       (`git diff -U0`).
-- [ ] Efekt widoczny (zasada 4) na tym repozytorium, kodem z repozytorium:
+- [x] Efekt widoczny (zasada 4) na tym repozytorium, kodem z repozytorium:
       `node core/process/start-digest.js` (z `cwd` repozytorium; tylko odczyt) — bajty przed i po
       do wpisu (karta: 26 633 → 19 156 B, SZACUNEK dla dzisiejszego stanu); skrót bez
       `suma kontrolna` i bez sekcji „Czeka na człowieka”, z linią `[odsylacze do archiwum ryzyk
@@ -238,33 +238,33 @@ zaraz po jego sprawdzeniu, nie na końcu etapu; punkt, który nie przeszedł, zo
       wymienia `docs/USTAWIENIA.md` (kontrola pozytywna, zasada 6);
       `node core/tools/rotate.js plan ryzyka --prog 12` → linia `ponad progiem, ale zadne ryzyko
       nie jest ZAMKNIETE …`.
-- [ ] K-A4: `grep -c "Model optymalizatora" docs/USTAWIENIA.md` → 1;
+- [x] K-A4: `grep -c "Model optymalizatora" docs/USTAWIENIA.md` → 1;
       `grep -cF "| Model optymalizatora | <wybór>" docs/USTAWIENIA.md` → 1; dla nazwy z listy
       `grep -c "^[a-z]*: <wybór> |" .claude/relai/MODELE-claude-code.md` → 1; odpowiedź
       człowieka i rozstrzygnięcie daty listy we wpisie dziennika.
-- [ ] Rejestr (konwencje, sekcja 5): wiersze `docs/ARTEFAKTY.md` z kart podbite o 1 (Skill
+- [x] Rejestr (konwencje, sekcja 5): wiersze `docs/ARTEFAKTY.md` z kart podbite o 1 (Skill
       `relai-core`, Reguła `relai-core` Cursora, Specyfikacja `USTAWIENIA.md`, Specyfikacja
       archiwum, Specyfikacja `LEKCJE.md`, `relai-core` — rotacja dokumentów), każdy z wpisem
       `2026-…(wersja N, plan OPTYMALIZACJA_PO_AUDYCIE E8, K-…)` na początku kolumny.
-- [ ] `node core/tools/validate-adapters.js` → kod 0, jedno ostrzeżenie (`security-audit/SKILL.md`),
+- [x] `node core/tools/validate-adapters.js` → kod 0, jedno ostrzeżenie (`security-audit/SKILL.md`),
       `parytet skilli Claude Code -> Codex: … 0 rozjazdow`, `wywolania z hooks.json: 20`.
-- [ ] Bezpieczeństwo (D-91): `/relai-security` (skan Trivy, `trivy fs --scanners vuln`) — zero
+- [x] Bezpieczeństwo (D-91): `/relai-security` (skan Trivy, `trivy fs --scanners vuln`) — zero
       nowych CRITICAL i HIGH wprowadzonych w tym etapie, liczby według wagi do wpisu (etap nie
       dodaje zależności; po E7: 0 CRITICAL, 42 HIGH, 50 MEDIUM, 12 LOW — zastane fikstury
       ewaluacji `trivy-scan`, nie blokują). Trivy brak → zapis „brak pliku zależności w `adapters/`
       i `core/`” z wynikiem `git ls-files adapters core | grep package.json`.
-- [ ] Podstawy na zmianie etapu: wzorzec `ODSYLACZ_SUMA` sprawdzony kontrolą pozytywną na
+- [x] Podstawy na zmianie etapu: wzorzec `ODSYLACZ_SUMA` sprawdzony kontrolą pozytywną na
       prawdziwym bloku z `docs/DZIENNIK.md` (pierwszy blok odsyłacza zawiera `suma kontrolna`)
       i negatywną (blok cytatu bez sumy zostaje); `git grep -nE "sk_live_[A-Za-z0-9]{16}|github_pat_[A-Za-z0-9_]{22}"`
       → 0; `PASSWORD=` w zmienionych testach → 0.
-- [ ] Granica: `git status --short` pokazuje z tego etapu wyłącznie pliki z pól „Pliki” trzech kart
+- [x] Granica: `git status --short` pokazuje z tego etapu wyłącznie pliki z pól „Pliki” trzech kart
       i dokumenty rytuału (`STATUS.md`, `PROMPT_ETAP_8.md`, `PROMPT_ETAP_9.md`, `DZIENNIK.md`,
       `STATE.md`, ewentualnie `LEKCJE.md`); pod `adapters/*/skills/relai-planning/` wyłącznie cztery
       zastane `*-closing.md`.
-- [ ] Wpis etapu jest na końcu sekcji „Wpisy” w `docs/DZIENNIK.md`, z liczbami testów
+- [x] Wpis etapu jest na końcu sekcji „Wpisy” w `docs/DZIENNIK.md`, z liczbami testów
       (`core/process` 409 albo zgodnie z sumą, opisaną), bajtami skrótu przed i po, odpowiedzią
       K-A4 i podpisem `Autor: RelAI (Opus 5.5) + Lukasz`.
-- [ ] Katalog roboczy: (a) `.claude/relai/work/OPTYMALIZACJA_PO_AUDYCIE/E8/` przejrzany
+- [x] Katalog roboczy: (a) `.claude/relai/work/OPTYMALIZACJA_PO_AUDYCIE/E8/` przejrzany
       (`node .claude/relai/tools/clean-work.js raport`; katalog otwartego etapu raport pomija —
       wtedy liczby z `find`/`du`) i skasowany po „tak”, liczby przed i po we wpisie dziennika;
       (b) artefakty spoza katalogu (fikstury `%TEMP%/relai-*` z testów) wypisane z nazwy razem

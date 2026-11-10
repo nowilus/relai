@@ -128,3 +128,32 @@ test('session start hooks of three adapters print the same command, compact only
     }
   }
 });
+
+test('overdue items: hooks of three adapters report them, the digest does not', () => {
+  // Audyt A2 (OPTYMALIZACJA_PO_AUDYCIE E8): hook startu jest jedynym nosnikiem spraw
+  // przeterminowanych we wszystkich trzech adapterach; skrot startu sekcji nie powtarza.
+  const dir = projekt();
+  try {
+    fs.writeFileSync(path.join(dir, 'docs', 'USTAWIENIA.md'), '# USTAWIENIA\n\nWersja RelAI: 3.6.0\n\n'
+      + '| Data | Czego dotyczy | Decyzja |\n|---|---|---|\n'
+      + '| 2026-09-01 | Przegląd spraw człowieka | włączony · 30 dni |\n');
+    fs.writeFileSync(path.join(dir, 'docs', 'DZIENNIK.md'), '# DZIENNIK\n\n## Czeka na człowieka\n\n'
+      + '- **SPRAWA-STARA do decyzji** · 2026-01-01\n\n## Wpisy\n\n### 2026-10-01 — Wpis\n\nTresc.\n');
+    const wyjscia = {
+      'claude-code': hook('adapters/claude-code/hooks/session-context.js',
+        { hook_event_name: 'SessionStart', cwd: dir, session_id: 'test-rytual-sprawy' }, process.env),
+      cursor: hook('adapters/cursor/hooks/session-context.js',
+        { hook_event_name: 'sessionStart', cwd: dir }, process.env),
+      codex: hook('adapters/codex/hooks/session-context.js', { cwd: dir }, bezClaudeCode()),
+    };
+    for (const [nazwa, out] of Object.entries(wyjscia)) {
+      assert.ok(out.includes('[RelAI przeglad spraw]'), nazwa + ': hook bez raportu spraw');
+      assert.ok(out.includes('SPRAWA-STARA'), nazwa + ': hook bez sprawy przeterminowanej');
+    }
+    const skrot = require('../start-digest.js').startDigest(dir).tekst;
+    assert.ok(!skrot.includes('SPRAWA-STARA'), 'skrot startu niesie sprawe przeterminowana');
+  } finally {
+    fs.rmSync(dir, { recursive: true, force: true });
+    fs.rmSync(path.join(os.tmpdir(), 'znaczniki-relai', 'ustawienia-podane-test-rytual-sprawy'), { force: true });
+  }
+});

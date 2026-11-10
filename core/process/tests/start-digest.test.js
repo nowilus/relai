@@ -102,20 +102,45 @@ test('digest of a current project carries every section from the plan and nothin
   }
 });
 
-test('waiting-on-a-human section appears only when an item is overdue (one run, two dates)', () => {
+test('the digest never carries the waiting-on-a-human section and always points to it (one run, two dates)', () => {
+  // Audyt A2 (OPTYMALIZACJA_PO_AUDYCIE E8): sprawy przeterminowane zglasza hook startu, skrot nie.
   const stara = projektBiezacy('2026-08-01');
   const swieza = projektBiezacy('2026-10-20');
   try {
     const zStara = startDigest(stara, { dzisiaj: DZISIAJ }).tekst;
     const zeSwieza = startDigest(swieza, { dzisiaj: DZISIAJ }).tekst;
-    assert.ok(zStara.includes('SPRAWA-CZEKA'), 'sprawa przeterminowana bez sekcji w skrocie');
-    assert.match(zStara, /spraw przeterminowanych: 1, prog 30 dni/);
-    assert.ok(!zeSwieza.includes('SPRAWA-CZEKA'), 'sekcja w skrocie bez sprawy przeterminowanej');
-    // Drogowskaz do sekcji tylko wtedy, gdy jej nie ma w skrocie.
-    assert.ok(zeSwieza.includes('sekcja "Czeka na czlowieka"'));
-    assert.ok(!zStara.includes('sekcja "Czeka na czlowieka"'));
+    for (const [nazwa, t] of [['przeterminowana', zStara], ['swieza', zeSwieza]]) {
+      assert.ok(!t.includes('SPRAWA-CZEKA'), nazwa + ': skrot niesie sekcje "Czeka na czlowieka"');
+      assert.ok(!t.includes('spraw przeterminowanych:'), nazwa + ': skrot niesie licznik spraw');
+      assert.ok(t.includes('sekcja "Czeka na czlowieka"'), nazwa + ': brak drogowskazu do sekcji');
+    }
   } finally {
     for (const d of [stara, swieza]) fs.rmSync(d, { recursive: true, force: true });
+  }
+});
+
+test('risk archive pointer blocks collapse into one line with their count', () => {
+  const zOdsylaczami = projektBiezacy();
+  const bezOdsylaczy = projektBiezacy();
+  try {
+    const odsylacz = (data) => '> Ryzyka zamknięte R7 (1 pozycja) są w\n'
+      + '> [docs/archiwum/ryzyka/RYZYKA_' + data + '.md](archiwum/ryzyka/RYZYKA_' + data + '.md)\n'
+      + '> — przeniesione ' + data + ', suma kontrolna `0123456789abcdef`.\n\n';
+    const txt = dziennik('2026-10-20').replace('\n## Czeka na człowieka',
+      '\n' + odsylacz('2026-09-01') + odsylacz('2026-09-15') + '> UWAGA-CYTAT bez sumy\n\n## Czeka na człowieka');
+    fs.writeFileSync(path.join(zOdsylaczami, 'docs', 'DZIENNIK.md'), txt);
+    const t = startDigest(zOdsylaczami, { dzisiaj: DZISIAJ }).tekst;
+    assert.ok(!t.includes('suma kontrolna'), 'skrot niesie linie-odsylacze');
+    assert.ok(t.includes('[odsylacze do archiwum ryzyk pominiete: 2; pliki archiwum w docs/archiwum/ryzyka/'),
+      'brak linii z liczba odsylaczy');
+    assert.ok(t.includes('UWAGA-CYTAT'), 'blok cytatu bez sumy zniknal');
+    const blokRyzyk = t.split('=== ').find((b) => b.includes('Stan otwartych ryzyk'));
+    assert.equal(wierszeTabeli(blokRyzyk), 3);
+    // Kontrola w tym samym przebiegu: dziennik bez odsylaczy nie dostaje linii.
+    const t2 = startDigest(bezOdsylaczy, { dzisiaj: DZISIAJ }).tekst;
+    assert.ok(!t2.includes('pominiete'), 'linia odsylaczy bez odsylaczy');
+  } finally {
+    for (const d of [zOdsylaczami, bezOdsylaczy]) fs.rmSync(d, { recursive: true, force: true });
   }
 });
 

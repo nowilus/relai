@@ -185,8 +185,8 @@ jedynym źródłem prawdy o wartościach domyślnych.
 **Od E2 planu KONTEKST_STARTU rytuał startu nie czyta plików, tylko wyjście skrótu startu**
 (`node .claude/relai/tools/start-digest.js`), i budżet liczy właśnie to wyjście. Pozycje sumy:
 `CLAUDE.md` (ładuje go harness) oraz części skrótu pod nazwami progów cząstkowych — `STATE` (cztery
-sekcje `STATE.md`), `ryzyka` (tabela ryzyk bez kolumny „Mitygacja”, sekcja „Czeka na człowieka”
-tylko przy sprawie przeterminowanej, ostatni wpis dziennika — przy skrócie ponad 28 tys. znaków
+sekcje `STATE.md`), `ryzyka` (tabela ryzyk bez kolumny „Mitygacja”, bez linii-odsyłaczy archiwum,
+ostatni wpis dziennika — przy skrócie ponad 28 tys. znaków
 sam jego początek z drogowskazem), `ustawienia` (aktywne wiersze tego
 pliku), `status` (`STATUS.md` aktywnego planu; brak planu = brak pozycji) i `zasady` (indeks
 „Zasad aktywnych”, `SPEC_LEKCJE.md`; projekt bez indeksu — cała sekcja) — plus `skrot` (ramka
@@ -788,12 +788,12 @@ zmienić — osobny plik byłby drugim miejscem do zapomnienia.
 | `CLAUDE.md` | 10 KB | wiersz `Budżet startu sesji`; ten sam limit opisuje `SPEC_CLAUDE_MD.md` | hook startu sesji | wymieniony w raporcie jako pozycja ponad progiem cząstkowym | **jest** — hook startu (tylko wewnątrz raportu) |
 | tabela „Stan prac” w `CLAUDE.md` — liczba wierszy | 5 wierszy | `SPEC_CLAUDE_MD.md` (bez strojenia) | hook startu sesji (`dokumentyPonadProgiem`, przy włączonej rotacji) | wiersze planów zamkniętych do `STATE.md`; linia `[RelAI progi dokumentow]` | **jest** — raport startu; regułę niosą rytuał „Na koniec” i zamknięcie planu |
 | `docs/STATE.md` — waga części skrótu startu (cztery sekcje) | 12 KB | wiersz `Budżet startu sesji` | hook startu sesji | jw. | **jest** — hook startu (tylko wewnątrz raportu) |
-| część `ryzyka` skrótu startu: tabela ryzyk bez „Mitygacji” + „Czeka na człowieka” (tylko przy sprawie przeterminowanej) + ostatni wpis | 12 KB | wiersz `Budżet startu sesji` (człon `ryzyka`) | hook startu sesji | jw. | **jest** — hook startu (tylko wewnątrz raportu) |
+| część `ryzyka` skrótu startu: tabela ryzyk bez „Mitygacji” + ostatni wpis | 12 KB | wiersz `Budżet startu sesji` (człon `ryzyka`) | hook startu sesji | jw. | **jest** — hook startu (tylko wewnątrz raportu) |
 | „Zasady aktywne” w skrócie startu (indeks) — waga | 30 KB | wiersz `Budżet startu sesji` (człon `zasady`) | hook startu sesji | jw. | **jest** — hook startu (tylko wewnątrz raportu) |
 | `docs/USTAWIENIA.md` | 6 KB | wiersz `Budżet startu sesji` | hook startu sesji **+ rotacja ustawień** (od 1.7.0) | jw.; dodatkowo wiersze sekcji „Ustawienia wycofane" → `docs/archiwum/ustawienia/`; linia `[RelAI progi dokumentow]` | **jest** — rytuał zamknięcia (krok 2) i raport startu |
 | `STATUS.md` aktywnego planu | 10 KB | wiersz `Budżet startu sesji` | hook startu sesji | jw. | **jest** — hook startu (tylko wewnątrz raportu) |
 | `docs/DZIENNIK.md` — waga | 150 KB | `SPEC_ARCHIWUM.md`, strojenie w wierszu `Rotacja dokumentów` | rotacja + hook startu sesji (od 1.7.0) | rotacja najstarszych wpisów do archiwum; w raporcie linia `[RelAI progi dokumentow]` | **jest** — rytuał zamknięcia (krok 2) i raport startu |
-| `docs/LEKCJE.md` — waga i liczba | 40 lekcji albo 50 KB | `SPEC_ARCHIWUM.md`, strojenie w wierszu `Rotacja dokumentów` | rotacja + hook startu sesji (od 1.7.0) | rotacja najstarszych lekcji do archiwum; linia `[RelAI progi dokumentow]` | **jest** — rytuał zamknięcia (krok 2) i raport startu |
+| `docs/LEKCJE.md` — waga (bez sekcji „Zasady aktywne”, aneks D-88) i liczba | 40 lekcji albo 50 KB | `SPEC_ARCHIWUM.md`, strojenie w wierszu `Rotacja dokumentów` | rotacja + hook startu sesji (od 1.7.0) | rotacja najstarszych lekcji do archiwum; linia `[RelAI progi dokumentow]` | **jest** — rytuał zamknięcia (krok 2) i raport startu |
 | `docs/STATE.md` — liczba linii | 300 linii | `SPEC_ARCHIWUM.md`, strojenie w wierszu `Rotacja dokumentów` | rotacja + hook startu sesji (od 1.7.0) | `STATE.md` pisany zwięźlej, bez archiwum; linia `[RelAI progi dokumentow]` | **jest** — rytuał zamknięcia (krok 2) i raport startu |
 | sekcja „Stan otwartych ryzyk" — sama | próg cząstkowy `ryzyka`, 12 KB | wiersz `Budżet startu sesji` | rotacja ryzyk + hook startu sesji (od 1.7.0) | wiersze ryzyk `ZAMKNIĘTE` do `docs/archiwum/ryzyka/`; linia `[RelAI progi dokumentow]` | **jest** — rytuał zamknięcia (krok 2) i raport startu |
 | sekcja „Lekcje zwinięte" | 30 KB | `SPEC_LEKCJE.md`, sekcja „Kompresja" | hook startu sesji (od 1.7.0) | przeniesienie zwiniętych lekcji do `docs/archiwum/lekcje/`; linia `[RelAI progi dokumentow]` | **jest** — raport startu |

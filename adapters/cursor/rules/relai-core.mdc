@@ -22,7 +22,7 @@ user already declined RelAI in this folder. Never propose it again, in any sessi
 Run `node .claude/relai/tools/start-digest.js` and read its output — that is the whole start read.
 The digest carries, from `docs/STATE.md`, "Gdzie jesteśmy", "Nad czym pracujemy teraz", "Co
 blokuje" and the first point of "Co dalej"; the risk table without the "Mitygacja" column; the last
-journal entry ("Czeka na człowieka" only when an item is overdue); the active rows of
+journal entry (not "Czeka na człowieka": the start hook reports overdue items); the active rows of
 `docs/USTAWIENIA.md`; the active plan's `STATUS.md`; and the index of "Zasady aktywne" (D-15,
 Annex A) — when a task hits a rule's trigger, read that rule's full wording in `docs/LEKCJE.md`
 before the work. `CLAUDE.md` / `AGENTS.md` is already in your context.

@@ -59,6 +59,10 @@ function main(input) {
     lines.push(line);
   }
   for (const line of core.startCostReport(core.startCost(cwd, { markeryGoscia: markers }))) lines.push(line);
+  // Overdue human items (audit A2): the start hook is the one carrier in all three adapters,
+  // the digest no longer repeats the section.
+  for (const line of core.sprawyPrzeterminowaneReport(
+    core.sprawyPrzeterminowane(cwd, { markeryGoscia: markers }))) lines.push(line);
   process.stdout.write(JSON.stringify({ hookSpecificOutput: { hookEventName: 'SessionStart', additionalContext: lines.join('\n') } }));
 }
 

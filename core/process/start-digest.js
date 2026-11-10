@@ -5,8 +5,8 @@
 // Rytual startu czytal cale dokumenty (ok. 80 KB), choc akapit "gdzie jestesmy" potrzebuje
 // z nich kilku sekcji. To narzedzie wypisuje dokladnie te sekcje i liste drogowskazow do reszty:
 // z STATE "Gdzie jestesmy", "Nad czym pracujemy teraz", "Co blokuje" i pierwszy punkt "Co dalej";
-// tabele ryzyk bez kolumny "Mitygacja"; sekcje "Czeka na czlowieka" tylko przy sprawie
-// przeterminowanej; ostatni wpis dziennika; aktywne wiersze USTAWIEN; STATUS planu naprawde
+// tabele ryzyk bez kolumny "Mitygacja"; tabele ryzyk bez linii-odsylaczy archiwum (jedna linia
+// z ich liczba); bez sekcji "Czeka na czlowieka" (zglasza ja hook startu); ostatni wpis dziennika; aktywne wiersze USTAWIEN; STATUS planu naprawde
 // aktywnego (parser z E1); z "Zasad aktywnych" sam indeks z wyzwalaczami (E4, D-15 Aneks A),
 // a w projekcie bez indeksu sekcja w calosci. Wyjscie zawsze w limicie polecenia (E5, Aneks F):
 // sekcja za duza staje sie drogowskazem "Przeczytaj ja teraz narzedziem Read: plik, linie A-B".
@@ -36,7 +36,6 @@ const SEKCJE_STATE = [
   { nazwa: 'Co dalej', wzorce: wzorce('co dalej\\b', 'what.?s next\\b', 'next steps?\\b'), pierwszyPunkt: true },
 ];
 const NAGLOWEK_RYZYK = wzorce('stan otwartych ryzyk\\b', 'open risks\\b');
-const NAGLOWEK_CZEKA = wzorce('czeka na cz[łl]owieka\\b', 'waiting on a human\\b');
 const NAGLOWEK_ZASAD = wzorce('zasady aktywne\\b', 'active rules\\b');
 const NAGLOWEK_INDEKSU = wzorce('indeks\\b', 'index\\b');
 const NAGLOWEK_WYCOFANE = wzorce('ustawienia wycofane\\b', 'withdrawn settings\\b');
@@ -112,6 +111,30 @@ function bezMitygacji(tekst) {
   }).join('\n');
 }
 
+// Linie-odsylacze rotacji ryzyk (SPEC_ARCHIWUM.md: blok cytatu "> Ryzyka zamkniete ... suma
+// kontrolna") nie niosa decyzji, a rosna z kazda rotacja (audyt A2) - skrot zastepuje je jedna
+// linia z ich liczba. Blok cytatu bez sumy kontrolnej zostaje nietkniety.
+const ODSYLACZ_SUMA = /suma kontrolna|checksum/i;
+function bezOdsylaczy(tekst, rel) {
+  const linie = tekst.split('\n');
+  const wynik = [];
+  let odsylaczy = 0;
+  for (let i = 0; i < linie.length;) {
+    if (!/^>/.test(linie[i])) { wynik.push(linie[i]); i++; continue; }
+    let k = i;
+    while (k < linie.length && /^>/.test(linie[k])) k++;
+    const blokCytatu = linie.slice(i, k);
+    if (ODSYLACZ_SUMA.test(blokCytatu.join(' '))) odsylaczy++;
+    else wynik.push(...blokCytatu);
+    i = k;
+  }
+  if (!odsylaczy) return tekst;
+  const zwiniete = wynik.filter((l, i) => !(l.trim() === '' && (wynik[i - 1] || '').trim() === ''));
+  while (zwiniete.length && !zwiniete[zwiniete.length - 1].trim()) zwiniete.pop();
+  return zwiniete.join('\n') + '\n\n[odsylacze do archiwum ryzyk pominiete: ' + odsylaczy +
+    '; pliki archiwum w ' + path.posix.dirname(rel) + '/archiwum/ryzyka/, odsylacze pod tabela w ' + rel + ']';
+}
+
 // Blok skrotu: tytul, tresc i (gdy jest) zrodlo { rel, od, do } — plik i zakres linii, z ktorych
 // tresc pochodzi; zrodlo pozwala zamienic za duza sekcje w drogowskaz do odczytu (Aneks F).
 function blok(tytul, tresc, zrodlo) {
@@ -166,19 +189,11 @@ function czescDziennika(cwd, docsDir, opcje) {
   bloki.push(ryzyka === null
     ? blok(rel, 'brak sekcji "Stan otwartych ryzyk"')
     : blok(rel + ' - ' + ryzyka.split('\n')[0].replace(/^#+\s*/, '').trim() + ' (bez kolumny Mitygacja)',
-      bezMitygacji(cialo(ryzyka)), linieSekcji(rel, txt, ryzyka)));
+      bezOdsylaczy(bezMitygacji(cialo(ryzyka)), rel), linieSekcji(rel, txt, ryzyka)));
 
-  // "Czeka na czlowieka" tylko przy sprawie przeterminowanej — ta sama miara co hook startu.
-  const miara = core.sprawyPrzeterminowane(cwd, { dzisiaj: opcje.dzisiaj });
-  const przeterminowane = miara && Array.isArray(miara.przeterminowane) ? miara.przeterminowane.length : 0;
-  if (przeterminowane > 0) {
-    const czeka = core.wytnijSekcje(txt, NAGLOWEK_CZEKA);
-    if (czeka !== null) {
-      bloki.push(blok(rel + ' - ' + czeka.split('\n')[0].replace(/^#+\s*/, '').trim() +
-        ' (spraw przeterminowanych: ' + przeterminowane + ', prog ' + miara.N + ' dni)', cialo(czeka),
-        linieSekcji(rel, txt, czeka)));
-    }
-  }
+  // "Czeka na czlowieka" nie wchodzi do skrotu (audyt A2): sprawy przeterminowane zglasza hook
+  // startu (sprawyPrzeterminowaneReport) razem z nakazem pytania partiami po cztery, a pelna
+  // sekcja jest w drogowskazach.
 
   const wpis = core.ostatniWpis(txt);
   const trescWpisu = wpis === null ? null : wpis.replace(/\n+$/, '');
@@ -187,7 +202,7 @@ function czescDziennika(cwd, docsDir, opcje) {
     : blok(rel + ' - ostatni wpis', trescWpisu, linieSekcji(rel, txt, trescWpisu));
   blokWpisu.wpis = trescWpisu !== null;
   bloki.push(blokWpisu);
-  return { bloki, rel, czeka: przeterminowane > 0, wpis: trescWpisu };
+  return { bloki, rel, wpis: trescWpisu };
 }
 
 // Skrocenie ostatniego wpisu, gdy skrot przekracza limit (Aneks C): poczatek wpisu do granicy
@@ -263,8 +278,7 @@ function drogowskazy(cwd, docsDir, c) {
       (c.state.inne.length ? ' i sekcje: ' + c.state.inne.join(', ') : ''));
   }
   if (c.dziennik.rel) {
-    out.push('- ' + c.dziennik.rel + ' - kolumna "Mitygacja" tabeli ryzyk' +
-      (c.dziennik.czeka ? '' : ', sekcja "Czeka na czlowieka"') + ', starsze wpisy');
+    out.push('- ' + c.dziennik.rel + ' - kolumna "Mitygacja" tabeli ryzyk, sekcja "Czeka na czlowieka", starsze wpisy');
   }
   if (c.lekcje.rel) {
     out.push('- ' + c.lekcje.rel + ' - ' + (c.lekcje.indeks ? 'pelne brzmienie "Zasad aktywnych" przy wyzwalaczu, ' : '') +

@@ -1288,14 +1288,14 @@ function dokumentyPonadProgiem(cwd, txtUstawien, progRyzyk, progUstawien) {
         bajtyLF(txt), progi.dziennik * KB, 'KB', 'rotacja dziennika');
       // Sekcja ryzyk ma prog CZASTKOWY budzetu (SPEC_ARCHIWUM.md) — mierzona sama,
       // bez sekcji "Czeka na czlowieka" i bez ostatniego wpisu, bo to jej rotacja odchudza.
-      // Bez ani jednego ryzyka ZAMKNIETEGO rotacja nic nie zdejmie — procedura to wtedy
-      // zamykanie ryzyk, nie rotacja (Aneks A planu KONTEKST_STARTU, E1).
+      // Bez ani jednego ryzyka ZAMKNIETEGO pozycja nie wchodzi do listy (D-88, aneks).
+      // D-88, aneks (audyt A3): bez ryzyka ZAMKNIETEGO rotacja nic nie zdejmie, a sekcje odchudza
+      // wylacznie decyzja czlowieka - linia na starcie wracalaby w kazdej sesji. Mowi o tym raport
+      // frazy "sprawdz status", nie start.
       const ryzyka = wytnijSekcje(txt, NAGLOWEK_RYZYK);
-      if (ryzyka !== null && typeof progRyzyk === 'number') {
+      if (ryzyka !== null && typeof progRyzyk === 'number' && rotowalneRyzyka(txt) > 0) {
         dodaj('sekcja "Stan otwartych ryzyk"', bajtyLF(ryzyka), progRyzyk, 'KB',
-          rotowalneRyzyka(txt) > 0
-            ? 'rotacja ryzyk ZAMKNIETYCH do archiwum'
-            : 'zamykanie ryzyk (zadne nie jest ZAMKNIETE, wiec rotacja nic nie zdejmie)');
+          'rotacja ryzyk ZAMKNIETYCH do archiwum');
       }
     }
 
@@ -1303,7 +1303,11 @@ function dokumentyPonadProgiem(cwd, txtUstawien, progRyzyk, progUstawien) {
     if (lekcje) {
       const txt = czytaj(lekcje);
       const sciezka = path.relative(cwd, lekcje).split(path.sep).join('/');
-      const bajtow = bajtyLF(txt);
+      // D-88, aneks (audyt A3): prog w KB liczy plik BEZ sekcji "Zasady aktywne" - ta ma wlasny
+      // limit liczby zasad (count-rules.js) i sama z dwudziestoma najnowszymi lekcjami
+      // przekraczala prog, wiec rotacja nie mogla go spelnic.
+      const zasady = wytnijSekcje(txt, NAGLOWEK_ZASAD);
+      const bajtow = bajtyLF(txt) - (zasady === null ? 0 : bajtyLF(zasady));
       const sekcjaLekcji = wytnijSekcje(txt, NAGLOWEK_LEKCJI);
       const sztuk = sekcjaLekcji === null
         ? 0

@@ -90,8 +90,8 @@ Nie inicjalizuj niczego drugi raz. Wykonaj **rytuał startu** — raz na sesję,
 
 Uruchom `node .claude/relai/tools/start-digest.js` i przeczytaj jego wyjście. Skrót niesie
 z `docs/STATE.md` sekcje „Gdzie jesteśmy”, „Nad czym pracujemy teraz”, „Co blokuje” i pierwszy
-punkt „Co dalej”; tabelę ryzyk bez kolumny „Mitygacja”; ostatni wpis dziennika (sekcję „Czeka
-na człowieka” tylko przy sprawie przeterminowanej); aktywne wiersze `docs/USTAWIENIA.md`;
+punkt „Co dalej”; tabelę ryzyk bez kolumny „Mitygacja”; ostatni wpis dziennika (bez sekcji „Czeka
+na człowieka” — sprawy przeterminowane zgłasza hook startu); aktywne wiersze `docs/USTAWIENIA.md`;
 `STATUS.md` aktywnego planu i indeks „Zasad aktywnych” (D-15, Aneks A) — gdy zadanie trafia
 w wyzwalacz zasady, przed pracą doczytujesz jej pełne brzmienie z `docs/LEKCJE.md`. `CLAUDE.md`
 masz już w kontekście.
@@ -221,7 +221,10 @@ Zwięzły raport, bez wykonywania pracy:
 1. **Stan** — dwa zdania z `STATE.md`.
 2. **Plany** — aktywny plan, etap zrealizowany ostatnio, etap następny (z `STATUS.md` planu);
    brak planu → jedno zdanie.
-3. **Ryzyka** — otwarte pozycje z tabeli dziennika, każde w jednej linii.
+3. **Ryzyka** — otwarte pozycje z tabeli dziennika, każde w jednej linii. Sekcja ryzyk ponad progiem
+   cząstkowym bez ani jednego ryzyka `ZAMKNIĘTE` → jedno zdanie z liczbami z
+   `node .claude/relai/tools/rotate.js plan ryzyka --prog <KB z ustawień>`: rotacja nic nie zdejmie,
+   sekcję odchudza zamknięcie ryzyk albo podniesienie progu — decyzja człowieka (D-88, aneks).
 4. **Zaległości dokumentacyjne** — czy `STATE.md` jest starszy niż ostatni wpis dziennika, czy są
    niezacommitowane zmiany, czy „Do zrobienia przez człowieka" z ostatnich wpisów zostało
    rozstrzygnięte.

@@ -84,7 +84,9 @@ w wyzwalacz, przed pracą doczytujesz pełne brzmienie zasady z sekcji „Pełne
 3. **Test „czegoś nie wolno" wymaga dowodu negatywnego:** chroniony fragment ma nadal pierwotne
    brzmienie, nie tylko nowy wpis powstał. Test nieobecności tekstu z odmianą liczebnika szuka
    rdzenia wspólnego wszystkim formom, a każdy test „czegoś nie ma” wywraca mutacja pisana dla niego
-   (L-0256). (L-0007, L-0256)
+   (L-0256). Asercja nieobecności celuje w brzmienie, które zmiana usuwa, nie w słowo wspólne
+   z tekstem chronionym, który w tym samym teście dostaje kontrolę pozytywną (L-0315).
+   (L-0007, L-0256, L-0315)
 4. **Dowodzisz efektem, nie zdarzeniem** — stanem pliku, sumą, treścią odpowiedzi; kryterium na
    stanie, który kontrolujesz, i na źródle, które artefakt produkuje. Zmianę zachowania pokazujesz
    **obiema wersjami w jednym przebiegu**, instrumentem wiernym obu, na materiale, który stara
@@ -201,7 +203,8 @@ w wyzwalacz, przed pracą doczytujesz pełne brzmienie zasady z sekcji „Pełne
      zapowiadasz człowiekowi przed pierwszym przebiegiem, mod „przed” i „po” stoi w jednej sesji
      jako dwie kopie pod innymi nazwami, instalacja wyłączona `--settings` (L-0283); w poleceniu
      Bash nigdy gołe `cd`, w żadnym katalogu, także `cd` do korzenia repo na początku łańcucha —
-     ścieżka w argumencie albo podpowłoka (L-0298, L-0302, L-0311); instrument tury nie liczy lokalnych komend (`/model`) jako polecenia (L-0299).
+     ścieżka w argumencie albo podpowłoka, do wydania `bash-guard` bez wyjątku także dla
+     `cd <repo> &&` na początku (L-0298, L-0302, L-0311, L-0314); instrument tury nie liczy lokalnych komend (`/model`) jako polecenia (L-0299).
    (L-0032, L-0037, L-0054, L-0055, L-0056, L-0064, L-0068, L-0071, L-0073, L-0083, L-0084, L-0086,
    L-0087, L-0088, L-0090, L-0091, L-0095, L-0096, L-0097, L-0101, L-0102, L-0105, L-0106, L-0107,
    L-0110, L-0111, L-0113, L-0124, L-0125, L-0127, L-0130, L-0131, L-0135, L-0141, L-0143, L-0151,
@@ -906,6 +909,32 @@ w wyzwalacz, przed pracą doczytujesz pełne brzmienie zasady z sekcji „Pełne
 - **Zasada:** krok przygotowawczy przed testem eksportuje wyłącznie nazwy, które już istnieją
   w module; nazwę nowej funkcji dopisujesz do eksportu razem z jej definicją. Kartę z takim
   krokiem wykonujesz w tej kolejności i zapisujesz rozjazd w dzienniku etapu, bez cichej poprawki.
+
+### L-0314 — Czwarta powtórka L-0298: `cd <repo> && …` na początku każdego polecenia, raz do podkatalogu · 2026-11-10 · AKTYWNA
+
+- **Trigger:** OPTYMALIZACJA_PO_AUDYCIE E8. Wszystkie polecenia etapu zaczynałem od
+  `cd /c/Users/…/RelAI && …` — dokładnie to, czego zakazuje L-0311 — i raz napisałem
+  `cd .claude/relai/work/…/E8 && for …`. Katalog sesji przeszedł do katalogu roboczego etapu,
+  trzeba go było cofać osobnym poleceniem.
+- **Przyczyna:** zasada stoi w `CLAUDE.md` i w L-0311, ale nic jej nie egzekwuje w sesji: hook
+  `bash-guard` (E5) ostrzega przed gołym `cd`, lecz działa dopiero po wydaniu w E14 — w sesji
+  pracuje hook zainstalowanego 3.7.0. Nawyk z pierwszego polecenia przeniósł się na kolejne.
+- **Zasada:** do wydania `bash-guard` każde polecenie Bash bez `cd` — ścieżki w argumentach
+  (`grep … plik/w/repo`, `-C`, zmienna `W=…; $W/plik`) albo podpowłoka `( cd … && … )`, także dla
+  `node --test`. Po wydaniu E14 ostrzeżenie hooka jest mitygacją; reguła zostaje.
+
+### L-0315 — Asercja karty „tekstu X nie ma” trafiła w zdanie, którego ta sama karta każe nie ruszać · 2026-11-10 · AKTYWNA
+
+- **Trigger:** OPTYMALIZACJA_PO_AUDYCIE E8, karta K-A3. Test zmienionego oczekiwania miał
+  `assert.ok(!/zamykanie ryzyk/.test(rZero))`, a ten sam raport niesie zdanie budżetu „Rotacja nic
+  tu nie zdejmie… odchudza zamykanie ryzyk”, które pole „Nie ruszasz” karty chroni. Po poprawnej
+  zmianie progu test został czerwony; Łukasz wybrał zawężenie asercji do brzmienia procedury
+  (`zamykanie ryzyk (zadne`) z kontrolą pozytywną zdania budżetu.
+- **Zasada:** asercja nieobecności w karcie celuje w brzmienie, które zmiana usuwa, nie w słowo
+  wspólne z tekstem chronionym — autor karty puszcza ją na wyjściu po zmianie (prototyp), a zdanie
+  z pola „Nie ruszasz” dostaje w tym samym teście kontrolę pozytywną. FAKT o stanie pliku (liczba
+  lekcji, obecność spraw przeterminowanych) w karcie pisanej dzień wcześniej wykonawca mierzy na
+  starcie, zanim uzna liczbę z karty za kryterium.
 
 ## Lekcje zwinięte
 

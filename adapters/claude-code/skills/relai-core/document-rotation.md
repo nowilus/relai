@@ -22,7 +22,7 @@ jednym zdaniem. Progi domyślne, gdy wiersz ich nie podaje:
 | Dokument | Próg | Działanie po przekroczeniu |
 |---|---|---|
 | `docs/DZIENNIK.md` | 150 KB | najstarsze wpisy → `docs/archiwum/dziennik/DZIENNIK_<data-od>_<data-do>.md` |
-| `docs/LEKCJE.md` | 40 lekcji albo 50 KB | najstarsze pełne lekcje → `docs/archiwum/lekcje/LEKCJE_<numer-od>_<numer-do>.md` |
+| `docs/LEKCJE.md` | 40 lekcji albo 50 KB (KB bez sekcji „Zasady aktywne”) | najstarsze pełne lekcje → `docs/archiwum/lekcje/LEKCJE_<numer-od>_<numer-do>.md` |
 | sekcja „Stan otwartych ryzyk" | próg cząstkowy `ryzyka` z wiersza `Budżet startu sesji` (12 KB) | wiersze ryzyk `ZAMKNIĘTE` → `docs/archiwum/ryzyka/RYZYKA_<data>.md` |
 | komórka „Mitygacja" ryzyka `ZMITYGOWANE` / `PRZYJĘTE ŚWIADOMIE` | 800 znaków, przy sekcji ryzyk ponad progiem | historia komórki → `docs/archiwum/ryzyka/MITYGACJE_<data>.md`; **wiersz zostaje w tabeli** |
 | `docs/USTAWIENIA.md` | próg cząstkowy `ustawienia` z wiersza `Budżet startu sesji` (6 KB) | wiersze sekcji „Ustawienia wycofane" → `docs/archiwum/ustawienia/USTAWIENIA_<data>.md` |
@@ -115,7 +115,8 @@ końce linii do LF) = **część rotowalna** + **dolna granica osiągalna** (sek
 dziesięć najnowszych wpisów, wpisy bez daty). **Wyzwalacz stoi na wadze całkowitej** — poniżej
 progu cisza. **Cel też (D-88)**: najstarsze pozycje schodzą, aż cały żywy plik zejdzie poniżej
 60% progu; ciąg kończy się wcześniej tylko na pozycji nietykalnej albo po wyczerpaniu części
-rotowalnej. `rotate.js plan` wypisuje wszystkie cztery liczby.
+rotowalnej. `rotate.js plan` wypisuje wszystkie cztery liczby. W lekcjach trzy wagi i próg liczysz
+**bez sekcji „Zasady aktywne”** (D-88, aneks 2026-11-10).
 
 ## Komunikat zablokowanej rotacji
 
@@ -133,7 +134,9 @@ Gdy blokerów nie ma, a część rotowalna jest pusta (mniej niż dziesięć wpi
 ten sam kształt bez punktu 3, ze zdaniem, że plik odchudza zwięzłość wpisów, a podniesienie progu
 jest decyzją człowieka. Tak samo, gdy sama dolna granica przekracza próg — to nie jest porażka
 mechanizmu. Komunikat piszesz **ty**, w rytuale zamknięcia; to nadal **jeden** komunikat
-(L-0036, L-0049).
+(L-0036, L-0049). **Sekcja ryzyk bez ani jednego `ZAMKNIĘTE` nie dostaje komunikatu wcale** (D-88,
+aneks) — `rotate.js plan ryzyka` mówi to wprost, a jedno zdanie o niej pada w raporcie „sprawdź
+status”.
 
 ## Dawniej
 
