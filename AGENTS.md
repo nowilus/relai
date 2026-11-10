@@ -38,11 +38,11 @@ Pierwsza wiadomość sesji to komenda (zaczyna się od `/`) → najpierw komenda
 
 | Co | Status | Gdzie |
 |---|---|---|
-| Plugin RelAI — wydany, trzy adaptery | DZIAŁA (3.7.0 w repo i publicznie, wydane 2026-10-28 — lżejszy start sesji, plan KONTEKST_STARTU; w marketplace także cztery mody, każdy z własnym tagiem i wydaniem: relai-panel 0.22.1, relai-progress 0.7.1, relai-cache-keeper 0.13.0 („early access”) i relai-mods 0.3.0) | [docs/STATE.md](docs/STATE.md) |
-| Plany zamknięte | 21, ostatni KONTEKST_STARTU 2026-10-28 (wydanie 3.7.0) | [archiwum planów](docs/archiwum/plany/), [docs/STATE.md](docs/STATE.md) |
+| Plugin RelAI — wydany, trzy adaptery | DZIAŁA (3.8.0 w repo i publicznie, wydane 2026-11-10 — naprawy po audycie, plan OPTYMALIZACJA_PO_AUDYCIE; w marketplace także cztery mody, każdy z własnym tagiem i wydaniem: relai-panel 0.22.2, relai-progress 0.7.2, relai-cache-keeper 0.13.1 („early access”) i relai-mods 0.3.1) | [docs/STATE.md](docs/STATE.md) |
+| Plany zamknięte | 21, ostatni KONTEKST_STARTU 2026-10-28 (wydany w 3.7.0) | [archiwum planów](docs/archiwum/plany/), [docs/STATE.md](docs/STATE.md) |
 | Odnogi i wątki samodzielne | 1 otwarta: `OPIS_REPO` (od 2026-09-24); zamknięte — karty w [docs/fixy/](docs/fixy/) | [docs/STATE.md](docs/STATE.md) |
 
-Aktywny plan: [OPTYMALIZACJA_PO_AUDYCIE](docs/plany/OPTYMALIZACJA_PO_AUDYCIE/STATUS.md) — **ZAAKCEPTOWANY 2026-11-09** (14 etapów po [audycie](docs/AUDYT_RELAI_2026-11-09.md); wykonanie: Opus 5.5 medium, gałąź `optymalizacja/po-audycie`). [PANEL_CODEX](docs/plany/PANEL_CODEX/STATUS.md) (Codex) **nieaktywny — WSTRZYMANY 2026-10-27** decyzją Łukasza. Ostatni zamknięty: [KONTEKST_STARTU](docs/archiwum/plany/KONTEKST_STARTU/STATUS.md), 2026-10-28 (lżejszy start sesji: skrót startu, indeks zasad, bramka trybu ciągłego w dwóch krokach; wydanie 3.7.0).
+Aktywny plan: [OPTYMALIZACJA_PO_AUDYCIE](docs/plany/OPTYMALIZACJA_PO_AUDYCIE/STATUS.md) — **ZAAKCEPTOWANY 2026-11-09** (14 etapów po [audycie](docs/AUDYT_RELAI_2026-11-09.md); wykonanie: Opus 5.5 medium, gałąź `optymalizacja/po-audycie`). [PANEL_CODEX](docs/plany/PANEL_CODEX/STATUS.md) (Codex) **nieaktywny — WSTRZYMANY 2026-10-27** decyzją Łukasza. Ostatni zamknięty: [KONTEKST_STARTU](docs/archiwum/plany/KONTEKST_STARTU/STATUS.md), 2026-10-28 (lżejszy start sesji: skrót startu, indeks zasad, bramka trybu ciągłego w dwóch krokach; wydany w 3.7.0).
 
 ## Reguły procesu
 

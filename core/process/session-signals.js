@@ -989,7 +989,7 @@ const KB = 1024;
 // core/templates/SPEC_USTAWIENIA.md — tutaj stoi ich kopia wykonawcza.
 const PROGI_DOMYSLNE = {
   start: 55, // do 2.3.1: 80; 2.4.0: 140 (suma liczy skill startu); 2.5.0: 100 po podziale skilla (E3);
-  //            3.7.0: 55 — suma liczy skrot startu (KONTEKST_STARTU E5, decyzja Lukasza 2026-10-28)
+  //            od 3.7.0: 55 — suma liczy skrot startu (KONTEKST_STARTU E5, decyzja Lukasza 2026-10-28)
   CLAUDE: 10,
   STATE: 12,
   ryzyka: 12,

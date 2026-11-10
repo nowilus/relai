@@ -488,6 +488,7 @@
     "docs/plany/**",
     "docs/fixy/**",
     "docs/zasoby/**",
+    "docs/AUDYT_*.md",
     "CLAUDE.md",
     "adapters/claude-code/skills/relai-core/history.md",
     "adapters/codex/skills/relai-core/history.md",

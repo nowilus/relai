@@ -28,11 +28,11 @@ Parsing rules for whoever reads this file:
   treats the list as undated and stays silent about its age.
 
 ```
-list-date: 2026-10-08
+list-date: 2026-11-10
 tool: claude-code
 
 strong: Opus 5.5 | alias: opus | id: claude-opus-5-5 | family: claude | source: code.claude.com/docs/en/model-config, read 2026-10-08
-strong: Fable 5.1 | alias: fable | id: claude-fable-5-1 | family: claude | source: support.claude.com/en/articles/11940350-claude-code-model-configuration, read 2026-10-08
+strong: Fable 5.2 | alias: fable | id: claude-fable-5-2 | family: claude | source: code.claude.com/docs/en/model-config + support.claude.com/en/articles/11940350-claude-code-model-configuration, read 2026-11-10 (date of reading; the support page says "Updated today" without a date)
 balanced: Sonnet 5.5 | alias: sonnet | id: claude-sonnet-5-5 | family: claude | source: code.claude.com/docs/en/model-config + support.claude.com/en/articles/11940350-claude-code-model-configuration, read 2026-10-08
 cheap: Haiku 5.5 | alias: haiku | id: claude-haiku-5-5 | family: claude | source: code.claude.com/docs/en/model-config + support.claude.com/en/articles/11940350-claude-code-model-configuration, read 2026-10-08
 ```

@@ -179,9 +179,9 @@ zaraz po jego sprawdzeniu, nie na końcu etapu; punkt, który nie przeszedł, zo
       nadal stoi, `docs/ARTEFAKTY.md` i `docs/archiwum/` bez zmian w `git diff --stat`.
 - [x] `node core/tools/release-check.js --json` → kontrola `readme-hooki` zielona;
       `node core/tools/validate-adapters.js` → kod 0.
-- [ ] K-W1: jedenaście poleceń kod 0, zero `fail`; liczby nie niższe niż guardrails 33, process 430,
+- [x] K-W1: jedenaście poleceń kod 0, zero `fail`; liczby nie niższe niż guardrails 33, process 430,
       panel 227, codex 28, cursor 10, mody 91 / 217 / 51 / 206 (do wpisu).
-- [ ] K-W2 (po „Tak” człowieka): `git log --oneline -1` na `main` → commit scalający
+- [x] K-W2 (po „Tak” człowieka): `git log --oneline -1` na `main` → commit scalający
       `merge: plan OPTYMALIZACJA_PO_AUDYCIE`; `gh run list --workflow testy.yml --limit 1` →
       `completed success`.
 - [ ] K-W3: nowy tag w `git tag --list "v*"` i na `origin`; `gh release view <tag>` zwraca wydanie;
