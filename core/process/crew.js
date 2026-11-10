@@ -20,7 +20,7 @@
 // z "type": "module" dziala dzieki package.json { "type": "commonjs" } obok kopii (P-007, 2.7.1).
 //
 // Twarde granice (D-41, D-42):
-//   - nigdy nie dodaje flag omijajacych uprawnienia (--dangerously-*, --yolo, bypassPermissions);
+//   - nigdy nie dodaje flag omijajacych uprawnienia (--dangerously-*, --yolo, bypassPermissions, -f/--force);
 //   - zadanie bez --write dostaje tryb tylko-do-odczytu narzedzia;
 //   - nie czyta i nie wypisuje wartosci sekretow; sprawdza wylacznie CZY narzedzie jest zalogowane;
 //   - nie pisze do docs/ — wpis w dzienniku i STATE naleza do komendy (D-44).
@@ -110,8 +110,28 @@ const ROLE = {
 const FLAGI_ZAKAZANE = [
   '--dangerously-skip-permissions', '--dangerously-bypass-approvals-and-sandbox',
   '--dangerously-bypass-hook-trust', '--allow-dangerously-skip-permissions', '--yolo',
+  // Cursor CLI: -f/--force to ta sama flaga co --yolo ("Alias for --force", agent --help).
+  '-f', '--force',
   'bypassPermissions', 'danger-full-access',
 ];
+
+// Claude Code w trybie zapisu: Bash wylacznie z tych wzorcow (odczyt gita i uruchomienie testow),
+// nigdy goly "Bash" — czlonek zalogi biegnie bez czlowieka, wiec nikt nie zatwierdzi polecenia.
+const BASH_ZAPISU = [
+  'Bash(git status:*)', 'Bash(git diff:*)', 'Bash(git log:*)',
+  'Bash(node --test:*)', 'Bash(npm test:*)', 'Bash(npm run test:*)', 'Bash(pytest:*)',
+];
+
+// Wartosci, ktore trafiaja do wiersza polecen (na Windows przez cmd.exe): biala lista znakow.
+// Pierwszy znak nie jest myslnikiem, wiec wartosc nie udaje kolejnej flagi.
+const MODEL_RE = /^[A-Za-z0-9][A-Za-z0-9._:\/\[\]=,-]{0,119}$/;
+const BASE_RE = /^[A-Za-z0-9][A-Za-z0-9._\/-]{0,199}$/;
+
+function sprawdzWartosc(nazwa, wartosc, re) {
+  if (wartosc === undefined || wartosc === null || wartosc === '') return wartosc;
+  if (!re.test(String(wartosc))) throw new Error('niedozwolona wartosc ' + nazwa + ': ' + JSON.stringify(String(wartosc)));
+  return String(wartosc);
+}
 
 // --- pomocnicze --------------------------------------------------------------
 
@@ -143,11 +163,26 @@ function nowyRunId() {
     p(d.getHours()) + p(d.getMinutes()) + p(d.getSeconds());
 }
 
+// Zmienne, po ktorych narzedzia rozpoznaja gospodarza (NARZEDZIA[*].env), poza zmiennymi
+// narzedzia docelowego. Proces innego narzedzia ich nie dziedziczy: hook skanu sekretow
+// Codeksa milknie, gdy widzi CLAUDECODE (P-013), wiec odziedziczona zmienna wylaczala guardrail.
+function zmienneInnychGospodarzy(narzedzie) {
+  return Object.entries(NARZEDZIA).filter(([id]) => id !== narzedzie).flatMap(([, n]) => n.env);
+}
+
+// cmd.exe rozwija %ZMIENNA% takze w cudzyslowie i konczy polecenie na nowej linii, wiec takiego
+// argumentu nie da sie przekazac bezpiecznie. Tekst dowolny (prompt) idzie stdin-em.
+const ZNAK_NIEDOZWOLONY_CMD = /[%\r\n\0]/;
+
 // Domyslny wykonawca procesow. Testy podkladaja wlasny (L-0032: instrument mierzysz osobno).
 // Na Windows pliki .cmd nie uruchamiaja sie przez spawnSync bez powloki (EINVAL od Node 18.20),
-// wiec komenda idzie przez cmd.exe z jawnym cytowaniem kazdego argumentu.
+// wiec komenda idzie przez cmd.exe z jawnym cytowaniem kazdego argumentu. Argumenty to wylacznie
+// flagi, sciezki i wartosci z bialej listy; tekst dowolny idzie stdin-em.
 function wykonaj(cmd, args, opcje) {
   const o = opcje || {};
+  const env = Object.assign({}, process.env, o.env || {});
+  const usun = new Set((o.bezZmiennych || []).map((k) => k.toUpperCase()));
+  for (const k of Object.keys(env)) if (usun.has(k.toUpperCase())) delete env[k];
   const wspolne = {
     cwd: o.cwd,
     input: o.stdin,
@@ -155,11 +190,15 @@ function wykonaj(cmd, args, opcje) {
     timeout: (o.timeoutS || DOMYSLNY_TIMEOUT_S) * 1000,
     maxBuffer: LIMIT_WYJSCIA,
     windowsHide: true,
-    env: Object.assign({}, process.env, o.env || {}),
+    env,
   };
   let wynik;
   if (process.platform === 'win32') {
-    const cyt = (a) => '"' + String(a).replace(/"/g, '\\"') + '"';
+    const zly = [cmd].concat(args).find((a) => ZNAK_NIEDOZWOLONY_CMD.test(String(a)));
+    if (zly !== undefined) {
+      return { status: null, stdout: '', stderr: '', error: 'argument z %, CR, LF albo NUL nie przejdzie bezpiecznie przez cmd.exe', timedOut: false };
+    }
+    const cyt =(a) => '"' + String(a).replace(/"/g, '\\"') + '"';
     const linia = [cyt(cmd)].concat(args.map(cyt)).join(' ');
     wynik = spawnSync('cmd.exe', ['/d', '/s', '/c', '"' + linia + '"'], Object.assign({ windowsVerbatimArguments: true }, wspolne));
   } else {
@@ -348,10 +387,11 @@ function buildCommand(narzedzie, o) {
   if (!NARZEDZIA[narzedzie]) throw new Error('nieznane narzedzie: ' + narzedzie);
   const cwd = opcje.cwd || process.cwd();
   const cli = opcje.cli || sciezkaCli(narzedzie, opcje.env);
+  sprawdzWartosc('--model', opcje.model, MODEL_RE);
   if (narzedzie === 'claude-code') {
     const args = ['-p', '--output-format', 'text'];
     if (opcje.model) args.push('--model', opcje.model);
-    if (write) args.push('--permission-mode', 'acceptEdits', '--allowedTools', 'Read', 'Glob', 'Grep', 'Edit', 'Write', 'MultiEdit', 'NotebookEdit', 'Bash');
+    if (write) args.push('--permission-mode', 'acceptEdits', '--allowedTools', 'Read', 'Glob', 'Grep', 'Edit', 'Write', 'MultiEdit', 'NotebookEdit', ...BASH_ZAPISU);
     else args.push('--permission-mode', 'plan');
     return { cmd: cli, args, stdin: opcje.prompt || '', cwd };
   }
@@ -367,7 +407,9 @@ function buildCommand(narzedzie, o) {
   if (narzedzie === 'cursor') {
     const args = ['-p', '--output-format', 'text', '--trust', '--workspace', cwd];
     if (opcje.model) args.push('--model', opcje.model);
-    if (write) args.push('-f'); else args.push('--mode', 'ask');
+    // Tryb zapisu bez -f/--force: -p ma dostep do zapisu plikow ("Has access to all tools",
+    // agent --help), a -f to alias --yolo, czyli automatyczna zgoda na kazde polecenie powloki.
+    if (!write) args.push('--mode', 'ask');
     // Prompt idzie stdin-em, jak w pozostalych narzedziach (zmierzone 2026-09-06: agent -p
     // czyta stdin; ten sam prompt wieloliniowy jako argument bywa czytany fragmentami).
     return { cmd: cli, args, stdin: opcje.prompt || '', cwd };
@@ -379,19 +421,30 @@ function buildReviewCommand(narzedzie, o) {
   const opcje = o || {};
   const cwd = opcje.cwd || process.cwd();
   const cli = opcje.cli || sciezkaCli(narzedzie, opcje.env);
+  sprawdzWartosc('--base', opcje.base, BASE_RE);
+  sprawdzWartosc('--model', opcje.model, MODEL_RE);
   if (narzedzie === 'codex') {
     const args = ['review', '--color', 'never'];
     if (opcje.base) args.push('--base', opcje.base); else args.push('--uncommitted');
     if (opcje.model) args.push('-c', 'model="' + opcje.model + '"');
-    args.push(opcje.prompt || ROLE.reviewer.preambula.join('\n'));
-    return { cmd: cli, args, stdin: '', cwd };
+    // "-" = instrukcje recenzji ze stdin (codex review --help). Jako argument prompt wieloliniowy
+    // byl ucinany przez cmd.exe na pierwszej nowej linii, a cudzyslow w nim otwieral wstrzykniecie.
+    args.push('-');
+    return { cmd: cli, args, stdin: opcje.prompt || ROLE.reviewer.preambula.join('\n'), cwd };
   }
   // Claude Code i Cursor: przeglad to zadanie tylko-do-odczytu z preambula recenzenta.
   return buildCommand(narzedzie, Object.assign({}, opcje, { write: false }));
 }
 
+// Flaga z myslnikiem: rowna albo z "=wartosc" (sam podciag "-f" siedzi w "--output-format").
+// Wartosc bez myslnika (bypassPermissions, danger-full-access): podciag w dowolnym argumencie.
+function zakazana(arg) {
+  const a = String(arg);
+  return FLAGI_ZAKAZANE.some((f) => (f.startsWith('-') ? a === f || a.startsWith(f + '=') : a.includes(f)));
+}
+
 function sprawdzFlagi(komenda) {
-  const zle = komenda.args.filter((a) => FLAGI_ZAKAZANE.some((f) => String(a).includes(f)));
+  const zle = komenda.args.filter(zakazana);
   if (zle.length) throw new Error('zakazana flaga w komendzie: ' + zle.join(' '));
   return komenda;
 }
@@ -504,7 +557,7 @@ function run(cwd, o) {
   const start = teraz();
   zapiszStatus(cwd, runId, { id: taskId, runtime: narzedzie, role: rola, model: opcje.model || '', write, status: 'running', startedAt: start, command: [komenda.cmd].concat(komenda.args) });
 
-  const w = exec(komenda.cmd, komenda.args, { cwd, stdin: komenda.stdin, timeoutS: opcje.timeoutS, env: opcje.env });
+  const w = exec(komenda.cmd, komenda.args, { cwd, stdin: komenda.stdin, timeoutS: opcje.timeoutS, env: opcje.env, bezZmiennych: zmienneInnychGospodarzy(narzedzie) });
   const outPlik = path.join(katalog, taskId + '.out.txt');
   const errPlik = path.join(katalog, taskId + '.err.txt');
   fs.writeFileSync(outPlik, w.stdout, 'utf8');
@@ -537,7 +590,7 @@ function review(cwd, o) {
   const komenda = sprawdzFlagi(buildReviewCommand(narzedzie, { cwd, model: opcje.model, base: opcje.base, prompt, promptFile: promptPlik, env: opcje.env, cli: opcje.cli }));
   const start = teraz();
   zapiszStatus(cwd, runId, { id: taskId, runtime: narzedzie, role: 'reviewer', model: opcje.model || '', write: false, status: 'running', startedAt: start, command: [komenda.cmd].concat(komenda.args) });
-  const w = exec(komenda.cmd, komenda.args, { cwd, stdin: komenda.stdin, timeoutS: opcje.timeoutS, env: opcje.env });
+  const w = exec(komenda.cmd, komenda.args, { cwd, stdin: komenda.stdin, timeoutS: opcje.timeoutS, env: opcje.env, bezZmiennych: zmienneInnychGospodarzy(narzedzie) });
   const outPlik = path.join(katalog, taskId + '.out.txt');
   fs.writeFileSync(outPlik, w.stdout, 'utf8');
   fs.writeFileSync(path.join(katalog, taskId + '.err.txt'), w.stderr + (w.error ? '\n[spawn] ' + w.error : ''), 'utf8');
@@ -705,4 +758,5 @@ module.exports = {
   buildCommand, buildReviewCommand, sprawdzFlagi, composePrompt,
   ocenMeldunek, kontynuacja, KONTYNUACJE_MAX, AUTONOMIA,
   run, review, status, statusReport, sciezkaCli, main,
+  wykonaj, zmienneInnychGospodarzy,
 };

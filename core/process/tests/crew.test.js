@@ -56,7 +56,7 @@ test('buildCommand gives read-only flags without --write and never a bypass flag
       const linia = k.args.join(' ');
       if (runtime === 'claude-code') assert.match(linia, write ? /acceptEdits/ : /--permission-mode plan/);
       if (runtime === 'codex') assert.match(linia, write ? /workspace-write/ : /read-only --ephemeral/);
-      if (runtime === 'cursor') assert.match(linia, write ? /(^| )-f( |$)/ : /--mode ask/);
+      if (runtime === 'cursor') assert.match(linia, write ? /^-p --output-format text --trust --workspace C:\/proj --model m1$/ : /--mode ask/);
       assert.match(linia, /m1/);
     }
   }
@@ -276,4 +276,95 @@ test('ocenMeldunek sees open checklist items written above the Report heading', 
   const o = crew.ocenMeldunek('- [x] task A\n- [ ] task B\n\n## Report\n\nVerification: `npm test` -> 5/5 passed, exit 0');
   assert.equal(o.kompletny, false);
   assert.deepEqual(o.otwarte, ['task B']);
+});
+
+// --- K-D9, K-D6, K-D7 (etap E06 planu OPTYMALIZACJA_PO_AUDYCIE) -----------------------------
+
+function probe(t) {
+  const dir = fixture(t);
+  const plik = path.join(dir, 'probe.js');
+  fs.writeFileSync(plik, 'process.stdout.write(JSON.stringify({ host: process.env.CLAUDECODE || "", args: process.argv.slice(2) }));\n');
+  return plik;
+}
+
+test('K-D9: run and review strip the other hosts\' variables from the child environment', (t) => {
+  const cwd = fixture(t);
+  const exec = stubExec({ 'codex exec': { stdout: '## Report' }, 'codex review': { stdout: 'APPROVE' }, 'claude -p': { stdout: '## Report' } });
+  crew.run(cwd, { runtime: 'codex', role: 'coder', prompt: 'x', runId: 'r1', taskId: 'a', exec, cli: 'codex' });
+  crew.review(cwd, { runtime: 'codex', runId: 'r1', exec, cli: 'codex' });
+  crew.run(cwd, { runtime: 'claude-code', role: 'coder', prompt: 'x', runId: 'r1', taskId: 'b', exec, cli: 'claude' });
+  const [codexRun, codexReview, claudeRun] = exec.wywolania.map((w) => w.opcje.bezZmiennych || []);
+  for (const lista of [codexRun, codexReview]) {
+    for (const k of ['CLAUDECODE', 'CLAUDE_CODE_ENTRYPOINT', 'CURSOR_AGENT', 'CURSOR_TRACE_ID']) assert.ok(lista.includes(k), k);
+    assert.ok(!lista.includes('CODEX_HOME'), 'wlasna zmienna narzedzia docelowego zostaje');
+  }
+  assert.ok(claudeRun.includes('CODEX_THREAD_ID') && !claudeRun.includes('CLAUDECODE'));
+});
+
+test('K-D9: wykonaj removes the listed variables before spawning', (t) => {
+  const plik = probe(t);
+  const stary = process.env.CLAUDECODE;
+  process.env.CLAUDECODE = '1';
+  try {
+    const z = crew.wykonaj(process.execPath, [plik], { timeoutS: 30 });
+    assert.equal(JSON.parse(z.stdout).host, '1', 'kontrola: bez listy zmienna przechodzi');
+    const bez = crew.wykonaj(process.execPath, [plik], { timeoutS: 30, bezZmiennych: ['CLAUDECODE'] });
+    assert.equal(JSON.parse(bez.stdout).host, '');
+  } finally {
+    if (stary === undefined) delete process.env.CLAUDECODE; else process.env.CLAUDECODE = stary;
+  }
+});
+
+test('K-D6: codex review takes the reviewer prompt from stdin, not from argv', () => {
+  const prompt = 'Line one\nLine two with "quotes" & ampersand';
+  const c = crew.buildReviewCommand('codex', { cwd: '/p', cli: 'codex', prompt });
+  assert.equal(c.args[c.args.length - 1], '-');
+  assert.equal(c.stdin, prompt);
+  assert.ok(c.args.every((a) => !String(a).includes('Line')), c.args.join(' '));
+  assert.match(crew.buildReviewCommand('codex', { cwd: '/p', cli: 'codex' }).stdin, /role of REVIEWER/);
+});
+
+test('K-D6: model and base outside the whitelist are refused before anything runs', () => {
+  for (const model of ['m1" & echo INJECTED', 'gpt-x\nrm', '--yolo', 'a%PATH%b']) {
+    assert.throws(() => crew.buildCommand('codex', { cwd: '/p', cli: 'codex', model, prompt: 'x' }), /niedozwolona wartosc --model/, model);
+  }
+  for (const base of ['main" & echo INJECTED', '--output=x', 'main;rm', 'a b']) {
+    assert.throws(() => crew.buildReviewCommand('codex', { cwd: '/p', cli: 'codex', base }), /niedozwolona wartosc --base/, base);
+  }
+  for (const model of ['gpt-5.6-terra', 'claude-opus-5-5[1m]', 'claude-opus-4-8[context=1m,effort=high]', 'sonnet-4.5']) {
+    assert.doesNotThrow(() => crew.buildCommand('cursor', { cwd: '/p', cli: 'agent', model, prompt: 'x' }), model);
+  }
+  assert.doesNotThrow(() => crew.buildReviewCommand('codex', { cwd: '/p', cli: 'codex', base: 'feature/x-1.2' }));
+});
+
+test('K-D6: wykonaj passes cmd.exe metacharacters verbatim and refuses percent and newlines', (t) => {
+  const plik = probe(t);
+  const ok = crew.wykonaj(process.execPath, [plik, 'a&b|c<d>e^f', 'C:/dir with space/x'], { timeoutS: 30 });
+  assert.deepEqual(JSON.parse(ok.stdout).args, ['a&b|c<d>e^f', 'C:/dir with space/x'], ok.stderr);
+  if (process.platform !== 'win32') { t.skip('straznik cmd.exe dziala tylko na Windows'); return; }
+  for (const zly of ['a%PATH%b', 'line\nnext']) {
+    const r = crew.wykonaj(process.execPath, [plik, zly], { timeoutS: 30 });
+    assert.equal(r.status, null);
+    assert.match(r.error, /cmd\.exe/);
+    assert.equal(r.stdout, '');
+  }
+});
+
+test('K-D7: Cursor write mode carries no -f/--force and the flag check matches whole flags', () => {
+  const k = crew.buildCommand('cursor', { cwd: '/p', cli: 'agent', write: true, prompt: 'x' });
+  for (const flaga of ['-f', '--force', '--yolo', '--mode']) assert.ok(!k.args.includes(flaga), flaga);
+  for (const flaga of ['-f', '--force', '--force=true', '--yolo']) {
+    assert.throws(() => crew.sprawdzFlagi({ cmd: 'agent', args: [flaga] }), /zakazana flaga/, flaga);
+  }
+  assert.doesNotThrow(() => crew.sprawdzFlagi({ cmd: 'agent', args: ['-p', '--output-format', 'text'] }));
+  assert.ok(crew.FLAGI_ZAKAZANE.includes('-f') && crew.FLAGI_ZAKAZANE.includes('--force'));
+});
+
+test('K-D7: Claude Code write mode allows Bash only through command patterns', () => {
+  const k = crew.buildCommand('claude-code', { cwd: '/p', cli: 'claude', write: true, prompt: 'x' });
+  assert.ok(!k.args.includes('Bash'), 'goly Bash daje kazde polecenie bez zgody czlowieka');
+  const bash = k.args.filter((a) => /^Bash/.test(a));
+  assert.ok(bash.length > 0);
+  for (const a of bash) assert.match(a, /^Bash\([^()]+:\*\)$/);
+  assert.ok(bash.includes('Bash(node --test:*)') && bash.includes('Bash(git diff:*)'));
 });

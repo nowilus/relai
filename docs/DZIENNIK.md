@@ -2402,3 +2402,101 @@ w poleceniu powłoki w `secret-scanner`, `bash-guard` tylko ostrzega (D-41 bez z
 
 Lekcja z etapu: L-0312 (fikstura hooka czytającego `git status` trzyma swoje pomocnicze katalogi
 poza repozytorium fikstury).
+
+### 2026-11-10 — OPTYMALIZACJA_PO_AUDYCIE E6: deinstalator Cursora w granicach `.cursor/`, skaner Codeksa w załodze, prompt recenzenta stdin-em
+
+Autor: RelAI (Opus 5.5) + Lukasz
+
+Etap E6 z E14, cztery karty z `karty/E06_ADAPTERY_I_ZALOGA.md` w kolejności K-D5 → K-D9 → K-D6 →
+K-D7. Gałąź `optymalizacja/po-audycie`, punkt wyjścia `1e359ed` (commit E5). Zmiana działa w sesjach
+dopiero po wydaniu w E14 — dowodem są testy i skrypt efektu na kodzie z repozytorium.
+
+**Zrobione:**
+
+- K-D5: `adapters/cursor/install.js` — `sciezkaZManifestu` nad `uninstall` (odrzuca `..`, ścieżkę
+  bezwzględną, literę dysku, plik spoza `.cursor/` i wyjście przez dowiązanie w katalogu
+  nadrzędnym, porównanie po `realpathSync`); cała lista manifestu sprawdzana przed pierwszym
+  usunięciem (kod 1, komunikat „wskazuje pliki spoza .cursor/ projektu”, nic nie znika); pętla po
+  `wpisy`. Sześć testów w `install.test.js` (pięć odmów, w tym junction, i przypadek ukośników).
+- K-D9: `core/process/crew.js` — `zmienneInnychGospodarzy`, opcja `bezZmiennych` w `wykonaj`
+  (usuwanie bez względu na wielkość liter), oba `const w = exec(…)` w `run` i `review` z listą,
+  eksport `wykonaj, zmienneInnychGospodarzy`. `adapters/codex/hooks/secret-scanner.js` — `ignored`
+  wg karty: `git check-ignore` 0 → pomija, 1 → skanuje, inny wynik → furtka `.env*`. Dwa testy
+  w `crew.test.js`, nowy `adapters/codex/tests/secret-scanner.test.js` (4 przypadki).
+- K-D6: `MODEL_RE`, `BASE_RE`, `sprawdzWartosc` pod `FLAGI_ZAKAZANE`; `ZNAK_NIEDOZWOLONY_CMD`
+  i strażnik w gałęzi `win32` `wykonaj` przed `const cyt`; `sprawdzWartosc` w `buildCommand`
+  (`--model`) i `buildReviewCommand` (`--base`, `--model`); przegląd Codeksa z `-` i promptem
+  w `stdin`; zdanie w komentarzu nad `wykonaj`. Trzy testy.
+- K-D7: `-f`, `--force` na `FLAGI_ZAKAZANE` z komentarzem; `BASH_ZAPISU` (siedem wzorców); Claude
+  Code w zapisie z `...BASH_ZAPISU` zamiast gołego `Bash`; Cursor w zapisie bez `-f`; `zakazana`
+  (całe flagi albo `flaga=`) w `sprawdzFlagi`; komentarz nagłówka z „, -f/--force”. Test istniejący
+  `buildCommand gives read-only flags without --write and never a bypass flag` zmieniony z nazwy
+  (linia 59), dwa nowe.
+- Rozjazd z kartą K-D9, krok 1 („sam eksport”): eksport `zmienneInnychGospodarzy` przed definicją
+  funkcji dałby `ReferenceError` przy `require`, nie asercję. Do przebiegu czerwonego wyeksportowany
+  był sam `wykonaj`, drugą nazwę dopisałem razem z funkcją (L-0313). Kod końcowy zgodny z kartą.
+
+**Zweryfikowane — jak dokładnie:**
+
+- `git branch --show-current` → `optymalizacja/po-audycie`; `git log --oneline -1` → `1e359ed`
+  (commit E5).
+- Przebiegi czerwone przed zmianą (zapisane w katalogu roboczym): K-D5 — 5 odmów czerwonych
+  z asercji (`actual: 0, expected: 1`), przypadek ukośników zielony, 5/10; K-D9 — oba testy
+  `crew.test.js` z asercji (`CLAUDECODE` nie ma na liście; podproces widzi `'1'`), w pliku Codeksa
+  czerwony tylko `.env.example`, 3/4 zielone; K-D6 — trzy z asercji (`'-'`, „Missing expected
+  exception”, `0 !== null` — `a%PATH%b` przechodził z kodem 0); K-D7 — zmieniony test istniejący
+  i oba nowe z asercji.
+- Po zmianie: `node --test "adapters/cursor/tests/*.test.js"` → **10 pass** (przed 4);
+  `node --test "adapters/codex/tests/*.test.js"` → **28 pass** (przed 24);
+  `node --test core/process/tests/crew.test.js` → **24 pass** (przed 17).
+- `node --test "core/process/tests/*.test.*"` → **396 pass**, 0 fail (przed etapem 389; +2 +3 +2);
+  `core/guardrails` → 33 pass (bez zmian). `git diff -U0 core/process/tests/crew.test.js` — jedyna
+  linia `-` to dawna linia 59.
+- Dowód negatywny K-D9: `grep -n "if (process.env.CLAUDECODE) process.exit(0);"` w hooku Codeksa →
+  `8:`; `git diff` plików `secret-scanner.cmd` i `secret-scanner.sh` → pusty.
+- Efekt widoczny (skrypt w katalogu roboczym, kod z repozytorium):
+  `buildReviewCommand('codex', { prompt: 'a\nb' })` → ostatni argument `"-"`, `stdin` `"a\nb"`;
+  deinstalator z manifestem `['../plik']` → kod 1, plik obok projektu istnieje, stderr „…
+  wskazuje pliki spoza .cursor/ projektu:”; `wykonaj` z `CLAUDECODE=1` → bez listy `WIDZI=1`,
+  z `bezZmiennych: ['CLAUDECODE']` → `BRAK`.
+- `node core/tools/validate-adapters.js` → kod 0, jedno ostrzeżenie (`security-audit/SKILL.md`),
+  `wywolania z hooks.json: 20`.
+- Trivy (`trivy fs --scanners vuln`): 0 CRITICAL, 42 HIGH, 50 MEDIUM, 12 LOW — identycznie jak
+  po E5; etap nie dodaje zależności. Nowych CRITICAL ani HIGH: 0.
+- Podstawy: wejście niezaufane walidowane (testy odmowy manifestu, białej listy `--model`/`--base`,
+  strażnika `%`/LF); `git grep -nE` po `sk_live_…{16}` i `github_pat_…{22}` → 0; `PASSWORD=`
+  w trzech plikach testów → 0 (wartość składa `secret()`).
+- Granica: `git status --short` — z etapu wyłącznie sześć plików kart i dokumenty rytuału;
+  `.claude/relai/tools/crew.js` nietknięty; pod `adapters/*/skills/relai-planning/` tylko cztery
+  zastane `*-closing.md`.
+- Katalog roboczy `.claude/relai/work/OPTYMALIZACJA_PO_AUDYCIE/E6/`: przed — 14 plików, 852 KB
+  (`find`/`du`; przebiegi czerwone i zielone, pełny przebieg `core/process`, raport Trivy, skrypt
+  efektu z fiksturą); po „tak” Łukasza — 0. Artefakty spoza katalogu: fikstury
+  `%TEMP%/relai-cursor-install-*`, `relai-k-d9-codex-*`, `relai-crew-*` sprzątają `t.after`
+  testów — po etapie `ls` → 0.
+
+**Świadomie odłożone:**
+
+- Pomiar na żywo `agent -p` bez `-f` i `claude -p` z `BASH_ZAPISU` — nie należy do etapu (karta
+  K-D7, pułapki); pozycja dla człowieka niżej.
+- Przegląd ryzyk: P1 (adaptery bez blokad harnessu) — deinstalator Cursora nie wyjdzie już poza
+  `.cursor/`, skaner Codeksa nie milknie w załodze i skanuje śledzone `.env*`; brak egzekwowanego
+  `ask` w Cursorze bez zmian — poziom bez zmian. M6 (flagi CLI załogi) — nowe flagi `-`
+  w `codex review` i tryb Cursora bez `-f` oparte na pomocy CLI, niezmierzone na żywo — poziom bez
+  zmian.
+- Rotacje dziennika, sekcji ryzyk i lekcji zgłoszone na starcie — poza etapem.
+
+**Do zrobienia przez człowieka:**
+
+- **K-D7, lista `BASH_ZAPISU`:** siedem wzorców (git status/diff/log, `node --test`, `npm test`,
+  `npm run test`, `pytest`) — projekt z `cargo test` albo `go test` zostawi członka załogi Claude
+  Code bez dowodu w meldunku; `npm test` uruchamia skrypt z `package.json`, który koder może
+  edytować. Rozszerzyć listę czy zostawić?
+- **K-D7, Cursor bez `-f`:** zmierzyć na żywo, czy koder w Cursorze uruchomi testy bez
+  automatycznej zgody na powłokę; gdy nie — jawna zgoda człowieka per przebieg (nowa flaga
+  `crew.js`, poza tą kartą).
+- **K-D6, `%` w ścieżce projektu na Windows:** załoga odmawia zamiast ryzykować rozwinięcie zmiennej
+  przez cmd.exe — potwierdzić kompromis.
+
+Lekcja z etapu: L-0313 (krok karty „sam eksport” nazwy, której jeszcze nie ma, daje
+`ReferenceError`, nie przebieg czerwony z asercji).

@@ -319,6 +319,25 @@ function usunPuste(dir) {
   try { fs.rmdirSync(dir); } catch (_) { /* niepuste — zostaje tresc uzytkownika */ }
 }
 
+// Pozycja manifestu -> sciezka bezwzgledna do usuniecia albo null. Manifest lezy w projekcie
+// i moze przyjsc cudzym commitem, wiec jest dana niezaufana: usuwamy wylacznie pliki pod
+// <projekt>/.cursor/ — bez "..", bez sciezki bezwzglednej i bez wyjscia przez dowiazanie
+// (junction na Windows) w katalogu nadrzednym pliku. Instalator zapisuje tylko takie pozycje.
+function sciezkaZManifestu(projekt, rel) {
+  if (typeof rel !== 'string' || !rel) return null;
+  const czesci = rel.split(/[\\/]/);
+  if (path.isAbsolute(rel) || /^[A-Za-z]:/.test(rel) || czesci.includes('..')) return null;
+  const korzen = fs.realpathSync(projekt);
+  const baza = path.join(korzen, '.cursor');
+  const p = path.join(korzen, ...czesci);
+  const wzgledna = path.relative(baza, p);
+  if (!wzgledna || wzgledna.startsWith('..') || path.isAbsolute(wzgledna)) return null;
+  let rodzic = null;
+  try { rodzic = fs.realpathSync(path.dirname(p)); } catch (_) { return p; } // brak katalogu = brak pliku
+  const wzglednyRodzic = path.relative(baza, rodzic);
+  return wzglednyRodzic.startsWith('..') || path.isAbsolute(wzglednyRodzic) ? null : p;
+}
+
 function uninstall(projekt) {
   const manifestPath = path.join(projekt, '.cursor', MANIFEST_NAME);
   let manifest = null;
@@ -329,15 +348,24 @@ function uninstall(projekt) {
     return 1;
   }
 
+  // Cala lista sprawdzona PRZED pierwszym usunieciem: jedna podejrzana pozycja = nic nie ruszamy.
+  const wpisy = Array.isArray(manifest.files) ? manifest.files : [];
+  const odrzucone = wpisy.filter((rel) => !sciezkaZManifestu(projekt, rel));
+  if (odrzucone.length) {
+    process.stderr.write('RelAI install: manifest ' + manifestPath + ' wskazuje pliki spoza .cursor/ projektu:\n' +
+      odrzucone.map((rel) => '  - ' + String(rel)).join('\n') + '\n' +
+      'Nie usunieto niczego. Sprawdz, skad pochodzi manifest, popraw go albo skasuj pliki recznie.\n');
+    return 1;
+  }
+
   if (!guidanceUninstall(projekt)) {
     process.stderr.write('RelAI install: AGENTS.md albo CLAUDE.md zostal zmieniony po instalacji; zachowuje oba pliki i przerywa deinstalacje.\n');
     return 1;
   }
 
   let usuniete = 0;
-  for (const rel of (manifest.files || [])) {
-    const p = path.join(projekt, ...rel.split('/'));
-    try { fs.unlinkSync(p); usuniete++; } catch (_) { /* juz go nie ma */ }
+  for (const rel of wpisy) {
+    try { fs.unlinkSync(sciezkaZManifestu(projekt, rel)); usuniete++; } catch (_) { /* juz go nie ma */ }
   }
   // Puste katalogi po naszych plikach — tylko gdy puste, od najglebszego (skille maja podkatalogi
   // scripts/ i references/ od E5 planu BEZPIECZENSTWO).

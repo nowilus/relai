@@ -181,50 +181,50 @@ aneks czy „świadomie odłożone”.
 Każdy punkt Weryfikacji, który przeszedł, odhaczasz w `PROMPT_ETAP_6.md` (`- [ ]` → `- [x]`)
 zaraz po jego sprawdzeniu, nie na końcu etapu; punkt, który nie przeszedł, zostaje pusty.
 
-- [ ] K-0 (konwencje, sekcja 3): `git branch --show-current` → `optymalizacja/po-audycie`;
+- [x] K-0 (konwencje, sekcja 3): `git branch --show-current` → `optymalizacja/po-audycie`;
       `git log --oneline -1` pokazuje commit E5 (albo człowiek rozstrzygnął, co z drzewem).
-- [ ] Testy przed zmianą: każda karta ma zapisany w katalogu roboczym przebieg czerwony z właściwego
+- [x] Testy przed zmianą: każda karta ma zapisany w katalogu roboczym przebieg czerwony z właściwego
       powodu (K-D5: pięć odmów czerwonych — kod 0 i plik skasowany — przypadek ukośników zielony;
       K-D9: oba testy `crew.test.js` czerwone z asercji po samym eksporcie, w pliku Codeksa
       czerwony tylko pierwszy; K-D6: trzy czerwone z asercji; K-D7: zmieniony test istniejący
       i oba nowe czerwone z asercji).
-- [ ] `node --test "adapters/cursor/tests/*.test.js"` → **10 pass**, 0 fail;
+- [x] `node --test "adapters/cursor/tests/*.test.js"` → **10 pass**, 0 fail;
       `node --test "adapters/codex/tests/*.test.js"` → **28 pass**, 0 fail;
       `node --test core/process/tests/crew.test.js` → **24 pass**.
-- [ ] `node --test "core/process/tests/*.test.*"` → **396 pass** (albo suma od wpisu E5 plus 7,
+- [x] `node --test "core/process/tests/*.test.*"` → **396 pass** (albo suma od wpisu E5 plus 7,
       opisana), 0 fail; `node --test "core/guardrails/tests/*.test.js"` → 33 pass.
       `git diff core/process/tests/crew.test.js` zmienia z istniejących testów wyłącznie linię 59
       (`git diff -U0` — jedna linia `-`), reszta to dopisane testy.
-- [ ] Dowód negatywny K-D9 (zasada 3): `grep -n "if (process.env.CLAUDECODE) process.exit(0);"
+- [x] Dowód negatywny K-D9 (zasada 3): `grep -n "if (process.env.CLAUDECODE) process.exit(0);"
       adapters/codex/hooks/secret-scanner.js` → 1 trafienie (linia zostaje); `git diff
       adapters/codex/hooks/secret-scanner.cmd adapters/codex/hooks/secret-scanner.sh` → pusty.
-- [ ] Efekt widoczny z karty (fikstura w katalogu roboczym, kod z repozytorium):
+- [x] Efekt widoczny z karty (fikstura w katalogu roboczym, kod z repozytorium):
       `crew.buildReviewCommand('codex', { prompt: 'a\nb' })` ma ostatni argument `-` i `stdin`
       z oboma liniami; deinstalator Cursora z manifestem `../plik` → kod 1, plik obok projektu
       istnieje; `crew.wykonaj` z `bezZmiennych: ['CLAUDECODE']` → podproces nie widzi `CLAUDECODE`.
-- [ ] `node core/tools/validate-adapters.js` → kod 0, jedno ostrzeżenie (`security-audit/SKILL.md`),
+- [x] `node core/tools/validate-adapters.js` → kod 0, jedno ostrzeżenie (`security-audit/SKILL.md`),
       `wywolania z hooks.json: 20` bez zmian.
-- [ ] Bezpieczeństwo (D-91): `/relai-security` (skan Trivy) — zero nowych CRITICAL i HIGH
+- [x] Bezpieczeństwo (D-91): `/relai-security` (skan Trivy) — zero nowych CRITICAL i HIGH
       wprowadzonych w tym etapie, liczby według wagi do wpisu (etap nie dodaje zależności; po E5:
       0 CRITICAL, 42 HIGH, 50 MEDIUM, 12 LOW — zastane fikstury ewaluacji `trivy-scan`, nie
       blokują). Trivy brak → zapis „brak pliku zależności w `adapters/` i `core/`” z wynikiem
       `git ls-files adapters core | grep package.json` (pusty).
-- [ ] Podstawy na zmianie etapu: wejście niezaufane walidowane przed użyciem (manifest Cursora —
+- [x] Podstawy na zmianie etapu: wejście niezaufane walidowane przed użyciem (manifest Cursora —
       testy odmowy; `--model`/`--base` — test białej listy; argument z `%`/CR/LF na Windows —
       test strażnika); `git grep -nE "sk_live_[A-Za-z0-9]{16}|github_pat_[A-Za-z0-9_]{22}"` → 0;
       Grep po `PASSWORD=` w nowych testach → 0 gotowych przypisań.
-- [ ] Granica: `git status --short` pokazuje z tego etapu wyłącznie pliki z pól „Pliki” czterech
+- [x] Granica: `git status --short` pokazuje z tego etapu wyłącznie pliki z pól „Pliki” czterech
       kart (`adapters/cursor/install.js`, `adapters/cursor/tests/install.test.js`,
       `core/process/crew.js`, `core/process/tests/crew.test.js`,
       `adapters/codex/hooks/secret-scanner.js`, `adapters/codex/tests/secret-scanner.test.js`)
       i dokumenty rytuału (`STATUS.md`, `PROMPT_ETAP_6.md`, `PROMPT_ETAP_7.md`, `DZIENNIK.md`,
       `STATE.md`, ewentualnie `LEKCJE.md`); `.claude/relai/tools/crew.js` nietknięty; pod
       `adapters/*/skills/relai-planning/` wyłącznie cztery zastane `*-closing.md`.
-- [ ] Wpis etapu jest na końcu sekcji „Wpisy” w `docs/DZIENNIK.md`, z liczbami testów (cursor 10,
+- [x] Wpis etapu jest na końcu sekcji „Wpisy” w `docs/DZIENNIK.md`, z liczbami testów (cursor 10,
       codex 28, `core/process` 396 albo zgodnie z sumą, opisaną), z trzema pozycjami „Do
       rozstrzygnięcia przez człowieka” z karty w sekcji „Do zrobienia przez człowieka” i podpisem
       `Autor: RelAI (Opus 5.5) + Lukasz`.
-- [ ] Katalog roboczy: (a) `.claude/relai/work/OPTYMALIZACJA_PO_AUDYCIE/E6/` przejrzany
+- [x] Katalog roboczy: (a) `.claude/relai/work/OPTYMALIZACJA_PO_AUDYCIE/E6/` przejrzany
       (`node .claude/relai/tools/clean-work.js raport`; katalog otwartego etapu raport pomija —
       wtedy liczby z `find`/`du`) i skasowany po „tak”, liczby przed i po we wpisie dziennika;
       (b) artefakty spoza katalogu (fikstury `%TEMP%/relai-cursor-install-*`,

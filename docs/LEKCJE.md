@@ -71,9 +71,10 @@ w wyzwalacz, przed pracą doczytujesz pełne brzmienie zasady z sekcji „Pełne
    wyrzuconym (L-0279). Kontrola „stary tekst nie może zostać” odróżnia deklarację stanu od zapisu
    przeszłości zamkniętą listą słów przed wartością i przed oddaniem przechodzi jedno realne
    podbicie, nie tylko fixturę (L-0277); kontrola wymagająca numeru wersji w treści dostaje test
-   z kontrolą starego numeru na „następnym wydaniu bez zmiany tego numeru” (L-0287).
+   z kontrolą starego numeru na „następnym wydaniu bez zmiany tego numeru” (L-0287). Krok karty
+   przed testem eksportuje tylko nazwy, które już istnieją w module (L-0313).
    (L-0001, L-0011, L-0026, L-0089, L-0100, L-0108, L-0129, L-0212, L-0254, L-0269, L-0271, L-0277,
-   L-0279, L-0282, L-0287)
+   L-0279, L-0282, L-0287, L-0313)
 2. **W dokumencie użytkownika stoi tylko to, co działa i co zmierzyłeś** — fraza i forma wywołania
    w wersji uruchomionej dosłownie, z tej samej powłoki, którą zobaczy czytelnik; znak
    interpretowany przez powłokę zapisujesz tak, żeby go nie tknęła. Komenda do wklejenia przez
@@ -894,6 +895,17 @@ w wyzwalacz, przed pracą doczytujesz pełne brzmienie zasady z sekcji „Pełne
 - **Zasada:** fikstura hooka czytającego `git status` trzyma swoje pomocnicze katalogi (`home`,
   konfigurację, wyjścia) **poza** repozytorium fikstury albo w jej `.gitignore`; skrypt efektu
   piszesz z tego samego układu co test karty.
+
+### L-0313 — Krok „sam eksport” nazwy, której jeszcze nie ma, daje `ReferenceError`, nie czerwień z asercji · 2026-11-10 · AKTYWNA
+
+- **Trigger:** OPTYMALIZACJA_PO_AUDYCIE E6, karta K-D9. Krok 1 karty kazał przed testem dopisać
+  do `module.exports` nazwy `wykonaj, zmienneInnychGospodarzy`, a funkcja `zmienneInnychGospodarzy`
+  powstaje dopiero w kroku 2. Skrót `{ a, b }` z niezdefiniowaną nazwą przewraca `require` całego
+  modułu, więc przebieg „czerwony z asercji” byłby czerwony z błędu ładowania. Prototyp karty miał
+  funkcję już zdefiniowaną, więc tego nie pokazał.
+- **Zasada:** krok przygotowawczy przed testem eksportuje wyłącznie nazwy, które już istnieją
+  w module; nazwę nowej funkcji dopisujesz do eksportu razem z jej definicją. Kartę z takim
+  krokiem wykonujesz w tej kolejności i zapisujesz rozjazd w dzienniku etapu, bez cichej poprawki.
 
 ## Lekcje zwinięte
 

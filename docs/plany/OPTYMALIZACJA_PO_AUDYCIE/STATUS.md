@@ -15,8 +15,8 @@ Karty zmian (załącznik planu, zamrażany razem z nim): [konwencje](karty/00_KO
 | E3 | Skaner sekretów i pre-commit | ZREALIZOWANY 2026-11-10 | [PROMPT_ETAP_3.md](PROMPT_ETAP_3.md) | [karty](karty/E03_SKANER_I_PRECOMMIT.md) |
 | E4 | Guardy Claude Code | ZREALIZOWANY 2026-11-10 | [PROMPT_ETAP_4.md](PROMPT_ETAP_4.md) | [karty](karty/E04_GUARDY_CLAUDE_CODE.md) |
 | E5 | Hook poleceń i kontrola przy zatrzymaniu | ZREALIZOWANY 2026-11-10 | [PROMPT_ETAP_5.md](PROMPT_ETAP_5.md) | [karty](karty/E05_HOOK_POLECEN_I_STOP.md); po E4; karta K-C9 zależy od werdyktu z E2 |
-| E6 | Adaptery i załoga | GOTOWY DO STARTU | [PROMPT_ETAP_6.md](PROMPT_ETAP_6.md) | [karty](karty/E06_ADAPTERY_I_ZALOGA.md) |
-| E7 | Koszt hooka startu | OCZEKUJE | — | [karty](karty/E07_KOSZT_HOOKA_STARTU.md); karta K-A6 zależy od werdyktu z E2 |
+| E6 | Adaptery i załoga | ZREALIZOWANY 2026-11-10 | [PROMPT_ETAP_6.md](PROMPT_ETAP_6.md) | [karty](karty/E06_ADAPTERY_I_ZALOGA.md) |
+| E7 | Koszt hooka startu | GOTOWY DO STARTU | [PROMPT_ETAP_7.md](PROMPT_ETAP_7.md) | [karty](karty/E07_KOSZT_HOOKA_STARTU.md); karta K-A6 zależy od werdyktu z E2 |
 | E8 | Skrót startu, progi i lista modeli | OCZEKUJE | — | [karty](karty/E08_SKROT_PROGI_MODELE.md); aneks D-88 |
 | E9 | Tryb ciągły | OCZEKUJE | — | [karty](karty/E09_TRYB_CIAGLY.md); po E7; aneks D-93 |
 | E10 | Prompty etapów i rytuały | OCZEKUJE | — | [karty](karty/E10_PROMPTY_ETAPOW_I_RYTUALY.md) |
@@ -35,6 +35,12 @@ Karty zmian (załącznik planu, zamrażany razem z nim): [konwencje](karty/00_KO
   · źródło: wpis dziennika 2026-11-10 (E3) · **OTWARTA**
 - **K-D4: świadome luki i świadome fałszywe blokady skanera — potwierdzić kompromis**
   · źródło: wpis dziennika 2026-11-10 (E3) · **OTWARTA**
+- **K-D7: lista `BASH_ZAPISU` (siedem wzorców) — rozszerzyć o inne polecenia testów czy zostawić**
+  · źródło: wpis dziennika 2026-11-10 (E6) · **OTWARTA**
+- **K-D7: Cursor bez `-f` — zmierzyć na żywo, czy koder uruchomi testy bez automatycznej zgody**
+  · źródło: wpis dziennika 2026-11-10 (E6) · **OTWARTA**
+- **K-D6: `%` w ścieżce projektu na Windows — załoga odmawia; potwierdzić kompromis**
+  · źródło: wpis dziennika 2026-11-10 (E6) · **OTWARTA**
 
 ## Dziennik wdrożenia
 
@@ -57,3 +63,6 @@ Karty zmian (załącznik planu, zamrażany razem z nim): [konwencje](karty/00_KO
 - 2026-11-10 — E5 ZREALIZOWANY: trzy karty (K-D8, K-E3, K-C9 przy `C9: NIE WIDZI`, odpowiedzi
   „Tak” i „Przenieść”), piętnasty hook `bash-guard`, 17 nowych testów, `core/process` 389; E6
   GOTOWY DO STARTU, wygenerowany `PROMPT_ETAP_6.md`.
+- 2026-11-10 — E6 ZREALIZOWANY: cztery karty (K-D5, K-D9, K-D6, K-D7), 20 nowych testów (cursor
+  10, codex 28, `core/process` 396), 12/12 punktów weryfikacji; E7 GOTOWY DO STARTU, wygenerowany
+  `PROMPT_ETAP_7.md`.

@@ -18,9 +18,14 @@ try {
   ({ projektDlaPliku: projectForFile } = require(path.join(ROOT, 'core', 'process', 'session-signals.js')));
 } catch (_) { process.exit(2); }
 
+// Same rule as the Claude Code adapter (isGitIgnored): git decides; the .env* escape hatch
+// applies only when git cannot answer (no git, no repository, timeout). A tracked .env.example
+// is scanned like any other tracked file.
 function ignored(cwd, file) {
   const result = spawnSync('git', ['check-ignore', '-q', '--', file], { cwd, windowsHide: true, timeout: 5000 });
-  return result.status === 0 || path.basename(file).startsWith('.env');
+  if (result.status === 0) return true;
+  if (result.status === 1) return false;
+  return path.basename(file).startsWith('.env');
 }
 
 function deny(reason) {
