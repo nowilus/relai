@@ -328,6 +328,10 @@ function raportPlanu(ctx) {
   out.push('wagi: calkowita ' + kb(w.calkowita) + ' = rotowalna ' + kb(w.rotowalna) + ' + dolna granica ' + kb(w.dolna)
     + ' · prog ' + kb(w.prog) + (w.cel ? ' · cel ' + kb(w.cel) + ' · po rotacji ' + kb(w.po) : ''));
   if (!plan.ponadProgiem) out.push('ponizej progu — rotacja nic nie robi');
+  else if (!plan.zabrane.length && plan.rodzaj === 'ryzyka') {
+    out.push('ponad progiem, ale zadne ryzyko nie jest ZAMKNIETE - rotacja nic nie zdejmie; bez komunikatu '
+      + 'zablokowanej rotacji (D-88, aneks), jedno zdanie w raporcie "sprawdz status"');
+  }
   else if (!plan.zabrane.length) out.push('ponad progiem, ale nic nie przechodzi — komunikat zablokowanej rotacji (SPEC_ARCHIWUM.md)');
   else out.push('archiwum: ' + ctx.archiwumRel + ' · suma fragmentu ' + suma(plan.fragment));
   return out;

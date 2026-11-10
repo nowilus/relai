@@ -16,6 +16,11 @@
 // Konwencja hook-guard: poza projektem RelAI wyjscie kodem 0 bez efektu.
 // Komunikaty celowo bez polskich znakow diakrytycznych (L-0016).
 
+// K-C4: slad awarii na stderr, przed pierwszym require — ma powstac takze przy zepsutej instalacji.
+const HOOK = 'profile-rules';
+function nazwaBledu(e) { return String((e && (e.code || e.name)) || 'nieznany').replace(/[^\x20-\x7e]/g, '?'); }
+function slad(e) { try { process.stderr.write('[RelAI ' + HOOK + '] blad: ' + nazwaBledu(e) + '\n'); } catch (_) { /* stderr zamkniety */ } }
+
 const fs = require('fs');
 const path = require('path');
 
@@ -50,7 +55,8 @@ function relaiMarkerFile(cwd) {
       if (/Wersja RelAI:|RelAI version:/i.test(head)) return path.join(docsDir, f);
     }
     return null;
-  } catch (_) {
+  } catch (e) {
+    slad(e);
     return null;
   }
 }
@@ -89,6 +95,14 @@ function katalogMaPliki(cwd, relDir) {
 }
 
 // Sciezka wzgledna projektu, zawsze z ukosnikami w przod (Windows).
+// Plik spoza katalogu projektu (skrypt w %TEMP%, inny dysk) nie dostaje ostrzezen projektu (C6).
+// POZA_PROJEKTEM lapie "..", ale nie plik na innym dysku: path.relative zwraca wtedy sciezke
+// bezwzgledna.
+function wKatalogu(cwd, filePath) {
+  const rel = path.relative(path.resolve(cwd), path.resolve(cwd, filePath));
+  return rel !== '' && rel !== '..' && !rel.startsWith('..' + path.sep) && !path.isAbsolute(rel);
+}
+
 function relPosix(cwd, filePath) {
   return path.relative(cwd, path.resolve(cwd, filePath)).split(path.sep).join('/');
 }
@@ -117,10 +131,34 @@ function jestKonfiguracjaWdrozeniowa(rel) {
 // Artefakt profilu prompty: tekst poza docs/, bez plikow rdzenia projektu.
 // .mdc to regula adaptera Cursora — czytana przez model jak skill, wiec jest artefaktem.
 // Bez niej trzy reguly Cursora nie wyzwalaly reguly profilu ani razu (pomiar 2026-09-01).
+// K-C7: material testowy (katalogi fixtures/ i evals/) i kopia generowana skilli Codeksa nie sa
+// artefaktami prowadzonymi w rejestrze; AGENTS.md to blizniak CLAUDE.md, LICENCJE.md to nota.
+const MATERIAL_TESTOWY = /(^|\/)(fixtures|evals)\//i;
+const KOPIA_GENEROWANA = /^adapters\/codex\/skills\//;
+
 function jestArtefaktem(rel) {
   const nazwa = rel.split('/').pop() || '';
-  if (/^(CLAUDE|README|LICENSE|CHANGELOG|CONTRIBUTING)\.md$/i.test(nazwa)) return false;
+  if (/^(CLAUDE|AGENTS|README|LICENSE|LICENCJE|CHANGELOG|CONTRIBUTING)\.md$/i.test(nazwa)) return false;
+  if (MATERIAL_TESTOWY.test(rel) || KOPIA_GENEROWANA.test(rel)) return false;
   return /\.(md|mdc|txt|prompt|tmpl|j2)$/i.test(rel);
+}
+
+// Sciezki z kolumny "Plik"/"File": naglowek po nazwie kolumny, komorki dzielone po "|" bez "\|",
+// komorka rozbita na slowa (backticki, link, goly tekst). Dopasowanie po pelnej sciezce.
+function sciezkiRejestru(tekst) {
+  const zbior = new Set();
+  let kolumna = -1;
+  for (const wiersz of String(tekst).replace(/\r\n/g, '\n').split('\n')) {
+    if (!wiersz.trim().startsWith('|')) { kolumna = -1; continue; }
+    const komorki = wiersz.split(/(?<!\\)\|/).map((c) => c.trim());
+    const i = komorki.findIndex((c) => /^(Plik|File)$/i.test(c));
+    if (i > 0) { kolumna = i; continue; }
+    if (kolumna < 0) continue;
+    for (const slowo of (komorki[kolumna] || '').split(/[\s`()[\]<>,;+]+/)) {
+      if (slowo) zbior.add(slowo.replace(/^\.\//, ''));
+    }
+  }
+  return zbior;
 }
 
 function warn(text) {
@@ -183,8 +221,7 @@ function regulyPrompty(cwd, rel, komunikaty) {
 
   let tresc = '';
   try { tresc = fs.readFileSync(path.join(cwd, rejestr), 'utf8'); } catch (_) { return; }
-  const nazwa = rel.split('/').pop() || '';
-  if (tresc.indexOf(rel) === -1 && tresc.indexOf(nazwa) === -1) {
+  if (!sciezkiRejestru(tresc).has(rel)) {
     komunikaty.push('Profil prompty: artefakt "' + rel + '" nie ma wpisu w ' + rejestr +
       '. Dopisz go (wersja 1) albo podbij wersje istniejacego wpisu — z jednym zdaniem "co sie zmienilo" ' +
       'i jednym "po co".');
@@ -202,6 +239,7 @@ function main(input) {
   const ti = input.tool_input || {};
   const filePath = String(ti.file_path || '');
   if (!filePath) return process.exit(0);
+  if (!wKatalogu(cwd, filePath)) return process.exit(0);
 
   const rel = relPosix(cwd, filePath);
   if (!rel || POZA_PROJEKTEM.test(rel)) return process.exit(0);
@@ -217,7 +255,7 @@ function main(input) {
 let raw = '';
 process.stdin.setEncoding('utf8');
 process.stdin.on('data', (d) => { raw += d; });
-process.stdin.on('error', () => process.exit(0));
+process.stdin.on('error', (e) => { slad(e); process.exit(0); });
 process.stdin.on('end', () => {
-  try { main(JSON.parse(raw || '{}')); } catch (_) { process.exit(0); }
+  try { main(JSON.parse(raw || '{}')); } catch (e) { slad(e); process.exit(0); }
 });

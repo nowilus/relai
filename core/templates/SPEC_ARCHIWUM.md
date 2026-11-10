@@ -73,7 +73,7 @@ Progi domyślne (`SZACUNEK` — skalibrowane 2026-08-12 na zmierzonych projektac
 | Dokument | Próg | Co się dzieje po przekroczeniu |
 |---|---|---|
 | `docs/DZIENNIK.md` | **150 KB** | najstarsze wpisy → `docs/archiwum/dziennik/` |
-| `docs/LEKCJE.md` | **40 lekcji albo 50 KB** (co nastąpi wcześniej) | pełne wpisy najstarszych lekcji → `docs/archiwum/lekcje/` |
+| `docs/LEKCJE.md` | **40 lekcji albo 50 KB** (co nastąpi wcześniej; KB liczone bez sekcji „Zasady aktywne” (D-88, aneks 2026-11-10)) | pełne wpisy najstarszych lekcji → `docs/archiwum/lekcje/` |
 | sekcja „Stan otwartych ryzyk" | **próg cząstkowy `ryzyka`** z wiersza `Budżet startu sesji` (domyślnie 12 KB) | wiersze ryzyk `ZAMKNIĘTE` → `docs/archiwum/ryzyka/` |
 | komórka „Mitygacja" ryzyka `ZMITYGOWANE` / `PRZYJĘTE ŚWIADOMIE` | **800 znaków**, przy sekcji ryzyk ponad jej progiem | historia komórki → `docs/archiwum/ryzyka/MITYGACJE_<data>.md`; **wiersz zostaje** |
 | `docs/USTAWIENIA.md` | **próg cząstkowy `ustawienia`** z wiersza `Budżet startu sesji` (domyślnie 6 KB) | wiersze sekcji „Ustawienia wycofane" → `docs/archiwum/ustawienia/` |
@@ -90,6 +90,9 @@ problem, jeden komunikat.
 i wypisuje linię `[RelAI progi dokumentow]` z nazwą procedury odchudzającej — niezależnie od
 sumy warstwy startowej. Raport **mówi, nie rotuje**: wykonanie zostaje przy dwóch wejściach wyżej. Wykaz
 wszystkich progów RelAI wraz z ich adresami egzekwowania: „Katalog progów" w `SPEC_USTAWIENIA.md`.
+Sekcja ryzyk, w której żadne ryzyko nie jest `ZAMKNIĘTE`, do tej linii nie wchodzi (D-88, aneks
+2026-11-10): rotacja nic z niej nie zdejmie, więc mówi o niej jedno zdanie raportu frazy „sprawdź
+status”, nie każdy start.
 
 ## Próg liczony ponad nietykalnymi
 
@@ -121,8 +124,9 @@ Co się przez to zmienia, a co zostaje:
   najnowszych lekcji. Trzy wagi zostają, bo mówią, **ile da się zabrać** i gdzie leży dno — nie
   są już celem.
 
-**Lekcje:** dolna granica to sekcja „Zasady aktywne", sekcja „Lekcje zwinięte" (ma własną drogę,
-patrz `SPEC_LEKCJE.md`) i dwadzieścia najnowszych lekcji. **Ryzyka:** dolna granica to nagłówek
+**Lekcje:** trzy wagi i próg w KB liczysz od pliku **bez sekcji „Zasady aktywne"** (D-88, aneks
+2026-11-10) — sekcja ma własny limit liczby zasad (`count-rules.js`) i nie rotuje; dolna granica to
+sekcja „Lekcje zwinięte" (ma własną drogę, patrz `SPEC_LEKCJE.md`) i dwadzieścia najnowszych lekcji. **Ryzyka:** dolna granica to nagłówek
 sekcji, wiersz nagłówkowy tabeli i wszystkie wiersze o statusie innym niż `ZAMKNIĘTE`.
 
 Zmierzone na realnych plikach `FAKT` (2026-09-01, próg 150 KB):
@@ -299,8 +303,8 @@ komentarza. W projekcie anglojęzycznym rdzenie czytasz w języku projektu (`res
 - sekcja „Lekcje zwinięte", jeśli istnieje — ta ma własną drogę do archiwum opisaną
   w `SPEC_LEKCJE.md` (kompresja), i rotacja jej nie dotyka.
 
-Ile zabrać: najstarsze pozycje po kolei, aż **waga całkowita** żywego pliku zejdzie **poniżej
-60% progu** (D-88) — nie do samego progu, bo rotacja wywoływana przy każdym zamknięciu sesji byłaby
+Ile zabrać: najstarsze pozycje po kolei, aż waga żywego pliku **bez sekcji „Zasady aktywne”** zejdzie **poniżej
+60% progu** (D-88 z aneksem 2026-11-10) — nie do samego progu, bo rotacja wywoływana przy każdym zamknięciu sesji byłaby
 wtedy zjawiskiem codziennym. Ciąg kończy się wcześniej, gdy trafi na pozycję nietykalną albo
 wyczerpie część rotowalną (sekcja „Próg liczony ponad nietykalnymi"); plik ponad progiem po takim
 przebiegu dostaje komunikat zablokowanej rotacji, nie cichy sukces.
@@ -550,11 +554,11 @@ a nie porządkowaniem.
 | Rotacja przerwana między fazą 1 a 2 | Oryginał nietknięty; osierocony plik archiwum **nadpisujesz** przy następnej rotacji tego samego zakresu. Nie tworzysz drugiego pliku o tej samej nazwie z sufiksem |
 | Plik archiwum o tej nazwie już istnieje, a zakres jest **inny** | Nazwa kolizyjna znaczy, że coś poszło nie tak z wyznaczeniem zakresu → **STOP**, żywy plik nietknięty, pytanie do człowieka |
 | Wpis dziennika bez daty w nagłówku (dokument sprzed RelAI, po adopcji) | Nie podlega rotacji — zakres nazwy pliku musi wynikać z dat, a nie ze zgadywania (L-0025) |
-| Pozycja `ryzyka` ponad progiem, ale **żadne** ryzyko nie jest zamknięte | Nie rotujesz ryzyk. Pozycja jest gruba przez ryzyka żywe, a te zostają: część rotowalna 0 KB, dolna granica równa wadze sekcji. Komunikat ma **ten sam kształt** co dla dziennika i pada w tym samym miejscu — to jest przypadek „budżet pęka przez pozycję, której nie da się skrócić": decyzja o podniesieniu progu należy do człowieka. Osobnego komunikatu rotacja ryzyk nadal nie ma (L-0049) — to jest ta sama linia, nie druga |
+| Pozycja `ryzyka` ponad progiem, ale **żadne** ryzyko nie jest zamknięte | Nie rotujesz ryzyk. Pozycja jest gruba przez ryzyka żywe, a te zostają: część rotowalna 0 KB, dolna granica równa wadze sekcji. Nie rotujesz i **nie piszesz komunikatu** — ani na starcie, ani w podsumowaniu zamknięcia (D-88, aneks 2026-11-10): sekcję odchudza wyłącznie zamknięcie ryzyk albo podniesienie progu, obie rzeczy są decyzją człowieka. Mówi o tym jedno zdanie raportu frazy „sprawdź status” |
 | Wszystkie ryzyka zamknięte — tabela po rotacji byłaby pusta | Rotujesz normalnie. Zostaje nagłówek sekcji, wiersz nagłówkowy tabeli i linia-odsyłacz pod nią; pustej sekcji nie kasujesz i nie zastępujesz zdaniem „brak ryzyk" |
 | Ryzyko zamknięte, do którego prowadzi link z otwartej pozycji „Czeka na człowieka" | Schodzi do archiwum jak każde inne. Blokada z sekcji „Czeka na człowieka" dotyczy **wpisów**, nie wierszy tabeli — sprawa człowieka nie znika, bo jej własna pozycja zostaje w żywym pliku |
 | Ryzyko zamknięte i **ponownie otwarte** (status wrócił do `OTWARTE`) | Zostaje w żywej tabeli; kryterium czyta się ze stanu na dziś, nie z historii statusów. Jeśli zdążyło już zejść do archiwum, wraca jako **nowy numer** z odsyłaczem do archiwum w komórce „Mitygacja" — numeru nie odzyskujesz |
-| Sekcja ryzyk ponad progiem, ryzyk `ZAMKNIĘTE` nie ma, a komórki mieszczą się w 800 znakach | Nie rotujesz i nie kompresujesz — **nie ma czego wziąć**. Sekcja jest gruba liczbą **otwartych** ryzyk, a te zostają co do jednego. Komunikat ma ten sam kształt co przy dzienniku i mówi wprost, że sekcję odchudzi wyłącznie zamknięcie ryzyk albo podniesienie progu — obie rzeczy są decyzją człowieka. Zmierzone na dzienniku PolyFlow `FAKT` (2026-09-01, `9fcf433`): sekcja **38,6 KB przy progu 12 KB**, **62 ryzyka, 0 zamkniętych**, jedna komórka ponad 800 znaków (912) i ta o statusie `OTWARTE`. Wyzerowanie **całej** kolumny „Mitygacja" (22,0 KB) zostawia 17,5 KB — próg jest tu nieosiągalny mechanizmem, nie przeoczeniem |
+| Sekcja ryzyk ponad progiem, ryzyk `ZAMKNIĘTE` nie ma, a komórki mieszczą się w 800 znakach | Nie rotujesz i nie kompresujesz — **nie ma czego wziąć**. Sekcja jest gruba liczbą **otwartych** ryzyk, a te zostają co do jednego. Komunikatu nie piszesz (D-88, aneks 2026-11-10) — zdanie, że sekcję odchudzi wyłącznie zamknięcie ryzyk albo podniesienie progu, pada w raporcie frazy „sprawdź status”. Zmierzone na dzienniku PolyFlow `FAKT` (2026-09-01, `9fcf433`): sekcja **38,6 KB przy progu 12 KB**, **62 ryzyka, 0 zamkniętych**, jedna komórka ponad 800 znaków (912) i ta o statusie `OTWARTE`. Wyzerowanie **całej** kolumny „Mitygacja" (22,0 KB) zostawia 17,5 KB — próg jest tu nieosiągalny mechanizmem, nie przeoczeniem |
 | Komórka po kompresji nadal ma ponad 800 znaków | **STOP przed podmianą**, żywa tabela nietknięta. Znaczy to, że samo zdanie stanu jest akapitem — cytatu nie skracasz (`SPEC_DZIENNIK.md`), tylko pytasz człowieka |
 | Ryzyko kwalifikujące się do kompresji, którego komórka **nie ma** członu `Zmierzone:` | Cytujesz ostatnie zdanie całej komórki. Członu `Zmierzone:` nie dopisujesz od siebie — brak odsyłaczy jest informacją o tym, że pomiaru nie zapisano |
 | To samo ryzyko kwalifikuje się do kompresji **drugi raz** (komórka znowu urosła) | Kompresujesz normalnie. Do archiwum idzie **dzisiejsza** treść w całości, łącznie z odsyłaczem do poprzedniego pliku archiwum — łańcuch odsyłaczy jest poprawnym stanem, a nie usterką |
@@ -812,6 +816,11 @@ treść wyżej; nic z tej sekcji nie stosujesz.
   `FAKT`: ten cel był spełniony, zanim rotacja cokolwiek wzięła — dziennik zostałby na 164,8 KB
   przy progu 150, a z lekcji nie zeszłaby ani jedna pozycja, podczas gdy cel na całym pliku dawał
   87,3 KB i 42,6 KB.
+- **Próg lekcji bez „Zasad aktywnych” i cisza ryzyk bez zamkniętych (aneks D-88,
+  2026-11-10).** Do 3.7.0 próg lekcji liczył cały plik: sekcja „Zasady aktywne” (35 174 B)
+  z dwudziestoma najnowszymi lekcjami dawała dolną granicę 54 205 B przy progu 51 200 B
+  `FAKT` (2026-11-09), a sekcja ryzyk 17,5 KB bez ani jednego ryzyka zamkniętego przy progu
+  12 KB — oba komunikaty wracały w każdej sesji, a rotacja nie mogła ich uciszyć.
 - **Sprawa człowieka a rotacja.** Do 1.5.2 blokowała własna sekcja wpisu: wpis z nierozstrzygniętą
   pozycją „Do zrobienia przez człowieka" zostawał w żywym pliku na zawsze — w JiraManagerze
   (1,00 MB) i PolyFlow (571 KB) rotacja nigdy nie ruszyła, bo blokował ją pierwszy wpis dziennika

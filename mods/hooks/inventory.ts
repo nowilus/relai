@@ -188,6 +188,20 @@ export function settingsFilesOf(installs: Install[], home: string, cwd: string):
   return [...new Set(all)]
 }
 
+/**
+ * The files whose times key the cockpit's memory (audit F1): installed_plugins.json, every settings
+ * file the inventory reads, and the three the row "RelAI w tym projekcie" reads in the folder.
+ */
+export function watchedPaths(home: string, cwd: string, installs: Install[]): string[] {
+  return [...new Set([
+    joinPath(home, '.claude/plugins', INSTALLED_FILE),
+    ...settingsFilesOf(installs, home, cwd),
+    joinPath(cwd, '.claude/settings.local.json'),
+    joinPath(cwd, '.git'),
+    joinPath(cwd, '.worktreeinclude'),
+  ])]
+}
+
 const asList = (v: unknown): string[] =>
   (typeof v === 'string' ? [v] : Array.isArray(v) ? v.filter((x): x is string => typeof x === 'string') : [])
 

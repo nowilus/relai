@@ -20,8 +20,8 @@ plany zamknięte są w `docs/archiwum/plany/` i w `docs/STATE.md`.
 
 **Frazy sesji:** „kontynuujemy pracę" → rytuał startu, akapit „gdzie jesteśmy" **i jedno zdanie
 z propozycją najbliższego kroku**; „sprawdź status" → stan, plany, ryzyka, zaległości
-dokumentacyjne; „kończymy na dziś" → sync dokumentów, wpis do dziennika, przegląd ryzyk,
-sprzątanie artefaktów roboczych, propozycja commita; „gotowi do wydania?” → komenda projektowa
+dokumentacyjne; „kończymy na dziś" → sync dokumentów, rotacja, sprzątanie artefaktów
+roboczych, wpis do dziennika, przegląd ryzyk, propozycja commita; „gotowi do wydania?” → komenda projektowa
 `/relai-release` (`.claude/commands/`; w Codeksie i Cursorze sam raport
 `node core/tools/release-check.js`, bez publikacji). Pełna ściąga: [docs/KOMENDY.md](docs/KOMENDY.md).
 **Podpowiedź wydania:** przy „kontynuujemy pracę” (po akapicie „gdzie jesteśmy”) i w podsumowaniu
@@ -32,6 +32,7 @@ o gotowości wydania z jej liczbą plików i komponentami; puste wyjście → ni
 `Przegląd spraw człowieka` w [docs/USTAWIENIA.md](docs/USTAWIENIA.md), domyślnie 30) wymusza
 decyzję **przed** akapitem „gdzie jesteśmy": pytasz partiami po cztery — zamknąć / odroczyć
 o kolejne `N` dni / rozstrzygnąć teraz. Sesja nieinteraktywna: sam raport, bez pytań — rozpoznajesz ją z kontekstu (`claude -p`, agent w tle); żaden hook jej nie sygnalizuje.
+Pierwsza wiadomość sesji to komenda (zaczyna się od `/`) → najpierw komenda; rytuał startu i ten przegląd czekają na pierwszą wiadomość, która komendą nie jest.
 
 ## Stan prac
 
@@ -41,7 +42,7 @@ o kolejne `N` dni / rozstrzygnąć teraz. Sesja nieinteraktywna: sam raport, bez
 | Plany zamknięte | 21, ostatni KONTEKST_STARTU 2026-10-28 (wydanie 3.7.0) | [archiwum planów](docs/archiwum/plany/), [docs/STATE.md](docs/STATE.md) |
 | Odnogi i wątki samodzielne | 1 otwarta: `OPIS_REPO` (od 2026-09-24); zamknięte — karty w [docs/fixy/](docs/fixy/) | [docs/STATE.md](docs/STATE.md) |
 
-Aktywny plan: brak. [PANEL_CODEX](docs/plany/PANEL_CODEX/STATUS.md) (Codex) **nieaktywny — WSTRZYMANY 2026-10-27** decyzją Łukasza. Ostatni zamknięty: [KONTEKST_STARTU](docs/archiwum/plany/KONTEKST_STARTU/STATUS.md), 2026-10-28 (lżejszy start sesji: skrót startu, indeks zasad, bramka trybu ciągłego w dwóch krokach; wydanie 3.7.0).
+Aktywny plan: [OPTYMALIZACJA_PO_AUDYCIE](docs/plany/OPTYMALIZACJA_PO_AUDYCIE/STATUS.md) — **ZAAKCEPTOWANY 2026-11-09** (14 etapów po [audycie](docs/AUDYT_RELAI_2026-11-09.md); wykonanie: Opus 5.5 medium, gałąź `optymalizacja/po-audycie`). [PANEL_CODEX](docs/plany/PANEL_CODEX/STATUS.md) (Codex) **nieaktywny — WSTRZYMANY 2026-10-27** decyzją Łukasza. Ostatni zamknięty: [KONTEKST_STARTU](docs/archiwum/plany/KONTEKST_STARTU/STATUS.md), 2026-10-28 (lżejszy start sesji: skrót startu, indeks zasad, bramka trybu ciągłego w dwóch krokach; wydanie 3.7.0).
 
 ## Reguły procesu
 

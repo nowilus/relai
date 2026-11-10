@@ -71,9 +71,10 @@ w wyzwalacz, przed pracą doczytujesz pełne brzmienie zasady z sekcji „Pełne
    wyrzuconym (L-0279). Kontrola „stary tekst nie może zostać” odróżnia deklarację stanu od zapisu
    przeszłości zamkniętą listą słów przed wartością i przed oddaniem przechodzi jedno realne
    podbicie, nie tylko fixturę (L-0277); kontrola wymagająca numeru wersji w treści dostaje test
-   z kontrolą starego numeru na „następnym wydaniu bez zmiany tego numeru” (L-0287).
+   z kontrolą starego numeru na „następnym wydaniu bez zmiany tego numeru” (L-0287). Krok karty
+   przed testem eksportuje tylko nazwy, które już istnieją w module (L-0313).
    (L-0001, L-0011, L-0026, L-0089, L-0100, L-0108, L-0129, L-0212, L-0254, L-0269, L-0271, L-0277,
-   L-0279, L-0282, L-0287)
+   L-0279, L-0282, L-0287, L-0313)
 2. **W dokumencie użytkownika stoi tylko to, co działa i co zmierzyłeś** — fraza i forma wywołania
    w wersji uruchomionej dosłownie, z tej samej powłoki, którą zobaczy czytelnik; znak
    interpretowany przez powłokę zapisujesz tak, żeby go nie tknęła. Komenda do wklejenia przez
@@ -83,7 +84,9 @@ w wyzwalacz, przed pracą doczytujesz pełne brzmienie zasady z sekcji „Pełne
 3. **Test „czegoś nie wolno" wymaga dowodu negatywnego:** chroniony fragment ma nadal pierwotne
    brzmienie, nie tylko nowy wpis powstał. Test nieobecności tekstu z odmianą liczebnika szuka
    rdzenia wspólnego wszystkim formom, a każdy test „czegoś nie ma” wywraca mutacja pisana dla niego
-   (L-0256). (L-0007, L-0256)
+   (L-0256). Asercja nieobecności celuje w brzmienie, które zmiana usuwa, nie w słowo wspólne
+   z tekstem chronionym, który w tym samym teście dostaje kontrolę pozytywną (L-0315).
+   (L-0007, L-0256, L-0315)
 4. **Dowodzisz efektem, nie zdarzeniem** — stanem pliku, sumą, treścią odpowiedzi; kryterium na
    stanie, który kontrolujesz, i na źródle, które artefakt produkuje. Zmianę zachowania pokazujesz
    **obiema wersjami w jednym przebiegu**, instrumentem wiernym obu, na materiale, który stara
@@ -95,7 +98,9 @@ w wyzwalacz, przed pracą doczytujesz pełne brzmienie zasady z sekcji „Pełne
      wzorca omija pliki, które go cytują. Tekst tłumaczący liczbę ma warunek prawdziwości i test
      stanu docelowego (L-0144). Koszt liczysz tylko z przebiegów zgodnych z procedurą — kroki
      wymagane sprawdzone w transkrypcie (L-0301); ewaluacja zachowania wywołanego treścią
-     wstrzykniętą zaczyna się od asercji, że ta treść dotarła w całości (L-0303). Narzędzie
+     wstrzykniętą zaczyna się od asercji, że ta treść dotarła w całości (L-0303); kontrolę
+     pozytywną zależną od zachowania modelu sprawdzasz pierwszą sesją serii w jej warunkach,
+     zanim ruszą kolejne (L-0310). Narzędzie
      z limitem rozmiaru wyjścia mierzysz przed wydaniem na wszystkich projektach z markerem na
      maszynie (odczyt, bez zapisu), fixturę piszesz z najgorszego (L-0304).
    - **Materiał:** test na realnym pliku zmienianym przez proces sam ustawia stan wyjściowy,
@@ -126,7 +131,7 @@ w wyzwalacz, przed pracą doczytujesz pełne brzmienie zasady z sekcji „Pełne
    (L-0017, L-0018, L-0040, L-0051, L-0052, L-0063, L-0069, L-0082, L-0115, L-0117, L-0123, L-0134,
    L-0144, L-0150, L-0154, L-0155, L-0156, L-0158, L-0159, L-0165, L-0175, L-0177, L-0182, L-0184,
    L-0186, L-0191, L-0195, L-0213, L-0214, L-0218, L-0222, L-0224, L-0227, L-0274, L-0275, L-0278,
-   L-0301, L-0303, L-0304)
+   L-0301, L-0303, L-0304, L-0310)
 5. **Instrument pomiarowy sam bywa źródłem fałszu.**
    - **Backslash:** wyrażenia regularne i ścieżki Windows tylko w pliku pisanym Write/Edit albo
      z `/`; skrypt edycji niosący `\n`, backtick lub ścieżkę — Write, heredok bez wyjątku, także
@@ -197,14 +202,15 @@ w wyzwalacz, przed pracą doczytujesz pełne brzmienie zasady z sekcji „Pełne
      ekran z bufora z atrybutami, skrypty PowerShell w `%TEMP%` (L-0259); skrypt z `Bypass`
      zapowiadasz człowiekowi przed pierwszym przebiegiem, mod „przed” i „po” stoi w jednej sesji
      jako dwie kopie pod innymi nazwami, instalacja wyłączona `--settings` (L-0283); w poleceniu
-     Bash nigdy gołe `cd`, w żadnym katalogu — ścieżka w argumencie albo podpowłoka (L-0298,
-     L-0302); instrument tury nie liczy lokalnych komend (`/model`) jako polecenia (L-0299).
+     Bash nigdy gołe `cd`, w żadnym katalogu, także `cd` do korzenia repo na początku łańcucha —
+     ścieżka w argumencie albo podpowłoka, do wydania `bash-guard` bez wyjątku także dla
+     `cd <repo> &&` na początku (L-0298, L-0302, L-0311, L-0314); instrument tury nie liczy lokalnych komend (`/model`) jako polecenia (L-0299).
    (L-0032, L-0037, L-0054, L-0055, L-0056, L-0064, L-0068, L-0071, L-0073, L-0083, L-0084, L-0086,
    L-0087, L-0088, L-0090, L-0091, L-0095, L-0096, L-0097, L-0101, L-0102, L-0105, L-0106, L-0107,
    L-0110, L-0111, L-0113, L-0124, L-0125, L-0127, L-0130, L-0131, L-0135, L-0141, L-0143, L-0151,
    L-0160, L-0164, L-0169, L-0170, L-0173, L-0181, L-0211, L-0213, L-0215, L-0238, L-0239, L-0240,
    L-0242, L-0243, L-0246, L-0247, L-0248, L-0249, L-0257, L-0258, L-0259, L-0261, L-0262, L-0265,
-   L-0267, L-0268, L-0270, L-0283, L-0290, L-0298, L-0299, L-0302, L-0309)
+   L-0267, L-0268, L-0270, L-0283, L-0290, L-0298, L-0299, L-0302, L-0309, L-0311, L-0312)
 6. **Próg jest liczbą, którą ktoś liczy:** kalibrujesz na realnych plikach, zapisujesz w jednostce
    mechanizmu z komendą sprawdzającą, z **jednym** wyzwalaczem. Porównujesz do wielkości, którą
    mechanizm kontroluje (część usuwalna); zatkanie sygnalizuje **różnica możliwego i wykonanego**,
@@ -856,6 +862,108 @@ w wyzwalacz, przed pracą doczytujesz pełne brzmienie zasady z sekcji „Pełne
   12 razy). Bajty z `wc` przeszły, znaki — nie.
 - **Zasada:** bez zmian względem L-0265 — ścieżka dla Node z `cygpath -m`, a plik roboczy
   w katalogu roboczym etapu, nie w `/tmp`.
+
+### L-0310 — Kontrola pozytywna zależna od modelu nie przeszła ani razu: seria bez próby w jej warunkach · 2026-11-10 · AKTYWNA
+
+- **Trigger:** OPTYMALIZACJA_PO_AUDYCIE E2, karta K-A6m. Para ważna wymagała, żeby sesja pierwsza
+  uruchomiła `start-digest.js`. Na prompt „Odpowiedz jednym slowem: OK.” model odpowiedział od razu
+  we wszystkich trzech parach (0/3 ważnych), budżet 10 sesji się wyczerpał, a werdykt
+  `A6: NIE POWTARZA` wyszedł z gałęzi „mniej niż dwie pary ważne”, nie z dowodu. Sesja próbna K-P0
+  miała tylko `Read` i inny cel, więc tego nie pokazała.
+- **Zasada:** gdy kontrola pozytywna przebiegu zależy od zachowania modelu, pierwsza sesja serii
+  idzie w dokładnie jej warunkach (prompt, narzędzia) i sprawdza, czy kontrola w ogóle może
+  przejść, zanim ruszą następne; autor karty pomiaru planuje tę próbę w budżecie.
+
+### L-0311 — Trzecia powtórka L-0298: drugie `cd` w łańcuchu przestawiło sesję mimo reguły w `CLAUDE.md` · 2026-11-10 · AKTYWNA
+
+- **Trigger:** OPTYMALIZACJA_PO_AUDYCIE E4. Polecenia zaczynałem od `cd <repo> && …`, co nie
+  zmieniało katalogu, więc nie budziło czujności. Raz dopisałem w tym samym łańcuchu
+  `&& cd adapters/claude-code/hooks && for …` — katalog sesji przeszedł do folderu hooków
+  i trzeba go było cofać osobnym poleceniem.
+- **Przyczyna:** reguła stała w `CLAUDE.md` („nigdy gołe `cd`”), ale `cd` do korzenia repo
+  traktowałem jako nieszkodliwy wyjątek; nawyk otwierania polecenia od `cd` przeniósł się na
+  drugie `cd` w łańcuchu.
+- **Zasada:** polecenie Bash nie zawiera `cd` poza podpowłoką `( cd … && … )` — także `cd` do
+  korzenia repo na początku łańcucha; zamiast drugiego `cd` zmienna ze ścieżką (`H=…; $H/plik`)
+  albo `git -C`. Glob dla `node --test` idzie ze ścieżką względną w podpowłoce — ścieżka
+  `/c/…` w globie dała 0 testów (instrument, nie wynik).
+
+### L-0312 — Fikstura z `home` w drzewie roboczym zagłuszyła sygnał hooka Stop · 2026-11-10 · AKTYWNA
+
+- **Trigger:** OPTYMALIZACJA_PO_AUDYCIE E5, skrypt efektu widocznego karty K-E3. Fikstura trzymała
+  katalog `home/` (pusty `.gitconfig` dla izolacji gita) wewnątrz repozytorium fikstury. Hook Stop
+  zobaczył `home/` jako niezacommitowany kod i dał komunikat „W drzewie roboczym…” zamiast
+  sprawdzanego zdania „Od ostatniego wpisu dziennika…”. Testy tej samej karty były zielone, bo ich
+  `home` leżał obok repozytorium, nie w nim.
+- **Zasada:** fikstura hooka czytającego `git status` trzyma swoje pomocnicze katalogi (`home`,
+  konfigurację, wyjścia) **poza** repozytorium fikstury albo w jej `.gitignore`; skrypt efektu
+  piszesz z tego samego układu co test karty.
+
+### L-0313 — Krok „sam eksport” nazwy, której jeszcze nie ma, daje `ReferenceError`, nie czerwień z asercji · 2026-11-10 · AKTYWNA
+
+- **Trigger:** OPTYMALIZACJA_PO_AUDYCIE E6, karta K-D9. Krok 1 karty kazał przed testem dopisać
+  do `module.exports` nazwy `wykonaj, zmienneInnychGospodarzy`, a funkcja `zmienneInnychGospodarzy`
+  powstaje dopiero w kroku 2. Skrót `{ a, b }` z niezdefiniowaną nazwą przewraca `require` całego
+  modułu, więc przebieg „czerwony z asercji” byłby czerwony z błędu ładowania. Prototyp karty miał
+  funkcję już zdefiniowaną, więc tego nie pokazał.
+- **Zasada:** krok przygotowawczy przed testem eksportuje wyłącznie nazwy, które już istnieją
+  w module; nazwę nowej funkcji dopisujesz do eksportu razem z jej definicją. Kartę z takim
+  krokiem wykonujesz w tej kolejności i zapisujesz rozjazd w dzienniku etapu, bez cichej poprawki.
+
+### L-0314 — Czwarta powtórka L-0298: `cd <repo> && …` na początku każdego polecenia, raz do podkatalogu · 2026-11-10 · AKTYWNA
+
+- **Trigger:** OPTYMALIZACJA_PO_AUDYCIE E8. Wszystkie polecenia etapu zaczynałem od
+  `cd /c/Users/…/RelAI && …` — dokładnie to, czego zakazuje L-0311 — i raz napisałem
+  `cd .claude/relai/work/…/E8 && for …`. Katalog sesji przeszedł do katalogu roboczego etapu,
+  trzeba go było cofać osobnym poleceniem.
+- **Przyczyna:** zasada stoi w `CLAUDE.md` i w L-0311, ale nic jej nie egzekwuje w sesji: hook
+  `bash-guard` (E5) ostrzega przed gołym `cd`, lecz działa dopiero po wydaniu w E14 — w sesji
+  pracuje hook zainstalowanego 3.7.0. Nawyk z pierwszego polecenia przeniósł się na kolejne.
+- **Zasada:** do wydania `bash-guard` każde polecenie Bash bez `cd` — ścieżki w argumentach
+  (`grep … plik/w/repo`, `-C`, zmienna `W=…; $W/plik`) albo podpowłoka `( cd … && … )`, także dla
+  `node --test`. Po wydaniu E14 ostrzeżenie hooka jest mitygacją; reguła zostaje.
+
+### L-0315 — Asercja karty „tekstu X nie ma” trafiła w zdanie, którego ta sama karta każe nie ruszać · 2026-11-10 · AKTYWNA
+
+- **Trigger:** OPTYMALIZACJA_PO_AUDYCIE E8, karta K-A3. Test zmienionego oczekiwania miał
+  `assert.ok(!/zamykanie ryzyk/.test(rZero))`, a ten sam raport niesie zdanie budżetu „Rotacja nic
+  tu nie zdejmie… odchudza zamykanie ryzyk”, które pole „Nie ruszasz” karty chroni. Po poprawnej
+  zmianie progu test został czerwony; Łukasz wybrał zawężenie asercji do brzmienia procedury
+  (`zamykanie ryzyk (zadne`) z kontrolą pozytywną zdania budżetu.
+- **Zasada:** asercja nieobecności w karcie celuje w brzmienie, które zmiana usuwa, nie w słowo
+  wspólne z tekstem chronionym — autor karty puszcza ją na wyjściu po zmianie (prototyp), a zdanie
+  z pola „Nie ruszasz” dostaje w tym samym teście kontrolę pozytywną. FAKT o stanie pliku (liczba
+  lekcji, obecność spraw przeterminowanych) w karcie pisanej dzień wcześniej wykonawca mierzy na
+  starcie, zanim uzna liczbę z karty za kryterium.
+
+### L-0316 — Plik zadania dla Codeksa nie znał dwóch granic: preambuły roli i sandboksa · 2026-11-10 · AKTYWNA
+
+- **Trigger:** OPTYMALIZACJA_PO_AUDYCIE E9, pierwszy etap według Aneksu A. Przebieg 1 Codeksa
+  zakończył się `STOP` bez jednej zmiany: preambuła roli `coder` w `core/process/crew.js` (l. 88,
+  D-44) zabrania edycji `docs/`, a karty K-B1 i K-B2 kazały zmienić `docs/KOMENDY.md`
+  i `docs/DECYZJE.md`. Przebieg 2 dopisał testy i stanął na `spawn EPERM`: sandbox
+  `workspace-write` Codeksa na Windows nie pozwala `node --test` uruchamiać procesów potomnych,
+  więc żaden test nie ruszył (ryzyko AX4 aneksu się spełniło). Etap zajął cztery przebiegi zamiast
+  jednego.
+- **Zasada:** plik zadania dla Codeksa od pierwszego przebiegu oddaje Claude'owi wszystko, czego
+  Codex nie może: edycje pod `docs/`, `CLAUDE.md` i `AGENTS.md` (Codex podaje kotwicę i tekst)
+  oraz każde uruchomienie testów i hooków. Etap idzie dwoma przebiegami: (1) same nowe testy wg
+  kart → Claude uruchamia je na czerwono; (2) wdrożenie bez zmiany testów → Claude uruchamia je na
+  zielono i robi resztę Weryfikacji. Effort `crew.js` nie przekazuje (tylko `-m`), więc Codex
+  bierze go z `~/.codex/config.toml`.
+
+### L-0317 — Plik zadania kazał Codeksowi „zachować CRLF” pliku, który w repozytorium ma LF · 2026-11-10 · AKTYWNA
+
+- **Trigger:** OPTYMALIZACJA_PO_AUDYCIE E10, przebieg 2. Claude odczytał `git ls-files --eol`
+  → `i/lf w/crlf` dla `core/templates/SPEC_PROMPT_ETAPU.md` i wpisał do pliku zadania „plik ma
+  CRLF, zachowaj je”. Edycja Codeksa przepisała końce linii, Codex uznał to za naruszenie zadania
+  i zakończył przebieg `STOP` po punktach 1–5 karty K-A1. `git status` wcześniej milczał
+  o pliku (pamięć stat — L-0297), a drugi plik karty (`relai-planning.mdc`) miał ten sam stan.
+  Etap zajął trzy przebiegi zamiast dwóch.
+- **Zasada:** stan końców linii z drzewa roboczego nie trafia do pliku zadania jako wymóg. Przed
+  każdym przebiegiem Codeksa Claude sprawdza `git ls-files --eol` plików z `--files`;
+  `w/crlf` przy `i/lf` normalizuje do LF skryptem pisanym przez Write (L-0297) i dopiero wtedy
+  uruchamia przebieg. Plik zadania mówi wyłącznie „repozytorium trzyma LF”.
 
 ## Lekcje zwinięte
 

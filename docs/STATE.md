@@ -1,6 +1,6 @@
 # STATE — RelAI
 
-Stan na: 2026-10-28 (ostatni zamknięty plan KONTEKST_STARTU ZREALIZOWANY — RelAI 3.7.0 z lżejszym
+Stan na: 2026-11-10 (plan OPTYMALIZACJA_PO_AUDYCIE: E1–E6 zrealizowane, E7 gotowy do startu; ostatni zamknięty plan KONTEKST_STARTU ZREALIZOWANY — RelAI 3.7.0 z lżejszym
 startem sesji, `relai-progress` 0.7.1; tego samego dnia ZASIEG_PLUGINU — wydanie 3.6.0;
 poprzednio ZGLOSZENIA 2026-10-27 — wydanie 3.5.0)
 
@@ -9,12 +9,15 @@ poprzednio ZGLOSZENIA 2026-10-27 — wydanie 3.5.0)
 RelAI **3.7.0** jest w repozytorium i publicznie (tag `v3.7.0`, 2026-10-28: lżejszy start sesji —
 plan KONTEKST_STARTU; wcześniej tego dnia 3.6.0 z trybem „RelAI tylko w projektach”). Plugin `relai` działa
 w trzech narzędziach — Claude Code, Cursorze i Codeksie — na jednym rdzeniu procesu, z szesnastoma
-komendami i czternastoma hookami w Claude Code (czternasty: `session-title`). Marketplace tego
+komendami i piętnastoma hookami w Claude Code (piętnasty: `bash-guard`). Marketplace tego
 repozytorium niesie też cztery mody: `relai-panel` 0.22.1, `relai-progress` 0.7.1,
 `relai-cache-keeper` 0.13.0 („early access”) i kokpit `relai-mods` 0.3.0. Wydanie robi się frazą „gotowi do wydania?”
 (`/relai-release`): raport `release-check.js`, naprawy po jednej zgodzie, publikacja krok po kroku,
-bramka `pre-push` na tagi. Maszyna Łukasza pracuje w trybie „RelAI tylko w projektach” od
-2026-10-28. Aktywnego planu nie ma: KONTEKST_STARTU zamknięty 2026-10-28 (start sesji to jedno
+bramka `pre-push` na tagi. Na maszynie Łukasza `relai`, `relai-panel` i `relai-cache-keeper`
+są włączone na poziomie użytkownika, a w projektach z markerem RelAI także lokalnie (stan
+z `relai-scope.js status`, 2026-11-10); tryb „RelAI tylko w projektach” jest dostępny
+(`relai-scope.js apply`), ale nie jest włączony. Od 2026-11-09 aktywny jest plan OPTYMALIZACJA_PO_AUDYCIE (naprawy po audycie
+projektu; E1–E13 zrealizowane 2026-11-10, etap E14 — ostatni, z wydaniem — gotowy do startu; E9–E13 wykonał Codex wg Aneksu A). Poprzedni: KONTEKST_STARTU zamknięty 2026-10-28 (start sesji to jedno
 polecenie skrótu, RelAI po pierwszej turze 25–32 tys. tokenów zamiast ok. 72 tys. — cel 25 tys.
 częściowo), PANEL_CODEX (Codex) wstrzymany 2026-10-27 decyzją Łukasza.
 Opinii spoza projektu nadal nie ma.
@@ -114,14 +117,70 @@ Opinii spoza projektu nadal nie ma.
 
 ## Nad czym pracujemy teraz
 
-- Aktywnego planu nie ma — następny do wyboru przez Łukasza (kandydat: migracja projektów na
-  nowy rytuał, „Co dalej”).
+- **OPTYMALIZACJA_PO_AUDYCIE — ZAAKCEPTOWANY 2026-11-09, E1 zrealizowany 2026-11-10 (porządki
+  w dokumentach, tryb ciągły wyłączony w projekcie), E2 zrealizowany 2026-11-10 (pomiary na żywo:
+  `C9: NIE WIDZI`, `A6: NIE POWTARZA` bez ważnej pary, tabela trzech wariantów dystrybucji G1
+  w `plany/OPTYMALIZACJA_PO_AUDYCIE/POMIARY.md`; wybór wariantu czeka na Łukasza), E3 zrealizowany
+  2026-11-10 (skaner sekretów łapie klucze w JSON, YAML, URL i nowe prefiksy tokenów, nie blokuje
+  kodu ani odczytów środowiska; pre-commit skanuje pliki przemianowane i UTF-16; instalator widzi
+  `core.hooksPath` i worktree; 33 testy `core/guardrails`), E4 zrealizowany 2026-11-10 (guardy
+  Claude Code: awaria hooka zostawia ślad `[RelAI <hook>] blad: <nazwa>`, guardy przy błędzie
+  pytają, każdy raport startu ma własny `try`, ostrzeżenia i skaner pomijają pliki spoza katalogu
+  projektu, ochrona `CLAUDE.md` odporna na CRLF; `core/process` 372 testy), E5 zrealizowany
+  2026-11-10 (sekret w poleceniu `Bash` i sekret złożony z edycji blokuje `secret-scanner`, nowy
+  ostrzegawczy hook `bash-guard` na cztery nawyki powłoki, hook Stop przypomina o commitach kodu
+  od ostatniego wpisu dziennika, `journal-signature` bierze wpis najnowszy, oba przypomnienia idą
+  do modelu przez `additionalContext`; `core/process` 389 testów), E6 zrealizowany 2026-11-10
+  (deinstalator Cursora usuwa wyłącznie pliki pod `.cursor/` i odmawia przy podejrzanym
+  manifeście, załoga uruchamia inne narzędzie bez zmiennych gospodarza, więc skaner Codeksa nie
+  milknie, prompt recenzenta Codeksa idzie stdin-em, `--model`/`--base` z białej listy, tryb
+  zapisu bez `-f` w Cursorze i bez gołego `Bash` w Claude Code; cursor 10, codex 28,
+  `core/process` 396 testów), E7 zrealizowany 2026-11-10 (skan artefaktów czyta każdy plik
+  testowy raz, a pozycje z `%TEMP%` omijają bramki dokumentów i testów; znacznik ustawień
+  w `<tmp>/znaczniki-relai/`, stare sprzątane; dokumenty startu czytane raz na proces hooka;
+  kopia specyfikacji tylko przy zmianie, znacznik `.claude/relai/.provisioned`, bez kopii po
+  kompakcji; K-A6 zamknięta bez kodu; `core/process` 405 testów), E8 zrealizowany 2026-11-10
+  (skrót startu bez linii-odsyłaczy archiwum ryzyk — jedna linia z ich liczbą — i bez sekcji
+  „Czeka na człowieka”, sprawy przeterminowane zgłasza hook startu trzech adapterów, także
+  Codeksa; aneks D-88: próg lekcji w KB bez „Zasad aktywnych”, sekcja ryzyk bez zamkniętych bez
+  komunikatu na starcie i w `rotate.js`; wiersz „Model optymalizatora” = Sonnet 5.5 z listy
+  z 2026-11-10; `core/process` 409 testów), E9 zrealizowany 2026-11-10 (pierwszy etap w Codeksie
+  wg Aneksu A: bramka trybu ciągłego z czwartą opcją „nie i nie pytaj więcej” i
+  `off --globalnie` jako trwała odmowa, aneks D-93; filtr przepuszcza przyjęcie propozycji,
+  słowa dwuznaczne liczą się jako pytanie tylko z pytajnikiem, ścieżka nie jest komendą, jedna
+  lista fraz sesji z `gotowi do wydania`; sesja zaczęta komendą odkłada rytuał i przegląd spraw;
+  `core/process` 421 testów), E10 zrealizowany 2026-11-10 (drugi etap w Codeksie: prompt etapu
+  i odnogi wymienia numery zasad do doczytania zamiast odpisu, szablon `CLAUDE.md` niesie zdanie
+  Aneksu D, opisy „kończymy na dziś”, rytuału etapu i zamknięcia planu zgodne z procedurami,
+  `SPEC_ARCHIWUM.md` tylko przy rotacji ręcznej, ostatni etap planu pisze jeden wpis; nowy test
+  `ritual-texts`, `core/process` 424 testy), E11 zrealizowany 2026-11-10 (trzeci etap w Codeksie,
+  pierwszy w dwóch przebiegach: rejestr artefaktów bez kroniki wersji w komórkach — ok. 80 KB
+  zamiast 154 KB, z kopią `archiwum/artefakty/ARTEFAKTY_2026-11-10.md`; hook profilu dopasowuje
+  wpis po pełnej ścieżce i pomija fikstury, ewaluacje, kopie Codeksa, `AGENTS.md`, `LICENCJE.md`;
+  przegląd spraw podaje fakt z repozytorium, zamknięcie planu przepina linki (punkt 7a), reguła
+  Cursora z celem rotacji D-88; `core/process` 430 testów), E12 zrealizowany 2026-11-10 (czwarty
+  etap w Codeksie, dwa przebiegi: panel agentów i kokpit `relai-mods` mówią, że się nie narysowały,
+  zamiast pustego panelu; kokpit rysuje z pamięci — seria klawiszy i tyknięcie bez odczytu treści
+  plików, tylko czasy; Koszty i Mapa po turze nie czytają plików zamkniętych sesji; testy modów
+  559 → 565, bramka manualna przeszła; mody do podbicia w E14: `relai-progress`, `relai-mods`,
+  `relai-panel`), E13 zrealizowany 2026-11-10 (piąty etap w Codeksie, dwa przebiegi: każdy mod
+  niesie tylko pliki rdzenia, które importuje — `sync-panel-core.js` liczy graf importów, kasuje
+  kopie nadmiarowe, `--check` je zgłasza; kopie 4 × 21 → 16 / 13 / 8 / 2 pliki, 2 280 852 →
+  1 458 334 B; `core/panel` 227 testów, mody bez zmian liczby, bramka manualna przeszła; F4 i F5
+  zapisane jako odłożone; do podbicia w E14 cztery mody i plugin `relai`), E14 gotowy do startu**
+  (plan
+  [OPTYMALIZACJA_PO_AUDYCIE](plany/OPTYMALIZACJA_PO_AUDYCIE/STATUS.md), 14 etapów, wykonanie Opus 5.5
+  medium w świeżych sesjach, gałąź `optymalizacja/po-audycie`, jedno wydanie na końcu). Źródło:
+  [raport audytu](AUDYT_RELAI_2026-11-09.md) — 56 znalezisk, do naprawy wybrane 41 wysokiej
+  i średniej wagi oraz E9; każdy etap ma plik kart zmian w `plany/OPTYMALIZACJA_PO_AUDYCIE/karty/`.
+  Plan i karty są zamrożone; etap uruchamia `/relai-stage` w świeżej sesji.
 - **PANEL_CODEX — nieaktywny, WSTRZYMANY 2026-10-27** decyzją Łukasza (plan
   [PANEL_CODEX](plany/PANEL_CODEX/STATUS.md), ZAAKCEPTOWANY 2026-10-10, 8 etapów, Codex
   `gpt-6.1-sol`). Stan zatrzymania E1: natywny widok i wiadomość do bieżącego czatu potwierdzone
-  sondą 0.0.7; pakiet `adapters/codex/panel/` 0.1.0 (13 testów) pokazuje właściwy stan; sonda
-  0.0.9 z poprawką fontów czeka na pomiar. Wznowienie tylko decyzją Łukasza. Kontrakt
-  w [README adaptera](../adapters/codex/panel/README.md).
+  sondą 0.0.7; pakiet `adapters/codex/panel/` 0.1.0 (13 testów) — na gałęzi `codex/panel-codex` —
+  pokazuje właściwy stan; sonda 0.0.9 z poprawką fontów czeka na pomiar. Wznowienie tylko decyzją
+  Łukasza. Pakiet i jego README leżą na gałęzi `codex/panel-codex` (`adapters/codex/panel/`), nie
+  na `main`.
 - Wydane w 3.7.0 razem z planem: wiersz `installPath` w README i `KOMENDY.md` po przełączeniu
   maszyny (P-059) i przyciski paska postępu `relai-progress` 0.7.1 (MINIPLAN PRZYCISKI_POSTEPU).
 
@@ -134,8 +193,7 @@ Opinii spoza projektu nadal nie ma.
   `claude plugin update relai@relai` (i `relai-progress@relai`) z katalogu każdego projektu.
   **Świadomie odłożone:** cel 25 tys. częściowo (Aneks E) — linia „brak spraw przeterminowanych”
   w skrócie i skrót 29 KB zamiast ok. 16 KB; `/relai-release` bez `--scope user` w kroku 8
-  i z raportem `--json` ucinanym przez narzędzie (L-0308); `docs/USTAWIENIA.md` 6,4 KB ponad 6 KB;
-  zdanie Aneksu D w `SPEC_CLAUDE_MD.md` i `SPEC_PROMPT_ETAPU.md` z pełnymi „Zasadami aktywnymi”.
+  i z raportem `--json` ucinanym przez narzędzie (L-0308); `docs/USTAWIENIA.md` 6,4 KB ponad 6 KB.
 
 - **Po ZASIEG_PLUGINU (świadomie odłożone 2026-10-28):** `undo` zostawia pusty
   `"enabledPlugins": {}` w pliku lokalnym, który go wcześniej nie miał (P-058); przycisk „Włącz”
@@ -204,9 +262,9 @@ Opinii spoza projektu nadal nie ma.
 Repo i publicznie **3.7.0** (tag `v3.7.0` na `1fe9c7d`); marketplace w tym repozytorium (scope
 `user`) niesie pięć pluginów: `relai` i cztery mody z własnymi wersjami i tagami
 (`relai-panel-v0.22.1`, `relai-progress-v0.7.1`, `relai-cache-keeper-v0.13.0`,
-`relai-mods-v0.3.0`, każdy z własnym wydaniem GitHub). Na maszynie Łukasza `relai`
-i trzy dodatki są włączone lokalnie w projektach (tryb „RelAI tylko w projektach”), `relai-mods`
-globalnie. Wydanie: fraza „gotowi do wydania?” →
+`relai-mods-v0.3.0`, każdy z własnym wydaniem GitHub). Na maszynie Łukasza pluginy są włączone
+na poziomie użytkownika i lokalnie w projektach z markerem RelAI (stan z `relai-scope.js status`,
+2026-11-10). Wydanie: fraza „gotowi do wydania?” →
 `/relai-release` (`.claude/commands/`, wersja 2): raport `release-check.js --json`, podział braków
 na naprawy bezpieczne (jedna zgoda) i listę dla człowieka, ponowny raport, `claude plugin validate`
 binarką aplikacji, commit, tag przez hook `pre-push` (`core/tools/release-pre-push.js`,
@@ -224,7 +282,7 @@ pluginu panelu. Pre-commit repo: układ 1.9.2.
 sesji, artefakty robocze, załoga, tryb ciągły, baza reguł optymalizatora z nakładkami `claude`
 i `openai`, walidator, narzędzia wydań (`core/tools/release-*.js`, `release-map.json`), rdzeń
 panelu `core/panel/*.mjs`. **Adapter Claude Code**: dwa skille z plikami doczytywanymi,
-`trivy-scan` i kopia `security-audit` Cloudflare, 16 komend, 4 agenci, 14 hooków, lista modeli
+`trivy-scan` i kopia `security-audit` Cloudflare, 16 komend, 4 agenci, 15 hooków, lista modeli
 z 2026-10-08. **Adapter Cursor**: trzy reguły `.mdc`, dwa hooki, instalator, cztery skille.
 **Adapter Codex**: manifest, 16 skilli komend i 4 dołączone, router `AGENTS.md`, cztery hooki
 (z `lockfile-scan`); pakiet panelu `adapters/codex/panel/` w budowie wstrzymanej (PANEL_CODEX E1, od 2026-10-27).

@@ -42,8 +42,21 @@ function wczytajSkaner() {
   return null;
 }
 
-function git(args) {
-  return spawnSync('git', args, { encoding: 'utf8', maxBuffer: 64 * 1024 * 1024, windowsHide: true });
+function git(args, kodowanie) {
+  return spawnSync('git', args, { encoding: kodowanie || 'utf8', maxBuffer: 64 * 1024 * 1024, windowsHide: true });
+}
+
+// Tresc pliku z indeksu jako tekst. Znacznik BOM rozstrzyga kodowanie: UTF-16 (LE i BE) jest
+// dekodowany, nie pomijany — inaczej plik zapisany przez edytor Windows w UTF-16 przechodzil bez
+// skanu. Bajt zerowy bez znacznika BOM nadal znaczy plik binarny (null = nie skanujemy).
+function dekoduj(buf) {
+  if (buf.length >= 2 && buf[0] === 0xff && buf[1] === 0xfe) return buf.subarray(2).toString('utf16le');
+  if (buf.length >= 2 && buf[0] === 0xfe && buf[1] === 0xff) {
+    const kopia = Buffer.from(buf.subarray(2, 2 + ((buf.length - 2) & ~1)));
+    return kopia.swap16().toString('utf16le');
+  }
+  if (buf.indexOf(0) !== -1) return null;
+  return buf.toString('utf8');
 }
 
 function main() {
@@ -58,7 +71,7 @@ function main() {
     return 1;
   }
 
-  const lista = git(['diff', '--cached', '--name-only', '--diff-filter=ACM', '-z']);
+  const lista = git(['diff', '--cached', '--name-only', '--diff-filter=ACMR', '-z']);
   if (lista.status !== 0) {
     process.stderr.write('RelAI pre-commit: nie moge odczytac indeksu gita. Commit zatrzymany.\n');
     return 1;
@@ -68,11 +81,11 @@ function main() {
 
   const znaleziska = [];
   for (const plik of pliki) {
-    const r = git(['show', ':' + plik]);
+    const r = git(['show', ':' + plik], 'buffer');
     if (r.status !== 0) continue; // np. plik usuniety w miedzyczasie
-    const buf = r.stdout || '';
-    if (buf.indexOf('\u0000') !== -1) continue; // binarny — nie skanujemy
-    const werdykt = skaner.scanText(buf);
+    const tekst = dekoduj(r.stdout || Buffer.alloc(0));
+    if (tekst === null) continue; // binarny — nie skanujemy
+    const werdykt = skaner.scanText(tekst);
     if (werdykt) znaleziska.push({ plik, werdykt });
   }
 

@@ -19,6 +19,10 @@ Gdy spełnione są **wszystkie trzy** warunki:
 2. blok **nie** kończy się linią „Sesja nieinteraktywna",
 3. sesja jest interaktywna.
 
+Pierwsza wiadomość sesji jest wywołaniem komendy (zaczyna się od `/`) → pytania odkładasz do
+pierwszej wiadomości, która komendą nie jest; komenda idzie pierwsza i jej zakazy zapisu
+obowiązują do jej końca.
+
 ## Jak pytasz
 
 Przed akapitem „gdzie jesteśmy", narzędziem `AskUserQuestion`, **partiami po cztery sprawy**, aż
@@ -33,6 +37,14 @@ do wyczerpania listy — cztery sprawy na jedno wywołanie. Każda sprawa ma **t
 **Trzecie i każde kolejne odroczenie** — w treści pytania podajesz wprost liczbę dni od pierwszego
 wystąpienia i liczbę wcześniejszych odroczeń. Odroczenia nie odmawiasz: decyzja należy do
 człowieka, zmienia się komunikat, nie prawo do odpowiedzi.
+
+**Fakt z repozytorium jako podpowiedź.** Pozycja wskazuje plik, katalog albo wiersz ustawień
+(link, ścieżka w backtickach, nazwa wiersza `USTAWIENIA.md`) → zanim zapytasz, sprawdzasz ten
+fakt **jednym** poleceniem (`Read` albo `Grep`) i podajesz wynik w treści pytania jednym
+zdaniem z miejscem odczytu, np. „`.claude-plugin/plugin.json` ma dziś opis »… for Claude Code,
+Cursor and Codex«”. Link do pliku, którego nie ma, mówisz w tym samym zdaniu. Fakt pokazuje,
+że sprawa jest załatwiona → wybór „Zamknąć” stoi pierwszy jako rekomendowany. Pozycja bez
+pliku i bez ustawienia → pytanie bez podpowiedzi. Decyzję nadal podejmuje człowiek.
 
 Pytanie nie zamienia się w rozstrzygnięcie za człowieka — sprawy nie zamykasz „bo widać, że
 nieaktualna" (L-0025). Odmowa odpowiedzi zamyka temat na tę sesję. Sesja nieinteraktywna: nie

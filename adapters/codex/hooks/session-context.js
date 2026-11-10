@@ -15,6 +15,8 @@ try { core = require(path.join(ROOT, 'core', 'process', 'session-signals.js')); 
 const markers = ['.claude/relai.json'];
 function main(input) {
   const cwd = input.cwd || process.cwd();
+  // One read per document for the whole hook process (audit C3).
+  core.pamiecOdczytow(true);
   const marker = core.relaiMarkerFile(cwd, markers);
   // Outside a RelAI project the plugin stays invisible, with one exception since 2.3.0:
   // a user who answered "never offer this outside my RelAI projects" gets the line that
@@ -57,6 +59,10 @@ function main(input) {
     lines.push(line);
   }
   for (const line of core.startCostReport(core.startCost(cwd, { markeryGoscia: markers }))) lines.push(line);
+  // Overdue human items (audit A2): the start hook is the one carrier in all three adapters,
+  // the digest no longer repeats the section.
+  for (const line of core.sprawyPrzeterminowaneReport(
+    core.sprawyPrzeterminowane(cwd, { markeryGoscia: markers }))) lines.push(line);
   process.stdout.write(JSON.stringify({ hookSpecificOutput: { hookEventName: 'SessionStart', additionalContext: lines.join('\n') } }));
 }
 

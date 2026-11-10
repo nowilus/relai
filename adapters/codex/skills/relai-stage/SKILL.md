@@ -66,8 +66,8 @@ Kolumna `Prompt` w `STATUS.md` wskazuje `PROMPT_ETAP_N.md`.
   `.claude/relai/templates/SPEC_PROMPT_ETAPU.md` — **specyfikację otwierasz i czytasz**,
   nie generujesz z pamięci; układ dziewięciu sekcji jest wiążący. Materiał: z sekcji `PLAN.md`
   opisującej ten etap,
-  z **realnego stanu repozytorium** (sprawdzasz, nie zakładasz) i z sekcji „Zasady aktywne"
-  rejestru lekcji. Powiedz jednym zdaniem, że promptu brakowało i został wygenerowany. Uzupełnij
+  z **realnego stanu repozytorium** (sprawdzasz, nie zakładasz) i z indeksu „Zasad aktywnych”
+  (numery zasad do doczytania, bez odpisu ich treści). Powiedz jednym zdaniem, że promptu brakowało i został wygenerowany. Uzupełnij
   kolumnę `Prompt` w `STATUS.md` linkiem. **Dopiero teraz** przechodzisz do potwierdzenia.
 
 ## Krok 4 — potwierdzenie (obowiązkowe, D-35)
@@ -200,16 +200,18 @@ skill `relai-planning`, plik `deviation-and-branches.md`.
 
 ## Krok 6 — ostatni etap planu
 
-Zamykany etap był ostatnim (w tabeli nie ma już etapów `OCZEKUJE` ani `W TOKU`) → zamiast generacji
-`PROMPT_ETAP_N+1` uruchom **sekwencję zamknięcia planu** z **wczytanego** skilla `relai-planning`
+Zamykany etap był ostatnim (w tabeli nie ma już etapów `OCZEKUJE` ani `W TOKU`) → po punktach 1
+i 1a rytuału „Na koniec” zamiast punktów 2–5 uruchom **sekwencję zamknięcia planu** — wpis
+dziennika i `STATE.md` powstają w niej raz — z **wczytanego** skilla `relai-planning`
 (bez niego pominiesz kroki, których ta komenda nie powtarza), sekcja „Zamknięcie
 planu (D-36)": **rozstrzygnięcie otwartych bramek manualnych** → **rozstrzygnięcie otwartych
 odnóg** → `STATE.md` → wpis zamykający „dowiezione vs plan" → status planu `ZREALIZOWANY` →
-przegląd ryzyk → przeniesienie folderu planu do `docs/archiwum/plany/` → linia „Aktywny plan"
-w `CLAUDE.md` → podsumowanie. Sekwencji nie odtwarzasz z pamięci i nie skracasz — wykonujesz
-kroki 1–9 stamtąd. Dwa punkty blokujące idą pierwsze: dopóki bramki i odnogi nie są rozstrzygnięte,
-nie piszesz nigdzie, że plan jest zrealizowany. Pytaniem może być wyłącznie commit oraz te dwa
-punkty — pozycje „Do zrobienia przez człowieka" bez adnotacji o rozstrzygnięciu i odnogi `OTWARTA`.
+przegląd ryzyk → przeniesienie folderu planu do `docs/archiwum/plany/` → przepięcie linków
+do przeniesionych folderów → linia „Aktywny plan" w `CLAUDE.md` → podsumowanie. Sekwencji nie
+odtwarzasz z pamięci i nie skracasz — wykonujesz kroki 1–9 (z 7a) stamtąd. Dwa punkty blokujące
+idą pierwsze: dopóki bramki i odnogi nie są rozstrzygnięte, nie piszesz nigdzie, że plan jest
+zrealizowany. Pytaniem może być wyłącznie commit, te dwa punkty — pozycje „Do zrobienia przez człowieka" bez adnotacji o rozstrzygnięciu i odnogi
+`OTWARTA` — oraz jedno pytanie o następcę planu, zadane po wpisaniu poprawnej linii „Aktywny plan”.
 
 ---
 

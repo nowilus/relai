@@ -41,3 +41,51 @@ for (const pliki of [{}, { 'AGENTS.md': 'agent rules\n' }, { 'CLAUDE.md': 'claud
     for (const nazwa of ['AGENTS.md', 'CLAUDE.md']) if (!(nazwa in pliki)) assert.equal(fs.existsSync(path.join(dir, nazwa)), false);
   });
 }
+
+// --- K-D5 (etap E06 planu OPTYMALIZACJA_PO_AUDYCIE) -----------------------------------------
+// Manifest jest dana z dysku projektu: deinstalacja nie moze usunac niczego spoza .cursor/.
+function deinstalacjaZManifestem(t, wpis) {
+  const root = projekt(t);
+  const dir = path.join(root, 'proj');
+  fs.mkdirSync(path.join(dir, '.cursor', 'rules'), { recursive: true });
+  fs.mkdirSync(path.join(dir, 'docs'));
+  const ofiaraPoza = path.join(root, 'ofiara.txt');
+  const ofiaraWProjekcie = path.join(dir, 'docs', 'plan.md');
+  const nasz = path.join(dir, '.cursor', 'rules', 'relai-core.mdc');
+  for (const p of [ofiaraPoza, ofiaraWProjekcie, nasz]) fs.writeFileSync(p, 'x\n');
+  const files = ['.cursor/rules/relai-core.mdc', typeof wpis === 'function' ? wpis(root, dir) : wpis];
+  fs.writeFileSync(path.join(dir, '.cursor', 'relai-install.json'), JSON.stringify({ adapter: 'cursor', files }));
+  const r = spawnSync(process.execPath, [INSTALL, dir, '--uninstall'], { encoding: 'utf8', timeout: 120000 });
+  return { r, dir, ofiaraPoza, ofiaraWProjekcie, nasz };
+}
+
+const zle = [
+  ['wyjscie przez ..', '../ofiara.txt'],
+  ['wyjscie przez .. pod .cursor', '.cursor/../../ofiara.txt'],
+  ['sciezka bezwzgledna', (root) => path.join(root, 'ofiara.txt').split(path.sep).join('/')],
+  ['plik projektu spoza .cursor', 'docs/plan.md'],
+  ['dowiazanie w .cursor wskazujace na zewnatrz', (root, dir) => {
+    fs.symlinkSync(root, path.join(dir, '.cursor', 'link'), 'junction');
+    return '.cursor/link/ofiara.txt';
+  }],
+];
+
+for (const [opis, wpis] of zle) {
+  test('deinstalacja odmawia, gdy manifest wskazuje plik poza .cursor/: ' + opis, (t) => {
+    const { r, dir, ofiaraPoza, ofiaraWProjekcie, nasz } = deinstalacjaZManifestem(t, wpis);
+    assert.equal(r.status, 1, r.stdout + r.stderr);
+    assert.match(r.stderr, /spoza \.cursor\//);
+    for (const p of [ofiaraPoza, ofiaraWProjekcie, nasz]) assert.ok(fs.existsSync(p), p);
+    assert.ok(fs.existsSync(path.join(dir, '.cursor', 'relai-install.json')), 'manifest zostaje');
+  });
+}
+
+test('deinstalacja usuwa pozycje manifestu pod .cursor/ zapisane z ukosnikami', (t) => {
+  const dir = projekt(t);
+  uruchom(dir);
+  const manifest = JSON.parse(fs.readFileSync(path.join(dir, '.cursor', 'relai-install.json'), 'utf8'));
+  assert.ok(manifest.files.length > 0);
+  assert.ok(manifest.files.every((rel) => rel.startsWith('.cursor/')), 'instalator zapisuje tylko .cursor/');
+  uruchom(dir, '--uninstall');
+  for (const rel of manifest.files) assert.equal(fs.existsSync(path.join(dir, ...rel.split('/'))), false, rel);
+});

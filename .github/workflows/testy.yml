@@ -1,0 +1,44 @@
+name: "Testy (rdzen i adaptery)"
+
+on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - "site/**"
+      - "docs/**"
+  pull_request:
+    paths-ignore:
+      - "site/**"
+      - "docs/**"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: "testy-${{ github.ref }}"
+  cancel-in-progress: true
+
+jobs:
+  testy:
+    runs-on: windows-latest
+    timeout-minutes: 20
+    steps:
+      - name: Pobierz repozytorium
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Ustaw Node
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24
+      - name: Guardrails
+        run: node --test "core/guardrails/tests/*.test.js"
+      - name: Proces
+        run: node --test "core/process/tests/*.test.*"
+      - name: Panel (rdzen)
+        run: node --test "core/panel/tests/*.test.*"
+      - name: Adapter Codex
+        run: node --test "adapters/codex/tests/*.test.js"
+      - name: Adapter Cursor
+        run: node --test "adapters/cursor/tests/*.test.js"
+      - name: Spojnosc adapterow
+        run: node core/tools/validate-adapters.js

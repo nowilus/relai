@@ -5,6 +5,11 @@
 // oraz pliki, ktore same sa hookami Claude Code (console.log to ich protokol wyjscia).
 // Konwencja hook-guard: poza projektem RelAI wyjscie kodem 0 bez efektu.
 
+// K-C4: slad awarii na stderr, przed pierwszym require — ma powstac takze przy zepsutej instalacji.
+const HOOK = 'console-log-warn';
+function nazwaBledu(e) { return String((e && (e.code || e.name)) || 'nieznany').replace(/[^\x20-\x7e]/g, '?'); }
+function slad(e) { try { process.stderr.write('[RelAI ' + HOOK + '] blad: ' + nazwaBledu(e) + '\n'); } catch (_) { /* stderr zamkniety */ } }
+
 const fs = require('fs');
 const path = require('path');
 
@@ -39,9 +44,16 @@ function isRelaiProject(cwd) {
       if (/Wersja RelAI:|RelAI version:/i.test(head)) return true;
     }
     return false;
-  } catch (_) {
+  } catch (e) {
+    slad(e);
     return false;
   }
+}
+
+// Plik spoza katalogu projektu (skrypt w %TEMP%, inny dysk) nie dostaje ostrzezen projektu (C6).
+function wKatalogu(cwd, filePath) {
+  const rel = path.relative(path.resolve(cwd), path.resolve(cwd, filePath));
+  return rel !== '' && rel !== '..' && !rel.startsWith('..' + path.sep) && !path.isAbsolute(rel);
 }
 
 function main(input) {
@@ -50,6 +62,7 @@ function main(input) {
 
   const ti = input.tool_input || {};
   const filePath = String(ti.file_path || '');
+  if (!filePath || !wKatalogu(cwd, filePath)) return process.exit(0);
   if (!/\.(js|jsx|ts|tsx|mjs|cjs|vue|svelte)$/i.test(filePath)) return process.exit(0);
   if (/(\.test\.|\.spec\.|__tests__|[\\/]tests?[\\/])/i.test(filePath)) return process.exit(0);
 
@@ -85,7 +98,7 @@ function main(input) {
 let raw = '';
 process.stdin.setEncoding('utf8');
 process.stdin.on('data', (d) => { raw += d; });
-process.stdin.on('error', () => process.exit(0));
+process.stdin.on('error', (e) => { slad(e); process.exit(0); });
 process.stdin.on('end', () => {
-  try { main(JSON.parse(raw || '{}')); } catch (_) { process.exit(0); }
+  try { main(JSON.parse(raw || '{}')); } catch (e) { slad(e); process.exit(0); }
 });

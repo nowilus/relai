@@ -84,14 +84,14 @@ użytkownik sam prosi o RelAI w folderze bez markera.
 
 ## Stan PROJEKT RELAI — rytuał startu sesji
 
-Nie inicjalizuj niczego drugi raz. Wykonaj **rytuał startu** — raz na sesję, przed pierwszą merytoryczną odpowiedzią.
+Nie inicjalizuj niczego drugi raz. Wykonaj **rytuał startu** — raz na sesję, przed pierwszą merytoryczną odpowiedzią. Pierwsza wiadomość sesji jest wywołaniem komendy (zaczyna się od `/`) → najpierw wykonujesz komendę; rytuał startu i przegląd spraw przeterminowanych odkładasz do pierwszej wiadomości, która komendą nie jest.
 
 ### Skrót startu (jedno polecenie, nic poza nim)
 
 Uruchom `node .claude/relai/tools/start-digest.js` i przeczytaj jego wyjście. Skrót niesie
 z `docs/STATE.md` sekcje „Gdzie jesteśmy”, „Nad czym pracujemy teraz”, „Co blokuje” i pierwszy
-punkt „Co dalej”; tabelę ryzyk bez kolumny „Mitygacja”; ostatni wpis dziennika (sekcję „Czeka
-na człowieka” tylko przy sprawie przeterminowanej); aktywne wiersze `docs/USTAWIENIA.md`;
+punkt „Co dalej”; tabelę ryzyk bez kolumny „Mitygacja”; ostatni wpis dziennika (bez sekcji „Czeka
+na człowieka” — sprawy przeterminowane zgłasza hook startu); aktywne wiersze `docs/USTAWIENIA.md`;
 `STATUS.md` aktywnego planu i indeks „Zasad aktywnych” (D-15, Aneks A) — gdy zadanie trafia
 w wyzwalacz zasady, przed pracą doczytujesz jej pełne brzmienie z `docs/LEKCJE.md`. `CLAUDE.md`
 masz już w kontekście.
@@ -110,8 +110,9 @@ zasadom:
 
 - Zgłoszenie idzie **jednym zdaniem przed** akapitem „gdzie jesteśmy".
 - Zgłoszenie hooka jest **jedynym** zgłoszeniem; cisza hooka znaczy „sprawdzone i zgodne" — nie
-  powtarzasz porównania sam (L-0036). Bloku `[RelAI session-context]` nie ma w ogóle → dopiero
-  wtedy porównujesz sam, wg `start-nets.md`.
+  powtarzasz porównania sam (L-0036). Dwa wyjątki: bloku `[RelAI session-context]` nie ma
+  w ogóle → porównujesz sam wszystkie siatki wg `start-nets.md`; blok ma linię
+  „Siatka "<nazwa>" nie zadzialala” → porównujesz sam tylko tę siatkę.
 - Propozycja **nigdy** nie zamienia się w automatyczne odpalenie: zmiana w repo idzie po zgodzie.
 - Odmowa zamyka temat do końca sesji.
 - Sesja nieinteraktywna (`claude -p`, agent w tle, linia hooka „Sesja nieinteraktywna") → sam
@@ -193,10 +194,12 @@ Cztery frazy, w wariancie polskim i angielskim. Rozpoznajesz **intencję**, nie 
 
 ### „kończymy na dziś" / „wrapping up"
 
-Otwórz **`session-close.md`** i wykonaj rytuał zamknięcia sesji, punkty 1–6 wraz z krokiem 2a,
-w tej kolejności. Zaczynasz od razu — użytkownik już zdecydował. Pytania są dwa: zgoda na commit
-i zgoda na skasowanie grupy artefaktów w kroku 2a. Krok 2 wykonujesz według
-`document-rotation.md`; rotacja o zgodę nie pyta i poniżej progu nie zostawia śladu.
+Otwórz **`session-close.md`** i wykonaj rytuał zamknięcia sesji, kroki 1, 2, 2a, 3, 3a, 4, 5
+i 6, w tej kolejności. Zaczynasz od razu — użytkownik już zdecydował. Pytasz tylko o trzy
+rzeczy: zgodę na skasowanie grupy artefaktów w kroku 2a (partiami po cztery grupy), skasowanie
+pliku wznowienia w kroku 3a (wyłącznie gdy plik istnieje) i zgodę na commit w kroku 5. Krok 2
+wykonujesz według `document-rotation.md`; rotacja o zgodę nie pyta i poniżej progu nie zostawia
+śladu.
 
 ### „kontynuujemy pracę" / „let's continue"
 
@@ -220,7 +223,10 @@ Zwięzły raport, bez wykonywania pracy:
 1. **Stan** — dwa zdania z `STATE.md`.
 2. **Plany** — aktywny plan, etap zrealizowany ostatnio, etap następny (z `STATUS.md` planu);
    brak planu → jedno zdanie.
-3. **Ryzyka** — otwarte pozycje z tabeli dziennika, każde w jednej linii.
+3. **Ryzyka** — otwarte pozycje z tabeli dziennika, każde w jednej linii. Sekcja ryzyk ponad progiem
+   cząstkowym bez ani jednego ryzyka `ZAMKNIĘTE` → jedno zdanie z liczbami z
+   `node .claude/relai/tools/rotate.js plan ryzyka --prog <KB z ustawień>`: rotacja nic nie zdejmie,
+   sekcję odchudza zamknięcie ryzyk albo podniesienie progu — decyzja człowieka (D-88, aneks).
 4. **Zaległości dokumentacyjne** — czy `STATE.md` jest starszy niż ostatni wpis dziennika, czy są
    niezacommitowane zmiany, czy „Do zrobienia przez człowieka" z ostatnich wpisów zostało
    rozstrzygnięte.

@@ -175,17 +175,17 @@ potem ponowne uruchomienie aplikacji. Czwarty plugin, kokpit pluginów i hooków
 - **Podyktowane zdanie wraca poprawione, zanim ruszy w robotę.** Wiersz „Tryb ciągły"
   w `docs/USTAWIENIA.md` włącza optymalizator na stałe: każdy prompt merytoryczny wraca najpierw
   z propozycją i oryginałem obok, a wykonanie czeka na Twoją zgodę. Nietknięte przechodzą
-  wywołania komend, frazy sesji, krótkie potwierdzenia i pytania — o kod pytasz normalnie. Od
+  wywołania komend, frazy sesji, krótkie potwierdzenia (także „wykonaj propozycję” i „opcja B”) i pytania — o kod pytasz normalnie. Od
   2.7.0 nietknięte przechodzi też powiadomienie o zakończonym zadaniu w tle — nie jest Twoim
   promptem, więc nie dostaje pytania o zgodę.
   Wyłącznikiem jest ten jeden wiersz; wartość spoza listy i brak wiersza znaczą wyłączony i ciszę.
   Tryb działa w **Claude Code**; w Cursorze i Codeksie komenda `/relai-prompt` działa normalnie,
   a o braku trybu pada jedno zdanie przy pierwszym wywołaniu w sesji.
   **Od 2.3.0 włączony wiersz nie wystarcza:** pierwszy prompt merytoryczny sesji wraca pytaniem
-  o zgodę — **ta sesja** / **nie pytaj więcej** / **nie**. Odmowa wycisza tryb do końca sesji,
+  o zgodę — **ta sesja** / **nie pytaj więcej** / **nie** / **nie i nie pytaj więcej**. Odmowa wycisza tryb do końca sesji, trwała odmowa — we wszystkich projektach,
   zgoda „nie pytaj więcej" idzie do ustawień globalnych i przypomina o sobie raz na 30 dni.
   Przełączniki: `/relai-prompt on`, `/relai-prompt off` (projekt) oraz `/relai-prompt off --globalnie`
-  (cofnięcie zgody na stałe).
+  (trwała odmowa: tryb milczy wszędzie, bramka nie pyta).
   **Od 3.7.0 bramka ma dwa kroki:** pierwsze okno pyta
   tylko o zgodę — po „nie” nic więcej nie pada. Po „tak” pada drugie okno z modelem
   optymalizatora i zasięgiem, chyba że model jest już wybrany (wiersz z członem `· nie pytaj` albo

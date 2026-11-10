@@ -12,9 +12,9 @@
 import { atom, read, update } from 'claude-code'
 import type { EngineInterface, Register } from 'claude-code'
 import {
-  buildInventory, cliError, enabledOf, filesOf, foldersOf, joinPath, parseInstalls, settingsFilesOf, sourcesOf,
+  buildInventory, cliError, enabledOf, filesOf, foldersOf, joinPath, parseInstalls, settingsFilesOf, sourcesOf, watchedPaths,
 } from './inventory'
-import type { DirEntry, Install, Inventory, PluginFiles } from './inventory'
+import type { DirEntry, Install, Inventory, PluginFiles, PluginItem } from './inventory'
 import {
   DRAW_LIMIT, EMPTY_QUEUE, REFRESH_MS, SCOPE_KEY, enqueue, finish, flipCall, isFilter, isSettled, itemKey, lockOf,
   oppositeArgv, outcomeOf, pendingCount, scopeKey, scopePlan, scopeRowOf, snapshotOf, startNext, treeWeight, visible,
@@ -22,6 +22,7 @@ import {
 } from './cockpit'
 import type { Queue, ScopeCall, ScopeRow } from './cockpit'
 import { cockpit, mobileList } from './views'
+import { KEY } from './look'
 import type { SvgTag, View } from './views'
 
 type $T = EngineInterface
@@ -124,6 +125,36 @@ async function readScope($: $T): Promise<ScopeRow | null> {
   })
 }
 
+// ---------- the cockpit's memory (audit F1) ----------
+// What the drawing shows, read once and kept while the files it came from stand still: a key
+// press in the search, a filter or a fold draws from here, the refresh every REFRESH_MS asks only
+// the files' times. Data only, never `$` (P-023 pkt 10). Per module: another chat's write moves a
+// file's time, so the key sees it. A plugin's own folder is not watched: an installPath holds one
+// version, a new version comes with a new installed_plugins.json.
+type Disk = { home: string, cwd: string, policy: string, paths: string[], stamp: string, inv: Inventory, scope: ScopeRow | null }
+let disk: Disk | null = null
+
+// The pane opened again, a reload and every press of a switch read the disk anew
+const forgetDisk = () => { disk = null }
+
+// Each path's time and size, '-' for a file that is not there (its appearing moves the stamp)
+async function stampOf($: $T, paths: readonly string[]): Promise<string> {
+  return (await Promise.all(paths.map((p) => $.fs.stat(p).then((s) => `${s.mtimeMs}:${s.size}`, () => '-')))).join('|')
+}
+
+async function readDisk($: $T): Promise<Disk> {
+  const [home, cwd, policy] = await Promise.all([homeDir($), cwdOf($), policyEnabled($).then((p) => JSON.stringify(p))])
+  const isSamePlace = disk !== null && disk.home === home && disk.cwd === cwd && disk.policy === policy
+  // The times are taken before the read: a file that moves during it is read again next time
+  const before = isSamePlace && disk ? await stampOf($, disk.paths) : null
+  if (disk && before !== null && before === disk.stamp) return disk
+  const [inv, scope] = await Promise.all([readInventory($), readScope($)])
+  const paths = watchedPaths(home, cwd, inv.items.filter((i): i is PluginItem => i.kind !== 'hook'))
+  const isSamePaths = disk !== null && paths.length === disk.paths.length && paths.every((p, i) => p === disk?.paths[i])
+  disk = { home, cwd, policy, paths, stamp: isSamePaths && before !== null ? before : await stampOf($, paths), inv, scope }
+  return disk
+}
+
 // ---------- the switch: one CLI call at a time ----------
 
 const setError = ($: $T, key: string, text: string) =>
@@ -209,6 +240,8 @@ async function press($: $T, key: string, want: boolean): Promise<void> {
     try {
       await runOne($, taken)
     } finally {
+      // Before the write that redraws: the drawing after a switch reads the disk the CLI changed
+      forgetDisk()
       await update($, queue, (q) => finish(q, taken)).catch(() => undefined)
     }
   }
@@ -268,6 +301,7 @@ async function togglePane($: $T): Promise<string> {
     stopRefresh()
     return 'Panel RelAI Mods zamknięty.'
   }
+  forgetDisk() // the pane opened by the person shows the disk as it is now
   const opened = await $.ui.open({ id: PANE_ID, title: PANE_TITLE })
   startRefresh($)
   return opened.isPlaced ? 'Panel RelAI Mods otwarty.' : `Panel RelAI Mods czeka na miejsce: ${opened.reason}`
@@ -276,8 +310,9 @@ async function togglePane($: $T): Promise<string> {
 // The disk as this chat loads it: at session.start and at each plugin.register of a reload.
 // Never awaited: until it lands, N is 0 (no loaded state to differ from)
 function takeSnapshot($: $T): void {
+  forgetDisk() // a reload may have brought another version of any plugin: its folder is read anew
   void (async () => {
-    const [inv, cwd, scope] = await Promise.all([readInventory($), cwdOf($), readScope($)])
+    const [{ inv, scope }, cwd] = await Promise.all([readDisk($), cwdOf($)])
     const set = Object.fromEntries((scope?.plugins ?? []).map((p) => [scopeKey(p.id), p.isOn]))
     await update($, loaded, () => ({ ...snapshotOf(inv.items, cwd), ...set }))
     await update($, note, () => '')
@@ -320,14 +355,16 @@ export const register: Register = (on) => {
 
   on('ui.render', { component: 'Pane', requestId: PANE_ID }, async ($, e) => {
     const el = $.ui.resolve(e)
-    const inv = await readInventory($)
+    // From memory while the watched files stand still (audit F1): a typed letter, a filter or a
+    // fold reads no file, the refresh's tick asks only their times
+    const { inv, scope } = await readDisk($)
     if (e.surface === 'mobile') return mobileList(el, inv)
     // Drawings only where the surface draws them, decided by the surface (as relai-panel does)
     const Svg = ((e.surface === 'desktop' || e.surface === 'vscode') && 'Svg' in el ? el.Svg : null) as SvgTag
-    // tick is read only so its write redraws the pane, which reads the disk again (the refresh)
-    const [q, f, sel, qu, errs, said, version, cwd, was, asked, scope] = await Promise.all([
+    // tick is read only so its write redraws the pane, which asks the files' times again (the refresh)
+    const [q, f, sel, qu, errs, said, version, cwd, was, asked] = await Promise.all([
       read($, query), read($, filterAtom), read($, selected), read($, queue), read($, errors), read($, note), read($, cli),
-      cwdOf($), read($, loaded), read($, ask), readScope($), read($, tick),
+      cwdOf($), read($, loaded), read($, ask), read($, tick),
     ])
     const filter = isFilter(f) ? f : 'all'
     const shown = visible(inv.items, filter, q)
@@ -355,5 +392,19 @@ export const register: Register = (on) => {
     const full = cockpit(base)
     // Past the budget the rows lose their drawings, the details keep theirs (R7, P-023 pkt 7)
     return base.isFull && treeWeight(full) > DRAW_LIMIT ? cockpit({ ...base, isFull: false }) : full
+  }).catch(async ($, e, next) => {
+    // A drawing that threw or overran its budget: the pane says so in words instead of the engine
+    // closing it without a word (audit F3, the pattern of relai-panel). Nothing read here: the read
+    // that failed would fail again; the refresh every REFRESH_MS draws the pane anew by itself
+    if (e.surface === 'mobile') return next(e)
+    const { Box, Text } = $.ui.resolve(e)
+    const why = next.error.kind === 'timeout' ? 'odczyt dysku trwał dłużej, niż pozwala silnik' : next.error.message ?? 'nieznany błąd'
+    return (
+      <Box key="mods-error" flexDirection="column" rowGap={1}>
+        <Text key="mods-error-title" bold color={KEY.text}>{PANE_TITLE}</Text>
+        <Text key="mods-error-why" color={KEY.failed}>{`⚠ Kokpit nie narysował listy: ${why}.`}</Text>
+        <Text key="mods-error-todo" color={KEY.muted}>Panel spróbuje ponownie za kilka sekund. Jeśli komunikat zostaje, zamknij go i otwórz ponownie komendą /relai-mods.</Text>
+      </Box>
+    )
   })
 }

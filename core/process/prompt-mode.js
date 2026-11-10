@@ -7,8 +7,9 @@
 // 2) filtr pomijania — ktory prompt przechodzi NIETKNIETY,
 // 3) tresc reguly wstrzykiwanej do tury,
 // 4) BRAMKA ZGODY (2.3.0): wlaczony przelacznik nie wystarcza — pierwszy prompt
-//    merytoryczny sesji pyta czlowieka, czy optymalizator ma dzialac. Trzy
-//    odpowiedzi: ta sesja / na stale (zapis globalny) / nie. Powod: tryb ciagly
+//    merytoryczny sesji pyta czlowieka, czy optymalizator ma dzialac. Cztery
+//    odpowiedzi: ta sesja / na stale (zapis globalny) / nie / nie na stale
+//    (zapis globalny, K-B1 planu OPTYMALIZACJA_PO_AUDYCIE). Powod: tryb ciagly
 //    dotyka KAZDEGO promptu, a wiersz w pliku ustawien jest zgoda sprzed
 //    tygodni, nie zgoda na dzisiejsza sesje.
 //
@@ -66,9 +67,13 @@ const KATALOG_ZGODY_SESJI = '.claude/relai/zgoda-promptu';
 
 // Frazy sesji z CLAUDE.md i skilla relai-core. Prompt, ktory sie od nich zaczyna,
 // jest poleceniem rytualu, nie zdaniem do przerobienia.
+// Jedna lista dla prompt-mode i session-title (K-B2 d). Brzmienia po normalizuj().
+// FRAZY_KONTYNUACJI to podzbior, ktory session-title zamienia w tytul z fokusu.
+const FRAZY_KONTYNUACJI = ['kontynuujemy prace', 'lets continue'];
 const FRAZY_SESJI = [
-  'konczymy na dzis', 'kontynuujemy prace', 'sprawdz status', 'jak stoimy',
-  'wrapping up', 'lets continue', 'status check',
+  ...FRAZY_KONTYNUACJI,
+  'konczymy na dzis', 'sprawdz status', 'jak stoimy', 'gotowi do wydania',
+  'wrapping up', 'status check',
 ];
 const LIMIT_FRAZY = 60;
 
@@ -80,19 +85,35 @@ const LIMIT_FRAZY = 60;
 // do bramki.
 const POWIADOMIENIE_W_TLE = /^\s*<task-notification>[\s\S]*<\/task-notification>\s*$/;
 
-// Krotkie potwierdzenia — zamknieta lista, dopasowanie do CALEGO promptu.
-const POTWIERDZENIA = new Set([
-  'tak', 'nie', 'ok', 'okej', 'okey', 'dobra', 'dobrze', 'jasne', 'zgoda', 'dawaj',
-  'kontynuuj', 'dalej', 'rob', 'zrob to', 'potwierdzam', 'tak prosze', 'nie dziekuje',
-  'yes', 'no', 'okay', 'go', 'go ahead', 'continue', 'proceed', 'sure',
-]);
+// Wywolanie komendy (K-B2 e): ukosnik, nazwa z liter, cyfr, '-' i ':' do pierwszego
+// odstepu albo konca. Sciezka "/c/Users/x/log.txt" ma drugi ukosnik w nazwie, wiec nia nie jest.
+const KOMENDA = /^\s*\/[A-Za-z0-9:-]+(?:\s|$)/;
 
-// Pytanie rozpoznajemy po PIERWSZYM slowie, nie po znaku zapytania: zdanie
-// merytoryczne tez bywa zakonczone pytajnikiem, a "co robi ta funkcja" nie.
+// Potwierdzenie (K-B2 a): prompt zlozony WYLACZNIE ze slow tej listy, najwyzej
+// LIMIT_POTWIERDZENIA slow. Tak przechodzi odpowiedz na propozycje optymalizatora
+// ("Wykonaj propozycje", "tak, wykonaj", "opcja B") bez stanu w pliku: wystarczy
+// sam tekst. Slowo spoza listy ("zmien", "limit") robi z promptu zadanie.
+const SLOWA_POTWIERDZENIA = new Set([
+  'tak', 'nie', 'ok', 'okej', 'okey', 'dobra', 'dobrze', 'jasne', 'zgoda', 'dawaj',
+  'kontynuuj', 'dalej', 'rob', 'zrob', 'to', 'potwierdzam', 'prosze', 'dziekuje', 'dzieki',
+  'wykonaj', 'propozycje', 'propozycja', 'oryginal', 'akceptuje', 'zatwierdzam', 'odrzucam',
+  'opcja', 'wariant', 'super', 'i', 'a', 'b', 'c', 'd', '1', '2', '3', '4',
+  'yes', 'no', 'okay', 'go', 'ahead', 'continue', 'proceed', 'sure', 'please', 'thanks',
+  'do', 'it', 'run', 'the', 'proposal', 'original', 'accept', 'approve', 'approved', 'option', 'lgtm',
+]);
+const LIMIT_POTWIERDZENIA = 6;
+
+// Pytanie rozpoznajemy po PIERWSZYM slowie. Slowa jednoznacznie pytajne licza sie
+// zawsze ("co robi ta funkcja" nie ma pytajnika). Slowa z PYTAJNE_Z_PYTAJNIKIEM
+// zaczynaja tez polecenia ("Do the migration", "Czy mozesz przepisac", "Jak skonczysz,
+// odpal testy"), wiec licza sie wylacznie przy znaku zapytania na koncu promptu (K-B2 b).
 const ZAIMKI_PYTAJNE = new Set([
-  'co', 'gdzie', 'dlaczego', 'czemu', 'jak', 'czy', 'kiedy', 'ile', 'kto',
+  'co', 'gdzie', 'dlaczego', 'czemu', 'ile', 'kto',
   'ktory', 'ktora', 'ktore', 'skad', 'po', 'na',
-  'what', 'where', 'why', 'how', 'which', 'who', 'when', 'does', 'do', 'is', 'are', 'can',
+  'what', 'whats', 'where', 'wheres', 'why', 'how', 'hows', 'which', 'who', 'whos',
+]);
+const PYTAJNE_Z_PYTAJNIKIEM = new Set([
+  'czy', 'jak', 'kiedy', 'when', 'does', 'do', 'is', 'are', 'can',
 ]);
 // "po" i "na" wchodza wylacznie w polaczeniach pytajnych ponizej — same w sobie
 // zaczynaja zdania rozkazujace ("na razie zostaw", "po zmianie odpal testy").
@@ -109,10 +130,11 @@ function bezOgonkow(s) {
 function normalizuj(prompt) {
   return bezOgonkow(String(prompt || ''))
     .toLowerCase()
+    .replace(/['’]/g, '')
     .replace(/[,;:]/g, ' ')
     .replace(/\s+/g, ' ')
     .trim()
-    .replace(/[.!?\s]+$/g, '');
+    .replace(/[.!?…\s]+$/g, '');
 }
 
 // Przelacznik trybu ciaglego jako FAKT: true / false / null.
@@ -271,7 +293,7 @@ function dniMiedzy(od, do_) {
 function powodPominiecia(prompt) {
   const surowy = String(prompt || '');
   if (!surowy.trim()) return 'pusty prompt';
-  if (/^\s*\//.test(surowy)) return 'wywolanie komendy';
+  if (KOMENDA.test(surowy)) return 'wywolanie komendy';
   if (POWIADOMIENIE_W_TLE.test(surowy)) return 'powiadomienie systemowe';
 
   const n = normalizuj(surowy);
@@ -282,12 +304,15 @@ function powodPominiecia(prompt) {
     if (n.startsWith(fraza + ' ') && n.length <= LIMIT_FRAZY) return 'fraza sesji';
   }
 
-  if (POTWIERDZENIA.has(n)) return 'krotkie potwierdzenie';
-
   const slowa = n.split(' ');
+  if (slowa.length <= LIMIT_POTWIERDZENIA && slowa.every((s) => SLOWA_POTWIERDZENIA.has(s))) {
+    return 'krotkie potwierdzenie';
+  }
+
   const dwa = slowa.slice(0, 2).join(' ');
   if (PYTAJNE_DWUSLOWNE.has(dwa)) return 'pytanie';
   if (ZAIMKI_PYTAJNE.has(slowa[0]) && !['po', 'na'].includes(slowa[0])) return 'pytanie';
+  if (PYTAJNE_Z_PYTAJNIKIEM.has(slowa[0]) && surowy.trim().endsWith('?')) return 'pytanie';
 
   return null;
 }
@@ -351,14 +376,14 @@ function regulaBramki(sesja, opcje) {
   const o = Object.assign({}, opcje || {}, { sesja });
   return '[RelAI bramka zgody] Tryb ciagly optymalizatora jest wlaczony w tym projekcie, ale ' +
     'zgody na te sesje jeszcze nie ma. ZANIM zrobisz cokolwiek z tym promptem, zadaj JEDNO ' +
-    'pytanie (AskUserQuestion) o trzy opcje i nic wiecej: (1) tak, w tej sesji; (2) tak i nie ' +
-    'pytaj wiecej — zgoda zapisana globalnie; (3) nie, nie korzystaj w tej sesji. Odpowiedz ' +
-    'ZAPISZ, zanim wykonasz prompt: (1) i (3) do WLASNEGO pliku tej sesji .claude/relai/' +
-    'zgoda-promptu/' + String(sesja || '') + '.json jako {"decyzja":"tak albo nie",' +
-    '"data":"RRRR-MM-DD"} - plikow innych sesji nie ruszasz; (2) to samo z decyzja "tak" PLUS ' +
-    'wiersz "| RRRR-MM-DD | Zgoda na optymalizator | tak |" w ~/.claude/relai/USTAWIENIA.md. ' +
-    'Po (3) wykonujesz prompt bez zmian, bez kolejnych pytan i bez czytania procedury, i nie ' +
-    'wracasz do tematu w tej sesji. Po (1) i (2) dalej wg reguly: ' + regula(o);
+    'pytanie (AskUserQuestion) o cztery opcje i nic wiecej: (1) tak, w tej sesji; (2) tak i nie ' +
+    'pytaj wiecej; (3) nie w tej sesji; (4) nie i nie pytaj wiecej. Odpowiedz ZAPISZ, zanim ' +
+    'wykonasz prompt: kazda do WLASNEGO pliku tej sesji .claude/relai/zgoda-promptu/' +
+    String(sesja || '') + '.json jako {"decyzja":"tak albo nie","data":"RRRR-MM-DD"} - plikow ' +
+    'innych sesji nie ruszasz; (2) i (4) dodatkowo wiersz "| RRRR-MM-DD | Zgoda na optymalizator ' +
+    '| tak albo nie |" w ~/.claude/relai/USTAWIENIA.md (istniejacy nadpisujesz). Po (3) i (4) ' +
+    'wykonujesz prompt bez zmian, bez kolejnych pytan i bez czytania procedury, i nie wracasz do ' +
+    'tematu w tej sesji. Po (1) i (2) dalej wg reguly: ' + regula(o);
 }
 
 // Czy model optymalizatora jest wybrany NA STALE: wiersz `Model optymalizatora` z czlonem
@@ -417,6 +442,8 @@ function trybCiaglyReport(stan) {
 }
 
 module.exports = {
+  FRAZY_SESJI,
+  FRAZY_KONTYNUACJI,
   trybCiagly,
   trybCiaglyProjektu,
   trybCiaglyReport,

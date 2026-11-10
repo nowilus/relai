@@ -185,8 +185,8 @@ jedynym źródłem prawdy o wartościach domyślnych.
 **Od E2 planu KONTEKST_STARTU rytuał startu nie czyta plików, tylko wyjście skrótu startu**
 (`node .claude/relai/tools/start-digest.js`), i budżet liczy właśnie to wyjście. Pozycje sumy:
 `CLAUDE.md` (ładuje go harness) oraz części skrótu pod nazwami progów cząstkowych — `STATE` (cztery
-sekcje `STATE.md`), `ryzyka` (tabela ryzyk bez kolumny „Mitygacja”, sekcja „Czeka na człowieka”
-tylko przy sprawie przeterminowanej, ostatni wpis dziennika — przy skrócie ponad 28 tys. znaków
+sekcje `STATE.md`), `ryzyka` (tabela ryzyk bez kolumny „Mitygacja”, bez linii-odsyłaczy archiwum,
+ostatni wpis dziennika — przy skrócie ponad 28 tys. znaków
 sam jego początek z drogowskazem), `ustawienia` (aktywne wiersze tego
 pliku), `status` (`STATUS.md` aktywnego planu; brak planu = brak pozycji) i `zasady` (indeks
 „Zasad aktywnych”, `SPEC_LEKCJE.md`; projekt bez indeksu — cała sekcja) — plus `skrot` (ramka
@@ -652,8 +652,8 @@ odpowiedź na pytanie zadane w momencie, w którym sprawa jest realna. Brak wier
 ### `Zgoda na optymalizator`
 
 Bramka trybu ciągłego. Tryb dotyka **każdego** promptu merytorycznego, a wiersz `Tryb ciągły` w
-projekcie bywa zgodą sprzed tygodni — więc pierwszy taki prompt w sesji wraca pytaniem o trzy
-opcje: **ta sesja** / **nie pytaj więcej** / **nie**. Zgoda sesyjna trafia do
+projekcie bywa zgodą sprzed tygodni — więc pierwszy taki prompt w sesji wraca pytaniem o cztery
+opcje: **ta sesja** / **nie pytaj więcej** / **nie** / **nie i nie pytaj więcej**. Zgoda sesyjna trafia do
 `.claude/relai/zgoda-promptu/<id sesji>.json` (od 2.3.1 osobny plik na sesję; plik `zgoda-promptu.json` z 2.3.0 czytany dalej) związana z identyfikatorem sesji (nie przecieka do następnej),
 trwała — do tego wiersza.
 
@@ -664,18 +664,21 @@ sesji (zasięg `ta sesja`). Po „nie” nie pada żadne kolejne pytanie.
 
 ```
 | 2026-09-15 | Zgoda na optymalizator | tak · przypomnienie co 30 dni |
+| 2026-11-09 | Zgoda na optymalizator | nie |
 ```
 
 | Człon | Dozwolone wartości | Znaczenie |
 |---|---|---|
-| przełącznik (**pierwszy, obowiązkowy**) | `tak` / `nie` (EN: `yes` / `no`) | `tak` → bramka nie pyta; `nie` → tryb ciągły milczy mimo włączonego wiersza projektowego |
+| przełącznik (**pierwszy, obowiązkowy**) | zamknięta lista: `tak` / `nie` (EN: `yes` / `no`); czytane też dawne brzmienia `udzielona` / `cofnięta` (EN: `granted` / `revoked`). Inne brzmienie = brak wiersza, bramka pyta | `tak` → bramka nie pyta, tryb działa; `nie` → trwała odmowa: tryb ciągły milczy we wszystkich projektach mimo włączonego wiersza projektowego i bramka nie pyta |
 | próg przypomnienia | `przypomnienie co N dni` (EN: `reminder every N days`) | domyślnie **30**; start sesji przypomina o zgodzie raz po przekroczeniu progu |
 
 **Data w pierwszej komórce jest datą udzielenia zgody** — od niej liczy się próg. Zgoda z datą
 nieczytelną żyje dalej, tylko nigdy o sobie nie przypomni: zgadywanie daty byłoby gorsze od ciszy.
 
 **Decyzja sesyjna ma pierwszeństwo w obie strony:** „nie w tej sesji" wycisza tryb mimo zgody na
-stałe, „tak w tej sesji" włącza go mimo jej braku. Wyłącznik: `/relai-prompt off --globalnie`.
+stałe, „tak w tej sesji" włącza go mimo jej braku. Trwała odmowa: czwarta opcja bramki albo
+`/relai-prompt off --globalnie`; przy `nie` przypomnienia na starcie nie ma. Powrót do pytania
+w każdej sesji: usunięcie wiersza.
 
 ### `Propozycja RelAI poza projektem`
 
@@ -788,12 +791,12 @@ zmienić — osobny plik byłby drugim miejscem do zapomnienia.
 | `CLAUDE.md` | 10 KB | wiersz `Budżet startu sesji`; ten sam limit opisuje `SPEC_CLAUDE_MD.md` | hook startu sesji | wymieniony w raporcie jako pozycja ponad progiem cząstkowym | **jest** — hook startu (tylko wewnątrz raportu) |
 | tabela „Stan prac” w `CLAUDE.md` — liczba wierszy | 5 wierszy | `SPEC_CLAUDE_MD.md` (bez strojenia) | hook startu sesji (`dokumentyPonadProgiem`, przy włączonej rotacji) | wiersze planów zamkniętych do `STATE.md`; linia `[RelAI progi dokumentow]` | **jest** — raport startu; regułę niosą rytuał „Na koniec” i zamknięcie planu |
 | `docs/STATE.md` — waga części skrótu startu (cztery sekcje) | 12 KB | wiersz `Budżet startu sesji` | hook startu sesji | jw. | **jest** — hook startu (tylko wewnątrz raportu) |
-| część `ryzyka` skrótu startu: tabela ryzyk bez „Mitygacji” + „Czeka na człowieka” (tylko przy sprawie przeterminowanej) + ostatni wpis | 12 KB | wiersz `Budżet startu sesji` (człon `ryzyka`) | hook startu sesji | jw. | **jest** — hook startu (tylko wewnątrz raportu) |
+| część `ryzyka` skrótu startu: tabela ryzyk bez „Mitygacji” + ostatni wpis | 12 KB | wiersz `Budżet startu sesji` (człon `ryzyka`) | hook startu sesji | jw. | **jest** — hook startu (tylko wewnątrz raportu) |
 | „Zasady aktywne” w skrócie startu (indeks) — waga | 30 KB | wiersz `Budżet startu sesji` (człon `zasady`) | hook startu sesji | jw. | **jest** — hook startu (tylko wewnątrz raportu) |
 | `docs/USTAWIENIA.md` | 6 KB | wiersz `Budżet startu sesji` | hook startu sesji **+ rotacja ustawień** (od 1.7.0) | jw.; dodatkowo wiersze sekcji „Ustawienia wycofane" → `docs/archiwum/ustawienia/`; linia `[RelAI progi dokumentow]` | **jest** — rytuał zamknięcia (krok 2) i raport startu |
 | `STATUS.md` aktywnego planu | 10 KB | wiersz `Budżet startu sesji` | hook startu sesji | jw. | **jest** — hook startu (tylko wewnątrz raportu) |
 | `docs/DZIENNIK.md` — waga | 150 KB | `SPEC_ARCHIWUM.md`, strojenie w wierszu `Rotacja dokumentów` | rotacja + hook startu sesji (od 1.7.0) | rotacja najstarszych wpisów do archiwum; w raporcie linia `[RelAI progi dokumentow]` | **jest** — rytuał zamknięcia (krok 2) i raport startu |
-| `docs/LEKCJE.md` — waga i liczba | 40 lekcji albo 50 KB | `SPEC_ARCHIWUM.md`, strojenie w wierszu `Rotacja dokumentów` | rotacja + hook startu sesji (od 1.7.0) | rotacja najstarszych lekcji do archiwum; linia `[RelAI progi dokumentow]` | **jest** — rytuał zamknięcia (krok 2) i raport startu |
+| `docs/LEKCJE.md` — waga (bez sekcji „Zasady aktywne”, aneks D-88) i liczba | 40 lekcji albo 50 KB | `SPEC_ARCHIWUM.md`, strojenie w wierszu `Rotacja dokumentów` | rotacja + hook startu sesji (od 1.7.0) | rotacja najstarszych lekcji do archiwum; linia `[RelAI progi dokumentow]` | **jest** — rytuał zamknięcia (krok 2) i raport startu |
 | `docs/STATE.md` — liczba linii | 300 linii | `SPEC_ARCHIWUM.md`, strojenie w wierszu `Rotacja dokumentów` | rotacja + hook startu sesji (od 1.7.0) | `STATE.md` pisany zwięźlej, bez archiwum; linia `[RelAI progi dokumentow]` | **jest** — rytuał zamknięcia (krok 2) i raport startu |
 | sekcja „Stan otwartych ryzyk" — sama | próg cząstkowy `ryzyka`, 12 KB | wiersz `Budżet startu sesji` | rotacja ryzyk + hook startu sesji (od 1.7.0) | wiersze ryzyk `ZAMKNIĘTE` do `docs/archiwum/ryzyka/`; linia `[RelAI progi dokumentow]` | **jest** — rytuał zamknięcia (krok 2) i raport startu |
 | sekcja „Lekcje zwinięte" | 30 KB | `SPEC_LEKCJE.md`, sekcja „Kompresja" | hook startu sesji (od 1.7.0) | przeniesienie zwiniętych lekcji do `docs/archiwum/lekcje/`; linia `[RelAI progi dokumentow]` | **jest** — raport startu |

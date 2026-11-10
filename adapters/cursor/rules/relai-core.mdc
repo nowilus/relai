@@ -20,9 +20,11 @@ user already declined RelAI in this folder. Never propose it again, in any sessi
 ## 1. Session start ritual — before your first substantive answer
 
 Run `node .claude/relai/tools/start-digest.js` and read its output — that is the whole start read.
+When the first message of the session is a command call (it starts with `/`), run the command first;
+the start ritual and the overdue review below wait for the first message that is not a command.
 The digest carries, from `docs/STATE.md`, "Gdzie jesteśmy", "Nad czym pracujemy teraz", "Co
 blokuje" and the first point of "Co dalej"; the risk table without the "Mitygacja" column; the last
-journal entry ("Czeka na człowieka" only when an item is overdue); the active rows of
+journal entry (not "Czeka na człowieka": the start hook reports overdue items); the active rows of
 `docs/USTAWIENIA.md`; the active plan's `STATUS.md`; and the index of "Zasady aktywne" (D-15,
 Annex A) — when a task hits a rule's trigger, read that rule's full wording in `docs/LEKCJE.md`
 before the work. `CLAUDE.md` / `AGENTS.md` is already in your context.
@@ -87,6 +89,14 @@ options, the answer format stated with the same digits). Every matter gets **thr
    date and the counter raised by one (`SPEC_DZIENNIK.md`; a deferral is **not** a resolution).
 3. **Settle it now** — you do the thing, then close the item as in 1.
 
+**A fact from the repository as a hint.** When the item points to a file, a directory or a
+settings row (a link, a path in backticks, the name of a `USTAWIENIA.md` row), check that fact
+with **one** read or search before you ask, and put the result into the question in one
+sentence that says where you read it; a link to a missing file is said in the same sentence.
+When the fact shows the matter is settled, "Close it" comes first as the recommendation. An
+item without a file or a setting gets the question without a hint. The decision stays the
+human's.
+
 On the **third and every later** deferral, the question states outright how many days have passed
 since the first occurrence and how many deferrals came before. You never refuse a deferral — the
 decision is the human's; what changes is the message, not the right to answer. You never close a
@@ -144,8 +154,12 @@ finish a larger chunk of work:
    both need the human's consent). Within the limit: **silence**. This is the **only** enforcement
    address of that limit; never add a second one, and never put it into the session start budget
    report — that one only speaks when the whole start layer exceeds the budget.
-2. **Document rotation** — before the journal entry. See `SPEC_ARCHIWUM.md`, read it from
-   `.claude/relai/templates/`. Condition: the `Rotacja dokumentów` row in `docs/USTAWIENIA.md`;
+2. **Document rotation** — before the journal entry. The journal and closed risks are rotated by
+   the script: `node .claude/relai/tools/rotate.js plan <ryzyka|dziennik> --prog <KB>`, then
+   `wykonaj` with the same arguments, risks first; for them you do not read the specification.
+   Lessons, "Mitygacja" cells and settings are rotated by hand, and so are the journal and risks
+   when the script exits with code 2 or `node` is missing: then read `SPEC_ARCHIWUM.md` from
+   `.claude/relai/templates/` first. Condition: the `Rotacja dokumentów` row in `docs/USTAWIENIA.md`;
    `wyłączona` / `off` at the start of the cell → stop this step silently. Below the threshold:
    **silence**, no message, no directory created. Two phases: copy + checksum proof first, trim
    only after the checksums match. Never touch "Czeka na człowieka", "Zasady aktywne", the ten
@@ -186,9 +200,13 @@ finish a larger chunk of work:
    endings normalised to LF) = **rotatable part** + **lowest reachable floor**. The journal's floor
    is the sections that never rotate ("Stan otwartych ryzyk", "Czeka na człowieka", headings,
    reference lines), the ten newest entries and entries with no date in the heading. The **trigger
-   stays on the total weight** — below the threshold, silence. The **target moves to the rotatable
-   part**: take the oldest items until **it** drops below 60% of the threshold, because a target set
-   on the whole file can be unreachable by definition.
+   stays on the total weight** — below the threshold, silence. The **target stays on the total
+   weight too (D-88)**: take the oldest items until the whole live file drops below 60% of the
+   threshold (for `LEKCJE.md`: without "Zasady aktywne"); the run ends earlier only at an
+   untouchable item or when the rotatable part is used up. In `docs/LEKCJE.md` the KB
+   threshold and target count the file without the "Zasady aktywne" section; a risk section
+   over its threshold with no `ZAMKNIĘTE` risk gives no start line and no blocked-rotation
+   message, only one sentence in the "sprawdź status" report (D-88, annex 2026-11-10).
    **Above the threshold, when rotation did not take everything it could → the blocked-rotation
    message** in the session summary, four parts in this order: (1) how many entries pass out of how
    many rotatable ones, how many do not and what they weigh; (2) the four numbers — total =

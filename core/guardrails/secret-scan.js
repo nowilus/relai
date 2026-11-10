@@ -12,12 +12,22 @@
 // Zero zaleznosci npm (D-41 i konwencja repozytorium). Komunikaty CLI celowo bez polskich
 // znakow diakrytycznych — ten sam powod co w hookach (L-0016): konsola Windows.
 
+// Samo slowo w miejscu hasla adresu URL to wzor z dokumentacji (postgres://user:password@host).
+const URL_WORD_RE = /^(?:pass(?:word)?|passwd|secret|pwd)$/i;
+
+// Pole "pomin" (opcjonalne): filtr trafienia poza EXAMPLE_RE, dostaje wynik exec.
 const PATTERNS = [
   { label: 'klucz API w formacie sk-...', re: /\bsk-[A-Za-z0-9_-]{16,}\b/ },
   { label: 'token GitHub (ghp...)', re: /\bghp[_-][A-Za-z0-9]{20,}\b/ },
   { label: 'klucz AWS (AKIA...)', re: /\bAKIA[0-9A-Z]{16}\b/ },
   { label: 'token JWT (eyJ..., trzy segmenty)', re: /\beyJ[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\b/ },
-  { label: 'klucz prywatny PEM', re: /-----BEGIN [A-Z ]*PRIVATE KEY-----/ },
+  { label: 'klucz prywatny PEM', re: /-----BEGIN [A-Z ]*PRIVATE KEY(?: BLOCK)?-----/ },
+  { label: 'klucz Stripe (sk_live_...)', re: /\bsk_live_[A-Za-z0-9]{16,}\b/ },
+  { label: 'token GitHub (github_pat_ / gho_ / ghu_ / ghs_ / ghr_)', re: /\b(?:github_pat_[A-Za-z0-9_]{22,}|gh[ousr]_[A-Za-z0-9]{20,})\b/ },
+  { label: 'token Slack (xox...)', re: /\bxox[abposr]-[A-Za-z0-9-]{10,}/ },
+  { label: 'klucz Google API (AIza...)', re: /\bAIza[0-9A-Za-z_-]{35}(?![0-9A-Za-z_-])/ },
+  { label: 'haslo w adresie URL', re: /\b[A-Za-z][A-Za-z0-9+.-]{0,15}:\/\/[^\s:/@]{1,64}:([^\s/@]{8,128})@/,
+    pomin: (m) => PLACEHOLDER_RE.test(m[1]) || URL_WORD_RE.test(m[1]) },
 ];
 
 // Backtick jest znakiem cudzyslowu, nigdy znakiem wartosci. Bez tego rozroznienia zdanie
@@ -27,7 +37,7 @@ const PATTERNS = [
 // o rzeczy sprawdzanej. Przy okazji domyka dziure w druga strone: template literal w JS zostaje
 // zlapany, bo otwierajacy backtick konsumuje grupa cudzyslowu. Zmierzone w E6 (Aneks D,
 // 2026-09-01) na dziewieciu przypadkach: stary wzorzec myli sie raz, nowy zero razy.
-const ASSIGN_RE = /\b(PASSWORD|PASSWD|SECRET|TOKEN|API[_-]?KEY|ACCESS[_-]?KEY)\b\s*[:=]\s*(["'`]?)([^\s"',;`]{8,})/i;
+const ASSIGN_RE = /\b(PASSWORD|PASSWD|SECRET|TOKEN|API[_-]?KEY|ACCESS[_-]?KEY)\b(["'`]?)\s*[:=]\s*(["'`]?)([^\s"',;`]{8,})/i;
 
 // Nazwa z przedrostkiem — druga regula, bo realne zmienne srodowiskowe nazywaja sie
 // AWS_SECRET_ACCESS_KEY, GITHUB_TOKEN, DB_PASSWORD, a granica \b w regule wyzej nie zachodzi,
@@ -40,13 +50,22 @@ const ASSIGN_RE = /\b(PASSWORD|PASSWD|SECRET|TOKEN|API[_-]?KEY|ACCESS[_-]?KEY)\b
 // refresh_token w normalnym kodzie OAuth — czyli 54 nowe trafienia, prawie wszystkie falszywe.
 // Wielkie litery sa konwencja zmiennych srodowiskowych i oddzielaja jedno od drugiego bez
 // zgadywania. Grupa 1 lapie CALA nazwe, zeby werdykt mowil, ktora zmienna zaswiecila.
-const ASSIGN_PREFIX_RE = /(?:^|[^A-Za-z0-9_])((?:[A-Z0-9]+[_-])+(?:PASSWORD|PASSWD|SECRET|TOKEN|API[_-]?KEY|ACCESS[_-]?KEY))\s*[:=]\s*(["'`]?)([^\s"',;`]{8,})/;
+// Przedrostek ma najwyzej 8 segmentow — bez gornej granicy skan rosl kwadratowo (78 KB: ok. 3,5 s).
+// Galaz _KEY bierze tylko zamknieta liste rdzeni sekretu: wariant z dowolnym _KEY dal 7 nowych
+// blokad na stalych kodu repozytorium (pomiar 2026-11-09, karta K-D1).
+const ASSIGN_PREFIX_RE = /(?:^|[^A-Za-z0-9_])((?:[A-Z0-9]+[_-]){1,8}(?:PASSWORD|PASSWD|SECRET|TOKEN|API[_-]?KEY|ACCESS[_-]?KEY)|(?:[A-Z0-9]+[_-]){0,8}(?:SECRET|PRIVATE|ENCRYPTION|SIGNING|MASTER)[_-]KEY)(["'`]?)\s*[:=]\s*(["'`]?)([^\s"',;`]{8,})/;
 const PLACEHOLDER_RE = /^(\$|%|<|\{|\*|x{3,}$|your[_-]?|change[_-]?me|placeholder|example|dummy|sample|test[_-]?|todo|tbd|none$|null$|undefined$|\.\.\.)/i;
+
+// Male litery z przedrostkiem (db_password, aws_secret_access_key) — wylacznie w ksztalcie
+// konfiguracji: na poczatku linii (YAML, ini) albo jako klucz obiektu JSON po { lub przecinku.
+// Wartosc bez cudzyslowu musi wtedy konczyc linie; kod OAuth (access_token = resp.get(...))
+// zostaje cichy jak dotad (pomiar 2026-09-04 w komentarzu wyzej).
+const ASSIGN_LOWER_RE = /(?:^|[{,])[ \t]*["']?((?:[a-z0-9]+[_-]){1,8}(?:password|passwd|secret|token|api[_-]?key|access[_-]?key))(["']?)[ \t]*[:=][ \t]*(["'`]?)([^\s"',;`]{8,})/m;
 
 // Odczyt srodowiska musi byc kompletnym, niecytowanym wyrazeniem. Sam przedrostek
 // ukrylby literal o takiej tresci, podobny identyfikator albo fallback z haslem.
 // Sprawdzamy pelny tekst od wartosci, bo ASSIGN_RE urywa ja przed cudzyslowem klucza.
-const ENV_READ_RE = /^(?:(?:process\.env|import\.meta\.env)\.[A-Za-z_$][\w$]*|(?:process\.env|os\.environ)\[[ \t]*(["'])[A-Za-z_][A-Za-z0-9_]*\1[ \t]*\]|(?:os\.environ\.get|Deno\.env\.get)\([ \t]*(["'])[A-Za-z_][A-Za-z0-9_]*\2[ \t]*\))(?=[ \t]*(?:$|[\r\n;,]|#|\/\/))/;
+const ENV_READ_RE = /^(?:(?:process\.env|import\.meta\.env)\.[A-Za-z_$][\w$]*|(?:process\.env|os\.environ)\[[ \t]*(["'])[A-Za-z_][A-Za-z0-9_]*\1[ \t]*\]|(?:os\.environ\.get|os\.getenv|Deno\.env\.get|System\.getenv|(?:System\.)?Environment\.GetEnvironmentVariable)\([ \t]*(["'])[A-Za-z_][A-Za-z0-9_]*\2[ \t]*\))(?=[ \t]*(?:$|[\r\n;,]|#|\/\/))/;
 
 // Wartosc oczywiscie przykladowa — marker STOI W SRODKU tokenu (AKIA...IOSFODNN7EXAMPLE), wiec
 // PLACEHOLDER_RE z kotwica ^ nie ma tu nic do roboty. To jest ta sama klasa problemu, co poprawka
@@ -79,26 +98,68 @@ function kazdeTrafienie(re, text, fn) {
   return null;
 }
 
+// Nowa linia nie konczy wyrazenia JS: operator lub dalszy dostep moze dopisac literal.
+// Pomijamy biale znaki i komentarze liniowe, nie kod. true = wyrazenie sie tu konczy.
+function bezKontynuacji(text, koniec) {
+  const rest = text.slice(koniec).replace(/^(?:\s|(?:\/\/|#)[^\r\n]*)*/, '');
+  return !/^[+?&|*/%<>=!.\[(`-]/.test(rest);
+}
+
+// Zasada 12: guardrail zatrzymujacy nie-sekret to defekt rdzenia. Wartosc bez cudzyslowu, ktora
+// jest KODEM — lancuchem identyfikatorow z kropkami albo wywolaniem bez literalu w nawiasie — nie
+// jest sekretem. Wyjatki, ktore zostaja surowe:
+//  - ksztalt pliku .env (nazwa wielkimi literami i sam znak "=" bez spacji): tam wartosc z kropka
+//    to literal, nie dostep do pola;
+//  - lancuch zaczynajacy sie od korzenia odczytu srodowiska (process, os, import, Deno, System,
+//    Environment): przechodzi wylacznie kompletny odczyt z ENV_READ_RE, podobne nazwy nie;
+//  - goly identyfikator bez kropki i nawiasu jest kodem tylko przed ; , ) albo }, bo w YAML
+//    i .env wyglada tak samo jak haslo;
+//  - po dwukropku (YAML albo obiekt JS) lancuch z kropkami bez wywolania tez wymaga domkniecia.
+// Proza: po dwukropku slowo z samych liter, spacja i kolejne slowo — zdanie dokumentacji.
+const ENV_ROOT_RE = /^(?:process|os|import|Deno|System|Environment)\b/;
+const CODE_RE = /^[A-Za-z_$][\w$]*(?:\??\.[A-Za-z_$][\w$]*|\([^"'`\r\n()]*\))*/;
+const PROZA_RE = /^\p{L}+[ \t]+\p{L}/u;
+
+// true = wartosc bez cudzyslowu jest kodem albo proza, nie literalem.
+function wartoscJestKodem(text, m, valueStart) {
+  const envRead = ENV_READ_RE.exec(text.slice(valueStart));
+  if (envRead) return bezKontynuacji(text, valueStart + envRead[0].length);
+  const poNazwie = m[0].indexOf(m[1]) + m[1].length + m[2].length;
+  const sep = m[0].slice(poNazwie, m[0].length - m[4].length - m[3].length);
+  if (/^[A-Z0-9_]+$/.test(m[1]) && sep === '=') return false;
+  const tail = text.slice(valueStart);
+  if (sep.includes(':') && PROZA_RE.test(tail)) return true;
+  if (ENV_ROOT_RE.test(tail)) return false;
+  const kod = CODE_RE.exec(tail);
+  if (!kod) return false;
+  const domkniecie = /^[ \t]*[;,)}]/.test(tail.slice(kod[0].length));
+  if (/[.(]/.test(kod[0]) && (sep.includes('=') || kod[0].includes('('))) {
+    return bezKontynuacji(text, valueStart + kod[0].length);
+  }
+  return domkniecie;
+}
+
 function scanText(payload) {
   const text = String(payload || '');
   if (!text) return null;
   for (const p of PATTERNS) {
-    const werdykt = kazdeTrafienie(p.re, text, (m) => (EXAMPLE_RE.test(m[0]) ? null : p.label));
+    const werdykt = kazdeTrafienie(p.re, text, (m) => (EXAMPLE_RE.test(m[0]) || (p.pomin && p.pomin(m)) ? null : p.label));
     if (werdykt) return werdykt;
   }
-  for (const re of [ASSIGN_RE, ASSIGN_PREFIX_RE]) {
+  // Grupy: 1 nazwa, 2 cudzyslow zamykajacy nazwe, 3 cudzyslow wartosci, 4 wartosc.
+  for (const re of [ASSIGN_RE, ASSIGN_PREFIX_RE, ASSIGN_LOWER_RE]) {
     const werdykt = kazdeTrafienie(re, text, (m) => {
-      const valueStart = m.index + m[0].length - m[3].length;
-      const envRead = !m[2] && ENV_READ_RE.exec(text.slice(valueStart));
-      if (envRead) {
-        // Nowa linia nie konczy wyrazenia JS: operator lub dalszy dostep moze
-        // dopisac literal. Pomijamy biale znaki i komentarze liniowe, nie kod.
-        const rest = text.slice(valueStart + envRead[0].length).replace(/^(?:\s|(?:\/\/|#)[^\r\n]*)*/, '');
-        if (!/^[+?&|*/%<>=!.\[(`-]/.test(rest)) return null;
+      const [, nazwa, cudzyslowNazwy, cudzyslow, wartosc] = m;
+      const valueStart = m.index + m[0].length - wartosc.length;
+      // Klucz w cudzyslowie (JSON, slownik): sekretem jest tylko literal w cudzyslowie.
+      if (cudzyslowNazwy && !cudzyslow) return null;
+      if (!cudzyslow) {
+        if (wartoscJestKodem(text, m, valueStart)) return null;
+        if (re === ASSIGN_LOWER_RE && !/^[ \t]*(?:#.*)?(?:\r?\n|$)/.test(text.slice(valueStart + wartosc.length))) return null;
       }
-      return PLACEHOLDER_RE.test(m[3]) || TYPE_TOKEN_RE.test(m[3])
+      return PLACEHOLDER_RE.test(wartosc) || TYPE_TOKEN_RE.test(wartosc)
         ? null
-        : 'przypisanie ' + m[1].toUpperCase() + '= z niepusta wartoscia';
+        : 'przypisanie ' + nazwa.toUpperCase() + '= z niepusta wartoscia';
     });
     if (werdykt) return werdykt;
   }

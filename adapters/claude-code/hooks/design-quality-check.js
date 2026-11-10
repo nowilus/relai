@@ -7,6 +7,11 @@
 // z DESIGN.md i wstrzykuje jego naglowki sekcji do kontekstu.
 // Konwencja hook-guard: poza projektem RelAI wyjscie kodem 0 bez efektu.
 
+// K-C4: slad awarii na stderr, przed pierwszym require — ma powstac takze przy zepsutej instalacji.
+const HOOK = 'design-quality-check';
+function nazwaBledu(e) { return String((e && (e.code || e.name)) || 'nieznany').replace(/[^\x20-\x7e]/g, '?'); }
+function slad(e) { try { process.stderr.write('[RelAI ' + HOOK + '] blad: ' + nazwaBledu(e) + '\n'); } catch (_) { /* stderr zamkniety */ } }
+
 const fs = require('fs');
 const path = require('path');
 
@@ -41,20 +46,29 @@ function isRelaiProject(cwd) {
       if (/Wersja RelAI:|RelAI version:/i.test(head)) return true;
     }
     return false;
-  } catch (_) {
+  } catch (e) {
+    slad(e);
     return false;
   }
+}
+
+// Plik spoza katalogu projektu (skrypt w %TEMP%, inny dysk) nie dostaje ostrzezen projektu (C6).
+function wKatalogu(cwd, filePath) {
+  const rel = path.relative(path.resolve(cwd), path.resolve(cwd, filePath));
+  return rel !== '' && rel !== '..' && !rel.startsWith('..' + path.sep) && !path.isAbsolute(rel);
 }
 
 function main(input) {
   const cwd = input.cwd || process.cwd();
   if (!isRelaiProject(cwd)) return process.exit(0);
 
+  const ti = input.tool_input || {};
+  const filePath = String(ti.file_path || '');
+  if (!filePath || !wKatalogu(cwd, filePath)) return process.exit(0);
+
   const designPath = path.join(cwd, 'docs', 'DESIGN.md');
   if (!fs.existsSync(designPath)) return process.exit(0); // warunek: DESIGN.md musi istniec
 
-  const ti = input.tool_input || {};
-  const filePath = String(ti.file_path || '');
   if (!/\.(css|scss|sass|less|html|jsx|tsx|vue|svelte)$/i.test(filePath)) return process.exit(0);
 
   let headings = [];
@@ -81,7 +95,7 @@ function main(input) {
 let raw = '';
 process.stdin.setEncoding('utf8');
 process.stdin.on('data', (d) => { raw += d; });
-process.stdin.on('error', () => process.exit(0));
+process.stdin.on('error', (e) => { slad(e); process.exit(0); });
 process.stdin.on('end', () => {
-  try { main(JSON.parse(raw || '{}')); } catch (_) { process.exit(0); }
+  try { main(JSON.parse(raw || '{}')); } catch (e) { slad(e); process.exit(0); }
 });

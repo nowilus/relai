@@ -27,6 +27,11 @@
 // mieszkaja w rdzeniu: core/process/session-signals.js. Tutaj zostaje wylacznie to,
 // co jest wlasciwoscia Claude Code — protokol zdarzen i brzmienie komunikatow.
 
+// K-C4: slad awarii na stderr, przed pierwszym require — ma powstac takze przy zepsutej instalacji.
+const HOOK = 'session-context';
+function nazwaBledu(e) { return String((e && (e.code || e.name)) || 'nieznany').replace(/[^\x20-\x7e]/g, '?'); }
+function slad(e) { try { process.stderr.write('[RelAI ' + HOOK + '] blad: ' + nazwaBledu(e) + '\n'); } catch (_) { /* stderr zamkniety */ } }
+
 const fs = require('fs');
 const path = require('path');
 const os = require('os');
@@ -42,7 +47,8 @@ let trybPromptu;
 try {
   core = require(path.join(PLUGIN_ROOT, 'core', 'process', 'session-signals.js'));
   trybPromptu = require(path.join(PLUGIN_ROOT, 'core', 'process', 'prompt-mode.js'));
-} catch (_) {
+} catch (e) {
+  slad(e);
   process.exit(0);
 }
 // Plik wznowienia (LIMIT_CHECKPOINT E3) laduje sie osobno: jego brak (instalacja niepelna)
@@ -50,8 +56,9 @@ try {
 let wznowienie = { plikWznowienia: () => null, wznowienieReport: () => [] };
 try {
   wznowienie = require(path.join(PLUGIN_ROOT, 'core', 'process', 'resume.js'));
-} catch (_) {
-  // zostaje zaslepka: zero znakow
+} catch (e) {
+  slad(e);
+  // zostaje zaslepka: zero znakow w bloku startu, slad na stderr (K-C4)
 }
 
 // Marker trybu goscia w adapterze Claude Code to wylacznie .claude/relai.json.
@@ -92,8 +99,22 @@ function poza() {
   return process.exit(0);
 }
 
+// K-C4: kazdy raport we wlasnym try. Wyjatek w jednym zostawia slad na stderr i jedna linie
+// w bloku startu; pozostale raporty i nakaz rytualu padaja dalej.
+function raport(out, nazwa, fn) {
+  try {
+    for (const linia of fn() || []) out.push(linia);
+  } catch (e) {
+    slad(e);
+    out.push('Siatka "' + nazwa + '" nie zadzialala (blad: ' + nazwaBledu(e) + '). Te jedna siatke ' +
+      'porownaj sam wedlug start-nets.md skilla relai-core; pozostale zgloszenia tego bloku sa wazne.');
+  }
+}
+
 function onSessionStart(input) {
   const cwd = input.cwd || process.cwd();
+  // Jeden odczyt kazdego dokumentu na proces hooka (audyt C3).
+  core.pamiecOdczytow(true);
   const markerFile = relaiMarkerFile(cwd);
   // Folder bez struktury RelAI: do 2.2.0 zawsze cisza. Od 2.3.0 jeden wyjatek — czlowiek,
   // ktory raz odpowiedzial "nie pytaj mnie o to nigdzie", dostaje tu linie wyciszajaca
@@ -105,51 +126,53 @@ function onSessionStart(input) {
   out.push('[RelAI session-context]');
   out.push('Data dzisiejsza: ' + core.todayLocal() + '. Daty do wpisow bierz stad, nie z pamieci modelu.');
 
-  const pv = core.projectVersion(markerFile);
-  const gv = pluginVersion();
-  if (pv && gv && pv !== gv) {
-    out.push('Wersja RelAI projektu (' + pv + ') rozni sie od wersji pluginu (' + gv +
-      '). Zglos to uzytkownikowi jednym zdaniem i wskaz komende /relai-update — pokaze roznice i zaktualizuje projekt za zgoda, szanujac lokalne nadpisania. Nie migruj projektu recznie.');
-  }
+  raport(out, 'wersja projektu', () => {
+    const pv = core.projectVersion(markerFile);
+    const gv = pluginVersion();
+    if (!(pv && gv && pv !== gv)) return [];
+    return ['Wersja RelAI projektu (' + pv + ') rozni sie od wersji pluginu (' + gv +
+      '). Zglos to uzytkownikowi jednym zdaniem i wskaz komende /relai-update — pokaze roznice i zaktualizuje projekt za zgoda, szanujac lokalne nadpisania. Nie migruj projektu recznie.'];
+  });
 
   // Sygnaly wymagajace dzialania ida PRZED instrukcja rytualu. Zmierzone w E10:
   // sygnal umieszczony po niej byl przez slabsze modele czytany jako tlo — sesja
   // wykonywala rytual, a propozycji nie skladala wcale albo skladala inna.
-  const gap = core.promptGap(cwd);
-  if (gap) {
-    out.push('ZADANIE PIERWSZE (siatka D-34). Etap ' + gap.stage + ' w ' + gap.statusFile +
+  raport(out, 'prompt etapu (D-34)', () => {
+    const gap = core.promptGap(cwd);
+    if (!gap) return [];
+    return ['ZADANIE PIERWSZE (siatka D-34). Etap ' + gap.stage + ' w ' + gap.statusFile +
       ' ma status GOTOWY DO STARTU, ale jego prompt etapowy nie istnieje. Pierwsze zdanie Twojej ' +
       'odpowiedzi — jeszcze PRZED akapitem "gdzie jestesmy" — mowi o tej luce i proponuje ' +
-      'dogenerowanie promptu. Nie generuj go bez zgody (po zgodzie robi to relai-planning).');
-  }
+      'dogenerowanie promptu. Nie generuj go bez zgody (po zgodzie robi to relai-planning).'];
+  });
 
-  const rozjazd = core.stateDrift(cwd);
-  if (rozjazd) {
-    out.push('ZADANIE PIERWSZE (rozjazd stanu). Dokumenty tego projektu mowia rozne rzeczy: ' +
+  raport(out, 'rozjazd stanu', () => {
+    const rozjazd = core.stateDrift(cwd);
+    if (!rozjazd) return [];
+    return ['ZADANIE PIERWSZE (rozjazd stanu). Dokumenty tego projektu mowia rozne rzeczy: ' +
       rozjazd.join('; ') + '. Zglos to uzytkownikowi JEDNYM zdaniem przed akapitem "gdzie jestesmy" ' +
       'i zapytaj, ktory zapis jest prawdziwy — nie prostuj zadnego dokumentu na wlasna reke, bo nie ' +
       'wiesz, czy etap trwa, czy sie urwal. To jedyne miejsce, w ktorym ten sygnal pada: nie powtarzaj ' +
-      'go z rytualu startu.');
-  }
+      'go z rytualu startu.'];
+  });
 
   // Siatka rytualu "Na koniec" i wersji artefaktow (E7 PROWADZENIE_END_TO_END, A06): jeden
   // wlasciciel sygnalu, cisza przy stanie zgodnym. Brakujacy prompt etapu GOTOWEGO zostaje
   // u siatki D-34 wyzej — tu go nie powtarzamy.
-  for (const linia of core.siatkaRytualuReport(core.siatkaRytualu(cwd))) {
-    out.push(linia);
-  }
+  raport(out, 'rytual Na koniec', () => core.siatkaRytualuReport(core.siatkaRytualu(cwd)));
 
-  const obcy = core.unknownAuthor(cwd);
-  if (obcy) {
-    out.push('ZADANIE PIERWSZE (nieznany autor, D-27). git user.name to "' + obcy.ja + '", a zaden z ' +
+  raport(out, 'nieznany autor', () => {
+    const obcy = core.unknownAuthor(cwd);
+    if (!obcy) return [];
+    return ['ZADANIE PIERWSZE (nieznany autor, D-27). git user.name to "' + obcy.ja + '", a zaden z ' +
       obcy.wpisow + ' podpisow w dzienniku go nie zawiera (ostatni: "' + obcy.ostatni + '") — to cudzy ' +
       'projekt. Pierwsze zdanie Twojej odpowiedzi — jeszcze PRZED akapitem "gdzie jestesmy" i przed ' +
       'odpowiedzia na pytanie uzytkownika — mowi, ze wpisy podpisal kto inny, i proponuje wycieczke ' +
       'po projekcie (stan, mapa dokumentow, plany, ryzyka, od czego zaczac). Potem CZEKASZ na zgode: ' +
       'wycieczki nie uruchamiasz sam i nie zastepujesz jej wlasnym pomyslem (przegladem kodu, ' +
       'analiza struktury). Po zgodzie wykonujesz procedure komendy /relai-tour. Odmowa zamyka temat ' +
-      'na te sesje.');
-  }
+      'na te sesje.'];
+  });
 
   // Budzet warstwy startowej (1.6.0). Ponizej progu funkcja zwraca pusta liste i w
   // kontekscie startu nie pojawia sie ani jeden znak — cisza jest zachowaniem domyslnym.
@@ -159,41 +182,37 @@ function onSessionStart(input) {
   // Skill relai-core jest wymuszany na pierwszym prompcie (linia rytualu nizej), wiec jego
   // wage liczy budzet (E2 PROWADZENIE_END_TO_END, A11); sciezke zna tylko adapter.
   const skillStartu = path.join(PLUGIN_ROOT, 'adapters', 'claude-code', 'skills', 'relai-core', 'SKILL.md');
-  for (const linia of core.startCostReport(core.startCost(cwd, { markeryGoscia: MARKERY_GOSCIA, skille: [skillStartu] }))) {
-    out.push(linia);
-  }
+  raport(out, 'budzet startu', () =>
+    core.startCostReport(core.startCost(cwd, { markeryGoscia: MARKERY_GOSCIA, skille: [skillStartu] })));
 
   // Przeglad spraw czekajacych na czlowieka (1.7.0). Nosnikiem jest hook, nie skill:
   // wykrycie ma dzialac przy kazdym modelu i bez wyzwalania czegokolwiek (L-0030, ryzyko R2).
   // Nic przeterminowanego = zero znakow. Wylacznik jest OSOBNY od rotacji (Aneks A).
-  for (const linia of core.sprawyPrzeterminowaneReport(
-    core.sprawyPrzeterminowane(cwd, { markeryGoscia: MARKERY_GOSCIA }))) {
-    out.push(linia);
-  }
+  raport(out, 'sprawy czekajace', () => core.sprawyPrzeterminowaneReport(
+    core.sprawyPrzeterminowane(cwd, { markeryGoscia: MARKERY_GOSCIA })));
 
   // Artefakty robocze (1.8.0). Stoja PO raportach wymagajacych dzialania i po sprawach
   // czekajacych na czlowieka: to propozycja, nie zadanie — kolejnosc idzie od zadan przez
   // raporty do propozycji. Ponizej progu i bez wiersza w ustawieniach = zero znakow.
-  for (const linia of core.artefaktyRoboczeReport(
-    core.artefaktyRobocze(cwd, { markeryGoscia: MARKERY_GOSCIA }))) {
-    out.push(linia);
-  }
+  raport(out, 'artefakty robocze', () => core.artefaktyRoboczeReport(
+    core.artefaktyRobocze(cwd, { markeryGoscia: MARKERY_GOSCIA })));
 
   // Tryb ciagly optymalizatora promptow (E4). Jedno zdanie, wylacznie przy przelaczniku
   // WLACZONYM — brak wiersza i wartosc spoza zamknietej listy daja zero znakow. Stoi tutaj,
   // bo jest stanem projektu, a nie zadaniem: czlowiek ma wiedziec, czemu jego zdania wracaja
   // z propozycja, zanim zobaczy pierwsza z nich.
-  for (const linia of trybPromptu.trybCiaglyReport(trybPromptu.trybCiaglyProjektu(cwd))) {
-    out.push(linia);
-  }
+  raport(out, 'tryb ciagly', () => {
+    const plikUstawien = ['USTAWIENIA.md', 'SETTINGS.md'].map((n) => path.join(cwd, 'docs', n))
+      .find((p) => fs.existsSync(p));
+    return trybPromptu.trybCiaglyReport(
+      trybPromptu.trybCiagly(plikUstawien ? core.czytaj(plikUstawien) : ''));
+  });
 
   // Plik wznowienia pracy (LIMIT_CHECKPOINT E3, L7): per projekt, wiec zdanie pada w kazdej
   // nowej sesji, dopoki plik istnieje — przycisk "Wznow" na pasku cache jest wygoda, nie
   // jedyna droga. Brak pliku = zero znakow. Korzen projektu to katalog nad docs/ markera.
-  for (const linia of wznowienie.wznowienieReport(
-    wznowienie.plikWznowienia(path.dirname(path.dirname(markerFile))))) {
-    out.push(linia);
-  }
+  raport(out, 'wznowienie', () => wznowienie.wznowienieReport(
+    wznowienie.plikWznowienia(path.dirname(path.dirname(markerFile)))));
 
   // KONTEKST_STARTU E2: jedno polecenie zamiast listy plikow — ta sama komenda stoi w CLAUDE.md
   // i w SKILL.md skilla relai-core (test kopii rytualu). Po kompakcji (source: compact) hook
@@ -205,7 +224,10 @@ function onSessionStart(input) {
   } else {
     out.push('Ten folder to projekt RelAI. Zanim odpowiesz merytorycznie, wykonaj rytual startu sesji: ' +
       'uruchom ' + core.POLECENIE_SKROTU + ' i przeczytaj jego wyjscie (CLAUDE.md masz juz w kontekscie), ' +
-      'potem napisz akapit "gdzie jestesmy". Jesli dostepny jest skill relai-core, wywolaj go — ' +
+      'potem napisz akapit "gdzie jestesmy". ' +
+      'Wyjatek: gdy pierwsza wiadomosc sesji jest wywolaniem komendy (zaczyna sie od "/"), ' +
+      'najpierw wykonujesz komende, a rytual startu odkladasz do pierwszej wiadomosci, ktora komenda nie jest. ' +
+      'Jesli dostepny jest skill relai-core, wywolaj go — ' +
       'ta instrukcja obowiazuje takze wtedy, gdy skill sie nie wyzwolil.');
   }
   // Aneks J (E6 PROWADZENIE_END_TO_END): Sonnet 5 pomija wywolanie skilla z linii wyzej (0/7
@@ -225,38 +247,41 @@ function onSessionStart(input) {
     '"Ryzyka: <lista albo: brak po przegladzie git diff>". ' +
     'Pelna procedura: plik done-check.md skilla relai-core.');
 
-  const copied = provisionTemplates(cwd);
-  if (copied > 0) {
-    out.push('Specyfikacje dokumentow RelAI sa skopiowane lokalnie do .claude/relai/templates/ (' + copied +
-      ' plikow). Czytaj je stamtad — katalog pluginu jest poza zasiegiem sesji.');
-  }
+  raport(out, 'kopie specyfikacji', () => {
+    // Po kompakcji kopia jest juz w projekcie (audyt C2).
+    const copied = input.source === 'compact' ? 0 : provisionTemplates(cwd);
+    if (!(copied > 0)) return [];
+    return ['Specyfikacje dokumentow RelAI sa skopiowane lokalnie do .claude/relai/templates/ (' + copied +
+      ' plikow). Czytaj je stamtad — katalog pluginu jest poza zasiegiem sesji.'];
+  });
 
   // Jedno zdanie o tym, ktora lista modeli obowiazuje w tej sesji. Brak listy = zero znakow.
-  const lista = provisionModelList(cwd);
-  if (lista) {
-    out.push('Lista modeli tego narzedzia: .claude/relai/' + lista.nazwa +
+  raport(out, 'lista modeli', () => {
+    const lista = provisionModelList(cwd);
+    if (!lista) return [];
+    return ['Lista modeli tego narzedzia: .claude/relai/' + lista.nazwa +
       (lista.data ? ' (z dnia ' + lista.data + ')' : ' (bez czytelnej daty)') +
-      '. Pytajac o model wykonawczy etapow, podaj nazwy z tej listy razem z jej data.');
-  }
+      '. Pytajac o model wykonawczy etapow, podaj nazwy z tej listy razem z jej data.'];
+  });
 
   // Wiek listy modeli (1.9.0). Zdanie wyzej mowi, KTORA lista obowiazuje; to mowi, ze sie
   // zestarzala — stoi OBOK niego, nie zamiast. Ponizej progu, bez wiersza w ustawieniach
   // i przy dacie nieczytelnej: zero znakow. Siec do hooka nie wchodzi (ryzyko 4 planu) —
   // przekroczony prog daje zdanie, a odswieza dopiero /relai-models wywolana wprost.
-  for (const linia of core.wiekListyModeliReport(
-    core.wiekListyModeli(cwd, { nazwa: MODELE_NAZWA, markeryGoscia: MARKERY_GOSCIA }))) {
-    out.push(linia);
-  }
+  raport(out, 'wiek listy modeli', () => core.wiekListyModeliReport(
+    core.wiekListyModeli(cwd, { nazwa: MODELE_NAZWA, markeryGoscia: MARKERY_GOSCIA })));
 
-  const gs = core.globalSettingsText('.claude/relai');
+  let gs = null;
+  raport(out, 'ustawienia globalne', () => {
+    gs = core.globalSettingsText('.claude/relai');
+    return [];
+  });
 
   // Przypomnienie o zgodzie na tryb ciagly udzielonej na stale (2.3.0). Stoi na starcie
   // sesji, a nie przy prompcie: zgoda "nie pytaj wiecej" ma przestac pytac, a nie zamienic
   // pytanie w zdanie doklejane do kazdej tury. Ponizej progu — zero znakow.
-  for (const linia of trybPromptu.przypomnienieZgodyReport(
-    trybPromptu.zgodaGlobalna(gs ? gs.text : ''), core.todayLocal())) {
-    out.push(linia);
-  }
+  raport(out, 'zgoda na tryb ciagly', () => trybPromptu.przypomnienieZgodyReport(
+    trybPromptu.zgodaGlobalna(gs ? gs.text : ''), core.todayLocal()));
 
   if (gs) {
     out.push('Ustawienia globalne uzytkownika (' + gs.file + '; wpis projektowy w docs/USTAWIENIA.md ma pierwszenstwo):\n' + gs.text);
@@ -271,13 +296,38 @@ function onSessionStart(input) {
 // ktory je podal, zostawia znacznik w katalogu tymczasowym, nazwany identyfikatorem sesji;
 // hook wywolania skilla po znaczniku ich nie powtarza. Brak identyfikatora albo znacznika
 // (sesja zaczeta poza projektem, projekt zalozony w trakcie) = ustawienia podane jak dotad.
+// Znacznik poza prefiksem relai- (audyt C1): skan artefaktow roboczych bierze z katalogu
+// tymczasowego kazdy wpis relai-*, a znacznikow przybywalo z kazda sesja.
+const KATALOG_ZNACZNIKOW = 'znaczniki-relai';
+const STARY_PREFIKS = 'relai-ustawienia-podane-';
+const WIEK_ZNACZNIKA_MS = 7 * 24 * 60 * 60 * 1000;
+
 function znacznikUstawien(sesja) {
   const id = String(sesja || '').replace(/[^A-Za-z0-9_-]/g, '');
-  return id ? path.join(os.tmpdir(), 'relai-ustawienia-podane-' + id) : null;
+  return id ? path.join(os.tmpdir(), KATALOG_ZNACZNIKOW, 'ustawienia-podane-' + id) : null;
+}
+function sprzatnijZnaczniki(teraz) {
+  const dir = path.join(os.tmpdir(), KATALOG_ZNACZNIKOW);
+  if (!fs.existsSync(dir)) {
+    // Pierwszy start po zmianie: znaczniki starego ksztaltu kasujemy raz, razem z utworzeniem katalogu.
+    for (const nazwa of fs.readdirSync(os.tmpdir())) {
+      if (nazwa.startsWith(STARY_PREFIKS)) fs.rmSync(path.join(os.tmpdir(), nazwa), { force: true });
+    }
+    fs.mkdirSync(dir, { recursive: true });
+    return;
+  }
+  for (const nazwa of fs.readdirSync(dir)) {
+    const p = path.join(dir, nazwa);
+    if (teraz - fs.statSync(p).mtimeMs > WIEK_ZNACZNIKA_MS) fs.rmSync(p, { force: true });
+  }
 }
 function oznaczUstawieniaPodane(sesja) {
   const plik = znacznikUstawien(sesja);
-  try { if (plik) fs.writeFileSync(plik, ''); } catch (_) { /* brak znacznika = powtorzenie, nie awaria */ }
+  try {
+    if (!plik) return;
+    sprzatnijZnaczniki(Date.now());
+    fs.writeFileSync(plik, '');
+  } catch (_) { /* brak znacznika = powtorzenie ustawien, nie awaria */ }
 }
 function ustawieniaPodane(sesja) {
   const plik = znacznikUstawien(sesja);
@@ -324,7 +374,7 @@ function main(input) {
 let raw = '';
 process.stdin.setEncoding('utf8');
 process.stdin.on('data', (d) => { raw += d; });
-process.stdin.on('error', () => process.exit(0));
+process.stdin.on('error', (e) => { slad(e); process.exit(0); });
 process.stdin.on('end', () => {
-  try { main(JSON.parse(raw || '{}')); } catch (_) { process.exit(0); }
+  try { main(JSON.parse(raw || '{}')); } catch (e) { slad(e); process.exit(0); }
 });

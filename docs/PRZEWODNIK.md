@@ -117,17 +117,18 @@ Do tego trzy zdania, które działają w zwykłej rozmowie:
 
 ## Czego RelAI pilnuje bez proszenia
 
-Trzynaście hooków w Node.js, zero zależności npm. **Dwa blokują, siedem ostrzega, cztery pracują cicho.**
+Piętnaście hooków w Node.js, zero zależności npm. **Dwa blokują, dziesięć ostrzega, trzy pracują cicho.**
 Niżej to, czego pilnują; pełna lista hooków z odpowiednikami w Cursorze i Codeksie stoi w tabeli
 [„Co pilnuje tylko Claude Code"](../README.md#co-pilnuje-tylko-claude-code) w README.
 
 | Pilnuje | Co się stanie |
 |---|---|
-| **sekretów** | zapis klucza `sk-…`, `ghp…`, `AKIA…`, tokenu JWT, klucza PEM albo przypisania `SECRET=` do pliku śledzonego przez gita zostaje **zablokowany**; ten sam zapis do pliku objętego `.gitignore` przechodzi |
+| **sekretów** | zapis klucza `sk-…`, `ghp…`, `AKIA…`, tokenu JWT, klucza PEM albo przypisania `SECRET=` do pliku śledzonego przez gita zostaje **zablokowany**; ten sam zapis do pliku objętego `.gitignore` przechodzi; polecenie powłoki z takim kluczem także zostaje **zablokowane** |
 | **reguł projektu** | zmiana sekcji niemutowalnej `CLAUDE.md` albo pliku ustawień wraca jako **pytanie** (werdykt `ask`) — zatrzymuje zapis tylko wtedy, gdy tryb uprawnień sesji ten werdykt egzekwuje; w trybie automatycznej akceptacji zmian przechodzi (zmierzone 2026-09-04). Skan sekretów tego ograniczenia nie ma — używa `deny` |
 | **konfiguracji produkcyjnej** | w projektach typu „agent głosowy" i „automatyzacja" zmiana bez kopii stanu sprzed zmiany zostaje **zatrzymana**: najpierw snapshot, potem zmiana |
 | **jakości** | `tsc` i eslint po edycji — ale tylko wtedy, gdy projekt naprawdę je ma |
 | **śmieci diagnostycznych** | `console.log` w zapisanym pliku dostaje ostrzeżenie |
+| **nawyków powłoki** | polecenie zaczynające się od gołego `cd`, `sed -i` na pliku `.md`, backslash w heredoku albo `node -e` i `/tmp/` w poleceniu z Node dostają **ostrzeżenie** przed wykonaniem; polecenie nie jest zatrzymywane |
 | **spójności wizualnej** | gdy projekt ma `docs/DESIGN.md`, odstępstwo od zapisanego kierunku jest sygnalizowane |
 | **aktualności dokumentów** | zmiana kodu bez wpisu do dziennika kończy się przypomnieniem |
 | **reguł rodzaju projektu** | pierwszy plik kodu, pierwszy ekran, pierwsze wdrożenie — każde z nich tworzy dokument, który wtedy ma sens (i ani chwili wcześniej); przed pierwszym wdrożeniem najpierw lista kontrolna, opis środowiska dopiero po nim (od 2.7.0) |
@@ -242,8 +243,8 @@ relai/
 │   │   │                        #     humanize, security
 │   │   ├── agents/              #   czterej subagenci: trzej załogi + relai-prompt-optimizer
 │   │   └── hooks/
-│   │       ├── hooks.json       #   rejestracja trzynastu hooków (zdarzenia i matchery)
-│   │       └── *.js             #   czternaście hooków Node.js, zero zależności npm
+│   │       ├── hooks.json       #   rejestracja piętnastu hooków (zdarzenia i matchery)
+│   │       └── *.js             #   piętnaście hooków Node.js, zero zależności npm
 │   ├── cursor/                  # ADAPTER Cursor (od 1.5.0)
 │       ├── install.js           #   instalacja i cofnięcie jednym poleceniem
 │       ├── rules/               #   trzy reguły .mdc: rdzeń i guardraile zawsze, planowanie na żądanie
@@ -253,7 +254,7 @@ relai/
 │       ├── AGENTS.md            #   router warstwy zawsze-w-kontekście
 │       ├── generate-skills.js   #   generator z jednego źródła komend Claude Code
 │       ├── install.js           #   odwracalna integracja D-86
-│       ├── skills/              #   wygenerowany pakiet: 16 procedur + 2 skille rdzenia (od 2.1.1)
+│       ├── skills/              #   wygenerowany pakiet: 16 procedur + 4 skille dołączane (od 2.1.1)
 │       └── hooks/               #   cienkie hooki konsumujące core/, z bramką hosta
 ├── hooks/hooks.json             # hooki Codeksa (jego konwencja korzenia), z bramką hosta — P-013
 ├── .claude-plugin/              # manifest pluginu i marketplace Claude Code

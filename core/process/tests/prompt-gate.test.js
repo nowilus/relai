@@ -75,6 +75,25 @@ const PYTA_O_ZASIEG = /ten prompt \/ ta sesja/;
 // Odeslanie do calej komendy — to, co kosztowalo +26,7 tys. tokenow.
 const CALA_KOMENDA = /relai-prompt\.md|procedura \/relai-prompt|komendy \/relai-prompt/;
 
+test('accepting the proposal passes untouched, a task without a question mark gets the gate (K-B2)', (t) => {
+  const p = projekt(t);
+  for (const prompt of ['Wykonaj propozycję', 'tak, wykonaj', 'opcja B']) {
+    assert.equal(hook(p, prompt), '', prompt);
+  }
+  for (const prompt of ['Do the migration of the settings parser', MERYTORYCZNY]) {
+    assert.match(hook(p, prompt), /\[RelAI bramka zgody\]/, prompt);
+  }
+});
+
+test('global "nie": silence in every session and every project, the gate without the row (K-B1)', (t) => {
+  const p = projekt(t, { zgodaGlobalna: 'nie' });
+  assert.equal(hook(p, MERYTORYCZNY, 'S1'), '');
+  assert.equal(hook(p, MERYTORYCZNY, 'S2'), '');
+  const q = projekt(t);
+  assert.equal(hook({ root: q.root, home: p.home }, MERYTORYCZNY, 'S3'), '');
+  assert.match(hook(projekt(t), MERYTORYCZNY), /\[RelAI bramka zgody\]/);
+});
+
 test('brak zgody: one question about consent only, no model, no scope, no command to read', (t) => {
   const p = projekt(t);
   const bramka = hook(p, MERYTORYCZNY);

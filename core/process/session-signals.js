@@ -24,6 +24,7 @@ const fs = require('fs');
 const os = require('os');
 const path = require('path');
 const { spawnSync } = require('child_process');
+const crypto = require('crypto');
 
 // Domyslne markery trybu goscia: kazdy adapter dodaje swoj katalog konfiguracyjny.
 const DOMYSLNE_MARKERY_GOSCIA = ['.claude/relai.json', '.cursor/relai.json'];
@@ -65,8 +66,7 @@ function markerWKatalogu(dir) {
     if (candidates.length >= 40) break;
   }
   for (const f of candidates) {
-    let head = '';
-    try { head = fs.readFileSync(path.join(docsDir, f), 'utf8').slice(0, 4000); } catch (_) { continue; }
+    const head = czytaj(path.join(docsDir, f)).slice(0, 4000);
     if (/Wersja RelAI:|RelAI version:/i.test(head)) return path.join(docsDir, f);
   }
   return null;
@@ -144,7 +144,7 @@ function todayLocal() {
 
 function projectVersion(markerFile) {
   try {
-    const m = fs.readFileSync(markerFile, 'utf8').match(/(?:Wersja RelAI|RelAI version)\s*:\s*([0-9][0-9A-Za-z.\-]*)/i);
+    const m = czytaj(markerFile).match(/(?:Wersja RelAI|RelAI version)\s*:\s*([0-9][0-9A-Za-z.\-]*)/i);
     return m ? m[1] : '';
   } catch (_) {
     return '';
@@ -272,15 +272,66 @@ function provisionHumanize(destRoot, opcje) {
   return copyTree(src, dest);
 }
 
+// --- znacznik prowizji (audyt C2) -------------------------------------------
+// Kopia 52 plikow (ok. 934 KB) szla przy kazdym starcie i kazdym wywolaniu skilla RelAI.
+// Znacznik trzyma odciski zrodel i kopii z ostatniej kopii kompletnej; odcisk to stat
+// (sciezka, rozmiar, mtime), nie tresc. Kopia idzie, gdy rozni sie ktorykolwiek odcisk
+// albo brakuje choc jednego pliku.
+const ZNACZNIK_PROWIZJI = '.provisioned';
+
+function paryDrzewa(src, dest, out) {
+  let wpisy;
+  try { wpisy = fs.readdirSync(src, { withFileTypes: true }); } catch (_) { return out; }
+  for (const wpis of wpisy) {
+    const zrodlo = path.join(src, wpis.name);
+    const cel = path.join(dest, wpis.name);
+    if (wpis.isDirectory()) paryDrzewa(zrodlo, cel, out);
+    else if (KOPIOWANE.test(wpis.name)) out.push({ zrodlo, cel });
+  }
+  return out;
+}
+
+// Te same pary co copyTree, provisionTools, provisionPrompt i provisionHumanize, plus pliki
+// pisane obok: .gitignore i package.json katalogow skryptow (markCommonJs).
+function plikiProwizji(src, destRoot, o) {
+  const pary = paryDrzewa(src, path.join(destRoot, 'templates'), []);
+  const srcProcess = o.coreProcess || __dirname;
+  for (const n of NARZEDZIA) {
+    pary.push({ zrodlo: path.join(srcProcess, n.zrodlo), cel: path.join(destRoot, 'tools', n.cel) });
+  }
+  paryDrzewa(o.corePrompt || path.resolve(__dirname, '..', 'prompt'), path.join(destRoot, 'prompt'), pary);
+  paryDrzewa(o.coreHumanize || path.resolve(__dirname, '..', 'humanize'), path.join(destRoot, 'humanize'), pary);
+  const obok = [path.join(destRoot, '.gitignore'), path.join(destRoot, 'tools', 'package.json')];
+  if (fs.existsSync(path.join(src, 'HTML_PLAN'))) obok.push(path.join(destRoot, 'templates', 'HTML_PLAN', 'package.json'));
+  return { zrodla: pary.map((p) => p.zrodlo), cele: pary.map((p) => p.cel).concat(obok) };
+}
+
+function odcisk(pliki) {
+  const h = crypto.createHash('sha1');
+  for (const p of pliki) {
+    let st = null;
+    try { st = fs.statSync(p); } catch (_) { st = null; }
+    h.update(p + '\t' + (st ? st.size + '\t' + st.mtimeMs : 'brak') + '\n');
+  }
+  return h.digest('hex');
+}
+
 // Kopiuje core/templates/ do <cwd>/<destRel>/templates/. destRel domyslnie ".claude/relai"
 // — ta sama sciezka w obu adapterach, zeby komendy i skille mowily o jednym miejscu.
-// Zwraca liczbe skopiowanych plikow (0 = awaria albo brak zrodla — adapter milczy).
+// Zwraca liczbe skopiowanych plikow; 0 = nic sie nie zmienilo, awaria albo brak zrodla — adapter milczy.
+// opcje.wymus: kopia bez sprawdzania znacznika (instalator Cursora).
 function provisionTemplates(cwd, opcje) {
   try {
     const o = opcje || {};
     const src = o.coreTemplates || path.resolve(__dirname, '..', 'templates');
     if (!fs.existsSync(src)) return 0;
     const destRoot = path.join(cwd, ...String(o.destRel || '.claude/relai').split('/'));
+    const znacznik = path.join(destRoot, ZNACZNIK_PROWIZJI);
+    const pliki = plikiProwizji(src, destRoot, o);
+    const komplet = () => pliki.cele.every((p) => fs.existsSync(p));
+    let zapisany = '';
+    try { zapisany = fs.readFileSync(znacznik, 'utf8').trim(); } catch (_) { zapisany = ''; }
+    if (!o.wymus && komplet() && zapisany === odcisk(pliki.zrodla) + ' ' + odcisk(pliki.cele)) return 0;
     const dest = path.join(destRoot, 'templates');
     fs.mkdirSync(dest, { recursive: true });
     // .gitignore z "*" — lokalna kopia to cache narzedzia, nie zawartosc repo
@@ -288,6 +339,10 @@ function provisionTemplates(cwd, opcje) {
     const n = copyTree(src, dest) + provisionTools(destRoot, o) + provisionPrompt(destRoot, o)
       + provisionHumanize(destRoot, o);
     markCommonJs(destRoot);
+    // Znacznik tylko po kopii kompletnej: brakujacy plik wymusza kopie przy nastepnym starcie.
+    if (komplet()) {
+      try { fs.writeFileSync(znacznik, odcisk(pliki.zrodla) + ' ' + odcisk(pliki.cele) + '\n'); } catch (_) { /* cisza */ }
+    }
     return n;
   } catch (_) {
     return 0;
@@ -595,8 +650,25 @@ function promptGap(cwd) {
 }
 
 // --- rozjazd stanu (1.3.0) --------------------------------------------------
+// Pamiec odczytow procesu hooka startu (audyt C3: DZIENNIK.md x7, USTAWIENIA.md x16, CLAUDE.md x10
+// w jednym SessionStart). Wlacza ja wylacznie hook startu, na czas jednego procesu; domyslnie
+// wylaczona, bo testy i narzedzia zmieniaja pliki miedzy wywolaniami w tym samym procesie.
+let pamiec = null;
+function pamiecOdczytow(wlacz) {
+  pamiec = wlacz ? new Map() : null;
+}
+
 function czytaj(p) {
-  try { return fs.readFileSync(p, 'utf8'); } catch (_) { return ''; }
+  if (!pamiec) {
+    try { return fs.readFileSync(p, 'utf8'); } catch (_) { return ''; }
+  }
+  const klucz = path.resolve(p);
+  if (!pamiec.has(klucz)) {
+    let tresc = '';
+    try { tresc = fs.readFileSync(klucz, 'utf8'); } catch (_) { tresc = ''; }
+    pamiec.set(klucz, tresc);
+  }
+  return pamiec.get(klucz);
 }
 
 function planyZEtapemWToku(cwd) {
@@ -882,7 +954,7 @@ function unknownAuthor(cwd) {
     let dziennik = '';
     for (const name of ['DZIENNIK.md', 'JOURNAL.md']) {
       const p = path.join(cwd, 'docs', name);
-      try { dziennik = fs.readFileSync(p, 'utf8'); } catch (_) { continue; }
+      dziennik = czytaj(p);
       if (dziennik) break;
     }
     if (!dziennik) return null;
@@ -1216,14 +1288,14 @@ function dokumentyPonadProgiem(cwd, txtUstawien, progRyzyk, progUstawien) {
         bajtyLF(txt), progi.dziennik * KB, 'KB', 'rotacja dziennika');
       // Sekcja ryzyk ma prog CZASTKOWY budzetu (SPEC_ARCHIWUM.md) — mierzona sama,
       // bez sekcji "Czeka na czlowieka" i bez ostatniego wpisu, bo to jej rotacja odchudza.
-      // Bez ani jednego ryzyka ZAMKNIETEGO rotacja nic nie zdejmie — procedura to wtedy
-      // zamykanie ryzyk, nie rotacja (Aneks A planu KONTEKST_STARTU, E1).
+      // Bez ani jednego ryzyka ZAMKNIETEGO pozycja nie wchodzi do listy (D-88, aneks).
+      // D-88, aneks (audyt A3): bez ryzyka ZAMKNIETEGO rotacja nic nie zdejmie, a sekcje odchudza
+      // wylacznie decyzja czlowieka - linia na starcie wracalaby w kazdej sesji. Mowi o tym raport
+      // frazy "sprawdz status", nie start.
       const ryzyka = wytnijSekcje(txt, NAGLOWEK_RYZYK);
-      if (ryzyka !== null && typeof progRyzyk === 'number') {
+      if (ryzyka !== null && typeof progRyzyk === 'number' && rotowalneRyzyka(txt) > 0) {
         dodaj('sekcja "Stan otwartych ryzyk"', bajtyLF(ryzyka), progRyzyk, 'KB',
-          rotowalneRyzyka(txt) > 0
-            ? 'rotacja ryzyk ZAMKNIETYCH do archiwum'
-            : 'zamykanie ryzyk (zadne nie jest ZAMKNIETE, wiec rotacja nic nie zdejmie)');
+          'rotacja ryzyk ZAMKNIETYCH do archiwum');
       }
     }
 
@@ -1231,7 +1303,11 @@ function dokumentyPonadProgiem(cwd, txtUstawien, progRyzyk, progUstawien) {
     if (lekcje) {
       const txt = czytaj(lekcje);
       const sciezka = path.relative(cwd, lekcje).split(path.sep).join('/');
-      const bajtow = bajtyLF(txt);
+      // D-88, aneks (audyt A3): prog w KB liczy plik BEZ sekcji "Zasady aktywne" - ta ma wlasny
+      // limit liczby zasad (count-rules.js) i sama z dwudziestoma najnowszymi lekcjami
+      // przekraczala prog, wiec rotacja nie mogla go spelnic.
+      const zasady = wytnijSekcje(txt, NAGLOWEK_ZASAD);
+      const bajtow = bajtyLF(txt) - (zasady === null ? 0 : bajtyLF(zasady));
       const sekcjaLekcji = wytnijSekcje(txt, NAGLOWEK_LEKCJI);
       const sztuk = sekcjaLekcji === null
         ? 0
@@ -1715,7 +1791,11 @@ function sprawyPrzeterminowaneReport(miara, opcje) {
   out.push('ZADANIE: przed akapitem "gdzie jestesmy" zadaj pytanie o te sprawy PARTIAMI PO CZTERY, ' +
     'az do wyczerpania listy. Kazda sprawa ma trzy realne wybory: zamknac (adnotacja ' +
     'rozstrzygniecia), odroczyc o kolejne ' + miara.N + ' dni (adnotacja odroczenia z licznikiem) ' +
-    'albo rozstrzygnac teraz. Procedura: plik overdue-review.md skilla relai-core. ' +
+    'albo rozstrzygnac teraz. ' +
+    'Gdy pierwsza wiadomosc sesji jest wywolaniem komendy (zaczyna sie od "/"), najpierw ' +
+    'wykonujesz komende, a ten przeglad odkladasz razem z rytualem startu do pierwszej ' +
+    'wiadomosci, ktora komenda nie jest. ' +
+    'Procedura: plik overdue-review.md skilla relai-core. ' +
     'Wylacznik i wartosc N: wiersz "Przeglad spraw czlowieka" w ' +
     'docs/USTAWIENIA.md — osobny od rotacji.');
   return out;
@@ -1791,6 +1871,7 @@ function artefaktyRobocze(cwd, opcje) {
     const miara = rdzenArtefaktow().artefaktyRobocze(cwd, {
       zrodla: ['work', 'temp'],
       limitWpisow: o.limitWpisow,
+      czytaj, // dokumenty bramki z tej samej pamieci odczytow co reszta startu (audyt C3)
     });
     const kandydaci = miara.kandydaci.slice().sort((a, b) => b.bajty - a.bajty);
 
@@ -1857,6 +1938,8 @@ module.exports = {
   todayLocal,
   projectVersion,
   provisionTemplates,
+  czytaj, // jeden odczyt pliku dla skrotu startu i rdzenia (audyt C3)
+  pamiecOdczytow, // wlacza pamiec odczytow na czas procesu hooka startu (audyt C3)
   POLECENIE_SKROTU,
   provisionPrompt, // baza regul optymalizatora — kopia nadpisywana, jak specyfikacje (2.2.0)
   provisionHumanize, // baza regul humanizacji — ta sama droga (HUMANIZACJA E1)

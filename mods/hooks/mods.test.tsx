@@ -59,6 +59,7 @@ type Call = { argv: string[], cwd?: string }
 type Fake = {
   calls: Call[]
   disk: Record<string, string>
+  n: { exists: number, read: number, list: number, stat: number }
   /** Whether the pane is open, as ui.open and ui.close leave it and ui.panes answers. */
   isOpen: boolean
 }
@@ -91,6 +92,7 @@ function engine(on: On, mode: 'ok' | 'fail' | 'hang', extra: Record<string, unkn
   const fake: Fake = {
     isOpen: false,
     calls: [],
+    n: { exists: 0, read: 0, list: 0, stat: 0 },
     disk: {
       [key(`${HOME}/.claude/plugins/installed_plugins.json`)]: JSON.stringify({ version: 2, plugins: installs }),
       [USER_FILE]: settingsText(userEnabled),
@@ -108,9 +110,10 @@ function engine(on: On, mode: 'ok' | 'fail' | 'hang', extra: Record<string, unkn
   const { disk } = fake
   on('env.get', ($, e) => ({ value: e.name === 'USERPROFILE' ? HOME : '' }))
   on('settings.read', ($, e) => ({ value: e.source === 'policy' ? { enabledPlugins: { 'pol@corp': true } } : {} }))
-  on('fs.exists', ($, e) => ({ value: key(e.path) in disk || Object.keys(disk).some((p) => p.startsWith(`${key(e.path)}/`)) }))
-  on('fs.read', ($, e) => (disk[key(e.path)] === UNREADABLE ? { deny: `EACCES ${e.path}` } : key(e.path) in disk ? { value: disk[key(e.path)] ?? '' } : { deny: `ENOENT ${e.path}` }))
+  on('fs.exists', ($, e) => { fake.n.exists += 1; return { value: key(e.path) in disk || Object.keys(disk).some((p) => p.startsWith(`${key(e.path)}/`)) } })
+  on('fs.read', ($, e) => { fake.n.read += 1; return disk[key(e.path)] === UNREADABLE ? { deny: `EACCES ${e.path}` } : key(e.path) in disk ? { value: disk[key(e.path)] ?? '' } : { deny: `ENOENT ${e.path}` } })
   on('fs.list', ($, e) => {
+    fake.n.list += 1
     const dir = `${key(e.path)}/`
     const below = Object.keys(disk).filter((p) => p.startsWith(dir)).map((p) => p.slice(dir.length))
     const names = [...new Set(below.map((r) => r.split('/')[0] ?? ''))]
@@ -140,10 +143,12 @@ function engine(on: On, mode: 'ok' | 'fail' | 'hang', extra: Record<string, unkn
   on('session.start', (_, e) => ({ cwd: e.cwd }))
   on('session.cwd', () => ({ value: sessionCwd }))
   // `.git` a folder when anything lies under it, a file when it is one
+  const stampOf = (text: string) => [...text].reduce((h, c) => (h * 31 + c.charCodeAt(0)) >>> 0, 7)
   on('fs.stat', ($, e) => {
+    fake.n.stat += 1
     const p = key(e.path)
     if (Object.keys(disk).some((f) => f.startsWith(`${p}/`))) return { value: { kind: 'dir' as const, size: 0, mtimeMs: 0, isLink: false } }
-    return p in disk ? { value: { kind: 'file' as const, size: 1, mtimeMs: 0, isLink: false } } : { deny: `ENOENT ${e.path}` }
+    return p in disk ? { value: { kind: 'file' as const, size: (disk[p] ?? '').length, mtimeMs: stampOf(disk[p] ?? ''), isLink: false } } : { deny: `ENOENT ${e.path}` }
   })
   on('fs.write', ($, e) => { disk[key(e.path)] = e.text; return { value: undefined } })
   return fake
@@ -428,6 +433,63 @@ describe('cockpit', () => {
     await clock.advance(REFRESH_MS * 3)
     expect(await ui.find({ type: 'Text', text: /na przeładowanie/ })).toBeFalsy()
     await ui.unmount()
+  })
+
+  test('a typed letter, a filter and a fold draw from memory: no read, list or exists (audit F1)', async ($, on) => {
+    const fake = engine(on, 'ok')
+    await $.session.start({ cwd: CWD, surface: 'desktop', isInteractive: true })
+    const ui = await $.ui.mount({ ...PANE, surface: 'desktop' })
+    expect((await ui.find({ type: 'Text', text: /włączone ·/ }))?.text).toBe('4/6 włączone · 1 hook własny')
+    const before = { ...fake.n }
+    await ui.input({ key: 'query', text: 's' })
+    await ui.input({ key: 'query', text: 'st' })
+    await ui.input({ key: 'query', text: '' })
+    await ui.press({ key: 'filter-off' })
+    await ui.press({ key: `pick-${FILETREE}` })
+    expect({ exists: fake.n.exists - before.exists, read: fake.n.read - before.read, list: fake.n.list - before.list }).toEqual({ exists: 0, read: 0, list: 0 })
+    expect(await ui.find({ type: 'Text', text: /^Przełącznik: / })).toBeTruthy()
+    expect(fake.n.stat - before.stat).toBeGreaterThan(0)
+    await ui.unmount()
+  })
+
+  test('a refresh tick with nothing changed asks only the times; a change from another chat is read (audit F1)', async ($, on) => {
+    const fake = engine(on, 'ok')
+    const clock = mock.clock(on)
+    await $.session.start({ cwd: CWD, surface: 'desktop', isInteractive: true })
+    await $.command.run({ command: 'relai-mods' })
+    const ui = await $.ui.mount({ ...PANE, surface: 'desktop' })
+    await clock.settle()
+    const before = { ...fake.n }
+    await clock.advance(REFRESH_MS)
+    expect({ exists: fake.n.exists - before.exists, read: fake.n.read - before.read, list: fake.n.list - before.list }).toEqual({ exists: 0, read: 0, list: 0 })
+    expect(fake.n.stat - before.stat).toBeGreaterThan(0)
+    const readBefore = fake.n.read
+    writeElsewhere(fake, 'filetree@claude-code-filetree', true)
+    await clock.advance(REFRESH_MS)
+    expect(fake.n.read - readBefore).toBeGreaterThan(0)
+    expect((await ui.find({ type: 'Text', text: /na przeładowanie/ }))?.text).toBe('⟳ 1 zmiana czeka na przeładowanie')
+    await $.command.run({ command: 'relai-mods' })
+    await ui.unmount()
+  })
+
+  test('a drawing that throws says so in the pane, never an empty pane (audit F3)', async ($, on) => {
+    let isBroken = false
+    const isQuery = (e: unknown) => (e as { plugin?: string }).plugin === 'relai-mods' && (e as { key?: string }).key === 'query'
+    on('state.get', ($, e, next) => (isBroken && isQuery(e) ? { deny: 'stan niedostępny' } as never : next(e)))
+    engine(on, 'ok')
+    await $.session.start({ cwd: CWD, surface: 'desktop', isInteractive: true })
+    const ui = await $.ui.mount({ ...PANE, surface: 'desktop' })
+    expect((await ui.find({ type: 'Text', text: /włączone ·/ }))?.text).toBe('4/6 włączone · 1 hook własny')
+    isBroken = true
+    await ui.press({ key: 'filter-off' })
+    expect((await ui.find({ type: 'Text', text: /^⚠ Kokpit nie narysował listy/ }))?.text).toContain('stan niedostępny')
+    expect(await ui.find({ type: 'Text', text: /komendą \/relai-mods/ })).toBeTruthy()
+    await ui.unmount()
+    isBroken = false
+    const again = await $.ui.mount({ ...PANE, surface: 'desktop' })
+    expect(await again.find({ type: 'Text', text: /^⚠ Kokpit/ })).toBeFalsy()
+    expect(await again.find({ type: 'Button', key: 'filter-all' })).toBeTruthy()
+    await again.unmount()
   })
 
   test('the mobile surface: the list as text, no switches', async ($, on) => {

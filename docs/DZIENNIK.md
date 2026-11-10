@@ -17,7 +17,7 @@
 | M5 | Nazwy modeli zmieniają się szybciej niż wydania RelAI (plan REKOMENDACJA_MODELU, ryzyko 6) | **Średni** (2026-09-04) | **OTWARTE** | Lista ma próg wieku 7 dni; otwarte trwale, bo świeża lista nie wie o zmianie nazw u dostawcy. Historia: [MITYGACJE_2026-09-24](archiwum/ryzyka/MITYGACJE_2026-09-24.md). |
 | M6 | Załoga stoi na flagach CLI trzech dostawców (`claude -p --permission-mode`, `codex exec -s`, `agent -p --mode`), które zmieniają się szybciej niż wydania RelAI (wątek ORKIESTRACJA) | **Średni** (2026-09-06) | **OTWARTE** | Flagi w `buildCommand`, porażka zawsze w raporcie; otwarte: Codex i Cursor jako gospodarz niezmierzone. Historia: [MITYGACJE_2026-09-24](archiwum/ryzyka/MITYGACJE_2026-09-24.md). |
 
-| O4 | Tryb ciągły kosztuje turę przy każdym zdaniu — praca zwalnia i drożeje (plan OPTYMALIZATOR_PROMPTOW, ryzyko O4) | **Średni** (2026-09-14, przy akceptacji planu) | **OTWARTE** | Wyłącznik w `USTAWIENIA.md`, filtr pomija komendy; otwarte: rozrzut kosztu większy niż mierzona różnica. Historia: [MITYGACJE_2026-09-24](archiwum/ryzyka/MITYGACJE_2026-09-24.md). |
+| O4 | Tryb ciągły kosztuje turę przy każdym zdaniu — praca zwalnia i drożeje (plan OPTYMALIZATOR_PROMPTOW, ryzyko O4) | **Średni** (2026-09-14, przy akceptacji planu) | **OTWARTE** | Wyłącznik w `USTAWIENIA.md`, filtr pomija komendy; od E9 OPTYMALIZACJA_PO_AUDYCIE (2026-11-10) trwała odmowa „nie i nie pytaj więcej” i przyjęcie propozycji bez bramki; otwarte: rozrzut kosztu większy niż mierzona różnica. Historia: [MITYGACJE_2026-09-24](archiwum/ryzyka/MITYGACJE_2026-09-24.md). |
 | K3 | Nakładki rodzin modeli starzeją się szybciej niż wydania RelAI — dostawca zmienia wytyczne, a reguła z datą zostaje (plan PROWADZENIE_END_TO_END, ryzyko K3) | **Średni** (2026-09-24, przy zamknięciu planu) | **OTWARTE** | Każda reguła nakładki ma źródło i datę odczytu; hook startu mówi o nakładce starszej niż 30 dni; odświeżenie razem z `/relai-models`. |
 | C1 | API modów Claude Code („early access”) zmieni się między wydaniami i `relai-panel` przestanie się ładować (plan PANEL_CLAUDE, ryzyko R1) | **Wysoki** (2026-10-08, przy E1) | **OTWARTE** | Osobne pluginy; rachunki w `core/panel/` poza API modów; `plugin validate` i `plugin test` przed wydaniem — od E9 dla trzech pluginów (`relai-panel`, `relai-progress`, `relai-cache-keeper`, ten ostatni przejął rolę kanarka po `cache-keeper-pl`). Otwarte: minimalna wersja silnika niezmierzona (działa 2.1.293); trzy pluginy na tym samym API to trzy miejsca do poprawki przy zmianie. E5: zgoda na start etapu opiera się na zachowaniu silnika „wysyłka wtyczki omija jej własny hook `command.run`” (P-022) — gdy się zmieni, hook wytnie znacznik także z wysyłki panelu i start wróci do pytania w czacie (awaria w bezpieczną stronę); znacznik z klawiatury jest wycinany w obu wersjach (test modu). E6: desktop **bez komunikatu** nie pokazał panelu, gdy drzewo miało 726 węzłów, 121 Svg i 256 tys. znaków (`plugin test` przyjmuje takie drzewo); przy 209 / 27 / 53 tys. — widoczny; limit drzewa w kodzie (60 wierszy, 40 na folder), dokładny próg silnika nieznany (P-023). Hot reload raz zostawił starszą wersję modułu mimo nowej kopii — rozpoznane znacznikiem wersji w logu. E7 (2026-10-09): trzy pluginy wydane publicznie jako „early access” (2.8.0; `relai-panel` 0.9.0, `relai-progress` 0.2.0, `relai-cache-keeper` 0.3.0) — opis w README i w marketplace mówi o ryzyku wprost; `register.tsx` podzielony na pliki widoków bez `$`, raport `plugin validate` identyczny z wersją jednoplikową (P-023). Instalacja z marketplace zmierzona na żywo w aplikacji 2.1.293. Otwarte trwale: minimalna wersja silnika niezmierzona. FILM_PREZENTACYJNY E7 (2026-10-13): wydanie 3.0.0 zostawia „early access” (decyzja Łukasza), `relai-panel` 0.14.1 (parser modelu, Aneks F); `plugin test` 177 / 31 / 174 i `plugin validate` na 2.1.295. WYGLAD_PANELU E3 (2026-10-15): próg desktopu zmierzony — liczą się elementy, nie znaki (1 260 rysuje, 1 344 nie, `Svg` waży więcej; P-023 pkt 7); `DRAW_LIMIT` 1 200 i bezpiecznik „kartka bez wypełnienia” zamiast pustego panelu, test wagi drzewa każdej zakładki. Otwarte: próg może się zmienić z wersją aplikacji. WYGLAD_PANELU E4 (2026-10-15): sama waga nie wystarczyła — Mapa wagi 1 045 z 338 tys. znaków nie narysowała się wcale; drugi budżet w znakach (≤ 280 tys., SZACUNEK) i widok zastępczy „Zwiń wszystko” zamiast pustego panelu (P-023 pkt 7); wydanie `relai-panel` 0.19.0 / `relai-progress` 0.5.0 / `relai-cache-keeper` 0.10.0, `plugin test` 205 / 42 / 181 na 2.1.295. WYGLAD_PANELU E5 (2026-10-15): próg auto-compactu na pasku stoi na wzorze kompaktowania odczytanym z binarki 2.1.295 (P-046) — rozbicie silnika pomija `CLAUDE_AUTOCOMPACT_PCT_OVERRIDE`; zmiana wzoru w nowej wersji przesunie kreskę bez komunikatu (otwarte: kontrola wzoru przy zmianie wersji silnika); wydanie `relai-panel` 0.20.0 / `relai-cache-keeper` 0.11.0, `plugin test` 211 / 42 / 198. |
 | C8 | Inny mod paska nad promptem rysuje bez `next` albo owija węzeł silnika w `Box` z `width` i pasek RelAI znika bez komunikatu (E1, P-017) | **Średni** (2026-10-08, przy E1) | **OTWARTE** | `relai-panel`, `relai-progress` i `relai-cache-keeper` zawsze wołają `next` i nie dokładają `width` do owijacza (test „engine kept beneath" w każdym); `savvy-progress` rysował bez `next` — wyłączony w E9, zastąpiony forkiem. Otwarte: cudze mody poza kontrolą — ostrzeżenie w README w E7. |
@@ -76,6 +76,7 @@
 - **Jeden katalog `skills/` w standardzie Agent Skills dla trzech narzędzi** — zdjąłby kopię Codeksa (~4300 linii) i generator, ale zmienia zamrożoną D-89 i kształt adapterów; plan, odnoga czy odrzucić (audyt AUDYT_SKILLI, wiersz 50 raportu) · 2026-10-11 · [wpis 2026-10-11 — research, audyt, plan](archiwum/dziennik/DZIENNIK_2026-10-11_2026-10-12.md#2026-10-11--research-nowej-sesji-audyt-skilli-i-plan-limit_checkpoint)
 - **AUDYT_MODOW — ustalenia poza zakresem (5 pozycji `outOfScope` raportu)** — odchudzenie kopii rdzenia per plugin (`sync-panel-core`), `headings.mjs` 254 KB w progress i cache-keeperze, % limitu per etap w rdzeniu, `userConfig` cache-keepera, przedrostek `relai-` jego komend; plus wariant B „jedna listwa” jako kandydat na plan — decyzja: plan, odnoga albo odrzucić · 2026-10-11 · [wpis 2026-10-11 — Z13, Z14 i zamknięcie odnogi](archiwum/dziennik/DZIENNIK_2026-10-11_2026-10-12.md#2026-10-11--audyt_modow-z13-i-z14-wydanie-0120-i-zamknięcie-odnogi)
 - **PANEL_CODEX E1 — próba przycisków minimalnego pakietu i świeżego kontekstu** — w macierzystym czacie nadal proces 0.0.7/PID 62300; po restarcie sprawdzić sondę 0.0.9 (także fonty), nowy szkic i jego rzeczywisty projekt/kontekst. Wygląd już zaakceptowany · 2026-10-10 · [wpis — Panel i mostek](archiwum/dziennik/DZIENNIK_2026-10-09_2026-10-10.md#2026-10-10--panel_codex-e1-natywny-widok-minimalny-pakiet-i-mostek-bieżącego-czatu)
+  *(odroczone 2026-11-10, odroczeń: 1)*
 
 - **Zamrożenie dwóch bramek zgody jako decyzji** — zgoda na tryb ciągły (raz na sesję, z zapisem
   globalnym) i zgoda na propozycję struktury poza projektem (raz na maszynę). Oba wzorce wrócą przy
@@ -83,19 +84,12 @@
   [wpis 2026-09-15 — Zgłoszenie testera](archiwum/dziennik/DZIENNIK_2026-09-14_2026-10-09.md#2026-09-15--zgłoszenie-testera-plugin-pyta-o-relai-w-cudzym-folderze-dwie-bramki-zgody-i-wydanie-230)
   *(odroczone 2026-10-16, odroczeń: 1)*
 
-- **Rozjazd manifestu z produktem przy opisie repozytorium** — `description`
-  w `.claude-plugin/plugin.json` mówi „…framework for Claude Code", a RelAI ma trzy adaptery;
-  `keywords` nie zawiera ani jednej nazwy narzędzia. Wizytówka GitHuba ma skopiować manifest, czy
-  najpierw poprawiamy manifest (czyli podbicie wersji i pełna sekwencja wydania)? · 2026-09-13 ·
-  [karta odnogi OPIS_REPO](archiwum/plany/ROZWOJ_PO_WYDANIU/odnogi/OPIS_REPO/ODNOGA.md)
-  *(odroczone 2026-10-14, odroczeń: 1)*
-
 - **Zamknięta lista rdzeni rozstrzygnięcia nie zna słownika realnego projektu** — 7 z 32 pozycji
   „Czeka na człowieka" w PolyFlow wygląda dla człowieka na zamknięte, a mechanizm liczy je jako
   otwarte (`zaliczona` ×3, `dostarczony` ×1, trzy bez rdzenia z datą). Poszerzyć listę w rdzeniu
   czy przepisać adnotacje w cudzym projekcie? · 2026-09-01 ·
   [wpis 2026-09-01 — E6: wydanie 1.7.0](archiwum/dziennik/DZIENNIK_2026-09-01_2026-09-03.md#2026-09-01--e6-wydanie-170-pomiar-po-restarcie-i-pierwsza-rotacja-z-przepięciem-linków)
-  *(odroczone 2026-10-08, odroczeń: 1)*
+  *(odroczone 2026-11-10, odroczeń: 2)*
 
 - **Weryfikacja ośmiu rozstrzygnięć wpisanych w E2 — wypisane co do jednego 2026-09-01, czekają na
   potwierdzenie albo sprzeciw** · 2026-08-20 ·
@@ -107,14 +101,14 @@
   `claude -p` **zadziałał** i poprowadził pomiar świeżych sesji (L-0084). Otworzyć R2 ponownie,
   przepisać jego treść czy zostawić zamknięte z adnotacją? · 2026-09-03 ·
   [wpis 2026-09-03 — E1 planu REKOMENDACJA_MODELU](archiwum/dziennik/DZIENNIK_2026-09-03_2026-09-06.md#2026-09-03--e1-planu-rekomendacja_modelu-pytanie-o-model-pokazuje-nazwy-nie-klasy)
-  *(odroczone 2026-10-08, odroczeń: 1)*
+  *(odroczone 2026-11-10, odroczeń: 2)*
 
 - **Czy ochrona konfiguracji ma zostać przy werdykcie `ask`** — w sesji z automatyczną akceptacją
   edycji `ask` nie zatrzymuje niczego, więc edycja sekcji niemutowalnej **cudzego** `CLAUDE.md`
   przechodzi mimo poprawnego werdyktu hooka. Podnieść do `deny` dla cudzego projektu (własny
   zostaje przy `ask`), zostawić bez zmian, czy opisać to jako świadomą granicę? · 2026-09-04 ·
   [wpis 2026-09-04 — Blokada guardraila pokazana w żywej sesji](archiwum/dziennik/DZIENNIK_2026-09-03_2026-09-06.md#2026-09-04--blokada-guardraila-pokazana-w-żywej-sesji-ochrona-konfiguracji-okazuje-się-doradcza)
-  *(odroczone 2026-10-08, odroczeń: 1)*
+  *(odroczone 2026-11-10, odroczeń: 2)*
 
 - **Ponowna instalacja pre-commita w projektach z hookiem sprzed 1.9.2** — stary układ
   (bezrozszerzeniowy `pre-commit` + `relai-secret-scan.js`) przewraca się w projekcie
@@ -122,7 +116,7 @@
   zewnętrznych; instalacja jest jawną czynnością człowieka, więc RelAI jej nie wykona sam.
   · 2026-09-04 ·
   [wpis 2026-09-04 — Cztery defekty pre-commita](archiwum/dziennik/DZIENNIK_2026-09-03_2026-09-06.md#2026-09-04--cztery-defekty-pre-commita-ze-zgłoszenia-zewnętrznego-wydanie-192)
-  *(odroczone 2026-10-08, odroczeń: 1)*
+  *(odroczone 2026-11-10, odroczeń: 2)*
 
 ## Wpisy
 
@@ -1892,3 +1886,1307 @@ zamknięte, jedna świadomie otwarta w `STATE.md`); odnóg plan nie miał; skan 
 (P-062) — w `STATE.md`.
 
 Autor: RelAI (Opus 5.5) + Lukasz
+
+### 2026-11-09 — Audyt RelAI i plan OPTYMALIZACJA_PO_AUDYCIE (DO AKCEPTACJI)
+
+Prośba Łukasza: krytyczny audyt projektu (plugin, proces, mody) z dowodem przy każdym znalezisku,
+bez zmian w kodzie, a potem plan napraw rozpisany tak, żeby wykonał go Opus 5.5 na effort medium.
+
+**Zrobione:**
+
+- [AUDYT_RELAI_2026-11-09.md](AUDYT_RELAI_2026-11-09.md) — 56 znalezisk w siedmiu obszarach
+  (start i kontekst, tryb ciągły, hooki, bezpieczeństwo, proces, mody, repozytorium), każde
+  z dowodem i wstępną diagnozą.
+- Plan [OPTYMALIZACJA_PO_AUDYCIE](plany/OPTYMALIZACJA_PO_AUDYCIE/STATUS.md):
+  [PLAN.html](plany/OPTYMALIZACJA_PO_AUDYCIE/PLAN.html) z szablonu pluginu (dziesięć sekcji,
+  diagram etapów, bez symulatora), `STATUS.md` (DO AKCEPTACJI, 14 etapów OCZEKUJE, bez promptów —
+  D-34) i załącznik `karty/`: konwencje wspólne, ustalenia robocze, 14 plików kart (57 kart,
+  480 KB) i trzy skrypty w `karty/zalaczniki/`. Karta podaje cel, pliki, kotwicę stanu obecnego,
+  kroki z kodem docelowym, test pisany przed zmianą, weryfikację, granice i pułapki.
+- Zakres wg decyzji Łukasza: 41 znalezisk wysokiej i średniej wagi (w tym hipotezy A6, C9, C10
+  sprawdzane pomiarem w E2) oraz E9 z niskich; aneksy dozwolone do D-14, D-40, D-88 i D-93; G1
+  (waga instalacji) tylko pomiar wariantów; jedno wydanie na końcu; gałąź `optymalizacja/po-audycie`.
+- Decyzje z dnia: `core/panel/cache-timer.mjs` zostaje do decyzji o PANEL_CODEX (K-F4 bez zmiany
+  kodu); podział plików `register.tsx` wyjęty z planu (K-F5).
+- Linia „Aktywny plan” w `CLAUDE.md` i kopii w `AGENTS.md`; `STATE.md`.
+
+**Zweryfikowane — jak dokładnie:**
+
+- Audyt: 629 testów Node i 559 testów modów zielonych na `main @ 5aeab39`; znaleziska
+  bezpieczeństwa i hooków odtworzone skryptami na fiksturach (dowody w raporcie).
+- Karty: autorzy (Opus 5.5 medium) sprawdzali kotwice Grepem i rozwiązania prototypami na kopiach —
+  m.in. skaner sekretów 51 z 51 przypadków i zero zmian blokad na 1193 plikach śledzonych; filtr
+  trybu ciągłego 44 z 44 promptów; odczyty plików testowych przy starcie 4 324 → 188; skrót startu
+  26 633 → 19 156 B; kopie rdzenia w modach −822 518 B.
+- Dwa przeglądy przed przekazaniem: kolizje między etapami (jedna kotwica unieważniana przez
+  wcześniejszy etap, trzy mniejsze rozjazdy, liczby testów liczone od `main`) i spójność planu
+  z kartami (pokrycie znalezisk, lista dla człowieka, format). Poprawki naniesione; tabela
+  narastająca testów w konwencjach.
+- `PLAN.html`: builder kod 0, 232 605 B, zero niewypełnionych znaczników, zero adresów `http(s)`,
+  podgląd w przeglądarce przy 375 px i 1200 px bez przewijania poziomego.
+- `node --test "core/process/tests/ritual-copies.test.js"` 3/3 po zmianie `CLAUDE.md` i `AGENTS.md`.
+- `git status --short`: zmienione wyłącznie `CLAUDE.md`, `AGENTS.md`, `docs/STATE.md`; nowe —
+  raport i folder planu. Kod bez zmian.
+
+**Świadomie odłożone:**
+
+- 13 znalezisk niskiej wagi (poza E9, pytaniem K-D12 i granicą powtórzeń w K-D1), znalezisko B3,
+  wdrożenie wariantu dystrybucji (G1), rotacja lekcji w `rotate.js`, podział `headings.mjs`,
+  refaktor stanu modułu w `register.tsx` (F5).
+- Przegląd czterech spraw przeterminowanych i trzy progi dokumentów zgłoszone na starcie sesji —
+  sesja była audytem bez zapisu; wracają przy następnym starcie.
+
+**Do zrobienia przez człowieka:**
+
+- Akceptacja planu OPTYMALIZACJA_PO_AUDYCIE albo poprawki. Sekcja 9 planu wymienia dziewiętnaście
+  spraw do rozstrzygnięcia w etapach.
+  *(rozstrzygnięte 2026-11-09 — „Akceptuję”, wpis niżej)*
+- Commit dokumentów planu i raportu (propozycja: `docs: add RelAI audit report and post-audit optimization plan`).
+  *(rozstrzygnięte 2026-11-09 — commit na gałęzi planu po akceptacji, wpis niżej)*
+
+Autor: RelAI (Fable 5.2; karty: Opus 5.5) + Lukasz
+
+### 2026-11-09 — Plan OPTYMALIZACJA_PO_AUDYCIE zaakceptowany
+
+Łukasz: „Akceptuję”, bez poprawek przy akceptacji.
+
+**Zrobione:**
+
+- [STATUS.md](plany/OPTYMALIZACJA_PO_AUDYCIE/STATUS.md): plan ZAAKCEPTOWANY 2026-11-09, E1 GOTOWY
+  DO STARTU, linia w dzienniku wdrożenia. Plan i załącznik `karty/` są od tej chwili zamrożone
+  (D-33) — zmiana wyłącznie datowanym aneksem.
+- [PROMPT_ETAP_1.md](plany/OPTYMALIZACJA_PO_AUDYCIE/PROMPT_ETAP_1.md) wg `SPEC_PROMPT_ETAPU.md`:
+  dziewięć elementów, wykonawca Opus 5.5 na `/effort medium`, zakres = siedem kart
+  z `karty/E01_PORZADKI_WIDOCZNE.md`, 12 punktów weryfikacji.
+- Linia „Aktywny plan” w `CLAUDE.md` i `AGENTS.md`, `STATE.md`.
+- Gałąź `optymalizacja/po-audycie` z commitem
+  `docs: add RelAI audit report and post-audit optimization plan` (raport, folder planu,
+  `CLAUDE.md`, `AGENTS.md`, `STATE.md`, `DZIENNIK.md`); bez `push`.
+
+**Zweryfikowane — jak dokładnie:**
+
+- `node --test "core/process/tests/ritual-copies.test.js"` po zmianie `CLAUDE.md` i `AGENTS.md`:
+  3/3.
+- `git status --short`: zmienione `CLAUDE.md`, `AGENTS.md`, `docs/STATE.md`, `docs/DZIENNIK.md`;
+  nowe — raport i folder planu. Żaden plik kodu.
+
+**Świadomie odłożone:**
+
+- Prompt etapu niesie **indeks** „Zasad aktywnych” (15 pozycji z wyzwalaczami), nie pełne
+  brzmienie: tak czyta je start sesji od D-15 Aneks A, a pełny odpis (35 KB) to znalezisko A1
+  audytu. Zdanie `SPEC_PROMPT_ETAPU.md` §6 „przepisaną w całości” poprawia karta K-A1 w etapie E10.
+- Karta K-0 (zamrożona) opisuje stan sprzed commita: gałąź `main` i pliki niezacommitowane. Po
+  „ok commituj” Łukasza gałąź `optymalizacja/po-audycie` powstała od razu, z jednym commitem
+  dokumentów planu; `main` zostaje równy wydanemu 3.7.0. Rozjazd obsługuje pole „Pułapki” karty
+  (gałąź istnieje → bez `-c`), a `PROMPT_ETAP_1.md` opisuje stan faktyczny.
+
+**Do zrobienia przez człowieka:**
+
+- Uruchomić etap E1: świeża sesja na Opus 5.5, `/effort medium`, komenda `/relai-stage`.
+  *(rozstrzygnięte 2026-11-10 — E1 uruchomiony i zrealizowany, wpis niżej)*
+
+Autor: RelAI (Fable 5.2) + Lukasz
+
+### 2026-11-10 — OPTYMALIZACJA_PO_AUDYCIE E1: porządki widoczne od następnej sesji
+
+Etap E1 z E14, siedem kart z `karty/E01_PORZADKI_WIDOCZNE.md`, wyłącznie dokumenty. Gałąź
+`optymalizacja/po-audycie`, punkt wyjścia `f3c5fbe` (commit dokumentów planu — stan oczekiwany
+według promptu etapu).
+
+**Przegląd spraw przeterminowanych na starcie sesji** (pięć z hooka, rytuał startu, poza kartami):
+Łukasz odroczył wszystkie pięć o kolejne 30 dni — PANEL_CODEX E1 (odroczeń: 1), zamknięta lista
+rdzeni, R2 na nieaktualnej przesłance, ochrona konfiguracji przy `ask`, ponowna instalacja
+pre-commita (odroczeń: 2). Adnotacje z datą 2026-11-10 w sekcji „Czeka na człowieka”.
+
+**Zrobione:**
+
+- K-0: gałąź `optymalizacja/po-audycie` już bieżąca, bez `git switch`.
+- K-B1p: [USTAWIENIA.md](USTAWIENIA.md) — wiersz „Tryb ciągły” → `wyłączony` (decyzja z audytu,
+  110 odmów na 113 sesji). Bramka zgody pojawiła się jeszcze w tej sesji na „Tak, start E1”;
+  odpowiedź „nie” zapisana w pliku zgody sesji.
+- K-E8: [STATE.md](STATE.md) — dwa zdania o trybie „RelAI tylko w projektach” zastąpione stanem
+  z `relai-scope.js status` (poziom użytkownika: `relai=true, relai-panel=true,
+  relai-progress=false, relai-cache-keeper=true`; tryb dostępny, niewłączony). Bez `apply`/`undo`.
+- K-E2r: pytanie o sprawę „Rozjazd manifestu z produktem” — **Łukasz: „Zamknąć”**. Pozycja usunięta
+  z „Czeka na człowieka”, adnotacja `*(rozstrzygnięte 2026-11-10 — manifest poprawiony w 2c41a07…)*`
+  na końcu [karty OPIS_REPO](fixy/OPIS_REPO/ODNOGA.md) (odnoga zostaje OTWARTA — jej domknięcie to
+  zmiana po stronie GitHuba). W `STATE.md` link do `adapters/codex/panel/README.md` zastąpiony
+  zdaniem, że pakiet leży na gałęzi `codex/panel-codex`.
+- K-E1r: kolejność frazy „kończymy na dziś” w `CLAUDE.md` i `AGENTS.md`: sync dokumentów, rotacja,
+  sprzątanie artefaktów roboczych, wpis do dziennika, przegląd ryzyk, propozycja commita.
+- K-E5: [DECYZJE.md](DECYZJE.md) — wiersz aneksu D-14 na końcu tabeli „Decyzje zmienione”,
+  brzmienie z karty; treść D-14 bez zmian.
+- K-D12: pytanie o dwie linie archiwum (`DZIENNIK_2026-08-07_2026-08-09.md:944`,
+  `DZIENNIK_2026-08-10_2026-08-12.md:257`), wartości niecytowane — **Łukasz: (a) „Tak, testowa —
+  zostaje”, (b) „Zostaje”**. Pliki archiwum bez zmian.
+
+**Zweryfikowane — jak dokładnie:**
+
+- `git branch --show-current` → `optymalizacja/po-audycie`.
+- `trybCiaglyProjektu(process.cwd())` → `true` przed zmianą, `false` po zmianie.
+- `grep -c "pracuje w trybie" docs/STATE.md` → `0`; `grep -c "tylko w projektach" docs/STATE.md` → `3`.
+- `grep "odnogi/OPIS_REPO" docs/DZIENNIK.md` → brak trafień; „Rozjazd manifestu z produktem”
+  w sekcji „Czeka na człowieka” → `0`; ostatnia linia `docs/fixy/OPIS_REPO/ODNOGA.md` zaczyna się
+  od `*(rozstrzygnięte`; `grep "adapters/codex/panel/README.md" docs/STATE.md` → brak trafień;
+  `git branch --list codex/panel-codex` → gałąź istnieje. Kontrola przed zmianą: stary cel linku
+  `ls` → „No such file or directory”.
+- `grep -c "sync dokumentów, rotacja, sprzątanie artefaktów"` → `1` w `CLAUDE.md` i `1`
+  w `AGENTS.md`; `grep -c "sync dokumentów, wpis do dziennika"` → `0` w obu;
+  `diff CLAUDE.md AGENTS.md | grep -c "^[<>]"` → `3` przed i po;
+  `node --test "core/process/tests/ritual-copies.test.js"` → 3/3 pass.
+- Dowód negatywny K-E1r: `git diff CLAUDE.md` ma jeden hunk `@@ -17,8 +17,8 @@`; nagłówek
+  „Implementation guidelines” stoi w linii 73 — poniżej nic się nie zmieniło.
+- Grep `D-14.. → aneks` w `docs/DECYZJE.md` (tryb count) → `1`; `git diff --numstat docs/DECYZJE.md`
+  → `1	0`.
+- K-D12: `git status --short` nie pokazuje żadnego pliku `docs/archiwum/`.
+- `node .claude/relai/tools/start-digest.js` → `0` trafień `archiwum/plany/ROZWOJ_PO_WYDANIU/odnogi/OPIS_REPO`;
+  w sekcji „Gdzie jesteśmy” `0` trafień „pracuje w trybie” (dwa trafienia „tylko w projektach” to
+  zdanie o 3.6.0 i nowe zdanie „dostępny, ale nie jest włączony”).
+- Granica: `git status --short` — `AGENTS.md`, `CLAUDE.md`, `docs/DECYZJE.md`, `docs/DZIENNIK.md`,
+  `docs/STATE.md`, `docs/USTAWIENIA.md`, `docs/fixy/OPIS_REPO/ODNOGA.md`, pliki planu; pod
+  `adapters/` wyłącznie cztery zastane `*-closing.md`; `.claude/launch.json` nieśledzony, spoza
+  etapu.
+- Katalog roboczy `.claude/relai/work/OPTYMALIZACJA_PO_AUDYCIE/E1/` **nie powstał** (przed: 0,
+  po: 0). Artefakty spoza katalogu: plik tymczasowy skrótu startu w `%TEMP%` (skasowany w tym samym
+  poleceniu) i plik zgody sesji w `.claude/relai/zgoda-promptu/` (runtime, nieśledzony).
+  `clean-work.js raport` pokazał cudze pozycje (`work/PRZYCISKI_POSTEPU`, `work/WYDANIE/3.7.0`,
+  `.security/trivy`) — spoza etapu, nietknięte.
+
+**Świadomie odłożone:**
+
+- Rotacja dziennika (150,1 KB przy progu 150 KB), zamykanie ryzyk (sekcja 17,5 KB przy 12 KB)
+  i rotacja lekcji (68,1 KB przy 50 KB) zgłoszone na starcie — poza kartami E1; do „kończymy na
+  dziś” albo osobnej sesji.
+- Bramka zgody trybu ciągłego zapytała przy krótkim potwierdzeniu „Tak, start E1”, choć filtr
+  pomijania ma przepuszczać krótkie potwierdzenia — materiał do etapu E9 (karta K-B1).
+- Prompt etapu mówił o czterech sprawach przeterminowanych, hook zgłosił pięć (PANEL_CODEX E1
+  przekroczył 30 dni 2026-11-10) — bez skutku dla etapu.
+- Lista modeli `MODELE-claude-code.md` ma 33 dni przy progu 7 — `/relai-models` poza etapem.
+
+**Do zrobienia przez człowieka:**
+
+—
+
+Autor: RelAI (Opus 5.5) + Lukasz
+
+### 2026-11-10 — OPTYMALIZACJA_PO_AUDYCIE E2: pomiary na żywo — C9 nie widzi, A6 bez dowodu, liczby G1
+
+Etap E2 z E14, pięć kart z `karty/E02_POMIARY_NA_ZYWO.md`; niczego nie naprawia. Gałąź
+`optymalizacja/po-audycie`, punkt wyjścia `86358ef` (commit E1). Claude Code 2.1.321, sesje
+`claude -p` na Opus 5.5 (`claude-opus-5-5` w zdarzeniu `init`). Wynik:
+[POMIARY.md](plany/OPTYMALIZACJA_PO_AUDYCIE/POMIARY.md).
+
+**Zrobione:**
+
+- K-P0: instrument `pomiar-sesji.js` i kontrola `pomiar-kontrola.js` w katalogu roboczym etapu.
+  Kontrola najpierw na szkielecie: 0/4 (trzy asercje, przypadek 3 — atrapa niewywołana, ENOENT
+  pliku argumentów), potem 4/4. Odstępstwo od wzoru: atrapa `.cmd` idzie przez `shell: true`, bo
+  Node 24 nie uruchamia `.cmd` bez powłoki; prawdziwa binarka (`$CLAUDE_CODE_EXECPATH`, `.exe`)
+  idzie tym samym `spawn` bez powłoki co `eval-triggers.js`. Sesja próbna — sesja 1/10.
+- K-C9m: trzy sesje na świeżych fiksturach (sesje 2–4/10), prompt z karty dosłownie.
+  **`C9: NIE WIDZI`.**
+- K-A6m: trzy pary z `--resume` (sesje 5–10/10). **`A6: NIE POWTARZA`** — z gałęzi „mniej niż
+  dwie pary ważne”, nie z dowodu (L-0310).
+- K-G1m: wariant A policzony skryptem, wariant B zbudowany w `%TEMP%`, zwalidowany i — po
+  „Tak” Łukasza w bramce z karty — zainstalowany w zakresie `local` projektu tymczasowego, potem
+  posprzątany w tej samej turze; wariant C z jednego odczytu strony `plugin-marketplaces`.
+- K-P9: `POMIARY.md` w strukturze z karty, z notą kontroli mechanizmu C9, informacją o hooku przy
+  `--resume` i udokumentowanymi postaciami pola `source`.
+- Lekcja L-0310 i dopisek do zasady 4 w `docs/LEKCJE.md` (rytuał „Na koniec”, krok 2; plik spoza
+  listy punktu „Granica” promptu — wygrywa rytuał, zasada 14).
+
+**Zweryfikowane — jak dokładnie:**
+
+- `git branch --show-current` → `optymalizacja/po-audycie`.
+- `node …/E2/pomiar-kontrola.js` → `4/4 przechodzi`, kod 0 (przed implementacją `0/4`, kod 1).
+- Sesja próbna: `kod: 0`, `sesjaId` `f9902028-…`, `tekstKoncowy` `OK.`, 13 zdarzeń; kształt jak
+  w karcie (`system/init` z `session_id`, `assistant` z blokami `content`, `result` z `result`);
+  w `init` plugin `relai` z `C:\Users\Lukasz\Desktop\RelAI` (`relai@inline`, 3.7.0).
+- K-C9m: trzy przebiegi ważne (nagłówek wpisu jest, linii `Autor:` po nim nie ma), kod 0, każdy
+  odpowiada `KOMUNIKAT: BRAK` → widzi 0/3. Kontrola mechanizmu: w transkrypcie każdej sesji na
+  dysku stoi `[RelAI journal-signature] Ostatni wpis dziennika (` — hook wystrzelił.
+- K-A6m: pary 1–3 nieważne, `start-digest.js` w sesji 1 i 2: 0 i 0 we wszystkich; kod 0 w sześciu
+  sesjach. Hook przy `--resume` (`SessionStart:resume`) wstrzyknął ten sam blok 2005 znaków co
+  przy starcie. Para 1, pierwsze wywołanie sesji drugiej: `input_tokens` 4,
+  `cache_read_input_tokens` 48 220, `cache_creation_input_tokens` 142.
+- Budżet: **10/10 sesji `claude -p`** (1 + 3 + 6), wszystkie z `--max-turns 8` i limitem 300 s.
+- K-G1m (MiB): dziś 114,5 śledzonych, cache 3.7.0 118; A 36,6 (389 plików, 77,9 MiB, 91 linków
+  w 27 plikach `.md`); B 3,8 (431 plików), `plugin validate` kod 0, instalacja 4,8 MiB zajętości,
+  200 miejsc w narzędziach (`MANIFEST.json` 9, `release-map.json` 126, `validate-adapters.js`
+  65), 25 ścieżek `CLAUDE_PLUGIN_ROOT` tylko w `adapters/`; C ok. 3,8 SZACUNEK. **Odpowiedź
+  z bramki instalacji: „Tak”.**
+- Sprzątanie K-G1m: `plugin marketplace list` → 0 trafień `relai-pomiar` (lista identyczna
+  z kopią sprzed); `ls ~/.claude/plugins/cache/` → 0; `%TEMP%/relai-pomiar-*` → 0;
+  `known_marketplaces.json` bajtowo identyczny, `installed_plugins.json` semantycznie identyczny
+  (CLI przestawiło kolejność kluczy `projectPath`/`gitCommitSha` przy wpisach TargiKielce).
+- Grep (`count`) w `POMIARY.md`: `^C9: (WIDZI|NIE WIDZI)$` → 1, `^A6: (POWTARZA|NIE POWTARZA)$` → 1.
+- Katalog roboczy `.claude/relai/work/OPTYMALIZACJA_PO_AUDYCIE/E2/`: przed 22 pliki, 340 KB; po
+  „tak” Łukasza — 0 (katalog i pusty folder planu skasowane). `clean-work.js raport` pominął
+  katalog otwartego etapu, liczby z `find`/`du`. Artefakty spoza katalogu, skasowane po tym samym
+  „tak”: 7 folderów transkryptów `~/.claude/projects/C--Users-Lukasz-AppData-Local-Temp-relai-pomiar-*`
+  (ok. 2,8 MB) i 7 plików `%TEMP%/relai-ustawienia-podane-<id sesji pomiarowej>`. Fikstury
+  `relai-pomiar-*` w `%TEMP%` kasował instrument po każdej sesji albo parze; projekt
+  `relai-pomiar-projekt` i katalog `relai-pomiar-dystrybucja` — skasowane w turze instalacji.
+
+**Świadomie odłożone:**
+
+- Werdykt A6 bez dowodu: powtórka pomiaru z promptem, który uruchamia rytuał w sesji pierwszej,
+  wymaga nowej zgody na sesje i zmiany karty (aneks). Do decyzji przy etapie E7 (karta K-A6).
+- Zachowanie pluginu z podkatalogu (wariant B) w świeżej sesji niezmierzone — budżet wyczerpany.
+- Ryzyko M6: flagi `claude -p` z karty (`--setting-sources`, `--strict-mcp-config`,
+  `--plugin-dir`, `--permission-mode`, `--allowedTools`, `--resume`) zadziałały bez zmian —
+  adnotacji nie ma.
+- Rotacje dziennika, sekcji ryzyk i lekcji zgłoszone na starcie — poza etapem.
+
+**Do zrobienia przez człowieka:**
+
+- Wybór wariantu dystrybucji G1 (A / B / C / bez zmiany) na liczbach z `POMIARY.md` — plan go nie
+  wdraża; wdrożenie aneksem albo osobnym planem.
+
+Autor: RelAI (Opus 5.5) + Lukasz
+
+### 2026-11-10 — OPTYMALIZACJA_PO_AUDYCIE E3: skaner sekretów łapie nośniki kluczy, pre-commit bez dziur
+
+Etap E3 z E14, cztery karty z `karty/E03_SKANER_I_PRECOMMIT.md` w kolejności K-D1 → K-D4 → K-D3 →
+K-D2. Gałąź `optymalizacja/po-audycie`, punkt wyjścia `d129566` (commit E2). Pierwszy etap planu
+z kodem; zmiana działa w sesjach dopiero po wydaniu w E14 — dowodem są testy i porównanie.
+
+**Zrobione:**
+
+- K-D1 (`core/guardrails/secret-scan.js`): nowe wzorce w `PATTERNS` — blok PGP w regule PEM,
+  Stripe `sk_live_`, GitHub `github_pat_`/`gho_`/`ghu_`/`ghs_`/`ghr_`, Slack `xox…`, Google
+  `AIza…`, hasło w części userinfo adresu URL z polem `pomin` (placeholder albo samo słowo);
+  `ASSIGN_RE` z opcjonalnym cudzysłowem nazwy; `ASSIGN_PREFIX_RE` z granicą `{1,8}` i gałęzią
+  `_KEY` z zamkniętą listą rdzeni; nowa reguła `ASSIGN_LOWER_RE` (małe litery z przedrostkiem,
+  tylko w kształcie konfiguracji); funkcje `bezKontynuacji` i `wartoscJestKodem`; pętla reguł
+  na grupach 1–4 z zasadą „klucz w cudzysłowie wymaga wartości w cudzysłowie”.
+- K-D4 (ten sam plik): `ENV_READ_RE` rozpoznaje `os.getenv`, `System.getenv`,
+  `(System.)Environment.GetEnvironmentVariable`; `wartoscJestKodem` z `ENV_ROOT_RE`, `CODE_RE`,
+  `PROZA_RE` (flaga `u`) — kod, odczyty środowiska i proza po dwukropku nie dają werdyktu.
+- K-D3 (`core/guardrails/pre-commit.js`): `--diff-filter=ACMR`, `git(args, kodowanie)`,
+  `dekoduj(buf)` z UTF-16 LE/BE po BOM; bajt zerowy bez BOM nadal oznacza plik binarny.
+- K-D2 (`core/guardrails/install-precommit.js`): `revParse`, `katalogiHookow`, `tenSamKatalog`;
+  odmowa (kod 1, nic nie zapisuje) przy `core.hooksPath` wskazującym inny katalog, z linią do
+  wklejenia; instalacja z worktree trafia do wspólnego katalogu hooków; test dymny przez
+  `git hook run pre-commit` na własnym `GIT_INDEX_FILE` (pusty indeks → 0, próbka z sekretem → 1);
+  `doSh` usunięta; komunikaty i komentarz nagłówka wg karty.
+- Testy dopisane na końcu dwóch plików: 9 w `secret-scan.test.js`, 5 w `install-precommit.test.js`.
+
+**Zweryfikowane — jak dokładnie:**
+
+- `git branch --show-current` → `optymalizacja/po-audycie`; `git --version` → 2.49.0.
+- Przebiegi czerwone przed zmianą, każdy na asercji: K-D1 — 4 czerwone (trzy testy wykrycia
+  i test czasu: 3159 ms), „stay silent” zielony; K-D4 — 3 czerwone, „stay blocked” zielony;
+  K-D3 — 2 czerwone (`rename with a secret must be blocked`, `UTF-16LE with BOM`); K-D2 —
+  3 czerwone (instalator zainstalował mimo `core.hooksPath`; brak `git hook run pre-commit`
+  w komunikacie; brak plików we wspólnym `.git/hooks` przy worktree).
+- `node --test "core/guardrails/tests/secret-scan.test.js"` → 23 pass, 0 fail.
+- `node --test "core/guardrails/tests/*.test.js"` → **33 pass**, 0 fail (przed etapem 19;
+  po K-D1 24, po K-D3 30). `git diff` obu plików testów: 0 usuniętych linii — wyłącznie
+  dopisane na końcu.
+- Porównanie skanera HEAD vs drzewo robocze linia po linii: 1219 plików tekstowych z 1602
+  śledzonych, 361 209 linii → `NOWE 0`, `ZNIKNIETE 0`. Kontrola pozytywna instrumentu na tym
+  samym mechanizmie: linia JSON z hasłem — HEAD `null`, drzewo `przypisanie PASSWORD= …`;
+  linia Javy z `System.getenv` — HEAD `przypisanie TOKEN= …`, drzewo `null`.
+- Efekt z karty: `node core/guardrails/secret-scan.js` na pliku JSON → `SEKRET` (kod 1), na
+  pliku Javy → `BRAK` (kod 0); treść obu plików składana skryptem.
+- `node core/tools/validate-adapters.js` → kod 0, jedno ostrzeżenie (`security-audit/SKILL.md`
+  22 026 B ponad 20 480 B), jak przed etapem.
+- Trivy (`trivy fs --scanners vuln`): 0 CRITICAL, 42 HIGH, 50 MEDIUM, 12 LOW — wszystkie
+  zastane, w fiksturach ewaluacji `trivy-scan` (celowo podatne) i w katalogu roboczym
+  PANEL_CODEX; etap nie dodaje zależności (`git ls-files core | grep package.json` → pusto).
+  Nowych CRITICAL ani HIGH z tego etapu: 0.
+- `git grep -nE` po tokenach `sk_live_…{16}` i `github_pat_…{22}` → 0 trafień. Grep po
+  „PASSWORD=” w trzech plikach `core/guardrails/*.js` i dwóch testach → 1 trafienie, zastany
+  komentarz w `secret-scan.js` (zdanie o guardrailu, bez wartości); gotowych przypisań 0.
+  Test czasu skanu (`A-` × 40 000) zielony, próg 1000 ms.
+- `git status --short`: z etapu pięć plików `core/guardrails/` i dokumenty rytuału; pod
+  `adapters/` wyłącznie cztery zastane `*-closing.md`; `.claude/launch.json` nieśledzony,
+  poza commitem.
+- Katalog roboczy `.claude/relai/work/OPTYMALIZACJA_PO_AUDYCIE/E3/`: przed 13 plików, 818 KB;
+  po „tak” Łukasza — 0 (katalog i pusty folder planu skasowane). `clean-work.js raport` pominął
+  katalog otwartego etapu, liczby z `find`/`du`. Artefakty spoza katalogu:
+  `%TEMP%/relai-secret-scan-head.js` i `relai-secret-scan-head-kontrola.js` kasowane przez
+  skrypty, które je tworzyły; fikstury `%TEMP%/relai-guardrails-test-*` i
+  `relai-precommit-smoke-*.index` sprząta helper testu i `finally` instalatora — po etapie
+  `ls %TEMP%` → 0 trafień.
+
+**Świadomie odłożone:**
+
+- Hooki adapterów (`adapters/*/hooks/secret-scanner.js`), D8, D11, D12 i marker gościa z D10 —
+  etapy E4/E5 albo poza planem, zgodnie z kartą.
+- Przegląd ryzyk: P1 (adaptery bez blokad harnessu) — pre-commit łapie teraz więcej nośników
+  i nie ginie przy `core.hooksPath`, ale poziom zostaje do E6 (adaptery); bez zmiany tabeli.
+- Rotacje dziennika, sekcji ryzyk i lekcji zgłoszone na starcie — poza etapem.
+
+**Do zrobienia przez człowieka:**
+
+- K-D2: odmowa przy `core.hooksPath` to wybór karty; alternatywa (instalacja w katalogu
+  wskazanym przez `core.hooksPath`) zapisuje do katalogu innego narzędzia — decyzja właściciela.
+- K-D1: lista rdzeni `_KEY` (`SECRET`, `PRIVATE`, `ENCRYPTION`, `SIGNING`, `MASTER`) jest
+  zamknięta; nazwy dostawców zostają poza skanem nazw — potwierdzić albo poszerzyć.
+- K-D4: świadome luki — wartość z małą nazwą i znakiem „=” w kształcie kropkowanego
+  identyfikatora traktowana jak kod; świadome fałszywe blokady — wywołanie z literałem
+  w nawiasie. Potwierdzić kompromis.
+
+Autor: RelAI (Opus 5.5) + Lukasz
+
+### 2026-11-10 — OPTYMALIZACJA_PO_AUDYCIE E4: guardy Claude Code — awaria widoczna, zasięg projektu, CRLF
+
+Etap E4 z E14, trzy karty z `karty/E04_GUARDY_CLAUDE_CODE.md` w kolejności K-C10 → K-C4 → K-C6.
+Gałąź `optymalizacja/po-audycie`, punkt wyjścia `2ee8cb3` (commit E3). Zmiana działa w sesjach
+dopiero po wydaniu w E14 — w tej sesji pracowały hooki zainstalowanego 3.7.0; dowodem są testy
+i uruchomienie hooków z repozytorium na fiksturze.
+
+**Zrobione:**
+
+- K-C10, **ścieżka A** (`config-protection.js`): funkcja `bezCR` i cztery miejsca z karty —
+  `immutableSection`, odczyt `CLAUDE.md`, oba wywołania `editTouchesSection` (`Edit`, `MultiEdit`).
+  Test `core/process/tests/config-protection-crlf.test.js` (3 przypadki).
+- K-C4 (czternaście hooków `adapters/claude-code/hooks/*.js`): `HOOK`, `nazwaBledu`, `slad` przed
+  pierwszym `require`; `pytajPoAwarii` w `secret-scanner` i `config-protection` (awaria `require`,
+  błąd `stdin`, `JSON.parse` + `main` → `ask` z komunikatem), BOM zdejmowany w obu guardach;
+  tabela S / A / Z karty — siedem hooków ostrzegawczych przerobionych skryptem z kontrolą „kotwica
+  dokładnie raz”, pozostałe narzędziem Edit. `session-context.js`: pomocnik `raport` i piętnaście
+  raportów pod nazwami z karty, `gs` jako `let` przypisywane w raporcie `ustawienia globalne`.
+  `SKILL.md` `relai-core` — drugi wyjątek (linia „Siatka … nie zadzialala”), kopia Codeksa
+  z `generate-skills.js`, wiersz `relai-core` w `docs/ARTEFAKTY.md` → wersja 29. Test
+  `core/process/tests/hook-failures.test.js` (6 przypadków).
+- K-C6: `wKatalogu` w `console-log-warn`, `quality-gate`, `design-quality-check` (warunek przed
+  sprawdzeniem `DESIGN.md`), `profile-rules` i `secret-scanner` (wariant `root, abs`, tylko po
+  rozpoznaniu projektu); w skanerze `stanGita` trójstanowa zamiast `isGitIgnored`, komunikat bez
+  „śledzonego” (`ktorego git nie ignoruje` / `projekt bez repozytorium gita albo git
+  niedostepny`), komentarz nagłówka poprawiony. Test `core/process/tests/hook-project-scope.test.js`
+  (6 przypadków, przypadek 4 tylko na Windows).
+
+**Zweryfikowane — jak dokładnie:**
+
+- `git branch --show-current` → `optymalizacja/po-audycie`.
+- Przebiegi czerwone przed zmianą, zapisane w katalogu roboczym: K-C10 — przypadki 1 i 2
+  czerwone z asercji (`cisza` zamiast `ask`, `ask` zamiast `cisza`), przypadek 3 zielony —
+  przewidywanie karty (ścieżka A) potwierdzone; K-C4 — 6/6 czerwone z asercji (pierwsza wersja
+  pomocnika testu padała na `JSON.parse` pustego stdout; dodana asercja „hook odpowiada decyzją”,
+  drugi przebieg czerwony z asercji); K-C6 — 6/6 czerwone z asercji, w tym przypadek 4 na
+  Windows (`Z:/relai-nie-istnieje/src/a.js` dostawał „pierwszy kod”).
+- Po zmianie: trzy nowe pliki → 3 + 6 + 6 pass; `humanize-continuous.test.js` → 22 pass.
+- `node --test "core/process/tests/*.test.*"` → **372 pass**, 0 fail (przed etapem 357);
+  `core/guardrails` → 33 pass (bez zmian); `adapters/codex/tests` → 24 pass (bez zmian).
+  `git status core/process/tests` → wyłącznie trzy nowe pliki, istniejące testy nietknięte.
+- `grep -c "function slad"` → 1 w każdym z czternastu hooków; `catch (_) { process.exit(0); }` →
+  0 trafień; `pytajPoAwarii` → 4 w dwóch guardach, 0 w pozostałych; `sledzon` w
+  `secret-scanner.js` → 0. Bajty wstawionego skryptem bloku: `[^\x20-\x7e]` i `'\n'` obecne
+  w 14 plikach (zasada 5).
+- Efekt z karty (hook z repozytorium): `secret-scanner` z wejściem `{nie json` → kod 0, `ask`,
+  stderr `[RelAI secret-scanner] blad: SyntaxError`; poprawny payload w fiksturze bez markera →
+  stdout 0 B, stderr 0 B.
+- `SKILL.md` `relai-core` w obu adapterach: nowe zdanie → 1, stare „wtedy porównujesz sam, wg” → 0;
+  `ARTEFAKTY.md` — wersja 29, dopisek z datą na początku komórki.
+- `node core/tools/validate-adapters.js` → kod 0, jedno ostrzeżenie (`security-audit/SKILL.md`
+  22 026 B), `wywolania z hooks.json: 18`.
+- Trivy (`trivy fs --scanners vuln`): 0 CRITICAL, 42 HIGH, 50 MEDIUM, 12 LOW — identycznie jak
+  w E3, zastane fikstury ewaluacji `trivy-scan` i katalog roboczy PANEL_CODEX;
+  `git ls-files adapters/claude-code/hooks core | grep package.json` → pusto. Nowych CRITICAL
+  ani HIGH: 0.
+- Podstawy: `e.message` w diffie hooków → jedno trafienie, komentarz zakazujący jego użycia
+  (nie kod); `git grep -nE` po `sk_live_…{16}` i `github_pat_…{22}` → 0; `PASSWORD=` w trzech
+  nowych testach → 0 (nazwa i wartość składane w czasie działania).
+- Katalog roboczy `.claude/relai/work/OPTYMALIZACJA_PO_AUDYCIE/E4/`: przed — 11 plików i pusty
+  folder fikstury, 837 KB (`find`/`du`; `clean-work.js raport` pomija katalog otwartego etapu);
+  po „tak” Łukasza — 0 (katalog i pusty folder planu skasowane). Artefakty spoza katalogu: fikstury `%TEMP%/relai-c10-*`,
+  `relai-c4-*`, `relai-c6-*` i znaczniki `%TEMP%/relai-ustawienia-podane-test-c4-*` sprzątają
+  `t.after` testów — po etapie `ls` → 0 trafień.
+
+**Świadomie odłożone:**
+
+- Komentarz nagłówka `secret-scanner.js` w linii 6 („awaria guarda = wyjscie bez efektu”) nie
+  opisuje już zachowania przy awarii — karta poprawia tylko linię 4; zdanie zostaje do E5 (karta
+  K-D8 dotyka tego samego pliku) albo do K-E9 w E14.
+- Raport `clean-work.js` pokazał zastany katalog `adapters/claude-code/hooks/.claude/relai/`
+  (51 plików, 801 KB, z 2026-10-27, ignorowany własnym `.gitignore`) — kopie hooka startu
+  z sesji otwartej kiedyś w tym folderze. Nie z tego etapu, nie ruszam.
+- Przegląd ryzyk: C1 (API modów) — etap nie dotyka modów, bez zmiany; P1 (adaptery bez blokad
+  harnessu) — dotyczy Cursora i Codeksa, etap E6; bez zmiany tabeli.
+- Rotacje dziennika, sekcji ryzyk i lekcji zgłoszone na starcie — poza etapem.
+
+**Do zrobienia przez człowieka:** —
+
+Lekcja z etapu: L-0311 (trzecia powtórka L-0298 — drugie `cd` w łańcuchu przestawiło katalog
+sesji; reguła w `CLAUDE.md` już stoi, poszerzona w zasadzie 5 o `cd` do korzenia repo).
+
+Autor: RelAI (Opus 5.5) + Lukasz
+
+### 2026-11-10 — OPTYMALIZACJA_PO_AUDYCIE E5: sekret w poleceniu powłoki, `bash-guard`, siatka Stop po commitach
+
+Autor: RelAI (Opus 5.5) + Lukasz
+
+Etap E5 z E14, trzy karty z `karty/E05_HOOK_POLECEN_I_STOP.md` w kolejności K-D8 → K-E3 → K-C9.
+Gałąź `optymalizacja/po-audycie`, punkt wyjścia `5ff5147` (commit E4). Zmiana działa w sesjach
+dopiero po wydaniu w E14 — w tej sesji pracowały hooki zainstalowanego 3.7.0; dowodem są testy
+i uruchomienie hooków z repozytorium na fiksturze.
+
+**Pytanie startowe** (jedno AskUserQuestion przed pierwszą zmianą kodu): (a) skan sekretu
+w poleceniu powłoki w `secret-scanner`, `bash-guard` tylko ostrzega (D-41 bez zmian) — **„Tak”**;
+(b) przy `C9: NIE WIDZI` przypomnienie hooka Stop przez `additionalContext` — **„Przenieść”**.
+
+**Zrobione:**
+
+- K-D8: `hooks.json` — grupa `^Bash$` w `PreToolUse` z `secret-scanner`. `secret-scanner.js`:
+  import `relaiMarkerFile`, `odmow(msg)` (oba werdykty `deny` przez nią), `skanujPolecenie` przed
+  `const filePath` (projekt od katalogu sesji), `zastosuj` (zamiana przez `slice`),
+  `sekretZlozony` z `LIMIT_PELNEGO_SKANU` 512 KB i `bezCR`; `scanText(payload) ||
+  sekretZlozony(...)`; nagłówek linii 3. Wiersze `README.md` (`secret-scanner` „… i polecenie
+  powłoki z kluczem”) i `docs/PRZEWODNIK.md` (`sekretów`). Test `secret-scanner-d8.test.js`
+  (5 przypadków).
+- K-E3: nowy `adapters/claude-code/hooks/bash-guard.js` (kod z karty, piętnasty hook) dopięty
+  w grupie `^Bash$` po `secret-scanner`. `doc-sync-reminder.js`: `ostatniWpis` z rdzenia,
+  `jestKodem`, `jestDokumentemStanu`, `commityBezWpisu` (jedno `git log --since="<data> 00:00:00"`,
+  limit 5 s, `--max-count=200`), blok w `main` zastąpiony wg karty (czyste drzewo sprawdza teraz
+  commity), zdanie w nagłówku. Wiersze `bash-guard` w README i „nawyków powłoki” w PRZEWODNIKU.
+  Testy `bash-guard.test.js` (7 przypadków, tabela 26 poleceń) i `doc-sync-reminder.test.js` (2).
+- K-C9: `journal-signature.js` — `ostatniWpis` przez rdzeń (wpis najnowszy, także dziennik
+  malejący i nagłówek `##`); przy `C9: NIE WIDZI` oba komunikaty przez `powiedzModelowi`
+  (`hookSpecificOutput`, `hookEventName: 'PostToolUse'`). `doc-sync-reminder.js` (odpowiedź
+  „Przenieść”) — oba komunikaty przez `powiedzModelowi` z `hookEventName: 'Stop'`, `…` → `...`,
+  warunek `stop_hook_active` bez zmian w `main`. Test `journal-signature.test.js` (3 przypadki).
+
+**Zweryfikowane — jak dokładnie:**
+
+- `git branch --show-current` → `optymalizacja/po-audycie`; `grep -c "function slad"
+  doc-sync-reminder.js` → 1; `grep -n "^C9:" POMIARY.md` → `7:C9: NIE WIDZI`.
+- Przebiegi czerwone przed zmianą (zapisane w katalogu roboczym): K-D8 — 5/5 z asercji (1, 3, 4, 5
+  „dostaje werdykt”, 2 „grupa PreToolUse pasujaca do Bash”); K-E3 — 7/7 `bash-guard` z asercji kodu
+  0 (hooka nie było), test 7 z asercji listy grupy, oba przypadki główne `doc-sync-reminder`
+  z asercji dopasowania; K-C9 — 3/3 z asercji (`cisza` zamiast `brak autora`, `brak autora`
+  zamiast `cisza`, brak wyjścia dla dziennika malejącego).
+- Po zmianie: `secret-scanner-d8` 5, `bash-guard` 7, `doc-sync-reminder` 2, `journal-signature` 3
+  pass; testy E4 (`hook-failures`, `hook-project-scope`, `config-protection-crlf`) zielone.
+- `node --test "core/process/tests/*.test.*"` → **389 pass**, 0 fail (przed etapem 372; delta
+  +5 +9 +3 = 17, zgodnie z kartą przy `NIE WIDZI`); `core/guardrails` → 33 pass (bez zmian).
+  `git status --short core/process/tests` → wyłącznie cztery nowe pliki.
+- `node core/tools/validate-adapters.js` → kod 0, jedno ostrzeżenie (`security-audit/SKILL.md`),
+  `wywolania z hooks.json: 20`, `odwolania z kodu adapterow do rdzenia: 29` (po K-D8 19/26, po
+  K-E3 20/28).
+- `node core/tools/release-check.js --tylko readme-hooki` → jeden błąd: „proza sekcji hookow mowi
+  "czternaście" (14), a hookow jest 15” — stan oczekiwany do K-E9 w E14; wierszy tabeli 15.
+- Efekt widoczny (skrypt w katalogu roboczym, hooki z repozytorium, fikstura z markerem):
+  `export` z sekretem składanym w czasie działania → `deny`, powód „… w poleceniu powloki …
+  Wartosc nie zostala zacytowana celowo.”; `cd x && y` → `additionalContext` z „golego cd”, bez
+  `permissionDecision`; Stop po commicie `src/a.js` z 2026-11-03 przy wpisie z 2026-11-01 →
+  `hookEventName: Stop`, „Od ostatniego wpisu dziennika (2026-11-01) jest 1 commitow …”. Pierwszy
+  przebieg skryptu dał „W drzewie roboczym … (home/)” — błąd instrumentu (katalog `home` fikstury
+  w jej drzewie), po `.gitignore` w fiksturze wynik zgodny (L-0312).
+- Trivy (`trivy fs --scanners vuln`): 0 CRITICAL, 42 HIGH, 50 MEDIUM, 12 LOW — identycznie jak
+  po E4; etap nie dodaje zależności. Nowych CRITICAL ani HIGH: 0.
+- Podstawy: `e.message` w dodanych liniach diffu hooków → 0; `git grep -nE` po `sk_live_…{16}`
+  i `github_pat_…{22}` → 0; `PASSWORD=` / `TOKEN=` w czterech nowych testach → 0 (nazwy i wartości
+  składane w czasie działania).
+- Katalog roboczy `.claude/relai/work/OPTYMALIZACJA_PO_AUDYCIE/E5/`: przed — 45 plików, 920 KB
+  (`find`/`du`; przebiegi czerwone, pełny przebieg `core/process`, raport Trivy, skrypt efektu
+  z fiksturą-repozytorium); po „tak” Łukasza — 0. Artefakty spoza katalogu: fikstury
+  `%TEMP%/relai-d8-*`, `relai-e3-*`, `relai-c9-*` sprzątają `t.after` testów — po etapie `ls` → 0.
+
+**Świadomie odłożone:**
+
+- Komentarz nagłówka `secret-scanner.js` w linii 6 („awaria guarda = wyjscie bez efektu”) nadal
+  nie opisuje zachowania przy awarii — K-D8 zmienia tylko linię 3; zostaje do K-E9 w E14.
+- Drugi komunikat `journal-signature` ma półpauzę („— bez czlonu”), czyli nie jest ASCII
+  (zasada 15); karta K-C9 każe przenieść „ten sam tekst”, więc tekst bez zmian.
+- Zastany katalog `adapters/claude-code/hooks/.claude/relai/` (z 2026-10-27) — jak w E4, nie
+  z tego etapu.
+- Przegląd ryzyk: C1 (API modów) — etap nie dotyka modów, bez zmiany; P1 (adaptery bez blokad
+  harnessu) — sekret w `Bash` blokuje teraz także Claude Code, Codex skanuje `Bash` od dawna;
+  Cursor to E6 — bez zmiany poziomu.
+- Rotacje dziennika, sekcji ryzyk i lekcji zgłoszone na starcie — poza etapem.
+
+**Do zrobienia przez człowieka:** —
+
+Lekcja z etapu: L-0312 (fikstura hooka czytającego `git status` trzyma swoje pomocnicze katalogi
+poza repozytorium fikstury).
+
+### 2026-11-10 — OPTYMALIZACJA_PO_AUDYCIE E6: deinstalator Cursora w granicach `.cursor/`, skaner Codeksa w załodze, prompt recenzenta stdin-em
+
+Autor: RelAI (Opus 5.5) + Lukasz
+
+Etap E6 z E14, cztery karty z `karty/E06_ADAPTERY_I_ZALOGA.md` w kolejności K-D5 → K-D9 → K-D6 →
+K-D7. Gałąź `optymalizacja/po-audycie`, punkt wyjścia `1e359ed` (commit E5). Zmiana działa w sesjach
+dopiero po wydaniu w E14 — dowodem są testy i skrypt efektu na kodzie z repozytorium.
+
+**Zrobione:**
+
+- K-D5: `adapters/cursor/install.js` — `sciezkaZManifestu` nad `uninstall` (odrzuca `..`, ścieżkę
+  bezwzględną, literę dysku, plik spoza `.cursor/` i wyjście przez dowiązanie w katalogu
+  nadrzędnym, porównanie po `realpathSync`); cała lista manifestu sprawdzana przed pierwszym
+  usunięciem (kod 1, komunikat „wskazuje pliki spoza .cursor/ projektu”, nic nie znika); pętla po
+  `wpisy`. Sześć testów w `install.test.js` (pięć odmów, w tym junction, i przypadek ukośników).
+- K-D9: `core/process/crew.js` — `zmienneInnychGospodarzy`, opcja `bezZmiennych` w `wykonaj`
+  (usuwanie bez względu na wielkość liter), oba `const w = exec(…)` w `run` i `review` z listą,
+  eksport `wykonaj, zmienneInnychGospodarzy`. `adapters/codex/hooks/secret-scanner.js` — `ignored`
+  wg karty: `git check-ignore` 0 → pomija, 1 → skanuje, inny wynik → furtka `.env*`. Dwa testy
+  w `crew.test.js`, nowy `adapters/codex/tests/secret-scanner.test.js` (4 przypadki).
+- K-D6: `MODEL_RE`, `BASE_RE`, `sprawdzWartosc` pod `FLAGI_ZAKAZANE`; `ZNAK_NIEDOZWOLONY_CMD`
+  i strażnik w gałęzi `win32` `wykonaj` przed `const cyt`; `sprawdzWartosc` w `buildCommand`
+  (`--model`) i `buildReviewCommand` (`--base`, `--model`); przegląd Codeksa z `-` i promptem
+  w `stdin`; zdanie w komentarzu nad `wykonaj`. Trzy testy.
+- K-D7: `-f`, `--force` na `FLAGI_ZAKAZANE` z komentarzem; `BASH_ZAPISU` (siedem wzorców); Claude
+  Code w zapisie z `...BASH_ZAPISU` zamiast gołego `Bash`; Cursor w zapisie bez `-f`; `zakazana`
+  (całe flagi albo `flaga=`) w `sprawdzFlagi`; komentarz nagłówka z „, -f/--force”. Test istniejący
+  `buildCommand gives read-only flags without --write and never a bypass flag` zmieniony z nazwy
+  (linia 59), dwa nowe.
+- Rozjazd z kartą K-D9, krok 1 („sam eksport”): eksport `zmienneInnychGospodarzy` przed definicją
+  funkcji dałby `ReferenceError` przy `require`, nie asercję. Do przebiegu czerwonego wyeksportowany
+  był sam `wykonaj`, drugą nazwę dopisałem razem z funkcją (L-0313). Kod końcowy zgodny z kartą.
+
+**Zweryfikowane — jak dokładnie:**
+
+- `git branch --show-current` → `optymalizacja/po-audycie`; `git log --oneline -1` → `1e359ed`
+  (commit E5).
+- Przebiegi czerwone przed zmianą (zapisane w katalogu roboczym): K-D5 — 5 odmów czerwonych
+  z asercji (`actual: 0, expected: 1`), przypadek ukośników zielony, 5/10; K-D9 — oba testy
+  `crew.test.js` z asercji (`CLAUDECODE` nie ma na liście; podproces widzi `'1'`), w pliku Codeksa
+  czerwony tylko `.env.example`, 3/4 zielone; K-D6 — trzy z asercji (`'-'`, „Missing expected
+  exception”, `0 !== null` — `a%PATH%b` przechodził z kodem 0); K-D7 — zmieniony test istniejący
+  i oba nowe z asercji.
+- Po zmianie: `node --test "adapters/cursor/tests/*.test.js"` → **10 pass** (przed 4);
+  `node --test "adapters/codex/tests/*.test.js"` → **28 pass** (przed 24);
+  `node --test core/process/tests/crew.test.js` → **24 pass** (przed 17).
+- `node --test "core/process/tests/*.test.*"` → **396 pass**, 0 fail (przed etapem 389; +2 +3 +2);
+  `core/guardrails` → 33 pass (bez zmian). `git diff -U0 core/process/tests/crew.test.js` — jedyna
+  linia `-` to dawna linia 59.
+- Dowód negatywny K-D9: `grep -n "if (process.env.CLAUDECODE) process.exit(0);"` w hooku Codeksa →
+  `8:`; `git diff` plików `secret-scanner.cmd` i `secret-scanner.sh` → pusty.
+- Efekt widoczny (skrypt w katalogu roboczym, kod z repozytorium):
+  `buildReviewCommand('codex', { prompt: 'a\nb' })` → ostatni argument `"-"`, `stdin` `"a\nb"`;
+  deinstalator z manifestem `['../plik']` → kod 1, plik obok projektu istnieje, stderr „…
+  wskazuje pliki spoza .cursor/ projektu:”; `wykonaj` z `CLAUDECODE=1` → bez listy `WIDZI=1`,
+  z `bezZmiennych: ['CLAUDECODE']` → `BRAK`.
+- `node core/tools/validate-adapters.js` → kod 0, jedno ostrzeżenie (`security-audit/SKILL.md`),
+  `wywolania z hooks.json: 20`.
+- Trivy (`trivy fs --scanners vuln`): 0 CRITICAL, 42 HIGH, 50 MEDIUM, 12 LOW — identycznie jak
+  po E5; etap nie dodaje zależności. Nowych CRITICAL ani HIGH: 0.
+- Podstawy: wejście niezaufane walidowane (testy odmowy manifestu, białej listy `--model`/`--base`,
+  strażnika `%`/LF); `git grep -nE` po `sk_live_…{16}` i `github_pat_…{22}` → 0; `PASSWORD=`
+  w trzech plikach testów → 0 (wartość składa `secret()`).
+- Granica: `git status --short` — z etapu wyłącznie sześć plików kart i dokumenty rytuału;
+  `.claude/relai/tools/crew.js` nietknięty; pod `adapters/*/skills/relai-planning/` tylko cztery
+  zastane `*-closing.md`.
+- Katalog roboczy `.claude/relai/work/OPTYMALIZACJA_PO_AUDYCIE/E6/`: przed — 14 plików, 852 KB
+  (`find`/`du`; przebiegi czerwone i zielone, pełny przebieg `core/process`, raport Trivy, skrypt
+  efektu z fiksturą); po „tak” Łukasza — 0. Artefakty spoza katalogu: fikstury
+  `%TEMP%/relai-cursor-install-*`, `relai-k-d9-codex-*`, `relai-crew-*` sprzątają `t.after`
+  testów — po etapie `ls` → 0.
+
+**Świadomie odłożone:**
+
+- Pomiar na żywo `agent -p` bez `-f` i `claude -p` z `BASH_ZAPISU` — nie należy do etapu (karta
+  K-D7, pułapki); pozycja dla człowieka niżej.
+- Przegląd ryzyk: P1 (adaptery bez blokad harnessu) — deinstalator Cursora nie wyjdzie już poza
+  `.cursor/`, skaner Codeksa nie milknie w załodze i skanuje śledzone `.env*`; brak egzekwowanego
+  `ask` w Cursorze bez zmian — poziom bez zmian. M6 (flagi CLI załogi) — nowe flagi `-`
+  w `codex review` i tryb Cursora bez `-f` oparte na pomocy CLI, niezmierzone na żywo — poziom bez
+  zmian.
+- Rotacje dziennika, sekcji ryzyk i lekcji zgłoszone na starcie — poza etapem.
+
+**Do zrobienia przez człowieka:**
+
+- **K-D7, lista `BASH_ZAPISU`:** siedem wzorców (git status/diff/log, `node --test`, `npm test`,
+  `npm run test`, `pytest`) — projekt z `cargo test` albo `go test` zostawi członka załogi Claude
+  Code bez dowodu w meldunku; `npm test` uruchamia skrypt z `package.json`, który koder może
+  edytować. Rozszerzyć listę czy zostawić?
+- **K-D7, Cursor bez `-f`:** zmierzyć na żywo, czy koder w Cursorze uruchomi testy bez
+  automatycznej zgody na powłokę; gdy nie — jawna zgoda człowieka per przebieg (nowa flaga
+  `crew.js`, poza tą kartą).
+- **K-D6, `%` w ścieżce projektu na Windows:** załoga odmawia zamiast ryzykować rozwinięcie zmiennej
+  przez cmd.exe — potwierdzić kompromis.
+
+Lekcja z etapu: L-0313 (krok karty „sam eksport” nazwy, której jeszcze nie ma, daje
+`ReferenceError`, nie przebieg czerwony z asercji).
+
+### 2026-11-10 — OPTYMALIZACJA_PO_AUDYCIE E7: koszt hooka startu — jeden odczyt pliku testowego, jeden odczyt dokumentu, prowizja tylko przy zmianie
+
+Autor: RelAI (Opus 5.5) + Lukasz
+
+Etap E7 z E14, karty z `karty/E07_KOSZT_HOOKA_STARTU.md` w kolejności K-C1 → K-C3 → K-C2 → K-A6.
+Gałąź `optymalizacja/po-audycie`, punkt wyjścia `364e94e` (commit E6). Zmiana działa w sesjach
+dopiero po wydaniu w E14 — dowodem są testy i skrypt efektu na kodzie z repozytorium.
+
+**Zrobione:**
+
+- K-C1: `core/process/work-artifacts.js` — `trescTestu` (mapa leniwa `tresciTestow` w kontekście
+  bramki) i dwie linie w `szukajWTestach`; `wProjekcie` w `bramka` — pozycja `zrodlo === 'temp'`
+  omija bramki „opisane” i „wiązane testami”. Hook Claude Code: `KATALOG_ZNACZNIKOW`,
+  `STARY_PREFIKS`, `WIEK_ZNACZNIKA_MS`, `sprzatnijZnaczniki`, nowe `znacznikUstawien`
+  (`<tmp>/znaczniki-relai/ustawienia-podane-<id>`) i `oznaczUstawieniaPodane`. Ścieżka sprzątania
+  znacznika w `ritual-copies.test.js` i `hook-failures.test.js`. Nowy
+  `core/process/tests/start-hook-cost.test.js`, trzy przypadki.
+- K-C3: `core/process/session-signals.js` — `pamiecOdczytow` i `czytaj` z pamięcią (eksport obu
+  razem z kodem), odczyty w `markerWKatalogu`, `projectVersion`, `unknownAuthor` przez `czytaj`,
+  `czytaj` w wywołaniu skanu artefaktów; `indeksDokumentow(cwd, czytajTekst)` i `o.czytaj`
+  w `kontekstBramki`; `czytajLF` w `start-digest.js` przez `core.czytaj` (Edit). Hooki trzech
+  adapterów wołają `core.pamiecOdczytow(true)`; raport „tryb ciagly” w hooku Claude Code czyta
+  ustawienia przez `core.czytaj` i `trybCiagly`. Dwa przypadki testu.
+- K-C2: `session-signals.js` — `crypto`, `ZNACZNIK_PROWIZJI`, `paryDrzewa`, `plikiProwizji`,
+  `odcisk`, sprawdzenie znacznika przed kopią i zapis po kopii kompletnej, komentarz nad
+  `provisionTemplates` (0 = nic się nie zmieniło) i opcja `wymus`. Hook Claude Code przy
+  `source === 'compact'` nie kopiuje; `adapters/cursor/install.js` z `wymus: true`. Cztery
+  przypadki testu.
+- K-A6: K-A6 zamknieta jako niepotwierdzona: POMIARY.md ma linie `A6: NIE POWTARZA`, wiec start po
+  wznowieniu zostaje bez zmian.
+
+**Zweryfikowane — jak dokładnie:**
+
+- `git branch --show-current` → `optymalizacja/po-audycie`; `git log --oneline -1` → `364e94e`.
+- Przebiegi czerwone przed zmianą (z asercji): K-C1 — `a.test.js przeczytany 3 razy`, pozycja
+  temp dostała `{ powod: 'opisane', zrodlo: 'CLAUDE.md:3' }`, `brak znacznika w znaczniki-relai`;
+  K-C3 — `docs/DZIENNIK.md przeczytany 7 razy` i `typeof core.czytaj` różny od `'function'`;
+  K-C2 — przypadki 1 i 3 (drugi zwrot różny od 0) i 4 (`kompakcja skopiowala`) czerwone,
+  przypadek 2 zielony jako kontrola.
+- Po zmianie: `start-hook-cost.test.js` → **9 pass**; `ritual-copies`, `hook-failures`,
+  `start-digest`, `start-cost`, `session-signals`, `esm-project` → zielone, liczby testów bez
+  zmian. `node --test "core/process/tests/*.test.*"` → **405 pass**, 0 fail (po E6 396, +3 +2 +4);
+  `adapters/cursor` → 10 pass, `adapters/codex` → 28 pass, `core/guardrails` → 33 pass.
+- Liczby odczytów (fikstury testów): plik testowy w skanie trzech pozycji `work` — przed 3 razy
+  każdy (12 przy czterech plikach), po 1 raz (4). Sekwencja startu z testu K-C3 — `DZIENNIK.md`
+  przed 7, po 1; `USTAWIENIA.md` i `CLAUDE.md` po 1 i 1. Skrypt efektu (fikstura z mniejszym
+  dziennikiem, pamięć wyłączona jako stan sprzed K-C3): `DZIENNIK` 4 → 1, `USTAWIENIA` 12 → 1,
+  `CLAUDE` 8 → 1. Skrót startu w procesie hooka: 1 budowa (utrwalone testem).
+- Efekt widoczny (skrypt w katalogu roboczym, hook z repozytorium, `TEMP`/`TMP`/`TMPDIR` na pusty
+  katalog obok projektu): pierwszy `startup` mówi „Specyfikacje dokumentow RelAI sa skopiowane
+  lokalnie”, drugi `startup` i `compact` — nie; `.claude/relai/.provisioned` istnieje; znaczniki
+  w `tmp/znaczniki-relai/` (trzy), podłożony `relai-ustawienia-podane-stary` skasowany — w `tmp/`
+  zero `relai-ustawienia-podane-*`.
+- Dowód negatywny: `git diff -U0` obu plików testów — każda linia `-` zawiera
+  `relai-ustawienia-podane`, `+` zmienia wyłącznie ścieżkę sprzątania; `prompt-mode.js`,
+  `resume.js` i `.claude/relai/` (poza katalogiem roboczym) bez zmian w `git status --short`.
+- K-A6: `grep -c "^A6: NIE POWTARZA$"` → 1, `grep -c "^A6: POWTARZA$"` → 0; zdanie gałęzi
+  `compact` w hooku Claude Code bez zmian (brak w `git diff`).
+- `node core/tools/validate-adapters.js` → kod 0, jedno ostrzeżenie (`security-audit/SKILL.md`),
+  `wywolania z hooks.json: 20`.
+- Trivy (`trivy fs --scanners vuln`): 0 CRITICAL, 42 HIGH, 50 MEDIUM, 12 LOW — identycznie jak
+  po E6; etap nie dodaje zależności. Nowych CRITICAL ani HIGH: 0.
+- Podstawy: identyfikator sesji oczyszczony do `[A-Za-z0-9_-]` przed nazwą znacznika (test K-C1
+  z `k-c1`); `rmSync` w hooku tylko w dwóch miejscach `sprzatnijZnaczniki` (prefiks
+  `relai-ustawienia-podane-` w korzeniu i wpisy `znaczniki-relai`); `git grep -nE` po
+  `sk_live_…{16}` i `github_pat_…{22}` → 0; `PASSWORD=` w nowym teście → 0.
+- Granica: `git status --short` — z etapu wyłącznie pliki z pól „Pliki” trzech kart i dokumenty
+  rytuału; pod `adapters/*/skills/relai-planning/` tylko cztery zastane `*-closing.md`.
+- Katalog roboczy `.claude/relai/work/OPTYMALIZACJA_PO_AUDYCIE/E7/`: przed — 9 plików, 829 KB
+  (`find`/`du`; przebiegi czerwone, pełne przebiegi testów, raport Trivy, skrypt efektu i wynik);
+  po „tak” Łukasza — 0. Artefakty spoza katalogu: fikstury `%TEMP%/relai-e7-*` (testy i skrypt
+  efektu) sprzątane w `finally` — po etapie `ls` → 0.
+
+**Świadomie odłożone:**
+
+- Przegląd ryzyk: R5 (dokumenty puchną i zjadają kontekst) — start czyta mniej, ale wagi
+  dokumentów bez zmian; poziom bez zmian. C11 (pliki pomiarów) — bez zmian. Nowych ryzyk etap nie
+  wnosi.
+- Rotacje dziennika, sekcji ryzyk i lekcji zgłoszone na starcie — poza etapem (próg ryzyk i lekcji
+  porządkuje K-A3 w E8).
+- W bieżących sesjach hook zainstalowanego 3.7.0 dalej pisze znaczniki starego kształtu
+  i kopiuje przy każdym starcie — pierwszy start po wydaniu w E14 je sprzątnie.
+
+**Do zrobienia przez człowieka:**
+
+—
+
+### 2026-11-10 — OPTYMALIZACJA_PO_AUDYCIE E8: skrót startu bez odsyłaczy archiwum i sekcji spraw, progi osiągalne rotacją (aneks D-88), wiersz modelu optymalizatora
+
+Autor: RelAI (Opus 5.5) + Lukasz
+
+Etap E8 z E14, karty z `karty/E08_SKROT_PROGI_MODELE.md` w kolejności K-A2 → K-A3 → K-A4.
+Gałąź `optymalizacja/po-audycie`, punkt wyjścia `cfee4df` (commit E7). Kod działa w sesjach
+dopiero po wydaniu w E14; aneks D-88 i wiersz ustawień — od razu.
+
+**Zrobione:**
+
+- K-A2: `core/process/start-digest.js` — `ODSYLACZ_SUMA` i `bezOdsylaczy` (blok cytatu z „suma
+  kontrolna”/„checksum” zwija się do linii `[odsylacze do archiwum ryzyk pominiete: N; …]`, cytat
+  bez sumy zostaje), sekcja „Czeka na człowieka” wyjęta ze skrótu, drogowskaz do niej zawsze,
+  `NAGLOWEK_CZEKA` i pole `czeka` usunięte, komentarz nagłówka. Hook Codeksa
+  (`adapters/codex/hooks/session-context.js`) wypisuje `sprawyPrzeterminowaneReport` — sprawy
+  przeterminowane mają teraz jeden nośnik, hook startu, w trzech adapterach. Kopie zdania:
+  `relai-core/SKILL.md`, `relai-core.mdc` (linia 25), `SPEC_USTAWIENIA.md` (opis części `ryzyka`
+  i wiersz katalogu progów); generator Codeksa. Test przepisany + dwa nowe.
+- K-A3: wiersz **D-88 → aneks** na końcu tabeli „Decyzje zmienione” w `docs/DECYZJE.md` (brzmienie
+  z karty, data 2026-11-10; linia 29 bez zmian). `session-signals.js`, `dokumentyPonadProgiem`:
+  sekcja ryzyk wchodzi do listy tylko przy części rotowalnej > 0; próg lekcji w KB liczy plik bez
+  sekcji „Zasady aktywne”. `rotate.js`, `raportPlanu`: dla ryzyk bez zamkniętych linia „zadne
+  ryzyko nie jest ZAMKNIETE …” zamiast komunikatu zablokowanej rotacji. Kopie reguły:
+  `SPEC_ARCHIWUM.md` (tabela progów, akapit progów startu, wagi lekcji, cel 60%, dwa przypadki
+  brzegowe, punkt „Dawniej”), `SPEC_LEKCJE.md`, `SPEC_USTAWIENIA.md` (wiersz katalogu progów),
+  `document-rotation.md` (trzy miejsca), `SKILL.md` (fraza „sprawdź status”, punkt 3); generator
+  Codeksa. Test ze zmienionym oczekiwaniem + dwa nowe.
+- K-A4: `docs/USTAWIENIA.md` — `| 2026-11-10 | Model optymalizatora | Sonnet 5.5 · lista
+  claude-code z dnia 2026-11-10 |` w miejsce wiersza z `Sonnet 5 · … 2026-09-04` (odpowiedź
+  Łukasza: Sonnet 5.5, data listy 2026-11-10). Stary wiersz nie poszedł do „Ustawień wycofanych”.
+- Rejestr `docs/ARTEFAKTY.md`: sześć wierszy podbitych **o 1 na etap** (jeden wpis z obiema
+  kartami tam, gdzie dotknęły tego samego artefaktu): Specyfikacja archiwum 6 → 7, Specyfikacja
+  `LEKCJE.md` 3 → 4, Specyfikacja `USTAWIENIA.md` 20 → 21 (K-A2, K-A3), Skill `relai-core`
+  29 → 30 (K-A2, K-A3), `relai-core` — rotacja dokumentów 2 → 3, Reguła `relai-core` 8 → 9.
+- Lekcje L-0314 (czwarta powtórka L-0298 — `cd` przestawił sesję do katalogu roboczego etapu)
+  i L-0315 (asercja karty kontra pole „Nie ruszasz”); destylat zasad 3 i 5 odświeżony,
+  `count-rules.js` → 15 / 15.
+
+**Zweryfikowane — jak dokładnie:**
+
+- `git branch --show-current` → `optymalizacja/po-audycie`; `git log --oneline -1` → `cfee4df`.
+- Przebiegi czerwone przed zmianą, z asercji: K-A2 — 20 testów, 3 fail (`codex: hook bez raportu
+  spraw`, `przeterminowana: skrot niesie sekcje "Czeka na czlowieka"`, `skrot niesie
+  linie-odsylacze`); K-A3 — 14 testów, 3 fail (`zadne ryzyko nie jest ZAMKNIETE` brak w wyjściu,
+  `sekcja ryzyk bez zamknietych: [RelAI budzet startu] …`, `prog lekcji liczy sekcje "Zasady
+  aktywne"`).
+- Po zmianie: `start-digest.test.js` + `ritual-copies.test.js` → 20 pass (było 18 + 2);
+  `start-cost.test.js` + `rotate.test.js` → 14 pass (było 12 + 2). `node --test
+  "core/process/tests/*.test.*"` → **409 pass**, 0 fail (po E7 405, +2 +2; `esm-project`
+  w nim zielony); `adapters/codex` → 28 pass; `adapters/cursor` → 10 pass; `core/guardrails` →
+  33 pass.
+- **Rozjazd z kartą K-A3 (decyzja Łukasza):** asercja `!/zamykanie ryzyk/` trafiała w zdanie
+  budżetu „Rotacja nic tu nie zdejmie… odchudza zamykanie ryzyk”, które karta każe zostawić.
+  Zawężona do `zamykanie ryzyk \(zadne` (brzmienie procedury z linii progów) z kontrolą pozytywną
+  `Rotacja nic tu nie zdejmie` w tym samym teście (L-0315).
+- Efekt widoczny na tym repozytorium (kod z repozytorium, tylko odczyt): skrót startu
+  **28 930 B → 28 956 B** — oba na limicie 28 tys. znaków, więc zwolnione miejsce zajmuje dłuższy
+  ostatni wpis (skrócony do 1 011 → 3 043 z 6 048 znaków). Sekcja ryzyk skrótu **6 711 B →
+  4 653 B** (FAKT zgodny z kartą); `suma kontrolna` w skrócie 11 → 0, linia
+  `[odsylacze do archiwum ryzyk pominiete: 11; pliki archiwum w docs/archiwum/ryzyka/, odsylacze
+  pod tabela w docs/DZIENNIK.md]`; drogowskaz `sekcja "Czeka na czlowieka"` jest. Sekcji „Czeka
+  na człowieka” nie było ani przed, ani po — dziś zero spraw przeterminowanych (karta liczyła
+  26 633 → 19 156 B przy sprawie przeterminowanej i bez skrócenia wpisu — SZACUNEK się nie
+  odtworzył, bo stan dziennika jest inny).
+- Linia progów przed: `docs/DZIENNIK.md 191.9 KB …; sekcja "Stan otwartych ryzyk" 17.5 KB …
+  zamykanie ryzyk (…); docs/LEKCJE.md 72 KB (prog 50 KB) — rotacja lekcji oraz 2 dalsze pozycje`.
+  Po: `docs/DZIENNIK.md 191.9 KB …; docs/LEKCJE.md 41 lekcji (prog 40 lekcji) — rotacja lekcji;
+  docs/STATE.md 306 linii (prog 300 linii) — skrocenie STATE.md oraz 1 dalsza pozycja` (czwarta:
+  `docs/USTAWIENIA.md` 6 478 B przy 6 144 B — kontrola pozytywna, zasada 6). Sekcja ryzyk znikła;
+  `LEKCJE.md` w KB: 73 725 B, „Zasady aktywne” 35 503 B, bez nich 38 222 B przy progu 51 200 B —
+  poniżej. **Punkt promptu „linia nie wymienia `docs/LEKCJE.md`” — rozjazd (decyzja Łukasza:
+  uznany co do intencji):** lekcje wracają z progu w sztukach (41 > 40), którego aneks nie
+  zmienia i który rotacja lekcji spełni; karta liczyła na stanie, w którym lekcji było ≤ 40.
+- `node core/tools/rotate.js plan ryzyka --prog 12` → `ryzyka: 20 wierszy w tabeli, zamknietych 0`
+  i ostatnia linia `ponad progiem, ale zadne ryzyko nie jest ZAMKNIETE - rotacja nic nie zdejmie;
+  bez komunikatu zablokowanej rotacji (D-88, aneks), jedno zdanie w raporcie "sprawdz status"`.
+- Dowód negatywny: `git diff --stat adapters/codex/skills/` → wyłącznie `relai-core/SKILL.md`
+  i `relai-core/document-rotation.md` (plus zastane `relai-planning/*-closing.md` z pustym
+  diffem); `git diff --numstat docs/DECYZJE.md` → `1 0`, hunk `@@ -115,0 +116 @@` (linia 29 bez
+  zmian), `grep -c "D-88\*\* → aneks"` → 1; `relai-core.mdc` — jeden hunk `@@ -25 +25 @@`.
+- K-A4: `grep -c "Model optymalizatora"` → 1; `grep -cF "| Model optymalizatora | Sonnet 5.5"` → 1;
+  `grep -c "^[a-z]*: Sonnet 5.5 |" .claude/relai/MODELE-claude-code.md` → 1. Rozjazd daty: karta
+  wzorowała wiersz na liście z 2026-10-08, lista w projekcie ma `list-date: 2026-11-10` (z Fable
+  5.2) — Łukasz wybrał 2026-11-10.
+- `node core/tools/validate-adapters.js` → kod 0, jedno ostrzeżenie (`security-audit/SKILL.md`),
+  `parytet skilli Claude Code -> Codex: 73 plikow, 0 rozjazdow`, `wywolania z hooks.json: 20`.
+- Trivy (`trivy fs --scanners vuln`): 0 CRITICAL, 42 HIGH, 50 MEDIUM, 12 LOW — identycznie jak
+  po E7; etap nie dodaje zależności.
+- Podstawy: `ODSYLACZ_SUMA` — kontrola pozytywna na prawdziwym dzienniku (pierwszy blok
+  odsyłacza, `docs/DZIENNIK.md:33`, niesie `suma kontrolna`; skrót repo zwinął 11 bloków
+  z 11) i negatywna w teście (`UWAGA-CYTAT bez sumy` zostaje); `git grep -nE` po `sk_live_…{16}`
+  i `github_pat_…{22}` → 0; `PASSWORD=` w zmienionych testach → 0.
+- Granica: `git status --short` — pliki z pól „Pliki” trzech kart, kopie Codeksa i dokumenty
+  rytuału; pod `adapters/*/skills/relai-planning/` tylko cztery zastane `*-closing.md`;
+  `.claude/launch.json` nieśledzony, spoza planu.
+- Katalog roboczy `.claude/relai/work/OPTYMALIZACJA_PO_AUDYCIE/E8/`: przed — 12 plików, 146 KB
+  (`find`/`du`; przebiegi czerwone i zielone kart, pełne przebiegi czterech zestawów, skrót
+  i linia progów przed i po); po „tak” Łukasza — 0. Artefakty spoza katalogu: fikstury
+  `%TEMP%/relai-start-digest-*`, `relai-rytual-*`, `relai-start-cost-*`, `relai-rotate-*` sprzątane
+  w `finally`/`t.after` — po etapie 0; w `%TEMP%` zostały dwa `relai-ustawienia-podane-*` od hooka
+  zainstalowanego 3.7.0 (nie z tego etapu; sprzątnie je hook po wydaniu w E14).
+
+**Świadomie odłożone:**
+
+- Przegląd ryzyk: R5 (dokumenty puchną) — skrót niesie mniej balastu (odsyłacze, sprawy), linia
+  progów milknie o ryzykach i lekcjach w KB; wagi plików bez zmian, poziom bez zmian. Nowych ryzyk
+  etap nie wnosi.
+- Rotacje dziennika (191,9 KB), lekcji (po tym wpisie 43 lekcje przy progu 40), skrócenie
+  `STATE.md` (306 linii) i ustawień (6,3 KB) — poza etapem (prompt E8: „rotacji nie wykonujesz”).
+- Reguła Cursora wobec D-88 i aneksu — karta K-E4 w E11; linia 113 `SPEC_ARCHIWUM.md` („waga
+  całkowita … 60% progu”) zostaje w dawnym brzmieniu, bo karta K-A3 jej nie wymienia — do
+  ujednolicenia przy K-E4 albo osobno.
+- Hook Codeksa wypisuje raport spraw bez opcji `interaktywna` (jak w karcie) — Codex nie ma
+  zmierzonego sygnału sesji w tle; tekst raportu i tak każe sesji nieinteraktywnej nie pytać.
+
+**Do zrobienia przez człowieka:**
+
+—
+
+### 2026-11-10 — OPTYMALIZACJA_PO_AUDYCIE: Aneks A — etapy E9–E13 w Codeksie, Claude jako orkiestrator
+
+Autor: RelAI (Opus 5.5) + Lukasz
+
+Powód: od 2026-11-10 Łukasz ma subskrypcję Claude Pro (Team) zamiast Max — limit tygodnia nie
+uniesie pięciu etapów wykonywanych na Opusie. Wywiad (AskUserQuestion, dwie rundy) i aneks
+zaakceptowany słowem „Akceptuję”.
+
+**Zrobione:**
+
+- [ANEKS_A_WYKONANIE_CODEX.md](plany/OPTYMALIZACJA_PO_AUDYCIE/ANEKS_A_WYKONANIE_CODEX.md) w folderze
+  planu: powód, rozstrzygnięcia wywiadu, cztery warianty (wybrany: `node core/process/crew.js run
+  --runtime codex` z repozytorium, w tle), przepływ etapu, nakładka na prompt etapu, wyzwalacze
+  oszczędzające tokeny Claude, modele, ryzyka AX1–AX7, przypadki brzegowe, kroki wdrożenia.
+- Sekcja „Aneksy” w `PLAN.html` — akapit Aneksu A z linkiem; wiersz **D-85 → aneks** w tabeli
+  „Decyzje zmienione” w `docs/DECYZJE.md`; adnotacja w linii metrycznej `STATUS.md` i linia
+  w dzienniku wdrożenia.
+- Modele z listy `.claude/relai/MODELE-codex.md` odświeżonej przez Łukasza w Codeksie
+  (`list-date: 2026-11-10`): wykonawca `gpt-6.1-terra` (balanced, effort high), poprawki po
+  recenzji `gpt-6.1-sol` (strong; wybór Łukasza zamiast `gpt-6-astra`).
+
+**Zweryfikowane — jak dokładnie:**
+
+- Kopia `.claude/relai/tools/crew.js` (3.7.0) różni się od `core/process/crew.js` o 76 linii
+  po normalizacji CRLF; `zmienneInnychGospodarzy` — 0 trafień w kopii, jest w repozytorium
+  (poprawka E6). Stąd ryzyko AX1 i wybór wariantu A.
+- `codex --version` → `codex-cli 0.167.0`.
+
+**Świadomie odłożone:**
+
+- Przekazanie effortu do `codex exec` przez `crew.js` (biała lista przepuszcza `--model`) —
+  do zmierzenia w pierwszym przebiegu E9, wynik do wpisu E9.
+- `PROMPT_ETAP_9.md` bez zmian — kontrolę modelu zastępuje nakładka z sekcji 4.1 aneksu.
+
+**Do zrobienia przez człowieka:**
+
+—
+
+### 2026-11-10 — OPTYMALIZACJA_PO_AUDYCIE E9: tryb ciągły — trwała odmowa, filtr przyjęcia propozycji, sesja zaczęta komendą
+
+Autor: RelAI (Opus 5.5) + Lukasz
+
+Pierwszy etap według Aneksu A: kod i testy pisał Codex (`gpt-6.1-terra`) uruchamiany przez
+`node core/process/crew.js run --runtime codex --role coder --write` z repozytorium, w tle;
+Claude (Opus 5.5) złożył plik zadania (prompt etapu + nakładka 4.1), recenzował, wykonał edycje
+`docs/`, `CLAUDE.md`, `AGENTS.md`, rejestru i rytuał.
+
+**Zrobione:**
+
+- **K-B1:** bramka trybu ciągłego pyta o cztery opcje — czwarta „nie i nie pytaj więcej” zapisuje
+  wiersz `Zgoda na optymalizator | nie` globalnie; `/relai-prompt off --globalnie` opisane jako
+  trwała odmowa w `relai-prompt.md`, `SPEC_USTAWIENIA.md` i `docs/KOMENDY.md`; wiersz
+  **D-93 → aneks** na końcu „Decyzji zmienionych” (linia 66 bez zmian). Odczyt zgody nietknięty.
+- **K-B2:** filtr pomijania w `prompt-mode.js` — `SLOWA_POTWIERDZENIA` (lista dosłownie z karty)
+  i `LIMIT_POTWIERDZENIA = 6`, więc „Wykonaj propozycję”, „tak, wykonaj”, „opcja B” przechodzą;
+  `PYTAJNE_Z_PYTAJNIKIEM` (`czy`, `jak`, `kiedy`, `do`, `does`…) liczą się tylko z pytajnikiem;
+  `KOMENDA` odróżnia `/relai:relai-stage` od ścieżki `/c/Users/…`; `normalizuj` zdejmuje apostrofy
+  i `…`; `FRAZY_KONTYNUACJI` + `gotowi do wydania` w `FRAZY_SESJI`; `session-title.js` bierze
+  frazy i `normalizuj` z `prompt-mode.js` (bez `bare`).
+- **K-B4:** zdanie wyjątku „pierwsza wiadomość to komenda → najpierw komenda, rytuał i przegląd
+  spraw czekają” w ASCII w hookach startu Claude Code i Cursora oraz w
+  `sprawyPrzeterminowaneReport`; zdanie w kopiach: `CLAUDE.md`, `AGENTS.md`, `relai-core/SKILL.md`,
+  `overdue-review.md`, `relai-core.mdc`, `SPEC_CLAUDE_MD.md` (dwa miejsca). Kopie Codeksa
+  z generatora. Hook Codeksa bez zmian.
+- 12 nowych testów (K-B1 2, K-B2 7, K-B4 3); żaden istniejący nie zmienił oczekiwania.
+- `docs/ARTEFAKTY.md`: `/relai-prompt` 14 → 15 (K-B1 i K-B2 jednym wpisem), Specyfikacja
+  `USTAWIENIA.md` 21 → 22, Skill `relai-core` 30 → 31, przegląd spraw 1 → 2, Reguła `relai-core`
+  Cursora 9 → 10, Specyfikacja `CLAUDE.md` 9 → 10.
+- Lekcja L-0316 (plik zadania dla Codeksa a preambuła roli i sandbox) — mieści się w zasadzie
+  13, indeks „Zasad aktywnych” bez zmian.
+
+**Zweryfikowane — jak dokładnie:**
+
+- Przebiegi czerwone przed zmianą (uruchamiał Claude, zapis w katalogu roboczym): K-B1 —
+  `node --test core/process/tests/prompt-mode.test.js core/process/tests/prompt-gate.test.js` →
+  27 pass / 1 fail z asercji, strażnik ciszy przy globalnym „nie” zielony (wyjątek z karty);
+  K-B2 — trzy pliki → 50 pass / 8 fail (siedem K-B2 + K-B1), wszystkie z asercji; K-B4 —
+  `ritual-copies.test.js` → 4 pass / 3 fail z asercji. Diff testów przeczytany w całości wobec
+  kart (AX2) — wierny, bez osłabień.
+- Po zmianie: trzy pliki 58/58 (49 przed etapem, +9); `ritual-copies` 7/7 (+3);
+  `node --test "core/process/tests/*.test.*"` → **421 pass, 0 fail** (409 + 12);
+  `adapters/cursor` 10, `adapters/codex` 28, `core/guardrails` 33 — bez zmian.
+- Tabela 44 promptów z karty przez `powodPominiecia`: kopia `prompt-mode.js` z `0036114` (E8,
+  przez `git show`) → **44 z 44** zgodnych z kolumną „Dziś”; po zmianie → **44 z 44** zgodnych
+  z kolumną „Po zmianie”. `regulaBramki` zawiera `(4) nie i nie pytaj wiecej`; bajty bramki
+  `sesja-42`: **1118 / 1743 / 1190** (bez listy / z listą modeli / ze znanym modelem) — progi
+  1200 i 1800 trzymają.
+- Greps kart: `D-93** → aneks` → 1, `git diff --numstat docs/DECYZJE.md` → `1 0`; „bramka pyta od
+  nowa” → brak w komendzie i kopii Codeksa; „nie i nie pytaj więcej” w komendzie → 3;
+  `let's continue` w `session-title.js` → brak; `gotowi do wydania` w `prompt-mode.js` → 1.
+- Dowód negatywny: `git diff --stat adapters/codex/` → trzy skille (plus zastane cztery
+  `*-closing.md` z pustym diffem), hook Codeksa bez zmian; `diff CLAUDE.md AGENTS.md | grep -c
+  "^[<>]"` → 3 przed i po; `CLAUDE.md` 7079 B (< 10 240); `zgodaGlobalna`/`ZGODA_` bez zmian.
+- `KOMENDA`: `/relai:relai-stage PLAN E3` → `wywolanie komendy`, `/c/Users/x/log.txt` → `null`;
+  `<task-notification>` → `powiadomienie systemowe`. `git grep` wzorców `sk_live_`/`github_pat_` → 0;
+  `PASSWORD=` w diffie testów → 0.
+- `node core/tools/validate-adapters.js` → kod 0, jedno ostrzeżenie, parytet 73 plików
+  0 rozjazdów, `wywolania z hooks.json: 20`.
+- Trivy `trivy fs --scanners vuln` → 0 CRITICAL, 42 HIGH, 50 MEDIUM, 12 LOW — tyle samo co po E8
+  (zastane fikstury `trivy-scan`), etap nie dodał zależności.
+- Granica: `git status --short` — pliki z pól „Pliki” trzech kart, kopie Codeksa, dokumenty
+  rytuału, zastane `*-closing.md` i `.claude/launch.json`.
+- Katalog roboczy `.claude/relai/work/OPTYMALIZACJA_PO_AUDYCIE/E9/`: przed 15 plików, 180 KB;
+  przebiegi Codeksa `.claude/relai/work/CREW/2026-11-10_15*` cztery katalogi, ok. 1,2 MB —
+  po „Skasuj oba” 0. Poza katalogiem: fikstury testów `%TEMP%/relai-*` nie zostały; cztery pliki
+  `%TEMP%/relai-ustawienia-podane-*` to znaczniki hooka zainstalowanego 3.7.0 (stare położenie
+  sprzed K-C1), nie artefakty etapu — zostały.
+- **Pomiar Aneksu A (pierwszy przebieg):** cztery przebiegi Codeksa zamiast jednego —
+  (1) `STOP` bez zmian: preambuła roli `coder` zabrania `docs/` (D-44), karty kazały zmienić
+  `KOMENDY.md` i `DECYZJE.md`; (2) testy K-B1 dopisane, `STOP` na `spawn EPERM` — sandbox Codeksa
+  na Windows nie uruchamia `node --test` (AX4); (3) same testy K-B2/K-B4; (4) wdrożenie. Poprawek
+  po recenzji (6c): 0. Effort: `crew.js` przekazuje tylko `-m`, Codex wziął `xhigh`
+  z `~/.codex/config.toml` zamiast `high` z aneksu. Raporty mieściły się w ok. 80 liniach.
+
+**Świadomie odłożone:**
+
+- Rozjazd z kartą K-B4: zdanie „hook Codeksa nie wypisuje przeglądu spraw” jest nieaktualne od E8
+  — hook Codeksa woła `sprawyPrzeterminowaneReport`, więc zdanie wyjątku dociera do Codeksa bez
+  zmiany jego hooka. Karty nie poprawiałem.
+- Zdanie startu `trybCiaglyReport` przy trwałej odmowie dalej mówi „tryb włączony w projekcie”
+  (znalezisko A5, poza planem — karta K-B1).
+- Przekazanie effortu przez `crew.js` (flaga `-c model_reasoning_effort`) — zmiana `crew.js`
+  poza zakresem kart E9; decyzja niżej.
+
+**Do zrobienia przez człowieka:**
+
+- Effort wykonawcy E10–E13: zostawić `xhigh` z `~/.codex/config.toml` (stan dziś), ustawić `high`
+  w konfiguracji Codeksa na czas planu albo dodać przekazanie effortu do `crew.js` (odnoga albo
+  aneks). — *Rozstrzygnięte 2026-11-10 (Łukasz): `gpt-6-luna` na `xhigh`, `gpt-6.1-terra`
+  i `gpt-6.1-sol` na `high`; Łukasz ustawia to sam w konfiguracji Codeksa, `crew.js` bez zmian.*
+
+### 2026-11-10 — OPTYMALIZACJA_PO_AUDYCIE E10: prompty etapów z numerami zasad, rytuały zgodne z procedurami
+
+Autor: RelAI (Opus 5.5) + Lukasz
+
+Drugi etap według Aneksu A: tekst i test pisał Codex (`gpt-6.1-terra`, effort `high` z globalnego
+`model_reasoning_effort` w `~/.codex/config.toml`) uruchamiany przez
+`node core/process/crew.js run --runtime codex --role coder --write` z repozytorium, w tle;
+Claude (Opus 5.5) złożył pliki zadań (prompt etapu + nakładka 4.1 + granice z L-0316), uruchamiał
+testy, recenzował, zrobił K-R10 i rytuał.
+
+**Zrobione:**
+
+- **K-A1:** `SPEC_PROMPT_ETAPU.md` — lektury i stan wyjściowy niosą numery zasad aktywnych do
+  doczytania i numery ryzyk etapu zamiast odpisu, nowy punkt „Zakazów”, przykład w tym kształcie;
+  ta sama reguła w rodzinie promptu odnogi (`SPEC_ODNOGA.md`, `relai-branch.md`,
+  `deviation-and-branches.md`), w `stage-prompts.md`, `relai-stage.md` (Krok 3) i
+  `relai-planning.mdc`; zdanie Aneksu D w `SPEC_CLAUDE_MD.md` (struktura i przykład).
+- **K-E1:** fraza „kończymy na dziś” w szablonie w kolejności z `session-close.md` (sync →
+  rotacja → sprzątanie → wpis → ryzyka → commit); `relai-core/SKILL.md` — kroki 1, 2, 2a, 3, 3a,
+  4, 5 i 6 i trzy pytania; `stage-closing.md` punkt 6 — dwa pytania; `plan-closing.md` i
+  `relai-stage.md` — pytanie o następcę planu na liście pytań; `relai-update.md` przestawia człony
+  w projektach już zainicjowanych.
+- **K-E7:** `document-rotation.md` i `relai-core.mdc` — `SPEC_ARCHIWUM.md` tylko przed rotacją
+  ręczną, dziennik i ryzyka rotuje `rotate.js`; ostatni etap planu: punkty 1 i 1a, potem
+  sekwencja zamknięcia z jednym wpisem i jednym `STATE.md` (`stage-closing.md` akapit „Ostatni
+  etap planu”, `plan-closing.md` punkty 1, 3, 4, `SPEC_PROMPT_ETAPU.md` sekcja 9, `relai-stage.md`
+  Krok 6, `relai-planning.mdc`). Kotwica K-E2 nietknięta.
+- Nowy `core/process/tests/ritual-texts.test.js` — 3 przypadki (K-A1, K-E1, K-E7), dosłownie
+  z kart. Kopie Codeksa z generatora (dziewięć plików).
+- **K-R10:** `docs/ARTEFAKTY.md` — 14 wierszy, każdy +1: SPEC_PROMPT_ETAPU 11 → 12,
+  SPEC_CLAUDE_MD 10 → 11, SPEC_ODNOGA 5 → 6, stage-prompts 1 → 2, deviation-and-branches 1 → 2,
+  stage-closing 2 → 3, plan-closing 4 → 5, `relai-core/SKILL` 31 → 32, document-rotation 3 → 4,
+  `/relai-stage` 12 → 13, `/relai-branch` 4 → 5, `/relai-update` 26 → 27, `relai-core.mdc`
+  10 → 11, `relai-planning.mdc` 4 → 5.
+- `PROMPT_ETAP_11.md` wygenerowany już według nowej specyfikacji.
+- Lekcja L-0317 (plik zadania nie przenosi stanu końców linii z drzewa) — mieści się w zasadzie
+  11, indeks „Zasad aktywnych” bez zmian.
+
+**Zweryfikowane — jak dokładnie:**
+
+- Przed zmianą (uruchamiał Claude, zapis w katalogu roboczym):
+  `node --test core/process/tests/ritual-texts.test.js` → 0 pass / 3 fail, wszystkie z asercji:
+  K-A1 na „zostal stary tekst »przepisaną w całości (nie linkiem)«”, K-E1 na „kolejnosc frazy
+  w obu miejscach” (0 zamiast 2), K-E7 na „zostal stary tekst” z `document-rotation.md`. Test
+  przeczytany w całości wobec kart (AX2) — wierny, 85 linii, LF.
+- Po zmianie: `ritual-texts` 3/3; `ritual-copies` 7/7;
+  `node --test "core/process/tests/*.test.*"` → **424 pass, 0 fail** (421 + 3);
+  `adapters/cursor` 10, `adapters/codex` 28, `core/guardrails` 33 — bez zmian.
+- Greps kart: `przepisan[a-ząę]* w całości` w `core/templates`, komendach i `relai-planning` →
+  brak; „Pytania są dwa” → 0 w obu `relai-core/SKILL.md`; „Jedyny punkt tego rytuału” → 0 w obu
+  `stage-closing.md`; „nie z pamięci” w `document-rotation.md` → 0. Wiersz 59 `relai-update.md`
+  — jedna linia, 4 znaki `|` przed i po.
+- Dowód negatywny: `git diff --stat CLAUDE.md AGENTS.md docs/plany/PANEL_CODEX/PROMPT_ETAP_1.md
+  core/tools/rotate.js` → pusty; kotwica K-E2 w `relai-planning.mdc` → 1.
+- `node adapters/codex/generate-skills.js --verify` → kod 0; `node core/tools/validate-adapters.js`
+  → kod 0, jedno ostrzeżenie (`security-audit/SKILL.md`), parytet 73 plików 0 rozjazdów,
+  `rytual "Na koniec": 3 list, kroki [1,1a,2,3,4,5,6]`, `wywolania z hooks.json: 20`.
+- Rejestr: `release-check.js --json --tylko artefakty` przed — 10 błędów „bez nowego wpisu”
+  (cztery pozostałe pliki miały wpisy z E8–E9), po — `"bledy":[]` w trzech sekcjach;
+  `git diff --numstat docs/ARTEFAKTY.md` → `14 14`.
+- Efekt widoczny: `PROMPT_ETAP_11.md` 20 277 B wobec 22 885 B promptu E10; linia „Zasady do
+  doczytania z `docs/LEKCJE.md` (pełne brzmienie): 1, 3, 5, 7, 11.” obecna (1), odpis indeksu —
+  tytuł zasady 1 w prompcie E11 → 0 (w E10 → 1).
+- Do promptu E11 (FAKT dla K-E6): próbny przebieg `skroc-rejestr.js` na kopii rejestru po E10
+  w scratchpadzie sesji — 118 wierszy, skróconych 40, 154 108 → 79 901 B; `sprawdz-rejestr.js` →
+  kluczy 127, linii zmienionych 40, błędów 0. Kopia i skrypt pomocniczy zostały w scratchpadzie
+  sesji (poza projektem, sprząta je harness).
+- Katalog roboczy `.claude/relai/work/OPTYMALIZACJA_PO_AUDYCIE/E10/`: przed 11 plików, 106 KB;
+  przebiegi Codeksa `.claude/relai/work/CREW/2026-11-10_165554`, `_165803`, `_170141` — 15 plików,
+  ok. 572 KB; po „Skasuj oba” 0. Poza katalogiem: fikstur `%TEMP%/relai-*` z tego etapu nie ma (test
+  czyta pliki repo); pięć `%TEMP%/relai-ustawienia-podane-*` to znaczniki hooka 3.7.0 sprzed K-C1 —
+  zostały.
+- **Pomiar Aneksu A:** trzy przebiegi Codeksa zamiast dwóch — (1) test, 85 linii, bez odchyleń;
+  (2) `STOP` po K-A1 punkty 1–5: plik zadania (błąd Claude) kazał zachować CRLF
+  w `SPEC_PROMPT_ETAPU.md`, którego indeks ma LF — Claude znormalizował do LF ten plik
+  i `relai-planning.mdc` (oba `i/lf w/crlf`), treść 18/12 linii bez zmian; (3) dokończenie
+  od K-A1 punkt 6. Poprawek po recenzji (6c): 0. Lekcja L-0317.
+
+**Świadomie odłożone:**
+
+- Rotacja lekcji w `rotate.js` (kierunek E7 raportu) — nowy parser sekcji „Lekcje” z dolną
+  granicą, odsyłaczem i testami to SZACUNEK ponad pół sesji; poza kartami planu.
+- Akapit dopisany w `relai-planning.mdc` (K-E7 punkt 7) zaczyna się w tej samej linii co zdanie
+  „are blocking…”, więc linia 79 ma 182 znaki (FAKT) — tak każe karta („w tym samym akapicie”);
+  przełamanie zostawiam K-E2 w E11, która ten akapit i tak łamie do 100 znaków.
+- Effort luny: globalne `model_reasoning_effort = "high"` daje `gpt-6-luna` `high`, a decyzja
+  z 2026-11-10 mówi `xhigh` — E10–E13 luny nie używają.
+
+**Do zrobienia przez człowieka:**
+
+- Czy przepisać wstecz `docs/plany/PANEL_CODEX/PROMPT_ETAP_1.md` (plan wstrzymany; 44 569 B,
+  z czego odpis zasad 27 503 B) do kształtu z numerami zasad — teraz, przy wznowieniu planu, czy
+  wcale.
+
+### 2026-11-10 — OPTYMALIZACJA_PO_AUDYCIE E11: rejestr bez kroniki, wpis po pełnej ścieżce, fakt w przeglądzie spraw, linki przy zamknięciu planu
+
+Autor: RelAI (Opus 5.5) + Lukasz
+
+Trzeci etap według Aneksu A, pierwszy w dwóch przebiegach Codeksa zgodnie z L-0316: (1) same
+testy z kart, (2) wdrożenie bez zmiany testów. Codex `gpt-6.1-terra`, effort `high`
+z `~/.codex/config.toml`, przez `node core/process/crew.js run --runtime codex --role coder --write`
+z repozytorium. Claude (Opus 5.5) zrobił K-E6 przed przebiegiem 1, K-C7 krok 3, K-R11, testy,
+recenzję i rytuał.
+
+**Zrobione:**
+
+- **K-E6:** `docs/ARTEFAKTY.md` — naprawa nieucieczkowanego `|` w wierszu `SPEC_USTAWIENIA`
+  (`„Wiersz \| Czyta go”`), datowana kopia `docs/archiwum/artefakty/ARTEFAKTY_2026-11-10.md`,
+  skrócenie skryptem z załączników kart, punkt w „Zasadach prowadzenia” (komórka niesie wpis
+  bieżącej wersji); `core/templates/SPEC_PROFILE.md` — wiersz „Co się zmieniło” i akapit „Komórka
+  … nie jest kroniką”.
+- **K-C7:** `profile-rules.js` — wpis w rejestrze dopasowany po pełnej ścieżce z kolumny „Plik”
+  (`sciezkiRejestru()`), poza artefaktami: katalogi `fixtures/` i `evals/`, kopia
+  `adapters/codex/skills/`, `AGENTS.md`, `LICENCJE.md`; wiersz `security-audit` w rejestrze
+  wymienia 15 ścieżek kopii zamiast „+ 20 plików kopii”. Nowy `core/process/tests/profile-rules.test.js`
+  (4 przypadki).
+- **K-E2:** `overdue-review.md` i `relai-core.mdc` — fakt z repozytorium jako podpowiedź
+  w pytaniu o sprawę przeterminowaną (akapit L-0025 nietknięty); `plan-closing.md` punkt 7a
+  „Linki do przeniesionych folderów” i „7a linki” na liście; `relai-stage.md` Krok 6
+  i `relai-planning.mdc` — przepięcie linków w sekwencji zamknięcia (akapit `.mdc` przełamany,
+  linia 79 z E10 nie ma już 182 znaków).
+- **K-E4:** `relai-core.mdc` — cel rotacji na wadze całego żywego pliku z dwiema granicami
+  aneksu D-88 z 2026-11-10 zamiast „części rotowalnej”.
+- **K-R11:** sześć wierszy rejestru już w nowym kształcie komórki: SPEC_PROFILE 3 → 4,
+  `/relai-stage` 13 → 14, plan-closing 5 → 6, overdue-review 2 → 3, `relai-core.mdc` 11 → 12
+  (jeden wpis za K-E2 i K-E4), `relai-planning.mdc` 5 → 6. Wiersz overdue-review nie był
+  skracany skryptem (krótki), więc jego wpis startowy zszedł z komórki razem z wpisem wersji 2,
+  a komórka dostała odsyłacz „Starsze wersje” do dzisiejszej kopii, która go przechowuje.
+- Kopie Codeksa z generatora (trzy pliki). Dwie poprawki łamania po recenzji (Claude, bez
+  przebiegu poprawki): linia 101 znaków w `relai-core.mdc` i urwany wiersz akapitu w
+  `relai-stage.md`.
+
+**Zweryfikowane — jak dokładnie:**
+
+- K-E6: kontrola przed — `awk` na wierszu z `„Wiersz | Czyta go”` → 9 pól, nagłówek → 8.
+  `sprawdz-rejestr.js` kopii z samą sobą → `kluczy: 127, linii zmienionych: 0, bledow: 0`.
+  Skrypt: `wierszy tabel z kolumna: 118, skroconych: 40, bajty przed: 154108, po: 79901`.
+  Dowód: `sprawdz-rejestr.js` kopia → rejestr: `kluczy: 127, linii zmienionych: 40, bledow: 0`.
+  Obiekt `artefakty` w `release-check --json` przed i po identyczny: `plikow rejestru 108,
+  zmienionych od bazy 19, bez wpisu 0`, `bledy: []`. Grep `count`: `Starsze wersje: .ARTEFAKTY_`
+  → 40; `Wiersz .. Czyta go` → 0 w rejestrze, 1 w kopii. `release-check.test.js` → 57/57.
+  Rejestr po całym etapie 81 387 B (≤ 85 000). `sprawdz-rejestr.js` puszczony jeszcze raz po
+  K-R11 zgłasza błędy przesunięcia — porównuje linia w linię, a krok 8 dodał dwie linie; dowód
+  należy do momentu po kroku 4, jak w karcie.
+- Testy przed zmianą (zapis w katalogu roboczym, diff testów przeczytany w całości — wierny
+  kartom, LF): `profile-rules` 1 pass / 3 fail z asercji (zielony: „a bare path and a link
+  target…” — nazwany wyjątek karty); `ritual-texts` 3 / 1 fail („brak nowego tekstu »**Fakt
+  z repozytorium jako podpowiedź.**«”); `ritual-copies` 7 / 1 fail („cel na czesci rotowalnej”).
+- Po zmianie: 4/4, 4/4, 8/8. `node --test "core/process/tests/*.test.*"` → **430 pass, 0 fail**
+  (424 + 6); `adapters/cursor` 10, `adapters/codex` 28, `core/guardrails` 33 — bez zmian.
+- Pętla K-C7 (polecenie z karty): przed **70**, po krokach 1–2 **14** (dokładnie 14 plików `.md`
+  skilla `security-audit`), po kroku 3 **0**. Pierwsza próba listy ścieżek dała 0 przez wzorzec
+  `artefakt "` — wyjście hooka jest JSON-em z `\"`; liczba z polecenia karty była poprawna.
+- Greps: akapit „Pytanie nie zamienia się w rozstrzygnięcie za człowieka” → 1;
+  „target moves to the rotatable” → 0; `security-audit` `.md` → 17.
+- Dowód negatywny: `git diff --stat` dla `CLAUDE.md`, `AGENTS.md`, `docs/DECYZJE.md`,
+  `document-rotation.md`, `session-signals.js`, `rotate.js` i załączników kart → pusty.
+- `generate-skills.js --verify` → kod 0; `validate-adapters.js` → kod 0, jedno ostrzeżenie,
+  parytet 73 plików 0 rozjazdów, `rytual "Na koniec": 3 list, kroki [1,1a,2,3,4,5,6]`,
+  `wywolania z hooks.json: 20`.
+- Rejestr (K-R11): `release-check --json --tylko artefakty` → `"bledy": []` w trzech sekcjach,
+  `plikow rejestru 122, zmienionych od bazy 20, bez wpisu 0` (108 → 122, +14 po K-C7 krok 3).
+- Bezpieczeństwo: `trivy fs --scanners vuln .` → 0 CRITICAL, 42 HIGH, 50 MEDIUM, 12 LOW — bez
+  nowych wobec E9; etap nie dodaje zależności. Diff hooka: `writeFile|https?.request|fetch(` → 0.
+- Długości linii dodanych (znaki, nie bajty): ponad 100 zostały wiersz tabeli w `SPEC_PROFILE.md`
+  (tabela) i polecenie `awk` w punkcie 7a `plan-closing.md` (dosłownie z karty, w jednej linii).
+- Katalog roboczy `.claude/relai/work/OPTYMALIZACJA_PO_AUDYCIE/E11/`: przed 29 plików, ok. 1,1 MB;
+  przebiegi Codeksa `.claude/relai/work/CREW/2026-11-10_172030` i `_172236` — 10 plików,
+  ok. 460 KB; po „tak” Łukasza skasowane — po 0 plików (oba foldery nadrzędne puste). Poza
+  katalogiem: fikstur `%TEMP%/relai-profile-rules-*` po testach 0 (sprzątane w `t.after`).
+- **Pomiar Aneksu A:** dwa przebiegi Codeksa — cel aneksu osiągnięty po raz pierwszy; przebieg 1
+  ok. 2 min, bez odchyleń; przebieg 2 bez `STOP`. Poprawek po recenzji (6c): 0; dwie poprawki
+  łamania zrobił Claude (tabela 4.2, usterka ≤ 3 edycje).
+- Ryzyka: R5 — rejestr artefaktów zszedł o ok. 72 KB, ale dziennik i lekcje są ponad progiem,
+  więc poziom bez zmian; AX2 (osłabienie testu) — nie wystąpiło, diff testów po przebiegu 2
+  identyczny jak po przebiegu 1 (37 linii w dwóch plikach, nowy plik bez zmian).
+
+**Świadomie odłożone:**
+
+- Rotacja `docs/DZIENNIK.md` (216 KB przy progu 150 KB) i `docs/LEKCJE.md` (76 KB przy 50 KB)
+  zgłoszona na starcie sesji — poza zakresem etapu, do „kończymy na dziś”.
+
+**Do zrobienia przez człowieka:** —
+
+### 2026-11-10 — OPTYMALIZACJA_PO_AUDYCIE E12: mody mówią, że się nie narysowały, kokpit z pamięci, Koszty bez czytania zamkniętych sesji
+
+Autor: RelAI (Opus 5.5) + Lukasz
+
+Czwarty etap według Aneksu A, w dwóch przebiegach Codeksa (L-0316): (1) same testy z kart,
+(2) wdrożenie bez zmiany testów. Codex `gpt-6.1-terra`, effort `high` z `~/.codex/config.toml`
+(odczytany przed przebiegiem), przez `node core/process/crew.js run --runtime codex --role coder
+--write` z repozytorium. Claude (Opus 5.5) uruchamiał testy modów binarką sesji, recenzował diff,
+prowadził bramkę manualną i rytuał.
+
+**Zrobione:**
+
+- **K-F3:** `progress/hooks/register.tsx` i `mods/hooks/register.tsx` — gałąź `.catch` handlera
+  `ui.render` panelu agentów i kokpitu: tytuł, zdanie z przyczyną („⚠ Panel agentów nie narysował
+  się: …”, „⚠ Kokpit nie narysował listy: …”) i zdanie, co zrobić; bez odczytów, mobile → `next(e)`.
+- **K-F1:** `mods/hooks/inventory.ts` — czysta `watchedPaths`; `mods/hooks/register.tsx` — pamięć
+  `disk` (`readDisk`, `stampOf`, `forgetDisk`) kluczowana katalogiem domowym, `cwd`, polityką
+  i `mtimeMs:size` obserwowanych plików; trzy unieważnienia (`press`, `togglePane`,
+  `takeSnapshot`); `runOne`, `runScope`, `runScopeCall` bez zmian.
+- **K-F2:** nowy `panel/hooks/records-memo.ts` (`othersFrom`, `forgetRecords`, `fileKey`);
+  `panel/hooks/register.tsx` — `projectRecords` bierze rekordy zamkniętych sesji z pamięci,
+  `forgetRecords()` w `session.start`.
+- Sześć nowych testów i licznik `n` z czasem idącym za treścią w atrapie `Fake` kokpitu.
+
+**Zweryfikowane — jak dokładnie:**
+
+- K-0: gałąź `optymalizacja/po-audycie`, ostatni commit `d5768c4` (E11). Końce linii ośmiu plików
+  kart `i/lf w/lf` przed obydwoma przebiegami — normalizacja niepotrzebna.
+- Przed zmianą `"$CLAUDE_CODE_EXECPATH" plugin test` (claude-code 2.1.321): mods **87**, panel
+  **216**, progress **50**, cache-keeper **206**, wszystkie ` 0 fail`; `plugin validate` mods,
+  progress, panel → „✔ Validation passed”.
+- Przebieg 1 (testy): diff testów przeczytany w całości — wierny kartom, jedyna zmiana dawnego
+  kodu to atrapa `Fake`, asercje nietknięte. Na czerwono: K-F1 `Expected: { exists: 0, read: 0,
+  list: 0 }`, `Received: { exists: 225, read: 60, list: 10 }` (seria klawiszy) i `{ 45, 12, 2 }`
+  (tyknięcie) — liczby z prototypu karty; K-F2 `Expected: 3`, `Received: 6`; dawne zielone:
+  panel 216, progress 50.
+- **Rozjazd z kartą 1 (L-0313, nazwany wyjątek Łukasza):** `inventory.test.ts` nie załadował się
+  („Export named 'watchedPaths' not found”), więc padł razem z 24 dawnymi testami pliku (mods
+  63 pass / 4 fail zamiast 87 + 3 czerwone). Łukasz uznał błąd ładowania za czerwień tego jednego
+  przypadku; po przebiegu 2 plik ładuje się w całości.
+- **Rozjazd z kartą 2:** oba testy K-F3 czerwone z właściwego powodu (pusty panel), ale silnik
+  2.1.321 zgłasza „relai-…'s ui.render hook was skipped: …: $.state.get: stan niedostępny”, nie
+  `HooksError: no implementation for ui.render` z prototypu 2026-11-09 (asercja: `Received:
+  undefined` w kokpicie, `Received: ""` w panelu agentów).
+- Przebieg 2 (wdrożenie): diff logiki = kod kart, bez odchyleń; liczby diffu testów identyczne
+  jak po przebiegu 1 (AX2 nie wystąpiło). Po zmianie: mods **91**, panel **217**, progress **51**,
+  cache-keeper **206** — razem 565, ` 0 fail`. `plugin validate` trzech modów → „✔ Validation
+  passed”; linie `state writes` / `state reads` raportu `mods` przed i po identyczne (`diff` pusty).
+- `node --test "core/panel/tests/*.test.*"` → 225 pass; `core/process` → 430 pass, 0 fail.
+- Dowód efektu (zasada 4) w zielonych testach: kokpit — przyrost `{ exists: 0, read: 0, list: 0 }`
+  na serię klawiszy i na tyknięcie, `stat` > 0, po zapisie z innego czatu `read` > 0 i pasek
+  „⟳ 1 zmiana czeka na przeładowanie”; Koszty — po turze 0 odczytów innych sesji, plik
+  o zmienionym rozmiarze czytany raz.
+- Granice: Grep `\$\.` w `panel/hooks/records-memo.ts` → 0; w `mods/hooks/inventory.ts` → 1 —
+  **rozjazd 3**: komentarz z `main` (l. 328, `($.settings.read({ source: 'policy' }))`), którego etap
+  nie dotknął; wywołań `$` w kodzie brak. Łukasz uznał punkt co do istoty. `git diff --stat` plików
+  spoza zakresu (`core/panel`, `cache-keeper`, `views.tsx`, `cockpit.ts`, `look.ts`,
+  `pane-agents.tsx`, `tab-data.ts`, `memo.ts`, `pane-io.ts`), manifestów i `package.json`/lock → pusty.
+- Bezpieczeństwo: `trivy fs --scanners vuln .` → 0 CRITICAL, 42 HIGH, 50 MEDIUM, 12 LOW — bez
+  nowych wobec E11. Dodane linie z `fs\.write|\.request\(|fetch\(` → 0 (jedno trafienie całego
+  diffu to linia kontekstu atrapy testu).
+- **Bramka manualna (Łukasz, kroki 1–7 karty):** zwykłe okno PowerShell, `--settings` z wyłączonymi
+  zainstalowanymi modami, trzy `--plugin-dir`. Wynik Łukasza: „Wszystko było poprawnie” — kokpit
+  zawęża listę po każdej literze i nie miga, przełącznik daje i zdejmuje pasek „⟳ 1 zmiana…”,
+  panel agentów „● działa” → „✓ zakończony”, Koszty rosną o koszt tury, Mapa się rysuje.
+- Katalog roboczy `.claude/relai/work/OPTYMALIZACJA_PO_AUDYCIE/E12/`: przed 21 plików, 276 KB;
+  przebiegi `.claude/relai/work/CREW/2026-11-10_184342` i `_185007` — 10 plików, ok. 776 KB; po
+  „tak” Łukasza skasowane — po 0. Poza katalogiem: `%TEMP%/relai-e12-settings.json` — skasował
+  Łukasz w kroku 7 (sprawdzone: brak pliku); `mods/tsconfig.json` wygenerowany przez
+  `claude --plugin-dir .\mods` o 19:30 w bramce (nieśledzony, treść `extends`
+  `./.claude-plugin/types/tsconfig.json`) — usunięty przez Claude.
+- **Pomiar Aneksu A:** dwa przebiegi Codeksa, poprawek po recenzji 0 — cel aneksu drugi raz z rzędu.
+- Ryzyka: C1 i C8 (API modów, pasek nad promptem) — bez zmian, etap nie dotyka paska; AX1
+  (`crew.js` z repozytorium), AX2, AX3 (`git status` tylko pliki kart), AX6 — nie wystąpiły.
+
+**Świadomie odłożone:**
+
+- `mods/tsconfig.json` nie stoi w `.gitignore`, a `panel/tsconfig.json` i `progress/tsconfig.json`
+  stoją (l. 23, 25) — każda sesja z `--plugin-dir .\mods` zostawia nieśledzony plik. Poza kartami
+  E12; kandydat do E13/E14 albo odnogi.
+- Rotacja `docs/DZIENNIK.md` i `docs/LEKCJE.md` (ponad progami) — do „kończymy na dziś”.
+
+**Do zrobienia przez człowieka:** —
+
+Mody do podbicia w E14 (pola „Gotowe, gdy”): `relai-progress` (K-F3), `relai-mods` (K-F3, K-F1),
+`relai-panel` (K-F2).
+
+### 2026-11-10 — OPTYMALIZACJA_PO_AUDYCIE E13: każdy mod niesie tylko pliki rdzenia, które importuje
+
+Autor: RelAI (Opus 5.5) + Lukasz
+
+Piąty i ostatni etap według Aneksu A, w dwóch przebiegach Codeksa (L-0316): (1) same testy z karty
+K-G2, (2) narzędzie bez zmiany testów. Codex `gpt-6.1-terra`, effort `high` z `~/.codex/config.toml`
+(odczytany przed przebiegiem 1), przez `node core/process/crew.js run --runtime codex --role coder
+--write` z repozytorium. Claude (Opus 5.5) uruchomił synchronizację (krok 5 karty), testy, recenzję
+diffu, bramkę manualną i rytuał.
+
+**Zrobione:**
+
+- **K-G2:** `core/tools/sync-panel-core.js` — akapit nagłówka o regule, `present()` zamiast
+  `dests()`, wyrażenie `SPEC`, funkcje grafu `toDir`, `specsOf`, `coreName`, `ownFiles`, `wanted`,
+  nowe `checkOne`/`check`/`sync`: mod dostaje pliki `core/panel/*.mjs` (i `icons.mjs`) osiągalne
+  z własnych `.ts`/`.tsx` pod `hooks/` (z testami), kopia nieosiągalna jest kasowana, a `--check`
+  zgłasza „kopia nadmiarowa” i plik bez źródła. Blok `require.main` i linia „zgodne: …” bez zmian.
+- `core/panel/tests/sync.test.js` — pomoce `fixture` i `uses`, cztery dawne testy z plikiem modu
+  z importem (asercje bez zmian), dwa nowe testy K-G2.
+- Krok 5: `node core/tools/sync-panel-core.js` usunął 45 kopii (panel 5, progress 8,
+  cache-keeper 13, mods 19).
+- **K-F4, K-F5:** bez zmian w kodzie — zdania niżej, w „Świadomie odłożone”.
+
+**Zweryfikowane — jak dokładnie:**
+
+- K-0: gałąź `optymalizacja/po-audycie`, ostatni commit `c03e242` (E12). Końce linii obu plików
+  karty `i/lf w/lf` przed obydwoma przebiegami — normalizacja niepotrzebna.
+- Przed zmianą (`"$CLAUDE_CODE_EXECPATH" plugin test`, claude-code 2.1.321): mods **91**, panel
+  **217**, progress **51**, cache-keeper **206**, wszystkie ` 0 fail`; `core/panel` **225** pass;
+  `--check` kod 0; każdy z czterech katalogów kopii 21 plików, 570 213 B (razem 2 280 852 B).
+- Przebieg 1 (testy): diff testów przeczytany w całości — wierny karcie, dawne asercje nietknięte.
+  Na czerwono: 227 testów, 225 pass, 2 fail — oba nowe z asercji (`+ 'd.mjs'` w liście kopii;
+  „The input did not match … /kopia nadmiarowa mods\/hooks\/core\/b\.mjs/”).
+- Przebieg 2 (narzędzie): diff = kod karty, bez odchyleń; raport Codeksa porównał linię `SPEC`
+  z kartą znak w znak. Przed krokiem 5: 226 pass, czerwony wyłącznie „panel/hooks/core matches
+  core/panel” — oczekiwane wg karty.
+- Po kroku 5: `--check` kod 0, `[sync-panel-core] zgodne: 20 plikow core/panel i 16 ikon ->
+  panel/hooks/core, progress/hooks/core, cache-keeper/hooks/relai, mods/hooks/core`.
+- Dowód efektu (zasada 4) — listy i rozmiary co do bajta z tabelą karty: panel 16 plików
+  501 326 B, progress 13 / 499 604 B, cache-keeper 8 / 143 755 B (decisions, flow, limit-threshold,
+  measure, plan-state, pricing, progress, theme), mods 2 / 313 649 B (headings, theme); razem
+  **1 458 334 B** zamiast 2 280 852 B; `git status --short` → 45 wierszy `D`.
+- Po zmianie: `core/panel` **227** pass, 0 fail; `core/process` **430** pass, 0 fail; mods **91**,
+  panel **217**, progress **51**, cache-keeper **206**, wszystkie ` 0 fail`; cztery `plugin
+  validate` → „✔ Validation passed”.
+- Dowód negatywny (zasada 3): `core/panel/cache-timer.mjs` i jego test istnieją, żadna z czterech
+  kopii `cache-timer.mjs` nie istnieje; `git diff --stat` dla `release-checks.js`,
+  `release-check.test.js`, `release-fixture.js`, `build-panel-headings.js`, `headings.mjs`,
+  `mods-parity.test.js`, `cache-keeper/hooks/core.ts`, `*/hooks/register.tsx`, manifestów
+  i `package.json`/lock → pusty. Test 4 karty (obcy `own.mjs` zostaje po `sync`) zielony.
+- Bezpieczeństwo: `trivy fs --scanners vuln .` → 0 CRITICAL, 42 HIGH, 50 MEDIUM, 12 LOW — bez
+  nowych wobec E12; etap nie dodaje zależności.
+- **Bramka manualna (Łukasz, kroki 1–7 karty):** zwykłe okno PowerShell, `--settings` z czterema
+  wyłączonymi zainstalowanymi modami, cztery `--plugin-dir`. Wynik Łukasza: „Wszystko działa” —
+  pasek cache i pasek planu nad promptem po `ok`, `/cache`, pięć zakładek `/relai-panel`,
+  `/relai-agents` i `/relai-mods` bez zastrzeżeń.
+- Katalog roboczy `.claude/relai/work/OPTYMALIZACJA_PO_AUDYCIE/E13/`: przed 23 pliki, 318 531 B;
+  przebiegi `.claude/relai/work/CREW/2026-11-10_195231` i `_195503` — 325 005 B; po „tak”
+  Łukasza skasowane — po 0. Poza katalogiem: `%TEMP%/relai-e13-settings.json` — skasował Łukasz
+  w kroku 7 (sprawdzone: brak pliku); `mods/tsconfig.json` z bramki (nieśledzony, treść `extends`
+  `./.claude-plugin/types/tsconfig.json`) — usunięty przez Claude.
+- **Pomiar Aneksu A:** dwa przebiegi Codeksa, poprawek po recenzji 0 — cel aneksu trzeci raz
+  z rzędu.
+- Ryzyka: C1 i C8 bez zmian (etap nie dotyka API modów ani paska); AX1–AX3, AX6 nie wystąpiły.
+
+**Świadomie odłożone:**
+
+- F4 — `core/panel/cache-timer.mjs` zostaje do decyzji o planie PANEL_CODEX; po K-G2 nie jest
+  kopiowany do modów.
+- F5 — podział `register.tsx` odłożony decyzją właściciela z 2026-11-09; wymaga osobnego planu
+  z refaktorem stanu modułu.
+- Podział `headings.mjs` (282 006 B, 44 nagłówki) — wymaga zmiany `build-panel-headings.js`
+  i importów `HEADING_ART` w trzech modach; SZACUNEK ok. 558 000 B mniej w kopiach.
+- `mods/tsconfig.json` nadal poza `.gitignore` (drugi raz zostawiony przez bramkę) — kandydat
+  do E14 albo odnogi.
+- Rotacja `docs/DZIENNIK.md` i `docs/LEKCJE.md` (ponad progami) — do „kończymy na dziś”.
+
+**Do zrobienia przez człowieka:** —
+
+Do podbicia w E14 (pola „Gotowe, gdy” K-G2): `relai-panel`, `relai-progress`, `relai-cache-keeper`,
+`relai-mods` (usunięte kopie) oraz plugin `relai` (`core/tools/sync-panel-core.js`).

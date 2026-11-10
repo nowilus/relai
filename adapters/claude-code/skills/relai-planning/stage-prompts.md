@@ -36,10 +36,12 @@ Układ jest **stały, dziewięć elementów, w tej kolejności** (szczegóły ka
 3. **Kontrola modelu** — blockquote „wykonuj wyłącznie na modelu X; inny model → zatrzymaj się",
    zakończony zalecanym poziomem `/effort` z powodem w jednym zdaniu.
 4. **Co przeczytać na start** — tabela `Plik | Po co`, z dopiskiem „w tej kolejności, nic więcej".
+   Bez sekcji ryzyk i bez sekcji „Zasady aktywne” — niesie je skrót startu; `docs/LEKCJE.md`
+   wchodzi wierszem z numerami zasad do doczytania.
 5. **Decyzje już podjęte — nie otwierasz ich ponownie** — lista z numerami `D-NN` / źródłami;
    ostatni punkt wyznacza granicę zakresu wobec etapów następnych.
 6. **Stan wyjściowy** — realny stan repo: drzewko plików, akapit „Czego jeszcze nie ma",
-   przepisane w całości „Zasady aktywne" z rejestru lekcji.
+   numery zasad aktywnych do doczytania i numery ryzyk etapu — bez odpisu ich treści (D-15, Aneks A).
 7. **Zakres etapu** — sekcja **otwiera się linią z katalogiem roboczym etapu**
    (`.claude/relai/work/TEMAT/E<N>/` — ścieżka podstawiona, nie opisana; artefakt spoza projektu
    idzie do wpisu dziennika z nazwy), dalej numerowana lista, każdy punkt ze ścieżką pliku.
