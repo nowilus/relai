@@ -176,49 +176,49 @@ w kodzie, ani w nazwie przypadku. Wątek spoza kart → zatrzymujesz się i pyta
 Każdy punkt Weryfikacji, który przeszedł, odhaczasz w `PROMPT_ETAP_4.md` (`- [ ]` → `- [x]`)
 zaraz po jego sprawdzeniu, nie na końcu etapu; punkt, który nie przeszedł, zostaje pusty.
 
-- [ ] K-0 (konwencje, sekcja 3): `git branch --show-current` → `optymalizacja/po-audycie`.
-- [ ] Testy przed zmianą: każda karta ma zapisany w katalogu roboczym przebieg czerwony z właściwego
+- [x] K-0 (konwencje, sekcja 3): `git branch --show-current` → `optymalizacja/po-audycie`.
+- [x] Testy przed zmianą: każda karta ma zapisany w katalogu roboczym przebieg czerwony z właściwego
       powodu (K-C10 ścieżka A: przypadki 1 i 2 czerwone z asercji — albo ścieżka B: 3 zielone
       i zdanie do wpisu; K-C4: 1–6 czerwone z asercji; K-C6: 6 czerwonych z asercji, przypadek 4
       tylko na Windows).
-- [ ] `node --test core/process/tests/config-protection-crlf.test.js` → 3 pass;
+- [x] `node --test core/process/tests/config-protection-crlf.test.js` → 3 pass;
       `hook-failures.test.js` → 6 pass; `hook-project-scope.test.js` → 6 pass.
-- [ ] `node --test "core/process/tests/*.test.*"` → **372 pass**, 0 fail;
+- [x] `node --test "core/process/tests/*.test.*"` → **372 pass**, 0 fail;
       `node --test "core/guardrails/tests/*.test.js"` → 33 pass; `node --test
       "adapters/codex/tests/*.test.js"` → 24 pass. Żaden istniejący test nie zmieniony
       (`git diff --stat core/process/tests` pokazuje wyłącznie trzy nowe pliki).
-- [ ] Ślady i wyjścia: `grep -c "function slad" adapters/claude-code/hooks/*.js` → `1` w każdym
+- [x] Ślady i wyjścia: `grep -c "function slad" adapters/claude-code/hooks/*.js` → `1` w każdym
       z czternastu plików; `grep -n "catch (_) { process.exit(0); }" adapters/claude-code/hooks/*.js`
       → 0 trafień; `grep -c "pytajPoAwarii" ` w dwóch guardach ≥ 1, w pozostałych dwunastu 0;
       `grep -n "sledzonym" adapters/claude-code/hooks/secret-scanner.js` → 0 trafień.
-- [ ] Efekt widoczny z karty (na fiksturze w katalogu roboczym, hook z repozytorium):
+- [x] Efekt widoczny z karty (na fiksturze w katalogu roboczym, hook z repozytorium):
       `secret-scanner` z wejściem `{nie json` → `ask` i stderr `[RelAI secret-scanner] blad:
       SyntaxError`; ten sam hook z poprawnym payloadem w folderze bez markera → stdout i stderr
       puste (kontrola, że ślad nie pojawia się przy zwykłej pracy).
-- [ ] `SKILL.md` `relai-core` w obu adapterach ma nowe zdanie (grep `nie zadzialala” → porównujesz
+- [x] `SKILL.md` `relai-core` w obu adapterach ma nowe zdanie (grep `nie zadzialala” → porównujesz
       sam tylko tę siatkę` → 1 w każdym), stare brzmienie z jednym wyjątkiem zniknęło (grep
       `dopiero\n    wtedy porównujesz sam` → 0); wiersz `relai-core` w `docs/ARTEFAKTY.md` ma
       wersję 29 i dopisek z datą na początku komórki „Co się zmieniło”.
-- [ ] `node core/tools/validate-adapters.js` → kod 0, jedno ostrzeżenie (`security-audit/SKILL.md`),
+- [x] `node core/tools/validate-adapters.js` → kod 0, jedno ostrzeżenie (`security-audit/SKILL.md`),
       linia `wywolania z hooks.json: 18`.
-- [ ] Bezpieczeństwo (D-91): `/relai-security` (skan Trivy) — zero nowych CRITICAL i HIGH
+- [x] Bezpieczeństwo (D-91): `/relai-security` (skan Trivy) — zero nowych CRITICAL i HIGH
       wprowadzonych w tym etapie, liczby według wagi do wpisu (etap nie dodaje zależności; zastane —
       fikstury ewaluacji `trivy-scan` — nie blokują, jak w E3). Trivy brak → zapis „brak pliku
       zależności w `adapters/claude-code/hooks/` i `core/`” z wynikiem
       `git ls-files adapters/claude-code/hooks core | grep package.json` (pusty).
-- [ ] Podstawy na zmianie etapu: wejście hooka (payload) przy błędzie parsowania nie trafia do
+- [x] Podstawy na zmianie etapu: wejście hooka (payload) przy błędzie parsowania nie trafia do
       komunikatu ani śladu (`grep -n "e.message" adapters/claude-code/hooks/*.js` — żadne nowe
       trafienie z tego etapu w `diff`); `git grep -nE "sk_live_[A-Za-z0-9]{16}|github_pat_[A-Za-z0-9_]{22}"`
       → 0; Grep po `PASSWORD=` w trzech nowych testach → 0 gotowych przypisań.
-- [ ] Granica: `git status --short` pokazuje z tego etapu wyłącznie pliki z pól „Pliki” trzech kart
+- [x] Granica: `git status --short` pokazuje z tego etapu wyłącznie pliki z pól „Pliki” trzech kart
       (czternaście hooków, dwa `SKILL.md` `relai-core`, `docs/ARTEFAKTY.md`, trzy nowe testy)
       i dokumenty rytuału (`STATUS.md`, `PROMPT_ETAP_4.md`, `PROMPT_ETAP_5.md`, `DZIENNIK.md`,
       `STATE.md`, ewentualnie `LEKCJE.md`); pod `adapters/*/skills/relai-planning/` wyłącznie cztery
       zastane `*-closing.md`.
-- [ ] Wpis etapu jest na końcu sekcji „Wpisy” w `docs/DZIENNIK.md`, z liczbą testów `core/process`
+- [x] Wpis etapu jest na końcu sekcji „Wpisy” w `docs/DZIENNIK.md`, z liczbą testów `core/process`
       372 (albo zgodną z sumą, jeśli ścieżka K-C10 zmieniła liczbę — opisaną), ze ścieżką K-C10
       (A albo B) i podpisem `Autor: RelAI (Opus 5.5) + Lukasz`.
-- [ ] Katalog roboczy: (a) `.claude/relai/work/OPTYMALIZACJA_PO_AUDYCIE/E4/` przejrzany
+- [x] Katalog roboczy: (a) `.claude/relai/work/OPTYMALIZACJA_PO_AUDYCIE/E4/` przejrzany
       (`node .claude/relai/tools/clean-work.js raport`; katalog otwartego etapu raport pomija —
       wtedy liczby z `find`/`du`) i skasowany po „tak”, liczby przed i po we wpisie dziennika;
       (b) artefakty spoza katalogu (fikstury `%TEMP%/relai-c10-*`, `relai-c4-*`, `relai-c6-*`,

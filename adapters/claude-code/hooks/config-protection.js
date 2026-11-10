@@ -13,6 +13,24 @@
 // w sesji interaktywnej decyduje czlowiek, w sesji headless zapis jest blokowany.
 // Konwencja hook-guard: poza projektem RelAI wyjscie kodem 0 bez efektu.
 
+// K-C4: slad awarii na stderr, przed pierwszym require — ma powstac takze przy zepsutej instalacji.
+const HOOK = 'config-protection';
+function nazwaBledu(e) { return String((e && (e.code || e.name)) || 'nieznany').replace(/[^\x20-\x7e]/g, '?'); }
+function slad(e) { try { process.stderr.write('[RelAI ' + HOOK + '] blad: ' + nazwaBledu(e) + '\n'); } catch (_) { /* stderr zamkniety */ } }
+// Guard przy bledzie wewnetrznym pyta zamiast milczec (zasada 12: catch bez odmowy to falszywa zielen).
+function pytajPoAwarii(e) {
+  slad(e);
+  console.log(JSON.stringify({
+    hookSpecificOutput: {
+      hookEventName: 'PreToolUse',
+      permissionDecision: 'ask',
+      permissionDecisionReason: 'RelAI config-protection: blad wewnetrzny ochrony konfiguracji (' + nazwaBledu(e) +
+        '), zmiana NIE zostala sprawdzona. Zatwierdz tylko, jesli zmiana nie dotyka pliku ustawien ani sekcji niemutowalnej CLAUDE.md.',
+    },
+  }));
+  process.exit(0);
+}
+
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
@@ -21,18 +39,22 @@ const crypto = require('crypto');
 // (odnoga GUARD_PO_SCIEZCE, punkt 2 zakresu). Powod jest ten sam co przy skanerze sekretow:
 // projekt liczy sie od SCIEZKI ZMIENIANEGO PLIKU, a katalog sesji jest dopiero drugim
 // kierunkiem — sesja otwarta gdzie indziej zmieniala dotad cudzy CLAUDE.md bez pytania.
-// Awaria require traktowana jak awaria guarda: hook milknie (konwencja hook-guard).
+// Awaria require traktowana jak awaria guarda: od K-C4 hook pyta (ask) w kazdym folderze.
 let projektDlaPliku;
 try {
   ({ projektDlaPliku } =
     require(path.resolve(__dirname, '..', '..', '..', 'core', 'process', 'session-signals.js')));
-} catch (_) {
-  process.exit(0);
+} catch (e) {
+  pytajPoAwarii(e);
 }
+
+// Konce linii CRLF -> LF. CLAUDE.md z core.autocrlf albo z kopii pluginu ma CRLF,
+// a old_string i content od modelu maja LF; porownanie surowe przepuszczalo edycje (C10).
+function bezCR(s) { return String(s).replace(/\r\n/g, '\n'); }
 
 // Zwraca {start, end, text} sekcji niemutowalnej albo null.
 function immutableSection(text) {
-  const lines = String(text).split('\n');
+  const lines = bezCR(text).split('\n');
   let startLine = -1;
   let startLevel = 0;
   for (let i = 0; i < lines.length; i++) {
@@ -170,7 +192,7 @@ function main(input) {
   // 2) CLAUDE.md — chroniona jest wylacznie sekcja niemutowalna.
   if (target === path.resolve(korzen, 'CLAUDE.md')) {
     let current = '';
-    try { current = fs.readFileSync(target, 'utf8'); } catch (_) { return process.exit(0); }
+    try { current = bezCR(fs.readFileSync(target, 'utf8')); } catch (_) { return process.exit(0); }
     const sec = immutableSection(current);
     if (!sec) return process.exit(0);
 
@@ -183,7 +205,7 @@ function main(input) {
       return process.exit(0);
     }
     if (tool === 'Edit') {
-      if (editTouchesSection(current, sec, String(ti.old_string || ''), !!ti.replace_all)) {
+      if (editTouchesSection(current, sec, bezCR(ti.old_string || ''), !!ti.replace_all)) {
         return ask('RelAI config-protection: edycja dotyka sekcji niemutowalnej CLAUDE.md. ' +
           'Ta sekcja moze byc zmieniona wylacznie za jawna zgoda uzytkownika w tej sesji.');
       }
@@ -191,7 +213,7 @@ function main(input) {
     }
     if (tool === 'MultiEdit') {
       for (const e of (ti.edits || [])) {
-        if (editTouchesSection(current, sec, String(e.old_string || ''), !!e.replace_all)) {
+        if (editTouchesSection(current, sec, bezCR(e.old_string || ''), !!e.replace_all)) {
           return ask('RelAI config-protection: edycja dotyka sekcji niemutowalnej CLAUDE.md. ' +
             'Ta sekcja moze byc zmieniona wylacznie za jawna zgoda uzytkownika w tej sesji.');
         }
@@ -228,7 +250,10 @@ function main(input) {
 let raw = '';
 process.stdin.setEncoding('utf8');
 process.stdin.on('data', (d) => { raw += d; });
-process.stdin.on('error', () => process.exit(0));
+process.stdin.on('error', (e) => pytajPoAwarii(e));
 process.stdin.on('end', () => {
-  try { main(JSON.parse(raw || '{}')); } catch (_) { process.exit(0); }
+  // BOM zdejmowany przed JSON.parse (zasada 13) — inaczej payload z BOM dawalby ask przy kazdym zapisie.
+  const bom = String.fromCharCode(0xfeff);
+  const text = raw.startsWith(bom) ? raw.slice(1) : raw;
+  try { main(JSON.parse(text || '{}')); } catch (e) { pytajPoAwarii(e); }
 });

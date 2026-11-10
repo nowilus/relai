@@ -22,6 +22,11 @@
 // Reguly niesie rdzen (core/process/prompt-mode.js). Tutaj zostaje wylacznie to,
 // co jest wlasciwoscia Claude Code — protokol zdarzenia i ksztalt wyjscia.
 
+// K-C4: slad awarii na stderr, przed pierwszym require — ma powstac takze przy zepsutej instalacji.
+const HOOK = 'prompt-mode';
+function nazwaBledu(e) { return String((e && (e.code || e.name)) || 'nieznany').replace(/[^\x20-\x7e]/g, '?'); }
+function slad(e) { try { process.stderr.write('[RelAI ' + HOOK + '] blad: ' + nazwaBledu(e) + '\n'); } catch (_) { /* stderr zamkniety */ } }
+
 const fs = require('fs');
 const path = require('path');
 
@@ -33,7 +38,8 @@ let tryb;
 try {
   core = require(path.join(PLUGIN_ROOT, 'core', 'process', 'session-signals.js'));
   tryb = require(path.join(PLUGIN_ROOT, 'core', 'process', 'prompt-mode.js'));
-} catch (_) {
+} catch (e) {
+  slad(e);
   process.exit(0);
 }
 
@@ -85,7 +91,7 @@ function main(input) {
 let raw = '';
 process.stdin.setEncoding('utf8');
 process.stdin.on('data', (d) => { raw += d; });
-process.stdin.on('error', () => process.exit(0));
+process.stdin.on('error', (e) => { slad(e); process.exit(0); });
 process.stdin.on('end', () => {
-  try { main(JSON.parse(raw || '{}')); } catch (_) { process.exit(0); }
+  try { main(JSON.parse(raw || '{}')); } catch (e) { slad(e); process.exit(0); }
 });

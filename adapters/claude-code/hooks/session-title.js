@@ -16,6 +16,11 @@
 // kazda awaria.
 // Reguly niesie rdzen (core/process/session-title.js); tutaj protokol zdarzenia i odczyt plikow.
 
+// K-C4: slad awarii na stderr, przed pierwszym require — ma powstac takze przy zepsutej instalacji.
+const HOOK = 'session-title';
+function nazwaBledu(e) { return String((e && (e.code || e.name)) || 'nieznany').replace(/[^\x20-\x7e]/g, '?'); }
+function slad(e) { try { process.stderr.write('[RelAI ' + HOOK + '] blad: ' + nazwaBledu(e) + '\n'); } catch (_) { /* stderr zamkniety */ } }
+
 const fs = require('fs');
 const path = require('path');
 
@@ -26,7 +31,8 @@ let tytul;
 try {
   core = require(path.join(PLUGIN_ROOT, 'core', 'process', 'session-signals.js'));
   tytul = require(path.join(PLUGIN_ROOT, 'core', 'process', 'session-title.js'));
-} catch (_) {
+} catch (e) {
+  slad(e);
   process.exit(0);
 }
 
@@ -75,11 +81,11 @@ async function main(input) {
 let raw = '';
 process.stdin.setEncoding('utf8');
 process.stdin.on('data', (d) => { raw += d; });
-process.stdin.on('error', () => process.exit(0));
+process.stdin.on('error', (e) => { slad(e); process.exit(0); });
 process.stdin.on('end', () => {
   const bom = String.fromCharCode(0xfeff);
   const text = raw.startsWith(bom) ? raw.slice(1) : raw;
   let input;
-  try { input = JSON.parse(text || '{}'); } catch (_) { process.exit(0); }
-  main(input).then(() => process.exit(0), () => process.exit(0));
+  try { input = JSON.parse(text || '{}'); } catch (e) { slad(e); process.exit(0); }
+  main(input).then(() => process.exit(0), (e) => { slad(e); process.exit(0); });
 });

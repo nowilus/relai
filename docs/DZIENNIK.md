@@ -2230,3 +2230,87 @@ z kodem; zmiana działa w sesjach dopiero po wydaniu w E14 — dowodem są testy
   w nawiasie. Potwierdzić kompromis.
 
 Autor: RelAI (Opus 5.5) + Lukasz
+
+### 2026-11-10 — OPTYMALIZACJA_PO_AUDYCIE E4: guardy Claude Code — awaria widoczna, zasięg projektu, CRLF
+
+Etap E4 z E14, trzy karty z `karty/E04_GUARDY_CLAUDE_CODE.md` w kolejności K-C10 → K-C4 → K-C6.
+Gałąź `optymalizacja/po-audycie`, punkt wyjścia `2ee8cb3` (commit E3). Zmiana działa w sesjach
+dopiero po wydaniu w E14 — w tej sesji pracowały hooki zainstalowanego 3.7.0; dowodem są testy
+i uruchomienie hooków z repozytorium na fiksturze.
+
+**Zrobione:**
+
+- K-C10, **ścieżka A** (`config-protection.js`): funkcja `bezCR` i cztery miejsca z karty —
+  `immutableSection`, odczyt `CLAUDE.md`, oba wywołania `editTouchesSection` (`Edit`, `MultiEdit`).
+  Test `core/process/tests/config-protection-crlf.test.js` (3 przypadki).
+- K-C4 (czternaście hooków `adapters/claude-code/hooks/*.js`): `HOOK`, `nazwaBledu`, `slad` przed
+  pierwszym `require`; `pytajPoAwarii` w `secret-scanner` i `config-protection` (awaria `require`,
+  błąd `stdin`, `JSON.parse` + `main` → `ask` z komunikatem), BOM zdejmowany w obu guardach;
+  tabela S / A / Z karty — siedem hooków ostrzegawczych przerobionych skryptem z kontrolą „kotwica
+  dokładnie raz”, pozostałe narzędziem Edit. `session-context.js`: pomocnik `raport` i piętnaście
+  raportów pod nazwami z karty, `gs` jako `let` przypisywane w raporcie `ustawienia globalne`.
+  `SKILL.md` `relai-core` — drugi wyjątek (linia „Siatka … nie zadzialala”), kopia Codeksa
+  z `generate-skills.js`, wiersz `relai-core` w `docs/ARTEFAKTY.md` → wersja 29. Test
+  `core/process/tests/hook-failures.test.js` (6 przypadków).
+- K-C6: `wKatalogu` w `console-log-warn`, `quality-gate`, `design-quality-check` (warunek przed
+  sprawdzeniem `DESIGN.md`), `profile-rules` i `secret-scanner` (wariant `root, abs`, tylko po
+  rozpoznaniu projektu); w skanerze `stanGita` trójstanowa zamiast `isGitIgnored`, komunikat bez
+  „śledzonego” (`ktorego git nie ignoruje` / `projekt bez repozytorium gita albo git
+  niedostepny`), komentarz nagłówka poprawiony. Test `core/process/tests/hook-project-scope.test.js`
+  (6 przypadków, przypadek 4 tylko na Windows).
+
+**Zweryfikowane — jak dokładnie:**
+
+- `git branch --show-current` → `optymalizacja/po-audycie`.
+- Przebiegi czerwone przed zmianą, zapisane w katalogu roboczym: K-C10 — przypadki 1 i 2
+  czerwone z asercji (`cisza` zamiast `ask`, `ask` zamiast `cisza`), przypadek 3 zielony —
+  przewidywanie karty (ścieżka A) potwierdzone; K-C4 — 6/6 czerwone z asercji (pierwsza wersja
+  pomocnika testu padała na `JSON.parse` pustego stdout; dodana asercja „hook odpowiada decyzją”,
+  drugi przebieg czerwony z asercji); K-C6 — 6/6 czerwone z asercji, w tym przypadek 4 na
+  Windows (`Z:/relai-nie-istnieje/src/a.js` dostawał „pierwszy kod”).
+- Po zmianie: trzy nowe pliki → 3 + 6 + 6 pass; `humanize-continuous.test.js` → 22 pass.
+- `node --test "core/process/tests/*.test.*"` → **372 pass**, 0 fail (przed etapem 357);
+  `core/guardrails` → 33 pass (bez zmian); `adapters/codex/tests` → 24 pass (bez zmian).
+  `git status core/process/tests` → wyłącznie trzy nowe pliki, istniejące testy nietknięte.
+- `grep -c "function slad"` → 1 w każdym z czternastu hooków; `catch (_) { process.exit(0); }` →
+  0 trafień; `pytajPoAwarii` → 4 w dwóch guardach, 0 w pozostałych; `sledzon` w
+  `secret-scanner.js` → 0. Bajty wstawionego skryptem bloku: `[^\x20-\x7e]` i `'\n'` obecne
+  w 14 plikach (zasada 5).
+- Efekt z karty (hook z repozytorium): `secret-scanner` z wejściem `{nie json` → kod 0, `ask`,
+  stderr `[RelAI secret-scanner] blad: SyntaxError`; poprawny payload w fiksturze bez markera →
+  stdout 0 B, stderr 0 B.
+- `SKILL.md` `relai-core` w obu adapterach: nowe zdanie → 1, stare „wtedy porównujesz sam, wg” → 0;
+  `ARTEFAKTY.md` — wersja 29, dopisek z datą na początku komórki.
+- `node core/tools/validate-adapters.js` → kod 0, jedno ostrzeżenie (`security-audit/SKILL.md`
+  22 026 B), `wywolania z hooks.json: 18`.
+- Trivy (`trivy fs --scanners vuln`): 0 CRITICAL, 42 HIGH, 50 MEDIUM, 12 LOW — identycznie jak
+  w E3, zastane fikstury ewaluacji `trivy-scan` i katalog roboczy PANEL_CODEX;
+  `git ls-files adapters/claude-code/hooks core | grep package.json` → pusto. Nowych CRITICAL
+  ani HIGH: 0.
+- Podstawy: `e.message` w diffie hooków → jedno trafienie, komentarz zakazujący jego użycia
+  (nie kod); `git grep -nE` po `sk_live_…{16}` i `github_pat_…{22}` → 0; `PASSWORD=` w trzech
+  nowych testach → 0 (nazwa i wartość składane w czasie działania).
+- Katalog roboczy `.claude/relai/work/OPTYMALIZACJA_PO_AUDYCIE/E4/`: przed — 11 plików i pusty
+  folder fikstury, 837 KB (`find`/`du`; `clean-work.js raport` pomija katalog otwartego etapu);
+  po „tak” Łukasza — 0 (katalog i pusty folder planu skasowane). Artefakty spoza katalogu: fikstury `%TEMP%/relai-c10-*`,
+  `relai-c4-*`, `relai-c6-*` i znaczniki `%TEMP%/relai-ustawienia-podane-test-c4-*` sprzątają
+  `t.after` testów — po etapie `ls` → 0 trafień.
+
+**Świadomie odłożone:**
+
+- Komentarz nagłówka `secret-scanner.js` w linii 6 („awaria guarda = wyjscie bez efektu”) nie
+  opisuje już zachowania przy awarii — karta poprawia tylko linię 4; zdanie zostaje do E5 (karta
+  K-D8 dotyka tego samego pliku) albo do K-E9 w E14.
+- Raport `clean-work.js` pokazał zastany katalog `adapters/claude-code/hooks/.claude/relai/`
+  (51 plików, 801 KB, z 2026-10-27, ignorowany własnym `.gitignore`) — kopie hooka startu
+  z sesji otwartej kiedyś w tym folderze. Nie z tego etapu, nie ruszam.
+- Przegląd ryzyk: C1 (API modów) — etap nie dotyka modów, bez zmiany; P1 (adaptery bez blokad
+  harnessu) — dotyczy Cursora i Codeksa, etap E6; bez zmiany tabeli.
+- Rotacje dziennika, sekcji ryzyk i lekcji zgłoszone na starcie — poza etapem.
+
+**Do zrobienia przez człowieka:** —
+
+Lekcja z etapu: L-0311 (trzecia powtórka L-0298 — drugie `cd` w łańcuchu przestawiło katalog
+sesji; reguła w `CLAUDE.md` już stoi, poszerzona w zasadzie 5 o `cd` do korzenia repo).
+
+Autor: RelAI (Opus 5.5) + Lukasz

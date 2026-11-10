@@ -17,6 +17,11 @@
 // projektem RelAI wyjscie kodem 0 bez efektu. Komunikaty celowo bez polskich
 // znakow diakrytycznych (L-0016).
 
+// K-C4: slad awarii na stderr, przed pierwszym require — ma powstac takze przy zepsutej instalacji.
+const HOOK = 'journal-signature';
+function nazwaBledu(e) { return String((e && (e.code || e.name)) || 'nieznany').replace(/[^\x20-\x7e]/g, '?'); }
+function slad(e) { try { process.stderr.write('[RelAI ' + HOOK + '] blad: ' + nazwaBledu(e) + '\n'); } catch (_) { /* stderr zamkniety */ } }
+
 const fs = require('fs');
 const os = require('os');
 const path = require('path');
@@ -52,7 +57,8 @@ function isRelaiProject(cwd) {
       if (/Wersja RelAI:|RelAI version:/i.test(head)) return true;
     }
     return false;
-  } catch (_) {
+  } catch (e) {
+    slad(e);
     return false;
   }
 }
@@ -151,7 +157,7 @@ function main(input) {
 let raw = '';
 process.stdin.setEncoding('utf8');
 process.stdin.on('data', (d) => { raw += d; });
-process.stdin.on('error', () => process.exit(0));
+process.stdin.on('error', (e) => { slad(e); process.exit(0); });
 process.stdin.on('end', () => {
-  try { main(JSON.parse(raw || '{}')); } catch (_) { process.exit(0); }
+  try { main(JSON.parse(raw || '{}')); } catch (e) { slad(e); process.exit(0); }
 });

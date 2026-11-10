@@ -110,8 +110,9 @@ zasadom:
 
 - Zgłoszenie idzie **jednym zdaniem przed** akapitem „gdzie jesteśmy".
 - Zgłoszenie hooka jest **jedynym** zgłoszeniem; cisza hooka znaczy „sprawdzone i zgodne" — nie
-  powtarzasz porównania sam (L-0036). Bloku `[RelAI session-context]` nie ma w ogóle → dopiero
-  wtedy porównujesz sam, wg `start-nets.md`.
+  powtarzasz porównania sam (L-0036). Dwa wyjątki: bloku `[RelAI session-context]` nie ma
+  w ogóle → porównujesz sam wszystkie siatki wg `start-nets.md`; blok ma linię
+  „Siatka "<nazwa>" nie zadzialala” → porównujesz sam tylko tę siatkę.
 - Propozycja **nigdy** nie zamienia się w automatyczne odpalenie: zmiana w repo idzie po zgodzie.
 - Odmowa zamyka temat do końca sesji.
 - Sesja nieinteraktywna (`claude -p`, agent w tle, linia hooka „Sesja nieinteraktywna") → sam
