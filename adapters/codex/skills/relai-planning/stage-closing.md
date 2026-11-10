@@ -41,9 +41,16 @@ Na koniec E<N>: [ ] 1 STATUS  [ ] 1a katalog roboczy  [ ] 2 dziennik  [ ] 3 bram
    N+1, z **realnego stanu repo po tym etapie** i z lekcji, które w tym etapie powstały. To jest
    punkt, który najłatwiej pominąć i który przesądza o ciągłości pracy: **etap bez wygenerowanego
    następnego promptu nie jest ukończony** (D-34).
-6. **Commit** — propozycja, conventional message. Jedyny punkt tego rytuału, o który pytasz.
+6. **Commit** — propozycja, conventional message. Pytasz w tym rytuale tylko o dwie rzeczy:
+   skasowanie grup katalogu roboczego (punkt 1a) i commit (ten punkt).
 
-Zamykany etap był **ostatnim** w planie → punkt 5 zastępujesz sekwencją z `plan-closing.md`.
+**Ostatni etap planu.** Zamykany etap był ostatnim w planie → z tej listy wykonujesz punkty 1
+i 1a, a w miejsce punktów 2–5 sekwencję z `plan-closing.md`; commit (punkt 6) proponujesz raz,
+na końcu całości. Wpis dziennika i `STATE.md` powstają **raz** — w punktach 3 i 4 zamknięcia
+planu. Wpis zamykający niesie wtedy część etapową: cztery sekcje szablonu dla ostatniego etapu,
+liczby z punktu 1a, lekcje z etapu i przegląd tabeli ryzyk. Pozycje „Do zrobienia przez
+człowieka” ostatniego etapu wymieniasz w punkcie 1 zamknięcia planu razem z otwartymi
+bramkami, zamiast zapisywać je najpierw jako bramki w `STATUS.md`.
 
 Sesja przerwana w połowie rytuału zostawia etap w statusie `W TOKU`. Kolejne `/relai-stage` ma
 wtedy dokończyć, nie zaczynać od zera — a siatka z `relai-core` wyłapie brakujący prompt na starcie

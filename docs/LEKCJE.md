@@ -952,6 +952,19 @@ w wyzwalacz, przed pracą doczytujesz pełne brzmienie zasady z sekcji „Pełne
   zielono i robi resztę Weryfikacji. Effort `crew.js` nie przekazuje (tylko `-m`), więc Codex
   bierze go z `~/.codex/config.toml`.
 
+### L-0317 — Plik zadania kazał Codeksowi „zachować CRLF” pliku, który w repozytorium ma LF · 2026-11-10 · AKTYWNA
+
+- **Trigger:** OPTYMALIZACJA_PO_AUDYCIE E10, przebieg 2. Claude odczytał `git ls-files --eol`
+  → `i/lf w/crlf` dla `core/templates/SPEC_PROMPT_ETAPU.md` i wpisał do pliku zadania „plik ma
+  CRLF, zachowaj je”. Edycja Codeksa przepisała końce linii, Codex uznał to za naruszenie zadania
+  i zakończył przebieg `STOP` po punktach 1–5 karty K-A1. `git status` wcześniej milczał
+  o pliku (pamięć stat — L-0297), a drugi plik karty (`relai-planning.mdc`) miał ten sam stan.
+  Etap zajął trzy przebiegi zamiast dwóch.
+- **Zasada:** stan końców linii z drzewa roboczego nie trafia do pliku zadania jako wymóg. Przed
+  każdym przebiegiem Codeksa Claude sprawdza `git ls-files --eol` plików z `--files`;
+  `w/crlf` przy `i/lf` normalizuje do LF skryptem pisanym przez Write (L-0297) i dopiero wtedy
+  uruchamia przebieg. Plik zadania mówi wyłącznie „repozytorium trzyma LF”.
+
 ## Lekcje zwinięte
 
 Pełne wpisy lekcji, których zasady żyją w destylacie „Zasady aktywne" (kompresja 2026-08-20).

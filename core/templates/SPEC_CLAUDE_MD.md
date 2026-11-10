@@ -88,7 +88,10 @@ zakłada dokument i **w tej samej turze** dokłada tę linię.
    `STATE.md`, tabelę ryzyk bez „Mitygacji”, ostatni wpis dziennika, aktywne ustawienia, `STATUS.md`
    aktywnego planu, „Zasady aktywne” — D-15), i kończy się drogowskazami do pełnych sekcji. Ten
    plik ładuje harness, więc go nie wymieniasz. Dopisz zdanie „plików, które skrót streszcza, nie
-   otwierasz na starcie i nie skanujesz repo pełnotekstowo”. `docs/DECYZJE.md` **nie jest** czytany
+   otwierasz na starcie i nie skanujesz repo pełnotekstowo” oraz zdanie „zanim pierwszy raz
+   zmienisz plik, porównaj zadanie z wyzwalaczami indeksu »Zasad aktywnych«; trafienie →
+   przeczytaj pełne brzmienie tej zasady z `docs/LEKCJE.md`, dopiero potem praca” (D-15,
+   Aneks A — warstwa obecna w każdej sesji, także gdy skrót startu nie został uruchomiony). `docs/DECYZJE.md` **nie jest** czytany
    na starcie — sięgasz po niego, gdy temat tego wymaga; w regułach procesu zostaje sama zasada
    „decyzji stamtąd się nie proponuje ponownie". Akapit zamyka **jedna linia z trzema frazami
    sesji** (D-05) — patrz sekcja „Linia fraz sesji" — oraz **jedna linia o sprawach
@@ -137,8 +140,8 @@ Brzmienie (przetłumacz na język projektu, sensu nie zmieniaj):
 
 > **Frazy sesji:** „kontynuujemy pracę" → rytuał startu, akapit „gdzie jesteśmy" **i jedno zdanie
 > z propozycją najbliższego kroku**; „sprawdź status" → stan, plany, ryzyka, zaległości
-> dokumentacyjne; „kończymy na dziś" → sync dokumentów, wpis do dziennika, przegląd ryzyk,
-> sprzątanie artefaktów roboczych, propozycja commita.
+> dokumentacyjne; „kończymy na dziś" → sync dokumentów, rotacja, sprzątanie artefaktów
+> roboczych, wpis do dziennika, przegląd ryzyk, propozycja commita.
 
 Trzeci człon pierwszej frazy jest tym, co najczęściej wypada — zmierzone w pilotażu E10: sesja bez
 wyzwolonego skilla napisała akapit „gdzie jesteśmy" i zakończyła pytaniem „Co dalej?" zamiast
@@ -258,11 +261,14 @@ Sekcja niemutowalna: nigdy bez jawnej prośby.
 
 Uruchom `node .claude/relai/tools/start-digest.js` i przeczytaj jego wyjście — to cały odczyt
 startu. Plików, które skrót streszcza, nie otwierasz na starcie i nie skanujesz repo
-pełnotekstowo; pełne sekcje wskazują drogowskazy na końcu skrótu.
+pełnotekstowo; pełne sekcje wskazują drogowskazy na końcu skrótu. Zanim pierwszy raz zmienisz
+plik, porównaj zadanie z wyzwalaczami indeksu „Zasad aktywnych”; trafienie → przeczytaj pełne
+brzmienie tej zasady z `docs/LEKCJE.md`, dopiero potem praca.
 
 **Frazy sesji:** „kontynuujemy pracę" → rytuał, akapit „gdzie jesteśmy" **i zdanie z propozycją
 najbliższego kroku**; „sprawdź status" → stan, plany, ryzyka, zaległości; „kończymy na dziś" →
-sync dokumentów, wpis do dziennika, ryzyka, sprzątanie artefaktów roboczych, propozycja commita.
+sync dokumentów, rotacja, sprzątanie artefaktów roboczych, wpis do dziennika, ryzyka, propozycja
+commita.
 
 **Sprawa przeterminowana:** pozycja sekcji „Czeka na człowieka" starsza niż `N` dni (wiersz
 `Przegląd spraw człowieka` w [docs/USTAWIENIA.md](docs/USTAWIENIA.md), domyślnie 30) wymusza

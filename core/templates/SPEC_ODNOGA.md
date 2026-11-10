@@ -143,8 +143,9 @@ Stan faktyczny repozytorium, sprawdzony w chwili generacji, nie stan planowany. 
 - jedno–dwa zdania o tym, co w tym obszarze jest dzisiaj,
 - listę plików istotnych dla wątku z jednolinijkowym opisem każdego,
 - akapit **„Czego jeszcze nie ma"** — dokładnie to, co odnoga ma dowieźć,
-- **„Zasady aktywne" z `docs/LEKCJE.md` przepisane w całości** — tak samo jak w prompcie etapowym.
-  Odnoga jest mniejsza, ale świeża sesja jest tak samo świeża.
+- **numery zasad aktywnych do doczytania** z `docs/LEKCJE.md` — tak samo jak w prompcie etapowym
+  (`SPEC_PROMPT_ETAPU.md`, sekcja 6): jedna linia z numerami, bez odpisu treści. Odnoga jest
+  mniejsza, ale świeża sesja jest tak samo świeża.
 
 ### 7. Zakres i weryfikacja
 
@@ -196,7 +197,8 @@ Punktu „wygeneruj następny prompt" tu **nie ma** — odnogi nie tworzą łań
 - Nie zakładasz folderu `odnogi/` na zapas — powstaje razem z pierwszą odnogą (D-11).
 - Nie tworzysz odnogi dla wątku, który jest zmianą samego planu — to aneks (D-33).
 - Nie tworzysz odnogi z wnętrza odnogi — jedna głębokość, patrz „Czego odnoga nie robi".
-- Nie zostawiasz karty bez sekcji „Weryfikacja" (D-25) ani promptu bez „Zasad aktywnych".
+- Nie zostawiasz karty bez sekcji „Weryfikacja" (D-25) ani promptu bez linii z numerami zasad
+  do doczytania; odpisu „Zasad aktywnych” nie wklejasz.
 - Zero sekretów — nazwy zmiennych tak, wartości nigdy (D-42).
 
 ---
@@ -290,10 +292,7 @@ src/payments/int/webhook.test.ts        # 11 testów, w tym „zdarzenie powtór
 **Czego jeszcze nie ma:** żadnego śladu w logu przy zdarzeniu powtórzonym — gałąź kończy się
 `return new Response(null, { status: 200 })` bez linii logu.
 
-**Zasady aktywne z `docs/LEKCJE.md`, obowiązujące w tym wątku** (przepisane w całości):
-1. Każdy endpoint przyjmujący dane z zewnątrz waliduje wejście schematem, zanim cokolwiek zapisze
-   (L-0001).
-2. Testy integracyjne odpalasz komendą `npm run test:int` (L-0003).
+**Zasady do doczytania z `docs/LEKCJE.md` (pełne brzmienie):** 1, 2.
 
 ## Zakres i weryfikacja
 

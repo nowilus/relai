@@ -2837,3 +2837,97 @@ Claude (Opus 5.5) złożył plik zadania (prompt etapu + nakładka 4.1), recenzo
   w konfiguracji Codeksa na czas planu albo dodać przekazanie effortu do `crew.js` (odnoga albo
   aneks). — *Rozstrzygnięte 2026-11-10 (Łukasz): `gpt-6-luna` na `xhigh`, `gpt-6.1-terra`
   i `gpt-6.1-sol` na `high`; Łukasz ustawia to sam w konfiguracji Codeksa, `crew.js` bez zmian.*
+
+### 2026-11-10 — OPTYMALIZACJA_PO_AUDYCIE E10: prompty etapów z numerami zasad, rytuały zgodne z procedurami
+
+Autor: RelAI (Opus 5.5) + Lukasz
+
+Drugi etap według Aneksu A: tekst i test pisał Codex (`gpt-6.1-terra`, effort `high` z globalnego
+`model_reasoning_effort` w `~/.codex/config.toml`) uruchamiany przez
+`node core/process/crew.js run --runtime codex --role coder --write` z repozytorium, w tle;
+Claude (Opus 5.5) złożył pliki zadań (prompt etapu + nakładka 4.1 + granice z L-0316), uruchamiał
+testy, recenzował, zrobił K-R10 i rytuał.
+
+**Zrobione:**
+
+- **K-A1:** `SPEC_PROMPT_ETAPU.md` — lektury i stan wyjściowy niosą numery zasad aktywnych do
+  doczytania i numery ryzyk etapu zamiast odpisu, nowy punkt „Zakazów”, przykład w tym kształcie;
+  ta sama reguła w rodzinie promptu odnogi (`SPEC_ODNOGA.md`, `relai-branch.md`,
+  `deviation-and-branches.md`), w `stage-prompts.md`, `relai-stage.md` (Krok 3) i
+  `relai-planning.mdc`; zdanie Aneksu D w `SPEC_CLAUDE_MD.md` (struktura i przykład).
+- **K-E1:** fraza „kończymy na dziś” w szablonie w kolejności z `session-close.md` (sync →
+  rotacja → sprzątanie → wpis → ryzyka → commit); `relai-core/SKILL.md` — kroki 1, 2, 2a, 3, 3a,
+  4, 5 i 6 i trzy pytania; `stage-closing.md` punkt 6 — dwa pytania; `plan-closing.md` i
+  `relai-stage.md` — pytanie o następcę planu na liście pytań; `relai-update.md` przestawia człony
+  w projektach już zainicjowanych.
+- **K-E7:** `document-rotation.md` i `relai-core.mdc` — `SPEC_ARCHIWUM.md` tylko przed rotacją
+  ręczną, dziennik i ryzyka rotuje `rotate.js`; ostatni etap planu: punkty 1 i 1a, potem
+  sekwencja zamknięcia z jednym wpisem i jednym `STATE.md` (`stage-closing.md` akapit „Ostatni
+  etap planu”, `plan-closing.md` punkty 1, 3, 4, `SPEC_PROMPT_ETAPU.md` sekcja 9, `relai-stage.md`
+  Krok 6, `relai-planning.mdc`). Kotwica K-E2 nietknięta.
+- Nowy `core/process/tests/ritual-texts.test.js` — 3 przypadki (K-A1, K-E1, K-E7), dosłownie
+  z kart. Kopie Codeksa z generatora (dziewięć plików).
+- **K-R10:** `docs/ARTEFAKTY.md` — 14 wierszy, każdy +1: SPEC_PROMPT_ETAPU 11 → 12,
+  SPEC_CLAUDE_MD 10 → 11, SPEC_ODNOGA 5 → 6, stage-prompts 1 → 2, deviation-and-branches 1 → 2,
+  stage-closing 2 → 3, plan-closing 4 → 5, `relai-core/SKILL` 31 → 32, document-rotation 3 → 4,
+  `/relai-stage` 12 → 13, `/relai-branch` 4 → 5, `/relai-update` 26 → 27, `relai-core.mdc`
+  10 → 11, `relai-planning.mdc` 4 → 5.
+- `PROMPT_ETAP_11.md` wygenerowany już według nowej specyfikacji.
+- Lekcja L-0317 (plik zadania nie przenosi stanu końców linii z drzewa) — mieści się w zasadzie
+  11, indeks „Zasad aktywnych” bez zmian.
+
+**Zweryfikowane — jak dokładnie:**
+
+- Przed zmianą (uruchamiał Claude, zapis w katalogu roboczym):
+  `node --test core/process/tests/ritual-texts.test.js` → 0 pass / 3 fail, wszystkie z asercji:
+  K-A1 na „zostal stary tekst »przepisaną w całości (nie linkiem)«”, K-E1 na „kolejnosc frazy
+  w obu miejscach” (0 zamiast 2), K-E7 na „zostal stary tekst” z `document-rotation.md`. Test
+  przeczytany w całości wobec kart (AX2) — wierny, 85 linii, LF.
+- Po zmianie: `ritual-texts` 3/3; `ritual-copies` 7/7;
+  `node --test "core/process/tests/*.test.*"` → **424 pass, 0 fail** (421 + 3);
+  `adapters/cursor` 10, `adapters/codex` 28, `core/guardrails` 33 — bez zmian.
+- Greps kart: `przepisan[a-ząę]* w całości` w `core/templates`, komendach i `relai-planning` →
+  brak; „Pytania są dwa” → 0 w obu `relai-core/SKILL.md`; „Jedyny punkt tego rytuału” → 0 w obu
+  `stage-closing.md`; „nie z pamięci” w `document-rotation.md` → 0. Wiersz 59 `relai-update.md`
+  — jedna linia, 4 znaki `|` przed i po.
+- Dowód negatywny: `git diff --stat CLAUDE.md AGENTS.md docs/plany/PANEL_CODEX/PROMPT_ETAP_1.md
+  core/tools/rotate.js` → pusty; kotwica K-E2 w `relai-planning.mdc` → 1.
+- `node adapters/codex/generate-skills.js --verify` → kod 0; `node core/tools/validate-adapters.js`
+  → kod 0, jedno ostrzeżenie (`security-audit/SKILL.md`), parytet 73 plików 0 rozjazdów,
+  `rytual "Na koniec": 3 list, kroki [1,1a,2,3,4,5,6]`, `wywolania z hooks.json: 20`.
+- Rejestr: `release-check.js --json --tylko artefakty` przed — 10 błędów „bez nowego wpisu”
+  (cztery pozostałe pliki miały wpisy z E8–E9), po — `"bledy":[]` w trzech sekcjach;
+  `git diff --numstat docs/ARTEFAKTY.md` → `14 14`.
+- Efekt widoczny: `PROMPT_ETAP_11.md` 20 277 B wobec 22 885 B promptu E10; linia „Zasady do
+  doczytania z `docs/LEKCJE.md` (pełne brzmienie): 1, 3, 5, 7, 11.” obecna (1), odpis indeksu —
+  tytuł zasady 1 w prompcie E11 → 0 (w E10 → 1).
+- Do promptu E11 (FAKT dla K-E6): próbny przebieg `skroc-rejestr.js` na kopii rejestru po E10
+  w scratchpadzie sesji — 118 wierszy, skróconych 40, 154 108 → 79 901 B; `sprawdz-rejestr.js` →
+  kluczy 127, linii zmienionych 40, błędów 0. Kopia i skrypt pomocniczy zostały w scratchpadzie
+  sesji (poza projektem, sprząta je harness).
+- Katalog roboczy `.claude/relai/work/OPTYMALIZACJA_PO_AUDYCIE/E10/`: przed 11 plików, 106 KB;
+  przebiegi Codeksa `.claude/relai/work/CREW/2026-11-10_165554`, `_165803`, `_170141` — 15 plików,
+  ok. 572 KB; po „Skasuj oba” 0. Poza katalogiem: fikstur `%TEMP%/relai-*` z tego etapu nie ma (test
+  czyta pliki repo); pięć `%TEMP%/relai-ustawienia-podane-*` to znaczniki hooka 3.7.0 sprzed K-C1 —
+  zostały.
+- **Pomiar Aneksu A:** trzy przebiegi Codeksa zamiast dwóch — (1) test, 85 linii, bez odchyleń;
+  (2) `STOP` po K-A1 punkty 1–5: plik zadania (błąd Claude) kazał zachować CRLF
+  w `SPEC_PROMPT_ETAPU.md`, którego indeks ma LF — Claude znormalizował do LF ten plik
+  i `relai-planning.mdc` (oba `i/lf w/crlf`), treść 18/12 linii bez zmian; (3) dokończenie
+  od K-A1 punkt 6. Poprawek po recenzji (6c): 0. Lekcja L-0317.
+
+**Świadomie odłożone:**
+
+- Rotacja lekcji w `rotate.js` (kierunek E7 raportu) — nowy parser sekcji „Lekcje” z dolną
+  granicą, odsyłaczem i testami to SZACUNEK ponad pół sesji; poza kartami planu.
+- Akapit dopisany w `relai-planning.mdc` (K-E7 punkt 7) zaczyna się w tej samej linii co zdanie
+  „are blocking…”, więc linia 79 ma 182 znaki (FAKT) — tak każe karta („w tym samym akapicie”);
+  przełamanie zostawiam K-E2 w E11, która ten akapit i tak łamie do 100 znaków.
+- Effort luny: globalne `model_reasoning_effort = "high"` daje `gpt-6-luna` `high`, a decyzja
+  z 2026-11-10 mówi `xhigh` — E10–E13 luny nie używają.
+
+**Do zrobienia przez człowieka:**
+
+- Czy przepisać wstecz `docs/plany/PANEL_CODEX/PROMPT_ETAP_1.md` (plan wstrzymany; 44 569 B,
+  z czego odpis zasad 27 503 B) do kształtu z numerami zasad — teraz, przy wznowieniu planu, czy
+  wcale.

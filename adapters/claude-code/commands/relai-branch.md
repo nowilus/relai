@@ -74,8 +74,9 @@ w `docs/fixy/<NAZWA>/`:
    w checkboxach, pusta sekcja „Wynik".
 2. **`PROMPT_ODNOGA.md`** — osiem sekcji wg specyfikacji: nagłówek, linia metryczna z **planem-
    rodzicem**, kontrola modelu, co przeczytać na start, decyzje już podjęte (ostatni punkt zawsze
-   „Nie ruszasz planu głównego"), stan wyjściowy z **realnego stanu repozytorium** i z „Zasadami
-   aktywnymi" przepisanymi w całości z `docs/LEKCJE.md`, zakres i weryfikacja z karty odnogi, rytuał
+   „Nie ruszasz planu głównego"), stan wyjściowy z **realnego stanu repozytorium** i z numerami
+   zasad aktywnych do doczytania z `docs/LEKCJE.md` (bez odpisu treści), zakres i weryfikacja
+   z karty odnogi, rytuał
    zamknięcia odnogi.
 
 Stan wyjściowy **sprawdzasz w repozytorium**, nie zakładasz. Prompt opisujący pliki, których nie

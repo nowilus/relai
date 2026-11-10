@@ -44,8 +44,8 @@ komenda `/relai-branch`. Zasady, które muszą być znane także bez tej komendy
    tematu planu (D-12).
 2. **Zawsze para plików.** `ODNOGA.md` — karta odnogi w formacie miniplanu: cel, skąd się wzięła,
    zakres, poza zakresem, weryfikacja, wynik. `PROMPT_ODNOGA.md` — samowystarczalny prompt świeżej
-   sesji, generowany tak jak prompty etapowe: **z realnego stanu repo** i z „Zasad aktywnych"
-   przepisanych w całości.
+   sesji, generowany tak jak prompty etapowe: **z realnego stanu repo** i z numerami „Zasad
+   aktywnych” do doczytania, bez odpisu ich treści.
 3. **Ślad w planie to jedna linia.** Sekcja „Odnogi" w `STATUS.md`, zaraz po tabeli etapów:
    nazwa, jedno zdanie, etap-źródło, link do karty odnogi, status `OTWARTA` / `ZAMKNIĘTA <data>` /
    `PRZENIESIONA <data> → docs/fixy/NAZWA/`. Tabela etapów i dziennik wdrożenia zostają nietknięte.

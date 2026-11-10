@@ -19,8 +19,8 @@ Karty zmian (załącznik planu, zamrażany razem z nim): [konwencje](karty/00_KO
 | E7 | Koszt hooka startu | ZREALIZOWANY 2026-11-10 | [PROMPT_ETAP_7.md](PROMPT_ETAP_7.md) | [karty](karty/E07_KOSZT_HOOKA_STARTU.md); karta K-A6 zależy od werdyktu z E2 |
 | E8 | Skrót startu, progi i lista modeli | ZREALIZOWANY 2026-11-10 | [PROMPT_ETAP_8.md](PROMPT_ETAP_8.md) | [karty](karty/E08_SKROT_PROGI_MODELE.md); aneks D-88 |
 | E9 | Tryb ciągły | ZREALIZOWANY 2026-11-10 | [PROMPT_ETAP_9.md](PROMPT_ETAP_9.md) | [karty](karty/E09_TRYB_CIAGLY.md); po E7; aneks D-93 |
-| E10 | Prompty etapów i rytuały | GOTOWY DO STARTU | [PROMPT_ETAP_10.md](PROMPT_ETAP_10.md) | [karty](karty/E10_PROMPTY_ETAPOW_I_RYTUALY.md) |
-| E11 | Proces i rejestry | OCZEKUJE | — | [karty](karty/E11_PROCES_I_REJESTRY.md); po E10; karta K-E4 po aneksie D-88 z E8 |
+| E10 | Prompty etapów i rytuały | ZREALIZOWANY 2026-11-10 | [PROMPT_ETAP_10.md](PROMPT_ETAP_10.md) | [karty](karty/E10_PROMPTY_ETAPOW_I_RYTUALY.md) |
+| E11 | Proces i rejestry | GOTOWY DO STARTU | [PROMPT_ETAP_11.md](PROMPT_ETAP_11.md) | [karty](karty/E11_PROCES_I_REJESTRY.md); po E10; karta K-E4 po aneksie D-88 z E8 |
 | E12 | Mody: odporność i koszt | OCZEKUJE | — | [karty](karty/E12_MODY_ODPORNOSC.md) |
 | E13 | Mody: rdzeń i kopie | OCZEKUJE | — | [karty](karty/E13_MODY_RDZEN_I_KOPIE.md); po E12; kod zmienia tylko K-G2 — K-F4 i K-F5 rozstrzygnięte decyzją właściciela 2026-11-09 |
 | E14 | CI, liczebniki, wydanie i zamknięcie | OCZEKUJE | — | [karty](karty/E14_CI_I_WYDANIE.md); aneks D-40; jedyne wydanie planu |
@@ -47,6 +47,8 @@ Karty zmian (załącznik planu, zamrażany razem z nim): [konwencje](karty/00_KO
   `~/.codex/config.toml`, bez zmian), `gpt-6.1-terra` i `gpt-6.1-sol` na `high`; `crew.js` dziś
   przekazuje tylko `-m`, więc `high` dla terra/sol ustawia Łukasz w konfiguracji Codeksa (bez
   zmiany `crew.js`); start E10 sprawdza, czy działa**
+- **Przepisać wstecz `PANEL_CODEX/PROMPT_ETAP_1.md` do kształtu z numerami zasad — teraz, przy
+  wznowieniu planu czy wcale** · źródło: wpis dziennika 2026-11-10 (E10) · **OTWARTA**
 
 ## Dziennik wdrożenia
 
@@ -85,3 +87,7 @@ Karty zmian (załącznik planu, zamrażany razem z nim): [konwencje](karty/00_KO
 - 2026-11-10 — E9 ZREALIZOWANY (pierwszy etap w Codeksie, cztery przebiegi, poprawek 0): trzy
   karty (K-B1 z aneksem D-93, K-B2, K-B4), 12 nowych testów, `core/process` 421, tabela 44 z 44;
   E10 GOTOWY DO STARTU, wygenerowany `PROMPT_ETAP_10.md`.
+- 2026-11-10 — E10 ZREALIZOWANY (Codex, trzy przebiegi: test, wdrożenie przerwane `STOP` na
+  końcach linii z winy pliku zadania, dokończenie; poprawek po recenzji 0): cztery karty (K-A1,
+  K-E1, K-E7, K-R10), 3 nowe testy, `core/process` 424, rejestr 14 wierszy; E11 GOTOWY DO STARTU,
+  wygenerowany `PROMPT_ETAP_11.md`.

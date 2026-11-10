@@ -88,8 +88,11 @@ Zasady doboru:
 - Przy dokumencie długim **wskaż sekcję**, nie plik: „`docs/DZIENNIK.md` — sekcja »Stan otwartych
   ryzyk« + ostatni wpis", nie „`docs/DZIENNIK.md`".
 - Kolumna „Po co" mówi, **co agent ma stamtąd wziąć**, nie czym ten plik jest.
-- Zawsze obecne: `CLAUDE.md`, aktywne zasady z rejestru lekcji, `PLAN.md` (sekcje właściwe dla tego
-  etapu), pliki, które etap będzie zmieniał.
+- Zawsze obecne: `CLAUDE.md`, `PLAN.md` (sekcje właściwe dla tego etapu), pliki, które etap
+  będzie zmieniał, oraz wiersz `docs/LEKCJE.md` z **numerami** zasad aktywnych do doczytania
+  („pełne brzmienie zasad 1 i 3”). Sekcji „Zasady aktywne” i tabeli ryzyk nie wpisujesz jako
+  lektury: indeks zasad i tabelę ryzyk niesie skrót startu (`start-digest.js`), który świeża
+  sesja uruchamia w rytuale startu (D-15, Aneks A).
 - **Zakaz** wpisywania „przejrzyj repo", „zapoznaj się z kodem" — to nie jest pozycja do przeczytania.
 
 ### 5. Decyzje już podjęte — nie otwierasz ich ponownie
@@ -115,8 +118,13 @@ Zawiera:
   **zmianach warunków pracy** (np. „plugin jest zainstalowany", „testy odpalasz komendą X"),
 - **drzewko albo listę plików** istotnych dla etapu, z jednolinijkowym opisem zawartości każdego,
 - akapit **„Czego jeszcze nie ma"** — dokładnie to, co ten etap ma dowieźć,
-- **listę aktywnych zasad z rejestru lekcji**, przepisaną w całości (nie linkiem): świeża sesja
-  czyta `LEKCJE.md`, ale zasada wpisana wprost w prompt działa nawet wtedy, gdy plik urośnie.
+- **numery zasad aktywnych do doczytania i numery ryzyk etapu** — po jednej linii, bez treści:
+  „Zasady do doczytania z `docs/LEKCJE.md` (pełne brzmienie): 1, 3.” i „Ryzyka etapu: R3, R5
+  (wiersze w tabeli skrótu startu).” Zasadę wybierasz, gdy jej wyzwalacz z indeksu trafia
+  w zakres etapu; żadna nie trafia → „Zasady do doczytania: brak”. Projekt bez indeksu liczy
+  numery tak samo — skrót pokazuje wtedy całą sekcję. Odpisu sekcji „Zasady aktywne” nie
+  wklejasz: indeks niesie skrót startu, a odpis rośnie razem z rejestrem (`FAKT`, audyt RelAI
+  2026-11-09: prompt etapu 44 569 B, z czego odpis zasad 27 503 B).
 
 ### 7. Zakres etapu
 
@@ -213,8 +221,10 @@ katalogu roboczego:
 Nagłówek zawiera zdanie: **bez tego rytuału etap nie jest ukończony**.
 
 Punkt o generacji następnego promptu podaje **materiał**, z którego ma powstać: sekcje `PLAN.md`
-opisujące etap N+1, realny stan po tym etapie i lekcje z tego etapu. Przy ostatnim etapie planu ten
-punkt zastępujesz wskazaniem: **uruchom sekwencję zamknięcia planu** (D-36).
+opisujące etap N+1, realny stan po tym etapie i lekcje z tego etapu. Przy ostatnim etapie planu
+numeracja listy zostaje, a punkty 2–5 dostają jedną treść: **wykonywane raz, w sekwencji
+zamknięcia planu** (D-36) — wpis dziennika i `STATE.md` powstają tam jeden raz, z częścią
+etapową we wpisie zamykającym (`stage-closing.md`, akapit „Ostatni etap planu”).
 
 ## Zasady wspólne
 
@@ -237,6 +247,8 @@ punkt zastępujesz wskazaniem: **uruchom sekwencję zamknięcia planu** (D-36).
 - Nie edytujesz promptu etapu, który jest `ZREALIZOWANY`.
 - Nie zostawiasz w prompcie odsyłacza do pliku, którego nie ma (kolumna `Prompt` w `STATUS.md`
   rządzi się tą samą zasadą).
+- Nie wklejasz do promptu dosłownego odpisu sekcji „Zasady aktywne” ani tabeli ryzyk — prompt
+  wymienia ich numery, a treść niesie skrót startu i `docs/LEKCJE.md` (D-15, Aneks A).
 
 ## Przykład (projekt polski, plan PLATNOSCI, etap E2 z E4)
 
@@ -257,8 +269,8 @@ E1) • Wykonawca: **Opus** (plan: „Opus dla E2–E3, Haiku dla reszty"), `/ef
 | Plik | Po co |
 |---|---|
 | `CLAUDE.md` | reguły procesu, definicja ukończenia, sekcja niemutowalna |
-| `docs/DZIENNIK.md` | sekcja „Stan otwartych ryzyk" + wpis z 2026-08-14 o E1 (co powstało i czego nie zweryfikowano) |
-| `docs/LEKCJE.md` | wyłącznie sekcja „Zasady aktywne" |
+| `docs/DZIENNIK.md` | wyłącznie wpis z 2026-08-14 o E1 (co powstało i czego nie zweryfikowano); tabelę ryzyk niesie skrót startu |
+| `docs/LEKCJE.md` | wyłącznie pełne brzmienie zasad 1, 2 i 3 z sekcji „Zasady aktywne” (indeks niesie skrót startu) |
 | `docs/plany/PLATNOSCI/PLAN.md` | sekcje 5 (przebieg płatności), 6 (opis E2), 9 (dostępy po stronie człowieka), 10 (Aneks A) |
 | `src/payments/model.ts` | tabela `Payment` i statusy z E1 — webhook ma zmieniać te statusy, nie własne |
 | `src/payments/expiry.ts` | wygasanie po 15 minutach — webhook musi respektować zamówienie wygasłe |
@@ -292,12 +304,8 @@ src/payments/model.test.ts   # 11 testów: przejścia statusów i współbieżno
 przekierowania użytkownika, endpointu webhooka, weryfikacji podpisu webhooka, obsługi ponowionych
 zdarzeń (Stripe wysyła je wielokrotnie).
 
-**Zasady aktywne z `docs/LEKCJE.md`, obowiązujące w tym etapie:**
-1. Każdy endpoint przyjmujący dane z zewnątrz waliduje wejście schematem, zanim cokolwiek zapisze
-   (L-0001).
-2. Testy integracyjne odpalasz komendą `npm run test:int` — `npm test` pomija folder `int/`
-   (L-0003).
-3. Migracji Prismy nie edytujesz po wygenerowaniu; poprawka to nowa migracja (L-0004).
+**Zasady do doczytania z `docs/LEKCJE.md` (pełne brzmienie):** 1, 2, 3.
+**Ryzyka etapu:** R2 (webhook bez weryfikacji podpisu) — wiersz w tabeli skrótu startu.
 
 ## Zakres etapu
 

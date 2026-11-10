@@ -209,39 +209,39 @@ nigdy `sed` ani `node -e`). Skilli Codeksa nie edytujesz ręcznie — tylko gene
 Każdy punkt Weryfikacji, który przeszedł, odhaczasz w `PROMPT_ETAP_10.md` (`- [ ]` → `- [x]`)
 zaraz po jego sprawdzeniu, nie na końcu etapu; punkt, który nie przeszedł, zostaje pusty.
 
-- [ ] K-0 (konwencje, sekcja 3): `git branch --show-current` → `optymalizacja/po-audycie`;
+- [x] K-0 (konwencje, sekcja 3): `git branch --show-current` → `optymalizacja/po-audycie`;
       `git log --oneline -1` pokazuje commit E9 (albo człowiek rozstrzygnął, co z drzewem).
-- [ ] Testy przed zmianą: `node --test core/process/tests/ritual-texts.test.js` → 3 fail z asercji
+- [x] Testy przed zmianą: `node --test core/process/tests/ritual-texts.test.js` → 3 fail z asercji
       (K-A1 na pierwszej asercji „nieobecne”, K-E1 na liczbie wystąpień `0` zamiast `2`, K-E7 na
       asercji „nieobecne”), przebieg zapisany w katalogu roboczym; diff testu przeczytany w całości
       i zgodny z kartami.
-- [ ] Po zmianie: `node --test core/process/tests/ritual-texts.test.js` → 3 pass;
+- [x] Po zmianie: `node --test core/process/tests/ritual-texts.test.js` → 3 pass;
       `node --test core/process/tests/ritual-copies.test.js` → zielony.
-- [ ] `node --test "core/process/tests/*.test.*"` → **424 pass** (albo suma od wpisu E9 plus 3,
+- [x] `node --test "core/process/tests/*.test.*"` → **424 pass** (albo suma od wpisu E9 plus 3,
       opisana), 0 fail; `adapters/cursor` → 10; `adapters/codex` → 28; `core/guardrails` → 33.
-- [ ] Greps z kart: `grep -rn "przepisan[a-ząę]* w całości" core/templates adapters/claude-code/commands adapters/claude-code/skills/relai-planning`
+- [x] Greps z kart: `grep -rn "przepisan[a-ząę]* w całości" core/templates adapters/claude-code/commands adapters/claude-code/skills/relai-planning`
       → brak; `grep -c "Pytania są dwa"` w obu `relai-core/SKILL.md` → 0; `grep -c "Jedyny punkt
       tego rytuału" adapters/*/skills/relai-planning/stage-closing.md` → 0 w obu; `grep -c
       "nie z pamięci" adapters/claude-code/skills/relai-core/document-rotation.md` → 0.
-- [ ] Dowód negatywny (zasada 3): `git diff --stat CLAUDE.md AGENTS.md
+- [x] Dowód negatywny (zasada 3): `git diff --stat CLAUDE.md AGENTS.md
       docs/plany/PANEL_CODEX/PROMPT_ETAP_1.md core/tools/rotate.js` → pusty;
       fragment ``folder to `docs/archiwum/plany/` → update the "Aktywny plan" line`` w
       `adapters/cursor/rules/relai-planning.mdc` obecny (kotwica K-E2).
-- [ ] `node adapters/codex/generate-skills.js --verify` → kod 0; `node core/tools/validate-adapters.js`
+- [x] `node adapters/codex/generate-skills.js --verify` → kod 0; `node core/tools/validate-adapters.js`
       → kod 0, jedno ostrzeżenie, `rytual "Na koniec": 3 list, kroki [1,1a,2,3,4,5,6]`,
       `parytet … 0 rozjazdow`, `wywolania z hooks.json: 20`.
-- [ ] Rejestr (K-R10): `node core/tools/release-check.js --json --tylko artefakty` → `"bledy":[]`;
+- [x] Rejestr (K-R10): `node core/tools/release-check.js --json --tylko artefakty` → `"bledy":[]`;
       `git diff --numstat docs/ARTEFAKTY.md` → `14 14`.
-- [ ] Efekt widoczny (zasada 4): ten etap generuje `PROMPT_ETAP_11.md` już według nowej
+- [x] Efekt widoczny (zasada 4): ten etap generuje `PROMPT_ETAP_11.md` już według nowej
       specyfikacji — w nim linia „Zasady do doczytania z `docs/LEKCJE.md` (pełne brzmienie): …”
       i brak odpisu indeksu; rozmiar `PROMPT_ETAP_11.md` w bajtach i rozmiar tego promptu do wpisu.
-- [ ] Granica: `git status --short` pokazuje z tego etapu wyłącznie pliki z pól „Pliki” czterech
+- [x] Granica: `git status --short` pokazuje z tego etapu wyłącznie pliki z pól „Pliki” czterech
       kart, kopie Codeksa i dokumenty rytuału (`STATUS.md`, `PROMPT_ETAP_10.md`,
       `PROMPT_ETAP_11.md`, `DZIENNIK.md`, `STATE.md`, ewentualnie `LEKCJE.md`).
-- [ ] Wpis etapu jest na końcu sekcji „Wpisy” w `docs/DZIENNIK.md`, z liczbami testów, liczbą
+- [x] Wpis etapu jest na końcu sekcji „Wpisy” w `docs/DZIENNIK.md`, z liczbami testów, liczbą
       przebiegów Codeksa (cel aneksu: 2, poprawek 0), „świadomie odłożonym” — rotacja lekcji
       w `rotate.js` — i podpisem `Autor: RelAI (Opus 5.5) + Lukasz`.
-- [ ] Katalog roboczy: (a) `.claude/relai/work/OPTYMALIZACJA_PO_AUDYCIE/E10/` i przebiegi
+- [x] Katalog roboczy: (a) `.claude/relai/work/OPTYMALIZACJA_PO_AUDYCIE/E10/` i przebiegi
       `.claude/relai/work/CREW/` tego etapu przejrzane (`node .claude/relai/tools/clean-work.js
       raport`; katalog otwartego etapu raport pomija — wtedy liczby z `find`/`du`) i skasowane po
       „tak”, liczby przed i po we wpisie dziennika; (b) artefakty spoza katalogu wypisane z nazwy

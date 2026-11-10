@@ -21,7 +21,9 @@ inaczej, niż zakładałeś, zostaje po nim wpis do wycofania.
 1. **Otwarte bramki manualne** — zajrzyj do sekcji „Bramki manualne" w `STATUS.md` **i** przejrzyj
    sekcje „Do zrobienia przez człowieka" we wpisach dziennika z okresu tego planu; pozycja bez
    adnotacji „*(rozstrzygnięte …)*" jest otwarta, także wtedy, gdy nie ma jeszcze swojej linii
-   w `STATUS.md` (plan sprzed 1.3.0). Jest choć jedna → **wypisz je wszystkie i zapytaj o każdą**:
+   w `STATUS.md` (plan sprzed 1.3.0). Ostatni etap zamykany w tej turze nie ma jeszcze wpisu —
+   jego pozycje dla człowieka bierzesz z pracy tej tury. Jest choć jedna → **wypisz je wszystkie
+   i zapytaj o każdą**:
    rozstrzygnięta teraz (wtedy zapisujesz jak — w obu miejscach) czy świadomie zostawiona otwarta
    (wtedy przechodzi do `STATE.md`, sekcja „Co blokuje" albo „Co dalej", żeby nie zginęła razem
    z folderem planu w archiwum). Bez decyzji człowieka **plan się nie zamyka**.
@@ -37,9 +39,12 @@ inaczej, niż zakładałeś, zostaje po nim wpis do wycofania.
    `PRZENIESIONA <data> → docs/fixy/<NAZWA>/`. Bez decyzji człowieka **plan się nie zamyka** —
    folder planu w archiwum z żywym wątkiem w środku znaczy, że wątek przepadł. Brak sekcji „Odnogi"
    albo same linie zamknięte → punkt przechodzi bez pytania i bez komentarza.
-3. **`docs/STATE.md`** — nadpisz: obszar planu przechodzi z „w toku" do stanu faktycznego.
+3. **`docs/STATE.md`** — nadpisz: obszar planu przechodzi z „w toku" do stanu faktycznego. To
+   jedyna aktualizacja `STATE.md` w tej turze, także za ostatni etap.
 4. **Wpis zamykający w `DZIENNIK.md`** — sekcja „Zrobione" mówi **dowiezione vs plan**: co miało
-   powstać, co powstało, co przepadło. Bez tego porównania wpis jest niepełny.
+   powstać, co powstało, co przepadło. Bez tego porównania wpis jest niepełny. Zamknięcie idzie
+   w tej samej turze co ostatni etap → to **jedyny** wpis tej tury: niesie część etapową
+   (`stage-closing.md`, akapit „Ostatni etap planu”); osobnego wpisu za etap nie piszesz.
 5. **`STATUS.md`** — status planu → `ZREALIZOWANY <data>`, wszystkie etapy domknięte.
 6. **Ryzyka** — projekt ma plik blokady → **przed** przeglądem tabeli skan zależności Trivy ze
    skilla `trivy-scan` (`/relai-security`), który wpisuje nowe CRITICAL/HIGH i zamyka wiersze,
@@ -69,8 +74,9 @@ inaczej, niż zakładałeś, zostaje po nim wpis do wycofania.
 9. **Podsumowanie** — 3–5 zdań dla użytkownika: co dowieziono, czego nie i dlaczego, co czeka na
    człowieka.
 
-Punkty 3–8 nie są przedmiotem pytania. Pytaniem może być wyłącznie commit oraz punkty 1 i 2 — gdy
-plan ma otwarte bramki manualne albo otwarte odnogi.
+Pytaniem może być wyłącznie: punkty 1 i 2 — gdy plan ma otwarte bramki manualne albo otwarte
+odnogi; jedno pytanie o następcę planu w punkcie 8, zadane dopiero po wpisaniu poprawnej linii;
+commit. Pozostałe punkty wykonujesz bez pytania.
 
 **Kolejność: najpierw zmiana w repozytorium, potem zdanie, które ją opisuje.** Wpis dziennika
 mówiący „folder przeniesiony do archiwum", napisany zanim folder został przeniesiony, jest fałszem

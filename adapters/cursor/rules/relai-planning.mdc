@@ -68,14 +68,18 @@ Stage statuses: `OCZEKUJE` → `GOTOWY DO STARTU` → `W TOKU` → `ZREALIZOWANY
 3. `docs/STATE.md`: overwrite what changed.
 4. **Generate `PROMPT_ETAP_N+1.md`** per `SPEC_PROMPT_ETAPU.md` — nine sections, built from the plan
    section for that stage, the **real state of the repository** (check, do not assume) and the
-   active lessons. A stage without the next prompt is not finished.
+   index of "Zasady aktywne": the prompt names the numbers of the rules to read in full and
+   never copies their wording. A stage without the next prompt is not finished.
 5. Propose a commit; do not commit without consent.
 
 When the closed stage was the last one, run the plan-closing sequence instead of generating the
 next prompt (D-36): resolve open manual gates → resolve open branches → `STATE.md` → closing
 journal entry "dowiezione vs plan" → plan status `ZREALIZOWANY` → risk review → move the plan
 folder to `docs/archiwum/plany/` → update the "Aktywny plan" line → summary. The first two points
-are blocking: until they are resolved you do not write anywhere that the plan is done.
+are blocking: until they are resolved you do not write anywhere that the plan is done. On the last stage do steps 1 and 1a above, then this sequence instead of steps 2–4: the journal
+entry and the `STATE.md` update are written **once**, and the closing entry carries the stage
+part (the four sections for the last stage, the numbers from step 1a, its lessons and the risk
+review); the stage's items for the human go to the first point together with the open gates.
 
 Neither a stage close nor a plan close touches the "Stan prac" table in `CLAUDE.md` /
 `AGENTS.md`: a plan has **no row** there — the "Aktywny plan" line points to it (D-30), its history

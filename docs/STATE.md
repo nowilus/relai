@@ -17,7 +17,7 @@ bramka `pre-push` na tagi. Na maszynie Łukasza `relai`, `relai-panel` i `relai-
 są włączone na poziomie użytkownika, a w projektach z markerem RelAI także lokalnie (stan
 z `relai-scope.js status`, 2026-11-10); tryb „RelAI tylko w projektach” jest dostępny
 (`relai-scope.js apply`), ale nie jest włączony. Od 2026-11-09 aktywny jest plan OPTYMALIZACJA_PO_AUDYCIE (naprawy po audycie
-projektu; E1–E9 zrealizowane 2026-11-10, etap E10 gotowy do startu; E9–E13 wykonuje Codex wg Aneksu A). Poprzedni: KONTEKST_STARTU zamknięty 2026-10-28 (start sesji to jedno
+projektu; E1–E10 zrealizowane 2026-11-10, etap E11 gotowy do startu; E9–E13 wykonuje Codex wg Aneksu A). Poprzedni: KONTEKST_STARTU zamknięty 2026-10-28 (start sesji to jedno
 polecenie skrótu, RelAI po pierwszej turze 25–32 tys. tokenów zamiast ok. 72 tys. — cel 25 tys.
 częściowo), PANEL_CODEX (Codex) wstrzymany 2026-10-27 decyzją Łukasza.
 Opinii spoza projektu nadal nie ma.
@@ -149,7 +149,11 @@ Opinii spoza projektu nadal nie ma.
   `off --globalnie` jako trwała odmowa, aneks D-93; filtr przepuszcza przyjęcie propozycji,
   słowa dwuznaczne liczą się jako pytanie tylko z pytajnikiem, ścieżka nie jest komendą, jedna
   lista fraz sesji z `gotowi do wydania`; sesja zaczęta komendą odkłada rytuał i przegląd spraw;
-  `core/process` 421 testów), E10 gotowy do startu** (plan
+  `core/process` 421 testów), E10 zrealizowany 2026-11-10 (drugi etap w Codeksie: prompt etapu
+  i odnogi wymienia numery zasad do doczytania zamiast odpisu, szablon `CLAUDE.md` niesie zdanie
+  Aneksu D, opisy „kończymy na dziś”, rytuału etapu i zamknięcia planu zgodne z procedurami,
+  `SPEC_ARCHIWUM.md` tylko przy rotacji ręcznej, ostatni etap planu pisze jeden wpis; nowy test
+  `ritual-texts`, `core/process` 424 testy), E11 gotowy do startu** (plan
   [OPTYMALIZACJA_PO_AUDYCIE](plany/OPTYMALIZACJA_PO_AUDYCIE/STATUS.md), 14 etapów, wykonanie Opus 5.5
   medium w świeżych sesjach, gałąź `optymalizacja/po-audycie`, jedno wydanie na końcu). Źródło:
   [raport audytu](AUDYT_RELAI_2026-11-09.md) — 56 znalezisk, do naprawy wybrane 41 wysokiej
@@ -174,8 +178,7 @@ Opinii spoza projektu nadal nie ma.
   `claude plugin update relai@relai` (i `relai-progress@relai`) z katalogu każdego projektu.
   **Świadomie odłożone:** cel 25 tys. częściowo (Aneks E) — linia „brak spraw przeterminowanych”
   w skrócie i skrót 29 KB zamiast ok. 16 KB; `/relai-release` bez `--scope user` w kroku 8
-  i z raportem `--json` ucinanym przez narzędzie (L-0308); `docs/USTAWIENIA.md` 6,4 KB ponad 6 KB;
-  zdanie Aneksu D w `SPEC_CLAUDE_MD.md` i `SPEC_PROMPT_ETAPU.md` z pełnymi „Zasadami aktywnymi”.
+  i z raportem `--json` ucinanym przez narzędzie (L-0308); `docs/USTAWIENIA.md` 6,4 KB ponad 6 KB.
 
 - **Po ZASIEG_PLUGINU (świadomie odłożone 2026-10-28):** `undo` zostawia pusty
   `"enabledPlugins": {}` w pliku lokalnym, który go wcześniej nie miał (P-058); przycisk „Włącz”

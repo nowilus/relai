@@ -10,9 +10,11 @@ zaproponowaną z raportu hooka (`start-nets.md`). Oba wejścia uruchamiają **t�
 
 Żywe dokumenty rosną, a każda sesja czyta je od nowa. Rotacja przenosi najstarszą historię do
 `docs/archiwum/`, **bajt w bajt**, i zostawia po niej linię-odsyłacz. W rytuale zamknięcia dzieje
-się sama i **nie pyta o zgodę** — bo niczego nie kasuje ani nie streszcza. Pełna specyfikacja:
-`SPEC_ARCHIWUM.md` (czytasz ją z `.claude/relai/templates/` **przed** rotacją, nie z pamięci);
-poniżej jest to, co obowiązuje zawsze.
+się sama i **nie pyta o zgodę** — bo niczego nie kasuje ani nie streszcza. Dziennik i ryzyka
+rotuje skrypt (sekcja „Przebieg skryptem”) — przy nich specyfikacji nie czytasz. Pełną
+specyfikację `SPEC_ARCHIWUM.md` czytasz z `.claude/relai/templates/` **przed** rotacją ręczną:
+lekcji, komórek „Mitygacja”, ustawień, a także dziennika i ryzyk, gdy skrypt zakończył się
+kodem 2 albo nie ma `node`. Poniżej jest to, co obowiązuje zawsze.
 
 **Warunek — wiersz `Rotacja dokumentów` w `docs/USTAWIENIA.md`.** Kotwica na początku komórki
 `Decyzja`: `wyłączona` (EN `off`) → **kończysz ten krok natychmiast**, bez sprawdzania progów

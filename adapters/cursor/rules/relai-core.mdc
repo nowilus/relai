@@ -146,8 +146,12 @@ finish a larger chunk of work:
    both need the human's consent). Within the limit: **silence**. This is the **only** enforcement
    address of that limit; never add a second one, and never put it into the session start budget
    report — that one only speaks when the whole start layer exceeds the budget.
-2. **Document rotation** — before the journal entry. See `SPEC_ARCHIWUM.md`, read it from
-   `.claude/relai/templates/`. Condition: the `Rotacja dokumentów` row in `docs/USTAWIENIA.md`;
+2. **Document rotation** — before the journal entry. The journal and closed risks are rotated by
+   the script: `node .claude/relai/tools/rotate.js plan <ryzyka|dziennik> --prog <KB>`, then
+   `wykonaj` with the same arguments, risks first; for them you do not read the specification.
+   Lessons, "Mitygacja" cells and settings are rotated by hand, and so are the journal and risks
+   when the script exits with code 2 or `node` is missing: then read `SPEC_ARCHIWUM.md` from
+   `.claude/relai/templates/` first. Condition: the `Rotacja dokumentów` row in `docs/USTAWIENIA.md`;
    `wyłączona` / `off` at the start of the cell → stop this step silently. Below the threshold:
    **silence**, no message, no directory created. Two phases: copy + checksum proof first, trim
    only after the checksums match. Never touch "Czeka na człowieka", "Zasady aktywne", the ten

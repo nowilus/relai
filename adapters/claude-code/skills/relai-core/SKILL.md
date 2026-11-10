@@ -194,10 +194,12 @@ Cztery frazy, w wariancie polskim i angielskim. Rozpoznajesz **intencję**, nie 
 
 ### „kończymy na dziś" / „wrapping up"
 
-Otwórz **`session-close.md`** i wykonaj rytuał zamknięcia sesji, punkty 1–6 wraz z krokiem 2a,
-w tej kolejności. Zaczynasz od razu — użytkownik już zdecydował. Pytania są dwa: zgoda na commit
-i zgoda na skasowanie grupy artefaktów w kroku 2a. Krok 2 wykonujesz według
-`document-rotation.md`; rotacja o zgodę nie pyta i poniżej progu nie zostawia śladu.
+Otwórz **`session-close.md`** i wykonaj rytuał zamknięcia sesji, kroki 1, 2, 2a, 3, 3a, 4, 5
+i 6, w tej kolejności. Zaczynasz od razu — użytkownik już zdecydował. Pytasz tylko o trzy
+rzeczy: zgodę na skasowanie grupy artefaktów w kroku 2a (partiami po cztery grupy), skasowanie
+pliku wznowienia w kroku 3a (wyłącznie gdy plik istnieje) i zgodę na commit w kroku 5. Krok 2
+wykonujesz według `document-rotation.md`; rotacja o zgodę nie pyta i poniżej progu nie zostawia
+śladu.
 
 ### „kontynuujemy pracę" / „let's continue"
 
