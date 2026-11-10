@@ -11,7 +11,7 @@
 //
 // Bez argumentu katalogu bierzemy biezacy katalog roboczy.
 //
-// Do .git/hooks/ trafiaja TRZY pliki:
+// Do katalogu hookow gita (wspolnego dla worktree) trafiaja TRZY pliki:
 //   pre-commit             — shim powlokowy, jedyne, co wola git,
 //   relai-pre-commit.cjs   — logika hooka (kopia core/guardrails/pre-commit.js),
 //   relai-secret-scan.cjs  — kopia skanera (core/guardrails/secret-scan.js).
@@ -27,8 +27,9 @@
 // instalacje trzeba powtorzyc — instalator mowi o tym przy nadpisaniu.
 //
 // Instalacja konczy sie TESTEM DYMNYM zainstalowanego hooka. Kopiowanie plikow nie jest
-// dowodem, ze hook dziala; dowodem jest kod wyjscia 0 przy pustym indeksie. Test, ktory nie
-// przeszedl, cofa instalacje do stanu sprzed niej i konczy sie bledem.
+// dowodem, ze hook dziala; dowodem jest "git hook run pre-commit" — kod 0 przy pustym indeksie
+// i kod 1 przy probce z sekretem. Test, ktory nie przeszedl, cofa instalacje do stanu sprzed
+// niej i konczy sie bledem.
 //
 // Komunikaty bez polskich znakow diakrytycznych (L-0016).
 
@@ -49,14 +50,27 @@ const SHIM = [
   '',
 ].join('\n');
 
-function katalogGita(repo) {
-  const r = spawnSync('git', ['rev-parse', '--git-dir'], {
-    cwd: repo, encoding: 'utf8', windowsHide: true,
-  });
+function revParse(repo, args) {
+  const r = spawnSync('git', ['rev-parse'].concat(args), { cwd: repo, encoding: 'utf8', windowsHide: true });
   if (r.status !== 0) return null;
-  const g = String(r.stdout || '').trim();
-  if (!g) return null;
-  return path.resolve(repo, g);
+  const wynik = String(r.stdout || '').trim();
+  return wynik ? path.resolve(repo, wynik) : null;
+}
+
+// Dwa katalogi: ten, z ktorego git NAPRAWDE wola hooki (--git-path hooks: uwzglednia
+// core.hooksPath i worktree), i domyslny <wspolny katalog gita>/hooks, w ktorym RelAI instaluje.
+// Rozne = hooki obsluguje inne narzedzie (husky, lefthook, wlasny katalog) — instalacja do
+// domyslnego katalogu bylaby martwa, a do cudzego nadpisywalaby jego pliki.
+function katalogiHookow(repo) {
+  const wspolny = revParse(repo, ['--git-common-dir']);
+  const wolane = revParse(repo, ['--git-path', 'hooks']);
+  if (!wspolny || !wolane) return null;
+  return { domyslny: path.join(wspolny, 'hooks'), wolane };
+}
+
+// path.relative na win32 porownuje bez wielkosci liter — tak samo jak system plikow.
+function tenSamKatalog(a, b) {
+  return path.relative(a, b) === '';
 }
 
 function wymagaNode() {
@@ -88,39 +102,45 @@ function przywrocStan(stan) {
   }
 }
 
-function doSh(p) {
-  // sh (takze Git Bash na Windows) chce ukosnikow, nie backslashy.
-  return p.split(path.sep).join('/');
+// Probka sekretu do testu dymnego, skladana w czasie dzialania: literal przypisania w tym pliku
+// zatrzymalby jego zapis (hook secret-scanner) i jego commit (ten sam pre-commit).
+function probkaSekretu() {
+  return ['PASS', 'WORD'].join('') + '=' + ['rel', 'Ai7', 'Smk', '9Qv'].join('') + '\n';
 }
 
-// Test dymny: hook musi przejsc na PUSTYM indeksie. Podstawiamy wlasny GIT_INDEX_FILE, zeby
-// wynik nie zalezal od tego, co uzytkownik ma akurat w indeksie prawdziwym — i zeby ten
-// prawdziwy indeks pozostal nietkniety. Nieistniejaca sciezka = indeks pusty, a --diff-filter=ACM
-// odsiewa pliki widziane wtedy jako usuniete, wiec lista plikow do skanu jest pusta.
-function testDymny(repo, celHook, celLogika, zeShimem) {
+function blad(nazwa, r, oczekiwany) {
+  if (r.error) return { ok: false, opis: nazwa + ' — nie udalo sie uruchomic: ' + r.error.message };
+  if (r.status === oczekiwany) return null;
+  const stderr = String(r.stderr || '').trim();
+  return { ok: false, opis: nazwa + ' — kod wyjscia ' + r.status + ' (oczekiwany ' + oczekiwany + ')' + (stderr ? '\n' + stderr : '') };
+}
+
+// Test dymny przez gita: "git hook run pre-commit" wola hook ta sama droga co "git commit"
+// (ten sam katalog hookow, ta sama powloka), ale nie tworzy commita. Dwa przebiegi na wlasnym
+// GIT_INDEX_FILE — prawdziwy indeks uzytkownika zostaje nietkniety:
+//   1) pusty indeks -> kod 0 (hook nie blokuje czystego commita),
+//   2) indeks z jednym plikiem-probka z sekretem -> kod 1 (hook naprawde skanuje).
+// Probka trafia do bazy obiektow jako nieosiagalny blob; "git gc" usuwa go sam.
+// Cudzy hook (zeShimem = false): git zawolalby cudzy plik, wiec sprawdzamy sama logike.
+function testDymny(repo, celLogika, zeShimem) {
   const idx = path.join(os.tmpdir(), 'relai-precommit-smoke-' + process.pid + '-' + Date.now() + '.index');
   const env = Object.assign({}, process.env, { GIT_INDEX_FILE: idx });
   const opcje = { cwd: repo, env, encoding: 'utf8', windowsHide: true };
-
-  const przebiegi = [['logika hooka (node relai-pre-commit.cjs)', spawnSync('node', [celLogika], opcje)]];
-
-  // Shim sprawdzamy tylko wtedy, gdy w PATH jest sh. Jego brak nie jest bledem instalacji:
-  // git wola hooki wlasna powloka, ktorej instalator moze nie miec pod reka.
-  const maSh = spawnSync('sh', ['-c', 'exit 0'], { encoding: 'utf8', windowsHide: true }).status === 0;
-  if (zeShimem && maSh) {
-    przebiegi.push(['shim powlokowy (sh pre-commit)', spawnSync('sh', [doSh(celHook)], opcje)]);
-  }
-
-  try { fs.unlinkSync(idx); } catch (_) { /* git go nie tworzy, ale nie zakladamy */ }
-
-  for (const [nazwa, r] of przebiegi) {
-    if (r.error) return { ok: false, opis: nazwa + ' — nie udalo sie uruchomic: ' + r.error.message };
-    if (r.status !== 0) {
-      const stderr = String(r.stderr || '').trim();
-      return { ok: false, opis: nazwa + ' — kod wyjscia ' + r.status + (stderr ? '\n' + stderr : '') };
+  try {
+    if (!zeShimem) {
+      return blad('logika hooka (node relai-pre-commit.cjs)', spawnSync('node', [celLogika], opcje), 0) || { ok: true };
     }
+    const pusty = blad('git hook run pre-commit, pusty indeks', spawnSync('git', ['hook', 'run', 'pre-commit'], opcje), 0);
+    if (pusty) return pusty;
+    const blob = spawnSync('git', ['hash-object', '-w', '--stdin'], Object.assign({}, opcje, { input: probkaSekretu() }));
+    const sha = String(blob.stdout || '').trim();
+    if (blob.status !== 0 || !sha) return { ok: false, opis: 'git hash-object — nie udalo sie zapisac probki' };
+    const dodaj = spawnSync('git', ['update-index', '--add', '--cacheinfo', '100644,' + sha + ',relai-smoke-probe.txt'], opcje);
+    if (dodaj.status !== 0) return { ok: false, opis: 'git update-index — nie udalo sie dodac probki do indeksu testowego' };
+    return blad('git hook run pre-commit, probka z sekretem', spawnSync('git', ['hook', 'run', 'pre-commit'], opcje), 1) || { ok: true };
+  } finally {
+    try { fs.unlinkSync(idx); } catch (_) { /* pusty przebieg go nie tworzy */ }
   }
-  return { ok: true, shimSprawdzony: zeShimem && maSh };
 }
 
 function main() {
@@ -128,13 +148,13 @@ function main() {
   const odinstaluj = args.includes('--uninstall');
   const repo = path.resolve(args.find((a) => !a.startsWith('--')) || process.cwd());
 
-  const gitDir = katalogGita(repo);
-  if (!gitDir) {
+  const katalogi = katalogiHookow(repo);
+  if (!katalogi) {
     process.stderr.write('RelAI: "' + repo + '" nie jest repozytorium gita. Nie ma gdzie zainstalowac pre-commita.\n');
     return 2;
   }
 
-  const hooksDir = path.join(gitDir, 'hooks');
+  const hooksDir = katalogi.domyslny;
   const celHook = path.join(hooksDir, 'pre-commit');
   const celLogika = path.join(hooksDir, 'relai-pre-commit.cjs');
   const celSkaner = path.join(hooksDir, 'relai-secret-scan.cjs');
@@ -192,6 +212,19 @@ function main() {
     return 2;
   }
 
+  // core.hooksPath wskazuje inny katalog: git nigdy nie zawolalby hooka z hooksDir. Odmowa
+  // przed zapisem czegokolwiek, z linia do wklejenia w hook narzedzia, ktore tym katalogiem rzadzi.
+  if (!tenSamKatalog(katalogi.wolane, hooksDir)) {
+    process.stderr.write(
+      'RelAI: git wola hooki z "' + katalogi.wolane + '" (core.hooksPath), nie z "' + hooksDir + '".\n' +
+      'Nie instaluje niczego: tym katalogiem zarzadza inne narzedzie (np. husky) i plik w ' + hooksDir + '\n' +
+      'bylby martwy. Dopisz do hooka pre-commit w "' + katalogi.wolane + '" jedna linie:\n' +
+      '  node "' + path.join(__dirname, 'pre-commit.js').split(path.sep).join('/') + '" || exit 1\n' +
+      'albo usun core.hooksPath (git config --unset core.hooksPath) i powtorz instalacje.\n'
+    );
+    return 1;
+  }
+
   const istniejacy = czytaj(celHook);
   const cudzyHook = istniejacy !== null && istniejacy.indexOf(NAGLOWEK_RELAI) === -1;
   const stan = zdejmijStan(cudzyHook
@@ -213,12 +246,12 @@ function main() {
     return 2;
   }
 
-  const test = testDymny(repo, celHook, celLogika, !cudzyHook);
+  const test = testDymny(repo, celLogika, !cudzyHook);
   if (!test.ok) {
     przywrocStan(stan);
     process.stderr.write(
       'RelAI: instalacja COFNIETA — zainstalowany hook nie przeszedl testu dymnego.\n' +
-      'Przy pustym indeksie ma konczyc sie kodem 0, a skonczyl tak:\n' +
+      'Przy pustym indeksie ma konczyc sie kodem 0, a przy probce z sekretem kodem 1. Wynik:\n' +
       '  ' + test.opis.split('\n').join('\n  ') + '\n' +
       'W ' + hooksDir + ' jest znowu to, co przed instalacja. Zglos to razem z powyzszym\n' +
       'komunikatem — bez dzialajacego hooka commit z sekretem nie jest zatrzymywany.\n'
@@ -241,8 +274,7 @@ function main() {
 
   process.stdout.write(
     (istniejacy !== null ? 'RelAI: pre-commit ZAKTUALIZOWANY w ' : 'RelAI: pre-commit zainstalowany w ') + hooksDir + '.\n' +
-    'Test dymny zdany: przy pustym indeksie hook konczy sie kodem 0' +
-    (test.shimSprawdzony ? ' (sprawdzone przez shim i przez sama logike).' : ' (sama logika; sh poza PATH, wiec shimu nie uruchomiono).') + '\n' +
+    'Test dymny zdany przez "git hook run pre-commit": pusty indeks -> kod 0, probka z sekretem -> kod 1.\n' +
     'Od teraz "git commit" z sekretem w plikach z indeksu konczy sie bledem i bez commita.\n' +
     'Cofniecie: node "' + path.join(__dirname, 'install-precommit.js') + '" "' + repo + '" --uninstall\n' +
     'Po zmianie regul skanu w rdzeniu powtorz instalacje — hook uzywa wlasnej kopii skanera.\n'

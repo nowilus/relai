@@ -128,3 +128,85 @@ test('full cycle: foreign hook, recommended integration, uninstall, clean commit
   assert.match(after.stderr, /FOREIGN_HOOK_RAN/, after.stderr);
   assert.equal(f.read('pre-commit').toString(), foreign);
 });
+
+// --- K-D3 i K-D2 (etap E03 planu OPTYMALIZACJA_PO_AUDYCIE) ---------------------------------
+// Wartosc sekretu skladana w czasie dzialania: literal zatrzymalby zapis tego pliku.
+const secretLine = () => ['PASS', 'WORD'].join('') + '=' + ['m7Q', '9rV', '2zL', '8pN'].join('') + '\n';
+
+// cwdArgs = ['-C', '<podkatalog>'] dla worktree; bez -c core.hooksPath, zeby git szukal hooka
+// sam, jak u uzytkownika (konfiguracja globalna fikstury jest pusta).
+function commitFile(f, name, contents, cwdArgs = []) {
+  const dir = cwdArgs.length ? path.join(f.repo, cwdArgs[1]) : f.repo;
+  fs.writeFileSync(path.join(dir, name), contents);
+  const base = ['-c', 'commit.gpgSign=false', '-c', 'user.name=RelAI regression',
+    '-c', 'user.email=relai-regression@localhost', ...cwdArgs];
+  assert.equal(f.run('git', [...base, 'add', name]).status, 0);
+  return f.run('git', [...base, 'commit', '--quiet', '-m', 'probe ' + name]);
+}
+
+test('pre-commit scans a renamed file with an added secret', (t) => {
+  const f = fixture(t);
+  assert.equal(f.install().status, 0);
+  const clean = Array.from({ length: 40 }, (_, i) => 'const x' + i + ' = ' + i + ';').join('\n') + '\n';
+  assert.equal(commitFile(f, 'a.js', clean).status, 0);
+  assert.equal(f.git(['mv', 'a.js', 'b.js']).status, 0);
+  fs.appendFileSync(path.join(f.repo, 'b.js'), secretLine());
+  assert.equal(f.git(['add', 'b.js']).status, 0);
+  assert.match(f.git(['diff', '--cached', '--name-status']).stdout, /^R\d+/);
+  const renamed = f.git(['commit', '--quiet', '-m', 'rename']);
+  assert.equal(renamed.status, 1, 'rename with a secret must be blocked');
+});
+
+test('pre-commit decodes UTF-16 files with a BOM and still skips binary files', (t) => {
+  const f = fixture(t);
+  assert.equal(f.install().status, 0);
+  const le = Buffer.concat([Buffer.from([0xff, 0xfe]), Buffer.from(secretLine(), 'utf16le')]);
+  assert.equal(commitFile(f, 'le.json', le).status, 1, 'UTF-16LE with BOM');
+  assert.equal(f.git(['rm', '--quiet', '--cached', 'le.json']).status, 0);
+  const be = Buffer.from(Buffer.concat([Buffer.from([0xfe, 0xff]), Buffer.from(secretLine(), 'utf16le')]));
+  be.subarray(2).swap16();
+  assert.equal(commitFile(f, 'be.json', be).status, 1, 'UTF-16BE with BOM');
+  assert.equal(f.git(['rm', '--quiet', '--cached', 'be.json']).status, 0);
+  const binary = Buffer.concat([Buffer.from([0x00, 0x01]), Buffer.from(secretLine(), 'utf8')]);
+  assert.equal(commitFile(f, 'blob.bin', binary).status, 0, 'binary without BOM stays unscanned');
+});
+
+const relaiFiles = ['pre-commit', 'relai-pre-commit.cjs', 'relai-secret-scan.cjs'];
+
+test('install refuses core.hooksPath pointing elsewhere and writes nothing', (t) => {
+  const f = fixture(t);
+  fs.mkdirSync(path.join(f.repo, '.husky'));
+  assert.equal(f.run('git', ['config', 'core.hooksPath', '.husky']).status, 0);
+  const result = f.install();
+  assert.equal(result.status, 1, result.stdout + result.stderr);
+  assert.match(result.stderr, /core\.hooksPath/);
+  assert.ok(result.stderr.includes('.husky'), result.stderr);
+  assert.match(result.stderr, /pre-commit\.js" \|\| exit 1/);
+  for (const file of relaiFiles) assert.equal(fs.existsSync(path.join(f.hooks, file)), false, file);
+  assert.deepEqual(fs.readdirSync(path.join(f.repo, '.husky')), []);
+});
+
+test('install smoke-tests through git and leaves the real index untouched', (t) => {
+  const f = fixture(t);
+  fs.writeFileSync(path.join(f.repo, 'staged.txt'), 'clean fixture\n');
+  assert.equal(f.git(['add', 'staged.txt']).status, 0);
+  const result = f.install();
+  assert.equal(result.status, 0, result.stderr);
+  assert.match(result.stdout, /git hook run pre-commit/);
+  assert.equal(f.git(['diff', '--cached', '--name-only']).stdout.trim(), 'staged.txt');
+  const blocked = commitFile(f, 'conf.txt', secretLine());
+  assert.equal(blocked.status, 1, blocked.stderr);
+  assert.match(blocked.stderr, /ZATRZYMANY/);
+});
+
+test('install from a linked worktree lands in the common hooks directory', (t) => {
+  const f = fixture(t);
+  assert.equal(commitFile(f, 'base.txt', 'base\n').status, 0);
+  assert.equal(f.git(['worktree', 'add', '--quiet', 'wt']).status, 0);
+  const wt = path.join(f.repo, 'wt');
+  const result = f.run(process.execPath, [installer, wt]);
+  assert.equal(result.status, 0, result.stderr);
+  for (const file of relaiFiles) assert.ok(fs.existsSync(path.join(f.hooks, file)), file);
+  const blocked = commitFile(f, 'conf.txt', secretLine(), ['-C', 'wt']);
+  assert.equal(blocked.status, 1, blocked.stderr);
+});

@@ -171,38 +171,38 @@ zatrzymujesz się i pytasz: odnoga, aneks czy „świadomie odłożone”.
 Każdy punkt, który przeszedł, odhaczasz w tym pliku (`- [ ]` → `- [x]`) zaraz po jego sprawdzeniu,
 nie na końcu etapu; punkt, który nie przeszedł, zostaje pusty.
 
-- [ ] K-0 (konwencje, sekcja 3): `git branch --show-current` → `optymalizacja/po-audycie`;
+- [x] K-0 (konwencje, sekcja 3): `git branch --show-current` → `optymalizacja/po-audycie`;
       `git --version` ≥ 2.36.
-- [ ] Testy przed zmianą: każda karta ma zapisany w notatkach przebieg czerwony z właściwego
+- [x] Testy przed zmianą: każda karta ma zapisany w notatkach przebieg czerwony z właściwego
       powodu (K-D1: 4 czerwone i „stay silent” zielony; K-D4: 3 czerwone i „stay blocked” zielony;
       K-D3: 2 czerwone na asercji; K-D2: 3 czerwone na asercji).
-- [ ] `node --test "core/guardrails/tests/secret-scan.test.js"` → 23 pass, 0 fail.
-- [ ] `node --test "core/guardrails/tests/*.test.js"` → **33 pass**, 0 fail; istniejących 19 testów
+- [x] `node --test "core/guardrails/tests/secret-scan.test.js"` → 23 pass, 0 fail.
+- [x] `node --test "core/guardrails/tests/*.test.js"` → **33 pass**, 0 fail; istniejących 19 testów
       nie zmieniono (`git diff` plików testów pokazuje wyłącznie dopisane linie na końcu).
-- [ ] Skrypt porównania K-D4 (`node .claude/relai/work/OPTYMALIZACJA_PO_AUDYCIE/E3/porownaj-skaner.js`
+- [x] Skrypt porównania K-D4 (`node .claude/relai/work/OPTYMALIZACJA_PO_AUDYCIE/E3/porownaj-skaner.js`
       uruchomiony z katalogu repozytorium) → `NOWE 0` i `ZNIKNIETE 0`, z liczbą przejrzanych plików
       we wpisie dziennika.
-- [ ] Efekt widoczny z karty: `node core/guardrails/secret-scan.js <plik>` na pliku JSON z hasłem
+- [x] Efekt widoczny z karty: `node core/guardrails/secret-scan.js <plik>` na pliku JSON z hasłem
       w cudzysłowie → `SEKRET`, na linii Javy z `System.getenv` → `BRAK` (oba pliki w katalogu
       roboczym, treść składana skryptem pisanym Write).
-- [ ] `node core/tools/validate-adapters.js` → kod 0, jedno ostrzeżenie o `security-audit/SKILL.md`,
+- [x] `node core/tools/validate-adapters.js` → kod 0, jedno ostrzeżenie o `security-audit/SKILL.md`,
       jak przed etapem.
-- [ ] Bezpieczeństwo (D-91): `/relai-security` (skan Trivy) — zero nowych CRITICAL i HIGH
+- [x] Bezpieczeństwo (D-91): `/relai-security` (skan Trivy) — zero nowych CRITICAL i HIGH
       wprowadzonych w tym etapie, liczby według wagi do wpisu (etap nie dodaje zależności; zastane
       idą do tabeli ryzyk i nie blokują). Trivy brak → zapis „brak pliku zależności w `core/`,
       komenda ekosystemu nie ma zastosowania” z wynikiem `git ls-files core | grep package.json`
       (pusty).
-- [ ] Podstawy na zmianie etapu: `git grep -nE "sk_live_[A-Za-z0-9]{16}|github_pat_[A-Za-z0-9_]{22}"`
+- [x] Podstawy na zmianie etapu: `git grep -nE "sk_live_[A-Za-z0-9]{16}|github_pat_[A-Za-z0-9_]{22}"`
       nie zwraca nic w plikach śledzonych; test czasu skanu (`A-` × 40 000) < 1000 ms; próbka
       sekretu testu dymnego i testów składana w czasie działania (Grep po `PASSWORD=` w trzech
       plikach `core/guardrails/*.js` i dwóch testach → 0 trafień gotowego przypisania).
-- [ ] Granica: `git status --short` pokazuje z tego etapu wyłącznie pięć plików
+- [x] Granica: `git status --short` pokazuje z tego etapu wyłącznie pięć plików
       `core/guardrails/` i dokumenty rytuału (`STATUS.md`, `PROMPT_ETAP_3.md`, `PROMPT_ETAP_4.md`,
       `DZIENNIK.md`, `STATE.md`, ewentualnie `LEKCJE.md`); pod `adapters/` wyłącznie cztery zastane
       `*-closing.md`.
-- [ ] Wpis etapu jest na końcu sekcji „Wpisy” w `docs/DZIENNIK.md`, z liczbą testów 33
+- [x] Wpis etapu jest na końcu sekcji „Wpisy” w `docs/DZIENNIK.md`, z liczbą testów 33
       i podpisem `Autor: RelAI (Opus 5.5) + Lukasz`.
-- [ ] Katalog roboczy: (a) `.claude/relai/work/OPTYMALIZACJA_PO_AUDYCIE/E3/` przejrzany
+- [x] Katalog roboczy: (a) `.claude/relai/work/OPTYMALIZACJA_PO_AUDYCIE/E3/` przejrzany
       (`node .claude/relai/tools/clean-work.js raport`; katalog otwartego etapu raport pomija —
       wtedy liczby z `find`/`du`) i skasowany po „tak”, liczby przed i po we wpisie dziennika;
       (b) artefakty spoza katalogu (`%TEMP%/relai-secret-scan-head.js`, fikstury testów w

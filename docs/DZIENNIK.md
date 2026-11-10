@@ -2144,3 +2144,89 @@ Etap E2 z E14, pięć kart z `karty/E02_POMIARY_NA_ZYWO.md`; niczego nie naprawi
   wdraża; wdrożenie aneksem albo osobnym planem.
 
 Autor: RelAI (Opus 5.5) + Lukasz
+
+### 2026-11-10 — OPTYMALIZACJA_PO_AUDYCIE E3: skaner sekretów łapie nośniki kluczy, pre-commit bez dziur
+
+Etap E3 z E14, cztery karty z `karty/E03_SKANER_I_PRECOMMIT.md` w kolejności K-D1 → K-D4 → K-D3 →
+K-D2. Gałąź `optymalizacja/po-audycie`, punkt wyjścia `d129566` (commit E2). Pierwszy etap planu
+z kodem; zmiana działa w sesjach dopiero po wydaniu w E14 — dowodem są testy i porównanie.
+
+**Zrobione:**
+
+- K-D1 (`core/guardrails/secret-scan.js`): nowe wzorce w `PATTERNS` — blok PGP w regule PEM,
+  Stripe `sk_live_`, GitHub `github_pat_`/`gho_`/`ghu_`/`ghs_`/`ghr_`, Slack `xox…`, Google
+  `AIza…`, hasło w części userinfo adresu URL z polem `pomin` (placeholder albo samo słowo);
+  `ASSIGN_RE` z opcjonalnym cudzysłowem nazwy; `ASSIGN_PREFIX_RE` z granicą `{1,8}` i gałęzią
+  `_KEY` z zamkniętą listą rdzeni; nowa reguła `ASSIGN_LOWER_RE` (małe litery z przedrostkiem,
+  tylko w kształcie konfiguracji); funkcje `bezKontynuacji` i `wartoscJestKodem`; pętla reguł
+  na grupach 1–4 z zasadą „klucz w cudzysłowie wymaga wartości w cudzysłowie”.
+- K-D4 (ten sam plik): `ENV_READ_RE` rozpoznaje `os.getenv`, `System.getenv`,
+  `(System.)Environment.GetEnvironmentVariable`; `wartoscJestKodem` z `ENV_ROOT_RE`, `CODE_RE`,
+  `PROZA_RE` (flaga `u`) — kod, odczyty środowiska i proza po dwukropku nie dają werdyktu.
+- K-D3 (`core/guardrails/pre-commit.js`): `--diff-filter=ACMR`, `git(args, kodowanie)`,
+  `dekoduj(buf)` z UTF-16 LE/BE po BOM; bajt zerowy bez BOM nadal oznacza plik binarny.
+- K-D2 (`core/guardrails/install-precommit.js`): `revParse`, `katalogiHookow`, `tenSamKatalog`;
+  odmowa (kod 1, nic nie zapisuje) przy `core.hooksPath` wskazującym inny katalog, z linią do
+  wklejenia; instalacja z worktree trafia do wspólnego katalogu hooków; test dymny przez
+  `git hook run pre-commit` na własnym `GIT_INDEX_FILE` (pusty indeks → 0, próbka z sekretem → 1);
+  `doSh` usunięta; komunikaty i komentarz nagłówka wg karty.
+- Testy dopisane na końcu dwóch plików: 9 w `secret-scan.test.js`, 5 w `install-precommit.test.js`.
+
+**Zweryfikowane — jak dokładnie:**
+
+- `git branch --show-current` → `optymalizacja/po-audycie`; `git --version` → 2.49.0.
+- Przebiegi czerwone przed zmianą, każdy na asercji: K-D1 — 4 czerwone (trzy testy wykrycia
+  i test czasu: 3159 ms), „stay silent” zielony; K-D4 — 3 czerwone, „stay blocked” zielony;
+  K-D3 — 2 czerwone (`rename with a secret must be blocked`, `UTF-16LE with BOM`); K-D2 —
+  3 czerwone (instalator zainstalował mimo `core.hooksPath`; brak `git hook run pre-commit`
+  w komunikacie; brak plików we wspólnym `.git/hooks` przy worktree).
+- `node --test "core/guardrails/tests/secret-scan.test.js"` → 23 pass, 0 fail.
+- `node --test "core/guardrails/tests/*.test.js"` → **33 pass**, 0 fail (przed etapem 19;
+  po K-D1 24, po K-D3 30). `git diff` obu plików testów: 0 usuniętych linii — wyłącznie
+  dopisane na końcu.
+- Porównanie skanera HEAD vs drzewo robocze linia po linii: 1219 plików tekstowych z 1602
+  śledzonych, 361 209 linii → `NOWE 0`, `ZNIKNIETE 0`. Kontrola pozytywna instrumentu na tym
+  samym mechanizmie: linia JSON z hasłem — HEAD `null`, drzewo `przypisanie PASSWORD= …`;
+  linia Javy z `System.getenv` — HEAD `przypisanie TOKEN= …`, drzewo `null`.
+- Efekt z karty: `node core/guardrails/secret-scan.js` na pliku JSON → `SEKRET` (kod 1), na
+  pliku Javy → `BRAK` (kod 0); treść obu plików składana skryptem.
+- `node core/tools/validate-adapters.js` → kod 0, jedno ostrzeżenie (`security-audit/SKILL.md`
+  22 026 B ponad 20 480 B), jak przed etapem.
+- Trivy (`trivy fs --scanners vuln`): 0 CRITICAL, 42 HIGH, 50 MEDIUM, 12 LOW — wszystkie
+  zastane, w fiksturach ewaluacji `trivy-scan` (celowo podatne) i w katalogu roboczym
+  PANEL_CODEX; etap nie dodaje zależności (`git ls-files core | grep package.json` → pusto).
+  Nowych CRITICAL ani HIGH z tego etapu: 0.
+- `git grep -nE` po tokenach `sk_live_…{16}` i `github_pat_…{22}` → 0 trafień. Grep po
+  „PASSWORD=” w trzech plikach `core/guardrails/*.js` i dwóch testach → 1 trafienie, zastany
+  komentarz w `secret-scan.js` (zdanie o guardrailu, bez wartości); gotowych przypisań 0.
+  Test czasu skanu (`A-` × 40 000) zielony, próg 1000 ms.
+- `git status --short`: z etapu pięć plików `core/guardrails/` i dokumenty rytuału; pod
+  `adapters/` wyłącznie cztery zastane `*-closing.md`; `.claude/launch.json` nieśledzony,
+  poza commitem.
+- Katalog roboczy `.claude/relai/work/OPTYMALIZACJA_PO_AUDYCIE/E3/`: przed 13 plików, 818 KB;
+  po „tak” Łukasza — 0 (katalog i pusty folder planu skasowane). `clean-work.js raport` pominął
+  katalog otwartego etapu, liczby z `find`/`du`. Artefakty spoza katalogu:
+  `%TEMP%/relai-secret-scan-head.js` i `relai-secret-scan-head-kontrola.js` kasowane przez
+  skrypty, które je tworzyły; fikstury `%TEMP%/relai-guardrails-test-*` i
+  `relai-precommit-smoke-*.index` sprząta helper testu i `finally` instalatora — po etapie
+  `ls %TEMP%` → 0 trafień.
+
+**Świadomie odłożone:**
+
+- Hooki adapterów (`adapters/*/hooks/secret-scanner.js`), D8, D11, D12 i marker gościa z D10 —
+  etapy E4/E5 albo poza planem, zgodnie z kartą.
+- Przegląd ryzyk: P1 (adaptery bez blokad harnessu) — pre-commit łapie teraz więcej nośników
+  i nie ginie przy `core.hooksPath`, ale poziom zostaje do E6 (adaptery); bez zmiany tabeli.
+- Rotacje dziennika, sekcji ryzyk i lekcji zgłoszone na starcie — poza etapem.
+
+**Do zrobienia przez człowieka:**
+
+- K-D2: odmowa przy `core.hooksPath` to wybór karty; alternatywa (instalacja w katalogu
+  wskazanym przez `core.hooksPath`) zapisuje do katalogu innego narzędzia — decyzja właściciela.
+- K-D1: lista rdzeni `_KEY` (`SECRET`, `PRIVATE`, `ENCRYPTION`, `SIGNING`, `MASTER`) jest
+  zamknięta; nazwy dostawców zostają poza skanem nazw — potwierdzić albo poszerzyć.
+- K-D4: świadome luki — wartość z małą nazwą i znakiem „=” w kształcie kropkowanego
+  identyfikatora traktowana jak kod; świadome fałszywe blokady — wywołanie z literałem
+  w nawiasie. Potwierdzić kompromis.
+
+Autor: RelAI (Opus 5.5) + Lukasz
