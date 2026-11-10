@@ -173,48 +173,48 @@ aneks czy „świadomie odłożone”.
 Każdy punkt Weryfikacji, który przeszedł, odhaczasz w `PROMPT_ETAP_13.md` (`- [ ]` → `- [x]`)
 zaraz po jego sprawdzeniu, nie na końcu etapu; punkt, który nie przeszedł, zostaje pusty.
 
-- [ ] K-0 (konwencje, sekcja 3): `git branch --show-current` → `optymalizacja/po-audycie`;
+- [x] K-0 (konwencje, sekcja 3): `git branch --show-current` → `optymalizacja/po-audycie`;
       `git log --oneline -1` pokazuje commit E12 (albo człowiek rozstrzygnął, co z drzewem).
-- [ ] Przed zmianą: `plugin test` → mods 91, panel 217, progress 51, cache-keeper 206, wszystkie
+- [x] Przed zmianą: `plugin test` → mods 91, panel 217, progress 51, cache-keeper 206, wszystkie
       ` 0 fail`; `core/panel` → 225 pass; `--check` → kod 0; każdy katalog kopii 21 plików
       (inna liczba → zatrzymujesz się i pytasz).
-- [ ] Testy przed zmianą narzędzia (przebieg zapisany w katalogu roboczym, diff testów przeczytany
+- [x] Testy przed zmianą narzędzia (przebieg zapisany w katalogu roboczym, diff testów przeczytany
       w całości i zgodny z kartą — asercje dawnych testów nietknięte): `core/panel` → 2 czerwone
       z asercji (nowe testy K-G2), 225 zielonych.
-- [ ] Po kroku 5: `node core/tools/sync-panel-core.js --check` → kod 0 i linia
+- [x] Po kroku 5: `node core/tools/sync-panel-core.js --check` → kod 0 i linia
       `[sync-panel-core] zgodne: 20 plikow core/panel i 16 ikon -> panel/hooks/core, progress/hooks/core, cache-keeper/hooks/relai, mods/hooks/core`.
-- [ ] Dowód efektu (zasada 4): katalogi kopii mają 16 / 13 / 8 / 2 pliki o listach z tabeli karty,
+- [x] Dowód efektu (zasada 4): katalogi kopii mają 16 / 13 / 8 / 2 pliki o listach z tabeli karty,
       razem 1 458 334 B (było 2 280 852 B); `git status --short` → 45 wierszy `D` w czterech
       katalogach kopii.
-- [ ] `node --test "core/panel/tests/*.test.*"` → 227 pass, 0 fail; `node --test
+- [x] `node --test "core/panel/tests/*.test.*"` → 227 pass, 0 fail; `node --test
       "core/process/tests/*.test.*"` → 430 pass, 0 fail (bez zmian).
-- [ ] Po zmianie: `plugin test mods` → ` 91 pass`; `panel` → ` 217 pass`; `progress` → ` 51 pass`;
+- [x] Po zmianie: `plugin test mods` → ` 91 pass`; `panel` → ` 217 pass`; `progress` → ` 51 pass`;
       `cache-keeper` → ` 206 pass`, wszystkie ` 0 fail`; cztery `plugin validate` → „✔ Validation
       passed”.
-- [ ] Dowód negatywny (zasada 3): K-F4 — `core/panel/cache-timer.mjs` i
+- [x] Dowód negatywny (zasada 3): K-F4 — `core/panel/cache-timer.mjs` i
       `core/panel/tests/cache-timer.test.js` istnieją, żadna z czterech kopii `cache-timer.mjs` nie
       istnieje; `git diff --stat` dla `core/tools/release-checks.js`, `release-check.test.js`,
       `release-fixture.js`, `build-panel-headings.js`, `core/panel/headings.mjs`,
       `mods-parity.test.js`, `cache-keeper/hooks/core.ts` i wszystkich `*/hooks/register.tsx` →
       pusty; manifesty bez zmian (`git diff --stat -- "*/plugin.json" "*marketplace.json"` → pusty).
-- [ ] Bramka manualna (karta E13, kroki 1–7): człowiek opisał kroki 3–6 — pasek cache i pasek planu
+- [x] Bramka manualna (karta E13, kroki 1–7): człowiek opisał kroki 3–6 — pasek cache i pasek planu
       nad promptem po `ok`, `/cache` zaczyna się od „relai-cache-keeper: kontekst”, pięć zakładek
       `/relai-panel` rysuje treść bez „⚠ Panel nie narysował tej zakładki”, `/relai-agents` otwiera
       panel, `/relai-mods` pokazuje grupy i nagłówek „N/M włączone · …”. Opis do wpisu dziennika.
-- [ ] Bezpieczeństwo: `trivy fs --scanners vuln .` → 0 nowych CRITICAL i HIGH wobec wpisu E12
+- [x] Bezpieczeństwo: `trivy fs --scanners vuln .` → 0 nowych CRITICAL i HIGH wobec wpisu E12
       (zastane: 0 CRITICAL, 42 HIGH); etap nie dodaje zależności (`git diff --stat --
       "*package.json" "*lock*"` → pusty). Zapas bez Trivy: `npm audit --omit=dev` w katalogu
       każdego śledzonego `package.json`, wynik do wpisu. Narzędzie kasuje wyłącznie w katalogach
       kopii: test 4 karty (obcy `own.mjs` zostaje) zielony.
-- [ ] Granica: `git status --short` pokazuje z tego etapu wyłącznie `core/tools/sync-panel-core.js`,
+- [x] Granica: `git status --short` pokazuje z tego etapu wyłącznie `core/tools/sync-panel-core.js`,
       `core/panel/tests/sync.test.js`, 45 usuniętych kopii i dokumenty rytuału (`STATUS.md`,
       `PROMPT_ETAP_13.md`, `PROMPT_ETAP_14.md`, `DZIENNIK.md`, `STATE.md`, ewentualnie `LEKCJE.md`).
-- [ ] Wpis etapu jest na końcu sekcji „Wpisy” w `docs/DZIENNIK.md`, z liczbami testów i kopii przed
+- [x] Wpis etapu jest na końcu sekcji „Wpisy” w `docs/DZIENNIK.md`, z liczbami testów i kopii przed
       i po, liczbą przebiegów Codeksa (cel aneksu: 2, poprawek 0), wynikiem bramki manualnej,
       zdaniami F4, F5 i „podział `headings.mjs`”, listą do podbicia w E14 (`relai-panel`,
       `relai-progress`, `relai-cache-keeper`, `relai-mods`, plugin `relai`) i podpisem
       `Autor: RelAI (Opus 5.5) + Lukasz`.
-- [ ] Katalog roboczy: (a) `.claude/relai/work/OPTYMALIZACJA_PO_AUDYCIE/E13/` i przebiegi
+- [x] Katalog roboczy: (a) `.claude/relai/work/OPTYMALIZACJA_PO_AUDYCIE/E13/` i przebiegi
       `.claude/relai/work/CREW/` tego etapu przejrzane (`node .claude/relai/tools/clean-work.js
       raport`; katalog otwartego etapu raport pomija — wtedy liczby z `find`/`du`) i skasowane po
       „tak”, liczby przed i po we wpisie dziennika; (b) artefakty spoza katalogu wypisane z nazwy

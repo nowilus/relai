@@ -3108,3 +3108,85 @@ prowadził bramkę manualną i rytuał.
 
 Mody do podbicia w E14 (pola „Gotowe, gdy”): `relai-progress` (K-F3), `relai-mods` (K-F3, K-F1),
 `relai-panel` (K-F2).
+
+### 2026-11-10 — OPTYMALIZACJA_PO_AUDYCIE E13: każdy mod niesie tylko pliki rdzenia, które importuje
+
+Autor: RelAI (Opus 5.5) + Lukasz
+
+Piąty i ostatni etap według Aneksu A, w dwóch przebiegach Codeksa (L-0316): (1) same testy z karty
+K-G2, (2) narzędzie bez zmiany testów. Codex `gpt-6.1-terra`, effort `high` z `~/.codex/config.toml`
+(odczytany przed przebiegiem 1), przez `node core/process/crew.js run --runtime codex --role coder
+--write` z repozytorium. Claude (Opus 5.5) uruchomił synchronizację (krok 5 karty), testy, recenzję
+diffu, bramkę manualną i rytuał.
+
+**Zrobione:**
+
+- **K-G2:** `core/tools/sync-panel-core.js` — akapit nagłówka o regule, `present()` zamiast
+  `dests()`, wyrażenie `SPEC`, funkcje grafu `toDir`, `specsOf`, `coreName`, `ownFiles`, `wanted`,
+  nowe `checkOne`/`check`/`sync`: mod dostaje pliki `core/panel/*.mjs` (i `icons.mjs`) osiągalne
+  z własnych `.ts`/`.tsx` pod `hooks/` (z testami), kopia nieosiągalna jest kasowana, a `--check`
+  zgłasza „kopia nadmiarowa” i plik bez źródła. Blok `require.main` i linia „zgodne: …” bez zmian.
+- `core/panel/tests/sync.test.js` — pomoce `fixture` i `uses`, cztery dawne testy z plikiem modu
+  z importem (asercje bez zmian), dwa nowe testy K-G2.
+- Krok 5: `node core/tools/sync-panel-core.js` usunął 45 kopii (panel 5, progress 8,
+  cache-keeper 13, mods 19).
+- **K-F4, K-F5:** bez zmian w kodzie — zdania niżej, w „Świadomie odłożone”.
+
+**Zweryfikowane — jak dokładnie:**
+
+- K-0: gałąź `optymalizacja/po-audycie`, ostatni commit `c03e242` (E12). Końce linii obu plików
+  karty `i/lf w/lf` przed obydwoma przebiegami — normalizacja niepotrzebna.
+- Przed zmianą (`"$CLAUDE_CODE_EXECPATH" plugin test`, claude-code 2.1.321): mods **91**, panel
+  **217**, progress **51**, cache-keeper **206**, wszystkie ` 0 fail`; `core/panel` **225** pass;
+  `--check` kod 0; każdy z czterech katalogów kopii 21 plików, 570 213 B (razem 2 280 852 B).
+- Przebieg 1 (testy): diff testów przeczytany w całości — wierny karcie, dawne asercje nietknięte.
+  Na czerwono: 227 testów, 225 pass, 2 fail — oba nowe z asercji (`+ 'd.mjs'` w liście kopii;
+  „The input did not match … /kopia nadmiarowa mods\/hooks\/core\/b\.mjs/”).
+- Przebieg 2 (narzędzie): diff = kod karty, bez odchyleń; raport Codeksa porównał linię `SPEC`
+  z kartą znak w znak. Przed krokiem 5: 226 pass, czerwony wyłącznie „panel/hooks/core matches
+  core/panel” — oczekiwane wg karty.
+- Po kroku 5: `--check` kod 0, `[sync-panel-core] zgodne: 20 plikow core/panel i 16 ikon ->
+  panel/hooks/core, progress/hooks/core, cache-keeper/hooks/relai, mods/hooks/core`.
+- Dowód efektu (zasada 4) — listy i rozmiary co do bajta z tabelą karty: panel 16 plików
+  501 326 B, progress 13 / 499 604 B, cache-keeper 8 / 143 755 B (decisions, flow, limit-threshold,
+  measure, plan-state, pricing, progress, theme), mods 2 / 313 649 B (headings, theme); razem
+  **1 458 334 B** zamiast 2 280 852 B; `git status --short` → 45 wierszy `D`.
+- Po zmianie: `core/panel` **227** pass, 0 fail; `core/process` **430** pass, 0 fail; mods **91**,
+  panel **217**, progress **51**, cache-keeper **206**, wszystkie ` 0 fail`; cztery `plugin
+  validate` → „✔ Validation passed”.
+- Dowód negatywny (zasada 3): `core/panel/cache-timer.mjs` i jego test istnieją, żadna z czterech
+  kopii `cache-timer.mjs` nie istnieje; `git diff --stat` dla `release-checks.js`,
+  `release-check.test.js`, `release-fixture.js`, `build-panel-headings.js`, `headings.mjs`,
+  `mods-parity.test.js`, `cache-keeper/hooks/core.ts`, `*/hooks/register.tsx`, manifestów
+  i `package.json`/lock → pusty. Test 4 karty (obcy `own.mjs` zostaje po `sync`) zielony.
+- Bezpieczeństwo: `trivy fs --scanners vuln .` → 0 CRITICAL, 42 HIGH, 50 MEDIUM, 12 LOW — bez
+  nowych wobec E12; etap nie dodaje zależności.
+- **Bramka manualna (Łukasz, kroki 1–7 karty):** zwykłe okno PowerShell, `--settings` z czterema
+  wyłączonymi zainstalowanymi modami, cztery `--plugin-dir`. Wynik Łukasza: „Wszystko działa” —
+  pasek cache i pasek planu nad promptem po `ok`, `/cache`, pięć zakładek `/relai-panel`,
+  `/relai-agents` i `/relai-mods` bez zastrzeżeń.
+- Katalog roboczy `.claude/relai/work/OPTYMALIZACJA_PO_AUDYCIE/E13/`: przed 23 pliki, 318 531 B;
+  przebiegi `.claude/relai/work/CREW/2026-11-10_195231` i `_195503` — 325 005 B; po „tak”
+  Łukasza skasowane — po 0. Poza katalogiem: `%TEMP%/relai-e13-settings.json` — skasował Łukasz
+  w kroku 7 (sprawdzone: brak pliku); `mods/tsconfig.json` z bramki (nieśledzony, treść `extends`
+  `./.claude-plugin/types/tsconfig.json`) — usunięty przez Claude.
+- **Pomiar Aneksu A:** dwa przebiegi Codeksa, poprawek po recenzji 0 — cel aneksu trzeci raz
+  z rzędu.
+- Ryzyka: C1 i C8 bez zmian (etap nie dotyka API modów ani paska); AX1–AX3, AX6 nie wystąpiły.
+
+**Świadomie odłożone:**
+
+- F4 — `core/panel/cache-timer.mjs` zostaje do decyzji o planie PANEL_CODEX; po K-G2 nie jest
+  kopiowany do modów.
+- F5 — podział `register.tsx` odłożony decyzją właściciela z 2026-11-09; wymaga osobnego planu
+  z refaktorem stanu modułu.
+- Podział `headings.mjs` (282 006 B, 44 nagłówki) — wymaga zmiany `build-panel-headings.js`
+  i importów `HEADING_ART` w trzech modach; SZACUNEK ok. 558 000 B mniej w kopiach.
+- `mods/tsconfig.json` nadal poza `.gitignore` (drugi raz zostawiony przez bramkę) — kandydat
+  do E14 albo odnogi.
+- Rotacja `docs/DZIENNIK.md` i `docs/LEKCJE.md` (ponad progami) — do „kończymy na dziś”.
+
+**Do zrobienia przez człowieka:** —
+
+Do podbicia w E14 (pola „Gotowe, gdy” K-G2): `relai-panel`, `relai-progress`, `relai-cache-keeper`,
+`relai-mods` (usunięte kopie) oraz plugin `relai` (`core/tools/sync-panel-core.js`).

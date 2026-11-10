@@ -13,6 +13,22 @@ const { spawnSync } = require('node:child_process');
 const ROOT = path.resolve(__dirname, '..', '..', '..');
 const TOOL = path.join(ROOT, 'core', 'tools', 'sync-panel-core.js');
 
+// A temporary repo with the tool, the given folders and files; removed after the test
+function fixture(t, prefix, dirs, files) {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), prefix));
+  t.after(() => fs.rmSync(root, { recursive: true, force: true }));
+  for (const d of [['core', 'tools'], ['core', 'panel'], ...dirs]) fs.mkdirSync(path.join(root, ...d), { recursive: true });
+  fs.copyFileSync(TOOL, path.join(root, 'core', 'tools', 'sync-panel-core.js'));
+  for (const [rel, text] of Object.entries(files)) {
+    fs.mkdirSync(path.dirname(path.join(root, rel)), { recursive: true });
+    fs.writeFileSync(path.join(root, rel), text);
+  }
+  const tool = path.join(root, 'core', 'tools', 'sync-panel-core.js');
+  return { root, run: (...args) => spawnSync(process.execPath, [tool, ...args], { encoding: 'utf8' }) };
+}
+
+const uses = (...names) => names.map((n) => `import { x as ${n.replace(/\W/g, '_')} } from './core/${n}';\n`).join('');
+
 test('panel/hooks/core matches core/panel', () => {
   const r = require(TOOL).check();
   assert.deepEqual(r.problems, []);
@@ -25,6 +41,7 @@ test('a changed copy, a missing copy and an orphan copy are reported (planted de
   fs.mkdirSync(path.join(root, 'core', 'tools'), { recursive: true });
   fs.mkdirSync(path.join(root, 'core', 'panel'), { recursive: true });
   fs.mkdirSync(path.join(root, 'panel', 'hooks', 'core'), { recursive: true });
+  fs.writeFileSync(path.join(root, 'panel', 'hooks', 'register.tsx'), uses('a.mjs', 'b.mjs'));
   fs.copyFileSync(TOOL, path.join(root, 'core', 'tools', 'sync-panel-core.js'));
   fs.writeFileSync(path.join(root, 'core', 'panel', 'a.mjs'), 'export const a = 1;\n');
   fs.writeFileSync(path.join(root, 'core', 'panel', 'b.mjs'), 'export const b = 1;\n');
@@ -54,6 +71,7 @@ test('the icons module follows the icon files: a changed icon is reported (plant
   }
   fs.copyFileSync(TOOL, path.join(root, 'core', 'tools', 'sync-panel-core.js'));
   fs.writeFileSync(path.join(root, 'core', 'panel', 'a.mjs'), 'export const a = 1;\n');
+  fs.writeFileSync(path.join(root, 'panel', 'hooks', 'register.tsx'), uses('a.mjs', 'icons.mjs'));
   const ikony = path.join(root, 'docs', 'zasoby', 'branding', 'ikony');
   fs.writeFileSync(path.join(ikony, 'stage.svg'), '<?xml version="1.0"?>\r\n<svg id="s"/>\r\n');
   fs.writeFileSync(path.join(ikony, 'tour.svg'), '<svg id="t"/>\n');
@@ -84,6 +102,8 @@ test('every plugin that carries the core is checked: a stale copy in progress/ i
   }
   fs.copyFileSync(TOOL, path.join(root, 'core', 'tools', 'sync-panel-core.js'));
   fs.writeFileSync(path.join(root, 'core', 'panel', 'a.mjs'), 'export const a = 1;\n');
+  fs.writeFileSync(path.join(root, 'panel', 'hooks', 'register.tsx'), uses('a.mjs'));
+  fs.writeFileSync(path.join(root, 'progress', 'hooks', 'register.tsx'), uses('a.mjs'));
   const tool = path.join(root, 'core', 'tools', 'sync-panel-core.js');
 
   const made = spawnSync(process.execPath, [tool], { encoding: 'utf8' });
@@ -106,6 +126,7 @@ test('relai-mods carries the core too: mods/hooks/core is written and checked (p
   }
   fs.copyFileSync(TOOL, path.join(root, 'core', 'tools', 'sync-panel-core.js'));
   fs.writeFileSync(path.join(root, 'core', 'panel', 'a.mjs'), 'export const a = 1;\n');
+  fs.writeFileSync(path.join(root, 'mods', 'hooks', 'register.tsx'), uses('a.mjs'));
   const tool = path.join(root, 'core', 'tools', 'sync-panel-core.js');
 
   const made = spawnSync(process.execPath, [tool], { encoding: 'utf8' });
@@ -117,4 +138,40 @@ test('relai-mods carries the core too: mods/hooks/core is written and checked (p
   const bad = spawnSync(process.execPath, [tool, '--check'], { encoding: 'utf8' });
   assert.equal(bad.status, 1);
   assert.match(bad.stderr, /kopia mods\/hooks\/core\/a\.mjs rozni sie/);
+});
+
+test('a mod gets only what it reaches: through a core file, from a test, never the rest (K-G2)', (t) => {
+  const { root, run } = fixture(t, 'relai-reachable-sync-', [['progress', 'hooks', 'core']], {
+    'core/panel/a.mjs': "import './b.mjs';\n",
+    'core/panel/b.mjs': 'export const b = 1;\n',
+    'core/panel/c.mjs': 'export const c = 1;\n',
+    'core/panel/d.mjs': 'export const d = 1;\n',
+    'progress/hooks/register.tsx': uses('a.mjs'),
+    'progress/hooks/bar.test.ts': uses('c.mjs'),
+  });
+
+  const made = run();
+  assert.equal(made.status, 0, made.stderr);
+  assert.deepEqual(fs.readdirSync(path.join(root, 'progress', 'hooks', 'core')).sort(), ['a.mjs', 'b.mjs', 'c.mjs']);
+  assert.match(made.stdout, /4 plikow core\/panel/);
+});
+
+test('a copy no file imports any more is removed by sync and reported by --check; a foreign file stays (K-G2)', (t) => {
+  const { root, run } = fixture(t, 'relai-extra-sync-', [['mods', 'hooks', 'core']], {
+    'core/panel/a.mjs': 'export const a = 1;\n',
+    'core/panel/b.mjs': 'export const b = 1;\n',
+    'mods/hooks/register.tsx': uses('a.mjs'),
+    'mods/hooks/core/a.mjs': 'export const a = 1;\n',
+    'mods/hooks/core/b.mjs': 'export const b = 1;\n',
+    'mods/hooks/core/own.mjs': 'export const own = 1;\n',
+  });
+
+  const bad = run('--check');
+  assert.equal(bad.status, 1);
+  assert.match(bad.stderr, /kopia nadmiarowa mods\/hooks\/core\/b\.mjs/);
+  assert.match(bad.stderr, /mods\/hooks\/core\/own\.mjs nie ma zrodla/);
+
+  const made = run();
+  assert.equal(made.status, 1);
+  assert.deepEqual(fs.readdirSync(path.join(root, 'mods', 'hooks', 'core')).sort(), ['a.mjs', 'own.mjs']);
 });

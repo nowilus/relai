@@ -17,7 +17,7 @@ bramka `pre-push` na tagi. Na maszynie Łukasza `relai`, `relai-panel` i `relai-
 są włączone na poziomie użytkownika, a w projektach z markerem RelAI także lokalnie (stan
 z `relai-scope.js status`, 2026-11-10); tryb „RelAI tylko w projektach” jest dostępny
 (`relai-scope.js apply`), ale nie jest włączony. Od 2026-11-09 aktywny jest plan OPTYMALIZACJA_PO_AUDYCIE (naprawy po audycie
-projektu; E1–E12 zrealizowane 2026-11-10, etap E13 gotowy do startu; E9–E13 wykonuje Codex wg Aneksu A). Poprzedni: KONTEKST_STARTU zamknięty 2026-10-28 (start sesji to jedno
+projektu; E1–E13 zrealizowane 2026-11-10, etap E14 — ostatni, z wydaniem — gotowy do startu; E9–E13 wykonał Codex wg Aneksu A). Poprzedni: KONTEKST_STARTU zamknięty 2026-10-28 (start sesji to jedno
 polecenie skrótu, RelAI po pierwszej turze 25–32 tys. tokenów zamiast ok. 72 tys. — cel 25 tys.
 częściowo), PANEL_CODEX (Codex) wstrzymany 2026-10-27 decyzją Łukasza.
 Opinii spoza projektu nadal nie ma.
@@ -163,7 +163,12 @@ Opinii spoza projektu nadal nie ma.
   zamiast pustego panelu; kokpit rysuje z pamięci — seria klawiszy i tyknięcie bez odczytu treści
   plików, tylko czasy; Koszty i Mapa po turze nie czytają plików zamkniętych sesji; testy modów
   559 → 565, bramka manualna przeszła; mody do podbicia w E14: `relai-progress`, `relai-mods`,
-  `relai-panel`), E13 gotowy do startu** (plan
+  `relai-panel`), E13 zrealizowany 2026-11-10 (piąty etap w Codeksie, dwa przebiegi: każdy mod
+  niesie tylko pliki rdzenia, które importuje — `sync-panel-core.js` liczy graf importów, kasuje
+  kopie nadmiarowe, `--check` je zgłasza; kopie 4 × 21 → 16 / 13 / 8 / 2 pliki, 2 280 852 →
+  1 458 334 B; `core/panel` 227 testów, mody bez zmian liczby, bramka manualna przeszła; F4 i F5
+  zapisane jako odłożone; do podbicia w E14 cztery mody i plugin `relai`), E14 gotowy do startu**
+  (plan
   [OPTYMALIZACJA_PO_AUDYCIE](plany/OPTYMALIZACJA_PO_AUDYCIE/STATUS.md), 14 etapów, wykonanie Opus 5.5
   medium w świeżych sesjach, gałąź `optymalizacja/po-audycie`, jedno wydanie na końcu). Źródło:
   [raport audytu](AUDYT_RELAI_2026-11-09.md) — 56 znalezisk, do naprawy wybrane 41 wysokiej

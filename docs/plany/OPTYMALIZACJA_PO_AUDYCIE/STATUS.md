@@ -22,8 +22,8 @@ Karty zmian (załącznik planu, zamrażany razem z nim): [konwencje](karty/00_KO
 | E10 | Prompty etapów i rytuały | ZREALIZOWANY 2026-11-10 | [PROMPT_ETAP_10.md](PROMPT_ETAP_10.md) | [karty](karty/E10_PROMPTY_ETAPOW_I_RYTUALY.md) |
 | E11 | Proces i rejestry | ZREALIZOWANY 2026-11-10 | [PROMPT_ETAP_11.md](PROMPT_ETAP_11.md) | [karty](karty/E11_PROCES_I_REJESTRY.md); po E10; karta K-E4 po aneksie D-88 z E8 |
 | E12 | Mody: odporność i koszt | ZREALIZOWANY 2026-11-10 | [PROMPT_ETAP_12.md](PROMPT_ETAP_12.md) | [karty](karty/E12_MODY_ODPORNOSC.md) |
-| E13 | Mody: rdzeń i kopie | GOTOWY DO STARTU | [PROMPT_ETAP_13.md](PROMPT_ETAP_13.md) | [karty](karty/E13_MODY_RDZEN_I_KOPIE.md); po E12; kod zmienia tylko K-G2 — K-F4 i K-F5 rozstrzygnięte decyzją właściciela 2026-11-09 |
-| E14 | CI, liczebniki, wydanie i zamknięcie | OCZEKUJE | — | [karty](karty/E14_CI_I_WYDANIE.md); aneks D-40; jedyne wydanie planu |
+| E13 | Mody: rdzeń i kopie | ZREALIZOWANY 2026-11-10 | [PROMPT_ETAP_13.md](PROMPT_ETAP_13.md) | [karty](karty/E13_MODY_RDZEN_I_KOPIE.md); po E12; kod zmienia tylko K-G2 — K-F4 i K-F5 rozstrzygnięte decyzją właściciela 2026-11-09 |
+| E14 | CI, liczebniki, wydanie i zamknięcie | GOTOWY DO STARTU | [PROMPT_ETAP_14.md](PROMPT_ETAP_14.md) | [karty](karty/E14_CI_I_WYDANIE.md); aneks D-40; jedyne wydanie planu |
 
 ## Bramki manualne
 
@@ -100,3 +100,7 @@ Karty zmian (załącznik planu, zamrażany razem z nim): [konwencje](karty/00_KO
   cache-keeper 206), bramka manualna przeszła; trzy rozjazdy z kartą uznane przez Łukasza
   (L-0313, komunikat silnika K-F3, komentarz `$.` w `inventory.ts`); E13 GOTOWY DO STARTU,
   wygenerowany `PROMPT_ETAP_13.md`.
+- 2026-11-10 — E13 ZREALIZOWANY (Codex, dwa przebiegi: testy, narzędzie; poprawek po recenzji 0):
+  K-G2 — kopie rdzenia 4 × 21 → 16 / 13 / 8 / 2 pliki, 2 280 852 → 1 458 334 B (45 usunięć),
+  2 nowe testy, `core/panel` 227, mody 91 / 217 / 51 / 206, bramka manualna przeszła; K-F4 i K-F5
+  zdaniami w dzienniku; E14 GOTOWY DO STARTU, wygenerowany `PROMPT_ETAP_14.md`.
