@@ -1,6 +1,6 @@
 # STATUS — plan OPTYMALIZACJA_PO_AUDYCIE
 
-Plan: [PLAN.html](PLAN.html) · Utworzony: 2026-11-09 · Status planu: **ZAAKCEPTOWANY 2026-11-09** · Model wykonawczy etapów: Opus 5.5 na effort medium, świeże sesje (wybór użytkownika, ustalony w Claude Code); od Aneksu A (2026-11-10) E9–E13: Codex gpt-6.1-terra (effort high), poprawki gpt-6.1-sol, orkiestracja i rytuał Opus 5.5 — [ANEKS_A_WYKONANIE_CODEX.md](ANEKS_A_WYKONANIE_CODEX.md)
+Plan: [PLAN.html](PLAN.html) · Utworzony: 2026-11-09 · Status planu: **ZREALIZOWANY 2026-11-10** (zaakceptowany 2026-11-09) · Model wykonawczy etapów: Opus 5.5 na effort medium, świeże sesje (wybór użytkownika, ustalony w Claude Code); od Aneksu A (2026-11-10) E9–E13: Codex gpt-6.1-terra (effort high), poprawki gpt-6.1-sol, orkiestracja i rytuał Opus 5.5 — [ANEKS_A_WYKONANIE_CODEX.md](ANEKS_A_WYKONANIE_CODEX.md)
 
 Karty zmian (załącznik planu, zamrażany razem z nim): [konwencje](karty/00_KONWENCJE.md) ·
 [ustalenia robocze](karty/USTALENIA_ROBOCZE.md) · źródło znalezisk:
@@ -23,24 +23,32 @@ Karty zmian (załącznik planu, zamrażany razem z nim): [konwencje](karty/00_KO
 | E11 | Proces i rejestry | ZREALIZOWANY 2026-11-10 | [PROMPT_ETAP_11.md](PROMPT_ETAP_11.md) | [karty](karty/E11_PROCES_I_REJESTRY.md); po E10; karta K-E4 po aneksie D-88 z E8 |
 | E12 | Mody: odporność i koszt | ZREALIZOWANY 2026-11-10 | [PROMPT_ETAP_12.md](PROMPT_ETAP_12.md) | [karty](karty/E12_MODY_ODPORNOSC.md) |
 | E13 | Mody: rdzeń i kopie | ZREALIZOWANY 2026-11-10 | [PROMPT_ETAP_13.md](PROMPT_ETAP_13.md) | [karty](karty/E13_MODY_RDZEN_I_KOPIE.md); po E12; kod zmienia tylko K-G2 — K-F4 i K-F5 rozstrzygnięte decyzją właściciela 2026-11-09 |
-| E14 | CI, liczebniki, wydanie i zamknięcie | W TOKU | [PROMPT_ETAP_14.md](PROMPT_ETAP_14.md) | [karty](karty/E14_CI_I_WYDANIE.md); aneks D-40; jedyne wydanie planu |
+| E14 | CI, liczebniki, wydanie i zamknięcie | ZREALIZOWANY 2026-11-10 | [PROMPT_ETAP_14.md](PROMPT_ETAP_14.md) | [karty](karty/E14_CI_I_WYDANIE.md); aneks D-40; jedyne wydanie planu |
 
 ## Bramki manualne
 
 - **Wybór wariantu dystrybucji G1 (A / B / C / bez zmiany) na liczbach z [POMIARY.md](POMIARY.md)**
-  · źródło: wpis dziennika 2026-11-10 (E2) · **OTWARTA**
+  · źródło: wpis dziennika 2026-11-10 (E2) · **ROZSTRZYGNIĘTA 2026-11-10 — decyzja Łukasza:
+  bez zmiany teraz, wybór później; sprawa świadomie otwarta w `docs/STATE.md`, „Co dalej”, z
+  liczbami z `POMIARY.md`**
 - **K-D2: odmowa przy `core.hooksPath` czy instalacja w katalogu, który wskazuje**
-  · źródło: wpis dziennika 2026-11-10 (E3) · **OTWARTA**
+  · źródło: wpis dziennika 2026-11-10 (E3) · **ROZSTRZYGNIĘTA 2026-11-10 — odmowa zostaje, bez
+  zmian w kodzie**
 - **K-D1: zamknięta lista rdzeni `_KEY` — potwierdzić albo poszerzyć**
-  · źródło: wpis dziennika 2026-11-10 (E3) · **OTWARTA**
+  · źródło: wpis dziennika 2026-11-10 (E3) · **ROZSTRZYGNIĘTA 2026-11-10 — lista potwierdzona
+  bez zmian**
 - **K-D4: świadome luki i świadome fałszywe blokady skanera — potwierdzić kompromis**
-  · źródło: wpis dziennika 2026-11-10 (E3) · **OTWARTA**
+  · źródło: wpis dziennika 2026-11-10 (E3) · **ROZSTRZYGNIĘTA 2026-11-10 — kompromis
+  potwierdzony**
 - **K-D7: lista `BASH_ZAPISU` (siedem wzorców) — rozszerzyć o inne polecenia testów czy zostawić**
-  · źródło: wpis dziennika 2026-11-10 (E6) · **OTWARTA**
+  · źródło: wpis dziennika 2026-11-10 (E6) · **ROZSTRZYGNIĘTA 2026-11-10 — siedem wzorców
+  zostaje; rozszerzenie przy pierwszym projekcie, który go potrzebuje**
 - **K-D7: Cursor bez `-f` — zmierzyć na żywo, czy koder uruchomi testy bez automatycznej zgody**
-  · źródło: wpis dziennika 2026-11-10 (E6) · **OTWARTA**
+  · źródło: wpis dziennika 2026-11-10 (E6) · **ROZSTRZYGNIĘTA 2026-11-10 — pomiar odroczony;
+  sprawa świadomie otwarta w `docs/STATE.md`, „Co dalej”**
 - **K-D6: `%` w ścieżce projektu na Windows — załoga odmawia; potwierdzić kompromis**
-  · źródło: wpis dziennika 2026-11-10 (E6) · **OTWARTA**
+  · źródło: wpis dziennika 2026-11-10 (E6) · **ROZSTRZYGNIĘTA 2026-11-10 — kompromis
+  potwierdzony**
 - **Effort wykonawcy Codeksa E10–E13: `xhigh` z `~/.codex/config.toml`, `high` w konfiguracji
   czy przekazanie effortu przez `crew.js`** · źródło: wpis dziennika 2026-11-10 (E9) ·
   **ROZSTRZYGNIĘTA 2026-11-10 — decyzja Łukasza: `gpt-6-luna` na `xhigh` (domyślny w
@@ -48,7 +56,9 @@ Karty zmian (załącznik planu, zamrażany razem z nim): [konwencje](karty/00_KO
   przekazuje tylko `-m`, więc `high` dla terra/sol ustawia Łukasz w konfiguracji Codeksa (bez
   zmiany `crew.js`); start E10 sprawdza, czy działa**
 - **Przepisać wstecz `PANEL_CODEX/PROMPT_ETAP_1.md` do kształtu z numerami zasad — teraz, przy
-  wznowieniu planu czy wcale** · źródło: wpis dziennika 2026-11-10 (E10) · **OTWARTA**
+  wznowieniu planu czy wcale** · źródło: wpis dziennika 2026-11-10 (E10) · **ROZSTRZYGNIĘTA
+  2026-11-10 — przy wznowieniu PANEL_CODEX, jako warunek startu jego E1; zapisane w
+  `docs/STATE.md` przy PANEL_CODEX**
 
 ## Dziennik wdrożenia
 
@@ -104,4 +114,7 @@ Karty zmian (załącznik planu, zamrażany razem z nim): [konwencje](karty/00_KO
   K-G2 — kopie rdzenia 4 × 21 → 16 / 13 / 8 / 2 pliki, 2 280 852 → 1 458 334 B (45 usunięć),
   2 nowe testy, `core/panel` 227, mody 91 / 217 / 51 / 206, bramka manualna przeszła; K-F4 i K-F5
   zdaniami w dzienniku; E14 GOTOWY DO STARTU, wygenerowany `PROMPT_ETAP_14.md`.
-- 2026-11-10 — E14 rozpoczęty
+- 2026-11-10 — E14 ZREALIZOWANY (Claude, bez Codeksa): K-G3 workflow `testy.yml` (po pierwszym
+  czerwonym przebiegu krok `autocrlf false`), K-E9 liczebniki i trzeci aneks D-40, K-W1 11/11,
+  K-W2 scalenie `a876a60`, K-W3 wydanie 3.8.0 i czterech modów (`release-verify --sesja` 5/5),
+  K-W4 osiem bramek rozstrzygniętych; plan ZREALIZOWANY i przeniesiony do archiwum.

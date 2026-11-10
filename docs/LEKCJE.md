@@ -204,7 +204,7 @@ w wyzwalacz, przed pracą doczytujesz pełne brzmienie zasady z sekcji „Pełne
      jako dwie kopie pod innymi nazwami, instalacja wyłączona `--settings` (L-0283); w poleceniu
      Bash nigdy gołe `cd`, w żadnym katalogu, także `cd` do korzenia repo na początku łańcucha —
      ścieżka w argumencie albo podpowłoka, do wydania `bash-guard` bez wyjątku także dla
-     `cd <repo> &&` na początku (L-0298, L-0302, L-0311, L-0314); instrument tury nie liczy lokalnych komend (`/model`) jako polecenia (L-0299).
+     `cd <repo> &&` na początku ani w środku łańcucha (L-0298, L-0302, L-0311, L-0314, L-0318); instrument tury nie liczy lokalnych komend (`/model`) jako polecenia (L-0299).
    (L-0032, L-0037, L-0054, L-0055, L-0056, L-0064, L-0068, L-0071, L-0073, L-0083, L-0084, L-0086,
    L-0087, L-0088, L-0090, L-0091, L-0095, L-0096, L-0097, L-0101, L-0102, L-0105, L-0106, L-0107,
    L-0110, L-0111, L-0113, L-0124, L-0125, L-0127, L-0130, L-0131, L-0135, L-0141, L-0143, L-0151,
@@ -255,8 +255,9 @@ w wyzwalacz, przed pracą doczytujesz pełne brzmienie zasady z sekcji „Pełne
     który przewrócił wzorzec, wchodzi do kontroli dosłownie. Przeniesienie katalogu z cudzego
     manifestu — najpierw na kopii, walidatorem. Regułę dostawcy przepisujesz po ponownym odczycie
     źródła, z jej zakresem. Przed liczeniem diffu `git ls-files --eol` — `w/crlf` przy `i/lf`
-    normalizujesz do LF, bo `git status` o nim milczy (L-0297). (L-0033, L-0038, L-0057, L-0062,
-    L-0067, L-0103, L-0122, L-0297)
+    normalizujesz do LF, bo `git status` o nim milczy (L-0297); workflow CI na Windows ustawia
+    `core.autocrlf false` przed checkoutem (L-0319). (L-0033, L-0038, L-0057, L-0062,
+    L-0067, L-0103, L-0122, L-0297, L-0319)
 12. **Guardrail zatrzymujący nie-sekret to defekt rdzenia** — poprawka z dowodem, nie obejście;
     wołany przez opakowanie powłoki (brak interpretera = blokada); próbki sekretów składane
     w czasie wykonania; cudzysłów (także backtick) należy do grupy cudzysłowu, nie do wartości.
@@ -964,6 +965,31 @@ w wyzwalacz, przed pracą doczytujesz pełne brzmienie zasady z sekcji „Pełne
   każdym przebiegiem Codeksa Claude sprawdza `git ls-files --eol` plików z `--files`;
   `w/crlf` przy `i/lf` normalizuje do LF skryptem pisanym przez Write (L-0297) i dopiero wtedy
   uruchamia przebieg. Plik zadania mówi wyłącznie „repozytorium trzyma LF”.
+
+### L-0318 — Piąta powtórka L-0298: gołe `cd` w pętli przestawiło katalog sesji na resztę etapu · 2026-11-10 · AKTYWNA
+
+- **Trigger:** OPTYMALIZACJA_PO_AUDYCIE E14, K-E9. Polecenie klasyfikujące hooki miało w środku
+  `cd adapters/claude-code/hooks 2>/dev/null; for f in adapters/…` — katalog sesji przeszedł do
+  `adapters/claude-code/hooks` i został tam do końca sesji (harness przenosi `cd`), a pętla nie
+  znalazła plików. Dalej każde polecenie szło z pełnymi ścieżkami albo w podpowłoce.
+- **Przyczyna:** to samo co L-0314 — w sesji pracował hook 3.7.0 bez `bash-guard`; `cd` wpisane
+  „na chwilę” w polecenie pomocnicze, nie na jego początku.
+- **Zasada:** bez zmian (zasada 5, L-0314): żadnego `cd` poza podpowłoką, także w środku
+  łańcucha. Od 3.8.0 `bash-guard` ostrzega przed gołym `cd` — pierwsza sesja po restarcie
+  aplikacji to sprawdza.
+
+### L-0319 — Pierwszy przebieg CI na Windows: runner robi checkout z `core.autocrlf=true` · 2026-11-10 · AKTYWNA
+
+- **Trigger:** OPTYMALIZACJA_PO_AUDYCIE E14, K-W2. Workflow `testy.yml` na `windows-latest`:
+  2 z 28 testów `adapters/codex` (`skill-parity.test.js`) czerwone — każdy plik skilli z inną
+  sumą. Lokalnie zielono, bo ten klon ma `autocrlf=false`. Hipotezę potwierdziły dwa lokalne
+  klony w jednym przebiegu: `-c core.autocrlf=true` → 2 fail, `false` → 0 fail. Krok
+  `git config --global core.autocrlf false` przed checkoutem → zielono.
+- **Zasada:** workflow na Windows, którego testy porównują bajty plików, ustawia
+  `core.autocrlf false` przed `actions/checkout`. Rozjazd CI z lokalnym przebiegiem najpierw
+  odtwarzasz lokalnie klonem w warunkach runnera, potem zmieniasz workflow — testów nie ruszasz.
+  Ta sama luka testu parzystości w zwykłym klonie z `autocrlf=true` zostaje w „Co dalej”
+  (PIPELINE_WYDAN).
 
 ## Lekcje zwinięte
 

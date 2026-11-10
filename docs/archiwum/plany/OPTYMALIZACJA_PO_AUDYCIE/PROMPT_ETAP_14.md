@@ -184,28 +184,28 @@ zaraz po jego sprawdzeniu, nie na końcu etapu; punkt, który nie przeszedł, zo
 - [x] K-W2 (po „Tak” człowieka): `git log --oneline -1` na `main` → commit scalający
       `merge: plan OPTYMALIZACJA_PO_AUDYCIE`; `gh run list --workflow testy.yml --limit 1` →
       `completed success`.
-- [ ] K-W3: nowy tag w `git tag --list "v*"` i na `origin`; `gh release view <tag>` zwraca wydanie;
+- [x] K-W3: nowy tag w `git tag --list "v*"` i na `origin`; `gh release view <tag>` zwraca wydanie;
       `release-verify.js --sesja` kod 0 dla `relai` i każdego wydanego modu (pięć pozycji z listy
       „Do podbicia”, chyba że człowiek rozstrzygnął inaczej); wersje potwierdzone plikiem instalacji
       po `claude plugin update … --scope user` (zasada 10).
-- [ ] Bezpieczeństwo: `trivy fs --scanners vuln .` → 0 nowych CRITICAL i HIGH wobec wpisu E13
+- [x] Bezpieczeństwo: `trivy fs --scanners vuln .` → 0 nowych CRITICAL i HIGH wobec wpisu E13
       (zastane: 0 CRITICAL, 42 HIGH); etap nie dodaje zależności (`git diff --stat main~1 --
       "*package.json" "*lock*"` po scaleniu → bez zmian z E14). Zapas bez Trivy: `npm audit
       --omit=dev` w katalogu każdego śledzonego `package.json`. Workflow ma `permissions:
       contents: read` i akcje przypięte skrótem commita.
-- [ ] K-W4 — blokujące: każda z ośmiu bramek `OTWARTA` w `STATUS.md` ma status `ROZSTRZYGNIĘTA
+- [x] K-W4 — blokujące: każda z ośmiu bramek `OTWARTA` w `STATUS.md` ma status `ROZSTRZYGNIĘTA
       <data> — <jak>` z odpowiedzi człowieka; otwarte odnogi rozstrzygnięte (`OPIS_REPO` dotyczy
       planu? — sprawdzasz, nie zakładasz).
-- [ ] K-W4 — zamknięcie: `grep -n "^Aktywny plan" CLAUDE.md AGENTS.md` → w obu `Aktywny plan: brak`
+- [x] K-W4 — zamknięcie: `grep -n "^Aktywny plan" CLAUDE.md AGENTS.md` → w obu `Aktywny plan: brak`
       z odsyłaczem do `docs/archiwum/plany/OPTYMALIZACJA_PO_AUDYCIE/STATUS.md`;
       `ls docs/plany/OPTYMALIZACJA_PO_AUDYCIE` → brak katalogu; `node .claude/relai/tools/start-digest.js`
       kod 0 i sekcja „Aktywny plan” mówi o braku planu; linki w `docs/STATE.md` i w sekcji „Czeka na
       człowieka” prowadzą do istniejących plików (punkt 7a).
-- [ ] Wpis zamykający jest na końcu sekcji „Wpisy” w `docs/DZIENNIK.md`: dowiezione wobec planu
+- [x] Wpis zamykający jest na końcu sekcji „Wpisy” w `docs/DZIENNIK.md`: dowiezione wobec planu
       liczbami (testy, skrót startu, odczyty plików testowych, znaleziska), wynik K-W1–K-W3,
       rozstrzygnięcia bramek, ryzyka O4/R5/P1 z numerami kart, znaleziska niskiej wagi jednym
       zdaniem, podpis `Autor: RelAI (Opus 5.5) + Lukasz`.
-- [ ] Katalog roboczy: (a) `.claude/relai/work/OPTYMALIZACJA_PO_AUDYCIE/E14/` przejrzany
+- [x] Katalog roboczy: (a) `.claude/relai/work/OPTYMALIZACJA_PO_AUDYCIE/E14/` przejrzany
       (`node .claude/relai/tools/clean-work.js raport`; katalog otwartego etapu raport pomija — wtedy
       liczby z `find`/`du`) i skasowany po „tak”, liczby przed i po we wpisie; (b) artefakty spoza
       katalogu wypisane z nazwy razem z tym, co się z nimi stało (np. katalogi sesji
