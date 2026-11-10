@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 'use strict';
-// RelAI hook: secret-scanner — PreToolUse (Write/Edit), BLOKUJE (D-41, D-42).
+// RelAI hook: secret-scanner — PreToolUse (Write/Edit/MultiEdit/NotebookEdit, Bash), BLOKUJE (D-41, D-42).
 // Blokuje zapis sekretu do pliku projektu, ktorego git nie ignoruje; pliki objete .gitignore przechodza.
 // Konwencja hook-guard (docs/PRZEWODNIK.md, sekcja "Konwencja: hook-guard"): poza projektem RelAI
 // hook konczy sie kodem 0 bez zadnego efektu; awaria guarda = wyjscie bez efektu.
@@ -40,9 +40,10 @@ const { spawnSync } = require('child_process');
 // ten sam kod czyta adapter Cursora, wiec nie ma gdzie sie rozjechac (P4).
 let scanText;
 let projektDlaPlikuCore;
+let relaiMarkerFileCore;
 try {
   ({ scanText } = require(path.resolve(__dirname, '..', '..', '..', 'core', 'guardrails', 'secret-scan.js')));
-  ({ projektDlaPliku: projektDlaPlikuCore } =
+  ({ projektDlaPliku: projektDlaPlikuCore, relaiMarkerFile: relaiMarkerFileCore } =
     require(path.resolve(__dirname, '..', '..', '..', 'core', 'process', 'session-signals.js')));
 } catch (e) {
   pytajPoAwarii(e);
@@ -77,11 +78,70 @@ function stanGita(cwd, filePath) {
   }
 }
 
+function odmow(msg) {
+  console.log(JSON.stringify({
+    hookSpecificOutput: {
+      hookEventName: 'PreToolUse',
+      permissionDecision: 'deny',
+      permissionDecisionReason: msg,
+    },
+  }));
+  process.exit(0);
+}
+
+// K-D8: polecenie powloki nie ma pliku docelowego; projekt liczy sie od katalogu sesji.
+function skanujPolecenie(cwd, ti) {
+  const cmd = typeof ti.command === 'string' ? ti.command : '';
+  if (!cmd.trim() || !relaiMarkerFileCore(cwd, ['.claude/relai.json'])) return process.exit(0);
+  const finding = scanText(cmd);
+  if (!finding) return process.exit(0);
+  return odmow('RelAI secret-scanner: wykryto ' + finding + ' w poleceniu powloki. Polecenie nie zostalo ' +
+    'uruchomione: sekret w poleceniu trafia do transkryptu i historii powloki, a przekierowanie zapisuje go ' +
+    'do pliku (D-42). Wartosc trzymaj w .env objetym .gitignore i czytaj ze zmiennej srodowiskowej. ' +
+    'Wartosc nie zostala zacytowana celowo.');
+}
+
+// K-D8: tresc pliku PO zastosowaniu Edit/MultiEdit. Sekret zlozony z dwoch edycji nie stoi
+// w zadnym new_string z osobna; o werdykcie decyduje to, co edycja wnosi (plik przed vs po).
+const LIMIT_PELNEGO_SKANU = 512 * 1024; // B; wiekszy plik: skan samego new_string (koszt, D10)
+const bezCR = (s) => String(s).replace(/\r\n/g, '\n');
+
+// Zamiana przez slice, nie String.prototype.replace: new_string z "$&" albo "$1" bylby wzorcem.
+function zastosuj(tekst, stary, nowy, wszystkie) {
+  if (!stary) return null;
+  const i = tekst.indexOf(stary);
+  if (i === -1) return null; // narzedzie i tak odrzuci edycje; zostaje skan new_string
+  if (wszystkie) return tekst.split(stary).join(nowy);
+  return tekst.slice(0, i) + nowy + tekst.slice(i + stary.length);
+}
+
+function sekretZlozony(tool, ti, abs) {
+  if (tool !== 'Edit' && tool !== 'MultiEdit') return null;
+  let przed;
+  try {
+    if (fs.statSync(abs).size > LIMIT_PELNEGO_SKANU) return null;
+    przed = bezCR(fs.readFileSync(abs, 'utf8'));
+  } catch (_) {
+    return null; // pliku nie ma: edycja sie nie uda, a new_string sprawdzono wyzej
+  }
+  const edycje = tool === 'Edit' ? [ti] : (Array.isArray(ti.edits) ? ti.edits : []);
+  let po = przed;
+  for (const e of edycje) {
+    const nastepny = zastosuj(po, bezCR(e.old_string || ''), bezCR(e.new_string || ''), !!e.replace_all);
+    if (nastepny === null) return null;
+    po = nastepny;
+  }
+  const werdykt = scanText(po);
+  if (!werdykt || scanText(przed)) return null;
+  return werdykt + ' (zlozone z tresci pliku i tej edycji)';
+}
+
 function main(input) {
   const cwd = input.cwd || process.cwd();
 
   const tool = input.tool_name || '';
   const ti = input.tool_input || {};
+  if (tool === 'Bash') return skanujPolecenie(cwd, ti);
   const filePath = ti.file_path || ti.notebook_path || '';
   if (!filePath) return process.exit(0);
 
@@ -103,7 +163,7 @@ function main(input) {
   const git = stanGita(projekt.root, abs);
   if (git === 'ignorowany') return process.exit(0);
 
-  const finding = scanText(payload);
+  const finding = scanText(payload) || sekretZlozony(tool, ti, abs);
   if (!finding) return process.exit(0);
 
   const rel = path.relative(projekt.root, abs) || abs;
@@ -114,14 +174,7 @@ function main(input) {
     '. Sekrety trzymaj wylacznie w .env objetym .gitignore (D-42); do repozytorium moze trafic ' +
     'co najwyzej NAZWA zmiennej srodowiskowej. Wartosc nie zostala zacytowana celowo. ' +
     'Poluzowanie tej reguly wymaga swiadomej decyzji zamrozonej w docs/DECYZJE.md.';
-  console.log(JSON.stringify({
-    hookSpecificOutput: {
-      hookEventName: 'PreToolUse',
-      permissionDecision: 'deny',
-      permissionDecisionReason: msg,
-    },
-  }));
-  process.exit(0);
+  return odmow(msg);
 }
 
 let raw = '';

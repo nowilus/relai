@@ -14,8 +14,8 @@ Karty zmian (załącznik planu, zamrażany razem z nim): [konwencje](karty/00_KO
 | E2 | Pomiary na żywo i warianty dystrybucji | ZREALIZOWANY 2026-11-10 | [PROMPT_ETAP_2.md](PROMPT_ETAP_2.md) | [karty](karty/E02_POMIARY_NA_ZYWO.md); do 10 sesji `claude -p`; wynik w `POMIARY.md` |
 | E3 | Skaner sekretów i pre-commit | ZREALIZOWANY 2026-11-10 | [PROMPT_ETAP_3.md](PROMPT_ETAP_3.md) | [karty](karty/E03_SKANER_I_PRECOMMIT.md) |
 | E4 | Guardy Claude Code | ZREALIZOWANY 2026-11-10 | [PROMPT_ETAP_4.md](PROMPT_ETAP_4.md) | [karty](karty/E04_GUARDY_CLAUDE_CODE.md) |
-| E5 | Hook poleceń i kontrola przy zatrzymaniu | GOTOWY DO STARTU | [PROMPT_ETAP_5.md](PROMPT_ETAP_5.md) | [karty](karty/E05_HOOK_POLECEN_I_STOP.md); po E4; karta K-C9 zależy od werdyktu z E2 |
-| E6 | Adaptery i załoga | OCZEKUJE | — | [karty](karty/E06_ADAPTERY_I_ZALOGA.md) |
+| E5 | Hook poleceń i kontrola przy zatrzymaniu | ZREALIZOWANY 2026-11-10 | [PROMPT_ETAP_5.md](PROMPT_ETAP_5.md) | [karty](karty/E05_HOOK_POLECEN_I_STOP.md); po E4; karta K-C9 zależy od werdyktu z E2 |
+| E6 | Adaptery i załoga | GOTOWY DO STARTU | [PROMPT_ETAP_6.md](PROMPT_ETAP_6.md) | [karty](karty/E06_ADAPTERY_I_ZALOGA.md) |
 | E7 | Koszt hooka startu | OCZEKUJE | — | [karty](karty/E07_KOSZT_HOOKA_STARTU.md); karta K-A6 zależy od werdyktu z E2 |
 | E8 | Skrót startu, progi i lista modeli | OCZEKUJE | — | [karty](karty/E08_SKROT_PROGI_MODELE.md); aneks D-88 |
 | E9 | Tryb ciągły | OCZEKUJE | — | [karty](karty/E09_TRYB_CIAGLY.md); po E7; aneks D-93 |
@@ -54,3 +54,6 @@ Karty zmian (załącznik planu, zamrażany razem z nim): [konwencje](karty/00_KO
   `PROMPT_ETAP_4.md`.
 - 2026-11-10 — E4 ZREALIZOWANY: trzy karty (K-C10 ścieżka A, K-C4, K-C6), 15 nowych testów,
   `core/process` 372; E5 GOTOWY DO STARTU, wygenerowany `PROMPT_ETAP_5.md`.
+- 2026-11-10 — E5 ZREALIZOWANY: trzy karty (K-D8, K-E3, K-C9 przy `C9: NIE WIDZI`, odpowiedzi
+  „Tak” i „Przenieść”), piętnasty hook `bash-guard`, 17 nowych testów, `core/process` 389; E6
+  GOTOWY DO STARTU, wygenerowany `PROMPT_ETAP_6.md`.

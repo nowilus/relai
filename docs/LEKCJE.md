@@ -206,7 +206,7 @@ w wyzwalacz, przed pracą doczytujesz pełne brzmienie zasady z sekcji „Pełne
    L-0110, L-0111, L-0113, L-0124, L-0125, L-0127, L-0130, L-0131, L-0135, L-0141, L-0143, L-0151,
    L-0160, L-0164, L-0169, L-0170, L-0173, L-0181, L-0211, L-0213, L-0215, L-0238, L-0239, L-0240,
    L-0242, L-0243, L-0246, L-0247, L-0248, L-0249, L-0257, L-0258, L-0259, L-0261, L-0262, L-0265,
-   L-0267, L-0268, L-0270, L-0283, L-0290, L-0298, L-0299, L-0302, L-0309, L-0311)
+   L-0267, L-0268, L-0270, L-0283, L-0290, L-0298, L-0299, L-0302, L-0309, L-0311, L-0312)
 6. **Próg jest liczbą, którą ktoś liczy:** kalibrujesz na realnych plikach, zapisujesz w jednostce
    mechanizmu z komendą sprawdzającą, z **jednym** wyzwalaczem. Porównujesz do wielkości, którą
    mechanizm kontroluje (część usuwalna); zatkanie sygnalizuje **różnica możliwego i wykonanego**,
@@ -883,6 +883,17 @@ w wyzwalacz, przed pracą doczytujesz pełne brzmienie zasady z sekcji „Pełne
   korzenia repo na początku łańcucha; zamiast drugiego `cd` zmienna ze ścieżką (`H=…; $H/plik`)
   albo `git -C`. Glob dla `node --test` idzie ze ścieżką względną w podpowłoce — ścieżka
   `/c/…` w globie dała 0 testów (instrument, nie wynik).
+
+### L-0312 — Fikstura z `home` w drzewie roboczym zagłuszyła sygnał hooka Stop · 2026-11-10 · AKTYWNA
+
+- **Trigger:** OPTYMALIZACJA_PO_AUDYCIE E5, skrypt efektu widocznego karty K-E3. Fikstura trzymała
+  katalog `home/` (pusty `.gitconfig` dla izolacji gita) wewnątrz repozytorium fikstury. Hook Stop
+  zobaczył `home/` jako niezacommitowany kod i dał komunikat „W drzewie roboczym…” zamiast
+  sprawdzanego zdania „Od ostatniego wpisu dziennika…”. Testy tej samej karty były zielone, bo ich
+  `home` leżał obok repozytorium, nie w nim.
+- **Zasada:** fikstura hooka czytającego `git status` trzyma swoje pomocnicze katalogi (`home`,
+  konfigurację, wyjścia) **poza** repozytorium fikstury albo w jej `.gitignore`; skrypt efektu
+  piszesz z tego samego układu co test karty.
 
 ## Lekcje zwinięte
 

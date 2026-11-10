@@ -1,6 +1,6 @@
 # STATE — RelAI
 
-Stan na: 2026-11-10 (plan OPTYMALIZACJA_PO_AUDYCIE: E1–E4 zrealizowane, E5 gotowy do startu; ostatni zamknięty plan KONTEKST_STARTU ZREALIZOWANY — RelAI 3.7.0 z lżejszym
+Stan na: 2026-11-10 (plan OPTYMALIZACJA_PO_AUDYCIE: E1–E5 zrealizowane, E6 gotowy do startu; ostatni zamknięty plan KONTEKST_STARTU ZREALIZOWANY — RelAI 3.7.0 z lżejszym
 startem sesji, `relai-progress` 0.7.1; tego samego dnia ZASIEG_PLUGINU — wydanie 3.6.0;
 poprzednio ZGLOSZENIA 2026-10-27 — wydanie 3.5.0)
 
@@ -17,7 +17,7 @@ bramka `pre-push` na tagi. Na maszynie Łukasza `relai`, `relai-panel` i `relai-
 są włączone na poziomie użytkownika, a w projektach z markerem RelAI także lokalnie (stan
 z `relai-scope.js status`, 2026-11-10); tryb „RelAI tylko w projektach” jest dostępny
 (`relai-scope.js apply`), ale nie jest włączony. Od 2026-11-09 aktywny jest plan OPTYMALIZACJA_PO_AUDYCIE (naprawy po audycie
-projektu; E1–E4 zrealizowane 2026-11-10, etap E5 gotowy do startu). Poprzedni: KONTEKST_STARTU zamknięty 2026-10-28 (start sesji to jedno
+projektu; E1–E5 zrealizowane 2026-11-10, etap E6 gotowy do startu). Poprzedni: KONTEKST_STARTU zamknięty 2026-10-28 (start sesji to jedno
 polecenie skrótu, RelAI po pierwszej turze 25–32 tys. tokenów zamiast ok. 72 tys. — cel 25 tys.
 częściowo), PANEL_CODEX (Codex) wstrzymany 2026-10-27 decyzją Łukasza.
 Opinii spoza projektu nadal nie ma.
@@ -126,7 +126,11 @@ Opinii spoza projektu nadal nie ma.
   `core.hooksPath` i worktree; 33 testy `core/guardrails`), E4 zrealizowany 2026-11-10 (guardy
   Claude Code: awaria hooka zostawia ślad `[RelAI <hook>] blad: <nazwa>`, guardy przy błędzie
   pytają, każdy raport startu ma własny `try`, ostrzeżenia i skaner pomijają pliki spoza katalogu
-  projektu, ochrona `CLAUDE.md` odporna na CRLF; `core/process` 372 testy), E5 gotowy do startu** (plan
+  projektu, ochrona `CLAUDE.md` odporna na CRLF; `core/process` 372 testy), E5 zrealizowany
+  2026-11-10 (sekret w poleceniu `Bash` i sekret złożony z edycji blokuje `secret-scanner`, nowy
+  ostrzegawczy hook `bash-guard` na cztery nawyki powłoki, hook Stop przypomina o commitach kodu
+  od ostatniego wpisu dziennika, `journal-signature` bierze wpis najnowszy, oba przypomnienia idą
+  do modelu przez `additionalContext`; `core/process` 389 testów), E6 gotowy do startu** (plan
   [OPTYMALIZACJA_PO_AUDYCIE](plany/OPTYMALIZACJA_PO_AUDYCIE/STATUS.md), 14 etapów, wykonanie Opus 5.5
   medium w świeżych sesjach, gałąź `optymalizacja/po-audycie`, jedno wydanie na końcu). Źródło:
   [raport audytu](AUDYT_RELAI_2026-11-09.md) — 56 znalezisk, do naprawy wybrane 41 wysokiej

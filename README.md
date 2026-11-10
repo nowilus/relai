@@ -196,7 +196,8 @@ pamięci modelu — reguła w kontekście, bez blokady.
 
 | Hook Claude Code | Co robi | Cursor | Codex |
 |---|---|---|---|
-| `secret-scanner` | blokuje zapis klucza do pliku śledzonego przez gita | hook | hook |
+| `secret-scanner` | blokuje zapis klucza do pliku śledzonego przez gita i polecenie powłoki z kluczem | hook | hook |
+| `bash-guard` | ostrzega przed poleceniem powłoki, które łamie regułę projektu: gołe `cd`, `sed -i` na dokumencie, backslash w `node -e` albo heredoku, `/tmp/` z Node | brak | brak |
 | `config-protection` | zmiana reguł projektu lub ustawień wraca jako pytanie; konfiguracja produkcyjna wymaga kopii stanu | reguła | tylko pamięć modelu |
 | `session-context` | na starcie: data, rytuał startu, wersja, sygnały wymagające reakcji | hook | hook |
 | `doc-sync-reminder` | zmiana kodu bez wpisu do dziennika kończy się przypomnieniem | reguła | przypomnienie na końcu sesji |

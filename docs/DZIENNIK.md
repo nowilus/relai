@@ -2314,3 +2314,91 @@ Lekcja z etapu: L-0311 (trzecia powtórka L-0298 — drugie `cd` w łańcuchu pr
 sesji; reguła w `CLAUDE.md` już stoi, poszerzona w zasadzie 5 o `cd` do korzenia repo).
 
 Autor: RelAI (Opus 5.5) + Lukasz
+
+### 2026-11-10 — OPTYMALIZACJA_PO_AUDYCIE E5: sekret w poleceniu powłoki, `bash-guard`, siatka Stop po commitach
+
+Autor: RelAI (Opus 5.5) + Lukasz
+
+Etap E5 z E14, trzy karty z `karty/E05_HOOK_POLECEN_I_STOP.md` w kolejności K-D8 → K-E3 → K-C9.
+Gałąź `optymalizacja/po-audycie`, punkt wyjścia `5ff5147` (commit E4). Zmiana działa w sesjach
+dopiero po wydaniu w E14 — w tej sesji pracowały hooki zainstalowanego 3.7.0; dowodem są testy
+i uruchomienie hooków z repozytorium na fiksturze.
+
+**Pytanie startowe** (jedno AskUserQuestion przed pierwszą zmianą kodu): (a) skan sekretu
+w poleceniu powłoki w `secret-scanner`, `bash-guard` tylko ostrzega (D-41 bez zmian) — **„Tak”**;
+(b) przy `C9: NIE WIDZI` przypomnienie hooka Stop przez `additionalContext` — **„Przenieść”**.
+
+**Zrobione:**
+
+- K-D8: `hooks.json` — grupa `^Bash$` w `PreToolUse` z `secret-scanner`. `secret-scanner.js`:
+  import `relaiMarkerFile`, `odmow(msg)` (oba werdykty `deny` przez nią), `skanujPolecenie` przed
+  `const filePath` (projekt od katalogu sesji), `zastosuj` (zamiana przez `slice`),
+  `sekretZlozony` z `LIMIT_PELNEGO_SKANU` 512 KB i `bezCR`; `scanText(payload) ||
+  sekretZlozony(...)`; nagłówek linii 3. Wiersze `README.md` (`secret-scanner` „… i polecenie
+  powłoki z kluczem”) i `docs/PRZEWODNIK.md` (`sekretów`). Test `secret-scanner-d8.test.js`
+  (5 przypadków).
+- K-E3: nowy `adapters/claude-code/hooks/bash-guard.js` (kod z karty, piętnasty hook) dopięty
+  w grupie `^Bash$` po `secret-scanner`. `doc-sync-reminder.js`: `ostatniWpis` z rdzenia,
+  `jestKodem`, `jestDokumentemStanu`, `commityBezWpisu` (jedno `git log --since="<data> 00:00:00"`,
+  limit 5 s, `--max-count=200`), blok w `main` zastąpiony wg karty (czyste drzewo sprawdza teraz
+  commity), zdanie w nagłówku. Wiersze `bash-guard` w README i „nawyków powłoki” w PRZEWODNIKU.
+  Testy `bash-guard.test.js` (7 przypadków, tabela 26 poleceń) i `doc-sync-reminder.test.js` (2).
+- K-C9: `journal-signature.js` — `ostatniWpis` przez rdzeń (wpis najnowszy, także dziennik
+  malejący i nagłówek `##`); przy `C9: NIE WIDZI` oba komunikaty przez `powiedzModelowi`
+  (`hookSpecificOutput`, `hookEventName: 'PostToolUse'`). `doc-sync-reminder.js` (odpowiedź
+  „Przenieść”) — oba komunikaty przez `powiedzModelowi` z `hookEventName: 'Stop'`, `…` → `...`,
+  warunek `stop_hook_active` bez zmian w `main`. Test `journal-signature.test.js` (3 przypadki).
+
+**Zweryfikowane — jak dokładnie:**
+
+- `git branch --show-current` → `optymalizacja/po-audycie`; `grep -c "function slad"
+  doc-sync-reminder.js` → 1; `grep -n "^C9:" POMIARY.md` → `7:C9: NIE WIDZI`.
+- Przebiegi czerwone przed zmianą (zapisane w katalogu roboczym): K-D8 — 5/5 z asercji (1, 3, 4, 5
+  „dostaje werdykt”, 2 „grupa PreToolUse pasujaca do Bash”); K-E3 — 7/7 `bash-guard` z asercji kodu
+  0 (hooka nie było), test 7 z asercji listy grupy, oba przypadki główne `doc-sync-reminder`
+  z asercji dopasowania; K-C9 — 3/3 z asercji (`cisza` zamiast `brak autora`, `brak autora`
+  zamiast `cisza`, brak wyjścia dla dziennika malejącego).
+- Po zmianie: `secret-scanner-d8` 5, `bash-guard` 7, `doc-sync-reminder` 2, `journal-signature` 3
+  pass; testy E4 (`hook-failures`, `hook-project-scope`, `config-protection-crlf`) zielone.
+- `node --test "core/process/tests/*.test.*"` → **389 pass**, 0 fail (przed etapem 372; delta
+  +5 +9 +3 = 17, zgodnie z kartą przy `NIE WIDZI`); `core/guardrails` → 33 pass (bez zmian).
+  `git status --short core/process/tests` → wyłącznie cztery nowe pliki.
+- `node core/tools/validate-adapters.js` → kod 0, jedno ostrzeżenie (`security-audit/SKILL.md`),
+  `wywolania z hooks.json: 20`, `odwolania z kodu adapterow do rdzenia: 29` (po K-D8 19/26, po
+  K-E3 20/28).
+- `node core/tools/release-check.js --tylko readme-hooki` → jeden błąd: „proza sekcji hookow mowi
+  "czternaście" (14), a hookow jest 15” — stan oczekiwany do K-E9 w E14; wierszy tabeli 15.
+- Efekt widoczny (skrypt w katalogu roboczym, hooki z repozytorium, fikstura z markerem):
+  `export` z sekretem składanym w czasie działania → `deny`, powód „… w poleceniu powloki …
+  Wartosc nie zostala zacytowana celowo.”; `cd x && y` → `additionalContext` z „golego cd”, bez
+  `permissionDecision`; Stop po commicie `src/a.js` z 2026-11-03 przy wpisie z 2026-11-01 →
+  `hookEventName: Stop`, „Od ostatniego wpisu dziennika (2026-11-01) jest 1 commitow …”. Pierwszy
+  przebieg skryptu dał „W drzewie roboczym … (home/)” — błąd instrumentu (katalog `home` fikstury
+  w jej drzewie), po `.gitignore` w fiksturze wynik zgodny (L-0312).
+- Trivy (`trivy fs --scanners vuln`): 0 CRITICAL, 42 HIGH, 50 MEDIUM, 12 LOW — identycznie jak
+  po E4; etap nie dodaje zależności. Nowych CRITICAL ani HIGH: 0.
+- Podstawy: `e.message` w dodanych liniach diffu hooków → 0; `git grep -nE` po `sk_live_…{16}`
+  i `github_pat_…{22}` → 0; `PASSWORD=` / `TOKEN=` w czterech nowych testach → 0 (nazwy i wartości
+  składane w czasie działania).
+- Katalog roboczy `.claude/relai/work/OPTYMALIZACJA_PO_AUDYCIE/E5/`: przed — 45 plików, 920 KB
+  (`find`/`du`; przebiegi czerwone, pełny przebieg `core/process`, raport Trivy, skrypt efektu
+  z fiksturą-repozytorium); po „tak” Łukasza — 0. Artefakty spoza katalogu: fikstury
+  `%TEMP%/relai-d8-*`, `relai-e3-*`, `relai-c9-*` sprzątają `t.after` testów — po etapie `ls` → 0.
+
+**Świadomie odłożone:**
+
+- Komentarz nagłówka `secret-scanner.js` w linii 6 („awaria guarda = wyjscie bez efektu”) nadal
+  nie opisuje zachowania przy awarii — K-D8 zmienia tylko linię 3; zostaje do K-E9 w E14.
+- Drugi komunikat `journal-signature` ma półpauzę („— bez czlonu”), czyli nie jest ASCII
+  (zasada 15); karta K-C9 każe przenieść „ten sam tekst”, więc tekst bez zmian.
+- Zastany katalog `adapters/claude-code/hooks/.claude/relai/` (z 2026-10-27) — jak w E4, nie
+  z tego etapu.
+- Przegląd ryzyk: C1 (API modów) — etap nie dotyka modów, bez zmiany; P1 (adaptery bez blokad
+  harnessu) — sekret w `Bash` blokuje teraz także Claude Code, Codex skanuje `Bash` od dawna;
+  Cursor to E6 — bez zmiany poziomu.
+- Rotacje dziennika, sekcji ryzyk i lekcji zgłoszone na starcie — poza etapem.
+
+**Do zrobienia przez człowieka:** —
+
+Lekcja z etapu: L-0312 (fikstura hooka czytającego `git status` trzyma swoje pomocnicze katalogi
+poza repozytorium fikstury).

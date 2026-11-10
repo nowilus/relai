@@ -123,11 +123,12 @@ Niżej to, czego pilnują; pełna lista hooków z odpowiednikami w Cursorze i Co
 
 | Pilnuje | Co się stanie |
 |---|---|
-| **sekretów** | zapis klucza `sk-…`, `ghp…`, `AKIA…`, tokenu JWT, klucza PEM albo przypisania `SECRET=` do pliku śledzonego przez gita zostaje **zablokowany**; ten sam zapis do pliku objętego `.gitignore` przechodzi |
+| **sekretów** | zapis klucza `sk-…`, `ghp…`, `AKIA…`, tokenu JWT, klucza PEM albo przypisania `SECRET=` do pliku śledzonego przez gita zostaje **zablokowany**; ten sam zapis do pliku objętego `.gitignore` przechodzi; polecenie powłoki z takim kluczem także zostaje **zablokowane** |
 | **reguł projektu** | zmiana sekcji niemutowalnej `CLAUDE.md` albo pliku ustawień wraca jako **pytanie** (werdykt `ask`) — zatrzymuje zapis tylko wtedy, gdy tryb uprawnień sesji ten werdykt egzekwuje; w trybie automatycznej akceptacji zmian przechodzi (zmierzone 2026-09-04). Skan sekretów tego ograniczenia nie ma — używa `deny` |
 | **konfiguracji produkcyjnej** | w projektach typu „agent głosowy" i „automatyzacja" zmiana bez kopii stanu sprzed zmiany zostaje **zatrzymana**: najpierw snapshot, potem zmiana |
 | **jakości** | `tsc` i eslint po edycji — ale tylko wtedy, gdy projekt naprawdę je ma |
 | **śmieci diagnostycznych** | `console.log` w zapisanym pliku dostaje ostrzeżenie |
+| **nawyków powłoki** | polecenie zaczynające się od gołego `cd`, `sed -i` na pliku `.md`, backslash w heredoku albo `node -e` i `/tmp/` w poleceniu z Node dostają **ostrzeżenie** przed wykonaniem; polecenie nie jest zatrzymywane |
 | **spójności wizualnej** | gdy projekt ma `docs/DESIGN.md`, odstępstwo od zapisanego kierunku jest sygnalizowane |
 | **aktualności dokumentów** | zmiana kodu bez wpisu do dziennika kończy się przypomnieniem |
 | **reguł rodzaju projektu** | pierwszy plik kodu, pierwszy ekran, pierwsze wdrożenie — każde z nich tworzy dokument, który wtedy ma sens (i ani chwili wcześniej); przed pierwszym wdrożeniem najpierw lista kontrolna, opis środowiska dopiero po nim (od 2.7.0) |

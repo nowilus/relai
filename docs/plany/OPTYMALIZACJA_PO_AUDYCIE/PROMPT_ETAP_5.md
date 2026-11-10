@@ -191,52 +191,52 @@ i pytasz: odnoga, aneks czy „świadomie odłożone”.
 Każdy punkt Weryfikacji, który przeszedł, odhaczasz w `PROMPT_ETAP_5.md` (`- [ ]` → `- [x]`)
 zaraz po jego sprawdzeniu, nie na końcu etapu; punkt, który nie przeszedł, zostaje pusty.
 
-- [ ] K-0 (konwencje, sekcja 3): `git branch --show-current` → `optymalizacja/po-audycie`;
+- [x] K-0 (konwencje, sekcja 3): `git branch --show-current` → `optymalizacja/po-audycie`;
       `grep -c "function slad" adapters/claude-code/hooks/doc-sync-reminder.js` → 1 (E4 zamknięty).
-- [ ] Pytanie startowe zadane przed pierwszą zmianą; odpowiedzi (a) i (b) zapisane we wpisie
+- [x] Pytanie startowe zadane przed pierwszą zmianą; odpowiedzi (a) i (b) zapisane we wpisie
       dziennika; `grep -n "^C9:" docs/plany/OPTYMALIZACJA_PO_AUDYCIE/POMIARY.md` → `C9: NIE WIDZI`.
-- [ ] Testy przed zmianą: każda karta ma zapisany w katalogu roboczym przebieg czerwony z właściwego
+- [x] Testy przed zmianą: każda karta ma zapisany w katalogu roboczym przebieg czerwony z właściwego
       powodu (K-D8: 1, 3, 4, 5 czerwone z asercji, 2 czerwony z asercji grupy; K-E3: 7 czerwonych
       — brak hooka daje kod 1 na asercji kodu 0 — oraz przypadki główne obu testów
       `doc-sync-reminder`; K-C9: przypadki dziennika malejącego czerwone z asercji).
-- [ ] `node --test core/process/tests/secret-scanner-d8.test.js` → 5 pass;
+- [x] `node --test core/process/tests/secret-scanner-d8.test.js` → 5 pass;
       `bash-guard.test.js` → 7 pass; `doc-sync-reminder.test.js` → 2 pass;
       `journal-signature.test.js` → 3 pass.
-- [ ] `node --test "core/process/tests/*.test.*"` → **389 pass** (albo suma od wpisu E4 plus delta
+- [x] `node --test "core/process/tests/*.test.*"` → **389 pass** (albo suma od wpisu E4 plus delta
       kart, opisana), 0 fail; `node --test "core/guardrails/tests/*.test.js"` → 33 pass. Żaden
       istniejący test nie zmieniony (`git status --short core/process/tests` pokazuje wyłącznie
       cztery nowe pliki).
-- [ ] `hooks.json`: grupa `PreToolUse` pasująca do `Bash` ma polecenia dokładnie
+- [x] `hooks.json`: grupa `PreToolUse` pasująca do `Bash` ma polecenia dokładnie
       `secret-scanner.js`, `bash-guard.js` w tej kolejności; grupa `Write` nie pasuje do `Bash`.
-- [ ] Efekt widoczny z karty (fikstura w katalogu roboczym, hooki z repozytorium): polecenie
+- [x] Efekt widoczny z karty (fikstura w katalogu roboczym, hooki z repozytorium): polecenie
       `export` z sekretem składanym w czasie działania → `deny` z `w poleceniu powloki`; polecenie
       `cd x && y` → `additionalContext` z `golego cd`, bez `permissionDecision`; hook Stop po
       commicie kodu bez wpisu dziennika → jedno zdanie `Od ostatniego wpisu dziennika`.
-- [ ] `node core/tools/validate-adapters.js` → kod 0, jedno ostrzeżenie (`security-audit/SKILL.md`),
+- [x] `node core/tools/validate-adapters.js` → kod 0, jedno ostrzeżenie (`security-audit/SKILL.md`),
       `wywolania z hooks.json: 20`, `odwolania z kodu adapterow do rdzenia: 29`.
-- [ ] `node core/tools/release-check.js --tylko readme-hooki` → dokładnie jeden błąd (proza
+- [x] `node core/tools/release-check.js --tylko readme-hooki` → dokładnie jeden błąd (proza
       „czternaście”, hooków 15) — stan oczekiwany do K-E9 w E14; README ma wiersz `bash-guard`,
       a wiersz `secret-scanner` kończy się „i polecenie powłoki z kluczem”.
-- [ ] Bezpieczeństwo (D-91): `/relai-security` (skan Trivy) — zero nowych CRITICAL i HIGH
+- [x] Bezpieczeństwo (D-91): `/relai-security` (skan Trivy) — zero nowych CRITICAL i HIGH
       wprowadzonych w tym etapie, liczby według wagi do wpisu (etap nie dodaje zależności; zastane —
       fikstury ewaluacji `trivy-scan` — nie blokują; po E4: 0 CRITICAL, 42 HIGH). Trivy brak → zapis
       „brak pliku zależności w `adapters/claude-code/hooks/` i `core/`” z wynikiem
       `git ls-files adapters/claude-code/hooks core | grep package.json` (pusty).
-- [ ] Podstawy na zmianie etapu: polecenie i treść pliku nie trafiają do komunikatu ani śladu
+- [x] Podstawy na zmianie etapu: polecenie i treść pliku nie trafiają do komunikatu ani śladu
       (komunikaty `deny` mówią „Wartosc nie zostala zacytowana celowo”, `grep -n "e.message"` w
       diffie hooków — żadne nowe trafienie w kodzie); `git grep -nE
       "sk_live_[A-Za-z0-9]{16}|github_pat_[A-Za-z0-9_]{22}"` → 0; Grep po `PASSWORD=` i `TOKEN=`
       w czterech nowych testach → 0 gotowych przypisań.
-- [ ] Granica: `git status --short` pokazuje z tego etapu wyłącznie pliki z pól „Pliki” trzech kart
+- [x] Granica: `git status --short` pokazuje z tego etapu wyłącznie pliki z pól „Pliki” trzech kart
       (`secret-scanner.js`, `hooks.json`, `bash-guard.js`, `doc-sync-reminder.js`,
       `journal-signature.js`, `README.md`, `docs/PRZEWODNIK.md`, cztery nowe testy) i dokumenty
       rytuału (`STATUS.md`, `PROMPT_ETAP_5.md`, `PROMPT_ETAP_6.md`, `DZIENNIK.md`, `STATE.md`,
       ewentualnie `LEKCJE.md`); pod `adapters/*/skills/relai-planning/` wyłącznie cztery zastane
       `*-closing.md`.
-- [ ] Wpis etapu jest na końcu sekcji „Wpisy” w `docs/DZIENNIK.md`, z liczbą testów `core/process`
+- [x] Wpis etapu jest na końcu sekcji „Wpisy” w `docs/DZIENNIK.md`, z liczbą testów `core/process`
       389 (albo zgodną z sumą, opisaną), z odpowiedziami (a) i (b), z wynikiem K-C9 i podpisem
       `Autor: RelAI (Opus 5.5) + Lukasz`.
-- [ ] Katalog roboczy: (a) `.claude/relai/work/OPTYMALIZACJA_PO_AUDYCIE/E5/` przejrzany
+- [x] Katalog roboczy: (a) `.claude/relai/work/OPTYMALIZACJA_PO_AUDYCIE/E5/` przejrzany
       (`node .claude/relai/tools/clean-work.js raport`; katalog otwartego etapu raport pomija —
       wtedy liczby z `find`/`du`) i skasowany po „tak”, liczby przed i po we wpisie dziennika;
       (b) artefakty spoza katalogu (fikstury `%TEMP%/relai-d8-*`, `relai-e3-*` i pozostałe z testów)
