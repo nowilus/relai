@@ -1,6 +1,6 @@
 # STATUS — plan OPTYMALIZACJA_PO_AUDYCIE
 
-Plan: [PLAN.html](PLAN.html) · Utworzony: 2026-11-09 · Status planu: **ZAAKCEPTOWANY 2026-11-09** · Model wykonawczy etapów: Opus 5.5 na effort medium, świeże sesje (wybór użytkownika, ustalony w Claude Code)
+Plan: [PLAN.html](PLAN.html) · Utworzony: 2026-11-09 · Status planu: **ZAAKCEPTOWANY 2026-11-09** · Model wykonawczy etapów: Opus 5.5 na effort medium, świeże sesje (wybór użytkownika, ustalony w Claude Code); od Aneksu A (2026-11-10) E9–E13: Codex gpt-6.1-terra (effort high), poprawki gpt-6.1-sol, orkiestracja i rytuał Opus 5.5 — [ANEKS_A_WYKONANIE_CODEX.md](ANEKS_A_WYKONANIE_CODEX.md)
 
 Karty zmian (załącznik planu, zamrażany razem z nim): [konwencje](karty/00_KONWENCJE.md) ·
 [ustalenia robocze](karty/USTALENIA_ROBOCZE.md) · źródło znalezisk:
@@ -73,3 +73,6 @@ Karty zmian (załącznik planu, zamrażany razem z nim): [konwencje](karty/00_KO
   z 2026-11-10), 4 nowe testy, `core/process` 409; dwa rozjazdy z kartą rozstrzygnięte przez
   Łukasza (asercja K-A3 zawężona, próg lekcji w sztukach uznany); E9 GOTOWY DO STARTU,
   wygenerowany `PROMPT_ETAP_9.md`.
+- 2026-11-10 — Aneks A ZAAKCEPTOWANY („Akceptuję”): E9–E13 wykonuje Codex (gpt-6.1-terra,
+  poprawki gpt-6.1-sol) przez `core/process/crew.js`, Claude orkiestruje, recenzuje i robi
+  rytuał; E14 bez zmian; aneks D-85.

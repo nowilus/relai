@@ -2706,3 +2706,41 @@ dopiero po wydaniu w E14; aneks D-88 i wiersz ustawień — od razu.
 **Do zrobienia przez człowieka:**
 
 —
+
+### 2026-11-10 — OPTYMALIZACJA_PO_AUDYCIE: Aneks A — etapy E9–E13 w Codeksie, Claude jako orkiestrator
+
+Autor: RelAI (Opus 5.5) + Lukasz
+
+Powód: od 2026-11-10 Łukasz ma subskrypcję Claude Pro (Team) zamiast Max — limit tygodnia nie
+uniesie pięciu etapów wykonywanych na Opusie. Wywiad (AskUserQuestion, dwie rundy) i aneks
+zaakceptowany słowem „Akceptuję”.
+
+**Zrobione:**
+
+- [ANEKS_A_WYKONANIE_CODEX.md](plany/OPTYMALIZACJA_PO_AUDYCIE/ANEKS_A_WYKONANIE_CODEX.md) w folderze
+  planu: powód, rozstrzygnięcia wywiadu, cztery warianty (wybrany: `node core/process/crew.js run
+  --runtime codex` z repozytorium, w tle), przepływ etapu, nakładka na prompt etapu, wyzwalacze
+  oszczędzające tokeny Claude, modele, ryzyka AX1–AX7, przypadki brzegowe, kroki wdrożenia.
+- Sekcja „Aneksy” w `PLAN.html` — akapit Aneksu A z linkiem; wiersz **D-85 → aneks** w tabeli
+  „Decyzje zmienione” w `docs/DECYZJE.md`; adnotacja w linii metrycznej `STATUS.md` i linia
+  w dzienniku wdrożenia.
+- Modele z listy `.claude/relai/MODELE-codex.md` odświeżonej przez Łukasza w Codeksie
+  (`list-date: 2026-11-10`): wykonawca `gpt-6.1-terra` (balanced, effort high), poprawki po
+  recenzji `gpt-6.1-sol` (strong; wybór Łukasza zamiast `gpt-6-astra`).
+
+**Zweryfikowane — jak dokładnie:**
+
+- Kopia `.claude/relai/tools/crew.js` (3.7.0) różni się od `core/process/crew.js` o 76 linii
+  po normalizacji CRLF; `zmienneInnychGospodarzy` — 0 trafień w kopii, jest w repozytorium
+  (poprawka E6). Stąd ryzyko AX1 i wybór wariantu A.
+- `codex --version` → `codex-cli 0.167.0`.
+
+**Świadomie odłożone:**
+
+- Przekazanie effortu do `codex exec` przez `crew.js` (biała lista przepuszcza `--model`) —
+  do zmierzenia w pierwszym przebiegu E9, wynik do wpisu E9.
+- `PROMPT_ETAP_9.md` bez zmian — kontrolę modelu zastępuje nakładka z sekcji 4.1 aneksu.
+
+**Do zrobienia przez człowieka:**
+
+—
