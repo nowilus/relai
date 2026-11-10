@@ -9,7 +9,7 @@ poprzednio ZGLOSZENIA 2026-10-27 — wydanie 3.5.0)
 RelAI **3.7.0** jest w repozytorium i publicznie (tag `v3.7.0`, 2026-10-28: lżejszy start sesji —
 plan KONTEKST_STARTU; wcześniej tego dnia 3.6.0 z trybem „RelAI tylko w projektach”). Plugin `relai` działa
 w trzech narzędziach — Claude Code, Cursorze i Codeksie — na jednym rdzeniu procesu, z szesnastoma
-komendami i czternastoma hookami w Claude Code (czternasty: `session-title`). Marketplace tego
+komendami i piętnastoma hookami w Claude Code (piętnasty: `bash-guard`). Marketplace tego
 repozytorium niesie też cztery mody: `relai-panel` 0.22.1, `relai-progress` 0.7.1,
 `relai-cache-keeper` 0.13.0 („early access”) i kokpit `relai-mods` 0.3.0. Wydanie robi się frazą „gotowi do wydania?”
 (`/relai-release`): raport `release-check.js`, naprawy po jednej zgodzie, publikacja krok po kroku,
@@ -282,7 +282,7 @@ pluginu panelu. Pre-commit repo: układ 1.9.2.
 sesji, artefakty robocze, załoga, tryb ciągły, baza reguł optymalizatora z nakładkami `claude`
 i `openai`, walidator, narzędzia wydań (`core/tools/release-*.js`, `release-map.json`), rdzeń
 panelu `core/panel/*.mjs`. **Adapter Claude Code**: dwa skille z plikami doczytywanymi,
-`trivy-scan` i kopia `security-audit` Cloudflare, 16 komend, 4 agenci, 14 hooków, lista modeli
+`trivy-scan` i kopia `security-audit` Cloudflare, 16 komend, 4 agenci, 15 hooków, lista modeli
 z 2026-10-08. **Adapter Cursor**: trzy reguły `.mdc`, dwa hooki, instalator, cztery skille.
 **Adapter Codex**: manifest, 16 skilli komend i 4 dołączone, router `AGENTS.md`, cztery hooki
 (z `lockfile-scan`); pakiet panelu `adapters/codex/panel/` w budowie wstrzymanej (PANEL_CODEX E1, od 2026-10-27).

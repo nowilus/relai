@@ -191,7 +191,7 @@ prowadź na modelu `strong`.
 ## Co pilnuje tylko Claude Code
 
 Twarde mechanizmy to **hooki** — skrypty uruchamiane przez narzędzie, nie przez model. Claude Code
-ma ich czternaście; Cursor i Codex po części. Tam, gdzie hooka nie ma, zasada stoi wyłącznie na
+ma ich piętnaście; Cursor i Codex po części. Tam, gdzie hooka nie ma, zasada stoi wyłącznie na
 pamięci modelu — reguła w kontekście, bez blokady.
 
 | Hook Claude Code | Co robi | Cursor | Codex |

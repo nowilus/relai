@@ -76,7 +76,7 @@ własne reguły `.mdc`; `AGENTS.md` jest czytany bez żadnego przełącznika.
 | Kierunek rozwoju | producent przenosi komendy w stronę **skilli** (istnieje `/migrate-to-skills`) | **[dokumentacja]** |
 
 **Co to znaczy dla RelAI.** Rozstrzygnięcie E5: adapter Cursora **nie pisze komend drugi raz**.
-Instalator kopiuje dziesięć plików komend i dwa skille z adaptera Claude Code do `.cursor/`
+Instalator kopiuje szesnaście plików komend i cztery skille z adaptera Claude Code do `.cursor/`
 w projekcie — jedno źródło w repozytorium, kopia w projekcie. Zmierzone: komenda `/relai-help`
 wykonała w Cursorze swoją procedurę, ze specyfikacjami czytanymi z `.claude/relai/templates/`,
 i zatrzymała się na pytaniu do człowieka.
@@ -217,9 +217,9 @@ Stan po **E7 (częściowo)** (adapter Codexa 1.10.0 i Cursor). Kolumna „Cursor
 | Skille jako nośnik procedury | `Skill` (auto-wyzwalanie zależne od modelu, R2) | **działa tak samo** — `.cursor/skills/<nazwa>/SKILL.md`, wywołanie z nazwy (zmierzone) | `.agents/skills/`, `$nazwa` |
 | Reakcja na wywołanie skilla (dosypanie kontekstu) | hook `PostToolUse` na narzędziu `Skill` | **nie ma** — nie zmierzono zdarzenia niosącego nazwę wywołanego skilla; prowizjonowanie robi `sessionStart` i instalator, więc luka nie boli | nie sprawdzone |
 
-### 3.2 Dziesięć komend
+### 3.2 Komendy
 
-Instalator kopiuje **wszystkie dziesięć** plików komend do `.cursor/commands/`; wywołanie
+Instalator kopiuje **wszystkie szesnaście** plików komend do `.cursor/commands/`; wywołanie
 `/relai-<nazwa>` działa (zmierzone na `/relai-help` i na komendzie testowej). Poniżej to, co
 w treści procedury zachowuje się inaczej. **Zastrzeżenie wspólne po pilotażu (2026-08-17, E6):**
 `/relai-stage` przeszła **całą** procedurę na żywym projekcie (karta → zgoda → wykonanie → rytuał

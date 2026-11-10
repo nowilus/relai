@@ -167,17 +167,17 @@ ani `node -e`. Wątek spoza kart → zatrzymujesz się i pytasz: odnoga, aneks c
 Każdy punkt Weryfikacji, który przeszedł, odhaczasz w `PROMPT_ETAP_14.md` (`- [ ]` → `- [x]`)
 zaraz po jego sprawdzeniu, nie na końcu etapu; punkt, który nie przeszedł, zostaje pusty.
 
-- [ ] K-0: gałąź `optymalizacja/po-audycie`, ostatni commit to E13 (albo człowiek rozstrzygnął,
+- [x] K-0: gałąź `optymalizacja/po-audycie`, ostatni commit to E13 (albo człowiek rozstrzygnął,
       co z drzewem).
-- [ ] K-G3: `.github/workflows/testy.yml` istnieje, przypięcia `checkout` i `setup-node` identyczne
+- [x] K-G3: `.github/workflows/testy.yml` istnieje, przypięcia `checkout` i `setup-node` identyczne
       jak w `strona.yml`; Grep `\t` (tryb `count`) → 0; sześć poleceń `run` lokalnie → kod 0.
-- [ ] K-E9 (Grep, nie powłoka): `trzynast|dziesięć plików komend|Dziesięć komend|dwa skille`
+- [x] K-E9 (Grep, nie powłoka): `trzynast|dziesięć plików komend|Dziesięć komend|dwa skille`
       (bez wielkości liter) w `PRZEWODNIK.md`, `INSTALACJA.md`, `PRZENOSNOSC.md` → 0;
       `15 RelAI commands` w trzech plikach panelu → 0; `ma ich czternaście` w `README.md` → 0;
       `14 hooków|czternastoma hookami` w `docs/STATE.md` → 0; `D-40.. → aneks` w `DECYZJE.md` →
       `3`; dowód negatywny (zasada 3): zdanie `czternasty hook` o planie ZGLOSZENIA w `STATE.md`
       nadal stoi, `docs/ARTEFAKTY.md` i `docs/archiwum/` bez zmian w `git diff --stat`.
-- [ ] `node core/tools/release-check.js --json` → kontrola `readme-hooki` zielona;
+- [x] `node core/tools/release-check.js --json` → kontrola `readme-hooki` zielona;
       `node core/tools/validate-adapters.js` → kod 0.
 - [ ] K-W1: jedenaście poleceń kod 0, zero `fail`; liczby nie niższe niż guardrails 33, process 430,
       panel 227, codex 28, cursor 10, mody 91 / 217 / 51 / 206 (do wpisu).

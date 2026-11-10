@@ -117,7 +117,7 @@ Do tego trzy zdania, które działają w zwykłej rozmowie:
 
 ## Czego RelAI pilnuje bez proszenia
 
-Trzynaście hooków w Node.js, zero zależności npm. **Dwa blokują, siedem ostrzega, cztery pracują cicho.**
+Piętnaście hooków w Node.js, zero zależności npm. **Dwa blokują, dziesięć ostrzega, trzy pracują cicho.**
 Niżej to, czego pilnują; pełna lista hooków z odpowiednikami w Cursorze i Codeksie stoi w tabeli
 [„Co pilnuje tylko Claude Code"](../README.md#co-pilnuje-tylko-claude-code) w README.
 
@@ -243,8 +243,8 @@ relai/
 │   │   │                        #     humanize, security
 │   │   ├── agents/              #   czterej subagenci: trzej załogi + relai-prompt-optimizer
 │   │   └── hooks/
-│   │       ├── hooks.json       #   rejestracja trzynastu hooków (zdarzenia i matchery)
-│   │       └── *.js             #   czternaście hooków Node.js, zero zależności npm
+│   │       ├── hooks.json       #   rejestracja piętnastu hooków (zdarzenia i matchery)
+│   │       └── *.js             #   piętnaście hooków Node.js, zero zależności npm
 │   ├── cursor/                  # ADAPTER Cursor (od 1.5.0)
 │       ├── install.js           #   instalacja i cofnięcie jednym poleceniem
 │       ├── rules/               #   trzy reguły .mdc: rdzeń i guardraile zawsze, planowanie na żądanie
@@ -254,7 +254,7 @@ relai/
 │       ├── AGENTS.md            #   router warstwy zawsze-w-kontekście
 │       ├── generate-skills.js   #   generator z jednego źródła komend Claude Code
 │       ├── install.js           #   odwracalna integracja D-86
-│       ├── skills/              #   wygenerowany pakiet: 16 procedur + 2 skille rdzenia (od 2.1.1)
+│       ├── skills/              #   wygenerowany pakiet: 16 procedur + 4 skille dołączane (od 2.1.1)
 │       └── hooks/               #   cienkie hooki konsumujące core/, z bramką hosta
 ├── hooks/hooks.json             # hooki Codeksa (jego konwencja korzenia), z bramką hosta — P-013
 ├── .claude-plugin/              # manifest pluginu i marketplace Claude Code

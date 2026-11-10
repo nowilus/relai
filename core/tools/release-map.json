@@ -437,7 +437,8 @@
         "CLAUDE.md",
         ".gitignore",
         ".gitattributes",
-        ".worktreeinclude"
+        ".worktreeinclude",
+        ".github/workflows/testy.yml"
       ],
       "wyklucz": [
         "docs/zasoby/film/**",
