@@ -76,6 +76,7 @@
 - **Jeden katalog `skills/` w standardzie Agent Skills dla trzech narzędzi** — zdjąłby kopię Codeksa (~4300 linii) i generator, ale zmienia zamrożoną D-89 i kształt adapterów; plan, odnoga czy odrzucić (audyt AUDYT_SKILLI, wiersz 50 raportu) · 2026-10-11 · [wpis 2026-10-11 — research, audyt, plan](archiwum/dziennik/DZIENNIK_2026-10-11_2026-10-12.md#2026-10-11--research-nowej-sesji-audyt-skilli-i-plan-limit_checkpoint)
 - **AUDYT_MODOW — ustalenia poza zakresem (5 pozycji `outOfScope` raportu)** — odchudzenie kopii rdzenia per plugin (`sync-panel-core`), `headings.mjs` 254 KB w progress i cache-keeperze, % limitu per etap w rdzeniu, `userConfig` cache-keepera, przedrostek `relai-` jego komend; plus wariant B „jedna listwa” jako kandydat na plan — decyzja: plan, odnoga albo odrzucić · 2026-10-11 · [wpis 2026-10-11 — Z13, Z14 i zamknięcie odnogi](archiwum/dziennik/DZIENNIK_2026-10-11_2026-10-12.md#2026-10-11--audyt_modow-z13-i-z14-wydanie-0120-i-zamknięcie-odnogi)
 - **PANEL_CODEX E1 — próba przycisków minimalnego pakietu i świeżego kontekstu** — w macierzystym czacie nadal proces 0.0.7/PID 62300; po restarcie sprawdzić sondę 0.0.9 (także fonty), nowy szkic i jego rzeczywisty projekt/kontekst. Wygląd już zaakceptowany · 2026-10-10 · [wpis — Panel i mostek](archiwum/dziennik/DZIENNIK_2026-10-09_2026-10-10.md#2026-10-10--panel_codex-e1-natywny-widok-minimalny-pakiet-i-mostek-bieżącego-czatu)
+  *(odroczone 2026-11-10, odroczeń: 1)*
 
 - **Zamrożenie dwóch bramek zgody jako decyzji** — zgoda na tryb ciągły (raz na sesję, z zapisem
   globalnym) i zgoda na propozycję struktury poza projektem (raz na maszynę). Oba wzorce wrócą przy
@@ -83,19 +84,12 @@
   [wpis 2026-09-15 — Zgłoszenie testera](archiwum/dziennik/DZIENNIK_2026-09-14_2026-10-09.md#2026-09-15--zgłoszenie-testera-plugin-pyta-o-relai-w-cudzym-folderze-dwie-bramki-zgody-i-wydanie-230)
   *(odroczone 2026-10-16, odroczeń: 1)*
 
-- **Rozjazd manifestu z produktem przy opisie repozytorium** — `description`
-  w `.claude-plugin/plugin.json` mówi „…framework for Claude Code", a RelAI ma trzy adaptery;
-  `keywords` nie zawiera ani jednej nazwy narzędzia. Wizytówka GitHuba ma skopiować manifest, czy
-  najpierw poprawiamy manifest (czyli podbicie wersji i pełna sekwencja wydania)? · 2026-09-13 ·
-  [karta odnogi OPIS_REPO](archiwum/plany/ROZWOJ_PO_WYDANIU/odnogi/OPIS_REPO/ODNOGA.md)
-  *(odroczone 2026-10-14, odroczeń: 1)*
-
 - **Zamknięta lista rdzeni rozstrzygnięcia nie zna słownika realnego projektu** — 7 z 32 pozycji
   „Czeka na człowieka" w PolyFlow wygląda dla człowieka na zamknięte, a mechanizm liczy je jako
   otwarte (`zaliczona` ×3, `dostarczony` ×1, trzy bez rdzenia z datą). Poszerzyć listę w rdzeniu
   czy przepisać adnotacje w cudzym projekcie? · 2026-09-01 ·
   [wpis 2026-09-01 — E6: wydanie 1.7.0](archiwum/dziennik/DZIENNIK_2026-09-01_2026-09-03.md#2026-09-01--e6-wydanie-170-pomiar-po-restarcie-i-pierwsza-rotacja-z-przepięciem-linków)
-  *(odroczone 2026-10-08, odroczeń: 1)*
+  *(odroczone 2026-11-10, odroczeń: 2)*
 
 - **Weryfikacja ośmiu rozstrzygnięć wpisanych w E2 — wypisane co do jednego 2026-09-01, czekają na
   potwierdzenie albo sprzeciw** · 2026-08-20 ·
@@ -107,14 +101,14 @@
   `claude -p` **zadziałał** i poprowadził pomiar świeżych sesji (L-0084). Otworzyć R2 ponownie,
   przepisać jego treść czy zostawić zamknięte z adnotacją? · 2026-09-03 ·
   [wpis 2026-09-03 — E1 planu REKOMENDACJA_MODELU](archiwum/dziennik/DZIENNIK_2026-09-03_2026-09-06.md#2026-09-03--e1-planu-rekomendacja_modelu-pytanie-o-model-pokazuje-nazwy-nie-klasy)
-  *(odroczone 2026-10-08, odroczeń: 1)*
+  *(odroczone 2026-11-10, odroczeń: 2)*
 
 - **Czy ochrona konfiguracji ma zostać przy werdykcie `ask`** — w sesji z automatyczną akceptacją
   edycji `ask` nie zatrzymuje niczego, więc edycja sekcji niemutowalnej **cudzego** `CLAUDE.md`
   przechodzi mimo poprawnego werdyktu hooka. Podnieść do `deny` dla cudzego projektu (własny
   zostaje przy `ask`), zostawić bez zmian, czy opisać to jako świadomą granicę? · 2026-09-04 ·
   [wpis 2026-09-04 — Blokada guardraila pokazana w żywej sesji](archiwum/dziennik/DZIENNIK_2026-09-03_2026-09-06.md#2026-09-04--blokada-guardraila-pokazana-w-żywej-sesji-ochrona-konfiguracji-okazuje-się-doradcza)
-  *(odroczone 2026-10-08, odroczeń: 1)*
+  *(odroczone 2026-11-10, odroczeń: 2)*
 
 - **Ponowna instalacja pre-commita w projektach z hookiem sprzed 1.9.2** — stary układ
   (bezrozszerzeniowy `pre-commit` + `relai-secret-scan.js`) przewraca się w projekcie
@@ -122,7 +116,7 @@
   zewnętrznych; instalacja jest jawną czynnością człowieka, więc RelAI jej nie wykona sam.
   · 2026-09-04 ·
   [wpis 2026-09-04 — Cztery defekty pre-commita](archiwum/dziennik/DZIENNIK_2026-09-03_2026-09-06.md#2026-09-04--cztery-defekty-pre-commita-ze-zgłoszenia-zewnętrznego-wydanie-192)
-  *(odroczone 2026-10-08, odroczeń: 1)*
+  *(odroczone 2026-11-10, odroczeń: 2)*
 
 ## Wpisy
 
@@ -1989,5 +1983,88 @@ Autor: RelAI (Fable 5.2; karty: Opus 5.5) + Lukasz
 **Do zrobienia przez człowieka:**
 
 - Uruchomić etap E1: świeża sesja na Opus 5.5, `/effort medium`, komenda `/relai-stage`.
+  *(rozstrzygnięte 2026-11-10 — E1 uruchomiony i zrealizowany, wpis niżej)*
 
 Autor: RelAI (Fable 5.2) + Lukasz
+
+### 2026-11-10 — OPTYMALIZACJA_PO_AUDYCIE E1: porządki widoczne od następnej sesji
+
+Etap E1 z E14, siedem kart z `karty/E01_PORZADKI_WIDOCZNE.md`, wyłącznie dokumenty. Gałąź
+`optymalizacja/po-audycie`, punkt wyjścia `f3c5fbe` (commit dokumentów planu — stan oczekiwany
+według promptu etapu).
+
+**Przegląd spraw przeterminowanych na starcie sesji** (pięć z hooka, rytuał startu, poza kartami):
+Łukasz odroczył wszystkie pięć o kolejne 30 dni — PANEL_CODEX E1 (odroczeń: 1), zamknięta lista
+rdzeni, R2 na nieaktualnej przesłance, ochrona konfiguracji przy `ask`, ponowna instalacja
+pre-commita (odroczeń: 2). Adnotacje z datą 2026-11-10 w sekcji „Czeka na człowieka”.
+
+**Zrobione:**
+
+- K-0: gałąź `optymalizacja/po-audycie` już bieżąca, bez `git switch`.
+- K-B1p: [USTAWIENIA.md](USTAWIENIA.md) — wiersz „Tryb ciągły” → `wyłączony` (decyzja z audytu,
+  110 odmów na 113 sesji). Bramka zgody pojawiła się jeszcze w tej sesji na „Tak, start E1”;
+  odpowiedź „nie” zapisana w pliku zgody sesji.
+- K-E8: [STATE.md](STATE.md) — dwa zdania o trybie „RelAI tylko w projektach” zastąpione stanem
+  z `relai-scope.js status` (poziom użytkownika: `relai=true, relai-panel=true,
+  relai-progress=false, relai-cache-keeper=true`; tryb dostępny, niewłączony). Bez `apply`/`undo`.
+- K-E2r: pytanie o sprawę „Rozjazd manifestu z produktem” — **Łukasz: „Zamknąć”**. Pozycja usunięta
+  z „Czeka na człowieka”, adnotacja `*(rozstrzygnięte 2026-11-10 — manifest poprawiony w 2c41a07…)*`
+  na końcu [karty OPIS_REPO](fixy/OPIS_REPO/ODNOGA.md) (odnoga zostaje OTWARTA — jej domknięcie to
+  zmiana po stronie GitHuba). W `STATE.md` link do `adapters/codex/panel/README.md` zastąpiony
+  zdaniem, że pakiet leży na gałęzi `codex/panel-codex`.
+- K-E1r: kolejność frazy „kończymy na dziś” w `CLAUDE.md` i `AGENTS.md`: sync dokumentów, rotacja,
+  sprzątanie artefaktów roboczych, wpis do dziennika, przegląd ryzyk, propozycja commita.
+- K-E5: [DECYZJE.md](DECYZJE.md) — wiersz aneksu D-14 na końcu tabeli „Decyzje zmienione”,
+  brzmienie z karty; treść D-14 bez zmian.
+- K-D12: pytanie o dwie linie archiwum (`DZIENNIK_2026-08-07_2026-08-09.md:944`,
+  `DZIENNIK_2026-08-10_2026-08-12.md:257`), wartości niecytowane — **Łukasz: (a) „Tak, testowa —
+  zostaje”, (b) „Zostaje”**. Pliki archiwum bez zmian.
+
+**Zweryfikowane — jak dokładnie:**
+
+- `git branch --show-current` → `optymalizacja/po-audycie`.
+- `trybCiaglyProjektu(process.cwd())` → `true` przed zmianą, `false` po zmianie.
+- `grep -c "pracuje w trybie" docs/STATE.md` → `0`; `grep -c "tylko w projektach" docs/STATE.md` → `3`.
+- `grep "odnogi/OPIS_REPO" docs/DZIENNIK.md` → brak trafień; „Rozjazd manifestu z produktem”
+  w sekcji „Czeka na człowieka” → `0`; ostatnia linia `docs/fixy/OPIS_REPO/ODNOGA.md` zaczyna się
+  od `*(rozstrzygnięte`; `grep "adapters/codex/panel/README.md" docs/STATE.md` → brak trafień;
+  `git branch --list codex/panel-codex` → gałąź istnieje. Kontrola przed zmianą: stary cel linku
+  `ls` → „No such file or directory”.
+- `grep -c "sync dokumentów, rotacja, sprzątanie artefaktów"` → `1` w `CLAUDE.md` i `1`
+  w `AGENTS.md`; `grep -c "sync dokumentów, wpis do dziennika"` → `0` w obu;
+  `diff CLAUDE.md AGENTS.md | grep -c "^[<>]"` → `3` przed i po;
+  `node --test "core/process/tests/ritual-copies.test.js"` → 3/3 pass.
+- Dowód negatywny K-E1r: `git diff CLAUDE.md` ma jeden hunk `@@ -17,8 +17,8 @@`; nagłówek
+  „Implementation guidelines” stoi w linii 73 — poniżej nic się nie zmieniło.
+- Grep `D-14.. → aneks` w `docs/DECYZJE.md` (tryb count) → `1`; `git diff --numstat docs/DECYZJE.md`
+  → `1	0`.
+- K-D12: `git status --short` nie pokazuje żadnego pliku `docs/archiwum/`.
+- `node .claude/relai/tools/start-digest.js` → `0` trafień `archiwum/plany/ROZWOJ_PO_WYDANIU/odnogi/OPIS_REPO`;
+  w sekcji „Gdzie jesteśmy” `0` trafień „pracuje w trybie” (dwa trafienia „tylko w projektach” to
+  zdanie o 3.6.0 i nowe zdanie „dostępny, ale nie jest włączony”).
+- Granica: `git status --short` — `AGENTS.md`, `CLAUDE.md`, `docs/DECYZJE.md`, `docs/DZIENNIK.md`,
+  `docs/STATE.md`, `docs/USTAWIENIA.md`, `docs/fixy/OPIS_REPO/ODNOGA.md`, pliki planu; pod
+  `adapters/` wyłącznie cztery zastane `*-closing.md`; `.claude/launch.json` nieśledzony, spoza
+  etapu.
+- Katalog roboczy `.claude/relai/work/OPTYMALIZACJA_PO_AUDYCIE/E1/` **nie powstał** (przed: 0,
+  po: 0). Artefakty spoza katalogu: plik tymczasowy skrótu startu w `%TEMP%` (skasowany w tym samym
+  poleceniu) i plik zgody sesji w `.claude/relai/zgoda-promptu/` (runtime, nieśledzony).
+  `clean-work.js raport` pokazał cudze pozycje (`work/PRZYCISKI_POSTEPU`, `work/WYDANIE/3.7.0`,
+  `.security/trivy`) — spoza etapu, nietknięte.
+
+**Świadomie odłożone:**
+
+- Rotacja dziennika (150,1 KB przy progu 150 KB), zamykanie ryzyk (sekcja 17,5 KB przy 12 KB)
+  i rotacja lekcji (68,1 KB przy 50 KB) zgłoszone na starcie — poza kartami E1; do „kończymy na
+  dziś” albo osobnej sesji.
+- Bramka zgody trybu ciągłego zapytała przy krótkim potwierdzeniu „Tak, start E1”, choć filtr
+  pomijania ma przepuszczać krótkie potwierdzenia — materiał do etapu E9 (karta K-B1).
+- Prompt etapu mówił o czterech sprawach przeterminowanych, hook zgłosił pięć (PANEL_CODEX E1
+  przekroczył 30 dni 2026-11-10) — bez skutku dla etapu.
+- Lista modeli `MODELE-claude-code.md` ma 33 dni przy progu 7 — `/relai-models` poza etapem.
+
+**Do zrobienia przez człowieka:**
+
+—
+
+Autor: RelAI (Opus 5.5) + Lukasz

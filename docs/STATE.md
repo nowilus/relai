@@ -1,6 +1,6 @@
 # STATE — RelAI
 
-Stan na: 2026-11-09 (plan OPTYMALIZACJA_PO_AUDYCIE zaakceptowany, E1 gotowy do startu; ostatni zamknięty plan KONTEKST_STARTU ZREALIZOWANY — RelAI 3.7.0 z lżejszym
+Stan na: 2026-11-10 (plan OPTYMALIZACJA_PO_AUDYCIE: E1 zrealizowany, E2 gotowy do startu; ostatni zamknięty plan KONTEKST_STARTU ZREALIZOWANY — RelAI 3.7.0 z lżejszym
 startem sesji, `relai-progress` 0.7.1; tego samego dnia ZASIEG_PLUGINU — wydanie 3.6.0;
 poprzednio ZGLOSZENIA 2026-10-27 — wydanie 3.5.0)
 
@@ -13,9 +13,11 @@ komendami i czternastoma hookami w Claude Code (czternasty: `session-title`). Ma
 repozytorium niesie też cztery mody: `relai-panel` 0.22.1, `relai-progress` 0.7.1,
 `relai-cache-keeper` 0.13.0 („early access”) i kokpit `relai-mods` 0.3.0. Wydanie robi się frazą „gotowi do wydania?”
 (`/relai-release`): raport `release-check.js`, naprawy po jednej zgodzie, publikacja krok po kroku,
-bramka `pre-push` na tagi. Maszyna Łukasza pracuje w trybie „RelAI tylko w projektach” od
-2026-10-28. Od 2026-11-09 aktywny jest plan OPTYMALIZACJA_PO_AUDYCIE (naprawy po audycie
-projektu; zaakceptowany, etap E1 gotowy do startu). Poprzedni: KONTEKST_STARTU zamknięty 2026-10-28 (start sesji to jedno
+bramka `pre-push` na tagi. Na maszynie Łukasza `relai`, `relai-panel` i `relai-cache-keeper`
+są włączone na poziomie użytkownika, a w projektach z markerem RelAI także lokalnie (stan
+z `relai-scope.js status`, 2026-11-10); tryb „RelAI tylko w projektach” jest dostępny
+(`relai-scope.js apply`), ale nie jest włączony. Od 2026-11-09 aktywny jest plan OPTYMALIZACJA_PO_AUDYCIE (naprawy po audycie
+projektu; E1 zrealizowany 2026-11-10, etap E2 gotowy do startu). Poprzedni: KONTEKST_STARTU zamknięty 2026-10-28 (start sesji to jedno
 polecenie skrótu, RelAI po pierwszej turze 25–32 tys. tokenów zamiast ok. 72 tys. — cel 25 tys.
 częściowo), PANEL_CODEX (Codex) wstrzymany 2026-10-27 decyzją Łukasza.
 Opinii spoza projektu nadal nie ma.
@@ -115,7 +117,8 @@ Opinii spoza projektu nadal nie ma.
 
 ## Nad czym pracujemy teraz
 
-- **OPTYMALIZACJA_PO_AUDYCIE — ZAAKCEPTOWANY 2026-11-09, E1 gotowy do startu** (plan
+- **OPTYMALIZACJA_PO_AUDYCIE — ZAAKCEPTOWANY 2026-11-09, E1 zrealizowany 2026-11-10 (porządki
+  w dokumentach, tryb ciągły wyłączony w projekcie), E2 gotowy do startu** (plan
   [OPTYMALIZACJA_PO_AUDYCIE](plany/OPTYMALIZACJA_PO_AUDYCIE/STATUS.md), 14 etapów, wykonanie Opus 5.5
   medium w świeżych sesjach, gałąź `optymalizacja/po-audycie`, jedno wydanie na końcu). Źródło:
   [raport audytu](AUDYT_RELAI_2026-11-09.md) — 56 znalezisk, do naprawy wybrane 41 wysokiej
@@ -124,9 +127,10 @@ Opinii spoza projektu nadal nie ma.
 - **PANEL_CODEX — nieaktywny, WSTRZYMANY 2026-10-27** decyzją Łukasza (plan
   [PANEL_CODEX](plany/PANEL_CODEX/STATUS.md), ZAAKCEPTOWANY 2026-10-10, 8 etapów, Codex
   `gpt-6.1-sol`). Stan zatrzymania E1: natywny widok i wiadomość do bieżącego czatu potwierdzone
-  sondą 0.0.7; pakiet `adapters/codex/panel/` 0.1.0 (13 testów) pokazuje właściwy stan; sonda
-  0.0.9 z poprawką fontów czeka na pomiar. Wznowienie tylko decyzją Łukasza. Kontrakt
-  w [README adaptera](../adapters/codex/panel/README.md).
+  sondą 0.0.7; pakiet `adapters/codex/panel/` 0.1.0 (13 testów) — na gałęzi `codex/panel-codex` —
+  pokazuje właściwy stan; sonda 0.0.9 z poprawką fontów czeka na pomiar. Wznowienie tylko decyzją
+  Łukasza. Pakiet i jego README leżą na gałęzi `codex/panel-codex` (`adapters/codex/panel/`), nie
+  na `main`.
 - Wydane w 3.7.0 razem z planem: wiersz `installPath` w README i `KOMENDY.md` po przełączeniu
   maszyny (P-059) i przyciski paska postępu `relai-progress` 0.7.1 (MINIPLAN PRZYCISKI_POSTEPU).
 
@@ -209,9 +213,9 @@ Opinii spoza projektu nadal nie ma.
 Repo i publicznie **3.7.0** (tag `v3.7.0` na `1fe9c7d`); marketplace w tym repozytorium (scope
 `user`) niesie pięć pluginów: `relai` i cztery mody z własnymi wersjami i tagami
 (`relai-panel-v0.22.1`, `relai-progress-v0.7.1`, `relai-cache-keeper-v0.13.0`,
-`relai-mods-v0.3.0`, każdy z własnym wydaniem GitHub). Na maszynie Łukasza `relai`
-i trzy dodatki są włączone lokalnie w projektach (tryb „RelAI tylko w projektach”), `relai-mods`
-globalnie. Wydanie: fraza „gotowi do wydania?” →
+`relai-mods-v0.3.0`, każdy z własnym wydaniem GitHub). Na maszynie Łukasza pluginy są włączone
+na poziomie użytkownika i lokalnie w projektach z markerem RelAI (stan z `relai-scope.js status`,
+2026-11-10). Wydanie: fraza „gotowi do wydania?” →
 `/relai-release` (`.claude/commands/`, wersja 2): raport `release-check.js --json`, podział braków
 na naprawy bezpieczne (jedna zgoda) i listę dla człowieka, ponowny raport, `claude plugin validate`
 binarką aplikacji, commit, tag przez hook `pre-push` (`core/tools/release-pre-push.js`,

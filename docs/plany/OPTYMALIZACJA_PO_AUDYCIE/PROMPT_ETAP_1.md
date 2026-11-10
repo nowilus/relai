@@ -161,30 +161,30 @@ Wątek spoza kart → zatrzymujesz się i pytasz: odnoga, aneks czy „świadomi
 Każdy punkt, który przeszedł, odhaczasz w tym pliku (`- [ ]` → `- [x]`) zaraz po jego sprawdzeniu,
 nie na końcu etapu; punkt, który nie przeszedł, zostaje pusty.
 
-- [ ] K-0: `git branch --show-current` → `optymalizacja/po-audycie`.
-- [ ] K-B1p: `node -e "console.log(require('./core/process/prompt-mode.js').trybCiaglyProjektu(process.cwd()))"` → `false`.
-- [ ] K-E8: Grep `pracuje w trybie` w `docs/STATE.md` → brak trafień; Grep `tylko w projektach`
+- [x] K-0: `git branch --show-current` → `optymalizacja/po-audycie`.
+- [x] K-B1p: `node -e "console.log(require('./core/process/prompt-mode.js').trybCiaglyProjektu(process.cwd()))"` → `false`.
+- [x] K-E8: Grep `pracuje w trybie` w `docs/STATE.md` → brak trafień; Grep `tylko w projektach`
       w `docs/STATE.md`, tryb `count` → `3`.
-- [ ] K-E2r: Grep `odnogi/OPIS_REPO` w `docs/DZIENNIK.md` → brak trafień; pozostałe kontrole
+- [x] K-E2r: Grep `odnogi/OPIS_REPO` w `docs/DZIENNIK.md` → brak trafień; pozostałe kontrole
       z pola „Weryfikacja” karty dla wybranego przez człowieka wariantu dają podany wynik;
       odpowiedź człowieka zapisana we wpisie dziennika.
-- [ ] K-E1r: Grep `sync dokumentów, rotacja, sprzątanie artefaktów` → `1` w `CLAUDE.md` i `1`
+- [x] K-E1r: Grep `sync dokumentów, rotacja, sprzątanie artefaktów` → `1` w `CLAUDE.md` i `1`
       w `AGENTS.md`; Grep `sync dokumentów, wpis do dziennika` → `0` w obu;
       `node --test "core/process/tests/ritual-copies.test.js"` → 3 zielone.
-- [ ] Dowód negatywny dla K-E1r: `git diff CLAUDE.md` nie pokazuje żadnej zmiany poniżej nagłówka
+- [x] Dowód negatywny dla K-E1r: `git diff CLAUDE.md` nie pokazuje żadnej zmiany poniżej nagłówka
       „Implementation guidelines (sekcja niemutowalna)”.
-- [ ] K-E5: Grep `D-14.. → aneks` w `docs/DECYZJE.md`, tryb `count` → `1`;
+- [x] K-E5: Grep `D-14.. → aneks` w `docs/DECYZJE.md`, tryb `count` → `1`;
       `git diff --stat docs/DECYZJE.md` → jedna linia dodana, zero usuniętych.
-- [ ] K-D12: obie odpowiedzi właściciela zapisane we wpisie dziennika; przy „zostaje” brak zmian
+- [x] K-D12: obie odpowiedzi właściciela zapisane we wpisie dziennika; przy „zostaje” brak zmian
       w `git status` dla obu plików archiwum, przy „zastąpić” `node core/guardrails/secret-scan.js <plik>` → kod 0.
-- [ ] Etap: `node .claude/relai/tools/start-digest.js` — w wyjściu nie ma tekstu
+- [x] Etap: `node .claude/relai/tools/start-digest.js` — w wyjściu nie ma tekstu
       `archiwum/plany/ROZWOJ_PO_WYDANIU/odnogi/OPIS_REPO` ani zdania o pracy maszyny w trybie
       „tylko w projektach” w sekcji „Gdzie jesteśmy”.
-- [ ] Granica: `git status --short` nie pokazuje żadnego pliku pod `core/`, `adapters/` (poza
+- [x] Granica: `git status --short` nie pokazuje żadnego pliku pod `core/`, `adapters/` (poza
       czterema zastanymi `*-closing.md`), `panel/`, `progress/`, `mods/`, `cache-keeper/`.
-- [ ] Wpis etapu jest na końcu sekcji „Wpisy” w `docs/DZIENNIK.md`, z podpisem
+- [x] Wpis etapu jest na końcu sekcji „Wpisy” w `docs/DZIENNIK.md`, z podpisem
       `Autor: RelAI (Opus 5.5) + Lukasz`.
-- [ ] Katalog roboczy: (a) `.claude/relai/work/OPTYMALIZACJA_PO_AUDYCIE/E1/` przejrzany raportem
+- [x] Katalog roboczy: (a) `.claude/relai/work/OPTYMALIZACJA_PO_AUDYCIE/E1/` przejrzany raportem
       (`node .claude/relai/tools/clean-work.js raport`) i skasowany po „tak”, liczby przed i po we
       wpisie dziennika (katalog nie powstał → zapisz to wprost); (b) artefakty spoza katalogu
       wypisane z nazwy razem z tym, co się z nimi stało.

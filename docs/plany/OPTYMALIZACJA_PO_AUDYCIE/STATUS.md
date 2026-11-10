@@ -10,8 +10,8 @@ Karty zmian (załącznik planu, zamrażany razem z nim): [konwencje](karty/00_KO
 
 | Etap | Nazwa | Status | Prompt | Uwagi |
 |---|---|---|---|---|
-| E1 | Porządki widoczne od następnej sesji | GOTOWY DO STARTU | [PROMPT_ETAP_1.md](PROMPT_ETAP_1.md) | [karty](karty/E01_PORZADKI_WIDOCZNE.md); dwa pytania do człowieka |
-| E2 | Pomiary na żywo i warianty dystrybucji | OCZEKUJE | — | [karty](karty/E02_POMIARY_NA_ZYWO.md); do 10 sesji `claude -p`; wynik w `POMIARY.md` |
+| E1 | Porządki widoczne od następnej sesji | ZREALIZOWANY 2026-11-10 | [PROMPT_ETAP_1.md](PROMPT_ETAP_1.md) | [karty](karty/E01_PORZADKI_WIDOCZNE.md); dwa pytania do człowieka |
+| E2 | Pomiary na żywo i warianty dystrybucji | GOTOWY DO STARTU | [PROMPT_ETAP_2.md](PROMPT_ETAP_2.md) | [karty](karty/E02_POMIARY_NA_ZYWO.md); do 10 sesji `claude -p`; wynik w `POMIARY.md` |
 | E3 | Skaner sekretów i pre-commit | OCZEKUJE | — | [karty](karty/E03_SKANER_I_PRECOMMIT.md) |
 | E4 | Guardy Claude Code | OCZEKUJE | — | [karty](karty/E04_GUARDY_CLAUDE_CODE.md) |
 | E5 | Hook poleceń i kontrola przy zatrzymaniu | OCZEKUJE | — | [karty](karty/E05_HOOK_POLECEN_I_STOP.md); po E4; karta K-C9 zależy od werdyktu z E2 |
@@ -33,3 +33,6 @@ Karty zmian (załącznik planu, zamrażany razem z nim): [konwencje](karty/00_KO
   plików `register.tsx` wyjęty z planu (K-F5).
 - 2026-11-09 — plan ZAAKCEPTOWANY („Akceptuję”) i zamrożony razem z kartami; E1 GOTOWY DO STARTU,
   wygenerowany `PROMPT_ETAP_1.md`.
+- 2026-11-10 — E1 rozpoczęty
+- 2026-11-10 — E1 ZREALIZOWANY: siedem kart, 12/12 punktów weryfikacji; manifest — sprawa
+  zamknięta, linie archiwum zostają; E2 GOTOWY DO STARTU, wygenerowany `PROMPT_ETAP_2.md`.

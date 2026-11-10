@@ -113,3 +113,5 @@ ocenia się tam, gdzie je widać).
 ## Wynik
 
 —
+
+*(rozstrzygnięte 2026-11-10 — manifest poprawiony w 2c41a07, 2026-10-12; decyzja Łukasza przy etapie E1 planu OPTYMALIZACJA_PO_AUDYCIE)*

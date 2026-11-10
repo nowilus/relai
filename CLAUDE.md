@@ -17,8 +17,8 @@ plany zamknięte są w `docs/archiwum/plany/` i w `docs/STATE.md`.
 
 **Frazy sesji:** „kontynuujemy pracę" → rytuał startu, akapit „gdzie jesteśmy" **i jedno zdanie
 z propozycją najbliższego kroku**; „sprawdź status" → stan, plany, ryzyka, zaległości
-dokumentacyjne; „kończymy na dziś" → sync dokumentów, wpis do dziennika, przegląd ryzyk,
-sprzątanie artefaktów roboczych, propozycja commita; „gotowi do wydania?” → komenda projektowa
+dokumentacyjne; „kończymy na dziś" → sync dokumentów, rotacja, sprzątanie artefaktów
+roboczych, wpis do dziennika, przegląd ryzyk, propozycja commita; „gotowi do wydania?” → komenda projektowa
 `/relai-release` (`.claude/commands/`; w Codeksie i Cursorze sam raport
 `node core/tools/release-check.js`, bez publikacji). Pełna ściąga: [docs/KOMENDY.md](docs/KOMENDY.md).
 **Podpowiedź wydania:** przy „kontynuujemy pracę” (po akapicie „gdzie jesteśmy”) i w podsumowaniu
