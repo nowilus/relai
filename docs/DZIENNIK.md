@@ -3527,3 +3527,82 @@ modu i bez obserwacji — trzy rundy Łukasza (L-0322); `describe` uznany za got
 z atrapą, padł na żywo (L-0321). Ten wpis dopisałem heredokiem w powłoce wbrew regule
 z `CLAUDE.md` (L-0198: tekst z backtickiem tylko Edit/Write) — `git diff` pokazał same dopiski,
 backticki całe; reguła bez zmian, dalsze zmiany wpisu narzędziem Edit.
+
+### 2026-11-11 — MODY_OSZCZEDZANIA E3: `relai-input-router` 0.1.0 — pliki i PDF
+
+Autor: RelAI (Opus 5.5) + Lukasz
+
+**Zrobione:**
+
+- Nowy mod `input-router/` (`relai-input-router` 0.1.0, niewydany): `hooks/route.ts` (próg 2000
+  tokenów, przepustki plików procesu i instrukcji przez `isVerbatimFile` oraz plików sekretów po
+  nazwie, zakresy < 100 linii, kawałkowanie > 50%, kawałki 120 000 / łącznie 960 000 znaków, linie
+  cięte na 2000, routing Bash wyłącznie dla czytników i pomocników, PDF), `hooks/notes.ts` (prompt
+  z ostatnią wiadomością człowieka ≤ 12 000 i argumentami ≤ 2000, wynik z nagłówkiem RelAI,
+  pamięć notatek: ścieżka + mtime + rozmiar + skrót prośby, nazwy kopii z daty i skrótu, retencja
+  14 dni, rekord rejestru, komenda), `hooks/gate.ts`, `hooks/register.tsx` (cały kod z `$`), typy
+  stanu, `plugin.json`, `hooks.json`. Haiku przez `$.model.complete` (`claude-haiku-5-5` z `$.store`,
+  effort `low`, 180 s, ponowienie aliasem `haiku` przy `api-error`) po `guardHelper` + skanerze
+  sekretów; awaria → zwykły wynik i powód w `~/.claude/relai/oszczednosci/input-router/ostatni-blad.txt`.
+- PDF > 5 stron przez Poppler; `pdfinfo` brak na natywnym PATH (FAKT 2026-11-11), więc liczba
+  stron z `\f` w wyjściu `pdftotext`.
+- `/relai-input-router` (stats, full, off file, on file, model); bliźniak BenAI `input-router` →
+  mod śpi z jednym komunikatem (Aneks A).
+- Cel `input-router` w `core/tools/sync-panel-core.js` (6 celów), wpisy w
+  `.claude-plugin/marketplace.json` i `core/tools/release-map.json` (`mod-input-router`).
+- Po recenzji subagenta `code-reviewer` (3×HIGH, MEDIUM, LOW), wszystkie naprawione z testami:
+  argumenty Bash, które powłoka może zmienić (przekierowania, `$( )`, glob, backslash, `-Path:x`,
+  `--file=x`), przepuszczają polecenie (fail closed); plik > 3,9 MB nie dostaje „pełnej kopii” z głowy
+  i ogona — notatki wskazują sam plik i mówią, że środek nie był czytany; dowiązanie do pliku
+  chronionego chronione po `realPath`; aliasy Windows (`CLAUDE.md.`, `::$DATA`, nazwy 8.3).
+- Po pomiarze: wyjście Bash zapisane przez silnik do pliku (`persistedOutputPath`) przechodzi bez
+  notatek (P-065).
+
+**Zweryfikowane — jak dokładnie:**
+
+- Testy przed → po: guardrails 33 → 33, process 430 → 430, panel (rdzeń) 254 → 254, mody `mods` 91,
+  `panel` 220, `progress` 51, `cache-keeper` 206, `browser` 28 bez zmian, `input-router` 0 → 47;
+  `plugin validate input-router` ✔, marketplace ✔ (te same dwa ostrzeżenia co przed etapem);
+  `sync-panel-core --check` zgodne (23 pliki, 16 ikon, 6 celów).
+- Dowód negatywny (zasada 3): `docs/DZIENNIK.md`, `PROMPT_ETAP_3.md`, `STATUS.md`,
+  `.claude/relai/**`, `CLAUDE.md`, `SKILL.md`, `.env.local` → 0 wywołań Haiku i treść bez zmian;
+  duży plik zwykły → 1. Mutacja `fileGuard` (przepustka wyłączona) → 10 z 42 testów czerwonych,
+  cofnięta → 42/42. Skaner: duży plik z kluczem `sk-…` (złożonym z kawałków) → 0 wywołań, dosłownie;
+  bez klucza → 1.
+- Pomiar na żywo ([POMIAR_E3.md](plany/MODY_OSZCZEDZANIA/POMIAR_E3.md)): `small.log` 2525 → 661
+  tokenów (Haiku in 5 948 / out 1 418, 7,8 s), drugi odczyt z pamięci bez Haiku; `umowa.pdf`
+  8 stron 9718 → 551; `cat` z prośbą Łukasza → notatki odpowiadające na nią; `PROMPT_ETAP_3.md`
+  i plik pod `.claude/relai/` dosłownie. Zakładka (wariant „a” Łukasza): `savingsView` = surowy
+  rejestr co do tokena — 5 rekordów, 21 748 tokenów, Haiku 4 × in 34 900 / out 5 608 (z jednym
+  rekordem zawyżonym sprzed poprawki `persistedOutputPath`).
+- `trivy fs --scanners vuln .` → 0 CRITICAL, 42 HIGH (jak po E2); mod bez `package.json`;
+  `git grep --untracked` po wzorcu klucza w `input-router/` → 0 (kontrola: kawałek `k-ant-api03`
+  w teście widoczny).
+- Bramka pomiaru: `input-router@token-saving-mods` (user) wyłączony za zgodą Łukasza, w sesji
+  dopiero po `/reload-plugins`; po pomiarze włączony (`true`). Artefakty spoza katalogu:
+  kopia `relai-input-router` w `~/.claude/dev-mods/6defc1f3…/` skasowana; kopie z pomiaru
+  w `~/.claude/relai/oszczednosci/input-router/` (4 notatki, 4 pełne treści, dane testowe)
+  skasowane; materiał w scratchpadzie sesji (tymczasowy).
+- Katalog roboczy E3: 4 pliki, 140 655 B → 0 (skasowany po „tak” Łukasza).
+
+**Świadomie odłożone:**
+
+- Cięcie linii 2000 znaków w PDF: `pdftotext` skleja wiersze strony, końcówki klauzul nie
+  docierają do Haiku — `-layout` albo zawijanie do decyzji w E10 (pomiar).
+- Notatki z pełnego wyjścia zapisanego przez silnik (`persistedOutputPath`) zamiast przepuszczania
+  — dziś przepuszczane, bo nie oszczędzają tokenów.
+- Kasowanie przeterminowanych kopii: `expiredCopies` wylicza, kasuje mechanizm artefaktów
+  roboczych (jak rejestr); podpięcie do `clean-work.js` — E10.
+- Konektory MCP i panel przekazań — E4 (plan); wyciszenie hand-backu `describe` — E10.
+
+**Do zrobienia przez człowieka:** —
+
+**Ryzyka:** R6 (zawyżone oszczędności) — nowy przypadek: wyjście Bash zapisane przez silnik;
+mitygacja w kodzie i teście, poziom bez zmian. R8 (treść jako instrukcja) — prompt Haiku mówi, że
+tekst to dane. C1, C10 bez zmian. Nowa pułapka → [PULAPKI.md](PULAPKI.md) P-065; lekcje L-0323,
+L-0324.
+
+**Uwagi procesowe:** materiał pomiaru położony w katalogu roboczym pod `.claude/relai/`, który mod
+słusznie przepuszcza jako plik procesu — pierwszy odczyt nie mierzył notatek (L-0323); log
+pomiarowy wygenerowany przez `node -e` z `\n` wbrew zasadzie 5 — wynik sprawdzony (1500 linii),
+dalsze skrypty narzędziem Write (L-0324).

@@ -101,26 +101,26 @@ Zasady do doczytania: 3, 4, 5, 7, 13. Ryzyka etapu: R4 i R8 (plan), C1, C10 (dzi
 Każdy punkt, który przeszedł, odhaczasz tu (`- [ ]` → `- [x]`) zaraz po sprawdzeniu, nie na końcu
 etapu; punkt, który nie przeszedł, zostaje pusty.
 
-- [ ] Model sesji to Opus 5.5; `git status --short` przed pracą pokazuje tylko `.claude/launch.json`
+- [x] Model sesji to Opus 5.5; `git status --short` przed pracą pokazuje tylko `.claude/launch.json`
       (albo człowiek rozstrzygnął, co z drzewem).
-- [ ] Liczby wyjściowe testów jak w „Stanie wyjściowym” (inna liczba → zatrzymaj się i zapytaj).
-- [ ] Dowód negatywny (zasada 3): plik procesu RelAI (`docs/DZIENNIK.md`, `PROMPT_ETAP_*.md`,
+- [x] Liczby wyjściowe testów jak w „Stanie wyjściowym” (inna liczba → zatrzymaj się i zapytaj).
+- [x] Dowód negatywny (zasada 3): plik procesu RelAI (`docs/DZIENNIK.md`, `PROMPT_ETAP_*.md`,
       `.claude/relai/**`) i plik instrukcji (`CLAUDE.md`, `SKILL.md`) dochodzą dosłownie — 0 wywołań
       Haiku; duży plik zwykły → 1 wywołanie; mutacja przepustki czerwieni test.
-- [ ] Dowód negatywny skanera: duży plik z kluczem `sk-…` (złożonym z kawałków) → 0 wywołań Haiku
+- [x] Dowód negatywny skanera: duży plik z kluczem `sk-…` (złożonym z kawałków) → 0 wywołań Haiku
       i wynik dosłowny; ten sam plik bez klucza → 1 wywołanie.
-- [ ] `plugin validate input-router` ✔ i `plugin test input-router` zielony; pozostałe mody i rdzeń
+- [x] `plugin validate input-router` ✔ i `plugin test input-router` zielony; pozostałe mody i rdzeń
       bez spadku liczby testów; `sync-panel-core --check` zgodne z nowym celem.
-- [ ] Pomiar na żywo zapisany w katalogu roboczym: duży log i PDF (albo FAKT braku Popplera dla
+- [x] Pomiar na żywo zapisany w katalogu roboczym: duży log i PDF (albo FAKT braku Popplera dla
       `$.process.run`) jako notatki ze ścieżką; tokeny przed/po i `usage` Haiku; drugi odczyt bez
       Haiku; rekordy w rejestrze widoczne w zakładce „Oszczędności” i zgodne ze skryptem.
-- [ ] Bezpieczeństwo: `trivy fs --scanners vuln .` → 0 nowych CRITICAL i HIGH wobec E2 (0 / 42);
+- [x] Bezpieczeństwo: `trivy fs --scanners vuln .` → 0 nowych CRITICAL i HIGH wobec E2 (0 / 42);
       brak nowych zależności npm; podstawy: ścieżki z wejścia narzędzia normalizowane, zanim mod
       zapisze kopię; `git grep` po wzorcu klucza w nowych plikach nie zwraca nic.
-- [ ] Granica: `git status --short` pokazuje wyłącznie `input-router/**`, nowe pliki `core/panel/**`
+- [x] Granica: `git status --short` pokazuje wyłącznie `input-router/**`, nowe pliki `core/panel/**`
       (jeśli trzeba), `core/tools/sync-panel-core.js`, `.claude-plugin/marketplace.json`,
       `core/tools/release-map.json` i dokumenty rytuału.
-- [ ] Katalog roboczy `.claude/relai/work/MODY_OSZCZEDZANIA/E3/` przejrzany
+- [x] Katalog roboczy `.claude/relai/work/MODY_OSZCZEDZANIA/E3/` przejrzany
       (`node .claude/relai/tools/clean-work.js raport`; katalog otwartego etapu raport pomija — wtedy
       `find`/`du`), skasowany po „tak”, liczby przed i po we wpisie; artefakty spoza katalogu
       (kopie w dev-mods, kopie pełnej treści z pomiaru) wypisane z nazwy z tym, co się z nimi stało.

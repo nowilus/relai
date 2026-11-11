@@ -1,0 +1,10 @@
+{
+  "name": "relai-input-router",
+  "version": "0.1.0",
+  "author": { "name": "nowilus", "url": "https://github.com/nowilus" },
+  "description": "Early access — needs Claude Code with mods (measured on 2.1.321). RelAI Input Router: a large file (2000 tokens or more), a PDF over 5 pages or the large output of a reader command (cat, head, tail...) is read first by a helper model (claude-haiku-5-5 by default); Claude gets its notes with line numbers and a path to the full text. RelAI process files (docs/, PROMPT_ETAP_*, STATUS.md, PLAN.*, .claude/relai/), instruction files (CLAUDE.md, SKILL.md, settings), secret files, small ranges, grep/ls/find, builds, tests, git and errors always reach Claude whole. Text with a secret found by the RelAI secret scanner never goes to the helper. Asks once per RelAI project (row 'Mody oszczędzania' in docs/USTAWIENIA.md) and stays passive in a session with no person before that answer. Sleeps while the BenAI 'input-router' mod is on. /relai-input-router shows stats; full lets the next large read through whole; off file / on file; model <id>. Notes are remembered by path, time, size and the ask (~/.claude/relai/oszczednosci/input-router/), and every hand-off goes to the RelAI savings ledger.",
+  "homepage": "https://github.com/nowilus/relai",
+  "repository": "https://github.com/nowilus/relai",
+  "license": "MIT",
+  "types": "./types/index.d.ts"
+}

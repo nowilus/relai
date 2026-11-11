@@ -1026,6 +1026,23 @@ w wyzwalacz, przed pracą doczytujesz pełne brzmienie zasady z sekcji „Pełne
   niż zainstalowany), potem skill `plugin-authoring` w tej sesji, potem zapis kopii — i dopiero
   wtedy prośba do człowieka o komendę modu. Przemianowanie robisz w kopii, nie w repo.
 
+### L-0323 — Materiał pomiaru modu w ścieżce, którą mod z definicji przepuszcza · 2026-11-11 · AKTYWNA
+
+- **Trigger:** MODY_OSZCZEDZANIA E3, pomiar `relai-input-router`. Duży log położony w katalogu
+  roboczym `.claude/relai/work/…`; mod przepuścił go dosłownie, bo `.claude/relai/**` to plik
+  procesu — odczyt (25 tys. tokenów kontekstu) nie zmierzył notatek. Dopiero kopia w scratchpadzie.
+- **Zasada (zasady 4 i 13):** zanim położysz materiał pomiaru, przepuść jego ścieżkę przez
+  przepustki mierzonego mechanizmu (`fileGuard`) i umieść go tam, gdzie mechanizm działa; pierwszy
+  odczyt robisz na małym pliku tuż nad progiem, żeby porażka kosztowała mało.
+
+### L-0324 — Powtórka L-0116: `node -e` z `\n` „tylko do materiału testowego” · 2026-11-11 · AKTYWNA
+
+- **Trigger:** MODY_OSZCZEDZANIA E3. Log pomiarowy wygenerowany `node -e "…'\n'…"` w Bash;
+  `bash-guard` ostrzegł, wynik przypadkiem poprawny (1500 linii).
+- **Zasada (zasada 5):** skrypt z `\n`, backslashem albo ścieżką Windows — narzędziem Write
+  i uruchomienie z pliku, także dla danych testowych; ostrzeżenie `bash-guard` traktujesz jak
+  zatrzymanie.
+
 ## Lekcje zwinięte
 
 Pełne wpisy lekcji, których zasady żyją w destylacie „Zasady aktywne" (kompresja 2026-08-20).

@@ -8,6 +8,20 @@ Specyfikacja: `SPEC_PULAPKI.md`.
 
 ## Pułapki
 
+### P-065 — Silnik modów 2.1.321: duży wynik Bash w hooku `tool.call` jest już ucięty · 2026-11-11 · AKTYWNA
+
+- **Objaw:** `relai-input-router` (E3) dał notatki do `cat` logu 127 754 znaków; Haiku zobaczył 355
+  linii, a model i tak dostał „Output too large … Full output saved to …” z 2 KB podglądu (notatek).
+  Rekord rejestru 7500 → 585 tokenów zawyżał zysk.
+- **Przyczyna:** wyjście Bash ponad ~30 tys. znaków silnik zapisuje do `tool-results/` i w wyniku
+  ustawia `persistedOutputPath` / `persistedOutputSize`; `stdout` w hooku to już przycięta część,
+  a model dostaje tylko podgląd (L-0296).
+- **Obejście:** mod przepuszcza wynik z `persistedOutputPath` (`bashRoute`, `isPersisted`). Pełny
+  tekst leży pod tą ścieżką, gdyby kiedyś notatki miały go czytać.
+- **Zasięg:** Claude Code 2.1.321, desktop, Windows. Pomiar: `plany/MODY_OSZCZEDZANIA/POMIAR_E3.md`.
+- **Read po wyłączeniu pluginu:** `claude plugin disable` nie zdejmuje pluginu z działającej sesji —
+  dopiero `/reload-plugins` (ten sam pomiar).
+
 ### P-064 — Silnik modów 2.1.321: pięć zachowań zmierzonych w E2 planu MODY_OSZCZEDZANIA · 2026-11-11 · AKTYWNA
 
 - **`h` w pliku `.tsx` modu:** JSX kompiluje się do globalnego `h`; lokalne `const h = …` w tej
