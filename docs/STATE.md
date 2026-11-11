@@ -18,7 +18,7 @@ są włączone na poziomie użytkownika, a w projektach z markerem RelAI także 
 z `relai-scope.js status`, 2026-11-10); tryb „RelAI tylko w projektach” jest dostępny
 (`relai-scope.js apply`), ale nie jest włączony. Plan OPTYMALIZACJA_PO_AUDYCIE zamknięty
 2026-11-10 (14 etapów w dwa dni, E9–E13 wykonał Codex wg Aneksu A, jedno wydanie 3.8.0); aktywny
-plan: MODY_OSZCZEDZANIA (E1 zrealizowany 2026-11-11, E2 gotowy). Każdy push do `main` uruchamia testy rdzenia i adapterów (`testy.yml`).
+plan: MODY_OSZCZEDZANIA (E1 i E2 zrealizowane 2026-11-11, E3 gotowy). Każdy push do `main` uruchamia testy rdzenia i adapterów (`testy.yml`).
 PANEL_CODEX (Codex) wstrzymany 2026-10-27 decyzją Łukasza. Opinii spoza projektu nadal nie ma.
 
 ## Co działa
@@ -128,7 +128,9 @@ PANEL_CODEX (Codex) wstrzymany 2026-10-27 decyzją Łukasza. Opinii spoza projek
 
 - Plan [MODY_OSZCZEDZANIA](plany/MODY_OSZCZEDZANIA/STATUS.md) **ZAAKCEPTOWANY 2026-11-11**, E1 zrealizowany
   2026-11-11 (sondy silnika, rdzeń `savings-gates`/`savings-ledger`, `relai-browser` 0.1.0 w repo,
-  niewydany; Aneks A — bliźniak z `settings.json`), E2 gotowy do startu:
+  niewydany; Aneks A — bliźniak z `settings.json`), E2 zrealizowany 2026-11-11 (zakładka
+  „Oszczędności” w `relai-panel` zgodna z rejestrem co do tokena, tryb `describe` w
+  `relai-browser` — opis słowami przez ukrytego subagenta Haiku, niewydane), E3 gotowy do startu:
   pięć modów oszczędzania tokenów (własny kod, zachowanie jak paczka BenAI) i zakładka
   „Oszczędności” w `relai-panel`, 10 etapów. Pozostali kandydaci (`/relai-update`, G1) — w „Co dalej”.
 - **PANEL_CODEX — nieaktywny, WSTRZYMANY 2026-10-27** decyzją Łukasza (plan

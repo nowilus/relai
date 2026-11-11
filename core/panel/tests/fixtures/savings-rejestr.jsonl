@@ -1,0 +1,8 @@
+{"ts":"2026-11-11T09:00:00.000Z","session":"sesja-a","tool_use_id":"toolu_a1","mod":"relai-browser","part":"0","tool":"mcp__Claude_Browser__computer","action":"shrink","before":649,"after":267,"measured":false,"detail":"799x609 -> 512x390"}
+{"ts":"2026-11-11T09:01:00.000Z","session":"sesja-a","tool_use_id":"toolu_a2","mod":"relai-browser","part":"0","tool":"Read","action":"shrink","before":1844,"after":692,"measured":false,"detail":"1920x1080 -> 960x540"}
+{"ts":"2026-11-11T09:01:00.000Z","session":"sesja-a","tool_use_id":"toolu_a2","mod":"relai-browser","part":"0","tool":"Read","action":"shrink","before":1844,"after":692,"measured":false,"detail":"1920x1080 -> 960x540"}
+{"ts":"2026-11-11T09:02:00.000Z","session":"sesja-a","tool_use_id":
+{"ts":"2026-11-11T09:03:00.000Z","session":"sesja-a","tool_use_id":"toolu_a3","mod":"relai-browser","part":"0","tool":"mcp__Claude_Browser__computer","action":"describe","before":1844,"after":300,"measured":true,"helper":{"model":"claude-haiku-5-5","in":2000,"out":350},"detail":"1920x1080 -> 230 words"}
+{"ts":"2026-11-11T09:04:00.000Z","session":"sesja-a","tool_use_id":"toolu_a4","mod":"relai-browser","part":"0","tool":"Read","action":"shrink","before":600000,"after":300,"measured":false,"detail":"implausible"}
+{"ts":"2026-11-11T10:00:00.000Z","session":"sesja-b","tool_use_id":"toolu_b1","mod":"relai-browser","part":"0","tool":"mcp__Claude_Browser__computer","action":"shrink","before":640,"after":263,"measured":false,"detail":"800x600 -> 512x384"}
+{"ts":"2026-11-10T10:00:00.000Z","session":"sesja-b","tool_use_id":"toolu_b2","mod":"relai-browser","part":"0","tool":"mcp__Claude_Browser__computer","action":"shrink","before":800,"after":200,"measured":false,"detail":"older day"}

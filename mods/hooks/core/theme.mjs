@@ -130,6 +130,8 @@ export const HEADINGS = Object.freeze([
   // The documents tab and the price list in the costs tab (E6)
   { key: 'docs', text: 'Dokumenty projektu', size: 22, color: ROOT.musztarda },
   { key: 'costs-pricing', text: 'Cennik', size: 20, color: mix(ROOT.glina, ROOT.kartka, 0.25) },
+  // The savings tab (plan MODY_OSZCZEDZANIA, E2)
+  { key: 'savings', text: 'Oszczędności modów', size: 22, color: ROOT.musztarda },
   // relai-progress's pane (E9, calibration 2026-10-09: the same motif as relai-panel's)
   { key: 'progress', text: 'Postęp etapu', size: 22, color: ROOT.musztarda },
   { key: 'agents', text: 'Agenci sesji', size: 22, color: ROOT.musztarda },

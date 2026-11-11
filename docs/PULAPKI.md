@@ -8,6 +8,27 @@ Specyfikacja: `SPEC_PULAPKI.md`.
 
 ## Pułapki
 
+### P-064 — Silnik modów 2.1.321: pięć zachowań zmierzonych w E2 planu MODY_OSZCZEDZANIA · 2026-11-11 · AKTYWNA
+
+- **`h` w pliku `.tsx` modu:** JSX kompiluje się do globalnego `h`; lokalne `const h = …` w tej
+  samej funkcji co JSX daje „Cannot access 'h' before initialization” i zakładka się nie
+  rysuje. Nie nazywaj zmiennych `h`.
+- **`$.model.complete` przyjmuje tylko tekst** (`prompt`: string albo bloki tekstu) — obrazu nie
+  przekaże. Opis obrazu: ukryty subagent (`$.agent.register` + `agent.offer` → `isOffered:false`)
+  z narzędziem Read na pliku zapisanym przez konektor (`[Image: source: …]`).
+- **`$.agent.spawn` — `model` tylko aliasem** `sonnet|opus|haiku|fable`; pełny identyfikator →
+  `InputValidationError` od narzędzia Agent. W `plugin test` atrapa przyjmuje wszystko, a
+  `agentId` ustawia wyłącznie rdzeń (atrapa odpowiadająca bez `next` nie uruchamia agenta).
+- **Raport subagenta uruchomionego z modu wraca do głównej sesji drugi raz** — jako wiadomość
+  „Subagent hand-back” obok odpowiedzi odebranej przez `turn.complete`. Treść pomocnika jest
+  w kontekście dwa razy.
+- **`$.ui.log` w modzie przeładowywanym z dev-mods nie trafia do transkryptu**; powód awarii
+  zapisuj do pliku. `zrzut-panelu.ps1 -Press` nie przełącza przycisków filtra zakładki (kliknięcie
+  ręczne — tak); `/reload-plugins` nie wczytuje `~/.claude/dev-mods/<sesja>/` bez obserwacji
+  uruchomionej skillem `plugin-authoring` (L-0322).
+- **Zasięg:** Claude Code 2.1.321, desktop, Windows. Pomiar:
+  `docs/plany/MODY_OSZCZEDZANIA/POMIAR_E2.md`.
+
 ### P-063 — Silnik modów 2.1.321: sześć zachowań zmierzonych sondą E1 planu MODY_OSZCZEDZANIA · 2026-11-11 · AKTYWNA
 
 - **`turn.step` tylko jako generator:** hook `async ($, e, next) => next(e)` → `plugin validate`

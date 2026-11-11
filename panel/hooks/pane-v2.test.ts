@@ -142,14 +142,14 @@ const FEATURED_V2 = ['relai-stage', 'relai-prompt']
 const ROWS = FORMS.map((f) => f.command).filter((c) => !FEATURED_V2.includes(c))
 
 describe('the header and the "Teraz" bar (brief v2 §6.1–6.2)', () => {
-  test('one row: the Kalam title and the five tabs in the order of use; no sentence about 14 commands', async ($, on) => {
+  test('one row: the Kalam title and the six tabs in the order of use; no sentence about 14 commands', async ($, on) => {
     world(on)
     for (const surface of ['desktop', 'terminal'] as const) {
       const ui = await open($, surface)
       const head = await ui.find({ key: 'pane-head' })
       expect(props(head).flexDirection).toBe('row')
       const tabs = [...walk(head)].filter((n) => n.type === 'Button').map((n) => String(props(n).label ?? textOf(n)))
-      expect(tabs).toEqual(['Komendy', 'Koszty', 'Dokumenty', 'Mapa', 'Pomoc'])
+      expect(tabs).toEqual(['Komendy', 'Koszty', 'Oszczędności', 'Dokumenty', 'Mapa', 'Pomoc']) // Oszczędności: MODY_OSZCZEDZANIA E2
       if (surface === 'desktop') expect([...walk(head)].some((n) => n.type === 'Svg' && props(n).alt === 'Panel RelAI')).toBe(true)
       else expect(textOf(head)).toContain('Panel RelAI')
       expect(textOf(await ui.drawn())).not.toContain('komend RelAI')

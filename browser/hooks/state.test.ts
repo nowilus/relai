@@ -36,7 +36,14 @@ describe('command', () => {
     expect(parseCommand('min 640')).toEqual({ kind: 'min', value: 640 })
     expect(parseCommand('')).toEqual({ kind: 'status' })
     expect(parseCommand('scale').kind).toBe('bad')
-    expect(parseCommand('describe').kind).toBe('bad')
+    expect(parseCommand('nonsense').kind).toBe('bad')
+  })
+
+  test('describe and shrink switch the mode (E2); a model id is checked, never a path', () => {
+    expect(parseCommand('describe')).toEqual({ kind: 'describe', model: null })
+    expect(parseCommand('describe claude-haiku-5-5')).toEqual({ kind: 'describe', model: 'claude-haiku-5-5' })
+    expect(parseCommand('describe ../../x').kind).toBe('bad')
+    expect(parseCommand('shrink')).toEqual({ kind: 'shrink' })
   })
 })
 

@@ -14,9 +14,10 @@ export type PanelCrewDraft = { run: string, tasks: { id: string, title: string, 
   isEditable: boolean, reason: string }
 
 /** Which tab of the pane shows (brief v2, AUDYT_MODOW Z2): the command forms with "Teraz", the costs,
- * the documents, the map, and "Pomoc" — the cheat sheet and the session phrases in one tab. A value
- * kept from before Z2 ('sheet', 'phrases') is read as 'help'. */
-export type PanelView = 'commands' | 'costs' | 'docs' | 'map' | 'help'
+ * the token-saving mods' savings (MODY_OSZCZEDZANIA E2), the documents, the map, and "Pomoc" — the
+ * cheat sheet and the session phrases in one tab. A value kept from before Z2 ('sheet', 'phrases')
+ * is read as 'help'. */
+export type PanelView = 'commands' | 'costs' | 'savings' | 'docs' | 'map' | 'help'
 
 declare module 'claude-code' {
   interface PluginState {
@@ -64,6 +65,8 @@ declare module 'claude-code' {
       docFilter: 'changed' | 'all'
       /** The shelf as tiles in RelAI groups, or as a file tree by folder. */
       docLayout: 'tiles' | 'tree'
+      /** MODY_OSZCZEDZANIA E2: the savings tab's filter — this chat, today, or the whole ledger. */
+      savingsFilter: 'chat' | 'today' | 'all'
       /** AUDYT_MODOW Z3: the page of the open document's diff, 0 for the first; back to 0 when
        * another document opens. */
       diffPage: number

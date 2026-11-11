@@ -36,6 +36,8 @@ export type Command =
   | { kind: 'scale', value: number }
   | { kind: 'min', value: number }
   | { kind: 'pane' }
+  | { kind: 'describe', model: string | null }
+  | { kind: 'shrink' }
   | { kind: 'status' }
   | { kind: 'bad', text: string }
 
@@ -44,10 +46,15 @@ export function parseCommand(args: string): Command {
   if (!word) return { kind: 'status' }
   if (word === 'full') return { kind: 'full' }
   if (word === 'pane') return { kind: 'pane' }
+  if (word === 'shrink') return { kind: 'shrink' }
+  if (word === 'describe') {
+    if (arg && !/^[A-Za-z0-9.\-]{1,64}$/.test(arg)) return { kind: 'bad', text: '/relai-browser describe takes a model id, e.g. claude-haiku-5-5' }
+    return { kind: 'describe', model: arg || null }
+  }
   if (word === 'scale' || word === 'min') {
     const v = arg ? Number(arg.replace(',', '.')) : Number.NaN
     if (!Number.isFinite(v)) return { kind: 'bad', text: `/relai-browser ${word} needs a number` }
     return word === 'scale' ? { kind: 'scale', value: v } : { kind: 'min', value: v }
   }
-  return { kind: 'bad', text: 'Type /relai-browser full, scale 0.5, min 512 or pane.' }
+  return { kind: 'bad', text: 'Type /relai-browser full, describe, shrink, scale 0.5, min 512 or pane.' }
 }

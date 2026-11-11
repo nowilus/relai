@@ -991,6 +991,41 @@ w wyzwalacz, przed pracą doczytujesz pełne brzmienie zasady z sekcji „Pełne
   Ta sama luka testu parzystości w zwykłym klonie z `autocrlf=true` zostaje w „Co dalej”
   (PIPELINE_WYDAN).
 
+### L-0320 — Powtórka L-0298 po raz trzeci: `cd` na początku polecenia „tylko do grep” · 2026-11-11 · AKTYWNA
+
+- **Trigger:** MODY_OSZCZEDZANIA E2. Polecenie `cd panel/hooks && grep … register.tsx …`
+  przestawiło katalog sesji na `panel/hooks`; `bash-guard` ostrzegł, ale polecenie przeszło
+  (ostrzeżenie, nie blokada). Katalog przywrócony od razu kolejnym poleceniem.
+- **Przyczyna:** skrót myślowy „krótkie ścieżki w grep” — reguła z `CLAUDE.md` znana, nie
+  sprawdzona przed napisaniem polecenia.
+- **Zasada:** bez zmian (zasada 5, L-0298, L-0302): ścieżka w argumencie, nigdy `cd` na
+  początku. Trzecia powtórka mimo `bash-guard` — do rozważenia blokada zamiast ostrzeżenia
+  (decyzja człowieka, „Świadomie odłożone” E2).
+
+### L-0321 — Nowa droga wywołania silnika sprawdzona w teście, który przyjmuje wszystko · 2026-11-11 · AKTYWNA
+
+- **Trigger:** MODY_OSZCZEDZANIA E2, tryb `describe`. `$.agent.spawn({ model: 'claude-haiku-5-5' })`
+  przeszło `plugin test` (atrapa `agent.spawn` przyjęła każde pole), a na żywo narzędzie Agent
+  odrzuciło je `InputValidationError` (tylko `sonnet|opus|haiku|fable`). Mod spadł do
+  zmniejszania po cichu — `$.ui.log` w przeładowywanym modzie nie trafia do transkryptu;
+  przyczynę dała dopiero sonda zapisująca powód do pliku.
+- **Zasada (zasada 13):** każda nowa droga do silnika (`$.agent.spawn`, `$.model.complete`,
+  `$.tool.call`) ma pierwszy przebieg na żywo z sondą powodu porażki w pliku, zanim padnie
+  zdanie „działa”; test z atrapą dowodzi liczby wywołań, nie przyjęcia argumentów. Mod
+  z wyjściem awaryjnym (zmniejszanie) zapisuje powód awarii tam, gdzie człowiek albo model go
+  zobaczy.
+
+### L-0322 — Kopia w dev-mods: zanim ją podłożysz, przeczytaj L-0289 i uruchom obserwację · 2026-11-11 · AKTYWNA
+
+- **Trigger:** MODY_OSZCZEDZANIA E2, pomiar na żywo. Kopia `panel/` jako `relai-panel` obok
+  wyłączonego zainstalowanego modu się nie wczytała (komenda nieznana); kopia przemianowana też
+  nie — `/reload-plugins` nie czyta `~/.claude/dev-mods/<sesja>/`. Wczytało je dopiero
+  załadowanie skilla `plugin-authoring` (start obserwacji katalogu) i zapis pliku pod nim;
+  tryb auto włączył mody bez pytania. Trzy rundy człowieka na nic.
+- **Zasada:** pomiar kopii modu na desktopie: najpierw L-0289 (inna nazwa modu, komendy i stanu
+  niż zainstalowany), potem skill `plugin-authoring` w tej sesji, potem zapis kopii — i dopiero
+  wtedy prośba do człowieka o komendę modu. Przemianowanie robisz w kopii, nie w repo.
+
 ## Lekcje zwinięte
 
 Pełne wpisy lekcji, których zasady żyją w destylacie „Zasady aktywne" (kompresja 2026-08-20).

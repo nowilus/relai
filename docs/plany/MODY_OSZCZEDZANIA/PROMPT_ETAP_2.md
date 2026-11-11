@@ -97,23 +97,23 @@ Katalog roboczy etapu: `.claude/relai/work/MODY_OSZCZEDZANIA/E2/` — zrzuty, pr
 
 Każdy punkt, który przeszedł, odhaczasz tu (`- [ ]` → `- [x]`) zaraz po sprawdzeniu.
 
-- [ ] Model sesji to Opus 5.5; `git status --short` przed pracą pokazuje tylko `.claude/launch.json`
+- [x] Model sesji to Opus 5.5; `git status --short` przed pracą pokazuje tylko `.claude/launch.json`
       (albo człowiek rozstrzygnął, co z drzewem).
-- [ ] Liczby wyjściowe testów jak w „Stanie wyjściowym” (inna liczba → zatrzymaj się i zapytaj).
-- [ ] Test sumy zakładki na fiksturze rejestru zgodny co do tokena; duplikat i zła linia sumy nie
+- [x] Liczby wyjściowe testów jak w „Stanie wyjściowym” (inna liczba → zatrzymaj się i zapytaj).
+- [x] Test sumy zakładki na fiksturze rejestru zgodny co do tokena; duplikat i zła linia sumy nie
       zmieniają; rekord LEFT OUT poza sumą i policzony osobno (obie strony testem).
-- [ ] Dowód negatywny (zasada 3): `describe` na obrazie z tekstem zawierającym klucz `sk-…` → 0
+- [x] Dowód negatywny (zasada 3): `describe` na obrazie z tekstem zawierającym klucz `sk-…` → 0
       wywołań Haiku, obraz idzie zmniejszony; bez sekretu → 1 wywołanie.
-- [ ] `plugin validate panel` i `plugin validate browser` → ✔; `plugin test` obu zielone; pozostałe
+- [x] `plugin validate panel` i `plugin validate browser` → ✔; `plugin test` obu zielone; pozostałe
       mody i rdzeń bez spadku liczby testów; `sync-panel-core --check` zgodne.
-- [ ] Pomiar na żywo zapisany w katalogu roboczym: suma zakładki = suma z plików rejestru;
+- [x] Pomiar na żywo zapisany w katalogu roboczym: suma zakładki = suma z plików rejestru;
       `describe` zmierzony (słowa, czas, `usage`); filtr czat/dziś/wszystko zmienia liczby.
-- [ ] Zrzut zakładki w jasnym i ciemnym wyglądzie przejrzany wg listy kontrolnej `DESIGN.md` §12.
-- [ ] Bezpieczeństwo: `trivy fs --scanners vuln .` → 0 nowych CRITICAL i HIGH wobec E1 (0 / 42);
+- [x] Zrzut zakładki w jasnym i ciemnym wyglądzie przejrzany wg listy kontrolnej `DESIGN.md` §12.
+- [x] Bezpieczeństwo: `trivy fs --scanners vuln .` → 0 nowych CRITICAL i HIGH wobec E1 (0 / 42);
       brak nowych zależności npm.
-- [ ] Granica: `git status --short` pokazuje wyłącznie `panel/**`, `browser/**`, nowe pliki
+- [x] Granica: `git status --short` pokazuje wyłącznie `panel/**`, `browser/**`, nowe pliki
       `core/panel/**`, `core/tools/sync-panel-core.js` (jeśli trzeba) i dokumenty rytuału.
-- [ ] Katalog roboczy `.claude/relai/work/MODY_OSZCZEDZANIA/E2/` przejrzany
+- [x] Katalog roboczy `.claude/relai/work/MODY_OSZCZEDZANIA/E2/` przejrzany
       (`node .claude/relai/tools/clean-work.js raport`; katalog otwartego etapu raport pomija — wtedy
       `find`/`du`), skasowany po „tak”, liczby przed i po we wpisie; artefakty spoza katalogu
       (kopie w dev-mods) wypisane z nazwy z tym, co się z nimi stało.

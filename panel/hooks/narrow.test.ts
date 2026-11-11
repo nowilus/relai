@@ -17,6 +17,7 @@ import { STACK_BELOW } from './pane-parts'
 type Engine = Parameters<TestBody>[0]
 
 const CWD = 'C:/proj'
+const HOME = 'C:/Users/T'
 const NOW = new Date(2026, 9, 14, 12, 0).getTime()
 const CELL_PX = 8.2 // a desktop cell in CSS px (P-024 pkt 3): an Svg's width in cells
 
@@ -57,6 +58,12 @@ const FILES: Record<string, string> = {
   [`${CWD}/docs/KOMENDY.md`]: KOMENDY,
   [`${CWD}/docs/STATE.md`]: '# STATE\n\nStan na dziś.\n',
   [`${CWD}/docs/DZIENNIK.md`]: '# DZIENNIK\n\nWpisy.\n',
+  // The savings tab with its longest words (MODY_OSZCZEDZANIA E2): a describe with a helper, a LEFT OUT record and a bad line
+  [`${HOME}/.claude/relai/oszczednosci/rejestr/2026-10-08-session-1.jsonl`]: [
+    JSON.stringify({ ts: '2026-10-08T10:00:00.000Z', session: 'session-1', tool_use_id: 't1', mod: 'relai-browser', action: 'describe', before: 1844, after: 300, measured: true, helper: { model: 'claude-haiku-5-5', in: 2000, out: 350 } }),
+    JSON.stringify({ ts: '2026-10-08T10:01:00.000Z', session: 'session-1', tool_use_id: 't2', mod: 'relai-browser', action: 'shrink', before: 600000, after: 300 }),
+    '{"zla',
+  ].join('\n') + '\n',
 }
 const COMMANDS = FORMS.map((f) => 'relai:' + f.command)
 
@@ -69,6 +76,7 @@ function world(on: On) {
   on('session.cwd', () => ({ value: CWD }))
   on('session.id', () => ({ value: 'session-1' }))
   on('session.model', () => ({ value: 'claude-opus-5-5' }))
+  on('env.get', ($, e) => ({ value: e.name === 'USERPROFILE' ? HOME : undefined }))
   on('fs.exists', ($, e) => ({ value: key(e.path) in disk || Object.keys(disk).some((p) => p.startsWith(key(e.path) + '/')) }))
   on('fs.read', ($, e) => (key(e.path) in disk ? { value: disk[key(e.path)] ?? '' } : { deny: 'ENOENT ' + e.path }))
   on('fs.write', ($, e) => { disk[key(e.path)] = e.text; return { value: undefined } })
@@ -309,7 +317,7 @@ export function layout(node: RenderNode, w: number, path: string, out: Finding[]
 }
 
 // ---------- the measurement ----------
-const TABS = ['commands', 'costs', 'docs', 'map', 'help'] as const
+const TABS = ['commands', 'costs', 'savings', 'docs', 'map', 'help'] as const
 type Ui = Awaited<ReturnType<typeof open>>
 
 function* walk(node: RenderNode): Generator<El> {

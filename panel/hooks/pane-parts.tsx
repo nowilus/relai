@@ -64,7 +64,7 @@ const FOLD_HEAD = 28
 export const NONE = '_'
 
 // In the order of use (brief v2 §6.1): the cheat sheet and the phrases are one tab, "Pomoc"
-export const TABS = [['commands', 'Komendy'], ['costs', 'Koszty'], ['docs', 'Dokumenty'], ['map', 'Mapa'], ['help', 'Pomoc']] as const
+export const TABS = [['commands', 'Komendy'], ['costs', 'Koszty'], ['savings', 'Oszczędności'], ['docs', 'Dokumenty'], ['map', 'Mapa'], ['help', 'Pomoc']] as const
 
 // The tab kept in $.state: a value from before Z2 ('sheet', 'phrases') opens "Pomoc"
 export function tabOf(v: string): PanelView {

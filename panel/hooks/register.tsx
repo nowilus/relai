@@ -52,7 +52,7 @@ import type { Action, Card, CardResult, CleanChoices, CrewDraft } from './core/d
 import type { DocsData, PaneData } from './data'
 import { bump, epochNow, forget, remember } from './memo'
 import { forgetRecords, othersFrom } from './records-memo'
-import { CREW_DIR, FRESH, MEASURE_DIR, forgetPlan, readWork, relaiRoot } from './pane-io'
+import { CREW_DIR, FRESH, MEASURE_DIR, forgetPlan, localDay, readWork, relaiRoot } from './pane-io'
 import { focusOfPrompt, focusPath, isSameWork, parseFocus, serializeFocus } from './focus'
 import type { Focus, FocusTarget } from './focus'
 import type { Ledger, PaneIo, Session } from './pane-io'
@@ -68,6 +68,9 @@ import { mapView } from './pane-map'
 import { docsView } from './pane-docs'
 import { commandTabs } from './pane-commands'
 import { helpView } from './pane-help'
+import { savingsTab } from './pane-savings'
+import type { SavingsData, SavingsFilter } from './pane-savings'
+import { LEDGER_DIR, parse as parseSavings } from './core/savings-ledger.mjs'
 import { nowBar } from './pane-now'
 
 type $T = EngineInterface
@@ -274,6 +277,8 @@ const docMode = atom({ plugin: 'relai-panel', key: 'docMode' } as const, 'diff' 
 // group open ("all"); tiles or a file tree
 const docFilter = atom({ plugin: 'relai-panel', key: 'docFilter' } as const, 'changed' as 'changed' | 'all')
 const docLayout = atom({ plugin: 'relai-panel', key: 'docLayout' } as const, 'tiles' as 'tiles' | 'tree')
+// The savings tab's filter (MODY_OSZCZEDZANIA E2): this chat by default
+const savingsFilter = atom({ plugin: 'relai-panel', key: 'savingsFilter' } as const, 'chat' as SavingsFilter)
 // The page of the open document's diff (AUDYT_MODOW Z3: DIFF_PAGE rows a drawing), 0 for the first
 const diffPage = atom({ plugin: 'relai-panel', key: 'diffPage' } as const, 0)
 
@@ -465,6 +470,27 @@ const LIMIT_WATCH_FOR_MS = 3 * 60_000 // and for how long: the person answers tw
 
 async function homeDir($: $T): Promise<string> {
   return (await $.env.get('USERPROFILE').catch(() => '')) || (await $.env.get('HOME').catch(() => '')) || ''
+}
+
+// ---------- savings (MODY_OSZCZEDZANIA E2) ----------
+// The ledger of the token-saving mods: one file per session and day under ~/.claude (E1). Every
+// file is read and parsed together, so a duplicate across files counts once; the BenAI ledger
+// (~/.claude/mods-logs/) is never read.
+async function savingsData($: $T): Promise<SavingsData> {
+  const home = await homeDir($)
+  const dir = home ? join(home, `.claude/${LEDGER_DIR}`) : ''
+  const names = dir && (await $.fs.exists(dir).catch(() => false))
+    ? (await $.fs.list(dir).catch(() => [])).filter((x) => x.kind === 'file' && x.name.endsWith('.jsonl')).map((x) => x.name)
+    : []
+  const texts = await Promise.all(names.map((n) => readText($, join(dir, n))))
+  const { records, bad } = parseSavings(texts.filter((t): t is string => t !== null))
+  const prices = await loadPrices(ioOf($))
+  const today = localDay(await $.clock.now())
+  return {
+    records, bad, files: names.length, error: home ? prices.error : 'Nie znam katalogu domowego — rejestru nie da się odczytać.',
+    session: await $.session.id().catch(() => ''), mainModel: await $.session.model().catch(() => null),
+    lists: prices.lists, isToday: (ts: string) => localDay(Date.parse(ts)) === today,
+  }
 }
 
 async function limitFiles($: $T): Promise<string[]> {
@@ -865,6 +891,8 @@ export const register: Register = (on) => {
     const now = tab === 'commands' ? await remember('now', key, () => nowData(ioOf($))) : null
     const costs = tab === 'costs' ? await remember('costs', key, () => costData(ioOf($))) : null
     const map = tab === 'map' ? await remember('map', key, () => mapData(ioOf($))) : null
+    const savings = tab === 'savings' ? await remember('savings', key, () => savingsData($)) : null
+    const savingsNow = tab === 'savings' ? await read($, savingsFilter) : 'chat'
     const [pickNow, modeNow, filterNow, layoutNow, pageNow, changedNow] = tab === 'docs'
       ? await Promise.all([read($, docPick), read($, docMode), read($, docFilter), read($, docLayout), read($, diffPage), read($, turnChanged)])
       : ['', 'diff' as const, 'changed' as const, 'tiles' as const, 0, { turn: '', paths: [] as string[] }]
@@ -884,6 +912,9 @@ export const register: Register = (on) => {
       session: S, muted: mutedNow, launchVia, preparePricing: () => { void preparePricing($) },
       limits: await remember('limits', key, () => limitRows($)).catch(() => null), used: limitsUsed(S.rateLimits),
       changeLimit: (w, v) => { void changeLimit($, w, v) },
+    }) : savings ? savingsTab(c, p, savings, {
+      filter: savingsNow,
+      setFilter: (f) => { void update($, savingsFilter, () => f) },
     }) : map ? mapView(c, p, map, {
       isUnfolded, fold, chosen, drafts: crewDrafts,
       togglePick: (id) => { void update($, picks, (x) => (x.includes(id) ? x.filter((y) => y !== id) : [...x, id])) },
