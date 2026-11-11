@@ -100,24 +100,26 @@ Zasady do doczytania: 3, 4, 5, 13. Ryzyka etapu: R6, R8 (plan), C1, C10 (dzienni
 Każdy punkt, który przeszedł, odhaczasz tu (`- [ ]` → `- [x]`) zaraz po sprawdzeniu, nie na końcu
 etapu; punkt, który nie przeszedł, zostaje pusty.
 
-- [ ] Model sesji to Opus 5.5; `git status --short` przed pracą pokazuje tylko `.claude/launch.json`
+- [x] Model sesji to Opus 5.5; `git status --short` przed pracą pokazuje tylko `.claude/launch.json`
       (albo człowiek rozstrzygnął, co z drzewem).
-- [ ] Liczby wyjściowe testów jak w „Stanie wyjściowym” (inna liczba → zatrzymaj się i zapytaj).
-- [ ] Sonda MCP zapisana (dwa konektory, dwa przebiegi) w `POMIAR_E4.md`, zanim powstał kod.
-- [ ] Dowód negatywny (zasada 3): konektor z listy nietykanych (`mcp__Claude_Browser__*`, `mcp__ccd_*`)
+- [x] Liczby wyjściowe testów jak w „Stanie wyjściowym” (inna liczba → zatrzymaj się i zapytaj).
+- [x] Sonda MCP zapisana (dwa konektory, dwa przebiegi) w `POMIAR_E4.md`, zanim powstał kod.
+- [x] Dowód negatywny (zasada 3): konektor z listy nietykanych (`mcp__Claude_Browser__*`, `mcp__ccd_*`)
       i wynik < 16 000 znaków → 0 wywołań Haiku, wynik bez zmian; duży wynik zwykłego konektora →
       dokładnie 1 ścieżka (obcięcie albo Haiku); mutacja listy nietykanych czerwieni test.
-- [ ] Skaner: duży wynik konektora z kluczem `sk-…` (złożonym z kawałków) → 0 wywołań Haiku i wynik
+- [x] Skaner: duży wynik konektora z kluczem `sk-…` (złożonym z kawałków) → 0 wywołań Haiku i wynik
       dosłowny; bez klucza → 1.
-- [ ] `plugin validate input-router` ✔ i `plugin test input-router` zielony; pozostałe mody i rdzeń
+- [x] `plugin validate input-router` ✔ i `plugin test input-router` zielony; pozostałe mody i rdzeń
       bez spadku liczby testów; `sync-panel-core --check` zgodne.
 - [ ] Pomiar na żywo w `POMIAR_E4.md`: konektor duży, mały i nietykany; karta panelu kliknięta przez
       człowieka (notatki, pełny wynik, `full`); rekordy zgodne z `savingsView` co do tokena.
-- [ ] Bezpieczeństwo: `trivy fs --scanners vuln .` → 0 nowych CRITICAL i HIGH wobec E3 (0 / 42);
+      *(2026-11-11: pomiar bez człowieka i zgodność z `savingsView` przeszły; kliknięcia karty nie
+      było — Łukasz zamknął E4 mimo to, sprawdzenie na żywo przechodzi do E10. Punkt zostaje pusty.)*
+- [x] Bezpieczeństwo: `trivy fs --scanners vuln .` → 0 nowych CRITICAL i HIGH wobec E3 (0 / 42);
       brak nowych zależności npm; `git grep --untracked` po wzorcu klucza w zmienionych plikach → 0.
-- [ ] Granica: `git status --short` pokazuje wyłącznie `input-router/**`, nowe pliki `core/panel/**`
+- [x] Granica: `git status --short` pokazuje wyłącznie `input-router/**`, nowe pliki `core/panel/**`
       (jeśli trzeba), `core/tools/sync-panel-core.js` i dokumenty rytuału.
-- [ ] Katalog roboczy `.claude/relai/work/MODY_OSZCZEDZANIA/E4/` przejrzany
+- [x] Katalog roboczy `.claude/relai/work/MODY_OSZCZEDZANIA/E4/` przejrzany
       (`node .claude/relai/tools/clean-work.js raport`; katalog otwartego etapu raport pomija — wtedy
       `find`/`du`), skasowany po „tak”, liczby przed i po we wpisie; artefakty spoza katalogu
       (kopie w dev-mods, kopie z pomiaru) wypisane z nazwy z tym, co się z nimi stało.

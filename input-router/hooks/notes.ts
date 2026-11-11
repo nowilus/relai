@@ -18,14 +18,14 @@ export const ASK_CHARS = 12_000
 export const ARGS_CHARS = 2000
 export const HEADER = '[RelAI input-router]'
 
-export type Settings = { file: boolean, model: string }
-export const SETTINGS_DEFAULT: Settings = { file: true, model: DEFAULT_HELPER }
+export type Settings = { file: boolean, connector: boolean, model: string }
+export const SETTINGS_DEFAULT: Settings = { file: true, connector: true, model: DEFAULT_HELPER }
 
 /** The stored settings, sanitized: a model id is letters, digits, dots and dashes only. */
 export function readSettings(stored: unknown): Settings {
   const o = (stored && typeof stored === 'object' ? stored : {}) as Record<string, unknown>
   const model = typeof o.model === 'string' && /^[A-Za-z0-9.\-]{1,64}$/.test(o.model) ? o.model : DEFAULT_HELPER
-  return { file: o.file !== false, model }
+  return { file: o.file !== false, connector: o.connector !== false, model }
 }
 
 /** A text cut from the middle to `max` characters. */
@@ -79,7 +79,7 @@ export function addUsage(sum: HelperUsage | null, model: string, u: Record<strin
 }
 
 /** The text Claude reads in place of the file or the output. */
-export function notesResult(o: { what: string, path: string, model: string, lines: number, tokens: number, notes: string, copyPath: string, isRange: boolean, isPartial?: boolean }): string {
+export function notesResult(o: { what: string, path: string, model: string, lines: number, tokens: number, notes: string, copyPath: string, isRange: boolean, isPartial?: boolean, readFrom?: string }): string {
   const cover = o.isPartial ? 'They cover only the head and the tail; the middle was not read.' : `They cover the whole ${o.isRange ? 'range read' : 'text'}.`
   return [
     `${HEADER} Notes on ${o.path} — ${o.what}, ${o.lines} lines, ~${o.tokens} tokens — written by a helper model (${o.model}). ${cover}`,
@@ -87,7 +87,7 @@ export function notesResult(o: { what: string, path: string, model: string, line
     o.notes.trim(),
     '',
     `Full content: ${o.copyPath}`,
-    `For exact text, Read small ranges of ${o.path} (under 100 lines and under ~2000 tokens): they pass whole. /relai-input-router full lets the next large read through whole, once.`,
+    `For exact text, Read small ranges of ${o.readFrom ?? o.path} (under 100 lines and under ~2000 tokens): they pass whole. /relai-input-router full lets the next large read through whole, once.`,
   ].join('\n')
 }
 
@@ -143,6 +143,8 @@ export type Command =
   | { kind: 'stats' }
   | { kind: 'full' }
   | { kind: 'file', on: boolean }
+  | { kind: 'connector', on: boolean }
+  | { kind: 'pane' }
   | { kind: 'model', model: string }
   | { kind: 'bad', text: string }
 
@@ -151,7 +153,8 @@ export function parseCommand(args: string): Command {
   if (!w.length || w[0] === 'stats') return { kind: 'stats' }
   if (w[0] === 'full' && w.length === 1) return { kind: 'full' }
   if ((w[0] === 'on' || w[0] === 'off') && w[1] === 'file' && w.length === 2) return { kind: 'file', on: w[0] === 'on' }
-  if ((w[0] === 'on' || w[0] === 'off') && w[1] === 'connector') return { kind: 'bad', text: 'relai-input-router: connectors come in a later version; files only for now.' }
+  if ((w[0] === 'on' || w[0] === 'off') && w[1] === 'connector' && w.length === 2) return { kind: 'connector', on: w[0] === 'on' }
+  if (w[0] === 'pane' && w.length === 1) return { kind: 'pane' }
   if (w[0] === 'model' && w.length === 2 && /^[a-z0-9.\-]{1,64}$/.test(w[1])) return { kind: 'model', model: w[1] }
-  return { kind: 'bad', text: 'relai-input-router: use stats, full, off file, on file or model <id>.' }
+  return { kind: 'bad', text: 'relai-input-router: use stats, full, off file|connector, on file|connector, pane or model <id>.' }
 }

@@ -1043,6 +1043,27 @@ w wyzwalacz, przed pracą doczytujesz pełne brzmienie zasady z sekcji „Pełne
   i uruchomienie z pliku, także dla danych testowych; ostrzeżenie `bash-guard` traktujesz jak
   zatrzymanie.
 
+### L-0325 — Szósta powtórka L-0298: `cd <repo> &&` na początku poleceń mimo reguły w `CLAUDE.md` · 2026-11-11 · AKTYWNA
+
+- **Trigger:** MODY_OSZCZEDZANIA E4, pierwsze sześć poleceń Bash sesji zaczynało się od
+  `cd /c/Users/Lukasz/Desktop/RelAI && …`. Katalog sesji się nie przestawił (to był katalog
+  roboczy), ale reguła z `CLAUDE.md` mówi „nigdy gołe `cd`”, a lekcja L-0314 opisuje dokładnie ten
+  wzorzec.
+- **Zasada:** w katalogu roboczym sesji polecenie nie ma `cd` wcale — ścieżki względne od korzenia
+  repo; inny katalog tylko w argumencie albo w podpowłoce `( cd … && … )`. Pierwsze polecenie sesji
+  sprawdzasz pod tym kątem, zanim je wyślesz.
+
+### L-0326 — Nowa funkcja modułu przesłoniła starą o tej samej nazwie; test innej ścieżki złapał regres · 2026-11-11 · AKTYWNA
+
+- **Trigger:** MODY_OSZCZEDZANIA E4. W `input-router/hooks/register.tsx` dopisana
+  `async function shownText($, list, open)` dla panelu; moduł miał już `function shownText(ran)`
+  z E3. Druga deklaracja wygrała po cichu — `routeRead` dostał Promise zamiast tekstu, test
+  kawałkowania z E3 (60%) poczerwieniał. Diagnoza zajęła trzy próby (hook bez dopasowania, wyłączenie
+  hooka, logi), zanim padło na nazwę.
+- **Zasada (zasada 13):** przed dopisaniem funkcji najwyższego poziomu w pliku modułu `grep -n
+  "function <nazwa>\|const <nazwa>"` w tym pliku; regres starej ścieżki po dopisaniu kodu → najpierw
+  różnice nazw i importów, potem hipotezy o silniku.
+
 ## Lekcje zwinięte
 
 Pełne wpisy lekcji, których zasady żyją w destylacie „Zasady aktywne" (kompresja 2026-08-20).

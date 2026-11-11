@@ -18,7 +18,7 @@ są włączone na poziomie użytkownika, a w projektach z markerem RelAI także 
 z `relai-scope.js status`, 2026-11-10); tryb „RelAI tylko w projektach” jest dostępny
 (`relai-scope.js apply`), ale nie jest włączony. Plan OPTYMALIZACJA_PO_AUDYCIE zamknięty
 2026-11-10 (14 etapów w dwa dni, E9–E13 wykonał Codex wg Aneksu A, jedno wydanie 3.8.0); aktywny
-plan: MODY_OSZCZEDZANIA (E1–E3 zrealizowane 2026-11-11, E4 gotowy). Każdy push do `main` uruchamia testy rdzenia i adapterów (`testy.yml`).
+plan: MODY_OSZCZEDZANIA (E1–E4 zrealizowane 2026-11-11 — E4 bez kliknięcia karty panelu, przeniesione do E10; E5 gotowy). Każdy push do `main` uruchamia testy rdzenia i adapterów (`testy.yml`).
 PANEL_CODEX (Codex) wstrzymany 2026-10-27 decyzją Łukasza. Opinii spoza projektu nadal nie ma.
 
 ## Co działa
@@ -131,7 +131,9 @@ PANEL_CODEX (Codex) wstrzymany 2026-10-27 decyzją Łukasza. Opinii spoza projek
   niewydany; Aneks A — bliźniak z `settings.json`), E2 zrealizowany 2026-11-11 (zakładka
   „Oszczędności” w `relai-panel` zgodna z rejestrem co do tokena, tryb `describe` w
   `relai-browser` — opis słowami przez ukrytego subagenta Haiku, niewydane), E3 zrealizowany 2026-11-11 (`relai-input-router` 0.1.0: duże pliki, wyjścia czytników
-  i PDF przez notatki Haiku, pliki procesu dosłownie, niewydany), E4 gotowy do startu:
+  i PDF przez notatki Haiku, pliki procesu dosłownie, niewydany), E4 zrealizowany 2026-11-11
+  (konektory MCP — obcięcie albo notatki Haiku, nietykane dosłownie — i panel przekazań; kliknięcie
+  karty na żywo przeniesione do E10), E5 (Model Router) gotowy do startu:
   pięć modów oszczędzania tokenów (własny kod, zachowanie jak paczka BenAI) i zakładka
   „Oszczędności” w `relai-panel`, 10 etapów. Pozostali kandydaci (`/relai-update`, G1) — w „Co dalej”.
 - **PANEL_CODEX — nieaktywny, WSTRZYMANY 2026-10-27** decyzją Łukasza (plan

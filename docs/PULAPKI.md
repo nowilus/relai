@@ -8,6 +8,23 @@ Specyfikacja: `SPEC_PULAPKI.md`.
 
 ## Pułapki
 
+### P-066 — Silnik modów 2.1.321: wynik konektora MCP w hooku `tool.call` to sama tablica bloków · 2026-11-11 · AKTYWNA
+
+- **Objaw:** typy silnika opisują wynik MCP jako `McpToolResult` `{ content, isError,
+  structuredContent }` i proweniencję serwera (`McpServerProvenance`); kod pisany z typów nie
+  znalazłby treści.
+- **Przyczyna (sonda E4, dwa przebiegi, sześć konektorów):** `await next(e)` daje
+  `{ ref, result, text }`, a `result` to **tablica bloków** (`[{ type: 'text', text }]`); JSON
+  przychodzi jako napis w bloku; w `e` są tylko argumenty, `tool` i `tool_use_id` — bez `server`.
+  Wynik 35 833 znaków dociera do modelu w całości (bez `persistedOutputPath`, inaczej niż Bash).
+- **Obejście:** hook zwraca własne `{ result: [{ type: 'text', text }] }` (bez `ref`) — przyjęte na
+  żywo; serwer tylko z nazwy narzędzia `mcp__<serwer>__<narzędzie>`. Hook na `tool.call` dla MCP
+  z dopasowaniem RegExp `{ tool: /^mcp__/ }`.
+- **Zasięg:** Claude Code 2.1.321, desktop, Windows. Pomiar: `plany/MODY_OSZCZEDZANIA/POMIAR_E4.md`.
+- **Bez człowieka przy komputerze:** kopia modu w dev-mods wczytuje się na końcu tury — tura
+  kończy się też wtedy, gdy model czeka na polecenie puszczone w tle; `claude plugin disable` bez
+  `/reload-plugins` zmienia tylko `settings.json` (bliźniak w nim wyłączony), plugin działa dalej.
+
 ### P-065 — Silnik modów 2.1.321: duży wynik Bash w hooku `tool.call` jest już ucięty · 2026-11-11 · AKTYWNA
 
 - **Objaw:** `relai-input-router` (E3) dał notatki do `cat` logu 127 754 znaków; Haiku zobaczył 355

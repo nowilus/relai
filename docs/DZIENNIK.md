@@ -3606,3 +3606,80 @@ L-0324.
 słusznie przepuszcza jako plik procesu — pierwszy odczyt nie mierzył notatek (L-0323); log
 pomiarowy wygenerowany przez `node -e` z `\n` wbrew zasadzie 5 — wynik sprawdzony (1500 linii),
 dalsze skrypty narzędziem Write (L-0324).
+
+### 2026-11-11 — MODY_OSZCZEDZANIA E4: konektory MCP i panel przekazań w `relai-input-router`
+
+Autor: RelAI (Opus 5.5) + Lukasz
+
+**Zrobione:**
+
+- Sonda kształtu wyniku MCP przed kodem (mod `relai-e4-sonda` w dev-mods, sześć konektorów, dwa
+  przebiegi): `ran.result` to tablica bloków, nie `McpToolResult` z typów; bez `server` w `e`
+  ([POMIAR_E4.md](plany/MODY_OSZCZEDZANIA/POMIAR_E4.md), P-066).
+- `input-router/hooks/connectors.ts` (czysta logika): < 16 000 znaków dosłownie; JSON bez pustych
+  pól ≤ 8000 → bez Haiku (`trim`); wartości tekstowe cięte do 1200, gdy cięcie zabiera ≤ 20% i wynik
+  mieści się w 8000 → bez Haiku (`cut`); inaczej Haiku na widoku po obcięciu pustych pól, kawałki
+  128 000 (najwyżej 6, długa linia dzielona, prompt ≤ 150 000); lista nietykanych ze specyfikacji
+  + konektory RelAI + (decyzja Łukasza po recenzji) „mods” czytane jako narzędzia modów i pluginów:
+  serwery `plugin_*` i nazwy z `enabledPlugins`; liczba całkowita ≥ 16 cyfr → bez parsowania JSON.
+- `register.tsx`: hook `tool.call` z dopasowaniem `/^mcp__/` przez `handOff` (pamięć, skaner,
+  rekord, kopia pełnej treści `copyText`), wynik jako jeden blok tekstu; sekret w JSON-ie
+  obcinanym lokalnie → wynik dosłowny i brak kopii; `/relai-input-router off|on connector` i `pane`.
+- Panel przekazań (`pane.ts` czysty + rysunek w `register.tsx`): karta na przekazanie (stan
+  słowem i znakiem, narzędzie, ścieżka, tokeny przed → po, koszt Haiku z cennika projektu),
+  przyciski „Notes” i „Full result” (treść w miejscu, „Copy path”), przełączniki „Next read whole”,
+  „Files”, „Connectors”; poniżej 144 kolumn przyciski pod słowami. Rdzeń `pricing.mjs` (i jego
+  importy) dociągnięty do `input-router/hooks/core` przez `sync-panel-core` (bez zmiany skryptu).
+- Typy stanu (`at`, `copy`, `notes`, `helperIn/out`, `shown`), opis w `plugin.json` bez zmiany wersji.
+- Recenzja `typescript-reviewer` (1 CRITICAL, 2 HIGH, 6 MEDIUM, 3 LOW): CRITICAL rozstrzygnięty
+  przez Łukasza („mods” = narzędzia modów), oba HIGH naprawione z testami (duże liczby; notatki
+  i kopia na tym samym widoku), MEDIUM — skaner przed kopią lokalną naprawiony; `args` (sonda: `e`
+  ma tylko argumenty), zgoda dla ścieżki lokalnej (zgoda dotyczy modu w projekcie) i wspólne `full`
+  odrzucone z uzasadnieniem; `isError` bez pomiaru — zostaje gałąź z typów; LOW: `__proto__`,
+  pusty zakres linii luki, klucze kart po czasie — naprawione.
+- Po pomiarze: zdanie „Read small ranges of …” dla konektora wskazuje kopię, nie nazwę narzędzia.
+
+**Zweryfikowane — jak dokładnie:**
+
+- Testy przed → po: guardrails 33, process 430, panel (rdzeń) 254, `mods` 91, `panel` 220,
+  `progress` 51, `cache-keeper` 206, `browser` 28 bez zmian; `input-router` 47 → 79;
+  `plugin validate input-router` ✔; `sync-panel-core --check` zgodne (23 pliki, 16 ikon, 6 celów).
+- Dowód negatywny (zasada 3): nietykane (`Claude_Browser`, `ccd_session`, `relai_panel`) z wynikiem
+  ~40 tys. znaków → 0 wywołań Haiku, wynik identyczny, brak rekordu; mutacja listy (bez
+  `claude_browser`) → 3 testy czerwone, mutacja reguły `ccd_` → 2 czerwone; cofnięte → zielono.
+- Skaner: duży wynik konektora z kluczem `sk-…` (z kawałków) → 0 wywołań, dosłownie; bez klucza → 1.
+- Pomiar na żywo bez człowieka: `guide` 35 833 zn. → notatki 8 959 → 1 900 tokenów (Haiku 14 493 /
+  4 296, 19,3 s), drugi raz z pamięci; konektor mały i nietykany dosłownie; `savingsView` = surowy
+  rejestr co do tokena (2 rekordy, 14 118 tokenów, $0,0036 Haiku).
+- `trivy fs --scanners vuln .` → 0 CRITICAL, 42 HIGH (jak po E3); brak nowych zależności npm;
+  `git grep --untracked` po wzorcu klucza w `input-router/` i planie → 0.
+- Bramka pomiaru: BenAI `input-router@token-saving-mods` wyłączony za zgodą Łukasza i włączony po
+  pomiarze; `/reload-plugins` nie zrobiono (Łukasz poza komputerem). Artefakty spoza katalogu:
+  `relai-e4-sonda` i kopia `relai-input-router` w `~/.claude/dev-mods/3ff5d516…/` skasowane; kopia
+  pełnej treści i notatki z pomiaru w `~/.claude/relai/oszczednosci/input-router/` (po 1 pliku)
+  zostają do retencji 14 dni; pliki sondy w scratchpadzie sesji (tymczasowe).
+- Katalog roboczy E4: 1 plik (`suma.mjs`), 4 KB → 0 — skasowany na polecenie „dokończ sam”.
+
+**Niezaliczone:** punkt Weryfikacji „karta panelu kliknięta przez człowieka (notatki, pełny wynik,
+`full`)” — panel otwiera komenda wpisana przez człowieka, a przyciski desktopu klika człowiek
+(L-0289); sprawdzone tylko w `plugin test` (montaż, `press`). Ścieżka `trim`/`cut` bez dużego
+JSON-a na żywo — tylko testy. Łukasz zamknął E4 mimo to („Zamknij E4 bez tego”); punkt w promptcie
+zostaje pusty z adnotacją, sprawdzenie na żywo przechodzi do pomiaru E10.
+
+**Świadomie odłożone:**
+
+- Rozpoznanie wyniku błędu konektora na żywo (`isError` nie wystąpił w sondzie) — przy pomiarze E10.
+- Jedno `full` dla plików i konektorów — zgodnie ze specyfikacją („następny duży odczyt”).
+- Kliknięcie karty panelu przekazań przez człowieka i ścieżka `trim`/`cut` na żywo — do pomiaru
+  E10 (decyzja Łukasza przy zamknięciu E4).
+
+**Do zrobienia przez człowieka:** — (kliknięcie karty — ROZSTRZYGNIĘTE 2026-11-11: przeniesione do
+E10 decyzją Łukasza)
+
+**Ryzyka:** R6 (zawyżone oszczędności) — „przed” liczone z pełnego wyniku, nie z widoku po
+obcięciu; poziom bez zmian. R8 (treść jako instrukcja) — notatki z dokumentu-instrukcji (`guide`
+Docs) zastępują instrukcję streszczeniem: konektor zwykły wg specyfikacji, obserwować w E10. C1,
+C10 bez zmian. Pułapka P-066, lekcje L-0325, L-0326.
+
+**Uwagi procesowe:** sześć pierwszych poleceń z `cd <repo> &&` (L-0325); zdublowana nazwa funkcji
+kosztowała trzy próby diagnozy (L-0326).

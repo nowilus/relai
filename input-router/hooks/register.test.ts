@@ -18,7 +18,7 @@ const NOTES = 'L1-L400: a log of lorem lines; nothing failed.'
 
 type World = { calls: { model: string, prompt: string }[], disk: Record<string, string>, logs: string[], runs: string[][], answer: () => unknown }
 
-function world(on: On, files: Record<string, string>, opts: { consent?: boolean, twin?: boolean, pdf?: { info: string | null, text: string }, links?: Record<string, string> } = {}): World {
+function world(on: On, files: Record<string, string>, opts: { consent?: boolean, twin?: boolean, pdf?: { info: string | null, text: string }, links?: Record<string, string>, mcp?: string } = {}): World {
   const w: World = {
     calls: [], logs: [], runs: [],
     answer: () => ({ isAnswered: true, text: NOTES, usage: { input_tokens: 9000, output_tokens: 300, cache_read_input_tokens: 0, cache_creation_input_tokens: 0 } }),
@@ -63,6 +63,8 @@ function world(on: On, files: Record<string, string>, opts: { consent?: boolean,
   on('ui.toast', ($, e) => { w.logs.push('toast ' + JSON.stringify(e)); return { value: undefined } as never })
   on('tool.call', ($, e) => {
     const x = e as unknown as { tool: string, file_path?: string, command?: string }
+    // A connector answers as the probe E4 saw it: the block array itself, one text block
+    if (x.tool.startsWith('mcp__')) return { result: [{ type: 'text', text: opts.mcp ?? '' }], text: opts.mcp ?? '' } as never
     if (x.tool === 'Bash') {
       const m = /^cat (\S+)$/.exec(String(x.command))
       const out = m ? (w.disk[`${CWD}/${m[1]}`] ?? '') : big('git', 300)
@@ -286,5 +288,137 @@ describe('input-router: PDF', () => {
     await start($)
     expect(contentOf(await readOf($, `${CWD}/doc.pdf`))).toBe('%PDF-1.7 binary')
     expect(w.calls.length).toBe(0)
+  })
+})
+
+// E4: MCP connectors and the hand-off pane
+type McpOut = { result: { type: string, text: string }[] }
+const mcpOf = async ($: Engine, tool: string): Promise<McpOut> =>
+  await $.tool.call({ tool, query: 'open issues', tool_use_id: 'toolu_mcp' } as never) as unknown as McpOut
+const PANE = { plugin: 'relai-input-router', component: 'Pane', requestId: 'relai-input-router', props: { title: 'RelAI Input Router', isFocused: false, bodyColumns: 160, placement: 'dock', scroll: { offset: 0, bodyRows: 40 }, view: {} } } as const
+
+describe('input-router: connectors (rule 3: negative proof on the untouched list)', () => {
+  for (const tool of ['mcp__Claude_Browser__get_page_text', 'mcp__ccd_session__list_sessions', 'mcp__relai_panel__state']) {
+    test(`${tool}: a large result reaches Claude exactly as given, 0 helper calls, no record`, async ($, on) => {
+      const text = big('page', 600)
+      const w = world(on, {}, { mcp: text })
+      await start($)
+      const out = await mcpOf($, tool)
+      expect(out.result).toEqual([{ type: 'text', text }])
+      expect(w.calls.length).toBe(0)
+      expect(ledger(w)).toBe('')
+    })
+  }
+  test('an untouched connector under 16 000 characters: unchanged too', async ($, on) => {
+    const text = big('small', 50)
+    const w = world(on, {}, { mcp: text })
+    await start($)
+    expect((await mcpOf($, 'mcp__Claude_Browser__read_page')).result).toEqual([{ type: 'text', text }])
+    expect(w.calls.length).toBe(0)
+  })
+  test('an ordinary connector, large text: exactly 1 helper call, notes as one text block, the whole result copied', async ($, on) => {
+    const text = big('issue', 600)
+    const w = world(on, {}, { mcp: text })
+    await start($)
+    const out = await mcpOf($, 'mcp__github__list_issues')
+    expect(w.calls.length).toBe(1)
+    expect(out.result.length).toBe(1)
+    expect(out.result[0].text).toContain('[RelAI input-router] Notes on mcp__github__list_issues')
+    const copy = /Full content: (\S+)/.exec(out.result[0].text)?.[1] ?? ''
+    expect(w.disk[copy]).toBe(text)
+    // Live E4: the reading hint names the copy, not the tool (a tool name cannot be Read)
+    expect(out.result[0].text).toContain(`Read small ranges of ${copy}`)
+    expect(ledger(w)).toContain('"tool":"mcp__github__list_issues"')
+    expect(ledger(w)).toContain('"measured":true')
+  })
+  test('an ordinary connector, small result: whole, 0 calls', async ($, on) => {
+    const text = big('issue', 20)
+    const w = world(on, {}, { mcp: text })
+    await start($)
+    expect((await mcpOf($, 'mcp__github__list_issues')).result).toEqual([{ type: 'text', text }])
+    expect(w.calls.length).toBe(0)
+  })
+  test('JSON with empty fields: trimmed here, 0 helper calls, a record that claims no helper', async ($, on) => {
+    const rows = Array.from({ length: 150 }, (_, i) => ({ id: i, title: `t${i}`, body: '', labels: [], meta: {}, closed: null, assignee: null, milestone: null, notes: '', extra: { a: null } }))
+    const w = world(on, {}, { mcp: JSON.stringify(rows, null, 2) })
+    await start($)
+    const out = await mcpOf($, 'mcp__github__list_issues')
+    expect(w.calls.length).toBe(0)
+    expect(out.result[0].text).toContain('empty fields dropped')
+    expect(ledger(w)).toContain('"action":"trim"')
+    expect(ledger(w)).toContain('"measured":false')
+  })
+  test('a key in a large connector result: 0 helper calls, the result whole', async ($, on) => {
+    const text = big('issue', 300) + `token = ${KEY}\n` + big('more', 300)
+    const w = world(on, {}, { mcp: text })
+    await start($)
+    expect((await mcpOf($, 'mcp__github__list_issues')).result).toEqual([{ type: 'text', text }])
+    expect(w.calls.length).toBe(0)
+  })
+  test('a key in JSON trimmed here: no copy on disk, the result whole', async ($, on) => {
+    const rows = Array.from({ length: 150 }, (_, i) => ({ id: i, title: `t${i}`, body: '', labels: [], meta: {}, closed: null, assignee: null, milestone: null, notes: '', extra: { a: null } }))
+    const text = JSON.stringify([...rows, { token: KEY }], null, 2)
+    const w = world(on, {}, { mcp: text })
+    await start($)
+    expect((await mcpOf($, 'mcp__github__list_issues')).result).toEqual([{ type: 'text', text }])
+    expect(Object.keys(w.disk).filter((p) => p.includes('/pelne/'))).toEqual([])
+    expect(w.calls.length).toBe(0)
+  })
+  test('the helper fails: Claude gets the plain result', async ($, on) => {
+    const text = big('issue', 600)
+    const w = world(on, {}, { mcp: text })
+    w.answer = () => ({ isAnswered: false, reason: 'timeout' })
+    await start($)
+    expect((await mcpOf($, 'mcp__github__list_issues')).result).toEqual([{ type: 'text', text }])
+  })
+  test('off connector: results pass whole; on connector: handed off again; files keep their own switch', async ($, on) => {
+    const text = big('issue', 600)
+    const w = world(on, {}, { mcp: text })
+    await start($)
+    await $.command.run({ command: 'relai-input-router', args: 'off connector', origin: { kind: 'composer' } } as never)
+    expect((await mcpOf($, 'mcp__github__list_issues')).result).toEqual([{ type: 'text', text }])
+    expect(w.calls.length).toBe(0)
+    await $.command.run({ command: 'relai-input-router', args: 'off file', origin: { kind: 'composer' } } as never)
+    await $.command.run({ command: 'relai-input-router', args: 'on connector', origin: { kind: 'composer' } } as never)
+    await mcpOf($, 'mcp__github__list_issues')
+    expect(w.calls.length).toBe(1)
+  })
+})
+
+describe('input-router: the hand-off pane', () => {
+  test('a card per hand-off with its numbers; Notes opens the notes in place, Connectors off flips the switch', async ($, on) => {
+    const prices = JSON.stringify({ v: 1, versions: [{ date: '2026-10-09', source: 'test', from: 0, models: { 'claude-haiku-5-5': { input: 1, output: 5 } } }] })
+    world(on, { [`${CWD}/.claude/relai/panel/cennik.json`]: prices }, { mcp: big('issue', 600) })
+    on('ui.open', () => ({ value: { isPlaced: true } }) as never)
+    on('ui.invalidate', () => ({ value: undefined }) as never)
+    await start($)
+    await mcpOf($, 'mcp__github__list_issues')
+    for (const columns of [160, 60]) {
+      const ui = await $.ui.mount({ ...PANE, surface: 'desktop', viewport: { columns, rows: 40 } } as never)
+      expect((await ui.find({ type: 'Text', text: /1 hand-offs · ~/ }))?.text).toContain('tokens kept out of the chat')
+      expect((await ui.find({ type: 'Text', text: /notes · mcp__github__list_issues/ }))).toBeTruthy()
+      expect((await ui.find({ type: 'Text', text: /→ ~\d+ tokens · Haiku \$/ }))).toBeTruthy()
+      await ui.unmount()
+    }
+    const ui = await $.ui.mount({ ...PANE, surface: 'desktop', viewport: { columns: 160, rows: 40 } } as never)
+    const notes = await ui.find({ type: 'Button', text: /^Notes$/ }) as unknown as { key: string } | undefined
+    expect(notes?.key).toMatch(/^\d{4}-\d{2}-\d{2}T.*~n$/)
+    await ui.press({ key: String(notes?.key) })
+    expect((await ui.find({ type: 'Text', text: /a log of lorem lines/ }))).toBeTruthy()
+    await ui.press({ key: 'sw-conn' })
+    await ui.unmount()
+    const out = await $.command.run({ command: 'relai-input-router', args: '', origin: { kind: 'composer' } } as never) as unknown as { text: string }
+    expect(out.text).toContain('connectors off')
+  })
+  test('the pane command opens the pane; no hand-offs yet says so', async ($, on) => {
+    world(on, {})
+    let opened = ''
+    on('ui.open', ($, e) => { opened = String((e as unknown as { id: string }).id); return { value: { isPlaced: true } } as never })
+    await start($)
+    await $.command.run({ command: 'relai-input-router', args: 'pane', origin: { kind: 'composer' } } as never)
+    expect(opened).toBe('relai-input-router')
+    const ui = await $.ui.mount({ ...PANE, surface: 'terminal' } as never)
+    expect((await ui.find({ type: 'Text', text: /No hand-offs yet/ }))).toBeTruthy()
+    await ui.unmount()
   })
 })
