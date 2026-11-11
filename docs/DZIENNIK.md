@@ -74,7 +74,9 @@
 
 ## Czeka na człowieka
 - **Jeden katalog `skills/` w standardzie Agent Skills dla trzech narzędzi** — zdjąłby kopię Codeksa (~4300 linii) i generator, ale zmienia zamrożoną D-89 i kształt adapterów; plan, odnoga czy odrzucić (audyt AUDYT_SKILLI, wiersz 50 raportu) · 2026-10-11 · [wpis 2026-10-11 — research, audyt, plan](archiwum/dziennik/DZIENNIK_2026-10-11_2026-10-12.md#2026-10-11--research-nowej-sesji-audyt-skilli-i-plan-limit_checkpoint)
+  *(odroczone 2026-11-11, odroczeń: 1)*
 - **AUDYT_MODOW — ustalenia poza zakresem (5 pozycji `outOfScope` raportu)** — odchudzenie kopii rdzenia per plugin (`sync-panel-core`), `headings.mjs` 254 KB w progress i cache-keeperze, % limitu per etap w rdzeniu, `userConfig` cache-keepera, przedrostek `relai-` jego komend; plus wariant B „jedna listwa” jako kandydat na plan — decyzja: plan, odnoga albo odrzucić · 2026-10-11 · [wpis 2026-10-11 — Z13, Z14 i zamknięcie odnogi](archiwum/dziennik/DZIENNIK_2026-10-11_2026-10-12.md#2026-10-11--audyt_modow-z13-i-z14-wydanie-0120-i-zamknięcie-odnogi)
+  *(rozstrzygnięte 2026-11-11 — wchłonięte w plan integracji modów oszczędzających tokeny; ustalenia dotyczące modów wchodzą tam jako zakres dodatkowy)*
 - **PANEL_CODEX E1 — próba przycisków minimalnego pakietu i świeżego kontekstu** — w macierzystym czacie nadal proces 0.0.7/PID 62300; po restarcie sprawdzić sondę 0.0.9 (także fonty), nowy szkic i jego rzeczywisty projekt/kontekst. Wygląd już zaakceptowany · 2026-10-10 · [wpis — Panel i mostek](archiwum/dziennik/DZIENNIK_2026-10-09_2026-10-10.md#2026-10-10--panel_codex-e1-natywny-widok-minimalny-pakiet-i-mostek-bieżącego-czatu)
   *(odroczone 2026-11-10, odroczeń: 1)*
 
@@ -95,6 +97,7 @@
   potwierdzenie albo sprzeciw** · 2026-08-20 ·
   [wpis 2026-09-01 — Osiem bramek z listy zamkniętych](archiwum/dziennik/DZIENNIK_2026-09-01_2026-09-03.md#2026-09-01--osiem-bramek-z-listy-zamkniętych-plan-rozwoj_po_wydaniu-zamrożony-formalnie)
   *(odroczone 2026-10-11, odroczeń: 2)*
+  *(rozstrzygnięte 2026-11-11 — potwierdzone: 83 dni bez sprzeciwu, Łukasz zamyka)*
 
 - **Ryzyko R2 zamknięte na nieaktualnej przesłance** — 2026-09-03 zamknięto je zdaniem „nie zostanie
   zmierzone nigdy", opartym na wyczerpanym limicie `claude -p` (L-0032). W E1 tego samego dnia
@@ -3314,3 +3317,43 @@ sesji do końca etapu), L-0319 (runner Windows robi checkout z `autocrlf=true`);
 
 - Restart aplikacji dla sesji desktopu działających sprzed `plugin update` (P-005).
   *(rozstrzygnięte 2026-11-10 — Łukasz restartuje po zakończeniu tej sesji)*
+
+### 2026-11-11 — Plan MODY_OSZCZEDZANIA: pięć modów oszczędzania tokenów na wzór paczki BenAI
+
+Autor: RelAI (Opus 5.5) + Lukasz
+
+**Zrobione:**
+
+- Przegląd spraw przeterminowanych: `skills/` odroczone (licznik 1), AUDYT_MODOW wchłonięty
+  w nowy plan (trzy z pięciu ustaleń: odchudzenie kopii rdzenia, `headings.mjs`, `userConfig`
+  i przedrostek `relai-cache-keeper`), osiem rozstrzygnięć E2 zamknięte jako potwierdzone.
+- Analiza sześciu modów paczki `token-saving-mods` (Ben AI): `input-router`, `effort-optimizer`,
+  `efficient-browser-use`, `savings-proof`, `model-router`, `research-router` — sześciu
+  subagentów, wynik zapisany jako załącznik
+  [SPECYFIKACJA_FUNKCJI.md](plany/MODY_OSZCZEDZANIA/SPECYFIKACJA_FUNKCJI.md).
+- Cztery rundy wywiadu i plan [MODY_OSZCZEDZANIA](plany/MODY_OSZCZEDZANIA/STATUS.md)
+  (`PLAN.html` z symulatorem, 10 etapów, 15–25 sesji — SZACUNEK), status DO AKCEPTACJI.
+
+**Rozstrzygnięcia Łukasza (wywiad):** własna implementacja (paczka bez licencji poza
+`model-router` MIT); pięć osobnych modów z przedrostkiem `relai-` + zakładka „Oszczędności”
+w `relai-panel` (inna miara niż „Koszty”); paczka BenAI wyłączona po migracji; zgoda raz na
+projekt; skaner sekretów przed Haiku; `relai-effort` 1:1 z Sonnet; liczby zmierzone i szacowane
+osobno; 1:1 + naprawy wykrytych wad; model jawny chroniony kartą (różna sugestia → decyzja
+człowieka, „na resztę sesji”), `/relai-crew` — jedna karta przed startem, sesja bez człowieka —
+sugestia routera stosowana.
+
+**Obserwacja:** paczka BenAI jest aktywna na tej maszynie — Input Router zamieniał na notatki
+Haiku także odczyty specyfikacji RelAI (`SPEC_PLAN.md`, `SPEC_STATUS.md`); stąd w planie
+przepustka plików procesu RelAI.
+
+**Świadomie odłożone:** „% limitu per etap w rdzeniu” (piąte ustalenie AUDYT_MODOW) — funkcja
+procesu, nie modów.
+
+**Akceptacja (ta sama sesja):** Łukasz zaakceptował plan bez poprawek („Akceptuję”) — status
+ZAAKCEPTOWANY 2026-11-11, plan zamrożony (D-33), E1 GOTOWY DO STARTU z
+[PROMPT_ETAP_1.md](plany/MODY_OSZCZEDZANIA/PROMPT_ETAP_1.md); liczby wyjściowe testów w
+`.claude/relai/work/MODY_OSZCZEDZANIA/E1/BAZA.md`. Start: świeża sesja Opus i `/relai-stage`.
+
+**Uwaga procesowa:** pierwszą część tego wpisu dopisałem heredokiem w powłoce, wbrew regule
+„tekst dokumentu z backtickiem tylko przez Edit/Write” (L-0198, L-0207); treść sprawdzona po
+zapisie — nienaruszona. Ta część poszła już narzędziem Edit.

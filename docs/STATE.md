@@ -126,8 +126,9 @@ PANEL_CODEX (Codex) wstrzymany 2026-10-27 decyzją Łukasza. Opinii spoza projek
 
 ## Nad czym pracujemy teraz
 
-- Aktywnego planu nie ma. Kandydaci: migracja projektów sprzed KONTEKST_STARTU (`/relai-update`)
-  i wybór wariantu dystrybucji G1 — oba w „Co dalej”.
+- Plan [MODY_OSZCZEDZANIA](plany/MODY_OSZCZEDZANIA/STATUS.md) **ZAAKCEPTOWANY 2026-11-11**, E1 gotowy do startu:
+  pięć modów oszczędzania tokenów (własny kod, zachowanie jak paczka BenAI) i zakładka
+  „Oszczędności” w `relai-panel`, 10 etapów. Pozostali kandydaci (`/relai-update`, G1) — w „Co dalej”.
 - **PANEL_CODEX — nieaktywny, WSTRZYMANY 2026-10-27** decyzją Łukasza (plan
   [PANEL_CODEX](plany/PANEL_CODEX/STATUS.md), ZAAKCEPTOWANY 2026-10-10, 8 etapów, Codex
   `gpt-6.1-sol`). Stan zatrzymania E1: natywny widok i wiadomość do bieżącego czatu potwierdzone
