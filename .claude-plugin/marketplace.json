@@ -88,6 +88,22 @@
         "plugins",
         "hooks"
       ]
+    },
+    {
+      "name": "relai-browser",
+      "source": "./browser",
+      "version": "0.1.0",
+      "description": "Early access — needs Claude Code with mods (measured on 2.1.321). RelAI Browser: pictures that tools hand to Claude (browser screenshots, Read of an image, MCP images) are shrunk before Claude reads them — half the longer side by default, never under 512 px — with screenshot coordinates rewritten so clicks still land. Windows and macOS. Asks once per RelAI project; sleeps while the BenAI 'efficient-browser-use' mod is on. /relai-browser full lets the next picture through whole. Every shrink goes to the RelAI savings ledger. No model call, no network.",
+      "category": "productivity",
+      "homepage": "https://github.com/nowilus/relai",
+      "repository": "https://github.com/nowilus/relai",
+      "keywords": [
+        "relai",
+        "tokens",
+        "images",
+        "mods",
+        "early-access"
+      ]
     }
   ]
 }

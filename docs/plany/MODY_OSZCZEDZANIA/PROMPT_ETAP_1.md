@@ -118,35 +118,39 @@ Katalog roboczy etapu: `.claude/relai/work/MODY_OSZCZEDZANIA/E1/` — sondy, zrz
 
 Każdy punkt, który przeszedł, odhaczasz tu (`- [ ]` → `- [x]`) zaraz po sprawdzeniu.
 
-- [ ] Model sesji to Opus 5.5; `git status --short` przed pracą pokazuje tylko `.claude/launch.json`
+- [x] Model sesji to Opus 5.5; `git status --short` przed pracą pokazuje tylko `.claude/launch.json`
       (albo człowiek rozstrzygnął, co z drzewem).
-- [ ] Przed zmianą — liczby wyjściowe zmierzone 2026-11-11: `node --test "core/guardrails/tests/*.test.js"`,
+- [x] Przed zmianą — liczby wyjściowe zmierzone 2026-11-11: `node --test "core/guardrails/tests/*.test.js"`,
       `node --test "core/process/tests/*.test.*"`, `node --test "core/panel/tests/*.test.*"` oraz
       `"$CLAUDE_CODE_EXECPATH" plugin test mods|panel|progress|cache-keeper` — wartości
       z pliku `.claude/relai/work/MODY_OSZCZEDZANIA/E1/BAZA.md` (inna liczba → zatrzymaj się i zapytaj).
-- [ ] `SONDY.md` ma wynik każdego punktu z Zakresu pkt 2 z dwoma przebiegami; rozjazd ze specyfikacją
+- [x] `SONDY.md` ma wynik każdego punktu z Zakresu pkt 2 z dwoma przebiegami; rozjazd ze specyfikacją
       rozstrzygnięty z Łukaszem przed kodem.
-- [ ] Testy rdzenia: nowe testy `savings-gates`, `savings-ledger` i parytetu wzorców zielone; stare
+- [x] Testy rdzenia: nowe testy `savings-gates`, `savings-ledger` i parytetu wzorców zielone; stare
       liczby bez spadku; dowód negatywny (zasada 3): fikstura z kluczem `sk-…` nie trafia do argumentu
       wywołania pomocnika (atrapa liczy wywołania = 0) — i kontrola pozytywna: fikstura bez sekretu
       daje 1 wywołanie.
-- [ ] Plik procesu RelAI (fikstura `docs/STATE.md` w projekcie z markerem) przechodzi bramkę jako
+- [x] Plik procesu RelAI (fikstura `docs/STATE.md` w projekcie z markerem) przechodzi bramkę jako
       „dosłownie”; plik spoza listy — nie (obie strony testem).
-- [ ] `"$CLAUDE_CODE_EXECPATH" plugin validate browser` → „✔ Validation passed”;
+- [x] `"$CLAUDE_CODE_EXECPATH" plugin validate browser` → „✔ Validation passed”;
       `plugin test browser` → wszystkie zielone; pozostałe cztery mody bez spadku liczby testów.
-- [ ] `node core/tools/sync-panel-core.js --check` → zgodne, w tym cel `browser`.
-- [ ] Pomiar na żywo (Zakres pkt 6) zapisany w katalogu roboczym: wymiary przed i po, tokeny,
+- [x] `node core/tools/sync-panel-core.js --check` → zgodne, w tym cel `browser`.
+- [x] Pomiar na żywo (Zakres pkt 6) zapisany w katalogu roboczym: wymiary przed i po, tokeny,
       rekord w `rejestr.jsonl`; WebP bez zmian; `full` przepuszcza jeden obraz; bliźniak → uśpienie.
-- [ ] Karta zgody pojawia się raz; po „tak” wiersz „Mody oszczędzania” stoi w `docs/USTAWIENIA.md`,
+- [x] Karta zgody pojawia się raz; po „tak” wiersz „Mody oszczędzania” stoi w `docs/USTAWIENIA.md`,
       a druga sesja w tym projekcie nie pyta.
 - [ ] `node core/tools/release-check.js` — brak czerwonego `diff` dla nowych plików (wiersz `mod-browser`).
-- [ ] Bezpieczeństwo: `trivy fs --scanners vuln .` → 0 nowych CRITICAL i HIGH wobec wpisu E14 planu
+      **NIE PRZESZEDŁ — rozstrzygnięte przez Łukasza 2026-11-11:** narzędzie kończy się kodem 2
+      („brak bazy modu relai-browser”), bo nie zna pierwszego wydania modu; wiersz `mod-browser`
+      dopisany, nowe pliki w `browser/**`, `core/panel/**`, `core/tools/**` mają wzorce w mapie;
+      obsługa pierwszego wydania modu — świadomie odłożona do E10.
+- [x] Bezpieczeństwo: `trivy fs --scanners vuln .` → 0 nowych CRITICAL i HIGH wobec wpisu E14 planu
       OPTYMALIZACJA_PO_AUDYCIE (0 CRITICAL, 42 HIGH); brak nowych zależności npm.
-- [ ] Granica: `git status --short` pokazuje wyłącznie `browser/**`, nowe pliki `core/panel/**`,
+- [x] Granica: `git status --short` pokazuje wyłącznie `browser/**`, nowe pliki `core/panel/**`,
       ewentualnie `core/guardrails/**` (jedno źródło wzorców), `core/tools/sync-panel-core.js`,
       `core/tools/release-map.json`, `.claude-plugin/marketplace.json`, `docs/USTAWIENIA.md`
       i dokumenty rytuału.
-- [ ] Katalog roboczy `.claude/relai/work/MODY_OSZCZEDZANIA/E1/` przejrzany
+- [x] Katalog roboczy `.claude/relai/work/MODY_OSZCZEDZANIA/E1/` przejrzany
       (`node .claude/relai/tools/clean-work.js raport`; katalog otwartego etapu raport pomija — wtedy
       `find`/`du`), skasowany po „tak”, liczby przed i po we wpisie; kopia sondy `relai-sonda-e1`
       w dev-mods i artefakty spoza katalogu wypisane z nazwy z tym, co się z nimi stało.

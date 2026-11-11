@@ -1,0 +1,10 @@
+{
+  "name": "relai-browser",
+  "version": "0.1.0",
+  "author": { "name": "nowilus", "url": "https://github.com/nowilus" },
+  "description": "Early access — needs Claude Code with mods (measured on 2.1.321). RelAI Browser: pictures that tools hand to Claude (browser screenshots, Read of an image, MCP images) are shrunk before Claude reads them, so they cost fewer tokens — half the longer side by default, never under 512 px; JPEG stays JPEG (quality 85), the rest becomes PNG; screenshot coordinates are rewritten so clicks still land. Windows (PowerShell + System.Drawing) and macOS (sips); elsewhere pictures pass unchanged. Asks once per RelAI project (row 'Mody oszczędzania' in docs/USTAWIENIA.md) and stays passive in a session with no person before that answer. Sleeps while the BenAI 'efficient-browser-use' mod is on. /relai-browser full lets the next picture through whole; scale, min and pane change the defaults and open the list. Every shrink goes to the RelAI savings ledger (~/.claude/relai/oszczednosci/rejestr/). No model call, no network.",
+  "homepage": "https://github.com/nowilus/relai",
+  "repository": "https://github.com/nowilus/relai",
+  "license": "MIT",
+  "types": "./types/index.d.ts"
+}

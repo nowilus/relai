@@ -38,10 +38,15 @@ const SRC = path.join(ROOT, 'core', 'panel');
 // Plugin folders that carry the core, and where; one whose folder is absent is skipped.
 // relai-cache-keeper has a hooks/core.ts of its own, so its copy lives in hooks/relai/.
 // relai-mods joined in E3 of plan RELAI_MODS (Annex B), for the theme keys of its cockpit.
-const PLUGINS = [['panel', 'panel/hooks/core'], ['progress', 'progress/hooks/core'], ['cache-keeper', 'cache-keeper/hooks/relai'], ['mods', 'mods/hooks/core']];
+// relai-browser joined in E1 of plan MODY_OSZCZEDZANIA (the first token-saving mod).
+const PLUGINS = [['panel', 'panel/hooks/core'], ['progress', 'progress/hooks/core'], ['cache-keeper', 'cache-keeper/hooks/relai'], ['mods', 'mods/hooks/core'], ['browser', 'browser/hooks/core']];
 const present = () => PLUGINS.filter(([p]) => fs.existsSync(path.join(ROOT, p)));
 const ICONS = path.join(ROOT, 'docs', 'zasoby', 'branding', 'ikony');
 const ICONS_MODULE = 'icons.mjs';
+// The secret scanner for mods: ESM made from core/guardrails/secret-scan.js, the one source of
+// the patterns (plan MODY_OSZCZEDZANIA, E1). Like icons.mjs it is generated, never copied.
+const SECRET_MODULE = 'secret-scan.mjs';
+const SECRET_TOOL = path.join(__dirname, 'secret-scan-esm.js');
 // A relative specifier of a static import or re-export, a bare import, or a dynamic import()
 const SPEC = /(?:\bimport|\bexport)\s[^'"]*?\bfrom\s*['"](\.{1,2}\/[^'"]+)['"]|\bimport\s*['"](\.{1,2}\/[^'"]+)['"]|\bimport\(\s*['"](\.{1,2}\/[^'"]+)['"]\s*\)/g;
 
@@ -74,16 +79,16 @@ function ownFiles(plugin, copyDir) {
 }
 
 // The core files one mod reaches, sorted: from its own files, then what each core file imports
-function wanted(plugin, rel, names, icons) {
+function wanted(plugin, rel, names, gen) {
   const dir = toDir(rel);
-  const known = new Set(icons === null ? names : [...names, ICONS_MODULE]);
+  const known = new Set([...names, ...Object.keys(gen)]);
   const stack = ownFiles(plugin, dir).flatMap((f) => specsOf(f).map((s) => coreName(path.dirname(f), s, dir, known))).filter(Boolean);
   const want = new Set();
   while (stack.length) {
     const n = stack.pop();
     if (want.has(n)) continue;
     want.add(n);
-    if (n === ICONS_MODULE) continue;
+    if (n in gen) continue;
     for (const s of specsOf(path.join(SRC, n))) {
       const next = coreName(SRC, s, SRC, known);
       if (next) stack.push(next);
@@ -108,19 +113,33 @@ function iconsModule() {
   ].join('\n');
 }
 
-function checkOne(rel, want, names, icons) {
+// Generated modules: name -> text. Each only when its source is in the repo (a tree without
+// the icon folder or without the scanner has nothing of that kind to carry).
+const GEN_SOURCE = { [ICONS_MODULE]: 'docs/zasoby/branding/ikony/', [SECRET_MODULE]: 'core/guardrails/secret-scan.js' };
+function generated() {
+  const gen = {};
+  const icons = iconsModule();
+  if (icons !== null) gen[ICONS_MODULE] = icons;
+  if (fs.existsSync(SECRET_TOOL)) {
+    const tool = require(SECRET_TOOL);
+    if (fs.existsSync(tool.SOURCE)) gen[SECRET_MODULE] = tool.build();
+  }
+  return gen;
+}
+
+function checkOne(rel, want, names, gen) {
   const DST = toDir(rel);
   const have = fs.existsSync(DST) ? fs.readdirSync(DST).filter((n) => n.endsWith('.mjs')).sort() : [];
   const problems = [];
   for (const n of want) {
     const dst = path.join(DST, n);
-    if (n === ICONS_MODULE) {
-      if (!fs.existsSync(dst)) problems.push('brak ' + rel + '/' + ICONS_MODULE + ' (ikony komend)');
-      else if (lf(fs.readFileSync(dst)) !== icons) problems.push(rel + '/' + ICONS_MODULE + ' rozni sie od docs/zasoby/branding/ikony/');
+    if (n in gen) {
+      if (!fs.existsSync(dst)) problems.push('brak ' + rel + '/' + n + ' (generowany z ' + GEN_SOURCE[n] + ')');
+      else if (lf(fs.readFileSync(dst)) !== gen[n]) problems.push(rel + '/' + n + ' rozni sie od ' + GEN_SOURCE[n]);
     } else if (!fs.existsSync(dst)) problems.push('brak kopii ' + rel + '/' + n);
     else if (lf(fs.readFileSync(dst)) !== lf(fs.readFileSync(path.join(SRC, n)))) problems.push('kopia ' + rel + '/' + n + ' rozni sie od core/panel/' + n);
   }
-  const known = new Set(icons === null ? names : [...names, ICONS_MODULE]);
+  const known = new Set([...names, ...Object.keys(gen)]);
   for (const n of have) {
     if (want.includes(n)) continue;
     problems.push(known.has(n) ? 'kopia nadmiarowa ' + rel + '/' + n + ' - zaden plik modu jej nie importuje' : rel + '/' + n + ' nie ma zrodla w core/panel/');
@@ -130,24 +149,24 @@ function checkOne(rel, want, names, icons) {
 
 function check() {
   const names = sources();
-  const icons = iconsModule();
+  const gen = generated();
   const to = present();
-  const copies = Object.fromEntries(to.map(([p, rel]) => [rel, wanted(p, rel, names, icons)]));
-  const problems = to.flatMap(([, rel]) => checkOne(rel, copies[rel], names, icons));
-  const iconCount = icons === null ? 0 : fs.readdirSync(ICONS).filter((n) => n.endsWith('.svg')).length;
+  const copies = Object.fromEntries(to.map(([p, rel]) => [rel, wanted(p, rel, names, gen)]));
+  const problems = to.flatMap(([, rel]) => checkOne(rel, copies[rel], names, gen));
+  const iconCount = !(ICONS_MODULE in gen) ? 0 : fs.readdirSync(ICONS).filter((n) => n.endsWith('.svg')).length;
   return { files: names.length, icons: iconCount, dests: to.map(([, rel]) => rel), copies, problems };
 }
 
 function sync() {
   const names = sources();
-  const icons = iconsModule();
-  const known = new Set(icons === null ? names : [...names, ICONS_MODULE]);
+  const gen = generated();
+  const known = new Set([...names, ...Object.keys(gen)]);
   for (const [p, rel] of present()) {
     const DST = toDir(rel);
-    const want = wanted(p, rel, names, icons);
+    const want = wanted(p, rel, names, gen);
     if (want.length) fs.mkdirSync(DST, { recursive: true });
     for (const n of want) {
-      if (n === ICONS_MODULE) fs.writeFileSync(path.join(DST, n), icons);
+      if (n in gen) fs.writeFileSync(path.join(DST, n), gen[n]);
       else fs.copyFileSync(path.join(SRC, n), path.join(DST, n));
     }
     // Only a copy this tool wrote is removed: a name from core/panel/ (or icons.mjs) no file imports

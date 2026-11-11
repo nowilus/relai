@@ -8,6 +8,25 @@ Specyfikacja: `SPEC_PULAPKI.md`.
 
 ## Pułapki
 
+### P-063 — Silnik modów 2.1.321: sześć zachowań zmierzonych sondą E1 planu MODY_OSZCZEDZANIA · 2026-11-11 · AKTYWNA
+
+- **`turn.step` tylko jako generator:** hook `async ($, e, next) => next(e)` → `plugin validate`
+  „No digest … the hook on "turn.step"”; działa `async function* (…) { return yield* next(e) }`.
+  To samo dotyczy `process.spawn`.
+- **`$.fs` nie ma dopisywania** (`read`, `write`, `list`, `exists`); dopisywanie przez odczyt
+  i nadpisanie przy dwóch zdarzeniach naraz zgubiło linię i wstawiło bajty NUL. Obejście: kolejka
+  zapisów w module i plik na sesję (`core/panel/savings-ledger.mjs`).
+- **Read pliku PNG dociera do hooka jako JPEG** (`file.type: 'image/jpeg'`, wymiary bez zmian) —
+  silnik przekodowuje przed `tool.call`.
+- **`session.start.isInteractive` jest `false` także na desktopie z człowiekiem.** Sesję bez
+  człowieka rozpoznaje `prompt.submit.origin.kind`: `composer` (człowiek), `sdk` (`claude -p`),
+  `task-notification` (zdarzenie tła, `isMeta: true`).
+- **Komenda `/…` wpisana przez człowieka nie wywołuje `prompt.submit`** — tylko `command.run`.
+- **Wejście `turn.step` pokazuje `effort` sprzed nadpisania**, a `$.config.list()` nie ma wiersza
+  `effort` — efektu `next({...e, effort})` nie da się odczytać z modu.
+- **Zasięg:** Claude Code 2.1.321, desktop, Windows. Pełne wyniki:
+  `docs/plany/MODY_OSZCZEDZANIA/SONDY.md`.
+
 ### P-062 — `claude plugin update` bez `--scope` podbija tylko zakres bieżącego katalogu · 2026-10-28 · AKTYWNA
 
 - **Objaw (wydanie 3.7.0, maszyna w trybie „RelAI tylko w projektach”):** `claude plugin update
